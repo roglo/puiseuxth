@@ -660,6 +660,34 @@ induction n; intros; [ reflexivity | simpl ].
 constructor; [ rewrite Hlab, Hcd; reflexivity | apply IHn ].
 Qed.
 
+Lemma lap_derivial_1_mul_const : ∀ α (K : field α) a lb,
+  lap_eq K
+    (lap_derivial K 1 (lap_mul K [a] lb))
+    (lap_mul K [a] (lap_derivial K 1 lb)).
+Proof.
+intros α K a lb.
+induction lb as [| b]; intros; simpl.
+ rewrite lap_mul_nil_r.
+ rewrite lap_derivial_nil.
+ rewrite lap_mul_nil_r; reflexivity.
+
+ rewrite lap_mul_cons.
+ do 2 rewrite lap_mul_nil_l.
+ rewrite lap_add_nil_l.
+ rewrite lap_eq_0, lap_add_nil_r.
+ do 2 rewrite lap_derivial_1_cons.
+ rewrite lap_mul_add_distr_l.
+ rewrite IHlb.
+ apply lap_add_compat; [ reflexivity | idtac ].
+ rewrite lap_mul_cons.
+ rewrite fld_mul_0_r.
+ constructor; [ reflexivity | idtac ].
+ rewrite lap_mul_nil_l, lap_add_nil_l.
+ rewrite lap_mul_nil_l.
+ rewrite lap_eq_0, lap_add_nil_r.
+ reflexivity.
+Qed.
+
 Lemma lap_eq_map_ext : ∀ α (f : field α) A g h,
    (∀ a : A, fld_eq f (g a) (h a))
    → ∀ la, lap_eq f (List.map g la) (List.map h la).

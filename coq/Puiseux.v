@@ -1785,103 +1785,6 @@ destruct (zerop i); [ reflexivity | idtac ].
 rewrite fld_opp_0; reflexivity.
 Qed.
 
-(* probablement faux...
-Lemma yyy : ∀ la c₁ n r k,
-  k ≤ r
-  → lap_eq Kx
-      (list_pad r .0 Kx%K
-         (coeff_taylor_lap Kx n la (ps_monom K c₁ 0) k))
-      (coeff_taylor_lap Kx n
-         (lap_mul Kx
-            (lap_power Kx [ps_monom K (.-K c₁)%K 0; ps_monom K .1 K%K 0 … []]
-               r) la)
-         (ps_monom K c₁ 0) k).
-Proof.
-intros la c₁ n r k Hkr.
-clear Hkr.
-revert la r k.
-induction n; intros; simpl.
- induction r; [ reflexivity | simpl ].
- constructor; [ reflexivity | assumption ].
-
- revert k.
- induction r; intros.
-  simpl.
-  constructor.
-   subst Kx; rewrite lap_mul_1_l; reflexivity.
-
-   subst Kx; rewrite lap_mul_1_l; reflexivity.
-
-  remember (S r) as sr.
-  rewrite Heqsr in |- * at 1; simpl; subst sr.
-  constructor.
-   clear.
-bbb.
-
-intros la c₁ n r k Hkr.
-revert la r k Hkr.
-induction n; intros; simpl.
- induction r; [ reflexivity | simpl ].
- constructor; [ reflexivity | assumption ].
-
- induction r; simpl.
-  constructor.
-   subst Kx; rewrite lap_mul_1_l; reflexivity.
-
-   subst Kx; rewrite lap_mul_1_l; reflexivity.
-
-  constructor.
-   simpl.
-   rewrite lap_derivial_0.
-   do 2 rewrite apply_lap_mul; simpl.
-   rewrite fld_mul_0_l, fld_add_0_l, ps_mul_1_l.
-   rewrite ps_monom_opp in |- * at 1.
-   rewrite ps_add_opp_r.
-   do 2 rewrite fld_mul_0_l; reflexivity.
-bbb.
-*)
-
-Lemma lap_derivial_1_mul_const : ∀ α (K : field α) a lb,
-  lap_eq K
-    (lap_derivial K 1 (lap_mul K [a] lb))
-    (lap_mul K [a] (lap_derivial K 1 lb)).
-Proof.
-clear.
-intros α K a lb.
-induction lb as [| b]; intros; simpl.
- rewrite lap_mul_nil_r.
- rewrite lap_derivial_nil.
- rewrite lap_mul_nil_r; reflexivity.
-
- rewrite lap_mul_cons.
- do 2 rewrite lap_mul_nil_l.
- rewrite lap_add_nil_l.
- rewrite lap_eq_0, lap_add_nil_r.
- do 2 rewrite lap_derivial_1_cons.
- rewrite lap_mul_add_distr_l.
- rewrite IHlb.
- apply lap_add_compat; [ reflexivity | idtac ].
- rewrite lap_mul_cons.
- rewrite fld_mul_0_r.
- constructor; [ reflexivity | idtac ].
- rewrite lap_mul_nil_l, lap_add_nil_l.
- rewrite lap_mul_nil_l.
- rewrite lap_eq_0, lap_add_nil_r.
- reflexivity.
-Qed.
-
-Delimit Scope lap_scope with lap.
-Notation "a .+ K b" := (lap_add K a b) : lap_scope.
-Notation "a .* K b" := (lap_mul K a b) : lap_scope.
-Notation "a .= K b" := (lap_eq K a b) : lap_scope.
-
-Lemma xxx : ∀ α (K : field α) a lb lc,
-  ([a … lb .+ K lc] .= K [a … lb] .+ K [.0 K%K … lc])%lap.
-Proof.
-clear.
-intros α K a lb lc.
-bbb.
-
 Lemma www : ∀ α (K : field α) la lb,
   lap_eq K
     (lap_derivial K 1 (lap_mul K la lb))
@@ -1955,7 +1858,7 @@ induction la as [| a]; intros; simpl.
   apply lap_add_compat; [ reflexivity | idtac ].
   rewrite lap_add_comm.
   repeat rewrite lap_add_assoc.
-  rewrite xxx.
+  rewrite lap_cons_add.
   repeat rewrite lap_add_assoc.
   apply lap_add_compat; [ reflexivity | idtac ].
 bbb.

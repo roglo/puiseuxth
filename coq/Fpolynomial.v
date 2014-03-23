@@ -246,6 +246,11 @@ Notation "a .* f b" := (poly_mul f a b) : poly_scope.
 Notation "a .^ f b" := (poly_power f a b) : poly_scope.
 Notation "a .∘ f b" := (poly_compose f a b) : poly_scope.
 
+Delimit Scope lap_scope with lap.
+Notation "a .= K b" := (lap_eq K a b) : lap_scope.
+Notation "a .+ K b" := (lap_add K a b) : lap_scope.
+Notation "a .* K b" := (lap_mul K a b) : lap_scope.
+
 Definition Pdivide α (f : field α) x y := ∃ z, (y .= f z .* f x)%pol.
 
 Definition list_nth_def_0 α (f : field α) n l := List.nth n l .0 f%K.
@@ -1713,6 +1718,13 @@ Lemma lap_fold_compat_l : ∀ A (g h : A → _) la lb l,
 Proof.
 intros A g h la lb l Heq.
 induction l; [ assumption | simpl; rewrite IHl; reflexivity ].
+Qed.
+
+Lemma lap_cons_add : ∀ a lb lc,
+  ([a … lb .+ f lc] .= f [a … lb] .+ f [.0 f%K … lc])%lap.
+Proof.
+intros a lb lc.
+destruct lb as [| b]; simpl; rewrite fld_add_0_r; reflexivity.
 Qed.
 
 End poly.
