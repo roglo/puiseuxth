@@ -1087,6 +1087,92 @@ constructor; [ reflexivity | idtac ].
 rewrite lap_convol_mul_cons_succ; assumption.
 Qed.
 
+Lemma lap_derivial_mul : ∀ α (K : field α) la lb,
+  lap_eq K
+    (lap_derivial K 1 (lap_mul K la lb))
+    (lap_add K
+       (lap_mul K (lap_derivial K 1 la) lb)
+       (lap_mul K la (lap_derivial K 1 lb))).
+Proof.
+intros α K la lb.
+revert lb.
+induction la as [| a]; intros; simpl.
+ do 3 rewrite lap_mul_nil_l.
+ rewrite lap_derivial_nil, lap_add_nil_l; reflexivity.
+
+ induction lb as [| b]; simpl.
+  do 3 rewrite lap_mul_nil_r.
+  rewrite lap_derivial_nil, lap_add_nil_l; reflexivity.
+
+  rewrite lap_mul_cons; symmetry.
+  rewrite lap_mul_cons_l, lap_mul_cons_r; symmetry.
+  do 3 rewrite lap_derivial_1_cons.
+  do 2 rewrite lap_derivial_add.
+  rewrite lap_derivial_1_cons.
+  do 2 rewrite lap_mul_add_distr_l.
+  do 2 rewrite lap_mul_add_distr_r.
+  rewrite lap_add_comm.
+  do 5 rewrite lap_add_assoc.
+  rewrite lap_add_comm.
+  do 2 rewrite lap_add_assoc.
+  apply lap_add_compat; [ reflexivity | idtac ].
+  rewrite lap_add_comm.
+  rewrite lap_cons_add.
+  symmetry.
+  do 2 rewrite lap_add_assoc.
+  rewrite lap_add_comm.
+  rewrite lap_cons_add.
+  do 4 rewrite lap_add_assoc.
+  apply lap_add_compat; [ reflexivity | idtac ].
+  rewrite lap_add_comm.
+  symmetry.
+  do 3 rewrite lap_add_assoc.
+  rewrite lap_add_comm, lap_add_assoc.
+  rewrite lap_add_comm, lap_add_assoc.
+  apply lap_add_compat; [ reflexivity | idtac ].
+  do 2 rewrite IHla.
+  rewrite lap_derivial_const.
+  rewrite lap_mul_nil_r, lap_add_nil_r.
+  do 5 rewrite lap_cons_add.
+  symmetry.
+  rewrite lap_mul_cons_l.
+  rewrite lap_mul_nil_l.
+  rewrite lap_eq_0.
+  rewrite lap_add_nil_r.
+  rewrite lap_add_comm.
+  symmetry.
+  rewrite lap_add_comm.
+  do 3 rewrite lap_add_assoc.
+  rewrite lap_add_comm.
+  do 6 rewrite lap_add_assoc.
+  apply lap_add_compat; [ reflexivity | idtac ].
+  symmetry.
+  rewrite lap_add_comm.
+  do 2 rewrite lap_add_assoc.
+  rewrite lap_add_comm.
+  rewrite lap_mul_cons_l.
+  rewrite lap_eq_0, lap_mul_nil_l.
+  rewrite lap_add_nil_l.
+  do 2 rewrite lap_add_assoc.
+  apply lap_add_compat; [ reflexivity | idtac ].
+  rewrite lap_add_comm.
+  rewrite lap_add_assoc.
+  rewrite lap_mul_cons_r.
+  rewrite lap_eq_0.
+  rewrite lap_mul_nil_r, lap_add_nil_l.
+  apply lap_add_compat; [ reflexivity | idtac ].
+  rewrite lap_mul_cons_l.
+  rewrite lap_eq_0, lap_mul_nil_l, lap_add_nil_l.
+  apply lap_add_compat; [ reflexivity | idtac ].
+  rewrite lap_mul_cons.
+  rewrite fld_mul_0_r, lap_mul_nil_l, lap_add_nil_l.
+  constructor; [ reflexivity | idtac ].
+  rewrite lap_mul_nil_l.
+  rewrite lap_eq_0, lap_add_nil_r.
+  rewrite lap_derivial_1_mul_const.
+  reflexivity.
+Qed.
+
 Lemma list_nth_coeff_lap_deriv : ∀ α (f : field α) P i k n,
   (List.nth i (coeff_lap_deriv f P n k) .0 f .= f
    fld_mul_nat f (comb (k + i) n) (List.nth i P .0 f))%K.
