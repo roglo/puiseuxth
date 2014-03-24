@@ -1973,6 +1973,11 @@ rewrite Nat.add_sub_assoc.
   apply le_n_S in Hrkj.
   remember (S (k - j)) as n; clear Heqn.
   revert Hrkj; clear; intros.
+  remember (List.map (λ c : α, ps_monom K c 0) (al Ψ)) as la.
+  unfold c_x_power; simpl.
+  revert Hrkj; clear; intros.
+  apply le_S_gt in Hrkj; unfold gt in Hrkj.
+  rename Hrkj into Hrn.
 bbb.
 
   revert n Hrkj.
