@@ -1830,10 +1830,12 @@ induction k; intros; simpl.
  rewrite apply_deg_1_root.
  do 3 rewrite fld_mul_0_l.
  rewrite fld_add_0_l; reflexivity.
+Abort. (*
 bbb.
+*)
 
 Lemma xxx : ∀ la c₁ n r k,
-  n ≤ r
+  r ≤ n
   → lap_eq Kx
       (coeff_taylor_lap Kx n
          (lap_mul Kx
@@ -1851,6 +1853,21 @@ Proof.
 intros la c₁ n r k Hnr.
 revert r k Hnr.
 induction n; intros; [ reflexivity | simpl ].
+constructor.
+ Focus 2.
+ destruct (eq_nat_dec r (S n)) as [Hrn| Hrn].
+  Focus 2.
+  apply IHn; fast_omega Hnr Hrn.
+
+  subst r.
+  simpl.
+Abort. (*
+bbb.
+
+intros la c₁ n r k Hnr.
+revert r k Hnr.
+induction n; intros; [ reflexivity | simpl ].
+bbb.
 constructor; [ clear IHn | apply IHn; omega ].
 apply www.
 destruct r; [ idtac | apply Nat.lt_0_succ ].
@@ -1951,19 +1968,20 @@ rewrite Nat.add_sub_assoc.
  rewrite lap_mul_comm, lap_mul_power.
  set (Kx := ps_field K); move Kx before K.
  clear HΨ Hr.
- assert (r ≤ S (k - j)) as Hrkj.
+ assert (r ≤ k - j) as Hrkj.
   Focus 2.
+  apply le_n_S in Hrkj.
   remember (S (k - j)) as n; clear Heqn.
+  revert Hrkj; clear; intros.
+bbb.
+
   revert n Hrkj.
   induction r; intros; simpl.
    rewrite Nat.sub_0_r.
    subst Kx; rewrite lap_mul_1_l; reflexivity.
 
    destruct n; simpl.
-    clear.
-    constructor; [ reflexivity | idtac ].
-    induction r; [ reflexivity | simpl ].
-    constructor; [ reflexivity | assumption ].
+    exfalso; revert Hrkj; apply Nat.nle_succ_0.
 
     constructor.
      rewrite lap_derivial_0.
