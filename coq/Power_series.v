@@ -327,6 +327,7 @@ apply series_add_compat_l.
 apply series_mul_comm.
 Qed.
 
+(*
 Theorem series_neq_1_0 : (.1 f .≠ f .0 f)%ser.
 Proof.
 intros H.
@@ -336,6 +337,7 @@ rewrite series_nth_series_0 in H.
 simpl in H.
 revert H; apply fld_neq_1_0.
 Qed.
+*)
 
 End other_lemmas.
 

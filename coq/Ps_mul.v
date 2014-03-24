@@ -126,15 +126,6 @@ Qed.
 Theorem ps_mul_0_r : ∀ ps, (ps .* f .0 f .= f .0 f)%ps.
 Proof. intros ps. rewrite ps_mul_comm. apply ps_mul_0_l. Qed.
 
-Theorem ps_neq_1_0 : (.1 f .≠ f .0 f)%ps.
-Proof.
-intros H.
-apply null_coeff_range_length_inf_iff in H.
-apply null_coeff_range_length_iff in H.
-pose proof (H O) as Hi.
-revert Hi; apply fld_neq_1_0.
-Qed.
-
 Lemma series_stretch_mul : ∀ a b k,
   (series_stretch f k (a .* f b) .= f
    series_stretch f k a .* f series_stretch f k b)%ser.

@@ -179,8 +179,13 @@ destruct n as [n| ].
   destruct Hn as (_, Hn).
   exfalso; apply Hn; reflexivity.
 
- apply null_coeff_range_length_inf_iff in Hn.
- exfalso; revert Hn; apply ps_neq_1_0.
+ unfold canonic_ps.
+ rewrite Hn.
+ constructor; try reflexivity.
+ constructor; intros i; simpl.
+ apply null_coeff_range_length_iff in Hn.
+ simpl in Hn.
+ symmetry; apply Hn.
 Qed.
 
 Lemma series_inv_compat : ∀ a b,
@@ -202,15 +207,15 @@ symmetry; assumption.
 Qed.
 
 Lemma null_coeff_range_length_series_1 :
-  null_coeff_range_length f (.1 f)%ser 0 = 0%Nbar.
+  (.1 f .≠ f .0 f)%K
+  → null_coeff_range_length f (.1 f)%ser 0 = 0%Nbar.
 Proof.
+intros H.
 apply null_coeff_range_length_iff; simpl.
-split.
- intros i Hi.
- apply Nat.nlt_ge in Hi.
- exfalso; apply Hi, Nat.lt_0_succ.
-
- apply fld_neq_1_0.
+split; [ idtac | assumption ].
+intros i Hi.
+apply Nat.nlt_ge in Hi.
+exfalso; apply Hi, Nat.lt_0_succ.
 Qed.
 
 Lemma greatest_series_x_power_series_1 :
@@ -255,7 +260,7 @@ destruct n as [n| ].
   constructor.
   rewrite canonic_ps_1.
   unfold canonic_ps; simpl.
-  rewrite null_coeff_range_length_series_1.
+  rewrite null_coeff_range_length_series_1; [ idtac | apply fld_neq_1_0 ].
   unfold gcd_ps.
   remember Z.gcd as g; simpl; subst g.
   rewrite Z.gcd_0_l.
@@ -284,6 +289,15 @@ destruct n as [n| ].
 
  apply null_coeff_range_length_inf_iff in Hn.
  contradiction.
+Qed.
+
+Theorem ps_neq_1_0 : (.1 f .≠ f .0 f)%ps.
+Proof.
+intros H.
+apply null_coeff_range_length_inf_iff in H.
+apply null_coeff_range_length_iff in H.
+pose proof (H O) as Hi.
+revert Hi; apply fld_neq_1_0.
 Qed.
 
 End theorems.
