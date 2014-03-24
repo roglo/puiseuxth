@@ -31,7 +31,6 @@ Record field α :=
     fld_eq_refl : ∀ a, fld_eq a a;
     fld_eq_sym : ∀ a b, fld_eq a b → fld_eq b a;
     fld_eq_trans : ∀ a b c, fld_eq a b → fld_eq b c → fld_eq a c;
-    fld_neq_1_0 : not (fld_eq fld_one fld_zero);
     fld_add_comm : ∀ a b, fld_eq (fld_add a b) (fld_add b a);
     fld_add_assoc : ∀ a b c,
       fld_eq (fld_add a (fld_add b c)) (fld_add (fld_add a b) c);

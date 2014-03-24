@@ -327,18 +327,6 @@ apply series_add_compat_l.
 apply series_mul_comm.
 Qed.
 
-(*
-Theorem series_neq_1_0 : (.1 f .≠ f .0 f)%ser.
-Proof.
-intros H.
-inversion_clear H.
-pose proof (H0 O) as H.
-rewrite series_nth_series_0 in H.
-simpl in H.
-revert H; apply fld_neq_1_0.
-Qed.
-*)
-
 End other_lemmas.
 
 Fixpoint term_inv α (f : field α) c s n :=

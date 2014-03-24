@@ -260,28 +260,45 @@ destruct n as [n| ].
   constructor.
   rewrite canonic_ps_1.
   unfold canonic_ps; simpl.
-  rewrite null_coeff_range_length_series_1; [ idtac | apply fld_neq_1_0 ].
-  unfold gcd_ps.
-  remember Z.gcd as g; simpl; subst g.
-  rewrite Z.gcd_0_l.
-  rewrite Z.div_0_l.
-   rewrite greatest_series_x_power_series_1.
-   rewrite Z.gcd_0_r; simpl.
-   rewrite Z.div_same; [ idtac | apply Pos2Z_ne_0 ].
-   unfold canonify_series; simpl.
-   rewrite series_left_shift_0.
-   unfold series_shrink; simpl.
-   constructor; try reflexivity; simpl.
-   constructor; intros i; simpl.
-   destruct i; [ reflexivity | idtac ].
-   remember (S i * Pos.to_nat (ps_polord ps * ps_polord ps))%nat as x.
-   symmetry in Heqx; simpl.
-   destruct x; [ idtac | reflexivity ].
-   apply Nat.eq_mul_0_l in Heqx; auto; discriminate Heqx.
+  remember (null_coeff_range_length f .1 f%ser 0) as m eqn:Hm .
+  symmetry in Hm.
+  destruct m as [m| ].
+   destruct m; simpl.
+    Focus 1.
+    unfold gcd_ps.
+    remember Z.gcd as g; simpl; subst g.
+    rewrite Z.gcd_0_l.
+    rewrite Z.div_0_l.
+     rewrite greatest_series_x_power_series_1.
+     rewrite Z.gcd_0_r; simpl.
+     rewrite Z.div_same; [ idtac | apply Pos2Z_ne_0 ].
+     unfold canonify_series; simpl.
+     rewrite series_left_shift_0.
+     unfold series_shrink; simpl.
+     constructor; try reflexivity; simpl.
+     constructor; intros i; simpl.
+     destruct i; [ reflexivity | idtac ].
+     remember (S i * Pos.to_nat (ps_polord ps * ps_polord ps))%nat as x.
+     symmetry in Heqx; simpl.
+     destruct x; [ idtac | reflexivity ].
+     apply Nat.eq_mul_0_l in Heqx; auto; discriminate Heqx.
 
-   intros H₁.
-   apply Z.gcd_eq_0_l in H₁.
-   exfalso; revert H₁; apply Pos2Z_ne_0.
+     intros H₁.
+     apply Z.gcd_eq_0_l in H₁.
+     exfalso; revert H₁; apply Pos2Z_ne_0.
+
+    apply null_coeff_range_length_iff in Hm.
+    unfold null_coeff_range_length_prop in Hm.
+    simpl in Hm.
+    destruct Hm as (_, Hm).
+    exfalso; apply Hm; reflexivity.
+
+   apply null_coeff_range_length_iff in Hm.
+   unfold null_coeff_range_length_prop in Hm.
+   simpl in Hm.
+   constructor; try reflexivity.
+   constructor; intros i; simpl.
+   symmetry; apply Hm.
 
   apply null_coeff_range_length_iff in Hn.
   destruct Hn as (Hz, Hnz).
@@ -289,15 +306,6 @@ destruct n as [n| ].
 
  apply null_coeff_range_length_inf_iff in Hn.
  contradiction.
-Qed.
-
-Theorem ps_neq_1_0 : (.1 f .≠ f .0 f)%ps.
-Proof.
-intros H.
-apply null_coeff_range_length_inf_iff in H.
-apply null_coeff_range_length_iff in H.
-pose proof (H O) as Hi.
-revert Hi; apply fld_neq_1_0.
 Qed.
 
 End theorems.
@@ -312,7 +320,6 @@ Definition ps_field α (f : field α) : field (puiseux_series α) :=
      fld_eq_refl := eq_ps_refl f;
      fld_eq_sym := eq_ps_sym (f := f);
      fld_eq_trans := eq_ps_trans (f := f);
-     fld_neq_1_0 := ps_neq_1_0 (f := f);
      fld_add_comm := ps_add_comm f;
      fld_add_assoc := ps_add_assoc f;
      fld_add_0_l := ps_add_0_l f;

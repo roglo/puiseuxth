@@ -31,7 +31,6 @@ Definition Q_field :=
      fld_eq_refl := Qeq_refl;
      fld_eq_sym := Qeq_sym;
      fld_eq_trans := Qeq_trans;
-     fld_neq_1_0 := Q_apart_0_1;
      fld_add_comm := Qplus_comm;
      fld_add_assoc := Qplus_assoc;
      fld_add_0_l := Qplus_0_l;
