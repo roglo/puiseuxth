@@ -310,18 +310,37 @@ rewrite fld_mul_comm; symmetry.
 apply fld_mul_opp_l.
 Qed.
 
+Theorem fld_add_move_0_r : ∀ a b, (a .+ f b .= f .0 f ↔ a .= f .- f b)%K.
+Proof.
+intros a b.
+split; intros H.
+ apply fld_add_compat_r with (c := (.-f b)%K) in H.
+ rewrite <- fld_add_assoc in H.
+ rewrite fld_add_opp_r in H.
+ rewrite fld_add_0_r, fld_add_0_l in H; assumption.
+
+ rewrite H.
+ rewrite fld_add_opp_l; reflexivity.
+Qed.
+
+Theorem fld_mul_opp_1_l : ∀ a, (.- f .1 f .* f a .= f .- f a)%K.
+Proof.
+intros a.
+apply fld_add_reg_r with (c := (.1 f .* f a)%K).
+rewrite <- fld_mul_add_distr_r.
+rewrite fld_add_opp_l, fld_mul_0_l.
+symmetry.
+apply fld_add_move_0_r.
+rewrite fld_mul_1_l; reflexivity.
+Qed.
+
 Theorem fld_opp_add_distr : ∀ a b, (.- f (a .+ f b) .= f .- f a .- f b)%K.
 Proof.
 intros a b.
-apply fld_mul_reg_l with (c := .1 f%K).
- apply fld_neq_1_0.
-
- rewrite fld_mul_opp_r.
- rewrite <- fld_mul_opp_l.
- rewrite fld_mul_add_distr_l.
- do 2 rewrite fld_mul_opp_l.
- do 3 rewrite fld_mul_1_l.
- reflexivity.
+rewrite <- fld_mul_opp_1_l.
+rewrite fld_mul_add_distr_l.
+do 2 rewrite fld_mul_opp_1_l.
+reflexivity.
 Qed.
 
 Theorem fld_add_shuffle0 : ∀ n m p, (n .+ f m .+ f p .= f n .+ f p .+ f m)%K.
