@@ -1796,33 +1796,64 @@ rewrite ps_monom_opp, fld_add_opp_r.
 reflexivity.
 Qed.
 
-(* mouais... à voir...
-Lemma www : ∀ la a k,
-  (apply_lap Kx (lap_derivial Kx (S k) la) a .= K
-   apply_lap Kx (lap_derivial Kx 1 (lap_derivial Kx k la)) a .* K
-   ps_monom K (fld_mul_nat K (S k) .1 K%K) 0)%ps.
-*)
+Lemma www : ∀ la c₁ r k,
+  (0 < r)%nat
+  → (apply_lap Kx
+        (lap_derivial Kx k
+           (lap_power Kx [ps_monom K (.-K c₁) 0; ps_monom K .1 K 0 … []] r
+            .* Kx la)%lap) (c_x_power K c₁ 0) .= Kx
+      apply_lap Kx
+        (lap_derivial Kx (S k)
+           ([ps_monom K (.-K c₁) 0; ps_monom K .1 K 0 … []] .* Kx
+            lap_power Kx [ps_monom K (.-K c₁) 0; ps_monom K .1 K 0 … []] r
+            .* Kx la)%lap) (c_x_power K c₁ 0))%K.
+Proof.
+intros la c₁ r k Hr.
+revert r Hr.
+induction k; intros; simpl.
+ rewrite lap_derivial_0.
+ destruct r; [ exfalso; revert Hr; apply Nat.lt_irrefl | clear Hr; simpl ].
+ do 2 rewrite apply_lap_mul.
+ subst Kx.
+ rewrite apply_deg_1_root.
+ do 2 rewrite fld_mul_0_l.
+ rewrite lap_derivial_mul; simpl.
+ rewrite apply_lap_add.
+ rewrite apply_lap_mul.
+ rewrite lap_derivial_mul.
+ do 3 rewrite apply_lap_mul.
+ rewrite apply_lap_add.
+ do 2 rewrite apply_lap_mul.
+ rewrite apply_deg_1_root.
+ rewrite fld_mul_0_l, fld_mul_0_l, fld_mul_0_r, fld_add_0_l.
+ rewrite apply_lap_mul.
+ rewrite apply_deg_1_root.
+ do 3 rewrite fld_mul_0_l.
+ rewrite fld_add_0_l; reflexivity.
+bbb.
 
 Lemma xxx : ∀ la c₁ n r k,
-  lap_eq Kx
-    (coeff_taylor_lap Kx n
-       (lap_mul Kx
-          (lap_power Kx [ps_monom K (.-K c₁)%K 0; ps_monom K .1 K%K 0 … []]
-             r) la)
-       (c_x_power K c₁ 0) k)
-    (coeff_taylor_lap Kx n
-       (lap_mul Kx
-          (lap_mul Kx [ps_monom K (.-K c₁)%K 0; ps_monom K .1 K%K 0 … []]
-             (lap_power Kx
-                [ps_monom K (.-K c₁)%K 0; ps_monom K .1 K%K 0 … []] r))
-          la)
-       (c_x_power K c₁ 0) (S k)).
+  n ≤ r
+  → lap_eq Kx
+      (coeff_taylor_lap Kx n
+         (lap_mul Kx
+            (lap_power Kx [ps_monom K (.-K c₁)%K 0; ps_monom K .1 K%K 0 … []]
+               r) la)
+         (c_x_power K c₁ 0) k)
+      (coeff_taylor_lap Kx n
+         (lap_mul Kx
+            (lap_mul Kx [ps_monom K (.-K c₁)%K 0; ps_monom K .1 K%K 0 … []]
+               (lap_power Kx
+                  [ps_monom K (.-K c₁)%K 0; ps_monom K .1 K%K 0 … []] r))
+            la)
+         (c_x_power K c₁ 0) (S k)).
 Proof.
-intros la c₁ n r k.
-revert r k.
+intros la c₁ n r k Hnr.
+revert r k Hnr.
 induction n; intros; [ reflexivity | simpl ].
-constructor; [ clear | apply IHn ].
-revert r.
+constructor; [ clear IHn | apply IHn; omega ].
+bbb.
+revert r Hnr.
 induction k; intros; simpl.
  rewrite lap_derivial_0.
  destruct r.
@@ -1858,7 +1889,13 @@ induction k; intros; simpl.
   rewrite apply_deg_1_root.
   do 3 rewrite fld_mul_0_l.
   rewrite fld_add_0_l; reflexivity.
+
+ destruct r; simpl.
+  exfalso; apply Nat.nle_succ_0 in Hnr; assumption.
+
+  apply le_S_n in Hnr.
 bbb.
+*)
 
 (* [Walker, p. 101] « Since αh + h.γ₁ = β₁, the first summation reduces to
       (c₁+y₁)^j.Φ((c₁+y₁)^q) = x^β₁.y₁^r.(c₁+y₁)^j.Ψ(c₁+y₁) ».
@@ -1910,30 +1947,32 @@ rewrite Nat.add_sub_assoc.
  rewrite lap_mul_comm, lap_mul_power.
  set (Kx := ps_field K); move Kx before K.
  clear HΨ Hr.
- remember (S (k - j)) as n; clear Heqn.
- revert n.
- induction r; intros; simpl.
-  rewrite Nat.sub_0_r.
-  subst Kx; rewrite lap_mul_1_l; reflexivity.
+ assert (r ≤ S (k - j)) as Hrkj.
+  Focus 2.
+  remember (S (k - j)) as n; clear Heqn.
+  revert n Hrkj.
+  induction r; intros; simpl.
+   rewrite Nat.sub_0_r.
+   subst Kx; rewrite lap_mul_1_l; reflexivity.
 
-  destruct n; simpl.
-   clear.
-   constructor; [ reflexivity | idtac ].
-   induction r; [ reflexivity | simpl ].
-   constructor; [ reflexivity | assumption ].
+   destruct n; simpl.
+    clear.
+    constructor; [ reflexivity | idtac ].
+    induction r; [ reflexivity | simpl ].
+    constructor; [ reflexivity | assumption ].
 
-   constructor.
-    rewrite lap_derivial_0.
-    do 2 rewrite apply_lap_mul; simpl.
-    rewrite fld_mul_0_l, fld_add_0_l, ps_mul_1_l.
-    rewrite ps_monom_opp in |- * at 1.
-    rewrite ps_add_opp_r.
-    do 2 rewrite fld_mul_0_l; reflexivity.
+    constructor.
+     rewrite lap_derivial_0.
+     do 2 rewrite apply_lap_mul; simpl.
+     rewrite fld_mul_0_l, fld_add_0_l, ps_mul_1_l.
+     rewrite ps_monom_opp in |- * at 1.
+     rewrite ps_add_opp_r.
+     do 2 rewrite fld_mul_0_l; reflexivity.
 
-    subst Kx.
-    rewrite IHr.
-    set (Kx := ps_field K); move Kx before K.
-    apply xxx.
+     apply le_S_n in Hrkj.
+     subst Kx.
+     rewrite IHr; [ idtac | assumption ].
+     set (Kx := ps_field K); move Kx before K.
 bbb.
 
 ......
