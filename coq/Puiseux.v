@@ -1834,6 +1834,32 @@ Abort. (*
 bbb.
 *)
 
+(* pas sûr que ça soit vrai... *)
+Lemma lap_derivial_mul_const: ∀ α (K : field α) a lb k,
+  (lap_derivial K k ([a] .* K lb) .= K [a] .* K lap_derivial K k lb)%lap.
+Proof.
+clear.
+intros α K a lb k.
+induction lb as [| b]; intros; simpl.
+ rewrite lap_mul_nil_r.
+ rewrite lap_derivial_nil.
+ rewrite lap_mul_nil_r; reflexivity.
+
+ rewrite lap_mul_cons.
+ do 2 rewrite lap_mul_nil_l.
+ rewrite lap_add_nil_l.
+ rewrite lap_eq_0, lap_add_nil_r.
+bbb.
+
+clear.
+intros α K a lb k.
+destruct k.
+ do 2 rewrite lap_derivial_0; reflexivity.
+
+ destruct k.
+  apply lap_derivial_1_mul_const.
+bbb.
+
 Lemma yyy : ∀ la c₁ n r k,
   (r < n)%nat
   → length la = (n - r)%nat
