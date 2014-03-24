@@ -1855,6 +1855,18 @@ intros la c₁ n r k Hrn Hlen.
 revert la r k Hrn Hlen.
 induction n; intros; [ reflexivity | simpl ].
 constructor.
+ destruct r.
+  simpl.
+  Focus 1.
+  subst Kx; simpl.
+  rewrite lap_mul_1_l.
+  rewrite lap_mul_1_r.
+  set (Kx := ps_field K); move Kx before K.
+  fold Kx in IHn.
+  rewrite Nat.sub_0_r in Hlen.
+  rewrite lap_mul_cons_l; simpl.
+  rewrite lap_derivial_add.
+  rewrite apply_lap_add; simpl.
 bbb.
 
  Focus 2.
