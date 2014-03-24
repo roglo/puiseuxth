@@ -1796,6 +1796,13 @@ rewrite ps_monom_opp, fld_add_opp_r.
 reflexivity.
 Qed.
 
+(* mouais... à voir...
+Lemma www : ∀ la a k,
+  (apply_lap Kx (lap_derivial Kx (S k) la) a .= K
+   apply_lap Kx (lap_derivial Kx 1 (lap_derivial Kx k la)) a .* K
+   ps_monom K (fld_mul_nat K (S k) .1 K%K) 0)%ps.
+*)
+
 Lemma xxx : ∀ la c₁ n r k,
   lap_eq Kx
     (coeff_taylor_lap Kx n
