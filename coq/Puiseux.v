@@ -1785,6 +1785,17 @@ destruct (zerop i); [ reflexivity | idtac ].
 rewrite fld_opp_0; reflexivity.
 Qed.
 
+Lemma apply_deg_1_root : ∀ c,
+  (apply_lap (ps_field K) [ps_monom K (.-K c) 0; ps_monom K .1 K 0 … []]
+     (ps_monom K c 0) .= (ps_field K) .0 K%ps)%K.
+Proof.
+intros c.
+simpl.
+rewrite fld_mul_0_l, fld_add_0_l, ps_mul_1_l.
+rewrite ps_monom_opp, fld_add_opp_r.
+reflexivity.
+Qed.
+
 Lemma xxx : ∀ la c₁ n r k,
   lap_eq Kx
     (coeff_taylor_lap Kx n
@@ -1803,41 +1814,43 @@ Proof.
 intros la c₁ n r k.
 revert r k.
 induction n; intros; [ reflexivity | simpl ].
-constructor; [ idtac | apply IHn ].
-clear.
+constructor; [ clear | apply IHn ].
 revert r.
 induction k; intros; simpl.
  rewrite lap_derivial_0.
  destruct r.
-  rewrite lap_derivial_mul.
+  simpl; subst Kx.
+  rewrite <- lap_mul_assoc.
+  rewrite lap_mul_1_l.
   rewrite lap_derivial_mul.
   rewrite apply_lap_add.
-  symmetry; rewrite fld_add_comm.
+  rewrite fld_add_comm.
   rewrite apply_lap_mul.
-  rewrite apply_lap_mul.
-  unfold apply_lap at 1.
-  unfold List.fold_right.
-  unfold c_x_power.
-  rewrite ps_monom_opp in |- * at 1.
+  rewrite apply_deg_1_root.
   rewrite fld_mul_0_l, fld_add_0_l.
-  subst Kx.
-  rewrite fld_mul_1_l.
-  rewrite fld_add_opp_r.
-  do 2 rewrite fld_mul_0_l.
-  rewrite fld_add_0_l.
-  symmetry.
-bbb.
-  simpl.
-  subst Kx.
-  rewrite lap_mul_1_l.
-  rewrite lap_mul_1_r.
-  unfold lap_derivial; simpl.
-  destruct la as [| a]; [ reflexivity | simpl ].
-  Focus 1.
-  rewrite fld_add_0_l.
-  unfold summation; simpl.
+  rewrite lap_derivial_1_cons; simpl.
   rewrite fld_add_0_r.
-  unfold c_x_power.
+  rewrite lap_derivial_const, lap_mul_1_l.
+  reflexivity.
+
+  simpl.
+  do 2 rewrite apply_lap_mul.
+  subst Kx.
+  rewrite apply_deg_1_root.
+  do 2 rewrite fld_mul_0_l.
+  rewrite lap_derivial_mul; simpl.
+  rewrite apply_lap_add.
+  rewrite apply_lap_mul.
+  rewrite lap_derivial_mul.
+  do 3 rewrite apply_lap_mul.
+  rewrite apply_lap_add.
+  do 2 rewrite apply_lap_mul.
+  rewrite apply_deg_1_root.
+  rewrite fld_mul_0_l, fld_mul_0_l, fld_mul_0_r, fld_add_0_l.
+  rewrite apply_lap_mul.
+  rewrite apply_deg_1_root.
+  do 3 rewrite fld_mul_0_l.
+  rewrite fld_add_0_l; reflexivity.
 bbb.
 
 (* [Walker, p. 101] « Since αh + h.γ₁ = β₁, the first summation reduces to
