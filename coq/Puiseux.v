@@ -1852,7 +1852,11 @@ intros la c₁ n r k Hnr.
 revert r k Hnr.
 induction n; intros; [ reflexivity | simpl ].
 constructor; [ clear IHn | apply IHn; omega ].
-bbb.
+apply www.
+destruct r; [ idtac | apply Nat.lt_0_succ ].
+exfalso; revert Hnr; apply Nat.nle_succ_0.
+qed.
+
 revert r Hnr.
 induction k; intros; simpl.
  rewrite lap_derivial_0.
