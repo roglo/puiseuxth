@@ -1852,10 +1852,11 @@ Lemma yyy : ∀ la c₁ n r k,
            (c_x_power K c₁ 0) (S k)).
 Proof.
 intros la c₁ n r k Hrn Hlen.
-bbb.
-revert r k Hnr.
+revert la r k Hrn Hlen.
 induction n; intros; [ reflexivity | simpl ].
 constructor.
+bbb.
+
  Focus 2.
  destruct (eq_nat_dec r (S n)) as [Hrn| Hrn].
   Focus 2.
