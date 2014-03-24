@@ -1849,6 +1849,7 @@ induction lb as [| b]; intros; simpl.
  do 2 rewrite lap_mul_nil_l.
  rewrite lap_add_nil_l.
  rewrite lap_eq_0, lap_add_nil_r.
+Abort. (*
 bbb.
 
 clear.
@@ -1859,6 +1860,7 @@ destruct k.
  destruct k.
   apply lap_derivial_1_mul_const.
 bbb.
+*)
 
 Lemma yyy : ∀ la c₁ n r k,
   (r < n)%nat
@@ -1893,6 +1895,7 @@ constructor.
   rewrite lap_mul_cons_l; simpl.
   rewrite lap_derivial_add.
   rewrite apply_lap_add; simpl.
+(*
 bbb.
 
  Focus 2.
@@ -1994,6 +1997,19 @@ fold K in Kx.
 rewrite poly_inject_inj_mul.
 unfold eq_poly; simpl.
 rewrite <- lap_power_map; simpl.
+do 2 rewrite lap_compose_compose2.
+bbb.
+unfold lap_compose2; simpl.
+rewrite List.map_length.
+rewrite length_lap_mul; simpl.
+rewrite List.map_length.
+rewrite length_lap_power; [ simpl | intros H; discriminate H ].
+rewrite Nat.mul_1_r.
+erewrite Ψ_length; try eassumption.
+rewrite Nat.add_sub_assoc.
+ rewrite Nat.add_comm, Nat.add_sub.
+
+bbb.
 subst Kx.
 do 2 rewrite lap_taylor_formula; simpl.
 unfold taylor_lap.
