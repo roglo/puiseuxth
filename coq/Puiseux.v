@@ -1811,6 +1811,21 @@ induction k; intros; simpl.
  destruct r.
   rewrite lap_derivial_mul.
   rewrite lap_derivial_mul.
+  rewrite apply_lap_add.
+  symmetry; rewrite fld_add_comm.
+  rewrite apply_lap_mul.
+  rewrite apply_lap_mul.
+  unfold apply_lap at 1.
+  unfold List.fold_right.
+  unfold c_x_power.
+  rewrite ps_monom_opp in |- * at 1.
+  rewrite fld_mul_0_l, fld_add_0_l.
+  subst Kx.
+  rewrite fld_mul_1_l.
+  rewrite fld_add_opp_r.
+  do 2 rewrite fld_mul_0_l.
+  rewrite fld_add_0_l.
+  symmetry.
 bbb.
   simpl.
   subst Kx.
