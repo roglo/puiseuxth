@@ -2032,6 +2032,12 @@ rewrite Nat.add_sub_assoc.
     do 2 rewrite fold_list_nth_def_0.
     rewrite lap_mul_1_l; reflexivity.
 
+    destruct n; simpl; [ rewrite lap_mul_nil_l; reflexivity | idtac ].
+    rewrite lap_mul_assoc.
+    rewrite lap_mul_shuffle0.
+    apply lt_S_n in Hrn; simpl in Hlen.
+    rewrite IHr; try assumption.
+
 bbb.
 subst Kx.
 do 2 rewrite lap_taylor_formula; simpl.
