@@ -11,38 +11,38 @@ Require Import Fsummation.
 
 Set Implicit Arguments.
 
-Record power_series α := { terms : nat → α }.
+Class power_series α := { terms : nat → α }.
 
-Notation "s .[ i ]" := (terms s i) (at level 1).
+Notation "s .[ i ]" := (@terms _ s i) (at level 1).
 
-Definition series_0 α (f : field α) :=
-  {| terms i := .0 f%K |}.
+Instance series_0 {α} {f : field α} : power_series α :=
+  {| terms i := 0%K |}.
 
 Definition series_const α (f : field α) c :=
-  {| terms i := if zerop i then c else .0 f%K |}.
-Definition series_1 α (f : field α) :=
-  series_const f (.1 f%K).
+  {| terms i := if zerop i then c else 0%K |}.
+Instance series_1 {α} {f : field α} : power_series α :=
+  series_const f (1%K).
 
 Delimit Scope series_scope with ser.
-Notation ".0 f" := (series_0 f) : series_scope.
-Notation ".1 f" := (series_1 f) : series_scope.
+Notation "0" := series_0 : series_scope.
+Notation "1" := series_1 : series_scope.
 
-Inductive eq_series α (f : field α) :
+Inductive eq_series {α} {f : field α} :
     power_series α → power_series α → Prop :=
   eq_series_base : ∀ s₁ s₂,
-    (∀ i, (s₁ .[i] .= f s₂ .[i])%K)
-    → eq_series f s₁ s₂.
+    (∀ i, (s₁ .[i] = s₂ .[i])%K)
+    → eq_series s₁ s₂.
 
-Notation "a .= f b" := (eq_series f a b) : series_scope.
-Notation "a .≠ f b" := (¬ eq_series f a b) : series_scope.
+Notation "a = b" := (eq_series a b) : series_scope.
+Notation "a ≠ b" := (¬ eq_series a b) : series_scope.
 
-Theorem eq_series_refl α (f : field α) : reflexive _ (eq_series f).
+Theorem eq_series_refl {α} {f : field α} : reflexive _ eq_series.
 Proof.
 intros s.
 constructor; reflexivity.
 Qed.
 
-Theorem eq_series_sym α (f : field α) : symmetric _ (eq_series f).
+Theorem eq_series_sym {α} {f : field α} : symmetric _ eq_series.
 Proof.
 intros s₁ s₂ H.
 inversion H; subst.
@@ -50,7 +50,7 @@ constructor.
 intros i; symmetry; apply H0.
 Qed.
 
-Theorem eq_series_trans α (f : field α) : transitive _ (eq_series f).
+Theorem eq_series_trans {α} {f : field α} : transitive _ eq_series.
 Proof.
 intros s₁ s₂ s₃ H₁ H₂.
 inversion H₁; inversion H₂; subst.
@@ -58,37 +58,37 @@ constructor.
 etransitivity; [ apply H | apply H2 ].
 Qed.
 
-Add Parametric Relation α (f : field α) : (power_series α) (eq_series f)
- reflexivity proved by (eq_series_refl f)
- symmetry proved by (eq_series_sym (f := f))
- transitivity proved by (eq_series_trans (f := f))
+Add Parametric Relation α (f : field α) : (power_series α) eq_series
+ reflexivity proved by eq_series_refl
+ symmetry proved by eq_series_sym
+ transitivity proved by eq_series_trans
  as eq_series_rel.
 
 (* *)
 
 Lemma fold_series_const : ∀ α (f : field α) c,
-  {| terms := λ i, if zerop i then c else .0 f%K |} =
+  {| terms := λ i, if zerop i then c else 0%K |} =
   series_const f c.
 Proof. reflexivity. Qed.
 
 (* series_add *)
 
-Definition series_add α (f : field α) s₁ s₂ :=
-  {| terms i := (s₁ .[i] .+ f s₂ .[i])%K |}.
+Instance series_add {α} {f : field α} s₁ s₂ : power_series α :=
+  { terms i := (s₁ .[i] + s₂ .[i])%K }.
 
-Definition series_opp α (f : field α) s :=
-  {| terms i := (.- f terms s i)%K |}.
+Instance series_opp {α} {f : field α} s : power_series α :=
+  {| terms i := (- @terms _ s i)%K |}.
 
-Notation "a .+ f b" := (series_add f a b) : series_scope.
-Notation "a .- f b" := (series_add f a (series_opp f b)) : series_scope.
-Notation ".- f a" := (series_opp f a) : series_scope.
+Notation "a + b" := (series_add a b) : series_scope.
+Notation "a - b" := (series_add a (series_opp b)) : series_scope.
+Notation "- a" := (series_opp a) : series_scope.
 
 Section theorems_add.
 
 Variable α : Type.
 Variable f : field α.
 
-Theorem series_add_comm : ∀ s₁ s₂, (s₁ .+ f s₂ .= f s₂ .+ f s₁)%ser.
+Theorem series_add_comm : ∀ s₁ s₂, (s₁ + s₂ = s₂ + s₁)%ser.
 Proof.
 intros s₁ s₂.
 constructor; intros i; simpl.
@@ -96,7 +96,7 @@ rewrite fld_add_comm; reflexivity.
 Qed.
 
 Theorem series_add_assoc : ∀ s₁ s₂ s₃,
-  (s₁ .+ f (s₂ .+ f s₃) .= f (s₁ .+ f s₂) .+ f s₃)%ser.
+  (s₁ + (s₂ + s₃) = (s₁ + s₂) + s₃)%ser.
 Proof.
 intros s₁ s₂ s₃.
 unfold series_add; simpl.
@@ -104,24 +104,24 @@ constructor; intros i; simpl.
 rewrite fld_add_assoc; reflexivity.
 Qed.
 
-Lemma series_nth_series_0 : ∀ i, (.0 f%ser .[i])%K = .0 f%K.
+Lemma series_nth_series_0 : ∀ i, (0%ser .[i])%K = 0%K.
 Proof. reflexivity. Qed.
 
-Theorem series_add_0_l : ∀ s, (.0 f .+ f s .= f s)%ser.
+Theorem series_add_0_l : ∀ s, (0 + s = s)%ser.
 Proof.
 intros s.
 constructor; intros i; simpl.
 rewrite fld_add_0_l; reflexivity.
 Qed.
 
-Theorem series_add_opp_r : ∀ s, (s .- f s .= f .0 f)%ser.
+Theorem series_add_opp_r : ∀ s, (s - s = 0)%ser.
 Proof.
 intros s.
 constructor; intros i; simpl.
 apply fld_add_opp_r.
 Qed.
 
-Theorem series_add_opp_l : ∀ s, (.- f s .+ f s .= f .0 f)%ser.
+Theorem series_add_opp_l : ∀ s, (- s + s = 0)%ser.
 Proof.
 intros s.
 rewrite series_add_comm.
@@ -133,15 +133,15 @@ End theorems_add.
 (* series_mul *)
 
 Definition convol_mul α (f : field α) a b k :=
-  Σ f (i = 0, k), a .[i] .* f b .[k-i].
+  Σ f (i = 0, k), a .[i] * b .[k-i].
 
-Definition series_mul α (f : field α) a b :=
-  {| terms k := convol_mul f a b k |}.
+Instance series_mul {α} {f : field α} a b : power_series α :=
+  { terms k := convol_mul f a b k }.
 
-Notation "a .* f b" := (series_mul f a b) : series_scope.
+Notation "a * b" := (series_mul a b) : series_scope.
 
-Add Parametric Morphism α (F : field α) : (series_mul F)
-  with signature eq_series F ==> eq_series F ==> eq_series F
+Add Parametric Morphism α (K : field α) : series_mul
+  with signature eq_series ==> eq_series ==> eq_series
   as series_mul_morph.
 Proof.
 intros a b Hab c d Hcd.
@@ -159,7 +159,7 @@ Variable α : Type.
 Variable f : field α.
 
 Theorem convol_mul_comm : ∀ a b i,
-  (convol_mul f a b i .= f convol_mul f b a i)%K.
+  (convol_mul f a b i = convol_mul f b a i)%K.
 Proof.
 intros a b k.
 unfold convol_mul.
@@ -170,14 +170,14 @@ rewrite Nat_sub_sub_distr; [ idtac | destruct Hi; auto ].
 rewrite Nat.add_comm, Nat.add_sub, fld_mul_comm; reflexivity.
 Qed.
 
-Theorem series_mul_comm : ∀ a b, (a .* f b .= f b .* f a)%ser.
+Theorem series_mul_comm : ∀ a b, (a * b = b * a)%ser.
 Proof.
 intros a b.
 constructor; intros k; simpl.
 apply convol_mul_comm.
 Qed.
 
-Theorem convol_mul_0_l : ∀ a i, (convol_mul f .0 f%ser a i .= f .0 f)%K.
+Theorem convol_mul_0_l : ∀ a i, (convol_mul f 0%ser a i = 0)%K.
 Proof.
 intros a k.
 unfold convol_mul.
@@ -186,7 +186,7 @@ rewrite series_nth_series_0.
 rewrite fld_mul_0_l; reflexivity.
 Qed.
 
-Theorem series_mul_0_l : ∀ s, (.0 f .* f s .= f .0 f)%ser.
+Theorem series_mul_0_l : ∀ s, (0 * s = 0)%ser.
 Proof.
 intros s.
 constructor; intros k.
@@ -194,7 +194,7 @@ unfold series_mul; simpl.
 apply convol_mul_0_l.
 Qed.
 
-Theorem series_mul_1_l : ∀ s, (.1 f .* f s .= f s)%ser.
+Theorem series_mul_1_l : ∀ s, (1 * s = s)%ser.
 Proof.
 intros s.
 constructor; intros k; simpl.
@@ -210,7 +210,7 @@ rewrite summation_only_one_non_0 with (v := O).
  apply fld_mul_0_l.
 Qed.
 
-Theorem series_mul_1_r : ∀ s, (s .* f .1 f .= f s)%ser.
+Theorem series_mul_1_r : ∀ s, (s * 1 = s)%ser.
 Proof.
 intros s.
 rewrite series_mul_comm.
@@ -218,7 +218,7 @@ apply series_mul_1_l.
 Qed.
 
 Theorem series_mul_assoc : ∀ a b c,
-  (a .* f (b .* f c) .= f (a .* f b) .* f c)%ser.
+  (a * (b * c) = (a * b) * c)%ser.
 Proof.
 intros a b c.
 constructor; intros k; simpl.
@@ -239,12 +239,12 @@ reflexivity.
 Qed.
 
 Lemma series_nth_add : ∀ a b i,
-  (((a .+ f b)%ser) .[i] .= f a .[i] .+ f b .[i])%K.
+  (((a + b)%ser) .[i] = a .[i] + b .[i])%K.
 Proof. reflexivity. Qed.
 
 Lemma convol_mul_add_distr_l : ∀ a b c i,
-  (convol_mul f a (b .+ f c)%ser i .= f
-   convol_mul f a b i .+ f convol_mul f a c i)%K.
+  (convol_mul f a (b + c)%ser i =
+   convol_mul f a b i + convol_mul f a c i)%K.
 Proof.
 intros a b c k.
 unfold convol_mul.
@@ -256,7 +256,7 @@ reflexivity.
 Qed.
 
 Theorem series_mul_add_distr_l : ∀ a b c,
-  (a .* f (b .+ f c) .= f a .* f b .+ f a .* f c)%ser.
+  (a * (b + c) = a * b + a * c)%ser.
 Proof.
 intros a b c.
 constructor; intros k; simpl.
@@ -265,8 +265,8 @@ Qed.
 
 End misc_lemmas.
 
-Add Parametric Morphism α (F : field α) : (series_add F)
-  with signature eq_series F ==> eq_series F ==> eq_series F
+Add Parametric Morphism α (K : field α) : series_add
+  with signature eq_series ==> eq_series ==> eq_series
   as series_add_morph.
 Proof.
 intros s₁ s₂ Heq₁ s₃ s₄ Heq₂.
@@ -276,8 +276,8 @@ constructor; intros i; simpl.
 rewrite H, H0; reflexivity.
 Qed.
 
-Add Parametric Morphism α (F : field α) : (@terms α)
-  with signature eq_series F ==> eq ==> (fld_eq F)
+Add Parametric Morphism α (K : field α) : (@terms α)
+  with signature eq_series ==> eq ==> fld_eq
   as series_nth_morph.
 Proof.
 intros s₁ s₂ Heq i.
@@ -291,8 +291,8 @@ Variable α : Type.
 Variable f : field α.
 
 Theorem series_add_compat_l : ∀ a b c,
-  (a .= f b)%ser
-  → (c .+ f a .= f c .+ f b)%ser.
+  (a = b)%ser
+  → (c + a = c + b)%ser.
 Proof.
 intros a b c Hab.
 rewrite Hab.
@@ -300,8 +300,8 @@ reflexivity.
 Qed.
 
 Theorem series_mul_compat_l : ∀ a b c,
-  (a .= f b)%ser
-  → (c .* f a .= f c .* f b)%ser.
+  (a = b)%ser
+  → (c * a = c * b)%ser.
 Proof.
 intros a b c Hab.
 rewrite Hab.
@@ -309,8 +309,8 @@ reflexivity.
 Qed.
 
 Theorem series_mul_compat_r : ∀ a b c,
-  (a .= f b)%ser
-  → (a .* f c .= f b .* f c)%ser.
+  (a = b)%ser
+  → (a * c = b * c)%ser.
 Proof.
 intros a b c Hab.
 rewrite Hab.
@@ -318,7 +318,7 @@ reflexivity.
 Qed.
 
 Theorem series_mul_add_distr_r : ∀ a b c,
-  ((a .+ f b) .* f c .= f a .* f c .+ f b .* f c)%ser.
+  ((a + b) * c = a * c + b * c)%ser.
 Proof.
 intros a b c.
 rewrite series_mul_comm, series_mul_add_distr_l.
@@ -333,10 +333,10 @@ Fixpoint term_inv α (f : field α) c s n :=
   if zerop n then .¹/f (s .[0])%K
   else
    match c with
-   | O => .0 f%K
+   | O => 0%K
    | S c₁ =>
-       (.-f .¹/f (s .[0]) .* f
-        Σ f (i = 1, n), s .[i] .* f term_inv f c₁ s (n - i)%nat)%K
+       (- ¹/ (s .[0]) *
+        Σ f (i = 1, n), s .[i] * term_inv f c₁ s (n - i)%nat)%K
    end.
 
 Definition series_inv α (f : field α) s :=
@@ -350,7 +350,7 @@ Variable α : Type.
 Variable f : field α.
 
 Lemma term_inv_iter_enough : ∀ a i j k,
-  k ≤ i → k ≤ j → (term_inv f i a k .= f term_inv f j a k)%K.
+  k ≤ i → k ≤ j → (term_inv f i a k = term_inv f j a k)%K.
 Proof.
 intros a i j k Hki Hkj.
 revert j k Hki Hkj.
@@ -377,13 +377,13 @@ induction i; intros.
 Qed.
 
 Lemma term_inv_nth_gen_formula : ∀ k a a' i,
-  (a.[0] .≠ f .0 f)%K
+  (a.[0] ≠ 0)%K
   → a' = series_inv f a
     → (S k - i ≠ 0)%nat
-      → (a' .[S k - i] .= f
-         .- f a' .[0] .* f
+      → (a' .[S k - i] =
+         - a' .[0] *
          Σ f (j = 1, S k - i),
-         a .[j] .* f term_inv f (S k) a (S k - i - j))%K.
+         a .[j] * term_inv f (S k) a (S k - i - j))%K.
 Proof.
 (* à revoir... *)
 intros k a a' i Ha Ha' Hki.
@@ -417,10 +417,10 @@ destruct ki.
 Qed.
 
 Lemma term_inv_nth_formula : ∀ k a a',
-  (a.[0] .≠ f .0 f)%K
+  (a.[0] ≠ 0)%K
   → a' = series_inv f a
-    → (a' .[S k] .= f
-       .- f a' .[0] .* f Σ f (i = 1, S k), a .[i] .* f a' .[S k - i])%K.
+    → (a' .[S k] =
+       - a' .[0] * Σ f (i = 1, S k), a .[i] * a' .[S k - i])%K.
 Proof.
 intros k a a' Ha Ha'.
 pose proof (term_inv_nth_gen_formula k O Ha Ha') as H.
@@ -441,9 +441,9 @@ destruct (zerop (S k - i)) as [H₂| H₂].
 Qed.
 
 Lemma convol_mul_inv_r : ∀ k a a',
-  (a.[0] .≠ f .0 f)%K
+  (a.[0] ≠ 0)%K
   → a' = series_inv f a
-    → (convol_mul f a a' (S k) .= f .0 f)%K.
+    → (convol_mul f a a' (S k) = 0)%K.
 Proof.
 intros k a a' Ha Ha'.
 unfold convol_mul.
@@ -464,8 +464,8 @@ rewrite Nat.sub_0_r; auto.
 Qed.
 
 Theorem series_mul_inv_r : ∀ a,
-  (a .[0] .≠ f .0 f)%K
-  → (a .* f .¹/f a .= f .1 f)%ser.
+  (a .[0] ≠ 0)%K
+  → (a * ¹/ a = 1)%ser.
 Proof.
 intros a Ha.
 constructor; intros i; simpl.
@@ -478,8 +478,8 @@ destruct i; simpl.
 Qed.
 
 Theorem series_mul_inv_l : ∀ a,
-  (a .[0] .≠ f .0 f)%K
-  → (.¹/f a .* f a .= f .1 f)%ser.
+  (a .[0] ≠ 0)%K
+  → (¹/ a * a = 1)%ser.
 Proof.
 intros a Ha.
 rewrite series_mul_comm.

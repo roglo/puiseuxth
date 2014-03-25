@@ -12,7 +12,7 @@ Require Import Fsummation.
 
 Set Implicit Arguments.
 
-Record polynomial α := mkpol { al : list α }.
+Class polynomial α := mkpol { al : list α }.
 
 (* lap : list as polynomial, i.e. the only field of the record in the
    definition of polynomial above *)
@@ -20,34 +20,34 @@ Record polynomial α := mkpol { al : list α }.
 Inductive lap_eq α (f : field α) : list α → list α → Prop :=
   | lap_eq_nil : lap_eq f [] []
   | lap_eq_cons : ∀ x₁ x₂ l₁ l₂,
-      (x₁ .= f x₂)%K
+      (x₁ = x₂)%K
       → lap_eq f l₁ l₂
         → lap_eq f [x₁ … l₁] [x₂ … l₂]
   | lap_eq_cons_nil : ∀ x l,
-      (x .= f .0 f)%K
+      (x = 0)%K
       → lap_eq f l []
         → lap_eq f [x … l] []
   | lap_eq_nil_cons : ∀ x l,
-      (x .= f .0 f)%K
+      (x = 0)%K
       → lap_eq f [] l
         → lap_eq f [] [x … l].
 
 Delimit Scope poly_scope with pol.
 Notation "'POL' l" := {| al := l |} (at level 1) : poly_scope.
 
-Definition eq_poly α (f : field α) x y := lap_eq f (al x) (al y).
+Definition eq_poly α (f : field α) x y := lap_eq f (@al _ x) (@al _ y).
 
-Notation "a .= f b" := (eq_poly f a b) : poly_scope.
+Notation "a = b" := (eq_poly a b) : poly_scope.
 
 Definition lap_zero α (f : field α) := ([] : list α).
-Definition lap_one α (f : field α) := [.1 f%K].
+Definition lap_one α (f : field α) := [1%K].
 
-Definition poly_one α (f : field α) := POL [.1 f%K]%pol.
-Notation ".1 f" := (poly_one f) : poly_scope.
+Definition poly_one α (f : field α) := POL [1%K]%pol.
+Notation "1" := poly_one : poly_scope.
 
 Lemma lap_eq_cons_inv : ∀ α (f : field α) x₁ x₂ l₁ l₂,
   lap_eq f [x₁ … l₁] [x₂ … l₂]
-  → (x₁ .= f x₂)%K ∧ lap_eq f l₁ l₂.
+  → (x₁ = x₂)%K ∧ lap_eq f l₁ l₂.
 Proof.
 intros α f x₁ x₂ l₁ l₂ H.
 inversion H; split; assumption.
@@ -55,7 +55,7 @@ Qed.
 
 Lemma lap_eq_cons_nil_inv : ∀ α (f : field α) x l,
   lap_eq f [x … l] []
-  → (x .= f .0 f)%K ∧ lap_eq f l [].
+  → (x = 0)%K ∧ lap_eq f l [].
 Proof.
 intros α f x l H.
 inversion H; split; assumption.
@@ -63,7 +63,7 @@ Qed.
 
 Lemma lap_eq_nil_cons_inv : ∀ α (f : field α) x l,
   lap_eq f [] [x … l]
-  → (x .= f .0 f)%K ∧ lap_eq f [] l.
+  → (x = 0)%K ∧ lap_eq f [] l.
 Proof.
 intros α f x l H.
 inversion H; split; assumption.
@@ -185,14 +185,14 @@ Fixpoint lap_add α (f : field α) al₁ al₂ :=
   | [a₁ … bl₁] =>
       match al₂ with
       | [] => al₁
-      | [a₂ … bl₂] => [(a₁ .+ f a₂)%K … lap_add f bl₁ bl₂]
+      | [a₂ … bl₂] => [(a₁ + a₂)%K … lap_add f bl₁ bl₂]
       end
   end.
 
-Definition lap_opp α (f : field α) la := List.map (fld_opp f) la.
+Definition lap_opp α (f : field α) la := List.map fld_opp la.
 
 Definition poly_add α (f : field α) pol₁ pol₂ :=
-  {| al := lap_add f (al pol₁) (al pol₂) |}.
+  {| al := lap_add f (@al _ pol₁) (@al _ pol₂) |}.
 
 (* multiplication *)
 
@@ -200,23 +200,25 @@ Fixpoint lap_convol_mul α (f : field α) al₁ al₂ i len :=
   match len with
   | O => []
   | S len₁ =>
-      [Σ f (j = 0, i), List.nth j al₁ .0 f .* f List.nth (i - j) al₂ .0 f …
+      [Σ f (j = 0, i), List.nth j al₁ 0 * List.nth (i - j) al₂ 0 …
        lap_convol_mul f al₁ al₂ (S i) len₁]
   end.
 
-Definition lap_mul α (f : field α) la lb :=
+Definition lap_mul {α} {f : field α} la lb :=
   lap_convol_mul f la lb 0 (pred (length la + length lb)).
 
-Definition poly_mul α (f : field α) pol₁ pol₂ :=
-  {| al := lap_mul f (al pol₁) (al pol₂) |}.
+Instance poly_mul {α} {f : field α} pol₁ pol₂ : polynomial α :=
+  { al := lap_mul (@al _ pol₁) (@al _ pol₂) }.
 
 (* power *)
 
 Fixpoint lap_power α (f : field α) la n :=
   match n with
-  | O => [.1 f%K]
-  | S m => lap_mul f la (lap_power f la m)
+  | O => [1%K]
+  | S m => lap_mul la (lap_power f la m)
   end.
+
+bbb.
 
 Definition poly_power α (f : field α) pol n :=
   (POL (lap_power f (al pol) n))%pol.
@@ -232,7 +234,7 @@ Definition poly_compose α (f : field α) a b :=
 Definition lap_compose2 α (f : field α) la lb :=
   List.fold_right
     (λ i accu,
-     lap_add f accu (lap_mul f [List.nth i la .0 f] (lap_power f lb i)))%K
+     lap_add f accu (lap_mul f [List.nth i la 0] (lap_power f lb i)))%K
     [] (List.seq 0 (length la)).
 
 Definition poly_compose2 α (f : field α) a b :=
@@ -246,10 +248,10 @@ Fixpoint list_pad α n (zero : α) rem :=
   | S n₁ => [zero … list_pad n₁ zero rem]
   end.
 
-Notation "a .+ f b" := (poly_add f a b) : poly_scope.
-Notation "a .* f b" := (poly_mul f a b) : poly_scope.
-Notation "a .^ f b" := (poly_power f a b) : poly_scope.
-Notation "a .∘ f b" := (poly_compose f a b) : poly_scope.
+Notation "a + b" := (poly_add a b) : poly_scope.
+Notation "a * b" := (poly_mul a b) : poly_scope.
+Notation "a ^ b" := (poly_power a b) : poly_scope.
+Notation "a ∘ b" := (poly_compose a b) : poly_scope.
 
 Delimit Scope lap_scope with lap.
 Notation ".0 K" := (lap_zero K) : lap_scope.
@@ -260,12 +262,12 @@ Notation "a .+ K b" := (lap_add K a b) : lap_scope.
 Notation "a .- K b" := (lap_add K a (lap_opp K b)) : lap_scope.
 Notation "a .* K b" := (lap_mul K a b) : lap_scope.
 
-Definition Pdivide α (f : field α) x y := ∃ z, (y .= f z .* f x)%pol.
+Definition Pdivide α (f : field α) x y := ∃ z, (y = z * x)%pol.
 
-Definition list_nth_def_0 α (f : field α) n l := List.nth n l .0 f%K.
+Definition list_nth_def_0 α (f : field α) n l := List.nth n l 0%K.
 
 Lemma fold_list_nth_def_0 : ∀ α (f : field α) n l,
-  List.nth n l .0 f%K = list_nth_def_0 f n l.
+  List.nth n l 0%K = list_nth_def_0 f n l.
 Proof. reflexivity. Qed.
 
 (* *)
@@ -549,7 +551,7 @@ constructor.
 Qed.
 
 Lemma list_nth_fld_eq : ∀ α (f : field α) la lb n,
-  lap_eq f la lb → (List.nth n la .0 f .= f List.nth n lb .0 f)%K.
+  lap_eq f la lb → (List.nth n la 0 = List.nth n lb 0)%K.
 Proof.
 intros α f la lb n Hlab.
 revert lb n Hlab.
@@ -594,7 +596,7 @@ Lemma lap_convol_mul_succ : ∀ α (f : field α) la lb i len,
     (lap_convol_mul f la lb i (S len))
     (lap_convol_mul f la lb i len ++
      [Σ f (j = 0, i + len),
-      List.nth j la .0 f .* f List.nth (i + len - j) lb .0 f])%K.
+      List.nth j la 0 * List.nth (i + len - j) lb 0])%K.
 Proof.
 intros α f la lb i len.
 revert la lb i.
@@ -609,7 +611,7 @@ induction len; intros; simpl.
 Qed.
 
 Lemma lap_eq_app_0s : ∀ α (f : field α) la lb,
-  List.Forall (λ b, b .= f .0 f)%K lb
+  List.Forall (λ b, b = 0)%K lb
   → lap_eq f la (la ++ lb).
 Proof.
 intros α f la lb Hz.
@@ -690,7 +692,7 @@ constructor; assumption.
 Qed.
 
 Lemma list_nth_lap_eq : ∀ α (f : field α) la lb,
-  (∀ i, List.nth i la .0 f .= f List.nth i lb .0 f)%K
+  (∀ i, List.nth i la 0 = List.nth i lb 0)%K
   → lap_eq f la lb.
 Proof.
 intros α f la lb Hi.
@@ -827,9 +829,9 @@ Variable f : field α.
 (* addition theorems *)
 
 Theorem poly_add_compat : ∀ a b c d,
-  (a .= f c)%pol
-  → (b .= f d)%pol
-    → (a .+ f b .= f c .+ f d)%pol.
+  (a = c)%pol
+  → (b = d)%pol
+    → (a + b = c + d)%pol.
 Proof.
 intros a b c d Hac Hbd.
 rewrite Hac, Hbd; reflexivity.
@@ -850,7 +852,7 @@ induction al₁; intros.
   constructor; [ apply fld_add_comm | apply IHal₁ ].
 Qed.
 
-Theorem poly_add_comm : ∀ pol₁ pol₂, (pol₁ .+ f pol₂ .= f pol₂ .+ f pol₁)%pol.
+Theorem poly_add_comm : ∀ pol₁ pol₂, (pol₁ + pol₂ = pol₂ + pol₁)%pol.
 Proof.
 intros pol₁ pol₂.
 unfold eq_poly.
@@ -886,7 +888,7 @@ induction al₁; intros.
 Qed.
 
 Lemma poly_add_assoc : ∀ pol₁ pol₂ pol₃,
-  (pol₁ .+ f (pol₂ .+ f pol₃) .= f (pol₁ .+ f pol₂) .+ f pol₃)%pol.
+  (pol₁ + (pol₂ + pol₃) = (pol₁ + pol₂) + pol₃)%pol.
 Proof.
 intros pol₁ pol₂ pol₃.
 unfold eq_poly.
@@ -916,9 +918,9 @@ Qed.
 (* multiplication theorems *)
 
 Theorem poly_mul_compat : ∀ a b c d,
-  (a .= f c)%pol
-  → (b .= f d)%pol
-    → (a .* f b .= f c .* f d)%pol.
+  (a = c)%pol
+  → (b = d)%pol
+    → (a * b = c * d)%pol.
 Proof.
 intros a b c d Hac Hbd.
 rewrite Hac, Hbd; reflexivity.
@@ -931,7 +933,7 @@ unfold lap_mul.
 rewrite lap_convol_mul_comm, Nat.add_comm; reflexivity.
 Qed.
 
-Theorem poly_mul_comm : ∀ a b, (a .* f b .= f b .* f a)%pol.
+Theorem poly_mul_comm : ∀ a b, (a * b = b * a)%pol.
 Proof.
 intros a b.
 unfold eq_poly; simpl.
@@ -942,9 +944,9 @@ Qed.
 
 Lemma list_nth_lap_convol_mul_aux : ∀ la lb n i len,
   pred (List.length la + List.length lb) = (i + len)%nat
-  → (List.nth n (lap_convol_mul f la lb i len) .0 f%K .= f
+  → (List.nth n (lap_convol_mul f la lb i len) 0%K =
      Σ f (j = 0, n + i),
-     List.nth j la .0 f .* f List.nth (n + i - j) lb .0 f)%K.
+     List.nth j la 0 * List.nth (n + i - j) lb 0)%K.
 Proof.
 intros la lb n i len Hlen.
 revert la lb i n Hlen.
@@ -973,8 +975,8 @@ Qed.
 
 Lemma list_nth_lap_convol_mul : ∀ la lb i len,
   len = pred (length la + length lb)
-  → (List.nth i (lap_convol_mul f la lb 0 len) .0 f .= f
-     Σ f (j = 0, i), List.nth j la .0 f .* f List.nth (i - j) lb .0 f)%K.
+  → (List.nth i (lap_convol_mul f la lb 0 len) 0 =
+     Σ f (j = 0, i), List.nth j la 0 * List.nth (i - j) lb 0)%K.
 Proof.
 intros la lb i len Hlen.
 symmetry in Hlen.
@@ -984,14 +986,14 @@ Qed.
 
 Lemma summation_mul_list_nth_lap_convol_mul : ∀ la lb lc k,
   (Σ f (i = 0, k),
-     List.nth i la .0 f .* f
+     List.nth i la 0 *
      List.nth (k - i)
        (lap_convol_mul f lb lc 0 (pred (length lb + length lc))) 
-       .0 f .= f
+       0 =
    Σ f (i = 0, k),
-     List.nth i la .0 f .* f
+     List.nth i la 0 *
      Σ f (j = 0, k - i),
-       List.nth j lb .0 f .* f List.nth (k - i - j) lc .0 f)%K.
+       List.nth j lb 0 * List.nth (k - i - j) lc 0)%K.
 Proof.
 intros la lb lc k.
 apply summation_compat; intros i (_, Hi).
@@ -1001,13 +1003,13 @@ Qed.
 
 Lemma summation_mul_list_nth_lap_convol_mul_2 : ∀ la lb lc k,
    (Σ f (i = 0, k),
-      List.nth i lc .0 f .* f
+      List.nth i lc 0 *
       List.nth (k - i)
-        (lap_convol_mul f la lb 0 (pred (length la + length lb)))  .0 f .= f
+        (lap_convol_mul f la lb 0 (pred (length la + length lb)))  0 =
     Σ f (i = 0, k),
-      List.nth (k - i) lc .0 f .* f
+      List.nth (k - i) lc 0 *
       Σ f (j = 0, i),
-        List.nth j la .0 f .* f List.nth (i - j) lb .0 f)%K.
+        List.nth j la 0 * List.nth (i - j) lb 0)%K.
 Proof.
 intros la lb lc k.
 rewrite summation_rtl.
@@ -1045,7 +1047,7 @@ reflexivity.
 Qed.
 
 Lemma poly_mul_assoc : ∀ P Q R,
-  (P .* f (Q .* f R) .= f (P .* f Q) .* f R)%pol.
+  (P * (Q * R) = (P * Q) * R)%pol.
 Proof.
 intros P Q R.
 apply lap_mul_assoc.
@@ -1060,7 +1062,7 @@ apply lap_mul_compat; [ reflexivity | apply lap_mul_comm ].
 Qed.
 
 Lemma lap_eq_skipn_succ : ∀ cl i,
-  lap_eq f [List.nth i cl .0 f%K … List.skipn (S i) cl] (List.skipn i cl).
+  lap_eq f [List.nth i cl 0%K … List.skipn (S i) cl] (List.skipn i cl).
 Proof.
 intros cl i.
 revert i.
@@ -1072,7 +1074,7 @@ Qed.
 
 Lemma lap_convol_mul_1_l : ∀ cl i len,
   length cl = (i + len)%nat
-  → lap_eq f (lap_convol_mul f [.1 f%K] cl i len) (List.skipn i cl).
+  → lap_eq f (lap_convol_mul f [1%K] cl i len) (List.skipn i cl).
 Proof.
 intros cl i len Hlen.
 revert cl i Hlen.
@@ -1097,7 +1099,7 @@ Qed.
 Lemma lap_convol_mul_x_l : ∀ cl i len,
   length cl = (i + len)%nat
   → lap_eq f
-      (lap_convol_mul f [.0 f%K; .1 f%K … []] cl (S i) len)
+      (lap_convol_mul f [0%K; 1%K … []] cl (S i) len)
       (List.skipn i cl).
 Proof.
 intros cl i len Hlen.
@@ -1122,7 +1124,7 @@ induction len; intros.
   destruct j; rewrite fld_mul_0_l; reflexivity.
 Qed.
 
-Theorem poly_mul_1_l : ∀ a, (.1 f .* f a .= f a)%pol.
+Theorem poly_mul_1_l : ∀ a, (1 * a = a)%pol.
 Proof.
 intros a.
 unfold eq_poly; simpl.
@@ -1130,7 +1132,7 @@ unfold lap_mul; simpl.
 rewrite lap_convol_mul_1_l; reflexivity.
 Qed.
 
-Theorem poly_mul_1_r : ∀ a, (a .* f .1 f .= f a)%pol.
+Theorem poly_mul_1_r : ∀ a, (a * 1 = a)%pol.
 Proof.
 intros a.
 rewrite poly_mul_comm.
@@ -1142,16 +1144,16 @@ Fixpoint lap_convol_mul_add al₁ al₂ al₃ i len :=
   | O => []
   | S len₁ =>
       [Σ f (j = 0, i),
-       List.nth j al₁ .0 f .* f
-       (List.nth (i - j) al₂ .0 f .+ f List.nth (i - j) al₃ .0 f) …
+       List.nth j al₁ 0 *
+       (List.nth (i - j) al₂ 0 + List.nth (i - j) al₃ 0) …
        lap_convol_mul_add al₁ al₂ al₃ (S i) len₁]
   end.
 
 (* *)
 
 Lemma list_nth_add : ∀ k la lb,
-  (List.nth k (lap_add f la lb) .0 f .= f
-   List.nth k la .0 f .+ f List.nth k lb .0 f)%K.
+  (List.nth k (lap_add f la lb) 0 =
+   List.nth k la 0 + List.nth k lb 0)%K.
 Proof.
 intros k la lb.
 revert la lb.
@@ -1234,14 +1236,14 @@ apply lap_add_compat; [ reflexivity | apply lap_mul_comm ].
 Qed.
 
 Lemma poly_mul_add_distr_l : ∀ P Q R,
-  (P .* f (Q .+ f R) .= f P .* f Q .+ f P .* f R)%pol.
+  (P * (Q + R) = P * Q + P * R)%pol.
 Proof.
 intros P Q R.
 apply lap_mul_add_distr_l.
 Qed.
 
 Lemma poly_mul_add_distr_r : ∀ P Q R,
-  ((P .+ f Q) .* f R .= f P .* f R .+ f Q .* f R)%pol.
+  ((P + Q) * R = P * R + Q * R)%pol.
 Proof.
 intros P Q R.
 apply lap_mul_add_distr_r.
@@ -1249,7 +1251,7 @@ Qed.
 
 Lemma lap_convol_mul_1_r : ∀ la i len,
   (i + len = length la)%nat
-  → lap_eq f (lap_convol_mul f la [.1 f%K] i len) (List.skipn i la).
+  → lap_eq f (lap_convol_mul f la [1%K] i len) (List.skipn i la).
 Proof.
 intros la i len Hlen.
 revert la i Hlen.
@@ -1275,7 +1277,7 @@ induction len; intros; simpl.
   destruct j; rewrite fld_mul_0_r; reflexivity.
 Qed.
 
-Lemma lap_mul_1_l : ∀ la, lap_eq f (lap_mul f [.1 f%K] la) la.
+Lemma lap_mul_1_l : ∀ la, lap_eq f (lap_mul f [1%K] la) la.
 Proof.
 intros la.
 unfold lap_mul.
@@ -1283,7 +1285,7 @@ apply lap_convol_mul_1_l; simpl.
 reflexivity.
 Qed.
 
-Lemma lap_mul_1_r : ∀ la, lap_eq f (lap_mul f la [.1 f%K]) la.
+Lemma lap_mul_1_r : ∀ la, lap_eq f (lap_mul f la [1%K]) la.
 Proof.
 intros la.
 unfold lap_mul.
@@ -1306,9 +1308,9 @@ Qed.
 
 Lemma list_nth_convol_mul : ∀ la lb i k len,
   (i + len)%nat = pred (length la + length lb)
-  → (List.nth k (lap_convol_mul f la lb i len) .0 f .= f
+  → (List.nth k (lap_convol_mul f la lb i len) 0 =
      Σ f (j = 0, i + k),
-     List.nth j la .0 f .* f List.nth (i + k - j) lb .0 f)%K.
+     List.nth j la 0 * List.nth (i + k - j) lb 0)%K.
 Proof.
 intros la lb i k len Hilen.
 revert la lb i k Hilen.
@@ -1335,8 +1337,8 @@ induction len; intros; simpl.
 Qed.
 
 Lemma list_nth_lap_mul : ∀ la lb k,
-  (List.nth k (lap_mul f la lb) .0 f .= f
-   Σ f (i = 0, k), List.nth i la .0 f .* f List.nth (k - i) lb .0 f)%K.
+  (List.nth k (lap_mul f la lb) 0 =
+   Σ f (i = 0, k), List.nth i la 0 * List.nth (k - i) lb 0)%K.
 Proof.
 intros la lb k.
 apply list_nth_convol_mul; reflexivity.
@@ -1416,9 +1418,9 @@ rewrite Hac, Hbd; reflexivity.
 Qed.
 
 Theorem poly_compose_compat : ∀ a b c d,
-  (a .= f c)%pol
-  → (b .= f d)%pol
-    → (poly_compose f a b .= f poly_compose f c  d)%pol.
+  (a = c)%pol
+  → (b = d)%pol
+    → (poly_compose f a b = poly_compose f c  d)%pol.
 Proof.
 intros a b c d Hac Hbd.
 apply lap_compose_compat; assumption.
@@ -1497,7 +1499,7 @@ apply IHs; assumption.
 Qed.
 
 Lemma lap_power_x : ∀ n,
-  lap_eq f (lap_power f [.0 f; .1 f … []] n)%K (list_pad n .0 f [.1 f])%K.
+  lap_eq f (lap_power f [0; 1 … []] n)%K (list_pad n 0 [1])%K.
 Proof.
 intros n.
 apply list_nth_lap_eq; intros i.
@@ -1586,7 +1588,7 @@ Qed.
 
 Lemma lap_mul_cons_l : ∀ a la lb,
   lap_eq f (lap_mul f [a … la] lb)
-    (lap_add f (lap_mul f [a] lb) [.0 f%K … lap_mul f la lb]).
+    (lap_add f (lap_mul f [a] lb) [0%K … lap_mul f la lb]).
 Proof.
 intros a la lb.
 unfold lap_mul.
@@ -1618,7 +1620,7 @@ Qed.
 
 Lemma lap_mul_cons_r : ∀ la b lb,
   lap_eq f (lap_mul f la [b … lb])
-    (lap_add f (lap_mul f la [b]) [.0 f%K … lap_mul f la lb]).
+    (lap_add f (lap_mul f la [b]) [0%K … lap_mul f la lb]).
 Proof.
 intros la b lb.
 rewrite lap_mul_comm.
@@ -1628,7 +1630,7 @@ apply lap_add_compat; [ reflexivity | idtac ].
 rewrite lap_mul_comm; reflexivity.
 Qed.
 
-Lemma lap_eq_0 : lap_eq f [.0 f%K] [].
+Lemma lap_eq_0 : lap_eq f [0%K] [].
 Proof. constructor; reflexivity. Qed.
 
 Lemma lap_convol_mul_cons_succ : ∀ a b lb i len,
@@ -1649,9 +1651,9 @@ Qed.
 
 Lemma lap_mul_cons : ∀ a b la lb,
   lap_eq f (lap_mul f [a … la] [b … lb])
-    [(a .* f b)%K
+    [(a * b)%K
     … lap_add f (lap_add f (lap_mul f la [b]) (lap_mul f [a] lb))
-        [.0 f%K … lap_mul f la lb]].
+        [0%K … lap_mul f la lb]].
 Proof.
 intros a b la lb.
 rewrite lap_mul_cons_l; simpl.
@@ -1669,8 +1671,8 @@ Qed.
 
 Lemma lap_mul_power : ∀ n la,
   lap_eq f
-    (lap_mul f (lap_power f [.0 f; .1 f … []] n) la)%K
-    (list_pad n .0 f la)%K.
+    (lap_mul f (lap_power f [0; 1 … []] n) la)%K
+    (list_pad n 0 la)%K.
 Proof.
 intros n la.
 rewrite lap_power_x.
@@ -1699,7 +1701,7 @@ destruct la as [| a]; simpl.
 Qed.
 
 Lemma nth_lap_power_id : ∀ n,
-  (List.nth n (lap_power f [.0 f; .1 f … []] n) .0 f .= f .1 f)%K.
+  (List.nth n (lap_power f [0; 1 … []] n) 0 = 1)%K.
 Proof.
 intros n.
 rewrite fold_list_nth_def_0.
@@ -1710,7 +1712,7 @@ Qed.
 
 Lemma nth_lap_power_lt : ∀ i n,
   (i < n)%nat
-  → (List.nth i (lap_power f [.0 f; .1 f … []] n) .0 f .= f .0 f)%K.
+  → (List.nth i (lap_power f [0; 1 … []] n) 0 = 0)%K.
 Proof.
 intros i n Hin.
 Admitted.
@@ -1730,7 +1732,7 @@ induction l; [ assumption | simpl; rewrite IHl; reflexivity ].
 Qed.
 
 Lemma lap_cons_add : ∀ a lb lc,
-  ([a … lb .+ f lc] .= f [a … lb] .+ f [.0 f%K … lc])%lap.
+  ([a … lb + lc] = [a … lb] + [0%K … lc])%lap.
 Proof.
 intros a lb lc.
 destruct lb as [| b]; simpl; rewrite fld_add_0_r; reflexivity.
@@ -1754,7 +1756,7 @@ Definition horner α β γ
     (pol : polynomial β) (x : γ) :=
   List.fold_right (λ c accu, add_v_c (mul_v_x accu x) c) zero_c (al pol).
 
-Theorem lap_add_opp_l : ∀ α (f : field α) la, (.- f la .+ f la .= f .0 f)%lap.
+Theorem lap_add_opp_l : ∀ α (f : field α) la, (.- f la + la = 0)%lap.
 Proof.
 intros α f la.
 induction la as [| a]; [ reflexivity | simpl ].
