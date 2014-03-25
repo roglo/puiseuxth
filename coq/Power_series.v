@@ -330,7 +330,7 @@ Qed.
 End other_lemmas.
 
 Fixpoint term_inv α (f : field α) c s n :=
-  if zerop n then .¹/f (s .[0])%K
+  if zerop n then ¹/ (s .[0])%K
   else
    match c with
    | O => 0%K
@@ -339,10 +339,10 @@ Fixpoint term_inv α (f : field α) c s n :=
         Σ f (i = 1, n), s .[i] * term_inv f c₁ s (n - i)%nat)%K
    end.
 
-Definition series_inv α (f : field α) s :=
-  {| terms i := term_inv f (S i) s i |}.
+Instance series_inv {α} {f : field α} s : power_series α :=
+  { terms i := term_inv f (S i) s i }.
 
-Notation ".¹/ f a" := (series_inv f a) : series_scope.
+Notation "¹/ a" := (series_inv a) : series_scope.
 
 Section lemmas_again.
 
@@ -378,7 +378,7 @@ Qed.
 
 Lemma term_inv_nth_gen_formula : ∀ k a a' i,
   (a.[0] ≠ 0)%K
-  → a' = series_inv f a
+  → a' = series_inv a
     → (S k - i ≠ 0)%nat
       → (a' .[S k - i] =
          - a' .[0] *
@@ -418,7 +418,7 @@ Qed.
 
 Lemma term_inv_nth_formula : ∀ k a a',
   (a.[0] ≠ 0)%K
-  → a' = series_inv f a
+  → a' = series_inv a
     → (a' .[S k] =
        - a' .[0] * Σ f (i = 1, S k), a .[i] * a' .[S k - i])%K.
 Proof.
@@ -442,7 +442,7 @@ Qed.
 
 Lemma convol_mul_inv_r : ∀ k a a',
   (a.[0] ≠ 0)%K
-  → a' = series_inv f a
+  → a' = series_inv a
     → (convol_mul f a a' (S k) = 0)%K.
 Proof.
 intros k a a' Ha Ha'.

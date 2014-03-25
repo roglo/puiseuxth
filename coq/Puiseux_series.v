@@ -14,7 +14,7 @@ Set Implicit Arguments.
 (* ps_terms: power series (in x^(1/ps_polord))
    ps_valnum: valuation numerator
    ps_polord: polydromy order (common denominator) *)
-Record puiseux_series α := mkps
+Class puiseux_series α := mkps
   { ps_terms : power_series α;
     ps_valnum : Z;
     ps_polord : positive }.
@@ -30,10 +30,10 @@ Admitted.
 Definition null_coeff_range_length_prop α (f : field α) s n v :=
   match v with
   | fin k =>
-      (∀ i : nat, (i < k)%nat → (s .[n + i] .= f .0 f)%K)
-      ∧ (s .[n + k] .≠ f .0 f)%K
+      (∀ i : nat, (i < k)%nat → (s .[n + i] = 0)%K)
+      ∧ (s .[n + k] ≠ 0)%K
   | ∞ =>
-      ∀ i : nat, (s .[n + i] .= f .0 f)%K
+      ∀ i : nat, (s .[n + i] = 0)%K
   end.
 
 Axiom null_coeff_range_length_iff : ∀ α (f : field α) s n v,
@@ -76,16 +76,16 @@ End Axioms.
 Definition series_stretch α (f : field α) k s :=
   {| terms i :=
        if zerop (i mod Pos.to_nat k) then s .[i / Pos.to_nat k]
-       else fld_zero f |}.
+       else fld_zero |}.
 
 Definition series_shift α (f : field α) n s :=
-  {| terms i := if lt_dec i n then fld_zero f else terms s (i - n) |}.
+  {| terms i := if lt_dec i n then fld_zero else s .[i - n] |}.
 
 Definition series_shrink α k (s : power_series α) :=
-  {| terms i := terms s (i * Pos.to_nat k) |}.
+  {| terms i := s .[i * Pos.to_nat k] |}.
 
 Definition series_left_shift α n (s : power_series α) :=
-  {| terms i := terms s (n + i) |}.
+  {| terms i := s .[n + i] |}.
 
 Arguments series_stretch α%type _ k%positive s%ser.
 Arguments series_shift α%type _ n%nat s%ser.
@@ -96,53 +96,54 @@ Definition canonify_series α n k (s : power_series α) :=
   series_shrink k (series_left_shift n s).
 
 Definition gcd_ps α n k (ps : puiseux_series α) :=
-  Z.gcd (Z.gcd (ps_valnum ps + Z.of_nat n) (' ps_polord ps)) (Z.of_nat k).
+  Z.gcd (Z.gcd (@ps_valnum _ ps + Z.of_nat n) (' @ps_polord _ ps))
+    (Z.of_nat k).
 
 Definition ps_zero α (f : field α) :=
-  {| ps_terms := series_0 f; ps_valnum := 0; ps_polord := 1 |}.
+  {| ps_terms := series_0; ps_valnum := 0; ps_polord := 1 |}.
 
 Definition canonic_ps α (f : field α) ps :=
-  match null_coeff_range_length f (ps_terms ps) 0 with
+  match null_coeff_range_length f (@ps_terms _ ps) 0 with
   | fin n =>
-      let k := greatest_series_x_power f (ps_terms ps) n in
+      let k := greatest_series_x_power f (@ps_terms _ ps) n in
       let g := gcd_ps n k ps in
-      {| ps_terms := canonify_series n (Z.to_pos g) (ps_terms ps);
-         ps_valnum := (ps_valnum ps + Z.of_nat n) / g;
-         ps_polord := Z.to_pos (' ps_polord ps / g) |}
+      {| ps_terms := canonify_series n (Z.to_pos g) (@ps_terms _ ps);
+         ps_valnum := (@ps_valnum _ ps + Z.of_nat n) / g;
+         ps_polord := Z.to_pos (' @ps_polord _ ps / g) |}
   | ∞ =>
       ps_zero f
   end.
 
-Inductive eq_ps_strong α (f : field α) :
+Inductive eq_ps_strong {α} {f : field α} :
   puiseux_series α → puiseux_series α → Prop :=
   | eq_strong_base : ∀ ps₁ ps₂,
-      ps_valnum ps₁ = ps_valnum ps₂
-      → ps_polord ps₁ = ps_polord ps₂
-        → eq_series f (ps_terms ps₁) (ps_terms ps₂)
-          → eq_ps_strong f ps₁ ps₂.
+      @ps_valnum _ ps₁ = @ps_valnum _ ps₂
+      → @ps_polord _ ps₁ = @ps_polord _ ps₂
+        → eq_series (@ps_terms _ ps₁) (@ps_terms _ ps₂)
+          → eq_ps_strong ps₁ ps₂.
 
 Inductive eq_ps α (f : field α) :
   puiseux_series α → puiseux_series α → Prop :=
   | eq_ps_base : ∀ ps₁ ps₂,
-      eq_ps_strong f (canonic_ps f ps₁) (canonic_ps f ps₂)
+      eq_ps_strong (canonic_ps f ps₁) (canonic_ps f ps₂)
       → eq_ps f ps₁ ps₂.
 
 Definition ps_monom α (f : field α) (c : α) pow :=
-  {| ps_terms := {| terms i := if zerop i then c else .0 f%K |};
+  {| ps_terms := {| terms i := if zerop i then c else 0%K |};
      ps_valnum := Qnum pow;
      ps_polord := Qden pow |}.
 
-Definition ps_one α (f : field α) := ps_monom f (fld_one f) 0.
+Definition ps_one α (f : field α) := ps_monom f fld_one 0.
 
 Delimit Scope ps_scope with ps.
-Notation "a ≐ f b" := (eq_ps_strong f a b) (at level 70, f at level 0).
-Notation "a .= f b" := (eq_ps f a b) : ps_scope.
-Notation "a .≠ f b" := (not (eq_ps f a b)) : ps_scope.
-Notation ".0 f" := (ps_zero f) : ps_scope.
-Notation ".1 f" := (ps_one f) : ps_scope.
+Notation "a ≐ b" := (eq_ps_strong a b) (at level 70, f at level 0).
+Notation "a = b" := (eq_ps a b) : ps_scope.
+Notation "a ≠ b" := (not (eq_ps a b)) : ps_scope.
+Notation "0" := ps_zero : ps_scope.
+Notation "1" := ps_one : ps_scope.
 
 Lemma series_stretch_1 : ∀ α (f : field α) s,
-  (series_stretch f 1 s .= f s)%ser.
+  (series_stretch f 1 s = s)%ser.
 Proof.
 intros α f s.
 unfold series_stretch; simpl.
@@ -150,20 +151,20 @@ constructor; intros i; simpl.
 rewrite divmod_div, Nat.div_1_r; reflexivity.
 Qed.
 
-Theorem eq_strong_refl α (f : field α) : reflexive _ (eq_ps_strong f).
+Theorem eq_strong_refl {α} {f : field α} : reflexive _ eq_ps_strong.
 Proof. intros ps. constructor; reflexivity. Qed.
 
-Theorem eq_strong_sym α (f : field α) : symmetric _ (eq_ps_strong f).
+Theorem eq_strong_sym {α} {f : field α} : symmetric _ eq_ps_strong.
 Proof. intros ps₁ ps₂ H; induction H; constructor; symmetry; assumption. Qed.
 
-Theorem eq_strong_trans α (f : field α) : transitive _ (eq_ps_strong f).
+Theorem eq_strong_trans {α} {f : field α} : transitive _ eq_ps_strong.
 Proof.
 intros ps₁ ps₂ ps₃ H₁ H₂.
 induction H₁, H₂.
 constructor; etransitivity; eassumption.
 Qed.
 
-Add Parametric Relation α (f : field α) : (puiseux_series α) (eq_ps_strong f)
+Add Parametric Relation α (f : field α) : (puiseux_series α) (eq_ps_strong)
  reflexivity proved by (eq_strong_refl f)
  symmetry proved by (eq_strong_sym (f := f))
  transitivity proved by (eq_strong_trans (f := f))
@@ -186,7 +187,7 @@ apply Nbar.mul_lt_mono_pos_r.
 Qed.
 
 Add Parametric Morphism α (f : field α) : (@mkps α)
-  with signature eq_series f ==> eq ==> eq ==> eq_ps_strong f
+  with signature eq_series f ==> eq ==> eq ==> eq_ps_strong
   as mkps_strong_eq_morphism.
 Proof.
 intros a b Hab v n.
@@ -313,14 +314,14 @@ apply H.
 Qed.
 
 Add Parametric Morphism α (f : field α) : (canonic_ps f)
-  with signature eq_ps_strong f ==> eq_ps_strong f
+  with signature eq_ps_strong ==> eq_ps_strong
   as canonic_ps_morph.
 Proof.
 intros ps₁ ps₂ Heq.
 inversion Heq; subst.
 unfold canonic_ps.
 rewrite H, H0, H1.
-remember (null_coeff_range_length f (ps_terms ps₂) 0) as n eqn:Hn .
+remember (null_coeff_range_length f (@ps_terms _ ps₂) 0) as n eqn:Hn .
 symmetry in Hn.
 destruct n as [n| ]; [ idtac | reflexivity ].
 unfold gcd_ps.
@@ -354,7 +355,7 @@ induction H; constructor; try assumption; symmetry; assumption.
 Qed.
 
 Lemma series_stretch_stretch : ∀ a b s,
-  (series_stretch f (a * b) s .= f
+  (series_stretch f (a * b) s =
    series_stretch f a (series_stretch f b s))%ser.
 Proof.
 intros ap bp s.
@@ -397,14 +398,14 @@ destruct (zerop (i mod (a * b))) as [Hz| Hnz].
   apply Nat.neq_mul_0; split; assumption.
 Qed.
 
-Lemma series_shift_series_0 : ∀ n, (series_shift f n .0 f .= f .0 f)%ser.
+Lemma series_shift_series_0 : ∀ n, (series_shift f n 0 = 0)%ser.
 Proof.
 intros n.
 constructor; intros i; simpl.
 destruct (lt_dec i n); reflexivity.
 Qed.
 
-Lemma series_stretch_series_0 : ∀ k, (series_stretch f k .0 f .= f .0 f)%ser.
+Lemma series_stretch_series_0 : ∀ k, (series_stretch f k 0 = 0)%ser.
 Proof.
 intros k.
 constructor; intros i; simpl.
@@ -413,8 +414,8 @@ destruct (Nbar.lt_dec (fin (i / Pos.to_nat k)) 0); reflexivity.
 Qed.
 
 Lemma series_stretch_0_if : ∀ k s,
-  (series_stretch f k s .= f .0 f)%ser
-  → (s .= f .0 f)%ser.
+  (series_stretch f k s = 0)%ser
+  → (s = 0)%ser.
 Proof.
 intros k s Hs.
 constructor; intros i.
@@ -427,7 +428,7 @@ assumption.
 Qed.
 
 Lemma stretch_shift_series_distr : ∀ kp n s,
-  (series_stretch f kp (series_shift f n s) .= f
+  (series_stretch f kp (series_shift f n s) =
    series_shift f (n * Pos.to_nat kp) (series_stretch f kp s))%ser.
 Proof.
 intros kp n s.
@@ -478,7 +479,7 @@ destruct (zerop (i mod k)) as [Hz| Hnz].
 Qed.
 
 Lemma series_shift_shift : ∀ x y ps,
-  (series_shift f x (series_shift f y ps) .= f series_shift f (x + y) ps)%ser.
+  (series_shift f x (series_shift f y ps) = series_shift f (x + y) ps)%ser.
 Proof.
 intros x y ps.
 constructor; intros i; simpl.
@@ -504,7 +505,7 @@ Qed.
 
 Theorem series_shift_left_shift : ∀ s n,
   null_coeff_range_length f s 0 = fin n
-  → (series_shift f n (series_left_shift n s) .= f s)%ser.
+  → (series_shift f n (series_left_shift n s) = s)%ser.
 Proof.
 intros s n Hn.
 apply null_coeff_range_length_iff in Hn.
@@ -522,7 +523,7 @@ Qed.
 
 Theorem series_left_shift_shift : ∀ s n m,
   (m ≤ n)%nat
-  → (series_left_shift n (series_shift f m s) .= f
+  → (series_left_shift n (series_shift f m s) =
      series_left_shift (n - m) s)%ser.
 Proof.
 intros s n m Hmn.
@@ -537,7 +538,7 @@ destruct (lt_dec (n + i) m) as [H₁| H₁].
 Qed.
 
 Theorem series_left_shift_stretch : ∀ s n k,
-  (series_left_shift (n * Pos.to_nat k) (series_stretch f k s) .= f
+  (series_left_shift (n * Pos.to_nat k) (series_stretch f k s) =
    series_stretch f k (series_left_shift n s))%ser.
 Proof.
 intros s n k.
@@ -570,7 +571,7 @@ Section other_lemmas.
 Variable α : Type.
 Variable f : field α.
 
-Lemma ps_zero_monom_eq : (ps_monom f .0 f%K 0 .= f .0 f)%ps.
+Lemma ps_zero_monom_eq : (ps_monom f 0%K 0 = 0)%ps.
 Proof.
 unfold ps_zero, ps_monom; simpl.
 apply mkps_morphism; try reflexivity.
@@ -578,14 +579,14 @@ constructor; intros n; simpl.
 destruct (zerop n); reflexivity.
 Qed.
 
-Lemma series_shift_0 : ∀ s, (series_shift f 0 s .= f s)%ser.
+Lemma series_shift_0 : ∀ s, (series_shift f 0 s = s)%ser.
 Proof.
 intros s.
 constructor; intros i; simpl.
 rewrite Nat.sub_0_r; reflexivity.
 Qed.
 
-Lemma series_left_shift_0 : ∀ s, (series_left_shift 0 s .= f s)%ser.
+Lemma series_left_shift_0 : ∀ s, (series_left_shift 0 s = s)%ser.
 Proof.
 intros s.
 constructor; intros i; simpl.
@@ -681,7 +682,7 @@ Qed.
 
 Lemma shifted_in_stretched : ∀ s k i,
   (0 < i mod Pos.to_nat k)%nat
-  → (series_stretch f k s) .[i] = .0 f%K.
+  → (series_stretch f k s) .[i] = 0%K.
 Proof.
 intros s k i Hi; simpl.
 destruct (zerop (i mod Pos.to_nat k)) as [Hz| ]; [ idtac | reflexivity ].
@@ -689,7 +690,7 @@ exfalso; revert Hi; rewrite Hz; apply Nat.lt_irrefl.
 Qed.
 
 Lemma stretch_series_const : ∀ k c,
-  (series_stretch f k (series_const f c) .= f series_const f c)%ser.
+  (series_stretch f k (series_const f c) = series_const f c)%ser.
 Proof.
 intros k c.
 constructor; intros i; simpl.
@@ -710,7 +711,7 @@ destruct (zerop (i mod Pos.to_nat k)) as [H| H].
  exfalso; revert H; apply Nat.lt_irrefl.
 Qed.
 
-Lemma stretch_series_1 : ∀ k, (series_stretch f k .1 f .= f .1 f)%ser.
+Lemma stretch_series_1 : ∀ k, (series_stretch f k .1 f = .1 f)%ser.
 Proof.
 intros k.
 apply stretch_series_const.
@@ -734,8 +735,8 @@ rewrite Nat.mul_comm; reflexivity.
 Qed.
 
 Lemma stretch_finite_series : ∀ s b k,
-  (∀ i, (s .[b + i] .= f .0 f)%K)
-  → ∀ i, ((series_stretch f k s) .[b * Pos.to_nat k + i] .= f .0 f)%K.
+  (∀ i, (s .[b + i] = 0)%K)
+  → ∀ i, ((series_stretch f k s) .[b * Pos.to_nat k + i] = 0)%K.
 Proof.
 intros s b k Hz i.
 destruct (zerop (i mod Pos.to_nat k)) as [H₁| H₁].
@@ -1051,7 +1052,7 @@ destruct (lt_dec (S i) (Pos.to_nat k)) as [H| H].
 Qed.
 
 Lemma series_shrink_shrink : ∀ (s : power_series α) k₁ k₂,
-  (series_shrink (k₁ * k₂) s .= f
+  (series_shrink (k₁ * k₂) s =
    series_shrink k₁ (series_shrink k₂ s))%ser.
 Proof.
 intros s k₁ k₂.
@@ -1060,7 +1061,7 @@ rewrite Pos2Nat.inj_mul, Nat.mul_assoc; reflexivity.
 Qed.
 
 Lemma series_shrink_stretch : ∀ s k,
-  (series_shrink k (series_stretch f k s) .= f s)%ser.
+  (series_shrink k (series_stretch f k s) = s)%ser.
 Proof.
 intros s k.
 constructor; intros i; simpl.
@@ -1090,7 +1091,7 @@ Lemma series_nth_0_in_interval_from_any : ∀ s i c b k,
        nth_null_coeff_range_length f s
          (pred (rank_of_nonzero_after_from s c (b + i) b)) b)%nat
       → i mod Pos.to_nat k ≠ O
-        → (s .[b + i] .= f .0 f)%K.
+        → (s .[b + i] = 0)%K.
 Proof.
 (* à nettoyer *)
 intros s i c b k Hic Has Hs Hm.
@@ -1183,7 +1184,7 @@ Lemma series_nth_0_in_interval : ∀ s k,
   (∀ n, (Pos.to_nat k | nth_null_coeff_range_length f s n 0)%nat)
   → ∀ i,
     (i mod Pos.to_nat k ≠ 0)%nat
-    → (s .[i] .= f .0 f)%K.
+    → (s .[i] = 0)%K.
 Proof.
 intros s k Hs i Hi.
 remember (rank_of_nonzero_before s i) as cnt.
@@ -1200,7 +1201,7 @@ Qed.
 
 Lemma series_stretch_shrink : ∀ s k,
   (Pos.to_nat k | greatest_series_x_power f s 0)
-  → (series_stretch f k (series_shrink k s) .= f s)%ser.
+  → (series_stretch f k (series_shrink k s) = s)%ser.
 Proof.
 intros s k Hk.
 constructor; intros i; simpl.
@@ -1536,9 +1537,9 @@ Lemma gcd_ps_is_pos : ∀ n k (ps : puiseux_series α), (0 < gcd_ps n k ps)%Z.
 Proof.
 intros n k ps.
 unfold gcd_ps; simpl.
-remember (ps_valnum ps + Z.of_nat n)%Z as x.
+remember (@ps_valnum _ ps + Z.of_nat n)%Z as x.
 rewrite <- Z.gcd_assoc.
-remember (Z.gcd (' ps_polord ps) (Z.of_nat k))%Z as y eqn:Hy .
+remember (Z.gcd (' @ps_polord _ ps) (Z.of_nat k))%Z as y eqn:Hy .
 pose proof (Z.gcd_nonneg x y) as Hp.
 destruct (Z_zerop (Z.gcd x y)) as [H₁| H₁]; [ idtac | omega ].
 apply Z.gcd_eq_0_r in H₁.
@@ -1551,7 +1552,7 @@ Lemma series_null_power : ∀ s b p,
   is_a_series_in_x_power f s b p
   → ∀ i,
     ((i - b) mod p)%nat ≠ O
-    → (s .[i] .= f .0 f)%K.
+    → (s .[i] = 0)%K.
 Proof.
 intros s b p Hxp i Hip.
 destruct p; [ exfalso; apply Hip; reflexivity | idtac ].
@@ -1577,15 +1578,15 @@ destruct (le_dec i b) as [H₁| H₁].
 Qed.
 
 Lemma null_coeff_range_length_inf_iff : ∀ ps,
-  null_coeff_range_length f (ps_terms ps) 0 = ∞
-  ↔ (ps .= f .0 f)%ps.
+  null_coeff_range_length f (@ps_terms _ ps) 0 = ∞
+  ↔ (ps = 0)%ps.
 Proof.
 intros ps.
 split; intros H.
  constructor.
  unfold canonic_ps; simpl.
  rewrite H.
- remember (null_coeff_range_length f .0 f%ser 0) as n eqn:Hn .
+ remember (null_coeff_range_length f 0%ser 0) as n eqn:Hn .
  symmetry in Hn.
  destruct n as [n| ]; [ idtac | reflexivity ].
  apply null_coeff_range_length_iff in Hn.
@@ -1596,7 +1597,7 @@ split; intros H.
  inversion H; subst.
  apply null_coeff_range_length_iff; simpl; intros i.
  unfold canonic_ps in H0; simpl in H0.
- remember (null_coeff_range_length f .0 f%ser 0) as n eqn:Hn .
+ remember (null_coeff_range_length f 0%ser 0) as n eqn:Hn .
  symmetry in Hn.
  destruct n as [n| ].
   exfalso; clear H0.
@@ -1605,7 +1606,7 @@ split; intros H.
   destruct Hn as (_, Hn).
   apply Hn; reflexivity.
 
-  remember (null_coeff_range_length f (ps_terms ps) 0) as m eqn:Hm .
+  remember (null_coeff_range_length f (@ps_terms _ ps) 0) as m eqn:Hm .
   symmetry in Hm.
   destruct m as [m| ].
    Focus 2.
@@ -1615,7 +1616,7 @@ split; intros H.
 
    inversion_clear H0.
    simpl in H1, H2, H3.
-   remember (greatest_series_x_power f (ps_terms ps) m) as p eqn:Hp .
+   remember (greatest_series_x_power f (@ps_terms _ ps) m) as p eqn:Hp .
    remember (gcd_ps m p ps) as g eqn:Hg .
    unfold canonify_series in H3.
    inversion_clear H3.
@@ -1649,7 +1650,7 @@ split; intros H.
     symmetry in Hp.
     apply greatest_series_x_power_iff in Hp.
     unfold is_the_greatest_series_x_power in Hp.
-    remember (null_coeff_range_length f (ps_terms ps) (S m)) as q eqn:Hq .
+    remember (null_coeff_range_length f (@ps_terms _ ps) (S m)) as q eqn:Hq .
     symmetry in Hq.
     destruct q as [q| ].
      destruct Hp as (Hxp, Hnxp).
@@ -1659,8 +1660,8 @@ split; intros H.
      pose proof (gcd_ps_is_pos m p ps) as Hgp.
      rewrite <- Hg in Hgp.
      unfold gcd_ps in Hg.
-     remember (ps_valnum ps + Z.of_nat m)%Z as x.
-     remember (Z.gcd x (' ps_polord ps)) as z.
+     remember (@ps_valnum _ ps + Z.of_nat m)%Z as x.
+     remember (Z.gcd x (' @ps_polord _ ps)) as z.
      pose proof (Z.gcd_divide_r z (Z.of_nat p)) as H₄.
      rewrite <- Hg in H₄.
      apply Nat.mod_divide in H₃; auto.
@@ -1753,7 +1754,7 @@ destruct n as [n| ].
 Qed.
 
 Lemma series_left_shift_left_shift : ∀ (s : power_series α) m n,
-  (series_left_shift m (series_left_shift n s) .= f
+  (series_left_shift m (series_left_shift n s) =
    series_left_shift (m + n) s)%ser.
 Proof.
 intros s m n.
@@ -1825,18 +1826,18 @@ destruct n₁ as [n₁| ].
 Qed.
 
 (*
-Definition cm ps₁ ps₂ := Plcm (ps_polord ps₁) (ps_polord ps₂).
+Definition cm ps₁ ps₂ := Plcm (@ps_polord _ ps₁) (@ps_polord _ ps₂).
 Definition cm_factor α (ps₁ ps₂ : puiseux_series α) :=
-  let l := Plcm (ps_polord ps₁) (ps_polord ps₂) in
-  Pos.of_nat (Pos.to_nat l / Pos.to_nat (ps_polord ps₁))%nat.
+  let l := Plcm (@ps_polord _ ps₁) (@ps_polord _ ps₂) in
+  Pos.of_nat (Pos.to_nat l / Pos.to_nat (@ps_polord _ ps₁))%nat.
 *)
 Definition cm (ps₁ ps₂ : puiseux_series α) :=
-  (ps_polord ps₁ * ps_polord ps₂)%positive.
+  (@ps_polord _ ps₁ * @ps_polord _ ps₂)%positive.
 Definition cm_factor α (ps₁ ps₂ : puiseux_series α) :=
-  ps_polord ps₂.
+  @ps_polord _ ps₂.
 (**)
 
-Lemma eq_strong_eq : ∀ ps₁ ps₂, ps₁ ≐ f ps₂ → (ps₁ .= f ps₂)%ps.
+Lemma eq_strong_eq : ∀ ps₁ ps₂, ps₁ ≐ f ps₂ → (ps₁ = ps₂)%ps.
 Proof.
 intros ps₁ ps₂ Heq.
 constructor.
