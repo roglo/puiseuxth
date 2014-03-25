@@ -2032,11 +2032,23 @@ rewrite Nat.add_sub_assoc.
     do 2 rewrite fold_list_nth_def_0.
     rewrite lap_mul_1_l; reflexivity.
 
-    destruct n; simpl; [ rewrite lap_mul_nil_l; reflexivity | idtac ].
+    destruct n; [ rewrite lap_mul_nil_l; reflexivity | idtac ].
     rewrite lap_mul_assoc.
     rewrite lap_mul_shuffle0.
     apply lt_S_n in Hrn; simpl in Hlen.
+    rewrite Nat.sub_succ.
     rewrite IHr; try assumption.
+
+bbb.
+    symmetry.
+    rewrite list_seq_app with (dj := (n - r)%nat).
+     rewrite List.fold_right_app.
+     simpl.
+     rewrite fold_sub_succ_l.
+     rewrite Nat.sub_succ_l.
+      rewrite Nat_sub_sub_distr.
+       rewrite Nat.add_comm, Nat.add_sub.
+       simpl.
 
 bbb.
 subst Kx.
