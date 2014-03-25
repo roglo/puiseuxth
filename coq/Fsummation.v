@@ -24,6 +24,11 @@ Fixpoint summation_aux α (f : field α) b len g :=
 
 Definition summation α (f : field α) b e g := summation_aux f b (S e - b) g.
 
+(* to be tested! *)
+Definition summation' α (f : field α) b e g :=
+  List.fold_right (λ i accu, g i .+ f accu)%K (.0 f)%K
+    (List.seq b (S e - b)).
+
 Notation "'Σ' f ( i = b , e ) , g" := (summation f b e (λ i, (g)%K))
   (at level 0, f at level 0, i at level 0, b at level 60, e at level 60,
    g at level 40).
