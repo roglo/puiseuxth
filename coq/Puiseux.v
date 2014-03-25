@@ -1998,9 +1998,7 @@ rewrite poly_inject_inj_mul.
 unfold eq_poly; simpl.
 rewrite <- lap_power_map; simpl.
 do 2 rewrite lap_compose_compose2.
-bbb.
 unfold lap_compose2; simpl.
-rewrite List.map_length.
 rewrite length_lap_mul; simpl.
 rewrite List.map_length.
 rewrite length_lap_power; [ simpl | intros H; discriminate H ].
@@ -2008,6 +2006,31 @@ rewrite Nat.mul_1_r.
 erewrite Ψ_length; try eassumption.
 rewrite Nat.add_sub_assoc.
  rewrite Nat.add_comm, Nat.add_sub.
+ remember (List.map (λ c : α, ps_monom K c 0) (al Ψ)) as la.
+ assert (length la = length (al Ψ)) as Hlen.
+  subst la; rewrite List.map_length; reflexivity.
+
+  erewrite Ψ_length in Hlen; try eassumption.
+  clear HΨ Hr.
+  assert (r ≤ k - j) as Hrkj.
+   Focus 2.
+   apply le_n_S in Hrkj.
+   remember (S (k - j)) as n; clear Heqn.
+   revert Hrkj Hlen; clear; intros.
+   unfold c_x_power; simpl.
+   apply le_S_gt in Hrkj; unfold gt in Hrkj.
+   rename Hrkj into Hrn.
+   revert n Hrn Hlen.
+   induction r; intros; simpl.
+    rewrite Nat.sub_0_r.
+    subst Kx; rewrite lap_mul_1_r.
+    clear.
+    remember 0%nat as b; clear Heqb.
+    revert b.
+    induction n; intros; [ reflexivity | simpl ].
+    rewrite IHn.
+    do 2 rewrite fold_list_nth_def_0.
+    rewrite lap_mul_1_l; reflexivity.
 
 bbb.
 subst Kx.
