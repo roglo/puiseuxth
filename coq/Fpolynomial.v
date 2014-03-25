@@ -39,6 +39,9 @@ Definition eq_poly α (f : field α) x y := lap_eq f (al x) (al y).
 
 Notation "a .= f b" := (eq_poly f a b) : poly_scope.
 
+Definition lap_zero α (f : field α) := ([] : list α).
+Definition lap_one α (f : field α) := [.1 f%K].
+
 Definition poly_one α (f : field α) := POL [.1 f%K]%pol.
 Notation ".1 f" := (poly_one f) : poly_scope.
 
@@ -186,6 +189,8 @@ Fixpoint lap_add α (f : field α) al₁ al₂ :=
       end
   end.
 
+Definition lap_opp α (f : field α) la := List.map (fld_opp f) la.
+
 Definition poly_add α (f : field α) pol₁ pol₂ :=
   {| al := lap_add f (al pol₁) (al pol₂) |}.
 
@@ -247,8 +252,12 @@ Notation "a .^ f b" := (poly_power f a b) : poly_scope.
 Notation "a .∘ f b" := (poly_compose f a b) : poly_scope.
 
 Delimit Scope lap_scope with lap.
+Notation ".0 K" := (lap_zero K) : lap_scope.
+Notation ".1 K" := (lap_one K) : lap_scope.
+Notation ".- K a" := (lap_opp K a) : lap_scope.
 Notation "a .= K b" := (lap_eq K a b) : lap_scope.
 Notation "a .+ K b" := (lap_add K a b) : lap_scope.
+Notation "a .- K b" := (lap_add K a (lap_opp K b)) : lap_scope.
 Notation "a .* K b" := (lap_mul K a b) : lap_scope.
 
 Definition Pdivide α (f : field α) x y := ∃ z, (y .= f z .* f x)%pol.
@@ -849,8 +858,8 @@ eapply lap_add_comm; reflexivity.
 Qed.
 
 Lemma lap_add_assoc : ∀ al₁ al₂ al₃,
-  lap_eq f (lap_add f (lap_add f al₁ al₂) al₃)
-    (lap_add f al₁ (lap_add f al₂ al₃)).
+  lap_eq f (lap_add f al₁ (lap_add f al₂ al₃))
+    (lap_add f (lap_add f al₁ al₂) al₃).
 Proof.
 intros al₁ al₂ al₃.
 revert al₂ al₃.
@@ -873,11 +882,11 @@ induction al₁; intros.
   destruct al₃; simpl.
    constructor; [ reflexivity | apply lap_eq_refl ].
 
-   constructor; [ symmetry; apply fld_add_assoc | apply IHal₁ ].
+   constructor; [ apply fld_add_assoc | apply IHal₁ ].
 Qed.
 
 Lemma poly_add_assoc : ∀ pol₁ pol₂ pol₃,
-  ((pol₁ .+ f pol₂) .+ f pol₃ .= f pol₁ .+ f (pol₂ .+ f pol₃))%pol.
+  (pol₁ .+ f (pol₂ .+ f pol₃) .= f (pol₁ .+ f pol₂) .+ f pol₃)%pol.
 Proof.
 intros pol₁ pol₂ pol₃.
 unfold eq_poly.
@@ -889,7 +898,7 @@ Lemma lap_add_shuffle0 : ∀ la lb lc,
      (lap_add f (lap_add f la lc) lb).
 Proof.
 intros la lb lc.
-do 2 rewrite lap_add_assoc.
+do 2 rewrite <- lap_add_assoc.
 apply lap_add_compat; [ reflexivity | simpl ].
 apply lap_add_comm.
 Qed.
@@ -1651,7 +1660,7 @@ rewrite fld_add_0_r.
 constructor; [ reflexivity | idtac ].
 rewrite lap_mul_cons_r.
 unfold lap_mul; simpl.
-rewrite <- lap_add_assoc.
+rewrite lap_add_assoc.
 apply lap_add_compat; [ idtac | reflexivity ].
 rewrite lap_add_comm.
 apply lap_add_compat; [ reflexivity | idtac ].
@@ -1744,3 +1753,52 @@ Definition horner α β γ
     (zero_c : α) (add_v_c : α → β → α) (mul_v_x : α → γ → α)
     (pol : polynomial β) (x : γ) :=
   List.fold_right (λ c accu, add_v_c (mul_v_x accu x) c) zero_c (al pol).
+
+Theorem lap_add_opp_l : ∀ α (f : field α) la, (.- f la .+ f la .= f .0 f)%lap.
+Proof.
+intros α f la.
+induction la as [| a]; [ reflexivity | simpl ].
+rewrite IHla, fld_add_opp_l.
+constructor; reflexivity.
+Qed.
+
+Lemma lap_add_compat_l : ∀ α (f : field α) a b c,
+  lap_eq f a b
+  → lap_eq f (lap_add f c a) (lap_add f c b).
+Proof.
+intros α f a b c Hab.
+rewrite Hab; reflexivity.
+Qed.
+
+Lemma lap_mul_compat_l : ∀ α (f : field α) a b c,
+  lap_eq f a b
+  → lap_eq f (lap_mul f c a) (lap_mul f c b).
+Proof.
+intros α f a b c Hab.
+rewrite Hab; reflexivity.
+Qed.
+
+(*
+Definition lap_ring α (f : field α) : ring (list α) :=
+  {| rng_zero := lap_zero f;
+     rng_one := lap_one f;
+     rng_add := lap_add f;
+     rng_mul := lap_mul f;
+     rng_opp := lap_opp f;
+     rng_eq := lap_eq f;
+     rng_eq_refl := lap_eq_refl f;
+     rng_eq_sym := lap_eq_sym (f := f);
+     rng_eq_trans := lap_eq_trans (f := f);
+     rng_add_comm := lap_add_comm f;
+     rng_add_assoc := lap_add_assoc f;
+     rng_add_0_l := lap_add_nil_l f;
+     rng_add_opp_l := lap_add_opp_l f;
+     rng_add_compat_l := @lap_add_compat_l α f;
+     rng_mul_comm := lap_mul_comm f;
+     rng_mul_assoc := lap_mul_assoc f;
+     rng_mul_1_l := lap_mul_1_l f;
+     rng_mul_compat_l := @lap_mul_compat_l α f;
+     rng_mul_add_distr_l := lap_mul_add_distr_l f |}.
+
+Canonical Structure lap_ring.
+*)

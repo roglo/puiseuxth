@@ -196,7 +196,7 @@ induction l as [| n]; intros; simpl.
   rewrite lap_add_shuffle0.
   rewrite IHl; [ reflexivity | assumption ].
 
-  rewrite <- lap_add_assoc.
+  rewrite lap_add_assoc.
   rewrite IHl; [ reflexivity | assumption ].
 Qed.
 
@@ -251,7 +251,7 @@ Proof.
 intros g h l.
 unfold poly_summation, eq_poly; simpl.
 induction l as [| i]; intros; [ reflexivity | simpl ].
-do 2 rewrite <- lap_add_assoc.
+do 2 rewrite lap_add_assoc.
 apply lap_add_compat; [ idtac | reflexivity ].
 rewrite lap_add_shuffle0.
 apply lap_add_compat; [ assumption | reflexivity ].
@@ -535,7 +535,7 @@ Theorem f₁_eq_sum_α_hγ_to_rest : ∀ pol ns β₁ γ₁ c₁ pl tl l₁ l₂
 Proof.
 intros pol ns β₁ γ₁ c₁ pl tl l₁ l₂ Hns Hpl Htl Hl Hss.
 rewrite poly_mul_add_distr_l.
-rewrite <- poly_add_assoc.
+rewrite poly_add_assoc.
 rewrite <- poly_mul_add_distr_l.
 rewrite <- summation_split_val; try eassumption.
 apply f₁_eq_x_min_β₁_summation_split; assumption.
@@ -1800,13 +1800,13 @@ Lemma www : ∀ la c₁ r k,
   (0 < r)%nat
   → (apply_lap Kx
         (lap_derivial Kx k
-           (lap_power Kx [ps_monom K (.-K c₁) 0; ps_monom K .1 K 0 … []] r
-            .* Kx la)%lap) (c_x_power K c₁ 0) .= Kx
+           (lap_power Kx [ps_monom K (.-K c₁)%K 0; ps_monom K (.1 K)%K 0 … []]
+              r .* Kx la)%lap) (c_x_power K c₁ 0) .= Kx
       apply_lap Kx
         (lap_derivial Kx (S k)
-           ([ps_monom K (.-K c₁) 0; ps_monom K .1 K 0 … []] .* Kx
-            lap_power Kx [ps_monom K (.-K c₁) 0; ps_monom K .1 K 0 … []] r
-            .* Kx la)%lap) (c_x_power K c₁ 0))%K.
+           ([ps_monom K (.-K c₁)%K 0; ps_monom K (.1 K)%K 0 … []] .* Kx
+            lap_power Kx [ps_monom K (.-K c₁)%K 0; ps_monom K (.1 K)%K 0 … []]
+              r .* Kx la)%lap) (c_x_power K c₁ 0))%K.
 Proof.
 intros la c₁ r k Hr.
 revert r Hr.

@@ -1112,23 +1112,23 @@ induction la as [| a]; intros; simpl.
   do 2 rewrite lap_mul_add_distr_l.
   do 2 rewrite lap_mul_add_distr_r.
   rewrite lap_add_comm.
-  do 5 rewrite lap_add_assoc.
+  do 5 rewrite <- lap_add_assoc.
   rewrite lap_add_comm.
-  do 2 rewrite lap_add_assoc.
+  do 2 rewrite <- lap_add_assoc.
   apply lap_add_compat; [ reflexivity | idtac ].
   rewrite lap_add_comm.
   rewrite lap_cons_add.
   symmetry.
-  do 2 rewrite lap_add_assoc.
+  do 2 rewrite <- lap_add_assoc.
   rewrite lap_add_comm.
   rewrite lap_cons_add.
-  do 4 rewrite lap_add_assoc.
+  do 4 rewrite <- lap_add_assoc.
   apply lap_add_compat; [ reflexivity | idtac ].
   rewrite lap_add_comm.
   symmetry.
-  do 3 rewrite lap_add_assoc.
-  rewrite lap_add_comm, lap_add_assoc.
-  rewrite lap_add_comm, lap_add_assoc.
+  do 3 rewrite <- lap_add_assoc.
+  rewrite lap_add_comm, <- lap_add_assoc.
+  rewrite lap_add_comm, <- lap_add_assoc.
   apply lap_add_compat; [ reflexivity | idtac ].
   do 2 rewrite IHla.
   rewrite lap_derivial_const.
@@ -1142,21 +1142,21 @@ induction la as [| a]; intros; simpl.
   rewrite lap_add_comm.
   symmetry.
   rewrite lap_add_comm.
-  do 3 rewrite lap_add_assoc.
+  do 3 rewrite <- lap_add_assoc.
   rewrite lap_add_comm.
-  do 6 rewrite lap_add_assoc.
+  do 6 rewrite <- lap_add_assoc.
   apply lap_add_compat; [ reflexivity | idtac ].
   symmetry.
   rewrite lap_add_comm.
-  do 2 rewrite lap_add_assoc.
+  do 2 rewrite <- lap_add_assoc.
   rewrite lap_add_comm.
   rewrite lap_mul_cons_l.
   rewrite lap_eq_0, lap_mul_nil_l.
   rewrite lap_add_nil_l.
-  do 2 rewrite lap_add_assoc.
+  do 2 rewrite <- lap_add_assoc.
   apply lap_add_compat; [ reflexivity | idtac ].
   rewrite lap_add_comm.
-  rewrite lap_add_assoc.
+  rewrite <- lap_add_assoc.
   rewrite lap_mul_cons_r.
   rewrite lap_eq_0.
   rewrite lap_mul_nil_r, lap_add_nil_l.
@@ -1263,7 +1263,7 @@ Proof.
 intros α f la li g x.
 revert la x.
 induction li as [| j]; intros; [ reflexivity | simpl ].
-rewrite <- lap_add_assoc.
+rewrite lap_add_assoc.
 rewrite IHli; reflexivity.
 Qed.
 
