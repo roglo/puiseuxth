@@ -1783,9 +1783,9 @@ rewrite rng_opp_0; reflexivity.
 Qed.
 
 Lemma apply_deg_1_root : ∀ c,
-  let f' := Kx in (* to get around a problem with type classes *)
-  (apply_lap (ps_ring R) [ps_monom R (- c) 0; ps_monom R 1 0 … []]
-     (ps_monom R c 0) = .0 R%ps)%K.
+  let f' := Kx in (* not sure it is the good way *)
+  (apply_lap Kx [ps_monom R (- c) 0; ps_monom R 1 0 … []]
+    (ps_monom R c 0) = .0 R%ps)%K.
 Proof.
 intros c f'; subst f'.
 simpl.
@@ -1795,7 +1795,7 @@ reflexivity.
 Qed.
 
 Lemma www : ∀ la c₁ r k,
-  let f' := Kx in (* to get around a problem with type classes *)
+  let f' := Kx in (* not sure it is the good way *)
   (0 < r)%nat
   → (apply_lap Kx
         (lap_derivial Kx k
