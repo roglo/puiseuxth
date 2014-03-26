@@ -1783,11 +1783,11 @@ rewrite fld_opp_0; reflexivity.
 Qed.
 
 Lemma apply_deg_1_root : ∀ c,
-  let f'' := Kx in (* to get around a problem with type classes *)
+  let f' := Kx in (* to get around a problem with type classes *)
   (apply_lap (ps_field K) [ps_monom K (- c) 0; ps_monom K 1 0 … []]
      (ps_monom K c 0) = .0 K%ps)%K.
 Proof.
-intros c f''; subst f''.
+intros c f'; subst f'.
 simpl.
 rewrite fld_mul_0_l, fld_add_0_l, ps_mul_1_l.
 rewrite ps_monom_opp, fld_add_opp_r.
@@ -1795,7 +1795,7 @@ reflexivity.
 Qed.
 
 Lemma www : ∀ la c₁ r k,
-  let f'' := Kx in (* to get around a problem with type classes *)
+  let f' := Kx in (* to get around a problem with type classes *)
   (0 < r)%nat
   → (apply_lap Kx
         (lap_derivial Kx k
@@ -1807,7 +1807,7 @@ Lemma www : ∀ la c₁ r k,
             lap_power Kx [ps_monom K (- c₁)%K 0; ps_monom K (1)%K 0 … []]
               r .* Kx la)%lap) (c_x_power K c₁ 0))%K.
 Proof.
-intros la c₁ r k f'' Hr; subst f''.
+intros la c₁ r k f' Hr; subst f'.
 revert r Hr.
 induction k; intros; simpl.
  rewrite lap_derivial_0.
