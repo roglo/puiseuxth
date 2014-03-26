@@ -1801,10 +1801,11 @@ Qed.
 
 Lemma apply_deg_1_root : ∀ c,
   let f' := K in (* to get around a bug in type classes *)
+  let f'' := Kx in (* to get around a bug in type classes *)
   (apply_lap (ps_field K) [ps_monom K (- c) 0; ps_monom K 1 0 … []]
      (ps_monom K c 0) = .0 K%ps)%K.
 Proof.
-intros c f'; subst f'.
+intros c f' f''; subst f' f''.
 simpl.
 rewrite fld_mul_0_l, fld_add_0_l, ps_mul_1_l.
 rewrite ps_monom_opp, fld_add_opp_r.
@@ -1812,24 +1813,27 @@ reflexivity.
 Qed.
 
 Lemma www : ∀ la c₁ r k,
+  let f' := K in (* to get around a bug in type classes *)
+  let f'' := Kx in (* to get around a bug in type classes *)
   (0 < r)%nat
   → (apply_lap Kx
         (lap_derivial Kx k
-           (lap_power Kx [ps_monom K (.-K c₁)%K 0; ps_monom K (1)%K 0 … []]
-              r .* Kx la)%lap) (c_x_power K c₁ 0) .= Kx
+           (lap_power Kx [ps_monom K (- c₁)%K 0; ps_monom K (1)%K 0 … []]
+              r .* Kx la)%lap) (c_x_power K c₁ 0) =
       apply_lap Kx
         (lap_derivial Kx (S k)
-           ([ps_monom K (.-K c₁)%K 0; ps_monom K (1)%K 0 … []] .* Kx
-            lap_power Kx [ps_monom K (.-K c₁)%K 0; ps_monom K (1)%K 0 … []]
+           ([ps_monom K (- c₁)%K 0; ps_monom K (1)%K 0 … []] .* Kx
+            lap_power Kx [ps_monom K (- c₁)%K 0; ps_monom K (1)%K 0 … []]
               r .* Kx la)%lap) (c_x_power K c₁ 0))%K.
 Proof.
-intros la c₁ r k Hr.
+intros la c₁ r k f' f'' Hr; subst f' f''.
 revert r Hr.
 induction k; intros; simpl.
  rewrite lap_derivial_0.
  destruct r; [ exfalso; revert Hr; apply Nat.lt_irrefl | clear Hr; simpl ].
  do 2 rewrite apply_lap_mul.
  subst Kx.
+Abort. (*
  rewrite apply_deg_1_root.
  do 2 rewrite fld_mul_0_l.
  rewrite lap_derivial_mul; simpl.
@@ -1845,7 +1849,6 @@ induction k; intros; simpl.
  rewrite apply_deg_1_root.
  do 3 rewrite fld_mul_0_l.
  rewrite fld_add_0_l; reflexivity.
-Abort. (*
 bbb.
 *)
 
@@ -1878,19 +1881,20 @@ bbb.
 *)
 
 Lemma yyy : ∀ la c₁ n r k,
+  let f' := K in (* to get around a bug in type classes *)
   (r < n)%nat
   → length la = (n - r)%nat
     → lap_eq Kx
         (coeff_taylor_lap Kx n
            (lap_mul Kx
-              (lap_power Kx [ps_monom K (.-K c₁)%K 0; ps_monom K 1%K 0 … []]
+              (lap_power Kx [ps_monom K (- c₁)%K 0; ps_monom K 1%K 0 … []]
                  r) la)
            (c_x_power K c₁ 0) k)
         (coeff_taylor_lap Kx n
            (lap_mul Kx
-              (lap_mul Kx [ps_monom K (.-K c₁)%K 0; ps_monom K 1%K 0 … []]
+              (lap_mul Kx [ps_monom K (- c₁)%K 0; ps_monom K 1%K 0 … []]
                  (lap_power Kx
-                    [ps_monom K (.-K c₁)%K 0; ps_monom K 1%K 0 … []] r))
+                    [ps_monom K (- c₁)%K 0; ps_monom K 1%K 0 … []] r))
               la)
            (c_x_power K c₁ 0) (S k)).
 Proof.
@@ -1906,11 +1910,11 @@ constructor.
   rewrite lap_mul_1_r.
   set (Kx := ps_field K); move Kx before K.
   fold Kx in IHn.
+Abort. (*
   rewrite Nat.sub_0_r in Hlen.
   rewrite lap_mul_cons_l; simpl.
   rewrite lap_derivial_add.
   rewrite apply_lap_add; simpl.
-(*
 bbb.
 
  Focus 2.
