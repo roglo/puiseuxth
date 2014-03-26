@@ -1649,17 +1649,16 @@ Fixpoint degree_plus_1_of_list α (is_zero : α → bool) (l : list α) :=
 Definition degree α is_zero (pol : polynomial α) :=
   pred (degree_plus_1_of_list is_zero (al pol)).
 
-Class algeb_closed_field α :=
-  { ac_field : field α;
-    ac_is_zero : α → bool;
+Class algeb_closed_field α (ac_field : field α) :=
+  { ac_is_zero : α → bool;
     ac_root : polynomial α → α;
     ac_prop_is_zero : ∀ a,
       ac_is_zero a = true ↔ (a = 0)%K;
     ac_prop_root : ∀ pol, degree ac_is_zero pol ≥ 1
       → (apply_poly ac_field pol (ac_root pol) = 0)%K }.
 
-Fixpoint list_root_multiplicity α (acf : algeb_closed_field α) c la d :=
-  let f := ac_field in
+Fixpoint list_root_multiplicity
+    α {f : field α} (acf : algeb_closed_field f) c la d :=
   match d with
   | O => O
   | S d₁ =>
@@ -1668,7 +1667,7 @@ Fixpoint list_root_multiplicity α (acf : algeb_closed_field α) c la d :=
       else O
   end.
 
-Definition root_multiplicity α (acf : algeb_closed_field α) c pol :=
+Definition root_multiplicity α {f : field α} (acf : algeb_closed_field f) c pol :=
   list_root_multiplicity acf c (al pol) (List.length (al pol)).
 
 Fixpoint list_quotient_phi_x_sub_c_pow_r α (f : field α) la c₁ r :=
@@ -1680,21 +1679,20 @@ Fixpoint list_quotient_phi_x_sub_c_pow_r α (f : field α) la c₁ r :=
 Definition quotient_phi_x_sub_c_pow_r α (f : field α) pol c₁ r :=
   (POL (list_quotient_phi_x_sub_c_pow_r f (al pol) c₁ r))%pol.
 
-Definition list_root α (acf : algeb_closed_field α) la :=
+Definition list_root α (f : field α) (acf : algeb_closed_field f) la :=
   ac_root (POL la)%pol.
 
 Section theorems.
 
 Variable α : Type.
-Variable acf : algeb_closed_field α.
-Let f := ac_field.
+Variable f : field α.
+Variable acf : algeb_closed_field f.
 
 Lemma list_prop_root : ∀ la,
-  let f' := f in (* to get around a problem with type classes *)
   degree_plus_1_of_list ac_is_zero la ≥ 2
   → (apply_lap f la (list_root acf la) = 0)%K.
 Proof.
-intros la f' Hdeg; subst f'.
+intros la Hdeg.
 remember POL la%pol as pol eqn:Hpol .
 assert (degree ac_is_zero pol ≥ 1) as H.
  subst pol; unfold degree; simpl.
@@ -1707,10 +1705,9 @@ Qed.
 
 (* P(x) = P(0) + x Q(x) *)
 Lemma poly_eq_add_const_mul_x_poly : ∀ c cl,
-  let f' := f in (* to get around a problem with type classes *)
   (POL [c … cl] .= f POL [c] .+ f POL [0; 1 … []]%K .* f POL cl)%pol.
 Proof.
-intros c cl f'; subst f'.
+intros c cl.
 unfold eq_poly; simpl.
 rewrite summation_only_one.
 rewrite fld_mul_0_l, fld_add_0_r.
