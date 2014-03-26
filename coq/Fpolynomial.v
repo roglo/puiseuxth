@@ -1810,6 +1810,3 @@ Definition lap_compose3 α (r : ring α) la lb :=
 Definition lap_compose4 α (r : ring α) la lb :=
   let R := lap_ring r in
   Σ R (i = 0, length la), [List.nth i la 0] * lb ^ i.
-
-
-
