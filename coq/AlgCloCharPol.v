@@ -1694,7 +1694,7 @@ Lemma list_prop_root : ∀ la,
   degree_plus_1_of_list (ac_is_zero acf) la ≥ 2
   → (apply_lap f la (list_root acf la) = 0)%K.
 Proof.
-intros la K Hdeg; subst K.
+intros la f' Hdeg; subst f'.
 remember POL la%pol as pol eqn:Hpol .
 assert (degree (ac_is_zero acf) pol ≥ 1) as H.
  subst pol; unfold degree; simpl.
@@ -1710,7 +1710,7 @@ Lemma poly_eq_add_const_mul_x_poly : ∀ c cl,
   let f' := f in (* to turn around a bug in type classes *)
   (POL [c … cl] .= f POL [c] .+ f POL [0; 1 … []]%K .* f POL cl)%pol.
 Proof.
-intros c cl K; subst K.
+intros c cl f'; subst f'.
 unfold eq_poly; simpl.
 rewrite summation_only_one.
 rewrite fld_mul_0_l, fld_add_0_r.
@@ -1736,7 +1736,7 @@ Lemma apply_poly_add : ∀ p₁ p₂ x,
   (apply_poly f (p₁ .+ f p₂)%pol x =
    apply_poly f p₁ x + apply_poly f p₂ x)%K.
 Proof.
-intros p₁ p₂ x K; subst K.
+intros p₁ p₂ x f'; subst f'.
 unfold apply_poly, horner; simpl.
 remember (al p₁) as la eqn:Hla .
 remember (al p₂) as lb eqn:Hlb .
@@ -1761,7 +1761,7 @@ Lemma list_fold_right_apply_compat : ∀ la lb x,
   → (List.fold_right (λ c accu, accu * x + c) 0 la =
      List.fold_right (λ c accu, accu * x + c) 0 lb)%K.
 Proof.
-intros la lb x K Heq; subst K.
+intros la lb x f' Heq; subst f'.
 revert lb x Heq.
 induction la as [| a]; intros; simpl.
  revert x.
@@ -1791,7 +1791,7 @@ Lemma apply_poly_mul : ∀ p₁ p₂ x,
   (apply_poly f (p₁ .* f p₂)%pol x =
    apply_poly f p₁ x * apply_poly f p₂ x)%K.
 Proof.
-intros p₁ p₂ x K; subst K.
+intros p₁ p₂ x f'; subst f'.
 apply apply_lap_mul.
 Qed.
 
@@ -1800,7 +1800,7 @@ Lemma list_nth_mod_div_deg_1 : ∀ la c i,
   (List.nth i (lap_mod_div_deg_1 f la c) 0 =
    apply_lap f (List.skipn i la) c)%K.
 Proof.
-intros la c i K; subst K; revert i.
+intros la c i f'; subst f'; revert i.
 induction la as [| a]; intros; simpl.
  rewrite match_id, list_skipn_nil; reflexivity.
 
@@ -1838,7 +1838,7 @@ Lemma root_formula : ∀ la c,
   → lap_eq f la
        (lap_mul f [(- c)%K; 1%K … []] (lap_div_deg_1 f la c)).
 Proof.
-intros la c K Hc; subst K.
+intros la c f' Hc; subst f'.
 unfold lap_div_deg_1.
 remember (lap_mod_div_deg_1 f la c) as md eqn:Hmd .
 symmetry in Hmd.
@@ -1865,9 +1865,9 @@ destruct md as [| r d].
    simpl in Hc; simpl.
    remember (apply_lap f la c * c + a₁)%K as v eqn:Hv .
    rewrite fld_mul_comm in Hc.
-   set (K := f). (* to turn around a bug in type classes *)
+   set (f' := f). (* to turn around a bug in type classes *)
    apply fld_add_compat_r with (c := (- c * v)%K) in Hc.
-   subst K.
+   subst f'.
    rewrite fld_add_0_l in Hc.
    rewrite fld_add_comm, fld_add_assoc in Hc.
    rewrite fld_mul_opp_l in Hc.
@@ -1896,7 +1896,7 @@ Lemma poly_root_formula : ∀ c p,
   (apply_poly f p c = 0)%K
   → (p .= f POL [(- c)%K; 1%K … []] .* f poly_div_deg_1 f p c)%pol.
 Proof.
-intros c p K Hz; subst K.
+intros c p f' Hz; subst f'.
 apply root_formula; assumption.
 Qed.
 
@@ -1972,7 +1972,7 @@ Lemma lap_eq_nil_nth : ∀ la,
   lap_eq f la []
   → ∀ n, (List.nth n la 0 = 0)%K.
 Proof.
-intros la K H n; subst K.
+intros la f' H n; subst f'.
 revert n.
 induction la as [| a]; intros; simpl.
  rewrite match_id; reflexivity.
@@ -1985,10 +1985,10 @@ Qed.
 
 Lemma all_0_shrink_0 : ∀ la cnt k,
   let f' := f in (* to turn around a bug in type classes *)
-  (∀ n, List.nth n la 0 = 0)%K
-  → (∀ n, List.nth n (list_shrink_aux cnt k la) 0 = 0)%K.
+  (∀ n, (List.nth n la 0 = 0)%K)
+  → (∀ n, (List.nth n (list_shrink_aux cnt k la) 0 = 0)%K).
 Proof.
-intros la cnt k K H n; subst K.
+intros la cnt k f' H n; subst f'.
 revert cnt k n.
 induction la as [| a]; intros; [ destruct n; reflexivity | simpl ].
 destruct cnt; simpl.
@@ -2094,20 +2094,22 @@ rewrite lap_mul_1_r; reflexivity.
 Qed.
 
 Lemma lap_mod_deg_1_apply : ∀ la c,
+  let f' := f in (* to turn around a bug in type classes *)
   (lap_mod_deg_1 f la c = 0)%K
   → (apply_lap f la c = 0)%K.
 Proof.
-intros la c Hmod.
+intros la c f' Hmod; subst f'.
 destruct la as [| a]; [ reflexivity | assumption ].
 Qed.
 
 Lemma list_root_mul_power_quotient : ∀ la c r len,
+  let f' := f in (* to turn around a bug in type classes *)
   list_root_multiplicity acf c la len = r
   → lap_eq f la
-       (lap_mul f (lap_power f [(.-f c)%K; 1%K … []] r)
+       (lap_mul f (lap_power f [(- c)%K; 1%K … []] r)
        (list_quotient_phi_x_sub_c_pow_r f la c r)).
 Proof.
-intros la c r len Hmult.
+intros la c r len f' Hmult; subst f'.
 revert la len Hmult.
 induction r; intros; simpl.
  rewrite lap_mul_1_l; reflexivity.
@@ -2122,13 +2124,13 @@ induction r; intros; simpl.
 Qed.
 
 Lemma list_div_x_sub_c_ne_0 : ∀ la c r len,
+  let f' := f in (* to turn around a bug in type classes *)
   not (lap_eq f la [])
   → list_root_multiplicity acf c la len = r
     → length la ≤ len
-      → (apply_lap f (list_quotient_phi_x_sub_c_pow_r f la c r) c ≠
-         0)%K.
+      → (apply_lap f (list_quotient_phi_x_sub_c_pow_r f la c r) c ≠ 0)%K.
 Proof.
-intros la c r len Hla Hmult Hlen.
+intros la c r len f' Hla Hmult Hlen; subst f'.
 revert la len Hla Hmult Hlen.
 induction r; intros; simpl.
  intros Happ; apply Hla; clear Hla.
@@ -2171,7 +2173,8 @@ induction r; intros; simpl.
    unfold lap_mod_deg_1 in Hz; simpl in Hz.
    remember (lap_mod_div_deg_1 f la c) as md eqn:Hmd .
    symmetry in Hmd.
-   assert (apply_lap f la c = 0)%K as Happ.
+   set (f' := f). (* to turn around a bug in type classes *)
+   assert (apply_lap f la c = 0)%K as Happ; subst f'.
     apply lap_mod_deg_1_apply.
     unfold lap_mod_deg_1; simpl.
     rewrite Hmd.
@@ -2196,7 +2199,8 @@ induction r; intros; simpl.
       subst md.
       apply lap_eq_cons_nil_inv in H.
       destruct H as (Happ, H).
-      assert (apply_lap f la c = 0)%K as Haz.
+      set (f' := f). (* to turn around a bug in type classes *)
+      assert (apply_lap f la c = 0)%K as Haz; subst f'.
        apply lap_mod_deg_1_apply.
        unfold lap_mod_deg_1.
        remember (lap_mod_div_deg_1 f la c) as md eqn:Hmd .
@@ -2230,11 +2234,12 @@ Qed.
    we have:
       Φ(z^q) = (z - c₁)^r Ψ(z), [...] » *)
 Theorem phi_zq_eq_z_sub_c₁_psy : ∀ pol ns c₁ r Ψ,
+  let f' := f in (* to turn around a bug in type classes *)
   r = root_multiplicity acf c₁ (Φq f pol ns)
   → Ψ = quotient_phi_x_sub_c_pow_r f (Φq f pol ns) c₁ r
     → (Φq f pol ns .= f POL [(- c₁)%K; 1%K … []] .^ f r .* f Ψ)%pol.
 Proof.
-intros pol ns c r Ψ Hr HΨ.
+intros pol ns c r Ψ f' Hr HΨ; subst f'.
 subst Ψ; simpl.
 eapply list_root_mul_power_quotient.
 symmetry; eassumption.
@@ -2244,12 +2249,13 @@ Qed.
    we have:
       Φ(z^q) = (z - c₁)^r Ψ(z), Ψ(c₁) ≠ 0 » *)
 Theorem psy_c₁_ne_0 : ∀ pol ns c₁ r Ψ,
+  let f' := f in (* to turn around a bug in type classes *)
   ns ∈ newton_segments f pol
   → r = root_multiplicity acf c₁ (Φq f pol ns)
     → Ψ = quotient_phi_x_sub_c_pow_r f (Φq f pol ns) c₁ r
       → (apply_poly f Ψ c₁ ≠ 0)%K.
 Proof.
-intros pol ns c r Ψ Hns Hr HΨ.
+intros pol ns c r Ψ f' Hns Hr HΨ; subst f'.
 remember (Φq f pol ns) as phi eqn:Hphi .
 unfold Φq in Hphi; simpl in Hphi.
 unfold poly_left_shift in Hphi; simpl in Hphi.
