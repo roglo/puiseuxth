@@ -1675,11 +1675,13 @@ Qed.
 
 Lemma summation_lap_compose_deg_1_mul : ∀ la c d k f,
   (Σ Kx (i = 0, k),
-   (List.nth (f i) (lap_compose2 Kx la [c; .1 K%ps … []]) .0 Kx .* Kx d i) .= K
+   (List.nth (f i) (lap_compose2 Kx la [c; .1 K%ps … []]) (.0 K)%ps .* K
+    d i) .= K
    Σ Kx (i = 0, k),
    (Σ Kx (j = 0, length la - f i),
     fld_mul_nat Kx (comb (f i + j) (f i))
-      (List.nth (f i + j) la .0 Kx .* Kx fld_pow_nat Kx c j)) .* Kx d i)%ps.
+      (List.nth (f i + j) la (.0 K)%ps .* K fld_pow_nat Kx c j)) .* K
+       d i)%ps.
 Proof.
 intros la c d k f.
 apply summation_compat.
@@ -1784,9 +1786,10 @@ apply lap_mul_map.
 Qed.
 
 Lemma ps_monom_opp : ∀ c pow,
-  (ps_monom K (.- K c)%K pow .= K .- K ps_monom K c pow)%ps.
+  let f' := K in (* to get around a bug in type classes *)
+  (ps_monom K (- c)%K pow .= K .- K ps_monom K c pow)%ps.
 Proof.
-intros c pow.
+intros c pow f'; subst f'.
 unfold ps_monom; simpl.
 unfold ps_opp; simpl.
 unfold series_opp; simpl.
@@ -1797,10 +1800,11 @@ rewrite fld_opp_0; reflexivity.
 Qed.
 
 Lemma apply_deg_1_root : ∀ c,
-  (apply_lap (ps_field K) [ps_monom K (.-K c) 0; ps_monom K 1 0 … []]
-     (ps_monom K c 0) .= (ps_field K) .0 K%ps)%K.
+  let f' := K in (* to get around a bug in type classes *)
+  (apply_lap (ps_field K) [ps_monom K (- c) 0; ps_monom K 1 0 … []]
+     (ps_monom K c 0) = .0 K%ps)%K.
 Proof.
-intros c.
+intros c f'; subst f'.
 simpl.
 rewrite fld_mul_0_l, fld_add_0_l, ps_mul_1_l.
 rewrite ps_monom_opp, fld_add_opp_r.
