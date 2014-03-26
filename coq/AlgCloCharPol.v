@@ -1690,10 +1690,11 @@ Variable acf : algeb_closed_field α.
 Let f := ac_field acf.
 
 Lemma list_prop_root : ∀ la,
+  let f' := f in (* to turn around a bug in type classes *)
   degree_plus_1_of_list (ac_is_zero acf) la ≥ 2
   → (apply_lap f la (list_root acf la) = 0)%K.
 Proof.
-intros la Hdeg.
+intros la K Hdeg; subst K.
 remember POL la%pol as pol eqn:Hpol .
 assert (degree (ac_is_zero acf) pol ≥ 1) as H.
  subst pol; unfold degree; simpl.
@@ -1706,9 +1707,10 @@ Qed.
 
 (* P(x) = P(0) + x Q(x) *)
 Lemma poly_eq_add_const_mul_x_poly : ∀ c cl,
+  let f' := f in (* to turn around a bug in type classes *)
   (POL [c … cl] .= f POL [c] .+ f POL [0; 1 … []]%K .* f POL cl)%pol.
 Proof.
-intros c cl.
+intros c cl K; subst K.
 unfold eq_poly; simpl.
 rewrite summation_only_one.
 rewrite fld_mul_0_l, fld_add_0_r.
@@ -1730,10 +1732,11 @@ constructor.
 Qed.
 
 Lemma apply_poly_add : ∀ p₁ p₂ x,
+  let f' := f in (* to turn around a bug in type classes *)
   (apply_poly f (p₁ .+ f p₂)%pol x =
-   apply_poly f p₁ x .+ f apply_poly f p₂ x)%K.
+   apply_poly f p₁ x + apply_poly f p₂ x)%K.
 Proof.
-intros p₁ p₂ x.
+intros p₁ p₂ x K; subst K.
 unfold apply_poly, horner; simpl.
 remember (al p₁) as la eqn:Hla .
 remember (al p₂) as lb eqn:Hlb .
@@ -1748,15 +1751,17 @@ induction la as [| a]; intros; simpl.
  apply fld_add_compat_r.
  rewrite fld_mul_add_distr_r.
  do 2 rewrite <- fld_add_assoc.
- apply fld_add_compat_l, fld_add_comm.
+ apply fld_add_compat_l.
+ apply fld_add_comm.
 Qed.
 
 Lemma list_fold_right_apply_compat : ∀ la lb x,
+  let f' := f in (* to turn around a bug in type classes *)
   lap_eq f la lb
   → (List.fold_right (λ c accu, accu * x + c) 0 la =
      List.fold_right (λ c accu, accu * x + c) 0 lb)%K.
 Proof.
-intros la lb x Heq.
+intros la lb x K Heq; subst K.
 revert lb x Heq.
 induction la as [| a]; intros; simpl.
  revert x.
@@ -1782,18 +1787,20 @@ induction la as [| a]; intros; simpl.
 Qed.
 
 Lemma apply_poly_mul : ∀ p₁ p₂ x,
+  let f' := f in (* to turn around a bug in type classes *)
   (apply_poly f (p₁ .* f p₂)%pol x =
    apply_poly f p₁ x * apply_poly f p₂ x)%K.
 Proof.
-intros p₁ p₂ x.
+intros p₁ p₂ x K; subst K.
 apply apply_lap_mul.
 Qed.
 
 Lemma list_nth_mod_div_deg_1 : ∀ la c i,
+  let f' := f in (* to turn around a bug in type classes *)
   (List.nth i (lap_mod_div_deg_1 f la c) 0 =
    apply_lap f (List.skipn i la) c)%K.
 Proof.
-intros la c i; revert i.
+intros la c i K; subst K; revert i.
 induction la as [| a]; intros; simpl.
  rewrite match_id, list_skipn_nil; reflexivity.
 
@@ -1826,11 +1833,12 @@ induction r; intros; simpl.
 Qed.
 
 Lemma root_formula : ∀ la c,
+  let f' := f in (* to turn around a bug in type classes *)
   (apply_lap f la c = 0)%K
   → lap_eq f la
-       (lap_mul f [(.-f c)%K; 1%K … []] (lap_div_deg_1 f la c)).
+       (lap_mul f [(- c)%K; 1%K … []] (lap_div_deg_1 f la c)).
 Proof.
-intros la c Hc.
+intros la c K Hc; subst K.
 unfold lap_div_deg_1.
 remember (lap_mod_div_deg_1 f la c) as md eqn:Hmd .
 symmetry in Hmd.
@@ -1857,7 +1865,9 @@ destruct md as [| r d].
    simpl in Hc; simpl.
    remember (apply_lap f la c * c + a₁)%K as v eqn:Hv .
    rewrite fld_mul_comm in Hc.
-   apply fld_add_compat_r with (c := (.-f c * v)%K) in Hc.
+   set (K := f). (* to turn around a bug in type classes *)
+   apply fld_add_compat_r with (c := (- c * v)%K) in Hc.
+   subst K.
    rewrite fld_add_0_l in Hc.
    rewrite fld_add_comm, fld_add_assoc in Hc.
    rewrite fld_mul_opp_l in Hc.
@@ -1882,10 +1892,11 @@ Qed.
 
 (* p(c) = 0 ⇒ p = (x-c) * (p / (x-c)) *)
 Lemma poly_root_formula : ∀ c p,
+  let f' := f in (* to turn around a bug in type classes *)
   (apply_poly f p c = 0)%K
-  → (p .= f POL [(.-f c)%K; 1%K … []] .* f poly_div_deg_1 f p c)%pol.
+  → (p .= f POL [(- c)%K; 1%K … []] .* f poly_div_deg_1 f p c)%pol.
 Proof.
-intros c p Hz.
+intros c p K Hz; subst K.
 apply root_formula; assumption.
 Qed.
 
@@ -1957,10 +1968,11 @@ assumption.
 Qed.
 
 Lemma lap_eq_nil_nth : ∀ la,
+  let f' := f in (* to turn around a bug in type classes *)
   lap_eq f la []
   → ∀ n, (List.nth n la 0 = 0)%K.
 Proof.
-intros la H n.
+intros la K H n; subst K.
 revert n.
 induction la as [| a]; intros; simpl.
  rewrite match_id; reflexivity.
@@ -1972,10 +1984,11 @@ induction la as [| a]; intros; simpl.
 Qed.
 
 Lemma all_0_shrink_0 : ∀ la cnt k,
+  let f' := f in (* to turn around a bug in type classes *)
   (∀ n, List.nth n la 0 = 0)%K
   → (∀ n, List.nth n (list_shrink_aux cnt k la) 0 = 0)%K.
 Proof.
-intros la cnt k H n.
+intros la cnt k K H n; subst K.
 revert cnt k n.
 induction la as [| a]; intros; [ destruct n; reflexivity | simpl ].
 destruct cnt; simpl.
@@ -2045,7 +2058,7 @@ eapply q_is_factor_of_h_minus_j with (h := k) in Hqkj; try eassumption.
   unfold nofq, Qnat.
   unfold Qnum.
   rewrite Nat2Z.id.
-  remember (valuation_coeff f (List.nth j (al pol) 0%ps)) as v eqn:Hv .
+  remember (valuation_coeff f (List.nth j (al pol) .0 f%ps)) as v eqn:Hv .
   remember (oth_pts ns ++ [fin_pt ns]) as pts eqn:Hpts .
   remember (List.map (term_of_point f pol) pts) as tl eqn:Htl .
   subst la; simpl.
