@@ -1989,10 +1989,6 @@ symmetry.
 rewrite poly_mul_comm, poly_mul_assoc, poly_mul_comm.
 apply poly_mul_compat; [ reflexivity | idtac ].
 rewrite phi_zq_eq_z_sub_c₁_psy; try eassumption.
-(*
-set (K := ac_field); move R after Kx.
-fold R in Kx.
-*)
 rewrite poly_inject_inj_mul.
 unfold eq_poly; simpl.
 rewrite <- lap_power_map; simpl.
