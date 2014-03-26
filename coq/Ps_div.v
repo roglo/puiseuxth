@@ -15,8 +15,8 @@ Require Import Power_series.
 
 Set Implicit Arguments.
 
-Definition ps_inv α (f : field α) ps :=
-  match null_coeff_range_length f (ps_terms ps) O with
+Definition ps_inv α (r : ring α) (f : field r) ps :=
+  match null_coeff_range_length r (ps_terms ps) O with
   | fin n =>
       {| ps_terms := series_inv f (series_left_shift n (ps_terms ps));
          ps_valnum := - ps_valnum ps - Z.of_nat n;
@@ -25,10 +25,10 @@ Definition ps_inv α (f : field α) ps :=
       ps
   end.
 
-Notation ".¹/ f a" := (ps_inv f a) : ps_scope.
+Notation ".¹/ r a" := (ps_inv r a) : ps_scope.
 
-Definition ps_left_adjust α (f : field α) ps :=
-  match null_coeff_range_length f (ps_terms ps) O with
+Definition ps_left_adjust α (r : ring α) ps :=
+  match null_coeff_range_length r (ps_terms ps) O with
   | fin n =>
       {| ps_terms := series_left_shift n (ps_terms ps);
          ps_valnum := ps_valnum ps + Z.of_nat n;
@@ -40,11 +40,12 @@ Definition ps_left_adjust α (f : field α) ps :=
 Section theorems.
 
 Variable α : Type.
-Variable f : field α.
+Variable r : ring α.
+Variable f : field r.
 
 Lemma null_coeff_range_length_left_adjust : ∀ n ps,
-  null_coeff_range_length f (ps_terms ps) 0 = fin n
-  → null_coeff_range_length f (ps_terms (ps_left_adjust f ps)) 0 = 0%Nbar.
+  null_coeff_range_length r (ps_terms ps) 0 = fin n
+  → null_coeff_range_length r (ps_terms (ps_left_adjust r ps)) 0 = 0%Nbar.
 Proof.
 intros n ps Hn.
 unfold ps_left_adjust; simpl.
@@ -61,8 +62,8 @@ split.
 Qed.
 
 Lemma null_coeff_range_length_inf_left_adjust : ∀ ps,
-  null_coeff_range_length f (ps_terms ps) 0 = ∞
-  → null_coeff_range_length f (ps_terms (ps_left_adjust f ps)) 0 = ∞.
+  null_coeff_range_length r (ps_terms ps) 0 = ∞
+  → null_coeff_range_length r (ps_terms (ps_left_adjust r ps)) 0 = ∞.
 Proof.
 intros ps Hn.
 apply null_coeff_range_length_iff.
@@ -72,10 +73,10 @@ apply null_coeff_range_length_iff in Hn.
 assumption.
 Qed.
 
-Lemma ps_left_adjust_eq : ∀ ps, (ps .= f ps_left_adjust f ps)%ps.
+Lemma ps_left_adjust_eq : ∀ ps, (ps .= r ps_left_adjust r ps)%ps.
 Proof.
 intros ps.
-remember (null_coeff_range_length f (ps_terms ps) 0) as n eqn:Hn .
+remember (null_coeff_range_length r (ps_terms ps) 0) as n eqn:Hn .
 symmetry in Hn.
 destruct n as [n| ].
  constructor; constructor; simpl.
@@ -131,14 +132,14 @@ destruct n as [n| ].
   assumption.
 Qed.
 
-Lemma series_left_shift_0 : ∀ s, (series_left_shift 0 s .= f s)%ser.
+Lemma series_left_shift_0 : ∀ s, (series_left_shift 0 s .= r s)%ser.
 Proof.
 intros s.
 unfold series_left_shift.
 destruct s; reflexivity.
 Qed.
 
-Lemma series_shrink_1 : ∀ s, (series_shrink 1 s .= f s)%ser.
+Lemma series_shrink_1 : ∀ s, (series_shrink 1 s .= r s)%ser.
 Proof.
 intros s.
 unfold series_shrink; simpl.
@@ -146,9 +147,9 @@ constructor; intros n; simpl.
 rewrite Nat.mul_1_r; reflexivity.
 Qed.
 
-Lemma canonic_ps_1 : (canonic_ps f (.1 f) ≐ f (.1 f))%ps.
+Lemma canonic_ps_1 : (canonic_ps r (.1 r) ≐ r (.1 r))%ps.
 Proof.
-remember (null_coeff_range_length f (ps_terms .1 f%ps) 0) as n eqn:Hn .
+remember (null_coeff_range_length r (ps_terms .1 r%ps) 0) as n eqn:Hn .
 symmetry in Hn.
 destruct n as [n| ].
  destruct n.
@@ -190,8 +191,8 @@ Qed.
 
 Lemma series_inv_compat : ∀ a b,
   (a .[0] ≠ 0)%K
-  → (a .= f b)%ser
-    → (series_inv f a .= f series_inv f b)%ser.
+  → (a .= r b)%ser
+    → (series_inv f a .= r series_inv f b)%ser.
 Proof.
 intros a b Ha Hab.
 remember Ha as Hb; clear HeqHb.
@@ -208,7 +209,7 @@ Qed.
 
 Lemma null_coeff_range_length_series_1 :
   (1 ≠ 0)%K
-  → null_coeff_range_length f (.1 f)%ser 0 = 0%Nbar.
+  → null_coeff_range_length r (.1 r)%ser 0 = 0%Nbar.
 Proof.
 intros H.
 apply null_coeff_range_length_iff; simpl.
@@ -219,11 +220,11 @@ exfalso; apply Hi, Nat.lt_0_succ.
 Qed.
 
 Lemma greatest_series_x_power_series_1 :
-  greatest_series_x_power f (.1 f)%ser 0 = O.
+  greatest_series_x_power r (.1 r)%ser 0 = O.
 Proof.
 apply greatest_series_x_power_iff; simpl.
 unfold is_the_greatest_series_x_power.
-remember (null_coeff_range_length f .1 f%ser 1) as n eqn:Hn .
+remember (null_coeff_range_length r .1 r%ser 1) as n eqn:Hn .
 symmetry in Hn.
 destruct n as [n| ]; [ idtac | reflexivity ].
 apply null_coeff_range_length_iff in Hn.
@@ -233,14 +234,14 @@ exfalso; apply Hnz; reflexivity.
 Qed.
 
 Theorem ps_mul_inv_l : ∀ ps,
-  (ps .≠ f .0 f)%ps
-  → (.¹/f ps .* f ps .= f .1 f)%ps.
+  (ps .≠ r .0 r)%ps
+  → (.¹/f ps .* r ps .= r .1 r)%ps.
 Proof.
 intros ps Hps.
-remember (null_coeff_range_length f (ps_terms ps) 0) as n eqn:Hn .
+remember (null_coeff_range_length r (ps_terms ps) 0) as n eqn:Hn .
 symmetry in Hn.
 destruct n as [n| ].
- assert (ps .= f ps_left_adjust f ps)%ps as H by apply ps_left_adjust_eq.
+ assert (ps .= r ps_left_adjust r ps)%ps as H by apply ps_left_adjust_eq.
  rewrite ps_mul_comm.
  rewrite H in |- * at 1.
  unfold ps_inv; simpl.
@@ -260,7 +261,7 @@ destruct n as [n| ].
   constructor.
   rewrite canonic_ps_1.
   unfold canonic_ps; simpl.
-  remember (null_coeff_range_length f .1 f%ser 0) as m eqn:Hm .
+  remember (null_coeff_range_length r .1 r%ser 0) as m eqn:Hm .
   symmetry in Hm.
   destruct m as [m| ].
    destruct m; simpl.
@@ -310,35 +311,39 @@ Qed.
 
 End theorems.
 
-Definition ps_field α (f : field α) : field (puiseux_series α) :=
-  {| fld_zero := ps_zero f;
-     fld_one := ps_one f;
-     fld_add := ps_add f;
-     fld_mul := ps_mul f;
-     fld_opp := ps_opp f;
-     fld_eq := eq_ps f;
-     fld_eq_refl := eq_ps_refl f;
-     fld_eq_sym := eq_ps_sym (f := f);
-     fld_eq_trans := eq_ps_trans (f := f);
-     fld_add_comm := ps_add_comm f;
-     fld_add_assoc := ps_add_assoc f;
-     fld_add_0_l := ps_add_0_l f;
-     fld_add_opp_l := ps_add_opp_l f;
-     fld_add_compat_l := @ps_add_compat_l α f;
-     fld_mul_comm := ps_mul_comm f;
-     fld_mul_assoc := ps_mul_assoc f;
-     fld_mul_1_l := ps_mul_1_l f;
-     fld_mul_compat_l := @ps_mul_compat_l α f;
-     fld_mul_add_distr_l := ps_mul_add_distr_l f;
-     fld_inv := ps_inv f;
-     fld_mul_inv_l := @ps_mul_inv_l α f |}.
+Definition ps_ring α (r : ring α) : ring (puiseux_series α) :=
+  {| fld_zero := ps_zero r;
+     fld_one := ps_one r;
+     fld_add := ps_add r;
+     fld_mul := ps_mul r;
+     fld_opp := ps_opp r;
+     fld_eq := eq_ps r;
+     fld_eq_refl := eq_ps_refl r;
+     fld_eq_sym := eq_ps_sym (r := r);
+     fld_eq_trans := eq_ps_trans (r := r);
+     fld_add_comm := ps_add_comm r;
+     fld_add_assoc := ps_add_assoc r;
+     fld_add_0_l := ps_add_0_l r;
+     fld_add_opp_l := ps_add_opp_l r;
+     fld_add_compat_l := @ps_add_compat_l α r;
+     fld_mul_comm := ps_mul_comm r;
+     fld_mul_assoc := ps_mul_assoc r;
+     fld_mul_1_l := ps_mul_1_l r;
+     fld_mul_compat_l := @ps_mul_compat_l α r;
+     fld_mul_add_distr_l := ps_mul_add_distr_l r |}.
+
+Canonical Structure ps_ring.
+
+Definition ps_field α (r : ring α) (f : field r) : field (ps_ring r) :=
+  {| fld_inv := ps_inv f;
+     fld_mul_inv_l := ps_mul_inv_l f |}.
 
 Canonical Structure ps_field.
 
-Fixpoint ps_power α (f : field α) la n :=
+Fixpoint ps_power α (r : ring α) la n :=
   match n with
-  | O => .1 f%ps
-  | S m => ps_mul f la (ps_power f la m)
+  | O => .1 r%ps
+  | S m => ps_mul r la (ps_power r la m)
   end.
 
-Notation "a .^ f b" := (ps_power f a b) : ps_scope.
+Notation "a .^ r b" := (ps_power r a b) : ps_scope.

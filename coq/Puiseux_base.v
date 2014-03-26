@@ -22,14 +22,14 @@ Require Import Ps_div.
 
 Set Implicit Arguments.
 
-Definition valuation α (f : field α) ps :=
-  match null_coeff_range_length f (ps_terms ps) 0 with
+Definition valuation α (r : ring α) ps :=
+  match null_coeff_range_length r (ps_terms ps) 0 with
   | fin v => Some (ps_valnum ps + Z.of_nat v # ps_polord ps)
   | ∞ => None
   end.
 
-Definition valuation_coeff α (f : field α) ps :=
-  match null_coeff_range_length f (ps_terms ps) 0 with
+Definition valuation_coeff α (r : ring α) ps :=
+  match null_coeff_range_length r (ps_terms ps) 0 with
   | fin v => (ps_terms ps) .[v]
   | ∞ => (0)%K
   end.
@@ -44,28 +44,28 @@ Fixpoint power_list α pow (psl : list (puiseux_series α)) :=
 Definition qpower_list α pow (psl : list (puiseux_series α)) :=
   List.map (pair_rec (λ pow ps, (Qnat pow, ps))) (power_list pow psl).
 
-Fixpoint filter_finite_val α f (dpl : list (Q * puiseux_series α)) :=
+Fixpoint filter_finite_val α r (dpl : list (Q * puiseux_series α)) :=
   match dpl with
   | [(pow, ps) … dpl₁] =>
-      match valuation f ps with
-      | Some v => [(pow, v) … filter_finite_val f dpl₁]
-      | None => filter_finite_val f dpl₁
+      match valuation r ps with
+      | Some v => [(pow, v) … filter_finite_val r dpl₁]
+      | None => filter_finite_val r dpl₁
       end
   | [] =>
       []
   end.
 
-Definition points_of_ps_polynom_gen α f pow (cl : list (puiseux_series α)) :=
-  filter_finite_val f (qpower_list pow cl).
+Definition points_of_ps_polynom_gen α r pow (cl : list (puiseux_series α)) :=
+  filter_finite_val r (qpower_list pow cl).
 
-Definition points_of_ps_lap α f (lps : list (puiseux_series α)) :=
-  points_of_ps_polynom_gen f 0 lps.
+Definition points_of_ps_lap α r (lps : list (puiseux_series α)) :=
+  points_of_ps_polynom_gen r 0 lps.
 
-Definition points_of_ps_polynom α f (pol : polynomial (puiseux_series α)) :=
-  points_of_ps_lap f (al pol).
+Definition points_of_ps_polynom α r (pol : polynomial (puiseux_series α)) :=
+  points_of_ps_lap r (al pol).
 
-Definition newton_segments α f (pol : polynomial (puiseux_series α)) :=
-  let gdpl := points_of_ps_polynom f pol in
+Definition newton_segments α r (pol : polynomial (puiseux_series α)) :=
+  let gdpl := points_of_ps_polynom r pol in
   list_map_pairs newton_segment_of_pair (lower_convex_hull_points gdpl).
 
 Definition puis_ser_pol α := polynomial (puiseux_series α).
@@ -75,16 +75,16 @@ Definition puis_ser_pol α := polynomial (puiseux_series α).
 Section theorems.
 
 Variable α : Type.
-Variable f : field α.
+Variable r : ring α.
 
 Lemma fold_points_of_ps_polynom_gen : ∀ pow (cl : list (puiseux_series α)),
-  filter_finite_val f
+  filter_finite_val r
     (List.map (pair_rec (λ pow ps, (Qnat pow, ps))) (power_list pow cl)) =
-  points_of_ps_polynom_gen f pow cl.
+  points_of_ps_polynom_gen r pow cl.
 Proof. reflexivity. Qed.
 
 Lemma points_of_polyn_sorted : ∀ deg (cl : list (puiseux_series α)) pts,
-  pts = points_of_ps_polynom_gen f deg cl
+  pts = points_of_ps_polynom_gen r deg cl
   → Sorted fst_lt pts.
 Proof.
 intros deg cl pts Hpts.
@@ -92,11 +92,11 @@ destruct cl as [| c₁]; [ subst pts; constructor | idtac ].
 revert deg c₁ pts Hpts.
 induction cl as [| c]; intros.
  unfold points_of_ps_polynom_gen in Hpts; simpl in Hpts.
- destruct (valuation f c₁); subst pts; constructor; constructor.
+ destruct (valuation r c₁); subst pts; constructor; constructor.
 
  unfold points_of_ps_polynom_gen in Hpts; simpl in Hpts.
- destruct (valuation f c₁); [ idtac | eapply IHcl; eassumption ].
- remember (points_of_ps_polynom_gen f (S deg) [c … cl]) as pts₁.
+ destruct (valuation r c₁); [ idtac | eapply IHcl; eassumption ].
+ remember (points_of_ps_polynom_gen r (S deg) [c … cl]) as pts₁.
  subst pts; rename pts₁ into pts; rename Heqpts₁ into Hpts.
  clear IHcl.
  clear c₁.
@@ -104,14 +104,14 @@ induction cl as [| c]; intros.
  induction cl as [| c₂]; intros.
   simpl.
   unfold points_of_ps_polynom_gen in Hpts; simpl in Hpts.
-  destruct (valuation f c).
+  destruct (valuation r c).
    constructor; constructor; [ constructor | constructor | idtac ].
    apply Qnat_lt, lt_n_Sn.
 
    constructor; constructor.
 
   unfold points_of_ps_polynom_gen in Hpts; simpl in Hpts; simpl.
-  destruct (valuation f c) as [v₂| ].
+  destruct (valuation r c) as [v₂| ].
    subst pts.
    apply Sorted_LocallySorted_iff.
    constructor; [ idtac | apply Qnat_lt, lt_n_Sn ].

@@ -18,10 +18,10 @@ Notation "x ∉ l" := (not (List.In x l)) (at level 70).
 Section theorems.
 
 Variable α : Type.
-Variable f : field α.
+Variable r : ring α.
 
 Theorem points_in_any_newton_segment : ∀ pol ns,
-  ns ∈ newton_segments f pol
+  ns ∈ newton_segments r pol
   → ∀ h αh, (h, αh) ∈ [ini_pt ns; fin_pt ns … oth_pts ns]
     → β ns == αh + h * γ ns.
 Proof.
@@ -31,8 +31,8 @@ eapply points_of_polyn_sorted; reflexivity.
 Qed.
 
 Theorem points_not_in_any_newton_segment : ∀ (pol : puis_ser_pol α) pts ns,
-  pts = points_of_ps_polynom f pol
-  → ns ∈ newton_segments f pol
+  pts = points_of_ps_polynom r pol
+  → ns ∈ newton_segments r pol
     → ∀ h αh, (h, αh) ∈ pts ∧ (h, αh) ∉ [ini_pt ns; fin_pt ns … oth_pts ns]
       → β ns < αh + h * (γ ns).
 Proof.

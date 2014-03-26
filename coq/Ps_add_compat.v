@@ -14,11 +14,11 @@ Require Import Ps_add.
 Section theorem_add_compat.
 
 Variable α : Type.
-Variable f : field α.
+Variable r : ring α.
 
 Lemma series_nth_0_series_nth_shift_0 : ∀ s n,
   (∀ i, (s .[i] = 0)%K)
-  → ∀ i, ((series_shift f n s) .[i] = 0)%K.
+  → ∀ i, ((series_shift r n s) .[i] = 0)%K.
 Proof.
 intros s n H i; simpl.
 destruct (lt_dec i n) as [| H₁]; [ reflexivity | idtac ].
@@ -26,7 +26,7 @@ apply H.
 Qed.
 
 Lemma canonify_series_add_shift : ∀ s n m k,
-  (canonify_series (n + m) k (series_shift f m s) .= f
+  (canonify_series (n + m) k (series_shift r m s) .= r
    canonify_series n k s)%ser.
 Proof.
 intros s n m k.
@@ -43,8 +43,8 @@ destruct (lt_dec (n + m + i * Pos.to_nat k) m) as [H₂| H₂].
 Qed.
 
 Lemma eq_strong_ps_add_compat_r : ∀ ps₁ ps₂ ps₃,
-  eq_ps_strong f ps₁ ps₂
-  → eq_ps_strong f (ps₁ .+ f ps₃)%ps (ps₂ .+ f ps₃)%ps.
+  eq_ps_strong r ps₁ ps₂
+  → eq_ps_strong r (ps₁ .+ r ps₃)%ps (ps₂ .+ r ps₃)%ps.
 Proof.
 intros ps₁ ps₂ ps₃ Heq.
 induction Heq.
@@ -66,8 +66,8 @@ constructor; simpl.
 Qed.
 
 Lemma eq_strong_ps_add_compat_l : ∀ ps₁ ps₂ ps₃,
-  (ps₁ ≐ f ps₂)%ps
-  → (ps₃ .+ f ps₁ ≐ f ps₃ .+ f ps₂)%ps.
+  (ps₁ ≐ r ps₂)%ps
+  → (ps₃ .+ r ps₁ ≐ r ps₃ .+ r ps₂)%ps.
 Proof.
 intros ps₁ ps₂ ps₃ Heq.
 rewrite eq_strong_ps_add_comm; symmetry.
@@ -76,8 +76,8 @@ apply eq_strong_ps_add_compat_r; assumption.
 Qed.
 
 Lemma ps_adjust_adjust : ∀ ps n₁ n₂ k₁ k₂,
-  eq_ps_strong f (adjust_ps f n₁ k₁ (adjust_ps f n₂ k₂ ps))
-    (adjust_ps f (n₁ + n₂ * Pos.to_nat k₁) (k₁ * k₂) ps).
+  eq_ps_strong r (adjust_ps r n₁ k₁ (adjust_ps r n₂ k₂ ps))
+    (adjust_ps r (n₁ + n₂ * Pos.to_nat k₁) (k₁ * k₂) ps).
 Proof.
 intros ps n₁ n₂ k₁ k₂.
 unfold adjust_ps; simpl.
@@ -99,8 +99,8 @@ constructor; simpl.
 Qed.
 
 Lemma ps_adjust_adjusted : ∀ ps₁ ps₂ n k,
-  eq_ps_strong f (adjust_ps f n k (adjusted_ps_add f ps₁ ps₂))
-    (adjusted_ps_add f (adjust_ps f n k ps₁) (adjust_ps f n k ps₂)).
+  eq_ps_strong r (adjust_ps r n k (adjusted_ps_add r ps₁ ps₂))
+    (adjusted_ps_add r (adjust_ps r n k ps₁) (adjust_ps r n k ps₂)).
 Proof.
 intros ps₁ ps₂ n k.
 constructor; simpl; try reflexivity.
@@ -110,8 +110,8 @@ reflexivity.
 Qed.
 
 Lemma eq_strong_ps_add_adjust_0_l : ∀ ps₁ ps₂ k,
-  canonic_ps f (ps₁ .+ f ps₂)%ps ≐ f
-  canonic_ps f (adjust_ps f 0 k ps₁ .+ f ps₂)%ps.
+  canonic_ps r (ps₁ .+ r ps₂)%ps ≐ r
+  canonic_ps r (adjust_ps r 0 k ps₁ .+ r ps₂)%ps.
 Proof.
 intros ps₁ ps₂ k.
 rewrite ps_canon_adjust_eq with (n := O) (k := k).
@@ -139,8 +139,8 @@ reflexivity.
 Qed.
 
 Lemma canonic_ps_adjust : ∀ ps₁ ps₂ n,
-  canonic_ps f (adjusted_ps_add f (adjust_ps f n 1 ps₁) (adjust_ps f n 1 ps₂))
-  ≐ f canonic_ps f (adjusted_ps_add f ps₁ ps₂).
+  canonic_ps r (adjusted_ps_add r (adjust_ps r n 1 ps₁) (adjust_ps r n 1 ps₂))
+  ≐ r canonic_ps r (adjusted_ps_add r ps₁ ps₂).
 Proof.
 (* gros nettoyage à faire : factorisation, focus, etc. *)
 intros ps₁ ps₂ n.
@@ -150,7 +150,7 @@ simpl.
 rewrite null_coeff_range_length_shift.
 rewrite series_stretch_1.
 remember
- (null_coeff_range_length f (series_add f (ps_terms ps₁) (ps_terms ps₂))
+ (null_coeff_range_length r (series_add r (ps_terms ps₁) (ps_terms ps₂))
     0)%Nbar as x.
 rewrite Nbar.add_comm.
 destruct x as [x| ]; [ simpl | reflexivity ].
@@ -160,7 +160,7 @@ constructor; simpl.
  rewrite Z.sub_add_simpl_r_r.
  f_equal.
  rewrite series_stretch_1.
- remember (series_add f (ps_terms ps₁) (ps_terms ps₂)) as s.
+ remember (series_add r (ps_terms ps₁) (ps_terms ps₂)) as s.
  symmetry in Heqx.
  apply null_coeff_range_length_iff in Heqx.
  simpl in Heqx.
@@ -178,7 +178,7 @@ constructor; simpl.
  f_equal.
  f_equal.
  rewrite series_stretch_1.
- remember (series_add f (ps_terms ps₁) (ps_terms ps₂)) as s.
+ remember (series_add r (ps_terms ps₁) (ps_terms ps₂)) as s.
  symmetry in Heqx.
  unfold gcd_ps.
  simpl.
@@ -191,7 +191,7 @@ constructor; simpl.
 
  rewrite series_stretch_1.
  rewrite canonify_series_add_shift.
- remember (series_add f (ps_terms ps₁) (ps_terms ps₂)) as s.
+ remember (series_add r (ps_terms ps₁) (ps_terms ps₂)) as s.
  unfold gcd_ps.
  simpl.
  rewrite Z.mul_1_r.
@@ -203,14 +203,14 @@ constructor; simpl.
 Qed.
 
 Lemma canonic_ps_adjust_add : ∀ ps₁ ps₂ n n₁ n₂ k₁ k₂,
-  canonic_ps f
-    (adjusted_ps_add f
-       (adjust_ps f (n + n₁) k₁ ps₁)
-       (adjust_ps f (n + n₂) k₂ ps₂)) ≐ f
-  canonic_ps f
-    (adjusted_ps_add f
-       (adjust_ps f n₁ k₁ ps₁)
-       (adjust_ps f n₂ k₂ ps₂)).
+  canonic_ps r
+    (adjusted_ps_add r
+       (adjust_ps r (n + n₁) k₁ ps₁)
+       (adjust_ps r (n + n₂) k₂ ps₂)) ≐ r
+  canonic_ps r
+    (adjusted_ps_add r
+       (adjust_ps r n₁ k₁ ps₁)
+       (adjust_ps r n₂ k₂ ps₂)).
 Proof.
 intros ps₁ ps₂ n n₁ n₂ k₁ k₂.
 replace (n + n₁)%nat with (n + n₁ * Pos.to_nat 1)%nat .
@@ -228,8 +228,8 @@ replace (n + n₁)%nat with (n + n₁ * Pos.to_nat 1)%nat .
 Qed.
 
 Lemma canonic_ps_add_adjust : ∀ ps₁ ps₂ n k m,
-  canonic_ps f (adjust_ps f m k ps₁ .+ f ps₂)%ps ≐ f
-  canonic_ps f (adjust_ps f n k ps₁ .+ f ps₂)%ps.
+  canonic_ps r (adjust_ps r m k ps₁ .+ r ps₂)%ps ≐ r
+  canonic_ps r (adjust_ps r n k ps₁ .+ r ps₂)%ps.
 Proof.
 intros ps₁ ps₂ n k m.
 do 2 rewrite eq_strong_ps_canon_add_add₂.
@@ -366,8 +366,8 @@ rewrite <- Z2Nat.inj_add.
 Qed.
 
 Lemma canonic_ps_add_adjust_l : ∀ ps₁ ps₂ n k,
-  canonic_ps f (ps₁ .+ f ps₂)%ps ≐ f
-  canonic_ps f (adjust_ps f n k ps₁ .+ f ps₂)%ps.
+  canonic_ps r (ps₁ .+ r ps₂)%ps ≐ r
+  canonic_ps r (adjust_ps r n k ps₁ .+ r ps₂)%ps.
 Proof.
 intros ps₁ ps₂ n k.
 rewrite eq_strong_ps_add_adjust_0_l with (k := k).
@@ -375,18 +375,18 @@ apply canonic_ps_add_adjust.
 Qed.
 
 Lemma canonified_exists_adjust : ∀ ps ps₁,
-  null_coeff_range_length f (ps_terms ps) 0 ≠ ∞
-  → canonic_ps f ps = ps₁
-    → ∃ n k, eq_ps_strong f ps (adjust_ps f n k ps₁).
+  null_coeff_range_length r (ps_terms ps) 0 ≠ ∞
+  → canonic_ps r ps = ps₁
+    → ∃ n k, eq_ps_strong r ps (adjust_ps r n k ps₁).
 Proof.
 intros ps ps₁ Hnz Heq.
 unfold canonic_ps in Heq.
-remember (null_coeff_range_length f (ps_terms ps) 0) as len₁.
+remember (null_coeff_range_length r (ps_terms ps) 0) as len₁.
 symmetry in Heqlen₁.
 destruct len₁ as [len₁| ]; [ idtac | exfalso; apply Hnz; reflexivity ].
 subst ps₁.
 unfold adjust_ps; simpl.
-remember (greatest_series_x_power f (ps_terms ps) len₁) as k₁.
+remember (greatest_series_x_power r (ps_terms ps) len₁) as k₁.
 remember (gcd_ps len₁ k₁ ps) as g.
 symmetry in Heqg.
 destruct g as [| g| g]; simpl.
@@ -467,16 +467,16 @@ destruct g as [| g| g]; simpl.
 Qed.
 
 Definition ps_neg_zero :=
-  {| ps_terms := .0 f%ser; ps_valnum := -1; ps_polord := 1 |}.
+  {| ps_terms := .0 r%ser; ps_valnum := -1; ps_polord := 1 |}.
 
 Lemma eq_strong_ps_adjust_zero_neg_zero : ∀ ps,
-  null_coeff_range_length f (ps_terms ps) 0 = ∞
+  null_coeff_range_length r (ps_terms ps) 0 = ∞
   → ∃ n₁ n₂ k₁ k₂,
-    eq_ps_strong f (adjust_ps f n₁ k₁ ps) (adjust_ps f n₂ k₂ ps_neg_zero).
+    eq_ps_strong r (adjust_ps r n₁ k₁ ps) (adjust_ps r n₂ k₂ ps_neg_zero).
 Proof.
 intros ps Hz.
 unfold canonic_ps in Hz.
-remember (null_coeff_range_length f (ps_terms ps) 0) as n eqn:Hn .
+remember (null_coeff_range_length r (ps_terms ps) 0) as n eqn:Hn .
 symmetry in Hn.
 destruct n; [ discriminate Hz | clear Hz ].
 apply null_coeff_range_length_iff in Hn.
@@ -527,9 +527,9 @@ destruct (Z_le_dec 0 (ps_valnum ps)) as [H₁| H₁].
 Qed.
 
 Lemma null_coeff_range_length_inf_compat : ∀ ps₁ ps₂,
-  canonic_ps f ps₁ ≐ f canonic_ps f ps₂
-  → null_coeff_range_length f (ps_terms ps₁) 0 = ∞
-    → null_coeff_range_length f (ps_terms ps₂) 0 = ∞.
+  canonic_ps r ps₁ ≐ r canonic_ps r ps₂
+  → null_coeff_range_length r (ps_terms ps₁) 0 = ∞
+    → null_coeff_range_length r (ps_terms ps₂) 0 = ∞.
 Proof.
 intros ps₁ ps₂ Heq Hinf.
 apply null_coeff_range_length_inf_iff in Hinf.
@@ -539,17 +539,17 @@ rewrite <- Heq, H; reflexivity.
 Qed.
 
 Lemma ps_canon_add_compat_r : ∀ ps₁ ps₂ ps₃,
-  canonic_ps f ps₁ ≐ f canonic_ps f ps₂
-  → canonic_ps f (ps₁ .+ f ps₃)%ps ≐ f canonic_ps f (ps₂ .+ f ps₃)%ps.
+  canonic_ps r ps₁ ≐ r canonic_ps r ps₂
+  → canonic_ps r (ps₁ .+ r ps₃)%ps ≐ r canonic_ps r (ps₂ .+ r ps₃)%ps.
 Proof.
 intros ps₁ ps₂ ps₃ Heq.
-remember (null_coeff_range_length f (ps_terms ps₁) 0) as m₁ eqn:Hm₁ .
-remember (null_coeff_range_length f (ps_terms ps₂) 0) as m₂ eqn:Hm₂ .
+remember (null_coeff_range_length r (ps_terms ps₁) 0) as m₁ eqn:Hm₁ .
+remember (null_coeff_range_length r (ps_terms ps₂) 0) as m₂ eqn:Hm₂ .
 symmetry in Hm₁, Hm₂.
 destruct m₁ as [m₁| ].
  destruct m₂ as [m₂| ].
-  remember (canonic_ps f ps₁) as nps₁ eqn:Hps₁ .
-  remember (canonic_ps f ps₂) as nps₂ eqn:Hps₂ .
+  remember (canonic_ps r ps₁) as nps₁ eqn:Hps₁ .
+  remember (canonic_ps r ps₂) as nps₂ eqn:Hps₂ .
   symmetry in Hps₁, Hps₂.
   apply canonified_exists_adjust in Hps₁.
    apply canonified_exists_adjust in Hps₂.
@@ -591,8 +591,8 @@ destruct m₁ as [m₁| ].
 Qed.
 
 Theorem ps_add_compat_r : ∀ ps₁ ps₂ ps₃,
-  (ps₁ .= f ps₂)%ps
-  → (ps₁ .+ f ps₃ .= f ps₂ .+ f ps₃)%ps.
+  (ps₁ .= r ps₂)%ps
+  → (ps₁ .+ r ps₃ .= r ps₂ .+ r ps₃)%ps.
 Proof.
 intros ps₁ ps₂ ps₃ H₁₂.
 constructor.
@@ -601,8 +601,8 @@ inversion H₁₂; assumption.
 Qed.
 
 Theorem ps_add_compat_l : ∀ ps₁ ps₂ ps₃,
-  (ps₁ .= f ps₂)%ps
-  → (ps₃ .+ f ps₁ .= f ps₃ .+ f ps₂)%ps.
+  (ps₁ .= r ps₂)%ps
+  → (ps₃ .+ r ps₁ .= r ps₃ .+ r ps₂)%ps.
 Proof.
 intros ps1 ps₂ ps₃ H₁₂.
 rewrite ps_add_comm; symmetry.
@@ -612,8 +612,8 @@ Qed.
 
 End theorem_add_compat.
 
-Add Parametric Morphism α (f : field α) : (ps_add f)
-  with signature eq_ps_strong f ==> eq_ps_strong f ==> eq_ps_strong f
+Add Parametric Morphism α (r : ring α) : (ps_add r)
+  with signature eq_ps_strong r ==> eq_ps_strong r ==> eq_ps_strong r
   as ps_canon_add_morph.
 Proof.
 intros ps₁ ps₃ Heq₁ ps₂ ps₄ Heq₂.
@@ -622,12 +622,12 @@ rewrite eq_strong_ps_add_compat_r; [ idtac | eassumption ].
 reflexivity.
 Qed.
 
-Add Parametric Morphism α (f : field α) : (ps_add f)
-  with signature eq_ps f ==> eq_ps f ==> eq_ps f
+Add Parametric Morphism α (r : ring α) : (ps_add r)
+  with signature eq_ps r ==> eq_ps r ==> eq_ps r
   as ps_add_morph.
 Proof.
 intros ps₁ ps₃ Heq₁ ps₂ ps₄ Heq₂.
-transitivity (ps_add f ps₁ ps₄).
+transitivity (ps_add r ps₁ ps₄).
  apply ps_add_compat_l; assumption.
 
  apply ps_add_compat_r; assumption.

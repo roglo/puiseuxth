@@ -16,7 +16,7 @@ Require Import CharactPolyn.
 
 Set Implicit Arguments.
 
-Fixpoint fld_power {α} {K : field α} a n :=
+Fixpoint fld_power {α} {R : ring α} a n :=
   match n with
   | O => 1%K
   | S m => (a * fld_power a m)%K
@@ -26,37 +26,37 @@ Notation "a ^ b" := (fld_power a b) : field_scope.
 
 (* *)
 
-Definition apply_lap α (f : field α) la x :=
+Definition apply_lap α (r : ring α) la x :=
   (List.fold_right (λ c accu, accu * x + c) 0 la)%K.
 
-Definition apply_poly α (f : field α) pol :=
-  apply_lap f (al pol).
+Definition apply_poly α (r : ring α) pol :=
+  apply_lap r (al pol).
 
-Definition apply_lap2 α (K : field α) la x :=
-  Σ K (i = 0, pred (length la)), List.nth i la 0 * x ^ i.
+Definition apply_lap2 α (R : ring α) la x :=
+  Σ R (i = 0, pred (length la)), List.nth i la 0 * x ^ i.
 
 (* euclidean division of a polynomial by (x - c) *)
 
-Fixpoint lap_mod_div_deg_1 α (f : field α) la c :=
+Fixpoint lap_mod_div_deg_1 α (r : ring α) la c :=
   match la with
   | [] => []
-  | [a₁ … la₁] => [apply_lap f la c … lap_mod_div_deg_1 f la₁ c]
+  | [a₁ … la₁] => [apply_lap r la c … lap_mod_div_deg_1 r la₁ c]
   end.
 
-Definition lap_div_deg_1 α (f : field α) la c :=
-  match lap_mod_div_deg_1 f la c with
+Definition lap_div_deg_1 α (r : ring α) la c :=
+  match lap_mod_div_deg_1 r la c with
   | [] => []
   | [m … ml] => ml
   end.
 
-Definition lap_mod_deg_1 α (f : field α) la c :=
-  match lap_mod_div_deg_1 f la c with
+Definition lap_mod_deg_1 α (r : ring α) la c :=
+  match lap_mod_div_deg_1 r la c with
   | [] => 0%K
   | [m … ml] => m
   end.
 
-Definition poly_div_deg_1 α (f : field α) pol c :=
-  (POL (lap_div_deg_1 f (al pol) c))%pol.
+Definition poly_div_deg_1 α (r : ring α) pol c :=
+  (POL (lap_div_deg_1 r (al pol) c))%pol.
 
 (* test
 Load Q_field.
@@ -78,52 +78,52 @@ Fixpoint comb n k :=
       end
   end.
 
-Fixpoint fld_mul_nat α (f : field α) n x :=
+Fixpoint fld_mul_nat α (r : ring α) n x :=
   match n with
   | O => 0%K
-  | S n₁ => (fld_mul_nat f n₁ x + x)%K
+  | S n₁ => (fld_mul_nat r n₁ x + x)%K
   end.
 
-Fixpoint fld_pow_nat α (f : field α) a n :=
+Fixpoint fld_pow_nat α (r : ring α) a n :=
   match n with
   | 0%nat => 1%K
-  | S n₁ => (a * fld_pow_nat f a n₁)%K
+  | S n₁ => (a * fld_pow_nat r a n₁)%K
   end.
 
-Fixpoint coeff_lap_deriv α (f : field α) la n i :=
+Fixpoint coeff_lap_deriv α (r : ring α) la n i :=
   match la with
   | [] => []
   | [a₁ … la₁] =>
-      [fld_mul_nat f (comb i n) a₁ … coeff_lap_deriv f la₁ n (S i)]
+      [fld_mul_nat r (comb i n) a₁ … coeff_lap_deriv r la₁ n (S i)]
   end.
 
 (* n-th derivial = n-th derivative divided by factorial n *)
 
-Definition lap_derivial α (f : field α) n la :=
-  coeff_lap_deriv f (List.skipn n la) n n.
+Definition lap_derivial α (r : ring α) n la :=
+  coeff_lap_deriv r (List.skipn n la) n n.
 
-Definition poly_derivial α (f : field α) n pol :=
-  (POL (lap_derivial f n (al pol)))%pol.
+Definition poly_derivial α (r : ring α) n pol :=
+  (POL (lap_derivial r n (al pol)))%pol.
 
-Fixpoint coeff_taylor_lap α (f : field α) n la c k :=
+Fixpoint coeff_taylor_lap α (r : ring α) n la c k :=
   match n with
   | 0%nat => []
   | S n₁ =>
-      [apply_lap f (lap_derivial f k la) c …
-       coeff_taylor_lap f n₁ la c (S k)]
+      [apply_lap r (lap_derivial r k la) c …
+       coeff_taylor_lap r n₁ la c (S k)]
   end.
 
-Definition taylor_lap α (f : field α) la c :=
-  coeff_taylor_lap f (length la) la c 0.
+Definition taylor_lap α (r : ring α) la c :=
+  coeff_taylor_lap r (length la) la c 0.
 
 (* P(x+c) = P(c) + P'(c)/1!.x + P''(c)/2!.x² + ... *)
-Definition taylor_poly α (f : field α) P c :=
-  (POL (taylor_lap f (al P) c))%pol.
+Definition taylor_poly α (r : ring α) P c :=
+  (POL (taylor_lap r (al P) c))%pol.
 
-Lemma apply_lap_0 : ∀ α (f : field α) la,
-  (apply_lap f la 0 = List.nth 0 la 0)%K.
+Lemma apply_lap_0 : ∀ α (r : ring α) la,
+  (apply_lap r la 0 = List.nth 0 la 0)%K.
 Proof.
-intros α f la.
+intros α r la.
 destruct la as [| a]; [ reflexivity | simpl ].
 rewrite fld_mul_0_r, fld_add_0_l; reflexivity.
 Qed.
@@ -150,14 +150,14 @@ rewrite IHn, comb_lt; [ idtac | apply Nat.lt_succ_r; reflexivity ].
 rewrite Nat.add_0_r; reflexivity.
 Qed.
 
-Lemma fld_mul_nat_1_l : ∀ α (f : field α) a, (fld_mul_nat f 1 a = a)%K.
-Proof. intros α f a; simpl; rewrite fld_add_0_l; reflexivity. Qed.
+Lemma fld_mul_nat_1_l : ∀ α (r : ring α) a, (fld_mul_nat r 1 a = a)%K.
+Proof. intros α r a; simpl; rewrite fld_add_0_l; reflexivity. Qed.
 
-Theorem taylor_coeff_0 : ∀ α (f : field α) la k,
-  (apply_lap f (lap_derivial f k la) 0 =
+Theorem taylor_coeff_0 : ∀ α (r : ring α) la k,
+  (apply_lap r (lap_derivial r k la) 0 =
    List.nth k la 0)%K.
 Proof.
-intros α f la k.
+intros α r la k.
 rewrite apply_lap_0.
 destruct k.
  destruct la; [ reflexivity | simpl ].
@@ -176,15 +176,15 @@ destruct k.
   erewrite list_skipn_cons_nth; [ reflexivity | eassumption ].
 Qed.
 
-Lemma fold_apply_lap : ∀ α (f : field α) al x,
+Lemma fold_apply_lap : ∀ α (r : ring α) al x,
   (List.fold_right (λ c accu : α, accu * x + c) 0 al)%K =
-  apply_lap f al x.
+  apply_lap r al x.
 Proof. reflexivity. Qed.
 
-Lemma apply_lap_lap2 : ∀ α (K : field α) la x,
-  (apply_lap K la x = apply_lap2 K la x)%K.
+Lemma apply_lap_lap2 : ∀ α (R : ring α) la x,
+  (apply_lap R la x = apply_lap2 R la x)%K.
 Proof.
-intros α K la x.
+intros α R la x.
 induction la as [| a]; simpl.
  unfold apply_lap2; simpl.
  rewrite summation_only_one, fld_mul_0_l; reflexivity.
@@ -212,10 +212,10 @@ induction la as [| a]; simpl.
   reflexivity.
 Qed.
 
-Lemma lap_derivial_nil : ∀ α (K : field α) k,
-  lap_eq K (lap_derivial K k []) [].
+Lemma lap_derivial_nil : ∀ α (R : ring α) k,
+  lap_eq R (lap_derivial R k []) [].
 Proof.
-intros α K k.
+intros α R k.
 unfold lap_derivial; simpl.
 rewrite list_skipn_nil; reflexivity.
 Qed.
@@ -230,22 +230,22 @@ induction n; [ reflexivity | simpl ].
 rewrite comb_0_r, IHn; reflexivity.
 Qed.
 
-Lemma coeff_lap_deriv_1_succ : ∀ α (K : field α) la n,
-  lap_eq K (coeff_lap_deriv K la 1 (S n))
-    (lap_add K la (coeff_lap_deriv K la 1 n)).
+Lemma coeff_lap_deriv_1_succ : ∀ α (R : ring α) la n,
+  lap_eq R (coeff_lap_deriv R la 1 (S n))
+    (lap_add R la (coeff_lap_deriv R la 1 n)).
 Proof.
-intros α K la n.
+intros α R la n.
 revert n.
 induction la as [| a]; intros; [ reflexivity | simpl ].
 rewrite comb_0_r, comb_1_r.
 constructor; [ apply fld_add_comm | apply IHla ].
 Qed.
 
-Lemma lap_derivial_1_cons : ∀ α (K : field α) a la,
-  lap_eq K (lap_derivial K 1 [a … la])
-    (lap_add K la [0 … lap_derivial K 1 la])%K.
+Lemma lap_derivial_1_cons : ∀ α (R : ring α) a la,
+  lap_eq R (lap_derivial R 1 [a … la])
+    (lap_add R la [0 … lap_derivial R 1 la])%K.
 Proof.
-intros α K a la.
+intros α R a la.
 unfold lap_derivial; simpl.
 clear a.
 destruct la as [| a]; simpl.
@@ -255,8 +255,8 @@ destruct la as [| a]; simpl.
  apply coeff_lap_deriv_1_succ.
 Qed.
 
-Add Parametric Morphism α (f : field α) : (apply_lap f)
-  with signature lap_eq f ==> fld_eq ==> fld_eq
+Add Parametric Morphism α (r : ring α) : (apply_lap r)
+  with signature lap_eq r ==> fld_eq ==> fld_eq
   as apply_lap_morph.
 Proof.
 intros la lb Hab x y Hxy.
@@ -287,8 +287,8 @@ induction la as [| a]; intros; simpl.
   reflexivity.
 Qed.
 
-Add Parametric Morphism α (f : field α) : (apply_poly f)
-  with signature eq_poly f ==> fld_eq ==> fld_eq
+Add Parametric Morphism α (r : ring α) : (apply_poly r)
+  with signature eq_poly r ==> fld_eq ==> fld_eq
   as apply_poly_morph.
 Proof.
 intros p₁ p₂ Hpp v₁ v₂ Hvv.
@@ -297,8 +297,8 @@ unfold apply_poly.
 rewrite Hpp, Hvv; reflexivity.
 Qed.
 
-Add Parametric Morphism α (f : field α) : (lap_mod_div_deg_1 f)
-  with signature lap_eq f ==> fld_eq ==> lap_eq f
+Add Parametric Morphism α (r : ring α) : (lap_mod_div_deg_1 r)
+  with signature lap_eq r ==> fld_eq ==> lap_eq r
   as lap_mod_div_deg_1_morph.
 Proof.
 intros la lb Hlab ca cb Hcab.
@@ -327,8 +327,8 @@ induction la as [| a]; intros; simpl.
   rewrite Hab, Hlab, Hcab; reflexivity.
 Qed.
 
-Add Parametric Morphism α (f : field α) : (lap_div_deg_1 f)
-  with signature lap_eq f ==> fld_eq ==> lap_eq f
+Add Parametric Morphism α (r : ring α) : (lap_div_deg_1 r)
+  with signature lap_eq r ==> fld_eq ==> lap_eq r
   as lap_div_deg_1_morph.
 Proof.
 intros la lb Hlab ca cb Hcab.
@@ -353,11 +353,11 @@ induction la as [| a]; intros; simpl.
   rewrite Hlab, Hcab; reflexivity.
 Qed.
 
-Lemma taylor_formula_0_loop : ∀ α (f : field α) la cnt n,
+Lemma taylor_formula_0_loop : ∀ α (r : ring α) la cnt n,
   length la = (cnt + n)%nat
-  → lap_eq f (coeff_taylor_lap f cnt la 0 n)%K (List.skipn n la).
+  → lap_eq r (coeff_taylor_lap r cnt la 0 n)%K (List.skipn n la).
 Proof.
-intros α f la cnt n Hlen.
+intros α r la cnt n Hlen.
 revert la n Hlen.
 induction cnt; intros.
  simpl in Hlen; subst n; simpl.
@@ -380,26 +380,26 @@ Qed.
 Theorem list_skipn_0 : ∀ A (l : list A), List.skipn 0 l = l.
 Proof. intros A l; destruct l; reflexivity. Qed.
 
-Lemma taylor_lap_formula_0 : ∀ α (f : field α) la,
-  lap_eq f la (taylor_lap f la 0)%K.
+Lemma taylor_lap_formula_0 : ∀ α (r : ring α) la,
+  lap_eq r la (taylor_lap r la 0)%K.
 Proof.
-intros α f la.
+intros α r la.
 unfold taylor_lap.
 rewrite taylor_formula_0_loop; [ reflexivity | idtac ].
 rewrite Nat.add_0_r; reflexivity.
 Qed.
 
-Theorem taylor_formula_0 : ∀ α (f : field α) P,
-  (P .= f taylor_poly f P 0%K)%pol.
+Theorem taylor_formula_0 : ∀ α (r : ring α) P,
+  (P .= r taylor_poly r P 0%K)%pol.
 Proof.
-intros α f P.
+intros α r P.
 apply taylor_lap_formula_0.
 Qed.
 
-Lemma fld_mul_nat_add_distr_l : ∀ α (f : field α) a b n,
-  (fld_mul_nat f n (a + b) = fld_mul_nat f n a + fld_mul_nat f n b)%K.
+Lemma fld_mul_nat_add_distr_l : ∀ α (r : ring α) a b n,
+  (fld_mul_nat r n (a + b) = fld_mul_nat r n a + fld_mul_nat r n b)%K.
 Proof.
-intros α f a b n.
+intros α r a b n.
 revert a b.
 induction n; intros; simpl; [ rewrite fld_add_0_l; reflexivity | idtac ].
 rewrite IHn.
@@ -410,10 +410,10 @@ apply fld_add_compat_l.
 apply fld_add_comm.
 Qed.
 
-Lemma fld_mul_nat_add_distr_r : ∀ α (f : field α) a m n,
-  (fld_mul_nat f (m + n) a = fld_mul_nat f m a + fld_mul_nat f n a)%K.
+Lemma fld_mul_nat_add_distr_r : ∀ α (r : ring α) a m n,
+  (fld_mul_nat r (m + n) a = fld_mul_nat r m a + fld_mul_nat r n a)%K.
 Proof.
-intros α f a m n.
+intros α r a m n.
 revert a n.
 induction m; intros; simpl.
  rewrite fld_add_0_l; reflexivity.
@@ -422,22 +422,22 @@ induction m; intros; simpl.
  apply fld_add_shuffle0.
 Qed.
 
-Lemma coeff_lap_deriv_add : ∀ α (f : field α) la lb n i,
-  lap_eq f
-    (coeff_lap_deriv f (lap_add f la lb) n i)
-    (lap_add f (coeff_lap_deriv f la n i) (coeff_lap_deriv f lb n i)).
+Lemma coeff_lap_deriv_add : ∀ α (r : ring α) la lb n i,
+  lap_eq r
+    (coeff_lap_deriv r (lap_add r la lb) n i)
+    (lap_add r (coeff_lap_deriv r la n i) (coeff_lap_deriv r lb n i)).
 Proof.
-intros α f la lb n i.
+intros α r la lb n i.
 revert lb n i.
 induction la as [| a]; intros; [ reflexivity | simpl ].
 destruct lb as [| b]; [ reflexivity | simpl ].
 constructor; [ apply fld_mul_nat_add_distr_l | apply IHla ].
 Qed.
 
-Lemma length_deriv_list : ∀ α (f : field α) la n i,
-  length (coeff_lap_deriv f la n i) = length la.
+Lemma length_deriv_list : ∀ α (r : ring α) la n i,
+  length (coeff_lap_deriv r la n i) = length la.
 Proof.
-intros α f la n i.
+intros α r la n i.
 revert i.
 induction la as [| a]; intros; [ reflexivity | simpl ].
 apply eq_S, IHla.
@@ -452,23 +452,23 @@ induction k; intros; [ rewrite Nat.sub_0_r; reflexivity | simpl ].
 destruct la as [| a]; [ reflexivity | apply IHk ].
 Qed.
 
-Lemma list_length_derivial : ∀ α (f : field α) la k,
-  length (lap_derivial f k la) = (length la - k)%nat.
+Lemma list_length_derivial : ∀ α (r : ring α) la k,
+  length (lap_derivial r k la) = (length la - k)%nat.
 Proof.
-intros α f la k.
+intros α r la k.
 unfold lap_derivial.
 rewrite length_deriv_list.
 apply list_length_skipn.
 Qed.
 
-Lemma fld_mul_nat_0_r : ∀ α (f : field α) n, (fld_mul_nat f n 0 = 0)%K.
+Lemma fld_mul_nat_0_r : ∀ α (r : ring α) n, (fld_mul_nat r n 0 = 0)%K.
 Proof.
-intros α f n.
+intros α r n.
 induction n; [ reflexivity | simpl ].
 rewrite fld_add_0_r; assumption.
 Qed.
 
-Add Parametric Morphism α (f : field α) : (fld_mul_nat f)
+Add Parametric Morphism α (r : ring α) : (fld_mul_nat r)
   with signature eq ==> fld_eq ==> fld_eq
   as fld_mul_nat_morph.
 Proof.
@@ -477,8 +477,8 @@ induction n; [ reflexivity | simpl ].
 rewrite IHn, Hab; reflexivity.
 Qed.
 
-Add Parametric Morphism α (f : field α) : (coeff_lap_deriv f)
-  with signature lap_eq f ==> eq ==> eq ==> lap_eq f
+Add Parametric Morphism α (r : ring α) : (coeff_lap_deriv r)
+  with signature lap_eq r ==> eq ==> eq ==> lap_eq r
   as coeff_lap_deriv_morph.
 Proof.
 intros la lb Hlab n i.
@@ -504,11 +504,11 @@ induction la as [| a]; intros; simpl.
   rewrite IHla; [ reflexivity | eassumption ].
 Qed.
 
-Lemma list_skipn_add : ∀ α (f : field α) k la lb,
-  lap_eq f (List.skipn k (lap_add f la lb))
-    (lap_add f (List.skipn k la) (List.skipn k lb)).
+Lemma list_skipn_add : ∀ α (r : ring α) k la lb,
+  lap_eq r (List.skipn k (lap_add r la lb))
+    (lap_add r (List.skipn k la) (List.skipn k lb)).
 Proof.
-intros α f k la lb.
+intros α r k la lb.
 revert la lb.
 induction k; intros; [ rewrite list_skipn_0; reflexivity | simpl ].
 destruct la as [| a]; [ reflexivity | simpl ].
@@ -516,31 +516,31 @@ destruct lb as [| b]; [ simpl | apply IHk ].
 rewrite lap_add_nil_r; reflexivity.
 Qed.
 
-Lemma lap_derivial_add : ∀ α (f : field α) la lb k,
-  lap_eq f
-    (lap_derivial f k (lap_add f la lb))
-    (lap_add f (lap_derivial f k la) (lap_derivial f k lb)).
+Lemma lap_derivial_add : ∀ α (r : ring α) la lb k,
+  lap_eq r
+    (lap_derivial r k (lap_add r la lb))
+    (lap_add r (lap_derivial r k la) (lap_derivial r k lb)).
 Proof.
-intros α f la lb k.
+intros α r la lb k.
 unfold lap_derivial.
 rewrite list_skipn_add.
 rewrite coeff_lap_deriv_add.
 reflexivity.
 Qed.
 
-Lemma coeff_lap_deriv_0_l : ∀ α (f : field α) la i,
-  lap_eq f (coeff_lap_deriv f la 0 i) la.
+Lemma coeff_lap_deriv_0_l : ∀ α (r : ring α) la i,
+  lap_eq r (coeff_lap_deriv r la 0 i) la.
 Proof.
-intros α f la i; revert i.
+intros α r la i; revert i.
 induction la as [| a]; intros; [ reflexivity | simpl ].
 rewrite comb_0_r, fld_mul_nat_1_l.
 constructor; [ reflexivity | apply IHla ].
 Qed.
 
-Lemma lap_derivial_0 : ∀ α (f : field α) la,
-  lap_eq f (lap_derivial f 0 la) la.
+Lemma lap_derivial_0 : ∀ α (r : ring α) la,
+  lap_eq r (lap_derivial r 0 la) la.
 Proof.
-intros α f la.
+intros α r la.
 unfold lap_derivial.
 rewrite list_skipn_0; simpl.
 rewrite coeff_lap_deriv_0_l; reflexivity.
@@ -571,20 +571,20 @@ remember (S n) as x; simpl; subst x.
 rewrite IHn, comb_id, Nat.add_1_r; reflexivity.
 Qed.
 
-Lemma lap_derivial_le : ∀ α (f : field α) k la,
+Lemma lap_derivial_le : ∀ α (r : ring α) k la,
   (length la ≤ k)%nat
-  → lap_eq f (lap_derivial f k la) [].
+  → lap_eq r (lap_derivial r k la) [].
 Proof.
-intros α f k la Hle.
+intros α r k la Hle.
 unfold lap_derivial.
 rewrite list_skipn_overflow; [ reflexivity | assumption ].
 Qed.
 
-Lemma list_skipn_is_nil : ∀ α (f : field α) la n,
-  lap_eq f la []
-  → lap_eq f (List.skipn n la) [].
+Lemma list_skipn_is_nil : ∀ α (r : ring α) la n,
+  lap_eq r la []
+  → lap_eq r (List.skipn n la) [].
 Proof.
-intros α f la n Heq.
+intros α r la n Heq.
 revert n.
 induction la as [| a]; intros.
  rewrite list_skipn_nil; reflexivity.
@@ -595,8 +595,8 @@ induction la as [| a]; intros.
  apply IHla; assumption.
 Qed.
 
-Add Parametric Morphism α (f : field α) : (@List.skipn α)
-  with signature eq ==> lap_eq f ==> lap_eq f
+Add Parametric Morphism α (r : ring α) : (@List.skipn α)
+  with signature eq ==> lap_eq r ==> lap_eq r
   as list_skipn_morph.
 Proof.
 intros n la lb Hlab.
@@ -620,8 +620,8 @@ induction n; intros.
    destruct Hlab; assumption.
 Qed.
 
-Add Parametric Morphism α (f : field α) : (lap_derivial f)
-  with signature eq ==> lap_eq f ==> lap_eq f
+Add Parametric Morphism α (r : ring α) : (lap_derivial r)
+  with signature eq ==> lap_eq r ==> lap_eq r
   as lap_derivial_morph.
 Proof.
 intros k la lb Hlab.
@@ -650,8 +650,8 @@ destruct k.
    reflexivity.
 Qed.
 
-Add Parametric Morphism α (K : field α) : (coeff_taylor_lap K)
-  with signature eq ==> lap_eq K ==> fld_eq ==> eq ==> lap_eq K
+Add Parametric Morphism α (R : ring α) : (coeff_taylor_lap R)
+  with signature eq ==> lap_eq R ==> fld_eq ==> eq ==> lap_eq R
   as coeff_taylor_lap_morph.
 Proof.
 intros n la lb Hlab c d Hcd k.
@@ -660,12 +660,12 @@ induction n; intros; [ reflexivity | simpl ].
 constructor; [ rewrite Hlab, Hcd; reflexivity | apply IHn ].
 Qed.
 
-Lemma lap_derivial_1_mul_const : ∀ α (K : field α) a lb,
-  lap_eq K
-    (lap_derivial K 1 (lap_mul K [a] lb))
-    (lap_mul K [a] (lap_derivial K 1 lb)).
+Lemma lap_derivial_1_mul_const : ∀ α (R : ring α) a lb,
+  lap_eq R
+    (lap_derivial R 1 (lap_mul R [a] lb))
+    (lap_mul R [a] (lap_derivial R 1 lb)).
 Proof.
-intros α K a lb.
+intros α R a lb.
 induction lb as [| b]; intros; simpl.
  rewrite lap_mul_nil_r.
  rewrite lap_derivial_nil.
@@ -688,11 +688,11 @@ induction lb as [| b]; intros; simpl.
  reflexivity.
 Qed.
 
-Lemma lap_eq_map_ext : ∀ α (f : field α) A g h,
+Lemma lap_eq_map_ext : ∀ α (r : ring α) A g h,
    (∀ a : A, fld_eq (g a) (h a))
-   → ∀ la, lap_eq f (List.map g la) (List.map h la).
+   → ∀ la, lap_eq r (List.map g la) (List.map h la).
 Proof.
-intros α f A g h Hgh la.
+intros α r A g h Hgh la.
 induction la as [| a]; [ reflexivity | simpl ].
 constructor; [ apply Hgh | assumption ].
 Qed.
@@ -701,10 +701,10 @@ Lemma list_skipn_succ_cons : ∀ A (a : A) la k,
   List.skipn (S k) [a … la] = List.skipn k la.
 Proof. reflexivity. Qed.
 
-Lemma fld_mul_nat_assoc : ∀ α (f : field α) a m n,
-  (fld_mul_nat f m (fld_mul_nat f n a) = fld_mul_nat f (m * n) a)%K.
+Lemma fld_mul_nat_assoc : ∀ α (r : ring α) a m n,
+  (fld_mul_nat r m (fld_mul_nat r n a) = fld_mul_nat r (m * n) a)%K.
 Proof.
-intros α f a m n.
+intros α r a m n.
 revert a n.
 induction m; intros; [ reflexivity | simpl ].
 rewrite IHm; symmetry.
@@ -713,22 +713,22 @@ rewrite fld_mul_nat_add_distr_r.
 rewrite fld_add_comm, Nat.mul_comm; reflexivity.
 Qed.
 
-Lemma fld_mul_nat_assoc2 : ∀ α (K : field α) n a b,
-  (fld_mul_nat K n a * b = fld_mul_nat K n (a * b))%K.
+Lemma fld_mul_nat_assoc2 : ∀ α (R : ring α) n a b,
+  (fld_mul_nat R n a * b = fld_mul_nat R n (a * b))%K.
 Proof.
-intros α K n a b.
+intros α R n a b.
 induction n; simpl.
  rewrite fld_mul_0_l; reflexivity.
 
  rewrite fld_mul_add_distr_r, IHn; reflexivity.
 Qed.
 
-Lemma fld_mul_nat_compat : ∀ α (f : field α) a b m n,
+Lemma fld_mul_nat_compat : ∀ α (r : ring α) a b m n,
   (a = b)%K
   → (m = n)%nat
-    → (fld_mul_nat f m a = fld_mul_nat f n a)%K.
+    → (fld_mul_nat r m a = fld_mul_nat r n a)%K.
 Proof.
-intros α f a b m n Hab Hmn.
+intros α r a b m n Hab Hmn.
 rewrite Hab, Hmn; reflexivity.
 Qed.
 
@@ -833,13 +833,13 @@ destruct (eq_nat_dec k n) as [H₁| H₁].
  reflexivity.
 Qed.
 
-Lemma map_coeff_lap_deriv_gen : ∀ α (f : field α) la n i,
-  lap_eq f
-    (List.map (λ x, fld_mul_nat f (S n) x)
-       (coeff_lap_deriv f la (S n) (S n + i)))
-    (coeff_lap_deriv f (coeff_lap_deriv f la 1 (S n + i)) n (n + i)).
+Lemma map_coeff_lap_deriv_gen : ∀ α (r : ring α) la n i,
+  lap_eq r
+    (List.map (λ x, fld_mul_nat r (S n) x)
+       (coeff_lap_deriv r la (S n) (S n + i)))
+    (coeff_lap_deriv r (coeff_lap_deriv r la 1 (S n + i)) n (n + i)).
 Proof.
-intros α f la n i.
+intros α r la n i.
 revert n i.
 induction la as [| a]; intros; [ reflexivity | idtac ].
 remember (S n) as sn; simpl; subst sn.
@@ -851,22 +851,22 @@ rewrite Nat.mul_comm.
 rewrite comb_succ_succ_mul; [ reflexivity | apply Nat.le_add_r ].
 Qed.
 
-Lemma map_coeff_lap_deriv : ∀ α (f : field α) la n,
-  lap_eq f
-    (List.map (λ x, fld_mul_nat f (S n) x) (coeff_lap_deriv f la (S n) (S n)))
-    (coeff_lap_deriv f (coeff_lap_deriv f la 1 (S n)) n n).
+Lemma map_coeff_lap_deriv : ∀ α (r : ring α) la n,
+  lap_eq r
+    (List.map (λ x, fld_mul_nat r (S n) x) (coeff_lap_deriv r la (S n) (S n)))
+    (coeff_lap_deriv r (coeff_lap_deriv r la 1 (S n)) n n).
 Proof.
-intros α f la n.
-pose proof (map_coeff_lap_deriv_gen f la n 0) as H.
+intros α r la n.
+pose proof (map_coeff_lap_deriv_gen r la n 0) as H.
 do 2 rewrite Nat.add_0_r in H.
 assumption.
 Qed.
 
-Lemma coeff_lap_deriv_skipn : ∀ α (f : field α) la k i,
-  lap_eq f (coeff_lap_deriv f (List.skipn k la) 1 (i + k))
-    (List.skipn k (coeff_lap_deriv f la 1 i)).
+Lemma coeff_lap_deriv_skipn : ∀ α (r : ring α) la k i,
+  lap_eq r (coeff_lap_deriv r (List.skipn k la) 1 (i + k))
+    (List.skipn k (coeff_lap_deriv r la 1 i)).
 Proof.
-intros α f la k i.
+intros α r la k i.
 revert la i.
 induction k; intros.
  rewrite Nat.add_0_r; reflexivity.
@@ -876,35 +876,35 @@ induction k; intros.
  apply IHk.
 Qed.
 
-Lemma lap_derivial_succ : ∀ α (f : field α) la k,
-  lap_eq f (List.map (λ a, fld_mul_nat f (S k) a) (lap_derivial f (S k) la))
-    (lap_derivial f k (lap_derivial f 1 la)).
+Lemma lap_derivial_succ : ∀ α (r : ring α) la k,
+  lap_eq r (List.map (λ a, fld_mul_nat r (S k) a) (lap_derivial r (S k) la))
+    (lap_derivial r k (lap_derivial r 1 la)).
 Proof.
-intros α f la k.
+intros α r la k.
 unfold lap_derivial; simpl.
 destruct la as [| a].
  rewrite list_skipn_nil; reflexivity.
 
- pose proof (map_coeff_lap_deriv f (List.skipn k la) k) as H.
+ pose proof (map_coeff_lap_deriv r (List.skipn k la) k) as H.
  rewrite H.
  rewrite <- coeff_lap_deriv_skipn; reflexivity.
 Qed.
 
-Lemma apply_lap_compose_nil_r : ∀ α (f : field α) la x,
-  (apply_lap f (lap_compose f la []) x = apply_lap f la 0)%K.
+Lemma apply_lap_compose_nil_r : ∀ α (r : ring α) la x,
+  (apply_lap r (lap_compose r la []) x = apply_lap r la 0)%K.
 Proof.
-intros α f la x.
+intros α r la x.
 destruct la as [| a]; [ reflexivity | simpl ].
 rewrite fld_mul_0_r, fld_add_0_l.
 rewrite lap_mul_nil_r, lap_add_nil_l; simpl.
 rewrite fld_mul_0_l, fld_add_0_l; reflexivity.
 Qed.
 
-Lemma apply_lap_add : ∀ α (f : field α) la lb x,
-  (apply_lap f (lap_add f la lb) x =
-   apply_lap f la x + apply_lap f lb x)%K.
+Lemma apply_lap_add : ∀ α (r : ring α) la lb x,
+  (apply_lap r (lap_add r la lb) x =
+   apply_lap r la x + apply_lap r lb x)%K.
 Proof.
-intros α f la lb x.
+intros α r la lb x.
 revert lb x.
 induction la as [| a]; intros; simpl.
  rewrite fld_add_0_l; reflexivity.
@@ -919,10 +919,10 @@ induction la as [| a]; intros; simpl.
   rewrite fld_mul_add_distr_r; reflexivity.
 Qed.
 
-Lemma apply_lap_single : ∀ α (f : field α) a lb x,
-  (apply_lap f (lap_mul f [a] lb) x = a * apply_lap f lb x)%K.
+Lemma apply_lap_single : ∀ α (r : ring α) a lb x,
+  (apply_lap r (lap_mul r [a] lb) x = a * apply_lap r lb x)%K.
 Proof.
-intros α f a lb x.
+intros α r a lb x.
 induction lb as [| b].
  simpl; rewrite fld_mul_0_r; reflexivity.
 
@@ -931,11 +931,11 @@ induction lb as [| b].
  rewrite fld_mul_add_distr_l, fld_mul_assoc; reflexivity.
 Qed.
 
-Lemma apply_lap_mul : ∀ α (f : field α) la lb x,
-  (apply_lap f (lap_mul f la lb) x =
-   apply_lap f la x * apply_lap f lb x)%K.
+Lemma apply_lap_mul : ∀ α (r : ring α) la lb x,
+  (apply_lap r (lap_mul r la lb) x =
+   apply_lap r la x * apply_lap r lb x)%K.
 Proof.
-intros α f la lb x.
+intros α r la lb x.
 revert lb x.
 induction la as [| a]; intros; simpl.
  rewrite lap_mul_nil_l, fld_mul_0_l; reflexivity.
@@ -969,11 +969,11 @@ induction la as [| a]; intros; simpl.
     apply apply_lap_single.
 Qed.
 
-Lemma apply_lap_compose : ∀ α (f : field α) la lb x,
-  (apply_lap f (lap_compose f la lb) x =
-   apply_lap f la (apply_lap f lb x))%K.
+Lemma apply_lap_compose : ∀ α (r : ring α) la lb x,
+  (apply_lap r (lap_compose r la lb) x =
+   apply_lap r la (apply_lap r lb x))%K.
 Proof.
-intros α f la lb x.
+intros α r la lb x.
 unfold lap_compose.
 revert lb x.
 induction la as [| a]; intros; [ reflexivity | simpl ].
@@ -984,10 +984,10 @@ apply fld_add_compat_r.
 apply apply_lap_mul.
 Qed.
 
-Lemma length_lap_compose_deg_1 : ∀ α (K : field α) la c,
-  length (lap_compose K la [c; 1%K … []]) = length la.
+Lemma length_lap_compose_deg_1 : ∀ α (R : ring α) la c,
+  length (lap_compose R la [c; 1%K … []]) = length la.
 Proof.
-intros α K la c.
+intros α R la c.
 induction la as [| a]; [ reflexivity | simpl ].
 rewrite length_lap_add; simpl.
 rewrite length_lap_mul; simpl.
@@ -1018,12 +1018,12 @@ induction len; intros.
 Qed.
 
 (*
-Lemma lap_compose_add_sub : ∀ α (f : field α) la a,
-  lap_eq f
-    (lap_compose f (lap_compose f la [a; 1 … []]) [.- f a; 1 … []])%K
+Lemma lap_compose_add_sub : ∀ α (r : ring α) la a,
+  lap_eq r
+    (lap_compose r (lap_compose r la [a; 1 … []]) [.- r a; 1 … []])%K
     la.
 Proof.
-intros α f la a.
+intros α r la a.
 rewrite lap_compose_compose2.
 unfold lap_compose2; simpl.
 rewrite length_lap_compose_deg_1.
@@ -1037,11 +1037,11 @@ rewrite list_seq_app with (dj := length la).
 bbb.
 *)
 
-Lemma apply_lap_compose_add_sub : ∀ α (f : field α) la a x,
-  (apply_lap f (lap_compose f la [a; 1 … []]) (x - a) =
-   apply_lap f la x)%K.
+Lemma apply_lap_compose_add_sub : ∀ α (r : ring α) la a x,
+  (apply_lap r (lap_compose r la [a; 1 … []]) (x - a) =
+   apply_lap r la x)%K.
 Proof.
-intros α f la a x.
+intros α r la a x.
 rewrite apply_lap_compose; simpl.
 rewrite fld_mul_0_l, fld_add_0_l.
 rewrite fld_mul_1_l.
@@ -1050,12 +1050,12 @@ rewrite fld_add_comm, fld_add_assoc.
 rewrite fld_add_opp_l, fld_add_0_l; reflexivity.
 Qed.
 
-Lemma list_nth_taylor : ∀ α (f : field α) la n c k i,
+Lemma list_nth_taylor : ∀ α (r : ring α) la n c k i,
   (n + k = length la)%nat
-  → (List.nth i (coeff_taylor_lap f n la c k) 0 =
-     apply_lap f (lap_derivial f (i + k) la) c)%K.
+  → (List.nth i (coeff_taylor_lap r n la c k) 0 =
+     apply_lap r (lap_derivial r (i + k) la) c)%K.
 Proof.
-intros α f la n c k i Hlen.
+intros α r la n c k i Hlen.
 revert la c k i Hlen.
 induction n; intros; simpl.
  rewrite lap_derivial_le; [ destruct i; reflexivity | idtac ].
@@ -1068,18 +1068,18 @@ induction n; intros; simpl.
  apply IHn; assumption.
 Qed.
 
-Lemma lap_derivial_const : ∀ α (f : field α) k a,
-  lap_eq f (lap_derivial f (S k) [a]) [].
+Lemma lap_derivial_const : ∀ α (r : ring α) k a,
+  lap_eq r (lap_derivial r (S k) [a]) [].
 Proof.
-intros α f k a.
+intros α r k a.
 unfold lap_derivial; simpl.
 rewrite list_skipn_nil; reflexivity.
 Qed.
 
-Lemma lap_mul_const_l : ∀ α (f : field α) a lb,
-  lap_eq f (lap_mul f [a] lb) (List.map (fld_mul a) lb).
+Lemma lap_mul_const_l : ∀ α (r : ring α) a lb,
+  lap_eq r (lap_mul r [a] lb) (List.map (fld_mul a) lb).
 Proof.
-intros α f a lb.
+intros α r a lb.
 unfold lap_mul; simpl.
 induction lb as [| b]; [ reflexivity | simpl ].
 rewrite summation_only_one.
@@ -1087,14 +1087,14 @@ constructor; [ reflexivity | idtac ].
 rewrite lap_convol_mul_cons_succ; assumption.
 Qed.
 
-Lemma lap_derivial_mul : ∀ α (K : field α) la lb,
-  lap_eq K
-    (lap_derivial K 1 (lap_mul K la lb))
-    (lap_add K
-       (lap_mul K (lap_derivial K 1 la) lb)
-       (lap_mul K la (lap_derivial K 1 lb))).
+Lemma lap_derivial_mul : ∀ α (R : ring α) la lb,
+  lap_eq R
+    (lap_derivial R 1 (lap_mul R la lb))
+    (lap_add R
+       (lap_mul R (lap_derivial R 1 la) lb)
+       (lap_mul R la (lap_derivial R 1 lb))).
 Proof.
-intros α K la lb.
+intros α R la lb.
 revert lb.
 induction la as [| a]; intros; simpl.
  do 3 rewrite lap_mul_nil_l.
@@ -1173,11 +1173,11 @@ induction la as [| a]; intros; simpl.
   reflexivity.
 Qed.
 
-Lemma list_nth_coeff_lap_deriv : ∀ α (f : field α) P i k n,
-  (List.nth i (coeff_lap_deriv f P n k) 0 =
-   fld_mul_nat f (comb (k + i) n) (List.nth i P 0))%K.
+Lemma list_nth_coeff_lap_deriv : ∀ α (r : ring α) P i k n,
+  (List.nth i (coeff_lap_deriv r P n k) 0 =
+   fld_mul_nat r (comb (k + i) n) (List.nth i P 0))%K.
 Proof.
-intros α f P i k n.
+intros α r P i k n.
 revert i k n.
 induction P as [| a]; intros; simpl.
  destruct i; rewrite fld_mul_nat_0_r; reflexivity.
@@ -1186,21 +1186,21 @@ induction P as [| a]; intros; simpl.
  rewrite Nat.add_succ_r, <- Nat.add_succ_l; apply IHP.
 Qed.
 
-Lemma list_nth_derivial : ∀ α (f : field α) P i k,
-  (List.nth i (lap_derivial f k P) 0 =
-   fld_mul_nat f (comb (k + i) k) (List.nth (k + i) P 0))%K.
+Lemma list_nth_derivial : ∀ α (r : ring α) P i k,
+  (List.nth i (lap_derivial r k P) 0 =
+   fld_mul_nat r (comb (k + i) k) (List.nth (k + i) P 0))%K.
 Proof.
-intros α f P i k.
+intros α r P i k.
 unfold lap_derivial.
 rewrite list_nth_coeff_lap_deriv.
 rewrite list_nth_skipn, Nat.add_comm; reflexivity.
 Qed.
 
-Lemma lap_compose_cons_l : ∀ α (f : field α) a la lb,
-  lap_eq f (lap_compose f [a … la] lb)
-    (lap_add f [a] (lap_mul f lb (lap_compose f la lb))).
+Lemma lap_compose_cons_l : ∀ α (r : ring α) a la lb,
+  lap_eq r (lap_compose r [a … la] lb)
+    (lap_add r [a] (lap_mul r lb (lap_compose r la lb))).
 Proof.
-intros α f a la lb.
+intros α r a la lb.
 rewrite lap_add_comm, lap_mul_comm; reflexivity.
 Qed.
 
@@ -1219,12 +1219,12 @@ destruct H as [H| H].
  apply Nat.lt_lt_succ_r; assumption.
 Qed.
 
-Lemma list_fold_right_some_compat : ∀ α (f : field α) β g l,
-  (∀ x y z, lap_eq f y z → lap_eq f (g x y) (g x z))
-  → (∀ (i : β), i ∈ l → lap_eq f (g i []) [])
-    → lap_eq f (List.fold_right g [] l) [].
+Lemma list_fold_right_some_compat : ∀ α (r : ring α) β g l,
+  (∀ x y z, lap_eq r y z → lap_eq r (g x y) (g x z))
+  → (∀ (i : β), i ∈ l → lap_eq r (g i []) [])
+    → lap_eq r (List.fold_right g [] l) [].
 Proof.
-intros α f β g l Hg Hil.
+intros α r β g l Hg Hil.
 induction l as [| x]; [ reflexivity | simpl ].
 rewrite <- Hil in |- * at 2; [ idtac | left; reflexivity ].
 apply Hg, IHl.
@@ -1232,10 +1232,10 @@ intros i Hi.
 apply Hil; right; assumption.
 Qed.
 
-Lemma lap_compose2_cons_nil : ∀ α (f : field α) a la,
-  lap_eq f (lap_compose2 f [a … la] []) [a].
+Lemma lap_compose2_cons_nil : ∀ α (r : ring α) a la,
+  lap_eq r (lap_compose2 r [a … la] []) [a].
 Proof.
-intros α f a la.
+intros α r a la.
 unfold lap_compose2; simpl.
 unfold lap_mul at 2; simpl.
 rewrite summation_only_one, fld_mul_1_r.
@@ -1254,30 +1254,30 @@ rewrite list_fold_right_some_compat.
   rewrite lap_mul_nil_l, lap_mul_nil_r; reflexivity.
 Qed.
 
-Lemma lap_add_fold_assoc : ∀ α (f : field α) la li (g : nat → list α) x,
-  lap_eq f
-    (lap_add f x (List.fold_right (λ i accu, lap_add f accu (g i)) la li))
-    (List.fold_right (λ i accu, lap_add f accu (g i))
-       (lap_add f x la) li).
+Lemma lap_add_fold_assoc : ∀ α (r : ring α) la li (g : nat → list α) x,
+  lap_eq r
+    (lap_add r x (List.fold_right (λ i accu, lap_add r accu (g i)) la li))
+    (List.fold_right (λ i accu, lap_add r accu (g i))
+       (lap_add r x la) li).
 Proof.
-intros α f la li g x.
+intros α r la li g x.
 revert la x.
 induction li as [| j]; intros; [ reflexivity | simpl ].
 rewrite lap_add_assoc.
 rewrite IHli; reflexivity.
 Qed.
 
-Lemma poly_compose_compose2 : ∀ α (f : field α) P Q,
-  (P .∘ f Q .= f poly_compose2 f P Q)%pol.
+Lemma poly_compose_compose2 : ∀ α (r : ring α) P Q,
+  (P .∘ r Q .= r poly_compose2 r P Q)%pol.
 Proof.
-intros α f P Q.
+intros α r P Q.
 apply lap_compose_compose2.
 Qed.
 
-Lemma length_derivial_nil : ∀ α (f : field α) k,
-  length (lap_derivial f k []) = O.
+Lemma length_derivial_nil : ∀ α (r : ring α) k,
+  length (lap_derivial r k []) = O.
 Proof.
-intros α f k.
+intros α r k.
 destruct k; reflexivity.
 Qed.
 
@@ -1288,13 +1288,13 @@ Lemma fold_nth_succ : ∀ α n a l (d : α),
   end = List.nth n [a … l] d.
 Proof. intros; destruct n; reflexivity. Qed.
 
-Lemma fold_seq_succ : ∀ α (f : field α) g s len,
-  (∀ t a b, lap_eq f a b → lap_eq f (g t a) (g t b))
-  → lap_eq f
+Lemma fold_seq_succ : ∀ α (r : ring α) g s len,
+  (∀ t a b, lap_eq r a b → lap_eq r (g t a) (g t b))
+  → lap_eq r
       (List.fold_right g [] (List.seq s (S len)))
       (g s (List.fold_right (λ i accu, g (S i) accu) [] (List.seq s len)))%K.
 Proof.
-intros α f g s len Hg.
+intros α r g s len Hg.
 revert s Hg.
 induction len; intros; [ reflexivity | idtac ].
 remember (S len) as x; simpl; subst x.
@@ -1302,22 +1302,22 @@ apply Hg.
 rewrite IHlen; [ reflexivity | apply Hg ].
 Qed.
 
-Lemma fold_add_pow : ∀ α (f : field α) a la lb lc da,
-  lap_eq f
+Lemma fold_add_pow : ∀ α (r : ring α) a la lb lc da,
+  lap_eq r
     (List.fold_right
       (λ i accu,
-       lap_add f accu
-         (lap_mul f [List.nth (S i) [a … la] da]
-            (lap_power f lb (S i))))
+       lap_add r accu
+         (lap_mul r [List.nth (S i) [a … la] da]
+            (lap_power r lb (S i))))
       [] lc)
-    (lap_mul f lb
+    (lap_mul r lb
        (List.fold_right
           (λ i accu,
-           lap_add f accu
-             (lap_mul f [List.nth i la da] (lap_power f lb i)))
+           lap_add r accu
+             (lap_mul r [List.nth i la da] (lap_power r lb i)))
           [] lc)).
 Proof.
-intros α f a la lb lc da; simpl; clear.
+intros α r a la lb lc da; simpl; clear.
 revert la lb da.
 induction lc as [| c]; intros; simpl.
  rewrite lap_mul_nil_r; reflexivity.
@@ -1331,11 +1331,11 @@ induction lc as [| c]; intros; simpl.
  apply lap_mul_comm.
 Qed.
 
-Lemma nth_mul_deg_1 : ∀ α (f : field α) a lb k,
-  (List.nth (S k) (lap_mul f [a; 1 … []] lb) 0 =
+Lemma nth_mul_deg_1 : ∀ α (r : ring α) a lb k,
+  (List.nth (S k) (lap_mul r [a; 1 … []] lb) 0 =
    a * List.nth (S k) lb 0 + List.nth k lb 0)%K.
 Proof.
-intros α f a lb k.
+intros α r a lb k.
 unfold lap_mul.
 rewrite list_nth_lap_convol_mul; [ idtac | reflexivity ].
 rewrite summation_split_first; [ idtac | apply Nat.le_0_l ].
@@ -1351,24 +1351,24 @@ rewrite all_0_summation_0.
  rewrite match_id, fld_mul_0_l; reflexivity.
 Qed.
 
-Lemma fld_mul_nat_mul_swap : ∀ α (f : field α) n a b,
-  (fld_mul_nat f n (a * b) = a * fld_mul_nat f n b)%K.
+Lemma fld_mul_nat_mul_swap : ∀ α (r : ring α) n a b,
+  (fld_mul_nat r n (a * b) = a * fld_mul_nat r n b)%K.
 Proof.
-intros α f n a b.
+intros α r n a b.
 induction n; simpl.
  rewrite fld_mul_0_r; reflexivity.
 
  rewrite IHn, fld_mul_add_distr_l; reflexivity.
 Qed.
 
-Lemma list_nth_compose_deg_1 : ∀ α (f : field α) la b k n,
+Lemma list_nth_compose_deg_1 : ∀ α (r : ring α) la b k n,
   n = length la
-  → (List.nth k (lap_compose2 f la [b; 1 … []]) 0 =
-     Σ f (i = 0, n - k),
-     fld_mul_nat f (comb (k + i) k)
-      (List.nth (k + i) la 0 * fld_pow_nat f b i))%K.
+  → (List.nth k (lap_compose2 r la [b; 1 … []]) 0 =
+     Σ r (i = 0, n - k),
+     fld_mul_nat r (comb (k + i) k)
+      (List.nth (k + i) la 0 * fld_pow_nat r b i))%K.
 Proof.
-intros α f la b k n Hlen.
+intros α r la b k n Hlen.
 unfold lap_compose2; subst n.
 revert b k.
 induction la as [| a]; intros.
@@ -1437,7 +1437,7 @@ induction la as [| a]; intros.
     rewrite <- Nat.add_succ_r.
     do 2 rewrite <- comb_succ_succ.
     remember (List.nth (k + S i) la 0)%K as n eqn:Hn .
-    remember (fld_pow_nat f b i) as p eqn:Hp; simpl.
+    remember (fld_pow_nat r b i) as p eqn:Hp; simpl.
     rewrite fld_mul_nat_add_distr_r.
     apply fld_add_compat_l.
     rewrite Nat.add_succ_r; simpl.
@@ -1448,11 +1448,11 @@ induction la as [| a]; intros.
   rewrite Hcd; reflexivity.
 Qed.
 
-Lemma summation_mul_nat_swap: ∀ α (f : field α) a g k,
-  (Σ f (i = 0, k), fld_mul_nat f a (g i) =
-   fld_mul_nat f a (Σ f (i = 0, k), g i))%K.
+Lemma summation_mul_nat_swap: ∀ α (r : ring α) a g k,
+  (Σ r (i = 0, k), fld_mul_nat r a (g i) =
+   fld_mul_nat r a (Σ r (i = 0, k), g i))%K.
 Proof.
-intros α f a g k.
+intros α r a g k.
 induction k.
  do 2 rewrite summation_only_one; reflexivity.
 
@@ -1486,11 +1486,11 @@ rewrite Nat.mul_comm in H; rewrite H.
 apply Nat.mul_comm.
 Qed.
 
-Lemma lap_derivial_compose_deg_1 : ∀ α (f : field α) k la b,
-  lap_eq f (lap_derivial f k (lap_compose f la [b; 1%K … []]))
-    (lap_compose f (lap_derivial f k la) [b; 1%K … []]).
+Lemma lap_derivial_compose_deg_1 : ∀ α (r : ring α) k la b,
+  lap_eq r (lap_derivial r k (lap_compose r la [b; 1%K … []]))
+    (lap_compose r (lap_derivial r k la) [b; 1%K … []]).
 Proof.
-intros α f k la b.
+intros α r k la b.
 do 2 rewrite lap_compose_compose2.
 apply list_nth_lap_eq; intros j.
 rewrite list_nth_derivial.
@@ -1513,12 +1513,12 @@ rewrite comb_mul_add_add.
 reflexivity.
 Qed.
 
-Lemma taylor_lap_compose_deg_1 : ∀ α (f : field α) a la,
-  lap_eq f
-    (taylor_lap f (lap_compose f la [a; 1 … []]) 0)%K
-    (taylor_lap f la a).
+Lemma taylor_lap_compose_deg_1 : ∀ α (r : ring α) a la,
+  lap_eq r
+    (taylor_lap r (lap_compose r la [a; 1 … []]) 0)%K
+    (taylor_lap r la a).
 Proof.
-intros α f a la.
+intros α r a la.
 apply list_nth_lap_eq; intros k.
 unfold taylor_lap.
 rewrite list_nth_taylor; [ idtac | rewrite Nat.add_0_r; reflexivity ].
@@ -1530,27 +1530,27 @@ rewrite fld_mul_0_r, fld_add_0_l; reflexivity.
 Qed.
 
 (* à voir...
-Lemma taylor_lap_formula_sub : ∀ α (f : field α) la a,
-  lap_eq f la (lap_compose f (taylor_lap f la a) [- a; 1 … []])%K.
+Lemma taylor_lap_formula_sub : ∀ α (r : ring α) la a,
+  lap_eq r la (lap_compose r (taylor_lap r la a) [- a; 1 … []])%K.
 Proof.
-intros α f la a.
-remember (lap_compose f la [a; 1%K … []]) as lb eqn:Hlb .
-pose proof (taylor_lap_formula_0 f lb) as H.
+intros α r la a.
+remember (lap_compose r la [a; 1%K … []]) as lb eqn:Hlb .
+pose proof (taylor_lap_formula_0 r lb) as H.
 subst lb.
 rewrite taylor_lap_compose_deg_1 in H.
 rewrite <- H.
 bbb.
 *)
 
-Lemma apply_taylor_lap_formula_sub : ∀ α (f : field α) x la a,
-  (apply_lap f la x =
-   apply_lap f (taylor_lap f la a) (x - a))%K.
+Lemma apply_taylor_lap_formula_sub : ∀ α (r : ring α) x la a,
+  (apply_lap r la x =
+   apply_lap r (taylor_lap r la a) (x - a))%K.
 Proof.
-intros α f x la a.
-remember (lap_compose f la [a; 1%K … []]) as lb eqn:Hlb .
+intros α r x la a.
+remember (lap_compose r la [a; 1%K … []]) as lb eqn:Hlb .
 assert
- (apply_lap f lb (x - a)%K =
-  apply_lap f (taylor_lap f lb 0) (x - a))%K
+ (apply_lap r lb (x - a)%K =
+  apply_lap r (taylor_lap r lb 0) (x - a))%K
  as H.
  rewrite <- taylor_lap_formula_0; reflexivity.
 
@@ -1560,18 +1560,18 @@ assert
  rewrite taylor_lap_compose_deg_1; reflexivity.
 Qed.
 
-Theorem taylor_formula_sub : ∀ α (f : field α) x P a,
-  (apply_poly f P x =
-   apply_poly f (taylor_poly f P a) (x - a))%K.
+Theorem taylor_formula_sub : ∀ α (r : ring α) x P a,
+  (apply_poly r P x =
+   apply_poly r (taylor_poly r P a) (x - a))%K.
 Proof.
-intros α f x P a.
+intros α r x P a.
 apply apply_taylor_lap_formula_sub.
 Qed.
 
-Theorem lap_taylor_formula : ∀ α (f : field α) c la,
-  lap_eq f (lap_compose f la [c; 1%K … []]) (taylor_lap f la c).
+Theorem lap_taylor_formula : ∀ α (r : ring α) c la,
+  lap_eq r (lap_compose r la [c; 1%K … []]) (taylor_lap r la c).
 Proof.
-intros α K c la.
+intros α R c la.
 rewrite lap_compose_compose2.
 apply list_nth_lap_eq; intros i.
 rewrite list_nth_compose_deg_1; [ idtac | reflexivity ].
@@ -1611,11 +1611,11 @@ destruct len; simpl.
 Qed.
 
 (*
-Theorem apply_taylor_formula : ∀ α (f : field α) x c P,
-  (apply_poly f P (x + c) =
-   apply_poly f (taylor_poly f P c) x)%K.
+Theorem apply_taylor_formula : ∀ α (r : ring α) x c P,
+  (apply_poly r P (x + c) =
+   apply_poly r (taylor_poly r P c) x)%K.
 Proof.
-intros α f x c P.
+intros α r x c P.
 rewrite taylor_formula_sub.
 rewrite fld_add_sub; reflexivity.
 Qed.
@@ -1649,48 +1649,49 @@ Fixpoint degree_plus_1_of_list α (is_zero : α → bool) (l : list α) :=
 Definition degree α is_zero (pol : polynomial α) :=
   pred (degree_plus_1_of_list is_zero (al pol)).
 
-Class algeb_closed_field α (ac_field : field α) :=
+Class algeb_closed_field α (ac_ring : ring α) :=
   { ac_is_zero : α → bool;
     ac_root : polynomial α → α;
     ac_prop_is_zero : ∀ a,
       ac_is_zero a = true ↔ (a = 0)%K;
     ac_prop_root : ∀ pol, degree ac_is_zero pol ≥ 1
-      → (apply_poly ac_field pol (ac_root pol) = 0)%K }.
+      → (apply_poly ac_ring pol (ac_root pol) = 0)%K }.
 
 Fixpoint list_root_multiplicity
-    α {f : field α} (acf : algeb_closed_field f) c la d :=
+    α {r : ring α} (acf : algeb_closed_field r) c la d :=
   match d with
   | O => O
   | S d₁ =>
-      if ac_is_zero (lap_mod_deg_1 f la c) then
-        S (list_root_multiplicity acf c (lap_div_deg_1 f la c) d₁)
+      if ac_is_zero (lap_mod_deg_1 r la c) then
+        S (list_root_multiplicity acf c (lap_div_deg_1 r la c) d₁)
       else O
   end.
 
-Definition root_multiplicity α {f : field α} (acf : algeb_closed_field f) c pol :=
+Definition root_multiplicity α {r : ring α} (acf : algeb_closed_field r) c
+    pol :=
   list_root_multiplicity acf c (al pol) (List.length (al pol)).
 
-Fixpoint list_quotient_phi_x_sub_c_pow_r α (f : field α) la c₁ r :=
+Fixpoint list_quotient_phi_x_sub_c_pow_r α (R : ring α) la c₁ r :=
   match r with
   | O => la
-  | S r₁ => list_quotient_phi_x_sub_c_pow_r f (lap_div_deg_1 f la c₁) c₁ r₁
+  | S r₁ => list_quotient_phi_x_sub_c_pow_r R (lap_div_deg_1 R la c₁) c₁ r₁
   end.
 
-Definition quotient_phi_x_sub_c_pow_r α (f : field α) pol c₁ r :=
-  (POL (list_quotient_phi_x_sub_c_pow_r f (al pol) c₁ r))%pol.
+Definition quotient_phi_x_sub_c_pow_r α (R : ring α) pol c₁ r :=
+  (POL (list_quotient_phi_x_sub_c_pow_r R (al pol) c₁ r))%pol.
 
-Definition list_root α (f : field α) (acf : algeb_closed_field f) la :=
+Definition list_root α (r : ring α) (acf : algeb_closed_field r) la :=
   ac_root (POL la)%pol.
 
 Section theorems.
 
 Variable α : Type.
-Variable f : field α.
-Variable acf : algeb_closed_field f.
+Variable R : ring α.
+Variable acf : algeb_closed_field R.
 
 Lemma list_prop_root : ∀ la,
   degree_plus_1_of_list ac_is_zero la ≥ 2
-  → (apply_lap f la (list_root acf la) = 0)%K.
+  → (apply_lap R la (list_root acf la) = 0)%K.
 Proof.
 intros la Hdeg.
 remember POL la%pol as pol eqn:Hpol .
@@ -1705,7 +1706,7 @@ Qed.
 
 (* P(x) = P(0) + x Q(x) *)
 Lemma poly_eq_add_const_mul_x_poly : ∀ c cl,
-  (POL [c … cl] .= f POL [c] .+ f POL [0; 1 … []]%K .* f POL cl)%pol.
+  (POL [c … cl] .= R POL [c] .+ R POL [0; 1 … []]%K .* R POL cl)%pol.
 Proof.
 intros c cl.
 unfold eq_poly; simpl.
@@ -1729,8 +1730,8 @@ constructor.
 Qed.
 
 Lemma apply_poly_add : ∀ p₁ p₂ x,
-  (apply_poly f (p₁ .+ f p₂)%pol x =
-   apply_poly f p₁ x + apply_poly f p₂ x)%K.
+  (apply_poly R (p₁ .+ R p₂)%pol x =
+   apply_poly R p₁ x + apply_poly R p₂ x)%K.
 Proof.
 intros p₁ p₂ x.
 unfold apply_poly, horner; simpl.
@@ -1752,7 +1753,7 @@ induction la as [| a]; intros; simpl.
 Qed.
 
 Lemma list_fold_right_apply_compat : ∀ la lb x,
-  lap_eq f la lb
+  lap_eq R la lb
   → (List.fold_right (λ c accu, accu * x + c) 0 la =
      List.fold_right (λ c accu, accu * x + c) 0 lb)%K.
 Proof.
@@ -1782,16 +1783,16 @@ induction la as [| a]; intros; simpl.
 Qed.
 
 Lemma apply_poly_mul : ∀ p₁ p₂ x,
-  (apply_poly f (p₁ .* f p₂)%pol x =
-   apply_poly f p₁ x * apply_poly f p₂ x)%K.
+  (apply_poly R (p₁ .* R p₂)%pol x =
+   apply_poly R p₁ x * apply_poly R p₂ x)%K.
 Proof.
 intros p₁ p₂ x.
 apply apply_lap_mul.
 Qed.
 
 Lemma list_nth_mod_div_deg_1 : ∀ la c i,
-  (List.nth i (lap_mod_div_deg_1 f la c) 0 =
-   apply_lap f (List.skipn i la) c)%K.
+  (List.nth i (lap_mod_div_deg_1 R la c) 0 =
+   apply_lap R (List.skipn i la) c)%K.
 Proof.
 intros la c i; revert i.
 induction la as [| a]; intros; simpl.
@@ -1801,7 +1802,7 @@ induction la as [| a]; intros; simpl.
 Qed.
 
 Lemma length_lap_mod_div_deg_1 : ∀ l c,
-  length (lap_mod_div_deg_1 f l c) = length l.
+  length (lap_mod_div_deg_1 R l c) = length l.
 Proof.
 intros l c.
 induction l; [ reflexivity | simpl ].
@@ -1809,7 +1810,7 @@ rewrite IHl; reflexivity.
 Qed.
 
 Lemma length_list_quotient_phi_x_sub_c_pow_r : ∀ l c r,
-  length (list_quotient_phi_x_sub_c_pow_r f l c r) = (length l - r)%nat.
+  length (list_quotient_phi_x_sub_c_pow_r R l c r) = (length l - r)%nat.
 Proof.
 intros l c r.
 revert l c.
@@ -1826,13 +1827,13 @@ induction r; intros; simpl.
 Qed.
 
 Lemma root_formula : ∀ la c,
-  (apply_lap f la c = 0)%K
-  → lap_eq f la
-       (lap_mul f [(- c)%K; 1%K … []] (lap_div_deg_1 f la c)).
+  (apply_lap R la c = 0)%K
+  → lap_eq R la
+       (lap_mul R [(- c)%K; 1%K … []] (lap_div_deg_1 R la c)).
 Proof.
 intros la c Hc.
 unfold lap_div_deg_1.
-remember (lap_mod_div_deg_1 f la c) as md eqn:Hmd .
+remember (lap_mod_div_deg_1 R la c) as md eqn:Hmd .
 symmetry in Hmd.
 destruct md as [| r d].
  rewrite lap_mul_nil_r.
@@ -1855,7 +1856,7 @@ destruct md as [| r d].
    rewrite fld_mul_0_l, fld_add_0_l in Hc; assumption.
 
    simpl in Hc; simpl.
-   remember (apply_lap f la c * c + a₁)%K as v eqn:Hv .
+   remember (apply_lap R la c * c + a₁)%K as v eqn:Hv .
    rewrite fld_mul_comm in Hc.
    apply fld_add_compat_r with (c := (- c * v)%K) in Hc.
    rewrite fld_add_0_l in Hc.
@@ -1882,8 +1883,8 @@ Qed.
 
 (* p(c) = 0 ⇒ p = (x-c) * (p / (x-c)) *)
 Lemma poly_root_formula : ∀ c p,
-  (apply_poly f p c = 0)%K
-  → (p .= f POL [(- c)%K; 1%K … []] .* f poly_div_deg_1 f p c)%pol.
+  (apply_poly R p c = 0)%K
+  → (p .= R POL [(- c)%K; 1%K … []] .* R poly_div_deg_1 R p c)%pol.
 Proof.
 intros c p Hz.
 apply root_formula; assumption.
@@ -1891,14 +1892,14 @@ Qed.
 
 Lemma list_root_mult_succ_if : ∀ la d c md n,
   list_root_multiplicity acf c la d = S n
-  → lap_mod_div_deg_1 f la c = md
-    → d ≠ O ∧ ac_is_zero (lap_mod_deg_1 f la c) = true ∧
-      list_root_multiplicity acf c (lap_div_deg_1 f la c) (pred d) = n.
+  → lap_mod_div_deg_1 R la c = md
+    → d ≠ O ∧ ac_is_zero (lap_mod_deg_1 R la c) = true ∧
+      list_root_multiplicity acf c (lap_div_deg_1 R la c) (pred d) = n.
 Proof.
 intros la d c md n Hn Hmd.
 destruct d; [ discriminate Hn | simpl in Hn ].
 split; [ intros H; discriminate H | idtac ].
-remember (ac_is_zero (lap_mod_deg_1 f la c)) as z eqn:Hz .
+remember (ac_is_zero (lap_mod_deg_1 R la c)) as z eqn:Hz .
 symmetry in Hz.
 destruct z; [ idtac | discriminate Hn ].
 split; [ reflexivity | idtac ].
@@ -1906,9 +1907,9 @@ apply eq_add_S; assumption.
 Qed.
 
 Lemma list_fold_pol_list : ∀ A g P (l : list A) (c : α),
-  (∀ lb lc, lap_eq f lb lc → lap_eq f (g f lb c) (g f lc c))
-  → (List.fold_right (λ _ accu, POL (g f (al accu) c))%pol P l .= f
-     POL (List.fold_right (λ _ accu, g f accu c) (al P) l))%pol.
+  (∀ lb lc, lap_eq R lb lc → lap_eq R (g R lb c) (g R lc c))
+  → (List.fold_right (λ _ accu, POL (g R (al accu) c))%pol P l .= R
+     POL (List.fold_right (λ _ accu, g R accu c) (al P) l))%pol.
 Proof.
 intros A g P l c Heq.
 destruct P as (la); simpl.
@@ -1939,7 +1940,7 @@ Qed.
 
 Lemma degree_plus_1_is_0 : ∀ la,
   degree_plus_1_of_list ac_is_zero la = 0%nat
-  → lap_eq f la [].
+  → lap_eq R la [].
 Proof.
 intros la H.
 induction la as [| a]; [ reflexivity | idtac ].
@@ -1956,7 +1957,7 @@ assumption.
 Qed.
 
 Lemma lap_eq_nil_nth : ∀ la,
-  lap_eq f la []
+  lap_eq R la []
   → ∀ n, (List.nth n la 0 = 0)%K.
 Proof.
 intros la H n.
@@ -1989,11 +1990,11 @@ destruct cnt; simpl.
 Qed.
 
 Lemma cpol_degree_ge_1 : ∀ pol ns,
-  ns ∈ newton_segments f pol
-  → degree ac_is_zero (Φq f pol ns) ≥ 1.
+  ns ∈ newton_segments R pol
+  → degree ac_is_zero (Φq R pol ns) ≥ 1.
 Proof.
 intros pol ns Hns.
-remember (Pos.to_nat (q_of_ns f pol ns)) as q eqn:Hq .
+remember (Pos.to_nat (q_of_ns R pol ns)) as q eqn:Hq .
 remember (ini_pt ns) as jj eqn:Hj .
 destruct jj as (jq, αj); simpl.
 remember Hns as H; clear HeqH.
@@ -2031,7 +2032,7 @@ eapply q_is_factor_of_h_minus_j with (h := k) in Hqkj; try eassumption.
   rewrite Nat.div_mul in Hcnz; [ idtac | subst q; apply Pos2Nat_ne_0 ].
   unfold pseudo_degree in Hdeg.
   unfold degree.
-  remember (al (Φ f pol ns)) as la eqn:Hla .
+  remember (al (Φ R pol ns)) as la eqn:Hla .
   simpl in Hla.
   rewrite Nat.sub_diag in Hla; simpl in Hla.
   rewrite skipn_pad in Hla.
@@ -2044,17 +2045,17 @@ eapply q_is_factor_of_h_minus_j with (h := k) in Hqkj; try eassumption.
   unfold nofq, Qnat.
   unfold Qnum.
   rewrite Nat2Z.id.
-  remember (valuation_coeff f (List.nth j (al pol) .0 f%ps)) as v eqn:Hv .
+  remember (valuation_coeff R (List.nth j (al pol) .0 R%ps)) as v eqn:Hv .
   remember (oth_pts ns ++ [fin_pt ns]) as pts eqn:Hpts .
-  remember (List.map (term_of_point f pol) pts) as tl eqn:Htl .
+  remember (List.map (term_of_point R pol) pts) as tl eqn:Htl .
   subst la; simpl.
-  remember (make_char_pol f (S j) tl) as cpol eqn:Hcpol .
+  remember (make_char_pol R (S j) tl) as cpol eqn:Hcpol .
   remember (degree_plus_1_of_list ac_is_zero cpol) as d eqn:Hd .
   symmetry in Hd.
   destruct d; [ exfalso | omega ].
   subst cpol.
-  remember (Pos.to_nat (q_of_ns f pol ns)) as nq.
-  remember (make_char_pol f (S j) tl) as cpol.
+  remember (Pos.to_nat (q_of_ns R pol ns)) as nq.
+  remember (make_char_pol R (S j) tl) as cpol.
   pose proof (list_length_shrink_le nq [v … cpol]) as Hlen.
   remember [v … cpol] as vcpol.
   rewrite Heqvcpol in Hlen at 2.
@@ -2072,7 +2073,7 @@ eapply q_is_factor_of_h_minus_j with (h := k) in Hqkj; try eassumption.
  apply List.in_or_app; right; left; symmetry; eassumption.
 Qed.
 
-Lemma poly_power_1_r : ∀ P, (poly_power f P 1 .= f P)%pol.
+Lemma poly_power_1_r : ∀ P, (poly_power R P 1 .= R P)%pol.
 Proof.
 intros P.
 unfold eq_poly; simpl.
@@ -2080,8 +2081,8 @@ rewrite lap_mul_1_r; reflexivity.
 Qed.
 
 Lemma lap_mod_deg_1_apply : ∀ la c,
-  (lap_mod_deg_1 f la c = 0)%K
-  → (apply_lap f la c = 0)%K.
+  (lap_mod_deg_1 R la c = 0)%K
+  → (apply_lap R la c = 0)%K.
 Proof.
 intros la c Hmod.
 destruct la as [| a]; [ reflexivity | assumption ].
@@ -2089,9 +2090,9 @@ Qed.
 
 Lemma list_root_mul_power_quotient : ∀ la c r len,
   list_root_multiplicity acf c la len = r
-  → lap_eq f la
-       (lap_mul f (lap_power f [(- c)%K; 1%K … []] r)
-       (list_quotient_phi_x_sub_c_pow_r f la c r)).
+  → lap_eq R la
+       (lap_mul R (lap_power R [(- c)%K; 1%K … []] r)
+       (list_quotient_phi_x_sub_c_pow_r R la c r)).
 Proof.
 intros la c r len Hmult.
 revert la len Hmult.
@@ -2108,10 +2109,10 @@ induction r; intros; simpl.
 Qed.
 
 Lemma list_div_x_sub_c_ne_0 : ∀ la c r len,
-  not (lap_eq f la [])
+  not (lap_eq R la [])
   → list_root_multiplicity acf c la len = r
     → length la ≤ len
-      → (apply_lap f (list_quotient_phi_x_sub_c_pow_r f la c r) c ≠ 0)%K.
+      → (apply_lap R (list_quotient_phi_x_sub_c_pow_r R la c r) c ≠ 0)%K.
 Proof.
 intros la c r len Hla Hmult Hlen.
 revert la len Hla Hmult Hlen.
@@ -2127,7 +2128,7 @@ induction r; intros; simpl.
   simpl in Hlen.
   apply le_S_n in Hlen.
   simpl in Happ.
-  remember (ac_is_zero (apply_lap f la c * c + a)%K) as z eqn:Hz .
+  remember (ac_is_zero (apply_lap R la c * c + a)%K) as z eqn:Hz .
   symmetry in Hz.
   destruct z; [ discriminate Hmult | idtac ].
   exfalso; revert Hz.
@@ -2139,7 +2140,7 @@ induction r; intros; simpl.
   exfalso; apply Hla; reflexivity.
 
   simpl in Hmult.
-  remember (ac_is_zero (lap_mod_deg_1 f la c)) as z eqn:Hz .
+  remember (ac_is_zero (lap_mod_deg_1 R la c)) as z eqn:Hz .
   symmetry in Hz.
   destruct z; [ idtac | discriminate Hmult ].
   apply ac_prop_is_zero in Hz.
@@ -2151,9 +2152,9 @@ induction r; intros; simpl.
    intros H; apply Hla; clear Hla.
    unfold lap_div_deg_1 in H; simpl in H.
    unfold lap_mod_deg_1 in Hz; simpl in Hz.
-   remember (lap_mod_div_deg_1 f la c) as md eqn:Hmd .
+   remember (lap_mod_div_deg_1 R la c) as md eqn:Hmd .
    symmetry in Hmd.
-   assert (apply_lap f la c = 0)%K as Happ.
+   assert (apply_lap R la c = 0)%K as Happ.
     apply lap_mod_deg_1_apply.
     unfold lap_mod_deg_1; simpl.
     rewrite Hmd.
@@ -2177,10 +2178,10 @@ induction r; intros; simpl.
       subst md.
       apply lap_eq_cons_nil_inv in H.
       destruct H as (Happ, H).
-      assert (apply_lap f la c = 0)%K as Haz.
+      assert (apply_lap R la c = 0)%K as Haz.
        apply lap_mod_deg_1_apply.
        unfold lap_mod_deg_1.
-       remember (lap_mod_div_deg_1 f la c) as md eqn:Hmd .
+       remember (lap_mod_div_deg_1 R la c) as md eqn:Hmd .
        symmetry in Hmd.
        destruct md as [| m]; [ reflexivity | idtac ].
        apply lap_eq_cons_nil_inv in H.
@@ -2211,9 +2212,9 @@ Qed.
    we have:
       Φ(z^q) = (z - c₁)^r Ψ(z), [...] » *)
 Theorem phi_zq_eq_z_sub_c₁_psy : ∀ pol ns c₁ r Ψ,
-  r = root_multiplicity acf c₁ (Φq f pol ns)
-  → Ψ = quotient_phi_x_sub_c_pow_r f (Φq f pol ns) c₁ r
-    → (Φq f pol ns .= f POL [(- c₁)%K; 1%K … []] .^ f r .* f Ψ)%pol.
+  r = root_multiplicity acf c₁ (Φq R pol ns)
+  → Ψ = quotient_phi_x_sub_c_pow_r R (Φq R pol ns) c₁ r
+    → (Φq R pol ns .= R POL [(- c₁)%K; 1%K … []] .^ R r .* R Ψ)%pol.
 Proof.
 intros pol ns c r Ψ Hr HΨ.
 subst Ψ; simpl.
@@ -2225,13 +2226,13 @@ Qed.
    we have:
       Φ(z^q) = (z - c₁)^r Ψ(z), Ψ(c₁) ≠ 0 » *)
 Theorem psy_c₁_ne_0 : ∀ pol ns c₁ r Ψ,
-  ns ∈ newton_segments f pol
-  → r = root_multiplicity acf c₁ (Φq f pol ns)
-    → Ψ = quotient_phi_x_sub_c_pow_r f (Φq f pol ns) c₁ r
-      → (apply_poly f Ψ c₁ ≠ 0)%K.
+  ns ∈ newton_segments R pol
+  → r = root_multiplicity acf c₁ (Φq R pol ns)
+    → Ψ = quotient_phi_x_sub_c_pow_r R (Φq R pol ns) c₁ r
+      → (apply_poly R Ψ c₁ ≠ 0)%K.
 Proof.
 intros pol ns c r Ψ Hns Hr HΨ.
-remember (Φq f pol ns) as phi eqn:Hphi .
+remember (Φq R pol ns) as phi eqn:Hphi .
 unfold Φq in Hphi; simpl in Hphi.
 unfold poly_left_shift in Hphi; simpl in Hphi.
 rewrite Nat.sub_diag, skipn_pad in Hphi; simpl in Hphi.

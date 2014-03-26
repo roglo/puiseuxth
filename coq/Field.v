@@ -8,7 +8,7 @@ Set Implicit Arguments.
 Reserved Notation "¹/ a" (at level 1).
 Reserved Notation "! x" (at level 1).
 
-Class field α :=
+Class ring α :=
   { fld_zero : α;
     fld_one : α;
     fld_add : α → α → α;
@@ -33,8 +33,10 @@ Class field α :=
       fld_eq a b → fld_eq (fld_mul c a) (fld_mul c b);
     fld_mul_add_distr_l : ∀ a b c,
       fld_eq (fld_mul a (fld_add b c))
-        (fld_add (fld_mul a b) (fld_mul a c));
-    fld_inv : α → α;
+        (fld_add (fld_mul a b) (fld_mul a c)) }.
+
+Class field α (fld_ring : ring α) :=
+  { fld_inv : α → α;
     fld_mul_inv_l : ∀ a,
       not (fld_eq a fld_zero)
       → fld_eq (fld_mul (fld_inv a) a) fld_one }.
@@ -50,28 +52,13 @@ Notation "¹/ a" := (fld_inv a) : field_scope.
 Notation "0" := fld_zero : field_scope.
 Notation "1" := fld_one : field_scope.
 
-(*
-Notation "a = b" := (λ f, fld_eq f a b) : field_scope.
-Notation "a ≠ b" := (λ f, ¬ fld_eq f a b) : field_scope.
-Notation "a + b" := (λ f, fld_add f a b) : field_scope.
-Notation "a - b" := (λ f, fld_add f a (fld_opp f b)) : field_scope.
-Notation "a * b" := (λ f, fld_mul f a b) : field_scope.
-Notation "- a" := (λ f, fld_opp f a) : field_scope.
-Notation "¹/ a" := (λ f, fld_inv f a) : field_scope.
-Notation "0" := (λ f, fld_zero) : field_scope.
-Notation "1" := (λ f, fld_one) : field_scope.
-*)
-(*
-Notation "! x" := (λ _, x) : field_scope.
-*)
-
-Add Parametric Relation α (K : field α) : α fld_eq
+Add Parametric Relation α (K : ring α) : α fld_eq
  reflexivity proved by fld_eq_refl
  symmetry proved by fld_eq_sym
  transitivity proved by fld_eq_trans
  as eq_rel.
 
-Add Parametric Morphism α (K : field α) : fld_add
+Add Parametric Morphism α (K : ring α) : fld_add
   with signature fld_eq ==> fld_eq ==> fld_eq
   as add_morph.
 Proof.
@@ -84,7 +71,7 @@ rewrite fld_add_comm; symmetry.
 rewrite fld_add_compat_l; [ reflexivity | eassumption ].
 Qed.
 
-Add Parametric Morphism α (K : field α) : fld_opp
+Add Parametric Morphism α (K : ring α) : fld_opp
   with signature fld_eq ==> fld_eq
   as opp_morph.
 Proof.
@@ -102,7 +89,7 @@ rewrite fld_add_0_l in Heq.
 assumption.
 Qed.
 
-Add Parametric Morphism α (F : field α) : fld_mul
+Add Parametric Morphism α (F : ring α) : fld_mul
   with signature fld_eq ==> fld_eq ==> fld_eq
   as mul_morph.
 Proof.
@@ -118,7 +105,8 @@ Qed.
 Section misc_theorems.
 
 Variable α : Type.
-Variable f : field α.
+Variable r : ring α.
+Variable f : field r.
 
 Theorem fld_add_opp_r : ∀ x, (x - x = 0)%K.
 Proof.
