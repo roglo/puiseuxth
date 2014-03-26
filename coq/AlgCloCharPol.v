@@ -1906,7 +1906,6 @@ Proof.
 intros la d c md n Hn Hmd.
 destruct d; [ discriminate Hn | simpl in Hn ].
 split; [ intros H; discriminate H | idtac ].
-fold f in Hn.
 remember (ac_is_zero (lap_mod_deg_1 f la c)) as z eqn:Hz .
 symmetry in Hz.
 destruct z; [ idtac | discriminate Hn ].
@@ -2137,7 +2136,6 @@ induction r; intros; simpl.
 
   destruct la as [| a]; [ reflexivity | idtac ].
   simpl in Hmult.
-  fold f in Hmult.
   unfold lap_mod_deg_1 in Hmult; simpl in Hmult.
   simpl in Hlen.
   apply le_S_n in Hlen.
@@ -2154,12 +2152,10 @@ induction r; intros; simpl.
   exfalso; apply Hla; reflexivity.
 
   simpl in Hmult.
-  fold f in Hmult.
   remember (ac_is_zero (lap_mod_deg_1 f la c)) as z eqn:Hz .
   symmetry in Hz.
   destruct z; [ idtac | discriminate Hmult ].
   apply ac_prop_is_zero in Hz.
-  fold f in Hz.
   apply eq_add_S in Hmult.
   destruct la as [| a]; [ exfalso; apply Hla; reflexivity | idtac ].
   simpl in Hlen.
@@ -2186,7 +2182,6 @@ induction r; intros; simpl.
      destruct la; [ reflexivity | exfalso; simpl in Hlen; omega ].
 
      simpl in Hmult.
-     fold f in Hmult.
      unfold lap_div_deg_1 in Hmult; simpl in Hmult.
      revert Hmd H; clear; intros.
      revert md Hmd H.

@@ -297,8 +297,8 @@ End on_fields.
 Section theorems.
 
 Variable α : Type.
-Variable acf : algeb_closed_field α.
-Let K := ac_field.
+Variable K : field α.
+Variable acf : algeb_closed_field K.
 Let Kx := ps_field K.
 
 Lemma lap_f₁_eq_x_min_β₁_comp : ∀ la β₁ γ₁ c₁,
@@ -1708,7 +1708,6 @@ rewrite skipn_pad; simpl.
 rewrite Nat.sub_diag; simpl.
 rewrite fold_char_pol with (αj := αj).
 rewrite <- Hini.
-subst K.
 rewrite length_list_quotient_phi_x_sub_c_pow_r.
 erewrite length_char_pol; try eassumption; try reflexivity.
 subst s; reflexivity.
@@ -2009,10 +2008,12 @@ apply exists_fin_pt_nat in Hfin.
 destruct Hfin as (k, (αk, Hk)).
 symmetry.
 rewrite poly_mul_comm, poly_mul_assoc, poly_mul_comm.
-apply poly_mul_compat; [ reflexivity | subst K ].
+apply poly_mul_compat; [ reflexivity | idtac ].
 rewrite phi_zq_eq_z_sub_c₁_psy; try eassumption.
+(*
 set (K := ac_field); move K after Kx.
 fold K in Kx.
+*)
 rewrite poly_inject_inj_mul.
 unfold eq_poly; simpl.
 rewrite <- lap_power_map; simpl.
