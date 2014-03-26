@@ -189,7 +189,7 @@ Fixpoint lap_add α (r : ring α) al₁ al₂ :=
       end
   end.
 
-Definition lap_opp α (r : ring α) la := List.map fld_opp la.
+Definition lap_opp α (r : ring α) la := List.map rng_opp la.
 
 Definition poly_add α (r : ring α) pol₁ pol₂ :=
   {| al := lap_add r (al pol₁) (al pol₂) |}.
@@ -276,8 +276,8 @@ Add Parametric Morphism α (r : ring α) : (@al α)
 Proof. intros; assumption. Qed.
 
 Add Parametric Morphism α (r : ring α) : (list_nth_def_0 r)
-  with signature eq ==> lap_eq r ==> fld_eq
-  as list_nth_fld_morph.
+  with signature eq ==> lap_eq r ==> rng_eq
+  as list_nth_rng_morph.
 Proof.
 intros n la lb Hab.
 unfold list_nth_def_0.
@@ -330,7 +330,7 @@ induction la as [| a]; intros; [ reflexivity | simpl ].
 destruct lb as [| b]; [ assumption | idtac ].
 apply lap_eq_nil_cons_inv in H.
 destruct H as (Ha, Hla).
-constructor; [ rewrite Ha, fld_add_0_l; reflexivity | idtac ].
+constructor; [ rewrite Ha, rng_add_0_l; reflexivity | idtac ].
 apply IHla; assumption.
 Qed.
 
@@ -344,7 +344,7 @@ induction lb as [| b]; intros; [ destruct la; reflexivity | idtac ].
 destruct la as [| a]; [ assumption | simpl ].
 apply lap_eq_nil_cons_inv in H.
 destruct H as (Hb, Hlb).
-constructor; [ rewrite Hb, fld_add_0_r; reflexivity | idtac ].
+constructor; [ rewrite Hb, rng_add_0_r; reflexivity | idtac ].
 apply IHlb; assumption.
 Qed.
 
@@ -364,13 +364,13 @@ induction la as [| a]; intros.
   destruct lb as [| b].
    apply lap_eq_nil_cons_inv in Hbd.
    destruct Hbd as (Hd, Hld).
-   constructor; [ rewrite Hc, fld_add_0_l; assumption | idtac ].
+   constructor; [ rewrite Hc, rng_add_0_l; assumption | idtac ].
    etransitivity; [ eassumption | idtac ].
    apply lap_eq_nil_lap_add_r; assumption.
 
    apply lap_eq_cons_inv in Hbd.
    destruct Hbd as (Hbd, Hlbd).
-   constructor; [ rewrite Hc, fld_add_0_l; assumption | idtac ].
+   constructor; [ rewrite Hc, rng_add_0_l; assumption | idtac ].
    etransitivity; [ eassumption | idtac ].
    apply lap_eq_nil_lap_add_r; assumption.
 
@@ -381,7 +381,7 @@ induction la as [| a]; intros.
   destruct Hac as (Hac, Hlac).
   apply lap_eq_nil_cons_inv in Hbd.
   destruct Hbd as (Hd, Hld).
-  constructor; [ rewrite Hd, fld_add_0_r; assumption | idtac ].
+  constructor; [ rewrite Hd, rng_add_0_r; assumption | idtac ].
   etransitivity; [ eassumption | idtac ].
   apply lap_eq_nil_lap_add_l; assumption.
 
@@ -391,12 +391,12 @@ induction la as [| a]; intros.
    destruct ld as [| d].
     apply lap_eq_cons_nil_inv in Hbd.
     destruct Hbd as (Hb, Hlb).
-    constructor; [ rewrite Ha, fld_add_0_l; assumption | idtac ].
+    constructor; [ rewrite Ha, rng_add_0_l; assumption | idtac ].
     rewrite IHla; try eassumption; reflexivity.
 
     apply lap_eq_cons_inv in Hbd.
     destruct Hbd as (Hbd, Hlbd).
-    constructor; [ rewrite Ha, fld_add_0_l; assumption | idtac ].
+    constructor; [ rewrite Ha, rng_add_0_l; assumption | idtac ].
     rewrite IHla; try eassumption; reflexivity.
 
    apply lap_eq_cons_inv in Hac.
@@ -404,7 +404,7 @@ induction la as [| a]; intros.
    destruct ld as [| d].
     apply lap_eq_cons_nil_inv in Hbd.
     destruct Hbd as (Hb, Hlb).
-    constructor; [ rewrite Hb, fld_add_0_r; assumption | idtac ].
+    constructor; [ rewrite Hb, rng_add_0_r; assumption | idtac ].
     rewrite IHla; try eassumption.
     destruct lc; reflexivity.
 
@@ -433,8 +433,8 @@ constructor; [ idtac | apply IHlen ].
 rewrite summation_rtl.
 apply summation_compat; intros j (_, Hj).
 rewrite Nat.add_0_r.
-rewrite fld_mul_comm.
-apply fld_mul_compat; [ idtac | reflexivity ].
+rewrite rng_mul_comm.
+apply rng_mul_compat; [ idtac | reflexivity ].
 rewrite Nat_sub_sub_distr; [ idtac | assumption ].
 rewrite Nat.add_comm, Nat.add_sub; reflexivity.
 Qed.
@@ -448,7 +448,7 @@ induction len; intros; [ reflexivity | simpl ].
 constructor; [ idtac | apply IHlen ].
 rewrite all_0_summation_0; [ reflexivity | idtac ].
 intros k (_, Hk).
-destruct k; rewrite fld_mul_0_l; reflexivity.
+destruct k; rewrite rng_mul_0_l; reflexivity.
 Qed.
 
 Lemma lap_convol_mul_nil_r : ∀ α (r : ring α) l i len,
@@ -470,7 +470,7 @@ revert la lb lc ld i Hac Hbd.
 induction len; intros; [ reflexivity | simpl ].
 constructor.
  apply summation_compat; intros j (_, Hj).
- apply fld_mul_compat.
+ apply rng_mul_compat.
   clear Hj; revert j.
   induction Hac; intros.
    reflexivity.
@@ -514,11 +514,11 @@ constructor.
  revert Heq; clear; intros.
  revert j.
  induction la as [| a]; intros.
-  simpl; destruct j; rewrite fld_mul_0_l; reflexivity.
+  simpl; destruct j; rewrite rng_mul_0_l; reflexivity.
 
   apply lap_eq_cons_nil_inv in Heq.
   destruct Heq as (Ha, Hla).
-  destruct j; simpl; [ rewrite Ha, fld_mul_0_l; reflexivity | idtac ].
+  destruct j; simpl; [ rewrite Ha, rng_mul_0_l; reflexivity | idtac ].
   apply IHla; assumption.
 
  apply IHlen; assumption.
@@ -538,17 +538,17 @@ constructor.
  revert Heq; clear; intros.
  revert h.
  induction lb as [| b]; intros.
-  simpl; destruct h; rewrite fld_mul_0_r; reflexivity.
+  simpl; destruct h; rewrite rng_mul_0_r; reflexivity.
 
   apply lap_eq_cons_nil_inv in Heq.
   destruct Heq as (Hb, Hlb).
-  destruct h; simpl; [ rewrite Hb, fld_mul_0_r; reflexivity | idtac ].
+  destruct h; simpl; [ rewrite Hb, rng_mul_0_r; reflexivity | idtac ].
   apply IHlb; assumption.
 
  apply IHlen; assumption.
 Qed.
 
-Lemma list_nth_fld_eq : ∀ α (r : ring α) la lb n,
+Lemma list_nth_rng_eq : ∀ α (r : ring α) la lb n,
   lap_eq r la lb → (List.nth n la 0 = List.nth n lb 0)%K.
 Proof.
 intros α r la lb n Hlab.
@@ -586,7 +586,7 @@ revert la lb lc ld Hlab Hlcd i.
 induction len; intros; [ reflexivity | simpl ].
 constructor; [ idtac | apply IHlen; assumption ].
 apply summation_compat; intros j (_, Hj).
-apply fld_mul_compat; apply list_nth_fld_eq; assumption.
+apply rng_mul_compat; apply list_nth_rng_eq; assumption.
 Qed.
 
 Lemma lap_convol_mul_succ : ∀ α (r : ring α) la lb i len,
@@ -637,7 +637,7 @@ apply lap_eq_app_0s.
 constructor; [ idtac | constructor ].
 apply all_0_summation_0.
 intros j (_, Hj).
-apply fld_mul_eq_0.
+apply rng_mul_eq_0.
 destruct (le_dec (length la) j) as [H₁| H₁].
  left.
  rewrite List.nth_overflow; [ reflexivity | assumption ].
@@ -682,7 +682,7 @@ reflexivity.
 Qed.
 
 Add Parametric Morphism α (r : ring α) : (@cons α)
-  with signature fld_eq ==> lap_eq r ==> lap_eq r
+  with signature rng_eq ==> lap_eq r ==> lap_eq r
   as cons_lap_eq_morph.
 Proof.
 intros a b H la lb Hab.
@@ -847,7 +847,7 @@ induction al₁; intros.
  destruct al₂.
   constructor; [ reflexivity | apply lap_eq_refl ].
 
-  constructor; [ apply fld_add_comm | apply IHal₁ ].
+  constructor; [ apply rng_add_comm | apply IHal₁ ].
 Qed.
 
 Theorem poly_add_comm : ∀ pol₁ pol₂, (pol₁ .+ r pol₂ .= r pol₂ .+ r pol₁)%pol.
@@ -882,7 +882,7 @@ induction al₁; intros.
   destruct al₃; simpl.
    constructor; [ reflexivity | apply lap_eq_refl ].
 
-   constructor; [ apply fld_add_assoc | apply IHal₁ ].
+   constructor; [ apply rng_add_assoc | apply IHal₁ ].
 Qed.
 
 Lemma poly_add_assoc : ∀ pol₁ pol₂ pol₃,
@@ -955,12 +955,12 @@ induction len; intros.
  intros j (_, Hj).
  destruct (le_dec (length la) j) as [H₁| H₁].
   rewrite List.nth_overflow; [ idtac | assumption ].
-  rewrite fld_mul_0_l; reflexivity.
+  rewrite rng_mul_0_l; reflexivity.
 
   destruct (le_dec (length lb) (n + i - j)) as [H₂| H₂].
-   rewrite fld_mul_comm.
+   rewrite rng_mul_comm.
    rewrite List.nth_overflow; [ idtac | assumption ].
-   rewrite fld_mul_0_l; reflexivity.
+   rewrite rng_mul_0_l; reflexivity.
 
    exfalso; fast_omega Hlen H₁ H₂.
 
@@ -995,7 +995,7 @@ Lemma summation_mul_list_nth_lap_convol_mul : ∀ la lb lc k,
 Proof.
 intros la lb lc k.
 apply summation_compat; intros i (_, Hi).
-apply fld_mul_compat_l.
+apply rng_mul_compat_l.
 rewrite list_nth_lap_convol_mul; reflexivity.
 Qed.
 
@@ -1013,7 +1013,7 @@ intros la lb lc k.
 rewrite summation_rtl.
 apply summation_compat; intros i (_, Hi).
 rewrite Nat.add_0_r.
-apply fld_mul_compat_l.
+apply rng_mul_compat_l.
 rewrite Nat_sub_sub_distr; [ idtac | assumption ].
 rewrite Nat.add_comm, Nat.add_sub.
 apply list_nth_lap_convol_mul; reflexivity.
@@ -1038,7 +1038,7 @@ rewrite summation_summation_exch.
 rewrite summation_summation_shift.
 apply summation_compat; intros i Hi.
 apply summation_compat; intros j Hj.
-rewrite fld_mul_comm, fld_mul_assoc.
+rewrite rng_mul_comm, rng_mul_assoc.
 rewrite Nat.add_comm, Nat.add_sub.
 rewrite Nat.add_comm, Nat.sub_add_distr.
 reflexivity.
@@ -1083,15 +1083,15 @@ induction len; intros.
 
  simpl.
  rewrite summation_split_first; [ idtac | apply Nat.le_0_l ].
- rewrite fld_mul_1_l, Nat.sub_0_r.
+ rewrite rng_mul_1_l, Nat.sub_0_r.
  rewrite all_0_summation_0.
   rewrite Nat.add_succ_r, <- Nat.add_succ_l in Hlen.
-  rewrite fld_add_0_r, IHlen; [ clear | assumption ].
+  rewrite rng_add_0_r, IHlen; [ clear | assumption ].
   apply lap_eq_skipn_succ.
 
   intros j (Hj, Hji).
   destruct j; [ exfalso; omega | idtac ].
-  destruct j; rewrite fld_mul_0_l; reflexivity.
+  destruct j; rewrite rng_mul_0_l; reflexivity.
 Qed.
 
 Lemma lap_convol_mul_x_l : ∀ cl i len,
@@ -1109,7 +1109,7 @@ induction len; intros.
 
  simpl.
  rewrite summation_only_one_non_0 with (v := 1%nat).
-  rewrite fld_mul_1_l, Nat.sub_0_r.
+  rewrite rng_mul_1_l, Nat.sub_0_r.
   rewrite Nat.add_succ_r, <- Nat.add_succ_l in Hlen.
   rewrite IHlen; [ idtac | assumption ].
   apply lap_eq_skipn_succ.
@@ -1117,9 +1117,9 @@ induction len; intros.
   split; [ apply Nat.le_0_l | apply le_n_S, Nat.le_0_l ].
 
   intros j (_, Hj) Hjn1.
-  destruct j; [ rewrite fld_mul_0_l; reflexivity | simpl ].
+  destruct j; [ rewrite rng_mul_0_l; reflexivity | simpl ].
   destruct j; [ exfalso; apply Hjn1; reflexivity | idtac ].
-  destruct j; rewrite fld_mul_0_l; reflexivity.
+  destruct j; rewrite rng_mul_0_l; reflexivity.
 Qed.
 
 Theorem poly_mul_1_l : ∀ a, (.1 r .* r a .= r a)%pol.
@@ -1156,12 +1156,12 @@ Proof.
 intros k la lb.
 revert la lb.
 induction k; intros.
- destruct la as [| a]; simpl; [ rewrite fld_add_0_l; reflexivity | idtac ].
- destruct lb as [| b]; simpl; [ rewrite fld_add_0_r; reflexivity | idtac ].
+ destruct la as [| a]; simpl; [ rewrite rng_add_0_l; reflexivity | idtac ].
+ destruct lb as [| b]; simpl; [ rewrite rng_add_0_r; reflexivity | idtac ].
  reflexivity.
 
- destruct la as [| a]; simpl; [ rewrite fld_add_0_l; reflexivity | idtac ].
- destruct lb as [| b]; simpl; [ rewrite fld_add_0_r; reflexivity | idtac ].
+ destruct la as [| a]; simpl; [ rewrite rng_add_0_l; reflexivity | idtac ].
+ destruct lb as [| b]; simpl; [ rewrite rng_add_0_r; reflexivity | idtac ].
  apply IHk.
 Qed.
 
@@ -1175,7 +1175,7 @@ revert la lb lc i.
 induction len; intros; [ reflexivity | simpl ].
 constructor; [ idtac | apply IHlen ].
 apply summation_compat; intros j (_, Hj).
-apply fld_mul_compat_l.
+apply rng_mul_compat_l.
 rewrite list_nth_add; reflexivity.
 Qed.
 
@@ -1192,7 +1192,7 @@ induction len; intros; [ reflexivity | simpl ].
 constructor; [ idtac | apply IHlen ].
 rewrite <- summation_add_distr.
 apply summation_compat; intros j (_, Hj).
-rewrite fld_mul_add_distr_l; reflexivity.
+rewrite rng_mul_add_distr_l; reflexivity.
 Qed.
 
 Lemma lap_mul_add_distr_l : ∀ la lb lc,
@@ -1261,9 +1261,9 @@ induction len; intros; simpl.
  rewrite summation_split_first; [ idtac | apply Nat.le_0_l ].
  rewrite Nat.add_0_r, Nat.sub_0_r.
  rewrite Nat.sub_diag; simpl.
- rewrite fld_mul_1_r.
+ rewrite rng_mul_1_r.
  rewrite all_0_summation_0.
-  rewrite fld_add_0_r.
+  rewrite rng_add_0_r.
   rewrite Nat.add_succ_r, <- Nat.add_succ_l in Hlen.
   rewrite IHlen; [ idtac | assumption ].
   apply lap_eq_skipn_succ.
@@ -1272,7 +1272,7 @@ induction len; intros; simpl.
   rewrite Nat_sub_sub_distr; [ idtac | assumption ].
   rewrite Nat.add_comm, Nat.add_sub.
   destruct j; [ exfalso; omega | idtac ].
-  destruct j; rewrite fld_mul_0_r; reflexivity.
+  destruct j; rewrite rng_mul_0_r; reflexivity.
 Qed.
 
 Lemma lap_mul_1_l : ∀ la, lap_eq r (lap_mul r [1%K] la) la.
@@ -1320,11 +1320,11 @@ induction len; intros; simpl.
   destruct (lt_dec (i + k - j) (length lb)) as [Hjb| Hjb].
    exfalso; omega.
 
-   apply fld_mul_eq_0; right.
+   apply rng_mul_eq_0; right.
    apply Nat.nlt_ge in Hjb.
    rewrite List.nth_overflow; [ reflexivity | assumption ].
 
-  apply fld_mul_eq_0; left.
+  apply rng_mul_eq_0; left.
   apply Nat.nlt_ge in Hja.
   rewrite List.nth_overflow; [ reflexivity | assumption ].
 
@@ -1507,7 +1507,7 @@ destruct (lt_dec i n) as [Hin| Hin].
  induction n; intros; [ exfalso; revert Hin; apply Nat.nlt_0_r | simpl ].
  destruct i; simpl.
   unfold summation; simpl.
-  rewrite fld_mul_0_l, fld_add_0_l; reflexivity.
+  rewrite rng_mul_0_l, rng_add_0_l; reflexivity.
 
   apply lt_S_n in Hin.
   rewrite length_lap_power; [ idtac | intros H; discriminate H ].
@@ -1517,10 +1517,10 @@ destruct (lt_dec i n) as [Hin| Hin].
    intros j (_, Hj).
    destruct (lt_dec (1 + i - j) n) as [Hijn| Hijn].
     rewrite IHn; [ idtac | assumption ].
-    rewrite fld_mul_0_r; reflexivity.
+    rewrite rng_mul_0_r; reflexivity.
 
     apply Nat.nlt_ge in Hijn.
-    destruct j; [ rewrite fld_mul_0_l; reflexivity | idtac ].
+    destruct j; [ rewrite rng_mul_0_l; reflexivity | idtac ].
     exfalso; fast_omega Hin Hijn.
 
    rewrite length_lap_power; [ simpl | intros H; discriminate H ].
@@ -1539,14 +1539,14 @@ destruct (lt_dec i n) as [Hin| Hin].
    rewrite summation_only_one_non_0 with (v := 1%nat).
     rewrite Nat.add_comm, Nat.add_sub.
     rewrite IHn; simpl.
-    rewrite fld_mul_1_r; reflexivity.
+    rewrite rng_mul_1_r; reflexivity.
 
     split; [ apply Nat.le_0_l | apply le_n_S, Nat.le_0_l ].
 
     intros i (_, Hin) Hi.
-    destruct i; [ rewrite fld_mul_0_l; reflexivity | simpl ].
+    destruct i; [ rewrite rng_mul_0_l; reflexivity | simpl ].
     destruct i; [ exfalso; apply Hi; reflexivity | idtac ].
-    rewrite match_id, fld_mul_0_l; reflexivity.
+    rewrite match_id, rng_mul_0_l; reflexivity.
 
    rewrite length_lap_power; [ simpl | intros H; discriminate H ].
    rewrite Nat.mul_1_r; reflexivity.
@@ -1572,13 +1572,13 @@ destruct (lt_dec i n) as [Hin| Hin].
     rewrite list_nth_convol_mul.
      rewrite all_0_summation_0; [ reflexivity | idtac ].
      intros j (_, Hj).
-     destruct j; [ rewrite fld_mul_0_l; reflexivity | simpl ].
+     destruct j; [ rewrite rng_mul_0_l; reflexivity | simpl ].
      destruct j.
       rewrite Nat.sub_0_r.
       rewrite IHn; [ idtac | assumption ].
-      rewrite fld_mul_0_r; reflexivity.
+      rewrite rng_mul_0_r; reflexivity.
 
-      rewrite match_id, fld_mul_0_l; reflexivity.
+      rewrite match_id, rng_mul_0_l; reflexivity.
 
      rewrite length_lap_power; [ simpl | intros H; discriminate H ].
      rewrite Nat.mul_1_r; reflexivity.
@@ -1597,7 +1597,7 @@ rewrite list_nth_lap_convol_mul; [ idtac | reflexivity ].
 destruct k.
  rewrite summation_only_one.
  rewrite summation_only_one.
- rewrite fld_add_0_r; reflexivity.
+ rewrite rng_add_0_r; reflexivity.
 
  rewrite summation_split_first; [ idtac | apply Nat.le_0_l ].
  rewrite Nat.sub_0_r.
@@ -1606,14 +1606,14 @@ destruct k.
  rewrite all_0_summation_0.
   rewrite Nat.sub_0_r.
   simpl.
-  rewrite fld_add_0_r.
-  apply fld_add_compat_l.
+  rewrite rng_add_0_r.
+  apply rng_add_compat_l.
   rewrite list_nth_lap_convol_mul; [ idtac | reflexivity ].
   rewrite summation_succ_succ; reflexivity.
 
   intros i (Hi, Hik); simpl.
   destruct i; [ exfalso; omega | simpl ].
-  destruct i; rewrite fld_mul_0_l; reflexivity.
+  destruct i; rewrite rng_mul_0_l; reflexivity.
 Qed.
 
 Lemma lap_mul_cons_r : ∀ la b lb,
@@ -1641,9 +1641,9 @@ induction len; intros; [ reflexivity | idtac ].
 constructor; [ idtac | apply IHlen ].
 rewrite summation_split_last; [ idtac | apply Nat.le_0_l ].
 rewrite List.nth_overflow; [ idtac | simpl; fast_omega  ].
-rewrite fld_mul_0_l, fld_add_0_r.
+rewrite rng_mul_0_l, rng_add_0_r.
 apply summation_compat; intros j (_, Hj).
-apply fld_mul_compat_l.
+apply rng_mul_compat_l.
 rewrite Nat.sub_succ_l; [ reflexivity | assumption ].
 Qed.
 
@@ -1656,7 +1656,7 @@ Proof.
 intros a b la lb.
 rewrite lap_mul_cons_l; simpl.
 rewrite summation_only_one.
-rewrite fld_add_0_r.
+rewrite rng_add_0_r.
 constructor; [ reflexivity | idtac ].
 rewrite lap_mul_cons_r.
 unfold lap_mul; simpl.
@@ -1683,7 +1683,7 @@ destruct la as [| a]; simpl.
  constructor; [ reflexivity | assumption ].
 
  rewrite lap_mul_cons.
- rewrite fld_mul_0_l.
+ rewrite rng_mul_0_l.
  constructor; [ reflexivity | simpl ].
  rewrite lap_eq_0, lap_mul_nil_l.
  rewrite lap_add_nil_r.
@@ -1691,9 +1691,9 @@ destruct la as [| a]; simpl.
  clear.
  revert a la.
  induction n; intros; simpl.
-  rewrite fld_add_0_r; reflexivity.
+  rewrite rng_add_0_r; reflexivity.
 
-  rewrite fld_add_0_r.
+  rewrite rng_add_0_r.
   constructor; [ reflexivity | idtac ].
   apply IHn.
 Qed.
@@ -1733,7 +1733,7 @@ Lemma lap_cons_add : ∀ a lb lc,
   ([a … lb .+ r lc] .= r [a … lb] .+ r [0%K … lc])%lap.
 Proof.
 intros a lb lc.
-destruct lb as [| b]; simpl; rewrite fld_add_0_r; reflexivity.
+destruct lb as [| b]; simpl; rewrite rng_add_0_r; reflexivity.
 Qed.
 
 End poly.
@@ -1758,7 +1758,7 @@ Theorem lap_add_opp_l : ∀ α (r : ring α) la, (.- r la .+ r la .= r .0 r)%lap
 Proof.
 intros α r la.
 induction la as [| a]; [ reflexivity | simpl ].
-rewrite IHla, fld_add_opp_l.
+rewrite IHla, rng_add_opp_l.
 constructor; reflexivity.
 Qed.
 

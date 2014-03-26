@@ -144,7 +144,7 @@ destruct (zerop (i mod Pos.to_nat k)) as [H₂| H₂].
  apply inserted_0_summation; auto.
   intros i Hi.
   destruct (zerop (i mod Pos.to_nat n)) as [| H₂]; [ contradiction | idtac ].
-  rewrite fld_mul_0_l; reflexivity.
+  rewrite rng_mul_0_l; reflexivity.
 
   intros i.
   rewrite Nat.mul_comm.
@@ -182,12 +182,12 @@ destruct (zerop (i mod Pos.to_nat k)) as [H₂| H₂].
     rewrite Nat.mod_mul in H₂; auto.
     exfalso; revert H₂; apply Nat.lt_irrefl.
 
-   rewrite fld_mul_comm.
+   rewrite rng_mul_comm.
    rewrite shifted_in_stretched; [ idtac | assumption ].
-   rewrite fld_mul_0_l; reflexivity.
+   rewrite rng_mul_0_l; reflexivity.
 
   rewrite shifted_in_stretched; [ idtac | assumption ].
-  rewrite fld_mul_0_l; reflexivity.
+  rewrite rng_mul_0_l; reflexivity.
 Qed.
 
 Theorem ps_mul_assoc : ∀ ps₁ ps₂ ps₃,
@@ -322,7 +322,7 @@ destruct (lt_dec k n) as [H₂| H₂].
  symmetry; unfold convol_mul; simpl.
  apply all_0_summation_0; intros i Hi.
  destruct (lt_dec i n) as [H₁| H₁].
-  rewrite fld_mul_0_l; reflexivity.
+  rewrite rng_mul_0_l; reflexivity.
 
   exfalso; apply H₁.
   eapply le_lt_trans; [ idtac | eassumption ].
@@ -339,11 +339,11 @@ destruct (lt_dec k n) as [H₂| H₂].
   assert (k = (n + (k - n))%nat) as H by omega.
   rewrite H in |- * at 1.
   rewrite summation_ub_add.
-  rewrite fld_add_comm.
+  rewrite rng_add_comm.
   rewrite <- H.
-  rewrite fld_add_comm.
+  rewrite rng_add_comm.
   rewrite all_0_summation_0.
-   rewrite fld_add_0_l.
+   rewrite rng_add_0_l.
    symmetry.
    rewrite summation_add_add_sub with (n := S n).
    rewrite Nat.add_0_l, Nat.sub_add; [ idtac | assumption ].
@@ -357,7 +357,7 @@ destruct (lt_dec k n) as [H₂| H₂].
 
    intros i Hi; simpl.
    destruct (lt_dec i (S n)) as [H₁| H₁].
-    rewrite fld_mul_0_l; reflexivity.
+    rewrite rng_mul_0_l; reflexivity.
 
     exfalso; apply H₁.
     apply Nat.lt_succ_r.
@@ -924,9 +924,9 @@ apply mkps_morphism; simpl.
   destruct (zerop (i / Pos.to_nat (Qden n))) as [H₁| H₁].
    reflexivity.
 
-   rewrite fld_add_0_l; reflexivity.
+   rewrite rng_add_0_l; reflexivity.
 
-  rewrite fld_add_0_l; reflexivity.
+  rewrite rng_add_0_l; reflexivity.
 
  unfold ps_valnum_add; simpl.
  rewrite Z.min_id; reflexivity.
@@ -956,7 +956,7 @@ destruct i; simpl.
  rewrite Nat.mod_0_l; auto; simpl.
  rewrite Nat.div_0_l; auto; simpl.
  rewrite Nat.div_0_l; auto; simpl.
- rewrite fld_mul_1_r; reflexivity.
+ rewrite rng_mul_1_r; reflexivity.
 
  rewrite all_0_summation_0; [ reflexivity | simpl ].
  intros j (_, Hj).
@@ -969,9 +969,9 @@ destruct i; simpl.
    rewrite Nat.mul_comm in Hd; rewrite Hd.
    rewrite Nat.div_mul; auto.
    destruct d; [ discriminate Hd | simpl ].
-   rewrite fld_mul_0_r; reflexivity.
+   rewrite rng_mul_0_r; reflexivity.
 
-   rewrite fld_mul_0_r; reflexivity.
+   rewrite rng_mul_0_r; reflexivity.
 
   destruct (zerop (S j mod Pos.to_nat (Qden q))) as [H| H].
    apply Nat.mod_divides in H; auto.
@@ -979,9 +979,9 @@ destruct i; simpl.
    rewrite Nat.mul_comm in Hd; rewrite Hd.
    rewrite Nat.div_mul; auto.
    destruct d; [ discriminate Hd | simpl ].
-   rewrite fld_mul_0_l; reflexivity.
+   rewrite rng_mul_0_l; reflexivity.
 
-   rewrite fld_mul_0_l; reflexivity.
+   rewrite rng_mul_0_l; reflexivity.
 Qed.
 
 End other_theorems.

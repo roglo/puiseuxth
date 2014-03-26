@@ -250,7 +250,7 @@ constructor; intros i; simpl.
 remember (Pos.to_nat kp) as k.
 assert (k ≠ O) as Hk by (subst k; apply Pos2Nat_ne_0).
 destruct (zerop (i mod k)); [ reflexivity | idtac ].
-rewrite fld_add_0_l; reflexivity.
+rewrite rng_add_0_l; reflexivity.
 Qed.
 
 Lemma ps_terms_add_comm : ∀ ps₁ ps₂,
@@ -314,7 +314,7 @@ Proof.
 intros s₁ s₂ n.
 constructor; intros i; simpl.
 destruct (lt_dec i n) as [H₁| H₁]; [ idtac | reflexivity ].
-rewrite fld_add_0_l; reflexivity.
+rewrite rng_add_0_l; reflexivity.
 Qed.
 
 Lemma ps_terms_add_assoc : ∀ ps₁ ps₂ ps₃,
@@ -361,7 +361,7 @@ do 2 rewrite Z2Nat_sub_min1.
 do 2 rewrite Z2Nat_sub_min2.
 do 2 rewrite <- Z.min_assoc.
 do 2 rewrite Z2Nat_sub_min.
-simpl; rewrite fld_add_assoc; reflexivity.
+simpl; rewrite rng_add_assoc; reflexivity.
 Qed.
 
 Lemma gcd_ps_add_assoc : ∀ ps₁ ps₂ ps₃ n k,

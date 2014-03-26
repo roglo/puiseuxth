@@ -2896,7 +2896,7 @@ apply imp_or_tauto.
  eapply phi_pseudo_degree_is_k_sub_j_div_q; eassumption.
 Qed.
 
-Definition apply_K_poly := (horner 0 fld_add fld_mul)%K.
+Definition apply_K_poly := (horner 0 rng_add rng_mul)%K.
 
 (* [Walker, p. 100] « Therefore (3.4) has the form c^j Φ(c^q) = 0
    where Φ(z) is a polynomial, of degree (k - j)/q, with Φ(0) ≠ 0 » *)
@@ -2911,7 +2911,7 @@ remember (ini_pt ns) as jj eqn:Hj .
 destruct jj as (jq, αj); simpl.
 rewrite Nat.sub_diag; simpl.
 rewrite skipn_pad; simpl.
-rewrite fld_mul_0_r, fld_add_0_l.
+rewrite rng_mul_0_r, rng_add_0_l.
 eapply val_coeff_non_zero_in_newt_segm; try eassumption; try reflexivity.
 left; rewrite <- Hj.
 unfold Qnat, nofq; simpl.

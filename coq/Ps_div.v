@@ -312,25 +312,25 @@ Qed.
 End theorems.
 
 Definition ps_ring α (r : ring α) : ring (puiseux_series α) :=
-  {| fld_zero := ps_zero r;
-     fld_one := ps_one r;
-     fld_add := ps_add r;
-     fld_mul := ps_mul r;
-     fld_opp := ps_opp r;
-     fld_eq := eq_ps r;
-     fld_eq_refl := eq_ps_refl r;
-     fld_eq_sym := eq_ps_sym (r := r);
-     fld_eq_trans := eq_ps_trans (r := r);
-     fld_add_comm := ps_add_comm r;
-     fld_add_assoc := ps_add_assoc r;
-     fld_add_0_l := ps_add_0_l r;
-     fld_add_opp_l := ps_add_opp_l r;
-     fld_add_compat_l := @ps_add_compat_l α r;
-     fld_mul_comm := ps_mul_comm r;
-     fld_mul_assoc := ps_mul_assoc r;
-     fld_mul_1_l := ps_mul_1_l r;
-     fld_mul_compat_l := @ps_mul_compat_l α r;
-     fld_mul_add_distr_l := ps_mul_add_distr_l r |}.
+  {| rng_zero := ps_zero r;
+     rng_one := ps_one r;
+     rng_add := ps_add r;
+     rng_mul := ps_mul r;
+     rng_opp := ps_opp r;
+     rng_eq := eq_ps r;
+     rng_eq_refl := eq_ps_refl r;
+     rng_eq_sym := eq_ps_sym (r := r);
+     rng_eq_trans := eq_ps_trans (r := r);
+     rng_add_comm := ps_add_comm r;
+     rng_add_assoc := ps_add_assoc r;
+     rng_add_0_l := ps_add_0_l r;
+     rng_add_opp_l := ps_add_opp_l r;
+     rng_add_compat_l := @ps_add_compat_l α r;
+     rng_mul_comm := ps_mul_comm r;
+     rng_mul_assoc := ps_mul_assoc r;
+     rng_mul_1_l := ps_mul_1_l r;
+     rng_mul_compat_l := @ps_mul_compat_l α r;
+     rng_mul_add_distr_l := ps_mul_add_distr_l r |}.
 
 Canonical Structure ps_ring.
 

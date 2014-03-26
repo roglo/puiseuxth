@@ -64,7 +64,7 @@ Inductive split_list α : list α → list α → list α → Prop :=
 (* *)
 
 Add Parametric Morphism α (r : ring α) : (ps_monom r)
-  with signature fld_eq ==> Qeq ==> eq_ps r
+  with signature rng_eq ==> Qeq ==> eq_ps r
   as ps_monom_qeq_morph.
 Proof.
 intros a b Hab p q Hpq.
@@ -214,12 +214,12 @@ Lemma ps_monom_mul_r_pow : ∀ c p n,
 Proof.
 intros c p n.
 induction n; simpl.
- rewrite fld_mul_1_r.
+ rewrite rng_mul_1_r.
  unfold Qnat; simpl.
  rewrite Qmult_0_l; reflexivity.
 
  rewrite ps_mul_assoc.
- rewrite fld_mul_shuffle0; simpl.
+ rewrite rng_mul_shuffle0; simpl.
  rewrite <- IHn.
  assert (Qnat (S n) * p == Qnat n * p + p) as H.
   unfold Qnat; simpl.
@@ -257,7 +257,7 @@ rewrite lap_add_shuffle0.
 apply lap_add_compat; [ assumption | reflexivity ].
 Qed.
 
-Lemma fld_list_map_nth : ∀ A n f l (d : A) fd,
+Lemma rng_list_map_nth : ∀ A n f l (d : A) fd,
   (fd = f d)%K
   → (List.nth n (List.map f l) fd = f (List.nth n l d))%K.
 Proof.
@@ -270,11 +270,11 @@ induction l as [| x]; intros; simpl.
  apply IHl; assumption.
 Qed.
 
-Lemma fld_power_0_l : ∀ n, n ≠ O → (0 ^ n = 0)%K.
+Lemma rng_power_0_l : ∀ n, n ≠ O → (0 ^ n = 0)%K.
 Proof.
 intros n Hn; simpl.
 destruct n; [ exfalso; apply Hn; reflexivity | simpl ].
-rewrite fld_mul_0_l; reflexivity.
+rewrite rng_mul_0_l; reflexivity.
 Qed.
 
 Lemma list_nth_pad_ne : ∀ i n,
@@ -315,15 +315,15 @@ apply lap_mul_compat; [ reflexivity | idtac ].
 apply lap_compose_compat; [ reflexivity | idtac ].
 unfold lap_mul; simpl.
 unfold summation; simpl.
-rewrite fld_mul_0_l.
-do 3 rewrite fld_add_0_r.
+rewrite rng_mul_0_l.
+do 3 rewrite rng_add_0_r.
 subst Kx; simpl.
 constructor.
  rewrite ps_mul_comm; simpl.
  apply ps_monom_split_mul.
 
  constructor; [ idtac | reflexivity ].
- rewrite fld_mul_1_r; reflexivity.
+ rewrite rng_mul_1_r; reflexivity.
 Qed.
 
 (* [Walker, p. 100] « f₁(x,y₁) = x^(-β₁).f(x,x^γ₁(c₁+y₁)) » *)
@@ -408,8 +408,8 @@ induction i; intros; simpl.
   unfold x_power.
   rewrite ps_monom_mul_r_pow; symmetry.
   rewrite ps_monom_mul_r_pow; symmetry.
-  rewrite fld_mul_shuffle0; simpl.
-  rewrite fld_mul_assoc; simpl.
+  rewrite rng_mul_shuffle0; simpl.
+  rewrite rng_mul_assoc; simpl.
   reflexivity.
 Qed.
 
@@ -486,14 +486,14 @@ apply lap_mul_compat; [ idtac | reflexivity ].
 constructor; [ simpl | reflexivity ].
 unfold x_power.
 rewrite ps_monom_add_r.
-rewrite fld_mul_assoc.
-rewrite fld_mul_add_distr_r.
+rewrite rng_mul_assoc.
+rewrite rng_mul_add_distr_r.
 subst Kx; simpl.
-rewrite fld_mul_opp_l; simpl.
-rewrite fld_add_assoc; simpl.
-rewrite fld_add_comm; simpl.
-rewrite fld_add_assoc; simpl.
-rewrite fld_add_opp_l, fld_add_0_l; reflexivity.
+rewrite rng_mul_opp_l; simpl.
+rewrite rng_add_assoc; simpl.
+rewrite rng_add_comm; simpl.
+rewrite rng_add_assoc; simpl.
+rewrite rng_add_opp_l, rng_add_0_l; reflexivity.
 Qed.
 
 (* [Walker, p. 101] « Since āh = ah.x^αh + ...,
@@ -644,7 +644,7 @@ intros h a b Hh Heq.
 apply lap_add_compat; [ assumption | simpl ].
 apply lap_mul_compat; [ simpl | reflexivity ].
 constructor; [ idtac | reflexivity ].
-apply fld_mul_compat; [ reflexivity | simpl ].
+apply rng_mul_compat; [ reflexivity | simpl ].
 unfold x_power; simpl.
 rewrite points_in_any_newton_segment; [ reflexivity | eassumption | idtac ].
 apply list_in_cons_app.
@@ -679,7 +679,7 @@ induction l as [| i]; intros; simpl.
  apply lap_mul_compat; [ idtac | reflexivity ].
  unfold lap_mul; simpl.
  rewrite summation_only_one; simpl.
- rewrite fld_mul_comm; reflexivity.
+ rewrite rng_mul_comm; reflexivity.
 Qed.
 
 (* Replacing αh + h.γ₁ with β₁, and simplifying the first summation, we get:
@@ -1484,7 +1484,7 @@ assert (∀ iq αi, (iq, αi) ∈ pl → ∃ i, iq = Qnat i) as Hnat.
       rewrite Nat2Z.id in Hjh.
       apply Nat.eqb_eq in Hjh.
       rewrite Hjh.
-      rewrite fld_list_map_nth with (A := α) (d := 0%K).
+      rewrite rng_list_map_nth with (A := α) (d := 0%K).
        unfold c_x_power, ps_monom; simpl.
        apply mkps_morphism; try reflexivity.
        constructor; intros l; simpl.
@@ -1512,7 +1512,7 @@ assert (∀ iq αi, (iq, αi) ∈ pl → ∃ i, iq = Qnat i) as Hnat.
 
        rewrite ps_zero_monom_eq; reflexivity.
 
-      rewrite fld_list_map_nth with (A := α) (d := 0%K).
+      rewrite rng_list_map_nth with (A := α) (d := 0%K).
        rewrite <- Htl.
        assert (List.nth i (make_char_pol R j tl) 0%K = 0%K) as Hz.
         Focus 2.
@@ -1613,11 +1613,11 @@ apply mkps_morphism; simpl; [ idtac | idtac | reflexivity ].
    rewrite Nat.div_mul; auto.
    destruct (zerop e) as [H₂| H₂].
     subst e; rewrite Nat.sub_0_r; simpl.
-    rewrite fld_mul_0_r; reflexivity.
+    rewrite rng_mul_0_r; reflexivity.
 
-    rewrite fld_mul_0_l; reflexivity.
+    rewrite rng_mul_0_l; reflexivity.
 
-   rewrite fld_mul_0_l; reflexivity.
+   rewrite rng_mul_0_l; reflexivity.
 
  rewrite Z.mul_1_r; reflexivity.
 Qed.
@@ -1641,8 +1641,8 @@ clear len IHlen; simpl.
 rewrite ps_monom_summation.
 apply summation_compat; intros i (_, Hi); simpl.
 rewrite ps_monom_mul_l.
-rewrite fld_list_map_nth.
- rewrite fld_list_map_nth.
+rewrite rng_list_map_nth.
+ rewrite rng_list_map_nth.
   reflexivity.
 
   rewrite ps_zero_monom_eq; reflexivity.
@@ -1664,8 +1664,8 @@ Lemma summation_lap_compose_deg_1_mul : ∀ la c d k f,
     d i) .= R
    Σ Kx (i = 0, k),
    (Σ Kx (j = 0, length la - f i),
-    fld_mul_nat Kx (comb (f i + j) (f i))
-      (List.nth (f i + j) la (.0 R)%ps .* R fld_pow_nat Kx c j)) .* R
+    rng_mul_nat Kx (comb (f i + j) (f i))
+      (List.nth (f i + j) la (.0 R)%ps .* R rng_pow_nat Kx c j)) .* R
        d i)%ps.
 Proof.
 intros la c d k f.
@@ -1779,7 +1779,7 @@ unfold series_opp; simpl.
 apply mkps_morphism; try reflexivity.
 constructor; intros i; simpl.
 destruct (zerop i); [ reflexivity | idtac ].
-rewrite fld_opp_0; reflexivity.
+rewrite rng_opp_0; reflexivity.
 Qed.
 
 Lemma apply_deg_1_root : ∀ c,
@@ -1789,8 +1789,8 @@ Lemma apply_deg_1_root : ∀ c,
 Proof.
 intros c f'; subst f'.
 simpl.
-rewrite fld_mul_0_l, fld_add_0_l, ps_mul_1_l.
-rewrite ps_monom_opp, fld_add_opp_r.
+rewrite rng_mul_0_l, rng_add_0_l, ps_mul_1_l.
+rewrite ps_monom_opp, rng_add_opp_r.
 reflexivity.
 Qed.
 
@@ -1816,7 +1816,7 @@ induction k; intros; simpl.
  subst Kx.
 Abort. (*
  rewrite apply_deg_1_root.
- do 2 rewrite fld_mul_0_l.
+ do 2 rewrite rng_mul_0_l.
  rewrite lap_derivial_mul; simpl.
  rewrite apply_lap_add.
  rewrite apply_lap_mul.
@@ -1825,11 +1825,11 @@ Abort. (*
  rewrite apply_lap_add.
  do 2 rewrite apply_lap_mul.
  rewrite apply_deg_1_root.
- rewrite fld_mul_0_l, fld_mul_0_l, fld_mul_0_r, fld_add_0_l.
+ rewrite rng_mul_0_l, rng_mul_0_l, rng_mul_0_r, rng_add_0_l.
  rewrite apply_lap_mul.
  rewrite apply_deg_1_root.
- do 3 rewrite fld_mul_0_l.
- rewrite fld_add_0_l; reflexivity.
+ do 3 rewrite rng_mul_0_l.
+ rewrite rng_add_0_l; reflexivity.
 bbb.
 *)
 
@@ -1923,12 +1923,12 @@ induction k; intros; simpl.
   rewrite lap_mul_1_l.
   rewrite lap_derivial_mul.
   rewrite apply_lap_add.
-  rewrite fld_add_comm.
+  rewrite rng_add_comm.
   rewrite apply_lap_mul.
   rewrite apply_deg_1_root.
-  rewrite fld_mul_0_l, fld_add_0_l.
+  rewrite rng_mul_0_l, rng_add_0_l.
   rewrite lap_derivial_1_cons; simpl.
-  rewrite fld_add_0_r.
+  rewrite rng_add_0_r.
   rewrite lap_derivial_const, lap_mul_1_l.
   reflexivity.
 
@@ -1936,7 +1936,7 @@ induction k; intros; simpl.
   do 2 rewrite apply_lap_mul.
   subst Kx.
   rewrite apply_deg_1_root.
-  do 2 rewrite fld_mul_0_l.
+  do 2 rewrite rng_mul_0_l.
   rewrite lap_derivial_mul; simpl.
   rewrite apply_lap_add.
   rewrite apply_lap_mul.
@@ -1945,11 +1945,11 @@ induction k; intros; simpl.
   rewrite apply_lap_add.
   do 2 rewrite apply_lap_mul.
   rewrite apply_deg_1_root.
-  rewrite fld_mul_0_l, fld_mul_0_l, fld_mul_0_r, fld_add_0_l.
+  rewrite rng_mul_0_l, rng_mul_0_l, rng_mul_0_r, rng_add_0_l.
   rewrite apply_lap_mul.
   rewrite apply_deg_1_root.
-  do 3 rewrite fld_mul_0_l.
-  rewrite fld_add_0_l; reflexivity.
+  do 3 rewrite rng_mul_0_l.
+  rewrite rng_add_0_l; reflexivity.
 
  destruct r; simpl.
   exfalso; apply Nat.nle_succ_0 in Hnr; assumption.
@@ -2094,10 +2094,10 @@ rewrite Nat.add_sub_assoc.
      constructor.
       rewrite lap_derivial_0.
       do 2 rewrite apply_lap_mul; simpl.
-      rewrite fld_mul_0_l, fld_add_0_l, ps_mul_1_l.
+      rewrite rng_mul_0_l, rng_add_0_l, ps_mul_1_l.
       rewrite ps_monom_opp in |- * at 1.
       rewrite ps_add_opp_r.
-      do 2 rewrite fld_mul_0_l; reflexivity.
+      do 2 rewrite rng_mul_0_l; reflexivity.
 
       apply lt_S_n in Hrn.
       simpl in Hlen.

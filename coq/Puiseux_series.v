@@ -76,10 +76,10 @@ End Axioms.
 Definition series_stretch α (r : ring α) k s :=
   {| terms i :=
        if zerop (i mod Pos.to_nat k) then s .[i / Pos.to_nat k]
-       else fld_zero |}.
+       else rng_zero |}.
 
 Definition series_shift α (r : ring α) n s :=
-  {| terms i := if lt_dec i n then fld_zero else terms s (i - n) |}.
+  {| terms i := if lt_dec i n then rng_zero else terms s (i - n) |}.
 
 Definition series_shrink α k (s : power_series α) :=
   {| terms i := terms s (i * Pos.to_nat k) |}.
@@ -132,7 +132,7 @@ Definition ps_monom α (r : ring α) (c : α) pow :=
      ps_valnum := Qnum pow;
      ps_polord := Qden pow |}.
 
-Definition ps_one α (r : ring α) := ps_monom r (fld_one) 0.
+Definition ps_one α (r : ring α) := ps_monom r (rng_one) 0.
 
 Delimit Scope ps_scope with ps.
 Notation "a ≐ r b" := (eq_ps_strong r a b) (at level 70, r at level 0).

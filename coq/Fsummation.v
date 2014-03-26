@@ -47,7 +47,7 @@ intros g h b₁ b₂ len Hgh.
 revert b₁ b₂ Hgh.
 induction len; intros; [ reflexivity | simpl ].
 rewrite IHlen.
- apply fld_add_compat_r.
+ apply rng_add_compat_r.
  assert (0 ≤ 0 < S len) as H.
   split; [ reflexivity | apply Nat.lt_0_succ ].
 
@@ -79,7 +79,7 @@ Lemma summation_mul_comm : ∀ g h b k,
 Proof.
 intros g h b len.
 apply summation_compat; intros i Hi.
-apply fld_mul_comm.
+apply rng_mul_comm.
 Qed.
 
 Lemma all_0_summation_aux_0 : ∀ g b len,
@@ -90,7 +90,7 @@ intros g b len H.
 revert b H.
 induction len; intros; [ reflexivity | simpl ].
 rewrite H; [ idtac | omega ].
-rewrite fld_add_0_l, IHlen; [ reflexivity | idtac ].
+rewrite rng_add_0_l, IHlen; [ reflexivity | idtac ].
 intros i Hi; apply H; omega.
 Qed.
 
@@ -113,13 +113,13 @@ intros g b len.
 revert b.
 induction len; intros.
  simpl.
- rewrite fld_add_0_l, fld_add_0_r, Nat.add_0_r.
+ rewrite rng_add_0_l, rng_add_0_r, Nat.add_0_r.
  reflexivity.
 
  remember (S len) as x; simpl; subst x.
  rewrite IHlen.
  simpl.
- rewrite fld_add_assoc, Nat.add_succ_r.
+ rewrite rng_add_assoc, Nat.add_succ_r.
  reflexivity.
 Qed.
 
@@ -137,8 +137,8 @@ simpl; subst x.
 rewrite IHlen.
 rewrite summation_aux_succ_last.
 replace (b + S len - 1 + b - (b + len)) with b by omega.
-rewrite fld_add_comm.
-apply fld_add_compat_r.
+rewrite rng_add_comm.
+apply rng_add_compat_r.
 apply summation_aux_compat.
 intros i Hi.
 simpl.
@@ -172,9 +172,9 @@ Lemma summation_aux_mul_swap : ∀ a g b len,
 Proof.
 intros a g b len; revert b.
 induction len; intros; simpl.
- rewrite fld_mul_0_r; reflexivity.
+ rewrite rng_mul_0_r; reflexivity.
 
- rewrite IHlen, fld_mul_add_distr_l.
+ rewrite IHlen, rng_mul_add_distr_l.
  reflexivity.
 Qed.
 
@@ -195,7 +195,7 @@ intros g₁ g₂ g₃ b₁ b₂ len.
 revert b₁ b₂.
 induction len; intros; [ reflexivity | simpl ].
 rewrite IHlen.
-apply fld_add_compat_r.
+apply rng_add_compat_r.
 apply summation_aux_mul_swap.
 Qed.
 
@@ -221,7 +221,7 @@ clear k Heqlen.
 revert b v Hbv Hvk Hi.
 induction len; intros.
  simpl.
- rewrite fld_add_0_r.
+ rewrite rng_add_0_r.
  replace b with v ; [ reflexivity | idtac ].
  rewrite Nat.add_0_r in Hvk.
  apply Nat.le_antisymm; assumption.
@@ -230,13 +230,13 @@ induction len; intros.
  destruct (eq_nat_dec b v) as [H₁| H₁].
   subst b.
   rewrite all_0_summation_aux_0.
-   rewrite fld_add_0_r; reflexivity.
+   rewrite rng_add_0_r; reflexivity.
 
    intros j Hj.
    apply Hi; omega.
 
   rewrite Hi; [ idtac | omega | assumption ].
-  rewrite fld_add_0_l.
+  rewrite rng_add_0_l.
   apply IHlen.
    omega.
 
@@ -278,7 +278,7 @@ intros g n.
 unfold summation.
 rewrite Nat.sub_succ_l; [ idtac | reflexivity ].
 rewrite Nat.sub_diag; simpl.
-rewrite fld_add_0_r; reflexivity.
+rewrite rng_add_0_r; reflexivity.
 Qed.
 
 Lemma summation_split_last : ∀ g b k,
@@ -320,7 +320,7 @@ destruct (le_dec b k) as [Hbk| Hbk].
   destruct b.
    do 3 rewrite summation_only_one; reflexivity.
 
-   unfold summation; simpl; rewrite fld_add_0_r; reflexivity.
+   unfold summation; simpl; rewrite rng_add_0_r; reflexivity.
 
   rewrite summation_split_last; [ idtac | assumption ].
   rewrite summation_split_last; [ idtac | assumption ].
@@ -329,24 +329,24 @@ destruct (le_dec b k) as [Hbk| Hbk].
    subst b.
    unfold summation; simpl.
    rewrite Nat.sub_diag; simpl.
-   do 2 rewrite fld_add_0_l; rewrite fld_add_0_l.
+   do 2 rewrite rng_add_0_l; rewrite rng_add_0_l.
    reflexivity.
 
    apply le_neq_lt in Hbk; [ idtac | assumption ].
    apply Nat.succ_le_mono in Hbk.
    rewrite IHk; [ idtac | assumption ].
-   do 2 rewrite <- fld_add_assoc.
-   apply fld_add_compat_l.
-   rewrite fld_add_comm.
-   rewrite <- fld_add_assoc.
-   apply fld_add_compat_l.
-   rewrite fld_add_comm.
+   do 2 rewrite <- rng_add_assoc.
+   apply rng_add_compat_l.
+   rewrite rng_add_comm.
+   rewrite <- rng_add_assoc.
+   apply rng_add_compat_l.
+   rewrite rng_add_comm.
    reflexivity.
 
  unfold summation.
  apply Nat.nle_gt in Hbk.
  replace (S k - b) with O by omega; simpl.
- rewrite fld_add_0_r; reflexivity.
+ rewrite rng_add_0_r; reflexivity.
 Qed.
 
 Lemma summation_summation_exch : ∀ g k,
@@ -360,8 +360,8 @@ rewrite summation_split_last; [ idtac | apply Nat.le_0_l ].
 rewrite summation_split_last; [ idtac | apply Nat.le_0_l ].
 rewrite IHk.
 rewrite summation_only_one.
-rewrite fld_add_assoc.
-apply fld_add_compat_r.
+rewrite rng_add_assoc.
+apply rng_add_compat_r.
 rewrite <- summation_add_distr.
 apply summation_compat; intros i (_, Hi).
 rewrite summation_split_last; [ reflexivity | idtac ].
@@ -376,20 +376,20 @@ intros g b k₁ k₂.
 revert b k₁.
 induction k₂; intros.
  simpl.
- rewrite Nat.add_0_r, fld_add_0_r; reflexivity.
+ rewrite Nat.add_0_r, rng_add_0_r; reflexivity.
 
  rewrite Nat.add_succ_r, <- Nat.add_succ_l.
  rewrite IHk₂; simpl.
  rewrite <- Nat.add_succ_r.
- rewrite fld_add_assoc.
- apply fld_add_compat_r.
+ rewrite rng_add_assoc.
+ apply rng_add_compat_r.
  clear k₂ IHk₂.
  revert b.
  induction k₁; intros; simpl.
   rewrite Nat.add_0_r.
-  apply fld_add_comm.
+  apply rng_add_comm.
 
-  rewrite <- fld_add_assoc.
+  rewrite <- rng_add_assoc.
   rewrite IHk₁.
   rewrite Nat.add_succ_r, <- Nat.add_succ_l; reflexivity.
 Qed.
@@ -413,28 +413,28 @@ Lemma summation_aux_mul_summation_aux_summation_aux : ∀ g k n,
 Proof.
 intros g k n.
 revert n; induction k; intros.
- simpl; rewrite Nat.add_0_r, fld_add_0_r; reflexivity.
+ simpl; rewrite Nat.add_0_r, rng_add_0_r; reflexivity.
 
  remember (S n) as x.
  remember (S k) as y.
  simpl; subst x y.
  rewrite Nat.add_comm.
  rewrite summation_aux_ub_add, IHk.
- symmetry; rewrite fld_add_comm.
+ symmetry; rewrite rng_add_comm.
  symmetry.
  rewrite summation_aux_succ_first.
- rewrite fld_add_shuffle0, fld_add_comm.
+ rewrite rng_add_shuffle0, rng_add_comm.
  symmetry.
  replace (S k) with (k + 1)%nat by omega.
  rewrite summation_aux_ub_add.
- rewrite <- fld_add_assoc.
- apply fld_add_compat_l.
+ rewrite <- rng_add_assoc.
+ apply rng_add_compat_l.
  simpl.
- rewrite fld_add_comm.
- apply fld_add_compat_l.
+ rewrite rng_add_comm.
+ apply rng_add_compat_l.
  symmetry; rewrite Nat.add_comm; simpl.
- rewrite Nat.add_0_r, fld_add_0_r.
- apply fld_add_compat_l.
+ rewrite Nat.add_0_r, rng_add_0_r.
+ apply rng_add_compat_l.
  apply summation_aux_compat; intros i Hi; simpl.
  rewrite Nat.add_succ_r; reflexivity.
 Qed.
@@ -480,12 +480,12 @@ destruct k.
   rewrite Nat_sub_succ_1, Nat.add_comm, summation_only_one.
   symmetry.
   rewrite <- Nat.add_1_r, summation_ub_add, Nat.add_1_r.
-  rewrite summation_only_one, fld_add_comm, <- Hfg.
+  rewrite summation_only_one, rng_add_comm, <- Hfg.
   symmetry.
-  rewrite fld_add_comm.
+  rewrite rng_add_comm.
   rewrite Nat.add_sub_assoc.
    rewrite Nat.add_comm, Nat.add_sub, Nat.mul_comm.
-   apply fld_add_compat_l, summation_compat; intros i Hi.
+   apply rng_add_compat_l, summation_compat; intros i Hi.
    rewrite Nat_sub_succ_1.
    rewrite <- Hfg.
    rewrite Nat.mul_comm.

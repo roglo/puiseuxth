@@ -92,7 +92,7 @@ Theorem series_add_comm : ∀ s₁ s₂, (s₁ .+ r s₂ .= r s₂ .+ r s₁)%se
 Proof.
 intros s₁ s₂.
 constructor; intros i; simpl.
-rewrite fld_add_comm; reflexivity.
+rewrite rng_add_comm; reflexivity.
 Qed.
 
 Theorem series_add_assoc : ∀ s₁ s₂ s₃,
@@ -101,7 +101,7 @@ Proof.
 intros s₁ s₂ s₃.
 unfold series_add; simpl.
 constructor; intros i; simpl.
-rewrite fld_add_assoc; reflexivity.
+rewrite rng_add_assoc; reflexivity.
 Qed.
 
 Lemma series_nth_series_0 : ∀ i, (.0 r%ser .[i])%K = 0%K.
@@ -111,14 +111,14 @@ Theorem series_add_0_l : ∀ s, (.0 r .+ r s .= r s)%ser.
 Proof.
 intros s.
 constructor; intros i; simpl.
-rewrite fld_add_0_l; reflexivity.
+rewrite rng_add_0_l; reflexivity.
 Qed.
 
 Theorem series_add_opp_r : ∀ s, (s .- r s .= r .0 r)%ser.
 Proof.
 intros s.
 constructor; intros i; simpl.
-apply fld_add_opp_r.
+apply rng_add_opp_r.
 Qed.
 
 Theorem series_add_opp_l : ∀ s, (.- r s .+ r s .= r .0 r)%ser.
@@ -167,7 +167,7 @@ rewrite summation_rtl.
 apply summation_compat; intros i Hi.
 rewrite Nat.add_0_r.
 rewrite Nat_sub_sub_distr; [ idtac | destruct Hi; auto ].
-rewrite Nat.add_comm, Nat.add_sub, fld_mul_comm; reflexivity.
+rewrite Nat.add_comm, Nat.add_sub, rng_mul_comm; reflexivity.
 Qed.
 
 Theorem series_mul_comm : ∀ a b, (a .* r b .= r b .* r a)%ser.
@@ -183,7 +183,7 @@ intros a k.
 unfold convol_mul.
 apply all_0_summation_0; intros i Hi.
 rewrite series_nth_series_0.
-rewrite fld_mul_0_l; reflexivity.
+rewrite rng_mul_0_l; reflexivity.
 Qed.
 
 Theorem series_mul_0_l : ∀ s, (.0 r .* r s .= r .0 r)%ser.
@@ -201,13 +201,13 @@ constructor; intros k; simpl.
 unfold convol_mul; simpl.
 rewrite summation_only_one_non_0 with (v := O).
  rewrite Nat.sub_0_r; simpl.
- apply fld_mul_1_l.
+ apply rng_mul_1_l.
 
  split; [ reflexivity | apply Nat.le_0_l ].
 
  intros i Hik Hi.
  destruct i; [ exfalso; apply Hi; reflexivity | simpl ].
- apply fld_mul_0_l.
+ apply rng_mul_0_l.
 Qed.
 
 Theorem series_mul_1_r : ∀ s, (s .* r .1 r .= r s)%ser.
@@ -232,7 +232,7 @@ rewrite summation_summation_exch.
 rewrite summation_summation_shift.
 apply summation_compat; intros i Hi.
 apply summation_compat; intros j Hj.
-rewrite fld_mul_comm, fld_mul_assoc.
+rewrite rng_mul_comm, rng_mul_assoc.
 rewrite Nat.add_comm, Nat.add_sub.
 rewrite Nat.add_comm, Nat.sub_add_distr.
 reflexivity.
@@ -251,7 +251,7 @@ unfold convol_mul.
 rewrite <- summation_add_distr.
 apply summation_compat; intros i Hi.
 rewrite series_nth_add.
-rewrite fld_mul_add_distr_l.
+rewrite rng_mul_add_distr_l.
 reflexivity.
 Qed.
 
@@ -277,7 +277,7 @@ rewrite H, H0; reflexivity.
 Qed.
 
 Add Parametric Morphism α (F : ring α) : (@terms α)
-  with signature eq_series F ==> eq ==> fld_eq
+  with signature eq_series F ==> eq ==> rng_eq
   as series_nth_morph.
 Proof.
 intros s₁ s₂ Heq i.
@@ -367,9 +367,9 @@ induction i; intros.
    apply Nat.nle_succ_0 in Hkj; contradiction.
 
    simpl.
-   apply fld_mul_compat_l.
+   apply rng_mul_compat_l.
    apply summation_compat; intros l (Hl, Hlj).
-   apply fld_mul_compat_l.
+   apply rng_mul_compat_l.
    destruct l.
     apply Nat.nle_gt in Hl.
     exfalso; apply Hl; reflexivity.
@@ -396,16 +396,16 @@ destruct ki.
  exfalso; apply Hki; reflexivity.
 
  clear H₁.
- apply fld_mul_compat_l.
+ apply rng_mul_compat_l.
  apply summation_compat; intros j Hj.
- apply fld_mul_compat_l.
+ apply rng_mul_compat_l.
  remember minus as g; simpl; subst g.
  destruct (zerop (S ki - j)) as [H₁| H₁].
   reflexivity.
 
-  apply fld_mul_compat_l.
+  apply rng_mul_compat_l.
   apply summation_compat; intros l Hl.
-  apply fld_mul_compat_l.
+  apply rng_mul_compat_l.
   apply term_inv_iter_enough; [ fast_omega Hl | idtac ].
   rewrite Hki₂.
   destruct Hl as (H, _).
@@ -427,17 +427,17 @@ intros k a a' Ha Ha'.
 pose proof (term_inv_nth_gen_formula k O Ha Ha') as H.
 rewrite Nat.sub_0_r in H.
 rewrite H; [ idtac | intros HH; discriminate HH ].
-apply fld_mul_compat_l.
+apply rng_mul_compat_l.
 apply summation_compat; intros i Hi.
-apply fld_mul_compat_l.
+apply rng_mul_compat_l.
 rewrite Ha'.
 remember minus as g; simpl; subst g.
 destruct (zerop (S k - i)) as [H₂| H₂].
  reflexivity.
 
- apply fld_mul_compat_l.
+ apply rng_mul_compat_l.
  apply summation_compat; intros j Hj.
- apply fld_mul_compat_l.
+ apply rng_mul_compat_l.
  apply term_inv_iter_enough; fast_omega Hj.
 Qed.
 
@@ -449,19 +449,19 @@ Proof.
 intros k a a' Ha Ha'.
 unfold convol_mul.
 pose proof (term_inv_nth_formula k Ha Ha') as Hi.
-apply fld_mul_compat_l with (c := a .[ 0]%K) in Hi.
+apply rng_mul_compat_l with (c := a .[ 0]%K) in Hi.
 symmetry in Hi.
-rewrite fld_mul_assoc in Hi.
-rewrite fld_mul_opp_r in Hi.
+rewrite rng_mul_assoc in Hi.
+rewrite rng_mul_opp_r in Hi.
 rewrite Ha' in Hi.
 assert (a .[ 0] * (.¹/f a%ser) .[ 0] = 1)%K as H.
- simpl; rewrite fld_mul_inv_r; [ reflexivity | auto ].
+ simpl; rewrite rng_mul_inv_r; [ reflexivity | auto ].
 
  rewrite H in Hi; clear H.
- rewrite fld_mul_opp_l, fld_mul_1_l in Hi.
+ rewrite rng_mul_opp_l, rng_mul_1_l in Hi.
  rewrite <- Ha' in Hi.
- eapply fld_add_compat_r in Hi.
- rewrite fld_add_opp_l in Hi.
+ eapply rng_add_compat_r in Hi.
+ rewrite rng_add_opp_l in Hi.
  symmetry in Hi.
  rewrite summation_split_first; [ idtac | apply Nat.le_0_l ].
  rewrite Nat.sub_0_r; auto.
@@ -476,7 +476,7 @@ constructor; intros i; simpl.
 destruct i; simpl.
  unfold convol_mul; simpl.
  rewrite summation_only_one; simpl.
- rewrite fld_mul_inv_r; [ reflexivity | assumption ].
+ rewrite rng_mul_inv_r; [ reflexivity | assumption ].
 
  apply convol_mul_inv_r; [ assumption | reflexivity ].
 Qed.
