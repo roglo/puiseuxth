@@ -492,3 +492,26 @@ assumption.
 Qed.
 
 End lemmas_again.
+
+Definition series_ring α (r : ring α) : ring (power_series α) :=
+  {| rng_zero := series_0 r;
+     rng_one := series_1 r;
+     rng_add := series_add r;
+     rng_mul := series_mul r;
+     rng_opp := series_opp r;
+     rng_eq := eq_series r;
+     rng_eq_refl := eq_series_refl r;
+     rng_eq_sym := eq_series_sym (r := r);
+     rng_eq_trans := eq_series_trans (r := r);
+     rng_add_comm := series_add_comm r;
+     rng_add_assoc := series_add_assoc r;
+     rng_add_0_l := series_add_0_l r;
+     rng_add_opp_l := series_add_opp_l r;
+     rng_add_compat_l := @series_add_compat_l α r;
+     rng_mul_comm := series_mul_comm r;
+     rng_mul_assoc := series_mul_assoc r;
+     rng_mul_1_l := series_mul_1_l r;
+     rng_mul_compat_l := @series_mul_compat_l α r;
+     rng_mul_add_distr_l := series_mul_add_distr_l r |}.
+
+Canonical Structure series_ring.
