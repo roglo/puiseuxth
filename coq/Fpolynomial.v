@@ -1800,3 +1800,16 @@ Definition lap_ring α (r : ring α) : ring (list α) :=
      rng_mul_add_distr_l := lap_mul_add_distr_l r |}.
 
 Canonical Structure lap_ring.
+
+(* alternative definitions of lap_compose; could be used later, perhaps... *)
+
+Definition lap_compose3 α (r : ring α) la lb :=
+  Σ (lap_ring r) (i = 0, length la),
+  ([List.nth i la 0] .* r lap_power r lb i)%lap.
+
+Definition lap_compose4 α (r : ring α) la lb :=
+  let R := lap_ring r in
+  Σ R (i = 0, length la), [List.nth i la 0] * lb ^ i.
+
+
+

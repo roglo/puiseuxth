@@ -52,6 +52,14 @@ Notation "¹/ a" := (fld_inv a) : field_scope.
 Notation "0" := rng_zero : field_scope.
 Notation "1" := rng_one : field_scope.
 
+Fixpoint rng_power {α} {R : ring α} a n :=
+  match n with
+  | O => 1%K
+  | S m => (a * rng_power a m)%K
+  end.
+
+Notation "a ^ b" := (rng_power a b) : field_scope.
+
 Add Parametric Relation α (K : ring α) : α rng_eq
  reflexivity proved by rng_eq_refl
  symmetry proved by rng_eq_sym

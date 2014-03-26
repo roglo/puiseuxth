@@ -16,14 +16,6 @@ Require Import CharactPolyn.
 
 Set Implicit Arguments.
 
-Fixpoint rng_power {α} {R : ring α} a n :=
-  match n with
-  | O => 1%K
-  | S m => (a * rng_power a m)%K
-  end.
-
-Notation "a ^ b" := (rng_power a b) : field_scope.
-
 (* *)
 
 Definition apply_lap α (r : ring α) la x :=
