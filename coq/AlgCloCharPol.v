@@ -1691,7 +1691,7 @@ Let f := ac_field acf.
 
 Lemma list_prop_root : ∀ la,
   degree_plus_1_of_list (ac_is_zero acf) la ≥ 2
-  → @fld_eq _ f (apply_lap f la (list_root acf la)) (@fld_zero _ f).
+  → (apply_lap f la (list_root acf la) = 0)%K.
 Proof.
 intros la Hdeg.
 remember POL la%pol as pol eqn:Hpol .
