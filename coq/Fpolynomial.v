@@ -1778,27 +1778,25 @@ intros α r a b c Hab.
 rewrite Hab; reflexivity.
 Qed.
 
-(*
 Definition lap_ring α (r : ring α) : ring (list α) :=
-  {| rng_zero := lap_zero f;
-     rng_one := lap_one f;
+  {| rng_zero := lap_zero r;
+     rng_one := lap_one r;
      rng_add := lap_add r;
-     rng_mul := lap_mul f;
-     rng_opp := lap_opp f;
+     rng_mul := lap_mul r;
+     rng_opp := lap_opp r;
      rng_eq := lap_eq r;
-     rng_eq_refl := lap_eq_refl f;
-     rng_eq_sym := lap_eq_sym (f := r);
-     rng_eq_trans := lap_eq_trans (f := r);
-     rng_add_comm := lap_add_comm f;
-     rng_add_assoc := lap_add_assoc f;
-     rng_add_0_l := lap_add_nil_l f;
-     rng_add_opp_l := lap_add_opp_l f;
-     rng_add_compat_l := @lap_add_compat_l α f;
-     rng_mul_comm := lap_mul_comm f;
-     rng_mul_assoc := lap_mul_assoc f;
-     rng_mul_1_l := lap_mul_1_l f;
-     rng_mul_compat_l := @lap_mul_compat_l α f;
+     rng_eq_refl := lap_eq_refl r;
+     rng_eq_sym := lap_eq_sym (r := r);
+     rng_eq_trans := lap_eq_trans (r := r);
+     rng_add_comm := lap_add_comm r;
+     rng_add_assoc := lap_add_assoc r;
+     rng_add_0_l := lap_add_nil_l r;
+     rng_add_opp_l := lap_add_opp_l r;
+     rng_add_compat_l := @lap_add_compat_l α r;
+     rng_mul_comm := lap_mul_comm r;
+     rng_mul_assoc := lap_mul_assoc r;
+     rng_mul_1_l := lap_mul_1_l r;
+     rng_mul_compat_l := @lap_mul_compat_l α r;
      rng_mul_add_distr_l := lap_mul_add_distr_l r |}.
 
 Canonical Structure lap_ring.
-*)
