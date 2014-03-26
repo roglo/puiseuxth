@@ -16,24 +16,24 @@ Require Import CharactPolyn.
 
 Set Implicit Arguments.
 
-Fixpoint fld_power α (K : field α) a n :=
+Fixpoint fld_power {α} {K : field α} a n :=
   match n with
   | O => 1%K
-  | S m => (a * fld_power K a m)%K
+  | S m => (a * fld_power a m)%K
   end.
 
-Notation "a .^ f b" := (fld_power f a b) : field_scope.
+Notation "a ^ b" := (fld_power a b) : field_scope.
 
 (* *)
 
 Definition apply_lap α (f : field α) la x :=
-  (List.fold_right (λ c accu, accu * x + c) (0) la)%K.
+  (List.fold_right (λ c accu, accu * x + c) 0 la)%K.
 
 Definition apply_poly α (f : field α) pol :=
   apply_lap f (al pol).
 
 Definition apply_lap2 α (K : field α) la x :=
-  Σ K (i = 0, pred (length la)), List.nth i la 0 * x .^ K i.
+  Σ K (i = 0, pred (length la)), List.nth i la 0 * x ^ i.
 
 (* euclidean division of a polynomial by (x - c) *)
 
@@ -1690,7 +1690,7 @@ Variable acf : algeb_closed_field α.
 Let f := ac_field acf.
 
 Lemma list_prop_root : ∀ la,
-  let f' := f in (* to turn around a bug in type classes *)
+  let f' := f in (* to get around a bug in type classes *)
   degree_plus_1_of_list (ac_is_zero acf) la ≥ 2
   → (apply_lap f la (list_root acf la) = 0)%K.
 Proof.
@@ -1707,7 +1707,7 @@ Qed.
 
 (* P(x) = P(0) + x Q(x) *)
 Lemma poly_eq_add_const_mul_x_poly : ∀ c cl,
-  let f' := f in (* to turn around a bug in type classes *)
+  let f' := f in (* to get around a bug in type classes *)
   (POL [c … cl] .= f POL [c] .+ f POL [0; 1 … []]%K .* f POL cl)%pol.
 Proof.
 intros c cl f'; subst f'.
@@ -1732,7 +1732,7 @@ constructor.
 Qed.
 
 Lemma apply_poly_add : ∀ p₁ p₂ x,
-  let f' := f in (* to turn around a bug in type classes *)
+  let f' := f in (* to get around a bug in type classes *)
   (apply_poly f (p₁ .+ f p₂)%pol x =
    apply_poly f p₁ x + apply_poly f p₂ x)%K.
 Proof.
@@ -1756,7 +1756,7 @@ induction la as [| a]; intros; simpl.
 Qed.
 
 Lemma list_fold_right_apply_compat : ∀ la lb x,
-  let f' := f in (* to turn around a bug in type classes *)
+  let f' := f in (* to get around a bug in type classes *)
   lap_eq f la lb
   → (List.fold_right (λ c accu, accu * x + c) 0 la =
      List.fold_right (λ c accu, accu * x + c) 0 lb)%K.
@@ -1787,7 +1787,7 @@ induction la as [| a]; intros; simpl.
 Qed.
 
 Lemma apply_poly_mul : ∀ p₁ p₂ x,
-  let f' := f in (* to turn around a bug in type classes *)
+  let f' := f in (* to get around a bug in type classes *)
   (apply_poly f (p₁ .* f p₂)%pol x =
    apply_poly f p₁ x * apply_poly f p₂ x)%K.
 Proof.
@@ -1796,7 +1796,7 @@ apply apply_lap_mul.
 Qed.
 
 Lemma list_nth_mod_div_deg_1 : ∀ la c i,
-  let f' := f in (* to turn around a bug in type classes *)
+  let f' := f in (* to get around a bug in type classes *)
   (List.nth i (lap_mod_div_deg_1 f la c) 0 =
    apply_lap f (List.skipn i la) c)%K.
 Proof.
@@ -1833,7 +1833,7 @@ induction r; intros; simpl.
 Qed.
 
 Lemma root_formula : ∀ la c,
-  let f' := f in (* to turn around a bug in type classes *)
+  let f' := f in (* to get around a bug in type classes *)
   (apply_lap f la c = 0)%K
   → lap_eq f la
        (lap_mul f [(- c)%K; 1%K … []] (lap_div_deg_1 f la c)).
@@ -1865,7 +1865,7 @@ destruct md as [| r d].
    simpl in Hc; simpl.
    remember (apply_lap f la c * c + a₁)%K as v eqn:Hv .
    rewrite fld_mul_comm in Hc.
-   set (f' := f). (* to turn around a bug in type classes *)
+   set (f' := f). (* to get around a bug in type classes *)
    apply fld_add_compat_r with (c := (- c * v)%K) in Hc.
    subst f'.
    rewrite fld_add_0_l in Hc.
@@ -1892,7 +1892,7 @@ Qed.
 
 (* p(c) = 0 ⇒ p = (x-c) * (p / (x-c)) *)
 Lemma poly_root_formula : ∀ c p,
-  let f' := f in (* to turn around a bug in type classes *)
+  let f' := f in (* to get around a bug in type classes *)
   (apply_poly f p c = 0)%K
   → (p .= f POL [(- c)%K; 1%K … []] .* f poly_div_deg_1 f p c)%pol.
 Proof.
@@ -1968,7 +1968,7 @@ assumption.
 Qed.
 
 Lemma lap_eq_nil_nth : ∀ la,
-  let f' := f in (* to turn around a bug in type classes *)
+  let f' := f in (* to get around a bug in type classes *)
   lap_eq f la []
   → ∀ n, (List.nth n la 0 = 0)%K.
 Proof.
@@ -1984,7 +1984,7 @@ induction la as [| a]; intros; simpl.
 Qed.
 
 Lemma all_0_shrink_0 : ∀ la cnt k,
-  let f' := f in (* to turn around a bug in type classes *)
+  let f' := f in (* to get around a bug in type classes *)
   (∀ n, (List.nth n la 0 = 0)%K)
   → (∀ n, (List.nth n (list_shrink_aux cnt k la) 0 = 0)%K).
 Proof.
@@ -2094,7 +2094,7 @@ rewrite lap_mul_1_r; reflexivity.
 Qed.
 
 Lemma lap_mod_deg_1_apply : ∀ la c,
-  let f' := f in (* to turn around a bug in type classes *)
+  let f' := f in (* to get around a bug in type classes *)
   (lap_mod_deg_1 f la c = 0)%K
   → (apply_lap f la c = 0)%K.
 Proof.
@@ -2103,7 +2103,7 @@ destruct la as [| a]; [ reflexivity | assumption ].
 Qed.
 
 Lemma list_root_mul_power_quotient : ∀ la c r len,
-  let f' := f in (* to turn around a bug in type classes *)
+  let f' := f in (* to get around a bug in type classes *)
   list_root_multiplicity acf c la len = r
   → lap_eq f la
        (lap_mul f (lap_power f [(- c)%K; 1%K … []] r)
@@ -2124,7 +2124,7 @@ induction r; intros; simpl.
 Qed.
 
 Lemma list_div_x_sub_c_ne_0 : ∀ la c r len,
-  let f' := f in (* to turn around a bug in type classes *)
+  let f' := f in (* to get around a bug in type classes *)
   not (lap_eq f la [])
   → list_root_multiplicity acf c la len = r
     → length la ≤ len
@@ -2173,7 +2173,7 @@ induction r; intros; simpl.
    unfold lap_mod_deg_1 in Hz; simpl in Hz.
    remember (lap_mod_div_deg_1 f la c) as md eqn:Hmd .
    symmetry in Hmd.
-   set (f' := f). (* to turn around a bug in type classes *)
+   set (f' := f). (* to get around a bug in type classes *)
    assert (apply_lap f la c = 0)%K as Happ; subst f'.
     apply lap_mod_deg_1_apply.
     unfold lap_mod_deg_1; simpl.
@@ -2199,7 +2199,7 @@ induction r; intros; simpl.
       subst md.
       apply lap_eq_cons_nil_inv in H.
       destruct H as (Happ, H).
-      set (f' := f). (* to turn around a bug in type classes *)
+      set (f' := f). (* to get around a bug in type classes *)
       assert (apply_lap f la c = 0)%K as Haz; subst f'.
        apply lap_mod_deg_1_apply.
        unfold lap_mod_deg_1.
@@ -2234,7 +2234,7 @@ Qed.
    we have:
       Φ(z^q) = (z - c₁)^r Ψ(z), [...] » *)
 Theorem phi_zq_eq_z_sub_c₁_psy : ∀ pol ns c₁ r Ψ,
-  let f' := f in (* to turn around a bug in type classes *)
+  let f' := f in (* to get around a bug in type classes *)
   r = root_multiplicity acf c₁ (Φq f pol ns)
   → Ψ = quotient_phi_x_sub_c_pow_r f (Φq f pol ns) c₁ r
     → (Φq f pol ns .= f POL [(- c₁)%K; 1%K … []] .^ f r .* f Ψ)%pol.
@@ -2249,7 +2249,7 @@ Qed.
    we have:
       Φ(z^q) = (z - c₁)^r Ψ(z), Ψ(c₁) ≠ 0 » *)
 Theorem psy_c₁_ne_0 : ∀ pol ns c₁ r Ψ,
-  let f' := f in (* to turn around a bug in type classes *)
+  let f' := f in (* to get around a bug in type classes *)
   ns ∈ newton_segments f pol
   → r = root_multiplicity acf c₁ (Φq f pol ns)
     → Ψ = quotient_phi_x_sub_c_pow_r f (Φq f pol ns) c₁ r

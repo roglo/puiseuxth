@@ -29,7 +29,7 @@ Set Implicit Arguments.
 
 Definition c_x_power := ps_monom.
 Definition x_power α (K : field α) q := (ps_monom K 1 q)%K.
-Definition var_y α (K : field α) := [.0 K; 1 … []]%K.
+Definition var_y α (K : field α) := [0; 1 … []]%K.
 
 (* pol₁(x,y₁) = x^(-β₁).pol(x,x^γ₁.(c₁ + y₁)) *)
 Definition lap_pol₁ α (K : field α) pol β₁ γ₁ c₁ :=
@@ -64,7 +64,7 @@ Inductive split_list α : list α → list α → list α → Prop :=
 (* *)
 
 Add Parametric Morphism α (f : field α) : (ps_monom f)
-  with signature fld_eq f ==> Qeq ==> eq_ps f
+  with signature fld_eq ==> Qeq ==> eq_ps f
   as ps_monom_qeq_morph.
 Proof.
 intros a b Hab p q Hpq.
@@ -258,8 +258,8 @@ apply lap_add_compat; [ assumption | reflexivity ].
 Qed.
 
 Lemma fld_list_map_nth : ∀ A n f l (d : A) fd,
-  (fd .= K f d)%K
-  → (List.nth n (List.map f l) fd .= K f (List.nth n l d))%K.
+  (fd = f d)%K
+  → (List.nth n (List.map f l) fd = f (List.nth n l d))%K.
 Proof.
 intros A n f l d fd Hfd.
 revert n d fd Hfd.
@@ -270,7 +270,7 @@ induction l as [| x]; intros; simpl.
  apply IHl; assumption.
 Qed.
 
-Lemma fld_power_0_l : ∀ n, n ≠ O → (.0 K .^ K n .= K .0 K)%K.
+Lemma fld_power_0_l : ∀ n, n ≠ O → (0 ^ n = 0)%K.
 Proof.
 intros n Hn; simpl.
 destruct n; [ exfalso; apply Hn; reflexivity | simpl ].
@@ -279,7 +279,7 @@ Qed.
 
 Lemma list_nth_pad_ne : ∀ i n,
   i ≠ n
-  → (List.nth i (list_pad n .0 K [1]) .0 K .= K .0 K)%K.
+  → (List.nth i (list_pad n 0 [1]) 0 = 0)%K.
 Proof.
 intros i n Hin.
 revert i Hin.
@@ -442,8 +442,9 @@ Let pht := {| coeff := .0 K%K; power := O |}.
 *)
 
 Fixpoint coeff_of_term i tl :=
+  let f' := K in (* to get around a bug in type classes *)
   match tl with
-  | [] => .0 K%K
+  | [] => 0%K
   | [t₁ … tl₁] =>
       if eq_nat_dec i (power t₁) then coeff t₁ else coeff_of_term i tl₁
   end.
@@ -650,7 +651,9 @@ apply lap_mul_compat; [ simpl | reflexivity ].
 constructor; [ idtac | reflexivity ].
 apply fld_mul_compat; [ reflexivity | simpl ].
 unfold x_power; simpl.
+set (f' := K). (* to get around a bug in type classes *)
 rewrite points_in_any_newton_segment; [ reflexivity | eassumption | idtac ].
+subst f'.
 apply list_in_cons_app.
 remember Hns as Hsort; clear HeqHsort.
 apply ini_oth_fin_pts_sorted in Hsort.
@@ -1092,15 +1095,17 @@ Fixpoint make_char_lap_of_hl la pow hl :=
   | [h … hl₁] =>
       let ps := List.nth h la .0 K%ps in
       let c := valuation_coeff K ps in
-      list_pad (h - pow) .0 K%K [c … make_char_lap_of_hl la (S h) hl₁]
+      let f' := K in (* to get around a bug in type classes *)
+      list_pad (h - pow) 0%K [c … make_char_lap_of_hl la (S h) hl₁]
   end.
 
 Definition make_char_pol_of_pts pol j (pts : list (Q * Q)) :=
   make_char_lap_of_hl (al pol) j (List.map (λ pt, nofq (fst pt)) pts).
 
 Fixpoint coeff_of_hl la i hl :=
+  let f' := K in (* to get around a bug in type classes *)
   match hl with
-  | [] => .0 K%K
+  | [] => 0%K
   | [h … hl₁] =>
       if eq_nat_dec i h then valuation_coeff K (List.nth h la .0 K%ps)
       else coeff_of_hl la i hl₁
@@ -1131,14 +1136,15 @@ rewrite IHpts; reflexivity.
 Qed.
 
 Lemma nth_char_lap_eq_coeff : ∀ i j li la,
+  let f' := K in (* to get around a bug in type classes *)
   (j + i)%nat ∈ li
   → Sorted Nat.lt li
     → (∀ m : nat, m ∈ li → j ≤ m)
-      → (List.nth i (make_char_lap_of_hl la j li) .0 K .= K
+      → (List.nth i (make_char_lap_of_hl la j li) 0 =
          coeff_of_hl la (j + i) li)%K.
 Proof.
 (* à nettoyer *)
-intros i j li la Hjil Hs Hm.
+intros i j li la f' Hjil Hs Hm; subst f'.
 revert i j Hjil Hm.
 induction li as [| n]; intros; simpl.
  rewrite match_id; reflexivity.
@@ -1239,13 +1245,14 @@ induction li as [| n]; intros; simpl.
 Qed.
 
 Lemma nth_char_lap_eq_0 : ∀ i j li la,
+  let f' := K in (* to get around a bug in type classes *)
   (j + i)%nat ∉ [j … li]
   → Sorted Nat.lt [j … li]
     → (∀ m : nat, m ∈ li → j ≤ m)
-      → List.nth i (make_char_lap_of_hl la j [j … li]) .0 K%K = .0 K%K.
+      → List.nth i (make_char_lap_of_hl la j [j … li]) 0%K = 0%K.
 Proof.
 (* à nettoyer *)
-intros i j li la Hjil Hs Hm; simpl.
+intros i j li la f' Hjil Hs Hm; subst f'; simpl.
 rewrite Nat.sub_diag; simpl.
 destruct i.
  simpl in Hjil.
@@ -1488,7 +1495,8 @@ assert (∀ iq αi, (iq, αi) ∈ pl → ∃ i, iq = Qnat i) as Hnat.
       rewrite Nat2Z.id in Hjh.
       apply Nat.eqb_eq in Hjh.
       rewrite Hjh.
-      rewrite fld_list_map_nth with (A := α) (d := .0 K%K).
+      set (f' := K). (* to get around a bug in type classes *)
+      rewrite fld_list_map_nth with (A := α) (d := 0%K); subst f'.
        unfold c_x_power, ps_monom; simpl.
        apply mkps_morphism; try reflexivity.
        constructor; intros l; simpl.
@@ -1516,9 +1524,11 @@ assert (∀ iq αi, (iq, αi) ∈ pl → ∃ i, iq = Qnat i) as Hnat.
 
        rewrite ps_zero_monom_eq; reflexivity.
 
-      rewrite fld_list_map_nth with (A := α) (d := .0 K%K).
+      set (f' := K). (* to get around a bug in type classes *)
+      rewrite fld_list_map_nth with (A := α) (d := 0%K); subst f'.
        rewrite <- Htl.
-       assert (List.nth i (make_char_pol K j tl) .0 K%K = .0 K%K) as Hz.
+       set (f' := K). (* to get around a bug in type classes *)
+       assert (List.nth i (make_char_pol K j tl) 0%K = 0%K) as Hz; subst f'.
         Focus 2.
         rewrite Hz; simpl.
         rewrite lap_eq_cons_nil; [ idtac | simpl | reflexivity ].
@@ -1590,9 +1600,10 @@ Qed.
 
 (* to be moved to Ps_mul.v *)
 Lemma ps_monom_mul_l : ∀ c d n,
-  (ps_monom K (c .* K d)%K n .= K ps_monom K c 0 .* K ps_monom K d n)%ps.
+  let f' := K in (* to get around a bug in type classes *)
+  (ps_monom K (c * d)%K n .= K ps_monom K c 0 .* K ps_monom K d n)%ps.
 Proof.
-intros c d n.
+intros c d n f'; subst f'.
 unfold ps_monom; simpl.
 apply mkps_morphism; simpl; [ idtac | idtac | reflexivity ].
  constructor; intros i; simpl.
