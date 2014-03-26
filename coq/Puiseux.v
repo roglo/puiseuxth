@@ -298,7 +298,7 @@ Section theorems.
 
 Variable α : Type.
 Variable acf : algeb_closed_field α.
-Let K := ac_field acf.
+Let K := ac_field.
 Let Kx := ps_field K.
 
 Lemma lap_f₁_eq_x_min_β₁_comp : ∀ la β₁ γ₁ c₁,
@@ -442,7 +442,7 @@ Let pht := {| coeff := .0 K%K; power := O |}.
 *)
 
 Fixpoint coeff_of_term i tl :=
-  let f' := K in (* to get around a bug in type classes *)
+  let f' := K in (* to get around a problem with type classes *)
   match tl with
   | [] => 0%K
   | [t₁ … tl₁] =>
@@ -651,7 +651,7 @@ apply lap_mul_compat; [ simpl | reflexivity ].
 constructor; [ idtac | reflexivity ].
 apply fld_mul_compat; [ reflexivity | simpl ].
 unfold x_power; simpl.
-set (f' := K). (* to get around a bug in type classes *)
+set (f' := K). (* to get around a problem with type classes *)
 rewrite points_in_any_newton_segment; [ reflexivity | eassumption | idtac ].
 subst f'.
 apply list_in_cons_app.
@@ -1095,7 +1095,7 @@ Fixpoint make_char_lap_of_hl la pow hl :=
   | [h … hl₁] =>
       let ps := List.nth h la .0 K%ps in
       let c := valuation_coeff K ps in
-      let f' := K in (* to get around a bug in type classes *)
+      let f' := K in (* to get around a problem with type classes *)
       list_pad (h - pow) 0%K [c … make_char_lap_of_hl la (S h) hl₁]
   end.
 
@@ -1103,7 +1103,7 @@ Definition make_char_pol_of_pts pol j (pts : list (Q * Q)) :=
   make_char_lap_of_hl (al pol) j (List.map (λ pt, nofq (fst pt)) pts).
 
 Fixpoint coeff_of_hl la i hl :=
-  let f' := K in (* to get around a bug in type classes *)
+  let f' := K in (* to get around a problem with type classes *)
   match hl with
   | [] => 0%K
   | [h … hl₁] =>
@@ -1136,7 +1136,7 @@ rewrite IHpts; reflexivity.
 Qed.
 
 Lemma nth_char_lap_eq_coeff : ∀ i j li la,
-  let f' := K in (* to get around a bug in type classes *)
+  let f' := K in (* to get around a problem with type classes *)
   (j + i)%nat ∈ li
   → Sorted Nat.lt li
     → (∀ m : nat, m ∈ li → j ≤ m)
@@ -1245,7 +1245,7 @@ induction li as [| n]; intros; simpl.
 Qed.
 
 Lemma nth_char_lap_eq_0 : ∀ i j li la,
-  let f' := K in (* to get around a bug in type classes *)
+  let f' := K in (* to get around a problem with type classes *)
   (j + i)%nat ∉ [j … li]
   → Sorted Nat.lt [j … li]
     → (∀ m : nat, m ∈ li → j ≤ m)
@@ -1495,7 +1495,7 @@ assert (∀ iq αi, (iq, αi) ∈ pl → ∃ i, iq = Qnat i) as Hnat.
       rewrite Nat2Z.id in Hjh.
       apply Nat.eqb_eq in Hjh.
       rewrite Hjh.
-      set (f' := K). (* to get around a bug in type classes *)
+      set (f' := K). (* to get around a problem with type classes *)
       rewrite fld_list_map_nth with (A := α) (d := 0%K); subst f'.
        unfold c_x_power, ps_monom; simpl.
        apply mkps_morphism; try reflexivity.
@@ -1524,10 +1524,10 @@ assert (∀ iq αi, (iq, αi) ∈ pl → ∃ i, iq = Qnat i) as Hnat.
 
        rewrite ps_zero_monom_eq; reflexivity.
 
-      set (f' := K). (* to get around a bug in type classes *)
+      set (f' := K). (* to get around a problem with type classes *)
       rewrite fld_list_map_nth with (A := α) (d := 0%K); subst f'.
        rewrite <- Htl.
-       set (f' := K). (* to get around a bug in type classes *)
+       set (f' := K). (* to get around a problem with type classes *)
        assert (List.nth i (make_char_pol K j tl) 0%K = 0%K) as Hz; subst f'.
         Focus 2.
         rewrite Hz; simpl.
@@ -1600,7 +1600,7 @@ Qed.
 
 (* to be moved to Ps_mul.v *)
 Lemma ps_monom_mul_l : ∀ c d n,
-  let f' := K in (* to get around a bug in type classes *)
+  let f' := K in (* to get around a problem with type classes *)
   (ps_monom K (c * d)%K n .= K ps_monom K c 0 .* K ps_monom K d n)%ps.
 Proof.
 intros c d n f'; subst f'.
@@ -1786,7 +1786,7 @@ apply lap_mul_map.
 Qed.
 
 Lemma ps_monom_opp : ∀ c pow,
-  let f' := K in (* to get around a bug in type classes *)
+  let f' := K in (* to get around a problem with type classes *)
   (ps_monom K (- c)%K pow .= K .- K ps_monom K c pow)%ps.
 Proof.
 intros c pow f'; subst f'.
@@ -1800,8 +1800,8 @@ rewrite fld_opp_0; reflexivity.
 Qed.
 
 Lemma apply_deg_1_root : ∀ c,
-  let f' := K in (* to get around a bug in type classes *)
-  let f'' := Kx in (* to get around a bug in type classes *)
+  let f' := K in (* to get around a problem with type classes *)
+  let f'' := Kx in (* to get around a problem with type classes *)
   (apply_lap (ps_field K) [ps_monom K (- c) 0; ps_monom K 1 0 … []]
      (ps_monom K c 0) = .0 K%ps)%K.
 Proof.
@@ -1813,8 +1813,8 @@ reflexivity.
 Qed.
 
 Lemma www : ∀ la c₁ r k,
-  let f' := K in (* to get around a bug in type classes *)
-  let f'' := Kx in (* to get around a bug in type classes *)
+  let f' := K in (* to get around a problem with type classes *)
+  let f'' := Kx in (* to get around a problem with type classes *)
   (0 < r)%nat
   → (apply_lap Kx
         (lap_derivial Kx k
@@ -1881,7 +1881,7 @@ bbb.
 *)
 
 Lemma yyy : ∀ la c₁ n r k,
-  let f' := K in (* to get around a bug in type classes *)
+  let f' := K in (* to get around a problem with type classes *)
   (r < n)%nat
   → length la = (n - r)%nat
     → lap_eq Kx
@@ -1988,7 +1988,7 @@ bbb.
  *)
 Theorem zzz : ∀ pol ns pl tl l c₁ r Ψ j αj,
   ns ∈ newton_segments K pol
-  → ac_root acf (Φq K pol ns) = c₁
+  → ac_root (Φq K pol ns) = c₁
     → r = root_multiplicity acf c₁ (Φq K pol ns)
       → Ψ = quotient_phi_x_sub_c_pow_r K (Φq K pol ns) c₁ r
         → pl = [ini_pt ns … oth_pts ns ++ [fin_pt ns]]
@@ -2011,7 +2011,7 @@ symmetry.
 rewrite poly_mul_comm, poly_mul_assoc, poly_mul_comm.
 apply poly_mul_compat; [ reflexivity | subst K ].
 rewrite phi_zq_eq_z_sub_c₁_psy; try eassumption.
-set (K := ac_field acf); move K after Kx.
+set (K := ac_field); move K after Kx.
 fold K in Kx.
 rewrite poly_inject_inj_mul.
 unfold eq_poly; simpl.
@@ -2206,7 +2206,7 @@ Definition puiseux_step psumo (pol : polynomial (puiseux_series α)) :=
   | [] => None
   | [ns … _] =>
       let cpol := characteristic_polynomial f pol ns in
-      let (c, r) := ac_root acf cpol in
+      let (c, r) := ac_root cpol in
       let pol₁ := pol₁ pol (β ns) (γ ns) c in
       let p := Qplus psum (γ ns) in
       Some ({| coeff := c; power := p |}, pol₁)
@@ -2283,7 +2283,7 @@ Lemma exists_root : ∀ (pol : puis_ser_pol α) cpol ns,
 Proof.
 intros pol cpol ns Hdeg Hpol.
 eapply cpol_degree in Hdeg; [ idtac | eassumption ].
-remember (ac_root acf cpol) as r.
+remember (ac_root cpol) as r.
 destruct r as (c, r).
 exists c.
 rewrite surjective_pairing in Heqr.
@@ -2435,7 +2435,7 @@ Lemma zzz : ∀ pol pts ns cpol c₁ r₁,
   pts = points_of_ps_polynom f pol
   → ns ∈ newton_segments f pol
     → cpol = characteristic_polynomial f pol ns
-      → ac_root acf cpol = (c₁, r₁)
+      → ac_root cpol = (c₁, r₁)
         → pol₁ f pol (β ns) (γ ns) c₁
           = pol_mul_x_power_minus f (β ns)
               (List.fold_right
