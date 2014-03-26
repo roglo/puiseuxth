@@ -26,7 +26,7 @@ Definition summation α (f : field α) b e g := summation_aux f b (S e - b) g.
 
 (* to be tested! *)
 Definition summation' α (f : field α) b e g :=
-  List.fold_right (λ i accu, g i + accu)%K (0)%K
+  List.fold_right (λ i accu, g i + accu)%K 0%K
     (List.seq b (S e - b)).
 
 Notation "'Σ' f ( i = b , e ) , g" := (summation f b e (λ i, (g)%K))

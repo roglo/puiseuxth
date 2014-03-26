@@ -28,8 +28,8 @@ Set Implicit Arguments.
 (* *)
 
 Definition c_x_power := ps_monom.
-Definition x_power α (K : field α) q := (ps_monom K .1 K q)%K.
-Definition var_y α (K : field α) := [.0 K; .1 K … []]%K.
+Definition x_power α (K : field α) q := (ps_monom K 1 q)%K.
+Definition var_y α (K : field α) := [.0 K; 1 … []]%K.
 
 (* pol₁(x,y₁) = x^(-β₁).pol(x,x^γ₁.(c₁ + y₁)) *)
 Definition lap_pol₁ α (K : field α) pol β₁ γ₁ c₁ :=
@@ -201,7 +201,7 @@ induction l as [| n]; intros; simpl.
 Qed.
 
 Lemma ps_monom_split_mul : ∀ c pow,
-  (ps_monom K c pow .= K ps_monom K c 0 .* K ps_monom K .1 K%K pow)%ps.
+  (ps_monom K c pow .= K ps_monom K c 0 .* K ps_monom K 1%K pow)%ps.
 Proof.
 intros c pow.
 rewrite <- ps_monom_add_r.
@@ -210,7 +210,7 @@ Qed.
 
 Lemma ps_monom_mul_r_pow : ∀ c p n,
   (ps_monom K c (Qnat n * p) .= K
-   ps_monom K c 0 .* K ps_monom K .1 K%K p .^ K n)%ps.
+   ps_monom K c 0 .* K ps_monom K 1%K p .^ K n)%ps.
 Proof.
 intros c p n.
 induction n; simpl.
@@ -279,7 +279,7 @@ Qed.
 
 Lemma list_nth_pad_ne : ∀ i n,
   i ≠ n
-  → (List.nth i (list_pad n .0 K [.1 K]) .0 K .= K .0 K)%K.
+  → (List.nth i (list_pad n .0 K [1]) .0 K .= K .0 K)%K.
 Proof.
 intros i n Hin.
 revert i Hin.
@@ -1786,7 +1786,7 @@ rewrite fld_opp_0; reflexivity.
 Qed.
 
 Lemma apply_deg_1_root : ∀ c,
-  (apply_lap (ps_field K) [ps_monom K (.-K c) 0; ps_monom K .1 K 0 … []]
+  (apply_lap (ps_field K) [ps_monom K (.-K c) 0; ps_monom K 1 0 … []]
      (ps_monom K c 0) .= (ps_field K) .0 K%ps)%K.
 Proof.
 intros c.
@@ -1800,12 +1800,12 @@ Lemma www : ∀ la c₁ r k,
   (0 < r)%nat
   → (apply_lap Kx
         (lap_derivial Kx k
-           (lap_power Kx [ps_monom K (.-K c₁)%K 0; ps_monom K (.1 K)%K 0 … []]
+           (lap_power Kx [ps_monom K (.-K c₁)%K 0; ps_monom K (1)%K 0 … []]
               r .* Kx la)%lap) (c_x_power K c₁ 0) .= Kx
       apply_lap Kx
         (lap_derivial Kx (S k)
-           ([ps_monom K (.-K c₁)%K 0; ps_monom K (.1 K)%K 0 … []] .* Kx
-            lap_power Kx [ps_monom K (.-K c₁)%K 0; ps_monom K (.1 K)%K 0 … []]
+           ([ps_monom K (.-K c₁)%K 0; ps_monom K (1)%K 0 … []] .* Kx
+            lap_power Kx [ps_monom K (.-K c₁)%K 0; ps_monom K (1)%K 0 … []]
               r .* Kx la)%lap) (c_x_power K c₁ 0))%K.
 Proof.
 intros la c₁ r k Hr.
@@ -1868,14 +1868,14 @@ Lemma yyy : ∀ la c₁ n r k,
     → lap_eq Kx
         (coeff_taylor_lap Kx n
            (lap_mul Kx
-              (lap_power Kx [ps_monom K (.-K c₁)%K 0; ps_monom K .1 K%K 0 … []]
+              (lap_power Kx [ps_monom K (.-K c₁)%K 0; ps_monom K 1%K 0 … []]
                  r) la)
            (c_x_power K c₁ 0) k)
         (coeff_taylor_lap Kx n
            (lap_mul Kx
-              (lap_mul Kx [ps_monom K (.-K c₁)%K 0; ps_monom K .1 K%K 0 … []]
+              (lap_mul Kx [ps_monom K (.-K c₁)%K 0; ps_monom K 1%K 0 … []]
                  (lap_power Kx
-                    [ps_monom K (.-K c₁)%K 0; ps_monom K .1 K%K 0 … []] r))
+                    [ps_monom K (.-K c₁)%K 0; ps_monom K 1%K 0 … []] r))
               la)
            (c_x_power K c₁ 0) (S k)).
 Proof.

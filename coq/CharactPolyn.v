@@ -30,7 +30,7 @@ Fixpoint make_char_pol α (f : field α) pow tl :=
   match tl with
   | [] => []
   | [t₁ … tl₁] =>
-      list_pad (power t₁ - pow) .0 f%K
+      list_pad (power t₁ - pow) 0%K
         [coeff t₁ … make_char_pol f (S (power t₁)) tl₁]
     end.
 
@@ -1562,8 +1562,8 @@ Qed.
 
 Definition is_polynomial_in_x_power_q pol q :=
   ∀ i c, (i mod q ≠ 0)%nat
-  → c = List.nth i (al pol) .0 f%K
-    → (c .= f .0 f)%K.
+  → c = List.nth i (al pol) 0%K
+    → (c = 0)%K.
 
 Lemma list_pad_0 : ∀ z (r : list α), list_pad 0 z r = r.
 Proof. reflexivity. Qed.
@@ -1623,8 +1623,8 @@ Lemma nth_is_zero : ∀ (pol : polynomial (puiseux_series α)) q i j k sk tl,
           → S i mod q ≠ 0
             → (List.nth i
                 (make_char_pol f (S j) (List.map (term_of_point f pol) tl))
-                .0 f
-               .= f .0 f)%K.
+                0
+               = 0)%K.
 Proof.
 intros pol q i j k sk tl Hq Hsk Hk Hsort Hsh Himq.
 destruct q; [ exfalso; revert Hq; apply lt_irrefl | clear Hq ].
@@ -2119,7 +2119,7 @@ Definition poly_left_shift n (p : polynomial α) :=
 
 Definition summation_ah_xh_pol pol ns :=
   let j := nofq (fst (ini_pt ns)) in
-  POL (list_pad j .0 f%K (al (characteristic_polynomial f pol ns)))%pol.
+  POL (list_pad j 0%K (al (characteristic_polynomial f pol ns)))%pol.
 
 Definition Φq pol ns :=
   let j := nofq (fst (ini_pt ns)) in
@@ -2504,7 +2504,7 @@ rewrite list_length_shrink; simpl.
 Qed.
 
 Definition has_degree pol d :=
-  pseudo_degree pol = d ∧ (List.nth d (al pol) .0 f .≠ f .0 f)%K.
+  pseudo_degree pol = d ∧ (List.nth d (al pol) 0 ≠ 0)%K.
 
 Lemma list_nth_shrink : ∀ n k l d cnt,
   List.nth n (list_shrink_aux cnt k l) d = List.nth (cnt + n * S k) l d.
@@ -2531,7 +2531,7 @@ Qed.
 
 Lemma make_char_pol_cons : ∀ pow t tl,
   make_char_pol f pow [t … tl] =
-  list_pad (power t - pow) .0 f%K
+  list_pad (power t - pow) 0%K
     [coeff t … make_char_pol f (S (power t)) tl].
 Proof. reflexivity. Qed.
 
@@ -2539,7 +2539,7 @@ Lemma val_coeff_non_zero_in_newt_segm : ∀ pol ns h αh hps,
   ns ∈ newton_segments f pol
   → (Qnat h, αh) ∈ [ini_pt ns … oth_pts ns ++ [fin_pt ns]]
     → hps = List.nth h (al pol) .0 f%ps
-      → (valuation_coeff f hps .≠ f .0 f)%K.
+      → (valuation_coeff f hps ≠ 0)%K.
 Proof.
 intros pol ns h αh hps Hns Hh Hhps.
 unfold valuation_coeff.
@@ -2614,7 +2614,7 @@ Lemma list_nth_coeff_last : ∀ pol j αj k αk tl,
         → List.Forall (λ pt, Qden (fst pt) = xH) tl
           → List.nth (k - j)
               (make_char_pol f j
-                 (List.map (term_of_point f pol) tl)) .0 f%K =
+                 (List.map (term_of_point f pol) tl)) 0%K =
             coeff (term_of_point f pol (List.last tl (0, 0)%Q)).
 Proof.
 intros pol j αj k αk tl Hj Hk Hjk Hsort Hden; simpl.
@@ -2896,13 +2896,13 @@ apply imp_or_tauto.
  eapply phi_pseudo_degree_is_k_sub_j_div_q; eassumption.
 Qed.
 
-Definition apply_K_poly := (horner .0 f (fld_add f) (fld_mul f))%K.
+Definition apply_K_poly := (horner 0 fld_add fld_mul)%K.
 
 (* [Walker, p. 100] « Therefore (3.4) has the form c^j Φ(c^q) = 0
    where Φ(z) is a polynomial, of degree (k - j)/q, with Φ(0) ≠ 0 » *)
 Theorem phi_0_ne_0 : ∀ pol ns,
   ns ∈ newton_segments f pol
-  → (apply_K_poly (Φ pol ns) .0 f .≠ f .0 f)%K.
+  → (apply_K_poly (Φ pol ns) 0 ≠ 0)%K.
 Proof.
 intros pol ns Hns.
 unfold apply_K_poly; simpl.

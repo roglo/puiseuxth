@@ -17,8 +17,8 @@ Variable α : Type.
 Variable f : field α.
 
 Lemma series_nth_0_series_nth_shift_0 : ∀ s n,
-  (∀ i, (s .[i] .= f .0 f)%K)
-  → ∀ i, ((series_shift f n s) .[i] .= f .0 f)%K.
+  (∀ i, (s .[i] = 0)%K)
+  → ∀ i, ((series_shift f n s) .[i] = 0)%K.
 Proof.
 intros s n H i; simpl.
 destruct (lt_dec i n) as [| H₁]; [ reflexivity | idtac ].

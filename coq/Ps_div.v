@@ -189,7 +189,7 @@ destruct n as [n| ].
 Qed.
 
 Lemma series_inv_compat : ∀ a b,
-  (a .[0] .≠ f .0 f)%K
+  (a .[0] ≠ 0)%K
   → (a .= f b)%ser
     → (series_inv f a .= f series_inv f b)%ser.
 Proof.
@@ -207,7 +207,7 @@ symmetry; assumption.
 Qed.
 
 Lemma null_coeff_range_length_series_1 :
-  (.1 f .≠ f .0 f)%K
+  (1 ≠ 0)%K
   → null_coeff_range_length f (.1 f)%ser 0 = 0%Nbar.
 Proof.
 intros H.

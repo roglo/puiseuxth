@@ -307,7 +307,7 @@ Qed.
 
 Lemma series_nth_lt_shift : ∀ a i n,
   (i < n)%nat
-  → ((series_shift f n a) .[i] .= f .0 f)%K.
+  → ((series_shift f n a) .[i] = 0)%K.
 Proof.
 intros a i n Hin; simpl.
 destruct (lt_dec i n); [ reflexivity | contradiction ].
@@ -907,7 +907,7 @@ destruct n₄ as [n₄| ].
 Qed.
 
 Lemma ps_monom_add_l : ∀ c d n,
-  (ps_monom f (c .+ f d)%K n .= f ps_monom f c n .+ f ps_monom f d n)%ps.
+  (ps_monom f (c + d)%K n .= f ps_monom f c n .+ f ps_monom f d n)%ps.
 Proof.
 intros c d n.
 unfold ps_monom; simpl.
@@ -937,7 +937,7 @@ Qed.
 
 Lemma ps_monom_add_r : ∀ c p q,
  (ps_monom f c (p + q) .= f
-  ps_monom f c p .* f ps_monom f .1 f%K q)%ps.
+  ps_monom f c p .* f ps_monom f 1%K q)%ps.
 Proof.
 intros c p q.
 unfold ps_mul; simpl.
