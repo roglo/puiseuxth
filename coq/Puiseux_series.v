@@ -99,7 +99,7 @@ Definition gcd_ps α n k (ps : puiseux_series α) :=
   Z.gcd (Z.gcd (ps_valnum ps + Z.of_nat n) (' ps_polord ps)) (Z.of_nat k).
 
 Definition ps_zero α (r : ring α) :=
-  {| ps_terms := series_0 r; ps_valnum := 0; ps_polord := 1 |}.
+  {| ps_terms := 0%ser; ps_valnum := 0; ps_polord := 1 |}.
 
 Definition canonic_ps α (r : ring α) ps :=
   match null_coeff_range_length r (ps_terms ps) 0 with
@@ -397,14 +397,14 @@ destruct (zerop (i mod (a * b))) as [Hz| Hnz].
   apply Nat.neq_mul_0; split; assumption.
 Qed.
 
-Lemma series_shift_series_0 : ∀ n, (series_shift r n .0 r = .0 r)%ser.
+Lemma series_shift_series_0 : ∀ n, (series_shift r n 0 = 0)%ser.
 Proof.
 intros n.
 constructor; intros i; simpl.
 destruct (lt_dec i n); reflexivity.
 Qed.
 
-Lemma series_stretch_series_0 : ∀ k, (series_stretch r k .0 r = .0 r)%ser.
+Lemma series_stretch_series_0 : ∀ k, (series_stretch r k 0 = 0)%ser.
 Proof.
 intros k.
 constructor; intros i; simpl.
@@ -413,8 +413,8 @@ destruct (Nbar.lt_dec (fin (i / Pos.to_nat k)) 0); reflexivity.
 Qed.
 
 Lemma series_stretch_0_if : ∀ k s,
-  (series_stretch r k s = .0 r)%ser
-  → (s = .0 r)%ser.
+  (series_stretch r k s = 0)%ser
+  → (s = 0)%ser.
 Proof.
 intros k s Hs.
 constructor; intros i.
@@ -710,7 +710,7 @@ destruct (zerop (i mod Pos.to_nat k)) as [H| H].
  exfalso; revert H; apply Nat.lt_irrefl.
 Qed.
 
-Lemma stretch_series_1 : ∀ k, (series_stretch r k .1 r = .1 r)%ser.
+Lemma stretch_series_1 : ∀ k, (series_stretch r k 1 = 1)%ser.
 Proof.
 intros k.
 apply stretch_series_const.
@@ -1585,7 +1585,7 @@ split; intros H.
  constructor.
  unfold canonic_ps; simpl.
  rewrite H.
- remember (null_coeff_range_length r .0 r%ser 0) as n eqn:Hn .
+ remember (null_coeff_range_length r 0%ser 0) as n eqn:Hn .
  symmetry in Hn.
  destruct n as [n| ]; [ idtac | reflexivity ].
  apply null_coeff_range_length_iff in Hn.
@@ -1596,7 +1596,7 @@ split; intros H.
  inversion H; subst.
  apply null_coeff_range_length_iff; simpl; intros i.
  unfold canonic_ps in H0; simpl in H0.
- remember (null_coeff_range_length r .0 r%ser 0) as n eqn:Hn .
+ remember (null_coeff_range_length r 0%ser 0) as n eqn:Hn .
  symmetry in Hn.
  destruct n as [n| ].
   exfalso; clear H0.

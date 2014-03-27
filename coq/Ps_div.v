@@ -209,7 +209,7 @@ Qed.
 
 Lemma null_coeff_range_length_series_1 :
   (1 ≠ 0)%K
-  → null_coeff_range_length r (.1 r)%ser 0 = 0%Nbar.
+  → null_coeff_range_length r 1%ser 0 = 0%Nbar.
 Proof.
 intros H.
 apply null_coeff_range_length_iff; simpl.
@@ -220,11 +220,11 @@ exfalso; apply Hi, Nat.lt_0_succ.
 Qed.
 
 Lemma greatest_series_x_power_series_1 :
-  greatest_series_x_power r (.1 r)%ser 0 = O.
+  greatest_series_x_power r 1%ser 0 = O.
 Proof.
 apply greatest_series_x_power_iff; simpl.
 unfold is_the_greatest_series_x_power.
-remember (null_coeff_range_length r .1 r%ser 1) as n eqn:Hn .
+remember (null_coeff_range_length r 1%ser 1) as n eqn:Hn .
 symmetry in Hn.
 destruct n as [n| ]; [ idtac | reflexivity ].
 apply null_coeff_range_length_iff in Hn.
@@ -261,7 +261,7 @@ destruct n as [n| ].
   constructor.
   rewrite canonic_ps_1.
   unfold canonic_ps; simpl.
-  remember (null_coeff_range_length r .1 r%ser 0) as m eqn:Hm .
+  remember (null_coeff_range_length r 1%ser 0) as m eqn:Hm .
   symmetry in Hm.
   destruct m as [m| ].
    destruct m; simpl.

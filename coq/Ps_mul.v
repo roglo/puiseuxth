@@ -105,7 +105,7 @@ Theorem ps_mul_1_r : ∀ ps, (ps .* r .1 r .= r ps)%ps.
 Proof. intros ps. rewrite ps_mul_comm. apply ps_mul_1_l. Qed.
 
 Lemma null_coeff_range_length_series_0 :
-  null_coeff_range_length r (.0 r)%ser 0 = ∞.
+  null_coeff_range_length r 0%ser 0 = ∞.
 Proof.
 apply null_coeff_range_length_iff; intros i.
 rewrite series_nth_series_0; reflexivity.

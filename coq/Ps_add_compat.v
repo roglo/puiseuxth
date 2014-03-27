@@ -467,7 +467,7 @@ destruct g as [| g| g]; simpl.
 Qed.
 
 Definition ps_neg_zero :=
-  {| ps_terms := .0 r%ser; ps_valnum := -1; ps_polord := 1 |}.
+  {| ps_terms := 0%ser; ps_valnum := -1; ps_polord := 1 |}.
 
 Lemma eq_strong_ps_adjust_zero_neg_zero : ∀ ps,
   null_coeff_range_length r (ps_terms ps) 0 = ∞

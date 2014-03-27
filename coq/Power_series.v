@@ -15,17 +15,17 @@ Record power_series α := { terms : nat → α }.
 
 Notation "s .[ i ]" := (@terms _ s i) (at level 1).
 
-Definition series_0 α (r : ring α) :=
+Definition series_0 {α} {r : ring α} :=
   {| terms i := 0%K |}.
 
 Definition series_const α (r : ring α) c :=
   {| terms i := if zerop i then c else 0%K |}.
-Definition series_1 α (r : ring α) :=
+Definition series_1 {α} {r : ring α} :=
   series_const r (1%K).
 
 Delimit Scope series_scope with ser.
-Notation ".0 f" := (series_0 f) : series_scope.
-Notation ".1 f" := (series_1 f) : series_scope.
+Notation "0" := series_0 : series_scope.
+Notation "1" := series_1 : series_scope.
 
 Inductive eq_series {α} {r : ring α} :
     power_series α → power_series α → Prop :=
@@ -104,24 +104,24 @@ constructor; intros i; simpl.
 rewrite rng_add_assoc; reflexivity.
 Qed.
 
-Lemma series_nth_series_0 : ∀ i, (.0 r%ser .[i])%K = 0%K.
+Lemma series_nth_series_0 : ∀ i, (0%ser .[i])%K = 0%K.
 Proof. reflexivity. Qed.
 
-Theorem series_add_0_l : ∀ s, (.0 r + s = s)%ser.
+Theorem series_add_0_l : ∀ s, (0 + s = s)%ser.
 Proof.
 intros s.
 constructor; intros i; simpl.
 rewrite rng_add_0_l; reflexivity.
 Qed.
 
-Theorem series_add_opp_r : ∀ s, (s - s = .0 r)%ser.
+Theorem series_add_opp_r : ∀ s, (s - s = 0)%ser.
 Proof.
 intros s.
 constructor; intros i; simpl.
 apply rng_add_opp_r.
 Qed.
 
-Theorem series_add_opp_l : ∀ s, (- s + s = .0 r)%ser.
+Theorem series_add_opp_l : ∀ s, (- s + s = 0)%ser.
 Proof.
 intros s.
 rewrite series_add_comm.
@@ -177,7 +177,7 @@ constructor; intros k; simpl.
 apply convol_mul_comm.
 Qed.
 
-Theorem convol_mul_0_l : ∀ a i, (convol_mul r .0 r%ser a i = 0)%K.
+Theorem convol_mul_0_l : ∀ a i, (convol_mul r 0%ser a i = 0)%K.
 Proof.
 intros a k.
 unfold convol_mul.
@@ -186,7 +186,7 @@ rewrite series_nth_series_0.
 rewrite rng_mul_0_l; reflexivity.
 Qed.
 
-Theorem series_mul_0_l : ∀ s, (.0 r .* r s = .0 r)%ser.
+Theorem series_mul_0_l : ∀ s, (0 .* r s = 0)%ser.
 Proof.
 intros s.
 constructor; intros k.
@@ -194,7 +194,7 @@ unfold series_mul; simpl.
 apply convol_mul_0_l.
 Qed.
 
-Theorem series_mul_1_l : ∀ s, (.1 r .* r s = s)%ser.
+Theorem series_mul_1_l : ∀ s, (1 .* r s = s)%ser.
 Proof.
 intros s.
 constructor; intros k; simpl.
@@ -210,7 +210,7 @@ rewrite summation_only_one_non_0 with (v := O).
  apply rng_mul_0_l.
 Qed.
 
-Theorem series_mul_1_r : ∀ s, (s .* r .1 r = s)%ser.
+Theorem series_mul_1_r : ∀ s, (s .* r 1 = s)%ser.
 Proof.
 intros s.
 rewrite series_mul_comm.
@@ -469,7 +469,7 @@ Qed.
 
 Theorem series_mul_inv_r : ∀ a,
   (a .[0] ≠ 0)%K
-  → (a .* r .¹/f a = .1 r)%ser.
+  → (a .* r .¹/f a = 1)%ser.
 Proof.
 intros a Ha.
 constructor; intros i; simpl.
@@ -483,7 +483,7 @@ Qed.
 
 Theorem series_mul_inv_l : ∀ a,
   (a .[0] ≠ 0)%K
-  → (.¹/f a .* r a = .1 r)%ser.
+  → (.¹/f a .* r a = 1)%ser.
 Proof.
 intros a Ha.
 rewrite series_mul_comm.
@@ -494,8 +494,8 @@ Qed.
 End lemmas_again.
 
 Definition series_ring α (r : ring α) : ring (power_series α) :=
-  {| rng_zero := series_0 r;
-     rng_one := series_1 r;
+  {| rng_zero := series_0;
+     rng_one := series_1;
      rng_add := series_add;
      rng_mul := series_mul r;
      rng_opp := series_opp;
