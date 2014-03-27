@@ -124,7 +124,7 @@ destruct (zerop (i mod Pos.to_nat (Qden p))) as [H₁| H₁].
 Qed.
 
 Add Parametric Morphism α (R : ring α) : (List.map (λ c, ps_monom R c 0))
-  with signature lap_eq R ==> lap_eq (ps_ring R)
+  with signature @lap_eq _ R ==> @lap_eq _ (ps_ring R)
   as lap_inject_k_in_Kx_morph.
 Proof.
 intros la lb Hab.
@@ -302,14 +302,15 @@ Variable acf : algeb_closed_field R.
 Let Kx := ps_ring R.
 
 Lemma lap_f₁_eq_x_min_β₁_comp : ∀ la β₁ γ₁ c₁,
-  lap_eq Kx (lap_pol₁ R la β₁ γ₁ c₁)
+  let _ := Kx in (* not sure it is the good way *)
+  lap_eq (lap_pol₁ R la β₁ γ₁ c₁)
     (lap_mul Kx [x_power R (- β₁)]
        (lap_compose Kx la
           (lap_mul Kx
              [x_power R γ₁]
              [c_x_power R c₁ 0; .1 R%ps … []]))).
 Proof.
-intros la β₁ γ₁ c₁.
+intros la β₁ γ₁ c₁ f'; subst f'.
 unfold lap_pol₁.
 apply lap_mul_compat; [ reflexivity | idtac ].
 apply lap_compose_compat; [ reflexivity | idtac ].
@@ -753,8 +754,8 @@ reflexivity.
 Qed.
 
 Lemma lap_summation_compat_r : ∀ A (r : ring A) g h la,
-  (∀ i, lap_eq r (g i) (h i))
-  → lap_eq r (lap_summation r la g) (lap_summation r la h).
+  (∀ i, lap_eq (g i) (h i))
+  → lap_eq (lap_summation r la g) (lap_summation r la h).
 Proof.
 intros A r g h la Hi.
 induction la as [| a]; [ reflexivity | simpl ].
@@ -841,12 +842,13 @@ assert (∃ h ah, (iq, αi) = (Qnat h, ah)) as Hnat.
 Qed.
 
 Lemma fold_right_exists : ∀ pol ns pts j k αj αk f la,
+  let _ := Kx in (* not sure it is the good way *)
   ns ∈ newton_segments R pol
   → pts = [ini_pt ns … oth_pts ns ++ [fin_pt ns]]
     → ini_pt ns = (Qnat j, αj)
       → fin_pt ns = (Qnat k, αk)
-        → (∀ i a b, lap_eq Kx a b → lap_eq Kx (f i a) (f i b))
-          → lap_eq Kx
+        → (∀ i a b, lap_eq a b → lap_eq (f i a) (f i b))
+          → lap_eq
               (List.fold_right f la (List.map (λ pt, nofq (fst pt)) pts))
               (List.fold_right
                  (λ i accu,
@@ -856,7 +858,7 @@ Lemma fold_right_exists : ∀ pol ns pts j k αj αk f la,
                  (List.seq j (S (k - j)))).
 Proof.
 (* sûrement nettoyable ; putain, j'en ai chié *)
-intros pol ns pts j k αj αk f la Hns Hpl Hini Hfin Hi.
+intros pol ns pts j k αj αk f la f' Hns Hpl Hini Hfin Hi; subst f'.
 assert (j < k)%nat as Hjk.
  eapply j_lt_k; try eassumption.
   rewrite Hini; unfold nofq, Qnat; simpl; rewrite Nat2Z.id; reflexivity.
@@ -1355,7 +1357,7 @@ Qed.
       Σah.(c₁+y₁)^h = (c₁+y₁)^j.Φ((c₁+y₁)^q)
  *)
 Theorem sum_ah_c₁y_h_eq : ∀ pol ns pl tl l c₁ j αj,
-  let f' := Kx in (* not sure it is the good way *)
+  let _ := Kx in (* not sure it is the good way *)
   ns ∈ newton_segments R pol
   → pl = [ini_pt ns … oth_pts ns ++ [fin_pt ns]]
     → tl = List.map (term_of_point R pol) pl
@@ -1369,7 +1371,7 @@ Theorem sum_ah_c₁y_h_eq : ∀ pol ns pl tl l c₁ j αj,
              poly_compose Kx (poly_inject_K_in_Kx R (Φq R pol ns))
                (POL [c_x_power R c₁ 0; .1 R%ps … []]))%pol.
 Proof.
-intros pol ns pl tl l c₁ j αj f' Hns Hpl Htl Hl Hini; subst f'.
+intros pol ns pl tl l c₁ j αj f' Hns Hpl Htl Hl Hini.
 assert (∀ iq αi, (iq, αi) ∈ pl → ∃ i, iq = Qnat i) as Hnat.
  intros iq αi Hip.
  eapply ns_nat; [ eassumption | reflexivity | idtac ].
@@ -1633,12 +1635,13 @@ apply mkps_morphism; simpl; [ idtac | idtac | reflexivity ].
 Qed.
 
 Lemma lap_inject_inj_mul : ∀ la lb,
-   lap_eq Kx (List.map (λ c, ps_monom R c 0) (lap_mul R la lb))
-     (lap_mul Kx
-        (List.map (λ c, ps_monom R c 0) la)
-        (List.map (λ c, ps_monom R c 0) lb)).
+  let f' := Kx in (* not sure it is the good way *)
+  lap_eq (List.map (λ c, ps_monom R c 0) (lap_mul R la lb))
+    (lap_mul Kx
+       (List.map (λ c, ps_monom R c 0) la)
+       (List.map (λ c, ps_monom R c 0) lb)).
 Proof.
-intros la lb.
+intros la lb f'.
 unfold lap_mul; simpl.
 do 2 rewrite List.map_length.
 remember (pred (length la + length lb)) as len.
@@ -1710,13 +1713,14 @@ subst s; reflexivity.
 Qed.
 
 Lemma lap_add_map : ∀ la lb,
-  lap_eq Kx
+  let f' := Kx in (* not sure it is the good way *)
+  lap_eq
     (lap_add Kx
        (List.map (λ c, ps_monom R c 0) la)
        (List.map (λ c, ps_monom R c 0) lb))
     (List.map (λ c, ps_monom R c 0) (lap_add R la lb)).
 Proof.
-intros la lb.
+intros la lb f'.
 revert lb.
 induction la as [| a]; intros; [ reflexivity | simpl ].
 destruct lb as [| b]; [ reflexivity | simpl ].
@@ -1726,13 +1730,14 @@ apply IHla.
 Qed.
 
 Theorem lap_mul_map : ∀ la lb,
-  lap_eq Kx
+  let f' := Kx in (* not sure it is the good way *)
+  lap_eq
     (lap_mul Kx
        (List.map (λ c, ps_monom R c 0) la)
        (List.map (λ c, ps_monom R c 0) lb))
     (List.map (λ c, ps_monom R c 0) (lap_mul R la lb)).
 Proof.
-intros la lb.
+intros la lb f'.
 revert lb.
 induction la as [| a]; intros; simpl.
  do 2 rewrite lap_mul_nil_l; reflexivity.
@@ -1769,11 +1774,12 @@ induction la as [| a]; intros; simpl.
 Qed.
 
 Lemma lap_power_map : ∀ la n,
-  lap_eq Kx
+  let f' := Kx in (* not sure it is the good way *)
+  lap_eq
     (lap_power Kx (List.map (λ c, ps_monom R c 0) la) n)
     (List.map (λ c, ps_monom R c 0) (lap_power R la n)).
 Proof.
-intros la n.
+intros la n f'.
 revert la.
 induction n; intros; [ reflexivity | simpl ].
 rewrite IHn.
@@ -1846,7 +1852,7 @@ bbb.
 
 (* pas sûr que ça soit vrai... *)
 Lemma lap_derivial_mul_const: ∀ α (R : ring α) a lb k,
-  (lap_derivial R k ([a] .* R lb) .= R [a] .* R lap_derivial R k lb)%lap.
+  (lap_derivial R k ([a] .* R lb) = [a] .* R lap_derivial R k lb)%lap.
 Proof.
 clear.
 intros α R a lb k.
@@ -1873,9 +1879,10 @@ bbb.
 *)
 
 Lemma yyy : ∀ la c₁ n r k,
+  let f' := Kx in (* not sure it is the good way *)
   (r < n)%nat
   → length la = (n - r)%nat
-    → lap_eq Kx
+    → lap_eq
         (coeff_taylor_lap Kx n
            (lap_mul Kx
               (lap_power Kx [ps_monom R (- c₁)%K 0; ps_monom R 1%K 0 … []]
@@ -1889,7 +1896,7 @@ Lemma yyy : ∀ la c₁ n r k,
               la)
            (c_x_power R c₁ 0) (S k)).
 Proof.
-intros la c₁ n r k Hrn Hlen.
+intros la c₁ n r k f' Hrn Hlen.
 revert la r k Hrn Hlen.
 induction n; intros; [ reflexivity | simpl ].
 constructor.
@@ -2045,7 +2052,6 @@ rewrite Nat.add_sub_assoc.
     apply lt_S_n in Hrn; simpl in Hlen.
     rewrite Nat.sub_succ.
     rewrite IHr; try assumption.
-Show.
 bbb.
     rewrite lap_mul_cons_r.
     rewrite lap_eq_0, lap_mul_nil_r, lap_add_nil_l.
