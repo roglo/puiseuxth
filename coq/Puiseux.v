@@ -2055,7 +2055,6 @@ rewrite Nat.add_sub_assoc.
     apply lt_S_n in Hrn; simpl in Hlen.
     rewrite Nat.sub_succ.
     rewrite IHr; try assumption.
-Show.
 bbb.
     rewrite lap_mul_cons_r.
     rewrite lap_eq_0, lap_mul_nil_r, lap_add_nil_l.

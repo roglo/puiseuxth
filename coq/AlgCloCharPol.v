@@ -1012,7 +1012,7 @@ Qed.
 (*
 Lemma lap_compose_add_sub : ∀ α (r : ring α) la a,
   lap_eq
-    (lap_compose (lap_compose la [a; 1 … []]) [.- r a; 1 … []])%K
+    (lap_compose (lap_compose la [a; 1 … []]) [- a; 1 … []])%K
     la.
 Proof.
 intros α r la a.

@@ -6,7 +6,7 @@ Require Import Setoid.
 Set Implicit Arguments.
 
 Reserved Notation "¹/ a" (at level 1).
-Reserved Notation "! x" (at level 1).
+Reserved Notation "a ∘ b" (left associativity, at level 32).
 
 Class ring α :=
   { rng_zero : α;
@@ -398,17 +398,3 @@ rewrite fld_mul_inv_l in Heq.
 Qed.
 
 End misc_theorems.
-
-Reserved Notation "a .= x b" (at level 70, x at level 0).
-Reserved Notation "a .≠ x b" (at level 70, x at level 0).
-Reserved Notation "a .+ x b" (left associativity, at level 50, x at level 0).
-Reserved Notation "a .- x b" (left associativity, at level 50, x at level 0).
-Reserved Notation "a .* x b" (left associativity, at level 40, x at level 0).
-Reserved Notation "a ./ x b" (left associativity, at level 40, x at level 0).
-Reserved Notation ".- x a" (at level 35, x at level 0).
-Reserved Notation "a .∘ x b" (left associativity, at level 32, x at level 0).
-Reserved Notation "a .^ x b" (at level 30, x at level 0).
-Reserved Notation ".¹/ x a" (at level 1, x at level 0).
-Reserved Notation ".0 x" (at level 0, x at level 0).
-Reserved Notation ".1 x" (at level 0, x at level 0).
-Reserved Notation "a ∘ b" (left associativity, at level 32).
