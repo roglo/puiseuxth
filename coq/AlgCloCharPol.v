@@ -883,7 +883,7 @@ destruct la as [| a].
 Qed.
 
 Lemma apply_lap_compose_nil_r : ∀ α (r : ring α) la x,
-  (apply_lap r (lap_compose r la []) x = apply_lap r la 0)%K.
+  (apply_lap r (lap_compose la []) x = apply_lap r la 0)%K.
 Proof.
 intros α r la x.
 destruct la as [| a]; [ reflexivity | simpl ].
@@ -962,7 +962,7 @@ induction la as [| a]; intros; simpl.
 Qed.
 
 Lemma apply_lap_compose : ∀ α (r : ring α) la lb x,
-  (apply_lap r (lap_compose r la lb) x =
+  (apply_lap r (lap_compose la lb) x =
    apply_lap r la (apply_lap r lb x))%K.
 Proof.
 intros α r la lb x.
@@ -977,7 +977,7 @@ apply apply_lap_mul.
 Qed.
 
 Lemma length_lap_compose_deg_1 : ∀ α (R : ring α) la c,
-  length (lap_compose R la [c; 1%K … []]) = length la.
+  length (lap_compose la [c; 1%K … []]) = length la.
 Proof.
 intros α R la c.
 induction la as [| a]; [ reflexivity | simpl ].
@@ -1012,7 +1012,7 @@ Qed.
 (*
 Lemma lap_compose_add_sub : ∀ α (r : ring α) la a,
   lap_eq
-    (lap_compose r (lap_compose r la [a; 1 … []]) [.- r a; 1 … []])%K
+    (lap_compose (lap_compose la [a; 1 … []]) [.- r a; 1 … []])%K
     la.
 Proof.
 intros α r la a.
@@ -1030,7 +1030,7 @@ bbb.
 *)
 
 Lemma apply_lap_compose_add_sub : ∀ α (r : ring α) la a x,
-  (apply_lap r (lap_compose r la [a; 1 … []]) (x - a) =
+  (apply_lap r (lap_compose la [a; 1 … []]) (x - a) =
    apply_lap r la x)%K.
 Proof.
 intros α r la a x.
@@ -1189,8 +1189,8 @@ rewrite list_nth_skipn, Nat.add_comm; reflexivity.
 Qed.
 
 Lemma lap_compose_cons_l : ∀ α (r : ring α) a la lb,
-  lap_eq (lap_compose r [a … la] lb)
-    (lap_add [a] (lap_mul lb (lap_compose r la lb))).
+  lap_eq (lap_compose [a … la] lb)
+    (lap_add [a] (lap_mul lb (lap_compose la lb))).
 Proof.
 intros α r a la lb.
 rewrite lap_add_comm, lap_mul_comm; reflexivity.
@@ -1225,7 +1225,7 @@ apply Hil; right; assumption.
 Qed.
 
 Lemma lap_compose2_cons_nil : ∀ α (r : ring α) a la,
-  lap_eq (lap_compose2 r [a … la] []) [a].
+  lap_eq (lap_compose2 [a … la] []) [a].
 Proof.
 intros α r a la.
 unfold lap_compose2; simpl.
@@ -1260,7 +1260,7 @@ rewrite IHli; reflexivity.
 Qed.
 
 Lemma poly_compose_compose2 : ∀ α (r : ring α) P Q,
-  (P .∘ r Q = poly_compose2 r P Q)%pol.
+  (P ∘ Q = poly_compose2 P Q)%pol.
 Proof.
 intros α r P Q.
 apply lap_compose_compose2.
@@ -1354,7 +1354,7 @@ Qed.
 
 Lemma list_nth_compose_deg_1 : ∀ α (r : ring α) la b k n,
   n = length la
-  → (List.nth k (lap_compose2 r la [b; 1 … []]) 0 =
+  → (List.nth k (lap_compose2 la [b; 1 … []]) 0 =
      Σ r (i = 0, n - k),
      rng_mul_nat r (comb (k + i) k)
       (List.nth (k + i) la 0 * rng_pow_nat r b i))%K.
@@ -1478,8 +1478,8 @@ apply Nat.mul_comm.
 Qed.
 
 Lemma lap_derivial_compose_deg_1 : ∀ α (r : ring α) k la b,
-  lap_eq (lap_derivial r k (lap_compose r la [b; 1%K … []]))
-    (lap_compose r (lap_derivial r k la) [b; 1%K … []]).
+  lap_eq (lap_derivial r k (lap_compose la [b; 1%K … []]))
+    (lap_compose (lap_derivial r k la) [b; 1%K … []]).
 Proof.
 intros α r k la b.
 do 2 rewrite lap_compose_compose2.
@@ -1506,7 +1506,7 @@ Qed.
 
 Lemma taylor_lap_compose_deg_1 : ∀ α (r : ring α) a la,
   lap_eq
-    (taylor_lap r (lap_compose r la [a; 1 … []]) 0)%K
+    (taylor_lap r (lap_compose la [a; 1 … []]) 0)%K
     (taylor_lap r la a).
 Proof.
 intros α r a la.
@@ -1522,10 +1522,10 @@ Qed.
 
 (* à voir...
 Lemma taylor_lap_formula_sub : ∀ α (r : ring α) la a,
-  lap_eq la (lap_compose r (taylor_lap r la a) [- a; 1 … []])%K.
+  lap_eq la (lap_compose (taylor_lap r la a) [- a; 1 … []])%K.
 Proof.
 intros α r la a.
-remember (lap_compose r la [a; 1%K … []]) as lb eqn:Hlb .
+remember (lap_compose la [a; 1%K … []]) as lb eqn:Hlb .
 pose proof (taylor_lap_formula_0 r lb) as H.
 subst lb.
 rewrite taylor_lap_compose_deg_1 in H.
@@ -1538,7 +1538,7 @@ Lemma apply_taylor_lap_formula_sub : ∀ α (r : ring α) x la a,
    apply_lap r (taylor_lap r la a) (x - a))%K.
 Proof.
 intros α r x la a.
-remember (lap_compose r la [a; 1%K … []]) as lb eqn:Hlb .
+remember (lap_compose la [a; 1%K … []]) as lb eqn:Hlb .
 assert
  (apply_lap r lb (x - a)%K =
   apply_lap r (taylor_lap r lb 0) (x - a))%K
@@ -1560,7 +1560,7 @@ apply apply_taylor_lap_formula_sub.
 Qed.
 
 Theorem lap_taylor_formula : ∀ α (r : ring α) c la,
-  lap_eq (lap_compose r la [c; 1%K … []]) (taylor_lap r la c).
+  lap_eq (lap_compose la [c; 1%K … []]) (taylor_lap r la c).
 Proof.
 intros α R c la.
 rewrite lap_compose_compose2.

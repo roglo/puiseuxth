@@ -223,20 +223,20 @@ Definition poly_power {α} {r : ring α} pol n :=
 
 (* composition *)
 
-Definition lap_compose α (r : ring α) la lb :=
+Definition lap_compose {α} {r : ring α} la lb :=
   List.fold_right (λ c accu, lap_add (lap_mul accu lb) [c]) [] la.
 
-Definition poly_compose α (r : ring α) a b :=
-  POL (lap_compose r (al a) (al b))%pol.
+Definition poly_compose {α} {r : ring α} a b :=
+  POL (lap_compose (al a) (al b))%pol.
 
-Definition lap_compose2 α (r : ring α) la lb :=
+Definition lap_compose2 {α} {r : ring α} la lb :=
   List.fold_right
     (λ i accu,
      lap_add accu (lap_mul [List.nth i la 0] (lap_power lb i)))%K
     [] (List.seq 0 (length la)).
 
-Definition poly_compose2 α (r : ring α) a b :=
-  POL (lap_compose2 r (al a) (al b))%pol.
+Definition poly_compose2 {α} {r : ring α} a b :=
+  POL (lap_compose2 (al a) (al b))%pol.
 
 (* *)
 
@@ -249,7 +249,7 @@ Fixpoint list_pad α n (zero : α) rem :=
 Notation "a + b" := (poly_add a b) : poly_scope.
 Notation "a * b" := (poly_mul a b) : poly_scope.
 Notation "a ^ b" := (poly_power a b) : poly_scope.
-Notation "a .∘ r b" := (poly_compose r a b) : poly_scope.
+Notation "a ∘ b" := (poly_compose a b) : poly_scope.
 
 Delimit Scope lap_scope with lap.
 Notation "0" := lap_zero : lap_scope.
@@ -775,7 +775,7 @@ intros α r a b c d Hac Hbd.
 rewrite Hac, Hbd; reflexivity.
 Qed.
 
-Add Parametric Morphism α (r : ring α) : (lap_compose r)
+Add Parametric Morphism α (r : ring α) : lap_compose
   with signature lap_eq ==> lap_eq ==> lap_eq
   as lap_compose_morph.
 Proof.
@@ -810,7 +810,7 @@ induction la as [| a]; intros.
   reflexivity.
 Qed.
 
-Add Parametric Morphism α (K : ring α) : (poly_compose K)
+Add Parametric Morphism α (K : ring α) : poly_compose
   with signature eq_poly ==> eq_poly ==> eq_poly
   as poly_compose_morph.
 Proof.
@@ -1379,7 +1379,7 @@ apply Hgh.
 Qed.
 
 Lemma lap_compose_compose2 : ∀ la lb,
-  lap_eq (lap_compose r la lb) (lap_compose2 r la lb).
+  lap_eq (lap_compose la lb) (lap_compose2 la lb).
 Proof.
 intros la lb.
 revert lb.
@@ -1409,7 +1409,7 @@ Qed.
 Lemma lap_compose_compat : ∀ la lb lc ld,
   lap_eq la lc
   → lap_eq lb ld
-    → lap_eq (lap_compose r la lb) (lap_compose r lc ld).
+    → lap_eq (lap_compose la lb) (lap_compose lc ld).
 Proof.
 intros la lb lc ld Hac Hbd.
 rewrite Hac, Hbd; reflexivity.
@@ -1418,7 +1418,7 @@ Qed.
 Theorem poly_compose_compat : ∀ a b c d,
   (a = c)%pol
   → (b = d)%pol
-    → (poly_compose r a b = poly_compose r c  d)%pol.
+    → (poly_compose a b = poly_compose c d)%pol.
 Proof.
 intros a b c d Hac Hbd.
 apply lap_compose_compat; assumption.
@@ -1738,7 +1738,7 @@ Qed.
 
 End poly.
 
-Add Parametric Morphism α (r : ring α) : (lap_compose2 r)
+Add Parametric Morphism α (r : ring α) : lap_compose2
   with signature lap_eq ==> lap_eq ==> lap_eq
   as lap_compose2_morph.
 Proof.
@@ -1803,10 +1803,10 @@ Canonical Structure lap_ring.
 
 (* alternative definitions of lap_compose; could be used later, perhaps... *)
 
-Definition lap_compose3 α (r : ring α) la lb :=
+Definition lap_compose3 {α} {r : ring α} la lb :=
   Σ (lap_ring r) (i = 0, length la),
   ([List.nth i la 0%K] * lap_power lb i)%lap.
 
-Definition lap_compose4 α (r : ring α) la lb :=
+Definition lap_compose4 {α} {r : ring α} la lb :=
   let R := lap_ring r in
   Σ R (i = 0, length la), [List.nth i la 0] * lb ^ i.

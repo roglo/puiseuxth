@@ -34,7 +34,7 @@ Definition var_y α (R : ring α) := [0; 1 … []]%K.
 (* pol₁(x,y₁) = x^(-β₁).pol(x,x^γ₁.(c₁ + y₁)) *)
 Definition lap_pol₁ α (R : ring α) pol β₁ γ₁ c₁ :=
   @lap_mul _ (ps_ring R) [x_power R (- β₁)]
-    (lap_compose (ps_ring R) pol
+    (@lap_compose _ (ps_ring R) pol
        [c_x_power R c₁ γ₁; x_power R γ₁ … []]).
 
 Definition pol₁ α (R : ring α) pol β₁ γ₁ c₁ :=
@@ -305,7 +305,7 @@ Lemma lap_f₁_eq_x_min_β₁_comp : ∀ la β₁ γ₁ c₁,
   let _ := Kx in (* not sure it is the good method *)
   lap_eq (lap_pol₁ R la β₁ γ₁ c₁)
     (lap_mul [x_power R (- β₁)]
-       (lap_compose Kx la
+       (lap_compose la
           (lap_mul
              [x_power R γ₁]
              [c_x_power R c₁ 0; .1 R%ps … []]))).
@@ -332,7 +332,7 @@ Theorem f₁_eq_x_min_β₁_comp : ∀ pol β₁ γ₁ c₁,
   let f' := Kx in (* not sure it is the good method *)
   (pol₁ R pol β₁ γ₁ c₁ =
    POL [x_power R (- β₁)] *
-   poly_compose Kx pol
+   poly_compose pol
      (POL [x_power R γ₁] *
       POL [c_x_power R c₁ 0; .1 R%ps … []]))%pol.
 Proof.
@@ -347,7 +347,7 @@ Theorem f₁_eq_x_min_β₁_comp2 : ∀ pol β₁ γ₁ c₁,
   let f' := Kx in (* not sure it is the good method *)
   (pol₁ R pol β₁ γ₁ c₁ =
    POL [x_power R (- β₁)] *
-   poly_compose2 Kx pol
+   poly_compose2 pol
      (POL [x_power R γ₁] *
       POL [c_x_power R c₁ 0; .1 R%ps … []]))%pol.
 Proof.
@@ -1368,7 +1368,7 @@ Theorem sum_ah_c₁y_h_eq : ∀ pol ns pl tl l c₁ j αj,
                 POL [c_x_power R (coeff_of_term h tl) 0] *
                 POL [c_x_power R c₁ 0; .1 R%ps … []] ^ h) =
              POL [c_x_power R c₁ 0; .1 R%ps … []] ^ j *
-             poly_compose Kx (poly_inject_K_in_Kx R (Φq R pol ns))
+             poly_compose (poly_inject_K_in_Kx R (Φq R pol ns))
                (POL [c_x_power R c₁ 0; .1 R%ps … []]))%pol.
 Proof.
 intros pol ns pl tl l c₁ j αj f' Hns Hpl Htl Hl Hini.
@@ -1677,7 +1677,7 @@ Qed.
 Lemma summation_lap_compose_deg_1_mul : ∀ la c d k f,
   let _ := Kx in (* not sure it is the good method *)
   (Σ Kx (i = 0, k),
-   (List.nth (f i) (lap_compose2 Kx la [c; .1 R%ps … []]) (.0 R)%ps *
+   (List.nth (f i) (lap_compose2 la [c; .1 R%ps … []]) (.0 R)%ps *
     d i) .= R
    Σ Kx (i = 0, k),
    (Σ Kx (j = 0, length la - f i),
@@ -1688,7 +1688,7 @@ Proof.
 intros la c d k f f'.
 apply summation_compat.
 intros i (_, Hik).
-subst Kx.
+subst Kx f'.
 rewrite list_nth_compose_deg_1; [ idtac | reflexivity ].
 reflexivity.
 Qed.
@@ -1996,11 +1996,11 @@ Theorem zzz : ∀ pol ns pl tl l c₁ r Ψ j αj,
             → l = List.map (λ t, power t) tl
               → ini_pt ns = (Qnat j, αj)
                 → (POL [c_x_power R c₁ 0; .1 R%ps … []] ^ j *
-                   poly_compose Kx (poly_inject_K_in_Kx R (Φq R pol ns))
+                   poly_compose (poly_inject_K_in_Kx R (Φq R pol ns))
                      (POL [c_x_power R c₁ 0; .1 R%ps … []]) =
                    POL [.0 R%ps; .1 R%ps … []] ^ r *
                    POL [c_x_power R c₁ 0; .1 R%ps … []] ^ j *
-                   poly_compose Kx (poly_inject_K_in_Kx R Ψ)
+                   poly_compose (poly_inject_K_in_Kx R Ψ)
                      (POL [c_x_power R c₁ 0; .1 R%ps … []]))%pol.
 Proof.
 intros pol ns pl tl l c₁ r Ψ j αj f' Hns Hc₁ Hr HΨ Hpl Htl Hl Hini; subst f'.
@@ -2154,7 +2154,7 @@ Theorem ......... : ∀ pol ns c₁ pl tl j αj l₁ l₂,
           → ini_pt ns = (Qnat j, αj)
             → (pol₁ R pol (β ns) (γ ns) c₁ =
                POL [c_x_power R c₁ 0; .1 R%ps … []] ^ j *
-               poly_compose Kx (poly_inject_K_in_Kx R (Φq R pol ns))
+               poly_compose (poly_inject_K_in_Kx R (Φq R pol ns))
                  (POL [c_x_power R c₁ 0; .1 R%ps … []]) +
                POL [x_power R (- β ns)] *
                (poly_summation Kx l₁
