@@ -19,7 +19,7 @@ Set Implicit Arguments.
 
 Definition ps_mul α (r : ring α) ps₁ ps₂ :=
   {| ps_terms :=
-       series_mul r
+       series_mul
          (series_stretch r (cm_factor ps₁ ps₂) (ps_terms ps₁))
          (series_stretch r (cm_factor ps₂ ps₁) (ps_terms ps₂));
      ps_valnum :=
@@ -42,7 +42,7 @@ unfold canonic_ps; simpl.
 remember (series_stretch r (cm_factor ps₁ ps₂) (ps_terms ps₁)) as s₁ eqn:Hs₁ .
 remember (series_stretch r (cm_factor ps₂ ps₁) (ps_terms ps₂)) as s₂ eqn:Hs₂ .
 rewrite series_mul_comm.
-remember (null_coeff_range_length r (s₂ .* r s₁)%ser 0) as n eqn:Hn .
+remember (null_coeff_range_length r (s₂ * s₁)%ser 0) as n eqn:Hn .
 destruct n as [n| ]; [ idtac | reflexivity ].
 constructor; simpl.
  unfold gcd_ps; simpl.
@@ -127,8 +127,8 @@ Theorem ps_mul_0_r : ∀ ps, (ps .* r .0 r .= r .0 r)%ps.
 Proof. intros ps. rewrite ps_mul_comm. apply ps_mul_0_l. Qed.
 
 Lemma series_stretch_mul : ∀ a b k,
-  (series_stretch r k (a .* r b) =
-   series_stretch r k a .* r series_stretch r k b)%ser.
+  (series_stretch r k (a * b) =
+   series_stretch r k a * series_stretch r k b)%ser.
 Proof.
 intros a b k.
 constructor; intros i; simpl.
@@ -209,7 +209,7 @@ rewrite Pos.mul_comm in Hc₃₁; rewrite <- Hc₃₁.
 remember (series_stretch r c₂₃ (ps_terms ps₁)) as s₁ eqn:Hs₁ .
 remember (series_stretch r c₃₁ (ps_terms ps₂)) as s₂ eqn:Hs₂ .
 remember (series_stretch r c₁₂ (ps_terms ps₃)) as s₃ eqn:Hs₃ .
-remember (series_mul r (series_mul r s₁ s₂) s₃) as s₁₂₃ eqn:Hs₁₂₃ .
+remember (series_mul (series_mul s₁ s₂) s₃) as s₁₂₃ eqn:Hs₁₂₃ .
 remember (null_coeff_range_length r s₁₂₃ 0) as n eqn:Hn .
 symmetry in Hn.
 destruct n as [n| ]; [ idtac | reflexivity ].
@@ -314,7 +314,7 @@ destruct (lt_dec i n); [ reflexivity | contradiction ].
 Qed.
 
 Lemma series_shift_mul : ∀ a b n,
-  (series_shift r n (a .* r b)%ser = series_shift r n a .* r b)%ser.
+  (series_shift r n (a * b)%ser = series_shift r n a * b)%ser.
 Proof.
 intros a b n.
 constructor; intros k; simpl.
