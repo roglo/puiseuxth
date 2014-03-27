@@ -654,8 +654,8 @@ Qed.
 
 Lemma lap_derivial_1_mul_const : ∀ α (R : ring α) a lb,
   lap_eq
-    (lap_derivial R 1 (lap_mul R [a] lb))
-    (lap_mul R [a] (lap_derivial R 1 lb)).
+    (lap_derivial R 1 (lap_mul [a] lb))
+    (lap_mul [a] (lap_derivial R 1 lb)).
 Proof.
 intros α R a lb.
 induction lb as [| b]; intros; simpl.
@@ -912,7 +912,7 @@ induction la as [| a]; intros; simpl.
 Qed.
 
 Lemma apply_lap_single : ∀ α (r : ring α) a lb x,
-  (apply_lap r (lap_mul r [a] lb) x = a * apply_lap r lb x)%K.
+  (apply_lap r (lap_mul [a] lb) x = a * apply_lap r lb x)%K.
 Proof.
 intros α r a lb x.
 induction lb as [| b].
@@ -924,7 +924,7 @@ induction lb as [| b].
 Qed.
 
 Lemma apply_lap_mul : ∀ α (r : ring α) la lb x,
-  (apply_lap r (lap_mul r la lb) x =
+  (apply_lap r (lap_mul la lb) x =
    apply_lap r la x * apply_lap r lb x)%K.
 Proof.
 intros α r la lb x.
@@ -1069,7 +1069,7 @@ rewrite list_skipn_nil; reflexivity.
 Qed.
 
 Lemma lap_mul_const_l : ∀ α (r : ring α) a lb,
-  lap_eq (lap_mul r [a] lb) (List.map (rng_mul a) lb).
+  lap_eq (lap_mul [a] lb) (List.map (rng_mul a) lb).
 Proof.
 intros α r a lb.
 unfold lap_mul; simpl.
@@ -1081,10 +1081,10 @@ Qed.
 
 Lemma lap_derivial_mul : ∀ α (R : ring α) la lb,
   lap_eq
-    (lap_derivial R 1 (lap_mul R la lb))
+    (lap_derivial R 1 (lap_mul la lb))
     (lap_add
-       (lap_mul R (lap_derivial R 1 la) lb)
-       (lap_mul R la (lap_derivial R 1 lb))).
+       (lap_mul (lap_derivial R 1 la) lb)
+       (lap_mul la (lap_derivial R 1 lb))).
 Proof.
 intros α R la lb.
 revert lb.
@@ -1190,7 +1190,7 @@ Qed.
 
 Lemma lap_compose_cons_l : ∀ α (r : ring α) a la lb,
   lap_eq (lap_compose r [a … la] lb)
-    (lap_add [a] (lap_mul r lb (lap_compose r la lb))).
+    (lap_add [a] (lap_mul lb (lap_compose r la lb))).
 Proof.
 intros α r a la lb.
 rewrite lap_add_comm, lap_mul_comm; reflexivity.
@@ -1299,13 +1299,13 @@ Lemma fold_add_pow : ∀ α (r : ring α) a la lb lc da,
     (List.fold_right
       (λ i accu,
        lap_add accu
-         (lap_mul r [List.nth (S i) [a … la] da]
-            (lap_power r lb (S i))))
+         (lap_mul [List.nth (S i) [a … la] da]
+            (lap_power lb (S i))))
       [] lc)
-    (lap_mul r lb
+    (lap_mul lb
        (List.fold_right
           (λ i accu,
-           lap_add accu (lap_mul r [List.nth i la da] (lap_power r lb i)))
+           lap_add accu (lap_mul [List.nth i la da] (lap_power lb i)))
           [] lc)).
 Proof.
 intros α r a la lb lc da; simpl; clear.
@@ -1323,7 +1323,7 @@ induction lc as [| c]; intros; simpl.
 Qed.
 
 Lemma nth_mul_deg_1 : ∀ α (r : ring α) a lb k,
-  (List.nth (S k) (lap_mul r [a; 1 … []] lb) 0 =
+  (List.nth (S k) (lap_mul [a; 1 … []] lb) 0 =
    a * List.nth (S k) lb 0 + List.nth k lb 0)%K.
 Proof.
 intros α r a lb k.
@@ -1697,7 +1697,7 @@ Qed.
 
 (* P(x) = P(0) + x Q(x) *)
 Lemma poly_eq_add_const_mul_x_poly : ∀ c cl,
-  (POL [c … cl] = POL [c] + POL [0; 1 … []]%K .* R POL cl)%pol.
+  (POL [c … cl] = POL [c] + POL [0; 1 … []]%K * POL cl)%pol.
 Proof.
 intros c cl.
 unfold eq_poly; simpl.
@@ -1774,7 +1774,7 @@ induction la as [| a]; intros; simpl.
 Qed.
 
 Lemma apply_poly_mul : ∀ p₁ p₂ x,
-  (apply_poly R (p₁ .* R p₂)%pol x =
+  (apply_poly R (p₁ * p₂)%pol x =
    apply_poly R p₁ x * apply_poly R p₂ x)%K.
 Proof.
 intros p₁ p₂ x.
@@ -1820,7 +1820,7 @@ Qed.
 Lemma root_formula : ∀ la c,
   (apply_lap R la c = 0)%K
   → lap_eq la
-       (lap_mul R [(- c)%K; 1%K … []] (lap_div_deg_1 R la c)).
+       (lap_mul [(- c)%K; 1%K … []] (lap_div_deg_1 R la c)).
 Proof.
 intros la c Hc.
 unfold lap_div_deg_1.
@@ -1875,7 +1875,7 @@ Qed.
 (* p(c) = 0 ⇒ p = (x-c) * (p / (x-c)) *)
 Lemma poly_root_formula : ∀ c p,
   (apply_poly R p c = 0)%K
-  → (p = POL [(- c)%K; 1%K … []] .* R poly_div_deg_1 R p c)%pol.
+  → (p = POL [(- c)%K; 1%K … []] * poly_div_deg_1 R p c)%pol.
 Proof.
 intros c p Hz.
 apply root_formula; assumption.
@@ -2064,7 +2064,7 @@ eapply q_is_factor_of_h_minus_j with (h := k) in Hqkj; try eassumption.
  apply List.in_or_app; right; left; symmetry; eassumption.
 Qed.
 
-Lemma poly_power_1_r : ∀ P, (poly_power R P 1 = P)%pol.
+Lemma poly_power_1_r : ∀ P, (poly_power P 1 = P)%pol.
 Proof.
 intros P.
 unfold eq_poly; simpl.
@@ -2082,7 +2082,7 @@ Qed.
 Lemma list_root_mul_power_quotient : ∀ la c r len,
   list_root_multiplicity acf c la len = r
   → lap_eq la
-       (lap_mul R (lap_power R [(- c)%K; 1%K … []] r)
+       (lap_mul (lap_power [(- c)%K; 1%K … []] r)
        (list_quotient_phi_x_sub_c_pow_r R la c r)).
 Proof.
 intros la c r len Hmult.
@@ -2205,7 +2205,7 @@ Qed.
 Theorem phi_zq_eq_z_sub_c₁_psy : ∀ pol ns c₁ r Ψ,
   r = root_multiplicity acf c₁ (Φq R pol ns)
   → Ψ = quotient_phi_x_sub_c_pow_r R (Φq R pol ns) c₁ r
-    → (Φq R pol ns = POL [(- c₁)%K; 1%K … []] .^ R r .* R Ψ)%pol.
+    → (Φq R pol ns = POL [(- c₁)%K; 1%K … []] ^ r * Ψ)%pol.
 Proof.
 intros pol ns c r Ψ Hr HΨ.
 subst Ψ; simpl.
