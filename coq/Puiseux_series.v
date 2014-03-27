@@ -127,12 +127,12 @@ Inductive eq_ps {α} {r : ring α} :
       eq_ps_strong (canonic_ps r ps₁) (canonic_ps r ps₂)
       → eq_ps ps₁ ps₂.
 
-Definition ps_monom α (r : ring α) (c : α) pow :=
+Definition ps_monom {α} {r : ring α} (c : α) pow :=
   {| ps_terms := {| terms i := if zerop i then c else 0%K |};
      ps_valnum := Qnum pow;
      ps_polord := Qden pow |}.
 
-Definition ps_one {α} {r : ring α} := ps_monom r (rng_one) 0.
+Definition ps_one {α} {r : ring α} := ps_monom rng_one 0.
 
 Delimit Scope ps_scope with ps.
 Notation "a ≐ b" := (eq_ps_strong a b) (at level 70, r at level 0).
@@ -570,7 +570,7 @@ Section other_lemmas.
 Variable α : Type.
 Variable r : ring α.
 
-Lemma ps_zero_monom_eq : (ps_monom r 0%K 0 = 0)%ps.
+Lemma ps_zero_monom_eq : (ps_monom 0%K 0 = 0)%ps.
 Proof.
 unfold ps_zero, ps_monom; simpl.
 apply mkps_morphism; try reflexivity.

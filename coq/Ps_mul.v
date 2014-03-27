@@ -907,7 +907,7 @@ destruct n₄ as [n₄| ].
 Qed.
 
 Lemma ps_monom_add_l : ∀ c d n,
-  (ps_monom r (c + d)%K n = ps_monom r c n + ps_monom r d n)%ps.
+  (ps_monom (c + d)%K n = ps_monom c n + ps_monom d n)%ps.
 Proof.
 intros c d n.
 unfold ps_monom; simpl.
@@ -936,8 +936,7 @@ apply mkps_morphism; simpl.
 Qed.
 
 Lemma ps_monom_add_r : ∀ c p q,
- (ps_monom r c (p + q) =
-  ps_monom r c p * ps_monom r 1%K q)%ps.
+ (ps_monom c (p + q) = ps_monom c p * ps_monom 1%K q)%ps.
 Proof.
 intros c p q.
 unfold ps_mul; simpl.

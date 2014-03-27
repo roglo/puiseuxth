@@ -203,6 +203,7 @@ Notation "a = b" := (lap_eq a b) : lap_scope.
 Notation "a + b" := (lap_add a b) : lap_scope.
 Notation "a - b" := (lap_add a (lap_opp b)) : lap_scope.
 Notation "a * b" := (lap_mul a b) : lap_scope.
+Notation "a ^ b" := (lap_power a b) : lap_scope.
 
 Definition list_nth_def_0 α (r : ring α) n l := List.nth n l 0%K.
 
