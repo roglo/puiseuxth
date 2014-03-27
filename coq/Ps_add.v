@@ -242,7 +242,7 @@ Variable α : Type.
 Variable r : ring α.
 
 Lemma series_stretch_add_distr : ∀ k s₁ s₂,
-  (series_stretch r k (s₁ + s₂) .= r
+  (series_stretch r k (s₁ + s₂) =
    series_stretch r k s₁ + series_stretch r k s₂)%ser.
 Proof.
 intros kp s₁ s₂.
@@ -254,7 +254,7 @@ rewrite rng_add_0_l; reflexivity.
 Qed.
 
 Lemma ps_terms_add_comm : ∀ ps₁ ps₂,
-  (ps_terms_add r ps₁ ps₂ .= r ps_terms_add r ps₂ ps₁)%ser.
+  (ps_terms_add r ps₁ ps₂ = ps_terms_add r ps₂ ps₁)%ser.
 Proof.
 intros ps₁ ps₂.
 unfold ps_terms_add.
@@ -308,7 +308,7 @@ Qed.
 *)
 
 Lemma series_shift_add_distr : ∀ s₁ s₂ n,
-  (series_shift r n (s₁ + s₂) .= r
+  (series_shift r n (s₁ + s₂) =
    series_shift r n s₁ + series_shift r n s₂)%ser.
 Proof.
 intros s₁ s₂ n.
@@ -318,7 +318,7 @@ rewrite rng_add_0_l; reflexivity.
 Qed.
 
 Lemma ps_terms_add_assoc : ∀ ps₁ ps₂ ps₃,
-  (ps_terms_add r (ps₁ .+ r ps₂)%ps ps₃ .= r
+  (ps_terms_add r (ps₁ .+ r ps₂)%ps ps₃ =
    ps_terms_add r ps₁ (ps₂ .+ r ps₃)%ps)%ser.
 Proof.
 intros ps₁ ps₂ ps₃.
@@ -580,7 +580,7 @@ Qed.
 (* not used, mais bon, je les garde, on sait jamais *)
 
 Add Parametric Morphism α (r : ring α) : (adjust_series r)
-  with signature eq ==> eq ==> eq_series r ==> eq_series r
+  with signature eq ==> eq ==> eq_series ==> eq_series
   as adjust_series_morph.
 Proof.
 intros n k s₁ s₂ Heq.
@@ -591,7 +591,7 @@ destruct (zerop ((i - n) mod Pos.to_nat k)); [ apply H | reflexivity ].
 Qed.
 
 Add Parametric Morphism α (r : ring α) : (ps_terms_add r)
-  with signature eq_ps_strong r ==> eq_ps_strong r ==> eq_series r
+  with signature eq_ps_strong r ==> eq_ps_strong r ==> eq_series
   as ps_terms_add_morph.
 Proof.
 intros ps₁ ps₃ Heq₁ ps₂ ps₄ Heq₂.

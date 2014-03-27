@@ -127,7 +127,7 @@ Theorem ps_mul_0_r : ∀ ps, (ps .* r .0 r .= r .0 r)%ps.
 Proof. intros ps. rewrite ps_mul_comm. apply ps_mul_0_l. Qed.
 
 Lemma series_stretch_mul : ∀ a b k,
-  (series_stretch r k (a .* r b) .= r
+  (series_stretch r k (a .* r b) =
    series_stretch r k a .* r series_stretch r k b)%ser.
 Proof.
 intros a b k.
@@ -314,7 +314,7 @@ destruct (lt_dec i n); [ reflexivity | contradiction ].
 Qed.
 
 Lemma series_shift_mul : ∀ a b n,
-  (series_shift r n (a .* r b)%ser .= r series_shift r n a .* r b)%ser.
+  (series_shift r n (a .* r b)%ser = series_shift r n a .* r b)%ser.
 Proof.
 intros a b n.
 constructor; intros k; simpl.
@@ -757,7 +757,7 @@ Qed.
 
 Lemma ps_terms_adjust_mul_add₂_distr_l : ∀ ps₁ ps₂ ps₃,
   (ps_terms
-     (adjust_ps r 0 (ps_polord ps₁) (ps₁ .* r ps_add₂ r ps₂ ps₃)%ps) .= r
+     (adjust_ps r 0 (ps_polord ps₁) (ps₁ .* r ps_add₂ r ps₂ ps₃)%ps) =
    ps_terms
      (adjust_ps r 0 1 (ps_add₂ r (ps₁ .* r ps₂)%ps (ps₁ .* r ps₃)%ps)))%ser.
 Proof.
@@ -855,7 +855,7 @@ Lemma ps_terms_adjust_canonic_mul_add₂_distr_l : ∀ ps₁ ps₂ ps₃ ps₄ p
   → ps₅ = adjust_ps r 0 1 (ps_add₂ r (ps₁ .* r ps₂)%ps (ps₁ .* r ps₃)%ps)
     → null_coeff_range_length r (ps_terms ps₄) 0 = fin n
       → null_coeff_range_length r (ps_terms ps₅) 0 = fin n
-        → (ps_terms (canonic_ps r ps₄) .= r ps_terms (canonic_ps r ps₅))%ser.
+        → (ps_terms (canonic_ps r ps₄) = ps_terms (canonic_ps r ps₅))%ser.
 Proof.
 intros ps₁ ps₂ ps₃ ps₄ ps₅ n Hps₄ Hps₅ Hn₄ Hn₅.
 erewrite ps_terms_canonic; try reflexivity; try eassumption.

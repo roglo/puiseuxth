@@ -26,7 +26,7 @@ apply H.
 Qed.
 
 Lemma canonify_series_add_shift : ∀ s n m k,
-  (canonify_series (n + m) k (series_shift r m s) .= r
+  (canonify_series (n + m) k (series_shift r m s) =
    canonify_series n k s)%ser.
 Proof.
 intros s n m k.

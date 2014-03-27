@@ -11,7 +11,7 @@ Require Import Fsummation.
 
 Set Implicit Arguments.
 
-Class power_series α := { terms : nat → α }.
+Record power_series α := { terms : nat → α }.
 
 Notation "s .[ i ]" := (@terms _ s i) (at level 1).
 
@@ -27,22 +27,22 @@ Delimit Scope series_scope with ser.
 Notation ".0 f" := (series_0 f) : series_scope.
 Notation ".1 f" := (series_1 f) : series_scope.
 
-Inductive eq_series α (r : ring α) :
+Inductive eq_series {α} {r : ring α} :
     power_series α → power_series α → Prop :=
   eq_series_base : ∀ s₁ s₂,
-    (∀ i, (s₁ .[i] = s₂ .[i])%K)
-    → eq_series r s₁ s₂.
+    (∀ i, (s₁.[i] = s₂.[i])%K)
+    → eq_series s₁ s₂.
 
-Notation "a .= r b" := (eq_series r a b) : series_scope.
-Notation "a .≠ r b" := (¬ eq_series r a b) : series_scope.
+Notation "a = b" := (eq_series a b) : series_scope.
+Notation "a ≠ b" := (¬ eq_series a b) : series_scope.
 
-Theorem eq_series_refl α (r : ring α) : reflexive _ (eq_series r).
+Theorem eq_series_refl α (r : ring α) : reflexive _ eq_series.
 Proof.
 intros s.
 constructor; reflexivity.
 Qed.
 
-Theorem eq_series_sym α (r : ring α) : symmetric _ (eq_series r).
+Theorem eq_series_sym α (r : ring α) : symmetric _ eq_series.
 Proof.
 intros s₁ s₂ H.
 inversion H; subst.
@@ -50,7 +50,7 @@ constructor.
 intros i; symmetry; apply H0.
 Qed.
 
-Theorem eq_series_trans α (r : ring α) : transitive _ (eq_series r).
+Theorem eq_series_trans α (r : ring α) : transitive _ eq_series.
 Proof.
 intros s₁ s₂ s₃ H₁ H₂.
 inversion H₁; inversion H₂; subst.
@@ -58,7 +58,7 @@ constructor.
 etransitivity; [ apply H | apply H2 ].
 Qed.
 
-Add Parametric Relation α (r : ring α) : (power_series α) (eq_series r)
+Add Parametric Relation α (r : ring α) : (power_series α) eq_series
  reflexivity proved by (eq_series_refl r)
  symmetry proved by (eq_series_sym (r := r))
  transitivity proved by (eq_series_trans (r := r))
@@ -88,7 +88,7 @@ Section theorems_add.
 Variable α : Type.
 Variable r : ring α.
 
-Theorem series_add_comm : ∀ s₁ s₂, (s₁ + s₂ .= r s₂ + s₁)%ser.
+Theorem series_add_comm : ∀ s₁ s₂, (s₁ + s₂ = s₂ + s₁)%ser.
 Proof.
 intros s₁ s₂.
 constructor; intros i; simpl.
@@ -96,7 +96,7 @@ rewrite rng_add_comm; reflexivity.
 Qed.
 
 Theorem series_add_assoc : ∀ s₁ s₂ s₃,
-  (s₁ + (s₂ + s₃) .= r (s₁ + s₂) + s₃)%ser.
+  (s₁ + (s₂ + s₃) = (s₁ + s₂) + s₃)%ser.
 Proof.
 intros s₁ s₂ s₃.
 unfold series_add; simpl.
@@ -107,21 +107,21 @@ Qed.
 Lemma series_nth_series_0 : ∀ i, (.0 r%ser .[i])%K = 0%K.
 Proof. reflexivity. Qed.
 
-Theorem series_add_0_l : ∀ s, (.0 r + s .= r s)%ser.
+Theorem series_add_0_l : ∀ s, (.0 r + s = s)%ser.
 Proof.
 intros s.
 constructor; intros i; simpl.
 rewrite rng_add_0_l; reflexivity.
 Qed.
 
-Theorem series_add_opp_r : ∀ s, (s - s .= r .0 r)%ser.
+Theorem series_add_opp_r : ∀ s, (s - s = .0 r)%ser.
 Proof.
 intros s.
 constructor; intros i; simpl.
 apply rng_add_opp_r.
 Qed.
 
-Theorem series_add_opp_l : ∀ s, (- s + s .= r .0 r)%ser.
+Theorem series_add_opp_l : ∀ s, (- s + s = .0 r)%ser.
 Proof.
 intros s.
 rewrite series_add_comm.
@@ -140,8 +140,8 @@ Definition series_mul α (r : ring α) a b :=
 
 Notation "a .* r b" := (series_mul r a b) : series_scope.
 
-Add Parametric Morphism α (F : ring α) : (series_mul F)
-  with signature eq_series F ==> eq_series F ==> eq_series F
+Add Parametric Morphism α (R : ring α) : (series_mul R)
+  with signature eq_series ==> eq_series ==> eq_series
   as series_mul_morph.
 Proof.
 intros a b Hab c d Hcd.
@@ -170,7 +170,7 @@ rewrite Nat_sub_sub_distr; [ idtac | destruct Hi; auto ].
 rewrite Nat.add_comm, Nat.add_sub, rng_mul_comm; reflexivity.
 Qed.
 
-Theorem series_mul_comm : ∀ a b, (a .* r b .= r b .* r a)%ser.
+Theorem series_mul_comm : ∀ a b, (a .* r b = b .* r a)%ser.
 Proof.
 intros a b.
 constructor; intros k; simpl.
@@ -186,7 +186,7 @@ rewrite series_nth_series_0.
 rewrite rng_mul_0_l; reflexivity.
 Qed.
 
-Theorem series_mul_0_l : ∀ s, (.0 r .* r s .= r .0 r)%ser.
+Theorem series_mul_0_l : ∀ s, (.0 r .* r s = .0 r)%ser.
 Proof.
 intros s.
 constructor; intros k.
@@ -194,7 +194,7 @@ unfold series_mul; simpl.
 apply convol_mul_0_l.
 Qed.
 
-Theorem series_mul_1_l : ∀ s, (.1 r .* r s .= r s)%ser.
+Theorem series_mul_1_l : ∀ s, (.1 r .* r s = s)%ser.
 Proof.
 intros s.
 constructor; intros k; simpl.
@@ -210,7 +210,7 @@ rewrite summation_only_one_non_0 with (v := O).
  apply rng_mul_0_l.
 Qed.
 
-Theorem series_mul_1_r : ∀ s, (s .* r .1 r .= r s)%ser.
+Theorem series_mul_1_r : ∀ s, (s .* r .1 r = s)%ser.
 Proof.
 intros s.
 rewrite series_mul_comm.
@@ -218,7 +218,7 @@ apply series_mul_1_l.
 Qed.
 
 Theorem series_mul_assoc : ∀ a b c,
-  (a .* r (b .* r c) .= r (a .* r b) .* r c)%ser.
+  (a .* r (b .* r c) = (a .* r b) .* r c)%ser.
 Proof.
 intros a b c.
 constructor; intros k; simpl.
@@ -256,7 +256,7 @@ reflexivity.
 Qed.
 
 Theorem series_mul_add_distr_l : ∀ a b c,
-  (a .* r (b + c) .= r a .* r b + a .* r c)%ser.
+  (a .* r (b + c) = a .* r b + a .* r c)%ser.
 Proof.
 intros a b c.
 constructor; intros k; simpl.
@@ -266,7 +266,7 @@ Qed.
 End misc_lemmas.
 
 Add Parametric Morphism α (R : ring α) : series_add
-  with signature eq_series R ==> eq_series R ==> eq_series R
+  with signature eq_series ==> eq_series ==> eq_series
   as series_add_morph.
 Proof.
 intros s₁ s₂ Heq₁ s₃ s₄ Heq₂.
@@ -276,8 +276,8 @@ constructor; intros i; simpl.
 rewrite H, H0; reflexivity.
 Qed.
 
-Add Parametric Morphism α (F : ring α) : (@terms α)
-  with signature eq_series F ==> eq ==> rng_eq
+Add Parametric Morphism α (R : ring α) : (@terms α)
+  with signature eq_series ==> eq ==> rng_eq
   as series_nth_morph.
 Proof.
 intros s₁ s₂ Heq i.
@@ -291,8 +291,8 @@ Variable α : Type.
 Variable r : ring α.
 
 Theorem series_add_compat_l : ∀ a b c,
-  (a .= r b)%ser
-  → (c + a .= r c + b)%ser.
+  (a = b)%ser
+  → (c + a = c + b)%ser.
 Proof.
 intros a b c Hab.
 rewrite Hab.
@@ -300,8 +300,8 @@ reflexivity.
 Qed.
 
 Theorem series_mul_compat_l : ∀ a b c,
-  (a .= r b)%ser
-  → (c .* r a .= r c .* r b)%ser.
+  (a = b)%ser
+  → (c .* r a = c .* r b)%ser.
 Proof.
 intros a b c Hab.
 rewrite Hab.
@@ -309,8 +309,8 @@ reflexivity.
 Qed.
 
 Theorem series_mul_compat_r : ∀ a b c,
-  (a .= r b)%ser
-  → (a .* r c .= r b .* r c)%ser.
+  (a = b)%ser
+  → (a .* r c = b .* r c)%ser.
 Proof.
 intros a b c Hab.
 rewrite Hab.
@@ -318,7 +318,7 @@ reflexivity.
 Qed.
 
 Theorem series_mul_add_distr_r : ∀ a b c,
-  ((a + b) .* r c .= r a .* r c + b .* r c)%ser.
+  ((a + b) .* r c = a .* r c + b .* r c)%ser.
 Proof.
 intros a b c.
 rewrite series_mul_comm, series_mul_add_distr_l.
@@ -469,7 +469,7 @@ Qed.
 
 Theorem series_mul_inv_r : ∀ a,
   (a .[0] ≠ 0)%K
-  → (a .* r .¹/f a .= r .1 r)%ser.
+  → (a .* r .¹/f a = .1 r)%ser.
 Proof.
 intros a Ha.
 constructor; intros i; simpl.
@@ -483,7 +483,7 @@ Qed.
 
 Theorem series_mul_inv_l : ∀ a,
   (a .[0] ≠ 0)%K
-  → (.¹/f a .* r a .= r .1 r)%ser.
+  → (.¹/f a .* r a = .1 r)%ser.
 Proof.
 intros a Ha.
 rewrite series_mul_comm.
@@ -499,7 +499,7 @@ Definition series_ring α (r : ring α) : ring (power_series α) :=
      rng_add := series_add;
      rng_mul := series_mul r;
      rng_opp := series_opp;
-     rng_eq := eq_series r;
+     rng_eq := eq_series;
      rng_eq_refl := eq_series_refl r;
      rng_eq_sym := eq_series_sym (r := r);
      rng_eq_trans := eq_series_trans (r := r);

@@ -118,7 +118,7 @@ Inductive eq_ps_strong α (r : ring α) :
   | eq_strong_base : ∀ ps₁ ps₂,
       ps_valnum ps₁ = ps_valnum ps₂
       → ps_polord ps₁ = ps_polord ps₂
-        → eq_series r (ps_terms ps₁) (ps_terms ps₂)
+        → eq_series (ps_terms ps₁) (ps_terms ps₂)
           → eq_ps_strong r ps₁ ps₂.
 
 Inductive eq_ps α (r : ring α) :
@@ -142,7 +142,7 @@ Notation ".0 f" := (ps_zero f) : ps_scope.
 Notation ".1 f" := (ps_one f) : ps_scope.
 
 Lemma series_stretch_1 : ∀ α (r : ring α) s,
-  (series_stretch r 1 s .= r s)%ser.
+  (series_stretch r 1 s = s)%ser.
 Proof.
 intros α r s.
 unfold series_stretch; simpl.
@@ -186,7 +186,7 @@ apply Nbar.mul_lt_mono_pos_r.
 Qed.
 
 Add Parametric Morphism α (r : ring α) : (@mkps α)
-  with signature eq_series r ==> eq ==> eq ==> eq_ps_strong r
+  with signature eq_series ==> eq ==> eq ==> eq_ps_strong r
   as mkps_strong_eq_morphism.
 Proof.
 intros a b Hab v n.
@@ -194,7 +194,7 @@ constructor; [ reflexivity | reflexivity | assumption ].
 Qed.
 
 Add Parametric Morphism α (r : ring α) : (null_coeff_range_length r)
-  with signature eq_series r ==> eq ==> eq
+  with signature eq_series ==> eq ==> eq
   as null_coeff_range_length_morph.
 Proof.
 intros s₁ s₂ Heq n.
@@ -227,7 +227,7 @@ destruct n₁ as [n₁| ].
 Qed.
 
 Add Parametric Morphism α (r : ring α) : (nth_null_coeff_range_length r)
-  with signature eq_series r ==> eq ==> eq ==> eq
+  with signature eq_series ==> eq ==> eq ==> eq
   as nth_null_coeff_range_length_morph.
 Proof.
 intros s₁ s₂ Heq c n.
@@ -237,7 +237,7 @@ destruct (null_coeff_range_length r s₂ (S n)); [ apply IHc | reflexivity ].
 Qed.
 
 Add Parametric Morphism α (r : ring α) : (greatest_series_x_power r)
-  with signature eq_series r ==> eq ==> eq
+  with signature eq_series ==> eq ==> eq
   as greatest_series_x_power_morph.
 Proof.
 intros s₁ s₂ Heq n.
@@ -263,7 +263,7 @@ split.
 Qed.
 
 Add Parametric Morphism α (r : ring α) : (series_stretch r)
-  with signature eq ==> eq_series r ==> eq_series r
+  with signature eq ==> eq_series ==> eq_series
   as stretch_morph.
 Proof.
 intros kp s₁ s₂ Heq.
@@ -281,7 +281,7 @@ rewrite Nat.div_mul; assumption.
 Qed.
 
 Add Parametric Morphism α (r : ring α) : (@series_shrink α)
-  with signature eq ==> eq_series r ==> eq_series r
+  with signature eq ==> eq_series ==> eq_series
   as shrink_morph.
 Proof.
 intros n s₁ s₂ Heq.
@@ -291,7 +291,7 @@ apply H.
 Qed.
 
 Add Parametric Morphism α (r : ring α) : (series_shift r)
-  with signature eq ==> eq_series r ==> eq_series r
+  with signature eq ==> eq_series ==> eq_series
   as series_shift_morph.
 Proof.
 intros n s₁ s₂ Heq.
@@ -301,7 +301,7 @@ destruct (lt_dec i n); [ reflexivity | apply H ].
 Qed.
 
 Add Parametric Morphism α (r : ring α) : (@canonify_series α)
-  with signature eq ==> eq ==> eq_series r ==> eq_series r
+  with signature eq ==> eq ==> eq_series ==> eq_series
   as canonify_morph.
 Proof.
 intros n k ps₁ ps₂ Heq.
@@ -329,7 +329,7 @@ constructor; simpl; rewrite H1; reflexivity.
 Qed.
 
 Add Parametric Morphism α (r : ring α) : (@mkps α)
-  with signature eq_series r ==> eq ==> eq ==> eq_ps r
+  with signature eq_series ==> eq ==> eq ==> eq_ps r
   as mkps_morphism.
 Proof.
 intros a b Hab v n.
@@ -354,7 +354,7 @@ induction H; constructor; try assumption; symmetry; assumption.
 Qed.
 
 Lemma series_stretch_stretch : ∀ a b s,
-  (series_stretch r (a * b) s .= r
+  (series_stretch r (a * b) s =
    series_stretch r a (series_stretch r b s))%ser.
 Proof.
 intros ap bp s.
@@ -397,14 +397,14 @@ destruct (zerop (i mod (a * b))) as [Hz| Hnz].
   apply Nat.neq_mul_0; split; assumption.
 Qed.
 
-Lemma series_shift_series_0 : ∀ n, (series_shift r n .0 r .= r .0 r)%ser.
+Lemma series_shift_series_0 : ∀ n, (series_shift r n .0 r = .0 r)%ser.
 Proof.
 intros n.
 constructor; intros i; simpl.
 destruct (lt_dec i n); reflexivity.
 Qed.
 
-Lemma series_stretch_series_0 : ∀ k, (series_stretch r k .0 r .= r .0 r)%ser.
+Lemma series_stretch_series_0 : ∀ k, (series_stretch r k .0 r = .0 r)%ser.
 Proof.
 intros k.
 constructor; intros i; simpl.
@@ -413,8 +413,8 @@ destruct (Nbar.lt_dec (fin (i / Pos.to_nat k)) 0); reflexivity.
 Qed.
 
 Lemma series_stretch_0_if : ∀ k s,
-  (series_stretch r k s .= r .0 r)%ser
-  → (s .= r .0 r)%ser.
+  (series_stretch r k s = .0 r)%ser
+  → (s = .0 r)%ser.
 Proof.
 intros k s Hs.
 constructor; intros i.
@@ -427,7 +427,7 @@ assumption.
 Qed.
 
 Lemma stretch_shift_series_distr : ∀ kp n s,
-  (series_stretch r kp (series_shift r n s) .= r
+  (series_stretch r kp (series_shift r n s) =
    series_shift r (n * Pos.to_nat kp) (series_stretch r kp s))%ser.
 Proof.
 intros kp n s.
@@ -478,7 +478,7 @@ destruct (zerop (i mod k)) as [Hz| Hnz].
 Qed.
 
 Lemma series_shift_shift : ∀ x y ps,
-  (series_shift r x (series_shift r y ps) .= r series_shift r (x + y) ps)%ser.
+  (series_shift r x (series_shift r y ps) = series_shift r (x + y) ps)%ser.
 Proof.
 intros x y ps.
 constructor; intros i; simpl.
@@ -504,7 +504,7 @@ Qed.
 
 Theorem series_shift_left_shift : ∀ s n,
   null_coeff_range_length r s 0 = fin n
-  → (series_shift r n (series_left_shift n s) .= r s)%ser.
+  → (series_shift r n (series_left_shift n s) = s)%ser.
 Proof.
 intros s n Hn.
 apply null_coeff_range_length_iff in Hn.
@@ -522,7 +522,7 @@ Qed.
 
 Theorem series_left_shift_shift : ∀ s n m,
   (m ≤ n)%nat
-  → (series_left_shift n (series_shift r m s) .= r
+  → (series_left_shift n (series_shift r m s) =
      series_left_shift (n - m) s)%ser.
 Proof.
 intros s n m Hmn.
@@ -537,7 +537,7 @@ destruct (lt_dec (n + i) m) as [H₁| H₁].
 Qed.
 
 Theorem series_left_shift_stretch : ∀ s n k,
-  (series_left_shift (n * Pos.to_nat k) (series_stretch r k s) .= r
+  (series_left_shift (n * Pos.to_nat k) (series_stretch r k s) =
    series_stretch r k (series_left_shift n s))%ser.
 Proof.
 intros s n k.
@@ -578,14 +578,14 @@ constructor; intros n; simpl.
 destruct (zerop n); reflexivity.
 Qed.
 
-Lemma series_shift_0 : ∀ s, (series_shift r 0 s .= r s)%ser.
+Lemma series_shift_0 : ∀ s, (series_shift r 0 s = s)%ser.
 Proof.
 intros s.
 constructor; intros i; simpl.
 rewrite Nat.sub_0_r; reflexivity.
 Qed.
 
-Lemma series_left_shift_0 : ∀ s, (series_left_shift 0 s .= r s)%ser.
+Lemma series_left_shift_0 : ∀ s, (series_left_shift 0 s = s)%ser.
 Proof.
 intros s.
 constructor; intros i; simpl.
@@ -689,7 +689,7 @@ exfalso; revert Hi; rewrite Hz; apply Nat.lt_irrefl.
 Qed.
 
 Lemma stretch_series_const : ∀ k c,
-  (series_stretch r k (series_const r c) .= r series_const r c)%ser.
+  (series_stretch r k (series_const r c) = series_const r c)%ser.
 Proof.
 intros k c.
 constructor; intros i; simpl.
@@ -710,7 +710,7 @@ destruct (zerop (i mod Pos.to_nat k)) as [H| H].
  exfalso; revert H; apply Nat.lt_irrefl.
 Qed.
 
-Lemma stretch_series_1 : ∀ k, (series_stretch r k .1 r .= r .1 r)%ser.
+Lemma stretch_series_1 : ∀ k, (series_stretch r k .1 r = .1 r)%ser.
 Proof.
 intros k.
 apply stretch_series_const.
@@ -1051,7 +1051,7 @@ destruct (lt_dec (S i) (Pos.to_nat k)) as [H| H].
 Qed.
 
 Lemma series_shrink_shrink : ∀ (s : power_series α) k₁ k₂,
-  (series_shrink (k₁ * k₂) s .= r
+  (series_shrink (k₁ * k₂) s =
    series_shrink k₁ (series_shrink k₂ s))%ser.
 Proof.
 intros s k₁ k₂.
@@ -1060,7 +1060,7 @@ rewrite Pos2Nat.inj_mul, Nat.mul_assoc; reflexivity.
 Qed.
 
 Lemma series_shrink_stretch : ∀ s k,
-  (series_shrink k (series_stretch r k s) .= r s)%ser.
+  (series_shrink k (series_stretch r k s) = s)%ser.
 Proof.
 intros s k.
 constructor; intros i; simpl.
@@ -1200,7 +1200,7 @@ Qed.
 
 Lemma series_stretch_shrink : ∀ s k,
   (Pos.to_nat k | greatest_series_x_power r s 0)
-  → (series_stretch r k (series_shrink k s) .= r s)%ser.
+  → (series_stretch r k (series_shrink k s) = s)%ser.
 Proof.
 intros s k Hk.
 constructor; intros i; simpl.
@@ -1753,7 +1753,7 @@ destruct n as [n| ].
 Qed.
 
 Lemma series_left_shift_left_shift : ∀ (s : power_series α) m n,
-  (series_left_shift m (series_left_shift n s) .= r
+  (series_left_shift m (series_left_shift n s) =
    series_left_shift (m + n) s)%ser.
 Proof.
 intros s m n.

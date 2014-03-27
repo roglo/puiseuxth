@@ -132,14 +132,14 @@ destruct n as [n| ].
   assumption.
 Qed.
 
-Lemma series_left_shift_0 : ∀ s, (series_left_shift 0 s .= r s)%ser.
+Lemma series_left_shift_0 : ∀ s, (series_left_shift 0 s = s)%ser.
 Proof.
 intros s.
 unfold series_left_shift.
 destruct s; reflexivity.
 Qed.
 
-Lemma series_shrink_1 : ∀ s, (series_shrink 1 s .= r s)%ser.
+Lemma series_shrink_1 : ∀ s, (series_shrink 1 s = s)%ser.
 Proof.
 intros s.
 unfold series_shrink; simpl.
@@ -191,8 +191,8 @@ Qed.
 
 Lemma series_inv_compat : ∀ a b,
   (a .[0] ≠ 0)%K
-  → (a .= r b)%ser
-    → (series_inv f a .= r series_inv f b)%ser.
+  → (a = b)%ser
+    → (series_inv f a = series_inv f b)%ser.
 Proof.
 intros a b Ha Hab.
 remember Ha as Hb; clear HeqHb.
