@@ -2014,6 +2014,51 @@ rewrite phi_zq_eq_z_sub_c₁_psy; try eassumption.
 rewrite poly_inject_inj_mul.
 unfold eq_poly; simpl.
 rewrite <- lap_power_map; simpl.
+subst Kx.
+symmetry.
+rewrite lap_taylor_formula.
+unfold taylor_lap.
+rewrite length_lap_mul.
+rewrite List.map_length.
+rewrite length_lap_power; [ idtac | intros H; discriminate H ].
+erewrite Ψ_length; try eassumption.
+remember minus as f; simpl; subst f.
+rewrite Nat.mul_1_r.
+rewrite Nat.add_sub_assoc.
+ rewrite Nat.add_comm, Nat.add_sub.
+ symmetry.
+ rewrite lap_compose_compose2.
+ unfold lap_compose2; simpl.
+ rewrite List.map_length.
+ erewrite Ψ_length; try eassumption.
+ remember (List.map (λ c : α, ps_monom c 0) (al Ψ)) as la.
+ assert (length la = length (al Ψ)) as Hlen.
+  subst la; rewrite List.map_length; reflexivity.
+
+  erewrite Ψ_length in Hlen; try eassumption.
+  clear HΨ Hr.
+  assert (r ≤ k - j) as Hrkj.
+   Focus 2.
+   apply le_n_S in Hrkj.
+   remember (S (k - j)) as n; clear Heqn.
+   revert Hrkj Hlen; clear; intros.
+   unfold c_x_power; simpl.
+   apply le_S_gt in Hrkj; unfold gt in Hrkj.
+   rename Hrkj into Hrn.
+   rewrite lap_derivial_0.
+bbb.
+
+intros pol ns pl tl l c₁ r Ψ j αj f' Hns Hc₁ Hr HΨ Hpl Htl Hl Hini; subst f'.
+remember Hns as Hfin; clear HeqHfin.
+apply exists_fin_pt_nat in Hfin.
+destruct Hfin as (k, (αk, Hk)).
+symmetry.
+rewrite poly_mul_comm, poly_mul_assoc, poly_mul_comm.
+apply poly_mul_compat; [ reflexivity | idtac ].
+rewrite phi_zq_eq_z_sub_c₁_psy; try eassumption.
+rewrite poly_inject_inj_mul.
+unfold eq_poly; simpl.
+rewrite <- lap_power_map; simpl.
 do 2 rewrite lap_compose_compose2.
 unfold lap_compose2; simpl.
 rewrite length_lap_mul; simpl.
