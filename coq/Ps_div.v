@@ -18,7 +18,7 @@ Set Implicit Arguments.
 Definition ps_inv α (r : ring α) (f : field r) ps :=
   match null_coeff_range_length r (ps_terms ps) O with
   | fin n =>
-      {| ps_terms := series_inv f (series_left_shift n (ps_terms ps));
+      {| ps_terms := series_inv (series_left_shift n (ps_terms ps));
          ps_valnum := - ps_valnum ps - Z.of_nat n;
          ps_polord := ps_polord ps |}
   | ∞ =>
@@ -189,16 +189,17 @@ destruct n as [n| ].
  symmetry; apply Hn.
 Qed.
 
+(* should be moved in Power_series.v *)
 Lemma series_inv_compat : ∀ a b,
-  (a .[0] ≠ 0)%K
+  (a.[0] ≠ 0)%K
   → (a = b)%ser
-    → (series_inv f a = series_inv f b)%ser.
+    → (series_inv a = series_inv b)%ser.
 Proof.
 intros a b Ha Hab.
 remember Ha as Hb; clear HeqHb.
 rewrite Hab in Hb.
-apply series_mul_compat_l with (c := series_inv f a) in Hab.
-apply series_mul_compat_r with (c := series_inv f b) in Hab.
+apply series_mul_compat_l with (c := series_inv a) in Hab.
+apply series_mul_compat_r with (c := series_inv b) in Hab.
 rewrite series_mul_inv_l in Hab; auto.
 rewrite series_mul_1_l in Hab.
 rewrite <- series_mul_assoc in Hab.

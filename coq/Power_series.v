@@ -132,11 +132,11 @@ End theorems_add.
 
 (* series_mul *)
 
-Definition convol_mul α (r : ring α) a b k :=
+Definition convol_mul {α} {r : ring α} a b k :=
   Σ r (i = 0, k), a.[i] * b.[k-i].
 
 Definition series_mul {α} {r : ring α} a b :=
-  {| terms k := convol_mul r a b k |}.
+  {| terms k := convol_mul a b k |}.
 
 Notation "a * b" := (series_mul a b) : series_scope.
 
@@ -159,7 +159,7 @@ Variable α : Type.
 Variable r : ring α.
 
 Theorem convol_mul_comm : ∀ a b i,
-  (convol_mul r a b i = convol_mul r b a i)%K.
+  (convol_mul a b i = convol_mul b a i)%K.
 Proof.
 intros a b k.
 unfold convol_mul.
@@ -177,7 +177,7 @@ constructor; intros k; simpl.
 apply convol_mul_comm.
 Qed.
 
-Theorem convol_mul_0_l : ∀ a i, (convol_mul r 0%ser a i = 0)%K.
+Theorem convol_mul_0_l : ∀ a i, (convol_mul 0%ser a i = 0)%K.
 Proof.
 intros a k.
 unfold convol_mul.
@@ -239,12 +239,11 @@ reflexivity.
 Qed.
 
 Lemma series_nth_add : ∀ a b i,
-  (((a + b)%ser) .[i] = a .[i] + b .[i])%K.
+  (((a + b)%ser) .[i] = a.[i] + b.[i])%K.
 Proof. reflexivity. Qed.
 
 Lemma convol_mul_add_distr_l : ∀ a b c i,
-  (convol_mul r a (b + c)%ser i =
-   convol_mul r a b i + convol_mul r a c i)%K.
+  (convol_mul a (b + c)%ser i = convol_mul a b i + convol_mul a c i)%K.
 Proof.
 intros a b c k.
 unfold convol_mul.
@@ -329,29 +328,29 @@ Qed.
 
 End other_lemmas.
 
-Fixpoint term_inv α (r : ring α) (f : field r) c s n :=
-  if zerop n then ¹/ (s .[0])%K
+Fixpoint term_inv {α} {r : ring α} {f : field r} c s n :=
+  if zerop n then ¹/ (s.[0])%K
   else
    match c with
    | O => 0%K
    | S c₁ =>
-       (- ¹/ (s .[0]) *
-        Σ r (i = 1, n), s .[i] * term_inv f c₁ s (n - i)%nat)%K
+       (- ¹/ (s.[0]) *
+        Σ r (i = 1, n), s.[i] * term_inv c₁ s (n - i)%nat)%K
    end.
 
-Definition series_inv α (r : ring α) (f : field r) s :=
-  {| terms i := term_inv f (S i) s i |}.
+Definition series_inv {α} {r : ring α} {f : field r} s :=
+  {| terms i := term_inv (S i) s i |}.
 
-Notation ".¹/ f a" := (series_inv f a) : series_scope.
+Notation "¹/ a" := (series_inv a) : series_scope.
 
 Section lemmas_again.
 
 Variable α : Type.
-Variable r : ring α.
-Variable f : field r.
+Variable R : ring α.
+Variable K : field R.
 
 Lemma term_inv_iter_enough : ∀ a i j k,
-  k ≤ i → k ≤ j → (term_inv f i a k = term_inv f j a k)%K.
+  k ≤ i → k ≤ j → (term_inv i a k = term_inv j a k)%K.
 Proof.
 intros a i j k Hki Hkj.
 revert j k Hki Hkj.
@@ -379,19 +378,19 @@ Qed.
 
 Lemma term_inv_nth_gen_formula : ∀ k a a' i,
   (a.[0] ≠ 0)%K
-  → a' = series_inv f a
+  → a' = series_inv a
     → (S k - i ≠ 0)%nat
-      → (a' .[S k - i] =
-         - a' .[0] *
-         Σ r (j = 1, S k - i),
-         a .[j] * term_inv f (S k) a (S k - i - j))%K.
+      → (a'.[S k - i] =
+         - a'.[0] *
+         Σ R (j = 1, S k - i),
+         a.[j] * term_inv (S k) a (S k - i - j))%K.
 Proof.
 (* à revoir... *)
 intros k a a' i Ha Ha' Hki.
 rewrite Ha'.
 remember minus as g; simpl; subst g.
 destruct (zerop (S k - i)) as [| H₁]; [ contradiction | idtac ].
-remember (S k - i)%nat as ki eqn:Hki₂ .
+remember (S k - i)%nat as ki eqn:Hki₂.
 destruct ki.
  exfalso; apply Hki; reflexivity.
 
@@ -419,9 +418,9 @@ Qed.
 
 Lemma term_inv_nth_formula : ∀ k a a',
   (a.[0] ≠ 0)%K
-  → a' = series_inv f a
-    → (a' .[S k] =
-       - a' .[0] * Σ r (i = 1, S k), a .[i] * a' .[S k - i])%K.
+  → a' = series_inv a
+    → (a'.[S k] =
+       - a'.[0] * Σ R (i = 1, S k), a.[i] * a'.[S k - i])%K.
 Proof.
 intros k a a' Ha Ha'.
 pose proof (term_inv_nth_gen_formula k O Ha Ha') as H.
@@ -443,18 +442,18 @@ Qed.
 
 Lemma convol_mul_inv_r : ∀ k a a',
   (a.[0] ≠ 0)%K
-  → a' = series_inv f a
-    → (convol_mul r a a' (S k) = 0)%K.
+  → a' = series_inv a
+    → (convol_mul a a' (S k) = 0)%K.
 Proof.
 intros k a a' Ha Ha'.
 unfold convol_mul.
 pose proof (term_inv_nth_formula k Ha Ha') as Hi.
-apply rng_mul_compat_l with (c := a .[ 0]%K) in Hi.
+apply rng_mul_compat_l with (c := a.[0]%K) in Hi.
 symmetry in Hi.
 rewrite rng_mul_assoc in Hi.
 rewrite rng_mul_opp_r in Hi.
 rewrite Ha' in Hi.
-assert (a .[ 0] * (.¹/f a%ser) .[ 0] = 1)%K as H.
+assert (a.[0] * (¹/ a%ser) .[ 0] = 1)%K as H.
  simpl; rewrite rng_mul_inv_r; [ reflexivity | auto ].
 
  rewrite H in Hi; clear H.
@@ -468,8 +467,8 @@ assert (a .[ 0] * (.¹/f a%ser) .[ 0] = 1)%K as H.
 Qed.
 
 Theorem series_mul_inv_r : ∀ a,
-  (a .[0] ≠ 0)%K
-  → (a * .¹/f a = 1)%ser.
+  (a.[0] ≠ 0)%K
+  → (a * ¹/ a = 1)%ser.
 Proof.
 intros a Ha.
 constructor; intros i; simpl.
@@ -482,8 +481,8 @@ destruct i; simpl.
 Qed.
 
 Theorem series_mul_inv_l : ∀ a,
-  (a .[0] ≠ 0)%K
-  → (.¹/f a * a = 1)%ser.
+  (a.[0] ≠ 0)%K
+  → (¹/ a * a = 1)%ser.
 Proof.
 intros a Ha.
 rewrite series_mul_comm.
