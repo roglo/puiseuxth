@@ -194,7 +194,7 @@ Definition ps_terms_add α (r : ring α) (ps₁ ps₂ : puiseux_series α) :=
   let n₂ := Z.to_nat (v₂ - Z.min v₂ v₁) in
   let s₁ := adjust_series r n₁ k₁ (ps_terms ps₁) in
   let s₂ := adjust_series r n₂ k₂ (ps_terms ps₂) in
-  series_add r s₁ s₂.
+  series_add s₁ s₂.
 
 Definition ps_valnum_add α (ps₁ ps₂ : puiseux_series α) :=
   let k₁ := cm_factor ps₁ ps₂ in
@@ -212,7 +212,7 @@ Definition ps_add α (r : ring α) (ps₁ ps₂ : puiseux_series α) :=
    ps_add below; could be the main and only one, perhaps ? *)
 
 Definition adjusted_ps_add α (r : ring α) ps₁ ps₂ :=
-  {| ps_terms := series_add r (ps_terms ps₁) (ps_terms ps₂);
+  {| ps_terms := series_add (ps_terms ps₁) (ps_terms ps₂);
      ps_valnum := ps_valnum ps₁;
      ps_polord := ps_polord ps₁ |}.
 
@@ -229,7 +229,7 @@ Definition ps_add₂ α (r : ring α) (ps₁ ps₂ : puiseux_series α) :=
 Notation "a .+ r b" := (ps_add r a b) : ps_scope.
 
 Definition ps_opp α (r : ring α) ps :=
-  {| ps_terms := (.- r ps_terms ps)%ser;
+  {| ps_terms := (- ps_terms ps)%ser;
      ps_valnum := ps_valnum ps;
      ps_polord := ps_polord ps |}.
 
@@ -242,8 +242,8 @@ Variable α : Type.
 Variable r : ring α.
 
 Lemma series_stretch_add_distr : ∀ k s₁ s₂,
-  (series_stretch r k (s₁ .+ r s₂) .= r
-   series_stretch r k s₁ .+ r series_stretch r k s₂)%ser.
+  (series_stretch r k (s₁ + s₂) .= r
+   series_stretch r k s₁ + series_stretch r k s₂)%ser.
 Proof.
 intros kp s₁ s₂.
 constructor; intros i; simpl.
@@ -308,8 +308,8 @@ Qed.
 *)
 
 Lemma series_shift_add_distr : ∀ s₁ s₂ n,
-  (series_shift r n (s₁ .+ r s₂) .= r
-   series_shift r n s₁ .+ r series_shift r n s₂)%ser.
+  (series_shift r n (s₁ + s₂) .= r
+   series_shift r n s₁ + series_shift r n s₂)%ser.
 Proof.
 intros s₁ s₂ n.
 constructor; intros i; simpl.

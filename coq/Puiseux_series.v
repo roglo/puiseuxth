@@ -79,13 +79,13 @@ Definition series_stretch α (r : ring α) k s :=
        else rng_zero |}.
 
 Definition series_shift α (r : ring α) n s :=
-  {| terms i := if lt_dec i n then rng_zero else terms s (i - n) |}.
+  {| terms i := if lt_dec i n then rng_zero else s .[i - n] |}.
 
 Definition series_shrink α k (s : power_series α) :=
-  {| terms i := terms s (i * Pos.to_nat k) |}.
+  {| terms i := s.[i * Pos.to_nat k] |}.
 
 Definition series_left_shift α n (s : power_series α) :=
-  {| terms i := terms s (n + i) |}.
+  {| terms i := s.[n + i] |}.
 
 Arguments series_stretch α%type _ k%positive s%ser.
 Arguments series_shift α%type _ n%nat s%ser.

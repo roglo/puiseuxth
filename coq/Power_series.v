@@ -11,9 +11,9 @@ Require Import Fsummation.
 
 Set Implicit Arguments.
 
-Record power_series α := { terms : nat → α }.
+Class power_series α := { terms : nat → α }.
 
-Notation "s .[ i ]" := (terms s i) (at level 1).
+Notation "s .[ i ]" := (@terms _ s i) (at level 1).
 
 Definition series_0 α (r : ring α) :=
   {| terms i := 0%K |}.
@@ -73,22 +73,22 @@ Proof. reflexivity. Qed.
 
 (* series_add *)
 
-Definition series_add α (r : ring α) s₁ s₂ :=
-  {| terms i := (s₁ .[i] + s₂ .[i])%K |}.
+Definition series_add {α} {r : ring α} s₁ s₂ :=
+  {| terms i := (s₁.[i] + s₂.[i])%K |}.
 
-Definition series_opp α (r : ring α) s :=
-  {| terms i := (- terms s i)%K |}.
+Definition series_opp {α} {r : ring α} s :=
+  {| terms i := (- s.[i])%K |}.
 
-Notation "a .+ r b" := (series_add r a b) : series_scope.
-Notation "a .- r b" := (series_add r a (series_opp r b)) : series_scope.
-Notation ".- r a" := (series_opp r a) : series_scope.
+Notation "a + b" := (series_add a b) : series_scope.
+Notation "a - b" := (series_add a (series_opp b)) : series_scope.
+Notation "- a" := (series_opp a) : series_scope.
 
 Section theorems_add.
 
 Variable α : Type.
 Variable r : ring α.
 
-Theorem series_add_comm : ∀ s₁ s₂, (s₁ .+ r s₂ .= r s₂ .+ r s₁)%ser.
+Theorem series_add_comm : ∀ s₁ s₂, (s₁ + s₂ .= r s₂ + s₁)%ser.
 Proof.
 intros s₁ s₂.
 constructor; intros i; simpl.
@@ -96,7 +96,7 @@ rewrite rng_add_comm; reflexivity.
 Qed.
 
 Theorem series_add_assoc : ∀ s₁ s₂ s₃,
-  (s₁ .+ r (s₂ .+ r s₃) .= r (s₁ .+ r s₂) .+ r s₃)%ser.
+  (s₁ + (s₂ + s₃) .= r (s₁ + s₂) + s₃)%ser.
 Proof.
 intros s₁ s₂ s₃.
 unfold series_add; simpl.
@@ -107,21 +107,21 @@ Qed.
 Lemma series_nth_series_0 : ∀ i, (.0 r%ser .[i])%K = 0%K.
 Proof. reflexivity. Qed.
 
-Theorem series_add_0_l : ∀ s, (.0 r .+ r s .= r s)%ser.
+Theorem series_add_0_l : ∀ s, (.0 r + s .= r s)%ser.
 Proof.
 intros s.
 constructor; intros i; simpl.
 rewrite rng_add_0_l; reflexivity.
 Qed.
 
-Theorem series_add_opp_r : ∀ s, (s .- r s .= r .0 r)%ser.
+Theorem series_add_opp_r : ∀ s, (s - s .= r .0 r)%ser.
 Proof.
 intros s.
 constructor; intros i; simpl.
 apply rng_add_opp_r.
 Qed.
 
-Theorem series_add_opp_l : ∀ s, (.- r s .+ r s .= r .0 r)%ser.
+Theorem series_add_opp_l : ∀ s, (- s + s .= r .0 r)%ser.
 Proof.
 intros s.
 rewrite series_add_comm.
@@ -239,11 +239,11 @@ reflexivity.
 Qed.
 
 Lemma series_nth_add : ∀ a b i,
-  (((a .+ r b)%ser) .[i] = a .[i] + b .[i])%K.
+  (((a + b)%ser) .[i] = a .[i] + b .[i])%K.
 Proof. reflexivity. Qed.
 
 Lemma convol_mul_add_distr_l : ∀ a b c i,
-  (convol_mul r a (b .+ r c)%ser i =
+  (convol_mul r a (b + c)%ser i =
    convol_mul r a b i + convol_mul r a c i)%K.
 Proof.
 intros a b c k.
@@ -256,7 +256,7 @@ reflexivity.
 Qed.
 
 Theorem series_mul_add_distr_l : ∀ a b c,
-  (a .* r (b .+ r c) .= r a .* r b .+ r a .* r c)%ser.
+  (a .* r (b + c) .= r a .* r b + a .* r c)%ser.
 Proof.
 intros a b c.
 constructor; intros k; simpl.
@@ -265,8 +265,8 @@ Qed.
 
 End misc_lemmas.
 
-Add Parametric Morphism α (F : ring α) : (series_add F)
-  with signature eq_series F ==> eq_series F ==> eq_series F
+Add Parametric Morphism α (R : ring α) : series_add
+  with signature eq_series R ==> eq_series R ==> eq_series R
   as series_add_morph.
 Proof.
 intros s₁ s₂ Heq₁ s₃ s₄ Heq₂.
@@ -292,7 +292,7 @@ Variable r : ring α.
 
 Theorem series_add_compat_l : ∀ a b c,
   (a .= r b)%ser
-  → (c .+ r a .= r c .+ r b)%ser.
+  → (c + a .= r c + b)%ser.
 Proof.
 intros a b c Hab.
 rewrite Hab.
@@ -318,7 +318,7 @@ reflexivity.
 Qed.
 
 Theorem series_mul_add_distr_r : ∀ a b c,
-  ((a .+ r b) .* r c .= r a .* r c .+ r b .* r c)%ser.
+  ((a + b) .* r c .= r a .* r c + b .* r c)%ser.
 Proof.
 intros a b c.
 rewrite series_mul_comm, series_mul_add_distr_l.
@@ -496,9 +496,9 @@ End lemmas_again.
 Definition series_ring α (r : ring α) : ring (power_series α) :=
   {| rng_zero := series_0 r;
      rng_one := series_1 r;
-     rng_add := series_add r;
+     rng_add := series_add;
      rng_mul := series_mul r;
-     rng_opp := series_opp r;
+     rng_opp := series_opp;
      rng_eq := eq_series r;
      rng_eq_refl := eq_series_refl r;
      rng_eq_sym := eq_series_sym (r := r);

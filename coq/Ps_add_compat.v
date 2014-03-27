@@ -150,7 +150,7 @@ simpl.
 rewrite null_coeff_range_length_shift.
 rewrite series_stretch_1.
 remember
- (null_coeff_range_length r (series_add r (ps_terms ps₁) (ps_terms ps₂))
+ (null_coeff_range_length r (series_add (ps_terms ps₁) (ps_terms ps₂))
     0)%Nbar as x.
 rewrite Nbar.add_comm.
 destruct x as [x| ]; [ simpl | reflexivity ].
@@ -160,7 +160,7 @@ constructor; simpl.
  rewrite Z.sub_add_simpl_r_r.
  f_equal.
  rewrite series_stretch_1.
- remember (series_add r (ps_terms ps₁) (ps_terms ps₂)) as s.
+ remember (series_add (ps_terms ps₁) (ps_terms ps₂)) as s.
  symmetry in Heqx.
  apply null_coeff_range_length_iff in Heqx.
  simpl in Heqx.
@@ -178,7 +178,7 @@ constructor; simpl.
  f_equal.
  f_equal.
  rewrite series_stretch_1.
- remember (series_add r (ps_terms ps₁) (ps_terms ps₂)) as s.
+ remember (series_add (ps_terms ps₁) (ps_terms ps₂)) as s.
  symmetry in Heqx.
  unfold gcd_ps.
  simpl.
@@ -191,7 +191,7 @@ constructor; simpl.
 
  rewrite series_stretch_1.
  rewrite canonify_series_add_shift.
- remember (series_add r (ps_terms ps₁) (ps_terms ps₂)) as s.
+ remember (series_add (ps_terms ps₁) (ps_terms ps₂)) as s.
  unfold gcd_ps.
  simpl.
  rewrite Z.mul_1_r.
