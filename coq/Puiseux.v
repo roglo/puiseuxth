@@ -2046,6 +2046,20 @@ rewrite Nat.add_sub_assoc.
    unfold c_x_power; simpl.
    apply le_S_gt in Hrkj; unfold gt in Hrkj.
    rename Hrkj into Hrn.
+(*
+bbb.
+*)
+   revert n Hrn Hlen.
+   induction r; intros; simpl.
+    rewrite Nat.sub_0_r.
+    rewrite lap_mul_1_r.
+    rewrite lap_mul_1_l.
+    clear.
+    remember 0%nat as b; clear Heqb.
+    revert b.
+    induction n; intros; [ reflexivity | simpl ].
+    rewrite IHn.
+    rewrite rng_add_comm; simpl.
 bbb.
 
 intros pol ns pl tl l c₁ r Ψ j αj f' Hns Hc₁ Hr HΨ Hpl Htl Hl Hini; subst f'.
