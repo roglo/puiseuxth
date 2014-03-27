@@ -2028,6 +2028,7 @@ rewrite Nat.add_sub_assoc.
  rewrite Nat.add_comm, Nat.add_sub.
  symmetry.
  rewrite lap_compose_compose2.
+ remember (S (k - j)) as n.
  unfold lap_compose2; simpl.
  rewrite List.map_length.
  erewrite Ψ_length; try eassumption.
@@ -2040,12 +2041,11 @@ rewrite Nat.add_sub_assoc.
   assert (r ≤ k - j) as Hrkj.
    Focus 2.
    apply le_n_S in Hrkj.
-   remember (S (k - j)) as n; clear Heqn.
+   rewrite <- Heqn in Hlen, Hrkj |- *.
    revert Hrkj Hlen; clear; intros.
    unfold c_x_power; simpl.
    apply le_S_gt in Hrkj; unfold gt in Hrkj.
    rename Hrkj into Hrn.
-   rewrite lap_derivial_0.
 bbb.
 
 intros pol ns pl tl l c₁ r Ψ j αj f' Hns Hc₁ Hr HΨ Hpl Htl Hl Hini; subst f'.
