@@ -224,7 +224,7 @@ Qed.
 
 Lemma coeff_lap_deriv_1_succ : ∀ α (R : ring α) la n,
   lap_eq (coeff_lap_deriv R la 1 (S n))
-    (lap_add R la (coeff_lap_deriv R la 1 n)).
+    (lap_add la (coeff_lap_deriv R la 1 n)).
 Proof.
 intros α R la n.
 revert n.
@@ -235,7 +235,7 @@ Qed.
 
 Lemma lap_derivial_1_cons : ∀ α (R : ring α) a la,
   lap_eq (lap_derivial R 1 [a … la])
-    (lap_add R la [0 … lap_derivial R 1 la])%K.
+    (lap_add la [0 … lap_derivial R 1 la])%K.
 Proof.
 intros α R a la.
 unfold lap_derivial; simpl.
@@ -416,8 +416,8 @@ Qed.
 
 Lemma coeff_lap_deriv_add : ∀ α (r : ring α) la lb n i,
   lap_eq
-    (coeff_lap_deriv r (lap_add r la lb) n i)
-    (lap_add r (coeff_lap_deriv r la n i) (coeff_lap_deriv r lb n i)).
+    (coeff_lap_deriv r (lap_add la lb) n i)
+    (lap_add (coeff_lap_deriv r la n i) (coeff_lap_deriv r lb n i)).
 Proof.
 intros α r la lb n i.
 revert lb n i.
@@ -497,8 +497,8 @@ induction la as [| a]; intros; simpl.
 Qed.
 
 Lemma list_skipn_add : ∀ α (r : ring α) k la lb,
-  lap_eq (List.skipn k (lap_add r la lb))
-    (lap_add r (List.skipn k la) (List.skipn k lb)).
+  lap_eq (List.skipn k (lap_add la lb))
+    (lap_add (List.skipn k la) (List.skipn k lb)).
 Proof.
 intros α r k la lb.
 revert la lb.
@@ -510,8 +510,8 @@ Qed.
 
 Lemma lap_derivial_add : ∀ α (r : ring α) la lb k,
   lap_eq
-    (lap_derivial r k (lap_add r la lb))
-    (lap_add r (lap_derivial r k la) (lap_derivial r k lb)).
+    (lap_derivial r k (lap_add la lb))
+    (lap_add (lap_derivial r k la) (lap_derivial r k lb)).
 Proof.
 intros α r la lb k.
 unfold lap_derivial.
@@ -893,7 +893,7 @@ rewrite rng_mul_0_l, rng_add_0_l; reflexivity.
 Qed.
 
 Lemma apply_lap_add : ∀ α (r : ring α) la lb x,
-  (apply_lap r (lap_add r la lb) x =
+  (apply_lap r (lap_add la lb) x =
    apply_lap r la x + apply_lap r lb x)%K.
 Proof.
 intros α r la lb x.
@@ -1082,7 +1082,7 @@ Qed.
 Lemma lap_derivial_mul : ∀ α (R : ring α) la lb,
   lap_eq
     (lap_derivial R 1 (lap_mul R la lb))
-    (lap_add R
+    (lap_add
        (lap_mul R (lap_derivial R 1 la) lb)
        (lap_mul R la (lap_derivial R 1 lb))).
 Proof.
@@ -1190,7 +1190,7 @@ Qed.
 
 Lemma lap_compose_cons_l : ∀ α (r : ring α) a la lb,
   lap_eq (lap_compose r [a … la] lb)
-    (lap_add r [a] (lap_mul r lb (lap_compose r la lb))).
+    (lap_add [a] (lap_mul r lb (lap_compose r la lb))).
 Proof.
 intros α r a la lb.
 rewrite lap_add_comm, lap_mul_comm; reflexivity.
@@ -1248,9 +1248,9 @@ Qed.
 
 Lemma lap_add_fold_assoc : ∀ α (r : ring α) la li (g : nat → list α) x,
   lap_eq
-    (lap_add r x (List.fold_right (λ i accu, lap_add r accu (g i)) la li))
-    (List.fold_right (λ i accu, lap_add r accu (g i))
-       (lap_add r x la) li).
+    (lap_add x (List.fold_right (λ i accu, lap_add accu (g i)) la li))
+    (List.fold_right (λ i accu, lap_add accu (g i))
+       (lap_add x la) li).
 Proof.
 intros α r la li g x.
 revert la x.
@@ -1298,15 +1298,14 @@ Lemma fold_add_pow : ∀ α (r : ring α) a la lb lc da,
   lap_eq
     (List.fold_right
       (λ i accu,
-       lap_add r accu
+       lap_add accu
          (lap_mul r [List.nth (S i) [a … la] da]
             (lap_power r lb (S i))))
       [] lc)
     (lap_mul r lb
        (List.fold_right
           (λ i accu,
-           lap_add r accu
-             (lap_mul r [List.nth i la da] (lap_power r lb i)))
+           lap_add accu (lap_mul r [List.nth i la da] (lap_power r lb i)))
           [] lc)).
 Proof.
 intros α r a la lb lc da; simpl; clear.
@@ -1698,7 +1697,7 @@ Qed.
 
 (* P(x) = P(0) + x Q(x) *)
 Lemma poly_eq_add_const_mul_x_poly : ∀ c cl,
-  (POL [c … cl] = POL [c] .+ R POL [0; 1 … []]%K .* R POL cl)%pol.
+  (POL [c … cl] = POL [c] + POL [0; 1 … []]%K .* R POL cl)%pol.
 Proof.
 intros c cl.
 unfold eq_poly; simpl.
@@ -1722,7 +1721,7 @@ constructor.
 Qed.
 
 Lemma apply_poly_add : ∀ p₁ p₂ x,
-  (apply_poly R (p₁ .+ R p₂)%pol x =
+  (apply_poly R (p₁ + p₂)%pol x =
    apply_poly R p₁ x + apply_poly R p₂ x)%K.
 Proof.
 intros p₁ p₂ x.

@@ -39,11 +39,11 @@ Definition eq_poly {α} {r : ring α} x y := lap_eq (al x) (al y).
 
 Notation "a = b" := (eq_poly a b) : poly_scope.
 
-Definition lap_zero α (r : ring α) := ([] : list α).
-Definition lap_one α (r : ring α) := [1%K].
+Definition lap_zero {α} {r : ring α} := ([] : list α).
+Definition lap_one {α} {r : ring α} := [1%K].
 
-Definition poly_one α (r : ring α) := POL [1%K]%pol.
-Notation ".1 f" := (poly_one f) : poly_scope.
+Definition poly_one {α} {r : ring α} := POL [1%K]%pol.
+Notation "1" := poly_one : poly_scope.
 
 Lemma lap_eq_cons_inv : ∀ α (r : ring α) x₁ x₂ l₁ l₂,
   lap_eq [x₁ … l₁] [x₂ … l₂]
@@ -179,20 +179,20 @@ Qed.
 
 (* addition *)
 
-Fixpoint lap_add α (r : ring α) al₁ al₂ :=
+Fixpoint lap_add {α} {r : ring α} al₁ al₂ :=
   match al₁ with
   | [] => al₂
   | [a₁ … bl₁] =>
       match al₂ with
       | [] => al₁
-      | [a₂ … bl₂] => [(a₁ + a₂)%K … lap_add r bl₁ bl₂]
+      | [a₂ … bl₂] => [(a₁ + a₂)%K … lap_add bl₁ bl₂]
       end
   end.
 
-Definition lap_opp α (r : ring α) la := List.map rng_opp la.
+Definition lap_opp {α} {r : ring α} la := List.map rng_opp la.
 
-Definition poly_add α (r : ring α) pol₁ pol₂ :=
-  {| al := lap_add r (al pol₁) (al pol₂) |}.
+Definition poly_add {α} {r : ring α} pol₁ pol₂ :=
+  {| al := lap_add (al pol₁) (al pol₂) |}.
 
 (* multiplication *)
 
@@ -224,7 +224,7 @@ Definition poly_power α (r : ring α) pol n :=
 (* composition *)
 
 Definition lap_compose α (r : ring α) la lb :=
-  List.fold_right (λ c accu, lap_add r (lap_mul r accu lb) [c]) [] la.
+  List.fold_right (λ c accu, lap_add (lap_mul r accu lb) [c]) [] la.
 
 Definition poly_compose α (r : ring α) a b :=
   POL (lap_compose r (al a) (al b))%pol.
@@ -232,7 +232,7 @@ Definition poly_compose α (r : ring α) a b :=
 Definition lap_compose2 α (r : ring α) la lb :=
   List.fold_right
     (λ i accu,
-     lap_add r accu (lap_mul r [List.nth i la 0] (lap_power r lb i)))%K
+     lap_add accu (lap_mul r [List.nth i la 0] (lap_power r lb i)))%K
     [] (List.seq 0 (length la)).
 
 Definition poly_compose2 α (r : ring α) a b :=
@@ -246,17 +246,17 @@ Fixpoint list_pad α n (zero : α) rem :=
   | S n₁ => [zero … list_pad n₁ zero rem]
   end.
 
-Notation "a .+ r b" := (poly_add r a b) : poly_scope.
+Notation "a + b" := (poly_add a b) : poly_scope.
 Notation "a .* r b" := (poly_mul r a b) : poly_scope.
 Notation "a .^ r b" := (poly_power r a b) : poly_scope.
 Notation "a .∘ r b" := (poly_compose r a b) : poly_scope.
 
 Delimit Scope lap_scope with lap.
-Notation ".0 K" := (lap_zero K) : lap_scope.
-Notation ".1 K" := (lap_one K) : lap_scope.
-Notation ".- K a" := (lap_opp K a) : lap_scope.
+Notation "0" := lap_zero : lap_scope.
+Notation "1" := lap_one : lap_scope.
+Notation "- a" := (lap_opp a) : lap_scope.
 Notation "a = b" := (lap_eq a b) : lap_scope.
-Notation "a .+ K b" := (lap_add K a b) : lap_scope.
+Notation "a + b" := (lap_add a b) : lap_scope.
 Notation "a .- K b" := (lap_add K a (lap_opp K b)) : lap_scope.
 Notation "a .* K b" := (lap_mul K a b) : lap_scope.
 
@@ -322,7 +322,7 @@ Qed.
 
 Lemma lap_eq_nil_lap_add_r : ∀ α (r : ring α) la lb,
   lap_eq [] la
-  → lap_eq lb (lap_add r la lb).
+  → lap_eq lb (lap_add la lb).
 Proof.
 intros α r la lb H.
 revert lb.
@@ -336,7 +336,7 @@ Qed.
 
 Lemma lap_eq_nil_lap_add_l : ∀ α (r : ring α) la lb,
   lap_eq [] lb
-  → lap_eq la (lap_add r la lb).
+  → lap_eq la (lap_add la lb).
 Proof.
 intros α r la lb H.
 revert la.
@@ -348,7 +348,7 @@ constructor; [ rewrite Hb, rng_add_0_r; reflexivity | idtac ].
 apply IHlb; assumption.
 Qed.
 
-Add Parametric Morphism α (r : ring α) : (lap_add r)
+Add Parametric Morphism α (r : ring α) : (lap_add)
   with signature (lap_eq) ==> (lap_eq) ==> (lap_eq)
   as lap_add_morph.
 Proof.
@@ -413,7 +413,7 @@ induction la as [| a]; intros.
     constructor; [ rewrite Hac, Hbd; reflexivity | apply IHla; assumption ].
 Qed.
 
-Add Parametric Morphism α (r : ring α) : (poly_add r)
+Add Parametric Morphism α (r : ring α) : poly_add
   with signature eq_poly ==> eq_poly ==> eq_poly
   as poly_add_morph.
 Proof.
@@ -744,11 +744,11 @@ Eval vm_compute in Qtest_comp [-1#1; 4#1 … []] [-2#1; 4#1; -3#1 … []].
 *)
 
 Lemma lap_add_nil_l : ∀ α (r : ring α) la,
-  lap_eq (lap_add r [] la) la.
+  lap_eq (lap_add [] la) la.
 Proof. intros α r la; destruct la; reflexivity. Qed.
 
 Lemma lap_add_nil_r : ∀ α (r : ring α) la,
-  lap_eq (lap_add r la []) la.
+  lap_eq (lap_add la []) la.
 Proof. intros α r la; destruct la; reflexivity. Qed.
 
 Lemma lap_mul_nil_l : ∀ α (r : ring α) la, lap_eq (lap_mul r [] la) [].
@@ -760,7 +760,7 @@ Proof. intros α r la; apply lap_convol_mul_nil_r. Qed.
 Lemma lap_add_compat : ∀ α (r : ring α) a b c d,
   lap_eq a c
   → lap_eq b d
-    → lap_eq (lap_add r a b) (lap_add r c d).
+    → lap_eq (lap_add a b) (lap_add c d).
 Proof.
 intros α r a b c d Hac Hbd.
 rewrite Hac, Hbd; reflexivity.
@@ -829,14 +829,14 @@ Variable r : ring α.
 Theorem poly_add_compat : ∀ a b c d,
   (a = c)%pol
   → (b = d)%pol
-    → (a .+ r b = c .+ r d)%pol.
+    → (a + b = c + d)%pol.
 Proof.
 intros a b c d Hac Hbd.
 rewrite Hac, Hbd; reflexivity.
 Qed.
 
 Lemma lap_add_comm : ∀ al₁ al₂,
-  lap_eq (lap_add r al₁ al₂) (lap_add r al₂ al₁).
+  lap_eq (lap_add al₁ al₂) (lap_add al₂ al₁).
 Proof.
 intros al₁ al₂.
 revert al₂.
@@ -850,7 +850,7 @@ induction al₁; intros.
   constructor; [ apply rng_add_comm | apply IHal₁ ].
 Qed.
 
-Theorem poly_add_comm : ∀ pol₁ pol₂, (pol₁ .+ r pol₂ = pol₂ .+ r pol₁)%pol.
+Theorem poly_add_comm : ∀ pol₁ pol₂, (pol₁ + pol₂ = pol₂ + pol₁)%pol.
 Proof.
 intros pol₁ pol₂.
 unfold eq_poly.
@@ -858,8 +858,8 @@ eapply lap_add_comm; reflexivity.
 Qed.
 
 Lemma lap_add_assoc : ∀ al₁ al₂ al₃,
-  lap_eq (lap_add r al₁ (lap_add r al₂ al₃))
-    (lap_add r (lap_add r al₁ al₂) al₃).
+  lap_eq (lap_add al₁ (lap_add al₂ al₃))
+    (lap_add (lap_add al₁ al₂) al₃).
 Proof.
 intros al₁ al₂ al₃.
 revert al₂ al₃.
@@ -886,7 +886,7 @@ induction al₁; intros.
 Qed.
 
 Lemma poly_add_assoc : ∀ pol₁ pol₂ pol₃,
-  (pol₁ .+ r (pol₂ .+ r pol₃) = (pol₁ .+ r pol₂) .+ r pol₃)%pol.
+  (pol₁ + (pol₂ + pol₃) = (pol₁ + pol₂) + pol₃)%pol.
 Proof.
 intros pol₁ pol₂ pol₃.
 unfold eq_poly.
@@ -894,8 +894,8 @@ eapply lap_add_assoc; reflexivity.
 Qed.
 
 Lemma lap_add_shuffle0 : ∀ la lb lc,
-  lap_eq (lap_add r (lap_add r la lb) lc)
-     (lap_add r (lap_add r la lc) lb).
+  lap_eq (lap_add (lap_add la lb) lc)
+     (lap_add (lap_add la lc) lb).
 Proof.
 intros la lb lc.
 do 2 rewrite <- lap_add_assoc.
@@ -904,7 +904,7 @@ apply lap_add_comm.
 Qed.
 
 Lemma length_lap_add : ∀ la lb,
-  length (lap_add r la lb) = max (length la) (length lb).
+  length (lap_add la lb) = max (length la) (length lb).
 Proof.
 intros la lb.
 revert lb.
@@ -1122,7 +1122,7 @@ induction len; intros.
   destruct j; rewrite rng_mul_0_l; reflexivity.
 Qed.
 
-Theorem poly_mul_1_l : ∀ a, (.1 r .* r a = a)%pol.
+Theorem poly_mul_1_l : ∀ a, (1 .* r a = a)%pol.
 Proof.
 intros a.
 unfold eq_poly; simpl.
@@ -1130,7 +1130,7 @@ unfold lap_mul; simpl.
 rewrite lap_convol_mul_1_l; reflexivity.
 Qed.
 
-Theorem poly_mul_1_r : ∀ a, (a .* r .1 r = a)%pol.
+Theorem poly_mul_1_r : ∀ a, (a .* r 1 = a)%pol.
 Proof.
 intros a.
 rewrite poly_mul_comm.
@@ -1150,7 +1150,7 @@ Fixpoint lap_convol_mul_add al₁ al₂ al₃ i len :=
 (* *)
 
 Lemma list_nth_add : ∀ k la lb,
-  (List.nth k (lap_add r la lb) 0 =
+  (List.nth k (lap_add la lb) 0 =
    List.nth k la 0 + List.nth k lb 0)%K.
 Proof.
 intros k la lb.
@@ -1167,7 +1167,7 @@ Qed.
 
 Lemma lap_convol_mul_lap_add : ∀ la lb lc i len,
   lap_eq
-    (lap_convol_mul r la (lap_add r lb lc) i len)
+    (lap_convol_mul r la (lap_add lb lc) i len)
     (lap_convol_mul_add la lb lc i len).
 Proof.
 intros la lb lc i len.
@@ -1181,7 +1181,7 @@ Qed.
 
 Lemma lap_add_lap_convol_mul : ∀ la lb lc i len,
    lap_eq
-     (lap_add r
+     (lap_add
         (lap_convol_mul r la lb i len)
         (lap_convol_mul r la lc i len))
      (lap_convol_mul_add la lb lc i len).
@@ -1196,12 +1196,12 @@ rewrite rng_mul_add_distr_l; reflexivity.
 Qed.
 
 Lemma lap_mul_add_distr_l : ∀ la lb lc,
-  lap_eq (lap_mul r la (lap_add r lb lc))
-    (lap_add r (lap_mul r la lb) (lap_mul r la lc)).
+  lap_eq (lap_mul r la (lap_add lb lc))
+    (lap_add (lap_mul r la lb) (lap_mul r la lc)).
 Proof.
 intros la lb lc.
 unfold lap_mul.
-remember (pred (length la + length (lap_add r lb lc))) as labc.
+remember (pred (length la + length (lap_add lb lc))) as labc.
 remember (pred (length la + length lb)) as lab.
 remember (pred (length la + length lc)) as lac.
 rewrite Heqlabc.
@@ -1225,8 +1225,8 @@ reflexivity.
 Qed.
 
 Lemma lap_mul_add_distr_r : ∀ la lb lc,
-  lap_eq (lap_mul r (lap_add r la lb) lc)
-    (lap_add r (lap_mul r la lc) (lap_mul r lb lc)).
+  lap_eq (lap_mul r (lap_add la lb) lc)
+    (lap_add (lap_mul r la lc) (lap_mul r lb lc)).
 Proof.
 intros la lb lc.
 rewrite lap_mul_comm, lap_mul_add_distr_l, lap_mul_comm.
@@ -1234,14 +1234,14 @@ apply lap_add_compat; [ reflexivity | apply lap_mul_comm ].
 Qed.
 
 Lemma poly_mul_add_distr_l : ∀ P Q R,
-  (P .* r (Q .+ r R) = P .* r Q .+ r P .* r R)%pol.
+  (P .* r (Q + R) = P .* r Q + P .* r R)%pol.
 Proof.
 intros P Q R.
 apply lap_mul_add_distr_l.
 Qed.
 
 Lemma poly_mul_add_distr_r : ∀ P Q R,
-  ((P .+ r Q) .* r R = P .* r R .+ r Q .* r R)%pol.
+  ((P + Q) .* r R = P .* r R + Q .* r R)%pol.
 Proof.
 intros P Q R.
 apply lap_mul_add_distr_r.
@@ -1346,8 +1346,8 @@ Qed.
 
 Lemma lap_mul_fold_add_distr : ∀ β la li (g : β → list α) x,
   lap_eq
-    (lap_mul r x (List.fold_right (λ i accu, lap_add r accu (g i)) la li))
-    (List.fold_right (λ i accu, lap_add r accu (lap_mul r x (g i)))
+    (lap_mul r x (List.fold_right (λ i accu, lap_add accu (g i)) la li))
+    (List.fold_right (λ i accu, lap_add accu (lap_mul r x (g i)))
        (lap_mul r x la) li).
 Proof.
 intros uβ la li g x.
@@ -1586,7 +1586,7 @@ Qed.
 
 Lemma lap_mul_cons_l : ∀ a la lb,
   lap_eq (lap_mul r [a … la] lb)
-    (lap_add r (lap_mul r [a] lb) [0%K … lap_mul r la lb]).
+    (lap_add (lap_mul r [a] lb) [0%K … lap_mul r la lb]).
 Proof.
 intros a la lb.
 unfold lap_mul.
@@ -1618,7 +1618,7 @@ Qed.
 
 Lemma lap_mul_cons_r : ∀ la b lb,
   lap_eq (lap_mul r la [b … lb])
-    (lap_add r (lap_mul r la [b]) [0%K … lap_mul r la lb]).
+    (lap_add (lap_mul r la [b]) [0%K … lap_mul r la lb]).
 Proof.
 intros la b lb.
 rewrite lap_mul_comm.
@@ -1650,7 +1650,7 @@ Qed.
 Lemma lap_mul_cons : ∀ a b la lb,
   lap_eq (lap_mul r [a … la] [b … lb])
     [(a * b)%K
-    … lap_add r (lap_add r (lap_mul r la [b]) (lap_mul r [a] lb))
+    … lap_add (lap_add (lap_mul r la [b]) (lap_mul r [a] lb))
         [0%K … lap_mul r la lb]].
 Proof.
 intros a b la lb.
@@ -1720,9 +1720,9 @@ Admitted.
 Lemma lap_fold_compat_l : ∀ A (g h : A → _) la lb l,
   lap_eq la lb
   → lap_eq
-      (List.fold_right (λ v accu, lap_add r accu (lap_mul r (g v) (h v)))
+      (List.fold_right (λ v accu, lap_add accu (lap_mul r (g v) (h v)))
          la l)
-      (List.fold_right (λ v accu, lap_add r accu (lap_mul r (g v) (h v)))
+      (List.fold_right (λ v accu, lap_add accu (lap_mul r (g v) (h v)))
          lb l).
 Proof.
 intros A g h la lb l Heq.
@@ -1730,7 +1730,7 @@ induction l; [ assumption | simpl; rewrite IHl; reflexivity ].
 Qed.
 
 Lemma lap_cons_add : ∀ a lb lc,
-  ([a … lb .+ r lc] = [a … lb] .+ r [0%K … lc])%lap.
+  ([a … lb + lc] = [a … lb] + [0%K … lc])%lap.
 Proof.
 intros a lb lc.
 destruct lb as [| b]; simpl; rewrite rng_add_0_r; reflexivity.
@@ -1754,7 +1754,7 @@ Definition horner α β γ
     (pol : polynomial β) (x : γ) :=
   List.fold_right (λ c accu, add_v_c (mul_v_x accu x) c) zero_c (al pol).
 
-Theorem lap_add_opp_l : ∀ α (r : ring α) la, (.- r la .+ r la = .0 r)%lap.
+Theorem lap_add_opp_l : ∀ α (r : ring α) la, (- la + la = 0)%lap.
 Proof.
 intros α r la.
 induction la as [| a]; [ reflexivity | simpl ].
@@ -1764,7 +1764,7 @@ Qed.
 
 Lemma lap_add_compat_l : ∀ α (r : ring α) a b c,
   lap_eq a b
-  → lap_eq (lap_add r c a) (lap_add r c b).
+  → lap_eq (lap_add c a) (lap_add c b).
 Proof.
 intros α r a b c Hab.
 rewrite Hab; reflexivity.
@@ -1779,11 +1779,11 @@ rewrite Hab; reflexivity.
 Qed.
 
 Definition lap_ring α (r : ring α) : ring (list α) :=
-  {| rng_zero := lap_zero r;
-     rng_one := lap_one r;
-     rng_add := lap_add r;
+  {| rng_zero := lap_zero;
+     rng_one := lap_one;
+     rng_add := lap_add;
      rng_mul := lap_mul r;
-     rng_opp := lap_opp r;
+     rng_opp := lap_opp;
      rng_eq := lap_eq;
      rng_eq_refl := lap_eq_refl r;
      rng_eq_sym := lap_eq_sym (r := r);
@@ -1805,7 +1805,7 @@ Canonical Structure lap_ring.
 
 Definition lap_compose3 α (r : ring α) la lb :=
   Σ (lap_ring r) (i = 0, length la),
-  ([List.nth i la 0] .* r lap_power r lb i)%lap.
+  ([List.nth i la 0%K] .* r lap_power r lb i)%lap.
 
 Definition lap_compose4 α (r : ring α) la lb :=
   let R := lap_ring r in
