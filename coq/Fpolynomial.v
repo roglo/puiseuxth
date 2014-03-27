@@ -35,9 +35,9 @@ Inductive lap_eq α (r : ring α) : list α → list α → Prop :=
 Delimit Scope poly_scope with pol.
 Notation "'POL' l" := {| al := l |} (at level 1) : poly_scope.
 
-Definition eq_poly α (r : ring α) x y := lap_eq r (al x) (al y).
+Definition eq_poly {α} {r : ring α} x y := lap_eq r (al x) (al y).
 
-Notation "a .= r b" := (eq_poly r a b) : poly_scope.
+Notation "a = b" := (eq_poly a b) : poly_scope.
 
 Definition lap_zero α (r : ring α) := ([] : list α).
 Definition lap_one α (r : ring α) := [1%K].
@@ -142,25 +142,25 @@ Add Parametric Relation α (r : ring α) : (list α) (lap_eq r)
  transitivity proved by (lap_eq_trans (r := r))
  as lap_eq_rel.
 
-Theorem eq_poly_refl α (r : ring α) : reflexive _ (eq_poly r).
+Theorem eq_poly_refl α (r : ring α) : reflexive _ eq_poly.
 Proof.
 intros pol.
 unfold eq_poly; reflexivity.
 Qed.
 
-Theorem eq_poly_sym α (r : ring α) : symmetric _ (eq_poly r).
+Theorem eq_poly_sym α (r : ring α) : symmetric _ eq_poly.
 Proof.
 intros pol₁ pol₂ Heq.
 unfold eq_poly; symmetry; assumption.
 Qed.
 
-Theorem eq_poly_trans α (r : ring α) : transitive _ (eq_poly r).
+Theorem eq_poly_trans α (r : ring α) : transitive _ eq_poly.
 Proof.
 intros pol₁ pol₂ pol₃ H₁ H₂.
 unfold eq_poly; etransitivity; eassumption.
 Qed.
 
-Add Parametric Relation α (r : ring α) : (polynomial α) (eq_poly r)
+Add Parametric Relation α (r : ring α) : (polynomial α) eq_poly
  reflexivity proved by (eq_poly_refl r)
  symmetry proved by (eq_poly_sym (r := r))
  transitivity proved by (eq_poly_trans (r := r))
@@ -260,7 +260,7 @@ Notation "a .+ K b" := (lap_add K a b) : lap_scope.
 Notation "a .- K b" := (lap_add K a (lap_opp K b)) : lap_scope.
 Notation "a .* K b" := (lap_mul K a b) : lap_scope.
 
-Definition Pdivide α (r : ring α) x y := ∃ z, (y .= r z .* r x)%pol.
+Definition Pdivide α (r : ring α) x y := ∃ z, (y = z .* r x)%pol.
 
 Definition list_nth_def_0 α (r : ring α) n l := List.nth n l 0%K.
 
@@ -271,7 +271,7 @@ Proof. reflexivity. Qed.
 (* *)
 
 Add Parametric Morphism α (r : ring α) : (@al α)
-  with signature eq_poly r ==> lap_eq r
+  with signature eq_poly ==> lap_eq r
   as al_morph.
 Proof. intros; assumption. Qed.
 
@@ -414,7 +414,7 @@ induction la as [| a]; intros.
 Qed.
 
 Add Parametric Morphism α (r : ring α) : (poly_add r)
-  with signature (eq_poly r) ==> (eq_poly r) ==> (eq_poly r)
+  with signature eq_poly ==> eq_poly ==> eq_poly
   as poly_add_morph.
 Proof.
 intros a c Hac b d Hbd.
@@ -664,7 +664,7 @@ reflexivity.
 Qed.
 
 Add Parametric Morphism α (r : ring α) : (poly_mul r)
-  with signature (eq_poly r) ==> (eq_poly r) ==> (eq_poly r)
+  with signature eq_poly ==> eq_poly ==> eq_poly
   as poly_mul_morph.
 Proof.
 intros a c Hac b d Hbd.
@@ -811,7 +811,7 @@ induction la as [| a]; intros.
 Qed.
 
 Add Parametric Morphism α (K : ring α) : (poly_compose K)
-  with signature eq_poly K ==> eq_poly K ==> eq_poly K
+  with signature eq_poly ==> eq_poly ==> eq_poly
   as poly_compose_morph.
 Proof.
 intros A C HAC B D HBD.
@@ -827,9 +827,9 @@ Variable r : ring α.
 (* addition theorems *)
 
 Theorem poly_add_compat : ∀ a b c d,
-  (a .= r c)%pol
-  → (b .= r d)%pol
-    → (a .+ r b .= r c .+ r d)%pol.
+  (a = c)%pol
+  → (b = d)%pol
+    → (a .+ r b = c .+ r d)%pol.
 Proof.
 intros a b c d Hac Hbd.
 rewrite Hac, Hbd; reflexivity.
@@ -850,7 +850,7 @@ induction al₁; intros.
   constructor; [ apply rng_add_comm | apply IHal₁ ].
 Qed.
 
-Theorem poly_add_comm : ∀ pol₁ pol₂, (pol₁ .+ r pol₂ .= r pol₂ .+ r pol₁)%pol.
+Theorem poly_add_comm : ∀ pol₁ pol₂, (pol₁ .+ r pol₂ = pol₂ .+ r pol₁)%pol.
 Proof.
 intros pol₁ pol₂.
 unfold eq_poly.
@@ -886,7 +886,7 @@ induction al₁; intros.
 Qed.
 
 Lemma poly_add_assoc : ∀ pol₁ pol₂ pol₃,
-  (pol₁ .+ r (pol₂ .+ r pol₃) .= r (pol₁ .+ r pol₂) .+ r pol₃)%pol.
+  (pol₁ .+ r (pol₂ .+ r pol₃) = (pol₁ .+ r pol₂) .+ r pol₃)%pol.
 Proof.
 intros pol₁ pol₂ pol₃.
 unfold eq_poly.
@@ -916,9 +916,9 @@ Qed.
 (* multiplication theorems *)
 
 Theorem poly_mul_compat : ∀ a b c d,
-  (a .= r c)%pol
-  → (b .= r d)%pol
-    → (a .* r b .= r c .* r d)%pol.
+  (a = c)%pol
+  → (b = d)%pol
+    → (a .* r b = c .* r d)%pol.
 Proof.
 intros a b c d Hac Hbd.
 rewrite Hac, Hbd; reflexivity.
@@ -931,7 +931,7 @@ unfold lap_mul.
 rewrite lap_convol_mul_comm, Nat.add_comm; reflexivity.
 Qed.
 
-Theorem poly_mul_comm : ∀ a b, (a .* r b .= r b .* r a)%pol.
+Theorem poly_mul_comm : ∀ a b, (a .* r b = b .* r a)%pol.
 Proof.
 intros a b.
 unfold eq_poly; simpl.
@@ -1045,7 +1045,7 @@ reflexivity.
 Qed.
 
 Lemma poly_mul_assoc : ∀ P Q R,
-  (P .* r (Q .* r R) .= r (P .* r Q) .* r R)%pol.
+  (P .* r (Q .* r R) = (P .* r Q) .* r R)%pol.
 Proof.
 intros P Q R.
 apply lap_mul_assoc.
@@ -1122,7 +1122,7 @@ induction len; intros.
   destruct j; rewrite rng_mul_0_l; reflexivity.
 Qed.
 
-Theorem poly_mul_1_l : ∀ a, (.1 r .* r a .= r a)%pol.
+Theorem poly_mul_1_l : ∀ a, (.1 r .* r a = a)%pol.
 Proof.
 intros a.
 unfold eq_poly; simpl.
@@ -1130,7 +1130,7 @@ unfold lap_mul; simpl.
 rewrite lap_convol_mul_1_l; reflexivity.
 Qed.
 
-Theorem poly_mul_1_r : ∀ a, (a .* r .1 r .= r a)%pol.
+Theorem poly_mul_1_r : ∀ a, (a .* r .1 r = a)%pol.
 Proof.
 intros a.
 rewrite poly_mul_comm.
@@ -1234,14 +1234,14 @@ apply lap_add_compat; [ reflexivity | apply lap_mul_comm ].
 Qed.
 
 Lemma poly_mul_add_distr_l : ∀ P Q R,
-  (P .* r (Q .+ r R) .= r P .* r Q .+ r P .* r R)%pol.
+  (P .* r (Q .+ r R) = P .* r Q .+ r P .* r R)%pol.
 Proof.
 intros P Q R.
 apply lap_mul_add_distr_l.
 Qed.
 
 Lemma poly_mul_add_distr_r : ∀ P Q R,
-  ((P .+ r Q) .* r R .= r P .* r R .+ r Q .* r R)%pol.
+  ((P .+ r Q) .* r R = P .* r R .+ r Q .* r R)%pol.
 Proof.
 intros P Q R.
 apply lap_mul_add_distr_r.
@@ -1416,9 +1416,9 @@ rewrite Hac, Hbd; reflexivity.
 Qed.
 
 Theorem poly_compose_compat : ∀ a b c d,
-  (a .= r c)%pol
-  → (b .= r d)%pol
-    → (poly_compose r a b .= r poly_compose r c  d)%pol.
+  (a = c)%pol
+  → (b = d)%pol
+    → (poly_compose r a b = poly_compose r c  d)%pol.
 Proof.
 intros a b c d Hac Hbd.
 apply lap_compose_compat; assumption.

@@ -280,7 +280,7 @@ induction la as [| a]; intros; simpl.
 Qed.
 
 Add Parametric Morphism α (r : ring α) : (apply_poly r)
-  with signature eq_poly r ==> rng_eq ==> rng_eq
+  with signature eq_poly ==> rng_eq ==> rng_eq
   as apply_poly_morph.
 Proof.
 intros p₁ p₂ Hpp v₁ v₂ Hvv.
@@ -382,7 +382,7 @@ rewrite Nat.add_0_r; reflexivity.
 Qed.
 
 Theorem taylor_formula_0 : ∀ α (r : ring α) P,
-  (P .= r taylor_poly r P 0%K)%pol.
+  (P = taylor_poly r P 0%K)%pol.
 Proof.
 intros α r P.
 apply taylor_lap_formula_0.
@@ -1260,7 +1260,7 @@ rewrite IHli; reflexivity.
 Qed.
 
 Lemma poly_compose_compose2 : ∀ α (r : ring α) P Q,
-  (P .∘ r Q .= r poly_compose2 r P Q)%pol.
+  (P .∘ r Q = poly_compose2 r P Q)%pol.
 Proof.
 intros α r P Q.
 apply lap_compose_compose2.
@@ -1698,7 +1698,7 @@ Qed.
 
 (* P(x) = P(0) + x Q(x) *)
 Lemma poly_eq_add_const_mul_x_poly : ∀ c cl,
-  (POL [c … cl] .= R POL [c] .+ R POL [0; 1 … []]%K .* R POL cl)%pol.
+  (POL [c … cl] = POL [c] .+ R POL [0; 1 … []]%K .* R POL cl)%pol.
 Proof.
 intros c cl.
 unfold eq_poly; simpl.
@@ -1876,7 +1876,7 @@ Qed.
 (* p(c) = 0 ⇒ p = (x-c) * (p / (x-c)) *)
 Lemma poly_root_formula : ∀ c p,
   (apply_poly R p c = 0)%K
-  → (p .= R POL [(- c)%K; 1%K … []] .* R poly_div_deg_1 R p c)%pol.
+  → (p = POL [(- c)%K; 1%K … []] .* R poly_div_deg_1 R p c)%pol.
 Proof.
 intros c p Hz.
 apply root_formula; assumption.
@@ -1900,7 +1900,7 @@ Qed.
 
 Lemma list_fold_pol_list : ∀ A g P (l : list A) (c : α),
   (∀ lb lc, lap_eq R lb lc → lap_eq R (g R lb c) (g R lc c))
-  → (List.fold_right (λ _ accu, POL (g R (al accu) c))%pol P l .= R
+  → (List.fold_right (λ _ accu, POL (g R (al accu) c))%pol P l =
      POL (List.fold_right (λ _ accu, g R accu c) (al P) l))%pol.
 Proof.
 intros A g P l c Heq.
@@ -2065,7 +2065,7 @@ eapply q_is_factor_of_h_minus_j with (h := k) in Hqkj; try eassumption.
  apply List.in_or_app; right; left; symmetry; eassumption.
 Qed.
 
-Lemma poly_power_1_r : ∀ P, (poly_power R P 1 .= R P)%pol.
+Lemma poly_power_1_r : ∀ P, (poly_power R P 1 = P)%pol.
 Proof.
 intros P.
 unfold eq_poly; simpl.
@@ -2206,7 +2206,7 @@ Qed.
 Theorem phi_zq_eq_z_sub_c₁_psy : ∀ pol ns c₁ r Ψ,
   r = root_multiplicity acf c₁ (Φq R pol ns)
   → Ψ = quotient_phi_x_sub_c_pow_r R (Φq R pol ns) c₁ r
-    → (Φq R pol ns .= R POL [(- c₁)%K; 1%K … []] .^ R r .* R Ψ)%pol.
+    → (Φq R pol ns = POL [(- c₁)%K; 1%K … []] .^ R r .* R Ψ)%pol.
 Proof.
 intros pol ns c r Ψ Hr HΨ.
 subst Ψ; simpl.
