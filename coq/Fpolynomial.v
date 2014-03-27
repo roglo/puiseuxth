@@ -1736,6 +1736,14 @@ intros a b c d Hac Hbd.
 rewrite Hac, Hbd; reflexivity.
 Qed.
 
+Theorem poly_add_compat_l : ∀ a b c,
+  (a = b)%pol
+  → (c + a = c + b)%pol.
+Proof.
+intros a b c Hab.
+rewrite Hab; reflexivity.
+Qed.
+
 Theorem poly_add_comm : ∀ pol₁ pol₂, (pol₁ + pol₂ = pol₂ + pol₁)%pol.
 Proof.
 intros pol₁ pol₂.
@@ -1758,6 +1766,14 @@ Theorem poly_mul_compat : ∀ a b c d,
 Proof.
 intros a b c d Hac Hbd.
 rewrite Hac, Hbd; reflexivity.
+Qed.
+
+Theorem poly_mul_compat_l : ∀ a b c,
+  (a = b)%pol
+  → (c * a = c * b)%pol.
+Proof.
+intros a b c Hab.
+rewrite Hab; reflexivity.
 Qed.
 
 Theorem poly_mul_comm : ∀ a b, (a * b = b * a)%pol.
@@ -1815,6 +1831,31 @@ apply lap_compose_compat; assumption.
 Qed.
 
 End poly.
+
+(* to be completed...
+Definition poly_ring α (r : ring α) : ring (list α) :=
+  {| rng_zero := poly_zero;
+     rng_one := poly_one;
+     rng_add := poly_add;
+     rng_mul := poly_mul;
+     rng_opp := poly_opp;
+     rng_eq := poly_eq;
+     rng_eq_refl := poly_eq_refl;
+     rng_eq_sym := poly_eq_sym;
+     rng_eq_trans := poly_eq_trans;
+     rng_add_comm := poly_add_comm r;
+     rng_add_assoc := poly_add_assoc r;
+     rng_add_0_l := poly_add_nil_l r;
+     rng_add_opp_l := poly_add_opp_l r;
+     rng_add_compat_l := poly_add_compat_l;
+     rng_mul_comm := poly_mul_comm r;
+     rng_mul_assoc := poly_mul_assoc r;
+     rng_mul_1_l := poly_mul_1_l r;
+     rng_mul_compat_l := @poly_mul_compat_l _ r;
+     rng_mul_add_distr_l := poly_mul_add_distr_l r |}.
+
+Canonical Structure poly_ring.
+*)
 
 (* Horner's algorithm *)
 Definition horner α β γ
