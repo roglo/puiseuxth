@@ -98,7 +98,7 @@ Definition canonify_series α n k (s : power_series α) :=
 Definition gcd_ps α n k (ps : puiseux_series α) :=
   Z.gcd (Z.gcd (ps_valnum ps + Z.of_nat n) (' ps_polord ps)) (Z.of_nat k).
 
-Definition ps_zero α (r : ring α) :=
+Definition ps_zero {α} {r : ring α} :=
   {| ps_terms := 0%ser; ps_valnum := 0; ps_polord := 1 |}.
 
 Definition canonic_ps α (r : ring α) ps :=
@@ -110,36 +110,36 @@ Definition canonic_ps α (r : ring α) ps :=
          ps_valnum := (ps_valnum ps + Z.of_nat n) / g;
          ps_polord := Z.to_pos (' ps_polord ps / g) |}
   | ∞ =>
-      ps_zero r
+      ps_zero
   end.
 
-Inductive eq_ps_strong α (r : ring α) :
+Inductive eq_ps_strong {α} {r : ring α} :
   puiseux_series α → puiseux_series α → Prop :=
   | eq_strong_base : ∀ ps₁ ps₂,
       ps_valnum ps₁ = ps_valnum ps₂
       → ps_polord ps₁ = ps_polord ps₂
         → eq_series (ps_terms ps₁) (ps_terms ps₂)
-          → eq_ps_strong r ps₁ ps₂.
+          → eq_ps_strong ps₁ ps₂.
 
-Inductive eq_ps α (r : ring α) :
+Inductive eq_ps {α} {r : ring α} :
   puiseux_series α → puiseux_series α → Prop :=
   | eq_ps_base : ∀ ps₁ ps₂,
-      eq_ps_strong r (canonic_ps r ps₁) (canonic_ps r ps₂)
-      → eq_ps r ps₁ ps₂.
+      eq_ps_strong (canonic_ps r ps₁) (canonic_ps r ps₂)
+      → eq_ps ps₁ ps₂.
 
 Definition ps_monom α (r : ring α) (c : α) pow :=
   {| ps_terms := {| terms i := if zerop i then c else 0%K |};
      ps_valnum := Qnum pow;
      ps_polord := Qden pow |}.
 
-Definition ps_one α (r : ring α) := ps_monom r (rng_one) 0.
+Definition ps_one {α} {r : ring α} := ps_monom r (rng_one) 0.
 
 Delimit Scope ps_scope with ps.
-Notation "a ≐ r b" := (eq_ps_strong r a b) (at level 70, r at level 0).
-Notation "a .= r b" := (eq_ps r a b) : ps_scope.
-Notation "a .≠ r b" := (not (eq_ps r a b)) : ps_scope.
-Notation ".0 f" := (ps_zero f) : ps_scope.
-Notation ".1 f" := (ps_one f) : ps_scope.
+Notation "a ≐ b" := (eq_ps_strong a b) (at level 70, r at level 0).
+Notation "a = b" := (eq_ps a b) : ps_scope.
+Notation "a ≠ b" := (not (eq_ps a b)) : ps_scope.
+Notation "0" := ps_zero : ps_scope.
+Notation "1" := ps_one : ps_scope.
 
 Lemma series_stretch_1 : ∀ α (r : ring α) s,
   (series_stretch r 1 s = s)%ser.
@@ -150,20 +150,20 @@ constructor; intros i; simpl.
 rewrite divmod_div, Nat.div_1_r; reflexivity.
 Qed.
 
-Theorem eq_strong_refl α (r : ring α) : reflexive _ (eq_ps_strong r).
+Theorem eq_strong_refl α (r : ring α) : reflexive _ eq_ps_strong.
 Proof. intros ps. constructor; reflexivity. Qed.
 
-Theorem eq_strong_sym α (r : ring α) : symmetric _ (eq_ps_strong r).
+Theorem eq_strong_sym α (r : ring α) : symmetric _ eq_ps_strong.
 Proof. intros ps₁ ps₂ H; induction H; constructor; symmetry; assumption. Qed.
 
-Theorem eq_strong_trans α (r : ring α) : transitive _ (eq_ps_strong r).
+Theorem eq_strong_trans α (r : ring α) : transitive _ eq_ps_strong.
 Proof.
 intros ps₁ ps₂ ps₃ H₁ H₂.
 induction H₁, H₂.
 constructor; etransitivity; eassumption.
 Qed.
 
-Add Parametric Relation α (r : ring α) : (puiseux_series α) (eq_ps_strong r)
+Add Parametric Relation α (r : ring α) : (puiseux_series α) eq_ps_strong
  reflexivity proved by (eq_strong_refl r)
  symmetry proved by (eq_strong_sym (r := r))
  transitivity proved by (eq_strong_trans (r := r))
@@ -186,7 +186,7 @@ apply Nbar.mul_lt_mono_pos_r.
 Qed.
 
 Add Parametric Morphism α (r : ring α) : (@mkps α)
-  with signature eq_series ==> eq ==> eq ==> eq_ps_strong r
+  with signature eq_series ==> eq ==> eq ==> eq_ps_strong
   as mkps_strong_eq_morphism.
 Proof.
 intros a b Hab v n.
@@ -313,7 +313,7 @@ apply H.
 Qed.
 
 Add Parametric Morphism α (r : ring α) : (canonic_ps r)
-  with signature eq_ps_strong r ==> eq_ps_strong r
+  with signature eq_ps_strong ==> eq_ps_strong
   as canonic_ps_morph.
 Proof.
 intros ps₁ ps₂ Heq.
@@ -329,7 +329,7 @@ constructor; simpl; rewrite H1; reflexivity.
 Qed.
 
 Add Parametric Morphism α (r : ring α) : (@mkps α)
-  with signature eq_series ==> eq ==> eq ==> eq_ps r
+  with signature eq_series ==> eq ==> eq ==> eq_ps
   as mkps_morphism.
 Proof.
 intros a b Hab v n.
@@ -341,13 +341,13 @@ Section eq_ps_equiv_rel.
 Variable α : Type.
 Variable r : ring α.
 
-Theorem eq_ps_refl : reflexive _ (eq_ps r).
+Theorem eq_ps_refl : reflexive _ eq_ps.
 Proof.
 intros ps.
 destruct ps; constructor; reflexivity.
 Qed.
 
-Theorem eq_ps_sym : symmetric _ (eq_ps r).
+Theorem eq_ps_sym : symmetric _ eq_ps.
 Proof.
 intros ps₁ ps₂ H.
 induction H; constructor; try assumption; symmetry; assumption.
@@ -549,7 +549,7 @@ destruct (zerop (i mod Pos.to_nat k)) as [H₂| H₂]; [ idtac | reflexivity ].
 rewrite Nat.add_comm; reflexivity.
 Qed.
 
-Theorem eq_ps_trans : transitive _ (eq_ps r).
+Theorem eq_ps_trans : transitive _ eq_ps.
 Proof.
 intros ps₁ ps₂ ps₃ H₁ H₂.
 induction H₁.
@@ -559,7 +559,7 @@ Qed.
 
 End eq_ps_equiv_rel.
 
-Add Parametric Relation α (r : ring α) : (puiseux_series α) (eq_ps r)
+Add Parametric Relation α (r : ring α) : (puiseux_series α) eq_ps
  reflexivity proved by (eq_ps_refl r)
  symmetry proved by (eq_ps_sym (r := r))
  transitivity proved by (eq_ps_trans (r := r))
@@ -570,7 +570,7 @@ Section other_lemmas.
 Variable α : Type.
 Variable r : ring α.
 
-Lemma ps_zero_monom_eq : (ps_monom r 0%K 0 .= r .0 r)%ps.
+Lemma ps_zero_monom_eq : (ps_monom r 0%K 0 = 0)%ps.
 Proof.
 unfold ps_zero, ps_monom; simpl.
 apply mkps_morphism; try reflexivity.
@@ -1578,7 +1578,7 @@ Qed.
 
 Lemma null_coeff_range_length_inf_iff : ∀ ps,
   null_coeff_range_length r (ps_terms ps) 0 = ∞
-  ↔ (ps .= r .0 r)%ps.
+  ↔ (ps = 0)%ps.
 Proof.
 intros ps.
 split; intros H.
@@ -1836,7 +1836,7 @@ Definition cm_factor α (ps₁ ps₂ : puiseux_series α) :=
   ps_polord ps₂.
 (**)
 
-Lemma eq_strong_eq : ∀ ps₁ ps₂, ps₁ ≐ r ps₂ → (ps₁ .= r ps₂)%ps.
+Lemma eq_strong_eq : ∀ ps₁ ps₂, ps₁ ≐ ps₂ → (ps₁ = ps₂)%ps.
 Proof.
 intros ps₁ ps₂ Heq.
 constructor.

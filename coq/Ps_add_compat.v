@@ -43,8 +43,8 @@ destruct (lt_dec (n + m + i * Pos.to_nat k) m) as [H₂| H₂].
 Qed.
 
 Lemma eq_strong_ps_add_compat_r : ∀ ps₁ ps₂ ps₃,
-  eq_ps_strong r ps₁ ps₂
-  → eq_ps_strong r (ps₁ .+ r ps₃)%ps (ps₂ .+ r ps₃)%ps.
+  eq_ps_strong ps₁ ps₂
+  → eq_ps_strong (ps₁ + ps₃)%ps (ps₂ + ps₃)%ps.
 Proof.
 intros ps₁ ps₂ ps₃ Heq.
 induction Heq.
@@ -66,8 +66,8 @@ constructor; simpl.
 Qed.
 
 Lemma eq_strong_ps_add_compat_l : ∀ ps₁ ps₂ ps₃,
-  (ps₁ ≐ r ps₂)%ps
-  → (ps₃ .+ r ps₁ ≐ r ps₃ .+ r ps₂)%ps.
+  (ps₁ ≐ ps₂)%ps
+  → (ps₃ + ps₁ ≐ ps₃ + ps₂)%ps.
 Proof.
 intros ps₁ ps₂ ps₃ Heq.
 rewrite eq_strong_ps_add_comm; symmetry.
@@ -76,7 +76,7 @@ apply eq_strong_ps_add_compat_r; assumption.
 Qed.
 
 Lemma ps_adjust_adjust : ∀ ps n₁ n₂ k₁ k₂,
-  eq_ps_strong r (adjust_ps r n₁ k₁ (adjust_ps r n₂ k₂ ps))
+  eq_ps_strong (adjust_ps r n₁ k₁ (adjust_ps r n₂ k₂ ps))
     (adjust_ps r (n₁ + n₂ * Pos.to_nat k₁) (k₁ * k₂) ps).
 Proof.
 intros ps n₁ n₂ k₁ k₂.
@@ -99,7 +99,7 @@ constructor; simpl.
 Qed.
 
 Lemma ps_adjust_adjusted : ∀ ps₁ ps₂ n k,
-  eq_ps_strong r (adjust_ps r n k (adjusted_ps_add r ps₁ ps₂))
+  eq_ps_strong (adjust_ps r n k (adjusted_ps_add r ps₁ ps₂))
     (adjusted_ps_add r (adjust_ps r n k ps₁) (adjust_ps r n k ps₂)).
 Proof.
 intros ps₁ ps₂ n k.
@@ -110,8 +110,8 @@ reflexivity.
 Qed.
 
 Lemma eq_strong_ps_add_adjust_0_l : ∀ ps₁ ps₂ k,
-  canonic_ps r (ps₁ .+ r ps₂)%ps ≐ r
-  canonic_ps r (adjust_ps r 0 k ps₁ .+ r ps₂)%ps.
+  canonic_ps r (ps₁ + ps₂)%ps ≐
+  canonic_ps r (adjust_ps r 0 k ps₁ + ps₂)%ps.
 Proof.
 intros ps₁ ps₂ k.
 rewrite ps_canon_adjust_eq with (n := O) (k := k).
@@ -140,7 +140,7 @@ Qed.
 
 Lemma canonic_ps_adjust : ∀ ps₁ ps₂ n,
   canonic_ps r (adjusted_ps_add r (adjust_ps r n 1 ps₁) (adjust_ps r n 1 ps₂))
-  ≐ r canonic_ps r (adjusted_ps_add r ps₁ ps₂).
+  ≐ canonic_ps r (adjusted_ps_add r ps₁ ps₂).
 Proof.
 (* gros nettoyage à faire : factorisation, focus, etc. *)
 intros ps₁ ps₂ n.
@@ -206,7 +206,7 @@ Lemma canonic_ps_adjust_add : ∀ ps₁ ps₂ n n₁ n₂ k₁ k₂,
   canonic_ps r
     (adjusted_ps_add r
        (adjust_ps r (n + n₁) k₁ ps₁)
-       (adjust_ps r (n + n₂) k₂ ps₂)) ≐ r
+       (adjust_ps r (n + n₂) k₂ ps₂)) ≐
   canonic_ps r
     (adjusted_ps_add r
        (adjust_ps r n₁ k₁ ps₁)
@@ -228,8 +228,8 @@ replace (n + n₁)%nat with (n + n₁ * Pos.to_nat 1)%nat .
 Qed.
 
 Lemma canonic_ps_add_adjust : ∀ ps₁ ps₂ n k m,
-  canonic_ps r (adjust_ps r m k ps₁ .+ r ps₂)%ps ≐ r
-  canonic_ps r (adjust_ps r n k ps₁ .+ r ps₂)%ps.
+  canonic_ps r (adjust_ps r m k ps₁ + ps₂)%ps ≐
+  canonic_ps r (adjust_ps r n k ps₁ + ps₂)%ps.
 Proof.
 intros ps₁ ps₂ n k m.
 do 2 rewrite eq_strong_ps_canon_add_add₂.
@@ -366,8 +366,8 @@ rewrite <- Z2Nat.inj_add.
 Qed.
 
 Lemma canonic_ps_add_adjust_l : ∀ ps₁ ps₂ n k,
-  canonic_ps r (ps₁ .+ r ps₂)%ps ≐ r
-  canonic_ps r (adjust_ps r n k ps₁ .+ r ps₂)%ps.
+  canonic_ps r (ps₁ + ps₂)%ps ≐
+  canonic_ps r (adjust_ps r n k ps₁ + ps₂)%ps.
 Proof.
 intros ps₁ ps₂ n k.
 rewrite eq_strong_ps_add_adjust_0_l with (k := k).
@@ -377,7 +377,7 @@ Qed.
 Lemma canonified_exists_adjust : ∀ ps ps₁,
   null_coeff_range_length r (ps_terms ps) 0 ≠ ∞
   → canonic_ps r ps = ps₁
-    → ∃ n k, eq_ps_strong r ps (adjust_ps r n k ps₁).
+    → ∃ n k, eq_ps_strong ps (adjust_ps r n k ps₁).
 Proof.
 intros ps ps₁ Hnz Heq.
 unfold canonic_ps in Heq.
@@ -472,7 +472,7 @@ Definition ps_neg_zero :=
 Lemma eq_strong_ps_adjust_zero_neg_zero : ∀ ps,
   null_coeff_range_length r (ps_terms ps) 0 = ∞
   → ∃ n₁ n₂ k₁ k₂,
-    eq_ps_strong r (adjust_ps r n₁ k₁ ps) (adjust_ps r n₂ k₂ ps_neg_zero).
+    eq_ps_strong (adjust_ps r n₁ k₁ ps) (adjust_ps r n₂ k₂ ps_neg_zero).
 Proof.
 intros ps Hz.
 unfold canonic_ps in Hz.
@@ -527,7 +527,7 @@ destruct (Z_le_dec 0 (ps_valnum ps)) as [H₁| H₁].
 Qed.
 
 Lemma null_coeff_range_length_inf_compat : ∀ ps₁ ps₂,
-  canonic_ps r ps₁ ≐ r canonic_ps r ps₂
+  canonic_ps r ps₁ ≐ canonic_ps r ps₂
   → null_coeff_range_length r (ps_terms ps₁) 0 = ∞
     → null_coeff_range_length r (ps_terms ps₂) 0 = ∞.
 Proof.
@@ -539,8 +539,8 @@ rewrite <- Heq, H; reflexivity.
 Qed.
 
 Lemma ps_canon_add_compat_r : ∀ ps₁ ps₂ ps₃,
-  canonic_ps r ps₁ ≐ r canonic_ps r ps₂
-  → canonic_ps r (ps₁ .+ r ps₃)%ps ≐ r canonic_ps r (ps₂ .+ r ps₃)%ps.
+  canonic_ps r ps₁ ≐ canonic_ps r ps₂
+  → canonic_ps r (ps₁ + ps₃)%ps ≐ canonic_ps r (ps₂ + ps₃)%ps.
 Proof.
 intros ps₁ ps₂ ps₃ Heq.
 remember (null_coeff_range_length r (ps_terms ps₁) 0) as m₁ eqn:Hm₁ .
@@ -591,8 +591,8 @@ destruct m₁ as [m₁| ].
 Qed.
 
 Theorem ps_add_compat_r : ∀ ps₁ ps₂ ps₃,
-  (ps₁ .= r ps₂)%ps
-  → (ps₁ .+ r ps₃ .= r ps₂ .+ r ps₃)%ps.
+  (ps₁ = ps₂)%ps
+  → (ps₁ + ps₃ = ps₂ + ps₃)%ps.
 Proof.
 intros ps₁ ps₂ ps₃ H₁₂.
 constructor.
@@ -601,8 +601,8 @@ inversion H₁₂; assumption.
 Qed.
 
 Theorem ps_add_compat_l : ∀ ps₁ ps₂ ps₃,
-  (ps₁ .= r ps₂)%ps
-  → (ps₃ .+ r ps₁ .= r ps₃ .+ r ps₂)%ps.
+  (ps₁ = ps₂)%ps
+  → (ps₃ + ps₁ = ps₃ + ps₂)%ps.
 Proof.
 intros ps1 ps₂ ps₃ H₁₂.
 rewrite ps_add_comm; symmetry.
@@ -612,8 +612,8 @@ Qed.
 
 End theorem_add_compat.
 
-Add Parametric Morphism α (r : ring α) : (ps_add r)
-  with signature eq_ps_strong r ==> eq_ps_strong r ==> eq_ps_strong r
+Add Parametric Morphism α (r : ring α) : ps_add
+  with signature eq_ps_strong ==> eq_ps_strong ==> eq_ps_strong
   as ps_canon_add_morph.
 Proof.
 intros ps₁ ps₃ Heq₁ ps₂ ps₄ Heq₂.
@@ -622,12 +622,12 @@ rewrite eq_strong_ps_add_compat_r; [ idtac | eassumption ].
 reflexivity.
 Qed.
 
-Add Parametric Morphism α (r : ring α) : (ps_add r)
-  with signature eq_ps r ==> eq_ps r ==> eq_ps r
+Add Parametric Morphism α (r : ring α) : ps_add
+  with signature eq_ps ==> eq_ps ==> eq_ps
   as ps_add_morph.
 Proof.
 intros ps₁ ps₃ Heq₁ ps₂ ps₄ Heq₂.
-transitivity (ps_add r ps₁ ps₄).
+transitivity (ps_add ps₁ ps₄).
  apply ps_add_compat_l; assumption.
 
  apply ps_add_compat_r; assumption.

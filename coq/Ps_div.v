@@ -15,7 +15,7 @@ Require Import Power_series.
 
 Set Implicit Arguments.
 
-Definition ps_inv α (r : ring α) (f : field r) ps :=
+Definition ps_inv {α} {r : ring α} {f : field r} ps :=
   match null_coeff_range_length r (ps_terms ps) O with
   | fin n =>
       {| ps_terms := series_inv (series_left_shift n (ps_terms ps));
@@ -25,7 +25,7 @@ Definition ps_inv α (r : ring α) (f : field r) ps :=
       ps
   end.
 
-Notation ".¹/ r a" := (ps_inv r a) : ps_scope.
+Notation "¹/ a" := (ps_inv a) : ps_scope.
 
 Definition ps_left_adjust α (r : ring α) ps :=
   match null_coeff_range_length r (ps_terms ps) O with
@@ -73,7 +73,7 @@ apply null_coeff_range_length_iff in Hn.
 assumption.
 Qed.
 
-Lemma ps_left_adjust_eq : ∀ ps, (ps .= r ps_left_adjust r ps)%ps.
+Lemma ps_left_adjust_eq : ∀ ps, (ps = ps_left_adjust r ps)%ps.
 Proof.
 intros ps.
 remember (null_coeff_range_length r (ps_terms ps) 0) as n eqn:Hn .
@@ -147,9 +147,9 @@ constructor; intros n; simpl.
 rewrite Nat.mul_1_r; reflexivity.
 Qed.
 
-Lemma canonic_ps_1 : (canonic_ps r (.1 r) ≐ r (.1 r))%ps.
+Lemma canonic_ps_1 : (canonic_ps r 1 ≐ 1)%ps.
 Proof.
-remember (null_coeff_range_length r (ps_terms .1 r%ps) 0) as n eqn:Hn .
+remember (null_coeff_range_length r (ps_terms 1%ps) 0) as n eqn:Hn .
 symmetry in Hn.
 destruct n as [n| ].
  destruct n.
@@ -235,14 +235,14 @@ exfalso; apply Hnz; reflexivity.
 Qed.
 
 Theorem ps_mul_inv_l : ∀ ps,
-  (ps .≠ r .0 r)%ps
-  → (.¹/f ps .* r ps .= r .1 r)%ps.
+  (ps ≠ 0)%ps
+  → (¹/ ps * ps = 1)%ps.
 Proof.
 intros ps Hps.
 remember (null_coeff_range_length r (ps_terms ps) 0) as n eqn:Hn .
 symmetry in Hn.
 destruct n as [n| ].
- assert (ps .= r ps_left_adjust r ps)%ps as H by apply ps_left_adjust_eq.
+ assert (ps = ps_left_adjust r ps)%ps as H by apply ps_left_adjust_eq.
  rewrite ps_mul_comm.
  rewrite H in |- * at 1.
  unfold ps_inv; simpl.
@@ -313,12 +313,12 @@ Qed.
 End theorems.
 
 Definition ps_ring α (r : ring α) : ring (puiseux_series α) :=
-  {| rng_zero := ps_zero r;
-     rng_one := ps_one r;
-     rng_add := ps_add r;
-     rng_mul := ps_mul r;
-     rng_opp := ps_opp r;
-     rng_eq := eq_ps r;
+  {| rng_zero := ps_zero;
+     rng_one := ps_one;
+     rng_add := ps_add;
+     rng_mul := ps_mul;
+     rng_opp := ps_opp;
+     rng_eq := eq_ps;
      rng_eq_refl := eq_ps_refl r;
      rng_eq_sym := eq_ps_sym (r := r);
      rng_eq_trans := eq_ps_trans (r := r);
@@ -336,15 +336,15 @@ Definition ps_ring α (r : ring α) : ring (puiseux_series α) :=
 Canonical Structure ps_ring.
 
 Definition ps_field α (r : ring α) (f : field r) : field (ps_ring r) :=
-  {| fld_inv := ps_inv f;
+  {| fld_inv := ps_inv;
      fld_mul_inv_l := ps_mul_inv_l f |}.
 
 Canonical Structure ps_field.
 
-Fixpoint ps_power α (r : ring α) la n :=
+Fixpoint ps_power {α} {r : ring α} la n :=
   match n with
-  | O => .1 r%ps
-  | S m => ps_mul r la (ps_power r la m)
+  | O => 1%ps
+  | S m => ps_mul la (ps_power la m)
   end.
 
-Notation "a .^ r b" := (ps_power r a b) : ps_scope.
+Notation "a ^ b" := (ps_power a b) : ps_scope.

@@ -56,7 +56,7 @@ rewrite Z.gcd_0_r; reflexivity.
 Qed.
 
 Lemma ps_canon_adjust_eq : ∀ ps n k,
-  canonic_ps r ps ≐ r canonic_ps r (adjust_ps r n k ps).
+  canonic_ps r ps ≐ canonic_ps r (adjust_ps r n k ps).
 Proof.
 intros ps n k.
 unfold canonic_ps; simpl.
@@ -173,7 +173,7 @@ destruct p as [p| ].
   apply Pos2Z_ne_0.
 Qed.
 
-Theorem ps_adjust_eq : ∀ ps n k, (ps .= r adjust_ps r n k ps)%ps.
+Theorem ps_adjust_eq : ∀ ps n k, (ps = adjust_ps r n k ps)%ps.
 Proof.
 intros ps n k.
 constructor.
@@ -203,7 +203,7 @@ Definition ps_valnum_add α (ps₁ ps₂ : puiseux_series α) :=
   let v₂ := (ps_valnum ps₂ * Zpos k₂)%Z in
   Z.min v₁ v₂.
 
-Definition ps_add α (r : ring α) (ps₁ ps₂ : puiseux_series α) :=
+Definition ps_add {α} {r : ring α} (ps₁ ps₂ : puiseux_series α) :=
   {| ps_terms := ps_terms_add r ps₁ ps₂;
      ps_valnum := ps_valnum_add ps₁ ps₂;
      ps_polord := cm ps₁ ps₂ |}.
@@ -223,18 +223,18 @@ Definition adjust_ps_from α (r : ring α) ps₁ ps₂ :=
   let v₂ := (ps_valnum ps₂ * Zpos k₂)%Z in
   adjust_ps r (Z.to_nat (v₂ - Z.min v₁ v₂)) k₂ ps₂.
 
-Definition ps_add₂ α (r : ring α) (ps₁ ps₂ : puiseux_series α) :=
+Definition ps_add₂ {α} {r : ring α} (ps₁ ps₂ : puiseux_series α) :=
   adjusted_ps_add r (adjust_ps_from r ps₂ ps₁) (adjust_ps_from r ps₁ ps₂).
 
-Notation "a .+ r b" := (ps_add r a b) : ps_scope.
+Notation "a + b" := (ps_add a b) : ps_scope.
 
-Definition ps_opp α (r : ring α) ps :=
+Definition ps_opp {α} {r : ring α} ps :=
   {| ps_terms := (- ps_terms ps)%ser;
      ps_valnum := ps_valnum ps;
      ps_polord := ps_polord ps |}.
 
-Notation ".- r a" := (ps_opp r a) : ps_scope.
-Notation "a .- r b" := (ps_add r a (ps_opp r b)) : ps_scope.
+Notation "- a" := (ps_opp a) : ps_scope.
+Notation "a - b" := (ps_add a (ps_opp b)) : ps_scope.
 
 Section theorems_add.
 
@@ -269,7 +269,7 @@ apply Pos.mul_comm.
 Qed.
 
 Theorem eq_strong_ps_add_comm : ∀ ps₁ ps₂,
-  (ps₁ .+ r ps₂)%ps ≐ r (ps₂ .+ r ps₁)%ps.
+  (ps₁ + ps₂)%ps ≐ (ps₂ + ps₁)%ps.
 Proof.
 intros ps₁ ps₂.
 constructor; simpl.
@@ -280,7 +280,7 @@ constructor; simpl.
  apply ps_terms_add_comm.
 Qed.
 
-Theorem ps_add_comm : ∀ ps₁ ps₂, (ps₁ .+ r ps₂ .= r ps₂ .+ r ps₁)%ps.
+Theorem ps_add_comm : ∀ ps₁ ps₂, (ps₁ + ps₂ = ps₂ + ps₁)%ps.
 Proof.
 intros ps₁ ps₂.
 constructor.
@@ -318,8 +318,8 @@ rewrite rng_add_0_l; reflexivity.
 Qed.
 
 Lemma ps_terms_add_assoc : ∀ ps₁ ps₂ ps₃,
-  (ps_terms_add r (ps₁ .+ r ps₂)%ps ps₃ =
-   ps_terms_add r ps₁ (ps₂ .+ r ps₃)%ps)%ser.
+  (ps_terms_add r (ps₁ + ps₂)%ps ps₃ =
+   ps_terms_add r ps₁ (ps₂ + ps₃)%ps)%ser.
 Proof.
 intros ps₁ ps₂ ps₃.
 constructor; intros i.
@@ -365,8 +365,8 @@ simpl; rewrite rng_add_assoc; reflexivity.
 Qed.
 
 Lemma gcd_ps_add_assoc : ∀ ps₁ ps₂ ps₃ n k,
-  gcd_ps n k ((ps₁ .+ r ps₂) .+ r ps₃)%ps =
-  gcd_ps n k (ps₁ .+ r (ps₂ .+ r ps₃))%ps.
+  gcd_ps n k ((ps₁ + ps₂) + ps₃)%ps =
+  gcd_ps n k (ps₁ + (ps₂ + ps₃))%ps.
 Proof.
 intros ps₁ ps₂ ps₃ n k.
 unfold gcd_ps; simpl.
@@ -384,13 +384,13 @@ f_equal; rewrite Z.mul_shuffle0; reflexivity.
 Qed.
 
 Lemma ps_canon_add_assoc : ∀ ps₁ ps₂ ps₃,
-  canonic_ps r ((ps₁ .+ r ps₂) .+ r ps₃)%ps ≐ r
-  canonic_ps r (ps₁ .+ r (ps₂ .+ r ps₃))%ps.
+  canonic_ps r ((ps₁ + ps₂) + ps₃)%ps ≐
+  canonic_ps r (ps₁ + (ps₂ + ps₃))%ps.
 Proof.
 intros ps₁ ps₂ ps₃.
 unfold canonic_ps; simpl.
 rewrite ps_terms_add_assoc.
-remember (ps₂ .+ r ps₃)%ps as x.
+remember (ps₂ + ps₃)%ps as x.
 remember (null_coeff_range_length r (ps_terms_add r ps₁ x) 0) as n.
 subst x.
 rename Heqn into Hn.
@@ -423,14 +423,14 @@ destruct n as [n| ]; [ constructor; simpl | reflexivity ].
 Qed.
 
 Theorem ps_add_assoc : ∀ ps₁ ps₂ ps₃,
-  (ps₁ .+ r (ps₂ .+ r ps₃) .= r (ps₁ .+ r ps₂) .+ r ps₃)%ps.
+  (ps₁ + (ps₂ + ps₃) = (ps₁ + ps₂) + ps₃)%ps.
 Proof.
 intros ps₁ ps₂ ps₃; symmetry.
 constructor.
 apply ps_canon_add_assoc.
 Qed.
 
-Theorem ps_add_0_l : ∀ ps, (.0 r .+ r ps .= r ps)%ps.
+Theorem ps_add_0_l : ∀ ps, (0 + ps = ps)%ps.
 Proof.
 intros ps.
 unfold ps_add; simpl.
@@ -462,10 +462,10 @@ rewrite Z.sub_0_r, Z.sub_diag, Z.min_comm.
 reflexivity.
 Qed.
 
-Theorem ps_add_0_r : ∀ ps, (ps .+ r .0 r .= r ps)%ps.
+Theorem ps_add_0_r : ∀ ps, (ps + 0 = ps)%ps.
 Proof. intros ps; rewrite ps_add_comm; apply ps_add_0_l. Qed.
 
-Theorem ps_add_opp_r : ∀ ps, (ps .- r ps .= r .0 r)%ps.
+Theorem ps_add_opp_r : ∀ ps, (ps - ps = 0)%ps.
 Proof.
 intros ps.
 unfold ps_zero.
@@ -518,7 +518,7 @@ destruct v as [| v| v].
  reflexivity.
 Qed.
 
-Theorem ps_add_opp_l : ∀ ps, (.- r ps .+ r ps .= r .0 r)%ps.
+Theorem ps_add_opp_l : ∀ ps, (- ps + ps = 0)%ps.
 Proof.
 intros ps.
 rewrite ps_add_comm.
@@ -526,7 +526,7 @@ apply ps_add_opp_r.
 Qed.
 
 Lemma eq_strong_ps_add_add₂ : ∀ ps₁ ps₂,
-  (ps₁ .+ r ps₂)%ps ≐ r ps_add₂ r ps₁ ps₂.
+  (ps₁ + ps₂)%ps ≐ ps_add₂ ps₁ ps₂.
 Proof.
 intros ps₁ ps₂.
 constructor; [ simpl | reflexivity | simpl ].
@@ -550,13 +550,13 @@ constructor; [ simpl | reflexivity | simpl ].
 Qed.
 
 Lemma eq_strong_ps_canon_add_add₂ : ∀ ps₁ ps₂,
-  canonic_ps r (ps₁ .+ r ps₂)%ps ≐ r canonic_ps r (ps_add₂ r ps₁ ps₂).
+  canonic_ps r (ps₁ + ps₂)%ps ≐ canonic_ps r (ps_add₂ ps₁ ps₂).
 Proof.
 intros ps₁ ps₂.
 rewrite eq_strong_ps_add_add₂; reflexivity.
 Qed.
 
-Lemma eq_ps_add_add₂ : ∀ ps₁ ps₂, (ps₁ .+ r ps₂ .= r ps_add₂ r ps₁ ps₂)%ps.
+Lemma eq_ps_add_add₂ : ∀ ps₁ ps₂, (ps₁ + ps₂ = ps_add₂ ps₁ ps₂)%ps.
 Proof.
 intros ps₁ ps₂.
 constructor.
@@ -566,7 +566,7 @@ Qed.
 End theorems_add.
 
 Add Parametric Morphism α (r : ring α) : (adjusted_ps_add r)
-  with signature eq_ps_strong r ==> eq_ps_strong r ==> eq_ps_strong r
+  with signature eq_ps_strong ==> eq_ps_strong ==> eq_ps_strong
   as adjusted_ps_add_morph.
 Proof.
 intros ps₁ ps₃ Heq₁ ps₂ ps₄ Heq₂.
@@ -591,7 +591,7 @@ destruct (zerop ((i - n) mod Pos.to_nat k)); [ apply H | reflexivity ].
 Qed.
 
 Add Parametric Morphism α (r : ring α) : (ps_terms_add r)
-  with signature eq_ps_strong r ==> eq_ps_strong r ==> eq_series
+  with signature eq_ps_strong ==> eq_ps_strong ==> eq_series
   as ps_terms_add_morph.
 Proof.
 intros ps₁ ps₃ Heq₁ ps₂ ps₄ Heq₂.

@@ -36,7 +36,7 @@ Fixpoint make_char_pol α (r : ring α) pow tl :=
 
 Definition lap_term_of_point α (r : ring α) la (pt : (Q * Q)) :=
   let h := nofq (fst pt) in
-  let ps := List.nth h la .0 r%ps in
+  let ps := List.nth h la 0%ps in
   let c := valuation_coeff r ps in
   {| coeff := c; power := h |}.
 
@@ -968,8 +968,8 @@ Definition jk_mjk_g_of_ns (pol : polynomial (puiseux_series α)) ns :=
   let k := Z.to_nat (Qnum (fst (fin_pt ns))) in
   let αj := snd (ini_pt ns) in
   let αk := snd (fin_pt ns) in
-  let jps := List.nth j (al pol) .0 r%ps in
-  let kps := List.nth k (al pol) .0 r%ps in
+  let jps := List.nth j (al pol) 0%ps in
+  let kps := List.nth k (al pol) 0%ps in
   let mj := (Qnum αj * ' m / ' ps_polord jps)%Z in
   let mk := (Qnum αk * ' m / ' ps_polord kps)%Z in
   let g := Z.gcd (mj - mk) (Z.of_nat k - Z.of_nat j) in
@@ -993,7 +993,7 @@ Definition mk_of_ns (pol : polynomial (puiseux_series α)) ns :=
 
 Definition mh_of_ns (pol : polynomial (puiseux_series α)) h αh :=
  let m := series_list_com_polord (al pol) in
- let hps := List.nth h (al pol) .0 r%ps in
+ let hps := List.nth h (al pol) 0%ps in
  (Qnum αh * ' m / ' ps_polord hps)%Z.
 
 (* [Walker, p. 100]: «
@@ -1021,7 +1021,7 @@ remember Hns as Hg; clear HeqHg.
 symmetry in Hini, Hfin.
 eapply gamma_value_jk in Hg; try eassumption.
 subst hsl.
-remember (List.nth j (al pol) .0 r%ps) as jps.
+remember (List.nth j (al pol) 0%ps) as jps.
 remember Heqjps as Hjps_v; clear HeqHjps_v.
 eapply in_pts_in_pol with (hv := αj) in Heqjps; try eassumption.
  2: rewrite Hini.
@@ -1032,7 +1032,7 @@ eapply in_pts_in_pol with (hv := αj) in Heqjps; try eassumption.
  destruct Heqjps as (Hjps, Hαj).
  eapply com_den_of_ps_list in Hαj; try eassumption; [ idtac | reflexivity ].
  remember (Qnum αj * ' m / ' ps_polord jps)%Z as mj eqn:Hmj .
- remember (List.nth k (al pol) .0 r%ps) as kps.
+ remember (List.nth k (al pol) 0%ps) as kps.
  remember Heqkps as Hkps_v; clear HeqHkps_v.
  eapply in_pts_in_pol with (hv := αk) in Heqkps; try eassumption.
   2: rewrite Hfin.
@@ -1096,7 +1096,7 @@ remember Hns as Hg; clear HeqHg.
 symmetry in Hini, Hfin.
 eapply gamma_value_jk in Hg; try eassumption.
 subst hsl.
-remember (List.nth j (al pol) .0 r%ps) as jps.
+remember (List.nth j (al pol) 0%ps) as jps.
 remember Heqjps as Hjps_v; clear HeqHjps_v.
 eapply in_pts_in_pol with (hv := αj) in Heqjps; try eassumption.
  2: rewrite Hini.
@@ -1107,7 +1107,7 @@ eapply in_pts_in_pol with (hv := αj) in Heqjps; try eassumption.
  destruct Heqjps as (Hjps, Hαj).
  eapply com_den_of_ps_list in Hαj; try eassumption; [ idtac | reflexivity ].
  remember (Qnum αj * ' m / ' ps_polord jps)%Z as mj eqn:Hmj .
- remember (List.nth k (al pol) .0 r%ps) as kps.
+ remember (List.nth k (al pol) 0%ps) as kps.
  remember Heqkps as Hkps_v; clear HeqHkps_v.
  eapply in_pts_in_pol with (hv := αk) in Heqkps; try eassumption.
   2: rewrite Hfin.
@@ -1264,7 +1264,7 @@ Lemma com_den_of_ini_pt : ∀ pol ns m j αj mj,
         → αj == mj # m.
 Proof.
 intros pol ns m j αj mj Hns Hm Hini Hmj.
-remember (List.nth j (al pol) .0 r%ps) as jps.
+remember (List.nth j (al pol) 0%ps) as jps.
 eapply com_den_of_ps_list with (ps := jps); try eassumption.
  eapply in_pts_in_pol with (hv := αj); try eassumption; try reflexivity.
  rewrite Hini.
@@ -1288,7 +1288,7 @@ Lemma com_den_of_fin_pt : ∀ pol ns m k αk mk,
         → αk == mk # m.
 Proof.
 intros pol ns m k αk mk Hns Hm Hfin Hmk.
-remember (List.nth k (al pol) .0 r%ps) as kps.
+remember (List.nth k (al pol) 0%ps) as kps.
 eapply com_den_of_ps_list with (ps := kps); try eassumption.
  eapply in_pts_in_pol with (hv := αk); try eassumption; try reflexivity.
  rewrite Hfin.
@@ -1312,7 +1312,7 @@ Lemma com_den_of_oth_pt : ∀ pol ns m h αh mh,
         → αh == mh # m.
 Proof.
 intros pol ns m h αh mh Hns Hm Hfin Hmh.
-remember (List.nth h (al pol) .0 r%ps) as hps.
+remember (List.nth h (al pol) 0%ps) as hps.
 remember (points_of_ps_polynom r pol) as pts eqn:Hpts .
 eapply com_den_of_ps_list with (ps := hps); try eassumption.
  eapply in_pts_in_pol with (hv := αh); try eassumption.
@@ -1359,7 +1359,7 @@ Theorem q_mj_mk_eq_p_h_j : ∀ pol ns j αj m mj p q,
 Proof.
 intros pol ns j αj m mj p q Hns Hj Hm Hmj Hp Hq h αh mh Hh Hmh.
 remember (points_of_ps_polynom r pol) as pts eqn:Hpts .
-remember (List.nth h (al pol) .0 r%ps) as hps.
+remember (List.nth h (al pol) 0%ps) as hps.
 apply List.in_app_or in Hh.
 unfold newton_segments in Hns.
 rewrite <- Hpts in Hns.
@@ -2519,7 +2519,7 @@ destruct n; simpl.
 Qed.
 
 Lemma fold_char_pol : ∀ pol j αj tl,
-  [valuation_coeff r (List.nth j (al pol) .0 r%ps)
+  [valuation_coeff r (List.nth j (al pol) 0%ps)
    … make_char_pol r (S j) (List.map (term_of_point r pol) tl)] =
   make_char_pol r j
     (List.map (term_of_point r pol) [(Qnat j, αj) … tl]).
@@ -2538,7 +2538,7 @@ Proof. reflexivity. Qed.
 Lemma val_coeff_non_zero_in_newt_segm : ∀ pol ns h αh hps,
   ns ∈ newton_segments r pol
   → (Qnat h, αh) ∈ [ini_pt ns … oth_pts ns ++ [fin_pt ns]]
-    → hps = List.nth h (al pol) .0 r%ps
+    → hps = List.nth h (al pol) 0%ps
       → (valuation_coeff r hps ≠ 0)%K.
 Proof.
 intros pol ns h αh hps Hns Hh Hhps.

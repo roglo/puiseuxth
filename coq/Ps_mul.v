@@ -17,7 +17,7 @@ Set Implicit Arguments.
 
 (* ps_mul *)
 
-Definition ps_mul α (r : ring α) ps₁ ps₂ :=
+Definition ps_mul {α} {r : ring α} ps₁ ps₂ :=
   {| ps_terms :=
        series_mul
          (series_stretch r (cm_factor ps₁ ps₂) (ps_terms ps₁))
@@ -27,7 +27,7 @@ Definition ps_mul α (r : ring α) ps₁ ps₂ :=
      ps_polord :=
        cm ps₁ ps₂ |}.
 
-Notation "a .* r b" := (ps_mul r a b) : ps_scope.
+Notation "a * b" := (ps_mul a b) : ps_scope.
 
 Section theorems_for_mul.
 
@@ -35,7 +35,7 @@ Variable α : Type.
 Variable r : ring α.
 
 Lemma ps_canon_mul_comm : ∀ ps₁ ps₂,
-  canonic_ps r (ps₁ .* r ps₂)%ps ≐ r canonic_ps r (ps₂ .* r ps₁)%ps.
+  canonic_ps r (ps₁ * ps₂)%ps ≐ canonic_ps r (ps₂ * ps₁)%ps.
 Proof.
 intros ps₁ ps₂.
 unfold canonic_ps; simpl.
@@ -65,14 +65,14 @@ constructor; simpl.
  reflexivity.
 Qed.
 
-Theorem ps_mul_comm : ∀ ps₁ ps₂, (ps₁ .* r ps₂ .= r ps₂ .* r ps₁)%ps.
+Theorem ps_mul_comm : ∀ ps₁ ps₂, (ps₁ * ps₂ = ps₂ * ps₁)%ps.
 Proof.
 intros ps₁ ps₂.
 constructor.
 apply ps_canon_mul_comm.
 Qed.
 
-Theorem ps_mul_1_l : ∀ ps, (.1 r .* r ps .= r ps)%ps.
+Theorem ps_mul_1_l : ∀ ps, (1 * ps = ps)%ps.
 Proof.
 intros ps.
 constructor.
@@ -101,7 +101,7 @@ constructor; simpl.
  rewrite Z.mul_1_r; reflexivity.
 Qed.
 
-Theorem ps_mul_1_r : ∀ ps, (ps .* r .1 r .= r ps)%ps.
+Theorem ps_mul_1_r : ∀ ps, (ps * 1 = ps)%ps.
 Proof. intros ps. rewrite ps_mul_comm. apply ps_mul_1_l. Qed.
 
 Lemma null_coeff_range_length_series_0 :
@@ -111,7 +111,7 @@ apply null_coeff_range_length_iff; intros i.
 rewrite series_nth_series_0; reflexivity.
 Qed.
 
-Theorem ps_mul_0_l : ∀ ps, (.0 r .* r ps .= r .0 r)%ps.
+Theorem ps_mul_0_l : ∀ ps, (0 * ps = 0)%ps.
 Proof.
 intros ps.
 constructor.
@@ -123,7 +123,7 @@ rewrite null_coeff_range_length_series_0.
 reflexivity.
 Qed.
 
-Theorem ps_mul_0_r : ∀ ps, (ps .* r .0 r .= r .0 r)%ps.
+Theorem ps_mul_0_r : ∀ ps, (ps * 0 = 0)%ps.
 Proof. intros ps. rewrite ps_mul_comm. apply ps_mul_0_l. Qed.
 
 Lemma series_stretch_mul : ∀ a b k,
@@ -191,7 +191,7 @@ destruct (zerop (i mod Pos.to_nat k)) as [H₂| H₂].
 Qed.
 
 Theorem ps_mul_assoc : ∀ ps₁ ps₂ ps₃,
-  (ps₁ .* r (ps₂ .* r ps₃) .= r (ps₁ .* r ps₂) .* r ps₃)%ps.
+  (ps₁ * (ps₂ * ps₃) = (ps₁ * ps₂) * ps₃)%ps.
 Proof.
 intros ps₁ ps₂ ps₃.
 constructor.
@@ -272,8 +272,8 @@ constructor; simpl.
 Qed.
 
 Lemma eq_strong_ps_mul_compat_r : ∀ ps₁ ps₂ ps₃,
-  eq_ps_strong r ps₁ ps₂
-  → eq_ps_strong r (ps_mul r ps₁ ps₃) (ps_mul r ps₂ ps₃).
+  eq_ps_strong ps₁ ps₂
+  → eq_ps_strong (ps_mul ps₁ ps₃) (ps_mul ps₂ ps₃).
 Proof.
 intros ps₁ ps₂ ps₃ Heq.
 induction Heq.
@@ -289,8 +289,8 @@ constructor; simpl.
 Qed.
 
 Lemma eq_strong_ps_mul_compat_l : ∀ ps₁ ps₂ ps₃,
-  eq_ps_strong r ps₁ ps₂
-  → eq_ps_strong r (ps_mul r ps₃ ps₁) (ps_mul r ps₃ ps₂).
+  eq_ps_strong ps₁ ps₂
+  → eq_ps_strong (ps_mul ps₃ ps₁) (ps_mul ps₃ ps₂).
 Proof.
 intros ps₁ ps₂ ps₃ Heq.
 induction Heq.
@@ -365,8 +365,8 @@ destruct (lt_dec k n) as [H₂| H₂].
 Qed.
 
 Lemma canonic_ps_mul_adjust_l : ∀ ps₁ ps₂ n k,
-  canonic_ps r (ps_mul r ps₁ ps₂) ≐ r
-  canonic_ps r (ps_mul r (adjust_ps r n k ps₁) ps₂).
+  canonic_ps r (ps_mul ps₁ ps₂) ≐
+  canonic_ps r (ps_mul (adjust_ps r n k ps₁) ps₂).
 Proof.
 intros ps₁ ps₂ n k.
 remember (Pos.to_nat (ps_polord ps₂) * n)%nat as m eqn:Hm .
@@ -393,8 +393,8 @@ reflexivity.
 Qed.
 
 Lemma ps_canon_mul_compat_r : ∀ ps₁ ps₂ ps₃,
-  canonic_ps r ps₁ ≐ r canonic_ps r ps₂
-  → canonic_ps r (ps_mul r ps₁ ps₃) ≐ r canonic_ps r (ps_mul r ps₂ ps₃).
+  canonic_ps r ps₁ ≐ canonic_ps r ps₂
+  → canonic_ps r (ps_mul ps₁ ps₃) ≐ canonic_ps r (ps_mul ps₂ ps₃).
 Proof.
 intros ps₁ ps₂ ps₃ Heq.
 remember Heq as Heqv; clear HeqHeqv.
@@ -445,8 +445,8 @@ destruct m₁ as [m₁| ].
 Qed.
 
 Theorem ps_mul_compat_r : ∀ ps₁ ps₂ ps₃,
-  (ps₁ .= r ps₂)%ps
-  → (ps₁ .* r ps₃ .= r ps₂ .* r ps₃)%ps.
+  (ps₁ = ps₂)%ps
+  → (ps₁ * ps₃ = ps₂ * ps₃)%ps.
 Proof.
 intros ps₁ ps₂ ps₃ H₁₂.
 constructor.
@@ -455,8 +455,8 @@ inversion H₁₂; assumption.
 Qed.
 
 Theorem ps_mul_compat_l : ∀ ps₁ ps₂ ps₃,
-  (ps₁ .= r ps₂)%ps
-  → (ps₃ .* r ps₁ .= r ps₃ .* r ps₂)%ps.
+  (ps₁ = ps₂)%ps
+  → (ps₃ * ps₁ = ps₃ * ps₂)%ps.
 Proof.
 intros ps₁ ps₂ ps₃ Heq.
 rewrite ps_mul_comm; symmetry.
@@ -466,8 +466,8 @@ Qed.
 
 End theorems_for_mul.
 
-Add Parametric Morphism α (r : ring α) : (ps_mul r)
-  with signature eq_ps_strong r ==> eq_ps_strong r ==> eq_ps_strong r
+Add Parametric Morphism α (r : ring α) : ps_mul
+  with signature eq_ps_strong ==> eq_ps_strong ==> eq_ps_strong
   as ps_canon_mul_morph.
 Proof.
 intros ps₁ ps₃ Heq₁ ps₂ ps₄ Heq₂.
@@ -476,8 +476,8 @@ rewrite eq_strong_ps_mul_compat_r; [ idtac | eassumption ].
 reflexivity.
 Qed.
 
-Add Parametric Morphism α (r : ring α) : (ps_mul r)
-  with signature eq_ps r ==> eq_ps r ==> eq_ps r
+Add Parametric Morphism α (r : ring α) : ps_mul
+  with signature eq_ps ==> eq_ps ==> eq_ps
   as ps_mul_morph.
 Proof.
 intros ps₁ ps₃ Heq₁ ps₂ ps₄ Heq₂.
@@ -491,7 +491,7 @@ Section other_theorems.
 Variable α : Type.
 Variable r : ring α.
 
-Theorem canonic_ps_eq : ∀ ps, (canonic_ps r ps .= r ps)%ps.
+Theorem canonic_ps_eq : ∀ ps, (canonic_ps r ps = ps)%ps.
 Proof.
 intros ps.
 unfold canonic_ps.
@@ -639,10 +639,10 @@ Qed.
 Lemma null_range_length_mul_add₂_distr_l : ∀ ps₁ ps₂ ps₃,
    null_coeff_range_length r
      (ps_terms
-        (adjust_ps r 0 (ps_polord ps₁) (ps₁ .* r ps_add₂ r ps₂ ps₃)%ps)) 0 =
+        (adjust_ps r 0 (ps_polord ps₁) (ps₁ * ps_add₂ ps₂ ps₃)%ps)) 0 =
    null_coeff_range_length r
      (ps_terms
-        (adjust_ps r 0 1 (ps_add₂ r (ps₁ .* r ps₂)%ps (ps₁ .* r ps₃)%ps))) 0.
+        (adjust_ps r 0 1 (ps_add₂ (ps₁ * ps₂)%ps (ps₁ * ps₃)%ps))) 0.
 Proof.
 intros ps₁ ps₂ ps₃; simpl.
 unfold cm, cm_factor; simpl.
@@ -699,8 +699,8 @@ f_equal.
 Qed.
 
 Lemma ps_valnum_adjust_mul_add₂_distr_l : ∀ ps₁ ps₂ ps₃,
-  ps_valnum (adjust_ps r 0 (ps_polord ps₁) (ps₁ .* r ps_add₂ r ps₂ ps₃)%ps) =
-  ps_valnum (adjust_ps r 0 1 (ps_add₂ r (ps₁ .* r ps₂)%ps (ps₁ .* r ps₃)%ps)).
+  ps_valnum (adjust_ps r 0 (ps_polord ps₁) (ps₁ * ps_add₂ ps₂ ps₃)%ps) =
+  ps_valnum (adjust_ps r 0 1 (ps_add₂ (ps₁ * ps₂)%ps (ps₁ * ps₃)%ps)).
 Proof.
 intros ps₁ ps₂ ps₃; simpl.
 unfold cm; simpl.
@@ -743,8 +743,8 @@ f_equal.
 Qed.
 
 Lemma ps_polord_adjust_mul_add₂_distr_l : ∀ ps₁ ps₂ ps₃,
-  ps_polord (adjust_ps r 0 (ps_polord ps₁) (ps₁ .* r ps_add₂ r ps₂ ps₃)%ps) =
-  ps_polord (adjust_ps r 0 1 (ps_add₂ r (ps₁ .* r ps₂)%ps (ps₁ .* r ps₃)%ps)).
+  ps_polord (adjust_ps r 0 (ps_polord ps₁) (ps₁ * ps_add₂ ps₂ ps₃)%ps) =
+  ps_polord (adjust_ps r 0 1 (ps_add₂ (ps₁ * ps₂)%ps (ps₁ * ps₃)%ps)).
 Proof.
 intros ps₁ ps₂ ps₃; simpl.
 unfold cm; simpl.
@@ -757,9 +757,9 @@ Qed.
 
 Lemma ps_terms_adjust_mul_add₂_distr_l : ∀ ps₁ ps₂ ps₃,
   (ps_terms
-     (adjust_ps r 0 (ps_polord ps₁) (ps₁ .* r ps_add₂ r ps₂ ps₃)%ps) =
+     (adjust_ps r 0 (ps_polord ps₁) (ps₁ * ps_add₂ ps₂ ps₃)%ps) =
    ps_terms
-     (adjust_ps r 0 1 (ps_add₂ r (ps₁ .* r ps₂)%ps (ps₁ .* r ps₃)%ps)))%ser.
+     (adjust_ps r 0 1 (ps_add₂ (ps₁ * ps₂)%ps (ps₁ * ps₃)%ps)))%ser.
 Proof.
 intros ps₁ ps₂ ps₃; simpl.
 unfold cm; simpl.
@@ -817,8 +817,8 @@ reflexivity.
 Qed.
 
 Lemma ps_valnum_adjust_canonic_mul_add₂_distr_l : ∀ ps₁ ps₂ ps₃ ps₄ ps₅ n,
-  ps₄ = adjust_ps r 0 (ps_polord ps₁) (ps₁ .* r ps_add₂ r ps₂ ps₃)%ps
-  → ps₅ = adjust_ps r 0 1 (ps_add₂ r (ps₁ .* r ps₂)%ps (ps₁ .* r ps₃)%ps)
+  ps₄ = adjust_ps r 0 (ps_polord ps₁) (ps₁ * ps_add₂ ps₂ ps₃)%ps
+  → ps₅ = adjust_ps r 0 1 (ps_add₂ (ps₁ * ps₂)%ps (ps₁ * ps₃)%ps)
     → null_coeff_range_length r (ps_terms ps₄) 0 = fin n
       → null_coeff_range_length r (ps_terms ps₅) 0 = fin n
         → ps_valnum (canonic_ps r ps₄) = ps_valnum (canonic_ps r ps₅).
@@ -834,8 +834,8 @@ reflexivity.
 Qed.
 
 Lemma ps_polord_adjust_canonic_mul_add₂_distr_l : ∀ ps₁ ps₂ ps₃ ps₄ ps₅ n,
-  ps₄ = adjust_ps r 0 (ps_polord ps₁) (ps₁ .* r ps_add₂ r ps₂ ps₃)%ps
-  → ps₅ = adjust_ps r 0 1 (ps_add₂ r (ps₁ .* r ps₂)%ps (ps₁ .* r ps₃)%ps)
+  ps₄ = adjust_ps r 0 (ps_polord ps₁) (ps₁ * ps_add₂ ps₂ ps₃)%ps
+  → ps₅ = adjust_ps r 0 1 (ps_add₂ (ps₁ * ps₂)%ps (ps₁ * ps₃)%ps)
     → null_coeff_range_length r (ps_terms ps₄) 0 = fin n
       → null_coeff_range_length r (ps_terms ps₅) 0 = fin n
         → ps_polord (canonic_ps r ps₄) = ps_polord (canonic_ps r ps₅).
@@ -851,8 +851,8 @@ reflexivity.
 Qed.
 
 Lemma ps_terms_adjust_canonic_mul_add₂_distr_l : ∀ ps₁ ps₂ ps₃ ps₄ ps₅ n,
-  ps₄ = adjust_ps r 0 (ps_polord ps₁) (ps₁ .* r ps_add₂ r ps₂ ps₃)%ps
-  → ps₅ = adjust_ps r 0 1 (ps_add₂ r (ps₁ .* r ps₂)%ps (ps₁ .* r ps₃)%ps)
+  ps₄ = adjust_ps r 0 (ps_polord ps₁) (ps₁ * ps_add₂ ps₂ ps₃)%ps
+  → ps₅ = adjust_ps r 0 1 (ps_add₂ (ps₁ * ps₂)%ps (ps₁ * ps₃)%ps)
     → null_coeff_range_length r (ps_terms ps₄) 0 = fin n
       → null_coeff_range_length r (ps_terms ps₅) 0 = fin n
         → (ps_terms (canonic_ps r ps₄) = ps_terms (canonic_ps r ps₅))%ser.
@@ -868,7 +868,7 @@ reflexivity.
 Qed.
 
 Theorem ps_mul_add_distr_l : ∀ ps₁ ps₂ ps₃,
-  (ps₁ .* r (ps₂ .+ r ps₃) .= r ps₁ .* r ps₂ .+ r ps₁ .* r ps₃)%ps.
+  (ps₁ * (ps₂ + ps₃) = ps₁ * ps₂ + ps₁ * ps₃)%ps.
 Proof.
 intros ips₁ ips₂ ips₃.
 rewrite <- (canonic_ps_eq ips₁).
@@ -885,9 +885,9 @@ remember ((vcc + Z.min cvc ccv) * ' ps_polord ps₁)%Z as n₂.
 do 2 rewrite eq_ps_add_add₂.
 rewrite ps_adjust_eq with (n := O) (k := ps_polord ps₁); symmetry.
 rewrite ps_adjust_eq with (n := O) (k := xH); symmetry.
-remember (adjust_ps r 0 (ps_polord ps₁) (ps₁ .* r ps_add₂ r ps₂ ps₃))%ps as ps₄
+remember (adjust_ps r 0 (ps_polord ps₁) (ps₁ * ps_add₂ ps₂ ps₃))%ps as ps₄
  eqn:Hps₄ .
-remember (adjust_ps r 0 1 (ps_add₂ r (ps₁ .* r ps₂) (ps₁ .* r ps₃)))%ps as ps₅ eqn:Hps₅ .
+remember (adjust_ps r 0 1 (ps_add₂ (ps₁ * ps₂) (ps₁ * ps₃)))%ps as ps₅ eqn:Hps₅ .
 remember (null_coeff_range_length r (ps_terms ps₄) 0) as n₄ eqn:Hn₄ .
 remember (null_coeff_range_length r (ps_terms ps₅) 0) as n₅ eqn:Hn₅ .
 symmetry in Hn₄, Hn₅.
@@ -907,7 +907,7 @@ destruct n₄ as [n₄| ].
 Qed.
 
 Lemma ps_monom_add_l : ∀ c d n,
-  (ps_monom r (c + d)%K n .= r ps_monom r c n .+ r ps_monom r d n)%ps.
+  (ps_monom r (c + d)%K n = ps_monom r c n + ps_monom r d n)%ps.
 Proof.
 intros c d n.
 unfold ps_monom; simpl.
@@ -936,8 +936,8 @@ apply mkps_morphism; simpl.
 Qed.
 
 Lemma ps_monom_add_r : ∀ c p q,
- (ps_monom r c (p + q) .= r
-  ps_monom r c p .* r ps_monom r 1%K q)%ps.
+ (ps_monom r c (p + q) =
+  ps_monom r c p * ps_monom r 1%K q)%ps.
 Proof.
 intros c p q.
 unfold ps_mul; simpl.
