@@ -1636,12 +1636,59 @@ apply mkps_morphism; simpl; [ idtac | idtac | reflexivity ].
  rewrite Z.mul_1_r; reflexivity.
 Qed.
 
-Lemma lap_inject_inj_mul : ∀ la lb,
-  let f' := Kx in (* not sure it is the good method *)
-  lap_eq (List.map (λ c, ps_monom c 0) (lap_mul la lb))
-    (lap_mul
-       (List.map (λ c, ps_monom c 0) la)
-       (List.map (λ c, ps_monom c 0) lb)).
+Lemma lap_add_map : ∀ α β (Rα : ring α) (Rβ : ring β) (f : α → β) la lb,
+  (∀ a b, (f (a + b) = f a + f b)%K)
+  → (List.map f (la + lb) = List.map f la + List.map f lb)%lap.
+Proof.
+clear.
+intros α β Rα Rβ f la lb Hab.
+revert lb.
+induction la as [| a]; intros; [ reflexivity | simpl ].
+destruct lb as [| b]; [ reflexivity | simpl ].
+rewrite Hab, IHla; reflexivity.
+Qed.
+
+Lemma lap_add_map_ps : ∀ la lb,
+  let _ := Kx in (* not sure it is the good method *)
+  (List.map (λ c, ps_monom c 0) (la + lb) =
+   List.map (λ c, ps_monom c 0) la + List.map (λ c, ps_monom c 0) lb)%lap.
+Proof.
+intros la lb f'.
+apply lap_add_map; intros a b.
+rewrite ps_monom_add_l; reflexivity.
+Qed.
+
+(*
+Lemma lap_mul_map : ∀ α β (Rα : ring α) (Rβ : ring β) (f : α → β) la lb,
+  (∀ lc ld, (lc = ld)%lap → (List.map f lc = List.map f ld)%lap)
+  → (List.map f (la * lb) = List.map f la * List.map f lb)%lap.
+Proof.
+clear.
+intros α β Rα Rβ f la lb Hadd Hmul.
+revert lb.
+induction la as [| a]; intros; simpl.
+ remember (List.map f ([] * lb))%lap as x.
+ rewrite lap_mul_nil_l; subst x.
+ unfold lap_mul; simpl.
+ remember (pred (length lb)) as n; clear Heqn.
+ induction n; intros; [ reflexivity | simpl ].
+ unfold summation; simpl.
+ constructor.
+  rewrite Hadd, Hmul.
+bbb.
+
+Lemma lap_mul_map : ∀ α β (Rα : ring α) (Rβ : ring β) (f : α → β) la lb,
+  (List.map f (la * lb) = List.map f la * List.map f lb)%lap.
+Proof.
+intros la lb f'.
+bbb.
+*)
+
+(* TODO: do the same as lap_add_map and lap_add_map_ps *)
+Theorem lap_mul_map_ps : ∀ la lb,
+  let _ := Kx in (* not sure it is the good method *)
+  (List.map (λ c, ps_monom c 0) (la * lb) =
+   List.map (λ c, ps_monom c 0) la * List.map (λ c, ps_monom c 0) lb)%lap.
 Proof.
 intros la lb f'.
 unfold lap_mul; simpl.
@@ -1671,7 +1718,7 @@ Lemma poly_inject_inj_mul : ∀ P Q,
    (poly_inject_K_in_Kx R P * poly_inject_K_in_Kx R Q))%pol.
 Proof.
 intros P Q f'; subst f'.
-apply lap_inject_inj_mul.
+apply lap_mul_map_ps.
 Qed.
 
 Lemma summation_lap_compose_deg_1_mul : ∀ la c d k f,
@@ -1715,74 +1762,7 @@ erewrite length_char_pol; try eassumption; try reflexivity.
 subst s; reflexivity.
 Qed.
 
-Lemma lap_add_map : ∀ α β (Rα : ring α) (Rβ : ring β) (f : α → β) la lb,
-  (∀ a b, (f (a + b) = f a + f b)%K)
-  → (List.map f (la + lb) = List.map f la + List.map f lb)%lap.
-Proof.
-clear.
-intros α β Rα Rβ f la lb Hab.
-revert lb.
-induction la as [| a]; intros; [ reflexivity | simpl ].
-destruct lb as [| b]; [ reflexivity | simpl ].
-rewrite Hab, IHla; reflexivity.
-Qed.
-
-Lemma lap_add_map_ps : ∀ la lb,
-  let _ := Kx in (* not sure it is the good method *)
-  (List.map (λ c, ps_monom c 0) (la + lb) =
-   List.map (λ c, ps_monom c 0) la + List.map (λ c, ps_monom c 0) lb)%lap.
-Proof.
-intros la lb f'.
-apply lap_add_map; intros a b.
-rewrite ps_monom_add_l; reflexivity.
-Qed.
-
-(* TODO: do the same as lap_add_map and lap_add_map_ps *)
-Theorem lap_mul_map : ∀ la lb,
-  let _ := Kx in (* not sure it is the good method *)
-  lap_eq
-    (lap_mul
-       (List.map (λ c, ps_monom c 0) la)
-       (List.map (λ c, ps_monom c 0) lb))
-    (List.map (λ c, ps_monom c 0) (lap_mul la lb)).
-Proof.
-intros la lb f'.
-revert lb.
-induction la as [| a]; intros; simpl.
- do 2 rewrite lap_mul_nil_l; reflexivity.
-
- destruct lb as [| b]; simpl.
-  do 2 rewrite lap_mul_nil_r; reflexivity.
-
-  do 2 rewrite lap_mul_cons; simpl.
-  rewrite ps_monom_mul_l.
-  constructor; [ reflexivity | idtac ].
-  do 2 rewrite lap_add_map_ps.
-  rewrite IHla; simpl.
-  apply lap_add_compat.
-   apply lap_add_compat.
-    rewrite <- IHla; reflexivity.
-
-    clear.
-    induction lb as [| b]; simpl.
-     rewrite lap_mul_nil_r; reflexivity.
-
-     rewrite summation_only_one.
-     rewrite lap_mul_cons; simpl.
-     rewrite ps_monom_mul_l.
-     constructor; [ reflexivity | idtac ].
-     rewrite lap_mul_nil_l.
-     rewrite lap_eq_0.
-     rewrite lap_add_nil_r.
-     rewrite IHlb.
-     unfold lap_mul; simpl.
-     rewrite <- lap_convol_mul_cons_succ; reflexivity.
-
-   constructor; [ idtac | reflexivity ].
-   rewrite ps_zero_monom_eq; reflexivity.
-Qed.
-
-Lemma lap_power_map : ∀ la n,
+Lemma lap_power_map_ps : ∀ la n,
   let _ := Kx in (* not sure it is the good method *)
   lap_eq
     (lap_power (List.map (λ c, ps_monom c 0) la) n)
@@ -1791,8 +1771,8 @@ Proof.
 intros la n f'.
 revert la.
 induction n; intros; [ reflexivity | simpl ].
-rewrite IHn.
-apply lap_mul_map.
+rewrite IHn; symmetry.
+apply lap_mul_map_ps.
 Qed.
 
 Lemma ps_monom_opp : ∀ c pow,
@@ -1833,8 +1813,7 @@ intros α R la lb f x Hab.
 rewrite <- apply_lap_compose.
 revert lb.
 induction la as [| a]; intros; [ reflexivity | simpl ].
-rewrite apply_lap_add.
-rewrite apply_lap_mul.
+rewrite apply_lap_add, apply_lap_mul.
 rewrite <- IHla.
 rewrite lap_add_map; [ idtac | assumption ].
 bbb.
@@ -1929,7 +1908,7 @@ apply poly_mul_compat; [ reflexivity | idtac ].
 rewrite phi_zq_eq_z_sub_c₁_psy; try eassumption.
 rewrite poly_inject_inj_mul.
 unfold eq_poly; simpl.
-rewrite <- lap_power_map; simpl.
+rewrite <- lap_power_map_ps; simpl.
 subst Kx.
 symmetry.
 rewrite lap_taylor_formula.
@@ -1988,7 +1967,7 @@ apply poly_mul_compat; [ reflexivity | idtac ].
 rewrite phi_zq_eq_z_sub_c₁_psy; try eassumption.
 rewrite poly_inject_inj_mul.
 unfold eq_poly; simpl.
-rewrite <- lap_power_map; simpl.
+rewrite <- lap_power_map_ps; simpl.
 do 2 rewrite lap_compose_compose2.
 unfold lap_compose2; simpl.
 rewrite length_lap_mul; simpl.
