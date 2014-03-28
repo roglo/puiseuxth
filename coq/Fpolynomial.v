@@ -676,6 +676,14 @@ intros α r a b c d Hac Hbd.
 rewrite Hac, Hbd; reflexivity.
 Qed.
 
+Lemma lap_add_compat_l {α} {r : ring α} : ∀ a b c,
+  lap_eq a b
+  → lap_eq (lap_add c a) (lap_add c b).
+Proof.
+intros a b c Hab.
+rewrite Hab; reflexivity.
+Qed.
+
 Lemma lap_mul_compat : ∀ α (r : ring α) a b c d,
   lap_eq a c
   → lap_eq b d
@@ -1550,6 +1558,89 @@ intros a lb lc.
 destruct lb as [| b]; simpl; rewrite rng_add_0_r; reflexivity.
 Qed.
 
+Lemma lap_compose_single : ∀ a lb lc,
+  (lap_compose ([a] * lb) lc = [a] * lap_compose lb lc)%lap.
+Proof.
+intros a lb lc.
+induction lb as [| b].
+ simpl; rewrite lap_mul_nil_r; reflexivity.
+
+ rewrite lap_mul_cons_r; simpl.
+ rewrite summation_only_one, rng_add_0_r, IHlb.
+ rewrite lap_mul_add_distr_l, lap_mul_assoc.
+ apply lap_add_compat; [ reflexivity | idtac ].
+ rewrite lap_mul_cons; simpl.
+ rewrite lap_mul_nil_r.
+ constructor; [ reflexivity | idtac ].
+ rewrite lap_eq_0; reflexivity.
+Qed.
+
+Lemma lap_compose_add : ∀ la lb lc,
+  (lap_compose (la + lb) lc = lap_compose la lc + lap_compose lb lc)%lap.
+Proof.
+intros la lb lc.
+revert lb lc.
+induction la as [| a]; intros; [ reflexivity | simpl ].
+destruct lb as [| b]; simpl.
+ rewrite lap_add_nil_r; reflexivity.
+
+ rewrite IHla.
+ rewrite lap_mul_add_distr_r.
+ do 2 rewrite <- lap_add_assoc.
+ apply lap_add_compat_l.
+ symmetry.
+ rewrite lap_add_comm.
+ rewrite <- lap_add_assoc.
+ apply lap_add_compat_l.
+ rewrite lap_add_comm; reflexivity.
+Qed.
+
+Lemma lap_compose_mul : ∀ la lb lc,
+  (lap_compose (la * lb) lc = lap_compose la lc * lap_compose lb lc)%lap.
+Proof.
+(* inspiré de apply_lap_mul *)
+intros la lb lc.
+revert lb lc.
+induction la as [| a]; intros; simpl.
+ do 2 rewrite lap_mul_nil_l; reflexivity.
+
+ destruct lb as [| b]; simpl.
+  do 2 rewrite lap_mul_nil_r; reflexivity.
+
+  rewrite lap_mul_cons; simpl.
+  do 2 rewrite lap_compose_add; simpl.
+  do 2 rewrite IHla; simpl.
+  rewrite lap_mul_nil_l, lap_add_nil_l.
+  do 3 rewrite lap_mul_add_distr_r; simpl.
+  rewrite lap_mul_add_distr_l; simpl.
+  rewrite lap_mul_add_distr_r; simpl.
+  rewrite lap_mul_add_distr_r; simpl.
+  do 2 rewrite lap_mul_assoc.
+  do 2 rewrite lap_add_assoc; simpl.
+  apply lap_add_compat.
+   Focus 2.
+   rewrite lap_mul_cons; simpl.
+   rewrite lap_mul_nil_r.
+   constructor; [ reflexivity | idtac ].
+   rewrite lap_eq_0; reflexivity.
+
+   rewrite lap_eq_0, lap_mul_nil_l, lap_add_nil_r.
+   rewrite lap_add_comm, lap_add_assoc.
+   rewrite <- lap_add_assoc.
+   rewrite <- lap_add_assoc.
+   apply lap_add_compat.
+    apply lap_mul_compat; [ idtac | reflexivity ].
+    rewrite lap_mul_shuffle0; reflexivity.
+
+    symmetry; rewrite lap_add_comm.
+    apply lap_add_compat.
+     rewrite lap_mul_shuffle0; reflexivity.
+
+     apply lap_mul_compat; [ idtac | reflexivity ].
+     symmetry.
+     apply lap_compose_single.
+Qed.
+
 End lap.
 
 Add Parametric Morphism α (r : ring α) : lap_compose2
@@ -1568,14 +1659,6 @@ intros α r la.
 induction la as [| a]; [ reflexivity | simpl ].
 rewrite IHla, rng_add_opp_l.
 constructor; reflexivity.
-Qed.
-
-Lemma lap_add_compat_l {α} {r : ring α} : ∀ a b c,
-  lap_eq a b
-  → lap_eq (lap_add c a) (lap_add c b).
-Proof.
-intros a b c Hab.
-rewrite Hab; reflexivity.
 Qed.
 
 Lemma lap_mul_compat_l : ∀ α (r : ring α) a b c,

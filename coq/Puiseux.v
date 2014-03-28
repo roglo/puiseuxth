@@ -1800,6 +1800,8 @@ Definition lap_compose5 {α β} {R : ring β} (f : list α → list β) la lb :=
 Definition lap_inject_K_in_Kx α (R : ring α) la :=
   List.map (λ c, ps_monom c 0) la.
 
+bbb.
+
 Lemma vvv : ∀ la lb,
   (lap_compose la lb =
    apply_lap _ (lap_inject_K_in_Kx R la) lb)%lap.
