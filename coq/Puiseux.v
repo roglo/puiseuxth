@@ -1848,6 +1848,7 @@ assert
  symmetry.
  rewrite lap_mul_comm.
  apply lap_mul_compat_l.
+ subst X; simpl.
 bbb.
 
 intros pol ns pl tl l c₁ r Ψ j αj f' Hns Hc₁ Hr HΨ Hpl Htl Hl Hini; subst f'.
