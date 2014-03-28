@@ -1800,60 +1800,6 @@ Definition lap_compose5 {α β} {R : ring β} (f : list α → list β) la lb :=
 Definition lap_inject_K_in_Kx α (R : ring α) la :=
   List.map (λ c, ps_monom c 0) la.
 
-bbb.
-
-Lemma vvv : ∀ la lb,
-  (lap_compose la lb =
-   apply_lap _ (lap_inject_K_in_Kx R la) lb)%lap.
-Proof.
-bbb.
-
-Lemma www : ∀ α (R : ring α) la lb lc,
-  (lap_compose (la * lb) lc = lap_compose la lc * lap_compose lb lc)%lap.
-Proof.
-clear.
-intros α R la lb lc.
-bbb.
-
-Lemma xxx : ∀ α (R : ring α) la lb f x,
-  (∀ a b, (f (a + b) = f a + f b)%K)
-  → (apply_lap R (List.map f (lap_compose la lb)) x =
-     apply_lap R (List.map f la) (apply_lap R (List.map f lb) x))%K.
-Proof.
-clear.
-intros α R la lb f x Hab.
-rewrite <- apply_lap_compose.
-revert lb.
-induction la as [| a]; intros; [ reflexivity | simpl ].
-rewrite apply_lap_add, apply_lap_mul.
-rewrite <- IHla.
-rewrite lap_add_map; [ idtac | assumption ].
-bbb.
-*)
-
-(*
-Lemma xxx : ∀ la lb x,
-  let _ := Kx in
-  (apply_lap Kx (lap_inject_K_in_Kx R (lap_compose la lb)) x =
-   apply_lap Kx (lap_inject_K_in_Kx R la)
-     (apply_lap Kx (lap_inject_K_in_Kx R lb) x))%K.
-Proof.
-clear.
-bbb.
-*)
-
-Lemma yyy : ∀ α (R : ring α) la lb c,
-  (lap_compose (la * lb) [c; 1%K … []] =
-   lap_compose la [c; 1%K … []] * lap_compose lb [c; 1%K … []])%lap.
-Proof.
-clear.
-intros α R la lb c.
-do 3 rewrite lap_taylor_formula.
-unfold taylor_lap; simpl.
-rewrite length_lap_mul.
-bbb.
-*)
-
 (* [Walker, p. 101] « Since αh + h.γ₁ = β₁, the first summation reduces to
       (c₁+y₁)^j.Φ((c₁+y₁)^q) = x^β₁.y₁^r.(c₁+y₁)^j.Ψ(c₁+y₁) ».
 
@@ -1895,16 +1841,13 @@ assert
  symmetry.
  rewrite poly_mul_comm, poly_mul_assoc, poly_mul_comm.
  apply poly_mul_compat; [ reflexivity | idtac ].
- unfold poly_inject_K_in_Kx; simpl.
  unfold eq_poly; simpl.
- rewrite lap_inject_inj_mul.
- symmetry; rewrite lap_mul_comm.
- remember (List.map (λ c : α, ps_monom c 0) (al Ψ)) as L.
- subst f' Kx.
- subst X.
- rewrite yyy.
+ rewrite lap_mul_map_ps.
+ subst Kx f'; simpl.
+ rewrite lap_compose_mul.
+ symmetry.
+ rewrite lap_mul_comm.
  apply lap_mul_compat_l.
- subst X; simpl.
 bbb.
 
 intros pol ns pl tl l c₁ r Ψ j αj f' Hns Hc₁ Hr HΨ Hpl Htl Hl Hini; subst f'.
