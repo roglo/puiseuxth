@@ -1814,168 +1814,12 @@ rewrite ps_monom_opp, rng_add_opp_r.
 reflexivity.
 Qed.
 
-Lemma www : ∀ la c₁ r k,
-  let f' := Kx in (* not sure it is the good method *)
-  (0 < r)%nat
-  → (apply_lap Kx
-        (lap_derivial Kx k
-           (lap_power [ps_monom (- c₁)%K 0; ps_monom (1)%K 0 … []]
-              r * la)%lap) (c_x_power c₁ 0) =
-      apply_lap Kx
-        (lap_derivial Kx (S k)
-           ([ps_monom (- c₁)%K 0; ps_monom (1)%K 0 … []] *
-            lap_power [ps_monom (- c₁)%K 0; ps_monom (1)%K 0 … []]
-              r * la)%lap) (c_x_power c₁ 0))%K.
-Proof.
-intros la c₁ r k f' Hr; subst f'.
-revert r Hr.
-induction k; intros; simpl.
- rewrite lap_derivial_0.
- destruct r; [ exfalso; revert Hr; apply Nat.lt_irrefl | clear Hr; simpl ].
- do 2 rewrite apply_lap_mul.
- subst Kx.
-Abort. (*
- rewrite apply_deg_1_root.
- do 2 rewrite rng_mul_0_l.
- rewrite lap_derivial_mul; simpl.
- rewrite apply_lap_add.
- rewrite apply_lap_mul.
- rewrite lap_derivial_mul.
- do 3 rewrite apply_lap_mul.
- rewrite apply_lap_add.
- do 2 rewrite apply_lap_mul.
- rewrite apply_deg_1_root.
- rewrite rng_mul_0_l, rng_mul_0_l, rng_mul_0_r, rng_add_0_l.
- rewrite apply_lap_mul.
- rewrite apply_deg_1_root.
- do 3 rewrite rng_mul_0_l.
- rewrite rng_add_0_l; reflexivity.
-bbb.
-*)
-
-(* pas sûr que ça soit vrai... *)
-Lemma lap_derivial_mul_const: ∀ α (R : ring α) a lb k,
-  (lap_derivial R k ([a] * lb) = [a] * lap_derivial R k lb)%lap.
+Lemma yyy : ∀ α (R : ring α) la lb c,
+  (lap_compose (la * lb) [c; 1%K … []] =
+   lap_compose la [c; 1%K … []] * lap_compose lb [c; 1%K … []])%lap.
 Proof.
 clear.
-intros α R a lb k.
-induction lb as [| b]; intros; simpl.
- rewrite lap_mul_nil_r.
- rewrite lap_derivial_nil.
- rewrite lap_mul_nil_r; reflexivity.
-
- rewrite lap_mul_cons.
- do 2 rewrite lap_mul_nil_l.
- rewrite lap_add_nil_l.
- rewrite lap_eq_0, lap_add_nil_r.
-Abort. (*
-bbb.
-
-clear.
-intros α R a lb k.
-destruct k.
- do 2 rewrite lap_derivial_0; reflexivity.
-
- destruct k.
-  apply lap_derivial_1_mul_const.
-bbb.
-*)
-
-Lemma yyy : ∀ la c₁ n r k,
-  let _ := Kx in (* not sure it is the good method *)
-  (r < n)%nat
-  → length la = (n - r)%nat
-    → lap_eq
-        (coeff_taylor_lap Kx n
-           (lap_mul
-              (lap_power [ps_monom (- c₁)%K 0; ps_monom 1%K 0 … []]
-                 r) la)
-           (c_x_power c₁ 0) k)
-        (coeff_taylor_lap Kx n
-           (lap_mul
-              (lap_mul [ps_monom (- c₁)%K 0; ps_monom 1%K 0 … []]
-                 (lap_power
-                    [ps_monom (- c₁)%K 0; ps_monom 1%K 0 … []] r))
-              la)
-           (c_x_power c₁ 0) (S k)).
-Proof.
-intros la c₁ n r k f' Hrn Hlen.
-revert la r k Hrn Hlen.
-induction n; intros; [ reflexivity | simpl ].
-constructor.
- destruct r.
-  simpl.
-  Focus 1.
-  subst f' Kx; simpl.
-  rewrite lap_mul_1_l.
-  rewrite lap_mul_1_r.
-Abort. (*
-  rewrite Nat.sub_0_r in Hlen.
-  rewrite lap_mul_cons_l; simpl.
-  rewrite lap_derivial_add.
-  rewrite apply_lap_add; simpl.
-bbb.
-
- Focus 2.
- destruct (eq_nat_dec r (S n)) as [Hrn| Hrn].
-  Focus 2.
-  apply IHn; fast_omega Hnr Hrn.
-
-  subst r.
-  simpl.
-bbb.
-
-intros la c₁ n r k Hnr.
-revert r k Hnr.
-induction n; intros; [ reflexivity | simpl ].
-bbb.
-constructor; [ clear IHn | apply IHn; omega ].
-apply www.
-destruct r; [ idtac | apply Nat.lt_0_succ ].
-exfalso; revert Hnr; apply Nat.nle_succ_0.
-qed.
-
-revert r Hnr.
-induction k; intros; simpl.
- rewrite lap_derivial_0.
- destruct r.
-  simpl; subst Kx.
-  rewrite <- lap_mul_assoc.
-  rewrite lap_mul_1_l.
-  rewrite lap_derivial_mul.
-  rewrite apply_lap_add.
-  rewrite rng_add_comm.
-  rewrite apply_lap_mul.
-  rewrite apply_deg_1_root.
-  rewrite rng_mul_0_l, rng_add_0_l.
-  rewrite lap_derivial_1_cons; simpl.
-  rewrite rng_add_0_r.
-  rewrite lap_derivial_const, lap_mul_1_l.
-  reflexivity.
-
-  simpl.
-  do 2 rewrite apply_lap_mul.
-  subst Kx.
-  rewrite apply_deg_1_root.
-  do 2 rewrite rng_mul_0_l.
-  rewrite lap_derivial_mul; simpl.
-  rewrite apply_lap_add.
-  rewrite apply_lap_mul.
-  rewrite lap_derivial_mul.
-  do 3 rewrite apply_lap_mul.
-  rewrite apply_lap_add.
-  do 2 rewrite apply_lap_mul.
-  rewrite apply_deg_1_root.
-  rewrite rng_mul_0_l, rng_mul_0_l, rng_mul_0_r, rng_add_0_l.
-  rewrite apply_lap_mul.
-  rewrite apply_deg_1_root.
-  do 3 rewrite rng_mul_0_l.
-  rewrite rng_add_0_l; reflexivity.
-
- destruct r; simpl.
-  exfalso; apply Nat.nle_succ_0 in Hnr; assumption.
-
-  apply le_S_n in Hnr.
+intros α R la lb c.
 bbb.
 *)
 
@@ -2013,7 +1857,6 @@ assert
 
  remember POL [c_x_power c₁ 0; 1%ps … []]%pol as X.
  apply poly_compose_compat_r with (c := X) in Hzz.
- subst X.
  rewrite Hzz.
  remember Hns as Hfin; clear HeqHfin.
  apply exists_fin_pt_nat in Hfin.
@@ -2021,6 +1864,16 @@ assert
  symmetry.
  rewrite poly_mul_comm, poly_mul_assoc, poly_mul_comm.
  apply poly_mul_compat; [ reflexivity | idtac ].
+ unfold poly_inject_K_in_Kx; simpl.
+ unfold eq_poly; simpl.
+ rewrite lap_inject_inj_mul.
+ symmetry; rewrite lap_mul_comm.
+ remember (List.map (λ c : α, ps_monom c 0) (al Ψ)) as L.
+ subst f' Kx.
+ subst X.
+ rewrite yyy.
+ apply lap_mul_compat_l.
+ subst X; simpl.
 bbb.
 
 intros pol ns pl tl l c₁ r Ψ j αj f' Hns Hc₁ Hr HΨ Hpl Htl Hl Hini; subst f'.
