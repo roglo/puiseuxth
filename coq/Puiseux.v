@@ -2004,6 +2004,26 @@ Theorem zzz : ∀ pol ns pl tl l c₁ r Ψ j αj,
                      (POL [c_x_power c₁ 0; 1%ps … []]))%pol.
 Proof.
 intros pol ns pl tl l c₁ r Ψ j αj f' Hns Hc₁ Hr HΨ Hpl Htl Hl Hini; subst f'.
+set (f' := Kx).
+assert
+ (poly_inject_K_in_Kx R (Φq R pol ns) =
+  poly_inject_K_in_Kx R (POL [(- c₁)%K; 1%K … []] ^ r * Ψ))%pol
+ as Hzz.
+ rewrite phi_zq_eq_z_sub_c₁_psy; try eassumption; reflexivity.
+
+ remember POL [c_x_power c₁ 0; 1%ps … []]%pol as X.
+ apply poly_compose_compat_r with (c := X) in Hzz.
+ subst X.
+ rewrite Hzz.
+ remember Hns as Hfin; clear HeqHfin.
+ apply exists_fin_pt_nat in Hfin.
+ destruct Hfin as (k, (αk, Hk)).
+ symmetry.
+ rewrite poly_mul_comm, poly_mul_assoc, poly_mul_comm.
+ apply poly_mul_compat; [ reflexivity | idtac ].
+bbb.
+
+intros pol ns pl tl l c₁ r Ψ j αj f' Hns Hc₁ Hr HΨ Hpl Htl Hl Hini; subst f'.
 remember Hns as Hfin; clear HeqHfin.
 apply exists_fin_pt_nat in Hfin.
 destruct Hfin as (k, (αk, Hk)).

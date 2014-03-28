@@ -1830,6 +1830,12 @@ intros a b c d Hac Hbd.
 apply lap_compose_compat; assumption.
 Qed.
 
+Theorem poly_compose_compat_r : ∀ a b c, (a = b)%pol → (a ∘ c = b ∘ c)%pol.
+Proof.
+intros a b c Hab.
+rewrite Hab; reflexivity.
+Qed.
+
 End poly.
 
 (* to be completed...
