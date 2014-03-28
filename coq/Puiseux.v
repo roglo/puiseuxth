@@ -1715,23 +1715,29 @@ erewrite length_char_pol; try eassumption; try reflexivity.
 subst s; reflexivity.
 Qed.
 
-Lemma lap_add_map : ∀ la lb,
-  let f' := Kx in (* not sure it is the good method *)
-  lap_eq
-    (lap_add
-       (List.map (λ c, ps_monom c 0) la)
-       (List.map (λ c, ps_monom c 0) lb))
-    (List.map (λ c, ps_monom c 0) (lap_add la lb)).
+Lemma lap_add_map : ∀ α β (Rα : ring α) (Rβ : ring β) (f : α → β) la lb,
+  (∀ a b, (f (a + b) = f a + f b)%K)
+  → (List.map f (la + lb) = List.map f la + List.map f lb)%lap.
 Proof.
-intros la lb f'.
+clear.
+intros α β Rα Rβ f la lb Hab.
 revert lb.
 induction la as [| a]; intros; [ reflexivity | simpl ].
 destruct lb as [| b]; [ reflexivity | simpl ].
-rewrite ps_monom_add_l.
-constructor; [ reflexivity | idtac ].
-apply IHla.
+rewrite Hab, IHla; reflexivity.
 Qed.
 
+Lemma lap_add_map_ps : ∀ la lb,
+  let _ := Kx in (* not sure it is the good method *)
+  (List.map (λ c, ps_monom c 0) (la + lb) =
+   List.map (λ c, ps_monom c 0) la + List.map (λ c, ps_monom c 0) lb)%lap.
+Proof.
+intros la lb f'.
+apply lap_add_map; intros a b.
+rewrite ps_monom_add_l; reflexivity.
+Qed.
+
+(* TODO: do the same as lap_add_map and lap_add_map_ps *)
 Theorem lap_mul_map : ∀ la lb,
   let _ := Kx in (* not sure it is the good method *)
   lap_eq
@@ -1751,7 +1757,7 @@ induction la as [| a]; intros; simpl.
   do 2 rewrite lap_mul_cons; simpl.
   rewrite ps_monom_mul_l.
   constructor; [ reflexivity | idtac ].
-  do 2 rewrite <- lap_add_map.
+  do 2 rewrite lap_add_map_ps.
   rewrite IHla; simpl.
   apply lap_add_compat.
    apply lap_add_compat.
@@ -1813,6 +1819,40 @@ rewrite rng_mul_0_l, rng_add_0_l, ps_mul_1_l.
 rewrite ps_monom_opp, rng_add_opp_r.
 reflexivity.
 Qed.
+
+Definition lap_compose5 {α β} {R : ring β} (f : list α → list β) la lb :=
+  apply_lap (lap_ring R) (List.map f la) lb.
+
+Lemma xxx : ∀ α (R : ring α) la lb f x,
+  (∀ a b, (f (a + b) = f a + f b)%K)
+  → (apply_lap R (List.map f (lap_compose la lb)) x =
+     apply_lap R (List.map f la) (apply_lap R (List.map f lb) x))%K.
+Proof.
+clear.
+intros α R la lb f x Hab.
+rewrite <- apply_lap_compose.
+revert lb.
+induction la as [| a]; intros; [ reflexivity | simpl ].
+rewrite apply_lap_add.
+rewrite apply_lap_mul.
+rewrite <- IHla.
+rewrite lap_add_map; [ idtac | assumption ].
+bbb.
+*)
+
+(*
+Definition lap_inject_K_in_Kx α (R : ring α) la :=
+  List.map (λ c, ps_monom c 0) la.
+
+Lemma xxx : ∀ la lb x,
+  let _ := Kx in
+  (apply_lap Kx (lap_inject_K_in_Kx R (lap_compose la lb)) x =
+   apply_lap Kx (lap_inject_K_in_Kx R la)
+     (apply_lap Kx (lap_inject_K_in_Kx R lb) x))%K.
+Proof.
+clear.
+bbb.
+*)
 
 Lemma yyy : ∀ α (R : ring α) la lb c,
   (lap_compose (la * lb) [c; 1%K … []] =
