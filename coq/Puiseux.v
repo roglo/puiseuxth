@@ -1797,6 +1797,22 @@ Qed.
 Definition lap_compose5 {α β} {R : ring β} (f : list α → list β) la lb :=
   apply_lap (lap_ring R) (List.map f la) lb.
 
+Definition lap_inject_K_in_Kx α (R : ring α) la :=
+  List.map (λ c, ps_monom c 0) la.
+
+Lemma vvv : ∀ la lb,
+  (lap_compose la lb =
+   apply_lap _ (lap_inject_K_in_Kx R la) lb)%lap.
+Proof.
+bbb.
+
+Lemma www : ∀ α (R : ring α) la lb lc,
+  (lap_compose (la * lb) lc = lap_compose la lc * lap_compose lb lc)%lap.
+Proof.
+clear.
+intros α R la lb lc.
+bbb.
+
 Lemma xxx : ∀ α (R : ring α) la lb f x,
   (∀ a b, (f (a + b) = f a + f b)%K)
   → (apply_lap R (List.map f (lap_compose la lb)) x =
@@ -1814,9 +1830,6 @@ bbb.
 *)
 
 (*
-Definition lap_inject_K_in_Kx α (R : ring α) la :=
-  List.map (λ c, ps_monom c 0) la.
-
 Lemma xxx : ∀ la lb x,
   let _ := Kx in
   (apply_lap Kx (lap_inject_K_in_Kx R (lap_compose la lb)) x =
