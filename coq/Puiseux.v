@@ -1800,13 +1800,20 @@ Definition lap_compose5 {α β} {R : ring β} (f : list α → list β) la lb :=
 Definition lap_inject_K_in_Kx α (R : ring α) la :=
   List.map (λ c, ps_monom c 0) la.
 
+Lemma lap_power_1 : ∀ α (R : ring α) la, (la ^ 1 = la)%lap.
+Proof.
+clear.
+intros α R la; simpl.
+rewrite lap_mul_1_r; reflexivity.
+Qed.
+
 (* [Walker, p. 101] « Since αh + h.γ₁ = β₁, the first summation reduces to
       (c₁+y₁)^j.Φ((c₁+y₁)^q) = x^β₁.y₁^r.(c₁+y₁)^j.Ψ(c₁+y₁) ».
 
    We proof here that
       (c₁+y₁)^j.Φ((c₁+y₁)^q) = y₁^r.(c₁+y₁)^j.Ψ(c₁+y₁)
  *)
-Theorem zzz : ∀ pol ns pl tl l c₁ r Ψ j αj,
+Theorem phi_c₁y₁_psy : ∀ pol ns pl tl l c₁ r Ψ j αj,
   let _ := Kx in (* not sure it is the good method *)
   ns ∈ newton_segments R pol
   → ac_root (Φq R pol ns) = c₁
@@ -1825,215 +1832,44 @@ Theorem zzz : ∀ pol ns pl tl l c₁ r Ψ j αj,
                      (POL [c_x_power c₁ 0; 1%ps … []]))%pol.
 Proof.
 intros pol ns pl tl l c₁ r Ψ j αj f' Hns Hc₁ Hr HΨ Hpl Htl Hl Hini; subst f'.
-set (f' := Kx).
-assert
- (poly_inject_K_in_Kx R (Φq R pol ns) =
-  poly_inject_K_in_Kx R (POL [(- c₁)%K; 1%K … []] ^ r * Ψ))%pol
- as Hzz.
- rewrite phi_zq_eq_z_sub_c₁_psy; try eassumption; reflexivity.
+remember Hns as Hfin; clear HeqHfin.
+apply exists_fin_pt_nat in Hfin.
+destruct Hfin as (k, (αk, Hk)).
+symmetry.
+rewrite poly_mul_comm, poly_mul_assoc, poly_mul_comm.
+apply poly_mul_compat; [ reflexivity | idtac ].
+rewrite phi_zq_eq_z_sub_c₁_psy; try eassumption.
+rewrite poly_inject_inj_mul.
+unfold eq_poly; simpl.
+rewrite <- lap_power_map_ps; simpl.
+rewrite lap_compose_mul.
+symmetry.
+rewrite lap_mul_comm.
+apply lap_mul_compat_l.
+clear Hr HΨ.
+induction r.
+ simpl; unfold summation; simpl.
+ rewrite rng_mul_0_l, rng_add_0_l, rng_add_0_l.
+ reflexivity.
 
- remember POL [c_x_power c₁ 0; 1%ps … []]%pol as X.
- apply poly_compose_compat_r with (c := X) in Hzz.
- rewrite Hzz.
- remember Hns as Hfin; clear HeqHfin.
- apply exists_fin_pt_nat in Hfin.
- destruct Hfin as (k, (αk, Hk)).
- symmetry.
- rewrite poly_mul_comm, poly_mul_assoc, poly_mul_comm.
- apply poly_mul_compat; [ reflexivity | idtac ].
- unfold eq_poly; simpl.
- rewrite lap_mul_map_ps.
- subst Kx f'; simpl.
+ rewrite <- Nat.add_1_r.
+ do 2 rewrite lap_power_add.
+ do 2 rewrite lap_power_1.
  rewrite lap_compose_mul.
- symmetry.
- rewrite lap_mul_comm.
+ rewrite IHr.
  apply lap_mul_compat_l.
- subst X; simpl.
-bbb.
+ simpl.
+ unfold summation; simpl.
+ rewrite rng_mul_0_l, rng_add_0_l, rng_add_0_l.
+ rewrite rng_add_0_r, rng_add_0_r, rng_mul_1_r.
+ constructor; [ idtac | reflexivity ].
+ rewrite ps_mul_1_l.
+ rewrite ps_monom_opp.
+ rewrite ps_add_opp_r.
+ reflexivity.
+Qed.
 
-intros pol ns pl tl l c₁ r Ψ j αj f' Hns Hc₁ Hr HΨ Hpl Htl Hl Hini; subst f'.
-remember Hns as Hfin; clear HeqHfin.
-apply exists_fin_pt_nat in Hfin.
-destruct Hfin as (k, (αk, Hk)).
-symmetry.
-rewrite poly_mul_comm, poly_mul_assoc, poly_mul_comm.
-apply poly_mul_compat; [ reflexivity | idtac ].
-rewrite phi_zq_eq_z_sub_c₁_psy; try eassumption.
-rewrite poly_inject_inj_mul.
-unfold eq_poly; simpl.
-rewrite <- lap_power_map_ps; simpl.
-subst Kx.
-symmetry.
-rewrite lap_taylor_formula.
-unfold taylor_lap.
-rewrite length_lap_mul.
-rewrite List.map_length.
-rewrite length_lap_power; [ idtac | intros H; discriminate H ].
-erewrite Ψ_length; try eassumption.
-remember minus as f; simpl; subst f.
-rewrite Nat.mul_1_r.
-rewrite Nat.add_sub_assoc.
- rewrite Nat.add_comm, Nat.add_sub.
- symmetry.
- rewrite lap_compose_compose2.
- remember (S (k - j)) as n.
- unfold lap_compose2; simpl.
- rewrite List.map_length.
- erewrite Ψ_length; try eassumption.
- remember (List.map (λ c : α, ps_monom c 0) (al Ψ)) as la.
- assert (length la = length (al Ψ)) as Hlen.
-  subst la; rewrite List.map_length; reflexivity.
-
-  erewrite Ψ_length in Hlen; try eassumption.
-  clear HΨ Hr.
-  assert (r ≤ k - j) as Hrkj.
-   Focus 2.
-   apply le_n_S in Hrkj.
-   rewrite <- Heqn in Hlen, Hrkj |- *.
-   revert Hrkj Hlen; clear; intros.
-   unfold c_x_power; simpl.
-   apply le_S_gt in Hrkj; unfold gt in Hrkj.
-   rename Hrkj into Hrn.
-(*
-bbb.
-*)
-   revert n Hrn Hlen.
-   induction r; intros; simpl.
-    rewrite Nat.sub_0_r.
-    rewrite lap_mul_1_r.
-    rewrite lap_mul_1_l.
-    clear.
-    remember 0%nat as b; clear Heqb.
-    revert b.
-    induction n; intros; [ reflexivity | simpl ].
-    rewrite IHn.
-    rewrite rng_add_comm; simpl.
-bbb.
-
-intros pol ns pl tl l c₁ r Ψ j αj f' Hns Hc₁ Hr HΨ Hpl Htl Hl Hini; subst f'.
-remember Hns as Hfin; clear HeqHfin.
-apply exists_fin_pt_nat in Hfin.
-destruct Hfin as (k, (αk, Hk)).
-symmetry.
-rewrite poly_mul_comm, poly_mul_assoc, poly_mul_comm.
-apply poly_mul_compat; [ reflexivity | idtac ].
-rewrite phi_zq_eq_z_sub_c₁_psy; try eassumption.
-rewrite poly_inject_inj_mul.
-unfold eq_poly; simpl.
-rewrite <- lap_power_map_ps; simpl.
-do 2 rewrite lap_compose_compose2.
-unfold lap_compose2; simpl.
-rewrite length_lap_mul; simpl.
-rewrite List.map_length.
-rewrite length_lap_power; [ simpl | intros H; discriminate H ].
-rewrite Nat.mul_1_r.
-erewrite Ψ_length; try eassumption.
-rewrite Nat.add_sub_assoc.
- rewrite Nat.add_comm, Nat.add_sub.
- remember (List.map (λ c : α, ps_monom c 0) (al Ψ)) as la.
- assert (length la = length (al Ψ)) as Hlen.
-  subst la; rewrite List.map_length; reflexivity.
-
-  erewrite Ψ_length in Hlen; try eassumption.
-  clear HΨ Hr.
-  assert (r ≤ k - j) as Hrkj.
-   Focus 2.
-   apply le_n_S in Hrkj.
-   remember (S (k - j)) as n; clear Heqn.
-   revert Hrkj Hlen; clear; intros.
-   unfold c_x_power; simpl.
-   apply le_S_gt in Hrkj; unfold gt in Hrkj.
-   rename Hrkj into Hrn.
-bbb.
-   revert n Hrn Hlen.
-   induction r; intros; simpl.
-    rewrite Nat.sub_0_r.
-    subst Kx; rewrite lap_mul_1_r.
-    clear.
-    remember 0%nat as b; clear Heqb.
-    revert b.
-    induction n; intros; [ reflexivity | simpl ].
-    rewrite IHn.
-    do 2 rewrite fold_list_nth_def_0.
-    rewrite lap_mul_1_l; reflexivity.
-
-    destruct n; [ rewrite lap_mul_nil_l; reflexivity | idtac ].
-    rewrite lap_mul_assoc.
-    rewrite lap_mul_shuffle0.
-    apply lt_S_n in Hrn; simpl in Hlen.
-    rewrite Nat.sub_succ.
-    rewrite IHr; try assumption.
-bbb.
-    rewrite lap_mul_cons_r.
-    rewrite lap_eq_0, lap_mul_nil_r, lap_add_nil_l.
-    subst Kx.
-    rewrite lap_mul_1_r.
-    set (Kx := ps_ring R); move Kx before K.
-
-bbb.
-    symmetry.
-    rewrite list_seq_app with (dj := (n - r)%nat).
-     rewrite List.fold_right_app.
-     simpl.
-     rewrite fold_sub_succ_l.
-     rewrite Nat.sub_succ_l.
-      rewrite Nat_sub_sub_distr.
-       rewrite Nat.add_comm, Nat.add_sub.
-       simpl.
-
-bbb.
-subst Kx.
-do 2 rewrite lap_taylor_formula; simpl.
-unfold taylor_lap.
-rewrite length_lap_mul.
-rewrite List.map_length.
-rewrite length_lap_power; [ idtac | intros H; discriminate H ].
-erewrite Ψ_length; try eassumption.
-remember minus as f; simpl; subst f.
-rewrite Nat.mul_1_r.
-rewrite Nat.add_sub_assoc.
- rewrite Nat.add_comm, Nat.add_sub.
- rewrite lap_mul_comm, lap_mul_power.
- set (Kx := ps_ring R); move Kx before K.
- remember (List.map (λ c : α, ps_monom c 0) (al Ψ)) as la.
- assert (length la = length (al Ψ)) as Hlen.
-  subst la; rewrite List.map_length; reflexivity.
-
-  erewrite Ψ_length in Hlen; try eassumption.
-  clear HΨ Hr.
-  assert (r ≤ k - j) as Hrkj.
-   Focus 2.
-   apply le_n_S in Hrkj.
-   remember (S (k - j)) as n; clear Heqn.
-   revert Hrkj Hlen; clear; intros.
-   unfold c_x_power; simpl.
-   apply le_S_gt in Hrkj; unfold gt in Hrkj.
-   rename Hrkj into Hrn.
-   revert n Hrn Hlen.
-   induction r; intros; simpl.
-    rewrite Nat.sub_0_r.
-    subst Kx; rewrite lap_mul_1_l; reflexivity.
-
-    destruct n; simpl.
-     exfalso; revert Hrn; apply Nat.nle_succ_0.
-
-     constructor.
-      rewrite lap_derivial_0.
-      do 2 rewrite apply_lap_mul; simpl.
-      rewrite rng_mul_0_l, rng_add_0_l, ps_mul_1_l.
-      rewrite ps_monom_opp in |- * at 1.
-      rewrite ps_add_opp_r.
-      do 2 rewrite rng_mul_0_l; reflexivity.
-
-      apply lt_S_n in Hrn.
-      simpl in Hlen.
-      subst Kx.
-      rewrite IHr; [ idtac | assumption | assumption ].
-      set (Kx := ps_ring R); move Kx before K.
-      apply yyy; assumption.
-bbb.
-
-......
+bbb. ......
 
 (* [Walker, p. 101] « Since āh = ah.x^αh + ...,
 
