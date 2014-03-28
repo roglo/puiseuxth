@@ -1840,51 +1840,48 @@ induction r.
  reflexivity.
 Qed.
 
-bbb. ......
-
-(* [Walker, p. 101] « Since āh = ah.x^αh + ...,
-
-     f₁(x,y₁) = x^(-β₁).Σah.x^(αh+h.γ₁).(c₁+y₁)^h +
-                x^(-β₁).[Σ(āh-ah.x^αh).x^(h.γ₁).(c₁+y₁)^h +
-                         Σāl.x^(l.γ₁).(c₁+y₁)^l]
-
-.......
-
-   Since αh + h.γ₁ = β₁, the first summation reduces to
-      x^β₁.(c₁+y₁)^j.Φ((c₁+y₁)^q = ...
-  ».
-
-  We therefore have ...... to be rewritten
-     f₁(x,y₁) = (c₁+y₁)^j.Φ((c₁+y₁)^q) +
+(*
+  We therefore have:
+     f₁(x,y₁) = y₁^r.(c₁+y₁)^j.Ψ(c₁+y₁) +
                 x^(-β₁).[Σ(āh-ah.x^αh).x^(h.γ₁).(c₁+y₁)^h +
                          Σāl.x^(l.γ₁).(c₁+y₁)^l]
 *)
-bbb.
-Theorem ......... : ∀ pol ns c₁ pl tl j αj l₁ l₂,
+Theorem f₁_eq_term_with_Ψ_plus_sum : ∀ pol ns c₁ pl tl j αj l₁ l₂ r Ψ,
+  let _ := Kx in (* not sure it is the good method *)
   ns ∈ newton_segments R pol
-  → pl = [ini_pt ns … oth_pts ns ++ [fin_pt ns]]
-    → tl = List.map (term_of_point R pol) pl
-      → l₁ = List.map (λ t, power t) tl
-        → split_list (List.seq 0 (length (al pol))) l₁ l₂
-          → ini_pt ns = (Qnat j, αj)
-            → (pol₁ R pol (β ns) (γ ns) c₁ =
-               POL [c_x_power c₁ 0; 1%ps … []] ^ j *
-               poly_compose (poly_inject_K_in_Kx R (Φq R pol ns))
-                 (POL [c_x_power c₁ 0; 1%ps … []]) +
-               POL [x_power R (- β ns)] *
-               (poly_summation Kx l₁
-                  (λ h,
-                   let ah := c_x_power (coeff_of_term h tl) 0 in
-                   let αh := val_of_pt h pl in
-                   POL [((ā R h pol - ah * x_power R αh) *
-                         x_power R (Qnat h * γ ns))%ps] *
-                   POL [c_x_power c₁ 0; 1%ps … []] ^ h) +
-                poly_summation Kx l₂
-                  (λ l,
-                   POL [(ā R l pol * x_power R (Qnat l * γ ns))%ps] *
-                   POL [c_x_power c₁ 0; 1%ps … []] ^ l)))%pol.
+  → ac_root (Φq R pol ns) = c₁
+    → r = root_multiplicity acf c₁ (Φq R pol ns)
+      → Ψ = quotient_phi_x_sub_c_pow_r R (Φq R pol ns) c₁ r
+        → pl = [ini_pt ns … oth_pts ns ++ [fin_pt ns]]
+          → tl = List.map (term_of_point R pol) pl
+            → l₁ = List.map (λ t, power t) tl
+              → split_list (List.seq 0 (length (al pol))) l₁ l₂
+                → ini_pt ns = (Qnat j, αj)
+                  → (pol₁ R pol (β ns) (γ ns) c₁ =
+                     POL [0%ps; 1%ps … []] ^ r *
+                     POL [c_x_power c₁ 0; 1%ps … []] ^ j *
+                     poly_compose (poly_inject_K_in_Kx R Ψ)
+                       (POL [c_x_power c₁ 0; 1%ps … []]) +
+                     POL [x_power R (- β ns)] *
+                     (poly_summation Kx l₁
+                        (λ h,
+                         let ah := c_x_power (coeff_of_term h tl) 0 in
+                         let αh := val_of_pt h pl in
+                         POL [((ā R h pol - ah * x_power R αh) *
+                               x_power R (Qnat h * γ ns))%ps] *
+                         POL [c_x_power c₁ 0; 1%ps … []] ^ h) +
+                      poly_summation Kx l₂
+                        (λ l,
+                         POL [(ā R l pol * x_power R (Qnat l * γ ns))%ps] *
+                         POL [c_x_power c₁ 0; 1%ps … []] ^ l)))%pol.
 Proof.
-intros pol ns c₁ pl tl j αj l₁ l₂ Hns Hpl Htl Hl Hss Hini.
+intros pol ns c₁ pl tl j αj l₁ l₂ r Ψ f' Hns Hc₁ Hr HΨ Hpl Htl Hl Hss Hini.
+rewrite f₁_eq_sum_without_x_β₁_plus_sum; try eassumption.
+rewrite sum_ah_c₁y_h_eq; try eassumption.
+rewrite phi_c₁y₁_psy; try eassumption.
+reflexivity.
+Qed.
+
 bbb.
 
 (* old stuff; to be used later perhaps *)
