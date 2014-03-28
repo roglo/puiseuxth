@@ -1658,27 +1658,6 @@ apply lap_add_map; intros a b.
 rewrite ps_monom_add_l; reflexivity.
 Qed.
 
-(* pas l'air de marcher... faut trouver les bonnes hypothèses...
-Lemma lap_mul_map : ∀ α β (Rα : ring α) (Rβ : ring β) (f : α → β) la lb,
-  (∀ g n, (f (Σ Rα (i = 0, n), g i) = Σ Rβ (i = 0, n), f (g i))%K)
-  → (List.map f (la * lb) = List.map f la * List.map f lb)%lap.
-Proof.
-clear.
-intros α β Rα Rβ f la lb Hsum.
-unfold lap_mul; simpl.
-do 2 rewrite List.map_length.
-remember (pred (length la + length lb)) as len.
-clear Heqlen.
-remember 0%nat as n in |- *; clear Heqn.
-revert n la lb.
-induction len; intros; [ reflexivity | simpl ].
-constructor; [ simpl | apply IHlen ].
-clear len IHlen; simpl.
-
-bbb.
-*)
-
-(* TODO: do the same as lap_add_map and lap_add_map_ps *)
 Theorem lap_mul_map_ps : ∀ la lb,
   let _ := Kx in (* not sure it is the good method *)
   (List.map (λ c, ps_monom c 0) (la * lb) =
@@ -1787,8 +1766,7 @@ Lemma apply_deg_1_root : ∀ c,
   (apply_lap Kx [ps_monom (- c) 0; ps_monom 1 0 … []]
     (ps_monom c 0) = 0%ps)%K.
 Proof.
-intros c f'; subst f'.
-simpl.
+intros c f'; subst f'; simpl.
 rewrite rng_mul_0_l, rng_add_0_l, ps_mul_1_l.
 rewrite ps_monom_opp, rng_add_opp_r.
 reflexivity.
@@ -1799,13 +1777,6 @@ Definition lap_compose5 {α β} {R : ring β} (f : list α → list β) la lb :=
 
 Definition lap_inject_K_in_Kx α (R : ring α) la :=
   List.map (λ c, ps_monom c 0) la.
-
-Lemma lap_power_1 : ∀ α (R : ring α) la, (la ^ 1 = la)%lap.
-Proof.
-clear.
-intros α R la; simpl.
-rewrite lap_mul_1_r; reflexivity.
-Qed.
 
 (* [Walker, p. 101] « Since αh + h.γ₁ = β₁, the first summation reduces to
       (c₁+y₁)^j.Φ((c₁+y₁)^q) = x^β₁.y₁^r.(c₁+y₁)^j.Ψ(c₁+y₁) ».

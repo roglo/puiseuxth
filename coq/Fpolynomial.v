@@ -1291,6 +1291,12 @@ rewrite <- Nat.add_succ_l.
 destruct la; [ exfalso; apply Hla; reflexivity | reflexivity ].
 Qed.
 
+Lemma lap_power_1 : ∀ la, (la ^ 1 = la)%lap.
+Proof.
+intros la; simpl.
+rewrite lap_mul_1_r; reflexivity.
+Qed.
+
 Lemma list_nth_pad_lt : ∀ i s (v : α) cl d,
   (i < s)%nat
   → List.nth i (list_pad s v cl) d = v.
