@@ -1658,29 +1658,23 @@ apply lap_add_map; intros a b.
 rewrite ps_monom_add_l; reflexivity.
 Qed.
 
-(*
+(* pas l'air de marcher... faut trouver les bonnes hypothèses...
 Lemma lap_mul_map : ∀ α β (Rα : ring α) (Rβ : ring β) (f : α → β) la lb,
-  (∀ lc ld, (lc = ld)%lap → (List.map f lc = List.map f ld)%lap)
+  (∀ g n, (f (Σ Rα (i = 0, n), g i) = Σ Rβ (i = 0, n), f (g i))%K)
   → (List.map f (la * lb) = List.map f la * List.map f lb)%lap.
 Proof.
 clear.
-intros α β Rα Rβ f la lb Hadd Hmul.
-revert lb.
-induction la as [| a]; intros; simpl.
- remember (List.map f ([] * lb))%lap as x.
- rewrite lap_mul_nil_l; subst x.
- unfold lap_mul; simpl.
- remember (pred (length lb)) as n; clear Heqn.
- induction n; intros; [ reflexivity | simpl ].
- unfold summation; simpl.
- constructor.
-  rewrite Hadd, Hmul.
-bbb.
+intros α β Rα Rβ f la lb Hsum.
+unfold lap_mul; simpl.
+do 2 rewrite List.map_length.
+remember (pred (length la + length lb)) as len.
+clear Heqlen.
+remember 0%nat as n in |- *; clear Heqn.
+revert n la lb.
+induction len; intros; [ reflexivity | simpl ].
+constructor; [ simpl | apply IHlen ].
+clear len IHlen; simpl.
 
-Lemma lap_mul_map : ∀ α β (Rα : ring α) (Rβ : ring β) (f : α → β) la lb,
-  (List.map f (la * lb) = List.map f la * List.map f lb)%lap.
-Proof.
-intros la lb f'.
 bbb.
 *)
 
