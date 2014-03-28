@@ -1820,6 +1820,32 @@ Lemma yyy : ∀ α (R : ring α) la lb c,
 Proof.
 clear.
 intros α R la lb c.
+unfold lap_mul; simpl.
+do 2 rewrite length_lap_compose_deg_1.
+remember (pred (length la + length lb)) as n; clear Heqn.
+remember 0%nat as i; clear Heqi.
+revert la i n.
+induction lb as [| b]; intros; simpl.
+ do 2 rewrite lap_convol_mul_nil_r.
+ reflexivity.
+
+bbb.
+ destruct n; [ reflexivity | simpl ].
+ destruct la as [| a]; simpl.
+  rewrite lap_convol_mul_nil_l.
+  simpl.
+  rewrite summation_only_one; simpl.
+  rewrite rng_mul_0_l, rng_add_0_l; simpl.
+  constructor.
+   2: rewrite lap_convol_mul_nil_l; reflexivity.
+
+   rewrite all_0_summation_0.
+    rewrite all_0_summation_0; [ reflexivity | idtac ].
+    intros j (_, Hj); rewrite match_id.
+    rewrite rng_mul_0_l; reflexivity.
+
+    intros j (_, Hj); rewrite match_id.
+    rewrite rng_mul_0_l; reflexivity.
 bbb.
 *)
 
