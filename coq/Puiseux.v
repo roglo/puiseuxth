@@ -5,10 +5,13 @@ Require Import QArith.
 Require Import NPeano.
 
 Require Import Misc.
+Require Import Nbar.
 Require Import Qbar.
 Require Import Field.
+Require Import Fpolynomial.
 Require Import Newton.
 Require Import Puiseux_base.
+Require Import Power_series.
 Require Import Puiseux_series.
 Require Import Ps_div.
 Require Import CharactPolyn.
@@ -30,6 +33,12 @@ Theorem zzz : ∀ pol ns pl tl h αh ah,
         → (valuation (ā R h pol - ah * x_power R αh)%K > qfin αh)%Qbar.
 Proof.
 intros pol ns pl tl h αh ah HKx Hpl Htl Hah.
+remember (ā R h pol - ah * x_power R αh)%K as s eqn:Hs .
+unfold valuation.
+remember (null_coeff_range_length R (ps_terms s) 0) as n eqn:Hn .
+symmetry in Hn.
+destruct n as [v| ]; [ idtac | constructor ].
+unfold ā, ā_lap in Hs.
 bbb.
 
 (* old stuff; to be used later perhaps *)

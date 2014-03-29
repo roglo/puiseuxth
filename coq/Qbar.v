@@ -20,8 +20,9 @@ Inductive lt : Qbar → Qbar → Prop :=
   | lt_qinf : ∀ q, qfin q < ∞
 where "q < r" := (lt q r) : Qbar_scope.
 
-Definition gt q r := not (lt r q).
+Definition gt q r := lt r q.
 
 End Qbar.
 
+Infix "<" := Qbar.lt : Qbar_scope.
 Infix ">" := Qbar.gt : Qbar_scope.
