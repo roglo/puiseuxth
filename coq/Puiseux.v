@@ -9,10 +9,13 @@ Require Import Nbar.
 Require Import Qbar.
 Require Import Field.
 Require Import Fpolynomial.
+Require Import Fsummation.
 Require Import Newton.
 Require Import Puiseux_base.
 Require Import Power_series.
 Require Import Puiseux_series.
+Require Import Ps_add.
+Require Import Ps_mul.
 Require Import Ps_div.
 Require Import CharactPolyn.
 Require Import F1Eq.
@@ -24,6 +27,55 @@ Section theorems.
 Variable α : Type.
 Variable R : ring α.
 Variable Kx : ring (puiseux_series α).
+
+Lemma ps_monom_mul : ∀ c₁ c₂ p₁ p₂,
+  Kx = ps_ring R
+  → (ps_monom c₁ p₁ * ps_monom c₂ p₂ = ps_monom (c₁ * c₂) (p₁ + p₂))%ps.
+Proof.
+intros c₁ c₂ p₁ p₂ HKx.
+unfold ps_monom, ps_mul, cm, cm_factor; simpl.
+apply mkps_morphism; try reflexivity.
+constructor; intros i; simpl.
+destruct i; simpl.
+ unfold convol_mul; simpl.
+ unfold summation; simpl.
+ rewrite Nat.mod_0_l; auto; simpl.
+ rewrite Nat.mod_0_l; auto; simpl.
+ rewrite Nat.div_0_l; auto; simpl.
+ rewrite Nat.div_0_l; auto; simpl.
+ rewrite rng_add_0_r.
+ subst Kx; simpl.
+ unfold ps_mul; simpl.
+ reflexivity.
+
+ subst Kx; simpl.
+ unfold convol_mul; simpl.
+ rewrite all_0_summation_0; [ reflexivity | simpl ].
+ intros j (_, Hj).
+ destruct j; simpl.
+  rewrite Nat.mod_0_l; auto; simpl.
+  rewrite Nat.div_0_l; auto; simpl.
+  destruct (zerop (S i mod Pos.to_nat (Qden p₁))) as [H₁| H₁].
+   apply Nat.mod_divides in H₁; auto.
+   destruct H₁ as (c, H).
+   rewrite Nat.mul_comm in H.
+   rewrite H.
+   rewrite Nat.div_mul; auto.
+   destruct c; [ discriminate H | rewrite ps_mul_0_r; reflexivity ].
+
+   rewrite ps_mul_0_r; reflexivity.
+
+  destruct (zerop (S j mod Pos.to_nat (Qden p₂))) as [H| H].
+   apply Nat.mod_divides in H; auto.
+   destruct H as (c, H).
+   rewrite Nat.mul_comm in H.
+   rewrite H.
+   rewrite Nat.div_mul; auto.
+   destruct c; [ discriminate H | simpl ].
+   rewrite ps_mul_0_l; reflexivity.
+
+   rewrite ps_mul_0_l; reflexivity.
+Qed.
 
 Theorem zzz : ∀ pol ns pl tl h αh ah,
   Kx = ps_ring R
@@ -39,6 +91,10 @@ remember (null_coeff_range_length R (ps_terms s) 0) as n eqn:Hn .
 symmetry in Hn.
 destruct n as [v| ]; [ idtac | constructor ].
 unfold ā, ā_lap in Hs.
+subst ah.
+unfold c_x_power, x_power in Hs.
+Set Printing Implicit.
+Check ps_monom_mul.
 bbb.
 
 (* old stuff; to be used later perhaps *)
