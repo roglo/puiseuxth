@@ -302,7 +302,7 @@ Variable acf : algeb_closed_field R.
 Let Kx := ps_ring R.
 
 Lemma lap_f₁_eq_x_min_β₁_comp : ∀ la β₁ γ₁ c₁,
-  let _ := Kx in (* not sure it is the good method *)
+  let _ := Kx in (* coq seems not to see the type of Kx *)
   lap_eq (lap_pol₁ R la β₁ γ₁ c₁)
     (lap_mul [x_power R (- β₁)]
        (lap_compose la
@@ -329,7 +329,7 @@ Qed.
 
 (* [Walker, p. 100] « f₁(x,y₁) = x^(-β₁).f(x,x^γ₁(c₁+y₁)) » *)
 Theorem f₁_eq_x_min_β₁_comp : ∀ pol β₁ γ₁ c₁,
-  let f' := Kx in (* not sure it is the good method *)
+  let f' := Kx in (* coq seems not to see the type of Kx *)
   (pol₁ R pol β₁ γ₁ c₁ =
    POL [x_power R (- β₁)] *
    poly_compose pol
@@ -344,7 +344,7 @@ Qed.
     f₁(x,y₁) = x^(-β₁).[ā₀ + ā₁x^γ₁(c₁+y₁) + ... + ān.x^(n.γ₁)(c₁+y₁)^n]
   » *)
 Theorem f₁_eq_x_min_β₁_comp2 : ∀ pol β₁ γ₁ c₁,
-  let f' := Kx in (* not sure it is the good method *)
+  let f' := Kx in (* coq seems not to see the type of Kx *)
   (pol₁ R pol β₁ γ₁ c₁ =
    POL [x_power R (- β₁)] *
    poly_compose2 pol
@@ -357,7 +357,7 @@ apply f₁_eq_x_min_β₁_comp; assumption.
 Qed.
 
 Theorem f₁_eq_x_min_β₁_summation : ∀ pol β₁ γ₁ c₁,
-  let f' := Kx in (* not sure it is the good method *)
+  let f' := Kx in (* coq seems not to see the type of Kx *)
   (pol₁ R pol β₁ γ₁ c₁ =
    POL [x_power R (- β₁)] *
    poly_summation Kx (List.seq 0 (length (al pol)))
@@ -422,7 +422,7 @@ Qed.
   » *)
 (* we can split the sum on 0..n into two sub lists l₁, l₂ in any way *)
 Theorem f₁_eq_x_min_β₁_summation_split : ∀ pol β₁ γ₁ c₁ l₁ l₂,
-  let f' := Kx in (* not sure it is the good method *)
+  let f' := Kx in (* coq seems not to see the type of Kx *)
   split_list (List.seq 0 (length (al pol))) l₁ l₂
   → (pol₁ R pol β₁ γ₁ c₁ =
      POL [x_power R (- β₁)] *
@@ -458,7 +458,7 @@ Fixpoint val_of_pt i pl :=
 (* Σāh.x^(hγ₁).(c₁+y₁)^h =
    Σah.x^(αh+hγ₁).(c₁+y₁)^h + Σ(āh-ah.x^αh).x^(hγ₁).(c₁+y₁)^h *)
 Lemma summation_split_val : ∀ pol ns γ₁ c₁ pl tl l,
-  let f' := Kx in (* not sure it is the good method *)
+  let f' := Kx in (* coq seems not to see the type of Kx *)
   ns ∈ newton_segments R pol
   → pl = [ini_pt ns … oth_pts ns ++ [fin_pt ns]]
     → tl = List.map (term_of_point R pol) pl
@@ -509,7 +509,7 @@ Qed.
                          Σāl.x^(l.γ₁).(c₁+y₁)^l]
    » *)
 Theorem f₁_eq_sum_α_hγ_to_rest : ∀ pol ns β₁ γ₁ c₁ pl tl l₁ l₂,
-  let f' := Kx in (* not sure it is the good method *)
+  let f' := Kx in (* coq seems not to see the type of Kx *)
   ns ∈ newton_segments R pol
   → pl = [ini_pt ns … oth_pts ns ++ [fin_pt ns]]
     → tl = List.map (term_of_point R pol) pl
@@ -627,7 +627,7 @@ Qed.
 
 (* Σah.x^(αh+h.γ).(c₁+y₁)^h = Σah.x^β.(c₁+y₁)^h *)
 Lemma subst_αh_hγ : ∀ pol ns pl tl l₁ c₁,
-  let f' := Kx in (* not sure it is the good method *)
+  let f' := Kx in (* coq seems not to see the type of Kx *)
   ns ∈ newton_segments R pol
   → pl = [ini_pt ns … oth_pts ns ++ [fin_pt ns]]
     → tl = List.map (term_of_point R pol) pl
@@ -670,7 +670,7 @@ assert (∀ pt, pt ∈ pl → ∃ h αh, pt = (Qnat h, αh)) as Hnat.
 Qed.
 
 Lemma poly_summation_mul : ∀ l x g₁ g₂,
-  let f' := Kx in (* not sure it is the good method *)
+  let f' := Kx in (* coq seems not to see the type of Kx *)
   (poly_summation Kx l (λ h, POL [(g₁ h * x)%ps] * g₂ h) =
    POL [x] * poly_summation Kx l (λ h, POL [g₁ h] * g₂ h))%pol.
 Proof.
@@ -697,7 +697,7 @@ Qed.
                          Σāl.x^(l.γ₁).(c₁+y₁)^l]
 *)
 Theorem f₁_eq_sum_without_x_β₁_plus_sum : ∀ pol ns c₁ pl tl l₁ l₂,
-  let f' := Kx in (* not sure it is the good method *)
+  let f' := Kx in (* coq seems not to see the type of Kx *)
   ns ∈ newton_segments R pol
   → pl = [ini_pt ns … oth_pts ns ++ [fin_pt ns]]
     → tl = List.map (term_of_point R pol) pl
@@ -842,7 +842,7 @@ assert (∃ h ah, (iq, αi) = (Qnat h, ah)) as Hnat.
 Qed.
 
 Lemma fold_right_exists : ∀ pol ns pts j k αj αk f la,
-  let _ := Kx in (* not sure it is the good method *)
+  let _ := Kx in (* coq seems not to see the type of Kx *)
   ns ∈ newton_segments R pol
   → pts = [ini_pt ns … oth_pts ns ++ [fin_pt ns]]
     → ini_pt ns = (Qnat j, αj)
@@ -1357,7 +1357,7 @@ Qed.
       Σah.(c₁+y₁)^h = (c₁+y₁)^j.Φ((c₁+y₁)^q)
  *)
 Theorem sum_ah_c₁y_h_eq : ∀ pol ns pl tl l c₁ j αj,
-  let _ := Kx in (* not sure it is the good method *)
+  let _ := Kx in (* coq seems not to see the type of Kx *)
   ns ∈ newton_segments R pol
   → pl = [ini_pt ns … oth_pts ns ++ [fin_pt ns]]
     → tl = List.map (term_of_point R pol) pl
@@ -1649,7 +1649,7 @@ rewrite Hab, IHla; reflexivity.
 Qed.
 
 Lemma lap_add_map_ps : ∀ la lb,
-  let _ := Kx in (* not sure it is the good method *)
+  let _ := Kx in (* coq seems not to see the type of Kx *)
   (List.map (λ c, ps_monom c 0) (la + lb) =
    List.map (λ c, ps_monom c 0) la + List.map (λ c, ps_monom c 0) lb)%lap.
 Proof.
@@ -1659,7 +1659,7 @@ rewrite ps_monom_add_l; reflexivity.
 Qed.
 
 Theorem lap_mul_map_ps : ∀ la lb,
-  let _ := Kx in (* not sure it is the good method *)
+  let _ := Kx in (* coq seems not to see the type of Kx *)
   (List.map (λ c, ps_monom c 0) (la * lb) =
    List.map (λ c, ps_monom c 0) la * List.map (λ c, ps_monom c 0) lb)%lap.
 Proof.
@@ -1686,7 +1686,7 @@ rewrite rng_list_map_nth.
 Qed.
 
 Lemma poly_inject_inj_mul : ∀ P Q,
-  let f' := Kx in (* not sure it is the good method *)
+  let f' := Kx in (* coq seems not to see the type of Kx *)
   (poly_inject_K_in_Kx R (P * Q) =
    (poly_inject_K_in_Kx R P * poly_inject_K_in_Kx R Q))%pol.
 Proof.
@@ -1695,7 +1695,7 @@ apply lap_mul_map_ps.
 Qed.
 
 Lemma summation_lap_compose_deg_1_mul : ∀ la c d k f,
-  let _ := Kx in (* not sure it is the good method *)
+  let _ := Kx in (* coq seems not to see the type of Kx *)
   (Σ Kx (i = 0, k),
    (List.nth (f i) (lap_compose2 la [c; 1%ps … []]) (0)%ps *
     d i) =
@@ -1736,7 +1736,7 @@ subst s; reflexivity.
 Qed.
 
 Lemma lap_power_map_ps : ∀ la n,
-  let _ := Kx in (* not sure it is the good method *)
+  let _ := Kx in (* coq seems not to see the type of Kx *)
   lap_eq
     (lap_power (List.map (λ c, ps_monom c 0) la) n)
     (List.map (λ c, ps_monom c 0) (lap_power la n)).
@@ -1762,7 +1762,7 @@ rewrite rng_opp_0; reflexivity.
 Qed.
 
 Lemma apply_deg_1_root : ∀ c,
-  let f' := Kx in (* not sure it is the good method *)
+  let f' := Kx in (* coq seems not to see the type of Kx *)
   (apply_lap Kx [ps_monom (- c) 0; ps_monom 1 0 … []]
     (ps_monom c 0) = 0%ps)%K.
 Proof.
@@ -1785,7 +1785,7 @@ Definition lap_inject_K_in_Kx α (R : ring α) la :=
       (c₁+y₁)^j.Φ((c₁+y₁)^q) = y₁^r.(c₁+y₁)^j.Ψ(c₁+y₁)
  *)
 Theorem phi_c₁y₁_psy : ∀ pol ns pl tl l c₁ r Ψ j αj,
-  let _ := Kx in (* not sure it is the good method *)
+  let _ := Kx in (* coq seems not to see the type of Kx *)
   ns ∈ newton_segments R pol
   → ac_root (Φq R pol ns) = c₁
     → r = root_multiplicity acf c₁ (Φq R pol ns)
@@ -1847,7 +1847,7 @@ Qed.
                          Σāl.x^(l.γ₁).(c₁+y₁)^l]
 *)
 Theorem f₁_eq_term_with_Ψ_plus_sum : ∀ pol ns c₁ pl tl j αj l₁ l₂ r Ψ,
-  let _ := Kx in (* not sure it is the good method *)
+  let _ := Kx in (* coq seems not to see the type of Kx *)
   ns ∈ newton_segments R pol
   → ac_root (Φq R pol ns) = c₁
     → r = root_multiplicity acf c₁ (Φq R pol ns)
