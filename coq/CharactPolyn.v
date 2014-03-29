@@ -82,7 +82,7 @@ induction cl as [| c]; intros; [ subst pts; contradiction | idtac ].
 simpl in Hpts.
 destruct cl as [| c₁].
  simpl in Hpts.
- destruct (valuation r c); subst pts; [ idtac | contradiction ].
+ destruct (valuation c); subst pts; [ idtac | contradiction ].
  simpl in Hαh.
  destruct Hαh as [Hαh| ]; [ idtac | contradiction ].
  subst pt; simpl.
@@ -90,7 +90,7 @@ destruct cl as [| c₁].
 
  simpl in Hpts.
  simpl in IHcl.
- destruct (valuation r c).
+ destruct (valuation c).
   subst pts.
   destruct Hαh as [Hαh| Hαh].
    subst pt; simpl.
@@ -598,7 +598,7 @@ Qed.
 Theorem com_den_of_ps_list : ∀ (psl : list (puiseux_series α)) m,
   m = series_list_com_polord psl
   → ∀ ps αi mi, ps ∈ psl
-    → valuation r ps = Some αi
+    → valuation ps = Some αi
       → mi = (Qnum αi * Zpos m / Zpos (ps_polord ps))%Z
         → αi == mi # m.
 Proof.
@@ -667,7 +667,7 @@ induction cl as [| c]; intros; [ contradiction | idtac ].
 simpl in Hhhv.
 destruct cl as [| c₁].
  simpl in Hhhv.
- destruct (valuation r c); [ idtac | contradiction ].
+ destruct (valuation c); [ idtac | contradiction ].
  destruct Hhhv as [Hhhv| ]; [ idtac | contradiction ].
  injection Hhhv; clear Hhhv; intros; subst h hv.
  simpl.
@@ -675,7 +675,7 @@ destruct cl as [| c₁].
 
  simpl in Hhhv.
  simpl in IHcl.
- destruct (valuation r c).
+ destruct (valuation c).
   destruct Hhhv as [Hhhv| Hhhv].
    injection Hhhv; clear Hhhv; intros; subst h hv.
    simpl; rewrite Nat2Z.id; reflexivity.
@@ -715,7 +715,7 @@ Lemma in_pts_in_ppl : ∀ pow cl ppl pts h hv hps def,
   → pts = filter_finite_val r ppl
     → (h, hv) ∈ pts
       → hps = List.nth (Z.to_nat (Qnum h) - pow) cl def
-        → (h, hps) ∈ ppl ∧ valuation r hps = Some hv.
+        → (h, hps) ∈ ppl ∧ valuation hps = Some hv.
 Proof.
 intros pow cl ppl pts h hv hps def Hppl Hpts Hhhv Hhps.
 subst ppl pts.
@@ -723,7 +723,7 @@ destruct cl as [| c₁]; intros; [ contradiction | idtac ].
 revert pow c₁ h hv hps Hhps Hhhv.
 induction cl as [| c]; intros.
  simpl in Hhhv.
- remember (valuation r c₁) as v.
+ remember (valuation c₁) as v.
  symmetry in Heqv.
  destruct v as [v| ]; [ idtac | contradiction ].
  destruct Hhhv as [Hhhv| ]; [ idtac | contradiction ].
@@ -734,7 +734,7 @@ induction cl as [| c]; intros.
  split; [ left; reflexivity | assumption ].
 
  simpl in Hhhv.
- remember (valuation r c₁) as v.
+ remember (valuation c₁) as v.
  symmetry in Heqv.
  destruct v as [v| ].
   destruct Hhhv as [Hhhv| Hhhv].
@@ -781,7 +781,7 @@ Lemma in_pts_in_psl : ∀ pow pts psl h hv hps def,
   pts = filter_finite_val r (qpower_list pow psl)
   → (h, hv) ∈ pts
     → hps = List.nth (Z.to_nat (Qnum h) - pow) psl def
-      → hps ∈ psl ∧ valuation r hps = Some hv.
+      → hps ∈ psl ∧ valuation hps = Some hv.
 Proof.
 intros pow pts psl h hv hps def Hpts Hhv Hhps.
 remember (power_list pow psl) as ppl.
@@ -823,7 +823,7 @@ Lemma in_pts_in_pol : ∀ pol pts h hv hps def,
   pts = points_of_ps_polynom r pol
   → (Qnat h, hv) ∈ pts
     → hps = List.nth h (al pol) def
-      → hps ∈ al pol ∧ valuation r hps = Some hv.
+      → hps ∈ al pol ∧ valuation hps = Some hv.
 Proof.
 intros pol pts h hv hps def Hpts Hhhv Hhps.
 eapply in_pts_in_psl; try eassumption.

@@ -22,7 +22,7 @@ Require Import Ps_div.
 
 Set Implicit Arguments.
 
-Definition valuation α (r : ring α) ps :=
+Definition valuation {α} {r : ring α} ps :=
   match null_coeff_range_length r (ps_terms ps) 0 with
   | fin v => Some (ps_valnum ps + Z.of_nat v # ps_polord ps)
   | ∞ => None
@@ -44,10 +44,10 @@ Fixpoint power_list α pow (psl : list (puiseux_series α)) :=
 Definition qpower_list α pow (psl : list (puiseux_series α)) :=
   List.map (pair_rec (λ pow ps, (Qnat pow, ps))) (power_list pow psl).
 
-Fixpoint filter_finite_val α r (dpl : list (Q * puiseux_series α)) :=
+Fixpoint filter_finite_val α (r : ring α) (dpl : list (Q * puiseux_series α)) :=
   match dpl with
   | [(pow, ps) … dpl₁] =>
-      match valuation r ps with
+      match valuation ps with
       | Some v => [(pow, v) … filter_finite_val r dpl₁]
       | None => filter_finite_val r dpl₁
       end
@@ -92,10 +92,10 @@ destruct cl as [| c₁]; [ subst pts; constructor | idtac ].
 revert deg c₁ pts Hpts.
 induction cl as [| c]; intros.
  unfold points_of_ps_polynom_gen in Hpts; simpl in Hpts.
- destruct (valuation r c₁); subst pts; constructor; constructor.
+ destruct (valuation c₁); subst pts; constructor; constructor.
 
  unfold points_of_ps_polynom_gen in Hpts; simpl in Hpts.
- destruct (valuation r c₁); [ idtac | eapply IHcl; eassumption ].
+ destruct (valuation c₁); [ idtac | eapply IHcl; eassumption ].
  remember (points_of_ps_polynom_gen r (S deg) [c … cl]) as pts₁.
  subst pts; rename pts₁ into pts; rename Heqpts₁ into Hpts.
  clear IHcl.
@@ -104,14 +104,14 @@ induction cl as [| c]; intros.
  induction cl as [| c₂]; intros.
   simpl.
   unfold points_of_ps_polynom_gen in Hpts; simpl in Hpts.
-  destruct (valuation r c).
+  destruct (valuation c).
    constructor; constructor; [ constructor | constructor | idtac ].
    apply Qnat_lt, lt_n_Sn.
 
    constructor; constructor.
 
   unfold points_of_ps_polynom_gen in Hpts; simpl in Hpts; simpl.
-  destruct (valuation r c) as [v₂| ].
+  destruct (valuation c) as [v₂| ].
    subst pts.
    apply Sorted_LocallySorted_iff.
    constructor; [ idtac | apply Qnat_lt, lt_n_Sn ].

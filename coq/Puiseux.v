@@ -1,7 +1,18 @@
 (* Puiseux.v *)
 
+Require Import Utf8.
+Require Import QArith.
+Require Import NPeano.
+
+Require Import Field.
+Require Import Puiseux_base.
 Require Import F1Eq.
 
+(* [Walker, p 101] « O (āh - ah.x^αh) > 0 » (with correction) *)
+
+Theorem zzz : ∀ α (R : ring α) pol h αh ah,
+  valuation (ā R h pol - ah * x_power R αh)%K > αh.
+Proof.
 bbb.
 
 (* old stuff; to be used later perhaps *)
