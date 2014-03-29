@@ -10,4 +10,18 @@ Inductive Qbar : Set :=
   | qinf : Qbar.
 
 Delimit Scope Qbar_scope with Qbar.
-Notation "∞" := qfin : Qbar_scope.
+
+Notation "∞" := qinf : Qbar_scope.
+
+Module Qbar.
+
+Inductive lt : Qbar → Qbar → Prop :=
+  | lt_qfin : ∀ q r, (q < r)%Q → qfin q < qfin r
+  | lt_qinf : ∀ q, qfin q < ∞
+where "q < r" := (lt q r) : Qbar_scope.
+
+Definition gt q r := not (lt r q).
+
+End Qbar.
+
+Infix ">" := Qbar.gt : Qbar_scope.

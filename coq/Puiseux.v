@@ -7,13 +7,17 @@ Require Import NPeano.
 Require Import Qbar.
 Require Import Field.
 Require Import Puiseux_base.
+Require Import Puiseux_series.
+Require Import Ps_div.
 Require Import F1Eq.
 
 (* [Walker, p 101] « O (āh - ah.x^αh) > 0 » (with correction) *)
 
-Theorem zzz : ∀ α (R : ring α) pol h αh ah,
-  valuation (ā R h pol - ah * x_power R αh)%K > αh.
+Theorem zzz : ∀ α (R : ring α) (Kx : ring (puiseux_series α)) pol h αh ah,
+  Kx = ps_ring R
+  → (valuation (ā R h pol - ah * x_power R αh)%K > qfin αh)%Qbar.
 Proof.
+intros α R Kx pol h αh ah HKx.
 bbb.
 
 (* old stuff; to be used later perhaps *)
