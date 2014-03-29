@@ -11,7 +11,7 @@ Require Import Puiseux_series.
 Require Import Ps_div.
 Require Import F1Eq.
 
-(* [Walker, p 101] « O (āh - ah.x^αh) > 0 » (with correction) *)
+(* [Walker, p 101] « O (āh - ah.x^αh) > 0 » (with fixed typo) *)
 
 Theorem zzz : ∀ α (R : ring α) (Kx : ring (puiseux_series α)) pol h αh ah,
   Kx = ps_ring R
