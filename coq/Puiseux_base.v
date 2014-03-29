@@ -10,6 +10,7 @@ Require Import ConvexHull.
 Require Import ConvexHullMisc.
 Require Import Misc.
 Require Import Nbar.
+Require Import Qbar.
 Require Import Newton.
 Require Import Field.
 Require Import Fpolynomial.
@@ -24,8 +25,8 @@ Set Implicit Arguments.
 
 Definition valuation {α} {r : ring α} ps :=
   match null_coeff_range_length r (ps_terms ps) 0 with
-  | fin v => Some (ps_valnum ps + Z.of_nat v # ps_polord ps)
-  | ∞ => None
+  | fin v => qfin (ps_valnum ps + Z.of_nat v # ps_polord ps)
+  | ∞ => qinf
   end.
 
 Definition valuation_coeff α (r : ring α) ps :=
@@ -48,8 +49,8 @@ Fixpoint filter_finite_val α (r : ring α) (dpl : list (Q * puiseux_series α))
   match dpl with
   | [(pow, ps) … dpl₁] =>
       match valuation ps with
-      | Some v => [(pow, v) … filter_finite_val r dpl₁]
-      | None => filter_finite_val r dpl₁
+      | qfin v => [(pow, v) … filter_finite_val r dpl₁]
+      | qinf => filter_finite_val r dpl₁
       end
   | [] =>
       []
@@ -95,7 +96,7 @@ induction cl as [| c]; intros.
  destruct (valuation c₁); subst pts; constructor; constructor.
 
  unfold points_of_ps_polynom_gen in Hpts; simpl in Hpts.
- destruct (valuation c₁); [ idtac | eapply IHcl; eassumption ].
+ destruct (valuation c₁) as [q | ]; [ idtac | eapply IHcl; eassumption ].
  remember (points_of_ps_polynom_gen r (S deg) [c … cl]) as pts₁.
  subst pts; rename pts₁ into pts; rename Heqpts₁ into Hpts.
  clear IHcl.

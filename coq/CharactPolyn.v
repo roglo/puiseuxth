@@ -9,6 +9,7 @@ Require Import ConvexHull.
 Require Import ConvexHullMisc.
 Require Import Misc.
 Require Import Nbar.
+Require Import Qbar.
 Require Import Newton.
 Require Import PolyConvexHull.
 Require Import Field.
@@ -598,7 +599,7 @@ Qed.
 Theorem com_den_of_ps_list : ∀ (psl : list (puiseux_series α)) m,
   m = series_list_com_polord psl
   → ∀ ps αi mi, ps ∈ psl
-    → valuation ps = Some αi
+    → valuation ps = qfin αi
       → mi = (Qnum αi * Zpos m / Zpos (ps_polord ps))%Z
         → αi == mi # m.
 Proof.
@@ -715,7 +716,7 @@ Lemma in_pts_in_ppl : ∀ pow cl ppl pts h hv hps def,
   → pts = filter_finite_val r ppl
     → (h, hv) ∈ pts
       → hps = List.nth (Z.to_nat (Qnum h) - pow) cl def
-        → (h, hps) ∈ ppl ∧ valuation hps = Some hv.
+        → (h, hps) ∈ ppl ∧ valuation hps = qfin hv.
 Proof.
 intros pow cl ppl pts h hv hps def Hppl Hpts Hhhv Hhps.
 subst ppl pts.
@@ -781,7 +782,7 @@ Lemma in_pts_in_psl : ∀ pow pts psl h hv hps def,
   pts = filter_finite_val r (qpower_list pow psl)
   → (h, hv) ∈ pts
     → hps = List.nth (Z.to_nat (Qnum h) - pow) psl def
-      → hps ∈ psl ∧ valuation hps = Some hv.
+      → hps ∈ psl ∧ valuation hps = qfin hv.
 Proof.
 intros pow pts psl h hv hps def Hpts Hhv Hhps.
 remember (power_list pow psl) as ppl.
@@ -823,7 +824,7 @@ Lemma in_pts_in_pol : ∀ pol pts h hv hps def,
   pts = points_of_ps_polynom r pol
   → (Qnat h, hv) ∈ pts
     → hps = List.nth h (al pol) def
-      → hps ∈ al pol ∧ valuation hps = Some hv.
+      → hps ∈ al pol ∧ valuation hps = qfin hv.
 Proof.
 intros pol pts h hv hps def Hpts Hhhv Hhps.
 eapply in_pts_in_psl; try eassumption.
