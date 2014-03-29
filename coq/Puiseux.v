@@ -4,20 +4,32 @@ Require Import Utf8.
 Require Import QArith.
 Require Import NPeano.
 
+Require Import Misc.
 Require Import Qbar.
 Require Import Field.
+Require Import Newton.
 Require Import Puiseux_base.
 Require Import Puiseux_series.
 Require Import Ps_div.
+Require Import CharactPolyn.
 Require Import F1Eq.
 
 (* [Walker, p 101] « O (āh - ah.x^αh) > 0 » (with fixed typo) *)
 
-Theorem zzz : ∀ α (R : ring α) (Kx : ring (puiseux_series α)) pol h αh ah,
+Section theorems.
+
+Variable α : Type.
+Variable R : ring α.
+Variable Kx : ring (puiseux_series α).
+
+Theorem zzz : ∀ pol ns pl tl h αh ah,
   Kx = ps_ring R
-  → (valuation (ā R h pol - ah * x_power R αh)%K > qfin αh)%Qbar.
+  → pl = [ini_pt ns … oth_pts ns ++ [fin_pt ns]]
+    → tl = List.map (term_of_point R pol) pl
+      → ah = c_x_power (coeff_of_term R h tl) 0
+        → (valuation (ā R h pol - ah * x_power R αh)%K > qfin αh)%Qbar.
 Proof.
-intros α R Kx pol h αh ah HKx.
+intros pol ns pl tl h αh ah HKx Hpl Htl Hah.
 bbb.
 
 (* old stuff; to be used later perhaps *)
