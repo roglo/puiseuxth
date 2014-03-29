@@ -20,19 +20,13 @@ Require Import Ps_div.
 Require Import CharactPolyn.
 Require Import F1Eq.
 
-(* [Walker, p 101] « O (āh - ah.x^αh) > 0 » (with fixed typo) *)
+Set Implicit Arguments.
 
-Section theorems.
-
-Variable α : Type.
-Variable R : ring α.
-Variable Kx : ring (puiseux_series α).
-
-Lemma ps_monom_mul : ∀ c₁ c₂ p₁ p₂,
-  Kx = ps_ring R
-  → (ps_monom c₁ p₁ * ps_monom c₂ p₂ = ps_monom (c₁ * c₂) (p₁ + p₂))%ps.
+(* to be moved to Ps_mul.v *)
+Lemma ps_monom_mul : ∀ α (R : ring α) c₁ c₂ p₁ p₂,
+  (ps_monom c₁ p₁ * ps_monom c₂ p₂ = ps_monom (c₁ * c₂)%K (p₁ + p₂))%ps.
 Proof.
-intros c₁ c₂ p₁ p₂ HKx.
+intros α R c₁ c₂ p₁ p₂.
 unfold ps_monom, ps_mul, cm, cm_factor; simpl.
 apply mkps_morphism; try reflexivity.
 constructor; intros i; simpl.
@@ -44,11 +38,9 @@ destruct i; simpl.
  rewrite Nat.div_0_l; auto; simpl.
  rewrite Nat.div_0_l; auto; simpl.
  rewrite rng_add_0_r.
- subst Kx; simpl.
  unfold ps_mul; simpl.
  reflexivity.
 
- subst Kx; simpl.
  unfold convol_mul; simpl.
  rewrite all_0_summation_0; [ reflexivity | simpl ].
  intros j (_, Hj).
@@ -61,9 +53,9 @@ destruct i; simpl.
    rewrite Nat.mul_comm in H.
    rewrite H.
    rewrite Nat.div_mul; auto.
-   destruct c; [ discriminate H | rewrite ps_mul_0_r; reflexivity ].
+   destruct c; [ discriminate H | rewrite rng_mul_0_r; reflexivity ].
 
-   rewrite ps_mul_0_r; reflexivity.
+   rewrite rng_mul_0_r; reflexivity.
 
   destruct (zerop (S j mod Pos.to_nat (Qden p₂))) as [H| H].
    apply Nat.mod_divides in H; auto.
@@ -72,20 +64,27 @@ destruct i; simpl.
    rewrite H.
    rewrite Nat.div_mul; auto.
    destruct c; [ discriminate H | simpl ].
-   rewrite ps_mul_0_l; reflexivity.
+   rewrite rng_mul_0_l; reflexivity.
 
-   rewrite ps_mul_0_l; reflexivity.
+   rewrite rng_mul_0_l; reflexivity.
 Qed.
 
+Section theorems.
+
+Variable α : Type.
+Variable R : ring α.
+Let Kx := ps_ring R.
+
+(* [Walker, p 101] « O (āh - ah.x^αh) > 0 » (with fixed typo) *)
 Theorem zzz : ∀ pol ns pl tl h αh ah,
-  Kx = ps_ring R
-  → pl = [ini_pt ns … oth_pts ns ++ [fin_pt ns]]
-    → tl = List.map (term_of_point R pol) pl
-      → ah = c_x_power (coeff_of_term R h tl) 0
-        → (valuation (ā R h pol - ah * x_power R αh)%K > qfin αh)%Qbar.
+  let _  := Kx in
+  pl = [ini_pt ns … oth_pts ns ++ [fin_pt ns]]
+  → tl = List.map (term_of_point R pol) pl
+    → ah = c_x_power (coeff_of_term R h tl) 0
+      → (valuation (ā R h pol - ah * x_power R αh)%ps > qfin αh)%Qbar.
 Proof.
-intros pol ns pl tl h αh ah HKx Hpl Htl Hah.
-remember (ā R h pol - ah * x_power R αh)%K as s eqn:Hs .
+intros pol ns pl tl h αh ah f' Hpl Htl Hah.
+remember (ā R h pol - ah * x_power R αh)%ps as s eqn:Hs .
 unfold valuation.
 remember (null_coeff_range_length R (ps_terms s) 0) as n eqn:Hn .
 symmetry in Hn.
@@ -93,8 +92,6 @@ destruct n as [v| ]; [ idtac | constructor ].
 unfold ā, ā_lap in Hs.
 subst ah.
 unfold c_x_power, x_power in Hs.
-Set Printing Implicit.
-Check ps_monom_mul.
 bbb.
 
 (* old stuff; to be used later perhaps *)
