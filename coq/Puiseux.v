@@ -101,6 +101,8 @@ assert (valuation (ā R h pol) = qfin αh).
  symmetry in Hn₀.
  destruct v₀ as [n₀| ].
   Focus 2.
+  apply null_coeff_range_length_inf_iff in Hn₀.
+bbb.
   apply null_coeff_range_length_iff in Hn₀.
   simpl in Hn₀.
   apply null_coeff_range_length_iff in Hn.
