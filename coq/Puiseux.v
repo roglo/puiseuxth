@@ -86,18 +86,26 @@ Theorem zzz : ∀ pol ns pl tl h αh ah,
           → (valuation (ā R h pol - ah * x_power R αh)%ps > qfin αh)%Qbar.
 Proof.
 intros pol ns pl tl h αh ah f' Hns Hpl Htl Hah HαH.
-remember (ā R h pol - ah * x_power R αh)%ps as s eqn:Hs .
 unfold valuation, Qbar.gt.
+remember (ā R h pol - ah * x_power R αh)%ps as s eqn:Hs .
 remember (null_coeff_range_length R (ps_terms s) 0) as n eqn:Hn .
 symmetry in Hn.
 destruct n as [v| ]; [ idtac | constructor ].
-unfold ā, ā_lap in Hs.
-apply null_coeff_range_length_iff in Hn.
-unfold null_coeff_range_length_prop in Hn; simpl in Hn.
-destruct Hn as (Hiv, Hv).
-subst ah αh.
-unfold c_x_power, x_power in Hs.
 apply Qbar.qfin_lt_mono.
+assert (valuation (ā R h pol) = qfin αh).
+ unfold valuation.
+ unfold ā, ā_lap; simpl.
+ unfold ā, ā_lap in Hs; simpl in Hs.
+ remember (List.nth h (al pol) 0%ps) as hps eqn:Hhps .
+ remember (null_coeff_range_length R (ps_terms hps) 0) as v₀ eqn:Hn₀ .
+ symmetry in Hn₀.
+ destruct v₀ as [n₀| ].
+  Focus 2.
+  apply null_coeff_range_length_iff in Hn₀.
+  simpl in Hn₀.
+  apply null_coeff_range_length_iff in Hn.
+  simpl in Hn.
+  destruct Hn as (Hiv, Hv).
 bbb.
 
 (* old stuff; to be used later perhaps *)
