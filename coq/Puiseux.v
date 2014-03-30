@@ -95,6 +95,7 @@ unfold null_coeff_range_length_prop in Hn; simpl in Hn.
 destruct Hn as (Hiv, Hv).
 subst ah.
 unfold c_x_power, x_power in Hs.
+apply Qbar.qfin_lt_mono.
 bbb.
 
 (* old stuff; to be used later perhaps *)

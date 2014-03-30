@@ -171,27 +171,15 @@ Qed.
 Theorem fin_le_mono : ∀ n m, (n <= m)%nat ↔ fin n ≤ fin m.
 Proof.
 intros n m.
-split; intros H.
- destruct n as [n| ]; [ idtac | constructor; assumption ].
- destruct m as [m| ]; [ idtac | constructor; assumption ].
- constructor; assumption.
-
- destruct n as [n| ]; [ idtac | inversion H; assumption ].
- destruct m as [m| ]; [ idtac | inversion H; assumption ].
- inversion H; assumption.
+split; intros H; [ constructor; assumption | idtac ].
+inversion H; assumption.
 Qed.
 
 Theorem fin_lt_mono : ∀ n m, (n < m)%nat ↔ fin n < fin m.
 Proof.
 intros n m.
-split; intros H.
- destruct n as [n| ]; [ idtac | constructor; assumption ].
- destruct m as [m| ]; [ idtac | constructor; assumption ].
- exfalso; revert H; apply Nat.lt_irrefl.
-
- destruct n as [n| ]; [ idtac | inversion H; assumption ].
- destruct m as [m| ]; [ idtac | inversion H; assumption ].
- exfalso; revert H; apply lt_irrefl.
+split; intros H; [ constructor; assumption | idtac ].
+inversion H; assumption.
 Qed.
 
 Theorem succ_lt_mono : ∀ n m, n < m ↔ NS n < NS m.
