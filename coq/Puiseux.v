@@ -85,11 +85,14 @@ Theorem zzz : ∀ pol ns pl tl h αh ah,
 Proof.
 intros pol ns pl tl h αh ah f' Hpl Htl Hah.
 remember (ā R h pol - ah * x_power R αh)%ps as s eqn:Hs .
-unfold valuation.
+unfold valuation, Qbar.gt.
 remember (null_coeff_range_length R (ps_terms s) 0) as n eqn:Hn .
 symmetry in Hn.
 destruct n as [v| ]; [ idtac | constructor ].
 unfold ā, ā_lap in Hs.
+apply null_coeff_range_length_iff in Hn.
+unfold null_coeff_range_length_prop in Hn; simpl in Hn.
+destruct Hn as (Hiv, Hv).
 subst ah.
 unfold c_x_power, x_power in Hs.
 bbb.
