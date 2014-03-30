@@ -78,12 +78,14 @@ Let Kx := ps_ring R.
 (* [Walker, p 101] « O (āh - ah.x^αh) > 0 » (with fixed typo) *)
 Theorem zzz : ∀ pol ns pl tl h αh ah,
   let _  := Kx in
-  pl = [ini_pt ns … oth_pts ns ++ [fin_pt ns]]
-  → tl = List.map (term_of_point R pol) pl
-    → ah = c_x_power (coeff_of_term R h tl) 0
-      → (valuation (ā R h pol - ah * x_power R αh)%ps > qfin αh)%Qbar.
+  ns ∈ newton_segments R pol
+  → pl = [ini_pt ns … oth_pts ns ++ [fin_pt ns]]
+    → tl = List.map (term_of_point R pol) pl
+      → ah = c_x_power (coeff_of_term R h tl) 0
+        → αh = val_of_pt h pl
+          → (valuation (ā R h pol - ah * x_power R αh)%ps > qfin αh)%Qbar.
 Proof.
-intros pol ns pl tl h αh ah f' Hpl Htl Hah.
+intros pol ns pl tl h αh ah f' Hns Hpl Htl Hah HαH.
 remember (ā R h pol - ah * x_power R αh)%ps as s eqn:Hs .
 unfold valuation, Qbar.gt.
 remember (null_coeff_range_length R (ps_terms s) 0) as n eqn:Hn .
@@ -93,7 +95,7 @@ unfold ā, ā_lap in Hs.
 apply null_coeff_range_length_iff in Hn.
 unfold null_coeff_range_length_prop in Hn; simpl in Hn.
 destruct Hn as (Hiv, Hv).
-subst ah.
+subst ah αh.
 unfold c_x_power, x_power in Hs.
 apply Qbar.qfin_lt_mono.
 bbb.
