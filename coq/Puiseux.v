@@ -129,6 +129,15 @@ induction pts as [| (h, ah)]; simpl.
    eapply list_Forall_inv; eassumption.
 Qed.
 
+(*
+Lemma val_of_pt_oth_pts_app : ∀ pol ns h αh,
+  ns ∈ newton_segments R pol
+  → (Qnat h, αh) ∈ oth_pts ns
+    → val_of_pt h (oth_pts ns ++ [fin_pt ns]) = αh.
+Proof.
+bbb.
+*)
+
 Lemma yyy : ∀ pol ns pl h αh,
   ns ∈ newton_segments R pol
   → pl = [ini_pt ns … oth_pts ns ++ [fin_pt ns]]
