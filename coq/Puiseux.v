@@ -76,6 +76,13 @@ Variable α : Type.
 Variable R : ring α.
 Let Kx := ps_ring R.
 
+Lemma yyy : ∀ ns k αk,
+  fin_pt ns = (Qnat k, αk)
+  → val_of_pt k (oth_pts ns ++ [fin_pt ns]) = αk.
+Proof.
+intros ns k αk Hfin.
+bbb.
+
 (* [Walker, p 101] « O (āh - ah.x^αh) > 0 » (with fixed typo) *)
 Theorem zzz : ∀ pol ns pl tl h αh ah,
   let _  := Kx in
@@ -111,6 +118,18 @@ assert (valuation (ā R h pol) = qfin αh).
   apply ini_fin_ns_in_init_pts in Hns.
   rewrite Hini in Hns.
   destruct Hns; assumption.
+
+  remember Hns as Hfin; clear HeqHfin.
+  apply exists_fin_pt_nat in Hfin.
+  destruct Hfin as (k, (αk, Hfin)).
+  destruct (Qeq_dec (Qnat h) (Qnat k)) as [Hhk| Hhk].
+   unfold Qeq in Hhk; simpl in Hhk.
+   do 2 rewrite Z.mul_1_r in Hhk.
+   apply Nat2Z.inj in Hhk; subst h.
+   unfold newton_segments in Hns.
+   remember (points_of_ps_polynom R pol) as pts eqn:Hpts .
+   subst f'.
+   edestruct in_pts_in_pol; try eassumption; try reflexivity.
 bbb.
 
 (* old stuff; to be used later perhaps *)
