@@ -11,6 +11,7 @@ Require Import Field.
 Require Import Fpolynomial.
 Require Import Fsummation.
 Require Import Newton.
+Require Import ConvexHull.
 Require Import Puiseux_base.
 Require Import Power_series.
 Require Import Puiseux_series.
@@ -93,21 +94,23 @@ symmetry in Hn.
 destruct n as [v| ]; [ idtac | constructor ].
 apply Qbar.qfin_lt_mono.
 assert (valuation (ā R h pol) = qfin αh).
- unfold valuation.
  unfold ā, ā_lap; simpl.
- unfold ā, ā_lap in Hs; simpl in Hs.
- remember (List.nth h (al pol) 0%ps) as hps eqn:Hhps .
- remember (null_coeff_range_length R (ps_terms hps) 0) as v₀ eqn:Hn₀ .
- symmetry in Hn₀.
- destruct v₀ as [n₀| ].
-  Focus 2.
-  apply null_coeff_range_length_inf_iff in Hn₀.
-bbb.
-  apply null_coeff_range_length_iff in Hn₀.
-  simpl in Hn₀.
-  apply null_coeff_range_length_iff in Hn.
-  simpl in Hn.
-  destruct Hn as (Hiv, Hv).
+ subst αh pl; simpl.
+ remember Hns as Hini; clear HeqHini.
+ apply exists_ini_pt_nat in Hini.
+ destruct Hini as (j, (αj, Hini)).
+ rewrite Hini; simpl.
+ destruct (Qeq_dec (Qnat h) (Qnat j)) as [Hhj| Hjj].
+  unfold Qeq in Hhj; simpl in Hhj.
+  do 2 rewrite Z.mul_1_r in Hhj.
+  apply Nat2Z.inj in Hhj; subst h.
+  unfold newton_segments in Hns.
+  remember (points_of_ps_polynom R pol) as pts eqn:Hpts .
+  subst f'.
+  edestruct in_pts_in_pol; try eassumption; try reflexivity.
+  apply ini_fin_ns_in_init_pts in Hns.
+  rewrite Hini in Hns.
+  destruct Hns; assumption.
 bbb.
 
 (* old stuff; to be used later perhaps *)
