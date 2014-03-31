@@ -77,10 +77,9 @@ Variable R : ring α.
 Let Kx := ps_ring R.
 
 Lemma yyy : ∀ ns k αk,
-  fin_pt ns = (Qnat k, αk)
-  → val_of_pt k (oth_pts ns ++ [fin_pt ns]) = αk.
+  val_of_pt k (oth_pts ns ++ [(Qnat k, αk)]) = αk.
 Proof.
-intros ns k αk Hfin.
+intros ns k αk.
 bbb.
 
 (* [Walker, p 101] « O (āh - ah.x^αh) > 0 » (with fixed typo) *)
