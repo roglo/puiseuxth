@@ -136,39 +136,32 @@ Lemma yyy : ∀ pol ns pl h αh,
       → valuation (ā R h pol) = qfin αh.
 Proof.
 intros pol ns pl h αh Hns Hpl Hαh.
-unfold ā, ā_lap; simpl.
-subst αh pl; simpl.
 remember Hns as Hini; clear HeqHini.
 apply exists_ini_pt_nat in Hini.
 destruct Hini as (j, (αj, Hini)).
+remember Hns as Hfin; clear HeqHfin.
+apply exists_fin_pt_nat in Hfin.
+destruct Hfin as (k, (αk, Hfin)).
+unfold ā, ā_lap; simpl.
+subst αh pl; simpl.
 rewrite Hini; simpl.
 destruct (Qeq_dec (Qnat h) (Qnat j)) as [Hhj| Hjj].
  unfold Qeq in Hhj; simpl in Hhj.
  do 2 rewrite Z.mul_1_r in Hhj.
  apply Nat2Z.inj in Hhj; subst h.
- unfold newton_segments in Hns.
- remember (points_of_ps_polynom R pol) as pts eqn:Hpts .
  edestruct in_pts_in_pol; try eassumption; try reflexivity.
  apply ini_fin_ns_in_init_pts in Hns.
  rewrite Hini in Hns.
  destruct Hns; assumption.
 
- remember Hns as Hfin; clear HeqHfin.
- apply exists_fin_pt_nat in Hfin.
- destruct Hfin as (k, (αk, Hfin)).
  destruct (Qeq_dec (Qnat h) (Qnat k)) as [Hhk| Hhk].
   unfold Qeq in Hhk; simpl in Hhk.
   do 2 rewrite Z.mul_1_r in Hhk.
   apply Nat2Z.inj in Hhk; subst h.
-  unfold newton_segments in Hns.
-  remember (points_of_ps_polynom R pol) as pts eqn:Hpts .
   edestruct in_pts_in_pol; try eassumption; try reflexivity.
   erewrite val_of_pt_app_k with (pol := pol); try eassumption.
-   rewrite <- Hfin.
-   apply ini_fin_ns_in_init_pts; assumption.
-
-   unfold newton_segments.
-   rewrite <- Hpts; assumption.
+  rewrite <- Hfin.
+  apply ini_fin_ns_in_init_pts; assumption.
 bbb.
 
 (* [Walker, p 101] « O (āh - ah.x^αh) > 0 » (with fixed typo) *)
