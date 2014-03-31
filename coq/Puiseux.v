@@ -3,6 +3,7 @@
 Require Import Utf8.
 Require Import QArith.
 Require Import NPeano.
+Require Import Sorted.
 
 Require Import Misc.
 Require Import Nbar.
@@ -12,6 +13,7 @@ Require Import Fpolynomial.
 Require Import Fsummation.
 Require Import Newton.
 Require Import ConvexHull.
+Require Import ConvexHullMisc.
 Require Import Puiseux_base.
 Require Import Power_series.
 Require Import Puiseux_series.
@@ -76,11 +78,56 @@ Variable α : Type.
 Variable R : ring α.
 Let Kx := ps_ring R.
 
-Lemma yyy : ∀ ns k αk,
-  val_of_pt k (oth_pts ns ++ [(Qnat k, αk)]) = αk.
+Lemma val_of_pt_app_k : ∀ pol ns k αk,
+  ns ∈ newton_segments R pol
+  → fin_pt ns = (Qnat k, αk)
+    → val_of_pt k (oth_pts ns ++ [fin_pt ns]) = αk.
 Proof.
-intros ns k αk.
-bbb.
+intros pol ns k αk Hns Hfin.
+remember Hns as Hsort; clear HeqHsort.
+apply ini_oth_fin_pts_sorted in Hsort.
+apply Sorted_inv_1 in Hsort.
+remember Hns as Hden1; clear HeqHden1.
+apply oth_pts_den_1 in Hden1.
+remember (oth_pts ns) as pts eqn:Hpts .
+clear Hpts.
+induction pts as [| (h, ah)]; simpl.
+ rewrite Hfin; simpl.
+ destruct (Qeq_dec (Qnat k) (Qnat k)) as [| Hkk]; [ reflexivity | idtac ].
+ exfalso; apply Hkk; reflexivity.
+
+ destruct (Qeq_dec (Qnat k) h) as [Hkh| Hkh].
+  unfold Qeq in Hkh; simpl in Hkh.
+  apply List.Forall_inv in Hden1.
+  simpl in Hden1.
+  rewrite Hden1 in Hkh.
+  do 2 rewrite Z.mul_1_r in Hkh.
+  rename h into hq.
+  destruct hq as (h, hd).
+  simpl in Hkh.
+  subst h.
+  simpl in Hden1.
+  subst hd; simpl in Hsort.
+  rewrite Hfin in Hsort; simpl in Hsort.
+  exfalso; revert Hsort; clear; intros.
+  induction pts as [| pt]; simpl.
+   simpl in Hsort.
+   apply Sorted_inv in Hsort.
+   destruct Hsort as (_, Hrel).
+   apply HdRel_inv in Hrel.
+   unfold fst_lt in Hrel; simpl in Hrel.
+   revert Hrel; apply Qlt_irrefl.
+
+   simpl in Hsort.
+   apply IHpts.
+   eapply Sorted_minus_2nd; [ idtac | eassumption ].
+   intros x y z H₁ H₂; eapply Qlt_trans; eassumption.
+
+  apply IHpts.
+   eapply Sorted_inv_1; eassumption.
+
+   eapply list_Forall_inv; eassumption.
+Qed.
 
 (* [Walker, p 101] « O (āh - ah.x^αh) > 0 » (with fixed typo) *)
 Theorem zzz : ∀ pol ns pl tl h αh ah,
@@ -129,6 +176,12 @@ assert (valuation (ā R h pol) = qfin αh).
    remember (points_of_ps_polynom R pol) as pts eqn:Hpts .
    subst f'.
    edestruct in_pts_in_pol; try eassumption; try reflexivity.
+   erewrite val_of_pt_app_k with (pol := pol); try eassumption.
+    rewrite <- Hfin.
+    apply ini_fin_ns_in_init_pts; assumption.
+
+    unfold newton_segments.
+    rewrite <- Hpts; assumption.
 bbb.
 
 (* old stuff; to be used later perhaps *)
