@@ -178,37 +178,15 @@ Theorem zzz : ∀ pol ns pl tl h ah αh,
             → (valuation (ā R h pol - ah * x_power R αh)%ps > qfin αh)%Qbar.
 Proof.
 intros pol ns pl tl h ah αh f' Hns Hpl Htl Hh Hah Hαh.
-
-bbb.
-intros pol ns h αh ah f' Hns Hhαh.
 unfold valuation, Qbar.gt.
 remember (ā R h pol - ah * x_power R αh)%ps as s eqn:Hs .
 remember (null_coeff_range_length R (ps_terms s) 0) as n eqn:Hn .
 symmetry in Hn.
-destruct n as [v| ]; [ idtac | constructor ].
+destruct n as [n| ]; [ idtac | constructor ].
 apply Qbar.qfin_lt_mono.
+assert (coeff_of_term R h tl = (ps_terms (ā R h pol)) .[ n])%K.
+ unfold ā, ā_lap; simpl.
 bbb.
-
-(* old version but kept on sait jamais *)
-(* [Walker, p 101] « O (āh - ah.x^αh) > 0 » (with fixed typo) *)
-Theorem zzz₁ : ∀ pol ns pl tl h αh ah,
-  let _ := Kx in
-  ns ∈ newton_segments R pol
-  → pl = [ini_pt ns … oth_pts ns ++ [fin_pt ns]]
-    → tl = List.map (term_of_point R pol) pl
-      → ah = c_x_power (coeff_of_term R h tl) 0
-        → αh = val_of_pt h pl
-          → (valuation (ā R h pol - ah * x_power R αh)%ps > qfin αh)%Qbar.
-Proof.
-intros pol ns pl tl h αh ah f' Hns Hpl Htl Hah HαH.
-unfold valuation, Qbar.gt.
-remember (ā R h pol - ah * x_power R αh)%ps as s eqn:Hs .
-remember (null_coeff_range_length R (ps_terms s) 0) as n eqn:Hn .
-symmetry in Hn.
-destruct n as [v| ]; [ idtac | constructor ].
-apply Qbar.qfin_lt_mono.
-bbb.
-assert (valuation (ā R h pol) = qfin αh).
 
 (* old stuff; to be used later perhaps *)
 
