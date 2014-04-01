@@ -174,16 +174,16 @@ Theorem zzz : ∀ pol ns pl tl h āh ah αh,
     → tl = List.map (term_of_point R pol) pl
       → h ∈ List.map (λ t, power t) tl
         → āh = poly_nth R h pol
-          → ah = c_x_power (coeff_of_term R h tl) 0
+          → ah = ps_monom (coeff_of_term R h tl) 0
             → αh = val_of_pt h pl
-              → (valuation (āh - ah * x_power R αh)%ps > qfin αh)%Qbar.
+              → (valuation (āh - ah * ps_monom 1%K αh)%ps > qfin αh)%Qbar.
 Proof.
 intros pol ns pl tl h āh ah αh f' Hns Hpl Htl Hh Hāh Hah Hαh.
 remember Hns as Hval; clear HeqHval.
 eapply valuation_in_newton_segment with (h := h) (αh := αh) in Hval; eauto .
  rewrite <- Hāh in Hval.
  unfold valuation, Qbar.gt.
- remember (āh - ah * x_power R αh)%ps as s eqn:Hs .
+ remember (āh - ah * ps_monom 1%K αh)%ps as s eqn:Hs .
  remember (null_coeff_range_length R (ps_terms s) 0) as n eqn:Hn .
  symmetry in Hn.
  destruct n as [n| ]; [ idtac | constructor ].
@@ -198,7 +198,6 @@ eapply valuation_in_newton_segment with (h := h) (αh := αh) in Hval; eauto .
  unfold cm; simpl.
  unfold cm; simpl.
  subst ah; simpl.
- unfold c_x_power; simpl.
  unfold ps_valnum_add; simpl.
  unfold cm, cm_factor; simpl.
  rewrite Z.mul_1_r.
