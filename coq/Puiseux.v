@@ -138,9 +138,11 @@ Proof.
 bbb.
 *)
 
+(*
 Lemma yyy : ∀ pol ns pl h αh,
   ns ∈ newton_segments R pol
   → pl = [ini_pt ns … oth_pts ns ++ [fin_pt ns]]
+------ (Qnat h, αh) ∈ pl
     → αh = val_of_pt h pl
       → valuation (ā R h pol) = qfin αh.
 Proof.
@@ -172,10 +174,29 @@ destruct (Qeq_dec (Qnat h) (Qnat j)) as [Hhj| Hjj].
   rewrite <- Hfin.
   apply ini_fin_ns_in_init_pts; assumption.
 bbb.
+*)
 
+(* [Walker, p 101] « O (āh - ah.x^αh) > 0 » (with fixed typo)
+   What is called "O" (for "order") is actually the valuation. *)
+Theorem zzz : ∀ pol ns h αh ah,
+  let _ := Kx in
+  ns ∈ newton_segments R pol
+  → (Qnat h, αh) ∈ [ini_pt ns … oth_pts ns ++ [fin_pt ns]]
+    → (valuation (ā R h pol - ah * x_power R αh)%ps > qfin αh)%Qbar.
+Proof.
+intros pol ns h αh ah f' Hns Hhαh.
+unfold valuation, Qbar.gt.
+remember (ā R h pol - ah * x_power R αh)%ps as s eqn:Hs .
+remember (null_coeff_range_length R (ps_terms s) 0) as n eqn:Hn .
+symmetry in Hn.
+destruct n as [v| ]; [ idtac | constructor ].
+apply Qbar.qfin_lt_mono.
+bbb.
+
+(* old version but kept on sait jamais *)
 (* [Walker, p 101] « O (āh - ah.x^αh) > 0 » (with fixed typo) *)
-Theorem zzz : ∀ pol ns pl tl h αh ah,
-  let _  := Kx in
+Theorem zzz₁ : ∀ pol ns pl tl h αh ah,
+  let _ := Kx in
   ns ∈ newton_segments R pol
   → pl = [ini_pt ns … oth_pts ns ++ [fin_pt ns]]
     → tl = List.map (term_of_point R pol) pl
