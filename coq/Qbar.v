@@ -17,6 +17,22 @@ Open Scope Qbar_scope.
 
 Module Qbar.
 
+Definition binop f dx dy xb yb :=
+  match xb with
+  | qfin x =>
+      match yb with
+      | qfin y => qfin (f x y)
+      | ∞ => dx
+      end
+  | ∞ => dy
+  end.
+
+Definition add := binop Qplus ∞ ∞.
+Definition mul := binop Qmult ∞ ∞.
+
+Infix "+" := add : Qbar_scope.
+Infix "*" := mul : Qbar_scope.
+
 Inductive lt : Qbar → Qbar → Prop :=
   | lt_qfin : ∀ q r, (q < r)%Q → qfin q < qfin r
   | lt_qinf : ∀ q, qfin q < ∞

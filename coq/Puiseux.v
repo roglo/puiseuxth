@@ -133,7 +133,7 @@ Lemma valuation_in_newton_segment : ∀ pol ns pl h αh,
   ns ∈ newton_segments R pol
   → pl = [ini_pt ns … oth_pts ns ++ [fin_pt ns]]
     → (Qnat h, αh) ∈ pl
-      → valuation (ā R h pol) = qfin αh.
+      → valuation (poly_nth R h pol) = qfin αh.
 Proof.
 intros pol ns pl h αh Hns Hpl Hαh.
 remember Hns as Hini; clear HeqHini.
@@ -142,7 +142,7 @@ destruct Hini as (j, (αj, Hini)).
 remember Hns as Hfin; clear HeqHfin.
 apply exists_fin_pt_nat in Hfin.
 destruct Hfin as (k, (αk, Hfin)).
-unfold ā, ā_lap; simpl.
+unfold poly_nth, lap_nth; simpl.
 edestruct in_pts_in_pol; try reflexivity; try eassumption.
 subst pl.
 simpl in Hαh.
@@ -167,25 +167,27 @@ Qed.
 
 (* [Walker, p 101] « O (āh - ah.x^αh) > 0 » (with fixed typo)
    What is called "O" (for "order") is actually the valuation. *)
-Theorem zzz : ∀ pol ns pl tl h ah αh,
+Theorem zzz : ∀ pol ns pl tl h āh ah αh,
   let _ := Kx in
   ns ∈ newton_segments R pol
   → pl = [ini_pt ns … oth_pts ns ++ [fin_pt ns]]
     → tl = List.map (term_of_point R pol) pl
       → h ∈ List.map (λ t, power t) tl
-        → ah = c_x_power (coeff_of_term R h tl) 0
-          → αh = val_of_pt h pl
-            → (valuation (ā R h pol - ah * x_power R αh)%ps > qfin αh)%Qbar.
+        → āh = poly_nth R h pol
+          → ah = c_x_power (coeff_of_term R h tl) 0
+            → αh = val_of_pt h pl
+              → (valuation (āh - ah * x_power R αh)%ps > qfin αh)%Qbar.
 Proof.
-intros pol ns pl tl h ah αh f' Hns Hpl Htl Hh Hah Hαh.
+intros pol ns pl tl h āh ah αh f' Hns Hpl Htl Hh Hāh Hah Hαh.
 unfold valuation, Qbar.gt.
-remember (ā R h pol - ah * x_power R αh)%ps as s eqn:Hs .
+remember (āh - ah * x_power R αh)%ps as s eqn:Hs .
 remember (null_coeff_range_length R (ps_terms s) 0) as n eqn:Hn .
 symmetry in Hn.
 destruct n as [n| ]; [ idtac | constructor ].
 apply Qbar.qfin_lt_mono.
-assert (coeff_of_term R h tl = (ps_terms (ā R h pol)) .[ n]).
- unfold ā, ā_lap; simpl.
+assert (coeff_of_term R h tl = (ps_terms āh) .[ n]).
+ subst āh.
+ unfold poly_nth, lap_nth; simpl.
 bbb.
 
 (* old stuff; to be used later perhaps *)

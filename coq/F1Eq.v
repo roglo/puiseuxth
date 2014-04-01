@@ -11,6 +11,7 @@ Require Import Field.
 Require Import Misc.
 Require Import Newton.
 Require Import Nbar.
+Require Import Qbar.
 Require Import Fsummation.
 Require Import Fpolynomial.
 Require Import Power_series.
@@ -42,8 +43,8 @@ Definition pol₁ α (R : ring α) pol β₁ γ₁ c₁ :=
 
 (* *)
 
-Definition ā_lap α (R : ring α) h la := (List.nth h la 0)%ps.
-Definition ā α (R : ring α) h pol := (ā_lap R h (al pol)).
+Definition lap_nth α (R : ring α) h la := (List.nth h la 0)%ps.
+Definition poly_nth α (R : ring α) h pol := (lap_nth R h (al pol)).
 
 Definition lap_summation α (r : ring α) (li : list nat) g :=
   List.fold_right (λ i accu, lap_add accu (g i)) [] li.
@@ -362,7 +363,8 @@ Theorem f₁_eq_x_min_β₁_summation : ∀ pol β₁ γ₁ c₁,
    POL [x_power R (- β₁)] *
    poly_summation Kx (List.seq 0 (length (al pol)))
      (λ h,
-      POL [(ā R h pol * x_power R (Qnat h * γ₁))%ps] *
+      let āh := poly_nth R h pol in
+      POL [(āh * x_power R (Qnat h * γ₁))%ps] *
       POL [c_x_power c₁ 0; 1%ps … []] ^ h))%pol.
 Proof.
 intros pol β₁ γ₁ c₁ f'; subst f'.
@@ -375,7 +377,7 @@ unfold eq_poly; simpl.
 apply list_fold_right_compat; [ idtac | reflexivity ].
 intros la lb i Heq.
 apply lap_add_compat; [ assumption | idtac ].
-unfold ā, ā_lap.
+unfold poly_nth, lap_nth.
 rewrite lap_power_mul.
 rewrite lap_mul_assoc.
 apply lap_mul_compat; [ idtac | reflexivity ].
@@ -428,12 +430,14 @@ Theorem f₁_eq_x_min_β₁_summation_split : ∀ pol β₁ γ₁ c₁ l₁ l₂
      POL [x_power R (- β₁)] *
      poly_summation Kx l₁
        (λ h,
-        POL [(ā R h pol * x_power R (Qnat h * γ₁))%ps] *
+        let āh := poly_nth R h pol in
+        POL [(āh * x_power R (Qnat h * γ₁))%ps] *
         POL [c_x_power c₁ 0; 1%ps … []] ^ h) +
      POL [x_power R (- β₁)] *
      poly_summation Kx l₂
        (λ l,
-        POL [(ā R l pol * x_power R (Qnat l * γ₁))%ps] *
+        let āl := poly_nth R l pol in
+        POL [(āl * x_power R (Qnat l * γ₁))%ps] *
         POL [c_x_power c₁ 0; 1%ps … []] ^ l))%pol.
 Proof.
 intros pol β₁ γ₁ c₁ l₁ l₂ f' Hss; subst f'.
@@ -465,7 +469,8 @@ Lemma summation_split_val : ∀ pol ns γ₁ c₁ pl tl l,
       → l = List.map (λ t, power t) tl
         → (poly_summation Kx l
              (λ h,
-              POL [(ā R h pol * x_power R (Qnat h * γ₁))%ps] *
+              let āh := poly_nth R h pol in
+              POL [(āh * x_power R (Qnat h * γ₁))%ps] *
               POL [c_x_power c₁ 0; 1%ps … []] ^ h) =
            poly_summation Kx l
              (λ h,
@@ -475,9 +480,10 @@ Lemma summation_split_val : ∀ pol ns γ₁ c₁ pl tl l,
               POL [c_x_power c₁ 0; 1%ps … []] ^ h) +
            poly_summation Kx l
              (λ h,
+              let āh := poly_nth R h pol in
               let ah := c_x_power (coeff_of_term h tl) 0 in
               let αh := val_of_pt h pl in
-              POL [((ā R h pol - ah * x_power R αh) *
+              POL [((āh - ah * x_power R αh) *
                     x_power R (Qnat h * γ₁))%ps] *
               POL [c_x_power c₁ 0; 1%ps … []] ^ h))%pol.
 Proof.
@@ -526,14 +532,16 @@ Theorem f₁_eq_sum_α_hγ_to_rest : ∀ pol ns β₁ γ₁ c₁ pl tl l₁ l₂
              POL [x_power R (- β₁)] *
              (poly_summation Kx l₁
                 (λ h,
+                 let āh := poly_nth R h pol in
                  let ah := c_x_power (coeff_of_term h tl) 0 in
                  let αh := val_of_pt h pl in
-                 POL [((ā R h pol - ah * x_power R αh) *
+                 POL [((āh - ah * x_power R αh) *
                        x_power R (Qnat h * γ₁))%ps] *
                  POL [c_x_power c₁ 0; 1%ps … []] ^ h) +
               poly_summation Kx l₂
                 (λ l,
-                 POL [(ā R l pol * x_power R (Qnat l * γ₁))%ps] *
+                 let āl := poly_nth R l pol in
+                 POL [(āl * x_power R (Qnat l * γ₁))%ps] *
                  POL [c_x_power c₁ 0; 1%ps … []] ^ l)))%pol.
 Proof.
 intros pol ns β₁ γ₁ c₁ pl tl l₁ l₂ f' Hns Hpl Htl Hl Hss; subst f'.
@@ -712,14 +720,16 @@ Theorem f₁_eq_sum_without_x_β₁_plus_sum : ∀ pol ns c₁ pl tl l₁ l₂,
              POL [x_power R (- β ns)] *
              (poly_summation Kx l₁
                 (λ h,
+                 let āh := poly_nth R h pol in
                  let ah := c_x_power (coeff_of_term h tl) 0 in
                  let αh := val_of_pt h pl in
-                 POL [((ā R h pol - ah * x_power R αh) *
+                 POL [((āh - ah * x_power R αh) *
                        x_power R (Qnat h * γ ns))%ps] *
                  POL [c_x_power c₁ 0; 1%ps … []] ^ h) +
               poly_summation Kx l₂
                 (λ l,
-                 POL [(ā R l pol * x_power R (Qnat l * γ ns))%ps] *
+                 let āl := poly_nth R l pol in
+                 POL [(āl * x_power R (Qnat l * γ ns))%ps] *
                  POL [c_x_power c₁ 0; 1%ps … []] ^ l)))%pol.
 Proof.
 intros pol ns c₁ pl tl l₁ l₂ f' Hns Hpl Htl Hl Hss; subst f'.
@@ -1865,14 +1875,16 @@ Theorem f₁_eq_term_with_Ψ_plus_sum : ∀ pol ns c₁ pl tl j αj l₁ l₂ r 
                      POL [x_power R (- β ns)] *
                      (poly_summation Kx l₁
                         (λ h,
+                         let āh := poly_nth R h pol in
                          let ah := c_x_power (coeff_of_term h tl) 0 in
                          let αh := val_of_pt h pl in
-                         POL [((ā R h pol - ah * x_power R αh) *
+                         POL [((āh - ah * x_power R αh) *
                                x_power R (Qnat h * γ ns))%ps] *
                          POL [c_x_power c₁ 0; 1%ps … []] ^ h) +
                       poly_summation Kx l₂
                         (λ l,
-                         POL [(ā R l pol * x_power R (Qnat l * γ ns))%ps] *
+                         let āl := poly_nth R l pol in
+                         POL [(āl * x_power R (Qnat l * γ ns))%ps] *
                          POL [c_x_power c₁ 0; 1%ps … []] ^ l)))%pol.
 Proof.
 intros pol ns c₁ pl tl j αj l₁ l₂ r Ψ f' Hns Hc₁ Hr HΨ Hpl Htl Hl Hss Hini.
