@@ -167,14 +167,20 @@ Qed.
 
 (* [Walker, p 101] « O (āh - ah.x^αh) > 0 » (with fixed typo)
    What is called "O" (for "order") is actually the valuation. *)
-Theorem zzz : ∀ pol ns h αh ah,
+Theorem zzz : ∀ pol ns pl tl h ah αh,
   let _ := Kx in
   ns ∈ newton_segments R pol
-  → (Qnat h, αh) ∈ [ini_pt ns … oth_pts ns ++ [fin_pt ns]]
-    → (valuation (ā R h pol - ah * x_power R αh)%ps > qfin αh)%Qbar.
+  → pl = [ini_pt ns … oth_pts ns ++ [fin_pt ns]]
+    → tl = List.map (term_of_point R pol) pl
+      → h ∈ List.map (λ t, power t) tl
+        → ah = c_x_power (coeff_of_term R h tl) 0
+          → αh = val_of_pt h pl
+            → (valuation (ā R h pol - ah * x_power R αh)%ps > qfin αh)%Qbar.
 Proof.
-intros pol ns h αh ah f' Hns Hhαh.
+intros pol ns pl tl h ah αh f' Hns Hpl Htl Hh Hah Hαh.
+
 bbb.
+intros pol ns h αh ah f' Hns Hhαh.
 unfold valuation, Qbar.gt.
 remember (ā R h pol - ah * x_power R αh)%ps as s eqn:Hs .
 remember (null_coeff_range_length R (ps_terms s) 0) as n eqn:Hn .
