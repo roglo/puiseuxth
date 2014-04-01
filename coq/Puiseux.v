@@ -208,6 +208,12 @@ eapply valuation_in_newton_segment with (h := h) (αh := αh) in Hval; eauto .
  rewrite Z.mul_shuffle0.
  apply Z.mul_lt_mono_pos_r.
   apply Pos2Z.is_pos.
+
+  rewrite <- Hval; simpl.
+  rewrite Z.mul_min_distr_nonneg_r; [ idtac | apply Pos2Z.is_nonneg ].
+  rewrite Z.min_l.
+   rewrite Z.mul_add_distr_r.
+   apply Z.add_lt_mono_l.
 bbb.
 
 (* old stuff; to be used later perhaps *)
