@@ -179,16 +179,21 @@ Theorem zzz : ∀ pol ns pl tl h āh ah αh,
               → (valuation (āh - ah * x_power R αh)%ps > qfin αh)%Qbar.
 Proof.
 intros pol ns pl tl h āh ah αh f' Hns Hpl Htl Hh Hāh Hah Hαh.
-unfold valuation, Qbar.gt.
-remember (āh - ah * x_power R αh)%ps as s eqn:Hs .
-remember (null_coeff_range_length R (ps_terms s) 0) as n eqn:Hn .
-symmetry in Hn.
-destruct n as [n| ]; [ idtac | constructor ].
-apply Qbar.qfin_lt_mono.
-bbb.
-assert (coeff_of_term R h tl = (ps_terms āh) .[ n]).
- subst āh.
- unfold poly_nth, lap_nth; simpl.
+remember Hns as Hval; clear HeqHval.
+eapply valuation_in_newton_segment with (h := h) (αh := αh) in Hval; eauto .
+ rewrite <- Hāh in Hval.
+ unfold valuation, Qbar.gt.
+ remember (āh - ah * x_power R αh)%ps as s eqn:Hs .
+ remember (null_coeff_range_length R (ps_terms s) 0) as n eqn:Hn .
+ symmetry in Hn.
+ destruct n as [n| ]; [ idtac | constructor ].
+ apply Qbar.qfin_lt_mono.
+ unfold valuation in Hval.
+ remember (null_coeff_range_length R (ps_terms āh) 0) as m eqn:Hm .
+ symmetry in Hm.
+ destruct m as [m| ]; [ idtac | discriminate Hval ].
+ injection Hval; clear Hval; intros Hval.
+ rewrite <- Hval.
 bbb.
 
 (* old stuff; to be used later perhaps *)
