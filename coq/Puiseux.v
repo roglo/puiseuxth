@@ -129,21 +129,10 @@ induction pts as [| (h, ah)]; simpl.
    eapply list_Forall_inv; eassumption.
 Qed.
 
-(*
-Lemma val_of_pt_oth_pts_app : ∀ pol ns h αh,
-  ns ∈ newton_segments R pol
-  → (Qnat h, αh) ∈ oth_pts ns
-    → val_of_pt h (oth_pts ns ++ [fin_pt ns]) = αh.
-Proof.
-bbb.
-*)
-
-(*
-Lemma yyy : ∀ pol ns pl h αh,
+Lemma valuation_in_newton_segment : ∀ pol ns pl h αh,
   ns ∈ newton_segments R pol
   → pl = [ini_pt ns … oth_pts ns ++ [fin_pt ns]]
------- (Qnat h, αh) ∈ pl
-    → αh = val_of_pt h pl
+    → (Qnat h, αh) ∈ pl
       → valuation (ā R h pol) = qfin αh.
 Proof.
 intros pol ns pl h αh Hns Hpl Hαh.
@@ -154,27 +143,27 @@ remember Hns as Hfin; clear HeqHfin.
 apply exists_fin_pt_nat in Hfin.
 destruct Hfin as (k, (αk, Hfin)).
 unfold ā, ā_lap; simpl.
-subst αh pl; simpl.
-rewrite Hini; simpl.
-destruct (Qeq_dec (Qnat h) (Qnat j)) as [Hhj| Hjj].
- unfold Qeq in Hhj; simpl in Hhj.
- do 2 rewrite Z.mul_1_r in Hhj.
- apply Nat2Z.inj in Hhj; subst h.
- edestruct in_pts_in_pol; try eassumption; try reflexivity.
- apply ini_fin_ns_in_init_pts in Hns.
- rewrite Hini in Hns.
- destruct Hns; assumption.
+edestruct in_pts_in_pol; try reflexivity; try eassumption.
+subst pl.
+simpl in Hαh.
+destruct Hαh as [Hαh| Hαh].
+ rewrite Hini in Hαh.
+ injection Hαh; clear Hαh; intros HH H; subst αh.
+ apply Nat2Z.inj in H; subst h.
+ rewrite <- Hini.
+ apply ini_fin_ns_in_init_pts; assumption.
 
- destruct (Qeq_dec (Qnat h) (Qnat k)) as [Hhk| Hhk].
-  unfold Qeq in Hhk; simpl in Hhk.
-  do 2 rewrite Z.mul_1_r in Hhk.
-  apply Nat2Z.inj in Hhk; subst h.
-  edestruct in_pts_in_pol; try eassumption; try reflexivity.
-  erewrite val_of_pt_app_k with (pol := pol); try eassumption.
+ apply List.in_app_or in Hαh.
+ destruct Hαh as [Hαh| Hαh].
+  eapply oth_pts_in_init_pts; try reflexivity; try eassumption.
+
+  destruct Hαh as [Hαh| Hαh]; [ idtac | contradiction ].
+  rewrite Hfin in Hαh.
+  injection Hαh; clear Hαh; intros HH H; subst αh.
+  apply Nat2Z.inj in H; subst h.
   rewrite <- Hfin.
   apply ini_fin_ns_in_init_pts; assumption.
-bbb.
-*)
+Qed.
 
 (* [Walker, p 101] « O (āh - ah.x^αh) > 0 » (with fixed typo)
    What is called "O" (for "order") is actually the valuation. *)
