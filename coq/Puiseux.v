@@ -194,6 +194,20 @@ eapply valuation_in_newton_segment with (h := h) (αh := αh) in Hval; eauto .
  destruct m as [m| ]; [ idtac | discriminate Hval ].
  injection Hval; clear Hval; intros Hval.
  rewrite <- Hval.
+ subst s; simpl.
+ unfold cm; simpl.
+ unfold cm; simpl.
+ subst ah; simpl.
+ unfold c_x_power; simpl.
+ unfold ps_valnum_add; simpl.
+ unfold cm, cm_factor; simpl.
+ rewrite Z.mul_1_r.
+ unfold Qlt; simpl.
+ rewrite Pos2Z.inj_mul.
+ rewrite Z.mul_assoc.
+ rewrite Z.mul_shuffle0.
+ apply Z.mul_lt_mono_pos_r.
+  apply Pos2Z.is_pos.
 bbb.
 
 (* old stuff; to be used later perhaps *)
