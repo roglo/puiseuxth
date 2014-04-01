@@ -174,6 +174,7 @@ Theorem zzz : ∀ pol ns h αh ah,
     → (valuation (ā R h pol - ah * x_power R αh)%ps > qfin αh)%Qbar.
 Proof.
 intros pol ns h αh ah f' Hns Hhαh.
+bbb.
 unfold valuation, Qbar.gt.
 remember (ā R h pol - ah * x_power R αh)%ps as s eqn:Hs .
 remember (null_coeff_range_length R (ps_terms s) 0) as n eqn:Hn .
