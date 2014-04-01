@@ -214,6 +214,7 @@ eapply valuation_in_newton_segment with (h := h) (αh := αh) in Hval; eauto .
   rewrite Z.min_l.
    rewrite Z.mul_add_distr_r.
    apply Z.add_lt_mono_l.
+   (* bizarre... *)
 bbb.
 
 (* old stuff; to be used later perhaps *)

@@ -2,7 +2,7 @@ AlgCloCharPol.vo AlgCloCharPol.glob AlgCloCharPol.v.beautified: AlgCloCharPol.v 
 CharactPolyn.vo CharactPolyn.glob CharactPolyn.v.beautified: CharactPolyn.v ConvexHull.vo ConvexHullMisc.vo Misc.vo Nbar.vo Qbar.vo Newton.vo PolyConvexHull.vo Field.vo Fpolynomial.vo Puiseux_base.vo Power_series.vo Puiseux_series.vo Slope_base.vo
 ConvexHull.vo ConvexHull.glob ConvexHull.v.beautified: ConvexHull.v Slope_base.vo
 ConvexHullMisc.vo ConvexHullMisc.glob ConvexHullMisc.v.beautified: ConvexHullMisc.v ConvexHull.vo Slope_base.vo
-F1Eq.vo F1Eq.glob F1Eq.v.beautified: F1Eq.v ConvexHullMisc.vo PolyConvexHull.vo Field.vo Misc.vo Newton.vo Nbar.vo Fsummation.vo Fpolynomial.vo Power_series.vo Puiseux_series.vo Ps_add.vo Ps_mul.vo Ps_div.vo Ps_add_compat.vo Puiseux_base.vo CharactPolyn.vo AlgCloCharPol.vo
+F1Eq.vo F1Eq.glob F1Eq.v.beautified: F1Eq.v ConvexHullMisc.vo PolyConvexHull.vo Field.vo Misc.vo Newton.vo Nbar.vo Qbar.vo Fsummation.vo Fpolynomial.vo Power_series.vo Puiseux_series.vo Ps_add.vo Ps_mul.vo Ps_div.vo Ps_add_compat.vo Puiseux_base.vo CharactPolyn.vo AlgCloCharPol.vo
 Field.vo Field.glob Field.v.beautified: Field.v
 Fpolynomial.vo Fpolynomial.glob Fpolynomial.v.beautified: Fpolynomial.v Misc.vo Field.vo Fsummation.vo
 Fsummation.vo Fsummation.glob Fsummation.v.beautified: Fsummation.v Misc.vo Field.vo
@@ -26,4 +26,3 @@ Qbar.vo Qbar.glob Qbar.v.beautified: Qbar.v
 SlopeMisc.vo SlopeMisc.glob SlopeMisc.v.beautified: SlopeMisc.v Slope_base.vo Misc.vo
 Slope_base.vo Slope_base.glob Slope_base.v.beautified: Slope_base.v
 T.vo T.glob T.v.beautified: T.v
-Toto.vo Toto.glob Toto.v.beautified: Toto.v
