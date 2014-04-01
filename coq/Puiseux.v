@@ -184,7 +184,7 @@ remember (null_coeff_range_length R (ps_terms s) 0) as n eqn:Hn .
 symmetry in Hn.
 destruct n as [n| ]; [ idtac | constructor ].
 apply Qbar.qfin_lt_mono.
-assert (coeff_of_term R h tl = (ps_terms (ā R h pol)) .[ n])%K.
+assert (coeff_of_term R h tl = (ps_terms (ā R h pol)) .[ n]).
  unfold ā, ā_lap; simpl.
 bbb.
 
