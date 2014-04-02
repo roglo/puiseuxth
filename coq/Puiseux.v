@@ -309,6 +309,21 @@ eapply valuation_in_newton_segment with (h := h) (αh := αh) in Hval; eauto .
      apply Z.le_sub_le_add_l.
      rewrite Z.sub_diag, <- positive_nat_Z, <- Nat2Z.inj_mul.
      apply Nat2Z.is_nonneg.
+
+    destruct (lt_dec n (m * Pos.to_nat (ps_polord āh))) as [Hnp| Hnp].
+     apply null_coeff_range_length_iff in Hm.
+     unfold null_coeff_range_length_prop in Hm.
+     destruct Hm as (Hmi, Hm).
+     apply le_neq_lt in Hmn; [ idtac | assumption ].
+     apply Hmi in Hmn.
+     rewrite rng_add_0_r in Hn; contradiction.
+
+     apply Hnp.
+     rewrite Hp.
+     apply Nat.mul_lt_mono_pos_r.
+      apply Pos2Nat.is_pos.
+
+      apply le_neq_lt; assumption.
 bbb.
 
 (* old stuff; to be used later perhaps *)
