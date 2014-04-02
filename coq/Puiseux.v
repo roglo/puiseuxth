@@ -244,6 +244,24 @@ eapply valuation_in_newton_segment with (h := h) (αh := αh) in Hval; eauto .
        rewrite Hp in Hn.
        rewrite Nat.mod_mul in Hn; auto; simpl in Hn.
        rewrite Nat.div_mul in Hn; auto; simpl in Hn.
+       rewrite Z.mul_add_distr_r in Hn.
+       rewrite Z.add_simpl_l in Hn.
+       rewrite Z2Nat.inj_mul in Hn; simpl in Hn.
+        rewrite Nat2Z.id in Hn.
+        rewrite Nat.sub_diag in Hn.
+        rewrite <- Hp in Hn.
+        destruct (lt_dec n n) as [Hnn| Hnn].
+         revert Hnn; apply Nat.lt_irrefl.
+
+         rewrite Nat.mod_0_l in Hn; auto; simpl in Hn.
+         rewrite Nat.div_0_l in Hn; auto; simpl in Hn.
+         unfold convol_mul in Hn.
+         simpl in Hn.
+         unfold summation in Hn; simpl in Hn.
+         rewrite Nat.mod_0_l in Hn; auto; simpl in Hn.
+         rewrite Nat.div_0_l in Hn; auto; simpl in Hn.
+         rewrite rng_mul_1_r, rng_add_0_r in Hn.
+         destruct Hm as (Hmi, Hm).
 bbb.
 
 (* old stuff; to be used later perhaps *)
