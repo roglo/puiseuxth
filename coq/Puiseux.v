@@ -165,6 +165,12 @@ destruct Hαh as [Hαh| Hαh].
   apply ini_fin_ns_in_init_pts; assumption.
 Qed.
 
+Lemma yyy : ∀ h la li,
+  h ∈ li
+  → coeff_of_hl R la h li = valuation_coeff R (List.nth h la 0%ps).
+Proof.
+bbb.
+
 (* [Walker, p 101] « O (āh - ah.x^αh) > 0 » (with fixed typo)
    What is called "O" (for "order") is actually the valuation. *)
 Theorem zzz : ∀ pol ns pl tl h āh ah αh,
@@ -266,6 +272,9 @@ eapply valuation_in_newton_segment with (h := h) (αh := αh) in Hval; eauto .
          rewrite coeff_of_term_pt_eq in Hn.
          rewrite Hāh in Hn; simpl in Hn.
          unfold poly_nth, lap_nth in Hn; simpl in Hn.
+         rewrite Hāh in Hm.
+         unfold poly_nth, lap_nth in Hm.
+         unfold coeff_of_pt in Hn.
 bbb.
 
 (* old stuff; to be used later perhaps *)
