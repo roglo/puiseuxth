@@ -264,6 +264,8 @@ eapply valuation_in_newton_segment with (h := h) (αh := αh) in Hval; eauto .
          destruct Hm as (Hmi, Hm).
          rewrite Htl in Hn.
          rewrite coeff_of_term_pt_eq in Hn.
+         rewrite Hāh in Hn; simpl in Hn.
+         unfold poly_nth, lap_nth in Hn; simpl in Hn.
 bbb.
 
 (* old stuff; to be used later perhaps *)
