@@ -213,7 +213,11 @@ eapply valuation_in_newton_segment with (h := h) (αh := αh) in Hval; eauto .
   rewrite Z.min_l.
    rewrite Z.mul_add_distr_r.
    apply Z.add_lt_mono_l.
-   (* bizarre... *)
+   apply null_coeff_range_length_iff in Hm.
+   apply null_coeff_range_length_iff in Hn.
+   unfold null_coeff_range_length_prop in Hm, Hn.
+   simpl in Hm.
+   remember ps_add as f; simpl in Hn; subst f.
 bbb.
 
 (* old stuff; to be used later perhaps *)
