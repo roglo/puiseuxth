@@ -215,12 +215,22 @@ eapply valuation_in_newton_segment with (h := h) (αh := αh) in Hval; eauto .
    apply Z.add_lt_mono_l.
    rewrite <- positive_nat_Z, <- Nat2Z.inj_mul.
    apply Nat2Z.inj_lt.
-bbb.
+   apply Nat.nle_gt; intros Hmn.
    apply null_coeff_range_length_iff in Hm.
    apply null_coeff_range_length_iff in Hn.
    unfold null_coeff_range_length_prop in Hm, Hn.
    simpl in Hm.
    remember ps_add as f; simpl in Hn; subst f.
+   destruct (zerop (n mod Pos.to_nat (ps_polord āh))) as [Hnp| Hnp].
+    apply Nat.mod_divides in Hnp; auto.
+    destruct Hnp as (p, Hp).
+    rewrite Nat.mul_comm in Hp.
+    rewrite Hp in Hmn.
+    apply Nat.mul_le_mono_pos_r in Hmn; [ idtac | apply Pos2Nat.is_pos ].
+    destruct (eq_nat_dec p m) as [Hpm| Hpm].
+     subst p.
+     destruct Hn as (Hni, Hn).
+     rewrite Hp in Hn.
 bbb.
 
 (* old stuff; to be used later perhaps *)
