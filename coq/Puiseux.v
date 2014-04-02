@@ -233,6 +233,17 @@ eapply valuation_in_newton_segment with (h := h) (αh := αh) in Hval; eauto .
      remember (ps_monom (coeff_of_term R h tl) 0 * ps_monom 1%K αh)%ps as v.
      simpl in Hn.
      unfold cm, cm_factor in Hn; simpl in Hn.
+     subst v; simpl in Hn.
+     unfold cm in Hn; simpl in Hn.
+     rewrite Z.mul_1_r in Hn.
+     rewrite <- Hval in Hn; simpl in Hn.
+     rewrite Z.min_l in Hn.
+      rewrite Z.sub_diag in Hn; simpl in Hn.
+      rewrite Nat.sub_0_r in Hn.
+      rewrite Z.min_r in Hn.
+       rewrite Hp in Hn.
+       rewrite Nat.mod_mul in Hn; auto; simpl in Hn.
+       rewrite Nat.div_mul in Hn; auto; simpl in Hn.
 bbb.
 
 (* old stuff; to be used later perhaps *)
