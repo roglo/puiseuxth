@@ -324,6 +324,95 @@ eapply valuation_in_newton_segment with (h := h) (αh := αh) in Hval; eauto .
       apply Pos2Nat.is_pos.
 
       apply le_neq_lt; assumption.
+
+bbb.
+   remember (n / Pos.to_nat (ps_polord āh))%nat as p eqn:Hp .
+   assert (p < m)%nat as Hpm.
+    apply Nat.mul_lt_mono_pos_r with (p := Pos.to_nat (ps_polord āh)).
+     apply Pos2Nat.is_pos.
+
+     eapply Nat.le_lt_trans.
+      rewrite Hp.
+      rewrite Nat.mul_comm.
+      apply Nat.div_mul_le; auto.
+
+      rewrite Nat.mul_comm.
+      rewrite Nat.div_mul; auto.
+      destruct (eq_nat_dec n (m * Pos.to_nat (ps_polord āh))) as [Hnm| Hnm].
+       destruct Hn as (Hni, Hn).
+       rewrite Hnm in Hn.
+       remember (ps_monom (coeff_of_term R h tl) 0 * ps_monom 1%K αh)%ps as v.
+       simpl in Hn.
+       unfold cm, cm_factor in Hn; simpl in Hn.
+       subst v; simpl in Hn.
+       unfold cm in Hn; simpl in Hn.
+       rewrite Z.mul_1_r in Hn.
+       rewrite <- Hval in Hn; simpl in Hn.
+       rewrite Z.min_l in Hn.
+        rewrite Z.sub_diag in Hn; simpl in Hn.
+        rewrite Nat.sub_0_r in Hn.
+        rewrite Z.min_r in Hn.
+         rewrite Nat.mod_mul in Hn; auto; simpl in Hn.
+         rewrite Nat.div_mul in Hn; auto; simpl in Hn.
+         rewrite Z.mul_add_distr_r in Hn.
+         rewrite Z.add_simpl_l in Hn.
+         rewrite Z2Nat.inj_mul in Hn; simpl in Hn.
+          rewrite Nat2Z.id in Hn.
+          rewrite <- Hnm in Hn.
+          destruct (lt_dec n n) as [Hnn| Hnn].
+           exfalso; revert Hnn; apply Nat.lt_irrefl.
+
+           rewrite Nat.sub_diag in Hn; simpl in Hn.
+           rewrite Nat.mod_0_l in Hn; auto; simpl in Hn.
+           rewrite Nat.div_0_l in Hn; auto; simpl in Hn.
+           unfold convol_mul in Hn; simpl in Hn.
+           unfold summation in Hn; simpl in Hn.
+           rewrite Nat.mod_0_l in Hn; auto; simpl in Hn.
+           rewrite Nat.div_0_l in Hn; auto; simpl in Hn.
+           rewrite rng_mul_1_r, rng_add_0_r in Hn.
+           rewrite Htl in Hn.
+           rewrite coeff_of_term_pt_eq in Hn.
+           rewrite Hāh in Hn; simpl in Hn.
+           unfold poly_nth, lap_nth in Hn; simpl in Hn.
+           rewrite Hāh in Hm.
+           unfold coeff_of_pt in Hn.
+           rewrite coeff_of_hl_eq_valuation in Hn.
+            unfold valuation_coeff in Hn.
+            unfold poly_nth, lap_nth in Hm.
+            rewrite Hm in Hn.
+            rewrite rng_add_opp_r in Hn.
+            exfalso; apply Hn; reflexivity.
+
+            subst tl; simpl in Hh.
+            revert Hh; clear; intros.
+            induction pl as [| (i, ai)]; [ assumption | simpl ].
+            simpl in Hh.
+            destruct Hh as [Hh| Hh].
+             left; assumption.
+
+             right; apply IHpl; assumption.
+
+          apply Nat2Z.is_nonneg.
+
+          apply Pos2Z.is_nonneg.
+
+         rewrite Z.mul_add_distr_r.
+         apply Z.le_sub_le_add_l.
+         rewrite Z.sub_diag, <- positive_nat_Z, <- Nat2Z.inj_mul.
+         apply Nat2Z.is_nonneg.
+
+        rewrite Z.mul_add_distr_r.
+        apply Z.le_sub_le_add_l.
+        rewrite Z.sub_diag, <- positive_nat_Z, <- Nat2Z.inj_mul.
+        apply Nat2Z.is_nonneg.
+
+       apply le_neq_lt; assumption.
+
+    apply null_coeff_range_length_iff in Hm.
+    unfold null_coeff_range_length_prop in Hm.
+    destruct Hm as (Hmi, Hm).
+    simpl in Hmi, Hm.
+    apply Hmi in Hpm.
 bbb.
 
 (* old stuff; to be used later perhaps *)
