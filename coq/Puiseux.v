@@ -165,11 +165,17 @@ destruct Hαh as [Hαh| Hαh].
   apply ini_fin_ns_in_init_pts; assumption.
 Qed.
 
-Lemma yyy : ∀ h la li,
+Lemma coeff_of_hl_eq_valuation : ∀ h la li,
   h ∈ li
   → coeff_of_hl R la h li = valuation_coeff R (List.nth h la 0%ps).
 Proof.
-bbb.
+intros h la li Hh.
+induction li as [| i]; [ contradiction | simpl ].
+destruct (eq_nat_dec h i) as [| Hhi]; [ subst; reflexivity | idtac ].
+apply IHli.
+apply Nat.neq_sym in Hhi.
+destruct Hh as [Hh| ]; [ contradiction | assumption ].
+Qed.
 
 (* [Walker, p 101] « O (āh - ah.x^αh) > 0 » (with fixed typo)
    What is called "O" (for "order") is actually the valuation. *)
@@ -222,9 +228,8 @@ eapply valuation_in_newton_segment with (h := h) (αh := αh) in Hval; eauto .
    rewrite <- positive_nat_Z, <- Nat2Z.inj_mul.
    apply Nat2Z.inj_lt.
    apply Nat.nle_gt; intros Hmn.
-   apply null_coeff_range_length_iff in Hm.
    apply null_coeff_range_length_iff in Hn.
-   unfold null_coeff_range_length_prop in Hm, Hn.
+   unfold null_coeff_range_length_prop in Hn.
    simpl in Hm.
    remember ps_add as f; simpl in Hn; subst f.
    destruct (zerop (n mod Pos.to_nat (ps_polord āh))) as [Hnp| Hnp].
@@ -267,14 +272,42 @@ eapply valuation_in_newton_segment with (h := h) (αh := αh) in Hval; eauto .
          rewrite Nat.mod_0_l in Hn; auto; simpl in Hn.
          rewrite Nat.div_0_l in Hn; auto; simpl in Hn.
          rewrite rng_mul_1_r, rng_add_0_r in Hn.
-         destruct Hm as (Hmi, Hm).
          rewrite Htl in Hn.
          rewrite coeff_of_term_pt_eq in Hn.
          rewrite Hāh in Hn; simpl in Hn.
          unfold poly_nth, lap_nth in Hn; simpl in Hn.
          rewrite Hāh in Hm.
-         unfold poly_nth, lap_nth in Hm.
          unfold coeff_of_pt in Hn.
+         rewrite coeff_of_hl_eq_valuation in Hn.
+          unfold valuation_coeff in Hn.
+          unfold poly_nth, lap_nth in Hm.
+          rewrite Hm in Hn.
+          rewrite rng_add_opp_r in Hn.
+          apply Hn; reflexivity.
+
+          subst tl; simpl in Hh.
+          revert Hh; clear; intros.
+          induction pl as [| (i, ai)]; [ assumption | idtac ].
+          simpl.
+          simpl in Hh.
+          destruct Hh as [Hh| Hh].
+           left; assumption.
+
+           right; apply IHpl; assumption.
+
+        apply Nat2Z.is_nonneg.
+
+        apply Pos2Z.is_nonneg.
+
+       rewrite Z.mul_add_distr_r.
+       apply Z.le_sub_le_add_l.
+       rewrite Z.sub_diag, <- positive_nat_Z, <- Nat2Z.inj_mul.
+       apply Nat2Z.is_nonneg.
+
+      rewrite Z.mul_add_distr_r.
+      apply Z.le_sub_le_add_l.
+      rewrite Z.sub_diag, <- positive_nat_Z, <- Nat2Z.inj_mul.
+      apply Nat2Z.is_nonneg.
 bbb.
 
 (* old stuff; to be used later perhaps *)
