@@ -232,6 +232,10 @@ eapply valuation_in_newton_segment with (h := h) (αh := αh) in Hval; eauto .
      destruct Hn as (Hni, Hn).
      rewrite Hp in Hn.
 bbb.
+     simpl in Hn.
+     unfold cm, cm_factor in Hn; simpl in Hn.
+     rewrite Z.mul_1_r in Hn.
+bbb.
 
 (* old stuff; to be used later perhaps *)
 
