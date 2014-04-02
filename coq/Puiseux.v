@@ -236,29 +236,29 @@ eapply valuation_in_newton_segment with (h := h) (αh := αh) in Hval; eauto .
    rewrite Nat.mul_comm in Hp.
    rewrite Hp in Hmn.
    apply Nat.mul_le_mono_pos_r in Hmn; [ idtac | apply Pos2Nat.is_pos ].
-   destruct (eq_nat_dec p m) as [Hpm| Hpm].
-    subst p.
-    destruct Hn as (Hni, Hn).
-    remember (ps_monom (coeff_of_term R h tl) 0 * ps_monom 1%K αh)%ps as v.
-    simpl in Hn.
-    unfold cm, cm_factor in Hn; simpl in Hn.
-    subst v; simpl in Hn.
-    unfold cm in Hn; simpl in Hn.
-    rewrite Z.mul_1_r in Hn.
-    rewrite <- Hval in Hn; simpl in Hn.
-    rewrite Z.min_l in Hn.
-     rewrite Z.sub_diag in Hn; simpl in Hn.
-     rewrite Nat.sub_0_r in Hn.
-     rewrite Z.min_r in Hn.
-      rewrite Hp in Hn.
-      rewrite Nat.mod_mul in Hn; auto; simpl in Hn.
-      rewrite Nat.div_mul in Hn; auto; simpl in Hn.
-      rewrite Z.mul_add_distr_r in Hn.
-      rewrite Z.add_simpl_l in Hn.
-      rewrite Z2Nat.inj_mul in Hn; simpl in Hn.
-       rewrite Nat2Z.id in Hn.
-       rewrite Nat.sub_diag in Hn.
-       rewrite <- Hp in Hn.
+   destruct Hn as (Hni, Hn).
+   remember (ps_monom (coeff_of_term R h tl) 0 * ps_monom 1%K αh)%ps as v.
+   simpl in Hn.
+   unfold cm, cm_factor in Hn; simpl in Hn.
+   subst v; simpl in Hn.
+   unfold cm in Hn; simpl in Hn.
+   rewrite Z.mul_1_r in Hn.
+   rewrite <- Hval in Hn; simpl in Hn.
+   rewrite Z.min_l in Hn.
+    rewrite Z.sub_diag in Hn; simpl in Hn.
+    rewrite Nat.sub_0_r in Hn.
+    rewrite Z.min_r in Hn.
+     rewrite Hp in Hn.
+     rewrite Nat.mod_mul in Hn; auto; simpl in Hn.
+     rewrite Nat.div_mul in Hn; auto; simpl in Hn.
+     rewrite Z.mul_add_distr_r in Hn.
+     rewrite Z.add_simpl_l in Hn.
+     rewrite Z2Nat.inj_mul in Hn; simpl in Hn.
+      rewrite Nat2Z.id in Hn.
+      rewrite <- Hp in Hn.
+      destruct (eq_nat_dec p m) as [Hpm| Hpm].
+       subst p.
+       rewrite <- Hp, Nat.sub_diag in Hn.
        destruct (lt_dec n n) as [Hnn| Hnn].
         revert Hnn; apply Nat.lt_irrefl.
 
@@ -292,15 +292,19 @@ eapply valuation_in_newton_segment with (h := h) (αh := αh) in Hval; eauto .
 
           right; apply IHpl; assumption.
 
+       Focus 2.
        apply Nat2Z.is_nonneg.
 
-       apply Pos2Z.is_nonneg.
+      Focus 2.
+      apply Pos2Z.is_nonneg.
 
+      Focus 2.
       rewrite Z.mul_add_distr_r.
       apply Z.le_sub_le_add_l.
       rewrite Z.sub_diag, <- positive_nat_Z, <- Nat2Z.inj_mul.
       apply Nat2Z.is_nonneg.
 
+     Focus 2.
      rewrite Z.mul_add_distr_r.
      apply Z.le_sub_le_add_l.
      rewrite Z.sub_diag, <- positive_nat_Z, <- Nat2Z.inj_mul.
