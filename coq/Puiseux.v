@@ -217,97 +217,94 @@ eapply valuation_in_newton_segment with (h := h) (αh := αh) in Hval; eauto .
  rewrite Pos2Z.inj_mul.
  rewrite Z.mul_assoc.
  rewrite Z.mul_shuffle0.
- apply Z.mul_lt_mono_pos_r.
-  apply Pos2Z.is_pos.
+ apply Z.mul_lt_mono_pos_r; [ apply Pos2Z.is_pos | idtac ].
+ rewrite <- Hval; simpl.
+ rewrite Z.mul_min_distr_nonneg_r; [ idtac | apply Pos2Z.is_nonneg ].
+ rewrite Z.min_l.
+  rewrite Z.mul_add_distr_r.
+  apply Z.add_lt_mono_l.
+  rewrite <- positive_nat_Z, <- Nat2Z.inj_mul.
+  apply Nat2Z.inj_lt.
+  apply Nat.nle_gt; intros Hmn.
+  apply null_coeff_range_length_iff in Hn.
+  unfold null_coeff_range_length_prop in Hn.
+  simpl in Hm.
+  remember ps_add as f; simpl in Hn; subst f.
+  destruct (zerop (n mod Pos.to_nat (ps_polord āh))) as [Hnp| Hnp].
+   apply Nat.mod_divides in Hnp; auto.
+   destruct Hnp as (p, Hp).
+   rewrite Nat.mul_comm in Hp.
+   rewrite Hp in Hmn.
+   apply Nat.mul_le_mono_pos_r in Hmn; [ idtac | apply Pos2Nat.is_pos ].
+   destruct (eq_nat_dec p m) as [Hpm| Hpm].
+    subst p.
+    destruct Hn as (Hni, Hn).
+    remember (ps_monom (coeff_of_term R h tl) 0 * ps_monom 1%K αh)%ps as v.
+    simpl in Hn.
+    unfold cm, cm_factor in Hn; simpl in Hn.
+    subst v; simpl in Hn.
+    unfold cm in Hn; simpl in Hn.
+    rewrite Z.mul_1_r in Hn.
+    rewrite <- Hval in Hn; simpl in Hn.
+    rewrite Z.min_l in Hn.
+     rewrite Z.sub_diag in Hn; simpl in Hn.
+     rewrite Nat.sub_0_r in Hn.
+     rewrite Z.min_r in Hn.
+      rewrite Hp in Hn.
+      rewrite Nat.mod_mul in Hn; auto; simpl in Hn.
+      rewrite Nat.div_mul in Hn; auto; simpl in Hn.
+      rewrite Z.mul_add_distr_r in Hn.
+      rewrite Z.add_simpl_l in Hn.
+      rewrite Z2Nat.inj_mul in Hn; simpl in Hn.
+       rewrite Nat2Z.id in Hn.
+       rewrite Nat.sub_diag in Hn.
+       rewrite <- Hp in Hn.
+       destruct (lt_dec n n) as [Hnn| Hnn].
+        revert Hnn; apply Nat.lt_irrefl.
 
-  rewrite <- Hval; simpl.
-  rewrite Z.mul_min_distr_nonneg_r; [ idtac | apply Pos2Z.is_nonneg ].
-  rewrite Z.min_l.
-   rewrite Z.mul_add_distr_r.
-   apply Z.add_lt_mono_l.
-   rewrite <- positive_nat_Z, <- Nat2Z.inj_mul.
-   apply Nat2Z.inj_lt.
-   apply Nat.nle_gt; intros Hmn.
-   apply null_coeff_range_length_iff in Hn.
-   unfold null_coeff_range_length_prop in Hn.
-   simpl in Hm.
-   remember ps_add as f; simpl in Hn; subst f.
-   destruct (zerop (n mod Pos.to_nat (ps_polord āh))) as [Hnp| Hnp].
-    apply Nat.mod_divides in Hnp; auto.
-    destruct Hnp as (p, Hp).
-    rewrite Nat.mul_comm in Hp.
-    rewrite Hp in Hmn.
-    apply Nat.mul_le_mono_pos_r in Hmn; [ idtac | apply Pos2Nat.is_pos ].
-    destruct (eq_nat_dec p m) as [Hpm| Hpm].
-     subst p.
-     destruct Hn as (Hni, Hn).
-     remember (ps_monom (coeff_of_term R h tl) 0 * ps_monom 1%K αh)%ps as v.
-     simpl in Hn.
-     unfold cm, cm_factor in Hn; simpl in Hn.
-     subst v; simpl in Hn.
-     unfold cm in Hn; simpl in Hn.
-     rewrite Z.mul_1_r in Hn.
-     rewrite <- Hval in Hn; simpl in Hn.
-     rewrite Z.min_l in Hn.
-      rewrite Z.sub_diag in Hn; simpl in Hn.
-      rewrite Nat.sub_0_r in Hn.
-      rewrite Z.min_r in Hn.
-       rewrite Hp in Hn.
-       rewrite Nat.mod_mul in Hn; auto; simpl in Hn.
-       rewrite Nat.div_mul in Hn; auto; simpl in Hn.
-       rewrite Z.mul_add_distr_r in Hn.
-       rewrite Z.add_simpl_l in Hn.
-       rewrite Z2Nat.inj_mul in Hn; simpl in Hn.
-        rewrite Nat2Z.id in Hn.
-        rewrite Nat.sub_diag in Hn.
-        rewrite <- Hp in Hn.
-        destruct (lt_dec n n) as [Hnn| Hnn].
-         revert Hnn; apply Nat.lt_irrefl.
+        rewrite Nat.mod_0_l in Hn; auto; simpl in Hn.
+        rewrite Nat.div_0_l in Hn; auto; simpl in Hn.
+        unfold convol_mul in Hn.
+        simpl in Hn.
+        unfold summation in Hn; simpl in Hn.
+        rewrite Nat.mod_0_l in Hn; auto; simpl in Hn.
+        rewrite Nat.div_0_l in Hn; auto; simpl in Hn.
+        rewrite rng_mul_1_r, rng_add_0_r in Hn.
+        rewrite Htl in Hn.
+        rewrite coeff_of_term_pt_eq in Hn.
+        rewrite Hāh in Hn; simpl in Hn.
+        unfold poly_nth, lap_nth in Hn; simpl in Hn.
+        rewrite Hāh in Hm.
+        unfold coeff_of_pt in Hn.
+        rewrite coeff_of_hl_eq_valuation in Hn.
+         unfold valuation_coeff in Hn.
+         unfold poly_nth, lap_nth in Hm.
+         rewrite Hm in Hn.
+         rewrite rng_add_opp_r in Hn.
+         apply Hn; reflexivity.
 
-         rewrite Nat.mod_0_l in Hn; auto; simpl in Hn.
-         rewrite Nat.div_0_l in Hn; auto; simpl in Hn.
-         unfold convol_mul in Hn.
-         simpl in Hn.
-         unfold summation in Hn; simpl in Hn.
-         rewrite Nat.mod_0_l in Hn; auto; simpl in Hn.
-         rewrite Nat.div_0_l in Hn; auto; simpl in Hn.
-         rewrite rng_mul_1_r, rng_add_0_r in Hn.
-         rewrite Htl in Hn.
-         rewrite coeff_of_term_pt_eq in Hn.
-         rewrite Hāh in Hn; simpl in Hn.
-         unfold poly_nth, lap_nth in Hn; simpl in Hn.
-         rewrite Hāh in Hm.
-         unfold coeff_of_pt in Hn.
-         rewrite coeff_of_hl_eq_valuation in Hn.
-          unfold valuation_coeff in Hn.
-          unfold poly_nth, lap_nth in Hm.
-          rewrite Hm in Hn.
-          rewrite rng_add_opp_r in Hn.
-          apply Hn; reflexivity.
+         subst tl; simpl in Hh.
+         revert Hh; clear; intros.
+         induction pl as [| (i, ai)]; [ assumption | simpl ].
+         simpl in Hh.
+         destruct Hh as [Hh| Hh].
+          left; assumption.
 
-          subst tl; simpl in Hh.
-          revert Hh; clear; intros.
-          induction pl as [| (i, ai)]; [ assumption | idtac ].
-          simpl.
-          simpl in Hh.
-          destruct Hh as [Hh| Hh].
-           left; assumption.
+          right; apply IHpl; assumption.
 
-           right; apply IHpl; assumption.
-
-        apply Nat2Z.is_nonneg.
-
-        apply Pos2Z.is_nonneg.
-
-       rewrite Z.mul_add_distr_r.
-       apply Z.le_sub_le_add_l.
-       rewrite Z.sub_diag, <- positive_nat_Z, <- Nat2Z.inj_mul.
        apply Nat2Z.is_nonneg.
+
+       apply Pos2Z.is_nonneg.
 
       rewrite Z.mul_add_distr_r.
       apply Z.le_sub_le_add_l.
       rewrite Z.sub_diag, <- positive_nat_Z, <- Nat2Z.inj_mul.
       apply Nat2Z.is_nonneg.
+
+     rewrite Z.mul_add_distr_r.
+     apply Z.le_sub_le_add_l.
+     rewrite Z.sub_diag, <- positive_nat_Z, <- Nat2Z.inj_mul.
+     apply Nat2Z.is_nonneg.
 bbb.
 
 (* old stuff; to be used later perhaps *)
