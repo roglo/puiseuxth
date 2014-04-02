@@ -230,11 +230,9 @@ eapply valuation_in_newton_segment with (h := h) (αh := αh) in Hval; eauto .
     destruct (eq_nat_dec p m) as [Hpm| Hpm].
      subst p.
      destruct Hn as (Hni, Hn).
-     rewrite Hp in Hn.
-bbb.
+     remember (ps_monom (coeff_of_term R h tl) 0 * ps_monom 1%K αh)%ps as v.
      simpl in Hn.
      unfold cm, cm_factor in Hn; simpl in Hn.
-     rewrite Z.mul_1_r in Hn.
 bbb.
 
 (* old stuff; to be used later perhaps *)
