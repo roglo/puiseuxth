@@ -281,17 +281,15 @@ apply Qbar.qfin_lt_mono.
 subst s; simpl.
 unfold cm; simpl.
 rewrite Hāl; simpl.
-remember Hns as H; clear HeqH.
 remember (points_of_ps_polynom R pol) as pts eqn:Hpts .
 remember (List.nth l (al pol) 0%ps) as lps eqn:Hlps .
 remember (ps_valnum lps # ps_polord lps) as αl eqn:Hαl .
-eapply points_not_in_any_newton_segment with (h := Qnat l) (αh := αl) in H.
+eapply points_not_in_any_newton_segment with (h := Qnat l) (αh := αl) in Hns.
  2: eassumption.
 
- rewrite Hαl in H.
- unfold Qnat in H; simpl in H.
- unfold Qplus, Qmult in H.
- simpl in H.
+ rewrite Hαl in Hns.
+ unfold Qnat in Hns; simpl in Hns.
+ unfold Qplus, Qmult in Hns; simpl in Hns.
  subst lps.
  unfold poly_nth, lap_nth; simpl.
  eapply Qlt_le_trans; [ eassumption | idtac ].
