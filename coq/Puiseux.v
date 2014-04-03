@@ -354,6 +354,21 @@ eapply valuation_in_newton_segment with (h := h) (αh := αh) in Hval; eauto .
   subst pl; assumption.
 Qed.
 
+(* [Walker, p 101] « O (āl.x^(l.γ₁)) > β₁ »
+   What is called "O" (for "order") is actually the valuation. *)
+Theorem zzz : ∀ pol ns pl tl l₁ l₂ l āl,
+  let _ := Kx in
+  ns ∈ newton_segments R pol
+  → pl = [ini_pt ns … oth_pts ns ++ [fin_pt ns]]
+    → tl = List.map (term_of_point R pol) pl
+      → l₁ = List.map (λ t, power t) tl
+        → split_list (List.seq 0 (length (al pol))) l₁ l₂
+          → l ∈ l₂
+            → āl = poly_nth R l pol
+              → (valuation (āl * ps_monom 1%K (Qnat l * γ ns))%ps >
+                 qfin (β ns))%Qbar.
+Proof.
+intros pol ns pl tl l₁ l₂ l āl f' Hns Hpl Htl Hl₁ Hsl Hl Hāl.
 bbb.
 
 (* old stuff; to be used later perhaps *)
