@@ -317,6 +317,12 @@ eapply valuation_in_newton_segment with (h := h) (αh := αh) in Hval; eauto .
     apply Z.le_sub_le_add_l.
     rewrite Z.sub_diag, <- positive_nat_Z, <- Nat2Z.inj_mul.
     apply Nat2Z.is_nonneg.
+
+   rewrite rng_add_0_l in Hn.
+   rewrite Z.mul_add_distr_r in Hn.
+   rewrite Z.add_simpl_l in Hn.
+   rewrite Z2Nat.inj_mul in Hn; simpl in Hn.
+    rewrite Nat2Z.id in Hn.
 bbb.
 
    remember (n / Pos.to_nat (ps_polord āh))%nat as p eqn:Hp .
