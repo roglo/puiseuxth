@@ -257,6 +257,17 @@ eapply valuation_in_newton_segment with (h := h) (αh := αh) in Hval; eauto .
   subst pl; assumption.
 Qed.
 
+(* inspired from 'in_pts_in_pol' *)
+Lemma yyy : ∀ pol pts h hv hps def,
+  pts = points_of_ps_polynom R pol
+  → hps = List.nth h (al pol) def
+    → valuation hps = qfin hv
+      → (Qnat h, hv) ∈ pts.
+Proof.
+Abort. (*
+bbb.
+*)
+
 (* [Walker, p 101] « O (āl.x^(l.γ₁)) > β₁ »
    What is called "O" (for "order") is actually the valuation. *)
 Theorem zzz : ∀ pol ns pl tl l₁ l₂ l āl,
@@ -271,6 +282,47 @@ Theorem zzz : ∀ pol ns pl tl l₁ l₂ l āl,
               → (valuation (āl * ps_monom 1%K (Qnat l * γ ns))%ps >
                  qfin (β ns))%Qbar.
 Proof.
+intros pol ns pl tl l₁ l₂ l āl f' Hns Hpl Htl Hl₁ Hsl Hl Hāl.
+remember (āl * ps_monom 1%K (Qnat l * γ ns))%ps as s eqn:Hs .
+remember (null_coeff_range_length R (ps_terms s) 0) as n eqn:Hn .
+symmetry in Hn.
+destruct n as [n| ].
+ Focus 2.
+ unfold valuation; simpl.
+ rewrite Hn; constructor.
+
+ remember (ps_valnum āl # ps_polord āl) as t₁.
+ remember (Z.of_nat n # ps_polord āl * Qden (γ ns)) as t₂.
+ remember (t₁ + t₂) as αl eqn:Hαl; subst t₁ t₂.
+ remember (points_of_ps_polynom R pol) as pts eqn:Hpts .
+ eapply points_not_in_any_newton_segment with (h := Qnat l) (αh := αl) in Hns.
+  2: eassumption.
+
+  unfold Qnat in Hns; simpl in Hns.
+  unfold Qplus, Qmult in Hns; simpl in Hns.
+  unfold valuation, Qbar.gt.
+  rewrite Hn.
+  apply Qbar.qfin_lt_mono.
+  rewrite Hs, Hāl; simpl.
+  unfold cm; simpl.
+  subst αl.
+  simpl in Hns.
+  rewrite <- Hāl.
+  rewrite Z.mul_add_distr_r in Hns.
+  eapply Qlt_le_trans; [ eassumption | idtac ].
+  unfold Qle; simpl.
+  apply Z.eq_le_incl.
+  do 6 rewrite Pos2Z.inj_mul.
+  ring.
+
+  split.
+bbb.
+   eapply yyy; try eassumption.
+   unfold valuation; simpl.
+   subst s āl.
+   subst αl; simpl.
+bbb.
+
 intros pol ns pl tl l₁ l₂ l āl f' Hns Hpl Htl Hl₁ Hsl Hl Hāl.
 remember (ps_valnum āl # ps_polord āl) as αl eqn:Hαl .
 remember (points_of_ps_polynom R pol) as pts eqn:Hpts .
