@@ -26,109 +26,11 @@ Require Import F1Eq.
 
 Set Implicit Arguments.
 
-(* to be moved to Ps_mul.v *)
-Lemma ps_monom_mul : ∀ α (R : ring α) c₁ c₂ p₁ p₂,
-  (ps_monom c₁ p₁ * ps_monom c₂ p₂ = ps_monom (c₁ * c₂)%K (p₁ + p₂))%ps.
-Proof.
-intros α R c₁ c₂ p₁ p₂.
-unfold ps_monom, ps_mul, cm, cm_factor; simpl.
-apply mkps_morphism; try reflexivity.
-constructor; intros i; simpl.
-destruct i; simpl.
- unfold convol_mul; simpl.
- unfold summation; simpl.
- rewrite Nat.mod_0_l; auto; simpl.
- rewrite Nat.mod_0_l; auto; simpl.
- rewrite Nat.div_0_l; auto; simpl.
- rewrite Nat.div_0_l; auto; simpl.
- rewrite rng_add_0_r.
- unfold ps_mul; simpl.
- reflexivity.
-
- unfold convol_mul; simpl.
- rewrite all_0_summation_0; [ reflexivity | simpl ].
- intros j (_, Hj).
- destruct j; simpl.
-  rewrite Nat.mod_0_l; auto; simpl.
-  rewrite Nat.div_0_l; auto; simpl.
-  destruct (zerop (S i mod Pos.to_nat (Qden p₁))) as [H₁| H₁].
-   apply Nat.mod_divides in H₁; auto.
-   destruct H₁ as (c, H).
-   rewrite Nat.mul_comm in H.
-   rewrite H.
-   rewrite Nat.div_mul; auto.
-   destruct c; [ discriminate H | rewrite rng_mul_0_r; reflexivity ].
-
-   rewrite rng_mul_0_r; reflexivity.
-
-  destruct (zerop (S j mod Pos.to_nat (Qden p₂))) as [H| H].
-   apply Nat.mod_divides in H; auto.
-   destruct H as (c, H).
-   rewrite Nat.mul_comm in H.
-   rewrite H.
-   rewrite Nat.div_mul; auto.
-   destruct c; [ discriminate H | simpl ].
-   rewrite rng_mul_0_l; reflexivity.
-
-   rewrite rng_mul_0_l; reflexivity.
-Qed.
-
 Section theorems.
 
 Variable α : Type.
 Variable R : ring α.
 Let Kx := ps_ring R.
-
-Lemma val_of_pt_app_k : ∀ pol ns k αk,
-  ns ∈ newton_segments R pol
-  → fin_pt ns = (Qnat k, αk)
-    → val_of_pt k (oth_pts ns ++ [fin_pt ns]) = αk.
-Proof.
-intros pol ns k αk Hns Hfin.
-remember Hns as Hsort; clear HeqHsort.
-apply ini_oth_fin_pts_sorted in Hsort.
-apply Sorted_inv_1 in Hsort.
-remember Hns as Hden1; clear HeqHden1.
-apply oth_pts_den_1 in Hden1.
-remember (oth_pts ns) as pts eqn:Hpts .
-clear Hpts.
-induction pts as [| (h, ah)]; simpl.
- rewrite Hfin; simpl.
- destruct (Qeq_dec (Qnat k) (Qnat k)) as [| Hkk]; [ reflexivity | idtac ].
- exfalso; apply Hkk; reflexivity.
-
- destruct (Qeq_dec (Qnat k) h) as [Hkh| Hkh].
-  unfold Qeq in Hkh; simpl in Hkh.
-  apply List.Forall_inv in Hden1.
-  simpl in Hden1.
-  rewrite Hden1 in Hkh.
-  do 2 rewrite Z.mul_1_r in Hkh.
-  rename h into hq.
-  destruct hq as (h, hd).
-  simpl in Hkh.
-  subst h.
-  simpl in Hden1.
-  subst hd; simpl in Hsort.
-  rewrite Hfin in Hsort; simpl in Hsort.
-  exfalso; revert Hsort; clear; intros.
-  induction pts as [| pt]; simpl.
-   simpl in Hsort.
-   apply Sorted_inv in Hsort.
-   destruct Hsort as (_, Hrel).
-   apply HdRel_inv in Hrel.
-   unfold fst_lt in Hrel; simpl in Hrel.
-   revert Hrel; apply Qlt_irrefl.
-
-   simpl in Hsort.
-   apply IHpts.
-   eapply Sorted_minus_2nd; [ idtac | eassumption ].
-   intros x y z H₁ H₂; eapply Qlt_trans; eassumption.
-
-  apply IHpts.
-   eapply Sorted_inv_1; eassumption.
-
-   eapply list_Forall_inv; eassumption.
-Qed.
 
 Lemma valuation_in_newton_segment : ∀ pol ns pl h αh,
   ns ∈ newton_segments R pol
@@ -370,7 +272,40 @@ Theorem zzz : ∀ pol ns pl tl l₁ l₂ l āl,
                  qfin (β ns))%Qbar.
 Proof.
 intros pol ns pl tl l₁ l₂ l āl f' Hns Hpl Htl Hl₁ Hsl Hl Hāl.
-(* see points_not_in_any_newton_segment *)
+unfold valuation, Qbar.gt.
+remember (āl * ps_monom 1%K (Qnat l * γ ns))%ps as s eqn:Hs .
+remember (null_coeff_range_length R (ps_terms s) 0) as n eqn:Hn .
+symmetry in Hn.
+destruct n as [n| ]; [ idtac | constructor ].
+apply Qbar.qfin_lt_mono.
+subst s; simpl.
+unfold cm; simpl.
+rewrite Hāl; simpl.
+remember Hns as H; clear HeqH.
+remember (points_of_ps_polynom R pol) as pts eqn:Hpts .
+remember (List.nth l (al pol) 0%ps) as lps eqn:Hlps .
+remember (ps_valnum lps # ps_polord lps) as αl eqn:Hαl .
+eapply points_not_in_any_newton_segment with (h := Qnat l) (αh := αl) in H.
+ 2: eassumption.
+
+ rewrite Hαl in H.
+ unfold Qnat in H; simpl in H.
+ unfold Qplus, Qmult in H.
+ simpl in H.
+ subst lps.
+ unfold poly_nth, lap_nth; simpl.
+ eapply Qlt_le_trans; [ eassumption | idtac ].
+ unfold Qle; simpl.
+ apply Z.mul_le_mono_pos_r; [ apply Pos2Z.is_pos | idtac ].
+ apply Z.le_sub_le_add_l.
+ rewrite Z.sub_diag.
+ apply Nat2Z.is_nonneg.
+
+ split.
+  subst pts.
+  unfold points_of_ps_polynom; simpl.
+  unfold points_of_ps_lap; simpl.
+  unfold points_of_ps_polynom_gen; simpl.
 bbb.
 
 End theorems.
