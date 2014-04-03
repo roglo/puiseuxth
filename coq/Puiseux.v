@@ -282,15 +282,14 @@ subst s; simpl.
 unfold cm; simpl.
 rewrite Hāl; simpl.
 remember (points_of_ps_polynom R pol) as pts eqn:Hpts .
-remember (List.nth l (al pol) 0%ps) as lps eqn:Hlps .
-remember (ps_valnum lps # ps_polord lps) as αl eqn:Hαl .
+remember (ps_valnum āl # ps_polord āl) as αl eqn:Hαl .
 eapply points_not_in_any_newton_segment with (h := Qnat l) (αh := αl) in Hns.
  2: eassumption.
 
  rewrite Hαl in Hns.
  unfold Qnat in Hns; simpl in Hns.
  unfold Qplus, Qmult in Hns; simpl in Hns.
- subst lps.
+ subst āl.
  unfold poly_nth, lap_nth; simpl.
  eapply Qlt_le_trans; [ eassumption | idtac ].
  unfold Qle; simpl.
@@ -305,6 +304,7 @@ eapply points_not_in_any_newton_segment with (h := Qnat l) (αh := αl) in Hns.
   unfold points_of_ps_lap; simpl.
   unfold points_of_ps_lap_gen; simpl.
   subst αl; simpl.
+  unfold poly_nth, lap_nth in Hāl; simpl in Hāl.
 bbb.
 
 End theorems.
