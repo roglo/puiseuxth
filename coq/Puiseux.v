@@ -306,23 +306,39 @@ eapply valuation_in_newton_segment with (h := h) (αh := αh) in Hval; eauto .
 
       apply Pos2Z.is_nonneg.
 
-     Focus 2.
-     rewrite Z.mul_add_distr_r.
-     apply Z.le_sub_le_add_l.
-     rewrite Z.sub_diag, <- positive_nat_Z, <- Nat2Z.inj_mul.
-     apply Nat2Z.is_nonneg.
+     rewrite rng_add_0_l in Hn.
+     rewrite Z.mul_add_distr_r in Hn.
+     rewrite Z.add_simpl_l in Hn.
+     rewrite Z2Nat.inj_mul in Hn; simpl in Hn.
+      rewrite Nat2Z.id in Hn.
+      destruct (lt_dec n (m * Pos.to_nat (ps_polord āh))) as [Hnm| Hnm].
+       apply Hn; reflexivity.
 
-    Focus 2.
+       apply Hnm; clear Hnm.
+       destruct (eq_nat_dec n (m * Pos.to_nat (ps_polord āh))) as [Heq| Hne].
+        rewrite Heq in Hnp.
+        rewrite Nat.mod_mul in Hnp; auto.
+        exfalso; revert Hnp; apply Nat.lt_irrefl.
+
+        apply le_neq_lt; assumption.
+
+      apply Nat2Z.is_nonneg.
+
+      apply Pos2Z.is_nonneg.
+
     rewrite Z.mul_add_distr_r.
     apply Z.le_sub_le_add_l.
     rewrite Z.sub_diag, <- positive_nat_Z, <- Nat2Z.inj_mul.
     apply Nat2Z.is_nonneg.
 
-   rewrite rng_add_0_l in Hn.
-   rewrite Z.mul_add_distr_r in Hn.
-   rewrite Z.add_simpl_l in Hn.
-   rewrite Z2Nat.inj_mul in Hn; simpl in Hn.
-    rewrite Nat2Z.id in Hn.
+   rewrite Z.mul_add_distr_r.
+   apply Z.le_sub_le_add_l.
+   rewrite Z.sub_diag, <- positive_nat_Z, <- Nat2Z.inj_mul.
+   apply Nat2Z.is_nonneg.
+
+  apply Z.le_sub_le_add_l.
+  rewrite Z.sub_diag.
+  apply Nat2Z.is_nonneg.
 bbb.
 
    remember (n / Pos.to_nat (ps_polord āh))%nat as p eqn:Hp .
