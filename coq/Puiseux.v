@@ -274,25 +274,30 @@ Proof.
 intros pol ns pl tl l₁ l₂ l āl f' Hns Hpl Htl Hl₁ Hsl Hl Hāl.
 remember (ps_valnum āl # ps_polord āl) as αl eqn:Hαl .
 remember (points_of_ps_polynom R pol) as pts eqn:Hpts .
-eapply points_not_in_any_newton_segment with (h := Qnat l) (αh := αl) in Hns.
- 2: eassumption.
+remember (āl * ps_monom 1%K (Qnat l * γ ns))%ps as s eqn:Hs .
+remember (null_coeff_range_length R (ps_terms s) 0) as n eqn:Hn .
+symmetry in Hn.
+destruct n as [n| ].
+ eapply points_not_in_any_newton_segment with (h := Qnat l) (αh := αl) in Hns.
+  2: eassumption.
 
- rewrite Hαl in Hns.
- unfold Qnat in Hns; simpl in Hns.
- unfold Qplus, Qmult in Hns; simpl in Hns.
- unfold valuation, Qbar.gt.
- remember (āl * ps_monom 1%K (Qnat l * γ ns))%ps as s eqn:Hs .
- remember (null_coeff_range_length R (ps_terms s) 0) as n eqn:Hn .
- symmetry in Hn.
- destruct n as [n| ]; [ idtac | constructor ].
- apply Qbar.qfin_lt_mono.
- eapply Qlt_le_trans; [ eassumption | idtac ].
- unfold Qle; simpl.
- rewrite Hs, Hāl; simpl.
- apply Z.mul_le_mono_pos_r; [ apply Pos2Z.is_pos | idtac ].
- apply Z.le_sub_le_add_l.
- rewrite Z.sub_diag.
- apply Nat2Z.is_nonneg.
+  rewrite Hαl in Hns.
+  unfold Qnat in Hns; simpl in Hns.
+  unfold Qplus, Qmult in Hns; simpl in Hns.
+  unfold valuation, Qbar.gt.
+  rewrite Hn.
+  apply Qbar.qfin_lt_mono.
+  eapply Qlt_le_trans; [ eassumption | idtac ].
+  unfold Qle; simpl.
+  rewrite Hs, Hāl; simpl.
+  apply Z.mul_le_mono_pos_r; [ apply Pos2Z.is_pos | idtac ].
+  apply Z.le_sub_le_add_l.
+  rewrite Z.sub_diag.
+  apply Nat2Z.is_nonneg.
+
+  Focus 2.
+  unfold valuation; simpl.
+  rewrite Hn; constructor.
 
  split.
 bbb.
