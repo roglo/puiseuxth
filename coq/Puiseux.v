@@ -300,6 +300,7 @@ destruct n as [n| ].
   rewrite Hn; constructor.
 
  split.
+ (* cf in_pts_in_pol : ça peut peut-être me donner des idées... *)
 bbb.
 
 End theorems.
