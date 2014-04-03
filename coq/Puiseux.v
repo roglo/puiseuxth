@@ -12,6 +12,7 @@ Require Import Field.
 Require Import Fpolynomial.
 Require Import Fsummation.
 Require Import Newton.
+Require Import NotInSegment.
 Require Import ConvexHull.
 Require Import ConvexHullMisc.
 Require Import Puiseux_base.
@@ -369,6 +370,7 @@ Theorem zzz : ∀ pol ns pl tl l₁ l₂ l āl,
                  qfin (β ns))%Qbar.
 Proof.
 intros pol ns pl tl l₁ l₂ l āl f' Hns Hpl Htl Hl₁ Hsl Hl Hāl.
+(* see NotInSegment.v *)
 bbb.
 
 (* old stuff; to be used later perhaps *)
