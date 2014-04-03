@@ -76,7 +76,7 @@ intros pol pts pt Hpts Hαh.
 unfold points_of_ps_polynom, points_of_ps_lap in Hpts.
 remember (al pol) as cl; clear Heqcl.
 remember 0%nat as n in Hpts; clear Heqn.
-unfold points_of_ps_polynom_gen in Hpts.
+unfold points_of_ps_lap_gen in Hpts.
 unfold qpower_list in Hpts.
 revert n pts Hpts Hαh.
 induction cl as [| c]; intros; [ subst pts; contradiction | idtac ].

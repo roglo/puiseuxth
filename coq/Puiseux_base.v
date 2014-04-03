@@ -56,11 +56,11 @@ Fixpoint filter_finite_val α (r : ring α) (dpl : list (Q * puiseux_series α))
       []
   end.
 
-Definition points_of_ps_polynom_gen α r pow (cl : list (puiseux_series α)) :=
+Definition points_of_ps_lap_gen α r pow (cl : list (puiseux_series α)) :=
   filter_finite_val r (qpower_list pow cl).
 
 Definition points_of_ps_lap α r (lps : list (puiseux_series α)) :=
-  points_of_ps_polynom_gen r 0 lps.
+  points_of_ps_lap_gen r 0 lps.
 
 Definition points_of_ps_polynom α r (pol : polynomial (puiseux_series α)) :=
   points_of_ps_lap r (al pol).
@@ -81,37 +81,37 @@ Variable r : ring α.
 Lemma fold_points_of_ps_polynom_gen : ∀ pow (cl : list (puiseux_series α)),
   filter_finite_val r
     (List.map (pair_rec (λ pow ps, (Qnat pow, ps))) (power_list pow cl)) =
-  points_of_ps_polynom_gen r pow cl.
+  points_of_ps_lap_gen r pow cl.
 Proof. reflexivity. Qed.
 
 Lemma points_of_polyn_sorted : ∀ deg (cl : list (puiseux_series α)) pts,
-  pts = points_of_ps_polynom_gen r deg cl
+  pts = points_of_ps_lap_gen r deg cl
   → Sorted fst_lt pts.
 Proof.
 intros deg cl pts Hpts.
 destruct cl as [| c₁]; [ subst pts; constructor | idtac ].
 revert deg c₁ pts Hpts.
 induction cl as [| c]; intros.
- unfold points_of_ps_polynom_gen in Hpts; simpl in Hpts.
+ unfold points_of_ps_lap_gen in Hpts; simpl in Hpts.
  destruct (valuation c₁); subst pts; constructor; constructor.
 
- unfold points_of_ps_polynom_gen in Hpts; simpl in Hpts.
+ unfold points_of_ps_lap_gen in Hpts; simpl in Hpts.
  destruct (valuation c₁) as [q | ]; [ idtac | eapply IHcl; eassumption ].
- remember (points_of_ps_polynom_gen r (S deg) [c … cl]) as pts₁.
+ remember (points_of_ps_lap_gen r (S deg) [c … cl]) as pts₁.
  subst pts; rename pts₁ into pts; rename Heqpts₁ into Hpts.
  clear IHcl.
  clear c₁.
  revert deg c q pts Hpts.
  induction cl as [| c₂]; intros.
   simpl.
-  unfold points_of_ps_polynom_gen in Hpts; simpl in Hpts.
+  unfold points_of_ps_lap_gen in Hpts; simpl in Hpts.
   destruct (valuation c).
    constructor; constructor; [ constructor | constructor | idtac ].
    apply Qnat_lt, lt_n_Sn.
 
    constructor; constructor.
 
-  unfold points_of_ps_polynom_gen in Hpts; simpl in Hpts; simpl.
+  unfold points_of_ps_lap_gen in Hpts; simpl in Hpts; simpl.
   destruct (valuation c) as [v₂| ].
    subst pts.
    apply Sorted_LocallySorted_iff.

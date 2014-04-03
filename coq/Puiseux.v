@@ -303,7 +303,8 @@ eapply points_not_in_any_newton_segment with (h := Qnat l) (αh := αl) in Hns.
   subst pts.
   unfold points_of_ps_polynom; simpl.
   unfold points_of_ps_lap; simpl.
-  unfold points_of_ps_polynom_gen; simpl.
+  unfold points_of_ps_lap_gen; simpl.
+  subst αl; simpl.
 bbb.
 
 End theorems.
