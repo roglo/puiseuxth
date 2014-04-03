@@ -264,7 +264,7 @@ Lemma yyy : ∀ pol pts h hv hps def,
     → valuation hps = qfin hv
       → (Qnat h, hv) ∈ pts.
 Proof.
-Abort. (*
+intros pol pts h hv hps def Hpts Hhps Hv.
 bbb.
 *)
 
@@ -319,8 +319,12 @@ destruct n as [n| ].
 bbb.
    eapply yyy; try eassumption.
    unfold valuation; simpl.
-   subst s āl.
-   subst αl; simpl.
+   remember (null_coeff_range_length R (ps_terms āl) 0) as m eqn:Hm .
+   symmetry in Hm.
+   destruct m as [m| ].
+    rewrite Hs in Hn; simpl in Hn.
+    unfold cm_factor in Hn; simpl in Hn.
+    rewrite Hαl; simpl.
 bbb.
 
 intros pol ns pl tl l₁ l₂ l āl f' Hns Hpl Htl Hl₁ Hsl Hl Hāl.
