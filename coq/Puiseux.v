@@ -230,26 +230,25 @@ eapply valuation_in_newton_segment with (h := h) (αh := αh) in Hval; eauto .
   unfold null_coeff_range_length_prop in Hn.
   simpl in Hm.
   remember ps_add as f; simpl in Hn; subst f.
-  destruct (zerop (n mod Pos.to_nat (ps_polord āh))) as [Hnp| Hnp].
-   apply Nat.mod_divides in Hnp; auto.
-   destruct Hnp as (p, Hp).
-   rewrite Nat.mul_comm in Hp.
-   rewrite Hp in Hmn.
-   apply Nat.mul_le_mono_pos_r in Hmn; [ idtac | apply Pos2Nat.is_pos ].
-   destruct Hn as (Hni, Hn).
-   remember (ps_monom (coeff_of_term R h tl) 0 * ps_monom 1%K αh)%ps as v.
-   simpl in Hn.
-   unfold cm, cm_factor in Hn; simpl in Hn.
-   subst v; simpl in Hn.
-   unfold cm in Hn; simpl in Hn.
-   rewrite Z.mul_1_r in Hn.
-   rewrite <- Hval in Hn; simpl in Hn.
-   rewrite Z.min_l in Hn.
-    rewrite Z.sub_diag in Hn; simpl in Hn.
-    rewrite Nat.sub_0_r in Hn.
-    rewrite Z.min_r in Hn.
+  destruct Hn as (Hni, Hn).
+  remember (ps_monom (coeff_of_term R h tl) 0 * ps_monom 1%K αh)%ps as v.
+  simpl in Hn.
+  unfold cm, cm_factor in Hn; simpl in Hn.
+  subst v; simpl in Hn.
+  unfold cm in Hn; simpl in Hn.
+  rewrite Z.mul_1_r in Hn.
+  rewrite <- Hval in Hn; simpl in Hn.
+  rewrite Z.min_l in Hn.
+   rewrite Z.sub_diag in Hn; simpl in Hn.
+   rewrite Nat.sub_0_r in Hn.
+   rewrite Z.min_r in Hn.
+    destruct (zerop (n mod Pos.to_nat (ps_polord āh))) as [Hnp| Hnp].
+     apply Nat.mod_divides in Hnp; auto.
+     destruct Hnp as (p, Hp).
+     rewrite Nat.mul_comm in Hp.
+     rewrite Hp in Hmn.
+     apply Nat.mul_le_mono_pos_r in Hmn; [ idtac | apply Pos2Nat.is_pos ].
      rewrite Hp in Hn.
-     rewrite Nat.mod_mul in Hn; auto; simpl in Hn.
      rewrite Nat.div_mul in Hn; auto; simpl in Hn.
      rewrite Z.mul_add_distr_r in Hn.
      rewrite Z.add_simpl_l in Hn.
@@ -287,22 +286,25 @@ eapply valuation_in_newton_segment with (h := h) (αh := αh) in Hval; eauto .
          revert Hh; clear; intros.
          induction pl as [| (i, ai)]; [ assumption | simpl ].
          simpl in Hh.
-         destruct Hh as [Hh| Hh].
-          left; assumption.
+         destruct Hh as [Hh| Hh]; [ left; assumption | idtac ].
+         right; apply IHpl; assumption.
 
-          right; apply IHpl; assumption.
+       destruct (lt_dec n (m * Pos.to_nat (ps_polord āh))) as [Hnp| Hnp].
+        apply null_coeff_range_length_iff in Hm.
+        unfold null_coeff_range_length_prop in Hm.
+        destruct Hm as (Hmi, Hm).
+        apply le_neq_lt in Hmn; [ idtac | assumption ].
+        apply Hmi in Hmn.
+        rewrite rng_add_0_r in Hn; contradiction.
 
-       Focus 2.
-       apply Nat2Z.is_nonneg.
+        apply Hnp.
+        rewrite Hp.
+        apply Nat.mul_lt_mono_pos_r; [ apply Pos2Nat.is_pos | idtac ].
+        apply le_neq_lt; assumption.
 
-      Focus 2.
-      apply Pos2Z.is_nonneg.
-
-      Focus 2.
-      rewrite Z.mul_add_distr_r.
-      apply Z.le_sub_le_add_l.
-      rewrite Z.sub_diag, <- positive_nat_Z, <- Nat2Z.inj_mul.
       apply Nat2Z.is_nonneg.
+
+      apply Pos2Z.is_nonneg.
 
      Focus 2.
      rewrite Z.mul_add_distr_r.
@@ -310,22 +312,13 @@ eapply valuation_in_newton_segment with (h := h) (αh := αh) in Hval; eauto .
      rewrite Z.sub_diag, <- positive_nat_Z, <- Nat2Z.inj_mul.
      apply Nat2Z.is_nonneg.
 
-    destruct (lt_dec n (m * Pos.to_nat (ps_polord āh))) as [Hnp| Hnp].
-     apply null_coeff_range_length_iff in Hm.
-     unfold null_coeff_range_length_prop in Hm.
-     destruct Hm as (Hmi, Hm).
-     apply le_neq_lt in Hmn; [ idtac | assumption ].
-     apply Hmi in Hmn.
-     rewrite rng_add_0_r in Hn; contradiction.
-
-     apply Hnp.
-     rewrite Hp.
-     apply Nat.mul_lt_mono_pos_r.
-      apply Pos2Nat.is_pos.
-
-      apply le_neq_lt; assumption.
-
+    Focus 2.
+    rewrite Z.mul_add_distr_r.
+    apply Z.le_sub_le_add_l.
+    rewrite Z.sub_diag, <- positive_nat_Z, <- Nat2Z.inj_mul.
+    apply Nat2Z.is_nonneg.
 bbb.
+
    remember (n / Pos.to_nat (ps_polord āh))%nat as p eqn:Hp .
    assert (p < m)%nat as Hpm.
     apply Nat.mul_lt_mono_pos_r with (p := Pos.to_nat (ps_polord āh)).
