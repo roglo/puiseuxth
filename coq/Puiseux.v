@@ -320,6 +320,17 @@ destruct n as [n| ].
 
      apply valuation_inf in Hsz.
      rewrite Hsz; constructor.
+
+   unfold valuation in Hm.
+   remember (null_coeff_range_length R (ps_terms āl) 0) as p eqn:Hp .
+   symmetry in Hp.
+   destruct p as [p| ].
+    injection Hm; clear Hm; intros Hm.
+    rewrite <- Hm; simpl.
+    rewrite Z.mul_add_distr_r.
+    rewrite Z.mul_add_distr_r.
+    apply Z.add_le_mono_l.
+    apply Z.mul_le_mono_pos_r; [ apply Pos2Z.is_pos | idtac ].
 bbb.
 
 intros pol ns pl tl l₁ l₂ l āl f' Hns Hpl Htl Hl₁ Hsl Hl Hāl.
