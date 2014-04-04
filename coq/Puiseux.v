@@ -276,6 +276,7 @@ destruct cl as [| c₁]; intros; simpl.
 
   rewrite Hhps in H; discriminate H.
 
+ unfold qpower_list.
  revert pow c₁ h hv hps Hhps Hhhv Hph.
  induction cl as [| c]; intros.
   simpl in Hhhv.
@@ -294,6 +295,43 @@ destruct cl as [| c₁]; intros; simpl.
     subst hps; reflexivity.
 
     rewrite Hhps in H; discriminate H.
+
+  remember [c … cl] as x; simpl; subst x.
+  remember [c … cl] as x; simpl; subst x.
+  remember (valuation c₁) as n eqn:Hn .
+  symmetry in Hn.
+  destruct n as [n| ].
+   simpl in Hhhv.
+   remember (h - pow)%nat as hp eqn:Hhp .
+   symmetry in Hhp.
+   destruct hp.
+    subst c₁.
+    apply Nat.sub_0_le in Hhp.
+    apply Nat.le_antisymm in Hph; [ idtac | assumption ].
+    subst pow.
+    rewrite Hhps in Hn; injection Hn; intros; subst n.
+    left; reflexivity.
+
+    right.
+    Focus 2.
+    destruct (eq_nat_dec h pow) as [Hhp| Hhp].
+     subst pow.
+     rewrite Nat.sub_diag in Hhhv.
+     simpl in Hhhv.
+     subst c₁.
+     rewrite Hhps in Hn; discriminate Hn.
+
+     eapply IHcl; try eassumption.
+      2: omega.
+
+      destruct h.
+       simpl in Hhhv; simpl.
+       subst hps.
+       rewrite Hhps in Hn; discriminate Hn.
+
+       rewrite Nat.sub_succ_l in Hhhv; [ idtac | omega ].
+       rewrite Nat.sub_succ.
+       assumption.
 bbb.
 
 (* inspired from 'in_pts_in_psl *)
