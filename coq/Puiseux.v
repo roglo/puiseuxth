@@ -257,15 +257,56 @@ eapply valuation_in_newton_segment with (h := h) (αh := αh) in Hval; eauto .
   subst pl; assumption.
 Qed.
 
-(* inspired from 'in_pts_in_psl *)
-Lemma xxx : ∀ pow pts psl h hv hps def,
-  pts = filter_finite_val R (qpower_list pow psl)
-  → hps = List.nth (Z.to_nat (Qnum h) - pow) psl def
-    → valuation hps = qfin hv
-      → (h, hv) ∈ pts.
+(* inspired from 'in_pts_in_ppl *)
+Lemma www : ∀ pow cl ppl pts h hv hps,
+  ppl = qpower_list pow cl
+  → pts = filter_finite_val R ppl
+    → pow ≤ h
+      → hps = List.nth (h - pow) cl 0%ps
+        → valuation hps = qfin hv
+          → (Qnat h, hv) ∈ pts.
 Proof.
-intros pow pts psl h hv hps def Hpts Hhps Hv.
+intros pow cl ppl pts h hv hps Hppl Hpts Hph Hhhv Hhps.
+subst ppl pts.
+destruct cl as [| c₁]; intros; simpl.
+ rewrite list_nth_nil in Hhhv.
+ assert (valuation hps = qinf) as H.
+  apply valuation_inf.
+  subst hps; reflexivity.
+
+  rewrite Hhps in H; discriminate H.
+
+ revert pow c₁ h hv hps Hhps Hhhv Hph.
+ induction cl as [| c]; intros.
+  simpl in Hhhv.
+  remember (h - pow)%nat as hp eqn:Hhp .
+  symmetry in Hhp.
+  destruct hp.
+   subst c₁; simpl.
+   rewrite Hhps.
+   apply Nat.sub_0_le in Hhp.
+   apply Nat.le_antisymm in Hhp; [ idtac | assumption ].
+   subst pow; left; reflexivity.
+
+   rewrite match_id in Hhhv.
+   assert (valuation hps = qinf) as H.
+    apply valuation_inf.
+    subst hps; reflexivity.
+
+    rewrite Hhps in H; discriminate H.
 bbb.
+
+(* inspired from 'in_pts_in_psl *)
+Lemma xxx : ∀ pow pts psl h hv hps,
+  pts = filter_finite_val R (qpower_list pow psl)
+  → pow ≤ h
+    → hps = List.nth (h - pow) psl 0%ps
+      → valuation hps = qfin hv
+        → (Qnat h, hv) ∈ pts.
+Proof.
+intros pow pts psl h hv hps Hpts Hph Hhps Hv.
+eapply www; try eassumption; reflexivity.
+qed.
 
 (* inspired from 'in_pts_in_pol' *)
 Lemma yyy : ∀ pol pts h hv hps def,

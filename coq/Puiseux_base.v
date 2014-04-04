@@ -78,6 +78,21 @@ Section theorems.
 Variable α : Type.
 Variable r : ring α.
 
+Lemma valuation_inf : ∀ x, valuation x = qinf ↔ (x = 0)%ps.
+Proof.
+intros x.
+split; intros H.
+ apply null_coeff_range_length_inf_iff.
+ unfold valuation in H.
+ remember (null_coeff_range_length r (ps_terms x) 0) as n eqn:Hn .
+ symmetry in Hn.
+ destruct n as [n| ]; [ discriminate H | reflexivity ].
+
+ apply null_coeff_range_length_inf_iff in H.
+ unfold valuation.
+ rewrite H; reflexivity.
+Qed.
+
 Lemma fold_points_of_ps_polynom_gen : ∀ pow (cl : list (puiseux_series α)),
   filter_finite_val r
     (List.map (pair_rec (λ pow ps, (Qnat pow, ps))) (power_list pow cl)) =
