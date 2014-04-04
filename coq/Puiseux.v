@@ -332,7 +332,22 @@ destruct cl as [| c₁]; intros; simpl.
        rewrite Nat.sub_succ_l in Hhhv; [ idtac | omega ].
        rewrite Nat.sub_succ.
        assumption.
-bbb.
+
+   destruct hp.
+    subst hps.
+    eapply IHcl; try eassumption.
+     replace h with (S pow) by omega.
+     rewrite Nat.sub_diag; reflexivity.
+
+     omega.
+
+    eapply IHcl; try eassumption.
+     2: omega.
+
+     replace h with (S hp + S pow)%nat by omega.
+     rewrite Nat.add_sub.
+     assumption.
+qed.
 
 (* inspired from 'in_pts_in_psl *)
 Lemma xxx : ∀ pow pts psl h hv hps,
