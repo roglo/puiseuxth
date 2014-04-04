@@ -257,6 +257,37 @@ eapply valuation_in_newton_segment with (h := h) (αh := αh) in Hval; eauto .
   subst pl; assumption.
 Qed.
 
+Lemma xxx : ∀ l l₁ l₂ x,
+  Sorted Nat.lt l
+  → split_list l l₁ l₂
+    → x ∈ l₁
+      → x ∉ l₂.
+Proof.
+intros l l₁ l₂ x Hsort Hs Hx Hy.
+bbb.
+revert l₁ l₂ x Hs Hx Hy.
+induction l as [| a]; intros.
+ inversion Hs; subst; contradiction.
+
+ inversion Hs; subst.
+  destruct Hx as [Hx| Hx].
+   subst a.
+   revert Hsort Hy Hs; clear; intros.
+   apply List.in_split in Hy.
+   destruct Hy as (l1, (l2, Hy)).
+   subst l₂.
+   rename l₁0 into l₁.
+   revert x l₁ l2 Hsort Hs.
+   induction l1 as [| a]; intros.
+    simpl in Hs.
+    inversion Hs; subst.
+     inversion H3; subst.
+      rename x0 into y.
+      rename l₁0 into l₁.
+      rename l0 into l.
+      inversion H3; subst.
+bbb.
+
 Lemma yyy : ∀ b len l₁ l₂ x,
   split_list (List.seq b len) l₁ l₂
   → x ∈ l₂
