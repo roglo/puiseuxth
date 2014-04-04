@@ -379,38 +379,44 @@ destruct n as [n| ].
      exfalso; fast_omega Hin Hinn Hc.
 
      reflexivity.
+
+  intros Hlm.
+  assert ((Qnat l, m) ∈ pl) as Hplm.
+   rewrite Hpl.
+   destruct Hlm as [Hlm| Hlm].
+    left; assumption.
+
+    destruct Hlm as [Hlm| Hlm].
+     right.
+     apply List.in_or_app.
+     right; left; assumption.
+
+     right.
+     apply List.in_or_app.
+     left; assumption.
+
+   clear Hlm.
+   apply ini_oth_fin_pts_sorted in Hns.
+   rewrite <- Hpl in Hns.
+   subst tl.
+   rewrite List.map_map in Hl₁.
+   simpl in Hl₁.
 bbb.
-
-intros pol ns pl tl l₁ l₂ l āl f' Hns Hpl Htl Hl₁ Hsl Hl Hāl.
-remember (ps_valnum āl # ps_polord āl) as αl eqn:Hαl .
-remember (points_of_ps_polynom R pol) as pts eqn:Hpts .
-remember (āl * ps_monom 1%K (Qnat l * γ ns))%ps as s eqn:Hs .
-remember (null_coeff_range_length R (ps_terms s) 0) as n eqn:Hn .
-symmetry in Hn.
-destruct n as [n| ].
- eapply points_not_in_any_newton_segment with (h := Qnat l) (αh := αl) in Hns.
-  2: eassumption.
-
-  rewrite Hαl in Hns.
-  unfold Qnat in Hns; simpl in Hns.
-  unfold Qplus, Qmult in Hns; simpl in Hns.
-  unfold valuation, Qbar.gt.
-  rewrite Hn.
-  apply Qbar.qfin_lt_mono.
-  eapply Qlt_le_trans; [ eassumption | idtac ].
-  unfold Qle; simpl.
-  rewrite Hs, Hāl; simpl.
-  apply Z.mul_le_mono_pos_r; [ apply Pos2Z.is_pos | idtac ].
-  apply Z.le_sub_le_add_l.
-  rewrite Z.sub_diag.
-  apply Nat2Z.is_nonneg.
-
-  Focus 2.
-  unfold valuation; simpl.
-  rewrite Hn; constructor.
-
- split.
- (* cf in_pts_in_pol : ça peut peut-être me donner des idées... *)
+   revert Hsl Hl Hl₁ Hplm Hns; clear; intros.
+   revert l₁ l₂ Hsl Hl Hl₁.
+   induction pl as [| p]; intros; [ contradiction | simpl ].
+   destruct Hplm as [Hplm| Hplm].
+    subst p.
+    simpl in Hl₁.
+    subst l₁.
+    rewrite nofq_Qnat in Hsl.
+    apply List.in_split in Hl.
+    destruct Hl as (l1, (l2, Hl)).
+    subst l₂.
+    revert Hsl Hns; clear; intros.
+    induction l1 as [| x].
+     simpl in Hsl.
+     inversion Hsl; subst.
 bbb.
 
 End theorems.
