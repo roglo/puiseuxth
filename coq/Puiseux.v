@@ -324,13 +324,25 @@ destruct n as [n| ].
    unfold valuation in Hm.
    remember (null_coeff_range_length R (ps_terms āl) 0) as p eqn:Hp .
    symmetry in Hp.
-   destruct p as [p| ].
-    injection Hm; clear Hm; intros Hm.
-    rewrite <- Hm; simpl.
-    rewrite Z.mul_add_distr_r.
-    rewrite Z.mul_add_distr_r.
-    apply Z.add_le_mono_l.
-    apply Z.mul_le_mono_pos_r; [ apply Pos2Z.is_pos | idtac ].
+   destruct p as [p| ]; [ idtac | discriminate Hm ].
+   injection Hm; clear Hm; intros Hm.
+   rewrite <- Hm; simpl.
+   rewrite Z.mul_add_distr_r.
+   rewrite Z.mul_add_distr_r.
+   apply Z.add_le_mono_l.
+   apply Z.mul_le_mono_pos_r; [ apply Pos2Z.is_pos | idtac ].
+   rewrite <- positive_nat_Z.
+   rewrite <- Nat2Z.inj_mul.
+   apply Nat2Z.inj_le.
+bbb.
+   rewrite Hs in Hn; simpl in Hn.
+   unfold cm_factor in Hn; simpl in Hn.
+   apply null_coeff_range_length_iff in Hn.
+   apply null_coeff_range_length_iff in Hp.
+   unfold null_coeff_range_length_prop in Hn, Hp.
+   simpl in Hn, Hp.
+   destruct Hn as (Hni, Hn).
+   destruct Hp as (Hpi, Hp).
 bbb.
 
 intros pol ns pl tl l₁ l₂ l āl f' Hns Hpl Htl Hl₁ Hsl Hl Hāl.
