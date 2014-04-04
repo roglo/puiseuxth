@@ -334,7 +334,6 @@ destruct n as [n| ].
    rewrite <- positive_nat_Z.
    rewrite <- Nat2Z.inj_mul.
    apply Nat2Z.inj_le.
-bbb.
    rewrite Hs in Hn; simpl in Hn.
    unfold cm_factor in Hn; simpl in Hn.
    apply null_coeff_range_length_iff in Hn.
@@ -343,6 +342,33 @@ bbb.
    simpl in Hn, Hp.
    destruct Hn as (Hni, Hn).
    destruct Hp as (Hpi, Hp).
+   destruct (zerop (n mod Pos.to_nat (Qden (γ ns)))) as [Hnz| Hnz].
+    apply Nat.mod_divides in Hnz.
+     destruct Hnz as (q, Hq).
+     destruct (lt_dec q p) as [Hqp| Hqp].
+      remember Hqp as Hqp_v; clear HeqHqp_v.
+      apply Hpi in Hqp.
+      rename Hqp into Haq.
+      rename Hqp_v into Hqp.
+      remember (Pos.to_nat (Qden (γ ns))) as g eqn:Hg .
+      symmetry in Hg.
+      destruct g; [ rewrite Nat.mul_0_r; apply Nat.le_0_l | idtac ].
+      destruct g.
+       rewrite Nat.mul_1_l in Hq.
+       subst q.
+       rewrite <- Pos2Nat.inj_1 in Hg.
+       apply Pos2Nat.inj in Hg.
+       rewrite Hg in Hni, Hn.
+       unfold convol_mul in Hn.
+       rewrite all_0_summation_0 in Hn.
+        exfalso; apply Hn; reflexivity.
+
+        intros i (_, Hin).
+        rewrite series_stretch_1.
+        rewrite Hpi.
+         rewrite rng_mul_0_l; reflexivity.
+
+         eapply Nat.le_lt_trans; eassumption.
 bbb.
 
 intros pol ns pl tl l₁ l₂ l āl f' Hns Hpl Htl Hl₁ Hsl Hl Hāl.
