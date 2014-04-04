@@ -257,6 +257,40 @@ eapply valuation_in_newton_segment with (h := h) (αh := αh) in Hval; eauto .
   subst pl; assumption.
 Qed.
 
+Lemma yyy : ∀ b len l₁ l₂ x,
+  split_list (List.seq b len) l₁ l₂
+  → x ∈ l₂
+    → x ∉ l₁.
+Proof.
+intros b len l₁ l₂ x Hs Hx Hy.
+bbb.
+apply List.in_split in Hx.
+apply List.in_split in Hy.
+destruct Hx as (m1, (m2, Hm)).
+destruct Hy as (n1, (n2, Hn)).
+subst l₁ l₂.
+revert m1 Hs.
+induction n1; intros.
+ simpl in Hs.
+ induction m1.
+  simpl in Hs.
+  inversion Hs; subst.
+   destruct len; [ discriminate H | idtac ].
+   simpl in H.
+   injection H; clear H; intros; subst x l.
+   simpl in Hs.
+   clear Hs.
+   revert H3; clear; intros H.
+   revert b m2 n2 H.
+   induction len; intros.
+    simpl in H.
+    inversion H.
+
+    simpl in H.
+    inversion H.
+     subst x n2 l₂ l.
+bbb.
+
 (* [Walker, p 101] « O (āl.x^(l.γ₁)) > β₁ »
    What is called "O" (for "order") is actually the valuation. *)
 Theorem zzz : ∀ pol ns pl tl l₁ l₂ l āl,
