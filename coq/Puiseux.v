@@ -257,6 +257,16 @@ eapply valuation_in_newton_segment with (h := h) (αh := αh) in Hval; eauto .
   subst pl; assumption.
 Qed.
 
+(* inspired from 'in_pts_in_psl *)
+Lemma xxx : ∀ pow pts psl h hv hps def,
+  pts = filter_finite_val R (qpower_list pow psl)
+  → hps = List.nth (Z.to_nat (Qnum h) - pow) psl def
+    → valuation hps = qfin hv
+      → (h, hv) ∈ pts.
+Proof.
+intros pow pts psl h hv hps def Hpts Hhps Hv.
+bbb.
+
 (* inspired from 'in_pts_in_pol' *)
 Lemma yyy : ∀ pol pts h hv hps def,
   pts = points_of_ps_polynom R pol
@@ -265,8 +275,11 @@ Lemma yyy : ∀ pol pts h hv hps def,
       → (Qnat h, hv) ∈ pts.
 Proof.
 intros pol pts h hv hps def Hpts Hhps Hv.
-bbb.
-*)
+eapply xxx; try eassumption.
+rewrite Nat.sub_0_r.
+unfold Qnat; simpl.
+rewrite Nat2Z.id; eassumption.
+qed.
 
 (* [Walker, p 101] « O (āl.x^(l.γ₁)) > β₁ »
    What is called "O" (for "order") is actually the valuation. *)
