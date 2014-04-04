@@ -280,40 +280,46 @@ destruct n as [n| ].
  unfold valuation; simpl.
  rewrite Hn; constructor.
 
- remember (ps_valnum āl # ps_polord āl) as t₁.
- remember (Z.of_nat n # ps_polord āl * Qden (γ ns)) as t₂.
- remember (t₁ + t₂) as αl eqn:Hαl; subst t₁ t₂.
  remember (points_of_ps_polynom R pol) as pts eqn:Hpts .
- eapply points_not_in_any_newton_segment with (h := Qnat l) (αh := αl) in Hns.
-  2: eassumption.
+ remember Hpts as Hval; clear HeqHval.
+ remember (valuation āl) as m eqn:Hm .
+ symmetry in Hm.
+ destruct m as [m| ].
+  eapply in_pol_in_pts in Hval; try eassumption.
+  eapply points_not_in_any_newton_segment in Hns; try eassumption.
+   2: split; [ eassumption | idtac ].
+   unfold valuation, Qbar.gt.
+   rewrite Hn.
+   apply Qbar.qfin_lt_mono.
+   rewrite Hs, Hāl; simpl.
+   unfold cm; simpl.
+   rewrite <- Hāl.
+   eapply Qlt_le_trans; [ eassumption | idtac ].
+   unfold Qle; simpl.
+   do 2 rewrite Pos2Z.inj_mul.
+   do 2 rewrite Z.mul_assoc.
+   apply Z.mul_le_mono_pos_r; [ apply Pos2Z.is_pos | idtac ].
+   rewrite Z.mul_add_distr_r.
+   rewrite Z.mul_add_distr_r.
+   rewrite Z.mul_add_distr_r.
+   rewrite Z.add_shuffle0.
+   apply Z.add_le_mono.
+    Focus 2.
+    rewrite Z.mul_shuffle0; reflexivity.
 
-  unfold Qnat in Hns; simpl in Hns.
-  unfold Qplus, Qmult in Hns; simpl in Hns.
-  unfold valuation, Qbar.gt.
-  rewrite Hn.
-  apply Qbar.qfin_lt_mono.
-  rewrite Hs, Hāl; simpl.
-  unfold cm; simpl.
-  subst αl.
-  simpl in Hns.
-  rewrite <- Hāl.
-  rewrite Z.mul_add_distr_r in Hns.
-  eapply Qlt_le_trans; [ eassumption | idtac ].
-  unfold Qle; simpl.
-  apply Z.eq_le_incl.
-  do 6 rewrite Pos2Z.inj_mul.
-  ring.
+    Focus 3.
+    unfold valuation in Hm.
+    remember (null_coeff_range_length R (ps_terms āl) 0) as v eqn:Hv .
+    symmetry in Hv.
+    destruct v; [ discriminate Hm | idtac ].
+    apply null_coeff_range_length_inf_iff in Hv.
+    assert (s = 0)%ps as Hsz.
+     rewrite Hs.
+     rewrite Hv.
+     rewrite ps_mul_0_l; reflexivity.
 
-  split.
-   eapply in_pol_in_pts; try eassumption.
-bbb.
-   unfold valuation; simpl.
-   remember (null_coeff_range_length R (ps_terms āl) 0) as m eqn:Hm .
-   symmetry in Hm.
-   destruct m as [m| ].
-    rewrite Hs in Hn; simpl in Hn.
-    unfold cm_factor in Hn; simpl in Hn.
-    rewrite Hαl; simpl.
+     apply valuation_inf in Hsz.
+     rewrite Hsz; constructor.
 bbb.
 
 intros pol ns pl tl l₁ l₂ l āl f' Hns Hpl Htl Hl₁ Hsl Hl Hāl.
