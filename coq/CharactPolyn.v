@@ -831,6 +831,119 @@ eapply in_pts_in_psl; try eassumption.
 simpl; rewrite Nat.sub_0_r, Nat2Z.id; eassumption.
 Qed.
 
+Lemma in_ppl_in_pts : ∀ pow cl ppl pts h hv hps,
+  ppl = qpower_list pow cl
+  → pts = filter_finite_val r ppl
+    → pow ≤ h
+      → hps = List.nth (h - pow) cl 0%ps
+        → valuation hps = qfin hv
+          → (Qnat h, hv) ∈ pts.
+Proof.
+(* peut-être améliorable, simplifiable ; voir pourquoi cas cl=[] est à part ;
+   et voir les deux cas de h - pow plus bas *)
+intros pow cl ppl pts h hv hps Hppl Hpts Hph Hhhv Hhps.
+subst ppl pts.
+destruct cl as [| c₁]; intros; simpl.
+ rewrite list_nth_nil in Hhhv.
+ assert (valuation hps = qinf) as H.
+  apply valuation_inf.
+  subst hps; reflexivity.
+
+  rewrite Hhps in H; discriminate H.
+
+ unfold qpower_list.
+ revert pow c₁ h hv hps Hhps Hhhv Hph.
+ induction cl as [| c]; intros.
+  simpl in Hhhv.
+  remember (h - pow)%nat as hp eqn:Hhp .
+  symmetry in Hhp.
+  destruct hp.
+   subst c₁; simpl.
+   rewrite Hhps.
+   apply Nat.sub_0_le in Hhp.
+   apply Nat.le_antisymm in Hhp; [ idtac | assumption ].
+   subst pow; left; reflexivity.
+
+   rewrite match_id in Hhhv.
+   assert (valuation hps = qinf) as H.
+    apply valuation_inf.
+    subst hps; reflexivity.
+
+    rewrite Hhps in H; discriminate H.
+
+  remember [c … cl] as x; simpl; subst x.
+  remember [c … cl] as x; simpl; subst x.
+  remember (valuation c₁) as n eqn:Hn .
+  symmetry in Hn.
+  destruct n as [n| ].
+   simpl in Hhhv.
+   remember (h - pow)%nat as hp eqn:Hhp .
+   symmetry in Hhp.
+   destruct hp.
+    subst c₁.
+    apply Nat.sub_0_le in Hhp.
+    apply Nat.le_antisymm in Hph; [ idtac | assumption ].
+    subst pow.
+    rewrite Hhps in Hn; injection Hn; intros; subst n.
+    left; reflexivity.
+
+    right.
+    destruct hp.
+     subst hps.
+     apply Nat.add_sub_eq_nz in Hhp; [ idtac | intros H; discriminate H ].
+     rewrite Nat.add_1_r in Hhp.
+     eapply IHcl; try eassumption.
+      rewrite Hhp, Nat.sub_diag; reflexivity.
+
+      rewrite Hhp; reflexivity.
+
+     apply Nat.add_sub_eq_nz in Hhp; [ idtac | intros H; discriminate H ].
+     rewrite Nat.add_succ_r, <- Nat.add_succ_l in Hhp.
+     eapply IHcl; try eassumption.
+      erewrite <- Hhp.
+      rewrite Nat.add_comm, Nat.add_sub; assumption.
+
+      rewrite <- Hhp.
+      apply le_plus_l.
+
+   destruct (eq_nat_dec h pow) as [Hhp| Hhp].
+    subst pow.
+    rewrite Nat.sub_diag in Hhhv.
+    simpl in Hhhv.
+    subst c₁.
+    rewrite Hhps in Hn; discriminate Hn.
+
+    eapply IHcl; try eassumption.
+     destruct h.
+      simpl in Hhhv; simpl.
+      subst hps.
+      rewrite Hhps in Hn; discriminate Hn.
+
+      rewrite Nat.sub_succ_l in Hhhv.
+       rewrite Nat.sub_succ; assumption.
+
+       apply Nat.neq_sym in Hhp.
+       apply le_neq_lt in Hhp; [ idtac | assumption ].
+       apply le_S_n; assumption.
+
+     apply Nat.neq_sym in Hhp.
+     apply le_neq_lt in Hhp; [ idtac | assumption ].
+     assumption.
+Qed.
+
+Lemma in_pol_in_pts : ∀ pol pts h hv hps,
+  pts = points_of_ps_polynom r pol
+  → hps = List.nth h (al pol) 0%ps
+    → valuation hps = qfin hv
+      → (Qnat h, hv) ∈ pts.
+Proof.
+intros pol pts h hv hps Hpts Hhps Hv.
+eapply in_ppl_in_pts; try eassumption; try reflexivity.
+ apply Nat.le_0_l.
+
+ rewrite Nat.sub_0_r; assumption.
+Qed.
+
 Lemma p_mq_formula : ∀ m j k mj mk g,
   (0 < k - j)%Z
   → g = Z.gcd (mj - mk) (k - j)

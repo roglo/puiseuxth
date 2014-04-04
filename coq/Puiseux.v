@@ -257,124 +257,6 @@ eapply valuation_in_newton_segment with (h := h) (αh := αh) in Hval; eauto .
   subst pl; assumption.
 Qed.
 
-(* inspired from 'in_pts_in_ppl *)
-Lemma www : ∀ pow cl ppl pts h hv hps,
-  ppl = qpower_list pow cl
-  → pts = filter_finite_val R ppl
-    → pow ≤ h
-      → hps = List.nth (h - pow) cl 0%ps
-        → valuation hps = qfin hv
-          → (Qnat h, hv) ∈ pts.
-Proof.
-intros pow cl ppl pts h hv hps Hppl Hpts Hph Hhhv Hhps.
-subst ppl pts.
-destruct cl as [| c₁]; intros; simpl.
- rewrite list_nth_nil in Hhhv.
- assert (valuation hps = qinf) as H.
-  apply valuation_inf.
-  subst hps; reflexivity.
-
-  rewrite Hhps in H; discriminate H.
-
- unfold qpower_list.
- revert pow c₁ h hv hps Hhps Hhhv Hph.
- induction cl as [| c]; intros.
-  simpl in Hhhv.
-  remember (h - pow)%nat as hp eqn:Hhp .
-  symmetry in Hhp.
-  destruct hp.
-   subst c₁; simpl.
-   rewrite Hhps.
-   apply Nat.sub_0_le in Hhp.
-   apply Nat.le_antisymm in Hhp; [ idtac | assumption ].
-   subst pow; left; reflexivity.
-
-   rewrite match_id in Hhhv.
-   assert (valuation hps = qinf) as H.
-    apply valuation_inf.
-    subst hps; reflexivity.
-
-    rewrite Hhps in H; discriminate H.
-
-  remember [c … cl] as x; simpl; subst x.
-  remember [c … cl] as x; simpl; subst x.
-  remember (valuation c₁) as n eqn:Hn .
-  symmetry in Hn.
-  destruct n as [n| ].
-   simpl in Hhhv.
-   remember (h - pow)%nat as hp eqn:Hhp .
-   symmetry in Hhp.
-   destruct hp.
-    subst c₁.
-    apply Nat.sub_0_le in Hhp.
-    apply Nat.le_antisymm in Hph; [ idtac | assumption ].
-    subst pow.
-    rewrite Hhps in Hn; injection Hn; intros; subst n.
-    left; reflexivity.
-
-    right.
-    Focus 2.
-    destruct (eq_nat_dec h pow) as [Hhp| Hhp].
-     subst pow.
-     rewrite Nat.sub_diag in Hhhv.
-     simpl in Hhhv.
-     subst c₁.
-     rewrite Hhps in Hn; discriminate Hn.
-
-     eapply IHcl; try eassumption.
-      2: omega.
-
-      destruct h.
-       simpl in Hhhv; simpl.
-       subst hps.
-       rewrite Hhps in Hn; discriminate Hn.
-
-       rewrite Nat.sub_succ_l in Hhhv; [ idtac | omega ].
-       rewrite Nat.sub_succ.
-       assumption.
-
-   destruct hp.
-    subst hps.
-    eapply IHcl; try eassumption.
-     replace h with (S pow) by omega.
-     rewrite Nat.sub_diag; reflexivity.
-
-     omega.
-
-    eapply IHcl; try eassumption.
-     2: omega.
-
-     replace h with (S hp + S pow)%nat by omega.
-     rewrite Nat.add_sub.
-     assumption.
-qed.
-
-(* inspired from 'in_pts_in_psl *)
-Lemma xxx : ∀ pow pts psl h hv hps,
-  pts = filter_finite_val R (qpower_list pow psl)
-  → pow ≤ h
-    → hps = List.nth (h - pow) psl 0%ps
-      → valuation hps = qfin hv
-        → (Qnat h, hv) ∈ pts.
-Proof.
-intros pow pts psl h hv hps Hpts Hph Hhps Hv.
-eapply www; try eassumption; reflexivity.
-qed.
-
-(* inspired from 'in_pts_in_pol' *)
-Lemma yyy : ∀ pol pts h hv hps def,
-  pts = points_of_ps_polynom R pol
-  → hps = List.nth h (al pol) def
-    → valuation hps = qfin hv
-      → (Qnat h, hv) ∈ pts.
-Proof.
-intros pol pts h hv hps def Hpts Hhps Hv.
-eapply xxx; try eassumption.
-rewrite Nat.sub_0_r.
-unfold Qnat; simpl.
-rewrite Nat2Z.id; eassumption.
-qed.
-
 (* [Walker, p 101] « O (āl.x^(l.γ₁)) > β₁ »
    What is called "O" (for "order") is actually the valuation. *)
 Theorem zzz : ∀ pol ns pl tl l₁ l₂ l āl,
@@ -423,8 +305,8 @@ destruct n as [n| ].
   ring.
 
   split.
+   eapply in_pol_in_pts; try eassumption.
 bbb.
-   eapply yyy; try eassumption.
    unfold valuation; simpl.
    remember (null_coeff_range_length R (ps_terms āl) 0) as m eqn:Hm .
    symmetry in Hm.
