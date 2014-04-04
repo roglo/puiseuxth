@@ -342,33 +342,43 @@ destruct n as [n| ].
    simpl in Hn, Hp.
    destruct Hn as (Hni, Hn).
    destruct Hp as (Hpi, Hp).
-   destruct (zerop (n mod Pos.to_nat (Qden (γ ns)))) as [Hnz| Hnz].
-    apply Nat.mod_divides in Hnz.
-     destruct Hnz as (q, Hq).
-     destruct (lt_dec q p) as [Hqp| Hqp].
-      remember Hqp as Hqp_v; clear HeqHqp_v.
-      apply Hpi in Hqp.
-      rename Hqp into Haq.
-      rename Hqp_v into Hqp.
-      remember (Pos.to_nat (Qden (γ ns))) as g eqn:Hg .
-      symmetry in Hg.
-      destruct g; [ rewrite Nat.mul_0_r; apply Nat.le_0_l | idtac ].
-      destruct g.
-       rewrite Nat.mul_1_l in Hq.
-       subst q.
-       rewrite <- Pos2Nat.inj_1 in Hg.
-       apply Pos2Nat.inj in Hg.
-       rewrite Hg in Hni, Hn.
-       unfold convol_mul in Hn.
-       rewrite all_0_summation_0 in Hn.
-        exfalso; apply Hn; reflexivity.
+   unfold convol_mul in Hn.
+   rewrite summation_only_one_non_0 with (v := n) in Hn.
+    rewrite Nat.sub_diag in Hn; simpl in Hn.
+    rewrite Nat.mod_0_l in Hn; auto; simpl in Hn.
+    rewrite Nat.div_0_l in Hn; auto; simpl in Hn.
+    rewrite rng_mul_1_r in Hn.
+    destruct (zerop (n mod Pos.to_nat (Qden (γ ns)))) as [Hng| Hng].
+     2: exfalso; apply Hn; reflexivity.
 
-        intros i (_, Hin).
-        rewrite series_stretch_1.
-        rewrite Hpi.
-         rewrite rng_mul_0_l; reflexivity.
+     apply Nat.mod_divides in Hng; auto.
+     destruct Hng as (g, Hg).
+     rewrite Hg, Nat.mul_comm.
+     apply Nat.mul_le_mono_l.
+     rewrite Hg in Hn.
+     rewrite Nat.mul_comm in Hn.
+     rewrite Nat.div_mul in Hn; auto.
+     apply Nat.nlt_ge.
+     intros H.
+     apply Hpi in H.
+     contradiction.
 
-         eapply Nat.le_lt_trans; eassumption.
+    split; [ apply Nat.le_0_l | reflexivity ].
+
+    intros i (_, Hin) Hinn.
+    apply rng_mul_eq_0.
+    right.
+    unfold series_stretch; simpl.
+    destruct (zerop ((n - i) mod Pos.to_nat (ps_polord āl))) as [Hz| Hz].
+     apply Nat.mod_divides in Hz; auto.
+     destruct Hz as (c, Hc).
+     rewrite Nat.mul_comm in Hc; rewrite Hc.
+     rewrite Nat.div_mul; auto.
+     destruct c; [ idtac | reflexivity ].
+     rewrite Nat.mul_0_l in Hc.
+     exfalso; fast_omega Hin Hinn Hc.
+
+     reflexivity.
 bbb.
 
 intros pol ns pl tl l₁ l₂ l āl f' Hns Hpl Htl Hl₁ Hsl Hl Hāl.
