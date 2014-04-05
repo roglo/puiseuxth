@@ -367,6 +367,34 @@ destruct Hlb as [Hlb| Hlb].
  eapply split_list_sorted_cons_cons; eassumption.
 Qed.
 
+Lemma sorted_split_cons_not_in : ∀ l la lb a,
+  Sorted Nat.lt l
+  → split_list l [a … la] lb
+    → a ∉ lb.
+Proof.
+intros l la lb a Hsort Hs Hlb.
+revert la lb a Hsort Hs Hlb.
+induction l as [| b]; intros; [ inversion Hs | idtac ].
+destruct (eq_nat_dec a b) as [Hab| Hab].
+ subst b.
+ inversion Hs; subst.
+  clear Hs.
+  eapply split_list_sorted_cons_not_in; eassumption.
+
+  clear Hlb.
+  clear Hs.
+  apply split_list_comm in H3.
+  eapply split_sorted_cons_r; eassumption.
+
+ inversion Hs; subst.
+  apply Hab; reflexivity.
+
+  apply not_eq_sym in Hab.
+  destruct Hlb as [| Hlb]; [ contradiction | idtac ].
+  eapply IHl; try eassumption.
+  eapply Sorted_inv; eassumption.
+Qed.
+
 Lemma xxx : ∀ l l₁ l₂ x,
   Sorted Nat.lt l
   → split_list l l₁ l₂
@@ -379,7 +407,17 @@ induction la as [| a]; intros; [ contradiction | idtac ].
 destruct Hla as [Hla| Hla].
  subst x.
  destruct l as [| x]; simpl in Hs; inversion Hs; subst.
-  eapply www in Hsort; try eassumption; contradiction.
+  revert Hlb; clear Hs.
+  eapply split_list_sorted_cons_not_in; eassumption.
+
+  destruct Hlb as [Hlb| Hlb].
+   subst x; clear Hs.
+   apply split_list_comm in H3.
+   eapply split_sorted_cons_r; eassumption.
+
+   clear Hs.
+   apply Sorted_inv_1 in Hsort.
+   eapply sorted_split_cons_not_in; eassumption.
 bbb.
 *)
 
