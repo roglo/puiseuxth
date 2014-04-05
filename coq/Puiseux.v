@@ -292,6 +292,72 @@ induction l as [| x]; intros.
  apply IHl; assumption.
 Qed.
 
+Lemma split_sorted_cons_r : ∀ l la lb b,
+  split_list l la [b … lb]
+  → Sorted Nat.lt [b … l]
+    → False.
+Proof.
+intros l la lb b Hs Hsort.
+revert b lb l Hs Hsort.
+induction la as [| a]; intros.
+ inversion Hs; subst.
+ apply Sorted_inv in Hsort.
+ destruct Hsort as (_, Hrel).
+ apply HdRel_inv in Hrel.
+ revert Hrel; apply Nat.lt_irrefl.
+
+ destruct l as [| c]; inversion Hs; subst.
+  eapply IHla; try eassumption.
+  eapply Sorted_minus_2nd; [ idtac | eassumption ].
+  intros x y z H₁ H₂; eapply Nat.lt_trans; eassumption.
+
+  apply Sorted_inv in Hsort.
+  destruct Hsort as (_, Hrel).
+  apply HdRel_inv in Hrel.
+  revert Hrel; apply Nat.lt_irrefl.
+Qed.
+
+Lemma www : ∀ l la lb a,
+  split_list l la lb
+  → Sorted Nat.lt [a … l]
+    → a ∉ lb.
+Proof.
+intros l la lb a Hs Hsort Hlb.
+revert a la l Hlb Hs Hsort.
+induction lb as [| b]; intros; [ contradiction | idtac ].
+destruct Hlb as [Hlb| Hlb].
+ subst a.
+ eapply split_sorted_cons_r; eassumption.
+
+ revert Hlb Hs Hsort; clear; intros.
+ revert a b lb l Hlb Hs Hsort.
+ induction la as [| c]; intros.
+  apply split_list_nil_l in Hs; subst l.
+  apply Sorted_minus_2nd in Hsort.
+   rename lb into la; clear b.
+   revert a Hlb Hsort.
+   induction la as [| b]; intros; [ contradiction | idtac ].
+   destruct Hlb as [Hlb| Hlb].
+    subst b.
+    apply Sorted_inv in Hsort.
+    destruct Hsort as (_, Hrel).
+    apply HdRel_inv in Hrel.
+    revert Hrel; apply Nat.lt_irrefl.
+
+    apply Sorted_minus_2nd in Hsort.
+     eapply IHla; eassumption.
+
+     intros x y z H₁ H₂; eapply Nat.lt_trans; eassumption.
+
+   intros x y z H₁ H₂; eapply Nat.lt_trans; eassumption.
+
+  destruct l as [| d]; [ inversion Hs | idtac ].
+  inversion Hs; subst.
+   eapply IHla; try eassumption.
+   eapply Sorted_minus_2nd; [ idtac | eassumption ].
+   intros x y z H₁ H₂; eapply Nat.lt_trans; eassumption.
+bbb.
+
 Lemma xxx : ∀ l l₁ l₂ x,
   Sorted Nat.lt l
   → split_list l l₁ l₂
@@ -304,58 +370,7 @@ induction la as [| a]; intros; [ contradiction | idtac ].
 destruct Hla as [Hla| Hla].
  subst x.
  destruct l as [| x]; simpl in Hs; inversion Hs; subst.
-  clear Hs; rename H4 into Hs.
-  revert Hlb Hs Hsort; clear; intros.
-  revert a la l Hlb Hs Hsort.
-  induction lb as [| b]; intros; [ contradiction | idtac ].
-  destruct Hlb as [Hlb| Hlb].
-   subst a.
-   revert Hs Hsort; clear; intros.
-   revert b lb l Hs Hsort.
-   induction la as [| a]; intros.
-    inversion Hs; subst.
-    apply Sorted_inv in Hsort.
-    destruct Hsort as (_, Hrel).
-    apply HdRel_inv in Hrel.
-    revert Hrel; apply Nat.lt_irrefl.
-
-    destruct l as [| c]; inversion Hs; subst.
-     eapply IHla; try eassumption.
-     eapply Sorted_minus_2nd; [ idtac | eassumption ].
-     intros x y z H₁ H₂; eapply Nat.lt_trans; eassumption.
-
-     apply Sorted_inv in Hsort.
-     destruct Hsort as (_, Hrel).
-     apply HdRel_inv in Hrel.
-     revert Hrel; apply Nat.lt_irrefl.
-
-   revert Hlb Hs Hsort; clear; intros.
-   revert a b lb l Hlb Hs Hsort.
-   induction la as [| c]; intros.
-    apply split_list_nil_l in Hs; subst l.
-    apply Sorted_minus_2nd in Hsort.
-     rename lb into la; clear b.
-     revert a Hlb Hsort.
-     induction la as [| b]; intros; [ contradiction | idtac ].
-     destruct Hlb as [Hlb| Hlb].
-      subst b.
-      apply Sorted_inv in Hsort.
-      destruct Hsort as (_, Hrel).
-      apply HdRel_inv in Hrel.
-      revert Hrel; apply Nat.lt_irrefl.
-
-      apply Sorted_minus_2nd in Hsort.
-       eapply IHla; eassumption.
-
-       intros x y z H₁ H₂; eapply Nat.lt_trans; eassumption.
-
-     intros x y z H₁ H₂; eapply Nat.lt_trans; eassumption.
-
-    destruct l as [| d]; [ inversion Hs | idtac ].
-    inversion Hs; subst.
-     eapply IHla; try eassumption.
-     eapply Sorted_minus_2nd; [ idtac | eassumption ].
-     intros x y z H₁ H₂; eapply Nat.lt_trans; eassumption.
+  eapply www in Hsort; try eassumption; contradiction.
 bbb.
 *)
 
