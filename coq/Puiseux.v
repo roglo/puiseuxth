@@ -280,6 +280,18 @@ inversion H; subst; simpl.
  apply eq_S, IHl; assumption.
 Qed.
 
+Lemma split_list_nil_l : ∀ α (l la : list α),
+  split_list l [] la → la = l.
+Proof.
+intros A l la H.
+revert la H.
+induction l as [| x]; intros.
+ inversion H; reflexivity.
+
+ inversion H; subst; f_equal.
+ apply IHl; assumption.
+Qed.
+
 Lemma xxx : ∀ l l₁ l₂ x,
   Sorted Nat.lt l
   → split_list l l₁ l₂
@@ -320,6 +332,30 @@ destruct Hla as [Hla| Hla].
    revert Hlb Hs Hsort; clear; intros.
    revert a b lb l Hlb Hs Hsort.
    induction la as [| c]; intros.
+    apply split_list_nil_l in Hs; subst l.
+    apply Sorted_minus_2nd in Hsort.
+     rename lb into la; clear b.
+     revert a Hlb Hsort.
+     induction la as [| b]; intros; [ contradiction | idtac ].
+     destruct Hlb as [Hlb| Hlb].
+      subst b.
+      apply Sorted_inv in Hsort.
+      destruct Hsort as (_, Hrel).
+      apply HdRel_inv in Hrel.
+      revert Hrel; apply Nat.lt_irrefl.
+
+      apply Sorted_minus_2nd in Hsort.
+       eapply IHla; eassumption.
+
+       intros x y z H₁ H₂; eapply Nat.lt_trans; eassumption.
+
+     intros x y z H₁ H₂; eapply Nat.lt_trans; eassumption.
+
+    destruct l as [| d]; [ inversion Hs | idtac ].
+    inversion Hs; subst.
+     eapply IHla; try eassumption.
+     eapply Sorted_minus_2nd; [ idtac | eassumption ].
+     intros x y z H₁ H₂; eapply Nat.lt_trans; eassumption.
 bbb.
 *)
 
