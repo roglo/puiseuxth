@@ -397,7 +397,7 @@ destruct (eq_nat_dec a b) as [Hab| Hab].
   eapply Sorted_inv; eassumption.
 Qed.
 
-Lemma xxx : ∀ l la lb x,
+Lemma sorted_split_in_not_in : ∀ l la lb x,
   Sorted Nat.lt l
   → split_list l la lb
     → x ∈ la
@@ -445,68 +445,43 @@ induction l as [| a]; intros.
 
       apply Hyb; reflexivity.
 
-  simpl.
-bbb.
-*)
+  destruct (eq_nat_dec y a) as [Hya| Hya].
+   subst y.
+   inversion Hs; subst.
+    apply Sorted_inv_1 in Hsort.
+    eapply IHl; eassumption.
 
-Lemma yyy : ∀ b len l₁ l₂ x,
-  split_list (List.seq b len) l₁ l₂
-  → x ∈ l₂
-    → x ∉ l₁.
-Proof.
-intros s len la lb x Hs Hlb Hla.
-revert s len lb x Hs Hlb Hla.
-induction la as [| a]; intros; [ contradiction | idtac ].
-destruct Hla as [Hla| Hla].
- subst x.
- destruct len; simpl in Hs; [ inversion Hs | idtac ].
- destruct (eq_nat_dec a s) as [Has| Has].
-  subst s.
-  inversion Hs; subst.
-   clear Hs; rename H3 into Hs.
-   revert Hlb Hs; clear; intros.
-   revert a la len Hlb Hs.
-   induction lb as [| b]; intros; [ contradiction | idtac ].
+    rename l₂ into lb.
+    eapply split_list_comm in H3.
+    clear Hs.
+    eapply split_sorted_cons_r; eassumption.
+
+   destruct lb as [| b]; [ contradiction | idtac ].
    destruct Hlb as [Hlb| Hlb].
-    subst a.
-    clear IHlb.
-    revert b lb len Hs.
-    induction la as [| a]; intros.
-     destruct len; simpl in Hs; inversion Hs.
-     revert H3; apply Nat.neq_succ_diag_l.
+    subst b.
+    inversion Hs; subst.
+     apply Hya; reflexivity.
 
-     destruct len; simpl in Hs; [ inversion Hs | idtac ].
-     inversion Hs.
-      subst.
-      destruct len; simpl in H4.
-       inversion H4.
-bbb.
-apply List.in_split in Hx.
-apply List.in_split in Hy.
-destruct Hx as (m1, (m2, Hm)).
-destruct Hy as (n1, (n2, Hn)).
-subst l₁ l₂.
-revert m1 Hs.
-induction n1; intros.
- simpl in Hs.
- induction m1.
-  simpl in Hs.
-  inversion Hs; subst.
-   destruct len; [ discriminate H | idtac ].
-   simpl in H.
-   injection H; clear H; intros; subst x l.
-   simpl in Hs.
-   clear Hs.
-   revert H3; clear; intros H.
-   revert b m2 n2 H.
-   induction len; intros.
-    simpl in H.
-    inversion H.
+     clear Hs.
+     apply split_list_comm in H2.
+     revert Hla.
+     eapply split_list_sorted_cons_cons; eassumption.
 
-    simpl in H.
-    inversion H.
-     subst x n2 l₂ l.
-bbb.
+    destruct (eq_nat_dec y b) as [Hyb| Hyb].
+     subst y.
+     inversion Hs; subst.
+      apply Hya; reflexivity.
+
+      clear Hs.
+      apply Sorted_inv_1 in Hsort.
+      eapply IHl; try eassumption.
+      right; assumption.
+
+     inversion Hs; subst.
+      apply Hya; reflexivity.
+
+      apply Hyb; reflexivity.
+Qed.
 
 (* [Walker, p 101] « O (āl.x^(l.γ₁)) > β₁ »
    What is called "O" (for "order") is actually the valuation. *)
@@ -632,6 +607,9 @@ destruct n as [n| ].
      reflexivity.
 
   intros Hlm.
+  apply split_list_comm in Hsl.
+  eapply sorted_split_in_not_in in Hsl; try eassumption.
+   apply Hsl; clear Hsl.
 bbb.
   assert ((Qnat l, m) ∈ pl) as Hplm.
    rewrite Hpl.
