@@ -257,21 +257,23 @@ eapply valuation_in_newton_segment with (h := h) (αh := αh) in Hval; eauto .
   subst pl; assumption.
 Qed.
 
-Lemma split_list_comm : ∀ α (l l₁ l₂ : list α),
-  split_list l l₁ l₂
-  → split_list l l₂ l₁.
+Lemma split_list_comm : ∀ α (l la lb : list α),
+  split_list l la lb
+  → split_list l lb la.
 Proof.
-intros A l l₁ l₂ H.
-revert l₁ l₂ H.
+intros A l la lb H.
+revert la lb H.
 induction l as [| x]; intros.
  inversion H; subst; constructor.
 
  inversion H; subst; constructor; apply IHl; assumption.
 Qed.
 
-Lemma split_list_length : ∀ α (l l₁ l₂ : list α),
-  split_list l l₁ l₂ → length l = (length l₁ + length l₂)%nat.
+Lemma split_list_length : ∀ α (l la lb : list α),
+  split_list l la lb → length l = (length la + length lb)%nat.
 Proof.
+intros A l la lb H.
+revert la lb H.
 induction l as [| x]; intros; [ inversion H; reflexivity | simpl ].
 inversion H; subst; simpl.
  apply eq_S, IHl; assumption.
@@ -395,11 +397,11 @@ destruct (eq_nat_dec a b) as [Hab| Hab].
   eapply Sorted_inv; eassumption.
 Qed.
 
-Lemma xxx : ∀ l l₁ l₂ x,
+Lemma xxx : ∀ l la lb x,
   Sorted Nat.lt l
-  → split_list l l₁ l₂
-    → x ∈ l₁
-      → x ∉ l₂.
+  → split_list l la lb
+    → x ∈ la
+      → x ∉ lb.
 Proof.
 intros l la lb x Hsort Hs Hla Hlb.
 revert l lb x Hsort Hs Hla Hlb.
@@ -418,6 +420,43 @@ destruct Hla as [Hla| Hla].
    clear Hs.
    apply Sorted_inv_1 in Hsort.
    eapply sorted_split_cons_not_in; eassumption.
+
+ destruct l as [| c]; simpl in Hs; inversion Hs; subst.
+  apply Sorted_inv_1 in Hsort.
+  eapply IHla; eassumption.
+
+  destruct Hlb as [Hlb| Hlb].
+   subst x; clear Hs.
+   apply split_list_comm in H3.
+   eapply split_list_sorted_cons_cons; eassumption.
+bbb.
+
+intros l la lb x Hsort Hs Hla Hlb.
+revert l lb x Hsort Hs Hla Hlb.
+induction la as [| a]; intros; [ contradiction | idtac ].
+destruct Hla as [Hla| Hla].
+ subst x.
+ destruct l as [| x]; simpl in Hs; inversion Hs; subst.
+  revert Hlb; clear Hs.
+  eapply split_list_sorted_cons_not_in; eassumption.
+
+  destruct Hlb as [Hlb| Hlb].
+   subst x; clear Hs.
+   apply split_list_comm in H3.
+   eapply split_sorted_cons_r; eassumption.
+
+   clear Hs.
+   apply Sorted_inv_1 in Hsort.
+   eapply sorted_split_cons_not_in; eassumption.
+
+ destruct l as [| c]; simpl in Hs; inversion Hs; subst.
+  apply Sorted_inv_1 in Hsort.
+  eapply IHla; eassumption.
+
+  destruct Hlb as [Hlb| Hlb].
+   subst x; clear Hs.
+   apply split_list_comm in H3.
+   eapply split_sorted_cons_r; [ eassumption | idtac ].
 bbb.
 *)
 
