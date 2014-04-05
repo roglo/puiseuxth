@@ -257,12 +257,133 @@ eapply valuation_in_newton_segment with (h := h) (αh := αh) in Hval; eauto .
   subst pl; assumption.
 Qed.
 
+Lemma split_list_comm : ∀ α (l l₁ l₂ : list α),
+  split_list l l₁ l₂
+  → split_list l l₂ l₁.
+Proof.
+intros A l l₁ l₂ H.
+revert l₁ l₂ H.
+induction l as [| x]; intros.
+ inversion H; subst; constructor.
+
+ inversion H; subst; constructor; apply IHl; assumption.
+Qed.
+
+Lemma split_list_length : ∀ α (l l₁ l₂ : list α),
+  split_list l l₁ l₂ → length l = (length l₁ + length l₂)%nat.
+Proof.
+induction l as [| x]; intros; [ inversion H; reflexivity | simpl ].
+inversion H; subst; simpl.
+ apply eq_S, IHl; assumption.
+
+ rewrite Nat.add_succ_r.
+ apply eq_S, IHl; assumption.
+Qed.
+
+Lemma vvv : ∀ l l₁ l₂ x,
+  Sorted Nat.lt [x … l]
+  → not (split_list [x … l] [x … l₁] [x … l₂]).
+Proof.
+intros l l₁ l₂ x Hsort Hs.
+revert l₁ l₂ x Hsort Hs.
+induction l as [| y]; intros.
+ inversion Hs; subst.
+  inversion H3.
+
+  inversion H2.
+
+ inversion Hs; subst.
+  revert Hsort H3; clear; intros.
+  Focus 1.
+  inversion H3; subst.
+bbb.
+
+Lemma www : ∀ l l₁ l₂ x,
+  Sorted Nat.lt [x … l]
+  → split_list [x … l] [x … l₁] l₂
+    → x ∉ l₂.
+Proof.
+intros l l₁ l₂ x Hsort Hs Hl.
+revert l l₁ x Hsort Hs Hl.
+induction l₂ as [| y]; intros; [ contradiction | idtac ].
+destruct Hl as [Hl| Hl].
+ subst y.
+bbb.
+
 Lemma xxx : ∀ l l₁ l₂ x,
   Sorted Nat.lt l
   → split_list l l₁ l₂
     → x ∈ l₁
       → x ∉ l₂.
 Proof.
+intros l l₁ l₂ x Hsort Hs Hx Hy.
+revert l₁ l₂ x Hs Hx Hy.
+induction l as [| y]; intros.
+ inversion Hs; subst; contradiction.
+
+ inversion Hs; subst.
+  destruct Hx as [Hx| Hx].
+   subst y.
+   rename l₁0 into l₁.
+   revert Hy Hsort Hs; clear; intros.
+bbb.
+
+intros l l₁ l₂ x Hsort Hs Hx Hy.
+revert l l₂ x Hsort Hs Hx Hy.
+induction l₁ as [| y]; intros; [ contradiction | idtac ].
+destruct Hx as [Hx| Hx].
+ subst y.
+ apply split_list_comm in Hs.
+ inversion Hs; subst.
+  rename x0 into y.
+  destruct Hy as [Hy| Hy].
+   subst.
+   revert Hsort Hs; clear; intros.
+   rename l0 into l.
+   rename l₁0 into l₂.
+   apply split_list_comm in Hs.
+   revert x l₁ l₂ Hsort Hs.
+   induction l as [| y]; intros.
+    inversion Hs; subst.
+     inversion H3.
+
+     inversion H2.
+
+    inversion Hs; subst.
+     inversion H3; subst.
+bbb.
+
+intros l l₁ l₂ x Hsort Hs Hx Hy.
+revert l l₂ x Hsort Hs Hx Hy.
+induction l₁ as [| y]; intros; [ contradiction | idtac ].
+destruct Hx as [Hx| Hx].
+ subst y.
+ apply split_list_comm in Hs.
+ inversion Hs; subst.
+  rename x0 into y.
+  destruct Hy as [Hy| Hy].
+   subst.
+   revert Hsort Hs; clear; intros.
+   rename l0 into l.
+   rename l₁0 into l₂.
+   apply split_list_comm in Hs.
+   revert x l₁ l₂ Hsort Hs.
+   induction l as [| y]; intros.
+    inversion Hs; subst.
+bbb.
+
+intros l l₁ l₂ x Hsort Hs Hx Hy.
+revert l l₂ x Hsort Hs Hx Hy.
+induction l₁ as [| y]; intros; [ contradiction | idtac ].
+destruct Hx as [Hx| Hx].
+ subst y.
+ apply split_list_comm in Hs.
+ inversion Hs; subst.
+  rename x0 into y.
+  destruct Hy as [Hy| Hy].
+   subst.
+bbb.
+
 intros l l₁ l₂ x Hsort Hs Hx Hy.
 bbb.
 revert l₁ l₂ x Hs Hx Hy.
