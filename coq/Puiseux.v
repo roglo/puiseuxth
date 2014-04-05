@@ -317,6 +317,14 @@ induction la as [| a]; intros.
   revert Hrel; apply Nat.lt_irrefl.
 Qed.
 
+Lemma vvv : ∀ l la lb a b,
+  split_list l la [b … lb]
+  → Sorted Nat.lt [a … l]
+    → a ∉ lb.
+Proof.
+intros l la lb a b Hs Hsort Hlb.
+bbb.
+
 Lemma www : ∀ l la lb a,
   split_list l la lb
   → Sorted Nat.lt [a … l]
@@ -330,6 +338,7 @@ destruct Hlb as [Hlb| Hlb].
  eapply split_sorted_cons_r; eassumption.
 
  revert Hlb Hs Hsort; clear; intros.
+bbb.
  revert a b lb l Hlb Hs Hsort.
  induction la as [| c]; intros.
   apply split_list_nil_l in Hs; subst l.
