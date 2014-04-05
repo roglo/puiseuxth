@@ -485,7 +485,7 @@ Qed.
 
 (* [Walker, p 101] « O (āl.x^(l.γ₁)) > β₁ »
    What is called "O" (for "order") is actually the valuation. *)
-Theorem zzz : ∀ pol ns pl tl l₁ l₂ l āl,
+Theorem valuation_āl_xlγ₁_gt_β₁ : ∀ pol ns pl tl l₁ l₂ l āl,
   let _ := Kx in
   ns ∈ newton_segments R pol
   → pl = [ini_pt ns … oth_pts ns ++ [fin_pt ns]]
@@ -610,43 +610,38 @@ destruct n as [n| ].
   apply split_list_comm in Hsl.
   eapply sorted_split_in_not_in in Hsl; try eassumption.
    apply Hsl; clear Hsl.
-bbb.
-  assert ((Qnat l, m) ∈ pl) as Hplm.
-   rewrite Hpl.
+   subst l₁ tl pl.
+   rewrite List.map_map; simpl.
    destruct Hlm as [Hlm| Hlm].
-    left; assumption.
+    left; rewrite Hlm; simpl.
+    rewrite nofq_Qnat; reflexivity.
 
+    right.
+    rewrite List.map_app; simpl.
+    apply List.in_or_app.
     destruct Hlm as [Hlm| Hlm].
-     right.
-     apply List.in_or_app.
-     right; left; assumption.
+     right; rewrite Hlm.
+     left; simpl; rewrite nofq_Qnat; reflexivity.
 
-     right.
-     apply List.in_or_app.
-     left; assumption.
+     left.
+     revert Hlm; clear; intros.
+     remember (oth_pts ns) as pts; clear Heqpts.
+     induction pts as [| (i, ai)]; [ contradiction | idtac ].
+     destruct Hlm as [Hlm| Hlm].
+      injection Hlm; clear Hlm; intros; subst; simpl.
+      left; rewrite nofq_Qnat; reflexivity.
 
-   clear Hlm.
-   apply ini_oth_fin_pts_sorted in Hns.
-   rewrite <- Hpl in Hns.
-   subst tl.
-   rewrite List.map_map in Hl₁.
-   simpl in Hl₁.
-bbb.
-   revert Hsl Hl Hl₁ Hplm Hns; clear; intros.
-   revert l₁ l₂ Hsl Hl Hl₁.
-   induction pl as [| p]; intros; [ contradiction | simpl ].
-   destruct Hplm as [Hplm| Hplm].
-    subst p.
-    simpl in Hl₁.
-    subst l₁.
-    rewrite nofq_Qnat in Hsl.
-    apply List.in_split in Hl.
-    destruct Hl as (l1, (l2, Hl)).
-    subst l₂.
-    revert Hsl Hns; clear; intros.
-    induction l1 as [| x].
-     simpl in Hsl.
-     inversion Hsl; subst.
+      right; apply IHpts, Hlm.
+
+   remember (length (al pol)) as len; clear.
+   remember 0%nat as b; clear Heqb.
+   revert b.
+   induction len; intros; [ constructor | simpl ].
+   constructor; [ apply IHlen | idtac ].
+   destruct len; constructor.
+   apply Nat.lt_succ_diag_r.
+Qed.
+
 bbb.
 
 End theorems.
