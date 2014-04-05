@@ -3,6 +3,7 @@
 Require Import Utf8.
 Require Import QArith.
 Require Import NPeano.
+Require Import Sorted.
 
 Notation "[ ]" := nil.
 Notation "[ x ; .. ; y … l ]" := (cons x .. (cons y l) ..).
@@ -1596,4 +1597,73 @@ induction l as [| x]; intros; simpl.
  do 2 rewrite list_skipn_nil; reflexivity.
 
  destruct n; [ reflexivity | apply IHl ].
+Qed.
+
+Lemma Sorted_inv_1 {A} : ∀ (f : A → A → Prop) x l,
+  Sorted f [x … l]
+  → Sorted f l.
+Proof.
+intros f x l H.
+apply Sorted_LocallySorted_iff in H.
+apply Sorted_LocallySorted_iff.
+inversion H; [ constructor | assumption ].
+Qed.
+
+Lemma Sorted_inv_2 {A} : ∀ (f : A → A → Prop) x y l,
+  Sorted f [x; y … l]
+  → f x y ∧ Sorted f [y … l].
+Proof.
+intros f x y l H.
+apply Sorted_LocallySorted_iff in H.
+rewrite Sorted_LocallySorted_iff.
+inversion H; subst a b l0.
+split; assumption.
+Qed.
+
+Lemma Sorted_minus_2nd {A} : ∀ (f : A → A → Prop) x₁ x₂ xl,
+  (∀ x y z, f x y → f y z → f x z)
+  → Sorted f [x₁; x₂ … xl]
+    → Sorted f [x₁ … xl].
+Proof.
+intros f x₁ x₂ l Ht H.
+apply Sorted_LocallySorted_iff.
+destruct l as [| x₃]; [ constructor | intros ].
+constructor.
+ apply Sorted_LocallySorted_iff.
+ do 2 apply Sorted_inv_1 in H.
+ assumption.
+
+ apply Sorted_inv_2 in H; destruct H as (Hlt₁, H).
+ apply Sorted_inv_2 in H; destruct H as (Hlt₂, H).
+ eapply Ht; eassumption.
+Qed.
+
+Lemma Sorted_minus_3rd {A} : ∀ (f : A → A → Prop) x₁ x₂ x₃ xl,
+  (∀ x y z, f x y → f y z → f x z)
+  → Sorted f [x₁; x₂; x₃ … xl]
+    → Sorted f [x₁; x₂ … xl].
+Proof.
+intros f x₁ x₂ x₃ l Ht H.
+apply Sorted_LocallySorted_iff.
+constructor.
+ apply Sorted_inv_1 in H.
+ apply Sorted_LocallySorted_iff.
+ eapply Sorted_minus_2nd; eassumption.
+
+ apply Sorted_inv_2 in H; destruct H; assumption.
+Qed.
+
+Lemma Sorted_minus_4th {A} : ∀ (f : A → A → Prop) x₁ x₂ x₃ x₄ xl,
+  (∀ x y z, f x y → f y z → f x z)
+  → Sorted f [x₁; x₂; x₃; x₄ … xl]
+    → Sorted f [x₁; x₂; x₃ … xl].
+Proof.
+intros f x₁ x₂ x₃ x₄ l Ht H.
+apply Sorted_LocallySorted_iff.
+constructor.
+ apply Sorted_inv_1 in H.
+ apply Sorted_LocallySorted_iff.
+ eapply Sorted_minus_3rd; eassumption.
+
+ apply Sorted_inv_2 in H; destruct H; assumption.
 Qed.

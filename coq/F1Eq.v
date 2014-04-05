@@ -12,6 +12,7 @@ Require Import Misc.
 Require Import Newton.
 Require Import Nbar.
 Require Import Qbar.
+Require Import SplitList.
 Require Import Fsummation.
 Require Import Fpolynomial.
 Require Import Power_series.
@@ -50,13 +51,6 @@ Definition poly_summation α (r : ring α) (li : list nat) g :=
 
 Definition poly_inject_K_in_Kx α (R : ring α) pol :=
   (POL (List.map (λ c, ps_monom c 0) (al pol)))%pol.
-
-Inductive split_list α : list α → list α → list α → Prop :=
-  | sl_nil : split_list [] [] []
-  | sl_cons_l : ∀ x l l₁ l₂,
-      split_list l l₁ l₂ → split_list [x … l] [x … l₁] l₂
-  | sl_cons_r : ∀ x l l₁ l₂,
-      split_list l l₁ l₂ → split_list [x … l] l₁ [x … l₂].
 
 (* *)
 
