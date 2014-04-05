@@ -420,15 +420,6 @@ destruct Hla as [Hla| Hla].
    clear Hs.
    apply Sorted_inv_1 in Hsort.
    eapply sorted_split_cons_not_in; eassumption.
-
- destruct l as [| c]; simpl in Hs; inversion Hs; subst.
-  apply Sorted_inv_1 in Hsort.
-  eapply IHla; eassumption.
-
-  destruct Hlb as [Hlb| Hlb].
-   subst x; clear Hs.
-   apply split_list_comm in H3.
-   eapply split_list_sorted_cons_cons; eassumption.
 bbb.
 
 intros l la lb x Hsort Hs Hla Hlb.
