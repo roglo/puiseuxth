@@ -424,7 +424,17 @@ Qed.
        f₁(x,y₁) = b₁.y₁^r + b₂.y₂^(r+1) + ... + g(x,y₁),
      where b₁ = c₁^j.Ψ(c₁) ≠ 0 and each power of y₁ in g(x,y₁) has
      a coefficient of positive order.
-   » *)
+   »
+
+     Specifically, according to our theorem f₁_eq_term_with_Ψ_plus_sum,
+     g must be
+       g(x,y₁) = x^(-β₁).[Σ(āh-ah.x^αh).x^(h.γ₁).(c₁+y₁)^h +
+                          Σāl.x^(l.γ₁).(c₁+y₁)^l]
+     and the i of the bi run from 0 to k - r in the development of
+       y₁^r.(c₁+y₁)^j.Ψ(c₁+y₁)
+     since the degree of this polynomial is
+       r + j + (k - j - r)
+ *)
 Theorem zzz : ∀ pol ns j αj k αk c₁ r Ψ f₁ b₁,
   let _ := Kx in (* coq seems not to see the type of Kx *)
   ns ∈ newton_segments R pol
