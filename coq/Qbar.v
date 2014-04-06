@@ -12,6 +12,7 @@ Inductive Qbar : Set :=
 Delimit Scope Qbar_scope with Qbar.
 
 Notation "∞" := qinf : Qbar_scope.
+Notation "0" := (qfin 0) : Qbar_scope.
 
 Open Scope Qbar_scope.
 
