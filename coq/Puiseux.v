@@ -430,16 +430,16 @@ Theorem zzz : ∀ pol ns j αj k αk c₁ r Ψ f₁ b₁,
           → Ψ = quotient_phi_x_sub_c_pow_r R (Φq R pol ns) c₁ r
             → f₁ = pol₁ R pol (β ns) (γ ns) c₁
               → (b₁ = c₁ ^ j * apply_poly R Ψ c₁)%K
-                → ∃ bl lg,
-                  (∀ m, m ∈ lg → (valuation m > 0)%Qbar)
-                  → (f₁ =
-                     poly_summation Kx (List.seq 0 (k - r))
-                       (λ h,
-                        let bh := List.nth h [b₁ … bl] 0%K in
-                        POL [0%ps; ps_monom bh 1 … []] ^ (r + h)) +
-                     POL lg)%pol.
+                → ∃ lb lg,
+                  (∀ m, m ∈ lg → (valuation m > 0)%Qbar) ∧
+                  (f₁ =
+                   poly_summation Kx (List.seq 0 (k - r))
+                     (λ h,
+                      let bh := List.nth h [b₁ … lb] 0%K in
+                      POL [0%ps; ps_monom bh 1 … []] ^ (r + h)) +
+                   POL lg)%pol.
   Proof.
 intros pol ns j αj k αk c₁ r Ψ f₁ b₁ f' Hns Hini Hfin Hc₁ Hr HΨ Hf₁ Hb₁.
-bbb.
+fbbb.
 
 End theorems.
