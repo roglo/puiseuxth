@@ -419,57 +419,6 @@ destruct n as [n| ].
    apply Nat.lt_succ_diag_r.
 Qed.
 
-Fixpoint list_seq_except start len except :=
-  match len with
-  | 0%nat => []
-  | S len' =>
-      match except with
-      | [] => [start … list_seq_except (S start) len' []]
-      | [x … l] =>
-          if eq_nat_dec start x then list_seq_except (S start) len' l
-          else [start … list_seq_except (S start) len' except]
-      end
-  end.
-
-Lemma list_seq_except_nil : ∀ start len,
-  list_seq_except start len [] = List.seq start len.
-Proof.
-intros start len.
-revert start.
-induction len; intros; [ reflexivity | simpl ].
-rewrite IHlen; reflexivity.
-Qed.
-
-Lemma yyy : ∀ start len la lb,
-  split_list (List.seq start len) la lb
-  → lb = list_seq_except start len la.
-Proof.
-intros start len la lb Hs.
-revert start la lb Hs.
-induction len; intros; simpl in Hs; simpl.
- inversion Hs; reflexivity.
-
- destruct la as [| a]; simpl.
-  apply split_list_nil_l in Hs.
-  rewrite list_seq_except_nil; assumption.
-
-  destruct (eq_nat_dec start a) as [Hsa| Hsa].
-   subst a.
-   inversion Hs; subst.
-    apply IHlen; assumption.
-
-    exfalso; revert H3; clear; intros.
-    rename l₂ into lb; rename H3 into H.
-    revert start la lb H.
-    induction len; intros; simpl in H.
-     inversion H.
-
-     inversion H.
-      revert H3; apply Nat.neq_succ_diag_l.
-
-      subst.
-bbb.
-
 Definition g_of_ns pol ns :=
   let _ := Kx in (* coq seems not to see the type of Kx *)
   let c₁ := ac_root (Φq R pol ns) in

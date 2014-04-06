@@ -241,3 +241,66 @@ induction l as [| a]; intros.
 
       apply Hyb; reflexivity.
 Qed.
+
+Fixpoint list_seq_except start len except :=
+  match len with
+  | 0%nat => []
+  | S len' =>
+      match except with
+      | [] => [start … list_seq_except (S start) len' []]
+      | [x … l] =>
+          if eq_nat_dec start x then list_seq_except (S start) len' l
+          else [start … list_seq_except (S start) len' except]
+      end
+  end.
+
+Lemma list_seq_except_nil : ∀ start len,
+  list_seq_except start len [] = List.seq start len.
+Proof.
+intros start len.
+revert start.
+induction len; intros; [ reflexivity | simpl ].
+rewrite IHlen; reflexivity.
+Qed.
+
+Lemma split_seq_le : ∀ start len a la lb,
+  split_list (List.seq start len) [a … la] lb
+  → start ≤ a.
+Proof.
+intros start len a la lb H.
+revert start a la lb H.
+induction len; intros; simpl in H; [ inversion H | idtac ].
+inversion H; subst; [ reflexivity | idtac ].
+apply IHlen in H4.
+eapply Nat.le_trans; [ idtac | eassumption ].
+apply Nat.le_succ_r; left; reflexivity.
+Qed.
+
+Lemma split_seq_except : ∀ start len la lb,
+  split_list (List.seq start len) la lb
+  → lb = list_seq_except start len la.
+Proof.
+intros start len la lb Hs.
+revert start la lb Hs.
+induction len; intros; simpl in Hs; simpl.
+ inversion Hs; reflexivity.
+
+ destruct la as [| a]; simpl.
+  apply split_list_nil_l in Hs.
+  rewrite list_seq_except_nil; assumption.
+
+  destruct (eq_nat_dec start a) as [Hsa| Hsa].
+   subst a.
+   inversion Hs; subst.
+    apply IHlen; assumption.
+
+    apply split_seq_le in H3.
+    apply Nat.nlt_ge in H3.
+    exfalso; apply H3, Nat.lt_succ_r; reflexivity.
+
+   inversion Hs; subst.
+    exfalso; apply Hsa; reflexivity.
+
+    f_equal.
+    apply IHlen; assumption.
+Qed.
