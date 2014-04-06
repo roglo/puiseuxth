@@ -446,7 +446,15 @@ Lemma yyy : ∀ pol ns g,
 Proof.
 intros pol ns g Hns Hg m Hm.
 subst g.
+unfold g_of_ns in Hm.
 simpl in Hm.
+remember Hns as Hini; clear HeqHini.
+apply exists_ini_pt_nat in Hini.
+destruct Hini as (j, (αj, Hini)).
+rewrite Hini in Hm; simpl in Hm.
+rewrite nofq_Qnat in Hm.
+destruct (eq_nat_dec j j) as [Hj| Hj].
+ remember (ac_root (Φq R pol ns)) as c₁ eqn:Hc₁ .
 bbb.
 
 (* [Walker, p 101] «
