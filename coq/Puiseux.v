@@ -420,23 +420,25 @@ destruct n as [n| ].
 Qed.
 
 (* [Walker, p 101] ... *)
-Theorem zzz : ∀ pol ns j αj c₁ r Ψ f₁ b₁,
+Theorem zzz : ∀ pol ns j αj k αk c₁ r Ψ f₁ b₁,
   let _ := Kx in (* coq seems not to see the type of Kx *)
   ns ∈ newton_segments R pol
   → ini_pt ns = (Qnat j, αj)
-    → c₁ = ac_root (Φq R pol ns)
-      → r = root_multiplicity acf c₁ (Φq R pol ns)
-        → Ψ = quotient_phi_x_sub_c_pow_r R (Φq R pol ns) c₁ r
-          → f₁ = pol₁ R pol (β ns) (γ ns) c₁
-            → (b₁ = c₁ ^ j * apply_poly R Ψ c₁)%K
-              → ∃ b₂ g,
-                (f₁ =
-                 POL [0%ps; ps_monom b₁ 1 … []] ^ r +
-                 POL [0%ps; ps_monom b₂ 1 … []] ^ (r + 1) +
+    → fin_pt ns = (Qnat k, αk)
+      → c₁ = ac_root (Φq R pol ns)
+        → r = root_multiplicity acf c₁ (Φq R pol ns)
+          → Ψ = quotient_phi_x_sub_c_pow_r R (Φq R pol ns) c₁ r
+            → f₁ = pol₁ R pol (β ns) (γ ns) c₁
+              → (b₁ = c₁ ^ j * apply_poly R Ψ c₁)%K
+                → ∃ b₂ ... bk g,
+                  (f₁ =
+                   POL [0%ps; ps_monom b₁ 1 … []] ^ r +
+                   POL [0%ps; ps_monom b₂ 1 … []] ^ (r + 1) +
 ...
-                 g)%pol.
+                   POL [0%ps; ps_monom bk 1 … []] ^ k +
+                   g)%pol.
 Proof.
-intros pol ns j αj c₁ r Ψ f₁ b₁ f' Hns Hini Hc₁ Hr HΨ Hf₁ Hb₁.
+intros pol ns j αj k αk c₁ r Ψ f₁ b₁ f' Hns Hini Hfin Hc₁ Hr HΨ Hf₁ Hb₁.
 bbb.
 
 End theorems.
