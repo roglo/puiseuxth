@@ -35,11 +35,11 @@ Variable R : ring α.
 Variable acf : algeb_closed_field R.
 Let Kx := ps_ring R.
 
-Lemma valuation_in_newton_segment : ∀ pol ns pl h αh,
+Lemma order_in_newton_segment : ∀ pol ns pl h αh,
   ns ∈ newton_segments R pol
   → pl = [ini_pt ns … oth_pts ns ++ [fin_pt ns]]
     → (Qnat h, αh) ∈ pl
-      → valuation (poly_nth R h pol) = qfin αh.
+      → order (poly_nth R h pol) = qfin αh.
 Proof.
 intros pol ns pl h αh Hns Hpl Hαh.
 remember Hns as Hini; clear HeqHini.
@@ -71,9 +71,9 @@ destruct Hαh as [Hαh| Hαh].
   apply ini_fin_ns_in_init_pts; assumption.
 Qed.
 
-Lemma coeff_of_hl_eq_valuation : ∀ h la li,
+Lemma coeff_of_hl_eq_order : ∀ h la li,
   h ∈ li
-  → coeff_of_hl R la h li = valuation_coeff R (List.nth h la 0%ps).
+  → coeff_of_hl R la h li = order_coeff R (List.nth h la 0%ps).
 Proof.
 intros h la li Hh.
 induction li as [| i]; [ contradiction | simpl ].
@@ -83,9 +83,8 @@ apply Nat.neq_sym in Hhi.
 destruct Hh as [Hh| ]; [ contradiction | assumption ].
 Qed.
 
-(* [Walker, p 101] « O(āh - ah.x^αh) > 0 » (with fixed typo)
-   What is called "O" (for "order") is actually the valuation. *)
-Theorem valuation_āh_minus_ah_xαh_gt_αh : ∀ pol ns pl tl h āh ah αh,
+(* [Walker, p 101] « O(āh - ah.x^αh) > 0 » (with fixed typo) *)
+Theorem order_āh_minus_ah_xαh_gt_αh : ∀ pol ns pl tl h āh ah αh,
   let _ := Kx in
   ns ∈ newton_segments R pol
   → pl = [ini_pt ns … oth_pts ns ++ [fin_pt ns]]
@@ -93,20 +92,20 @@ Theorem valuation_āh_minus_ah_xαh_gt_αh : ∀ pol ns pl tl h āh ah αh,
       → h ∈ List.map (λ t, power t) tl
         → āh = poly_nth R h pol
           → ah = ps_monom (coeff_of_term R h tl) 0
-            → αh = val_of_pt h pl
-              → (valuation (āh - ah * ps_monom 1%K αh)%ps > qfin αh)%Qbar.
+            → αh = ord_of_pt h pl
+              → (order (āh - ah * ps_monom 1%K αh)%ps > qfin αh)%Qbar.
 Proof.
 intros pol ns pl tl h āh ah αh f' Hns Hpl Htl Hh Hāh Hah Hαh.
 remember Hns as Hval; clear HeqHval.
-eapply valuation_in_newton_segment with (h := h) (αh := αh) in Hval; eauto .
+eapply order_in_newton_segment with (h := h) (αh := αh) in Hval; eauto .
  rewrite <- Hāh in Hval.
- unfold valuation, Qbar.gt.
+ unfold order, Qbar.gt.
  remember (āh - ah * ps_monom 1%K αh)%ps as s eqn:Hs .
  remember (null_coeff_range_length R (ps_terms s) 0) as n eqn:Hn .
  symmetry in Hn.
  destruct n as [n| ]; [ idtac | constructor ].
  apply Qbar.qfin_lt_mono.
- unfold valuation in Hval.
+ unfold order in Hval.
  remember (null_coeff_range_length R (ps_terms āh) 0) as m eqn:Hm .
  symmetry in Hm.
  destruct m as [m| ]; [ idtac | discriminate Hval ].
@@ -116,7 +115,7 @@ eapply valuation_in_newton_segment with (h := h) (αh := αh) in Hval; eauto .
  unfold cm; simpl.
  unfold cm; simpl.
  subst ah; simpl.
- unfold ps_valnum_add; simpl.
+ unfold ps_ordnum_add; simpl.
  unfold cm, cm_factor; simpl.
  rewrite Z.mul_1_r.
  unfold Qlt; simpl.
@@ -181,8 +180,8 @@ eapply valuation_in_newton_segment with (h := h) (αh := αh) in Hval; eauto .
         unfold poly_nth, lap_nth in Hn; simpl in Hn.
         rewrite Hāh in Hm.
         unfold coeff_of_pt in Hn.
-        rewrite coeff_of_hl_eq_valuation in Hn.
-         unfold valuation_coeff in Hn.
+        rewrite coeff_of_hl_eq_order in Hn.
+         unfold order_coeff in Hn.
          unfold poly_nth, lap_nth in Hm.
          rewrite Hm in Hn.
          rewrite rng_add_opp_r in Hn.
@@ -251,7 +250,7 @@ eapply valuation_in_newton_segment with (h := h) (αh := αh) in Hval; eauto .
  rewrite List.map_map in Hh.
  simpl in Hh.
  subst f'.
- apply val_is_val_of_pt; [ idtac | idtac | assumption ].
+ apply ord_is_ord_of_pt; [ idtac | idtac | assumption ].
   rewrite Hpl.
   eapply ini_oth_fin_pts_sorted; eassumption.
 
@@ -260,9 +259,8 @@ eapply valuation_in_newton_segment with (h := h) (αh := αh) in Hval; eauto .
   subst pl; assumption.
 Qed.
 
-(* [Walker, p 101] « O(āl.x^(l.γ₁)) > β₁ »
-   What is called "O" (for "order") is actually the valuation. *)
-Theorem valuation_āl_xlγ₁_gt_β₁ : ∀ pol ns pl tl l₁ l₂ l āl,
+(* [Walker, p 101] « O(āl.x^(l.γ₁)) > β₁ » *)
+Theorem order_āl_xlγ₁_gt_β₁ : ∀ pol ns pl tl l₁ l₂ l āl,
   let _ := Kx in
   ns ∈ newton_segments R pol
   → pl = [ini_pt ns … oth_pts ns ++ [fin_pt ns]]
@@ -271,7 +269,7 @@ Theorem valuation_āl_xlγ₁_gt_β₁ : ∀ pol ns pl tl l₁ l₂ l āl,
         → split_list (List.seq 0 (length (al pol))) l₁ l₂
           → l ∈ l₂
             → āl = poly_nth R l pol
-              → (valuation (āl * ps_monom 1%K (Qnat l * γ ns))%ps >
+              → (order (āl * ps_monom 1%K (Qnat l * γ ns))%ps >
                  qfin (β ns))%Qbar.
 Proof.
 intros pol ns pl tl l₁ l₂ l āl f' Hns Hpl Htl Hl₁ Hsl Hl Hāl.
@@ -280,18 +278,18 @@ remember (null_coeff_range_length R (ps_terms s) 0) as n eqn:Hn .
 symmetry in Hn.
 destruct n as [n| ].
  Focus 2.
- unfold valuation; simpl.
+ unfold order; simpl.
  rewrite Hn; constructor.
 
  remember (points_of_ps_polynom R pol) as pts eqn:Hpts .
  remember Hpts as Hval; clear HeqHval.
- remember (valuation āl) as m eqn:Hm .
+ remember (order āl) as m eqn:Hm .
  symmetry in Hm.
  destruct m as [m| ].
   eapply in_pol_in_pts in Hval; try eassumption.
   eapply points_not_in_any_newton_segment in Hns; try eassumption.
    2: split; [ eassumption | idtac ].
-   unfold valuation, Qbar.gt.
+   unfold order, Qbar.gt.
    rewrite Hn.
    apply Qbar.qfin_lt_mono.
    rewrite Hs, Hāl; simpl.
@@ -311,7 +309,7 @@ destruct n as [n| ].
     rewrite Z.mul_shuffle0; reflexivity.
 
     Focus 3.
-    unfold valuation in Hm.
+    unfold order in Hm.
     remember (null_coeff_range_length R (ps_terms āl) 0) as v eqn:Hv .
     symmetry in Hv.
     destruct v; [ discriminate Hm | idtac ].
@@ -321,10 +319,10 @@ destruct n as [n| ].
      rewrite Hv.
      rewrite ps_mul_0_l; reflexivity.
 
-     apply valuation_inf in Hsz.
+     apply order_inf in Hsz.
      rewrite Hsz; constructor.
 
-   unfold valuation in Hm.
+   unfold order in Hm.
    remember (null_coeff_range_length R (ps_terms āl) 0) as p eqn:Hp .
    symmetry in Hp.
    destruct p as [p| ]; [ idtac | discriminate Hm ].
@@ -431,7 +429,7 @@ Definition g_of_ns pol ns :=
       (λ h,
        let āh := poly_nth R h pol in
        let ah := ps_monom (coeff_of_term R h tl) 0 in
-       let αh := val_of_pt h pl in
+       let αh := ord_of_pt h pl in
        POL [((āh - ah * ps_monom 1%K αh) *
              ps_monom 1%K (Qnat h * γ ns))%ps] *
        POL [ps_monom c₁ 0; 1%ps … []] ^ h) +
@@ -443,7 +441,7 @@ Definition g_of_ns pol ns :=
 
 (* [Walker, p 101] «
      Since O(āh - ah.x^αh) > 0 and O(āl.x^(l.γ₁)) > β₁ we obtain
-       f₁(x,y₁) = b₁.y₁^r + b₂.y₂^(r+1) + ... + g(x,y₁),
+       f₁(x,y₁) = b₁.y₁^r + b₂.y₁^(r+1) + ... + g(x,y₁),
      where b₁ = c₁^j.Ψ(c₁) ≠ 0 and each power of y₁ in g(x,y₁) has
      a coefficient of positive order.
    »
@@ -469,7 +467,7 @@ Theorem zzz : ∀ pol ns j αj k αk c₁ r Ψ f₁ b₁ g,
               → (b₁ = c₁ ^ j * apply_poly R Ψ c₁)%K
                 → g = g_of_ns pol ns
                   → ∃ lb,
-                    (∀ m, m ∈ al g → (valuation m > 0)%Qbar) ∧
+                    (∀ m, m ∈ al g → (order m > 0)%Qbar) ∧
                     (f₁ =
                      poly_summation Kx (List.seq 0 (k - r))
                        (λ h,

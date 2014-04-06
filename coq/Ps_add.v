@@ -14,7 +14,7 @@ Set Implicit Arguments.
 
 Definition adjust_ps α (r : ring α) n k ps :=
   {| ps_terms := series_shift r n (series_stretch r k (ps_terms ps));
-     ps_valnum := ps_valnum ps * Zpos k - Z.of_nat n;
+     ps_ordnum := ps_ordnum ps * Zpos k - Z.of_nat n;
      ps_polord := ps_polord ps * k |}.
 
 Section first_lemmas.
@@ -48,7 +48,7 @@ rewrite null_coeff_range_length_stretch_succ_inf; auto.
 Qed.
 
 Lemma gcd_ps_0_m : ∀ n (ps : puiseux_series α),
-  gcd_ps n O ps = Z.abs (Z.gcd (ps_valnum ps + Z.of_nat n) (' ps_polord ps)).
+  gcd_ps n O ps = Z.abs (Z.gcd (ps_ordnum ps + Z.of_nat n) (' ps_polord ps)).
 Proof.
 intros n ps.
 unfold gcd_ps.
@@ -188,24 +188,24 @@ Definition adjust_series α (r : ring α) n k s :=
 Definition ps_terms_add α (r : ring α) (ps₁ ps₂ : puiseux_series α) :=
   let k₁ := cm_factor ps₁ ps₂ in
   let k₂ := cm_factor ps₂ ps₁ in
-  let v₁ := (ps_valnum ps₁ * Zpos k₁)%Z in
-  let v₂ := (ps_valnum ps₂ * Zpos k₂)%Z in
+  let v₁ := (ps_ordnum ps₁ * Zpos k₁)%Z in
+  let v₂ := (ps_ordnum ps₂ * Zpos k₂)%Z in
   let n₁ := Z.to_nat (v₁ - Z.min v₁ v₂) in
   let n₂ := Z.to_nat (v₂ - Z.min v₂ v₁) in
   let s₁ := adjust_series r n₁ k₁ (ps_terms ps₁) in
   let s₂ := adjust_series r n₂ k₂ (ps_terms ps₂) in
   series_add s₁ s₂.
 
-Definition ps_valnum_add α (ps₁ ps₂ : puiseux_series α) :=
+Definition ps_ordnum_add α (ps₁ ps₂ : puiseux_series α) :=
   let k₁ := cm_factor ps₁ ps₂ in
   let k₂ := cm_factor ps₂ ps₁ in
-  let v₁ := (ps_valnum ps₁ * Zpos k₁)%Z in
-  let v₂ := (ps_valnum ps₂ * Zpos k₂)%Z in
+  let v₁ := (ps_ordnum ps₁ * Zpos k₁)%Z in
+  let v₂ := (ps_ordnum ps₂ * Zpos k₂)%Z in
   Z.min v₁ v₂.
 
 Definition ps_add {α} {r : ring α} (ps₁ ps₂ : puiseux_series α) :=
   {| ps_terms := ps_terms_add r ps₁ ps₂;
-     ps_valnum := ps_valnum_add ps₁ ps₂;
+     ps_ordnum := ps_ordnum_add ps₁ ps₂;
      ps_polord := cm ps₁ ps₂ |}.
 
 (* I prefer this other version for addition; proved strongly equal to
@@ -213,14 +213,14 @@ Definition ps_add {α} {r : ring α} (ps₁ ps₂ : puiseux_series α) :=
 
 Definition adjusted_ps_add α (r : ring α) ps₁ ps₂ :=
   {| ps_terms := series_add (ps_terms ps₁) (ps_terms ps₂);
-     ps_valnum := ps_valnum ps₁;
+     ps_ordnum := ps_ordnum ps₁;
      ps_polord := ps_polord ps₁ |}.
 
 Definition adjust_ps_from α (r : ring α) ps₁ ps₂ :=
   let k₁ := cm_factor ps₁ ps₂ in
   let k₂ := cm_factor ps₂ ps₁ in
-  let v₁ := (ps_valnum ps₁ * Zpos k₁)%Z in
-  let v₂ := (ps_valnum ps₂ * Zpos k₂)%Z in
+  let v₁ := (ps_ordnum ps₁ * Zpos k₁)%Z in
+  let v₂ := (ps_ordnum ps₂ * Zpos k₂)%Z in
   adjust_ps r (Z.to_nat (v₂ - Z.min v₁ v₂)) k₂ ps₂.
 
 Definition ps_add₂ {α} {r : ring α} (ps₁ ps₂ : puiseux_series α) :=
@@ -230,7 +230,7 @@ Notation "a + b" := (ps_add a b) : ps_scope.
 
 Definition ps_opp {α} {r : ring α} ps :=
   {| ps_terms := (- ps_terms ps)%ser;
-     ps_valnum := ps_valnum ps;
+     ps_ordnum := ps_ordnum ps;
      ps_polord := ps_polord ps |}.
 
 Notation "- a" := (ps_opp a) : ps_scope.
@@ -290,7 +290,7 @@ Qed.
 (* Experimentation for commutativity of addition for ps_add₂,
    (in order to replace one day ps_add by ps_add₂):
    provable but a bit more complicate than ps_add version;
-   supposes to prove ps_valnum_add_comm, ps_polord_add_comm and
+   supposes to prove ps_ordnum_add_comm, ps_polord_add_comm and
    ps_terms_add_comm; this could be a good thing, however, because
    has something pretty
 Theorem eq_strong_ps_add₂_comm : ∀ ps₁ ps₂, (ps₁ ₊ ps₂)%ps ≐ (ps₂ ₊ ps₁)%ps.
@@ -327,11 +327,11 @@ unfold ps_terms_add.
 remember adjust_series as g; simpl.
 unfold cm_factor, cm.
 unfold ps_terms_add; simpl.
-unfold ps_valnum_add; simpl.
+unfold ps_ordnum_add; simpl.
 unfold cm_factor, cm.
-remember (ps_valnum ps₁) as v₁ eqn:Hv₁ .
-remember (ps_valnum ps₂) as v₂ eqn:Hv₂ .
-remember (ps_valnum ps₃) as v₃ eqn:Hv₃ .
+remember (ps_ordnum ps₁) as v₁ eqn:Hv₁ .
+remember (ps_ordnum ps₂) as v₂ eqn:Hv₂ .
+remember (ps_ordnum ps₃) as v₃ eqn:Hv₃ .
 remember (ps_polord ps₁) as c₁.
 remember (ps_polord ps₂) as c₂.
 remember (ps_polord ps₃) as c₃.
@@ -370,8 +370,8 @@ Lemma gcd_ps_add_assoc : ∀ ps₁ ps₂ ps₃ n k,
 Proof.
 intros ps₁ ps₂ ps₃ n k.
 unfold gcd_ps; simpl.
-unfold ps_valnum_add; simpl.
-unfold ps_valnum_add; simpl.
+unfold ps_ordnum_add; simpl.
+unfold ps_ordnum_add; simpl.
 rewrite <- Z.mul_min_distr_nonneg_r; [ idtac | apply Pos2Z.is_nonneg ].
 rewrite <- Z.mul_min_distr_nonneg_r; [ idtac | apply Pos2Z.is_nonneg ].
 rewrite Z.min_assoc.
@@ -399,8 +399,8 @@ destruct n as [n| ]; [ constructor; simpl | reflexivity ].
  rewrite ps_terms_add_assoc.
  rewrite gcd_ps_add_assoc.
  do 2 f_equal.
- unfold ps_valnum_add; simpl.
- unfold ps_valnum_add; simpl.
+ unfold ps_ordnum_add; simpl.
+ unfold ps_ordnum_add; simpl.
  unfold cm_factor, cm; simpl.
  rewrite <- Z.mul_min_distr_nonneg_r; [ idtac | apply Pos2Z.is_nonneg ].
  rewrite <- Z.mul_min_distr_nonneg_r; [ idtac | apply Pos2Z.is_nonneg ].
@@ -439,7 +439,7 @@ unfold ps_terms_add; simpl.
 rewrite Z.mul_1_r.
 unfold cm_factor.
 unfold cm; simpl.
-unfold ps_valnum_add; simpl.
+unfold ps_ordnum_add; simpl.
 rewrite Z.mul_1_r.
 unfold adjust_series.
 rewrite series_stretch_series_0.
@@ -450,7 +450,7 @@ rewrite <- Z2Nat_sub_min2.
 rewrite Z.min_id, Z.sub_0_r.
 rewrite Z.sub_diag, Nat.add_0_r.
 symmetry.
-remember (Z.to_nat (ps_valnum ps)) as n eqn:Hn .
+remember (Z.to_nat (ps_ordnum ps)) as n eqn:Hn .
 rewrite ps_canon_adjust_eq with (n := n) (k := xH) in |- * at 1.
 subst n.
 unfold adjust_ps; simpl.
@@ -481,7 +481,7 @@ do 2 rewrite series_shift_0.
 rewrite <- series_stretch_add_distr.
 rewrite series_add_opp_r.
 rewrite series_stretch_series_0.
-unfold ps_valnum_add; simpl.
+unfold ps_ordnum_add; simpl.
 unfold cm_factor, cm; simpl.
 rewrite Z.min_id.
 symmetry.
@@ -490,13 +490,13 @@ rewrite ps_canon_adjust_eq with (n := O) (k := k); subst k.
 unfold adjust_ps; simpl.
 rewrite series_shift_0.
 rewrite series_stretch_series_0.
-remember (ps_valnum ps) as v eqn:Hv .
+remember (ps_ordnum ps) as v eqn:Hv .
 symmetry in Hv.
 destruct v as [| v| v].
  reflexivity.
 
  symmetry.
- remember (Z.to_nat (ps_valnum ps * Zpos (ps_polord ps))) as n.
+ remember (Z.to_nat (ps_ordnum ps * Zpos (ps_polord ps))) as n.
  rewrite ps_canon_adjust_eq with (n := n) (k := xH); subst n.
  unfold adjust_ps.
  remember Z.sub as g; simpl; subst g.
@@ -530,7 +530,7 @@ Lemma eq_strong_ps_add_add₂ : ∀ ps₁ ps₂,
 Proof.
 intros ps₁ ps₂.
 constructor; [ simpl | reflexivity | simpl ].
- unfold ps_valnum_add.
+ unfold ps_ordnum_add.
  rewrite Z2Nat.id.
   rewrite Z.sub_sub_distr.
   rewrite Z.sub_diag; simpl.
@@ -542,8 +542,8 @@ constructor; [ simpl | reflexivity | simpl ].
 
  unfold ps_terms_add.
  unfold adjust_series.
- remember (ps_valnum ps₂ * Zpos (cm_factor ps₂ ps₁))%Z as vc₂₁.
- remember (ps_valnum ps₁ * Zpos (cm_factor ps₁ ps₂))%Z as vc₁₂.
+ remember (ps_ordnum ps₂ * Zpos (cm_factor ps₂ ps₁))%Z as vc₂₁.
+ remember (ps_ordnum ps₁ * Zpos (cm_factor ps₁ ps₂))%Z as vc₁₂.
  remember (Z.min vc₁₂ vc₂₁) as m eqn:Hm .
  rewrite Z.min_comm, <- Hm.
  reflexivity.

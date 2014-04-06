@@ -2036,7 +2036,7 @@ eapply q_is_factor_of_h_minus_j with (h := k) in Hqkj; try eassumption.
   unfold nofq, Qnat.
   unfold Qnum.
   rewrite Nat2Z.id.
-  remember (valuation_coeff R (List.nth j (al pol) 0%ps)) as v eqn:Hv .
+  remember (order_coeff R (List.nth j (al pol) 0%ps)) as v eqn:Hv .
   remember (oth_pts ns ++ [fin_pt ns]) as pts eqn:Hpts .
   remember (List.map (term_of_point R pol) pts) as tl eqn:Htl .
   subst la; simpl.
@@ -2245,7 +2245,7 @@ destruct HH as (j, (x, Hx)).
 rewrite <- Hj in Hx; injection Hx; clear Hx; intros; subst jq x.
 simpl in H.
 revert H.
-eapply val_coeff_non_zero_in_newt_segm; [ eassumption | idtac | idtac ].
+eapply ord_coeff_non_zero_in_newt_segm; [ eassumption | idtac | idtac ].
  symmetry in Hj.
  left; eassumption.
 

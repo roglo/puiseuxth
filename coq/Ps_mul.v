@@ -22,8 +22,8 @@ Definition ps_mul {α} {r : ring α} ps₁ ps₂ :=
        series_mul
          (series_stretch r (cm_factor ps₁ ps₂) (ps_terms ps₁))
          (series_stretch r (cm_factor ps₂ ps₁) (ps_terms ps₂));
-     ps_valnum :=
-       (ps_valnum ps₁ * ' ps_polord ps₂ + ps_valnum ps₂ * ' ps_polord ps₁)%Z;
+     ps_ordnum :=
+       (ps_ordnum ps₁ * ' ps_polord ps₂ + ps_ordnum ps₂ * ' ps_polord ps₁)%Z;
      ps_polord :=
        cm ps₁ ps₂ |}.
 
@@ -59,8 +59,8 @@ constructor; simpl.
 
  unfold gcd_ps; simpl.
  unfold cm; rewrite Pos.mul_comm, series_mul_comm.
- remember (ps_valnum ps₁ * ' ps_polord ps₂)%Z as x eqn:Hx .
- remember (ps_valnum ps₂ * ' ps_polord ps₁)%Z as y eqn:Hy .
+ remember (ps_ordnum ps₁ * ' ps_polord ps₂)%Z as x eqn:Hx .
+ remember (ps_ordnum ps₂ * ' ps_polord ps₁)%Z as y eqn:Hy .
  replace (x + y)%Z with (y + x)%Z by apply Z.add_comm.
  reflexivity.
 Qed.
@@ -504,7 +504,7 @@ destruct n as [n| ]; constructor.
  pose proof (gcd_ps_is_pos n x ps) as Hgp; subst x.
  rewrite <- Hg in Hgp.
  unfold gcd_ps in Hg; simpl in Hg.
- remember (ps_valnum ps + Z.of_nat n)%Z as x eqn:Hx .
+ remember (ps_ordnum ps + Z.of_nat n)%Z as x eqn:Hx .
  rewrite <- Z.gcd_assoc in Hg.
  remember (greatest_series_x_power r (ps_terms ps) n) as z.
  remember (Z.gcd (' ps_polord ps) (Z.of_nat z)) as y eqn:Hy ; subst z.
@@ -582,11 +582,11 @@ destruct n as [n| ]; constructor.
  reflexivity.
 Qed.
 
-Lemma ps_valnum_canonic : ∀ ps n p vn,
+Lemma ps_ordnum_canonic : ∀ ps n p vn,
   null_coeff_range_length r (ps_terms ps) 0 = fin n
   → p = greatest_series_x_power r (ps_terms ps) n
-    → vn = (ps_valnum ps + Z.of_nat n)%Z
-      → ps_valnum (canonic_ps r ps) =
+    → vn = (ps_ordnum ps + Z.of_nat n)%Z
+      → ps_ordnum (canonic_ps r ps) =
           (vn / Z.gcd vn (Z.gcd (' ps_polord ps) (Z.of_nat p)))%Z.
 Proof.
 intros ps n p vn Hn Hp Hvn.
@@ -602,7 +602,7 @@ Qed.
 Lemma ps_polord_canonic : ∀ ps n p vn,
   null_coeff_range_length r (ps_terms ps) 0 = fin n
   → p = greatest_series_x_power r (ps_terms ps) n
-    → vn = (ps_valnum ps + Z.of_nat n)%Z
+    → vn = (ps_ordnum ps + Z.of_nat n)%Z
       → ps_polord (canonic_ps r ps) =
         Z.to_pos
           (' ps_polord ps / Z.gcd (' ps_polord ps) (Z.gcd (Z.of_nat p) vn)).
@@ -620,7 +620,7 @@ Qed.
 Lemma ps_terms_canonic : ∀ ps n p vn,
   null_coeff_range_length r (ps_terms ps) 0 = fin n
   → p = greatest_series_x_power r (ps_terms ps) n
-    → vn = (ps_valnum ps + Z.of_nat n)%Z
+    → vn = (ps_ordnum ps + Z.of_nat n)%Z
       → ps_terms (canonic_ps r ps) =
         canonify_series n
           (Z.to_pos (Z.gcd vn (Z.gcd (' ps_polord ps) (Z.of_nat p))))
@@ -648,11 +648,11 @@ intros ps₁ ps₂ ps₃; simpl.
 unfold cm, cm_factor; simpl.
 do 2 rewrite series_shift_0.
 rewrite series_stretch_1.
-remember (ps_valnum ps₁) as v₁.
+remember (ps_ordnum ps₁) as v₁.
 remember (ps_polord ps₂) as c₂.
-remember (ps_valnum ps₂) as v₂.
+remember (ps_ordnum ps₂) as v₂.
 remember (ps_polord ps₁) as c₁.
-remember (ps_valnum ps₃) as v₃.
+remember (ps_ordnum ps₃) as v₃.
 remember (ps_polord ps₃) as c₃.
 do 3 rewrite series_stretch_mul.
 do 6 rewrite <- series_stretch_stretch.
@@ -698,20 +698,20 @@ f_equal.
  f_equal; ring.
 Qed.
 
-Lemma ps_valnum_adjust_mul_add₂_distr_l : ∀ ps₁ ps₂ ps₃,
-  ps_valnum (adjust_ps r 0 (ps_polord ps₁) (ps₁ * ps_add₂ ps₂ ps₃)%ps) =
-  ps_valnum (adjust_ps r 0 1 (ps_add₂ (ps₁ * ps₂)%ps (ps₁ * ps₃)%ps)).
+Lemma ps_ordnum_adjust_mul_add₂_distr_l : ∀ ps₁ ps₂ ps₃,
+  ps_ordnum (adjust_ps r 0 (ps_polord ps₁) (ps₁ * ps_add₂ ps₂ ps₃)%ps) =
+  ps_ordnum (adjust_ps r 0 1 (ps_add₂ (ps₁ * ps₂)%ps (ps₁ * ps₃)%ps)).
 Proof.
 intros ps₁ ps₂ ps₃; simpl.
 unfold cm; simpl.
 unfold cm_factor.
 f_equal.
 rewrite Z.mul_1_r.
-remember (ps_valnum ps₁) as v₁.
+remember (ps_ordnum ps₁) as v₁.
 remember (ps_polord ps₂) as c₂.
-remember (ps_valnum ps₂) as v₂.
+remember (ps_ordnum ps₂) as v₂.
 remember (ps_polord ps₁) as c₁.
-remember (ps_valnum ps₃) as v₃.
+remember (ps_ordnum ps₃) as v₃.
 remember (ps_polord ps₃) as c₃.
 do 3 rewrite Pos2Z.inj_mul.
 do 3 rewrite Z.mul_assoc.
@@ -766,11 +766,11 @@ unfold cm; simpl.
 unfold cm_factor.
 do 2 rewrite series_shift_0.
 rewrite series_stretch_1.
-remember (ps_valnum ps₁) as v₁.
+remember (ps_ordnum ps₁) as v₁.
 remember (ps_polord ps₂) as c₂.
-remember (ps_valnum ps₂) as v₂.
+remember (ps_ordnum ps₂) as v₂.
 remember (ps_polord ps₁) as c₁.
-remember (ps_valnum ps₃) as v₃.
+remember (ps_ordnum ps₃) as v₃.
 remember (ps_polord ps₃) as c₃.
 do 3 rewrite series_stretch_mul.
 do 6 rewrite <- series_stretch_stretch.
@@ -816,18 +816,18 @@ subst x.
 reflexivity.
 Qed.
 
-Lemma ps_valnum_adjust_canonic_mul_add₂_distr_l : ∀ ps₁ ps₂ ps₃ ps₄ ps₅ n,
+Lemma ps_ordnum_adjust_canonic_mul_add₂_distr_l : ∀ ps₁ ps₂ ps₃ ps₄ ps₅ n,
   ps₄ = adjust_ps r 0 (ps_polord ps₁) (ps₁ * ps_add₂ ps₂ ps₃)%ps
   → ps₅ = adjust_ps r 0 1 (ps_add₂ (ps₁ * ps₂)%ps (ps₁ * ps₃)%ps)
     → null_coeff_range_length r (ps_terms ps₄) 0 = fin n
       → null_coeff_range_length r (ps_terms ps₅) 0 = fin n
-        → ps_valnum (canonic_ps r ps₄) = ps_valnum (canonic_ps r ps₅).
+        → ps_ordnum (canonic_ps r ps₄) = ps_ordnum (canonic_ps r ps₅).
 Proof.
 intros ps₁ ps₂ ps₃ ps₄ ps₅ n Hps₄ Hps₅ Hn₄ Hn₅.
-erewrite ps_valnum_canonic; try reflexivity; try eassumption.
-erewrite ps_valnum_canonic; try reflexivity; try eassumption.
+erewrite ps_ordnum_canonic; try reflexivity; try eassumption.
+erewrite ps_ordnum_canonic; try reflexivity; try eassumption.
 rewrite Hps₄, Hps₅.
-rewrite ps_valnum_adjust_mul_add₂_distr_l.
+rewrite ps_ordnum_adjust_mul_add₂_distr_l.
 rewrite ps_polord_adjust_mul_add₂_distr_l.
 rewrite ps_terms_adjust_mul_add₂_distr_l.
 reflexivity.
@@ -844,7 +844,7 @@ intros ps₁ ps₂ ps₃ ps₄ ps₅ n Hps₄ Hps₅ Hn₄ Hn₅.
 erewrite ps_polord_canonic; try reflexivity; try eassumption.
 erewrite ps_polord_canonic; try reflexivity; try eassumption.
 rewrite Hps₄, Hps₅.
-rewrite ps_valnum_adjust_mul_add₂_distr_l.
+rewrite ps_ordnum_adjust_mul_add₂_distr_l.
 rewrite ps_polord_adjust_mul_add₂_distr_l.
 rewrite ps_terms_adjust_mul_add₂_distr_l.
 reflexivity.
@@ -861,7 +861,7 @@ intros ps₁ ps₂ ps₃ ps₄ ps₅ n Hps₄ Hps₅ Hn₄ Hn₅.
 erewrite ps_terms_canonic; try reflexivity; try eassumption.
 erewrite ps_terms_canonic; try reflexivity; try eassumption.
 rewrite Hps₄, Hps₅.
-rewrite ps_valnum_adjust_mul_add₂_distr_l.
+rewrite ps_ordnum_adjust_mul_add₂_distr_l.
 rewrite ps_polord_adjust_mul_add₂_distr_l.
 rewrite ps_terms_adjust_mul_add₂_distr_l.
 reflexivity.
@@ -877,9 +877,9 @@ rewrite <- (canonic_ps_eq ips₃).
 remember (canonic_ps r ips₁) as ps₁ eqn:Hps₁ .
 remember (canonic_ps r ips₂) as ps₂ eqn:Hps₂ .
 remember (canonic_ps r ips₃) as ps₃ eqn:Hps₃ .
-remember (ps_valnum ps₁ * ' ps_polord ps₂ * ' ps_polord ps₃)%Z as vcc.
-remember (' ps_polord ps₁ * ps_valnum ps₂ * ' ps_polord ps₃)%Z as cvc.
-remember (' ps_polord ps₁ * ' ps_polord ps₂ * ps_valnum ps₃)%Z as ccv.
+remember (ps_ordnum ps₁ * ' ps_polord ps₂ * ' ps_polord ps₃)%Z as vcc.
+remember (' ps_polord ps₁ * ps_ordnum ps₂ * ' ps_polord ps₃)%Z as cvc.
+remember (' ps_polord ps₁ * ' ps_polord ps₂ * ps_ordnum ps₃)%Z as ccv.
 remember ((vcc + Z.min cvc ccv) * ' ps_polord ps₁)%Z as n₁.
 remember ((vcc + Z.min cvc ccv) * ' ps_polord ps₁)%Z as n₂.
 do 2 rewrite eq_ps_add_add₂.
@@ -895,7 +895,7 @@ assert (n₄ = n₅) as H by (subst; apply null_range_length_mul_add₂_distr_l)
 move H at top; subst n₅.
 destruct n₄ as [n₄| ].
  constructor; constructor; simpl.
-  eapply ps_valnum_adjust_canonic_mul_add₂_distr_l; eassumption.
+  eapply ps_ordnum_adjust_canonic_mul_add₂_distr_l; eassumption.
 
   eapply ps_polord_adjust_canonic_mul_add₂_distr_l; eassumption.
 
@@ -928,7 +928,7 @@ apply mkps_morphism; simpl.
 
   rewrite rng_add_0_l; reflexivity.
 
- unfold ps_valnum_add; simpl.
+ unfold ps_ordnum_add; simpl.
  rewrite Z.min_id; reflexivity.
 
  unfold cm; simpl.

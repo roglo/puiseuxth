@@ -441,10 +441,10 @@ Fixpoint coeff_of_term i tl :=
       if eq_nat_dec i (power t₁) then coeff t₁ else coeff_of_term i tl₁
   end.
 
-Fixpoint val_of_pt i pl :=
+Fixpoint ord_of_pt i pl :=
   match pl with
   | [] => 0
-  | [(x, y) … pl₁] => if Qeq_dec (Qnat i) x then y else val_of_pt i pl₁
+  | [(x, y) … pl₁] => if Qeq_dec (Qnat i) x then y else ord_of_pt i pl₁
   end.
 
 (* Σāh.x^(hγ₁).(c₁+y₁)^h =
@@ -463,14 +463,14 @@ Lemma summation_split_val : ∀ pol ns γ₁ c₁ pl tl l,
            poly_summation Kx l
              (λ h,
               let ah := ps_monom (coeff_of_term h tl) 0 in
-              let αh := val_of_pt h pl in
+              let αh := ord_of_pt h pl in
               POL [(ah * ps_monom 1%K (αh + Qnat h * γ₁))%ps] *
               POL [ps_monom c₁ 0; 1%ps … []] ^ h) +
            poly_summation Kx l
              (λ h,
               let āh := poly_nth R h pol in
               let ah := ps_monom (coeff_of_term h tl) 0 in
-              let αh := val_of_pt h pl in
+              let αh := ord_of_pt h pl in
               POL [((āh - ah * ps_monom 1%K αh) *
                     ps_monom 1%K (Qnat h * γ₁))%ps] *
               POL [ps_monom c₁ 0; 1%ps … []] ^ h))%pol.
@@ -513,7 +513,7 @@ Theorem f₁_eq_sum_α_hγ_to_rest : ∀ pol ns β₁ γ₁ c₁ pl tl l₁ l₂
              poly_summation Kx l₁
                (λ h,
                 let ah := ps_monom (coeff_of_term h tl) 0 in
-                let αh := val_of_pt h pl in
+                let αh := ord_of_pt h pl in
                 POL [(ah * ps_monom 1%K (αh + Qnat h * γ₁))%ps] *
                 POL [ps_monom c₁ 0; 1%ps … []] ^ h) +
              POL [ps_monom 1%K (- β₁)] *
@@ -521,7 +521,7 @@ Theorem f₁_eq_sum_α_hγ_to_rest : ∀ pol ns β₁ γ₁ c₁ pl tl l₁ l₂
                 (λ h,
                  let āh := poly_nth R h pol in
                  let ah := ps_monom (coeff_of_term h tl) 0 in
-                 let αh := val_of_pt h pl in
+                 let αh := ord_of_pt h pl in
                  POL [((āh - ah * ps_monom 1%K αh) *
                        ps_monom 1%K (Qnat h * γ₁))%ps] *
                  POL [ps_monom c₁ 0; 1%ps … []] ^ h) +
@@ -539,11 +539,11 @@ rewrite <- summation_split_val; try eassumption.
 apply f₁_eq_x_min_β₁_summation_split; assumption.
 Qed.
 
-Lemma val_is_val_of_pt : ∀ pl h,
+Lemma ord_is_ord_of_pt : ∀ pl h,
   Sorted fst_lt pl
   → (∀ pt, pt ∈ pl → ∃ (h : nat) (αh : Q), pt = (Qnat h, αh))
     → h ∈ List.map (λ x, nofq (fst x)) pl
-      → (Qnat h, val_of_pt h pl) ∈ pl.
+      → (Qnat h, ord_of_pt h pl) ∈ pl.
 Proof.
 (* à nettoyer sérieusement *)
 intros pl h Hsort Hnat Hin.
@@ -630,7 +630,7 @@ Lemma subst_αh_hγ : ∀ pol ns pl tl l₁ c₁,
         → (poly_summation Kx l₁
              (λ h,
               let ah := ps_monom (coeff_of_term h tl) 0 in
-              let αh := val_of_pt h pl in
+              let αh := ord_of_pt h pl in
               POL [(ah * ps_monom 1%K (αh + Qnat h * γ ns))%ps] *
               POL [ps_monom c₁ 0; 1%ps … []] ^ h) =
            poly_summation Kx l₁
@@ -660,7 +660,7 @@ assert (∀ pt, pt ∈ pl → ∃ h αh, pt = (Qnat h, αh)) as Hnat.
  eapply points_in_newton_segment_have_nat_abscissa; [ eassumption | idtac ].
  subst pl; assumption.
 
- apply val_is_val_of_pt; assumption.
+ apply ord_is_ord_of_pt; assumption.
 Qed.
 
 Lemma poly_summation_mul : ∀ l x g₁ g₂,
@@ -708,7 +708,7 @@ Theorem f₁_eq_sum_without_x_β₁_plus_sum : ∀ pol ns c₁ pl tl l₁ l₂,
                 (λ h,
                  let āh := poly_nth R h pol in
                  let ah := ps_monom (coeff_of_term h tl) 0 in
-                 let αh := val_of_pt h pl in
+                 let αh := ord_of_pt h pl in
                  POL [((āh - ah * ps_monom 1%K αh) *
                        ps_monom 1%K (Qnat h * γ ns))%ps] *
                  POL [ps_monom c₁ 0; 1%ps … []] ^ h) +
@@ -1093,7 +1093,7 @@ Fixpoint make_char_lap_of_hl la pow hl :=
   | [] => []
   | [h … hl₁] =>
       let ps := List.nth h la 0%ps in
-      let c := valuation_coeff R ps in
+      let c := order_coeff R ps in
       list_pad (h - pow) 0%K [c … make_char_lap_of_hl la (S h) hl₁]
   end.
 
@@ -1104,7 +1104,7 @@ Fixpoint coeff_of_hl la i hl :=
   match hl with
   | [] => 0%K
   | [h … hl₁] =>
-      if eq_nat_dec i h then valuation_coeff R (List.nth h la 0%ps)
+      if eq_nat_dec i h then order_coeff R (List.nth h la 0%ps)
       else coeff_of_hl la i hl₁
   end.
 
@@ -1330,7 +1330,7 @@ destruct i.
 
    apply Nat.nle_gt in H₁.
    revert H₁; clear; intros.
-   remember (valuation_coeff R (List.nth n la 0%ps)) as v.
+   remember (order_coeff R (List.nth n la 0%ps)) as v.
    remember (make_char_lap_of_hl la (S n) li) as l.
    remember [v … l] as vl.
    revert H₁; clear; intros.
@@ -1862,7 +1862,7 @@ Theorem f₁_eq_term_with_Ψ_plus_sum : ∀ pol ns c₁ pl tl j αj l₁ l₂ r 
                         (λ h,
                          let āh := poly_nth R h pol in
                          let ah := ps_monom (coeff_of_term h tl) 0 in
-                         let αh := val_of_pt h pl in
+                         let αh := ord_of_pt h pl in
                          POL [((āh - ah * ps_monom 1%K αh) *
                                ps_monom 1%K (Qnat h * γ ns))%ps] *
                          POL [ps_monom c₁ 0; 1%ps … []] ^ h) +

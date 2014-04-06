@@ -38,7 +38,7 @@ Fixpoint make_char_pol α (r : ring α) pow tl :=
 Definition lap_term_of_point α (r : ring α) la (pt : (Q * Q)) :=
   let h := nofq (fst pt) in
   let ps := List.nth h la 0%ps in
-  let c := valuation_coeff r ps in
+  let c := order_coeff r ps in
   {| coeff := c; power := h |}.
 
 Definition term_of_point α (r : ring α) pol (pt : (Q * Q)) :=
@@ -83,7 +83,7 @@ induction cl as [| c]; intros; [ subst pts; contradiction | idtac ].
 simpl in Hpts.
 destruct cl as [| c₁].
  simpl in Hpts.
- destruct (valuation c); subst pts; [ idtac | contradiction ].
+ destruct (order c); subst pts; [ idtac | contradiction ].
  simpl in Hαh.
  destruct Hαh as [Hαh| ]; [ idtac | contradiction ].
  subst pt; simpl.
@@ -91,7 +91,7 @@ destruct cl as [| c₁].
 
  simpl in Hpts.
  simpl in IHcl.
- destruct (valuation c).
+ destruct (order c).
   subst pts.
   destruct Hαh as [Hαh| Hαh].
    subst pt; simpl.
@@ -599,13 +599,13 @@ Qed.
 Theorem com_den_of_ps_list : ∀ (psl : list (puiseux_series α)) m,
   m = series_list_com_polord psl
   → ∀ ps αi mi, ps ∈ psl
-    → valuation ps = qfin αi
+    → order ps = qfin αi
       → mi = (Qnum αi * Zpos m / Zpos (ps_polord ps))%Z
         → αi == mi # m.
 Proof.
 intros psl m Hm ps αi mi Hps Hv Hmi.
 subst mi.
-unfold valuation in Hv.
+unfold order in Hv.
 remember (null_coeff_range_length r (ps_terms ps) 0) as n eqn:Hn .
 symmetry in Hn.
 destruct n as [n| ]; [ idtac | discriminate Hv ].
@@ -658,7 +658,7 @@ destruct Hns as [Hns| Hns].
 Qed.
 
 Lemma first_power_le : ∀ pow cl h hv,
-  (h, hv) ∈ filter_finite_val r (qpower_list pow cl)
+  (h, hv) ∈ filter_finite_ord r (qpower_list pow cl)
   → pow ≤ Z.to_nat (Qnum h).
 Proof.
 intros pow cl h hv Hhhv.
@@ -668,7 +668,7 @@ induction cl as [| c]; intros; [ contradiction | idtac ].
 simpl in Hhhv.
 destruct cl as [| c₁].
  simpl in Hhhv.
- destruct (valuation c); [ idtac | contradiction ].
+ destruct (order c); [ idtac | contradiction ].
  destruct Hhhv as [Hhhv| ]; [ idtac | contradiction ].
  injection Hhhv; clear Hhhv; intros; subst h hv.
  simpl.
@@ -676,7 +676,7 @@ destruct cl as [| c₁].
 
  simpl in Hhhv.
  simpl in IHcl.
- destruct (valuation c).
+ destruct (order c).
   destruct Hhhv as [Hhhv| Hhhv].
    injection Hhhv; clear Hhhv; intros; subst h hv.
    simpl; rewrite Nat2Z.id; reflexivity.
@@ -713,10 +713,10 @@ Qed.
 
 Lemma in_pts_in_ppl : ∀ pow cl ppl pts h hv hps def,
   ppl = qpower_list pow cl
-  → pts = filter_finite_val r ppl
+  → pts = filter_finite_ord r ppl
     → (h, hv) ∈ pts
       → hps = List.nth (Z.to_nat (Qnum h) - pow) cl def
-        → (h, hps) ∈ ppl ∧ valuation hps = qfin hv.
+        → (h, hps) ∈ ppl ∧ order hps = qfin hv.
 Proof.
 intros pow cl ppl pts h hv hps def Hppl Hpts Hhhv Hhps.
 subst ppl pts.
@@ -724,7 +724,7 @@ destruct cl as [| c₁]; intros; [ contradiction | idtac ].
 revert pow c₁ h hv hps Hhps Hhhv.
 induction cl as [| c]; intros.
  simpl in Hhhv.
- remember (valuation c₁) as v.
+ remember (order c₁) as v.
  symmetry in Heqv.
  destruct v as [v| ]; [ idtac | contradiction ].
  destruct Hhhv as [Hhhv| ]; [ idtac | contradiction ].
@@ -735,7 +735,7 @@ induction cl as [| c]; intros.
  split; [ left; reflexivity | assumption ].
 
  simpl in Hhhv.
- remember (valuation c₁) as v.
+ remember (order c₁) as v.
  symmetry in Heqv.
  destruct v as [v| ].
   destruct Hhhv as [Hhhv| Hhhv].
@@ -779,10 +779,10 @@ induction cl as [| c]; intros.
 Qed.
 
 Lemma in_pts_in_psl : ∀ pow pts psl h hv hps def,
-  pts = filter_finite_val r (qpower_list pow psl)
+  pts = filter_finite_ord r (qpower_list pow psl)
   → (h, hv) ∈ pts
     → hps = List.nth (Z.to_nat (Qnum h) - pow) psl def
-      → hps ∈ psl ∧ valuation hps = qfin hv.
+      → hps ∈ psl ∧ order hps = qfin hv.
 Proof.
 intros pow pts psl h hv hps def Hpts Hhv Hhps.
 remember (power_list pow psl) as ppl.
@@ -824,7 +824,7 @@ Lemma in_pts_in_pol : ∀ pol pts h hv hps def,
   pts = points_of_ps_polynom r pol
   → (Qnat h, hv) ∈ pts
     → hps = List.nth h (al pol) def
-      → hps ∈ al pol ∧ valuation hps = qfin hv.
+      → hps ∈ al pol ∧ order hps = qfin hv.
 Proof.
 intros pol pts h hv hps def Hpts Hhhv Hhps.
 eapply in_pts_in_psl; try eassumption.
@@ -833,10 +833,10 @@ Qed.
 
 Lemma in_ppl_in_pts : ∀ pow cl ppl pts h hv hps,
   ppl = qpower_list pow cl
-  → pts = filter_finite_val r ppl
+  → pts = filter_finite_ord r ppl
     → pow ≤ h
       → hps = List.nth (h - pow) cl 0%ps
-        → valuation hps = qfin hv
+        → order hps = qfin hv
           → (Qnat h, hv) ∈ pts.
 Proof.
 (* peut-être améliorable, simplifiable ; voir pourquoi cas cl=[] est à part ;
@@ -845,8 +845,8 @@ intros pow cl ppl pts h hv hps Hppl Hpts Hph Hhhv Hhps.
 subst ppl pts.
 destruct cl as [| c₁]; intros; simpl.
  rewrite list_nth_nil in Hhhv.
- assert (valuation hps = qinf) as H.
-  apply valuation_inf.
+ assert (order hps = qinf) as H.
+  apply order_inf.
   subst hps; reflexivity.
 
   rewrite Hhps in H; discriminate H.
@@ -865,15 +865,15 @@ destruct cl as [| c₁]; intros; simpl.
    subst pow; left; reflexivity.
 
    rewrite match_id in Hhhv.
-   assert (valuation hps = qinf) as H.
-    apply valuation_inf.
+   assert (order hps = qinf) as H.
+    apply order_inf.
     subst hps; reflexivity.
 
     rewrite Hhps in H; discriminate H.
 
   remember [c … cl] as x; simpl; subst x.
   remember [c … cl] as x; simpl; subst x.
-  remember (valuation c₁) as n eqn:Hn .
+  remember (order c₁) as n eqn:Hn .
   symmetry in Hn.
   destruct n as [n| ].
    simpl in Hhhv.
@@ -934,7 +934,7 @@ Qed.
 Lemma in_pol_in_pts : ∀ pol pts h hv hps,
   pts = points_of_ps_polynom r pol
   → hps = List.nth h (al pol) 0%ps
-    → valuation hps = qfin hv
+    → order hps = qfin hv
       → (Qnat h, hv) ∈ pts.
 Proof.
 intros pol pts h hv hps Hpts Hhps Hv.
@@ -2633,7 +2633,7 @@ destruct n; simpl.
 Qed.
 
 Lemma fold_char_pol : ∀ pol j αj tl,
-  [valuation_coeff r (List.nth j (al pol) 0%ps)
+  [order_coeff r (List.nth j (al pol) 0%ps)
    … make_char_pol r (S j) (List.map (term_of_point r pol) tl)] =
   make_char_pol r j
     (List.map (term_of_point r pol) [(Qnat j, αj) … tl]).
@@ -2649,14 +2649,14 @@ Lemma make_char_pol_cons : ∀ pow t tl,
     [coeff t … make_char_pol r (S (power t)) tl].
 Proof. reflexivity. Qed.
 
-Lemma val_coeff_non_zero_in_newt_segm : ∀ pol ns h αh hps,
+Lemma ord_coeff_non_zero_in_newt_segm : ∀ pol ns h αh hps,
   ns ∈ newton_segments r pol
   → (Qnat h, αh) ∈ [ini_pt ns … oth_pts ns ++ [fin_pt ns]]
     → hps = List.nth h (al pol) 0%ps
-      → (valuation_coeff r hps ≠ 0)%K.
+      → (order_coeff r hps ≠ 0)%K.
 Proof.
 intros pol ns h αh hps Hns Hh Hhps.
-unfold valuation_coeff.
+unfold order_coeff.
 remember (null_coeff_range_length r (ps_terms hps) 0) as n eqn:Hn .
 symmetry in Hn.
 destruct n as [n| ].
@@ -2667,7 +2667,7 @@ destruct n as [n| ].
  remember Hpts as H; clear HeqH.
  eapply in_pts_in_pol in H; try eassumption.
   destruct H as (Hhp, Hhhv).
-  unfold valuation in Hhhv.
+  unfold order in Hhhv.
   rewrite Hn in Hhhv; discriminate Hhhv.
 
   unfold newton_segments in Hns.
@@ -2911,7 +2911,7 @@ apply imp_or_tauto.
    rewrite list_last_cons_app; simpl.
    rewrite <- Hk; simpl.
    rewrite nofq_Qnat; simpl.
-   eapply val_coeff_non_zero_in_newt_segm; try eassumption; try reflexivity.
+   eapply ord_coeff_non_zero_in_newt_segm; try eassumption; try reflexivity.
    rewrite <- Hk; right.
    apply List.in_or_app; right; left; reflexivity.
 
@@ -3026,7 +3026,7 @@ destruct jj as (jq, αj); simpl.
 rewrite Nat.sub_diag; simpl.
 rewrite skipn_pad; simpl.
 rewrite rng_mul_0_r, rng_add_0_l.
-eapply val_coeff_non_zero_in_newt_segm; try eassumption; try reflexivity.
+eapply ord_coeff_non_zero_in_newt_segm; try eassumption; try reflexivity.
 left; rewrite <- Hj.
 unfold Qnat, nofq; simpl.
 apply exists_ini_pt_nat in Hns.

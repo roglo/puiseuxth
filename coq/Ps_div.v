@@ -19,7 +19,7 @@ Definition ps_inv {α} {r : ring α} {f : field r} ps :=
   match null_coeff_range_length r (ps_terms ps) O with
   | fin n =>
       {| ps_terms := series_inv (series_left_shift n (ps_terms ps));
-         ps_valnum := - ps_valnum ps - Z.of_nat n;
+         ps_ordnum := - ps_ordnum ps - Z.of_nat n;
          ps_polord := ps_polord ps |}
   | ∞ =>
       ps
@@ -31,7 +31,7 @@ Definition ps_left_adjust α (r : ring α) ps :=
   match null_coeff_range_length r (ps_terms ps) O with
   | fin n =>
       {| ps_terms := series_left_shift n (ps_terms ps);
-         ps_valnum := ps_valnum ps + Z.of_nat n;
+         ps_ordnum := ps_ordnum ps + Z.of_nat n;
          ps_polord := ps_polord ps |}
   | ∞ =>
       ps
@@ -80,8 +80,8 @@ remember (null_coeff_range_length r (ps_terms ps) 0) as n eqn:Hn .
 symmetry in Hn.
 destruct n as [n| ].
  constructor; constructor; simpl.
-  erewrite ps_valnum_canonic; try reflexivity; try eassumption.
-  erewrite ps_valnum_canonic with (n := O); try reflexivity; try eassumption.
+  erewrite ps_ordnum_canonic; try reflexivity; try eassumption.
+  erewrite ps_ordnum_canonic with (n := O); try reflexivity; try eassumption.
    rewrite Z.add_0_r.
    unfold ps_left_adjust.
    rewrite Hn.
@@ -154,7 +154,7 @@ symmetry in Hn.
 destruct n as [n| ].
  destruct n.
   constructor; simpl.
-   erewrite ps_valnum_canonic; try reflexivity; try eassumption.
+   erewrite ps_ordnum_canonic; try reflexivity; try eassumption.
    rewrite Z.add_0_r.
    remember Z.gcd as g; simpl; subst g.
    rewrite Z.gcd_0_l.

@@ -12,11 +12,11 @@ Require Import Power_series.
 Set Implicit Arguments.
 
 (* ps_terms: power series (in x^(1/ps_polord))
-   ps_valnum: valuation numerator
+   ps_ordnum: order numerator
    ps_polord: polydromy order (common denominator) *)
 Record puiseux_series α := mkps
   { ps_terms : power_series α;
-    ps_valnum : Z;
+    ps_ordnum : Z;
     ps_polord : positive }.
 
 Section Axioms.
@@ -96,10 +96,10 @@ Definition canonify_series α n k (s : power_series α) :=
   series_shrink k (series_left_shift n s).
 
 Definition gcd_ps α n k (ps : puiseux_series α) :=
-  Z.gcd (Z.gcd (ps_valnum ps + Z.of_nat n) (' ps_polord ps)) (Z.of_nat k).
+  Z.gcd (Z.gcd (ps_ordnum ps + Z.of_nat n) (' ps_polord ps)) (Z.of_nat k).
 
 Definition ps_zero {α} {r : ring α} :=
-  {| ps_terms := 0%ser; ps_valnum := 0; ps_polord := 1 |}.
+  {| ps_terms := 0%ser; ps_ordnum := 0; ps_polord := 1 |}.
 
 Definition canonic_ps α (r : ring α) ps :=
   match null_coeff_range_length r (ps_terms ps) 0 with
@@ -107,7 +107,7 @@ Definition canonic_ps α (r : ring α) ps :=
       let k := greatest_series_x_power r (ps_terms ps) n in
       let g := gcd_ps n k ps in
       {| ps_terms := canonify_series n (Z.to_pos g) (ps_terms ps);
-         ps_valnum := (ps_valnum ps + Z.of_nat n) / g;
+         ps_ordnum := (ps_ordnum ps + Z.of_nat n) / g;
          ps_polord := Z.to_pos (' ps_polord ps / g) |}
   | ∞ =>
       ps_zero
@@ -116,7 +116,7 @@ Definition canonic_ps α (r : ring α) ps :=
 Inductive eq_ps_strong {α} {r : ring α} :
   puiseux_series α → puiseux_series α → Prop :=
   | eq_strong_base : ∀ ps₁ ps₂,
-      ps_valnum ps₁ = ps_valnum ps₂
+      ps_ordnum ps₁ = ps_ordnum ps₂
       → ps_polord ps₁ = ps_polord ps₂
         → eq_series (ps_terms ps₁) (ps_terms ps₂)
           → eq_ps_strong ps₁ ps₂.
@@ -129,7 +129,7 @@ Inductive eq_ps {α} {r : ring α} :
 
 Definition ps_monom {α} {r : ring α} (c : α) pow :=
   {| ps_terms := {| terms i := if zerop i then c else 0%K |};
-     ps_valnum := Qnum pow;
+     ps_ordnum := Qnum pow;
      ps_polord := Qden pow |}.
 
 Definition ps_one {α} {r : ring α} := ps_monom rng_one 0.
@@ -1536,7 +1536,7 @@ Lemma gcd_ps_is_pos : ∀ n k (ps : puiseux_series α), (0 < gcd_ps n k ps)%Z.
 Proof.
 intros n k ps.
 unfold gcd_ps; simpl.
-remember (ps_valnum ps + Z.of_nat n)%Z as x.
+remember (ps_ordnum ps + Z.of_nat n)%Z as x.
 rewrite <- Z.gcd_assoc.
 remember (Z.gcd (' ps_polord ps) (Z.of_nat k))%Z as y eqn:Hy .
 pose proof (Z.gcd_nonneg x y) as Hp.
@@ -1659,7 +1659,7 @@ split; intros H.
      pose proof (gcd_ps_is_pos m p ps) as Hgp.
      rewrite <- Hg in Hgp.
      unfold gcd_ps in Hg.
-     remember (ps_valnum ps + Z.of_nat m)%Z as x.
+     remember (ps_ordnum ps + Z.of_nat m)%Z as x.
      remember (Z.gcd x (' ps_polord ps)) as z.
      pose proof (Z.gcd_divide_r z (Z.of_nat p)) as H₄.
      rewrite <- Hg in H₄.
