@@ -83,7 +83,7 @@ apply Nat.neq_sym in Hhi.
 destruct Hh as [Hh| ]; [ contradiction | assumption ].
 Qed.
 
-(* [Walker, p 101] « O (āh - ah.x^αh) > 0 » (with fixed typo)
+(* [Walker, p 101] « O(āh - ah.x^αh) > 0 » (with fixed typo)
    What is called "O" (for "order") is actually the valuation. *)
 Theorem valuation_āh_minus_ah_xαh_gt_αh : ∀ pol ns pl tl h āh ah αh,
   let _ := Kx in
@@ -260,7 +260,7 @@ eapply valuation_in_newton_segment with (h := h) (αh := αh) in Hval; eauto .
   subst pl; assumption.
 Qed.
 
-(* [Walker, p 101] « O (āl.x^(l.γ₁)) > β₁ »
+(* [Walker, p 101] « O(āl.x^(l.γ₁)) > β₁ »
    What is called "O" (for "order") is actually the valuation. *)
 Theorem valuation_āl_xlγ₁_gt_β₁ : ∀ pol ns pl tl l₁ l₂ l āl,
   let _ := Kx in
@@ -419,7 +419,12 @@ destruct n as [n| ].
    apply Nat.lt_succ_diag_r.
 Qed.
 
-(* [Walker, p 101] ... *)
+(* [Walker, p 101] «
+     Since O(āh - ah.x^αh) > 0 and O(āl.x^(l.γ₁)) > β₁ we obtain
+       f₁(x,y₁) = b₁.y₁^r + b₂.y₂^(r+1) + ... + g(x,y₁),
+     where b₁ = c₁^j.Ψ(c₁) ≠ 0 and each power of y₁ in g(x,y₁) has
+     a coefficient of positive order.
+   » *)
 Theorem zzz : ∀ pol ns j αj k αk c₁ r Ψ f₁ b₁,
   let _ := Kx in (* coq seems not to see the type of Kx *)
   ns ∈ newton_segments R pol
