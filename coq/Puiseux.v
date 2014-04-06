@@ -439,6 +439,16 @@ Definition g_of_ns pol ns :=
        POL [(āl * ps_monom 1%K (Qnat l * γ ns))%ps] *
        POL [ps_monom c₁ 0; 1%ps … []] ^ l)))%pol.
 
+Lemma yyy : ∀ pol ns g,
+  ns ∈ newton_segments R pol
+  → g = g_of_ns pol ns
+    → ∀ m, m ∈ al g → (order m > 0)%Qbar.
+Proof.
+intros pol ns g Hns Hg m Hm.
+subst g.
+simpl in Hm.
+bbb.
+
 (* [Walker, p 101] «
      Since O(āh - ah.x^αh) > 0 and O(āl.x^(l.γ₁)) > β₁ we obtain
        f₁(x,y₁) = b₁.y₁^r + b₂.y₁^(r+1) + ... + g(x,y₁),
