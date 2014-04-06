@@ -419,7 +419,8 @@ destruct n as [n| ].
    apply Nat.lt_succ_diag_r.
 Qed.
 
-Definition g_of_ns pol ns :=
+Definition g_of_ns pol ns l₁ l₂ :=
+  let _ := Kx in (* coq seems not to see the type of Kx *)
   let c₁ := ac_root (Φq R pol ns) in
   let pl := [ini_pt ns … oth_pts ns ++ [fin_pt ns]] in
   let tl := List.map (term_of_point R pol) pl in
@@ -427,7 +428,7 @@ Definition g_of_ns pol ns :=
    (poly_summation Kx l₁
       (λ h,
        let āh := poly_nth R h pol in
-       let ah := ps_monom (coeff_of_term h tl) 0 in
+       let ah := ps_monom (coeff_of_term R h tl) 0 in
        let αh := val_of_pt h pl in
        POL [((āh - ah * ps_monom 1%K αh) *
              ps_monom 1%K (Qnat h * γ ns))%ps] *
@@ -464,7 +465,7 @@ Theorem zzz : ∀ pol ns j αj k αk c₁ r Ψ f₁ b₁ g,
           → Ψ = quotient_phi_x_sub_c_pow_r R (Φq R pol ns) c₁ r
             → f₁ = pol₁ R pol (β ns) (γ ns) c₁
               → (b₁ = c₁ ^ j * apply_poly R Ψ c₁)%K
-                → g = g_of_ns pol ns
+                → g = g_of_ns pol ns l₁ l₂
                   → ∃ lb,
                     (∀ m, m ∈ al g → (valuation m > 0)%Qbar) ∧
                     (f₁ =
