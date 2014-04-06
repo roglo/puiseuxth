@@ -419,11 +419,64 @@ destruct n as [n| ].
    apply Nat.lt_succ_diag_r.
 Qed.
 
-Definition g_of_ns pol ns l₁ l₂ :=
+Fixpoint list_seq_except start len except :=
+  match len with
+  | 0%nat => []
+  | S len' =>
+      match except with
+      | [] => [start … list_seq_except (S start) len' []]
+      | [x … l] =>
+          if eq_nat_dec start x then list_seq_except (S start) len' l
+          else [start … list_seq_except (S start) len' except]
+      end
+  end.
+
+Lemma list_seq_except_nil : ∀ start len,
+  list_seq_except start len [] = List.seq start len.
+Proof.
+intros start len.
+revert start.
+induction len; intros; [ reflexivity | simpl ].
+rewrite IHlen; reflexivity.
+Qed.
+
+Lemma yyy : ∀ start len la lb,
+  split_list (List.seq start len) la lb
+  → lb = list_seq_except start len la.
+Proof.
+intros start len la lb Hs.
+revert start la lb Hs.
+induction len; intros; simpl in Hs; simpl.
+ inversion Hs; reflexivity.
+
+ destruct la as [| a]; simpl.
+  apply split_list_nil_l in Hs.
+  rewrite list_seq_except_nil; assumption.
+
+  destruct (eq_nat_dec start a) as [Hsa| Hsa].
+   subst a.
+   inversion Hs; subst.
+    apply IHlen; assumption.
+
+    exfalso; revert H3; clear; intros.
+    rename l₂ into lb; rename H3 into H.
+    revert start la lb H.
+    induction len; intros; simpl in H.
+     inversion H.
+
+     inversion H.
+      revert H3; apply Nat.neq_succ_diag_l.
+
+      subst.
+bbb.
+
+Definition g_of_ns pol ns :=
   let _ := Kx in (* coq seems not to see the type of Kx *)
   let c₁ := ac_root (Φq R pol ns) in
   let pl := [ini_pt ns … oth_pts ns ++ [fin_pt ns]] in
   let tl := List.map (term_of_point R pol) pl in
+  let l₁ := List.map (λ t, power t) tl in
+  let l₂ := list_seq_except 0 (length (al pol)) l₁ in
   (POL [ps_monom 1%K (- β ns)] *
    (poly_summation Kx l₁
       (λ h,
@@ -465,7 +518,7 @@ Theorem zzz : ∀ pol ns j αj k αk c₁ r Ψ f₁ b₁ g,
           → Ψ = quotient_phi_x_sub_c_pow_r R (Φq R pol ns) c₁ r
             → f₁ = pol₁ R pol (β ns) (γ ns) c₁
               → (b₁ = c₁ ^ j * apply_poly R Ψ c₁)%K
-                → g = g_of_ns pol ns l₁ l₂
+                → g = g_of_ns pol ns
                   → ∃ lb,
                     (∀ m, m ∈ al g → (valuation m > 0)%Qbar) ∧
                     (f₁ =
@@ -476,6 +529,6 @@ Theorem zzz : ∀ pol ns j αj k αk c₁ r Ψ f₁ b₁ g,
                      g)%pol.
 Proof.
 intros pol ns j αj k αk c₁ r Ψ f₁ b₁ g f' Hns Hini Hfin Hc₁ Hr HΨ Hf₁ Hb₁ Hg.
-fbbb.
+bbb.
 
 End theorems.
