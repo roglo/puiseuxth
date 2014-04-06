@@ -419,6 +419,25 @@ destruct n as [n| ].
    apply Nat.lt_succ_diag_r.
 Qed.
 
+Definition g_of_ns pol ns :=
+  let c₁ := ac_root (Φq R pol ns) in
+  let pl := [ini_pt ns … oth_pts ns ++ [fin_pt ns]] in
+  let tl := List.map (term_of_point R pol) pl in
+  (POL [ps_monom 1%K (- β ns)] *
+   (poly_summation Kx l₁
+      (λ h,
+       let āh := poly_nth R h pol in
+       let ah := ps_monom (coeff_of_term h tl) 0 in
+       let αh := val_of_pt h pl in
+       POL [((āh - ah * ps_monom 1%K αh) *
+             ps_monom 1%K (Qnat h * γ ns))%ps] *
+       POL [ps_monom c₁ 0; 1%ps … []] ^ h) +
+    poly_summation Kx l₂
+      (λ l,
+       let āl := poly_nth R l pol in
+       POL [(āl * ps_monom 1%K (Qnat l * γ ns))%ps] *
+       POL [ps_monom c₁ 0; 1%ps … []] ^ l)))%pol.
+
 (* [Walker, p 101] «
      Since O(āh - ah.x^αh) > 0 and O(āl.x^(l.γ₁)) > β₁ we obtain
        f₁(x,y₁) = b₁.y₁^r + b₂.y₂^(r+1) + ... + g(x,y₁),
@@ -435,7 +454,7 @@ Qed.
      since the degree of this polynomial is
        r + j + (k - j - r)
  *)
-Theorem zzz : ∀ pol ns j αj k αk c₁ r Ψ f₁ b₁,
+Theorem zzz : ∀ pol ns j αj k αk c₁ r Ψ f₁ b₁ g,
   let _ := Kx in (* coq seems not to see the type of Kx *)
   ns ∈ newton_segments R pol
   → ini_pt ns = (Qnat j, αj)
@@ -445,16 +464,17 @@ Theorem zzz : ∀ pol ns j αj k αk c₁ r Ψ f₁ b₁,
           → Ψ = quotient_phi_x_sub_c_pow_r R (Φq R pol ns) c₁ r
             → f₁ = pol₁ R pol (β ns) (γ ns) c₁
               → (b₁ = c₁ ^ j * apply_poly R Ψ c₁)%K
-                → ∃ lb lg,
-                  (∀ m, m ∈ lg → (valuation m > 0)%Qbar) ∧
-                  (f₁ =
-                   poly_summation Kx (List.seq 0 (k - r))
-                     (λ h,
-                      let bh := List.nth h [b₁ … lb] 0%K in
-                      POL [0%ps; ps_monom bh 1 … []] ^ (r + h)) +
-                   POL lg)%pol.
-  Proof.
-intros pol ns j αj k αk c₁ r Ψ f₁ b₁ f' Hns Hini Hfin Hc₁ Hr HΨ Hf₁ Hb₁.
+                → g = g_of_ns pol ns
+                  → ∃ lb,
+                    (∀ m, m ∈ al g → (valuation m > 0)%Qbar) ∧
+                    (f₁ =
+                     poly_summation Kx (List.seq 0 (k - r))
+                       (λ h,
+                        let bh := List.nth h [b₁ … lb] 0%K in
+                        POL [0%ps; ps_monom bh 1 … []] ^ (r + h)) +
+                     g)%pol.
+Proof.
+intros pol ns j αj k αk c₁ r Ψ f₁ b₁ g f' Hns Hini Hfin Hc₁ Hr HΨ Hf₁ Hb₁ Hg.
 fbbb.
 
 End theorems.
