@@ -439,6 +439,14 @@ Definition g_of_ns pol ns :=
        POL [(āl * ps_monom 1%K (Qnat l * γ ns))%ps] *
        POL [ps_monom c₁ 0; 1%ps … []] ^ l)))%pol.
 
+Lemma ps_list_in_split : ∀ (a : puiseux_series α) la,
+  let _ := Kx in (* coq seems not to see the type of Kx *)
+  a ∈ la
+  → ∃ l1 l2, (la = l1 ++ [a … l2])%lap.
+Proof.
+intros a la f' Ha.
+bbb.
+
 Lemma yyy : ∀ pol ns g,
   ns ∈ newton_segments R pol
   → g = g_of_ns pol ns
@@ -447,14 +455,15 @@ Proof.
 intros pol ns g Hns Hg m Hm.
 subst g.
 unfold g_of_ns in Hm.
+remember (ac_root (Φq R pol ns)) as c₁ eqn:Hc₁ .
+remember [ini_pt ns … oth_pts ns ++ [fin_pt ns]] as pl eqn:Hpl .
+remember (List.map (term_of_point R pol) pl) as tl eqn:Htl .
+remember (List.map (λ t, power t) tl) as l₁ eqn:Hl₁ .
+remember (list_seq_except 0 (length (al pol)) l₁) as l₂ eqn:Hl₂ .
 simpl in Hm.
-remember Hns as Hini; clear HeqHini.
-apply exists_ini_pt_nat in Hini.
-destruct Hini as (j, (αj, Hini)).
-rewrite Hini in Hm; simpl in Hm.
-rewrite nofq_Qnat in Hm.
-destruct (eq_nat_dec j j) as [Hj| Hj].
- remember (ac_root (Φq R pol ns)) as c₁ eqn:Hc₁ .
+apply ps_list_in_split in Hm.
+destruct Hm as (l1, (l2, Hm)).
+rewrite lap_mul_add_distr_l in Hm.
 bbb.
 
 (* [Walker, p 101] «
