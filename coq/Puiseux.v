@@ -445,7 +445,17 @@ Lemma ps_list_in_split : ∀ (a : puiseux_series α) la,
   → ∃ l1 l2, (la = l1 ++ [a … l2])%lap.
 Proof.
 intros a la f' Ha.
-bbb.
+subst f'.
+induction la as [| b]; [ contradiction | idtac ].
+destruct Ha as [Ha| Ha].
+ subst b.
+ exists [], la; reflexivity.
+
+ apply IHla in Ha.
+ destruct Ha as (lb, (lc, Ha)).
+ exists [b … lb], lc.
+ rewrite Ha; reflexivity.
+Qed.
 
 Lemma yyy : ∀ pol ns g,
   ns ∈ newton_segments R pol
