@@ -471,6 +471,7 @@ remember (List.map (term_of_point R pol) pl) as tl eqn:Htl .
 remember (List.map (λ t, power t) tl) as l₁ eqn:Hl₁ .
 remember (list_seq_except 0 (length (al pol)) l₁) as l₂ eqn:Hl₂ .
 simpl in Hm.
+apply List.in_map with (f := order) in Hm.
 bbb.
 
 apply ps_list_in_split in Hm.
