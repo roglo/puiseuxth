@@ -28,6 +28,24 @@ Require Import F1Eq.
 
 Set Implicit Arguments.
 
+Add Parametric Morphism α (R : ring α) : (@order α R)
+  with signature eq_ps ==> Qbar.qeq
+  as order_morph.
+Proof.
+intros a b Hab.
+inversion Hab; subst.
+unfold canonic_ps in H; simpl in H.
+unfold order.
+remember (null_coeff_range_length R (ps_terms a) 0) as na eqn:Hna .
+remember (null_coeff_range_length R (ps_terms b) 0) as nb eqn:Hnb .
+symmetry in Hna, Hnb.
+destruct na as [na| ].
+ destruct nb as [nb| ].
+  inversion_clear H.
+  simpl in H0, H1, H2.
+  unfold Qbar.qeq; simpl.
+bbb.
+
 Section theorems.
 
 Variable α : Type.
@@ -457,6 +475,24 @@ destruct Ha as [Ha| Ha].
  rewrite Ha; reflexivity.
 Qed.
 
+Lemma order_mul : ∀ a b,
+  order (a * b)%ps = (order a + order b)%Qbar.
+Proof.
+intros a b.
+bbb.
+
+Lemma xxx : ∀ a lb,
+  let _ := Kx in (* coq seems not to see the type of Kx *)
+  List.map order ([a] * lb)%lap =
+  List.map (λ b, (order a + order b)%Qbar) lb.
+Proof.
+intros a lb f'.
+induction lb as [| b]; intros; [ reflexivity | simpl ].
+subst f'.
+unfold summation; simpl.
+f_equal.
+bbb.
+
 Lemma yyy : ∀ pol ns g,
   ns ∈ newton_segments R pol
   → g = g_of_ns pol ns
@@ -472,6 +508,8 @@ remember (List.map (λ t, power t) tl) as l₁ eqn:Hl₁ .
 remember (list_seq_except 0 (length (al pol)) l₁) as l₂ eqn:Hl₂ .
 simpl in Hm.
 apply List.in_map with (f := order) in Hm.
+rewrite xxx in Hm.
+rewrite <- List.map_map in Hm.
 bbb.
 
 apply ps_list_in_split in Hm.

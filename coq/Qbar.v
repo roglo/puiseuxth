@@ -31,6 +31,20 @@ Definition binop f dx dy xb yb :=
 Definition add := binop Qplus ∞ ∞.
 Definition mul := binop Qmult ∞ ∞.
 
+Definition qeq a b :=
+  match a with
+  | qfin x =>
+      match b with
+      | qfin y => x == y
+      | ∞ => False
+      end
+  | ∞ =>
+      match b with
+      | qfin y => False
+      | ∞ => True
+      end
+  end.
+
 Infix "+" := add : Qbar_scope.
 Infix "*" := mul : Qbar_scope.
 
@@ -54,3 +68,6 @@ Close Scope Qbar_scope.
 
 Infix "<" := Qbar.lt : Qbar_scope.
 Infix ">" := Qbar.gt : Qbar_scope.
+Infix "+" := Qbar.add : Qbar_scope.
+Infix "*" := Qbar.mul : Qbar_scope.
+Infix "=" := Qbar.qeq : Qbar_scope.
