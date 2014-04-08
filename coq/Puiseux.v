@@ -48,6 +48,8 @@ destruct na as [na| ].
   remember (gcd_ps na (greatest_series_x_power R (ps_terms a) na) a)%Z as ga.
   remember (gcd_ps nb (greatest_series_x_power R (ps_terms b) nb) b)%Z as gb.
   unfold gcd_ps in Heqga, Heqgb.
+  unfold Qeq; simpl.
+  apply Z.mul_cancel_r with (p := (' ps_polord a)%Z) in H0.
 bbb.
 
 Section theorems.
