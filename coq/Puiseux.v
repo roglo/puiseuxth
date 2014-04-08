@@ -74,16 +74,62 @@ destruct (Z_zerop c) as [Hc| Hc].
  subst d; reflexivity.
 Qed.
 
-Lemma www : ∀ a b c d e f,
+Lemma div_gcd_gcd_0_r : ∀ a b c d e f,
+  (b / Z.gcd (Z.gcd a b) c)%Z = (e / Z.gcd (Z.gcd d e) f)%Z
+  → e = 0%Z
+    → (a * e)%Z = (d * b)%Z.
+Proof.
+intros a b c d e f Hb He.
+subst e.
+rewrite Z.mul_0_r.
+rewrite Z.gcd_0_r in Hb.
+destruct (Z_zerop d) as [Hd| Hd].
+ subst d; rewrite Z.mul_0_l; reflexivity.
+
+ rewrite Z.div_0_l in Hb.
+  rewrite Z.gcd_comm, Z.gcd_assoc in Hb.
+  pose proof (Z.gcd_divide_l b (Z.gcd c a)) as H.
+  destruct H as (e, H).
+  rewrite Z.gcd_comm in H.
+  remember (Z.gcd (Z.gcd c a) b) as g.
+  rewrite H in Hb.
+  destruct (Z_zerop g) as [Hg| Hg].
+   move Hg at top; subst g.
+   rewrite Z.mul_0_r in H; subst b.
+   rewrite Z.mul_0_r; reflexivity.
+
+   rewrite Z.div_mul in Hb; [ idtac | assumption ].
+   subst e b.
+   rewrite Z.mul_0_l, Z.mul_0_r; reflexivity.
+
+  intros H.
+  apply Z.gcd_eq_0_l in H.
+  apply Hd.
+  apply Z.abs_0_iff; assumption.
+Qed.
+
+Lemma div_gcd_gcd_mul_compat : ∀ a b c d e f,
   (a / Z.gcd (Z.gcd a b) c)%Z = (d / Z.gcd (Z.gcd d e) f)%Z
   → (b / Z.gcd (Z.gcd a b) c)%Z = (e / Z.gcd (Z.gcd d e) f)%Z
     → (a * e)%Z = (d * b)%Z.
 Proof.
 intros a b c d e f Ha Hb.
-apply Z.mul_cancel_r with (p := e) in Ha.
- rewrite Z_div_mul_swap in Ha.
+destruct (Z_zerop e) as [He| He].
+ eapply div_gcd_gcd_0_r; eassumption.
+
+ destruct (Z_zerop d) as [Hd| Hd].
+  rewrite Z.mul_comm; symmetry.
+  rewrite Z.mul_comm; symmetry.
+  symmetry.
+  apply div_gcd_gcd_0_r with (c := c) (f := f); [ idtac | assumption ].
+  replace (Z.gcd b a) with (Z.gcd a b) by apply Z.gcd_comm.
+  replace (Z.gcd e d) with (Z.gcd d e) by apply Z.gcd_comm.
+  assumption.
+
+  apply Z.mul_cancel_r with (p := e) in Ha; [ idtac | assumption ].
   rewrite Z_div_mul_swap in Ha.
-   apply Z.mul_cancel_l with (p := d) in Hb.
+   rewrite Z_div_mul_swap in Ha.
+    apply Z.mul_cancel_l with (p := d) in Hb; [ idtac | assumption ].
     rewrite Z.mul_comm in Hb.
     rewrite Z_div_mul_swap in Hb.
      symmetry in Hb.
