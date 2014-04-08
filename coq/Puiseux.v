@@ -28,6 +28,14 @@ Require Import F1Eq.
 
 Set Implicit Arguments.
 
+Lemma www : ∀ a b c d e f,
+  (a / Z.gcd (Z.gcd a b) c)%Z = (d / Z.gcd (Z.gcd d e) f)%Z
+  → (b / Z.gcd (Z.gcd a b) c)%Z = (e / Z.gcd (Z.gcd d e) f)%Z
+    → (a * e)%Z = (d * b)%Z.
+Proof.
+intros a b c d e f Ha Hb.
+bbb.
+
 Add Parametric Morphism α (R : ring α) : (@order α R)
   with signature eq_ps ==> Qbar.qeq
   as order_morph.
@@ -43,13 +51,23 @@ destruct na as [na| ].
  destruct nb as [nb| ].
   inversion_clear H.
   simpl in H0, H1, H2.
-  unfold Qbar.qeq; simpl.
+  unfold Qbar.qeq, Qeq; simpl.
   unfold canonify_series in H2.
-  remember (gcd_ps na (greatest_series_x_power R (ps_terms a) na) a)%Z as ga.
-  remember (gcd_ps nb (greatest_series_x_power R (ps_terms b) nb) b)%Z as gb.
-  unfold gcd_ps in Heqga, Heqgb.
-  unfold Qeq; simpl.
-  apply Z.mul_cancel_r with (p := (' ps_polord a)%Z) in H0.
+  unfold gcd_ps in H0, H1, H2.
+  remember (ps_ordnum a + Z.of_nat na)%Z as ao eqn:Hao .
+  remember (ps_ordnum b + Z.of_nat nb)%Z as bo eqn:Hbo .
+  remember (greatest_series_x_power R (ps_terms a) na) as apn.
+  remember (greatest_series_x_power R (ps_terms b) nb) as bpn.
+  remember (Z.of_nat apn) as ap eqn:Hap ; subst apn.
+  remember (Z.of_nat bpn) as bp eqn:Hbp ; subst bpn.
+  remember (' ps_polord a)%Z as oa eqn:Hoa .
+  remember (' ps_polord b)%Z as ob eqn:Hob .
+  apply Z2Pos.inj in H1.
+   revert H0 H1; clear; intros.
+bbb.
+   rewrite <- Z.gcd_assoc in H0.
+   apply Z.mul_cancel_r with (p := Z.gcd oa ap) in H0.
+    rewrite Z.gcd_div_swap in H0.
 bbb.
 
 Section theorems.
