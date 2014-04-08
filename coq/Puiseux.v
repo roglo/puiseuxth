@@ -42,12 +42,71 @@ rewrite Nat.div_mul; [ idtac | subst b₁; intros H; discriminate H ].
 reflexivity.
 Qed.
 
+(* to be moved to Misc.v *)
+Theorem Z_div_mul_swap : ∀ a b c, (b | a)%Z → (a / b * c = a * c / b)%Z.
+Proof.
+intros a b c H.
+destruct H as (d, H).
+subst a.
+destruct (Z_zerop b) as [Hb| Hb].
+ subst b; rewrite Z.mul_0_r.
+ reflexivity.
+
+ rewrite Z.div_mul; [ idtac | assumption ].
+ rewrite Z.mul_shuffle0.
+ rewrite Z.div_mul; [ idtac | assumption ].
+ reflexivity.
+Qed.
+
+Theorem Z_div_reg_r : ∀ a b c,
+  (c | a)%Z → (c | b)%Z → (a / c = b / c)%Z → a = b.
+Proof.
+intros a b c Ha Hb Hab.
+destruct Ha as (d, Ha).
+destruct Hb as (e, Hb).
+subst a b.
+destruct (Z_zerop c) as [Hc| Hc].
+ subst c.
+ do 2 rewrite Z.mul_0_r; reflexivity.
+
+ rewrite Z.div_mul in Hab; [ idtac | assumption ].
+ rewrite Z.div_mul in Hab; [ idtac | assumption ].
+ subst d; reflexivity.
+Qed.
+
 Lemma www : ∀ a b c d e f,
   (a / Z.gcd (Z.gcd a b) c)%Z = (d / Z.gcd (Z.gcd d e) f)%Z
   → (b / Z.gcd (Z.gcd a b) c)%Z = (e / Z.gcd (Z.gcd d e) f)%Z
     → (a * e)%Z = (d * b)%Z.
 Proof.
 intros a b c d e f Ha Hb.
+apply Z.mul_cancel_r with (p := e) in Ha.
+ rewrite Z_div_mul_swap in Ha.
+  rewrite Z_div_mul_swap in Ha.
+   apply Z.mul_cancel_l with (p := d) in Hb.
+    rewrite Z.mul_comm in Hb.
+    rewrite Z_div_mul_swap in Hb.
+     symmetry in Hb.
+     rewrite Z.mul_comm in Hb.
+     rewrite Z_div_mul_swap in Hb.
+      rewrite Z.mul_comm in Hb.
+      rewrite Hb in Ha.
+      apply Z_div_reg_r in Ha.
+       rewrite Ha; apply Z.mul_comm.
+
+       apply Z.divide_mul_l.
+       rewrite <- Z.gcd_assoc.
+       apply Z.gcd_divide_l.
+
+       apply Z.divide_mul_l.
+       rewrite Z.gcd_comm, Z.gcd_assoc.
+       apply Z.gcd_divide_r.
+
+      rewrite Z.gcd_comm, Z.gcd_assoc.
+      apply Z.gcd_divide_r.
+
+     rewrite Z.gcd_comm, Z.gcd_assoc.
+     apply Z.gcd_divide_r.
 bbb.
 
 Add Parametric Morphism α (R : ring α) : (@order α R)
