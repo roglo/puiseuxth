@@ -28,6 +28,20 @@ Require Import F1Eq.
 
 Set Implicit Arguments.
 
+(* to be moved to Misc.v *)
+Theorem Nat_div_mul_swap : ∀ a b c, (b | a)%nat → (a / b * c = a * c / b)%nat.
+Proof.
+intros a b c H.
+destruct H as (d, H).
+subst a.
+destruct b; [ reflexivity | idtac ].
+remember (S b) as b₁.
+rewrite Nat.div_mul; [ idtac | subst b₁; intros H; discriminate H ].
+rewrite Nat.mul_shuffle0.
+rewrite Nat.div_mul; [ idtac | subst b₁; intros H; discriminate H ].
+reflexivity.
+Qed.
+
 Lemma www : ∀ a b c d e f,
   (a / Z.gcd (Z.gcd a b) c)%Z = (d / Z.gcd (Z.gcd d e) f)%Z
   → (b / Z.gcd (Z.gcd a b) c)%Z = (e / Z.gcd (Z.gcd d e) f)%Z
