@@ -153,7 +153,13 @@ destruct (Z_zerop e) as [He| He].
 
      rewrite Z.gcd_comm, Z.gcd_assoc.
      apply Z.gcd_divide_r.
-bbb.
+
+    rewrite <- Z.gcd_assoc.
+    apply Z.gcd_divide_l.
+
+   rewrite <- Z.gcd_assoc.
+   apply Z.gcd_divide_l.
+Qed.
 
 Add Parametric Morphism α (R : ring α) : (@order α R)
   with signature eq_ps ==> Qbar.qeq
@@ -182,11 +188,7 @@ destruct na as [na| ].
   remember (' ps_polord a)%Z as oa eqn:Hoa .
   remember (' ps_polord b)%Z as ob eqn:Hob .
   apply Z2Pos.inj in H1.
-   revert H0 H1; clear; intros.
-bbb.
-   rewrite <- Z.gcd_assoc in H0.
-   apply Z.mul_cancel_r with (p := Z.gcd oa ap) in H0.
-    rewrite Z.gcd_div_swap in H0.
+   eapply div_gcd_gcd_mul_compat; eassumption.
 bbb.
 
 Section theorems.
