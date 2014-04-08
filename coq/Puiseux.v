@@ -44,6 +44,10 @@ destruct na as [na| ].
   inversion_clear H.
   simpl in H0, H1, H2.
   unfold Qbar.qeq; simpl.
+  unfold canonify_series in H2.
+  remember (gcd_ps na (greatest_series_x_power R (ps_terms a) na) a)%Z as ga.
+  remember (gcd_ps nb (greatest_series_x_power R (ps_terms b) nb) b)%Z as gb.
+  unfold gcd_ps in Heqga, Heqgb.
 bbb.
 
 Section theorems.

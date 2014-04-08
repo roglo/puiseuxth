@@ -27,3 +27,4 @@ SlopeMisc.vo SlopeMisc.glob SlopeMisc.v.beautified: SlopeMisc.v Slope_base.vo Mi
 Slope_base.vo Slope_base.glob Slope_base.v.beautified: Slope_base.v
 SplitList.vo SplitList.glob SplitList.v.beautified: SplitList.v Misc.vo
 T.vo T.glob T.v.beautified: T.v
+Toto.vo Toto.glob Toto.v.beautified: Toto.v
