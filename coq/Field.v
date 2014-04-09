@@ -129,7 +129,7 @@ rewrite rng_mul_comm, rng_mul_1_l.
 reflexivity.
 Qed.
 
-Theorem rng_mul_inv_r : ∀ x, (x ≠ 0)%K → (x * ¹/ x = 1)%K.
+Theorem fld_mul_inv_r : ∀ x, (x ≠ 0)%K → (x * ¹/ x = 1)%K.
 Proof.
 intros x H; simpl; rewrite rng_mul_comm.
 apply fld_mul_inv_l; assumption.
@@ -230,7 +230,7 @@ Proof.
 intros a b c Hc Habc; simpl in Hc, Habc; simpl.
 apply rng_mul_compat_r with (c := (¹/ c)%K) in Habc.
 do 2 rewrite <- rng_mul_assoc in Habc.
-rewrite rng_mul_inv_r in Habc; [ idtac | assumption ].
+rewrite fld_mul_inv_r in Habc; [ idtac | assumption ].
 do 2 rewrite rng_mul_1_r in Habc.
 assumption.
 Qed.
@@ -386,7 +386,7 @@ rewrite fld_mul_inv_l in Heq.
  apply rng_mul_compat_r with (c := ¹/ a%K) in Heq.
  rewrite rng_mul_1_l in Heq.
  rewrite <- rng_mul_assoc in Heq.
- rewrite rng_mul_inv_r in Heq; [ idtac | assumption ].
+ rewrite fld_mul_inv_r in Heq; [ idtac | assumption ].
  rewrite rng_mul_1_r in Heq.
  symmetry; assumption.
 

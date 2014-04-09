@@ -454,7 +454,7 @@ rewrite rng_mul_assoc in Hi.
 rewrite rng_mul_opp_r in Hi.
 rewrite Ha' in Hi.
 assert (a.[0] * (¹/ a%ser) .[ 0] = 1)%K as H.
- simpl; rewrite rng_mul_inv_r; [ reflexivity | auto ].
+ simpl; rewrite fld_mul_inv_r; [ reflexivity | auto ].
 
  rewrite H in Hi; clear H.
  rewrite rng_mul_opp_l, rng_mul_1_l in Hi.
@@ -475,7 +475,7 @@ constructor; intros i; simpl.
 destruct i; simpl.
  unfold convol_mul; simpl.
  rewrite summation_only_one; simpl.
- rewrite rng_mul_inv_r; [ reflexivity | assumption ].
+ rewrite fld_mul_inv_r; [ reflexivity | assumption ].
 
  apply convol_mul_inv_r; [ assumption | reflexivity ].
 Qed.
