@@ -661,7 +661,12 @@ destruct na as [na| ].
    rewrite <- Nat2Z.inj_add.
    apply Nat2Z.inj_iff.
    destruct (lt_dec (na + nb) nc) as [Hlt| Hge].
+    apply Hic in Hlt.
+    unfold convol_mul in Hlt.
+    rewrite summation_only_one_non_0 with (v := na) in Hlt.
+     rewrite Nat.add_comm, Nat.add_sub in Hlt.
 bbb.
+     apply rng_eq_mul_0_l in Hlt.
 
 unfold order; simpl.
 unfold cm_factor, cm; simpl.
