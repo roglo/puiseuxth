@@ -33,7 +33,9 @@ Class ring α :=
       rng_eq a b → rng_eq (rng_mul c a) (rng_mul c b);
     rng_mul_add_distr_l : ∀ a b c,
       rng_eq (rng_mul a (rng_add b c))
-        (rng_add (rng_mul a b) (rng_mul a c)) }.
+        (rng_add (rng_mul a b) (rng_mul a c));
+    rng_mul_integral : ∀ a b,
+      rng_eq (rng_mul a b) rng_zero → rng_eq a rng_zero ∨ rng_eq b rng_zero }.
 
 Delimit Scope field_scope with K.
 Notation "a = b" := (rng_eq a b) : field_scope.

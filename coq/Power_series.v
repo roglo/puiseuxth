@@ -511,6 +511,7 @@ Definition series_ring α (r : ring α) : ring (power_series α) :=
      rng_mul_assoc := series_mul_assoc r;
      rng_mul_1_l := series_mul_1_l r;
      rng_mul_compat_l := @series_mul_compat_l α r;
-     rng_mul_add_distr_l := series_mul_add_distr_l r |}.
+     rng_mul_add_distr_l := series_mul_add_distr_l r;
+     rng_mul_integral := series_mul_integral |}.
 
 Canonical Structure series_ring.
