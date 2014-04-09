@@ -490,6 +490,12 @@ apply series_mul_inv_r.
 assumption.
 Qed.
 
+Theorem series_mul_integral : ∀ a b,
+  (a * b = 0)%ser → (a = 0)%ser ∨ (b = 0)%ser.
+Proof.
+intros a b Hab.
+bbb.
+
 End lemmas_again.
 
 Definition series_ring α (r : ring α) : ring (power_series α) :=
@@ -512,6 +518,6 @@ Definition series_ring α (r : ring α) : ring (power_series α) :=
      rng_mul_1_l := series_mul_1_l r;
      rng_mul_compat_l := @series_mul_compat_l α r;
      rng_mul_add_distr_l := series_mul_add_distr_l r;
-     rng_mul_integral := series_mul_integral |}.
+     rng_mul_integral := series_mul_integral (R := r) |}.
 
 Canonical Structure series_ring.
