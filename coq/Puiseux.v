@@ -648,6 +648,19 @@ destruct na as [na| ].
    rewrite <- Z.add_assoc.
    apply Z.add_cancel_l.
    apply Z.add_cancel_l.
+   apply null_coeff_range_length_iff in Hna.
+   apply null_coeff_range_length_iff in Hnb.
+   apply null_coeff_range_length_iff in Hnc.
+   unfold null_coeff_range_length_prop in Hna.
+   unfold null_coeff_range_length_prop in Hnb.
+   unfold null_coeff_range_length_prop in Hnc.
+   simpl in Hna, Hnb, Hnc.
+   destruct Hna as (Hia, Hna).
+   destruct Hnb as (Hib, Hnb).
+   destruct Hnc as (Hic, Hnc).
+   rewrite <- Nat2Z.inj_add.
+   apply Nat2Z.inj_iff.
+   destruct (lt_dec (na + nb) nc) as [Hlt| Hge].
 bbb.
 
 unfold order; simpl.
