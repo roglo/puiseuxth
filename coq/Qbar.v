@@ -62,6 +62,9 @@ split; intros H; [ constructor; assumption | idtac ].
 inversion H; assumption.
 Qed.
 
+Theorem qfin_inj : ∀ a b, qeq (qfin a) (qfin b) → a == b.
+Proof. intros a b Hab; assumption. Qed.
+
 Theorem eq_refl : reflexive _ qeq.
 Proof. intros a; destruct a; reflexivity. Qed.
 
@@ -91,6 +94,25 @@ Add Parametric Relation : Qbar Qbar.qeq
  symmetry proved by Qbar.eq_sym
  transitivity proved by Qbar.eq_trans
  as qbar_qeq_rel.
+
+Add Parametric Morphism : Qbar.add
+  with signature Qbar.qeq ==> Qbar.qeq ==> Qbar.qeq
+  as qbar_add_morph.
+Proof.
+intros a b Hab c d Hcd.
+destruct a as [a| ]; simpl.
+ destruct c as [c| ]; simpl.
+  destruct b as [b| ]; [ simpl | contradiction ].
+  destruct d as [d| ]; [ simpl | contradiction ].
+  apply Qbar.qfin_inj in Hab.
+  apply Qbar.qfin_inj in Hcd.
+  rewrite Hab, Hcd; reflexivity.
+
+  destruct b as [b| ]; [ simpl | constructor ].
+  destruct d as [d| ]; [ contradiction | constructor ].
+
+ destruct b as [b| ]; [ contradiction | constructor ].
+Qed.
 
 Infix "<" := Qbar.lt : Qbar_scope.
 Infix ">" := Qbar.gt : Qbar_scope.

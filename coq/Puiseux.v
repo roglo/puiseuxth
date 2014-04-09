@@ -599,13 +599,6 @@ destruct Ha as [Ha| Ha].
  rewrite Ha; reflexivity.
 Qed.
 
-Add Parametric Morphism : Qbar.add
-  with signature Qbar.qeq ==> Qbar.qeq ==> Qbar.qeq
-  as qbar_add_morph.
-Proof.
-bbb.
-*)
-
 Lemma order_mul : ∀ a b,
   (order (a * b)%ps = order a + order b)%Qbar.
 Proof.
