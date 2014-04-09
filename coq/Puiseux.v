@@ -213,6 +213,8 @@ destruct na as [na| ].
 
       pose proof (Pos2Z.is_pos c) as Hp.
       fast_omega Hp.
+
+      exfalso; clear Hc.
 bbb.
 
 Section theorems.
