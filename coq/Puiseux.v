@@ -178,17 +178,41 @@ destruct na as [na| ].
   simpl in H0, H1, H2.
   unfold Qbar.qeq, Qeq; simpl.
   unfold canonify_series in H2.
-  unfold gcd_ps in H0, H1, H2.
-  remember (ps_ordnum a + Z.of_nat na)%Z as ao eqn:Hao .
-  remember (ps_ordnum b + Z.of_nat nb)%Z as bo eqn:Hbo .
   remember (greatest_series_x_power R (ps_terms a) na) as apn.
   remember (greatest_series_x_power R (ps_terms b) nb) as bpn.
+  assert (0 < gcd_ps na apn a)%Z as Hpga by apply gcd_ps_is_pos.
+  assert (0 < gcd_ps nb bpn b)%Z as Hpgb by apply gcd_ps_is_pos.
+  unfold gcd_ps in H0, H1, H2, Hpga, Hpgb.
+  remember (ps_ordnum a + Z.of_nat na)%Z as ao eqn:Hao .
+  remember (ps_ordnum b + Z.of_nat nb)%Z as bo eqn:Hbo .
   remember (Z.of_nat apn) as ap eqn:Hap ; subst apn.
   remember (Z.of_nat bpn) as bp eqn:Hbp ; subst bpn.
   remember (' ps_polord a)%Z as oa eqn:Hoa .
   remember (' ps_polord b)%Z as ob eqn:Hob .
   apply Z2Pos.inj in H1.
    eapply div_gcd_gcd_mul_compat; eassumption.
+
+   apply Z.div_str_pos.
+   split; [ assumption | idtac ].
+   rewrite Z.gcd_comm, Z.gcd_assoc.
+   pose proof (Z.gcd_divide_r (Z.gcd ap ao) oa) as H.
+   destruct H as (c, H).
+   rewrite H in |- * at 2.
+   rewrite Z.mul_comm.
+   apply Z.le_mul_diag_r.
+    rewrite <- Z.gcd_assoc, Z.gcd_comm.
+    assumption.
+
+    destruct (Z_zerop c) as [Hc| Hc].
+     subst c; simpl in H.
+     subst oa.
+     exfalso; revert H; apply Pos2Z_ne_0.
+
+     destruct c as [| c| c].
+      exfalso; apply Hc; reflexivity.
+
+      pose proof (Pos2Z.is_pos c) as Hp.
+      fast_omega Hp.
 bbb.
 
 Section theorems.
