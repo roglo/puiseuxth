@@ -115,6 +115,7 @@ destruct (Z_zerop e) as [He| He].
    apply Z.gcd_divide_l.
 Qed.
 
+(* to be moved, perhaps, where order is defined *)
 Add Parametric Morphism α (R : ring α) : (@order α R)
   with signature eq_ps ==> Qbar.qeq
   as order_morph.
@@ -155,7 +156,19 @@ destruct na as [na| ].
    split; [ assumption | idtac ].
    rewrite Z.gcd_comm, Z.gcd_assoc, Hob.
    apply Z_gcd_pos_r_le.
-bbb.
+
+  apply null_coeff_range_length_inf_iff in Hnb.
+  rewrite Hnb in Hab.
+  apply null_coeff_range_length_inf_iff in Hab.
+  rewrite Hab in Hna; discriminate Hna.
+
+ apply null_coeff_range_length_inf_iff in Hna.
+ rewrite Hna in Hab.
+ symmetry in Hab.
+ apply null_coeff_range_length_inf_iff in Hab.
+ rewrite Hab in Hnb.
+ subst nb; reflexivity.
+Qed.
 
 Section theorems.
 
@@ -587,7 +600,7 @@ destruct Ha as [Ha| Ha].
 Qed.
 
 Lemma order_mul : ∀ a b,
-  order (a * b)%ps = (order a + order b)%Qbar.
+  (order (a * b)%ps = order a + order b)%Qbar.
 Proof.
 intros a b.
 bbb.
@@ -602,6 +615,7 @@ induction lb as [| b]; intros; [ reflexivity | simpl ].
 subst f'.
 unfold summation; simpl.
 f_equal.
+(* problème parce qu'il s'agit de eq et non Qeq *)
 bbb.
 
 Lemma yyy : ∀ pol ns g,
