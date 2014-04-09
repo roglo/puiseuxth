@@ -150,6 +150,11 @@ destruct na as [na| ].
    split; [ assumption | idtac ].
    rewrite Z.gcd_comm, Z.gcd_assoc, Hoa.
    apply Z_gcd_pos_r_le.
+
+   apply Z.div_str_pos.
+   split; [ assumption | idtac ].
+   rewrite Z.gcd_comm, Z.gcd_assoc, Hob.
+   apply Z_gcd_pos_r_le.
 bbb.
 
 Section theorems.
