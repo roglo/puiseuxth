@@ -1667,3 +1667,85 @@ constructor.
 
  apply Sorted_inv_2 in H; destruct H; assumption.
 Qed.
+
+Theorem Nat_div_mul_swap : ∀ a b c, (b | a)%nat → (a / b * c = a * c / b)%nat.
+Proof.
+intros a b c H.
+destruct H as (d, H).
+subst a.
+destruct b; [ reflexivity | idtac ].
+remember (S b) as b₁.
+rewrite Nat.div_mul; [ idtac | subst b₁; intros H; discriminate H ].
+rewrite Nat.mul_shuffle0.
+rewrite Nat.div_mul; [ idtac | subst b₁; intros H; discriminate H ].
+reflexivity.
+Qed.
+
+Theorem Z_div_mul_swap : ∀ a b c, (b | a)%Z → (a / b * c = a * c / b)%Z.
+Proof.
+intros a b c H.
+destruct H as (d, H).
+subst a.
+destruct (Z_zerop b) as [Hb| Hb].
+ subst b; rewrite Z.mul_0_r.
+ reflexivity.
+
+ rewrite Z.div_mul; [ idtac | assumption ].
+ rewrite Z.mul_shuffle0.
+ rewrite Z.div_mul; [ idtac | assumption ].
+ reflexivity.
+Qed.
+
+Theorem Z_div_reg_r : ∀ a b c,
+  (c | a)%Z → (c | b)%Z → (a / c = b / c)%Z → a = b.
+Proof.
+intros a b c Ha Hb Hab.
+destruct Ha as (d, Ha).
+destruct Hb as (e, Hb).
+subst a b.
+destruct (Z_zerop c) as [Hc| Hc].
+ subst c.
+ do 2 rewrite Z.mul_0_r; reflexivity.
+
+ rewrite Z.div_mul in Hab; [ idtac | assumption ].
+ rewrite Z.div_mul in Hab; [ idtac | assumption ].
+ subst d; reflexivity.
+Qed.
+
+Theorem Z_gcd_le_r : ∀ a b, (Z.gcd a (' b) <= ' b)%Z.
+Proof.
+intros a b.
+pose proof (Z.gcd_divide_r a (' b)) as Hd.
+destruct Hd as (c, Hc).
+rewrite Hc in |- * at 2.
+rewrite Z.mul_comm.
+apply Z.le_mul_diag_r.
+ pose proof (Z.gcd_nonneg a (' b))%Z as H.
+ assert (Z.gcd a (' b) ≠ 0)%Z as HH.
+  intros HH; apply Z.gcd_eq_0_r in HH.
+  revert HH; apply Pos2Z_ne_0.
+
+  omega.
+
+ rename Hc into Hd.
+ destruct (Z_zerop c) as [Hc| Hc].
+  subst c; simpl in Hd.
+  exfalso; revert Hd; apply Pos2Z_ne_0.
+
+  destruct c as [| c| c].
+   exfalso; apply Hc; reflexivity.
+
+   pose proof (Pos2Z.is_pos c) as Hp.
+   fast_omega Hp.
+
+   exfalso; clear Hc.
+   assert (' b <= 0)%Z as HH.
+    rewrite Hd.
+    apply Z.mul_nonpos_nonneg.
+     apply Pos2Z.neg_is_nonpos.
+
+     apply Z.gcd_nonneg.
+
+    apply Z.nlt_ge in HH.
+    apply HH, Pos2Z.is_pos.
+Qed.
