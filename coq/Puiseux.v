@@ -599,14 +599,64 @@ destruct Ha as [Ha| Ha].
  rewrite Ha; reflexivity.
 Qed.
 
+Add Parametric Morphism : Qbar.add
+  with signature Qbar.qeq ==> Qbar.qeq ==> Qbar.qeq
+  as qbar_add_morph.
+Proof.
+bbb.
+*)
+
 Lemma order_mul : ∀ a b,
   (order (a * b)%ps = order a + order b)%Qbar.
 Proof.
 intros a b.
-(*
 symmetry.
+pose proof (ps_adjust_eq R a 0 (ps_polord b)) as Ha.
+pose proof (ps_adjust_eq R b 0 (ps_polord a)) as Hb.
+rewrite Hb in |- * at 1.
+rewrite Ha in |- * at 1.
+unfold order; simpl.
+unfold cm_factor, cm; simpl.
+rewrite series_shift_0.
+rewrite series_shift_0.
+remember (series_stretch R (ps_polord b) (ps_terms a)) as sa eqn:Hsa .
+remember (series_stretch R (ps_polord a) (ps_terms b)) as sb eqn:Hsb .
+remember (null_coeff_range_length R sa 0) as na eqn:Hna .
+remember (null_coeff_range_length R sb 0) as nb eqn:Hnb .
+remember (null_coeff_range_length R (sa * sb)%ser 0) as nc eqn:Hnc .
+symmetry in Hna, Hnb, Hnc.
+destruct na as [na| ].
+ destruct nb as [nb| ].
+  destruct nc as [nc| ].
+   Focus 1.
+   simpl.
+   rewrite Z.sub_0_r.
+   rewrite Z.sub_0_r.
+   unfold Qeq; simpl.
+   symmetry.
+   rewrite Pos2Z.inj_mul.
+   rewrite Z.mul_assoc.
+   rewrite Z.mul_shuffle0.
+   apply Z.mul_cancel_r; [ apply Pos2Z_ne_0 | idtac ].
+   symmetry.
+   rewrite Pos2Z.inj_mul.
+   rewrite Z.mul_assoc.
+   rewrite Z.add_comm.
+   rewrite Pos2Z.inj_mul.
+   rewrite Z.mul_assoc.
+   rewrite Z.mul_shuffle0.
+   rewrite <- Z.mul_add_distr_r.
+   rewrite <- Z.mul_add_distr_r.
+   rewrite <- Z.mul_assoc.
+   apply Z.mul_cancel_r; [ apply Pos2Z_ne_0 | idtac ].
+   rewrite Z.add_comm.
+   rewrite Z.add_shuffle1.
+   rewrite <- Z.add_assoc.
+   rewrite <- Z.add_assoc.
+   apply Z.add_cancel_l.
+   apply Z.add_cancel_l.
 bbb.
- *)
+
 unfold order; simpl.
 unfold cm_factor, cm; simpl.
 remember (null_coeff_range_length R (ps_terms a) 0) as na eqn:Hna .
