@@ -494,6 +494,23 @@ Theorem series_mul_integral : ∀ a b,
   (a * b = 0)%ser → (a = 0)%ser ∨ (b = 0)%ser.
 Proof.
 intros a b Hab.
+inversion Hab; subst.
+simpl in H.
+assert (∀ i, (a .[ i] * b .[ i] = 0)%K) as Ha.
+ intros n.
+ induction n using all_lt_all.
+ pose proof (H n) as Hn.
+ unfold convol_mul in Hn.
+ destruct n.
+  unfold summation in Hn; simpl in Hn.
+  rewrite rng_add_0_r in Hn.
+  assumption.
+
+  rewrite summation_split_last in Hn.
+   rewrite Nat.sub_diag in Hn.
+bbb.
+
+intros a b Hab.
 assert (∀ i, (a .[ i] = 0)%K \/ (b .[ i] = 0)%K) as HH.
  intros n.
  induction n using all_lt_all.
