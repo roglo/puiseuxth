@@ -1712,7 +1712,7 @@ destruct (Z_zerop c) as [Hc| Hc].
  subst d; reflexivity.
 Qed.
 
-Theorem Z_gcd_le_r : ∀ a b, (Z.gcd a (' b) <= ' b)%Z.
+Theorem Z_gcd_pos_r_le : ∀ a b, (Z.gcd a (' b) <= ' b)%Z.
 Proof.
 intros a b.
 pose proof (Z.gcd_divide_r a (' b)) as Hd.

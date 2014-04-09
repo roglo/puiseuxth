@@ -115,16 +115,6 @@ destruct (Z_zerop e) as [He| He].
    apply Z.gcd_divide_l.
 Qed.
 
-Lemma Z_gcd_div_pos : ∀ a b,
-  (0 < Z.gcd a ('b))%Z
-  → (0 < 'b / Z.gcd a ('b))%Z.
-Proof.
-intros a b H.
-apply Z.div_str_pos.
-split; [ assumption | idtac ].
-apply Z_gcd_le_r.
-Qed.
-
 Add Parametric Morphism α (R : ring α) : (@order α R)
   with signature eq_ps ==> Qbar.qeq
   as order_morph.
@@ -156,10 +146,10 @@ destruct na as [na| ].
   apply Z2Pos.inj in H1.
    eapply div_gcd_gcd_mul_compat; eassumption.
 
+   apply Z.div_str_pos.
+   split; [ assumption | idtac ].
    rewrite Z.gcd_comm, Z.gcd_assoc, Hoa.
-   apply Z_gcd_div_pos.
-   rewrite <- Hoa, <- Z.gcd_assoc, Z.gcd_comm.
-   assumption.
+   apply Z_gcd_pos_r_le.
 bbb.
 
 Section theorems.
