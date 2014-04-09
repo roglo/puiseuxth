@@ -35,12 +35,6 @@ Class ring α :=
       rng_eq (rng_mul a (rng_add b c))
         (rng_add (rng_mul a b) (rng_mul a c)) }.
 
-Class field α (rng_ring : ring α) :=
-  { fld_inv : α → α;
-    fld_mul_inv_l : ∀ a,
-      not (rng_eq a rng_zero)
-      → rng_eq (rng_mul (fld_inv a) a) rng_one }.
-
 Delimit Scope field_scope with K.
 Notation "a = b" := (rng_eq a b) : field_scope.
 Notation "a ≠ b" := (¬ rng_eq a b) : field_scope.
@@ -48,7 +42,6 @@ Notation "a + b" := (rng_add a b) : field_scope.
 Notation "a - b" := (rng_add a (rng_opp b)) : field_scope.
 Notation "a * b" := (rng_mul a b) : field_scope.
 Notation "- a" := (rng_opp a) : field_scope.
-Notation "¹/ a" := (fld_inv a) : field_scope.
 Notation "0" := rng_zero : field_scope.
 Notation "1" := rng_one : field_scope.
 
@@ -110,11 +103,10 @@ rewrite rng_mul_comm; symmetry.
 rewrite rng_mul_compat_l; [ reflexivity | eassumption ].
 Qed.
 
-Section misc_theorems.
+Section ring_theorems.
 
 Variable α : Type.
 Variable r : ring α.
-Variable f : field r.
 
 Theorem rng_add_opp_r : ∀ x, (x - x = 0)%K.
 Proof.
@@ -127,12 +119,6 @@ Proof.
 intros a; simpl.
 rewrite rng_mul_comm, rng_mul_1_l.
 reflexivity.
-Qed.
-
-Theorem fld_mul_inv_r : ∀ x, (x ≠ 0)%K → (x * ¹/ x = 1)%K.
-Proof.
-intros x H; simpl; rewrite rng_mul_comm.
-apply fld_mul_inv_l; assumption.
 Qed.
 
 Theorem rng_add_compat_r : ∀ a b c,
@@ -220,30 +206,6 @@ intros a b; simpl.
 rewrite <- rng_add_assoc.
 rewrite rng_add_opp_r, rng_add_0_r.
 reflexivity.
-Qed.
-
-Theorem rng_mul_reg_r : ∀ a b c,
-  (c ≠ 0)%K
-  → (a * c = b * c)%K
-    → (a = b)%K.
-Proof.
-intros a b c Hc Habc; simpl in Hc, Habc; simpl.
-apply rng_mul_compat_r with (c := (¹/ c)%K) in Habc.
-do 2 rewrite <- rng_mul_assoc in Habc.
-rewrite fld_mul_inv_r in Habc; [ idtac | assumption ].
-do 2 rewrite rng_mul_1_r in Habc.
-assumption.
-Qed.
-
-Theorem rng_mul_reg_l : ∀ a b c,
-  (c ≠ 0)%K
-  → (c * a = c * b)%K
-    → (a = b)%K.
-Proof.
-intros a b c Hc Habc; simpl in Hc, Habc; simpl.
-rewrite rng_mul_comm in Habc; symmetry in Habc.
-rewrite rng_mul_comm in Habc; symmetry in Habc.
-eapply rng_mul_reg_r; eassumption.
 Qed.
 
 Theorem rng_add_id_uniq : ∀ a b, (a + b = a)%K → (b = 0)%K.
@@ -351,13 +313,59 @@ intros n m H; simpl in H; simpl.
 destruct H as [H| H]; rewrite H; [ apply rng_mul_0_l | apply rng_mul_0_r ].
 Qed.
 
+End ring_theorems.
+
+Class field α (rng_ring : ring α) :=
+  { fld_inv : α → α;
+    fld_mul_inv_l : ∀ a,
+      not (rng_eq a rng_zero)
+      → rng_eq (rng_mul (fld_inv a) a) rng_one }.
+
+Notation "¹/ a" := (fld_inv a) : field_scope.
+
+Section field_theorems.
+
+Variable α : Type.
+Variable r : ring α.
+Variable f : field r.
+
+Theorem fld_mul_inv_r : ∀ x, (x ≠ 0)%K → (x * ¹/ x = 1)%K.
+Proof.
+intros x H; simpl; rewrite rng_mul_comm.
+apply fld_mul_inv_l; assumption.
+Qed.
+
+Theorem rng_mul_reg_r : ∀ a b c,
+  (c ≠ 0)%K
+  → (a * c = b * c)%K
+    → (a = b)%K.
+Proof.
+intros a b c Hc Habc; simpl in Hc, Habc; simpl.
+apply rng_mul_compat_r with (c := (¹/ c)%K) in Habc.
+do 2 rewrite <- rng_mul_assoc in Habc.
+rewrite fld_mul_inv_r in Habc; [ idtac | assumption ].
+do 2 rewrite rng_mul_1_r in Habc.
+assumption.
+Qed.
+
+Theorem rng_mul_reg_l : ∀ a b c,
+  (c ≠ 0)%K
+  → (c * a = c * b)%K
+    → (a = b)%K.
+Proof.
+intros a b c Hc Habc; simpl in Hc, Habc; simpl.
+rewrite rng_mul_comm in Habc; symmetry in Habc.
+rewrite rng_mul_comm in Habc; symmetry in Habc.
+eapply rng_mul_reg_r; eassumption.
+Qed.
+
 Theorem rng_eq_mul_0_l : ∀ n m,
   (n * m = 0)%K
   → (m ≠ 0)%K
     → (n = 0)%K.
 Proof.
 intros n m Hnm Hm.
-rewrite <- rng_mul_0_l with (a := m) in Hnm.
+rewrite <- rng_mul_0_l in Hnm.
 apply rng_mul_reg_r in Hnm; assumption.
 Qed.
 
@@ -367,7 +375,7 @@ Theorem rng_eq_mul_0_r : ∀ n m,
     → (m = 0)%K.
 Proof.
 intros n m Hnm Hm; simpl in Hnm, Hm; simpl.
-rewrite <- rng_mul_0_r with (a := n) in Hnm.
+rewrite <- rng_mul_0_r in Hnm.
 apply rng_mul_reg_l in Hnm; assumption.
 Qed.
 
@@ -397,4 +405,4 @@ rewrite fld_mul_inv_l in Heq.
  contradiction.
 Qed.
 
-End misc_theorems.
+End field_theorems.
