@@ -490,10 +490,11 @@ apply series_mul_inv_r.
 assumption.
 Qed.
 
-Theorem series_mul_integral : ∀ a b,
-  (a * b = 0)%ser → (a = 0)%ser ∨ (b = 0)%ser.
+Theorem series_mul_eq_0_l : ∀ a b,
+  (a * b = 0)%ser → (b ≠ 0)%ser → (a = 0)%ser.
 Proof.
-intros a b Hab.
+intros a b Hab Hb.
+bbb.
 inversion Hab; subst.
 simpl in H.
 assert (∀ i, (a .[ i] * b .[ i] = 0)%K) as Ha.
@@ -541,6 +542,7 @@ assert (∀ i, (a .[ i] = 0)%K \/ (b .[ i] = 0)%K) as HH.
        destruct Hn as [Hn| Hn].
         rewrite Hn, rng_mul_0_l; reflexivity.
 bbb.
+*)
 
 End lemmas_again.
 
@@ -564,6 +566,6 @@ Definition series_ring α (r : ring α) : ring (power_series α) :=
      rng_mul_1_l := series_mul_1_l r;
      rng_mul_compat_l := @series_mul_compat_l α r;
      rng_mul_add_distr_l := series_mul_add_distr_l r;
-     rng_mul_integral := series_mul_integral (R := r) |}.
+     rng_mul_eq_0_l := series_mul_eq_0_l (R := r) |}.
 
 Canonical Structure series_ring.
