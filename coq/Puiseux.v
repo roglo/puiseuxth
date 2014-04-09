@@ -603,6 +603,34 @@ Lemma order_mul : ∀ a b,
   (order (a * b)%ps = order a + order b)%Qbar.
 Proof.
 intros a b.
+(*
+symmetry.
+bbb.
+ *)
+unfold order; simpl.
+unfold cm_factor, cm; simpl.
+remember (null_coeff_range_length R (ps_terms a) 0) as na eqn:Hna .
+remember (null_coeff_range_length R (ps_terms b) 0) as nb eqn:Hnb .
+symmetry in Hna, Hnb.
+destruct na as [na| ].
+ destruct nb as [nb| ].
+  Focus 1.
+  remember (series_stretch R (ps_polord b) (ps_terms a)) as sa eqn:Hsa .
+  remember (series_stretch R (ps_polord a) (ps_terms b)) as sb eqn:Hsb .
+  remember (null_coeff_range_length R (sa * sb)%ser 0) as nc eqn:Hnc .
+  symmetry in Hnc.
+  destruct nc as [nc| ].
+   simpl.
+   unfold Qeq; simpl.
+   apply Z.mul_cancel_r; [ apply Pos2Z_ne_0 | idtac ].
+   rewrite Z.mul_add_distr_r.
+   rewrite Z.mul_add_distr_r.
+   rewrite <- Z.add_assoc.
+   rewrite <- Z.add_assoc.
+   apply Z.add_cancel_l.
+   symmetry.
+   rewrite Z.add_comm, <- Z.add_assoc.
+   apply Z.add_cancel_l.
 bbb.
 
 Lemma xxx : ∀ a lb,
