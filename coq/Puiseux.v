@@ -800,6 +800,9 @@ remember (order m) as mo eqn:Hmo .
 symmetry in Hmo.
 destruct mo as [mo| ]; [ idtac | constructor ].
 apply Qbar.lt_qfin.
+unfold Qlt; simpl.
+rewrite Z.mul_1_r.
+
 bbb.
 rewrite xxx in Hm.
 rewrite <- List.map_map in Hm.
