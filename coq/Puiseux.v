@@ -680,6 +680,8 @@ destruct na as [na| ].
       rewrite rng_mul_0_r; reflexivity.
 
     apply Nat.nlt_ge in Hge.
+    destruct (lt_dec nc (na + nb)) as [Hclt| Hcge].
+
 bbb.
 
 unfold order; simpl.
