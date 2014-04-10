@@ -1640,7 +1640,7 @@ Fixpoint degree_plus_1_of_list α (is_zero : α → bool) (l : list α) :=
 Definition degree α is_zero (pol : polynomial α) :=
   pred (degree_plus_1_of_list is_zero (al pol)).
 
-Class algeb_closed_field α (ac_ring : ring α) :=
+Class algeb_closed_field α (ac_ring : ring α) (ac_field : field ac_ring) :=
   { ac_is_zero : α → bool;
     ac_root : polynomial α → α;
     ac_prop_is_zero : ∀ a,
@@ -1649,7 +1649,7 @@ Class algeb_closed_field α (ac_ring : ring α) :=
       → (apply_poly ac_ring pol (ac_root pol) = 0)%K }.
 
 Fixpoint list_root_multiplicity
-    α {r : ring α} (acf : algeb_closed_field r) c la d :=
+    α {r : ring α} {K : field r} (acf : algeb_closed_field K) c la d :=
   match d with
   | O => O
   | S d₁ =>
@@ -1658,7 +1658,8 @@ Fixpoint list_root_multiplicity
       else O
   end.
 
-Definition root_multiplicity α {r : ring α} (acf : algeb_closed_field r) c
+Definition root_multiplicity α {r : ring α} {K : field r}
+  (acf : algeb_closed_field K) c
     pol :=
   list_root_multiplicity acf c (al pol) (List.length (al pol)).
 
@@ -1671,14 +1672,16 @@ Fixpoint list_quotient_phi_x_sub_c_pow_r α (R : ring α) la c₁ r :=
 Definition quotient_phi_x_sub_c_pow_r α (R : ring α) pol c₁ r :=
   (POL (list_quotient_phi_x_sub_c_pow_r R (al pol) c₁ r))%pol.
 
-Definition list_root α (r : ring α) (acf : algeb_closed_field r) la :=
+Definition list_root α (r : ring α) (K : field r)
+    (acf : algeb_closed_field K) la :=
   ac_root (POL la)%pol.
 
 Section theorems.
 
 Variable α : Type.
 Variable R : ring α.
-Variable acf : algeb_closed_field R.
+Variable K : field R.
+Variable acf : algeb_closed_field K.
 
 Lemma list_prop_root : ∀ la,
   degree_plus_1_of_list ac_is_zero la ≥ 2

@@ -174,7 +174,8 @@ Section theorems.
 
 Variable α : Type.
 Variable R : ring α.
-Variable acf : algeb_closed_field R.
+Variable K : field R.
+Variable acf : algeb_closed_field K.
 Let Kx := ps_ring R.
 
 Lemma order_in_newton_segment : ∀ pol ns pl h αh,
@@ -665,9 +666,8 @@ destruct na as [na| ].
     unfold convol_mul in Hlt.
     rewrite summation_only_one_non_0 with (v := na) in Hlt.
      rewrite Nat.add_comm, Nat.add_sub in Hlt.
+     apply fld_eq_mul_0_l in Hlt; try assumption.
 bbb.
-(* the ring R must be an integral domain! or a field *)
-     apply rng_eq_mul_0_l in Hlt.
 
 unfold order; simpl.
 unfold cm_factor, cm; simpl.

@@ -289,7 +289,8 @@ Section theorems.
 
 Variable α : Type.
 Variable R : ring α.
-Variable acf : algeb_closed_field R.
+Variable K : field R.
+Variable acf : algeb_closed_field K.
 Let Kx := ps_ring R.
 
 Lemma lap_f₁_eq_x_min_β₁_comp : ∀ la β₁ γ₁ c₁,
