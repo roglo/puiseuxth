@@ -666,7 +666,20 @@ destruct na as [na| ].
     unfold convol_mul in Hlt.
     rewrite summation_only_one_non_0 with (v := na) in Hlt.
      rewrite Nat.add_comm, Nat.add_sub in Hlt.
-     apply fld_eq_mul_0_l in Hlt; try assumption.
+     apply fld_eq_mul_0_l in Hlt; try assumption; contradiction.
+
+     split; [ apply Nat.le_0_l | apply le_plus_l ].
+
+     intros i (_, Hiab) Hina.
+     destruct (lt_dec i na) as [Hilt| Hige].
+      rewrite Hia; [ idtac | assumption ].
+      rewrite rng_mul_0_l; reflexivity.
+
+      apply Nat.nlt_ge in Hige.
+      rewrite Hib; [ idtac | fast_omega Hiab Hina Hige ].
+      rewrite rng_mul_0_r; reflexivity.
+
+    apply Nat.nlt_ge in Hge.
 bbb.
 
 unfold order; simpl.
