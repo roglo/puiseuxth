@@ -490,60 +490,6 @@ apply series_mul_inv_r.
 assumption.
 Qed.
 
-Theorem series_mul_eq_0_l : ∀ a b,
-  (a * b = 0)%ser → (b ≠ 0)%ser → (a = 0)%ser.
-Proof.
-intros a b Hab Hb.
-bbb.
-inversion Hab; subst.
-simpl in H.
-assert (∀ i, (a .[ i] * b .[ i] = 0)%K) as Ha.
- intros n.
- induction n using all_lt_all.
- pose proof (H n) as Hn.
- unfold convol_mul in Hn.
- destruct n.
-  unfold summation in Hn; simpl in Hn.
-  rewrite rng_add_0_r in Hn.
-  assumption.
-
-  rewrite summation_split_last in Hn.
-   rewrite Nat.sub_diag in Hn.
-bbb.
-
-intros a b Hab.
-assert (∀ i, (a .[ i] = 0)%K \/ (b .[ i] = 0)%K) as HH.
- intros n.
- induction n using all_lt_all.
- apply rng_mul_integral.
- inversion Hab; subst.
- simpl in H0.
- unfold convol_mul in H0.
- pose proof (H0 n) as Hn.
- destruct n.
-  unfold summation in Hn; simpl in Hn.
-  rewrite rng_add_0_r in Hn.
-  assumption.
-
-  rewrite summation_split_last in Hn.
-   rewrite Nat.sub_diag in Hn.
-   rewrite summation_split_first in Hn.
-    rewrite Nat.sub_0_r in Hn.
-    assert (0 < S n)%nat as Hsn.
-     apply Nat.lt_0_succ.
-
-     apply H in Hsn.
-     destruct Hsn as [Hsn| Hsn].
-      rewrite Hsn in Hn.
-      rewrite rng_mul_0_l, rng_add_0_l in Hn.
-      rewrite all_0_summation_0 in Hn.
-       rewrite rng_add_0_l in Hn.
-       apply rng_mul_integral in Hn.
-       destruct Hn as [Hn| Hn].
-        rewrite Hn, rng_mul_0_l; reflexivity.
-bbb.
-*)
-
 End lemmas_again.
 
 Definition series_ring α (r : ring α) : ring (power_series α) :=
@@ -565,7 +511,6 @@ Definition series_ring α (r : ring α) : ring (power_series α) :=
      rng_mul_assoc := series_mul_assoc r;
      rng_mul_1_l := series_mul_1_l r;
      rng_mul_compat_l := @series_mul_compat_l α r;
-     rng_mul_add_distr_l := series_mul_add_distr_l r;
-     rng_mul_eq_0_l := series_mul_eq_0_l (R := r) |}.
+     rng_mul_add_distr_l := series_mul_add_distr_l r |}.
 
 Canonical Structure series_ring.

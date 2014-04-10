@@ -1694,8 +1694,7 @@ Definition lap_ring α (r : ring α) : ring (list α) :=
      rng_mul_assoc := lap_mul_assoc r;
      rng_mul_1_l := lap_mul_1_l r;
      rng_mul_compat_l := @lap_mul_compat_l _ r;
-     rng_mul_add_distr_l := lap_mul_add_distr_l r;
-     rng_mul_eq_0_l :=  lap_mul_eq_0_l |}.
+     rng_mul_add_distr_l := lap_mul_add_distr_l r |}.
 
 Canonical Structure lap_ring.
 
