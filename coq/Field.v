@@ -369,7 +369,7 @@ rewrite <- rng_mul_0_l in Hnm.
 apply fld_mul_reg_r in Hnm; assumption.
 Qed.
 
-Theorem fnd_eq_mul_0_r : ∀ n m,
+Theorem fld_eq_mul_0_r : ∀ n m,
   (n * m = 0)%K
   → (n ≠ 0)%K
     → (m = 0)%K.

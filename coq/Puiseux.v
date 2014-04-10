@@ -622,7 +622,6 @@ symmetry in Hna, Hnb, Hnc.
 destruct na as [na| ].
  destruct nb as [nb| ].
   destruct nc as [nc| ].
-   Focus 1.
    simpl.
    rewrite Z.sub_0_r.
    rewrite Z.sub_0_r.
@@ -681,7 +680,67 @@ destruct na as [na| ].
 
     apply Nat.nlt_ge in Hge.
     destruct (lt_dec nc (na + nb)) as [Hclt| Hcge].
+     unfold convol_mul in Hnc.
+     rewrite all_0_summation_0 in Hnc.
+      exfalso; apply Hnc; reflexivity.
 
+      intros h (_, Hhc).
+      destruct (lt_dec h na) as [Hha| Hha].
+       rewrite Hia; [ idtac | assumption ].
+       rewrite rng_mul_0_l; reflexivity.
+
+       destruct (lt_dec (nc - h) nb) as [Hhb| Hhb].
+        rewrite Hib; [ idtac | assumption ].
+        rewrite rng_mul_0_r; reflexivity.
+
+        exfalso; fast_omega Hclt Hhc Hha Hhb.
+
+     apply Nat.nlt_ge in Hcge.
+     apply Nat.le_antisymm; assumption.
+
+   exfalso.
+   apply null_coeff_range_length_iff in Hna.
+   apply null_coeff_range_length_iff in Hnb.
+   apply null_coeff_range_length_iff in Hnc.
+   unfold null_coeff_range_length_prop in Hna, Hnb, Hnc.
+   simpl in Hna, Hnb, Hnc.
+   destruct Hna as (Hia, Hna).
+   destruct Hnb as (Hib, Hnb).
+   pose proof (Hnc (na + nb)%nat) as Hnab.
+   unfold convol_mul in Hnab.
+   destruct (le_dec na nb) as [Hab| Hab].
+    rewrite summation_only_one_non_0 with (v := na) in Hnab.
+     rewrite Nat.add_comm, Nat.add_sub in Hnab.
+     apply fld_eq_mul_0_l in Hnab; try assumption; contradiction.
+
+     split; [ apply Nat.le_0_l | apply le_plus_l ].
+
+     intros i (_, Hiab) Hina.
+     destruct (lt_dec i na) as [Hilt| Hige].
+      rewrite Hia; [ idtac | assumption ].
+      rewrite rng_mul_0_l; reflexivity.
+
+      apply Nat.nlt_ge in Hige.
+      rewrite Hib; [ idtac | fast_omega Hiab Hina Hige ].
+      rewrite rng_mul_0_r; reflexivity.
+
+    apply Nat.nle_gt in Hab.
+    rewrite summation_only_one_non_0 with (v := na) in Hnab.
+     rewrite Nat.add_comm, Nat.add_sub in Hnab.
+     apply fld_eq_mul_0_l in Hnab; try assumption; contradiction.
+
+     split; [ apply Nat.le_0_l | apply le_plus_l ].
+
+     intros i (_, Hiab) Hina.
+     destruct (lt_dec i na) as [Hilt| Hige].
+      rewrite Hia; [ idtac | assumption ].
+      rewrite rng_mul_0_l; reflexivity.
+
+      apply Nat.nlt_ge in Hige.
+      rewrite Hib; [ idtac | fast_omega Hiab Hina Hige ].
+      rewrite rng_mul_0_r; reflexivity.
+
+  simpl.
 bbb.
 
 unfold order; simpl.
