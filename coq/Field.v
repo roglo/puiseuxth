@@ -335,7 +335,7 @@ intros x H; simpl; rewrite rng_mul_comm.
 apply fld_mul_inv_l; assumption.
 Qed.
 
-Theorem rng_mul_reg_r : ∀ a b c,
+Theorem fld_mul_reg_r : ∀ a b c,
   (c ≠ 0)%K
   → (a * c = b * c)%K
     → (a = b)%K.
@@ -348,7 +348,7 @@ do 2 rewrite rng_mul_1_r in Habc.
 assumption.
 Qed.
 
-Theorem rng_mul_reg_l : ∀ a b c,
+Theorem fld_mul_reg_l : ∀ a b c,
   (c ≠ 0)%K
   → (c * a = c * b)%K
     → (a = b)%K.
@@ -356,27 +356,27 @@ Proof.
 intros a b c Hc Habc; simpl in Hc, Habc; simpl.
 rewrite rng_mul_comm in Habc; symmetry in Habc.
 rewrite rng_mul_comm in Habc; symmetry in Habc.
-eapply rng_mul_reg_r; eassumption.
+eapply fld_mul_reg_r; eassumption.
 Qed.
 
-Theorem rng_eq_mul_0_l : ∀ n m,
+Theorem fld_eq_mul_0_l : ∀ n m,
   (n * m = 0)%K
   → (m ≠ 0)%K
     → (n = 0)%K.
 Proof.
 intros n m Hnm Hm.
 rewrite <- rng_mul_0_l in Hnm.
-apply rng_mul_reg_r in Hnm; assumption.
+apply fld_mul_reg_r in Hnm; assumption.
 Qed.
 
-Theorem rng_eq_mul_0_r : ∀ n m,
+Theorem fnd_eq_mul_0_r : ∀ n m,
   (n * m = 0)%K
   → (n ≠ 0)%K
     → (m = 0)%K.
 Proof.
 intros n m Hnm Hm; simpl in Hnm, Hm; simpl.
 rewrite <- rng_mul_0_r in Hnm.
-apply rng_mul_reg_l in Hnm; assumption.
+apply fld_mul_reg_l in Hnm; assumption.
 Qed.
 
 (* AFAIK cannot be do with 'Add Parametric Morphim: (inv fld)
