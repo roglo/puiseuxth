@@ -795,6 +795,11 @@ remember (List.map (λ t, power t) tl) as l₁ eqn:Hl₁ .
 remember (list_seq_except 0 (length (al pol)) l₁) as l₂ eqn:Hl₂ .
 simpl in Hm.
 apply List.in_map with (f := order) in Hm.
+unfold Qbar.gt; simpl.
+remember (order m) as mo eqn:Hmo .
+symmetry in Hmo.
+destruct mo as [mo| ]; [ idtac | constructor ].
+apply Qbar.lt_qfin.
 bbb.
 rewrite xxx in Hm.
 rewrite <- List.map_map in Hm.
