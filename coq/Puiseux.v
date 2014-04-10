@@ -757,18 +757,28 @@ destruct na as [na| ].
  subst nc; constructor.
 Qed.
 
-Lemma xxx : ∀ a lb,
-  let _ := Kx in (* coq seems not to see the type of Kx *)
-  List.map order ([a] * lb)%lap =
-  List.map (λ b, (order a + order b)%Qbar) lb.
+(*
+Lemma www : ∀ x, order (x + 0)%ps = order x.
 Proof.
-intros a lb f'.
+intros x.
+unfold order.
+bbb.
+*)
+
+(*
+Lemma xxx : ∀ a lb x,
+  let _ := Kx in (* coq seems not to see the type of Kx *)
+  x ∈ List.map order ([a] * lb)%lap
+  → x ∈ List.map (λ b, (order a + order b)%Qbar) lb.
+Proof.
+intros a lb x f' Hx.
 induction lb as [| b]; intros; [ reflexivity | simpl ].
 subst f'.
 unfold summation; simpl.
 f_equal.
 (* problème parce qu'il s'agit de eq et non Qeq *)
 bbb.
+*)
 
 Lemma yyy : ∀ pol ns g,
   ns ∈ newton_segments R pol
