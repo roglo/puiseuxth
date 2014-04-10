@@ -901,8 +901,8 @@ destruct n₄ as [n₄| ].
 
   eapply ps_terms_adjust_canonic_mul_add₂_distr_l; eassumption.
 
- rewrite null_coeff_range_length_inf_iff in Hn₄.
- rewrite null_coeff_range_length_inf_iff in Hn₅.
+ rewrite ps_null_coeff_range_length_inf_iff in Hn₄.
+ rewrite ps_null_coeff_range_length_inf_iff in Hn₅.
  rewrite Hn₄, Hn₅; reflexivity.
 Qed.
 

@@ -157,15 +157,15 @@ destruct na as [na| ].
    rewrite Z.gcd_comm, Z.gcd_assoc, Hob.
    apply Z_gcd_pos_r_le.
 
-  apply null_coeff_range_length_inf_iff in Hnb.
+  apply ps_null_coeff_range_length_inf_iff in Hnb.
   rewrite Hnb in Hab.
-  apply null_coeff_range_length_inf_iff in Hab.
+  apply ps_null_coeff_range_length_inf_iff in Hab.
   rewrite Hab in Hna; discriminate Hna.
 
- apply null_coeff_range_length_inf_iff in Hna.
+ apply ps_null_coeff_range_length_inf_iff in Hna.
  rewrite Hna in Hab.
  symmetry in Hab.
- apply null_coeff_range_length_inf_iff in Hab.
+ apply ps_null_coeff_range_length_inf_iff in Hab.
  rewrite Hab in Hnb.
  subst nb; reflexivity.
 Qed.
@@ -456,7 +456,7 @@ destruct n as [n| ].
     remember (null_coeff_range_length R (ps_terms āl) 0) as v eqn:Hv .
     symmetry in Hv.
     destruct v; [ discriminate Hm | idtac ].
-    apply null_coeff_range_length_inf_iff in Hv.
+    apply ps_null_coeff_range_length_inf_iff in Hv.
     assert (s = 0)%ps as Hsz.
      rewrite Hs.
      rewrite Hv.
@@ -741,33 +741,21 @@ destruct na as [na| ].
       rewrite rng_mul_0_r; reflexivity.
 
   simpl.
-bbb.
+  apply series_null_coeff_range_length_inf_iff in Hnb.
+  rewrite Hnb in Hnc.
+  rewrite rng_mul_0_r in Hnc.
+  simpl in Hnc.
+  rewrite null_coeff_range_length_series_0 in Hnc.
+  subst nc; constructor.
 
-unfold order; simpl.
-unfold cm_factor, cm; simpl.
-remember (null_coeff_range_length R (ps_terms a) 0) as na eqn:Hna .
-remember (null_coeff_range_length R (ps_terms b) 0) as nb eqn:Hnb .
-symmetry in Hna, Hnb.
-destruct na as [na| ].
- destruct nb as [nb| ].
-  Focus 1.
-  remember (series_stretch R (ps_polord b) (ps_terms a)) as sa eqn:Hsa .
-  remember (series_stretch R (ps_polord a) (ps_terms b)) as sb eqn:Hsb .
-  remember (null_coeff_range_length R (sa * sb)%ser 0) as nc eqn:Hnc .
-  symmetry in Hnc.
-  destruct nc as [nc| ].
-   simpl.
-   unfold Qeq; simpl.
-   apply Z.mul_cancel_r; [ apply Pos2Z_ne_0 | idtac ].
-   rewrite Z.mul_add_distr_r.
-   rewrite Z.mul_add_distr_r.
-   rewrite <- Z.add_assoc.
-   rewrite <- Z.add_assoc.
-   apply Z.add_cancel_l.
-   symmetry.
-   rewrite Z.add_comm, <- Z.add_assoc.
-   apply Z.add_cancel_l.
-bbb.
+ simpl.
+ apply series_null_coeff_range_length_inf_iff in Hna.
+ rewrite Hna in Hnc.
+ rewrite rng_mul_0_l in Hnc.
+ simpl in Hnc.
+ rewrite null_coeff_range_length_series_0 in Hnc.
+ subst nc; constructor.
+Qed.
 
 Lemma xxx : ∀ a lb,
   let _ := Kx in (* coq seems not to see the type of Kx *)

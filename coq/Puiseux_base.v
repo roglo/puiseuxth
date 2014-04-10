@@ -82,13 +82,13 @@ Lemma order_inf : ∀ x, order x = qinf ↔ (x = 0)%ps.
 Proof.
 intros x.
 split; intros H.
- apply null_coeff_range_length_inf_iff.
+ apply ps_null_coeff_range_length_inf_iff.
  unfold order in H.
  remember (null_coeff_range_length r (ps_terms x) 0) as n eqn:Hn .
  symmetry in Hn.
  destruct n as [n| ]; [ discriminate H | reflexivity ].
 
- apply null_coeff_range_length_inf_iff in H.
+ apply ps_null_coeff_range_length_inf_iff in H.
  unfold order.
  rewrite H; reflexivity.
 Qed.

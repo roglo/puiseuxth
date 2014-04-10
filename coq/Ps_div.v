@@ -306,7 +306,7 @@ destruct n as [n| ].
   destruct Hn as (Hz, Hnz).
   rewrite Nat.add_comm in Hnz; assumption.
 
- apply null_coeff_range_length_inf_iff in Hn.
+ apply ps_null_coeff_range_length_inf_iff in Hn.
  contradiction.
 Qed.
 

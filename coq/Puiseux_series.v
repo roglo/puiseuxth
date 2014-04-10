@@ -1576,7 +1576,21 @@ destruct (le_dec i b) as [H₁| H₁].
   subst q; rewrite Nat2Pos.id; auto.
 Qed.
 
-Lemma null_coeff_range_length_inf_iff : ∀ ps,
+Lemma series_null_coeff_range_length_inf_iff : ∀ s,
+  null_coeff_range_length r s 0 = ∞
+  ↔ (s = 0)%ser.
+Proof.
+intros s.
+split; intros H.
+ apply null_coeff_range_length_iff in H.
+ simpl in H.
+ constructor; assumption.
+
+ apply null_coeff_range_length_iff; simpl.
+ inversion_clear H; assumption.
+Qed.
+
+Lemma ps_null_coeff_range_length_inf_iff : ∀ ps,
   null_coeff_range_length r (ps_terms ps) 0 = ∞
   ↔ (ps = 0)%ps.
 Proof.

@@ -532,8 +532,8 @@ Lemma null_coeff_range_length_inf_compat : ∀ ps₁ ps₂,
     → null_coeff_range_length r (ps_terms ps₂) 0 = ∞.
 Proof.
 intros ps₁ ps₂ Heq Hinf.
-apply null_coeff_range_length_inf_iff in Hinf.
-apply null_coeff_range_length_inf_iff.
+apply ps_null_coeff_range_length_inf_iff in Hinf.
+apply ps_null_coeff_range_length_inf_iff.
 inversion Hinf; constructor.
 rewrite <- Heq, H; reflexivity.
 Qed.
