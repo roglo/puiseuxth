@@ -830,6 +830,14 @@ destruct Ha as [Ha| Ha].
  right; apply IHl; assumption.
 Qed.
 
+(*
+Lemma xxx : ∀ x la,
+  (∀ y, y ∈ la → (order y > 0)%Qbar)
+  → list_in_eq eq_ps x la
+    → (order x > 0)%Qbar.
+bbb.
+*)
+
 Lemma yyy : ∀ pol ns g,
   ns ∈ newton_segments R pol
   → g = g_of_ns pol ns
