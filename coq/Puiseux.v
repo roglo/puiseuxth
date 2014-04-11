@@ -785,23 +785,40 @@ induction lb as [| b]; intros.
 bbb.
 *)
 
-Lemma xxx : ∀ a lb x,
+Lemma list_in_eq_ps_compat : ∀ x la lb,
   let _ := Kx in (* coq seems not to see the type of Kx *)
-  list_in_eq Qbar.qeq x (List.map order ([a] * lb)%lap)
-  → list_in_eq Qbar.qeq x (List.map (λ b, (order a + order b)%Qbar) lb).
+  (x ≠ 0)%ps
+  → (la = lb)%lap
+    → list_in_eq eq_ps x la
+      → list_in_eq eq_ps x lb.
 Proof.
-intros a lb x f' Hx.
-induction lb as [| b]; intros; [ contradiction | simpl ].
-subst f'.
+intros x la lb f Hxnz Hlab Hx.
+subst f.
+revert lb Hlab.
+induction la as [| a]; intros; [ contradiction | idtac ].
 simpl in Hx.
-unfold summation in Hx; simpl in Hx.
 destruct Hx as [Hx| Hx].
- rewrite ps_add_0_r in Hx.
- left; rewrite <- order_mul; assumption.
+ destruct lb as [| b]; simpl.
+  apply lap_eq_cons_nil_inv in Hlab.
+  destruct Hlab as (Ha, Hla).
+  rewrite Hx in Ha; contradiction.
 
- right; apply IHlb.
-bbb.
-*)
+  apply lap_eq_cons_inv in Hlab.
+  destruct Hlab as (Hab, Hlab).
+  left; etransitivity; [ idtac | eassumption ].
+  symmetry; eassumption.
+
+ destruct lb as [| b]; simpl.
+  apply lap_eq_cons_nil_inv in Hlab.
+  destruct Hlab as (Ha, Hla).
+  eapply IHla in Hx; [ idtac | eassumption ].
+  contradiction.
+
+  apply lap_eq_cons_inv in Hlab.
+  destruct Hlab as (Hab, Hlab).
+  right.
+  apply IHla; assumption.
+Qed.
 
 Lemma list_in_eq_ps : ∀ a l, a ∈ l → list_in_eq eq_ps a l.
 Proof.
@@ -828,8 +845,17 @@ remember (List.map (λ t, power t) tl) as l₁ eqn:Hl₁ .
 remember (list_seq_except 0 (length (al pol)) l₁) as l₂ eqn:Hl₂ .
 simpl in Hm.
 apply list_in_eq_ps in Hm.
+remember (order m) as om eqn:Hom .
+symmetry in Hom.
+destruct om as [om| ]; [ idtac | constructor ].
+assert (m ≠ 0)%ps as Hmnz.
+ intros H.
+ apply order_inf in H.
+ rewrite H in Hom; discriminate Hom.
+
+ eapply list_in_eq_ps_compat in Hm; [ idtac | assumption | idtac ].
+  2: rewrite lap_mul_add_distr_l; reflexivity.
 bbb.
-rewrite lap_mul_add_distr_l in Hm.
 
 apply List.in_map with (f := order) in Hm.
 unfold Qbar.gt; simpl.
