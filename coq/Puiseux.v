@@ -28,6 +28,12 @@ Require Import F1Eq.
 
 Set Implicit Arguments.
 
+Fixpoint list_in_eq A equ (a : A) (l : list A) :=
+  match l with
+  | [] => False
+  | [b … m] => equ b a ∨ list_in_eq equ a m
+  end.
+
 Lemma div_gcd_gcd_0_r : ∀ a b c d e f,
   (b / Z.gcd (Z.gcd a b) c)%Z = (e / Z.gcd (Z.gcd d e) f)%Z
   → e = 0%Z
@@ -758,27 +764,54 @@ destruct na as [na| ].
 Qed.
 
 (*
-Lemma www : ∀ x, order (x + 0)%ps = order x.
+Lemma www : ∀ a lb x k len,
+  let _ := Kx in (* coq seems not to see the type of Kx *)
+  list_in_eq Qbar.qeq x (List.map order (lap_convol_mul [a] lb k len))
+  → list_in_eq Qbar.qeq x (List.map (λ b, (order a + order b)%Qbar) lb).
 Proof.
-intros x.
-unfold order.
+intros a lb x k len f' Hx.
+revert k len Hx.
+induction lb as [| b]; intros.
+ destruct len.
+  simpl in Hx.
+  contradiction.
+
+  simpl in Hx.
+  subst f'.
+  destruct Hx as [Hx| Hx].
+   rewrite all_0_summation_0 in Hx.
+    simpl in Hx.
+    simpl.
 bbb.
 *)
 
-(*
 Lemma xxx : ∀ a lb x,
   let _ := Kx in (* coq seems not to see the type of Kx *)
-  x ∈ List.map order ([a] * lb)%lap
-  → x ∈ List.map (λ b, (order a + order b)%Qbar) lb.
+  list_in_eq Qbar.qeq x (List.map order ([a] * lb)%lap)
+  → list_in_eq Qbar.qeq x (List.map (λ b, (order a + order b)%Qbar) lb).
 Proof.
 intros a lb x f' Hx.
-induction lb as [| b]; intros; [ reflexivity | simpl ].
+induction lb as [| b]; intros; [ contradiction | simpl ].
 subst f'.
-unfold summation; simpl.
-f_equal.
-(* problème parce qu'il s'agit de eq et non Qeq *)
+simpl in Hx.
+unfold summation in Hx; simpl in Hx.
+destruct Hx as [Hx| Hx].
+ rewrite ps_add_0_r in Hx.
+ left; rewrite <- order_mul; assumption.
+
+ right; apply IHlb.
 bbb.
 *)
+
+Lemma list_in_eq_ps : ∀ a l, a ∈ l → list_in_eq eq_ps a l.
+Proof.
+intros a l Ha.
+induction l as [| x]; [ assumption | idtac ].
+destruct Ha as [Ha| Ha].
+ subst a; left; reflexivity.
+
+ right; apply IHl; assumption.
+Qed.
 
 Lemma yyy : ∀ pol ns g,
   ns ∈ newton_segments R pol
@@ -794,16 +827,22 @@ remember (List.map (term_of_point R pol) pl) as tl eqn:Htl .
 remember (List.map (λ t, power t) tl) as l₁ eqn:Hl₁ .
 remember (list_seq_except 0 (length (al pol)) l₁) as l₂ eqn:Hl₂ .
 simpl in Hm.
+apply list_in_eq_ps in Hm.
+bbb.
+rewrite lap_mul_add_distr_l in Hm.
+
 apply List.in_map with (f := order) in Hm.
 unfold Qbar.gt; simpl.
+bbb.
+
 remember (order m) as mo eqn:Hmo .
 symmetry in Hmo.
 destruct mo as [mo| ]; [ idtac | constructor ].
 apply Qbar.lt_qfin.
 unfold Qlt; simpl.
 rewrite Z.mul_1_r.
-
 bbb.
+
 rewrite xxx in Hm.
 rewrite <- List.map_map in Hm.
 bbb.
