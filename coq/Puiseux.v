@@ -606,8 +606,7 @@ destruct Ha as [Ha| Ha].
  rewrite Ha; reflexivity.
 Qed.
 
-Lemma order_mul : ∀ a b,
-  (order (a * b)%ps = order a + order b)%Qbar.
+Lemma order_mul : ∀ a b, (order (a * b)%ps = order a + order b)%Qbar.
 Proof.
 intros a b.
 symmetry.
@@ -763,6 +762,27 @@ destruct na as [na| ].
  subst nc; constructor.
 Qed.
 
+Lemma order_add : ∀ a b,
+  (order (a + b)%ps ≥ Qbar.min (order a) (order b))%Qbar.
+Proof.
+intros a b.
+unfold Qbar.ge.
+unfold order; simpl.
+remember (null_coeff_range_length R (ps_terms a) 0) as m eqn:Hm .
+remember (null_coeff_range_length R (ps_terms b) 0) as n eqn:Hn .
+remember (null_coeff_range_length R (ps_terms_add R a b) 0) as p eqn:Hp .
+symmetry in Hm, Hn, Hp.
+destruct p as [p| ]; [ idtac | constructor ].
+unfold cm; simpl.
+destruct m as [| m]; [ idtac | exfalso ].
+ destruct n as [| n]; [ idtac | exfalso ].
+  simpl.
+  constructor.
+  unfold ps_ordnum_add; simpl.
+  unfold cm_factor; simpl.
+  unfold Qle; simpl.
+bbb.
+
 (*
 Lemma www : ∀ a lb x k len,
   let _ := Kx in (* coq seems not to see the type of Kx *)
@@ -837,6 +857,20 @@ Lemma xxx : ∀ la lb,
     → (∀ m, list_in_eq eq_ps m (la + lb)%lap → (order m > 0)%Qbar).
 Proof.
 intros la lb f' Hla Hlb m Hlab; subst f'.
+revert lb Hlb Hlab.
+induction la as [| a]; intros.
+ simpl in Hlab.
+ apply Hlb; assumption.
+
+ rename m into n.
+ simpl in Hlab.
+ destruct lb as [| b].
+  apply Hla; assumption.
+
+  simpl in Hlab.
+  destruct Hlab as [Hab| Hlab].
+   assert (order a > 0)%Qbar as Ha by (apply Hla; left; reflexivity).
+   assert (order b > 0)%Qbar as Hb by (apply Hlb; left; reflexivity).
 bbb.
 
 Lemma yyy : ∀ pol ns g,

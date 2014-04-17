@@ -16,6 +16,8 @@ Notation "0" := (qfin 0) : Qbar_scope.
 
 Open Scope Qbar_scope.
 
+Definition Qmin x y := if Qlt_le_dec x y then x else y.
+
 Module Qbar.
 
 Definition binop f dx dy xb yb :=
@@ -30,6 +32,7 @@ Definition binop f dx dy xb yb :=
 
 Definition add := binop Qplus ∞ ∞.
 Definition mul := binop Qmult ∞ ∞.
+Definition min x y := binop Qmin x y x y.
 
 Definition qeq a b :=
   match a with
@@ -48,12 +51,18 @@ Definition qeq a b :=
 Infix "+" := add : Qbar_scope.
 Infix "*" := mul : Qbar_scope.
 
+Inductive le : Qbar → Qbar → Prop :=
+  | le_qfin : ∀ q r, (q <= r)%Q → qfin q ≤ qfin r
+  | le_qinf : ∀ q, q ≤ ∞
+where "q ≤ r" := (le q r) : Qbar_scope.
+
 Inductive lt : Qbar → Qbar → Prop :=
   | lt_qfin : ∀ q r, (q < r)%Q → qfin q < qfin r
   | lt_qinf : ∀ q, qfin q < ∞
 where "q < r" := (lt q r) : Qbar_scope.
 
 Definition gt q r := lt r q.
+Definition ge q r := le r q.
 
 Theorem qfin_lt_mono : ∀ n m, (n < m)%Q ↔ qfin n < qfin m.
 Proof.
@@ -116,6 +125,8 @@ Qed.
 
 Infix "<" := Qbar.lt : Qbar_scope.
 Infix ">" := Qbar.gt : Qbar_scope.
+Infix "≤" := Qbar.le : Qbar_scope.
+Infix "≥" := Qbar.ge : Qbar_scope.
 Infix "+" := Qbar.add : Qbar_scope.
 Infix "*" := Qbar.mul : Qbar_scope.
 Infix "=" := Qbar.qeq : Qbar_scope.
