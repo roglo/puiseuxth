@@ -121,6 +121,12 @@ destruct (Z_zerop e) as [He| He].
    apply Z.gcd_divide_l.
 Qed.
 
+Add Parametric Morphism : Qbar.min
+  with signature Qbar.qeq ==> Qbar.qeq ==> Qbar.qeq
+  as qbar_min_morph.
+Proof.
+bbb.
+
 (* to be moved, perhaps, where order is defined *)
 Add Parametric Morphism α (R : ring α) : (@order α R)
   with signature eq_ps ==> Qbar.qeq
@@ -762,6 +768,13 @@ destruct na as [na| ].
  subst nc; constructor.
 Qed.
 
+Lemma ttt : ∀ a b c,
+  (a = b)%Qbar
+  → (a ≤ c)%Qbar
+    → (b ≤ c)%Qbar.
+Proof.
+bbb.
+
 Lemma order_add : ∀ a b,
   (order (a + b)%ps ≥ Qbar.min (order a) (order b))%Qbar.
 Proof.
@@ -769,8 +782,10 @@ intros a b.
 unfold Qbar.ge.
 pose proof (ps_adjust_eq R a 0 (ps_polord b)) as Ha.
 pose proof (ps_adjust_eq R b 0 (ps_polord a)) as Hb.
-bbb.
-rewrite Hb in |- * at 1.
+eapply ttt.
+ rewrite Hb in |- * at 1.
+ rewrite Ha in |- * at 1.
+ reflexivity.
 bbb.
 
 unfold order; simpl.
