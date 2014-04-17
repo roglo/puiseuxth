@@ -852,7 +852,6 @@ remember (List.map (term_of_point R pol) pl) as tl eqn:Htl .
 remember (List.map (λ t, power t) tl) as l₁ eqn:Hl₁ .
 remember (list_seq_except 0 (length (al pol)) l₁) as l₂ eqn:Hl₂ .
 simpl in Hm.
-apply list_in_eq_ps in Hm.
 remember (order m) as om eqn:Hom .
 symmetry in Hom.
 destruct om as [om| ]; [ idtac | constructor ].
@@ -861,6 +860,7 @@ assert (m ≠ 0)%ps as Hmnz.
  apply order_inf in H.
  rewrite H in Hom; discriminate Hom.
 
+ apply list_in_eq_ps in Hm.
  eapply list_in_eq_ps_compat in Hm; [ idtac | assumption | idtac ].
   2: rewrite lap_mul_add_distr_l; reflexivity.
 bbb.
