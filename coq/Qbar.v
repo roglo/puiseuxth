@@ -133,3 +133,22 @@ Infix "≥" := Qbar.ge : Qbar_scope.
 Infix "+" := Qbar.add : Qbar_scope.
 Infix "*" := Qbar.mul : Qbar_scope.
 Infix "=" := Qbar.qeq : Qbar_scope.
+
+Theorem Qbar_le_compat_l : ∀ a b c,
+  (a = b)%Qbar
+  → (a ≤ c)%Qbar
+    → (b ≤ c)%Qbar.
+Proof.
+intros a b c Hab Hac.
+destruct a as [a| ].
+ destruct b as [b| ]; [ idtac | inversion Hab ].
+ apply Qbar.qfin_inj in Hab.
+ destruct c as [c| ]; [ idtac | constructor ].
+ apply Qbar.le_qfin.
+ inversion Hac; subst.
+ rewrite Hab in H1; assumption.
+
+ destruct b as [b| ]; [ inversion Hab | idtac ].
+ destruct c as [c| ]; [ inversion Hac | idtac ].
+ constructor.
+Qed.

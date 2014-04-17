@@ -791,13 +791,6 @@ destruct na as [na| ].
  subst nc; constructor.
 Qed.
 
-Lemma qbar_le_compat_l : ∀ a b c,
-  (a = b)%Qbar
-  → (a ≤ c)%Qbar
-    → (b ≤ c)%Qbar.
-Proof.
-bbb.
-
 Lemma order_add : ∀ a b,
   (order (a + b)%ps ≥ Qbar.min (order a) (order b))%Qbar.
 Proof.
@@ -805,7 +798,7 @@ intros a b.
 unfold Qbar.ge.
 pose proof (ps_adjust_eq R a 0 (ps_polord b)) as Ha.
 pose proof (ps_adjust_eq R b 0 (ps_polord a)) as Hb.
-eapply ttt.
+eapply Qbar_le_compat_l.
  rewrite Hb in |- * at 1.
  rewrite Ha in |- * at 1.
  reflexivity.
