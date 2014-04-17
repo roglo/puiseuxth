@@ -830,13 +830,14 @@ destruct Ha as [Ha| Ha].
  right; apply IHl; assumption.
 Qed.
 
-(*
-Lemma xxx : ∀ x la,
-  (∀ y, y ∈ la → (order y > 0)%Qbar)
-  → list_in_eq eq_ps x la
-    → (order x > 0)%Qbar.
+Lemma xxx : ∀ la lb,
+  let _ := Kx in (* coq seems not to see the type of Kx *)
+  (∀ m, list_in_eq eq_ps m la → (order m > 0)%Qbar)
+  → (∀ m, list_in_eq eq_ps m lb → (order m > 0)%Qbar)
+    → (∀ m, list_in_eq eq_ps m (la + lb)%lap → (order m > 0)%Qbar).
+Proof.
+intros la lb f' Hla Hlb m Hlab; subst f'.
 bbb.
-*)
 
 Lemma yyy : ∀ pol ns g,
   ns ∈ newton_segments R pol
@@ -844,14 +845,15 @@ Lemma yyy : ∀ pol ns g,
     → ∀ m, m ∈ al g → (order m > 0)%Qbar.
 Proof.
 intros pol ns g Hns Hg m Hm.
+remember (al g) as la eqn:Hla .
 subst g.
-unfold g_of_ns in Hm.
+unfold g_of_ns in Hla.
 remember (ac_root (Φq R pol ns)) as c₁ eqn:Hc₁ .
 remember [ini_pt ns … oth_pts ns ++ [fin_pt ns]] as pl eqn:Hpl .
 remember (List.map (term_of_point R pol) pl) as tl eqn:Htl .
 remember (List.map (λ t, power t) tl) as l₁ eqn:Hl₁ .
 remember (list_seq_except 0 (length (al pol)) l₁) as l₂ eqn:Hl₂ .
-simpl in Hm.
+simpl in Hla.
 remember (order m) as om eqn:Hom .
 symmetry in Hom.
 destruct om as [om| ]; [ idtac | constructor ].
@@ -860,9 +862,15 @@ assert (m ≠ 0)%ps as Hmnz.
  apply order_inf in H.
  rewrite H in Hom; discriminate Hom.
 
+ subst la.
  apply list_in_eq_ps in Hm.
  eapply list_in_eq_ps_compat in Hm; [ idtac | assumption | idtac ].
   2: rewrite lap_mul_add_distr_l; reflexivity.
+
+  rewrite <- Hom.
+  eapply xxx; [ idtac | idtac | eassumption ].
+   clear m Hom Hmnz Hm.
+   intros m Hm.
 bbb.
 
 apply List.in_map with (f := order) in Hm.
