@@ -781,6 +781,10 @@ destruct m as [m |]; [ idtac | exfalso ].
   unfold ps_ordnum_add; simpl.
   unfold cm_factor; simpl.
   unfold Qle; simpl.
+  unfold Qmin; simpl.
+  remember (ps_ordnum a + Z.of_nat m # ps_polord a) as am eqn:Ham .
+  remember (ps_ordnum b + Z.of_nat n # ps_polord b) as bn eqn:Hbn .
+  destruct (Qlt_le_dec am bn) as [Hlt| Hge].
 bbb.
 
 (*
