@@ -774,8 +774,8 @@ remember (null_coeff_range_length R (ps_terms_add R a b) 0) as p eqn:Hp .
 symmetry in Hm, Hn, Hp.
 destruct p as [p| ]; [ idtac | constructor ].
 unfold cm; simpl.
-destruct m as [| m]; [ idtac | exfalso ].
- destruct n as [| n]; [ idtac | exfalso ].
+destruct m as [m |]; [ idtac | exfalso ].
+ destruct n as [n |]; [ idtac | exfalso ].
   simpl.
   constructor.
   unfold ps_ordnum_add; simpl.
