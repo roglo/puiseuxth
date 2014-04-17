@@ -74,6 +74,9 @@ Qed.
 Theorem qfin_inj : ∀ a b, qeq (qfin a) (qfin b) → a == b.
 Proof. intros a b Hab; assumption. Qed.
 
+Theorem qfin_inj_wd : ∀ a b, qeq (qfin a) (qfin b) ↔ a == b.
+Proof. intros a b; split; intros H; assumption. Qed.
+
 Theorem eq_refl : reflexive _ qeq.
 Proof. intros a; destruct a; reflexivity. Qed.
 

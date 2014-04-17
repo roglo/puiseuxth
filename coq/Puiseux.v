@@ -125,7 +125,30 @@ Add Parametric Morphism : Qbar.min
   with signature Qbar.qeq ==> Qbar.qeq ==> Qbar.qeq
   as qbar_min_morph.
 Proof.
-bbb.
+intros a b Hab c d Hcd.
+unfold Qbar.min, Qbar.binop.
+destruct a as [a| ].
+ destruct b as [b| ]; [ idtac | inversion Hab ].
+ apply Qbar.qfin_inj in Hab.
+ destruct c as [c| ].
+  destruct d as [d| ]; [ idtac | inversion Hcd ].
+  apply Qbar.qfin_inj in Hcd.
+  unfold Qmin; simpl.
+  destruct (Qlt_le_dec a c) as [Hlt| Hge]; [ idtac | inversion Hcd ].
+   destruct (Qlt_le_dec b d) as [Hlt'| Hge]; [ assumption | idtac ].
+   rewrite Hab, Hcd in Hlt.
+   apply Qle_not_lt in Hge.
+   contradiction.
+
+   destruct (Qlt_le_dec b d) as [Hlt| Hge']; [ idtac | assumption ].
+   rewrite Hab, Hcd in Hge.
+   apply Qle_not_lt in Hge.
+   contradiction.
+
+  destruct d as [d| ]; [ inversion Hcd | assumption ].
+
+ destruct b as [b| ]; [ inversion Hab | assumption ].
+Qed.
 
 (* to be moved, perhaps, where order is defined *)
 Add Parametric Morphism α (R : ring α) : (@order α R)
@@ -768,7 +791,7 @@ destruct na as [na| ].
  subst nc; constructor.
 Qed.
 
-Lemma ttt : ∀ a b c,
+Lemma qbar_le_compat_l : ∀ a b c,
   (a = b)%Qbar
   → (a ≤ c)%Qbar
     → (b ≤ c)%Qbar.
