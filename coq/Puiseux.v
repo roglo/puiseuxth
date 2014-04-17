@@ -766,6 +766,12 @@ Lemma order_add : ∀ a b,
   (order (a + b)%ps ≥ Qbar.min (order a) (order b))%Qbar.
 Proof.
 intros a b.
+pose proof (ps_adjust_eq R a 0 (ps_polord b)) as Ha.
+pose proof (ps_adjust_eq R b 0 (ps_polord a)) as Hb.
+bbb.
+rewrite Hb in |- * at 1.
+bbb.
+
 unfold Qbar.ge.
 unfold order; simpl.
 remember (null_coeff_range_length R (ps_terms a) 0) as m eqn:Hm .
