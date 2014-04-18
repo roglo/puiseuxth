@@ -887,6 +887,19 @@ eapply Qbar_le_compat.
    apply Z.mul_le_mono_pos_r; [ apply Pos2Z.is_pos | idtac ].
    apply Z.add_le_mono_l.
    apply Nat2Z.inj_le.
+   apply series_null_coeff_range_length_inf_iff in Hnb.
+   rewrite Hnb in Hnc.
+   rewrite rng_add_0_r in Hnc.
+   rewrite Hna in Hnc.
+   injection Hnc; intros; subst na; reflexivity.
+
+  simpl.
+  apply series_null_coeff_range_length_inf_iff in Hna.
+  rewrite Hna in Hnc.
+  rewrite rng_add_0_l in Hnc.
+  rewrite Hnb in Hnc; subst nc.
+  destruct nb as [nb| ]; [ idtac | constructor ].
+  apply Qbar.le_qfin.
 bbb.
 
 intros a b.
