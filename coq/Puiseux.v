@@ -872,6 +872,16 @@ eapply Qbar_le_compat.
       rewrite Hca, Hcb in Hnc.
       rewrite rng_add_0_l in Hnc.
       apply Hnc; reflexivity.
+
+      rewrite <- Z.sub_max_distr_l.
+      rewrite Z.sub_diag.
+      rewrite Z.max_comm, <- Z2Nat_id_max.
+      apply Nat2Z.is_nonneg.
+
+     rewrite <- Z.sub_max_distr_l.
+     rewrite Z.sub_diag.
+     rewrite <- Z2Nat_id_max.
+     apply Nat2Z.is_nonneg.
 bbb.
 
 intros a b.
