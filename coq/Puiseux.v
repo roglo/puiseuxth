@@ -805,35 +805,20 @@ eapply Qbar_le_compat.
  reflexivity.
 
  unfold order; simpl.
- unfold ps_terms_add.
- unfold cm, cm_factor; simpl.
+ unfold cm; simpl.
  do 2 rewrite series_shift_0.
- unfold adjust_series.
  remember (series_stretch R (ps_polord b) (ps_terms a)) as sa eqn:Hsa .
  remember (series_stretch R (ps_polord a) (ps_terms b)) as sb eqn:Hsb .
  remember (null_coeff_range_length R sa 0) as na eqn:Hna .
  remember (null_coeff_range_length R sb 0) as nb eqn:Hnb .
- symmetry in Hna, Hnb.
-bbb.
-
-unfold order; simpl.
-remember (null_coeff_range_length R (ps_terms a) 0) as m eqn:Hm .
-remember (null_coeff_range_length R (ps_terms b) 0) as n eqn:Hn .
-remember (null_coeff_range_length R (ps_terms_add R a b) 0) as p eqn:Hp .
-symmetry in Hm, Hn, Hp.
-destruct p as [p| ]; [ idtac | constructor ].
-unfold cm; simpl.
-destruct m as [m |]; [ idtac | exfalso ].
- destruct n as [n |]; [ idtac | exfalso ].
-  simpl.
-  constructor.
-  unfold ps_ordnum_add; simpl.
-  unfold cm_factor; simpl.
-  unfold Qle; simpl.
-  unfold Qmin; simpl.
-  remember (ps_ordnum a + Z.of_nat m # ps_polord a) as am eqn:Ham .
-  remember (ps_ordnum b + Z.of_nat n # ps_polord b) as bn eqn:Hbn .
-  destruct (Qlt_le_dec am bn) as [Hlt| Hge].
+ remember (null_coeff_range_length R (ps_terms_add R a b) 0) as nc eqn:Hnc .
+ symmetry in Hna, Hnb, Hnc.
+ do 2 rewrite Z.sub_0_r.
+ destruct na as [na| ].
+  destruct nb as [nb| ].
+   destruct nc as [nc| ].
+    Focus 1.
+    simpl.
 bbb.
 
 (*
