@@ -828,60 +828,65 @@ eapply Qbar_le_compat.
  symmetry in Hna, Hnb, Hnc.
  destruct na as [na| ].
   destruct nb as [nb| ].
-   destruct nc as [nc| ].
-    Focus 1.
-    simpl.
-    apply Qbar.le_qfin.
-    rewrite Hpa, Hpb; simpl.
-    subst k₁ k₂ n₁ n₂; simpl.
-    unfold cm_factor; simpl.
-    subst v₁ v₂; simpl.
-    unfold cm_factor; simpl.
-    rewrite Pos.mul_comm.
-    rewrite Pos.mul_comm.
-    rewrite Qmin_same_den.
-    unfold Qle; simpl.
-    apply Z.mul_le_mono_nonneg_r; [ apply Pos2Z.is_nonneg | idtac ].
-    remember (ps_ordnum a * ' ps_polord b)%Z as ab.
-    remember (ps_ordnum b * ' ps_polord a)%Z as ba.
+   destruct nc as [nc| ]; [ simpl | constructor ].
+   apply Qbar.le_qfin.
+   rewrite Hpa, Hpb; simpl.
+   subst k₁ k₂ n₁ n₂; simpl.
+   unfold cm_factor; simpl.
+   subst v₁ v₂; simpl.
+   unfold cm_factor; simpl.
+   rewrite Pos.mul_comm.
+   rewrite Pos.mul_comm.
+   rewrite Qmin_same_den.
+   unfold Qle; simpl.
+   apply Z.mul_le_mono_nonneg_r; [ apply Pos2Z.is_nonneg | idtac ].
+   remember (ps_ordnum a * ' ps_polord b)%Z as ab.
+   remember (ps_ordnum b * ' ps_polord a)%Z as ba.
+   rewrite Z2Nat.id.
     rewrite Z2Nat.id.
-     rewrite Z2Nat.id.
-      rewrite Z.sub_sub_distr.
-      rewrite Z.sub_diag, Z.add_0_l.
-      rewrite Z.sub_sub_distr.
-      rewrite Z.sub_diag, Z.add_0_l.
-      rewrite Z.add_min_distr_l.
-      apply Z.add_le_mono_l.
-      rewrite <- Nat2Z.inj_min.
-      apply Nat2Z.inj_le.
-      apply null_coeff_range_length_iff in Hna.
-      apply null_coeff_range_length_iff in Hnb.
-      apply null_coeff_range_length_iff in Hnc.
-      unfold null_coeff_range_length_prop in Hna, Hnb, Hnc.
-      simpl in Hna, Hnb.
-      remember ps_terms_add as f; simpl in Hnc; subst f.
-      destruct Hna as (Hina, Hna).
-      destruct Hnb as (Hinb, Hnb).
-      destruct Hnc as (Hinc, Hnc).
-      apply Nat.nlt_ge.
-      intros Hc.
-      apply Nat.min_glb_lt_iff in Hc.
-      destruct Hc as (Hca, Hcb).
-      apply Hina in Hca.
-      apply Hinb in Hcb.
-      rewrite Hca, Hcb in Hnc.
-      rewrite rng_add_0_l in Hnc.
-      apply Hnc; reflexivity.
-
-      rewrite <- Z.sub_max_distr_l.
-      rewrite Z.sub_diag.
-      rewrite Z.max_comm, <- Z2Nat_id_max.
-      apply Nat2Z.is_nonneg.
+     rewrite Z.sub_sub_distr.
+     rewrite Z.sub_diag, Z.add_0_l.
+     rewrite Z.sub_sub_distr.
+     rewrite Z.sub_diag, Z.add_0_l.
+     rewrite Z.add_min_distr_l.
+     apply Z.add_le_mono_l.
+     rewrite <- Nat2Z.inj_min.
+     apply Nat2Z.inj_le.
+     apply null_coeff_range_length_iff in Hna.
+     apply null_coeff_range_length_iff in Hnb.
+     apply null_coeff_range_length_iff in Hnc.
+     unfold null_coeff_range_length_prop in Hna, Hnb, Hnc.
+     simpl in Hna, Hnb.
+     remember ps_terms_add as f; simpl in Hnc; subst f.
+     destruct Hna as (Hina, Hna).
+     destruct Hnb as (Hinb, Hnb).
+     destruct Hnc as (Hinc, Hnc).
+     apply Nat.nlt_ge.
+     intros Hc.
+     apply Nat.min_glb_lt_iff in Hc.
+     destruct Hc as (Hca, Hcb).
+     apply Hina in Hca.
+     apply Hinb in Hcb.
+     rewrite Hca, Hcb in Hnc.
+     rewrite rng_add_0_l in Hnc.
+     apply Hnc; reflexivity.
 
      rewrite <- Z.sub_max_distr_l.
      rewrite Z.sub_diag.
-     rewrite <- Z2Nat_id_max.
+     rewrite Z.max_comm, <- Z2Nat_id_max.
      apply Nat2Z.is_nonneg.
+
+    rewrite <- Z.sub_max_distr_l.
+    rewrite Z.sub_diag.
+    rewrite <- Z2Nat_id_max.
+    apply Nat2Z.is_nonneg.
+
+   destruct nc as [nc| ]; [ simpl | constructor ].
+   apply Qbar.le_qfin.
+   unfold Qle; simpl.
+   apply Z.mul_le_mono_pos_r; [ apply Pos2Z.is_pos | idtac ].
+   apply Z.add_le_mono_l.
+   apply Nat2Z.inj_le.
 bbb.
 
 intros a b.
