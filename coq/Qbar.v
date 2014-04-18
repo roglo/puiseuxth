@@ -157,3 +157,17 @@ destruct a as [a| ].
  destruct c as [c| ]; [ inversion Hac | idtac ].
  destruct d as [d| ]; [ inversion Hcd | constructor ].
 Qed.
+
+Lemma Qmin_same_den : ∀ a b c, Qmin (a # c) (b # c) = Z.min a b # c.
+Proof.
+intros a b c.
+unfold Qmin; simpl.
+destruct (Qlt_le_dec (a # c) (b # c)) as [Hlt| Hge]; f_equal.
+ unfold Qlt in Hlt; simpl in Hlt.
+ apply Zmult_lt_reg_r in Hlt; [ idtac | apply Pos2Z.is_pos ].
+ rewrite Z.min_l; [ reflexivity | apply Z.lt_le_incl; assumption ].
+
+ unfold Qle in Hge; simpl in Hge.
+ apply Zmult_le_reg_r in Hge; [ idtac | apply Z.lt_gt, Pos2Z.is_pos ].
+ rewrite Z.min_r; [ reflexivity | assumption ].
+Qed.

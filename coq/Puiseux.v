@@ -819,6 +819,13 @@ eapply Qbar_le_compat.
    destruct nc as [nc| ].
     Focus 1.
     simpl.
+    apply Qbar.le_qfin.
+    unfold ps_ordnum_add; simpl.
+    unfold cm_factor; simpl.
+    rewrite Pos.mul_comm.
+    rewrite Qmin_same_den.
+    unfold Qle; simpl.
+    apply Z.mul_le_mono_nonneg_r; [ apply Pos2Z.is_nonneg | idtac ].
 bbb.
 
 (*
