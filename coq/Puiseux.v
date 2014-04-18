@@ -795,6 +795,57 @@ Lemma order_add : ∀ a b,
 Proof.
 intros a b.
 unfold Qbar.ge.
+set (k₁ := cm_factor a b).
+set (k₂ := cm_factor b a).
+set (v₁ := (ps_ordnum a * ' k₁)%Z).
+set (v₂ := (ps_ordnum b * ' k₂)%Z).
+set (n₁ := Z.to_nat (v₂ - Z.min v₁ v₂)).
+set (n₂ := Z.to_nat (v₁ - Z.min v₁ v₂)).
+pose proof (ps_adjust_eq R a n₂ k₁) as Ha.
+pose proof (ps_adjust_eq R b n₁ k₂) as Hb.
+eapply Qbar_le_compat.
+ rewrite Hb in |- * at 1.
+ rewrite Ha in |- * at 1.
+ reflexivity.
+
+ rewrite eq_ps_add_add₂.
+ reflexivity.
+
+ unfold ps_add₂.
+ unfold adjust_ps_from.
+ fold k₁ k₂.
+ fold v₁ v₂.
+ rewrite Z.min_comm.
+ fold n₁ n₂.
+ remember (adjust_ps R n₂ k₁ a) as pa eqn:Hpa .
+ remember (adjust_ps R n₁ k₂ b) as pb eqn:Hpb .
+ unfold order; simpl.
+ remember (ps_terms pa) as sa eqn:Hsa .
+ remember (ps_terms pb) as sb eqn:Hsb .
+ remember (null_coeff_range_length R sa 0) as na eqn:Hna .
+ remember (null_coeff_range_length R sb 0) as nb eqn:Hnb .
+ remember (null_coeff_range_length R (sa + sb)%ser 0) as nc eqn:Hnc .
+ symmetry in Hna, Hnb, Hnc.
+ destruct na as [na| ].
+  destruct nb as [nb| ].
+   destruct nc as [nc| ].
+    Focus 1.
+    simpl.
+    apply Qbar.le_qfin.
+    rewrite Hpa, Hpb; simpl.
+    subst k₁ k₂ n₁ n₂; simpl.
+    unfold cm_factor; simpl.
+    subst v₁ v₂; simpl.
+    unfold cm_factor; simpl.
+    rewrite Pos.mul_comm.
+    rewrite Pos.mul_comm.
+    rewrite Qmin_same_den.
+    unfold Qle; simpl.
+    apply Z.mul_le_mono_nonneg_r; [ apply Pos2Z.is_nonneg | idtac ].
+bbb.
+
+intros a b.
+unfold Qbar.ge.
 pose proof (ps_adjust_eq R a 0 (ps_polord b)) as Ha.
 pose proof (ps_adjust_eq R b 0 (ps_polord a)) as Hb.
 eapply Qbar_le_compat.
@@ -830,6 +881,8 @@ eapply Qbar_le_compat.
     apply Z.min_le_compat.
      apply Z.add_le_mono_l.
      apply Nat2Z.inj_le.
+     apply Nat.nlt_ge; intros Hca.
+bbb.
      apply null_coeff_range_length_iff in Hna.
      apply null_coeff_range_length_iff in Hnb.
      apply null_coeff_range_length_iff in Hnc.
