@@ -645,8 +645,7 @@ rewrite Hb in |- * at 1.
 rewrite Ha in |- * at 1.
 unfold order; simpl.
 unfold cm_factor, cm; simpl.
-rewrite series_shift_0.
-rewrite series_shift_0.
+do 2 rewrite series_shift_0.
 remember (series_stretch R (ps_polord b) (ps_terms a)) as sa eqn:Hsa .
 remember (series_stretch R (ps_polord a) (ps_terms b)) as sb eqn:Hsb .
 remember (null_coeff_range_length R sa 0) as na eqn:Hna .
@@ -798,10 +797,22 @@ intros a b.
 unfold Qbar.ge.
 pose proof (ps_adjust_eq R a 0 (ps_polord b)) as Ha.
 pose proof (ps_adjust_eq R b 0 (ps_polord a)) as Hb.
-eapply Qbar_le_compat_l.
+eapply Qbar_le_compat.
  rewrite Hb in |- * at 1.
  rewrite Ha in |- * at 1.
  reflexivity.
+
+ reflexivity.
+
+ unfold order; simpl.
+ unfold cm; simpl.
+ rewrite series_shift_0.
+ rewrite series_shift_0.
+ remember (series_stretch R (ps_polord b) (ps_terms a)) as sa eqn:Hsa .
+ remember (series_stretch R (ps_polord a) (ps_terms b)) as sb eqn:Hsb .
+ remember (null_coeff_range_length R sa 0) as na eqn:Hna .
+ remember (null_coeff_range_length R sb 0) as nb eqn:Hnb .
+ remember (null_coeff_range_length R (ps_terms_add R a b) 0) as nc eqn:Hnc .
 bbb.
 
 unfold order; simpl.
