@@ -830,6 +830,34 @@ eapply Qbar_le_compat.
     apply Z.min_le_compat.
      apply Z.add_le_mono_l.
      apply Nat2Z.inj_le.
+     apply null_coeff_range_length_iff in Hna.
+     apply null_coeff_range_length_iff in Hnb.
+     apply null_coeff_range_length_iff in Hnc.
+     unfold null_coeff_range_length_prop in Hna, Hnb, Hnc.
+     simpl in Hna, Hnb.
+     remember ps_terms_add as f; simpl in Hnc; subst f.
+     destruct Hna as (Hina, Hna).
+     destruct Hnb as (Hinb, Hnb).
+     destruct Hnc as (Hinc, Hnc).
+     simpl in Hnc.
+     unfold cm_factor in Hnc.
+     remember (ps_ordnum a * ' ps_polord b)%Z as ab.
+     remember (ps_ordnum b * ' ps_polord a)%Z as ba.
+     destruct (lt_dec nc (Z.to_nat (ab - Z.min ab ba))) as [H₁| H₁].
+      rewrite rng_add_0_l in Hnc.
+      destruct (lt_dec nc (Z.to_nat (ba - Z.min ba ab))) as [H₂| H₂].
+       exfalso; apply Hnc; reflexivity.
+
+       apply Nat.nlt_ge in H₂.
+       remember (Z.to_nat (ba - Z.min ba ab)) as zba.
+       remember (Pos.to_nat (ps_polord a)) as pa.
+       destruct (zerop ((nc - zba) mod pa)) as [H₃| H₃].
+        apply Nat.mod_divides in H₃.
+         destruct H₃ as (c, Hc).
+         rewrite Nat.mul_comm in Hc.
+         rewrite Hc in Hnc.
+         rewrite Nat.div_mul in Hnc.
+          apply Nat.nlt_ge; intros H.
 bbb.
 
 (*
