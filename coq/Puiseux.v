@@ -1014,6 +1014,8 @@ induction la as [| a]; intros.
   destruct Hlab as [Hab| Hlab].
    assert (order a > 0)%Qbar as Ha by (apply Hla; left; reflexivity).
    assert (order b > 0)%Qbar as Hb by (apply Hlb; left; reflexivity).
+   apply order_morph in Hab.
+   pose proof (order_add a b) as H.
 bbb.
 
 Lemma yyy : ∀ pol ns g,
