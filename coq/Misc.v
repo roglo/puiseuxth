@@ -187,12 +187,12 @@ rewrite Qmult_plus_distr_r.
 rewrite Qmult_opp_r; reflexivity.
 Qed.
 
-Lemma QZ_plus : ∀ x y, x + y # 1 == (x # 1) + (y # 1).
+Lemma QZ_plus : ∀ x y z, x + y # z == (x # z) + (y # z).
 Proof.
-intros.
+intros x y z.
 unfold Qplus; simpl.
-do 2 rewrite Z.mul_1_r.
-reflexivity.
+unfold Qeq; simpl.
+rewrite Pos2Z.inj_mul; ring.
 Qed.
 
 Lemma QZ_minus : ∀ x y, x - y # 1 == (x # 1) - (y # 1).
