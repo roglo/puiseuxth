@@ -826,6 +826,10 @@ eapply Qbar_le_compat.
     rewrite Qmin_same_den.
     unfold Qle; simpl.
     apply Z.mul_le_mono_nonneg_r; [ apply Pos2Z.is_nonneg | idtac ].
+    rewrite <- Z.add_min_distr_r.
+    apply Z.min_le_compat.
+     apply Z.add_le_mono_l.
+     apply Nat2Z.inj_le.
 bbb.
 
 (*
