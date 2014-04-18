@@ -842,6 +842,36 @@ eapply Qbar_le_compat.
     rewrite Qmin_same_den.
     unfold Qle; simpl.
     apply Z.mul_le_mono_nonneg_r; [ apply Pos2Z.is_nonneg | idtac ].
+    remember (ps_ordnum a * ' ps_polord b)%Z as ab.
+    remember (ps_ordnum b * ' ps_polord a)%Z as ba.
+    rewrite Z2Nat.id.
+     rewrite Z2Nat.id.
+      rewrite Z.sub_sub_distr.
+      rewrite Z.sub_diag, Z.add_0_l.
+      rewrite Z.sub_sub_distr.
+      rewrite Z.sub_diag, Z.add_0_l.
+      rewrite Z.add_min_distr_l.
+      apply Z.add_le_mono_l.
+      rewrite <- Nat2Z.inj_min.
+      apply Nat2Z.inj_le.
+      apply null_coeff_range_length_iff in Hna.
+      apply null_coeff_range_length_iff in Hnb.
+      apply null_coeff_range_length_iff in Hnc.
+      unfold null_coeff_range_length_prop in Hna, Hnb, Hnc.
+      simpl in Hna, Hnb.
+      remember ps_terms_add as f; simpl in Hnc; subst f.
+      destruct Hna as (Hina, Hna).
+      destruct Hnb as (Hinb, Hnb).
+      destruct Hnc as (Hinc, Hnc).
+      apply Nat.nlt_ge.
+      intros Hc.
+      apply Nat.min_glb_lt_iff in Hc.
+      destruct Hc as (Hca, Hcb).
+      apply Hina in Hca.
+      apply Hinb in Hcb.
+      rewrite Hca, Hcb in Hnc.
+      rewrite rng_add_0_l in Hnc.
+      apply Hnc; reflexivity.
 bbb.
 
 intros a b.
