@@ -988,6 +988,17 @@ induction la as [| a]; intros.
    assumption.
 Qed.
 
+Lemma list_in_eq_mul : ∀ la lb,
+  let _ := Kx in (* coq seems not to see the type of Kx *)
+  (∀ m, list_in_eq eq_ps m la → (order m > 0)%Qbar)
+  → (∀ m, list_in_eq eq_ps m lb → (order m ≥ 0)%Qbar)
+    → (∀ m, list_in_eq eq_ps m (la * lb)%lap → (order m > 0)%Qbar).
+Proof.
+intros la lb f' Hla Hlb m Hlab; subst f'.
+revert lb Hlb Hlab.
+bbb.
+*)
+
 Lemma list_in_eq_summation : ∀ f l,
   (∀ i, i ∈ l → ∀ m, list_in_eq eq_ps m (f i) → (order m > 0)%Qbar)
   → (∀ m, list_in_eq eq_ps m (lap_summation Kx l f)%lap → (order m > 0)%Qbar).
@@ -1074,6 +1085,20 @@ assert (m ≠ 0)%ps as Hmnz.
      remember (poly_nth R h pol) as āh eqn:Hāh .
      remember (ps_monom (coeff_of_term R h tl) 0) as ah eqn:Hah .
      remember (ord_of_pt h pl) as αh eqn:Hαh .
+     clear om.
+     remember (order m) as om eqn:Hom .
+     symmetry in Hom.
+     destruct om as [om| ]; [ idtac | constructor ].
+     assert (m ≠ 0)%ps as Hmnz.
+      intros H.
+      apply order_inf in H.
+      rewrite H in Hom; discriminate Hom.
+
+      rewrite <- Hom.
+      eapply list_in_eq_ps_compat in Hm; [ idtac | assumption | idtac ].
+       2: rewrite lap_mul_assoc; reflexivity.
+
+       eapply list_in_eq_mul; [ idtac | idtac | eassumption ].
 bbb.
 Check order_āh_minus_ah_xαh_gt_αh.
 
