@@ -961,6 +961,14 @@ induction la as [| a]; intros.
   assert (order b > 0)%Qbar as Hb by (apply Hlb; left; reflexivity).
   unfold Qbar.ge in H.
   unfold Qbar.gt in Ha, Hb.
+  destruct (Qbar.min_dec (order a) (order b)) as [Hoab| Hoab].
+   rewrite Hoab in H.
+   eapply Qbar.lt_le_trans; [ idtac | eassumption ].
+   assumption.
+
+   rewrite Hoab in H.
+   eapply Qbar.lt_le_trans; [ idtac | eassumption ].
+   assumption.
 bbb.
 
 Lemma yyy : ∀ pol ns g,

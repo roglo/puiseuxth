@@ -77,6 +77,36 @@ Proof. intros a b Hab; assumption. Qed.
 Theorem qfin_inj_wd : ∀ a b, qeq (qfin a) (qfin b) ↔ a == b.
 Proof. intros a b; split; intros H; assumption. Qed.
 
+Theorem Qmin_dec : ∀ n m, {Qmin n m = n} + {Qmin n m = m}.
+Proof.
+intros n m.
+unfold Qmin.
+destruct (Qlt_le_dec n m); [ left | right ]; reflexivity.
+Qed.
+
+Theorem min_dec : ∀ n m, {min n m = n} + {min n m = m}.
+Proof.
+intros n m.
+destruct n as [n| ]; [ idtac | destruct m; right; reflexivity ].
+destruct m as [m| ]; [ idtac | left; reflexivity ].
+destruct (Qmin_dec n m) as [H| H]; simpl; rewrite H.
+ left; reflexivity.
+
+ right; reflexivity.
+Qed.
+
+Theorem lt_le_trans : ∀ n m p, n < m → m ≤ p → n < p.
+Proof.
+intros n m p Hnm Hmp.
+destruct p as [p| ].
+ destruct m as [m| ]; [ simpl | inversion Hmp ].
+ destruct n as [n| ]; [ simpl | inversion Hnm ].
+ inversion Hnm; inversion Hmp; constructor.
+ eapply Qlt_le_trans; eassumption.
+
+ destruct n as [n| ]; [ constructor | inversion Hnm ].
+Qed.
+
 Theorem eq_refl : reflexive _ qeq.
 Proof. intros a; destruct a; reflexivity. Qed.
 
