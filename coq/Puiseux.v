@@ -122,13 +122,21 @@ destruct (Z_zerop e) as [He| He].
 Qed.
 
 (* perhaps provable but not seem to work because Kx should be equal to
-   "ps_ring R" not just any ring *)
+   "ps_ring R" not just any ring
 Add Parametric Morphism α (R : ring α) (Kx : ring (puiseux_series α)) m :
     (list_in_eq (@eq_ps α R) m)
   with signature lap_eq ==> iff
   as list_in_eq_ps_morph.
 Proof.
 fuck.
+*)
+
+Theorem list_in_eq_ps_morph_Proper {α} {R : ring α} (Kx := ps_ring R) : ∀ m,
+  Proper (lap_eq ==> iff) (list_in_eq eq_ps m).
+Proof.
+intros m a b Hab.
+Admitted. (*
+bbb.
 *)
 
 (* to be moved, perhaps, where order is defined *)
@@ -998,6 +1006,7 @@ intros la lb f' Hla Hlb m Hlab; subst f'.
 revert lb Hlb Hlab.
 induction la as [| a]; intros.
 bbb.
+ rewrite lap_mul_nil_l in Hlab.
 *)
 
 Lemma list_in_eq_summation : ∀ f l,
