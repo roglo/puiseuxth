@@ -937,7 +937,7 @@ destruct Ha as [Ha| Ha].
  right; apply IHl; assumption.
 Qed.
 
-Lemma xxx : ∀ la lb,
+Lemma list_in_eq_add : ∀ la lb,
   let _ := Kx in (* coq seems not to see the type of Kx *)
   (∀ m, list_in_eq eq_ps m la → (order m > 0)%Qbar)
   → (∀ m, list_in_eq eq_ps m lb → (order m > 0)%Qbar)
@@ -969,7 +969,14 @@ induction la as [| a]; intros.
    rewrite Hoab in H.
    eapply Qbar.lt_le_trans; [ idtac | eassumption ].
    assumption.
-bbb.
+
+  eapply IHla.
+   intros m Hm; apply Hla; right; assumption.
+
+   intros m Hm; apply Hlb; right; eassumption.
+
+   assumption.
+Qed.
 
 Lemma yyy : ∀ pol ns g,
   ns ∈ newton_segments R pol
@@ -996,12 +1003,11 @@ assert (m ≠ 0)%ps as Hmnz.
 
  subst la.
  apply list_in_eq_ps in Hm.
-bbb.
  eapply list_in_eq_ps_compat in Hm; [ idtac | assumption | idtac ].
   2: rewrite lap_mul_add_distr_l; reflexivity.
 
   rewrite <- Hom.
-  eapply xxx; [ idtac | idtac | eassumption ].
+  eapply list_in_eq_add; [ idtac | idtac | eassumption ].
    clear m Hom Hmnz Hm.
    intros m Hm.
 bbb.
