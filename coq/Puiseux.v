@@ -988,7 +988,13 @@ induction la as [| a]; intros.
    assumption.
 Qed.
 
-(* to be moved in the good file *)
+Lemma list_in_eq_summation : ∀ f l,
+  (∀ i, i ∈ l → ∀ m, list_in_eq eq_ps m (f i) → (order m > 0)%Qbar)
+  → (∀ m, list_in_eq eq_ps m (lap_summation Kx l f)%lap → (order m > 0)%Qbar).
+Proof.
+bbb.
+
+(* to be moved to the good file *)
 Lemma lap_mul_summation : ∀ α (Kx : ring (puiseux_series α)) la l f,
   (la * lap_summation Kx l f = lap_summation Kx l (λ i, la * f i))%lap.
 Proof.
@@ -1047,6 +1053,12 @@ assert (m ≠ 0)%ps as Hmnz.
     rewrite <- Hom.
     eapply list_in_eq_ps_compat in Hm; [ idtac | assumption | idtac ].
      2: rewrite lap_mul_summation; reflexivity.
+
+     eapply list_in_eq_summation.
+      2: eassumption.
+
+      intros i Hi n Hn.
+      simpl in Hn.
 bbb.
 
 apply List.in_map with (f := order) in Hm.
