@@ -1008,8 +1008,18 @@ assert (m ≠ 0)%ps as Hmnz.
 
   rewrite <- Hom.
   eapply list_in_eq_add; [ idtac | idtac | eassumption ].
-   clear m Hom Hmnz Hm.
+   clear m om Hom Hmnz Hm.
    intros m Hm.
+   remember (order m) as om eqn:Hom .
+   symmetry in Hom.
+   destruct om as [om| ]; [ idtac | constructor ].
+   assert (m ≠ 0)%ps as Hmnz.
+    intros H.
+    apply order_inf in H.
+    rewrite H in Hom; discriminate Hom.
+
+    eapply list_in_eq_ps_compat in Hm; [ idtac | assumption | idtac ].
+     2: rewrite lap_mul_cons_l; reflexivity.
 bbb.
 
 apply List.in_map with (f := order) in Hm.
