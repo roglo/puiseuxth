@@ -131,11 +131,11 @@ Proof.
 fuck.
 *)
 
+(*
 Theorem list_in_eq_ps_morph_Proper {α} {R : ring α} (Kx := ps_ring R) : ∀ m,
   Proper (lap_eq ==> iff) (list_in_eq eq_ps m).
 Proof.
 intros m a b Hab.
-Admitted. (*
 bbb.
 *)
 
@@ -1005,8 +1005,14 @@ Proof.
 intros la lb f' Hla Hlb m Hlab; subst f'.
 revert lb Hlb Hlab.
 induction la as [| a]; intros.
+ eapply list_in_eq_ps_compat in Hlab.
+  3: rewrite lap_mul_nil_l; reflexivity.
+
+  contradiction.
+
+  intros H.
+  apply order_inf in H.
 bbb.
- rewrite lap_mul_nil_l in Hlab.
 *)
 
 Lemma list_in_eq_summation : ∀ f l,
