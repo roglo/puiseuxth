@@ -988,6 +988,19 @@ induction la as [| a]; intros.
    assumption.
 Qed.
 
+(* to be moved in the good file *)
+Lemma lap_mul_summation : ∀ α (Kx : ring (puiseux_series α)) la l f,
+  (la * lap_summation Kx l f = lap_summation Kx l (λ i, la * f i))%lap.
+Proof.
+clear.
+intros α Kx la l f.
+induction l as [| j]; intros; simpl.
+ rewrite lap_mul_nil_r; reflexivity.
+
+ rewrite lap_mul_add_distr_l, IHl.
+ reflexivity.
+Qed.
+
 Lemma yyy : ∀ pol ns g,
   ns ∈ newton_segments R pol
   → g = g_of_ns pol ns
@@ -1031,9 +1044,10 @@ assert (m ≠ 0)%ps as Hmnz.
     apply order_inf in H.
     rewrite H in Hom; discriminate Hom.
 
-bbb.
+    rewrite <- Hom.
     eapply list_in_eq_ps_compat in Hm; [ idtac | assumption | idtac ].
-     2: rewrite lap_mul_cons_l; reflexivity.
+     2: rewrite lap_mul_summation; reflexivity.
+bbb.
 
 apply List.in_map with (f := order) in Hm.
 unfold Qbar.gt; simpl.
