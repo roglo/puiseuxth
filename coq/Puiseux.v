@@ -1013,10 +1013,9 @@ assert (m ≠ 0)%ps as Hmnz.
 
  subst la.
  apply list_in_eq_ps in Hm.
-bbb.
- rewrite lap_mul_add_distr_l in Hm.
-
-
+ (* not happy of that, should be better with
+      rewrite lap_mul_add_distr_l in Hm
+    but I failed building the good Morphism *)
  eapply list_in_eq_ps_compat in Hm; [ idtac | assumption | idtac ].
   2: rewrite lap_mul_add_distr_l; reflexivity.
 
@@ -1032,9 +1031,9 @@ bbb.
     apply order_inf in H.
     rewrite H in Hom; discriminate Hom.
 
+bbb.
     eapply list_in_eq_ps_compat in Hm; [ idtac | assumption | idtac ].
      2: rewrite lap_mul_cons_l; reflexivity.
-bbb.
 
 apply List.in_map with (f := order) in Hm.
 unfold Qbar.gt; simpl.
