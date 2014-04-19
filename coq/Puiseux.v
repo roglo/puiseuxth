@@ -992,7 +992,21 @@ Lemma list_in_eq_summation : ∀ f l,
   (∀ i, i ∈ l → ∀ m, list_in_eq eq_ps m (f i) → (order m > 0)%Qbar)
   → (∀ m, list_in_eq eq_ps m (lap_summation Kx l f)%lap → (order m > 0)%Qbar).
 Proof.
-bbb.
+intros f l Hi m Hm.
+revert m Hm.
+induction l as [| j]; intros; [ contradiction | idtac ].
+simpl in Hm.
+apply list_in_eq_add in Hm; [ assumption | idtac | idtac ].
+ intros n Hn.
+ apply IHl; [ idtac | assumption ].
+ intros k Hk p Hp.
+ eapply Hi; [ idtac | eassumption ].
+ right; assumption.
+
+ intros k Hk.
+ eapply Hi; [ idtac | eassumption ].
+ left; reflexivity.
+Qed.
 
 (* to be moved to the good file *)
 Lemma lap_mul_summation : ∀ α (Kx : ring (puiseux_series α)) la l f,
@@ -1054,11 +1068,9 @@ assert (m ≠ 0)%ps as Hmnz.
     eapply list_in_eq_ps_compat in Hm; [ idtac | assumption | idtac ].
      2: rewrite lap_mul_summation; reflexivity.
 
-     eapply list_in_eq_summation.
-      2: eassumption.
-
-      intros i Hi n Hn.
-      simpl in Hn.
+     eapply list_in_eq_summation; [ idtac | eassumption ].
+     intros i Hi n Hn.
+     simpl in Hn.
 bbb.
 
 apply List.in_map with (f := order) in Hm.
