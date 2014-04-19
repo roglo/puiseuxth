@@ -121,20 +121,13 @@ destruct (Z_zerop e) as [He| He].
    apply Z.gcd_divide_l.
 Qed.
 
-Add Parametric Morphism α (R : ring α) (Kx := ps_ring R) :
-    (list_in_eq (@eq_ps α R))
-  with signature eq_ps ==> lap_eq ==> iff
-  as list_in_eq_ps_morph.
-Proof.
-bbb.
-*)
-
-Add Parametric Morphism α (R : ring α) (Kx : puiseux_series α) m :
+(* perhaps provable but not seem to work because Kx should be equal to
+   "ps_ring R" not just any ring
+Add Parametric Morphism α (R : ring α) (Kx : ring (puiseux_series α)) m :
     (list_in_eq (@eq_ps α R) m)
   with signature lap_eq ==> iff
   as list_in_eq_ps_morph.
 Proof.
-Admitted. (*
 bbb.
 *)
 
