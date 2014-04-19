@@ -121,35 +121,6 @@ destruct (Z_zerop e) as [He| He].
    apply Z.gcd_divide_l.
 Qed.
 
-Add Parametric Morphism : Qbar.min
-  with signature Qbar.qeq ==> Qbar.qeq ==> Qbar.qeq
-  as qbar_min_morph.
-Proof.
-intros a b Hab c d Hcd.
-unfold Qbar.min, Qbar.binop.
-destruct a as [a| ].
- destruct b as [b| ]; [ idtac | inversion Hab ].
- apply Qbar.qfin_inj in Hab.
- destruct c as [c| ].
-  destruct d as [d| ]; [ idtac | inversion Hcd ].
-  apply Qbar.qfin_inj in Hcd.
-  unfold Qmin; simpl.
-  destruct (Qlt_le_dec a c) as [Hlt| Hge]; [ idtac | inversion Hcd ].
-   destruct (Qlt_le_dec b d) as [Hlt'| Hge]; [ assumption | idtac ].
-   rewrite Hab, Hcd in Hlt.
-   apply Qle_not_lt in Hge.
-   contradiction.
-
-   destruct (Qlt_le_dec b d) as [Hlt| Hge']; [ idtac | assumption ].
-   rewrite Hab, Hcd in Hge.
-   apply Qle_not_lt in Hge.
-   contradiction.
-
-  destruct d as [d| ]; [ inversion Hcd | assumption ].
-
- destruct b as [b| ]; [ inversion Hab | assumption ].
-Qed.
-
 (* to be moved, perhaps, where order is defined *)
 Add Parametric Morphism α (R : ring α) : (@order α R)
   with signature eq_ps ==> Qbar.qeq
@@ -803,101 +774,27 @@ set (n₁ := Z.to_nat (v₂ - Z.min v₁ v₂)).
 set (n₂ := Z.to_nat (v₁ - Z.min v₁ v₂)).
 pose proof (ps_adjust_eq R a n₂ k₁) as Ha.
 pose proof (ps_adjust_eq R b n₁ k₂) as Hb.
-eapply Qbar_le_compat.
- rewrite Hb in |- * at 1.
- rewrite Ha in |- * at 1.
- reflexivity.
-
- rewrite eq_ps_add_add₂.
- reflexivity.
-
- unfold ps_add₂.
- unfold adjust_ps_from.
- fold k₁ k₂.
- fold v₁ v₂.
- rewrite Z.min_comm.
- fold n₁ n₂.
- remember (adjust_ps R n₂ k₁ a) as pa eqn:Hpa .
- remember (adjust_ps R n₁ k₂ b) as pb eqn:Hpb .
- unfold order; simpl.
- remember (ps_terms pa) as sa eqn:Hsa .
- remember (ps_terms pb) as sb eqn:Hsb .
- remember (null_coeff_range_length R sa 0) as na eqn:Hna .
- remember (null_coeff_range_length R sb 0) as nb eqn:Hnb .
- remember (null_coeff_range_length R (sa + sb)%ser 0) as nc eqn:Hnc .
- symmetry in Hna, Hnb, Hnc.
- destruct na as [na| ].
-  destruct nb as [nb| ].
-   destruct nc as [nc| ]; [ simpl | constructor ].
-   apply Qbar.le_qfin.
-   rewrite Hpa, Hpb; simpl.
-   subst k₁ k₂ n₁ n₂; simpl.
-   unfold cm_factor; simpl.
-   subst v₁ v₂; simpl.
-   unfold cm_factor; simpl.
-   rewrite Pos.mul_comm.
-   rewrite Qmin_same_den.
-   unfold Qle; simpl.
-   apply Z.mul_le_mono_nonneg_r; [ apply Pos2Z.is_nonneg | idtac ].
-   remember (ps_ordnum a * ' ps_polord b)%Z as ab.
-   remember (ps_ordnum b * ' ps_polord a)%Z as ba.
-   rewrite Z2Nat.id.
-    rewrite Z2Nat.id.
-     rewrite Z.sub_sub_distr.
-     rewrite Z.sub_diag, Z.add_0_l.
-     rewrite Z.sub_sub_distr.
-     rewrite Z.sub_diag, Z.add_0_l.
-     rewrite Z.add_min_distr_l.
-     apply Z.add_le_mono_l.
-     rewrite <- Nat2Z.inj_min.
-     apply Nat2Z.inj_le.
-     apply null_coeff_range_length_iff in Hna.
-     apply null_coeff_range_length_iff in Hnb.
-     apply null_coeff_range_length_iff in Hnc.
-     unfold null_coeff_range_length_prop in Hna, Hnb, Hnc.
-     simpl in Hna, Hnb.
-     remember ps_terms_add as f; simpl in Hnc; subst f.
-     destruct Hna as (Hina, Hna).
-     destruct Hnb as (Hinb, Hnb).
-     destruct Hnc as (Hinc, Hnc).
-     apply Nat.nlt_ge.
-     intros Hc.
-     apply Nat.min_glb_lt_iff in Hc.
-     destruct Hc as (Hca, Hcb).
-     apply Hina in Hca.
-     apply Hinb in Hcb.
-     rewrite Hca, Hcb in Hnc.
-     rewrite rng_add_0_l in Hnc.
-     apply Hnc; reflexivity.
-
-     rewrite <- Z.sub_max_distr_l.
-     rewrite Z.sub_diag.
-     rewrite Z.max_comm, <- Z2Nat_id_max.
-     apply Nat2Z.is_nonneg.
-
-    rewrite <- Z.sub_max_distr_l.
-    rewrite Z.sub_diag.
-    rewrite <- Z2Nat_id_max.
-    apply Nat2Z.is_nonneg.
-
-   destruct nc as [nc| ]; [ simpl | constructor ].
-   apply Qbar.le_qfin.
-   unfold Qle; simpl.
-   apply Z.mul_le_mono_pos_r; [ apply Pos2Z.is_pos | idtac ].
-   apply Z.add_le_mono_l.
-   apply Nat2Z.inj_le.
-   apply series_null_coeff_range_length_inf_iff in Hnb.
-   rewrite Hnb in Hnc.
-   rewrite rng_add_0_r in Hnc.
-   rewrite Hna in Hnc.
-   injection Hnc; intros; subst na; reflexivity.
-
-  simpl.
-  apply series_null_coeff_range_length_inf_iff in Hna.
-  rewrite Hna in Hnc.
-  rewrite rng_add_0_l in Hnc.
-  rewrite Hnb in Hnc; subst nc.
-  destruct nb as [nb| ]; [ idtac | constructor ].
+rewrite Hb in |- * at 1.
+rewrite Ha in |- * at 1.
+rewrite eq_ps_add_add₂.
+unfold ps_add₂.
+unfold adjust_ps_from.
+fold k₁ k₂.
+fold v₁ v₂.
+rewrite Z.min_comm.
+fold n₁ n₂.
+remember (adjust_ps R n₂ k₁ a) as pa eqn:Hpa .
+remember (adjust_ps R n₁ k₂ b) as pb eqn:Hpb .
+unfold order; simpl.
+remember (ps_terms pa) as sa eqn:Hsa .
+remember (ps_terms pb) as sb eqn:Hsb .
+remember (null_coeff_range_length R sa 0) as na eqn:Hna .
+remember (null_coeff_range_length R sb 0) as nb eqn:Hnb .
+remember (null_coeff_range_length R (sa + sb)%ser 0) as nc eqn:Hnc .
+symmetry in Hna, Hnb, Hnc.
+destruct na as [na| ].
+ destruct nb as [nb| ].
+  destruct nc as [nc| ]; [ simpl | constructor ].
   apply Qbar.le_qfin.
   rewrite Hpa, Hpb; simpl.
   subst k₁ k₂ n₁ n₂; simpl.
@@ -905,48 +802,95 @@ eapply Qbar_le_compat.
   subst v₁ v₂; simpl.
   unfold cm_factor; simpl.
   rewrite Pos.mul_comm.
+  rewrite Qmin_same_den.
   unfold Qle; simpl.
-  apply Z.mul_le_mono_pos_r; [ apply Pos2Z.is_pos | idtac ].
-  apply Z.add_le_mono_r.
+  apply Z.mul_le_mono_nonneg_r; [ apply Pos2Z.is_nonneg | idtac ].
+  remember (ps_ordnum a * ' ps_polord b)%Z as ab.
+  remember (ps_ordnum b * ' ps_polord a)%Z as ba.
   rewrite Z2Nat.id.
    rewrite Z2Nat.id.
-    do 2 rewrite Z.sub_sub_distr.
-    do 2 rewrite Z.sub_diag; simpl.
-    reflexivity.
+    rewrite Z.sub_sub_distr.
+    rewrite Z.sub_diag, Z.add_0_l.
+    rewrite Z.sub_sub_distr.
+    rewrite Z.sub_diag, Z.add_0_l.
+    rewrite Z.add_min_distr_l.
+    apply Z.add_le_mono_l.
+    rewrite <- Nat2Z.inj_min.
+    apply Nat2Z.inj_le.
+    apply null_coeff_range_length_iff in Hna.
+    apply null_coeff_range_length_iff in Hnb.
+    apply null_coeff_range_length_iff in Hnc.
+    unfold null_coeff_range_length_prop in Hna, Hnb, Hnc.
+    simpl in Hna, Hnb.
+    remember ps_terms_add as f; simpl in Hnc; subst f.
+    destruct Hna as (Hina, Hna).
+    destruct Hnb as (Hinb, Hnb).
+    destruct Hnc as (Hinc, Hnc).
+    apply Nat.nlt_ge.
+    intros Hc.
+    apply Nat.min_glb_lt_iff in Hc.
+    destruct Hc as (Hca, Hcb).
+    apply Hina in Hca.
+    apply Hinb in Hcb.
+    rewrite Hca, Hcb in Hnc.
+    rewrite rng_add_0_l in Hnc.
+    apply Hnc; reflexivity.
 
     rewrite <- Z.sub_max_distr_l.
     rewrite Z.sub_diag.
-    rewrite <- Z2Nat_id_max.
+    rewrite Z.max_comm, <- Z2Nat_id_max.
     apply Nat2Z.is_nonneg.
 
    rewrite <- Z.sub_max_distr_l.
    rewrite Z.sub_diag.
-   rewrite Z.max_comm.
    rewrite <- Z2Nat_id_max.
    apply Nat2Z.is_nonneg.
+
+  destruct nc as [nc| ]; [ simpl | constructor ].
+  apply Qbar.le_qfin.
+  unfold Qle; simpl.
+  apply Z.mul_le_mono_pos_r; [ apply Pos2Z.is_pos | idtac ].
+  apply Z.add_le_mono_l.
+  apply Nat2Z.inj_le.
+  apply series_null_coeff_range_length_inf_iff in Hnb.
+  rewrite Hnb in Hnc.
+  rewrite rng_add_0_r in Hnc.
+  rewrite Hna in Hnc.
+  injection Hnc; intros; subst na; reflexivity.
+
+ simpl.
+ apply series_null_coeff_range_length_inf_iff in Hna.
+ rewrite Hna in Hnc.
+ rewrite rng_add_0_l in Hnc.
+ rewrite Hnb in Hnc; subst nc.
+ destruct nb as [nb| ]; [ idtac | constructor ].
+ apply Qbar.le_qfin.
+ rewrite Hpa, Hpb; simpl.
+ subst k₁ k₂ n₁ n₂; simpl.
+ unfold cm_factor; simpl.
+ subst v₁ v₂; simpl.
+ unfold cm_factor; simpl.
+ rewrite Pos.mul_comm.
+ unfold Qle; simpl.
+ apply Z.mul_le_mono_pos_r; [ apply Pos2Z.is_pos | idtac ].
+ apply Z.add_le_mono_r.
+ rewrite Z2Nat.id.
+  rewrite Z2Nat.id.
+   do 2 rewrite Z.sub_sub_distr.
+   do 2 rewrite Z.sub_diag; simpl.
+   reflexivity.
+
+   rewrite <- Z.sub_max_distr_l.
+   rewrite Z.sub_diag.
+   rewrite <- Z2Nat_id_max.
+   apply Nat2Z.is_nonneg.
+
+  rewrite <- Z.sub_max_distr_l.
+  rewrite Z.sub_diag.
+  rewrite Z.max_comm.
+  rewrite <- Z2Nat_id_max.
+  apply Nat2Z.is_nonneg.
 Qed.
-
-(*
-Lemma www : ∀ a lb x k len,
-  let _ := Kx in (* coq seems not to see the type of Kx *)
-  list_in_eq Qbar.qeq x (List.map order (lap_convol_mul [a] lb k len))
-  → list_in_eq Qbar.qeq x (List.map (λ b, (order a + order b)%Qbar) lb).
-Proof.
-intros a lb x k len f' Hx.
-revert k len Hx.
-induction lb as [| b]; intros.
- destruct len.
-  simpl in Hx.
-  contradiction.
-
-  simpl in Hx.
-  subst f'.
-  destruct Hx as [Hx| Hx].
-   rewrite all_0_summation_0 in Hx.
-    simpl in Hx.
-    simpl.
-bbb.
-*)
 
 Lemma list_in_eq_ps_compat : ∀ x la lb,
   let _ := Kx in (* coq seems not to see the type of Kx *)
@@ -1007,15 +951,16 @@ induction la as [| a]; intros.
 
  rename m into n.
  simpl in Hlab.
- destruct lb as [| b].
-  apply Hla; assumption.
-
-  simpl in Hlab.
-  destruct Hlab as [Hab| Hlab].
-   assert (order a > 0)%Qbar as Ha by (apply Hla; left; reflexivity).
-   assert (order b > 0)%Qbar as Hb by (apply Hlb; left; reflexivity).
-   apply order_morph in Hab.
-   pose proof (order_add a b) as H.
+ destruct lb as [| b]; [ apply Hla; assumption | idtac ].
+ simpl in Hlab.
+ destruct Hlab as [Hab| Hlab].
+  unfold Qbar.gt.
+  rewrite <- Hab.
+  pose proof (order_add a b) as H.
+  assert (order a > 0)%Qbar as Ha by (apply Hla; left; reflexivity).
+  assert (order b > 0)%Qbar as Hb by (apply Hlb; left; reflexivity).
+  unfold Qbar.ge in H.
+  unfold Qbar.gt in Ha, Hb.
 bbb.
 
 Lemma yyy : ∀ pol ns g,
@@ -1043,6 +988,7 @@ assert (m ≠ 0)%ps as Hmnz.
 
  subst la.
  apply list_in_eq_ps in Hm.
+bbb.
  eapply list_in_eq_ps_compat in Hm; [ idtac | assumption | idtac ].
   2: rewrite lap_mul_add_distr_l; reflexivity.
 

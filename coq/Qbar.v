@@ -141,21 +141,38 @@ Theorem Qbar_le_compat : ∀ a b c d,
       → (b ≤ d)%Qbar.
 Proof.
 intros a b c d Hab Hcd Hac.
-destruct a as [a| ].
- destruct b as [b| ]; [ idtac | inversion Hab ].
- apply Qbar.qfin_inj in Hab.
- destruct c as [c| ].
-  destruct d as [d| ]; [ idtac | inversion Hcd ].
-  apply Qbar.qfin_inj in Hcd.
-  apply Qbar.le_qfin.
-  rewrite <- Hab, <- Hcd.
-  inversion Hac; assumption.
+destruct d as [d| ]; [ idtac | constructor ].
+destruct b as [b| ].
+ apply Qbar.le_qfin.
+ destruct c as [c| ]; [ idtac | inversion Hcd ].
+ unfold Qbar.qeq in Hcd.
+ rewrite <- Hcd.
+ destruct a as [a| ]; [ idtac | inversion Hab ].
+ unfold Qbar.qeq in Hab.
+ rewrite <- Hab.
+ inversion Hac; assumption.
 
-  destruct d as [d| ]; [ inversion Hcd | constructor ].
+ destruct c as [c| ]; [ idtac | inversion Hcd ].
+ unfold Qbar.qeq in Hcd.
+ destruct a as [a| ]; [ inversion Hab | inversion Hac ].
+Qed.
 
- destruct b as [b| ]; [ inversion Hab | idtac ].
- destruct c as [c| ]; [ inversion Hac | idtac ].
- destruct d as [d| ]; [ inversion Hcd | constructor ].
+Theorem Qbar_lt_compat : ∀ a b c d,
+  (a = b)%Qbar
+  → (c = d)%Qbar
+    → (a < c)%Qbar
+      → (b < d)%Qbar.
+Proof.
+intros a b c d Hab Hcd Hac.
+destruct a as [a| ]; [ idtac | inversion Hac ].
+destruct b as [b| ]; [ idtac | inversion Hab ].
+unfold Qbar.qeq in Hab.
+destruct d as [d| ]; [ idtac | constructor ].
+apply Qbar.lt_qfin.
+destruct c as [c| ]; [ idtac | inversion Hcd ].
+unfold Qbar.qeq in Hcd.
+rewrite <- Hab, <- Hcd.
+inversion Hac; assumption.
 Qed.
 
 Lemma Qmin_same_den : ∀ a b c, Qmin (a # c) (b # c) = Z.min a b # c.
@@ -170,4 +187,57 @@ destruct (Qlt_le_dec (a # c) (b # c)) as [Hlt| Hge]; f_equal.
  unfold Qle in Hge; simpl in Hge.
  apply Zmult_le_reg_r in Hge; [ idtac | apply Z.lt_gt, Pos2Z.is_pos ].
  rewrite Z.min_r; [ reflexivity | assumption ].
+Qed.
+
+Add Parametric Morphism : Qbar.le
+  with signature Qbar.qeq ==> Qbar.qeq ==> iff
+  as qbar_le_morph.
+Proof.
+intros a b Hab c d Hcd.
+split; intros H.
+ eapply Qbar_le_compat; eassumption.
+
+ symmetry in Hab, Hcd.
+ eapply Qbar_le_compat; eassumption.
+Qed.
+
+Add Parametric Morphism : Qbar.lt
+  with signature Qbar.qeq ==> Qbar.qeq ==> iff
+  as qbar_lt_morph.
+Proof.
+intros a b Hab c d Hcd.
+split; intros H.
+ eapply Qbar_lt_compat; eassumption.
+
+ symmetry in Hab, Hcd.
+ eapply Qbar_lt_compat; eassumption.
+Qed.
+
+Add Parametric Morphism : Qbar.min
+  with signature Qbar.qeq ==> Qbar.qeq ==> Qbar.qeq
+  as qbar_min_morph.
+Proof.
+intros a b Hab c d Hcd.
+unfold Qbar.min, Qbar.binop.
+destruct a as [a| ].
+ destruct b as [b| ]; [ idtac | inversion Hab ].
+ apply Qbar.qfin_inj in Hab.
+ destruct c as [c| ].
+  destruct d as [d| ]; [ idtac | inversion Hcd ].
+  apply Qbar.qfin_inj in Hcd.
+  unfold Qmin; simpl.
+  destruct (Qlt_le_dec a c) as [Hlt| Hge]; [ idtac | inversion Hcd ].
+   destruct (Qlt_le_dec b d) as [Hlt'| Hge]; [ assumption | idtac ].
+   rewrite Hab, Hcd in Hlt.
+   apply Qle_not_lt in Hge.
+   contradiction.
+
+   destruct (Qlt_le_dec b d) as [Hlt| Hge']; [ idtac | assumption ].
+   rewrite Hab, Hcd in Hge.
+   apply Qle_not_lt in Hge.
+   contradiction.
+
+  destruct d as [d| ]; [ inversion Hcd | assumption ].
+
+ destruct b as [b| ]; [ inversion Hab | assumption ].
 Qed.
