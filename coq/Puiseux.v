@@ -1069,9 +1069,13 @@ assert (m ≠ 0)%ps as Hmnz.
      2: rewrite lap_mul_summation; reflexivity.
 
      eapply list_in_eq_summation; [ idtac | eassumption ].
-     intros i Hi n Hn.
-     simpl in Hn.
+     clear m Hom Hmnz Hm.
+     intros h Hh m Hm; simpl in Hm.
+     remember (poly_nth R h pol) as āh eqn:Hāh .
+     remember (ps_monom (coeff_of_term R h tl) 0) as ah eqn:Hah .
+     remember (ord_of_pt h pl) as αh eqn:Hαh .
 bbb.
+Check order_āh_minus_ah_xαh_gt_αh.
 
 apply List.in_map with (f := order) in Hm.
 unfold Qbar.gt; simpl.
