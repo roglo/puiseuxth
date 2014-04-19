@@ -121,6 +121,23 @@ destruct (Z_zerop e) as [He| He].
    apply Z.gcd_divide_l.
 Qed.
 
+Add Parametric Morphism α (R : ring α) (Kx := ps_ring R) :
+    (list_in_eq (@eq_ps α R))
+  with signature eq_ps ==> lap_eq ==> iff
+  as list_in_eq_ps_morph.
+Proof.
+bbb.
+*)
+
+Add Parametric Morphism α (R : ring α) (Kx : puiseux_series α) m :
+    (list_in_eq (@eq_ps α R) m)
+  with signature lap_eq ==> iff
+  as list_in_eq_ps_morph.
+Proof.
+Admitted. (*
+bbb.
+*)
+
 (* to be moved, perhaps, where order is defined *)
 Add Parametric Morphism α (R : ring α) : (@order α R)
   with signature eq_ps ==> Qbar.qeq
@@ -1003,6 +1020,10 @@ assert (m ≠ 0)%ps as Hmnz.
 
  subst la.
  apply list_in_eq_ps in Hm.
+bbb.
+ rewrite lap_mul_add_distr_l in Hm.
+
+
  eapply list_in_eq_ps_compat in Hm; [ idtac | assumption | idtac ].
   2: rewrite lap_mul_add_distr_l; reflexivity.
 
