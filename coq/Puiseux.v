@@ -121,6 +121,57 @@ destruct (Z_zerop e) as [He| He].
    apply Z.gcd_divide_l.
 Qed.
 
+(*
+Add Parametric Morphism α (R : ring α) m :
+    (list_in_eq (@rng_eq (puiseux_series α) (ps_ring R)) m)
+  with signature (@lap_eq (puiseux_series α) (ps_ring R)) ==> iff
+  as list_in_eq_ps_morph.
+Proof.
+intros la lb Hlab.
+split.
+ intros Hla.
+ revert m la Hlab Hla.
+ induction lb as [| b]; intros.
+  destruct la as [| a].
+   assumption.
+
+   apply lap_eq_cons_nil_inv in Hlab.
+   destruct Hlab as (Ha, Hlan).
+   simpl in Hla.
+   destruct Hla as [Ham| Hmla].
+   (* bloqué *)
+bbb.
+*)
+
+Add Parametric Morphism α (R : ring α) :
+    (list_in_eq (@rng_eq (puiseux_series α) (ps_ring R)))
+  with signature eq_ps ==> (@lap_eq (puiseux_series α) (ps_ring R)) ==> iff
+  as list_in_eq_ps_morph.
+Proof.
+intros a b Hab la lb Hlab.
+split.
+ intros Hla.
+ revert a b Hab lb Hlab Hla.
+ induction la as [| c]; intros; [ contradiction | idtac ].
+ simpl in Hla.
+ destruct Hla as [Hc| Hla].
+  destruct lb as [| d].
+   apply lap_eq_cons_nil_inv in Hlab.
+   destruct Hlab as (Hc0, Hla).
+   simpl in Hc0.
+  (* bloqué *)
+bbb.
+*)
+
+(*
+Add Parametric Morphism α (R : ring α) m :
+    (list_in_eq (@rng_eq (puiseux_series α) (ps_ring R)) m)
+  with signature (@lap_eq (puiseux_series α) (ps_ring R)) ==> iff
+  as list_in_eq_ps_morph.
+Proof.
+bbb.
+*)
+
 (* perhaps provable but not seem to work because Kx should be equal to
    "ps_ring R" not just any ring
 Add Parametric Morphism α (R : ring α) (Kx : ring (puiseux_series α)) m :
@@ -128,14 +179,6 @@ Add Parametric Morphism α (R : ring α) (Kx : ring (puiseux_series α)) m :
   with signature lap_eq ==> iff
   as list_in_eq_ps_morph.
 Proof.
-fuck.
-*)
-
-(*
-Theorem list_in_eq_ps_morph_Proper {α} {R : ring α} (Kx := ps_ring R) : ∀ m,
-  Proper (lap_eq ==> iff) (list_in_eq eq_ps m).
-Proof.
-intros m a b Hab.
 bbb.
 *)
 
@@ -1002,6 +1045,12 @@ Lemma list_in_eq_mul : ∀ la lb,
   → (∀ m, list_in_eq eq_ps m lb → (order m ≥ 0)%Qbar)
     → (∀ m, list_in_eq eq_ps m (la * lb)%lap → (order m > 0)%Qbar).
 Proof.
+intros la lb f' Hla Hlb m Hlab; subst f'.
+revert lb Hlb Hlab.
+induction la as [| a]; intros.
+ rewrite lap_mul_nil_l in Hlab.
+bbb.
+
 intros la lb f' Hla Hlb m Hlab; subst f'.
 revert lb Hlb Hlab.
 induction la as [| a]; intros.
