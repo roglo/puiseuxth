@@ -77,6 +77,21 @@ Proof. intros a b Hab; assumption. Qed.
 Theorem qfin_inj_wd : ∀ a b, qeq (qfin a) (qfin b) ↔ a == b.
 Proof. intros a b; split; intros H; assumption. Qed.
 
+Theorem eq_dec : ∀ a b, {qeq a b} + {not (qeq a b)}.
+Proof.
+intros a b.
+destruct a as [a| ]; simpl.
+ destruct b as [b| ]; simpl.
+  apply Qeq_dec.
+
+  right; intros H; assumption.
+
+ destruct b as [b| ].
+  right; intros H; assumption.
+
+  left; constructor.
+Qed.
+
 Theorem Qmin_dec : ∀ n m, {Qmin n m = n} + {Qmin n m = m}.
 Proof.
 intros n m.
@@ -163,6 +178,7 @@ Infix "≥" := Qbar.ge : Qbar_scope.
 Infix "+" := Qbar.add : Qbar_scope.
 Infix "*" := Qbar.mul : Qbar_scope.
 Infix "=" := Qbar.qeq : Qbar_scope.
+Notation "a ≠ b" := (¬Qbar.qeq a b) : Qbar_scope.
 
 Theorem Qbar_le_compat : ∀ a b c d,
   (a = b)%Qbar

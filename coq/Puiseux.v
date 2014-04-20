@@ -28,10 +28,10 @@ Require Import F1Eq.
 
 Set Implicit Arguments.
 
-Fixpoint list_in_eq A equ (a : A) (l : list A) :=
+Fixpoint lap_ps_in α (R : ring α) a l :=
   match l with
   | [] => False
-  | [b … m] => equ b a ∨ list_in_eq equ a m
+  | [b … m] => ¬(@lap_eq _ (ps_ring R) l []) ∧ (b = a)%ps ∨ lap_ps_in R a m
   end.
 
 Lemma div_gcd_gcd_0_r : ∀ a b c d e f,
@@ -121,66 +121,51 @@ destruct (Z_zerop e) as [He| He].
    apply Z.gcd_divide_l.
 Qed.
 
-(*
-Add Parametric Morphism α (R : ring α) m :
-    (list_in_eq (@rng_eq (puiseux_series α) (ps_ring R)) m)
-  with signature (@lap_eq (puiseux_series α) (ps_ring R)) ==> iff
-  as list_in_eq_ps_morph.
+Lemma lap_ps_in_compat : ∀ α (R : ring α) a b la lb,
+  (a = b)%ps
+  → @lap_eq _ (ps_ring R) la lb
+    → lap_ps_in R a la
+      → lap_ps_in R b lb.
 Proof.
-intros la lb Hlab.
-split.
- intros Hla.
- revert m la Hlab Hla.
- induction lb as [| b]; intros.
-  destruct la as [| a].
-   assumption.
+intros α R a b la lb Hab Hlab Hla.
+revert a b Hab lb Hlab Hla.
+induction la as [| c]; intros; [ contradiction | idtac ].
+simpl in Hla.
+destruct Hla as [(Hcla, Hca)| Hla].
+ destruct lb as [| d]; [ contradiction | idtac ].
+ apply lap_eq_cons_inv in Hlab.
+ destruct Hlab as (Hcd, Hlab).
+ left.
+ split.
+  intros H; apply Hcla; clear Hcla.
+  rewrite <- H.
+  constructor; assumption.
 
-   apply lap_eq_cons_nil_inv in Hlab.
-   destruct Hlab as (Ha, Hlan).
-   simpl in Hla.
-   destruct Hla as [Ham| Hmla].
-   (* bloqué *)
-bbb.
-*)
+  rewrite <- Hcd, <- Hab; assumption.
 
-Add Parametric Morphism α (R : ring α) :
-    (list_in_eq (@rng_eq (puiseux_series α) (ps_ring R)))
-  with signature eq_ps ==> (@lap_eq (puiseux_series α) (ps_ring R)) ==> iff
+ simpl.
+ destruct lb as [| d].
+  apply lap_eq_cons_nil_inv in Hlab.
+  destruct Hlab as (Hc, Hlab).
+  eapply IHla; eassumption.
+
+  apply lap_eq_cons_inv in Hlab.
+  destruct Hlab as (Hcd, Hlab).
+  right.
+  eapply IHla; eassumption.
+Qed.
+
+Add Parametric Morphism α (R : ring α) : (lap_ps_in R)
+  with signature eq_ps ==> (@lap_eq _ (ps_ring R)) ==> iff
   as list_in_eq_ps_morph.
 Proof.
 intros a b Hab la lb Hlab.
-split.
- intros Hla.
- revert a b Hab lb Hlab Hla.
- induction la as [| c]; intros; [ contradiction | idtac ].
- simpl in Hla.
- destruct Hla as [Hc| Hla].
-  destruct lb as [| d].
-   apply lap_eq_cons_nil_inv in Hlab.
-   destruct Hlab as (Hc0, Hla).
-   simpl in Hc0.
-  (* bloqué *)
-bbb.
-*)
+split; intros Hl.
+ eapply lap_ps_in_compat; eassumption.
 
-(*
-Add Parametric Morphism α (R : ring α) m :
-    (list_in_eq (@rng_eq (puiseux_series α) (ps_ring R)) m)
-  with signature (@lap_eq (puiseux_series α) (ps_ring R)) ==> iff
-  as list_in_eq_ps_morph.
-Proof.
-bbb.
-*)
-
-(* perhaps provable but not seem to work because Kx should be equal to
-   "ps_ring R" not just any ring
-Add Parametric Morphism α (R : ring α) (Kx : ring (puiseux_series α)) m :
-    (list_in_eq (@eq_ps α R) m)
-  with signature lap_eq ==> iff
-  as list_in_eq_ps_morph.
-Proof.
-bbb.
-*)
+ symmetry in Hab, Hlab.
+ eapply lap_ps_in_compat; eassumption.
+Qed.
 
 (* to be moved, perhaps, where order is defined *)
 Add Parametric Morphism α (R : ring α) : (@order α R)
@@ -953,50 +938,25 @@ destruct na as [na| ].
   apply Nat2Z.is_nonneg.
 Qed.
 
-Lemma list_in_eq_ps_compat : ∀ x la lb,
-  let _ := Kx in (* coq seems not to see the type of Kx *)
-  (x ≠ 0)%ps
-  → (la = lb)%lap
-    → list_in_eq eq_ps x la
-      → list_in_eq eq_ps x lb.
+Theorem ps_zerop : ∀ a, {(a = 0)%ps} + {(a ≠ 0)%ps}.
 Proof.
-intros x la lb f Hxnz Hlab Hx.
-subst f.
-revert lb Hlab.
-induction la as [| a]; intros; [ contradiction | idtac ].
-simpl in Hx.
-destruct Hx as [Hx| Hx].
- destruct lb as [| b]; simpl.
-  apply lap_eq_cons_nil_inv in Hlab.
-  destruct Hlab as (Ha, Hla).
-  rewrite Hx in Ha; contradiction.
+intros a.
+destruct (Qbar.lt_dec (order a) Qbar.qinf) as [H|H].
+bbb.
 
-  apply lap_eq_cons_inv in Hlab.
-  destruct Hlab as (Hab, Hlab).
-  left; etransitivity; [ idtac | eassumption ].
-  symmetry; eassumption.
-
- destruct lb as [| b]; simpl.
-  apply lap_eq_cons_nil_inv in Hlab.
-  destruct Hlab as (Ha, Hla).
-  eapply IHla in Hx; [ idtac | eassumption ].
-  contradiction.
-
-  apply lap_eq_cons_inv in Hlab.
-  destruct Hlab as (Hab, Hlab).
-  right.
-  apply IHla; assumption.
-Qed.
-
-Lemma list_in_eq_ps : ∀ a l, a ∈ l → list_in_eq eq_ps a l.
+Lemma list_in_lap_ps_in : ∀ a l,
+  ¬(@lap_eq _ (ps_ring R) l [])
+  → a ∈ l
+    → lap_ps_in R a l.
 Proof.
-intros a l Ha.
-induction l as [| x]; [ assumption | idtac ].
+intros a l Hl Ha.
+revert a Ha.
+induction l as [| x]; intros; [ assumption | idtac ].
 destruct Ha as [Ha| Ha].
- subst a; left; reflexivity.
+ subst a; left; split; [ assumption | reflexivity ].
 
- right; apply IHl; assumption.
-Qed.
+ simpl.
+bbb.
 
 Lemma list_in_eq_add : ∀ la lb,
   let _ := Kx in (* coq seems not to see the type of Kx *)

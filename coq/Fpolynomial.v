@@ -200,6 +200,7 @@ Notation "0" := lap_zero : lap_scope.
 Notation "1" := lap_one : lap_scope.
 Notation "- a" := (lap_opp a) : lap_scope.
 Notation "a = b" := (lap_eq a b) : lap_scope.
+Notation "a ≠ b" := (¬lap_eq a b) : lap_scope.
 Notation "a + b" := (lap_add a b) : lap_scope.
 Notation "a - b" := (lap_add a (lap_opp b)) : lap_scope.
 Notation "a * b" := (lap_mul a b) : lap_scope.
