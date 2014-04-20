@@ -988,12 +988,12 @@ destruct Ha as [Ha| Ha].
   left; split; assumption.
 
   right.
-  apply IHl; [ idtac | assumption ].
-  intros HH.
-  rewrite HH in Hl.
-  apply Hl; clear Hl.
-  constructor; [ idtac | reflexivity ].
-  simpl.
+  destruct (ps_zerop x) as [Hz| Hnz].
+   rewrite Hz in Hl.
+   rewrite Hz in H.
+   apply IHl; [ idtac | assumption ].
+   intros HH; apply Hl.
+   constructor; [ reflexivity | assumption ].
 bbb.
 
 Lemma list_in_eq_add : ∀ la lb,
