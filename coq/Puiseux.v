@@ -938,11 +938,39 @@ destruct na as [na| ].
   apply Nat2Z.is_nonneg.
 Qed.
 
+(* to be moved *)
 Theorem ps_zerop : ∀ a, {(a = 0)%ps} + {(a ≠ 0)%ps}.
 Proof.
 intros a.
-destruct (Qbar.lt_dec (order a) Qbar.qinf) as [H|H].
-bbb.
+destruct (Qbar.eq_dec (order a) Qbar.qinf) as [H| H].
+ left.
+ apply order_inf.
+ unfold Qbar.qeq in H.
+ destruct (order a); [ contradiction | reflexivity ].
+
+ right.
+ intros HH; apply H.
+ apply order_inf in HH.
+ rewrite HH; reflexivity.
+Qed.
+
+(* to be moved *)
+Theorem ps_eq_dec : ∀ a b, {(a = b)%ps} + {(a ≠ b)%ps}.
+Proof.
+intros a b.
+destruct (ps_zerop (a - b)%ps) as [H| H].
+ left.
+ apply rng_add_compat_r with (c := b) in H.
+ rewrite <- rng_add_assoc in H.
+ rewrite rng_add_opp_l in H.
+ rewrite rng_add_0_r, rng_add_0_l in H.
+ assumption.
+
+ right.
+ intros HH; apply H; clear H; rename HH into H.
+ rewrite H.
+ apply ps_add_opp_r.
+Qed.
 
 Lemma list_in_lap_ps_in : ∀ a l,
   ¬(@lap_eq _ (ps_ring R) l [])
@@ -956,6 +984,16 @@ destruct Ha as [Ha| Ha].
  subst a; left; split; [ assumption | reflexivity ].
 
  simpl.
+ destruct (ps_eq_dec x a) as [H| H].
+  left; split; assumption.
+
+  right.
+  apply IHl; [ idtac | assumption ].
+  intros HH.
+  rewrite HH in Hl.
+  apply Hl; clear Hl.
+  constructor; [ idtac | reflexivity ].
+  simpl.
 bbb.
 
 Lemma list_in_eq_add : ∀ la lb,
