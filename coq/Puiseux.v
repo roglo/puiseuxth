@@ -973,28 +973,21 @@ destruct (ps_zerop (a - b)%ps) as [H| H].
 Qed.
 
 Lemma list_in_lap_ps_in : ∀ a l,
-  ¬(@lap_eq _ (ps_ring R) l [])
+  (a ≠ 0)%ps
   → a ∈ l
     → lap_ps_in R a l.
 Proof.
-intros a l Hl Ha.
-revert a Ha.
+intros a l Ha Hal.
+revert a Ha Hal.
 induction l as [| x]; intros; [ assumption | idtac ].
-destruct Ha as [Ha| Ha].
- subst a; left; split; [ assumption | reflexivity ].
+destruct Hal as [Hal| Hal].
+ subst a; left; split; [ idtac | reflexivity ].
+ intros H.
+ apply lap_eq_cons_nil_inv in H.
+ destruct H; contradiction.
 
- simpl.
- destruct (ps_eq_dec x a) as [H| H].
-  left; split; assumption.
-
-  right.
-  destruct (ps_zerop x) as [Hz| Hnz].
-   rewrite Hz in Hl.
-   rewrite Hz in H.
-   apply IHl; [ idtac | assumption ].
-   intros HH; apply Hl.
-   constructor; [ reflexivity | assumption ].
-bbb.
+ right; apply IHl; assumption.
+Qed.
 
 Lemma list_in_eq_add : ∀ la lb,
   let _ := Kx in (* coq seems not to see the type of Kx *)
