@@ -1070,14 +1070,22 @@ destruct (lap_ps_nilp la) as [Hlaz| Hlanz].
 
     destruct (ps_zerop a) as [Haz| Hanz].
      rewrite Haz in Hlanz.
-     eapply IHla.
-      intros m Hm; apply Hla; right; assumption.
+     destruct (ps_zerop b) as [Hbz| Hbnz].
+      rewrite Hbz in Hlbnz.
+      eapply IHla.
+       intros m Hm; apply Hla; right; assumption.
 
-      intros HH; apply Hlanz.
-      constructor; [ reflexivity | assumption ].
+       intros HH; apply Hlanz.
+       constructor; [ reflexivity | assumption ].
 
-      apply Hlb.
+       intros m Hm; apply Hlb; right; eassumption.
+
+       assumption.
+
+       intros HH; apply Hlbnz.
+       constructor; [ reflexivity | assumption ].
 bbb.
+*)
 
 (*
 Lemma list_in_eq_add : ∀ la lb,
