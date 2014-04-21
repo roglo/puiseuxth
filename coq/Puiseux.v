@@ -1084,6 +1084,48 @@ destruct (lap_ps_nilp la) as [Hlaz| Hlanz].
 
        intros HH; apply Hlbnz.
        constructor; [ reflexivity | assumption ].
+
+      clear Hlbnz.
+      destruct (lap_ps_nilp lb) as [Hlbz| Hlbnz].
+       rewrite Hlbz in Hlab.
+       rewrite lap_add_nil_r in Hlab.
+       apply Hla.
+       right; assumption.
+
+       eapply IHla.
+        intros m Hm; apply Hla; right; assumption.
+
+        intros HH; apply Hlanz.
+        constructor; [ reflexivity | assumption ].
+
+        intros m Hm; apply Hlb; right; eassumption.
+
+        assumption.
+
+        assumption.
+
+     destruct (ps_zerop b) as [Hbz| Hbnz].
+      rewrite Hbz in Hlbnz.
+      clear Hlanz.
+      destruct (lap_ps_nilp la) as [Hlaz| Hlanz].
+       rewrite Hlaz in Hlab.
+       rewrite lap_add_nil_l in Hlab.
+       apply Hlb; right; assumption.
+
+       eapply IHla.
+        intros m Hm; apply Hla; right; assumption.
+
+        assumption.
+
+        intros m Hm; apply Hlb; right; eassumption.
+
+        assumption.
+
+        intros HH; apply Hlbnz.
+        constructor; [ reflexivity | assumption ].
+
+      clear Hlanz.
+      clear Hlbnz.
 bbb.
 *)
 
