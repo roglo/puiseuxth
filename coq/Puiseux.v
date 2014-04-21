@@ -1089,8 +1089,7 @@ destruct (lap_ps_nilp la) as [Hlaz| Hlanz].
       destruct (lap_ps_nilp lb) as [Hlbz| Hlbnz].
        rewrite Hlbz in Hlab.
        rewrite lap_add_nil_r in Hlab.
-       apply Hla.
-       right; assumption.
+       apply Hla; right; assumption.
 
        eapply IHla.
         intros m Hm; apply Hla; right; assumption.
@@ -1126,51 +1125,27 @@ destruct (lap_ps_nilp la) as [Hlaz| Hlanz].
 
       clear Hlanz.
       clear Hlbnz.
-bbb.
-*)
+      destruct (lap_ps_nilp la) as [Hlaz| Hlanz].
+       rewrite Hlaz in Hlab.
+       rewrite lap_add_nil_l in Hlab.
+       apply Hlb; right; assumption.
 
-(*
-Lemma list_in_eq_add : ∀ la lb,
-  let _ := Kx in -- coq seems not to see the type of Kx
-  (∀ m, list_in_eq eq_ps m la → (order m > 0)%Qbar)
-  → (∀ m, list_in_eq eq_ps m lb → (order m > 0)%Qbar)
-    → (∀ m, list_in_eq eq_ps m (la + lb)%lap → (order m > 0)%Qbar).
-Proof.
-intros la lb f' Hla Hlb m Hlab; subst f'.
-revert lb Hlb Hlab.
-induction la as [| a]; intros.
- simpl in Hlab.
- apply Hlb; assumption.
+       destruct (lap_ps_nilp lb) as [Hlbz| Hlbnz].
+        rewrite Hlbz in Hlab.
+        rewrite lap_add_nil_r in Hlab.
+        apply Hla; right; assumption.
 
- rename m into n.
- simpl in Hlab.
- destruct lb as [| b]; [ apply Hla; assumption | idtac ].
- simpl in Hlab.
- destruct Hlab as [Hab| Hlab].
-  unfold Qbar.gt.
-  rewrite <- Hab.
-  pose proof (order_add a b) as H.
-  assert (order a > 0)%Qbar as Ha by (apply Hla; left; reflexivity).
-  assert (order b > 0)%Qbar as Hb by (apply Hlb; left; reflexivity).
-  unfold Qbar.ge in H.
-  unfold Qbar.gt in Ha, Hb.
-  destruct (Qbar.min_dec (order a) (order b)) as [Hoab| Hoab].
-   rewrite Hoab in H.
-   eapply Qbar.lt_le_trans; [ idtac | eassumption ].
-   assumption.
+        eapply IHla.
+         intros m Hm; apply Hla; right; assumption.
 
-   rewrite Hoab in H.
-   eapply Qbar.lt_le_trans; [ idtac | eassumption ].
-   assumption.
+         assumption.
 
-  eapply IHla.
-   intros m Hm; apply Hla; right; assumption.
+         intros m Hm; apply Hlb; right; eassumption.
 
-   intros m Hm; apply Hlb; right; eassumption.
+         assumption.
 
-   assumption.
+         assumption.
 Qed.
-*)
 
 (*
 Lemma list_in_eq_mul : ∀ la lb,
