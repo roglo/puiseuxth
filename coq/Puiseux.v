@@ -996,6 +996,29 @@ unfold order; simpl.
 rewrite null_coeff_range_length_series_0; reflexivity.
 Qed.
 
+Lemma lap_ps_nilp : ∀ la : list (puiseux_series α),
+  {@lap_eq _ (ps_ring R) la []} +
+  {not (@lap_eq _ (ps_ring R) la [])}.
+Proof.
+intros la.
+induction la as [| a]; [ left; reflexivity | idtac ].
+destruct IHla as [IHla| IHla].
+ destruct (ps_zerop a) as [Ha| Ha].
+  left.
+  rewrite IHla, Ha.
+  constructor; reflexivity.
+
+  right.
+  intros H; apply Ha.
+  apply lap_eq_cons_nil_inv in H.
+  destruct H; assumption.
+
+ right.
+ intros H; apply IHla.
+ apply lap_eq_cons_nil_inv in H.
+ destruct H; assumption.
+Qed.
+
 Lemma lap_ps_in_add : ∀ la lb,
   let _ := Kx in (* coq seems not to see the type of Kx *)
   (∀ m, lap_ps_in R m la → (order m > 0)%Qbar)
@@ -1003,28 +1026,50 @@ Lemma lap_ps_in_add : ∀ la lb,
     → (∀ m, lap_ps_in R m (la + lb)%lap → (order m > 0)%Qbar).
 Proof.
 intros la lb f' Hla Hlb m Hlab; subst f'.
-revert lb Hlb Hlab.
-induction la as [| a]; intros.
- simpl in Hlab.
+destruct (lap_ps_nilp la) as [Hlaz| Hlanz].
+ rewrite Hlaz in Hlab.
+ rewrite lap_add_nil_l in Hlab.
  apply Hlb; assumption.
 
- rename m into n.
- simpl in Hlab.
- destruct lb as [| b]; [ apply Hla; assumption | idtac ].
- simpl in Hlab.
- destruct Hlab as [(Hlab, Hab)| Hlab].
-  unfold Qbar.gt.
-  rewrite <- Hab.
-  unfold Qbar.ge in H.
-bbb.
-  pose proof (order_add a b) as H.
-  assert (order a > 0)%Qbar as Ha.
-   apply Hla.
-   left; split; [ idtac | reflexivity ].
-   intros HH; apply Hlab.
-   apply lap_eq_cons_nil_inv in HH.
-   destruct HH as (Ha, Hlan).
-   rewrite Ha in H.
+ destruct (lap_ps_nilp lb) as [Hlbz| Hlbnz].
+  rewrite Hlbz in Hlab.
+  rewrite lap_add_nil_r in Hlab.
+  apply Hla; assumption.
+
+  revert lb Hlb Hlab Hlbnz.
+  induction la as [| a]; intros.
+   simpl in Hlab.
+   apply Hlb; assumption.
+
+   rename m into n.
+   simpl in Hlab.
+   destruct lb as [| b]; [ apply Hla; assumption | idtac ].
+   simpl in Hlab.
+   destruct Hlab as [(Hlab, Hab)| Hlab].
+    unfold Qbar.gt.
+    rewrite <- Hab.
+    pose proof (order_add a b) as H.
+    assert (order a > 0)%Qbar as Ha.
+     apply Hla.
+     left; split; [ assumption | reflexivity ].
+
+     assert (order b > 0)%Qbar as Hb.
+      apply Hlb.
+      left; split; [ assumption | reflexivity ].
+
+      unfold Qbar.ge in H.
+      unfold Qbar.gt in Ha, Hb.
+      destruct (Qbar.min_dec (order a) (order b)) as [Hoab| Hoab].
+       rewrite Hoab in H.
+       eapply Qbar.lt_le_trans; [ idtac | eassumption ].
+       assumption.
+
+       rewrite Hoab in H.
+       eapply Qbar.lt_le_trans; [ idtac | eassumption ].
+       assumption.
+
+    eapply IHla.
+     intros m Hm; apply Hla; right; assumption.
 bbb.
 
 (*
