@@ -1234,30 +1234,21 @@ assert (m ≠ 0)%ps as Hmnz.
  subst la.
  apply list_in_lap_ps_in in Hm; [ idtac | assumption ].
  rewrite lap_mul_add_distr_l in Hm.
+ rewrite <- Hom.
+ apply lap_ps_in_add in Hm; [ assumption | idtac | idtac ].
+  clear m om Hom Hmnz Hm.
+  intros m Hm.
+  remember (order m) as om eqn:Hom .
+  symmetry in Hom.
+  destruct om as [om| ]; [ idtac | constructor ].
+  assert (m ≠ 0)%ps as Hmnz.
+   intros H.
+   apply order_inf in H.
+   rewrite H in Hom; discriminate Hom.
+
+   rewrite <- Hom.
 bbb.
 
- subst la.
-bbb.
- apply list_in_eq_ps in Hm.
- (* not happy of that, should be better with
-      rewrite lap_mul_add_distr_l in Hm
-    but I failed building the good Morphism *)
- eapply list_in_eq_ps_compat in Hm; [ idtac | assumption | idtac ].
-  2: rewrite lap_mul_add_distr_l; reflexivity.
-
-  rewrite <- Hom.
-  eapply list_in_eq_add; [ idtac | idtac | eassumption ].
-   clear m om Hom Hmnz Hm.
-   intros m Hm.
-   remember (order m) as om eqn:Hom .
-   symmetry in Hom.
-   destruct om as [om| ]; [ idtac | constructor ].
-   assert (m ≠ 0)%ps as Hmnz.
-    intros H.
-    apply order_inf in H.
-    rewrite H in Hom; discriminate Hom.
-
-    rewrite <- Hom.
     eapply list_in_eq_ps_compat in Hm; [ idtac | assumption | idtac ].
      2: rewrite lap_mul_summation; reflexivity.
 
