@@ -989,8 +989,47 @@ destruct Hal as [Hal| Hal].
  right; apply IHl; assumption.
 Qed.
 
-Lemma list_in_eq_add : ∀ la lb,
+(* to be moved *)
+Lemma order_0 : order 0%ps = Qbar.qinf.
+Proof.
+unfold order; simpl.
+rewrite null_coeff_range_length_series_0; reflexivity.
+Qed.
+
+Lemma lap_ps_in_add : ∀ la lb,
   let _ := Kx in (* coq seems not to see the type of Kx *)
+  (∀ m, lap_ps_in R m la → (order m > 0)%Qbar)
+  → (∀ m, lap_ps_in R m lb → (order m > 0)%Qbar)
+    → (∀ m, lap_ps_in R m (la + lb)%lap → (order m > 0)%Qbar).
+Proof.
+intros la lb f' Hla Hlb m Hlab; subst f'.
+revert lb Hlb Hlab.
+induction la as [| a]; intros.
+ simpl in Hlab.
+ apply Hlb; assumption.
+
+ rename m into n.
+ simpl in Hlab.
+ destruct lb as [| b]; [ apply Hla; assumption | idtac ].
+ simpl in Hlab.
+ destruct Hlab as [(Hlab, Hab)| Hlab].
+  unfold Qbar.gt.
+  rewrite <- Hab.
+  unfold Qbar.ge in H.
+bbb.
+  pose proof (order_add a b) as H.
+  assert (order a > 0)%Qbar as Ha.
+   apply Hla.
+   left; split; [ idtac | reflexivity ].
+   intros HH; apply Hlab.
+   apply lap_eq_cons_nil_inv in HH.
+   destruct HH as (Ha, Hlan).
+   rewrite Ha in H.
+bbb.
+
+(*
+Lemma list_in_eq_add : ∀ la lb,
+  let _ := Kx in -- coq seems not to see the type of Kx
   (∀ m, list_in_eq eq_ps m la → (order m > 0)%Qbar)
   → (∀ m, list_in_eq eq_ps m lb → (order m > 0)%Qbar)
     → (∀ m, list_in_eq eq_ps m (la + lb)%lap → (order m > 0)%Qbar).
@@ -1029,7 +1068,9 @@ induction la as [| a]; intros.
 
    assumption.
 Qed.
+*)
 
+(*
 Lemma list_in_eq_mul : ∀ la lb,
   let _ := Kx in (* coq seems not to see the type of Kx *)
   (∀ m, list_in_eq eq_ps m la → (order m > 0)%Qbar)
@@ -1055,6 +1096,7 @@ induction la as [| a]; intros.
 bbb.
 *)
 
+(*
 Lemma list_in_eq_summation : ∀ f l,
   (∀ i, i ∈ l → ∀ m, list_in_eq eq_ps m (f i) → (order m > 0)%Qbar)
   → (∀ m, list_in_eq eq_ps m (lap_summation Kx l f)%lap → (order m > 0)%Qbar).
@@ -1074,6 +1116,7 @@ apply list_in_eq_add in Hm; [ assumption | idtac | idtac ].
  eapply Hi; [ idtac | eassumption ].
  left; reflexivity.
 Qed.
+*)
 
 (* to be moved to the good file *)
 Lemma lap_mul_summation : ∀ α (Kx : ring (puiseux_series α)) la l f,
@@ -1112,6 +1155,12 @@ assert (m ≠ 0)%ps as Hmnz.
  rewrite H in Hom; discriminate Hom.
 
  subst la.
+ apply list_in_lap_ps_in in Hm; [ idtac | assumption ].
+ rewrite lap_mul_add_distr_l in Hm.
+bbb.
+
+ subst la.
+bbb.
  apply list_in_eq_ps in Hm.
  (* not happy of that, should be better with
       rewrite lap_mul_add_distr_l in Hm
