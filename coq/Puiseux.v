@@ -1068,8 +1068,15 @@ destruct (lap_ps_nilp la) as [Hlaz| Hlanz].
        eapply Qbar.lt_le_trans; [ idtac | eassumption ].
        assumption.
 
-    eapply IHla.
-     intros m Hm; apply Hla; right; assumption.
+    destruct (ps_zerop a) as [Haz| Hanz].
+     rewrite Haz in Hlanz.
+     eapply IHla.
+      intros m Hm; apply Hla; right; assumption.
+
+      intros HH; apply Hlanz.
+      constructor; [ reflexivity | assumption ].
+
+      apply Hlb.
 bbb.
 
 (*
