@@ -1311,6 +1311,8 @@ assert (m ≠ 0)%ps as Hmnz.
    remember (poly_nth R h pol) as āh eqn:Hāh .
    remember (ps_monom (coeff_of_term R h tl) 0) as ah eqn:Hah .
    remember (ord_of_pt h pl) as αh eqn:Hαh .
+   rewrite lap_mul_const_l in Hm; simpl in Hm.
+   destruct Hm as [(Hmnz, Hm)| ]; [ idtac | contradiction ].
 bbb.
 Check order_āh_minus_ah_xαh_gt_αh.
 
