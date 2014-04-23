@@ -1154,11 +1154,14 @@ Lemma lap_ps_in_mul : ∀ la lb,
     → (∀ m, lap_ps_in R m (la * lb)%lap → (order m > 0)%Qbar).
 Proof.
 intros la lb f' Hla Hlb m Hlab; subst f'.
-revert lb Hlb Hlab.
+revert m lb Hlb Hlab.
 induction la as [| a]; intros.
  rewrite lap_mul_nil_l in Hlab; contradiction.
 
  rewrite lap_mul_cons_l in Hlab.
+ eapply lap_ps_in_add; [ idtac | idtac | eassumption ].
+  intros n Hn.
+  Focus 1.
 bbb.
 
 (*
