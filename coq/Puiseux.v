@@ -1313,6 +1313,9 @@ assert (m ≠ 0)%ps as Hmnz.
    remember (ord_of_pt h pl) as αh eqn:Hαh .
    rewrite lap_mul_const_l in Hm; simpl in Hm.
    destruct Hm as [(Hmnz, Hm)| ]; [ idtac | contradiction ].
+   unfold Qbar.gt.
+   rewrite <- Hm; simpl.
+   rewrite order_mul.
 bbb.
 Check order_āh_minus_ah_xαh_gt_αh.
 
