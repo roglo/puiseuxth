@@ -1154,6 +1154,7 @@ Lemma lap_ps_in_mul : ∀ la lb,
     → (∀ m, lap_ps_in R m (la * lb)%lap → (order m > 0)%Qbar).
 Proof.
 (* à nettoyer, surtout vers la fin : faire des lemmes *)
+(* pis les "Focus" à réarranger *)
 intros la lb f' Hla Hlb m Hlab; subst f'.
 revert m lb Hlb Hlab.
 induction la as [| a]; intros.
@@ -1235,6 +1236,13 @@ induction la as [| a]; intros.
        destruct oa; reflexivity.
 Qed.
 
+Lemma lap_ps_in_summation : ∀ f l,
+  (∀ i, i ∈ l → ∀ m, lap_ps_in R m (f i) → (order m > 0)%Qbar)
+  → (∀ m, lap_ps_in R m (lap_summation Kx l f)%lap → (order m > 0)%Qbar).
+Proof.
+intros f l Hi m Hm.
+bbb.
+
 (*
 Lemma list_in_eq_summation : ∀ f l,
   (∀ i, i ∈ l → ∀ m, list_in_eq eq_ps m (f i) → (order m > 0)%Qbar)
@@ -1309,7 +1317,13 @@ assert (m ≠ 0)%ps as Hmnz.
    rewrite H in Hom; discriminate Hom.
 
    rewrite <- Hom.
-   apply lap_ps_in_mul in Hm; [ assumption | idtac | idtac ].
+   rewrite lap_mul_summation in Hm.
+   eapply lap_ps_in_summation; [ idtac | eassumption ].
+   intros h Hh n Hn.
+   simpl in Hn.
+   rewrite lap_mul_assoc in Hn.
+   rewrite lap_mul_shuffle0 in Hn.
+   apply lap_ps_in_mul in Hn; [ assumption | idtac | idtac ].
 bbb.
 
     eapply list_in_eq_ps_compat in Hm; [ idtac | assumption | idtac ].
