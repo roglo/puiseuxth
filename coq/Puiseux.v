@@ -1299,25 +1299,20 @@ assert (m ≠ 0)%ps as Hmnz.
  apply lap_ps_in_add in Hm; [ assumption | idtac | idtac ].
   clear m om Hom Hmnz Hm.
   intros m Hm.
-  remember (order m) as om eqn:Hom .
-  symmetry in Hom.
-  destruct om as [om| ]; [ idtac | constructor ].
-  assert (m ≠ 0)%ps as Hmnz.
-   intros H.
-   apply order_inf in H.
-   rewrite H in Hom; discriminate Hom.
-
-   rewrite <- Hom.
-   rewrite lap_mul_summation in Hm.
-   eapply lap_ps_in_summation; [ idtac | eassumption ].
-   clear m om Hom Hmnz Hm.
-   intros h Hh m Hm.
-   simpl in Hm.
-   rewrite lap_mul_assoc in Hm.
-   apply lap_ps_in_mul in Hm; [ assumption | idtac | idtac ].
-    clear m Hm.
-    intros m Hm.
+  rewrite lap_mul_summation in Hm.
+  eapply lap_ps_in_summation; [ idtac | eassumption ].
+  clear m Hm.
+  intros h Hh m Hm.
+  simpl in Hm.
+  rewrite lap_mul_assoc in Hm.
+  apply lap_ps_in_mul in Hm; [ assumption | idtac | idtac ].
+   clear m Hm.
+   intros m Hm.
+   remember (poly_nth R h pol) as āh eqn:Hāh .
+   remember (ps_monom (coeff_of_term R h tl) 0) as ah eqn:Hah .
+   remember (ord_of_pt h pl) as αh eqn:Hαh .
 bbb.
+Check order_āh_minus_ah_xαh_gt_αh.
 
     eapply list_in_eq_ps_compat in Hm; [ idtac | assumption | idtac ].
      2: rewrite lap_mul_summation; reflexivity.
@@ -1343,7 +1338,6 @@ bbb.
 
        eapply list_in_eq_mul; [ idtac | idtac | eassumption ].
 bbb.
-Check order_āh_minus_ah_xαh_gt_αh.
 
 apply List.in_map with (f := order) in Hm.
 unfold Qbar.gt; simpl.
