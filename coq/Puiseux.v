@@ -1310,11 +1310,13 @@ assert (m ≠ 0)%ps as Hmnz.
    rewrite <- Hom.
    rewrite lap_mul_summation in Hm.
    eapply lap_ps_in_summation; [ idtac | eassumption ].
-   intros h Hh n Hn.
-   simpl in Hn.
-   rewrite lap_mul_assoc in Hn.
-   rewrite lap_mul_shuffle0 in Hn.
-   apply lap_ps_in_mul in Hn; [ assumption | idtac | idtac ].
+   clear m om Hom Hmnz Hm.
+   intros h Hh m Hm.
+   simpl in Hm.
+   rewrite lap_mul_assoc, lap_mul_comm in Hm.
+   apply lap_ps_in_mul in Hm; [ assumption | idtac | idtac ].
+    clear m Hm.
+    intros m Hm.
 bbb.
 
     eapply list_in_eq_ps_compat in Hm; [ idtac | assumption | idtac ].
