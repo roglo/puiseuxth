@@ -1269,6 +1269,24 @@ induction l as [| j]; intros; simpl.
  reflexivity.
 Qed.
 
+Lemma ps_monom_order : ∀ c n, (c ≠ 0)%K → order (ps_monom c n) = qfin n.
+Proof.
+intros c n Hc.
+unfold order.
+remember (null_coeff_range_length R (ps_terms (ps_monom c n)) 0) as m eqn:Hm .
+symmetry in Hm.
+apply null_coeff_range_length_iff in Hm.
+unfold null_coeff_range_length_prop in Hm.
+simpl in Hm; simpl.
+destruct m as [m| ].
+ destruct Hm as (Him, Hm).
+ destruct m as [| m]; [ simpl | exfalso; apply Hm; reflexivity ].
+ simpl in Hm.
+ rewrite Z.add_0_r; destruct n; reflexivity.
+
+ pose proof (Hm 0%nat); contradiction.
+Qed.
+
 Lemma yyy : ∀ pol ns g,
   ns ∈ newton_segments R pol
   → g = g_of_ns pol ns
@@ -1316,6 +1334,7 @@ assert (m ≠ 0)%ps as Hmnz.
    unfold Qbar.gt.
    rewrite <- Hm; simpl.
    rewrite order_mul.
+   rewrite ps_monom_order.
 bbb.
 Check order_āh_minus_ah_xαh_gt_αh.
 
