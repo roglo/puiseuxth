@@ -1153,6 +1153,7 @@ Lemma lap_ps_in_mul : ∀ la lb,
   → (∀ m, lap_ps_in R m lb → (order m ≥ 0)%Qbar)
     → (∀ m, lap_ps_in R m (la * lb)%lap → (order m > 0)%Qbar).
 Proof.
+(* à nettoyer, surtout vers la fin : faire des lemmes *)
 intros la lb f' Hla Hlb m Hlab; subst f'.
 revert m lb Hlb Hlab.
 induction la as [| a]; intros.
@@ -1199,33 +1200,40 @@ induction la as [| a]; intros.
 
      pose proof (order_mul a b) as Ho.
      rewrite Hn in Ho.
-bbb.
+     unfold Qbar.gt.
+     rewrite Ho.
+     remember (order a) as oa.
+     remember (order b) as ob.
+     symmetry in Heqoa, Heqob.
+     destruct oa as [oa| ]; [ idtac | constructor ].
+     destruct ob as [ob| ]; [ idtac | constructor ].
+     unfold Qbar.add; simpl.
+     apply Qbar.lt_qfin.
+     apply Qlt_le_trans with (y := oa).
+      apply Qbar.qfin_lt_mono.
+      assumption.
 
-(*
-Lemma list_in_eq_mul : ∀ la lb,
-  let _ := Kx in (* coq seems not to see the type of Kx *)
-  (∀ m, list_in_eq eq_ps m la → (order m > 0)%Qbar)
-  → (∀ m, list_in_eq eq_ps m lb → (order m ≥ 0)%Qbar)
-    → (∀ m, list_in_eq eq_ps m (la * lb)%lap → (order m > 0)%Qbar).
-Proof.
-intros la lb f' Hla Hlb m Hlab; subst f'.
-revert lb Hlb Hlab.
-induction la as [| a]; intros.
- rewrite lap_mul_nil_l in Hlab.
-bbb.
+      replace oa with (oa + 0) at 1 .
+       apply Qplus_le_r.
+       destruct (ps_zerop b) as [Hb| Hb].
+        apply order_inf in Hb.
+        rewrite Heqob in Hb; discriminate Hb.
 
-intros la lb f' Hla Hlb m Hlab; subst f'.
-revert lb Hlb Hlab.
-induction la as [| a]; intros.
- eapply list_in_eq_ps_compat in Hlab.
-  3: rewrite lap_mul_nil_l; reflexivity.
+        assert (lap_ps_in R b [b … lb]) as H.
+         left.
+         split; [ idtac | reflexivity ].
+         intros H.
+         apply lap_eq_cons_nil_inv in H.
+         destruct H; contradiction.
 
-  contradiction.
+         apply Hlb in H.
+         rewrite Heqob in H.
+         inversion H; assumption.
 
-  intros H.
-  apply order_inf in H.
-bbb.
-*)
+       unfold Qplus; simpl.
+       rewrite Z.mul_1_r, Z.add_0_r, Pos.mul_1_r.
+       destruct oa; reflexivity.
+Qed.
 
 (*
 Lemma list_in_eq_summation : ∀ f l,
