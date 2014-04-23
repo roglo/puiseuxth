@@ -1287,6 +1287,25 @@ destruct m as [m| ].
  pose proof (Hm 0%nat); contradiction.
 Qed.
 
+Lemma ps_monom_order_ge : ∀ c n, (order (ps_monom c n) ≥ qfin n)%Qbar.
+Proof.
+intros c n.
+unfold order.
+remember (null_coeff_range_length R (ps_terms (ps_monom c n)) 0) as m eqn:Hm .
+symmetry in Hm.
+unfold Qbar.ge.
+destruct m as [m| ]; [ idtac | constructor ].
+apply Qbar.le_qfin.
+apply null_coeff_range_length_iff in Hm.
+unfold null_coeff_range_length_prop in Hm.
+simpl in Hm; simpl.
+destruct Hm as (Him, Hm).
+destruct m as [| m]; [ simpl | exfalso; apply Hm; reflexivity ].
+simpl in Hm.
+rewrite Z.add_0_r; destruct n; simpl.
+unfold Qle; simpl; reflexivity.
+Qed.
+
 Lemma yyy : ∀ pol ns g,
   ns ∈ newton_segments R pol
   → g = g_of_ns pol ns
@@ -1334,6 +1353,8 @@ assert (m ≠ 0)%ps as Hmnz.
    unfold Qbar.gt.
    rewrite <- Hm; simpl.
    rewrite order_mul.
+bbb.
+Check ps_monom_order_ge.
    rewrite ps_monom_order.
     rewrite order_mul.
     rewrite ps_monom_order.
