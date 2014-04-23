@@ -1353,6 +1353,12 @@ assert (m ≠ 0)%ps as Hmnz.
    unfold Qbar.gt.
    rewrite <- Hm; simpl.
    rewrite order_mul.
+   remember (āh - ah * ps_monom 1%K αh)%ps as aa.
+   remember (ps_monom 1%K (Qnat h * γ ns))%ps as bb.
+   remember (ps_monom 1%K (- β ns)) as cc.
+   remember (order (aa * bb)) as oaa.
+   apply Qbar.lt_le_trans with (m := (qfin (- β ns) + oaa)%Qbar).
+    Focus 2.
 bbb.
 Check ps_monom_order_ge.
    rewrite ps_monom_order.

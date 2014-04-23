@@ -29,6 +29,8 @@ Definition order {α} {r : ring α} ps :=
   | ∞ => qinf
   end.
 
+Arguments order _ _ ps%ps_scope.
+
 Definition order_coeff α (r : ring α) ps :=
   match null_coeff_range_length r (ps_terms ps) 0 with
   | fin v => (ps_terms ps) .[v]

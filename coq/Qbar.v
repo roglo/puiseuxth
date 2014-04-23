@@ -122,6 +122,19 @@ destruct p as [p| ].
  destruct n as [n| ]; [ constructor | inversion Hnm ].
 Qed.
 
+Theorem le_lt_trans : ∀ n m p, n ≤ m → m < p → n < p.
+Proof.
+intros n m p Hnm Hmp.
+destruct p as [p| ].
+ destruct m as [m| ]; [ simpl | inversion Hmp ].
+ destruct n as [n| ]; [ simpl | inversion Hnm ].
+ inversion Hnm; inversion Hmp; constructor.
+ eapply Qle_lt_trans; eassumption.
+
+ destruct n as [n| ]; [ constructor | idtac ].
+ inversion Hnm; subst; assumption.
+Qed.
+
 Theorem eq_refl : reflexive _ qeq.
 Proof. intros a; destruct a; reflexivity. Qed.
 
