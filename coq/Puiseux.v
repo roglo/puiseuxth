@@ -1241,18 +1241,10 @@ Lemma lap_ps_in_summation : ∀ f l,
   → (∀ m, lap_ps_in R m (lap_summation Kx l f)%lap → (order m > 0)%Qbar).
 Proof.
 intros f l Hi m Hm.
-bbb.
-
-(*
-Lemma list_in_eq_summation : ∀ f l,
-  (∀ i, i ∈ l → ∀ m, list_in_eq eq_ps m (f i) → (order m > 0)%Qbar)
-  → (∀ m, list_in_eq eq_ps m (lap_summation Kx l f)%lap → (order m > 0)%Qbar).
-Proof.
-intros f l Hi m Hm.
 revert m Hm.
 induction l as [| j]; intros; [ contradiction | idtac ].
 simpl in Hm.
-apply list_in_eq_add in Hm; [ assumption | idtac | idtac ].
+apply lap_ps_in_add in Hm; [ assumption | idtac | idtac ].
  intros n Hn.
  apply IHl; [ idtac | assumption ].
  intros k Hk p Hp.
@@ -1263,7 +1255,6 @@ apply list_in_eq_add in Hm; [ assumption | idtac | idtac ].
  eapply Hi; [ idtac | eassumption ].
  left; reflexivity.
 Qed.
-*)
 
 (* to be moved to the good file *)
 Lemma lap_mul_summation : ∀ α (Kx : ring (puiseux_series α)) la l f,
