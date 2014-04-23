@@ -1313,7 +1313,7 @@ assert (m ≠ 0)%ps as Hmnz.
    clear m om Hom Hmnz Hm.
    intros h Hh m Hm.
    simpl in Hm.
-   rewrite lap_mul_assoc, lap_mul_comm in Hm.
+   rewrite lap_mul_assoc in Hm.
    apply lap_ps_in_mul in Hm; [ assumption | idtac | idtac ].
     clear m Hm.
     intros m Hm.
