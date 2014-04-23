@@ -1335,6 +1335,9 @@ assert (m ≠ 0)%ps as Hmnz.
    rewrite <- Hm; simpl.
    rewrite order_mul.
    rewrite ps_monom_order.
+    rewrite order_mul.
+    rewrite ps_monom_order.
+     simpl.
 bbb.
 Check order_āh_minus_ah_xαh_gt_αh.
 
