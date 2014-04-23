@@ -1147,6 +1147,20 @@ destruct (lap_ps_nilp la) as [Hlaz| Hlanz].
          assumption.
 Qed.
 
+Lemma lap_ps_in_mul : ∀ la lb,
+  let _ := Kx in (* coq seems not to see the type of Kx *)
+  (∀ m, lap_ps_in R m la → (order m > 0)%Qbar)
+  → (∀ m, lap_ps_in R m lb → (order m ≥ 0)%Qbar)
+    → (∀ m, lap_ps_in R m (la * lb)%lap → (order m > 0)%Qbar).
+Proof.
+intros la lb f' Hla Hlb m Hlab; subst f'.
+revert lb Hlb Hlab.
+induction la as [| a]; intros.
+ rewrite lap_mul_nil_l in Hlab; contradiction.
+
+ rewrite lap_mul_cons_l in Hlab.
+bbb.
+
 (*
 Lemma list_in_eq_mul : ∀ la lb,
   let _ := Kx in (* coq seems not to see the type of Kx *)
@@ -1247,6 +1261,7 @@ assert (m ≠ 0)%ps as Hmnz.
    rewrite H in Hom; discriminate Hom.
 
    rewrite <- Hom.
+   apply lap_ps_in_mul in Hm; [ assumption | idtac | idtac ].
 bbb.
 
     eapply list_in_eq_ps_compat in Hm; [ idtac | assumption | idtac ].
