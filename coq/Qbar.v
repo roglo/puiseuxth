@@ -135,6 +135,67 @@ destruct p as [p| ].
  inversion Hnm; subst; assumption.
 Qed.
 
+Theorem add_comm : ∀ n m, n + m = m + n.
+Proof.
+intros n m.
+destruct n; [ simpl | destruct m; reflexivity ].
+destruct m as [m| ]; [ simpl | reflexivity ].
+f_equal.
+unfold Qplus; simpl.
+f_equal.
+ rewrite Z.add_comm; reflexivity.
+
+ rewrite Pos.mul_comm; reflexivity.
+Qed.
+
+Theorem add_lt_mono_r : ∀ n m p, p ≠ ∞ → n < m ↔ n + p < m + p.
+Proof.
+intros n m p Hp.
+split; intros H.
+ destruct n as [n| ].
+  destruct m as [m| ].
+   destruct p as [p| ].
+    constructor; apply Qplus_lt_l; inversion H; assumption.
+
+    exfalso; apply Hp; reflexivity.
+
+   destruct p as [p| ]; [ constructor | exfalso; apply Hp; reflexivity ].
+
+  inversion H.
+
+ destruct n as [n| ]; [ idtac | inversion H ].
+ destruct m as [m| ]; [ idtac | constructor ].
+ destruct p as [p| ]; [ idtac | inversion H ].
+ constructor; inversion H.
+ apply Qplus_lt_l in H2; assumption.
+Qed.
+
+Theorem add_le_mono_r : ∀ n m p, p ≠ ∞ → n ≤ m ↔ n + p ≤ m + p.
+Proof.
+intros n m p Hp.
+split; intros H.
+ destruct n as [n| ].
+  destruct m as [m| ].
+   destruct p as [p| ].
+    constructor; apply Qplus_le_l; inversion H; assumption.
+
+    exfalso; apply Hp; reflexivity.
+
+   destruct p as [p| ]; [ constructor | exfalso; apply Hp; reflexivity ].
+
+  inversion H; constructor.
+
+ destruct n as [n| ].
+  destruct m as [m| ]; [ idtac | constructor ].
+  destruct p as [p| ]; [ idtac | exfalso; apply Hp; reflexivity ].
+  constructor; inversion H.
+  apply Qplus_le_l in H2; assumption.
+
+  destruct m as [m| ]; [ idtac | constructor ].
+  destruct p as [p| ]; [ idtac | exfalso; apply Hp; reflexivity ].
+  inversion H.
+Qed.
+
 Theorem eq_refl : reflexive _ qeq.
 Proof. intros a; destruct a; reflexivity. Qed.
 

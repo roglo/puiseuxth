@@ -1359,6 +1359,12 @@ assert (m ≠ 0)%ps as Hmnz.
    remember (order (aa * bb)) as oaa.
    apply Qbar.lt_le_trans with (m := (qfin (- β ns) + oaa)%Qbar).
     Focus 2.
+    destruct oaa as [oaa| ].
+     apply Qbar.add_le_mono_r; [ intros H; discriminate H | idtac ].
+     subst cc; apply ps_monom_order_ge.
+
+     simpl.
+     rewrite Qbar.add_comm; constructor.
 bbb.
 Check ps_monom_order_ge.
    rewrite ps_monom_order.
