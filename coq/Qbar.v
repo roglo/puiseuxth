@@ -230,6 +230,14 @@ split; intros H.
   inversion H.
 Qed.
 
+Theorem lt_le_incl : ∀ n m, n < m → n ≤ m.
+Proof.
+intros n m H.
+destruct n as [n| ]; [ idtac | inversion H ].
+destruct m as [m| ]; [ idtac | constructor ].
+constructor; apply Qlt_le_weak; inversion H; assumption.
+Qed.
+
 Theorem eq_refl : reflexive _ qeq.
 Proof. intros a; destruct a; reflexivity. Qed.
 
@@ -346,6 +354,18 @@ Qed.
 Add Parametric Morphism : Qbar.le
   with signature Qbar.qeq ==> Qbar.qeq ==> iff
   as qbar_le_morph.
+Proof.
+intros a b Hab c d Hcd.
+split; intros H.
+ eapply Qbar_le_compat; eassumption.
+
+ symmetry in Hab, Hcd.
+ eapply Qbar_le_compat; eassumption.
+Qed.
+
+Add Parametric Morphism : Qbar.ge
+  with signature Qbar.qeq ==> Qbar.qeq ==> iff
+  as qbar_ge_morph.
 Proof.
 intros a b Hab c d Hcd.
 split; intros H.

@@ -34,6 +34,8 @@ Fixpoint lap_ps_in α (R : ring α) a l :=
   | [b … m] => ¬(@lap_eq _ (ps_ring R) l []) ∧ (b = a)%ps ∨ lap_ps_in R a m
   end.
 
+Arguments lap_ps_in _ _ a%ps l%lap.
+
 Lemma div_gcd_gcd_0_r : ∀ a b c d e f,
   (b / Z.gcd (Z.gcd a b) c)%Z = (e / Z.gcd (Z.gcd d e) f)%Z
   → e = 0%Z
@@ -1147,6 +1149,16 @@ destruct (lap_ps_nilp la) as [Hlaz| Hlanz].
          assumption.
 Qed.
 
+Lemma lap_ps_in_mul_ge : ∀ la lb,
+  let _ := Kx in (* coq seems not to see the type of Kx *)
+  (∀ m, lap_ps_in R m la → (order m ≥ 0)%Qbar)
+  → (∀ m, lap_ps_in R m lb → (order m ≥ 0)%Qbar)
+    → (∀ m, lap_ps_in R m (la * lb)%lap → (order m ≥ 0)%Qbar).
+Proof.
+Admitted. (*
+bbb.
+*)
+
 Lemma lap_ps_in_mul : ∀ la lb,
   let _ := Kx in (* coq seems not to see the type of Kx *)
   (∀ m, lap_ps_in R m la → (order m > 0)%Qbar)
@@ -1306,6 +1318,26 @@ rewrite Z.add_0_r; destruct n; simpl.
 unfold Qle; simpl; reflexivity.
 Qed.
 
+Lemma lap_ps_in_power : ∀ la n,
+  let _ := Kx in (* coq seems not to see the type of Kx *)
+  (∀ a, lap_ps_in R a la → (order a ≥ 0)%Qbar)
+  → (∀ m, lap_ps_in R m (la ^ n) → (order m ≥ 0)%Qbar).
+Proof.
+intros la n f' Ha m Hm.
+revert m la Ha Hm.
+induction n; intros.
+ simpl in Hm.
+ destruct Hm as [(H₁, Hm)| ]; [ idtac | contradiction ].
+ unfold Qbar.ge.
+ rewrite <- Hm.
+ apply ps_monom_order_ge.
+
+ simpl in Hm.
+ eapply lap_ps_in_mul_ge in Hm; try eassumption.
+ intros p Hp.
+ eapply IHn; eassumption.
+Qed.
+
 Lemma yyy : ∀ pol ns g,
   ns ∈ newton_segments R pol
   → g = g_of_ns pol ns
@@ -1376,8 +1408,7 @@ assert (m ≠ 0)%ps as Hmnz.
      rewrite <- Qminus_minus_assoc.
      rewrite Qminus_diag.
      rewrite Qplus_0_l.
-     unfold Qminus.
-     unfold Qopp; simpl.
+     unfold Qminus, Qopp; simpl.
      rewrite Qplus_0_r.
      remember (points_of_ps_polynom R pol) as pts.
      eapply points_in_convex; try eassumption.
@@ -1405,6 +1436,20 @@ assert (m ≠ 0)%ps as Hmnz.
       eapply order_āh_minus_ah_xαh_gt_αh; eassumption.
 
       apply ps_monom_order_ge.
+
+   clear m Hm.
+   intros m Hm.
+   eapply lap_ps_in_power; [ idtac | eassumption ].
+   clear m Hm.
+   intros m Hm.
+   simpl in Hm.
+   destruct Hm as [(Hn, Hm)| Hm].
+    rewrite <- Hm.
+    apply ps_monom_order_ge.
+
+    destruct Hm as [(Hn, Hm)| ]; [ idtac | contradiction ].
+    rewrite <- Hm.
+    apply ps_monom_order_ge.
 bbb.
 
    rewrite ps_monom_order.
