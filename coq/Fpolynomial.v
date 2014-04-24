@@ -1537,13 +1537,6 @@ unfold list_nth_def_0; simpl.
 rewrite list_nth_pad_sub, Nat.sub_diag; reflexivity.
 Qed.
 
-Lemma nth_lap_power_lt : ∀ i n,
-  (i < n)%nat
-  → (List.nth i (lap_power [0; 1 … []] n) 0 = 0)%K.
-Proof.
-intros i n Hin.
-Admitted.
-
 (* *)
 
 Lemma lap_fold_compat_l : ∀ A (g h : A → _) la lb l,
