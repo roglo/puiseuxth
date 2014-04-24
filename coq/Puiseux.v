@@ -1392,6 +1392,14 @@ assert (m ≠ 0)%ps as Hmnz.
       intros pt Hpt.
       rewrite Hpl in Hpt.
       eapply points_in_newton_segment_have_nat_abscissa; eassumption.
+
+      rewrite Hl₁, Htl in Hh.
+      rewrite List.map_map in Hh; assumption.
+
+     unfold Qminus.
+     rewrite Qbar.qfin_inj_add.
+     apply Qbar.add_lt_mono_r.
+      intros H; discriminate H.
 bbb.
 Check order_āh_minus_ah_xαh_gt_αh.
 
