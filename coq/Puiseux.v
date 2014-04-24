@@ -1306,6 +1306,15 @@ rewrite Z.add_0_r; destruct n; simpl.
 unfold Qle; simpl; reflexivity.
 Qed.
 
+Lemma xxx : ∀ pol ns pl h,
+  ns ∈ newton_segments R pol
+  → pl = [ini_pt ns … oth_pts ns ++ [fin_pt ns]]
+    → h ∈ List.map (λ x, nofq (fst x)) pl
+      → order (List.nth h (al pol) 0%ps) = qfin (ord_of_pt h pl).
+Proof.
+intros pol ns pl h Hns Hpl Hh.
+bbb.
+
 Lemma yyy : ∀ pol ns g,
   ns ∈ newton_segments R pol
   → g = g_of_ns pol ns
