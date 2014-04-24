@@ -1347,11 +1347,9 @@ induction la as [| a]; intros.
        rewrite Z.mul_1_r, Z.add_0_r, Pos.mul_1_r.
        destruct oa; reflexivity.
 
-     apply IHlb.
-      intros p Hp.
-      apply Hlb; right; assumption.
-
-      assumption.
+     apply IHlb; [ idtac | assumption ].
+     intros p Hp.
+     apply Hlb; right; assumption.
 
   intros n Hn.
   simpl in Hn.
