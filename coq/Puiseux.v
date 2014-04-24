@@ -1306,15 +1306,6 @@ rewrite Z.add_0_r; destruct n; simpl.
 unfold Qle; simpl; reflexivity.
 Qed.
 
-Lemma xxx : ∀ pol ns pl h,
-  ns ∈ newton_segments R pol
-  → pl = [ini_pt ns … oth_pts ns ++ [fin_pt ns]]
-    → h ∈ List.map (λ x, nofq (fst x)) pl
-      → order (List.nth h (al pol) 0%ps) = qfin (ord_of_pt h pl).
-Proof.
-intros pol ns pl h Hns Hpl Hh.
-bbb.
-
 Lemma yyy : ∀ pol ns g,
   ns ∈ newton_segments R pol
   → g = g_of_ns pol ns
@@ -1391,10 +1382,16 @@ assert (m ≠ 0)%ps as Hmnz.
      remember (points_of_ps_polynom R pol) as pts.
      eapply points_in_convex; try eassumption.
      eapply in_pol_in_pts; try eassumption.
-     rewrite Hāh, Hαh.
-     rewrite Hl₁, Htl in Hh.
-     rewrite List.map_map in Hh; simpl in Hh.
-     unfold poly_nth.
+     rewrite Hāh.
+     eapply order_in_newton_segment; try eassumption.
+     rewrite Hαh.
+     apply ord_is_ord_of_pt.
+      rewrite Hpl.
+      eapply ini_oth_fin_pts_sorted; eassumption.
+
+      intros pt Hpt.
+      rewrite Hpl in Hpt.
+      eapply points_in_newton_segment_have_nat_abscissa; eassumption.
 bbb.
 Check order_āh_minus_ah_xαh_gt_αh.
 
