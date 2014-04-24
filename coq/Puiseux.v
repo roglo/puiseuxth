@@ -1306,7 +1306,7 @@ induction la as [| a]; intros.
     destruct H; contradiction.
 
     rewrite lap_mul_const_l in Hn.
-    clear Hlab.
+    revert Hlb Hn Hoa; clear; intros.
     induction lb as [| b]; [ contradiction | idtac ].
     simpl in Hn.
     destruct Hn as [(Hab, Hn)| Hn].
