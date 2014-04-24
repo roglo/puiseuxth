@@ -50,4 +50,51 @@ eapply points_not_in_any_newton_segment₁.
  assumption.
 Qed.
 
+Lemma list_Q_pair_in_dec : ∀ a b (l : list (Q * Q)),
+  {(a, b) ∈ l} + {(a, b) ∉ l}.
+Proof.
+intros a b l.
+apply List.In_dec.
+intros x y.
+destruct x as ((xan, xad), (xbn, xbd)).
+destruct y as ((yan, yad), (ybn, ybd)).
+destruct (Z.eq_dec xan yan) as [Han| Han].
+ subst xan.
+ destruct (Pos.eq_dec xad yad) as [Had| Had].
+  subst xad.
+  destruct (Z.eq_dec xbn ybn) as [Hbn| Hbn].
+   subst xbn.
+   destruct (Pos.eq_dec xbd ybd) as [Hbd| Hbd].
+    subst xbd.
+    left; reflexivity.
+
+    right; intros H.
+    injection H; clear H; intros; subst.
+    apply Hbd; reflexivity.
+
+   right; intros H.
+   injection H; clear H; intros; subst.
+   apply Hbn; reflexivity.
+
+  right; intros H.
+  injection H; clear H; intros; subst.
+  apply Had; reflexivity.
+
+ right; intros H.
+ injection H; clear H; intros; subst.
+ apply Han; reflexivity.
+Qed.
+
+Theorem points_in_convex : ∀ (pol : puis_ser_pol α) pts ns,
+  pts = points_of_ps_polynom r pol
+  → ns ∈ newton_segments r pol
+    → ∀ h αh, (h, αh) ∈ pts
+      → β ns <= αh + h * (γ ns).
+Proof.
+intros pol pts ns Hpts Hns h αh Hαh.
+remember [ini_pt ns; fin_pt ns … oth_pts ns] as spts.
+pose proof (list_Q_pair_in_dec h αh spts) as H.
+subst spts; destruct H as [H| H].
+bbb.
+
 End theorems.
