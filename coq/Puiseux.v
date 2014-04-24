@@ -1383,6 +1383,9 @@ assert (m ≠ 0)%ps as Hmnz.
      eapply points_in_convex; try eassumption.
      eapply in_pol_in_pts; try eassumption.
      rewrite Hāh, Hαh.
+     rewrite Hl₁, Htl in Hh.
+     rewrite List.map_map in Hh; simpl in Hh.
+     unfold poly_nth.
 bbb.
 Check order_āh_minus_ah_xαh_gt_αh.
 
