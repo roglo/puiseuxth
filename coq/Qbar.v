@@ -368,11 +368,7 @@ Add Parametric Morphism : Qbar.ge
   as qbar_ge_morph.
 Proof.
 intros a b Hab c d Hcd.
-split; intros H.
- eapply Qbar_le_compat; eassumption.
-
- symmetry in Hab, Hcd.
- eapply Qbar_le_compat; eassumption.
+apply qbar_le_morph; assumption.
 Qed.
 
 Add Parametric Morphism : Qbar.lt
@@ -385,6 +381,14 @@ split; intros H.
 
  symmetry in Hab, Hcd.
  eapply Qbar_lt_compat; eassumption.
+Qed.
+
+Add Parametric Morphism : Qbar.gt
+  with signature Qbar.qeq ==> Qbar.qeq ==> iff
+  as qbar_gt_morph.
+Proof.
+intros a b Hab c d Hcd.
+apply qbar_lt_morph; assumption.
 Qed.
 
 Add Parametric Morphism : Qbar.min
