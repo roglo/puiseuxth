@@ -1398,10 +1398,14 @@ assert (m ≠ 0)%ps as Hmnz.
 
      unfold Qminus.
      rewrite Qbar.qfin_inj_add.
-     apply Qbar.add_lt_mono_r.
-      intros H; discriminate H.
+     apply Qbar.add_lt_mono_r; [ intros H; discriminate H | idtac ].
+     rewrite Qbar.qfin_inj_add.
+     apply Qbar.add_lt_le_mono; [ intros H; discriminate H | idtac | idtac ].
+      rewrite Hl₁ in Hh.
+      eapply order_āh_minus_ah_xαh_gt_αh; eassumption.
+
+      apply ps_monom_order_ge.
 bbb.
-Check order_āh_minus_ah_xαh_gt_αh.
 
    rewrite ps_monom_order.
     rewrite order_mul.

@@ -71,6 +71,13 @@ split; intros H; [ constructor; assumption | idtac ].
 inversion H; assumption.
 Qed.
 
+Theorem qfin_le_mono : ∀ n m, (n <= m)%Q ↔ qfin n ≤ qfin m.
+Proof.
+intros n m.
+split; intros H; [ constructor; assumption | idtac ].
+inversion H; assumption.
+Qed.
+
 Theorem qfin_inj : ∀ a b, qeq (qfin a) (qfin b) → a == b.
 Proof. intros a b Hab; assumption. Qed.
 
@@ -171,6 +178,30 @@ split; intros H.
  destruct p as [p| ]; [ idtac | inversion H ].
  constructor; inversion H.
  apply Qplus_lt_l in H2; assumption.
+Qed.
+
+Theorem add_lt_le_mono : ∀ n m p q,
+  p ≠ ∞
+  → n < m
+    → p ≤ q
+      → n + p < m + q.
+Proof.
+intros n m p q Hp Hnm Hpq.
+destruct m as [m| ]; simpl.
+ destruct n as [n| ]; [ idtac | inversion Hnm ].
+ apply qfin_lt_mono in Hnm.
+ destruct q as [q| ]; simpl.
+  destruct p as [p| ]; [ idtac | inversion Hpq ].
+  apply qfin_le_mono in Hpq.
+  apply qfin_lt_mono.
+  apply Qplus_lt_le_compat; assumption.
+
+  destruct p as [p| ]; [ constructor | idtac ].
+  exfalso; apply Hp; reflexivity.
+
+ destruct p as [p| ]; [ idtac | exfalso; apply Hp; reflexivity ].
+ destruct n as [n| ]; [ idtac | inversion Hnm ].
+ constructor.
 Qed.
 
 Theorem add_le_mono_r : ∀ n m p, p ≠ ∞ → n ≤ m ↔ n + p ≤ m + p.
