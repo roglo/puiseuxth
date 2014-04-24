@@ -120,6 +120,19 @@ destruct (Qmin_dec n m) as [H| H]; simpl; rewrite H.
  right; reflexivity.
 Qed.
 
+Theorem le_trans : ∀ n m p, n ≤ m → m ≤ p → n ≤ p.
+Proof.
+intros n m p Hnm Hmp.
+destruct p as [p| ].
+ destruct m as [m| ]; [ simpl | inversion Hmp ].
+ destruct n as [n| ]; [ simpl | inversion Hnm ].
+ inversion Hnm; inversion Hmp; constructor.
+ eapply Qle_trans; eassumption.
+
+ destruct n as [n| ]; [ constructor | idtac ].
+ inversion Hnm; subst; assumption.
+Qed.
+
 Theorem lt_le_trans : ∀ n m p, n < m → m ≤ p → n < p.
 Proof.
 intros n m p Hnm Hmp.
