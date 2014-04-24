@@ -1450,12 +1450,18 @@ assert (m ≠ 0)%ps as Hmnz.
     destruct Hm as [(Hn, Hm)| ]; [ idtac | contradiction ].
     rewrite <- Hm.
     apply ps_monom_order_ge.
-bbb.
 
-   rewrite ps_monom_order.
-    rewrite order_mul.
-    rewrite ps_monom_order.
-     simpl.
+  clear m om Hom Hmnz Hm.
+  intros m Hm.
+  rewrite lap_mul_summation in Hm.
+  eapply lap_ps_in_summation; [ idtac | eassumption ].
+  clear m Hm.
+  intros h Hh m Hm.
+  simpl in Hm.
+  rewrite lap_mul_assoc in Hm.
+  apply lap_ps_in_mul in Hm; [ assumption | idtac | idtac ].
+   clear m Hm.
+   intros m Hm.
 bbb.
 
     eapply list_in_eq_ps_compat in Hm; [ idtac | assumption | idtac ].
