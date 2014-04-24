@@ -95,6 +95,12 @@ intros pol pts ns Hpts Hns h αh Hαh.
 remember [ini_pt ns; fin_pt ns … oth_pts ns] as spts.
 pose proof (list_Q_pair_in_dec h αh spts) as H.
 subst spts; destruct H as [H| H].
-bbb.
+ eapply points_in_any_newton_segment in H; [ idtac | eassumption ].
+ rewrite H; apply Qle_refl.
+
+ apply Qlt_le_weak.
+ eapply points_not_in_any_newton_segment; try eassumption.
+ split; assumption.
+Qed.
 
 End theorems.
