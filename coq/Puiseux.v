@@ -1379,6 +1379,8 @@ assert (m ≠ 0)%ps as Hmnz.
      unfold Qminus.
      unfold Qopp; simpl.
      rewrite Qplus_0_r.
+     remember (points_of_ps_polynom R pol) as pts.
+     eapply points_in_convex; try eassumption.
 bbb.
 Check order_āh_minus_ah_xαh_gt_αh.
 
