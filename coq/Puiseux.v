@@ -1375,6 +1375,21 @@ induction la as [| a]; intros.
  rewrite lap_mul_nil_l in Hlab; contradiction.
 
  rewrite lap_mul_cons_l in Hlab.
+ eapply lap_ps_in_add_ge; [ idtac | idtac | eassumption ].
+  intros n Hn.
+  destruct (ps_zerop a) as [Ha| Ha].
+   rewrite Ha in Hn.
+   rewrite lap_eq_0 in Hn.
+   rewrite lap_mul_nil_l in Hn; contradiction.
+
+   assert (order a ≥ 0)%Qbar as Hoa.
+    apply Hla; left; split; [ idtac | reflexivity ].
+    intros H.
+    apply lap_eq_cons_nil_inv in H.
+    destruct H; contradiction.
+
+    rewrite lap_mul_const_l in Hn.
+    revert Hlb Hn Hoa; clear; intros.
 bbb.
 *)
 
