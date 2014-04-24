@@ -1365,14 +1365,28 @@ assert (m ≠ 0)%ps as Hmnz.
 
      simpl.
      rewrite Qbar.add_comm; constructor.
+
+    subst oaa.
+    rewrite order_mul.
+    rewrite Qbar.add_comm.
+    rewrite Heqaa, Heqbb.
+    apply Qbar.le_lt_trans with (m := qfin (αh + Qnat h * γ ns - β ns)).
+     apply Qbar.le_qfin.
+     apply Qplus_le_l with (z := β ns).
+     rewrite <- Qminus_minus_assoc.
+     rewrite Qminus_diag.
+     rewrite Qplus_0_l.
+     unfold Qminus.
+     unfold Qopp; simpl.
+     rewrite Qplus_0_r.
 bbb.
-Check ps_monom_order_ge.
+Check order_āh_minus_ah_xαh_gt_αh.
+
    rewrite ps_monom_order.
     rewrite order_mul.
     rewrite ps_monom_order.
      simpl.
 bbb.
-Check order_āh_minus_ah_xαh_gt_αh.
 
     eapply list_in_eq_ps_compat in Hm; [ idtac | assumption | idtac ].
      2: rewrite lap_mul_summation; reflexivity.
