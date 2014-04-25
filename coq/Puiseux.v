@@ -1604,7 +1604,18 @@ assert (m ≠ 0)%ps as Hmnz.
   intros h Hh m Hm.
   simpl in Hm.
   rewrite lap_mul_assoc in Hm.
+  apply lap_ps_in_mul in Hm; [ assumption | idtac | idtac ].
+   clear m Hm.
+   intros m Hm.
+   simpl in Hm.
+   destruct Hm as [(H₁, H₂)| Hm]; [ idtac | contradiction ].
+   unfold summation in H₁, H₂; simpl in H₁, H₂.
+   rewrite ps_add_0_r in H₂.
+   rewrite <- H₂.
+   rewrite order_mul.
+   remember (poly_nth R h pol) as āh.
 bbb.
+Check ps_monom_order_ge.
 Check order_āl_xlγ₁_gt_β₁
 
   apply lap_ps_in_mul in Hm; [ assumption | idtac | idtac ].
@@ -1618,7 +1629,6 @@ Check order_āl_xlγ₁_gt_β₁
    rewrite order_mul.
    rewrite order_mul.
 bbb.
-Check order_āl_xlγ₁_gt_β₁
 
     eapply list_in_eq_ps_compat in Hm; [ idtac | assumption | idtac ].
      2: rewrite lap_mul_summation; reflexivity.
