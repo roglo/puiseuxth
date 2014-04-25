@@ -3,6 +3,8 @@
 Require Import Utf8.
 Require Import QArith.
 
+Require Import Misc.
+
 Set Implicit Arguments.
 
 Inductive Qbar : Set :=
@@ -34,6 +36,16 @@ Definition add := binop Qplus ∞ ∞.
 Definition mul := binop Qmult ∞ ∞.
 Definition min x y := binop Qmin x y x y.
 
+Definition sub xb yb :=
+  match yb with
+  | qfin y =>
+      match xb with
+      | qfin x => qfin (Qminus x y)
+      | ∞ => ∞
+      end
+  | ∞ => 0
+  end.
+
 Definition qeq a b :=
   match a with
   | qfin x =>
@@ -49,6 +61,7 @@ Definition qeq a b :=
   end.
 
 Infix "+" := add : Qbar_scope.
+Infix "-" := sub : Qbar_scope.
 Infix "*" := mul : Qbar_scope.
 
 Inductive le : Qbar → Qbar → Prop :=
@@ -243,12 +256,33 @@ split; intros H.
   inversion H.
 Qed.
 
+Theorem le_sub_le_add_l : ∀ n m p, n - m ≤ p → n ≤ m + p.
+Proof.
+intros n m p H.
+destruct m as [m| ]; [ idtac | constructor ].
+destruct p as [p| ]; [ idtac | rewrite add_comm; constructor ].
+destruct n as [n| ]; [ simpl in H; simpl | inversion H ].
+apply le_qfin.
+apply qfin_le_mono in H.
+apply Qle_sub_le_add_l; assumption.
+Qed.
+
 Theorem lt_le_incl : ∀ n m, n < m → n ≤ m.
 Proof.
 intros n m H.
 destruct n as [n| ]; [ idtac | inversion H ].
 destruct m as [m| ]; [ idtac | constructor ].
 constructor; apply Qlt_le_weak; inversion H; assumption.
+Qed.
+
+Theorem sub_diag : ∀ n, qeq (n - n) 0.
+Proof.
+intros n.
+destruct n as [n| ]; [ simpl | reflexivity ].
+unfold Qeq; simpl.
+rewrite Z.mul_1_r.
+rewrite Z.mul_opp_l, Z.add_opp_r.
+apply Z.sub_diag.
 Qed.
 
 Theorem eq_refl : reflexive _ qeq.
@@ -305,6 +339,7 @@ Infix ">" := Qbar.gt : Qbar_scope.
 Infix "≤" := Qbar.le : Qbar_scope.
 Infix "≥" := Qbar.ge : Qbar_scope.
 Infix "+" := Qbar.add : Qbar_scope.
+Infix "-" := Qbar.sub : Qbar_scope.
 Infix "*" := Qbar.mul : Qbar_scope.
 Infix "=" := Qbar.qeq : Qbar_scope.
 Notation "a ≠ b" := (¬Qbar.qeq a b) : Qbar_scope.

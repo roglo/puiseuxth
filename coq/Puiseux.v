@@ -1285,7 +1285,6 @@ Lemma lap_ps_in_mul : ∀ la lb,
   → (∀ m, lap_ps_in R m lb → (order m ≥ 0)%Qbar)
     → (∀ m, lap_ps_in R m (la * lb)%lap → (order m > 0)%Qbar).
 Proof.
-(* à nettoyer, surtout vers la fin : faire des lemmes *)
 intros la lb f' Hla Hlb m Hlab; subst f'.
 revert m lb Hlb Hlab.
 induction la as [| a]; intros.
@@ -1313,39 +1312,17 @@ induction la as [| a]; intros.
      simpl in Hn.
      pose proof (order_mul a b) as Ho.
      rewrite Hn in Ho.
-     unfold Qbar.gt.
      rewrite Ho.
-     remember (order a) as oa.
-     remember (order b) as ob.
-     symmetry in Heqoa, Heqob.
-     destruct oa as [oa| ]; [ idtac | constructor ].
-     destruct ob as [ob| ]; [ idtac | constructor ].
-     unfold Qbar.add; simpl.
-     apply Qbar.lt_qfin.
-     apply Qlt_le_trans with (y := oa).
-      apply Qbar.qfin_lt_mono.
-      assumption.
+     eapply Qbar.lt_le_trans; [ eassumption | idtac ].
+     apply Qbar.le_sub_le_add_l.
+     rewrite Qbar.sub_diag.
+     destruct (ps_zerop b) as [Hb| Hb].
+      rewrite Hb, order_0; constructor.
 
-      replace oa with (oa + 0) at 1 .
-       apply Qplus_le_r.
-       destruct (ps_zerop b) as [Hb| Hb].
-        apply order_inf in Hb.
-        rewrite Heqob in Hb; discriminate Hb.
-
-        assert (lap_ps_in R b [b … lb]) as H.
-         left.
-         split; [ idtac | reflexivity ].
-         intros H.
-         apply lap_eq_cons_nil_inv in H.
-         destruct H; contradiction.
-
-         apply Hlb in H.
-         rewrite Heqob in H.
-         inversion H; assumption.
-
-       unfold Qplus; simpl.
-       rewrite Z.mul_1_r, Z.add_0_r, Pos.mul_1_r.
-       destruct oa; reflexivity.
+      apply Hlb; left; split; [ idtac | reflexivity ].
+      intros H; apply Hb.
+      apply lap_eq_cons_nil_inv in H.
+      destruct H; assumption.
 
      apply IHlb; [ idtac | assumption ].
      intros p Hp.
@@ -1370,6 +1347,7 @@ Lemma lap_ps_in_mul_ge : ∀ la lb,
     → (∀ m, lap_ps_in R m (la * lb)%lap → (order m ≥ 0)%Qbar).
 Proof.
 intros la lb f' Hla Hlb m Hlab; subst f'.
+bbb.
 revert m lb Hlb Hlab.
 induction la as [| a]; intros.
  rewrite lap_mul_nil_l in Hlab; contradiction.
@@ -1390,6 +1368,24 @@ induction la as [| a]; intros.
 
     rewrite lap_mul_const_l in Hn.
     revert Hlb Hn Hoa; clear; intros.
+    induction lb as [| b]; [ contradiction | idtac ].
+    simpl in Hn.
+    destruct Hn as [(Hab, Hn)| Hn].
+     simpl in Hn.
+     pose proof (order_mul a b) as Ho.
+     rewrite Hn in Ho.
+     rewrite Ho.
+     remember (order a) as oa.
+     remember (order b) as ob.
+     symmetry in Heqoa, Heqob.
+     destruct oa as [oa| ]; [ idtac | constructor ].
+     destruct ob as [ob| ]; [ idtac | constructor ].
+     unfold Qbar.add; simpl.
+bbb.
+     apply Qbar.le_qfin.
+     apply Qle_trans with (y := oa).
+      apply Qbar.qfin_le_mono.
+      assumption.
 bbb.
 *)
 
