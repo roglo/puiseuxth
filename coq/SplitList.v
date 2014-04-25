@@ -305,6 +305,7 @@ induction len; intros; simpl in Hs; simpl.
     apply IHlen; assumption.
 Qed.
 
+(* 1st hypothesis ne va pas *)
 Lemma except_split_seq : ∀ start len la lb,
   List.Forall (λ i, (start ≤ i)%nat ∧ (i < start + len)%nat) la
   → lb = list_seq_except start len la
