@@ -1750,6 +1750,35 @@ apply Z.le_mul_diag_r.
     apply HH, Pos2Z.is_pos.
 Qed.
 
+Theorem Qlt_sub_lt_add_l : ∀ n m p, (n - m < p)%Q ↔ (n < m + p)%Q.
+Proof.
+intros n m p.
+destruct p as (pn, pd).
+destruct m as (mn, md).
+destruct n as (nn, nd).
+unfold Qlt; simpl.
+split; intros H.
+ rewrite Z.mul_add_distr_r.
+ apply Z.lt_sub_lt_add_l.
+ rewrite Z.mul_shuffle0, Pos2Z.inj_mul, Z.mul_assoc.
+ rewrite <- Z.mul_sub_distr_r, Z.mul_shuffle0.
+ rewrite <- Z.mul_assoc, <- Pos2Z.inj_mul.
+ rewrite <- Z.add_opp_r.
+ rewrite <- Z.mul_opp_l; assumption.
+
+ rewrite Z.mul_add_distr_r.
+ do 2 rewrite Z.mul_opp_l.
+ rewrite Z.add_opp_r.
+ apply Z.lt_sub_lt_add_l.
+ rewrite Pos2Z.inj_mul, Z.mul_assoc.
+ rewrite Pos2Z.inj_mul, Z.mul_assoc in H.
+ rewrite Z.mul_add_distr_r in H.
+ remember (nn * ' md * ' pd)%Z as x.
+ rewrite Z.mul_shuffle0.
+ remember (mn * ' pd * ' nd)%Z as y.
+ rewrite Z.mul_shuffle0; assumption.
+Qed.
+
 Theorem Qle_sub_le_add_l : ∀ n m p, (n - m <= p)%Q ↔ (n <= m + p)%Q.
 Proof.
 intros n m p.
