@@ -1653,21 +1653,39 @@ assert (m ≠ 0)%ps as Hmnz.
      subst l₁ tl.
      rewrite List.map_map; simpl.
      apply Sorted_map; simpl.
-     remember Hns as H; clear HeqH.
-     apply ini_oth_fin_pts_sorted in H.
-     rewrite <- Hpl in H.
-bbb.
-     revert H; clear; intros.
+     remember Hns as Hsort; clear HeqHsort.
+     apply ini_oth_fin_pts_sorted in Hsort.
+     rewrite <- Hpl in Hsort.
+     pose proof (points_in_newton_segment_have_nat_abscissa R pol ns Hns)
+      as Hnat.
+     rewrite <- Hpl in Hnat.
+     revert Hsort Hnat; clear; intros.
      induction pl as [| p]; [ constructor | idtac ].
-     apply Sorted_inv in H.
-     destruct H as (Hsort, Hrel).
-     constructor; [ apply IHpl; assumption | idtac ].
-     revert Hrel; clear; intros.
-     induction pl as [| q]; [ constructor | idtac ].
+     apply Sorted_inv in Hsort.
+     destruct Hsort as (Hsort, Hrel).
      constructor.
-     apply HdRel_inv in Hrel.
-     unfold fst_lt in Hrel; simpl.
-     unfold nofq; simpl.
+      apply IHpl; [ assumption | idtac ].
+      intros pt Hpt.
+      apply Hnat; right; assumption.
+
+      revert Hrel Hnat; clear; intros.
+      induction pl as [| q]; constructor.
+      apply HdRel_inv in Hrel.
+      unfold fst_lt in Hrel; simpl.
+      unfold nofq; simpl.
+      assert (p ∈ [p; q … pl]) as Hp by (left; reflexivity).
+      assert (q ∈ [p; q … pl]) as Hq by (right; left; reflexivity).
+      apply Hnat in Hp.
+      apply Hnat in Hq.
+      destruct Hp as (h, (αh, Hp)).
+      destruct Hq as (i, (αi, Hq)).
+      subst p q; simpl in Hrel; simpl.
+      do 2 rewrite Nat2Z.id.
+      unfold Qnat in Hrel.
+      unfold Qlt in Hrel; simpl in Hrel.
+      do 2 rewrite Z.mul_1_r in Hrel.
+      apply Nat2Z.inj_lt in Hrel.
+      assumption.
 bbb.
 
 (* [Walker, p 101] «
