@@ -1647,6 +1647,9 @@ Class algeb_closed_field α (ac_ring : ring α) (ac_field : field ac_ring) :=
     ac_prop_root : ∀ pol, degree ac_zerop pol ≥ 1
       → (apply_poly ac_ring pol (ac_root pol) = 0)%K }.
 
+Definition ac_is_zero α {R : ring α} {K : field R}
+  {acf : algeb_closed_field K} (x : α) := if ac_zerop x then True else False.
+
 Fixpoint list_root_multiplicity
     α {r : ring α} {K : field r} (acf : algeb_closed_field K) c la d :=
   match d with
@@ -1882,8 +1885,6 @@ Proof.
 intros c p Hz.
 apply root_formula; assumption.
 Qed.
-
-Definition ac_is_zero x := if ac_zerop x then True else False.
 
 Lemma list_root_mult_succ_if : ∀ la d c md n,
   list_root_multiplicity acf c la d = S n
@@ -2134,73 +2135,71 @@ induction r; intros; simpl.
   exfalso; apply Hla; reflexivity.
 
   simpl in Hmult.
-bbb.
-  remember (ac_is_zero (lap_mod_deg_1 R la c)) as z eqn:Hz .
-  symmetry in Hz.
-  destruct z; [ idtac | discriminate Hmult ].
-  apply ac_prop_is_zero in Hz.
-  apply eq_add_S in Hmult.
-  destruct la as [| a]; [ exfalso; apply Hla; reflexivity | idtac ].
-  simpl in Hlen.
-  apply le_S_n in Hlen.
-  eapply IHr.
-   intros H; apply Hla; clear Hla.
-   unfold lap_div_deg_1 in H; simpl in H.
-   unfold lap_mod_deg_1 in Hz; simpl in Hz.
-   remember (lap_mod_div_deg_1 R la c) as md eqn:Hmd .
-   symmetry in Hmd.
-   assert (apply_lap R la c = 0)%K as Happ.
-    apply lap_mod_deg_1_apply.
-    unfold lap_mod_deg_1; simpl.
-    rewrite Hmd.
-    destruct md as [| d]; [ reflexivity | idtac ].
-    apply lap_eq_cons_nil_inv in H.
-    destruct H; assumption.
-
-    rewrite Happ in Hz.
-    rewrite rng_mul_0_l, rng_add_0_l in Hz.
-    constructor; [ assumption | idtac ].
-    destruct len.
-     destruct la; [ reflexivity | exfalso; simpl in Hlen; omega ].
-
-     simpl in Hmult.
-     unfold lap_div_deg_1 in Hmult; simpl in Hmult.
-     revert Hmd H; clear; intros.
-     revert md Hmd H.
-     induction la as [| a]; intros; [ reflexivity | simpl ].
-     constructor.
-      simpl in Hmd.
-      subst md.
-      apply lap_eq_cons_nil_inv in H.
-      destruct H as (Happ, H).
-      assert (apply_lap R la c = 0)%K as Haz.
-       apply lap_mod_deg_1_apply.
-       unfold lap_mod_deg_1.
-       remember (lap_mod_div_deg_1 R la c) as md eqn:Hmd .
-       symmetry in Hmd.
-       destruct md as [| m]; [ reflexivity | idtac ].
-       apply lap_eq_cons_nil_inv in H.
-       destruct H; assumption.
-
-       rewrite Haz, rng_mul_0_l, rng_add_0_l in Happ.
-       assumption.
-
-      simpl in Hmd.
-      subst md.
-      apply lap_eq_cons_nil_inv in H.
-      destruct H as (Happ, H).
-      eapply IHla; [ reflexivity | eassumption ].
-
-   eassumption.
-
-   unfold lap_div_deg_1; simpl.
-   revert Hlen; clear; intros.
-   revert len Hlen.
-   induction la as [| a]; intros; [ apply Nat.le_0_l | simpl ].
-   destruct len; [ exfalso; simpl in Hlen; omega | simpl ].
+  destruct (ac_zerop (lap_mod_deg_1 R la c)) as [Hz| Hnz].
+   apply eq_add_S in Hmult.
+   destruct la as [| a]; [ exfalso; apply Hla; reflexivity | idtac ].
    simpl in Hlen.
    apply le_S_n in Hlen.
-   apply le_n_S, IHla; assumption.
+   eapply IHr.
+    intros H; apply Hla; clear Hla.
+    unfold lap_div_deg_1 in H; simpl in H.
+    unfold lap_mod_deg_1 in Hz; simpl in Hz.
+    remember (lap_mod_div_deg_1 R la c) as md eqn:Hmd .
+    symmetry in Hmd.
+    assert (apply_lap R la c = 0)%K as Happ.
+     apply lap_mod_deg_1_apply.
+     unfold lap_mod_deg_1; simpl.
+     rewrite Hmd.
+     destruct md as [| d]; [ reflexivity | idtac ].
+     apply lap_eq_cons_nil_inv in H.
+     destruct H; assumption.
+
+     rewrite Happ in Hz.
+     rewrite rng_mul_0_l, rng_add_0_l in Hz.
+     constructor; [ assumption | idtac ].
+     destruct len.
+      destruct la; [ reflexivity | exfalso; simpl in Hlen; omega ].
+
+      simpl in Hmult.
+      unfold lap_div_deg_1 in Hmult; simpl in Hmult.
+      revert Hmd H; clear; intros.
+      revert md Hmd H.
+      induction la as [| a]; intros; [ reflexivity | simpl ].
+      constructor.
+       simpl in Hmd.
+       subst md.
+       apply lap_eq_cons_nil_inv in H.
+       destruct H as (Happ, H).
+       assert (apply_lap R la c = 0)%K as Haz.
+        apply lap_mod_deg_1_apply.
+        unfold lap_mod_deg_1.
+        remember (lap_mod_div_deg_1 R la c) as md eqn:Hmd .
+        symmetry in Hmd.
+        destruct md as [| m]; [ reflexivity | idtac ].
+        apply lap_eq_cons_nil_inv in H.
+        destruct H; assumption.
+
+        rewrite Haz, rng_mul_0_l, rng_add_0_l in Happ.
+        assumption.
+
+       simpl in Hmd.
+       subst md.
+       apply lap_eq_cons_nil_inv in H.
+       destruct H as (Happ, H).
+       eapply IHla; [ reflexivity | eassumption ].
+
+    eassumption.
+
+    unfold lap_div_deg_1; simpl.
+    revert Hlen; clear; intros.
+    revert len Hlen.
+    induction la as [| a]; intros; [ apply Nat.le_0_l | simpl ].
+    destruct len; [ exfalso; simpl in Hlen; omega | simpl ].
+    simpl in Hlen.
+    apply le_S_n in Hlen.
+    apply le_n_S, IHla; assumption.
+
+   discriminate Hmult.
 Qed.
 
 (* [Walker, p. 100] « If c₁ ≠ 0 is an r-fold root, r ≥ 1, of Φ(z^q) = 0,
@@ -2258,5 +2257,3 @@ eapply ord_coeff_non_zero_in_newt_segm; [ eassumption | idtac | idtac ].
 Qed.
 
 End theorems.
-
-Check ac_is_zero.

@@ -1626,6 +1626,7 @@ assert (m ≠ 0)%ps as Hmnz.
    remember (poly_nth R h pol) as āh.
    apply Qbar.lt_sub_lt_add_l; [ intros H; discriminate H | idtac ].
    rewrite Qbar.sub_0_l.
+   destruct (ac_zerop 1%K) as [Hoz| Honz].
 bbb.
 Check ps_monom_order_ge.
 Check order_āl_xlγ₁_gt_β₁
