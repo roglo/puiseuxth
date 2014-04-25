@@ -1650,6 +1650,24 @@ assert (m ≠ 0)%ps as Hmnz.
     rewrite Qopp_opp.
     eapply order_āl_xlγ₁_gt_β₁; try eassumption.
     apply except_split_seq; [ idtac | idtac | assumption ].
+     subst l₁ tl.
+     rewrite List.map_map; simpl.
+     apply Sorted_map; simpl.
+     remember Hns as H; clear HeqH.
+     apply ini_oth_fin_pts_sorted in H.
+     rewrite <- Hpl in H.
+bbb.
+     revert H; clear; intros.
+     induction pl as [| p]; [ constructor | idtac ].
+     apply Sorted_inv in H.
+     destruct H as (Hsort, Hrel).
+     constructor; [ apply IHpl; assumption | idtac ].
+     revert Hrel; clear; intros.
+     induction pl as [| q]; [ constructor | idtac ].
+     constructor.
+     apply HdRel_inv in Hrel.
+     unfold fst_lt in Hrel; simpl.
+     unfold nofq; simpl.
 bbb.
 
 (* [Walker, p 101] «
