@@ -256,10 +256,9 @@ split; intros H.
   inversion H.
 Qed.
 
-(* hypothesis to be added *)
-Theorem lt_sub_lt_add_l : ∀ n m p, n - m < p → n < m + p.
+Theorem lt_sub_lt_add_l : ∀ n m p, n ≠ ∞ → n - m < p → n < m + p.
 Proof.
-intros n m p H.
+intros n m p Hn H.
 destruct m as [m| ].
  destruct p as [p| ].
   destruct n as [n| ]; [ simpl in H; simpl | inversion H ].
@@ -270,7 +269,8 @@ destruct m as [m| ].
   destruct n as [n| ]; [ constructor | inversion H ].
 
  destruct n as [n| ]; [ constructor | idtac ].
-bbb.
+ exfalso; apply Hn; reflexivity.
+Qed.
 
 Theorem le_sub_le_add_l : ∀ n m p, n - m ≤ p → n ≤ m + p.
 Proof.

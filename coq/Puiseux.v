@@ -1614,6 +1614,7 @@ assert (m ≠ 0)%ps as Hmnz.
    rewrite <- H₂.
    rewrite order_mul.
    remember (poly_nth R h pol) as āh.
+   apply Qbar.lt_sub_lt_add_l; [ intros H; discriminate H | idtac ].
 bbb.
 Check ps_monom_order_ge.
 Check order_āl_xlγ₁_gt_β₁
