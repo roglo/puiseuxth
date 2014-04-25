@@ -1304,15 +1304,13 @@ induction la as [| a]; intros.
     apply lap_eq_cons_nil_inv in H.
     destruct H; contradiction.
 
-    rewrite lap_mul_const_l in Hn.
     revert Hlb Hn Hoa; clear; intros.
+    rewrite lap_mul_const_l in Hn.
     induction lb as [| b]; [ contradiction | idtac ].
     simpl in Hn.
     destruct Hn as [(Hab, Hn)| Hn].
      simpl in Hn.
-     pose proof (order_mul a b) as Ho.
-     rewrite Hn in Ho.
-     rewrite Ho.
+     rewrite <- Hn, order_mul.
      eapply Qbar.lt_le_trans; [ eassumption | idtac ].
      apply Qbar.le_sub_le_add_l.
      rewrite Qbar.sub_diag.
@@ -1332,8 +1330,7 @@ induction la as [| a]; intros.
   simpl in Hn.
   destruct Hn as [(Hab, Hn)| Hn].
    symmetry in Hn.
-   apply order_inf in Hn.
-   rewrite Hn; constructor.
+   rewrite Hn, order_0; constructor.
 
    eapply IHla; try eassumption.
    intros p Hp.
@@ -1347,7 +1344,6 @@ Lemma lap_ps_in_mul_ge : ∀ la lb,
     → (∀ m, lap_ps_in R m (la * lb)%lap → (order m ≥ 0)%Qbar).
 Proof.
 intros la lb f' Hla Hlb m Hlab; subst f'.
-bbb.
 revert m lb Hlb Hlab.
 induction la as [| a]; intros.
  rewrite lap_mul_nil_l in Hlab; contradiction.
@@ -1366,8 +1362,9 @@ induction la as [| a]; intros.
     apply lap_eq_cons_nil_inv in H.
     destruct H; contradiction.
 
-    rewrite lap_mul_const_l in Hn.
     revert Hlb Hn Hoa; clear; intros.
+bbb.
+    rewrite lap_mul_const_l in Hn.
     induction lb as [| b]; [ contradiction | idtac ].
     simpl in Hn.
     destruct Hn as [(Hab, Hn)| Hn].
