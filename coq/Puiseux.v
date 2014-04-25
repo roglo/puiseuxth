@@ -1648,6 +1648,7 @@ assert (m ≠ 0)%ps as Hmnz.
 
     rewrite ps_monom_order; [ simpl | assumption ].
     rewrite Qopp_opp.
+    eapply order_āl_xlγ₁_gt_β₁; try eassumption.
 bbb.
 Check ps_monom_order_ge.
 Check order_āl_xlγ₁_gt_β₁.
