@@ -346,6 +346,11 @@ Add Parametric Relation : Qbar Qbar.qeq
  transitivity proved by Qbar.eq_trans
  as qbar_qeq_rel.
 
+Add Parametric Morphism : qfin
+  with signature Qeq ==> Qbar.qeq
+  as qbar_qfin_morph.
+Proof. intros; assumption. Qed.
+
 Add Parametric Morphism : Qbar.add
   with signature Qbar.qeq ==> Qbar.qeq ==> Qbar.qeq
   as qbar_add_morph.

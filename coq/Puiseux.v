@@ -1444,6 +1444,20 @@ destruct m as [m| ].
  pose proof (Hm 0%nat); contradiction.
 Qed.
 
+Lemma ps_monom_0_order : ∀ c n, (c = 0)%K → order (ps_monom c n) = qinf.
+Proof.
+intros c n Hc.
+unfold order.
+remember (null_coeff_range_length R (ps_terms (ps_monom c n)) 0) as m eqn:Hm .
+symmetry in Hm.
+apply null_coeff_range_length_iff in Hm.
+unfold null_coeff_range_length_prop in Hm.
+simpl in Hm; simpl.
+destruct m as [m| ]; [ exfalso | reflexivity ].
+destruct Hm as (Him, Hm).
+destruct m as [| m]; apply Hm; [ assumption | reflexivity ].
+Qed.
+
 Lemma ps_monom_order_opp_r : ∀ c n,
   (c ≠ 0)%K
   → order (ps_monom c (- n)) = (- order (ps_monom c n))%Qbar.
@@ -1627,9 +1641,16 @@ assert (m ≠ 0)%ps as Hmnz.
    apply Qbar.lt_sub_lt_add_l; [ intros H; discriminate H | idtac ].
    rewrite Qbar.sub_0_l.
    destruct (ac_zerop 1%K) as [Hoz| Honz].
+    rewrite ps_monom_0_order; [ simpl | assumption ].
+    rewrite order_mul.
+    rewrite ps_monom_0_order; [ simpl | assumption ].
+    rewrite Qbar.add_comm; constructor.
+
+    rewrite ps_monom_order; [ simpl | assumption ].
+    rewrite Qopp_opp.
 bbb.
 Check ps_monom_order_ge.
-Check order_āl_xlγ₁_gt_β₁
+Check order_āl_xlγ₁_gt_β₁.
 
   apply lap_ps_in_mul in Hm; [ assumption | idtac | idtac ].
    clear m Hm.
