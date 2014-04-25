@@ -305,14 +305,16 @@ induction len; intros; simpl in Hs; simpl.
     apply IHlen; assumption.
 Qed.
 
-(* 1st hypothesis ne va pas *)
 Lemma except_split_seq : ∀ start len la lb,
-  List.Forall (λ i, (start ≤ i)%nat ∧ (i < start + len)%nat) la
-  → lb = list_seq_except start len la
-    → split_list (List.seq start len) la lb.
+  Sorted Nat.lt la
+  → List.Forall (λ i : nat, start ≤ i ∧ i < start + len) la
+    → lb = list_seq_except start len la
+      → split_list (List.seq start len) la lb.
 Proof.
-intros start len la lb Hin He.
-revert start la lb Hin He.
+(* peut-être un peu compliqué tout ça ; améliorables peut-être avec des
+   lemmes bien sentis sur les Sorted et autres List.Forall ? *)
+intros start len la lb Hsort Hin He.
+revert start la lb Hin Hsort He.
 induction len; intros; simpl in He; simpl.
  subst lb; destruct la as [| a]; [ constructor | idtac ].
  apply List.Forall_inv in Hin.
@@ -324,14 +326,86 @@ induction len; intros; simpl in He; simpl.
  destruct la as [| a].
   subst lb.
   constructor.
-  apply IHlen.
-   constructor.
-
-   reflexivity.
+  apply IHlen; [ constructor | constructor | reflexivity ].
 
   destruct (eq_nat_dec start a) as [Heq| Hne].
    subst a.
+   constructor; subst lb.
+   apply IHlen.
+    apply list_Forall_inv in Hin.
+    destruct Hin as (_, Hin).
+    apply Sorted_inv in Hsort.
+    apply List.Forall_forall; intros i Hi.
+    induction la as [| a]; [ contradiction | idtac ].
+    simpl in Hi.
+    destruct Hi as [Hi| Hi].
+     subst a.
+     destruct Hsort as (Hsort, Hrel).
+     split.
+      apply HdRel_inv in Hrel.
+      assumption.
+
+      apply List.Forall_inv in Hin.
+      rewrite Nat.add_succ_l, <- Nat.add_succ_r.
+      destruct Hin; assumption.
+
+     apply IHla.
+      apply list_Forall_inv in Hin.
+      destruct Hin; assumption.
+
+      destruct Hsort as (Hsort, Hrel).
+      apply Sorted_inv in Hsort.
+      split; [ destruct Hsort; assumption | idtac ].
+      apply HdRel_inv in Hrel.
+      destruct la as [| b]; [ contradiction | idtac ].
+      simpl in Hi.
+      destruct Hi as [Hi| Hi].
+       subst b.
+       constructor.
+       destruct Hsort as (Hsort, Hrel₂).
+       apply HdRel_inv in Hrel₂.
+       eapply lt_trans; eassumption.
+
+       constructor.
+       destruct Hsort as (Hsort, Hrel₂).
+       apply HdRel_inv in Hrel₂.
+       eapply lt_trans; eassumption.
+
+      assumption.
+
+    apply Sorted_inv in Hsort.
+    destruct Hsort; assumption.
+
+    reflexivity.
+
    subst lb.
    constructor.
-   apply IHlen.
-bbb.
+   apply IHlen; [ idtac | assumption | reflexivity ].
+   apply list_Forall_inv in Hin.
+   destruct Hin as ((Hsa, Has), Hin).
+   constructor.
+    rewrite Nat.add_succ_l, <- Nat.add_succ_r.
+    split; [ idtac | assumption ].
+    fast_omega Hsa Hne.
+
+    induction la as [| b]; [ constructor | idtac ].
+    constructor.
+     rewrite Nat.add_succ_l, <- Nat.add_succ_r.
+     apply List.Forall_inv in Hin.
+     split; [ idtac | destruct Hin; assumption ].
+     apply Sorted_inv in Hsort.
+     destruct Hsort as (Hsort, Hrel).
+     apply HdRel_inv in Hrel.
+     destruct (eq_nat_dec b start) as [H| H].
+      subst b.
+      apply Nat.nlt_ge in Hsa; contradiction.
+
+      fast_omega H Hin.
+
+     apply IHla.
+      apply list_Forall_inv in Hin.
+      destruct Hin; assumption.
+
+      apply Sorted_minus_2nd in Hsort; [ assumption | idtac ].
+      intros x y z H₁ H₂; eapply Nat.lt_trans; eassumption.
+Qed.
