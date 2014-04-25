@@ -46,6 +46,12 @@ Definition sub xb yb :=
   | ∞ => 0
   end.
 
+Definition opp x :=
+  match x with
+  | qfin x => qfin (-x)
+  | ∞ => 0
+  end.
+
 Definition qeq a b :=
   match a with
   | qfin x =>
@@ -63,6 +69,7 @@ Definition qeq a b :=
 Infix "+" := add : Qbar_scope.
 Infix "-" := sub : Qbar_scope.
 Infix "*" := mul : Qbar_scope.
+Notation "- a" := (opp a) : Qbar_scope.
 
 Inductive le : Qbar → Qbar → Prop :=
   | le_qfin : ∀ q r, (q <= r)%Q → qfin q ≤ qfin r
@@ -301,6 +308,14 @@ rewrite Z.mul_opp_l, Z.add_opp_r.
 apply Z.sub_diag.
 Qed.
 
+Theorem sub_0_l : ∀ n, qeq (0 - n) (-n).
+Proof.
+intros n.
+destruct n as [n| ]; [ simpl | reflexivity ].
+unfold Qeq; simpl.
+rewrite Z.mul_1_r; reflexivity.
+Qed.
+
 Theorem eq_refl : reflexive _ qeq.
 Proof. intros a; destruct a; reflexivity. Qed.
 
@@ -358,6 +373,7 @@ Infix "+" := Qbar.add : Qbar_scope.
 Infix "-" := Qbar.sub : Qbar_scope.
 Infix "*" := Qbar.mul : Qbar_scope.
 Infix "=" := Qbar.qeq : Qbar_scope.
+Notation "- a" := (Qbar.opp a) : Qbar_scope.
 Notation "a ≠ b" := (¬Qbar.qeq a b) : Qbar_scope.
 
 Theorem Qbar_le_compat : ∀ a b c d,

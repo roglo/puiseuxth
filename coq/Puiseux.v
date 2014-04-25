@@ -1444,6 +1444,16 @@ destruct m as [m| ].
  pose proof (Hm 0%nat); contradiction.
 Qed.
 
+Lemma ps_monom_order_opp_r : ∀ c n,
+  (c ≠ 0)%K
+  → order (ps_monom c (- n)) = (- order (ps_monom c n))%Qbar.
+Proof.
+intros c n Hc.
+rewrite ps_monom_order; [ idtac | assumption ].
+rewrite ps_monom_order; [ idtac | assumption ].
+reflexivity.
+Qed.
+
 Lemma ps_monom_order_ge : ∀ c n, (order (ps_monom c n) ≥ qfin n)%Qbar.
 Proof.
 intros c n.
@@ -1615,6 +1625,7 @@ assert (m ≠ 0)%ps as Hmnz.
    rewrite order_mul.
    remember (poly_nth R h pol) as āh.
    apply Qbar.lt_sub_lt_add_l; [ intros H; discriminate H | idtac ].
+   rewrite Qbar.sub_0_l.
 bbb.
 Check ps_monom_order_ge.
 Check order_āl_xlγ₁_gt_β₁
