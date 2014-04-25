@@ -304,3 +304,33 @@ induction len; intros; simpl in Hs; simpl.
     f_equal.
     apply IHlen; assumption.
 Qed.
+
+Lemma except_split_seq : ∀ start len la lb,
+  List.Forall (λ i, (start ≤ i)%nat ∧ (i < start + len)%nat) la
+  → lb = list_seq_except start len la
+    → split_list (List.seq start len) la lb.
+Proof.
+intros start len la lb Hin He.
+revert start la lb Hin He.
+induction len; intros; simpl in He; simpl.
+ subst lb; destruct la as [| a]; [ constructor | idtac ].
+ apply List.Forall_inv in Hin.
+ rewrite Nat.add_0_r in Hin.
+ destruct Hin as (Hsa, Has).
+ apply Nat.nlt_ge in Hsa.
+ contradiction.
+
+ destruct la as [| a].
+  subst lb.
+  constructor.
+  apply IHlen.
+   constructor.
+
+   reflexivity.
+
+  destruct (eq_nat_dec start a) as [Heq| Hne].
+   subst a.
+   subst lb.
+   constructor.
+   apply IHlen.
+bbb.
