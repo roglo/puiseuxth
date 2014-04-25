@@ -1309,7 +1309,6 @@ induction la as [| a]; intros.
     induction lb as [| b]; [ contradiction | idtac ].
     simpl in Hn.
     destruct Hn as [(Hab, Hn)| Hn].
-     simpl in Hn.
      rewrite <- Hn, order_mul.
      eapply Qbar.lt_le_trans; [ eassumption | idtac ].
      apply Qbar.le_sub_le_add_l.
@@ -1363,28 +1362,36 @@ induction la as [| a]; intros.
     destruct H; contradiction.
 
     revert Hlb Hn Hoa; clear; intros.
-bbb.
     rewrite lap_mul_const_l in Hn.
     induction lb as [| b]; [ contradiction | idtac ].
     simpl in Hn.
     destruct Hn as [(Hab, Hn)| Hn].
-     simpl in Hn.
-     pose proof (order_mul a b) as Ho.
-     rewrite Hn in Ho.
-     rewrite Ho.
-     remember (order a) as oa.
-     remember (order b) as ob.
-     symmetry in Heqoa, Heqob.
-     destruct oa as [oa| ]; [ idtac | constructor ].
-     destruct ob as [ob| ]; [ idtac | constructor ].
-     unfold Qbar.add; simpl.
-bbb.
-     apply Qbar.le_qfin.
-     apply Qle_trans with (y := oa).
-      apply Qbar.qfin_le_mono.
-      assumption.
-bbb.
-*)
+     rewrite <- Hn, order_mul.
+     eapply Qbar.le_trans; [ eassumption | idtac ].
+     apply Qbar.le_sub_le_add_l.
+     rewrite Qbar.sub_diag.
+     destruct (ps_zerop b) as [Hb| Hb].
+      rewrite Hb, order_0; constructor.
+
+      apply Hlb; left; split; [ idtac | reflexivity ].
+      intros H; apply Hb.
+      apply lap_eq_cons_nil_inv in H.
+      destruct H; assumption.
+
+     apply IHlb; [ idtac | assumption ].
+     intros p Hp.
+     apply Hlb; right; assumption.
+
+  intros n Hn.
+  simpl in Hn.
+  destruct Hn as [(Hab, Hn)| Hn].
+   symmetry in Hn.
+   rewrite Hn, order_0; constructor.
+
+   eapply IHla; try eassumption.
+   intros p Hp.
+   apply Hla; right; assumption.
+Qed.
 
 Lemma lap_ps_in_summation : ∀ f l,
   (∀ i, i ∈ l → ∀ m, lap_ps_in R m (f i) → (order m > 0)%Qbar)
