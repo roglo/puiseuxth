@@ -1507,7 +1507,9 @@ induction n; intros.
  eapply IHn; eassumption.
 Qed.
 
-Lemma yyy : ∀ pol ns g,
+(* [Walker, p 101: « each power of y₁ in g(x,y₁) has a coefficient of
+   positive order » *)
+Lemma each_power_of_y₁_has_coeff_pos_ord : ∀ pol ns g,
   ns ∈ newton_segments R pol
   → g = g_of_ns pol ns
     → ∀ m, m ∈ al g → (order m > 0)%Qbar.
@@ -1687,42 +1689,46 @@ assert (m ≠ 0)%ps as Hmnz.
       apply Nat2Z.inj_lt in Hrel.
       assumption.
 
-     Focus 2.
-     clear m Hm.
-     intros m Hm.
-     eapply lap_ps_in_power; [ idtac | eassumption ].
-     intros a Ha.
-     simpl in Ha.
-     destruct Ha as [(Hn, Ha)| Ha].
-      rewrite <- Ha.
-      apply ps_monom_order_ge.
+     subst l₁; simpl.
+     apply List.Forall_forall; intros i Hi.
+     split; [ apply Nat.le_0_l | idtac ].
+     subst tl; simpl in Hi.
+     rewrite List.map_map in Hi.
+     simpl in Hi.
+     revert Hns Hpl Hi; clear; intros.
+     apply ord_is_ord_of_pt in Hi.
+      rewrite Hpl in Hi at 2.
+      unfold newton_segments in Hns.
+      eapply ns_in_init_pts in Hi; [ idtac | eassumption ].
+      eapply in_pts_in_pol with (def := 0%ps) in Hi; try reflexivity.
+      destruct Hi as (Hi, Ho).
+      apply Nat.nle_gt.
+      intros H.
+      apply List.nth_overflow with (d := 0%ps) in H.
+      rewrite H in Ho.
+      rewrite order_0 in Ho.
+      discriminate Ho.
 
-      destruct Ha as [(_, Ha)| Ha]; [ idtac | contradiction ].
-      rewrite <- Ha; simpl.
-      apply ps_monom_order_ge.
+      rewrite Hpl.
+      eapply ini_oth_fin_pts_sorted; eassumption.
 
-   subst l₁; simpl.
-   apply List.Forall_forall; intros i Hi.
-   split; [ apply Nat.le_0_l | idtac ].
-   subst tl; simpl in Hi.
-   rewrite List.map_map in Hi.
-   simpl in Hi.
-   revert Hns Hpl Hi; clear; intros.
-   apply ord_is_ord_of_pt in Hi.
-    rewrite Hpl in Hi at 2.
-    unfold newton_segments in Hns.
-    eapply ns_in_init_pts in Hi; [ idtac | eassumption ].
-    eapply in_pts_in_pol with (def := 0%ps) in Hi; try reflexivity.
-    destruct Hi as (Hi, Ho).
+      intros pt Hpt.
+      subst pl.
+      eapply points_in_newton_segment_have_nat_abscissa; eassumption.
 
-bbb.
-   apply List_in_nth with (d := O) in Hi.
-   destruct Hi as (n, (Hi, Hlen)).
-   subst i.
-   subst pl; simpl.
-   simpl in Hlen.
-   destruct n as [| n].
-bbb.
+   clear m Hm.
+   intros m Hm.
+   eapply lap_ps_in_power; [ idtac | eassumption ].
+   intros a Ha.
+   simpl in Ha.
+   destruct Ha as [(Hn, Ha)| Ha].
+    rewrite <- Ha.
+    apply ps_monom_order_ge.
+
+    destruct Ha as [(_, Ha)| Ha]; [ idtac | contradiction ].
+    rewrite <- Ha; simpl.
+    apply ps_monom_order_ge.
+Qed.
 
 (* [Walker, p 101] «
      Since O(āh - ah.x^αh) > 0 and O(āl.x^(l.γ₁)) > β₁ we obtain
