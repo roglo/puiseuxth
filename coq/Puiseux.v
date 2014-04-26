@@ -1701,13 +1701,20 @@ assert (m ≠ 0)%ps as Hmnz.
       rewrite <- Ha; simpl.
       apply ps_monom_order_ge.
 
-     subst l₁; simpl.
-     apply List.Forall_forall; intros i Hi.
-     split; [ apply Nat.le_0_l | idtac ].
-     subst tl; simpl in Hi.
-     rewrite List.map_map in Hi.
-     simpl in Hi.
-     revert Hns Hpl Hi; clear; intros.
+   subst l₁; simpl.
+   apply List.Forall_forall; intros i Hi.
+   split; [ apply Nat.le_0_l | idtac ].
+   subst tl; simpl in Hi.
+   rewrite List.map_map in Hi.
+   simpl in Hi.
+   revert Hns Hpl Hi; clear; intros.
+bbb.
+   apply List_in_nth with (d := O) in Hi.
+   destruct Hi as (n, (Hi, Hlen)).
+   subst i.
+   subst pl; simpl.
+   simpl in Hlen.
+   destruct n as [| n].
 bbb.
 
 (* [Walker, p 101] «
