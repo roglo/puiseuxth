@@ -1686,6 +1686,28 @@ assert (m ≠ 0)%ps as Hmnz.
       do 2 rewrite Z.mul_1_r in Hrel.
       apply Nat2Z.inj_lt in Hrel.
       assumption.
+
+     Focus 2.
+     clear m Hm.
+     intros m Hm.
+     eapply lap_ps_in_power; [ idtac | eassumption ].
+     intros a Ha.
+     simpl in Ha.
+     destruct Ha as [(Hn, Ha)| Ha].
+      rewrite <- Ha.
+      apply ps_monom_order_ge.
+
+      destruct Ha as [(_, Ha)| Ha]; [ idtac | contradiction ].
+      rewrite <- Ha; simpl.
+      apply ps_monom_order_ge.
+
+     subst l₁; simpl.
+     apply List.Forall_forall; intros i Hi.
+     split; [ apply Nat.le_0_l | idtac ].
+     subst tl; simpl in Hi.
+     rewrite List.map_map in Hi.
+     simpl in Hi.
+     revert Hns Hpl Hi; clear; intros.
 bbb.
 
 (* [Walker, p 101] «
