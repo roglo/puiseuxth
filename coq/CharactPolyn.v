@@ -268,6 +268,25 @@ destruct Hns as [Hns| Hns].
    right; right; eapply rem_pts_in; eassumption.
 Qed.
 
+Lemma ns_in_init_pts : ∀ pts ns pt,
+  ns ∈ list_map_pairs newton_segment_of_pair (lower_convex_hull_points pts)
+  → pt ∈ [ini_pt ns … oth_pts ns ++ [fin_pt ns]]
+    → pt ∈ pts.
+Proof.
+intros pts ns pt Hns Hpt.
+destruct Hpt as [Hpt| Hpt].
+ subst pt.
+ apply ini_fin_ns_in_init_pts; assumption.
+
+ apply List.in_app_or in Hpt.
+ destruct Hpt as [Hpt| Hpt].
+  eapply oth_pts_in_init_pts; eassumption.
+
+  destruct Hpt as [Hpt| ]; [ idtac | contradiction ].
+  subst pt.
+  apply ini_fin_ns_in_init_pts; assumption.
+Qed.
+
 Lemma pt₁_bef_seg : ∀ pt₁ pt₂ pts pth,
   Sorted fst_lt [pt₁; pt₂ … pts]
   → pth ∈ seg (minimise_slope pt₁ pt₂ pts)

@@ -1708,6 +1708,13 @@ assert (m ≠ 0)%ps as Hmnz.
    rewrite List.map_map in Hi.
    simpl in Hi.
    revert Hns Hpl Hi; clear; intros.
+   apply ord_is_ord_of_pt in Hi.
+    rewrite Hpl in Hi at 2.
+    unfold newton_segments in Hns.
+    eapply ns_in_init_pts in Hi; [ idtac | eassumption ].
+    eapply in_pts_in_pol with (def := 0%ps) in Hi; try reflexivity.
+    destruct Hi as (Hi, Ho).
+
 bbb.
    apply List_in_nth with (d := O) in Hi.
    destruct Hi as (n, (Hi, Hlen)).
