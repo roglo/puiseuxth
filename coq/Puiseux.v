@@ -1048,7 +1048,6 @@ destruct (lap_ps_nilp la) as [Hlaz| Hlanz].
    destruct lb as [| b]; [ apply Hla; assumption | idtac ].
    simpl in Hlab.
    destruct Hlab as [(Hlab, Hab)| Hlab].
-    unfold Qbar.gt.
     rewrite <- Hab.
     pose proof (order_add a b) as H.
     assert (order a > 0)%Qbar as Ha.
@@ -1178,7 +1177,6 @@ destruct (lap_ps_nilp la) as [Hlaz| Hlanz].
    destruct lb as [| b]; [ apply Hla; assumption | idtac ].
    simpl in Hlab.
    destruct Hlab as [(Hlab, Hab)| Hlab].
-    unfold Qbar.gt.
     rewrite <- Hab.
     pose proof (order_add a b) as H.
     assert (order a ≥ 0)%Qbar as Ha.
@@ -1497,7 +1495,6 @@ revert m la Ha Hm.
 induction n; intros.
  simpl in Hm.
  destruct Hm as [(H₁, Hm)| ]; [ idtac | contradiction ].
- unfold Qbar.ge.
  rewrite <- Hm.
  apply ps_monom_order_ge.
 
@@ -1553,7 +1550,6 @@ assert (m ≠ 0)%ps as Hmnz.
    remember (ord_of_pt h pl) as αh eqn:Hαh .
    rewrite lap_mul_const_l in Hm; simpl in Hm.
    destruct Hm as [(Hmnz, Hm)| ]; [ idtac | contradiction ].
-   unfold Qbar.gt.
    rewrite <- Hm; simpl.
    rewrite order_mul.
    remember (āh - ah * ps_monom 1%K αh)%ps as aa.
@@ -1729,6 +1725,18 @@ assert (m ≠ 0)%ps as Hmnz.
     rewrite <- Ha; simpl.
     apply ps_monom_order_ge.
 Qed.
+
+(* better approach than the one of 'zzz' below, since it is direct;
+   we also need a theorem for O(b^-_i) > 0 for i = 0,...,r-1
+   and one for O(b^-_r) = 0 *)
+Theorem yyy : ∀ pol ns c₁ f₁,
+  ns ∈ newton_segments R pol
+  → c₁ = ac_root (Φq R pol ns)
+    → f₁ = pol₁ R pol (β ns) (γ ns) c₁
+      → ∀ i, (order (poly_nth R i f₁) ≥ 0)%Qbar.
+Proof.
+intros pol ns c₁ f₁ Hns Hc₁ Hf₁ i.
+bbb.
 
 (* [Walker, p 101] «
      Since O(āh - ah.x^αh) > 0 and O(āl.x^(l.γ₁)) > β₁ we obtain
