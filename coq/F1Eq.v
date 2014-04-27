@@ -55,21 +55,19 @@ Definition poly_inject_K_in_Kx α (R : ring α) pol :=
 (* *)
 
 Add Parametric Morphism α (R : ring α) : (lap_nth R)
-  with signature eq_nat ==> @lap_eq _ (ps_ring R) ==> eq_ps
+  with signature eq ==> @lap_eq _ (ps_ring R) ==> eq_ps
   as lap_nth_morph.
 Proof.
-intros na nb Hn la lb Hlab.
-apply eq_nat_eq in Hn; subst nb.
-rewrite Hlab.
-reflexivity.
+intros n la lb Hlab.
+rewrite Hlab; reflexivity.
 Qed.
 
 Add Parametric Morphism α (R : ring α) : (poly_nth R)
-  with signature eq_nat ==> @eq_poly _ (ps_ring R) ==> eq_ps
+  with signature eq ==> @eq_poly _ (ps_ring R) ==> eq_ps
   as poly_nth_morph.
 Proof.
-intros na nb Hn pa pb Hpab.
-apply lap_nth_morph_Proper; assumption.
+intros n pa pb Hpab.
+unfold poly_nth; rewrite Hpab; reflexivity.
 Qed.
 
 Add Parametric Morphism α (r : ring α) : ps_monom
