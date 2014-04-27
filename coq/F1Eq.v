@@ -59,7 +59,10 @@ Add Parametric Morphism α (R : ring α) : (lap_nth R)
   as lap_nth_morph.
 Proof.
 intros na nb Hn la lb Hlab.
-bbb.
+apply eq_nat_eq in Hn; subst nb.
+rewrite Hlab.
+reflexivity.
+Qed.
 
 Add Parametric Morphism α (R : ring α) : (poly_nth R)
   with signature eq_nat ==> @eq_poly _ (ps_ring R) ==> eq_ps
