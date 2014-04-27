@@ -310,7 +310,7 @@ Variable acf : algeb_closed_field K.
 Let Kx := ps_ring R.
 
 Lemma lap_f₁_eq_x_min_β₁_comp : ∀ la β₁ γ₁ c₁,
-  let _ := Kx in (* coq seems not to see the type of Kx *)
+  let _ := ps_ring R in (* coq seems not to see the type of Kx *)
   lap_eq (lap_pol₁ R la β₁ γ₁ c₁)
     (lap_mul [ps_monom 1%K (- β₁)]
        (lap_compose la

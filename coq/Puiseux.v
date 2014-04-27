@@ -1736,7 +1736,11 @@ Theorem xxx : ∀ pol ns c₁ r f₁,
 Proof.
 intros pol ns c₁ r f₁ Hns Hc₁ Hr Hf₁.
 subst f₁.
-rewrite f₁_eq_sum_α_hγ_to_rest.
+remember [ini_pt ns … oth_pts ns ++ [fin_pt ns]] as pl eqn:Hpl .
+remember (List.map (term_of_point R pol) pl) as tl eqn:Htl .
+remember (List.map (λ t : term α nat, power t) tl) as l₁ eqn:Hl₁ .
+remember (list_seq_except 0 (length (al pol)) l₁) as l₂ eqn:Hl₂ .
+rewrite f₁_eq_sum_α_hγ_to_rest with (l₂ := l₂); try eassumption.
 bbb.
 
 (* better approach than the one of 'zzz' below, since it is direct;
