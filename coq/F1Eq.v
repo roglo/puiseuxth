@@ -54,6 +54,14 @@ Definition poly_inject_K_in_Kx α (R : ring α) pol :=
 
 (* *)
 
+Add Parametric Morphism α (R : ring α) : (poly_nth R)
+  with signature eq ==> @eq_poly _ (ps_ring R) ==> eq_ps
+  as poly_nth_morph.
+Proof.
+intros n la lb Hab.
+bbb.
+*)
+
 Add Parametric Morphism α (r : ring α) : ps_monom
   with signature rng_eq ==> Qeq ==> eq_ps
   as ps_monom_qeq_morph.

@@ -1726,6 +1726,19 @@ assert (m ≠ 0)%ps as Hmnz.
     apply ps_monom_order_ge.
 Qed.
 
+(* [Walker, p 101] « O(b^-_r) = 0 » *)
+Theorem xxx : ∀ pol ns c₁ r f₁,
+  ns ∈ newton_segments R pol
+  → c₁ = ac_root (Φq R pol ns)
+    → r = root_multiplicity acf c₁ (Φq R pol ns)
+      → f₁ = pol₁ R pol (β ns) (γ ns) c₁
+        → (order (poly_nth R r f₁) = 0)%Qbar.
+Proof.
+intros pol ns c₁ r f₁ Hns Hc₁ Hr Hf₁.
+subst f₁.
+rewrite f₁_eq_sum_α_hγ_to_rest.
+bbb.
+
 (* better approach than the one of 'zzz' below, since it is direct;
    we also need a theorem for O(b^-_i) > 0 for i = 0,...,r-1
    and one for O(b^-_r) = 0 *)
