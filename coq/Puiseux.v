@@ -1740,7 +1740,12 @@ remember [ini_pt ns … oth_pts ns ++ [fin_pt ns]] as pl eqn:Hpl .
 remember (List.map (term_of_point R pol) pl) as tl eqn:Htl .
 remember (List.map (λ t : term α nat, power t) tl) as l₁ eqn:Hl₁ .
 remember (list_seq_except 0 (length (al pol)) l₁) as l₂ eqn:Hl₂ .
-rewrite f₁_eq_sum_α_hγ_to_rest with (l₂ := l₂); try eassumption.
+remember (quotient_phi_x_sub_c_pow_r R (Φq R pol ns) c₁ r) as Ψ eqn:HΨ .
+symmetry in Hc₁.
+remember Hns as Hini; clear HeqHini.
+apply exists_ini_pt_nat in Hini.
+destruct Hini as (j, (αj, Hini)).
+rewrite f₁_eq_term_with_Ψ_plus_sum with (l₂ := l₂); try eassumption.
 bbb.
 
 (* better approach than the one of 'zzz' below, since it is direct;
