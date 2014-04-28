@@ -319,6 +319,21 @@ Notation "a + b" := (ps_lap_add a b) : ps_lap_scope.
 Notation "a * b" := (ps_lap_mul a b) : ps_lap_scope.
 Notation "a ∘ b" := (ps_lap_compose a b) : ps_lap_scope.
 
+Definition ps_pol_eq α {R : ring α} la lb :=
+  @eq_poly (puiseux_series α) (ps_ring R) la lb.
+
+Definition ps_pol_mul α {R : ring α} la lb :=
+  @poly_mul (puiseux_series α) (ps_ring R) la lb.
+
+Definition ps_pol_compose α {R : ring α} la lb :=
+  @poly_compose (puiseux_series α) (ps_ring R) la lb.
+
+Delimit Scope ps_pol_scope with pspol.
+Notation "a = b" := (ps_pol_eq a b) : ps_pol_scope.
+Notation "a * b" := (ps_pol_mul a b) : ps_pol_scope.
+Notation "a ∘ b" := (ps_pol_compose a b) : ps_pol_scope.
+Notation "'POL' l" := {| al := l |} (at level 1) : ps_pol_scope.
+
 Section theorems.
 
 Variable α : Type.
@@ -352,15 +367,11 @@ Qed.
 
 (* [Walker, p. 100] « f₁(x,y₁) = x^(-β₁).f(x,x^γ₁(c₁+y₁)) » *)
 Theorem f₁_eq_x_min_β₁_comp : ∀ pol β₁ γ₁ c₁,
-  let f' := Kx in (* coq seems not to see the type of Kx *)
   (pol₁ R pol β₁ γ₁ c₁ =
    POL [ps_monom 1%K (- β₁)] *
-   poly_compose pol
-     (POL [ps_monom 1%K γ₁] *
-      POL [ps_monom c₁ 0; 1%ps … []]))%pol.
+   pol ∘ (POL [ps_monom 1%K γ₁] * POL [ps_monom c₁ 0; 1%ps … []]))%pspol.
 Proof.
-intros pol β₁ γ₁ c₁ f'; subst f'.
-bbb.
+intros pol β₁ γ₁ c₁.
 apply lap_f₁_eq_x_min_β₁_comp; reflexivity.
 Qed.
 
@@ -376,6 +387,7 @@ Theorem f₁_eq_x_min_β₁_comp2 : ∀ pol β₁ γ₁ c₁,
       POL [ps_monom c₁ 0; 1%ps … []]))%pol.
 Proof.
 intros pol β₁ γ₁ c₁ f'; subst f'.
+bbb.
 rewrite <- poly_compose_compose2.
 apply f₁_eq_x_min_β₁_comp; assumption.
 Qed.
