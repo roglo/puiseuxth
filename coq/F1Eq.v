@@ -679,25 +679,23 @@ Qed.
 
 (* Σah.x^(αh+h.γ).(c₁+y₁)^h = Σah.x^β.(c₁+y₁)^h *)
 Lemma subst_αh_hγ : ∀ pol ns pl tl l₁ c₁,
-  let f' := Kx in (* coq seems not to see the type of Kx *)
   ns ∈ newton_segments R pol
   → pl = [ini_pt ns … oth_pts ns ++ [fin_pt ns]]
     → tl = List.map (term_of_point R pol) pl
       → l₁ = List.map (λ t, power t) tl
-        → (poly_summation Kx l₁
+        → (ps_pol_summ l₁
              (λ h,
               let ah := ps_monom (coeff_of_term h tl) 0 in
               let αh := ord_of_pt h pl in
               POL [(ah * ps_monom 1%K (αh + Qnat h * γ ns))%ps] *
               POL [ps_monom c₁ 0; 1%ps … []] ^ h) =
-           poly_summation Kx l₁
+           ps_pol_summ l₁
              (λ h,
               let ah := ps_monom (coeff_of_term h tl) 0 in
               POL [(ah * ps_monom 1%K (β ns))%ps] *
-              POL [ps_monom c₁ 0; 1%ps … []] ^ h))%pol.
+              POL [ps_monom c₁ 0; 1%ps … []] ^ h))%pspol.
 Proof.
-intros pol ns pl tl l₁ c₁ f' Hns Hpl Htl Hl; subst f'.
-bbb.
+intros pol ns pl tl l₁ c₁ Hns Hpl Htl Hl.
 unfold eq_poly; simpl.
 unfold lap_summation; simpl.
 apply lap_eq_list_fold_right.
@@ -782,6 +780,7 @@ eapply f₁_eq_sum_α_hγ_to_rest in H; try eassumption.
 rewrite H.
 apply poly_add_compat; [ idtac | reflexivity ].
 rewrite subst_αh_hγ; try eassumption; simpl.
+bbb.
 rewrite poly_summation_mul.
 rewrite poly_mul_assoc.
 symmetry.
