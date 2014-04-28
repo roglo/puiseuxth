@@ -1407,21 +1407,20 @@ Qed.
       Σah.(c₁+y₁)^h = (c₁+y₁)^j.Φ((c₁+y₁)^q)
  *)
 Theorem sum_ah_c₁y_h_eq : ∀ pol ns pl tl l c₁ j αj,
-  let _ := Kx in (* coq seems not to see the type of Kx *)
   ns ∈ newton_segments R pol
   → pl = [ini_pt ns … oth_pts ns ++ [fin_pt ns]]
     → tl = List.map (term_of_point R pol) pl
       → l = List.map (λ t, power t) tl
         → ini_pt ns = (Qnat j, αj)
-          → (poly_summation Kx l
+          → (ps_pol_summ l
                (λ h,
                 POL [ps_monom (coeff_of_term h tl) 0] *
                 POL [ps_monom c₁ 0; 1%ps … []] ^ h) =
              POL [ps_monom c₁ 0; 1%ps … []] ^ j *
-             poly_compose (poly_inject_K_in_Kx R (Φq R pol ns))
-               (POL [ps_monom c₁ 0; 1%ps … []]))%pol.
+             ps_pol_comp (poly_inject_K_in_Kx R (Φq R pol ns))
+               (POL [ps_monom c₁ 0; 1%ps … []]))%pspol.
 Proof.
-intros pol ns pl tl l c₁ j αj f' Hns Hpl Htl Hl Hini.
+intros pol ns pl tl l c₁ j αj Hns Hpl Htl Hl Hini.
 assert (∀ iq αi, (iq, αi) ∈ pl → ∃ i, iq = Qnat i) as Hnat.
  intros iq αi Hip.
  eapply ns_nat; [ eassumption | reflexivity | idtac ].
@@ -1503,7 +1502,7 @@ assert (∀ iq αi, (iq, αi) ∈ pl → ∃ i, iq = Qnat i) as Hnat.
    rewrite Nat2Z.id.
    rewrite Nat.sub_diag; simpl.
    rewrite skipn_pad; simpl.
-   unfold eq_poly; simpl.
+   unfold ps_pol_eq, eq_poly; simpl.
    rewrite fold_char_pol with (αj := αj); rewrite <- Hini, <- Hpl.
    subst lm; simpl.
    rewrite <- Htl.
@@ -1511,7 +1510,6 @@ assert (∀ iq αi, (iq, αi) ∈ pl → ∃ i, iq = Qnat i) as Hnat.
    rewrite lap_compose_compose2.
    unfold lap_compose2.
    unfold lap_summation.
-   subst f'.
    rewrite lap_mul_fold_add_distr; simpl.
    rewrite List.map_length.
    subst l.
