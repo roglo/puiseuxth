@@ -375,23 +375,6 @@ intros pol β₁ γ₁ c₁.
 apply lap_f₁_eq_x_min_β₁_comp; reflexivity.
 Qed.
 
-(* [Walker, p. 100] «
-    f₁(x,y₁) = x^(-β₁).[ā₀ + ā₁x^γ₁(c₁+y₁) + ... + ān.x^(n.γ₁)(c₁+y₁)^n]
-  » *)
-Theorem f₁_eq_x_min_β₁_comp2 : ∀ pol β₁ γ₁ c₁,
-  let f' := Kx in (* coq seems not to see the type of Kx *)
-  (pol₁ R pol β₁ γ₁ c₁ =
-   POL [ps_monom 1%K (- β₁)] *
-   poly_compose2 pol
-     (POL [ps_monom 1%K γ₁] *
-      POL [ps_monom c₁ 0; 1%ps … []]))%pol.
-Proof.
-intros pol β₁ γ₁ c₁ f'; subst f'.
-bbb.
-rewrite <- poly_compose_compose2.
-apply f₁_eq_x_min_β₁_comp; assumption.
-Qed.
-
 Theorem f₁_eq_x_min_β₁_summation : ∀ pol β₁ γ₁ c₁,
   let f' := Kx in (* coq seems not to see the type of Kx *)
   (pol₁ R pol β₁ γ₁ c₁ =
@@ -403,7 +386,9 @@ Theorem f₁_eq_x_min_β₁_summation : ∀ pol β₁ γ₁ c₁,
       POL [ps_monom c₁ 0; 1%ps … []] ^ h))%pol.
 Proof.
 intros pol β₁ γ₁ c₁ f'; subst f'.
-rewrite f₁_eq_x_min_β₁_comp2.
+rewrite f₁_eq_x_min_β₁_comp.
+unfold ps_pol_compose.
+rewrite poly_compose_compose2.
 apply poly_mul_compat; [ reflexivity | idtac ].
 unfold poly_compose2; simpl.
 unfold lap_compose2, poly_summation; simpl.
