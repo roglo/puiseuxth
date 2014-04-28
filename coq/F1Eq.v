@@ -319,32 +319,44 @@ Notation "a + b" := (ps_lap_add a b) : ps_lap_scope.
 Notation "a * b" := (ps_lap_mul a b) : ps_lap_scope.
 Notation "a ∘ b" := (ps_lap_compose a b) : ps_lap_scope.
 
-Definition ps_pol_eq α {R : ring α} la lb :=
-  @eq_poly (puiseux_series α) (ps_ring R) la lb.
+Definition ps_pol_eq α {R : ring α} a b :=
+  @eq_poly (puiseux_series α) (ps_ring R) a b.
 
-Definition ps_pol_add α {R : ring α} la lb :=
-  @poly_add (puiseux_series α) (ps_ring R) la lb.
+Definition ps_pol_add α {R : ring α} a b :=
+  @poly_add (puiseux_series α) (ps_ring R) a b.
 
-Definition ps_pol_mul α {R : ring α} la lb :=
-  @poly_mul (puiseux_series α) (ps_ring R) la lb.
+Definition ps_pol_mul α {R : ring α} a b :=
+  @poly_mul (puiseux_series α) (ps_ring R) a b.
 
-Definition ps_pol_power α {R : ring α} la n :=
-  @poly_power (puiseux_series α) (ps_ring R) la n.
+Definition ps_pol_pow α {R : ring α} a n :=
+  @poly_power (puiseux_series α) (ps_ring R) a n.
 
-Definition ps_pol_compose α {R : ring α} la lb :=
-  @poly_compose (puiseux_series α) (ps_ring R) la lb.
+Definition ps_pol_comp α {R : ring α} a b :=
+  @poly_compose (puiseux_series α) (ps_ring R) a b.
 
-Definition ps_pol_summation α {R : ring α} ln f :=
+Definition ps_pol_summ α {R : ring α} ln f :=
   @poly_summation (puiseux_series α) (ps_ring R) ln f.
 
-Definition ps_pol α la := @mkpol (puiseux_series α) la.
+Definition ps_pol α a := @mkpol (puiseux_series α) a.
+
+Lemma fold_ps_pol_add : ∀ α (R : ring α) a b,
+  @poly_add _ (ps_ring R) a b = ps_pol_add a b.
+Proof. reflexivity. Qed.
+
+Lemma fold_ps_pol_mul : ∀ α (R : ring α) a b,
+  @poly_mul _ (ps_ring R) a b = ps_pol_mul a b.
+Proof. reflexivity. Qed.
+
+Lemma fold_ps_pol_pow : ∀ α (R : ring α) a b,
+  @poly_power _ (ps_ring R) a b = ps_pol_pow a b.
+Proof. reflexivity. Qed.
 
 Delimit Scope ps_pol_scope with pspol.
 Notation "a = b" := (ps_pol_eq a b) : ps_pol_scope.
 Notation "a + b" := (ps_pol_add a b) : ps_pol_scope.
 Notation "a * b" := (ps_pol_mul a b) : ps_pol_scope.
-Notation "a ^ b" := (ps_pol_power a b) : ps_pol_scope.
-Notation "a ∘ b" := (ps_pol_compose a b) : ps_pol_scope.
+Notation "a ^ b" := (ps_pol_pow a b) : ps_pol_scope.
+Notation "a ∘ b" := (ps_pol_comp a b) : ps_pol_scope.
 Notation "'POL' l" := (ps_pol l) (at level 1) : ps_pol_scope.
 
 Section theorems.
@@ -391,7 +403,7 @@ Qed.
 Theorem f₁_eq_x_min_β₁_summation : ∀ pol β₁ γ₁ c₁,
   (pol₁ R pol β₁ γ₁ c₁ =
    POL [ps_monom 1%K (- β₁)] *
-   ps_pol_summation (List.seq 0 (length (al pol)))
+   ps_pol_summ (List.seq 0 (length (al pol)))
      (λ h,
       let āh := poly_nth R h pol in
       POL [(āh * ps_monom 1%K (Qnat h * γ₁))%ps] *
@@ -399,7 +411,7 @@ Theorem f₁_eq_x_min_β₁_summation : ∀ pol β₁ γ₁ c₁,
 Proof.
 intros pol β₁ γ₁ c.
 rewrite f₁_eq_x_min_β₁_comp.
-unfold ps_pol_compose.
+unfold ps_pol_comp.
 rewrite poly_compose_compose2.
 apply poly_mul_compat; [ reflexivity | idtac ].
 unfold poly_compose2; simpl.
@@ -457,18 +469,18 @@ Theorem f₁_eq_x_min_β₁_summation_split : ∀ pol β₁ γ₁ c₁ l₁ l₂
   split_list (List.seq 0 (length (al pol))) l₁ l₂
   → (pol₁ R pol β₁ γ₁ c₁ =
       POL [ps_monom 1%K (- β₁)] *
-      ps_pol_summation l₁
+      ps_pol_summ l₁
         (λ (h : nat) (āh:=poly_nth R h pol),
          POL [(āh * ps_monom 1%K (Qnat h * γ₁))%ps] *
          POL [ps_monom c₁ 0; 1%ps … []] ^ h) +
       POL [ps_monom 1%K (- β₁)] *
-      ps_pol_summation l₂
+      ps_pol_summ l₂
         (λ (l : nat) (āl:=poly_nth R l pol),
          POL [(āl * ps_monom 1%K (Qnat l * γ₁))%ps] *
          POL [ps_monom c₁ 0; 1%ps … []] ^ l))%pspol.
 Proof.
 intros pol β₁ γ₁ c₁ l₁ l₂ Hss.
-unfold ps_pol_add, ps_pol_mul, ps_pol_summation.
+unfold ps_pol_add, ps_pol_mul, ps_pol_summ.
 rewrite <- poly_mul_add_distr_l.
 rewrite split_summation; [ idtac | eassumption ].
 apply f₁_eq_x_min_β₁_summation; assumption.
@@ -490,32 +502,32 @@ Fixpoint ord_of_pt i pl :=
 (* Σāh.x^(hγ₁).(c₁+y₁)^h =
    Σah.x^(αh+hγ₁).(c₁+y₁)^h + Σ(āh-ah.x^αh).x^(hγ₁).(c₁+y₁)^h *)
 Lemma summation_split_val : ∀ pol ns γ₁ c₁ pl tl l,
-  let f' := Kx in (* coq seems not to see the type of Kx *)
   ns ∈ newton_segments R pol
   → pl = [ini_pt ns … oth_pts ns ++ [fin_pt ns]]
     → tl = List.map (term_of_point R pol) pl
       → l = List.map (λ t, power t) tl
-        → (poly_summation Kx l
+        → (ps_pol_summ l
              (λ h,
               let āh := poly_nth R h pol in
               POL [(āh * ps_monom 1%K (Qnat h * γ₁))%ps] *
               POL [ps_monom c₁ 0; 1%ps … []] ^ h) =
-           poly_summation Kx l
+           ps_pol_summ l
              (λ h,
               let ah := ps_monom (coeff_of_term h tl) 0 in
               let αh := ord_of_pt h pl in
               POL [(ah * ps_monom 1%K (αh + Qnat h * γ₁))%ps] *
               POL [ps_monom c₁ 0; 1%ps … []] ^ h) +
-           poly_summation Kx l
+           ps_pol_summ l
              (λ h,
               let āh := poly_nth R h pol in
               let ah := ps_monom (coeff_of_term h tl) 0 in
               let αh := ord_of_pt h pl in
               POL [((āh - ah * ps_monom 1%K αh) *
                     ps_monom 1%K (Qnat h * γ₁))%ps] *
-              POL [ps_monom c₁ 0; 1%ps … []] ^ h))%pol.
+              POL [ps_monom c₁ 0; 1%ps … []] ^ h))%pspol.
 Proof.
-intros pol ns γ₁ c₁ pl tl l f' Hns Hpl Htl Hl; subst f'.
+intros pol ns γ₁ c₁ pl tl l Hns Hpl Htl Hl.
+unfold ps_pol_add, ps_pol_summ.
 rewrite poly_summation_add; simpl.
 unfold eq_poly; simpl.
 unfold lap_summation; simpl.
@@ -527,7 +539,7 @@ constructor; [ simpl | reflexivity ].
 rewrite ps_monom_add_r.
 rewrite rng_mul_assoc.
 rewrite rng_mul_add_distr_r.
-subst Kx; simpl.
+simpl.
 rewrite rng_mul_opp_l; simpl.
 rewrite rng_add_assoc; simpl.
 rewrite rng_add_comm; simpl.
@@ -542,7 +554,6 @@ Qed.
                          Σāl.x^(l.γ₁).(c₁+y₁)^l]
    » *)
 Theorem f₁_eq_sum_α_hγ_to_rest : ∀ pol ns β₁ γ₁ c₁ pl tl l₁ l₂,
-  let f' := Kx in (* coq seems not to see the type of Kx *)
   ns ∈ newton_segments R pol
   → pl = [ini_pt ns … oth_pts ns ++ [fin_pt ns]]
     → tl = List.map (term_of_point R pol) pl
@@ -550,14 +561,14 @@ Theorem f₁_eq_sum_α_hγ_to_rest : ∀ pol ns β₁ γ₁ c₁ pl tl l₁ l₂
         → split_list (List.seq 0 (length (al pol))) l₁ l₂
           → (pol₁ R pol β₁ γ₁ c₁ =
              POL [ps_monom 1%K (- β₁)] *
-             poly_summation Kx l₁
+             ps_pol_summ l₁
                (λ h,
                 let ah := ps_monom (coeff_of_term h tl) 0 in
                 let αh := ord_of_pt h pl in
                 POL [(ah * ps_monom 1%K (αh + Qnat h * γ₁))%ps] *
                 POL [ps_monom c₁ 0; 1%ps … []] ^ h) +
              POL [ps_monom 1%K (- β₁)] *
-             (poly_summation Kx l₁
+             (ps_pol_summ l₁
                 (λ h,
                  let āh := poly_nth R h pol in
                  let ah := ps_monom (coeff_of_term h tl) 0 in
@@ -565,16 +576,20 @@ Theorem f₁_eq_sum_α_hγ_to_rest : ∀ pol ns β₁ γ₁ c₁ pl tl l₁ l₂
                  POL [((āh - ah * ps_monom 1%K αh) *
                        ps_monom 1%K (Qnat h * γ₁))%ps] *
                  POL [ps_monom c₁ 0; 1%ps … []] ^ h) +
-              poly_summation Kx l₂
+              ps_pol_summ l₂
                 (λ l,
                  let āl := poly_nth R l pol in
                  POL [(āl * ps_monom 1%K (Qnat l * γ₁))%ps] *
-                 POL [ps_monom c₁ 0; 1%ps … []] ^ l)))%pol.
+                 POL [ps_monom c₁ 0; 1%ps … []] ^ l)))%pspol.
 Proof.
-intros pol ns β₁ γ₁ c₁ pl tl l₁ l₂ f' Hns Hpl Htl Hl Hss; subst f'.
+intros pol ns β₁ γ₁ c₁ pl tl l₁ l₂ Hns Hpl Htl Hl Hss.
+unfold ps_pol_add, ps_pol_mul.
 rewrite poly_mul_add_distr_l.
 rewrite poly_add_assoc.
 rewrite <- poly_mul_add_distr_l.
+rewrite fold_ps_pol_add, fold_ps_pol_mul.
+rewrite fold_ps_pol_add, fold_ps_pol_mul.
+bbb.
 rewrite <- summation_split_val; try eassumption.
 apply f₁_eq_x_min_β₁_summation_split; assumption.
 Qed.
