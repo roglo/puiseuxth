@@ -367,7 +367,7 @@ unfold ps_lap_mul, lap_mul; simpl.
 unfold summation; simpl.
 rewrite rng_mul_0_l.
 do 3 rewrite rng_add_0_r.
-subst Kx; simpl.
+simpl.
 constructor.
  rewrite ps_mul_comm; simpl.
  apply ps_monom_split_mul.
