@@ -583,13 +583,15 @@ Theorem f₁_eq_sum_α_hγ_to_rest : ∀ pol ns β₁ γ₁ c₁ pl tl l₁ l₂
                  POL [ps_monom c₁ 0; 1%ps … []] ^ l)))%pspol.
 Proof.
 intros pol ns β₁ γ₁ c₁ pl tl l₁ l₂ Hns Hpl Htl Hl Hss.
-unfold ps_pol_add, ps_pol_mul.
+unfold ps_pol_add at 2.
+unfold ps_pol_mul at 3.
 rewrite poly_mul_add_distr_l.
+unfold ps_pol_add at 1.
 rewrite poly_add_assoc.
+unfold ps_pol_mul at 1.
 rewrite <- poly_mul_add_distr_l.
 rewrite fold_ps_pol_add, fold_ps_pol_mul.
 rewrite fold_ps_pol_add, fold_ps_pol_mul.
-bbb.
 rewrite <- summation_split_val; try eassumption.
 apply f₁_eq_x_min_β₁_summation_split; assumption.
 Qed.
@@ -695,6 +697,7 @@ Lemma subst_αh_hγ : ∀ pol ns pl tl l₁ c₁,
               POL [ps_monom c₁ 0; 1%ps … []] ^ h))%pol.
 Proof.
 intros pol ns pl tl l₁ c₁ f' Hns Hpl Htl Hl; subst f'.
+bbb.
 unfold eq_poly; simpl.
 unfold lap_summation; simpl.
 apply lap_eq_list_fold_right.
