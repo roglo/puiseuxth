@@ -720,13 +720,12 @@ assert (∀ pt, pt ∈ pl → ∃ h αh, pt = (Qnat h, αh)) as Hnat.
 Qed.
 
 Lemma poly_summation_mul : ∀ l x g₁ g₂,
-  let f' := Kx in (* coq seems not to see the type of Kx *)
-  (poly_summation Kx l (λ h, POL [(g₁ h * x)%ps] * g₂ h) =
-   POL [x] * poly_summation Kx l (λ h, POL [g₁ h] * g₂ h))%pol.
+  (ps_pol_summ l (λ h, POL [(g₁ h * x)%ps] * g₂ h) =
+   POL [x] * ps_pol_summ l (λ h, POL [g₁ h] * g₂ h))%pspol.
 Proof.
-intros l x g₁ g₂ f'; subst f'.
-unfold eq_poly; simpl.
-unfold lap_summation; simpl.
+intros l x g₁ g₂.
+unfold ps_pol_eq, eq_poly; simpl.
+unfold ps_pol_summ, lap_summation; simpl.
 induction l as [| i]; intros; simpl.
  rewrite lap_mul_nil_r; reflexivity.
 
