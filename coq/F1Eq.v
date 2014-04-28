@@ -337,13 +337,15 @@ Definition ps_pol_compose α {R : ring α} la lb :=
 Definition ps_pol_summation α {R : ring α} ln f :=
   @poly_summation (puiseux_series α) (ps_ring R) ln f.
 
+Definition ps_pol α la := @mkpol (puiseux_series α) la.
+
 Delimit Scope ps_pol_scope with pspol.
 Notation "a = b" := (ps_pol_eq a b) : ps_pol_scope.
 Notation "a + b" := (ps_pol_add a b) : ps_pol_scope.
 Notation "a * b" := (ps_pol_mul a b) : ps_pol_scope.
 Notation "a ^ b" := (ps_pol_power a b) : ps_pol_scope.
 Notation "a ∘ b" := (ps_pol_compose a b) : ps_pol_scope.
-Notation "'POL' l" := {| al := l |} (at level 1) : ps_pol_scope.
+Notation "'POL' l" := (ps_pol l) (at level 1) : ps_pol_scope.
 
 Section theorems.
 
