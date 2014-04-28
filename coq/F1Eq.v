@@ -310,14 +310,14 @@ Definition ps_lap_add α {R : ring α} la lb :=
 Definition ps_lap_mul α {R : ring α} la lb :=
   @lap_mul (puiseux_series α) (ps_ring R) la lb.
 
-Definition ps_lap_compose α {R : ring α} la lb :=
+Definition ps_lap_comp α {R : ring α} la lb :=
   @lap_compose (puiseux_series α) (ps_ring R) la lb.
 
 Delimit Scope ps_lap_scope with pslap.
 Notation "a = b" := (ps_lap_eq a b) : ps_lap_scope.
 Notation "a + b" := (ps_lap_add a b) : ps_lap_scope.
 Notation "a * b" := (ps_lap_mul a b) : ps_lap_scope.
-Notation "a ∘ b" := (ps_lap_compose a b) : ps_lap_scope.
+Notation "a ∘ b" := (ps_lap_comp a b) : ps_lap_scope.
 
 Definition ps_pol_eq α {R : ring α} a b :=
   @eq_poly (puiseux_series α) (ps_ring R) a b.
@@ -746,20 +746,19 @@ Qed.
                          Σāl.x^(l.γ₁).(c₁+y₁)^l]
 *)
 Theorem f₁_eq_sum_without_x_β₁_plus_sum : ∀ pol ns c₁ pl tl l₁ l₂,
-  let f' := Kx in (* coq seems not to see the type of Kx *)
   ns ∈ newton_segments R pol
   → pl = [ini_pt ns … oth_pts ns ++ [fin_pt ns]]
     → tl = List.map (term_of_point R pol) pl
       → l₁ = List.map (λ t, power t) tl
         → split_list (List.seq 0 (length (al pol))) l₁ l₂
           → (pol₁ R pol (β ns) (γ ns) c₁ =
-             poly_summation Kx l₁
+             ps_pol_summ l₁
                (λ h,
                 let ah := ps_monom (coeff_of_term h tl) 0 in
                 POL [ah] *
                 POL [ps_monom c₁ 0; 1%ps … []] ^ h) +
              POL [ps_monom 1%K (- β ns)] *
-             (poly_summation Kx l₁
+             (ps_pol_summ l₁
                 (λ h,
                  let āh := poly_nth R h pol in
                  let ah := ps_monom (coeff_of_term h tl) 0 in
@@ -767,20 +766,20 @@ Theorem f₁_eq_sum_without_x_β₁_plus_sum : ∀ pol ns c₁ pl tl l₁ l₂,
                  POL [((āh - ah * ps_monom 1%K αh) *
                        ps_monom 1%K (Qnat h * γ ns))%ps] *
                  POL [ps_monom c₁ 0; 1%ps … []] ^ h) +
-              poly_summation Kx l₂
+              ps_pol_summ l₂
                 (λ l,
                  let āl := poly_nth R l pol in
                  POL [(āl * ps_monom 1%K (Qnat l * γ ns))%ps] *
-                 POL [ps_monom c₁ 0; 1%ps … []] ^ l)))%pol.
+                 POL [ps_monom c₁ 0; 1%ps … []] ^ l)))%pspol.
 Proof.
-intros pol ns c₁ pl tl l₁ l₂ f' Hns Hpl Htl Hl Hss; subst f'.
+intros pol ns c₁ pl tl l₁ l₂ Hns Hpl Htl Hl Hss.
 remember Hns as H; clear HeqH.
 eapply f₁_eq_sum_α_hγ_to_rest in H; try eassumption.
 rewrite H.
 apply poly_add_compat; [ idtac | reflexivity ].
 rewrite subst_αh_hγ; try eassumption; simpl.
-bbb.
 rewrite poly_summation_mul.
+unfold ps_pol_mul.
 rewrite poly_mul_assoc.
 symmetry.
 rewrite <- poly_mul_1_l in |- * at 1.
