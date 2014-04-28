@@ -301,28 +301,43 @@ Qed.
 
 End on_fields.
 
+Definition ps_lap_eq α {R : ring α} la lb :=
+  @lap_eq (puiseux_series α) (ps_ring R) la lb.
+
+Definition ps_lap_add α {R : ring α} la lb :=
+  @lap_add (puiseux_series α) (ps_ring R) la lb.
+
+Definition ps_lap_mul α {R : ring α} la lb :=
+  @lap_mul (puiseux_series α) (ps_ring R) la lb.
+
+Definition ps_lap_compose α {R : ring α} la lb :=
+  @lap_compose (puiseux_series α) (ps_ring R) la lb.
+
+Delimit Scope ps_lap_scope with pslap.
+Notation "a = b" := (ps_lap_eq a b) : ps_lap_scope.
+Notation "a + b" := (ps_lap_add a b) : ps_lap_scope.
+Notation "a * b" := (ps_lap_mul a b) : ps_lap_scope.
+Notation "a ∘ b" := (ps_lap_compose a b) : ps_lap_scope.
+
 Section theorems.
 
 Variable α : Type.
 Variable R : ring α.
 Variable K : field R.
 Variable acf : algeb_closed_field K.
+(* perhaps no more necessary if the method with 'ps_lap' works: *)
 Let Kx := ps_ring R.
 
 Lemma lap_f₁_eq_x_min_β₁_comp : ∀ la β₁ γ₁ c₁,
-  let _ := ps_ring R in (* coq seems not to see the type of Kx *)
-  lap_eq (lap_pol₁ R la β₁ γ₁ c₁)
-    (lap_mul [ps_monom 1%K (- β₁)]
-       (lap_compose la
-          (lap_mul
-             [ps_monom 1%K γ₁]
-             [ps_monom c₁ 0; 1%ps … []]))).
+  (lap_pol₁ R la β₁ γ₁ c₁ =
+   [ps_monom 1%K (- β₁)] *
+   la ∘ ([ps_monom 1%K γ₁] * [ps_monom c₁ 0; 1%ps … []]))%pslap.
 Proof.
-intros la β₁ γ₁ c₁ f'; subst f'.
+intros la β₁ γ₁ c₁.
 unfold lap_pol₁.
 apply lap_mul_compat; [ reflexivity | idtac ].
 apply lap_compose_compat; [ reflexivity | idtac ].
-unfold lap_mul; simpl.
+unfold ps_lap_mul, lap_mul; simpl.
 unfold summation; simpl.
 rewrite rng_mul_0_l.
 do 3 rewrite rng_add_0_r.
@@ -345,6 +360,7 @@ Theorem f₁_eq_x_min_β₁_comp : ∀ pol β₁ γ₁ c₁,
       POL [ps_monom c₁ 0; 1%ps … []]))%pol.
 Proof.
 intros pol β₁ γ₁ c₁ f'; subst f'.
+bbb.
 apply lap_f₁_eq_x_min_β₁_comp; reflexivity.
 Qed.
 
