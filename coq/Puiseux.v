@@ -1726,6 +1726,18 @@ assert (m ≠ 0)%ps as Hmnz.
     apply ps_monom_order_ge.
 Qed.
 
+Definition ps_lap_add {R} la lb :=
+  @lap_add (puiseux_series α) (ps_ring R) la lb.
+
+Delimit Scope ps_lap_scope with pslap.
+Notation "a + b" := (ps_lap_add a b) : ps_lap_scope.
+
+Lemma lap_nth_add : ∀ n la lb,
+  (lap_nth R n (la + lb)%pslap = lap_nth R n la + lap_nth R n lb)%ps.
+Proof.
+intros n la lb.
+bbb.
+
 (* [Walker, p 101] « O(b^-_r) = 0 » *)
 Theorem xxx : ∀ pol ns c₁ r f₁,
   ns ∈ newton_segments R pol
