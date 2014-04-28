@@ -391,7 +391,7 @@ Qed.
 Theorem f₁_eq_x_min_β₁_summation : ∀ pol β₁ γ₁ c₁,
   (pol₁ R pol β₁ γ₁ c₁ =
    POL [ps_monom 1%K (- β₁)] *
-   poly_summation Kx (List.seq 0 (length (al pol)))
+   ps_pol_summation (List.seq 0 (length (al pol)))
      (λ h,
       let āh := poly_nth R h pol in
       POL [(āh * ps_monom 1%K (Qnat h * γ₁))%ps] *
@@ -417,7 +417,7 @@ clear la lb Heq.
 remember (al pol) as la; clear pol Heqla.
 revert la.
 induction i; intros; simpl.
- subst Kx; rewrite lap_mul_1_r.
+ rewrite lap_mul_1_r.
  constructor; [ idtac | reflexivity ].
  unfold Qnat; simpl.
  rewrite <- ps_mul_1_r in |- * at 1.
@@ -430,7 +430,7 @@ induction i; intros; simpl.
   rewrite lap_mul_nil_l.
   rewrite lap_mul_nil_l.
   constructor; [ idtac | reflexivity ].
-  subst Kx; simpl.
+  simpl.
   rewrite ps_mul_0_l; reflexivity.
 
   rewrite lap_mul_assoc.
@@ -439,7 +439,7 @@ induction i; intros; simpl.
   unfold lap_mul; simpl.
   rewrite summation_only_one; simpl.
   constructor; [ idtac | reflexivity ].
-  subst Kx; simpl.
+  simpl.
   rewrite <- ps_mul_assoc.
   apply ps_mul_compat_l.
   rewrite ps_monom_mul_r_pow; symmetry.
