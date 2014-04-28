@@ -325,12 +325,16 @@ Definition ps_pol_eq α {R : ring α} la lb :=
 Definition ps_pol_mul α {R : ring α} la lb :=
   @poly_mul (puiseux_series α) (ps_ring R) la lb.
 
+Definition ps_pol_power α {R : ring α} la n :=
+  @poly_power (puiseux_series α) (ps_ring R) la n.
+
 Definition ps_pol_compose α {R : ring α} la lb :=
   @poly_compose (puiseux_series α) (ps_ring R) la lb.
 
 Delimit Scope ps_pol_scope with pspol.
 Notation "a = b" := (ps_pol_eq a b) : ps_pol_scope.
 Notation "a * b" := (ps_pol_mul a b) : ps_pol_scope.
+Notation "a ^ b" := (ps_pol_power a b) : ps_pol_scope.
 Notation "a ∘ b" := (ps_pol_compose a b) : ps_pol_scope.
 Notation "'POL' l" := {| al := l |} (at level 1) : ps_pol_scope.
 
@@ -376,16 +380,15 @@ apply lap_f₁_eq_x_min_β₁_comp; reflexivity.
 Qed.
 
 Theorem f₁_eq_x_min_β₁_summation : ∀ pol β₁ γ₁ c₁,
-  let f' := Kx in (* coq seems not to see the type of Kx *)
   (pol₁ R pol β₁ γ₁ c₁ =
    POL [ps_monom 1%K (- β₁)] *
    poly_summation Kx (List.seq 0 (length (al pol)))
      (λ h,
       let āh := poly_nth R h pol in
       POL [(āh * ps_monom 1%K (Qnat h * γ₁))%ps] *
-      POL [ps_monom c₁ 0; 1%ps … []] ^ h))%pol.
+      POL [ps_monom c₁ 0; 1%ps … []] ^ h))%pspol.
 Proof.
-intros pol β₁ γ₁ c₁ f'; subst f'.
+intros pol β₁ γ₁ c.
 rewrite f₁_eq_x_min_β₁_comp.
 unfold ps_pol_compose.
 rewrite poly_compose_compose2.
