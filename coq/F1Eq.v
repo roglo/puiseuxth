@@ -322,6 +322,9 @@ Notation "a ∘ b" := (ps_lap_compose a b) : ps_lap_scope.
 Definition ps_pol_eq α {R : ring α} la lb :=
   @eq_poly (puiseux_series α) (ps_ring R) la lb.
 
+Definition ps_pol_add α {R : ring α} la lb :=
+  @poly_add (puiseux_series α) (ps_ring R) la lb.
+
 Definition ps_pol_mul α {R : ring α} la lb :=
   @poly_mul (puiseux_series α) (ps_ring R) la lb.
 
@@ -331,8 +334,12 @@ Definition ps_pol_power α {R : ring α} la n :=
 Definition ps_pol_compose α {R : ring α} la lb :=
   @poly_compose (puiseux_series α) (ps_ring R) la lb.
 
+Definition ps_pol_summation α {R : ring α} ln f :=
+  @poly_summation (puiseux_series α) (ps_ring R) ln f.
+
 Delimit Scope ps_pol_scope with pspol.
 Notation "a = b" := (ps_pol_eq a b) : ps_pol_scope.
+Notation "a + b" := (ps_pol_add a b) : ps_pol_scope.
 Notation "a * b" := (ps_pol_mul a b) : ps_pol_scope.
 Notation "a ^ b" := (ps_pol_power a b) : ps_pol_scope.
 Notation "a ∘ b" := (ps_pol_compose a b) : ps_pol_scope.
@@ -445,23 +452,21 @@ Qed.
   » *)
 (* we can split the sum on 0..n into two sub lists l₁, l₂ in any way *)
 Theorem f₁_eq_x_min_β₁_summation_split : ∀ pol β₁ γ₁ c₁ l₁ l₂,
-  let f' := Kx in (* coq seems not to see the type of Kx *)
   split_list (List.seq 0 (length (al pol))) l₁ l₂
   → (pol₁ R pol β₁ γ₁ c₁ =
-     POL [ps_monom 1%K (- β₁)] *
-     poly_summation Kx l₁
-       (λ h,
-        let āh := poly_nth R h pol in
-        POL [(āh * ps_monom 1%K (Qnat h * γ₁))%ps] *
-        POL [ps_monom c₁ 0; 1%ps … []] ^ h) +
-     POL [ps_monom 1%K (- β₁)] *
-     poly_summation Kx l₂
-       (λ l,
-        let āl := poly_nth R l pol in
-        POL [(āl * ps_monom 1%K (Qnat l * γ₁))%ps] *
-        POL [ps_monom c₁ 0; 1%ps … []] ^ l))%pol.
+      POL [ps_monom 1%K (- β₁)] *
+      ps_pol_summation l₁
+        (λ (h : nat) (āh:=poly_nth R h pol),
+         POL [(āh * ps_monom 1%K (Qnat h * γ₁))%ps] *
+         POL [ps_monom c₁ 0; 1%ps … []] ^ h) +
+      POL [ps_monom 1%K (- β₁)] *
+      ps_pol_summation l₂
+        (λ (l : nat) (āl:=poly_nth R l pol),
+         POL [(āl * ps_monom 1%K (Qnat l * γ₁))%ps] *
+         POL [ps_monom c₁ 0; 1%ps … []] ^ l))%pspol.
 Proof.
-intros pol β₁ γ₁ c₁ l₁ l₂ f' Hss; subst f'.
+intros pol β₁ γ₁ c₁ l₁ l₂ Hss.
+unfold ps_pol_add, ps_pol_mul, ps_pol_summation.
 rewrite <- poly_mul_add_distr_l.
 rewrite split_summation; [ idtac | eassumption ].
 apply f₁_eq_x_min_β₁_summation; assumption.
