@@ -1742,11 +1742,10 @@ rewrite rng_list_map_nth.
 Qed.
 
 Lemma poly_inject_inj_mul : ∀ P Q,
-  let f' := Kx in (* coq seems not to see the type of Kx *)
-  (poly_inject_K_in_Kx R (P * Q) =
-   (poly_inject_K_in_Kx R P * poly_inject_K_in_Kx R Q))%pol.
+  (poly_inject_K_in_Kx R (P * Q)%pol =
+   (poly_inject_K_in_Kx R P * poly_inject_K_in_Kx R Q))%pspol.
 Proof.
-intros P Q f'; subst f'.
+intros P Q.
 apply lap_mul_map_ps.
 Qed.
 
