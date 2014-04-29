@@ -1707,22 +1707,20 @@ rewrite Hab, IHla; reflexivity.
 Qed.
 
 Lemma lap_add_map_ps : ∀ la lb,
-  let _ := Kx in (* coq seems not to see the type of Kx *)
-  (List.map (λ c, ps_monom c 0) (la + lb) =
-   List.map (λ c, ps_monom c 0) la + List.map (λ c, ps_monom c 0) lb)%lap.
+  (List.map (λ c, ps_monom c 0) (la + lb)%lap =
+   List.map (λ c, ps_monom c 0) la + List.map (λ c, ps_monom c 0) lb)%pslap.
 Proof.
-intros la lb f'.
+intros la lb.
 apply lap_add_map; intros a b.
 rewrite ps_monom_add_l; reflexivity.
 Qed.
 
 Theorem lap_mul_map_ps : ∀ la lb,
-  let _ := Kx in (* coq seems not to see the type of Kx *)
-  (List.map (λ c, ps_monom c 0) (la * lb) =
-   List.map (λ c, ps_monom c 0) la * List.map (λ c, ps_monom c 0) lb)%lap.
+  (List.map (λ c, ps_monom c 0) (la * lb)%lap =
+   List.map (λ c, ps_monom c 0) la * List.map (λ c, ps_monom c 0) lb)%pslap.
 Proof.
-intros la lb f'.
-progress unfold lap_mul; simpl.
+intros la lb.
+progress unfold ps_lap_eq, ps_lap_mul, lap_mul; simpl.
 do 2 rewrite List.map_length.
 remember (pred (length la + length lb)) as len.
 clear Heqlen.
