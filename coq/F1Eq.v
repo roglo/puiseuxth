@@ -1829,7 +1829,6 @@ Definition lap_inject_K_in_Kx α (R : ring α) la :=
       (c₁+y₁)^j.Φ((c₁+y₁)^q) = y₁^r.(c₁+y₁)^j.Ψ(c₁+y₁)
  *)
 Theorem phi_c₁y₁_psy : ∀ pol ns pl tl l c₁ r Ψ j αj,
-  let _ := Kx in (* coq seems not to see the type of Kx *)
   ns ∈ newton_segments R pol
   → ac_root (Φq R pol ns) = c₁
     → r = root_multiplicity acf c₁ (Φq R pol ns)
@@ -1839,24 +1838,26 @@ Theorem phi_c₁y₁_psy : ∀ pol ns pl tl l c₁ r Ψ j αj,
             → l = List.map (λ t, power t) tl
               → ini_pt ns = (Qnat j, αj)
                 → (POL [ps_monom c₁ 0; 1%ps … []] ^ j *
-                   poly_compose (poly_inject_K_in_Kx R (Φq R pol ns))
+                   ps_pol_comp (poly_inject_K_in_Kx R (Φq R pol ns))
                      (POL [ps_monom c₁ 0; 1%ps … []]) =
                    POL [0%ps; 1%ps … []] ^ r *
                    POL [ps_monom c₁ 0; 1%ps … []] ^ j *
-                   poly_compose (poly_inject_K_in_Kx R Ψ)
-                     (POL [ps_monom c₁ 0; 1%ps … []]))%pol.
+                   ps_pol_comp (poly_inject_K_in_Kx R Ψ)
+                     (POL [ps_monom c₁ 0; 1%ps … []]))%pspol.
 Proof.
-intros pol ns pl tl l c₁ r Ψ j αj f' Hns Hc₁ Hr HΨ Hpl Htl Hl Hini; subst f'.
+intros pol ns pl tl l c₁ r Ψ j αj Hns Hc₁ Hr HΨ Hpl Htl Hl Hini.
 remember Hns as Hfin; clear HeqHfin.
 apply exists_fin_pt_nat in Hfin.
 destruct Hfin as (k, (αk, Hk)).
 symmetry.
+progress unfold ps_pol_mul.
 rewrite poly_mul_comm, poly_mul_assoc, poly_mul_comm.
 apply poly_mul_compat; [ reflexivity | idtac ].
 rewrite phi_zq_eq_z_sub_c₁_psy; try eassumption.
 rewrite poly_inject_inj_mul.
 progress unfold eq_poly; simpl.
 rewrite <- lap_power_map_ps; simpl.
+subst Kx.
 rewrite lap_compose_mul.
 symmetry.
 rewrite lap_mul_comm.
