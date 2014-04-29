@@ -896,13 +896,12 @@ assert (∃ h ah, (iq, αi) = (Qnat h, ah)) as Hnat.
 Qed.
 
 Lemma fold_right_exists : ∀ pol ns pts j k αj αk f la,
-  let _ := Kx in (* coq seems not to see the type of Kx *)
   ns ∈ newton_segments R pol
   → pts = [ini_pt ns … oth_pts ns ++ [fin_pt ns]]
     → ini_pt ns = (Qnat j, αj)
       → fin_pt ns = (Qnat k, αk)
-        → (∀ i a b, lap_eq a b → lap_eq (f i a) (f i b))
-          → lap_eq
+        → (∀ i a b, ps_lap_eq a b → ps_lap_eq (f i a) (f i b))
+          → ps_lap_eq
               (List.fold_right f la (List.map (λ pt, nofq (fst pt)) pts))
               (List.fold_right
                  (λ i accu,
@@ -912,12 +911,14 @@ Lemma fold_right_exists : ∀ pol ns pts j k αj αk f la,
                  (List.seq j (S (k - j)))).
 Proof.
 (* sûrement nettoyable ; putain, j'en ai chié *)
-intros pol ns pts j k αj αk f la f' Hns Hpl Hini Hfin Hi; subst f'.
+intros pol ns pts j k αj αk f la Hns Hpl Hini Hfin Hi.
 assert (j < k)%nat as Hjk.
  eapply j_lt_k; try eassumption.
-  rewrite Hini; progress unfold nofq, Qnat; simpl; rewrite Nat2Z.id; reflexivity.
+  rewrite Hini; progress unfold nofq, Qnat; simpl.
+  rewrite Nat2Z.id; reflexivity.
 
-  rewrite Hfin; progress unfold nofq, Qnat; simpl; rewrite Nat2Z.id; reflexivity.
+  rewrite Hfin; progress unfold nofq, Qnat; simpl.
+  rewrite Nat2Z.id; reflexivity.
 
  subst pts; simpl.
  rewrite Hini; simpl.
@@ -962,6 +963,7 @@ assert (j < k)%nat as Hjk.
      simpl in Hlast.
      injection Hlast; clear; intros; subst.
      rewrite <- Nat2Z.inj_0 in H0.
+     progress unfold ps_lap_eq.
      apply Nat2Z.inj in H0; subst k; reflexivity.
 
      simpl.
@@ -979,6 +981,7 @@ assert (j < k)%nat as Hjk.
       rewrite Nat.eqb_refl; simpl.
       simpl in Hlast.
       destruct pts as [| pt]; [ simpl | exfalso ].
+       progress unfold ps_lap_eq.
        rewrite fold_nothing; [ reflexivity | idtac ].
        intros i Hji Hij.
        rewrite orb_false_r.
@@ -1070,7 +1073,8 @@ assert (j < k)%nat as Hjk.
              injection H; clear H; intros; subst l al.
              apply Sorted_inv in Hsort.
              destruct Hsort as (_, Hrel).
-             apply HdRel_inv in Hrel; progress unfold fst_lt in Hrel; simpl in Hrel.
+             apply HdRel_inv in Hrel.
+             progress unfold fst_lt in Hrel; simpl in Hrel.
              progress unfold Qlt in Hrel; simpl in Hrel.
              do 2 rewrite Z.mul_1_r in Hrel.
              apply Nat2Z.inj_lt; assumption.
@@ -1582,7 +1586,7 @@ assert (∀ iq αi, (iq, αi) ∈ pl → ∃ i, iq = Qnat i) as Hnat.
        assert (List.nth i (make_char_pol R j tl) 0%K = 0%K) as Hz.
         Focus 2.
         rewrite Hz; simpl.
-        set (f' := Kx).
+        set (f' := ps_ring R).
         rewrite lap_eq_cons_nil; [ idtac | simpl | reflexivity ].
          rewrite lap_mul_nil_l, lap_mul_nil_r, lap_add_nil_r; reflexivity.
 
@@ -1625,13 +1629,15 @@ assert (∀ iq αi, (iq, αi) ∈ pl → ∃ i, iq = Qnat i) as Hnat.
 
        rewrite ps_zero_monom_eq; reflexivity.
 
-    intros i a b Hab; rewrite Hab; reflexivity.
+    intros i a b Hab.
+    unfold ps_lap_eq in Hab; unfold ps_lap_eq.
+    rewrite Hab; reflexivity.
 Qed.
 
 (* to be moved to the right file... *)
 Lemma ps_monom_summation_aux : ∀ f b len,
   (ps_monom (summation_aux R b len f) 0 =
-   summation_aux Kx b len (λ i, ps_monom (f i) 0))%ps.
+   summation_aux (ps_ring R) b len (λ i, ps_monom (f i) 0))%ps.
 Proof.
 intros f b len.
 revert b.
@@ -1644,7 +1650,7 @@ Qed.
 (* to be moved to the right file... *)
 Lemma ps_monom_summation : ∀ f n,
   (ps_monom (Σ R (i = 0, n), f i) 0 =
-   Σ Kx (i = 0, n), ps_monom (f i) 0)%ps.
+   Σ (ps_ring R) (i = 0, n), ps_monom (f i) 0)%ps.
 Proof.
 intros f n.
 apply ps_monom_summation_aux.
