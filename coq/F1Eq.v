@@ -40,29 +40,7 @@ Definition pol₁ α (R : ring α) pol β₁ γ₁ c₁ :=
 
 (* *)
 
-Definition ps_lap_eq α {R : ring α} la lb :=
-  @lap_eq (puiseux_series α) (ps_ring R) la lb.
-
-Definition ps_lap_add α {R : ring α} la lb :=
-  @lap_add (puiseux_series α) (ps_ring R) la lb.
-
-Definition ps_lap_mul α {R : ring α} la lb :=
-  @lap_mul (puiseux_series α) (ps_ring R) la lb.
-
-Definition ps_lap_comp α {R : ring α} la lb :=
-  @lap_compose (puiseux_series α) (ps_ring R) la lb.
-
 Delimit Scope ps_lap_scope with pslap.
-Notation "a = b" := (ps_lap_eq a b) : ps_lap_scope.
-Notation "a + b" := (ps_lap_add a b) : ps_lap_scope.
-Notation "a * b" := (ps_lap_mul a b) : ps_lap_scope.
-Notation "a ∘ b" := (ps_lap_comp a b) : ps_lap_scope.
-
-Lemma fold_ps_lap_add : ∀ α (R : ring α) a b,
-  @lap_add _ (ps_ring R) a b = ps_lap_add a b.
-Proof. reflexivity. Qed.
-
-(* *)
 
 Definition lap_nth α (R : ring α) h la := (List.nth h la 0)%ps.
 Definition poly_nth α (R : ring α) h pol := (lap_nth R h (al pol)).
@@ -77,6 +55,32 @@ Definition poly_summation α (r : ring α) (li : list nat) g :=
 
 Definition poly_inject_K_in_Kx α (R : ring α) pol :=
   (POL (List.map (λ c, ps_monom c 0) (al pol)))%pol.
+
+(* *)
+
+Definition ps_lap_eq α {R : ring α} la lb :=
+  @lap_eq (puiseux_series α) (ps_ring R) la lb.
+
+Definition ps_lap_add α {R : ring α} la lb :=
+  @lap_add (puiseux_series α) (ps_ring R) la lb.
+
+Definition ps_lap_mul α {R : ring α} la lb :=
+  @lap_mul (puiseux_series α) (ps_ring R) la lb.
+
+Definition ps_lap_comp α {R : ring α} la lb :=
+  @lap_compose (puiseux_series α) (ps_ring R) la lb.
+
+Definition ps_lap_summ α {R : ring α} ln f :=
+  @lap_summation (puiseux_series α) (ps_ring R) ln f.
+
+Notation "a = b" := (ps_lap_eq a b) : ps_lap_scope.
+Notation "a + b" := (ps_lap_add a b) : ps_lap_scope.
+Notation "a * b" := (ps_lap_mul a b) : ps_lap_scope.
+Notation "a ∘ b" := (ps_lap_comp a b) : ps_lap_scope.
+
+Lemma fold_ps_lap_add : ∀ α (R : ring α) a b,
+  @lap_add _ (ps_ring R) a b = ps_lap_add a b.
+Proof. reflexivity. Qed.
 
 (* *)
 
