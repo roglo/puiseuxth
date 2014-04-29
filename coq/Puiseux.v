@@ -1727,10 +1727,20 @@ assert (m ≠ 0)%ps as Hmnz.
 Qed.
 
 Lemma lap_nth_add : ∀ n la lb,
-  (lap_nth R n (la + lb)%pslap = lap_nth R n la + lap_nth R n lb)%ps.
+  (lap_nth R n (la + lb) = lap_nth R n la + lap_nth R n lb)%ps.
 Proof.
 intros n la lb.
-bbb.
+unfold ps_lap_add; simpl.
+unfold lap_nth; simpl.
+revert n lb.
+induction la as [| a]; intros; simpl.
+ rewrite match_id, ps_add_0_l; reflexivity.
+
+ destruct lb as [| b]; simpl.
+  rewrite match_id, ps_add_0_r; reflexivity.
+
+  destruct n; [ reflexivity | apply IHla ].
+Qed.
 
 (* [Walker, p 101] « O(b^-_r) = 0 » *)
 Theorem xxx : ∀ pol ns c₁ r f₁,
@@ -1752,6 +1762,9 @@ remember Hns as Hini; clear HeqHini.
 apply exists_ini_pt_nat in Hini.
 destruct Hini as (j, (αj, Hini)).
 rewrite f₁_eq_term_with_Ψ_plus_sum with (l₂ := l₂); try eassumption.
+ unfold poly_nth; simpl.
+ rewrite fold_ps_lap_add.
+ rewrite lap_nth_add.
 bbb.
 
 (* better approach than the one of 'zzz' below, since it is direct;
