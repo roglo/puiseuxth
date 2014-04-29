@@ -161,7 +161,7 @@ Fixpoint lap_convol_mul {α} {r : ring α} al₁ al₂ i len :=
   match len with
   | O => []
   | S len₁ =>
-      [Σ r (j = 0, i), List.nth j al₁ 0 * List.nth (i - j) al₂ 0 …
+      [Σ r (j = 0, i), (List.nth j al₁ 0 * List.nth (i - j) al₂ 0)%K …
        lap_convol_mul al₁ al₂ (S i) len₁]
   end.
 
@@ -988,9 +988,9 @@ Fixpoint lap_convol_mul_add al₁ al₂ al₃ i len :=
   | O => []
   | S len₁ =>
       [Σ r (j = 0, i),
-       List.nth j al₁ 0 *
-       (List.nth (i - j) al₂ 0 + List.nth (i - j) al₃ 0) …
-       lap_convol_mul_add al₁ al₂ al₃ (S i) len₁]
+       (List.nth j al₁ 0 *
+        (List.nth (i - j) al₂ 0 + List.nth (i - j) al₃ 0))%K …
+        lap_convol_mul_add al₁ al₂ al₃ (S i) len₁]
   end.
 
 (* *)
@@ -1700,7 +1700,7 @@ Definition lap_compose3 {α} {r : ring α} la lb :=
 
 Definition lap_compose4 {α} {r : ring α} la lb :=
   let R := lap_ring r in
-  Σ R (i = 0, length la), [List.nth i la 0] * lb ^ i.
+  Σ R (i = 0, length la), ([List.nth i la 0] * lb ^ i)%K.
 
 
 (* polynomial type *)

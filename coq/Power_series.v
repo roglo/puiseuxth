@@ -133,7 +133,7 @@ End theorems_add.
 (* series_mul *)
 
 Definition convol_mul {α} {r : ring α} a b k :=
-  Σ r (i = 0, k), a.[i] * b.[k-i].
+  Σ r (i = 0, k), (a.[i] * b.[k-i])%K.
 
 Definition series_mul {α} {r : ring α} a b :=
   {| terms k := convol_mul a b k |}.

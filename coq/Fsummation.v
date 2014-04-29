@@ -29,7 +29,7 @@ Definition summation' α (r : ring α) b e g :=
   List.fold_right (λ i accu, g i + accu)%K 0%K
     (List.seq b (S e - b)).
 
-Notation "'Σ' f ( i = b , e ) , g" := (summation f b e (λ i, (g)%K))
+Notation "'Σ' f ( i = b , e ) , g" := (summation f b e (λ i, (g)))
   (at level 0, f at level 0, i at level 0, b at level 60, e at level 60,
    g at level 40).
 

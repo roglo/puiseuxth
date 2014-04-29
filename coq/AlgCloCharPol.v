@@ -25,7 +25,7 @@ Definition apply_poly α (r : ring α) pol :=
   apply_lap r (al pol).
 
 Definition apply_lap2 α (R : ring α) la x :=
-  Σ R (i = 0, pred (length la)), List.nth i la 0 * x ^ i.
+  Σ R (i = 0, pred (length la)), (List.nth i la 0 * x ^ i)%K.
 
 (* euclidean division of a polynomial by (x - c) *)
 
@@ -1009,26 +1009,6 @@ induction len; intros.
   erewrite IHlen; [ reflexivity | eassumption ].
 Qed.
 
-(*
-Lemma lap_compose_add_sub : ∀ α (r : ring α) la a,
-  lap_eq
-    (lap_compose (lap_compose la [a; 1 … []]) [- a; 1 … []])%K
-    la.
-Proof.
-intros α r la a.
-rewrite lap_compose_compose2.
-unfold lap_compose2; simpl.
-rewrite length_lap_compose_deg_1.
-induction la as [| b]; [ reflexivity | idtac ].
-rewrite list_seq_app with (dj := length la).
- rewrite List.fold_right_app.
- remember (length [b … la]) as x; simpl in Heqx; subst x.
- rewrite minus_Sn_n.
- rewrite Nat.add_0_l.
- simpl.
-bbb.
-*)
-
 Lemma apply_lap_compose_add_sub : ∀ α (r : ring α) la a x,
   (apply_lap r (lap_compose la [a; 1 … []]) (x - a) =
    apply_lap r la x)%K.
@@ -1352,7 +1332,7 @@ induction n; simpl.
  rewrite IHn, rng_mul_add_distr_l; reflexivity.
 Qed.
 
-Lemma list_nth_compose_deg_1 : ∀ α (r : ring α) la b k n,
+Lemma list_nth_compose2_deg_1 : ∀ α (r : ring α) la b k n,
   n = length la
   → (List.nth k (lap_compose2 la [b; 1 … []]) 0 =
      Σ r (i = 0, n - k),
@@ -1485,8 +1465,8 @@ intros α r k la b.
 do 2 rewrite lap_compose_compose2.
 apply list_nth_lap_eq; intros j.
 rewrite list_nth_derivial.
-rewrite list_nth_compose_deg_1; [ idtac | reflexivity ].
-rewrite list_nth_compose_deg_1; [ idtac | reflexivity ].
+rewrite list_nth_compose2_deg_1; [ idtac | reflexivity ].
+rewrite list_nth_compose2_deg_1; [ idtac | reflexivity ].
 rewrite list_length_derivial.
 rewrite <- Nat.sub_add_distr.
 rewrite <- summation_mul_nat_swap.
@@ -1565,7 +1545,7 @@ Proof.
 intros α R c la.
 rewrite lap_compose_compose2.
 apply list_nth_lap_eq; intros i.
-rewrite list_nth_compose_deg_1; [ idtac | reflexivity ].
+rewrite list_nth_compose2_deg_1; [ idtac | reflexivity ].
 rename i into k.
 unfold taylor_lap.
 rewrite list_nth_taylor; [ idtac | rewrite Nat.add_0_r; reflexivity ].

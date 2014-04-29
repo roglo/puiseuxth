@@ -82,6 +82,10 @@ Lemma fold_ps_lap_add : ∀ α (R : ring α) a b,
   @lap_add _ (ps_ring R) a b = ps_lap_add a b.
 Proof. reflexivity. Qed.
 
+Lemma fold_lap_nth : ∀ α (R : ring α) h la,
+  List.nth h la 0%ps = lap_nth R h la.
+Proof. reflexivity. Qed.
+
 (* *)
 
 Add Parametric Morphism α (R : ring α) : (lap_nth R)
@@ -1754,21 +1758,22 @@ apply lap_mul_map_ps.
 Qed.
 
 Lemma summation_lap_compose_deg_1_mul : ∀ la c d k f,
-  let _ := Kx in (* coq seems not to see the type of Kx *)
-  (Σ Kx (i = 0, k),
-   (List.nth (f i) (lap_compose2 la [c; 1%ps … []]) (0)%ps *
-    d i) =
-   Σ Kx (i = 0, k),
-   (Σ Kx (j = 0, length la - f i),
-    rng_mul_nat Kx (comb (f i + j) (f i))
-      (List.nth (f i + j) la (0)%ps * rng_pow_nat Kx c j)) *
-       d i)%ps.
+  (Σ (ps_ring R) (i = 0, k),
+   (List.nth (f i) (la ∘ [c; 1 … []])%pslap 0 * d i)%ps =
+   Σ (ps_ring R) (i = 0, k),
+   (Σ (ps_ring R) (j = 0, length la - f i),
+    rng_mul_nat (ps_ring R) (comb (f i + j) (f i))
+      (List.nth (f i + j) la 0 * rng_pow_nat (ps_ring R) c j)) *
+    d i)%ps.
 Proof.
-intros la c d k f f'.
+intros la c d k f.
 apply summation_compat.
 intros i (_, Hik).
-subst Kx f'.
-rewrite list_nth_compose_deg_1; [ idtac | reflexivity ].
+unfold ps_lap_comp.
+rewrite fold_lap_nth.
+rewrite lap_compose_compose2.
+unfold lap_nth.
+rewrite list_nth_compose2_deg_1; [ idtac | reflexivity ].
 reflexivity.
 Qed.
 
