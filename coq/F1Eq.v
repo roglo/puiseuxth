@@ -1804,11 +1804,11 @@ subst s; reflexivity.
 Qed.
 
 Lemma lap_power_map_ps : ∀ la n,
-  let _ := Kx in (* coq seems not to see the type of Kx *)
   (List.map (λ c : α, ps_monom c 0) la ^ n =
-   List.map (λ c : α, ps_monom c 0) (la ^ n))%lap.
+   List.map (λ c : α, ps_monom c 0) (la ^ n)%lap)%pslap.
 Proof.
-intros la n f'.
+intros la n.
+unfold ps_lap_eq, ps_lap_pow.
 revert la.
 induction n; intros; [ reflexivity | simpl ].
 rewrite IHn; symmetry.
@@ -1892,19 +1892,17 @@ induction r.
  reflexivity.
 
  rewrite <- Nat.add_1_r.
+ unfold ps_lap_pow.
  do 2 rewrite lap_power_add.
  do 2 rewrite lap_power_1.
  rewrite lap_compose_mul.
  rewrite IHr.
- apply lap_mul_compat_l.
- simpl.
+ apply lap_mul_compat_l; simpl.
  progress unfold summation; simpl.
  rewrite rng_mul_0_l, rng_add_0_l, rng_add_0_l.
  rewrite rng_add_0_r, rng_add_0_r, rng_mul_1_r.
  constructor; [ idtac | reflexivity ].
- rewrite ps_mul_1_l.
- rewrite ps_monom_opp.
- rewrite ps_add_opp_r.
+ rewrite ps_mul_1_l, ps_monom_opp, ps_add_opp_r.
  reflexivity.
 Qed.
 
