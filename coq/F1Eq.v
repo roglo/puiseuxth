@@ -385,8 +385,6 @@ Variable α : Type.
 Variable R : ring α.
 Variable K : field R.
 Variable acf : algeb_closed_field K.
-(* perhaps no more necessary if the method with 'ps_lap' works: *)
-Let Kx := ps_ring R.
 
 Lemma lap_f₁_eq_x_min_β₁_comp : ∀ la β₁ γ₁ c₁,
   (lap_pol₁ R la β₁ γ₁ c₁ =
@@ -1828,17 +1826,6 @@ destruct (zerop i); [ reflexivity | idtac ].
 rewrite rng_opp_0; reflexivity.
 Qed.
 
-Lemma apply_deg_1_root : ∀ c,
-  let f' := Kx in (* coq seems not to see the type of Kx *)
-  (apply_lap Kx [ps_monom (- c) 0; ps_monom 1 0 … []]
-    (ps_monom c 0) = 0%ps)%K.
-Proof.
-intros c f'; subst f'; simpl.
-rewrite rng_mul_0_l, rng_add_0_l, ps_mul_1_l.
-rewrite ps_monom_opp, rng_add_opp_r.
-reflexivity.
-Qed.
-
 Definition lap_compose5 {α β} {R : ring β} (f : list α → list β) la lb :=
   apply_lap (lap_ring R) (List.map f la) lb.
 
@@ -1880,7 +1867,6 @@ rewrite phi_zq_eq_z_sub_c₁_psy; try eassumption.
 rewrite poly_inject_inj_mul.
 progress unfold eq_poly; simpl.
 rewrite <- lap_power_map_ps; simpl.
-subst Kx.
 rewrite lap_compose_mul.
 symmetry.
 rewrite lap_mul_comm.
@@ -1913,7 +1899,6 @@ Qed.
                          Σāl.x^(l.γ₁).(c₁+y₁)^l]
 *)
 Theorem f₁_eq_term_with_Ψ_plus_sum : ∀ pol ns c₁ pl tl j αj l₁ l₂ r Ψ,
-  let _ := Kx in (* coq seems not to see the type of Kx *)
   ns ∈ newton_segments R pol
   → ac_root (Φq R pol ns) = c₁
     → r = root_multiplicity acf c₁ (Φq R pol ns)
@@ -1926,24 +1911,23 @@ Theorem f₁_eq_term_with_Ψ_plus_sum : ∀ pol ns c₁ pl tl j αj l₁ l₂ r 
                   → (pol₁ R pol (β ns) (γ ns) c₁ =
                      POL [0%ps; 1%ps … []] ^ r *
                      POL [ps_monom c₁ 0; 1%ps … []] ^ j *
-                     poly_compose (poly_inject_K_in_Kx R Ψ)
-                       (POL [ps_monom c₁ 0; 1%ps … []]) +
+                     poly_inject_K_in_Kx R Ψ ∘ POL [ps_monom c₁ 0; 1%ps … []] +
                      POL [ps_monom 1%K (- β ns)] *
-                     (poly_summation Kx l₁
+                     (ps_pol_summ l₁
                         (λ h,
                          let āh := poly_nth R h pol in
                          let ah := ps_monom (coeff_of_term h tl) 0 in
                          let αh := ord_of_pt h pl in
                          POL [((āh - ah * ps_monom 1%K αh) *
-                               ps_monom 1%K (Qnat h * γ ns))%ps] *
+                         ps_monom 1%K (Qnat h * γ ns))%ps] *
                          POL [ps_monom c₁ 0; 1%ps … []] ^ h) +
-                      poly_summation Kx l₂
+                      ps_pol_summ l₂
                         (λ l,
                          let āl := poly_nth R l pol in
                          POL [(āl * ps_monom 1%K (Qnat l * γ ns))%ps] *
-                         POL [ps_monom c₁ 0; 1%ps … []] ^ l)))%pol.
+                         POL [ps_monom c₁ 0; 1%ps … []] ^ l)))%pspol.
 Proof.
-intros pol ns c₁ pl tl j αj l₁ l₂ r Ψ f' Hns Hc₁ Hr HΨ Hpl Htl Hl Hss Hini.
+intros pol ns c₁ pl tl j αj l₁ l₂ r Ψ Hns Hc₁ Hr HΨ Hpl Htl Hl Hss Hini.
 rewrite f₁_eq_sum_without_x_β₁_plus_sum; try eassumption.
 rewrite sum_ah_c₁y_h_eq; try eassumption.
 rewrite phi_c₁y₁_psy; try eassumption.
