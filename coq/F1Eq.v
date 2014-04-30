@@ -67,6 +67,9 @@ Definition ps_lap_add α {R : ring α} la lb :=
 Definition ps_lap_mul α {R : ring α} la lb :=
   @lap_mul (puiseux_series α) (ps_ring R) la lb.
 
+Definition ps_lap_pow α {R : ring α} a n :=
+  @lap_power (puiseux_series α) (ps_ring R) a n.
+
 Definition ps_lap_comp α {R : ring α} la lb :=
   @lap_compose (puiseux_series α) (ps_ring R) la lb.
 
@@ -76,6 +79,7 @@ Definition ps_lap_summ α {R : ring α} ln f :=
 Notation "a = b" := (ps_lap_eq a b) : ps_lap_scope.
 Notation "a + b" := (ps_lap_add a b) : ps_lap_scope.
 Notation "a * b" := (ps_lap_mul a b) : ps_lap_scope.
+Notation "a ^ b" := (ps_lap_pow a b) : ps_lap_scope.
 Notation "a ∘ b" := (ps_lap_comp a b) : ps_lap_scope.
 
 Lemma fold_ps_lap_add : ∀ α (R : ring α) a b,
@@ -1801,9 +1805,8 @@ Qed.
 
 Lemma lap_power_map_ps : ∀ la n,
   let _ := Kx in (* coq seems not to see the type of Kx *)
-  lap_eq
-    (lap_power (List.map (λ c, ps_monom c 0) la) n)
-    (List.map (λ c, ps_monom c 0) (lap_power la n)).
+  (List.map (λ c : α, ps_monom c 0) la ^ n =
+   List.map (λ c : α, ps_monom c 0) (la ^ n))%lap.
 Proof.
 intros la n f'.
 revert la.
