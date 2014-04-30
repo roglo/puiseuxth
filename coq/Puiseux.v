@@ -1735,6 +1735,44 @@ induction la as [| a]; intros; simpl.
   destruct n; [ reflexivity | apply IHla ].
 Qed.
 
+(* [Walker, p 101] «
+     Since O(āh - ah.x^αh) > 0 and O(āl.x^(l.γ₁)) > β₁ we obtain
+       f₁(x,y₁) = b₁.y₁^r + b₂.y₁^(r+1) + ... + g(x,y₁),
+     where b₁ = c₁^j.Ψ(c₁) ≠ 0 and each power of y₁ in g(x,y₁) has
+     a coefficient of positive order.
+   »
+
+     Specifically, according to our theorem f₁_eq_term_with_Ψ_plus_sum,
+     g must be
+       g(x,y₁) = x^(-β₁).[Σ(āh-ah.x^αh).x^(h.γ₁).(c₁+y₁)^h +
+                          Σāl.x^(l.γ₁).(c₁+y₁)^l]
+     and the i of the bi run from 0 to k - r in the development of
+       y₁^r.(c₁+y₁)^j.Ψ(c₁+y₁)
+     since the degree of this polynomial is
+       r + j + (k - j - r)
+ *)
+Theorem zzz : ∀ pol ns j αj k αk c₁ r Ψ f₁ b₁ g,
+  ns ∈ newton_segments R pol
+  → ini_pt ns = (Qnat j, αj)
+    → fin_pt ns = (Qnat k, αk)
+      → c₁ = ac_root (Φq R pol ns)
+        → r = root_multiplicity acf c₁ (Φq R pol ns)
+          → Ψ = quotient_phi_x_sub_c_pow_r R (Φq R pol ns) c₁ r
+            → f₁ = pol₁ R pol (β ns) (γ ns) c₁
+              → (b₁ = c₁ ^ j * apply_poly R Ψ c₁)%K
+                → g = g_of_ns pol ns
+                  → ∃ lb,
+                    (∀ m, m ∈ al g → (order m > 0)%Qbar) ∧
+                    (f₁ =
+                     ps_pol_summ (List.seq 0 (k - r))
+                       (λ h,
+                        let bh := List.nth h [b₁ … lb] 0%K in
+                        POL [0%ps; ps_monom bh 1 … []] ^ (r + h)) +
+                     g)%pspol.
+Proof.
+intros pol ns j αj k αk c₁ r Ψ f₁ b₁ g Hns Hini Hfin Hc₁ Hr HΨ Hf₁ Hb₁ Hg.
+bbb.
+
 (* [Walker, p 101] « O(b^-_r) = 0 » *)
 Theorem xxx : ∀ pol ns c₁ r f₁,
   ns ∈ newton_segments R pol
@@ -1774,9 +1812,6 @@ rewrite f₁_eq_term_with_Ψ_plus_sum with (l₂ := l₂); try eassumption.
  rewrite lap_nth_add.
 bbb.
 
-(* better approach than the one of 'zzz' below, since it is direct;
-   we also need a theorem for O(b^-_i) > 0 for i = 0,...,r-1
-   and one for O(b^-_r) = 0 *)
 Theorem yyy : ∀ pol ns c₁ f₁,
   ns ∈ newton_segments R pol
   → c₁ = ac_root (Φq R pol ns)
@@ -1784,44 +1819,6 @@ Theorem yyy : ∀ pol ns c₁ f₁,
       → ∀ i, (order (poly_nth R i f₁) ≥ 0)%Qbar.
 Proof.
 intros pol ns c₁ f₁ Hns Hc₁ Hf₁ i.
-bbb.
-
-(* [Walker, p 101] «
-     Since O(āh - ah.x^αh) > 0 and O(āl.x^(l.γ₁)) > β₁ we obtain
-       f₁(x,y₁) = b₁.y₁^r + b₂.y₁^(r+1) + ... + g(x,y₁),
-     where b₁ = c₁^j.Ψ(c₁) ≠ 0 and each power of y₁ in g(x,y₁) has
-     a coefficient of positive order.
-   »
-
-     Specifically, according to our theorem f₁_eq_term_with_Ψ_plus_sum,
-     g must be
-       g(x,y₁) = x^(-β₁).[Σ(āh-ah.x^αh).x^(h.γ₁).(c₁+y₁)^h +
-                          Σāl.x^(l.γ₁).(c₁+y₁)^l]
-     and the i of the bi run from 0 to k - r in the development of
-       y₁^r.(c₁+y₁)^j.Ψ(c₁+y₁)
-     since the degree of this polynomial is
-       r + j + (k - j - r)
- *)
-Theorem zzz : ∀ pol ns j αj k αk c₁ r Ψ f₁ b₁ g,
-  ns ∈ newton_segments R pol
-  → ini_pt ns = (Qnat j, αj)
-    → fin_pt ns = (Qnat k, αk)
-      → c₁ = ac_root (Φq R pol ns)
-        → r = root_multiplicity acf c₁ (Φq R pol ns)
-          → Ψ = quotient_phi_x_sub_c_pow_r R (Φq R pol ns) c₁ r
-            → f₁ = pol₁ R pol (β ns) (γ ns) c₁
-              → (b₁ = c₁ ^ j * apply_poly R Ψ c₁)%K
-                → g = g_of_ns pol ns
-                  → ∃ lb,
-                    (∀ m, m ∈ al g → (order m > 0)%Qbar) ∧
-                    (f₁ =
-                     poly_summation Kx (List.seq 0 (k - r))
-                       (λ h,
-                        let bh := List.nth h [b₁ … lb] 0%K in
-                        POL [0%ps; ps_monom bh 1 … []] ^ (r + h)) +
-                     g)%pol.
-Proof.
-intros pol ns j αj k αk c₁ r Ψ f₁ b₁ g Hns Hini Hfin Hc₁ Hr HΨ Hf₁ Hb₁ Hg.
 bbb.
 
 End theorems.
