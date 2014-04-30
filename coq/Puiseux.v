@@ -230,7 +230,6 @@ Variable α : Type.
 Variable R : ring α.
 Variable K : field R.
 Variable acf : algeb_closed_field K.
-Let Kx := ps_ring R.
 
 Lemma order_in_newton_segment : ∀ pol ns pl h αh,
   ns ∈ newton_segments R pol
@@ -1273,12 +1272,12 @@ destruct (lap_ps_nilp la) as [Hlaz| Hlanz].
 Qed.
 
 Lemma lap_ps_in_mul : ∀ la lb,
-  let _ := Kx in (* coq seems not to see the type of Kx *)
   (∀ m, lap_ps_in R m la → (order m > 0)%Qbar)
   → (∀ m, lap_ps_in R m lb → (order m ≥ 0)%Qbar)
-    → (∀ m, lap_ps_in R m (la * lb)%lap → (order m > 0)%Qbar).
+    → (∀ m, lap_ps_in R m (la * lb)%pslap → (order m > 0)%Qbar).
 Proof.
-intros la lb f' Hla Hlb m Hlab; subst f'.
+intros la lb Hla Hlb m Hlab.
+unfold ps_lap_mul in Hlab.
 revert m lb Hlb Hlab.
 induction la as [| a]; intros.
  rewrite lap_mul_nil_l in Hlab; contradiction.
@@ -1330,12 +1329,12 @@ induction la as [| a]; intros.
 Qed.
 
 Lemma lap_ps_in_mul_ge : ∀ la lb,
-  let _ := Kx in (* coq seems not to see the type of Kx *)
   (∀ m, lap_ps_in R m la → (order m ≥ 0)%Qbar)
   → (∀ m, lap_ps_in R m lb → (order m ≥ 0)%Qbar)
-    → (∀ m, lap_ps_in R m (la * lb)%lap → (order m ≥ 0)%Qbar).
+    → (∀ m, lap_ps_in R m (la * lb)%pslap → (order m ≥ 0)%Qbar).
 Proof.
-intros la lb f' Hla Hlb m Hlab; subst f'.
+intros la lb Hla Hlb m Hlab.
+unfold ps_lap_mul in Hlab.
 revert m lb Hlb Hlab.
 induction la as [| a]; intros.
  rewrite lap_mul_nil_l in Hlab; contradiction.
@@ -1388,7 +1387,7 @@ Qed.
 
 Lemma lap_ps_in_summation : ∀ f l,
   (∀ i, i ∈ l → ∀ m, lap_ps_in R m (f i) → (order m > 0)%Qbar)
-  → (∀ m, lap_ps_in R m (lap_summation Kx l f)%lap → (order m > 0)%Qbar).
+  → (∀ m, lap_ps_in R m (ps_lap_summ l f)%lap → (order m > 0)%Qbar).
 Proof.
 intros f l Hi m Hm.
 revert m Hm.
@@ -1481,11 +1480,10 @@ unfold Qle; simpl; reflexivity.
 Qed.
 
 Lemma lap_ps_in_power : ∀ la n,
-  let _ := Kx in (* coq seems not to see the type of Kx *)
   (∀ a, lap_ps_in R a la → (order a ≥ 0)%Qbar)
-  → (∀ m, lap_ps_in R m (la ^ n) → (order m ≥ 0)%Qbar).
+  → (∀ m, lap_ps_in R m (la ^ n)%pslap → (order m ≥ 0)%Qbar).
 Proof.
-intros la n f' Ha m Hm.
+intros la n Ha m Hm.
 revert m la Ha Hm.
 induction n; intros.
  simpl in Hm.
@@ -1805,7 +1803,6 @@ bbb.
        r + j + (k - j - r)
  *)
 Theorem zzz : ∀ pol ns j αj k αk c₁ r Ψ f₁ b₁ g,
-  let _ := Kx in (* coq seems not to see the type of Kx *)
   ns ∈ newton_segments R pol
   → ini_pt ns = (Qnat j, αj)
     → fin_pt ns = (Qnat k, αk)
@@ -1824,7 +1821,7 @@ Theorem zzz : ∀ pol ns j αj k αk c₁ r Ψ f₁ b₁ g,
                         POL [0%ps; ps_monom bh 1 … []] ^ (r + h)) +
                      g)%pol.
 Proof.
-intros pol ns j αj k αk c₁ r Ψ f₁ b₁ g f' Hns Hini Hfin Hc₁ Hr HΨ Hf₁ Hb₁ Hg.
+intros pol ns j αj k αk c₁ r Ψ f₁ b₁ g Hns Hini Hfin Hc₁ Hr HΨ Hf₁ Hb₁ Hg.
 bbb.
 
 End theorems.
