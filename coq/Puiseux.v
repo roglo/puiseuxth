@@ -282,7 +282,6 @@ Qed.
 
 (* [Walker, p 101] « O(āh - ah.x^αh) > 0 » (with fixed typo) *)
 Theorem order_āh_minus_ah_xαh_gt_αh : ∀ pol ns pl tl h āh ah αh,
-  let _ := Kx in
   ns ∈ newton_segments R pol
   → pl = [ini_pt ns … oth_pts ns ++ [fin_pt ns]]
     → tl = List.map (term_of_point R pol) pl
@@ -292,7 +291,7 @@ Theorem order_āh_minus_ah_xαh_gt_αh : ∀ pol ns pl tl h āh ah αh,
             → αh = ord_of_pt h pl
               → (order (āh - ah * ps_monom 1%K αh)%ps > qfin αh)%Qbar.
 Proof.
-intros pol ns pl tl h āh ah αh f' Hns Hpl Htl Hh Hāh Hah Hαh.
+intros pol ns pl tl h āh ah αh Hns Hpl Htl Hh Hāh Hah Hαh.
 remember Hns as Hval; clear HeqHval.
 eapply order_in_newton_segment with (h := h) (αh := αh) in Hval; eauto .
  rewrite <- Hāh in Hval.
@@ -446,7 +445,6 @@ eapply order_in_newton_segment with (h := h) (αh := αh) in Hval; eauto .
  rewrite Htl in Hh; simpl in Hh.
  rewrite List.map_map in Hh.
  simpl in Hh.
- subst f'.
  apply ord_is_ord_of_pt; [ idtac | idtac | assumption ].
   rewrite Hpl.
   eapply ini_oth_fin_pts_sorted; eassumption.
@@ -458,7 +456,6 @@ Qed.
 
 (* [Walker, p 101] « O(āl.x^(l.γ₁)) > β₁ » *)
 Theorem order_āl_xlγ₁_gt_β₁ : ∀ pol ns pl tl l₁ l₂ l āl,
-  let _ := Kx in
   ns ∈ newton_segments R pol
   → pl = [ini_pt ns … oth_pts ns ++ [fin_pt ns]]
     → tl = List.map (term_of_point R pol) pl
@@ -469,7 +466,7 @@ Theorem order_āl_xlγ₁_gt_β₁ : ∀ pol ns pl tl l₁ l₂ l āl,
               → (order (āl * ps_monom 1%K (Qnat l * γ ns))%ps >
                  qfin (β ns))%Qbar.
 Proof.
-intros pol ns pl tl l₁ l₂ l āl f' Hns Hpl Htl Hl₁ Hsl Hl Hāl.
+intros pol ns pl tl l₁ l₂ l āl Hns Hpl Htl Hl₁ Hsl Hl Hāl.
 remember (āl * ps_monom 1%K (Qnat l * γ ns))%ps as s eqn:Hs .
 remember (null_coeff_range_length R (ps_terms s) 0) as n eqn:Hn .
 symmetry in Hn.
@@ -615,14 +612,13 @@ destruct n as [n| ].
 Qed.
 
 Definition g_of_ns pol ns :=
-  let _ := Kx in (* coq seems not to see the type of Kx *)
   let c₁ := ac_root (Φq R pol ns) in
   let pl := [ini_pt ns … oth_pts ns ++ [fin_pt ns]] in
   let tl := List.map (term_of_point R pol) pl in
   let l₁ := List.map (λ t, power t) tl in
   let l₂ := list_seq_except 0 (length (al pol)) l₁ in
   (POL [ps_monom 1%K (- β ns)] *
-   (poly_summation Kx l₁
+   (ps_pol_summ l₁
       (λ h,
        let āh := poly_nth R h pol in
        let ah := ps_monom (coeff_of_term R h tl) 0 in
@@ -630,19 +626,18 @@ Definition g_of_ns pol ns :=
        POL [((āh - ah * ps_monom 1%K αh) *
              ps_monom 1%K (Qnat h * γ ns))%ps] *
        POL [ps_monom c₁ 0; 1%ps … []] ^ h) +
-    poly_summation Kx l₂
+    ps_pol_summ l₂
       (λ l,
        let āl := poly_nth R l pol in
        POL [(āl * ps_monom 1%K (Qnat l * γ ns))%ps] *
-       POL [ps_monom c₁ 0; 1%ps … []] ^ l)))%pol.
+       POL [ps_monom c₁ 0; 1%ps … []] ^ l)))%pspol.
 
 Lemma ps_list_in_split : ∀ (a : puiseux_series α) la,
-  let _ := Kx in (* coq seems not to see the type of Kx *)
   a ∈ la
-  → ∃ l1 l2, (la = l1 ++ [a … l2])%lap.
+  → ∃ l1 l2, (la = l1 ++ [a … l2])%pslap.
 Proof.
-intros a la f' Ha.
-subst f'.
+intros a la Ha.
+unfold ps_lap_eq.
 induction la as [| b]; [ contradiction | idtac ].
 destruct Ha as [Ha| Ha].
  subst b.
@@ -1022,12 +1017,12 @@ destruct IHla as [IHla| IHla].
 Qed.
 
 Lemma lap_ps_in_add : ∀ la lb,
-  let _ := Kx in (* coq seems not to see the type of Kx *)
   (∀ m, lap_ps_in R m la → (order m > 0)%Qbar)
   → (∀ m, lap_ps_in R m lb → (order m > 0)%Qbar)
-    → (∀ m, lap_ps_in R m (la + lb)%lap → (order m > 0)%Qbar).
+    → (∀ m, lap_ps_in R m (la + lb)%pslap → (order m > 0)%Qbar).
 Proof.
-intros la lb f' Hla Hlb m Hlab; subst f'.
+intros la lb Hla Hlb m Hlab.
+unfold ps_lap_add in Hlab.
 destruct (lap_ps_nilp la) as [Hlaz| Hlanz].
  rewrite Hlaz in Hlab.
  rewrite lap_add_nil_l in Hlab.
@@ -1151,12 +1146,12 @@ Qed.
 (* very close to 'lap_ps_in_add'. Is there a way to have only one lemma?
    or a lemma grouping these two together? *)
 Lemma lap_ps_in_add_ge : ∀ la lb,
-  let _ := Kx in (* coq seems not to see the type of Kx *)
   (∀ m, lap_ps_in R m la → (order m ≥ 0)%Qbar)
   → (∀ m, lap_ps_in R m lb → (order m ≥ 0)%Qbar)
-    → (∀ m, lap_ps_in R m (la + lb)%lap → (order m ≥ 0)%Qbar).
+    → (∀ m, lap_ps_in R m (la + lb)%pslap → (order m ≥ 0)%Qbar).
 Proof.
-intros la lb f' Hla Hlb m Hlab; subst f'.
+intros la lb Hla Hlb m Hlab.
+unfold ps_lap_add in Hlab.
 destruct (lap_ps_nilp la) as [Hlaz| Hlanz].
  rewrite Hlaz in Hlab.
  rewrite lap_add_nil_l in Hlab.
