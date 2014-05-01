@@ -610,6 +610,29 @@ destruct n as [n| ].
    apply Nat.lt_succ_diag_r.
 Qed.
 
+Definition g_lap_of_ns pol ns :=
+  let c₁ := ac_root (Φq R pol ns) in
+  let pl := [ini_pt ns … oth_pts ns ++ [fin_pt ns]] in
+  let tl := List.map (term_of_point R pol) pl in
+  let l₁ := List.map (λ t, power t) tl in
+  let l₂ := list_seq_except 0 (length (al pol)) l₁ in
+  ([ps_monom 1%K (- β ns)] *
+   (ps_lap_summ l₁
+      (λ h,
+       let āh := poly_nth R h pol in
+       let ah := ps_monom (coeff_of_term R h tl) 0 in
+       let αh := ord_of_pt h pl in
+       [((āh - ah * ps_monom 1%K αh) * ps_monom 1%K (Qnat h * γ ns))%ps] *
+       [ps_monom c₁ 0; 1%ps … []] ^ h) +
+    ps_lap_summ l₂
+      (λ l,
+       let āl := poly_nth R l pol in
+       [(āl * ps_monom 1%K (Qnat l * γ ns))%ps] *
+       [ps_monom c₁ 0; 1%ps … []] ^ l)))%pslap.
+
+Definition g_of_ns pol ns := (POL (g_lap_of_ns pol ns))%pol.
+
+(*
 Definition g_of_ns pol ns :=
   let c₁ := ac_root (Φq R pol ns) in
   let pl := [ini_pt ns … oth_pts ns ++ [fin_pt ns]] in
@@ -630,6 +653,7 @@ Definition g_of_ns pol ns :=
        let āl := poly_nth R l pol in
        POL [(āl * ps_monom 1%K (Qnat l * γ ns))%ps] *
        POL [ps_monom c₁ 0; 1%ps … []] ^ l)))%pspol.
+*)
 
 Lemma ps_list_in_split : ∀ (a : puiseux_series α) la,
   a ∈ la
@@ -1507,7 +1531,7 @@ Proof.
 intros pol ns g Hns Hg m Hm.
 remember (al g) as la eqn:Hla .
 subst g.
-unfold g_of_ns in Hla.
+unfold g_of_ns, g_lap_of_ns in Hla.
 remember (ac_root (Φq R pol ns)) as c₁ eqn:Hc₁ .
 remember [ini_pt ns … oth_pts ns ++ [fin_pt ns]] as pl eqn:Hpl .
 remember (List.map (term_of_point R pol) pl) as tl eqn:Htl .
@@ -1524,11 +1548,14 @@ assert (m ≠ 0)%ps as Hmnz.
 
  subst la.
  apply list_in_lap_ps_in in Hm; [ idtac | assumption ].
+ progress unfold ps_lap_add in Hm.
+ progress unfold ps_lap_mul in Hm.
  rewrite lap_mul_add_distr_l in Hm.
  rewrite <- Hom.
  apply lap_ps_in_add in Hm; [ assumption | idtac | idtac ].
   clear m om Hom Hmnz Hm.
   intros m Hm.
+  progress unfold ps_lap_summ in Hm.
   rewrite lap_mul_summation in Hm.
   eapply lap_ps_in_summation; [ idtac | eassumption ].
   clear m Hm.
@@ -1613,6 +1640,7 @@ assert (m ≠ 0)%ps as Hmnz.
 
   clear m om Hom Hmnz Hm.
   intros m Hm.
+  progress unfold ps_lap_summ in Hm.
   rewrite lap_mul_summation in Hm.
   eapply lap_ps_in_summation; [ idtac | eassumption ].
   clear m Hm.
@@ -1735,6 +1763,22 @@ induction la as [| a]; intros; simpl.
   destruct n; [ reflexivity | apply IHla ].
 Qed.
 
+Lemma ttt : ∀ α (R : ring α) la n, (POL la ^ n = POL (la ^ n)%lap)%pol.
+Proof.
+clear α R K acf.
+bbb.
+
+Lemma uuu : ∀ α (R : ring α) la lb, (POL la * POL lb = POL (la * lb)%lap)%pol.
+Proof.
+clear α R K acf.
+bbb.
+
+Lemma www : ∀ f g l,
+  (∀ i, (f i = POL (g i))%pol)
+  → (ps_pol_summ l f = POL (ps_lap_summ l g))%pol.
+Proof.
+bbb.
+
 (* [Walker, p 101] « O(br) = 0 » *)
 Theorem xxx : ∀ pol ns c₁ r f₁,
   ns ∈ newton_segments R pol
@@ -1745,6 +1789,69 @@ Theorem xxx : ∀ pol ns c₁ r f₁,
 Proof.
 intros pol ns c₁ r f₁ Hns Hc₁ Hr Hf₁.
 subst f₁.
+remember (g_lap_of_ns pol ns) as gg.
+remember Heqgg as H; clear HeqH.
+unfold g_lap_of_ns in H; subst gg.
+rewrite <- Hc₁ in H.
+remember [ini_pt ns … oth_pts ns ++ [fin_pt ns]] as pl eqn:Hpl .
+remember (List.map (term_of_point R pol) pl) as tl eqn:Htl .
+remember (List.map (λ t : term α nat, power t) tl) as l₁ eqn:Hl₁ .
+remember (list_seq_except 0 (length (al pol)) l₁) as l₂ eqn:Hl₂ .
+remember (quotient_phi_x_sub_c_pow_r R (Φq R pol ns) c₁ r) as Ψ eqn:HΨ .
+symmetry in Hc₁.
+remember Hns as Hini; clear HeqHini.
+apply exists_ini_pt_nat in Hini.
+destruct Hini as (j, (αj, Hini)).
+rewrite f₁_eq_term_with_Ψ_plus_sum with (l₂ := l₂); try eassumption.
+ rewrite www.
+  2: intros i; simpl.
+  2: unfold ps_pol_mul.
+  2: unfold ps_pol.
+  2: unfold ps_pol_eq.
+  2: unfold ps_pol_pow.
+  2: rewrite ttt.
+  2: rewrite uuu.
+  2: unfold eq_poly; simpl.
+  2: apply lap_eq_refl.
+
+  rewrite www.
+   2: intros i; simpl.
+   2: unfold ps_pol_mul.
+   2: unfold ps_pol.
+   2: unfold ps_pol_eq.
+   2: unfold ps_pol_pow.
+   2: rewrite ttt.
+   2: rewrite uuu.
+   2: unfold eq_poly; simpl.
+   2: apply lap_eq_refl.
+bbb.
+
+intros pol ns c₁ r f₁ Hns Hc₁ Hr Hf₁.
+subst f₁.
+remember (g_lap_of_ns pol ns) as gg.
+remember Heqgg as H; clear HeqH.
+unfold g_lap_of_ns in H; subst gg.
+rewrite <- Hc₁ in H.
+remember [ini_pt ns … oth_pts ns ++ [fin_pt ns]] as pl eqn:Hpl .
+remember (List.map (term_of_point R pol) pl) as tl eqn:Htl .
+remember (List.map (λ t : term α nat, power t) tl) as l₁ eqn:Hl₁ .
+remember (list_seq_except 0 (length (al pol)) l₁) as l₂ eqn:Hl₂ .
+remember (quotient_phi_x_sub_c_pow_r R (Φq R pol ns) c₁ r) as Ψ eqn:HΨ .
+symmetry in Hc₁.
+remember Hns as Hini; clear HeqHini.
+apply exists_ini_pt_nat in Hini.
+destruct Hini as (j, (αj, Hini)).
+rewrite f₁_eq_term_with_Ψ_plus_sum with (l₂ := l₂); try eassumption.
+bbb.
+ simpl.
+ rewrite www.
+  2: intros i; simpl.
+bbb.
+
+intros pol ns c₁ r f₁ Hns Hc₁ Hr Hf₁.
+subst f₁.
+bbb.
+
 remember (g_of_ns pol ns) as gg.
 remember Heqgg as H; clear HeqH.
 unfold g_of_ns in H; subst gg.
