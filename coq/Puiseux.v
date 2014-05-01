@@ -1763,20 +1763,29 @@ induction la as [| a]; intros; simpl.
   destruct n; [ reflexivity | apply IHla ].
 Qed.
 
-Lemma ttt : ∀ α (R : ring α) la n, (POL la ^ n = POL (la ^ n)%lap)%pol.
-Proof.
-clear α R K acf.
-bbb.
+Lemma eq_poly_lap_add : ∀ α (R : ring α) la lb,
+  (POL la + POL lb = POL (la + lb)%lap)%pol.
+Proof. reflexivity. Qed.
 
-Lemma uuu : ∀ α (R : ring α) la lb, (POL la * POL lb = POL (la * lb)%lap)%pol.
-Proof.
-clear α R K acf.
-bbb.
+Lemma eq_poly_lap_mul : ∀ α (R : ring α) la lb,
+  (POL la * POL lb = POL (la * lb)%lap)%pol.
+Proof. reflexivity. Qed.
+
+Lemma eq_poly_lap_power : ∀ α (R : ring α) la n,
+  (POL la ^ n = POL (la ^ n)%lap)%pol.
+Proof. reflexivity. Qed.
 
 Lemma www : ∀ f g l,
-  (∀ i, (f i = POL (g i))%pol)
-  → (ps_pol_summ l f = POL (ps_lap_summ l g))%pol.
+  (∀ i, (f i = POL (g i))%pspol)
+  → (ps_pol_summ l f = POL (ps_lap_summ l g))%pspol.
 Proof.
+intros f g l Hi.
+unfold ps_pol_eq, ps_pol in Hi.
+unfold ps_pol_eq, ps_pol, ps_pol_summ, ps_lap_summ.
+induction l as [| x]; [ reflexivity | simpl ].
+rewrite <- eq_poly_lap_add.
+rewrite <- IHl.
+rewrite <- Hi.
 bbb.
 
 (* [Walker, p 101] « O(br) = 0 » *)
