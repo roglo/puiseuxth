@@ -1762,6 +1762,9 @@ rewrite f₁_eq_term_with_Ψ_plus_sum with (l₂ := l₂); try eassumption.
  subst pl tl l₁ l₂.
  simpl in H |- *; rewrite <- H; clear H.
 bbb.
+ unfold poly_nth; simpl.
+ rewrite fold_ps_lap_add.
+ rewrite lap_nth_add.
 
 intros pol ns c₁ r f₁ Hns Hc₁ Hr Hf₁.
 subst f₁.
