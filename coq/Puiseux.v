@@ -1735,6 +1735,50 @@ induction la as [| a]; intros; simpl.
   destruct n; [ reflexivity | apply IHla ].
 Qed.
 
+(* [Walker, p 101] « O(br) = 0 » *)
+Theorem xxx : ∀ pol ns c₁ r f₁,
+  ns ∈ newton_segments R pol
+  → c₁ = ac_root (Φq R pol ns)
+    → r = root_multiplicity acf c₁ (Φq R pol ns)
+      → f₁ = pol₁ R pol (β ns) (γ ns) c₁
+        → (order (poly_nth R r f₁) = 0)%Qbar.
+Proof.
+intros pol ns c₁ r f₁ Hns Hc₁ Hr Hf₁.
+subst f₁.
+remember (g_of_ns pol ns) as gg.
+remember Heqgg as H; clear HeqH.
+unfold g_of_ns in H; subst gg.
+rewrite <- Hc₁ in H.
+remember [ini_pt ns … oth_pts ns ++ [fin_pt ns]] as pl eqn:Hpl .
+remember (List.map (term_of_point R pol) pl) as tl eqn:Htl .
+remember (List.map (λ t : term α nat, power t) tl) as l₁ eqn:Hl₁ .
+remember (list_seq_except 0 (length (al pol)) l₁) as l₂ eqn:Hl₂ .
+remember (quotient_phi_x_sub_c_pow_r R (Φq R pol ns) c₁ r) as Ψ eqn:HΨ .
+symmetry in Hc₁.
+remember Hns as Hini; clear HeqHini.
+apply exists_ini_pt_nat in Hini.
+destruct Hini as (j, (αj, Hini)).
+rewrite f₁_eq_term_with_Ψ_plus_sum with (l₂ := l₂); try eassumption.
+ subst pl tl l₁ l₂.
+ simpl in H |- *; rewrite <- H; clear H.
+bbb.
+
+intros pol ns c₁ r f₁ Hns Hc₁ Hr Hf₁.
+subst f₁.
+remember [ini_pt ns … oth_pts ns ++ [fin_pt ns]] as pl eqn:Hpl .
+remember (List.map (term_of_point R pol) pl) as tl eqn:Htl .
+remember (List.map (λ t : term α nat, power t) tl) as l₁ eqn:Hl₁ .
+remember (list_seq_except 0 (length (al pol)) l₁) as l₂ eqn:Hl₂ .
+remember (quotient_phi_x_sub_c_pow_r R (Φq R pol ns) c₁ r) as Ψ eqn:HΨ .
+symmetry in Hc₁.
+remember Hns as Hini; clear HeqHini.
+apply exists_ini_pt_nat in Hini.
+destruct Hini as (j, (αj, Hini)).
+unfold order; simpl.
+bbb.
+
+bbb.
+
 (* [Walker, p 101] «
      Since O(āh - ah.x^αh) > 0 and O(āl.x^(l.γ₁)) > β₁ we obtain
        f₁(x,y₁) = b₁.y₁^r + b₂.y₁^(r+1) + ... + g(x,y₁),
@@ -1771,45 +1815,6 @@ Theorem zzz : ∀ pol ns j αj k αk c₁ r Ψ f₁ b₁ g,
                      g)%pspol.
 Proof.
 intros pol ns j αj k αk c₁ r Ψ f₁ b₁ g Hns Hini Hfin Hc₁ Hr HΨ Hf₁ Hb₁ Hg.
-bbb.
-
-(* [Walker, p 101] « O(b^-_r) = 0 » *)
-Theorem xxx : ∀ pol ns c₁ r f₁,
-  ns ∈ newton_segments R pol
-  → c₁ = ac_root (Φq R pol ns)
-    → r = root_multiplicity acf c₁ (Φq R pol ns)
-      → f₁ = pol₁ R pol (β ns) (γ ns) c₁
-        → (order (poly_nth R r f₁) = 0)%Qbar.
-Proof.
-intros pol ns c₁ r f₁ Hns Hc₁ Hr Hf₁.
-subst f₁.
-remember [ini_pt ns … oth_pts ns ++ [fin_pt ns]] as pl eqn:Hpl .
-remember (List.map (term_of_point R pol) pl) as tl eqn:Htl .
-remember (List.map (λ t : term α nat, power t) tl) as l₁ eqn:Hl₁ .
-remember (list_seq_except 0 (length (al pol)) l₁) as l₂ eqn:Hl₂ .
-remember (quotient_phi_x_sub_c_pow_r R (Φq R pol ns) c₁ r) as Ψ eqn:HΨ .
-symmetry in Hc₁.
-remember Hns as Hini; clear HeqHini.
-apply exists_ini_pt_nat in Hini.
-destruct Hini as (j, (αj, Hini)).
-unfold order; simpl.
-bbb.
-
-intros pol ns c₁ r f₁ Hns Hc₁ Hr Hf₁.
-subst f₁.
-remember [ini_pt ns … oth_pts ns ++ [fin_pt ns]] as pl eqn:Hpl .
-remember (List.map (term_of_point R pol) pl) as tl eqn:Htl .
-remember (List.map (λ t : term α nat, power t) tl) as l₁ eqn:Hl₁ .
-remember (list_seq_except 0 (length (al pol)) l₁) as l₂ eqn:Hl₂ .
-remember (quotient_phi_x_sub_c_pow_r R (Φq R pol ns) c₁ r) as Ψ eqn:HΨ .
-symmetry in Hc₁.
-remember Hns as Hini; clear HeqHini.
-apply exists_ini_pt_nat in Hini.
-destruct Hini as (j, (αj, Hini)).
-rewrite f₁_eq_term_with_Ψ_plus_sum with (l₂ := l₂); try eassumption.
- unfold poly_nth; simpl.
- rewrite fold_ps_lap_add.
- rewrite lap_nth_add.
 bbb.
 
 Theorem yyy : ∀ pol ns c₁ f₁,
