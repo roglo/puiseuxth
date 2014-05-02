@@ -95,6 +95,44 @@ split; intros H.
  rewrite H; reflexivity.
 Qed.
 
+Lemma order_0 : order 0%ps = Qbar.qinf.
+Proof.
+unfold order; simpl.
+rewrite null_coeff_range_length_series_0; reflexivity.
+Qed.
+
+Theorem ps_zerop : ∀ a, {(a = 0)%ps} + {(a ≠ 0)%ps}.
+Proof.
+intros a.
+destruct (Qbar.eq_dec (order a) Qbar.qinf) as [H| H].
+ left.
+ apply order_inf.
+ unfold Qbar.qeq in H.
+ destruct (order a); [ contradiction | reflexivity ].
+
+ right.
+ intros HH; apply H.
+ apply order_inf in HH.
+ rewrite HH; reflexivity.
+Qed.
+
+Theorem ps_eq_dec : ∀ a b, {(a = b)%ps} + {(a ≠ b)%ps}.
+Proof.
+intros a b.
+destruct (ps_zerop (a - b)%ps) as [H| H].
+ left.
+ apply rng_add_compat_r with (c := b) in H.
+ rewrite <- rng_add_assoc in H.
+ rewrite rng_add_opp_l in H.
+ rewrite rng_add_0_r, rng_add_0_l in H.
+ assumption.
+
+ right.
+ intros HH; apply H; clear H; rename HH into H.
+ rewrite H.
+ apply ps_add_opp_r.
+Qed.
+
 Lemma fold_points_of_ps_polynom_gen : ∀ pow (cl : list (puiseux_series α)),
   filter_finite_ord r
     (List.map (pair_rec (λ pow ps, (Qnat pow, ps))) (power_list pow cl)) =

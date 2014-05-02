@@ -816,40 +816,6 @@ destruct na as [na| ].
   apply Nat2Z.is_nonneg.
 Qed.
 
-(* to be moved *)
-Theorem ps_zerop : ∀ a, {(a = 0)%ps} + {(a ≠ 0)%ps}.
-Proof.
-intros a.
-destruct (Qbar.eq_dec (order a) Qbar.qinf) as [H| H].
- left.
- apply order_inf.
- unfold Qbar.qeq in H.
- destruct (order a); [ contradiction | reflexivity ].
-
- right.
- intros HH; apply H.
- apply order_inf in HH.
- rewrite HH; reflexivity.
-Qed.
-
-(* to be moved *)
-Theorem ps_eq_dec : ∀ a b, {(a = b)%ps} + {(a ≠ b)%ps}.
-Proof.
-intros a b.
-destruct (ps_zerop (a - b)%ps) as [H| H].
- left.
- apply rng_add_compat_r with (c := b) in H.
- rewrite <- rng_add_assoc in H.
- rewrite rng_add_opp_l in H.
- rewrite rng_add_0_r, rng_add_0_l in H.
- assumption.
-
- right.
- intros HH; apply H; clear H; rename HH into H.
- rewrite H.
- apply ps_add_opp_r.
-Qed.
-
 Lemma list_in_lap_ps_in : ∀ a l,
   (a ≠ 0)%ps
   → a ∈ l
@@ -867,13 +833,6 @@ destruct Hal as [Hal| Hal].
  right; apply IHl; assumption.
 Qed.
 
-(* to be moved *)
-Lemma order_0 : order 0%ps = Qbar.qinf.
-Proof.
-unfold order; simpl.
-rewrite null_coeff_range_length_series_0; reflexivity.
-Qed.
-
 Lemma lap_ps_nilp : ∀ la : list (puiseux_series α),
   {@lap_eq _ (ps_ring R) la []} +
   {not (@lap_eq _ (ps_ring R) la [])}.
@@ -881,7 +840,7 @@ Proof.
 intros la.
 induction la as [| a]; [ left; reflexivity | idtac ].
 destruct IHla as [IHla| IHla].
- destruct (ps_zerop a) as [Ha| Ha].
+ destruct (ps_zerop _ a) as [Ha| Ha].
   left.
   rewrite IHla, Ha.
   constructor; reflexivity.
@@ -945,9 +904,9 @@ destruct (lap_ps_nilp la) as [Hlaz| Hlanz].
        eapply Qbar.lt_le_trans; [ idtac | eassumption ].
        assumption.
 
-    destruct (ps_zerop a) as [Haz| Hanz].
+    destruct (ps_zerop _ a) as [Haz| Hanz].
      rewrite Haz in Hlanz.
-     destruct (ps_zerop b) as [Hbz| Hbnz].
+     destruct (ps_zerop _ b) as [Hbz| Hbnz].
       rewrite Hbz in Hlbnz.
       eapply IHla.
        intros m Hm; apply Hla; right; assumption.
@@ -980,7 +939,7 @@ destruct (lap_ps_nilp la) as [Hlaz| Hlanz].
 
         assumption.
 
-     destruct (ps_zerop b) as [Hbz| Hbnz].
+     destruct (ps_zerop _ b) as [Hbz| Hbnz].
       rewrite Hbz in Hlbnz.
       clear Hlanz.
       destruct (lap_ps_nilp la) as [Hlaz| Hlanz].
@@ -1074,9 +1033,9 @@ destruct (lap_ps_nilp la) as [Hlaz| Hlanz].
        eapply Qbar.le_trans; [ idtac | eassumption ].
        assumption.
 
-    destruct (ps_zerop a) as [Haz| Hanz].
+    destruct (ps_zerop _ a) as [Haz| Hanz].
      rewrite Haz in Hlanz.
-     destruct (ps_zerop b) as [Hbz| Hbnz].
+     destruct (ps_zerop _ b) as [Hbz| Hbnz].
       rewrite Hbz in Hlbnz.
       eapply IHla.
        intros m Hm; apply Hla; right; assumption.
@@ -1109,7 +1068,7 @@ destruct (lap_ps_nilp la) as [Hlaz| Hlanz].
 
         assumption.
 
-     destruct (ps_zerop b) as [Hbz| Hbnz].
+     destruct (ps_zerop _ b) as [Hbz| Hbnz].
       rewrite Hbz in Hlbnz.
       clear Hlanz.
       destruct (lap_ps_nilp la) as [Hlaz| Hlanz].
@@ -1167,7 +1126,7 @@ induction la as [| a]; intros.
  rewrite lap_mul_cons_l in Hlab.
  eapply lap_ps_in_add; [ idtac | idtac | eassumption ].
   intros n Hn.
-  destruct (ps_zerop a) as [Ha| Ha].
+  destruct (ps_zerop _ a) as [Ha| Ha].
    rewrite Ha in Hn.
    rewrite lap_eq_0 in Hn.
    rewrite lap_mul_nil_l in Hn; contradiction.
@@ -1187,7 +1146,7 @@ induction la as [| a]; intros.
      eapply Qbar.lt_le_trans; [ eassumption | idtac ].
      apply Qbar.le_sub_le_add_l.
      rewrite Qbar.sub_diag.
-     destruct (ps_zerop b) as [Hb| Hb].
+     destruct (ps_zerop _ b) as [Hb| Hb].
       rewrite Hb, order_0; constructor.
 
       apply Hlb; left; split; [ idtac | reflexivity ].
@@ -1224,7 +1183,7 @@ induction la as [| a]; intros.
  rewrite lap_mul_cons_l in Hlab.
  eapply lap_ps_in_add_ge; [ idtac | idtac | eassumption ].
   intros n Hn.
-  destruct (ps_zerop a) as [Ha| Ha].
+  destruct (ps_zerop _ a) as [Ha| Ha].
    rewrite Ha in Hn.
    rewrite lap_eq_0 in Hn.
    rewrite lap_mul_nil_l in Hn; contradiction.
@@ -1244,7 +1203,7 @@ induction la as [| a]; intros.
      eapply Qbar.le_trans; [ eassumption | idtac ].
      apply Qbar.le_sub_le_add_l.
      rewrite Qbar.sub_diag.
-     destruct (ps_zerop b) as [Hb| Hb].
+     destruct (ps_zerop _ b) as [Hb| Hb].
       rewrite Hb, order_0; constructor.
 
       apply Hlb; left; split; [ idtac | reflexivity ].
