@@ -1807,3 +1807,18 @@ split; intros H.
  remember (mn * ' pd * ' nd)%Z as y.
  rewrite Z.mul_shuffle0; assumption.
 Qed.
+
+Theorem list_nth_in : ∀ A l n (d : A),
+  (n < length l)%nat
+  → List.nth n l d ∈ l.
+Proof.
+intros A l n d Hnl.
+revert n Hnl.
+induction l as [| x]; intros.
+ exfalso; revert Hnl; apply Nat.nlt_0_r.
+
+ simpl in Hnl.
+ destruct n; [ left; reflexivity | simpl ].
+ apply Nat.succ_lt_mono in Hnl.
+ right; apply IHl; assumption.
+Qed.
