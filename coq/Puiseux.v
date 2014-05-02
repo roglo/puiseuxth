@@ -1822,6 +1822,12 @@ rewrite f₁_eq_term_with_Ψ_plus_sum with (l₂ := l₂); try eassumption.
  unfold poly_nth; simpl.
  rewrite fold_ps_lap_add.
  rewrite lap_nth_add.
+ assert (order (lap_nth R r (g_lap_of_ns pol ns)) > 0)%Qbar as Hog.
+  eapply each_power_of_y₁_has_coeff_pos_ord; try eassumption.
+   reflexivity.
+
+   unfold g_of_ns; simpl.
+   unfold lap_nth.
 bbb.
 
 (* [Walker, p 101] «
