@@ -1605,6 +1605,44 @@ rewrite <- IHl, <- Hi.
 reflexivity.
 Qed.
 
+(* see order_add *)
+Lemma www : ∀ a b,
+  (order a ≠ order b)%Qbar
+  → (order (a + b) = Qbar.min (order a) (order b))%Qbar.
+Proof.
+intros a b Hab.
+set (k₁ := cm_factor a b).
+set (k₂ := cm_factor b a).
+set (v₁ := (ps_ordnum a * ' k₁)%Z).
+set (v₂ := (ps_ordnum b * ' k₂)%Z).
+set (n₁ := Z.to_nat (v₂ - Z.min v₁ v₂)).
+set (n₂ := Z.to_nat (v₁ - Z.min v₁ v₂)).
+pose proof (ps_adjust_eq R a n₂ k₁) as Ha.
+pose proof (ps_adjust_eq R b n₁ k₂) as Hb.
+symmetry.
+rewrite Hb in |- * at 1.
+rewrite Ha in |- * at 1.
+rewrite eq_ps_add_add₂.
+unfold ps_add₂.
+unfold adjust_ps_from.
+fold k₁ k₂.
+fold v₁ v₂.
+rewrite Z.min_comm.
+fold n₁ n₂.
+remember (adjust_ps R n₂ k₁ a) as pa eqn:Hpa .
+remember (adjust_ps R n₁ k₂ b) as pb eqn:Hpb .
+unfold order; simpl.
+remember (ps_terms pa) as sa eqn:Hsa .
+remember (ps_terms pb) as sb eqn:Hsb .
+remember (null_coeff_range_length R sa 0) as na eqn:Hna .
+remember (null_coeff_range_length R sb 0) as nb eqn:Hnb .
+remember (null_coeff_range_length R (sa + sb)%ser 0) as nc eqn:Hnc .
+symmetry in Hna, Hnb, Hnc.
+destruct na as [na| ].
+ destruct nb as [nb| ].
+  destruct nc as [nc| ].
+bbb.
+
 (* [Walker, p 101] « O(br) = 0 » *)
 Theorem xxx : ∀ pol ns c₁ r f₁,
   ns ∈ newton_segments R pol
