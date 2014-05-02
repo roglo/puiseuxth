@@ -1620,6 +1620,8 @@ set (n₂ := Z.to_nat (v₁ - Z.min v₁ v₂)).
 pose proof (ps_adjust_eq R a n₂ k₁) as Ha.
 pose proof (ps_adjust_eq R b n₁ k₂) as Hb.
 symmetry.
+rewrite Hb in Hab.
+rewrite Ha in Hab.
 rewrite Hb in |- * at 1.
 rewrite Ha in |- * at 1.
 rewrite eq_ps_add_add₂.
@@ -1631,6 +1633,7 @@ rewrite Z.min_comm.
 fold n₁ n₂.
 remember (adjust_ps R n₂ k₁ a) as pa eqn:Hpa .
 remember (adjust_ps R n₁ k₂ b) as pb eqn:Hpb .
+unfold order in Hab; simpl in Hab.
 unfold order; simpl.
 remember (ps_terms pa) as sa eqn:Hsa .
 remember (ps_terms pb) as sb eqn:Hsb .
@@ -1641,6 +1644,12 @@ symmetry in Hna, Hnb, Hnc.
 destruct na as [na| ].
  destruct nb as [nb| ].
   destruct nc as [nc| ].
+   simpl in Hab; simpl.
+   rewrite Hpa, Hpb in Hab; simpl in Hab.
+   rewrite Hpa, Hpb; simpl.
+   subst k₁ k₂ n₁ n₂; simpl in Hab; simpl.
+   unfold cm_factor in Hab; simpl in Hab.
+   unfold cm_factor; simpl.
 bbb.
 
 (* [Walker, p 101] « O(br) = 0 » *)
