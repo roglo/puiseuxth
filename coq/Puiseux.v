@@ -1633,8 +1633,9 @@ rewrite Z.min_comm.
 fold n₁ n₂.
 remember (adjust_ps R n₂ k₁ a) as pa eqn:Hpa .
 remember (adjust_ps R n₁ k₂ b) as pb eqn:Hpb .
-unfold order in Hab; simpl in Hab.
-unfold order; simpl.
+remember (order pa) as opa eqn:Hopa .
+remember (order pb) as opb eqn:Hopb .
+progress unfold order in Hopa, Hopb.
 remember (ps_terms pa) as sa eqn:Hsa .
 remember (ps_terms pb) as sb eqn:Hsb .
 remember (null_coeff_range_length R sa 0) as na eqn:Hna .
@@ -1644,12 +1645,10 @@ symmetry in Hna, Hnb, Hnc.
 destruct na as [na| ].
  destruct nb as [nb| ].
   destruct nc as [nc| ].
-   simpl in Hab; simpl.
-   rewrite Hpa, Hpb in Hab; simpl in Hab.
-   rewrite Hpa, Hpb; simpl.
-   subst k₁ k₂ n₁ n₂; simpl in Hab; simpl.
-   unfold cm_factor in Hab; simpl in Hab.
-   unfold cm_factor; simpl.
+   rewrite Hpa in Hopa; simpl in Hopa.
+   rewrite Hpb in Hopb; simpl in Hopb.
+   subst k₁ k₂ n₁ n₂; simpl in Hopa, Hopb; simpl.
+   progress unfold cm_factor in Hopa, Hopb; simpl in Hopa, Hopb.
 bbb.
 
 (* [Walker, p 101] « O(br) = 0 » *)
