@@ -1663,17 +1663,23 @@ destruct na as [na| ].
      rewrite Z2Nat.id.
       rewrite Z.sub_sub_distr.
       rewrite Z.sub_diag, Z.add_0_l.
-      rewrite Hopa, Hopb.
-      simpl.
+      subst opa opb; simpl.
       rewrite Qmin_same_den.
       unfold Qeq; simpl.
-      apply Z.mul_cancel_r.
-       apply Pos2Z_ne_0.
-
-       rewrite Z.add_min_distr_l.
-       apply Z.add_cancel_l.
-       rewrite <- Nat2Z.inj_min.
-       apply Nat2Z.inj_iff.
+      apply Z.mul_cancel_r; [ apply Pos2Z_ne_0 | idtac ].
+      rewrite Z.add_min_distr_l.
+      apply Z.add_cancel_l.
+      rewrite <- Nat2Z.inj_min.
+      apply Nat2Z.inj_iff.
+      simpl in Hab.
+      unfold Qeq in Hab; simpl in Hab.
+      destruct (eq_nat_dec (min na nb) nc) as [| H]; [ assumption | idtac ].
+      exfalso; apply Hab; clear Hab.
+      apply Z.mul_cancel_r; [ apply Pos2Z_ne_0 | idtac ].
+      apply Z.add_cancel_l.
+      apply Nat2Z.inj_iff.
+      destruct (eq_nat_dec na nb) as [| Hab]; [ assumption | idtac ].
+      exfalso; apply H; clear H.
 bbb.
 
 (* [Walker, p 101] « O(br) = 0 » *)
