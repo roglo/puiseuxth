@@ -1636,6 +1636,7 @@ remember (adjust_ps R n₁ k₂ b) as pb eqn:Hpb .
 remember (order pa) as opa eqn:Hopa .
 remember (order pb) as opb eqn:Hopb .
 progress unfold order in Hopa, Hopb.
+progress unfold order; simpl.
 remember (ps_terms pa) as sa eqn:Hsa .
 remember (ps_terms pb) as sb eqn:Hsb .
 remember (null_coeff_range_length R sa 0) as na eqn:Hna .
@@ -1657,6 +1658,22 @@ destruct na as [na| ].
      Focus 1.
      rewrite Z.sub_sub_distr in Hopa, Hopb.
      rewrite Z.sub_diag, Z.add_0_l in Hopa, Hopb.
+     rewrite Hpa; simpl.
+     unfold cm_factor; simpl.
+     rewrite Z2Nat.id.
+      rewrite Z.sub_sub_distr.
+      rewrite Z.sub_diag, Z.add_0_l.
+      rewrite Hopa, Hopb.
+      simpl.
+      rewrite Qmin_same_den.
+      unfold Qeq; simpl.
+      apply Z.mul_cancel_r.
+       apply Pos2Z_ne_0.
+
+       rewrite Z.add_min_distr_l.
+       apply Z.add_cancel_l.
+       rewrite <- Nat2Z.inj_min.
+       apply Nat2Z.inj_iff.
 bbb.
 
 (* [Walker, p 101] « O(br) = 0 » *)
