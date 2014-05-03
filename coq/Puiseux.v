@@ -1649,6 +1649,14 @@ destruct na as [na| ].
    rewrite Hpb in Hopb; simpl in Hopb.
    subst k₁ k₂ n₁ n₂; simpl in Hopa, Hopb; simpl.
    progress unfold cm_factor in Hopa, Hopb; simpl in Hopa, Hopb.
+   subst v₁ v₂; simpl in Hopa, Hopb.
+   progress unfold cm_factor in Hopa, Hopb; simpl in Hopa, Hopb.
+   rewrite Pos.mul_comm in Hopb.
+   rewrite Z2Nat.id in Hopa.
+    rewrite Z2Nat.id in Hopb.
+     Focus 1.
+     rewrite Z.sub_sub_distr in Hopa, Hopb.
+     rewrite Z.sub_diag, Z.add_0_l in Hopa, Hopb.
 bbb.
 
 (* [Walker, p 101] « O(br) = 0 » *)
