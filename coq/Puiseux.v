@@ -1760,6 +1760,32 @@ destruct na as [na| ].
    rewrite Z.sub_diag.
    rewrite <- Z2Nat_id_max.
    apply Nat2Z.is_nonneg.
+
+  subst opb; simpl.
+  rewrite Qbar.min_comm; simpl.
+  destruct nc as [nc| ].
+   destruct Hnc as (Hinc, Hnc).
+   subst opa.
+   apply Qbar.qfin_inj_wd.
+   unfold Qeq; simpl.
+   apply Z.mul_cancel_r; [ apply Pos2Z_ne_0 | idtac ].
+   apply Z.add_cancel_l.
+   apply Nat2Z.inj_iff.
+   destruct (eq_nat_dec na nc) as [| Hac]; [ assumption | idtac ].
+   destruct (le_dec na nc) as [H₁| H₁].
+    apply le_neq_lt in H₁; [ idtac | assumption ].
+    apply Hinc in H₁.
+    rewrite Hnb, rng_add_0_r in H₁.
+    contradiction.
+
+    apply Nat.nle_gt in H₁.
+    apply Hina in H₁.
+    rewrite H₁, Hnb, rng_add_0_l in Hnc.
+    exfalso; apply Hnc; reflexivity.
+
+   pose proof (Hnc na) as H.
+   rewrite Hnb, rng_add_0_r in H.
+   contradiction.
 bbb.
 
 (* [Walker, p 101] « O(br) = 0 » *)

@@ -20,6 +20,26 @@ Open Scope Qbar_scope.
 
 Definition Qmin x y := if Qlt_le_dec x y then x else y.
 
+Theorem Qmin_dec : ∀ n m, {Qmin n m = n} + {Qmin n m = m}.
+Proof.
+intros n m.
+unfold Qmin.
+destruct (Qlt_le_dec n m); [ left | right ]; reflexivity.
+Qed.
+
+Theorem Qmin_comm : ∀ n m, Qmin n m == Qmin m n.
+Proof.
+intros n m.
+unfold Qmin.
+destruct (Qlt_le_dec n m) as [H₁| H₁].
+ destruct (Qlt_le_dec m n) as [H₂| H₂]; [ idtac | reflexivity ].
+ apply Qlt_le_weak, Qle_not_lt in H₂.
+ contradiction.
+
+ destruct (Qlt_le_dec m n) as [H₂| H₂]; [ reflexivity | idtac ].
+ apply Qle_antisym; assumption.
+Qed.
+
 Module Qbar.
 
 Definition binop f dx dy xb yb :=
@@ -122,13 +142,6 @@ destruct a as [a| ]; simpl.
   left; constructor.
 Qed.
 
-Theorem Qmin_dec : ∀ n m, {Qmin n m = n} + {Qmin n m = m}.
-Proof.
-intros n m.
-unfold Qmin.
-destruct (Qlt_le_dec n m); [ left | right ]; reflexivity.
-Qed.
-
 Theorem min_dec : ∀ n m, {min n m = n} + {min n m = m}.
 Proof.
 intros n m.
@@ -138,6 +151,14 @@ destruct (Qmin_dec n m) as [H| H]; simpl; rewrite H.
  left; reflexivity.
 
  right; reflexivity.
+Qed.
+
+Theorem min_comm : ∀ n m, qeq (min n m) (min m n).
+Proof.
+intros n m.
+destruct n as [n| ]; [ simpl | destruct m; reflexivity ].
+destruct m as [m| ]; [ simpl | reflexivity ].
+rewrite Qmin_comm; reflexivity.
 Qed.
 
 Theorem le_trans : ∀ n m p, n ≤ m → m ≤ p → n ≤ p.
