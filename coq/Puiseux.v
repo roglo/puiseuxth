@@ -1655,7 +1655,6 @@ destruct na as [na| ].
    rewrite Pos.mul_comm in Hopb.
    rewrite Z2Nat.id in Hopa.
     rewrite Z2Nat.id in Hopb.
-     Focus 1.
      rewrite Z.sub_sub_distr in Hopa, Hopb.
      rewrite Z.sub_diag, Z.add_0_l in Hopa, Hopb.
      rewrite Hpa; simpl.
@@ -1686,17 +1685,64 @@ destruct na as [na| ].
       apply null_coeff_range_length_iff in Hnc.
       unfold null_coeff_range_length_prop in Hna, Hnb, Hnc.
       simpl in Hna, Hnb, Hnc.
+      destruct Hna as (Hina, Hna).
+      destruct Hnb as (Hinb, Hnb).
+      destruct Hnc as (Hinc, Hnc).
       destruct (le_dec na nb) as [Hle| Hgt].
        apply le_neq_lt in Hle; [ idtac | assumption ].
-       destruct Hna as (Hina, Hna).
-       destruct Hnb as (Hinb, Hnb).
-       destruct Hnc as (Hinc, Hnc).
        destruct (lt_dec na nc) as [Hlt| Hge].
         apply Hinb in Hle.
         apply Hinc in Hlt.
         rewrite Hle, rng_add_0_r in Hlt; contradiction.
 
         apply Nat.nlt_ge in Hge.
+        destruct (eq_nat_dec na nc) as [Heq| Hne].
+         rewrite Nat.min_l; [ assumption | idtac ].
+         apply Nat.lt_le_incl; assumption.
+
+         apply Nat.neq_sym in Hne.
+         apply le_neq_lt in Hge; [ idtac | assumption ].
+         eapply Nat.lt_trans in Hle; [ idtac | eassumption ].
+         apply Hina in Hge.
+         apply Hinb in Hle.
+         rewrite Hge, Hle in Hnc.
+         rewrite rng_add_0_l in Hnc.
+         exfalso; apply Hnc; reflexivity.
+
+       apply Nat.nle_gt in Hgt.
+       destruct (lt_dec nb nc) as [Hlt| Hge].
+        apply Hina in Hgt.
+        apply Hinc in Hlt.
+        rewrite Hgt, rng_add_0_l in Hlt; contradiction.
+
+        apply Nat.nlt_ge in Hge.
+        destruct (eq_nat_dec nb nc) as [Heq| Hne].
+         rewrite Nat.min_r; [ assumption | idtac ].
+         apply Nat.lt_le_incl; assumption.
+
+         apply Nat.neq_sym in Hne.
+         apply le_neq_lt in Hge; [ idtac | assumption ].
+         eapply Nat.lt_trans in Hgt; [ idtac | eassumption ].
+         apply Hinb in Hge.
+         apply Hina in Hgt.
+         rewrite Hge, Hgt in Hnc.
+         rewrite rng_add_0_l in Hnc.
+         exfalso; apply Hnc; reflexivity.
+
+      rewrite <- Z.sub_max_distr_l.
+      rewrite Z.sub_diag.
+      rewrite <- Z2Nat_id_max.
+      apply Nat2Z.is_nonneg.
+
+     rewrite <- Z.sub_max_distr_l.
+     rewrite Z.sub_diag.
+     rewrite Z.max_comm, <- Z2Nat_id_max.
+     apply Nat2Z.is_nonneg.
+
+    rewrite <- Z.sub_max_distr_l.
+    rewrite Z.sub_diag.
+    rewrite <- Z2Nat_id_max.
+    apply Nat2Z.is_nonneg.
 bbb.
 
 (* [Walker, p 101] « O(br) = 0 » *)
