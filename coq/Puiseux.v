@@ -1687,44 +1687,44 @@ destruct na as [na| ].
       destruct Hna as (Hina, Hna).
       destruct Hnb as (Hinb, Hnb).
       destruct Hnc as (Hinc, Hnc).
-      destruct (le_dec na nb) as [Hle| Hgt].
-       apply le_neq_lt in Hle; [ idtac | assumption ].
-       destruct (lt_dec na nc) as [Hlt| Hge].
-        apply Hinb in Hle.
-        apply Hinc in Hlt.
-        rewrite Hle, rng_add_0_r in Hlt; contradiction.
+      destruct (le_dec na nb) as [H₁| H₁].
+       apply le_neq_lt in H₁; [ idtac | assumption ].
+       destruct (lt_dec na nc) as [H₂| H₂].
+        apply Hinb in H₁.
+        apply Hinc in H₂.
+        rewrite H₁, rng_add_0_r in H₂; contradiction.
 
-        apply Nat.nlt_ge in Hge.
-        destruct (eq_nat_dec na nc) as [Heq| Hne].
+        apply Nat.nlt_ge in H₂.
+        destruct (eq_nat_dec na nc) as [H₃| H₃].
          rewrite Nat.min_l; [ assumption | idtac ].
          apply Nat.lt_le_incl; assumption.
 
-         apply Nat.neq_sym in Hne.
-         apply le_neq_lt in Hge; [ idtac | assumption ].
-         eapply Nat.lt_trans in Hle; [ idtac | eassumption ].
-         apply Hina in Hge.
-         apply Hinb in Hle.
-         rewrite Hge, Hle in Hnc.
+         apply Nat.neq_sym in H₃.
+         apply le_neq_lt in H₂; [ idtac | assumption ].
+         eapply Nat.lt_trans in H₁; [ idtac | eassumption ].
+         apply Hina in H₂.
+         apply Hinb in H₁.
+         rewrite H₂, H₁ in Hnc.
          rewrite rng_add_0_l in Hnc.
          exfalso; apply Hnc; reflexivity.
 
-       apply Nat.nle_gt in Hgt.
-       destruct (lt_dec nb nc) as [Hlt| Hge].
-        apply Hina in Hgt.
-        apply Hinc in Hlt.
-        rewrite Hgt, rng_add_0_l in Hlt; contradiction.
+       apply Nat.nle_gt in H₁.
+       destruct (lt_dec nb nc) as [H₂| H₂].
+        apply Hina in H₁.
+        apply Hinc in H₂.
+        rewrite H₁, rng_add_0_l in H₂; contradiction.
 
-        apply Nat.nlt_ge in Hge.
-        destruct (eq_nat_dec nb nc) as [Heq| Hne].
+        apply Nat.nlt_ge in H₂.
+        destruct (eq_nat_dec nb nc) as [H₃| H₃].
          rewrite Nat.min_r; [ assumption | idtac ].
          apply Nat.lt_le_incl; assumption.
 
-         apply Nat.neq_sym in Hne.
-         apply le_neq_lt in Hge; [ idtac | assumption ].
-         eapply Nat.lt_trans in Hgt; [ idtac | eassumption ].
-         apply Hinb in Hge.
-         apply Hina in Hgt.
-         rewrite Hge, Hgt in Hnc.
+         apply Nat.neq_sym in H₃.
+         apply le_neq_lt in H₂; [ idtac | assumption ].
+         eapply Nat.lt_trans in H₁; [ idtac | eassumption ].
+         apply Hinb in H₂.
+         apply Hina in H₁.
+         rewrite H₂, H₁ in Hnc.
          rewrite rng_add_0_l in Hnc.
          exfalso; apply Hnc; reflexivity.
 
@@ -1741,9 +1741,9 @@ destruct na as [na| ].
       destruct Hna as (Hina, Hna).
       destruct Hnb as (Hinb, Hnb).
       destruct (eq_nat_dec na nb) as [| Hab]; [ assumption | idtac ].
-      destruct (le_dec na nb) as [Hle| Hgt].
-       apply le_neq_lt in Hle; [ idtac | assumption ].
-       apply Hinb in Hle.
+      destruct (le_dec na nb) as [H₁| H₁].
+       apply le_neq_lt in H₁; [ idtac | assumption ].
+       apply Hinb in H₁.
 Focus 1.
 bbb.
 
