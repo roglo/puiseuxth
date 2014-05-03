@@ -1688,6 +1688,15 @@ destruct na as [na| ].
       simpl in Hna, Hnb, Hnc.
       destruct (le_dec na nb) as [Hle| Hgt].
        apply le_neq_lt in Hle; [ idtac | assumption ].
+       destruct Hna as (Hina, Hna).
+       destruct Hnb as (Hinb, Hnb).
+       destruct Hnc as (Hinc, Hnc).
+       destruct (lt_dec na nc) as [Hlt| Hge].
+        apply Hinb in Hle.
+        apply Hinc in Hlt.
+        rewrite Hle, rng_add_0_r in Hlt; contradiction.
+
+        apply Nat.nlt_ge in Hge.
 bbb.
 
 (* [Walker, p 101] « O(br) = 0 » *)
