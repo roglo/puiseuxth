@@ -1680,6 +1680,14 @@ destruct na as [na| ].
       apply Nat2Z.inj_iff.
       destruct (eq_nat_dec na nb) as [| Hab]; [ assumption | idtac ].
       exfalso; apply H; clear H.
+      revert Hna Hnb Hnc Hab; clear; intros.
+      apply null_coeff_range_length_iff in Hna.
+      apply null_coeff_range_length_iff in Hnb.
+      apply null_coeff_range_length_iff in Hnc.
+      unfold null_coeff_range_length_prop in Hna, Hnb, Hnc.
+      simpl in Hna, Hnb, Hnc.
+      destruct (le_dec na nb) as [Hle| Hgt].
+       apply le_neq_lt in Hle; [ idtac | assumption ].
 bbb.
 
 (* [Walker, p 101] « O(br) = 0 » *)
