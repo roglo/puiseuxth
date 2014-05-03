@@ -1646,8 +1646,7 @@ symmetry in Hna, Hnb, Hnc.
 destruct na as [na| ].
  destruct nb as [nb| ].
   destruct nc as [nc| ].
-   rewrite Hpa in Hopa; simpl in Hopa.
-   rewrite Hpb in Hopb; simpl in Hopb.
+   subst pa pb; simpl in Hopa, Hopb; simpl.
    subst k₁ k₂ n₁ n₂; simpl in Hopa, Hopb; simpl.
    progress unfold cm_factor in Hopa, Hopb; simpl in Hopa, Hopb.
    subst v₁ v₂; simpl in Hopa, Hopb.
@@ -1657,7 +1656,6 @@ destruct na as [na| ].
     rewrite Z2Nat.id in Hopb.
      rewrite Z.sub_sub_distr in Hopa, Hopb.
      rewrite Z.sub_diag, Z.add_0_l in Hopa, Hopb.
-     rewrite Hpa; simpl.
      unfold cm_factor; simpl.
      rewrite Z2Nat.id.
       rewrite Z.sub_sub_distr.
