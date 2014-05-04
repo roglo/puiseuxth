@@ -1786,6 +1786,31 @@ destruct na as [na| ].
    pose proof (Hnc na) as H.
    rewrite Hnb, rng_add_0_r in H.
    contradiction.
+
+ subst opa; simpl.
+ destruct nb as [nb| ].
+  destruct Hnb as (Hinb, Hnb).
+  destruct nc as [nc| ].
+   destruct Hnc as (Hinc, Hnc).
+   destruct (eq_nat_dec nb nc) as [| Hbc]; [ subst nb | idtac ].
+    subst.
+    subst n₁ n₂ v₁ v₂ k₁ k₂; simpl.
+    unfold cm_factor; simpl.
+    rewrite Z2Nat.id.
+     rewrite Z2Nat.id.
+      do 2 rewrite Z.sub_sub_distr.
+      do 2 rewrite Z.sub_diag, Z.add_0_l.
+      rewrite Pos.mul_comm; reflexivity.
+
+      rewrite <- Z.sub_max_distr_l.
+      rewrite Z.sub_diag.
+      rewrite <- Z2Nat_id_max.
+      apply Nat2Z.is_nonneg.
+
+     rewrite <- Z.sub_max_distr_l.
+     rewrite Z.sub_diag.
+     rewrite Z.max_comm, <- Z2Nat_id_max.
+     apply Nat2Z.is_nonneg.
 bbb.
 
 (* [Walker, p 101] « O(br) = 0 » *)
