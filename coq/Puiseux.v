@@ -1863,6 +1863,21 @@ induction n.
  assumption.
 Qed.
 
+Lemma lap_nth_0_cons_pow : ∀ a la n, (lap_nth 0 ([a … la] ^ n) = a ^ n)%ps.
+Proof.
+intros a la n.
+induction n; simpl.
+ progress unfold ps_lap_pow; simpl.
+ reflexivity.
+
+ unfold ps_lap_pow; simpl.
+ unfold lap_nth.
+ rewrite list_nth_lap_mul; simpl.
+ unfold summation; simpl.
+ rewrite IHn.
+ rewrite ps_add_0_r; reflexivity.
+Qed.
+
 (* [Walker, p 101] « O(br) = 0 » *)
 Theorem xxx : ∀ pol ns c₁ r f₁,
   ns ∈ newton_segments pol
@@ -1916,6 +1931,16 @@ rewrite f₁_eq_term_with_Ψ_plus_sum with (l₂ := l₂); try eassumption.
     rewrite <- lap_mul_assoc.
     do 2 rewrite fold_ps_lap_mul.
     erewrite lap_nth_x_pow_mul.
+    progress unfold ps_lap_mul.
+    progress unfold lap_mul.
+    progress unfold lap_nth; simpl.
+    rewrite list_nth_lap_convol_mul; [ idtac | reflexivity ].
+    unfold summation; simpl.
+    rewrite ps_add_0_r.
+    rewrite order_mul.
+    rewrite fold_lap_nth.
+    rewrite fold_ps_lap_pow.
+    rewrite lap_nth_0_cons_pow.
 bbb.
     do 2 rewrite fold_ps_lap_pow.
     rewrite fold_ps_lap_comp.

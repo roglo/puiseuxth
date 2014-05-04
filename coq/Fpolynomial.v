@@ -839,6 +839,7 @@ induction len; intros.
  rewrite Nat.add_succ_r, <- Nat.add_succ_l; reflexivity.
 Qed.
 
+(* to be unified perhaps with list_nth_convol_mul below *)
 Lemma list_nth_lap_convol_mul : ∀ la lb i len,
   len = pred (length la + length lb)
   → (List.nth i (lap_convol_mul la lb 0 len) 0 =
@@ -1136,6 +1137,7 @@ induction len; intros; [ reflexivity | simpl ].
 rewrite IHlen; reflexivity.
 Qed.
 
+(* to be unified perhaps with list_nth_lap_convol_mul above *)
 Lemma list_nth_convol_mul : ∀ la lb i k len,
   (i + len)%nat = pred (length la + length lb)
   → (List.nth k (lap_convol_mul la lb i len) 0 =
