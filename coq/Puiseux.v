@@ -1886,7 +1886,7 @@ rewrite H, rng_mul_0_l.
 reflexivity.
 Qed.
 
-Lemma www : ∀ a n,
+Lemma order_pow : ∀ a n,
   (a ≠ 0)%ps
   → (order (a ^ n) = qfin (Qnat n) * order a)%Qbar.
 Proof.
@@ -1900,7 +1900,26 @@ induction n; simpl.
   unfold ps_one.
   rewrite ps_monom_order; [ reflexivity | idtac ].
   intros H; apply Ha.
-bbb.
+  rewrite <- ps_mul_1_l.
+  unfold ps_one.
+  rewrite H, ps_zero_monom_eq.
+  rewrite ps_mul_0_l.
+  reflexivity.
+
+  exfalso; apply Ha.
+  apply order_inf; assumption.
+
+ rewrite order_mul.
+ rewrite IHn.
+ remember (order a) as v eqn:Hv .
+ symmetry in Hv.
+ destruct v as [v| ]; [ simpl | reflexivity ].
+ rewrite <- Nat.add_1_l.
+ unfold Qnat.
+ rewrite Nat2Z.inj_add, QZ_plus.
+ rewrite Qmult_plus_distr_l; simpl.
+ rewrite Qmult_1_l; reflexivity.
+Qed.
 
 (* [Walker, p 101] « O(br) = 0 » *)
 Theorem xxx : ∀ pol ns c₁ r f₁,
