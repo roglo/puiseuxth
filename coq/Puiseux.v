@@ -1866,12 +1866,12 @@ Qed.
 (* [Walker, p 101] « O(br) = 0 » *)
 Theorem xxx : ∀ pol ns c₁ r f₁,
   ns ∈ newton_segments pol
-  → c₁ = ac_root (Φq pol ns)
+  → c₁ = ac_root (Φq pol ns) ∧ (c₁ ≠ 0)%K
     → r = root_multiplicity acf c₁ (Φq pol ns)
       → f₁ = pol₁ pol (β ns) (γ ns) c₁
         → (order (poly_nth r f₁) = 0)%Qbar.
 Proof.
-intros pol ns c₁ r f₁ Hns Hc₁ Hr Hf₁.
+intros pol ns c₁ r f₁ Hns (Hc₁, Hc₁nz) Hr Hf₁.
 subst f₁.
 remember (g_lap_of_ns pol ns) as gg.
 remember Heqgg as H; clear HeqH.
