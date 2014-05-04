@@ -67,7 +67,7 @@ Definition points_of_ps_lap α r (lps : list (puiseux_series α)) :=
 Definition points_of_ps_polynom α r (pol : polynomial (puiseux_series α)) :=
   points_of_ps_lap r (al pol).
 
-Definition newton_segments α r (pol : polynomial (puiseux_series α)) :=
+Definition newton_segments α {r} (pol : polynomial (puiseux_series α)) :=
   let gdpl := points_of_ps_polynom r pol in
   list_map_pairs newton_segment_of_pair (lower_convex_hull_points gdpl).
 

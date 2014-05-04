@@ -90,7 +90,7 @@ Variable K : field R.
 Variable acf : algeb_closed_field K.
 
 Lemma order_in_newton_segment : ∀ pol ns pl h αh,
-  ns ∈ newton_segments R pol
+  ns ∈ newton_segments pol
   → pl = [ini_pt ns … oth_pts ns ++ [fin_pt ns]]
     → (Qnat h, αh) ∈ pl
       → order (poly_nth R h pol) = qfin αh.
@@ -139,7 +139,7 @@ Qed.
 
 (* [Walker, p 101] « O(āh - ah.x^αh) > 0 » (with fixed typo) *)
 Theorem order_āh_minus_ah_xαh_gt_αh : ∀ pol ns pl tl h āh ah αh,
-  ns ∈ newton_segments R pol
+  ns ∈ newton_segments pol
   → pl = [ini_pt ns … oth_pts ns ++ [fin_pt ns]]
     → tl = List.map (term_of_point R pol) pl
       → h ∈ List.map (λ t, power t) tl
@@ -313,7 +313,7 @@ Qed.
 
 (* [Walker, p 101] « O(āl.x^(l.γ₁)) > β₁ » *)
 Theorem order_āl_xlγ₁_gt_β₁ : ∀ pol ns pl tl l₁ l₂ l āl,
-  ns ∈ newton_segments R pol
+  ns ∈ newton_segments pol
   → pl = [ini_pt ns … oth_pts ns ++ [fin_pt ns]]
     → tl = List.map (term_of_point R pol) pl
       → l₁ = List.map (λ t, power t) tl
@@ -1350,7 +1350,7 @@ Qed.
 (* [Walker, p 101: « each power of y₁ in g(x,y₁) has a coefficient of
    positive order » *)
 Lemma each_power_of_y₁_has_coeff_pos_ord : ∀ pol ns g,
-  ns ∈ newton_segments R pol
+  ns ∈ newton_segments pol
   → g = g_of_ns pol ns
     → ∀ m, m ∈ al g → (order m > 0)%Qbar.
 Proof.
@@ -1842,7 +1842,7 @@ Qed.
 
 (* [Walker, p 101] « O(br) = 0 » *)
 Theorem xxx : ∀ pol ns c₁ r f₁,
-  ns ∈ newton_segments R pol
+  ns ∈ newton_segments pol
   → c₁ = ac_root (Φq R pol ns)
     → r = root_multiplicity acf c₁ (Φq R pol ns)
       → f₁ = pol₁ R pol (β ns) (γ ns) c₁
@@ -1913,7 +1913,7 @@ bbb.
        r + j + (k - j - r)
  *)
 Theorem zzz : ∀ pol ns j αj k αk c₁ r Ψ f₁ b₁ g,
-  ns ∈ newton_segments R pol
+  ns ∈ newton_segments pol
   → ini_pt ns = (Qnat j, αj)
     → fin_pt ns = (Qnat k, αk)
       → c₁ = ac_root (Φq R pol ns)
@@ -1935,7 +1935,7 @@ intros pol ns j αj k αk c₁ r Ψ f₁ b₁ g Hns Hini Hfin Hc₁ Hr HΨ Hf₁
 bbb.
 
 Theorem yyy : ∀ pol ns c₁ f₁,
-  ns ∈ newton_segments R pol
+  ns ∈ newton_segments pol
   → c₁ = ac_root (Φq R pol ns)
     → f₁ = pol₁ R pol (β ns) (γ ns) c₁
       → ∀ i, (order (poly_nth R i f₁) ≥ 0)%Qbar.

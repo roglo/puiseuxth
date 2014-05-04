@@ -338,7 +338,7 @@ destruct pts as [| pt₂].
 Qed.
 
 Lemma jq_lt_hq : ∀ (pol : puis_ser_pol α) j αj h αh ns,
-  ns ∈ newton_segments r pol
+  ns ∈ newton_segments pol
   → (j, αj) = ini_pt ns
     → (h, αh) ∈ oth_pts ns
       → j < h.
@@ -370,7 +370,7 @@ destruct Hns as [Hns| Hns].
 Qed.
 
 Lemma j_lt_h : ∀ (pol : puis_ser_pol α) j αj jq h αh hq ns,
-  ns ∈ newton_segments r pol
+  ns ∈ newton_segments pol
   → (jq, αj) = ini_pt ns
     → (hq, αh) ∈ oth_pts ns
       → jq = Qnat j
@@ -456,7 +456,7 @@ destruct pts₁ as [| pt₄].
 Qed.
 
 Lemma hq_lt_kq : ∀ (pol : puis_ser_pol α) hq αh kq αk ns,
-  ns ∈ newton_segments r pol
+  ns ∈ newton_segments pol
   → (hq, αh) ∈ oth_pts ns
     → (kq, αk) = fin_pt ns
       → hq < kq.
@@ -488,7 +488,7 @@ destruct Hns as [Hns| Hns].
 Qed.
 
 Lemma h_lt_k : ∀ (pol : puis_ser_pol α) h αh hq k αk kq ns,
-  ns ∈ newton_segments r pol
+  ns ∈ newton_segments pol
   → (hq, αh) ∈ oth_pts ns
     → (kq, αk) = fin_pt ns
       → hq = Qnat h
@@ -505,7 +505,7 @@ apply Nat2Z.inj_lt; assumption.
 Qed.
 
 Lemma j_lt_k : ∀ (pol : puis_ser_pol α) j k ns,
-  ns ∈ newton_segments r pol
+  ns ∈ newton_segments pol
   → j = nofq (fst (ini_pt ns))
     → k = nofq (fst (fin_pt ns))
       → (j < k)%nat.
@@ -571,7 +571,7 @@ eapply pt_absc_is_nat with (pt := ini_pt ns) in Hj₁.
 Qed.
 
 Lemma jz_lt_kz : ∀ (pol : puis_ser_pol α) jz kz ns,
-  ns ∈ newton_segments r pol
+  ns ∈ newton_segments pol
   → jz = Qnum (fst (ini_pt ns))
     → kz = Qnum (fst (fin_pt ns))
       → (jz < kz)%Z.
@@ -1024,7 +1024,7 @@ destruct (Z.eq_dec (mj - mk) 0)%Z as [Hz| Hnz].
 Qed.
 
 Lemma exists_ini_pt_nat : ∀ pol ns,
-  ns ∈ newton_segments r pol
+  ns ∈ newton_segments pol
   → ∃ i αi, ini_pt ns = (Qnat i, αi).
 Proof.
 intros pol ns Hns.
@@ -1042,7 +1042,7 @@ rewrite Heqpts; reflexivity.
 Qed.
 
 Lemma exists_fin_pt_nat : ∀ pol ns,
-  ns ∈ newton_segments r pol
+  ns ∈ newton_segments pol
   → ∃ i αi, fin_pt ns = (Qnat i, αi).
 Proof.
 intros pol ns Hns.
@@ -1060,7 +1060,7 @@ rewrite Heqpts; reflexivity.
 Qed.
 
 Lemma exists_oth_pt_nat : ∀ pol ns pt,
-  ns ∈ newton_segments r pol
+  ns ∈ newton_segments pol
   → pt ∈ oth_pts ns
     → ∃ h αh, pt = (Qnat h, αh).
 Proof.
@@ -1077,7 +1077,7 @@ rewrite Heqpts; reflexivity.
 Qed.
 
 Lemma points_in_newton_segment_have_nat_abscissa : ∀ pol ns,
-  ns ∈ newton_segments r pol
+  ns ∈ newton_segments pol
   → ∀ pt, pt ∈ [ini_pt ns … oth_pts ns ++ [fin_pt ns]]
     → ∃ h αh, pt = (Qnat h, αh).
 Proof.
@@ -1135,7 +1135,7 @@ Definition mh_of_ns (pol : polynomial (puiseux_series α)) h αh :=
                        m q
   » *)
 Theorem gamma_eq_p_nq : ∀ pol ns m p q,
-  ns ∈ newton_segments r pol
+  ns ∈ newton_segments pol
   → m = series_list_com_polord (al pol)
     → p = p_of_ns pol ns
       → q = q_of_ns pol ns
@@ -1210,7 +1210,7 @@ Qed.
 (* [Walker, p. 100]: « [...] where q > 0 and p and q are integers having
    no common factor. » *)
 Theorem p_and_q_have_no_common_factors : ∀ pol ns p q,
-  ns ∈ newton_segments r pol
+  ns ∈ newton_segments pol
   → p = p_of_ns pol ns
     → q = q_of_ns pol ns
       → Z.gcd p (' q) = 1%Z.
@@ -1331,7 +1331,7 @@ Qed.
                     h - j
    » *)
 Theorem gamma_value_jh : ∀ pol ns j αj,
-  ns ∈ newton_segments r pol
+  ns ∈ newton_segments pol
   → (j, αj) = ini_pt ns
     → ∀ h αh, (h, αh) ∈ oth_pts ns
       → γ ns == (αj - αh) / (h - j).
@@ -1390,7 +1390,7 @@ rewrite Qden_inv in Hpq.
 Qed.
 
 Lemma com_den_of_ini_pt : ∀ pol ns m j αj mj,
-  ns ∈ newton_segments r pol
+  ns ∈ newton_segments pol
   → m = series_list_com_polord (al pol)
     → (Qnat j, αj) = ini_pt ns
       → mj = mj_of_ns pol ns
@@ -1414,7 +1414,7 @@ eapply com_den_of_ps_list with (ps := jps); try eassumption.
 Qed.
 
 Lemma com_den_of_fin_pt : ∀ pol ns m k αk mk,
-  ns ∈ newton_segments r pol
+  ns ∈ newton_segments pol
   → m = series_list_com_polord (al pol)
     → (Qnat k, αk) = fin_pt ns
       → mk = mk_of_ns pol ns
@@ -1438,7 +1438,7 @@ eapply com_den_of_ps_list with (ps := kps); try eassumption.
 Qed.
 
 Lemma com_den_of_oth_pt : ∀ pol ns m h αh mh,
-  ns ∈ newton_segments r pol
+  ns ∈ newton_segments pol
   → m = series_list_com_polord (al pol)
     → (Qnat h, αh) ∈ oth_pts ns
       → mh = mh_of_ns pol h αh
@@ -1479,7 +1479,7 @@ Qed.
          q (mj - mh) = p (h - j)
    » *)
 Theorem q_mj_mk_eq_p_h_j : ∀ pol ns j αj m mj p q,
-  ns ∈ newton_segments r pol
+  ns ∈ newton_segments pol
   → (Qnat j, αj) = ini_pt ns
     → m = series_list_com_polord (al pol)
       → mj = mj_of_ns pol ns
@@ -1613,7 +1613,7 @@ Qed.
    and since p and q have no common factors, q is a factor
    of h - j. » *)
 Theorem q_is_factor_of_h_minus_j : ∀ pol ns j αj q,
-  ns ∈ newton_segments r pol
+  ns ∈ newton_segments pol
   → (Qnat j, αj) = ini_pt ns
     → q = Pos.to_nat (q_of_ns pol ns)
       → ∀ h αh, (Qnat h, αh) ∈ oth_pts ns ++ [fin_pt ns]
@@ -1652,7 +1652,7 @@ Qed.
    Thus for every Ph on L we have h = j + s q, s being a
    non-negative integer. » *)
 Theorem h_is_j_plus_sq : ∀ pol ns j αj m q,
-  ns ∈ newton_segments r pol
+  ns ∈ newton_segments pol
   → (Qnat j, αj) = ini_pt ns
     → m = series_list_com_polord (al pol)
       → q = Pos.to_nat (q_of_ns pol ns)
@@ -2086,7 +2086,7 @@ destruct Hns as [Hns| Hns].
 Qed.
 
 Lemma ini_oth_fin_pts_sorted : ∀ pol ns,
-  ns ∈ newton_segments r pol
+  ns ∈ newton_segments pol
   → Sorted fst_lt [ini_pt ns … oth_pts ns ++ [fin_pt ns]].
 Proof.
 intros pol ns Hns.
@@ -2150,7 +2150,7 @@ Close Scope nat_scope.
 
 (* [Walker, p. 100] « Therefore (3.4) has the form c^j Φ(c^q) = 0 » *)
 Theorem characteristic_polynomial_is_in_x_power_q : ∀ pol ns cpol q,
-  ns ∈ newton_segments r pol
+  ns ∈ newton_segments pol
   → cpol = characteristic_polynomial r pol ns
     → q = Pos.to_nat (q_of_ns pol ns)
       → is_polynomial_in_x_power_q cpol q.
@@ -2429,7 +2429,7 @@ induction l as [| a]; intros.
 Qed.
 
 Lemma length_char_pol : ∀ pol ns pl tl j αj k αk,
-  ns ∈ newton_segments r pol
+  ns ∈ newton_segments pol
   → ini_pt ns = (Qnat j, αj)
     → fin_pt ns = (Qnat k, αk)
       → pl = [ini_pt ns … oth_pts ns ++ [fin_pt ns]]
@@ -2551,7 +2551,7 @@ destruct l as [| b]; constructor.
 Qed.
 
 Lemma phi_pseudo_degree_is_k_sub_j_div_q : ∀ pol ns j αj k αk q,
-  ns ∈ newton_segments r pol
+  ns ∈ newton_segments pol
   → (Qnat j, αj) = ini_pt ns
     → (Qnat k, αk) = fin_pt ns
       → q = Pos.to_nat (q_of_ns pol ns)
@@ -2669,7 +2669,7 @@ Lemma make_char_pol_cons : ∀ pow t tl,
 Proof. reflexivity. Qed.
 
 Lemma ord_coeff_non_zero_in_newt_segm : ∀ pol ns h αh hps,
-  ns ∈ newton_segments r pol
+  ns ∈ newton_segments pol
   → (Qnat h, αh) ∈ [ini_pt ns … oth_pts ns ++ [fin_pt ns]]
     → hps = List.nth h (al pol) 0%ps
       → (order_coeff r hps ≠ 0)%K.
@@ -2859,7 +2859,7 @@ destruct tl as [| t₁].
 Qed.
 
 Lemma oth_pts_den_1 : ∀ pol ns,
-  ns ∈ newton_segments r pol
+  ns ∈ newton_segments pol
   → List.Forall (λ pt, Qden (fst pt) = 1%positive) (oth_pts ns).
 Proof.
 intros pol ns Hns.
@@ -2899,7 +2899,7 @@ Qed.
 (* [Walker, p. 100] « Therefore (3.4) has the form c^j Φ(c^q) = 0
    where Φ(z) is a polynomial, of degree (k - j)/q » *)
 Theorem phi_degree_is_k_sub_j_div_q : ∀ pol ns j αj k αk q,
-  ns ∈ newton_segments r pol
+  ns ∈ newton_segments pol
   → (Qnat j, αj) = ini_pt ns
     → (Qnat k, αk) = fin_pt ns
       → q = Pos.to_nat (q_of_ns pol ns)
@@ -3034,7 +3034,7 @@ Definition apply_K_poly := (horner 0 rng_add rng_mul)%K.
 (* [Walker, p. 100] « Therefore (3.4) has the form c^j Φ(c^q) = 0
    where Φ(z) is a polynomial, of degree (k - j)/q, with Φ(0) ≠ 0 » *)
 Theorem phi_0_ne_0 : ∀ pol ns,
-  ns ∈ newton_segments r pol
+  ns ∈ newton_segments pol
   → (apply_K_poly (Φ pol ns) 0 ≠ 0)%K.
 Proof.
 intros pol ns Hns.
