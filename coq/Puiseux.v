@@ -1831,6 +1831,26 @@ destruct na as [na| ].
   exfalso; apply Hab; reflexivity.
 Qed.
 
+Lemma monom_order : ∀ a c, (c ≠ 0)%K → a = ps_monom c 0 → (order a = 0)%Qbar.
+Proof.
+intros a c Hc Ha.
+unfold order.
+remember (null_coeff_range_length R (ps_terms a) 0) as n eqn:Hn .
+symmetry in Hn.
+apply null_coeff_range_length_iff in Hn.
+unfold null_coeff_range_length_prop in Hn; simpl in Hn.
+destruct n as [n| ].
+ destruct Hn as (Hin, Hn).
+ apply Qbar.qfin_inj_wd.
+ subst a; simpl.
+ destruct n; [ idtac | exfalso; apply Hn; reflexivity ].
+ unfold Qeq; reflexivity.
+
+ subst a; simpl in Hn.
+ pose proof (Hn 0%nat) as H; simpl in H.
+ contradiction.
+Qed.
+
 (* [Walker, p 101] « O(br) = 0 » *)
 Theorem xxx : ∀ pol ns c₁ r f₁,
   ns ∈ newton_segments R pol
@@ -1882,6 +1902,7 @@ rewrite f₁_eq_term_with_Ψ_plus_sum with (l₂ := l₂); try eassumption.
   rewrite order_neq_min.
    rewrite Qbar.min_l.
 bbb.
+    eapply monom_order.
 
 (* [Walker, p 101] «
      Since O(āh - ah.x^αh) > 0 and O(āl.x^(l.γ₁)) > β₁ we obtain
