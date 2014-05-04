@@ -1605,8 +1605,8 @@ rewrite <- IHl, <- Hi.
 reflexivity.
 Qed.
 
-(* see order_add *)
-Lemma www : ∀ a b,
+(* things similar with order_add, perhaps good lemmas? *)
+Lemma order_neq_min : ∀ a b,
   (order a ≠ order b)%Qbar
   → (order (a + b) = Qbar.min (order a) (order b))%Qbar.
 Proof.
@@ -1811,7 +1811,25 @@ destruct na as [na| ].
      rewrite Z.sub_diag.
      rewrite Z.max_comm, <- Z2Nat_id_max.
      apply Nat2Z.is_nonneg.
-bbb.
+
+    destruct (le_dec nb nc) as [H₁| H₁].
+     apply le_neq_lt in H₁; [ idtac | assumption ].
+     apply Hinc in H₁.
+     rewrite Hna, rng_add_0_l in H₁.
+     contradiction.
+
+     apply Nat.nle_gt in H₁.
+     apply Hinb in H₁.
+     rewrite Hna, rng_add_0_l in Hnc.
+     contradiction.
+
+   pose proof (Hnc nb) as H.
+   rewrite Hna, rng_add_0_l in H.
+   contradiction.
+
+  subst opb.
+  exfalso; apply Hab; reflexivity.
+Qed.
 
 (* [Walker, p 101] « O(br) = 0 » *)
 Theorem xxx : ∀ pol ns c₁ r f₁,
