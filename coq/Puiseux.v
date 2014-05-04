@@ -1890,6 +1890,9 @@ rewrite f₁_eq_term_with_Ψ_plus_sum with (l₂ := l₂); try eassumption.
 
   rewrite order_neq_min.
    rewrite Qbar.min_l.
+    do 2 rewrite fold_ps_lap_mul.
+    do 2 rewrite fold_ps_lap_pow.
+    rewrite fold_ps_lap_comp.
 bbb.
     eapply ps_const_order.
 

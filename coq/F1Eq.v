@@ -53,6 +53,9 @@ Definition lap_summation α (r : ring α) (li : list nat) g :=
 Definition poly_summation α (r : ring α) (li : list nat) g :=
   (POL (lap_summation r li (λ i, al (g i))))%pol.
 
+Definition lap_inject_K_in_Kx α (R : ring α) la :=
+  List.map (λ c, ps_monom c 0) la.
+
 Definition poly_inject_K_in_Kx α (R : ring α) pol :=
   (POL (List.map (λ c, ps_monom c 0) (al pol)))%pol.
 
@@ -76,6 +79,12 @@ Definition ps_lap_comp α {R : ring α} la lb :=
 Definition ps_lap_summ α {R : ring α} ln f :=
   @lap_summation (puiseux_series α) (ps_ring R) ln f.
 
+Arguments ps_lap_eq _ _ la%pslap lb%pslap.
+Arguments ps_lap_add _ _ la%pslap lb%pslap.
+Arguments ps_lap_mul _ _ la%pslap lb%pslap.
+Arguments ps_lap_pow _ _ a%pslap _.
+Arguments ps_lap_comp _ _ la%pslap lb%pslap.
+
 Notation "a = b" := (ps_lap_eq a b) : ps_lap_scope.
 Notation "a + b" := (ps_lap_add a b) : ps_lap_scope.
 Notation "a * b" := (ps_lap_mul a b) : ps_lap_scope.
@@ -84,6 +93,18 @@ Notation "a ∘ b" := (ps_lap_comp a b) : ps_lap_scope.
 
 Lemma fold_ps_lap_add : ∀ α (R : ring α) a b,
   @lap_add _ (ps_ring R) a b = ps_lap_add a b.
+Proof. reflexivity. Qed.
+
+Lemma fold_ps_lap_mul : ∀ α (R : ring α) a b,
+  @lap_mul _ (ps_ring R) a b = ps_lap_mul a b.
+Proof. reflexivity. Qed.
+
+Lemma fold_ps_lap_pow : ∀ α (R : ring α) a n,
+  @lap_power _ (ps_ring R) a n = ps_lap_pow a n.
+Proof. reflexivity. Qed.
+
+Lemma fold_ps_lap_comp : ∀ α (R : ring α) a b,
+  @lap_compose _ (ps_ring R) a b = ps_lap_comp a b.
 Proof. reflexivity. Qed.
 
 Lemma fold_lap_nth : ∀ α (R : ring α) h la,
@@ -168,7 +189,7 @@ destruct (zerop (i mod Pos.to_nat (Qden p))) as [H₁| H₁].
   reflexivity.
 Qed.
 
-Add Parametric Morphism α (R : ring α) : (List.map (λ c, ps_monom c 0))
+Add Parametric Morphism α (R : ring α) : (lap_inject_K_in_Kx R)
   with signature @lap_eq _ R ==> @lap_eq _ (ps_ring R)
   as lap_inject_k_in_Kx_morph.
 Proof.
@@ -1828,9 +1849,6 @@ Qed.
 
 Definition lap_compose5 {α β} {R : ring β} (f : list α → list β) la lb :=
   apply_lap (lap_ring R) (List.map f la) lb.
-
-Definition lap_inject_K_in_Kx α (R : ring α) la :=
-  List.map (λ c, ps_monom c 0) la.
 
 (* [Walker, p. 101] « Since αh + h.γ₁ = β₁, the first summation reduces to
       (c₁+y₁)^j.Φ((c₁+y₁)^q) = x^β₁.y₁^r.(c₁+y₁)^j.Ψ(c₁+y₁) ».
