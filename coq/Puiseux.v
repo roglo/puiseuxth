@@ -1878,6 +1878,9 @@ rewrite f₁_eq_term_with_Ψ_plus_sum with (l₂ := l₂); try eassumption.
    unfold lap_nth.
    rewrite List.nth_overflow; [ idtac | assumption ].
    rewrite order_0; constructor.
+
+  rewrite order_neq_min.
+   rewrite Qbar.min_l.
 bbb.
 
 (* [Walker, p 101] «

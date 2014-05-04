@@ -40,6 +40,14 @@ destruct (Qlt_le_dec n m) as [H₁| H₁].
  apply Qle_antisym; assumption.
 Qed.
 
+Theorem Qmin_l : ∀ n m, n <= m → Qmin n m == n.
+Proof.
+intros n m H.
+unfold Qmin.
+destruct (Qlt_le_dec n m) as [| Hge]; [ reflexivity | idtac ].
+apply Qle_antisym; assumption.
+Qed.
+
 Module Qbar.
 
 Definition binop f dx dy xb yb :=
@@ -159,6 +167,14 @@ intros n m.
 destruct n as [n| ]; [ simpl | destruct m; reflexivity ].
 destruct m as [m| ]; [ simpl | reflexivity ].
 rewrite Qmin_comm; reflexivity.
+Qed.
+
+Theorem min_l : ∀ n m, n ≤ m → qeq (min n m) n.
+Proof.
+intros n m H.
+destruct m as [m| ]; [ idtac | destruct n; reflexivity ].
+destruct n as [n| ]; [ simpl | inversion H ].
+rewrite Qmin_l; [ reflexivity | inversion H; assumption ].
 Qed.
 
 Theorem le_trans : ∀ n m p, n ≤ m → m ≤ p → n ≤ p.
