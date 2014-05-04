@@ -1840,6 +1840,29 @@ destruct na as [na| ].
   exfalso; apply Hab; reflexivity.
 Qed.
 
+Lemma lap_nth_x_pow_mul : ∀ la n,
+  (lap_nth n ([0; 1 … []] ^ n * la) = lap_nth 0 la)%ps.
+Proof.
+intros la n.
+induction n.
+ progress unfold ps_lap_pow; simpl.
+ progress unfold ps_lap_mul.
+ rewrite lap_mul_1_l.
+ reflexivity.
+
+ rewrite <- Nat.add_1_l.
+ unfold ps_lap_pow.
+ rewrite lap_power_add.
+ rewrite lap_power_1.
+ progress unfold ps_lap_mul.
+ rewrite <- lap_mul_assoc.
+ unfold lap_nth.
+ rewrite nth_mul_deg_1.
+ rewrite rng_mul_0_l.
+ rewrite rng_add_0_l.
+ assumption.
+Qed.
+
 (* [Walker, p 101] « O(br) = 0 » *)
 Theorem xxx : ∀ pol ns c₁ r f₁,
   ns ∈ newton_segments pol
@@ -1890,10 +1913,12 @@ rewrite f₁_eq_term_with_Ψ_plus_sum with (l₂ := l₂); try eassumption.
 
   rewrite order_neq_min.
    rewrite Qbar.min_l.
+    rewrite <- lap_mul_assoc.
     do 2 rewrite fold_ps_lap_mul.
+    erewrite lap_nth_x_pow_mul.
+bbb.
     do 2 rewrite fold_ps_lap_pow.
     rewrite fold_ps_lap_comp.
-bbb.
     eapply ps_const_order.
 
 (* [Walker, p 101] «
