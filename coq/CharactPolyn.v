@@ -27,12 +27,12 @@ Record term α β := { coeff : α; power : β }.
 
 Definition nofq q := Z.to_nat (Qnum q).
 
-Fixpoint make_char_pol α (r : ring α) pow tl :=
+Fixpoint make_char_pol α (R : ring α) pow tl :=
   match tl with
   | [] => []
   | [t₁ … tl₁] =>
       list_pad (power t₁ - pow) 0%K
-        [coeff t₁ … make_char_pol r (S (power t₁)) tl₁]
+        [coeff t₁ … make_char_pol R (S (power t₁)) tl₁]
     end.
 
 Definition lap_term_of_point α (r : ring α) la (pt : (Q * Q)) :=
@@ -61,6 +61,70 @@ intros i.
 unfold nofq, Qnat; simpl.
 rewrite Nat2Z.id; reflexivity.
 Qed.
+
+Fixpoint list_shrink_aux α cnt k₁ (l : list α) :=
+  match l with
+  | [] => []
+  | [x₁ … l₁] =>
+      match cnt with
+      | O => [x₁ … list_shrink_aux k₁ k₁ l₁]
+      | S n => list_shrink_aux n k₁ l₁
+      end
+  end.
+
+Definition list_shrink α k (l : list α) := list_shrink_aux 0 (k - 1) l.
+
+Definition poly_shrink α k (p : polynomial α) :=
+  POL (list_shrink k (al p))%pol.
+
+Definition poly_left_shift α n (p : polynomial α) :=
+  POL (List.skipn n (al p))%pol.
+
+Definition jk_mjk_g_of_ns α {R : ring α} pol ns :=
+  let m := series_list_com_polord (al pol) in
+  let j := Z.to_nat (Qnum (fst (ini_pt ns))) in
+  let k := Z.to_nat (Qnum (fst (fin_pt ns))) in
+  let αj := snd (ini_pt ns) in
+  let αk := snd (fin_pt ns) in
+  let jps := List.nth j (al pol) 0%ps in
+  let kps := List.nth k (al pol) 0%ps in
+  let mj := (Qnum αj * ' m / ' ps_polord jps)%Z in
+  let mk := (Qnum αk * ' m / ' ps_polord kps)%Z in
+  let g := Z.gcd (mj - mk) (Z.of_nat k - Z.of_nat j) in
+  (j, k, mj, mk, g).
+
+Definition p_of_ns α {R : ring α} pol ns :=
+  let '(j, k, mj, mk, g) := jk_mjk_g_of_ns pol ns in
+  ((mj - mk) / g)%Z.
+
+Definition q_of_ns α {R : ring α} pol ns :=
+  let '(j, k, mj, mk, g) := jk_mjk_g_of_ns pol ns in
+  Z.to_pos ((Z.of_nat k - Z.of_nat j) / g).
+
+Definition mj_of_ns α {R : ring α} pol ns :=
+  let '(j, k, mj, mk, g) := jk_mjk_g_of_ns pol ns in
+  mj.
+
+Definition mk_of_ns α {R : ring α} pol ns :=
+  let '(j, k, mj, mk, g) := jk_mjk_g_of_ns pol ns in
+  mk.
+
+Definition mh_of_ns α {R : ring α} pol h αh :=
+ let m := series_list_com_polord (al pol) in
+ let hps := List.nth h (al pol) 0%ps in
+ (Qnum αh * ' m / ' ps_polord hps)%Z.
+
+Definition summation_ah_xh_pol α {R : ring α} pol ns :=
+  let j := nofq (fst (ini_pt ns)) in
+  POL (list_pad j 0%K (al (characteristic_polynomial R pol ns)))%pol.
+
+Definition Φq α {R : ring α} pol ns :=
+  let j := nofq (fst (ini_pt ns)) in
+  poly_left_shift j (summation_ah_xh_pol pol ns).
+
+Definition Φ α {R : ring α} pol ns :=
+  let q := Pos.to_nat (q_of_ns pol ns) in
+  poly_shrink q (Φq pol ns).
 
 Section theorems.
 
@@ -1094,40 +1158,6 @@ destruct Hpt as [H| H].
   rewrite <- H.
   eapply exists_fin_pt_nat; eassumption.
 Qed.
-
-Definition jk_mjk_g_of_ns (pol : polynomial (puiseux_series α)) ns :=
-  let m := series_list_com_polord (al pol) in
-  let j := Z.to_nat (Qnum (fst (ini_pt ns))) in
-  let k := Z.to_nat (Qnum (fst (fin_pt ns))) in
-  let αj := snd (ini_pt ns) in
-  let αk := snd (fin_pt ns) in
-  let jps := List.nth j (al pol) 0%ps in
-  let kps := List.nth k (al pol) 0%ps in
-  let mj := (Qnum αj * ' m / ' ps_polord jps)%Z in
-  let mk := (Qnum αk * ' m / ' ps_polord kps)%Z in
-  let g := Z.gcd (mj - mk) (Z.of_nat k - Z.of_nat j) in
-  (j, k, mj, mk, g).
-
-Definition p_of_ns (pol : polynomial (puiseux_series α)) ns :=
-  let '(j, k, mj, mk, g) := jk_mjk_g_of_ns pol ns in
-  ((mj - mk) / g)%Z.
-
-Definition q_of_ns (pol : polynomial (puiseux_series α)) ns :=
-  let '(j, k, mj, mk, g) := jk_mjk_g_of_ns pol ns in
-  Z.to_pos ((Z.of_nat k - Z.of_nat j) / g).
-
-Definition mj_of_ns (pol : polynomial (puiseux_series α)) ns :=
-  let '(j, k, mj, mk, g) := jk_mjk_g_of_ns pol ns in
-  mj.
-
-Definition mk_of_ns (pol : polynomial (puiseux_series α)) ns :=
-  let '(j, k, mj, mk, g) := jk_mjk_g_of_ns pol ns in
-  mk.
-
-Definition mh_of_ns (pol : polynomial (puiseux_series α)) h αh :=
- let m := series_list_com_polord (al pol) in
- let hps := List.nth h (al pol) 0%ps in
- (Qnum αh * ' m / ' ps_polord hps)%Z.
 
 (* [Walker, p. 100]: «
                         p
@@ -2232,36 +2262,6 @@ destruct i.
   assumption.
 Qed.
 
-Fixpoint list_shrink_aux cnt k₁ (l : list α) :=
-  match l with
-  | [] => []
-  | [x₁ … l₁] =>
-      match cnt with
-      | O => [x₁ … list_shrink_aux k₁ k₁ l₁]
-      | S n => list_shrink_aux n k₁ l₁
-      end
-  end.
-
-Definition list_shrink k (l : list α) := list_shrink_aux 0 (k - 1) l.
-
-Definition poly_shrink k (p : polynomial α) :=
-  POL (list_shrink k (al p))%pol.
-
-Definition poly_left_shift n (p : polynomial α) :=
-  POL (List.skipn n (al p))%pol.
-
-Definition summation_ah_xh_pol pol ns :=
-  let j := nofq (fst (ini_pt ns)) in
-  POL (list_pad j 0%K (al (characteristic_polynomial r pol ns)))%pol.
-
-Definition Φq pol ns :=
-  let j := nofq (fst (ini_pt ns)) in
-  poly_left_shift j (summation_ah_xh_pol pol ns).
-
-Definition Φ pol ns :=
-  let q := Pos.to_nat (q_of_ns pol ns) in
-  poly_shrink q (Φq pol ns).
-
 (* not real degree, since last coefficient can be null *)
 Definition pseudo_degree (p : polynomial α) := pred (List.length (al p)).
 
@@ -2271,7 +2271,7 @@ intros n z l.
 induction n; [ reflexivity | apply IHn ].
 Qed.
 
-Lemma list_shrink_skipn : ∀ cnt k l,
+Lemma list_shrink_skipn : ∀ cnt k (l : list α),
   list_shrink_aux cnt k l = list_shrink_aux 0 k (List.skipn cnt l).
 Proof.
 intros cnt k l.
@@ -2283,7 +2283,7 @@ induction l as [| x]; intros; [ idtac | simpl ].
  apply IHl.
 Qed.
 
-Lemma length_shrink_skipn_lt : ∀ k l m,
+Lemma length_shrink_skipn_lt : ∀ k (l : list α) m,
   (length l < S k)%nat
   → length (list_shrink_aux 0 m (List.skipn k l)) = 0%nat.
 Proof.
@@ -2298,7 +2298,7 @@ destruct k.
  simpl; apply IHl; assumption.
 Qed.
 
-Lemma length_shrink_skipn_eq : ∀ k l m,
+Lemma length_shrink_skipn_eq : ∀ k (l : list α) m,
   length l = S k
   → length (list_shrink_aux 0 m (List.skipn k l)) = 1%nat.
 Proof.
@@ -2313,7 +2313,7 @@ destruct k.
  simpl; apply IHl; assumption.
 Qed.
 
-Lemma list_length_shrink : ∀ cnt k l,
+Lemma list_length_shrink : ∀ cnt k (l : list α),
   (S cnt < length l)%nat
   → List.length (list_shrink_aux cnt k l) = S ((List.length l - S cnt) / S k).
 Proof.
@@ -2639,7 +2639,7 @@ Qed.
 Definition has_degree pol d :=
   pseudo_degree pol = d ∧ (List.nth d (al pol) 0 ≠ 0)%K.
 
-Lemma list_nth_shrink : ∀ n k l d cnt,
+Lemma list_nth_shrink : ∀ n k l (d : α) cnt,
   List.nth n (list_shrink_aux cnt k l) d = List.nth (cnt + n * S k) l d.
 Proof.
 intros n k l d cnt.

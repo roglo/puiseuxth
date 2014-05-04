@@ -469,7 +469,7 @@ destruct n as [n| ].
 Qed.
 
 Definition g_lap_of_ns pol ns :=
-  let c₁ := ac_root (Φq R pol ns) in
+  let c₁ := ac_root (Φq pol ns) in
   let pl := [ini_pt ns … oth_pts ns ++ [fin_pt ns]] in
   let tl := List.map (term_of_point R pol) pl in
   let l₁ := List.map (λ t, power t) tl in
@@ -492,7 +492,7 @@ Definition g_of_ns pol ns := (POL (g_lap_of_ns pol ns))%pol.
 
 (*
 Definition g_of_ns pol ns :=
-  let c₁ := ac_root (Φq R pol ns) in
+  let c₁ := ac_root (Φq pol ns) in
   let pl := [ini_pt ns … oth_pts ns ++ [fin_pt ns]] in
   let tl := List.map (term_of_point R pol) pl in
   let l₁ := List.map (λ t, power t) tl in
@@ -1358,7 +1358,7 @@ intros pol ns g Hns Hg m Hm.
 remember (al g) as la eqn:Hla .
 subst g.
 unfold g_of_ns, g_lap_of_ns in Hla.
-remember (ac_root (Φq R pol ns)) as c₁ eqn:Hc₁ .
+remember (ac_root (Φq pol ns)) as c₁ eqn:Hc₁ .
 remember [ini_pt ns … oth_pts ns ++ [fin_pt ns]] as pl eqn:Hpl .
 remember (List.map (term_of_point R pol) pl) as tl eqn:Htl .
 remember (List.map (λ t, power t) tl) as l₁ eqn:Hl₁ .
@@ -1843,9 +1843,9 @@ Qed.
 (* [Walker, p 101] « O(br) = 0 » *)
 Theorem xxx : ∀ pol ns c₁ r f₁,
   ns ∈ newton_segments pol
-  → c₁ = ac_root (Φq R pol ns)
-    → r = root_multiplicity acf c₁ (Φq R pol ns)
-      → f₁ = pol₁ R pol (β ns) (γ ns) c₁
+  → c₁ = ac_root (Φq pol ns)
+    → r = root_multiplicity acf c₁ (Φq pol ns)
+      → f₁ = pol₁ pol (β ns) (γ ns) c₁
         → (order (poly_nth R r f₁) = 0)%Qbar.
 Proof.
 intros pol ns c₁ r f₁ Hns Hc₁ Hr Hf₁.
@@ -1858,7 +1858,7 @@ remember [ini_pt ns … oth_pts ns ++ [fin_pt ns]] as pl eqn:Hpl .
 remember (List.map (term_of_point R pol) pl) as tl eqn:Htl .
 remember (List.map (λ t : term α nat, power t) tl) as l₁ eqn:Hl₁ .
 remember (list_seq_except 0 (length (al pol)) l₁) as l₂ eqn:Hl₂ .
-remember (quotient_phi_x_sub_c_pow_r R (Φq R pol ns) c₁ r) as Ψ eqn:HΨ .
+remember (quotient_phi_x_sub_c_pow_r (Φq pol ns) c₁ r) as Ψ eqn:HΨ .
 symmetry in Hc₁.
 remember Hns as Hini; clear HeqHini.
 apply exists_ini_pt_nat in Hini.
@@ -1916,10 +1916,10 @@ Theorem zzz : ∀ pol ns j αj k αk c₁ r Ψ f₁ b₁ g,
   ns ∈ newton_segments pol
   → ini_pt ns = (Qnat j, αj)
     → fin_pt ns = (Qnat k, αk)
-      → c₁ = ac_root (Φq R pol ns)
-        → r = root_multiplicity acf c₁ (Φq R pol ns)
-          → Ψ = quotient_phi_x_sub_c_pow_r R (Φq R pol ns) c₁ r
-            → f₁ = pol₁ R pol (β ns) (γ ns) c₁
+      → c₁ = ac_root (Φq pol ns)
+        → r = root_multiplicity acf c₁ (Φq pol ns)
+          → Ψ = quotient_phi_x_sub_c_pow_r (Φq pol ns) c₁ r
+            → f₁ = pol₁ pol (β ns) (γ ns) c₁
               → (b₁ = c₁ ^ j * apply_poly R Ψ c₁)%K
                 → g = g_of_ns pol ns
                   → ∃ lb,
@@ -1936,8 +1936,8 @@ bbb.
 
 Theorem yyy : ∀ pol ns c₁ f₁,
   ns ∈ newton_segments pol
-  → c₁ = ac_root (Φq R pol ns)
-    → f₁ = pol₁ R pol (β ns) (γ ns) c₁
+  → c₁ = ac_root (Φq pol ns)
+    → f₁ = pol₁ pol (β ns) (γ ns) c₁
       → ∀ i, (order (poly_nth R i f₁) ≥ 0)%Qbar.
 Proof.
 intros pol ns c₁ f₁ Hns Hc₁ Hf₁ i.

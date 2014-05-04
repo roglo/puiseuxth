@@ -30,13 +30,13 @@ Set Implicit Arguments.
 (* *)
 
 (* pol₁(x,y₁) = x^(-β₁).pol(x,x^γ₁.(c₁ + y₁)) *)
-Definition lap_pol₁ α (R : ring α) pol β₁ γ₁ c₁ :=
+Definition lap_pol₁ α {R : ring α} pol β₁ γ₁ c₁ :=
   @lap_mul _ (ps_ring R) [ps_monom 1%K (- β₁)]
     (@lap_compose _ (ps_ring R) pol
        [ps_monom c₁ γ₁; ps_monom 1%K γ₁ … []]).
 
-Definition pol₁ α (R : ring α) pol β₁ γ₁ c₁ :=
-  (POL (lap_pol₁ R (al pol) β₁ γ₁ c₁))%pol.
+Definition pol₁ α {R : ring α} pol β₁ γ₁ c₁ :=
+  (POL (lap_pol₁ (al pol) β₁ γ₁ c₁))%pol.
 
 (* *)
 
@@ -408,7 +408,7 @@ Variable K : field R.
 Variable acf : algeb_closed_field K.
 
 Lemma lap_f₁_eq_x_min_β₁_comp : ∀ la β₁ γ₁ c₁,
-  (lap_pol₁ R la β₁ γ₁ c₁ =
+  (lap_pol₁ la β₁ γ₁ c₁ =
    [ps_monom 1%K (- β₁)] *
    la ∘ ([ps_monom 1%K γ₁] * [ps_monom c₁ 0; 1%ps … []]))%pslap.
 Proof.
@@ -431,7 +431,7 @@ Qed.
 
 (* [Walker, p. 100] « f₁(x,y₁) = x^(-β₁).f(x,x^γ₁(c₁+y₁)) » *)
 Theorem f₁_eq_x_min_β₁_comp : ∀ pol β₁ γ₁ c₁,
-  (pol₁ R pol β₁ γ₁ c₁ =
+  (pol₁ pol β₁ γ₁ c₁ =
    POL [ps_monom 1%K (- β₁)] *
    pol ∘ (POL [ps_monom 1%K γ₁] * POL [ps_monom c₁ 0; 1%ps … []]))%pspol.
 Proof.
@@ -440,7 +440,7 @@ apply lap_f₁_eq_x_min_β₁_comp; reflexivity.
 Qed.
 
 Theorem f₁_eq_x_min_β₁_summation : ∀ pol β₁ γ₁ c₁,
-  (pol₁ R pol β₁ γ₁ c₁ =
+  (pol₁ pol β₁ γ₁ c₁ =
    POL [ps_monom 1%K (- β₁)] *
    ps_pol_summ (List.seq 0 (length (al pol)))
      (λ h,
@@ -505,7 +505,7 @@ Qed.
 (* we can split the sum on 0..n into two sub lists l₁, l₂ in any way *)
 Theorem f₁_eq_x_min_β₁_summation_split : ∀ pol β₁ γ₁ c₁ l₁ l₂,
   split_list (List.seq 0 (length (al pol))) l₁ l₂
-  → (pol₁ R pol β₁ γ₁ c₁ =
+  → (pol₁ pol β₁ γ₁ c₁ =
       POL [ps_monom 1%K (- β₁)] *
       ps_pol_summ l₁
         (λ (h : nat) (āh:=poly_nth R h pol),
@@ -595,7 +595,7 @@ Theorem f₁_eq_sum_α_hγ_to_rest : ∀ pol ns β₁ γ₁ c₁ pl tl l₁ l₂
     → tl = List.map (term_of_point R pol) pl
       → l₁ = List.map (λ t, power t) tl
         → split_list (List.seq 0 (length (al pol))) l₁ l₂
-          → (pol₁ R pol β₁ γ₁ c₁ =
+          → (pol₁ pol β₁ γ₁ c₁ =
              POL [ps_monom 1%K (- β₁)] *
              ps_pol_summ l₁
                (λ h,
@@ -786,7 +786,7 @@ Theorem f₁_eq_sum_without_x_β₁_plus_sum : ∀ pol ns c₁ pl tl l₁ l₂,
     → tl = List.map (term_of_point R pol) pl
       → l₁ = List.map (λ t, power t) tl
         → split_list (List.seq 0 (length (al pol))) l₁ l₂
-          → (pol₁ R pol (β ns) (γ ns) c₁ =
+          → (pol₁ pol (β ns) (γ ns) c₁ =
              ps_pol_summ l₁
                (λ h,
                 let ah := ps_monom (coeff_of_term h tl) 0 in
@@ -1456,7 +1456,7 @@ Theorem sum_ah_c₁y_h_eq : ∀ pol ns pl tl l c₁ j αj,
                 POL [ps_monom (coeff_of_term h tl) 0] *
                 POL [ps_monom c₁ 0; 1%ps … []] ^ h) =
              POL [ps_monom c₁ 0; 1%ps … []] ^ j *
-             ps_pol_comp (poly_inject_K_in_Kx (Φq R pol ns))
+             ps_pol_comp (poly_inject_K_in_Kx (Φq pol ns))
                (POL [ps_monom c₁ 0; 1%ps … []]))%pspol.
 Proof.
 intros pol ns pl tl l c₁ j αj Hns Hpl Htl Hl Hini.
@@ -1805,8 +1805,8 @@ Lemma Ψ_length : ∀ pol ns j k αj αk c₁ r Ψ,
   ns ∈ newton_segments pol
   → ini_pt ns = (Qnat j, αj)
     → fin_pt ns = (Qnat k, αk)
-      → r = root_multiplicity acf c₁ (Φq R pol ns)
-        → Ψ = quotient_phi_x_sub_c_pow_r R (Φq R pol ns) c₁ r
+      → r = root_multiplicity acf c₁ (Φq pol ns)
+        → Ψ = quotient_phi_x_sub_c_pow_r (Φq pol ns) c₁ r
           → length (al Ψ) = (S (k - j) - r)%nat.
 Proof.
 intros pol ns j k αj αk c₁ r Ψ Hns Hini Hfin Hr HΨ.
@@ -1848,7 +1848,7 @@ rewrite rng_opp_0; reflexivity.
 Qed.
 
 Definition lap_compose5 {α β} {R : ring β} (f : list α → list β) la lb :=
-  apply_lap (lap_ring R) (List.map f la) lb.
+  @apply_lap _ (lap_ring R) (List.map f la) lb.
 
 (* [Walker, p. 101] « Since αh + h.γ₁ = β₁, the first summation reduces to
       (c₁+y₁)^j.Φ((c₁+y₁)^q) = x^β₁.y₁^r.(c₁+y₁)^j.Ψ(c₁+y₁) ».
@@ -1858,15 +1858,15 @@ Definition lap_compose5 {α β} {R : ring β} (f : list α → list β) la lb :=
  *)
 Theorem phi_c₁y₁_psy : ∀ pol ns pl tl l c₁ r Ψ j αj,
   ns ∈ newton_segments pol
-  → ac_root (Φq R pol ns) = c₁
-    → r = root_multiplicity acf c₁ (Φq R pol ns)
-      → Ψ = quotient_phi_x_sub_c_pow_r R (Φq R pol ns) c₁ r
+  → ac_root (Φq pol ns) = c₁
+    → r = root_multiplicity acf c₁ (Φq pol ns)
+      → Ψ = quotient_phi_x_sub_c_pow_r (Φq pol ns) c₁ r
         → pl = [ini_pt ns … oth_pts ns ++ [fin_pt ns]]
           → tl = List.map (term_of_point R pol) pl
             → l = List.map (λ t, power t) tl
               → ini_pt ns = (Qnat j, αj)
                 → (POL [ps_monom c₁ 0; 1%ps … []] ^ j *
-                   ps_pol_comp (poly_inject_K_in_Kx (Φq R pol ns))
+                   ps_pol_comp (poly_inject_K_in_Kx (Φq pol ns))
                      (POL [ps_monom c₁ 0; 1%ps … []]) =
                    POL [0%ps; 1%ps … []] ^ r *
                    POL [ps_monom c₁ 0; 1%ps … []] ^ j *
@@ -1918,15 +1918,15 @@ Qed.
 *)
 Theorem f₁_eq_term_with_Ψ_plus_sum : ∀ pol ns c₁ pl tl j αj l₁ l₂ r Ψ,
   ns ∈ newton_segments pol
-  → ac_root (Φq R pol ns) = c₁
-    → r = root_multiplicity acf c₁ (Φq R pol ns)
-      → Ψ = quotient_phi_x_sub_c_pow_r R (Φq R pol ns) c₁ r
+  → ac_root (Φq pol ns) = c₁
+    → r = root_multiplicity acf c₁ (Φq pol ns)
+      → Ψ = quotient_phi_x_sub_c_pow_r (Φq pol ns) c₁ r
         → pl = [ini_pt ns … oth_pts ns ++ [fin_pt ns]]
           → tl = List.map (term_of_point R pol) pl
             → l₁ = List.map (λ t, power t) tl
               → split_list (List.seq 0 (length (al pol))) l₁ l₂
                 → ini_pt ns = (Qnat j, αj)
-                  → (pol₁ R pol (β ns) (γ ns) c₁ =
+                  → (pol₁ pol (β ns) (γ ns) c₁ =
                      POL [0%ps; 1%ps … []] ^ r *
                      POL [ps_monom c₁ 0; 1%ps … []] ^ j *
                      poly_inject_K_in_Kx Ψ ∘ POL [ps_monom c₁ 0; 1%ps … []] +
