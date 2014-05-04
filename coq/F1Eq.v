@@ -57,7 +57,7 @@ Definition lap_inject_K_in_Kx α (R : ring α) la :=
   List.map (λ c, ps_monom c 0) la.
 
 Definition poly_inject_K_in_Kx α (R : ring α) pol :=
-  (POL (List.map (λ c, ps_monom c 0) (al pol)))%pol.
+  (POL (lap_inject_K_in_Kx R (al pol)))%pol.
 
 (* *)
 
@@ -1535,6 +1535,7 @@ assert (∀ iq αi, (iq, αi) ∈ pl → ∃ i, iq = Qnat i) as Hnat.
    apply exists_fin_pt_nat in Hfin.
    destruct Hfin as (k, (αk, Hfin)).
    progress unfold poly_inject_K_in_Kx.
+   progress unfold lap_inject_K_in_Kx.
    remember List.map as lm; simpl.
    rewrite Hini; simpl.
    progress unfold nofq, Qnat; simpl.
@@ -1823,8 +1824,8 @@ subst s; reflexivity.
 Qed.
 
 Lemma lap_power_map_ps : ∀ la n,
-  (List.map (λ c : α, ps_monom c 0) la ^ n =
-   List.map (λ c : α, ps_monom c 0) (la ^ n)%lap)%pslap.
+  (lap_inject_K_in_Kx R la ^ n =
+   lap_inject_K_in_Kx R (la ^ n)%lap)%pslap.
 Proof.
 intros la n.
 unfold ps_lap_eq, ps_lap_pow.
