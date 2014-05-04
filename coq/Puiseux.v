@@ -1878,21 +1878,28 @@ induction n; simpl.
  rewrite ps_add_0_r; reflexivity.
 Qed.
 
+Lemma eq_1_0_all_0 : (1 = 0)%K → ∀ a, (a = 0)%K.
+Proof.
+intros H a.
+rewrite <- rng_mul_1_l.
+rewrite H, rng_mul_0_l.
+reflexivity.
+Qed.
+
 Lemma www : ∀ a n,
   (a ≠ 0)%ps
   → (order (a ^ n) = qfin (Qnat n) * order a)%Qbar.
 Proof.
 intros a n Ha.
-induction n.
- simpl.
+induction n; simpl.
  remember (order a) as v eqn:Hv .
  symmetry in Hv.
- destruct v.
+ destruct v as [v| ].
   unfold Qnat; simpl.
   rewrite Qmult_0_l.
   unfold ps_one.
-  rewrite ps_monom_order.
-   reflexivity.
+  rewrite ps_monom_order; [ reflexivity | idtac ].
+  intros H; apply Ha.
 bbb.
 
 (* [Walker, p 101] « O(br) = 0 » *)
