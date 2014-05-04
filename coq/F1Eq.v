@@ -53,11 +53,11 @@ Definition lap_summation α (r : ring α) (li : list nat) g :=
 Definition poly_summation α (r : ring α) (li : list nat) g :=
   (POL (lap_summation r li (λ i, al (g i))))%pol.
 
-Definition lap_inject_K_in_Kx α (R : ring α) la :=
+Definition lap_inject_K_in_Kx α {R : ring α} la :=
   List.map (λ c, ps_monom c 0) la.
 
-Definition poly_inject_K_in_Kx α (R : ring α) pol :=
-  (POL (lap_inject_K_in_Kx R (al pol)))%pol.
+Definition poly_inject_K_in_Kx α {R : ring α} pol :=
+  (POL (lap_inject_K_in_Kx (al pol)))%pol.
 
 (* *)
 
@@ -189,7 +189,7 @@ destruct (zerop (i mod Pos.to_nat (Qden p))) as [H₁| H₁].
   reflexivity.
 Qed.
 
-Add Parametric Morphism α (R : ring α) : (lap_inject_K_in_Kx R)
+Add Parametric Morphism α (R : ring α) : (@lap_inject_K_in_Kx _ R)
   with signature @lap_eq _ R ==> @lap_eq _ (ps_ring R)
   as lap_inject_k_in_Kx_morph.
 Proof.
@@ -222,7 +222,7 @@ induction la as [| a]; intros; simpl.
   apply IHla; assumption.
 Qed.
 
-Add Parametric Morphism α (R : ring α) : (poly_inject_K_in_Kx R)
+Add Parametric Morphism α (R : ring α) : (@poly_inject_K_in_Kx _ R)
   with signature eq_poly ==> @eq_poly _ (ps_ring R)
   as poly_inject_k_in_Kx_morph.
 Proof.
@@ -1456,7 +1456,7 @@ Theorem sum_ah_c₁y_h_eq : ∀ pol ns pl tl l c₁ j αj,
                 POL [ps_monom (coeff_of_term h tl) 0] *
                 POL [ps_monom c₁ 0; 1%ps … []] ^ h) =
              POL [ps_monom c₁ 0; 1%ps … []] ^ j *
-             ps_pol_comp (poly_inject_K_in_Kx R (Φq R pol ns))
+             ps_pol_comp (poly_inject_K_in_Kx (Φq R pol ns))
                (POL [ps_monom c₁ 0; 1%ps … []]))%pspol.
 Proof.
 intros pol ns pl tl l c₁ j αj Hns Hpl Htl Hl Hini.
@@ -1774,8 +1774,8 @@ rewrite rng_list_map_nth.
 Qed.
 
 Lemma poly_inject_inj_mul : ∀ P Q,
-  (poly_inject_K_in_Kx R (P * Q)%pol =
-   (poly_inject_K_in_Kx R P * poly_inject_K_in_Kx R Q))%pspol.
+  (poly_inject_K_in_Kx (P * Q)%pol =
+   (poly_inject_K_in_Kx P * poly_inject_K_in_Kx Q))%pspol.
 Proof.
 intros P Q.
 apply lap_mul_map_ps.
@@ -1824,8 +1824,7 @@ subst s; reflexivity.
 Qed.
 
 Lemma lap_power_map_ps : ∀ la n,
-  (lap_inject_K_in_Kx R la ^ n =
-   lap_inject_K_in_Kx R (la ^ n)%lap)%pslap.
+  (lap_inject_K_in_Kx la ^ n = lap_inject_K_in_Kx (la ^ n)%lap)%pslap.
 Proof.
 intros la n.
 unfold ps_lap_eq, ps_lap_pow.
@@ -1867,11 +1866,11 @@ Theorem phi_c₁y₁_psy : ∀ pol ns pl tl l c₁ r Ψ j αj,
             → l = List.map (λ t, power t) tl
               → ini_pt ns = (Qnat j, αj)
                 → (POL [ps_monom c₁ 0; 1%ps … []] ^ j *
-                   ps_pol_comp (poly_inject_K_in_Kx R (Φq R pol ns))
+                   ps_pol_comp (poly_inject_K_in_Kx (Φq R pol ns))
                      (POL [ps_monom c₁ 0; 1%ps … []]) =
                    POL [0%ps; 1%ps … []] ^ r *
                    POL [ps_monom c₁ 0; 1%ps … []] ^ j *
-                   ps_pol_comp (poly_inject_K_in_Kx R Ψ)
+                   ps_pol_comp (poly_inject_K_in_Kx Ψ)
                      (POL [ps_monom c₁ 0; 1%ps … []]))%pspol.
 Proof.
 intros pol ns pl tl l c₁ r Ψ j αj Hns Hc₁ Hr HΨ Hpl Htl Hl Hini.
@@ -1930,7 +1929,7 @@ Theorem f₁_eq_term_with_Ψ_plus_sum : ∀ pol ns c₁ pl tl j αj l₁ l₂ r 
                   → (pol₁ R pol (β ns) (γ ns) c₁ =
                      POL [0%ps; 1%ps … []] ^ r *
                      POL [ps_monom c₁ 0; 1%ps … []] ^ j *
-                     poly_inject_K_in_Kx R Ψ ∘ POL [ps_monom c₁ 0; 1%ps … []] +
+                     poly_inject_K_in_Kx Ψ ∘ POL [ps_monom c₁ 0; 1%ps … []] +
                      POL [ps_monom 1%K (- β ns)] *
                      (ps_pol_summ l₁
                         (λ h,
