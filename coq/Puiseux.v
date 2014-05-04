@@ -1878,6 +1878,23 @@ induction n; simpl.
  rewrite ps_add_0_r; reflexivity.
 Qed.
 
+Lemma www : ∀ a n,
+  (a ≠ 0)%ps
+  → (order (a ^ n) = qfin (Qnat n) * order a)%Qbar.
+Proof.
+intros a n Ha.
+induction n.
+ simpl.
+ remember (order a) as v eqn:Hv .
+ symmetry in Hv.
+ destruct v.
+  unfold Qnat; simpl.
+  rewrite Qmult_0_l.
+  unfold ps_one.
+  rewrite ps_monom_order.
+   reflexivity.
+bbb.
+
 (* [Walker, p 101] « O(br) = 0 » *)
 Theorem xxx : ∀ pol ns c₁ r f₁,
   ns ∈ newton_segments pol
