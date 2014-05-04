@@ -1984,10 +1984,11 @@ rewrite f₁_eq_term_with_Ψ_plus_sum with (l₂ := l₂); try eassumption.
     rewrite fold_lap_nth.
     rewrite fold_ps_lap_pow.
     rewrite lap_nth_0_cons_pow.
+    rewrite order_pow.
+     rewrite ps_monom_order; [ idtac | assumption ].
+     rewrite Qbar.mul_0_r; [ idtac | intros H; discriminate H ].
+     rewrite Qbar.add_0_l.
 bbb.
-    do 2 rewrite fold_ps_lap_pow.
-    rewrite fold_ps_lap_comp.
-    eapply ps_const_order.
 
 (* [Walker, p 101] «
      Since O(āh - ah.x^αh) > 0 and O(āl.x^(l.γ₁)) > β₁ we obtain

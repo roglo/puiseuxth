@@ -228,6 +228,13 @@ f_equal.
  rewrite Pos.mul_comm; reflexivity.
 Qed.
 
+Theorem add_0_l : ∀ a, qeq (0 + a) a.
+Proof.
+intros a.
+destruct a as [a| ]; [ simpl | constructor ].
+rewrite Qplus_0_l; reflexivity.
+Qed.
+
 Theorem add_lt_mono_r : ∀ n m p, p ≠ ∞ → n < m ↔ n + p < m + p.
 Proof.
 intros n m p Hp.
@@ -351,6 +358,13 @@ intros n.
 destruct n as [n| ]; [ simpl | reflexivity ].
 unfold Qeq; simpl.
 rewrite Z.mul_1_r; reflexivity.
+Qed.
+
+Theorem mul_0_r : ∀ a, a ≠ ∞ → qeq (a * 0) 0.
+Proof.
+intros a Ha.
+destruct a as [a| ]; simpl; [ idtac | apply Ha; reflexivity ].
+rewrite Qmult_0_r; reflexivity.
 Qed.
 
 Theorem eq_refl : reflexive _ qeq.
