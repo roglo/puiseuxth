@@ -42,8 +42,8 @@ Definition pol₁ α {R : ring α} pol β₁ γ₁ c₁ :=
 
 Delimit Scope ps_lap_scope with pslap.
 
-Definition lap_nth α (R : ring α) h la := (List.nth h la 0)%ps.
-Definition poly_nth α (R : ring α) h pol := (lap_nth R h (al pol)).
+Definition lap_nth α {R : ring α} h la := (List.nth h la 0)%ps.
+Definition poly_nth α {R : ring α} h pol := (lap_nth h (al pol)).
 
 Arguments lap_nth _ _ h%nat la%pslap.
 
@@ -108,12 +108,12 @@ Lemma fold_ps_lap_comp : ∀ α (R : ring α) a b,
 Proof. reflexivity. Qed.
 
 Lemma fold_lap_nth : ∀ α (R : ring α) h la,
-  List.nth h la 0%ps = lap_nth R h la.
+  List.nth h la 0%ps = lap_nth h la.
 Proof. reflexivity. Qed.
 
 (* *)
 
-Add Parametric Morphism α (R : ring α) : (lap_nth R)
+Add Parametric Morphism α (R : ring α) : (@lap_nth _ R)
   with signature eq ==> @lap_eq _ (ps_ring R) ==> eq_ps
   as lap_nth_morph.
 Proof.
@@ -121,7 +121,7 @@ intros n la lb Hlab.
 rewrite Hlab; reflexivity.
 Qed.
 
-Add Parametric Morphism α (R : ring α) : (poly_nth R)
+Add Parametric Morphism α (R : ring α) : (@poly_nth _ R)
   with signature eq ==> @eq_poly _ (ps_ring R) ==> eq_ps
   as poly_nth_morph.
 Proof.
@@ -444,7 +444,7 @@ Theorem f₁_eq_x_min_β₁_summation : ∀ pol β₁ γ₁ c₁,
    POL [ps_monom 1%K (- β₁)] *
    ps_pol_summ (List.seq 0 (length (al pol)))
      (λ h,
-      let āh := poly_nth R h pol in
+      let āh := poly_nth h pol in
       POL [(āh * ps_monom 1%K (Qnat h * γ₁))%ps] *
       POL [ps_monom c₁ 0; 1%ps … []] ^ h))%pspol.
 Proof.
@@ -508,12 +508,12 @@ Theorem f₁_eq_x_min_β₁_summation_split : ∀ pol β₁ γ₁ c₁ l₁ l₂
   → (pol₁ pol β₁ γ₁ c₁ =
       POL [ps_monom 1%K (- β₁)] *
       ps_pol_summ l₁
-        (λ (h : nat) (āh:=poly_nth R h pol),
+        (λ (h : nat) (āh:=poly_nth h pol),
          POL [(āh * ps_monom 1%K (Qnat h * γ₁))%ps] *
          POL [ps_monom c₁ 0; 1%ps … []] ^ h) +
       POL [ps_monom 1%K (- β₁)] *
       ps_pol_summ l₂
-        (λ (l : nat) (āl:=poly_nth R l pol),
+        (λ (l : nat) (āl:=poly_nth l pol),
          POL [(āl * ps_monom 1%K (Qnat l * γ₁))%ps] *
          POL [ps_monom c₁ 0; 1%ps … []] ^ l))%pspol.
 Proof.
@@ -546,7 +546,7 @@ Lemma summation_split_val : ∀ pol ns γ₁ c₁ pl tl l,
       → l = List.map (λ t, power t) tl
         → (ps_pol_summ l
              (λ h,
-              let āh := poly_nth R h pol in
+              let āh := poly_nth h pol in
               POL [(āh * ps_monom 1%K (Qnat h * γ₁))%ps] *
               POL [ps_monom c₁ 0; 1%ps … []] ^ h) =
            ps_pol_summ l
@@ -557,7 +557,7 @@ Lemma summation_split_val : ∀ pol ns γ₁ c₁ pl tl l,
               POL [ps_monom c₁ 0; 1%ps … []] ^ h) +
            ps_pol_summ l
              (λ h,
-              let āh := poly_nth R h pol in
+              let āh := poly_nth h pol in
               let ah := ps_monom (coeff_of_term h tl) 0 in
               let αh := ord_of_pt h pl in
               POL [((āh - ah * ps_monom 1%K αh) *
@@ -606,7 +606,7 @@ Theorem f₁_eq_sum_α_hγ_to_rest : ∀ pol ns β₁ γ₁ c₁ pl tl l₁ l₂
              POL [ps_monom 1%K (- β₁)] *
              (ps_pol_summ l₁
                 (λ h,
-                 let āh := poly_nth R h pol in
+                 let āh := poly_nth h pol in
                  let ah := ps_monom (coeff_of_term h tl) 0 in
                  let αh := ord_of_pt h pl in
                  POL [((āh - ah * ps_monom 1%K αh) *
@@ -614,7 +614,7 @@ Theorem f₁_eq_sum_α_hγ_to_rest : ∀ pol ns β₁ γ₁ c₁ pl tl l₁ l₂
                  POL [ps_monom c₁ 0; 1%ps … []] ^ h) +
               ps_pol_summ l₂
                 (λ l,
-                 let āl := poly_nth R l pol in
+                 let āl := poly_nth l pol in
                  POL [(āl * ps_monom 1%K (Qnat l * γ₁))%ps] *
                  POL [ps_monom c₁ 0; 1%ps … []] ^ l)))%pspol.
 Proof.
@@ -795,7 +795,7 @@ Theorem f₁_eq_sum_without_x_β₁_plus_sum : ∀ pol ns c₁ pl tl l₁ l₂,
              POL [ps_monom 1%K (- β ns)] *
              (ps_pol_summ l₁
                 (λ h,
-                 let āh := poly_nth R h pol in
+                 let āh := poly_nth h pol in
                  let ah := ps_monom (coeff_of_term h tl) 0 in
                  let αh := ord_of_pt h pl in
                  POL [((āh - ah * ps_monom 1%K αh) *
@@ -803,7 +803,7 @@ Theorem f₁_eq_sum_without_x_β₁_plus_sum : ∀ pol ns c₁ pl tl l₁ l₂,
                  POL [ps_monom c₁ 0; 1%ps … []] ^ h) +
               ps_pol_summ l₂
                 (λ l,
-                 let āl := poly_nth R l pol in
+                 let āl := poly_nth l pol in
                  POL [(āl * ps_monom 1%K (Qnat l * γ ns))%ps] *
                  POL [ps_monom c₁ 0; 1%ps … []] ^ l)))%pspol.
 Proof.
@@ -1933,7 +1933,7 @@ Theorem f₁_eq_term_with_Ψ_plus_sum : ∀ pol ns c₁ pl tl j αj l₁ l₂ r 
                      POL [ps_monom 1%K (- β ns)] *
                      (ps_pol_summ l₁
                         (λ h,
-                         let āh := poly_nth R h pol in
+                         let āh := poly_nth h pol in
                          let ah := ps_monom (coeff_of_term h tl) 0 in
                          let αh := ord_of_pt h pl in
                          POL [((āh - ah * ps_monom 1%K αh) *
@@ -1941,7 +1941,7 @@ Theorem f₁_eq_term_with_Ψ_plus_sum : ∀ pol ns c₁ pl tl j αj l₁ l₂ r 
                          POL [ps_monom c₁ 0; 1%ps … []] ^ h) +
                       ps_pol_summ l₂
                         (λ l,
-                         let āl := poly_nth R l pol in
+                         let āl := poly_nth l pol in
                          POL [(āl * ps_monom 1%K (Qnat l * γ ns))%ps] *
                          POL [ps_monom c₁ 0; 1%ps … []] ^ l)))%pspol.
 Proof.

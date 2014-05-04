@@ -93,7 +93,7 @@ Lemma order_in_newton_segment : ∀ pol ns pl h αh,
   ns ∈ newton_segments pol
   → pl = [ini_pt ns … oth_pts ns ++ [fin_pt ns]]
     → (Qnat h, αh) ∈ pl
-      → order (poly_nth R h pol) = qfin αh.
+      → order (poly_nth h pol) = qfin αh.
 Proof.
 intros pol ns pl h αh Hns Hpl Hαh.
 remember Hns as Hini; clear HeqHini.
@@ -143,7 +143,7 @@ Theorem order_āh_minus_ah_xαh_gt_αh : ∀ pol ns pl tl h āh ah αh,
   → pl = [ini_pt ns … oth_pts ns ++ [fin_pt ns]]
     → tl = List.map (term_of_point R pol) pl
       → h ∈ List.map (λ t, power t) tl
-        → āh = poly_nth R h pol
+        → āh = poly_nth h pol
           → ah = ps_monom (coeff_of_term R h tl) 0
             → αh = ord_of_pt h pl
               → (order (āh - ah * ps_monom 1%K αh)%ps > qfin αh)%Qbar.
@@ -319,7 +319,7 @@ Theorem order_āl_xlγ₁_gt_β₁ : ∀ pol ns pl tl l₁ l₂ l āl,
       → l₁ = List.map (λ t, power t) tl
         → split_list (List.seq 0 (length (al pol))) l₁ l₂
           → l ∈ l₂
-            → āl = poly_nth R l pol
+            → āl = poly_nth l pol
               → (order (āl * ps_monom 1%K (Qnat l * γ ns))%ps >
                  qfin (β ns))%Qbar.
 Proof.
@@ -477,14 +477,14 @@ Definition g_lap_of_ns pol ns :=
   ([ps_monom 1%K (- β ns)] *
    (ps_lap_summ l₁
       (λ h,
-       let āh := poly_nth R h pol in
+       let āh := poly_nth h pol in
        let ah := ps_monom (coeff_of_term R h tl) 0 in
        let αh := ord_of_pt h pl in
        [((āh - ah * ps_monom 1%K αh) * ps_monom 1%K (Qnat h * γ ns))%ps] *
        [ps_monom c₁ 0; 1%ps … []] ^ h) +
     ps_lap_summ l₂
       (λ l,
-       let āl := poly_nth R l pol in
+       let āl := poly_nth l pol in
        [(āl * ps_monom 1%K (Qnat l * γ ns))%ps] *
        [ps_monom c₁ 0; 1%ps … []] ^ l)))%pslap.
 
@@ -500,7 +500,7 @@ Definition g_of_ns pol ns :=
   (POL [ps_monom 1%K (- β ns)] *
    (ps_pol_summ l₁
       (λ h,
-       let āh := poly_nth R h pol in
+       let āh := poly_nth h pol in
        let ah := ps_monom (coeff_of_term R h tl) 0 in
        let αh := ord_of_pt h pl in
        POL [((āh - ah * ps_monom 1%K αh) *
@@ -508,7 +508,7 @@ Definition g_of_ns pol ns :=
        POL [ps_monom c₁ 0; 1%ps … []] ^ h) +
     ps_pol_summ l₂
       (λ l,
-       let āl := poly_nth R l pol in
+       let āl := poly_nth l pol in
        POL [(āl * ps_monom 1%K (Qnat l * γ ns))%ps] *
        POL [ps_monom c₁ 0; 1%ps … []] ^ l)))%pspol.
 *)
@@ -1391,7 +1391,7 @@ assert (m ≠ 0)%ps as Hmnz.
   apply lap_ps_in_mul in Hm; [ assumption | idtac | idtac ].
    clear m Hm.
    intros m Hm.
-   remember (poly_nth R h pol) as āh eqn:Hāh .
+   remember (poly_nth h pol) as āh eqn:Hāh .
    remember (ps_monom (coeff_of_term R h tl) 0) as ah eqn:Hah .
    remember (ord_of_pt h pl) as αh eqn:Hαh .
    rewrite lap_mul_const_l in Hm; simpl in Hm.
@@ -1482,7 +1482,7 @@ assert (m ≠ 0)%ps as Hmnz.
    rewrite ps_add_0_r in H₂.
    rewrite <- H₂.
    rewrite order_mul.
-   remember (poly_nth R h pol) as āh.
+   remember (poly_nth h pol) as āh.
    apply Qbar.lt_sub_lt_add_l; [ intros H; discriminate H | idtac ].
    rewrite Qbar.sub_0_l.
    destruct (ac_zerop 1%K) as [Hoz| Honz].
@@ -1574,7 +1574,7 @@ assert (m ≠ 0)%ps as Hmnz.
 Qed.
 
 Lemma lap_nth_add : ∀ n la lb,
-  (lap_nth R n (la + lb) = lap_nth R n la + lap_nth R n lb)%ps.
+  (lap_nth n (la + lb) = lap_nth n la + lap_nth n lb)%ps.
 Proof.
 intros n la lb.
 unfold ps_lap_add; simpl.
@@ -1846,7 +1846,7 @@ Theorem xxx : ∀ pol ns c₁ r f₁,
   → c₁ = ac_root (Φq pol ns)
     → r = root_multiplicity acf c₁ (Φq pol ns)
       → f₁ = pol₁ pol (β ns) (γ ns) c₁
-        → (order (poly_nth R r f₁) = 0)%Qbar.
+        → (order (poly_nth r f₁) = 0)%Qbar.
 Proof.
 intros pol ns c₁ r f₁ Hns Hc₁ Hr Hf₁.
 subst f₁.
@@ -1874,7 +1874,7 @@ rewrite f₁_eq_term_with_Ψ_plus_sum with (l₂ := l₂); try eassumption.
  unfold poly_nth; simpl.
  rewrite fold_ps_lap_add.
  rewrite lap_nth_add.
- assert (order (lap_nth R r (g_lap_of_ns pol ns)) > 0)%Qbar as Hog.
+ assert (order (lap_nth r (g_lap_of_ns pol ns)) > 0)%Qbar as Hog.
   destruct (lt_dec r (length (g_lap_of_ns pol ns))) as [Hlt| Hge].
    eapply each_power_of_y₁_has_coeff_pos_ord; try eassumption.
     reflexivity.
@@ -1938,7 +1938,7 @@ Theorem yyy : ∀ pol ns c₁ f₁,
   ns ∈ newton_segments pol
   → c₁ = ac_root (Φq pol ns)
     → f₁ = pol₁ pol (β ns) (γ ns) c₁
-      → ∀ i, (order (poly_nth R i f₁) ≥ 0)%Qbar.
+      → ∀ i, (order (poly_nth i f₁) ≥ 0)%Qbar.
 Proof.
 intros pol ns c₁ f₁ Hns Hc₁ Hf₁ i.
 bbb.
