@@ -1997,9 +1997,12 @@ rewrite f₁_eq_term_with_Ψ_plus_sum with (l₂ := l₂); try eassumption.
      rewrite ps_monom_order; [ idtac | assumption ].
      rewrite Qbar.mul_0_r; [ idtac | intros H; discriminate H ].
      rewrite Qbar.add_0_l.
-     rewrite fold_ps_lap_comp.
      rewrite fold_lap_nth.
      rewrite lap_nth_0_apply_0.
+     rewrite apply_lap_compose.
+     unfold apply_lap at 2; simpl.
+     rewrite ps_mul_0_l, ps_add_0_l.
+     rewrite ps_mul_0_r, ps_add_0_l.
 bbb.
 
 (* [Walker, p 101] «
