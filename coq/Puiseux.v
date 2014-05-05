@@ -1921,6 +1921,15 @@ induction n; simpl.
  rewrite Qmult_1_l; reflexivity.
 Qed.
 
+Lemma lap_nth_0_apply_0 : ∀ la,
+  (lap_nth 0 la = @apply_lap _ (ps_ring R) la 0)%ps.
+Proof.
+intros la.
+induction la as [| a]; [ reflexivity | simpl ].
+rewrite ps_mul_0_r, ps_add_0_l.
+reflexivity.
+Qed.
+
 (* [Walker, p 101] « O(br) = 0 » *)
 Theorem xxx : ∀ pol ns c₁ r f₁,
   ns ∈ newton_segments pol
@@ -1990,6 +1999,7 @@ rewrite f₁_eq_term_with_Ψ_plus_sum with (l₂ := l₂); try eassumption.
      rewrite Qbar.add_0_l.
      rewrite fold_ps_lap_comp.
      rewrite fold_lap_nth.
+     rewrite lap_nth_0_apply_0.
 bbb.
 
 (* [Walker, p 101] «
