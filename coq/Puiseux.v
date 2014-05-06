@@ -1980,6 +1980,21 @@ subst s; simpl in Hm.
 destruct m; exfalso; apply Hm; reflexivity.
 Qed.
 
+Lemma series_shrink_ps_terms_monom : ∀ k c n,
+  (series_shrink k (ps_terms (ps_monom c n)) = ps_terms (ps_monom c n))%ser.
+Proof.
+intros k c n.
+unfold series_shrink; simpl.
+constructor; intros i; simpl.
+destruct i; [ reflexivity | simpl ].
+destruct (zerop (Pos.to_nat k + i * Pos.to_nat k)) as [H| H].
+ apply Nat.eq_add_0 in H.
+ destruct H as (H, _).
+ exfalso; revert H; apply Pos2Nat_ne_0.
+
+ reflexivity.
+Qed.
+
 Lemma vvv : ∀ c n, (normalize_ps _ (ps_monom c n) = ps_monom c n)%ps.
 Proof.
 intros c n.
@@ -2003,6 +2018,7 @@ destruct m as [m| ].
   rewrite Z.add_0_r.
   unfold normalize_series; simpl.
   rewrite series_left_shift_0.
+  rewrite Hs, series_shrink_ps_terms_monom, <- Hs.
 bbb.
 
 Lemma www : ∀ c d m n, (ps_monom c m = ps_monom d n)%ps → (c = d)%K ∧ m == n.
