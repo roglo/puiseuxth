@@ -1994,12 +1994,15 @@ destruct m as [m| ].
  symmetry.
  apply ps_terms_monom_0_monom_0; assumption.
 
- remember (greatest_series_x_power R s m) as p eqn:Hp .
- symmetry in Hp.
- apply greatest_series_x_power_iff in Hp.
- unfold is_the_greatest_series_x_power in Hp.
- simpl.
- unfold gcd_ps; simpl.
+ apply null_coeff_range_length_iff in Hm.
+ unfold null_coeff_range_length_prop in Hm.
+ simpl in Hm.
+ destruct Hm as (Him, HHm).
+ destruct m.
+  simpl.
+  rewrite Z.add_0_r.
+  unfold normalize_series; simpl.
+  rewrite series_left_shift_0.
 bbb.
 
 Lemma www : ∀ c d m n, (ps_monom c m = ps_monom d n)%ps → (c = d)%K ∧ m == n.
