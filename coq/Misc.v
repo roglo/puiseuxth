@@ -1822,3 +1822,11 @@ induction l as [| x]; intros.
  apply Nat.succ_lt_mono in Hnl.
  right; apply IHl; assumption.
 Qed.
+
+Theorem list_fold_right_map : ∀ A B C (f : B → A → A) (g : C → B) l a,
+  (List.fold_right f a (List.map g l) =
+   List.fold_right (λ b acc, f (g b) acc) a l).
+Proof.
+intros A B C f g l a.
+induction l as [| x]; [ reflexivity | simpl; f_equal; assumption ].
+Qed.

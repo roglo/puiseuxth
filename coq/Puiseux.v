@@ -1930,6 +1930,23 @@ rewrite ps_mul_0_r, ps_add_0_l.
 reflexivity.
 Qed.
 
+Lemma apply_lap_inject_K_in_Kx_monom : ∀ P c,
+  (@apply_lap _ (ps_ring R) (lap_inject_K_in_Kx P) (ps_monom c 0) =
+   ps_monom (apply_lap P c) 0)%ps.
+Proof.
+intros P c.
+unfold apply_lap; simpl.
+unfold lap_inject_K_in_Kx.
+rename c into d.
+rewrite list_fold_right_map.
+induction P as [| a]; simpl.
+ rewrite ps_zero_monom_eq; reflexivity.
+
+ rewrite IHP.
+ rewrite ps_monom_add_l, ps_monom_mul_l.
+ reflexivity.
+Qed.
+
 (* [Walker, p 101] « O(br) = 0 » *)
 Theorem xxx : ∀ pol ns c₁ r f₁,
   ns ∈ newton_segments pol
@@ -2003,6 +2020,14 @@ rewrite f₁_eq_term_with_Ψ_plus_sum with (l₂ := l₂); try eassumption.
      unfold apply_lap at 2; simpl.
      rewrite ps_mul_0_l, ps_add_0_l.
      rewrite ps_mul_0_r, ps_add_0_l.
+     rewrite apply_lap_inject_K_in_Kx_monom.
+     rewrite ps_monom_order; [ reflexivity | idtac ].
+     eapply psy_c₁_ne_0 in HΨ; eassumption. (* ← truc important noyé *)
+
+     intros H.
+     rewrite <- ps_zero_monom_eq in H.
+     apply Hc₁nz.
+     revert H; clear; intros.
 bbb.
 
 (* [Walker, p 101] «
