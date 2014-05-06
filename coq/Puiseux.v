@@ -1995,11 +1995,6 @@ destruct (zerop (Pos.to_nat k + i * Pos.to_nat k)) as [H| H].
  reflexivity.
 Qed.
 
-Lemma uuu : ∀ a b, (0 < b)%Z → (0 < b / Z.gcd a b)%Z.
-Proof.
-intros a b Hb.
-bbb.
-
 Lemma vvv : ∀ c n, (normalize_ps _ (ps_monom c n) = ps_monom c n)%ps.
 Proof.
 intros c n.
@@ -2117,7 +2112,11 @@ destruct m as [m| ].
       rewrite Z.abs_eq; [ apply Z.gcd_divide_r | apply Z.gcd_nonneg ].
 
      subst k.
-     rewrite Z.abs_eq.
+     rewrite Z.abs_eq; [ idtac | apply Z.gcd_nonneg ].
+     apply Z_div_gcd_r_pos, Pos2Z.is_pos.
+
+     subst k.
+     rewrite Z.abs_eq; [ idtac | apply Z.gcd_nonneg ].
 bbb.
 
 Lemma www : ∀ c d m n, (ps_monom c m = ps_monom d n)%ps → (c = d)%K ∧ m == n.

@@ -1830,3 +1830,41 @@ Proof.
 intros A B C f g l a.
 induction l as [| x]; [ reflexivity | simpl; f_equal; assumption ].
 Qed.
+
+Theorem Z_div_gcd_r_pos : ∀ a b, (0 < b)%Z → (0 < b / Z.gcd a b)%Z.
+Proof.
+intros a b Hb.
+pose proof (Z.gcd_divide_r a b) as H.
+destruct H as (c, Hc).
+rewrite Hc in |- * at 1.
+rewrite Z.divide_div_mul_exact.
+ rewrite Z.div_same.
+  rewrite Z.mul_1_r.
+  destruct c as [| c| c].
+   simpl in Hc; subst b; assumption.
+
+   apply Pos2Z.is_pos.
+
+   remember Hb as H; clear HeqH.
+   rewrite Hc in H.
+   apply Z.lt_0_mul in H.
+   destruct H as [H| H].
+    destruct H; assumption.
+
+    destruct H as (H, _).
+    apply Z.nle_gt in H.
+    exfalso; apply H, Z.gcd_nonneg.
+
+  intros H.
+  rewrite H in Hc; simpl in Hc.
+  rewrite Z.mul_0_r in Hc; subst b.
+  revert Hb; apply Z.lt_irrefl.
+
+ intros H.
+ rewrite H in Hc; simpl in Hc.
+ rewrite Z.mul_0_r in Hc; subst b.
+ revert Hb; apply Z.lt_irrefl.
+
+ exists 1%Z.
+ rewrite Z.mul_1_l; reflexivity.
+Qed.
