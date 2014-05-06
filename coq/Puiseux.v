@@ -2019,6 +2019,36 @@ destruct m as [m| ].
   unfold normalize_series; simpl.
   rewrite series_left_shift_0.
   rewrite Hs, series_shrink_ps_terms_monom, <- Hs.
+  remember (greatest_series_x_power R s 0) as g eqn:Hg .
+  symmetry in Hg.
+  apply greatest_series_x_power_iff in Hg.
+  unfold is_the_greatest_series_x_power in Hg.
+  remember (null_coeff_range_length R s 1) as m eqn:Hm .
+  symmetry in Hm.
+  destruct m as [m| ].
+   destruct Hg as (Hg, Hk').
+   unfold is_a_series_in_x_power in Hg.
+   pose proof (Hg 0%nat) as H₀.
+   simpl in H₀.
+   rewrite Hm in H₀.
+   rewrite Hs in Hm.
+   apply null_coeff_range_length_iff in Hm.
+   unfold null_coeff_range_length_prop in Hm.
+   simpl in Hm.
+   destruct m.
+    Focus 2.
+    destruct Hm as (_, Hm).
+    exfalso; apply Hm; reflexivity.
+
+    destruct H₀ as (d, H).
+    symmetry in H.
+    apply Nat.eq_mul_1 in H.
+    destruct H as (_, H); subst g.
+    unfold gcd_ps; simpl.
+    rewrite Z.gcd_1_r.
+    do 2 rewrite Z.div_1_r; simpl.
+    rewrite Hs.
+    reflexivity.
 bbb.
 
 Lemma www : ∀ c d m n, (ps_monom c m = ps_monom d n)%ps → (c = d)%K ∧ m == n.
