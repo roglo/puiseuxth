@@ -29,6 +29,8 @@ Definition null_coeff_range_length : ∀ α,
   ring α → power_series α → nat → Nbar.
 Admitted.
 
+Arguments null_coeff_range_length _ _ s%ser _.
+
 Definition null_coeff_range_length_prop α (r : ring α) s n v :=
   match v with
   | fin k =>

@@ -1947,6 +1947,34 @@ induction P as [| a]; simpl.
  reflexivity.
 Qed.
 
+Lemma vvv : ∀ c n, (normalize_ps _ (ps_monom c n) = ps_monom c n)%ps.
+Proof.
+intros c n.
+unfold normalize_ps.
+remember (ps_terms (ps_monom c n)) as s eqn:Hs .
+remember (null_coeff_range_length R s 0) as m eqn:Hm .
+symmetry in Hm.
+destruct m as [m| ].
+ Focus 2.
+ subst s.
+ apply series_null_coeff_range_length_inf_iff in Hm.
+ symmetry.
+bbb.
+
+Lemma www : ∀ c d m n, (ps_monom c m = ps_monom d n)%ps → (c = d)%K ∧ m == n.
+Proof.
+intros c d m n H.
+inversion_clear H.
+inversion_clear H0.
+unfold normalize_ps in H.
+remember (null_coeff_range_length R (ps_terms (ps_monom c m)) 0) as p.
+remember (null_coeff_range_length R (ps_terms (ps_monom d n)) 0) as q.
+symmetry in Heqp, Heqp.
+destruct p as [p| ].
+ destruct q as [q| ].
+  simpl in H.
+bbb.
+
 (* [Walker, p 101] « O(br) = 0 » *)
 Theorem xxx : ∀ pol ns c₁ r f₁,
   ns ∈ newton_segments pol
@@ -2026,7 +2054,15 @@ rewrite f₁_eq_term_with_Ψ_plus_sum with (l₂ := l₂); try eassumption.
 
      intros H; apply Hc₁nz.
      revert H; clear; intros.
+bbb.
      inversion_clear H.
+     inversion_clear H0.
+     unfold normalize_ps at 2 in H.
+     unfold normalize_ps at 2 in H1.
+     unfold normalize_ps at 2 in H2.
+     simpl in H, H1, H2.
+     rewrite null_coeff_range_length_series_0 in H, H1, H2.
+     simpl in H, H1, H2.
 bbb.
 
 (* [Walker, p 101] «
