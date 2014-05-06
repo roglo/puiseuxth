@@ -1995,7 +1995,8 @@ destruct (zerop (Pos.to_nat k + i * Pos.to_nat k)) as [H| H].
  reflexivity.
 Qed.
 
-Lemma vvv : ∀ c n, (normalize_ps _ (ps_monom c n) = ps_monom c n)%ps.
+Lemma normalize_ps_monom : ∀ c n,
+  (normalize_ps _ (ps_monom c n) = ps_monom c n)%ps.
 Proof.
 intros c n.
 unfold normalize_ps.
@@ -2117,7 +2118,20 @@ destruct m as [m| ].
 
      subst k.
      rewrite Z.abs_eq; [ idtac | apply Z.gcd_nonneg ].
-bbb.
+     destruct (Z_dec 0 (Z.gcd (Qnum n) (' Qden n))) as [[H| H]| H].
+      assumption.
+
+      apply Z.gt_lt in H.
+      apply Z.nle_gt in H.
+      exfalso; apply H, Z.gcd_nonneg.
+
+      symmetry in H.
+      apply Z.gcd_eq_0_r in H.
+      exfalso; revert H; apply Pos2Z_ne_0.
+
+  subst s; simpl in HHm.
+  exfalso; apply HHm; reflexivity.
+Qed.
 
 Lemma www : ∀ c d m n, (ps_monom c m = ps_monom d n)%ps → (c = d)%K ∧ m == n.
 Proof.
