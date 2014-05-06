@@ -1993,6 +1993,13 @@ destruct m as [m| ].
  apply series_null_coeff_range_length_inf_iff in Hm.
  symmetry.
  apply ps_terms_monom_0_monom_0; assumption.
+
+ remember (greatest_series_x_power R s m) as p eqn:Hp .
+ symmetry in Hp.
+ apply greatest_series_x_power_iff in Hp.
+ unfold is_the_greatest_series_x_power in Hp.
+ simpl.
+ unfold gcd_ps; simpl.
 bbb.
 
 Lemma www : ∀ c d m n, (ps_monom c m = ps_monom d n)%ps → (c = d)%K ∧ m == n.
