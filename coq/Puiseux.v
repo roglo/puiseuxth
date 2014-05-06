@@ -2049,6 +2049,11 @@ destruct m as [m| ].
     do 2 rewrite Z.div_1_r; simpl.
     rewrite Hs.
     reflexivity.
+
+   subst g.
+   rewrite gcd_ps_0_m.
+   simpl.
+   rewrite Z.add_0_r.
 bbb.
 
 Lemma www : ∀ c d m n, (ps_monom c m = ps_monom d n)%ps → (c = d)%K ∧ m == n.
