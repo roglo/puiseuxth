@@ -1947,6 +1947,39 @@ induction P as [| a]; simpl.
  reflexivity.
 Qed.
 
+Lemma ps_terms_monom_0_coeff_0 : ∀ c n,
+  (ps_terms (ps_monom c n) = 0)%ser
+  → (c = 0)%K.
+Proof.
+intros c n H.
+simpl in H.
+inversion H; subst.
+pose proof (H0 0%nat) as HH.
+assumption.
+Qed.
+
+Lemma ps_terms_monom_0_monom_0 : ∀ c n,
+  (ps_terms (ps_monom c n) = 0)%ser
+  → (ps_monom c n = 0)%ps.
+Proof.
+intros c n H.
+apply ps_terms_monom_0_coeff_0 in H.
+rewrite H.
+constructor.
+unfold normalize_ps.
+rewrite null_coeff_range_length_series_0.
+remember (ps_terms (ps_monom 0%K n)) as s eqn:Hs .
+remember (null_coeff_range_length R s 0) as m eqn:Hm .
+symmetry in Hm.
+destruct m as [m| ]; [ idtac | reflexivity ].
+apply null_coeff_range_length_iff in Hm.
+unfold null_coeff_range_length_prop in Hm.
+simpl in Hm.
+destruct Hm as (Him, Hm).
+subst s; simpl in Hm.
+destruct m; exfalso; apply Hm; reflexivity.
+Qed.
+
 Lemma vvv : ∀ c n, (normalize_ps _ (ps_monom c n) = ps_monom c n)%ps.
 Proof.
 intros c n.
@@ -1959,6 +1992,7 @@ destruct m as [m| ].
  subst s.
  apply series_null_coeff_range_length_inf_iff in Hm.
  symmetry.
+ apply ps_terms_monom_0_monom_0; assumption.
 bbb.
 
 Lemma www : ∀ c d m n, (ps_monom c m = ps_monom d n)%ps → (c = d)%K ∧ m == n.
