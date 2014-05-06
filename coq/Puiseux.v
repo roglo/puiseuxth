@@ -2054,7 +2054,10 @@ destruct m as [m| ].
    rewrite gcd_ps_0_m.
    simpl.
    rewrite Z.add_0_r.
+   unfold ps_monom.
+   remember (Z.abs (Z.gcd (Qnum n) (' Qden n))) as k eqn:Hk .
 bbb.
+rewrite ps_adjust_eq with (n:=O)(k:=k).
 
 Lemma www : ∀ c d m n, (ps_monom c m = ps_monom d n)%ps → (c = d)%K ∧ m == n.
 Proof.
