@@ -19,6 +19,8 @@ Record puiseux_series α := mkps
     ps_ordnum : Z;
     ps_polord : positive }.
 
+Delimit Scope ps_scope with ps.
+
 Section Axioms.
 
 (* [null_coeff_range_length fld s n] returns the number of consecutive
@@ -113,6 +115,8 @@ Definition normalize_ps α (r : ring α) ps :=
       ps_zero
   end.
 
+Arguments normalize_ps _ _ ps%ps.
+
 Inductive eq_ps_strong {α} {r : ring α} :
   puiseux_series α → puiseux_series α → Prop :=
   | eq_strong_base : ∀ ps₁ ps₂,
@@ -134,7 +138,6 @@ Definition ps_monom {α} {r : ring α} (c : α) pow :=
 
 Definition ps_one {α} {r : ring α} := ps_monom rng_one 0.
 
-Delimit Scope ps_scope with ps.
 Notation "a ≐ b" := (eq_ps_strong a b) (at level 70, r at level 0).
 Notation "a = b" := (eq_ps a b) : ps_scope.
 Notation "a ≠ b" := (not (eq_ps a b)) : ps_scope.

@@ -2024,10 +2024,9 @@ rewrite f₁_eq_term_with_Ψ_plus_sum with (l₂ := l₂); try eassumption.
      rewrite ps_monom_order; [ reflexivity | idtac ].
      eapply psy_c₁_ne_0 in HΨ; eassumption. (* ← truc important noyé *)
 
-     intros H.
-     rewrite <- ps_zero_monom_eq in H.
-     apply Hc₁nz.
+     intros H; apply Hc₁nz.
      revert H; clear; intros.
+     inversion_clear H.
 bbb.
 
 (* [Walker, p 101] «
