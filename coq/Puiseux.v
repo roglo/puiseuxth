@@ -2051,13 +2051,44 @@ destruct m as [m| ].
     reflexivity.
 
    subst g.
-   rewrite gcd_ps_0_m.
-   simpl.
+   rewrite gcd_ps_0_m; simpl.
    rewrite Z.add_0_r.
    unfold ps_monom.
    remember (Z.abs (Z.gcd (Qnum n) (' Qden n))) as k eqn:Hk .
+   rewrite ps_adjust_eq with (n := O) (k := Z.to_pos k).
+   unfold adjust_ps; simpl.
+   rewrite series_shift_0.
+   rewrite Z.sub_0_r.
+   apply mkps_morphism.
+    subst s; simpl.
+    rewrite fold_series_const.
+    rewrite stretch_series_const.
+    reflexivity.
+
+    subst k; simpl.
+    unfold Z.abs.
+    unfold Z.to_pos; simpl.
+    remember (Z.gcd (Qnum n) (' Qden n)) as k eqn:Hk .
+    symmetry in Hk.
+    destruct k as [| k| k]; simpl.
+     apply Z.gcd_eq_0_r in Hk.
+     exfalso; revert Hk; apply Pos2Z_ne_0.
+
+     rewrite Z.mul_comm.
+     rewrite <- Z.divide_div_mul_exact.
+      rewrite Z.mul_comm.
+      rewrite Z.div_mul; [ reflexivity | apply Pos2Z_ne_0 ].
+
+      apply Pos2Z_ne_0.
+
+      rewrite <- Hk.
+      apply Z.gcd_divide_l.
+
+     pose proof (Z.gcd_nonneg (Qnum n) (' Qden n)) as H.
+     rewrite Hk in H.
+     apply Z.nlt_ge in H.
+     exfalso; apply H, Pos2Z.neg_is_neg.
 bbb.
-rewrite ps_adjust_eq with (n:=O)(k:=k).
 
 Lemma www : ∀ c d m n, (ps_monom c m = ps_monom d n)%ps → (c = d)%K ∧ m == n.
 Proof.
