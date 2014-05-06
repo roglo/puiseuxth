@@ -55,11 +55,11 @@ unfold gcd_ps.
 rewrite Z.gcd_0_r; reflexivity.
 Qed.
 
-Lemma ps_canon_adjust_eq : ∀ ps n k,
-  canonic_ps r ps ≐ canonic_ps r (adjust_ps r n k ps).
+Lemma ps_normal_adjust_eq : ∀ ps n k,
+  normalize_ps r ps ≐ normalize_ps r (adjust_ps r n k ps).
 Proof.
 intros ps n k.
-unfold canonic_ps; simpl.
+unfold normalize_ps; simpl.
 rewrite null_coeff_range_length_shift.
 rewrite null_coeff_range_length_stretch_0.
 rewrite Nbar.add_comm, Nbar.mul_comm.
@@ -95,7 +95,7 @@ destruct p as [p| ].
   rewrite Z.div_mul_cancel_l.
    rewrite <- Pos2Z.inj_mul, Pos.mul_comm, Pos2Z.inj_mul.
    rewrite Z.div_mul_cancel_l.
-    unfold canonify_series.
+    unfold normalize_series.
     rewrite Z2Pos.inj_mul; [ idtac | apply Pos2Z.is_pos | idtac ].
      rewrite Pos.mul_comm.
      rewrite series_shrink_shrink.
@@ -141,7 +141,7 @@ destruct p as [p| ].
  rewrite Z.div_mul_cancel_l.
   rewrite <- Pos2Z.inj_mul, Pos.mul_comm, Pos2Z.inj_mul.
   rewrite Z.div_mul_cancel_l.
-   unfold canonify_series.
+   unfold normalize_series.
    rewrite Z2Pos.inj_mul; [ idtac | apply Pos2Z.is_pos | idtac ].
     rewrite Pos.mul_comm.
     rewrite series_shrink_shrink.
@@ -177,7 +177,7 @@ Theorem ps_adjust_eq : ∀ ps n k, (ps = adjust_ps r n k ps)%ps.
 Proof.
 intros ps n k.
 constructor.
-apply ps_canon_adjust_eq.
+apply ps_normal_adjust_eq.
 Qed.
 
 End first_lemmas.
@@ -383,12 +383,12 @@ f_equal; [ idtac | rewrite Z.mul_shuffle0; reflexivity ].
 f_equal; rewrite Z.mul_shuffle0; reflexivity.
 Qed.
 
-Lemma ps_canon_add_assoc : ∀ ps₁ ps₂ ps₃,
-  canonic_ps r ((ps₁ + ps₂) + ps₃)%ps ≐
-  canonic_ps r (ps₁ + (ps₂ + ps₃))%ps.
+Lemma ps_normal_add_assoc : ∀ ps₁ ps₂ ps₃,
+  normalize_ps r ((ps₁ + ps₂) + ps₃)%ps ≐
+  normalize_ps r (ps₁ + (ps₂ + ps₃))%ps.
 Proof.
 intros ps₁ ps₂ ps₃.
-unfold canonic_ps; simpl.
+unfold normalize_ps; simpl.
 rewrite ps_terms_add_assoc.
 remember (ps₂ + ps₃)%ps as x.
 remember (null_coeff_range_length r (ps_terms_add r ps₁ x) 0) as n.
@@ -427,7 +427,7 @@ Theorem ps_add_assoc : ∀ ps₁ ps₂ ps₃,
 Proof.
 intros ps₁ ps₂ ps₃; symmetry.
 constructor.
-apply ps_canon_add_assoc.
+apply ps_normal_add_assoc.
 Qed.
 
 Theorem ps_add_0_l : ∀ ps, (0 + ps = ps)%ps.
@@ -451,7 +451,7 @@ rewrite Z.min_id, Z.sub_0_r.
 rewrite Z.sub_diag, Nat.add_0_r.
 symmetry.
 remember (Z.to_nat (ps_ordnum ps)) as n eqn:Hn .
-rewrite ps_canon_adjust_eq with (n := n) (k := xH) in |- * at 1.
+rewrite ps_normal_adjust_eq with (n := n) (k := xH) in |- * at 1.
 subst n.
 unfold adjust_ps; simpl.
 rewrite Pos.mul_1_r, Z.mul_1_r.
@@ -486,7 +486,7 @@ unfold cm_factor, cm; simpl.
 rewrite Z.min_id.
 symmetry.
 remember (ps_polord ps * ps_polord ps)%positive as k eqn:Hk .
-rewrite ps_canon_adjust_eq with (n := O) (k := k); subst k.
+rewrite ps_normal_adjust_eq with (n := O) (k := k); subst k.
 unfold adjust_ps; simpl.
 rewrite series_shift_0.
 rewrite series_stretch_series_0.
@@ -497,7 +497,7 @@ destruct v as [| v| v].
 
  symmetry.
  remember (Z.to_nat (ps_ordnum ps * Zpos (ps_polord ps))) as n.
- rewrite ps_canon_adjust_eq with (n := n) (k := xH); subst n.
+ rewrite ps_normal_adjust_eq with (n := n) (k := xH); subst n.
  unfold adjust_ps.
  remember Z.sub as g; simpl; subst g.
  rewrite series_stretch_series_0.
@@ -508,7 +508,7 @@ destruct v as [| v| v].
  rewrite Z.sub_diag; reflexivity.
 
  remember (Z.to_nat (Zpos v * Zpos (ps_polord ps))) as n.
- rewrite ps_canon_adjust_eq with (n := n) (k := xH); subst n.
+ rewrite ps_normal_adjust_eq with (n := n) (k := xH); subst n.
  unfold adjust_ps.
  remember Z.sub as g; simpl; subst g.
  rewrite series_stretch_series_0.
@@ -549,8 +549,8 @@ constructor; [ simpl | reflexivity | simpl ].
  reflexivity.
 Qed.
 
-Lemma eq_strong_ps_canon_add_add₂ : ∀ ps₁ ps₂,
-  canonic_ps r (ps₁ + ps₂)%ps ≐ canonic_ps r (ps_add₂ ps₁ ps₂).
+Lemma eq_strong_ps_normal_add_add₂ : ∀ ps₁ ps₂,
+  normalize_ps r (ps₁ + ps₂)%ps ≐ normalize_ps r (ps_add₂ ps₁ ps₂).
 Proof.
 intros ps₁ ps₂.
 rewrite eq_strong_ps_add_add₂; reflexivity.
@@ -560,7 +560,7 @@ Lemma eq_ps_add_add₂ : ∀ ps₁ ps₂, (ps₁ + ps₂ = ps_add₂ ps₁ ps₂
 Proof.
 intros ps₁ ps₂.
 constructor.
-apply eq_strong_ps_canon_add_add₂.
+apply eq_strong_ps_normal_add_add₂.
 Qed.
 
 End theorems_add.

@@ -34,11 +34,11 @@ Section theorems_for_mul.
 Variable α : Type.
 Variable r : ring α.
 
-Lemma ps_canon_mul_comm : ∀ ps₁ ps₂,
-  canonic_ps r (ps₁ * ps₂)%ps ≐ canonic_ps r (ps₂ * ps₁)%ps.
+Lemma ps_normal_mul_comm : ∀ ps₁ ps₂,
+  normalize_ps r (ps₁ * ps₂)%ps ≐ normalize_ps r (ps₂ * ps₁)%ps.
 Proof.
 intros ps₁ ps₂.
-unfold canonic_ps; simpl.
+unfold normalize_ps; simpl.
 remember (series_stretch r (cm_factor ps₁ ps₂) (ps_terms ps₁)) as s₁ eqn:Hs₁ .
 remember (series_stretch r (cm_factor ps₂ ps₁) (ps_terms ps₂)) as s₂ eqn:Hs₂ .
 rewrite series_mul_comm.
@@ -69,14 +69,14 @@ Theorem ps_mul_comm : ∀ ps₁ ps₂, (ps₁ * ps₂ = ps₂ * ps₁)%ps.
 Proof.
 intros ps₁ ps₂.
 constructor.
-apply ps_canon_mul_comm.
+apply ps_normal_mul_comm.
 Qed.
 
 Theorem ps_mul_1_l : ∀ ps, (1 * ps = ps)%ps.
 Proof.
 intros ps.
 constructor.
-unfold canonic_ps; simpl.
+unfold normalize_ps; simpl.
 unfold cm, cm_factor; simpl.
 rewrite stretch_series_1, series_mul_1_l.
 rewrite series_stretch_1.
@@ -115,7 +115,7 @@ Theorem ps_mul_0_l : ∀ ps, (0 * ps = 0)%ps.
 Proof.
 intros ps.
 constructor.
-unfold canonic_ps; simpl.
+unfold normalize_ps; simpl.
 unfold cm_factor; simpl.
 rewrite series_stretch_series_0.
 rewrite series_mul_0_l.
@@ -195,7 +195,7 @@ Theorem ps_mul_assoc : ∀ ps₁ ps₂ ps₃,
 Proof.
 intros ps₁ ps₂ ps₃.
 constructor.
-unfold canonic_ps; simpl.
+unfold normalize_ps; simpl.
 rewrite series_stretch_mul; symmetry.
 rewrite series_stretch_mul; symmetry.
 do 4 rewrite <- series_stretch_stretch.
@@ -364,13 +364,13 @@ destruct (lt_dec k n) as [H₂| H₂].
     destruct Hi; assumption.
 Qed.
 
-Lemma canonic_ps_mul_adjust_l : ∀ ps₁ ps₂ n k,
-  canonic_ps r (ps_mul ps₁ ps₂) ≐
-  canonic_ps r (ps_mul (adjust_ps r n k ps₁) ps₂).
+Lemma normalize_ps_mul_adjust_l : ∀ ps₁ ps₂ n k,
+  normalize_ps r (ps_mul ps₁ ps₂) ≐
+  normalize_ps r (ps_mul (adjust_ps r n k ps₁) ps₂).
 Proof.
 intros ps₁ ps₂ n k.
 remember (Pos.to_nat (ps_polord ps₂) * n)%nat as m eqn:Hm .
-rewrite ps_canon_adjust_eq with (n := m) (k := k); subst m.
+rewrite ps_normal_adjust_eq with (n := m) (k := k); subst m.
 unfold ps_mul; simpl.
 unfold adjust_ps; simpl.
 unfold cm, cm_factor; simpl.
@@ -392,29 +392,29 @@ rewrite series_mul_comm, Pos.mul_comm, series_mul_comm.
 reflexivity.
 Qed.
 
-Lemma ps_canon_mul_compat_r : ∀ ps₁ ps₂ ps₃,
-  canonic_ps r ps₁ ≐ canonic_ps r ps₂
-  → canonic_ps r (ps_mul ps₁ ps₃) ≐ canonic_ps r (ps_mul ps₂ ps₃).
+Lemma ps_normal_mul_compat_r : ∀ ps₁ ps₂ ps₃,
+  normalize_ps r ps₁ ≐ normalize_ps r ps₂
+  → normalize_ps r (ps_mul ps₁ ps₃) ≐ normalize_ps r (ps_mul ps₂ ps₃).
 Proof.
 intros ps₁ ps₂ ps₃ Heq.
 remember Heq as Heqv; clear HeqHeqv.
-remember (canonic_ps r ps₁) as nps₁ eqn:Hps₁  in Heq.
-remember (canonic_ps r ps₂) as nps₂ eqn:Hps₂  in Heq.
+remember (normalize_ps r ps₁) as nps₁ eqn:Hps₁  in Heq.
+remember (normalize_ps r ps₂) as nps₂ eqn:Hps₂  in Heq.
 symmetry in Hps₁, Hps₂.
 remember (null_coeff_range_length r (ps_terms ps₁) 0) as m₁ eqn:Hm₁ .
 remember (null_coeff_range_length r (ps_terms ps₂) 0) as m₂ eqn:Hm₂ .
 symmetry in Hm₁, Hm₂.
 destruct m₁ as [m₁| ].
- apply canonified_exists_adjust in Hps₁.
+ apply normalized_exists_adjust in Hps₁.
   destruct m₂ as [m₂| ].
-   apply canonified_exists_adjust in Hps₂.
+   apply normalized_exists_adjust in Hps₂.
     destruct Hps₁ as (n₁, (k₁, Hps₁)).
     destruct Hps₂ as (n₂, (k₂, Hps₂)).
     apply eq_strong_ps_mul_compat_r with (ps₃ := ps₃) in Hps₁.
     apply eq_strong_ps_mul_compat_r with (ps₃ := ps₃) in Hps₂.
     rewrite Hps₁, Hps₂.
-    rewrite <- canonic_ps_mul_adjust_l.
-    rewrite <- canonic_ps_mul_adjust_l.
+    rewrite <- normalize_ps_mul_adjust_l.
+    rewrite <- normalize_ps_mul_adjust_l.
     apply eq_strong_ps_mul_compat_r with (ps₃ := ps₃) in Heq.
     rewrite Heq; reflexivity.
 
@@ -435,12 +435,12 @@ destruct m₁ as [m₁| ].
  destruct Hm₂ as (n₃, (n₄, (k₃, (k₄, Hm₂)))).
  apply eq_strong_ps_mul_compat_r with (ps₃ := ps₃) in Hm₁.
  apply eq_strong_ps_mul_compat_r with (ps₃ := ps₃) in Hm₂.
- rewrite canonic_ps_mul_adjust_l with (n := n₁) (k := k₁).
+ rewrite normalize_ps_mul_adjust_l with (n := n₁) (k := k₁).
  rewrite Hm₁; symmetry.
- rewrite canonic_ps_mul_adjust_l with (n := n₃) (k := k₃).
+ rewrite normalize_ps_mul_adjust_l with (n := n₃) (k := k₃).
  rewrite Hm₂; symmetry.
- rewrite <- canonic_ps_mul_adjust_l.
- rewrite <- canonic_ps_mul_adjust_l.
+ rewrite <- normalize_ps_mul_adjust_l.
+ rewrite <- normalize_ps_mul_adjust_l.
  reflexivity.
 Qed.
 
@@ -450,7 +450,7 @@ Theorem ps_mul_compat_r : ∀ ps₁ ps₂ ps₃,
 Proof.
 intros ps₁ ps₂ ps₃ H₁₂.
 constructor.
-apply ps_canon_mul_compat_r.
+apply ps_normal_mul_compat_r.
 inversion H₁₂; assumption.
 Qed.
 
@@ -468,7 +468,7 @@ End theorems_for_mul.
 
 Add Parametric Morphism α (r : ring α) : ps_mul
   with signature eq_ps_strong ==> eq_ps_strong ==> eq_ps_strong
-  as ps_canon_mul_morph.
+  as ps_normal_mul_morph.
 Proof.
 intros ps₁ ps₃ Heq₁ ps₂ ps₄ Heq₂.
 rewrite eq_strong_ps_mul_compat_l; [ idtac | eassumption ].
@@ -491,11 +491,11 @@ Section other_theorems.
 Variable α : Type.
 Variable r : ring α.
 
-Theorem canonic_ps_eq : ∀ ps, (canonic_ps r ps = ps)%ps.
+Theorem normalize_ps_eq : ∀ ps, (normalize_ps r ps = ps)%ps.
 Proof.
 intros ps.
-unfold canonic_ps.
-unfold canonic_ps.
+unfold normalize_ps.
+unfold normalize_ps.
 remember (null_coeff_range_length r (ps_terms ps) 0) as n eqn:Hn .
 symmetry in Hn.
 destruct n as [n| ]; constructor.
@@ -508,9 +508,9 @@ destruct n as [n| ]; constructor.
  rewrite <- Z.gcd_assoc in Hg.
  remember (greatest_series_x_power r (ps_terms ps) n) as z.
  remember (Z.gcd (' ps_polord ps) (Z.of_nat z)) as y eqn:Hy ; subst z.
- rewrite ps_canon_adjust_eq with (k := Z.to_pos g) (n := n).
+ rewrite ps_normal_adjust_eq with (k := Z.to_pos g) (n := n).
  unfold adjust_ps; simpl.
- unfold canonify_series.
+ unfold normalize_series.
  rewrite series_stretch_shrink.
   rewrite series_shift_left_shift; [ idtac | assumption ].
   rewrite <- positive_nat_Z.
@@ -577,20 +577,20 @@ destruct n as [n| ]; constructor.
 
    apply Z.lt_le_incl; assumption.
 
- unfold canonic_ps; simpl.
+ unfold normalize_ps; simpl.
  rewrite null_coeff_range_length_series_0, Hn.
  reflexivity.
 Qed.
 
-Lemma ps_ordnum_canonic : ∀ ps n p vn,
+Lemma ps_ordnum_normalize : ∀ ps n p vn,
   null_coeff_range_length r (ps_terms ps) 0 = fin n
   → p = greatest_series_x_power r (ps_terms ps) n
     → vn = (ps_ordnum ps + Z.of_nat n)%Z
-      → ps_ordnum (canonic_ps r ps) =
+      → ps_ordnum (normalize_ps r ps) =
           (vn / Z.gcd vn (Z.gcd (' ps_polord ps) (Z.of_nat p)))%Z.
 Proof.
 intros ps n p vn Hn Hp Hvn.
-unfold canonic_ps; simpl.
+unfold normalize_ps; simpl.
 rewrite Hn; simpl.
 rewrite <- Hp.
 unfold gcd_ps; simpl.
@@ -599,16 +599,16 @@ rewrite <- Hvn.
 reflexivity.
 Qed.
 
-Lemma ps_polord_canonic : ∀ ps n p vn,
+Lemma ps_polord_normalize : ∀ ps n p vn,
   null_coeff_range_length r (ps_terms ps) 0 = fin n
   → p = greatest_series_x_power r (ps_terms ps) n
     → vn = (ps_ordnum ps + Z.of_nat n)%Z
-      → ps_polord (canonic_ps r ps) =
+      → ps_polord (normalize_ps r ps) =
         Z.to_pos
           (' ps_polord ps / Z.gcd (' ps_polord ps) (Z.gcd (Z.of_nat p) vn)).
 Proof.
 intros ps n p vn Hn Hp Hvn.
-unfold canonic_ps; simpl.
+unfold normalize_ps; simpl.
 rewrite Hn; simpl.
 rewrite <- Hp.
 unfold gcd_ps; simpl.
@@ -617,17 +617,17 @@ rewrite <- Hvn.
 reflexivity.
 Qed.
 
-Lemma ps_terms_canonic : ∀ ps n p vn,
+Lemma ps_terms_normalize : ∀ ps n p vn,
   null_coeff_range_length r (ps_terms ps) 0 = fin n
   → p = greatest_series_x_power r (ps_terms ps) n
     → vn = (ps_ordnum ps + Z.of_nat n)%Z
-      → ps_terms (canonic_ps r ps) =
-        canonify_series n
+      → ps_terms (normalize_ps r ps) =
+        normalize_series n
           (Z.to_pos (Z.gcd vn (Z.gcd (' ps_polord ps) (Z.of_nat p))))
           (ps_terms ps).
 Proof.
 intros ps n p vn Hn Hp Hvn.
-unfold canonic_ps; simpl.
+unfold normalize_ps; simpl.
 rewrite Hn; simpl.
 rewrite <- Hp.
 unfold gcd_ps; simpl.
@@ -816,16 +816,16 @@ subst x.
 reflexivity.
 Qed.
 
-Lemma ps_ordnum_adjust_canonic_mul_add₂_distr_l : ∀ ps₁ ps₂ ps₃ ps₄ ps₅ n,
+Lemma ps_ordnum_adjust_normalize_mul_add₂_distr_l : ∀ ps₁ ps₂ ps₃ ps₄ ps₅ n,
   ps₄ = adjust_ps r 0 (ps_polord ps₁) (ps₁ * ps_add₂ ps₂ ps₃)%ps
   → ps₅ = adjust_ps r 0 1 (ps_add₂ (ps₁ * ps₂)%ps (ps₁ * ps₃)%ps)
     → null_coeff_range_length r (ps_terms ps₄) 0 = fin n
       → null_coeff_range_length r (ps_terms ps₅) 0 = fin n
-        → ps_ordnum (canonic_ps r ps₄) = ps_ordnum (canonic_ps r ps₅).
+        → ps_ordnum (normalize_ps r ps₄) = ps_ordnum (normalize_ps r ps₅).
 Proof.
 intros ps₁ ps₂ ps₃ ps₄ ps₅ n Hps₄ Hps₅ Hn₄ Hn₅.
-erewrite ps_ordnum_canonic; try reflexivity; try eassumption.
-erewrite ps_ordnum_canonic; try reflexivity; try eassumption.
+erewrite ps_ordnum_normalize; try reflexivity; try eassumption.
+erewrite ps_ordnum_normalize; try reflexivity; try eassumption.
 rewrite Hps₄, Hps₅.
 rewrite ps_ordnum_adjust_mul_add₂_distr_l.
 rewrite ps_polord_adjust_mul_add₂_distr_l.
@@ -833,16 +833,16 @@ rewrite ps_terms_adjust_mul_add₂_distr_l.
 reflexivity.
 Qed.
 
-Lemma ps_polord_adjust_canonic_mul_add₂_distr_l : ∀ ps₁ ps₂ ps₃ ps₄ ps₅ n,
+Lemma ps_polord_adjust_normalize_mul_add₂_distr_l : ∀ ps₁ ps₂ ps₃ ps₄ ps₅ n,
   ps₄ = adjust_ps r 0 (ps_polord ps₁) (ps₁ * ps_add₂ ps₂ ps₃)%ps
   → ps₅ = adjust_ps r 0 1 (ps_add₂ (ps₁ * ps₂)%ps (ps₁ * ps₃)%ps)
     → null_coeff_range_length r (ps_terms ps₄) 0 = fin n
       → null_coeff_range_length r (ps_terms ps₅) 0 = fin n
-        → ps_polord (canonic_ps r ps₄) = ps_polord (canonic_ps r ps₅).
+        → ps_polord (normalize_ps r ps₄) = ps_polord (normalize_ps r ps₅).
 Proof.
 intros ps₁ ps₂ ps₃ ps₄ ps₅ n Hps₄ Hps₅ Hn₄ Hn₅.
-erewrite ps_polord_canonic; try reflexivity; try eassumption.
-erewrite ps_polord_canonic; try reflexivity; try eassumption.
+erewrite ps_polord_normalize; try reflexivity; try eassumption.
+erewrite ps_polord_normalize; try reflexivity; try eassumption.
 rewrite Hps₄, Hps₅.
 rewrite ps_ordnum_adjust_mul_add₂_distr_l.
 rewrite ps_polord_adjust_mul_add₂_distr_l.
@@ -850,16 +850,16 @@ rewrite ps_terms_adjust_mul_add₂_distr_l.
 reflexivity.
 Qed.
 
-Lemma ps_terms_adjust_canonic_mul_add₂_distr_l : ∀ ps₁ ps₂ ps₃ ps₄ ps₅ n,
+Lemma ps_terms_adjust_normalize_mul_add₂_distr_l : ∀ ps₁ ps₂ ps₃ ps₄ ps₅ n,
   ps₄ = adjust_ps r 0 (ps_polord ps₁) (ps₁ * ps_add₂ ps₂ ps₃)%ps
   → ps₅ = adjust_ps r 0 1 (ps_add₂ (ps₁ * ps₂)%ps (ps₁ * ps₃)%ps)
     → null_coeff_range_length r (ps_terms ps₄) 0 = fin n
       → null_coeff_range_length r (ps_terms ps₅) 0 = fin n
-        → (ps_terms (canonic_ps r ps₄) = ps_terms (canonic_ps r ps₅))%ser.
+        → (ps_terms (normalize_ps r ps₄) = ps_terms (normalize_ps r ps₅))%ser.
 Proof.
 intros ps₁ ps₂ ps₃ ps₄ ps₅ n Hps₄ Hps₅ Hn₄ Hn₅.
-erewrite ps_terms_canonic; try reflexivity; try eassumption.
-erewrite ps_terms_canonic; try reflexivity; try eassumption.
+erewrite ps_terms_normalize; try reflexivity; try eassumption.
+erewrite ps_terms_normalize; try reflexivity; try eassumption.
 rewrite Hps₄, Hps₅.
 rewrite ps_ordnum_adjust_mul_add₂_distr_l.
 rewrite ps_polord_adjust_mul_add₂_distr_l.
@@ -871,12 +871,12 @@ Theorem ps_mul_add_distr_l : ∀ ps₁ ps₂ ps₃,
   (ps₁ * (ps₂ + ps₃) = ps₁ * ps₂ + ps₁ * ps₃)%ps.
 Proof.
 intros ips₁ ips₂ ips₃.
-rewrite <- (canonic_ps_eq ips₁).
-rewrite <- (canonic_ps_eq ips₂).
-rewrite <- (canonic_ps_eq ips₃).
-remember (canonic_ps r ips₁) as ps₁ eqn:Hps₁ .
-remember (canonic_ps r ips₂) as ps₂ eqn:Hps₂ .
-remember (canonic_ps r ips₃) as ps₃ eqn:Hps₃ .
+rewrite <- (normalize_ps_eq ips₁).
+rewrite <- (normalize_ps_eq ips₂).
+rewrite <- (normalize_ps_eq ips₃).
+remember (normalize_ps r ips₁) as ps₁ eqn:Hps₁ .
+remember (normalize_ps r ips₂) as ps₂ eqn:Hps₂ .
+remember (normalize_ps r ips₃) as ps₃ eqn:Hps₃ .
 remember (ps_ordnum ps₁ * ' ps_polord ps₂ * ' ps_polord ps₃)%Z as vcc.
 remember (' ps_polord ps₁ * ps_ordnum ps₂ * ' ps_polord ps₃)%Z as cvc.
 remember (' ps_polord ps₁ * ' ps_polord ps₂ * ps_ordnum ps₃)%Z as ccv.
@@ -895,11 +895,11 @@ assert (n₄ = n₅) as H by (subst; apply null_range_length_mul_add₂_distr_l)
 move H at top; subst n₅.
 destruct n₄ as [n₄| ].
  constructor; constructor; simpl.
-  eapply ps_ordnum_adjust_canonic_mul_add₂_distr_l; eassumption.
+  eapply ps_ordnum_adjust_normalize_mul_add₂_distr_l; eassumption.
 
-  eapply ps_polord_adjust_canonic_mul_add₂_distr_l; eassumption.
+  eapply ps_polord_adjust_normalize_mul_add₂_distr_l; eassumption.
 
-  eapply ps_terms_adjust_canonic_mul_add₂_distr_l; eassumption.
+  eapply ps_terms_adjust_normalize_mul_add₂_distr_l; eassumption.
 
  rewrite ps_null_coeff_range_length_inf_iff in Hn₄.
  rewrite ps_null_coeff_range_length_inf_iff in Hn₅.

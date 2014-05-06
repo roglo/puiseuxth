@@ -92,7 +92,7 @@ Arguments series_shift α%type _ n%nat s%ser.
 Arguments series_shrink α%type k%positive s%ser.
 Arguments series_left_shift α%type n%nat s%ser.
 
-Definition canonify_series α n k (s : power_series α) :=
+Definition normalize_series α n k (s : power_series α) :=
   series_shrink k (series_left_shift n s).
 
 Definition gcd_ps α n k (ps : puiseux_series α) :=
@@ -101,12 +101,12 @@ Definition gcd_ps α n k (ps : puiseux_series α) :=
 Definition ps_zero {α} {r : ring α} :=
   {| ps_terms := 0%ser; ps_ordnum := 0; ps_polord := 1 |}.
 
-Definition canonic_ps α (r : ring α) ps :=
+Definition normalize_ps α (r : ring α) ps :=
   match null_coeff_range_length r (ps_terms ps) 0 with
   | fin n =>
       let k := greatest_series_x_power r (ps_terms ps) n in
       let g := gcd_ps n k ps in
-      {| ps_terms := canonify_series n (Z.to_pos g) (ps_terms ps);
+      {| ps_terms := normalize_series n (Z.to_pos g) (ps_terms ps);
          ps_ordnum := (ps_ordnum ps + Z.of_nat n) / g;
          ps_polord := Z.to_pos (' ps_polord ps / g) |}
   | ∞ =>
@@ -124,7 +124,7 @@ Inductive eq_ps_strong {α} {r : ring α} :
 Inductive eq_ps {α} {r : ring α} :
   puiseux_series α → puiseux_series α → Prop :=
   | eq_ps_base : ∀ ps₁ ps₂,
-      eq_ps_strong (canonic_ps r ps₁) (canonic_ps r ps₂)
+      eq_ps_strong (normalize_ps r ps₁) (normalize_ps r ps₂)
       → eq_ps ps₁ ps₂.
 
 Definition ps_monom {α} {r : ring α} (c : α) pow :=
@@ -300,25 +300,25 @@ inversion Heq; subst; simpl.
 destruct (lt_dec i n); [ reflexivity | apply H ].
 Qed.
 
-Add Parametric Morphism α (r : ring α) : (@canonify_series α)
+Add Parametric Morphism α (r : ring α) : (@normalize_series α)
   with signature eq ==> eq ==> eq_series ==> eq_series
-  as canonify_morph.
+  as normalize_series_morph.
 Proof.
 intros n k ps₁ ps₂ Heq.
 constructor; intros i.
 inversion Heq; subst.
-unfold canonify_series.
+unfold normalize_series.
 unfold series_shrink, series_left_shift; simpl.
 apply H.
 Qed.
 
-Add Parametric Morphism α (r : ring α) : (canonic_ps r)
+Add Parametric Morphism α (r : ring α) : (normalize_ps r)
   with signature eq_ps_strong ==> eq_ps_strong
-  as canonic_ps_morph.
+  as normalize_ps_morph.
 Proof.
 intros ps₁ ps₂ Heq.
 inversion Heq; subst.
-unfold canonic_ps.
+unfold normalize_ps.
 rewrite H, H0, H1.
 remember (null_coeff_range_length r (ps_terms ps₂) 0) as n eqn:Hn .
 symmetry in Hn.
@@ -1597,7 +1597,7 @@ Proof.
 intros ps.
 split; intros H.
  constructor.
- unfold canonic_ps; simpl.
+ unfold normalize_ps; simpl.
  rewrite H.
  remember (null_coeff_range_length r 0%ser 0) as n eqn:Hn .
  symmetry in Hn.
@@ -1609,7 +1609,7 @@ split; intros H.
 
  inversion H; subst.
  apply null_coeff_range_length_iff; simpl; intros i.
- unfold canonic_ps in H0; simpl in H0.
+ unfold normalize_ps in H0; simpl in H0.
  remember (null_coeff_range_length r 0%ser 0) as n eqn:Hn .
  symmetry in Hn.
  destruct n as [n| ].
@@ -1631,7 +1631,7 @@ split; intros H.
    simpl in H1, H2, H3.
    remember (greatest_series_x_power r (ps_terms ps) m) as p eqn:Hp .
    remember (gcd_ps m p ps) as g eqn:Hg .
-   unfold canonify_series in H3.
+   unfold normalize_series in H3.
    inversion_clear H3.
    apply null_coeff_range_length_iff in Hm.
    simpl in Hm.

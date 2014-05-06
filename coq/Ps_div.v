@@ -80,8 +80,8 @@ remember (null_coeff_range_length r (ps_terms ps) 0) as n eqn:Hn .
 symmetry in Hn.
 destruct n as [n| ].
  constructor; constructor; simpl.
-  erewrite ps_ordnum_canonic; try reflexivity; try eassumption.
-  erewrite ps_ordnum_canonic with (n := O); try reflexivity; try eassumption.
+  erewrite ps_ordnum_normalize; try reflexivity; try eassumption.
+  erewrite ps_ordnum_normalize with (n := O); try reflexivity; try eassumption.
    rewrite Z.add_0_r.
    unfold ps_left_adjust.
    rewrite Hn.
@@ -91,8 +91,8 @@ destruct n as [n| ].
 
    eapply null_coeff_range_length_left_adjust; eassumption.
 
-  erewrite ps_polord_canonic; try reflexivity; try eassumption.
-  erewrite ps_polord_canonic with (n := O); try reflexivity; try eassumption.
+  erewrite ps_polord_normalize; try reflexivity; try eassumption.
+  erewrite ps_polord_normalize with (n := O); try reflexivity; try eassumption.
    rewrite Z.add_0_r.
    unfold ps_left_adjust.
    rewrite Hn.
@@ -102,31 +102,31 @@ destruct n as [n| ].
 
    eapply null_coeff_range_length_left_adjust; eassumption.
 
-  erewrite ps_terms_canonic; try reflexivity; try eassumption.
-  erewrite ps_terms_canonic with (n := O); try reflexivity; try eassumption.
+  erewrite ps_terms_normalize; try reflexivity; try eassumption.
+  erewrite ps_terms_normalize with (n := O); try reflexivity; try eassumption.
    rewrite Z.add_0_r.
    unfold ps_left_adjust.
    rewrite Hn.
    remember Z.gcd as g; simpl; subst g.
    rewrite greatest_series_x_power_left_shift.
    rewrite Nat.add_0_r.
-   unfold canonify_series.
+   unfold normalize_series.
    rewrite series_left_shift_0; reflexivity.
 
    eapply null_coeff_range_length_left_adjust; eassumption.
 
  constructor; constructor; simpl.
-  unfold canonic_ps.
+  unfold normalize_ps.
   rewrite Hn.
   rewrite null_coeff_range_length_inf_left_adjust; [ reflexivity | idtac ].
   assumption.
 
-  unfold canonic_ps.
+  unfold normalize_ps.
   rewrite Hn.
   rewrite null_coeff_range_length_inf_left_adjust; [ reflexivity | idtac ].
   assumption.
 
-  unfold canonic_ps.
+  unfold normalize_ps.
   rewrite Hn.
   rewrite null_coeff_range_length_inf_left_adjust; [ reflexivity | idtac ].
   assumption.
@@ -147,14 +147,14 @@ constructor; intros n; simpl.
 rewrite Nat.mul_1_r; reflexivity.
 Qed.
 
-Lemma canonic_ps_1 : (canonic_ps r 1 ≐ 1)%ps.
+Lemma normalize_ps_1 : (normalize_ps r 1 ≐ 1)%ps.
 Proof.
 remember (null_coeff_range_length r (ps_terms 1%ps) 0) as n eqn:Hn .
 symmetry in Hn.
 destruct n as [n| ].
  destruct n.
   constructor; simpl.
-   erewrite ps_ordnum_canonic; try reflexivity; try eassumption.
+   erewrite ps_ordnum_normalize; try reflexivity; try eassumption.
    rewrite Z.add_0_r.
    remember Z.gcd as g; simpl; subst g.
    rewrite Z.gcd_0_l.
@@ -162,17 +162,17 @@ destruct n as [n| ].
    rewrite Z.div_0_l; [ reflexivity | idtac ].
    intros H; discriminate H.
 
-   erewrite ps_polord_canonic; try reflexivity; try eassumption.
+   erewrite ps_polord_normalize; try reflexivity; try eassumption.
    remember Z.gcd as g; simpl; subst g.
    rewrite Z.gcd_1_l.
    reflexivity.
 
-   erewrite ps_terms_canonic; try reflexivity; try eassumption.
+   erewrite ps_terms_normalize; try reflexivity; try eassumption.
    rewrite Z.add_0_r.
    remember Z.gcd as g; simpl; subst g.
    rewrite Z.gcd_0_l.
    rewrite Z.gcd_1_l.
-   unfold canonify_series; simpl.
+   unfold normalize_series; simpl.
    rewrite series_shrink_1.
    rewrite series_left_shift_0; reflexivity.
 
@@ -180,7 +180,7 @@ destruct n as [n| ].
   destruct Hn as (_, Hn).
   exfalso; apply Hn; reflexivity.
 
- unfold canonic_ps.
+ unfold normalize_ps.
  rewrite Hn.
  constructor; try reflexivity.
  constructor; intros i; simpl.
@@ -260,13 +260,12 @@ destruct n as [n| ].
   rewrite Z.add_simpl_r.
   rewrite Z.sub_diag, Z.mul_0_l.
   constructor.
-  rewrite canonic_ps_1.
-  unfold canonic_ps; simpl.
+  rewrite normalize_ps_1.
+  unfold normalize_ps; simpl.
   remember (null_coeff_range_length r 1%ser 0) as m eqn:Hm .
   symmetry in Hm.
   destruct m as [m| ].
    destruct m; simpl.
-    Focus 1.
     unfold gcd_ps.
     remember Z.gcd as g; simpl; subst g.
     rewrite Z.gcd_0_l.
@@ -274,7 +273,7 @@ destruct n as [n| ].
      rewrite greatest_series_x_power_series_1.
      rewrite Z.gcd_0_r; simpl.
      rewrite Z.div_same; [ idtac | apply Pos2Z_ne_0 ].
-     unfold canonify_series; simpl.
+     unfold normalize_series; simpl.
      rewrite series_left_shift_0.
      unfold series_shrink; simpl.
      constructor; try reflexivity; simpl.
