@@ -2005,41 +2005,50 @@ rewrite f₁_eq_term_with_Ψ_plus_sum with (l₂ := l₂); try eassumption.
    rewrite List.nth_overflow; [ idtac | assumption ].
    rewrite order_0; constructor.
 
-  rewrite order_neq_min.
-   rewrite Qbar.min_l.
-    rewrite <- lap_mul_assoc.
-    do 2 rewrite fold_ps_lap_mul.
-    erewrite lap_nth_x_pow_mul.
-    progress unfold ps_lap_mul.
-    progress unfold lap_mul.
-    progress unfold lap_nth; simpl.
-    rewrite list_nth_lap_convol_mul; [ idtac | reflexivity ].
-    unfold summation; simpl.
-    rewrite ps_add_0_r.
-    rewrite order_mul.
+  rewrite fold_ps_lap_comp.
+  do 2 rewrite fold_ps_lap_mul.
+  do 2 rewrite fold_ps_lap_pow.
+  remember ([0%ps; 1%ps … []] ^ r)%pslap as yr.
+  remember ([ps_monom c₁ 0; 1%ps … []] ^ j)%pslap as ycj.
+  remember (lap_inject_K_in_Kx (al Ψ)) as psy.
+  remember [ps_monom c₁ 0; 1%ps … []] as yc.
+  assert (order (lap_nth r (yr * ycj * psy ∘ yc)) = 0)%Qbar as Hor.
+   subst yr ycj psy yc.
+   progress unfold ps_lap_mul.
+   rewrite <- lap_mul_assoc.
+   do 2 rewrite fold_ps_lap_mul.
+   erewrite lap_nth_x_pow_mul.
+   progress unfold ps_lap_mul.
+   progress unfold lap_mul.
+   progress unfold lap_nth; simpl.
+   rewrite list_nth_lap_convol_mul; [ idtac | reflexivity ].
+   unfold summation; simpl.
+   rewrite ps_add_0_r.
+   rewrite order_mul.
+   rewrite fold_lap_nth.
+   rewrite lap_nth_0_cons_pow.
+   rewrite order_pow.
+    rewrite ps_monom_order; [ idtac | assumption ].
+    rewrite Qbar.mul_0_r; [ idtac | intros H; discriminate H ].
+    rewrite Qbar.add_0_l.
     rewrite fold_lap_nth.
-    rewrite fold_ps_lap_pow.
-    rewrite lap_nth_0_cons_pow.
-    rewrite order_pow.
-     rewrite ps_monom_order; [ idtac | assumption ].
-     rewrite Qbar.mul_0_r; [ idtac | intros H; discriminate H ].
-     rewrite Qbar.add_0_l.
-     rewrite fold_lap_nth.
-     rewrite lap_nth_0_apply_0.
-     rewrite apply_lap_compose.
-     unfold apply_lap at 2; simpl.
-     rewrite ps_mul_0_l, ps_add_0_l.
-     rewrite ps_mul_0_r, ps_add_0_l.
-     rewrite apply_lap_inject_K_in_Kx_monom.
-     rewrite ps_monom_order; [ reflexivity | idtac ].
-     eapply psy_c₁_ne_0 in HΨ; eassumption. (* ← truc important noyé *)
+    rewrite lap_nth_0_apply_0.
+    unfold ps_lap_comp.
+    rewrite apply_lap_compose.
+    unfold apply_lap at 2; simpl.
+    rewrite ps_mul_0_l, ps_add_0_l.
+    rewrite ps_mul_0_r, ps_add_0_l.
+    rewrite apply_lap_inject_K_in_Kx_monom.
+    rewrite ps_monom_order; [ reflexivity | idtac ].
+    eapply psy_c₁_ne_0 in HΨ; eassumption. (* ← truc important noyé *)
 
-     intros H; apply Hc₁nz.
-     revert H; clear; intros.
-     apply ps_monom_0_coeff_0; assumption.
+    intros H; apply Hc₁nz.
+    apply ps_monom_0_coeff_0; assumption.
+
 bbb.
-rewrite <- ps_zero_monom_eq in H.
+   subst yr ycj psy yc.
 
+rewrite <- ps_zero_monom_eq in H.
      inversion_clear H.
      inversion_clear H0.
      unfold normalize_ps at 2 in H.
