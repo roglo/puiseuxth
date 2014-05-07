@@ -37,10 +37,10 @@ Definition order_coeff α (r : ring α) ps :=
   | ∞ => (0)%K
   end.
 
-Fixpoint power_list α pow (psl : list (puiseux_series α)) :=
+Fixpoint power_list α pow (psl : list α) :=
   match psl with
   | [] => []
-  | [ps] => [(pow, ps)]
+  | [ps₁] => [(pow, ps₁)]
   | [ps₁ … psl₁] => [(pow, ps₁) … power_list (S pow) psl₁]
   end.
 
