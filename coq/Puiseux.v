@@ -420,6 +420,16 @@ simpl in Hc.
 pose proof (Hc O); assumption.
 Qed.
 
+Lemma www : ∀ la pt,
+  pt ∈ points_of_ps_lap R la
+  → (nofq (fst pt) < length la)%nat.
+Proof.
+intros la pt Hpt.
+unfold points_of_ps_lap in Hpt.
+unfold points_of_ps_lap_gen in Hpt.
+induction la as [| a]; [ contradiction | simpl ].
+bbb.
+
 (* [Walker, p 101] « O(br) = 0 » *)
 Theorem xxx : ∀ pol ns c₁ r f₁,
   ns ∈ newton_segments pol
@@ -567,6 +577,7 @@ rewrite f₁_eq_term_with_Ψ_plus_sum with (l₂ := l₂); try eassumption.
   rename y into pt.
   rewrite Hpl in Hy.
   eapply ns_in_init_pts in Hy; [ idtac | eassumption ].
+  unfold points_of_ps_polynom in Hy.
 bbb.
 
 (* [Walker, p 101] «
