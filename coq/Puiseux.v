@@ -490,29 +490,6 @@ Definition g_lap_of_ns pol ns :=
 
 Definition g_of_ns pol ns := (POL (g_lap_of_ns pol ns))%pol.
 
-(*
-Definition g_of_ns pol ns :=
-  let c₁ := ac_root (Φq pol ns) in
-  let pl := [ini_pt ns … oth_pts ns ++ [fin_pt ns]] in
-  let tl := List.map (term_of_point R pol) pl in
-  let l₁ := List.map (λ t, power t) tl in
-  let l₂ := list_seq_except 0 (length (al pol)) l₁ in
-  (POL [ps_monom 1%K (- β ns)] *
-   (ps_pol_summ l₁
-      (λ h,
-       let āh := poly_nth h pol in
-       let ah := ps_monom (coeff_of_term R h tl) 0 in
-       let αh := ord_of_pt h pl in
-       POL [((āh - ah * ps_monom 1%K αh) *
-             ps_monom 1%K (Qnat h * γ ns))%ps] *
-       POL [ps_monom c₁ 0; 1%ps … []] ^ h) +
-    ps_pol_summ l₂
-      (λ l,
-       let āl := poly_nth l pol in
-       POL [(āl * ps_monom 1%K (Qnat l * γ ns))%ps] *
-       POL [ps_monom c₁ 0; 1%ps … []] ^ l)))%pspol.
-*)
-
 Lemma ps_list_in_split : ∀ (a : puiseux_series α) la,
   a ∈ la
   → ∃ l1 l2, (la = l1 ++ [a … l2])%pslap.
@@ -2052,6 +2029,13 @@ rewrite f₁_eq_term_with_Ψ_plus_sum with (l₂ := l₂); try eassumption.
     remember (g_of_ns pol ns) as g eqn:Hg .
     (* truc important noyé dans la preuve: *)
     eapply each_power_of_y₁_has_coeff_pos_ord; try eassumption.
+    rewrite Hg.
+    destruct (lt_dec r (length (g_lap_of_ns pol ns))) as [Hlt| Hge].
+     unfold g_of_ns; simpl.
+     unfold lap_nth.
+     apply list_nth_in; assumption.
+
+     apply Nat.nlt_ge in Hge.
 bbb.
 
 (* [Walker, p 101] «
