@@ -1996,20 +1996,9 @@ destruct (zerop (Pos.to_nat k + i * Pos.to_nat k)) as [H| H].
 Qed.
 
 Lemma normalize_ps_monom : ∀ c n,
-  normalize_ps _ (ps_monom c n) ≐ ps_monom c n.
-Proof.
-intros c n.
-unfold normalize_ps.
-remember (ps_terms (ps_monom c n)) as s eqn:Hs .
-remember (null_coeff_range_length R s 0) as m eqn:Hm .
-symmetry in Hm.
-destruct m as [m| ].
- Focus 2.
- subst s.
- apply series_null_coeff_range_length_inf_iff in Hm.
- symmetry.
-bbb.
+  (c ≠ 0)%K → normalize_ps _ (ps_monom c n) ≐ ps_monom c n.
 
+(* intéressant, mais ne sert à rien
 Lemma normalize_ps_monom : ∀ c n,
   (normalize_ps _ (ps_monom c n) = ps_monom c n)%ps.
 Proof.
@@ -2147,6 +2136,15 @@ destruct m as [m| ].
   subst s; simpl in HHm.
   exfalso; apply HHm; reflexivity.
 Qed.
+*)
+
+Lemma www : ∀ c d m n,
+  (c ≠ 0)%K
+  → (ps_monom c m = ps_monom d n)%ps
+    → (c = d)%K ∧ m == n.
+Proof.
+intros c d m n Hc H.
+Abort. (*
 
 Lemma www : ∀ c d m n, (ps_monom c m = ps_monom d n)%ps → (c = d)%K ∧ m == n.
 Proof.
@@ -2176,6 +2174,17 @@ destruct p as [p| ].
  destruct q as [q| ].
   simpl in H.
 bbb.
+*)
+
+Lemma ps_monom_0_coeff_0 : ∀ c, (ps_monom c 0 = 0)%ps → (c = 0)%K.
+Proof.
+intros c Hc.
+apply ps_null_coeff_range_length_inf_iff in Hc.
+apply null_coeff_range_length_iff in Hc.
+unfold null_coeff_range_length_prop in Hc.
+simpl in Hc.
+pose proof (Hc O); assumption.
+Qed.
 
 (* [Walker, p 101] « O(br) = 0 » *)
 Theorem xxx : ∀ pol ns c₁ r f₁,
@@ -2256,7 +2265,10 @@ rewrite f₁_eq_term_with_Ψ_plus_sum with (l₂ := l₂); try eassumption.
 
      intros H; apply Hc₁nz.
      revert H; clear; intros.
+     apply ps_monom_0_coeff_0; assumption.
 bbb.
+rewrite <- ps_zero_monom_eq in H.
+
      inversion_clear H.
      inversion_clear H0.
      unfold normalize_ps at 2 in H.
