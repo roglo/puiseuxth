@@ -566,6 +566,7 @@ rewrite f₁_eq_term_with_Ψ_plus_sum with (l₂ := l₂); try eassumption.
   subst x; simpl.
   rename y into pt.
   rewrite Hpl in Hy.
+  eapply ns_in_init_pts in Hy; [ idtac | eassumption ].
 bbb.
 
 (* [Walker, p 101] «
