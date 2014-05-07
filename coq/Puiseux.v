@@ -420,6 +420,29 @@ simpl in Hc.
 pose proof (Hc O); assumption.
 Qed.
 
+Lemma uuu : ∀ A la h (hv : puiseux_series A) pow,
+  (h, hv) ∈ qpower_list pow la
+  → (nofq h < pow + length la)%nat.
+Proof.
+intros A la h hv pow Hh.
+unfold qpower_list in Hh.
+unfold pair_rec in Hh; simpl in Hh.
+revert pow Hh.
+induction la as [| a]; intros; [ contradiction | simpl ].
+bbb.
+
+Lemma vvv : ∀ la pow pt,
+  pt ∈ points_of_ps_lap_gen R pow la
+  → (nofq (fst pt) < pow + length la)%nat.
+Proof.
+intros la pow pt Hpt.
+unfold points_of_ps_lap_gen in Hpt.
+destruct pt as (h, hv); simpl.
+eapply in_pts_in_ppl with (def := 0%ps) in Hpt; try reflexivity.
+destruct Hpt as (Hpt, Hord).
+clear Hord.
+bbb.
+
 Lemma www : ∀ la pt,
   pt ∈ points_of_ps_lap R la
   → (nofq (fst pt) < length la)%nat.
