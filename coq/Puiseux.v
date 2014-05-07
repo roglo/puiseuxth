@@ -425,6 +425,7 @@ Lemma www : ∀ la pt,
   → (nofq (fst pt) < length la)%nat.
 Proof.
 intros la pt Hpt.
+bbb.
 unfold points_of_ps_lap in Hpt.
 unfold points_of_ps_lap_gen in Hpt.
 induction la as [| a]; [ contradiction | simpl ].
