@@ -1996,6 +1996,21 @@ destruct (zerop (Pos.to_nat k + i * Pos.to_nat k)) as [H| H].
 Qed.
 
 Lemma normalize_ps_monom : ∀ c n,
+  normalize_ps _ (ps_monom c n) ≐ ps_monom c n.
+Proof.
+intros c n.
+unfold normalize_ps.
+remember (ps_terms (ps_monom c n)) as s eqn:Hs .
+remember (null_coeff_range_length R s 0) as m eqn:Hm .
+symmetry in Hm.
+destruct m as [m| ].
+ Focus 2.
+ subst s.
+ apply series_null_coeff_range_length_inf_iff in Hm.
+ symmetry.
+bbb.
+
+Lemma normalize_ps_monom : ∀ c n,
   (normalize_ps _ (ps_monom c n) = ps_monom c n)%ps.
 Proof.
 intros c n.
@@ -2135,6 +2150,21 @@ Qed.
 
 Lemma www : ∀ c d m n, (ps_monom c m = ps_monom d n)%ps → (c = d)%K ∧ m == n.
 Proof.
+intros c d m n H.
+inversion_clear H.
+rewrite normalize_ps_monom in H0.
+rewrite normalize_ps_monom in H0.
+inversion H0; subst.
+simpl in H, H1, H2.
+destruct m as (mn, md).
+destruct n as (nn, nd).
+simpl in H, H1; subst.
+split; [ idtac | reflexivity ].
+inversion H2; subst.
+simpl in H.
+pose proof (H O); assumption.
+bbb.
+
 intros c d m n H.
 inversion_clear H.
 inversion_clear H0.
