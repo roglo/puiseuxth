@@ -2055,6 +2055,17 @@ rewrite f₁_eq_term_with_Ψ_plus_sum with (l₂ := l₂); try eassumption.
      rewrite order_0; constructor.
 
  apply except_split_seq; [ idtac | idtac | assumption ].
+  rewrite Hl₁, Htl, Hpl.
+  do 2 apply Sorted_map; simpl.
+  apply Sorted_fst_lt_nofq_fst.
+   intros a Ha.
+   remember (points_of_ps_polynom R pol) as pts.
+   symmetry in Heqpts.
+   eapply pt_absc_is_nat; [ eassumption | idtac ].
+   eapply ns_in_init_pts; [ idtac | eassumption ].
+   rewrite <- Heqpts; assumption.
+
+   eapply ini_oth_fin_pts_sorted; eassumption.
 bbb.
 
 (* [Walker, p 101] «
