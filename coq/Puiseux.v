@@ -2045,18 +2045,13 @@ rewrite f₁_eq_term_with_Ψ_plus_sum with (l₂ := l₂); try eassumption.
     intros H; apply Hc₁nz.
     apply ps_monom_0_coeff_0; assumption.
 
-bbb.
-   subst yr ycj psy yc.
-
-rewrite <- ps_zero_monom_eq in H.
-     inversion_clear H.
-     inversion_clear H0.
-     unfold normalize_ps at 2 in H.
-     unfold normalize_ps at 2 in H1.
-     unfold normalize_ps at 2 in H2.
-     simpl in H, H1, H2.
-     rewrite null_coeff_range_length_series_0 in H, H1, H2.
-     simpl in H, H1, H2.
+   rewrite order_neq_min.
+    rewrite Hor.
+    rewrite Qbar.min_l; [ reflexivity | idtac ].
+    apply Qbar.lt_le_incl.
+    remember (g_of_ns pol ns) as g eqn:Hg .
+    (* truc important noyé dans la preuve: *)
+    eapply each_power_of_y₁_has_coeff_pos_ord; try eassumption.
 bbb.
 
 (* [Walker, p 101] «
