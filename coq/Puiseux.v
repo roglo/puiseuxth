@@ -1326,7 +1326,7 @@ Qed.
 
 (* [Walker, p 101: « each power of y₁ in g(x,y₁) has a coefficient of
    positive order » *)
-Lemma each_power_of_y₁_has_coeff_pos_ord : ∀ pol ns g,
+Lemma each_power_of_y₁_in_g_has_coeff_pos_ord : ∀ pol ns g,
   ns ∈ newton_segments pol
   → g = g_of_ns pol ns
     → ∀ m, m ∈ al g → (order m > 0)%Qbar.
@@ -1970,7 +1970,7 @@ rewrite f₁_eq_term_with_Ψ_plus_sum with (l₂ := l₂); try eassumption.
  rewrite lap_nth_add.
  assert (order (lap_nth r (g_lap_of_ns pol ns)) > 0)%Qbar as Hog.
   destruct (lt_dec r (length (g_lap_of_ns pol ns))) as [Hlt| Hge].
-   eapply each_power_of_y₁_has_coeff_pos_ord; try eassumption.
+   eapply each_power_of_y₁_in_g_has_coeff_pos_ord; try eassumption.
     reflexivity.
 
     unfold g_of_ns; simpl.
@@ -2017,7 +2017,7 @@ rewrite f₁_eq_term_with_Ψ_plus_sum with (l₂ := l₂); try eassumption.
     rewrite ps_mul_0_r, ps_add_0_l.
     rewrite apply_lap_inject_K_in_Kx_monom.
     rewrite ps_monom_order; [ reflexivity | idtac ].
-    eapply psy_c₁_ne_0 in HΨ; eassumption. (* ← truc important noyé *)
+    eapply psy_c₁_ne_0 in HΨ; eassumption.
 
     intros H; apply Hc₁nz.
     apply ps_monom_0_coeff_0; assumption.
@@ -2027,15 +2027,34 @@ rewrite f₁_eq_term_with_Ψ_plus_sum with (l₂ := l₂); try eassumption.
     rewrite Qbar.min_l; [ reflexivity | idtac ].
     apply Qbar.lt_le_incl.
     remember (g_of_ns pol ns) as g eqn:Hg .
-    (* truc important noyé dans la preuve: *)
-    eapply each_power_of_y₁_has_coeff_pos_ord; try eassumption.
-    rewrite Hg.
     destruct (lt_dec r (length (g_lap_of_ns pol ns))) as [Hlt| Hge].
+     eapply each_power_of_y₁_in_g_has_coeff_pos_ord; try eassumption.
+     rewrite Hg.
      unfold g_of_ns; simpl.
      unfold lap_nth.
      apply list_nth_in; assumption.
 
      apply Nat.nlt_ge in Hge.
+     unfold lap_nth.
+     rewrite List.nth_overflow; [ idtac | assumption ].
+     rewrite order_0; constructor.
+
+    rewrite Hor.
+    apply Qbar.lt_neq.
+    remember (g_of_ns pol ns) as g eqn:Hg .
+    destruct (lt_dec r (length (g_lap_of_ns pol ns))) as [Hlt| Hge].
+     eapply each_power_of_y₁_in_g_has_coeff_pos_ord; try eassumption.
+     rewrite Hg.
+     unfold g_of_ns; simpl.
+     unfold lap_nth.
+     apply list_nth_in; assumption.
+
+     apply Nat.nlt_ge in Hge.
+     unfold lap_nth.
+     rewrite List.nth_overflow; [ idtac | assumption ].
+     rewrite order_0; constructor.
+
+ apply except_split_seq; [ idtac | idtac | assumption ].
 bbb.
 
 (* [Walker, p 101] «

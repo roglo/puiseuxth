@@ -48,6 +48,13 @@ destruct (Qlt_le_dec n m) as [| Hge]; [ reflexivity | idtac ].
 apply Qle_antisym; assumption.
 Qed.
 
+Theorem Qlt_neq : ∀ n m, (n < m)%Q → not (n == m).
+Proof.
+intros n m Hlt.
+intros H; rewrite H in Hlt.
+revert Hlt; apply Qlt_irrefl.
+Qed.
+
 Module Qbar.
 
 Definition binop f dx dy xb yb :=
@@ -175,6 +182,28 @@ intros n m H.
 destruct m as [m| ]; [ idtac | destruct n; reflexivity ].
 destruct n as [n| ]; [ simpl | inversion H ].
 rewrite Qmin_l; [ reflexivity | inversion H; assumption ].
+Qed.
+
+Theorem lt_irrefl : ∀ x, ¬(x < x).
+Proof.
+intros x H.
+destruct x as [x| ]; [ idtac | inversion H].
+apply qfin_lt_mono in H.
+revert H; apply Qlt_irrefl.
+Qed.
+
+Theorem lt_neq : ∀ n m, n < m → not (qeq n m).
+Proof.
+intros n m Hlt.
+intros H.
+destruct n as [n| ].
+ destruct m as [m| ]; [ idtac | inversion H ].
+ apply qfin_lt_mono in Hlt.
+ apply qfin_inj in H.
+ rewrite H in Hlt.
+ revert Hlt; apply Qlt_irrefl.
+
+ destruct m as [m| ]; [ inversion H | inversion Hlt ].
 Qed.
 
 Theorem le_trans : ∀ n m p, n ≤ m → m ≤ p → n ≤ p.
