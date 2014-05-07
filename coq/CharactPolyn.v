@@ -788,11 +788,7 @@ Lemma simpl_map_qpower : ∀ α pow (c : puiseux_series α) cl,
   List.map (pair_rec (λ pow ps, (Qnat pow, ps)))
     [(pow, c) … power_list (S pow) cl] =
   qpower_list pow [c … cl].
-Proof.
-intros; simpl.
-unfold qpower_list; simpl.
-rewrite simpl_match_1; reflexivity.
-Qed.
+Proof. reflexivity. Qed.
 
 Lemma in_pts_in_ppl : ∀ pow cl ppl pts h hv hps def,
   ppl = qpower_list pow cl
@@ -817,7 +813,7 @@ induction cl as [| c]; intros.
  simpl in Hhps; subst hps.
  split; [ left; reflexivity | assumption ].
 
- simpl in Hhhv.
+ remember [c … cl] as ccl; simpl in Hhhv; subst ccl.
  remember (order c₁) as v.
  symmetry in Heqv.
  destruct v as [v| ].
@@ -840,8 +836,6 @@ induction cl as [| c]; intros.
      rewrite <- minus_Sn_m in Hhps; [ idtac | assumption ].
      simpl in Hhps; eassumption.
 
-    rewrite simpl_match_1 in Hhhv; [ idtac | reflexivity ].
-    rewrite simpl_map_qpower in Hhhv.
     apply first_power_le in Hhhv; contradiction.
 
   destruct (le_dec (S pow) (Z.to_nat (Qnum h))) as [Hle| Hgt].
@@ -856,8 +850,6 @@ induction cl as [| c]; intros.
     rewrite <- minus_Sn_m in Hhps; [ idtac | assumption ].
     simpl in Hhps; eassumption.
 
-   rewrite simpl_match_1 in Hhhv; [ idtac | reflexivity ].
-   rewrite simpl_map_qpower in Hhhv.
    apply first_power_le in Hhhv; contradiction.
 Qed.
 

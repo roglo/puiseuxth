@@ -40,7 +40,6 @@ Definition order_coeff α (r : ring α) ps :=
 Fixpoint power_list α pow (psl : list α) :=
   match psl with
   | [] => []
-  | [ps₁] => [(pow, ps₁)]
   | [ps₁ … psl₁] => [(pow, ps₁) … power_list (S pow) psl₁]
   end.
 
@@ -150,7 +149,8 @@ induction cl as [| c]; intros.
  unfold points_of_ps_lap_gen in Hpts; simpl in Hpts.
  destruct (order c₁); subst pts; constructor; constructor.
 
- unfold points_of_ps_lap_gen in Hpts; simpl in Hpts.
+ unfold points_of_ps_lap_gen in Hpts.
+ remember [c … cl] as ccl; simpl in Hpts; subst ccl.
  destruct (order c₁) as [q | ]; [ idtac | eapply IHcl; eassumption ].
  remember (points_of_ps_lap_gen r (S deg) [c … cl]) as pts₁.
  subst pts; rename pts₁ into pts; rename Heqpts₁ into Hpts.
@@ -166,7 +166,8 @@ induction cl as [| c]; intros.
 
    constructor; constructor.
 
-  unfold points_of_ps_lap_gen in Hpts; simpl in Hpts; simpl.
+  unfold points_of_ps_lap_gen in Hpts.
+  remember [c₂ … cl] as ccl; simpl in Hpts; simpl; subst ccl.
   destruct (order c) as [v₂| ].
    subst pts.
    apply Sorted_LocallySorted_iff.
