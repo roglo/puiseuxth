@@ -552,6 +552,20 @@ rewrite f₁_eq_term_with_Ψ_plus_sum with (l₂ := l₂); try eassumption.
    rewrite <- Heqpts; assumption.
 
    eapply ini_oth_fin_pts_sorted; eassumption.
+
+  simpl.
+  rewrite Hl₁.
+  apply List.Forall_forall; intros i Hi.
+  split; [ apply Nat.le_0_l | idtac ].
+  apply List.in_map_iff in Hi.
+  destruct Hi as (x, (Hxi, Hx)).
+  subst i.
+  rewrite Htl in Hx.
+  apply List.in_map_iff in Hx.
+  destruct Hx as (y, (Hi, Hy)).
+  subst x; simpl.
+  rename y into pt.
+  rewrite Hpl in Hy.
 bbb.
 
 (* [Walker, p 101] «
