@@ -485,31 +485,31 @@ symmetry in Hc₁.
 remember Hns as Hini; clear HeqHini.
 apply exists_ini_pt_nat in Hini.
 destruct Hini as (j, (αj, Hini)).
-rewrite f₁_eq_term_with_Ψ_plus_sum with (l₂ := l₂); try eassumption.
- rewrite ps_poly_lap_summ; [ idtac | intros i; simpl; apply lap_eq_refl ].
- rewrite ps_poly_lap_summ; [ simpl | intros i; simpl; apply lap_eq_refl ].
- unfold ps_pol_add, poly_add; simpl.
- unfold ps_lap_add in H; simpl in H.
- unfold ps_lap_mul in H; simpl in H.
- progress unfold ps_lap_pow in H.
- simpl in H; rewrite <- H; clear H.
- unfold poly_nth; simpl.
- rewrite fold_ps_lap_add.
- rewrite lap_nth_add.
- assert (order (lap_nth r (g_lap_of_ns pol ns)) > 0)%Qbar as Hog.
-  destruct (lt_dec r (length (g_lap_of_ns pol ns))) as [Hlt| Hge].
-   eapply each_power_of_y₁_in_g_has_coeff_pos_ord; try eassumption.
-    reflexivity.
+assert (order (lap_nth r (g_lap_of_ns pol ns)) > 0)%Qbar as Hog.
+ destruct (lt_dec r (length (g_lap_of_ns pol ns))) as [Hlt| Hge].
+  eapply each_power_of_y₁_in_g_has_coeff_pos_ord; try eassumption.
+   reflexivity.
 
-    unfold g_of_ns; simpl.
-    unfold lap_nth.
-    apply list_nth_in; assumption.
-
-   apply Nat.nlt_ge in Hge.
+   unfold g_of_ns; simpl.
    unfold lap_nth.
-   rewrite List.nth_overflow; [ idtac | assumption ].
-   rewrite order_0; constructor.
+   apply list_nth_in; assumption.
 
+  apply Nat.nlt_ge in Hge.
+  unfold lap_nth.
+  rewrite List.nth_overflow; [ idtac | assumption ].
+  rewrite order_0; constructor.
+
+ rewrite f₁_eq_term_with_Ψ_plus_sum with (l₂ := l₂); try eassumption.
+  rewrite ps_poly_lap_summ; [ idtac | intros i; simpl; apply lap_eq_refl ].
+  rewrite ps_poly_lap_summ; [ simpl | intros i; simpl; apply lap_eq_refl ].
+  unfold ps_pol_add, poly_add; simpl.
+  unfold ps_lap_add in H; simpl in H.
+  unfold ps_lap_mul in H; simpl in H.
+  progress unfold ps_lap_pow in H.
+  simpl in H; rewrite <- H; clear H.
+  unfold poly_nth; simpl.
+  rewrite fold_ps_lap_add.
+  rewrite lap_nth_add.
   rewrite fold_ps_lap_comp.
   do 2 rewrite fold_ps_lap_mul.
   do 2 rewrite fold_ps_lap_pow.
