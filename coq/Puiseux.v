@@ -544,6 +544,27 @@ destruct (lt_dec h (length (g_lap_of_ns pol ns))) as [Hlt| Hge].
  rewrite order_0; constructor.
 Qed.
 
+Lemma xxx : ∀ pol ns j αj c₁ r Ψ yr ycj psy yc,
+  ns ∈ newton_segments pol
+  → ini_pt ns = (Qnat j, αj)
+    → c₁ = ac_root (Φq pol ns) ∧ (c₁ ≠ 0)%K
+      → r = root_multiplicity acf c₁ (Φq pol ns)
+        → Ψ = quotient_phi_x_sub_c_pow_r (Φq pol ns) c₁ r
+          → yr = ([0%ps; 1%ps … []] ^ r)%pslap
+            → ycj = ([ps_monom c₁ 0; 1%ps … []] ^ j)%pslap
+              → psy = lap_inject_K_in_Kx (al Ψ)
+                → yc = [ps_monom c₁ 0; 1%ps … []]
+                  → ∀ h,
+                    (order (lap_nth h (yr * ycj * psy ∘ yc)) ≥ 0)%Qbar.
+Proof.
+intros pol ns j αj c₁ r Ψ yr ycj psy yc.
+intros Hns Hini Hc₁ Hr HΨ Hyr Hycj Hpsy Hyc h.
+subst yr ycj psy yc.
+progress unfold ps_lap_mul.
+rewrite <- lap_mul_assoc.
+do 2 rewrite fold_ps_lap_mul.
+bbb.
+
 (* [Walker, p 101] « O(br) = 0 » *)
 Theorem order_bbar_r_is_0 : ∀ pol ns c₁ r f₁,
   ns ∈ newton_segments pol
