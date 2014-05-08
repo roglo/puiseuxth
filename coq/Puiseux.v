@@ -627,6 +627,11 @@ Theorem yyy : ∀ pol ns c₁ r f₁,
         → ∀ i, (order (poly_nth i f₁) ≥ 0)%Qbar.
 Proof.
 intros pol ns c₁ r f₁ Hns (Hc₁, Hc₁nz) Hr Hf₁ i.
+subst f₁.
+unfold pol₁, lap_pol₁; simpl.
+unfold poly_nth; simpl.
+rewrite fold_ps_lap_comp.
+rewrite fold_ps_lap_mul.
 bbb.
 
 (* [Walker, p 101] «
