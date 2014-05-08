@@ -420,7 +420,7 @@ simpl in Hc.
 pose proof (Hc O); assumption.
 Qed.
 
-Lemma uuu : ∀ A la h (hv : puiseux_series A) pow,
+Lemma in_power_list_lt : ∀ A la h (hv : puiseux_series A) pow,
   (h, hv) ∈ qpower_list pow la
   → (nofq h < pow + length la)%nat.
 Proof.
@@ -429,9 +429,19 @@ unfold qpower_list in Hh.
 unfold pair_rec in Hh; simpl in Hh.
 revert pow Hh.
 induction la as [| a]; intros; [ contradiction | simpl ].
-bbb.
+simpl in Hh.
+destruct Hh as [Hh| Hh].
+ injection Hh; clear Hh; intros; subst h hv.
+ rewrite nofq_Qnat.
+ apply Nat.lt_sub_lt_add_l.
+ rewrite Nat.sub_diag.
+ apply Nat.lt_0_succ.
 
-Lemma vvv : ∀ la pow pt,
+ rewrite Nat.add_succ_r, <- Nat.add_succ_l.
+ apply IHla; assumption.
+Qed.
+
+Lemma in_points_of_ps_lap_gen_lt : ∀ la pow pt,
   pt ∈ points_of_ps_lap_gen R pow la
   → (nofq (fst pt) < pow + length la)%nat.
 Proof.
@@ -440,22 +450,20 @@ unfold points_of_ps_lap_gen in Hpt.
 destruct pt as (h, hv); simpl.
 eapply in_pts_in_ppl with (def := 0%ps) in Hpt; try reflexivity.
 destruct Hpt as (Hpt, Hord).
-clear Hord.
-bbb.
+eapply in_power_list_lt; eassumption.
+Qed.
 
-Lemma www : ∀ la pt,
+Lemma in_points_of_ps_lap_lt : ∀ la pt,
   pt ∈ points_of_ps_lap R la
   → (nofq (fst pt) < length la)%nat.
 Proof.
 intros la pt Hpt.
-bbb.
-unfold points_of_ps_lap in Hpt.
-unfold points_of_ps_lap_gen in Hpt.
-induction la as [| a]; [ contradiction | simpl ].
-bbb.
+apply in_points_of_ps_lap_gen_lt in Hpt.
+assumption.
+Qed.
 
 (* [Walker, p 101] « O(br) = 0 » *)
-Theorem xxx : ∀ pol ns c₁ r f₁,
+Theorem order_bbar_r_is_0 : ∀ pol ns c₁ r f₁,
   ns ∈ newton_segments pol
   → c₁ = ac_root (Φq pol ns) ∧ (c₁ ≠ 0)%K
     → r = root_multiplicity acf c₁ (Φq pol ns)
@@ -602,7 +610,8 @@ rewrite f₁_eq_term_with_Ψ_plus_sum with (l₂ := l₂); try eassumption.
   rewrite Hpl in Hy.
   eapply ns_in_init_pts in Hy; [ idtac | eassumption ].
   unfold points_of_ps_polynom in Hy.
-bbb.
+  apply in_points_of_ps_lap_lt; assumption.
+Qed.
 
 (* [Walker, p 101] «
      Since O(āh - ah.x^αh) > 0 and O(āl.x^(l.γ₁)) > β₁ we obtain
