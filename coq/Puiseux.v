@@ -613,6 +613,17 @@ rewrite f₁_eq_term_with_Ψ_plus_sum with (l₂ := l₂); try eassumption.
   apply in_points_of_ps_lap_lt; assumption.
 Qed.
 
+(* [Walker, p 101] « O(bi) ≥ 0,  i = 0,..., n » *)
+Theorem yyy : ∀ pol ns c₁ r f₁,
+  ns ∈ newton_segments pol
+  → c₁ = ac_root (Φq pol ns) ∧ (c₁ ≠ 0)%K
+    → r = root_multiplicity acf c₁ (Φq pol ns)
+      → f₁ = pol₁ pol (β ns) (γ ns) c₁
+        → ∀ i, (order (poly_nth i f₁) ≥ 0)%Qbar.
+Proof.
+intros pol ns c₁ r f₁ Hns (Hc₁, Hc₁nz) Hr Hf₁ i.
+bbb.
+
 (* [Walker, p 101] «
      Since O(āh - ah.x^αh) > 0 and O(āl.x^(l.γ₁)) > β₁ we obtain
        f₁(x,y₁) = b₁.y₁^r + b₂.y₁^(r+1) + ... + g(x,y₁),
