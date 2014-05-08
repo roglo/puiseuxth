@@ -613,7 +613,16 @@ apply Qbar.min_glb.
  rewrite <- lap_mul_assoc.
  rewrite fold_ps_lap_mul, fold_ps_lap_pow.
  destruct (le_dec r i) as [Hle| Hgt].
-  rewrite lap_nth_x_le_pow_mul; [ idtac | assumption ].
+  Focus 2.
+  apply Nat.nle_gt in Hgt.
+  rewrite lap_nth_x_gt_pow_mul; [ idtac | assumption ].
+  rewrite order_0; constructor.
+
+  Focus 2.
+  apply Qbar.lt_le_incl.
+  apply nth_g_order_pos; assumption.
+
+ rewrite lap_nth_x_le_pow_mul; [ idtac | assumption ].
 bbb.
 *)
 
