@@ -300,14 +300,17 @@ destruct na as [na| ].
   exfalso; apply Hab; reflexivity.
 Qed.
 
-Lemma lap_nth_x_pow_mul : ∀ la n,
-  (lap_nth n ([0; 1 … []] ^ n * la) = lap_nth 0 la)%ps.
+Lemma lap_nth_x_le_pow_mul : ∀ la m n,
+  (n ≤ m)%nat
+  → (lap_nth m ([0; 1 … []] ^ n * la) = lap_nth (m - n) la)%ps.
 Proof.
-intros la n.
-induction n.
+intros la m n Hnm.
+revert m Hnm.
+induction n; intros.
  progress unfold ps_lap_pow; simpl.
  progress unfold ps_lap_mul.
  rewrite lap_mul_1_l.
+ rewrite Nat.sub_0_r.
  reflexivity.
 
  rewrite <- Nat.add_1_l.
@@ -316,11 +319,11 @@ induction n.
  rewrite lap_power_1.
  progress unfold ps_lap_mul.
  rewrite <- lap_mul_assoc.
- unfold lap_nth.
- rewrite nth_mul_deg_1.
- rewrite rng_mul_0_l.
- rewrite rng_add_0_l.
- assumption.
+ rewrite lap_mul_cons_l.
+ rewrite lap_eq_0, lap_mul_nil_l, lap_add_nil_l, lap_mul_1_l.
+ destruct m; [ exfalso; revert Hnm; apply Nat.nlt_0_r | simpl ].
+ apply le_S_n in Hnm.
+ apply IHn; assumption.
 Qed.
 
 Lemma lap_nth_x_gt_pow_mul : ∀ la m n,
@@ -607,7 +610,12 @@ rewrite lap_nth_add.
 rewrite fold_ps_lap_comp.
 eapply Qbar.le_trans; [ idtac | apply order_add ].
 apply Qbar.min_glb.
+ rewrite <- lap_mul_assoc.
+ rewrite fold_ps_lap_mul, fold_ps_lap_pow.
+ destruct (le_dec r i) as [Hle| Hgt].
+  rewrite lap_nth_x_le_pow_mul; [ idtac | assumption ].
 bbb.
+*)
 
 (* [Walker, p 101] « O(bi) > 0,  i = 0,...,r-1 » *)
 Theorem yyy : ∀ pol ns c₁ r f₁,
@@ -631,6 +639,7 @@ rewrite lap_nth_add.
 rewrite fold_ps_lap_comp.
 rewrite order_neq_min.
 bbb.
+*)
 
 (* [Walker, p 101] « O(br) = 0 » *)
 Theorem order_bbar_r_is_0 : ∀ pol ns c₁ r f₁,
@@ -657,7 +666,8 @@ assert (order (lap_nth r (yr * ycj * psy ∘ yc)) = 0)%Qbar as Hor.
  progress unfold ps_lap_mul.
  rewrite <- lap_mul_assoc.
  do 2 rewrite fold_ps_lap_mul.
- erewrite lap_nth_x_pow_mul.
+ erewrite lap_nth_x_le_pow_mul; [ idtac | reflexivity ].
+ rewrite Nat.sub_diag.
  progress unfold ps_lap_mul.
  progress unfold lap_mul.
  progress unfold lap_nth; simpl.
