@@ -184,6 +184,12 @@ destruct n as [n| ]; [ simpl | inversion H ].
 rewrite Qmin_l; [ reflexivity | inversion H; assumption ].
 Qed.
 
+Theorem min_glb : ∀ n m p, p ≤ n → p ≤ m → p ≤ min n m.
+Proof.
+intros n m p Hpn Hpm.
+destruct (min_dec n m) as [H| H]; rewrite H; assumption.
+Qed.
+
 Theorem lt_irrefl : ∀ x, ¬(x < x).
 Proof.
 intros x H.

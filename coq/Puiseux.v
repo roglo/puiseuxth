@@ -586,6 +586,29 @@ rewrite lap_nth_x_gt_pow_mul; [ idtac | assumption ].
 rewrite order_0; constructor.
 Qed.
 
+(* [Walker, p 101] « O(bi) ≥ 0,  i = 0,...,n » *)
+Theorem vvv : ∀ pol ns c₁ r f₁,
+  ns ∈ newton_segments pol
+  → c₁ = ac_root (Φq pol ns) ∧ (c₁ ≠ 0)%K
+    → r = root_multiplicity acf c₁ (Φq pol ns)
+      → f₁ = pol₁ pol (β ns) (γ ns) c₁
+        → ∀ i, (order (poly_nth i f₁) ≥ 0)%Qbar.
+Proof.
+intros pol ns c₁ r f₁ Hns Hc₁ Hr Hf₁ i.
+remember (quotient_phi_x_sub_c_pow_r (Φq pol ns) c₁ r) as Ψ eqn:HΨ .
+remember Hns as Hini; clear HeqHini.
+apply exists_ini_pt_nat in Hini.
+destruct Hini as (j, (αj, Hini)).
+rewrite f₁_eq_term_with_Ψ_plus_g; try eassumption.
+destruct Hc₁ as (Hc₁, Hc₁nz).
+unfold poly_nth; simpl.
+rewrite fold_ps_lap_add.
+rewrite lap_nth_add.
+rewrite fold_ps_lap_comp.
+eapply Qbar.le_trans; [ idtac | apply order_add ].
+apply Qbar.min_glb.
+bbb.
+
 (* [Walker, p 101] « O(bi) > 0,  i = 0,...,r-1 » *)
 Theorem yyy : ∀ pol ns c₁ r f₁,
   ns ∈ newton_segments pol
