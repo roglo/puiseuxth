@@ -499,57 +499,62 @@ assert (order (lap_nth r (g_lap_of_ns pol ns)) > 0)%Qbar as Hog.
   rewrite List.nth_overflow; [ idtac | assumption ].
   rewrite order_0; constructor.
 
- rewrite f₁_eq_term_with_Ψ_plus_sum with (l₂ := l₂); try eassumption.
-  rewrite ps_poly_lap_summ; [ idtac | intros i; simpl; apply lap_eq_refl ].
-  rewrite ps_poly_lap_summ; [ simpl | intros i; simpl; apply lap_eq_refl ].
-  unfold ps_pol_add, poly_add; simpl.
-  unfold ps_lap_add in H; simpl in H.
-  unfold ps_lap_mul in H; simpl in H.
-  progress unfold ps_lap_pow in H.
-  simpl in H; rewrite <- H; clear H.
-  unfold poly_nth; simpl.
-  rewrite fold_ps_lap_add.
-  rewrite lap_nth_add.
-  rewrite fold_ps_lap_comp.
+ remember ([0%ps; 1%ps … []] ^ r)%pslap as yr.
+ remember ([ps_monom c₁ 0; 1%ps … []] ^ j)%pslap as ycj.
+ remember (lap_inject_K_in_Kx (al Ψ)) as psy.
+ remember [ps_monom c₁ 0; 1%ps … []] as yc.
+ assert (order (lap_nth r (yr * ycj * psy ∘ yc)) = 0)%Qbar as Hor.
+  subst yr ycj psy yc.
+  progress unfold ps_lap_mul.
+  rewrite <- lap_mul_assoc.
   do 2 rewrite fold_ps_lap_mul.
-  do 2 rewrite fold_ps_lap_pow.
-  remember ([0%ps; 1%ps … []] ^ r)%pslap as yr.
-  remember ([ps_monom c₁ 0; 1%ps … []] ^ j)%pslap as ycj.
-  remember (lap_inject_K_in_Kx (al Ψ)) as psy.
-  remember [ps_monom c₁ 0; 1%ps … []] as yc.
-  assert (order (lap_nth r (yr * ycj * psy ∘ yc)) = 0)%Qbar as Hor.
-   subst yr ycj psy yc.
-   progress unfold ps_lap_mul.
-   rewrite <- lap_mul_assoc.
-   do 2 rewrite fold_ps_lap_mul.
-   erewrite lap_nth_x_pow_mul.
-   progress unfold ps_lap_mul.
-   progress unfold lap_mul.
-   progress unfold lap_nth; simpl.
-   rewrite list_nth_lap_convol_mul; [ idtac | reflexivity ].
-   unfold summation; simpl.
-   rewrite ps_add_0_r.
-   rewrite order_mul; [ idtac | assumption ].
+  erewrite lap_nth_x_pow_mul.
+  progress unfold ps_lap_mul.
+  progress unfold lap_mul.
+  progress unfold lap_nth; simpl.
+  rewrite list_nth_lap_convol_mul; [ idtac | reflexivity ].
+  unfold summation; simpl.
+  rewrite ps_add_0_r.
+  rewrite order_mul; [ idtac | assumption ].
+  rewrite fold_lap_nth.
+  rewrite lap_nth_0_cons_pow.
+  rewrite order_pow.
+   rewrite ps_monom_order; [ idtac | assumption ].
+   rewrite Qbar.mul_0_r; [ idtac | intros HH; discriminate HH ].
+   rewrite Qbar.add_0_l.
    rewrite fold_lap_nth.
-   rewrite lap_nth_0_cons_pow.
-   rewrite order_pow.
-    rewrite ps_monom_order; [ idtac | assumption ].
-    rewrite Qbar.mul_0_r; [ idtac | intros H; discriminate H ].
-    rewrite Qbar.add_0_l.
-    rewrite fold_lap_nth.
-    rewrite lap_nth_0_apply_0.
-    unfold ps_lap_comp.
-    rewrite apply_lap_compose.
-    unfold apply_lap at 2; simpl.
-    rewrite ps_mul_0_l, ps_add_0_l.
-    rewrite ps_mul_0_r, ps_add_0_l.
-    rewrite apply_lap_inject_K_in_Kx_monom.
-    rewrite ps_monom_order; [ reflexivity | idtac ].
-    eapply psy_c₁_ne_0 in HΨ; eassumption.
+   rewrite lap_nth_0_apply_0.
+   unfold ps_lap_comp.
+   rewrite apply_lap_compose.
+   unfold apply_lap at 2; simpl.
+   rewrite ps_mul_0_l, ps_add_0_l.
+   rewrite ps_mul_0_r, ps_add_0_l.
+   rewrite apply_lap_inject_K_in_Kx_monom.
+   rewrite ps_monom_order; [ reflexivity | idtac ].
+   eapply psy_c₁_ne_0 in HΨ; eassumption.
 
-    intros H; apply Hc₁nz.
-    apply ps_monom_0_coeff_0; assumption.
+   intros HH; apply Hc₁nz.
+   apply ps_monom_0_coeff_0; assumption.
 
+  subst yr ycj psy yc.
+  rewrite f₁_eq_term_with_Ψ_plus_sum with (l₂ := l₂); try eassumption.
+   rewrite ps_poly_lap_summ; [ idtac | intros i; simpl; apply lap_eq_refl ].
+   rewrite ps_poly_lap_summ; [ simpl | intros i; simpl; apply lap_eq_refl ].
+   unfold ps_pol_add, poly_add; simpl.
+   unfold ps_lap_add in H; simpl in H.
+   unfold ps_lap_mul in H; simpl in H.
+   progress unfold ps_lap_pow in H.
+   simpl in H; rewrite <- H; clear H.
+   unfold poly_nth; simpl.
+   rewrite fold_ps_lap_add.
+   rewrite lap_nth_add.
+   rewrite fold_ps_lap_comp.
+   do 2 rewrite fold_ps_lap_mul.
+   do 2 rewrite fold_ps_lap_pow.
+   remember ([0%ps; 1%ps … []] ^ r)%pslap as yr.
+   remember ([ps_monom c₁ 0; 1%ps … []] ^ j)%pslap as ycj.
+   remember (lap_inject_K_in_Kx (al Ψ)) as psy.
+   remember [ps_monom c₁ 0; 1%ps … []] as yc.
    rewrite order_neq_min.
     rewrite Hor.
     rewrite Qbar.min_l; [ reflexivity | idtac ].
@@ -582,35 +587,35 @@ assert (order (lap_nth r (g_lap_of_ns pol ns)) > 0)%Qbar as Hog.
      rewrite List.nth_overflow; [ idtac | assumption ].
      rewrite order_0; constructor.
 
- apply except_split_seq; [ idtac | idtac | assumption ].
-  rewrite Hl₁, Htl, Hpl.
-  do 2 apply Sorted_map; simpl.
-  apply Sorted_fst_lt_nofq_fst.
-   intros a Ha.
-   remember (points_of_ps_polynom R pol) as pts.
-   symmetry in Heqpts.
-   eapply pt_absc_is_nat; [ eassumption | idtac ].
-   eapply ns_in_init_pts; [ idtac | eassumption ].
-   rewrite <- Heqpts; assumption.
+   apply except_split_seq; [ idtac | idtac | assumption ].
+    rewrite Hl₁, Htl, Hpl.
+    do 2 apply Sorted_map; simpl.
+    apply Sorted_fst_lt_nofq_fst.
+     intros a Ha.
+     remember (points_of_ps_polynom R pol) as pts.
+     symmetry in Heqpts.
+     eapply pt_absc_is_nat; [ eassumption | idtac ].
+     eapply ns_in_init_pts; [ idtac | eassumption ].
+     rewrite <- Heqpts; assumption.
 
-   eapply ini_oth_fin_pts_sorted; eassumption.
+     eapply ini_oth_fin_pts_sorted; eassumption.
 
-  simpl.
-  rewrite Hl₁.
-  apply List.Forall_forall; intros i Hi.
-  split; [ apply Nat.le_0_l | idtac ].
-  apply List.in_map_iff in Hi.
-  destruct Hi as (x, (Hxi, Hx)).
-  subst i.
-  rewrite Htl in Hx.
-  apply List.in_map_iff in Hx.
-  destruct Hx as (y, (Hi, Hy)).
-  subst x; simpl.
-  rename y into pt.
-  rewrite Hpl in Hy.
-  eapply ns_in_init_pts in Hy; [ idtac | eassumption ].
-  unfold points_of_ps_polynom in Hy.
-  apply in_points_of_ps_lap_lt; assumption.
+    simpl.
+    rewrite Hl₁.
+    apply List.Forall_forall; intros i Hi.
+    split; [ apply Nat.le_0_l | idtac ].
+    apply List.in_map_iff in Hi.
+    destruct Hi as (x, (Hxi, Hx)).
+    subst i.
+    rewrite Htl in Hx.
+    apply List.in_map_iff in Hx.
+    destruct Hx as (y, (Hi, Hy)).
+    subst x; simpl.
+    rename y into pt.
+    rewrite Hpl in Hy.
+    eapply ns_in_init_pts in Hy; [ idtac | eassumption ].
+    unfold points_of_ps_polynom in Hy.
+    apply in_points_of_ps_lap_lt; assumption.
 Qed.
 
 (* [Walker, p 101] « O(bi) ≥ 0,  i = 0,..., n » *)
