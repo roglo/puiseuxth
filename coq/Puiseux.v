@@ -596,37 +596,11 @@ assert (order (lap_nth r (g_lap_of_ns pol ns)) > 0)%Qbar as Hog.
   rewrite fold_ps_lap_add.
   rewrite lap_nth_add.
   rewrite fold_ps_lap_comp.
-  rewrite order_neq_min.
-   rewrite Hor.
+  rewrite order_neq_min; rewrite Hor.
    rewrite Qbar.min_l; [ reflexivity | idtac ].
-   apply Qbar.lt_le_incl.
-   remember (g_of_ns pol ns) as g eqn:Hg .
-   destruct (lt_dec r (length (g_lap_of_ns pol ns))) as [Hlt| Hge].
-    eapply each_power_of_y₁_in_g_has_coeff_pos_ord; try eassumption.
-    rewrite Hg.
-    unfold g_of_ns; simpl.
-    unfold lap_nth.
-    apply list_nth_in; assumption.
+   apply Qbar.lt_le_incl;  assumption.
 
-    apply Nat.nlt_ge in Hge.
-    unfold lap_nth.
-    rewrite List.nth_overflow; [ idtac | assumption ].
-    rewrite order_0; constructor.
-
-   rewrite Hor.
-   apply Qbar.lt_neq.
-   remember (g_of_ns pol ns) as g eqn:Hg .
-   destruct (lt_dec r (length (g_lap_of_ns pol ns))) as [Hlt| Hge].
-    eapply each_power_of_y₁_in_g_has_coeff_pos_ord; try eassumption.
-    rewrite Hg.
-    unfold g_of_ns; simpl.
-    unfold lap_nth.
-    apply list_nth_in; assumption.
-
-    apply Nat.nlt_ge in Hge.
-    unfold lap_nth.
-    rewrite List.nth_overflow; [ idtac | assumption ].
-    rewrite order_0; constructor.
+   apply Qbar.lt_neq; assumption.
 Qed.
 
 (* [Walker, p 101] « O(bi) ≥ 0,  i = 0,..., n » *)
