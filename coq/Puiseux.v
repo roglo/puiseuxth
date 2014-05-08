@@ -323,6 +323,25 @@ induction n.
  assumption.
 Qed.
 
+Lemma lap_nth_x_gt_pow_mul : ∀ la m n,
+  (m < n)%nat
+  → (lap_nth m ([0; 1 … []] ^ n * la) = 0)%ps.
+Proof.
+intros la m n Hmn.
+revert m Hmn.
+induction n; intros.
+ exfalso; revert Hmn; apply Nat.nlt_0_r.
+
+ unfold ps_lap_mul, ps_lap_pow; simpl.
+ rewrite <- lap_mul_assoc.
+ rewrite lap_mul_cons_l.
+ rewrite lap_eq_0, lap_mul_nil_l, lap_add_nil_l, lap_mul_1_l.
+ destruct m; [ reflexivity | idtac ].
+ apply lt_S_n in Hmn.
+ unfold lap_nth; simpl.
+ apply IHn; assumption.
+Qed.
+
 Lemma lap_nth_0_cons_pow : ∀ a la n, (lap_nth 0 ([a … la] ^ n) = a ^ n)%ps.
 Proof.
 intros a la n.
@@ -554,15 +573,40 @@ Lemma xxx : ∀ pol ns j αj c₁ r Ψ yr ycj psy yc,
             → ycj = ([ps_monom c₁ 0; 1%ps … []] ^ j)%pslap
               → psy = lap_inject_K_in_Kx (al Ψ)
                 → yc = [ps_monom c₁ 0; 1%ps … []]
-                  → ∀ h,
-                    (order (lap_nth h (yr * ycj * psy ∘ yc)) ≥ 0)%Qbar.
+                  → ∀ i, (i < r)%nat
+                    → (order (lap_nth i (yr * ycj * psy ∘ yc)) > 0)%Qbar.
 Proof.
 intros pol ns j αj c₁ r Ψ yr ycj psy yc.
-intros Hns Hini Hc₁ Hr HΨ Hyr Hycj Hpsy Hyc h.
+intros Hns Hini Hc₁ Hr HΨ Hyr Hycj Hpsy Hyc i Hir.
 subst yr ycj psy yc.
 progress unfold ps_lap_mul.
 rewrite <- lap_mul_assoc.
 do 2 rewrite fold_ps_lap_mul.
+rewrite lap_nth_x_gt_pow_mul; [ idtac | assumption ].
+rewrite order_0; constructor.
+Qed.
+
+(* [Walker, p 101] « O(bi) > 0,  i = 0,...,r-1 » *)
+Theorem yyy : ∀ pol ns c₁ r f₁,
+  ns ∈ newton_segments pol
+  → c₁ = ac_root (Φq pol ns) ∧ (c₁ ≠ 0)%K
+    → r = root_multiplicity acf c₁ (Φq pol ns)
+      → f₁ = pol₁ pol (β ns) (γ ns) c₁
+        → ∀ i, (i < r)%nat
+          → (order (poly_nth i f₁) > 0)%Qbar.
+Proof.
+intros pol ns c₁ r f₁ Hns Hc₁ Hr Hf₁ i Hir.
+remember (quotient_phi_x_sub_c_pow_r (Φq pol ns) c₁ r) as Ψ eqn:HΨ .
+remember Hns as Hini; clear HeqHini.
+apply exists_ini_pt_nat in Hini.
+destruct Hini as (j, (αj, Hini)).
+rewrite f₁_eq_term_with_Ψ_plus_g; try eassumption.
+destruct Hc₁ as (Hc₁, Hc₁nz).
+unfold poly_nth; simpl.
+rewrite fold_ps_lap_add.
+rewrite lap_nth_add.
+rewrite fold_ps_lap_comp.
+rewrite order_neq_min.
 bbb.
 
 (* [Walker, p 101] « O(br) = 0 » *)
@@ -630,24 +674,6 @@ assert (order (lap_nth r (yr * ycj * psy ∘ yc)) = 0)%Qbar as Hor.
   apply Qbar.lt_neq.
   apply nth_g_order_pos; assumption.
 Qed.
-
-(* [Walker, p 101] « O(bi) ≥ 0,  i = 0,..., n » *)
-Theorem yyy : ∀ pol ns c₁ f₁,
-  ns ∈ newton_segments pol
-  → c₁ = ac_root (Φq pol ns) ∧ (c₁ ≠ 0)%K
-    → f₁ = pol₁ pol (β ns) (γ ns) c₁
-      → ∀ i, (order (poly_nth i f₁) ≥ 0)%Qbar.
-Proof.
-intros pol ns c₁ f₁ Hns Hc₁ Hf₁ i.
-remember (root_multiplicity acf c₁ (Φq pol ns)) as r eqn:Hr.
-remember (quotient_phi_x_sub_c_pow_r (Φq pol ns) c₁ r) as Ψ eqn:HΨ .
-remember Hns as Hini; clear HeqHini.
-apply exists_ini_pt_nat in Hini.
-destruct Hini as (j, (αj, Hini)).
-rewrite f₁_eq_term_with_Ψ_plus_g; try eassumption.
-destruct Hc₁ as (Hc₁, Hc₁nz).
-unfold poly_nth; simpl.
-bbb.
 
 (* [Walker, p 101] «
      Since O(āh - ah.x^αh) > 0 and O(āl.x^(l.γ₁)) > β₁ we obtain
