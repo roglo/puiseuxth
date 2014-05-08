@@ -525,6 +525,25 @@ rewrite f₁_eq_term_with_Ψ_plus_sum with (l₂ := l₂); try eassumption.
   apply in_points_of_ps_lap_lt; assumption.
 Qed.
 
+Lemma nth_g_order_pos : ∀ pol ns h,
+  ns ∈ newton_segments pol
+  → (order (lap_nth h (g_lap_of_ns pol ns)) > 0)%Qbar.
+Proof.
+intros pol ns h Hns.
+destruct (lt_dec h (length (g_lap_of_ns pol ns))) as [Hlt| Hge].
+ eapply each_power_of_y₁_in_g_has_coeff_pos_ord; try eassumption.
+  reflexivity.
+
+  unfold g_of_ns; simpl.
+  unfold lap_nth.
+  apply list_nth_in; assumption.
+
+ apply Nat.nlt_ge in Hge.
+ unfold lap_nth.
+ rewrite List.nth_overflow; [ idtac | assumption ].
+ rewrite order_0; constructor.
+Qed.
+
 (* [Walker, p 101] « O(br) = 0 » *)
 Theorem order_bbar_r_is_0 : ∀ pol ns c₁ r f₁,
   ns ∈ newton_segments pol
@@ -541,66 +560,54 @@ destruct Hini as (j, (αj, Hini)).
 rewrite f₁_eq_term_with_Ψ_plus_g; try eassumption.
 destruct Hc₁ as (Hc₁, Hc₁nz).
 unfold poly_nth; simpl.
-assert (order (lap_nth r (g_lap_of_ns pol ns)) > 0)%Qbar as Hog.
- destruct (lt_dec r (length (g_lap_of_ns pol ns))) as [Hlt| Hge].
-  eapply each_power_of_y₁_in_g_has_coeff_pos_ord; try eassumption.
-   reflexivity.
-
-   unfold g_of_ns; simpl.
-   unfold lap_nth.
-   apply list_nth_in; assumption.
-
-  apply Nat.nlt_ge in Hge.
-  unfold lap_nth.
-  rewrite List.nth_overflow; [ idtac | assumption ].
-  rewrite order_0; constructor.
-
- remember ([0%ps; 1%ps … []] ^ r)%pslap as yr.
- remember ([ps_monom c₁ 0; 1%ps … []] ^ j)%pslap as ycj.
- remember (lap_inject_K_in_Kx (al Ψ)) as psy.
- remember [ps_monom c₁ 0; 1%ps … []] as yc.
- assert (order (lap_nth r (yr * ycj * psy ∘ yc)) = 0)%Qbar as Hor.
-  subst yr ycj psy yc.
-  progress unfold ps_lap_mul.
-  rewrite <- lap_mul_assoc.
-  do 2 rewrite fold_ps_lap_mul.
-  erewrite lap_nth_x_pow_mul.
-  progress unfold ps_lap_mul.
-  progress unfold lap_mul.
-  progress unfold lap_nth; simpl.
-  rewrite list_nth_lap_convol_mul; [ idtac | reflexivity ].
-  unfold summation; simpl.
-  rewrite ps_add_0_r.
-  rewrite order_mul; [ idtac | assumption ].
+remember ([0%ps; 1%ps … []] ^ r)%pslap as yr.
+remember ([ps_monom c₁ 0; 1%ps … []] ^ j)%pslap as ycj.
+remember (lap_inject_K_in_Kx (al Ψ)) as psy.
+remember [ps_monom c₁ 0; 1%ps … []] as yc.
+assert (order (lap_nth r (yr * ycj * psy ∘ yc)) = 0)%Qbar as Hor.
+ subst yr ycj psy yc.
+ progress unfold ps_lap_mul.
+ rewrite <- lap_mul_assoc.
+ do 2 rewrite fold_ps_lap_mul.
+ erewrite lap_nth_x_pow_mul.
+ progress unfold ps_lap_mul.
+ progress unfold lap_mul.
+ progress unfold lap_nth; simpl.
+ rewrite list_nth_lap_convol_mul; [ idtac | reflexivity ].
+ unfold summation; simpl.
+ rewrite ps_add_0_r.
+ rewrite order_mul; [ idtac | assumption ].
+ rewrite fold_lap_nth.
+ rewrite lap_nth_0_cons_pow.
+ rewrite order_pow.
+  rewrite ps_monom_order; [ idtac | assumption ].
+  rewrite Qbar.mul_0_r; [ idtac | intros HH; discriminate HH ].
+  rewrite Qbar.add_0_l.
   rewrite fold_lap_nth.
-  rewrite lap_nth_0_cons_pow.
-  rewrite order_pow.
-   rewrite ps_monom_order; [ idtac | assumption ].
-   rewrite Qbar.mul_0_r; [ idtac | intros HH; discriminate HH ].
-   rewrite Qbar.add_0_l.
-   rewrite fold_lap_nth.
-   rewrite lap_nth_0_apply_0.
-   unfold ps_lap_comp.
-   rewrite apply_lap_compose.
-   unfold apply_lap at 2; simpl.
-   rewrite ps_mul_0_l, ps_add_0_l.
-   rewrite ps_mul_0_r, ps_add_0_l.
-   rewrite apply_lap_inject_K_in_Kx_monom.
-   rewrite ps_monom_order; [ reflexivity | idtac ].
-   eapply psy_c₁_ne_0 in HΨ; eassumption.
+  rewrite lap_nth_0_apply_0.
+  unfold ps_lap_comp.
+  rewrite apply_lap_compose.
+  unfold apply_lap at 2; simpl.
+  rewrite ps_mul_0_l, ps_add_0_l.
+  rewrite ps_mul_0_r, ps_add_0_l.
+  rewrite apply_lap_inject_K_in_Kx_monom.
+  rewrite ps_monom_order; [ reflexivity | idtac ].
+  eapply psy_c₁_ne_0 in HΨ; eassumption.
 
-   intros HH; apply Hc₁nz.
-   apply ps_monom_0_coeff_0; assumption.
+  intros HH; apply Hc₁nz.
+  apply ps_monom_0_coeff_0; assumption.
 
-  subst yr ycj psy yc.
-  rewrite fold_ps_lap_add.
-  rewrite lap_nth_add.
-  rewrite fold_ps_lap_comp.
-  rewrite order_neq_min; rewrite Hor.
-   rewrite Qbar.min_l; [ reflexivity | idtac ].
-   apply Qbar.lt_le_incl;  assumption.
+ subst yr ycj psy yc.
+ rewrite fold_ps_lap_add.
+ rewrite lap_nth_add.
+ rewrite fold_ps_lap_comp.
+ rewrite order_neq_min; rewrite Hor.
+ rewrite Qbar.min_l; [ reflexivity | idtac ].
+  apply Qbar.lt_le_incl.
+  apply nth_g_order_pos; assumption.
 
-   apply Qbar.lt_neq; assumption.
+  apply Qbar.lt_neq.
+  apply nth_g_order_pos; assumption.
 Qed.
 
 (* [Walker, p 101] « O(bi) ≥ 0,  i = 0,..., n » *)
