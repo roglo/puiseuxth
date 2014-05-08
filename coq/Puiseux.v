@@ -6,16 +6,13 @@ Require Import NPeano.
 Require Import Sorted.
 
 Require Import Misc.
-Require Import Nbar.
 Require Import Qbar.
 Require Import SplitList.
 Require Import Field.
 Require Import Fpolynomial.
 Require Import Fsummation.
 Require Import Newton.
-Require Import ConvexHull.
 Require Import ConvexHullMisc.
-Require Import PolyConvexHull.
 Require Import Puiseux_base.
 Require Import Power_series.
 Require Import Puiseux_series.
@@ -633,14 +630,14 @@ assert (order (lap_nth r (g_lap_of_ns pol ns)) > 0)%Qbar as Hog.
 Qed.
 
 (* [Walker, p 101] « O(bi) ≥ 0,  i = 0,..., n » *)
-Theorem yyy : ∀ pol ns c₁ r f₁,
+Theorem yyy : ∀ pol ns c₁ f₁,
   ns ∈ newton_segments pol
   → c₁ = ac_root (Φq pol ns) ∧ (c₁ ≠ 0)%K
-    → r = root_multiplicity acf c₁ (Φq pol ns)
-      → f₁ = pol₁ pol (β ns) (γ ns) c₁
-        → ∀ i, (order (poly_nth i f₁) ≥ 0)%Qbar.
+    → f₁ = pol₁ pol (β ns) (γ ns) c₁
+      → ∀ i, (order (poly_nth i f₁) ≥ 0)%Qbar.
 Proof.
-intros pol ns c₁ r f₁ Hns Hc₁ Hr Hf₁ i.
+intros pol ns c₁ f₁ Hns Hc₁ Hf₁ i.
+remember (root_multiplicity acf c₁ (Φq pol ns)) as r eqn:Hr.
 remember (quotient_phi_x_sub_c_pow_r (Φq pol ns) c₁ r) as Ψ eqn:HΨ .
 remember Hns as Hini; clear HeqHini.
 apply exists_ini_pt_nat in Hini.
@@ -686,15 +683,6 @@ Theorem zzz : ∀ pol ns j αj k αk c₁ r Ψ f₁ b₁ g,
                      g)%pspol.
 Proof.
 intros pol ns j αj k αk c₁ r Ψ f₁ b₁ g Hns Hini Hfin Hc₁ Hr HΨ Hf₁ Hb₁ Hg.
-bbb.
-
-Theorem yyy : ∀ pol ns c₁ f₁,
-  ns ∈ newton_segments pol
-  → c₁ = ac_root (Φq pol ns)
-    → f₁ = pol₁ pol (β ns) (γ ns) c₁
-      → ∀ i, (order (poly_nth i f₁) ≥ 0)%Qbar.
-Proof.
-intros pol ns c₁ f₁ Hns Hc₁ Hf₁ i.
 bbb.
 
 End theorems.
