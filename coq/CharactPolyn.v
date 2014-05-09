@@ -2433,9 +2433,8 @@ rewrite Htl, Hpl, Hini; simpl.
 rewrite nat_num_Qnat, Nat.sub_diag; simpl.
 rewrite List.map_app; simpl.
 rewrite length_char_pol_succ; simpl.
- rewrite Hfin.
- unfold nat_num; simpl.
- rewrite Nat2Z.id.
+ rewrite Hfin; simpl.
+ rewrite nat_num_Qnat.
  reflexivity.
 
  remember (List.map (term_of_point r pol) (oth_pts ns)) as tl₂ eqn:Htl₂ .

@@ -1993,12 +1993,10 @@ eapply q_is_factor_of_h_minus_j with (h := k) in Hqkj; try eassumption.
    fast_omega Hqkj H.
 
    rewrite <- Hj; simpl.
-   unfold nat_num, Qnat; simpl.
-   rewrite Nat2Z.id; reflexivity.
+   rewrite nat_num_Qnat; reflexivity.
 
    rewrite <- Hk; simpl.
-   unfold nat_num, Qnat; simpl.
-   rewrite Nat2Z.id; reflexivity.
+   rewrite nat_num_Qnat; reflexivity.
 
   rewrite Hqkj in Hdeg, Hcnz.
   rewrite Nat.div_mul in Hdeg; [ idtac | subst q; apply Pos2Nat_ne_0 ].
@@ -2010,14 +2008,11 @@ eapply q_is_factor_of_h_minus_j with (h := k) in Hqkj; try eassumption.
   rewrite Nat.sub_diag in Hla; simpl in Hla.
   rewrite skipn_pad in Hla.
   rewrite <- Hj in Hla; simpl in Hla.
-  unfold nat_num, Qnat in Hla; simpl in Hla.
-  rewrite Nat2Z.id in Hla; simpl.
+  rewrite nat_num_Qnat in Hla; simpl.
   rewrite Nat.sub_diag; simpl.
   rewrite skipn_pad.
   rewrite <- Hj; unfold fst.
-  unfold nat_num, Qnat.
-  unfold Qnum.
-  rewrite Nat2Z.id.
+  rewrite nat_num_Qnat.
   remember (order_coeff R (List.nth j (al pol) 0%ps)) as v eqn:Hv .
   remember (oth_pts ns ++ [fin_pt ns]) as pts eqn:Hpts .
   remember (List.map (term_of_point R pol) pts) as tl eqn:Htl .
@@ -2232,8 +2227,7 @@ eapply ord_coeff_non_zero_in_newt_segm; [ eassumption | idtac | idtac ].
  symmetry in Hj.
  left; eassumption.
 
- unfold nat_num, Qnat; simpl.
- rewrite Nat2Z.id; reflexivity.
+ rewrite nat_num_Qnat; reflexivity.
 Qed.
 
 End theorems.

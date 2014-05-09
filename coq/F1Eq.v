@@ -673,9 +673,8 @@ destruct (Qeq_dec (Qnat h) l) as [H| H].
   apply Hnat in Hpt.
   destruct Hpt as (h, (ah, Hpt)).
   injection Hpt; clear Hpt; intros; subst l al.
-  progress unfold nat_num, Qnat; simpl.
-  rewrite Z2Nat.id; [ reflexivity | idtac ].
-  apply Nat2Z.is_nonneg.
+  rewrite nat_num_Qnat; simpl.
+  reflexivity.
 
   exfalso.
   revert Hnat Hsort Hin H; clear; intros.
@@ -733,8 +732,7 @@ destruct (Qeq_dec (Qnat h) l) as [H| H].
   apply Hnat in Hpt.
   destruct Hpt as (p, (ap, Hp)).
   injection Hp; clear Hp; intros; subst l al.
-  progress unfold nat_num, Qnat; simpl.
-  rewrite Nat2Z.id; reflexivity.
+  rewrite nat_num_Qnat; reflexivity.
 Qed.
 
 (* Σah.x^(αh+h.γ).(c₁+y₁)^h = Σah.x^β.(c₁+y₁)^h *)
@@ -969,16 +967,13 @@ Proof.
 intros pol ns pts j k αj αk f la Hns Hpl Hini Hfin Hi.
 assert (j < k)%nat as Hjk.
  eapply j_lt_k; try eassumption.
-  rewrite Hini; progress unfold nat_num, Qnat; simpl.
-  rewrite Nat2Z.id; reflexivity.
+  rewrite Hini; simpl; rewrite nat_num_Qnat; reflexivity.
 
-  rewrite Hfin; progress unfold nat_num, Qnat; simpl.
-  rewrite Nat2Z.id; reflexivity.
+  rewrite Hfin; simpl; rewrite nat_num_Qnat; reflexivity.
 
  subst pts; simpl.
  rewrite Hini; simpl.
- progress unfold nat_num, Qnat; simpl.
- rewrite Nat2Z.id; simpl.
+ rewrite nat_num_Qnat; simpl.
  rewrite Nat.eqb_refl; simpl.
  apply Hi.
  remember Hns as Hsort; clear HeqHsort.
@@ -1026,7 +1021,7 @@ assert (j < k)%nat as Hjk.
      apply Hnat in Hh.
      destruct Hh as (i, Hh).
      subst h; rename i into h.
-     progress unfold Qnat; simpl; rewrite Nat2Z.id.
+     rewrite nat_num_Qnat.
      destruct (eq_nat_dec h k) as [H₁| H₁].
       subst h.
       rewrite list_seq_app with (dj := (k - S j)%nat); [ idtac | omega ].
@@ -1177,7 +1172,7 @@ assert (j < k)%nat as Hjk.
 
            apply Hnat in H.
            destruct H as (m, Hm); subst l; rename m into l.
-           simpl; rewrite Nat2Z.id.
+           rewrite nat_num_Qnat.
            remember (Nat.eqb i l) as b eqn:Hb .
            symmetry in Hb.
            destruct b; simpl.
@@ -1562,8 +1557,7 @@ assert (∀ iq αi, (iq, αi) ∈ pl → ∃ i, iq = Qnat i) as Hnat.
    progress unfold lap_inject_K_in_Kx.
    remember List.map as lm; simpl.
    rewrite Hini; simpl.
-   progress unfold nat_num, Qnat; simpl.
-   rewrite Nat2Z.id.
+   rewrite nat_num_Qnat; simpl.
    rewrite Nat.sub_diag; simpl.
    rewrite skipn_pad; simpl.
    progress unfold ps_pol_eq, eq_poly; simpl.
@@ -1605,8 +1599,7 @@ assert (∀ iq αi, (iq, αi) ∈ pl → ∃ i, iq = Qnat i) as Hnat.
       remember Hpl as Hpts; clear HeqHpts.
       eapply ns_nat in Hpts; try eassumption.
       destruct Hpts as (h, H); subst hq.
-      progress unfold nat_num, Qnat in Hjh; simpl in Hjh.
-      rewrite Nat2Z.id in Hjh.
+      rewrite nat_num_Qnat in Hjh; simpl in Hjh.
       apply Nat.eqb_eq in Hjh.
       rewrite Hjh.
       rewrite rng_list_map_nth with (A := α) (d := 0%K).
