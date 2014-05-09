@@ -624,6 +624,10 @@ apply Qbar.min_glb.
 
   rewrite lap_nth_x_le_pow_mul; [ idtac | assumption ].
 bbb.
+  (* proof that:
+       [ps_monom c₁ 0; 1%ps … []] ^ j
+       = lap_inject_K_in_Kx ([c₁; 1%K … []] ^ j)
+     things like that...
 *)
 
 (* [Walker, p 101] « O(bi) > 0,  i = 0,...,r-1 » *)
