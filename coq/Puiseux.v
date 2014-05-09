@@ -612,6 +612,20 @@ unfold ps_lap_eq.
 reflexivity.
 Qed.
 
+Lemma sss : ∀ la lb,
+  (lap_inject_K_in_Kx la + lap_inject_K_in_Kx lb =
+   lap_inject_K_in_Kx (la + lb)%lap)%pslap.
+Proof.
+intros la lb.
+bbb.
+
+Lemma ttt : ∀ la lb,
+  (lap_inject_K_in_Kx la * lap_inject_K_in_Kx lb =
+   lap_inject_K_in_Kx (la * lb)%lap)%pslap.
+Proof.
+intros la lb.
+bbb.
+
 Lemma uuu : ∀ la lb,
   (lap_inject_K_in_Kx la ∘ lap_inject_K_in_Kx lb =
    lap_inject_K_in_Kx (lap_compose la lb))%pslap.
@@ -623,7 +637,18 @@ progress unfold lap_compose.
 revert lb.
 induction la as [| a]; intros; [ reflexivity | simpl ].
 rewrite IHla.
-bbb.
+remember ttt as ttt.
+clear Heqttt.
+unfold lap_inject_K_in_Kx in ttt.
+progress unfold ps_lap_mul in ttt.
+rewrite ttt.
+remember sss as sss.
+clear Heqsss.
+progress unfold lap_inject_K_in_Kx in sss.
+progress unfold ps_lap_add in sss.
+rewrite <- sss.
+reflexivity.
+qed.
 
 (* [Walker, p 101] « O(bi) ≥ 0,  i = 0,...,n » *)
 Theorem vvv : ∀ pol ns c₁ r f₁,
