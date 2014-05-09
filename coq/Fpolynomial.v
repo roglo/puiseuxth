@@ -1281,6 +1281,9 @@ induction n; intros; simpl.
  apply lap_mul_comm.
 Qed.
 
+Lemma lap_power_succ : ∀ la n, (la ^ S n = la * la ^ n)%lap.
+Proof. reflexivity. Qed.
+
 Lemma length_lap_power : ∀ la n,
   la ≠ []
   → length (lap_power la n) = S (n * pred (length la)).

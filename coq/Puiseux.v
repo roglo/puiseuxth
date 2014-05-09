@@ -614,11 +614,6 @@ apply Qbar.min_glb.
  apply Qbar.lt_le_incl.
  apply nth_g_order_pos; assumption.
 
-bbb.
- (* I think the following should not be necessary; the order should
-    be always 0 since all coefficients are constants belonging to K
-    i.e. monomials with power = 0 *)
-
  rewrite <- lap_mul_assoc.
  rewrite fold_ps_lap_mul, fold_ps_lap_pow.
  destruct (le_dec r i) as [Hle| Hgt].
