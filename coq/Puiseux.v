@@ -589,6 +589,12 @@ rewrite lap_nth_x_gt_pow_mul; [ idtac | assumption ].
 rewrite order_0; constructor.
 Qed.
 
+Lemma uuu : ∀ la lb i,
+  (0 ≤ order (lap_nth i (lap_inject_K_in_Kx la ∘ lb)))%Qbar.
+Proof.
+intros la lb i.
+bbb.
+
 (* [Walker, p 101] « O(bi) ≥ 0,  i = 0,...,n » *)
 Theorem vvv : ∀ pol ns c₁ r f₁,
   ns ∈ newton_segments pol
