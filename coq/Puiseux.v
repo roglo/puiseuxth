@@ -644,12 +644,9 @@ Qed.
 
 Lemma lap_add_cons : ∀ α (R : ring α) a b la lb,
   ([a … la] + [b … lb] = [(a + b)%K … la + lb])%lap.
-Proof.
-clear.
-intros α R a b la lb.
-bbb.
+Proof. reflexivity. Qed.
 
-Lemma sss : ∀ la lb,
+Lemma lap_inject_add : ∀ la lb,
   (lap_inject_K_in_Kx la + lap_inject_K_in_Kx lb =
    lap_inject_K_in_Kx (la + lb)%lap)%pslap.
 Proof.
@@ -668,7 +665,7 @@ induction la as [| a]; intros; simpl.
   rewrite lap_add_cons.
   constructor; [ idtac | apply IHla ].
   rewrite ps_monom_add; reflexivity.
-qed.
+Qed.
 
 Lemma ttt : ∀ la lb,
   (lap_inject_K_in_Kx la * lap_inject_K_in_Kx lb =
@@ -693,6 +690,7 @@ clear Heqttt.
 unfold lap_inject_K_in_Kx in ttt.
 progress unfold ps_lap_mul in ttt.
 rewrite ttt.
+(* lap_inject_add *)
 remember sss as sss.
 clear Heqsss.
 progress unfold lap_inject_K_in_Kx in sss.
