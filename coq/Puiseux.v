@@ -616,7 +616,31 @@ Lemma ps_monom_add : ∀ a b n,
   (ps_monom (a + b)%K n = ps_monom a n + ps_monom b n)%ps.
 Proof.
 intros a b n.
-bbb.
+unfold ps_add; simpl.
+unfold cm; simpl.
+unfold ps_ordnum_add; simpl.
+unfold ps_terms_add; simpl.
+rewrite ps_adjust_eq with (n := O) (k := Qden n).
+unfold adjust_ps; simpl.
+rewrite Z.sub_0_r.
+rewrite Z.min_id.
+apply mkps_morphism; try reflexivity.
+rewrite series_shift_0.
+rewrite Z.sub_diag; simpl.
+unfold adjust_series; simpl.
+rewrite series_shift_0.
+rewrite series_shift_0.
+constructor; intros i; simpl.
+destruct (zerop (i mod Pos.to_nat (Qden n))) as [H₁| H₁].
+ apply Nat.mod_divides in H₁; [ idtac | apply Pos2Nat_ne_0 ].
+ destruct H₁ as (c, Hc).
+ rewrite Nat.mul_comm in Hc; rewrite Hc.
+ rewrite Nat.div_mul; [ idtac | apply Pos2Nat_ne_0 ].
+ destruct c; [ reflexivity | simpl ].
+ rewrite rng_add_0_l; reflexivity.
+
+ rewrite rng_add_0_l; reflexivity.
+Qed.
 
 Lemma lap_add_cons : ∀ α (R : ring α) a b la lb,
   ([a … la] + [b … lb] = [(a + b)%K … la + lb])%lap.
