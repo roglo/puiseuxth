@@ -464,14 +464,14 @@ destruct n as [n| ].
    rewrite List.map_map; simpl.
    destruct Hlm as [Hlm| Hlm].
     left; rewrite Hlm; simpl.
-    rewrite nofq_Qnat; reflexivity.
+    rewrite nat_num_Qnat; reflexivity.
 
     right.
     rewrite List.map_app; simpl.
     apply List.in_or_app.
     destruct Hlm as [Hlm| Hlm].
      right; rewrite Hlm.
-     left; simpl; rewrite nofq_Qnat; reflexivity.
+     left; simpl; rewrite nat_num_Qnat; reflexivity.
 
      left.
      revert Hlm; clear; intros.
@@ -479,7 +479,7 @@ destruct n as [n| ].
      induction pts as [| (i, ai)]; [ contradiction | idtac ].
      destruct Hlm as [Hlm| Hlm].
       injection Hlm; clear Hlm; intros; subst; simpl.
-      left; rewrite nofq_Qnat; reflexivity.
+      left; rewrite nat_num_Qnat; reflexivity.
 
       right; apply IHpts, Hlm.
 
@@ -1496,7 +1496,7 @@ assert (m ≠ 0)%ps as Hmnz.
       induction pl as [| q]; constructor.
       apply HdRel_inv in Hrel.
       unfold fst_lt in Hrel; simpl.
-      unfold nofq; simpl.
+      unfold nat_num; simpl.
       assert (p ∈ [p; q … pl]) as Hp by (left; reflexivity).
       assert (q ∈ [p; q … pl]) as Hq by (right; left; reflexivity).
       apply Hnat in Hp.

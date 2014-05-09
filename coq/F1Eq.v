@@ -659,7 +659,7 @@ Qed.
 Lemma ord_is_ord_of_pt : ∀ pl h,
   Sorted fst_lt pl
   → (∀ pt, pt ∈ pl → ∃ (h : nat) (αh : Q), pt = (Qnat h, αh))
-    → h ∈ List.map (λ x, nofq (fst x)) pl
+    → h ∈ List.map (λ x, nat_num (fst x)) pl
       → (Qnat h, ord_of_pt h pl) ∈ pl.
 Proof.
 (* à nettoyer sérieusement *)
@@ -673,7 +673,7 @@ destruct (Qeq_dec (Qnat h) l) as [H| H].
   apply Hnat in Hpt.
   destruct Hpt as (h, (ah, Hpt)).
   injection Hpt; clear Hpt; intros; subst l al.
-  progress unfold nofq, Qnat; simpl.
+  progress unfold nat_num, Qnat; simpl.
   rewrite Z2Nat.id; [ reflexivity | idtac ].
   apply Nat2Z.is_nonneg.
 
@@ -688,7 +688,7 @@ destruct (Qeq_dec (Qnat h) l) as [H| H].
    destruct Hsort as (Hrel, Hsort).
    progress unfold fst_lt in Hrel; simpl in Hrel.
    rewrite <- H in Hrel.
-   progress unfold Qnat, nofq in Hrel.
+   progress unfold Qnat, nat_num in Hrel.
    rewrite Z2Nat.id in Hrel; simpl in Hrel.
     assert ((m, am) ∈ [(l, al); (m, am) … pl]) as Hpt
      by (right; left; reflexivity).
@@ -733,7 +733,7 @@ destruct (Qeq_dec (Qnat h) l) as [H| H].
   apply Hnat in Hpt.
   destruct Hpt as (p, (ap, Hp)).
   injection Hp; clear Hp; intros; subst l al.
-  progress unfold nofq, Qnat; simpl.
+  progress unfold nat_num, Qnat; simpl.
   rewrite Nat2Z.id; reflexivity.
 Qed.
 
@@ -957,10 +957,10 @@ Lemma fold_right_exists : ∀ pol ns pts j k αj αk f la,
       → fin_pt ns = (Qnat k, αk)
         → (∀ i a b, ps_lap_eq a b → ps_lap_eq (f i a) (f i b))
           → ps_lap_eq
-              (List.fold_right f la (List.map (λ pt, nofq (fst pt)) pts))
+              (List.fold_right f la (List.map (λ pt, nat_num (fst pt)) pts))
               (List.fold_right
                  (λ i accu,
-                  if List.existsb (λ pt, Nat.eqb i (nofq (fst pt))) pts then
+                  if List.existsb (λ pt, Nat.eqb i (nat_num (fst pt))) pts then
                     f i accu
                   else accu) la
                  (List.seq j (S (k - j)))).
@@ -969,15 +969,15 @@ Proof.
 intros pol ns pts j k αj αk f la Hns Hpl Hini Hfin Hi.
 assert (j < k)%nat as Hjk.
  eapply j_lt_k; try eassumption.
-  rewrite Hini; progress unfold nofq, Qnat; simpl.
+  rewrite Hini; progress unfold nat_num, Qnat; simpl.
   rewrite Nat2Z.id; reflexivity.
 
-  rewrite Hfin; progress unfold nofq, Qnat; simpl.
+  rewrite Hfin; progress unfold nat_num, Qnat; simpl.
   rewrite Nat2Z.id; reflexivity.
 
  subst pts; simpl.
  rewrite Hini; simpl.
- progress unfold nofq, Qnat; simpl.
+ progress unfold nat_num, Qnat; simpl.
  rewrite Nat2Z.id; simpl.
  rewrite Nat.eqb_refl; simpl.
  apply Hi.
@@ -1216,7 +1216,7 @@ Fixpoint make_char_lap_of_hl la pow hl :=
   end.
 
 Definition make_char_pol_of_pts pol j (pts : list (Q * Q)) :=
-  make_char_lap_of_hl (al pol) j (List.map (λ pt, nofq (fst pt)) pts).
+  make_char_lap_of_hl (al pol) j (List.map (λ pt, nat_num (fst pt)) pts).
 
 Fixpoint coeff_of_hl la i hl :=
   match hl with
@@ -1227,7 +1227,7 @@ Fixpoint coeff_of_hl la i hl :=
   end.
 
 Definition coeff_of_pt pol i (pts : list (Q * Q)) :=
-  coeff_of_hl (al pol) i (List.map (λ pt, nofq (fst pt)) pts).
+  coeff_of_hl (al pol) i (List.map (λ pt, nat_num (fst pt)) pts).
 
 Lemma make_char_pol_of_pts_eq : ∀ pol pts j,
   make_char_pol R j (List.map (term_of_point R pol) pts) =
@@ -1489,7 +1489,7 @@ assert (∀ iq αi, (iq, αi) ∈ pl → ∃ i, iq = Qnat i) as Hnat.
  eapply ns_nat; [ eassumption | reflexivity | idtac ].
  subst pl; eassumption.
 
- remember (List.map (λ pt, nofq (fst pt)) pl) as li eqn:Hli .
+ remember (List.map (λ pt, nat_num (fst pt)) pl) as li eqn:Hli .
  assert (Sorted Nat.lt li) as Hs.
   remember Hns as Hsort; clear HeqHsort.
   apply ini_oth_fin_pts_sorted in Hsort.
@@ -1519,7 +1519,7 @@ assert (∀ iq αi, (iq, αi) ∈ pl → ∃ i, iq = Qnat i) as Hnat.
      eapply Hnat; right; left; reflexivity.
 
      destruct H as (jm, H); subst j; rename jm into j.
-     do 2 rewrite nofq_Qnat.
+     do 2 rewrite nat_num_Qnat.
      progress unfold Qlt in Hrel; simpl in Hrel.
      do 2 rewrite Z.mul_1_r in Hrel.
      apply Nat2Z.inj_lt; assumption.
@@ -1529,7 +1529,7 @@ assert (∀ iq αi, (iq, αi) ∈ pl → ∃ i, iq = Qnat i) as Hnat.
    rewrite Hpl in Hli.
    simpl in Hli.
    rewrite Hini in Hli; simpl in Hli.
-   rewrite nofq_Qnat in Hli; simpl in Hli.
+   rewrite nat_num_Qnat in Hli; simpl in Hli.
    rewrite Hli in Hs, Hm.
    destruct Hm as [Hm| Hm].
     rewrite Hm; reflexivity.
@@ -1537,7 +1537,7 @@ assert (∀ iq αi, (iq, αi) ∈ pl → ∃ i, iq = Qnat i) as Hnat.
     apply Sorted_inv in Hs.
     destruct Hs as (Hs, Hrel).
     remember (oth_pts ns ++ [fin_pt ns]) as pl1.
-    remember (List.map (λ pt : Q * Q, nofq (fst pt)) pl1) as jl.
+    remember (List.map (λ pt : Q * Q, nat_num (fst pt)) pl1) as jl.
     revert Hs Hrel Hm; clear; intros.
     revert j m Hrel Hm.
     induction jl as [| i]; intros; [ contradiction | simpl ].
@@ -1562,7 +1562,7 @@ assert (∀ iq αi, (iq, αi) ∈ pl → ∃ i, iq = Qnat i) as Hnat.
    progress unfold lap_inject_K_in_Kx.
    remember List.map as lm; simpl.
    rewrite Hini; simpl.
-   progress unfold nofq, Qnat; simpl.
+   progress unfold nat_num, Qnat; simpl.
    rewrite Nat2Z.id.
    rewrite Nat.sub_diag; simpl.
    rewrite skipn_pad; simpl.
@@ -1581,7 +1581,7 @@ assert (∀ iq αi, (iq, αi) ∈ pl → ∃ i, iq = Qnat i) as Hnat.
    rewrite Htl, List.map_map.
    symmetry.
    rewrite lap_fold_compat_l; [ idtac | rewrite lap_mul_nil_r; reflexivity ].
-   rewrite List.map_ext with (g := λ x, nofq (fst x));
+   rewrite List.map_ext with (g := λ x, nat_num (fst x));
     [ idtac | reflexivity ].
    rewrite fold_right_exists; try eassumption.
     rewrite list_fold_right_seq with (t := j); try reflexivity.
@@ -1589,7 +1589,7 @@ assert (∀ iq αi, (iq, αi) ∈ pl → ∃ i, iq = Qnat i) as Hnat.
      rewrite Hab; reflexivity.
 
      intros i accu; simpl.
-     remember (List.existsb (λ pt, Nat.eqb (j + i) (nofq (fst pt))) pl) as b.
+     remember (List.existsb (λ pt, Nat.eqb (j + i) (nat_num (fst pt))) pl) as b.
      rename Heqb into Hb.
      symmetry in Hb.
      destruct b.
@@ -1605,7 +1605,7 @@ assert (∀ iq αi, (iq, αi) ∈ pl → ∃ i, iq = Qnat i) as Hnat.
       remember Hpl as Hpts; clear HeqHpts.
       eapply ns_nat in Hpts; try eassumption.
       destruct Hpts as (h, H); subst hq.
-      progress unfold nofq, Qnat in Hjh; simpl in Hjh.
+      progress unfold nat_num, Qnat in Hjh; simpl in Hjh.
       rewrite Nat2Z.id in Hjh.
       apply Nat.eqb_eq in Hjh.
       rewrite Hjh.
@@ -1629,7 +1629,7 @@ assert (∀ iq αi, (iq, αi) ∈ pl → ∃ i, iq = Qnat i) as Hnat.
         induction pl as [| (m, am)]; [ contradiction | simpl ].
         destruct Hh as [Hh| Hh].
          injection Hh; clear Hh; intros; subst m am.
-         rewrite nofq_Qnat; left; reflexivity.
+         rewrite nat_num_Qnat; left; reflexivity.
 
          right; apply IHpl; assumption.
 
@@ -1675,9 +1675,9 @@ assert (∀ iq αi, (iq, αi) ∈ pl → ∃ i, iq = Qnat i) as Hnat.
          rewrite Hpl in Hli.
          simpl in Hli.
          rewrite Hini in Hli; simpl in Hli.
-         rewrite nofq_Qnat in Hli.
+         rewrite nat_num_Qnat in Hli.
          remember (oth_pts ns ++ [fin_pt ns]) as pl'.
-         remember (List.map (λ pt, nofq (fst pt)) pl') as li'.
+         remember (List.map (λ pt, nat_num (fst pt)) pl') as li'.
          subst li; rename li' into li.
          apply nth_char_lap_eq_0; try assumption.
          intros m Hm2.
@@ -1837,7 +1837,7 @@ intros pol ns j k αj αk c₁ r Ψ Hns Hini Hfin Hr HΨ.
 remember S as s.
 subst Ψ; simpl.
 rewrite Hini; simpl.
-rewrite nofq_Qnat; simpl.
+rewrite nat_num_Qnat; simpl.
 rewrite skipn_pad; simpl.
 rewrite Nat.sub_diag; simpl.
 rewrite fold_char_pol with (αj := αj).

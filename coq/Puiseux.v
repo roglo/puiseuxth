@@ -441,7 +441,7 @@ Qed.
 
 Lemma in_power_list_lt : ∀ A la h (hv : puiseux_series A) pow,
   (h, hv) ∈ qpower_list pow la
-  → (nofq h < pow + length la)%nat.
+  → (nat_num h < pow + length la)%nat.
 Proof.
 intros A la h hv pow Hh.
 unfold qpower_list in Hh.
@@ -451,7 +451,7 @@ induction la as [| a]; intros; [ contradiction | simpl ].
 simpl in Hh.
 destruct Hh as [Hh| Hh].
  injection Hh; clear Hh; intros; subst h hv.
- rewrite nofq_Qnat.
+ rewrite nat_num_Qnat.
  apply Nat.lt_sub_lt_add_l.
  rewrite Nat.sub_diag.
  apply Nat.lt_0_succ.
@@ -462,7 +462,7 @@ Qed.
 
 Lemma in_points_of_ps_lap_gen_lt : ∀ la pow pt,
   pt ∈ points_of_ps_lap_gen R pow la
-  → (nofq (fst pt) < pow + length la)%nat.
+  → (nat_num (fst pt) < pow + length la)%nat.
 Proof.
 intros la pow pt Hpt.
 unfold points_of_ps_lap_gen in Hpt.
@@ -474,7 +474,7 @@ Qed.
 
 Lemma in_points_of_ps_lap_lt : ∀ la pt,
   pt ∈ points_of_ps_lap R la
-  → (nofq (fst pt) < length la)%nat.
+  → (nat_num (fst pt) < length la)%nat.
 Proof.
 intros la pt Hpt.
 apply in_points_of_ps_lap_gen_lt in Hpt.
@@ -519,7 +519,7 @@ rewrite f₁_eq_term_with_Ψ_plus_sum with (l₂ := l₂); try eassumption.
  apply except_split_seq; [ idtac | idtac | assumption ].
   rewrite Hl₁, Htl, Hpl.
   do 2 apply Sorted_map; simpl.
-  apply Sorted_fst_lt_nofq_fst.
+  apply Sorted_fst_lt_nat_num_fst.
    intros a Ha.
    remember (points_of_ps_polynom R pol) as pts.
    symmetry in Heqpts.
