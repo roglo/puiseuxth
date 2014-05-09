@@ -613,9 +613,10 @@ reflexivity.
 Qed.
 
 Lemma ps_monom_add : ∀ a b n,
-  (ps_monom (a + b)%K n = ps_monom a n + ps_monom b n)%ps.
+  (ps_monom a n + ps_monom b n = ps_monom (a + b)%K n)%ps.
 Proof.
 intros a b n.
+symmetry.
 unfold ps_add; simpl.
 unfold cm; simpl.
 unfold ps_ordnum_add; simpl.
@@ -628,8 +629,7 @@ apply mkps_morphism; try reflexivity.
 rewrite series_shift_0.
 rewrite Z.sub_diag; simpl.
 unfold adjust_series; simpl.
-rewrite series_shift_0.
-rewrite series_shift_0.
+do 2 rewrite series_shift_0.
 constructor; intros i; simpl.
 destruct (zerop (i mod Pos.to_nat (Qden n))) as [H₁| H₁].
  apply Nat.mod_divides in H₁; [ idtac | apply Pos2Nat_ne_0 ].
@@ -641,6 +641,29 @@ destruct (zerop (i mod Pos.to_nat (Qden n))) as [H₁| H₁].
 
  rewrite rng_add_0_l; reflexivity.
 Qed.
+
+Lemma ps_monom_mul : ∀ a b m n,
+  (ps_monom a m * ps_monom b n = ps_monom (a * b)%K (m + n))%ps.
+Proof.
+intros a b m n.
+progress unfold ps_mul; simpl.
+unfold cm; simpl.
+unfold ps_monom; simpl.
+apply mkps_morphism; try reflexivity.
+constructor; intros i; simpl.
+unfold convol_mul; simpl.
+destruct i; simpl.
+ unfold summation; simpl.
+ rewrite Nat.mod_0_l; [ idtac | apply Pos2Nat_ne_0 ].
+ rewrite Nat.mod_0_l; [ simpl | apply Pos2Nat_ne_0 ].
+ rewrite Nat.div_0_l; [ idtac | apply Pos2Nat_ne_0 ].
+ rewrite Nat.div_0_l; [ idtac | apply Pos2Nat_ne_0 ].
+ rewrite rng_add_0_r; reflexivity.
+
+ rewrite all_0_summation_0; [ reflexivity | idtac ].
+ intros j (_, Hj).
+ rewrite fold_sub_succ_l.
+bbb.
 
 Lemma lap_add_cons : ∀ α (R : ring α) a b la lb,
   ([a … la] + [b … lb] = [(a + b)%K … la + lb])%lap.
@@ -672,6 +695,19 @@ Lemma ttt : ∀ la lb,
    lap_inject_K_in_Kx (la * lb)%lap)%pslap.
 Proof.
 intros la lb.
+unfold lap_inject_K_in_Kx.
+revert lb.
+induction la as [| a]; intros; simpl.
+ progress unfold ps_lap_mul.
+ do 2 rewrite lap_mul_nil_l; reflexivity.
+
+ destruct lb as [| b]; simpl.
+  progress unfold ps_lap_mul.
+  do 2 rewrite lap_mul_nil_r; reflexivity.
+
+  progress unfold ps_lap_mul.
+  do 2 rewrite lap_mul_cons; simpl.
+  constructor; [ simpl; apply ps_monom_mul_pow_0 | idtac ].
 bbb.
 
 Lemma uuu : ∀ la lb,
