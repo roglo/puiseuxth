@@ -620,9 +620,9 @@ intros la lb.
 progress unfold lap_inject_K_in_Kx; simpl.
 progress unfold ps_lap_comp.
 progress unfold lap_compose.
-rewrite list_fold_right_map.
 revert lb.
 induction la as [| a]; intros; [ reflexivity | simpl ].
+rewrite IHla.
 bbb.
 
 (* [Walker, p 101] « O(bi) ≥ 0,  i = 0,...,n » *)
