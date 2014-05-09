@@ -589,13 +589,20 @@ rewrite lap_nth_x_gt_pow_mul; [ idtac | assumption ].
 rewrite order_0; constructor.
 Qed.
 
-(*
-Lemma uuu : ∀ la lb i,
-  (0 ≤ order (lap_nth i (lap_inject_K_in_Kx la ∘ lb)))%Qbar.
+Lemma order_nth_inject_K : ∀ la i,
+  (0 ≤ order (lap_nth i (lap_inject_K_in_Kx la)))%Qbar.
 Proof.
-intros la lb i.
-bbb.
-*)
+intros la i.
+revert i.
+induction la as [| a]; intros; simpl.
+ unfold lap_nth.
+ rewrite list_nth_nil.
+ rewrite order_0; constructor.
+
+ destruct i; [ idtac | apply IHla ].
+ unfold lap_nth; simpl.
+ apply ps_monom_order_ge.
+Qed.
 
 (* [Walker, p 101] « O(bi) ≥ 0,  i = 0,...,n » *)
 Theorem vvv : ∀ pol ns c₁ r f₁,
@@ -637,6 +644,7 @@ bbb.
        = lap_inject_K_in_Kx ([c₁; 1%K … []] ^ j)
      things like that...
 *)
+Check order_nth_inject_K.
 
 (* [Walker, p 101] « O(bi) > 0,  i = 0,...,r-1 » *)
 Theorem yyy : ∀ pol ns c₁ r f₁,
