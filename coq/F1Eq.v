@@ -113,6 +113,30 @@ Proof. reflexivity. Qed.
 
 (* *)
 
+Theorem ps_lap_eq_refl {α} {R : ring α} : reflexive _ (@ps_lap_eq _ R).
+Proof.
+intros la.
+progress unfold ps_lap_eq; reflexivity.
+Qed.
+
+Theorem ps_lap_eq_sym {α} {R : ring α} : symmetric _ (@ps_lap_eq _ R).
+Proof.
+intros la lb Hlab.
+progress unfold ps_lap_eq; symmetry; assumption.
+Qed.
+
+Theorem ps_lap_eq_trans {α} {R : ring α} : transitive _ (@ps_lap_eq _ R).
+Proof.
+intros la lb lc Hlab Hlbc.
+progress unfold ps_lap_eq; etransitivity; eassumption.
+Qed.
+
+Add Parametric Relation α (R : ring α) : (list _) (@ps_lap_eq _ R)
+ reflexivity proved by ps_lap_eq_refl
+ symmetry proved by ps_lap_eq_sym
+ transitivity proved by ps_lap_eq_trans
+ as ps_lap_eq_rel.
+
 Add Parametric Morphism α (R : ring α) : (@lap_nth _ R)
   with signature eq ==> @lap_eq _ (ps_ring R) ==> eq_ps
   as lap_nth_morph.

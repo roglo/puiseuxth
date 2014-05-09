@@ -592,6 +592,15 @@ rewrite Nat.add_comm.
 reflexivity.
 Qed.
 
+Add Parametric Morphism α (r : ring α) : lap_power
+  with signature lap_eq ==> eq ==> lap_eq
+  as lap_power_morph.
+Proof.
+intros la lb Hlab n.
+induction n; [ reflexivity | simpl ].
+rewrite IHn, Hlab; reflexivity.
+Qed.
+
 Add Parametric Morphism α (r : ring α) : (@cons α)
   with signature rng_eq ==> lap_eq ==> lap_eq
   as cons_lap_eq_morph.

@@ -604,9 +604,25 @@ induction la as [| a]; intros; simpl.
  apply ps_monom_order_ge.
 Qed.
 
-Lemma uuu : ∀ c,
+Lemma monom_y_plus_c_is_inject_K : ∀ c,
   ([ps_monom c 0; 1%ps … []] = lap_inject_K_in_Kx [c; 1%K … []])%pslap.
 Proof.
+intros c.
+unfold ps_lap_eq.
+reflexivity.
+Qed.
+
+Lemma uuu : ∀ la lb,
+  (lap_inject_K_in_Kx la ∘ lap_inject_K_in_Kx lb =
+   lap_inject_K_in_Kx (lap_compose la lb))%pslap.
+Proof.
+intros la lb.
+progress unfold lap_inject_K_in_Kx; simpl.
+progress unfold ps_lap_comp.
+progress unfold lap_compose.
+rewrite list_fold_right_map.
+revert lb.
+induction la as [| a]; intros; [ reflexivity | simpl ].
 bbb.
 
 (* [Walker, p 101] « O(bi) ≥ 0,  i = 0,...,n » *)
@@ -644,13 +660,12 @@ apply Qbar.min_glb.
 
   rewrite lap_nth_x_le_pow_mul; [ idtac | assumption ].
   progress unfold ps_lap_comp.
-  rewrite uuu in |- * at 2.
+  rewrite monom_y_plus_c_is_inject_K.
+  rewrite fold_ps_lap_pow.
+  rewrite lap_power_map_ps.
+  rewrite fold_ps_lap_comp.
+  rewrite uuu.
 bbb.
-  (* proof that:
-       [ps_monom c₁ 0; 1%ps … []] ^ j
-       = lap_inject_K_in_Kx ([c₁; 1%K … []] ^ j)
-     things like that...
-*)
 Check order_nth_inject_K.
 
 (* [Walker, p 101] « O(bi) > 0,  i = 0,...,r-1 » *)
