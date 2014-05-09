@@ -612,12 +612,39 @@ unfold ps_lap_eq.
 reflexivity.
 Qed.
 
+Lemma ps_monom_add : ∀ a b n,
+  (ps_monom (a + b)%K n = ps_monom a n + ps_monom b n)%ps.
+Proof.
+intros a b n.
+bbb.
+
+Lemma lap_add_cons : ∀ α (R : ring α) a b la lb,
+  ([a … la] + [b … lb] = [(a + b)%K … la + lb])%lap.
+Proof.
+clear.
+intros α R a b la lb.
+bbb.
+
 Lemma sss : ∀ la lb,
   (lap_inject_K_in_Kx la + lap_inject_K_in_Kx lb =
    lap_inject_K_in_Kx (la + lb)%lap)%pslap.
 Proof.
 intros la lb.
-bbb.
+unfold lap_inject_K_in_Kx.
+revert lb.
+induction la as [| a]; intros; simpl.
+ progress unfold ps_lap_add.
+ rewrite lap_add_nil_l; reflexivity.
+
+ destruct lb as [| b]; simpl.
+  progress unfold ps_lap_add.
+  rewrite lap_add_nil_r; reflexivity.
+
+  progress unfold ps_lap_add.
+  rewrite lap_add_cons.
+  constructor; [ idtac | apply IHla ].
+  rewrite ps_monom_add; reflexivity.
+qed.
 
 Lemma ttt : ∀ la lb,
   (lap_inject_K_in_Kx la * lap_inject_K_in_Kx lb =
