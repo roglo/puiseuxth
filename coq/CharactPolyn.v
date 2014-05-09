@@ -2697,7 +2697,7 @@ destruct n as [n| ].
     destruct Hns; eassumption.
 Qed.
 
-Lemma bidule : ∀ j αj k αk t₁ t₂ t₃ tl,
+Lemma Sorted_fst_2nd_lt_last : ∀ j αj k αk t₁ t₂ t₃ tl,
   Sorted (λ pt₁ pt₂, Qnum (fst pt₁) < Qnum (fst pt₂)) [t₁; t₂; t₃ … tl]
   → (Qnat j, αj) = t₁
     → (Qnat (S k), αk) = List.last [t₃ … tl] (0, 0)%Q
@@ -2786,7 +2786,7 @@ destruct tl as [| t₁].
       simpl.
       destruct t₂ as (h₁, αh₁).
       eapply IHtl with (αj := αh₁); try eassumption; try reflexivity.
-       eapply bidule; eassumption.
+       eapply Sorted_fst_2nd_lt_last; eassumption.
 
        unfold Qnat, nofq; simpl.
        rewrite Z2Nat.id.
@@ -2825,7 +2825,7 @@ destruct tl as [| t₁].
         eapply Z.le_lt_trans; [ apply Nat2Z.is_nonneg | eassumption ].
 
       apply Nat.lt_succ_r.
-      eapply bidule; eassumption.
+      eapply Sorted_fst_2nd_lt_last; eassumption.
 
      subst t₁.
      apply Sorted_inv in Hsort.
@@ -2847,7 +2847,7 @@ destruct tl as [| t₁].
     apply Nat.le_le_succ_r.
     apply Nat.lt_succ_r.
     subst h₁.
-    eapply bidule; eassumption.
+    eapply Sorted_fst_2nd_lt_last; eassumption.
 Qed.
 
 Lemma oth_pts_den_1 : ∀ pol ns,
