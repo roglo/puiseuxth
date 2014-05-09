@@ -604,6 +604,11 @@ induction la as [| a]; intros; simpl.
  apply ps_monom_order_ge.
 Qed.
 
+Lemma uuu : ∀ c,
+  ([ps_monom c 0; 1%ps … []] = lap_inject_K_in_Kx [c; 1%K … []])%pslap.
+Proof.
+bbb.
+
 (* [Walker, p 101] « O(bi) ≥ 0,  i = 0,...,n » *)
 Theorem vvv : ∀ pol ns c₁ r f₁,
   ns ∈ newton_segments pol
@@ -638,6 +643,8 @@ apply Qbar.min_glb.
   rewrite order_0; constructor.
 
   rewrite lap_nth_x_le_pow_mul; [ idtac | assumption ].
+  progress unfold ps_lap_comp.
+  rewrite uuu in |- * at 2.
 bbb.
   (* proof that:
        [ps_monom c₁ 0; 1%ps … []] ^ j
