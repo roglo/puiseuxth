@@ -637,7 +637,7 @@ induction la as [| a]; intros; simpl.
   rewrite ps_monom_add; reflexivity.
 Qed.
 
-Lemma ttt : ∀ la lb,
+Lemma lap_inject_mul : ∀ la lb,
   (lap_inject_K_in_Kx la * lap_inject_K_in_Kx lb =
    lap_inject_K_in_Kx (la * lb)%lap)%pslap.
 Proof.
@@ -655,7 +655,17 @@ induction la as [| a]; intros; simpl.
   progress unfold ps_lap_mul.
   do 2 rewrite lap_mul_cons; simpl.
   constructor; [ simpl; apply ps_monom_mul | idtac ].
-bbb.
+  rewrite lap_add_map_ps.
+  unfold ps_lap_mul in IHla.
+  unfold ps_lap_eq in IHla.
+  rewrite IHla.
+  progress unfold ps_lap_add.
+  simpl.
+  rewrite ps_zero_monom_eq.
+  apply lap_add_compat; [ idtac | reflexivity ].
+  rewrite lap_add_map_ps.
+  apply lap_add_compat; rewrite lap_mul_map_ps; reflexivity.
+Qed.
 
 Lemma uuu : ∀ la lb,
   (lap_inject_K_in_Kx la ∘ lap_inject_K_in_Kx lb =
@@ -668,6 +678,7 @@ progress unfold lap_compose.
 revert lb.
 induction la as [| a]; intros; [ reflexivity | simpl ].
 rewrite IHla.
+(* lap_inject_mul *)
 remember ttt as ttt.
 clear Heqttt.
 unfold lap_inject_K_in_Kx in ttt.
