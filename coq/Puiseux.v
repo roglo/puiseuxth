@@ -24,8 +24,8 @@ Fixpoint root_loop α {R : ring α} {K : field R} {acf : algeb_closed_field K}
   | [] => 0%ps
   | [ns₁ … _] =>
       let c₂ := ac_root (Φq f₁ ns₁) in
-      let t₂ := ps_monom c₂ (γ ns₁) in
-      (t₂ + root_loop pol ns c₂ (γ_sum + γ ns)%Q)%ps
+      let t₂ := ps_monom c₂ (γ_sum + γ ns₁) in
+      (t₂ + root_loop pol ns c₂ (γ_sum + γ ns₁)%Q)%ps
   end.
 
 Definition root α {R : ring α} {K : field R} {acf : algeb_closed_field K}
