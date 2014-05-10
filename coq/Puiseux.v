@@ -18,7 +18,5 @@ Definition root α {R : ring α} {K : field R} {acf : algeb_closed_field K}
     (pol : polynomial (puiseux_series α)) :=
   match newton_segments pol with
   | [] => 0%ps
-  | [ns … _] =>
-      let c₁ := ac_root (Φq pol ns) in
-      ps_monom c₁ (γ ns)
+  | [ns … _] => ps_monom (ac_root (Φq pol ns)) (γ ns)
   end.
