@@ -75,7 +75,7 @@ reflexivity.
 Qed.
 
 (* things similar with order_add, perhaps good lemmas? *)
-Lemma order_neq_min : ∀ a b,
+Lemma order_add_eq_min : ∀ a b,
   (order a ≠ order b)%Qbar
   → (order (a + b) = Qbar.min (order a) (order b))%Qbar.
 Proof.
@@ -566,29 +566,6 @@ destruct (lt_dec h (length (g_lap_of_ns pol ns))) as [Hlt| Hge].
  rewrite order_0; constructor.
 Qed.
 
-Lemma xxx : ∀ pol ns j αj c₁ r Ψ yr ycj psy yc,
-  ns ∈ newton_segments pol
-  → ini_pt ns = (Qnat j, αj)
-    → c₁ = ac_root (Φq pol ns) ∧ (c₁ ≠ 0)%K
-      → r = root_multiplicity acf c₁ (Φq pol ns)
-        → Ψ = quotient_phi_x_sub_c_pow_r (Φq pol ns) c₁ r
-          → yr = ([0%ps; 1%ps … []] ^ r)%pslap
-            → ycj = ([ps_monom c₁ 0; 1%ps … []] ^ j)%pslap
-              → psy = lap_inject_K_in_Kx (al Ψ)
-                → yc = [ps_monom c₁ 0; 1%ps … []]
-                  → ∀ i, (i < r)%nat
-                    → (order (lap_nth i (yr * ycj * psy ∘ yc)) > 0)%Qbar.
-Proof.
-intros pol ns j αj c₁ r Ψ yr ycj psy yc.
-intros Hns Hini Hc₁ Hr HΨ Hyr Hycj Hpsy Hyc i Hir.
-subst yr ycj psy yc.
-progress unfold ps_lap_mul.
-rewrite <- lap_mul_assoc.
-do 2 rewrite fold_ps_lap_mul.
-rewrite lap_nth_x_gt_pow_mul; [ idtac | assumption ].
-rewrite order_0; constructor.
-Qed.
-
 Lemma order_nth_inject_K : ∀ la i,
   (0 ≤ order (lap_nth i (lap_inject_K_in_Kx la)))%Qbar.
 Proof.
@@ -733,7 +710,7 @@ apply Qbar.min_glb.
 Qed.
 
 (* [Walker, p 101] « O(bi) > 0,  i = 0,...,r-1 » *)
-Theorem yyy : ∀ pol ns c₁ r f₁,
+Theorem order_bbar_pos : ∀ pol ns c₁ r f₁,
   ns ∈ newton_segments pol
   → c₁ = ac_root (Φq pol ns) ∧ (c₁ ≠ 0)%K
     → r = root_multiplicity acf c₁ (Φq pol ns)
@@ -752,9 +729,16 @@ unfold poly_nth; simpl.
 rewrite fold_ps_lap_add.
 rewrite lap_nth_add.
 rewrite fold_ps_lap_comp.
-rewrite order_neq_min.
-bbb.
-*)
+eapply Qbar.lt_le_trans; [ idtac | apply order_add ].
+apply Qbar.min_glb_lt.
+ rewrite <- lap_mul_assoc.
+ rewrite fold_ps_lap_mul.
+ rewrite fold_ps_lap_pow.
+ rewrite lap_nth_x_gt_pow_mul; [ idtac | assumption ].
+ rewrite order_0; constructor.
+
+ apply nth_g_order_pos; assumption.
+Qed.
 
 (* [Walker, p 101] « O(br) = 0 » *)
 Theorem order_bbar_r_is_0 : ∀ pol ns c₁ r f₁,
@@ -814,7 +798,7 @@ assert (order (lap_nth r (yr * ycj * psy ∘ yc)) = 0)%Qbar as Hor.
  rewrite fold_ps_lap_add.
  rewrite lap_nth_add.
  rewrite fold_ps_lap_comp.
- rewrite order_neq_min; rewrite Hor.
+ rewrite order_add_eq_min; rewrite Hor.
  rewrite Qbar.min_l; [ reflexivity | idtac ].
   apply Qbar.lt_le_incl.
   apply nth_g_order_pos; assumption.
@@ -822,43 +806,5 @@ assert (order (lap_nth r (yr * ycj * psy ∘ yc)) = 0)%Qbar as Hor.
   apply Qbar.lt_neq.
   apply nth_g_order_pos; assumption.
 Qed.
-
-(* [Walker, p 101] «
-     Since O(āh - ah.x^αh) > 0 and O(āl.x^(l.γ₁)) > β₁ we obtain
-       f₁(x,y₁) = b₁.y₁^r + b₂.y₁^(r+1) + ... + g(x,y₁),
-     where b₁ = c₁^j.Ψ(c₁) ≠ 0 and each power of y₁ in g(x,y₁) has
-     a coefficient of positive order.
-   »
-
-     Specifically, according to our theorem f₁_eq_term_with_Ψ_plus_sum,
-     g must be
-       g(x,y₁) = x^(-β₁).[Σ(āh-ah.x^αh).x^(h.γ₁).(c₁+y₁)^h +
-                          Σāl.x^(l.γ₁).(c₁+y₁)^l]
-     and the i of the bi run from 0 to k - r in the development of
-       y₁^r.(c₁+y₁)^j.Ψ(c₁+y₁)
-     since the degree of this polynomial is
-       r + j + (k - j - r)
- *)
-Theorem zzz : ∀ pol ns j αj k αk c₁ r Ψ f₁ b₁ g,
-  ns ∈ newton_segments pol
-  → ini_pt ns = (Qnat j, αj)
-    → fin_pt ns = (Qnat k, αk)
-      → c₁ = ac_root (Φq pol ns)
-        → r = root_multiplicity acf c₁ (Φq pol ns)
-          → Ψ = quotient_phi_x_sub_c_pow_r (Φq pol ns) c₁ r
-            → f₁ = pol₁ pol (β ns) (γ ns) c₁
-              → (b₁ = c₁ ^ j * apply_poly R Ψ c₁)%K
-                → g = g_of_ns pol ns
-                  → ∃ lb,
-                    (∀ m, m ∈ al g → (order m > 0)%Qbar) ∧
-                    (f₁ =
-                     ps_pol_summ (List.seq 0 (k - r))
-                       (λ h,
-                        let bh := List.nth h [b₁ … lb] 0%K in
-                        POL [0%ps; ps_monom bh 1 … []] ^ (r + h)) +
-                     g)%pspol.
-Proof.
-intros pol ns j αj k αk c₁ r Ψ f₁ b₁ g Hns Hini Hfin Hc₁ Hr HΨ Hf₁ Hb₁ Hg.
-bbb.
 
 End theorems.
