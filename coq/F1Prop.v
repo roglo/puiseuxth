@@ -346,7 +346,8 @@ induction n; intros.
  apply IHn; assumption.
 Qed.
 
-Lemma ps_lap_nth_0_cons_pow : ∀ a la n, (ps_lap_nth 0 ([a … la] ^ n) = a ^ n)%ps.
+Lemma ps_lap_nth_0_cons_pow : ∀ a la n,
+  (ps_lap_nth 0 ([a … la] ^ n) = a ^ n)%ps.
 Proof.
 intros a la n.
 induction n; simpl.
