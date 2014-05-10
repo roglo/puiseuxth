@@ -19,6 +19,7 @@ Require Import Puiseux_series.
 Require Import Ps_add.
 Require Import Ps_mul.
 Require Import Ps_div.
+Require Import PSpolynomial.
 Require Import AlgCloCharPol.
 Require Import CharactPolyn.
 Require Import F1Eq.
