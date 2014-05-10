@@ -15,10 +15,10 @@ Set Implicit Arguments.
 
 Delimit Scope ps_lap_scope with pslap.
 
-Definition lap_nth α {R : ring α} h la := (List.nth h la 0)%ps.
-Definition poly_nth α {R : ring α} h pol := (lap_nth h (al pol)).
+Definition ps_lap_nth α {R : ring α} h la := (List.nth h la 0)%ps.
+Definition ps_poly_nth α {R : ring α} h pol := (ps_lap_nth h (al pol)).
 
-Arguments lap_nth _ _ h%nat la%pslap.
+Arguments ps_lap_nth _ _ h%nat la%pslap.
 
 (* *)
 
@@ -65,8 +65,8 @@ Lemma fold_ps_lap_comp : ∀ α (R : ring α) a b,
   @lap_compose _ (ps_ring R) a b = ps_lap_comp a b.
 Proof. reflexivity. Qed.
 
-Lemma fold_lap_nth : ∀ α (R : ring α) h la,
-  List.nth h la 0%ps = lap_nth h la.
+Lemma fold_ps_lap_nth : ∀ α (R : ring α) h la,
+  List.nth h la 0%ps = ps_lap_nth h la.
 Proof. reflexivity. Qed.
 
 Theorem ps_lap_eq_refl {α} {R : ring α} : reflexive _ (@ps_lap_eq _ R).
@@ -93,20 +93,20 @@ Add Parametric Relation α (R : ring α) : (list _) (@ps_lap_eq _ R)
  transitivity proved by ps_lap_eq_trans
  as ps_lap_eq_rel.
 
-Add Parametric Morphism α (R : ring α) : (@lap_nth _ R)
+Add Parametric Morphism α (R : ring α) : (@ps_lap_nth _ R)
   with signature eq ==> @lap_eq _ (ps_ring R) ==> eq_ps
-  as lap_nth_morph.
+  as ps_lap_nth_morph.
 Proof.
 intros n la lb Hlab.
 rewrite Hlab; reflexivity.
 Qed.
 
-Add Parametric Morphism α (R : ring α) : (@poly_nth _ R)
+Add Parametric Morphism α (R : ring α) : (@ps_poly_nth _ R)
   with signature eq ==> @eq_poly _ (ps_ring R) ==> eq_ps
-  as poly_nth_morph.
+  as ps_poly_nth_morph.
 Proof.
 intros n pa pb Hpab.
-progress unfold poly_nth; rewrite Hpab; reflexivity.
+progress unfold ps_poly_nth; rewrite Hpab; reflexivity.
 Qed.
 
 Definition ps_pol_eq α {R : ring α} a b :=

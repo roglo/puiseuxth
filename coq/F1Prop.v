@@ -34,12 +34,12 @@ Variable R : ring α.
 Variable K : field R.
 Variable acf : algeb_closed_field K.
 
-Lemma lap_nth_add : ∀ n la lb,
-  (lap_nth n (la + lb) = lap_nth n la + lap_nth n lb)%ps.
+Lemma ps_lap_nth_add : ∀ n la lb,
+  (ps_lap_nth n (la + lb) = ps_lap_nth n la + ps_lap_nth n lb)%ps.
 Proof.
 intros n la lb.
 unfold ps_lap_add; simpl.
-unfold lap_nth; simpl.
+unfold ps_lap_nth; simpl.
 revert n lb.
 induction la as [| a]; intros; simpl.
  rewrite match_id, ps_add_0_l; reflexivity.
@@ -301,9 +301,9 @@ destruct na as [na| ].
   exfalso; apply Hab; reflexivity.
 Qed.
 
-Lemma lap_nth_x_le_pow_mul : ∀ la m n,
+Lemma ps_lap_nth_x_le_pow_mul : ∀ la m n,
   (n ≤ m)%nat
-  → (lap_nth m ([0; 1 … []] ^ n * la) = lap_nth (m - n) la)%ps.
+  → (ps_lap_nth m ([0; 1 … []] ^ n * la) = ps_lap_nth (m - n) la)%ps.
 Proof.
 intros la m n Hnm.
 revert m Hnm.
@@ -327,9 +327,9 @@ induction n; intros.
  apply IHn; assumption.
 Qed.
 
-Lemma lap_nth_x_gt_pow_mul : ∀ la m n,
+Lemma ps_lap_nth_x_gt_pow_mul : ∀ la m n,
   (m < n)%nat
-  → (lap_nth m ([0; 1 … []] ^ n * la) = 0)%ps.
+  → (ps_lap_nth m ([0; 1 … []] ^ n * la) = 0)%ps.
 Proof.
 intros la m n Hmn.
 revert m Hmn.
@@ -342,11 +342,11 @@ induction n; intros.
  rewrite lap_eq_0, lap_mul_nil_l, lap_add_nil_l, lap_mul_1_l.
  destruct m; [ reflexivity | idtac ].
  apply lt_S_n in Hmn.
- unfold lap_nth; simpl.
+ unfold ps_lap_nth; simpl.
  apply IHn; assumption.
 Qed.
 
-Lemma lap_nth_0_cons_pow : ∀ a la n, (lap_nth 0 ([a … la] ^ n) = a ^ n)%ps.
+Lemma ps_lap_nth_0_cons_pow : ∀ a la n, (ps_lap_nth 0 ([a … la] ^ n) = a ^ n)%ps.
 Proof.
 intros a la n.
 induction n; simpl.
@@ -354,7 +354,7 @@ induction n; simpl.
  reflexivity.
 
  unfold ps_lap_pow; simpl.
- unfold lap_nth.
+ unfold ps_lap_nth.
  rewrite list_nth_lap_mul; simpl.
  unfold summation; simpl.
  rewrite IHn.
@@ -404,8 +404,8 @@ induction n; simpl.
  rewrite Qmult_1_l; reflexivity.
 Qed.
 
-Lemma lap_nth_0_apply_0 : ∀ la,
-  (lap_nth 0 la = @apply_lap _ (ps_ring R) la 0)%ps.
+Lemma ps_lap_nth_0_apply_0 : ∀ la,
+  (ps_lap_nth 0 la = @apply_lap _ (ps_ring R) la 0)%ps.
 Proof.
 intros la.
 induction la as [| a]; [ reflexivity | simpl ].
@@ -550,7 +550,7 @@ Qed.
 
 Lemma nth_g_order_pos : ∀ pol ns h,
   ns ∈ newton_segments pol
-  → (order (lap_nth h (g_lap_of_ns pol ns)) > 0)%Qbar.
+  → (order (ps_lap_nth h (g_lap_of_ns pol ns)) > 0)%Qbar.
 Proof.
 intros pol ns h Hns.
 destruct (lt_dec h (length (g_lap_of_ns pol ns))) as [Hlt| Hge].
@@ -558,27 +558,27 @@ destruct (lt_dec h (length (g_lap_of_ns pol ns))) as [Hlt| Hge].
   reflexivity.
 
   unfold g_of_ns; simpl.
-  unfold lap_nth.
+  unfold ps_lap_nth.
   apply list_nth_in; assumption.
 
  apply Nat.nlt_ge in Hge.
- unfold lap_nth.
+ unfold ps_lap_nth.
  rewrite List.nth_overflow; [ idtac | assumption ].
  rewrite order_0; constructor.
 Qed.
 
 Lemma order_nth_inject_K : ∀ la i,
-  (0 ≤ order (lap_nth i (lap_inject_K_in_Kx la)))%Qbar.
+  (0 ≤ order (ps_lap_nth i (lap_inject_K_in_Kx la)))%Qbar.
 Proof.
 intros la i.
 revert i.
 induction la as [| a]; intros; simpl.
- unfold lap_nth.
+ unfold ps_lap_nth.
  rewrite list_nth_nil.
  rewrite order_0; constructor.
 
  destruct i; [ idtac | apply IHla ].
- unfold lap_nth; simpl.
+ unfold ps_lap_nth; simpl.
  apply ps_monom_order_ge.
 Qed.
 
@@ -673,7 +673,7 @@ Theorem order_bbar_nonneg : ∀ pol ns c₁ r f₁,
   → c₁ = ac_root (Φq pol ns) ∧ (c₁ ≠ 0)%K
     → r = root_multiplicity acf c₁ (Φq pol ns)
       → f₁ = pol₁ pol (β ns) (γ ns) c₁
-        → ∀ i, (order (poly_nth i f₁) ≥ 0)%Qbar.
+        → ∀ i, (order (ps_poly_nth i f₁) ≥ 0)%Qbar.
 Proof.
 intros pol ns c₁ r f₁ Hns Hc₁ Hr Hf₁ i.
 remember (quotient_phi_x_sub_c_pow_r (Φq pol ns) c₁ r) as Ψ eqn:HΨ .
@@ -682,16 +682,16 @@ apply exists_ini_pt_nat in Hini.
 destruct Hini as (j, (αj, Hini)).
 rewrite f₁_eq_term_with_Ψ_plus_g; try eassumption.
 destruct Hc₁ as (Hc₁, Hc₁nz).
-unfold poly_nth; simpl.
+unfold ps_poly_nth; simpl.
 rewrite fold_ps_lap_add.
-rewrite lap_nth_add.
+rewrite ps_lap_nth_add.
 rewrite fold_ps_lap_comp.
 eapply Qbar.le_trans; [ idtac | apply order_add ].
 apply Qbar.min_glb.
  rewrite <- lap_mul_assoc.
  rewrite fold_ps_lap_mul, fold_ps_lap_pow.
  destruct (le_dec r i) as [Hle| Hgt].
-  rewrite lap_nth_x_le_pow_mul; [ idtac | assumption ].
+  rewrite ps_lap_nth_x_le_pow_mul; [ idtac | assumption ].
   progress unfold ps_lap_comp.
   rewrite monom_y_plus_c_is_inject_K.
   rewrite fold_ps_lap_pow.
@@ -703,7 +703,7 @@ apply Qbar.min_glb.
   apply order_nth_inject_K.
 
   apply Nat.nle_gt in Hgt.
-  rewrite lap_nth_x_gt_pow_mul; [ idtac | assumption ].
+  rewrite ps_lap_nth_x_gt_pow_mul; [ idtac | assumption ].
   rewrite order_0; constructor.
 
  apply Qbar.lt_le_incl.
@@ -717,7 +717,7 @@ Theorem order_bbar_pos : ∀ pol ns c₁ r f₁,
     → r = root_multiplicity acf c₁ (Φq pol ns)
       → f₁ = pol₁ pol (β ns) (γ ns) c₁
         → ∀ i, (i < r)%nat
-          → (order (poly_nth i f₁) > 0)%Qbar.
+          → (order (ps_poly_nth i f₁) > 0)%Qbar.
 Proof.
 intros pol ns c₁ r f₁ Hns Hc₁ Hr Hf₁ i Hir.
 remember (quotient_phi_x_sub_c_pow_r (Φq pol ns) c₁ r) as Ψ eqn:HΨ .
@@ -726,16 +726,16 @@ apply exists_ini_pt_nat in Hini.
 destruct Hini as (j, (αj, Hini)).
 rewrite f₁_eq_term_with_Ψ_plus_g; try eassumption.
 destruct Hc₁ as (Hc₁, Hc₁nz).
-unfold poly_nth; simpl.
+unfold ps_poly_nth; simpl.
 rewrite fold_ps_lap_add.
-rewrite lap_nth_add.
+rewrite ps_lap_nth_add.
 rewrite fold_ps_lap_comp.
 eapply Qbar.lt_le_trans; [ idtac | apply order_add ].
 apply Qbar.min_glb_lt.
  rewrite <- lap_mul_assoc.
  rewrite fold_ps_lap_mul.
  rewrite fold_ps_lap_pow.
- rewrite lap_nth_x_gt_pow_mul; [ idtac | assumption ].
+ rewrite ps_lap_nth_x_gt_pow_mul; [ idtac | assumption ].
  rewrite order_0; constructor.
 
  apply nth_g_order_pos; assumption.
@@ -747,7 +747,7 @@ Theorem order_bbar_r_is_0 : ∀ pol ns c₁ r f₁,
   → c₁ = ac_root (Φq pol ns) ∧ (c₁ ≠ 0)%K
     → r = root_multiplicity acf c₁ (Φq pol ns)
       → f₁ = pol₁ pol (β ns) (γ ns) c₁
-        → (order (poly_nth r f₁) = 0)%Qbar.
+        → (order (ps_poly_nth r f₁) = 0)%Qbar.
 Proof.
 intros pol ns c₁ r f₁ Hns Hc₁ Hr Hf₁.
 remember (quotient_phi_x_sub_c_pow_r (Φq pol ns) c₁ r) as Ψ eqn:HΨ .
@@ -756,33 +756,33 @@ apply exists_ini_pt_nat in Hini.
 destruct Hini as (j, (αj, Hini)).
 rewrite f₁_eq_term_with_Ψ_plus_g; try eassumption.
 destruct Hc₁ as (Hc₁, Hc₁nz).
-unfold poly_nth; simpl.
+unfold ps_poly_nth; simpl.
 remember ([0%ps; 1%ps … []] ^ r)%pslap as yr.
 remember ([ps_monom c₁ 0; 1%ps … []] ^ j)%pslap as ycj.
 remember (lap_inject_K_in_Kx (al Ψ)) as psy.
 remember [ps_monom c₁ 0; 1%ps … []] as yc.
-assert (order (lap_nth r (yr * ycj * psy ∘ yc)) = 0)%Qbar as Hor.
+assert (order (ps_lap_nth r (yr * ycj * psy ∘ yc)) = 0)%Qbar as Hor.
  subst yr ycj psy yc.
  progress unfold ps_lap_mul.
  rewrite <- lap_mul_assoc.
  do 2 rewrite fold_ps_lap_mul.
- erewrite lap_nth_x_le_pow_mul; [ idtac | reflexivity ].
+ erewrite ps_lap_nth_x_le_pow_mul; [ idtac | reflexivity ].
  rewrite Nat.sub_diag.
  progress unfold ps_lap_mul.
  progress unfold lap_mul.
- progress unfold lap_nth; simpl.
+ progress unfold ps_lap_nth; simpl.
  rewrite list_nth_lap_convol_mul; [ idtac | reflexivity ].
  unfold summation; simpl.
  rewrite ps_add_0_r.
  rewrite order_mul; [ idtac | assumption ].
- rewrite fold_lap_nth.
- rewrite lap_nth_0_cons_pow.
+ rewrite fold_ps_lap_nth.
+ rewrite ps_lap_nth_0_cons_pow.
  rewrite order_pow.
   rewrite ps_monom_order; [ idtac | assumption ].
   rewrite Qbar.mul_0_r; [ idtac | intros HH; discriminate HH ].
   rewrite Qbar.add_0_l.
-  rewrite fold_lap_nth.
-  rewrite lap_nth_0_apply_0.
+  rewrite fold_ps_lap_nth.
+  rewrite ps_lap_nth_0_apply_0.
   unfold ps_lap_comp.
   rewrite apply_lap_compose.
   unfold apply_lap at 2; simpl.
@@ -797,7 +797,7 @@ assert (order (lap_nth r (yr * ycj * psy ∘ yc)) = 0)%Qbar as Hor.
 
  subst yr ycj psy yc.
  rewrite fold_ps_lap_add.
- rewrite lap_nth_add.
+ rewrite ps_lap_nth_add.
  rewrite fold_ps_lap_comp.
  rewrite order_add_eq_min; rewrite Hor.
  rewrite Qbar.min_l; [ reflexivity | idtac ].

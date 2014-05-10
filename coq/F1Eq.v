@@ -336,7 +336,7 @@ Theorem f₁_eq_x_min_β₁_summation : ∀ pol β₁ γ₁ c₁,
    POL [ps_monom 1%K (- β₁)] *
    ps_pol_summ (List.seq 0 (length (al pol)))
      (λ h,
-      let āh := poly_nth h pol in
+      let āh := ps_poly_nth h pol in
       POL [(āh * ps_monom 1%K (Qnat h * γ₁))%ps] *
       POL [ps_monom c₁ 0; 1%ps … []] ^ h))%pspol.
 Proof.
@@ -351,7 +351,7 @@ progress unfold eq_poly; simpl.
 apply list_fold_right_compat; [ idtac | reflexivity ].
 intros la lb i Heq.
 apply lap_add_compat; [ assumption | idtac ].
-progress unfold poly_nth, lap_nth.
+progress unfold ps_poly_nth, ps_lap_nth.
 rewrite lap_power_mul.
 rewrite lap_mul_assoc.
 apply lap_mul_compat; [ idtac | reflexivity ].
@@ -400,12 +400,12 @@ Theorem f₁_eq_x_min_β₁_summation_split : ∀ pol β₁ γ₁ c₁ l₁ l₂
   → (pol₁ pol β₁ γ₁ c₁ =
       POL [ps_monom 1%K (- β₁)] *
       ps_pol_summ l₁
-        (λ (h : nat) (āh:=poly_nth h pol),
+        (λ (h : nat) (āh:=ps_poly_nth h pol),
          POL [(āh * ps_monom 1%K (Qnat h * γ₁))%ps] *
          POL [ps_monom c₁ 0; 1%ps … []] ^ h) +
       POL [ps_monom 1%K (- β₁)] *
       ps_pol_summ l₂
-        (λ (l : nat) (āl:=poly_nth l pol),
+        (λ (l : nat) (āl:=ps_poly_nth l pol),
          POL [(āl * ps_monom 1%K (Qnat l * γ₁))%ps] *
          POL [ps_monom c₁ 0; 1%ps … []] ^ l))%pspol.
 Proof.
@@ -438,7 +438,7 @@ Lemma summation_split_val : ∀ pol ns γ₁ c₁ pl tl l,
       → l = List.map (λ t, power t) tl
         → (ps_pol_summ l
              (λ h,
-              let āh := poly_nth h pol in
+              let āh := ps_poly_nth h pol in
               POL [(āh * ps_monom 1%K (Qnat h * γ₁))%ps] *
               POL [ps_monom c₁ 0; 1%ps … []] ^ h) =
            ps_pol_summ l
@@ -449,7 +449,7 @@ Lemma summation_split_val : ∀ pol ns γ₁ c₁ pl tl l,
               POL [ps_monom c₁ 0; 1%ps … []] ^ h) +
            ps_pol_summ l
              (λ h,
-              let āh := poly_nth h pol in
+              let āh := ps_poly_nth h pol in
               let ah := ps_monom (coeff_of_term h tl) 0 in
               let αh := ord_of_pt h pl in
               POL [((āh - ah * ps_monom 1%K αh) *
@@ -498,7 +498,7 @@ Theorem f₁_eq_sum_α_hγ_to_rest : ∀ pol ns β₁ γ₁ c₁ pl tl l₁ l₂
              POL [ps_monom 1%K (- β₁)] *
              (ps_pol_summ l₁
                 (λ h,
-                 let āh := poly_nth h pol in
+                 let āh := ps_poly_nth h pol in
                  let ah := ps_monom (coeff_of_term h tl) 0 in
                  let αh := ord_of_pt h pl in
                  POL [((āh - ah * ps_monom 1%K αh) *
@@ -506,7 +506,7 @@ Theorem f₁_eq_sum_α_hγ_to_rest : ∀ pol ns β₁ γ₁ c₁ pl tl l₁ l₂
                  POL [ps_monom c₁ 0; 1%ps … []] ^ h) +
               ps_pol_summ l₂
                 (λ l,
-                 let āl := poly_nth l pol in
+                 let āl := ps_poly_nth l pol in
                  POL [(āl * ps_monom 1%K (Qnat l * γ₁))%ps] *
                  POL [ps_monom c₁ 0; 1%ps … []] ^ l)))%pspol.
 Proof.
@@ -685,7 +685,7 @@ Theorem f₁_eq_sum_without_x_β₁_plus_sum : ∀ pol ns c₁ pl tl l₁ l₂,
              POL [ps_monom 1%K (- β ns)] *
              (ps_pol_summ l₁
                 (λ h,
-                 let āh := poly_nth h pol in
+                 let āh := ps_poly_nth h pol in
                  let ah := ps_monom (coeff_of_term h tl) 0 in
                  let αh := ord_of_pt h pl in
                  POL [((āh - ah * ps_monom 1%K αh) *
@@ -693,7 +693,7 @@ Theorem f₁_eq_sum_without_x_β₁_plus_sum : ∀ pol ns c₁ pl tl l₁ l₂,
                  POL [ps_monom c₁ 0; 1%ps … []] ^ h) +
               ps_pol_summ l₂
                 (λ l,
-                 let āl := poly_nth l pol in
+                 let āl := ps_poly_nth l pol in
                  POL [(āl * ps_monom 1%K (Qnat l * γ ns))%ps] *
                  POL [ps_monom c₁ 0; 1%ps … []] ^ l)))%pspol.
 Proof.
@@ -1679,9 +1679,9 @@ intros la c d k f.
 apply summation_compat.
 intros i (_, Hik).
 unfold ps_lap_comp.
-rewrite fold_lap_nth.
+rewrite fold_ps_lap_nth.
 rewrite lap_compose_compose2.
-unfold lap_nth.
+unfold ps_lap_nth.
 rewrite list_nth_compose2_deg_1; [ idtac | reflexivity ].
 reflexivity.
 Qed.
@@ -1818,7 +1818,7 @@ Theorem f₁_eq_term_with_Ψ_plus_sum : ∀ pol ns c₁ pl tl j αj l₁ l₂ r 
                      POL [ps_monom 1%K (- β ns)] *
                      (ps_pol_summ l₁
                         (λ h,
-                         let āh := poly_nth h pol in
+                         let āh := ps_poly_nth h pol in
                          let ah := ps_monom (coeff_of_term h tl) 0 in
                          let αh := ord_of_pt h pl in
                          POL [((āh - ah * ps_monom 1%K αh) *
@@ -1826,7 +1826,7 @@ Theorem f₁_eq_term_with_Ψ_plus_sum : ∀ pol ns c₁ pl tl j αj l₁ l₂ r 
                          POL [ps_monom c₁ 0; 1%ps … []] ^ h) +
                       ps_pol_summ l₂
                         (λ l,
-                         let āl := poly_nth l pol in
+                         let āl := ps_poly_nth l pol in
                          POL [(āl * ps_monom 1%K (Qnat l * γ ns))%ps] *
                          POL [ps_monom c₁ 0; 1%ps … []] ^ l)))%pspol.
 Proof.

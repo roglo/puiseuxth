@@ -93,14 +93,14 @@ Definition g_lap_of_ns α {R : ring α} {K : field R}
   ([ps_monom 1%K (- β ns)] *
    (ps_lap_summ l₁
       (λ h,
-       let āh := poly_nth h pol in
+       let āh := ps_poly_nth h pol in
        let ah := ps_monom (coeff_of_term R h tl) 0 in
        let αh := ord_of_pt h pl in
        [((āh - ah * ps_monom 1%K αh) * ps_monom 1%K (Qnat h * γ ns))%ps] *
        [ps_monom c₁ 0; 1%ps … []] ^ h) +
     ps_lap_summ l₂
       (λ l,
-       let āl := poly_nth l pol in
+       let āl := ps_poly_nth l pol in
        [(āl * ps_monom 1%K (Qnat l * γ ns))%ps] *
        [ps_monom c₁ 0; 1%ps … []] ^ l)))%pslap.
 
@@ -118,7 +118,7 @@ Lemma order_in_newton_segment : ∀ pol ns pl h αh,
   ns ∈ newton_segments pol
   → pl = [ini_pt ns … oth_pts ns ++ [fin_pt ns]]
     → (Qnat h, αh) ∈ pl
-      → order (poly_nth h pol) = qfin αh.
+      → order (ps_poly_nth h pol) = qfin αh.
 Proof.
 intros pol ns pl h αh Hns Hpl Hαh.
 remember Hns as Hini; clear HeqHini.
@@ -127,7 +127,7 @@ destruct Hini as (j, (αj, Hini)).
 remember Hns as Hfin; clear HeqHfin.
 apply exists_fin_pt_nat in Hfin.
 destruct Hfin as (k, (αk, Hfin)).
-unfold poly_nth, lap_nth; simpl.
+unfold ps_poly_nth, ps_lap_nth; simpl.
 edestruct in_pts_in_pol; try reflexivity; try eassumption.
 subst pl.
 simpl in Hαh.
@@ -168,7 +168,7 @@ Theorem order_āh_minus_ah_xαh_gt_αh : ∀ pol ns pl tl h āh ah αh,
   → pl = [ini_pt ns … oth_pts ns ++ [fin_pt ns]]
     → tl = List.map (term_of_point R pol) pl
       → h ∈ List.map (λ t, power t) tl
-        → āh = poly_nth h pol
+        → āh = ps_poly_nth h pol
           → ah = ps_monom (coeff_of_term R h tl) 0
             → αh = ord_of_pt h pl
               → (order (āh - ah * ps_monom 1%K αh)%ps > qfin αh)%Qbar.
@@ -255,12 +255,12 @@ eapply order_in_newton_segment with (h := h) (αh := αh) in Hval; eauto .
         rewrite Htl in Hn.
         rewrite coeff_of_term_pt_eq in Hn.
         rewrite Hāh in Hn; simpl in Hn.
-        unfold poly_nth, lap_nth in Hn; simpl in Hn.
+        unfold ps_poly_nth, ps_lap_nth in Hn; simpl in Hn.
         rewrite Hāh in Hm.
         unfold coeff_of_pt in Hn.
         rewrite coeff_of_hl_eq_order in Hn.
          unfold order_coeff in Hn.
-         unfold poly_nth, lap_nth in Hm.
+         unfold ps_poly_nth, ps_lap_nth in Hm.
          rewrite Hm in Hn.
          rewrite rng_add_opp_r in Hn.
          apply Hn; reflexivity.
@@ -344,7 +344,7 @@ Theorem order_āl_xlγ₁_gt_β₁ : ∀ pol ns pl tl l₁ l₂ l āl,
       → l₁ = List.map (λ t, power t) tl
         → split_list (List.seq 0 (length (al pol))) l₁ l₂
           → l ∈ l₂
-            → āl = poly_nth l pol
+            → āl = ps_poly_nth l pol
               → (order (āl * ps_monom 1%K (Qnat l * γ ns))%ps >
                  qfin (β ns))%Qbar.
 Proof.
@@ -1371,7 +1371,7 @@ assert (m ≠ 0)%ps as Hmnz.
   apply lap_ps_in_mul in Hm; [ assumption | idtac | idtac ].
    clear m Hm.
    intros m Hm.
-   remember (poly_nth h pol) as āh eqn:Hāh .
+   remember (ps_poly_nth h pol) as āh eqn:Hāh .
    remember (ps_monom (coeff_of_term R h tl) 0) as ah eqn:Hah .
    remember (ord_of_pt h pl) as αh eqn:Hαh .
    rewrite lap_mul_const_l in Hm; simpl in Hm.
@@ -1462,7 +1462,7 @@ assert (m ≠ 0)%ps as Hmnz.
    rewrite ps_add_0_r in H₂.
    rewrite <- H₂.
    rewrite order_mul.
-   remember (poly_nth h pol) as āh.
+   remember (ps_poly_nth h pol) as āh.
    apply Qbar.lt_sub_lt_add_l; [ intros H; discriminate H | idtac ].
    rewrite Qbar.sub_0_l.
    destruct (ac_zerop 1%K) as [Hoz| Honz].
