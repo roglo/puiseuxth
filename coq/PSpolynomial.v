@@ -6,11 +6,9 @@ Require Import Utf8.
 Require Import QArith.
 Require Import NPeano.
 
-Require Import Misc.
 Require Import Field.
 Require Import Fpolynomial.
 Require Import Puiseux_series.
-Require Import Ps_add.
 Require Import Ps_div.
 
 Set Implicit Arguments.
