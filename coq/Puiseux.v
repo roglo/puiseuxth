@@ -612,6 +612,10 @@ unfold ps_lap_eq.
 reflexivity.
 Qed.
 
+Lemma fold_lap_inject_K_in_Kx : ∀ la,
+  List.map (λ c : α, ps_monom c 0) la = lap_inject_K_in_Kx la.
+Proof. reflexivity. Qed.
+
 Lemma lap_add_cons : ∀ α (R : ring α) a b la lb,
   ([a … la] + [b … lb] = [(a + b)%K … la + lb])%lap.
 Proof. reflexivity. Qed.
@@ -667,7 +671,7 @@ induction la as [| a]; intros; simpl.
   apply lap_add_compat; rewrite lap_mul_map_ps; reflexivity.
 Qed.
 
-Lemma uuu : ∀ la lb,
+Lemma lap_inject_comp : ∀ la lb,
   (lap_inject_K_in_Kx la ∘ lap_inject_K_in_Kx lb =
    lap_inject_K_in_Kx (lap_compose la lb))%pslap.
 Proof.
@@ -678,23 +682,15 @@ progress unfold lap_compose.
 revert lb.
 induction la as [| a]; intros; [ reflexivity | simpl ].
 rewrite IHla.
-(* lap_inject_mul *)
-remember ttt as ttt.
-clear Heqttt.
-unfold lap_inject_K_in_Kx in ttt.
-progress unfold ps_lap_mul in ttt.
-rewrite ttt.
-(* lap_inject_add *)
-remember sss as sss.
-clear Heqsss.
-progress unfold lap_inject_K_in_Kx in sss.
-progress unfold ps_lap_add in sss.
-rewrite <- sss.
+do 3 rewrite fold_lap_inject_K_in_Kx.
+rewrite fold_ps_lap_mul.
+rewrite lap_inject_mul.
+rewrite <- lap_inject_add.
 reflexivity.
-qed.
+Qed.
 
 (* [Walker, p 101] « O(bi) ≥ 0,  i = 0,...,n » *)
-Theorem vvv : ∀ pol ns c₁ r f₁,
+Theorem order_bbar_nonneg : ∀ pol ns c₁ r f₁,
   ns ∈ newton_segments pol
   → c₁ = ac_root (Φq pol ns) ∧ (c₁ ≠ 0)%K
     → r = root_multiplicity acf c₁ (Φq pol ns)
@@ -714,27 +710,27 @@ rewrite lap_nth_add.
 rewrite fold_ps_lap_comp.
 eapply Qbar.le_trans; [ idtac | apply order_add ].
 apply Qbar.min_glb.
- Focus 2.
- apply Qbar.lt_le_incl.
- apply nth_g_order_pos; assumption.
-
  rewrite <- lap_mul_assoc.
  rewrite fold_ps_lap_mul, fold_ps_lap_pow.
  destruct (le_dec r i) as [Hle| Hgt].
-  Focus 2.
-  apply Nat.nle_gt in Hgt.
-  rewrite lap_nth_x_gt_pow_mul; [ idtac | assumption ].
-  rewrite order_0; constructor.
-
   rewrite lap_nth_x_le_pow_mul; [ idtac | assumption ].
   progress unfold ps_lap_comp.
   rewrite monom_y_plus_c_is_inject_K.
   rewrite fold_ps_lap_pow.
   rewrite lap_power_map_ps.
   rewrite fold_ps_lap_comp.
-  rewrite uuu.
-bbb.
-Check order_nth_inject_K.
+  rewrite lap_inject_comp.
+  rewrite fold_ps_lap_mul.
+  rewrite lap_inject_mul.
+  apply order_nth_inject_K.
+
+  apply Nat.nle_gt in Hgt.
+  rewrite lap_nth_x_gt_pow_mul; [ idtac | assumption ].
+  rewrite order_0; constructor.
+
+ apply Qbar.lt_le_incl.
+ apply nth_g_order_pos; assumption.
+Qed.
 
 (* [Walker, p 101] « O(bi) > 0,  i = 0,...,r-1 » *)
 Theorem yyy : ∀ pol ns c₁ r f₁,
