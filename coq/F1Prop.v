@@ -473,7 +473,7 @@ Lemma f₁_eq_term_with_Ψ_plus_g : ∀ pol ns j αj c₁ r f₁ Ψ,
     → c₁ = ac_root (Φq pol ns) ∧ (c₁ ≠ 0)%K
       → r = root_multiplicity acf c₁ (Φq pol ns)
         → Ψ = quotient_phi_x_sub_c_pow_r (Φq pol ns) c₁ r
-          → f₁ = pol₁ pol (β ns) (γ ns) c₁
+          → f₁ = next_pol pol (β ns) (γ ns) c₁
             → (f₁ =
                POL [0%ps; 1%ps … []] ^ r *
                POL [ps_monom c₁ 0; 1%ps … []] ^ j *
@@ -657,7 +657,7 @@ Theorem order_bbar_nonneg : ∀ pol ns c₁ r f₁,
   ns ∈ newton_segments pol
   → c₁ = ac_root (Φq pol ns) ∧ (c₁ ≠ 0)%K
     → r = root_multiplicity acf c₁ (Φq pol ns)
-      → f₁ = pol₁ pol (β ns) (γ ns) c₁
+      → f₁ = next_pol pol (β ns) (γ ns) c₁
         → ∀ i, (order (ps_poly_nth i f₁) ≥ 0)%Qbar.
 Proof.
 intros pol ns c₁ r f₁ Hns Hc₁ Hr Hf₁ i.
@@ -700,7 +700,7 @@ Theorem order_bbar_pos : ∀ pol ns c₁ r f₁,
   ns ∈ newton_segments pol
   → c₁ = ac_root (Φq pol ns) ∧ (c₁ ≠ 0)%K
     → r = root_multiplicity acf c₁ (Φq pol ns)
-      → f₁ = pol₁ pol (β ns) (γ ns) c₁
+      → f₁ = next_pol pol (β ns) (γ ns) c₁
         → ∀ i, (i < r)%nat
           → (order (ps_poly_nth i f₁) > 0)%Qbar.
 Proof.
@@ -731,7 +731,7 @@ Theorem order_bbar_r_is_0 : ∀ pol ns c₁ r f₁,
   ns ∈ newton_segments pol
   → c₁ = ac_root (Φq pol ns) ∧ (c₁ ≠ 0)%K
     → r = root_multiplicity acf c₁ (Φq pol ns)
-      → f₁ = pol₁ pol (β ns) (γ ns) c₁
+      → f₁ = next_pol pol (β ns) (γ ns) c₁
         → (order (ps_poly_nth r f₁) = 0)%Qbar.
 Proof.
 intros pol ns c₁ r f₁ Hns Hc₁ Hr Hf₁.

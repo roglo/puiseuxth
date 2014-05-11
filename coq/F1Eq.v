@@ -31,13 +31,13 @@ Set Implicit Arguments.
 (* *)
 
 (* pol₁(x,y₁) = x^(-β₁).pol(x,x^γ₁.(c₁ + y₁)) *)
-Definition lap_pol₁ α {R : ring α} pol β₁ γ₁ c₁ :=
+Definition next_lap α {R : ring α} pol β₁ γ₁ c₁ :=
   @lap_mul _ (ps_ring R) [ps_monom 1%K (- β₁)]
     (@lap_compose _ (ps_ring R) pol
        [ps_monom c₁ γ₁; ps_monom 1%K γ₁ … []]).
 
-Definition pol₁ α {R : ring α} pol β₁ γ₁ c₁ :=
-  (POL (lap_pol₁ (al pol) β₁ γ₁ c₁))%pol.
+Definition next_pol α {R : ring α} pol β₁ γ₁ c₁ :=
+  (POL (next_lap (al pol) β₁ γ₁ c₁))%pol.
 
 (* *)
 
@@ -300,12 +300,12 @@ Variable K : field R.
 Variable acf : algeb_closed_field K.
 
 Lemma lap_f₁_eq_x_min_β₁_comp : ∀ la β₁ γ₁ c₁,
-  (lap_pol₁ la β₁ γ₁ c₁ =
+  (next_lap la β₁ γ₁ c₁ =
    [ps_monom 1%K (- β₁)] *
    la ∘ ([ps_monom 1%K γ₁] * [ps_monom c₁ 0; 1%ps … []]))%pslap.
 Proof.
 intros la β₁ γ₁ c₁.
-progress unfold lap_pol₁.
+progress unfold next_lap.
 apply lap_mul_compat; [ reflexivity | idtac ].
 apply lap_compose_compat; [ reflexivity | idtac ].
 progress unfold ps_lap_mul, lap_mul; simpl.
@@ -323,7 +323,7 @@ Qed.
 
 (* [Walker, p. 100] « f₁(x,y₁) = x^(-β₁).f(x,x^γ₁(c₁+y₁)) » *)
 Theorem f₁_eq_x_min_β₁_comp : ∀ pol β₁ γ₁ c₁,
-  (pol₁ pol β₁ γ₁ c₁ =
+  (next_pol pol β₁ γ₁ c₁ =
    POL [ps_monom 1%K (- β₁)] *
    pol ∘ (POL [ps_monom 1%K γ₁] * POL [ps_monom c₁ 0; 1%ps … []]))%pspol.
 Proof.
@@ -332,7 +332,7 @@ apply lap_f₁_eq_x_min_β₁_comp; reflexivity.
 Qed.
 
 Theorem f₁_eq_x_min_β₁_summation : ∀ pol β₁ γ₁ c₁,
-  (pol₁ pol β₁ γ₁ c₁ =
+  (next_pol pol β₁ γ₁ c₁ =
    POL [ps_monom 1%K (- β₁)] *
    ps_pol_summ (List.seq 0 (length (al pol)))
      (λ h,
@@ -397,7 +397,7 @@ Qed.
 (* we can split the sum on 0..n into two sub lists l₁, l₂ in any way *)
 Theorem f₁_eq_x_min_β₁_summation_split : ∀ pol β₁ γ₁ c₁ l₁ l₂,
   split_list (List.seq 0 (length (al pol))) l₁ l₂
-  → (pol₁ pol β₁ γ₁ c₁ =
+  → (next_pol pol β₁ γ₁ c₁ =
       POL [ps_monom 1%K (- β₁)] *
       ps_pol_summ l₁
         (λ (h : nat) (āh:=ps_poly_nth h pol),
@@ -487,7 +487,7 @@ Theorem f₁_eq_sum_α_hγ_to_rest : ∀ pol ns β₁ γ₁ c₁ pl tl l₁ l₂
     → tl = List.map (term_of_point pol) pl
       → l₁ = List.map (λ t, power t) tl
         → split_list (List.seq 0 (length (al pol))) l₁ l₂
-          → (pol₁ pol β₁ γ₁ c₁ =
+          → (next_pol pol β₁ γ₁ c₁ =
              POL [ps_monom 1%K (- β₁)] *
              ps_pol_summ l₁
                (λ h,
@@ -676,7 +676,7 @@ Theorem f₁_eq_sum_without_x_β₁_plus_sum : ∀ pol ns c₁ pl tl l₁ l₂,
     → tl = List.map (term_of_point pol) pl
       → l₁ = List.map (λ t, power t) tl
         → split_list (List.seq 0 (length (al pol))) l₁ l₂
-          → (pol₁ pol (β ns) (γ ns) c₁ =
+          → (next_pol pol (β ns) (γ ns) c₁ =
              ps_pol_summ l₁
                (λ h,
                 let ah := ps_monom (coeff_of_term h tl) 0 in
@@ -1809,7 +1809,7 @@ Theorem f₁_eq_term_with_Ψ_plus_sum : ∀ pol ns c₁ pl tl j αj l₁ l₂ r 
             → l₁ = List.map (λ t, power t) tl
               → split_list (List.seq 0 (length (al pol))) l₁ l₂
                 → ini_pt ns = (Qnat j, αj)
-                  → (pol₁ pol (β ns) (γ ns) c₁ =
+                  → (next_pol pol (β ns) (γ ns) c₁ =
                      POL [0%ps; 1%ps … []] ^ r *
                      POL [ps_monom c₁ 0; 1%ps … []] ^ j *
                      poly_inject_K_in_Kx Ψ ∘ POL [ps_monom c₁ 0; 1%ps … []] +
