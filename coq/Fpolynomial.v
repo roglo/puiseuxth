@@ -1632,12 +1632,6 @@ induction la as [| a]; intros; simpl.
   do 2 rewrite lap_mul_assoc.
   do 2 rewrite lap_add_assoc; simpl.
   apply lap_add_compat.
-   Focus 2.
-   rewrite lap_mul_cons; simpl.
-   rewrite lap_mul_nil_r.
-   constructor; [ reflexivity | idtac ].
-   rewrite lap_eq_0; reflexivity.
-
    rewrite lap_eq_0, lap_mul_nil_l, lap_add_nil_r.
    rewrite lap_add_comm, lap_add_assoc.
    rewrite <- lap_add_assoc.
@@ -1653,6 +1647,11 @@ induction la as [| a]; intros; simpl.
      apply lap_mul_compat; [ idtac | reflexivity ].
      symmetry.
      apply lap_compose_single.
+
+   rewrite lap_mul_cons; simpl.
+   rewrite lap_mul_nil_r.
+   constructor; [ reflexivity | idtac ].
+   rewrite lap_eq_0; reflexivity.
 Qed.
 
 End lap.

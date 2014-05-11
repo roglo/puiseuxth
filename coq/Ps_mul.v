@@ -214,8 +214,8 @@ remember (null_coeff_range_length r s₁₂₃ 0) as n eqn:Hn .
 symmetry in Hn.
 destruct n as [n| ]; [ idtac | reflexivity ].
 unfold gcd_ps; simpl.
-unfold cm; simpl.
-unfold cm; simpl.
+progress unfold cm; simpl.
+progress unfold cm; simpl.
 do 2 rewrite Z.mul_add_distr_r.
 do 6 rewrite Pos2Z.inj_mul.
 do 3 rewrite Z.mul_assoc.

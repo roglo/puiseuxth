@@ -280,7 +280,6 @@ rewrite <- Z2Nat.inj_add.
    rewrite Z2Nat.inj_sub.
     rewrite Z.add_comm.
     destruct (Z_le_dec vc₁ vc₂) as [H₁| H₁].
-     Focus 1.
      rewrite Z2Nat.inj_add.
       rewrite Z.add_comm.
       rewrite Z2Nat.inj_add.

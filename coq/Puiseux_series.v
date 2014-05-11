@@ -948,26 +948,6 @@ destruct q as [q| ].
 
     exfalso.
     assert (Pos.to_nat k * S p - 1 < q)%nat as H.
-     Focus 2.
-     apply Hzq in H.
-     rewrite Nat.add_sub_assoc in H.
-      simpl in H.
-      rewrite Nat.sub_0_r in H.
-      rewrite Nat.mul_comm in H.
-      rewrite <- Nat.mul_add_distr_l in H.
-      rewrite Hs₁ in H.
-      rewrite series_nth_mul_stretch in H.
-      rewrite H in Hnzp.
-      apply Hnzp; reflexivity.
-
-      remember (Pos.to_nat k) as kn eqn:Hkn .
-      symmetry in Hkn.
-      destruct kn as [| kn].
-       exfalso; revert Hkn; apply Pos2Nat_ne_0.
-
-       simpl; apply le_n_S.
-       apply le_0_n.
-
      apply plus_lt_reg_l with (p := 1%nat).
      simpl.
      rewrite <- Nat.sub_succ_l.
@@ -987,6 +967,25 @@ destruct q as [q| ].
        simpl; apply le_n_S.
        apply le_0_n.
 
+     apply Hzq in H.
+     rewrite Nat.add_sub_assoc in H.
+      simpl in H.
+      rewrite Nat.sub_0_r in H.
+      rewrite Nat.mul_comm in H.
+      rewrite <- Nat.mul_add_distr_l in H.
+      rewrite Hs₁ in H.
+      rewrite series_nth_mul_stretch in H.
+      rewrite H in Hnzp.
+      apply Hnzp; reflexivity.
+
+      remember (Pos.to_nat k) as kn eqn:Hkn .
+      symmetry in Hkn.
+      destruct kn as [| kn].
+       exfalso; revert Hkn; apply Pos2Nat_ne_0.
+
+       simpl; apply le_n_S.
+       apply le_0_n.
+
    subst q'.
    rewrite Nat.mul_comm.
    rewrite <- Hq'.
@@ -994,15 +993,14 @@ destruct q as [q| ].
    rewrite Nat.sub_0_r; reflexivity.
 
   assert (0 < (n * Pos.to_nat k + S q) mod Pos.to_nat k)%nat as H.
-   Focus 2.
+   rewrite Nat.add_comm.
+   rewrite Nat.mod_add; [ idtac | apply Pos2Nat_ne_0 ].
+   assumption.
+
    apply shifted_in_stretched with (s := s) in H.
    rewrite <- Hs₁ in H.
    rewrite H in Hnzq.
    exfalso; apply Hnzq; reflexivity.
-
-   rewrite Nat.add_comm.
-   rewrite Nat.mod_add; [ idtac | apply Pos2Nat_ne_0 ].
-   assumption.
 
  exfalso.
  apply null_coeff_range_length_iff in Hp.
@@ -1111,11 +1109,6 @@ destruct i.
  remember (null_coeff_range_length r s (S b)) as len eqn:Hlen .
  symmetry in Hlen.
  destruct len as [len| ].
-  Focus 2.
-  rewrite Nat.add_succ_r.
-  apply null_coeff_range_length_iff in Hlen; simpl in Hlen.
-  apply Hlen.
-
   simpl in Hn.
   revert i b len n Has Hic Hlen Hn Hs Hm.
   induction c; intros; [ exfalso; fast_omega Hic | idtac ].
@@ -1181,6 +1174,10 @@ destruct i.
     rewrite Nat.add_succ_r.
     apply Hz.
     apply le_neq_lt; assumption.
+
+  rewrite Nat.add_succ_r.
+  apply null_coeff_range_length_iff in Hlen; simpl in Hlen.
+  apply Hlen.
 Qed.
 
 Lemma series_nth_0_in_interval : ∀ s k,
@@ -1626,11 +1623,6 @@ split; intros H.
   remember (null_coeff_range_length r (ps_terms ps) 0) as m eqn:Hm .
   symmetry in Hm.
   destruct m as [m| ].
-   Focus 2.
-   apply null_coeff_range_length_iff in Hm.
-   simpl in Hm.
-   apply Hm.
-
    inversion_clear H0.
    simpl in H1, H2, H3.
    remember (greatest_series_x_power r (ps_terms ps) m) as p eqn:Hp .
@@ -1742,6 +1734,10 @@ split; intros H.
 
        apply Nat.neq_sym in H₃.
        apply le_neq_lt; assumption.
+
+   apply null_coeff_range_length_iff in Hm.
+   simpl in Hm.
+   apply Hm.
 Qed.
 
 Lemma null_coeff_range_length_succ2 : ∀ s m,

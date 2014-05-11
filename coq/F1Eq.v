@@ -1272,7 +1272,12 @@ destruct i.
       rewrite <- Hp.
       rewrite Nat.add_sub_assoc; [ idtac | assumption ].
       rewrite Nat_sub_sub_distr.
-       Focus 2.
+       symmetry.
+       rewrite <- Nat.add_assoc, Nat.add_comm.
+       rewrite Nat.add_sub.
+       do 2 rewrite Nat.add_succ_r.
+       rewrite Nat.add_comm; reflexivity.
+
        rename H into H₂.
        destruct (eq_nat_dec j n) as [H| H].
         subst n.
@@ -1283,12 +1288,6 @@ destruct i.
 
         assert (j ≤ n) as Hj; [ apply Hm; left; reflexivity | idtac ].
         fast_omega H Hj.
-
-       symmetry.
-       rewrite <- Nat.add_assoc, Nat.add_comm.
-       rewrite Nat.add_sub.
-       do 2 rewrite Nat.add_succ_r.
-       rewrite Nat.add_comm; reflexivity.
 
      eapply Sorted_inv; eassumption.
 
@@ -1500,14 +1499,6 @@ assert (∀ iq αi, (iq, αi) ∈ pl → ∃ i, iq = Qnat i) as Hnat.
       rewrite rng_list_map_nth with (A := α) (d := 0%K).
        rewrite <- Htl.
        assert (List.nth i (make_char_pol R j tl) 0%K = 0%K) as Hz.
-        Focus 2.
-        rewrite Hz; simpl.
-        set (f' := ps_ring R).
-        rewrite lap_eq_cons_nil; [ idtac | simpl | reflexivity ].
-         rewrite lap_mul_nil_l, lap_mul_nil_r, lap_add_nil_r; reflexivity.
-
-         apply ps_zero_monom_eq.
-
         rewrite Htl; simpl.
         rewrite make_char_pol_of_pts_eq.
         progress unfold make_char_pol_of_pts.
@@ -1542,6 +1533,13 @@ assert (∀ iq αi, (iq, αi) ∈ pl → ∃ i, iq = Qnat i) as Hnat.
          apply nth_char_lap_eq_0; try assumption.
          intros m Hm2.
          apply Hm; right; assumption.
+
+        rewrite Hz; simpl.
+        set (f' := ps_ring R).
+        rewrite lap_eq_cons_nil; [ idtac | simpl | reflexivity ].
+         rewrite lap_mul_nil_l, lap_mul_nil_r, lap_add_nil_r; reflexivity.
+
+         apply ps_zero_monom_eq.
 
        rewrite ps_zero_monom_eq; reflexivity.
 

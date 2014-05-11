@@ -353,10 +353,6 @@ remember (āl * ps_monom 1%K (Qnat l * γ ns))%ps as s eqn:Hs .
 remember (null_coeff_range_length R (ps_terms s) 0) as n eqn:Hn .
 symmetry in Hn.
 destruct n as [n| ].
- Focus 2.
- unfold order; simpl.
- rewrite Hn; constructor.
-
  remember (points_of_ps_polynom pol) as pts eqn:Hpts .
  remember Hpts as Hval; clear HeqHval.
  remember (order āl) as m eqn:Hm .
@@ -491,6 +487,9 @@ destruct n as [n| ].
    constructor; [ apply IHlen | idtac ].
    destruct len; constructor.
    apply Nat.lt_succ_diag_r.
+
+ unfold order; simpl.
+ rewrite Hn; constructor.
 Qed.
 
 Lemma ps_list_in_split : ∀ (a : puiseux_series α) la,
@@ -1383,14 +1382,6 @@ assert (m ≠ 0)%ps as Hmnz.
    remember (ps_monom 1%K (- β ns)) as cc.
    remember (order (aa * bb)) as oaa.
    apply Qbar.lt_le_trans with (m := (qfin (- β ns) + oaa)%Qbar).
-    Focus 2.
-    destruct oaa as [oaa| ].
-     apply Qbar.add_le_mono_r; [ intros H; discriminate H | idtac ].
-     subst cc; apply ps_monom_order_ge.
-
-     simpl.
-     rewrite Qbar.add_comm; constructor.
-
     subst oaa.
     rewrite order_mul.
     rewrite Qbar.add_comm.
@@ -1429,6 +1420,13 @@ assert (m ≠ 0)%ps as Hmnz.
       eapply order_āh_minus_ah_xαh_gt_αh; eassumption.
 
       apply ps_monom_order_ge.
+
+    destruct oaa as [oaa| ].
+     apply Qbar.add_le_mono_r; [ intros H; discriminate H | idtac ].
+     subst cc; apply ps_monom_order_ge.
+
+     simpl.
+     rewrite Qbar.add_comm; constructor.
 
    clear m Hm.
    intros m Hm.
