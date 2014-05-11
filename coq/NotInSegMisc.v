@@ -8,8 +8,8 @@ Require Import Slope_base.
 Require Import ConvexHull.
 Require Import ConvexHullMisc.
 
-(* 1/ two lemmas very close to each other; another lemma to factorize them,
-   perhaps? the most part is normalization *)
+(* 1/ two lemmas very close to each other; another lemma to factorise them,
+   perhaps? the most part is normalisation *)
 (* 2/ perhaps could be proved shorter by the lemmas of Slope.v? *)
 Lemma ad_hoc_lt_lt₂ : ∀ i j k x y z,
   j < i < k
