@@ -31,7 +31,7 @@ eapply points_of_polyn_sorted; reflexivity.
 Qed.
 
 Theorem points_not_in_any_newton_segment : ∀ (pol : puis_ser_pol α) pts ns,
-  pts = points_of_ps_polynom r pol
+  pts = points_of_ps_polynom pol
   → ns ∈ newton_segments pol
     → ∀ h αh, (h, αh) ∈ pts ∧ (h, αh) ∉ [ini_pt ns; fin_pt ns … oth_pts ns]
       → β ns < αh + h * (γ ns).
@@ -86,7 +86,7 @@ destruct (Z.eq_dec xan yan) as [Han| Han].
 Qed.
 
 Theorem points_in_convex : ∀ (pol : puis_ser_pol α) pts ns,
-  pts = points_of_ps_polynom r pol
+  pts = points_of_ps_polynom pol
   → ns ∈ newton_segments pol
     → ∀ h αh, (h, αh) ∈ pts
       → β ns <= αh + h * (γ ns).

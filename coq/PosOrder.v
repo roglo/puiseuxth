@@ -357,7 +357,7 @@ destruct n as [n| ].
  unfold order; simpl.
  rewrite Hn; constructor.
 
- remember (points_of_ps_polynom R pol) as pts eqn:Hpts .
+ remember (points_of_ps_polynom pol) as pts eqn:Hpts .
  remember Hpts as Hval; clear HeqHval.
  remember (order āl) as m eqn:Hm .
  symmetry in Hm.
@@ -1403,7 +1403,7 @@ assert (m ≠ 0)%ps as Hmnz.
      rewrite Qplus_0_l.
      unfold Qminus, Qopp; simpl.
      rewrite Qplus_0_r.
-     remember (points_of_ps_polynom R pol) as pts.
+     remember (points_of_ps_polynom pol) as pts.
      eapply points_in_convex; try eassumption.
      eapply in_pol_in_pts; try eassumption.
      rewrite Hāh.

@@ -132,7 +132,7 @@ Variable α : Type.
 Variable r : ring α.
 
 Lemma pt_absc_is_nat : ∀ pol pts pt,
-  points_of_ps_polynom r pol = pts
+  points_of_ps_polynom pol = pts
   → pt ∈ pts
     → fst pt = Qnat (Z.to_nat (Qnum (fst pt))).
 Proof.
@@ -409,7 +409,7 @@ Lemma jq_lt_hq : ∀ (pol : puis_ser_pol α) j αj h αh ns,
 Proof.
 intros pol j αj h αh ns Hns Hjαj Hhαh.
 unfold newton_segments in Hns.
-remember (points_of_ps_polynom r pol) as pts.
+remember (points_of_ps_polynom pol) as pts.
 apply points_of_polyn_sorted in Heqpts.
 remember (lower_convex_hull_points pts) as hsl.
 unfold lower_convex_hull_points in Heqhsl.
@@ -527,7 +527,7 @@ Lemma hq_lt_kq : ∀ (pol : puis_ser_pol α) hq αh kq αk ns,
 Proof.
 intros pol hq αh kq αk ns Hns Hoth Hfin.
 unfold newton_segments in Hns.
-remember (points_of_ps_polynom r pol) as pts.
+remember (points_of_ps_polynom pol) as pts.
 apply points_of_polyn_sorted in Heqpts.
 remember (lower_convex_hull_points pts) as hsl.
 unfold lower_convex_hull_points in Heqhsl.
@@ -576,7 +576,7 @@ Lemma j_lt_k : ∀ (pol : puis_ser_pol α) j k ns,
 Proof.
 intros pol j k ns Hns Hj Hk.
 unfold newton_segments in Hns.
-remember (points_of_ps_polynom r pol) as pts.
+remember (points_of_ps_polynom pol) as pts.
 remember Heqpts as Hj₁; clear HeqHj₁; symmetry in Hj₁.
 eapply pt_absc_is_nat with (pt := ini_pt ns) in Hj₁.
  remember Heqpts as Hk₁; clear HeqHk₁; symmetry in Hk₁.
@@ -652,7 +652,7 @@ subst jz kz.
 unfold nat_num in Hns.
 apply Z2Nat.inj_lt; [ idtac | idtac | assumption ].
  unfold newton_segments in Hns.
- remember (points_of_ps_polynom r pol) as pts.
+ remember (points_of_ps_polynom pol) as pts.
  symmetry in Heqpts.
  remember Heqpts as Hpts; clear HeqHpts.
  apply pt_absc_is_nat with (pt := (j, aj)) in Hpts.
@@ -663,7 +663,7 @@ apply Z2Nat.inj_lt; [ idtac | idtac | assumption ].
   apply ini_fin_ns_in_init_pts; assumption.
 
  unfold newton_segments in Hns.
- remember (points_of_ps_polynom r pol) as pts.
+ remember (points_of_ps_polynom pol) as pts.
  symmetry in Heqpts.
  remember Heqpts as Hpts; clear HeqHpts.
  apply pt_absc_is_nat with (pt := (k, ak)) in Hpts.
@@ -896,7 +896,7 @@ assert (pow ≤ Z.to_nat (Qnum h)) as H.
 Qed.
 
 Lemma in_pts_in_pol : ∀ pol pts h hv hps def,
-  pts = points_of_ps_polynom r pol
+  pts = points_of_ps_polynom pol
   → (Qnat h, hv) ∈ pts
     → hps = List.nth h (al pol) def
       → hps ∈ al pol ∧ order hps = qfin hv.
@@ -1007,7 +1007,7 @@ destruct cl as [| c₁]; intros; simpl.
 Qed.
 
 Lemma in_pol_in_pts : ∀ pol pts h hv hps,
-  pts = points_of_ps_polynom r pol
+  pts = points_of_ps_polynom pol
   → hps = List.nth h (al pol) 0%ps
     → order hps = qfin hv
       → (Qnat h, hv) ∈ pts.
@@ -1088,7 +1088,7 @@ remember (ini_pt ns) as ii.
 destruct ii as ((inum, iden), αi).
 exists (Z.to_nat inum), αi.
 unfold newton_segments in Hns.
-remember (points_of_ps_polynom r pol) as pts.
+remember (points_of_ps_polynom pol) as pts.
 symmetry in Heqpts.
 apply ini_fin_ns_in_init_pts in Hns.
 destruct Hns as (Hns, _).
@@ -1106,7 +1106,7 @@ remember (fin_pt ns) as ii.
 destruct ii as ((inum, iden), αi).
 exists (Z.to_nat inum), αi.
 unfold newton_segments in Hns.
-remember (points_of_ps_polynom r pol) as pts.
+remember (points_of_ps_polynom pol) as pts.
 symmetry in Heqpts.
 apply ini_fin_ns_in_init_pts in Hns.
 destruct Hns as (_, Hns).
@@ -1124,7 +1124,7 @@ intros pol ns pt Hns Hpt.
 destruct pt as ((inum, iden), αi).
 exists (Z.to_nat inum), αi.
 unfold newton_segments in Hns.
-remember (points_of_ps_polynom r pol) as pts.
+remember (points_of_ps_polynom pol) as pts.
 symmetry in Heqpts.
 eapply oth_pts_in_init_pts in Hns; [ idtac | eassumption ].
 eapply pt_absc_is_nat in Heqpts; [ idtac | eassumption ].
@@ -1170,7 +1170,7 @@ apply exists_ini_pt_nat in Hini.
 apply exists_fin_pt_nat in Hfin.
 destruct Hini as (j, (αj, Hini)).
 destruct Hfin as (k, (αk, Hfin)).
-remember (points_of_ps_polynom r pol) as pts.
+remember (points_of_ps_polynom pol) as pts.
 remember (lower_convex_hull_points pts) as hsl.
 remember Hns as Hg; clear HeqHg.
 symmetry in Hini, Hfin.
@@ -1245,7 +1245,7 @@ apply exists_ini_pt_nat in Hini.
 apply exists_fin_pt_nat in Hfin.
 destruct Hini as (j, (αj, Hini)).
 destruct Hfin as (k, (αk, Hfin)).
-remember (points_of_ps_polynom r pol) as pts.
+remember (points_of_ps_polynom pol) as pts.
 remember (lower_convex_hull_points pts) as hsl.
 remember Hns as Hg; clear HeqHg.
 symmetry in Hini, Hfin.
@@ -1468,7 +1468,7 @@ Lemma com_den_of_oth_pt : ∀ pol ns m h αh mh,
 Proof.
 intros pol ns m h αh mh Hns Hm Hfin Hmh.
 remember (List.nth h (al pol) 0%ps) as hps.
-remember (points_of_ps_polynom r pol) as pts eqn:Hpts .
+remember (points_of_ps_polynom pol) as pts eqn:Hpts .
 eapply com_den_of_ps_list with (ps := hps); try eassumption.
  eapply in_pts_in_pol with (hv := αh); try eassumption.
  eapply oth_pts_in_init_pts; [ idtac | eassumption ].
@@ -1513,7 +1513,7 @@ Theorem q_mj_mk_eq_p_h_j : ∀ pol ns j αj m mj p q,
                   ∧ Z.of_nat q * (mj - mh) = p * Z.of_nat (h - j).
 Proof.
 intros pol ns j αj m mj p q Hns Hj Hm Hmj Hp Hq h αh mh Hh Hmh.
-remember (points_of_ps_polynom r pol) as pts eqn:Hpts .
+remember (points_of_ps_polynom pol) as pts eqn:Hpts .
 remember (List.nth h (al pol) 0%ps) as hps.
 apply List.in_app_or in Hh.
 unfold newton_segments in Hns.
@@ -2115,7 +2115,7 @@ intros pol ns Hns.
 constructor.
  remember Hns as Hns_v; clear HeqHns_v.
  unfold newton_segments in Hns.
- remember (points_of_ps_polynom r pol) as pts.
+ remember (points_of_ps_polynom pol) as pts.
  apply points_of_polyn_sorted in Heqpts.
  remember (lower_convex_hull_points pts) as hsl.
  unfold lower_convex_hull_points in Heqhsl.
@@ -2590,7 +2590,7 @@ rewrite list_length_shrink; simpl.
    apply Sorted_map.
    apply Sorted_fst_lt_nat_num_fst.
     intros a Ha.
-    remember (points_of_ps_polynom r pol) as pts.
+    remember (points_of_ps_polynom pol) as pts.
     symmetry in Heqpts.
     eapply pt_absc_is_nat; [ eassumption | idtac ].
     apply List.in_app_or in Ha.
@@ -2673,7 +2673,7 @@ destruct n as [n| ].
  apply null_coeff_range_length_iff in Hn.
  destruct Hn; assumption.
 
- remember (points_of_ps_polynom r pol) as pts eqn:Hpts .
+ remember (points_of_ps_polynom pol) as pts eqn:Hpts .
  remember Hpts as H; clear HeqH.
  eapply in_pts_in_pol in H; try eassumption.
   destruct H as (Hhp, Hhhv).

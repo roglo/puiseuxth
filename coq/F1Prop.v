@@ -447,7 +447,7 @@ destruct Hh as [Hh| Hh].
 Qed.
 
 Lemma in_points_of_ps_lap_gen_lt : ∀ la pow pt,
-  pt ∈ points_of_ps_lap_gen R pow la
+  pt ∈ points_of_ps_lap_gen pow la
   → (nat_num (fst pt) < pow + length la)%nat.
 Proof.
 intros la pow pt Hpt.
@@ -459,7 +459,7 @@ eapply in_power_list_lt; eassumption.
 Qed.
 
 Lemma in_points_of_ps_lap_lt : ∀ la pt,
-  pt ∈ points_of_ps_lap R la
+  pt ∈ points_of_ps_lap la
   → (nat_num (fst pt) < length la)%nat.
 Proof.
 intros la pt Hpt.
@@ -507,7 +507,7 @@ rewrite f₁_eq_term_with_Ψ_plus_sum with (l₂ := l₂); try eassumption.
   do 2 apply Sorted_map; simpl.
   apply Sorted_fst_lt_nat_num_fst.
    intros a Ha.
-   remember (points_of_ps_polynom R pol) as pts.
+   remember (points_of_ps_polynom pol) as pts.
    symmetry in Heqpts.
    eapply pt_absc_is_nat; [ eassumption | idtac ].
    eapply ns_in_init_pts; [ idtac | eassumption ].

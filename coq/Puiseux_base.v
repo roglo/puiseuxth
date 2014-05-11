@@ -57,17 +57,17 @@ Fixpoint filter_finite_ord α (r : ring α) (dpl : list (Q * puiseux_series α))
       []
   end.
 
-Definition points_of_ps_lap_gen α r pow (cl : list (puiseux_series α)) :=
+Definition points_of_ps_lap_gen α {r} pow (cl : list (puiseux_series α)) :=
   filter_finite_ord r (qpower_list pow cl).
 
-Definition points_of_ps_lap α r (lps : list (puiseux_series α)) :=
-  points_of_ps_lap_gen r 0 lps.
+Definition points_of_ps_lap α {R : ring α} lps :=
+  points_of_ps_lap_gen 0 lps.
 
-Definition points_of_ps_polynom α r (pol : polynomial (puiseux_series α)) :=
-  points_of_ps_lap r (al pol).
+Definition points_of_ps_polynom α {R : ring α} pol :=
+  points_of_ps_lap (al pol).
 
-Definition newton_segments α {r} (pol : polynomial (puiseux_series α)) :=
-  let gdpl := points_of_ps_polynom r pol in
+Definition newton_segments α {R : ring α} pol :=
+  let gdpl := points_of_ps_polynom pol in
   list_map_pairs newton_segment_of_pair (lower_convex_hull_points gdpl).
 
 Definition puis_ser_pol α := polynomial (puiseux_series α).
@@ -135,11 +135,11 @@ Qed.
 Lemma fold_points_of_ps_polynom_gen : ∀ pow (cl : list (puiseux_series α)),
   filter_finite_ord r
     (List.map (pair_rec (λ pow ps, (Qnat pow, ps))) (power_list pow cl)) =
-  points_of_ps_lap_gen r pow cl.
+  points_of_ps_lap_gen pow cl.
 Proof. reflexivity. Qed.
 
 Lemma points_of_polyn_sorted : ∀ deg (cl : list (puiseux_series α)) pts,
-  pts = points_of_ps_lap_gen r deg cl
+  pts = points_of_ps_lap_gen deg cl
   → Sorted fst_lt pts.
 Proof.
 intros deg cl pts Hpts.
@@ -152,7 +152,7 @@ induction cl as [| c]; intros.
  unfold points_of_ps_lap_gen in Hpts.
  remember [c … cl] as ccl; simpl in Hpts; subst ccl.
  destruct (order c₁) as [q | ]; [ idtac | eapply IHcl; eassumption ].
- remember (points_of_ps_lap_gen r (S deg) [c … cl]) as pts₁.
+ remember (points_of_ps_lap_gen (S deg) [c … cl]) as pts₁.
  subst pts; rename pts₁ into pts; rename Heqpts₁ into Hpts.
  clear IHcl.
  clear c₁.
