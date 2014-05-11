@@ -27,8 +27,8 @@ Definition ps_inv {α} {r : ring α} {f : field r} ps :=
 
 Notation "¹/ a" := (ps_inv a) : ps_scope.
 
-Definition ps_left_adjust α (r : ring α) ps :=
-  match null_coeff_range_length r (ps_terms ps) O with
+Definition ps_left_adjust α {R : ring α} ps :=
+  match null_coeff_range_length R (ps_terms ps) O with
   | fin n =>
       {| ps_terms := series_left_shift n (ps_terms ps);
          ps_ordnum := ps_ordnum ps + Z.of_nat n;
@@ -45,7 +45,7 @@ Variable f : field r.
 
 Lemma null_coeff_range_length_left_adjust : ∀ n ps,
   null_coeff_range_length r (ps_terms ps) 0 = fin n
-  → null_coeff_range_length r (ps_terms (ps_left_adjust r ps)) 0 = 0%Nbar.
+  → null_coeff_range_length r (ps_terms (ps_left_adjust ps)) 0 = 0%Nbar.
 Proof.
 intros n ps Hn.
 unfold ps_left_adjust; simpl.
@@ -63,7 +63,7 @@ Qed.
 
 Lemma null_coeff_range_length_inf_left_adjust : ∀ ps,
   null_coeff_range_length r (ps_terms ps) 0 = ∞
-  → null_coeff_range_length r (ps_terms (ps_left_adjust r ps)) 0 = ∞.
+  → null_coeff_range_length r (ps_terms (ps_left_adjust ps)) 0 = ∞.
 Proof.
 intros ps Hn.
 apply null_coeff_range_length_iff.
@@ -73,15 +73,15 @@ apply null_coeff_range_length_iff in Hn.
 assumption.
 Qed.
 
-Lemma ps_left_adjust_eq : ∀ ps, (ps = ps_left_adjust r ps)%ps.
+Lemma ps_left_adjust_eq : ∀ ps, (ps = ps_left_adjust ps)%ps.
 Proof.
 intros ps.
 remember (null_coeff_range_length r (ps_terms ps) 0) as n eqn:Hn .
 symmetry in Hn.
 destruct n as [n| ].
  constructor; constructor; simpl.
-  erewrite ps_ordnum_normalize; try reflexivity; try eassumption.
-  erewrite ps_ordnum_normalize with (n := O); try reflexivity; try eassumption.
+  erewrite ps_ordnum_normalise; try reflexivity; try eassumption.
+  erewrite ps_ordnum_normalise with (n := O); try reflexivity; try eassumption.
    rewrite Z.add_0_r.
    unfold ps_left_adjust.
    rewrite Hn.
@@ -91,8 +91,8 @@ destruct n as [n| ].
 
    eapply null_coeff_range_length_left_adjust; eassumption.
 
-  erewrite ps_polord_normalize; try reflexivity; try eassumption.
-  erewrite ps_polord_normalize with (n := O); try reflexivity; try eassumption.
+  erewrite ps_polord_normalise; try reflexivity; try eassumption.
+  erewrite ps_polord_normalise with (n := O); try reflexivity; try eassumption.
    rewrite Z.add_0_r.
    unfold ps_left_adjust.
    rewrite Hn.
@@ -102,31 +102,31 @@ destruct n as [n| ].
 
    eapply null_coeff_range_length_left_adjust; eassumption.
 
-  erewrite ps_terms_normalize; try reflexivity; try eassumption.
-  erewrite ps_terms_normalize with (n := O); try reflexivity; try eassumption.
+  erewrite ps_terms_normalise; try reflexivity; try eassumption.
+  erewrite ps_terms_normalise with (n := O); try reflexivity; try eassumption.
    rewrite Z.add_0_r.
    unfold ps_left_adjust.
    rewrite Hn.
    remember Z.gcd as g; simpl; subst g.
    rewrite greatest_series_x_power_left_shift.
    rewrite Nat.add_0_r.
-   unfold normalize_series.
+   unfold normalise_series.
    rewrite series_left_shift_0; reflexivity.
 
    eapply null_coeff_range_length_left_adjust; eassumption.
 
  constructor; constructor; simpl.
-  unfold normalize_ps.
+  unfold normalise_ps.
   rewrite Hn.
   rewrite null_coeff_range_length_inf_left_adjust; [ reflexivity | idtac ].
   assumption.
 
-  unfold normalize_ps.
+  unfold normalise_ps.
   rewrite Hn.
   rewrite null_coeff_range_length_inf_left_adjust; [ reflexivity | idtac ].
   assumption.
 
-  unfold normalize_ps.
+  unfold normalise_ps.
   rewrite Hn.
   rewrite null_coeff_range_length_inf_left_adjust; [ reflexivity | idtac ].
   assumption.
@@ -147,14 +147,14 @@ constructor; intros n; simpl.
 rewrite Nat.mul_1_r; reflexivity.
 Qed.
 
-Lemma normalize_ps_1 : (normalize_ps r 1 ≐ 1)%ps.
+Lemma normalise_ps_1 : (normalise_ps 1 ≐ 1)%ps.
 Proof.
 remember (null_coeff_range_length r (ps_terms 1%ps) 0) as n eqn:Hn .
 symmetry in Hn.
 destruct n as [n| ].
  destruct n.
   constructor; simpl.
-   erewrite ps_ordnum_normalize; try reflexivity; try eassumption.
+   erewrite ps_ordnum_normalise; try reflexivity; try eassumption.
    rewrite Z.add_0_r.
    remember Z.gcd as g; simpl; subst g.
    rewrite Z.gcd_0_l.
@@ -162,17 +162,17 @@ destruct n as [n| ].
    rewrite Z.div_0_l; [ reflexivity | idtac ].
    intros H; discriminate H.
 
-   erewrite ps_polord_normalize; try reflexivity; try eassumption.
+   erewrite ps_polord_normalise; try reflexivity; try eassumption.
    remember Z.gcd as g; simpl; subst g.
    rewrite Z.gcd_1_l.
    reflexivity.
 
-   erewrite ps_terms_normalize; try reflexivity; try eassumption.
+   erewrite ps_terms_normalise; try reflexivity; try eassumption.
    rewrite Z.add_0_r.
    remember Z.gcd as g; simpl; subst g.
    rewrite Z.gcd_0_l.
    rewrite Z.gcd_1_l.
-   unfold normalize_series; simpl.
+   unfold normalise_series; simpl.
    rewrite series_shrink_1.
    rewrite series_left_shift_0; reflexivity.
 
@@ -180,7 +180,7 @@ destruct n as [n| ].
   destruct Hn as (_, Hn).
   exfalso; apply Hn; reflexivity.
 
- unfold normalize_ps.
+ unfold normalise_ps.
  rewrite Hn.
  constructor; try reflexivity.
  constructor; intros i; simpl.
@@ -242,7 +242,7 @@ intros ps Hps.
 remember (null_coeff_range_length r (ps_terms ps) 0) as n eqn:Hn .
 symmetry in Hn.
 destruct n as [n| ].
- assert (ps = ps_left_adjust r ps)%ps as H by apply ps_left_adjust_eq.
+ assert (ps = ps_left_adjust ps)%ps as H by apply ps_left_adjust_eq.
  rewrite ps_mul_comm.
  rewrite H in |- * at 1.
  unfold ps_inv; simpl.
@@ -260,8 +260,8 @@ destruct n as [n| ].
   rewrite Z.add_simpl_r.
   rewrite Z.sub_diag, Z.mul_0_l.
   constructor.
-  rewrite normalize_ps_1.
-  unfold normalize_ps; simpl.
+  rewrite normalise_ps_1.
+  unfold normalise_ps; simpl.
   remember (null_coeff_range_length r 1%ser 0) as m eqn:Hm .
   symmetry in Hm.
   destruct m as [m| ].
@@ -273,7 +273,7 @@ destruct n as [n| ].
      rewrite greatest_series_x_power_series_1.
      rewrite Z.gcd_0_r; simpl.
      rewrite Z.div_same; [ idtac | apply Pos2Z_ne_0 ].
-     unfold normalize_series; simpl.
+     unfold normalise_series; simpl.
      rewrite series_left_shift_0.
      unfold series_shrink; simpl.
      constructor; try reflexivity; simpl.
@@ -311,32 +311,32 @@ Qed.
 
 End theorems.
 
-Definition ps_ring α (r : ring α) : ring (puiseux_series α) :=
+Definition ps_ring α (R : ring α) : ring (puiseux_series α) :=
   {| rng_zero := ps_zero;
      rng_one := ps_one;
      rng_add := ps_add;
      rng_mul := ps_mul;
      rng_opp := ps_opp;
      rng_eq := eq_ps;
-     rng_eq_refl := eq_ps_refl r;
-     rng_eq_sym := eq_ps_sym (r := r);
-     rng_eq_trans := eq_ps_trans (r := r);
-     rng_add_comm := ps_add_comm r;
-     rng_add_assoc := ps_add_assoc r;
-     rng_add_0_l := ps_add_0_l r;
-     rng_add_opp_l := ps_add_opp_l r;
-     rng_add_compat_l := @ps_add_compat_l α r;
-     rng_mul_comm := ps_mul_comm r;
-     rng_mul_assoc := ps_mul_assoc r;
-     rng_mul_1_l := ps_mul_1_l r;
-     rng_mul_compat_l := @ps_mul_compat_l α r;
-     rng_mul_add_distr_l := ps_mul_add_distr_l r |}.
+     rng_eq_refl := eq_ps_refl R;
+     rng_eq_sym := eq_ps_sym (r := R);
+     rng_eq_trans := eq_ps_trans (r := R);
+     rng_add_comm := ps_add_comm R;
+     rng_add_assoc := ps_add_assoc R;
+     rng_add_0_l := ps_add_0_l R;
+     rng_add_opp_l := ps_add_opp_l R;
+     rng_add_compat_l := @ps_add_compat_l α R;
+     rng_mul_comm := ps_mul_comm R;
+     rng_mul_assoc := ps_mul_assoc R;
+     rng_mul_1_l := ps_mul_1_l R;
+     rng_mul_compat_l := @ps_mul_compat_l α R;
+     rng_mul_add_distr_l := ps_mul_add_distr_l R |}.
 
 Canonical Structure ps_ring.
 
-Definition ps_field α (r : ring α) (f : field r) : field (ps_ring r) :=
+Definition ps_field α {R : ring α} {K : field R} : field (ps_ring R) :=
   {| fld_inv := ps_inv;
-     fld_mul_inv_l := ps_mul_inv_l f |}.
+     fld_mul_inv_l := ps_mul_inv_l K |}.
 
 Canonical Structure ps_field.
 

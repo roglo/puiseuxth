@@ -41,11 +41,11 @@ Definition pol₁ α {R : ring α} pol β₁ γ₁ c₁ :=
 
 (* *)
 
-Definition lap_summation α (r : ring α) (li : list nat) g :=
+Definition lap_summation α {R : ring α} (li : list nat) g :=
   List.fold_right (λ i accu, lap_add accu (g i)) [] li.
 
-Definition poly_summation α (r : ring α) (li : list nat) g :=
-  (POL (lap_summation r li (λ i, al (g i))))%pol.
+Definition poly_summation α {R : ring α} (li : list nat) g :=
+  (POL (lap_summation li (λ i, al (g i))))%pol.
 
 Definition lap_inject_K_in_Kx α {R : ring α} la :=
   List.map (λ c, ps_monom c 0) la.
@@ -180,8 +180,8 @@ Variable R : ring α.
 
 Lemma split_summation : ∀ g l l₁ l₂,
   split_list l l₁ l₂
-  → (poly_summation R l₁ g + poly_summation R l₂ g =
-     poly_summation R l g)%pol.
+  → (poly_summation l₁ g + poly_summation l₂ g =
+     poly_summation l g)%pol.
 Proof.
 intros g l l₁ l₂ Hss.
 progress unfold poly_summation; simpl.
@@ -243,8 +243,8 @@ induction n; simpl.
 Qed.
 
 Lemma poly_summation_add : ∀ g h l,
-  (poly_summation R l g + poly_summation R l h =
-   poly_summation R l (λ i, g i + h i))%pol.
+  (poly_summation l g + poly_summation l h =
+   poly_summation l (λ i, g i + h i))%pol.
 Proof.
 intros g h l.
 progress unfold poly_summation, eq_poly; simpl.
@@ -434,7 +434,7 @@ Fixpoint ord_of_pt i pl :=
 Lemma summation_split_val : ∀ pol ns γ₁ c₁ pl tl l,
   ns ∈ newton_segments pol
   → pl = [ini_pt ns … oth_pts ns ++ [fin_pt ns]]
-    → tl = List.map (term_of_point R pol) pl
+    → tl = List.map (term_of_point pol) pl
       → l = List.map (λ t, power t) tl
         → (ps_pol_summ l
              (λ h,
@@ -484,7 +484,7 @@ Qed.
 Theorem f₁_eq_sum_α_hγ_to_rest : ∀ pol ns β₁ γ₁ c₁ pl tl l₁ l₂,
   ns ∈ newton_segments pol
   → pl = [ini_pt ns … oth_pts ns ++ [fin_pt ns]]
-    → tl = List.map (term_of_point R pol) pl
+    → tl = List.map (term_of_point pol) pl
       → l₁ = List.map (λ t, power t) tl
         → split_list (List.seq 0 (length (al pol))) l₁ l₂
           → (pol₁ pol β₁ γ₁ c₁ =
@@ -607,7 +607,7 @@ Qed.
 Lemma subst_αh_hγ : ∀ pol ns pl tl l₁ c₁,
   ns ∈ newton_segments pol
   → pl = [ini_pt ns … oth_pts ns ++ [fin_pt ns]]
-    → tl = List.map (term_of_point R pol) pl
+    → tl = List.map (term_of_point pol) pl
       → l₁ = List.map (λ t, power t) tl
         → (ps_pol_summ l₁
              (λ h,
@@ -673,7 +673,7 @@ Qed.
 Theorem f₁_eq_sum_without_x_β₁_plus_sum : ∀ pol ns c₁ pl tl l₁ l₂,
   ns ∈ newton_segments pol
   → pl = [ini_pt ns … oth_pts ns ++ [fin_pt ns]]
-    → tl = List.map (term_of_point R pol) pl
+    → tl = List.map (term_of_point pol) pl
       → l₁ = List.map (λ t, power t) tl
         → split_list (List.seq 0 (length (al pol))) l₁ l₂
           → (pol₁ pol (β ns) (γ ns) c₁ =
@@ -730,7 +730,7 @@ Qed.
 
 Lemma lap_summation_compat_r : ∀ A (r : ring A) g h la,
   (∀ i, lap_eq (g i) (h i))
-  → lap_eq (lap_summation r la g) (lap_summation r la h).
+  → lap_eq (lap_summation la g) (lap_summation la h).
 Proof.
 intros A r g h la Hi.
 induction la as [| a]; [ reflexivity | simpl ].
@@ -1074,7 +1074,7 @@ Fixpoint make_char_lap_of_hl la pow hl :=
   | [] => []
   | [h … hl₁] =>
       let ps := List.nth h la 0%ps in
-      let c := order_coeff R ps in
+      let c := order_coeff ps in
       list_pad (h - pow) 0%K [c … make_char_lap_of_hl la (S h) hl₁]
   end.
 
@@ -1085,7 +1085,7 @@ Fixpoint coeff_of_hl la i hl :=
   match hl with
   | [] => 0%K
   | [h … hl₁] =>
-      if eq_nat_dec i h then order_coeff R (List.nth h la 0%ps)
+      if eq_nat_dec i h then order_coeff (List.nth h la 0%ps)
       else coeff_of_hl la i hl₁
   end.
 
@@ -1093,7 +1093,7 @@ Definition coeff_of_pt pol i (pts : list (Q * Q)) :=
   coeff_of_hl (al pol) i (List.map (λ pt, nat_num (fst pt)) pts).
 
 Lemma make_char_pol_of_pts_eq : ∀ pol pts j,
-  make_char_pol R j (List.map (term_of_point R pol) pts) =
+  make_char_pol R j (List.map (term_of_point pol) pts) =
   make_char_pol_of_pts pol j pts.
 Proof.
 intros pol pts j.
@@ -1103,7 +1103,7 @@ rewrite IHpts; reflexivity.
 Qed.
 
 Lemma coeff_of_term_pt_eq : ∀ pol pts i,
-  coeff_of_term i (List.map (term_of_point R pol) pts) =
+  coeff_of_term i (List.map (term_of_point pol) pts) =
   coeff_of_pt pol i pts.
 Proof.
 intros pol pts i.
@@ -1311,7 +1311,7 @@ destruct i.
 
    apply Nat.nle_gt in H₁.
    revert H₁; clear; intros.
-   remember (order_coeff R (List.nth n la 0%ps)) as v.
+   remember (order_coeff (List.nth n la 0%ps)) as v.
    remember (make_char_lap_of_hl la (S n) li) as l.
    remember [v … l] as vl.
    revert H₁; clear; intros.
@@ -1335,7 +1335,7 @@ Qed.
 Theorem sum_ah_c₁y_h_eq : ∀ pol ns pl tl l c₁ j αj,
   ns ∈ newton_segments pol
   → pl = [ini_pt ns … oth_pts ns ++ [fin_pt ns]]
-    → tl = List.map (term_of_point R pol) pl
+    → tl = List.map (term_of_point pol) pl
       → l = List.map (λ t, power t) tl
         → ini_pt ns = (Qnat j, αj)
           → (ps_pol_summ l
@@ -1566,8 +1566,8 @@ Qed.
 
 (* to be moved to the right file... *)
 Lemma ps_monom_summation : ∀ f n,
-  (ps_monom (Σ R (i = 0, n), f i) 0 =
-   Σ (ps_ring R) (i = 0, n), ps_monom (f i) 0)%ps.
+  (ps_monom (Σ (i = 0, n), f i) 0 =
+   @summation _ (ps_ring R) 0 n (λ i, ps_monom (f i) 0))%ps.
 Proof.
 intros f n.
 apply ps_monom_summation_aux.
@@ -1667,10 +1667,11 @@ apply lap_mul_map_ps.
 Qed.
 
 Lemma summation_lap_compose_deg_1_mul : ∀ la c d k f,
-  (Σ (ps_ring R) (i = 0, k),
+  let _ := ps_ring R in
+  (Σ (i = 0, k),
    (List.nth (f i) (la ∘ [c; 1 … []])%pslap 0 * d i)%ps =
-   Σ (ps_ring R) (i = 0, k),
-   (Σ (ps_ring R) (j = 0, length la - f i),
+   Σ (i = 0, k),
+   (Σ (j = 0, length la - f i),
     rng_mul_nat (ps_ring R) (comb (f i + j) (f i))
       (List.nth (f i + j) la 0 * rng_pow_nat (ps_ring R) c j)) *
     d i)%ps.
@@ -1747,7 +1748,7 @@ Theorem phi_c₁y₁_psy : ∀ pol ns pl tl l c₁ r Ψ j αj,
     → r = root_multiplicity acf c₁ (Φq pol ns)
       → Ψ = quotient_phi_x_sub_c_pow_r (Φq pol ns) c₁ r
         → pl = [ini_pt ns … oth_pts ns ++ [fin_pt ns]]
-          → tl = List.map (term_of_point R pol) pl
+          → tl = List.map (term_of_point pol) pl
             → l = List.map (λ t, power t) tl
               → ini_pt ns = (Qnat j, αj)
                 → (POL [ps_monom c₁ 0; 1%ps … []] ^ j *
@@ -1807,7 +1808,7 @@ Theorem f₁_eq_term_with_Ψ_plus_sum : ∀ pol ns c₁ pl tl j αj l₁ l₂ r 
     → r = root_multiplicity acf c₁ (Φq pol ns)
       → Ψ = quotient_phi_x_sub_c_pow_r (Φq pol ns) c₁ r
         → pl = [ini_pt ns … oth_pts ns ++ [fin_pt ns]]
-          → tl = List.map (term_of_point R pol) pl
+          → tl = List.map (term_of_point pol) pl
             → l₁ = List.map (λ t, power t) tl
               → split_list (List.seq 0 (length (al pol))) l₁ l₂
                 → ini_pt ns = (Qnat j, αj)

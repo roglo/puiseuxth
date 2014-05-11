@@ -18,10 +18,10 @@ Notation "s .[ i ]" := (@terms _ s i) (at level 1).
 Definition series_0 {α} {r : ring α} :=
   {| terms i := 0%K |}.
 
-Definition series_const α (r : ring α) c :=
+Definition series_const α {R : ring α} c :=
   {| terms i := if zerop i then c else 0%K |}.
-Definition series_1 {α} {r : ring α} :=
-  series_const r (1%K).
+Definition series_1 {α} {R : ring α} :=
+  series_const (1%K).
 
 Delimit Scope series_scope with ser.
 Notation "0" := series_0 : series_scope.
@@ -68,7 +68,7 @@ Add Parametric Relation α (r : ring α) : (power_series α) eq_series
 
 Lemma fold_series_const : ∀ α (r : ring α) c,
   {| terms := λ i, if zerop i then c else 0%K |} =
-  series_const r c.
+  series_const c.
 Proof. reflexivity. Qed.
 
 (* series_add *)
@@ -133,7 +133,7 @@ End theorems_add.
 (* series_mul *)
 
 Definition convol_mul {α} {r : ring α} a b k :=
-  Σ r (i = 0, k), (a.[i] * b.[k-i])%K.
+  Σ (i = 0, k), (a.[i] * b.[k-i])%K.
 
 Definition series_mul {α} {r : ring α} a b :=
   {| terms k := convol_mul a b k |}.
@@ -335,7 +335,7 @@ Fixpoint term_inv {α} {r : ring α} {f : field r} c s n :=
    | O => 0%K
    | S c₁ =>
        (- ¹/ (s.[0]) *
-        Σ r (i = 1, n), s.[i] * term_inv c₁ s (n - i)%nat)%K
+        Σ (i = 1, n), s.[i] * term_inv c₁ s (n - i)%nat)%K
    end.
 
 Definition series_inv {α} {r : ring α} {f : field r} s :=
@@ -382,7 +382,7 @@ Lemma term_inv_nth_gen_formula : ∀ k a a' i,
     → (S k - i ≠ 0)%nat
       → (a'.[S k - i] =
          - a'.[0] *
-         Σ R (j = 1, S k - i),
+         Σ (j = 1, S k - i),
          a.[j] * term_inv (S k) a (S k - i - j))%K.
 Proof.
 (* à revoir... *)
@@ -420,7 +420,7 @@ Lemma term_inv_nth_formula : ∀ k a a',
   (a.[0] ≠ 0)%K
   → a' = series_inv a
     → (a'.[S k] =
-       - a'.[0] * Σ R (i = 1, S k), a.[i] * a'.[S k - i])%K.
+       - a'.[0] * Σ (i = 1, S k), a.[i] * a'.[S k - i])%K.
 Proof.
 intros k a a' Ha Ha'.
 pose proof (term_inv_nth_gen_formula k O Ha Ha') as H.
@@ -492,7 +492,7 @@ Qed.
 
 End lemmas_again.
 
-Definition series_ring α (r : ring α) : ring (power_series α) :=
+Definition series_ring α {R : ring α} : ring (power_series α) :=
   {| rng_zero := series_0;
      rng_one := series_1;
      rng_add := series_add;
@@ -500,17 +500,17 @@ Definition series_ring α (r : ring α) : ring (power_series α) :=
      rng_opp := series_opp;
      rng_eq := eq_series;
      rng_eq_refl := eq_series_refl;
-     rng_eq_sym := eq_series_sym (r := r);
-     rng_eq_trans := eq_series_trans (r := r);
-     rng_add_comm := series_add_comm r;
-     rng_add_assoc := series_add_assoc r;
-     rng_add_0_l := series_add_0_l r;
-     rng_add_opp_l := series_add_opp_l r;
-     rng_add_compat_l := @series_add_compat_l α r;
-     rng_mul_comm := series_mul_comm r;
-     rng_mul_assoc := series_mul_assoc r;
-     rng_mul_1_l := series_mul_1_l r;
-     rng_mul_compat_l := @series_mul_compat_l α r;
-     rng_mul_add_distr_l := series_mul_add_distr_l r |}.
+     rng_eq_sym := eq_series_sym (r := R);
+     rng_eq_trans := eq_series_trans (r := R);
+     rng_add_comm := series_add_comm R;
+     rng_add_assoc := series_add_assoc R;
+     rng_add_0_l := series_add_0_l R;
+     rng_add_opp_l := series_add_opp_l R;
+     rng_add_compat_l := @series_add_compat_l α R;
+     rng_mul_comm := series_mul_comm R;
+     rng_mul_assoc := series_mul_assoc R;
+     rng_mul_1_l := series_mul_1_l R;
+     rng_mul_compat_l := @series_mul_compat_l α R;
+     rng_mul_add_distr_l := series_mul_add_distr_l R |}.
 
 Canonical Structure series_ring.

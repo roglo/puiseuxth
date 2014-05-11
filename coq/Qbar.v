@@ -199,7 +199,7 @@ Qed.
 Theorem lt_irrefl : ∀ x, ¬(x < x).
 Proof.
 intros x H.
-destruct x as [x| ]; [ idtac | inversion H].
+destruct x as [x| ]; [ idtac | inversion H ].
 apply qfin_lt_mono in H.
 revert H; apply Qlt_irrefl.
 Qed.

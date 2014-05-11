@@ -31,8 +31,8 @@ Definition order {α} {r : ring α} ps :=
 
 Arguments order _ _ ps%ps_scope.
 
-Definition order_coeff α (r : ring α) ps :=
-  match null_coeff_range_length r (ps_terms ps) 0 with
+Definition order_coeff α {R : ring α} ps :=
+  match null_coeff_range_length R (ps_terms ps) 0 with
   | fin v => (ps_terms ps) .[v]
   | ∞ => (0)%K
   end.
@@ -278,7 +278,7 @@ Add Parametric Morphism α (R : ring α) : (@order α R)
 Proof.
 intros a b Hab.
 inversion Hab; subst.
-unfold normalize_ps in H; simpl in H.
+unfold normalise_ps in H; simpl in H.
 unfold order.
 remember (null_coeff_range_length R (ps_terms a) 0) as na eqn:Hna .
 remember (null_coeff_range_length R (ps_terms b) 0) as nb eqn:Hnb .
@@ -288,7 +288,7 @@ destruct na as [na| ].
   inversion_clear H.
   simpl in H0, H1, H2.
   unfold Qbar.qeq, Qeq; simpl.
-  unfold normalize_series in H2.
+  unfold normalise_series in H2.
   remember (greatest_series_x_power R (ps_terms a) na) as apn.
   remember (greatest_series_x_power R (ps_terms b) nb) as bpn.
   assert (0 < gcd_ps na apn a)%Z as Hpga by apply gcd_ps_is_pos.

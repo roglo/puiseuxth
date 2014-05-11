@@ -12,8 +12,8 @@ Require Import Puiseux_series.
 
 Set Implicit Arguments.
 
-Definition adjust_ps α (r : ring α) n k ps :=
-  {| ps_terms := series_shift r n (series_stretch r k (ps_terms ps));
+Definition adjust_ps α {R : ring α} n k ps :=
+  {| ps_terms := series_shift n (series_stretch k (ps_terms ps));
      ps_ordnum := ps_ordnum ps * Zpos k - Z.of_nat n;
      ps_polord := ps_polord ps * k |}.
 
@@ -35,7 +35,7 @@ Qed.
 
 Lemma greatest_series_x_power_stretch_inf : ∀ s b k,
   null_coeff_range_length r s (S b) = ∞
-  → greatest_series_x_power r (series_stretch r k s) (b * Pos.to_nat k) = O.
+  → greatest_series_x_power r (series_stretch k s) (b * Pos.to_nat k) = O.
 Proof.
 intros s b k Hs.
 remember (greatest_series_x_power r s b) as n eqn:Hn .
@@ -56,10 +56,10 @@ rewrite Z.gcd_0_r; reflexivity.
 Qed.
 
 Lemma ps_normal_adjust_eq : ∀ ps n k,
-  normalize_ps r ps ≐ normalize_ps r (adjust_ps r n k ps).
+  normalise_ps ps ≐ normalise_ps (adjust_ps n k ps).
 Proof.
 intros ps n k.
-unfold normalize_ps; simpl.
+unfold normalise_ps; simpl.
 rewrite null_coeff_range_length_shift.
 rewrite null_coeff_range_length_stretch_0.
 rewrite Nbar.add_comm, Nbar.mul_comm.
@@ -95,7 +95,7 @@ destruct p as [p| ].
   rewrite Z.div_mul_cancel_l.
    rewrite <- Pos2Z.inj_mul, Pos.mul_comm, Pos2Z.inj_mul.
    rewrite Z.div_mul_cancel_l.
-    unfold normalize_series.
+    unfold normalise_series.
     rewrite Z2Pos.inj_mul; [ idtac | apply Pos2Z.is_pos | idtac ].
      rewrite Pos.mul_comm.
      rewrite series_shrink_shrink.
@@ -141,7 +141,7 @@ destruct p as [p| ].
  rewrite Z.div_mul_cancel_l.
   rewrite <- Pos2Z.inj_mul, Pos.mul_comm, Pos2Z.inj_mul.
   rewrite Z.div_mul_cancel_l.
-   unfold normalize_series.
+   unfold normalise_series.
    rewrite Z2Pos.inj_mul; [ idtac | apply Pos2Z.is_pos | idtac ].
     rewrite Pos.mul_comm.
     rewrite series_shrink_shrink.
@@ -173,7 +173,7 @@ destruct p as [p| ].
   apply Pos2Z_ne_0.
 Qed.
 
-Theorem ps_adjust_eq : ∀ ps n k, (ps = adjust_ps r n k ps)%ps.
+Theorem ps_adjust_eq : ∀ ps n k, (ps = adjust_ps n k ps)%ps.
 Proof.
 intros ps n k.
 constructor.
@@ -182,18 +182,18 @@ Qed.
 
 End first_lemmas.
 
-Definition adjust_series α (r : ring α) n k s :=
-  series_shift r n (series_stretch r k s).
+Definition adjust_series α {R : ring α} n k s :=
+  series_shift n (series_stretch k s).
 
-Definition ps_terms_add α (r : ring α) (ps₁ ps₂ : puiseux_series α) :=
+Definition ps_terms_add α {R : ring α} (ps₁ ps₂ : puiseux_series α) :=
   let k₁ := cm_factor ps₁ ps₂ in
   let k₂ := cm_factor ps₂ ps₁ in
   let v₁ := (ps_ordnum ps₁ * Zpos k₁)%Z in
   let v₂ := (ps_ordnum ps₂ * Zpos k₂)%Z in
   let n₁ := Z.to_nat (v₁ - Z.min v₁ v₂) in
   let n₂ := Z.to_nat (v₂ - Z.min v₂ v₁) in
-  let s₁ := adjust_series r n₁ k₁ (ps_terms ps₁) in
-  let s₂ := adjust_series r n₂ k₂ (ps_terms ps₂) in
+  let s₁ := adjust_series n₁ k₁ (ps_terms ps₁) in
+  let s₂ := adjust_series n₂ k₂ (ps_terms ps₂) in
   series_add s₁ s₂.
 
 Definition ps_ordnum_add α (ps₁ ps₂ : puiseux_series α) :=
@@ -204,27 +204,27 @@ Definition ps_ordnum_add α (ps₁ ps₂ : puiseux_series α) :=
   Z.min v₁ v₂.
 
 Definition ps_add {α} {r : ring α} (ps₁ ps₂ : puiseux_series α) :=
-  {| ps_terms := ps_terms_add r ps₁ ps₂;
+  {| ps_terms := ps_terms_add ps₁ ps₂;
      ps_ordnum := ps_ordnum_add ps₁ ps₂;
      ps_polord := cm ps₁ ps₂ |}.
 
 (* I prefer this other version for addition; proved strongly equal to
    ps_add below; could be the main and only one, perhaps ? *)
 
-Definition adjusted_ps_add α (r : ring α) ps₁ ps₂ :=
+Definition adjusted_ps_add α {R : ring α} ps₁ ps₂ :=
   {| ps_terms := series_add (ps_terms ps₁) (ps_terms ps₂);
      ps_ordnum := ps_ordnum ps₁;
      ps_polord := ps_polord ps₁ |}.
 
-Definition adjust_ps_from α (r : ring α) ps₁ ps₂ :=
+Definition adjust_ps_from α {R : ring α} ps₁ ps₂ :=
   let k₁ := cm_factor ps₁ ps₂ in
   let k₂ := cm_factor ps₂ ps₁ in
   let v₁ := (ps_ordnum ps₁ * Zpos k₁)%Z in
   let v₂ := (ps_ordnum ps₂ * Zpos k₂)%Z in
-  adjust_ps r (Z.to_nat (v₂ - Z.min v₁ v₂)) k₂ ps₂.
+  adjust_ps (Z.to_nat (v₂ - Z.min v₁ v₂)) k₂ ps₂.
 
 Definition ps_add₂ {α} {r : ring α} (ps₁ ps₂ : puiseux_series α) :=
-  adjusted_ps_add r (adjust_ps_from r ps₂ ps₁) (adjust_ps_from r ps₁ ps₂).
+  adjusted_ps_add (adjust_ps_from ps₂ ps₁) (adjust_ps_from ps₁ ps₂).
 
 Notation "a + b" := (ps_add a b) : ps_scope.
 
@@ -242,8 +242,8 @@ Variable α : Type.
 Variable r : ring α.
 
 Lemma series_stretch_add_distr : ∀ k s₁ s₂,
-  (series_stretch r k (s₁ + s₂) =
-   series_stretch r k s₁ + series_stretch r k s₂)%ser.
+  (series_stretch k (s₁ + s₂) =
+   series_stretch k s₁ + series_stretch k s₂)%ser.
 Proof.
 intros kp s₁ s₂.
 constructor; intros i; simpl.
@@ -254,7 +254,7 @@ rewrite rng_add_0_l; reflexivity.
 Qed.
 
 Lemma ps_terms_add_comm : ∀ ps₁ ps₂,
-  (ps_terms_add r ps₁ ps₂ = ps_terms_add r ps₂ ps₁)%ser.
+  (ps_terms_add ps₁ ps₂ = ps_terms_add ps₂ ps₁)%ser.
 Proof.
 intros ps₁ ps₂.
 unfold ps_terms_add.
@@ -308,8 +308,8 @@ Qed.
 *)
 
 Lemma series_shift_add_distr : ∀ s₁ s₂ n,
-  (series_shift r n (s₁ + s₂) =
-   series_shift r n s₁ + series_shift r n s₂)%ser.
+  (series_shift n (s₁ + s₂) =
+   series_shift n s₁ + series_shift n s₂)%ser.
 Proof.
 intros s₁ s₂ n.
 constructor; intros i; simpl.
@@ -318,8 +318,8 @@ rewrite rng_add_0_l; reflexivity.
 Qed.
 
 Lemma ps_terms_add_assoc : ∀ ps₁ ps₂ ps₃,
-  (ps_terms_add r (ps₁ + ps₂)%ps ps₃ =
-   ps_terms_add r ps₁ (ps₂ + ps₃)%ps)%ser.
+  (ps_terms_add (ps₁ + ps₂)%ps ps₃ =
+   ps_terms_add ps₁ (ps₂ + ps₃)%ps)%ser.
 Proof.
 intros ps₁ ps₂ ps₃.
 constructor; intros i.
@@ -384,14 +384,14 @@ f_equal; rewrite Z.mul_shuffle0; reflexivity.
 Qed.
 
 Lemma ps_normal_add_assoc : ∀ ps₁ ps₂ ps₃,
-  normalize_ps r ((ps₁ + ps₂) + ps₃)%ps ≐
-  normalize_ps r (ps₁ + (ps₂ + ps₃))%ps.
+  normalise_ps ((ps₁ + ps₂) + ps₃)%ps ≐
+  normalise_ps (ps₁ + (ps₂ + ps₃))%ps.
 Proof.
 intros ps₁ ps₂ ps₃.
-unfold normalize_ps; simpl.
+unfold normalise_ps; simpl.
 rewrite ps_terms_add_assoc.
 remember (ps₂ + ps₃)%ps as x.
-remember (null_coeff_range_length r (ps_terms_add r ps₁ x) 0) as n.
+remember (null_coeff_range_length r (ps_terms_add ps₁ x) 0) as n.
 subst x.
 rename Heqn into Hn.
 symmetry in Hn.
@@ -550,7 +550,7 @@ constructor; [ simpl | reflexivity | simpl ].
 Qed.
 
 Lemma eq_strong_ps_normal_add_add₂ : ∀ ps₁ ps₂,
-  normalize_ps r (ps₁ + ps₂)%ps ≐ normalize_ps r (ps_add₂ ps₁ ps₂).
+  normalise_ps (ps₁ + ps₂)%ps ≐ normalise_ps (ps_add₂ ps₁ ps₂).
 Proof.
 intros ps₁ ps₂.
 rewrite eq_strong_ps_add_add₂; reflexivity.
@@ -595,7 +595,7 @@ Qed.
 
 End theorems_add.
 
-Add Parametric Morphism α (r : ring α) : (adjusted_ps_add r)
+Add Parametric Morphism α (R : ring α) : (@adjusted_ps_add _ R)
   with signature eq_ps_strong ==> eq_ps_strong ==> eq_ps_strong
   as adjusted_ps_add_morph.
 Proof.
@@ -609,7 +609,7 @@ Qed.
 
 (* not used, mais bon, je les garde, on sait jamais *)
 
-Add Parametric Morphism α (r : ring α) : (adjust_series r)
+Add Parametric Morphism α (R : ring α) : (@adjust_series _ R)
   with signature eq ==> eq ==> eq_series ==> eq_series
   as adjust_series_morph.
 Proof.
@@ -620,7 +620,7 @@ destruct (lt_dec i n) as [H₁| H₁]; [ reflexivity | idtac ].
 destruct (zerop ((i - n) mod Pos.to_nat k)); [ apply H | reflexivity ].
 Qed.
 
-Add Parametric Morphism α (r : ring α) : (ps_terms_add r)
+Add Parametric Morphism α (R : ring α) : (@ps_terms_add _ R)
   with signature eq_ps_strong ==> eq_ps_strong ==> eq_series
   as ps_terms_add_morph.
 Proof.

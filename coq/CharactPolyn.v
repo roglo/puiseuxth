@@ -35,20 +35,20 @@ Fixpoint make_char_pol α (R : ring α) pow tl :=
         [coeff t₁ … make_char_pol R (S (power t₁)) tl₁]
     end.
 
-Definition lap_term_of_point α (r : ring α) la (pt : (Q * Q)) :=
+Definition lap_term_of_point α {R : ring α} la (pt : (Q * Q)) :=
   let h := nat_num (fst pt) in
   let ps := List.nth h la 0%ps in
-  let c := order_coeff r ps in
+  let c := order_coeff ps in
   {| coeff := c; power := h |}.
 
-Definition term_of_point α (r : ring α) pol (pt : (Q * Q)) :=
-  lap_term_of_point r (al pol) pt.
+Definition term_of_point α {R : ring α} pol (pt : (Q * Q)) :=
+  lap_term_of_point (al pol) pt.
 
-Definition characteristic_polynomial α (r : ring α) pol ns :=
+Definition characteristic_polynomial α {R : ring α} pol ns :=
   let pl := [ini_pt ns … oth_pts ns ++ [fin_pt ns]] in
-  let tl := List.map (term_of_point r pol) pl in
+  let tl := List.map (term_of_point pol) pl in
   let j := nat_num (fst (ini_pt ns)) in
-  {| al := make_char_pol r j tl |}.
+  {| al := make_char_pol R j tl |}.
 
 Definition ps_list_com_polord α (psl : list (puiseux_series α)) :=
   List.fold_right (λ ps a, Pos.mul a (ps_polord ps)) 1%positive psl.
@@ -116,7 +116,7 @@ Definition mh_of_ns α {R : ring α} pol h αh :=
 
 Definition summation_ah_xh_pol α {R : ring α} pol ns :=
   let j := nat_num (fst (ini_pt ns)) in
-  POL (list_pad j 0%K (al (characteristic_polynomial R pol ns)))%pol.
+  POL (list_pad j 0%K (al (characteristic_polynomial pol ns)))%pol.
 
 Definition Φq α {R : ring α} pol ns :=
   let j := nat_num (fst (ini_pt ns)) in
@@ -1777,7 +1777,7 @@ Lemma nth_is_zero : ∀ (pol : polynomial (puiseux_series α)) q i j k sk tl,
            → ∃ h sh, hq = Qnat h ∧ 0 < sh ∧ h = j + sh * q ∧ h ≤ k)
           → S i mod q ≠ 0
             → (List.nth i
-                (make_char_pol r (S j) (List.map (term_of_point r pol) tl))
+                (make_char_pol r (S j) (List.map (term_of_point pol) tl))
                 0
                = 0)%K.
 Proof.
@@ -1831,7 +1831,7 @@ destruct (lt_dec i s) as [Hlt| Hge].
     rewrite Heqis, Heqs.
     rewrite plus_comm, mult_comm, plus_n_Sm.
     rewrite <- mult_succ_r, mult_comm.
-    remember (List.map (term_of_point r pol) [t … tl]) as x.
+    remember (List.map (term_of_point pol) [t … tl]) as x.
     simpl in Heqx; subst x.
     rewrite nth_minus_char_pol_plus_cons.
      move Hk at bottom.
@@ -2173,7 +2173,7 @@ Close Scope nat_scope.
 (* [Walker, p. 100] « Therefore (3.4) has the form c^j Φ(c^q) = 0 » *)
 Theorem characteristic_polynomial_is_in_x_power_q : ∀ pol ns cpol q,
   ns ∈ newton_segments pol
-  → cpol = characteristic_polynomial r pol ns
+  → cpol = characteristic_polynomial pol ns
     → q = Pos.to_nat (q_of_ns pol ns)
       → is_polynomial_in_x_power_q cpol q.
 Proof.
@@ -2425,7 +2425,7 @@ Lemma length_char_pol : ∀ pol ns pl tl j αj k αk,
   → ini_pt ns = (Qnat j, αj)
     → fin_pt ns = (Qnat k, αk)
       → pl = [ini_pt ns … oth_pts ns ++ [fin_pt ns]]
-        → tl = List.map (term_of_point r pol) pl
+        → tl = List.map (term_of_point pol) pl
           → length (make_char_pol r j tl) = S (k - j).
 Proof.
 intros pol ns pl tl j αj k αk Hns Hini Hfin Hpl Htl.
@@ -2437,8 +2437,8 @@ rewrite length_char_pol_succ; simpl.
  rewrite nat_num_Qnat.
  reflexivity.
 
- remember (List.map (term_of_point r pol) (oth_pts ns)) as tl₂ eqn:Htl₂ .
- remember (term_of_point r pol (Z.of_nat k # 1, αk)) as tk eqn:Htk .
+ remember (List.map (term_of_point pol) (oth_pts ns)) as tl₂ eqn:Htl₂ .
+ remember (term_of_point pol (Z.of_nat k # 1, αk)) as tk eqn:Htk .
  unfold term_of_point, lap_term_of_point in Htk; simpl in Htk.
  unfold nat_num in Htk; simpl in Htk.
  rewrite Nat2Z.id in Htk.
@@ -2467,7 +2467,7 @@ rewrite length_char_pol_succ; simpl.
  apply ini_oth_fin_pts_sorted in Hsort.
  apply Sorted_inv_1 in Hsort.
  remember (oth_pts ns ++ [fin_pt ns]) as pts eqn:Hpts .
- remember (List.map (term_of_point r pol) pts) as li eqn:Hli .
+ remember (List.map (term_of_point pol) pts) as li eqn:Hli .
  remember Hli as H; clear HeqH.
  rewrite Hpts in Hli.
  rewrite List.map_app in Hli; simpl in Hli.
@@ -2643,10 +2643,10 @@ destruct n; simpl.
 Qed.
 
 Lemma fold_char_pol : ∀ pol j αj tl,
-  [order_coeff r (List.nth j (al pol) 0%ps)
-   … make_char_pol r (S j) (List.map (term_of_point r pol) tl)] =
+  [order_coeff (List.nth j (al pol) 0%ps)
+   … make_char_pol r (S j) (List.map (term_of_point pol) tl)] =
   make_char_pol r j
-    (List.map (term_of_point r pol) [(Qnat j, αj) … tl]).
+    (List.map (term_of_point pol) [(Qnat j, αj) … tl]).
 Proof.
 intros pol j αj tl; simpl.
 rewrite nat_num_Qnat, Nat.sub_diag; simpl.
@@ -2663,7 +2663,7 @@ Lemma ord_coeff_non_zero_in_newt_segm : ∀ pol ns h αh hps,
   ns ∈ newton_segments pol
   → (Qnat h, αh) ∈ [ini_pt ns … oth_pts ns ++ [fin_pt ns]]
     → hps = List.nth h (al pol) 0%ps
-      → (order_coeff r hps ≠ 0)%K.
+      → (order_coeff hps ≠ 0)%K.
 Proof.
 intros pol ns h αh hps Hns Hh Hhps.
 unfold order_coeff.
@@ -2738,8 +2738,8 @@ Lemma list_nth_coeff_last : ∀ pol j αj k αk tl,
         → List.Forall (λ pt, Qden (fst pt) = xH) tl
           → List.nth (k - j)
               (make_char_pol r j
-                 (List.map (term_of_point r pol) tl)) 0%K =
-            coeff (term_of_point r pol (List.last tl (0, 0)%Q)).
+                 (List.map (term_of_point pol) tl)) 0%K =
+            coeff (term_of_point pol (List.last tl (0, 0)%Q)).
 Proof.
 intros pol j αj k αk tl Hj Hk Hjk Hsort Hden; simpl.
 destruct tl as [| t₁].

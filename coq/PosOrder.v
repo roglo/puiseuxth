@@ -87,7 +87,7 @@ Definition g_lap_of_ns α {R : ring α} {K : field R}
     {acf : algeb_closed_field K} pol ns :=
   let c₁ := ac_root (Φq pol ns) in
   let pl := [ini_pt ns … oth_pts ns ++ [fin_pt ns]] in
-  let tl := List.map (term_of_point R pol) pl in
+  let tl := List.map (term_of_point pol) pl in
   let l₁ := List.map (λ t, power t) tl in
   let l₂ := list_seq_except 0 (length (al pol)) l₁ in
   ([ps_monom 1%K (- β ns)] *
@@ -152,7 +152,7 @@ Qed.
 
 Lemma coeff_of_hl_eq_order : ∀ h la li,
   h ∈ li
-  → coeff_of_hl R la h li = order_coeff R (List.nth h la 0%ps).
+  → coeff_of_hl R la h li = order_coeff (List.nth h la 0%ps).
 Proof.
 intros h la li Hh.
 induction li as [| i]; [ contradiction | simpl ].
@@ -166,7 +166,7 @@ Qed.
 Theorem order_āh_minus_ah_xαh_gt_αh : ∀ pol ns pl tl h āh ah αh,
   ns ∈ newton_segments pol
   → pl = [ini_pt ns … oth_pts ns ++ [fin_pt ns]]
-    → tl = List.map (term_of_point R pol) pl
+    → tl = List.map (term_of_point pol) pl
       → h ∈ List.map (λ t, power t) tl
         → āh = ps_poly_nth h pol
           → ah = ps_monom (coeff_of_term R h tl) 0
@@ -340,7 +340,7 @@ Qed.
 Theorem order_āl_xlγ₁_gt_β₁ : ∀ pol ns pl tl l₁ l₂ l āl,
   ns ∈ newton_segments pol
   → pl = [ini_pt ns … oth_pts ns ++ [fin_pt ns]]
-    → tl = List.map (term_of_point R pol) pl
+    → tl = List.map (term_of_point pol) pl
       → l₁ = List.map (λ t, power t) tl
         → split_list (List.seq 0 (length (al pol))) l₁ l₂
           → l ∈ l₂
@@ -521,8 +521,8 @@ rewrite Ha in |- * at 1.
 unfold order; simpl.
 unfold cm_factor, cm; simpl.
 do 2 rewrite series_shift_0.
-remember (series_stretch R (ps_polord b) (ps_terms a)) as sa eqn:Hsa .
-remember (series_stretch R (ps_polord a) (ps_terms b)) as sb eqn:Hsb .
+remember (series_stretch (ps_polord b) (ps_terms a)) as sa eqn:Hsa .
+remember (series_stretch (ps_polord a) (ps_terms b)) as sb eqn:Hsb .
 remember (null_coeff_range_length R sa 0) as na eqn:Hna .
 remember (null_coeff_range_length R sb 0) as nb eqn:Hnb .
 remember (null_coeff_range_length R (sa * sb)%ser 0) as nc eqn:Hnc .
@@ -687,8 +687,8 @@ fold k₁ k₂.
 fold v₁ v₂.
 rewrite Z.min_comm.
 fold n₁ n₂.
-remember (adjust_ps R n₂ k₁ a) as pa eqn:Hpa .
-remember (adjust_ps R n₁ k₂ b) as pb eqn:Hpb .
+remember (adjust_ps n₂ k₁ a) as pa eqn:Hpa .
+remember (adjust_ps n₁ k₂ b) as pb eqn:Hpb .
 unfold order; simpl.
 remember (ps_terms pa) as sa eqn:Hsa .
 remember (ps_terms pb) as sb eqn:Hsb .
@@ -1228,7 +1228,7 @@ Qed.
 
 (* to be moved to the good file *)
 Lemma lap_mul_summation : ∀ α (Kx : ring (puiseux_series α)) la l f,
-  (la * lap_summation Kx l f = lap_summation Kx l (λ i, la * f i))%lap.
+  (la * lap_summation l f = lap_summation l (λ i, la * f i))%lap.
 Proof.
 clear.
 intros α Kx la l f.
@@ -1340,7 +1340,7 @@ subst g.
 unfold g_of_ns, g_lap_of_ns in Hla.
 remember (ac_root (Φq pol ns)) as c₁ eqn:Hc₁ .
 remember [ini_pt ns … oth_pts ns ++ [fin_pt ns]] as pl eqn:Hpl .
-remember (List.map (term_of_point R pol) pl) as tl eqn:Htl .
+remember (List.map (term_of_point pol) pl) as tl eqn:Htl .
 remember (List.map (λ t, power t) tl) as l₁ eqn:Hl₁ .
 remember (list_seq_except 0 (length (al pol)) l₁) as l₂ eqn:Hl₂ .
 simpl in Hla.

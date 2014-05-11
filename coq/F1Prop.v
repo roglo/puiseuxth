@@ -85,8 +85,8 @@ fold k₁ k₂.
 fold v₁ v₂.
 rewrite Z.min_comm.
 fold n₁ n₂.
-remember (adjust_ps R n₂ k₁ a) as pa eqn:Hpa .
-remember (adjust_ps R n₁ k₂ b) as pb eqn:Hpb .
+remember (adjust_ps n₂ k₁ a) as pa eqn:Hpa .
+remember (adjust_ps n₁ k₂ b) as pb eqn:Hpb .
 remember (order pa) as opa eqn:Hopa .
 remember (order pb) as opb eqn:Hopb .
 progress unfold order in Hopa, Hopb.
@@ -488,7 +488,7 @@ remember Heqgg as H; clear HeqH.
 unfold g_lap_of_ns in H; subst gg.
 rewrite <- Hc₁ in H.
 remember [ini_pt ns … oth_pts ns ++ [fin_pt ns]] as pl eqn:Hpl .
-remember (List.map (term_of_point R pol) pl) as tl eqn:Htl .
+remember (List.map (term_of_point pol) pl) as tl eqn:Htl .
 remember (List.map (λ t : term α nat, power t) tl) as l₁ eqn:Hl₁ .
 remember (list_seq_except 0 (length (al pol)) l₁) as l₂ eqn:Hl₂ .
 symmetry in Hc₁.
