@@ -6,9 +6,11 @@ Require Import Utf8.
 Require Import QArith.
 Require Import NPeano.
 
+Require Import Misc.
 Require Import Field.
 Require Import Fpolynomial.
 Require Import Puiseux_series.
+Require Import Ps_add.
 Require Import Ps_div.
 
 Set Implicit Arguments.
@@ -145,3 +147,26 @@ Notation "a * b" := (ps_pol_mul a b) : ps_pol_scope.
 Notation "a ^ b" := (ps_pol_pow a b) : ps_pol_scope.
 Notation "a ∘ b" := (ps_pol_comp a b) : ps_pol_scope.
 Notation "'POL' l" := (ps_pol l) (at level 1) : ps_pol_scope.
+
+Section theorems.
+
+Variable α : Type.
+Variable R : ring α.
+
+Theorem ps_lap_nth_add : ∀ n la lb,
+  (ps_lap_nth n (la + lb) = ps_lap_nth n la + ps_lap_nth n lb)%ps.
+Proof.
+intros n la lb.
+unfold ps_lap_add; simpl.
+unfold ps_lap_nth; simpl.
+revert n lb.
+induction la as [| a]; intros; simpl.
+ rewrite match_id, ps_add_0_l; reflexivity.
+
+ destruct lb as [| b]; simpl.
+  rewrite match_id, ps_add_0_r; reflexivity.
+
+  destruct n; [ reflexivity | apply IHla ].
+Qed.
+
+End theorems.

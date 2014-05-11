@@ -34,22 +34,6 @@ Variable R : ring α.
 Variable K : field R.
 Variable acf : algeb_closed_field K.
 
-Lemma ps_lap_nth_add : ∀ n la lb,
-  (ps_lap_nth n (la + lb) = ps_lap_nth n la + ps_lap_nth n lb)%ps.
-Proof.
-intros n la lb.
-unfold ps_lap_add; simpl.
-unfold ps_lap_nth; simpl.
-revert n lb.
-induction la as [| a]; intros; simpl.
- rewrite match_id, ps_add_0_l; reflexivity.
-
- destruct lb as [| b]; simpl.
-  rewrite match_id, ps_add_0_r; reflexivity.
-
-  destruct n; [ reflexivity | apply IHla ].
-Qed.
-
 Lemma eq_poly_lap_add : ∀ α (R : ring α) la lb,
   (POL la + POL lb = POL (la + lb)%lap)%pol.
 Proof. reflexivity. Qed.
