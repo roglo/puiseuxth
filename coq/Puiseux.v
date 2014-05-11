@@ -17,6 +17,31 @@ Require Import F1Prop.
 
 Set Implicit Arguments.
 
+Section theorems.
+
+Variable α : Type.
+Variable R : ring α.
+Variable K : field R.
+Variable acf : algeb_closed_field K.
+
+Definition phony_ns :=
+  {| γ := 0; β := 0; ini_pt := (0, 0); fin_pt := (0, 0); oth_pts := [] |}.
+
+Lemma zzz : ∀ pol ns c₁ r pol₁ ns₁ j₁ αj₁ k₁ αk₁,
+  ns ∈ newton_segments pol
+  → c₁ = ac_root (Φq pol ns)
+  → r = root_multiplicity acf c₁ (Φq pol ns)
+  → pol₁ = next_pol pol (β ns) (γ ns) c₁
+  → r = 1%nat
+  → ns₁ = List.hd phony_ns (newton_segments pol₁)
+  → ini_pt ns₁ = (Qnat j₁, αj₁)
+  → fin_pt ns₁ = (Qnat k₁, αk₁)
+  → j₁ = 0%nat ∧ k₁ = 1%nat.
+Proof.
+intros pol ns c₁ r pol₁ ns₁ j₁ αj₁ k₁ αk₁.
+intros Hns Hc₁ Hr Hpol₁ Hr₁1 Hns₁ Hini₁ Hfin₁.
+bbb.
+
 (*
 Fixpoint root_loop α {R : ring α} {K : field R} {acf : algeb_closed_field K}
     (pol : polynomial (puiseux_series α)) ns c₁ γ_sum :=
