@@ -377,116 +377,114 @@ destruct n as [n| ].
    rewrite Z.mul_add_distr_r.
    rewrite Z.add_shuffle0.
    apply Z.add_le_mono.
-    Focus 2.
+    unfold order in Hm.
+    remember (null_coeff_range_length R (ps_terms āl) 0) as p eqn:Hp .
+    symmetry in Hp.
+    destruct p as [p| ]; [ idtac | discriminate Hm ].
+    injection Hm; clear Hm; intros Hm.
+    rewrite <- Hm; simpl.
+    rewrite Z.mul_add_distr_r.
+    rewrite Z.mul_add_distr_r.
+    apply Z.add_le_mono_l.
+    apply Z.mul_le_mono_pos_r; [ apply Pos2Z.is_pos | idtac ].
+    rewrite <- positive_nat_Z.
+    rewrite <- Nat2Z.inj_mul.
+    apply Nat2Z.inj_le.
+    rewrite Hs in Hn; simpl in Hn.
+    unfold cm_factor in Hn; simpl in Hn.
+    apply null_coeff_range_length_iff in Hn.
+    apply null_coeff_range_length_iff in Hp.
+    unfold null_coeff_range_length_prop in Hn, Hp.
+    simpl in Hn, Hp.
+    destruct Hn as (Hni, Hn).
+    destruct Hp as (Hpi, Hp).
+    unfold convol_mul in Hn.
+    rewrite summation_only_one_non_0 with (v := n) in Hn.
+     rewrite Nat.sub_diag in Hn; simpl in Hn.
+     rewrite Nat.mod_0_l in Hn; auto; simpl in Hn.
+     rewrite Nat.div_0_l in Hn; auto; simpl in Hn.
+     rewrite rng_mul_1_r in Hn.
+     destruct (zerop (n mod Pos.to_nat (Qden (γ ns)))) as [Hng| Hng].
+      2: exfalso; apply Hn; reflexivity.
+
+      apply Nat.mod_divides in Hng; auto.
+      destruct Hng as (g, Hg).
+      rewrite Hg, Nat.mul_comm.
+      apply Nat.mul_le_mono_l.
+      rewrite Hg in Hn.
+      rewrite Nat.mul_comm in Hn.
+      rewrite Nat.div_mul in Hn; auto.
+      apply Nat.nlt_ge.
+      intros H.
+      apply Hpi in H.
+      contradiction.
+
+     split; [ apply Nat.le_0_l | reflexivity ].
+
+     intros i (_, Hin) Hinn.
+     apply rng_mul_eq_0.
+     right.
+     unfold series_stretch; simpl.
+     destruct (zerop ((n - i) mod Pos.to_nat (ps_polord āl))) as [Hz| Hz].
+      apply Nat.mod_divides in Hz; auto.
+      destruct Hz as (c, Hc).
+      rewrite Nat.mul_comm in Hc; rewrite Hc.
+      rewrite Nat.div_mul; auto.
+      destruct c; [ idtac | reflexivity ].
+      rewrite Nat.mul_0_l in Hc.
+      exfalso; fast_omega Hin Hinn Hc.
+
+      reflexivity.
+
     rewrite Z.mul_shuffle0; reflexivity.
 
-    Focus 3.
-    unfold order in Hm.
-    remember (null_coeff_range_length R (ps_terms āl) 0) as v eqn:Hv .
-    symmetry in Hv.
-    destruct v; [ discriminate Hm | idtac ].
-    apply ps_null_coeff_range_length_inf_iff in Hv.
-    assert (s = 0)%ps as Hsz.
-     rewrite Hs.
-     rewrite Hv.
-     rewrite ps_mul_0_l; reflexivity.
-
-     apply order_inf in Hsz.
-     rewrite Hsz; constructor.
-
-   unfold order in Hm.
-   remember (null_coeff_range_length R (ps_terms āl) 0) as p eqn:Hp .
-   symmetry in Hp.
-   destruct p as [p| ]; [ idtac | discriminate Hm ].
-   injection Hm; clear Hm; intros Hm.
-   rewrite <- Hm; simpl.
-   rewrite Z.mul_add_distr_r.
-   rewrite Z.mul_add_distr_r.
-   apply Z.add_le_mono_l.
-   apply Z.mul_le_mono_pos_r; [ apply Pos2Z.is_pos | idtac ].
-   rewrite <- positive_nat_Z.
-   rewrite <- Nat2Z.inj_mul.
-   apply Nat2Z.inj_le.
-   rewrite Hs in Hn; simpl in Hn.
-   unfold cm_factor in Hn; simpl in Hn.
-   apply null_coeff_range_length_iff in Hn.
-   apply null_coeff_range_length_iff in Hp.
-   unfold null_coeff_range_length_prop in Hn, Hp.
-   simpl in Hn, Hp.
-   destruct Hn as (Hni, Hn).
-   destruct Hp as (Hpi, Hp).
-   unfold convol_mul in Hn.
-   rewrite summation_only_one_non_0 with (v := n) in Hn.
-    rewrite Nat.sub_diag in Hn; simpl in Hn.
-    rewrite Nat.mod_0_l in Hn; auto; simpl in Hn.
-    rewrite Nat.div_0_l in Hn; auto; simpl in Hn.
-    rewrite rng_mul_1_r in Hn.
-    destruct (zerop (n mod Pos.to_nat (Qden (γ ns)))) as [Hng| Hng].
-     2: exfalso; apply Hn; reflexivity.
-
-     apply Nat.mod_divides in Hng; auto.
-     destruct Hng as (g, Hg).
-     rewrite Hg, Nat.mul_comm.
-     apply Nat.mul_le_mono_l.
-     rewrite Hg in Hn.
-     rewrite Nat.mul_comm in Hn.
-     rewrite Nat.div_mul in Hn; auto.
-     apply Nat.nlt_ge.
-     intros H.
-     apply Hpi in H.
-     contradiction.
-
-    split; [ apply Nat.le_0_l | reflexivity ].
-
-    intros i (_, Hin) Hinn.
-    apply rng_mul_eq_0.
-    right.
-    unfold series_stretch; simpl.
-    destruct (zerop ((n - i) mod Pos.to_nat (ps_polord āl))) as [Hz| Hz].
-     apply Nat.mod_divides in Hz; auto.
-     destruct Hz as (c, Hc).
-     rewrite Nat.mul_comm in Hc; rewrite Hc.
-     rewrite Nat.div_mul; auto.
-     destruct c; [ idtac | reflexivity ].
-     rewrite Nat.mul_0_l in Hc.
-     exfalso; fast_omega Hin Hinn Hc.
-
-     reflexivity.
-
-  intros Hlm.
-  apply split_list_comm in Hsl.
-  eapply sorted_split_in_not_in in Hsl; try eassumption.
-   apply Hsl; clear Hsl.
-   subst l₁ tl pl.
-   rewrite List.map_map; simpl.
-   destruct Hlm as [Hlm| Hlm].
-    left; rewrite Hlm; simpl.
-    rewrite nat_num_Qnat; reflexivity.
-
-    right.
-    rewrite List.map_app; simpl.
-    apply List.in_or_app.
+   intros Hlm.
+   apply split_list_comm in Hsl.
+   eapply sorted_split_in_not_in in Hsl; try eassumption.
+    apply Hsl; clear Hsl.
+    subst l₁ tl pl.
+    rewrite List.map_map; simpl.
     destruct Hlm as [Hlm| Hlm].
-     right; rewrite Hlm.
-     left; simpl; rewrite nat_num_Qnat; reflexivity.
+     left; rewrite Hlm; simpl.
+     rewrite nat_num_Qnat; reflexivity.
 
-     left.
-     revert Hlm; clear; intros.
-     remember (oth_pts ns) as pts; clear Heqpts.
-     induction pts as [| (i, ai)]; [ contradiction | idtac ].
+     right.
+     rewrite List.map_app; simpl.
+     apply List.in_or_app.
      destruct Hlm as [Hlm| Hlm].
-      injection Hlm; clear Hlm; intros; subst; simpl.
-      left; rewrite nat_num_Qnat; reflexivity.
+      right; rewrite Hlm.
+      left; simpl; rewrite nat_num_Qnat; reflexivity.
 
-      right; apply IHpts, Hlm.
+      left.
+      revert Hlm; clear; intros.
+      remember (oth_pts ns) as pts; clear Heqpts.
+      induction pts as [| (i, ai)]; [ contradiction | idtac ].
+      destruct Hlm as [Hlm| Hlm].
+       injection Hlm; clear Hlm; intros; subst; simpl.
+       left; rewrite nat_num_Qnat; reflexivity.
 
-   remember (length (al pol)) as len; clear.
-   remember 0%nat as b; clear Heqb.
-   revert b.
-   induction len; intros; [ constructor | simpl ].
-   constructor; [ apply IHlen | idtac ].
-   destruct len; constructor.
-   apply Nat.lt_succ_diag_r.
+       right; apply IHpts, Hlm.
+
+    remember (length (al pol)) as len; clear.
+    remember 0%nat as b; clear Heqb.
+    revert b.
+    induction len; intros; [ constructor | simpl ].
+    constructor; [ apply IHlen | idtac ].
+    destruct len; constructor.
+    apply Nat.lt_succ_diag_r.
+
+  unfold order in Hm.
+  remember (null_coeff_range_length R (ps_terms āl) 0) as v eqn:Hv .
+  symmetry in Hv.
+  destruct v; [ discriminate Hm | idtac ].
+  apply ps_null_coeff_range_length_inf_iff in Hv.
+  assert (s = 0)%ps as Hsz.
+   rewrite Hs.
+   rewrite Hv.
+   rewrite ps_mul_0_l; reflexivity.
+
+   apply order_inf in Hsz.
+   rewrite Hsz; constructor.
 
  unfold order; simpl.
  rewrite Hn; constructor.
