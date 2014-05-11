@@ -17,6 +17,7 @@ Require Import F1Prop.
 
 Set Implicit Arguments.
 
+(*
 Fixpoint root_loop α {R : ring α} {K : field R} {acf : algeb_closed_field K}
     (pol : polynomial (puiseux_series α)) ns c₁ γ_sum :=
   let f₁ := pol₁ pol (β ns) (γ ns) c₁ in
@@ -37,3 +38,4 @@ Definition root α {R : ring α} {K : field R} {acf : algeb_closed_field K}
       let t₁ := ps_monom c₁ (γ ns) in
       (t₁ + root_loop pol ns c₁ (γ ns))%ps
   end.
+*)
