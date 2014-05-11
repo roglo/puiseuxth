@@ -1149,10 +1149,6 @@ induction li as [| n]; intros; simpl.
     symmetry in Hp.
     destruct p; simpl.
      assert (n ≤ i + j)%nat as Hnij.
-      Focus 2.
-      assert (j ≤ n); [ idtac | exfalso; omega ].
-      apply Hm; left; reflexivity.
-
       revert Hs H; clear; intros.
       rewrite Nat.add_comm.
       remember (j + i)%nat as m; clear i j Heqm.
@@ -1170,6 +1166,9 @@ induction li as [| n]; intros; simpl.
         apply Nat.lt_le_incl; assumption.
 
         apply IHli; assumption.
+
+      assert (j ≤ n); [ idtac | exfalso; omega ].
+      apply Hm; left; reflexivity.
 
      rewrite IHli.
       assert (j ≤ n) by (apply Hm; left; reflexivity).
