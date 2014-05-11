@@ -50,7 +50,7 @@ Definition characteristic_polynomial α (r : ring α) pol ns :=
   let j := nat_num (fst (ini_pt ns)) in
   {| al := make_char_pol r j tl |}.
 
-Definition series_list_com_polord α (psl : list (puiseux_series α)) :=
+Definition ps_list_com_polord α (psl : list (puiseux_series α)) :=
   List.fold_right (λ ps a, Pos.mul a (ps_polord ps)) 1%positive psl.
 
 (* *)
@@ -81,7 +81,7 @@ Definition poly_left_shift α n (p : polynomial α) :=
   POL (List.skipn n (al p))%pol.
 
 Definition jk_mjk_g_of_ns α {R : ring α} pol ns :=
-  let m := series_list_com_polord (al pol) in
+  let m := ps_list_com_polord (al pol) in
   let j := Z.to_nat (Qnum (fst (ini_pt ns))) in
   let k := Z.to_nat (Qnum (fst (fin_pt ns))) in
   let αj := snd (ini_pt ns) in
@@ -110,7 +110,7 @@ Definition mk_of_ns α {R : ring α} pol ns :=
   mk.
 
 Definition mh_of_ns α {R : ring α} pol h αh :=
- let m := series_list_com_polord (al pol) in
+ let m := ps_list_com_polord (al pol) in
  let hps := List.nth h (al pol) 0%ps in
  (Qnum αh * ' m / ' ps_polord hps)%Z.
 
@@ -680,7 +680,7 @@ Qed.
    āi, i=0,...,n is an element of some K(x^(1/ni))', there is an
    m such that all the āi ∈ K(x^(1/m))'. Hence we have αi = mi/m. » *)
 Theorem com_den_of_ps_list : ∀ (psl : list (puiseux_series α)) m,
-  m = series_list_com_polord psl
+  m = ps_list_com_polord psl
   → ∀ ps αi mi, ps ∈ psl
     → order ps = qfin αi
       → mi = (Qnum αi * Zpos m / Zpos (ps_polord ps))%Z
@@ -704,7 +704,7 @@ rewrite <- Z.divide_div_mul_exact; [ idtac | apply Pos2Z_ne_0 | idtac ].
  subst m.
  apply List.in_split in Hps.
  destruct Hps as (l₁, (l₂, Hpsl)).
- remember (series_list_com_polord (l₁ ++ l₂)) as m₁.
+ remember (ps_list_com_polord (l₁ ++ l₂)) as m₁.
  exists (Zpos m₁); subst m₁ psl.
  induction l₁ as [| ps₁]; [ reflexivity | simpl ].
  rewrite Pos2Z.inj_mul.
@@ -1158,7 +1158,7 @@ Qed.
   » *)
 Theorem gamma_eq_p_nq : ∀ pol ns m p q,
   ns ∈ newton_segments pol
-  → m = series_list_com_polord (al pol)
+  → m = ps_list_com_polord (al pol)
     → p = p_of_ns pol ns
       → q = q_of_ns pol ns
         → γ ns == p # (m * q).
@@ -1238,7 +1238,7 @@ Theorem p_and_q_have_no_common_factors : ∀ pol ns p q,
       → Z.gcd p (' q) = 1%Z.
 Proof.
 intros pol ns p q Hns Hp Hq.
-remember (series_list_com_polord (al pol)) as m eqn:Hm .
+remember (ps_list_com_polord (al pol)) as m eqn:Hm .
 remember Hns as Hini; clear HeqHini.
 remember Hns as Hfin; clear HeqHfin.
 apply exists_ini_pt_nat in Hini.
@@ -1413,7 +1413,7 @@ Qed.
 
 Lemma com_den_of_ini_pt : ∀ pol ns m j αj mj,
   ns ∈ newton_segments pol
-  → m = series_list_com_polord (al pol)
+  → m = ps_list_com_polord (al pol)
     → (Qnat j, αj) = ini_pt ns
       → mj = mj_of_ns pol ns
         → αj == mj # m.
@@ -1437,7 +1437,7 @@ Qed.
 
 Lemma com_den_of_fin_pt : ∀ pol ns m k αk mk,
   ns ∈ newton_segments pol
-  → m = series_list_com_polord (al pol)
+  → m = ps_list_com_polord (al pol)
     → (Qnat k, αk) = fin_pt ns
       → mk = mk_of_ns pol ns
         → αk == mk # m.
@@ -1461,7 +1461,7 @@ Qed.
 
 Lemma com_den_of_oth_pt : ∀ pol ns m h αh mh,
   ns ∈ newton_segments pol
-  → m = series_list_com_polord (al pol)
+  → m = ps_list_com_polord (al pol)
     → (Qnat h, αh) ∈ oth_pts ns
       → mh = mh_of_ns pol h αh
         → αh == mh # m.
@@ -1503,7 +1503,7 @@ Qed.
 Theorem q_mj_mk_eq_p_h_j : ∀ pol ns j αj m mj p q,
   ns ∈ newton_segments pol
   → (Qnat j, αj) = ini_pt ns
-    → m = series_list_com_polord (al pol)
+    → m = ps_list_com_polord (al pol)
       → mj = mj_of_ns pol ns
         → p = p_of_ns pol ns
           → q = Pos.to_nat (q_of_ns pol ns)
@@ -1676,7 +1676,7 @@ Qed.
 Theorem h_is_j_plus_sq : ∀ pol ns j αj m q,
   ns ∈ newton_segments pol
   → (Qnat j, αj) = ini_pt ns
-    → m = series_list_com_polord (al pol)
+    → m = ps_list_com_polord (al pol)
       → q = Pos.to_nat (q_of_ns pol ns)
         → ∀ h αh s, (Qnat h, αh) ∈ oth_pts ns ++ [fin_pt ns]
           → s = ((h - j) / q)%nat
@@ -2186,7 +2186,7 @@ remember Hns as H; clear HeqH.
 apply exists_fin_pt_nat in H.
 destruct H as (k, (αk, Hk)).
 symmetry in Hk.
-remember (series_list_com_polord (al pol)) as m eqn:Hm .
+remember (ps_list_com_polord (al pol)) as m eqn:Hm .
 unfold is_polynomial_in_x_power_q.
 intros i c Himq Hc.
 subst cpol.
