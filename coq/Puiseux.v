@@ -348,13 +348,17 @@ Add Parametric Morphism : seg
   with signature eq_min_sl ==> eq_list_pt
   as seg_morph.
 Proof.
+Admitted. (*
 bbb.
+*)
 
 Add Parametric Morphism : minimise_slope
   with signature eq_pt ==> eq_pt ==> eq_list_pt ==> eq_min_sl
   as minimise_slope_morph.
 Proof.
+Admitted. (*
 bbb.
+*)
 
 Add Parametric Morphism : lower_convex_hull_points
   with signature eq_list_pt ==> eq_list_hs
@@ -373,22 +377,14 @@ induction pts₁ as [| pt₁]; intros; simpl.
  inversion Heq; subst.
  clear Heq.
  destruct pts₁ as [| pt₃].
-  destruct pts₂ as [| pt₄].
-   constructor; [ constructor; assumption | constructor ].
-
-   inversion H4.
+  destruct pts₂ as [| pt₄]; [ idtac | inversion H4 ].
+  constructor; [ constructor; assumption | constructor ].
 
   destruct pts₂ as [| pt₄]; [ inversion H4 | idtac ].
   constructor.
    constructor; [ assumption | simpl ].
    inversion H4; subst.
-   rewrite H3.
-   rewrite H2.
-   revert H6; clear; intros.
-   induction H6.
-    reflexivity.
-
-    simpl.
+   rewrite H2, H3, H6; reflexivity.
 bbb.
 
 Add Parametric Morphism α (R : ring α) : (@newton_segments _ R)
