@@ -270,6 +270,30 @@ Add Parametric Relation : (list newton_segment) eq_list_ns
  transitivity proved by eq_list_ns_trans
  as eq_list_ns_rel.
 
+Theorem eq_hs_refl : reflexive _ eq_hs.
+Proof.
+intros hs.
+unfold eq_hs.
+split; reflexivity.
+Qed.
+
+Theorem eq_hs_sym : symmetric _ eq_hs.
+Proof.
+intros hs₁ hs₂ H.
+unfold eq_hs in H; unfold eq_hs.
+destruct H as (H₁, H₂).
+split; symmetry; assumption.
+Qed.
+
+Theorem eq_hs_trans : transitive _ eq_hs.
+Proof.
+intros hs₁ hs₂ hs₃ H I.
+unfold eq_hs in H, I; unfold eq_hs.
+destruct H as (H₁, H₂).
+destruct I as (I₁, I₂).
+split; etransitivity; eassumption.
+Qed.
+
 Add Parametric Relation : hull_seg eq_hs
  reflexivity proved by eq_hs_refl
  symmetry proved by eq_hs_sym
@@ -317,8 +341,8 @@ induction hsl₁ as [| hs₁]; intros.
 
    constructor.
     inversion H4; subst.
+    rewrite H2, H3; reflexivity.
 bbb.
-rewrite H2, H3; reflexivity.
 *)
 
 Add Parametric Morphism : lower_convex_hull_points
