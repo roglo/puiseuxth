@@ -222,44 +222,37 @@ Add Parametric Relation : newton_segment eq_ns
 
 Theorem eq_list_ns_refl : reflexive _ eq_list_ns.
 Proof.
-intros ns.
-bbb.
-induction pts; constructor; [ reflexivity | assumption ].
+intros nsl.
+induction nsl; constructor; [ reflexivity | assumption ].
 Qed.
 
 Theorem eq_list_ns_sym : symmetric _ eq_list_ns.
 Proof.
-intros ns₁ ns₂ Heq.
-bbb.
-revert pts₂ Heq.
-induction pts₁ as [| pt₁]; intros.
- destruct pts₂; [ constructor | inversion Heq ].
+intros nsl₁ nsl₂ Heq.
+revert nsl₂ Heq.
+induction nsl₁ as [| ns₁]; intros.
+ destruct nsl₂; [ constructor | inversion Heq ].
 
- destruct pts₂ as [| pt₂]; [ inversion Heq | idtac ].
+ destruct nsl₂ as [| ns₂]; [ inversion Heq | idtac ].
  inversion Heq; subst.
- constructor; [ destruct H2; split; symmetry; assumption | idtac ].
- apply IHpts₁; assumption.
+ constructor; [ symmetry; assumption | idtac ].
+ apply IHnsl₁; assumption.
 Qed.
 
 Theorem eq_list_ns_trans : transitive _ eq_list_ns.
 Proof.
-intros ns₁ ns₂ ns₃ H₁ H₂.
-bbb.
-revert pts₁ pts₃ H₁ H₂.
-induction pts₂ as [| pt₂]; intros.
+intros nsl₁ nsl₂ nsl₃ H₁ H₂.
+revert nsl₁ nsl₃ H₁ H₂.
+induction nsl₂ as [| ns₂]; intros.
  inversion H₁; subst.
  inversion H₂; subst.
  constructor.
 
- destruct pts₁ as [| pt₁]; [ inversion H₁ | idtac ].
- destruct pts₃ as [| pt₃]; [ inversion H₂ | idtac ].
+ destruct nsl₁ as [| ns₁]; [ inversion H₁ | idtac ].
+ destruct nsl₃ as [| ns₃]; [ inversion H₂ | idtac ].
  inversion H₁; subst.
  inversion H₂; subst.
- constructor.
-  destruct H2, H3.
-  split; etransitivity; eassumption.
-
-  apply IHpts₂; assumption.
+ constructor; [ etransitivity; eassumption | apply IHnsl₂; assumption ].
 Qed.
 
 Add Parametric Relation : (list newton_segment) eq_list_ns
@@ -272,7 +265,7 @@ Add Parametric Morphism : (list_map_pairs newton_segment_of_pair)
   with signature eq_list_hs ==> eq_list_ns
   as list_map_pairs_ns_of_pair_morph.
 Proof.
-Admitted. (*
+intros hs₁ hs₂ Heq.
 bbb.
 *)
 
@@ -280,7 +273,6 @@ Add Parametric Morphism : lower_convex_hull_points
   with signature eq_list_pt ==> eq_list_hs
   as lower_convex_hull_points_morph.
 Proof.
-Admitted. (*
 bbb.
 *)
 
@@ -291,10 +283,7 @@ Proof.
 intros Pa Pb HP.
 unfold newton_segments.
 bbb.
-apply points_of_ps_polynom_morph in HP.
-apply lower_convex_hull_points_morph in HP.
-apply list_map_pairs_ns_of_pair_morph in HP.
-assumption.
+rewrite HP; reflexivity.
 
 Section theorems.
 
