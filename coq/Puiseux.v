@@ -32,6 +32,10 @@ Definition eq_hs hs₁ hs₂ :=
   eq_pt (vert hs₁) (vert hs₂) ∧ eq_list_pt (edge hs₁) (edge hs₂).
 Definition eq_list_hs := List.Forall2 eq_hs.
 
+Definition eq_min_sl ms₁ ms₂ :=
+  slope ms₁ == slope ms₂ ∧ eq_pt (end_pt ms₁) (end_pt ms₂)
+  ∧ eq_list_pt (seg ms₁) (seg ms₂) ∧ eq_list_pt (rem_pts ms₁) (rem_pts ms₂).
+
 Delimit Scope pt_scope with pt.
 Notation "a = b" := (eq_pt a b) : pt_scope.
 
@@ -340,6 +344,18 @@ destruct l as [| a].
  reflexivity.
 Qed.
 
+Add Parametric Morphism : seg
+  with signature eq_min_sl ==> eq_list_pt
+  as seg_morph.
+Proof.
+bbb.
+
+Add Parametric Morphism : minimise_slope
+  with signature eq_pt ==> eq_pt ==> eq_list_pt ==> eq_min_sl
+  as minimise_slope_morph.
+Proof.
+bbb.
+
 Add Parametric Morphism : lower_convex_hull_points
   with signature eq_list_pt ==> eq_list_hs
   as lower_convex_hull_points_morph.
@@ -347,27 +363,33 @@ Proof.
 intros pts₁ pts₂ Heq.
 unfold eq_list_hs.
 unfold lower_convex_hull_points.
-induction Heq; [ constructor | simpl ].
-destruct l as [| a].
- destruct l' as [| b]; [ idtac | inversion Heq ].
- constructor; [ idtac | constructor ].
- split; [ assumption | reflexivity ].
+unfold eq_list_pt in Heq.
+revert pts₂ Heq.
+induction pts₁ as [| pt₁]; intros; simpl.
+ induction pts₂ as [| pt₂]; simpl; [ constructor | inversion Heq ].
 
- destruct l' as [| b]; [ inversion Heq | idtac ].
- constructor.
-  constructor; simpl.
-   constructor; simpl; [ idtac | inversion H; assumption ].
-   inversion H; subst; assumption.
+ revert pt₁ Heq.
+ induction pts₂ as [| pt₂]; intros; [ inversion Heq | simpl ].
+ inversion Heq; subst.
+ clear Heq.
+ destruct pts₁ as [| pt₃].
+  destruct pts₂ as [| pt₄].
+   constructor; [ constructor; assumption | constructor ].
 
-   inversion Heq; subst.
-   revert H3 H5; clear; intros.
-   unfold eq_list_pt.
+   inversion H4.
+
+  destruct pts₂ as [| pt₄]; [ inversion H4 | idtac ].
+  constructor.
+   constructor; [ assumption | simpl ].
+   inversion H4; subst.
+   rewrite H3.
+   rewrite H2.
+   revert H6; clear; intros.
+   induction H6.
+    reflexivity.
+
+    simpl.
 bbb.
-
-    Focus 2.
-    inversion Heq; subst.
-bbb.
-*)
 
 Add Parametric Morphism α (R : ring α) : (@newton_segments _ R)
   with signature @ps_pol_eq _ R ==> eq_list_ns
