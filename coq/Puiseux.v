@@ -331,17 +331,15 @@ induction hsl₁ as [| hs₁]; intros.
  destruct hsl₂; [ constructor | inversion Heq ].
 
  destruct hsl₂ as [| hs₂]; [ inversion Heq | idtac ].
- inversion Heq; subst.
- simpl.
- destruct hsl₁ as [| hs₃].
-  inversion H4; reflexivity.
+ inversion Heq; subst; simpl.
+ destruct hsl₁ as [| hs₃]; [ inversion H4; reflexivity | idtac ].
+ destruct hsl₂ as [| hs₄]; [ inversion H4 | idtac ].
+ constructor.
+  inversion H4; subst.
+  rewrite H2, H3; reflexivity.
 
-  destruct hsl₂ as [| hs₄].
-   inversion H4.
-
-   constructor.
-    inversion H4; subst.
-    rewrite H2, H3; reflexivity.
+  simpl.
+  inversion H4; subst.
 bbb.
 *)
 
