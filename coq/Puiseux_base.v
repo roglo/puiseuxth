@@ -79,6 +79,16 @@ Section theorems.
 Variable α : Type.
 Variable r : ring α.
 
+Lemma fold_qpower_list : ∀ pow (psl : list (puiseux_series α)),
+  List.map (pair_rec (λ pow ps, (Qnat pow, ps))) (power_list pow psl) =
+  qpower_list pow psl.
+Proof. reflexivity. Qed.
+
+Lemma fold_points_of_ps_lap_gen : ∀ pow (cl : list (puiseux_series α)),
+  filter_finite_ord r (qpower_list pow cl) =
+  points_of_ps_lap_gen pow cl.
+Proof. reflexivity. Qed.
+
 Lemma order_inf : ∀ x, order x = qinf ↔ (x = 0)%ps.
 Proof.
 intros x.

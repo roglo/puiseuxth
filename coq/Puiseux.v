@@ -27,6 +27,9 @@ Definition eq_list_pt := List.Forall2 eq_pt.
 Delimit Scope list_pt_scope with pts.
 Notation "a = b" := (eq_list_pt a b) : list_pt_scope.
 
+Lemma fold_eq_list_pt : List.Forall2 eq_pt = eq_list_pt.
+Proof. reflexivity. Qed.
+
 Theorem eq_pt_refl : reflexive _ eq_pt.
 Proof. intros; split; reflexivity. Qed.
 
@@ -123,6 +126,10 @@ inversion HP; subst.
   apply Qbar.qfin_inj in H1.
   constructor; [ rewrite H1; reflexivity | idtac ].
   revert H2; clear; intros H.
+  do 2 rewrite fold_qpower_list.
+  do 2 rewrite fold_points_of_ps_lap_gen.
+  rewrite fold_eq_list_pt.
+bbb.
   rename l₁ into la.
   rename l₂ into lb.
   remember 1%nat as pow; clear Heqpow.
