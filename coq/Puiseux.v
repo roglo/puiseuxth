@@ -326,22 +326,19 @@ Add Parametric Morphism : (list_map_pairs newton_segment_of_pair)
   as list_map_pairs_ns_of_pair_morph.
 Proof.
 intros hsl₁ hsl₂ Heq.
-revert hsl₂ Heq.
-induction hsl₁ as [| hs₁]; intros.
- destruct hsl₂; [ constructor | inversion Heq ].
+unfold eq_list_ns.
+unfold eq_list_hs in Heq.
+induction Heq; [ reflexivity | simpl ].
+destruct l as [| a].
+ destruct l' as [| b]; [ constructor | inversion Heq ].
 
- destruct hsl₂ as [| hs₂]; [ inversion Heq | idtac ].
- inversion Heq; subst; simpl.
- destruct hsl₁ as [| hs₃]; [ inversion H4; reflexivity | idtac ].
- destruct hsl₂ as [| hs₄]; [ inversion H4 | idtac ].
- constructor.
-  inversion H4; subst.
-  rewrite H2, H3; reflexivity.
-
-  simpl.
-  inversion H4; subst.
-bbb.
-*)
+ destruct l' as [| b]; [ inversion Heq | idtac ].
+ constructor; [ idtac | assumption ].
+ rewrite H.
+ inversion Heq; subst.
+ rewrite H3.
+ reflexivity.
+Qed.
 
 Add Parametric Morphism : lower_convex_hull_points
   with signature eq_list_pt ==> eq_list_hs
