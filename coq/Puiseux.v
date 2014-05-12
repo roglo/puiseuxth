@@ -21,16 +21,46 @@ Require Import F1Prop.
 
 Set Implicit Arguments.
 
-Definition eq_list_pt :=
-  List.Forall2 (λ pt₁ pt₂, fst pt₁ == fst pt₂ ∧ snd pt₁ == snd pt₂).
+Definition eq_pt pt₁ pt₂ := fst pt₁ == fst pt₂ ∧ snd pt₁ == snd pt₂.
+Definition eq_list_pt := List.Forall2 eq_pt.
 
 Delimit Scope list_pt_scope with pts.
 Notation "a = b" := (eq_list_pt a b) : list_pt_scope.
 
+Theorem eq_pt_refl : reflexive _ eq_pt.
+Proof. intros; split; reflexivity. Qed.
+
+Theorem eq_pt_sym : symmetric _ eq_pt.
+Proof.
+intros pt₁ pt₂ H.
+destruct H; split; symmetry; assumption.
+Qed.
+
+Theorem eq_pt_trans : transitive _ eq_pt.
+Proof.
+intros pt₁ pt₂ pt₃ H₁ H₂.
+destruct H₁, H₂.
+split; etransitivity; eassumption.
+Qed.
+
+Add Parametric Relation : (Q * Q) eq_pt
+ reflexivity proved by eq_pt_refl
+ symmetry proved by eq_pt_sym
+ transitivity proved by eq_pt_trans
+ as eq_pt_rel.
+
+Add Parametric Morphism : (@pair Q Q)
+  with signature Qeq ==> Qeq ==> eq_pt
+  as pair_Q_morph.
+Proof.
+intros a b Hab c d Hcd.
+split; simpl; assumption.
+Qed.
+
 Theorem eq_list_pt_refl : reflexive _ eq_list_pt.
 Proof.
 intros pts.
-induction pts; constructor; [ split; reflexivity | assumption ].
+induction pts; constructor; [ reflexivity | assumption ].
 Qed.
 
 Theorem eq_list_pt_sym : symmetric _ eq_list_pt.
@@ -84,11 +114,19 @@ inversion HP; subst.
  unfold points_of_ps_lap; simpl.
  unfold points_of_ps_lap_gen; simpl.
  simpl in H1.
+ apply order_morph in H1.
+ remember (order x₁) as o₁ eqn:Ho₁ .
+ remember (order x₂) as o₂ eqn:Ho₂ .
+ symmetry in Ho₁, Ho₂.
+ destruct o₁ as [v₁| ].
+  destruct o₂ as [v₂| ].
+   apply Qbar.qfin_inj in H1.
+   constructor; [ rewrite H1; reflexivity | idtac ].
+   Focus 1.
 bbb.
-rewrite H1.
 
 Add Parametric Morphism α (R : ring α) : (@newton_segments _ R)
-  with signature @ps_pol_eq _ R ==> eq
+  with signature @ps_pol_eq _ R ==> eq_list_pt
   as newton_segments_morph.
 Proof.
 intros Pa Pb HP.
