@@ -24,11 +24,21 @@ Set Implicit Arguments.
 
 Definition eq_pt pt₁ pt₂ := fst pt₁ == fst pt₂ ∧ snd pt₁ == snd pt₂.
 Definition eq_list_pt := List.Forall2 eq_pt.
+Definition eq_ns ns₁ ns₂ :=
+  γ ns₁ == γ ns₂ ∧ β ns₁ == β ns₁ ∧ eq_pt (ini_pt ns₁) (ini_pt ns₂)
+  ∧ eq_list_pt (oth_pts ns₁) (oth_pts ns₂) ∧ eq_pt (fin_pt ns₁) (fin_pt ns₂).
+Definition eq_list_ns := List.Forall2 eq_ns.
 
 Delimit Scope list_pt_scope with pts.
 Notation "a = b" := (eq_list_pt a b) : list_pt_scope.
 
+Delimit Scope list_ns_scope with ns.
+Notation "a = b" := (eq_list_ns a b) : list_ns_scope.
+
 Lemma fold_eq_list_pt : List.Forall2 eq_pt = eq_list_pt.
+Proof. reflexivity. Qed.
+
+Lemma fold_eq_list_ns : List.Forall2 eq_ns = eq_list_ns.
 Proof. reflexivity. Qed.
 
 Theorem eq_pt_refl : reflexive _ eq_pt.
@@ -144,8 +154,15 @@ induction la as [| a]; intros; simpl.
   remember (order b) as ob eqn:Hob .
   symmetry in Hoa, Hob.
   destruct oa as [va| ].
-   destruct ob as [vb| ].
-bbb.
+   destruct ob as [vb| ]; [ idtac | inversion Hab ].
+   apply Qbar.qfin_inj in Hab.
+   constructor; [ rewrite Hab; reflexivity | idtac ].
+   do 2 rewrite fold_qpower_list.
+   rewrite IHla; [ reflexivity | assumption ].
+
+   destruct ob as [vb| ]; [ inversion Hab | idtac ].
+   apply IHla; assumption.
+Qed.
 
 Add Parametric Morphism α (R : ring α) : (@points_of_ps_polynom _ R)
   with signature @ps_pol_eq _ R ==> eq_list_pt
@@ -153,78 +170,12 @@ Add Parametric Morphism α (R : ring α) : (@points_of_ps_polynom _ R)
 Proof.
 intros Pa Pb HP.
 unfold points_of_ps_polynom.
-inversion HP; subst.
- reflexivity.
-
- unfold points_of_ps_lap; simpl.
- unfold points_of_ps_lap_gen; simpl.
- simpl in H1.
- apply order_morph in H1.
- remember (order x₁) as o₁ eqn:Ho₁ .
- remember (order x₂) as o₂ eqn:Ho₂ .
- symmetry in Ho₁, Ho₂.
- destruct o₁ as [v₁| ].
-  destruct o₂ as [v₂| ]; [ idtac | inversion H1 ].
-  apply Qbar.qfin_inj in H1.
-  constructor; [ rewrite H1; reflexivity | idtac ].
-  revert H2; clear; intros H.
-  do 2 rewrite fold_qpower_list.
-  do 2 rewrite fold_points_of_ps_lap_gen.
-  rewrite fold_eq_list_pt.
-  rewrite H; reflexivity.
-bbb.
-  rename l₁ into la.
-  rename l₂ into lb.
-  remember 1%nat as pow; clear Heqpow.
-  revert pow lb H.
-  induction la as [| a]; intros; simpl.
-   revert pow.
-   induction lb as [| b]; intros; [ constructor | simpl ].
-   apply lap_eq_nil_cons_inv in H.
-   destruct H as (Hb, H).
-   simpl in Hb.
-   apply order_inf in Hb.
-   rewrite Hb.
-   apply IHlb; assumption.
-
-   revert pow.
-   induction lb as [| b]; intros; simpl.
-    apply lap_eq_cons_nil_inv in H.
-    destruct H as (Ha, H).
-    simpl in Ha.
-    apply order_inf in Ha; rewrite Ha.
-    revert H; clear; intros.
-    revert pow.
-    induction la as [| a]; intros; [ constructor | simpl ].
-    apply lap_eq_cons_nil_inv in H.
-    destruct H as (Ha, H).
-    simpl in Ha.
-    apply order_inf in Ha; rewrite Ha.
-    apply IHla; assumption.
-
-    apply lap_eq_cons_inv in H.
-    destruct H as (Hab, Hlab).
-    simpl in Hab.
-    apply order_morph in Hab.
-    remember (order a) as oa eqn:Hoa .
-    remember (order b) as ob eqn:Hob .
-    symmetry in Hoa, Hob.
-    destruct oa as [va| ].
-     destruct ob as [vb| ]; [ idtac | inversion Hab ].
-     constructor.
-      apply Qbar.qfin_inj in Hab.
-      rewrite Hab; reflexivity.
-
-      apply IHla; assumption.
-
-     destruct ob as [vb| ]; [ inversion Hab | idtac ].
-     apply IHla; assumption.
-
-  destruct o₂ as [v₂| ]; [ inversion H1 | idtac ].
-bbb.
+unfold points_of_ps_lap.
+rewrite HP; reflexivity.
+Qed.
 
 Add Parametric Morphism α (R : ring α) : (@newton_segments _ R)
-  with signature @ps_pol_eq _ R ==> eq_list_pt
+  with signature @ps_pol_eq _ R ==> eq_list_ns
   as newton_segments_morph.
 Proof.
 intros Pa Pb HP.
