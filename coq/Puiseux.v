@@ -32,13 +32,22 @@ Definition eq_hs hs₁ hs₂ :=
   eq_pt (vert hs₁) (vert hs₂) ∧ eq_list_pt (edge hs₁) (edge hs₂).
 Definition eq_list_hs := List.Forall2 eq_hs.
 
+Delimit Scope pt_scope with pt.
+Notation "a = b" := (eq_pt a b) : pt_scope.
+
 Delimit Scope list_pt_scope with pts.
 Notation "a = b" := (eq_list_pt a b) : list_pt_scope.
 
-Delimit Scope list_ns_scope with ns.
+Delimit Scope ns_scope with ns.
+Notation "a = b" := (eq_ns a b) : ns_scope.
+
+Delimit Scope list_ns_scope with nsl.
 Notation "a = b" := (eq_list_ns a b) : list_ns_scope.
 
-Delimit Scope list_hs_scope with hs.
+Delimit Scope hs_scope with hs.
+Notation "a = b" := (eq_hs a b) : hs_scope.
+
+Delimit Scope list_hs_scope with hsl.
 Notation "a = b" := (eq_list_hs a b) : list_hs_scope.
 
 Lemma fold_eq_list_pt : List.Forall2 eq_pt = eq_list_pt.
@@ -261,12 +270,35 @@ Add Parametric Relation : (list newton_segment) eq_list_ns
  transitivity proved by eq_list_ns_trans
  as eq_list_ns_rel.
 
+Add Parametric Morphism : newton_segment_of_pair
+  with signature eq_hs ==> eq_hs ==> eq_ns
+  as newton_segment_of_pair_morph.
+Proof.
+intros hs₁ hs₂ Heq₁ hs₃ hs₄ Heq₃.
+bbb.
+
 Add Parametric Morphism : (list_map_pairs newton_segment_of_pair)
   with signature eq_list_hs ==> eq_list_ns
   as list_map_pairs_ns_of_pair_morph.
 Proof.
-intros hs₁ hs₂ Heq.
+intros hsl₁ hsl₂ Heq.
+revert hsl₂ Heq.
+induction hsl₁ as [| hs₁]; intros.
+ destruct hsl₂; [ constructor | inversion Heq ].
+
+ destruct hsl₂ as [| hs₂]; [ inversion Heq | idtac ].
+ inversion Heq; subst.
+ simpl.
+ destruct hsl₁ as [| hs₃].
+  inversion H4; reflexivity.
+
+  destruct hsl₂ as [| hs₄].
+   inversion H4.
+
+   constructor.
+    inversion H4; subst.
 bbb.
+rewrite H2, H3; reflexivity.
 *)
 
 Add Parametric Morphism : lower_convex_hull_points
