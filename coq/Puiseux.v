@@ -270,12 +270,32 @@ Add Parametric Relation : (list newton_segment) eq_list_ns
  transitivity proved by eq_list_ns_trans
  as eq_list_ns_rel.
 
+Add Parametric Relation : hull_seg eq_hs
+ reflexivity proved by eq_hs_refl
+ symmetry proved by eq_hs_sym
+ transitivity proved by eq_hs_trans
+ as eq_hs_rel.
+
 Add Parametric Morphism : newton_segment_of_pair
   with signature eq_hs ==> eq_hs ==> eq_ns
   as newton_segment_of_pair_morph.
 Proof.
 intros hs₁ hs₂ Heq₁ hs₃ hs₄ Heq₃.
-bbb.
+inversion_clear Heq₁.
+inversion_clear Heq₃.
+split; simpl.
+ inversion_clear H.
+ inversion_clear H1.
+ rewrite H3, H4, H, H5; reflexivity.
+
+ split.
+  inversion_clear H.
+  inversion_clear H1.
+  rewrite H3, H4, H, H5; reflexivity.
+
+  split; [ assumption | idtac ].
+  split; assumption.
+Qed.
 
 Add Parametric Morphism : (list_map_pairs newton_segment_of_pair)
   with signature eq_list_hs ==> eq_list_ns
