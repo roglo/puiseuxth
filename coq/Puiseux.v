@@ -344,6 +344,28 @@ Add Parametric Morphism : lower_convex_hull_points
   with signature eq_list_pt ==> eq_list_hs
   as lower_convex_hull_points_morph.
 Proof.
+intros pts₁ pts₂ Heq.
+unfold eq_list_hs.
+unfold lower_convex_hull_points.
+induction Heq; [ constructor | simpl ].
+destruct l as [| a].
+ destruct l' as [| b]; [ idtac | inversion Heq ].
+ constructor; [ idtac | constructor ].
+ split; [ assumption | reflexivity ].
+
+ destruct l' as [| b]; [ inversion Heq | idtac ].
+ constructor.
+  constructor; simpl.
+   constructor; simpl; [ idtac | inversion H; assumption ].
+   inversion H; subst; assumption.
+
+   inversion Heq; subst.
+   revert H3 H5; clear; intros.
+   unfold eq_list_pt.
+bbb.
+
+    Focus 2.
+    inversion Heq; subst.
 bbb.
 *)
 
