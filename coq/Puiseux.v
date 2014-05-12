@@ -9,6 +9,7 @@ Require Import Fpolynomial.
 Require Import Newton.
 Require Import Puiseux_series.
 Require Import Ps_add.
+Require Import PSpolynomial.
 Require Import Puiseux_base.
 Require Import AlgCloCharPol.
 Require Import CharactPolyn.
@@ -29,7 +30,7 @@ Definition phony_ns :=
 
 Lemma zzz : ∀ pol ns c₁ r pol₁ ns₁ j₁ αj₁ k₁ αk₁,
   ns ∈ newton_segments pol
-  → c₁ = ac_root (Φq pol ns)
+  → c₁ = ac_root (Φq pol ns) ∧ (c₁ ≠ 0)%K
   → r = root_multiplicity acf c₁ (Φq pol ns)
   → pol₁ = next_pol pol (β ns) (γ ns) c₁
   → r = 1%nat
@@ -40,6 +41,11 @@ Lemma zzz : ∀ pol ns c₁ r pol₁ ns₁ j₁ αj₁ k₁ αk₁,
 Proof.
 intros pol ns c₁ r pol₁ ns₁ j₁ αj₁ k₁ αk₁.
 intros Hns Hc₁ Hr Hpol₁ Hr₁1 Hns₁ Hini₁ Hfin₁.
+remember (quotient_phi_x_sub_c_pow_r (Φq pol ns) c₁ r) as Ψ eqn:HΨ .
+remember Hns as Hini; clear HeqHini.
+apply exists_ini_pt_nat in Hini.
+destruct Hini as (j, (αj, Hini)).
+eapply f₁_eq_term_with_Ψ_plus_g in Hpol₁; try eassumption.
 bbb.
 
 (*
