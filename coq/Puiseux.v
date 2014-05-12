@@ -110,7 +110,6 @@ Add Parametric Morphism α (R : ring α) : (@points_of_ps_lap_gen _ R)
   with signature eq ==> @lap_eq _ (ps_ring R) ==> eq_list_pt
   as points_of_ps_lap_gen_morph.
 Proof.
-intros α R pow pow₂ H; subst pow₂; revert pow.
 intros pow la lb Hlab.
 unfold points_of_ps_lap_gen; simpl.
 revert pow lb Hlab.
