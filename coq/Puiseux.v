@@ -49,13 +49,28 @@ Qed.
 Theorem eq_list_pt_trans : transitive _ eq_list_pt.
 Proof.
 intros pts₁ pts₂ pts₃ H₁ H₂.
-bbb.
+revert pts₁ pts₃ H₁ H₂.
+induction pts₂ as [| pt₂]; intros.
+ inversion H₁; subst.
+ inversion H₂; subst.
+ constructor.
 
-Add Parametric Relation : eq_list_pt
+ destruct pts₁ as [| pt₁]; [ inversion H₁ | idtac ].
+ destruct pts₃ as [| pt₃]; [ inversion H₂ | idtac ].
+ inversion H₁; subst.
+ inversion H₂; subst.
+ constructor.
+  destruct H2, H3.
+  split; etransitivity; eassumption.
+
+  apply IHpts₂; assumption.
+Qed.
+
+Add Parametric Relation : (list (Q * Q)) eq_list_pt
  reflexivity proved by eq_list_pt_refl
  symmetry proved by eq_list_pt_sym
  transitivity proved by eq_list_pt_trans
- as eq_list_pt.
+ as eq_list_pt_rel.
 
 Add Parametric Morphism α (R : ring α) : (@points_of_ps_polynom _ R)
   with signature @ps_pol_eq _ R ==> eq_list_pt
