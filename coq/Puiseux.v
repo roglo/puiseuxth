@@ -11,6 +11,7 @@ Require Import Newton.
 Require Import ConvexHull.
 Require Import Puiseux_series.
 Require Import Ps_add.
+Require Import Ps_div.
 Require Import PSpolynomial.
 Require Import Puiseux_base.
 Require Import AlgCloCharPol.
@@ -105,6 +106,48 @@ Add Parametric Relation : (list (Q * Q)) eq_list_pt
  transitivity proved by eq_list_pt_trans
  as eq_list_pt_rel.
 
+Add Parametric Morphism α (R : ring α) : (@points_of_ps_lap_gen _ R)
+  with signature eq ==> @lap_eq _ (ps_ring R) ==> eq_list_pt
+  as points_of_ps_lap_gen_morph.
+Proof.
+intros α R pow pow₂ H; subst pow₂; revert pow.
+intros pow la lb Hlab.
+unfold points_of_ps_lap_gen; simpl.
+revert pow lb Hlab.
+induction la as [| a]; intros; simpl.
+ revert pow.
+ induction lb as [| b]; intros; [ reflexivity | simpl ].
+ apply lap_eq_nil_cons_inv in Hlab.
+ destruct Hlab as (Hb, Hlb).
+ simpl in Hb.
+ apply order_inf in Hb; rewrite Hb.
+ apply IHlb; assumption.
+
+ destruct lb as [| b]; simpl.
+  apply lap_eq_cons_nil_inv in Hlab.
+  destruct Hlab as (Ha, Hla).
+  simpl in Ha.
+  apply order_inf in Ha; rewrite Ha; simpl.
+  revert Hla; clear; intros.
+  revert pow.
+  induction la as [| a]; intros; [ reflexivity | simpl ].
+  apply lap_eq_cons_nil_inv in Hla.
+  destruct Hla as (Ha, Hla).
+  simpl in Ha.
+  apply order_inf in Ha; rewrite Ha.
+  apply IHla; assumption.
+
+  apply lap_eq_cons_inv in Hlab.
+  destruct Hlab as (Hab, Hlab).
+  simpl in Hab.
+  apply order_morph in Hab.
+  remember (order a) as oa eqn:Hoa .
+  remember (order b) as ob eqn:Hob .
+  symmetry in Hoa, Hob.
+  destruct oa as [va| ].
+   destruct ob as [vb| ].
+bbb.
+
 Add Parametric Morphism α (R : ring α) : (@points_of_ps_polynom _ R)
   with signature @ps_pol_eq _ R ==> eq_list_pt
   as points_of_ps_polynom_morph.
@@ -129,6 +172,7 @@ inversion HP; subst.
   do 2 rewrite fold_qpower_list.
   do 2 rewrite fold_points_of_ps_lap_gen.
   rewrite fold_eq_list_pt.
+  rewrite H; reflexivity.
 bbb.
   rename l₁ into la.
   rename l₂ into lb.
