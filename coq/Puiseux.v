@@ -4,9 +4,11 @@ Require Import Utf8.
 Require Import QArith.
 
 Require Import Misc.
+Require Import Qbar.
 Require Import Field.
 Require Import Fpolynomial.
 Require Import Newton.
+Require Import ConvexHull.
 Require Import Puiseux_series.
 Require Import Ps_add.
 Require Import PSpolynomial.
@@ -14,9 +16,69 @@ Require Import Puiseux_base.
 Require Import AlgCloCharPol.
 Require Import CharactPolyn.
 Require Import F1Eq.
+Require Import PosOrder.
 Require Import F1Prop.
 
 Set Implicit Arguments.
+
+Definition eq_list_pt :=
+  List.Forall2 (λ pt₁ pt₂, fst pt₁ == fst pt₂ ∧ snd pt₁ == snd pt₂).
+
+Delimit Scope list_pt_scope with pts.
+Notation "a = b" := (eq_list_pt a b) : list_pt_scope.
+
+Theorem eq_list_pt_refl : reflexive _ eq_list_pt.
+Proof.
+intros pts.
+induction pts; constructor; [ split; reflexivity | assumption ].
+Qed.
+
+Theorem eq_list_pt_sym : symmetric _ eq_list_pt.
+Proof.
+intros pts₁ pts₂ Heq.
+revert pts₂ Heq.
+induction pts₁ as [| pt₁]; intros.
+ destruct pts₂; [ constructor | inversion Heq ].
+
+ destruct pts₂ as [| pt₂]; [ inversion Heq | idtac ].
+ inversion Heq; subst.
+ constructor; [ destruct H2; split; symmetry; assumption | idtac ].
+ apply IHpts₁; assumption.
+Qed.
+
+Theorem eq_list_pt_trans : transitive _ eq_list_pt.
+Proof.
+intros pts₁ pts₂ pts₃ H₁ H₂.
+bbb.
+
+Add Parametric Relation : eq_list_pt
+ reflexivity proved by eq_list_pt_refl
+ symmetry proved by eq_list_pt_sym
+ transitivity proved by eq_list_pt_trans
+ as eq_list_pt.
+
+Add Parametric Morphism α (R : ring α) : (@points_of_ps_polynom _ R)
+  with signature @ps_pol_eq _ R ==> eq_list_pt
+  as points_of_ps_polynom_morph.
+Proof.
+intros Pa Pb HP.
+unfold points_of_ps_polynom.
+inversion HP; subst.
+ reflexivity.
+
+ unfold points_of_ps_lap; simpl.
+ unfold points_of_ps_lap_gen; simpl.
+ simpl in H1.
+bbb.
+rewrite H1.
+
+Add Parametric Morphism α (R : ring α) : (@newton_segments _ R)
+  with signature @ps_pol_eq _ R ==> eq
+  as newton_segments_morph.
+Proof.
+intros Pa Pb HP.
+unfold newton_segments.
+bbb.
 
 Section theorems.
 
@@ -47,6 +109,7 @@ apply exists_ini_pt_nat in Hini.
 destruct Hini as (j, (αj, Hini)).
 eapply f₁_eq_term_with_Ψ_plus_g in Hpol₁; try eassumption.
 bbb.
+rewrite Hpol₁ in Hns₁.
 
 (*
 Fixpoint root_loop α {R : ring α} {K : field R} {acf : algeb_closed_field K}
