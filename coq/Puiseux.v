@@ -119,10 +119,58 @@ inversion HP; subst.
  remember (order x₂) as o₂ eqn:Ho₂ .
  symmetry in Ho₁, Ho₂.
  destruct o₁ as [v₁| ].
-  destruct o₂ as [v₂| ].
-   apply Qbar.qfin_inj in H1.
-   constructor; [ rewrite H1; reflexivity | idtac ].
-   Focus 1.
+  destruct o₂ as [v₂| ]; [ idtac | inversion H1 ].
+  apply Qbar.qfin_inj in H1.
+  constructor; [ rewrite H1; reflexivity | idtac ].
+  revert H2; clear; intros H.
+  rename l₁ into la.
+  rename l₂ into lb.
+  remember 1%nat as pow; clear Heqpow.
+  revert pow lb H.
+  induction la as [| a]; intros; simpl.
+   revert pow.
+   induction lb as [| b]; intros; [ constructor | simpl ].
+   apply lap_eq_nil_cons_inv in H.
+   destruct H as (Hb, H).
+   simpl in Hb.
+   apply order_inf in Hb.
+   rewrite Hb.
+   apply IHlb; assumption.
+
+   revert pow.
+   induction lb as [| b]; intros; simpl.
+    apply lap_eq_cons_nil_inv in H.
+    destruct H as (Ha, H).
+    simpl in Ha.
+    apply order_inf in Ha; rewrite Ha.
+    revert H; clear; intros.
+    revert pow.
+    induction la as [| a]; intros; [ constructor | simpl ].
+    apply lap_eq_cons_nil_inv in H.
+    destruct H as (Ha, H).
+    simpl in Ha.
+    apply order_inf in Ha; rewrite Ha.
+    apply IHla; assumption.
+
+    apply lap_eq_cons_inv in H.
+    destruct H as (Hab, Hlab).
+    simpl in Hab.
+    apply order_morph in Hab.
+    remember (order a) as oa eqn:Hoa .
+    remember (order b) as ob eqn:Hob .
+    symmetry in Hoa, Hob.
+    destruct oa as [va| ].
+     destruct ob as [vb| ]; [ idtac | inversion Hab ].
+     constructor.
+      apply Qbar.qfin_inj in Hab.
+      rewrite Hab; reflexivity.
+
+      apply IHla; assumption.
+
+     destruct ob as [vb| ]; [ inversion Hab | idtac ].
+     apply IHla; assumption.
+
+  destruct o₂ as [v₂| ]; [ inversion H1 | idtac ].
 bbb.
 
 Add Parametric Morphism α (R : ring α) : (@newton_segments _ R)
