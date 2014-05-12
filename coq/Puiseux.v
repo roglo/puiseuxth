@@ -25,15 +25,21 @@ Set Implicit Arguments.
 Definition eq_pt pt₁ pt₂ := fst pt₁ == fst pt₂ ∧ snd pt₁ == snd pt₂.
 Definition eq_list_pt := List.Forall2 eq_pt.
 Definition eq_ns ns₁ ns₂ :=
-  γ ns₁ == γ ns₂ ∧ β ns₁ == β ns₁ ∧ eq_pt (ini_pt ns₁) (ini_pt ns₂)
+  γ ns₁ == γ ns₂ ∧ β ns₁ == β ns₂ ∧ eq_pt (ini_pt ns₁) (ini_pt ns₂)
   ∧ eq_list_pt (oth_pts ns₁) (oth_pts ns₂) ∧ eq_pt (fin_pt ns₁) (fin_pt ns₂).
 Definition eq_list_ns := List.Forall2 eq_ns.
+Definition eq_hs hs₁ hs₂ :=
+  eq_pt (vert hs₁) (vert hs₂) ∧ eq_list_pt (edge hs₁) (edge hs₂).
+Definition eq_list_hs := List.Forall2 eq_hs.
 
 Delimit Scope list_pt_scope with pts.
 Notation "a = b" := (eq_list_pt a b) : list_pt_scope.
 
 Delimit Scope list_ns_scope with ns.
 Notation "a = b" := (eq_list_ns a b) : list_ns_scope.
+
+Delimit Scope list_hs_scope with hs.
+Notation "a = b" := (eq_list_hs a b) : list_hs_scope.
 
 Lemma fold_eq_list_pt : List.Forall2 eq_pt = eq_list_pt.
 Proof. reflexivity. Qed.
@@ -174,6 +180,110 @@ unfold points_of_ps_lap.
 rewrite HP; reflexivity.
 Qed.
 
+Theorem eq_ns_refl : reflexive _ eq_ns.
+Proof.
+intros ns.
+unfold eq_ns.
+split; [ reflexivity | idtac ].
+split; [ reflexivity | idtac ].
+split; [ reflexivity | idtac ].
+split; [ reflexivity | idtac ].
+split; reflexivity.
+Qed.
+
+Theorem eq_ns_sym : symmetric _ eq_ns.
+Proof.
+intros ns₁ ns₂ H.
+unfold eq_ns in H; unfold eq_ns.
+destruct H as (H₁, (H₂, (H₃, (H₄, H₅)))).
+split; [ symmetry; assumption | idtac ].
+split; [ symmetry; assumption | idtac ].
+split; [ symmetry; assumption | idtac ].
+split; symmetry; assumption.
+Qed.
+
+Theorem eq_ns_trans : transitive _ eq_ns.
+Proof.
+intros ns₁ ns₂ ns₃ H I.
+unfold eq_ns in H, I; unfold eq_ns.
+destruct H as (H₁, (H₂, (H₃, (H₄, H₅)))).
+destruct I as (I₁, (I₂, (I₃, (I₄, I₅)))).
+split; [ etransitivity; eassumption | idtac ].
+split; [ etransitivity; eassumption | idtac ].
+split; [ etransitivity; eassumption | idtac ].
+split; etransitivity; eassumption.
+Qed.
+
+Add Parametric Relation : newton_segment eq_ns
+ reflexivity proved by eq_ns_refl
+ symmetry proved by eq_ns_sym
+ transitivity proved by eq_ns_trans
+ as eq_ns_rel.
+
+Theorem eq_list_ns_refl : reflexive _ eq_list_ns.
+Proof.
+intros ns.
+bbb.
+induction pts; constructor; [ reflexivity | assumption ].
+Qed.
+
+Theorem eq_list_ns_sym : symmetric _ eq_list_ns.
+Proof.
+intros ns₁ ns₂ Heq.
+bbb.
+revert pts₂ Heq.
+induction pts₁ as [| pt₁]; intros.
+ destruct pts₂; [ constructor | inversion Heq ].
+
+ destruct pts₂ as [| pt₂]; [ inversion Heq | idtac ].
+ inversion Heq; subst.
+ constructor; [ destruct H2; split; symmetry; assumption | idtac ].
+ apply IHpts₁; assumption.
+Qed.
+
+Theorem eq_list_ns_trans : transitive _ eq_list_ns.
+Proof.
+intros ns₁ ns₂ ns₃ H₁ H₂.
+bbb.
+revert pts₁ pts₃ H₁ H₂.
+induction pts₂ as [| pt₂]; intros.
+ inversion H₁; subst.
+ inversion H₂; subst.
+ constructor.
+
+ destruct pts₁ as [| pt₁]; [ inversion H₁ | idtac ].
+ destruct pts₃ as [| pt₃]; [ inversion H₂ | idtac ].
+ inversion H₁; subst.
+ inversion H₂; subst.
+ constructor.
+  destruct H2, H3.
+  split; etransitivity; eassumption.
+
+  apply IHpts₂; assumption.
+Qed.
+
+Add Parametric Relation : (list newton_segment) eq_list_ns
+ reflexivity proved by eq_list_ns_refl
+ symmetry proved by eq_list_ns_sym
+ transitivity proved by eq_list_ns_trans
+ as eq_list_ns_rel.
+
+Add Parametric Morphism : (list_map_pairs newton_segment_of_pair)
+  with signature eq_list_hs ==> eq_list_ns
+  as list_map_pairs_ns_of_pair_morph.
+Proof.
+Admitted. (*
+bbb.
+*)
+
+Add Parametric Morphism : lower_convex_hull_points
+  with signature eq_list_pt ==> eq_list_hs
+  as lower_convex_hull_points_morph.
+Proof.
+Admitted. (*
+bbb.
+*)
+
 Add Parametric Morphism α (R : ring α) : (@newton_segments _ R)
   with signature @ps_pol_eq _ R ==> eq_list_ns
   as newton_segments_morph.
@@ -181,6 +291,10 @@ Proof.
 intros Pa Pb HP.
 unfold newton_segments.
 bbb.
+apply points_of_ps_polynom_morph in HP.
+apply lower_convex_hull_points_morph in HP.
+apply list_map_pairs_ns_of_pair_morph in HP.
+assumption.
 
 Section theorems.
 
