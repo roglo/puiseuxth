@@ -26,8 +26,8 @@ Set Implicit Arguments.
 Definition eq_pt pt₁ pt₂ := fst pt₁ == fst pt₂ ∧ snd pt₁ == snd pt₂.
 Definition eq_list_pt := List.Forall2 eq_pt.
 Definition eq_ns ns₁ ns₂ :=
-  γ ns₁ == γ ns₂ ∧ β ns₁ == β ns₂ ∧ eq_pt (ini_pt ns₁) (ini_pt ns₂)
-  ∧ eq_list_pt (oth_pts ns₁) (oth_pts ns₂) ∧ eq_pt (fin_pt ns₁) (fin_pt ns₂).
+  eq_pt (ini_pt ns₁) (ini_pt ns₂) ∧ eq_list_pt (oth_pts ns₁) (oth_pts ns₂)
+  ∧ eq_pt (fin_pt ns₁) (fin_pt ns₂).
 Definition eq_list_ns := List.Forall2 eq_ns.
 Definition eq_hs hs₁ hs₂ :=
   eq_pt (vert hs₁) (vert hs₂) ∧ eq_list_pt (edge hs₁) (edge hs₂).
@@ -207,7 +207,6 @@ unfold eq_ns.
 split; [ reflexivity | idtac ].
 split; [ reflexivity | idtac ].
 split; [ reflexivity | idtac ].
-split; [ reflexivity | idtac ].
 split; reflexivity.
 Qed.
 
@@ -215,8 +214,7 @@ Theorem eq_ns_sym : symmetric _ eq_ns.
 Proof.
 intros ns₁ ns₂ H.
 unfold eq_ns in H; unfold eq_ns.
-destruct H as (H₁, (H₂, (H₃, (H₄, H₅)))).
-split; [ symmetry; assumption | idtac ].
+destruct H as (H₁, (H₂, (H₃, H₄))).
 split; [ symmetry; assumption | idtac ].
 split; [ symmetry; assumption | idtac ].
 split; symmetry; assumption.
@@ -226,9 +224,8 @@ Theorem eq_ns_trans : transitive _ eq_ns.
 Proof.
 intros ns₁ ns₂ ns₃ H I.
 unfold eq_ns in H, I; unfold eq_ns.
-destruct H as (H₁, (H₂, (H₃, (H₄, H₅)))).
-destruct I as (I₁, (I₂, (I₃, (I₄, I₅)))).
-split; [ etransitivity; eassumption | idtac ].
+destruct H as (H₁, (H₂, (H₃, H₄))).
+destruct I as (I₁, (I₂, (I₃, I₄))).
 split; [ etransitivity; eassumption | idtac ].
 split; [ etransitivity; eassumption | idtac ].
 split; etransitivity; eassumption.
@@ -395,18 +392,7 @@ Proof.
 intros hs₁ hs₂ Heq₁ hs₃ hs₄ Heq₃.
 inversion_clear Heq₁.
 inversion_clear Heq₃.
-split; simpl.
- inversion_clear H.
- inversion_clear H1.
- rewrite H3, H4, H, H5; reflexivity.
-
- split.
-  inversion_clear H.
-  inversion_clear H1.
-  rewrite H3, H4, H, H5; reflexivity.
-
-  split; [ assumption | idtac ].
-  split; assumption.
+split; [ assumption | split; assumption ].
 Qed.
 
 Add Parametric Morphism : (list_map_pairs newton_segment_of_pair)
@@ -583,7 +569,7 @@ Variable K : field R.
 Variable acf : algeb_closed_field K.
 
 Definition phony_ns :=
-  {| γ := 0; β := 0; ini_pt := (0, 0); fin_pt := (0, 0); oth_pts := [] |}.
+  {| ini_pt := (0, 0); fin_pt := (0, 0); oth_pts := [] |}.
 
 Lemma zzz : ∀ pol ns c₁ r pol₁ ns₁ j₁ αj₁ k₁ αk₁,
   ns ∈ newton_segments pol

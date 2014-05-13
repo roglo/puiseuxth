@@ -725,7 +725,7 @@ remember (Qden (β ns) * Qden (β ns))%positive as k.
 rewrite ps_adjust_eq with (k := k) (n := O).
 progress unfold adjust_ps; simpl.
 rewrite series_shift_0, stretch_series_1.
-reflexivity.
+subst k; reflexivity.
 Qed.
 
 Lemma lap_summation_compat_r : ∀ A (r : ring A) g h la,

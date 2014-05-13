@@ -364,6 +364,8 @@ destruct n as [n| ].
    unfold order, Qbar.gt.
    rewrite Hn.
    apply Qbar.qfin_lt_mono.
+   remember (β ns) as βns.
+   remember (γ ns) as γns.
    rewrite Hs, Hāl; simpl.
    unfold cm; simpl.
    rewrite <- Hāl.
@@ -404,7 +406,7 @@ destruct n as [n| ].
      rewrite Nat.mod_0_l in Hn; auto; simpl in Hn.
      rewrite Nat.div_0_l in Hn; auto; simpl in Hn.
      rewrite rng_mul_1_r in Hn.
-     destruct (zerop (n mod Pos.to_nat (Qden (γ ns)))) as [Hng| Hng].
+     destruct (zerop (n mod Pos.to_nat (Qden (γns)))) as [Hng| Hng].
       2: exfalso; apply Hn; reflexivity.
 
       apply Nat.mod_divides in Hng; auto.

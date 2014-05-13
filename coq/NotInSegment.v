@@ -1295,17 +1295,14 @@ destruct hsl₁ as [| hs₁].
    split; assumption.
 Qed.
 
-Lemma get_ns : ∀ hsl₁ hsj hsk hsl nsl₁ ns nsl g b,
+Lemma get_ns : ∀ hsl₁ hsj hsk hsl nsl₁ ns nsl,
   list_map_pairs newton_segment_of_pair (hsl₁ ++ [hsj; hsk … hsl]) =
      nsl₁ ++ [ns … nsl]
   → List.length hsl₁ = List.length nsl₁
-    → g = (snd (vert hsj) - snd (vert hsk)) / (fst (vert hsk) - fst (vert hsj))
-      → b = snd (vert hsj) + fst (vert hsj) * g
-        → ns = mkns g b (vert hsj) (vert hsk) (edge hsj).
+    → ns = mkns (vert hsj) (vert hsk) (edge hsj).
 Proof.
-intros hsl₁ hsj hsk hsl nsl₁ ns nsl g b.
-intros Hhsl Hlen Hg Hb.
-subst g b.
+intros hsl₁ hsj hsk hsl nsl₁ ns nsl.
+intros Hhsl Hlen.
 revert nsl₁ Hhsl Hlen.
 induction hsl₁ as [| hs]; intros.
  destruct nsl₁; [ idtac | discriminate Hlen ].
@@ -1357,7 +1354,7 @@ destruct hsl as [| ((j, αj), segjk)].
   rewrite plus_comm, <- plus_n_Sm; simpl.
   rewrite plus_comm; apply succ_plus_discr.
 
-  eapply get_ns in Hnsl; [ idtac | assumption | reflexivity | reflexivity ].
+  eapply get_ns in Hnsl; [ idtac | assumption ].
   subst ns; simpl in Hnh |- *.
   destruct (Qlt_le_dec k h) as [Hlt| Hge].
    eapply lt_aft_k with (hsl₁ := hsl₁); simpl; eassumption.
