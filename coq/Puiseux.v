@@ -471,8 +471,15 @@ induction Hpts as [| pt₅ pt₆ pts₅ pts₆]; intros; simpl.
   split; [ idtac | rewrite Heq; reflexivity ].
   constructor; [ assumption | idtac ].
   rewrite Heq; reflexivity.
-bbb.
-*)
+
+  unfold eq_min_sl; simpl.
+  split; [ rewrite Heq₁, Heq₃; reflexivity | idtac ].
+  split; [ assumption | idtac ].
+  split; [ reflexivity | idtac ].
+  constructor; [ assumption | assumption ].
+
+  assumption.
+Qed.
 
 Add Parametric Morphism : lower_convex_hull_points
   with signature eq_list_pt ==> eq_list_hs
