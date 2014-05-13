@@ -4,6 +4,7 @@ Require Import Utf8.
 Require Import QArith.
 
 Require Import Misc.
+Require Import Slope_base.
 Require Import Qbar.
 Require Import Field.
 Require Import Fpolynomial.
@@ -53,6 +54,9 @@ Notation "a = b" := (eq_hs a b) : hs_scope.
 
 Delimit Scope list_hs_scope with hsl.
 Notation "a = b" := (eq_list_hs a b) : list_hs_scope.
+
+Delimit Scope ms_scope with ms.
+Notation "a = b" := (eq_min_sl a b) : ms_scope.
 
 Lemma fold_eq_list_pt : List.Forall2 eq_pt = eq_list_pt.
 Proof. reflexivity. Qed.
@@ -347,17 +351,60 @@ destruct l as [| a].
  reflexivity.
 Qed.
 
+(*
+Add Parametric Morphism : slope
+  with signature eq_min_sl ==> Qeq
+  as slope_morph.
+Proof.
+intros ms₁ ms₂ Heq.
+unfold eq_min_sl in Heq.
+destruct Heq as (Hsl, (Hend, (Hseg, Hrem))).
+assumption.
+Qed.
+
 Add Parametric Morphism : seg
   with signature eq_min_sl ==> eq_list_pt
   as seg_morph.
 Proof.
-bbb.
+intros ms₁ ms₂ Heq.
+unfold eq_min_sl in Heq.
+destruct Heq as (Hsl, (Hend, (Hseg, Hrem))).
+assumption.
+Qed.
 *)
 
 Add Parametric Morphism : minimise_slope
   with signature eq_pt ==> eq_pt ==> eq_list_pt ==> eq_min_sl
   as minimise_slope_morph.
 Proof.
+intros pt₁ pt₂ Heq₁ pt₃ pt₄ Heq₃ pts₁ pts₂ Hpts.
+revert pt₁ pt₂ pt₃ pt₄ Heq₁ Heq₃.
+induction Hpts as [| pt₅ pt₆ pts₅ pts₆]; intros; simpl.
+ unfold eq_min_sl; simpl.
+ unfold slope_expr.
+ split.
+  destruct Heq₁ as (Hfst₁, Hsnd₁).
+  destruct Heq₃ as (Hfst₃, Hsnd₃).
+  rewrite Hfst₁, Hsnd₁, Hfst₃, Hsnd₃.
+  reflexivity.
+
+  split; [ assumption | idtac ].
+  split; reflexivity.
+
+ remember (minimise_slope pt₁ pt₅ pts₅) as ms₁.
+ remember (minimise_slope pt₂ pt₆ pts₆) as ms₂.
+ destruct (slope_expr pt₁ pt₃ ?= slope ms₁); simpl.
+  destruct (slope_expr pt₂ pt₄ ?= slope ms₂); simpl.
+   unfold eq_min_sl; simpl.
+   split; [ subst; apply IHHpts; assumption | idtac ].
+   split; [ subst; apply IHHpts; assumption | idtac ].
+   split; [ subst | idtac ].
+    constructor; [ assumption | idtac ].
+    apply IHHpts; assumption.
+
+    subst; apply IHHpts; assumption.
+
+   Focus 1.
 bbb.
 *)
 
