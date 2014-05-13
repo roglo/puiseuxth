@@ -26,11 +26,11 @@ Fixpoint list_map_pairs α β (f : α → α → β) l :=
   end.
 
 Definition newton_segment_of_pair hsj hsk :=
-  let αj := snd (vert hsj) in
-  let αk := snd (vert hsk) in
-  let γ := (αj - αk) / (fst (vert hsk) - fst (vert hsj)) in
-  let β := αj + fst (vert hsj) * γ in
-  mkns γ β (vert hsj) (vert hsk) (edge hsj).
+  let ini := vert hsj in
+  let fin := vert hsk in
+  let γ := (snd ini - snd fin) / (fst fin - fst ini) in
+  let β := snd ini + fst ini * γ in
+  mkns γ β ini fin (edge hsj).
 
 Lemma list_map_pairs_length {A B} : ∀ (f : A → A → B) l₁ l₂,
   list_map_pairs f l₁ = l₂
