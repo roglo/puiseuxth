@@ -591,7 +591,7 @@ Lemma zzz : ∀ pol ns c₁ r pol₁ ns₁ j₁ αj₁ k₁ αk₁,
   → r = root_multiplicity acf c₁ (Φq pol ns)
   → pol₁ = next_pol pol (β ns) (γ ns) c₁
   → r = 1%nat
-  → (ns₁ = List.hd phony_ns (newton_segments pol₁))%ns
+  → ns₁ = List.hd phony_ns (newton_segments pol₁)
   → ini_pt ns₁ = (Qnat j₁, αj₁)
   → fin_pt ns₁ = (Qnat k₁, αk₁)
   → j₁ = 0%nat ∧ k₁ = 1%nat.
@@ -603,7 +603,15 @@ remember Hns as Hini; clear HeqHini.
 apply exists_ini_pt_nat in Hini.
 destruct Hini as (j, (αj, Hini)).
 eapply f₁_eq_term_with_Ψ_plus_g in Hpol₁; try eassumption.
+assert (ns₁ = ns₁)%ns as H by reflexivity.
+rewrite Hns₁ in H at 2.
+clear Hns₁; rename H into Hns₁.
 rewrite Hpol₁ in Hns₁.
+unfold newton_segments in Hns₁.
+unfold points_of_ps_polynom in Hns₁.
+simpl in Hns₁.
+unfold points_of_ps_lap in Hns₁.
+unfold points_of_ps_lap_gen in Hns₁.
 bbb.
 
 (*
