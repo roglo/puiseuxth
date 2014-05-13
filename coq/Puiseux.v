@@ -512,6 +512,24 @@ induction pts₁ as [| pt₁]; intros; simpl.
    rewrite fold_eq_list_hs.
    rewrite fold_eq_list_pt in H6.
    remember next_ch_points as f; simpl; subst f.
+   rename H2 into H₁.
+   rename H3 into H₃.
+   rename H6 into Heq.
+   revert pt₁ pt₂ pt₃ pt₄ H₁ H₃.
+   induction Heq; intros.
+    simpl.
+    constructor; [ idtac | constructor ].
+    constructor; [ assumption | reflexivity ].
+
+    remember [x … l] as xl.
+    remember [y … l'] as yl.
+    simpl.
+    remember (minimise_slope pt₁ pt₃ xl) as ms₁.
+    remember (minimise_slope pt₂ pt₄ yl) as ms₃.
+    rewrite Heqxl in Heqms₁.
+    rewrite Heqyl in Heqms₃.
+    simpl in Heqms₁.
+    simpl in Heqms₃.
 bbb.
 
 Add Parametric Morphism α (R : ring α) : (@newton_segments _ R)
