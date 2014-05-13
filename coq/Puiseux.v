@@ -481,10 +481,26 @@ induction Hpts as [| pt₅ pt₆ pts₅ pts₆]; intros; simpl.
   assumption.
 Qed.
 
+Lemma length_pts : ∀ pts₁ pts₂,
+  (pts₁ = pts₂)%pts
+  → length pts₁ = length pts₂.
+Proof.
+intros pts₁ pts₂ Heq.
+unfold eq_list_pt in Heq.
+induction Heq as [| pt₁ pt₂ pts₁ pts₂]; [ reflexivity | idtac ].
+simpl; rewrite IHHeq; reflexivity.
+Qed.
+
 Add Parametric Morphism : lower_convex_hull_points
   with signature eq_list_pt ==> eq_list_hs
   as lower_convex_hull_points_morph.
 Proof.
+intros pts₁ pts₂ Heq.
+unfold lower_convex_hull_points.
+erewrite length_pts; [ idtac | eassumption ].
+remember (length pts₂) as len; clear Heqlen.
+bbb.
+
 intros pts₁ pts₂ Heq.
 unfold eq_list_hs.
 unfold lower_convex_hull_points.
@@ -508,6 +524,7 @@ induction pts₁ as [| pt₁]; intros; simpl.
    rewrite H2, H3, H6; reflexivity.
 
    inversion H4; subst.
+bbb.
    revert H2 H3 H6; clear; intros.
    rewrite fold_eq_list_hs.
    rewrite fold_eq_list_pt in H6.
