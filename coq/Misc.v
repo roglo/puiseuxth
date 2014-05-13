@@ -1868,3 +1868,12 @@ rewrite Z.divide_div_mul_exact.
  exists 1%Z.
  rewrite Z.mul_1_l; reflexivity.
 Qed.
+
+Lemma list_forall2_length : ∀ A f (l₁ l₂ : list A),
+  List.Forall2 f l₁ l₂
+  → length l₁ = length l₂.
+Proof.
+intros A f l₁ l₂ H.
+induction H as [| x₁ x₂ l₁ l₂]; [ reflexivity | idtac ].
+simpl; rewrite IHForall2; reflexivity.
+Qed.
