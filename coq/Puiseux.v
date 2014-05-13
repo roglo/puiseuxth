@@ -612,6 +612,7 @@ unfold points_of_ps_polynom in Hns₁.
 simpl in Hns₁.
 unfold points_of_ps_lap in Hns₁.
 unfold points_of_ps_lap_gen in Hns₁.
+unfold qpower_list in Hns₁.
 bbb.
 
 (*
