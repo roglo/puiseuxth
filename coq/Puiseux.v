@@ -567,6 +567,14 @@ unfold newton_segments.
 rewrite HP; reflexivity.
 Qed.
 
+Add Parametric Morphism : (@List.hd newton_segment)
+  with signature eq_ns ==> eq_list_ns ==> eq_ns
+  as list_hd_ns_morph.
+Proof.
+intros nsa nsb Hab nsc nsd Hcd.
+induction Hcd; assumption.
+Qed.
+
 Section theorems.
 
 Variable α : Type.
@@ -583,7 +591,7 @@ Lemma zzz : ∀ pol ns c₁ r pol₁ ns₁ j₁ αj₁ k₁ αk₁,
   → r = root_multiplicity acf c₁ (Φq pol ns)
   → pol₁ = next_pol pol (β ns) (γ ns) c₁
   → r = 1%nat
-  → ns₁ = List.hd phony_ns (newton_segments pol₁)
+  → (ns₁ = List.hd phony_ns (newton_segments pol₁))%ns
   → ini_pt ns₁ = (Qnat j₁, αj₁)
   → fin_pt ns₁ = (Qnat k₁, αk₁)
   → j₁ = 0%nat ∧ k₁ = 1%nat.
@@ -595,8 +603,8 @@ remember Hns as Hini; clear HeqHini.
 apply exists_ini_pt_nat in Hini.
 destruct Hini as (j, (αj, Hini)).
 eapply f₁_eq_term_with_Ψ_plus_g in Hpol₁; try eassumption.
-bbb.
 rewrite Hpol₁ in Hns₁.
+bbb.
 
 (*
 Fixpoint root_loop α {R : ring α} {K : field R} {acf : algeb_closed_field K}
