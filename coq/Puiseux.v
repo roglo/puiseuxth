@@ -594,7 +594,7 @@ Lemma zzz : ∀ pol ns c₁ r pol₁ ns₁ j₁ αj₁ k₁ αk₁,
   → ns₁ = List.hd phony_ns (newton_segments pol₁)
   → ini_pt ns₁ = (Qnat j₁, αj₁)
   → fin_pt ns₁ = (Qnat k₁, αk₁)
-  → j₁ = 0%nat ∧ k₁ = 1%nat.
+  → j₁ = 0%nat ∧ k₁ = 1%nat ∧ αj₁ > 0 ∧ αk₁ = 0.
 Proof.
 intros pol ns c₁ r pol₁ ns₁ j₁ αj₁ k₁ αk₁.
 intros Hns Hc₁ Hr Hpol₁ Hr₁1 Hns₁ Hini₁ Hfin₁.
