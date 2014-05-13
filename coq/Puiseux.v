@@ -60,6 +60,9 @@ Proof. reflexivity. Qed.
 Lemma fold_eq_list_ns : List.Forall2 eq_ns = eq_list_ns.
 Proof. reflexivity. Qed.
 
+Lemma fold_eq_list_hs : List.Forall2 eq_hs = eq_list_hs.
+Proof. reflexivity. Qed.
+
 Theorem eq_pt_refl : reflexive _ eq_pt.
 Proof. intros; split; reflexivity. Qed.
 
@@ -348,7 +351,6 @@ Add Parametric Morphism : seg
   with signature eq_min_sl ==> eq_list_pt
   as seg_morph.
 Proof.
-Admitted. (*
 bbb.
 *)
 
@@ -356,7 +358,6 @@ Add Parametric Morphism : minimise_slope
   with signature eq_pt ==> eq_pt ==> eq_list_pt ==> eq_min_sl
   as minimise_slope_morph.
 Proof.
-Admitted. (*
 bbb.
 *)
 
@@ -385,6 +386,12 @@ induction pts₁ as [| pt₁]; intros; simpl.
    constructor; [ assumption | simpl ].
    inversion H4; subst.
    rewrite H2, H3, H6; reflexivity.
+
+   inversion H4; subst.
+   revert H2 H3 H6; clear; intros.
+   rewrite fold_eq_list_hs.
+   rewrite fold_eq_list_pt in H6.
+   remember next_ch_points as f; simpl; subst f.
 bbb.
 
 Add Parametric Morphism α (R : ring α) : (@newton_segments _ R)
