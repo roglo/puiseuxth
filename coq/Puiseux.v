@@ -351,7 +351,6 @@ destruct l as [| a].
  reflexivity.
 Qed.
 
-(*
 Add Parametric Morphism : slope
   with signature eq_min_sl ==> Qeq
   as slope_morph.
@@ -371,7 +370,18 @@ unfold eq_min_sl in Heq.
 destruct Heq as (Hsl, (Hend, (Hseg, Hrem))).
 assumption.
 Qed.
-*)
+
+Add Parametric Morphism : slope_expr
+  with signature eq_pt ==> eq_pt ==> Qeq
+  as slope_expr_morph.
+Proof.
+intros pt₁ pt₂ Heq₁ pt₃ pt₄ Heq₃.
+unfold slope_expr.
+unfold eq_pt in Heq₁, Heq₃.
+destruct Heq₁ as (H₁, H₂).
+destruct Heq₃ as (H₃, H₄).
+rewrite H₁, H₂, H₃, H₄; reflexivity.
+Qed.
 
 Add Parametric Morphism : minimise_slope
   with signature eq_pt ==> eq_pt ==> eq_list_pt ==> eq_min_sl
@@ -393,8 +403,13 @@ induction Hpts as [| pt₅ pt₆ pts₅ pts₆]; intros; simpl.
 
  remember (minimise_slope pt₁ pt₅ pts₅) as ms₁.
  remember (minimise_slope pt₂ pt₆ pts₆) as ms₂.
- destruct (slope_expr pt₁ pt₃ ?= slope ms₁); simpl.
-  destruct (slope_expr pt₂ pt₄ ?= slope ms₂); simpl.
+ remember (slope_expr pt₁ pt₃ ?= slope ms₁) as c₁.
+ remember (slope_expr pt₂ pt₄ ?= slope ms₂) as c₂.
+ symmetry in Heqc₁, Heqc₂.
+ destruct c₁; simpl.
+  apply Qeq_alt in Heqc₁.
+  destruct c₂; simpl.
+   apply Qeq_alt in Heqc₂.
    unfold eq_min_sl; simpl.
    split; [ subst; apply IHHpts; assumption | idtac ].
    split; [ subst; apply IHHpts; assumption | idtac ].
@@ -405,6 +420,21 @@ induction Hpts as [| pt₅ pt₆ pts₅ pts₆]; intros; simpl.
     subst; apply IHHpts; assumption.
 
    Focus 1.
+   exfalso.
+bbb.
+
+intros pt₁ pt₂ Heq₁ pt₃ pt₄ Heq₃ pts₁ pts₂ Hpts.
+revert pt₁ pt₂ pt₃ pt₄ Heq₁ Heq₃.
+revert pts₂ Hpts.
+induction pts₁ as [| pt₅]; intros; simpl.
+ inversion Hpts; subst.
+ simpl.
+ constructor; simpl.
+  rewrite Heq₁, Heq₃; reflexivity.
+
+  split; [ assumption | split; reflexivity ].
+
+ remember (minimise_slope pt₁ pt₅ pts₁) as ms₁.
 bbb.
 *)
 
