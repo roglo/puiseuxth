@@ -311,6 +311,42 @@ Add Parametric Relation : hull_seg eq_hs
  transitivity proved by eq_hs_trans
  as eq_hs_rel.
 
+Theorem eq_ms_refl : reflexive _ eq_min_sl.
+Proof.
+intros ms.
+unfold eq_min_sl.
+split; [ reflexivity | idtac ].
+split; [ reflexivity | idtac ].
+split; reflexivity.
+Qed.
+
+Theorem eq_ms_sym : symmetric _ eq_min_sl.
+Proof.
+intros ms₁ ms₂ H.
+unfold eq_min_sl in H; unfold eq_min_sl.
+destruct H as (H₁, (H₂, (H₃, H₄))).
+split; [ symmetry; assumption | idtac ].
+split; [ symmetry; assumption | idtac ].
+split; symmetry; assumption.
+Qed.
+
+Theorem eq_ms_trans : transitive _ eq_min_sl.
+Proof.
+intros ms₁ ms₂ ms₃ H I.
+unfold eq_min_sl in H, I; unfold eq_min_sl.
+destruct H as (H₁, (H₂, (H₃, H₄))).
+destruct I as (I₁, (I₂, (I₃, I₄))).
+split; [ etransitivity; eassumption | idtac ].
+split; [ etransitivity; eassumption | idtac ].
+split; etransitivity; eassumption.
+Qed.
+
+Add Parametric Relation : min_sl eq_min_sl
+ reflexivity proved by eq_ms_refl
+ symmetry proved by eq_ms_sym
+ transitivity proved by eq_ms_trans
+ as eq_ms_rel.
+
 Add Parametric Morphism : newton_segment_of_pair
   with signature eq_hs ==> eq_hs ==> eq_ns
   as newton_segment_of_pair_morph.
@@ -361,9 +397,29 @@ destruct Heq as (Hsl, (Hend, (Hseg, Hrem))).
 assumption.
 Qed.
 
+Add Parametric Morphism : end_pt
+  with signature eq_min_sl ==> eq_pt
+  as end_pt_morph.
+Proof.
+intros ms₁ ms₂ Heq.
+unfold eq_min_sl in Heq.
+destruct Heq as (Hsl, (Hend, (Hseg, Hrem))).
+assumption.
+Qed.
+
 Add Parametric Morphism : seg
   with signature eq_min_sl ==> eq_list_pt
   as seg_morph.
+Proof.
+intros ms₁ ms₂ Heq.
+unfold eq_min_sl in Heq.
+destruct Heq as (Hsl, (Hend, (Hseg, Hrem))).
+assumption.
+Qed.
+
+Add Parametric Morphism : rem_pts
+  with signature eq_min_sl ==> eq_list_pt
+  as rem_pts_morph.
 Proof.
 intros ms₁ ms₂ Heq.
 unfold eq_min_sl in Heq.
@@ -401,40 +457,20 @@ induction Hpts as [| pt₅ pt₆ pts₅ pts₆]; intros; simpl.
   split; [ assumption | idtac ].
   split; reflexivity.
 
+ pose proof (IHHpts pt₁ pt₂ pt₅ pt₆ Heq₁ H) as Heq.
  remember (minimise_slope pt₁ pt₅ pts₅) as ms₁.
  remember (minimise_slope pt₂ pt₆ pts₆) as ms₂.
- remember (slope_expr pt₁ pt₃ ?= slope ms₁) as c₁.
- remember (slope_expr pt₂ pt₄ ?= slope ms₂) as c₂.
- symmetry in Heqc₁, Heqc₂.
- destruct c₁; simpl.
-  apply Qeq_alt in Heqc₁.
-  destruct c₂; simpl.
-   apply Qeq_alt in Heqc₂.
-   unfold eq_min_sl; simpl.
-   split; [ subst; apply IHHpts; assumption | idtac ].
-   split; [ subst; apply IHHpts; assumption | idtac ].
-   split; [ subst | idtac ].
-    constructor; [ assumption | idtac ].
-    apply IHHpts; assumption.
-
-    subst; apply IHHpts; assumption.
-
-   Focus 1.
-   exfalso.
-bbb.
-
-intros pt₁ pt₂ Heq₁ pt₃ pt₄ Heq₃ pts₁ pts₂ Hpts.
-revert pt₁ pt₂ pt₃ pt₄ Heq₁ Heq₃.
-revert pts₂ Hpts.
-induction pts₁ as [| pt₅]; intros; simpl.
- inversion Hpts; subst.
- simpl.
- constructor; simpl.
-  rewrite Heq₁, Heq₃; reflexivity.
-
-  split; [ assumption | split; reflexivity ].
-
- remember (minimise_slope pt₁ pt₅ pts₁) as ms₁.
+ rewrite <- Heq.
+ rewrite <- Heq₁, <- Heq₃.
+ remember (slope_expr pt₁ pt₃ ?= slope ms₁) as c.
+ symmetry in Heqc.
+ destruct c.
+  unfold eq_min_sl; simpl.
+  split; [ rewrite Heq; reflexivity | idtac ].
+  split; [ rewrite Heq; reflexivity | idtac ].
+  split; [ idtac | rewrite Heq; reflexivity ].
+  constructor; [ assumption | idtac ].
+  rewrite Heq; reflexivity.
 bbb.
 *)
 
