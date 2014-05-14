@@ -598,13 +598,18 @@ Lemma zzz : ∀ pol ns c₁ r pol₁ ns₁ j₁ αj₁ k₁ αk₁,
   → ns₁ = List.hd phony_ns (newton_segments pol₁)
   → ini_pt ns₁ = (Qnat j₁, αj₁)
   → fin_pt ns₁ = (Qnat k₁, αk₁)
+  → (order (ps_poly_nth 0 pol₁) ≠ ∞)%Qbar
   → j₁ = 0%nat ∧ k₁ = 1%nat ∧ αj₁ > 0 ∧ αk₁ = 0.
 Proof.
 intros pol ns c₁ r pol₁ ns₁ j₁ αj₁ k₁ αk₁.
-intros Hns Hc₁ Hr Hpol₁ Hr₁1 Hns₁ Hini₁ Hfin₁.
+intros Hns Hc₁ Hr Hpol₁ Hr₁1 Hns₁ Hini₁ Hfin₁ Hps₀.
 remember Hns as H; clear HeqH.
 eapply f₁_orders in H; try eassumption.
 destruct H as (Hnneg, (Hpos, Hz)).
+assert (ini_pt ns₁ = ini_pt ns₁)%pt as H by reflexivity.
+rewrite Hini₁ in H at 2.
+clear Hini₁; rename H into Hini₁.
+rewrite Hns₁ in Hini₁.
 bbb.
 
 intros pol ns c₁ r pol₁ ns₁ j₁ αj₁ k₁ αk₁.
