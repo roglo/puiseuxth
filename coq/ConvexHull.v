@@ -9,7 +9,7 @@ Notation "[ x ; .. ; y … l ]" := (cons x .. (cons y l) ..).
 Notation "[ x ]" := (cons x nil).
 
 Record min_sl :=
-  { slope : Q;
+  { beg_pt : (Q * Q);
     end_pt : (Q * Q);
     seg : list (Q * Q);
     rem_pts : list (Q * Q) }.
@@ -18,19 +18,20 @@ Record hull_seg := ahs
   { vert : (Q * Q);
     edge : list (Q * Q) }.
 
+Definition slope ms := slope_expr (beg_pt ms) (end_pt ms).
+
 Fixpoint minimise_slope pt₁ pt₂ pts₂ :=
-  let sl₁₂ := slope_expr pt₁ pt₂ in
   match pts₂ with
   | [] =>
-      {| slope := sl₁₂; end_pt := pt₂; seg := []; rem_pts := [] |}
+      {| beg_pt := pt₁; end_pt := pt₂; seg := []; rem_pts := [] |}
   | [pt₃ … pts₃] =>
       let ms := minimise_slope pt₁ pt₃ pts₃ in
-      match Qcompare sl₁₂ (slope ms) with
+      match Qcompare (slope_expr pt₁ pt₂) (slope ms) with
       | Eq =>
-          {| slope := slope ms; end_pt := end_pt ms; seg := [pt₂ … seg ms];
+          {| beg_pt := pt₁; end_pt := end_pt ms; seg := [pt₂ … seg ms];
              rem_pts := rem_pts ms |}
       | Lt =>
-          {| slope := sl₁₂; end_pt := pt₂; seg := []; rem_pts := pts₂ |}
+          {| beg_pt := pt₁; end_pt := pt₂; seg := []; rem_pts := pts₂ |}
       | Gt =>
           ms
       end
@@ -52,3 +53,16 @@ Fixpoint next_ch_points n pts :=
 
 Definition lower_convex_hull_points pts :=
   next_ch_points (List.length pts) pts.
+
+Lemma minimised_slope_beg_pt : ∀ pt₁ pt₂ pts,
+  beg_pt (minimise_slope pt₁ pt₂ pts) = pt₁.
+Proof.
+intros pt₁ pt₂ pts.
+revert pt₁ pt₂.
+induction pts as [| pt]; intros; [ reflexivity | simpl ].
+remember (minimise_slope pt₁ pt pts) as ms.
+remember (slope_expr pt₁ pt₂ ?= slope ms) as c.
+symmetry in Heqc.
+destruct c; simpl; [ reflexivity | reflexivity | idtac ].
+subst ms; apply IHpts.
+Qed.

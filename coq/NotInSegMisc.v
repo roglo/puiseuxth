@@ -118,7 +118,11 @@ induction pts as [| pt]; intros.
  destruct c; subst ms.
   simpl.
   symmetry in Heqc; apply Qeq_alt in Heqc.
-  rewrite Heqc; apply Qle_refl.
+  rewrite Heqc.
+  unfold slope; simpl.
+  rewrite Heqms₁; simpl.
+  rewrite minimised_slope_beg_pt.
+  apply Qle_refl.
 
   simpl.
   apply Qle_refl.
@@ -143,7 +147,8 @@ destruct Hαh as [Hαh| Hαh].
  symmetry in Heqms₁.
  remember (slope_expr (j, αj) pt ?= slope ms₁) as c.
  destruct c; subst ms.
-  simpl.
+  unfold slope; simpl.
+  rewrite <- minimised_slope; [ idtac | eassumption | reflexivity ].
   eapply minimised_slope_le; eassumption.
 
   simpl.
@@ -161,7 +166,8 @@ destruct Hαh as [Hαh| Hαh].
  remember (slope_expr (j, αj) pt ?= slope ms₁) as c.
  symmetry in Heqc.
  destruct c; subst ms.
-  simpl.
+  unfold slope; simpl.
+  rewrite <- minimised_slope; [ idtac | eassumption | reflexivity ].
   eapply IHpts; eassumption.
 
   simpl.
@@ -227,6 +233,8 @@ destruct Hαh as [Hαh| Hαh].
  remember (slope_expr (j, αj) pt ?= slope ms₁) as c.
  destruct c; subst ms.
   simpl in Hep |- *.
+  unfold slope; simpl.
+  rewrite <- minimised_slope; [ idtac | eassumption | reflexivity ].
   eapply IHpts; try eassumption.
   destruct pts as [| pts₁]; [ constructor | idtac ].
   apply Sorted_inv_2 in Hsort; destruct Hsort; assumption.
@@ -315,9 +323,13 @@ Lemma not_seg_min_sl_lt : ∀ j αj k αk pt pts ms h αh,
           → slope ms < slope_expr (j, αj) (h, αh).
 Proof.
 intros j αj k αk pt pts ms h αh Hsort Hms (Hjh, Hhk) Hseg Hep.
+unfold slope.
+rewrite <- Hms in |- * at 1.
+rewrite minimised_slope_beg_pt.
 revert ms Hms Hseg Hep.
 induction pts as [| pt₁]; intros.
  simpl in Hms.
+ unfold slope in Hms; simpl in Hms.
  remember (slope_expr (j, αj) pt ?= slope_expr (j, αj) (h, αh)) as c.
  symmetry in Heqc.
  destruct c; subst ms; simpl.
@@ -360,7 +372,11 @@ induction pts as [| pt₁]; intros.
    injection Hep; clear Hep; intros; subst h αh.
    apply Qlt_irrefl in Hhk; contradiction.
 
-   apply Qgt_alt in Heqc; assumption.
+   apply Qgt_alt in Heqc.
+   unfold slope in Heqc.
+   rewrite <- Heqms₂ in Heqc at 1.
+   rewrite minimised_slope_beg_pt in Heqc.
+   assumption.
 
   simpl in Hseg, Hep.
   subst pt.
@@ -385,7 +401,11 @@ induction pts as [| pt₁]; intros.
    injection Hep; clear Hep; intros; subst h αh.
    apply Qlt_irrefl in Hhk; contradiction.
 
-   apply Qgt_alt in Heqc; assumption.
+   apply Qgt_alt in Heqc.
+   unfold slope in Heqc; simpl in Heqc.
+   rewrite <- Heqms₂ in Heqc at 1.
+   rewrite minimised_slope_beg_pt in Heqc.
+   assumption.
 Qed.
 
 Lemma points_between_j_and_k : ∀ n pts j αj k αk sjk skx hsl γ β,

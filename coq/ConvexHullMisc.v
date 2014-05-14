@@ -328,20 +328,8 @@ Lemma minimised_slope : ∀ pt₁ pt₂ pt pts ms,
     → slope ms == slope_expr pt₁ pt₂.
 Proof.
 intros pt₁ pt₂ pt pts ms Hms Hkps.
-revert pt₁ pt₂ pt ms Hms Hkps.
-induction pts as [| pt₃]; intros.
- subst ms; simpl in Hkps |- *; subst pt; reflexivity.
-
- simpl in Hms.
- remember (minimise_slope pt₁ pt₃ pts) as ms₁.
- remember (slope_expr pt₁ pt ?= slope ms₁) as c.
- symmetry in Heqms₁.
- destruct c; subst ms; simpl in Hkps |- *.
-  eapply IHpts; eassumption.
-
-  subst pt₂; reflexivity.
-
-  eapply IHpts; eassumption.
+unfold slope; subst.
+rewrite minimised_slope_beg_pt; reflexivity.
 Qed.
 
 Lemma end_pt_in : ∀ pt₁ pt₂ pts ms,
