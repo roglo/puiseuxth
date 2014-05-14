@@ -561,6 +561,15 @@ intros nsa nsb Hab nsc nsd Hcd.
 induction Hcd; assumption.
 Qed.
 
+Add Parametric Morphism : ini_pt
+  with signature eq_ns ==> eq_pt
+  as ini_pt_morph.
+Proof.
+intros nsa nsb Heq.
+destruct Heq as (Hini, (Hoth, Hfin)).
+assumption.
+Qed.
+
 Section theorems.
 
 Variable α : Type.
@@ -599,6 +608,10 @@ simpl in Hns₁.
 unfold points_of_ps_lap in Hns₁.
 unfold points_of_ps_lap_gen in Hns₁.
 unfold qpower_list in Hns₁.
+assert (ini_pt ns₁ = ini_pt ns₁)%pt as H by reflexivity.
+rewrite Hini₁ in H at 2.
+clear Hini₁; rename H into Hini₁.
+rewrite Hns₁ in Hini₁.
 bbb.
 
 (*
