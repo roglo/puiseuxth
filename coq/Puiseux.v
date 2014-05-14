@@ -579,6 +579,18 @@ destruct Heq as (Hini, (Hoth, Hfin)).
 assumption.
 Qed.
 
+Lemma Qnat_0 : ∀ h αh v, ((Qnat h, αh) = (0, v))%pt → h = 0%nat.
+Proof.
+intros h αh v H.
+unfold eq_pt in H.
+destruct H as (H, _); simpl in H.
+unfold Qeq in H; simpl in H.
+rewrite Z.mul_1_r in H.
+rewrite <- Nat2Z.inj_0 in H.
+apply Nat2Z.inj in H.
+assumption.
+Qed.
+
 Section theorems.
 
 Variable α : Type.
@@ -632,45 +644,17 @@ split.
    remember (pair_rec (λ pow ps, (Qnat pow, ps))) as f.
    remember (List.map f (power_list 1 la)) as l.
    destruct (filter_finite_ord R l) as [| pt].
-    simpl in Hini₁.
-    inversion Hini₁; subst.
-    simpl in H.
-    unfold Qnat in H.
-    unfold Qeq in H.
-    simpl in H.
-    rewrite Z.mul_1_r in H.
-    rewrite <- Nat2Z.inj_0 in H.
-    apply Nat2Z.inj in H.
-    subst j₁; reflexivity.
+    eapply Qnat_0; symmetry; eassumption.
 
+    remember (minimise_slope (Qnat 0, v) pt l0) as ms₁.
     simpl in Hini₁.
-bbb.
+    remember (rem_pts ms₁) as rem₁.
+    symmetry in Heqrem₁.
+    destruct rem₁; eapply Qnat_0; symmetry; eassumption.
 
-intros pol ns c₁ r pol₁ ns₁ j₁ αj₁ k₁ αk₁.
-intros Hns Hc₁ Hr Hpol₁ Hr₁1 Hns₁ Hini₁ Hfin₁.
-remember (quotient_phi_x_sub_c_pow_r (Φq pol ns) c₁ r) as Ψ eqn:HΨ .
-remember Hns as Hini; clear HeqHini.
-apply exists_ini_pt_nat in Hini.
-destruct Hini as (j, (αj, Hini)).
-eapply f₁_eq_term_with_Ψ_plus_g in Hpol₁; try eassumption.
-assert (ns₁ = ns₁)%ns as H by reflexivity.
-rewrite Hns₁ in H at 2.
-clear Hns₁; rename H into Hns₁.
-rewrite Hpol₁ in Hns₁.
-unfold newton_segments in Hns₁.
-unfold points_of_ps_polynom in Hns₁.
-simpl in Hns₁.
-unfold points_of_ps_lap in Hns₁.
-unfold points_of_ps_lap_gen in Hns₁.
-unfold qpower_list in Hns₁.
-assert (ini_pt ns₁ = ini_pt ns₁)%pt as H by reflexivity.
-rewrite Hini₁ in H at 2.
-clear Hini₁; rename H into Hini₁.
-rewrite Hns₁ in Hini₁.
-assert (fin_pt ns₁ = fin_pt ns₁)%pt as H by reflexivity.
-rewrite Hfin₁ in H at 2.
-clear Hfin₁; rename H into Hfin₁.
-rewrite Hns₁ in Hfin₁.
+   exfalso; apply Hps₀; reflexivity.
+
+ split.
 bbb.
 
 (*
