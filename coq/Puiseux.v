@@ -570,6 +570,15 @@ destruct Heq as (Hini, (Hoth, Hfin)).
 assumption.
 Qed.
 
+Add Parametric Morphism : fin_pt
+  with signature eq_ns ==> eq_pt
+  as fin_pt_morph.
+Proof.
+intros nsa nsb Heq.
+destruct Heq as (Hini, (Hoth, Hfin)).
+assumption.
+Qed.
+
 Section theorems.
 
 Variable α : Type.
@@ -612,6 +621,10 @@ assert (ini_pt ns₁ = ini_pt ns₁)%pt as H by reflexivity.
 rewrite Hini₁ in H at 2.
 clear Hini₁; rename H into Hini₁.
 rewrite Hns₁ in Hini₁.
+assert (fin_pt ns₁ = fin_pt ns₁)%pt as H by reflexivity.
+rewrite Hfin₁ in H at 2.
+clear Hfin₁; rename H into Hfin₁.
+rewrite Hns₁ in Hfin₁.
 bbb.
 
 (*
