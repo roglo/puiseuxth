@@ -602,6 +602,13 @@ Lemma zzz : ∀ pol ns c₁ r pol₁ ns₁ j₁ αj₁ k₁ αk₁,
 Proof.
 intros pol ns c₁ r pol₁ ns₁ j₁ αj₁ k₁ αk₁.
 intros Hns Hc₁ Hr Hpol₁ Hr₁1 Hns₁ Hini₁ Hfin₁.
+remember Hns as H; clear HeqH.
+eapply f₁_orders in H; try eassumption.
+destruct H as (Hnneg, (Hpos, Hz)).
+bbb.
+
+intros pol ns c₁ r pol₁ ns₁ j₁ αj₁ k₁ αk₁.
+intros Hns Hc₁ Hr Hpol₁ Hr₁1 Hns₁ Hini₁ Hfin₁.
 remember (quotient_phi_x_sub_c_pow_r (Φq pol ns) c₁ r) as Ψ eqn:HΨ .
 remember Hns as Hini; clear HeqHini.
 apply exists_ini_pt_nat in Hini.

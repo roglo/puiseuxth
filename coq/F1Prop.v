@@ -793,4 +793,25 @@ assert (order (ps_lap_nth r (yr * ycj * psy ∘ yc)) = 0)%Qbar as Hor.
   apply nth_g_order_pos; assumption.
 Qed.
 
+(* [Walker, p 101] «
+     O(bi) ≥ 0,  i = 0,...,n
+     O(bi) > 0,  i = 0,...,r-1
+     O(br) = 0
+   »
+*)
+Theorem f₁_orders : ∀ pol ns c₁ r f₁,
+  ns ∈ newton_segments pol
+  → c₁ = ac_root (Φq pol ns) ∧ (c₁ ≠ 0)%K
+  → r = root_multiplicity acf c₁ (Φq pol ns)
+  → f₁ = next_pol pol (β ns) (γ ns) c₁
+  → (∀ i, (order (ps_poly_nth i f₁) ≥ 0)%Qbar)
+    ∧ (∀ i, (i < r)%nat → (order (ps_poly_nth i f₁) > 0)%Qbar)
+    ∧ (order (ps_poly_nth r f₁) = 0)%Qbar.
+Proof.
+intros pol ns c₁ r f₁ Hns Hc₁ Hr Hf₁.
+split; [ eapply order_bbar_nonneg; eassumption | idtac ].
+split; [ eapply order_bbar_pos; eassumption | idtac ].
+eapply order_bbar_r_is_0; eassumption.
+Qed.
+
 End theorems.
