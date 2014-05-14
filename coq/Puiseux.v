@@ -610,6 +610,40 @@ assert (ini_pt ns₁ = ini_pt ns₁)%pt as H by reflexivity.
 rewrite Hini₁ in H at 2.
 clear Hini₁; rename H into Hini₁.
 rewrite Hns₁ in Hini₁.
+unfold newton_segments in Hini₁.
+unfold points_of_ps_polynom in Hini₁.
+unfold points_of_ps_lap in Hini₁.
+unfold points_of_ps_lap_gen in Hini₁.
+unfold ps_poly_nth in Hps₀, Hnneg, Hpos, Hz.
+simpl in Hps₀, Hnneg, Hpos, Hz.
+remember (al pol₁) as la; clear Heqla.
+split.
+ revert Hps₀ Hini₁; clear; intros.
+ destruct la as [| a].
+  unfold ps_lap_nth in Hps₀.
+  rewrite list_nth_nil in Hps₀; simpl in Hps₀.
+  exfalso; apply Hps₀; rewrite order_0; reflexivity.
+
+  unfold ps_lap_nth in Hps₀; simpl in Hps₀.
+  simpl in Hini₁.
+  destruct (order a) as [v| ].
+   unfold lower_convex_hull_points in Hini₁.
+   simpl in Hini₁.
+   remember (pair_rec (λ pow ps, (Qnat pow, ps))) as f.
+   remember (List.map f (power_list 1 la)) as l.
+   destruct (filter_finite_ord R l) as [| pt].
+    simpl in Hini₁.
+    inversion Hini₁; subst.
+    simpl in H.
+    unfold Qnat in H.
+    unfold Qeq in H.
+    simpl in H.
+    rewrite Z.mul_1_r in H.
+    rewrite <- Nat2Z.inj_0 in H.
+    apply Nat2Z.inj in H.
+    subst j₁; reflexivity.
+
+    simpl in Hini₁.
 bbb.
 
 intros pol ns c₁ r pol₁ ns₁ j₁ αj₁ k₁ αk₁.
