@@ -24,7 +24,7 @@ Fixpoint list_map_pairs α β (f : α → α → β) l :=
   end.
 
 Definition newton_segment_of_pair hsj hsk :=
-  mkns (vert hsj) (vert hsk) (edge hsj).
+  {| ini_pt := vert hsj; fin_pt := vert hsk; oth_pts := edge hsj |}.
 
 Definition γ ns :=
   (snd (ini_pt ns) - snd (fin_pt ns)) / (fst (fin_pt ns) - fst (ini_pt ns)).
