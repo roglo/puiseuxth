@@ -2,6 +2,7 @@
 
 Require Import Utf8.
 Require Import QArith.
+Require Import NPeano.
 
 Require Import Misc.
 Require Import Slope_base.
@@ -652,10 +653,12 @@ destruct H as (Hnneg, (Hpos, Hz)).
 assert (ini_pt ns₁ = ini_pt ns₁)%pt as H by reflexivity.
 rewrite Hini₁ in H at 2.
 clear Hini₁; rename H into Hini₁.
+remember Hini₁ as Hini₁_v; clear HeqHini₁_v.
 rewrite Hns₁ in Hini₁.
 assert (fin_pt ns₁ = fin_pt ns₁)%pt as H by reflexivity.
 rewrite Hfin₁ in H at 2.
 clear Hfin₁; rename H into Hfin₁.
+remember Hfin₁ as Hfin₁_v; clear HeqHfin₁_v.
 rewrite Hns₁ in Hfin₁.
 unfold newton_segments in Hini₁, Hfin₁.
 unfold points_of_ps_polynom in Hini₁, Hfin₁.
@@ -732,7 +735,11 @@ destruct la as [| a].
            (minimise_slope (Qnat 0, v) (Qnat 1, w)
               (filter_finite_ord R (List.map f (power_list 2 la))))) as x.
        destruct x; discriminate Heqnsl.
+
+      apply j_lt_k with (j := j₁) (k := k₁) in Hns₁'.
+       subst j₁ k₁; exfalso; revert Hns₁'; apply Nat.lt_irrefl.
 bbb.
+rewrite Hini₁_v.
 
 (*
 Fixpoint root_loop α {R : ring α} {K : field R} {acf : algeb_closed_field K}
