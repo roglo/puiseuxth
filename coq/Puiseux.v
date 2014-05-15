@@ -25,6 +25,7 @@ Require Import F1Prop.
 
 Set Implicit Arguments.
 
+(*
 Definition eq_pt pt₁ pt₂ := fst pt₁ == fst pt₂ ∧ snd pt₁ == snd pt₂.
 Definition eq_list_pt := List.Forall2 eq_pt.
 Definition eq_ns ns₁ ns₂ :=
@@ -580,7 +581,18 @@ intros nsa nsb Heq.
 destruct Heq as (Hini, (Hoth, Hfin)).
 assumption.
 Qed.
+*)
 
+Lemma Qnat_0 : ∀ A h (αh v : A), (Qnat h, αh) = (0, v) → h = 0%nat.
+Proof.
+intros A h αh v H.
+injection H; clear H; intros H1 H; subst.
+rewrite <- Nat2Z.inj_0 in H.
+apply Nat2Z.inj in H.
+assumption.
+Qed.
+
+(*
 Lemma Qnat_0 : ∀ h αh v, ((Qnat h, αh) = (0, v))%pt → h = 0%nat.
 Proof.
 intros h αh v H.
@@ -592,6 +604,7 @@ rewrite <- Nat2Z.inj_0 in H.
 apply Nat2Z.inj in H.
 assumption.
 Qed.
+*)
 
 Section theorems.
 
@@ -650,14 +663,18 @@ intros Hns Hc₁ Hr Hpol₁ Hr₁1 Hns₁ Hini₁ Hfin₁ Hps₀.
 remember Hns as H; clear HeqH.
 eapply f₁_orders in H; try eassumption.
 destruct H as (Hnneg, (Hpos, Hz)).
+(*
 assert (ini_pt ns₁ = ini_pt ns₁)%pt as H by reflexivity.
 rewrite Hini₁ in H at 2.
 clear Hini₁; rename H into Hini₁.
+*)
 remember Hini₁ as Hini₁_v; clear HeqHini₁_v.
 rewrite Hns₁ in Hini₁.
+(*
 assert (fin_pt ns₁ = fin_pt ns₁)%pt as H by reflexivity.
 rewrite Hfin₁ in H at 2.
 clear Hfin₁; rename H into Hfin₁.
+*)
 remember Hfin₁ as Hfin₁_v; clear HeqHfin₁_v.
 rewrite Hns₁ in Hfin₁.
 unfold newton_segments in Hini₁, Hfin₁.
@@ -681,13 +698,14 @@ destruct la as [| a].
    remember (pair_rec (λ pow ps, (Qnat pow, ps))) as f.
    remember (List.map f (power_list 1 la)) as l.
    destruct (filter_finite_ord R l) as [| pt].
+    simpl in Hini₁.
     eapply Qnat_0; symmetry; eassumption.
 
     remember (minimise_slope (Qnat 0, v) pt l0) as ms₁.
     simpl in Hini₁.
     remember (rem_pts ms₁) as rem₁.
     symmetry in Heqrem₁.
-    destruct rem₁; eapply Qnat_0; symmetry; eassumption.
+    destruct rem₁; eapply Qnat_0; symmetry; simpl in Hini₁; eassumption.
 
    exfalso; apply Hps₀; reflexivity.
 
@@ -738,8 +756,10 @@ destruct la as [| a].
 
       apply j_lt_k with (j := j₁) (k := k₁) in Hns₁'.
        subst j₁ k₁; exfalso; revert Hns₁'; apply Nat.lt_irrefl.
+
+       rewrite Hini₁_v; simpl.
+       rewrite nat_num_Qnat; reflexivity.
 bbb.
-rewrite Hini₁_v.
 
 (*
 Fixpoint root_loop α {R : ring α} {K : field R} {acf : algeb_closed_field K}
