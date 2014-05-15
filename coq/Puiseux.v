@@ -602,31 +602,35 @@ Variable acf : algeb_closed_field K.
 Definition phony_ns :=
   {| ini_pt := (0, 0); fin_pt := (0, 0); oth_pts := [] |}.
 
-(* f₁(x,y) = 0 => f(x,c₁.x^γ+x^γ.y) = 0 *)
-Lemma yyy : ∀ pol pol₁ ns c₁ ys ys₁,
-  ns ∈ newton_segments pol
-  → c₁ = ac_root (Φq pol ns) ∧ (c₁ ≠ 0)%K
-  → pol₁ = next_pol pol (β ns) (γ ns) c₁
-  → ys = (ps_monom c₁ (γ ns) + ps_monom 1%K (γ ns) * ys₁)%ps
-  → (@apply_poly _ (ps_ring R) pol₁ ys₁ = 0)%ps
-  → (@apply_poly _ (ps_ring R) pol ys = 0)%ps.
+(* f₁(x,y₁) = 0 => f(x,c₁.x^γ+x^γ.y₁) = 0 *)
+Lemma f₁_root_f_root : ∀ f f₁ β γ c₁ y y₁,
+  f₁ = next_pol f β γ c₁
+  → y = (ps_monom c₁ γ + ps_monom 1%K γ * y₁)%ps
+  → (@apply_poly _ (ps_ring R) f₁ y₁ = 0)%ps
+  → (@apply_poly _ (ps_ring R) f y = 0)%ps.
 Proof.
-intros pol pol₁ ns c₁ ys ys₁ Hns Hc₁ Hpol₁ Hys Happ.
-subst pol₁.
-unfold next_pol in Happ.
-unfold apply_poly in Happ; simpl in Happ.
-unfold next_lap in Happ; simpl in Happ.
-unfold apply_poly.
-rewrite apply_lap_mul in Happ.
-rewrite apply_lap_compose in Happ.
-simpl in Happ.
-rewrite ps_mul_0_l in Happ.
-do 2 rewrite ps_add_0_l in Happ.
-rewrite ps_add_comm, <- Hys in Happ.
-apply fld_eq_mul_0_r in Happ; [ assumption | apply ps_field | idtac ].
-simpl; intros H.
-apply ps_monom_0_coeff_0 in H.
-bbb.
+intros f f₁ β γ c₁ y y₁ Hpol₁ Hy Happ.
+destruct (ps_zerop R 1%ps) as [Hzo| Hnzo].
+ apply eq_1_0_all_0; assumption.
+
+ subst f₁.
+ unfold next_pol in Happ.
+ unfold apply_poly in Happ; simpl in Happ.
+ unfold next_lap in Happ; simpl in Happ.
+ unfold apply_poly.
+ rewrite apply_lap_mul in Happ.
+ rewrite apply_lap_compose in Happ.
+ simpl in Happ.
+ rewrite ps_mul_0_l in Happ.
+ do 2 rewrite ps_add_0_l in Happ.
+ rewrite ps_add_comm, <- Hy in Happ.
+ apply fld_eq_mul_0_r in Happ; [ assumption | apply ps_field | idtac ].
+ simpl; intros H.
+ apply ps_monom_0_coeff_0 in H.
+ apply Hnzo.
+ unfold ps_one; rewrite H.
+ apply ps_zero_monom_eq.
+Qed.
 
 Lemma zzz : ∀ pol ns c₁ r pol₁ ns₁ j₁ αj₁ k₁ αk₁,
   ns ∈ newton_segments pol
