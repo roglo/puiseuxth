@@ -759,6 +759,9 @@ destruct la as [| a].
 
        rewrite Hini₁_v; simpl.
        rewrite nat_num_Qnat; reflexivity.
+
+       rewrite Hfin₁_v; simpl.
+       rewrite nat_num_Qnat; reflexivity.
 bbb.
 
 (*
