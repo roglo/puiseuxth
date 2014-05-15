@@ -702,19 +702,36 @@ destruct la as [| a].
      simpl in Hfin₁.
      symmetry in Hfin₁.
      eapply Qnat_0 in Hfin₁.
-     Focus 1.
      assert (ns₁ ∈ newton_segments pol₁) as Hns₁'.
       rewrite Hns₁.
       remember (newton_segments pol₁) as nsl.
       symmetry in Heqnsl.
-      destruct nsl as [| ns'].
-       unfold newton_segments in Heqnsl.
-       unfold points_of_ps_polynom in Heqnsl.
-       rewrite <- Heqla in Heqnsl.
-       unfold points_of_ps_lap in Heqnsl.
-       unfold points_of_ps_lap_gen in Heqnsl.
+      destruct nsl as [| ns']; [ idtac | left; reflexivity ].
+      unfold newton_segments in Heqnsl.
+      unfold points_of_ps_polynom in Heqnsl.
+      rewrite <- Heqla in Heqnsl.
+      unfold points_of_ps_lap in Heqnsl.
+      unfold points_of_ps_lap_gen in Heqnsl.
+      simpl in Heqnsl.
+      rewrite <- Heqoa in Heqnsl.
+      destruct la as [| b].
        simpl in Heqnsl.
-       rewrite <- Heqoa in Heqnsl.
+       move Hr₁1 at top; subst r.
+       unfold ps_lap_nth in Hz; simpl in Hz.
+       rewrite order_0 in Hz.
+       contradiction.
+
+       simpl in Heqnsl.
+       move Hr₁1 at top; subst r.
+       unfold ps_lap_nth in Hz; simpl in Hz.
+       destruct (order b) as [w| ]; [ idtac | contradiction ].
+       simpl in Heqnsl.
+       rewrite <- Heqf in Heqnsl.
+       remember
+        (rem_pts
+           (minimise_slope (Qnat 0, v) (Qnat 1, w)
+              (filter_finite_ord R (List.map f (power_list 2 la))))) as x.
+       destruct x; discriminate Heqnsl.
 bbb.
 
 (*
