@@ -606,8 +606,8 @@ Definition phony_ns :=
 Lemma f₁_root_f_root : ∀ f f₁ β γ c₁ y y₁,
   f₁ = next_pol f β γ c₁
   → y = (ps_monom c₁ γ + ps_monom 1%K γ * y₁)%ps
-  → (@apply_poly _ (ps_ring R) f₁ y₁ = 0)%ps
-  → (@apply_poly _ (ps_ring R) f y = 0)%ps.
+  → (ps_pol_apply f₁ y₁ = 0)%ps
+  → (ps_pol_apply f y = 0)%ps.
 Proof.
 intros f f₁ β γ c₁ y y₁ Hpol₁ Hy Happ.
 destruct (ps_zerop R 1%ps) as [Hzo| Hnzo].
@@ -615,9 +615,9 @@ destruct (ps_zerop R 1%ps) as [Hzo| Hnzo].
 
  subst f₁.
  unfold next_pol in Happ.
- unfold apply_poly in Happ; simpl in Happ.
+ unfold ps_pol_apply, apply_poly in Happ; simpl in Happ.
  unfold next_lap in Happ; simpl in Happ.
- unfold apply_poly.
+ unfold ps_pol_apply, apply_poly.
  rewrite apply_lap_mul in Happ.
  rewrite apply_lap_compose in Happ.
  simpl in Happ.
