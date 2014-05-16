@@ -762,6 +762,13 @@ destruct la as [| a].
 
        rewrite Hfin₁_v; simpl.
        rewrite nat_num_Qnat; reflexivity.
+
+     simpl in Hfin₁.
+     remember (rem_pts (minimise_slope (Qnat 0, v) pt l0)) as x.
+     destruct x.
+      simpl in Hfin₁.
+      destruct l0.
+       simpl in Hfin₁.
 bbb.
 
 (*
