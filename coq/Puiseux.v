@@ -764,6 +764,17 @@ destruct la as [| a].
        subst l.
        clear Heqx.
        subst j₁.
+       destruct la as [| b]; [ discriminate Heqffo | idtac ].
+       simpl in Heqffo.
+       rewrite Heqf in Heqffo; simpl in Heqffo.
+       rewrite Hr₁1 in Hz.
+       unfold ps_lap_nth in Hz; simpl in Hz.
+       destruct (order b) as [w| ]; [ idtac | contradiction ].
+       injection Heqffo; clear Heqffo; intros.
+       apply Nat2Z.inj.
+       rewrite H1; reflexivity.
+
+       simpl in Hfin₁.
 bbb.
 
 (*
