@@ -663,18 +663,8 @@ intros Hns Hc₁ Hr Hpol₁ Hr₁1 Hns₁ Hini₁ Hfin₁ Hps₀.
 remember Hns as H; clear HeqH.
 eapply f₁_orders in H; try eassumption.
 destruct H as (Hnneg, (Hpos, Hz)).
-(*
-assert (ini_pt ns₁ = ini_pt ns₁)%pt as H by reflexivity.
-rewrite Hini₁ in H at 2.
-clear Hini₁; rename H into Hini₁.
-*)
 remember Hini₁ as Hini₁_v; clear HeqHini₁_v.
 rewrite Hns₁ in Hini₁.
-(*
-assert (fin_pt ns₁ = fin_pt ns₁)%pt as H by reflexivity.
-rewrite Hfin₁ in H at 2.
-clear Hfin₁; rename H into Hfin₁.
-*)
 remember Hfin₁ as Hfin₁_v; clear HeqHfin₁_v.
 rewrite Hns₁ in Hfin₁.
 unfold newton_segments in Hini₁, Hfin₁.
@@ -719,7 +709,8 @@ destruct la as [| a].
     simpl in Hfin₁.
     remember (pair_rec (λ pow ps, (Qnat pow, ps))) as f.
     remember (List.map f (power_list 1 la)) as l.
-    destruct (filter_finite_ord R l) as [| pt].
+    remember (filter_finite_ord R l) as ffo.
+    destruct ffo as [| pt].
      simpl in Hfin₁.
      symmetry in Hfin₁.
      eapply Qnat_0 in Hfin₁.
@@ -764,11 +755,15 @@ destruct la as [| a].
        rewrite nat_num_Qnat; reflexivity.
 
      simpl in Hfin₁.
-     remember (rem_pts (minimise_slope (Qnat 0, v) pt l0)) as x.
+     remember (rem_pts (minimise_slope (Qnat 0, v) pt ffo)) as x.
      destruct x.
       simpl in Hfin₁.
-      destruct l0.
+      destruct ffo.
        simpl in Hfin₁.
+       subst pt.
+       subst l.
+       clear Heqx.
+       subst j₁.
 bbb.
 
 (*
