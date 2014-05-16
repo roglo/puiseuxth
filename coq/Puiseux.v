@@ -775,6 +775,28 @@ destruct la as [| a].
        rewrite H1; reflexivity.
 
        simpl in Hfin₁.
+       simpl in Heqx.
+       remember (minimise_slope (Qnat 0, v) p ffo) as ms.
+       remember (slope_expr (Qnat 0, v) pt ?= slope ms) as c.
+       symmetry in Heqc.
+       destruct c; simpl in Hfin₁, Heqx.
+        destruct la as [| b].
+         simpl in Heql.
+         subst l; simpl in Heqffo.
+         discriminate Heqffo.
+
+         simpl in Heql.
+         rewrite Heqf in Heql.
+         simpl in Heql.
+         unfold pair_rec in Heql at 1.
+         simpl in Heql.
+         rewrite <- Heqf in Heql.
+         rewrite Heql in Heqffo.
+         simpl in Heqffo.
+         remember (order b) as ob.
+         symmetry in Heqob.
+         destruct ob as [ob| ].
+          injection Heqffo; intros; subst pt.
 bbb.
 
 (*
