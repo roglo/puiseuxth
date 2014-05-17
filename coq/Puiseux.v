@@ -677,6 +677,39 @@ rename Hini₁ into Hini.
 rename Hfin₁ into Hfin.
 assert (0 < 1)%nat as H by apply Nat.lt_0_1.
 apply Hpos in H; clear Hpos; rename H into Hpos.
+unfold newton_segments in Hns; simpl in Hns.
+unfold points_of_ps_polynom in Hns; simpl in Hns.
+unfold ps_poly_nth in Hps₀, Hnneg, Hz, Hpos.
+remember (al pol) as la.
+clear pol Heqla.
+destruct la as [| a₀].
+ unfold ps_lap_nth in Hps₀; simpl in Hps₀.
+ exfalso; apply Hps₀.
+ rewrite order_0; reflexivity.
+
+ unfold ps_lap_nth in Hps₀, Hnneg, Hz, Hpos.
+ simpl in Hps₀, Hz, Hpos.
+ destruct la as [| a₁].
+  simpl in Hz.
+  rewrite order_0 in Hz.
+  contradiction.
+
+  simpl in Hz.
+  unfold points_of_ps_lap in Hns.
+  unfold points_of_ps_lap_gen in Hns.
+  simpl in Hns.
+  remember (order a₀) as v₀.
+  symmetry in Heqv₀.
+  destruct v₀ as [v₀| ].
+   remember (order a₁) as v₁.
+   symmetry in Heqv₁.
+   destruct v₁ as [v₁| ].
+    remember (pair_rec (λ pow ps, (Qnat pow, ps))) as f.
+    remember (List.map f (power_list 2 la)) as l.
+    remember (filter_finite_ord R l) as ffo.
+    simpl in Hns.
+    remember (minimise_slope (Qnat 0, v₀) (Qnat 1, v₁) ffo) as ms.
+    (* try to prove that the minimum is obtained at (Qnat 1, v₁) *)
 bbb.
 
 intros pol ns c₁ r pol₁ ns₁ j₁ αj₁ k₁ αk₁.
