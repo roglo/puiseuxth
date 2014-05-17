@@ -703,27 +703,15 @@ destruct la as [| a₀].
  apply Qbar.qfin_inj in Hz.
  apply Qbar.qfin_lt_mono in Hpos.
  remember (pair_rec (λ pow ps, (Qnat pow, ps))) as f.
- induction la as [| a₂].
+ simpl in Hns.
+ remember (filter_finite_ord R (List.map f (power_list 2 la))) as ffo.
+ remember (minimise_slope (Qnat 0, v₀) (Qnat 1, v₁) ffo) as ms.
+ remember (rem_pts ms) as rms.
+ symmetry in Heqrms.
+ destruct rms as [| pt₂].
   simpl in Hns.
   unfold newton_segment_of_pair in Hns; simpl in Hns.
   subst ns; simpl in Hini, Hfin.
-  injection Hini; clear Hini; intros; subst αj.
-  injection Hfin; clear Hfin; intros; subst αk.
-  apply Z2Nat.inj_iff in H0; [ idtac | reflexivity | apply Nat2Z.is_nonneg ].
-  apply Z2Nat.inj_iff in H1; [ idtac | idtac | apply Nat2Z.is_nonneg ].
-   rewrite Nat2Z.id in H0, H1.
-   simpl in H0, H1.
-   rewrite Pos2Nat.inj_1 in H1.
-   subst j k.
-   split; [ reflexivity | idtac ].
-   split; [ reflexivity | idtac ].
-   split; assumption.
-
-   apply Z.le_0_1.
-
-  simpl in Hns.
-  rewrite Heqf in Hns; simpl in Hns.
-  rewrite <- Heqf in Hns.
 bbb.
 
 intros pol ns c₁ r pol₁ ns₁ j₁ αj₁ k₁ αk₁.
