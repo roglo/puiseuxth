@@ -682,12 +682,11 @@ unfold points_of_ps_polynom in Hns; simpl in Hns.
 unfold ps_poly_nth in Hps₀, Hnneg, Hz, Hpos.
 remember (al pol) as la.
 clear pol Heqla.
+unfold ps_lap_nth in Hps₀.
 destruct la as [| a₀].
- unfold ps_lap_nth in Hps₀; simpl in Hps₀.
- exfalso; apply Hps₀.
- rewrite order_0; reflexivity.
+ exfalso; apply Hps₀; rewrite order_0; reflexivity.
 
- unfold ps_lap_nth in Hps₀, Hnneg, Hz, Hpos.
+ unfold ps_lap_nth in Hnneg, Hz, Hpos.
  simpl in Hps₀, Hz, Hpos.
  unfold points_of_ps_lap in Hns.
  unfold points_of_ps_lap_gen in Hns.
@@ -696,68 +695,63 @@ destruct la as [| a₀].
  symmetry in Heqv₀.
  destruct v₀ as [v₀| ]; [ idtac | exfalso; apply Hps₀; reflexivity ].
  clear Hps₀.
- destruct la as [| a₁].
-  simpl in Hz.
-  rewrite order_0 in Hz.
-  contradiction.
-
-  simpl in Hz.
+ destruct la as [| a₁]; [ rewrite order_0 in Hz; contradiction | idtac ].
+ simpl in Hz, Hns.
+ remember (order a₁) as v₁.
+ symmetry in Heqv₁.
+ destruct v₁ as [v₁| ]; [ idtac | contradiction ].
+ remember (pair_rec (λ pow ps, (Qnat pow, ps))) as f.
+ remember (List.map f (power_list 2 la)) as l.
+ remember (filter_finite_ord R l) as ffo.
+ destruct la as [| a₂].
+  simpl in Heql; subst l.
+  simpl in Heqffo; subst ffo.
   simpl in Hns.
-  remember (order a₁) as v₁.
-  symmetry in Heqv₁.
-  destruct v₁ as [v₁| ]; [ idtac | contradiction ].
-  remember (pair_rec (λ pow ps, (Qnat pow, ps))) as f.
-  remember (List.map f (power_list 2 la)) as l.
-  remember (filter_finite_ord R l) as ffo.
-  destruct la as [| a₂].
-   simpl in Heql; subst l.
-   simpl in Heqffo; subst ffo.
+  unfold newton_segment_of_pair in Hns; simpl in Hns.
+  subst ns; simpl in Hini, Hfin.
+  injection Hini; clear Hini; intros; subst αj.
+  injection Hfin; clear Hfin; intros; subst αk.
+  apply Z2Nat.inj_iff in H0; [ idtac | reflexivity | apply Nat2Z.is_nonneg ].
+  apply Z2Nat.inj_iff in H1; [ idtac | idtac | apply Nat2Z.is_nonneg ].
+   rewrite Nat2Z.id in H0, H1.
+   simpl in H0, H1.
+   rewrite Pos2Nat.inj_1 in H1.
+   apply Qbar.qfin_inj in Hz.
+   apply Qbar.qfin_lt_mono in Hpos.
+   subst j k.
+   split; [ reflexivity | idtac ].
+   split; [ reflexivity | idtac ].
+   split; assumption.
+
+   apply Z.le_0_1.
+
+  simpl in Heql.
+  pose proof (Hnneg 2%nat) as H₂nneg.
+  simpl in H₂nneg.
+  clear Hnneg.
+  simpl in Hns.
+  remember (minimise_slope (Qnat 0, v₀) (Qnat 1, v₁) ffo) as ms₁.
+  remember (rem_pts ms₁) as rp₁.
+  symmetry in Heqrp₁.
+  destruct rp₁ as [| pt₂].
    simpl in Hns.
    unfold newton_segment_of_pair in Hns; simpl in Hns.
    subst ns; simpl in Hini, Hfin.
-   injection Hini; clear Hini; intros; subst αj.
-   injection Hfin; clear Hfin; intros; subst αk.
-   apply Z2Nat.inj_iff in H0; [ idtac | reflexivity | apply Nat2Z.is_nonneg ].
-   apply Z2Nat.inj_iff in H1; [ idtac | idtac | apply Nat2Z.is_nonneg ].
-    rewrite Nat2Z.id in H0, H1.
-    simpl in H0, H1.
-    rewrite Pos2Nat.inj_1 in H1.
-    apply Qbar.qfin_inj in Hz.
-    apply Qbar.qfin_lt_mono in Hpos.
-    subst j k.
-    split; [ reflexivity | idtac ].
-    split; [ reflexivity | idtac ].
-    split; assumption.
-
-    apply Z.le_0_1.
-
-   simpl in Heql.
-   pose proof (Hnneg 2%nat) as H₂nneg.
-   simpl in H₂nneg.
-   clear Hnneg.
-   simpl in Hns.
-   remember (minimise_slope (Qnat 0, v₀) (Qnat 1, v₁) ffo) as ms₁.
-   remember (rem_pts ms₁) as rp₁.
-   symmetry in Heqrp₁.
-   destruct rp₁ as [| pt₂].
-    simpl in Hns.
-    unfold newton_segment_of_pair in Hns; simpl in Hns.
-    subst ns; simpl in Hini, Hfin.
-    remember (f (2, a₂)) as x.
-    rewrite Heqf in Heqx.
-    unfold pair_rec in Heqx; simpl in Heqx.
-    subst x.
-    subst l; simpl in Heqffo.
-    remember (order a₂) as v₂.
-    symmetry in Heqv₂.
-    remember (filter_finite_ord R (List.map f (power_list 3 la))) as l.
-    destruct v₂ as [v₂| ].
-     subst ffo; simpl in Heqms₁.
-     remember (minimise_slope (Qnat 0, v₀) (Qnat 2, v₂) l) as ms₂.
-     remember (slope_expr (Qnat 0, v₀) (Qnat 1, v₁) ?= slope ms₂) as c.
-     symmetry in Heqc.
-     destruct c.
-      subst ms₁; simpl in Hfin, Heqrp₁.
+   remember (f (2, a₂)) as x.
+   rewrite Heqf in Heqx.
+   unfold pair_rec in Heqx; simpl in Heqx.
+   subst x.
+   subst l; simpl in Heqffo.
+   remember (order a₂) as v₂.
+   symmetry in Heqv₂.
+   remember (filter_finite_ord R (List.map f (power_list 3 la))) as l.
+   destruct v₂ as [v₂| ].
+    subst ffo; simpl in Heqms₁.
+    remember (minimise_slope (Qnat 0, v₀) (Qnat 2, v₂) l) as ms₂.
+    remember (slope_expr (Qnat 0, v₀) (Qnat 1, v₁) ?= slope ms₂) as c.
+    symmetry in Heqc.
+    destruct c.
+     subst ms₁; simpl in Hfin, Heqrp₁.
 bbb.
 
 (*
