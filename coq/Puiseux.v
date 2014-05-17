@@ -10,6 +10,7 @@ Require Import Qbar.
 Require Import Field.
 Require Import Fpolynomial.
 Require Import Newton.
+Require Import ConvexHullMisc.
 Require Import ConvexHull.
 Require Import Puiseux_series.
 Require Import Ps_add.
@@ -797,6 +798,12 @@ destruct la as [| a].
          symmetry in Heqob.
          destruct ob as [ob| ].
           injection Heqffo; intros; subst pt.
+          apply Qeq_alt in Heqc.
+          symmetry in Hfin₁.
+          symmetry in Heqms.
+          eapply minimised_slope in Hfin₁; [ idtac | eassumption ].
+          rewrite Hfin₁ in Heqc.
+          unfold slope_expr in Heqc; simpl in Heqc.
 bbb.
 
 (*
