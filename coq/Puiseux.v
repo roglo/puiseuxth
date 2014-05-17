@@ -700,16 +700,17 @@ destruct la as [| a₀].
   simpl in Hns.
   remember (order a₀) as v₀.
   symmetry in Heqv₀.
-  destruct v₀ as [v₀| ].
-   remember (order a₁) as v₁.
-   symmetry in Heqv₁.
-   destruct v₁ as [v₁| ].
-    remember (pair_rec (λ pow ps, (Qnat pow, ps))) as f.
-    remember (List.map f (power_list 2 la)) as l.
-    remember (filter_finite_ord R l) as ffo.
-    simpl in Hns.
-    remember (minimise_slope (Qnat 0, v₀) (Qnat 1, v₁) ffo) as ms.
-    (* try to prove that the minimum is obtained at (Qnat 1, v₁) *)
+  destruct v₀ as [v₀| ]; [ idtac | exfalso; apply Hps₀; reflexivity ].
+  remember (order a₁) as v₁.
+  symmetry in Heqv₁.
+  destruct v₁ as [v₁| ]; [ idtac | contradiction ].
+  remember (pair_rec (λ pow ps, (Qnat pow, ps))) as f.
+  remember (List.map f (power_list 2 la)) as l.
+  remember (filter_finite_ord R l) as ffo.
+bbb.
+  simpl in Hns.
+  remember (minimise_slope (Qnat 0, v₀) (Qnat 1, v₁) ffo) as ms.
+  (* try to prove that the minimum is obtained at (Qnat 1, v₁) *)
 bbb.
 
 intros pol ns c₁ r pol₁ ns₁ j₁ αj₁ k₁ αk₁.
