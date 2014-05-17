@@ -700,6 +700,7 @@ destruct la as [| a₀].
  remember (order a₁) as v₁.
  symmetry in Heqv₁.
  destruct v₁ as [v₁| ]; [ idtac | contradiction ].
+ apply Qbar.qfin_inj in Hz.
  remember (pair_rec (λ pow ps, (Qnat pow, ps))) as f.
  remember (List.map f (power_list 2 la)) as l.
  remember (filter_finite_ord R l) as ffo.
@@ -716,7 +717,6 @@ destruct la as [| a₀].
    rewrite Nat2Z.id in H0, H1.
    simpl in H0, H1.
    rewrite Pos2Nat.inj_1 in H1.
-   apply Qbar.qfin_inj in Hz.
    apply Qbar.qfin_lt_mono in Hpos.
    subst j k.
    split; [ reflexivity | idtac ].
@@ -752,8 +752,8 @@ destruct la as [| a₀].
     symmetry in Heqc.
     destruct c.
      subst ms₁; simpl in Hfin, Heqrp₁.
-bbb.
      apply Qeq_alt in Heqc.
+bbb.
      symmetry in Heqms₂, Hfin.
      eapply minimised_slope in Heqms₂; [ idtac | eassumption ].
      rewrite Heqms₂ in Heqc.
