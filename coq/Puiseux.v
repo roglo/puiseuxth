@@ -753,6 +753,16 @@ destruct la as [| a₀].
     destruct c.
      subst ms₁; simpl in Hfin, Heqrp₁.
 bbb.
+     apply Qeq_alt in Heqc.
+     symmetry in Heqms₂, Hfin.
+     eapply minimised_slope in Heqms₂; [ idtac | eassumption ].
+     rewrite Heqms₂ in Heqc.
+     unfold slope_expr in Heqc; simpl in Heqc.
+     apply Qbar.qfin_inj in Hz.
+     rewrite Hz in Heqc.
+     unfold Qnat in Heqc.
+     simpl in Heqc.
+bbb.
 
 (*
 Fixpoint root_loop α {R : ring α} {K : field R} {acf : algeb_closed_field K}
