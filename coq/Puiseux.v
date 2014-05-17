@@ -664,6 +664,26 @@ intros Hns Hc₁ Hr Hpol₁ Hr₁1 Hns₁ Hini₁ Hfin₁ Hps₀.
 remember Hns as H; clear HeqH.
 eapply f₁_orders in H; try eassumption.
 destruct H as (Hnneg, (Hpos, Hz)).
+move Hr₁1 at top; subst r.
+revert Hns₁ Hini₁ Hfin₁ Hps₀ Hnneg Hpos Hz; clear; intros.
+rename pol₁ into pol.
+rename ns₁ into ns.
+rename j₁ into j.
+rename αj₁ into αj.
+rename k₁ into k.
+rename αk₁ into αk.
+rename Hns₁ into Hns.
+rename Hini₁ into Hini.
+rename Hfin₁ into Hfin.
+assert (0 < 1)%nat as H by apply Nat.lt_0_1.
+apply Hpos in H; clear Hpos; rename H into Hpos.
+bbb.
+
+intros pol ns c₁ r pol₁ ns₁ j₁ αj₁ k₁ αk₁.
+intros Hns Hc₁ Hr Hpol₁ Hr₁1 Hns₁ Hini₁ Hfin₁ Hps₀.
+remember Hns as H; clear HeqH.
+eapply f₁_orders in H; try eassumption.
+destruct H as (Hnneg, (Hpos, Hz)).
 remember Hini₁ as Hini₁_v; clear HeqHini₁_v.
 rewrite Hns₁ in Hini₁.
 remember Hfin₁ as Hfin₁_v; clear HeqHfin₁_v.
@@ -705,7 +725,6 @@ destruct la as [| a].
    simpl in Hfin₁.
    remember (order a) as oa.
    destruct oa as [v| ].
-    unfold lower_convex_hull_points in Hfin₁.
     unfold lower_convex_hull_points in Hfin₁.
     simpl in Hfin₁.
     remember (pair_rec (λ pow ps, (Qnat pow, ps))) as f.
@@ -775,8 +794,7 @@ destruct la as [| a].
        apply Nat2Z.inj.
        rewrite H1; reflexivity.
 
-       simpl in Hfin₁.
-       simpl in Heqx.
+       simpl in Hfin₁, Heqx.
        remember (minimise_slope (Qnat 0, v) p ffo) as ms.
        remember (slope_expr (Qnat 0, v) pt ?= slope ms) as c.
        symmetry in Heqc.
@@ -797,14 +815,13 @@ destruct la as [| a].
          remember (order b) as ob.
          symmetry in Heqob.
          destruct ob as [ob| ].
-          injection Heqffo; intros; subst pt.
+          injection Heqffo; clear Heqffo; intros; subst pt.
           apply Qeq_alt in Heqc.
-          symmetry in Hfin₁.
-          symmetry in Heqms.
+          symmetry in Hfin₁, Heqms.
+bbb.
           eapply minimised_slope in Hfin₁; [ idtac | eassumption ].
           rewrite Hfin₁ in Heqc.
           unfold slope_expr in Heqc; simpl in Heqc.
-bbb.
 
 (*
 Fixpoint root_loop α {R : ring α} {K : field R} {acf : algeb_closed_field K}
