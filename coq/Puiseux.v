@@ -701,6 +701,7 @@ destruct la as [| a₀].
  symmetry in Heqv₁.
  destruct v₁ as [v₁| ]; [ idtac | contradiction ].
  apply Qbar.qfin_inj in Hz.
+ apply Qbar.qfin_lt_mono in Hpos.
  remember (pair_rec (λ pow ps, (Qnat pow, ps))) as f.
  remember (List.map f (power_list 2 la)) as l.
  remember (filter_finite_ord R l) as ffo.
@@ -717,7 +718,6 @@ destruct la as [| a₀].
    rewrite Nat2Z.id in H0, H1.
    simpl in H0, H1.
    rewrite Pos2Nat.inj_1 in H1.
-   apply Qbar.qfin_lt_mono in Hpos.
    subst j k.
    split; [ reflexivity | idtac ].
    split; [ reflexivity | idtac ].
@@ -728,7 +728,6 @@ destruct la as [| a₀].
   simpl in Heql.
   pose proof (Hnneg 2%nat) as H₂nneg.
   simpl in H₂nneg.
-  clear Hnneg.
   simpl in Hns.
   remember (minimise_slope (Qnat 0, v₀) (Qnat 1, v₁) ffo) as ms₁.
   remember (rem_pts ms₁) as rp₁.
@@ -746,6 +745,7 @@ destruct la as [| a₀].
    symmetry in Heqv₂.
    remember (filter_finite_ord R (List.map f (power_list 3 la))) as l.
    destruct v₂ as [v₂| ].
+    apply Qbar.qfin_le_mono in H₂nneg.
     subst ffo; simpl in Heqms₁.
     remember (minimise_slope (Qnat 0, v₀) (Qnat 2, v₂) l) as ms₂.
     remember (slope_expr (Qnat 0, v₀) (Qnat 1, v₁) ?= slope ms₂) as c.
