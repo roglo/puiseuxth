@@ -712,6 +712,38 @@ destruct la as [| a₀].
   simpl in Hns.
   unfold newton_segment_of_pair in Hns; simpl in Hns.
   subst ns; simpl in Hini, Hfin.
+  subst ffo.
+bbb.
+  induction la as [| a₂].
+   simpl in Heqms.
+   rewrite Heqms in Hfin; simpl in Hfin.
+   injection Hini; clear Hini; intros; subst.
+   injection Hfin; clear Hfin; intros; subst.
+   apply Z2Nat.inj_iff in H0; [ idtac | reflexivity | apply Nat2Z.is_nonneg ].
+   apply Z2Nat.inj_iff in H1; [ idtac | idtac | apply Nat2Z.is_nonneg ].
+    rewrite Nat2Z.id in H0, H1.
+    simpl in H0, H1.
+    rewrite Pos2Nat.inj_1 in H1.
+    subst j k.
+    split; [ reflexivity | idtac ].
+    split; [ reflexivity | idtac ].
+    split; assumption.
+
+    apply Z.le_0_1.
+
+   simpl in Heqms.
+   rewrite Heqf in Heqms; simpl in Heqms.
+   rewrite <- Heqf in Heqms.
+   remember (order a₂) as v₂.
+   symmetry in Heqv₂.
+   destruct v₂ as [v₂| ].
+    simpl in Heqms.
+    remember (filter_finite_ord R (List.map f (power_list 3 la))) as ffo.
+    remember (minimise_slope (Qnat 0, v₀) (Qnat 2, v₂) ffo) as ms₁.
+    remember (slope_expr (Qnat 0, v₀) (Qnat 1, v₁) ?= slope ms₁) as c.
+    symmetry in Heqc.
+    destruct c.
+     subst ffo.
 bbb.
 
 intros pol ns c₁ r pol₁ ns₁ j₁ αj₁ k₁ αk₁.
