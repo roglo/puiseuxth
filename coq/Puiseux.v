@@ -663,6 +663,12 @@ induction pts as [| pt]; intros.
  symmetry in Hc.
  destruct c; subst ms; simpl.
   Focus 1.
+  assert (pt ∈ [pt … pts]) as Hsl by (left; reflexivity).
+  apply Hpt in Hsl.
+  apply Qeq_alt in Hc.
+  remember Hms₁ as Hsl₁; clear HeqHsl₁.
+  symmetry in Hsl₁.
+  eapply minimised_slope in Hsl₁; [ idtac | reflexivity ].
 bbb.
 *)
 
