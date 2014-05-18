@@ -647,6 +647,26 @@ destruct (ps_zerop R 1%ps) as [Hzo| Hnzo].
  apply ps_zero_monom_eq.
 Qed.
 
+Lemma yyy : ∀ pt₁ pt₂ pts ms,
+  (∀ pt₃, pt₃ ∈ pts → slope_expr pt₁ pt₂ < slope_expr pt₁ pt₃)
+  → ms = minimise_slope pt₁ pt₂ pts
+    → end_pt ms = pt₂.
+Proof.
+intros pt₁ pt₂ pts ms Hpt Hms.
+revert ms pt₂ Hpt Hms.
+induction pts as [| pt]; intros.
+ simpl in Hms; subst ms; reflexivity.
+
+ simpl in Hms.
+ remember (minimise_slope pt₁ pt pts) as ms₁ eqn:Hms₁ .
+ remember (slope_expr pt₁ pt₂ ?= slope ms₁) as c eqn:Hc .
+ symmetry in Hc.
+ destruct c; subst ms; simpl.
+  Focus 1.
+Admitted. (*
+bbb.
+*)
+
 Lemma zzz : ∀ pol ns c₁ r pol₁ ns₁ j₁ αj₁ k₁ αk₁,
   ns ∈ newton_segments pol
   → c₁ = ac_root (Φq pol ns) ∧ (c₁ ≠ 0)%K
@@ -712,8 +732,12 @@ destruct la as [| a₀].
   simpl in Hns.
   unfold newton_segment_of_pair in Hns; simpl in Hns.
   subst ns; simpl in Hini, Hfin.
-  subst ffo.
 bbb.
+  apply yyy in Heqms.
+   rewrite Heqms in Hfin.
+bbb.
+
+  subst ffo.
   induction la as [| a₂].
    simpl in Heqms.
    rewrite Heqms in Hfin; simpl in Hfin.
