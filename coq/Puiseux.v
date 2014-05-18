@@ -670,6 +670,7 @@ induction pts as [| pt]; intros.
   eapply minimised_slope in Hsl₁; [ idtac | reflexivity ].
   assert (pt ∈ [pt … pts]) as Hsl by (left; reflexivity).
   apply Hpt in Hsl.
+  rewrite Hsl₁ in Hc.
 bbb.
 
 Lemma yyy_old : ∀ pt₁ pt₂ pts ms,
