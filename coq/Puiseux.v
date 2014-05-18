@@ -663,7 +663,6 @@ induction pts as [| pt]; intros.
  symmetry in Hc.
  destruct c; subst ms; simpl.
   Focus 1.
-Admitted. (*
 bbb.
 *)
 
