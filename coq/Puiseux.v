@@ -648,6 +648,29 @@ destruct (ps_zerop R 1%ps) as [Hzo| Hnzo].
 Qed.
 
 Lemma yyy : ∀ pt₁ pt₂ pts ms,
+  (∀ pt₃, pt₃ ∈ pts → fst pt₂ <= fst pt₃ ∧ snd pt₂ <= snd pt₃)
+  → ms = minimise_slope pt₁ pt₂ pts
+    → end_pt ms = pt₂.
+Proof.
+intros pt₁ pt₂ pts ms Hpt Hms.
+revert ms pt₂ Hpt Hms.
+induction pts as [| pt]; intros.
+ simpl in Hms; subst ms; reflexivity.
+
+ simpl in Hms.
+ remember (minimise_slope pt₁ pt pts) as ms₁ eqn:Hms₁ .
+ remember (slope_expr pt₁ pt₂ ?= slope ms₁) as c eqn:Hc .
+ symmetry in Hc.
+ destruct c; subst ms; simpl.
+  apply Qeq_alt in Hc.
+  remember Hms₁ as Hsl₁; clear HeqHsl₁.
+  symmetry in Hsl₁.
+  eapply minimised_slope in Hsl₁; [ idtac | reflexivity ].
+  assert (pt ∈ [pt … pts]) as Hsl by (left; reflexivity).
+  apply Hpt in Hsl.
+bbb.
+
+Lemma yyy_old : ∀ pt₁ pt₂ pts ms,
   (∀ pt₃, pt₃ ∈ pts → slope_expr pt₁ pt₂ < slope_expr pt₁ pt₃)
   → ms = minimise_slope pt₁ pt₂ pts
     → end_pt ms = pt₂.
