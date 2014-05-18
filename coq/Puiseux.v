@@ -3,6 +3,7 @@
 Require Import Utf8.
 Require Import QArith.
 Require Import NPeano.
+Require Import Sorting.
 
 Require Import Misc.
 Require Import Slope_base.
@@ -648,12 +649,13 @@ destruct (ps_zerop R 1%ps) as [Hzo| Hnzo].
 Qed.
 
 Lemma yyy : ∀ pt₁ pt₂ pts ms,
-  (∀ pt₃, pt₃ ∈ pts → fst pt₂ <= fst pt₃ ∧ snd pt₂ <= snd pt₃)
-  → ms = minimise_slope pt₁ pt₂ pts
-    → end_pt ms = pt₂.
+  Sorted fst_lt [pt₁; pt₂ … pts]
+  → (∀ pt₃, pt₃ ∈ pts → snd pt₂ <= snd pt₃)
+    → ms = minimise_slope pt₁ pt₂ pts
+      → end_pt ms = pt₂.
 Proof.
-intros pt₁ pt₂ pts ms Hpt Hms.
-revert ms pt₂ Hpt Hms.
+intros pt₁ pt₂ pts ms Hsort Hpt Hms.
+revert ms pt₂ Hsort Hpt Hms.
 induction pts as [| pt]; intros.
  simpl in Hms; subst ms; reflexivity.
 
