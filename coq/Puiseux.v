@@ -146,6 +146,23 @@ induction pts as [| pt]; intros.
   assumption.
 Qed.
 
+Lemma yyy : ∀ ms pt₁ pt₂ pts,
+  ms = minimise_slope pt₁ pt₂ pts
+  → end_pt ms = pt₂
+  → seg ms = [].
+Proof.
+intros ms pt₁ pt₂ pts Hms Hend.
+revert ms pt₂ Hms Hend.
+induction pts as [| pt]; intros; [ subst ms; reflexivity | idtac ].
+simpl in Hms.
+remember (minimise_slope pt₁ pt pts) as ms₁.
+remember (slope_expr pt₁ pt₂ ?= slope ms₁) as c.
+symmetry in Heqc.
+destruct c.
+ subst ms; simpl.
+ simpl in Hend.
+bbb.
+
 Lemma pouet : ∀ f ffo ms a₀ a₁ la v₀ v₁ j k αj αk,
   f = pair_rec (λ pow ps, (Qnat pow, ps))
   → ffo = filter_finite_ord R (List.map f (power_list 2 la))
@@ -155,10 +172,11 @@ Lemma pouet : ∀ f ffo ms a₀ a₁ la v₀ v₁ j k αj αk,
   → 0 < v₀
   → (Qnat 0, v₀) = (Qnat j, αj)
   → end_pt ms = (Qnat k, αk)
-  → (j = 0)%nat ∧ (k = 1)%nat ∧ 0 < αj ∧ αk == 0.
+  → (j = 0)%nat ∧ (k = 1)%nat ∧ 0 < αj ∧ αk == 0 ∧ seg ms = [].
 Proof.
 intros f ffo ms a₀ a₁ la v₀ v₁ j k αj αk.
 intros Heqf Heqffo Heqms Hnneg Hz Hpos Hini Hfin.
+remember Heqms as Hms; clear HeqHms.
 apply minimise_slope_end_2nd_pt in Heqms.
  rewrite Heqms in Hfin.
  injection Hini; clear Hini; intros; subst.
@@ -171,7 +189,9 @@ apply minimise_slope_end_2nd_pt in Heqms.
   subst j k.
   split; [ reflexivity | idtac ].
   split; [ reflexivity | idtac ].
-  split; assumption.
+  split; [ assumption | idtac ].
+  split; [ assumption | idtac ].
+  eapply yyy; eassumption.
 
   apply Z.le_0_1.
 
@@ -251,7 +271,7 @@ Lemma r_1_j_0_k_1 : ∀ pol ns c₁ pol₁ ns₁ j₁ αj₁ k₁ αk₁,
   → ns₁ = List.hd phony_ns (newton_segments pol₁)
   → ini_pt ns₁ = (Qnat j₁, αj₁)
   → fin_pt ns₁ = (Qnat k₁, αk₁)
-  → j₁ = 0%nat ∧ k₁ = 1%nat ∧ αj₁ > 0 ∧ αk₁ == 0.
+  → j₁ = 0%nat ∧ k₁ = 1%nat ∧ αj₁ > 0 ∧ αk₁ == 0 ∧ oth_pts ns₁ = [].
 Proof.
 intros pol ns c₁ pol₁ ns₁ j₁ αj₁ k₁ αk₁.
 intros Hns Hc₁ Hr Hpol₁ Hps₀ Hns₁ Hini₁ Hfin₁.
