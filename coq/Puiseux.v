@@ -76,12 +76,13 @@ Qed.
 
 Lemma yyy : ∀ pt₁ pt₂ pts ms,
   Sorted fst_lt [pt₁; pt₂ … pts]
-  → (∀ pt₃, pt₃ ∈ [pt₁ … pts] → snd pt₂ <= snd pt₃)
-    → ms = minimise_slope pt₁ pt₂ pts
-      → end_pt ms = pt₂.
+  → snd pt₂ < snd pt₁
+    → (∀ pt₃, pt₃ ∈ pts → snd pt₂ <= snd pt₃)
+      → ms = minimise_slope pt₁ pt₂ pts
+        → end_pt ms = pt₂.
 Proof.
-intros pt₁ pt₂ pts ms Hsort Hpt Hms.
-revert ms pt₂ Hsort Hpt Hms.
+intros pt₁ pt₂ pts ms Hsort Hpt₁ Hpt Hms.
+revert ms pt₂ Hsort Hpt Hpt₁ Hms.
 induction pts as [| pt]; intros.
  simpl in Hms; subst ms; reflexivity.
 
@@ -95,20 +96,26 @@ induction pts as [| pt]; intros.
   symmetry in Hsl₁.
   eapply minimised_slope in Hsl₁; [ idtac | reflexivity ].
   rewrite Hsl₁ in Hc.
-  assert (pt₁ ∈ [pt₁; pt … pts]) as Hsnd₁ by (left; reflexivity).
-  apply Hpt in Hsnd₁.
-  remember Hms₁ as Hein; clear HeqHein.
-  symmetry in Hein.
-  apply end_pt_in in Hein.
+  remember Hms₁ as Hsnde; clear HeqHsnde.
+  symmetry in Hsnde.
+  apply end_pt_in in Hsnde.
   remember (end_pt ms₁) as pte eqn:Hpte .
-  assert (pte ∈ [pt₁; pt … pts]) as Hsnde by (right; assumption).
   apply Hpt in Hsnde.
   eapply slope_expr_eq in Hc; try eassumption.
-  unfold slope_expr in Hc.
-  apply Qminus_le_compat_r with (z := snd pt₂) in Hsnde.
-  rewrite Qminus_diag in Hsnde.
-  apply Qminus_le_compat_r with (z := snd pt₁) in Hsnd₁.
-  rewrite Qminus_diag in Hsnd₁.
+   unfold slope_expr in Hc.
+   apply Qminus_le_compat_r with (z := snd pt₂) in Hsnde.
+   rewrite Qminus_diag in Hsnde.
+   apply Qminus_lt_compat_r with (z := snd pt₁) in Hpt₁.
+   rewrite Qminus_diag in Hpt₁.
+   apply Q_div_lt_mono with (c := fst pt₂ - fst pt₁) in Hpt₁.
+    unfold Qdiv at 2 in Hpt₁.
+    rewrite Qmult_0_l in Hpt₁.
+    apply Q_div_le_mono with (c := fst pte - fst pt₂) in Hsnde.
+     unfold Qdiv at 1 in Hsnde.
+     rewrite Qmult_0_l in Hsnde.
+     rewrite Hc in Hpt₁.
+     apply Qlt_not_le in Hpt₁.
+     contradiction.
 bbb.
 
 Lemma zzz : ∀ pol ns c₁ r pol₁ ns₁ j₁ αj₁ k₁ αk₁,

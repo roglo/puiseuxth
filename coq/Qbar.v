@@ -1,7 +1,6 @@
 (* Qbar.v *)
 
-Require Import Utf8.
-Require Import QArith.
+Require Import Utf8 QArith.
 
 Require Import Misc.
 
@@ -17,43 +16,6 @@ Notation "∞" := qinf : Qbar_scope.
 Notation "0" := (qfin 0) : Qbar_scope.
 
 Open Scope Qbar_scope.
-
-Definition Qmin x y := if Qlt_le_dec x y then x else y.
-
-Theorem Qmin_dec : ∀ n m, {Qmin n m = n} + {Qmin n m = m}.
-Proof.
-intros n m.
-unfold Qmin.
-destruct (Qlt_le_dec n m); [ left | right ]; reflexivity.
-Qed.
-
-Theorem Qmin_comm : ∀ n m, Qmin n m == Qmin m n.
-Proof.
-intros n m.
-unfold Qmin.
-destruct (Qlt_le_dec n m) as [H₁| H₁].
- destruct (Qlt_le_dec m n) as [H₂| H₂]; [ idtac | reflexivity ].
- apply Qlt_le_weak, Qle_not_lt in H₂.
- contradiction.
-
- destruct (Qlt_le_dec m n) as [H₂| H₂]; [ reflexivity | idtac ].
- apply Qle_antisym; assumption.
-Qed.
-
-Theorem Qmin_l : ∀ n m, n <= m → Qmin n m == n.
-Proof.
-intros n m H.
-unfold Qmin.
-destruct (Qlt_le_dec n m) as [| Hge]; [ reflexivity | idtac ].
-apply Qle_antisym; assumption.
-Qed.
-
-Theorem Qlt_neq : ∀ n m, (n < m)%Q → not (n == m).
-Proof.
-intros n m Hlt.
-intros H; rewrite H in Hlt.
-revert Hlt; apply Qlt_irrefl.
-Qed.
 
 Module Qbar.
 
