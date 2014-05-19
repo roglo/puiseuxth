@@ -227,8 +227,33 @@ destruct la as [| a₀].
 
     apply Z.le_0_1.
 
+   subst ffo; revert Heqf; clear; intros.
    constructor.
-    subst ffo; revert Heqf; clear; intros.
-    induction la as [| a]; [ constructor; constructor | simpl ].
-    rewrite Heqf; simpl; rewrite <- Heqf.
+    remember 2%nat as pow.
+    assert (1 < pow)%nat as Hpow by (subst pow; apply Nat.lt_1_2).
+    clear Heqpow.
+    remember 1%nat as n.
+    clear Heqn.
+    revert n v₁ pow Hpow.
+    induction la as [| a]; intros.
+     constructor; [ constructor; constructor | constructor ].
+
+     unfold fst_lt; simpl.
+     rewrite Heqf; simpl; rewrite <- Heqf.
+     destruct (order a) as [v| ].
+      constructor.
+       apply IHla, Nat.lt_succ_r; reflexivity.
+
+       constructor.
+       unfold fst_lt; simpl.
+       apply Qnat_lt; assumption.
+
+      apply IHla, Nat.lt_lt_succ_r; assumption.
+
+    constructor.
+    unfold fst_lt; simpl.
+    apply Qnat_lt, Nat.lt_0_1.
+
+   simpl.
+   rewrite Hz; assumption.
 bbb.
