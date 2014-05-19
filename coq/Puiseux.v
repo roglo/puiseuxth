@@ -3,6 +3,7 @@
 Require Import Utf8 QArith NPeano Sorting.
 
 Require Import Misc.
+Require Import SlopeMisc.
 Require Import Slope_base.
 Require Import Qbar.
 Require Import Field.
@@ -90,24 +91,21 @@ induction pts as [| pt]; intros.
  remember (minimise_slope pt₁ pt pts) as ms₁ eqn:Hms₁ .
  remember (slope_expr pt₁ pt₂ ?= slope ms₁) as c eqn:Hc .
  symmetry in Hc.
+ remember Hms₁ as Hsl₁; clear HeqHsl₁.
+ symmetry in Hsl₁.
+ eapply minimised_slope in Hsl₁; [ idtac | reflexivity ].
+ rewrite Hsl₁ in Hc.
+ remember Hms₁ as Hsnde; clear HeqHsnde.
+ symmetry in Hsnde.
+ apply end_pt_in in Hsnde.
+ remember (end_pt ms₁) as pte eqn:Hpte .
+ remember Hsnde as Hein; clear HeqHein.
+ apply Hpt in Hsnde.
+ apply Qminus_le_compat_r with (z := snd pt₂) in Hsnde.
+ rewrite Qminus_diag in Hsnde.
+ apply Qminus_lt_compat_r with (z := snd pt₁) in Hpt₁.
+ rewrite Qminus_diag in Hpt₁.
  destruct c; subst ms; [ simpl | reflexivity | simpl ].
-  apply Qeq_alt in Hc.
-  remember Hms₁ as Hsl₁; clear HeqHsl₁.
-  symmetry in Hsl₁.
-  eapply minimised_slope in Hsl₁; [ idtac | reflexivity ].
-  rewrite Hsl₁ in Hc.
-  remember Hms₁ as Hsnde; clear HeqHsnde.
-  symmetry in Hsnde.
-  apply end_pt_in in Hsnde.
-  remember (end_pt ms₁) as pte eqn:Hpte .
-  remember Hsnde as Hein; clear HeqHein.
-  apply Hpt in Hsnde.
-  eapply slope_expr_eq in Hc; try eassumption.
-  unfold slope_expr in Hc.
-  apply Qminus_le_compat_r with (z := snd pt₂) in Hsnde.
-  rewrite Qminus_diag in Hsnde.
-  apply Qminus_lt_compat_r with (z := snd pt₁) in Hpt₁.
-  rewrite Qminus_diag in Hpt₁.
   apply Q_div_lt_mono with (c := fst pt₂ - fst pt₁) in Hpt₁.
    unfold Qdiv at 2 in Hpt₁.
    rewrite Qmult_0_l in Hpt₁.
@@ -115,6 +113,9 @@ induction pts as [| pt]; intros.
     unfold Qdiv at 1 in Hsnde.
     rewrite Qmult_0_l in Hsnde.
     apply Qlt_not_le in Hpt₁.
+    apply Qeq_alt in Hc.
+    eapply slope_expr_eq in Hc; try eassumption.
+    unfold slope_expr in Hc.
     rewrite Hc in Hpt₁; contradiction.
 
     apply Qlt_minus.
@@ -127,7 +128,19 @@ induction pts as [| pt]; intros.
    apply HdRel_inv in Hrel.
    assumption.
 
-  apply Qgt_alt in Hc.
+  apply Q_div_lt_mono with (c := fst pt₂ - fst pt₁) in Hpt₁.
+   unfold Qdiv at 2 in Hpt₁.
+   rewrite Qmult_0_l in Hpt₁.
+   apply Q_div_le_mono with (c := fst pte - fst pt₂) in Hsnde.
+    unfold Qdiv at 1 in Hsnde.
+    rewrite Qmult_0_l in Hsnde.
+    apply Qgt_alt in Hc.
+    remember Hc as Hd; clear HeqHd.
+    apply slope_lt_1312_2313 in Hc.
+     eapply Qlt_trans in Hd; [ idtac | eassumption ].
+     eapply Qlt_trans in Hpt₁; [ idtac | eassumption ].
+     apply Qlt_not_le in Hpt₁.
+     contradiction.
 bbb.
 
 Lemma zzz : ∀ pol ns c₁ r pol₁ ns₁ j₁ αj₁ k₁ αk₁,
