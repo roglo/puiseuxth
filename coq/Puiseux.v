@@ -118,6 +118,16 @@ induction pts as [| pt]; intros.
     rewrite Hc in Hpt₁; contradiction.
 
     apply Qlt_minus.
+    apply Sorted_inv_1 in Hsort.
+    eapply Sorted_hd; eassumption.
+
+   apply Qlt_minus.
+   apply Sorted_inv in Hsort.
+   destruct Hsort as (_, Hrel).
+   apply HdRel_inv in Hrel.
+   assumption.
+
+  reflexivity.
 bbb.
 
 Lemma zzz : ∀ pol ns c₁ r pol₁ ns₁ j₁ αj₁ k₁ αk₁,
