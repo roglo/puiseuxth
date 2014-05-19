@@ -107,15 +107,22 @@ induction pts as [| pt]; intros.
    rewrite Qminus_diag in Hsnde.
    apply Qminus_lt_compat_r with (z := snd pt₁) in Hpt₁.
    rewrite Qminus_diag in Hpt₁.
-   apply Q_div_lt_mono with (c := fst pt₂ - fst pt₁) in Hpt₁.
+   apply Q_div_lt_mono with (c := - (fst pt₂ - fst pt₁)) in Hpt₁.
     unfold Qdiv at 2 in Hpt₁.
     rewrite Qmult_0_l in Hpt₁.
-    apply Q_div_le_mono with (c := fst pte - fst pt₂) in Hsnde.
+    apply Q_div_le_mono with (c := - (fst pte - fst pt₂)) in Hsnde.
      unfold Qdiv at 1 in Hsnde.
      rewrite Qmult_0_l in Hsnde.
-     rewrite Hc in Hpt₁.
+     rewrite Q_div_opp_r in Hpt₁, Hsnde.
+     apply Qopp_lt_compat in Hpt₁.
+     rewrite Qopp_opp in Hpt₁.
+     apply Qopp_le_compat in Hsnde.
+     rewrite Qopp_opp in Hsnde.
      apply Qlt_not_le in Hpt₁.
-     contradiction.
+     rewrite Hc in Hpt₁; contradiction.
+
+     rewrite Qopp_minus.
+     apply Qlt_minus.
 bbb.
 
 Lemma zzz : ∀ pol ns c₁ r pol₁ ns₁ j₁ αj₁ k₁ αk₁,

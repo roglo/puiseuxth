@@ -1941,3 +1941,29 @@ intros n m Hlt.
 intros H; rewrite H in Hlt.
 revert Hlt; apply Qlt_irrefl.
 Qed.
+
+Theorem Q_inv_sub : ∀ x, / - x == - / x.
+Proof.
+intros x.
+unfold Qinv; simpl.
+destruct (Qnum x); reflexivity.
+Qed.
+
+Theorem Q_div_opp_opp : ∀ x y, - x / - y == x / y.
+Proof.
+intros x y.
+unfold Qdiv.
+rewrite Q_inv_sub.
+rewrite Qmult_opp_r, Qmult_opp_l.
+rewrite Qopp_opp.
+reflexivity.
+Qed.
+
+Theorem Q_div_opp_r : ∀ x y, x / - y == - (x / y).
+Proof.
+intros x y.
+rewrite <- Q_div_opp_opp.
+rewrite Qopp_opp.
+unfold Qdiv.
+rewrite Qmult_opp_l; reflexivity.
+Qed.
