@@ -650,7 +650,7 @@ Qed.
 
 Lemma yyy : ∀ pt₁ pt₂ pts ms,
   Sorted fst_lt [pt₁; pt₂ … pts]
-  → (∀ pt₃, pt₃ ∈ pts → snd pt₂ <= snd pt₃)
+  → (∀ pt₃, pt₃ ∈ [pt₁ … pts] → snd pt₂ <= snd pt₃)
     → ms = minimise_slope pt₁ pt₂ pts
       → end_pt ms = pt₂.
 Proof.
@@ -668,9 +668,17 @@ induction pts as [| pt]; intros.
   remember Hms₁ as Hsl₁; clear HeqHsl₁.
   symmetry in Hsl₁.
   eapply minimised_slope in Hsl₁; [ idtac | reflexivity ].
-  assert (pt ∈ [pt … pts]) as Hsl by (left; reflexivity).
-  apply Hpt in Hsl.
   rewrite Hsl₁ in Hc.
+  assert (pt₁ ∈ [pt₁; pt … pts]) as Hsnd₁ by (left; reflexivity).
+  apply Hpt in Hsnd₁.
+  assert (pt ∈ [pt₁; pt … pts]) as Hsnd by (right; left; reflexivity).
+  apply Hpt in Hsnd.
+  remember Hms₁ as Hein; clear HeqHein.
+  symmetry in Hein.
+  apply end_pt_in in Hein.
+  remember (end_pt ms₁) as pte eqn:Hpte .
+  assert (pte ∈ [pt₁; pt … pts]) as Hsnde by (right; assumption).
+  apply Hpt in Hsnde.
 bbb.
 
 Lemma yyy_old : ∀ pt₁ pt₂ pts ms,
