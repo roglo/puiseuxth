@@ -1877,3 +1877,9 @@ intros A f l₁ l₂ H.
 induction H as [| x₁ x₂ l₁ l₂]; [ reflexivity | idtac ].
 simpl; rewrite IHForall2; reflexivity.
 Qed.
+
+Lemma Qminus_le_compat_r : ∀ x y z, (x <= y)%Q → (x - z <= y - z)%Q.
+Proof.
+intros x y z H.
+apply Qplus_le_compat; [ assumption | apply Qle_refl ].
+Qed.
