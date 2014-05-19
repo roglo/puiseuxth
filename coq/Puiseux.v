@@ -146,22 +146,32 @@ induction pts as [| pt]; intros.
   assumption.
 Qed.
 
-Lemma yyy : ∀ ms pt₁ pt₂ pts,
+Lemma minimise_slope_2_pts : ∀ ms pt₁ pt₂ pts,
   ms = minimise_slope pt₁ pt₂ pts
+  → pt₂ ∉ pts
   → end_pt ms = pt₂
   → seg ms = [].
 Proof.
-intros ms pt₁ pt₂ pts Hms Hend.
-revert ms pt₂ Hms Hend.
+intros ms pt₁ pt₂ pts Hms Hnin Hend.
+revert ms pt₂ Hms Hnin Hend.
 induction pts as [| pt]; intros; [ subst ms; reflexivity | idtac ].
 simpl in Hms.
 remember (minimise_slope pt₁ pt pts) as ms₁.
 remember (slope_expr pt₁ pt₂ ?= slope ms₁) as c.
 symmetry in Heqc.
 destruct c.
- subst ms; simpl.
- simpl in Hend.
-bbb.
+ subst ms; simpl in Hend; simpl.
+ symmetry in Heqms₁.
+ apply end_pt_in in Heqms₁.
+ rewrite Hend in Heqms₁; contradiction.
+
+ subst ms; reflexivity.
+
+ subst ms; simpl in Hend; simpl.
+ symmetry in Heqms₁.
+ apply end_pt_in in Heqms₁.
+ rewrite Hend in Heqms₁; contradiction.
+Qed.
 
 Lemma pouet : ∀ f ffo ms a₀ a₁ la v₀ v₁ j k αj αk,
   f = pair_rec (λ pow ps, (Qnat pow, ps))
@@ -179,8 +189,8 @@ intros Heqf Heqffo Heqms Hnneg Hz Hpos Hini Hfin.
 remember Heqms as Hms; clear HeqHms.
 apply minimise_slope_end_2nd_pt in Heqms.
  rewrite Heqms in Hfin.
- injection Hini; clear Hini; intros; subst.
- injection Hfin; clear Hfin; intros; subst.
+ injection Hini; clear Hini; intros; subst αj.
+ injection Hfin; clear Hfin; intros; subst αk.
  apply Z2Nat.inj_iff in H0; [ idtac | reflexivity | apply Nat2Z.is_nonneg ].
  apply Z2Nat.inj_iff in H1; [ idtac | idtac | apply Nat2Z.is_nonneg ].
   rewrite Nat2Z.id in H0, H1.
@@ -191,7 +201,34 @@ apply minimise_slope_end_2nd_pt in Heqms.
   split; [ reflexivity | idtac ].
   split; [ assumption | idtac ].
   split; [ assumption | idtac ].
-  eapply yyy; eassumption.
+  eapply minimise_slope_2_pts; try eassumption.
+  subst ffo; revert Heqf; clear; intros.
+  remember 2%nat as pow.
+  assert (2 <= pow)%nat as Hpow by (subst pow; reflexivity).
+  clear Heqpow.
+  revert pow Hpow.
+  induction la as [| a]; intros; [ intros H; assumption | simpl ].
+  rewrite Heqf; simpl; rewrite <- Heqf.
+  destruct (order a) as [v| ].
+   intros H; simpl in H.
+   destruct H as [H| H].
+    injection H; clear H; intros; subst v.
+    apply Z2Nat.inj_iff in H0.
+     rewrite Nat2Z.id in H0; simpl in H0.
+     unfold Pos.to_nat in H0; simpl in H0.
+     rewrite H0 in Hpow.
+     apply Nat.nlt_ge in Hpow.
+     apply Hpow, Nat.lt_1_2.
+
+     apply Nat2Z.is_nonneg.
+
+     apply Z.le_0_1.
+
+    revert H; apply IHla.
+    apply Nat.le_le_succ_r; assumption.
+
+   apply IHla.
+   apply Nat.le_le_succ_r; assumption.
 
   apply Z.le_0_1.
 
@@ -356,9 +393,12 @@ rewrite Nat.sub_diag; simpl.
 rewrite skipn_pad; simpl.
 remember Hr as Hjk; clear HeqHjk.
 eapply r_1_j_0_k_1 in Hjk; try eassumption.
-destruct Hjk as (Hj, (Hk, (Hαj, Hαk))).
+destruct Hjk as (Hj, (Hk, (Hαj, (Hαk, Hoth)))).
 subst j₁ k₁.
 rewrite fold_char_pol with (αj := αj₁).
+rewrite Hoth; simpl.
+rewrite nat_num_Qnat; simpl.
+rewrite nat_num_Qnat; simpl.
 bbb.
 
 End theorems.
