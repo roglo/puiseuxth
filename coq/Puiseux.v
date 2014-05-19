@@ -315,4 +315,30 @@ destruct la as [| a₀].
   eapply pouet; eassumption.
 Qed.
 
+Lemma zzz : ∀ pol ns c₁ c₂ pol₁ ns₁ j₁ αj₁ k₁ αk₁,
+  ns ∈ newton_segments pol
+  → c₁ = ac_root (Φq pol ns) ∧ (c₁ ≠ 0)%K
+  → root_multiplicity acf c₁ (Φq pol ns) = 1%nat
+  → pol₁ = next_pol pol (β ns) (γ ns) c₁
+  → (ps_poly_nth 0 pol₁ ≠ 0)%ps
+  → ns₁ = List.hd phony_ns (newton_segments pol₁)
+  → ini_pt ns₁ = (Qnat j₁, αj₁)
+  → fin_pt ns₁ = (Qnat k₁, αk₁)
+  → c₂ = ac_root (Φq pol₁ ns₁) ∧ (c₂ ≠ 0)%K
+  → root_multiplicity acf c₂ (Φq pol₁ ns₁) = 1%nat.
+Proof.
+intros pol ns c₁ c₂ pol₁ ns₁ j₁ αj₁ k₁ αk₁.
+intros Hns Hc₁ Hr Hpol₁ Hps₀ Hns₁ Hini₁ Hfin₁ Hc₂.
+unfold root_multiplicity; simpl.
+rewrite Hini₁, Hfin₁; simpl.
+rewrite nat_num_Qnat.
+rewrite Nat.sub_diag; simpl.
+rewrite skipn_pad; simpl.
+remember Hr as Hjk; clear HeqHjk.
+eapply r_1_j_0_k_1 in Hjk; try eassumption.
+destruct Hjk as (Hj, (Hk, (Hαj, Hαk))).
+subst j₁ k₁.
+rewrite fold_char_pol with (αj := αj₁).
+bbb.
+
 End theorems.
