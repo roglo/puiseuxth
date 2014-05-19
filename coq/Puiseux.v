@@ -242,25 +242,24 @@ apply minimise_slope_end_2nd_pt in Heqms.
    pose proof (Hnneg (3 + i)%nat) as H; assumption.
 Qed.
 
-Lemma r_1_j_0_k_1 : ∀ pol ns c₁ r pol₁ ns₁ j₁ αj₁ k₁ αk₁,
+Lemma r_1_j_0_k_1 : ∀ pol ns c₁ pol₁ ns₁ j₁ αj₁ k₁ αk₁,
   ns ∈ newton_segments pol
   → c₁ = ac_root (Φq pol ns) ∧ (c₁ ≠ 0)%K
-  → r = root_multiplicity acf c₁ (Φq pol ns)
+  → root_multiplicity acf c₁ (Φq pol ns) = 1%nat
   → pol₁ = next_pol pol (β ns) (γ ns) c₁
-  → r = 1%nat
+  → (ps_poly_nth 0 pol₁ ≠ 0)%ps
   → ns₁ = List.hd phony_ns (newton_segments pol₁)
   → ini_pt ns₁ = (Qnat j₁, αj₁)
   → fin_pt ns₁ = (Qnat k₁, αk₁)
-  → (ps_poly_nth 0 pol₁ ≠ 0)%ps
   → j₁ = 0%nat ∧ k₁ = 1%nat ∧ αj₁ > 0 ∧ αk₁ == 0.
 Proof.
-intros pol ns c₁ r pol₁ ns₁ j₁ αj₁ k₁ αk₁.
-intros Hns Hc₁ Hr Hpol₁ Hr₁1 Hns₁ Hini₁ Hfin₁ Hps₀.
+intros pol ns c₁ pol₁ ns₁ j₁ αj₁ k₁ αk₁.
+intros Hns Hc₁ Hr Hpol₁ Hps₀ Hns₁ Hini₁ Hfin₁.
 apply order_fin in Hps₀.
 remember Hns as H; clear HeqH.
+symmetry in Hr.
 eapply f₁_orders in H; try eassumption.
 destruct H as (Hnneg, (Hpos, Hz)).
-move Hr₁1 at top; subst r.
 revert Hns₁ Hini₁ Hfin₁ Hps₀ Hnneg Hpos Hz; clear; intros.
 rename pol₁ into pol.
 rename ns₁ into ns.
