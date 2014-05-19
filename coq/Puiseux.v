@@ -90,7 +90,7 @@ induction pts as [| pt]; intros.
  remember (minimise_slope pt₁ pt pts) as ms₁ eqn:Hms₁ .
  remember (slope_expr pt₁ pt₂ ?= slope ms₁) as c eqn:Hc .
  symmetry in Hc.
- destruct c; subst ms; simpl.
+ destruct c; subst ms; [ simpl | reflexivity | simpl ].
   apply Qeq_alt in Hc.
   remember Hms₁ as Hsl₁; clear HeqHsl₁.
   symmetry in Hsl₁.
@@ -127,7 +127,7 @@ induction pts as [| pt]; intros.
    apply HdRel_inv in Hrel.
    assumption.
 
-  reflexivity.
+  apply Qgt_alt in Hc.
 bbb.
 
 Lemma zzz : ∀ pol ns c₁ r pol₁ ns₁ j₁ αj₁ k₁ αk₁,
