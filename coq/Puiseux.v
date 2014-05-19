@@ -100,29 +100,24 @@ induction pts as [| pt]; intros.
   symmetry in Hsnde.
   apply end_pt_in in Hsnde.
   remember (end_pt ms₁) as pte eqn:Hpte .
+  remember Hsnde as Hein; clear HeqHein.
   apply Hpt in Hsnde.
   eapply slope_expr_eq in Hc; try eassumption.
-   unfold slope_expr in Hc.
-   apply Qminus_le_compat_r with (z := snd pt₂) in Hsnde.
-   rewrite Qminus_diag in Hsnde.
-   apply Qminus_lt_compat_r with (z := snd pt₁) in Hpt₁.
-   rewrite Qminus_diag in Hpt₁.
-   apply Q_div_lt_mono with (c := - (fst pt₂ - fst pt₁)) in Hpt₁.
-    unfold Qdiv at 2 in Hpt₁.
-    rewrite Qmult_0_l in Hpt₁.
-    apply Q_div_le_mono with (c := - (fst pte - fst pt₂)) in Hsnde.
-     unfold Qdiv at 1 in Hsnde.
-     rewrite Qmult_0_l in Hsnde.
-     rewrite Q_div_opp_r in Hpt₁, Hsnde.
-     apply Qopp_lt_compat in Hpt₁.
-     rewrite Qopp_opp in Hpt₁.
-     apply Qopp_le_compat in Hsnde.
-     rewrite Qopp_opp in Hsnde.
-     apply Qlt_not_le in Hpt₁.
-     rewrite Hc in Hpt₁; contradiction.
+  unfold slope_expr in Hc.
+  apply Qminus_le_compat_r with (z := snd pt₂) in Hsnde.
+  rewrite Qminus_diag in Hsnde.
+  apply Qminus_lt_compat_r with (z := snd pt₁) in Hpt₁.
+  rewrite Qminus_diag in Hpt₁.
+  apply Q_div_lt_mono with (c := fst pt₂ - fst pt₁) in Hpt₁.
+   unfold Qdiv at 2 in Hpt₁.
+   rewrite Qmult_0_l in Hpt₁.
+   apply Q_div_le_mono with (c := fst pte - fst pt₂) in Hsnde.
+    unfold Qdiv at 1 in Hsnde.
+    rewrite Qmult_0_l in Hsnde.
+    apply Qlt_not_le in Hpt₁.
+    rewrite Hc in Hpt₁; contradiction.
 
-     rewrite Qopp_minus.
-     apply Qlt_minus.
+    apply Qlt_minus.
 bbb.
 
 Lemma zzz : ∀ pol ns c₁ r pol₁ ns₁ j₁ αj₁ k₁ αk₁,
