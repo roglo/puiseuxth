@@ -146,7 +146,103 @@ induction pts as [| pt]; intros.
   assumption.
 Qed.
 
-Lemma zzz : ∀ pol ns c₁ r pol₁ ns₁ j₁ αj₁ k₁ αk₁,
+Lemma pouet : ∀ f ffo ms a₀ a₁ la v₀ v₁ j k αj αk,
+  f = pair_rec (λ pow ps, (Qnat pow, ps))
+  → ffo = filter_finite_ord R (List.map f (power_list 2 la))
+  → ms = minimise_slope (Qnat 0, v₀) (Qnat 1, v₁) ffo
+  → (∀ i : nat, (order (List.nth i [a₀; a₁ … la] 0%ps) ≥ 0)%Qbar)
+  → v₁ == 0
+  → 0 < v₀
+  → (Qnat 0, v₀) = (Qnat j, αj)
+  → end_pt ms = (Qnat k, αk)
+  → (j = 0)%nat ∧ (k = 1)%nat ∧ 0 < αj ∧ αk == 0.
+Proof.
+intros f ffo ms a₀ a₁ la v₀ v₁ j k αj αk.
+intros Heqf Heqffo Heqms Hnneg Hz Hpos Hini Hfin.
+apply minimise_slope_end_2nd_pt in Heqms.
+ rewrite Heqms in Hfin.
+ injection Hini; clear Hini; intros; subst.
+ injection Hfin; clear Hfin; intros; subst.
+ apply Z2Nat.inj_iff in H0; [ idtac | reflexivity | apply Nat2Z.is_nonneg ].
+ apply Z2Nat.inj_iff in H1; [ idtac | idtac | apply Nat2Z.is_nonneg ].
+  rewrite Nat2Z.id in H0, H1.
+  simpl in H0, H1.
+  rewrite Pos2Nat.inj_1 in H1.
+  subst j k.
+  split; [ reflexivity | idtac ].
+  split; [ reflexivity | idtac ].
+  split; assumption.
+
+  apply Z.le_0_1.
+
+ subst ffo; revert Heqf; clear; intros.
+ constructor.
+  remember 2%nat as pow.
+  assert (1 < pow)%nat as Hpow by (subst pow; apply Nat.lt_1_2).
+  clear Heqpow.
+  remember 1%nat as n.
+  clear Heqn.
+  revert n v₁ pow Hpow.
+  induction la as [| a]; intros.
+   constructor; [ constructor; constructor | constructor ].
+
+   unfold fst_lt; simpl.
+   rewrite Heqf; simpl; rewrite <- Heqf.
+   destruct (order a) as [v| ].
+    constructor.
+     apply IHla, Nat.lt_succ_r; reflexivity.
+
+     constructor.
+     unfold fst_lt; simpl.
+     apply Qnat_lt; assumption.
+
+    apply IHla, Nat.lt_lt_succ_r; assumption.
+
+  constructor.
+  unfold fst_lt; simpl.
+  apply Qnat_lt, Nat.lt_0_1.
+
+ simpl.
+ rewrite Hz; assumption.
+
+ intros pt Hpt; simpl; rewrite Hz.
+ rewrite Heqffo in Hpt.
+ revert Heqf Hnneg Hpt; clear; intros.
+ remember 2%nat as pow; clear Heqpow.
+ revert pow Hpt.
+ induction la as [| a]; intros; [ contradiction | idtac ].
+ simpl in Hpt.
+ rewrite Heqf in Hpt; simpl in Hpt; rewrite <- Heqf in Hpt.
+ remember (order a) as v.
+ symmetry in Heqv.
+ destruct v as [v| ].
+  simpl in Hpt.
+  destruct Hpt as [Hpt| Hpt].
+   subst pt; simpl.
+   pose proof (Hnneg 2%nat) as H; simpl in H.
+   rewrite Heqv in H.
+   apply Qbar.qfin_le_mono; assumption.
+
+   eapply IHla; [ intros i | eassumption ].
+   revert Hnneg; clear; intros.
+   revert la Hnneg.
+   induction i; intros; simpl.
+    pose proof (Hnneg 0%nat); assumption.
+
+    destruct i; [ pose proof (Hnneg 1%nat); assumption | idtac ].
+    pose proof (Hnneg (3 + i)%nat) as H; assumption.
+
+  eapply IHla; [ intros i | eassumption ].
+  revert Hnneg; clear; intros.
+  revert la Hnneg.
+  induction i; intros; simpl.
+   pose proof (Hnneg 0%nat); assumption.
+
+   destruct i; [ pose proof (Hnneg 1%nat); assumption | idtac ].
+   pose proof (Hnneg (3 + i)%nat) as H; assumption.
+Qed.
+
+Lemma r_1_j_0_k_1 : ∀ pol ns c₁ r pol₁ ns₁ j₁ αj₁ k₁ αk₁,
   ns ∈ newton_segments pol
   → c₁ = ac_root (Φq pol ns) ∧ (c₁ ≠ 0)%K
   → r = root_multiplicity acf c₁ (Φq pol ns)
@@ -211,49 +307,12 @@ destruct la as [| a₀].
   simpl in Hns.
   unfold newton_segment_of_pair in Hns; simpl in Hns.
   subst ns; simpl in Hini, Hfin.
-  apply minimise_slope_end_2nd_pt in Heqms.
-   rewrite Heqms in Hfin.
-   injection Hini; clear Hini; intros; subst.
-   injection Hfin; clear Hfin; intros; subst.
-   apply Z2Nat.inj_iff in H0; [ idtac | reflexivity | apply Nat2Z.is_nonneg ].
-   apply Z2Nat.inj_iff in H1; [ idtac | idtac | apply Nat2Z.is_nonneg ].
-    rewrite Nat2Z.id in H0, H1.
-    simpl in H0, H1.
-    rewrite Pos2Nat.inj_1 in H1.
-    subst j k.
-    split; [ reflexivity | idtac ].
-    split; [ reflexivity | idtac ].
-    split; assumption.
+  eapply pouet; eassumption.
 
-    apply Z.le_0_1.
+  simpl in Hns.
+  unfold newton_segment_of_pair in Hns; simpl in Hns.
+  subst ns; simpl in Hini, Hfin.
+  eapply pouet; eassumption.
+Qed.
 
-   subst ffo; revert Heqf; clear; intros.
-   constructor.
-    remember 2%nat as pow.
-    assert (1 < pow)%nat as Hpow by (subst pow; apply Nat.lt_1_2).
-    clear Heqpow.
-    remember 1%nat as n.
-    clear Heqn.
-    revert n v₁ pow Hpow.
-    induction la as [| a]; intros.
-     constructor; [ constructor; constructor | constructor ].
-
-     unfold fst_lt; simpl.
-     rewrite Heqf; simpl; rewrite <- Heqf.
-     destruct (order a) as [v| ].
-      constructor.
-       apply IHla, Nat.lt_succ_r; reflexivity.
-
-       constructor.
-       unfold fst_lt; simpl.
-       apply Qnat_lt; assumption.
-
-      apply IHla, Nat.lt_lt_succ_r; assumption.
-
-    constructor.
-    unfold fst_lt; simpl.
-    apply Qnat_lt, Nat.lt_0_1.
-
-   simpl.
-   rewrite Hz; assumption.
-bbb.
+End theorems.
