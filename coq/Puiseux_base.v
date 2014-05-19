@@ -104,6 +104,12 @@ split; intros H.
  rewrite H; reflexivity.
 Qed.
 
+Lemma order_fin : ∀ x, order x ≠ qinf ↔ (x ≠ 0)%ps.
+Proof.
+intros x.
+split; intros H I; apply H, order_inf; assumption.
+Qed.
+
 Lemma order_0 : order 0%ps = Qbar.qinf.
 Proof.
 unfold order; simpl.
