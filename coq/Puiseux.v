@@ -1,9 +1,6 @@
 (* Puiseux.v *)
 
-Require Import Utf8.
-Require Import QArith.
-Require Import NPeano.
-Require Import Sorting.
+Require Import Utf8 QArith NPeano Sorting.
 
 Require Import Misc.
 Require Import Slope_base.
@@ -13,6 +10,7 @@ Require Import Fpolynomial.
 Require Import Newton.
 Require Import ConvexHullMisc.
 Require Import ConvexHull.
+Require Import NotInSegment.
 Require Import Puiseux_series.
 Require Import Ps_add.
 Require Import Ps_mul.
@@ -679,6 +677,8 @@ induction pts as [| pt]; intros.
   remember (end_pt ms₁) as pte eqn:Hpte .
   assert (pte ∈ [pt₁; pt … pts]) as Hsnde by (right; assumption).
   apply Hpt in Hsnde.
+  eapply slope_expr_eq in Hc; try eassumption.
+  unfold slope_expr in Hc.
 bbb.
 
 Lemma yyy_old : ∀ pt₁ pt₂ pts ms,
