@@ -399,6 +399,17 @@ rewrite fold_char_pol with (αj := αj₁).
 rewrite Hoth; simpl.
 rewrite nat_num_Qnat; simpl.
 rewrite nat_num_Qnat; simpl.
+unfold Φq in Hc₂.
+rewrite Hini₁ in Hc₂; simpl in Hc₂.
+rewrite nat_num_Qnat in Hc₂.
+unfold poly_left_shift in Hc₂.
+rewrite list_skipn_0 in Hc₂.
+simpl in Hc₂.
+rewrite Nat.sub_diag in Hc₂.
+rewrite Hini₁ in Hc₂; simpl in Hc₂.
+rewrite nat_num_Qnat in Hc₂.
+rewrite Hoth, Hfin₁ in Hc₂; simpl in Hc₂.
+rewrite nat_num_Qnat in Hc₂.
 bbb.
 
 End theorems.
