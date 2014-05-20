@@ -13,7 +13,9 @@ Notation "x ∉ l" := (not (List.In x l)) (at level 70).
 Notation "x ++ y" := (List.app x y) (right associativity, at level 60).
 
 Definition fst_lt (x y : Q * Q) := (fst x < fst y).
+(*
 Definition hs_x_lt (x y : hull_seg) := (fst (vert x) < fst (vert y)).
+*)
 
 Lemma Sorted_in : ∀ pt₁ pt₂ pts,
   Sorted fst_lt [pt₁ … pts]
@@ -200,14 +202,15 @@ induction pts₂ as [| pt]; intros.
   eapply IHpts₂; eassumption.
 Qed.
 
-Lemma next_ch_points_hd : ∀ n pt₁ pt₂ pts₁ seg hsl,
-  next_ch_points n [pt₁ … pts₁] = [ahs pt₂ seg … hsl]
+Lemma next_ch_points_hd : ∀ n pt₁ pt₂ pt₃ pts₁ seg hsl,
+  next_ch_points n [pt₁ … pts₁] = [mkns pt₂ pt₃ seg … hsl]
   → pt₁ = pt₂.
 Proof.
-intros n pt₁ pt₂ pts₂ seg₂ hsl Hnp.
-revert pt₁ pt₂ pts₂ seg₂ hsl Hnp.
+intros n pt₁ pt₂ pt₃ pts₂ seg₂ hsl Hnp.
+revert pt₁ pt₂ pt₃ pts₂ seg₂ hsl Hnp.
 induction n; intros; [ discriminate Hnp | simpl in Hnp ].
-destruct pts₂; injection Hnp; intros; subst pt₂; reflexivity.
+destruct pts₂ as [| pts₄]; [ discriminate Hnp | idtac ].
+injection Hnp; intros; subst pt₂; reflexivity.
 Qed.
 
 Lemma minimise_slope_sorted : ∀ pt₁ pt₂ pts ms,

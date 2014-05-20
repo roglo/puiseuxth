@@ -14,10 +14,6 @@ Record min_sl :=
     seg : list (Q * Q);
     rem_pts : list (Q * Q) }.
 
-Record hull_seg := ahs
-  { vert : (Q * Q);
-    edge : list (Q * Q) }.
-
 Definition slope ms := slope_expr (beg_pt ms) (end_pt ms).
 
 Fixpoint minimise_slope pt₁ pt₂ pts₂ :=
@@ -37,17 +33,28 @@ Fixpoint minimise_slope pt₁ pt₂ pts₂ :=
       end
   end.
 
+(*
+Record hull_seg := ahs
+  { vert : (Q * Q);
+    edge : list (Q * Q) }.
+*)
+
+Record newton_segment := mkns
+  { ini_pt : (Q * Q);
+    fin_pt : (Q * Q);
+    oth_pts : list (Q * Q) }.
+
 Fixpoint next_ch_points n pts :=
   match n with
   | O => []
   | S n =>
       match pts with
       | [] => []
-      | [pt₁] => [{| vert := pt₁; edge := [] |}]
+      | [pt₁] => []
       | [pt₁; pt₂ … pts₂] =>
           let ms := minimise_slope pt₁ pt₂ pts₂ in
           let hsl := next_ch_points n [end_pt ms … rem_pts ms] in
-          [{| vert := pt₁; edge := seg ms |} … hsl]
+          [{| ini_pt := pt₁; fin_pt := end_pt ms; oth_pts := seg ms |} … hsl]
       end
   end.
 

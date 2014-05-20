@@ -11,11 +11,6 @@ Notation "[ ]" := nil.
 Notation "[ x ; .. ; y … l ]" := (cons x .. (cons y l) ..).
 Notation "[ x ]" := (cons x nil).
 
-Record newton_segment := mkns
-  { ini_pt : (Q * Q);
-    fin_pt : (Q * Q);
-    oth_pts : list (Q * Q) }.
-
 Fixpoint list_map_pairs α β (f : α → α → β) l :=
   match l with
   | [] => []
@@ -23,8 +18,10 @@ Fixpoint list_map_pairs α β (f : α → α → β) l :=
   | [x₁ … ([x₂ … l₂] as l₁)] => [f x₁ x₂ … list_map_pairs f l₁]
   end.
 
+(*
 Definition newton_segment_of_pair hsj hsk :=
   {| ini_pt := vert hsj; fin_pt := vert hsk; oth_pts := edge hsj |}.
+*)
 
 Definition γ ns :=
   (snd (ini_pt ns) - snd (fin_pt ns)) / (fst (fin_pt ns) - fst (ini_pt ns)).
