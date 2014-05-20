@@ -54,7 +54,7 @@ Fixpoint next_ch_points n pts :=
 Definition lower_convex_hull_points pts :=
   next_ch_points (List.length pts) pts.
 
-Lemma minimised_slope_beg_pt : ∀ pt₁ pt₂ pts,
+Theorem minimised_slope_beg_pt : ∀ pt₁ pt₂ pts,
   beg_pt (minimise_slope pt₁ pt₂ pts) = pt₁.
 Proof.
 intros pt₁ pt₂ pts.
@@ -65,4 +65,15 @@ remember (slope_expr pt₁ pt₂ ?= slope ms) as c.
 symmetry in Heqc.
 destruct c; simpl; [ reflexivity | reflexivity | idtac ].
 subst ms; apply IHpts.
+Qed.
+
+Theorem slope_slope_expr : ∀ ms pt₁ pt₂ pts,
+  minimise_slope pt₁ pt₂ pts = ms
+  → slope ms == slope_expr pt₁ (end_pt ms).
+Proof.
+intros ms pt₁ pt₂ pts Hms.
+unfold slope.
+rewrite <- Hms at 1.
+rewrite minimised_slope_beg_pt.
+reflexivity.
 Qed.

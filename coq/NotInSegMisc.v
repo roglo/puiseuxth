@@ -119,9 +119,8 @@ induction pts as [| pt]; intros.
   simpl.
   symmetry in Heqc; apply Qeq_alt in Heqc.
   rewrite Heqc.
-  unfold slope; simpl.
-  rewrite Heqms₁; simpl.
-  rewrite minimised_slope_beg_pt.
+  unfold slope at 1; simpl.
+  rewrite slope_slope_expr; [ idtac | symmetry; eassumption ].
   apply Qle_refl.
 
   simpl.
@@ -323,9 +322,7 @@ Lemma not_seg_min_sl_lt : ∀ j αj k αk pt pts ms h αh,
           → slope ms < slope_expr (j, αj) (h, αh).
 Proof.
 intros j αj k αk pt pts ms h αh Hsort Hms (Hjh, Hhk) Hseg Hep.
-unfold slope.
-rewrite <- Hms in |- * at 1.
-rewrite minimised_slope_beg_pt.
+rewrite slope_slope_expr; [ idtac | eassumption ].
 revert ms Hms Hseg Hep.
 induction pts as [| pt₁]; intros.
  simpl in Hms.
@@ -373,9 +370,7 @@ induction pts as [| pt₁]; intros.
    apply Qlt_irrefl in Hhk; contradiction.
 
    apply Qgt_alt in Heqc.
-   unfold slope in Heqc.
-   rewrite <- Heqms₂ in Heqc at 1.
-   rewrite minimised_slope_beg_pt in Heqc.
+   rewrite slope_slope_expr in Heqc; [ idtac | eassumption ].
    assumption.
 
   simpl in Hseg, Hep.
@@ -402,9 +397,7 @@ induction pts as [| pt₁]; intros.
    apply Qlt_irrefl in Hhk; contradiction.
 
    apply Qgt_alt in Heqc.
-   unfold slope in Heqc; simpl in Heqc.
-   rewrite <- Heqms₂ in Heqc at 1.
-   rewrite minimised_slope_beg_pt in Heqc.
+   rewrite slope_slope_expr in Heqc; [ idtac | eassumption ].
    assumption.
 Qed.
 

@@ -103,11 +103,9 @@ Lemma min_slope_lt : ∀ pt₁ pt₂ pt₃ pts ms₁₃ ms₂₃,
         → slope ms₁₃ < slope ms₂₃.
 Proof.
 intros pt₁ pt₂ pt₃ pts ms₁₃ ms₂₃ Hsort Hms₁₃ Hms₂₃ Heqc.
-unfold slope in Heqc; unfold slope.
-rewrite <- Hms₁₃ in Heqc at 1.
-rewrite minimised_slope_beg_pt in Heqc.
-rewrite <- Hms₁₃, <- Hms₂₃ in |- * at 1.
-do 2 rewrite minimised_slope_beg_pt.
+rewrite slope_slope_expr in Heqc; [ idtac | eassumption ].
+rewrite slope_slope_expr; [ idtac | eassumption ].
+rewrite slope_slope_expr; [ idtac | eassumption ].
 revert pt₁ pt₂ pt₃ ms₂₃ ms₁₃ Heqc Hsort Hms₁₃ Hms₂₃.
 induction pts as [| pt₄]; intros.
  subst ms₁₃ ms₂₃; simpl in Heqc |- *.
@@ -121,17 +119,13 @@ induction pts as [| pt₄]; intros.
  rename Heqms₁₄ into Hms₁₄; symmetry in Hms₁₄.
  remember (slope_expr pt₁ pt₃ ?= slope ms₁₄) as c₁.
  symmetry in Heqc₁.
- unfold slope in Heqc₁.
- rewrite <- Hms₁₄ in Heqc₁ at 1.
- rewrite minimised_slope_beg_pt in Heqc₁.
+ rewrite slope_slope_expr in Heqc₁; [ idtac | eassumption ].
  simpl in Hms₂₃.
  remember (minimise_slope pt₂ pt₄ pts) as ms₂₄.
  rename Heqms₂₄ into Hms₂₄; symmetry in Hms₂₄.
  remember (slope_expr pt₂ pt₃ ?= slope ms₂₄) as c₂.
  symmetry in Heqc₂.
- progress unfold slope in Heqc₂.
- rewrite <- Hms₂₄ in Heqc₂ at 1.
- rewrite minimised_slope_beg_pt in Heqc₂.
+ rewrite slope_slope_expr in Heqc₂; [ idtac | eassumption ].
  destruct c₁.
   apply Qeq_alt in Heqc₁.
   subst ms₁₃; simpl in Heqc |- *.
@@ -217,9 +211,8 @@ Lemma consec_slope_lt : ∀ pt₁ pt₂ pt₃ pts pts₃ ms₁ ms₂,
         → slope ms₁ < slope ms₂.
 Proof.
 intros pt₁ pt₂ pt₃ pts pts₃ ms₁ ms₂ Hsort Hms₁ Hms₂ Hrem₁.
-progress unfold slope.
-rewrite <- Hms₁, <- Hms₂ at 1.
-do 2 rewrite minimised_slope_beg_pt.
+rewrite slope_slope_expr; [ idtac | eassumption ].
+rewrite slope_slope_expr; [ idtac | eassumption ].
 revert pt₁ pt₂ pt₃ pts₃ ms₁ ms₂ Hsort Hms₁ Hms₂ Hrem₁.
 induction pts as [| pt₄]; intros.
  simpl in Hms₁; subst ms₁.
@@ -231,9 +224,7 @@ induction pts as [| pt₄]; intros.
  rename Heqms₃ into Hms₃; symmetry in Hms₃.
  remember (slope_expr pt₁ pt₂ ?= slope ms₃) as c.
  symmetry in Heqc.
- progress unfold slope in Heqc.
- rewrite <- Hms₃ in Heqc at 1.
- rewrite minimised_slope_beg_pt in Heqc.
+ rewrite slope_slope_expr in Heqc; [ idtac | eassumption ].
  destruct c.
   subst ms₁.
   simpl in Hms₂, Hrem₁ |- *.
@@ -248,14 +239,11 @@ induction pts as [| pt₄]; intros.
   apply Qlt_alt in Heqc.
   eapply Qlt_trans; [ eassumption | idtac ].
   eapply min_slope_lt in Hsort; try eassumption.
-   unfold slope in Hsort.
-   rewrite <- Hms₂, <- Hms₃ in Hsort at 1.
-   do 2 rewrite minimised_slope_beg_pt in Hsort.
+   rewrite slope_slope_expr in Hsort; [ idtac | eassumption ].
+   rewrite slope_slope_expr in Hsort; [ idtac | eassumption ].
    assumption.
 
-   unfold slope.
-   rewrite <- Hms₃ in |- * at 1.
-   rewrite minimised_slope_beg_pt.
+   rewrite slope_slope_expr; [ idtac | eassumption ].
    assumption.
 
   subst ms₁.
@@ -597,9 +585,7 @@ Lemma minimise_slope_expr_le : ∀ pt₁ pt₂ pt₃ pts ms,
         → slope_expr pt₂ pt₃ <= slope ms.
 Proof.
 intros pt₁ pt₂ pt₃ pts ms Hsort Hms Hend Hlt.
-unfold slope.
-rewrite <- Hms at 1.
-rewrite minimised_slope_beg_pt.
+rewrite slope_slope_expr; [ idtac | eassumption ].
 revert pt₁ pt₂ pt₃ ms Hsort Hms Hend Hlt.
 induction pts as [| pt₄]; intros.
  subst pt₃ ms; apply Qlt_irrefl in Hlt; contradiction.
@@ -609,18 +595,14 @@ induction pts as [| pt₄]; intros.
  symmetry in Heqms₁.
  remember (slope_expr pt₁ pt₂ ?= slope ms₁) as c.
  symmetry in Heqc.
- unfold slope in Heqc.
- rewrite <- Heqms₁ in Heqc at 1.
- rewrite minimised_slope_beg_pt in Heqc.
+ rewrite slope_slope_expr in Heqc; [ idtac | eassumption ].
  destruct c.
   subst ms; simpl in Hend |- *.
   apply Qeq_alt in Heqc.
   symmetry in Hend.
   remember Heqms₁ as H; clear HeqH.
   eapply minimised_slope in Heqms₁; [ idtac | eassumption ].
-  unfold slope in Heqms₁.
-  rewrite <- H in Heqms₁ at 1.
-  rewrite minimised_slope_beg_pt in Heqms₁.
+  rewrite slope_slope_expr in Heqms₁; [ idtac | eassumption ].
   rewrite <- Heqc in Heqms₁ |- *.
   eapply slope_expr_eq in Heqms₁; try eassumption.
    rewrite Heqms₁; apply Qle_refl.
@@ -684,9 +666,7 @@ Lemma min_slope_le : ∀ pt₁ pt₂ pt₃ pt₄ pts ms,
           → slope_expr pt₃ pt₄ <= slope ms.
 Proof.
 intros pt₁ pt₂ pt₃ pt₄ pts ms Hsort Hms Hpt Hend Hlt.
-unfold slope.
-rewrite <- Hms at 1.
-rewrite minimised_slope_beg_pt.
+rewrite slope_slope_expr; [ idtac | eassumption ].
 revert pt₁ pt₂ pt₃ pt₄ ms Hsort Hms Hpt Hend Hlt.
 induction pts as [| pt₅]; [ contradiction | intros ].
 simpl in Hms.
@@ -694,9 +674,7 @@ remember (minimise_slope pt₁ pt₅ pts) as ms₁.
 symmetry in Heqms₁.
 remember (slope_expr pt₁ pt₂ ?= slope ms₁) as c.
 symmetry in Heqc.
-unfold slope in Heqc.
-rewrite <- Heqms₁ in Heqc at 1.
-rewrite minimised_slope_beg_pt in Heqc.
+rewrite slope_slope_expr in Heqc; [ idtac | eassumption ].
 destruct c.
  subst ms; simpl in Hend |- *.
  destruct Hpt as [Hpt| Hpt].
