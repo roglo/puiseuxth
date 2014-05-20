@@ -247,7 +247,7 @@ destruct c; subst ms; simpl; [ idtac | assumption | idtac ].
  constructor; [ assumption | eapply Qlt_trans; eassumption ].
 Qed.
 
-Lemma beg_lt_end : ∀ pt₁ pt₂ pts ms,
+Lemma beg_lt_end_pt : ∀ pt₁ pt₂ pts ms,
   Sorted fst_lt [pt₁; pt₂ … pts]
   → minimise_slope pt₁ pt₂ pts = ms
   → fst (beg_pt ms) < fst (end_pt ms).
@@ -256,6 +256,23 @@ intros pt₁ pt₂ pts ms Hsort Hms.
 revert pt₁ pt₂ ms Hsort Hms.
 induction pts as [| pt₃]; intros.
  subst ms; simpl.
+ eapply Sorted_hd; [ eassumption | left; reflexivity ].
+
+ simpl in Hms.
+ remember (minimise_slope pt₁ pt₃ pts) as ms₁ eqn:Hms₁ .
+ remember (slope_expr pt₁ pt₂ ?= slope ms₁) as c.
+ symmetry in Heqc.
+ symmetry in Hms₁.
+ rewrite slope_slope_expr in Heqc; [ idtac | eassumption ].
+ destruct c.
+  subst ms; simpl.
+  rewrite <- minimised_slope_beg_pt in |- * at 1.
+  rewrite <- Hms₁.
+  eapply IHpts; [ idtac | reflexivity ].
+  eapply Sorted_minus_2nd; [ idtac | eassumption ].
+  intros x y z H₁ H₂; eapply Qlt_trans; eassumption.
+
+  subst ms; simpl.
 bbb.
 
 Lemma next_ch_points_le : ∀ n pt₁ pt₂ pt₃ pts₁ sg hsl₁ hsl,
