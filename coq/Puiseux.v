@@ -406,6 +406,22 @@ assert (ns₁ ∈ newton_segments pol₁) as Hns₁in.
  remember (newton_segments pol₁) as nsl.
  symmetry in Heqnsl.
  destruct nsl as [| ns₂].
+  Focus 1.
+  unfold newton_segments in Heqnsl.
+  remember (lower_convex_hull_points (points_of_ps_polynom pol₁)) as chpts.
+  symmetry in Heqchpts.
+  destruct chpts as [| pt₁].
+   unfold lower_convex_hull_points in Heqchpts.
+   remember (points_of_ps_polynom pol₁) as pts.
+   symmetry in Heqpts.
+   destruct pts as [| pt₁].
+    unfold points_of_ps_polynom in Heqpts.
+    unfold points_of_ps_lap in Heqpts.
+    unfold points_of_ps_lap_gen in Heqpts.
+    remember (qpower_list 0 (al pol₁)) as pl.
+    symmetry in Heqpl.
+    destruct pl as [| p].
+     unfold qpower_list in Heqpl.
 bbb.
 
 remember Hns₁in as Hini₁; clear HeqHini₁.
