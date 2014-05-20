@@ -247,18 +247,18 @@ destruct c; subst ms; simpl; [ idtac | assumption | idtac ].
  constructor; [ assumption | eapply Qlt_trans; eassumption ].
 Qed.
 
-Lemma next_ch_points_le : ∀ n pt₁ pt₂ pts₁ sg hsl₁ hsl,
+Lemma next_ch_points_le : ∀ n pt₁ pt₂ pt₃ pts₁ sg hsl₁ hsl,
   Sorted fst_lt [pt₁ … pts₁]
-  → next_ch_points n [pt₁ … pts₁] = hsl₁ ++ [ahs pt₂ sg … hsl]
+  → next_ch_points n [pt₁ … pts₁] = hsl₁ ++ [mkns pt₂ pt₃ sg … hsl]
     → fst pt₁ <= fst pt₂.
 Proof.
-intros n pt₁ pt₂ pts₁ sg hsl₁ hsl Hsort Hnp.
-revert n pt₁ pt₂ pts₁ sg hsl Hsort Hnp.
+intros n pt₁ pt₂ pt₃ pts₁ sg hsl₁ hsl Hsort Hnp.
+revert n pt₁ pt₂ pt₃ pts₁ sg hsl Hsort Hnp.
 induction hsl₁ as [| hs₁]; intros.
  apply next_ch_points_hd in Hnp; subst pt₁; apply Qle_refl.
 
  destruct n; [ discriminate Hnp | simpl in Hnp ].
- destruct pts₁ as [| pt₃]; intros.
+ destruct pts₁ as [| pt₄]; intros.
   destruct hsl₁; discriminate Hnp.
 
   injection Hnp; clear Hnp; intros Hnp; intros.
