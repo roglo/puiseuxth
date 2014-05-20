@@ -415,9 +415,9 @@ induction P as [| a]; simpl.
  reflexivity.
 Qed.
 
-Lemma ps_monom_0_coeff_0 : ∀ c, (ps_monom c 0 = 0)%ps → (c = 0)%K.
+Lemma ps_monom_0_coeff_0 : ∀ c pow, (ps_monom c pow = 0)%ps → (c = 0)%K.
 Proof.
-intros c Hc.
+intros c pow Hc.
 apply ps_null_coeff_range_length_inf_iff in Hc.
 apply null_coeff_range_length_iff in Hc.
 unfold null_coeff_range_length_prop in Hc.
@@ -778,7 +778,7 @@ assert (order (ps_lap_nth r (yr * ycj * psy ∘ yc)) = 0)%Qbar as Hor.
   eapply psy_c₁_ne_0 in HΨ; eassumption.
 
   intros HH; apply Hc₁nz.
-  apply ps_monom_0_coeff_0; assumption.
+  eapply ps_monom_0_coeff_0; eassumption.
 
  subst yr ycj psy yc.
  rewrite fold_ps_lap_add.

@@ -1964,3 +1964,14 @@ Definition horner α β γ
     (zero_c : α) (add_v_c : α → β → α) (mul_v_x : α → γ → α)
     (pol : polynomial β) (x : γ) :=
   List.fold_right (λ c accu, add_v_c (mul_v_x accu x) c) zero_c (al pol).
+
+(* *)
+
+Definition apply_lap α {R : ring α} la x :=
+  (List.fold_right (λ c accu, accu * x + c) 0 la)%K.
+
+Definition apply_poly α {R : ring α} pol :=
+  apply_lap (al pol).
+
+Definition apply_lap2 α {R : ring α} la x :=
+  Σ (i = 0, pred (length la)), (List.nth i la 0 * x ^ i)%K.

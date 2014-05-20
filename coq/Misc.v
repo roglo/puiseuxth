@@ -1877,3 +1877,93 @@ intros A f l₁ l₂ H.
 induction H as [| x₁ x₂ l₁ l₂]; [ reflexivity | idtac ].
 simpl; rewrite IHForall2; reflexivity.
 Qed.
+
+Theorem Qminus_le_compat_r : ∀ x y z, (x <= y)%Q → (x - z <= y - z)%Q.
+Proof.
+intros x y z H.
+apply Qplus_le_compat; [ assumption | apply Qle_refl ].
+Qed.
+
+Theorem Qminus_lt_compat_r : ∀ x y z, (x < y)%Q → (x - z < y - z)%Q.
+Proof.
+intros x y z H.
+apply Qplus_lt_le_compat; [ assumption | apply Qle_refl ].
+Qed.
+
+Theorem Q_div_lt_mono : ∀ a b c, (0 < c)%Q → (a < b)%Q → (a / c < b / c)%Q.
+Proof.
+intros a b c Hc Hab.
+apply Qmult_lt_compat_r; [ idtac | assumption ].
+apply Qinv_lt_0_compat; assumption.
+Qed.
+
+Theorem Q_div_le_mono : ∀ a b c, (0 < c)%Q → (a <= b)%Q → (a / c <= b / c)%Q.
+Proof.
+intros a b c Hc Hab.
+apply Qmult_le_compat_r; [ assumption | idtac ].
+apply Qinv_le_0_compat.
+apply Qlt_le_weak; assumption.
+Qed.
+
+Definition Qmin x y := if Qlt_le_dec x y then x else y.
+
+Theorem Qmin_dec : ∀ n m, {Qmin n m = n} + {Qmin n m = m}.
+Proof.
+intros n m.
+unfold Qmin.
+destruct (Qlt_le_dec n m); [ left | right ]; reflexivity.
+Qed.
+
+Theorem Qmin_comm : ∀ n m, Qmin n m == Qmin m n.
+Proof.
+intros n m.
+unfold Qmin.
+destruct (Qlt_le_dec n m) as [H₁| H₁].
+ destruct (Qlt_le_dec m n) as [H₂| H₂]; [ idtac | reflexivity ].
+ apply Qlt_le_weak, Qle_not_lt in H₂.
+ contradiction.
+
+ destruct (Qlt_le_dec m n) as [H₂| H₂]; [ reflexivity | idtac ].
+ apply Qle_antisym; assumption.
+Qed.
+
+Theorem Qmin_l : ∀ n m, (n <= m)%Q → Qmin n m == n.
+Proof.
+intros n m H.
+unfold Qmin.
+destruct (Qlt_le_dec n m) as [| Hge]; [ reflexivity | idtac ].
+apply Qle_antisym; assumption.
+Qed.
+
+Theorem Qlt_neq : ∀ n m, (n < m)%Q → not (n == m).
+Proof.
+intros n m Hlt.
+intros H; rewrite H in Hlt.
+revert Hlt; apply Qlt_irrefl.
+Qed.
+
+Theorem Q_inv_sub : ∀ x, / - x == - / x.
+Proof.
+intros x.
+unfold Qinv; simpl.
+destruct (Qnum x); reflexivity.
+Qed.
+
+Theorem Q_div_opp_opp : ∀ x y, - x / - y == x / y.
+Proof.
+intros x y.
+unfold Qdiv.
+rewrite Q_inv_sub.
+rewrite Qmult_opp_r, Qmult_opp_l.
+rewrite Qopp_opp.
+reflexivity.
+Qed.
+
+Theorem Q_div_opp_r : ∀ x y, x / - y == - (x / y).
+Proof.
+intros x y.
+rewrite <- Q_div_opp_opp.
+rewrite Qopp_opp.
+unfold Qdiv.
+rewrite Qmult_opp_l; reflexivity.
+Qed.

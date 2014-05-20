@@ -126,6 +126,9 @@ Definition ps_pol_pow α {R : ring α} a n :=
 Definition ps_pol_comp α {R : ring α} a b :=
   @poly_compose (puiseux_series α) (ps_ring R) a b.
 
+Definition ps_pol_apply α {R : ring α} a b :=
+  @apply_poly _ (ps_ring R) a b.
+
 Definition ps_pol α a := @mkpol (puiseux_series α) a.
 
 Lemma fold_ps_pol_add : ∀ α (R : ring α) a b,

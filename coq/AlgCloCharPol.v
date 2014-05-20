@@ -16,17 +16,6 @@ Require Import CharactPolyn.
 
 Set Implicit Arguments.
 
-(* *)
-
-Definition apply_lap α {R : ring α} la x :=
-  (List.fold_right (λ c accu, accu * x + c) 0 la)%K.
-
-Definition apply_poly α {R : ring α} pol :=
-  apply_lap (al pol).
-
-Definition apply_lap2 α {R : ring α} la x :=
-  Σ (i = 0, pred (length la)), (List.nth i la 0 * x ^ i)%K.
-
 (* euclidean division of a polynomial by (x - c) *)
 
 Fixpoint lap_mod_div_deg_1 α (r : ring α) la c :=

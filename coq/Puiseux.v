@@ -1,17 +1,21 @@
 (* Puiseux.v *)
 
-Require Import Utf8.
-Require Import QArith.
+Require Import Utf8 QArith NPeano Sorting.
 
 Require Import Misc.
+Require Import SlopeMisc.
 Require Import Slope_base.
 Require Import Qbar.
 Require Import Field.
 Require Import Fpolynomial.
 Require Import Newton.
+Require Import ConvexHullMisc.
 Require Import ConvexHull.
+Require Import NotInSegment.
+Require Import Power_series.
 Require Import Puiseux_series.
 Require Import Ps_add.
+Require Import Ps_mul.
 Require Import Ps_div.
 Require Import PSpolynomial.
 Require Import Puiseux_base.
@@ -23,559 +27,12 @@ Require Import F1Prop.
 
 Set Implicit Arguments.
 
-Definition eq_pt pt₁ pt₂ := fst pt₁ == fst pt₂ ∧ snd pt₁ == snd pt₂.
-Definition eq_list_pt := List.Forall2 eq_pt.
-Definition eq_ns ns₁ ns₂ :=
-  eq_pt (ini_pt ns₁) (ini_pt ns₂) ∧ eq_list_pt (oth_pts ns₁) (oth_pts ns₂)
-  ∧ eq_pt (fin_pt ns₁) (fin_pt ns₂).
-Definition eq_list_ns := List.Forall2 eq_ns.
-Definition eq_hs hs₁ hs₂ :=
-  eq_pt (vert hs₁) (vert hs₂) ∧ eq_list_pt (edge hs₁) (edge hs₂).
-Definition eq_list_hs := List.Forall2 eq_hs.
-
-Definition eq_min_sl ms₁ ms₂ :=
-  slope ms₁ == slope ms₂ ∧ eq_pt (end_pt ms₁) (end_pt ms₂)
-  ∧ eq_list_pt (seg ms₁) (seg ms₂) ∧ eq_list_pt (rem_pts ms₁) (rem_pts ms₂).
-
-Delimit Scope pt_scope with pt.
-Notation "a = b" := (eq_pt a b) : pt_scope.
-
-Delimit Scope list_pt_scope with pts.
-Notation "a = b" := (eq_list_pt a b) : list_pt_scope.
-
-Delimit Scope ns_scope with ns.
-Notation "a = b" := (eq_ns a b) : ns_scope.
-
-Delimit Scope list_ns_scope with nsl.
-Notation "a = b" := (eq_list_ns a b) : list_ns_scope.
-
-Delimit Scope hs_scope with hs.
-Notation "a = b" := (eq_hs a b) : hs_scope.
-
-Delimit Scope list_hs_scope with hsl.
-Notation "a = b" := (eq_list_hs a b) : list_hs_scope.
-
-Delimit Scope ms_scope with ms.
-Notation "a = b" := (eq_min_sl a b) : ms_scope.
-
-Lemma fold_eq_list_pt : List.Forall2 eq_pt = eq_list_pt.
-Proof. reflexivity. Qed.
-
-Lemma fold_eq_list_ns : List.Forall2 eq_ns = eq_list_ns.
-Proof. reflexivity. Qed.
-
-Lemma fold_eq_list_hs : List.Forall2 eq_hs = eq_list_hs.
-Proof. reflexivity. Qed.
-
-Theorem eq_pt_refl : reflexive _ eq_pt.
-Proof. intros; split; reflexivity. Qed.
-
-Theorem eq_pt_sym : symmetric _ eq_pt.
+Lemma Qnat_0 : ∀ A h (αh v : A), (Qnat h, αh) = (0, v) → h = 0%nat.
 Proof.
-intros pt₁ pt₂ H.
-destruct H; split; symmetry; assumption.
-Qed.
-
-Theorem eq_pt_trans : transitive _ eq_pt.
-Proof.
-intros pt₁ pt₂ pt₃ H₁ H₂.
-destruct H₁, H₂.
-split; etransitivity; eassumption.
-Qed.
-
-Add Parametric Relation : (Q * Q) eq_pt
- reflexivity proved by eq_pt_refl
- symmetry proved by eq_pt_sym
- transitivity proved by eq_pt_trans
- as eq_pt_rel.
-
-Add Parametric Morphism : (@pair Q Q)
-  with signature Qeq ==> Qeq ==> eq_pt
-  as pair_Q_morph.
-Proof.
-intros a b Hab c d Hcd.
-split; simpl; assumption.
-Qed.
-
-Theorem eq_list_pt_refl : reflexive _ eq_list_pt.
-Proof.
-intros pts.
-induction pts; constructor; [ reflexivity | assumption ].
-Qed.
-
-Theorem eq_list_pt_sym : symmetric _ eq_list_pt.
-Proof.
-intros pts₁ pts₂ Heq.
-revert pts₂ Heq.
-induction pts₁ as [| pt₁]; intros.
- destruct pts₂; [ constructor | inversion Heq ].
-
- destruct pts₂ as [| pt₂]; [ inversion Heq | idtac ].
- inversion Heq; subst.
- constructor; [ destruct H2; split; symmetry; assumption | idtac ].
- apply IHpts₁; assumption.
-Qed.
-
-Theorem eq_list_pt_trans : transitive _ eq_list_pt.
-Proof.
-intros pts₁ pts₂ pts₃ H₁ H₂.
-revert pts₁ pts₃ H₁ H₂.
-induction pts₂ as [| pt₂]; intros.
- inversion H₁; subst.
- inversion H₂; subst.
- constructor.
-
- destruct pts₁ as [| pt₁]; [ inversion H₁ | idtac ].
- destruct pts₃ as [| pt₃]; [ inversion H₂ | idtac ].
- inversion H₁; subst.
- inversion H₂; subst.
- constructor.
-  destruct H2, H3.
-  split; etransitivity; eassumption.
-
-  apply IHpts₂; assumption.
-Qed.
-
-Add Parametric Relation : (list (Q * Q)) eq_list_pt
- reflexivity proved by eq_list_pt_refl
- symmetry proved by eq_list_pt_sym
- transitivity proved by eq_list_pt_trans
- as eq_list_pt_rel.
-
-Add Parametric Morphism α (R : ring α) : (@points_of_ps_lap_gen _ R)
-  with signature eq ==> @lap_eq _ (ps_ring R) ==> eq_list_pt
-  as points_of_ps_lap_gen_morph.
-Proof.
-intros pow la lb Hlab.
-unfold points_of_ps_lap_gen; simpl.
-revert pow lb Hlab.
-induction la as [| a]; intros; simpl.
- revert pow.
- induction lb as [| b]; intros; [ reflexivity | simpl ].
- apply lap_eq_nil_cons_inv in Hlab.
- destruct Hlab as (Hb, Hlb).
- simpl in Hb.
- apply order_inf in Hb; rewrite Hb.
- apply IHlb; assumption.
-
- destruct lb as [| b]; simpl.
-  apply lap_eq_cons_nil_inv in Hlab.
-  destruct Hlab as (Ha, Hla).
-  simpl in Ha.
-  apply order_inf in Ha; rewrite Ha; simpl.
-  revert Hla; clear; intros.
-  revert pow.
-  induction la as [| a]; intros; [ reflexivity | simpl ].
-  apply lap_eq_cons_nil_inv in Hla.
-  destruct Hla as (Ha, Hla).
-  simpl in Ha.
-  apply order_inf in Ha; rewrite Ha.
-  apply IHla; assumption.
-
-  apply lap_eq_cons_inv in Hlab.
-  destruct Hlab as (Hab, Hlab).
-  simpl in Hab.
-  apply order_morph in Hab.
-  remember (order a) as oa eqn:Hoa .
-  remember (order b) as ob eqn:Hob .
-  symmetry in Hoa, Hob.
-  destruct oa as [va| ].
-   destruct ob as [vb| ]; [ idtac | inversion Hab ].
-   apply Qbar.qfin_inj in Hab.
-   constructor; [ rewrite Hab; reflexivity | idtac ].
-   do 2 rewrite fold_qpower_list.
-   rewrite IHla; [ reflexivity | assumption ].
-
-   destruct ob as [vb| ]; [ inversion Hab | idtac ].
-   apply IHla; assumption.
-Qed.
-
-Add Parametric Morphism α (R : ring α) : (@points_of_ps_polynom _ R)
-  with signature @ps_pol_eq _ R ==> eq_list_pt
-  as points_of_ps_polynom_morph.
-Proof.
-intros Pa Pb HP.
-unfold points_of_ps_polynom.
-unfold points_of_ps_lap.
-rewrite HP; reflexivity.
-Qed.
-
-Theorem eq_ns_refl : reflexive _ eq_ns.
-Proof.
-intros ns.
-unfold eq_ns.
-split; [ reflexivity | idtac ].
-split; [ reflexivity | idtac ].
-split; [ reflexivity | idtac ].
-split; reflexivity.
-Qed.
-
-Theorem eq_ns_sym : symmetric _ eq_ns.
-Proof.
-intros ns₁ ns₂ H.
-unfold eq_ns in H; unfold eq_ns.
-destruct H as (H₁, (H₂, (H₃, H₄))).
-split; [ symmetry; assumption | idtac ].
-split; [ symmetry; assumption | idtac ].
-split; symmetry; assumption.
-Qed.
-
-Theorem eq_ns_trans : transitive _ eq_ns.
-Proof.
-intros ns₁ ns₂ ns₃ H I.
-unfold eq_ns in H, I; unfold eq_ns.
-destruct H as (H₁, (H₂, (H₃, H₄))).
-destruct I as (I₁, (I₂, (I₃, I₄))).
-split; [ etransitivity; eassumption | idtac ].
-split; [ etransitivity; eassumption | idtac ].
-split; etransitivity; eassumption.
-Qed.
-
-Add Parametric Relation : newton_segment eq_ns
- reflexivity proved by eq_ns_refl
- symmetry proved by eq_ns_sym
- transitivity proved by eq_ns_trans
- as eq_ns_rel.
-
-Theorem eq_list_ns_refl : reflexive _ eq_list_ns.
-Proof.
-intros nsl.
-induction nsl; constructor; [ reflexivity | assumption ].
-Qed.
-
-Theorem eq_list_ns_sym : symmetric _ eq_list_ns.
-Proof.
-intros nsl₁ nsl₂ Heq.
-revert nsl₂ Heq.
-induction nsl₁ as [| ns₁]; intros.
- destruct nsl₂; [ constructor | inversion Heq ].
-
- destruct nsl₂ as [| ns₂]; [ inversion Heq | idtac ].
- inversion Heq; subst.
- constructor; [ symmetry; assumption | idtac ].
- apply IHnsl₁; assumption.
-Qed.
-
-Theorem eq_list_ns_trans : transitive _ eq_list_ns.
-Proof.
-intros nsl₁ nsl₂ nsl₃ H₁ H₂.
-revert nsl₁ nsl₃ H₁ H₂.
-induction nsl₂ as [| ns₂]; intros.
- inversion H₁; subst.
- inversion H₂; subst.
- constructor.
-
- destruct nsl₁ as [| ns₁]; [ inversion H₁ | idtac ].
- destruct nsl₃ as [| ns₃]; [ inversion H₂ | idtac ].
- inversion H₁; subst.
- inversion H₂; subst.
- constructor; [ etransitivity; eassumption | apply IHnsl₂; assumption ].
-Qed.
-
-Add Parametric Relation : (list newton_segment) eq_list_ns
- reflexivity proved by eq_list_ns_refl
- symmetry proved by eq_list_ns_sym
- transitivity proved by eq_list_ns_trans
- as eq_list_ns_rel.
-
-Theorem eq_hs_refl : reflexive _ eq_hs.
-Proof.
-intros hs.
-unfold eq_hs.
-split; reflexivity.
-Qed.
-
-Theorem eq_hs_sym : symmetric _ eq_hs.
-Proof.
-intros hs₁ hs₂ H.
-unfold eq_hs in H; unfold eq_hs.
-destruct H as (H₁, H₂).
-split; symmetry; assumption.
-Qed.
-
-Theorem eq_hs_trans : transitive _ eq_hs.
-Proof.
-intros hs₁ hs₂ hs₃ H I.
-unfold eq_hs in H, I; unfold eq_hs.
-destruct H as (H₁, H₂).
-destruct I as (I₁, I₂).
-split; etransitivity; eassumption.
-Qed.
-
-Add Parametric Relation : hull_seg eq_hs
- reflexivity proved by eq_hs_refl
- symmetry proved by eq_hs_sym
- transitivity proved by eq_hs_trans
- as eq_hs_rel.
-
-Theorem eq_list_hs_refl : reflexive _ eq_list_hs.
-Proof.
-intros hsl.
-induction hsl; constructor; [ reflexivity | assumption ].
-Qed.
-
-Theorem eq_list_hs_sym : symmetric _ eq_list_hs.
-Proof.
-intros hsl₁ hsl₂ Heq.
-revert hsl₂ Heq.
-induction hsl₁ as [| hs₁]; intros.
- destruct hsl₂; [ constructor | inversion Heq ].
-
- destruct hsl₂ as [| hs₂]; [ inversion Heq | idtac ].
- inversion Heq; subst.
- constructor; [ symmetry; assumption | idtac ].
- apply IHhsl₁; assumption.
-Qed.
-
-Theorem eq_list_hs_trans : transitive _ eq_list_hs.
-Proof.
-intros hsl₁ hsl₂ hsl₃ H₁ H₂.
-revert hsl₁ hsl₃ H₁ H₂.
-induction hsl₂ as [| hs₂]; intros.
- inversion H₁; subst.
- inversion H₂; subst.
- constructor.
-
- destruct hsl₁ as [| hs₁]; [ inversion H₁ | idtac ].
- destruct hsl₃ as [| hs₃]; [ inversion H₂ | idtac ].
- inversion H₁; subst.
- inversion H₂; subst.
- constructor; [ etransitivity; eassumption | apply IHhsl₂; assumption ].
-Qed.
-
-Add Parametric Relation : (list hull_seg) eq_list_hs
- reflexivity proved by eq_list_hs_refl
- symmetry proved by eq_list_hs_sym
- transitivity proved by eq_list_hs_trans
- as eq_list_hs_rel.
-
-Theorem eq_ms_refl : reflexive _ eq_min_sl.
-Proof.
-intros ms.
-unfold eq_min_sl.
-split; [ reflexivity | idtac ].
-split; [ reflexivity | idtac ].
-split; reflexivity.
-Qed.
-
-Theorem eq_ms_sym : symmetric _ eq_min_sl.
-Proof.
-intros ms₁ ms₂ H.
-unfold eq_min_sl in H; unfold eq_min_sl.
-destruct H as (H₁, (H₂, (H₃, H₄))).
-split; [ symmetry; assumption | idtac ].
-split; [ symmetry; assumption | idtac ].
-split; symmetry; assumption.
-Qed.
-
-Theorem eq_ms_trans : transitive _ eq_min_sl.
-Proof.
-intros ms₁ ms₂ ms₃ H I.
-unfold eq_min_sl in H, I; unfold eq_min_sl.
-destruct H as (H₁, (H₂, (H₃, H₄))).
-destruct I as (I₁, (I₂, (I₃, I₄))).
-split; [ etransitivity; eassumption | idtac ].
-split; [ etransitivity; eassumption | idtac ].
-split; etransitivity; eassumption.
-Qed.
-
-Add Parametric Relation : min_sl eq_min_sl
- reflexivity proved by eq_ms_refl
- symmetry proved by eq_ms_sym
- transitivity proved by eq_ms_trans
- as eq_ms_rel.
-
-Add Parametric Morphism : newton_segment_of_pair
-  with signature eq_hs ==> eq_hs ==> eq_ns
-  as newton_segment_of_pair_morph.
-Proof.
-intros hs₁ hs₂ Heq₁ hs₃ hs₄ Heq₃.
-inversion_clear Heq₁.
-inversion_clear Heq₃.
-split; [ assumption | split; assumption ].
-Qed.
-
-Add Parametric Morphism : (list_map_pairs newton_segment_of_pair)
-  with signature eq_list_hs ==> eq_list_ns
-  as list_map_pairs_ns_of_pair_morph.
-Proof.
-intros hsl₁ hsl₂ Heq.
-unfold eq_list_ns.
-unfold eq_list_hs in Heq.
-induction Heq; [ reflexivity | simpl ].
-destruct l as [| a].
- destruct l' as [| b]; [ constructor | inversion Heq ].
-
- destruct l' as [| b]; [ inversion Heq | idtac ].
- constructor; [ idtac | assumption ].
- rewrite H.
- inversion Heq; subst.
- rewrite H3.
- reflexivity.
-Qed.
-
-Add Parametric Morphism : slope
-  with signature eq_min_sl ==> Qeq
-  as slope_morph.
-Proof.
-intros ms₁ ms₂ Heq.
-unfold eq_min_sl in Heq.
-destruct Heq as (Hsl, (Hend, (Hseg, Hrem))).
-assumption.
-Qed.
-
-Add Parametric Morphism : end_pt
-  with signature eq_min_sl ==> eq_pt
-  as end_pt_morph.
-Proof.
-intros ms₁ ms₂ Heq.
-unfold eq_min_sl in Heq.
-destruct Heq as (Hsl, (Hend, (Hseg, Hrem))).
-assumption.
-Qed.
-
-Add Parametric Morphism : seg
-  with signature eq_min_sl ==> eq_list_pt
-  as seg_morph.
-Proof.
-intros ms₁ ms₂ Heq.
-unfold eq_min_sl in Heq.
-destruct Heq as (Hsl, (Hend, (Hseg, Hrem))).
-assumption.
-Qed.
-
-Add Parametric Morphism : rem_pts
-  with signature eq_min_sl ==> eq_list_pt
-  as rem_pts_morph.
-Proof.
-intros ms₁ ms₂ Heq.
-unfold eq_min_sl in Heq.
-destruct Heq as (Hsl, (Hend, (Hseg, Hrem))).
-assumption.
-Qed.
-
-Add Parametric Morphism : slope_expr
-  with signature eq_pt ==> eq_pt ==> Qeq
-  as slope_expr_morph.
-Proof.
-intros pt₁ pt₂ Heq₁ pt₃ pt₄ Heq₃.
-unfold slope_expr.
-unfold eq_pt in Heq₁, Heq₃.
-destruct Heq₁ as (H₁, H₂).
-destruct Heq₃ as (H₃, H₄).
-rewrite H₁, H₂, H₃, H₄; reflexivity.
-Qed.
-
-Add Parametric Morphism : minimise_slope
-  with signature eq_pt ==> eq_pt ==> eq_list_pt ==> eq_min_sl
-  as minimise_slope_morph.
-Proof.
-intros pt₁ pt₂ Heq₁ pt₃ pt₄ Heq₃ pts₁ pts₂ Hpts.
-revert pt₁ pt₂ pt₃ pt₄ Heq₁ Heq₃.
-induction Hpts as [| pt₅ pt₆ pts₅ pts₆]; intros; simpl.
- unfold eq_min_sl; simpl.
- unfold slope_expr.
- split.
-  destruct Heq₁ as (Hfst₁, Hsnd₁).
-  destruct Heq₃ as (Hfst₃, Hsnd₃).
-  rewrite Hfst₁, Hsnd₁, Hfst₃, Hsnd₃.
-  reflexivity.
-
-  split; [ assumption | idtac ].
-  split; reflexivity.
-
- pose proof (IHHpts pt₁ pt₂ pt₅ pt₆ Heq₁ H) as Heq.
- remember (minimise_slope pt₁ pt₅ pts₅) as ms₁.
- remember (minimise_slope pt₂ pt₆ pts₆) as ms₂.
- rewrite <- Heq.
- rewrite <- Heq₁, <- Heq₃.
- remember (slope_expr pt₁ pt₃ ?= slope ms₁) as c.
- symmetry in Heqc.
- destruct c.
-  unfold eq_min_sl; simpl.
-  split; [ rewrite Heq; reflexivity | idtac ].
-  split; [ rewrite Heq; reflexivity | idtac ].
-  split; [ idtac | rewrite Heq; reflexivity ].
-  constructor; [ assumption | idtac ].
-  rewrite Heq; reflexivity.
-
-  unfold eq_min_sl; simpl.
-  split; [ rewrite Heq₁, Heq₃; reflexivity | idtac ].
-  split; [ assumption | idtac ].
-  split; [ reflexivity | idtac ].
-  constructor; [ assumption | assumption ].
-
-  assumption.
-Qed.
-
-Add Parametric Morphism : lower_convex_hull_points
-  with signature eq_list_pt ==> eq_list_hs
-  as lower_convex_hull_points_morph.
-Proof.
-intros pts₁ pts₂ Heq.
-unfold lower_convex_hull_points.
-erewrite list_forall2_length; [ idtac | eassumption ].
-remember (length pts₂) as len; clear Heqlen.
-revert pts₁ pts₂ Heq.
-induction len; intros; [ reflexivity | simpl ].
-destruct pts₁ as [| pt₁]; simpl.
- destruct pts₂ as [| pt₂]; [ reflexivity | inversion Heq ].
-
- destruct pts₂ as [| pt₂]; [ inversion Heq | idtac ].
- inversion_clear Heq.
- destruct pts₁ as [| pt₃]; simpl.
-  destruct pts₂ as [| pt₄]; [ simpl | inversion H0 ].
-  constructor; [ idtac | reflexivity ].
-  constructor; [ assumption | reflexivity ].
-
-  destruct pts₂ as [| pt₄]; [ inversion H0 | simpl ].
-  constructor.
-   constructor; [ assumption | simpl ].
-   inversion_clear H0.
-   rewrite H, H1, H2; reflexivity.
-
-   rewrite fold_eq_list_hs.
-   apply IHlen.
-   constructor.
-    inversion_clear H0.
-    rewrite H, H1, H2; reflexivity.
-
-    inversion_clear H0.
-    rewrite H, H1, H2; reflexivity.
-Qed.
-
-Add Parametric Morphism α (R : ring α) : (@newton_segments _ R)
-  with signature @ps_pol_eq _ R ==> eq_list_ns
-  as newton_segments_morph.
-Proof.
-intros Pa Pb HP.
-unfold newton_segments.
-rewrite HP; reflexivity.
-Qed.
-
-Add Parametric Morphism : (@List.hd newton_segment)
-  with signature eq_ns ==> eq_list_ns ==> eq_ns
-  as list_hd_ns_morph.
-Proof.
-intros nsa nsb Hab nsc nsd Hcd.
-induction Hcd; assumption.
-Qed.
-
-Add Parametric Morphism : ini_pt
-  with signature eq_ns ==> eq_pt
-  as ini_pt_morph.
-Proof.
-intros nsa nsb Heq.
-destruct Heq as (Hini, (Hoth, Hfin)).
-assumption.
-Qed.
-
-Add Parametric Morphism : fin_pt
-  with signature eq_ns ==> eq_pt
-  as fin_pt_morph.
-Proof.
-intros nsa nsb Heq.
-destruct Heq as (Hini, (Hoth, Hfin)).
+intros A h αh v H.
+injection H; clear H; intros H1 H; subst.
+rewrite <- Nat2Z.inj_0 in H.
+apply Nat2Z.inj in H.
 assumption.
 Qed.
 
@@ -589,75 +46,439 @@ Variable acf : algeb_closed_field K.
 Definition phony_ns :=
   {| ini_pt := (0, 0); fin_pt := (0, 0); oth_pts := [] |}.
 
-Lemma zzz : ∀ pol ns c₁ r pol₁ ns₁ j₁ αj₁ k₁ αk₁,
+(* f₁(x,y₁) = 0 => f(x,c₁.x^γ+x^γ.y₁) = 0 *)
+Lemma f₁_root_f_root : ∀ f f₁ β γ c₁ y y₁,
+  f₁ = next_pol f β γ c₁
+  → y = (ps_monom c₁ γ + ps_monom 1%K γ * y₁)%ps
+  → (ps_pol_apply f₁ y₁ = 0)%ps
+  → (ps_pol_apply f y = 0)%ps.
+Proof.
+intros f f₁ β γ c₁ y y₁ Hpol₁ Hy Happ.
+destruct (ps_zerop R 1%ps) as [Hzo| Hnzo].
+ apply eq_1_0_all_0; assumption.
+
+ subst f₁.
+ unfold next_pol in Happ.
+ unfold ps_pol_apply, apply_poly in Happ; simpl in Happ.
+ unfold next_lap in Happ; simpl in Happ.
+ unfold ps_pol_apply, apply_poly.
+ rewrite apply_lap_mul in Happ.
+ rewrite apply_lap_compose in Happ.
+ simpl in Happ.
+ rewrite ps_mul_0_l in Happ.
+ do 2 rewrite ps_add_0_l in Happ.
+ rewrite ps_add_comm, <- Hy in Happ.
+ apply fld_eq_mul_0_r in Happ; [ assumption | apply ps_field | idtac ].
+ simpl; intros H.
+ apply ps_monom_0_coeff_0 in H.
+ apply Hnzo.
+ unfold ps_one; rewrite H.
+ apply ps_zero_monom_eq.
+Qed.
+
+Lemma minimise_slope_end_2nd_pt : ∀ pt₁ pt₂ pts ms,
+  Sorted fst_lt [pt₁; pt₂ … pts]
+  → snd pt₂ < snd pt₁
+    → (∀ pt₃, pt₃ ∈ pts → snd pt₂ <= snd pt₃)
+      → ms = minimise_slope pt₁ pt₂ pts
+        → end_pt ms = pt₂.
+Proof.
+intros pt₁ pt₂ pts ms Hsort Hpt₁ Hpt Hms.
+revert ms pt₂ Hsort Hpt Hpt₁ Hms.
+induction pts as [| pt]; intros.
+ simpl in Hms; subst ms; reflexivity.
+
+ simpl in Hms.
+ remember (minimise_slope pt₁ pt pts) as ms₁ eqn:Hms₁ .
+ remember (slope_expr pt₁ pt₂ ?= slope ms₁) as c eqn:Hc .
+ symmetry in Hc.
+ remember Hms₁ as Hsl₁; clear HeqHsl₁.
+ symmetry in Hsl₁.
+ eapply minimised_slope in Hsl₁; [ idtac | reflexivity ].
+ rewrite Hsl₁ in Hc.
+ remember Hms₁ as Hsnde; clear HeqHsnde.
+ symmetry in Hsnde.
+ apply end_pt_in in Hsnde.
+ remember (end_pt ms₁) as pte eqn:Hpte .
+ remember Hsnde as Hein; clear HeqHein.
+ apply Hpt in Hsnde.
+ apply Qminus_le_compat_r with (z := snd pt₂) in Hsnde.
+ rewrite Qminus_diag in Hsnde.
+ apply Qminus_lt_compat_r with (z := snd pt₁) in Hpt₁.
+ rewrite Qminus_diag in Hpt₁.
+ apply Q_div_lt_mono with (c := fst pt₂ - fst pt₁) in Hpt₁.
+  unfold Qdiv at 2 in Hpt₁.
+  rewrite Qmult_0_l in Hpt₁.
+  apply Q_div_le_mono with (c := fst pte - fst pt₂) in Hsnde.
+   unfold Qdiv at 1 in Hsnde.
+   rewrite Qmult_0_l in Hsnde.
+   destruct c; subst ms; [ simpl | reflexivity | simpl ].
+    apply Qlt_not_le in Hpt₁.
+    apply Qeq_alt in Hc.
+    eapply slope_expr_eq in Hc; try eassumption.
+    unfold slope_expr in Hc.
+    rewrite Hc in Hpt₁; contradiction.
+
+    apply Qgt_alt in Hc.
+    remember Hc as Hd; clear HeqHd.
+    apply slope_lt_1312_2313 in Hc.
+     eapply Qlt_trans in Hd; [ idtac | eassumption ].
+     eapply Qlt_trans in Hpt₁; [ idtac | eassumption ].
+     apply Qlt_not_le in Hpt₁.
+     contradiction.
+
+     split.
+      apply Sorted_inv in Hsort.
+      destruct Hsort as (_, Hrel).
+      apply HdRel_inv in Hrel.
+      assumption.
+
+      apply Sorted_inv_1 in Hsort.
+      eapply Sorted_hd; eassumption.
+
+   apply Qlt_minus.
+   apply Sorted_inv_1 in Hsort.
+   eapply Sorted_hd; eassumption.
+
+  apply Qlt_minus.
+  apply Sorted_inv in Hsort.
+  destruct Hsort as (_, Hrel).
+  apply HdRel_inv in Hrel.
+  assumption.
+Qed.
+
+Lemma minimise_slope_2_pts : ∀ ms pt₁ pt₂ pts,
+  ms = minimise_slope pt₁ pt₂ pts
+  → pt₂ ∉ pts
+  → end_pt ms = pt₂
+  → seg ms = [].
+Proof.
+intros ms pt₁ pt₂ pts Hms Hnin Hend.
+revert ms pt₂ Hms Hnin Hend.
+induction pts as [| pt]; intros; [ subst ms; reflexivity | idtac ].
+simpl in Hms.
+remember (minimise_slope pt₁ pt pts) as ms₁.
+remember (slope_expr pt₁ pt₂ ?= slope ms₁) as c.
+symmetry in Heqc.
+destruct c.
+ subst ms; simpl in Hend; simpl.
+ symmetry in Heqms₁.
+ apply end_pt_in in Heqms₁.
+ rewrite Hend in Heqms₁; contradiction.
+
+ subst ms; reflexivity.
+
+ subst ms; simpl in Hend; simpl.
+ symmetry in Heqms₁.
+ apply end_pt_in in Heqms₁.
+ rewrite Hend in Heqms₁; contradiction.
+Qed.
+
+Lemma pouet : ∀ f ffo ms a₀ a₁ la v₀ v₁ j k αj αk,
+  f = pair_rec (λ pow ps, (Qnat pow, ps))
+  → ffo = filter_finite_ord R (List.map f (power_list 2 la))
+  → ms = minimise_slope (Qnat 0, v₀) (Qnat 1, v₁) ffo
+  → (∀ i : nat, (order (List.nth i [a₀; a₁ … la] 0%ps) ≥ 0)%Qbar)
+  → v₁ == 0
+  → 0 < v₀
+  → (Qnat 0, v₀) = (Qnat j, αj)
+  → end_pt ms = (Qnat k, αk)
+  → (j = 0)%nat ∧ (k = 1)%nat ∧ 0 < αj ∧ αk == 0 ∧ seg ms = [].
+Proof.
+intros f ffo ms a₀ a₁ la v₀ v₁ j k αj αk.
+intros Heqf Heqffo Heqms Hnneg Hz Hpos Hini Hfin.
+remember Heqms as Hms; clear HeqHms.
+apply minimise_slope_end_2nd_pt in Heqms.
+ rewrite Heqms in Hfin.
+ injection Hini; clear Hini; intros; subst αj.
+ injection Hfin; clear Hfin; intros; subst αk.
+ apply Z2Nat.inj_iff in H0; [ idtac | reflexivity | apply Nat2Z.is_nonneg ].
+ apply Z2Nat.inj_iff in H1; [ idtac | idtac | apply Nat2Z.is_nonneg ].
+  rewrite Nat2Z.id in H0, H1.
+  simpl in H0, H1.
+  rewrite Pos2Nat.inj_1 in H1.
+  subst j k.
+  split; [ reflexivity | idtac ].
+  split; [ reflexivity | idtac ].
+  split; [ assumption | idtac ].
+  split; [ assumption | idtac ].
+  eapply minimise_slope_2_pts; try eassumption.
+  subst ffo; revert Heqf; clear; intros.
+  remember 2%nat as pow.
+  assert (2 <= pow)%nat as Hpow by (subst pow; reflexivity).
+  clear Heqpow.
+  revert pow Hpow.
+  induction la as [| a]; intros; [ intros H; assumption | simpl ].
+  rewrite Heqf; simpl; rewrite <- Heqf.
+  destruct (order a) as [v| ].
+   intros H; simpl in H.
+   destruct H as [H| H].
+    injection H; clear H; intros; subst v.
+    apply Z2Nat.inj_iff in H0.
+     rewrite Nat2Z.id in H0; simpl in H0.
+     unfold Pos.to_nat in H0; simpl in H0.
+     rewrite H0 in Hpow.
+     apply Nat.nlt_ge in Hpow.
+     apply Hpow, Nat.lt_1_2.
+
+     apply Nat2Z.is_nonneg.
+
+     apply Z.le_0_1.
+
+    revert H; apply IHla.
+    apply Nat.le_le_succ_r; assumption.
+
+   apply IHla.
+   apply Nat.le_le_succ_r; assumption.
+
+  apply Z.le_0_1.
+
+ subst ffo; revert Heqf; clear; intros.
+ constructor.
+  remember 2%nat as pow.
+  assert (1 < pow)%nat as Hpow by (subst pow; apply Nat.lt_1_2).
+  clear Heqpow.
+  remember 1%nat as n.
+  clear Heqn.
+  revert n v₁ pow Hpow.
+  induction la as [| a]; intros.
+   constructor; [ constructor; constructor | constructor ].
+
+   unfold fst_lt; simpl.
+   rewrite Heqf; simpl; rewrite <- Heqf.
+   destruct (order a) as [v| ].
+    constructor.
+     apply IHla, Nat.lt_succ_r; reflexivity.
+
+     constructor.
+     unfold fst_lt; simpl.
+     apply Qnat_lt; assumption.
+
+    apply IHla, Nat.lt_lt_succ_r; assumption.
+
+  constructor.
+  unfold fst_lt; simpl.
+  apply Qnat_lt, Nat.lt_0_1.
+
+ simpl.
+ rewrite Hz; assumption.
+
+ intros pt Hpt; simpl; rewrite Hz.
+ rewrite Heqffo in Hpt.
+ revert Heqf Hnneg Hpt; clear; intros.
+ remember 2%nat as pow; clear Heqpow.
+ revert pow Hpt.
+ induction la as [| a]; intros; [ contradiction | idtac ].
+ simpl in Hpt.
+ rewrite Heqf in Hpt; simpl in Hpt; rewrite <- Heqf in Hpt.
+ remember (order a) as v.
+ symmetry in Heqv.
+ destruct v as [v| ].
+  simpl in Hpt.
+  destruct Hpt as [Hpt| Hpt].
+   subst pt; simpl.
+   pose proof (Hnneg 2%nat) as H; simpl in H.
+   rewrite Heqv in H.
+   apply Qbar.qfin_le_mono; assumption.
+
+   eapply IHla; [ intros i | eassumption ].
+   revert Hnneg; clear; intros.
+   revert la Hnneg.
+   induction i; intros; simpl.
+    pose proof (Hnneg 0%nat); assumption.
+
+    destruct i; [ pose proof (Hnneg 1%nat); assumption | idtac ].
+    pose proof (Hnneg (3 + i)%nat) as H; assumption.
+
+  eapply IHla; [ intros i | eassumption ].
+  revert Hnneg; clear; intros.
+  revert la Hnneg.
+  induction i; intros; simpl.
+   pose proof (Hnneg 0%nat); assumption.
+
+   destruct i; [ pose proof (Hnneg 1%nat); assumption | idtac ].
+   pose proof (Hnneg (3 + i)%nat) as H; assumption.
+Qed.
+
+Lemma r_1_j_0_k_1 : ∀ pol ns c₁ pol₁ ns₁ j₁ αj₁ k₁ αk₁,
   ns ∈ newton_segments pol
   → c₁ = ac_root (Φq pol ns) ∧ (c₁ ≠ 0)%K
-  → r = root_multiplicity acf c₁ (Φq pol ns)
+  → root_multiplicity acf c₁ (Φq pol ns) = 1%nat
   → pol₁ = next_pol pol (β ns) (γ ns) c₁
-  → r = 1%nat
+  → (ps_poly_nth 0 pol₁ ≠ 0)%ps
   → ns₁ = List.hd phony_ns (newton_segments pol₁)
   → ini_pt ns₁ = (Qnat j₁, αj₁)
   → fin_pt ns₁ = (Qnat k₁, αk₁)
-  → (order (ps_poly_nth 0 pol₁) ≠ ∞)%Qbar
-  → j₁ = 0%nat ∧ k₁ = 1%nat ∧ αj₁ > 0 ∧ αk₁ = 0.
+  → j₁ = 0%nat ∧ k₁ = 1%nat ∧ αj₁ > 0 ∧ αk₁ == 0 ∧ oth_pts ns₁ = [].
 Proof.
-intros pol ns c₁ r pol₁ ns₁ j₁ αj₁ k₁ αk₁.
-intros Hns Hc₁ Hr Hpol₁ Hr₁1 Hns₁ Hini₁ Hfin₁ Hps₀.
+intros pol ns c₁ pol₁ ns₁ j₁ αj₁ k₁ αk₁.
+intros Hns Hc₁ Hr Hpol₁ Hps₀ Hns₁ Hini₁ Hfin₁.
+apply order_fin in Hps₀.
 remember Hns as H; clear HeqH.
+symmetry in Hr.
 eapply f₁_orders in H; try eassumption.
 destruct H as (Hnneg, (Hpos, Hz)).
-assert (ini_pt ns₁ = ini_pt ns₁)%pt as H by reflexivity.
-rewrite Hini₁ in H at 2.
-clear Hini₁; rename H into Hini₁.
-rewrite Hns₁ in Hini₁.
-bbb.
+revert Hns₁ Hini₁ Hfin₁ Hps₀ Hnneg Hpos Hz; clear; intros.
+rename pol₁ into pol.
+rename ns₁ into ns.
+rename j₁ into j.
+rename αj₁ into αj.
+rename k₁ into k.
+rename αk₁ into αk.
+rename Hns₁ into Hns.
+rename Hini₁ into Hini.
+rename Hfin₁ into Hfin.
+assert (0 < 1)%nat as H by apply Nat.lt_0_1.
+apply Hpos in H; clear Hpos; rename H into Hpos.
+unfold newton_segments in Hns; simpl in Hns.
+unfold points_of_ps_polynom in Hns; simpl in Hns.
+unfold ps_poly_nth in Hps₀, Hnneg, Hz, Hpos.
+remember (al pol) as la.
+clear pol Heqla.
+unfold ps_lap_nth in Hps₀.
+destruct la as [| a₀].
+ exfalso; apply Hps₀; rewrite order_0; reflexivity.
 
-intros pol ns c₁ r pol₁ ns₁ j₁ αj₁ k₁ αk₁.
-intros Hns Hc₁ Hr Hpol₁ Hr₁1 Hns₁ Hini₁ Hfin₁.
-remember (quotient_phi_x_sub_c_pow_r (Φq pol ns) c₁ r) as Ψ eqn:HΨ .
-remember Hns as Hini; clear HeqHini.
-apply exists_ini_pt_nat in Hini.
-destruct Hini as (j, (αj, Hini)).
-eapply f₁_eq_term_with_Ψ_plus_g in Hpol₁; try eassumption.
-assert (ns₁ = ns₁)%ns as H by reflexivity.
-rewrite Hns₁ in H at 2.
-clear Hns₁; rename H into Hns₁.
-rewrite Hpol₁ in Hns₁.
-unfold newton_segments in Hns₁.
-unfold points_of_ps_polynom in Hns₁.
-simpl in Hns₁.
-unfold points_of_ps_lap in Hns₁.
-unfold points_of_ps_lap_gen in Hns₁.
-unfold qpower_list in Hns₁.
-assert (ini_pt ns₁ = ini_pt ns₁)%pt as H by reflexivity.
-rewrite Hini₁ in H at 2.
-clear Hini₁; rename H into Hini₁.
-rewrite Hns₁ in Hini₁.
-assert (fin_pt ns₁ = fin_pt ns₁)%pt as H by reflexivity.
-rewrite Hfin₁ in H at 2.
-clear Hfin₁; rename H into Hfin₁.
-rewrite Hns₁ in Hfin₁.
-bbb.
+ unfold ps_lap_nth in Hnneg, Hz, Hpos.
+ simpl in Hps₀, Hz, Hpos.
+ unfold points_of_ps_lap in Hns.
+ unfold points_of_ps_lap_gen in Hns.
+ simpl in Hns.
+ remember (order a₀) as v₀.
+ symmetry in Heqv₀.
+ destruct v₀ as [v₀| ]; [ idtac | exfalso; apply Hps₀; reflexivity ].
+ clear Hps₀.
+ destruct la as [| a₁]; [ rewrite order_0 in Hz; contradiction | idtac ].
+ simpl in Hz, Hns.
+ remember (order a₁) as v₁.
+ symmetry in Heqv₁.
+ destruct v₁ as [v₁| ]; [ idtac | contradiction ].
+ apply Qbar.qfin_inj in Hz.
+ apply Qbar.qfin_lt_mono in Hpos.
+ remember (pair_rec (λ pow ps, (Qnat pow, ps))) as f.
+ simpl in Hns.
+ remember (filter_finite_ord R (List.map f (power_list 2 la))) as ffo.
+ remember (minimise_slope (Qnat 0, v₀) (Qnat 1, v₁) ffo) as ms.
+ remember (rem_pts ms) as rms.
+ symmetry in Heqrms.
+ destruct rms as [| pt₂].
+  simpl in Hns.
+  unfold newton_segment_of_pair in Hns; simpl in Hns.
+  subst ns; simpl in Hini, Hfin.
+  eapply pouet; eassumption.
 
+  simpl in Hns.
+  unfold newton_segment_of_pair in Hns; simpl in Hns.
+  subst ns; simpl in Hini, Hfin.
+  eapply pouet; eassumption.
+Qed.
+
+Lemma zzz : ∀ pol ns c₁ c₂ pol₁ ns₁,
+  ns ∈ newton_segments pol
+  → c₁ = ac_root (Φq pol ns) ∧ (c₁ ≠ 0)%K
+  → root_multiplicity acf c₁ (Φq pol ns) = 1%nat
+  → pol₁ = next_pol pol (β ns) (γ ns) c₁
+  → (ps_poly_nth 0 pol₁ ≠ 0)%ps
+  → ns₁ = List.hd phony_ns (newton_segments pol₁)
 (*
-Fixpoint root_loop α {R : ring α} {K : field R} {acf : algeb_closed_field K}
-    (pol : polynomial (puiseux_series α)) ns c₁ γ_sum :=
-  let f₁ := pol₁ pol (β ns) (γ ns) c₁ in
-  match newton_segments f₁ with
-  | [] => 0%ps
-  | [ns₁ … _] =>
-      let c₂ := ac_root (Φq f₁ ns₁) in
-      let t₂ := ps_monom c₂ (γ_sum + γ ns₁) in
-      (t₂ + root_loop pol ns c₂ (γ_sum + γ ns₁)%Q)%ps
-  end.
-
-Definition root α {R : ring α} {K : field R} {acf : algeb_closed_field K}
-    (pol : polynomial (puiseux_series α)) :=
-  match newton_segments pol with
-  | [] => 0%ps
-  | [ns … _] =>
-      let c₁ := ac_root (Φq pol ns) in
-      let t₁ := ps_monom c₁ (γ ns) in
-      (t₁ + root_loop pol ns c₁ (γ ns))%ps
-  end.
+  → ini_pt ns₁ = (Qnat j₁, αj₁)
+  → fin_pt ns₁ = (Qnat k₁, αk₁)
 *)
+  → c₂ = ac_root (Φq pol₁ ns₁) ∧ (c₂ ≠ 0)%K
+  → root_multiplicity acf c₂ (Φq pol₁ ns₁) = 1%nat.
+Proof.
+intros pol ns c₁ c₂ pol₁ ns₁.
+intros Hns Hc₁ Hr Hpol₁ Hps₀ Hns₁ Hc₂.
+apply order_fin in Hps₀.
+remember Hns as H; clear HeqH.
+symmetry in Hr.
+eapply f₁_orders in H; try eassumption.
+destruct H as (Hnneg, (Hpos, Hz)).
+unfold root_multiplicity; simpl.
+(*
+rewrite Hini₁, Hfin₁; simpl.
+*)
+rewrite Nat.sub_diag; simpl.
+rewrite skipn_pad; simpl.
+
+assert (ns₁ ∈ newton_segments pol₁) as Hns₁in.
+ rewrite Hns₁.
+ remember (newton_segments pol₁) as nsl.
+ symmetry in Heqnsl.
+ destruct nsl as [| ns₂].
+  Focus 1.
+  unfold newton_segments in Heqnsl.
+  remember (lower_convex_hull_points (points_of_ps_polynom pol₁)) as chpts.
+  symmetry in Heqchpts.
+  destruct chpts as [| pt₁].
+   unfold lower_convex_hull_points in Heqchpts.
+   remember (points_of_ps_polynom pol₁) as pts.
+   symmetry in Heqpts.
+   destruct pts as [| pt₁].
+    unfold points_of_ps_polynom in Heqpts.
+    unfold points_of_ps_lap in Heqpts.
+    unfold points_of_ps_lap_gen in Heqpts.
+    remember (qpower_list 0 (al pol₁)) as pl.
+    symmetry in Heqpl.
+    destruct pl as [| p].
+     unfold qpower_list in Heqpl.
+bbb.
+
+remember Hns₁in as Hini₁; clear HeqHini₁.
+remember Hns₁in as Hfin₁; clear HeqHfin₁.
+apply exists_ini_pt_nat in Hini₁.
+apply exists_fin_pt_nat in Hfin₁.
+destruct Hini₁ as (j₁, (αj₁, Hini₁)).
+destruct Hfin₁ as (k₁, (αk₁, Hfin₁)).
+rewrite Hini₁, Hfin₁; simpl.
+
+rewrite nat_num_Qnat.
+remember Hr as Hjk; clear HeqHjk.
+eapply r_1_j_0_k_1 in Hjk; try eassumption.
+destruct Hjk as (Hj, (Hk, (Hαj, (Hαk, Hoth)))).
+subst j₁ k₁.
+rewrite fold_char_pol with (αj := αj₁).
+rewrite Hoth; simpl.
+rewrite nat_num_Qnat; simpl.
+rewrite nat_num_Qnat; simpl.
+unfold Φq in Hc₂.
+rewrite Hini₁ in Hc₂; simpl in Hc₂.
+rewrite nat_num_Qnat in Hc₂.
+unfold poly_left_shift in Hc₂.
+rewrite list_skipn_0 in Hc₂.
+simpl in Hc₂.
+rewrite Nat.sub_diag in Hc₂.
+rewrite Hini₁ in Hc₂; simpl in Hc₂.
+rewrite nat_num_Qnat in Hc₂.
+rewrite Hoth, Hfin₁ in Hc₂; simpl in Hc₂.
+rewrite nat_num_Qnat in Hc₂.
+remember (order_coeff (List.nth 0 (al pol₁) 0%ps)) as v₀.
+remember (order_coeff (List.nth 1 (al pol₁) 0%ps)) as v₁.
+remember POL [v₀; v₁ … []]%pol as cpol.
+assert (apply_poly cpol c₂ = 0)%K as Happ.
+ destruct Hc₂ as (Hc₂, Hc₂nz).
+ rewrite Hc₂.
+ apply ac_prop_root.
+ subst cpol; simpl.
+ unfold degree; simpl.
+ destruct (ac_zerop v₁) as [H₁| H₁].
+  exfalso.
+  unfold order_coeff in Heqv₁.
+  symmetry in Heqv₁.
+  remember (List.nth 1 (al pol₁) 0%ps) as a₁.
+  remember (null_coeff_range_length R (ps_terms a₁) 0) as v.
+  symmetry in Heqv.
+  destruct v as [v| ].
+   apply null_coeff_range_length_iff in Heqv.
+   unfold null_coeff_range_length_prop in Heqv.
+   simpl in Heqv.
+   destruct Heqv as (_, Heqv).
+   rewrite Heqv₁ in Heqv.
+   contradiction.
+
+   apply null_coeff_range_length_iff in Heqv.
+   unfold null_coeff_range_length_prop in Heqv.
+   simpl in Heqv.
+bbb.
+
+End theorems.
