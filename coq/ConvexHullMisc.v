@@ -273,7 +273,13 @@ induction pts as [| pt₃]; intros.
   intros x y z H₁ H₂; eapply Qlt_trans; eassumption.
 
   subst ms; simpl.
-bbb.
+  eapply Sorted_hd; [ eassumption | left; reflexivity ].
+
+  subst ms₁.
+  eapply IHpts; [ idtac | eassumption ].
+  eapply Sorted_minus_2nd; [ idtac | eassumption ].
+  intros x y z H₁ H₂; eapply Qlt_trans; eassumption.
+Qed.
 
 Lemma next_ch_points_le : ∀ n pt₁ pt₂ pt₃ pts₁ sg hsl₁ hsl,
   Sorted fst_lt [pt₁ … pts₁]
@@ -296,6 +302,8 @@ induction hsl₁ as [| hs₁]; intros.
   apply IHhsl₁ in Hnp.
    eapply Qle_trans; [ idtac | eassumption ].
    rewrite <- minimised_slope_beg_pt in |- * at 1.
+   apply Qlt_le_weak.
+   eapply beg_lt_end_pt; [ eassumption | reflexivity ].
 bbb.
 
   apply IHhsl₁ in Hnp.
