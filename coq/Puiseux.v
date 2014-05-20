@@ -389,6 +389,11 @@ Lemma zzz : ∀ pol ns c₁ c₂ pol₁ ns₁,
 Proof.
 intros pol ns c₁ c₂ pol₁ ns₁.
 intros Hns Hc₁ Hr Hpol₁ Hps₀ Hns₁ Hc₂.
+apply order_fin in Hps₀.
+remember Hns as H; clear HeqH.
+symmetry in Hr.
+eapply f₁_orders in H; try eassumption.
+destruct H as (Hnneg, (Hpos, Hz)).
 unfold root_multiplicity; simpl.
 (*
 rewrite Hini₁, Hfin₁; simpl.
@@ -397,6 +402,10 @@ rewrite Nat.sub_diag; simpl.
 rewrite skipn_pad; simpl.
 
 assert (ns₁ ∈ newton_segments pol₁) as Hns₁in.
+ rewrite Hns₁.
+ remember (newton_segments pol₁) as nsl.
+ symmetry in Heqnsl.
+ destruct nsl as [| ns₂].
 bbb.
 
 remember Hns₁in as Hini₁; clear HeqHini₁.
