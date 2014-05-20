@@ -103,6 +103,11 @@ Lemma min_slope_lt : ∀ pt₁ pt₂ pt₃ pts ms₁₃ ms₂₃,
         → slope ms₁₃ < slope ms₂₃.
 Proof.
 intros pt₁ pt₂ pt₃ pts ms₁₃ ms₂₃ Hsort Hms₁₃ Hms₂₃ Heqc.
+unfold slope in Heqc; unfold slope.
+rewrite <- Hms₁₃ in Heqc at 1.
+rewrite minimised_slope_beg_pt in Heqc.
+rewrite <- Hms₁₃, <- Hms₂₃ in |- * at 1.
+do 2 rewrite minimised_slope_beg_pt.
 revert pt₁ pt₂ pt₃ ms₂₃ ms₁₃ Heqc Hsort Hms₁₃ Hms₂₃.
 induction pts as [| pt₄]; intros.
  subst ms₁₃ ms₂₃; simpl in Heqc |- *.
@@ -116,11 +121,17 @@ induction pts as [| pt₄]; intros.
  rename Heqms₁₄ into Hms₁₄; symmetry in Hms₁₄.
  remember (slope_expr pt₁ pt₃ ?= slope ms₁₄) as c₁.
  symmetry in Heqc₁.
+ unfold slope in Heqc₁.
+ rewrite <- Hms₁₄ in Heqc₁ at 1.
+ rewrite minimised_slope_beg_pt in Heqc₁.
  simpl in Hms₂₃.
  remember (minimise_slope pt₂ pt₄ pts) as ms₂₄.
  rename Heqms₂₄ into Hms₂₄; symmetry in Hms₂₄.
  remember (slope_expr pt₂ pt₃ ?= slope ms₂₄) as c₂.
  symmetry in Heqc₂.
+ progress unfold slope in Heqc₂.
+ rewrite <- Hms₂₄ in Heqc₂ at 1.
+ rewrite minimised_slope_beg_pt in Heqc₂.
  destruct c₁.
   apply Qeq_alt in Heqc₁.
   subst ms₁₃; simpl in Heqc |- *.
@@ -206,6 +217,9 @@ Lemma consec_slope_lt : ∀ pt₁ pt₂ pt₃ pts pts₃ ms₁ ms₂,
         → slope ms₁ < slope ms₂.
 Proof.
 intros pt₁ pt₂ pt₃ pts pts₃ ms₁ ms₂ Hsort Hms₁ Hms₂ Hrem₁.
+progress unfold slope.
+rewrite <- Hms₁, <- Hms₂ at 1.
+do 2 rewrite minimised_slope_beg_pt.
 revert pt₁ pt₂ pt₃ pts₃ ms₁ ms₂ Hsort Hms₁ Hms₂ Hrem₁.
 induction pts as [| pt₄]; intros.
  simpl in Hms₁; subst ms₁.
@@ -217,6 +231,9 @@ induction pts as [| pt₄]; intros.
  rename Heqms₃ into Hms₃; symmetry in Hms₃.
  remember (slope_expr pt₁ pt₂ ?= slope ms₃) as c.
  symmetry in Heqc.
+ progress unfold slope in Heqc.
+ rewrite <- Hms₃ in Heqc at 1.
+ rewrite minimised_slope_beg_pt in Heqc.
  destruct c.
   subst ms₁.
   simpl in Hms₂, Hrem₁ |- *.
