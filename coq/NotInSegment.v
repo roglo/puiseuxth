@@ -247,7 +247,16 @@ induction pts as [| pt₄]; intros.
   injection Hrem₁; clear Hrem₁; intros; subst pt₄ pts₃.
   apply Qlt_alt in Heqc.
   eapply Qlt_trans; [ eassumption | idtac ].
-  eapply min_slope_lt; eassumption.
+  eapply min_slope_lt in Hsort; try eassumption.
+   unfold slope in Hsort.
+   rewrite <- Hms₂, <- Hms₃ in Hsort at 1.
+   do 2 rewrite minimised_slope_beg_pt in Hsort.
+   assumption.
+
+   unfold slope.
+   rewrite <- Hms₃ in |- * at 1.
+   rewrite minimised_slope_beg_pt.
+   assumption.
 
   subst ms₁.
   eapply IHpts; try eassumption.
