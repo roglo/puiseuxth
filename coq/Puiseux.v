@@ -12,6 +12,7 @@ Require Import Newton.
 Require Import ConvexHullMisc.
 Require Import ConvexHull.
 Require Import NotInSegment.
+Require Import Power_series.
 Require Import Puiseux_series.
 Require Import Ps_add.
 Require Import Ps_mul.
@@ -372,25 +373,41 @@ destruct la as [| a₀].
   eapply pouet; eassumption.
 Qed.
 
-Lemma zzz : ∀ pol ns c₁ c₂ pol₁ ns₁ j₁ αj₁ k₁ αk₁,
+Lemma zzz : ∀ pol ns c₁ c₂ pol₁ ns₁,
   ns ∈ newton_segments pol
   → c₁ = ac_root (Φq pol ns) ∧ (c₁ ≠ 0)%K
   → root_multiplicity acf c₁ (Φq pol ns) = 1%nat
   → pol₁ = next_pol pol (β ns) (γ ns) c₁
   → (ps_poly_nth 0 pol₁ ≠ 0)%ps
   → ns₁ = List.hd phony_ns (newton_segments pol₁)
+(*
   → ini_pt ns₁ = (Qnat j₁, αj₁)
   → fin_pt ns₁ = (Qnat k₁, αk₁)
+*)
   → c₂ = ac_root (Φq pol₁ ns₁) ∧ (c₂ ≠ 0)%K
   → root_multiplicity acf c₂ (Φq pol₁ ns₁) = 1%nat.
 Proof.
-intros pol ns c₁ c₂ pol₁ ns₁ j₁ αj₁ k₁ αk₁.
-intros Hns Hc₁ Hr Hpol₁ Hps₀ Hns₁ Hini₁ Hfin₁ Hc₂.
+intros pol ns c₁ c₂ pol₁ ns₁.
+intros Hns Hc₁ Hr Hpol₁ Hps₀ Hns₁ Hc₂.
 unfold root_multiplicity; simpl.
+(*
 rewrite Hini₁, Hfin₁; simpl.
-rewrite nat_num_Qnat.
+*)
 rewrite Nat.sub_diag; simpl.
 rewrite skipn_pad; simpl.
+
+assert (ns₁ ∈ newton_segments pol₁) as Hns₁in.
+bbb.
+
+remember Hns₁in as Hini₁; clear HeqHini₁.
+remember Hns₁in as Hfin₁; clear HeqHfin₁.
+apply exists_ini_pt_nat in Hini₁.
+apply exists_fin_pt_nat in Hfin₁.
+destruct Hini₁ as (j₁, (αj₁, Hini₁)).
+destruct Hfin₁ as (k₁, (αk₁, Hfin₁)).
+rewrite Hini₁, Hfin₁; simpl.
+
+rewrite nat_num_Qnat.
 remember Hr as Hjk; clear HeqHjk.
 eapply r_1_j_0_k_1 in Hjk; try eassumption.
 destruct Hjk as (Hj, (Hk, (Hαj, (Hαk, Hoth)))).
@@ -421,6 +438,22 @@ assert (apply_poly cpol c₂ = 0)%K as Happ.
  unfold degree; simpl.
  destruct (ac_zerop v₁) as [H₁| H₁].
   exfalso.
+  unfold order_coeff in Heqv₁.
+  symmetry in Heqv₁.
+  remember (List.nth 1 (al pol₁) 0%ps) as a₁.
+  remember (null_coeff_range_length R (ps_terms a₁) 0) as v.
+  symmetry in Heqv.
+  destruct v as [v| ].
+   apply null_coeff_range_length_iff in Heqv.
+   unfold null_coeff_range_length_prop in Heqv.
+   simpl in Heqv.
+   destruct Heqv as (_, Heqv).
+   rewrite Heqv₁ in Heqv.
+   contradiction.
+
+   apply null_coeff_range_length_iff in Heqv.
+   unfold null_coeff_range_length_prop in Heqv.
+   simpl in Heqv.
 bbb.
 
 End theorems.
