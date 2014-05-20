@@ -679,6 +679,7 @@ destruct c.
  subst ms; simpl in Hend |- *.
  destruct Hpt as [Hpt| Hpt].
   subst pt₅.
+  rewrite <- slope_slope_expr; [ idtac | eassumption ].
   eapply minimise_slope_expr_le; try eassumption.
   eapply Sorted_minus_2nd; [ idtac | eassumption ].
   intros x y z H₁ H₂; eapply Qlt_trans; eassumption.
@@ -700,6 +701,7 @@ destruct c.
  move Hms at top; subst ms₁.
  destruct Hpt as [Hpt| Hpt].
   subst pt₅.
+  rewrite <- slope_slope_expr; [ idtac | eassumption ].
   eapply minimise_slope_expr_le; try eassumption.
   eapply Sorted_minus_2nd; [ idtac | eassumption ].
   intros x y z H₁ H₂; eapply Qlt_trans; eassumption.
