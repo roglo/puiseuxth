@@ -410,6 +410,17 @@ rewrite Hini₁ in Hc₂; simpl in Hc₂.
 rewrite nat_num_Qnat in Hc₂.
 rewrite Hoth, Hfin₁ in Hc₂; simpl in Hc₂.
 rewrite nat_num_Qnat in Hc₂.
+remember (order_coeff (List.nth 0 (al pol₁) 0%ps)) as v₀.
+remember (order_coeff (List.nth 1 (al pol₁) 0%ps)) as v₁.
+remember POL [v₀; v₁ … []]%pol as cpol.
+assert (apply_poly cpol c₂ = 0)%K as Happ.
+ destruct Hc₂ as (Hc₂, Hc₂nz).
+ rewrite Hc₂.
+ apply ac_prop_root.
+ subst cpol; simpl.
+ unfold degree; simpl.
+ destruct (ac_zerop v₁) as [H₁| H₁].
+  exfalso.
 bbb.
 
 End theorems.
