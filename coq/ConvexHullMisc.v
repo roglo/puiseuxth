@@ -247,6 +247,17 @@ destruct c; subst ms; simpl; [ idtac | assumption | idtac ].
  constructor; [ assumption | eapply Qlt_trans; eassumption ].
 Qed.
 
+Lemma beg_lt_end : ∀ pt₁ pt₂ pts ms,
+  Sorted fst_lt [pt₁; pt₂ … pts]
+  → minimise_slope pt₁ pt₂ pts = ms
+  → fst (beg_pt ms) < fst (end_pt ms).
+Proof.
+intros pt₁ pt₂ pts ms Hsort Hms.
+revert pt₁ pt₂ ms Hsort Hms.
+induction pts as [| pt₃]; intros.
+ subst ms; simpl.
+bbb.
+
 Lemma next_ch_points_le : ∀ n pt₁ pt₂ pt₃ pts₁ sg hsl₁ hsl,
   Sorted fst_lt [pt₁ … pts₁]
   → next_ch_points n [pt₁ … pts₁] = hsl₁ ++ [mkns pt₂ pt₃ sg … hsl]
@@ -265,6 +276,11 @@ induction hsl₁ as [| hs₁]; intros.
   subst hs₁.
   remember (minimise_slope pt₁ pt₃ pts₁) as ms₁.
   symmetry in Heqms₁.
+  apply IHhsl₁ in Hnp.
+   eapply Qle_trans; [ idtac | eassumption ].
+   rewrite <- minimised_slope_beg_pt in |- * at 1.
+bbb.
+
   apply IHhsl₁ in Hnp.
    eapply Qle_trans; [ idtac | eassumption ].
    apply minimise_slope_le in Heqms₁.
