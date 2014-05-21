@@ -11,19 +11,15 @@ Require Import ConvexHull.
 Require Import ConvexHullMisc.
 Require Import Newton.
 
-(* à voir... ça dépend de ce qu'on veut...
-Lemma two_pts_slope_form : ∀ j αy seg₁ k αk seg₂ hsl,
-  Sorted hs_x_lt [mkns (j, αy) seg₁; mkns (k, αk) seg₂ … hsl]
-  → αy + j * ((αy - αk) / (k - j)) ==
-    αk + k * ((αy - αk) / (k - j)).
+Lemma two_pts_slope_formula : ∀ j k αj αk,
+  j < k
+  → αj + j * ((αj - αk) / (k - j)) == αk + k * ((αj - αk) / (k - j)).
 Proof.
-intros j αy seg₁ k αk seg₂ hsl Hsort.
-apply Sorted_inv_2 in Hsort; destruct Hsort as (Hlt, Hsort).
-unfold hs_x_lt in Hlt; simpl in Hlt.
+intros j k αj αk Hjk.
 field.
-apply Qgt_0_not_0, Qlt_minus; assumption.
+apply Qgt_0_not_0, Qlt_minus.
+assumption.
 Qed.
-*)
 
 (* à voir... ça dépend de ce qu'on veut...
 Lemma min_sl_pt_in_newt_segm : ∀ j αy k αk β γ pt pts ms segkx hsl n,
@@ -147,6 +143,18 @@ destruct Hns as [Hns| Hns].
 
   destruct Hαh as [Hαh| Hαh].
    rewrite Hαh; simpl.
+   remember (minimise_slope pt₁ pt₂ pts) as ms.
+   remember (beg_pt ms) as j.
+   symmetry in Heqj.
+   destruct j as (j, αj).
+   remember Heqj as Hαj; clear HeqHαj.
+   rewrite Heqms in Heqj.
+   rewrite minimised_slope_beg_pt in Heqj.
+   rewrite Heqj; simpl.
+   apply two_pts_slope_formula.
+   symmetry in Heqms.
+   apply beg_lt_end_pt in Heqms; [ idtac | assumption ].
+   rewrite Hαj, Hαh in Heqms; assumption.
 bbb.
 
 intros ns pts Hsort Hns h αh Hαh.
