@@ -141,9 +141,9 @@ destruct Hns as [Hns| Hns].
  destruct Hαh as [Hαh| Hαh].
   subst pt₁; reflexivity.
 
+  remember (minimise_slope pt₁ pt₂ pts) as ms.
   destruct Hαh as [Hαh| Hαh].
    rewrite Hαh; simpl.
-   remember (minimise_slope pt₁ pt₂ pts) as ms.
    remember (beg_pt ms) as j.
    symmetry in Heqj.
    destruct j as (j, αj).
