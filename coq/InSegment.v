@@ -11,8 +11,9 @@ Require Import ConvexHull.
 Require Import ConvexHullMisc.
 Require Import Newton.
 
+(* à voir... ça dépend de ce qu'on veut...
 Lemma two_pts_slope_form : ∀ j αy seg₁ k αk seg₂ hsl,
-  Sorted hs_x_lt [ahs (j, αy) seg₁; ahs (k, αk) seg₂ … hsl]
+  Sorted hs_x_lt [mkns (j, αy) seg₁; mkns (k, αk) seg₂ … hsl]
   → αy + j * ((αy - αk) / (k - j)) ==
     αk + k * ((αy - αk) / (k - j)).
 Proof.
@@ -22,7 +23,9 @@ unfold hs_x_lt in Hlt; simpl in Hlt.
 field.
 apply Qgt_0_not_0, Qlt_minus; assumption.
 Qed.
+*)
 
+(* à voir... ça dépend de ce qu'on veut...
 Lemma min_sl_pt_in_newt_segm : ∀ j αy k αk β γ pt pts ms segkx hsl n,
   Sorted fst_lt [(j, αy); pt … pts]
   → β = αy + j * γ
@@ -118,19 +121,18 @@ destruct pts as [| pt₁].
 
     eapply IHhsl₁; eassumption.
 Qed.
+*)
 
-Lemma points_in_any_newton_segment₁ : ∀ ns pts hsl,
+Lemma points_in_any_newton_segment₁ : ∀ ns pts,
   Sorted fst_lt pts
-  → hsl = lower_convex_hull_points pts
-    → ns ∈ list_map_pairs newton_segment_of_pair hsl
-      → ∀ h αh, (h, αh) ∈ [ini_pt ns; fin_pt ns … oth_pts ns]
-        → β ns == αh + h * γ ns.
+  → ns ∈ lower_convex_hull_points pts
+    → ∀ h αh, (h, αh) ∈ [ini_pt ns; fin_pt ns … oth_pts ns]
+      → β ns == αh + h * γ ns.
 Proof.
-intros ns pts hsl Hsort Hhsl Hns h αh Hαh.
-symmetry in Hhsl.
+intros ns pts Hsort Hns h αh Hαh.
 remember Hsort as Hsort₂; clear HeqHsort₂.
-eapply lower_convex_hull_points_sorted in Hsort; [ idtac | eassumption ].
-unfold lower_convex_hull_points in Hhsl.
+eapply lower_convex_hull_points_sorted in Hsort; [ idtac | reflexivity ].
+unfold lower_convex_hull_points in Hns.
 remember (length pts) as n; clear Heqn.
 revert n pts ns Hsort Hsort₂ Hhsl Hns Hαh.
 induction hsl as [| hs₁]; intros; [ contradiction | idtac ].

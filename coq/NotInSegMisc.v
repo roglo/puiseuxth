@@ -249,6 +249,7 @@ destruct Hαh as [Hαh| Hαh].
   apply Sorted_inv_2 in Hsort; destruct Hsort; assumption.
 Qed.
 
+(* à voir.. ça dépend de ce qu'on veut...
 Lemma points_after_k : ∀ n pts j αj k αk seg seg₂ hsl γ β,
   Sorted fst_lt pts
   → j < k
@@ -641,3 +642,4 @@ eapply sorted_qeq_eq with (αk := αk) in Hhk; try eassumption.
  apply List.in_app_iff.
  right; left; reflexivity.
 Qed.
+*)

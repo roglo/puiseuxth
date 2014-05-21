@@ -16,6 +16,8 @@ Definition fst_lt (x y : Q * Q) := (fst x < fst y).
 (*
 Definition hs_x_lt (x y : hull_seg) := (fst (vert x) < fst (vert y)).
 *)
+Definition hs_x_lt (x y : newton_segment) :=
+  (fst (ini_pt x) < fst (ini_pt y)).
 
 Lemma Sorted_in : ∀ pt₁ pt₂ pts,
   Sorted fst_lt [pt₁ … pts]
@@ -304,18 +306,9 @@ induction hsl₁ as [| hs₁]; intros.
    rewrite <- minimised_slope_beg_pt in |- * at 1.
    apply Qlt_le_weak.
    eapply beg_lt_end_pt; [ eassumption | reflexivity ].
-bbb.
 
-  apply IHhsl₁ in Hnp.
-   eapply Qle_trans; [ idtac | eassumption ].
-   apply minimise_slope_le in Heqms₁.
-    eapply Qle_trans; [ idtac | eassumption ].
-    apply Qlt_le_weak.
-    apply Sorted_inv_2 in Hsort; destruct Hsort; assumption.
-
-    eapply Sorted_inv_1; eassumption.
-
-   eapply minimise_slope_sorted; eassumption.
+   eapply minimise_slope_sorted; try eassumption.
+   reflexivity.
 Qed.
 
 Lemma next_points_sorted : ∀ n pts hsl,
