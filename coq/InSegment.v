@@ -11,16 +11,6 @@ Require Import ConvexHull.
 Require Import ConvexHullMisc.
 Require Import Newton.
 
-Lemma two_pts_slope_formula : ∀ j k αj αk,
-  j < k
-  → αj + j * ((αj - αk) / (k - j)) == αk + k * ((αj - αk) / (k - j)).
-Proof.
-intros j k αj αk Hjk.
-field.
-apply Qgt_0_not_0, Qlt_minus.
-assumption.
-Qed.
-
 (* à voir... ça dépend de ce qu'on veut...
 Lemma min_sl_pt_in_newt_segm : ∀ j αy k αk β γ pt pts ms segkx hsl n,
   Sorted fst_lt [(j, αy); pt … pts]
@@ -151,7 +141,8 @@ destruct Hns as [Hns| Hns].
    rewrite Heqms in Heqj.
    rewrite minimised_slope_beg_pt in Heqj.
    rewrite Heqj; simpl.
-   apply two_pts_slope_formula.
+   field.
+   apply Qgt_0_not_0, Qlt_minus.
    symmetry in Heqms.
    apply beg_lt_end_pt in Heqms; [ idtac | assumption ].
    rewrite Hαj, Hαh in Heqms; assumption.
