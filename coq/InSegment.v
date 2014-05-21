@@ -161,6 +161,26 @@ destruct Hns as [Hns| Hns].
      rewrite Hαh; simpl.
      field.
      apply Qgt_0_not_0, Qlt_minus.
+     remember (minimise_slope (end_pt ms) pt₃ rpts) as ms₁.
+     remember (beg_pt ms₁) as pt₄.
+     remember Heqpt₄ as H; clear HeqH.
+     rewrite Heqms₁ in Heqpt₄.
+     rewrite minimised_slope_beg_pt in Heqpt₄.
+     rewrite H in Heqpt₄; clear H.
+     rewrite <- Heqpt₄.
+     remember (fst (end_pt ms₁)) as x.
+     remember Heqx as H; clear HeqH.
+     rewrite Hαh in Heqx; simpl in Heqx.
+     subst x.
+     subst h.
+     eapply beg_lt_end_pt; [ idtac | symmetry; eassumption ].
+     rewrite <- Heqpt₄.
+     rewrite Heqms₁.
+     rewrite minimised_slope_beg_pt.
+     rewrite <- Heqrpts.
+     eapply minimise_slope_sorted; [ eassumption | symmetry; eassumption ].
+
+     remember (minimise_slope (end_pt ms) pt₃ rpts) as ms₁.
 bbb.
 
 intros ns pts Hsort Hns h αh Hαh.
