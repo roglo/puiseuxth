@@ -134,6 +134,26 @@ remember Hsort as Hsort₂; clear HeqHsort₂.
 eapply lower_convex_hull_points_sorted in Hsort; [ idtac | reflexivity ].
 unfold lower_convex_hull_points in Hns.
 remember (length pts) as n; clear Heqn.
+revert n ns Hns Hαh.
+induction pts as [| pt₁]; intros; [ destruct n; contradiction | idtac ].
+destruct n; [ contradiction | simpl in Hns ].
+destruct pts as [| pt₂]; [ contradiction | idtac ].
+destruct Hns as [Hns| Hns].
+ subst ns; simpl.
+ simpl in Hαh.
+ unfold β, γ; simpl.
+ destruct Hαh as [Hαh| Hαh].
+  subst pt₁; reflexivity.
+
+  destruct Hαh as [Hαh| Hαh].
+   rewrite Hαh; simpl.
+bbb.
+
+intros ns pts Hsort Hns h αh Hαh.
+remember Hsort as Hsort₂; clear HeqHsort₂.
+eapply lower_convex_hull_points_sorted in Hsort; [ idtac | reflexivity ].
+unfold lower_convex_hull_points in Hns.
+remember (length pts) as n; clear Heqn.
 revert n pts ns Hsort Hsort₂ Hhsl Hns Hαh.
 induction hsl as [| hs₁]; intros; [ contradiction | idtac ].
 simpl in Hns.
