@@ -146,6 +146,21 @@ destruct Hns as [Hns| Hns].
    symmetry in Heqms.
    apply beg_lt_end_pt in Heqms; [ idtac | assumption ].
    rewrite Hαj, Hαh in Heqms; assumption.
+
+   Focus 2.
+   destruct n; [ contradiction | simpl in Hns ].
+   remember (minimise_slope pt₁ pt₂ pts) as ms.
+   remember (rem_pts ms) as rpts.
+   symmetry in Heqrpts.
+   destruct rpts as [| pt₃]; [ contradiction | simpl in Hns ].
+   destruct Hns as [Hns| Hns].
+    subst ns; simpl in Heqrpts, Hαh; simpl.
+    unfold β, γ; simpl.
+    destruct Hαh as [Hαh| Hαh]; [ rewrite Hαh; reflexivity | idtac ].
+    destruct Hαh as [Hαh| Hαh].
+     rewrite Hαh; simpl.
+     field.
+     apply Qgt_0_not_0, Qlt_minus.
 bbb.
 
 intros ns pts Hsort Hns h αh Hαh.
