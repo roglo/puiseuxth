@@ -2,9 +2,7 @@
 
 (* points not in newton segment *)
 
-Require Import Utf8.
-Require Import QArith.
-Require Import Sorting.
+Require Import Utf8 QArith Sorting NPeano.
 
 Require Import Misc.
 Require Import Slope_base.
@@ -1457,9 +1455,10 @@ Lemma points_not_in_any_newton_segment₁ : ∀ pts ns,
 Proof.
 intros pts ns Hsort Hns h αh (Hαh, Hnαh).
 unfold lower_convex_hull_points in Hns.
-remember (length pts) as n; clear Heqn.
+remember (length pts) as n eqn:Hn.
+symmetry in Hn; apply Nat.eq_le_incl in Hn.
 remember (next_ch_points n pts) as nsl eqn:Hnsl .
-revert ns pts n h αh Hsort Hnsl Hns Hαh Hnαh.
+revert ns pts n h αh Hsort Hn Hnsl Hns Hαh Hnαh.
 induction nsl as [| ns₁]; intros; [ contradiction | idtac ].
 destruct Hns as [Hns| Hns].
  subst ns.
@@ -1497,9 +1496,9 @@ destruct Hns as [Hns| Hns].
    subst pt₂.
    rename Hend into Hhk.
    rename Heqk into Hend.
-   revert Hjh Hhk Hbeg Hend Hseg Hms Hsort.
+   revert Hjh Hhk Hbeg Hend Hseg Hn Hms Hsort.
    revert j h k aj αh ak ms pts; clear; intros.
-   revert j h k aj αh ak ms Hjh Hhk Hbeg Hend Hseg Hms Hsort.
+   revert j h k aj αh ak ms Hjh Hhk Hbeg Hend Hseg Hn Hms Hsort.
    induction pts as [| pt]; intros.
     simpl in Hms.
     rewrite Hms in Hend; contradiction.
@@ -1532,6 +1531,19 @@ destruct Hns as [Hns| Hns].
 
        eapply Sorted_minus_2nd; [ idtac | eassumption ].
        intros x y z H₁ H₂; eapply Qlt_trans; eassumption.
+
+   eapply IHnsl.
+    3: reflexivity.
+
+    symmetry in Hms.
+    eapply minimise_slope_sorted; eassumption.
+
+    Focus 2.
+    destruct n; simpl.
+     simpl in Hn.
+     omega.
+
+     Unfocus.
 bbb.
 cf NotInSegMisc.points_between_j_and_k
 
