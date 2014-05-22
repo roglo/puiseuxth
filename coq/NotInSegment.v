@@ -1498,8 +1498,26 @@ destruct Hns as [Hns| Hns].
    rename Hend into Hhk.
    rename Heqk into Hend.
    revert Hjh Hhk Hbeg Hend Hseg Hms Hsort.
-   revert j h k aj αh ak ms pts n.
-   intros.
+   revert j h k aj αh ak ms pts; clear; intros.
+   revert j h k aj αh ak ms Hjh Hhk Hbeg Hend Hseg Hms Hsort.
+   induction pts as [| pt]; intros.
+    simpl in Hms.
+    rewrite Hms in Hend; contradiction.
+
+    simpl in Hms.
+    remember (minimise_slope (j, aj) pt pts) as ms₁ eqn:Hms₁ .
+    remember (slope_expr (j, aj) (h, αh) ?= slope ms₁) as c eqn:Hc .
+    symmetry in Hc.
+    rewrite slope_slope_expr in Hc; [ idtac | symmetry; eassumption ].
+    destruct c.
+     rewrite Hms in Hseg; simpl in Hseg.
+     apply Decidable.not_or in Hseg.
+     destruct Hseg as (Hseg, _).
+     exfalso; apply Hseg; reflexivity.
+
+     rewrite Hms in Hend; contradiction.
+
+     subst ms.
 bbb.
 cf NotInSegMisc.points_between_j_and_k
 
