@@ -1477,7 +1477,7 @@ destruct Hns as [Hns| Hns].
   destruct Hαh as [Hαh| Hαh].
    simpl in Hnαh.
    apply Decidable.not_or in Hnαh.
-   destruct Hnαh as (_, Hnαh).
+   destruct Hnαh as (Hjh, Hnαh).
    apply Decidable.not_or in Hnαh.
    destruct Hnαh as (Hend, Hseg).
    clear IHnsl.
@@ -1497,6 +1497,7 @@ destruct Hns as [Hns| Hns].
    subst pt₂.
    rename Hend into Hhk.
    rename Heqk into Hend.
+   revert Hjh Hhk Hbeg Hend Hseg Hms Hsort; intros.
 bbb.
 
 intros pts ns Hsort Hns h αh (Hαh, Hnαh).
