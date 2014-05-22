@@ -1501,6 +1501,7 @@ destruct Hns as [Hns| Hns].
    revert j h k aj αh ak ms pts n.
    intros.
 bbb.
+cf NotInSegMisc.points_between_j_and_k
 
 intros pts ns Hsort Hns h αh (Hαh, Hnαh).
 remember (length pts) as n; clear Heqn.
