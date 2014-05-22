@@ -116,71 +116,53 @@ Lemma points_in_any_newton_segment₁ : ∀ ns pts,
       → β ns == αh + h * γ ns.
 Proof.
 intros ns pts Hsort Hns h αh Hαh.
-remember Hsort as Hsort₂; clear HeqHsort₂.
-eapply lower_convex_hull_points_sorted in Hsort; [ idtac | reflexivity ].
 unfold lower_convex_hull_points in Hns.
 remember (length pts) as n; clear Heqn.
-revert n ns Hns Hαh.
-induction pts as [| pt₁]; intros; [ destruct n; contradiction | idtac ].
-destruct n; [ contradiction | simpl in Hns ].
-destruct pts as [| pt₂]; [ contradiction | idtac ].
+remember (next_ch_points n pts) as nsl eqn:Hnsl .
+revert ns pts n h αh Hsort Hnsl Hns Hαh.
+induction nsl as [| ns₁]; intros; [ contradiction | idtac ].
 destruct Hns as [Hns| Hns].
- subst ns; simpl.
- simpl in Hαh.
- unfold β, γ; simpl.
+ subst ns.
+ destruct n; [ discriminate Hnsl | simpl in Hnsl ].
+ destruct pts as [| pt₁]; [ discriminate Hnsl | idtac ].
+ destruct pts as [| pt₂]; [ discriminate Hnsl | idtac ].
+ injection Hnsl; clear Hnsl; intros Hnsl Hns₁; subst nsl.
+ rewrite Hns₁ in Hαh.
+ remember cons as f; simpl in Hαh; subst f.
+ remember (minimise_slope pt₁ pt₂ pts) as ms eqn:Hms .
  destruct Hαh as [Hαh| Hαh].
-  subst pt₁; reflexivity.
+  subst pt₁ ns₁; simpl.
+  reflexivity.
 
-  remember (minimise_slope pt₁ pt₂ pts) as ms.
   destruct Hαh as [Hαh| Hαh].
+   subst ns₁; simpl.
    rewrite Hαh; simpl.
-   remember (beg_pt ms) as j.
-   symmetry in Heqj.
-   destruct j as (j, αj).
-   remember Heqj as Hαj; clear HeqHαj.
-   rewrite Heqms in Heqj.
-   rewrite minimised_slope_beg_pt in Heqj.
-   rewrite Heqj; simpl.
+   unfold β, γ; simpl.
    field.
    apply Qgt_0_not_0, Qlt_minus.
-   symmetry in Heqms.
-   apply beg_lt_end_pt in Heqms; [ idtac | assumption ].
-   rewrite Hαj, Hαh in Heqms; assumption.
+   remember (beg_pt ms) as pt₄.
+   remember Heqpt₄ as H; clear HeqH.
+   rewrite Hms in Heqpt₄.
+   rewrite minimised_slope_beg_pt in Heqpt₄.
+   rewrite H in Heqpt₄; clear H.
+   rewrite <- Heqpt₄.
+   remember (fst (end_pt ms)) as x.
+   remember Heqx as H; clear HeqH.
+   rewrite Hαh in Heqx; simpl in Heqx.
+   subst x h.
+   eapply beg_lt_end_pt; [ eassumption | symmetry; eassumption ].
 
    Focus 2.
-   destruct n; [ contradiction | simpl in Hns ].
-   remember (minimise_slope pt₁ pt₂ pts) as ms.
-   remember (rem_pts ms) as rpts.
-   symmetry in Heqrpts.
-   destruct rpts as [| pt₃]; [ contradiction | simpl in Hns ].
-   destruct Hns as [Hns| Hns].
-    subst ns; simpl in Heqrpts, Hαh; simpl.
-    unfold β, γ; simpl.
-    destruct Hαh as [Hαh| Hαh]; [ rewrite Hαh; reflexivity | idtac ].
-    destruct Hαh as [Hαh| Hαh].
-     rewrite Hαh; simpl.
-     field.
-     apply Qgt_0_not_0, Qlt_minus.
-     remember (minimise_slope (end_pt ms) pt₃ rpts) as ms₁.
-     remember (beg_pt ms₁) as pt₄.
-     remember Heqpt₄ as H; clear HeqH.
-     rewrite Heqms₁ in Heqpt₄.
-     rewrite minimised_slope_beg_pt in Heqpt₄.
-     rewrite H in Heqpt₄; clear H.
-     rewrite <- Heqpt₄.
-     remember (fst (end_pt ms₁)) as x.
-     remember Heqx as H; clear HeqH.
-     rewrite Hαh in Heqx; simpl in Heqx.
-     subst x.
-     subst h.
-     eapply beg_lt_end_pt; [ idtac | symmetry; eassumption ].
-     rewrite <- Heqpt₄.
-     rewrite Heqms₁.
-     rewrite minimised_slope_beg_pt.
-     rewrite <- Heqrpts.
-     eapply minimise_slope_sorted; [ eassumption | symmetry; eassumption ].
+   destruct n; [ discriminate Hnsl | simpl in Hnsl ].
+   destruct pts as [| pt₁]; [ discriminate Hnsl | idtac ].
+   destruct pts as [| pt₂]; [ discriminate Hnsl | idtac ].
+   injection Hnsl; clear Hnsl; intros; subst ns₁ nsl.
+   remember (minimise_slope pt₁ pt₂ pts) as ms eqn:Hms .
+   eapply IHnsl; try reflexivity; try assumption.
+   eapply minimise_slope_sorted; [ eassumption | idtac ].
+   symmetry; assumption.
 
-     remember (minimise_slope (end_pt ms) pt₃ rpts) as ms₁.
+ clear IHnsl.
 bbb.
 
 intros ns pts Hsort Hns h αh Hαh.
