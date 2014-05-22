@@ -1449,16 +1449,57 @@ destruct Hns as [Hns| Hns].
 Qed.
 *)
 
-Lemma points_not_in_any_newton_segment₁ : ∀ pts hsl ns,
+Lemma points_not_in_any_newton_segment₁ : ∀ pts ns,
   Sorted fst_lt pts
-  → hsl = lower_convex_hull_points pts
-    → ns ∈ list_map_pairs newton_segment_of_pair hsl
-      → ∀ h αh, (h, αh) ∈ pts ∧ (h, αh) ∉ [ini_pt ns; fin_pt ns … oth_pts ns]
-        → β ns < αh + h * (γ ns).
+  → ns ∈ lower_convex_hull_points pts
+  → ∀ h αh, (h, αh) ∈ pts ∧ (h, αh) ∉ [ini_pt ns; fin_pt ns … oth_pts ns]
+  → β ns < αh + h * (γ ns).
 Proof.
-intros pts hsl ns Hsort Hhsl Hns h αh (Hαh, Hnαh).
-symmetry in Hhsl.
-unfold lower_convex_hull_points in Hhsl.
+intros pts ns Hsort Hns h αh (Hαh, Hnαh).
+unfold lower_convex_hull_points in Hns.
+remember (length pts) as n; clear Heqn.
+remember (next_ch_points n pts) as nsl eqn:Hnsl .
+revert ns pts n h αh Hsort Hnsl Hns Hαh Hnαh.
+induction nsl as [| ns₁]; intros; [ contradiction | idtac ].
+destruct Hns as [Hns| Hns].
+ subst ns.
+ destruct n; [ discriminate Hnsl | simpl in Hnsl ].
+ destruct pts as [| pt₁]; [ discriminate Hnsl | idtac ].
+ destruct pts as [| pt₂]; [ discriminate Hnsl | idtac ].
+ injection Hnsl; clear Hnsl; intros Hnsl Hns₁; subst nsl.
+ rewrite Hns₁ in Hnαh.
+ remember cons as f; simpl in Hnαh; subst f.
+ remember (minimise_slope pt₁ pt₂ pts) as ms eqn:Hms .
+ destruct Hαh as [Hαh| Hαh].
+  subst pt₁.
+  exfalso; apply Hnαh; left; reflexivity.
+
+  destruct Hαh as [Hαh| Hαh].
+   simpl in Hnαh.
+   apply Decidable.not_or in Hnαh.
+   destruct Hnαh as (_, Hnαh).
+   apply Decidable.not_or in Hnαh.
+   destruct Hnαh as (Hend, Hseg).
+   clear IHnsl.
+   subst ns₁; simpl.
+   unfold β, γ; simpl.
+   remember (end_pt ms) as k.
+   destruct k as (k, ak); simpl.
+   remember (beg_pt ms) as pt₄.
+   remember Heqpt₄ as H; clear HeqH.
+   rewrite Hms in Heqpt₄.
+   rewrite minimised_slope_beg_pt in Heqpt₄.
+   rewrite H in Heqpt₄; clear H.
+   destruct pt₁ as (j, aj); simpl.
+   clear pt₄.
+   rename Heqpt₄ into Hbeg.
+   symmetry in Hbeg.
+   subst pt₂.
+   rename Hend into Hhk.
+   rename Heqk into Hend.
+bbb.
+
+intros pts ns Hsort Hns h αh (Hαh, Hnαh).
 remember (length pts) as n; clear Heqn.
 remember (list_map_pairs newton_segment_of_pair hsl) as nsl.
 rename Heqnsl into Hnsl.
