@@ -163,44 +163,43 @@ destruct Hns as [Hns| Hns].
    symmetry; assumption.
 
  clear IHnsl.
-bbb.
+ subst ns₁.
+ unfold β, γ; simpl.
+ revert pt₁ pt₂ n h αh ms Hms Hsort Hαh.
+ induction pts as [| pt₃]; intros.
+  simpl in Hms.
+  subst ms; contradiction.
 
-intros ns pts Hsort Hns h αh Hαh.
-remember Hsort as Hsort₂; clear HeqHsort₂.
-eapply lower_convex_hull_points_sorted in Hsort; [ idtac | reflexivity ].
-unfold lower_convex_hull_points in Hns.
-remember (length pts) as n; clear Heqn.
-revert n pts ns Hsort Hsort₂ Hhsl Hns Hαh.
-induction hsl as [| hs₁]; intros; [ contradiction | idtac ].
-simpl in Hns.
-destruct hsl as [| hs₂]; [ contradiction | idtac ].
-destruct Hns as [Hns| Hns].
- destruct hs₁ as ((j, αy), seg₁).
- destruct hs₂ as ((k, αk), seg₂).
- subst ns; simpl.
- simpl in Hαh.
- destruct Hαh as [Hαh| Hαh].
-  injection Hαh; clear Hαh; intros; subst h αh; reflexivity.
+  simpl in Hms.
+  remember (minimise_slope pt₁ pt₃ pts) as ms₁ eqn:Hms₁ .
+  remember (slope_expr pt₁ pt₂ ?= slope ms₁) as c.
+  symmetry in Heqc.
+  rewrite slope_slope_expr in Heqc; [ idtac | symmetry; eassumption ].
+  destruct c.
+   subst ms.
+   simpl in Hαh; simpl.
+   apply Qeq_alt in Heqc.
+   unfold slope_expr in Heqc.
+   destruct Hαh as [Hαh| Hαh].
+    subst pt₂.
+    simpl in Heqc; simpl.
+    do 2 rewrite Qdiv_minus_distr_r in Heqc.
+    rewrite Qdiv_minus_distr_r.
+    apply Qeq_opp_r in Heqc.
+    do 2 rewrite Qopp_minus in Heqc.
+    rewrite <- Heqc.
+    field.
+    apply Sorted_inv_2 in Hsort; destruct Hsort as (Hlt, Hsort).
+    apply Qgt_0_not_0, Qlt_minus; assumption.
 
-  destruct Hαh as [Hαh| Hαh].
-   injection Hαh; clear Hαh; intros; subst h αh.
-   eapply two_pts_slope_form; eassumption.
+    eapply IHpts; try eassumption.
+    eapply Sorted_minus_2nd; [ idtac | eassumption ].
+    intros x y z H₁ H₂; eapply Qlt_trans; eassumption.
 
-   destruct pts as [| pt₁].
-    unfold lower_convex_hull_points in Hhsl.
-    destruct n; discriminate Hhsl.
+   subst ms; contradiction.
 
-    symmetry.
-    eapply in_newt_segm with (hsl₁ := []); try eassumption; try reflexivity.
-
- destruct n; [ discriminate Hhsl | idtac ].
- simpl in Hhsl.
- destruct pts as [| pt₁]; [ discriminate Hhsl | idtac ].
- destruct pts as [| pt₂]; [ discriminate Hhsl | idtac ].
- injection Hhsl; clear Hhsl; intros.
- remember (minimise_slope pt₁ pt₂ pts) as ms₁.
- symmetry in Heqms₁.
- apply Sorted_inv_1 in Hsort.
- eapply minimise_slope_sorted in Hsort₂; [ idtac | eassumption ].
- eapply IHhsl; eassumption.
+   subst ms.
+   eapply IHpts; try eassumption.
+   eapply Sorted_minus_2nd; [ idtac | eassumption ].
+   intros x y z H₁ H₂; eapply Qlt_trans; eassumption.
 Qed.
