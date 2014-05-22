@@ -1497,7 +1497,9 @@ destruct Hns as [Hns| Hns].
    subst pt₂.
    rename Hend into Hhk.
    rename Heqk into Hend.
-   revert Hjh Hhk Hbeg Hend Hseg Hms Hsort; intros.
+   revert Hjh Hhk Hbeg Hend Hseg Hms Hsort.
+   revert j h k aj αh ak ms pts n.
+   intros.
 bbb.
 
 intros pts ns Hsort Hns h αh (Hαh, Hnαh).
