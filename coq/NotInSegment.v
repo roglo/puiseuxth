@@ -1519,9 +1519,19 @@ destruct Hns as [Hns| Hns].
 
      subst ms.
      apply Qgt_alt in Hc.
-     remember Hend as H; clear HeqH.
-     symmetry in H.
-     eapply IHpts; try eassumption.
+     rewrite <- Hend in Hc.
+     apply ad_hoc_lt_lt; [ idtac | assumption ].
+     split.
+      apply Sorted_inv in Hsort.
+      destruct Hsort as (_, Hrel).
+      apply HdRel_inv in Hrel; assumption.
+
+      symmetry in Hms₁.
+      apply beg_lt_end_pt in Hms₁.
+       rewrite <- Hbeg, <- Hend in Hms₁; assumption.
+
+       eapply Sorted_minus_2nd; [ idtac | eassumption ].
+       intros x y z H₁ H₂; eapply Qlt_trans; eassumption.
 bbb.
 cf NotInSegMisc.points_between_j_and_k
 
