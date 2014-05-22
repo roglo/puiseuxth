@@ -1519,8 +1519,9 @@ destruct Hns as [Hns| Hns].
 
      subst ms.
      apply Qgt_alt in Hc.
-     rewrite <- Hend in Hc.
-     unfold slope_expr in Hc; simpl in Hc.
+     remember Hend as H; clear HeqH.
+     symmetry in H.
+     eapply IHpts; try eassumption.
 bbb.
 cf NotInSegMisc.points_between_j_and_k
 
