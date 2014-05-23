@@ -1532,6 +1532,7 @@ destruct Hns as [Hns| Hns].
        eapply Sorted_minus_2nd; [ idtac | eassumption ].
        intros x y z H₁ H₂; eapply Qlt_trans; eassumption.
 
+bbb.
    eapply IHnsl with (n := n).
     symmetry in Hms.
     eapply minimise_slope_sorted; eassumption.
