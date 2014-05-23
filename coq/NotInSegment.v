@@ -1532,7 +1532,7 @@ destruct Hns as [Hns| Hns].
        eapply Sorted_minus_2nd; [ idtac | eassumption ].
        intros x y z H₁ H₂; eapply Qlt_trans; eassumption.
 
-   destruct (Qlt_le_dec h j) as [Hhj| Hhj].
+   destruct (Qlt_le_dec h k) as [Hhk| Hhk].
 bbb.
 cf lt_bef_j
 cf lt_not_in_some_ns
