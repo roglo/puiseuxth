@@ -1536,8 +1536,10 @@ destruct Hns as [Hns| Hns].
     symmetry in Hms.
     eapply minimise_slope_sorted; eassumption.
 
-bbb.
     eapply minimise_slope_length; eassumption.
+
+    assumption.
+bbb.
 cf NotInSegMisc.points_between_j_and_k
 
 intros pts ns Hsort Hns h αh (Hαh, Hnαh).
