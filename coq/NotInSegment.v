@@ -1465,9 +1465,9 @@ destruct Hns as [Hns| Hns].
  destruct n; [ discriminate Hnsl | simpl in Hnsl ].
  destruct pts as [| pt₁]; [ discriminate Hnsl | idtac ].
  destruct pts as [| pt₂]; [ discriminate Hnsl | idtac ].
- injection Hnsl; clear Hnsl; intros Hnsl Hns₁; subst nsl.
+ injection Hnsl; clear Hnsl; intros Hnsl Hns₁.
  rewrite Hns₁ in Hnαh.
- remember cons as f; simpl in Hnαh; subst f.
+ remember cons as f in Hnαh; simpl in Hnαh; subst f.
  remember (minimise_slope pt₁ pt₂ pts) as ms eqn:Hms .
  destruct Hαh as [Hαh| Hαh].
   subst pt₁.
@@ -1496,9 +1496,9 @@ destruct Hns as [Hns| Hns].
    subst pt₂.
    rename Hend into Hhk.
    rename Heqk into Hend.
-   revert Hjh Hhk Hbeg Hend Hseg Hn Hms Hsort.
+   revert Hjh Hhk Hbeg Hend Hseg Hn Hms Hsort Hnsl.
    revert j h k aj αh ak ms pts; clear; intros.
-   revert j h k aj αh ak ms Hjh Hhk Hbeg Hend Hseg Hn Hms Hsort.
+   revert nsl n j h k aj αh ak ms Hjh Hhk Hbeg Hend Hseg Hn Hms Hsort Hnsl.
    induction pts as [| pt]; intros.
     simpl in Hms.
     rewrite Hms in Hend; contradiction.
@@ -1532,18 +1532,9 @@ destruct Hns as [Hns| Hns].
        eapply Sorted_minus_2nd; [ idtac | eassumption ].
        intros x y z H₁ H₂; eapply Qlt_trans; eassumption.
 
-   eapply IHnsl.
-    3: reflexivity.
-
+   eapply IHnsl with (n := n).
     symmetry in Hms.
     eapply minimise_slope_sorted; eassumption.
-
-    Focus 2.
-    destruct n; simpl.
-     simpl in Hn.
-     omega.
-
-     Unfocus.
 bbb.
 cf NotInSegMisc.points_between_j_and_k
 
