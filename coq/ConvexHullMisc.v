@@ -215,6 +215,29 @@ destruct pts₂ as [| pts₄]; [ discriminate Hnp | idtac ].
 injection Hnp; intros; subst pt₂; reflexivity.
 Qed.
 
+Lemma minimise_slope_length : ∀ pt₁ pt₂ pts ms n,
+  length [pt₁; pt₂ … pts] ≤ S n
+  → ms = minimise_slope pt₁ pt₂ pts
+  → length [end_pt ms … rem_pts ms] ≤ n.
+Proof.
+intros pt₁ pt₂ pts ms n Hlen Hms.
+revert pt₁ pt₂ n ms Hlen Hms.
+induction pts as [| pt]; intros.
+ subst ms; simpl in Hlen; simpl.
+ apply le_S_n; assumption.
+
+ simpl in Hms.
+ remember (minimise_slope pt₁ pt pts) as ms₁ eqn:Hms₁ .
+ remember (slope_expr pt₁ pt₂ ?= slope ms₁) as c eqn:Hc .
+ symmetry in Hc.
+ rewrite slope_slope_expr in Hc; [ idtac | symmetry; eassumption ].
+ destruct c.
+  subst ms.
+  remember length as f in |- *; simpl; subst f.
+  eapply IHpts; try eassumption.
+  apply le_S, le_S_n; assumption.
+bbb.
+
 Lemma minimise_slope_sorted : ∀ pt₁ pt₂ pts ms,
   Sorted fst_lt [pt₁; pt₂ … pts]
   → minimise_slope pt₁ pt₂ pts = ms
