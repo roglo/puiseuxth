@@ -1469,8 +1469,19 @@ destruct Hns as [Hns| Hns].
  rewrite Hns₁ in Hnαh.
  remember cons as f in Hnαh; simpl in Hnαh; subst f.
  remember (minimise_slope pt₁ pt₂ pts) as ms eqn:Hms .
+ remember (end_pt ms) as k.
+ destruct k as (k, ak).
+ remember (beg_pt ms) as pt₄.
+ remember Heqpt₄ as H; clear HeqH.
+ rewrite Hms in Heqpt₄.
+ rewrite minimised_slope_beg_pt in Heqpt₄.
+ rewrite H in Heqpt₄; clear H.
+ destruct pt₁ as (j, aj).
+ clear pt₄.
+ rename Heqpt₄ into Hbeg.
+ symmetry in Hbeg.
  destruct Hαh as [Hαh| Hαh].
-  subst pt₁.
+  rewrite Hαh in Hnαh.
   exfalso; apply Hnαh; left; reflexivity.
 
   destruct Hαh as [Hαh| Hαh].
@@ -1482,17 +1493,6 @@ destruct Hns as [Hns| Hns].
    clear IHnsl.
    subst ns₁; simpl.
    unfold β, γ; simpl.
-   remember (end_pt ms) as k.
-   destruct k as (k, ak); simpl.
-   remember (beg_pt ms) as pt₄.
-   remember Heqpt₄ as H; clear HeqH.
-   rewrite Hms in Heqpt₄.
-   rewrite minimised_slope_beg_pt in Heqpt₄.
-   rewrite H in Heqpt₄; clear H.
-   destruct pt₁ as (j, aj); simpl.
-   clear pt₄.
-   rename Heqpt₄ into Hbeg.
-   symmetry in Hbeg.
    subst pt₂.
    rename Hend into Hhk.
    rename Heqk into Hend.
