@@ -251,49 +251,44 @@ induction pts as [| pt₄]; intros.
 Qed.
 
 Lemma j_aft_prev_end :
-  ∀ n pt₁ pt₂ pts ms pt₃ pts₃ ms₁ hsl₁ j αj segjk k αk segkx hsl,
+  ∀ n pt₁ pt₂ pts ms pt₃ pts₃ ms₁ hsl₁ j αj k αk seg hsl,
   Sorted fst_lt [pt₁; pt₂ … pts]
   → minimise_slope pt₁ pt₂ pts = ms
     → rem_pts ms = [pt₃ … pts₃]
       → minimise_slope (end_pt ms) pt₃ pts₃ = ms₁
         → next_ch_points n [end_pt ms₁ … rem_pts ms₁] =
           hsl₁ ++
-          [{| vert := (j, αj); edge := segjk |};
-          {| vert := (k, αk); edge := segkx |} … hsl]
+          [{| ini_pt := (j, αj); fin_pt := (k, αk); oth_pts := seg |} … hsl]
           → fst (end_pt ms) < j.
 Proof.
-intros n pt₁ pt₂ pts ms pt₃ pts₃ ms₁ hsl₁ j αj segjk k αk segkx hsl.
+intros n pt₁ pt₂ pts ms pt₃ pts₃ ms₁ hsl₁ j αj k αk seg hsl.
 intros Hsort Hms Hrem Hms₁ Hnp.
 revert pt₁ pt₂ pt₃ pts pts₃ ms ms₁ hsl₁ Hms Hrem Hms₁ Hnp Hsort.
 induction n; intros; [ destruct hsl₁; discriminate Hnp | idtac ].
 simpl in Hnp.
 remember (rem_pts ms₁) as pts₂.
-destruct pts₂ as [| pt₄].
- destruct hsl₁ as [| hs₁]; [ discriminate Hnp | idtac ].
+destruct pts₂ as [| pt₄]; [ destruct hsl₁; discriminate Hnp | idtac ].
+remember (minimise_slope (end_pt ms₁) pt₄ pts₂) as ms₂.
+symmetry in Heqms₂.
+destruct hsl₁ as [| h₁].
+ injection Hnp; clear Hnp; intros; subst seg.
+ rename H into Hnp.
+ rename H2 into Hend.
+ replace j with (fst (j, αj)) by reflexivity.
+ rewrite <- Hend.
+ eapply consec_end_lt; eassumption.
+
+ simpl in Hnp.
  injection Hnp; clear Hnp; intros.
- destruct hsl₁; discriminate H.
+ rename H into Hnp; subst h₁.
+ assert (fst (end_pt ms₁) < j).
+  symmetry in Heqpts₂.
+  eapply IHn; try eassumption.
+  rewrite <- Hrem.
+  eapply minimise_slope_sorted; eassumption.
 
- remember (minimise_slope (end_pt ms₁) pt₄ pts₂) as ms₂.
- symmetry in Heqms₂.
- destruct hsl₁ as [| h₁].
-  injection Hnp; clear Hnp; intros; subst segjk.
-  rename H into Hnp.
-  rename H1 into Hend.
-  replace j with (fst (j, αj)) by reflexivity.
-  rewrite <- Hend.
+  eapply Qlt_trans; [ idtac | eassumption ].
   eapply consec_end_lt; eassumption.
-
-  simpl in Hnp.
-  injection Hnp; clear Hnp; intros.
-  rename H into Hnp; subst h₁.
-  assert (fst (end_pt ms₁) < j).
-   symmetry in Heqpts₂.
-   eapply IHn; try eassumption.
-   rewrite <- Hrem.
-   eapply minimise_slope_sorted; eassumption.
-
-   eapply Qlt_trans; [ idtac | eassumption ].
-   eapply consec_end_lt; eassumption.
 Qed.
 
 Lemma aft_j_in_rem :
