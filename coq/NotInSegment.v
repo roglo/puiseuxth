@@ -362,6 +362,18 @@ induction hsl₁ as [| hs₁]; intros.
  eapply Qlt_trans; [ idtac | eassumption ].
  revert H Hsort Hsort₂; clear; intros.
  induction hsl₁ as [| hs₁].
+  remember (minimise_slope pt₁ pt₂ pts) as ms eqn:Hms .
+  clear pt₁ pt₂ pts Hms Hsort₂.
+  remember [end_pt ms … rem_pts ms] as pts; clear Heqpts.
+  revert Hsort H; clear; intros.
+  simpl in H.
+  destruct n; [ discriminate H | simpl in H ].
+  destruct pts as [| pt₁]; [ discriminate H | idtac ].
+  destruct pts as [| pt₂]; [ discriminate H | idtac ].
+  injection H; clear H; intros; subst.
+  eapply beg_lt_end_pt in Hsort; [ idtac | reflexivity ].
+  rewrite minimised_slope_beg_pt, H1 in Hsort.
+  assumption.
 bbb.
 
 intros n pts hsl₁ hsl j αj k αk seg Hsort Hnp h αh Hαh Hkh.
