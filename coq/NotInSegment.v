@@ -329,6 +329,14 @@ destruct pts₁ as [| pt₃]; [ destruct hsl₁; discriminate Hnp | idtac ].
   eapply j_aft_prev_end; eassumption.
 Qed.
 
+Lemma zzz : ∀ pts ns n,
+  Sorted fst_lt pts
+  → ns ∈ next_ch_points n pts
+  → fst (ini_pt ns) < fst (fin_pt ns).
+Proof.
+intros pts ns n Hsort Hns.
+bbb.
+
 Lemma lt_aft_k : ∀ n pts hsl₁ hsl j αj k αk seg,
   Sorted fst_lt pts
   → next_ch_points n pts =
@@ -360,6 +368,7 @@ induction hsl₁ as [| hs₁]; intros.
  right.
  eapply aft_j_in_rem; try eassumption; [ reflexivity | idtac ].
  eapply Qlt_trans; [ idtac | eassumption ].
+bbb.
  revert H Hsort Hsort₂; clear; intros.
  induction hsl₁ as [| hs₁].
   remember (minimise_slope pt₁ pt₂ pts) as ms eqn:Hms .
