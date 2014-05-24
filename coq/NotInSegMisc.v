@@ -585,20 +585,19 @@ destruct Hj as [Hj| Hj].
   apply IHpts; assumption.
 Qed.
 
-Lemma qeq_eq : ∀ n pts h αh k αk s hsl₁ hsl,
+Lemma qeq_eq : ∀ n pts h αh k αk pt s hsl₁ hsl,
   Sorted fst_lt pts
-  → next_ch_points n pts = hsl₁ ++ [{| vert := (k, αk); edge := s |} … hsl]
+  → next_ch_points n pts = hsl₁ ++ [mkns (k, αk) pt s … hsl]
     → (h, αh) ∈ pts
       → h == k
         → h = k.
 Proof.
-intros n pts h αh k αk s hsl₁ hsl Hpts Hhsl Hαh Hhk.
+intros n pts h αh k αk pt s hsl₁ hsl Hpts Hhsl Hαh Hhk.
 eapply sorted_qeq_eq with (αk := αk) in Hhk; try eassumption.
  injection Hhk; intros; subst; reflexivity.
 
- apply in_ch_in_pts with (n := n) (s := s).
+ apply in_ch_in_pts with (n := n) (s := s) (pt₂ := pt).
  rewrite Hhsl.
  apply List.in_app_iff.
  right; left; reflexivity.
 Qed.
-*)

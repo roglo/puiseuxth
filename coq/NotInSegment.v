@@ -250,7 +250,6 @@ induction pts as [| pt₄]; intros.
   intros x y z H₁ H₂; eapply Qlt_trans; eassumption.
 Qed.
 
-(* à voir... ça dépend de ce qu'on veut...
 Lemma j_aft_prev_end :
   ∀ n pt₁ pt₂ pts ms pt₃ pts₃ ms₁ hsl₁ j αj segjk k αk segkx hsl,
   Sorted fst_lt [pt₁; pt₂ … pts]
