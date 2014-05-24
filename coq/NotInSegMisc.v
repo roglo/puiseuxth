@@ -520,29 +520,23 @@ revert n pts pt₁ pt₂ s Hhsl Hhs.
 induction hsl as [| hs₁]; [ contradiction | intros ].
 destruct n; [ discriminate Hhsl | idtac ].
 simpl in Hhsl.
-destruct pts as [| pt₁]; [ discriminate Hhsl | idtac ].
-destruct pts as [| pt₂].
- injection Hhsl; clear Hhsl; intros; subst hs₁ hsl.
- destruct Hhs as [Hhs| ]; [ idtac | contradiction ].
- injection Hhs; clear Hhs; intros; subst pt s.
+destruct pts as [| pt₃]; [ discriminate Hhsl | idtac ].
+destruct pts as [| pt₄]; [ discriminate Hhsl | idtac ].
+injection Hhsl; clear Hhsl; intros; subst hs₁ hsl.
+destruct Hhs as [Hhs| ].
+ injection Hhs; clear Hhs; intros; subst pt₃ s.
  left; reflexivity.
 
- injection Hhsl; clear Hhsl; intros.
- destruct Hhs as [Hhs| Hhs].
-  subst hs₁.
-  injection H0; clear H0; intros; subst pt₁.
-  left; reflexivity.
+ remember (minimise_slope pt₃ pt₄ pts) as ms₁.
+ symmetry in Heqms₁.
+ eapply IHhsl in H; [ idtac | reflexivity ].
+ destruct H as [H| H].
+  apply end_pt_in in Heqms₁.
+  subst pt₁.
+  right; assumption.
 
-  remember (minimise_slope pt₁ pt₂ pts) as ms₁.
-  symmetry in Heqms₁.
-  eapply IHhsl in H; [ idtac | eassumption ].
-  destruct H as [H| H].
-   apply end_pt_in in Heqms₁.
-   subst pt.
-   right; assumption.
-
-   eapply rem_pts_in in H; [ idtac | eassumption ].
-   right; right; assumption.
+  eapply rem_pts_in in H; [ idtac | eassumption ].
+  right; right; assumption.
 Qed.
 
 Lemma sorted_qeq_eq : ∀ pts j αj k αk,
