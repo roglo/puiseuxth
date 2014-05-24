@@ -292,35 +292,31 @@ destruct hsl₁ as [| h₁].
 Qed.
 
 Lemma aft_j_in_rem :
-  ∀ n pt₁ pt₂ pts ms hsl₁ j αj segjk k αk segkx hsl,
+  ∀ n pt₁ pt₂ pts ms hsl₁ j αj k αk seg hsl,
   Sorted fst_lt [pt₁; pt₂ … pts]
   → minimise_slope pt₁ pt₂ pts = ms
     → next_ch_points n [end_pt ms … rem_pts ms] =
        hsl₁ ++
-       [{| vert := (j, αj); edge := segjk |};
-        {| vert := (k, αk); edge := segkx |} … hsl]
+       [{| ini_pt := (j, αj); fin_pt := (k, αk); oth_pts := seg |} … hsl]
       → ∀ h αh, (h, αh) ∈ [pt₁; pt₂ … pts]
         → j < h
           → (h, αh) ∈ rem_pts ms.
 Proof.
-intros n pt₁ pt₂ pts ms hsl₁ j αj segjk k αk segkx hsl.
+intros n pt₁ pt₂ pts ms hsl₁ j αj k αk seg hsl.
 intros Hsort Hms Hnp h αh Hαh Hjh.
 destruct n; [ destruct hsl₁; discriminate Hnp | simpl in Hnp ].
 remember (rem_pts ms) as pts₁.
 rename Heqpts₁ into Hrem.
 symmetry in Hrem.
-destruct pts₁ as [| pt₃].
- destruct hsl₁ as [| hs₁]; [ discriminate Hnp | simpl in Hnp ].
- injection Hnp; clear Hnp; intros; subst hs₁.
- destruct hsl₁; discriminate H.
+destruct pts₁ as [| pt₃]; [ destruct hsl₁; discriminate Hnp | idtac ].
 
  remember (minimise_slope (end_pt ms) pt₃ pts₁) as ms₁.
  symmetry in Heqms₁.
  rewrite <- Hrem.
  destruct hsl₁ as [| hs₁].
   injection Hnp; clear Hnp; intros.
-  rename H into Hnp; rename H1 into Hend.
-  subst segjk.
+  rename H into Hnp; rename H2 into Hend.
+  subst seg.
   remember Hsort as Hsort₂; clear HeqHsort₂.
   eapply minimise_slope_sorted in Hsort; [ idtac | eassumption ].
   rewrite Hend, Hrem in Hsort.
