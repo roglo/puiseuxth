@@ -261,25 +261,19 @@ Lemma points_after_k : ∀ n pts j αj k αk seg hsl γ β,
 Proof.
 intros n pts j αj k αk seg hsl γ β.
 intros Hsort Hjk Hγ Hβ Hnp h αh Hkh Hαh.
-destruct n; [ discriminate Hnp | idtac ].
+destruct n; [ discriminate Hnp | simpl in Hnp ].
 destruct pts as [| pt₁]; [ discriminate Hnp | idtac ].
-remember Hnp as H; clear HeqH.
-apply next_ch_points_hd in H.
-subst pt₁; simpl in Hnp.
-destruct pts as [| pt₁]; [ discriminate Hnp | idtac ].
-remember (minimise_slope (j, αj) pt₁ pts) as ms₁.
-injection Hnp; clear Hnp; intros; subst seg.
-remember H as Hnp; clear HeqHnp.
-apply next_ch_points_hd in H.
-rename H into Hep₁.
+destruct pts as [| pt₂]; [ discriminate Hnp | idtac ].
+injection Hnp; clear Hnp; intros Hnp Hseg Hep₁ Hp₁; subst seg pt₁.
 rewrite Hep₁ in Hnp.
+remember (minimise_slope (j, αj) pt₂ pts) as ms₁.
 destruct Hαh as [Hαh| Hαh].
  injection Hαh; clear Hαh; intros; subst h αh.
  eapply Qlt_trans in Hkh; [ idtac | eassumption ].
  apply Qlt_irrefl in Hkh; contradiction.
 
  destruct Hαh as [Hαh| Hαh]; [ exfalso | idtac ].
-  subst pt₁.
+  subst pt₂.
   symmetry in Heqms₁.
   apply Sorted_inv_2 in Hsort; destruct Hsort as (Hlt₁, Hsort).
   apply minimise_slope_le in Heqms₁; [ idtac | assumption ].
@@ -297,22 +291,14 @@ destruct Hαh as [Hαh| Hαh].
    subst β γ.
    apply ad_hoc_lt_lt.
     split; [ idtac | assumption ].
-    destruct pt₁ as (l, αl).
-    apply Qlt_trans with (y := l).
-     apply Sorted_inv_2 in Hsort; destruct Hsort; assumption.
-
-     apply Sorted_inv_2 in Hsort; destruct Hsort as (Hlt, Hsort).
-     eapply Sorted_hd in Hsort; [ idtac | eassumption ].
-     assumption.
+    eapply Qlt_trans; eassumption.
 
     unfold slope_expr in Heqms₁; simpl in Heqms₁.
     assumption.
 
    apply Sorted_inv_2 in Hsort; destruct Hsort as (Hlt, Hsort).
-   destruct pts as [| pt₂]; [ constructor | idtac ].
-   apply Sorted_inv_2 in Hsort; destruct Hsort; assumption.
+   apply Sorted_inv_1 in Hsort; assumption.
 Qed.
-*)
 
 Lemma not_seg_min_sl_lt : ∀ j αj k αk pt pts ms h αh,
   Sorted fst_lt [(j, αj); pt; (h, αh) … pts]
@@ -523,7 +509,6 @@ destruct Hαh as [Hαh| Hαh].
      intros x y z H₁ H₂; eapply Qlt_trans; eassumption.
 Qed.
 
-(*
 Lemma in_ch_in_pts : ∀ n pts pt s,
   ahs pt s ∈ next_ch_points n pts
   → pt ∈ pts.
