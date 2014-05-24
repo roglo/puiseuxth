@@ -341,6 +341,32 @@ Proof.
 intros n pts hsl₁ hsl j αj k αk seg Hsort Hnp h αh Hαh Hkh.
 revert n pts Hsort Hnp Hαh.
 induction hsl₁ as [| hs₁]; intros.
+ eapply points_after_k; try reflexivity; try eassumption.
+ destruct n; [ discriminate Hnp | simpl in Hnp ].
+ destruct pts as [| pt₁]; [ discriminate Hnp | idtac ].
+ destruct pts as [| pt₂]; [ discriminate Hnp | idtac ].
+ injection Hnp; clear Hnp; intros; subst.
+ eapply beg_lt_end_pt in Hsort; [ idtac | reflexivity ].
+ rewrite minimised_slope_beg_pt, H1 in Hsort.
+ assumption.
+
+ destruct n; [ discriminate Hnp | simpl in Hnp ].
+ destruct pts as [| pt₁]; [ discriminate Hnp | idtac ].
+ destruct pts as [| pt₂]; [ discriminate Hnp | idtac ].
+ injection Hnp; clear Hnp; intros; subst.
+ remember Hsort as Hsort₂; clear HeqHsort₂.
+ eapply minimise_slope_sorted in Hsort; [ idtac | reflexivity ].
+ eapply IHhsl₁; try eassumption.
+ right.
+ eapply aft_j_in_rem; try eassumption; [ reflexivity | idtac ].
+ eapply Qlt_trans; [ idtac | eassumption ].
+ revert H Hsort Hsort₂; clear; intros.
+ induction hsl₁ as [| hs₁].
+bbb.
+
+intros n pts hsl₁ hsl j αj k αk seg Hsort Hnp h αh Hαh Hkh.
+revert n pts Hsort Hnp Hαh.
+induction hsl₁ as [| hs₁]; intros.
  remember Hsort as Hsort₂; clear HeqHsort₂.
  eapply points_after_k; try reflexivity; try eassumption.
  apply next_points_sorted in Hnp; [ idtac | assumption ].
