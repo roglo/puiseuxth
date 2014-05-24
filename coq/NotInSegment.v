@@ -1534,7 +1534,8 @@ destruct Hns as [Hns| Hns].
 
    destruct (Qlt_le_dec h k) as [Hhk| Hhk].
 bbb.
-cf lt_bef_j
+cf lt_bet_j_and_k
+cf NotInSegMisc.points_between_j_and_k
 cf lt_not_in_some_ns
 
 intros pts ns Hsort Hns h αh (Hαh, Hnαh).

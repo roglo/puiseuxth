@@ -313,6 +313,7 @@ destruct Hαh as [Hαh| Hαh].
    destruct pts as [| pt₂]; [ constructor | idtac ].
    apply Sorted_inv_2 in Hsort; destruct Hsort; assumption.
 Qed.
+*)
 
 Lemma not_seg_min_sl_lt : ∀ j αj k αk pt pts ms h αh,
   Sorted fst_lt [(j, αj); pt; (h, αh) … pts]
@@ -402,17 +403,17 @@ induction pts as [| pt₁]; intros.
    assumption.
 Qed.
 
-Lemma points_between_j_and_k : ∀ n pts j αj k αk sjk skx hsl γ β,
+Lemma points_between_j_and_k : ∀ n pts j αj k αk oth hsl γ β,
   Sorted fst_lt pts
   → γ = (αj - αk) / (k - j)
     → β = αj + j * γ
-      → next_ch_points n pts = [ahs (j, αj) sjk; ahs (k, αk) skx … hsl]
+      → next_ch_points n pts = [mkns (j, αj) (k, αk) oth … hsl]
         → ∀ h αh, j < h < k
           → (h, αh) ∈ pts
-            → (h, αh) ∉ sjk
+            → (h, αh) ∉ oth
               → β < αh + h * γ.
 Proof.
-intros n pts j αj k αk segjk segkx hsl γ β.
+intros n pts j αj k αk oth hsl γ β.
 intros Hsort Hγ Hβ Hnp h αh (Hjh, Hhk) Hαh Hseg.
 destruct n; [ discriminate Hnp | idtac ].
 destruct pts as [| pt₁]; [ discriminate Hnp | idtac ].
@@ -421,11 +422,10 @@ apply next_ch_points_hd in H.
 subst pt₁; simpl in Hnp.
 destruct pts as [| pt₁]; [ discriminate Hnp | idtac ].
 remember (minimise_slope (j, αj) pt₁ pts) as ms₁.
-injection Hnp; clear Hnp; intros; subst segjk.
+injection Hnp; clear Hnp; intros; subst oth.
 remember H as Hnp; clear HeqHnp.
-apply next_ch_points_hd in H.
-rename H into Hep₁.
-rewrite Hep₁ in Hnp.
+rename H1 into Hep₁.
+clear H.
 destruct Hαh as [Hαh| Hαh].
  injection Hαh; clear Hαh; intros; subst h αh.
  apply Qlt_irrefl in Hjh; contradiction.
@@ -502,18 +502,8 @@ destruct Hαh as [Hαh| Hαh].
      apply Decidable.not_or in Hseg.
      destruct Hseg as (Hlt₁, Hseg).
      eapply IHpts; try eassumption.
-     apply Sorted_LocallySorted_iff.
-     constructor.
-      apply Sorted_inv_2 in Hsort.
-      destruct Hsort as (Hlt₂, Hsort).
-      apply Sorted_inv_2 in Hsort.
-      apply Sorted_LocallySorted_iff.
-      destruct Hsort; assumption.
-
-      apply Sorted_inv_2 in Hsort.
-      destruct Hsort as (Hlt₂, Hsort).
-      apply Sorted_inv_2 in Hsort.
-      destruct Hsort; eapply Qlt_trans; eassumption.
+     eapply Sorted_minus_2nd; [ idtac | eassumption ].
+     intros x y z H₁ H₂; eapply Qlt_trans; eassumption.
 
      simpl in Hep₁, Hseg, Hnp.
      subst pt₁.
@@ -530,20 +520,11 @@ destruct Hαh as [Hαh| Hαh].
      apply Qlt_irrefl in Hlt₃; contradiction.
 
      eapply IHpts; try eassumption.
-     apply Sorted_LocallySorted_iff.
-     constructor.
-      apply Sorted_inv_2 in Hsort.
-      destruct Hsort as (Hlt₂, Hsort).
-      apply Sorted_inv_2 in Hsort.
-      apply Sorted_LocallySorted_iff.
-      destruct Hsort; assumption.
-
-      apply Sorted_inv_2 in Hsort.
-      destruct Hsort as (Hlt₂, Hsort).
-      apply Sorted_inv_2 in Hsort.
-      destruct Hsort; eapply Qlt_trans; eassumption.
+     eapply Sorted_minus_2nd; [ idtac | eassumption ].
+     intros x y z H₁ H₂; eapply Qlt_trans; eassumption.
 Qed.
 
+(*
 Lemma in_ch_in_pts : ∀ n pts pt s,
   ahs pt s ∈ next_ch_points n pts
   → pt ∈ pts.
