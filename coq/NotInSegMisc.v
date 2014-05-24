@@ -509,14 +509,14 @@ destruct Hαh as [Hαh| Hαh].
      intros x y z H₁ H₂; eapply Qlt_trans; eassumption.
 Qed.
 
-Lemma in_ch_in_pts : ∀ n pts pt s,
-  ahs pt s ∈ next_ch_points n pts
-  → pt ∈ pts.
+Lemma in_ch_in_pts : ∀ n pts pt₁ pt₂ s,
+  mkns pt₁ pt₂ s ∈ next_ch_points n pts
+  → pt₁ ∈ pts.
 Proof.
-intros n pts pt s Hhs.
+intros n pts pt₁ pt₂ s Hhs.
 remember (next_ch_points n pts) as hsl.
 rename Heqhsl into Hhsl.
-revert n pts pt s Hhsl Hhs.
+revert n pts pt₁ pt₂ s Hhsl Hhs.
 induction hsl as [| hs₁]; [ contradiction | intros ].
 destruct n; [ discriminate Hhsl | idtac ].
 simpl in Hhsl.
