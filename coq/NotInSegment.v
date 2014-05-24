@@ -329,17 +329,16 @@ destruct pts₁ as [| pt₃]; [ destruct hsl₁; discriminate Hnp | idtac ].
   eapply j_aft_prev_end; eassumption.
 Qed.
 
-Lemma lt_aft_k : ∀ n pts hsl₁ hsl j αj segjk k αk segkx,
+Lemma lt_aft_k : ∀ n pts hsl₁ hsl j αj k αk seg,
   Sorted fst_lt pts
   → next_ch_points n pts =
       hsl₁ ++
-      [{| vert := (j, αj); edge := segjk |};
-       {| vert := (k, αk); edge := segkx |} … hsl]
+      [{| ini_pt := (j, αj); fin_pt := (k, αk); oth_pts := seg |} … hsl]
     → ∀ h αh, (h, αh) ∈ pts
       → k < h
         → αj + j * ((αj - αk) / (k - j)) < αh + h * ((αj - αk) / (k - j)).
 Proof.
-intros n pts hsl₁ hsl j αj segjk k αk segkx Hsort Hnp h αh Hαh Hkh.
+intros n pts hsl₁ hsl j αj k αk seg Hsort Hnp h αh Hαh Hkh.
 revert n pts Hsort Hnp Hαh.
 induction hsl₁ as [| hs₁]; intros.
  remember Hsort as Hsort₂; clear HeqHsort₂.
