@@ -249,18 +249,17 @@ destruct Hαh as [Hαh| Hαh].
   apply Sorted_inv_2 in Hsort; destruct Hsort; assumption.
 Qed.
 
-(* à voir.. ça dépend de ce qu'on veut...
-Lemma points_after_k : ∀ n pts j αj k αk seg seg₂ hsl γ β,
+Lemma points_after_k : ∀ n pts j αj k αk seg hsl γ β,
   Sorted fst_lt pts
   → j < k
     → γ = (αj - αk) / (k - j)
       → β = αj + j * γ
-        → next_ch_points n pts = [ahs (j, αj) seg; ahs (k, αk) seg₂ … hsl]
+        → next_ch_points n pts = [mkns (j, αj) (k, αk) seg … hsl]
           → ∀ h αh, k < h
             → (h, αh) ∈ pts
               → β < αh + h * γ.
 Proof.
-intros n pts j αj k αk segjk segkx hsl γ β.
+intros n pts j αj k αk seg hsl γ β.
 intros Hsort Hjk Hγ Hβ Hnp h αh Hkh Hαh.
 destruct n; [ discriminate Hnp | idtac ].
 destruct pts as [| pt₁]; [ discriminate Hnp | idtac ].
@@ -269,7 +268,7 @@ apply next_ch_points_hd in H.
 subst pt₁; simpl in Hnp.
 destruct pts as [| pt₁]; [ discriminate Hnp | idtac ].
 remember (minimise_slope (j, αj) pt₁ pts) as ms₁.
-injection Hnp; clear Hnp; intros; subst segjk.
+injection Hnp; clear Hnp; intros; subst seg.
 remember H as Hnp; clear HeqHnp.
 apply next_ch_points_hd in H.
 rename H into Hep₁.
