@@ -424,21 +424,20 @@ eapply sorted_qeq_eq with (k := k) (αk := αk) in Hαh.
  subst h; reflexivity.
 Qed.
 
-Lemma next_ch_points_sorted : ∀ n pt₁ pt₂ pts h₁ hsl₁ hsl sg,
+Lemma next_ch_points_sorted : ∀ n pt₁ pt₂ pt₃ pts h₁ hsl₁ hsl sg,
   Sorted fst_lt [pt₁ … pts]
-  → next_ch_points n [pt₁ … pts] =
-      [h₁ … hsl₁] ++ [{| vert := pt₂; edge := sg |} … hsl]
+  → next_ch_points n [pt₁ … pts] = [h₁ … hsl₁] ++ [mkns pt₂ pt₃ sg … hsl]
     → fst pt₁ < fst pt₂.
 Proof.
-intros n pt₁ pt₂ pts h₁ hsl₁ hsl sg.
+intros n pt₁ pt₂ pt₃ pts h₁ hsl₁ hsl sg.
 intros Hsort Hnp.
-revert n pt₁ pt₂ pts h₁ hsl sg Hsort Hnp.
+revert n pt₁ pt₂ pt₃ pts h₁ hsl sg Hsort Hnp.
 induction hsl₁ as [| h₂]; intros.
  simpl in Hnp.
  destruct n; [ discriminate Hnp | simpl in Hnp ].
- destruct pts as [| pt₃]; [ discriminate Hnp | idtac ].
+ destruct pts as [| pt₄]; [ discriminate Hnp | idtac ].
  injection Hnp; clear Hnp; intros Hnp; intros; subst h₁.
- remember (minimise_slope pt₁ pt₃ pts) as ms₁.
+ remember (minimise_slope pt₁ pt₄ pts) as ms₁.
  symmetry in Heqms₁.
  apply next_ch_points_hd in Hnp.
  rewrite <- Hnp.
@@ -450,9 +449,9 @@ induction hsl₁ as [| h₂]; intros.
   eapply Sorted_inv_1; eassumption.
 
  destruct n; [ discriminate Hnp | simpl in Hnp ].
- destruct pts as [| pt₃]; [ discriminate Hnp | idtac ].
+ destruct pts as [| pt₄]; [ discriminate Hnp | idtac ].
  injection Hnp; clear Hnp; intros Hnp; intros; subst h₁.
- remember (minimise_slope pt₁ pt₃ pts) as ms₂.
+ remember (minimise_slope pt₁ pt₄ pts) as ms₂.
  symmetry in Heqms₂.
  eapply IHhsl₁ in Hnp.
   apply Sorted_inv_2 in Hsort.
