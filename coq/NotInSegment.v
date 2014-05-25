@@ -813,6 +813,7 @@ induction hsl₁ as [| hs₁]; intros.
     eapply minimise_slope_sorted; eassumption.
 Qed.
 
+(* à voir...
 Lemma lt_expr_bef_j_in_ch :
   ∀ n pts h αh i αi j αj k αk seg hsl₁ hsl ms,
   Sorted fst_lt [(h, αh); (i, αi) … pts]
@@ -948,6 +949,7 @@ apply Qle_lt_trans with (y := slope_expr (g, αg) (j, αj)).
    apply minimise_slope_le in Hms; [ idtac | assumption ].
    rewrite Hend in Hms; assumption.
 Qed.
+*)
 
 Lemma sl_lt_1st_ns_any_hp : ∀ n pt₁ pt₂ pt₃ pt₄ pts pts₁ ms₁ ms₂ sg₄ hsl₁ hsl,
   Sorted fst_lt [pt₁; pt₂ … pts]
