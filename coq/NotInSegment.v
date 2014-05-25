@@ -524,10 +524,9 @@ eapply sorted_qeq_eq with (k := j) (αk := αj) in Hαh; try eassumption.
  destruct Hnαh as (Hnαh, _).
  negation Hnαh.
 
- eapply in_ch_in_pts with (n := n).
+ eapply in_ch_in_pts with (n := n) (pt₂ := (k, αk)).
  rewrite Hnp.
  apply List.in_or_app.
-bbb.
  right; left; reflexivity.
 
  subst h; reflexivity.
@@ -716,23 +715,24 @@ destruct c.
   intros x y z H₁ H₂; eapply Qlt_trans; eassumption.
 Qed.
 
-Lemma sl_lt_bef_j_in_ch : ∀ n pts h αh i αi j αj k αk segkx hsl₁ hsl ms,
+Lemma sl_lt_bef_j_in_ch : ∀ n pts h αh i αi j αj k αk ept seg hsl₁ hsl ms,
   Sorted fst_lt [(h, αh); (i, αi) … pts]
   → h < j < k
     → minimise_slope (h, αh) (i, αi) pts = ms
       → end_pt ms = (j, αj)
         → next_ch_points n [end_pt ms … rem_pts ms] =
-            hsl₁ ++ [{| vert := (k, αk); edge := segkx |} … hsl]
+            hsl₁ ++ [mkns (k, αk) ept seg … hsl]
           → slope_expr (h, αh) (k, αk) < slope_expr (j, αj) (k, αk).
 Proof.
-intros n pts h αh i αi j αj k αk segkx hsl₁ hsl ms.
+intros n pts h αh i αi j αj k αk ept seg hsl₁ hsl ms.
 intros Hsort (Hhj, Hjk) Hms Hend Hnp.
-revert n pts h αh i αi k αk j αj segkx hsl ms Hsort Hhj Hjk Hms Hnp Hend.
+revert n pts h αh i αi k αk j αj ept seg hsl ms Hsort Hhj Hjk Hms Hnp Hend.
 induction hsl₁ as [| hs₁]; intros.
  destruct n; [ discriminate Hnp | simpl in Hnp ].
  remember (rem_pts ms) as pts₁.
  rewrite Hend in Hnp.
  destruct pts₁ as [| pt₁].
+bbb.
   injection Hnp; clear Hnp; intros; subst j αj.
   apply Qlt_irrefl in Hjk; contradiction.
 
