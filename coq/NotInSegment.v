@@ -257,8 +257,7 @@ Lemma j_aft_prev_end :
     → rem_pts ms = [pt₃ … pts₃]
       → minimise_slope (end_pt ms) pt₃ pts₃ = ms₁
         → next_ch_points n [end_pt ms₁ … rem_pts ms₁] =
-          hsl₁ ++
-          [{| ini_pt := (j, αj); fin_pt := (k, αk); oth_pts := seg |} … hsl]
+          hsl₁ ++ [mkns (j, αj) (k, αk) seg … hsl]
           → fst (end_pt ms) < j.
 Proof.
 intros n pt₁ pt₂ pts ms pt₃ pts₃ ms₁ hsl₁ j αj k αk seg hsl.
@@ -296,8 +295,7 @@ Lemma aft_j_in_rem :
   Sorted fst_lt [pt₁; pt₂ … pts]
   → minimise_slope pt₁ pt₂ pts = ms
     → next_ch_points n [end_pt ms … rem_pts ms] =
-       hsl₁ ++
-       [{| ini_pt := (j, αj); fin_pt := (k, αk); oth_pts := seg |} … hsl]
+       hsl₁ ++ [mkns (j, αj) (k, αk) seg … hsl]
       → ∀ h αh, (h, αh) ∈ [pt₁; pt₂ … pts]
         → j < h
           → (h, αh) ∈ rem_pts ms.
@@ -364,9 +362,7 @@ Qed.
 
 Lemma lt_aft_k : ∀ n pts hsl₁ hsl j αj k αk seg,
   Sorted fst_lt pts
-  → next_ch_points n pts =
-      hsl₁ ++
-      [{| ini_pt := (j, αj); fin_pt := (k, αk); oth_pts := seg |} … hsl]
+  → next_ch_points n pts = hsl₁ ++ [mkns (j, αj) (k, αk) seg … hsl]
     → ∀ h αh, (h, αh) ∈ pts
       → k < h
         → αj + j * ((αj - αk) / (k - j)) < αh + h * ((αj - αk) / (k - j)).
@@ -401,17 +397,14 @@ induction hsl₁ as [| hs₁]; intros.
   induction hsl₁; [ left; reflexivity | right; assumption ].
 Qed.
 
-Lemma not_k : ∀ n pts hsl₁ hsl j αj segjk k αk segkx,
+Lemma not_k : ∀ n pts hsl₁ hsl j αj k αk seg,
   Sorted fst_lt pts
-  → next_ch_points n pts =
-      hsl₁ ++
-      [{| vert := (j, αj); edge := segjk |};
-       {| vert := (k, αk); edge := segkx |} … hsl]
+  → next_ch_points n pts = hsl₁ ++ [mkns (j, αj) (k, αk) seg … hsl]
     → ∀ h αh, (h, αh) ∈ pts
-      → (h, αh) ∉ [(j, αj); (k, αk) … segjk]
+      → (h, αh) ∉ [(j, αj); (k, αk) … seg]
         → h ≠ k.
 Proof.
-intros n pts hsl₁ hsl j αj segjk k αk segkx.
+intros n pts hsl₁ hsl j αj k αk seg.
 intros Hpts Hnp h αh Hαh Hnαh Hhk.
 eapply sorted_qeq_eq with (k := k) (αk := αk) in Hαh.
  rewrite Hαh in Hnαh; simpl in Hnαh.
@@ -426,6 +419,7 @@ eapply sorted_qeq_eq with (k := k) (αk := αk) in Hαh.
  eapply in_ch_in_pts with (n := n).
  rewrite Hnp.
  apply List.in_or_app.
+bbb.
  right; right; left; reflexivity.
 
  subst h; reflexivity.
