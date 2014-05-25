@@ -465,18 +465,15 @@ induction hsl₁ as [| h₂]; intros.
   eapply minimise_slope_sorted; eassumption.
 Qed.
 
-Lemma lt_bet_j_and_k : ∀ n pts hsl₁ hsl j αj segjk k αk segkx,
+Lemma lt_bet_j_and_k : ∀ n pts hsl₁ hsl j αj k αk seg,
   Sorted fst_lt pts
-  → next_ch_points n pts =
-      hsl₁ ++
-      [{| vert := (j, αj); edge := segjk |};
-       {| vert := (k, αk); edge := segkx |} … hsl]
+  → next_ch_points n pts = hsl₁ ++ [mkns (j, αj) (k, αk) seg … hsl]
     → ∀ h αh, (h, αh) ∈ pts
-      → (h, αh) ∉ [(j, αj); (k, αk) … segjk]
+      → (h, αh) ∉ [(j, αj); (k, αk) … seg]
         → j < h < k
           → αj + j * ((αj - αk) / (k - j)) < αh + h * ((αj - αk) / (k - j)).
 Proof.
-intros n pts hsl₁ hsl j αj segjk k αk segkx Hsort Hnp.
+intros n pts hsl₁ hsl j αj k αk seg Hsort Hnp.
 intros h αh Hαh Hnαh Hjhk.
 simpl in Hnαh.
 apply Decidable.not_or in Hnαh.
@@ -511,17 +508,14 @@ destruct hsl₁ as [| h₁].
   eapply minimise_slope_sorted; eassumption.
 Qed.
 
-Lemma not_j : ∀ n pts hsl₁ j αj k αk segjk segkx hsl,
+Lemma not_j : ∀ n pts hsl₁ j αj k αk seg hsl,
   Sorted fst_lt pts
-  → next_ch_points n pts =
-      hsl₁ ++
-      [{| vert := (j, αj); edge := segjk |};
-       {| vert := (k, αk); edge := segkx |} … hsl]
+  → next_ch_points n pts = hsl₁ ++ [mkns (j, αj) (k, αk) seg … hsl]
     → ∀ h αh, (h, αh) ∈ pts
-      → (h, αh) ∉ [(j, αj); (k, αk) … segjk]
+      → (h, αh) ∉ [(j, αj); (k, αk) … seg]
         → h ≠ j.
 Proof.
-intros n pts hsl₁ j αj k αk segjk segkx hsl.
+intros n pts hsl₁ j αj k αk seg hsl.
 intros Hpts Hnp h αh Hαh Hnαh Hne.
 eapply sorted_qeq_eq with (k := j) (αk := αj) in Hαh; try eassumption.
  rewrite Hαh in Hnαh.
@@ -533,6 +527,7 @@ eapply sorted_qeq_eq with (k := j) (αk := αj) in Hαh; try eassumption.
  eapply in_ch_in_pts with (n := n).
  rewrite Hnp.
  apply List.in_or_app.
+bbb.
  right; left; reflexivity.
 
  subst h; reflexivity.
