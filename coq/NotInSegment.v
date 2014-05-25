@@ -830,6 +830,9 @@ induction hsl₁ as [| hs₁]; intros.
  remember Hnp as H; clear HeqH.
  eapply next_ch_points_hd in H.
 bbb.
+ remember (mkns (j, αj) (k, αk) seg) as ns.
+ eapply sl_lt_bef_j_in_ch with (hsl₁ := [ns]); try eassumption.
+bbb.
  eapply sl_lt_bef_j_in_ch with (hsl₁ := [ahs (j, αj) segjk]); try eassumption.
  simpl; eassumption.
 
