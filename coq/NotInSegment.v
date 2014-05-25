@@ -419,8 +419,7 @@ eapply sorted_qeq_eq with (k := k) (αk := αk) in Hαh.
  eapply in_ch_in_pts with (n := n).
  rewrite Hnp.
  apply List.in_or_app.
-bbb.
- right; right; left; reflexivity.
+ right; left; reflexivity.
 
  subst h; reflexivity.
 Qed.

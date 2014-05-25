@@ -511,7 +511,7 @@ Qed.
 
 Lemma in_ch_in_pts : ∀ n pts pt₁ pt₂ s,
   mkns pt₁ pt₂ s ∈ next_ch_points n pts
-  → pt₁ ∈ pts.
+  → pt₁ ∈ pts ∧ pt₂ ∈ pts.
 Proof.
 intros n pts pt₁ pt₂ s Hhs.
 remember (next_ch_points n pts) as hsl.
@@ -525,18 +525,30 @@ destruct pts as [| pt₄]; [ discriminate Hhsl | idtac ].
 injection Hhsl; clear Hhsl; intros; subst hs₁ hsl.
 destruct Hhs as [Hhs| ].
  injection Hhs; clear Hhs; intros; subst pt₃ s.
- left; reflexivity.
+ split; [ left; reflexivity | idtac ].
+ rewrite <- H0; right.
+ eapply end_pt_in; reflexivity.
 
  remember (minimise_slope pt₃ pt₄ pts) as ms₁.
  symmetry in Heqms₁.
  eapply IHhsl in H; [ idtac | reflexivity ].
- destruct H as [H| H].
-  apply end_pt_in in Heqms₁.
-  subst pt₁.
-  right; assumption.
+ destruct H as (H₁, H₂).
+ split.
+  destruct H₁ as [H| H].
+   apply end_pt_in in Heqms₁.
+   subst pt₁.
+   right; assumption.
 
-  eapply rem_pts_in in H; [ idtac | eassumption ].
-  right; right; assumption.
+   eapply rem_pts_in in H; [ idtac | eassumption ].
+   right; right; assumption.
+
+  destruct H₂ as [H| H].
+   subst pt₂.
+   apply end_pt_in in Heqms₁.
+   right; assumption.
+
+   right; right.
+   eapply rem_pts_in; eassumption.
 Qed.
 
 Lemma sorted_qeq_eq : ∀ pts j αj k αk,
