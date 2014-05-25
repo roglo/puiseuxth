@@ -329,13 +329,38 @@ destruct pts₁ as [| pt₃]; [ destruct hsl₁; discriminate Hnp | idtac ].
   eapply j_aft_prev_end; eassumption.
 Qed.
 
-Lemma zzz : ∀ pts ns n,
+Lemma ini_lt_fin_pt : ∀ pts ns n,
   Sorted fst_lt pts
   → ns ∈ next_ch_points n pts
   → fst (ini_pt ns) < fst (fin_pt ns).
 Proof.
 intros pts ns n Hsort Hns.
-bbb.
+remember (next_ch_points n pts) as nsl eqn:Hnsl .
+revert pts ns n Hsort Hnsl Hns.
+induction nsl as [| ns₁]; intros; [ contradiction | idtac ].
+simpl in Hns.
+destruct Hns as [Hns| Hns].
+ subst ns₁.
+ destruct n; [ discriminate Hnsl | simpl in Hnsl ].
+ destruct pts as [| pt₁]; [ discriminate Hnsl | idtac ].
+ destruct pts as [| pt₂]; [ discriminate Hnsl | idtac ].
+ injection Hnsl; clear Hnsl; intros Hnsl Hns.
+ subst ns; simpl.
+ remember (minimise_slope pt₁ pt₂ pts) as ms eqn:Hms .
+ assert (pt₁ = beg_pt ms) as H.
+  rewrite Hms, minimised_slope_beg_pt; reflexivity.
+
+  rewrite H.
+  symmetry in Hms.
+  eapply beg_lt_end_pt; eassumption.
+
+ destruct n; [ discriminate Hnsl | simpl in Hnsl ].
+ destruct pts as [| pt₁]; [ discriminate Hnsl | idtac ].
+ destruct pts as [| pt₂]; [ discriminate Hnsl | idtac ].
+ injection Hnsl; clear Hnsl; intros Hnsl Hns₁.
+ eapply IHnsl; [ idtac | eassumption | assumption ].
+ eapply minimise_slope_sorted; [ eassumption | reflexivity ].
+Qed.
 
 Lemma lt_aft_k : ∀ n pts hsl₁ hsl j αj k αk seg,
   Sorted fst_lt pts
@@ -368,54 +393,12 @@ induction hsl₁ as [| hs₁]; intros.
  right.
  eapply aft_j_in_rem; try eassumption; [ reflexivity | idtac ].
  eapply Qlt_trans; [ idtac | eassumption ].
-bbb.
- revert H Hsort Hsort₂; clear; intros.
- induction hsl₁ as [| hs₁].
-  remember (minimise_slope pt₁ pt₂ pts) as ms eqn:Hms .
-  clear pt₁ pt₂ pts Hms Hsort₂.
-  remember [end_pt ms … rem_pts ms] as pts; clear Heqpts.
-  revert Hsort H; clear; intros.
-  simpl in H.
-  destruct n; [ discriminate H | simpl in H ].
-  destruct pts as [| pt₁]; [ discriminate H | idtac ].
-  destruct pts as [| pt₂]; [ discriminate H | idtac ].
-  injection H; clear H; intros; subst.
-  eapply beg_lt_end_pt in Hsort; [ idtac | reflexivity ].
-  rewrite minimised_slope_beg_pt, H1 in Hsort.
-  assumption.
-bbb.
+ remember (mkns (j, αj) (k, αk) seg) as ns.
+ apply ini_lt_fin_pt with (ns := ns) (n := n) in Hsort.
+  rewrite Heqns in Hsort; assumption.
 
-intros n pts hsl₁ hsl j αj k αk seg Hsort Hnp h αh Hαh Hkh.
-revert n pts Hsort Hnp Hαh.
-induction hsl₁ as [| hs₁]; intros.
- remember Hsort as Hsort₂; clear HeqHsort₂.
- eapply points_after_k; try reflexivity; try eassumption.
- apply next_points_sorted in Hnp; [ idtac | assumption ].
- apply Sorted_inv_2 in Hnp.
- destruct Hnp; assumption.
-
- destruct n; [ discriminate Hnp | simpl in Hnp ].
- destruct pts as [| pt₁]; [ discriminate Hnp | idtac ].
- destruct pts as [| pt₂].
-  destruct hsl₁ as [| pt₂]; [ discriminate Hnp | idtac ].
-  destruct hsl₁; discriminate Hnp.
-
-  injection Hnp; clear Hnp; intros.
-  remember Hsort as Hsort₂; clear HeqHsort₂.
-  eapply minimise_slope_sorted in Hsort; [ idtac | reflexivity ].
-  eapply IHhsl₁; try eassumption.
-  right.
-  eapply aft_j_in_rem; try eassumption; [ reflexivity | idtac ].
-  eapply Qlt_trans; [ idtac | eassumption ].
-  apply next_points_sorted in H; [ idtac | assumption ].
-  revert H; clear; intros.
-  induction hsl₁ as [| hs₁].
-   apply Sorted_inv_2 in H.
-   destruct H; assumption.
-
-   simpl in H.
-   apply Sorted_inv_1 in H.
-   apply IHhsl₁; assumption.
+  rewrite H; clear.
+  induction hsl₁; [ left; reflexivity | right; assumption ].
 Qed.
 
 Lemma not_k : ∀ n pts hsl₁ hsl j αj segjk k αk segkx,
