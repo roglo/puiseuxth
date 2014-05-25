@@ -951,16 +951,17 @@ apply Qle_lt_trans with (y := slope_expr (g, αg) (j, αj)).
 Qed.
 *)
 
-Lemma sl_lt_1st_ns_any_hp : ∀ n pt₁ pt₂ pt₃ pt₄ pts pts₁ ms₁ ms₂ sg₄ hsl₁ hsl,
+Lemma sl_lt_1st_ns_any_hp :
+  ∀ n pt₁ pt₂ pt₃ pt₄ pt₅ pts pts₁ ms₁ ms₂ sg₄ hsl₁ hsl,
   Sorted fst_lt [pt₁; pt₂ … pts]
   → minimise_slope pt₁ pt₂ pts = ms₁
     → rem_pts ms₁ = [pt₃ … pts₁]
       → minimise_slope (end_pt ms₁) pt₃ pts₁ = ms₂
         → next_ch_points n [end_pt ms₂ … rem_pts ms₂] =
-          hsl₁ ++ [ahs pt₄ sg₄ … hsl]
+          hsl₁ ++ [mkns pt₄ pt₅ sg₄ … hsl]
           → slope_expr pt₁ (end_pt ms₁) < slope_expr (end_pt ms₁) pt₄.
 Proof.
-intros n pt₁ pt₂ pt₃ pt₄ pts pts₁ ms₁ ms₂ sg₄ hsl₁ hsl.
+intros n pt₁ pt₂ pt₃ pt₄ pt₅ pts pts₁ ms₁ ms₂ sg₄ hsl₁ hsl.
 intros Hsort Hms₁ Hrem₁ Hms₂ Hnp.
 revert n pt₁ pt₂ pt₃ pts pts₁ ms₁ ms₂ Hsort Hms₁ Hrem₁ Hms₂ Hnp.
 induction hsl₁ as [| hs₁]; intros.
@@ -972,9 +973,9 @@ induction hsl₁ as [| hs₁]; intros.
 
  destruct n; [ discriminate Hnp | simpl in Hnp ].
  remember (rem_pts ms₂) as pts₂.
- destruct pts₂ as [| pt₅]; [ destruct hsl₁; discriminate Hnp | idtac ].
+ destruct pts₂ as [| pt₆]; [ destruct hsl₁; discriminate Hnp | idtac ].
  injection Hnp; clear Hnp; intros Hnp H; subst hs₁.
- remember (minimise_slope (end_pt ms₂) pt₅ pts₂) as ms₃.
+ remember (minimise_slope (end_pt ms₂) pt₆ pts₂) as ms₃.
  symmetry in Heqms₃.
  apply Qlt_trans with (y := slope_expr (end_pt ms₁) (end_pt ms₂)).
   rewrite <- minimised_slope; [ idtac | eassumption | reflexivity ].
