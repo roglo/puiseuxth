@@ -731,13 +731,9 @@ induction hsl₁ as [| hs₁]; intros.
  destruct n; [ discriminate Hnp | simpl in Hnp ].
  remember (rem_pts ms) as pts₁.
  rewrite Hend in Hnp.
- destruct pts₁ as [| pt₁].
-bbb.
-  injection Hnp; clear Hnp; intros; subst j αj.
-  apply Qlt_irrefl in Hjk; contradiction.
-
-  injection Hnp; clear Hnp; intros; subst j αj.
-  apply Qlt_irrefl in Hjk; contradiction.
+ destruct pts₁ as [| pt₁]; [ discriminate Hnp | idtac ].
+ injection Hnp; clear Hnp; intros; subst j αj.
+ apply Qlt_irrefl in Hjk; contradiction.
 
  destruct n; [ discriminate Hnp | simpl in Hnp ].
  remember (rem_pts ms) as pts₁.
@@ -818,23 +814,22 @@ bbb.
 Qed.
 
 Lemma lt_expr_bef_j_in_ch :
-  ∀ n pts h αh i αi j αj k αk segjk segkx hsl₁ hsl ms,
+  ∀ n pts h αh i αi j αj k αk seg hsl₁ hsl ms,
   Sorted fst_lt [(h, αh); (i, αi) … pts]
   → h < j < k
     → minimise_slope (h, αh) (i, αi) pts = ms
       → next_ch_points n [end_pt ms … rem_pts ms] =
-        hsl₁ ++
-        [{| vert := (j, αj); edge := segjk |};
-         {| vert := (k, αk); edge := segkx |} … hsl]
+        hsl₁ ++ [mkns (j, αj) (k, αk) seg … hsl]
         → slope_expr (h, αh) (j, αj) < slope_expr (j, αj) (k, αk).
 Proof.
-intros n pts h αh i αi j αj k αk segjk segkx hsl₁ hsl ms.
+intros n pts h αh i αi j αj k αk seg hsl₁ hsl ms.
 intros Hsort Hhjk Hms Hnp.
 apply slope_lt_1323_1223; [ assumption | idtac ].
-revert n ms h αh i αi j αj k αk segjk segkx hsl pts Hms Hnp Hsort Hhjk.
+revert n ms h αh i αi j αj k αk seg hsl pts Hms Hnp Hsort Hhjk.
 induction hsl₁ as [| hs₁]; intros.
  remember Hnp as H; clear HeqH.
  eapply next_ch_points_hd in H.
+bbb.
  eapply sl_lt_bef_j_in_ch with (hsl₁ := [ahs (j, αj) segjk]); try eassumption.
  simpl; eassumption.
 
