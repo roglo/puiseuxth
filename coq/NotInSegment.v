@@ -1270,13 +1270,35 @@ Qed.
 
 Lemma lt_bef_j : ∀ n pts j αj segjk k αk hsl₁ hsl,
   Sorted fst_lt pts
-  → next_ch_points n pts =
-      hsl₁ ++ [mkns (j, αj) (k, αk) segjk … hsl]
+  → next_ch_points n pts = hsl₁ ++ [mkns (j, αj) (k, αk) segjk … hsl]
     → ∀ h αh, (h, αh) ∈ pts
       → h < j < k
         → αj + j * ((αj - αk) / (k - j)) < αh + h * ((αj - αk) / (k - j)).
 Proof.
+intros n pts j αj segjk k αk hsl₁ hsl.
+intros Hsort Hnp h αh Hαh (Hhj, Hjk).
+destruct hsl₁ as [| hs₁].
+ destruct n; [ discriminate Hnp | simpl in Hnp ].
+ destruct pts as [| pt₁]; [ discriminate Hnp | idtac ].
+ destruct pts as [| pt₂]; [ discriminate Hnp | idtac ].
+ injection Hnp; clear Hnp; intros; subst pt₁.
+ rename H into Hnp.
+ rename H0 into Hseg.
+ destruct Hαh as [Hαh| Hαh].
+  injection Hαh; clear Hαh; intros; subst h αh.
+  apply Qlt_irrefl in Hhj; contradiction.
+
+  eapply Sorted_hd in Hsort; [ idtac | eassumption ].
+  eapply Qlt_trans in Hhj; [ idtac | eassumption ].
+  apply Qlt_irrefl in Hhj; contradiction.
+
+ revert n pts hs₁ Hsort Hnp Hαh.
+ induction hsl₁ as [| hs₂]; intros.
+  simpl in Hnp.
+  eapply conj in Hjk; [ idtac | eexact Hhj ].
+  eapply lt_bef_j₁; try eassumption.
 bbb.
+oops.
 
 Lemma lt_bef_j : ∀ n pts j αj segjk k αk segkx ptj ptk hsl₁ hsl,
   Sorted fst_lt pts
