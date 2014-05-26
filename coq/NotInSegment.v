@@ -1220,7 +1220,20 @@ Lemma lt_bef_j₁ : ∀ n pts j αj k αk segjk hs₁ hsl,
 Proof.
 intros n pts j αj k αk segjk hs₁ hsl.
 intros Hsort Hnp h αh Hαh (Hhj, Hjk).
+destruct n; [ discriminate Hnp | simpl in Hnp ].
+destruct pts as [| (l, αl)]; [ discriminate Hnp | idtac ].
+destruct pts as [| (m, αm)]; [ discriminate Hnp | idtac ].
+injection Hnp; clear Hnp; intros Hnp; intros; subst hs₁.
+remember (minimise_slope (l, αl) (m, αm) pts) as ms₁.
+symmetry in Heqms₁.
+remember Hnp as H; clear HeqH.
+apply next_ch_points_hd in H.
+rename H into Hend₁.
+destruct Hαh as [Hαh| Hαh].
+ injection Hαh; clear Hαh; intros; subst l αl.
+ eapply lt_bef_j_in_ch with (hsl₁ := []); try eassumption.
 bbb.
+oops.
 
 Lemma lt_bef_j₁ : ∀ n pts j αj k αk segjk segkx ptj ptk hs₁ hsl,
   Sorted fst_lt pts
