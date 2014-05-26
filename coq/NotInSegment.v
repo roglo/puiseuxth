@@ -894,17 +894,17 @@ do 2 rewrite fold_slope_expr.
 eapply lt_expr_bef_j_in_ch; eassumption.
 Qed.
 
-Lemma sl_lt_bef_j_any : ∀ n pts pt₁ pt₂ h αh j αj k αk segkx hsl₁ hsl ms,
+Lemma sl_lt_bef_j_any : ∀ n pts pt₁ pt₂ h αh j αj k αk segkx ptk hsl₁ hsl ms,
   Sorted fst_lt [pt₁; pt₂ … pts]
   → (h, αh) ∈ [pt₂ … pts]
     → h < j < k
       → minimise_slope pt₁ pt₂ pts = ms
         → end_pt ms = (j, αj)
           → next_ch_points n [end_pt ms … rem_pts ms] =
-              hsl₁ ++ [{| vert := (k, αk); edge := segkx |} … hsl]
+              hsl₁ ++ [mkns (k, αk) ptk segkx … hsl]
             → slope_expr (h, αh) (k, αk) < slope_expr (j, αj) (k, αk).
 Proof.
-intros n pts (g, αg) pt₂ h αh j αj k αk segkx hsl₁ hsl ms.
+intros n pts (g, αg) pt₂ h αh j αj k αk segkx ptk hsl₁ hsl ms.
 intros Hsort Hh (Hhj, Hjk) Hms Hend Hnp.
 apply slope_lt_1223_1323; [ split; assumption | idtac ].
 apply Qle_lt_trans with (y := slope_expr (g, αg) (j, αj)).
@@ -944,7 +944,6 @@ apply Qle_lt_trans with (y := slope_expr (g, αg) (j, αj)).
    apply minimise_slope_le in Hms; [ idtac | assumption ].
    rewrite Hend in Hms; assumption.
 Qed.
-*)
 
 Lemma sl_lt_1st_ns_any_hp :
   ∀ n pt₁ pt₂ pt₃ pt₄ pt₅ pts pts₁ ms₁ ms₂ sg₄ hsl₁ hsl,
