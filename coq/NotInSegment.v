@@ -1079,17 +1079,18 @@ induction hsl₁ as [| hs₁]; intros.
   eapply minimise_slope_sorted; eassumption.
 Qed.
 
-Lemma sl_lt_bef_j : ∀ n pt₁ pt₂ pts h αh j αj k αk ms segjk segkx hsl₁ hsl,
+(* à voir...
+Lemma sl_lt_bef_j : ∀ n pt₁ pt₂ pts h αh j αj k αk ms seg hsl₁ hsl,
   Sorted fst_lt [pt₁; pt₂ … pts]
   → (h, αh) ∈ [pt₂ … pts]
     → h < j < k
       → minimise_slope pt₁ pt₂ pts = ms
         → fst pt₁ < h <= fst (end_pt ms)
           → next_ch_points n [end_pt ms … rem_pts ms] =
-            hsl₁ ++ [ahs (j, αj) segjk; ahs (k, αk) segkx … hsl]
+            hsl₁ ++ [mkns (j, αj) (k, αk) seg … hsl]
             → slope_expr (h, αh) (k, αk) < slope_expr (j, αj) (k, αk).
 Proof.
-intros n (g, αg) pt₂ pts h αh j αj k αk ms segjk segkx hsl₁ hsl.
+intros n (g, αg) pt₂ pts h αh j αj k αk ms seg hsl₁ hsl.
 intros Hsort Hh (Hhj, Hjk) Hms (H₁h, Hhe) Hnp.
 destruct hsl₁ as [| hs₁]; intros.
  remember Hnp as H; clear HeqH.
@@ -1151,20 +1152,19 @@ destruct hsl₁ as [| hs₁]; intros.
    rewrite <- Heqpt₁, <- Heqpts₁ in Hms.
    eapply sl_lt_any_ns; try eassumption.
 Qed.
+*)
 
-Lemma lt_bef_j_aft_1st_ch :
-  ∀ n pts pt₁ pt₂ h αh j αj k αk segjk segkx hsl₁ hsl ms,
+(* à voir...
+Lemma lt_bef_j_aft_1st_ch : ∀ n pts pt₁ pt₂ h αh j αj k αk seg hsl₁ hsl ms,
   Sorted fst_lt [pt₁; pt₂ … pts]
   → (h, αh) ∈ [pt₂ … pts]
     → h < j < k
       → minimise_slope pt₁ pt₂ pts = ms
         → next_ch_points n [end_pt ms … rem_pts ms] =
-          hsl₁ ++
-          [{| vert := (j, αj); edge := segjk |};
-           {| vert := (k, αk); edge := segkx |} … hsl]
+          hsl₁ ++ [mkns (j, αj) (k, αk) seg … hsl]
           → αj + j * ((αj - αk) / (k - j)) < αh + h * ((αj - αk) / (k - j)).
 Proof.
-intros n pts pt₁ pt₂ h αh j αj k αk segjk segkx hsl₁ hsl ms.
+intros n pts pt₁ pt₂ h αh j αj k αk seg hsl₁ hsl ms.
 intros Hsort Hh Hhjk Hms Hnp.
 eapply ad_hoc_lt_lt₂; [ assumption | idtac ].
 do 2 rewrite fold_slope_expr.
@@ -1172,12 +1172,12 @@ apply slope_lt_1323_1223; [ assumption | idtac ].
 remember (end_pt ms) as pt₃ in |- *.
 destruct pt₃ as (l, αl).
 destruct (Qlt_le_dec l h) as [Hgt| Hle].
- revert n pt₁ pt₂ h αh j αj k αk segjk segkx pts hsl ms l αl Hsort Hh Hhjk
+ revert n pt₁ pt₂ h αh j αj k αk seg pts hsl ms l αl Hsort Hh Hhjk
   Hms Hnp Heqpt₃ Hgt.
  induction hsl₁ as [| hs₁]; intros.
   remember Hnp as H; clear HeqH.
   eapply next_ch_points_hd in H.
-  eapply sl_lt_bef_j_any with (hsl₁ := [ahs (j, αj) segjk]); try eassumption.
+  eapply sl_lt_bef_j_any with (hsl₁ := []); try eassumption.
   simpl; eassumption.
 
   destruct n; [ discriminate Hnp | simpl in Hnp ].
@@ -1215,19 +1215,18 @@ destruct (Qlt_le_dec l h) as [Hgt| Hle].
  replace h with (fst (h, αh)) by reflexivity.
  eapply Sorted_in; eassumption.
 Qed.
+*)
 
-Lemma lt_bef_j₁ : ∀ n pts j αj segjk k αk segkx hs₁ hsl,
+(* à voir...
+Lemma lt_bef_j₁ : ∀ n pts j αj k αk seg hs₁ hsl,
   Sorted fst_lt pts
-  → next_ch_points n pts =
-      [hs₁;
-       {| vert := (j, αj); edge := segjk |};
-       {| vert := (k, αk); edge := segkx |} … hsl]
+  → next_ch_points n pts = [hs₁; mkns (j, αj) (k, αk) seg … hsl]
     → ∀ h αh, (h, αh) ∈ pts
       → h < j < k
         → αj + j * ((αj - αk) / (k - j)) < αh + h * ((αj - αk) / (k - j)).
 Proof.
-(* à nettoyer *)
-intros n pts j αj segjk k αk segkx hs₁ hsl.
+.. à nettoyer ..
+intros n pts j αj k αk seg hs₁ hsl.
 intros Hsort Hnp h αh Hαh (Hhj, Hjk).
 rename Hnp into Hhsl.
 destruct n; [ discriminate Hhsl | simpl in Hhsl ].
@@ -1274,18 +1273,16 @@ destruct Hαh as [Hαh| Hαh].
 
     rewrite Hend₁; apply Qlt_le_weak; destruct Hjk; assumption.
 Qed.
+*)
 
-Lemma lt_bef_j : ∀ n pts j αj segjk k αk segkx hsl₁ hsl,
+Lemma lt_bef_j : ∀ n pts j αj k αk seg hsl₁ hsl,
   Sorted fst_lt pts
-  → next_ch_points n pts =
-      hsl₁ ++
-      [{| vert := (j, αj); edge := segjk |};
-       {| vert := (k, αk); edge := segkx |} … hsl]
+  → next_ch_points n pts = hsl₁ ++ [mkns (j, αj) (k, αk) seg … hsl]
     → ∀ h αh, (h, αh) ∈ pts
       → h < j < k
         → αj + j * ((αj - αk) / (k - j)) < αh + h * ((αj - αk) / (k - j)).
 Proof.
-intros n pts j αj segjk k αk segkx hsl₁ hsl.
+intros n pts j αj k αk seg hsl₁ hsl.
 intros Hsort Hnp h αh Hαh (Hhj, Hjk).
 destruct hsl₁ as [| hs₁].
  destruct n; [ discriminate Hnp | simpl in Hnp ].
