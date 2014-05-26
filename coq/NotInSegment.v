@@ -1268,6 +1268,16 @@ destruct Hαh as [Hαh| Hαh].
     rewrite Hend₁; apply Qlt_le_weak; destruct Hjk; assumption.
 Qed.
 
+Lemma lt_bef_j : ∀ n pts j αj segjk k αk hsl₁ hsl,
+  Sorted fst_lt pts
+  → next_ch_points n pts =
+      hsl₁ ++ [mkns (j, αj) (k, αk) segjk … hsl]
+    → ∀ h αh, (h, αh) ∈ pts
+      → h < j < k
+        → αj + j * ((αj - αk) / (k - j)) < αh + h * ((αj - αk) / (k - j)).
+Proof.
+bbb.
+
 Lemma lt_bef_j : ∀ n pts j αj segjk k αk segkx ptj ptk hsl₁ hsl,
   Sorted fst_lt pts
   → next_ch_points n pts =
