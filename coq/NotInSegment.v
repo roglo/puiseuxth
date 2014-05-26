@@ -1353,6 +1353,13 @@ Lemma lt_not_in_some_ns : ∀ n pts nsl₁ ns nsl,
 Proof.
 intros n pts nsl₁ ns nsl.
 intros Hsort Hnp h αh Hh Hnh.
+destruct ns as ((j, αj), ptj, segjk).
+destruct nsl as [| ((k, αk), ptk, segkx)].
+ simpl in Hnh.
+bbb.
+
+intros n pts nsl₁ ns nsl.
+intros Hsort Hnp h αh Hh Hnh.
 destruct ns as ((j, αj), (k, αk), segjk).
 simpl in Hnh |- *.
 destruct (Qlt_le_dec k h) as [Hlt| Hge].
