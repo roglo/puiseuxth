@@ -1353,24 +1353,15 @@ Lemma lt_not_in_some_ns : ∀ n pts nsl₁ ns nsl,
 Proof.
 intros n pts nsl₁ ns nsl.
 intros Hsort Hnp h αh Hh Hnh.
-destruct ns as ((j, αj), ptj, segjk).
-destruct nsl as [| ((k, αk), ptk, segkx)].
- simpl in Hnh.
-bbb.
-
-intros n pts nsl₁ ns nsl.
-intros Hsort Hnp h αh Hh Hnh.
 destruct ns as ((j, αj), (k, αk), segjk).
-simpl in Hnh |- *.
+remember cons as f in Hnh; simpl in Hnh; subst f.
 destruct (Qlt_le_dec k h) as [Hlt| Hge].
  eapply lt_aft_k; simpl; eassumption.
 
  destruct (Qeq_dec h k) as [Heq| Hne].
-  remember (nsl₁ ++ [mkns (j, αj) (k, αk) segjk]) as x.
-bbb.
-    eapply qeq_eq with (hsl₁ := x) in Heq; subst x; try eassumption.
-     exfalso; revert Heq.
-     eapply not_k with (hsl₁ := hsl₁); eassumption.
+  eapply qeq_eq_fin in Heq; try eassumption.
+  exfalso; revert Heq.
+  eapply not_k; eassumption.
 bbb.
 
 intros n pts nsl₁ ns nsl.
