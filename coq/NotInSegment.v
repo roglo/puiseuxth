@@ -1362,7 +1362,21 @@ destruct (Qlt_le_dec k h) as [Hlt| Hge].
   eapply qeq_eq_fin in Heq; try eassumption.
   exfalso; revert Heq.
   eapply not_k; eassumption.
+
+  destruct (Qlt_le_dec j h) as [Hlt| Hge₂].
+   apply Qle_neq_lt in Hge; [ idtac | assumption ].
+   eapply conj in Hge; [ idtac | eassumption ].
+   eapply lt_bet_j_and_k; eassumption.
+
+   destruct (Qeq_dec h j) as [Heq| Hne₂].
+    eapply qeq_eq_ini in Heq; try eassumption.
+    exfalso; revert Heq.
+    eapply not_j; simpl; eassumption.
+
+    apply Qle_neq_lt in Hge₂; [ idtac | assumption ].
+    eapply lt_bef_j; simpl; try eassumption.
 bbb.
+oops...
 
 intros n pts nsl₁ ns nsl.
 intros Hsort Hnp h αh Hh Hnh.
