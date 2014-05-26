@@ -878,6 +878,22 @@ induction hsl₁ as [| hs₁]; intros.
    eapply minimise_slope_sorted; eassumption.
 Qed.
 
+Lemma lt_bef_j_in_ch : ∀ n pts h αh pt₂ j αj k αk segjk hsl₁ hsl ms,
+  Sorted fst_lt [(h, αh); pt₂ … pts]
+  → h < j < k
+    → minimise_slope (h, αh) pt₂ pts = ms
+      → next_ch_points n [end_pt ms … rem_pts ms] =
+        hsl₁ ++ [mkns (j, αj) (k, αk) segjk … hsl]
+        → αj + j * ((αj - αk) / (k - j)) < αh + h * ((αj - αk) / (k - j)).
+Proof.
+intros n pts h αh (i, αi) j αj k αk segjk hsl₁ hsl ms.
+intros Hsort Hhjk Hms Hnp.
+eapply ad_hoc_lt_lt₂; [ assumption | idtac ].
+do 2 rewrite fold_slope_expr.
+eapply lt_expr_bef_j_in_ch; try eassumption.
+bbb.
+oops.
+
 Lemma lt_bef_j_in_ch :
   ∀ n pts h αh pt₂ j αj k αk segjk segkx ptj ptk hsl₁ hsl ms,
   Sorted fst_lt [(h, αh); pt₂ … pts]
