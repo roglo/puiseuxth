@@ -1314,6 +1314,7 @@ destruct hsl₁ as [| hs₁].
    split; assumption.
 Qed.
 
+(*
 Lemma get_ns : ∀ hsl₁ hsj hsk hsl nsl₁ ns nsl,
   list_map_pairs newton_segment_of_pair (hsl₁ ++ [hsj; hsk … hsl]) =
      nsl₁ ++ [ns … nsl]
@@ -1341,19 +1342,34 @@ induction hsl₁ as [| hs]; intros.
   injection Hhsl; clear Hhsl; intros Hhsl; intros; subst ns₃.
   eapply IHhsl₁; eassumption.
 Qed.
+*)
 
-Lemma lt_not_in_some_ns : ∀ n pts hsl₁ hsl nsl₁ ns nsl,
+Lemma lt_not_in_some_ns : ∀ n pts nsl₁ ns nsl,
   Sorted fst_lt pts
-  → next_ch_points n pts = hsl₁ ++ hsl
-    → list_map_pairs newton_segment_of_pair (hsl₁ ++ hsl) = nsl₁ ++ [ns … nsl]
-      → List.length hsl₁ = List.length nsl₁
-        → ∀ h αh, (h, αh) ∈ pts
-          → (h, αh) ∉ [ini_pt ns; fin_pt ns … oth_pts ns]
-            → β ns < αh + h * γ ns.
+  → next_ch_points n pts = nsl₁ ++ [ns … nsl]
+    → ∀ h αh, (h, αh) ∈ pts
+      → (h, αh) ∉ [ini_pt ns; fin_pt ns … oth_pts ns]
+        → β ns < αh + h * γ ns.
 Proof.
-intros n pts hsl₁ hsl nsl₁ ns nsl.
-intros Hsort Hnp Hnsl Hlen h αh Hh Hnh.
-destruct hsl as [| ((j, αj), segjk)].
+intros n pts nsl₁ ns nsl.
+intros Hsort Hnp h αh Hh Hnh.
+destruct ns as ((j, αj), (k, αk), segjk).
+simpl in Hnh |- *.
+destruct (Qlt_le_dec k h) as [Hlt| Hge].
+ eapply lt_aft_k; simpl; eassumption.
+
+ destruct (Qeq_dec h k) as [Heq| Hne].
+  remember (nsl₁ ++ [mkns (j, αj) (k, αk) segjk]) as x.
+bbb.
+    eapply qeq_eq with (hsl₁ := x) in Heq; subst x; try eassumption.
+     exfalso; revert Heq.
+     eapply not_k with (hsl₁ := hsl₁); eassumption.
+bbb.
+
+intros n pts nsl₁ ns nsl.
+intros Hsort Hnp h αh Hh Hnh.
+destruct nsl as [| ((j, αj), (ptj, segjk))].
+bbb.
  apply list_map_pairs_length in Hnsl.
  rewrite List.app_length in Hnsl.
  simpl in Hnsl.
@@ -1403,20 +1419,19 @@ destruct hsl as [| ((j, αj), segjk)].
       apply Sorted_app in Hnp; destruct Hnp as (_, Hnp).
       apply Sorted_inv_2 in Hnp; destruct Hnp; assumption.
 Qed.
+*)
 
-Lemma lt_not_in_ns : ∀ n pts hsl₁ hsl nsl₁ nsl ns,
+Lemma lt_not_in_ns : ∀ n pts hsl₁ hsl ns,
   Sorted fst_lt pts
   → next_ch_points n pts = hsl₁ ++ hsl
-    → list_map_pairs newton_segment_of_pair (hsl₁ ++ hsl) = nsl₁ ++ nsl
-      → List.length hsl₁ = List.length nsl₁
-        → ns ∈ nsl
-          → ∀ h αh, (h, αh) ∈ pts
-            → (h, αh) ∉ [ini_pt ns; fin_pt ns … oth_pts ns]
-              → β ns < αh + h * γ ns.
+    → ns ∈ hsl
+      → ∀ h αh, (h, αh) ∈ pts
+        → (h, αh) ∉ [ini_pt ns; fin_pt ns … oth_pts ns]
+          → β ns < αh + h * γ ns.
 Proof.
-intros n pts hsl₁ hsl nsl₁ nsl ns Hsort Hnp Hnsl Hlen Hns.
+intros n pts hsl₁ hsl ns Hsort Hnp Hns.
 intros h αh Hh Hnh.
-revert n pts hsl₁ hsl nsl₁ ns Hsort Hnp Hnsl Hlen Hns Hh Hnh.
+revert n pts hsl₁ ns Hsort Hnp Hns Hh Hnh.
 induction nsl as [| ns₃]; [ contradiction | intros ].
 destruct Hns as [Hns| Hns].
  subst ns.
@@ -1451,6 +1466,15 @@ Lemma points_not_in_any_newton_segment₁ : ∀ pts ns,
   → ∀ h αh, (h, αh) ∈ pts ∧ (h, αh) ∉ [ini_pt ns; fin_pt ns … oth_pts ns]
   → β ns < αh + h * (γ ns).
 Proof.
+intros pts ns Hsort Hns h αh (Hαh, Hnαh).
+remember (length pts) as n; clear Heqn.
+remember (list_map_pairs newton_segment_of_pair hsl) as nsl.
+rename Heqnsl into Hnsl.
+symmetry in Hnsl.
+eapply lt_not_in_ns with (hsl₁ := []) (nsl₁ := []); simpl; try eassumption.
+reflexivity.
+bbb.
+
 intros pts ns Hsort Hns h αh (Hαh, Hnαh).
 unfold lower_convex_hull_points in Hns.
 remember (length pts) as n eqn:Hn.
