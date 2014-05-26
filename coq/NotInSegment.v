@@ -1148,17 +1148,17 @@ destruct hsl₁ as [| hs₁]; intros.
    eapply sl_lt_any_ns; try eassumption.
 Qed.
 
-(* à voir...
-Lemma lt_bef_j_aft_1st_ch : ∀ n pts pt₁ pt₂ h αh j αj k αk seg hsl₁ hsl ms,
+Lemma lt_bef_j_aft_1st_ch :
+  ∀ n pts pt₁ pt₂ h αh j αj k αk segjk segkx ptj ptk hsl₁ hsl ms,
   Sorted fst_lt [pt₁; pt₂ … pts]
   → (h, αh) ∈ [pt₂ … pts]
     → h < j < k
       → minimise_slope pt₁ pt₂ pts = ms
         → next_ch_points n [end_pt ms … rem_pts ms] =
-          hsl₁ ++ [mkns (j, αj) (k, αk) seg … hsl]
+          hsl₁ ++ [mkns (j, αj) ptj segjk; mkns (k, αk) ptk segkx … hsl]
           → αj + j * ((αj - αk) / (k - j)) < αh + h * ((αj - αk) / (k - j)).
 Proof.
-intros n pts pt₁ pt₂ h αh j αj k αk seg hsl₁ hsl ms.
+intros n pts pt₁ pt₂ h αh j αj k αk segjk segkx ptj ptk hsl₁ hsl ms.
 intros Hsort Hh Hhjk Hms Hnp.
 eapply ad_hoc_lt_lt₂; [ assumption | idtac ].
 do 2 rewrite fold_slope_expr.
@@ -1166,12 +1166,13 @@ apply slope_lt_1323_1223; [ assumption | idtac ].
 remember (end_pt ms) as pt₃ in |- *.
 destruct pt₃ as (l, αl).
 destruct (Qlt_le_dec l h) as [Hgt| Hle].
- revert n pt₁ pt₂ h αh j αj k αk seg pts hsl ms l αl Hsort Hh Hhjk
+ revert n pt₁ pt₂ h αh j αj k αk segjk segkx pts hsl ms l αl Hsort Hh Hhjk
   Hms Hnp Heqpt₃ Hgt.
  induction hsl₁ as [| hs₁]; intros.
   remember Hnp as H; clear HeqH.
   eapply next_ch_points_hd in H.
-  eapply sl_lt_bef_j_any with (hsl₁ := []); try eassumption.
+  remember (mkns (j, αj) ptj segjk) as ns.
+  eapply sl_lt_bef_j_any with (hsl₁ := [ns]); try eassumption.
   simpl; eassumption.
 
   destruct n; [ discriminate Hnp | simpl in Hnp ].
@@ -1209,7 +1210,6 @@ destruct (Qlt_le_dec l h) as [Hgt| Hle].
  replace h with (fst (h, αh)) by reflexivity.
  eapply Sorted_in; eassumption.
 Qed.
-*)
 
 Lemma lt_bef_j₁ : ∀ n pts j αj k αk segjk segkx ptj ptk hs₁ hsl,
   Sorted fst_lt pts
