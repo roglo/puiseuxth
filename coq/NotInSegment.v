@@ -1211,6 +1211,17 @@ destruct (Qlt_le_dec l h) as [Hgt| Hle].
  eapply Sorted_in; eassumption.
 Qed.
 
+Lemma lt_bef_j₁ : ∀ n pts j αj k αk segjk hs₁ hsl,
+  Sorted fst_lt pts
+  → next_ch_points n pts = [hs₁; mkns (j, αj) (k, αk) segjk … hsl]
+    → ∀ h αh, (h, αh) ∈ pts
+      → h < j < k
+        → αj + j * ((αj - αk) / (k - j)) < αh + h * ((αj - αk) / (k - j)).
+Proof.
+intros n pts j αj k αk segjk hs₁ hsl.
+intros Hsort Hnp h αh Hαh (Hhj, Hjk).
+bbb.
+
 Lemma lt_bef_j₁ : ∀ n pts j αj k αk segjk segkx ptj ptk hs₁ hsl,
   Sorted fst_lt pts
   → next_ch_points n pts =
