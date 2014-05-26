@@ -1073,23 +1073,24 @@ induction hsl₁ as [| hs₁]; intros.
   eapply minimise_slope_sorted; eassumption.
 Qed.
 
-(* à voir...
-Lemma sl_lt_bef_j : ∀ n pt₁ pt₂ pts h αh j αj k αk ms seg hsl₁ hsl,
+Lemma sl_lt_bef_j :
+  ∀ n pt₁ pt₂ pts h αh j αj k αk ms segjk segkx ptj ptk hsl₁ hsl,
   Sorted fst_lt [pt₁; pt₂ … pts]
   → (h, αh) ∈ [pt₂ … pts]
     → h < j < k
       → minimise_slope pt₁ pt₂ pts = ms
         → fst pt₁ < h <= fst (end_pt ms)
           → next_ch_points n [end_pt ms … rem_pts ms] =
-            hsl₁ ++ [mkns (j, αj) (k, αk) seg … hsl]
+            hsl₁ ++ [mkns (j, αj) ptj segjk; mkns (k, αk) ptk segkx … hsl]
             → slope_expr (h, αh) (k, αk) < slope_expr (j, αj) (k, αk).
 Proof.
-intros n (g, αg) pt₂ pts h αh j αj k αk ms seg hsl₁ hsl.
+intros n (g, αg) pt₂ pts h αh j αj k αk ms segjk segkx ptj ptk hsl₁ hsl.
 intros Hsort Hh (Hhj, Hjk) Hms (H₁h, Hhe) Hnp.
 destruct hsl₁ as [| hs₁]; intros.
  remember Hnp as H; clear HeqH.
  eapply next_ch_points_hd in H.
- eapply sl_lt_bef_j_any with (hsl₁ := [ahs (j, αj) segjk]); try eassumption.
+ remember (mkns (j, αj) ptj segjk) as ns.
+ eapply sl_lt_bef_j_any with (hsl₁ := [ns]); try eassumption.
   split; assumption.
 
   simpl; eassumption.
@@ -1146,7 +1147,6 @@ destruct hsl₁ as [| hs₁]; intros.
    rewrite <- Heqpt₁, <- Heqpts₁ in Hms.
    eapply sl_lt_any_ns; try eassumption.
 Qed.
-*)
 
 (* à voir...
 Lemma lt_bef_j_aft_1st_ch : ∀ n pts pt₁ pt₂ h αh j αj k αk seg hsl₁ hsl ms,
@@ -1211,15 +1211,16 @@ destruct (Qlt_le_dec l h) as [Hgt| Hle].
 Qed.
 *)
 
-Lemma lt_bef_j₁ : ∀ n pts j αj k αk seg hs₁ hsl,
+Lemma lt_bef_j₁ : ∀ n pts j αj k αk segjk segkx ptj ptk hs₁ hsl,
   Sorted fst_lt pts
-  → next_ch_points n pts = [hs₁; mkns (j, αj) (k, αk) seg … hsl]
+  → next_ch_points n pts =
+      [hs₁; mkns (j, αj) ptj segjk; mkns (k, αk) ptk segkx … hsl]
     → ∀ h αh, (h, αh) ∈ pts
       → h < j < k
         → αj + j * ((αj - αk) / (k - j)) < αh + h * ((αj - αk) / (k - j)).
 Proof.
 (* à nettoyer *)
-intros n pts j αj k αk seg hs₁ hsl.
+intros n pts j αj k αk segjk segkx ptj ptk hs₁ hsl.
 intros Hsort Hnp h αh Hαh (Hhj, Hjk).
 rename Hnp into Hhsl.
 destruct n; [ discriminate Hhsl | simpl in Hhsl ].
@@ -1266,16 +1267,16 @@ destruct Hαh as [Hαh| Hαh].
 
     rewrite Hend₁; apply Qlt_le_weak; destruct Hjk; assumption.
 Qed.
-*)
 
-Lemma lt_bef_j : ∀ n pts j αj k αk seg hsl₁ hsl,
+Lemma lt_bef_j : ∀ n pts j αj segjk k αk segkx ptj ptk hsl₁ hsl,
   Sorted fst_lt pts
-  → next_ch_points n pts = hsl₁ ++ [mkns (j, αj) (k, αk) seg … hsl]
+  → next_ch_points n pts =
+      hsl₁ ++ [mkns (j, αj) ptj segjk; mkns (k, αk) ptk segkx … hsl]
     → ∀ h αh, (h, αh) ∈ pts
       → h < j < k
         → αj + j * ((αj - αk) / (k - j)) < αh + h * ((αj - αk) / (k - j)).
 Proof.
-intros n pts j αj k αk seg hsl₁ hsl.
+intros n pts j αj segjk k αk segkx ptj ptk hsl₁ hsl.
 intros Hsort Hnp h αh Hαh (Hhj, Hjk).
 destruct hsl₁ as [| hs₁].
  destruct n; [ discriminate Hnp | simpl in Hnp ].
