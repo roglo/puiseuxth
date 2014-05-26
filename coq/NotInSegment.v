@@ -813,6 +813,18 @@ induction hsl₁ as [| hs₁]; intros.
     eapply minimise_slope_sorted; eassumption.
 Qed.
 
+Lemma lt_expr_bef_j_in_ch : ∀ n pts h αh i αi j αj k αk segjk hsl₁ hsl ms,
+  Sorted fst_lt [(h, αh); (i, αi) … pts]
+  → h < j < k
+    → minimise_slope (h, αh) (i, αi) pts = ms
+      → next_ch_points n [end_pt ms … rem_pts ms] =
+        hsl₁ ++ [mkns (j, αj) (k, αk) segjk … hsl]
+        → slope_expr (h, αh) (j, αj) < slope_expr (j, αj) (k, αk).
+Proof.
+intros n pts h αh i αi j αj k αk segjk hsl₁ hsl ms.
+intros Hsort Hhjk Hms Hnp.
+bbb.
+
 Lemma lt_expr_bef_j_in_ch :
   ∀ n pts h αh i αi j αj k αk segjk segkx pt₁ pt₂ hsl₁ hsl ms,
   Sorted fst_lt [(h, αh); (i, αi) … pts]
