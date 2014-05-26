@@ -1029,13 +1029,12 @@ induction hsl₁ as [| hs₁]; intros.
  destruct n; [ discriminate Hnp | simpl in Hnp ].
  remember (rem_pts ms) as pts₁.
  destruct pts₁ as [| pt₇]; [ discriminate Hnp | idtac ].
- injection Hnp; clear Hnp; intros Hnp; intros H Hend; subst sg₃.
+ injection Hnp; clear Hnp; intros Hnp; intros H Hend₁ Hend; subst sg₃.
  remember (minimise_slope (end_pt ms) pt₇ pts₁) as ms₁.
  symmetry in Heqms₁.
  symmetry in Heqpts₁.
  eapply consec_slope_lt in Hsort; try eassumption.
  eapply minimised_slope in Hms; [ idtac | reflexivity ].
-bbb.
  rewrite Hms, Hend in Hsort.
  eapply minimised_slope in Heqms₁; [ idtac | reflexivity ].
  apply next_ch_points_hd in Hnp.
