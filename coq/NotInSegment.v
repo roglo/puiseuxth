@@ -748,6 +748,14 @@ induction hsl₁ as [| hs₁]; intros.
  remember (minimise_slope (end_pt ms) (l, αl) pts₁) as ms₁ eqn:Hms₁ .
  symmetry in Hms₁.
  rewrite Hend in Hms₁.
+ remember (end_pt ms₁) as x.
+ destruct x as (m, αm).
+ symmetry in Heqx.
+ rewrite <- Heqx in Hnp.
+ eapply IHhsl₁ in Hnp.
+  5: eassumption.
+
+  5: eassumption.
 bbb.
 
 intros n pts h αh i αi j αj k αk ptk seg hsl₁ hsl ms.
