@@ -715,18 +715,29 @@ destruct c.
   intros x y z H₁ H₂; eapply Qlt_trans; eassumption.
 Qed.
 
-Lemma sl_lt_bef_j_in_ch : ∀ n pts h αh i αi j αj k αk seg hsl₁ hsl ms,
+Lemma sl_lt_bef_j_in_ch : ∀ n pts h αh i αi j αj k αk ptk seg hsl₁ hsl ms,
   Sorted fst_lt [(h, αh); (i, αi) … pts]
   → h < j < k
     → minimise_slope (h, αh) (i, αi) pts = ms
       → end_pt ms = (j, αj)
         → next_ch_points n [end_pt ms … rem_pts ms] =
-            hsl₁ ++ [mkns (j, αj) (k, αk) seg … hsl]
+            hsl₁ ++ [mkns ptk (k, αk) seg … hsl]
           → slope_expr (h, αh) (k, αk) < slope_expr (j, αj) (k, αk).
 Proof.
-intros n pts h αh i αi j αj k αk seg hsl₁ hsl ms.
+intros n pts h αh i αi j αj k αk ptk seg hsl₁ hsl ms.
 intros Hsort (Hhj, Hjk) Hms Hend Hnp.
-revert n pts h αh i αi k αk j αj seg hsl ms Hsort Hhj Hjk Hms Hnp Hend.
+revert n pts h αh i αi k αk j αj ptk seg hsl ms Hsort Hhj Hjk Hms Hnp Hend.
+induction hsl₁ as [| hs₁]; intros.
+ destruct n; [ discriminate Hnp | simpl in Hnp ].
+ remember (rem_pts ms) as pts₁.
+ rewrite Hend in Hnp.
+ destruct pts₁ as [| pt₁]; [ discriminate Hnp | idtac ].
+ injection Hnp; clear Hnp; intros Hnp Hseg Hend₂ Hj.
+bbb.
+
+intros n pts h αh i αi j αj k αk ptk seg hsl₁ hsl ms.
+intros Hsort (Hhj, Hjk) Hms Hend Hnp.
+revert n pts h αh i αi k αk j αj ptk seg hsl ms Hsort Hhj Hjk Hms Hnp Hend.
 induction hsl₁ as [| hs₁]; intros.
  destruct n; [ discriminate Hnp | simpl in Hnp ].
  remember (rem_pts ms) as pts₁.
@@ -749,8 +760,8 @@ induction hsl₁ as [| hs₁]; intros.
  rewrite Hend in Hnp.
  destruct pts₁ as [| pt₁]; [ discriminate Hnp | idtac ].
  injection Hnp; clear Hnp; intros Hnp H; subst hs₁.
- apply slope_lt_1223_1323; [ split; assumption | idtac ].
 bbb.
+ apply slope_lt_1223_1323; [ split; assumption | idtac ].
 
 Lemma sl_lt_bef_j_in_ch : ∀ n pts h αh i αi j αj k αk ept seg hsl₁ hsl ms,
   Sorted fst_lt [(h, αh); (i, αi) … pts]
