@@ -726,6 +726,7 @@ Lemma sl_lt_bef_j_in_ch : ∀ n pts h αh i αi j αj k αk ptk seg hsl₁ hsl m
 Proof.
 intros n pts h αh i αi j αj k αk ptk seg hsl₁ hsl ms.
 intros Hsort (Hhj, Hjk) Hms Hend Hnp.
+bbb.
 revert n pts h αh i αi k αk j αj ptk seg hsl ms Hsort Hhj Hjk Hms Hnp Hend.
 induction hsl₁ as [| hs₁]; intros.
  destruct n; [ discriminate Hnp | simpl in Hnp ].
