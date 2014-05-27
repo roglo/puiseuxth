@@ -756,6 +756,28 @@ induction hsl₁ as [| hs₁]; intros.
   5: eassumption.
 
   5: eassumption.
+
+  remember Hpts₁ as H; clear HeqH.
+  eapply consec_slope_lt in H.
+   3: eassumption.
+
+   3: rewrite <- Hend in Hms₁; eassumption.
+
+   unfold slope in H.
+   rewrite Hend, Heqx in H.
+   rewrite <- Hms, <- Hms₁ in H.
+   do 2 rewrite minimised_slope_beg_pt in H.
+   apply slope_lt_1223_1323; [ split; assumption | idtac ].
+   eapply Qlt_trans; [ eassumption | idtac ].
+   apply slope_lt_1323_1213; [ split | assumption ].
+    remember Hms₁ as HH; clear HeqHH.
+    apply beg_lt_end_pt in Hms₁.
+     rewrite Heqx, <- HH in Hms₁.
+     rewrite minimised_slope_beg_pt in Hms₁.
+     assumption.
+
+     rewrite <- Hend, <- Hpts₁.
+     eapply minimise_slope_sorted; eassumption.
 bbb.
 
 intros n pts h αh i αi j αj k αk ptk seg hsl₁ hsl ms.
