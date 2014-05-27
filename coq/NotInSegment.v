@@ -743,6 +743,13 @@ induction hsl₁ as [| hs₁]; intros.
  symmetry in Heqpts₁.
  eapply consec_slope_lt; try eassumption.
  rewrite Hend; reflexivity.
+
+ destruct n; [ destruct hsl₁; discriminate Hnp | simpl in Hnp ].
+ remember (rem_pts ms) as pts₁.
+ rewrite Hend in Hnp.
+ destruct pts₁ as [| pt₁]; [ discriminate Hnp | idtac ].
+ injection Hnp; clear Hnp; intros Hnp H; subst hs₁.
+ apply slope_lt_1223_1323; [ split; assumption | idtac ].
 bbb.
 
 Lemma sl_lt_bef_j_in_ch : ∀ n pts h αh i αi j αj k αk ept seg hsl₁ hsl ms,
