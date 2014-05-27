@@ -792,6 +792,7 @@ induction hsl₁ as [| hs₁]; intros.
     rewrite <- Hend, <- Hpts₁.
     eapply minimise_slope_sorted; eassumption.
 bbb.
+cf next_ch_points_sorted
 
 intros n pts h αh i αi j αj k αk ptk seg hsl₁ hsl ms.
 intros Hsort (Hhj, Hjk) Hms Hend Hnp.
