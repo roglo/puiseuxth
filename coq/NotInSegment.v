@@ -726,14 +726,19 @@ Lemma sl_lt_bef_j_in_ch : ∀ n pts h αh i αi j αj k αk ptk seg hsl₁ hsl m
 Proof.
 intros n pts h αh i αi j αj k αk ptk seg hsl₁ hsl ms.
 intros Hsort (Hhj, Hjk) Hms Hend Hnp.
-bbb.
 revert n pts h αh i αi k αk j αj ptk seg hsl ms Hsort Hhj Hjk Hms Hnp Hend.
 induction hsl₁ as [| hs₁]; intros.
  destruct n; [ discriminate Hnp | simpl in Hnp ].
- remember (rem_pts ms) as pts₁.
- rewrite Hend in Hnp.
+ remember (rem_pts ms) as pts₁ eqn:Hpts₁ .
+ symmetry in Hpts₁.
  destruct pts₁ as [| pt₁]; [ discriminate Hnp | idtac ].
- injection Hnp; clear Hnp; intros Hnp Hseg Hend₂ Hj.
+ injection Hnp; clear Hnp; intros Hnp H Hend₂ I; subst seg ptk.
+ eapply consec_slope_lt in Hpts₁; try eassumption; [ idtac | reflexivity ].
+ apply slope_lt_1223_1323; [ split; assumption | idtac ].
+ unfold slope in Hpts₁.
+ rewrite Hend₂, Hend, <- Hms in Hpts₁.
+ do 2 rewrite minimised_slope_beg_pt in Hpts₁.
+ assumption.
 bbb.
 
 intros n pts h αh i αi j αj k αk ptk seg hsl₁ hsl ms.
