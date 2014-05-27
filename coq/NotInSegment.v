@@ -739,6 +739,12 @@ induction hsl₁ as [| hs₁]; intros.
  rewrite Hend₂, Hend, <- Hms in Hpts₁.
  do 2 rewrite minimised_slope_beg_pt in Hpts₁.
  assumption.
+
+ destruct n; [ discriminate Hnp | simpl in Hnp ].
+ remember (rem_pts ms) as pts₁ eqn:Hpts₁ .
+ symmetry in Hpts₁.
+ destruct pts₁ as [| pt₁]; [ discriminate Hnp | idtac ].
+ injection Hnp; clear Hnp; intros Hnp H; subst hs₁.
 bbb.
 
 intros n pts h αh i αi j αj k αk ptk seg hsl₁ hsl ms.
