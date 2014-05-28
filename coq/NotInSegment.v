@@ -1270,8 +1270,10 @@ induction hsl₁ as [| hs₁]; intros.
  eapply minimised_slope in Hms; [ idtac | reflexivity ].
  rewrite Hms, Hend in Hsort.
  eapply minimised_slope in Heqms₁; [ idtac | reflexivity ].
+ rewrite Heqms₁ in Hsort.
+ rewrite Hend, Hend₁ in Hsort.
+ assumption.
 bbb.
- apply next_ch_points_hd in Hnp.
 *)
 
 (*
