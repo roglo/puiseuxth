@@ -958,6 +958,9 @@ induction hsl₁ as [| hs₁]; intros.
  remember (minimise_slope (end_pt ms) pt₁ pts₁) as ms₁.
  symmetry in Heqms₁.
 bbb.
+cf sl_lt_bef_j_in_ch
+   consec_slope_lt
+   IHhsl₁
 
 Lemma lt_expr_bef_j_in_ch :
   ∀ n pts h αh i αi j αj k αk segjk segkx pt₁ pt₂ hsl₁ hsl ms,
