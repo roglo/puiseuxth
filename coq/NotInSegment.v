@@ -1273,8 +1273,52 @@ induction hsl₁ as [| hs₁]; intros.
  rewrite Heqms₁ in Hsort.
  rewrite Hend, Hend₁ in Hsort.
  assumption.
-bbb.
-*)
+
+ destruct n; [ discriminate Hnp | simpl in Hnp ].
+ remember (rem_pts ms) as pts₁.
+ destruct pts₁ as [| pt₇]; [ discriminate Hnp | idtac ].
+ injection Hnp; clear Hnp; intros Hnp H; subst hs₁.
+ remember (minimise_slope (end_pt ms) pt₇ pts₁) as ms₁.
+ symmetry in Heqms₁.
+ remember Hnp as Hsl; clear HeqHsl.
+ eapply IHhsl₁ in Hsl; [ idtac | idtac | eassumption ].
+  eapply Qlt_trans; [ idtac | eassumption ].
+  symmetry in Heqpts₁.
+  remember Hsort as Hsl₂; clear HeqHsl₂.
+  eapply consec_slope_lt in Hsl₂; try eassumption.
+  unfold slope in Hsl₂.
+  rewrite <- Hms in Hsl₂ at 1.
+  rewrite minimised_slope_beg_pt in Hsl₂.
+  rewrite <- Heqms₁ in Hsl₂ at 1.
+  rewrite minimised_slope_beg_pt in Hsl₂.
+  apply slope_lt_1223_1323.
+   split.
+    eapply Qlt_le_trans.
+     apply Sorted_inv_2 in Hsort; destruct Hsort as (Hlt, _).
+     unfold fst_lt in Hlt; simpl in Hlt; eassumption.
+
+     eapply Sorted_inv_1 in Hsort.
+     apply minimise_slope_le in Hms; assumption.
+
+    remember Hms as Hms₂; clear HeqHms₂.
+    apply minimise_slope_sorted in Hms; [ idtac | assumption ].
+    rewrite Heqpts₁ in Hms.
+    apply Sorted_inv_2 in Hms; destruct Hms as (Hlt, Hms).
+    eapply Qlt_le_trans; [ eassumption | idtac ].
+    remember Heqms₁ as Hms₁; clear HeqHms₁.
+    remember Hms₁ as Hms₃; clear HeqHms₃.
+    apply minimise_slope_le in Hms₁; [ idtac | eassumption ].
+    eapply Qle_trans; [ eassumption | idtac ].
+    apply next_ch_points_le in Hnp; [ assumption | idtac ].
+    eapply minimise_slope_sorted; [ idtac | eassumption ].
+    rewrite <- Heqpts₁.
+    eapply minimise_slope_sorted; eassumption.
+
+   eapply sl_lt_1st_ns_any_hp; try eassumption.
+
+  rewrite Heqpts₁.
+  eapply minimise_slope_sorted; eassumption.
+Qed.
 
 (*
 Lemma sl_lt_any_ns : ∀ n pt₁ pt₂ pt₃ pt₄ pt₅ pt₆ pts sg₃ sg₄ ms hsl₁ hsl,
@@ -1389,7 +1433,6 @@ destruct hsl₁ as [| hs₁]; intros.
    rewrite <- Heqpt₁ in Hms.
    right; assumption.
 
-bbb.
   apply slope_lt_1223_1323; [ split; assumption | idtac ].
   apply Qlt_trans with (y := slope_expr (l, αl) (j, αj)).
    Focus 2.
@@ -1404,6 +1447,7 @@ bbb.
    apply minimise_slope_sorted in Hms; [ idtac | assumption ].
    rewrite <- Heqpt₁, <- Heqpts₁ in Hms.
    eapply sl_lt_any_ns; eassumption.
+
 bbb.
 
   apply slope_lt_1223_1323; [ split; assumption | idtac ].
