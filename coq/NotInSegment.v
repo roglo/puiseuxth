@@ -1095,6 +1095,51 @@ Lemma sl_lt_bef_j_any : ∀ n pts pt₁ pt₂ h αh j αj k αk segkx ptk hsl₁
       → minimise_slope pt₁ pt₂ pts = ms
         → end_pt ms = (j, αj)
           → next_ch_points n [end_pt ms … rem_pts ms] =
+              hsl₁ ++ [mkns ptk (k, αk) segkx … hsl]
+            → slope_expr (h, αh) (k, αk) < slope_expr (j, αj) (k, αk).
+Proof.
+intros n pts (g, αg) pt₂ h αh j αj k αk segkx ptk hsl₁ hsl ms.
+intros Hsort Hh (Hhj, Hjk) Hms Hend Hnp.
+apply slope_lt_1223_1323; [ split; assumption | idtac ].
+apply Qle_lt_trans with (y := slope_expr (g, αg) (j, αj)).
+ remember Hms as Hms₁; clear HeqHms₁.
+ symmetry in Hend.
+ eapply minimised_slope in Hms; [ idtac | eassumption ].
+ rewrite <- Hms.
+ symmetry in Hend.
+ destruct Hh as [Hh| Hh].
+  subst pt₂.
+  eapply minimise_slope_expr_le; eassumption.
+
+  eapply min_slope_le; eassumption.
+
+ apply slope_lt_1323_1223.
+  split; [ idtac | assumption ].
+  apply Sorted_inv_2 in Hsort.
+  eapply Qlt_trans; [ idtac | eassumption ].
+  destruct Hsort as (Hle, Hsort).
+  eapply Qlt_le_trans; [ eassumption | idtac ].
+  replace h with (fst (h, αh)) by reflexivity.
+  eapply Sorted_in; eassumption.
+
+  destruct pt₂ as (i, αi).
+  eapply sl_lt_bef_j_in_ch; try eassumption.
+  split; [ idtac | assumption ].
+  apply Sorted_inv_2 in Hsort.
+  destruct Hsort.
+  eapply Qlt_le_trans; [ eassumption | idtac ].
+  apply minimise_slope_le in Hms; [ idtac | assumption ].
+  rewrite Hend in Hms; assumption.
+Qed.
+
+(*
+Lemma sl_lt_bef_j_any : ∀ n pts pt₁ pt₂ h αh j αj k αk segkx ptk hsl₁ hsl ms,
+  Sorted fst_lt [pt₁; pt₂ … pts]
+  → (h, αh) ∈ [pt₂ … pts]
+    → h < j < k
+      → minimise_slope pt₁ pt₂ pts = ms
+        → end_pt ms = (j, αj)
+          → next_ch_points n [end_pt ms … rem_pts ms] =
               hsl₁ ++ [mkns (k, αk) ptk segkx … hsl]
             → slope_expr (h, αh) (k, αk) < slope_expr (j, αj) (k, αk).
 Proof.
@@ -1138,6 +1183,7 @@ apply Qle_lt_trans with (y := slope_expr (g, αg) (j, αj)).
    apply minimise_slope_le in Hms; [ idtac | assumption ].
    rewrite Hend in Hms; assumption.
 bbb.
+*)
 
 Lemma sl_lt_1st_ns_any_hp :
   ∀ n pt₁ pt₂ pt₃ pt₄ pt₅ pts pts₁ ms₁ ms₂ sg₄ hsl₁ hsl,
@@ -1267,6 +1313,25 @@ induction hsl₁ as [| hs₁]; intros.
   eapply minimise_slope_sorted; eassumption.
 Qed.
 
+Lemma sl_lt_bef_j : ∀ n pt₁ pt₂ pts h αh j αj k αk ms segjk hsl₁ hsl,
+  Sorted fst_lt [pt₁; pt₂ … pts]
+  → (h, αh) ∈ [pt₂ … pts]
+    → h < j < k
+      → minimise_slope pt₁ pt₂ pts = ms
+        → fst pt₁ < h <= fst (end_pt ms)
+          → next_ch_points n [end_pt ms … rem_pts ms] =
+            hsl₁ ++ [mkns (j, αj) (k, αk) segjk … hsl]
+            → slope_expr (h, αh) (k, αk) < slope_expr (j, αj) (k, αk).
+Proof.
+intros n (g, αg) pt₂ pts h αh j αj k αk ms segjk hsl₁ hsl.
+intros Hsort Hh (Hhj, Hjk) Hms (H₁h, Hhe) Hnp.
+destruct hsl₁ as [| hs₁]; intros.
+ remember Hnp as H; clear HeqH.
+ eapply next_ch_points_hd in H.
+ eapply sl_lt_bef_j_any; try eassumption.
+ split; assumption.
+bbb.
+
 Lemma sl_lt_bef_j :
   ∀ n pt₁ pt₂ pts h αh j αj k αk ms segjk segkx ptj ptk hsl₁ hsl,
   Sorted fst_lt [pt₁; pt₂ … pts]
@@ -1341,7 +1406,9 @@ destruct hsl₁ as [| hs₁]; intros.
    rewrite <- Heqpt₁, <- Heqpts₁ in Hms.
    eapply sl_lt_any_ns; try eassumption.
 Qed.
+*)
 
+(*
 Lemma lt_bef_j_aft_1st_ch :
   ∀ n pts pt₁ pt₂ h αh j αj k αk segjk segkx ptj ptk hsl₁ hsl ms,
   Sorted fst_lt [pt₁; pt₂ … pts]
@@ -1404,6 +1471,7 @@ destruct (Qlt_le_dec l h) as [Hgt| Hle].
  replace h with (fst (h, αh)) by reflexivity.
  eapply Sorted_in; eassumption.
 Qed.
+*)
 
 Lemma lt_bef_j₁ : ∀ n pts j αj k αk segjk hs₁ hsl,
   Sorted fst_lt pts
@@ -1426,8 +1494,16 @@ rename H into Hend₁.
 destruct Hαh as [Hαh| Hαh].
  injection Hαh; clear Hαh; intros; subst l αl.
  eapply lt_bef_j_in_ch with (hsl₁ := []); try eassumption.
+ split; assumption.
+
+ destruct Hαh as [Hαh| Hαh].
+  injection Hαh; clear Hαh; intros; subst m αm.
+  eapply conj in Hjk; [ idtac | eexact Hhj ].
+  eapply ad_hoc_lt_lt₂; [ assumption | idtac ].
+  do 2 rewrite fold_slope_expr.
+  apply slope_lt_1323_1223; [ assumption | idtac ].
 bbb.
-oops.
+  eapply sl_lt_bef_j with (hsl₁ := []); try eassumption.
 
 Lemma lt_bef_j₁ : ∀ n pts j αj k αk segjk segkx ptj ptk hs₁ hsl,
   Sorted fst_lt pts
