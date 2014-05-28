@@ -951,17 +951,44 @@ induction hsl₁ as [| hs₁]; intros.
  eapply next_ch_points_hd in H.
  eapply sl_lt_bef_j_in_ch; try eassumption.
 
- destruct n; [ discriminate Hnp | simpl in Hnp ].
- remember (rem_pts ms) as pts₁ eqn:Hpts₁ .
- destruct pts₁ as [| pt₁]; [ discriminate Hnp | idtac ].
- injection Hnp; clear Hnp; intros Hnp H; subst hs₁.
- remember (minimise_slope (end_pt ms) pt₁ pts₁) as ms₁.
- symmetry in Heqms₁.
-bbb.
-cf sl_lt_bef_j_in_ch
-   consec_slope_lt
-   IHhsl₁
+ remember Hnp as HHnp; clear HeqHHnp.
+ remember (end_pt ms) as pt₃ in |- *.
+ destruct pt₃ as (l, αl).
+ apply Qlt_trans with (y := slope_expr (l, αl) (k, αk)).
+  symmetry in Heqpt₃.
+  eapply sl_lt_bef_j_in_ch with (j := l); try eassumption.
+  split.
+   apply Sorted_inv_2 in Hsort; destruct Hsort as (Hlt, Hsort).
+   apply minimise_slope_le in Hms; [ idtac | assumption ].
+   rewrite Heqpt₃ in Hms.
+   eapply Qlt_le_trans; eassumption.
 
+   replace l with (fst (l, αl)) by reflexivity.
+   replace k with (fst (k, αk)) by reflexivity.
+   rewrite Heqpt₃ in HHnp.
+   eapply next_ch_points_sorted₂; [ idtac | eassumption ].
+   rewrite <- Heqpt₃.
+   eapply minimise_slope_sorted; eassumption.
+
+  destruct n; [ discriminate Hnp | simpl in Hnp ].
+  remember (rem_pts ms) as pts₁.
+  destruct pts₁ as [| (m, αm)]; [ destruct hsl₁; discriminate Hnp | idtac ].
+  injection Hnp; clear Hnp; intros Hnp; intros; subst hs₁.
+  remember (minimise_slope (end_pt ms) (m, αm) pts₁) as ms₁.
+  symmetry in Heqms₁.
+  rewrite <- Heqpt₃ in Heqms₁.
+  eapply IHhsl₁; try eassumption.
+   rewrite Heqpt₃, Heqpts₁.
+   eapply minimise_slope_sorted; eassumption.
+
+   split; [ idtac | destruct Hhjk; assumption ].
+   rewrite <- Heqpt₃ in HHnp.
+   apply next_ch_points_sorted in HHnp; [ assumption | idtac ].
+   rewrite Heqpt₃, Heqpts₁.
+   eapply minimise_slope_sorted; eassumption.
+Qed.
+
+(*
 Lemma lt_expr_bef_j_in_ch :
   ∀ n pts h αh i αi j αj k αk segjk segkx pt₁ pt₂ hsl₁ hsl ms,
   Sorted fst_lt [(h, αh); (i, αi) … pts]
@@ -1026,6 +1053,7 @@ induction hsl₁ as [| hs₁]; intros.
    rewrite Heqpt₃, Heqpts₁.
    eapply minimise_slope_sorted; eassumption.
 Qed.
+*)
 
 Lemma lt_bef_j_in_ch : ∀ n pts h αh pt₂ j αj k αk segjk hsl₁ hsl ms,
   Sorted fst_lt [(h, αh); pt₂ … pts]
@@ -1040,9 +1068,9 @@ intros Hsort Hhjk Hms Hnp.
 eapply ad_hoc_lt_lt₂; [ assumption | idtac ].
 do 2 rewrite fold_slope_expr.
 eapply lt_expr_bef_j_in_ch; try eassumption.
-bbb.
-oops.
+Qed.
 
+(*
 Lemma lt_bef_j_in_ch :
   ∀ n pts h αh pt₂ j αj k αk segjk segkx ptj ptk hsl₁ hsl ms,
   Sorted fst_lt [(h, αh); pt₂ … pts]
@@ -1058,6 +1086,7 @@ eapply ad_hoc_lt_lt₂; [ assumption | idtac ].
 do 2 rewrite fold_slope_expr.
 eapply lt_expr_bef_j_in_ch; eassumption.
 Qed.
+*)
 
 Lemma sl_lt_bef_j_any : ∀ n pts pt₁ pt₂ h αh j αj k αk segkx ptk hsl₁ hsl ms,
   Sorted fst_lt [pt₁; pt₂ … pts]
@@ -1108,7 +1137,7 @@ apply Qle_lt_trans with (y := slope_expr (g, αg) (j, αj)).
    eapply Qlt_le_trans; [ eassumption | idtac ].
    apply minimise_slope_le in Hms; [ idtac | assumption ].
    rewrite Hend in Hms; assumption.
-Qed.
+bbb.
 
 Lemma sl_lt_1st_ns_any_hp :
   ∀ n pt₁ pt₂ pt₃ pt₄ pt₅ pts pts₁ ms₁ ms₂ sg₄ hsl₁ hsl,
