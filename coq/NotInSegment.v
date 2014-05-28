@@ -1066,8 +1066,7 @@ do 2 rewrite fold_slope_expr.
 eapply lt_expr_bef_j_in_ch; try eassumption.
 Qed.
 
-(*
-Lemma lt_bef_j_in_ch :
+Lemma lt_bef_j_in_ch₂ :
   ∀ n pts h αh pt₂ j αj k αk segjk segkx ptj ptk hsl₁ hsl ms,
   Sorted fst_lt [(h, αh); pt₂ … pts]
   → h < j < k
@@ -1080,9 +1079,8 @@ intros n pts h αh (i, αi) j αj k αk segjk segkx ptj ptk hsl₁ hsl ms.
 intros Hsort Hhjk Hms Hnp.
 eapply ad_hoc_lt_lt₂; [ assumption | idtac ].
 do 2 rewrite fold_slope_expr.
-eapply lt_expr_bef_j_in_ch; eassumption.
+eapply lt_expr_bef_j_in_ch₂; eassumption.
 Qed.
-*)
 
 Lemma sl_lt_bef_j_any : ∀ n pts pt₁ pt₂ h αh j αj k αk segkx ptk hsl₁ hsl ms,
   Sorted fst_lt [pt₁; pt₂ … pts]
@@ -1619,9 +1617,32 @@ destruct Hαh as [Hαh| Hαh].
   do 2 rewrite fold_slope_expr.
   apply slope_lt_1323_1223; [ assumption | idtac ].
   eapply sl_lt_bef_j with (hsl₁ := []); try eassumption.
-bbb.
+   left; reflexivity.
 
-Lemma lt_bef_j₁ : ∀ n pts j αj k αk segjk segkx ptj ptk hs₁ hsl,
+   rewrite Hend₁.
+   split; [ idtac | apply Qlt_le_weak; assumption ].
+   apply Sorted_inv in Hsort.
+   destruct Hsort as (_, Hrel).
+   apply HdRel_inv in Hrel; assumption.
+
+  eapply conj in Hjk; [ idtac | eexact Hhj ].
+  eapply ad_hoc_lt_lt₂; [ assumption | idtac ].
+  do 2 rewrite fold_slope_expr.
+  apply slope_lt_1323_1223; [ assumption | idtac ].
+  eapply sl_lt_bef_j with (hsl₁ := []); try eassumption.
+   right; assumption.
+
+   split.
+    apply Sorted_inv_2 in Hsort; destruct Hsort as (Hlt, Hsort).
+    eapply Qlt_le_trans; [ eassumption | idtac ].
+    replace h with (fst (h, αh)) by reflexivity.
+    eapply Sorted_in; [ eassumption | idtac ].
+    right; assumption.
+
+    rewrite Hend₁; apply Qlt_le_weak; destruct Hjk; assumption.
+Qed.
+
+Lemma lt_bef_j₂ : ∀ n pts j αj k αk segjk segkx ptj ptk hs₁ hsl,
   Sorted fst_lt pts
   → next_ch_points n pts =
       [hs₁; mkns (j, αj) ptj segjk; mkns (k, αk) ptk segkx … hsl]
@@ -1644,7 +1665,7 @@ apply next_ch_points_hd in H.
 rename H into Hend₁.
 destruct Hαh as [Hαh| Hαh].
  injection Hαh; clear Hαh; intros; subst l αl.
- eapply lt_bef_j_in_ch with (hsl₁ := []); try eassumption.
+ eapply lt_bef_j_in_ch₂ with (hsl₁ := []); try eassumption.
  split; assumption.
 
  destruct Hαh as [Hαh| Hαh].
