@@ -1257,7 +1257,21 @@ Lemma sl_lt_any_ns : ∀ n pt₁ pt₂ pt₃ pt₄ pts sg ms hsl₁ hsl,
       → slope_expr pt₁ pt₃ < slope_expr pt₃ pt₄.
 Proof.
 intros n pt₁ pt₂ pt₃ pt₄ pts sg ms hsl₁ hsl Hsort Hms Hnp.
+revert n pt₁ pt₂ pts ms Hnp Hsort Hms.
+induction hsl₁ as [| hs₁]; intros.
+ destruct n; [ discriminate Hnp | simpl in Hnp ].
+ remember (rem_pts ms) as pts₁.
+ destruct pts₁ as [| pt₇]; [ discriminate Hnp | idtac ].
+ injection Hnp; clear Hnp; intros Hnp; intros H Hend₁ Hend; subst sg.
+ remember (minimise_slope (end_pt ms) pt₇ pts₁) as ms₁.
+ symmetry in Heqms₁.
+ symmetry in Heqpts₁.
+ eapply consec_slope_lt in Hsort; try eassumption.
+ eapply minimised_slope in Hms; [ idtac | reflexivity ].
+ rewrite Hms, Hend in Hsort.
+ eapply minimised_slope in Heqms₁; [ idtac | reflexivity ].
 bbb.
+ apply next_ch_points_hd in Hnp.
 *)
 
 (*
