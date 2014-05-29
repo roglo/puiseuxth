@@ -371,10 +371,6 @@ Lemma zzz : ∀ pol ns c₁ c₂ pol₁ ns₁,
   → pol₁ = next_pol pol (β ns) (γ ns) c₁
   → (ps_poly_nth 0 pol₁ ≠ 0)%ps
   → ns₁ = List.hd phony_ns (newton_segments pol₁)
-(*
-  → ini_pt ns₁ = (Qnat j₁, αj₁)
-  → fin_pt ns₁ = (Qnat k₁, αk₁)
-*)
   → c₂ = ac_root (Φq pol₁ ns₁) ∧ (c₂ ≠ 0)%K
   → root_multiplicity acf c₂ (Φq pol₁ ns₁) = 1%nat.
 Proof.
@@ -385,10 +381,9 @@ remember Hns as H; clear HeqH.
 symmetry in Hr.
 eapply f₁_orders in H; try eassumption.
 destruct H as (Hnneg, (Hpos, Hz)).
+symmetry in Hr.
+bbb.
 unfold root_multiplicity; simpl.
-(*
-rewrite Hini₁, Hfin₁; simpl.
-*)
 rewrite Nat.sub_diag; simpl.
 rewrite skipn_pad; simpl.
 
