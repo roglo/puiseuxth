@@ -33,12 +33,6 @@ Fixpoint minimise_slope pt₁ pt₂ pts₂ :=
       end
   end.
 
-(*
-Record hull_seg := ahs
-  { vert : (Q * Q);
-    edge : list (Q * Q) }.
-*)
-
 Record newton_segment := mkns
   { ini_pt : (Q * Q);
     fin_pt : (Q * Q);
