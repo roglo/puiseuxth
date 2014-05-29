@@ -1909,63 +1909,15 @@ destruct (Qlt_le_dec k h) as [Hlt| Hge].
 
     apply Qle_neq_lt in Hge₂; [ idtac | assumption ].
     eapply lt_bef_j; simpl; try eassumption.
-bbb.
-oops...
+    split; [ assumption | idtac ].
+    remember (mkns (j, αj) (k, αk) segjk) as ns.
+    apply ini_lt_fin_pt with (ns := ns) (n := n) in Hsort.
+     subst ns; assumption.
 
-intros n pts nsl₁ ns nsl.
-intros Hsort Hnp h αh Hh Hnh.
-destruct nsl as [| ((j, αj), (ptj, segjk))].
-bbb.
- apply list_map_pairs_length in Hnsl.
- rewrite List.app_length in Hnsl.
- simpl in Hnsl.
- rewrite List.app_nil_r in Hnsl.
- rewrite Hlen in Hnsl.
- destruct (length nsl₁) as [| len]; [ discriminate Hnsl | simpl in Hnsl ].
- exfalso; symmetry in Hnsl; revert Hnsl.
- rewrite plus_comm; apply succ_plus_discr.
-
- destruct hsl as [| ((k, αk), segkx)].
-  apply list_map_pairs_length in Hnsl.
-  rewrite List.app_length in Hnsl.
-  simpl in Hnsl.
-  rewrite List.app_length in Hnsl; simpl in Hnsl.
-  rewrite Hlen in Hnsl.
-  exfalso; symmetry in Hnsl; revert Hnsl.
-  rewrite plus_comm, <- plus_n_Sm; simpl.
-  rewrite plus_comm; apply succ_plus_discr.
-
-  eapply get_ns in Hnsl; [ idtac | assumption ].
-  subst ns; simpl in Hnh |- *.
-  destruct (Qlt_le_dec k h) as [Hlt| Hge].
-   eapply lt_aft_k with (hsl₁ := hsl₁); simpl; eassumption.
-
-   destruct (Qeq_dec h k) as [Heq| Hne].
-    remember (hsl₁ ++ [{| vert := (j, αj); edge := segjk |}]) as x.
-    eapply qeq_eq with (hsl₁ := x) in Heq; subst x; try eassumption.
-     exfalso; revert Heq.
-     eapply not_k with (hsl₁ := hsl₁); eassumption.
-
-     rewrite <- List.app_assoc; simpl; eassumption.
-
-    destruct (Qlt_le_dec j h) as [Hlt| Hge₂].
-     apply Qle_neq_lt in Hge; [ idtac | assumption ].
-     eapply conj in Hge; [ idtac | eassumption ].
-     eapply lt_bet_j_and_k with (hsl₁ := hsl₁); eassumption.
-
-     destruct (Qeq_dec h j) as [Heq| Hne₂].
-      eapply qeq_eq with (hsl₁ := hsl₁) in Heq; try eassumption.
-      exfalso; revert Heq.
-      eapply not_j with (hsl₁ := hsl₁); simpl; eassumption.
-
-      apply Qle_neq_lt in Hge₂; [ idtac | assumption ].
-      eapply lt_bef_j with (hsl₁ := hsl₁); simpl; try eassumption.
-      split; [ assumption | idtac ].
-      apply next_points_sorted in Hnp; [ idtac | assumption ].
-      apply Sorted_app in Hnp; destruct Hnp as (_, Hnp).
-      apply Sorted_inv_2 in Hnp; destruct Hnp; assumption.
+     rewrite Hnp.
+     apply List.in_or_app.
+     right; left; reflexivity.
 Qed.
-*)
 
 Lemma lt_not_in_ns : ∀ n pts hsl₁ hsl ns,
   Sorted fst_lt pts
@@ -1978,6 +1930,7 @@ Proof.
 intros n pts hsl₁ hsl ns Hsort Hnp Hns.
 intros h αh Hh Hnh.
 revert n pts hsl₁ ns Hsort Hnp Hns Hh Hnh.
+bbb.
 induction nsl as [| ns₃]; [ contradiction | intros ].
 destruct Hns as [Hns| Hns].
  subst ns.
