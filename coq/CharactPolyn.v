@@ -469,19 +469,25 @@ symmetry in Hnp.
 remember (length pts) as n; clear Heqn.
 revert pol hq αh kq αk ns pts n Heqpts Hnp Hns Hoth Hfin.
 induction hsl as [| hs₁]; intros; [ contradiction | idtac ].
-destruct hsl as [| hs₂]; [ contradiction | idtac ].
-rewrite list_map_pairs_cons_cons in Hns.
-destruct Hns as [Hns| Hns].
- subst ns.
+destruct hsl as [| hs₂].
+ destruct Hns as [Hns| ]; [ subst hs₁ | contradiction ].
+ destruct n; [ discriminate Hnp | simpl in Hnp ].
+ destruct pts as [| pt₁]; [ discriminate Hnp | idtac ].
+ destruct pts as [| pt₂]; [ discriminate Hnp | idtac ].
+ injection Hnp; clear Hnp; intros Hhsl Hns; subst ns.
  simpl in Hoth, Hfin.
- eapply edge_bef_vert; eassumption.
+ eapply seg_bef_end_pt; try eassumption; reflexivity.
 
  destruct n; [ discriminate Hnp | simpl in Hnp ].
  destruct pts as [| pt₁]; [ discriminate Hnp | simpl in Hnp ].
  destruct pts as [| pt₂]; [ discriminate Hnp | simpl in Hnp ].
  injection Hnp; clear Hnp; intros Hnp H; subst hs₁.
- eapply IHhsl in Hnp; try eassumption.
- eapply minimise_slope_sorted; [ eassumption | reflexivity ].
+ destruct Hns as [Hns| Hns].
+  subst ns; simpl in Hoth, Hfin.
+  eapply seg_bef_end_pt; try eassumption; reflexivity.
+
+  eapply IHhsl in Hnp; try eassumption.
+  eapply minimise_slope_sorted; [ eassumption | reflexivity ].
 Qed.
 
 Lemma h_lt_k : ∀ (pol : puis_ser_pol α) h αh hq k αk kq ns,
