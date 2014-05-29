@@ -1815,36 +1815,6 @@ destruct hsl₁ as [| hs₁].
    split; assumption.
 Qed.
 
-(*
-Lemma get_ns : ∀ hsl₁ hsj hsk hsl nsl₁ ns nsl,
-  list_map_pairs newton_segment_of_pair (hsl₁ ++ [hsj; hsk … hsl]) =
-     nsl₁ ++ [ns … nsl]
-  → List.length hsl₁ = List.length nsl₁
-    → ns = mkns (vert hsj) (vert hsk) (edge hsj).
-Proof.
-intros hsl₁ hsj hsk hsl nsl₁ ns nsl.
-intros Hhsl Hlen.
-revert nsl₁ Hhsl Hlen.
-induction hsl₁ as [| hs]; intros.
- destruct nsl₁; [ idtac | discriminate Hlen ].
- simpl in Hhsl.
- injection Hhsl; clear Hhsl; intros Hhsl H; subst ns.
- reflexivity.
-
- destruct nsl₁ as [| ns₃]; [ discriminate Hlen | idtac ].
- simpl in Hlen; apply eq_add_S in Hlen.
- destruct hsl₁ as [| hs₃].
-  destruct nsl₁; [ idtac | discriminate Hlen ].
-  simpl in Hhsl.
-  injection Hhsl; clear Hhsl; intros Hhsl; intros; subst ns ns₃.
-  reflexivity.
-
-  simpl in Hhsl.
-  injection Hhsl; clear Hhsl; intros Hhsl; intros; subst ns₃.
-  eapply IHhsl₁; eassumption.
-Qed.
-*)
-
 Lemma lt_not_in_some_ns : ∀ n pts nsl₁ ns nsl,
   Sorted fst_lt pts
   → next_ch_points n pts = nsl₁ ++ [ns … nsl]

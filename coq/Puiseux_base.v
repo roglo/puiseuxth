@@ -2,9 +2,7 @@
 
 (* Most of notations are Robert Walker's ones *)
 
-Require Import Utf8.
-Require Import QArith.
-Require Import Sorting.
+Require Import Utf8 QArith Sorting.
 
 Require Import ConvexHull.
 Require Import ConvexHullMisc.
@@ -65,12 +63,6 @@ Definition points_of_ps_lap α {R : ring α} lps :=
 
 Definition points_of_ps_polynom α {R : ring α} pol :=
   points_of_ps_lap (al pol).
-
-(*
-Definition newton_segments α {R : ring α} pol :=
-  let gdpl := points_of_ps_polynom pol in
-  list_map_pairs newton_segment_of_pair (lower_convex_hull_points gdpl).
-*)
 
 Definition newton_segments α {R : ring α} pol :=
   let gdpl := points_of_ps_polynom pol in

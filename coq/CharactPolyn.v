@@ -1,9 +1,6 @@
 (* CharactPolyn.v *)
 
-Require Import Utf8.
-Require Import QArith.
-Require Import Sorted.
-Require Import NPeano.
+Require Import Utf8 QArith Sorted NPeano.
 
 Require Import ConvexHull.
 Require Import ConvexHullMisc.
