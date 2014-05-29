@@ -1078,9 +1078,9 @@ destruct Hini as (j, (αj, Hini)).
 destruct Hfin as (k, (αk, Hfin)).
 remember (points_of_ps_polynom pol) as pts.
 remember (lower_convex_hull_points pts) as hsl.
-remember Hns as Hg; clear HeqHg.
 symmetry in Hini, Hfin.
-eapply gamma_value_jk in Hg; try eassumption.
+remember Hini as Hg; clear HeqHg.
+eapply gamma_value_jk in Hg; [ idtac | eassumption ].
 subst hsl.
 remember (List.nth j (al pol) 0%ps) as jps.
 remember Heqjps as Hjps_v; clear HeqHjps_v.
@@ -1153,9 +1153,9 @@ destruct Hini as (j, (αj, Hini)).
 destruct Hfin as (k, (αk, Hfin)).
 remember (points_of_ps_polynom pol) as pts.
 remember (lower_convex_hull_points pts) as hsl.
-remember Hns as Hg; clear HeqHg.
 symmetry in Hini, Hfin.
-eapply gamma_value_jk in Hg; try eassumption.
+remember Hini as Hg; clear HeqHg.
+eapply gamma_value_jk in Hg; [ idtac | eassumption ].
 subst hsl.
 remember (List.nth j (al pol) 0%ps) as jps.
 remember Heqjps as Hjps_v; clear HeqHjps_v.
@@ -1476,9 +1476,9 @@ split.
    eapply j_lt_h; try eassumption; reflexivity.
 
   rewrite Hpts in Hns.
-  remember Hns as Hgh; clear HeqHgh.
+  remember Hj as Hgh; clear HeqHgh.
   symmetry in Hh.
-  eapply gamma_value_jk in Hgh; try eassumption.
+  eapply gamma_value_jk in Hgh; [ idtac | eassumption ].
   remember Hm as Hgamma; clear HeqHgamma.
   eapply gamma_eq_p_nq in Hgamma; try eassumption; try reflexivity.
   rewrite Hgh in Hgamma.
@@ -1851,13 +1851,14 @@ Qed.
 Lemma edge_pts_sorted : ∀ n pts hs,
   Sorted fst_lt pts
   → hs ∈ next_ch_points n pts
-    → Sorted fst_lt (edge hs).
+    → Sorted fst_lt (oth_pts hs).
 Proof.
 intros n pts hs Hsort Hhs.
 revert pts hs Hsort Hhs.
 induction n; intros; [ contradiction | simpl in Hhs ].
 destruct pts as [| pt₁]; [ contradiction | idtac ].
 destruct pts as [| pt₂].
+bbb.
  destruct Hhs; [ subst hs; constructor | contradiction ].
 
  destruct Hhs as [Hhs| Hhs].
