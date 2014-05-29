@@ -190,7 +190,7 @@ Qed.
 Lemma hull_seg_edge_in_init_pts : ∀ n pts hs hsl pt,
   next_ch_points n pts = hsl
   → hs ∈ hsl
-    → pt ∈ edge hs
+    → pt ∈ oth_pts hs
       → pt ∈ pts.
 Proof.
 intros n pts hs hsl pt Hnp Hhs Hpt.
@@ -200,33 +200,29 @@ destruct Hhs as [Hhs| Hhs].
  subst hs₁.
  destruct n; [ discriminate Hnp | simpl in Hnp ].
  destruct pts as [| pt₁]; [ discriminate Hnp | idtac ].
- destruct pts as [| pt₂].
-  injection Hnp; intros; subst hs; contradiction.
-
-  injection Hnp; clear Hnp; intros Hnp Hhs.
-  subst hs; simpl in Hpt.
-  right; eapply in_seg_in_pts; eassumption.
+ destruct pts as [| pt₂]; [ discriminate Hnp | idtac ].
+ injection Hnp; clear Hnp; intros Hnp Hhs.
+ subst hs; simpl in Hpt.
+ right; eapply in_seg_in_pts; eassumption.
 
  destruct n; [ discriminate Hnp | simpl in Hnp ].
  destruct pts as [| pt₁]; [ discriminate Hnp | idtac ].
- destruct pts as [| pt₂].
-  injection Hnp; intros; subst hsl; contradiction.
+ destruct pts as [| pt₂]; [ discriminate Hnp | idtac ].
+ injection Hnp; clear Hnp; intros Hnp Hs₁; subst hs₁.
+ eapply IHhsl in Hhs; [ idtac | eassumption | eassumption ].
+ remember (minimise_slope pt₁ pt₂ pts) as ms₁.
+ symmetry in Heqms₁.
+ destruct Hhs as [Hhs| Hhs].
+  rewrite <- Hhs.
+  right; eapply end_pt_in; eassumption.
 
-  injection Hnp; clear Hnp; intros Hnp Hs₁; subst hs₁.
-  eapply IHhsl in Hhs; [ idtac | eassumption | eassumption ].
-  remember (minimise_slope pt₁ pt₂ pts) as ms₁.
-  symmetry in Heqms₁.
-  destruct Hhs as [Hhs| Hhs].
-   rewrite <- Hhs.
-   right; eapply end_pt_in; eassumption.
-
-   right; right; eapply rem_pts_in; eassumption.
+  right; right; eapply rem_pts_in; eassumption.
 Qed.
 
 Lemma hull_seg_vert_in_init_pts : ∀ n pts hs hsl,
   next_ch_points n pts = hsl
   → hs ∈ hsl
-    → vert hs ∈ pts.
+    → ini_pt hs ∈ pts ∧ fin_pt hs ∈ pts.
 Proof.
 intros n pts hs hsl Hnp Hhs.
 revert n pts hs Hnp Hhs.
@@ -235,89 +231,19 @@ destruct Hhs as [Hhs| Hhs].
  subst hs₁.
  destruct n; [ discriminate Hnp | simpl in Hnp ].
  destruct pts as [| pt₁]; [ discriminate Hnp | idtac ].
- destruct pts as [| pt₂].
-  injection Hnp; intros; subst hs; left; reflexivity.
-
-  injection Hnp; clear Hnp; intros Hnp Hhs.
-  subst hs; left; reflexivity.
-
- destruct n; [ discriminate Hnp | simpl in Hnp ].
- destruct pts as [| pt₁]; [ discriminate Hnp | idtac ].
- destruct pts as [| pt₂].
-  injection Hnp; intros; subst hsl; contradiction.
-
-  injection Hnp; clear Hnp; intros Hnp Hs₁; subst hs₁.
-  eapply IHhsl in Hhs; [ idtac | eassumption ].
-  remember (minimise_slope pt₁ pt₂ pts) as ms₁.
-  symmetry in Heqms₁.
-  destruct Hhs as [Hhs| Hhs].
-   rewrite <- Hhs.
-   right; eapply end_pt_in; eassumption.
-
-   right; right; eapply rem_pts_in; eassumption.
-Qed.
-
-Lemma oth_pts_in_init_pts : ∀ pts ns pt,
-  ns ∈ list_map_pairs newton_segment_of_pair (lower_convex_hull_points pts)
-  → pt ∈ oth_pts ns
-    → pt ∈ pts.
-Proof.
-intros pts ns pt Hns Hpt.
-remember (lower_convex_hull_points pts) as hsl.
-unfold lower_convex_hull_points in Heqhsl.
-remember (length pts) as n; clear Heqn.
-rename Heqhsl into Hnp; symmetry in Hnp.
-revert pts ns n Hnp Hns Hpt.
-induction hsl as [| hs₁]; [ contradiction | intros ].
-destruct hsl as [| hs₂]; [ contradiction | idtac ].
-destruct Hns as [Hns| Hns].
- subst ns; simpl in Hpt |- *.
- eapply hull_seg_edge_in_init_pts; try eassumption.
- left; reflexivity.
+ destruct pts as [| pt₂]; [ discriminate Hnp | idtac ].
+ injection Hnp; clear Hnp; intros Hnp Hhs; subst hs.
+ split; [ left; reflexivity | idtac ].
+ right; eapply end_pt_in; reflexivity.
 
  destruct n; [ discriminate Hnp | simpl in Hnp ].
  destruct pts as [| pt₁]; [ discriminate Hnp | idtac ].
  destruct pts as [| pt₂]; [ discriminate Hnp | idtac ].
- injection Hnp; clear Hnp; intros Hhsl Hhs₁; subst hs₁.
- eapply IHhsl in Hhsl; [ idtac | eassumption | eassumption ].
- remember (minimise_slope pt₁ pt₂ pts) as ms₂.
- symmetry in Heqms₂.
- destruct Hhsl as [Hhsl| Hhsl].
-  subst pt.
-  right; eapply end_pt_in; eassumption.
-
-  right; right; eapply rem_pts_in; eassumption.
-Qed.
-
-Lemma ini_fin_ns_in_init_pts : ∀ pts ns,
-  ns ∈ list_map_pairs newton_segment_of_pair (lower_convex_hull_points pts)
-  → ini_pt ns ∈ pts ∧ fin_pt ns ∈ pts.
-Proof.
-intros pts ns Hns.
-remember (lower_convex_hull_points pts) as hsl.
-unfold lower_convex_hull_points in Heqhsl.
-remember (length pts) as n; clear Heqn.
-rename Heqhsl into Hnp; symmetry in Hnp.
-revert pts ns n Hnp Hns.
-induction hsl as [| hs₁]; [ contradiction | intros ].
-destruct hsl as [| hs₂]; [ contradiction | idtac ].
-destruct Hns as [Hns| Hns].
- subst ns; simpl.
- split.
-  eapply hull_seg_vert_in_init_pts; [ eassumption | idtac ].
-  left; reflexivity.
-
-  eapply hull_seg_vert_in_init_pts; [ eassumption | idtac ].
-  right; left; reflexivity.
-
- destruct n; [ discriminate Hnp | simpl in Hnp ].
- destruct pts as [| pt₁]; [ discriminate Hnp | idtac ].
- destruct pts as [| pt₂]; [ discriminate Hnp | idtac ].
- injection Hnp; clear Hnp; intros Hnp; intros; subst hs₁.
- eapply IHhsl in Hnp; [ idtac | eassumption ].
+ injection Hnp; clear Hnp; intros Hnp H; subst hs₁.
+ eapply IHhsl in Hhs; [ idtac | eassumption ].
  remember (minimise_slope pt₁ pt₂ pts) as ms₁.
  symmetry in Heqms₁.
- destruct Hnp as (Hini, Hfin).
+ destruct Hhs as (Hini, Hfin).
  split.
   destruct Hini as [Hini| Hini].
    rewrite <- Hini.
@@ -332,8 +258,25 @@ destruct Hns as [Hns| Hns].
    right; right; eapply rem_pts_in; eassumption.
 Qed.
 
+Lemma oth_pts_in_init_pts : ∀ pts ns pt,
+  ns ∈ lower_convex_hull_points pts
+  → pt ∈ oth_pts ns
+    → pt ∈ pts.
+Proof.
+intros pts ns pt Hns Hpt.
+eapply hull_seg_edge_in_init_pts; try eassumption; reflexivity.
+Qed.
+
+Lemma ini_fin_ns_in_init_pts : ∀ pts ns,
+  ns ∈ lower_convex_hull_points pts
+  → ini_pt ns ∈ pts ∧ fin_pt ns ∈ pts.
+Proof.
+intros pts ns Hns.
+eapply hull_seg_vert_in_init_pts; try eassumption; reflexivity.
+Qed.
+
 Lemma ns_in_init_pts : ∀ pts ns pt,
-  ns ∈ list_map_pairs newton_segment_of_pair (lower_convex_hull_points pts)
+  ns ∈ lower_convex_hull_points pts
   → pt ∈ [ini_pt ns … oth_pts ns ++ [fin_pt ns]]
     → pt ∈ pts.
 Proof.
@@ -385,14 +328,15 @@ Qed.
 Lemma vert_bef_edge : ∀ pts n hs hsl j αj h αh,
   Sorted fst_lt pts
   → next_ch_points n pts = [hs … hsl]
-    → (j, αj) = vert hs
-      → (h, αh) ∈ edge hs
+    → (j, αj) = ini_pt hs
+      → (h, αh) ∈ oth_pts hs
         → j < h.
 Proof.
 intros pts n hs hsl j αj h αh Hsort Hnp Hj Hh.
 destruct pts as [| pt₁]; [ destruct n; discriminate Hnp | idtac ].
 destruct n; [ discriminate Hnp | simpl in Hnp ].
 destruct pts as [| pt₂].
+bbb.
  injection Hnp; clear Hnp; intros; subst hs hsl; contradiction.
 
  injection Hnp; clear Hnp; intros Hhsl Hhs.

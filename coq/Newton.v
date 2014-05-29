@@ -11,12 +11,14 @@ Notation "[ ]" := nil.
 Notation "[ x ; .. ; y … l ]" := (cons x .. (cons y l) ..).
 Notation "[ x ]" := (cons x nil).
 
+(*
 Fixpoint list_map_pairs α β (f : α → α → β) l :=
   match l with
   | [] => []
   | [x₁] => []
   | [x₁ … ([x₂ … l₂] as l₁)] => [f x₁ x₂ … list_map_pairs f l₁]
   end.
+*)
 
 (*
 Definition newton_segment_of_pair hsj hsk :=
@@ -29,6 +31,7 @@ Definition γ ns :=
 Definition β ns :=
   snd (ini_pt ns) + fst (ini_pt ns) * γ ns.
 
+(*
 Lemma list_map_pairs_length {A B} : ∀ (f : A → A → B) l₁ l₂,
   list_map_pairs f l₁ = l₂
   → List.length l₂ = pred (List.length l₁).
@@ -45,3 +48,4 @@ Qed.
 Lemma list_map_pairs_cons_cons : ∀ A B (f : A → A → B) x y l,
   list_map_pairs f [x; y … l] = [f x y … list_map_pairs f [y … l]].
 Proof. reflexivity. Qed.
+*)
