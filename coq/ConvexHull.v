@@ -1,7 +1,7 @@
 (* ConvexHull.v *)
 
-Require Import Utf8.
-Require Import QArith.
+Require Import Utf8 QArith.
+
 Require Import Slope_base.
 
 Notation "[ ]" := nil.
