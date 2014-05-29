@@ -320,6 +320,39 @@ induction pts as [| pt₃]; intros.
   intros x y z H₁ H₂; eapply Qlt_trans; eassumption.
 Qed.
 
+Lemma ini_lt_fin_pt : ∀ pts ns n,
+  Sorted fst_lt pts
+  → ns ∈ next_ch_points n pts
+  → fst (ini_pt ns) < fst (fin_pt ns).
+Proof.
+intros pts ns n Hsort Hns.
+remember (next_ch_points n pts) as nsl eqn:Hnsl .
+revert pts ns n Hsort Hnsl Hns.
+induction nsl as [| ns₁]; intros; [ contradiction | idtac ].
+simpl in Hns.
+destruct Hns as [Hns| Hns].
+ subst ns₁.
+ destruct n; [ discriminate Hnsl | simpl in Hnsl ].
+ destruct pts as [| pt₁]; [ discriminate Hnsl | idtac ].
+ destruct pts as [| pt₂]; [ discriminate Hnsl | idtac ].
+ injection Hnsl; clear Hnsl; intros Hnsl Hns.
+ subst ns; simpl.
+ remember (minimise_slope pt₁ pt₂ pts) as ms eqn:Hms .
+ assert (pt₁ = beg_pt ms) as H.
+  rewrite Hms, minimised_slope_beg_pt; reflexivity.
+
+  rewrite H.
+  symmetry in Hms.
+  eapply beg_lt_end_pt; eassumption.
+
+ destruct n; [ discriminate Hnsl | simpl in Hnsl ].
+ destruct pts as [| pt₁]; [ discriminate Hnsl | idtac ].
+ destruct pts as [| pt₂]; [ discriminate Hnsl | idtac ].
+ injection Hnsl; clear Hnsl; intros Hnsl Hns₁.
+ eapply IHnsl; [ idtac | eassumption | assumption ].
+ eapply minimise_slope_sorted; [ eassumption | reflexivity ].
+Qed.
+
 Lemma next_ch_points_le : ∀ n pt₁ pt₂ pt₃ pts₁ sg hsl₁ hsl,
   Sorted fst_lt [pt₁ … pts₁]
   → next_ch_points n [pt₁ … pts₁] = hsl₁ ++ [mkns pt₂ pt₃ sg … hsl]
