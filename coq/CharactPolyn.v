@@ -527,6 +527,44 @@ eapply pt_absc_is_nat with (pt := ini_pt ns) in Hj₁.
   rename Heqhsl into Hnp.
   symmetry in Hnp.
   remember (length pts) as n; clear Heqn.
+  assert (fst (ini_pt ns) < fst (fin_pt ns)).
+   Focus 2.
+   rewrite Hj₁, Hk₁ in H.
+   unfold Qnat in H; simpl in H.
+   rewrite Z2Nat.id in H.
+    rewrite Z2Nat.id in H.
+     unfold nat_num in Hj, Hk.
+     rewrite <- Hj in Hj₁.
+     rewrite <- Hk in Hk₁.
+     rewrite Hj₁, Hk₁ in H.
+     unfold Qlt in H.
+     simpl in H.
+     do 2 rewrite Z.mul_1_r in H.
+     apply Nat2Z.inj_lt; assumption.
+
+     rewrite Hk₁.
+     unfold Qnat; simpl.
+     apply Nat2Z.is_nonneg.
+
+    rewrite Hj₁.
+    unfold Qnat; simpl.
+    apply Nat2Z.is_nonneg.
+bbb.
+
+intros pol j k ns Hns Hj Hk.
+unfold newton_segments in Hns.
+remember (points_of_ps_polynom pol) as pts.
+remember Heqpts as Hj₁; clear HeqHj₁; symmetry in Hj₁.
+eapply pt_absc_is_nat with (pt := ini_pt ns) in Hj₁.
+ remember Heqpts as Hk₁; clear HeqHk₁; symmetry in Hk₁.
+ eapply pt_absc_is_nat with (pt := fin_pt ns) in Hk₁.
+  apply points_of_polyn_sorted in Heqpts.
+  rename Heqpts into Hsort.
+  remember (lower_convex_hull_points pts) as hsl.
+  unfold lower_convex_hull_points in Heqhsl.
+  rename Heqhsl into Hnp.
+  symmetry in Hnp.
+  remember (length pts) as n; clear Heqn.
 bbb.
 cf ini_lt_fin_pt.
 
