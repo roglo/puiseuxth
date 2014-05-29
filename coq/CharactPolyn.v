@@ -1876,10 +1876,7 @@ intros pt₁ pt₂ pts ms₁ hs n Hsort Hms₁ Hhs.
 revert pt₁ pt₂ ms₁ hs n Hsort Hms₁ Hhs.
 induction pts as [| pt₃]; intros.
  subst ms₁; simpl in Hhs.
- destruct n; [ contradiction | idtac ].
- simpl in Hhs.
-bbb.
- destruct Hhs; [ subst hs; constructor | contradiction ].
+ destruct n; contradiction.
 
  simpl in Hms₁.
  remember (minimise_slope pt₁ pt₃ pts) as ms₃.
