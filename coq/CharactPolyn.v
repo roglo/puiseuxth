@@ -1857,23 +1857,20 @@ intros n pts hs Hsort Hhs.
 revert pts hs Hsort Hhs.
 induction n; intros; [ contradiction | simpl in Hhs ].
 destruct pts as [| pt₁]; [ contradiction | idtac ].
-destruct pts as [| pt₂].
-bbb.
- destruct Hhs; [ subst hs; constructor | contradiction ].
+destruct pts as [| pt₂]; [ contradiction | idtac ].
+destruct Hhs as [Hhs| Hhs].
+ subst hs; simpl.
+ eapply minimise_slope_seg_sorted; [ eassumption | reflexivity ].
 
- destruct Hhs as [Hhs| Hhs].
-  subst hs; simpl.
-  eapply minimise_slope_seg_sorted; [ eassumption | reflexivity ].
-
-  eapply IHn; [ idtac | eassumption ].
-  eapply minimise_slope_sorted; [ eassumption | reflexivity ].
+ eapply IHn; [ idtac | eassumption ].
+ eapply minimise_slope_sorted; [ eassumption | reflexivity ].
 Qed.
 
 Lemma minimise_slope_edge_sorted : ∀ pt₁ pt₂ pts ms₁ hs n,
   Sorted fst_lt [pt₁; pt₂ … pts]
   → minimise_slope pt₁ pt₂ pts = ms₁
     → hs ∈ next_ch_points n [end_pt ms₁ … rem_pts ms₁]
-      → Sorted fst_lt (edge hs).
+      → Sorted fst_lt (oth_pts hs).
 Proof.
 intros pt₁ pt₂ pts ms₁ hs n Hsort Hms₁ Hhs.
 revert pt₁ pt₂ ms₁ hs n Hsort Hms₁ Hhs.
@@ -1881,6 +1878,7 @@ induction pts as [| pt₃]; intros.
  subst ms₁; simpl in Hhs.
  destruct n; [ contradiction | idtac ].
  simpl in Hhs.
+bbb.
  destruct Hhs; [ subst hs; constructor | contradiction ].
 
  simpl in Hms₁.
