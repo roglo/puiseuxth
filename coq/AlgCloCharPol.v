@@ -1,12 +1,10 @@
 (* AlgCloCharPol.v *)
 
-Require Import Utf8.
-Require Import QArith.
-Require Import NPeano.
-Require Import ArithRing.
+Require Import Utf8 QArith NPeano ArithRing.
 
 Require Import Misc.
 Require Import Field.
+Require Import ConvexHull.
 Require Import Newton.
 Require Import Fsummation.
 Require Import Fpolynomial.

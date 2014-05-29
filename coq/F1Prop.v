@@ -1,9 +1,6 @@
 (* F1Prop.v *)
 
-Require Import Utf8.
-Require Import QArith.
-Require Import NPeano.
-Require Import Sorted.
+Require Import Utf8 QArith NPeano Sorted.
 
 Require Import Misc.
 Require Import Qbar.
@@ -13,6 +10,7 @@ Require Import Fpolynomial.
 Require Import Fsummation.
 Require Import Newton.
 Require Import ConvexHullMisc.
+Require Import ConvexHull.
 Require Import Puiseux_base.
 Require Import Power_series.
 Require Import Puiseux_series.

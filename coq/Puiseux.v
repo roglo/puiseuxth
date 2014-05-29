@@ -359,18 +359,8 @@ destruct la as [| a₀].
  simpl in Hns.
  remember (filter_finite_ord R (List.map f (power_list 2 la))) as ffo.
  remember (minimise_slope (Qnat 0, v₀) (Qnat 1, v₁) ffo) as ms.
- remember (rem_pts ms) as rms.
- symmetry in Heqrms.
- destruct rms as [| pt₂].
-  simpl in Hns.
-  unfold newton_segment_of_pair in Hns; simpl in Hns.
-  subst ns; simpl in Hini, Hfin.
-  eapply pouet; eassumption.
-
-  simpl in Hns.
-  unfold newton_segment_of_pair in Hns; simpl in Hns.
-  subst ns; simpl in Hini, Hfin.
-  eapply pouet; eassumption.
+ subst ns; simpl in Hini, Hfin.
+ eapply pouet; eassumption.
 Qed.
 
 Lemma zzz : ∀ pol ns c₁ c₂ pol₁ ns₁,

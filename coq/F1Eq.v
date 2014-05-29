@@ -1,11 +1,9 @@
 (* F1Eq.v *)
 
-Require Import Utf8.
-Require Import QArith.
-Require Import NPeano.
-Require Import Sorted.
+Require Import Utf8 QArith NPeano Sorted.
 
 Require Import ConvexHullMisc.
+Require Import ConvexHull.
 Require Import PolyConvexHull.
 Require Import Field.
 Require Import Misc.
