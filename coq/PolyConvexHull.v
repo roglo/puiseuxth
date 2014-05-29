@@ -5,6 +5,7 @@ Require Import QArith.
 
 Require Import Field.
 Require Import InSegment.
+Require Import ConvexHull.
 Require Import Newton.
 Require Import NotInSegment.
 Require Import Puiseux_base.
@@ -37,17 +38,9 @@ Theorem points_not_in_any_newton_segment : ∀ (pol : puis_ser_pol α) pts ns,
       → β ns < αh + h * (γ ns).
 Proof.
 intros pol pts ns Hpts Hns h αh Hαhnαh.
-eapply points_not_in_any_newton_segment₁.
- apply points_of_polyn_sorted in Hpts.
- eassumption.
-
- reflexivity.
-
- unfold newton_segments in Hns.
- rewrite <- Hpts in Hns.
- assumption.
-
- assumption.
+subst pts.
+eapply points_not_in_any_newton_segment₁; try eassumption.
+eapply points_of_polyn_sorted; reflexivity.
 Qed.
 
 Lemma list_Q_pair_in_dec : ∀ a b (l : list (Q * Q)),
