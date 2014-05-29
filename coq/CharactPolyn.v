@@ -636,24 +636,14 @@ Qed.
           γ₁ = ------- = [...]
                 k - j
   » *)
-Theorem gamma_value_jk : ∀ hsl ns j k αj αk,
-  ns ∈ list_map_pairs newton_segment_of_pair hsl
-  → (j, αj) = ini_pt ns
-    → (k, αk) = fin_pt ns
-      → γ ns = (αj - αk) / (k - j).
+Theorem gamma_value_jk : ∀ ns j k αj αk,
+  (j, αj) = ini_pt ns
+  → (k, αk) = fin_pt ns
+  → γ ns = (αj - αk) / (k - j).
 Proof.
-intros hsl ns j k αj αk Hns Hjαj Hkαk.
-induction hsl as [| ((x₁, y₁), seg)]; [ contradiction | idtac ].
-destruct hsl as [| ((x₂, y₂), seg₂)]; [ contradiction | idtac ].
-rewrite list_map_pairs_cons_cons in Hns.
-destruct Hns as [Hns| Hns].
- subst ns.
- simpl in Hjαj, Hkαk |- *.
- injection Hjαj; clear Hjαj; intros; subst x₁ y₁.
- injection Hkαk; clear Hkαk; intros; subst x₂ y₂.
- reflexivity.
-
- apply IHhsl; assumption.
+intros ns j k αj αk Hjαj Hkαk.
+unfold γ; simpl.
+rewrite <- Hjαj, <- Hkαk; reflexivity.
 Qed.
 
 Lemma first_power_le : ∀ pow cl h hv,
