@@ -527,6 +527,7 @@ eapply pt_absc_is_nat with (pt := ini_pt ns) in Hj₁.
   rename Heqhsl into Hnp.
   symmetry in Hnp.
   remember (length pts) as n; clear Heqn.
+bbb.
   remember (list_map_pairs newton_segment_of_pair hsl) as nsl.
   symmetry in Heqnsl.
   revert n pts ns nsl j k Hsort Hnp Hns Hj Hk Hj₁ Hk₁ Heqnsl.
