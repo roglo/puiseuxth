@@ -1974,14 +1974,13 @@ Lemma minimise_slope_oth_pts_sorted : ∀ pt₁ pt₂ pts hsl ns ms₁ n,
   Sorted fst_lt [pt₁; pt₂ … pts]
   → minimise_slope pt₁ pt₂ pts = ms₁
     → next_ch_points n [end_pt ms₁ … rem_pts ms₁] = hsl
-      → ns ∈ list_map_pairs newton_segment_of_pair hsl
+      → ns ∈ hsl
         → Sorted fst_lt (oth_pts ns).
 Proof.
 intros pt₁ pt₂ pts hsl ns ms₁ n Hsort Hms₁ Hnp Hns.
 revert pt₁ pt₂ pts ns ms₁ n Hsort Hms₁ Hnp Hns.
 induction hsl as [| hs₁]; intros; [ contradiction | idtac ].
 simpl in Hns.
-destruct hsl as [| hs₂]; [ contradiction | idtac ].
 destruct Hns as [Hns| Hns].
  subst ns; simpl.
  eapply minimise_slope_edge_sorted with (n := n); try eassumption.
@@ -2025,21 +2024,9 @@ constructor.
  symmetry in Hnp.
  remember (length pts) as n; clear Heqn.
  induction hsl as [| hs₁]; intros; [ contradiction | idtac ].
- destruct hsl as [| hs₂]; [ contradiction | idtac ].
- rewrite list_map_pairs_cons_cons in Hns.
  apply Sorted_app_at_r.
-  destruct Hns as [Hns| Hns].
-   subst ns; simpl.
-   eapply edge_pts_sorted with (n := n); [ eassumption | idtac ].
-   rewrite Hnp; left; reflexivity.
-
-   destruct n; [ discriminate Hnp | simpl in Hnp ].
-   destruct pts as [| pt₁]; [ discriminate Hnp | idtac ].
-   destruct pts as [| pt₂]; [ discriminate Hnp | idtac ].
-   injection Hnp; clear Hnp; intros Hnp; intros; subst hs₁.
-   remember (minimise_slope pt₁ pt₂ pts) as ms₁.
-   symmetry in Heqms₁.
-   eapply minimise_slope_oth_pts_sorted; eassumption.
+  rewrite <- Hnp in Hns.
+  eapply edge_pts_sorted; eassumption.
 
   intros (hq, αh) Hh.
   eapply hq_lt_kq; try eassumption.
