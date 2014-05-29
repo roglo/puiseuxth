@@ -8,6 +8,11 @@ Notation "[ ]" := nil.
 Notation "[ x ; .. ; y … l ]" := (cons x .. (cons y l) ..).
 Notation "[ x ]" := (cons x nil).
 
+Record newton_segment := mkns
+  { ini_pt : (Q * Q);
+    fin_pt : (Q * Q);
+    oth_pts : list (Q * Q) }.
+
 Record min_sl :=
   { beg_pt : (Q * Q);
     end_pt : (Q * Q);
@@ -32,11 +37,6 @@ Fixpoint minimise_slope pt₁ pt₂ pts₂ :=
           ms
       end
   end.
-
-Record newton_segment := mkns
-  { ini_pt : (Q * Q);
-    fin_pt : (Q * Q);
-    oth_pts : list (Q * Q) }.
 
 Fixpoint next_ch_points n pts :=
   match n with

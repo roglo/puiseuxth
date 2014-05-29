@@ -13,9 +13,6 @@ Notation "x ∉ l" := (not (List.In x l)) (at level 70).
 Notation "x ++ y" := (List.app x y) (right associativity, at level 60).
 
 Definition fst_lt (x y : Q * Q) := (fst x < fst y).
-(*
-Definition hs_x_lt (x y : hull_seg) := (fst (vert x) < fst (vert y)).
-*)
 Definition hs_x_lt (x y : newton_segment) :=
   (fst (ini_pt x) < fst (ini_pt y)).
 
