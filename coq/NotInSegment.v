@@ -1930,34 +1930,14 @@ Proof.
 intros n pts hsl₁ hsl ns Hsort Hnp Hns.
 intros h αh Hh Hnh.
 revert n pts hsl₁ ns Hsort Hnp Hns Hh Hnh.
-bbb.
-induction nsl as [| ns₃]; [ contradiction | intros ].
+induction hsl as [| ns₁]; intros; [ contradiction | idtac ].
 destruct Hns as [Hns| Hns].
  subst ns.
- eapply lt_not_in_some_ns with (hsl₁ := hsl₁) (nsl₁ := nsl₁); eassumption.
+ eapply lt_not_in_some_ns; eassumption.
 
- destruct hsl as [| hs₂].
-  apply list_map_pairs_length in Hnsl.
-  rewrite List.app_length in Hnsl.
-  rewrite List.app_nil_r in Hnsl.
-  rewrite Hlen in Hnsl.
-  destruct (length nsl₁) as [| len]; [ discriminate Hnsl | simpl in Hnsl ].
-  exfalso; symmetry in Hnsl; revert Hnsl.
-  rewrite plus_comm; apply succ_plus_discr.
-
-  rewrite list_cons_app in Hnp, Hnsl.
-  rewrite List.app_assoc in Hnp, Hnsl.
-  symmetry in Hnsl.
-  rewrite list_cons_app in Hnsl.
-  rewrite List.app_assoc in Hnsl.
-  symmetry in Hnsl.
-  eapply IHnsl; try eassumption.
-  do 2 rewrite List.app_length.
-  rewrite plus_comm; simpl.
-  rewrite plus_comm; simpl.
-  apply eq_S; assumption.
+ eapply IHhsl with (hsl₁ := hsl₁ ++ [ns₁]); try eassumption.
+ rewrite <- List.app_assoc; eassumption.
 Qed.
-*)
 
 Lemma points_not_in_any_newton_segment₁ : ∀ pts ns,
   Sorted fst_lt pts
@@ -1966,6 +1946,7 @@ Lemma points_not_in_any_newton_segment₁ : ∀ pts ns,
   → β ns < αh + h * (γ ns).
 Proof.
 intros pts ns Hsort Hns h αh (Hαh, Hnαh).
+bbb.
 remember (length pts) as n; clear Heqn.
 remember (list_map_pairs newton_segment_of_pair hsl) as nsl.
 rename Heqnsl into Hnsl.
