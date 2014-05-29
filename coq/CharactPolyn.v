@@ -521,14 +521,9 @@ eapply pt_absc_is_nat with (pt := ini_pt ns) in Hj₁.
  remember Heqpts as Hk₁; clear HeqHk₁; symmetry in Hk₁.
  eapply pt_absc_is_nat with (pt := fin_pt ns) in Hk₁.
   apply points_of_polyn_sorted in Heqpts.
-  rename Heqpts into Hsort.
-  remember (lower_convex_hull_points pts) as hsl.
-  unfold lower_convex_hull_points in Heqhsl.
-  rename Heqhsl into Hnp.
-  symmetry in Hnp.
-  remember (length pts) as n; clear Heqn.
   assert (fst (ini_pt ns) < fst (fin_pt ns)).
-   Focus 2.
+   eapply ini_lt_fin_pt; eassumption.
+
    rewrite Hj₁, Hk₁ in H.
    unfold Qnat in H; simpl in H.
    rewrite Z2Nat.id in H.
@@ -549,69 +544,10 @@ eapply pt_absc_is_nat with (pt := ini_pt ns) in Hj₁.
     rewrite Hj₁.
     unfold Qnat; simpl.
     apply Nat2Z.is_nonneg.
-bbb.
 
-intros pol j k ns Hns Hj Hk.
-unfold newton_segments in Hns.
-remember (points_of_ps_polynom pol) as pts.
-remember Heqpts as Hj₁; clear HeqHj₁; symmetry in Hj₁.
-eapply pt_absc_is_nat with (pt := ini_pt ns) in Hj₁.
- remember Heqpts as Hk₁; clear HeqHk₁; symmetry in Hk₁.
- eapply pt_absc_is_nat with (pt := fin_pt ns) in Hk₁.
-  apply points_of_polyn_sorted in Heqpts.
-  rename Heqpts into Hsort.
-  remember (lower_convex_hull_points pts) as hsl.
-  unfold lower_convex_hull_points in Heqhsl.
-  rename Heqhsl into Hnp.
-  symmetry in Hnp.
-  remember (length pts) as n; clear Heqn.
-bbb.
-cf ini_lt_fin_pt.
+  apply ini_fin_ns_in_init_pts; assumption.
 
-  remember (list_map_pairs newton_segment_of_pair hsl) as nsl.
-  symmetry in Heqnsl.
-  revert n pts ns nsl j k Hsort Hnp Hns Hj Hk Hj₁ Hk₁ Heqnsl.
-  induction hsl as [| hs₁]; intros; [ subst nsl; contradiction | idtac ].
-  destruct nsl as [| ns₁]; [ contradiction | idtac ].
-  destruct Hns as [Hns| Hns].
-   subst ns₁.
-   simpl in Heqnsl.
-   destruct hsl as [| hs₂]; [ discriminate Heqnsl | idtac ].
-   injection Heqnsl; clear Heqnsl; intros Hnsl Hns.
-   unfold newton_segment_of_pair in Hns.
-   subst ns.
-   simpl in Hj, Hk, Hj₁, Hk₁.
-   apply next_points_sorted in Hnp; [ idtac | assumption ].
-   apply Sorted_inv_2 in Hnp; destruct Hnp as (Hlt, Hnp).
-   unfold hs_x_lt in Hlt; simpl in Hlt.
-   unfold Qlt in Hlt.
-   rewrite Hj₁ in Hj, Hlt.
-   rewrite Hk₁ in Hk, Hlt.
-   rewrite nat_num_Qnat in Hj, Hk.
-   subst j k.
-   unfold Qnat in Hlt; simpl in Hlt.
-   do 2 rewrite Zmult_1_r in Hlt.
-   apply Nat2Z.inj_lt; assumption.
-
-   destruct n; [ discriminate Hnp | simpl in Hnp ].
-   destruct pts as [| pt₁]; [ discriminate Hnp | idtac ].
-   destruct pts as [| pt₂].
-    injection Hnp; clear Hnp; intros; subst hs₁ hsl.
-    discriminate Heqnsl.
-
-    injection Hnp; clear Hnp; intros Hnp H; subst hs₁.
-    simpl in Heqnsl.
-    destruct hsl as [| hs₁]; [ discriminate Heqnsl | idtac ].
-    remember [hs₁ … hsl] as x.
-    injection Heqnsl; clear Heqnsl; intros Hnsl Hns₁; subst x.
-    remember (minimise_slope pt₁ pt₂ pts) as ms.
-    symmetry in Heqms.
-    eapply IHhsl with (pts := [end_pt ms … rem_pts ms]); try eassumption.
-    eapply minimise_slope_sorted; eassumption.
-
-  apply ini_fin_ns_in_init_pts; eassumption.
-
- apply ini_fin_ns_in_init_pts; eassumption.
+ apply ini_fin_ns_in_init_pts; assumption.
 Qed.
 
 Lemma jz_lt_kz : ∀ (pol : puis_ser_pol α) jz kz ns,
