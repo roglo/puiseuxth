@@ -335,14 +335,10 @@ Proof.
 intros pts n hs hsl j αj h αh Hsort Hnp Hj Hh.
 destruct pts as [| pt₁]; [ destruct n; discriminate Hnp | idtac ].
 destruct n; [ discriminate Hnp | simpl in Hnp ].
-destruct pts as [| pt₂].
-bbb.
- injection Hnp; clear Hnp; intros; subst hs hsl; contradiction.
-
- injection Hnp; clear Hnp; intros Hhsl Hhs.
- subst hs.
- simpl in Hj, Hh.
- apply pt₁_bef_seg in Hh; [ subst pt₁; assumption | assumption ].
+destruct pts as [| pt₂]; [ discriminate Hnp | idtac ].
+injection Hnp; clear Hnp; intros Hhsl Hhs; subst hs.
+simpl in Hj, Hh.
+apply pt₁_bef_seg in Hh; [ subst pt₁; assumption | assumption ].
 Qed.
 
 Lemma jq_lt_hq : ∀ (pol : puis_ser_pol α) j αj h αh ns,
@@ -362,16 +358,14 @@ symmetry in Hnp.
 remember (length pts) as n; clear Heqn.
 revert pol j αj h αh ns pts n Heqpts Hnp Hns Hjαj Hhαh.
 induction hsl as [| hs₁]; intros; [ contradiction | idtac ].
-destruct hsl as [| hs₂]; [ contradiction | idtac ].
-rewrite list_map_pairs_cons_cons in Hns.
 destruct Hns as [Hns| Hns].
  subst ns.
  simpl in Hjαj, Hhαh.
  eapply vert_bef_edge; eassumption.
 
  destruct n; [ discriminate Hnp | simpl in Hnp ].
- destruct pts as [| pt₁]; [ destruct n; discriminate Hnp | idtac ].
- destruct pts as [| pt₂]; [ destruct n; discriminate Hnp | idtac ].
+ destruct pts as [| pt₁]; [ discriminate Hnp | idtac ].
+ destruct pts as [| pt₂]; [ discriminate Hnp | idtac ].
  injection Hnp; clear Hnp; intros Hhsl Hhs₁; subst hs₁.
  eapply IHhsl in Hhsl; try eassumption.
  eapply minimise_slope_sorted; [ eassumption | reflexivity ].
@@ -434,8 +428,8 @@ Qed.
 Lemma edge_bef_vert : ∀ pts n hs₁ hs₂ hsl hq αh kq αk,
   Sorted fst_lt pts
   → next_ch_points n pts = [hs₁; hs₂ … hsl]
-    → (hq, αh) ∈ edge hs₁
-      → (kq, αk) = vert hs₂
+    → (hq, αh) ∈ oth_pts hs₁
+      → (kq, αk) = ini_pt hs₂
         → hq < kq.
 Proof.
 intros pts n hs₁ hs₂ hsl hq αh kq αk Hsort Hnp Hh Hk.
@@ -451,16 +445,11 @@ remember (end_pt ms₁) as pt₃.
 symmetry in Heqpt₃.
 remember (rem_pts ms₁) as pts₁.
 symmetry in Heqpts₁.
-destruct pts₁ as [| pt₄].
- injection Hnp; clear Hnp; intros; subst hs₂ hsl.
- simpl in Hk.
- subst pt₃.
- eapply seg_bef_end_pt; eassumption.
-
- injection Hnp; clear Hnp; intros; subst hs₂ hsl.
- simpl in Hk.
- subst pt₃.
- eapply seg_bef_end_pt; eassumption.
+destruct pts₁ as [| pt₄]; [ discriminate Hnp | idtac ].
+injection Hnp; clear Hnp; intros; subst hs₂ hsl.
+simpl in Hk.
+subst pt₃.
+eapply seg_bef_end_pt; eassumption.
 Qed.
 
 Lemma hq_lt_kq : ∀ (pol : puis_ser_pol α) hq αh kq αk ns,
