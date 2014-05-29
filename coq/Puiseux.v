@@ -360,6 +360,7 @@ destruct la as [| a₀].
  remember (filter_finite_ord R (List.map f (power_list 2 la))) as ffo.
  remember (minimise_slope (Qnat 0, v₀) (Qnat 1, v₁) ffo) as ms.
  subst ns; simpl in Hini, Hfin.
+ rewrite Heqms, minimised_slope_beg_pt in Hini.
  eapply pouet; eassumption.
 Qed.
 

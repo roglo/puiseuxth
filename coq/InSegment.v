@@ -32,7 +32,7 @@ destruct Hns as [Hns| Hns].
  remember cons as f; simpl in Hαh; subst f.
  remember (minimise_slope pt₁ pt₂ pts) as ms eqn:Hms .
  destruct Hαh as [Hαh| Hαh].
-  subst pt₁ ns₁; simpl.
+  subst ns₁; rewrite Hαh; simpl.
   reflexivity.
 
   destruct Hαh as [Hαh| Hαh].
@@ -45,8 +45,7 @@ destruct Hns as [Hns| Hns].
    remember Heqpt₄ as H; clear HeqH.
    rewrite Hms in Heqpt₄.
    rewrite minimised_slope_beg_pt in Heqpt₄.
-   rewrite H in Heqpt₄; clear H.
-   rewrite <- Heqpt₄.
+   subst pt₄ pt₁.
    remember (fst (end_pt ms)) as x.
    remember Heqx as H; clear HeqH.
    rewrite Hαh in Heqx; simpl in Heqx.
@@ -83,9 +82,12 @@ destruct Hns as [Hns| Hns].
       apply Sorted_inv_2 in Hsort; destruct Hsort as (Hlt, Hsort).
       apply Qgt_0_not_0, Qlt_minus; assumption.
 
-      eapply IHpts; try eassumption.
-      eapply Sorted_minus_2nd; [ idtac | eassumption ].
-      intros x y z H₁ H₂; eapply Qlt_trans; eassumption.
+      replace pt₁ with (beg_pt ms₁) .
+       eapply IHpts; try eassumption.
+       eapply Sorted_minus_2nd; [ idtac | eassumption ].
+       intros x y z H₁ H₂; eapply Qlt_trans; eassumption.
+
+       rewrite Hms₁, minimised_slope_beg_pt; reflexivity.
 
      subst ms; contradiction.
 

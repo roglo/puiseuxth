@@ -209,6 +209,7 @@ intros n pt₁ pt₂ pt₃ pts₂ seg₂ hsl Hnp.
 revert pt₁ pt₂ pt₃ pts₂ seg₂ hsl Hnp.
 induction n; intros; [ discriminate Hnp | simpl in Hnp ].
 destruct pts₂ as [| pts₄]; [ discriminate Hnp | idtac ].
+rewrite minimised_slope_beg_pt in Hnp.
 injection Hnp; intros; subst pt₂; reflexivity.
 Qed.
 
@@ -335,12 +336,8 @@ destruct Hns as [Hns| Hns].
  injection Hnsl; clear Hnsl; intros Hnsl Hns.
  subst ns; simpl.
  remember (minimise_slope pt₁ pt₂ pts) as ms eqn:Hms .
- assert (pt₁ = beg_pt ms) as H.
-  rewrite Hms, minimised_slope_beg_pt; reflexivity.
-
-  rewrite H.
-  symmetry in Hms.
-  eapply beg_lt_end_pt; eassumption.
+ symmetry in Hms.
+ eapply beg_lt_end_pt; eassumption.
 
  destruct n; [ discriminate Hnsl | simpl in Hnsl ].
  destruct pts as [| pt₁]; [ discriminate Hnsl | idtac ].
@@ -405,6 +402,7 @@ apply IHn in Heqhsl₁.
   remember Heqms₂ as Hms; clear HeqHms.
   apply minimise_slope_le in Heqms₂.
    eapply Qlt_le_trans.
+    rewrite <- Hms, minimised_slope_beg_pt.
     apply Sorted_inv_2 in Hsort; destruct Hsort; eassumption.
 
     eapply Qle_trans; [ eassumption | idtac ].

@@ -230,6 +230,7 @@ destruct Hhs as [Hhs| Hhs].
  destruct pts as [| pt₁]; [ discriminate Hnp | idtac ].
  destruct pts as [| pt₂]; [ discriminate Hnp | idtac ].
  injection Hnp; clear Hnp; intros Hnp Hhs; subst hs.
+ rewrite minimised_slope_beg_pt.
  split; [ left; reflexivity | idtac ].
  right; eapply end_pt_in; reflexivity.
 
@@ -335,6 +336,7 @@ destruct n; [ discriminate Hnp | simpl in Hnp ].
 destruct pts as [| pt₂]; [ discriminate Hnp | idtac ].
 injection Hnp; clear Hnp; intros Hhsl Hhs; subst hs.
 simpl in Hj, Hh.
+rewrite minimised_slope_beg_pt in Hj.
 apply pt₁_bef_seg in Hh; [ subst pt₁; assumption | assumption ].
 Qed.
 
@@ -446,6 +448,7 @@ destruct pts₁ as [| pt₄]; [ discriminate Hnp | idtac ].
 injection Hnp; clear Hnp; intros; subst hs₂ hsl.
 simpl in Hk.
 subst pt₃.
+rewrite minimised_slope_beg_pt in Hk.
 eapply seg_bef_end_pt; eassumption.
 Qed.
 

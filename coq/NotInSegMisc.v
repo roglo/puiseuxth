@@ -262,6 +262,7 @@ intros Hsort Hjk Hγ Hβ Hnp h αh Hkh Hαh.
 destruct n; [ discriminate Hnp | simpl in Hnp ].
 destruct pts as [| pt₁]; [ discriminate Hnp | idtac ].
 destruct pts as [| pt₂]; [ discriminate Hnp | idtac ].
+rewrite minimised_slope_beg_pt in Hnp.
 injection Hnp; clear Hnp; intros Hnp Hseg Hep₁ Hp₁; subst seg pt₁.
 rewrite Hep₁ in Hnp.
 remember (minimise_slope (j, αj) pt₂ pts) as ms₁.
@@ -450,7 +451,7 @@ destruct Hαh as [Hαh| Hαh].
      assumption.
 
   symmetry in Heqms₁.
-  revert pt₁ ms₁ Hsort Heqms₁ Hep₁ Hseg Hnp.
+  revert pt₁ ms₁ Hsort Heqms₁ Hep₁ Hseg Hnp H2.
   induction pts as [| pt₂]; intros.
    simpl in Heqms₁.
    subst ms₁.
@@ -485,8 +486,10 @@ destruct Hαh as [Hαh| Hαh].
      apply Decidable.not_or in Hseg.
      destruct Hseg as (Hlt₁, Hseg).
      eapply IHpts; try eassumption.
-     eapply Sorted_minus_2nd; [ idtac | eassumption ].
-     intros x y z H₁ H₂; eapply Qlt_trans; eassumption.
+      eapply Sorted_minus_2nd; [ idtac | eassumption ].
+      intros x y z H₁ H₂; eapply Qlt_trans; eassumption.
+
+      rewrite <- Heqms₂, minimised_slope_beg_pt; reflexivity.
 
      simpl in Hep₁, Hseg, Hnp.
      subst pt₁.
@@ -522,6 +525,7 @@ destruct pts as [| pt₃]; [ discriminate Hhsl | idtac ].
 destruct pts as [| pt₄]; [ discriminate Hhsl | idtac ].
 injection Hhsl; clear Hhsl; intros; subst hs₁ hsl.
 destruct Hhs as [Hhs| ].
+ rewrite minimised_slope_beg_pt in Hhs.
  injection Hhs; clear Hhs; intros; subst pt₃ s.
  split; [ left; reflexivity | idtac ].
  rewrite <- H0; right.

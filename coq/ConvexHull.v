@@ -48,7 +48,8 @@ Fixpoint next_ch_points n pts :=
       | [pt₁; pt₂ … pts₂] =>
           let ms := minimise_slope pt₁ pt₂ pts₂ in
           let hsl := next_ch_points n [end_pt ms … rem_pts ms] in
-          [{| ini_pt := pt₁; fin_pt := end_pt ms; oth_pts := seg ms |} … hsl]
+          [{| ini_pt := beg_pt ms; fin_pt := end_pt ms; oth_pts := seg ms |}
+           … hsl]
       end
   end.
 
