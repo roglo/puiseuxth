@@ -423,6 +423,30 @@ assert (nat_num (fst (ini_pt ns₁)) = 0)%nat as Hini.
  rewrite Hini in Hc₂.
  rewrite Hini.
  assert (oth_pts ns₁ = []) as Hoth.
+  remember (points_of_ps_lap la) as pts eqn:Hpts .
+  symmetry in Hpts.
+  destruct pts as [| pt₁]; [ subst ns₁; reflexivity | idtac ].
+  destruct pts as [| pt₂]; [ subst ns₁; reflexivity | idtac ].
+  unfold lower_convex_hull_points in Hns₁.
+  rewrite Hns₁; simpl.
+  unfold points_of_ps_lap in Hpts.
+  unfold points_of_ps_lap_gen in Hpts.
+  destruct la as [| a₁]; [ discriminate Hpts | idtac ].
+  simpl in Hpts.
+  unfold ps_lap_nth in Hps₀; simpl in Hps₀.
+  remember (order a₁) as o₁ eqn:Ho₁ .
+  symmetry in Ho₁.
+  destruct o₁ as [o₁| ]; [ idtac | exfalso; apply Hps₀; reflexivity ].
+  injection Hpts; clear Hpts; intros Hpts Hpt₁.
+  unfold ps_lap_nth in Hz; simpl in Hz.
+  destruct la as [| a₂]; [ discriminate Hpts | idtac ].
+  simpl in Hpts.
+  simpl in Hz.
+  remember (order a₂) as o₂ eqn:Ho₂ .
+  symmetry in Ho₂.
+  destruct o₂ as [o₂| ]; [ idtac | inversion Hz ].
+  injection Hpts; clear Hpts; intros Hpts Hpt₂.
+  subst pt₁ pt₂.
   Focus 1.
 bbb.
 
