@@ -420,6 +420,7 @@ assert (nat_num (fst (ini_pt ns₁)) = 0)%nat as Hini.
  injection Hpts; clear Hpts; intros Hpts Hpt₁.
  subst pt₁; reflexivity.
 
+ rewrite Hini in Hc₂.
  rewrite Hini.
 bbb.
 
