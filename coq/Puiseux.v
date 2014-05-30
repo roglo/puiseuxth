@@ -402,8 +402,14 @@ clear pol₁ Hla; simpl in Hc₂.
 unfold poly_left_shift in Hc₂; simpl in Hc₂.
 rewrite skipn_pad, Nat.sub_diag, list_pad_0 in Hc₂.
 assert (nat_num (fst (ini_pt ns₁)) = 0)%nat as Hini.
+ remember (points_of_ps_lap la) as pts eqn:Hpts .
+ symmetry in Hpts.
+ destruct pts as [| pt₁]; [ subst ns₁; reflexivity | idtac ].
+ destruct pts as [| pt₂]; [ subst ns₁; reflexivity | idtac ].
+ Focus 1.
 bbb.
 
+(* to be able to use r_1_j_0_k_1 above *)
 assert (ns₁ ∈ newton_segments pol₁) as Hns₁in.
  rewrite Hns₁.
  remember (newton_segments pol₁) as nsl.
