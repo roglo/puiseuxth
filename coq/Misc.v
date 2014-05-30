@@ -1981,3 +1981,10 @@ intros n.
 unfold Qeq; simpl.
 rewrite Z.mul_1_r, Z.add_0_r, Pos.mul_1_r; reflexivity.
 Qed.
+
+Theorem Q_div_1_r : ∀ a, (a / 1)%Q == a.
+Proof.
+intros a.
+unfold Qeq; simpl.
+rewrite Z.mul_1_r, Pos.mul_1_r; reflexivity.
+Qed.
