@@ -382,10 +382,10 @@ symmetry in Hr.
 eapply f₁_orders in H; try eassumption.
 destruct H as (Hnneg, (Hpos, Hz)).
 symmetry in Hr.
-bbb.
 unfold root_multiplicity; simpl.
 rewrite Nat.sub_diag; simpl.
 rewrite skipn_pad; simpl.
+bbb.
 
 assert (ns₁ ∈ newton_segments pol₁) as Hns₁in.
  rewrite Hns₁.
