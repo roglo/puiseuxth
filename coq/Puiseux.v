@@ -409,9 +409,21 @@ assert (nat_num (fst (ini_pt ns₁)) = 0)%nat as Hini.
  unfold lower_convex_hull_points in Hns₁.
  rewrite Hns₁; simpl.
  rewrite minimised_slope_beg_pt.
- Focus 1.
+ unfold points_of_ps_lap in Hpts.
+ unfold points_of_ps_lap_gen in Hpts.
+ destruct la as [| a₁]; [ discriminate Hpts | idtac ].
+ simpl in Hpts.
+ unfold ps_lap_nth in Hps₀; simpl in Hps₀.
+ remember (order a₁) as o₁ eqn:Ho₁ .
+ symmetry in Ho₁.
+ destruct o₁ as [o₁| ]; [ idtac | exfalso; apply Hps₀; reflexivity ].
+ injection Hpts; clear Hpts; intros Hpts Hpt₁.
+ subst pt₁; reflexivity.
+
+ rewrite Hini.
 bbb.
 
+(* next code abandonned, I used another trick *)
 (* to be able to use r_1_j_0_k_1 above *)
 assert (ns₁ ∈ newton_segments pol₁) as Hns₁in.
  rewrite Hns₁.
