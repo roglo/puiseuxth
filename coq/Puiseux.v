@@ -364,6 +364,23 @@ destruct la as [| a₀].
  eapply pouet; eassumption.
 Qed.
 
+Lemma minimise_slope_seg_nil : ∀ pt₁ pt₂ pts,
+  pts = []
+  → seg (minimise_slope pt₁ pt₂ pts) = [].
+Proof.
+intros pt₁ pt₂ pts H.
+subst pts; reflexivity.
+Qed.
+
+Lemma minimise_slope_seg_cons : ∀ pt₁ pt₂ pt₃ pts,
+  slope_expr pt₁ pt₂ < slope (minimise_slope pt₁ pt₃ pts)
+  → seg (minimise_slope pt₁ pt₂ [pt₃ … pts]) = [].
+Proof.
+intros pt₁ pt₂ pt₃ pts H.
+apply -> Qlt_alt in H.
+simpl; rewrite H; reflexivity.
+Qed.
+
 Lemma zzz : ∀ pol ns c₁ c₂ pol₁ ns₁,
   ns ∈ newton_segments pol
   → c₁ = ac_root (Φq pol ns) ∧ (c₁ ≠ 0)%K
@@ -440,14 +457,19 @@ assert (nat_num (fst (ini_pt ns₁)) = 0)%nat as Hini.
   injection Hpts; clear Hpts; intros Hpts Hpt₁.
   unfold ps_lap_nth in Hz; simpl in Hz.
   destruct la as [| a₂]; [ discriminate Hpts | idtac ].
-  simpl in Hpts.
-  simpl in Hz.
+  simpl in Hpts, Hz.
   remember (order a₂) as o₂ eqn:Ho₂ .
   symmetry in Ho₂.
   destruct o₂ as [o₂| ]; [ idtac | inversion Hz ].
   injection Hpts; clear Hpts; intros Hpts Hpt₂.
   subst pt₁ pt₂.
-  Focus 1.
+  destruct pts as [| pt₁].
+   apply minimise_slope_seg_nil; reflexivity.
+
+   apply minimise_slope_seg_cons.
+   unfold slope; simpl.
+   rewrite minimised_slope_beg_pt.
+   Focus 1.
 bbb.
 
 (* next code abandonned, I used another trick *)
