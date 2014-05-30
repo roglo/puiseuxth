@@ -1967,3 +1967,17 @@ rewrite Qopp_opp.
 unfold Qdiv.
 rewrite Qmult_opp_l; reflexivity.
 Qed.
+
+Theorem Q_sub_0_l : ∀ n, (0 - n)%Q == (- n)%Q.
+Proof.
+intros n.
+unfold Qeq; simpl.
+rewrite Z.mul_1_r; reflexivity.
+Qed.
+
+Theorem Q_sub_0_r : ∀ n, (n - 0)%Q == n.
+Proof.
+intros n.
+unfold Qeq; simpl.
+rewrite Z.mul_1_r, Z.add_0_r, Pos.mul_1_r; reflexivity.
+Qed.
