@@ -422,6 +422,8 @@ assert (nat_num (fst (ini_pt ns₁)) = 0)%nat as Hini.
 
  rewrite Hini in Hc₂.
  rewrite Hini.
+ assert (oth_pts ns₁ = []) as Hoth.
+  Focus 1.
 bbb.
 
 (* next code abandonned, I used another trick *)
