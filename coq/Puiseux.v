@@ -475,6 +475,11 @@ assert (nat_num (fst (ini_pt ns₁)) = 0)%nat as Hini.
    rewrite Hz.
    rewrite Q_sub_0_l, Q_sub_0_r, Q_sub_0_r.
    rewrite Q_div_1_r.
+   assert (0 < 1)%nat as Hp by apply Nat.lt_0_1.
+   apply Hpos in Hp.
+   unfold ps_lap_nth in Hp; simpl in Hp.
+   rewrite Ho₁ in Hp.
+   apply Qbar.qfin_lt_mono in Hp.
    Focus 1.
 bbb.
 
