@@ -406,6 +406,9 @@ assert (nat_num (fst (ini_pt ns₁)) = 0)%nat as Hini.
  symmetry in Hpts.
  destruct pts as [| pt₁]; [ subst ns₁; reflexivity | idtac ].
  destruct pts as [| pt₂]; [ subst ns₁; reflexivity | idtac ].
+ unfold lower_convex_hull_points in Hns₁.
+ rewrite Hns₁; simpl.
+ rewrite minimised_slope_beg_pt.
  Focus 1.
 bbb.
 
