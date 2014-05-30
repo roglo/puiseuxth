@@ -480,6 +480,11 @@ assert (nat_num (fst (ini_pt ns₁)) = 0)%nat as Hini.
    unfold ps_lap_nth in Hp; simpl in Hp.
    rewrite Ho₁ in Hp.
    apply Qbar.qfin_lt_mono in Hp.
+   remember (minimise_slope (0, o₁) pt₁ pts) as ms eqn:Hms .
+   remember (end_pt ms) as pt eqn:Hend .
+   symmetry in Hend.
+   destruct pt as (pow, ord); simpl.
+   assert (ord > 0 ∧ pow >= Qnat 2) as Hop.
    Focus 1.
 bbb.
 
