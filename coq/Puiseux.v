@@ -610,6 +610,9 @@ assert (nat_num (fst (ini_pt ns₁)) = 0)%nat as Hini.
         apply Nat.le_le_succ_r; assumption.
 
      revert Hp Hp2 Hop; clear; intros.
+     rewrite <- Qopp_minus, <- Q_div_opp_opp, Q_div_opp_r.
+     apply Qopp_lt_compat.
+     rewrite Qopp_opp.
 bbb.
 
 (* following code abandonned, I used another trick *)
