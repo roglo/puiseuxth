@@ -514,7 +514,7 @@ assert (nat_num (fst (ini_pt ns₁)) = 0)%nat as Hini.
          rewrite Hms in Hend; simpl in Hend.
          Focus 1.
          eapply IHla in Hpts; try eassumption.
-          unfold Qnat.
+          eapply Qle_trans; [ idtac | eassumption ].
 bbb.
 
 (* next code abandonned, I used another trick *)
