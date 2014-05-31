@@ -608,9 +608,11 @@ assert (nat_num (fst (ini_pt ns₁)) = 0)%nat as Hini.
           pose proof (Hnneg (3 + i)%nat) as H; assumption.
 
         apply Nat.le_le_succ_r; assumption.
+
+     revert Hp Hp2 Hop; clear; intros.
 bbb.
 
-(* next code abandonned, I used another trick *)
+(* following code abandonned, I used another trick *)
 (* to be able to use r_1_j_0_k_1 above *)
 assert (ns₁ ∈ newton_segments pol₁) as Hns₁in.
  rewrite Hns₁.
