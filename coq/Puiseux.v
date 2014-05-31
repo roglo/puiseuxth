@@ -637,6 +637,12 @@ assert (nat_num (fst (ini_pt ns₁)) = 0)%nat as Hini.
 
   rewrite Hoth; simpl.
   assert (nat_num (fst (fin_pt ns₁)) = 1)%nat as Hfin.
+   destruct la as [| a₀].
+    unfold ps_lap_nth in Hz; simpl in Hz.
+    rewrite order_0 in Hz; inversion Hz.
+
+    unfold ps_lap_nth in Hz; simpl in Hz.
+   Focus 1.
 bbb.
 
 (* following code abandonned, I used another trick *)
