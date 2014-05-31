@@ -497,7 +497,6 @@ assert (nat_num (fst (ini_pt ns₁)) = 0)%nat as Hini.
     rewrite minimise_slope_seg_cons; [ reflexivity | idtac ].
     unfold slope; simpl.
     rewrite minimised_slope_beg_pt.
-    apply Qbar.qfin_inj in Hz.
     unfold Qnat; simpl.
     unfold slope_expr; simpl.
     rewrite Hz.
