@@ -512,11 +512,24 @@ assert (nat_num (fst (ini_pt ns₁)) = 0)%nat as Hini.
         symmetry in Hc.
         destruct c.
          rewrite Hms in Hend; simpl in Hend.
-         Focus 1.
          eapply IHla in Hpts; try eassumption.
           eapply Qle_trans; [ idtac | eassumption ].
+          apply Qnat_le, le_n_S, Nat.le_succ_diag_r.
+
+          apply Nat.le_le_succ_r; assumption.
+
+         rewrite Hms in Hend; simpl in Hend.
+         injection Hend; clear Hend; intros; subst pow; apply Qle_refl.
+
+         move Hms at top; subst ms₁.
+         eapply IHla in Hpts; try eassumption.
+          eapply Qle_trans; [ idtac | eassumption ].
+          apply Qnat_le, le_n_S, Nat.le_succ_diag_r.
+
+          apply Nat.le_le_succ_r; assumption.
+
+       Focus 1.
 bbb.
-Qnat_le
 
 (* next code abandonned, I used another trick *)
 (* to be able to use r_1_j_0_k_1 above *)
