@@ -494,7 +494,7 @@ assert (nat_num (fst (ini_pt ns₁)) = 0)%nat as Hini.
     injection Hpts; clear Hpts; intros Hpts Hpt₂.
     subst pt₁ pt₂.
     destruct pts as [| pt₁]; [ reflexivity | idtac ].
-    apply minimise_slope_seg_cons.
+    rewrite minimise_slope_seg_cons; [ reflexivity | idtac ].
     unfold slope; simpl.
     rewrite minimised_slope_beg_pt.
     apply Qbar.qfin_inj in Hz.
