@@ -415,6 +415,7 @@ unfold term_of_point in Hc₂; rewrite <- Hla in Hc₂.
 unfold ps_poly_nth in Hnneg; rewrite <- Hla in Hnneg.
 unfold ps_poly_nth in Hpos; rewrite <- Hla in Hpos.
 unfold ps_poly_nth in Hz; rewrite <- Hla in Hz.
+unfold ps_lap_nth in Hnneg, Hpos, Hz.
 clear pol₁ Hla; simpl in Hc₂.
 unfold poly_left_shift in Hc₂; simpl in Hc₂.
 rewrite skipn_pad, Nat.sub_diag, list_pad_0 in Hc₂.
@@ -437,8 +438,7 @@ assert (nat_num (fst (ini_pt ns₁)) = 0)%nat as Hini.
  injection Hpts; clear Hpts; intros Hpts Hpt₁.
  subst pt₁; reflexivity.
 
- rewrite Hini in Hc₂.
- rewrite Hini.
+ rewrite Hini in Hc₂; rewrite Hini.
  assert (oth_pts ns₁ = []) as Hoth.
   remember (points_of_ps_lap la) as pts eqn:Hpts .
   symmetry in Hpts.
@@ -454,8 +454,7 @@ assert (nat_num (fst (ini_pt ns₁)) = 0)%nat as Hini.
   remember (order a₁) as o₁ eqn:Ho₁ .
   symmetry in Ho₁.
   destruct o₁ as [o₁| ]; [ idtac | exfalso; apply Hps₀; reflexivity ].
-  injection Hpts; clear Hpts; intros Hpts Hpt₁.
-  unfold ps_lap_nth in Hz; simpl in Hz.
+  injection Hpts; clear Hpts; intros Hpts Hpt₁; simpl in Hz.
   destruct la as [| a₂]; [ discriminate Hpts | idtac ].
   simpl in Hpts, Hz.
   remember (order a₂) as o₂ eqn:Ho₂ .
@@ -476,8 +475,7 @@ assert (nat_num (fst (ini_pt ns₁)) = 0)%nat as Hini.
    rewrite Q_sub_0_l, Q_sub_0_r, Q_sub_0_r.
    rewrite Q_div_1_r.
    assert (0 < 1)%nat as Hp by apply Nat.lt_0_1.
-   apply Hpos in Hp.
-   unfold ps_lap_nth in Hp; simpl in Hp.
+   apply Hpos in Hp; simpl in Hp.
    rewrite Ho₁ in Hp.
    apply Qbar.qfin_lt_mono in Hp.
    remember (minimise_slope (0, o₁) pt₁ pts) as ms eqn:Hms .
@@ -534,7 +532,6 @@ assert (nat_num (fst (ini_pt ns₁)) = 0)%nat as Hini.
        apply Nat.le_le_succ_r; assumption.
 
     assert (ord >= 0) as Hop.
-     unfold ps_lap_nth in Hnneg.
      revert Hnneg Hpts Hms Hend; clear; intros.
      remember 2 as n.
      assert (2 ≤ n)%nat as Hn by (subst n; reflexivity).
@@ -637,11 +634,8 @@ assert (nat_num (fst (ini_pt ns₁)) = 0)%nat as Hini.
 
   rewrite Hoth; simpl.
   assert (nat_num (fst (fin_pt ns₁)) = 1)%nat as Hfin.
-   destruct la as [| a₀].
-    unfold ps_lap_nth in Hz; simpl in Hz.
-    rewrite order_0 in Hz; inversion Hz.
-
-    unfold ps_lap_nth in Hz; simpl in Hz.
+   destruct la as [| a₀]; [ rewrite order_0 in Hz; inversion Hz | idtac ].
+   simpl in Hz.
    Focus 1.
 bbb.
 
