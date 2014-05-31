@@ -493,6 +493,7 @@ assert (nat_num (fst (ini_pt ns₁)) = 0)%nat as Hini.
     destruct o₂ as [o₂| ]; [ apply Qbar.qfin_inj in Hz | inversion Hz ].
     injection Hpts; clear Hpts; intros Hpts Hpt₂.
     subst pt₁ pt₂.
+revert Hnneg Hpos Hz Hpts; clear; intros.
     destruct pts as [| pt₁]; [ reflexivity | idtac ].
     rewrite minimise_slope_seg_cons; [ reflexivity | idtac ].
     unfold slope; simpl.
@@ -657,7 +658,48 @@ assert (nat_num (fst (ini_pt ns₁)) = 0)%nat as Hini.
 
   rewrite Hoth; simpl.
   assert (nat_num (fst (fin_pt ns₁)) = 1)%nat as Hfin.
-   Focus 1.
+   symmetry in Hpts.
+   destruct pts as [| pt₁].
+    exfalso; apply Hps₀, no_pts_order_inf; assumption.
+
+    destruct pts as [| pt₂].
+     apply one_pt_order_inf in Hpts; [ contradiction | assumption ].
+
+     unfold lower_convex_hull_points in Hns₁.
+     rewrite Hns₁; simpl.
+     destruct la as [| a₁]; [ discriminate Hpts | simpl in Hpts ].
+     unfold ps_lap_nth in Hps₀; simpl in Hps₀.
+     simpl in Hpos.
+     remember (order a₁) as o₁ eqn:Ho₁ .
+     symmetry in Ho₁.
+     destruct o₁ as [o₁| ]; [ idtac | exfalso; apply Hps₀; reflexivity ].
+     apply Qbar.qfin_lt_mono in Hpos.
+     injection Hpts; clear Hpts; intros Hpts Hpt₁; simpl in Hz.
+     destruct la as [| a₂]; [ discriminate Hpts | idtac ].
+     simpl in Hpts, Hz.
+     remember (order a₂) as o₂ eqn:Ho₂ .
+     symmetry in Ho₂.
+     destruct o₂ as [o₂| ]; [ apply Qbar.qfin_inj in Hz | inversion Hz ].
+     injection Hpts; clear Hpts; intros Hpts Hpt₂.
+     subst pt₁ pt₂.
+     revert Hnneg Hpos Hz Hpts; clear; intros.
+     remember (minimise_slope (Qnat 0, o₁) (Qnat 1, o₂) pts) as ms eqn:Hms .
+     destruct pts as [| pt₁]; [ subst ms; reflexivity | idtac ].
+     simpl in Hpts, Hms.
+     remember (minimise_slope (Qnat 0, o₁) pt₁ pts) as ms₁ eqn:Hms₁ .
+     unfold slope_expr in Hms; simpl in Hms.
+     unfold Qnat in Hms; simpl in Hms.
+     rewrite Q_sub_0_r, Q_div_1_r in Hms.
+     rewrite Hz, Q_sub_0_l in Hms.
+     unfold slope in Hms.
+     rewrite Hms₁ in Hms at 1.
+     rewrite minimised_slope_beg_pt in Hms.
+     unfold slope_expr, Qnat in Hms; simpl in Hms.
+     rewrite Q_sub_0_r in Hms.
+     remember (end_pt ms₁) as p eqn:Hp .
+     symmetry in Hp.
+     destruct p as (pow, ord); simpl in Hms.
+     Focus 1.
 bbb.
 
 (* following code abandonned, I used another trick *)
