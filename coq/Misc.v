@@ -211,6 +211,14 @@ do 2 rewrite Zmult_1_r.
 apply inj_lt; assumption.
 Qed.
 
+Lemma Qnat_le : ∀ i j, (i ≤ j)%nat → Qnat i <= Qnat j.
+Proof.
+intros i j H.
+unfold Qnat, Qle; simpl.
+do 2 rewrite Zmult_1_r.
+apply inj_le; assumption.
+Qed.
+
 Lemma Qlt_not_0 : ∀ x y, x < y → ¬ y - x == 0.
 Proof.
 intros i j H HH.

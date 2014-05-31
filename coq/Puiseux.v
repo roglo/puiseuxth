@@ -516,6 +516,7 @@ assert (nat_num (fst (ini_pt ns₁)) = 0)%nat as Hini.
          eapply IHla in Hpts; try eassumption.
           eapply Qle_trans; [ idtac | eassumption ].
 bbb.
+Qnat_le
 
 (* next code abandonned, I used another trick *)
 (* to be able to use r_1_j_0_k_1 above *)
