@@ -613,6 +613,21 @@ assert (nat_num (fst (ini_pt ns₁)) = 0)%nat as Hini.
      rewrite <- Qopp_minus, <- Q_div_opp_opp, Q_div_opp_r.
      apply Qopp_lt_compat.
      rewrite Qopp_opp.
+     apply Qle_lt_trans with (y := o₁ / pow).
+      apply Q_div_le_mono.
+       eapply Qlt_le_trans; [ idtac | eassumption ].
+       replace 0 with (Qnat 0) by reflexivity.
+       apply Qnat_lt, Nat.lt_0_succ.
+
+       apply Qle_sub_le_add_l.
+       assert (0 + o₁ == o₁) as H by apply Qplus_0_l.
+       rewrite <- H in |- * at 1.
+       apply Qplus_le_l; assumption.
+
+      apply Qlt_shift_div_r.
+       eapply Qlt_le_trans; [ idtac | eassumption ].
+       replace 0 with (Qnat 0) by reflexivity.
+       apply Qnat_lt, Nat.lt_0_succ.
 bbb.
 
 (* following code abandonned, I used another trick *)
