@@ -635,7 +635,8 @@ assert (nat_num (fst (ini_pt ns₁)) = 0)%nat as Hini.
        replace 1 with (Qnat 1) by reflexivity.
        apply Qnat_lt, Nat.lt_succ_r; reflexivity.
 
-  simpl.
+  rewrite Hoth; simpl.
+  assert (nat_num (fst (fin_pt ns₁)) = 1)%nat as Hfin.
 bbb.
 
 (* following code abandonned, I used another trick *)
