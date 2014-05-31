@@ -484,9 +484,58 @@ assert (nat_num (fst (ini_pt ns₁)) = 0)%nat as Hini.
    remember (end_pt ms) as pt eqn:Hend .
    symmetry in Hend.
    destruct pt as (pow, ord); simpl.
-   assert (pow >= Qnat 2 ∧ ord > 0) as Hop.
-    split.
-     revert Hpts Hms Hend; clear; intros.
+   assert (pow >= Qnat 2) as Hp2.
+    revert Hpts Hms Hend; clear; intros.
+    remember 2 as n.
+    assert (2 ≤ n)%nat as Hn by (subst n; reflexivity).
+    clear Heqn.
+    revert o₁ pt₁ pts ms pow ord n Hpts Hms Hend Hn.
+    induction la as [| a]; intros; [ discriminate Hpts | idtac ].
+    destruct n.
+     exfalso; apply Nat.nle_gt in Hn; apply Hn, Nat.le_0_1.
+
+     simpl in Hpts.
+     remember (order a) as oa eqn:Hoa .
+     symmetry in Hoa.
+     destruct oa as [oa| ].
+      injection Hpts; clear Hpts; intros Hpts Hpt₁; subst pt₁.
+      destruct pts as [| pt₁].
+       simpl in Hms.
+       subst ms; simpl in Hend.
+       injection Hend; clear Hend; intros; subst pow; apply Qle_refl.
+
+       simpl in Hms.
+       remember (minimise_slope (0, o₁) pt₁ pts) as ms₁ eqn:Hms₁ .
+       remember (slope_expr (0, o₁) (Qnat (S n), oa) ?= slope ms₁) as c
+        eqn:Hc .
+       symmetry in Hc.
+       destruct c.
+        rewrite Hms in Hend; simpl in Hend.
+        eapply IHla in Hpts; try eassumption.
+         eapply Qle_trans; [ idtac | eassumption ].
+         apply Qnat_le, le_n_S, Nat.le_succ_diag_r.
+
+         apply Nat.le_le_succ_r; assumption.
+
+        rewrite Hms in Hend; simpl in Hend.
+        injection Hend; clear Hend; intros; subst pow; apply Qle_refl.
+
+        move Hms at top; subst ms₁.
+        eapply IHla in Hpts; try eassumption.
+         eapply Qle_trans; [ idtac | eassumption ].
+         apply Qnat_le, le_n_S, Nat.le_succ_diag_r.
+
+         apply Nat.le_le_succ_r; assumption.
+
+      eapply IHla in Hpts; try eassumption.
+       eapply Qle_trans; [ idtac | eassumption ].
+       apply Qnat_le, le_n_S, Nat.le_succ_diag_r.
+
+       apply Nat.le_le_succ_r; assumption.
+
+    assert (ord >= 0) as Hop.
+     unfold ps_lap_nth in Hnneg.
+     revert Hnneg Hpts Hms Hend; clear; intros.
      remember 2 as n.
      assert (2 ≤ n)%nat as Hn by (subst n; reflexivity).
      clear Heqn.
@@ -503,7 +552,11 @@ assert (nat_num (fst (ini_pt ns₁)) = 0)%nat as Hini.
        destruct pts as [| pt₁].
         simpl in Hms.
         subst ms; simpl in Hend.
-        injection Hend; clear Hend; intros; subst pow; apply Qle_refl.
+        injection Hend; clear Hend; intros; subst pow oa.
+        pose proof (Hnneg 2) as H.
+        simpl in H.
+        rewrite Hoa in H.
+        apply Qbar.qfin_le_mono; assumption.
 
         simpl in Hms.
         remember (minimise_slope (0, o₁) pt₁ pts) as ms₁ eqn:Hms₁ .
@@ -513,22 +566,48 @@ assert (nat_num (fst (ini_pt ns₁)) = 0)%nat as Hini.
         destruct c.
          rewrite Hms in Hend; simpl in Hend.
          eapply IHla in Hpts; try eassumption.
-          eapply Qle_trans; [ idtac | eassumption ].
-          apply Qnat_le, le_n_S, Nat.le_succ_diag_r.
+          intros i.
+          destruct i; simpl.
+           pose proof (Hnneg 0%nat); assumption.
+
+           destruct i.
+            pose proof (Hnneg 1%nat); assumption.
+
+            pose proof (Hnneg (3 + i)%nat) as H; assumption.
 
           apply Nat.le_le_succ_r; assumption.
 
          rewrite Hms in Hend; simpl in Hend.
-         injection Hend; clear Hend; intros; subst pow; apply Qle_refl.
+         injection Hend; clear Hend; intros; subst pow.
+         subst oa.
+         pose proof (Hnneg 2) as H; simpl in H.
+         rewrite Hoa in H.
+         apply Qbar.qfin_le_mono; assumption.
 
          move Hms at top; subst ms₁.
          eapply IHla in Hpts; try eassumption.
-          eapply Qle_trans; [ idtac | eassumption ].
-          apply Qnat_le, le_n_S, Nat.le_succ_diag_r.
+          intros i.
+          destruct i; simpl.
+           pose proof (Hnneg 0%nat); assumption.
+
+           destruct i.
+            pose proof (Hnneg 1%nat); assumption.
+
+            pose proof (Hnneg (3 + i)%nat) as H; assumption.
 
           apply Nat.le_le_succ_r; assumption.
 
-       Focus 1.
+       eapply IHla in Hpts; try eassumption.
+        intros i.
+        destruct i; simpl.
+         pose proof (Hnneg 0%nat); assumption.
+
+         destruct i.
+          pose proof (Hnneg 1%nat); assumption.
+
+          pose proof (Hnneg (3 + i)%nat) as H; assumption.
+
+        apply Nat.le_le_succ_r; assumption.
 bbb.
 
 (* next code abandonned, I used another trick *)
