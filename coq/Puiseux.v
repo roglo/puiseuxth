@@ -628,6 +628,14 @@ assert (nat_num (fst (ini_pt ns₁)) = 0)%nat as Hini.
        eapply Qlt_le_trans; [ idtac | eassumption ].
        replace 0 with (Qnat 0) by reflexivity.
        apply Qnat_lt, Nat.lt_0_succ.
+
+       rewrite <- Qmult_1_r in |- * at 1.
+       apply Qmult_lt_l; [ assumption | idtac ].
+       eapply Qlt_le_trans; [ idtac | eassumption ].
+       replace 1 with (Qnat 1) by reflexivity.
+       apply Qnat_lt, Nat.lt_succ_r; reflexivity.
+
+  simpl.
 bbb.
 
 (* following code abandonned, I used another trick *)
