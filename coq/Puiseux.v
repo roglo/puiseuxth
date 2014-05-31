@@ -443,14 +443,16 @@ unfold ps_poly_nth in Hnneg; rewrite <- Hla in Hnneg.
 unfold ps_poly_nth in Hpos; rewrite <- Hla in Hpos.
 unfold ps_poly_nth in Hz; rewrite <- Hla in Hz.
 unfold ps_lap_nth in Hnneg, Hpos, Hz, Hps₀.
+assert (0 < 1)%nat as Hp by apply Nat.lt_0_1.
+apply Hpos in Hp; simpl in Hp.
+clear Hpos; rename Hp into Hpos.
+remember (points_of_ps_lap la) as pts eqn:Hpts .
+unfold points_of_ps_lap in Hpts.
+unfold points_of_ps_lap_gen in Hpts.
 clear pol₁ Hla; simpl in Hc₂.
 unfold poly_left_shift in Hc₂; simpl in Hc₂.
 rewrite skipn_pad, Nat.sub_diag, list_pad_0 in Hc₂.
 assert (nat_num (fst (ini_pt ns₁)) = 0)%nat as Hini.
- remember (points_of_ps_lap la) as pts eqn:Hpts .
- symmetry in Hpts.
- unfold points_of_ps_lap in Hpts.
- unfold points_of_ps_lap_gen in Hpts.
  destruct pts as [| pt₁]; [ subst ns₁; reflexivity | idtac ].
  destruct pts as [| pt₂]; [ subst ns₁; reflexivity | idtac ].
  unfold lower_convex_hull_points in Hns₁.
@@ -467,7 +469,6 @@ assert (nat_num (fst (ini_pt ns₁)) = 0)%nat as Hini.
 
  rewrite Hini in Hc₂; rewrite Hini.
  assert (oth_pts ns₁ = [] (*∧ nat_num (fst (fin_pt ns₁)) = 1%nat*)) as Hoth.
-  remember (points_of_ps_lap la) as pts eqn:Hpts .
   symmetry in Hpts.
   destruct pts as [| pt₁].
    exfalso; apply Hps₀, no_pts_order_inf; assumption.
@@ -477,20 +478,19 @@ assert (nat_num (fst (ini_pt ns₁)) = 0)%nat as Hini.
 
     unfold lower_convex_hull_points in Hns₁.
     rewrite Hns₁; simpl.
-    unfold points_of_ps_lap in Hpts.
-    unfold points_of_ps_lap_gen in Hpts.
-    destruct la as [| a₁]; [ discriminate Hpts | idtac ].
-    simpl in Hpts.
+    destruct la as [| a₁]; [ discriminate Hpts | simpl in Hpts ].
     unfold ps_lap_nth in Hps₀; simpl in Hps₀.
+    simpl in Hpos.
     remember (order a₁) as o₁ eqn:Ho₁ .
     symmetry in Ho₁.
     destruct o₁ as [o₁| ]; [ idtac | exfalso; apply Hps₀; reflexivity ].
+    apply Qbar.qfin_lt_mono in Hpos.
     injection Hpts; clear Hpts; intros Hpts Hpt₁; simpl in Hz.
     destruct la as [| a₂]; [ discriminate Hpts | idtac ].
     simpl in Hpts, Hz.
     remember (order a₂) as o₂ eqn:Ho₂ .
     symmetry in Ho₂.
-    destruct o₂ as [o₂| ]; [ idtac | inversion Hz ].
+    destruct o₂ as [o₂| ]; [ apply Qbar.qfin_inj in Hz | inversion Hz ].
     injection Hpts; clear Hpts; intros Hpts Hpt₂.
     subst pt₁ pt₂.
     destruct pts as [| pt₁]; [ reflexivity | idtac ].
@@ -501,12 +501,7 @@ assert (nat_num (fst (ini_pt ns₁)) = 0)%nat as Hini.
     unfold Qnat; simpl.
     unfold slope_expr; simpl.
     rewrite Hz.
-    rewrite Q_sub_0_l, Q_sub_0_r, Q_sub_0_r.
-    rewrite Q_div_1_r.
-    assert (0 < 1)%nat as Hp by apply Nat.lt_0_1.
-    apply Hpos in Hp; simpl in Hp.
-    rewrite Ho₁ in Hp.
-    apply Qbar.qfin_lt_mono in Hp.
+    rewrite Q_sub_0_l, Q_sub_0_r, Q_sub_0_r, Q_div_1_r.
     remember (minimise_slope (0, o₁) pt₁ pts) as ms eqn:Hms .
     remember (end_pt ms) as pt eqn:Hend .
     symmetry in Hend.
@@ -635,7 +630,7 @@ assert (nat_num (fst (ini_pt ns₁)) = 0)%nat as Hini.
 
          apply Nat.le_le_succ_r; assumption.
 
-      revert Hp Hp2 Hop; clear; intros.
+      revert Hpos Hp2 Hop; clear; intros.
       rewrite <- Qopp_minus, <- Q_div_opp_opp, Q_div_opp_r.
       apply Qopp_lt_compat.
       rewrite Qopp_opp.
@@ -663,8 +658,6 @@ assert (nat_num (fst (ini_pt ns₁)) = 0)%nat as Hini.
 
   rewrite Hoth; simpl.
   assert (nat_num (fst (fin_pt ns₁)) = 1)%nat as Hfin.
-   destruct la as [| a₀]; [ rewrite order_0 in Hz; inversion Hz | idtac ].
-   simpl in Hz.
    Focus 1.
 bbb.
 
