@@ -420,6 +420,13 @@ Lemma zzz : ∀ pol ns c₁ c₂ pol₁ ns₁,
 Proof.
 intros pol ns c₁ c₂ pol₁ ns₁.
 intros Hns Hc₁ Hr Hpol₁ Hps₀ Hns₁ Hc₂.
+assert (ns₁ ∈ newton_segments pol₁) as Hns₁in.
+ Focus 2.
+ eapply r_1_j_0_k_1 in Hns₁in; try eassumption.
+bbb.
+
+intros pol ns c₁ c₂ pol₁ ns₁.
+intros Hns Hc₁ Hr Hpol₁ Hps₀ Hns₁ Hc₂.
 apply order_fin in Hps₀.
 remember Hns as H; clear HeqH.
 symmetry in Hr.
