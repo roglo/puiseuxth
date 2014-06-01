@@ -422,7 +422,11 @@ intros pol ns c₁ c₂ pol₁ ns₁.
 intros Hns Hc₁ Hr Hpol₁ Hps₀ Hns₁ Hc₂.
 assert (ns₁ ∈ newton_segments pol₁) as Hns₁in.
  Focus 2.
- eapply r_1_j_0_k_1 in Hns₁in; try eassumption.
+ remember (next_pol pol₁ (β ns₁) (γ ns₁) c₂) as pol₂ eqn:Hpol₂ .
+ eapply r_1_j_0_k_1 with (c₁ := c₂) in Hns₁in.
+  2: assumption.
+
+  3: eassumption.
 bbb.
 
 intros pol ns c₁ c₂ pol₁ ns₁.
