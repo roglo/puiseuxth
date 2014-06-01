@@ -682,9 +682,6 @@ revert Hnneg Hpos Hz Hpts; clear; intros.
      destruct o₂ as [o₂| ]; [ apply Qbar.qfin_inj in Hz | inversion Hz ].
      injection Hpts; clear Hpts; intros Hpts Hpt₂.
      subst pt₁ pt₂.
-(*
-     revert Hnneg Hpos Hz Hpts; clear; intros.
-*)
      remember (minimise_slope (Qnat 0, o₁) (Qnat 1, o₂) pts) as ms eqn:Hms .
      destruct pts as [| pt₁]; [ subst ms; reflexivity | idtac ].
      simpl in Hpts, Hms.
@@ -706,7 +703,9 @@ revert Hnneg Hpos Hz Hpts; clear; intros.
      destruct c.
       subst ms; simpl.
       apply Qeq_alt in Hc.
-     Focus 1.
+      symmetry in Hc.
+      Focus 1.
+      apply Qeq_shift_mult_l in Hc.
 bbb.
 
 (* following code abandonned, I used another trick *)
