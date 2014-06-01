@@ -704,8 +704,11 @@ revert Hnneg Hpos Hz Hpts; clear; intros.
       subst ms; simpl.
       apply Qeq_alt in Hc.
       symmetry in Hc.
-      Focus 1.
       apply Qeq_shift_mult_l in Hc.
+       apply Qminus_eq_eq_plus_r in Hc.
+       setoid_replace (- o₁ * pow + o₁) with (- o₁ * (pow - 1)) in Hc by
+        ring.
+       Focus 1.
 bbb.
 
 (* following code abandonned, I used another trick *)
