@@ -420,17 +420,6 @@ Lemma zzz : ∀ pol ns c₁ c₂ pol₁ ns₁,
 Proof.
 intros pol ns c₁ c₂ pol₁ ns₁.
 intros Hns Hc₁ Hr Hpol₁ Hps₀ Hns₁ Hc₂.
-assert (ns₁ ∈ newton_segments pol₁) as Hns₁in.
- Focus 2.
- remember (next_pol pol₁ (β ns₁) (γ ns₁) c₂) as pol₂ eqn:Hpol₂ .
- eapply r_1_j_0_k_1 with (c₁ := c₂) in Hns₁in.
-  2: assumption.
-
-  3: eassumption.
-bbb.
-
-intros pol ns c₁ c₂ pol₁ ns₁.
-intros Hns Hc₁ Hr Hpol₁ Hps₀ Hns₁ Hc₂.
 apply order_fin in Hps₀.
 remember Hns as H; clear HeqH.
 symmetry in Hr.
@@ -693,7 +682,9 @@ revert Hnneg Hpos Hz Hpts; clear; intros.
      destruct o₂ as [o₂| ]; [ apply Qbar.qfin_inj in Hz | inversion Hz ].
      injection Hpts; clear Hpts; intros Hpts Hpt₂.
      subst pt₁ pt₂.
+(*
      revert Hnneg Hpos Hz Hpts; clear; intros.
+*)
      remember (minimise_slope (Qnat 0, o₁) (Qnat 1, o₂) pts) as ms eqn:Hms .
      destruct pts as [| pt₁]; [ subst ms; reflexivity | idtac ].
      simpl in Hpts, Hms.
@@ -710,6 +701,11 @@ revert Hnneg Hpos Hz Hpts; clear; intros.
      remember (end_pt ms₁) as p eqn:Hp .
      symmetry in Hp.
      destruct p as (pow, ord); simpl in Hms.
+     remember (- o₁ ?= (ord - o₁) / pow) as c eqn:Hc .
+     symmetry in Hc.
+     destruct c.
+      subst ms; simpl.
+      apply Qeq_alt in Hc.
      Focus 1.
 bbb.
 
