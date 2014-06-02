@@ -27,15 +27,6 @@ Require Import F1Prop.
 
 Set Implicit Arguments.
 
-Lemma Qnat_0 : ∀ A h (αh v : A), (Qnat h, αh) = (0, v) → h = 0%nat.
-Proof.
-intros A h αh v H.
-injection H; clear H; intros H1 H; subst.
-rewrite <- Nat2Z.inj_0 in H.
-apply Nat2Z.inj in H.
-assumption.
-Qed.
-
 Section theorems.
 
 Variable α : Type.
@@ -768,7 +759,8 @@ revert Hnneg Hpos Hz Hpts; clear; intros.
         exfalso; apply Hop.
         unfold Qopp at 1; simpl.
         rewrite Hpow; simpl.
-        Focus 1.
+        rewrite <- Qnat_1.
+        rewrite <- Qnat_inj_sub; [ simpl | apply le_n_S, Nat.le_0_l ].
 bbb.
 
 (* following code abandonned, I used another trick *)

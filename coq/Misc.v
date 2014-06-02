@@ -1996,3 +1996,17 @@ intros a.
 unfold Qeq; simpl.
 rewrite Z.mul_1_r, Pos.mul_1_r; reflexivity.
 Qed.
+
+Theorem Qnat_0 : Qnat 0 == 0.
+Proof. reflexivity. Qed.
+
+Theorem Qnat_1 : Qnat 1 == 1.
+Proof. reflexivity. Qed.
+
+Theorem Qnat_inj_sub : ∀ m n, (n ≤ m)%nat → Qnat (m - n) == Qnat m - Qnat n.
+Proof.
+intros m n H.
+unfold Qnat; simpl.
+rewrite <- QZ_minus.
+rewrite Nat2Z.inj_sub; [ reflexivity | assumption ].
+Qed.
