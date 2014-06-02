@@ -804,7 +804,24 @@ revert Hnneg Hpos Hz Hpts; clear; intros.
         rewrite <- Hord in H.
         apply Qbar.qfin_le_mono in H.
         apply Qlt_not_le in Hc; contradiction.
-      Focus 1.
+
+        rewrite <- Qopp_opp.
+        setoid_replace 0 with (- 0) by reflexivity.
+        apply Qopp_lt_compat.
+        rewrite <- Qmult_opp_r.
+        rewrite Qopp_minus, Hpow, <- Qnat_1.
+        rewrite <- Qnat_inj_sub; [ simpl | apply le_n_S, Nat.le_0_l ].
+        apply Q_mul_pos_pos; [ assumption | idtac ].
+        rewrite <- Qnat_0.
+        apply Qnat_lt, Nat.lt_0_succ.
+
+       rewrite Hpow.
+       rewrite <- Qnat_0.
+       apply Qnat_lt, Nat.lt_0_succ.
+
+   rewrite Hfin; simpl.
+   rewrite Hoth in Hc₂; simpl in Hc₂.
+   rewrite Hfin in Hc₂; simpl in Hc₂.
 bbb.
 
 End theorems.
