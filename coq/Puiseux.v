@@ -436,7 +436,7 @@ destruct oa as [oa| ].
  exists (S m); split; assumption.
 Qed.
 
-Lemma zzz : ∀ pol ns c₁ c₂ pol₁ ns₁,
+Lemma multiplicity_1_remains : ∀ pol ns c₁ c₂ pol₁ ns₁,
   ns ∈ newton_segments pol
   → c₁ = ac_root (Φq pol ns) ∧ (c₁ ≠ 0)%K
   → root_multiplicity acf c₁ (Φq pol ns) = 1%nat
