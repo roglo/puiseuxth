@@ -408,14 +408,43 @@ destruct la as [| a₁]; simpl in Hz.
  discriminate Hpts.
 Qed.
 
-Lemma yyy : ∀ la pt pow,
+Lemma pow_ord_of_point : ∀ la pt pow,
   pt ∈ points_of_ps_lap_gen pow la
   → ∃ n,
     nat_num (fst pt) = (pow + n)%nat
     ∧ qfin (snd pt) = order (ps_lap_nth n la).
 Proof.
 intros la pt pow Hpt.
-bbb.
+revert pow Hpt.
+induction la as [| a]; intros; [ contradiction | idtac ].
+unfold points_of_ps_lap_gen in Hpt.
+simpl in Hpt.
+remember (order a) as oa eqn:Hoa .
+symmetry in Hoa.
+rewrite fold_qpower_list in Hpt.
+rewrite fold_points_of_ps_lap_gen in Hpt.
+destruct oa as [oa| ].
+ destruct Hpt as [Hpt| Hpt].
+  subst pt; simpl.
+  rewrite nat_num_Qnat.
+  unfold ps_lap_nth.
+  symmetry in Hoa.
+  exists 0%nat; split; [ rewrite Nat.add_comm; reflexivity | assumption ].
+
+  apply IHla in Hpt.
+  destruct Hpt as (m, (Hpow, Hord)).
+  rewrite Nat.add_succ_l, <- Nat.add_succ_r in Hpow.
+  unfold ps_lap_nth in Hord.
+  unfold ps_lap_nth.
+  exists (S m); split; assumption.
+
+ apply IHla in Hpt.
+ destruct Hpt as (m, (Hpow, Hord)).
+ rewrite Nat.add_succ_l, <- Nat.add_succ_r in Hpow.
+ unfold ps_lap_nth in Hord.
+ unfold ps_lap_nth.
+ exists (S m); split; assumption.
+Qed.
 
 Lemma zzz : ∀ pol ns c₁ c₂ pol₁ ns₁,
   ns ∈ newton_segments pol
@@ -723,11 +752,23 @@ revert Hnneg Hpos Hz Hpts; clear; intros.
        rewrite fold_qpower_list in Hpts.
        rewrite fold_points_of_ps_lap_gen in Hpts.
        rewrite <- Hpts in Hend.
-       apply yyy in Hend.
+       apply pow_ord_of_point in Hend.
        destruct Hend as (n, (Hpow, Hord)).
        rewrite Hp in Hpow; simpl in Hpow.
        rewrite Hp in Hord; simpl in Hord.
-       Focus 1.
+       assert (qfin ord ≥ 0)%Qbar as Hop.
+        rewrite Hord.
+        pose proof (Hnneg (2 + n)%nat) as H; assumption.
+
+        rewrite Hc in Hop.
+        apply Qbar.qfin_le_mono in Hop.
+        rewrite Qmult_opp_l in Hop.
+        apply Qopp_le_compat in Hop.
+        rewrite Qopp_opp in Hop.
+        apply Qle_not_lt in Hop.
+        exfalso; apply Hop.
+        unfold Qopp at 1; simpl.
+        Focus 1.
 bbb.
 
 (* following code abandonned, I used another trick *)
