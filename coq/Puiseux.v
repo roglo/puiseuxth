@@ -822,6 +822,13 @@ revert Hnneg Hpos Hz Hpts; clear; intros.
    rewrite Hfin; simpl.
    rewrite Hoth in Hc₂; simpl in Hc₂.
    rewrite Hfin in Hc₂; simpl in Hc₂.
+   destruct Hc₂ as (Hc₂, Hz₂).
+   remember
+    [order_coeff (List.nth 0 la 0%ps); order_coeff (List.nth 1 la 0%ps) … []]%pol as la₂.
+   remember POL la₂%pol as pol₂ eqn:Hpol₂ .
+   assert (degree ac_zerop pol₂ ≥ 1)%nat as Hpol.
+    subst pol₂ la₂.
+    unfold degree; simpl.
 bbb.
 
 End theorems.
