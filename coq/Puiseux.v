@@ -795,6 +795,15 @@ revert Hnneg Hpos Hz Hpts; clear; intros.
       destruct Hend as (n, (Hpow, Hord)).
       rewrite Hp in Hpow; simpl in Hpow.
       rewrite Hp in Hord; simpl in Hord.
+      apply Qlt_shift_mult_l in Hc.
+       apply Qminus_lt_lt_plus_r in Hc.
+       setoid_replace (- o₁ * pow + o₁) with (o₁ * (1 - pow)) in Hc by ring.
+       eapply Qlt_trans with (z := 0) in Hc.
+        pose proof (Hnneg (2 + n)%nat) as H; simpl in H.
+        rewrite fold_ps_lap_nth in H.
+        rewrite <- Hord in H.
+        apply Qbar.qfin_le_mono in H.
+        apply Qlt_not_le in Hc; contradiction.
       Focus 1.
 bbb.
 
