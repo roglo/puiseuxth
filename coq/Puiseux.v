@@ -829,6 +829,30 @@ revert Hnneg Hpos Hz Hpts; clear; intros.
    assert (degree ac_zerop pol₂ ≥ 1)%nat as Hpol.
     subst pol₂ la₂.
     unfold degree; simpl.
+    remember (order_coeff (List.nth 1 la 0%ps)) as oc₁ eqn:Hoc₁ .
+    symmetry in Hoc₁.
+    destruct (ac_zerop oc₁) as [Heq| Hne].
+     move Hoc₁ at bottom.
+     move Hz at bottom.
+     unfold order_coeff in Hoc₁.
+     unfold order in Hz.
+     remember (ps_terms (List.nth 1 la 0%ps)) as s.
+     remember (null_coeff_range_length R s 0) as v eqn:Hv .
+     destruct v as [v| ].
+      apply Qbar.qfin_inj in Hz.
+      symmetry in Hv.
+      apply null_coeff_range_length_iff in Hv.
+      unfold null_coeff_range_length_prop in Hv.
+      simpl in Hv.
+      destruct Hv as (Hvi, Hv).
+      rewrite <- Hoc₁ in Heq.
+      contradiction.
+
+      inversion Hz.
+
+     apply Nat.le_refl.
+
+    apply ac_prop_root in Hpol.
 bbb.
 
 End theorems.
