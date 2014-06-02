@@ -411,7 +411,7 @@ Qed.
 Lemma pow_ord_of_point : ∀ la pt pow,
   pt ∈ points_of_ps_lap_gen pow la
   → ∃ n,
-    nat_num (fst pt) = (pow + n)%nat
+    fst pt = Qnat (pow + n)
     ∧ qfin (snd pt) = order (ps_lap_nth n la).
 Proof.
 intros la pt pow Hpt.
@@ -426,7 +426,6 @@ rewrite fold_points_of_ps_lap_gen in Hpt.
 destruct oa as [oa| ].
  destruct Hpt as [Hpt| Hpt].
   subst pt; simpl.
-  rewrite nat_num_Qnat.
   unfold ps_lap_nth.
   symmetry in Hoa.
   exists 0%nat; split; [ rewrite Nat.add_comm; reflexivity | assumption ].
@@ -768,6 +767,7 @@ revert Hnneg Hpos Hz Hpts; clear; intros.
         apply Qle_not_lt in Hop.
         exfalso; apply Hop.
         unfold Qopp at 1; simpl.
+        rewrite Hpow; simpl.
         Focus 1.
 bbb.
 
