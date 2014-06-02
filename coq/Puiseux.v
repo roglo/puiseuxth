@@ -708,6 +708,12 @@ revert Hnneg Hpos Hz Hpts; clear; intros.
        apply Qminus_eq_eq_plus_r in Hc.
        setoid_replace (- o₁ * pow + o₁) with (- o₁ * (pow - 1)) in Hc by
         ring.
+       remember Hms₁ as Hend; clear HeqHend.
+       symmetry in Hend.
+       apply end_pt_in in Hend.
+       rewrite fold_qpower_list in Hpts.
+       rewrite fold_points_of_ps_lap_gen in Hpts.
+       rewrite <- Hpts in Hend.
        Focus 1.
 bbb.
 
