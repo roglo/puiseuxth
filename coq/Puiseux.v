@@ -784,7 +784,17 @@ revert Hnneg Hpos Hz Hpts; clear; intros.
 
       move Hms at top; subst ms₁.
       rewrite Hp; simpl.
-
+      apply Qgt_alt in Hc.
+      remember Hms₁ as Hend; clear HeqHend.
+      symmetry in Hend.
+      apply end_pt_in in Hend.
+      rewrite fold_qpower_list in Hpts.
+      rewrite fold_points_of_ps_lap_gen in Hpts.
+      rewrite <- Hpts in Hend.
+      apply pow_ord_of_point in Hend.
+      destruct Hend as (n, (Hpow, Hord)).
+      rewrite Hp in Hpow; simpl in Hpow.
+      rewrite Hp in Hord; simpl in Hord.
       Focus 1.
 bbb.
 
