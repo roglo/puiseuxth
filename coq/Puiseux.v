@@ -408,6 +408,15 @@ destruct la as [| a₁]; simpl in Hz.
  discriminate Hpts.
 Qed.
 
+Lemma yyy : ∀ la pt pow,
+  pt ∈ points_of_ps_lap_gen pow la
+  → ∃ n,
+    nat_num (fst pt) = (pow + n)%nat
+    ∧ qfin (snd pt) = order (ps_lap_nth n la).
+Proof.
+intros la pt pow Hpt.
+bbb.
+
 Lemma zzz : ∀ pol ns c₁ c₂ pol₁ ns₁,
   ns ∈ newton_segments pol
   → c₁ = ac_root (Φq pol ns) ∧ (c₁ ≠ 0)%K
@@ -714,6 +723,10 @@ revert Hnneg Hpos Hz Hpts; clear; intros.
        rewrite fold_qpower_list in Hpts.
        rewrite fold_points_of_ps_lap_gen in Hpts.
        rewrite <- Hpts in Hend.
+       apply yyy in Hend.
+       destruct Hend as (n, (Hpow, Hord)).
+       rewrite Hp in Hpow; simpl in Hpow.
+       rewrite Hp in Hord; simpl in Hord.
        Focus 1.
 bbb.
 
