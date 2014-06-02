@@ -853,6 +853,10 @@ revert Hnneg Hpos Hz Hpts; clear; intros.
      apply Nat.le_refl.
 
     apply ac_prop_root in Hpol.
+    rewrite <- Hc₂, Hpol₂ in Hpol.
+    unfold apply_poly in Hpol; simpl in Hpol.
+    rewrite Heqla₂ in Hpol; simpl in Hpol.
+    rewrite rng_mul_0_l, rng_add_0_l in Hpol.
 bbb.
 
 End theorems.
