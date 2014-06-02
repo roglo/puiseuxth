@@ -2010,3 +2010,14 @@ unfold Qnat; simpl.
 rewrite <- QZ_minus.
 rewrite Nat2Z.inj_sub; [ reflexivity | assumption ].
 Qed.
+
+Theorem Q_mul_pos_pos : ∀ m n, (0 < m → 0 < n → 0 < m * n)%Q.
+Proof.
+intros m n Hm Hn.
+unfold Qlt in Hm, Hn.
+simpl in Hm, Hn.
+rewrite Z.mul_1_r in Hm, Hn.
+unfold Qlt; simpl.
+rewrite Z.mul_1_r.
+apply Z.mul_pos_pos; assumption.
+Qed.

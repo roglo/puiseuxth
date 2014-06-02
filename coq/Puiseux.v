@@ -761,88 +761,31 @@ revert Hnneg Hpos Hz Hpts; clear; intros.
         rewrite Hpow; simpl.
         rewrite <- Qnat_1.
         rewrite <- Qnat_inj_sub; [ simpl | apply le_n_S, Nat.le_0_l ].
-bbb.
+        apply Q_mul_pos_pos; [ assumption | idtac ].
+        rewrite <- Qnat_0.
+        apply Qnat_lt, Nat.lt_0_succ.
 
-(* following code abandonned, I used another trick *)
-(* to be able to use r_1_j_0_k_1 above *)
-assert (ns₁ ∈ newton_segments pol₁) as Hns₁in.
- rewrite Hns₁.
- remember (newton_segments pol₁) as nsl.
- symmetry in Heqnsl.
- destruct nsl as [| ns₂].
-  Focus 1.
-  unfold newton_segments in Heqnsl.
-  remember (lower_convex_hull_points (points_of_ps_polynom pol₁)) as chpts.
-  symmetry in Heqchpts.
-  destruct chpts as [| pt₁].
-   unfold lower_convex_hull_points in Heqchpts.
-   remember (points_of_ps_polynom pol₁) as pts.
-   symmetry in Heqpts.
-   destruct pts as [| pt₁].
-    unfold points_of_ps_polynom in Heqpts.
-    unfold points_of_ps_lap in Heqpts.
-    unfold points_of_ps_lap_gen in Heqpts.
-    remember (qpower_list 0 (al pol₁)) as pl.
-    symmetry in Heqpl.
-    destruct pl as [| p].
-     unfold qpower_list in Heqpl.
-bbb.
+       remember Hms₁ as Hend; clear HeqHend.
+       symmetry in Hend.
+       apply end_pt_in in Hend.
+       rewrite fold_qpower_list in Hpts.
+       rewrite fold_points_of_ps_lap_gen in Hpts.
+       rewrite <- Hpts in Hend.
+       apply pow_ord_of_point in Hend.
+       destruct Hend as (n, (Hpow, Hord)).
+       rewrite Hp in Hpow; simpl in Hpow.
+       rewrite Hp in Hord; simpl in Hord.
+       rewrite Hpow.
+       rewrite <- Qnat_0.
+       unfold Qnat, Qeq; simpl.
+       apply Pos2Z_ne_0.
 
-remember Hns₁in as Hini₁; clear HeqHini₁.
-remember Hns₁in as Hfin₁; clear HeqHfin₁.
-apply exists_ini_pt_nat in Hini₁.
-apply exists_fin_pt_nat in Hfin₁.
-destruct Hini₁ as (j₁, (αj₁, Hini₁)).
-destruct Hfin₁ as (k₁, (αk₁, Hfin₁)).
-rewrite Hini₁, Hfin₁; simpl.
+      subst ms; reflexivity.
 
-rewrite nat_num_Qnat.
-remember Hr as Hjk; clear HeqHjk.
-eapply r_1_j_0_k_1 in Hjk; try eassumption.
-destruct Hjk as (Hj, (Hk, (Hαj, (Hαk, Hoth)))).
-subst j₁ k₁.
-rewrite fold_char_pol with (αj := αj₁).
-rewrite Hoth; simpl.
-rewrite nat_num_Qnat; simpl.
-rewrite nat_num_Qnat; simpl.
-unfold Φq in Hc₂.
-rewrite Hini₁ in Hc₂; simpl in Hc₂.
-rewrite nat_num_Qnat in Hc₂.
-unfold poly_left_shift in Hc₂.
-rewrite list_skipn_0 in Hc₂.
-simpl in Hc₂.
-rewrite Nat.sub_diag in Hc₂.
-rewrite Hini₁ in Hc₂; simpl in Hc₂.
-rewrite nat_num_Qnat in Hc₂.
-rewrite Hoth, Hfin₁ in Hc₂; simpl in Hc₂.
-rewrite nat_num_Qnat in Hc₂.
-remember (order_coeff (List.nth 0 (al pol₁) 0%ps)) as v₀.
-remember (order_coeff (List.nth 1 (al pol₁) 0%ps)) as v₁.
-remember POL [v₀; v₁ … []]%pol as cpol.
-assert (apply_poly cpol c₂ = 0)%K as Happ.
- destruct Hc₂ as (Hc₂, Hc₂nz).
- rewrite Hc₂.
- apply ac_prop_root.
- subst cpol; simpl.
- unfold degree; simpl.
- destruct (ac_zerop v₁) as [H₁| H₁].
-  exfalso.
-  unfold order_coeff in Heqv₁.
-  symmetry in Heqv₁.
-  remember (List.nth 1 (al pol₁) 0%ps) as a₁.
-  remember (null_coeff_range_length R (ps_terms a₁) 0) as v.
-  symmetry in Heqv.
-  destruct v as [v| ].
-   apply null_coeff_range_length_iff in Heqv.
-   unfold null_coeff_range_length_prop in Heqv.
-   simpl in Heqv.
-   destruct Heqv as (_, Heqv).
-   rewrite Heqv₁ in Heqv.
-   contradiction.
+      move Hms at top; subst ms₁.
+      rewrite Hp; simpl.
 
-   apply null_coeff_range_length_iff in Heqv.
-   unfold null_coeff_range_length_prop in Heqv.
-   simpl in Heqv.
+      Focus 1.
 bbb.
 
 End theorems.
