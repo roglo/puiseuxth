@@ -2039,6 +2039,14 @@ intros la c Hmod.
 destruct la as [| a]; [ reflexivity | assumption ].
 Qed.
 
+Lemma apply_lap_mod_deg_1 : ∀ la c,
+  (apply_lap la c = 0)%K
+  → (lap_mod_deg_1 la c = 0)%K.
+Proof.
+intros la c Happ.
+destruct la as [| a]; [ reflexivity | assumption ].
+Qed.
+
 Lemma list_root_mul_power_quotient : ∀ la c r len,
   list_root_multiplicity acf c la len = r
   → lap_eq la

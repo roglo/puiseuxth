@@ -826,37 +826,48 @@ revert Hnneg Hpos Hz Hpts; clear; intros.
    remember
     [order_coeff (List.nth 0 la 0%ps); order_coeff (List.nth 1 la 0%ps) … []]%pol as la₂.
    remember POL la₂%pol as pol₂ eqn:Hpol₂ .
-   assert (degree ac_zerop pol₂ ≥ 1)%nat as Hpol.
-    subst pol₂ la₂.
-    unfold degree; simpl.
-    remember (order_coeff (List.nth 1 la 0%ps)) as oc₁ eqn:Hoc₁ .
-    symmetry in Hoc₁.
-    destruct (ac_zerop oc₁) as [Heq| Hne].
-     move Hoc₁ at bottom.
-     move Hz at bottom.
-     unfold order_coeff in Hoc₁.
-     unfold order in Hz.
-     remember (ps_terms (List.nth 1 la 0%ps)) as s.
-     remember (null_coeff_range_length R s 0) as v eqn:Hv .
-     destruct v as [v| ].
-      apply Qbar.qfin_inj in Hz.
-      symmetry in Hv.
-      apply null_coeff_range_length_iff in Hv.
-      unfold null_coeff_range_length_prop in Hv.
-      simpl in Hv.
-      destruct Hv as (Hvi, Hv).
-      rewrite <- Hoc₁ in Heq.
-      contradiction.
+   assert (order_coeff (List.nth 1 la 0%ps) ≠ 0)%K as Hnz.
+    intros Hoc₁.
+    move Hz at bottom.
+    unfold order_coeff in Hoc₁.
+    unfold order in Hz.
+    remember (ps_terms (List.nth 1 la 0%ps)) as s.
+    remember (null_coeff_range_length R s 0) as v eqn:Hv .
+    destruct v as [v| ].
+     apply Qbar.qfin_inj in Hz.
+     symmetry in Hv.
+     apply null_coeff_range_length_iff in Hv.
+     unfold null_coeff_range_length_prop in Hv.
+     simpl in Hv.
+     destruct Hv as (Hvi, Hv).
+     rewrite Hoc₁ in Hv.
+     apply Hv; reflexivity.
 
-      inversion Hz.
+     inversion Hz.
 
+    assert (degree ac_zerop pol₂ ≥ 1)%nat as Hpol.
+     subst pol₂ la₂.
+     unfold degree; simpl.
+     remember (order_coeff (List.nth 1 la 0%ps)) as oc₁ eqn:Hoc₁ .
+     symmetry in Hoc₁.
+     destruct (ac_zerop oc₁) as [| Hne]; [ contradiction | idtac ].
      apply Nat.le_refl.
 
-    apply ac_prop_root in Hpol.
-    rewrite <- Hc₂, Hpol₂ in Hpol.
-    unfold apply_poly in Hpol; simpl in Hpol.
-    rewrite Heqla₂ in Hpol; simpl in Hpol.
-    rewrite rng_mul_0_l, rng_add_0_l in Hpol.
-bbb.
+     apply ac_prop_root in Hpol.
+     rewrite <- Hc₂, Hpol₂ in Hpol.
+     unfold apply_poly in Hpol; simpl in Hpol.
+     destruct (ac_zerop (lap_mod_deg_1 la₂ c₂)) as [Heq| Hne].
+      apply eq_S.
+      destruct (ac_zerop (lap_mod_deg_1 (lap_div_deg_1 la₂ c₂) c₂))
+       as [Heq₁| ]; [ idtac | reflexivity ].
+      apply lap_mod_deg_1_apply in Heq₁.
+      rewrite Heqla₂ in Heq₁; simpl in Heq₁.
+      rewrite rng_mul_0_l in Heq₁.
+      do 2 rewrite rng_add_0_l in Heq₁.
+      contradiction.
+
+      apply apply_lap_mod_deg_1 in Hpol.
+      contradiction.
+Qed.
 
 End theorems.
