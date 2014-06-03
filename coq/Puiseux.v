@@ -870,4 +870,18 @@ revert Hnneg Hpos Hz Hpts; clear; intros.
       contradiction.
 Qed.
 
+Lemma zzz : ∀ pol ns c₁ c₂ pol₁ ns₁,
+  ns ∈ newton_segments pol
+  → c₁ = ac_root (Φq pol ns) ∧ (c₁ ≠ 0)%K
+  → root_multiplicity acf c₁ (Φq pol ns) = 1%nat
+  → pol₁ = next_pol pol (β ns) (γ ns) c₁
+  → (ps_poly_nth 0 pol₁ ≠ 0)%ps
+  → ns₁ = List.hd phony_ns (newton_segments pol₁)
+  → c₂ = ac_root (Φq pol₁ ns₁) ∧ (c₂ ≠ 0)%K
+  → ∃ ps, (ps_pol_apply pol ps = 0)%ps.
+Proof.
+intros pol ns c₁ c₂ pol₁ ns₁.
+intros Hns Hc₁ Hr Hpol₁ Hps₀ Hns₁ Hc₂.
+bbb.
+
 End theorems.
