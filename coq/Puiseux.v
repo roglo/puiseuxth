@@ -882,6 +882,7 @@ Lemma zzz : ∀ pol ns c₁ c₂ pol₁ ns₁,
 Proof.
 intros pol ns c₁ c₂ pol₁ ns₁.
 intros Hns Hc₁ Hr Hpol₁ Hps₀ Hns₁ Hc₂.
+bbb.
 remember Hpol₁ as H; clear HeqH.
 eapply f₁_root_f_root in H; [ idtac | reflexivity | idtac ].
 bbb.
