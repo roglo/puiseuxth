@@ -876,7 +876,7 @@ Fixpoint polydromy_if_r_one acf m pol :=
   | S m₁ =>
       let ns := List.hd phony_ns (newton_segments pol) in
       let c₁ := ac_root (Φq pol ns) in
-      if ac_zerop c₁ then ...
+      if ac_zerop c₁ then Some 1%nat
       else
         let r := root_multiplicity acf c₁ (Φq pol ns) in
         if eq_nat_dec r 1 then Some 1%nat
