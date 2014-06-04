@@ -898,6 +898,7 @@ induction m; [ contradiction | intros ].
 simpl in Hp.
 rewrite <- Hns in Hp.
 destruct (ac_zerop (ac_root (Φq pol ns))) as [Hz| Hnz].
+ exists ps_zero.
 bbb.
 
 intros pol ns c₁ c₂ pol₁ ns₁ m.
