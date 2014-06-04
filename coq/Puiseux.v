@@ -870,7 +870,7 @@ revert Hnneg Hpos Hz Hpts; clear; intros.
       contradiction.
 Qed.
 
-Fixpoint polydromy_if_r_one acf m pol :=
+Fixpoint polydromy_if_r_one acf m pol {struct m} :=
   match m with
   | 0%nat => 0%nat
   | S m₁ =>
@@ -887,7 +887,7 @@ Fixpoint polydromy_if_r_one acf m pol :=
   end.
 
 Lemma zzz : ∀ pol ns c₁ c₂ pol₁ ns₁ m,
-  ns ∈ newton_segments pol
+  ns = List.hd phony_ns (newton_segments pol)
   → c₁ = ac_root (Φq pol ns) ∧ (c₁ ≠ 0)%K
   → root_multiplicity acf c₁ (Φq pol ns) = 1%nat
   → pol₁ = next_pol pol (β ns) (γ ns) c₁
@@ -899,7 +899,16 @@ Lemma zzz : ∀ pol ns c₁ c₂ pol₁ ns₁ m,
 Proof.
 intros pol ns c₁ c₂ pol₁ ns₁ m.
 intros Hns Hc₁ Hr Hpol₁ Hps₀ Hns₁ Hc₂ Hpnz.
-remember (polydromy_if_r_one acf m pol) as p eqn:Hp.
+remember (polydromy_if_r_one acf m pol) as p eqn:Hp .
+revert pol pol₁ Hns Hc₁ Hr Hpol₁ Hps₀ Hns₁ Hc₂ Hp.
+induction m; [ contradiction | intros ].
+simpl in Hp.
+rewrite <- Hns in Hp.
+destruct (ac_zerop (ac_root (Φq pol ns))) as [Hz| Hnz].
+ remember Hpol₁ as H; clear HeqH.
+ eapply multiplicity_1_remains in H; try eassumption.
+bbb.
+
 bbb.
 remember Hpol₁ as H; clear HeqH.
 eapply f₁_root_f_root in H; [ idtac | reflexivity | idtac ].
