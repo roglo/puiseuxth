@@ -898,6 +898,10 @@ simpl in Hpnz.
 rewrite <- Hns in Hpnz.
 destruct (ac_zerop (ac_root (Φq pol ns))) as [Hz| Hnz].
  clear Hpnz.
+ assert (degree ac_zerop (Φq pol ns) ≥ 1) as Happ.
+  Focus 2.
+  apply ac_prop_root in Happ.
+  rewrite Hz in Happ.
 bbb.
 
 intros pol ns c₁ c₂ pol₁ ns₁ m.
