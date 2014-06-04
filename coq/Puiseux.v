@@ -892,13 +892,12 @@ Lemma zzz : ∀ pol ns m,
   → ∃ ps, (ps_pol_apply pol ps = 0)%ps.
 Proof.
 intros pol ns m Hns Hpnz.
-remember (polydromy_if_r_one acf m pol) as p eqn:Hp .
-revert pol ns p Hns Hp Hpnz.
-induction m; [ contradiction | intros ].
-simpl in Hp.
-rewrite <- Hns in Hp.
+revert pol ns Hns Hpnz.
+induction m; intros; [ exfalso; apply Hpnz; reflexivity | idtac ].
+simpl in Hpnz.
+rewrite <- Hns in Hpnz.
 destruct (ac_zerop (ac_root (Φq pol ns))) as [Hz| Hnz].
- exists ps_zero.
+ clear Hpnz.
 bbb.
 
 intros pol ns c₁ c₂ pol₁ ns₁ m.
