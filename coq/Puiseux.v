@@ -870,6 +870,22 @@ revert Hnneg Hpos Hz Hpts; clear; intros.
       contradiction.
 Qed.
 
+Fixpoint polydromy_if_r_one acf m pol :=
+  match m with
+  | 0%nat => None
+  | S m₁ =>
+      let ns := List.hd phony_ns (newton_segments pol) in
+      let c₁ := ac_root (Φq pol ns) in
+      if ac_zerop c₁ then ...
+      else
+        let r := root_multiplicity acf c₁ (Φq pol ns) in
+        if eq_nat_dec r 1 then Some 1%nat
+        else
+          let pol₁ := next_pol pol (β ns) (γ ns) c₁ in
+          let v := polydromy_if_r_one acf m₁ pol₁ in
+          ...
+  end.
+
 Lemma zzz : ∀ pol ns c₁ c₂ pol₁ ns₁,
   ns ∈ newton_segments pol
   → c₁ = ac_root (Φq pol ns) ∧ (c₁ ≠ 0)%K
