@@ -872,21 +872,21 @@ Qed.
 
 Fixpoint polydromy_if_r_one acf m pol :=
   match m with
-  | 0%nat => None
+  | 0%nat => 0%nat
   | S m₁ =>
       let ns := List.hd phony_ns (newton_segments pol) in
       let c₁ := ac_root (Φq pol ns) in
-      if ac_zerop c₁ then Some 1%nat
+      if ac_zerop c₁ then 1%nat
       else
         let r := root_multiplicity acf c₁ (Φq pol ns) in
-        if eq_nat_dec r 1 then Some 1%nat
+        if eq_nat_dec r 1 then 1%nat
         else
           let pol₁ := next_pol pol (β ns) (γ ns) c₁ in
           let v := polydromy_if_r_one acf m₁ pol₁ in
-          ...
+          42 (* temp: I don't know the value *)
   end.
 
-Lemma zzz : ∀ pol ns c₁ c₂ pol₁ ns₁,
+Lemma zzz : ∀ pol ns c₁ c₂ pol₁ ns₁ m,
   ns ∈ newton_segments pol
   → c₁ = ac_root (Φq pol ns) ∧ (c₁ ≠ 0)%K
   → root_multiplicity acf c₁ (Φq pol ns) = 1%nat
@@ -894,10 +894,12 @@ Lemma zzz : ∀ pol ns c₁ c₂ pol₁ ns₁,
   → (ps_poly_nth 0 pol₁ ≠ 0)%ps
   → ns₁ = List.hd phony_ns (newton_segments pol₁)
   → c₂ = ac_root (Φq pol₁ ns₁) ∧ (c₂ ≠ 0)%K
+  → polydromy_if_r_one acf m pol ≠ 0%nat
   → ∃ ps, (ps_pol_apply pol ps = 0)%ps.
 Proof.
-intros pol ns c₁ c₂ pol₁ ns₁.
-intros Hns Hc₁ Hr Hpol₁ Hps₀ Hns₁ Hc₂.
+intros pol ns c₁ c₂ pol₁ ns₁ m.
+intros Hns Hc₁ Hr Hpol₁ Hps₀ Hns₁ Hc₂ Hpnz.
+remember (polydromy_if_r_one acf m pol) as p eqn:Hp.
 bbb.
 remember Hpol₁ as H; clear HeqH.
 eapply f₁_root_f_root in H; [ idtac | reflexivity | idtac ].
