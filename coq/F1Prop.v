@@ -748,15 +748,11 @@ assert (degree ac_zerop (Φq pol ns) ≥ 1)%nat as Hpol.
  remember (degree_plus_1_of_list ac_zerop pl) as n eqn:Hn .
  symmetry in Hn.
  destruct n.
-bbb.
   apply degree_plus_1_is_0 in Hn.
-  remember (length pl) as len eqn:Hlen .
-  remember Hlen as H; clear HeqH.
-  symmetry in Hlen.
-  rewrite Hpl in Hlen.
-  erewrite length_char_pol in Hlen; try eassumption.
-  rewrite H in Hlen.
-  destruct pl; [ discriminate Hlen | idtac ].
+  remember Hns as H; clear HeqH.
+  eapply length_char_pol in H; try eassumption.
+  rewrite <- Hpl in H.
+bbb.
   apply lap_eq_cons_nil_inv in Hn.
 bbb.
 

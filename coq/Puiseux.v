@@ -438,12 +438,12 @@ Qed.
 
 Lemma multiplicity_1_remains : ∀ pol ns c₁ c₂ pol₁ ns₁,
   ns ∈ newton_segments pol
-  → c₁ = ac_root (Φq pol ns) ∧ (c₁ ≠ 0)%K
+  → c₁ = ac_root (Φq pol ns)
   → root_multiplicity acf c₁ (Φq pol ns) = 1%nat
   → pol₁ = next_pol pol (β ns) (γ ns) c₁
   → (ps_poly_nth 0 pol₁ ≠ 0)%ps
   → ns₁ = List.hd phony_ns (newton_segments pol₁)
-  → c₂ = ac_root (Φq pol₁ ns₁) ∧ (c₂ ≠ 0)%K
+  → c₂ = ac_root (Φq pol₁ ns₁)
   → root_multiplicity acf c₂ (Φq pol₁ ns₁) = 1%nat.
 Proof.
 intros pol ns c₁ c₂ pol₁ ns₁.
