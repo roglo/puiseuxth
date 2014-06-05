@@ -854,6 +854,7 @@ revert Hnneg Hpos Hz Hpts; clear; intros.
      apply Nat.le_refl.
 
      apply ac_prop_root in Hpol.
+bbb.
      rewrite <- Hc₂, Hpol₂ in Hpol.
      unfold apply_poly in Hpol; simpl in Hpol.
      destruct (ac_zerop (lap_mod_deg_1 la₂ c₂)) as [Heq| Hne].
