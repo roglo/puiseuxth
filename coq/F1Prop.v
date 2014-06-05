@@ -759,6 +759,10 @@ Lemma zzz : ∀ pol ns c₁,
     → (c₁ ≠ 0)%K.
 Proof.
 intros pol ns c₁ Hns Hc₁.
+remember Hns as Happ; clear HeqHapp.
+apply cpol_degree_ge_1 with (K := K) (acf := acf) in Happ.
+apply ac_prop_root in Happ.
+bbb.
 remember Hns as Hini; clear HeqHini.
 apply exists_ini_pt_nat in Hini.
 destruct Hini as (j, (αj, Hini)).
