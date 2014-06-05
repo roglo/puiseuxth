@@ -822,7 +822,6 @@ revert Hnneg Hpos Hz Hpts; clear; intros.
    rewrite Hfin; simpl.
    rewrite Hoth in Hc₂; simpl in Hc₂.
    rewrite Hfin in Hc₂; simpl in Hc₂.
-   destruct Hc₂ as (Hc₂, Hz₂).
    remember
     [order_coeff (List.nth 0 la 0%ps); order_coeff (List.nth 1 la 0%ps) … []]%pol as la₂.
    remember POL la₂%pol as pol₂ eqn:Hpol₂ .
@@ -854,7 +853,6 @@ revert Hnneg Hpos Hz Hpts; clear; intros.
      apply Nat.le_refl.
 
      apply ac_prop_root in Hpol.
-bbb.
      rewrite <- Hc₂, Hpol₂ in Hpol.
      unfold apply_poly in Hpol; simpl in Hpol.
      destruct (ac_zerop (lap_mod_deg_1 la₂ c₂)) as [Heq| Hne].
