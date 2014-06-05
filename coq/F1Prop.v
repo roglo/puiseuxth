@@ -752,8 +752,21 @@ assert (degree ac_zerop (Φq pol ns) ≥ 1)%nat as Hpol.
   remember Hns as H; clear HeqH.
   eapply length_char_pol in H; try eassumption.
   rewrite <- Hpl in H.
-bbb.
+  destruct pl as [| pt₁]; [ discriminate H | simpl in H ].
   apply lap_eq_cons_nil_inv in Hn.
+  destruct Hn as (Hpt₁, Hn).
+  subst tl pts.
+  simpl in Hpl.
+  rewrite Hini in Hpl.
+  simpl in Hpl.
+  rewrite nat_num_Qnat in Hpl.
+  rewrite Nat.sub_diag, list_pad_0 in Hpl.
+  injection Hpl; clear Hpl; intros; subst pt₁.
+  exfalso; revert Hpt₁.
+  eapply ord_coeff_non_zero_in_newt_segm; try eassumption; try reflexivity.
+  left; eassumption.
+
+  simpl.
 bbb.
 
 (* [Walker, p 101] « O(br) = 0 » *)
