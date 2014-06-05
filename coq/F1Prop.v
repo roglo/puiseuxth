@@ -724,17 +724,33 @@ apply Qbar.min_glb_lt.
  apply nth_g_order_pos; assumption.
 Qed.
 
-Lemma yyy : ∀ pol ns pts tl pow a,
+Lemma yyy : ∀ pol ns pts tl j αj a,
   ns ∈ newton_segments pol
+  → ini_pt ns = (Qnat j, αj)
   → pts = [ini_pt ns … oth_pts ns ++ [fin_pt ns]]
   → tl = List.map (term_of_point pol) pts
-  → a ∈ make_char_pol R pow tl
+  → a ∈ make_char_pol R j tl
   → (a ≠ 0)%K.
 Proof.
-intros pol ns pts tl pow a Hns Hpts Htl Ha.
+intros pol ns pts tl j αj a Hns Hini Hpts Htl Ha.
+remember Hns as Hfin; clear HeqHfin.
+apply exists_fin_pt_nat in Hfin.
+destruct Hfin as (k, (αk, Hfin)).
+subst tl.
+rewrite make_char_pol_of_pts_eq in Ha.
+subst pts; simpl in Ha.
+rewrite Hini in Ha; simpl in Ha.
+unfold make_char_pol_of_pts in Ha.
+simpl in Ha.
+rewrite nat_num_Qnat in Ha.
+rewrite Nat.sub_diag, list_pad_0 in Ha; simpl in Ha.
+destruct Ha as [Ha| Ha].
+ rewrite <- Ha.
+ eapply ord_coeff_non_zero_in_newt_segm; try eassumption; try reflexivity.
+ left; rewrite Hini; reflexivity.
 bbb.
-*)
 cf ord_coeff_non_zero_in_newt_segm
+*)
 
 Lemma zzz : ∀ pol ns c₁,
   ns ∈ newton_segments pol
@@ -813,8 +829,7 @@ assert (degree ac_zerop (Φq pol ns) ≥ 1)%nat as Hpol.
     rewrite Nat.sub_diag, list_pad_0 in Hpl.
     injection Hpl; clear Hpl; intros Hpl Hpt₁; subst pt₁.
     exfalso; revert Hpt₂.
-    eapply yyy with (pow := j); try eassumption; try reflexivity.
-    simpl.
+    eapply yyy; try eassumption; try reflexivity; simpl.
     rewrite Hini; unfold fst.
     rewrite nat_num_Qnat.
     rewrite Nat.sub_diag, list_pad_0.
