@@ -724,36 +724,7 @@ apply Qbar.min_glb_lt.
  apply nth_g_order_pos; assumption.
 Qed.
 
-(* faux: des zéros sont insérés dans le polynôme
-Lemma yyy : ∀ pol ns pts tl j αj a,
-  ns ∈ newton_segments pol
-  → ini_pt ns = (Qnat j, αj)
-  → pts = [ini_pt ns … oth_pts ns ++ [fin_pt ns]]
-  → tl = List.map (term_of_point pol) pts
-  → a ∈ make_char_pol R j tl
-  → (a ≠ 0)%K.
-Proof.
-intros pol ns pts tl j αj a Hns Hini Hpts Htl Ha.
-remember Hns as Hfin; clear HeqHfin.
-apply exists_fin_pt_nat in Hfin.
-destruct Hfin as (k, (αk, Hfin)).
-subst tl.
-rewrite make_char_pol_of_pts_eq in Ha.
-subst pts; simpl in Ha.
-rewrite Hini in Ha; simpl in Ha.
-unfold make_char_pol_of_pts in Ha.
-simpl in Ha.
-rewrite nat_num_Qnat in Ha.
-rewrite Nat.sub_diag, list_pad_0 in Ha; simpl in Ha.
-destruct Ha as [Ha| Ha].
- rewrite <- Ha.
- eapply ord_coeff_non_zero_in_newt_segm; try eassumption; try reflexivity.
- left; rewrite Hini; reflexivity.
-bbb.
-cf ord_coeff_non_zero_in_newt_segm
-*)
-
-Lemma zzz : ∀ pol ns c₁,
+Lemma char_pol_root_ne_0 : ∀ pol ns c₁,
   ns ∈ newton_segments pol
   → c₁ = ac_root (Φq pol ns)
     → (c₁ ≠ 0)%K.
@@ -762,88 +733,20 @@ intros pol ns c₁ Hns Hc₁.
 remember Hns as Happ; clear HeqHapp.
 apply cpol_degree_ge_1 with (K := K) (acf := acf) in Happ.
 apply ac_prop_root in Happ.
-bbb.
+rewrite <- Hc₁ in Happ.
 remember Hns as Hini; clear HeqHini.
 apply exists_ini_pt_nat in Hini.
 destruct Hini as (j, (αj, Hini)).
-remember Hns as Hfin; clear HeqHfin.
-apply exists_fin_pt_nat in Hfin.
-destruct Hfin as (k, (αk, Hfin)).
-assert (degree ac_zerop (Φq pol ns) ≥ 1)%nat as Hpol.
- unfold degree; simpl.
- rewrite skipn_pad, Nat.sub_diag, list_pad_0.
- rewrite fold_char_pol with (αj := αj).
- rewrite Hini; unfold fst.
- rewrite nat_num_Qnat, <- Hini.
- remember [ini_pt ns … oth_pts ns ++ [fin_pt ns]] as pts eqn:Hpts .
- remember (List.map (term_of_point pol) pts) as tl eqn:Htl .
- remember (make_char_pol R j tl) as pl eqn:Hpl .
- remember (degree_plus_1_of_list ac_zerop pl) as n eqn:Hn .
- symmetry in Hn.
- destruct n.
-  apply degree_plus_1_is_0 in Hn.
-  remember Hns as H; clear HeqH.
-  eapply length_char_pol in H; try eassumption.
-  rewrite <- Hpl in H.
-  destruct pl as [| pt₁]; [ discriminate H | simpl in H ].
-  apply lap_eq_cons_nil_inv in Hn.
-  destruct Hn as (Hpt₁, Hn).
-  subst tl pts.
-  simpl in Hpl.
-  rewrite Hini in Hpl.
-  simpl in Hpl.
-  rewrite nat_num_Qnat in Hpl.
-  rewrite Nat.sub_diag, list_pad_0 in Hpl.
-  injection Hpl; clear Hpl; intros; subst pt₁.
-  exfalso; revert Hpt₁.
-  eapply ord_coeff_non_zero_in_newt_segm; try eassumption; try reflexivity.
-  left; eassumption.
-
-  simpl.
-  destruct n; [ idtac | apply le_n_S, Nat.le_0_l ].
-  remember Hns as H; clear HeqH.
-  eapply length_char_pol in H; try eassumption.
-  rewrite <- Hpl in H.
-  destruct pl as [| pt₁]; [ discriminate H | simpl in H ].
-  simpl in Hn.
-  remember (degree_plus_1_of_list ac_zerop pl) as m eqn:Hm .
-  symmetry in Hm.
-  destruct m.
-   destruct (ac_zerop pt₁) as [| Hnz]; [ discriminate Hn | idtac ].
-   apply degree_plus_1_is_0 in Hm.
-   destruct pl as [| pt₂].
-    simpl in H.
-    apply eq_add_S in H.
-    remember Hns as Hjk; clear HeqHjk.
-    symmetry in H.
-    apply Nat.sub_0_le in H.
-    apply Nat.nlt_ge in H.
-    exfalso; apply H.
-    eapply j_lt_k; try eassumption.
-     rewrite Hini; simpl; rewrite nat_num_Qnat; reflexivity.
-
-     rewrite Hfin; simpl; rewrite nat_num_Qnat; reflexivity.
-
-bbb.
-    apply lap_eq_cons_nil_inv in Hm.
-    destruct Hm as (Hpt₂, Hm).
-    subst tl pts.
-    simpl in Hpl.
-    rewrite Hini in Hpl.
-    simpl in Hpl.
-    rewrite nat_num_Qnat in Hpl.
-    rewrite Nat.sub_diag, list_pad_0 in Hpl.
-    injection Hpl; clear Hpl; intros Hpl Hpt₁; subst pt₁.
-    exfalso; revert Hpt₂.
-    eapply yyy; try eassumption; try reflexivity; simpl.
-    rewrite Hini; unfold fst.
-    rewrite nat_num_Qnat.
-    rewrite Nat.sub_diag, list_pad_0.
-    rewrite <- Hpl.
-    right; left; reflexivity.
-
-   discriminate Hn.
-bbb.
+intros Hc; rewrite Hc in Happ.
+unfold apply_poly in Happ; simpl in Happ.
+rewrite Nat.sub_diag, list_pad_0, skipn_pad in Happ.
+simpl in Happ.
+rewrite rng_mul_0_r, rng_add_0_l in Happ.
+revert Happ.
+eapply ord_coeff_non_zero_in_newt_segm; eauto .
+rewrite Hini; left; simpl.
+rewrite nat_num_Qnat; reflexivity.
+Qed.
 
 (* [Walker, p 101] « O(br) = 0 » *)
 Theorem order_bbar_r_is_0 : ∀ pol ns c₁ r f₁,
@@ -881,23 +784,26 @@ assert (order (ps_lap_nth r (yr * ycj * psy ∘ yc)) = 0)%Qbar as Hor.
  rewrite fold_ps_lap_nth.
  rewrite ps_lap_nth_0_cons_pow.
  rewrite order_pow.
-bbb.
-  rewrite ps_monom_order; [ idtac | assumption ].
-  rewrite Qbar.mul_0_r; [ idtac | intros HH; discriminate HH ].
-  rewrite Qbar.add_0_l.
-  rewrite fold_ps_lap_nth.
-  rewrite ps_lap_nth_0_apply_0.
-  unfold ps_lap_comp.
-  rewrite apply_lap_compose.
-  unfold apply_lap at 2; simpl.
-  rewrite ps_mul_0_l, ps_add_0_l.
-  rewrite ps_mul_0_r, ps_add_0_l.
-  rewrite apply_lap_inject_K_in_Kx_monom.
-  rewrite ps_monom_order; [ reflexivity | idtac ].
-  eapply psy_c₁_ne_0 in HΨ; eassumption.
+  rewrite ps_monom_order.
+   rewrite Qbar.mul_0_r; [ idtac | intros HH; discriminate HH ].
+   rewrite Qbar.add_0_l.
+   rewrite fold_ps_lap_nth.
+   rewrite ps_lap_nth_0_apply_0.
+   unfold ps_lap_comp.
+   rewrite apply_lap_compose.
+   unfold apply_lap at 2; simpl.
+   rewrite ps_mul_0_l, ps_add_0_l.
+   rewrite ps_mul_0_r, ps_add_0_l.
+   rewrite apply_lap_inject_K_in_Kx_monom.
+   rewrite ps_monom_order; [ reflexivity | idtac ].
+   eapply psy_c₁_ne_0 in HΨ; eassumption.
 
-  intros HH; apply Hc₁nz.
-  eapply ps_monom_0_coeff_0; eassumption.
+   eapply char_pol_root_ne_0; eassumption.
+
+  intros HH.
+  apply ps_monom_0_coeff_0 in HH.
+  revert HH.
+  eapply char_pol_root_ne_0; eassumption.
 
  subst yr ycj psy yc.
  rewrite fold_ps_lap_add.
