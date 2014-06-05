@@ -898,6 +898,9 @@ remember (root_multiplicity acf c (Φq pol ns)) as r eqn:Hr .
 symmetry in Hr.
 destruct (eq_nat_dec r 1) as [Hr1| Hrn1].
  subst r; clear Hpnz.
+ remember (next_pol pol (β ns) (γ ns) c) as pol₁ eqn:Hpol₁ .
+ remember Hpol₁ as H; clear HeqH.
+ eapply f₁_root_f_root in H; eauto .
 bbb.
 
 intros pol ns c₁ c₂ pol₁ ns₁ m.
