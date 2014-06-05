@@ -820,6 +820,7 @@ assert (degree ac_zerop (Φq pol ns) ≥ 1)%nat as Hpol.
 
      rewrite Hfin; simpl; rewrite nat_num_Qnat; reflexivity.
 
+bbb.
     apply lap_eq_cons_nil_inv in Hm.
     destruct Hm as (Hpt₂, Hm).
     subst tl pts.
