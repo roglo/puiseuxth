@@ -767,7 +767,41 @@ assert (degree ac_zerop (Φq pol ns) ≥ 1)%nat as Hpol.
   left; eassumption.
 
   simpl.
+  destruct n; [ idtac | apply le_n_S, Nat.le_0_l ].
+  remember Hns as H; clear HeqH.
+  eapply length_char_pol in H; try eassumption.
+  rewrite <- Hpl in H.
+  destruct pl as [| pt₁]; [ discriminate H | simpl in H ].
+  simpl in Hn.
+  remember (degree_plus_1_of_list ac_zerop pl) as m eqn:Hm .
+  symmetry in Hm.
+  destruct m.
+   destruct (ac_zerop pt₁) as [| Hnz]; [ discriminate Hn | idtac ].
+   apply degree_plus_1_is_0 in Hm.
+   destruct pl as [| pt₂].
+    simpl in H.
+    apply eq_add_S in H.
+    remember Hns as Hjk; clear HeqHjk.
+    symmetry in H.
+    apply Nat.sub_0_le in H.
+    apply Nat.nlt_ge in H.
+    exfalso; apply H.
+    eapply j_lt_k; try eassumption.
+     rewrite Hini; simpl; rewrite nat_num_Qnat; reflexivity.
+
+     rewrite Hfin; simpl; rewrite nat_num_Qnat; reflexivity.
+
+    apply lap_eq_cons_nil_inv in Hm.
+    destruct Hm as (Hpt₂, Hm).
+    subst tl pts.
+    simpl in Hpl.
+    rewrite Hini in Hpl.
+    simpl in Hpl.
+    rewrite nat_num_Qnat in Hpl.
+    rewrite Nat.sub_diag, list_pad_0 in Hpl.
+    injection Hpl; clear Hpl; intros Hpl Hpt₁; subst pt₁.
 bbb.
+(* to be proved: make_char_pol must not have 0 value components *)
 
 (* [Walker, p 101] « O(br) = 0 » *)
 Theorem order_bbar_r_is_0 : ∀ pol ns c₁ r f₁,
