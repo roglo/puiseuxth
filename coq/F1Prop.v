@@ -724,6 +724,17 @@ apply Qbar.min_glb_lt.
  apply nth_g_order_pos; assumption.
 Qed.
 
+Lemma yyy : ∀ pol ns pts tl pow a,
+  ns ∈ newton_segments pol
+  → pts = [ini_pt ns … oth_pts ns ++ [fin_pt ns]]
+  → tl = List.map (term_of_point pol) pts
+  → a ∈ make_char_pol R pow tl
+  → (a ≠ 0)%K.
+Proof.
+intros pol ns pts tl pow a Hns Hpts Htl Ha.
+bbb.
+*)
+
 Lemma zzz : ∀ pol ns c₁,
   ns ∈ newton_segments pol
   → c₁ = ac_root (Φq pol ns)
@@ -800,8 +811,17 @@ assert (degree ac_zerop (Φq pol ns) ≥ 1)%nat as Hpol.
     rewrite nat_num_Qnat in Hpl.
     rewrite Nat.sub_diag, list_pad_0 in Hpl.
     injection Hpl; clear Hpl; intros Hpl Hpt₁; subst pt₁.
+    exfalso; revert Hpt₂.
+    eapply yyy with (pow := j); try eassumption; try reflexivity.
+    simpl.
+    rewrite Hini; unfold fst.
+    rewrite nat_num_Qnat.
+    rewrite Nat.sub_diag, list_pad_0.
+    rewrite <- Hpl.
+    right; left; reflexivity.
+
+   discriminate Hn.
 bbb.
-(* to be proved: make_char_pol must not have 0 value components *)
 
 (* [Walker, p 101] « O(br) = 0 » *)
 Theorem order_bbar_r_is_0 : ∀ pol ns c₁ r f₁,
