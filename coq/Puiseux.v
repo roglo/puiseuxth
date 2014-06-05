@@ -39,7 +39,7 @@ Definition phony_ns :=
 
 (* f₁(x,y₁) = 0 => f(x,c₁.x^γ+x^γ.y₁) = 0 *)
 Lemma f₁_root_f_root : ∀ f f₁ β γ c₁ y y₁,
-  f₁ = next_pol f β γ c₁
+    f₁ = next_pol f β γ c₁
   → y = (ps_monom c₁ γ + ps_monom 1%K γ * y₁)%ps
   → (ps_pol_apply f₁ y₁ = 0)%ps
   → (ps_pol_apply f y = 0)%ps.
@@ -883,6 +883,18 @@ Fixpoint polydromy_if_r_one acf m pol {struct m} :=
         42 (* temp: I don't know the value *)
   end.
 
+(*
+Fixpoint root_terms_when_r_1 strm n i j :=
+  match n with
+  | O => Stream.nth strm i
+  | S n₁ =>
+*)
+
+Definition root_when_r_1 γ (an : power_series α) :=
+  {| ps_terms := an;
+     ps_ordnum := Qnum γ;
+     ps_polord := Qden γ |}.
+
 Lemma zzz : ∀ pol ns m,
   ns = List.hd phony_ns (newton_segments pol)
   → polydromy_if_r_one acf m pol ≠ 0%nat
@@ -898,6 +910,7 @@ remember (root_multiplicity acf c (Φq pol ns)) as r eqn:Hr .
 symmetry in Hr.
 destruct (eq_nat_dec r 1) as [Hr1| Hrn1].
  subst r; clear Hpnz.
+bbb.
  remember (next_pol pol (β ns) (γ ns) c) as pol₁ eqn:Hpol₁ .
  remember Hpol₁ as H; clear HeqH.
  eapply f₁_root_f_root in H; eauto .
