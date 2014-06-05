@@ -734,6 +734,7 @@ Proof.
 intros pol ns pts tl pow a Hns Hpts Htl Ha.
 bbb.
 *)
+cf ord_coeff_non_zero_in_newt_segm
 
 Lemma zzz : ∀ pol ns c₁,
   ns ∈ newton_segments pol
