@@ -724,6 +724,7 @@ apply Qbar.min_glb_lt.
  apply nth_g_order_pos; assumption.
 Qed.
 
+(* faux: des zéros sont insérés dans le polynôme
 Lemma yyy : ∀ pol ns pts tl j αj a,
   ns ∈ newton_segments pol
   → ini_pt ns = (Qnat j, αj)
