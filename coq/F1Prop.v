@@ -468,7 +468,7 @@ Qed.
 Lemma f₁_eq_term_with_Ψ_plus_g : ∀ pol ns j αj c₁ r f₁ Ψ,
   ns ∈ newton_segments pol
   → ini_pt ns = (Qnat j, αj)
-    → c₁ = ac_root (Φq pol ns) ∧ (c₁ ≠ 0)%K
+    → c₁ = ac_root (Φq pol ns)
       → r = root_multiplicity acf c₁ (Φq pol ns)
         → Ψ = quotient_phi_x_sub_c_pow_r (Φq pol ns) c₁ r
           → f₁ = next_pol pol (β ns) (γ ns) c₁
@@ -479,7 +479,7 @@ Lemma f₁_eq_term_with_Ψ_plus_g : ∀ pol ns j αj c₁ r f₁ Ψ,
                POL [ps_monom c₁ 0; 1%ps … []] +
                g_of_ns pol ns)%pspol.
 Proof.
-intros pol ns j αj c₁ r f₁ Ψ Hns Hini (Hc₁, Hc₁nz) Hr HΨ Hf₁.
+intros pol ns j αj c₁ r f₁ Ψ Hns Hini Hc₁ Hr HΨ Hf₁.
 subst f₁.
 remember (g_lap_of_ns pol ns) as gg.
 remember Heqgg as H; clear HeqH.
@@ -653,7 +653,7 @@ Qed.
 (* [Walker, p 101] « O(bi) ≥ 0,  i = 0,...,n » *)
 Theorem order_bbar_nonneg : ∀ pol ns c₁ r f₁,
   ns ∈ newton_segments pol
-  → c₁ = ac_root (Φq pol ns) ∧ (c₁ ≠ 0)%K
+  → c₁ = ac_root (Φq pol ns)
     → r = root_multiplicity acf c₁ (Φq pol ns)
       → f₁ = next_pol pol (β ns) (γ ns) c₁
         → ∀ i, (order (ps_poly_nth i f₁) ≥ 0)%Qbar.
@@ -696,7 +696,7 @@ Qed.
 (* [Walker, p 101] « O(bi) > 0,  i = 0,...,r-1 » *)
 Theorem order_bbar_pos : ∀ pol ns c₁ r f₁,
   ns ∈ newton_segments pol
-  → c₁ = ac_root (Φq pol ns) ∧ (c₁ ≠ 0)%K
+  → c₁ = ac_root (Φq pol ns)
     → r = root_multiplicity acf c₁ (Φq pol ns)
       → f₁ = next_pol pol (β ns) (γ ns) c₁
         → ∀ i, (i < r)%nat
@@ -724,10 +724,46 @@ apply Qbar.min_glb_lt.
  apply nth_g_order_pos; assumption.
 Qed.
 
+Lemma zzz : ∀ pol ns c₁,
+  ns ∈ newton_segments pol
+  → c₁ = ac_root (Φq pol ns)
+    → (c₁ ≠ 0)%K.
+Proof.
+intros pol ns c₁ Hns Hc₁.
+remember Hns as Hini; clear HeqHini.
+apply exists_ini_pt_nat in Hini.
+destruct Hini as (j, (αj, Hini)).
+remember Hns as Hfin; clear HeqHfin.
+apply exists_fin_pt_nat in Hfin.
+destruct Hfin as (k, (αk, Hfin)).
+assert (degree ac_zerop (Φq pol ns) ≥ 1)%nat as Hpol.
+ unfold degree; simpl.
+ rewrite skipn_pad, Nat.sub_diag, list_pad_0.
+ rewrite fold_char_pol with (αj := αj).
+ rewrite Hini; unfold fst.
+ rewrite nat_num_Qnat, <- Hini.
+ remember [ini_pt ns … oth_pts ns ++ [fin_pt ns]] as pts eqn:Hpts .
+ remember (List.map (term_of_point pol) pts) as tl eqn:Htl .
+ remember (make_char_pol R j tl) as pl eqn:Hpl .
+ remember (degree_plus_1_of_list ac_zerop pl) as n eqn:Hn .
+ symmetry in Hn.
+ destruct n.
+bbb.
+  apply degree_plus_1_is_0 in Hn.
+  remember (length pl) as len eqn:Hlen .
+  remember Hlen as H; clear HeqH.
+  symmetry in Hlen.
+  rewrite Hpl in Hlen.
+  erewrite length_char_pol in Hlen; try eassumption.
+  rewrite H in Hlen.
+  destruct pl; [ discriminate Hlen | idtac ].
+  apply lap_eq_cons_nil_inv in Hn.
+bbb.
+
 (* [Walker, p 101] « O(br) = 0 » *)
 Theorem order_bbar_r_is_0 : ∀ pol ns c₁ r f₁,
   ns ∈ newton_segments pol
-  → c₁ = ac_root (Φq pol ns) ∧ (c₁ ≠ 0)%K
+  → c₁ = ac_root (Φq pol ns)
     → r = root_multiplicity acf c₁ (Φq pol ns)
       → f₁ = next_pol pol (β ns) (γ ns) c₁
         → (order (ps_poly_nth r f₁) = 0)%Qbar.
@@ -738,7 +774,6 @@ remember Hns as Hini; clear HeqHini.
 apply exists_ini_pt_nat in Hini.
 destruct Hini as (j, (αj, Hini)).
 rewrite f₁_eq_term_with_Ψ_plus_g; try eassumption.
-destruct Hc₁ as (Hc₁, Hc₁nz).
 unfold ps_poly_nth; simpl.
 remember ([0%ps; 1%ps … []] ^ r)%pslap as yr.
 remember ([ps_monom c₁ 0; 1%ps … []] ^ j)%pslap as ycj.
@@ -761,6 +796,7 @@ assert (order (ps_lap_nth r (yr * ycj * psy ∘ yc)) = 0)%Qbar as Hor.
  rewrite fold_ps_lap_nth.
  rewrite ps_lap_nth_0_cons_pow.
  rewrite order_pow.
+bbb.
   rewrite ps_monom_order; [ idtac | assumption ].
   rewrite Qbar.mul_0_r; [ idtac | intros HH; discriminate HH ].
   rewrite Qbar.add_0_l.
@@ -799,7 +835,7 @@ Qed.
 *)
 Theorem f₁_orders : ∀ pol ns c₁ r f₁,
   ns ∈ newton_segments pol
-  → c₁ = ac_root (Φq pol ns) ∧ (c₁ ≠ 0)%K
+  → c₁ = ac_root (Φq pol ns)
   → r = root_multiplicity acf c₁ (Φq pol ns)
   → f₁ = next_pol pol (β ns) (γ ns) c₁
   → (∀ i, (order (ps_poly_nth i f₁) ≥ 0)%Qbar)
