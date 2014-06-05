@@ -876,14 +876,12 @@ Fixpoint polydromy_if_r_one acf m pol {struct m} :=
   | S m₁ =>
       let ns := List.hd phony_ns (newton_segments pol) in
       let c₁ := ac_root (Φq pol ns) in
-      if ac_zerop c₁ then 1%nat
+      let r := root_multiplicity acf c₁ (Φq pol ns) in
+      if eq_nat_dec r 1 then 1%nat
       else
-        let r := root_multiplicity acf c₁ (Φq pol ns) in
-        if eq_nat_dec r 1 then 1%nat
-        else
-          let pol₁ := next_pol pol (β ns) (γ ns) c₁ in
-          let v := polydromy_if_r_one acf m₁ pol₁ in
-          42 (* temp: I don't know the value *)
+        let pol₁ := next_pol pol (β ns) (γ ns) c₁ in
+        let v := polydromy_if_r_one acf m₁ pol₁ in
+        42 (* temp: I don't know the value *)
   end.
 
 Lemma zzz : ∀ pol ns m,
@@ -896,12 +894,10 @@ revert pol ns Hns Hpnz.
 induction m; intros; [ exfalso; apply Hpnz; reflexivity | idtac ].
 simpl in Hpnz.
 rewrite <- Hns in Hpnz.
-destruct (ac_zerop (ac_root (Φq pol ns))) as [Hz| Hnz].
- clear Hpnz.
- assert (degree ac_zerop (Φq pol ns) ≥ 1) as Happ.
-  Focus 2.
-  apply ac_prop_root in Happ.
-  rewrite Hz in Happ.
+remember (ac_root (Φq pol ns)) as c eqn:Hc .
+remember (root_multiplicity acf c (Φq pol ns)) as r eqn:Hr .
+symmetry in Hr.
+destruct (eq_nat_dec r 1) as [Hr1| Hrn1].
 bbb.
 
 intros pol ns c₁ c₂ pol₁ ns₁ m.
