@@ -1,6 +1,7 @@
 (* Puiseux.v *)
 
 Require Import Utf8 QArith NPeano Sorting.
+Require Streams.
 
 Require Import Misc.
 Require Import SlopeMisc.
@@ -883,15 +884,24 @@ Fixpoint polydromy_if_r_one acf m pol {struct m} :=
         42 (* temp: I don't know the value *)
   end.
 
-(*
-Fixpoint root_terms_when_r_1 strm n i j :=
-  match n with
-  | O => Stream.nth strm i
-  | S n₁ =>
-*)
+Fixpoint find_coeff (strm : Streams.Stream (α * nat)) n i :=
+  let '(c, pow) := Streams.Str_nth n strm in
+  if eq_nat_dec pow i then Some c
+  else if lt_dec pow i then
+    match n with
+    | 0%nat => None
+    | S n₁ => find_coeff strm n₁ i
+    end
+  else None.
 
-Definition root_when_r_1 γ (an : power_series α) :=
-  {| ps_terms := an;
+Definition root_term_when_r_1 strm i :=
+  match find_coeff strm i i with
+  | None => 0%K
+  | Some c => c
+  end.
+
+Definition root_when_r_1 γ strm :=
+  {| ps_terms := {| terms := root_term_when_r_1 strm |};
      ps_ordnum := Qnum γ;
      ps_polord := Qden γ |}.
 
