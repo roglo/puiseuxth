@@ -906,12 +906,12 @@ Definition root_when_r_1 γ strm :=
      ps_ordnum := Qnum γ;
      ps_polord := Qden γ |}.
 
-CoFixpoint root_term_stream_when_r_1 γsum pol ns :=
+CoFixpoint root_term_stream_when_r_1 pol ns :=
   let c₁ := ac_root (Φq pol ns) in
-  let γ₁ := γsum + γ ns in
+  let γ₁ := γ ns in
   let pol₁ := next_pol pol (β ns) (γ ns) c₁ in
   let ns₁ := List.hd phony_ns (newton_segments pol₁) in
-  Streams.Cons (c₁, γ₁) (root_term_stream_when_r_1 γ₁ pol₁ ns₁).
+  Streams.Cons (c₁, γ₁) (root_term_stream_when_r_1 pol₁ ns₁).
 
 Lemma zzz : ∀ pol ns m,
   ns = List.hd phony_ns (newton_segments pol)
