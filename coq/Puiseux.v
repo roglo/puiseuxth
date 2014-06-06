@@ -884,8 +884,9 @@ Fixpoint polydromy_if_r_one acf m pol {struct m} :=
         42 (* temp: I don't know the value *)
   end.
 
-Fixpoint find_coeff (strm : Streams.Stream (α * nat)) n i :=
-  let '(c, pow) := Streams.Str_nth n strm in
+Fixpoint find_coeff (strm : Streams.Stream (α * Q)) n i :=
+  let '(c, γ) := Streams.Str_nth n strm in
+  let pow := Z.to_nat (Qnum γ) in
   if eq_nat_dec pow i then Some c
   else if lt_dec pow i then None
   else
@@ -905,12 +906,12 @@ Definition root_when_r_1 γ strm :=
      ps_ordnum := Qnum γ;
      ps_polord := Qden γ |}.
 
-CoFixpoint root_term_stream_when_r_1 pow s :=
-  match s with
-  | Cons (c₁, pow₁) ns =>
-      Cons (c₁ x ^ pow + x ^ pow * y₁)
-
-  Cons (c, pow) (root_term_stream_when_r_1
+CoFixpoint root_term_stream_when_r_1 γsum pol ns :=
+  let c₁ := ac_root (Φq pol ns) in
+  let γ₁ := γsum + γ ns in
+  let pol₁ := next_pol pol (β ns) (γ ns) c₁ in
+  let ns₁ := List.hd phony_ns (newton_segments pol₁) in
+  Streams.Cons (c₁, γ₁) (root_term_stream_when_r_1 γ₁ pol₁ ns₁).
 
 Lemma zzz : ∀ pol ns m,
   ns = List.hd phony_ns (newton_segments pol)
