@@ -905,8 +905,12 @@ Definition root_when_r_1 γ strm :=
      ps_ordnum := Qnum γ;
      ps_polord := Qden γ |}.
 
-CoFixpoint root_term_stream_when_r_1 c pow :=
-  Cons (c, pow) (root_term_strem_when_r_1 ...
+CoFixpoint root_term_stream_when_r_1 pow s :=
+  match s with
+  | Cons (c₁, pow₁) ns =>
+      Cons (c₁ x ^ pow + x ^ pow * y₁)
+
+  Cons (c, pow) (root_term_stream_when_r_1
 
 Lemma zzz : ∀ pol ns m,
   ns = List.hd phony_ns (newton_segments pol)
