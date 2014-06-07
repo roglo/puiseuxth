@@ -928,10 +928,10 @@ symmetry in Hr.
 destruct (eq_nat_dec r 1) as [Hr1| Hrn1].
  subst r; clear Hpnz.
  exists (root_when_r_1 pol ns).
-bbb.
  remember (next_pol pol (β ns) (γ ns) c) as pol₁ eqn:Hpol₁ .
- remember Hpol₁ as H; clear HeqH.
- eapply f₁_root_f_root in H; eauto .
+ remember (List.hd phony_ns (newton_segments pol₁)) as ns₁ eqn:Hns₁ .
+ remember (root_when_r_1 pol₁ ns₁) as y₁ eqn:Hy₁ .
+ eapply f₁_root_f_root with (y₁ := y₁); try eassumption.
 bbb.
 
 intros pol ns c₁ c₂ pol₁ ns₁ m.
