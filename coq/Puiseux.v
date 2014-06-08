@@ -939,6 +939,29 @@ remember Hns as H; clear HeqH.
 remember (root_multiplicity acf c₁ (Φq pol ns)) as r eqn:Hr .
 eapply f₁_orders in H; try eassumption.
 destruct H as (Hnneg, (Hpos, Hz)).
+unfold next_pol in Hpol₁.
+unfold ps_poly_nth in Hnneg, Hz, Hpos.
+unfold newton_segments in Hns₁; simpl in Hns₁.
+unfold points_of_ps_polynom in Hns₁; simpl in Hns₁.
+remember (al pol₁) as la₁ eqn:Hla₁ .
+rewrite Hpol₁ in Hla₁; simpl in Hla₁.
+unfold ps_lap_nth in Hnneg, Hpos, Hz.
+symmetry in Hla₁, Hr.
+destruct la₁ as [| a₀].
+ simpl in Hz.
+ rewrite match_id in Hz.
+ rewrite order_0 in Hz; inversion Hz.
+
+ simpl in Hz, Hpos.
+ unfold points_of_ps_lap in Hns₁.
+ unfold points_of_ps_lap_gen in Hns₁.
+ simpl in Hns₁.
+ destruct r.
+  remember (order a₀) as v eqn:Hv .
+  symmetry in Hv.
+  destruct v as [v| ].
+   destruct la₁ as [| a₁].
+    simpl in Hns₁.
 bbb.
 
 Lemma yyy : ∀ pol ns m ps,
