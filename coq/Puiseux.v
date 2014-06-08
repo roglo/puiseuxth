@@ -945,6 +945,11 @@ injection Hps; clear Hps; intros Hps.
 apply IHm in Hpso.
  symmetry in Hps.
  eapply f₁_root_f_root; eassumption.
+
+ remember Hns as H; clear HeqH.
+ remember (root_multiplicity acf c (Φq pol ns)) as r eqn:Hr .
+ eapply f₁_orders in H; try eassumption.
+ destruct H as (Hnneg, (Hpos, Hz)).
 bbb.
 
 Lemma zzz : ∀ pol ns m,
