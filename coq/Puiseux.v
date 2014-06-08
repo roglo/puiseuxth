@@ -1026,6 +1026,26 @@ destruct la₁ as [| a₀].
 bbb.
 *)
 
+Lemma yyy₁ : ∀ pol ns m ps,
+  ns = List.hd phony_ns (newton_segments pol)
+  → ps_poly_root m pol ns = Some ps
+  → (ps_pol_apply pol ps = 0)%ps.
+Proof.
+intros pol ns m ps Hns Hps.
+revert pol ns ps Hns Hps.
+induction m; intros; [ discriminate Hps | simpl in Hps ].
+remember (ac_root (Φq pol ns)) as c eqn:Hc .
+remember (next_pol pol (β ns) (γ ns) c) as pol₁ eqn:Hpol₁ .
+remember (List.hd phony_ns (newton_segments pol₁)) as ns₁ eqn:Hns₁ .
+remember (ps_poly_root m pol₁ ns₁) as pso eqn:Hpso .
+symmetry in Hpso.
+destruct pso as [ps₁| ]; [ idtac | discriminate Hps ].
+injection Hps; clear Hps; intros Hps.
+apply IHm in Hpso; [ idtac | assumption ].
+symmetry in Hps.
+eapply f₁_root_f_root; eassumption.
+Qed.
+
 Lemma yyy : ∀ pol ns m ps,
   ns ∈ newton_segments pol
   → ps_poly_root m pol ns = Some ps
