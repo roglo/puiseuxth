@@ -927,10 +927,24 @@ Fixpoint ps_poly_root m pol ns :=
       end
   end.
 
+Lemma xxx : ∀ pol ns c₁ pol₁ ns₁,
+  ns ∈ newton_segments pol
+  → c₁ = ac_root (Φq pol ns)
+  → pol₁ = next_pol pol (β ns) (γ ns) c₁
+  → ns₁ = List.hd phony_ns (newton_segments pol₁)
+  → ns₁ ∈ newton_segments pol₁.
+Proof.
+intros pol ns c₁ pol₁ ns₁ Hns Hc₁ Hpol₁ Hns₁.
+remember Hns as H; clear HeqH.
+remember (root_multiplicity acf c₁ (Φq pol ns)) as r eqn:Hr .
+eapply f₁_orders in H; try eassumption.
+destruct H as (Hnneg, (Hpos, Hz)).
+bbb.
+
 Lemma yyy : ∀ pol ns m ps,
   ns ∈ newton_segments pol
   → ps_poly_root m pol ns = Some ps
-    → (ps_pol_apply pol ps = 0)%ps.
+  → (ps_pol_apply pol ps = 0)%ps.
 Proof.
 intros pol ns m ps Hns Hps.
 revert pol ns ps Hns Hps.
@@ -946,12 +960,10 @@ apply IHm in Hpso.
  symmetry in Hps.
  eapply f₁_root_f_root; eassumption.
 
- remember Hns as H; clear HeqH.
- remember (root_multiplicity acf c (Φq pol ns)) as r eqn:Hr .
- eapply f₁_orders in H; try eassumption.
- destruct H as (Hnneg, (Hpos, Hz)).
-bbb.
+ eapply xxx; eassumption.
+qed.
 
+(*
 Lemma zzz : ∀ pol ns m,
   ns = List.hd phony_ns (newton_segments pol)
   → polydromy_if_r_reaches_one acf m pol ≠ 0%nat
@@ -991,5 +1003,6 @@ bbb.
 remember Hpol₁ as H; clear HeqH.
 eapply f₁_root_f_root in H; [ idtac | reflexivity | idtac ].
 bbb.
+*)
 
 End theorems.
