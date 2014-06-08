@@ -881,7 +881,7 @@ Fixpoint polydromy_if_r_reaches_one acf m pol {struct m} :=
       else
         let pol₁ := next_pol pol (β ns) (γ ns) c₁ in
         let v := polydromy_if_r_reaches_one acf m₁ pol₁ in
-        42 (* temp: I don't know the value *)
+        (v * Pos.to_nat (Qden (γ ns)))%nat
   end.
 
 Fixpoint find_coeff max_iter pow_sum pol ns i :=
