@@ -966,6 +966,7 @@ destruct (ac_zerop (lap_mod_deg_1 cpol c)) as [| Hnz].
  assumption.
 Qed.
 
+(*
 Lemma xxx : ∀ pol ns c₁ pol₁ ns₁,
   ns ∈ newton_segments pol
   → c₁ = ac_root (Φq pol ns)
@@ -998,7 +999,32 @@ destruct la₁ as [| a₀].
  destruct r.
   exfalso; revert Hr.
   apply root_multiplicity_ne_0; assumption.
+
+  destruct la₁ as [| a₁].
+   simpl in Hz.
+   rewrite match_id in Hz.
+   rewrite order_0 in Hz; inversion Hz.
+
+   simpl in Hns₁.
+   remember (order a₀) as v₀ eqn:Hv₀ .
+   symmetry in Hv₀.
+   destruct v₀ as [v₀| ].
+    remember (order a₁) as v₁ eqn:Hv₁ .
+    symmetry in Hv₁.
+    destruct v₁ as [v₁| ].
+     unfold newton_segments.
+     rewrite Hpol₁.
+     unfold points_of_ps_polynom; simpl.
+     rewrite Hla₁.
+     unfold points_of_ps_lap.
+     unfold points_of_ps_lap_gen; simpl.
+     rewrite Hv₀, Hv₁, Hns₁; left; reflexivity.
+
+     destruct r.
+      simpl in Hz.
+      rewrite Hv₁ in Hz; inversion Hz.
 bbb.
+*)
 
 Lemma yyy : ∀ pol ns m ps,
   ns ∈ newton_segments pol
