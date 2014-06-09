@@ -923,10 +923,10 @@ Fixpoint ps_poly_root m pol ns :=
       if ps_zerop R (List.hd ps_zero (al pol₁)) then
         Some (ps_monom c (γ ns))
       else
+        let ns₁ := List.hd phony_ns (newton_segments pol₁) in
         let r := root_multiplicity acf c (Φq pol ns) in
-        if eq_nat_dec r 1 then ...
+        if infinite_with_same_r r pol₁ ns₁ then ...
         else
-          let ns₁ := List.hd phony_ns (newton_segments pol₁) in
           match ps_poly_root m₁ pol₁ ns₁ with
           | None => None
           | Some y => Some (ps_monom c (γ ns) + ps_monom 1%K (γ ns) * y)%ps
