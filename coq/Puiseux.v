@@ -40,8 +40,8 @@ Definition phony_ns :=
 
 (* f₁(x,y₁) = 0 => f(x,c₁.x^γ+x^γ.y₁) = 0 *)
 Lemma f₁_root_f_root : ∀ f f₁ β γ c₁ y y₁,
-    f₁ = next_pol f β γ c₁
-  → y = (ps_monom c₁ γ + ps_monom 1%K γ * y₁)%ps
+  f₁ = next_pol f β γ c₁
+  → (y = ps_monom c₁ γ + ps_monom 1%K γ * y₁)%ps
   → (ps_pol_apply f₁ y₁ = 0)%ps
   → (ps_pol_apply f y = 0)%ps.
 Proof.
@@ -1047,21 +1047,27 @@ remember (next_lap (al pol) (β ns) (γ ns) c) as la₁ eqn:Hla₁ .
 destruct (ps_zerop R (List.hd 0%ps la₁)) as [Hz| Hnz].
  injection Hps; clear Hps; intros Hps.
  rewrite <- Hps; simpl.
-bbb.
+ eapply f₁_root_f_root with (y₁ := 0%ps).
+  unfold next_pol.
+  rewrite Hla₁ in Hpol₁.
+  eassumption.
 
-intros pol ns m ps Hns Hps.
-revert pol ns ps Hns Hps.
-induction m; intros; [ discriminate Hps | simpl in Hps ].
-remember (ac_root (Φq pol ns)) as c eqn:Hc .
-remember (next_pol pol (β ns) (γ ns) c) as pol₁ eqn:Hpol₁ .
-remember (List.hd phony_ns (newton_segments pol₁)) as ns₁ eqn:Hns₁ .
-remember (ps_poly_root m pol₁ ns₁) as pso eqn:Hpso .
-symmetry in Hpso.
-destruct pso as [ps₁| ]; [ idtac | discriminate Hps ].
-injection Hps; clear Hps; intros Hps.
-apply IHm in Hpso; [ idtac | assumption ].
-symmetry in Hps.
-eapply f₁_root_f_root; eassumption.
+  rewrite ps_mul_0_r, ps_add_0_r; reflexivity.
+
+  unfold ps_pol_apply; simpl.
+  unfold apply_poly; simpl.
+  rewrite Hpol₁; simpl.
+  destruct la₁ as [| a]; [ reflexivity | simpl ].
+  simpl in Hz.
+  rewrite Hz, ps_mul_0_r, ps_add_0_r; reflexivity.
+
+ destruct pso as [ps₁| ]; [ idtac | discriminate Hps ].
+ injection Hps; clear Hps; intros Hps.
+ apply IHm in Hpso; [ idtac | assumption ].
+ symmetry in Hps.
+ subst la₁.
+ eapply f₁_root_f_root; try eassumption.
+ rewrite Hps; reflexivity.
 Qed.
 
 Lemma yyy : ∀ pol ns m ps,
