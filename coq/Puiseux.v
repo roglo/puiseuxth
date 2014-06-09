@@ -884,7 +884,6 @@ Fixpoint polydromy_if_r_reaches_one acf m pol {struct m} :=
         (v * Pos.to_nat (Qden (γ ns)))%nat
   end.
 
-(*
 Fixpoint find_coeff max_iter pow_sum pol ns i :=
   match max_iter with
   | 0%nat => 0%K
@@ -912,7 +911,6 @@ Definition root_when_r_1 pol ns :=
   {| ps_terms := {| terms := root_term_when_r_1 pol ns |};
      ps_ordnum := Qnum (γ ns);
      ps_polord := Qden (γ ns) |}.
-*)
 
 Fixpoint ps_poly_root m pol ns :=
   match m with
@@ -925,7 +923,7 @@ Fixpoint ps_poly_root m pol ns :=
       else
         let ns₁ := List.hd phony_ns (newton_segments pol₁) in
         let r := root_multiplicity acf c (Φq pol ns) in
-        if eq_nat_dec r 1 then ...
+        if eq_nat_dec r 1 then Some (root_when_r_1 pol ns)
         else if infinite_with_same_r r pol₁ ns₁ then ...
         else
           match ps_poly_root m₁ pol₁ ns₁ with
