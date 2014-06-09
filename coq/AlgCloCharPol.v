@@ -2193,17 +2193,16 @@ Theorem psy_c₁_ne_0 : ∀ pol ns c₁ r Ψ,
 Proof.
 intros pol ns c r Ψ Hns Hr HΨ.
 remember (Φq pol ns) as phi eqn:Hphi .
-unfold Φq in Hphi; simpl in Hphi.
-unfold poly_left_shift in Hphi; simpl in Hphi.
-rewrite Nat.sub_diag, skipn_pad in Hphi; simpl in Hphi.
 subst Ψ; simpl.
 unfold apply_poly; simpl.
 unfold root_multiplicity in Hr.
 remember (al phi) as la eqn:Hla .
-subst phi; simpl in Hla.
+subst phi; rewrite al_Φq in Hla.
 symmetry in Hr.
 eapply list_div_x_sub_c_ne_0; [ idtac | eassumption | reflexivity ].
 rewrite Hla; intros H.
+simpl in H.
+rewrite Nat.sub_diag in H; simpl in H.
 apply lap_eq_cons_nil_inv in H.
 destruct H as (H, _).
 remember (ini_pt ns) as jj eqn:Hj .

@@ -128,6 +128,33 @@ Section theorems.
 Variable α : Type.
 Variable r : ring α.
 
+Lemma skipn_pad : ∀ n (z : α) l, List.skipn n (list_pad n z l) = l.
+Proof.
+intros n z l.
+induction n; [ reflexivity | apply IHn ].
+Qed.
+
+Lemma al_Φq : ∀ pol ns,
+  al (Φq pol ns)
+  = make_char_pol r (nat_num (fst (ini_pt ns)))
+      (List.map (term_of_point pol) [ini_pt ns … oth_pts ns ++ [fin_pt ns]]).
+Proof.
+intros pol ns; simpl.
+rewrite skipn_pad, Nat.sub_diag; reflexivity.
+Qed.
+
+Lemma Φq_pol : ∀ pol ns,
+  Φq pol ns
+  = POL
+      (make_char_pol r (nat_num (fst (ini_pt ns)))
+         (List.map (term_of_point pol)
+            [ini_pt ns … oth_pts ns ++ [fin_pt ns]]))%pol.
+Proof.
+intros pol ns.
+unfold Φq, poly_left_shift; simpl.
+rewrite skipn_pad, Nat.sub_diag; reflexivity.
+Qed.
+
 Lemma pt_absc_is_nat : ∀ pol pts pt,
   points_of_ps_polynom pol = pts
   → pt ∈ pts
@@ -2145,12 +2172,6 @@ Qed.
 
 (* not real degree, since last coefficient can be null *)
 Definition pseudo_degree (p : polynomial α) := pred (List.length (al p)).
-
-Lemma skipn_pad : ∀ n (z : α) l, List.skipn n (list_pad n z l) = l.
-Proof.
-intros n z l.
-induction n; [ reflexivity | apply IHn ].
-Qed.
 
 Lemma list_shrink_skipn : ∀ cnt k (l : list α),
   list_shrink_aux cnt k l = list_shrink_aux 0 k (List.skipn cnt l).
