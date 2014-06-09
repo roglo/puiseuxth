@@ -920,11 +920,14 @@ Fixpoint ps_poly_root m pol ns :=
   | S m₁ =>
       let c := ac_root (Φq pol ns) in
       let pol₁ := next_pol pol (β ns) (γ ns) c in
-      let ns₁ := List.hd phony_ns (newton_segments pol₁) in
-      match ps_poly_root m₁ pol₁ ns₁ with
-      | None => None
-      | Some y => Some (ps_monom c (γ ns) + ps_monom 1%K (γ ns) * y)%ps
-      end
+      if ps_zerop R (List.hd ps_zero (al pol₁)) then
+        Some (ps_monom c (γ ns))
+      else
+        let ns₁ := List.hd phony_ns (newton_segments pol₁) in
+        match ps_poly_root m₁ pol₁ ns₁ with
+        | None => None
+        | Some y => Some (ps_monom c (γ ns) + ps_monom 1%K (γ ns) * y)%ps
+        end
   end.
 
 Lemma root_multiplicity_ne_0 : ∀ pol ns c,
@@ -1031,6 +1034,21 @@ Lemma yyy₁ : ∀ pol ns m ps,
   → ps_poly_root m pol ns = Some ps
   → (ps_pol_apply pol ps = 0)%ps.
 Proof.
+intros pol ns m ps Hns Hps.
+revert pol ns ps Hns Hps.
+induction m; intros; [ discriminate Hps | simpl in Hps ].
+remember (ac_root (Φq pol ns)) as c eqn:Hc .
+remember (next_pol pol (β ns) (γ ns) c) as pol₁ eqn:Hpol₁ .
+remember (List.hd phony_ns (newton_segments pol₁)) as ns₁ eqn:Hns₁ .
+remember (ps_poly_root m pol₁ ns₁) as pso eqn:Hpso .
+symmetry in Hpso.
+unfold next_pol in Hpol₁.
+remember (next_lap (al pol) (β ns) (γ ns) c) as la₁ eqn:Hla₁ .
+destruct (ps_zerop R (List.hd 0%ps la₁)) as [Hz| Hnz].
+ injection Hps; clear Hps; intros Hps.
+ rewrite <- Hps; simpl.
+bbb.
+
 intros pol ns m ps Hns Hps.
 revert pol ns ps Hns Hps.
 induction m; intros; [ discriminate Hps | simpl in Hps ].
