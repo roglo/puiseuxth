@@ -925,7 +925,8 @@ Fixpoint ps_poly_root m pol ns :=
       else
         let ns₁ := List.hd phony_ns (newton_segments pol₁) in
         let r := root_multiplicity acf c (Φq pol ns) in
-        if infinite_with_same_r r pol₁ ns₁ then ...
+        if eq_nat_dec r 1 then ...
+        else if infinite_with_same_r r pol₁ ns₁ then ...
         else
           match ps_poly_root m₁ pol₁ ns₁ with
           | None => None
