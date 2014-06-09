@@ -1084,15 +1084,33 @@ remember (next_pol pol (β ns) (γ ns) c) as pol₁ eqn:Hpol₁ .
 remember (List.hd phony_ns (newton_segments pol₁)) as ns₁ eqn:Hns₁ .
 remember (ps_poly_root m pol₁ ns₁) as pso eqn:Hpso .
 symmetry in Hpso.
-destruct pso as [ps₁| ]; [ idtac | discriminate Hps ].
-injection Hps; clear Hps; intros Hps.
-apply IHm in Hpso.
- symmetry in Hps.
- eapply f₁_root_f_root; eassumption.
+unfold next_pol in Hpol₁.
+remember (next_lap (al pol) (β ns) (γ ns) c) as la₁ eqn:Hla₁ .
+destruct (ps_zerop R (List.hd 0%ps la₁)) as [Hz| Hnz].
+ injection Hps; clear Hps; intros Hps.
+ rewrite <- Hps; simpl.
+ eapply f₁_root_f_root with (y₁ := 0%ps).
+  unfold next_pol.
+  rewrite Hla₁ in Hpol₁.
+  eassumption.
 
+  rewrite ps_mul_0_r, ps_add_0_r; reflexivity.
+
+  unfold ps_pol_apply; simpl.
+  unfold apply_poly; simpl.
+  rewrite Hpol₁; simpl.
+  destruct la₁ as [| a]; [ reflexivity | simpl ].
+  simpl in Hz.
+  rewrite Hz, ps_mul_0_r, ps_add_0_r; reflexivity.
+
+ destruct pso as [ps₁| ]; [ idtac | discriminate Hps ].
+ injection Hps; clear Hps; intros Hps.
+ apply IHm in Hpso.
+  symmetry in Hps.
+  subst la₁.
+  eapply f₁_root_f_root; try eassumption.
+  rewrite Hps; reflexivity.
 bbb.
- eapply xxx; eassumption.
-qed.
 
 (*
 Lemma zzz : ∀ pol ns m,
