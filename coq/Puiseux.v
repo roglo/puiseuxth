@@ -340,7 +340,7 @@ Lemma j_0_k_r : ∀ pol ns c₁ pol₁ ns₁ j₁ αj₁ k₁ αk₁ r,
   → ns₁ = List.hd phony_ns (newton_segments pol₁)
   → ini_pt ns₁ = (Qnat j₁, αj₁)
   → fin_pt ns₁ = (Qnat k₁, αk₁)
-  → j₁ = 0%nat ∧ k₁ = r ∧ αj₁ > 0 ∧ αk₁ == 0 ∧ oth_pts ns₁ = [].
+  → j₁ = 0%nat ∧ k₁ ≤ r ∧ αj₁ > 0 ∧ αk₁ == 0 ∧ oth_pts ns₁ = [].
 Proof.
 intros pol ns c₁ pol₁ ns₁ j₁ αj₁ k₁ αk₁ r.
 intros Hns Hc₁ Hr Hpol₁ Hps₀ Hns₁ Hini₁ Hfin₁.
@@ -389,9 +389,13 @@ destruct r.
    rewrite <- Heqf in Heqffo.
    rewrite Heqv₁ in Heqffo.
    subst ffo ns₁; simpl in Hini₁, Hfin₁; simpl.
-   eapply pouet; try eassumption; try reflexivity.
    rewrite minimised_slope_beg_pt in Hini₁.
-   assumption.
+   eapply pouet in Heqf; try eassumption; try reflexivity.
+   destruct Heqf as (H₁, (H₂, (H₃, (H₄, H₅)))).
+   split; [ assumption | idtac ].
+   split; [ subst k₁; reflexivity | idtac ].
+   split; [ assumption | idtac ].
+   split; assumption.
 
    destruct la as [| a₁]; [ rewrite order_0 in Hz; contradiction | idtac ].
    simpl in Hz, Hns₁.
