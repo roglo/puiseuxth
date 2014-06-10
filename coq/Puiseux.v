@@ -376,7 +376,10 @@ destruct r.
   clear Hps₀.
   remember (pair_rec (λ pow ps, (Qnat pow, ps))) as f.
   remember (filter_finite_ord R (List.map f (power_list 1 la))) as ffo.
-  revert la Heqffo Hnneg Hz.
+  remember 1%nat as pow eqn:Hpow  in Heqffo.
+  assert (1 ≤ pow)%nat as H by omega.
+  clear Hpow; rename H into Hpow.
+  revert la pow Heqffo Hnneg Hz Hpow.
   induction r; intros.
    destruct la as [| a₁]; [ rewrite order_0 in Hz; contradiction | idtac ].
    simpl in Hz, Hns₁.
@@ -391,6 +394,7 @@ destruct r.
    rewrite Heqv₁ in Heqffo.
    subst ffo ns₁; simpl in Hini₁, Hfin₁; simpl.
    rewrite minimised_slope_beg_pt in Hini₁.
+bbb.
    eapply pouet in Heqf; try eassumption; try reflexivity.
    destruct Heqf as (H₁, (H₂, (H₃, (H₄, (H₅, H₆))))).
    split; [ assumption | idtac ].
@@ -402,6 +406,7 @@ destruct r.
    simpl in Hz, Hns₁, Heqffo.
    rewrite Heqf in Heqffo; simpl in Heqffo; rewrite <- Heqf in Heqffo.
 bbb.
+*)
 
 Lemma r_1_j_0_k_1 : ∀ pol ns c₁ pol₁ ns₁ j₁ αj₁ k₁ αk₁,
   ns ∈ newton_segments pol
@@ -464,7 +469,12 @@ destruct la as [| a₀].
  remember (minimise_slope (Qnat 0, v₀) (Qnat 1, v₁) ffo) as ms.
  subst ns; simpl in Hini, Hfin.
  rewrite Heqms, minimised_slope_beg_pt in Hini.
- eapply pouet; eassumption.
+ eapply pouet in Hfin; try eassumption.
+ destruct Hfin as (H₁, (H₂, (H₃, (H₄, (H₅, H₆))))).
+ split; [ assumption | idtac ].
+ split; [ omega | idtac ].
+ split; [ assumption | idtac ].
+ split; assumption.
 Qed.
 
 Lemma minimise_slope_seg_cons : ∀ pt₁ pt₂ pt₃ pts,
