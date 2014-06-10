@@ -175,7 +175,7 @@ Lemma pouet : ∀ f ffo ms a₀ a₁ la v₀ v₁ j k αj αk,
   → 0 < v₀
   → (Qnat 0, v₀) = (Qnat j, αj)
   → end_pt ms = (Qnat k, αk)
-  → (j = 0)%nat ∧ (k = 1)%nat ∧ 0 < αj ∧ αk == 0 ∧ seg ms = [].
+  → (j = 0)%nat ∧ (j < k)%nat ∧ (k ≤ 1)%nat ∧ 0 < αj ∧ αk == 0 ∧ seg ms = [].
 Proof.
 intros f ffo ms a₀ a₁ la v₀ v₁ j k αj αk.
 intros Heqf Heqffo Heqms Hnneg Hz Hpos Hini Hfin.
@@ -398,7 +398,8 @@ destruct r.
    split; assumption.
 
    destruct la as [| a₁]; [ rewrite order_0 in Hz; contradiction | idtac ].
-   simpl in Hz, Hns₁.
+   simpl in Hz, Hns₁, Heqffo.
+   rewrite Heqf in Heqffo; simpl in Heqffo; rewrite <- Heqf in Heqffo.
 bbb.
 
 Lemma r_1_j_0_k_1 : ∀ pol ns c₁ pol₁ ns₁ j₁ αj₁ k₁ αk₁,
