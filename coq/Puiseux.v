@@ -870,6 +870,26 @@ revert Hnneg Hpos Hz Hpts; clear; intros.
       contradiction.
 Qed.
 
+Fixpoint same_r m r₀ pol ns :=
+  match m with
+  | 0%nat => True
+  | S m₁ =>
+      let c₁ := ac_root (Φq pol ns) in
+      let r₁ := root_multiplicity acf c₁ (Φq pol ns) in
+      let pol₁ := next_pol pol (β ns) (γ ns) c₁ in
+      let ns₁ := List.hd phony_ns (newton_segments pol₁) in
+      r₁ = r₀ ∧ same_r m₁ r₀ pol₁ ns₁
+  end.
+
+(* [Walker...] *)
+Lemma www : ∀ m r₀ pol ns q,
+  same_r m r₀ pol ns
+  → q = q_of_ns pol ns
+  → q = 1%positive.
+Proof.
+intros m r₀ pol ns q Hsr Hq.
+bbb.
+
 Fixpoint polydromy_if_r_reaches_one acf m pol {struct m} :=
   match m with
   | 0%nat => 0%nat
