@@ -392,6 +392,9 @@ destruct r.
    eapply pouet; try eassumption; try reflexivity.
    rewrite minimised_slope_beg_pt in Hini₁.
    assumption.
+
+   destruct la as [| a₁]; [ rewrite order_0 in Hz; contradiction | idtac ].
+   simpl in Hz, Hns₁.
 bbb.
 
 Lemma r_1_j_0_k_1 : ∀ pol ns c₁ pol₁ ns₁ j₁ αj₁ k₁ αk₁,
