@@ -871,11 +871,11 @@ revert Hnneg Hpos Hz Hpts; clear; intros.
 Qed.
 
 Fixpoint same_r m r₀ pol ns :=
+  let c₁ := ac_root (Φq pol ns) in
+  let r₁ := root_multiplicity acf c₁ (Φq pol ns) in
   match m with
-  | 0%nat => True
+  | 0%nat => r₁ = r₀
   | S m₁ =>
-      let c₁ := ac_root (Φq pol ns) in
-      let r₁ := root_multiplicity acf c₁ (Φq pol ns) in
       let pol₁ := next_pol pol (β ns) (γ ns) c₁ in
       let ns₁ := List.hd phony_ns (newton_segments pol₁) in
       r₁ = r₀ ∧ same_r m₁ r₀ pol₁ ns₁
@@ -883,11 +883,26 @@ Fixpoint same_r m r₀ pol ns :=
 
 (* [Walker...] *)
 Lemma www : ∀ m r₀ pol ns q,
-  same_r m r₀ pol ns
+  (m > 0)%nat
+  → same_r m r₀ pol ns
   → q = q_of_ns pol ns
   → q = 1%positive.
 Proof.
-intros m r₀ pol ns q Hsr Hq.
+intros m r₀ pol ns q Hm Hsr Hq.
+subst q.
+revert pol ns Hsr.
+destruct m; intros.
+ exfalso; revert Hm; apply Nat.lt_irrefl.
+
+ clear Hm; simpl in Hsr.
+ destruct Hsr as (Hr, Hsr).
+ remember (ac_root (Φq pol ns)) as c₁ eqn:Hc₁ .
+ remember (next_pol pol (β ns) (γ ns) c₁) as pol₁ eqn:Hpol₁ .
+ remember (List.hd phony_ns (newton_segments pol₁)) as ns₁ eqn:Hns₁ .
+ revert pol ns pol₁ ns₁ c₁ Hc₁ Hr Hpol₁ Hns₁ Hsr.
+ induction m; intros.
+  simpl in Hsr.
+  remember (ac_root (Φq pol₁ ns₁)) as c₂ eqn:Hc₂ .
 bbb.
 
 Fixpoint polydromy_if_r_reaches_one acf m pol {struct m} :=
