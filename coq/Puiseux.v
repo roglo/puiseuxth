@@ -881,18 +881,23 @@ Definition same_r pol ns :=
   r₁ = r₂.
 
 (* [Walker, p 102] ... *)
-Lemma www : ∀ pol ns q,
+Lemma www : ∀ pol ns q c₁ pol₁ ns₁,
   same_r pol ns
-  → q = q_of_ns pol ns
+  → c₁ = ac_root (Φq pol ns)
+  → pol₁ = next_pol pol (β ns) (γ ns) c₁
+  → ns₁ = List.hd phony_ns (newton_segments pol₁)
+  → q = q_of_ns pol₁ ns₁
   → q = 1%positive.
 Proof.
-intros pol ns q Hsr Hq; subst q.
+intros pol ns q c₁ pol₁ ns₁ Hsr Hc₁ Hpol₁ Hns₁ Hq; subst q.
 unfold same_r in Hsr.
-remember (ac_root (Φq pol ns)) as c₁ eqn:Hc₁ .
-remember (next_pol pol (β ns) (γ ns) c₁) as pol₁ eqn:Hpol₁ .
-remember (List.hd phony_ns (newton_segments pol₁)) as ns₁ eqn:Hns₁ .
+rewrite <- Hc₁, <- Hpol₁, <- Hns₁ in Hsr.
 remember (ac_root (Φq pol₁ ns₁)) as c₂ eqn:Hc₂ .
 do 2 rewrite Φq_pol in Hsr.
+remember [ini_pt ns … oth_pts ns ++ [fin_pt ns]] as pl eqn:Hpl .
+remember [ini_pt ns₁ … oth_pts ns₁ ++ [fin_pt ns₁]] as pl₁ eqn:Hpl₁ .
+unfold root_multiplicity in Hsr.
+simpl in Hsr.
 bbb.
 
 Fixpoint polydromy_if_r_reaches_one acf m pol {struct m} :=
