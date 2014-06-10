@@ -373,6 +373,25 @@ destruct r.
   symmetry in Heqv₀.
   destruct v₀ as [v₀| ]; [ idtac | exfalso; apply Hps₀; reflexivity ].
   clear Hps₀.
+  remember (pair_rec (λ pow ps, (Qnat pow, ps))) as f.
+  remember (filter_finite_ord R (List.map f (power_list 1 la))) as ffo.
+  revert la Heqffo Hnneg Hz.
+  induction r; intros.
+   destruct la as [| a₁]; [ rewrite order_0 in Hz; contradiction | idtac ].
+   simpl in Hz, Hns₁.
+   remember (order a₁) as v₁.
+   symmetry in Heqv₁.
+   destruct v₁ as [v₁| ]; [ idtac | contradiction ].
+   apply Qbar.qfin_inj in Hz.
+   apply Qbar.qfin_lt_mono in Hpos.
+   simpl in Heqffo.
+   rewrite Heqf in Heqffo; simpl in Heqffo.
+   rewrite <- Heqf in Heqffo.
+   rewrite Heqv₁ in Heqffo.
+   subst ffo ns₁; simpl in Hini₁, Hfin₁; simpl.
+   eapply pouet; try eassumption; try reflexivity.
+   rewrite minimised_slope_beg_pt in Hini₁.
+   assumption.
 bbb.
 
 Lemma r_1_j_0_k_1 : ∀ pol ns c₁ pol₁ ns₁ j₁ αj₁ k₁ αk₁,
