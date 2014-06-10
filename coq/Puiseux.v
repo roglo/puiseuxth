@@ -292,6 +292,21 @@ apply minimise_slope_end_2nd_pt in Heqms.
    pose proof (Hnneg (3 + i)%nat) as H; assumption.
 Qed.
 
+Lemma j_0_k_r : ∀ pol ns c₁ pol₁ ns₁ j₁ αj₁ k₁ αk₁ r,
+  ns ∈ newton_segments pol
+  → c₁ = ac_root (Φq pol ns)
+  → r = root_multiplicity acf c₁ (Φq pol ns)
+  → pol₁ = next_pol pol (β ns) (γ ns) c₁
+  → (ps_poly_nth 0 pol₁ ≠ 0)%ps
+  → ns₁ = List.hd phony_ns (newton_segments pol₁)
+  → ini_pt ns₁ = (Qnat j₁, αj₁)
+  → fin_pt ns₁ = (Qnat k₁, αk₁)
+  → j₁ = 0%nat ∧ k₁ = r ∧ αj₁ > 0 ∧ αk₁ == 0 ∧ oth_pts ns₁ = [].
+Proof.
+intros pol ns c₁ pol₁ ns₁ j₁ αj₁ k₁ αk₁ r.
+intros Hns Hc₁ Hr Hpol₁ Hps₀ Hns₁ Hini₁ Hfin₁.
+bbb.
+
 Lemma r_1_j_0_k_1 : ∀ pol ns c₁ pol₁ ns₁ j₁ αj₁ k₁ αk₁,
   ns ∈ newton_segments pol
   → c₁ = ac_root (Φq pol ns)
@@ -890,6 +905,7 @@ Lemma www : ∀ pol ns q c₁ pol₁ ns₁,
   → q = 1%positive.
 Proof.
 intros pol ns q c₁ pol₁ ns₁ Hsr Hc₁ Hpol₁ Hns₁ Hq; subst q.
+bbb.
 unfold same_r in Hsr.
 rewrite <- Hc₁, <- Hpol₁, <- Hns₁ in Hsr.
 remember (ac_root (Φq pol₁ ns₁)) as c₂ eqn:Hc₂ .
