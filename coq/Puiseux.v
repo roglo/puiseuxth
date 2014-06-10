@@ -191,6 +191,7 @@ apply minimise_slope_end_2nd_pt in Heqms.
   rewrite Pos2Nat.inj_1 in H1.
   subst j k.
   split; [ reflexivity | idtac ].
+  split; [ apply Nat.lt_0_1 | idtac ].
   split; [ reflexivity | idtac ].
   split; [ assumption | idtac ].
   split; [ assumption | idtac ].
@@ -391,9 +392,9 @@ destruct r.
    subst ffo ns₁; simpl in Hini₁, Hfin₁; simpl.
    rewrite minimised_slope_beg_pt in Hini₁.
    eapply pouet in Heqf; try eassumption; try reflexivity.
-   destruct Heqf as (H₁, (H₂, (H₃, (H₄, H₅)))).
+   destruct Heqf as (H₁, (H₂, (H₃, (H₄, (H₅, H₆))))).
    split; [ assumption | idtac ].
-   split; [ subst k₁; reflexivity | idtac ].
+   split; [ assumption | idtac ].
    split; [ assumption | idtac ].
    split; assumption.
 
