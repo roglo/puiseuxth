@@ -878,30 +878,21 @@ Definition same_r pol ns :=
   let c₂ := ac_root (Φq pol₁ ns₁) in
   let r₁ := root_multiplicity acf c₁ (Φq pol ns) in
   let r₂ := root_multiplicity acf c₂ (Φq pol₁ ns₁) in
-  r₁ = r₁.
+  r₁ = r₂.
 
-(* [Walker...] *)
+(* [Walker, p 102] ... *)
 Lemma www : ∀ pol ns q,
   same_r pol ns
   → q = q_of_ns pol ns
   → q = 1%positive.
 Proof.
-intros pol ns q Hsr Hq.
-subst q.
-bbb.
-revert pol ns Hsr.
-destruct m; intros.
- exfalso; revert Hm; apply Nat.lt_irrefl.
-
- clear Hm; simpl in Hsr.
- destruct Hsr as (Hr, Hsr).
- remember (ac_root (Φq pol ns)) as c₁ eqn:Hc₁ .
- remember (next_pol pol (β ns) (γ ns) c₁) as pol₁ eqn:Hpol₁ .
- remember (List.hd phony_ns (newton_segments pol₁)) as ns₁ eqn:Hns₁ .
- revert pol ns pol₁ ns₁ c₁ Hc₁ Hr Hpol₁ Hns₁ Hsr.
- induction m; intros.
-  simpl in Hsr.
-  remember (ac_root (Φq pol₁ ns₁)) as c₂ eqn:Hc₂ .
+intros pol ns q Hsr Hq; subst q.
+unfold same_r in Hsr.
+remember (ac_root (Φq pol ns)) as c₁ eqn:Hc₁ .
+remember (next_pol pol (β ns) (γ ns) c₁) as pol₁ eqn:Hpol₁ .
+remember (List.hd phony_ns (newton_segments pol₁)) as ns₁ eqn:Hns₁ .
+remember (ac_root (Φq pol₁ ns₁)) as c₂ eqn:Hc₂ .
+do 2 rewrite Φq_pol in Hsr.
 bbb.
 
 Fixpoint polydromy_if_r_reaches_one acf m pol {struct m} :=
