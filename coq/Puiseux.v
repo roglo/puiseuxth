@@ -292,6 +292,45 @@ apply minimise_slope_end_2nd_pt in Heqms.
    pose proof (Hnneg (3 + i)%nat) as H; assumption.
 Qed.
 
+Lemma root_multiplicity_ne_0 : ∀ pol ns c,
+  ns ∈ newton_segments pol
+  → c = ac_root (Φq pol ns)
+  → root_multiplicity acf c (Φq pol ns) ≠ 0%nat.
+Proof.
+intros pol ns c Hns Hc.
+remember Hns as Hini; clear HeqHini.
+apply exists_ini_pt_nat in Hini.
+destruct Hini as (j, (αj, Hini)).
+unfold root_multiplicity; simpl.
+rewrite skipn_pad, Nat.sub_diag; simpl.
+rewrite Hini; simpl.
+rewrite nat_num_Qnat.
+rewrite fold_char_pol with (αj := αj).
+rewrite <- Hini.
+remember [ini_pt ns … oth_pts ns ++ [fin_pt ns]] as pl eqn:Hpl .
+remember (List.map (term_of_point pol) pl) as tl eqn:Htl .
+remember (make_char_pol R j tl) as cpol eqn:Hcpol .
+destruct (ac_zerop (lap_mod_deg_1 cpol c)) as [| Hnz].
+ intros H; discriminate H.
+
+ exfalso; apply Hnz; clear Hnz.
+ apply apply_lap_mod_deg_1.
+ rewrite Hc.
+ remember Hns as Happ; clear HeqHapp.
+ apply cpol_degree_ge_1 with (K := K) (acf := acf) in Happ.
+ apply ac_prop_root in Happ.
+ unfold apply_poly in Happ.
+ simpl in Happ.
+ rewrite skipn_pad, Nat.sub_diag in Happ.
+ rewrite fold_char_pol with (αj := αj) in Happ.
+ rewrite Hini in Happ.
+ remember List.map as f; simpl in Happ; subst f.
+ rewrite nat_num_Qnat in Happ.
+ rewrite <- Hini, <- Hpl in Happ.
+ rewrite <- Htl, <- Hcpol in Happ.
+ assumption.
+Qed.
+
 Lemma j_0_k_r : ∀ pol ns c₁ pol₁ ns₁ j₁ αj₁ k₁ αk₁ r,
   ns ∈ newton_segments pol
   → c₁ = ac_root (Φq pol ns)
@@ -305,6 +344,35 @@ Lemma j_0_k_r : ∀ pol ns c₁ pol₁ ns₁ j₁ αj₁ k₁ αk₁ r,
 Proof.
 intros pol ns c₁ pol₁ ns₁ j₁ αj₁ k₁ αk₁ r.
 intros Hns Hc₁ Hr Hpol₁ Hps₀ Hns₁ Hini₁ Hfin₁.
+apply order_fin in Hps₀.
+remember Hns as H; clear HeqH.
+destruct r.
+ exfalso; symmetry in Hr; revert Hr.
+ apply root_multiplicity_ne_0; assumption.
+
+ eapply f₁_orders in H; try eassumption.
+ destruct H as (Hnneg, (Hpos, Hz)).
+ revert Hns₁ Hini₁ Hfin₁ Hps₀ Hnneg Hpos Hz; clear; intros.
+ assert (0 < S r)%nat as H by apply Nat.lt_0_succ.
+ apply Hpos in H; clear Hpos; rename H into Hpos.
+ unfold newton_segments in Hns₁; simpl in Hns₁.
+ unfold points_of_ps_polynom in Hns₁; simpl in Hns₁.
+ unfold ps_poly_nth in Hps₀, Hnneg, Hz, Hpos.
+ remember (al pol₁) as la.
+ clear pol₁ Heqla.
+ unfold ps_lap_nth in Hps₀.
+ destruct la as [| a₀].
+  exfalso; apply Hps₀; rewrite order_0; reflexivity.
+
+  unfold ps_lap_nth in Hnneg, Hz, Hpos.
+  simpl in Hps₀, Hz, Hpos.
+  unfold points_of_ps_lap in Hns₁.
+  unfold points_of_ps_lap_gen in Hns₁.
+  simpl in Hns₁.
+  remember (order a₀) as v₀.
+  symmetry in Heqv₀.
+  destruct v₀ as [v₀| ]; [ idtac | exfalso; apply Hps₀; reflexivity ].
+  clear Hps₀.
 bbb.
 
 Lemma r_1_j_0_k_1 : ∀ pol ns c₁ pol₁ ns₁ j₁ αj₁ k₁ αk₁,
@@ -977,45 +1045,6 @@ Fixpoint ps_poly_root m pol ns :=
           | Some y => Some (ps_monom c (γ ns) + ps_monom 1%K (γ ns) * y)%ps
           end
   end.
-
-Lemma root_multiplicity_ne_0 : ∀ pol ns c,
-  ns ∈ newton_segments pol
-  → c = ac_root (Φq pol ns)
-  → root_multiplicity acf c (Φq pol ns) ≠ 0%nat.
-Proof.
-intros pol ns c Hns Hc.
-remember Hns as Hini; clear HeqHini.
-apply exists_ini_pt_nat in Hini.
-destruct Hini as (j, (αj, Hini)).
-unfold root_multiplicity; simpl.
-rewrite skipn_pad, Nat.sub_diag; simpl.
-rewrite Hini; simpl.
-rewrite nat_num_Qnat.
-rewrite fold_char_pol with (αj := αj).
-rewrite <- Hini.
-remember [ini_pt ns … oth_pts ns ++ [fin_pt ns]] as pl eqn:Hpl .
-remember (List.map (term_of_point pol) pl) as tl eqn:Htl .
-remember (make_char_pol R j tl) as cpol eqn:Hcpol .
-destruct (ac_zerop (lap_mod_deg_1 cpol c)) as [| Hnz].
- intros H; discriminate H.
-
- exfalso; apply Hnz; clear Hnz.
- apply apply_lap_mod_deg_1.
- rewrite Hc.
- remember Hns as Happ; clear HeqHapp.
- apply cpol_degree_ge_1 with (K := K) (acf := acf) in Happ.
- apply ac_prop_root in Happ.
- unfold apply_poly in Happ.
- simpl in Happ.
- rewrite skipn_pad, Nat.sub_diag in Happ.
- rewrite fold_char_pol with (αj := αj) in Happ.
- rewrite Hini in Happ.
- remember List.map as f; simpl in Happ; subst f.
- rewrite nat_num_Qnat in Happ.
- rewrite <- Hini, <- Hpl in Happ.
- rewrite <- Htl, <- Hcpol in Happ.
- assumption.
-Qed.
 
 (*
 Lemma xxx : ∀ pol ns c₁ pol₁ ns₁,
