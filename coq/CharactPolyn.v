@@ -2812,12 +2812,12 @@ unfold pseudo_degree.
 remember (al (Φ pol ns)) as l.
 apply imp_or_tauto.
  intros H.
- subst l; simpl.
- rewrite Nat.sub_diag; simpl.
- rewrite <- Hj; simpl.
- rewrite nat_num_Qnat, skipn_pad.
- rewrite fold_char_pol with (αj := αj).
- rewrite Hj.
+ unfold Φ in Heql.
+ rewrite Φq_pol in Heql.
+ remember [ini_pt ns … oth_pts ns ++ [fin_pt ns]] as pl.
+ rewrite <- Hj in Heql; simpl in Heql.
+ rewrite nat_num_Qnat in Heql.
+ subst l.
  unfold list_shrink.
  rewrite list_nth_shrink.
  rewrite Nat.add_0_l.
@@ -2827,6 +2827,7 @@ apply imp_or_tauto.
  rewrite <- Nat.divide_div_mul_exact; [ idtac | subst q; auto | idtac ].
   rewrite Nat.mul_comm, <- Hq.
   rewrite Nat.div_mul; [ idtac | subst q; auto ].
+  subst pl.
   erewrite list_nth_coeff_last; try eassumption.
    rewrite list_last_cons_app; simpl.
    rewrite <- Hk; simpl.
