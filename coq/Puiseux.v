@@ -332,6 +332,7 @@ destruct (ac_zerop (lap_mod_deg_1 cpol c)) as [| Hnz].
  assumption.
 Qed.
 
+(*
 Lemma j_0_k_r : ∀ pol ns c₁ pol₁ ns₁ j₁ αj₁ k₁ αk₁ r,
   ns ∈ newton_segments pol
   → c₁ = ac_root (Φq pol ns)
@@ -394,6 +395,8 @@ destruct r.
    rewrite Heqv₁ in Heqffo.
    subst ffo ns₁; simpl in Hini₁, Hfin₁; simpl.
    rewrite minimised_slope_beg_pt in Hini₁.
+   remember (filter_finite_ord R (List.map f (power_list (S pow) la))) as ffo.
+   remember (minimise_slope (Qnat 0, v₀) (Qnat pow, v₁) ffo) as ms.
 bbb.
    eapply pouet in Heqf; try eassumption; try reflexivity.
    destruct Heqf as (H₁, (H₂, (H₃, (H₄, (H₅, H₆))))).
