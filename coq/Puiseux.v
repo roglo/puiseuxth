@@ -1246,9 +1246,9 @@ Lemma zzz : ∀ pol ns c₁ ps,
   → (ps_pol_apply pol ps = 0)%ps.
 Proof.
 intros pol ns c₁ ps Hns Hc₁ Hr Hps.
-subst ps; simpl.
 remember (next_pol pol (β ns) (γ ns) c₁) as pol₁ eqn:Hpol₁ .
 remember (List.hd phony_ns (newton_segments pol₁)) as ns₁ eqn:Hns₁ .
+eapply f₁_root_f_root; [ eassumption | idtac | idtac ].
 bbb.
 
 (*
