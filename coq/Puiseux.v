@@ -1005,6 +1005,7 @@ Definition same_r pol ns :=
   r₁ = r₂.
 
 (* [Walker, p 102] ... *)
+(*
 Lemma www : ∀ pol ns q c₁ pol₁ ns₁,
   same_r pol ns
   → c₁ = ac_root (Φq pol ns)
@@ -1024,6 +1025,7 @@ remember [ini_pt ns₁ … oth_pts ns₁ ++ [fin_pt ns₁]] as pl₁ eqn:Hpl₁ 
 unfold root_multiplicity in Hsr.
 simpl in Hsr.
 bbb.
+*)
 
 Fixpoint polydromy_if_r_reaches_one acf m pol {struct m} :=
   match m with
@@ -1067,6 +1069,7 @@ Definition root_when_r_1 pol ns :=
      ps_ordnum := Qnum (γ ns);
      ps_polord := Qden (γ ns) |}.
 
+(*
 Fixpoint ps_poly_root m pol ns :=
   match m with
   | 0%nat => None
@@ -1086,6 +1089,7 @@ Fixpoint ps_poly_root m pol ns :=
           | Some y => Some (ps_monom c (γ ns) + ps_monom 1%K (γ ns) * y)%ps
           end
   end.
+*)
 
 (*
 Lemma xxx : ∀ pol ns c₁ pol₁ ns₁,
@@ -1147,6 +1151,7 @@ destruct la₁ as [| a₀].
 bbb.
 *)
 
+(*
 Lemma yyy₁ : ∀ pol ns m ps,
   ns = List.hd phony_ns (newton_segments pol)
   → ps_poly_root m pol ns = Some ps
@@ -1187,7 +1192,9 @@ destruct (ps_zerop R (List.hd 0%ps la₁)) as [Hz| Hnz].
  eapply f₁_root_f_root; try eassumption.
  rewrite Hps; reflexivity.
 Qed.
+*)
 
+(*
 Lemma yyy : ∀ pol ns m ps,
   degree (ps_zerop R) pol ≥ 1
   → ns ∈ newton_segments pol
@@ -1228,6 +1235,20 @@ destruct (ps_zerop R (List.hd 0%ps la₁)) as [Hz| Hnz].
   subst la₁.
   eapply f₁_root_f_root; try eassumption.
   rewrite Hps; reflexivity.
+bbb.
+*)
+
+Lemma zzz : ∀ pol ns c₁ ps,
+  ns = List.hd phony_ns (newton_segments pol)
+  → c₁ = ac_root (Φq pol ns)
+  → root_multiplicity acf c₁ (Φq pol ns) = 1%nat
+  → ps = root_when_r_1 pol ns
+  → (ps_pol_apply pol ps = 0)%ps.
+Proof.
+intros pol ns c₁ ps Hns Hc₁ Hr Hps.
+subst ps; simpl.
+remember (next_pol pol (β ns) (γ ns) c₁) as pol₁ eqn:Hpol₁ .
+remember (List.hd phony_ns (newton_segments pol₁)) as ns₁ eqn:Hns₁ .
 bbb.
 
 (*
