@@ -1239,7 +1239,7 @@ bbb.
 *)
 
 Lemma zzz : ∀ pol ns c₁ ps,
-  ns = List.hd phony_ns (newton_segments pol)
+  ns ∈ newton_segments pol
   → c₁ = ac_root (Φq pol ns)
   → root_multiplicity acf c₁ (Φq pol ns) = 1%nat
   → ps = root_when_r_1 pol ns
@@ -1248,7 +1248,8 @@ Proof.
 intros pol ns c₁ ps Hns Hc₁ Hr Hps.
 remember (next_pol pol (β ns) (γ ns) c₁) as pol₁ eqn:Hpol₁ .
 remember (List.hd phony_ns (newton_segments pol₁)) as ns₁ eqn:Hns₁ .
-eapply f₁_root_f_root; [ eassumption | idtac | idtac ].
+remember (root_when_r_1 pol₁ ns₁) as ps₁ eqn:Hps₁ .
+eapply f₁_root_f_root with (y₁ := ps₁); [ eassumption | idtac | idtac ].
 bbb.
 
 (*
