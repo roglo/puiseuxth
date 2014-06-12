@@ -1046,7 +1046,11 @@ Fixpoint find_coeff max_iter pow_sum pol ns i :=
   | 0%nat => 0%K
   | S m =>
       let c₁ := ac_root (Φq pol ns) in
+(**)
+      let y₁ := order (ps_pol_apply pol 0%K) in
+(*
       let γ₁ := snd (ini_pt ns) in
+*)
 (*
       let pow := (pow_sum + Z.to_nat (Qnum γ₁))%nat in
 *)
