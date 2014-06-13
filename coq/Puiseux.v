@@ -1302,6 +1302,42 @@ remember Hns as H; clear HeqH.
 eapply r_1_j_0_k_1 in H; try eassumption.
 destruct H as (Hj₁, (Hk₁, (Hαj₁, (Hαk₁, Hoth₁)))).
 subst j₁ k₁.
+eapply f₁_root_f_root with (y₁ := ps₁); [ eassumption | idtac | idtac ].
+ Focus 2.
+ unfold ps_pol_apply; simpl.
+ unfold apply_poly; simpl.
+ rewrite Hpol₁; simpl.
+ unfold next_lap; simpl.
+ rewrite apply_lap_mul.
+ simpl.
+ rewrite ps_mul_0_l, ps_add_0_l.
+ rewrite apply_lap_compose; simpl.
+ rewrite ps_mul_0_l, ps_add_0_l.
+ rewrite Hps₁; simpl.
+ unfold root_when_r_1; simpl.
+ rewrite Hini₁, Hfin₁; simpl.
+ rewrite Z.mul_1_r, Pos.mul_1_r.
+bbb.
+
+intros pol ns c₁ ps pol₁ Hns Hc₁ Hr Hpol₁ Hps₀ Hps.
+remember (List.hd phony_ns (newton_segments pol₁)) as ns₁ eqn:Hns₁ .
+remember (root_when_r_1 pol₁ ns₁) as ps₁ eqn:Hps₁ .
+remember Hns as Hini; clear HeqHini.
+apply exists_ini_pt_nat in Hini.
+destruct Hini as (j, (αj, Hini)).
+remember Hns as Hfin; clear HeqHfin.
+apply exists_fin_pt_nat in Hfin.
+destruct Hfin as (k, (αk, Hfin)).
+remember Hns₁ as Hini₁; clear HeqHini₁.
+apply exists_ini_pt_nat_fst_seg in Hini₁.
+destruct Hini₁ as (j₁, (αj₁, Hini₁)).
+remember Hns₁ as Hfin₁; clear HeqHfin₁.
+apply exists_fin_pt_nat_fst_seg in Hfin₁.
+destruct Hfin₁ as (k₁, (αk₁, Hfin₁)).
+remember Hns as H; clear HeqH.
+eapply r_1_j_0_k_1 in H; try eassumption.
+destruct H as (Hj₁, (Hk₁, (Hαj₁, (Hαk₁, Hoth₁)))).
+subst j₁ k₁.
 apply order_inf.
 unfold order.
 remember (ps_terms (ps_pol_apply pol ps)) as s eqn:Hs .
