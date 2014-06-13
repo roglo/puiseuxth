@@ -1073,6 +1073,31 @@ Definition root_when_r_1 pol ns :=
      ps_ordnum := Qnum (γ ns);
      ps_polord := Qden (γ ns) |}.
 
+(* *)
+
+Definition root_head_term n pol ns i :=
+  let c₁ := ac_root (Φq pol ns) in
+  if zerop i then c₁
+  else
+    let pol₁ := next_pol pol (β ns) (γ ns) c₁ in
+    let ns₁ := List.hd phony_ns (newton_segments pol₁) in
+    find_coeff n 0%nat (Qden (γ ns)) pol₁ ns₁ i.
+
+Definition root_head n pol ns :=
+  {| ps_terms := {| terms := root_head_term n pol ns |};
+     ps_ordnum := Qnum (γ ns);
+     ps_polord := Qden (γ ns) |}.
+
+Fixpoint root_tail n pol ns :=
+  match n with
+  | 0%nat => root_when_r_1 pol ns
+  | S n₁ =>
+      let c₁ := ac_root (Φq pol ns) in
+      let pol₁ := next_pol pol (β ns) (γ ns) c₁ in
+      let ns₁ := List.hd phony_ns (newton_segments pol₁) in
+      root_tail n₁ pol₁ ns₁
+  end.
+
 (*
 Fixpoint ps_poly_root m pol ns :=
   match m with
