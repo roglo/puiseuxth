@@ -1098,6 +1098,18 @@ Fixpoint root_tail n pol ns :=
       root_tail n₁ pol₁ ns₁
   end.
 
+Lemma vvv : ∀ pol ns n,
+  (root_when_r_1 pol ns = root_head n pol ns + root_tail n pol ns)%ps.
+Proof.
+intros pol ns n.
+revert pol ns.
+induction n; intros.
+ simpl.
+ unfold root_head.
+ unfold root_head_term; simpl.
+
+bbb.
+
 (*
 Fixpoint ps_poly_root m pol ns :=
   match m with
