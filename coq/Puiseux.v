@@ -1050,7 +1050,7 @@ Fixpoint find_coeff max_iter pow_sum pol_ord pol ns i :=
 (*
       let γ₁ := order (ps_pol_apply pol 0%K) in
 *)
-      let pow := (pow_sum + nat_num (Qred (γ₁ * pol_ord)))%nat in
+      let pow := (pow_sum + nat_num (Qred (γ₁ * inject_Z ('pol_ord))))%nat in
       if eq_nat_dec pow i then c₁
       else if lt_dec pow i then
         let pol₁ := next_pol pol (β ns) (γ ns) c₁ in
@@ -1252,7 +1252,18 @@ intros pol ns c₁ ps Hns Hc₁ Hr Hps.
 remember (next_pol pol (β ns) (γ ns) c₁) as pol₁ eqn:Hpol₁ .
 remember (List.hd phony_ns (newton_segments pol₁)) as ns₁ eqn:Hns₁ .
 remember (root_when_r_1 pol₁ ns₁) as ps₁ eqn:Hps₁ .
+remember Hns as Hini; clear HeqHini.
+apply exists_ini_pt_nat in Hini.
+destruct Hini as (j, (αj, Hini)).
+remember Hns as Hfin; clear HeqHfin.
+apply exists_fin_pt_nat in Hfin.
+destruct Hfin as (k, (αk, Hfin)).
 eapply f₁_root_f_root with (y₁ := ps₁); [ eassumption | idtac | idtac ].
+ rewrite Hps, Hps₁.
+ unfold ps_add, ps_mul; simpl.
+ unfold cm; simpl.
+ rewrite Hini, Hfin; simpl.
+(* n'oublions pas que j₁=0, k₁=1 et αk=0 *)
 bbb.
 
 (*
