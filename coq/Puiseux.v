@@ -1042,18 +1042,15 @@ Fixpoint polydromy_if_r_reaches_one acf m pol {struct m} :=
         (v * Pos.to_nat (Qden (γ ns)))%nat
   end.
 
-Fixpoint find_coeff max_iter pow_sum pol_ord pol ns i :=
+Fixpoint find_coeff max_iter pow pol_ord pol ns i :=
   match max_iter with
   | 0%nat => 0%K
   | S m =>
       let c₁ := ac_root (Φq pol ns) in
-      let γ₁ := snd (ini_pt ns) in
-(*
-      let γ₁ := order (ps_pol_apply pol 0%K) in
-*)
-      let pow := (pow_sum + nat_num (Qred (γ₁ * inject_Z ('pol_ord))))%nat in
       if eq_nat_dec pow i then c₁
       else if lt_dec pow i then
+        let γ₁ := snd (ini_pt ns) in
+        let pow₁ := (pow + nat_num (Qred (γ₁ * inject_Z ('pol_ord))))%nat in
         let pol₁ := next_pol pol (β ns) (γ ns) c₁ in
         let ns₁ := List.hd phony_ns (newton_segments pol₁) in
         find_coeff m pow pol_ord pol₁ ns₁ i
@@ -1061,12 +1058,7 @@ Fixpoint find_coeff max_iter pow_sum pol_ord pol ns i :=
   end.
 
 Definition root_term_when_r_1 pol ns i :=
-  let c₁ := ac_root (Φq pol ns) in
-  if zerop i then c₁
-  else
-    let pol₁ := next_pol pol (β ns) (γ ns) c₁ in
-    let ns₁ := List.hd phony_ns (newton_segments pol₁) in
-    find_coeff i 0%nat (Qden (γ ns)) pol₁ ns₁ i.
+  find_coeff (S i) 0%nat (Qden (γ ns)) pol ns i.
 
 Definition root_when_r_1 pol ns :=
   {| ps_terms := {| terms := root_term_when_r_1 pol ns |};
@@ -1076,12 +1068,7 @@ Definition root_when_r_1 pol ns :=
 (* *)
 
 Definition root_head_term n pol ns i :=
-  let c₁ := ac_root (Φq pol ns) in
-  if zerop i then c₁
-  else
-    let pol₁ := next_pol pol (β ns) (γ ns) c₁ in
-    let ns₁ := List.hd phony_ns (newton_segments pol₁) in
-    find_coeff n 0%nat (Qden (γ ns)) pol₁ ns₁ i.
+  find_coeff n 0%nat (Qden (γ ns)) pol ns i.
 
 Definition root_head n pol ns :=
   {| ps_terms := {| terms := root_head_term n pol ns |};
@@ -1107,6 +1094,9 @@ induction n; intros.
  simpl.
  unfold root_head.
  unfold root_head_term; simpl.
+ Focus 2.
+ simpl.
+ unfold root_head; simpl.
 
 bbb.
 
