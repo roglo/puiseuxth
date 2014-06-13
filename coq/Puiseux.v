@@ -1279,6 +1279,7 @@ Lemma yyy : ∀ pol ps,
    → ∀ i, ((ps_terms (ps_pol_apply pol ps)) .[ i] = 0)%K.
 Proof.
 intros pol ps Ht i.
+unfold ps_pol_apply, apply_poly.
 bbb.
 
 Lemma zzz : ∀ pol ns c₁ ps pol₁,
@@ -1319,6 +1320,7 @@ apply null_coeff_range_length_iff in Hv.
 unfold null_coeff_range_length_prop in Hv; simpl in Hv.
 destruct Hv as (Hiv, Hv).
 apply Hv; clear Hv.
+rewrite Hs.
 bbb.
 
 intros pol ns c₁ ps pol₁ Hns Hc₁ Hr Hpol₁ Hps₀ Hps.
