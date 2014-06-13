@@ -1241,6 +1241,38 @@ destruct (ps_zerop R (List.hd 0%ps la₁)) as [Hz| Hnz].
 bbb.
 *)
 
+Lemma exists_ini_pt_nat_fst_seg : ∀ pol ns,
+  ns = List.hd phony_ns (newton_segments pol)
+  → ∃ i αi, ini_pt ns = (Qnat i, αi).
+Proof.
+intros pol ns Hns.
+remember (newton_segments pol) as nsl eqn:Hnsl .
+symmetry in Hnsl.
+destruct nsl as [| ns₁].
+ subst ns; simpl.
+ exists 0%nat, 0; reflexivity.
+
+ simpl in Hns; subst ns₁.
+ eapply exists_ini_pt_nat with (pol := pol).
+ rewrite Hnsl; left; reflexivity.
+Qed.
+
+Lemma exists_fin_pt_nat_fst_seg : ∀ pol ns,
+  ns = List.hd phony_ns (newton_segments pol)
+  → ∃ i αi, fin_pt ns = (Qnat i, αi).
+Proof.
+intros pol ns Hns.
+remember (newton_segments pol) as nsl eqn:Hnsl .
+symmetry in Hnsl.
+destruct nsl as [| ns₁].
+ subst ns; simpl.
+ exists 0%nat, 0; reflexivity.
+
+ simpl in Hns; subst ns₁.
+ eapply exists_fin_pt_nat with (pol := pol).
+ rewrite Hnsl; left; reflexivity.
+Qed.
+
 Lemma zzz : ∀ pol ns c₁ ps,
   ns ∈ newton_segments pol
   → c₁ = ac_root (Φq pol ns)
@@ -1258,12 +1290,35 @@ destruct Hini as (j, (αj, Hini)).
 remember Hns as Hfin; clear HeqHfin.
 apply exists_fin_pt_nat in Hfin.
 destruct Hfin as (k, (αk, Hfin)).
-eapply f₁_root_f_root with (y₁ := ps₁); [ eassumption | idtac | idtac ].
- rewrite Hps, Hps₁.
- unfold ps_add, ps_mul; simpl.
- unfold cm; simpl.
- rewrite Hini, Hfin; simpl.
-(* n'oublions pas que j₁=0, k₁=1 et αk=0 *)
+remember Hns₁ as Hini₁; clear HeqHini₁.
+apply exists_ini_pt_nat_fst_seg in Hini₁.
+destruct Hini₁ as (j₁, (αj₁, Hini₁)).
+remember Hns₁ as Hfin₁; clear HeqHfin₁.
+apply exists_fin_pt_nat_fst_seg in Hfin₁.
+destruct Hfin₁ as (k₁, (αk₁, Hfin₁)).
+remember Hns as H; clear HeqH.
+eapply r_1_j_0_k_1 in H; try eassumption.
+ destruct H as (Hj₁, (Hk₁, (Hαj₁, (Hαk₁, Hoth₁)))).
+ subst j₁ k₁.
+ eapply f₁_root_f_root with (y₁ := ps₁); [ eassumption | idtac | idtac ].
+  rewrite Hps, Hps₁.
+  unfold ps_add, ps_mul; simpl.
+  unfold cm; simpl.
+  rewrite Hini, Hfin; simpl.
+  rewrite Hini₁, Hfin₁; simpl.
+  rewrite Pos.mul_1_r.
+  rewrite Z.mul_1_r.
+  unfold Qeq in Hαk₁.
+  simpl in Hαk₁.
+  rewrite Z.mul_1_r in Hαk₁.
+  rewrite Hαk₁.
+  rewrite Z.mul_0_l.
+  rewrite Z.add_0_r.
+  rewrite Pos2Z.inj_mul.
+  rewrite Pos2Z.inj_mul.
+  rewrite Pos2Z.inj_mul.
+  rewrite Qden_inv.
+   rewrite Qnum_inv.
 bbb.
 
 (*
