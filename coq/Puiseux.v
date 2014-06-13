@@ -1298,15 +1298,24 @@ remember Hns₁ as Hfin₁; clear HeqHfin₁.
 apply exists_fin_pt_nat_fst_seg in Hfin₁.
 destruct Hfin₁ as (k₁, (αk₁, Hfin₁)).
 remember Hns as H; clear HeqH.
-apply order_inf.
-unfold order.
-remember (ps_terms (ps_pol_apply pol ps)) as s eqn:Hs .
-remember (null_coeff_range_length R s 0) as v eqn:Hv .
-symmetry in Hv.
-destruct v as [v| ]; [ exfalso | reflexivity ].
-apply null_coeff_range_length_iff in Hv.
-unfold null_coeff_range_length_prop in Hv; simpl in Hv.
-destruct Hv as (Hiv, Hv).
+eapply r_1_j_0_k_1 in H; try eassumption.
+ destruct H as (Hj₁, (Hk₁, (Hαj₁, (Hαk₁, Hoth₁)))).
+ subst j₁ k₁.
+ apply order_inf.
+ unfold order.
+ remember (ps_terms (ps_pol_apply pol ps)) as s eqn:Hs .
+ remember (null_coeff_range_length R s 0) as v eqn:Hv .
+ symmetry in Hv.
+ destruct v as [v| ]; [ exfalso | reflexivity ].
+ apply null_coeff_range_length_iff in Hv.
+ unfold null_coeff_range_length_prop in Hv; simpl in Hv.
+ destruct Hv as (Hiv, Hv).
+ apply Hv; clear Hv.
+ rewrite Hs; simpl.
+ rewrite Hps; simpl.
+ unfold root_when_r_1; simpl.
+ rewrite Hini, Hfin; simpl.
+ rewrite Qnum_inv; simpl.
 bbb.
 
 intros pol ns c₁ ps Hns Hc₁ Hr Hps.
