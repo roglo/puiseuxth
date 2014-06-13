@@ -1274,14 +1274,6 @@ destruct nsl as [| ns₁].
  rewrite Hnsl; left; reflexivity.
 Qed.
 
-Lemma yyy : ∀ pol ps,
-   (ps_terms ps = 0)%ser
-   → ∀ i, ((ps_terms (ps_pol_apply pol ps)) .[ i] = 0)%K.
-Proof.
-intros pol ps Ht i.
-unfold ps_pol_apply, apply_poly.
-bbb.
-
 Lemma zzz : ∀ pol ns c₁ ps pol₁,
   ns ∈ newton_segments pol
   → c₁ = ac_root (Φq pol ns)
