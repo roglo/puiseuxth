@@ -7,6 +7,7 @@ Require Import Misc.
 Require Import SlopeMisc.
 Require Import Slope_base.
 Require Import Qbar.
+Require Import Nbar.
 Require Import Field.
 Require Import Fpolynomial.
 Require Import Newton.
@@ -1280,6 +1281,34 @@ Lemma zzz : ∀ pol ns c₁ ps,
   → ps = root_when_r_1 pol ns
   → (ps_pol_apply pol ps = 0)%ps.
 Proof.
+intros pol ns c₁ ps Hns Hc₁ Hr Hps.
+remember (next_pol pol (β ns) (γ ns) c₁) as pol₁ eqn:Hpol₁ .
+remember (List.hd phony_ns (newton_segments pol₁)) as ns₁ eqn:Hns₁ .
+remember (root_when_r_1 pol₁ ns₁) as ps₁ eqn:Hps₁ .
+remember Hns as Hini; clear HeqHini.
+apply exists_ini_pt_nat in Hini.
+destruct Hini as (j, (αj, Hini)).
+remember Hns as Hfin; clear HeqHfin.
+apply exists_fin_pt_nat in Hfin.
+destruct Hfin as (k, (αk, Hfin)).
+remember Hns₁ as Hini₁; clear HeqHini₁.
+apply exists_ini_pt_nat_fst_seg in Hini₁.
+destruct Hini₁ as (j₁, (αj₁, Hini₁)).
+remember Hns₁ as Hfin₁; clear HeqHfin₁.
+apply exists_fin_pt_nat_fst_seg in Hfin₁.
+destruct Hfin₁ as (k₁, (αk₁, Hfin₁)).
+remember Hns as H; clear HeqH.
+apply order_inf.
+unfold order.
+remember (ps_terms (ps_pol_apply pol ps)) as s eqn:Hs .
+remember (null_coeff_range_length R s 0) as v eqn:Hv .
+symmetry in Hv.
+destruct v as [v| ]; [ exfalso | reflexivity ].
+apply null_coeff_range_length_iff in Hv.
+unfold null_coeff_range_length_prop in Hv; simpl in Hv.
+destruct Hv as (Hiv, Hv).
+bbb.
+
 intros pol ns c₁ ps Hns Hc₁ Hr Hps.
 remember (next_pol pol (β ns) (γ ns) c₁) as pol₁ eqn:Hpol₁ .
 remember (List.hd phony_ns (newton_segments pol₁)) as ns₁ eqn:Hns₁ .
