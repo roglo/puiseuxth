@@ -1109,6 +1109,17 @@ Proof.
 intros pol ns n.
 revert pol ns.
 induction n; intros; [ rewrite ps_add_0_l; reflexivity | idtac ].
+destruct n.
+ simpl.
+ remember (ac_root (Φq pol ns)) as c₁ eqn:Hc₁ .
+ remember (next_pol pol (β ns) (γ ns) c₁) as pol₁ eqn:Hpol₁ .
+ remember (List.hd phony_ns (newton_segments pol₁)) as ns₁ eqn:Hns₁ .
+ rewrite ps_mul_0_r, ps_add_0_r.
+bbb.
+
+intros pol ns n.
+revert pol ns.
+induction n; intros; [ rewrite ps_add_0_l; reflexivity | idtac ].
 remember (root_head (S n)) as x; simpl; subst x.
 remember (next_pol pol (β ns) (γ ns) (ac_root (Φq pol ns))) as pol₁.
 rename Heqpol₁ into Hpol₁.
