@@ -1070,10 +1070,16 @@ Definition root_when_r_1 pol ns :=
 Definition root_head_term n pol ns i :=
   find_coeff n 0%nat (Qden (γ ns)) pol ns i.
 
-Definition root_head n pol ns :=
-  {| ps_terms := {| terms := root_head_term n pol ns |};
-     ps_ordnum := Qnum (γ ns);
-     ps_polord := Qden (γ ns) |}.
+Fixpoint root_head n pol ns :=
+  match n with
+  | 0%nat => 0%ps
+  | S n₁ =>
+      let c₁ := ac_root (Φq pol ns) in
+      let pol₁ := next_pol pol (β ns) (γ ns) c₁ in
+      let ns₁ := List.hd phony_ns (newton_segments pol₁) in
+      let y₁ := root_head n₁ pol₁ ns₁ in
+      (ps_monom c₁ (γ ns) + ps_monom 1%K (γ ns) * y₁)%ps
+  end.
 
 Fixpoint root_tail n pol ns :=
   match n with
@@ -1090,14 +1096,7 @@ Lemma vvv : ∀ pol ns n,
 Proof.
 intros pol ns n.
 revert pol ns.
-induction n; intros.
- simpl.
- unfold root_head.
- unfold root_head_term; simpl.
- Focus 2.
- simpl.
- unfold root_head; simpl.
-
+induction n; intros; [ rewrite ps_add_0_l; reflexivity | idtac ].
 bbb.
 
 (*
