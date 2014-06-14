@@ -1116,6 +1116,28 @@ Definition root_head n pol ns :=
   let pr := ps_ring R in
   Σ (i = 0, n), ps_monom (nth_c i pol ns) (γ_sum i pol ns).
 
+Fixpoint root_tail n pol ns :=
+  match n with
+  | 0%nat => root_when_r_1 pol ns
+  | S n₁ =>
+      let c₁ := ac_root (Φq pol ns) in
+      let pol₁ := next_pol pol (β ns) (γ ns) c₁ in
+      let ns₁ := List.hd phony_ns (newton_segments pol₁) in
+      (ps_monom 1%K (γ ns) * (ps_monom c₁ 0 + root_tail n₁ pol₁ ns₁))%ps
+  end.
+
+Lemma ttt : ∀ pol ns n,
+  (root_tail n pol ns =
+   ps_monom 1%K (nth_γ (S n) pol ns) *
+     (ps_monom (nth_c (S n) pol ns) 0 + root_tail (S n) pol ns))%ps.
+Proof.
+intros pol ns n.
+revert pol ns.
+induction n; intros.
+ simpl.
+ remember (ac_root (Φq pol ns)) as c₁ eqn:Hc₁ .
+ remember (next_pol pol (β ns) (γ ns) c₁) as pol₁ eqn:Hpol₁ .
+ remember (List.hd phony_ns (newton_segments pol₁)) as ns₁ eqn:Hns₁ .
 bbb.
 
 Lemma uuu : ∀ pol ns n,
