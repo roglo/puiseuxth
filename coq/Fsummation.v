@@ -11,10 +11,8 @@ Require Import Field.
 
 Set Implicit Arguments.
 
-Open Scope nat_scope.
-
-Notation "x ≤ y ≤ z" := (x ≤ y ∧ y ≤ z) (at level 70, y at next level).
-Notation "x ≤ y < z" := (x ≤ y ∧ y < z) (at level 70, y at next level).
+Notation "x ≤ y ≤ z" := (x ≤ y ∧ y ≤ z)%nat (at level 70, y at next level).
+Notation "x ≤ y < z" := (x ≤ y ∧ y < z)%nat (at level 70, y at next level).
 
 Fixpoint summation_aux α (r : ring α) b len g :=
   match len with
@@ -37,6 +35,8 @@ Section theorems_summation.
 Variable α : Type.
 Variable r : ring α.
 Variable f : field r.
+
+Open Scope nat_scope.
 
 Lemma summation_aux_compat : ∀ g h b₁ b₂ len,
   (∀ i, 0 ≤ i < len → (g (b₁ + i)%nat = h (b₂ + i)%nat)%K)
@@ -554,5 +554,3 @@ reflexivity.
 Qed.
 
 End theorems_summation.
-
-Close Scope nat_scope.

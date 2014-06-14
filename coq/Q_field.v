@@ -21,7 +21,7 @@ destruct (Qeq_dec c 0) as [Hz| ]; [ rewrite Hz; reflexivity | idtac ].
 apply Qmult_inj_l; assumption.
 Qed.
 
-Definition Q_field :=
+Definition Q_ring :=
   {| rng_zero := 0;
      rng_one := 1;
      rng_add := Qplus;
@@ -40,6 +40,9 @@ Definition Q_field :=
      rng_mul_assoc := Qmult_assoc;
      rng_mul_1_l := Qmult_1_l;
      rng_mul_compat_l := Qmult_compat_l;
-     rng_mul_add_distr_l := Qmult_plus_distr_r;
+     rng_mul_add_distr_l := Qmult_plus_distr_r |}.
+
+(*
      fld_inv := Qinv;
-     rng_mul_inv_l := Qmul_inv_l |}.
+     rng_mul_inv_l := Qmul_inv_l
+*)

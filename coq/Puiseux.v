@@ -1,7 +1,6 @@
 (* Puiseux.v *)
 
 Require Import Utf8 QArith NPeano Sorting.
-Require Streams.
 
 Require Import Misc.
 Require Import SlopeMisc.
@@ -10,6 +9,7 @@ Require Import Qbar.
 Require Import Nbar.
 Require Import Field.
 Require Import Fpolynomial.
+Require Import Fsummation.
 Require Import Newton.
 Require Import ConvexHullMisc.
 Require Import ConvexHull.
@@ -1101,6 +1101,41 @@ Fixpoint nth_ns n pol ns :=
       nth_ns n₁ pol₁ ns₁
   end.
 
+Fixpoint nth_c n pol ns :=
+  match n with
+  | 0%nat => ac_root (Φq pol ns)
+  | S n₁ =>
+      let c₁ := ac_root (Φq pol ns) in
+      let pol₁ := next_pol pol (β ns) (γ ns) c₁ in
+      let ns₁ := List.hd phony_ns (newton_segments pol₁) in
+      nth_c n₁ pol₁ ns₁
+  end.
+
+Fixpoint nth_γ n pol ns :=
+  match n with
+  | 0%nat => γ ns
+  | S n₁ =>
+      let c₁ := ac_root (Φq pol ns) in
+      let pol₁ := next_pol pol (β ns) (γ ns) c₁ in
+      let ns₁ := List.hd phony_ns (newton_segments pol₁) in
+      nth_γ n₁ pol₁ ns₁
+  end.
+
+Require Import Q_field.
+
+Lemma uuu : ∀ pol ns n,
+  let qr := Q_ring in
+  (root_head (S n) pol ns =
+   root_head n pol ns +
+   ps_monom (nth_c n pol ns) (Σ (i = 1, n), nth_γ i pol ns))%ps.
+Proof.
+intros pol ns n qr.
+revert pol ns.
+induction n; intros.
+ simpl.
+ unfold summation; simpl.
+bbb.
+
 Lemma vvv : ∀ pol ns n,
   (root_when_r_1 pol ns =
    root_head n pol ns +
@@ -1109,6 +1144,7 @@ Proof.
 intros pol ns n.
 revert pol ns.
 induction n; intros; [ rewrite ps_add_0_l; reflexivity | idtac ].
+bbb.
 destruct n.
  simpl.
  remember (ac_root (Φq pol ns)) as c₁ eqn:Hc₁ .
