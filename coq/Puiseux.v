@@ -563,6 +563,38 @@ destruct oa as [oa| ].
  exists (S m); split; assumption.
 Qed.
 
+Lemma exists_ini_pt_nat_fst_seg : ∀ pol ns,
+  ns = List.hd phony_ns (newton_segments pol)
+  → ∃ i αi, ini_pt ns = (Qnat i, αi).
+Proof.
+intros pol ns Hns.
+remember (newton_segments pol) as nsl eqn:Hnsl .
+symmetry in Hnsl.
+destruct nsl as [| ns₁].
+ subst ns; simpl.
+ exists 0%nat, 0; reflexivity.
+
+ simpl in Hns; subst ns₁.
+ eapply exists_ini_pt_nat with (pol := pol).
+ rewrite Hnsl; left; reflexivity.
+Qed.
+
+Lemma exists_fin_pt_nat_fst_seg : ∀ pol ns,
+  ns = List.hd phony_ns (newton_segments pol)
+  → ∃ i αi, fin_pt ns = (Qnat i, αi).
+Proof.
+intros pol ns Hns.
+remember (newton_segments pol) as nsl eqn:Hnsl .
+symmetry in Hnsl.
+destruct nsl as [| ns₁].
+ subst ns; simpl.
+ exists 0%nat, 0; reflexivity.
+
+ simpl in Hns; subst ns₁.
+ eapply exists_fin_pt_nat with (pol := pol).
+ rewrite Hnsl; left; reflexivity.
+Qed.
+
 Lemma multiplicity_1_remains : ∀ pol ns c₁ c₂ pol₁ ns₁,
   ns ∈ newton_segments pol
   → c₁ = ac_root (Φq pol ns)
@@ -1127,17 +1159,43 @@ Fixpoint root_tail n pol ns :=
   end.
 
 Lemma ttt : ∀ pol ns n,
-  (root_tail n pol ns =
-   ps_monom 1%K (nth_γ (S n) pol ns) *
-     (ps_monom (nth_c (S n) pol ns) 0 + root_tail (S n) pol ns))%ps.
+  ns ∈ newton_segments pol
+  → (root_tail n pol ns =
+     ps_monom 1%K (nth_γ (S n) pol ns) *
+       (ps_monom (nth_c (S n) pol ns) 0 + root_tail (S n) pol ns))%ps.
 Proof.
-intros pol ns n.
-revert pol ns.
+intros pol ns n Hns.
+revert pol ns Hns.
 induction n; intros.
  simpl.
  remember (ac_root (Φq pol ns)) as c₁ eqn:Hc₁ .
  remember (next_pol pol (β ns) (γ ns) c₁) as pol₁ eqn:Hpol₁ .
  remember (List.hd phony_ns (newton_segments pol₁)) as ns₁ eqn:Hns₁ .
+ remember Hns as Hini; clear HeqHini.
+ apply exists_ini_pt_nat in Hini.
+ destruct Hini as (j, (αj, Hini)).
+ remember Hns as Hfin; clear HeqHfin.
+ apply exists_fin_pt_nat in Hfin.
+ destruct Hfin as (k, (αk, Hfin)).
+ remember Hns₁ as Hini₁; clear HeqHini₁.
+ apply exists_ini_pt_nat_fst_seg in Hini₁.
+ destruct Hini₁ as (j₁, (αj₁, Hini₁)).
+ remember Hns₁ as Hfin₁; clear HeqHfin₁.
+ apply exists_fin_pt_nat_fst_seg in Hfin₁.
+ destruct Hfin₁ as (k₁, (αk₁, Hfin₁)).
+ remember Hns as H; clear HeqH.
+ eapply r_1_j_0_k_1 in H; try eassumption.
+  destruct H as (Hj₁, (Hk₁, (Hαj₁, (Hαk₁, Hoth₁)))).
+  subst j₁ k₁.
+  unfold Qeq in Hαk₁; simpl in Hαk₁.
+  rewrite Z.mul_1_r in Hαk₁.
+  unfold root_when_r_1; simpl.
+  rewrite Hini, Hfin, Hini₁, Hfin₁; simpl.
+  rewrite Hαk₁.
+  rewrite Z.mul_0_l, Z.add_0_r.
+  rewrite Z.mul_1_r, Pos.mul_1_r.
+  rewrite Qnum_inv; simpl.
+   rewrite Z.mul_1_r.
 bbb.
 
 Lemma uuu : ∀ pol ns n,
@@ -1354,38 +1412,6 @@ destruct (ps_zerop R (List.hd 0%ps la₁)) as [Hz| Hnz].
   rewrite Hps; reflexivity.
 bbb.
 *)
-
-Lemma exists_ini_pt_nat_fst_seg : ∀ pol ns,
-  ns = List.hd phony_ns (newton_segments pol)
-  → ∃ i αi, ini_pt ns = (Qnat i, αi).
-Proof.
-intros pol ns Hns.
-remember (newton_segments pol) as nsl eqn:Hnsl .
-symmetry in Hnsl.
-destruct nsl as [| ns₁].
- subst ns; simpl.
- exists 0%nat, 0; reflexivity.
-
- simpl in Hns; subst ns₁.
- eapply exists_ini_pt_nat with (pol := pol).
- rewrite Hnsl; left; reflexivity.
-Qed.
-
-Lemma exists_fin_pt_nat_fst_seg : ∀ pol ns,
-  ns = List.hd phony_ns (newton_segments pol)
-  → ∃ i αi, fin_pt ns = (Qnat i, αi).
-Proof.
-intros pol ns Hns.
-remember (newton_segments pol) as nsl eqn:Hnsl .
-symmetry in Hnsl.
-destruct nsl as [| ns₁].
- subst ns; simpl.
- exists 0%nat, 0; reflexivity.
-
- simpl in Hns; subst ns₁.
- eapply exists_fin_pt_nat with (pol := pol).
- rewrite Hnsl; left; reflexivity.
-Qed.
 
 Lemma zzz : ∀ pol ns c₁ ps pol₁,
   ns ∈ newton_segments pol
