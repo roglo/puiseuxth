@@ -1155,14 +1155,14 @@ Fixpoint root_tail n pol ns :=
       let c₁ := ac_root (Φq pol ns) in
       let pol₁ := next_pol pol (β ns) (γ ns) c₁ in
       let ns₁ := List.hd phony_ns (newton_segments pol₁) in
-      (ps_monom 1%K (γ ns) * (ps_monom c₁ 0 + root_tail n₁ pol₁ ns₁))%ps
+      root_tail n₁ pol₁ ns₁
   end.
 
 Lemma ttt : ∀ pol ns n,
   ns ∈ newton_segments pol
   → (root_tail n pol ns =
-     ps_monom 1%K (nth_γ (S n) pol ns) *
-       (ps_monom (nth_c (S n) pol ns) 0 + root_tail (S n) pol ns))%ps.
+     ps_monom 1%K (nth_γ n pol ns) *
+       (ps_monom (nth_c n pol ns) 0 + root_tail (S n) pol ns))%ps.
 Proof.
 intros pol ns n Hns.
 revert pol ns Hns.
