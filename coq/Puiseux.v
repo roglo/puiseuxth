@@ -1068,9 +1068,6 @@ Definition root_when_r_1 pol ns :=
 
 (* *)
 
-Definition root_head_term n pol ns i :=
-  find_coeff n 0%nat (Qden (γ ns)) pol ns i.
-
 Fixpoint root_head n pol ns :=
   match n with
   | 0%nat => 0%ps
