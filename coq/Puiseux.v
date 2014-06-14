@@ -1068,17 +1068,6 @@ Definition root_when_r_1 pol ns :=
 
 (* *)
 
-Fixpoint root_head n pol ns :=
-  match n with
-  | 0%nat => 0%ps
-  | S n₁ =>
-      let c₁ := ac_root (Φq pol ns) in
-      let pol₁ := next_pol pol (β ns) (γ ns) c₁ in
-      let ns₁ := List.hd phony_ns (newton_segments pol₁) in
-      let y₁ := root_head n₁ pol₁ ns₁ in
-      (ps_monom c₁ (γ ns) + ps_monom 1%K (γ ns) * y₁)%ps
-  end.
-
 Fixpoint nth_pol n pol ns :=
   match n with
   | 0%nat => pol
@@ -1118,6 +1107,16 @@ Fixpoint nth_γ n pol ns :=
       let ns₁ := List.hd phony_ns (newton_segments pol₁) in
       nth_γ n₁ pol₁ ns₁
   end.
+
+Definition γ_sum n pol ns :=
+  let qr := Q_ring in
+  Σ (i = 0, n), nth_γ i pol ns.
+
+Definition root_head n pol ns :=
+  let pr := ps_ring R in
+  Σ (i = 0, n), ps_monom (nth_c i pol ns) (γ_sum i pol ns).
+
+bbb.
 
 Lemma uuu : ∀ pol ns n,
   let qr := Q_ring in
