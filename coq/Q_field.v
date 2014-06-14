@@ -46,3 +46,5 @@ Definition Q_ring :=
      fld_inv := Qinv;
      rng_mul_inv_l := Qmul_inv_l
 *)
+
+Canonical Structure Q_ring.

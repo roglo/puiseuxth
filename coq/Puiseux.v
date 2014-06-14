@@ -26,6 +26,7 @@ Require Import CharactPolyn.
 Require Import F1Eq.
 Require Import PosOrder.
 Require Import F1Prop.
+Require Import Q_field.
 
 Set Implicit Arguments.
 
@@ -1121,19 +1122,24 @@ Fixpoint nth_γ n pol ns :=
       nth_γ n₁ pol₁ ns₁
   end.
 
-Require Import Q_field.
-
 Lemma uuu : ∀ pol ns n,
   let qr := Q_ring in
   (root_head (S n) pol ns =
    root_head n pol ns +
-   ps_monom (nth_c n pol ns) (Σ (i = 1, n), nth_γ i pol ns))%ps.
+   ps_monom (nth_c n pol ns) (Σ (i = 0, n), nth_γ i pol ns))%ps.
 Proof.
 intros pol ns n qr.
 revert pol ns.
 induction n; intros.
  simpl.
  unfold summation; simpl.
+ rewrite ps_mul_0_r, ps_add_0_r, ps_add_0_l, rng_add_0_r.
+ reflexivity.
+
+ remember (S n) as n₁; simpl; subst n₁.
+ remember (ac_root (Φq pol ns)) as c₁ eqn:Hc₁ .
+ remember (next_pol pol (β ns) (γ ns) c₁) as pol₁ eqn:Hpol₁ .
+ remember (List.hd phony_ns (newton_segments pol₁)) as ns₁ eqn:Hns₁ .
 bbb.
 
 Lemma vvv : ∀ pol ns n,
