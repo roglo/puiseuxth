@@ -1081,22 +1081,38 @@ Fixpoint root_head n pol ns :=
       (ps_monom c₁ (γ ns) + ps_monom 1%K (γ ns) * y₁)%ps
   end.
 
-Fixpoint root_tail n pol ns :=
+Fixpoint nth_pol n pol ns :=
   match n with
-  | 0%nat => root_when_r_1 pol ns
+  | 0%nat => pol
   | S n₁ =>
       let c₁ := ac_root (Φq pol ns) in
       let pol₁ := next_pol pol (β ns) (γ ns) c₁ in
       let ns₁ := List.hd phony_ns (newton_segments pol₁) in
-      root_tail n₁ pol₁ ns₁
+      nth_pol n₁ pol₁ ns₁
+  end.
+
+Fixpoint nth_ns n pol ns :=
+  match n with
+  | 0%nat => ns
+  | S n₁ =>
+      let c₁ := ac_root (Φq pol ns) in
+      let pol₁ := next_pol pol (β ns) (γ ns) c₁ in
+      let ns₁ := List.hd phony_ns (newton_segments pol₁) in
+      nth_ns n₁ pol₁ ns₁
   end.
 
 Lemma vvv : ∀ pol ns n,
-  (root_when_r_1 pol ns = root_head n pol ns + root_tail n pol ns)%ps.
+  (root_when_r_1 pol ns =
+   root_head n pol ns +
+   root_when_r_1 (nth_pol n pol ns) (nth_ns n pol ns))%ps.
 Proof.
 intros pol ns n.
 revert pol ns.
 induction n; intros; [ rewrite ps_add_0_l; reflexivity | idtac ].
+remember (root_head (S n)) as x; simpl; subst x.
+remember (next_pol pol (β ns) (γ ns) (ac_root (Φq pol ns))) as pol₁.
+rename Heqpol₁ into Hpol₁.
+remember (List.hd phony_ns (newton_segments pol₁)) as ns₁ eqn:Hns₁ .
 bbb.
 
 (*
