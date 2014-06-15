@@ -1326,7 +1326,7 @@ induction n; intros.
             destruct (lt_dec 0 c) as [Hcp| Hcnp]; [ idtac | reflexivity ].
             apply IHd, le_Sn_le; assumption.
 
-          simpl.
+          apply Nat.nlt_ge in H.
 bbb.
 
 Lemma uuu : ∀ pol ns n,
