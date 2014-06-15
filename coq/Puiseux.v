@@ -1311,6 +1311,22 @@ induction n; intros.
            destruct (lt_dec 0 c) as [Hcp| ]; [ idtac | reflexivity ].
            rewrite Hini, Hfin; simpl.
            rewrite <- Hc₁, <- Hpol₁, <- Hns₁, <- Heqdd.
+           clear.
+           remember c as d.
+           rewrite Heqd in |- * at 2.
+           assert (d ≤ c)%nat as Hd by (subst c; reflexivity).
+           clear Heqd.
+           revert c pol₁ ns₁ Hd.
+           induction d; intros; [ reflexivity | idtac ].
+           remember 0%nat as x; simpl; subst x.
+           destruct (eq_nat_dec 0 c) as [Hc| Hc].
+            subst c.
+            exfalso; revert Hd; apply Nat.nle_succ_0.
+
+            destruct (lt_dec 0 c) as [Hcp| Hcnp]; [ idtac | reflexivity ].
+            apply IHd, le_Sn_le; assumption.
+
+          simpl.
 bbb.
 
 Lemma uuu : ∀ pol ns n,
