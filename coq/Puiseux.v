@@ -1328,6 +1328,21 @@ induction n; intros.
 
           apply Nat.nlt_ge in H.
 bbb.
+          unfold root_term_when_r_1.
+          destruct (zerop (c mod Pos.to_nat (Qden (γ ns)))) as [H₁| H₁].
+           apply Nat.mod_divides in H₁; auto.
+           destruct H₁ as (m, Hm).
+           destruct
+            (zerop ((d - Z.to_nat nd₁) mod Pos.to_nat (Qden (γ ns₁))))
+            as [H₁| H₁].
+            apply Nat.mod_divides in H₁; auto.
+            destruct H₁ as (n, Hn).
+            remember (d - Z.to_nat nd₁)%nat as dn.
+            Focus 1.
+            remember 0%nat as x; simpl.
+            rewrite Hini, Hfin, Hini₁, Hfin₁; simpl; subst x.
+            rewrite <- Hc₁, <- Hpol₁, <- Hns₁, <- Heqdd.
+bbb.
 
 Lemma uuu : ∀ pol ns n,
   let qr := Q_ring in
