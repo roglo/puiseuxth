@@ -1282,6 +1282,28 @@ induction n; intros.
          rewrite <- He.
          destruct (lt_dec d (Z.to_nat nd₁)) as [H| H].
           rewrite He, Heqnd₁, Heqdn₁ in H.
+          unfold root_term_when_r_1.
+          remember 0%nat as z.
+          simpl.
+          subst z.
+          destruct (eq_nat_dec 0 c) as [Hcz| Hcnz].
+           subst c.
+           simpl in Hc.
+           subst i.
+           apply Nat.eq_mul_0 in Hc.
+           destruct Hc as [Hc| Hc].
+            subst d.
+            apply Nat.eq_mul_0 in Hc.
+            destruct Hc as [Hc| Hc].
+             subst e; exfalso; revert Henz; apply Nat.lt_irrefl.
+
+             exfalso; revert Hc; apply Pos2Nat_ne_0.
+
+            exfalso; revert Hc; apply Pos2Nat_ne_0.
+
+           destruct (lt_dec 0 c) as [Hcp| ]; [ idtac | reflexivity ].
+           rewrite Hini, Hfin; simpl.
+           rewrite <- Hc₁, <- Hpol₁, <- Hns₁, <- Heqdd.
 bbb.
 
 Lemma uuu : ∀ pol ns n,
