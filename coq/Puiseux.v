@@ -1194,8 +1194,17 @@ induction n; intros.
   rewrite Hαk₁.
   rewrite Z.mul_0_l, Z.add_0_r.
   rewrite Z.mul_1_r, Pos.mul_1_r.
-  rewrite Qnum_inv; simpl.
-   rewrite Z.mul_1_r.
+  unfold ps_mul; simpl.
+  unfold cm; simpl.
+  unfold cm; simpl.
+  rewrite Hini, Hfin; simpl.
+  unfold ps_ordnum_add; simpl.
+  rewrite Z.mul_1_r.
+  remember (Qden αj * Qden αk * Qden (/ (Qnat k - Qnat j)))%positive as dd.
+  remember (Qnum αj * ' Qden αk + - Qnum αk * ' Qden αj)%Z as nd.
+  remember (nd * Qnum (/ (Qnat k - Qnat j)))%Z as ndn.
+  rewrite ps_adjust_eq with (n := O) (k := (Qden αj₁ * Qden αk₁)%positive).
+  unfold adjust_ps; simpl.
 bbb.
 
 Lemma uuu : ∀ pol ns n,
