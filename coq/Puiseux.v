@@ -1320,7 +1320,22 @@ induction n; intros.
             apply IHd, le_Sn_le; assumption.
 
           apply Nat.nlt_ge in H.
+          subst nd₁ dn₁ dd.
+          subst i; rewrite He in Hd.
+          rewrite Nat.mul_shuffle0 in Hd.
+          apply Nat.mul_cancel_r in Hd; auto.
+          rewrite <- Z2Nat.inj_pos in Hd.
+          rewrite Pos2Z.inj_mul in Hd.
+          rewrite Qden_inv in Hd.
+           rewrite Z2Nat.inj_mul in Hd.
+            simpl in Hd.
+            do 2 rewrite Z.mul_1_r in Hd.
+            rewrite Z.add_opp_r in Hd.
+            rewrite Z2Nat.inj_sub in Hd.
+             do 2 rewrite Nat2Z.id in Hd.
 bbb.
+
+          apply Nat.nlt_ge in H.
           unfold root_term_when_r_1.
           destruct (zerop (c mod Pos.to_nat (Qden (γ ns)))) as [H₁| H₁].
            apply Nat.mod_divides in H₁; auto.
