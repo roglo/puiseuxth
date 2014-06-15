@@ -1091,7 +1091,9 @@ Fixpoint find_coeff max_iter pow pol_ord pol ns i :=
   end.
 
 Definition root_term_when_r_1 pol ns i :=
-  find_coeff (S i) 0%nat (Qden (γ ns)) pol ns i.
+  if zerop (i mod Pos.to_nat (Qden (γ ns))) then
+    find_coeff (S i) 0%nat (Qden (γ ns)) pol ns i
+  else 0%K.
 
 Definition root_when_r_1 pol ns :=
   {| ps_terms := {| terms := root_term_when_r_1 pol ns |};
@@ -1251,6 +1253,9 @@ induction n; intros.
          apply Nat.mul_eq_0_l in Hd; auto.
          subst c.
          unfold root_term_when_r_1 at 1; simpl.
+         rewrite Hini, Hfin; simpl.
+         rewrite <- Heqdd.
+         rewrite Nat.mod_0_l; auto; simpl.
          destruct (lt_dec 0 (Z.to_nat nd₁)) as [H| H].
           rewrite Hc₁, rng_add_0_r; reflexivity.
 
@@ -1283,6 +1288,8 @@ induction n; intros.
          destruct (lt_dec d (Z.to_nat nd₁)) as [H| H].
           rewrite He, Heqnd₁, Heqdn₁ in H.
           unfold root_term_when_r_1.
+          destruct (zerop (c mod Pos.to_nat (Qden (γ ns)))) as [H₁| H₁];
+            [ idtac | reflexivity ].
           remember 0%nat as z.
           simpl.
           subst z.
