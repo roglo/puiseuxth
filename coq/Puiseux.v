@@ -1189,6 +1189,8 @@ induction n; intros.
   subst j₁ k₁.
   unfold Qeq in Hαk₁; simpl in Hαk₁.
   rewrite Z.mul_1_r in Hαk₁.
+  unfold Qlt in Hαj₁; simpl in Hαj₁.
+  rewrite Z.mul_1_r in Hαj₁.
   unfold root_when_r_1; simpl.
   rewrite Hini, Hfin, Hini₁, Hfin₁; simpl.
   rewrite Hαk₁.
@@ -1209,6 +1211,77 @@ induction n; intros.
   rewrite Z.min_l.
    rewrite Z.mul_0_l, Z.add_0_r.
    apply mkps_morphism; try reflexivity.
+   rewrite stretch_series_1.
+   rewrite series_mul_1_l.
+   unfold ps_terms_add; simpl.
+   rewrite Z.mul_1_r.
+   rewrite Z.min_l.
+    rewrite Z.min_r.
+     simpl.
+     rewrite Z.sub_0_r.
+     unfold adjust_series; simpl.
+     rewrite series_shift_0.
+     rewrite series_stretch_1.
+     unfold series_add; simpl.
+     remember (Qnum αj₁ * ' Qden αk₁)%Z as nd₁.
+     remember (Qden αj₁ * Qden αk₁)%positive as dn₁.
+     unfold series_stretch; simpl.
+     constructor; intros i; simpl.
+     destruct (zerop (i mod Pos.to_nat dn₁)) as [H₁| H₁].
+      Focus 1.
+      apply Nat.mod_divides in H₁; auto.
+      destruct H₁ as (c, Hc).
+      rewrite Nat.mul_comm in Hc; rewrite Hc.
+      rewrite Nat.div_mul; auto.
+      rewrite <- Hc.
+      destruct (zerop (i mod Pos.to_nat dd)) as [H| H].
+       apply Nat.mod_divides in H; auto.
+       destruct H as (d, Hd).
+       rewrite Nat.mul_comm in Hd; rewrite Hd.
+       rewrite Nat.div_mul; auto.
+       destruct (zerop (d mod Pos.to_nat dn₁)) as [H| H].
+        apply Nat.mod_divides in H; auto.
+        destruct H as (e, He).
+        rewrite Nat.mul_comm in He; rewrite He.
+        rewrite Nat.div_mul; auto.
+        destruct (zerop e) as [Hez| Henz].
+         subst e; simpl.
+         simpl in He; subst d.
+         simpl in Hd; subst i.
+         apply Nat.mul_eq_0_l in Hd; auto.
+         subst c.
+         unfold root_term_when_r_1 at 1; simpl.
+         destruct (lt_dec 0 (Z.to_nat nd₁)) as [H| H].
+          rewrite Hc₁, rng_add_0_r; reflexivity.
+
+          destruct (Z_zerop nd₁) as [Hz| Hnz].
+           symmetry in Heqnd₁.
+           rewrite Hz in Heqnd₁.
+           apply Z.eq_mul_0 in Heqnd₁.
+           clear H.
+           destruct Heqnd₁ as [H| H].
+            unfold Qlt in Hαj₁; simpl in Hαj₁.
+            rewrite H in Hαj₁.
+            exfalso; revert Hαj₁; apply Z.lt_irrefl.
+
+            exfalso; revert H; apply Pos2Z_ne_0.
+
+           rewrite Heqnd₁ in H.
+           exfalso; apply H.
+           rewrite <- Z2Nat.inj_0.
+           apply Z2Nat.inj_lt; [ reflexivity | idtac | idtac ].
+            apply Z.mul_nonneg_nonneg.
+             apply Z.lt_le_incl; assumption.
+
+             apply Pos2Z.is_nonneg.
+
+            apply Z.mul_pos_pos; [ assumption | idtac ].
+            apply Pos2Z.is_pos.
+
+         rewrite rng_add_0_l.
+         rewrite <- He.
+         destruct (lt_dec d (Z.to_nat nd₁)) as [H| H].
+          rewrite He, Heqnd₁, Heqdn₁ in H.
 bbb.
 
 Lemma uuu : ∀ pol ns n,
