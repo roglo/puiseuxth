@@ -1205,6 +1205,10 @@ induction n; intros.
   remember (nd * Qnum (/ (Qnat k - Qnat j)))%Z as ndn.
   rewrite ps_adjust_eq with (n := O) (k := (Qden αj₁ * Qden αk₁)%positive).
   unfold adjust_ps; simpl.
+  rewrite series_shift_0, Z.sub_0_r.
+  rewrite Z.min_l.
+   rewrite Z.mul_0_l, Z.add_0_r.
+   apply mkps_morphism; try reflexivity.
 bbb.
 
 Lemma uuu : ∀ pol ns n,
