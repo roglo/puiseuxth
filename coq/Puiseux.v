@@ -1155,8 +1155,10 @@ Definition root_tail n pol ns :=
 
 Lemma sss : ∀ pol ns n,
   ns ∈ newton_segments pol
-  → (root_head n pol ns + root_tail n pol ns =
-     root_head (S n) pol ns + root_tail (S n) pol ns)%ps.
+  → (root_head n pol ns +
+       ps_monom 1%K (γ_sum n pol ns) * root_tail n pol ns =
+     root_head (S n) pol ns +
+       ps_monom 1%K (γ_sum (S n) pol ns) * root_tail (S n) pol ns)%ps.
 Proof.
 intros pol ns n Hns.
 revert pol ns Hns.
@@ -1167,12 +1169,13 @@ induction n; intros.
  remember (ac_root (Φq pol ns)) as c₁ eqn:Hc₁ .
  remember (next_pol pol (β ns) (γ ns) c₁) as pol₁ eqn:Hpol₁ .
  remember (List.hd phony_ns (newton_segments pol₁)) as ns₁ eqn:Hns₁ .
+ rewrite <- rng_add_assoc; simpl.
+ apply rng_add_compat_l.
  unfold γ_sum; simpl.
  unfold summation; simpl.
  rewrite rng_add_0_r.
  rewrite rng_add_0_r.
- rewrite <- Hc₁, <- Hpol₁, <- Hns₁, <- rng_add_assoc.
- apply rng_add_compat_l.
+ rewrite <- Hc₁, <- Hpol₁, <- Hns₁.
  remember (ac_root (Φq pol₁ ns₁)) as c₂ eqn:Hc₂ .
 bbb.
 
