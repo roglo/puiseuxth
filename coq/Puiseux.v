@@ -1194,10 +1194,30 @@ induction n; intros.
   rewrite Hαk₁.
   rewrite Z.mul_0_l, Z.add_0_r.
   rewrite Z.mul_1_r, Pos.mul_1_r.
+  rewrite Z.mul_opp_l, Z.add_opp_r.
   unfold ps_mul; simpl.
   unfold cm; simpl.
   unfold cm; simpl.
   rewrite Hini₁, Hfin₁; simpl.
+  rewrite Hαk₁.
+  rewrite Z.mul_0_l, Z.add_0_r.
+  rewrite Z.mul_1_r, Pos.mul_1_r.
+  unfold ps_ordnum_add; simpl.
+  rewrite Z.mul_1_r.
+  rewrite Qnum_inv; simpl.
+   rewrite Z.mul_1_r.
+   rewrite Z.min_l.
+    rewrite Z.mul_0_l, Z.add_0_r.
+    remember (Qden αj * Qden αk)%positive as djk.
+    remember (Qden αj₁ * Qden αk₁)%positive as djk₁.
+    remember (Qden (/ (Qnat k - Qnat j))) as dkj.
+    rewrite ps_adjust_eq with (n := O) (k := (djk₁ * djk₁)%positive).
+    unfold adjust_ps; simpl.
+    rewrite series_shift_0, Z.sub_0_r.
+    symmetry.
+    rewrite ps_adjust_eq with (n := O) (k := (djk * dkj)%positive).
+    unfold adjust_ps; simpl.
+    rewrite series_shift_0, Z.sub_0_r.
 bbb.
 
 intros pol ns n Hns.
