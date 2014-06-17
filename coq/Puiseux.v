@@ -1154,8 +1154,10 @@ CoFixpoint root_stream pol ns :=
   let ns₁ := List.hd phony_ns (newton_segments pol₁) in
   Streams.Cons (c₁, γ ns) (root_stream pol₁ ns₁).
 
+(*
 Definition nth_ps_of_ps_stream strm n :=
   ...
+*)
 
 Definition root_head n pol ns :=
   let pr := ps_ring R in
@@ -1164,7 +1166,9 @@ Definition root_head n pol ns :=
 Definition root_tail n pol ns :=
   root_when_r_1 (nth_pol n pol ns) (nth_ns n pol ns).
 
-Lemma sss : ∀ pol ns n, (order (root_tail n pol ns) = ∞)%Qbar.
+(*
+Lemma sss : ∀ pol ns n,
+  (order (root_tail (S n) pol ns) = ∞)%Qbar.
 Proof.
 intros pol ns n.
 bbb.
@@ -1191,6 +1195,7 @@ destruct n.
   Focus 2.
   destruct (lt_dec 0 v) as [Hvp| Hvn]; [ idtac | reflexivity ].
 bbb.
+*)
 
 Lemma ttt : ∀ pol ns n,
   ns ∈ newton_segments pol
