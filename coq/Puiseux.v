@@ -1146,12 +1146,48 @@ Definition γ_sum n pol ns :=
   let qr := Q_ring in
   Σ (i = 0, n), nth_γ i pol ns.
 
+Require Streams.
+
+CoFixpoint root_stream pol ns :=
+  let c₁ := ac_root (Φq pol ns) in
+  let pol₁ := next_pol pol (β ns) (γ ns) c₁ in
+  let ns₁ := List.hd phony_ns (newton_segments pol₁) in
+  Streams.Cons (c₁, γ ns) (root_stream pol₁ ns₁).
+
 Definition root_head n pol ns :=
   let pr := ps_ring R in
   Σ (i = 0, n), ps_monom (nth_c i pol ns) (γ_sum i pol ns).
 
 Definition root_tail n pol ns :=
   root_when_r_1 (nth_pol n pol ns) (nth_ns n pol ns).
+
+Lemma sss : ∀ pol ns n, (order (root_tail n pol ns) = ∞)%Qbar.
+Proof.
+intros pol ns n.
+bbb.
+unfold order.
+remember (ps_terms (root_tail n pol ns)) as s eqn:Hs .
+remember (null_coeff_range_length R s 0) as v eqn:Hv .
+symmetry in Hv.
+destruct v as [v| ]; [ exfalso | reflexivity ].
+apply null_coeff_range_length_iff in Hv.
+unfold null_coeff_range_length_prop in Hv.
+simpl in Hv.
+destruct Hv as (Hvi, Hv).
+apply Hv; clear Hv.
+subst s; simpl.
+destruct n.
+ simpl.
+ simpl in Hvi.
+ unfold root_term_when_r_1.
+ remember (Pos.to_nat (Qden (γ ns))) as po eqn:Hpo .
+ destruct (zerop (v mod po)) as [Hv| ]; [ idtac | reflexivity ].
+ remember 0%nat as z; simpl; subst z.
+ destruct (eq_nat_dec 0 v) as [Hvz| Hvnz].
+  clear v Hvi Hv Hvz.
+  Focus 2.
+  destruct (lt_dec 0 v) as [Hvp| Hvn]; [ idtac | reflexivity ].
+bbb.
 
 Lemma ttt : ∀ pol ns n,
   ns ∈ newton_segments pol
