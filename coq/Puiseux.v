@@ -1197,6 +1197,7 @@ destruct n.
 bbb.
 *)
 
+(*
 Lemma ttt : ∀ pol ns n,
   ns ∈ newton_segments pol
   → (root_tail n pol ns =
@@ -1479,6 +1480,7 @@ bbb.
             rewrite Hini, Hfin, Hini₁, Hfin₁; simpl; subst x.
             rewrite <- Hc₁, <- Hpol₁, <- Hns₁, <- Heqdd.
 bbb.
+*)
 
 Lemma uuu₂ : ∀ pol ns n,
   ns ∈ newton_segments pol
