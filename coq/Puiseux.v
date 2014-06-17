@@ -1211,13 +1211,36 @@ induction n; intros.
     remember (Qden αj * Qden αk)%positive as djk.
     remember (Qden αj₁ * Qden αk₁)%positive as djk₁.
     remember (Qden (/ (Qnat k - Qnat j))) as dkj.
-    rewrite ps_adjust_eq with (n := O) (k := (djk₁ * djk₁)%positive).
-    unfold adjust_ps; simpl.
-    rewrite series_shift_0, Z.sub_0_r.
-    symmetry.
-    rewrite ps_adjust_eq with (n := O) (k := (djk * dkj)%positive).
-    unfold adjust_ps; simpl.
-    rewrite series_shift_0, Z.sub_0_r.
+    remember (Qnum αj * ' Qden αk - Qnum αk * ' Qden αj)%Z as o1.
+    remember (Qnum αj₁ * ' Qden αk₁ * ' djk₁)%Z as o2.
+    remember (o1 * ' (djk₁ * djk₁))%Z as o1dd.
+    remember (o2 * ' (djk * dkj))%Z as o2dd.
+    destruct (Z_lt_dec o1dd o2dd) as [Hoo| Hoo].
+     Focus 1.
+     remember (Z.to_nat (o2dd - o1dd)) as doo.
+     rewrite ps_adjust_eq with (n := O) (k := (djk₁ * djk₁)%positive).
+     unfold adjust_ps; simpl.
+     symmetry.
+     rewrite ps_adjust_eq with (n := doo) (k := (djk * dkj)%positive).
+     unfold adjust_ps; simpl.
+     rewrite series_shift_0, Z.sub_0_r.
+     subst doo.
+     rewrite Z2Nat.id.
+      subst o1dd o2dd.
+      rewrite Z.sub_sub_distr.
+      rewrite Z.sub_diag, Z.add_0_l.
+      apply mkps_morphism; try reflexivity.
+       rewrite stretch_series_1, series_mul_1_l.
+       rewrite <- series_stretch_stretch.
+       unfold ps_terms_add; simpl.
+       rewrite Z.mul_1_r.
+       rewrite Z.min_l.
+        rewrite Z.min_r.
+         simpl.
+         rewrite Z.sub_0_r.
+         unfold adjust_series; simpl.
+         rewrite series_shift_0.
+         rewrite series_stretch_1.
 bbb.
 
 intros pol ns n Hns.
