@@ -1154,11 +1154,6 @@ CoFixpoint root_stream pol ns :=
   let ns₁ := List.hd phony_ns (newton_segments pol₁) in
   Streams.Cons (c₁, γ ns) (root_stream pol₁ ns₁).
 
-(*
-Definition nth_ps_of_ps_stream strm n :=
-  ...
-*)
-
 Definition root_head n pol ns :=
   let pr := ps_ring R in
   Σ (i = 0, n), ps_monom (nth_c i pol ns) (γ_sum i pol ns).
