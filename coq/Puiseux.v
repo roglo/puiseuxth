@@ -1028,6 +1028,48 @@ revert Hnneg Hpos Hz Hpts; clear; intros.
       contradiction.
 Qed.
 
+(* *)
+
+Fixpoint nth_pol n pol ns :=
+  match n with
+  | 0%nat => pol
+  | S n₁ =>
+      let c₁ := ac_root (Φq pol ns) in
+      let pol₁ := next_pol pol (β ns) (γ ns) c₁ in
+      let ns₁ := List.hd phony_ns (newton_segments pol₁) in
+      nth_pol n₁ pol₁ ns₁
+  end.
+
+Fixpoint nth_ns n pol ns :=
+  match n with
+  | 0%nat => ns
+  | S n₁ =>
+      let c₁ := ac_root (Φq pol ns) in
+      let pol₁ := next_pol pol (β ns) (γ ns) c₁ in
+      let ns₁ := List.hd phony_ns (newton_segments pol₁) in
+      nth_ns n₁ pol₁ ns₁
+  end.
+
+Fixpoint nth_c n pol ns :=
+  match n with
+  | 0%nat => ac_root (Φq pol ns)
+  | S n₁ =>
+      let c₁ := ac_root (Φq pol ns) in
+      let pol₁ := next_pol pol (β ns) (γ ns) c₁ in
+      let ns₁ := List.hd phony_ns (newton_segments pol₁) in
+      nth_c n₁ pol₁ ns₁
+  end.
+
+Fixpoint nth_γ n pol ns :=
+  match n with
+  | 0%nat => γ ns
+  | S n₁ =>
+      let c₁ := ac_root (Φq pol ns) in
+      let pol₁ := next_pol pol (β ns) (γ ns) c₁ in
+      let ns₁ := List.hd phony_ns (newton_segments pol₁) in
+      nth_γ n₁ pol₁ ns₁
+  end.
+
 Definition same_r pol ns :=
   let c₁ := ac_root (Φq pol ns) in
   let r₁ := root_multiplicity acf c₁ (Φq pol ns) in
@@ -1100,59 +1142,9 @@ Definition root_when_r_1 pol ns :=
      ps_ordnum := Qnum (γ ns);
      ps_polord := Qden (γ ns) |}.
 
-(* *)
-
-Fixpoint nth_pol n pol ns :=
-  match n with
-  | 0%nat => pol
-  | S n₁ =>
-      let c₁ := ac_root (Φq pol ns) in
-      let pol₁ := next_pol pol (β ns) (γ ns) c₁ in
-      let ns₁ := List.hd phony_ns (newton_segments pol₁) in
-      nth_pol n₁ pol₁ ns₁
-  end.
-
-Fixpoint nth_ns n pol ns :=
-  match n with
-  | 0%nat => ns
-  | S n₁ =>
-      let c₁ := ac_root (Φq pol ns) in
-      let pol₁ := next_pol pol (β ns) (γ ns) c₁ in
-      let ns₁ := List.hd phony_ns (newton_segments pol₁) in
-      nth_ns n₁ pol₁ ns₁
-  end.
-
-Fixpoint nth_c n pol ns :=
-  match n with
-  | 0%nat => ac_root (Φq pol ns)
-  | S n₁ =>
-      let c₁ := ac_root (Φq pol ns) in
-      let pol₁ := next_pol pol (β ns) (γ ns) c₁ in
-      let ns₁ := List.hd phony_ns (newton_segments pol₁) in
-      nth_c n₁ pol₁ ns₁
-  end.
-
-Fixpoint nth_γ n pol ns :=
-  match n with
-  | 0%nat => γ ns
-  | S n₁ =>
-      let c₁ := ac_root (Φq pol ns) in
-      let pol₁ := next_pol pol (β ns) (γ ns) c₁ in
-      let ns₁ := List.hd phony_ns (newton_segments pol₁) in
-      nth_γ n₁ pol₁ ns₁
-  end.
-
 Definition γ_sum n pol ns :=
   let qr := Q_ring in
   Σ (i = 0, n), nth_γ i pol ns.
-
-Require Streams.
-
-CoFixpoint root_stream pol ns :=
-  let c₁ := ac_root (Φq pol ns) in
-  let pol₁ := next_pol pol (β ns) (γ ns) c₁ in
-  let ns₁ := List.hd phony_ns (newton_segments pol₁) in
-  Streams.Cons (c₁, γ ns) (root_stream pol₁ ns₁).
 
 Definition root_head n pol ns :=
   let pr := ps_ring R in
