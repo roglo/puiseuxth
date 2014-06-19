@@ -1370,6 +1370,8 @@ induction n; intros.
              rewrite Z2Nat.inj_sub in Hd.
               do 2 rewrite Nat2Z.id in Hd.
               remember (d - Z.to_nat (Qnum αj₁ * ' Qden αk₁))%nat as m eqn:Hm .
+Focus 1.
+bbb.
               unfold root_term_when_r_1.
               destruct (zerop (c mod Pos.to_nat (Qden (γ ns)))) as [H₁| H₁].
                apply Nat.mod_divides in H₁.
