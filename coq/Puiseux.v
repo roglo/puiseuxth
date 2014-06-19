@@ -1160,6 +1160,41 @@ Lemma sss : ∀ pol ns n,
      ps_monom 1%K (γ_sum n pol ns) * root_tail (S n) pol ns)%ps.
 Proof.
 intros pol ns n Hns.
+revert pol ns Hns.
+induction n; intros.
+ unfold root_head, γ_sum; simpl.
+ unfold summation; simpl.
+ do 2 rewrite rng_add_0_r.
+ unfold root_tail; simpl.
+ remember (ac_root (Φq pol ns)) as c₁ eqn:Hc₁ .
+ remember (next_pol pol (β ns) (γ ns) c₁) as pol₁ eqn:Hpol₁ .
+ remember (List.hd phony_ns (newton_segments pol₁)) as ns₁ eqn:Hns₁ .
+ remember Hns as Hini; clear HeqHini.
+ apply exists_ini_pt_nat in Hini.
+ destruct Hini as (j, (αj, Hini)).
+ remember Hns as Hfin; clear HeqHfin.
+ apply exists_fin_pt_nat in Hfin.
+ destruct Hfin as (k, (αk, Hfin)).
+ remember Hns₁ as Hini₁; clear HeqHini₁.
+ apply exists_ini_pt_nat_fst_seg in Hini₁.
+ destruct Hini₁ as (j₁, (αj₁, Hini₁)).
+ remember Hns₁ as Hfin₁; clear HeqHfin₁.
+ apply exists_fin_pt_nat_fst_seg in Hfin₁.
+ destruct Hfin₁ as (k₁, (αk₁, Hfin₁)).
+ assert (j < k)%nat as Hjk.
+  eapply j_lt_k; try eassumption.
+   rewrite Hini; simpl; rewrite nat_num_Qnat; reflexivity.
+
+   rewrite Hfin; simpl; rewrite nat_num_Qnat; reflexivity.
+
+  remember Hns as H; clear HeqH.
+  eapply r_1_j_0_k_1 in H; try eassumption.
+   destruct H as (Hj₁, (Hk₁, (Hαj₁, (Hαk₁, Hoth₁)))).
+   subst j₁ k₁.
+   unfold Qeq in Hαk₁; simpl in Hαk₁.
+   rewrite Z.mul_1_r in Hαk₁.
+   unfold Qlt in Hαj₁; simpl in Hαj₁.
+   rewrite Z.mul_1_r in Hαj₁.
 bbb.
 
 Lemma ttt : ∀ pol ns n,
