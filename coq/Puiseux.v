@@ -1250,8 +1250,45 @@ induction n; intros.
         simpl.
         rewrite <- stretch_shift_series_distr.
         rewrite <- series_stretch_stretch.
+        unfold series_add; simpl.
+        unfold series_stretch; simpl.
+        constructor; intros i; simpl.
+        remember (dd * (Qden αj₁ * Qden αk₁))%positive as ddd.
+        destruct (zerop (i mod Pos.to_nat ddd)) as [H₁| H₁].
+         apply Nat.mod_divides in H₁; auto.
+         destruct H₁ as (c, Hc).
+         rewrite Nat.mul_comm in Hc.
+         rewrite Hc.
+         rewrite Nat.div_mul; auto.
+         rewrite <- Hc.
+         destruct (zerop i) as [H₁| H₁].
+          move H₁ at top; subst i.
+          rewrite Nat.mod_0_l; auto; simpl.
+          rewrite Nat.div_0_l; auto; simpl.
+          symmetry in Hc.
+          apply Nat.eq_mul_0_l in Hc; auto.
+          subst c; simpl.
+          destruct (lt_dec 0 (Z.to_nat (Qnum αj₁ * ' Qden αk₁))) as [H₁| H₁].
+           rewrite rng_add_0_r.
+           unfold root_series_from_cγ_list; simpl.
+           rewrite Nat.mod_0_l; auto; simpl.
+           rewrite Hc₁; reflexivity.
+
+           exfalso; apply H₁.
+           rewrite <- Z2Nat.inj_0.
+           apply Z2Nat.inj_lt; [ reflexivity | idtac | idtac ].
+            apply Z.mul_nonneg_nonneg.
+             apply Z.lt_le_incl; assumption.
+
+             apply Pos2Z.is_nonneg.
+
+            apply Z.mul_pos_pos; [ assumption | idtac ].
+            apply Pos2Z.is_pos.
+
+          rewrite rng_add_0_l.
 bbb.
 
+(* not required if previous lemma works *)
 Lemma ttt : ∀ pol ns n,
   ns ∈ newton_segments pol
   → (root_tail n pol ns =
