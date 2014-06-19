@@ -1295,6 +1295,37 @@ induction n; intros.
           rewrite Nat.div_0_l; auto.
           unfold root_series_from_cγ_list; simpl.
           rewrite Nat.mod_0_l; auto; simpl.
+          rewrite Hc₁; reflexivity.
+
+          rewrite <- Hc.
+          destruct (zerop (i mod Pos.to_nat dd₁)) as [H₃| H₃].
+           apply Nat.mod_divides in H₃; auto.
+           destruct H₃ as (d, Hd).
+           rewrite Nat.mul_comm in Hd; rewrite Hd.
+           rewrite Nat.div_mul; auto.
+           unfold root_series_from_cγ_list.
+           destruct (zerop (d mod Pos.to_nat (Qden (γ ns)))) as [H₃| H₃].
+            remember O as z; simpl; subst z.
+            apply Nat.mod_divides in H₃; auto.
+            destruct H₃ as (e, He).
+            destruct (eq_nat_dec 0 d) as [H₃| H₃].
+             move H₃ at top; subst d.
+             simpl in Hd.
+             move Hd at top; subst i.
+             symmetry in Hc.
+             apply Nat.eq_mul_0_l in Hc; auto.
+             move Hc at top; subst c.
+             exfalso; revert H₂; apply Nat.lt_irrefl.
+
+             destruct (lt_dec 0 d) as [H₄| ]; [ idtac | reflexivity ].
+             rewrite find_coeff_le; reflexivity.
+
+            reflexivity.
+
+           reflexivity.
+
+         apply Nat.nlt_ge in H₁.
+         rewrite <- Hc.
 bbb.
 
 intros pol ns n Hns.
