@@ -1293,6 +1293,19 @@ induction n; intros.
            rewrite Hd.
            rewrite Nat.div_mul; auto; simpl.
            destruct (lt_dec d (Z.to_nat (Qnum αj₁ * ' Qden αk₁))) as [H₂| H₂].
+            subst ddd.
+            unfold root_series_from_cγ_list.
+            destruct (zerop (c mod Pos.to_nat (Qden (γ ns)))) as [H₃| H₃].
+             remember O as z; simpl; subst z.
+             rewrite Hini, Hfin, <- Hc₁, <- Hpol₁, <- Hns₁.
+             remember O as z; simpl; subst z.
+             rewrite <- Heqdd.
+             destruct (eq_nat_dec 0 c) as [H₄| H₄].
+              rewrite <- H₄ in Hc; simpl in Hc.
+              rewrite Hc in H₁.
+              exfalso; revert H₁; apply Nat.lt_irrefl.
+
+              destruct (lt_dec 0 c) as [H₅| H₅].
 bbb.
 
 (* not required if previous lemma works *)
