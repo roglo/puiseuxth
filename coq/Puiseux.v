@@ -1236,7 +1236,7 @@ induction n; intros.
    rewrite Z.mul_1_r in Hαk₁.
    unfold Qlt in Hαj₁; simpl in Hαj₁.
    rewrite Z.mul_1_r in Hαj₁.
-   unfold root_when_r_1; simpl.
+   unfold root_from_cγ_list; simpl.
    rewrite Hini, Hfin, Hini₁, Hfin₁; simpl.
    rewrite Hαk₁.
    rewrite Z.mul_0_l, Z.add_0_r.
@@ -1294,7 +1294,7 @@ induction n; intros.
           simpl in Hd; subst i.
           apply Nat.mul_eq_0_l in Hd; auto.
           subst c.
-          unfold root_term_when_r_1 at 1; simpl.
+          unfold root_series_from_cγ_list at 1; simpl.
           rewrite Hini, Hfin; simpl.
           rewrite <- Heqdd.
           rewrite Nat.mod_0_l; auto; simpl.
@@ -1329,7 +1329,7 @@ induction n; intros.
           rewrite <- He.
           destruct (lt_dec d (Z.to_nat nd₁)) as [H| H].
            rewrite He, Heqnd₁, Heqdn₁ in H.
-           unfold root_term_when_r_1.
+           unfold root_series_from_cγ_list.
            destruct (zerop (c mod Pos.to_nat (Qden (γ ns)))) as [H₁| H₁];
             [ idtac | reflexivity ].
            remember 0%nat as z.
