@@ -1379,6 +1379,9 @@ induction n; intros.
                clear H₂.
                subst i.
                subst dd₁ nd₁ dd.
+               apply Nat.mod_divides in H₅; auto.
+               destruct H₅ as (e, He).
+               subst d.
 bbb.
 
 intros pol ns n Hns.
