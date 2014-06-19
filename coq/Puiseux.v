@@ -1276,6 +1276,24 @@ induction n; intros.
        remember (Qnum αj₁ * ' Qden αk₁)%Z as nd₁.
        rewrite <- series_stretch_add_distr.
        rewrite <- series_stretch_stretch.
+       rewrite series_stretch_stretch.
+       rewrite series_stretch_stretch.
+       apply stretch_morph; [ reflexivity | idtac ].
+       unfold series_stretch; simpl.
+       constructor; simpl; intros i.
+       destruct (zerop (i mod Pos.to_nat dd)) as [H₁| H₁].
+        apply Nat.mod_divides in H₁; auto.
+        destruct H₁ as (c, Hc).
+        rewrite Nat.mul_comm in Hc; rewrite Hc.
+        rewrite Nat.div_mul; auto.
+        destruct (lt_dec c (Z.to_nat nd₁)) as [H₁| H₁].
+         rewrite rng_add_0_l.
+         destruct (zerop c) as [H₂| H₂].
+          move H₂ at top; subst c; simpl.
+          rewrite Nat.mod_0_l; auto; simpl.
+          rewrite Nat.div_0_l; auto.
+          unfold root_series_from_cγ_list; simpl.
+          rewrite Nat.mod_0_l; auto; simpl.
 bbb.
 
 intros pol ns n Hns.
