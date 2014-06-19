@@ -1326,6 +1326,25 @@ induction n; intros.
              reflexivity.
 
             apply Nat.nlt_ge in H₂.
+            remember (d - Z.to_nat (Qnum αj₁ * ' Qden αk₁))%nat as m eqn:Hm .
+            unfold root_series_from_cγ_list.
+            destruct (zerop (c mod Pos.to_nat (Qden (γ ns)))) as [H₃| H₃].
+             apply Nat.mod_divides in H₃; auto.
+             destruct H₃ as (e, He).
+             destruct (zerop (m mod Pos.to_nat (Qden (γ ns₁)))) as [H₃| H₃].
+              apply Nat.mod_divides in H₃; auto.
+              destruct H₃ as (p, Hp).
+              remember O as z; simpl; subst z.
+              destruct (eq_nat_dec 0 c) as [H₃| H₃].
+               rewrite <- H₃ in Hc.
+               simpl in Hc.
+               rewrite Hc in H₁.
+               exfalso; revert H₁; apply Nat.lt_irrefl.
+
+               destruct (lt_dec 0 c) as [H₄| H₄].
+                rewrite find_coeff_le; [ idtac | reflexivity ].
+                destruct (eq_nat_dec 0 m) as [H₅| H₅].
+                 move H₅ at top; subst m.
 bbb.
 
 (* not required if previous lemma works *)
