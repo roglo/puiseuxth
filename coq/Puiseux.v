@@ -1153,6 +1153,21 @@ Definition root_head n pol ns :=
 Definition root_tail n pol ns :=
   root_from_cγ_list (nth_pol n pol ns) (nth_ns n pol ns).
 
+Lemma find_coeff_le: ∀ pol nc po m i,
+  (m ≤ i)%nat
+  → find_coeff m 0 po pol nc i = 0%K.
+Proof.
+intros pol nc po m i Him.
+revert pol nc i Him.
+induction m; intros; [ reflexivity | idtac ].
+remember O as z; simpl; subst z.
+destruct (eq_nat_dec 0 i) as [H₁| H₁].
+ exfalso; fast_omega Him H₁.
+
+ destruct (lt_dec 0 i) as [H₂| H₂]; [ idtac | reflexivity ].
+ apply IHm; omega.
+Qed.
+
 Lemma sss : ∀ pol ns n,
   ns ∈ newton_segments pol
   → (root_tail 0 pol ns =
@@ -1305,7 +1320,12 @@ induction n; intros.
               rewrite Hc in H₁.
               exfalso; revert H₁; apply Nat.lt_irrefl.
 
-              destruct (lt_dec 0 c) as [H₅| H₅].
+              destruct (lt_dec 0 c) as [H₅| H₅]; [ idtac | reflexivity ].
+              rewrite find_coeff_le; reflexivity.
+
+             reflexivity.
+
+            apply Nat.nlt_ge in H₂.
 bbb.
 
 (* not required if previous lemma works *)
