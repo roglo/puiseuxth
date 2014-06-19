@@ -1195,7 +1195,6 @@ induction n; intros.
    rewrite Z.mul_1_r in Hαk₁.
    unfold Qlt in Hαj₁; simpl in Hαj₁.
    rewrite Z.mul_1_r in Hαj₁.
-   Focus 1.
    unfold root_from_cγ_list; simpl.
    rewrite Hini, Hfin, Hini₁, Hfin₁; simpl.
    rewrite Hαk₁.
@@ -1234,6 +1233,23 @@ induction n; intros.
       rewrite Z.sub_0_r.
       rewrite series_shift_0.
       apply mkps_morphism; try reflexivity.
+      subst dddd.
+      rewrite Z.mul_add_distr_r.
+      rewrite Z.mul_shuffle0.
+      rewrite <- Z.mul_assoc, <- Pos2Z.inj_mul.
+      rewrite Z.add_simpl_l.
+      rewrite Z2Nat.inj_mul.
+       simpl.
+       rewrite <- stretch_shift_series_distr.
+       rewrite fold_series_const.
+       rewrite fold_series_const.
+       rewrite stretch_series_const.
+       rewrite stretch_series_const.
+       rewrite series_mul_1_l.
+       rewrite Z2Nat.inj_mul.
+        simpl.
+        rewrite <- stretch_shift_series_distr.
+        rewrite <- series_stretch_stretch.
 bbb.
 
 Lemma ttt : ∀ pol ns n,
