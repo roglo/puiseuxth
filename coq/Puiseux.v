@@ -1326,6 +1326,53 @@ induction n; intros.
 
          apply Nat.nlt_ge in H₁.
          rewrite <- Hc.
+         destruct (zerop c) as [H₂| H₂].
+          move H₂ at top; subst c.
+          apply Nat.le_0_r in H₁.
+          rewrite Heqnd₁ in H₁.
+          rewrite Z2Nat.inj_mul in H₁.
+           simpl in H₁.
+           apply Nat.mul_eq_0_l in H₁; auto.
+           rewrite <- Z2Nat.inj_0 in H₁.
+           apply Z2Nat.inj in H₁.
+            rewrite H₁ in Hαj₁.
+            exfalso; revert Hαj₁; apply Z.lt_irrefl.
+
+            apply Z.lt_le_incl; assumption.
+
+            reflexivity.
+
+           apply Z.lt_le_incl; assumption.
+
+           apply Pos2Z.is_nonneg.
+
+          destruct (zerop (i mod Pos.to_nat dd₁)) as [H₃| H₃].
+           apply Nat.mod_divides in H₃; auto.
+           destruct H₃ as (d, H₃).
+           rewrite Nat.mul_comm in H₃; rewrite H₃.
+           rewrite Nat.div_mul; auto.
+           rewrite rng_add_0_r.
+           unfold root_series_from_cγ_list.
+           remember (c - Z.to_nat nd₁)%nat as e.
+           destruct (zerop (e mod Pos.to_nat (Qden (γ ns₁)))) as [H₄| H₄].
+            destruct (zerop (d mod Pos.to_nat (Qden (γ ns)))) as [H₅| H₅].
+             remember O as z; simpl; subst z.
+             rewrite Hini, Hfin, Hini₁, Hfin₁.
+             remember O as z; simpl; subst z.
+             rewrite find_coeff_le; [ idtac | reflexivity ].
+             rewrite find_coeff_le; [ idtac | reflexivity ].
+             destruct (eq_nat_dec 0 e) as [H₆| H₆].
+              move H₆ at top; subst e.
+              destruct (eq_nat_dec 0 d) as [H₆| H₆].
+               move H₆ at top; subst d.
+               simpl in H₃.
+               move H₃ at top; subst i.
+               symmetry in Hc.
+               apply Nat.mul_eq_0_l in Hc; auto.
+               move Hc at top; subst c.
+               exfalso; revert H₂; apply Nat.lt_irrefl.
+
+               clear H₄.
 bbb.
 
 intros pol ns n Hns.
