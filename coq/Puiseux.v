@@ -1373,6 +1373,12 @@ induction n; intros.
                exfalso; revert H₂; apply Nat.lt_irrefl.
 
                clear H₄.
+               assert (c = Z.to_nat nd₁) as Hcc by fast_omega H₁ Heqe.
+               clear H₁ Heqe.
+               move Hcc at top; subst c.
+               clear H₂.
+               subst i.
+               subst dd₁ nd₁ dd.
 bbb.
 
 intros pol ns n Hns.
