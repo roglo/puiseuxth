@@ -1260,7 +1260,6 @@ induction n; intros.
       unfold series_stretch; simpl.
       constructor; intros i; simpl.
       destruct (zerop (i mod Pos.to_nat dn₁)) as [H₁| H₁].
-       Focus 1.
        apply Nat.mod_divides in H₁; auto.
        destruct H₁ as (c, Hc).
        rewrite Nat.mul_comm in Hc; rewrite Hc.
@@ -1377,7 +1376,6 @@ induction n; intros.
                 destruct H₁ as (p, Hp).
                 destruct (zerop (m mod Pos.to_nat (Qden (γ ns₁))))
                  as [H₂| H₂].
-                 Focus 1.
                  apply Nat.mod_divides in H₂; auto.
                  destruct H₂ as (q, Hq).
                  remember 0%nat as z; simpl; subst z.
@@ -1397,6 +1395,11 @@ induction n; intros.
                    intros HH.
                    apply Nat.eq_mul_0_l in HH; [ idtac | fast_omega Hjk ].
                    revert HH; apply Pos2Nat_ne_0.
+
+                  Focus 1.
+                  destruct (lt_dec 0 c) as [H₂| H₂].
+                   destruct (eq_nat_dec 0 m) as [H₃| H₃].
+                    move H₃ at top; subst m.
 bbb.
 
              Focus 2.
