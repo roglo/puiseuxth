@@ -1209,161 +1209,194 @@ induction n; intros.
  remember Hns₁ as Hfin₁; clear HeqHfin₁.
  apply exists_fin_pt_nat_fst_seg in Hfin₁.
  destruct Hfin₁ as (k₁, (αk₁, Hfin₁)).
- remember Hns as H; clear HeqH.
- eapply r_1_j_0_k_1 in H; try eassumption.
-  destruct H as (Hj₁, (Hk₁, (Hαj₁, (Hαk₁, Hoth₁)))).
-  subst j₁ k₁.
-  unfold Qeq in Hαk₁; simpl in Hαk₁.
-  rewrite Z.mul_1_r in Hαk₁.
-  unfold Qlt in Hαj₁; simpl in Hαj₁.
-  rewrite Z.mul_1_r in Hαj₁.
-  unfold root_when_r_1; simpl.
-  rewrite Hini, Hfin, Hini₁, Hfin₁; simpl.
-  rewrite Hαk₁.
-  rewrite Z.mul_0_l, Z.add_0_r.
-  rewrite Z.mul_1_r, Pos.mul_1_r.
-  unfold ps_mul; simpl.
-  unfold cm; simpl.
-  unfold cm; simpl.
-  rewrite Hini, Hfin; simpl.
-  unfold ps_ordnum_add; simpl.
-  rewrite Z.mul_1_r.
-  remember (Qden αj * Qden αk * Qden (/ (Qnat k - Qnat j)))%positive as dd.
-  remember (Qnum αj * ' Qden αk + - Qnum αk * ' Qden αj)%Z as nd.
-  remember (nd * Qnum (/ (Qnat k - Qnat j)))%Z as ndn.
-  rewrite ps_adjust_eq with (n := O) (k := (Qden αj₁ * Qden αk₁)%positive).
-  unfold adjust_ps; simpl.
-  rewrite series_shift_0, Z.sub_0_r.
-  rewrite Z.min_l.
+ assert (j < k)%nat as Hjk.
+  eapply j_lt_k; try eassumption.
+   rewrite Hini; simpl; rewrite nat_num_Qnat; reflexivity.
+
+   rewrite Hfin; simpl; rewrite nat_num_Qnat; reflexivity.
+
+  remember Hns as H; clear HeqH.
+  eapply r_1_j_0_k_1 in H; try eassumption.
+   destruct H as (Hj₁, (Hk₁, (Hαj₁, (Hαk₁, Hoth₁)))).
+   subst j₁ k₁.
+   unfold Qeq in Hαk₁; simpl in Hαk₁.
+   rewrite Z.mul_1_r in Hαk₁.
+   unfold Qlt in Hαj₁; simpl in Hαj₁.
+   rewrite Z.mul_1_r in Hαj₁.
+   unfold root_when_r_1; simpl.
+   rewrite Hini, Hfin, Hini₁, Hfin₁; simpl.
+   rewrite Hαk₁.
    rewrite Z.mul_0_l, Z.add_0_r.
-   apply mkps_morphism; try reflexivity.
-   rewrite stretch_series_1.
-   rewrite series_mul_1_l.
-   unfold ps_terms_add; simpl.
+   rewrite Z.mul_1_r, Pos.mul_1_r.
+   unfold ps_mul; simpl.
+   unfold cm; simpl.
+   unfold cm; simpl.
+   rewrite Hini, Hfin; simpl.
+   unfold ps_ordnum_add; simpl.
    rewrite Z.mul_1_r.
+   remember (Qden αj * Qden αk * Qden (/ (Qnat k - Qnat j)))%positive as dd.
+   remember (Qnum αj * ' Qden αk + - Qnum αk * ' Qden αj)%Z as nd.
+   remember (nd * Qnum (/ (Qnat k - Qnat j)))%Z as ndn.
+   rewrite ps_adjust_eq with (n := O) (k := (Qden αj₁ * Qden αk₁)%positive).
+   unfold adjust_ps; simpl.
+   rewrite series_shift_0, Z.sub_0_r.
    rewrite Z.min_l.
-    rewrite Z.min_r.
-     simpl.
-     rewrite Z.sub_0_r.
-     unfold adjust_series; simpl.
-     rewrite series_shift_0.
-     rewrite series_stretch_1.
-     unfold series_add; simpl.
-     remember (Qnum αj₁ * ' Qden αk₁)%Z as nd₁.
-     remember (Qden αj₁ * Qden αk₁)%positive as dn₁.
-     unfold series_stretch; simpl.
-     constructor; intros i; simpl.
-     destruct (zerop (i mod Pos.to_nat dn₁)) as [H₁| H₁].
-      Focus 1.
-      apply Nat.mod_divides in H₁; auto.
-      destruct H₁ as (c, Hc).
-      rewrite Nat.mul_comm in Hc; rewrite Hc.
-      rewrite Nat.div_mul; auto.
-      rewrite <- Hc.
-      destruct (zerop (i mod Pos.to_nat dd)) as [H| H].
-       apply Nat.mod_divides in H; auto.
-       destruct H as (d, Hd).
-       rewrite Nat.mul_comm in Hd; rewrite Hd.
+    rewrite Z.mul_0_l, Z.add_0_r.
+    apply mkps_morphism; try reflexivity.
+    rewrite stretch_series_1.
+    rewrite series_mul_1_l.
+    unfold ps_terms_add; simpl.
+    rewrite Z.mul_1_r.
+    rewrite Z.min_l.
+     rewrite Z.min_r.
+      simpl.
+      rewrite Z.sub_0_r.
+      unfold adjust_series; simpl.
+      rewrite series_shift_0.
+      rewrite series_stretch_1.
+      unfold series_add; simpl.
+      remember (Qnum αj₁ * ' Qden αk₁)%Z as nd₁.
+      remember (Qden αj₁ * Qden αk₁)%positive as dn₁.
+      unfold series_stretch; simpl.
+      constructor; intros i; simpl.
+      destruct (zerop (i mod Pos.to_nat dn₁)) as [H₁| H₁].
+       Focus 1.
+       apply Nat.mod_divides in H₁; auto.
+       destruct H₁ as (c, Hc).
+       rewrite Nat.mul_comm in Hc; rewrite Hc.
        rewrite Nat.div_mul; auto.
-       destruct (zerop (d mod Pos.to_nat dn₁)) as [H| H].
+       rewrite <- Hc.
+       destruct (zerop (i mod Pos.to_nat dd)) as [H| H].
         apply Nat.mod_divides in H; auto.
-        destruct H as (e, He).
-        rewrite Nat.mul_comm in He; rewrite He.
+        destruct H as (d, Hd).
+        rewrite Nat.mul_comm in Hd; rewrite Hd.
         rewrite Nat.div_mul; auto.
-        destruct (zerop e) as [Hez| Henz].
-         subst e; simpl.
-         simpl in He; subst d.
-         simpl in Hd; subst i.
-         apply Nat.mul_eq_0_l in Hd; auto.
-         subst c.
-         unfold root_term_when_r_1 at 1; simpl.
-         rewrite Hini, Hfin; simpl.
-         rewrite <- Heqdd.
-         rewrite Nat.mod_0_l; auto; simpl.
-         destruct (lt_dec 0 (Z.to_nat nd₁)) as [H| H].
-          rewrite Hc₁, rng_add_0_r; reflexivity.
+        destruct (zerop (d mod Pos.to_nat dn₁)) as [H| H].
+         apply Nat.mod_divides in H; auto.
+         destruct H as (e, He).
+         rewrite Nat.mul_comm in He; rewrite He.
+         rewrite Nat.div_mul; auto.
+         destruct (zerop e) as [Hez| Henz].
+          subst e; simpl.
+          simpl in He; subst d.
+          simpl in Hd; subst i.
+          apply Nat.mul_eq_0_l in Hd; auto.
+          subst c.
+          unfold root_term_when_r_1 at 1; simpl.
+          rewrite Hini, Hfin; simpl.
+          rewrite <- Heqdd.
+          rewrite Nat.mod_0_l; auto; simpl.
+          destruct (lt_dec 0 (Z.to_nat nd₁)) as [H| H].
+           rewrite Hc₁, rng_add_0_r; reflexivity.
 
-          destruct (Z_zerop nd₁) as [Hz| Hnz].
-           symmetry in Heqnd₁.
-           rewrite Hz in Heqnd₁.
-           apply Z.eq_mul_0 in Heqnd₁.
-           clear H.
-           destruct Heqnd₁ as [H| H].
-            unfold Qlt in Hαj₁; simpl in Hαj₁.
-            rewrite H in Hαj₁.
-            exfalso; revert Hαj₁; apply Z.lt_irrefl.
+           destruct (Z_zerop nd₁) as [Hz| Hnz].
+            symmetry in Heqnd₁.
+            rewrite Hz in Heqnd₁.
+            apply Z.eq_mul_0 in Heqnd₁.
+            clear H.
+            destruct Heqnd₁ as [H| H].
+             unfold Qlt in Hαj₁; simpl in Hαj₁.
+             rewrite H in Hαj₁.
+             exfalso; revert Hαj₁; apply Z.lt_irrefl.
 
-            exfalso; revert H; apply Pos2Z_ne_0.
+             exfalso; revert H; apply Pos2Z_ne_0.
 
-           rewrite Heqnd₁ in H.
-           exfalso; apply H.
-           rewrite <- Z2Nat.inj_0.
-           apply Z2Nat.inj_lt; [ reflexivity | idtac | idtac ].
-            apply Z.mul_nonneg_nonneg.
-             apply Z.lt_le_incl; assumption.
+            rewrite Heqnd₁ in H.
+            exfalso; apply H.
+            rewrite <- Z2Nat.inj_0.
+            apply Z2Nat.inj_lt; [ reflexivity | idtac | idtac ].
+             apply Z.mul_nonneg_nonneg.
+              apply Z.lt_le_incl; assumption.
 
-             apply Pos2Z.is_nonneg.
+              apply Pos2Z.is_nonneg.
 
-            apply Z.mul_pos_pos; [ assumption | idtac ].
-            apply Pos2Z.is_pos.
+             apply Z.mul_pos_pos; [ assumption | idtac ].
+             apply Pos2Z.is_pos.
 
-         rewrite rng_add_0_l.
-         rewrite <- He.
-         destruct (lt_dec d (Z.to_nat nd₁)) as [H| H].
-          rewrite He, Heqnd₁, Heqdn₁ in H.
-          unfold root_term_when_r_1.
-          destruct (zerop (c mod Pos.to_nat (Qden (γ ns)))) as [H₁| H₁];
+          rewrite rng_add_0_l.
+          rewrite <- He.
+          destruct (lt_dec d (Z.to_nat nd₁)) as [H| H].
+           rewrite He, Heqnd₁, Heqdn₁ in H.
+           unfold root_term_when_r_1.
+           destruct (zerop (c mod Pos.to_nat (Qden (γ ns)))) as [H₁| H₁];
             [ idtac | reflexivity ].
-          remember 0%nat as z.
-          simpl.
-          subst z.
-          destruct (eq_nat_dec 0 c) as [Hcz| Hcnz].
-           subst c.
-           simpl in Hc.
-           subst i.
-           apply Nat.eq_mul_0 in Hc.
-           destruct Hc as [Hc| Hc].
-            subst d.
+           remember 0%nat as z.
+           simpl.
+           subst z.
+           destruct (eq_nat_dec 0 c) as [Hcz| Hcnz].
+            subst c.
+            simpl in Hc.
+            subst i.
             apply Nat.eq_mul_0 in Hc.
             destruct Hc as [Hc| Hc].
-             subst e; exfalso; revert Henz; apply Nat.lt_irrefl.
+             subst d.
+             apply Nat.eq_mul_0 in Hc.
+             destruct Hc as [Hc| Hc].
+              subst e; exfalso; revert Henz; apply Nat.lt_irrefl.
+
+              exfalso; revert Hc; apply Pos2Nat_ne_0.
 
              exfalso; revert Hc; apply Pos2Nat_ne_0.
 
-            exfalso; revert Hc; apply Pos2Nat_ne_0.
+            destruct (lt_dec 0 c) as [Hcp| ]; [ idtac | reflexivity ].
+            rewrite Hini, Hfin; simpl.
+            rewrite <- Hc₁, <- Hpol₁, <- Hns₁, <- Heqdd.
+            clear.
+            remember c as d.
+            rewrite Heqd in |- * at 2.
+            assert (d ≤ c)%nat as Hd by (subst c; reflexivity).
+            clear Heqd.
+            revert c pol₁ ns₁ Hd.
+            induction d; intros; [ reflexivity | idtac ].
+            remember 0%nat as x; simpl; subst x.
+            destruct (eq_nat_dec 0 c) as [Hc| Hc].
+             subst c.
+             exfalso; revert Hd; apply Nat.nle_succ_0.
 
-           destruct (lt_dec 0 c) as [Hcp| ]; [ idtac | reflexivity ].
-           rewrite Hini, Hfin; simpl.
-           rewrite <- Hc₁, <- Hpol₁, <- Hns₁, <- Heqdd.
-           clear.
-           remember c as d.
-           rewrite Heqd in |- * at 2.
-           assert (d ≤ c)%nat as Hd by (subst c; reflexivity).
-           clear Heqd.
-           revert c pol₁ ns₁ Hd.
-           induction d; intros; [ reflexivity | idtac ].
-           remember 0%nat as x; simpl; subst x.
-           destruct (eq_nat_dec 0 c) as [Hc| Hc].
-            subst c.
-            exfalso; revert Hd; apply Nat.nle_succ_0.
+             destruct (lt_dec 0 c) as [Hcp| Hcnp]; [ idtac | reflexivity ].
+             apply IHd, le_Sn_le; assumption.
 
-            destruct (lt_dec 0 c) as [Hcp| Hcnp]; [ idtac | reflexivity ].
-            apply IHd, le_Sn_le; assumption.
+           apply Nat.nlt_ge in H.
+           subst nd₁ dn₁ dd.
+           subst i; rewrite He in Hd.
+           rewrite Nat.mul_shuffle0 in Hd.
+           apply Nat.mul_cancel_r in Hd; auto.
+           rewrite <- Z2Nat.inj_pos in Hd.
+           rewrite Pos2Z.inj_mul in Hd.
+           rewrite Qden_inv in Hd.
+            rewrite Z2Nat.inj_mul in Hd.
+             simpl in Hd.
+             do 2 rewrite Z.mul_1_r in Hd.
+             rewrite Z.add_opp_r in Hd.
+             rewrite Z2Nat.inj_sub in Hd.
+              do 2 rewrite Nat2Z.id in Hd.
+              remember (d - Z.to_nat (Qnum αj₁ * ' Qden αk₁))%nat as m eqn:Hm .
+              unfold root_term_when_r_1.
+              destruct (zerop (c mod Pos.to_nat (Qden (γ ns)))) as [H₁| H₁].
+               apply Nat.mod_divides in H₁.
+                destruct H₁ as (p, Hp).
+                destruct (zerop (m mod Pos.to_nat (Qden (γ ns₁))))
+                 as [H₂| H₂].
+                 Focus 1.
+                 apply Nat.mod_divides in H₂; auto.
+                 destruct H₂ as (q, Hq).
+                 remember 0%nat as z; simpl; subst z.
+                 remember (ac_root (Φq pol₁ ns₁)) as c₂ eqn:Hc₂ .
+                 remember (next_pol pol₁ (β ns₁) (γ ns₁) c₂) as pol₂
+                  eqn:Hpol₂ .
+                 remember (List.hd phony_ns (newton_segments pol₂)) as ns₂
+                  eqn:Hns₂ .
+                 rewrite <- Hc₁, <- Hpol₁, <- Hns₁, Hini, Hfin, Hini₁, Hfin₁.
+                 remember 0%nat as z; simpl; subst z.
+                 destruct (eq_nat_dec 0 c) as [H₁| H₁].
+                  move H₁ at top; subst c.
+                  symmetry in Hd.
+                  apply Nat.eq_mul_0_l in Hd; auto.
+                   exfalso; subst e; revert Henz; apply Nat.lt_irrefl.
 
-          apply Nat.nlt_ge in H.
-          subst nd₁ dn₁ dd.
-          subst i; rewrite He in Hd.
-          rewrite Nat.mul_shuffle0 in Hd.
-          apply Nat.mul_cancel_r in Hd; auto.
-          rewrite <- Z2Nat.inj_pos in Hd.
-          rewrite Pos2Z.inj_mul in Hd.
-          rewrite Qden_inv in Hd.
-           rewrite Z2Nat.inj_mul in Hd.
-            simpl in Hd.
-            do 2 rewrite Z.mul_1_r in Hd.
-            rewrite Z.add_opp_r in Hd.
-            rewrite Z2Nat.inj_sub in Hd.
-             do 2 rewrite Nat2Z.id in Hd.
+                   intros HH.
+                   apply Nat.eq_mul_0_l in HH; [ idtac | fast_omega Hjk ].
+                   revert HH; apply Pos2Nat_ne_0.
 bbb.
 
              Focus 2.
