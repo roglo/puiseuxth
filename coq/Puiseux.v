@@ -1121,8 +1121,9 @@ Fixpoint find_coeff max_iter pow pol_ord pol ns i :=
   match max_iter with
   | 0%nat => 0%K
   | S m =>
-      if lt_dec pow i then
-        let c₁ := ac_root (Φq pol ns) in
+      let c₁ := ac_root (Φq pol ns) in
+      if eq_nat_dec pow i then c₁
+      else if lt_dec pow i then
         let γ₁ := snd (ini_pt ns) in
         let pow₁ := (pow + nat_num (Qred (γ₁ * inject_Z ('pol_ord))))%nat in
         let pol₁ := next_pol pol (β ns) (γ ns) c₁ in
