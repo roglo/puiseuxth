@@ -1121,9 +1121,8 @@ Fixpoint find_coeff max_iter pow pol_ord pol ns i :=
   match max_iter with
   | 0%nat => 0%K
   | S m =>
-      let c₁ := ac_root (Φq pol ns) in
-      if eq_nat_dec pow i then c₁
-      else if lt_dec pow i then
+      if lt_dec pow i then
+        let c₁ := ac_root (Φq pol ns) in
         let γ₁ := snd (ini_pt ns) in
         let pow₁ := (pow + nat_num (Qred (γ₁ * inject_Z ('pol_ord))))%nat in
         let pol₁ := next_pol pol (β ns) (γ ns) c₁ in
@@ -1268,6 +1267,30 @@ induction n; intros.
         unfold series_add; simpl.
         unfold series_stretch; simpl.
         constructor; intros i; simpl.
+(**)
+        Focus 1.
+        remember (dd * (Qden αj₁ * Qden αk₁))%positive as ddd.
+        destruct (zerop (i mod Pos.to_nat ddd)) as [H₁| H₁].
+         Focus 1.
+         apply Nat.mod_divides in H₁; auto.
+         destruct H₁ as (c, Hc).
+         rewrite Nat.mul_comm in Hc.
+         rewrite Hc.
+         rewrite Nat.div_mul; auto.
+         rewrite <- Hc.
+         destruct (zerop i) as [H₁| H₁].
+          Focus 1.
+          move H₁ at top; subst i.
+          rewrite Nat.mod_0_l; auto; simpl.
+          rewrite Nat.div_0_l; auto; simpl.
+          symmetry in Hc.
+          apply Nat.eq_mul_0_l in Hc; auto.
+          subst c; simpl.
+          destruct (lt_dec 0 (Z.to_nat (Qnum αj₁ * ' Qden αk₁))) as [H₁| H₁].
+           rewrite rng_add_0_r.
+           unfold root_series_from_cγ_list; simpl.
+           rewrite Nat.mod_0_l; auto; simpl.
+bbb.
         remember (dd * (Qden αj₁ * Qden αk₁))%positive as ddd.
         destruct (zerop (i mod Pos.to_nat ddd)) as [H₁| H₁].
          apply Nat.mod_divides in H₁; auto.
