@@ -1132,13 +1132,13 @@ Fixpoint find_coeff max_iter pow pol_ord pol ns i :=
       else 0%K
   end.
 
-Definition root_term_when_r_1 pol ns i :=
+Definition root_series_from_cγ_list pol ns i :=
   if zerop (i mod Pos.to_nat (Qden (γ ns))) then
     find_coeff (S i) 0%nat (Qden (γ ns)) pol ns i
   else 0%K.
 
-Definition root_when_r_1 pol ns :=
-  {| ps_terms := {| terms := root_term_when_r_1 pol ns |};
+Definition root_from_cγ_list pol ns :=
+  {| ps_terms := {| terms := root_series_from_cγ_list pol ns |};
      ps_ordnum := Qnum (γ ns);
      ps_polord := Qden (γ ns) |}.
 
@@ -1151,7 +1151,7 @@ Definition root_head n pol ns :=
   Σ (i = 0, n), ps_monom (nth_c i pol ns) (γ_sum i pol ns).
 
 Definition root_tail n pol ns :=
-  root_when_r_1 (nth_pol n pol ns) (nth_ns n pol ns).
+  root_from_cγ_list (nth_pol n pol ns) (nth_ns n pol ns).
 
 Lemma sss : ∀ pol ns n,
   ns ∈ newton_segments pol
