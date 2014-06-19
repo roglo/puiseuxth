@@ -1286,6 +1286,13 @@ induction n; intros.
             apply Pos2Z.is_pos.
 
           rewrite rng_add_0_l.
+          destruct (zerop (i mod Pos.to_nat (dd * dd))) as [H₂| H₂].
+           apply Nat.mod_divides in H₂; auto; simpl.
+           destruct H₂ as (d, Hd).
+           rewrite Nat.mul_comm in Hd.
+           rewrite Hd.
+           rewrite Nat.div_mul; auto; simpl.
+           destruct (lt_dec d (Z.to_nat (Qnum αj₁ * ' Qden αk₁))) as [H₂| H₂].
 bbb.
 
 (* not required if previous lemma works *)
