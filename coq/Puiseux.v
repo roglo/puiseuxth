@@ -1207,7 +1207,6 @@ induction n; intros.
   rewrite Z.mul_1_r in Hαj.
   unfold Qeq in Hαk; simpl in Hαk.
   rewrite Z.mul_1_r in Hαk.
-  Focus 1.
   unfold root_from_cγ_list; simpl.
   rewrite Hini, Hfin, Hini₁, Hfin₁; simpl.
   rewrite Hαk, Hαk₁.
@@ -1252,6 +1251,31 @@ induction n; intros.
      rewrite Z.sub_0_r.
      apply mkps_morphism; try reflexivity.
      rewrite series_shift_0.
+     rewrite Z.mul_add_distr_r.
+     rewrite Z.mul_shuffle0.
+     rewrite <- Z.mul_assoc, <- Pos2Z.inj_mul.
+     rewrite Z.add_simpl_l.
+     rewrite Z2Nat.inj_mul.
+      simpl.
+      rewrite <- stretch_shift_series_distr.
+      rewrite fold_series_const.
+      rewrite fold_series_const.
+      rewrite stretch_series_const.
+      rewrite stretch_series_const.
+      symmetry.
+      rewrite <- stretch_series_const with (k := dd).
+      rewrite <- series_stretch_add_distr.
+      rewrite series_add_comm.
+      rewrite <- stretch_series_const with (k := dd).
+      rewrite <- series_stretch_mul.
+      rewrite series_mul_1_l.
+      rewrite Z2Nat.inj_mul.
+       simpl.
+       rewrite <- stretch_shift_series_distr.
+       rewrite <- stretch_series_const with (k := dd).
+       remember (Qnum αj₁ * ' Qden αk₁)%Z as nd₁.
+       rewrite <- series_stretch_add_distr.
+       rewrite <- series_stretch_stretch.
 bbb.
 
 intros pol ns n Hns.
