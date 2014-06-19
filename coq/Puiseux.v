@@ -1195,6 +1195,45 @@ induction n; intros.
    rewrite Z.mul_1_r in Hαk₁.
    unfold Qlt in Hαj₁; simpl in Hαj₁.
    rewrite Z.mul_1_r in Hαj₁.
+   Focus 1.
+   unfold root_from_cγ_list; simpl.
+   rewrite Hini, Hfin, Hini₁, Hfin₁; simpl.
+   rewrite Hαk₁.
+   rewrite Z.mul_0_l, Z.add_0_r.
+   rewrite Z.mul_1_r, Pos.mul_1_r.
+   unfold ps_mul; simpl.
+   unfold cm; simpl.
+   rewrite Hini, Hfin; simpl.
+   unfold ps_add; simpl.
+   unfold cm; simpl.
+   rewrite Hini, Hfin.
+   simpl.
+   remember (Qden αj * Qden αk * Qden (/ (Qnat k - Qnat j)))%positive as dd.
+   remember (Qnum αj * ' Qden αk + - Qnum αk * ' Qden αj)%Z as nd.
+   remember (nd * Qnum (/ (Qnat k - Qnat j)))%Z as ndn.
+   unfold ps_ordnum_add; simpl.
+   rewrite Hini, Hfin; simpl.
+   rewrite <- Heqdd.
+   rewrite <- Heqnd.
+   rewrite <- Heqndn.
+   rewrite Z.min_l.
+    unfold ps_terms_add; simpl.
+    rewrite Hini, Hfin; simpl.
+    rewrite <- Heqdd.
+    rewrite <- Heqnd.
+    rewrite <- Heqndn.
+    rewrite Z.min_l.
+     rewrite Z.min_r.
+      rewrite Z.sub_diag.
+      simpl.
+      unfold adjust_series.
+      rewrite series_shift_0.
+      remember (dd * (Qden αj₁ * Qden αk₁))%positive as dddd.
+      rewrite ps_adjust_eq with (n := O) (k := dddd).
+      unfold adjust_ps; simpl.
+      rewrite Z.sub_0_r.
+      rewrite series_shift_0.
+      apply mkps_morphism; try reflexivity.
 bbb.
 
 Lemma ttt : ∀ pol ns n,
