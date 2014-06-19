@@ -1153,36 +1153,14 @@ Definition root_head n pol ns :=
 Definition root_tail n pol ns :=
   root_when_r_1 (nth_pol n pol ns) (nth_ns n pol ns).
 
-(*
 Lemma sss : ∀ pol ns n,
-  (order (root_tail (S n) pol ns) = ∞)%Qbar.
+  ns ∈ newton_segments pol
+  → (root_tail 0 pol ns =
+     root_head n pol ns +
+     ps_monom 1%K (γ_sum n pol ns) * root_tail (S n) pol ns)%ps.
 Proof.
-intros pol ns n.
+intros pol ns n Hns.
 bbb.
-unfold order.
-remember (ps_terms (root_tail n pol ns)) as s eqn:Hs .
-remember (null_coeff_range_length R s 0) as v eqn:Hv .
-symmetry in Hv.
-destruct v as [v| ]; [ exfalso | reflexivity ].
-apply null_coeff_range_length_iff in Hv.
-unfold null_coeff_range_length_prop in Hv.
-simpl in Hv.
-destruct Hv as (Hvi, Hv).
-apply Hv; clear Hv.
-subst s; simpl.
-destruct n.
- simpl.
- simpl in Hvi.
- unfold root_term_when_r_1.
- remember (Pos.to_nat (Qden (γ ns))) as po eqn:Hpo .
- destruct (zerop (v mod po)) as [Hv| ]; [ idtac | reflexivity ].
- remember 0%nat as z; simpl; subst z.
- destruct (eq_nat_dec 0 v) as [Hvz| Hvnz].
-  clear v Hvi Hv Hvz.
-  Focus 2.
-  destruct (lt_dec 0 v) as [Hvp| Hvn]; [ idtac | reflexivity ].
-bbb.
-*)
 
 Lemma ttt : ∀ pol ns n,
   ns ∈ newton_segments pol
