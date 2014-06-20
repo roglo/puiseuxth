@@ -1107,12 +1107,13 @@ intros pol nc po m i Him.
 revert pol nc i Him.
 induction m; intros; [ reflexivity | idtac ].
 remember O as z; simpl; subst z.
-destruct (eq_nat_dec 0 i) as [H₁| H₁].
- exfalso; fast_omega Him H₁.
+remember (ac_root (Φq pol nc)) as c₁.
+destruct (ac_zerop c₁) as [| H₁]; [ reflexivity | idtac ].
+destruct (eq_nat_dec 0 i) as [H₂| H₂].
+ exfalso; fast_omega Him H₂.
 
- destruct (lt_dec 0 i) as [H₂| H₂]; [ idtac | reflexivity ].
- apply IHm; omega.
-Qed.
+ destruct (lt_dec 0 i) as [H₃| H₃]; [ idtac | reflexivity ].
+bbb.
 *)
 
 Lemma sss : ∀ pol ns n αj αk,
@@ -1241,9 +1242,10 @@ induction n; intros.
           rewrite Nat.mod_0_l; auto; simpl.
           rewrite Nat.div_0_l; auto.
           unfold root_series_from_cγ_list; simpl.
-bbb.
-          rewrite Nat.mod_0_l; auto; simpl.
-          rewrite Hc₁; reflexivity.
+          destruct (ac_zerop (ac_root (Φq pol ns))) as [H₂| H₂].
+           rewrite Hc₁; assumption.
+
+           rewrite Hc₁; reflexivity.
 
           rewrite <- Hc.
           destruct (zerop (i mod Pos.to_nat dd₁)) as [H₃| H₃].
@@ -1252,6 +1254,23 @@ bbb.
            rewrite Nat.mul_comm in Hd; rewrite Hd.
            rewrite Nat.div_mul; auto.
            unfold root_series_from_cγ_list.
+           remember O as z; simpl; subst z.
+           rewrite <- Hc₁, Hini, Hfin, <- Hpol₁, <- Hns₁.
+           remember O as z; simpl; subst z.
+           destruct (ac_zerop c₁) as [H₃| H₃]; [ reflexivity | idtac ].
+           destruct (eq_nat_dec 0 d) as [H₄| H₄].
+            move H₄ at top; subst d.
+            simpl in Hd.
+            move Hd at top; subst i.
+            symmetry in Hc.
+            apply Nat.eq_mul_0_l in Hc; auto.
+            move Hc at top; subst c.
+            exfalso; revert H₂; apply Nat.lt_irrefl.
+
+            destruct (lt_dec 0 d) as [H₅| ]; [ idtac | reflexivity ].
+            rewrite Nat.add_0_l, Pos.mul_1_r.
+            rewrite Pos.mul_1_r.
+bbb.
 (*
            rewrite Hini, Hfin.
            unfold snd.
