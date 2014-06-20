@@ -1038,7 +1038,7 @@ Fixpoint polydromy_if_r_reaches_one acf m pol {struct m} :=
         (v * Pos.to_nat (Qden (γ ns)))%nat
   end.
 
-Fixpoint find_coeff max_iter pow pol ns i :=
+Fixpoint find_coeff max_iter pow pol_ord pol ns i :=
   match max_iter with
   | 0%nat => 0%K
   | S m =>
@@ -1046,15 +1046,17 @@ Fixpoint find_coeff max_iter pow pol ns i :=
       if eq_nat_dec pow i then c₁
       else if lt_dec pow i then
         let γ₁ := snd (ini_pt ns) in
-        let pow₁ := (pow + nat_num γ₁)%nat in
+        let pow₁ := (pow + nat_num (Qred (γ₁ * inject_Z ('pol_ord))))%nat in
         let pol₁ := next_pol pol (β ns) (γ ns) c₁ in
         let ns₁ := List.hd phony_ns (newton_segments pol₁) in
-        find_coeff m pow pol₁ ns₁ i
+        find_coeff m pow pol_ord pol₁ ns₁ i
       else 0%K
   end.
 
 Definition root_series_from_cγ_list pol ns i :=
-  find_coeff (S i) 0%nat pol ns i.
+  if zerop (i mod Pos.to_nat (Qden (γ ns))) then
+    find_coeff (S i) 0%nat (Qden (γ ns)) pol ns i
+  else 0%K.
 
 Definition root_from_cγ_list pol ns :=
   {| ps_terms := {| terms := root_series_from_cγ_list pol ns |};
@@ -1072,11 +1074,11 @@ Definition root_head n pol ns :=
 Definition root_tail n pol ns :=
   root_from_cγ_list (nth_pol n pol ns) (nth_ns n pol ns).
 
-Lemma find_coeff_le: ∀ pol nc m i,
+Lemma find_coeff_le: ∀ pol nc po m i,
   (m ≤ i)%nat
-  → find_coeff m 0 pol nc i = 0%K.
+  → find_coeff m 0 po pol nc i = 0%K.
 Proof.
-intros pol nc m i Him.
+intros pol nc po m i Him.
 revert pol nc i Him.
 induction m; intros; [ reflexivity | idtac ].
 remember O as z; simpl; subst z.
@@ -1213,6 +1215,7 @@ induction n; intros.
           rewrite Nat.mod_0_l; auto; simpl.
           rewrite Nat.div_0_l; auto.
           unfold root_series_from_cγ_list; simpl.
+          rewrite Nat.mod_0_l; auto; simpl.
           rewrite Hc₁; reflexivity.
 
           rewrite <- Hc.
@@ -1222,70 +1225,6 @@ induction n; intros.
            rewrite Nat.mul_comm in Hd; rewrite Hd.
            rewrite Nat.div_mul; auto.
            unfold root_series_from_cγ_list.
-(**)
-           remember O as z; simpl; subst z.
-           destruct (eq_nat_dec 0 d) as [H₃| H₃].
-            move H₃ at top; subst d.
-            simpl in Hd.
-            move Hd at top; subst i.
-            symmetry in Hc.
-            apply Nat.eq_mul_0_l in Hc; auto.
-            move Hc at top; subst c.
-            exfalso; revert H₂; apply Nat.lt_irrefl.
-
-            destruct (lt_dec 0 d) as [H₄| ]; [ idtac | reflexivity ].
-            rewrite find_coeff_le; reflexivity.
-
-           reflexivity.
-
-         apply Nat.nlt_ge in H₁.
-         rewrite <- Hc.
-         destruct (zerop c) as [H₂| H₂].
-          move H₂ at top; subst c.
-          apply Nat.le_0_r in H₁.
-          rewrite Heqnd₁ in H₁.
-          rewrite Z2Nat.inj_mul in H₁.
-           simpl in H₁.
-           apply Nat.mul_eq_0_l in H₁; auto.
-           rewrite <- Z2Nat.inj_0 in H₁.
-           apply Z2Nat.inj in H₁.
-            rewrite H₁ in Hαj₁.
-            exfalso; revert Hαj₁; apply Z.lt_irrefl.
-
-            apply Z.lt_le_incl; assumption.
-
-            reflexivity.
-
-           apply Z.lt_le_incl; assumption.
-
-           apply Pos2Z.is_nonneg.
-
-          destruct (zerop (i mod Pos.to_nat dd₁)) as [H₃| H₃].
-           apply Nat.mod_divides in H₃; auto.
-           destruct H₃ as (d, H₃).
-           rewrite Nat.mul_comm in H₃; rewrite H₃.
-           rewrite Nat.div_mul; auto.
-           rewrite rng_add_0_r.
-           unfold root_series_from_cγ_list.
-           remember (c - Z.to_nat nd₁)%nat as e.
-           remember O as z; simpl; subst z.
-           rewrite find_coeff_le; [ idtac | reflexivity ].
-           rewrite find_coeff_le; [ idtac | reflexivity ].
-           destruct (eq_nat_dec 0 e) as [H₆| H₆].
-            move H₆ at top; subst e.
-            destruct (eq_nat_dec 0 d) as [H₆| H₆].
-             move H₆ at top; subst d.
-             simpl in H₃.
-             move H₃ at top; subst i.
-             symmetry in Hc.
-             apply Nat.mul_eq_0_l in Hc; auto.
-             move Hc at top; subst c.
-             exfalso; revert H₂; apply Nat.lt_irrefl.
-
-             assert (c = Z.to_nat nd₁) as Hcc by fast_omega H₁ Heqe.
-             move Hcc at top; subst c.
-             clear H₁ Heqe.
-bbb.
            destruct (zerop (d mod Pos.to_nat (Qden (γ ns)))) as [H₃| H₃].
             remember O as z; simpl; subst z.
             apply Nat.mod_divides in H₃; auto.
