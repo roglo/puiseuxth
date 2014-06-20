@@ -1038,6 +1038,8 @@ Fixpoint polydromy_if_r_reaches_one acf m pol {struct m} :=
         (v * Pos.to_nat (Qden (γ ns)))%nat
   end.
 
+Definition qred q := Qred q.
+
 Fixpoint find_coeff max_iter pow pol_ord pol ns i :=
   match max_iter with
   | 0%nat => 0%K
@@ -1046,16 +1048,19 @@ Fixpoint find_coeff max_iter pow pol_ord pol ns i :=
       if eq_nat_dec pow i then c₁
       else if lt_dec pow i then
         let γ₁ := snd (ini_pt ns) in
-        let pow₁ := (pow + nat_num (Qred (γ₁ * inject_Z ('pol_ord))))%nat in
+        let pow₁ := (pow + nat_num (qred (γ₁ * inject_Z ('pol_ord))))%nat in
         let pol₁ := next_pol pol (β ns) (γ ns) c₁ in
         let ns₁ := List.hd phony_ns (newton_segments pol₁) in
-        find_coeff m pow pol_ord pol₁ ns₁ i
+        find_coeff m pow₁ pol_ord pol₁ ns₁ i
       else 0%K
   end.
 
 Definition root_series_from_cγ_list pol ns i :=
-  if zerop (i mod Pos.to_nat (Qden (γ ns))) then
-    find_coeff (S i) 0%nat (Qden (γ ns)) pol ns i
+  let αj := snd (ini_pt ns) in
+  let αk := snd (fin_pt ns) in
+  let pol_ord := (Qden (γ ns) * Qden αj * Qden αk)%positive in
+  if zerop (i mod Pos.to_nat pol_ord) then
+    find_coeff (S i) 0%nat pol_ord pol ns i
   else 0%K.
 
 Definition root_from_cγ_list pol ns :=
@@ -1074,6 +1079,7 @@ Definition root_head n pol ns :=
 Definition root_tail n pol ns :=
   root_from_cγ_list (nth_pol n pol ns) (nth_ns n pol ns).
 
+(*
 Lemma find_coeff_le: ∀ pol nc po m i,
   (m ≤ i)%nat
   → find_coeff m 0 po pol nc i = 0%K.
@@ -1088,6 +1094,7 @@ destruct (eq_nat_dec 0 i) as [H₁| H₁].
  destruct (lt_dec 0 i) as [H₂| H₂]; [ idtac | reflexivity ].
  apply IHm; omega.
 Qed.
+*)
 
 Lemma sss : ∀ pol ns n αj αk,
   ns ∈ newton_segments pol
@@ -1225,7 +1232,10 @@ induction n; intros.
            rewrite Nat.mul_comm in Hd; rewrite Hd.
            rewrite Nat.div_mul; auto.
            unfold root_series_from_cγ_list.
-           destruct (zerop (d mod Pos.to_nat (Qden (γ ns)))) as [H₃| H₃].
+           rewrite Hini, Hfin.
+           unfold snd.
+           remember (Qden (γ ns) * Qden αj * Qden αk)%positive as po eqn:Hpo .
+           destruct (zerop (d mod Pos.to_nat po)) as [H₃| H₃].
             remember O as z; simpl; subst z.
             apply Nat.mod_divides in H₃; auto.
             destruct H₃ as (e, He).
@@ -1239,7 +1249,17 @@ induction n; intros.
              exfalso; revert H₂; apply Nat.lt_irrefl.
 
              destruct (lt_dec 0 d) as [H₄| ]; [ idtac | reflexivity ].
-             rewrite find_coeff_le; reflexivity.
+             rewrite Hini; simpl.
+             rewrite Pos.mul_1_r.
+             remember (Z.ggcd (Qnum αj * ' po) (' Qden αj)) as g eqn:Hg .
+             destruct g as (g, (aa, bb)).
+             pose proof
+              (Z.ggcd_correct_divisors (Qnum αj * ' po) (' Qden αj)).
+             rewrite <- Hg in H.
+             destruct H as (Hnp, Hdg).
+             simpl.
+             unfold nat_num; simpl.
+bbb.
 
             reflexivity.
 
@@ -1275,10 +1295,12 @@ induction n; intros.
            rewrite rng_add_0_r.
            unfold root_series_from_cγ_list.
            remember (c - Z.to_nat nd₁)%nat as e.
-           destruct (zerop (e mod Pos.to_nat (Qden (γ ns₁)))) as [H₄| H₄].
-            destruct (zerop (d mod Pos.to_nat (Qden (γ ns)))) as [H₅| H₅].
-             remember O as z; simpl; subst z.
-             rewrite Hini, Hfin, Hini₁, Hfin₁.
+           rewrite Hini, Hfin, Hini₁, Hfin₁.
+           unfold snd.
+           remember (Qden (γ ns) * Qden αj * Qden αk)%positive as po.
+           remember (Qden (γ ns₁) * Qden αj₁ * Qden αk₁)%positive as po₁.
+           destruct (zerop (e mod Pos.to_nat po₁)) as [H₄| H₄].
+            destruct (zerop (d mod Pos.to_nat po)) as [H₅| H₅].
              remember O as z; simpl; subst z.
              rewrite find_coeff_le; [ idtac | reflexivity ].
              rewrite find_coeff_le; [ idtac | reflexivity ].
