@@ -343,7 +343,6 @@ Lemma rrr : ∀ pol ns c₁ pol₁,
   → (ps_poly_nth 0 pol₁ ≠ 0)%ps.
 Proof.
 intros pol ns c₁ pol₁ Hns Hc₁ Hr Hpol₁ Hc₁nz.
-Abort. (*
 bbb.
 *)
 
