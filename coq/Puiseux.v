@@ -361,10 +361,12 @@ apply fld_eq_mul_0_r in H; [ idtac | apply ps_field | idtac ].
  simpl in H.
  unfold root_multiplicity in Hr.
  rewrite al_Φq in Hr.
- erewrite length_char_pol in Hr; try eassumption.
-  4: reflexivity.
-
-  4: reflexivity.
+ remember Hns as Hini; clear HeqHini.
+ apply exists_ini_pt_nat in Hini.
+ destruct Hini as (j, (αj, Hini)).
+ remember Hns as Hfin; clear HeqHfin.
+ apply exists_fin_pt_nat in Hfin.
+ destruct Hfin as (k, (αk, Hfin)).
 bbb.
 *)
 
