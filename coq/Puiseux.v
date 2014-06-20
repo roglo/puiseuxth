@@ -334,52 +334,12 @@ destruct (ac_zerop (lap_mod_deg_1 cpol c)) as [| Hnz].
  assumption.
 Qed.
 
-Lemma rrr : ∀ pol ns c₁ pol₁,
-  ns ∈ newton_segments pol
-  → c₁ = ac_root (Φq pol ns)
-  → root_multiplicity acf c₁ (Φq pol ns) = 1%nat
-  → pol₁ = next_pol pol (β ns) (γ ns) c₁
-  → (c₁ ≠ 0)%K
-  → (ps_poly_nth 0 pol₁ ≠ 0)%ps.
-Proof.
-intros pol ns c₁ pol₁ Hns Hc₁ Hr Hpol₁ Hc₁nz.
-unfold next_pol in Hpol₁.
-unfold next_lap in Hpol₁.
-intros H; apply Hc₁nz; clear Hc₁nz.
-subst pol₁.
-unfold ps_poly_nth in H; simpl in H.
-rewrite ps_lap_nth_0_apply_0 in H.
-rewrite apply_lap_mul in H.
-simpl in H.
-rewrite rng_mul_0_l, rng_add_0_l in H.
-apply fld_eq_mul_0_r in H; [ idtac | apply ps_field | idtac ].
- rewrite apply_lap_compose in H.
- simpl in H.
- rewrite rng_mul_0_l, rng_add_0_l in H.
- rewrite rng_mul_0_r, rng_add_0_l in H.
- unfold apply_lap in H.
- simpl in H.
- unfold root_multiplicity in Hr.
- rewrite al_Φq in Hr.
- remember Hns as Hini; clear HeqHini.
- apply exists_ini_pt_nat in Hini.
- destruct Hini as (j, (αj, Hini)).
- remember Hns as Hfin; clear HeqHfin.
- apply exists_fin_pt_nat in Hfin.
- destruct Hfin as (k, (αk, Hfin)).
-bbb.
-*)
-
 Lemma r_1_j_0_k_1 : ∀ pol ns c₁ pol₁ ns₁ j₁ αj₁ k₁ αk₁,
   ns ∈ newton_segments pol
   → c₁ = ac_root (Φq pol ns)
   → root_multiplicity acf c₁ (Φq pol ns) = 1%nat
   → pol₁ = next_pol pol (β ns) (γ ns) c₁
-(**)
   → (ps_poly_nth 0 pol₁ ≠ 0)%ps
-(*
-  → (c₁ ≠ 0)%K
-*)
   → ns₁ = List.hd phony_ns (newton_segments pol₁)
   → ini_pt ns₁ = (Qnat j₁, αj₁)
   → fin_pt ns₁ = (Qnat k₁, αk₁)
