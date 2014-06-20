@@ -949,6 +949,35 @@ revert Hnneg Hpos Hz Hpts; clear; intros.
       contradiction.
 Qed.
 
+Lemma rrr : ∀ pol ns c₁ pol₁ ns₁,
+  ns ∈ newton_segments pol
+  → c₁ = ac_root (Φq pol ns)
+  → root_multiplicity acf c₁ (Φq pol ns) = 1%nat
+  → pol₁ = next_pol pol (β ns) (γ ns) c₁
+  → ns₁ = List.hd phony_ns (newton_segments pol₁)
+  → γ ns₁ == snd (ini_pt ns₁) ∧ γ ns₁ == β ns₁.
+Proof.
+intros pol ns c₁ pol₁ ns₁ Hns Hc₁ Hr Hpol₁ Hns₁.
+remember Hns₁ as Hini₁; clear HeqHini₁.
+apply exists_ini_pt_nat_fst_seg in Hini₁.
+destruct Hini₁ as (j₁, (αj₁, Hini₁)).
+remember Hns₁ as Hfin₁; clear HeqHfin₁.
+apply exists_fin_pt_nat_fst_seg in Hfin₁.
+destruct Hfin₁ as (k₁, (αk₁, Hfin₁)).
+remember Hns as H; clear HeqH.
+eapply r_1_j_0_k_1 in H; try eassumption.
+ rewrite Hini₁; simpl.
+ unfold γ, β; simpl.
+ rewrite Hini₁, Hfin₁; simpl.
+ destruct H as (Hj₁, (Hk₁, (Hαj₁, (Hαk₁, Hoth₁)))).
+ subst j₁ k₁; rewrite Hαk₁.
+ unfold Qnat; simpl.
+ do 2 rewrite Q_sub_0_r.
+ rewrite Qmult_0_l, Qplus_0_r.
+ rewrite Q_div_1_r.
+ split; reflexivity.
+bbb.
+
 (* *)
 
 Fixpoint nth_pol n pol ns :=
@@ -1097,31 +1126,6 @@ destruct (eq_nat_dec 0 i) as [H₁| H₁].
  apply IHm; omega.
 Qed.
 *)
-
-Lemma rrr : ∀ pol ns c₁ pol₁ ns₁,
-  ns ∈ newton_segments pol
-  → c₁ = ac_root (Φq pol ns)
-  → root_multiplicity acf c₁ (Φq pol ns) = 1%nat
-  → pol₁ = next_pol pol (β ns) (γ ns) c₁
-  → ns₁ = List.hd phony_ns (newton_segments pol₁)
-  → γ ns₁ == snd (ini_pt ns₁) ∧ γ ns₁ == β ns₁.
-Proof.
-intros pol ns c₁ pol₁ ns₁ Hns Hc₁ Hr Hpol₁ Hns₁.
-remember Hns₁ as Hini₁; clear HeqHini₁.
-apply exists_ini_pt_nat_fst_seg in Hini₁.
-destruct Hini₁ as (j₁, (αj₁, Hini₁)).
-remember Hns₁ as Hfin₁; clear HeqHfin₁.
-apply exists_fin_pt_nat_fst_seg in Hfin₁.
-destruct Hfin₁ as (k₁, (αk₁, Hfin₁)).
-remember Hns as H; clear HeqH.
-eapply r_1_j_0_k_1 in H; try eassumption.
- rewrite Hini₁; simpl.
- unfold γ, β; simpl.
- rewrite Hini₁, Hfin₁; simpl.
- destruct H as (Hj₁, (Hk₁, (Hαj₁, (Hαk₁, Hoth₁)))).
- subst j₁ k₁; rewrite Hαk₁.
- unfold Qnat; simpl.
-bbb.
 
 Lemma sss : ∀ pol ns n αj αk,
   ns ∈ newton_segments pol
