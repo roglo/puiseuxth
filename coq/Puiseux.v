@@ -343,6 +343,28 @@ Lemma rrr : ∀ pol ns c₁ pol₁,
   → (ps_poly_nth 0 pol₁ ≠ 0)%ps.
 Proof.
 intros pol ns c₁ pol₁ Hns Hc₁ Hr Hpol₁ Hc₁nz.
+unfold next_pol in Hpol₁.
+unfold next_lap in Hpol₁.
+intros H; apply Hc₁nz; clear Hc₁nz.
+subst pol₁.
+unfold ps_poly_nth in H; simpl in H.
+rewrite ps_lap_nth_0_apply_0 in H.
+rewrite apply_lap_mul in H.
+simpl in H.
+rewrite rng_mul_0_l, rng_add_0_l in H.
+apply fld_eq_mul_0_r in H; [ idtac | apply ps_field | idtac ].
+ rewrite apply_lap_compose in H.
+ simpl in H.
+ rewrite rng_mul_0_l, rng_add_0_l in H.
+ rewrite rng_mul_0_r, rng_add_0_l in H.
+ unfold apply_lap in H.
+ simpl in H.
+ unfold root_multiplicity in Hr.
+ rewrite al_Φq in Hr.
+ erewrite length_char_pol in Hr; try eassumption.
+  4: reflexivity.
+
+  4: reflexivity.
 bbb.
 *)
 
