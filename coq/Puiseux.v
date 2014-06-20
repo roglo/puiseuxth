@@ -352,6 +352,7 @@ Lemma r_1_j_0_k_1 : ∀ pol ns c₁ pol₁ ns₁ j₁ αj₁ k₁ αk₁,
   → c₁ = ac_root (Φq pol ns)
   → root_multiplicity acf c₁ (Φq pol ns) = 1%nat
   → pol₁ = next_pol pol (β ns) (γ ns) c₁
+(**)
   → (ps_poly_nth 0 pol₁ ≠ 0)%ps
 (*
   → (c₁ ≠ 0)%K
@@ -368,46 +369,48 @@ remember Hns as H; clear HeqH.
 symmetry in Hr.
 eapply f₁_orders in H; try eassumption.
 destruct H as (Hnneg, (Hpos, Hz)).
-revert Hns₁ Hini₁ Hfin₁ Hps₀ Hnneg Hpos Hz; clear; intros.
 assert (0 < 1)%nat as H by apply Nat.lt_0_1.
 apply Hpos in H; clear Hpos; rename H into Hpos.
 unfold newton_segments in Hns₁; simpl in Hns₁.
 unfold points_of_ps_polynom in Hns₁; simpl in Hns₁.
-unfold ps_poly_nth in Hps₀, Hnneg, Hz, Hpos.
+unfold ps_poly_nth in Hnneg, Hz, Hpos.
 remember (al pol₁) as la.
-clear pol₁ Heqla.
-unfold ps_lap_nth in Hps₀.
 destruct la as [| a₀].
- exfalso; apply Hps₀; rewrite order_0; reflexivity.
+ unfold ps_lap_nth in Hz; simpl in Hz.
+ rewrite order_0 in Hz; inversion Hz.
 
  unfold ps_lap_nth in Hnneg, Hz, Hpos.
- simpl in Hps₀, Hz, Hpos.
+ simpl in Hz, Hpos.
  unfold points_of_ps_lap in Hns₁.
  unfold points_of_ps_lap_gen in Hns₁.
  simpl in Hns₁.
  remember (order a₀) as v₀.
  symmetry in Heqv₀.
- destruct v₀ as [v₀| ]; [ idtac | exfalso; apply Hps₀; reflexivity ].
- clear Hps₀.
- destruct la as [| a₁]; [ rewrite order_0 in Hz; contradiction | idtac ].
- simpl in Hz, Hns₁.
- remember (order a₁) as v₁.
- symmetry in Heqv₁.
- destruct v₁ as [v₁| ]; [ idtac | contradiction ].
- apply Qbar.qfin_inj in Hz.
- apply Qbar.qfin_lt_mono in Hpos.
- remember (pair_rec (λ pow ps, (Qnat pow, ps))) as f.
- simpl in Hns₁.
- remember (filter_finite_ord R (List.map f (power_list 2 la))) as ffo.
- remember (minimise_slope (Qnat 0, v₀) (Qnat 1, v₁) ffo) as ms.
- subst ns₁; simpl in Hini₁, Hfin₁.
- rewrite Heqms, minimised_slope_beg_pt in Hini₁.
- eapply pouet in Hfin₁; try eassumption.
- destruct Hfin₁ as (H₁, (H₂, (H₃, (H₄, (H₅, H₆))))).
- split; [ assumption | idtac ].
- split; [ omega | idtac ].
- split; [ assumption | idtac ].
- split; assumption.
+ destruct v₀ as [v₀| ].
+  destruct la as [| a₁]; [ rewrite order_0 in Hz; contradiction | idtac ].
+  simpl in Hz, Hns₁.
+  remember (order a₁) as v₁.
+  symmetry in Heqv₁.
+  destruct v₁ as [v₁| ]; [ idtac | contradiction ].
+  apply Qbar.qfin_inj in Hz.
+  apply Qbar.qfin_lt_mono in Hpos.
+  remember (pair_rec (λ pow ps, (Qnat pow, ps))) as f.
+  simpl in Hns₁.
+  remember (filter_finite_ord R (List.map f (power_list 2 la))) as ffo.
+  remember (minimise_slope (Qnat 0, v₀) (Qnat 1, v₁) ffo) as ms.
+  subst ns₁; simpl in Hini₁, Hfin₁.
+  rewrite Heqms, minimised_slope_beg_pt in Hini₁.
+  eapply pouet in Hfin₁; try eassumption.
+  destruct Hfin₁ as (H₁, (H₂, (H₃, (H₄, (H₅, H₆))))).
+  split; [ assumption | idtac ].
+  split; [ omega | idtac ].
+  split; [ assumption | idtac ].
+  split; assumption.
+
+  unfold ps_poly_nth in Hps₀.
+  rewrite <- Heqla in Hps₀.
+  unfold ps_lap_nth in Hps₀; simpl in Hps₀.
+  contradiction.
 Qed.
 
 Lemma minimise_slope_seg_cons : ∀ pt₁ pt₂ pt₃ pts,
