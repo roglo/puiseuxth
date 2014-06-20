@@ -1070,7 +1070,8 @@ Fixpoint find_coeff max_iter pow pol_ord pol ns i :=
       else if eq_nat_dec pow i then c₁
       else if lt_dec pow i then
         let γ₁ := snd (ini_pt ns) in
-        let pow₁ := (pow + nat_num (Qred (γ₁ * inject_Z ('pol_ord))))%nat in
+        let n := (γ₁ * inject_Z ('pol_ord)) in
+        let pow₁ := (pow + Z.to_nat (Qnum n / ' Qden n))%nat in
         let pol₁ := next_pol pol (β ns) (γ ns) c₁ in
         let ns₁ := List.hd phony_ns (newton_segments pol₁) in
         find_coeff m pow₁ pol_ord pol₁ ns₁ i
@@ -1078,16 +1079,8 @@ Fixpoint find_coeff max_iter pow pol_ord pol ns i :=
   end.
 
 Definition root_series_from_cγ_list pol ns i :=
-(*
-  let αj := snd (ini_pt ns) in
-  let αk := snd (fin_pt ns) in
-  let pol_ord := (Qden (γ ns) * Qden αj * Qden αk)%positive in
-*)
   let pol_ord := Qden (γ ns) in
-(**)
-  if zerop (i mod Pos.to_nat pol_ord) then
-    find_coeff (S i) 0%nat pol_ord pol ns i
-  else 0%K.
+  find_coeff (S i) 0%nat pol_ord pol ns i.
 
 Definition root_from_cγ_list pol ns :=
   {| ps_terms := {| terms := root_series_from_cγ_list pol ns |};
@@ -1248,6 +1241,7 @@ induction n; intros.
           rewrite Nat.mod_0_l; auto; simpl.
           rewrite Nat.div_0_l; auto.
           unfold root_series_from_cγ_list; simpl.
+bbb.
           rewrite Nat.mod_0_l; auto; simpl.
           rewrite Hc₁; reflexivity.
 
