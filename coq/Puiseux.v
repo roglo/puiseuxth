@@ -1363,6 +1363,11 @@ induction n; intros.
             destruct (eq_nat_dec (Z.to_nat nd) (S d)) as [H₇| H₇].
              subst dd nd dd₁ nd₁ i.
              rewrite <- H₇ in Hd.
+             rewrite Pos2Nat.inj_mul in Hd.
+             rewrite Z2Nat.inj_mul in Hd.
+              simpl in Hd.
+              rewrite Nat.mul_shuffle0, Nat.mul_assoc in Hd.
+              apply Nat.mul_cancel_r in Hd; auto.
 bbb.
 (*
            rewrite Hini, Hfin.
