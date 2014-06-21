@@ -1207,23 +1207,6 @@ Lemma sss : ∀ pol ns n αj αk,
      ps_monom 1%K (γ_sum n pol ns) * root_tail (S n) pol ns)%ps.
 Proof.
 intros pol ns n αj αk Hns Hαj Hαk Hini Hfin.
-remember Hns as Hinin; clear HeqHinin.
-eapply exists_ini_pt_nat_n with (n := S n) in Hinin; [ idtac | reflexivity ].
-destruct Hinin as (jn, (αjm, Hinin)).
-remember Hns as Hfinn; clear HeqHfinn.
-eapply exists_fin_pt_nat_n with (n := S n) in Hfinn; [ idtac | reflexivity ].
-destruct Hfinn as (kn, (αkm, Hfinn)).
-simpl in Hinin, Hfinn.
-unfold root_tail; simpl.
-remember (ac_root (Φq pol ns)) as c₁ eqn:Hc₁ .
-remember (next_pol pol (β ns) (γ ns) c₁) as pol₁ eqn:Hpol₁ .
-remember (List.hd phony_ns (newton_segments pol₁)) as ns₁ eqn:Hns₁ .
-unfold root_from_cγ_list; simpl.
-rewrite Hini, Hfin, Hinin, Hfinn; simpl.
-rewrite Z.mul_1_r, Pos.mul_1_r.
-bbb.
-
-intros pol ns n αj αk Hns Hαj Hαk Hini Hfin.
 revert pol ns αj αk Hns Hαj Hαk Hini Hfin.
 induction n; intros.
  unfold root_head, γ_sum; simpl.
@@ -1262,6 +1245,7 @@ induction n; intros.
   rewrite Z.mul_1_r, Pos.mul_1_r.
   unfold ps_mul; simpl.
   unfold cm; simpl.
+  rewrite fold_series_const.
   rewrite Hini, Hfin; simpl.
   unfold ps_add; simpl.
   unfold cm; simpl.
@@ -1280,6 +1264,7 @@ induction n; intros.
   rewrite Pos.mul_1_r.
   rewrite Z.min_l.
    unfold ps_terms_add; simpl.
+   rewrite fold_series_const.
    rewrite Hini, Hfin; simpl.
    rewrite Z.mul_1_r.
    rewrite Pos.mul_1_r.
@@ -1304,10 +1289,7 @@ induction n; intros.
      rewrite Z2Nat.inj_mul.
       simpl.
       rewrite <- stretch_shift_series_distr.
-      rewrite fold_series_const.
-      rewrite fold_series_const.
-      rewrite stretch_series_const.
-      rewrite stretch_series_const.
+      do 2 rewrite stretch_series_const.
       symmetry.
       rewrite <- stretch_series_const with (k := dd).
       rewrite <- series_stretch_add_distr.
@@ -1327,6 +1309,7 @@ induction n; intros.
        rewrite series_stretch_stretch.
        rewrite series_stretch_stretch.
        apply stretch_morph; [ reflexivity | idtac ].
+(**)
        unfold series_stretch; simpl.
        constructor; simpl; intros i.
        destruct (zerop (i mod Pos.to_nat dd)) as [H₁| H₁].
@@ -1481,6 +1464,40 @@ bbb.
                apply Nat.mod_divides in H₅; auto.
                destruct H₅ as (e, He).
                subst d.
+bbb.
+
+intros pol ns n αj αk Hns Hαj Hαk Hini Hfin.
+unfold root_tail.
+erewrite nth_ns_succ; try reflexivity.
+erewrite nth_pol_succ; try reflexivity.
+remember (nth_pol n pol ns) as pol₁.
+remember (nth_ns n pol ns) as ns₁.
+remember (nth_c n pol ns) as c₁.
+remember (next_pol pol₁ (β ns₁) (γ ns₁) c₁) as pol₂.
+remember (List.hd phony_ns (newton_segments pol₂)) as ns₂.
+simpl.
+subst pol₁ ns₁ c₁.
+rename ns₂ into ns₁.
+rename pol₂ into pol₁.
+rename Heqpol₂ into Hpol₁.
+rename Heqns₂ into Hns₁.
+bbb.
+
+intros pol ns n αj αk Hns Hαj Hαk Hini Hfin.
+remember Hns as Hinin; clear HeqHinin.
+eapply exists_ini_pt_nat_n with (n := S n) in Hinin; [ idtac | reflexivity ].
+destruct Hinin as (jn, (αjm, Hinin)).
+remember Hns as Hfinn; clear HeqHfinn.
+eapply exists_fin_pt_nat_n with (n := S n) in Hfinn; [ idtac | reflexivity ].
+destruct Hfinn as (kn, (αkm, Hfinn)).
+simpl in Hinin, Hfinn.
+unfold root_tail; simpl.
+remember (ac_root (Φq pol ns)) as c₁ eqn:Hc₁ .
+remember (next_pol pol (β ns) (γ ns) c₁) as pol₁ eqn:Hpol₁ .
+remember (List.hd phony_ns (newton_segments pol₁)) as ns₁ eqn:Hns₁ .
+unfold root_from_cγ_list; simpl.
+rewrite Hini, Hfin, Hinin, Hfinn; simpl.
+rewrite Z.mul_1_r, Pos.mul_1_r.
 bbb.
 
 intros pol ns n Hns.
