@@ -1098,6 +1098,30 @@ Definition root_head n pol ns :=
 Definition root_tail n pol ns :=
   root_from_cγ_list (nth_pol n pol ns) (nth_ns n pol ns).
 
+Lemma nth_pol_succ : ∀ n pol ns pol₁ ns₁ c₁,
+  pol₁ = nth_pol n pol ns
+  → ns₁ = nth_ns n pol ns
+  → c₁ = nth_c n pol ns
+  → nth_pol (S n) pol ns = next_pol pol₁ (β ns₁) (γ ns₁) c₁.
+Proof.
+intros n pol ns pol₁ ns₁ c₁ Hpol₁ Hns₁ Hc₁; subst.
+revert pol ns.
+induction n; intros; [ reflexivity | idtac ].
+remember (S n) as sn; simpl; subst sn.
+apply IHn.
+Qed.
+
+Lemma nth_ns_succ : ∀ n pol ns pol₁,
+  pol₁ = nth_pol (S n) pol ns
+  → nth_ns (S n) pol ns = List.hd phony_ns (newton_segments pol₁).
+Proof.
+intros n pol ns pol₁ Hpol₁; subst.
+revert pol ns.
+induction n; intros; [ reflexivity | idtac ].
+remember (S n) as sn; simpl; subst sn.
+apply IHn.
+Qed.
+
 (*
 Lemma find_coeff_le: ∀ pol nc po m i,
   (m ≤ i)%nat
