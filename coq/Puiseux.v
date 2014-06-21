@@ -1184,11 +1184,19 @@ Lemma sss : ∀ pol ns n αj αk,
 Proof.
 intros pol ns n αj αk Hns Hαj Hαk Hini Hfin.
 remember Hns as Hinin; clear HeqHinin.
-eapply exists_ini_pt_nat_n with (n := n) in Hinin; [ idtac | reflexivity ].
+eapply exists_ini_pt_nat_n with (n := S n) in Hinin; [ idtac | reflexivity ].
 destruct Hinin as (jn, (αjm, Hinin)).
 remember Hns as Hfinn; clear HeqHfinn.
-eapply exists_fin_pt_nat_n with (n := n) in Hfinn; [ idtac | reflexivity ].
-destruct Hfinn as (kn, (αkm, Hfinin)).
+eapply exists_fin_pt_nat_n with (n := S n) in Hfinn; [ idtac | reflexivity ].
+destruct Hfinn as (kn, (αkm, Hfinn)).
+simpl in Hinin, Hfinn.
+unfold root_tail; simpl.
+remember (ac_root (Φq pol ns)) as c₁ eqn:Hc₁ .
+remember (next_pol pol (β ns) (γ ns) c₁) as pol₁ eqn:Hpol₁ .
+remember (List.hd phony_ns (newton_segments pol₁)) as ns₁ eqn:Hns₁ .
+unfold root_from_cγ_list; simpl.
+rewrite Hini, Hfin, Hinin, Hfinn; simpl.
+rewrite Z.mul_1_r, Pos.mul_1_r.
 bbb.
 
 intros pol ns n αj αk Hns Hαj Hαk Hini Hfin.
