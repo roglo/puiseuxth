@@ -1270,6 +1270,19 @@ induction n; intros.
             destruct (lt_dec 0 d) as [H₅| ]; [ idtac | reflexivity ].
             rewrite Nat.add_0_l, Pos.mul_1_r.
             rewrite Pos.mul_1_r.
+            rewrite Pos2Z.inj_mul, Z.mul_assoc, Z.mul_shuffle0.
+            rewrite Z.div_mul; [ idtac | apply Pos2Z_ne_0 ].
+            rewrite <- Heqdd, <- Heqnd.
+            destruct d; [ reflexivity | simpl ].
+            rewrite Pos.mul_1_r.
+            rewrite Hini₁; simpl.
+            remember (ac_root (Φq pol₁ ns₁)) as c₂.
+            remember (next_pol pol₁ (β ns₁) (γ ns₁) c₂) as pol₂.
+            remember (List.hd phony_ns (newton_segments pol₂)) as ns₂.
+            destruct (ac_zerop c₂) as [| H₆]; [ reflexivity | idtac ].
+            destruct (eq_nat_dec (Z.to_nat nd) (S d)) as [H₇| H₇].
+             clear H₃ H₄ H₅.
+             subst dd nd dd₁ nd₁.
 bbb.
 (*
            rewrite Hini, Hfin.
