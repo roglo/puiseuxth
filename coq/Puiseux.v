@@ -1218,6 +1218,7 @@ induction n; intros.
       rewrite <- stretch_series_const with (k := dd).
       rewrite <- series_stretch_mul.
       rewrite series_mul_1_l.
+      symmetry.
       rewrite Z2Nat.inj_mul.
        simpl.
        rewrite <- stretch_shift_series_distr.
@@ -1243,7 +1244,7 @@ induction n; intros.
           rewrite Nat.div_0_l; auto.
           unfold root_series_from_cγ_list; simpl.
           destruct (ac_zerop (ac_root (Φq pol ns))) as [H₂| H₂].
-           rewrite Hc₁; assumption.
+           rewrite Hc₁; symmetry; assumption.
 
            rewrite Hc₁; reflexivity.
 
