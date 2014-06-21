@@ -1218,6 +1218,7 @@ induction n; intros.
       rewrite <- stretch_series_const with (k := dd).
       rewrite <- series_stretch_mul.
       rewrite series_mul_1_l.
+      rewrite series_add_comm.
       symmetry.
       rewrite Z2Nat.inj_mul.
        simpl.
@@ -1237,7 +1238,7 @@ induction n; intros.
         rewrite Nat.mul_comm in Hc; rewrite Hc.
         rewrite Nat.div_mul; auto.
         destruct (lt_dec c (Z.to_nat nd₁)) as [H₁| H₁].
-         rewrite rng_add_0_l.
+         rewrite rng_add_0_r.
          destruct (zerop c) as [H₂| H₂].
           move H₂ at top; subst c; simpl.
           rewrite Nat.mod_0_l; auto; simpl.
