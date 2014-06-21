@@ -1085,9 +1085,11 @@ Definition root_series_from_cγ_list pol ns i :=
   find_coeff (S i) 0%nat pol_ord pol ns i.
 
 Definition root_from_cγ_list pol ns :=
+  let αj := snd (ini_pt ns) in
+  let αk := snd (fin_pt ns) in
   {| ps_terms := {| terms := root_series_from_cγ_list pol ns |};
-     ps_ordnum := Qnum (γ ns);
-     ps_polord := Qden (γ ns) |}.
+     ps_ordnum := Qnum αj * 'Qden αk;
+     ps_polord := Qden αj * Qden αk |}.
 
 Definition γ_sum n pol ns :=
   let qr := Q_ring in
@@ -1240,11 +1242,6 @@ induction n; intros.
   rewrite Z.mul_1_r in Hαk.
   unfold root_from_cγ_list; simpl.
   rewrite Hini, Hfin, Hini₁, Hfin₁; simpl.
-  rewrite Hαk, Hαk₁.
-  rewrite Z.mul_0_l, Z.add_0_r.
-  rewrite Z.mul_0_l, Z.add_0_r.
-  rewrite Z.mul_1_r, Pos.mul_1_r.
-  rewrite Z.mul_1_r, Pos.mul_1_r.
   unfold ps_mul; simpl.
   unfold cm; simpl.
   rewrite fold_series_const.
