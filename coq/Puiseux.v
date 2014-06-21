@@ -1116,6 +1116,34 @@ destruct (eq_nat_dec 0 i) as [H₂| H₂].
 bbb.
 *)
 
+Lemma exists_ini_pt_nat_n : ∀ pol ns n nsn,
+  ns ∈ newton_segments pol
+  → nsn = nth_ns n pol ns
+  → ∃ i αi, ini_pt nsn = (Qnat i, αi).
+Proof.
+intros pol ns n nsn Hns Hnsn.
+destruct n.
+ subst nsn; simpl.
+ eapply exists_ini_pt_nat; eassumption.
+
+ simpl in Hnsn.
+ remember (ac_root (Φq pol ns)) as c.
+ remember (next_pol pol (β ns) (γ ns) c) as polp.
+ remember (List.hd phony_ns (newton_segments polp)) as nsp.
+ clear Heqpolp.
+ revert polp nsp nsn Heqnsp Hnsn.
+ induction n; intros.
+  subst nsn; simpl.
+  eapply exists_ini_pt_nat_fst_seg; eassumption.
+
+  simpl in Hnsn.
+  remember (ac_root (Φq pol ns)) as c₁.
+  remember (next_pol pol (β ns) (γ ns) c) as pol₁.
+  remember (List.hd phony_ns (newton_segments polp)) as ns₁.
+  eapply IHn; [ idtac | eassumption ].
+  reflexivity.
+Qed.
+
 Lemma sss : ∀ pol ns n αj αk,
   ns ∈ newton_segments pol
   → αj > 0
@@ -1126,6 +1154,12 @@ Lemma sss : ∀ pol ns n αj αk,
      root_head n pol ns +
      ps_monom 1%K (γ_sum n pol ns) * root_tail (S n) pol ns)%ps.
 Proof.
+intros pol ns n αj αk Hns Hαj Hαk Hini Hfin.
+remember Hns as Hinin; clear HeqHinin.
+eapply exists_ini_pt_nat_n with (n := n) in Hinin; [ idtac | reflexivity ].
+destruct Hinin as (jn, (αjm, Hinin)).
+bbb.
+
 intros pol ns n αj αk Hns Hαj Hαk Hini Hfin.
 revert pol ns αj αk Hns Hαj Hαk Hini Hfin.
 induction n; intros.
