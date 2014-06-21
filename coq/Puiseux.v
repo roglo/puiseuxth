@@ -1079,7 +1079,9 @@ Fixpoint find_coeff max_iter pow pol_ord pol ns i :=
   end.
 
 Definition root_series_from_cγ_list pol ns i :=
-  let pol_ord := Qden (γ ns) in
+  let αj := snd (ini_pt ns) in
+  let αk := snd (fin_pt ns) in
+  let pol_ord := (Qden αj * Qden αk)%positive in
   find_coeff (S i) 0%nat pol_ord pol ns i.
 
 Definition root_from_cγ_list pol ns :=
@@ -1351,7 +1353,6 @@ induction n; intros.
 
             destruct (lt_dec 0 d) as [H₅| ]; [ idtac | reflexivity ].
             rewrite Nat.add_0_l, Pos.mul_1_r.
-            rewrite Pos.mul_1_r.
             rewrite Pos2Z.inj_mul, Z.mul_assoc, Z.mul_shuffle0.
             rewrite Z.div_mul; [ idtac | apply Pos2Z_ne_0 ].
             rewrite <- Heqdd, <- Heqnd.
@@ -1363,8 +1364,8 @@ induction n; intros.
             remember (List.hd phony_ns (newton_segments pol₂)) as ns₂.
             destruct (ac_zerop c₂) as [| H₆]; [ reflexivity | idtac ].
             destruct (eq_nat_dec (Z.to_nat nd) (S d)) as [H₇| H₇].
-             clear H₃ H₄ H₅.
-             subst dd nd dd₁ nd₁.
+             subst dd nd dd₁ nd₁ i.
+             rewrite <- H₇ in Hd.
 bbb.
 (*
            rewrite Hini, Hfin.
