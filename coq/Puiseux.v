@@ -1308,82 +1308,11 @@ induction n; intros.
          rewrite <- Hc₁, Hini, <- Hpol₁, <- Hns₁.
          remember O as z; simpl; subst z.
          destruct (ac_zerop c₁) as [| H₃]; [ symmetry; assumption | idtac ].
+         symmetry in H₁.
+         destruct (eq_nat_dec 0 i); auto; contradiction.
+
+         apply Nat.nlt_ge in H₂.
 bbb.
-          destruct (ac_zerop c₁) as [H₃| H₃]; [ reflexivity | idtac ].
-          destruct (eq_nat_dec 0 d) as [H₄| H₄].
-           move H₄ at top; subst d.
-           simpl in Hd.
-           move Hd at top; subst i.
-           symmetry in Hc.
-           apply Nat.eq_mul_0_l in Hc; auto.
-           move Hc at top; subst c.
-           exfalso; revert H₂; apply Nat.lt_irrefl.
-
-           destruct (lt_dec 0 d) as [H₅| ]; [ idtac | reflexivity ].
-           rewrite Nat.add_0_l, Pos.mul_1_r.
-           rewrite Pos2Z.inj_mul, Z.mul_assoc, Z.mul_shuffle0.
-           rewrite Z.div_mul; [ idtac | apply Pos2Z_ne_0 ].
-           rewrite <- Heqdd, <- Heqnd.
-           destruct d; [ reflexivity | simpl ].
-           rewrite Pos.mul_1_r.
-           rewrite Hini₁; simpl.
-           remember (ac_root (Φq pol₁ ns₁)) as c₂.
-           remember (next_pol pol₁ (β ns₁) (γ ns₁) c₂) as pol₂.
-           remember (List.hd phony_ns (newton_segments pol₂)) as ns₂.
-           destruct (ac_zerop c₂) as [| H₆]; [ reflexivity | idtac ].
-           destruct (eq_nat_dec (Z.to_nat nd) (S d)) as [H₇| H₇].
-            subst dd nd dd₁ nd₁ i.
-            rewrite <- H₇ in Hd.
-            rewrite Pos2Nat.inj_mul in Hd.
-            rewrite Z2Nat.inj_mul in Hd; auto.
-             simpl in Hd.
-             rewrite Nat.mul_shuffle0, Nat.mul_assoc in Hd.
-             apply Nat.mul_cancel_r in Hd; auto.
-             remember (Pos.to_nat (Qden αj)) as p.
-             apply Nat.mul_lt_mono_pos_r with (p := p) in H₁; subst p; auto.
-             rewrite Hd in H₁.
-             rewrite Z2Nat.inj_mul, Nat.mul_shuffle0 in H₁; auto.
-              rewrite Pos2Nat.inj_mul, Nat.mul_assoc in H₁.
-              simpl in H₁.
-              apply Nat.mul_lt_mono_pos_r in H₁; auto.
-bbb.
-(*
-           rewrite Hini, Hfin.
-           unfold snd.
-           remember (Qden (γ ns) * Qden αj * Qden αk)%positive as po eqn:Hpo .
-*)
-           remember (Qden (γ ns)) as po eqn:Hpo.
-(**)
-           destruct (zerop (d mod Pos.to_nat po)) as [H₃| H₃].
-            remember O as z; simpl; subst z.
-            apply Nat.mod_divides in H₃; auto.
-            destruct H₃ as (e, He).
-            destruct (eq_nat_dec 0 d) as [H₃| H₃].
-             move H₃ at top; subst d.
-             simpl in Hd.
-             move Hd at top; subst i.
-             symmetry in Hc.
-             apply Nat.eq_mul_0_l in Hc; auto.
-             move Hc at top; subst c.
-             exfalso; revert H₂; apply Nat.lt_irrefl.
-
-             destruct (lt_dec 0 d) as [H₄| ]; [ idtac | reflexivity ].
-             rewrite Hini; simpl.
-             rewrite Pos.mul_1_r.
-             remember (Z.ggcd (Qnum αj * ' po) (' Qden αj)) as g eqn:Hg .
-             destruct g as (g, (aa, bb)).
-             pose proof
-              (Z.ggcd_correct_divisors (Qnum αj * ' po) (' Qden αj)).
-             rewrite <- Hg in H.
-             destruct H as (Hnp, Hdg).
-             simpl.
-             unfold nat_num; simpl.
-             rewrite <- Hc₁, <- Hpol₁, <- Hns₁.
-bbb.
-
-            reflexivity.
-
-           reflexivity.
 
          apply Nat.nlt_ge in H₁.
          rewrite <- Hc.
