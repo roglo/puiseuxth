@@ -1323,6 +1323,22 @@ induction n; intros.
           apply Z.lt_le_incl; assumption.
 
         rewrite rng_add_0_l.
+        destruct (lt_dec i (Z.to_nat (Qnum αj₁ * ' Qden αk₁))) as [H₂| H₂].
+         unfold root_series_from_cγ_list.
+         remember O as z; simpl; subst z.
+         rewrite <- Hc₁, Hini, <- Hpol₁, <- Hns₁.
+         remember O as z; simpl; subst z.
+         destruct (ac_zerop c₁) as [| H₃]; [ reflexivity | idtac ].
+         destruct (eq_nat_dec 0 i) as [H₄| H₄].
+          subst i; exfalso; revert H₁; apply Nat.lt_irrefl.
+
+          destruct (lt_dec 0 i) as [H₅| ]; auto.
+          simpl.
+          rewrite Pos.mul_1_r.
+          rewrite Heqdd.
+          rewrite Pos2Z.inj_mul, Z.mul_assoc, Z.mul_shuffle0.
+          rewrite Z.div_mul; auto.
+          rewrite <- Heqdd.
 bbb.
 
          apply Nat.nlt_ge in H₁.
