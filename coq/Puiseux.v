@@ -1311,7 +1311,18 @@ induction n; intros.
          symmetry in H₁.
          destruct (eq_nat_dec 0 i); auto; contradiction.
 
-         apply Nat.nlt_ge in H₂.
+         subst i.
+         apply Nat.nlt_ge, Nat.le_0_r in H₂.
+         rewrite <- Z2Nat.inj_0 in H₂.
+         apply Z2Nat.inj in H₂; [ idtac | idtac | reflexivity ].
+          apply Z.eq_mul_0_l in H₂; auto.
+          rewrite H₂ in Hαj₁.
+          exfalso; revert Hαj₁; apply Z.lt_irrefl.
+
+          apply Z.mul_nonneg_nonneg; auto.
+          apply Z.lt_le_incl; assumption.
+
+        rewrite rng_add_0_l.
 bbb.
 
          apply Nat.nlt_ge in H₁.

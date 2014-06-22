@@ -2024,3 +2024,4 @@ Qed.
 
 Hint Resolve Pos2Z.is_nonneg.
 Hint Resolve Pos2Nat.is_pos.
+Hint Resolve Pos2Z_ne_0.
