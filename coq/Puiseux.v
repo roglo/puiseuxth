@@ -1252,21 +1252,16 @@ induction n; intros.
   rewrite Z.add_0_r, Z.mul_1_r.
   rename po into dd; rename Hpo into Heqdd; rewrite <- Heqdd.
   remember (Qnum αj * ' Qden αk)%Z as nd.
-  remember (Qden αj₁ * Qden αk₁)%positive as dd₁.
   unfold ps_ordnum_add; simpl.
   rewrite Hini, Hfin; simpl.
-  rewrite <- Heqdd.
-  rewrite <- Heqnd.
-  rewrite Z.mul_1_r.
-  rewrite Pos.mul_1_r.
+  rewrite <- Heqdd, <- Heqnd.
+  rewrite Z.mul_1_r, Pos.mul_1_r.
   rewrite Z.min_l.
    unfold ps_terms_add; simpl.
    rewrite fold_series_const.
    rewrite Hini, Hfin; simpl.
-   rewrite Z.mul_1_r.
-   rewrite Pos.mul_1_r.
-   rewrite <- Heqdd.
-   rewrite <- Heqnd.
+   rewrite Z.mul_1_r, Pos.mul_1_r.
+   rewrite <- Heqdd, <- Heqnd.
    rewrite Hαk; simpl.
    rewrite Z.add_0_r.
    rewrite Z.min_l.
@@ -1274,75 +1269,46 @@ induction n; intros.
      rewrite Z.sub_diag; simpl.
      unfold adjust_series.
      rewrite series_shift_0.
-     rewrite ps_adjust_eq with (n := O) (k := (dd * dd₁)%positive).
+     rewrite ps_adjust_eq with (n := O) (k := (dd * dd)%positive).
      unfold adjust_ps; simpl.
      rewrite Z.sub_0_r.
-bbb.
      apply mkps_morphism; try reflexivity.
      rewrite series_shift_0.
      rewrite Z.mul_add_distr_r.
-
-      rewrite <- Z.mul_assoc, <- Pos2Z.inj_mul.
-      rewrite <- Z.mul_assoc, <- Pos2Z.inj_mul.
-      rewrite Z.mul_shuffle0.
-      rewrite <- Z.mul_assoc, <- Pos2Z.inj_mul.
-      rewrite Z.add_simpl_l.
-      rewrite Z2Nat.inj_mul; auto.
-       simpl.
-
+     rewrite <- Z.mul_assoc, <- Pos2Z.inj_mul.
+     rewrite Z.add_simpl_l.
+     clear nd Heqnd.
+     rewrite Z2Nat.inj_mul; auto.
+      simpl.
       rewrite <- stretch_shift_series_distr.
       do 2 rewrite stretch_series_const.
+      rewrite series_stretch_stretch.
       symmetry.
       rewrite <- stretch_series_const with (k := dd).
       rewrite <- series_stretch_add_distr.
+      apply stretch_morph; auto.
       rewrite series_add_comm.
       rewrite <- stretch_series_const with (k := dd).
       rewrite <- series_stretch_mul.
       rewrite series_mul_1_l.
       rewrite series_add_comm.
-      symmetry.
-      rewrite Z2Nat.inj_mul; auto.
-       simpl.
+      rewrite Z2Nat.inj_mul; auto; simpl.
        rewrite <- stretch_shift_series_distr.
        rewrite <- stretch_series_const with (k := dd).
-       remember (Qnum αj₁ * ' Qden αk₁)%Z as nd₁.
        rewrite <- series_stretch_add_distr.
-       rewrite <- series_stretch_stretch.
-       rewrite series_stretch_stretch.
-       rewrite series_stretch_stretch.
-       apply stretch_morph; [ reflexivity | idtac ].
-bbb.
+       symmetry.
+       apply stretch_morph; auto.
 (**)
-       unfold series_stretch; simpl.
-       constructor; simpl; intros i.
-       destruct (zerop (i mod Pos.to_nat dd)) as [H₁| H₁].
-        apply Nat.mod_divides in H₁; auto.
-        destruct H₁ as (c, Hc).
-        rewrite Nat.mul_comm in Hc; rewrite Hc.
-        rewrite Nat.div_mul; auto.
-        destruct (lt_dec c (Z.to_nat nd₁)) as [H₁| H₁].
+       constructor; intros i; simpl.
+       destruct (zerop i) as [H₁| H₁].
+        destruct (lt_dec i (Z.to_nat (Qnum αj₁ * ' Qden αk₁))) as [H₂| H₂].
          rewrite rng_add_0_r.
-         destruct (zerop c) as [H₂| H₂].
-          move H₂ at top; subst c; simpl.
-          rewrite Nat.mod_0_l; auto; simpl.
-          rewrite Nat.div_0_l; auto.
-          unfold root_series_from_cγ_list; simpl.
-          destruct (ac_zerop (ac_root (Φq pol ns))) as [H₂| H₂].
-           rewrite Hc₁; symmetry; assumption.
-
-           rewrite Hc₁; reflexivity.
-
-          rewrite <- Hc.
-          destruct (zerop (i mod Pos.to_nat dd₁)) as [H₃| ]; auto.
-          apply Nat.mod_divides in H₃; auto.
-          destruct H₃ as (d, Hd).
-          rewrite Nat.mul_comm in Hd; rewrite Hd.
-          rewrite Nat.div_mul; auto.
-          unfold root_series_from_cγ_list.
-          remember O as z; simpl; subst z.
+         unfold root_series_from_cγ_list.
+         remember O as z; simpl; subst z.
+         rewrite <- Hc₁, Hini, <- Hpol₁, <- Hns₁.
+         remember O as z; simpl; subst z.
+         destruct (ac_zerop c₁) as [| H₃]; [ symmetry; assumption | idtac ].
 bbb.
-          rewrite <- Hc₁, Hini, Hfin, <- Hpol₁, <- Hns₁.
-          remember O as z; simpl; subst z.
           destruct (ac_zerop c₁) as [H₃| H₃]; [ reflexivity | idtac ].
           destruct (eq_nat_dec 0 d) as [H₄| H₄].
            move H₄ at top; subst d.
