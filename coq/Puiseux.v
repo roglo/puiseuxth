@@ -1285,7 +1285,7 @@ induction n; intros.
      rewrite Z.mul_shuffle0.
      rewrite <- Z.mul_assoc, <- Pos2Z.inj_mul.
      rewrite Z.add_simpl_l.
-     rewrite Z2Nat.inj_mul.
+     rewrite Z2Nat.inj_mul; auto.
       simpl.
       rewrite <- stretch_shift_series_distr.
       do 2 rewrite stretch_series_const.
@@ -1298,7 +1298,7 @@ induction n; intros.
       rewrite series_mul_1_l.
       rewrite series_add_comm.
       symmetry.
-      rewrite Z2Nat.inj_mul.
+      rewrite Z2Nat.inj_mul; auto.
        simpl.
        rewrite <- stretch_shift_series_distr.
        rewrite <- stretch_series_const with (k := dd).
@@ -1329,45 +1329,48 @@ induction n; intros.
            rewrite Hc₁; reflexivity.
 
           rewrite <- Hc.
-          destruct (zerop (i mod Pos.to_nat dd₁)) as [H₃| H₃].
-           apply Nat.mod_divides in H₃; auto.
-           destruct H₃ as (d, Hd).
-           rewrite Nat.mul_comm in Hd; rewrite Hd.
-           rewrite Nat.div_mul; auto.
-           unfold root_series_from_cγ_list.
-           remember O as z; simpl; subst z.
-           rewrite <- Hc₁, Hini, Hfin, <- Hpol₁, <- Hns₁.
-           remember O as z; simpl; subst z.
-           destruct (ac_zerop c₁) as [H₃| H₃]; [ reflexivity | idtac ].
-           destruct (eq_nat_dec 0 d) as [H₄| H₄].
-            move H₄ at top; subst d.
-            simpl in Hd.
-            move Hd at top; subst i.
-            symmetry in Hc.
-            apply Nat.eq_mul_0_l in Hc; auto.
-            move Hc at top; subst c.
-            exfalso; revert H₂; apply Nat.lt_irrefl.
+          destruct (zerop (i mod Pos.to_nat dd₁)) as [H₃| ]; auto.
+          apply Nat.mod_divides in H₃; auto.
+          destruct H₃ as (d, Hd).
+          rewrite Nat.mul_comm in Hd; rewrite Hd.
+          rewrite Nat.div_mul; auto.
+          unfold root_series_from_cγ_list.
+          remember O as z; simpl; subst z.
+          rewrite <- Hc₁, Hini, Hfin, <- Hpol₁, <- Hns₁.
+          remember O as z; simpl; subst z.
+          destruct (ac_zerop c₁) as [H₃| H₃]; [ reflexivity | idtac ].
+          destruct (eq_nat_dec 0 d) as [H₄| H₄].
+           move H₄ at top; subst d.
+           simpl in Hd.
+           move Hd at top; subst i.
+           symmetry in Hc.
+           apply Nat.eq_mul_0_l in Hc; auto.
+           move Hc at top; subst c.
+           exfalso; revert H₂; apply Nat.lt_irrefl.
 
-            destruct (lt_dec 0 d) as [H₅| ]; [ idtac | reflexivity ].
-            rewrite Nat.add_0_l, Pos.mul_1_r.
-            rewrite Pos2Z.inj_mul, Z.mul_assoc, Z.mul_shuffle0.
-            rewrite Z.div_mul; [ idtac | apply Pos2Z_ne_0 ].
-            rewrite <- Heqdd, <- Heqnd.
-            destruct d; [ reflexivity | simpl ].
-            rewrite Pos.mul_1_r.
-            rewrite Hini₁; simpl.
-            remember (ac_root (Φq pol₁ ns₁)) as c₂.
-            remember (next_pol pol₁ (β ns₁) (γ ns₁) c₂) as pol₂.
-            remember (List.hd phony_ns (newton_segments pol₂)) as ns₂.
-            destruct (ac_zerop c₂) as [| H₆]; [ reflexivity | idtac ].
-            destruct (eq_nat_dec (Z.to_nat nd) (S d)) as [H₇| H₇].
-             subst dd nd dd₁ nd₁ i.
-             rewrite <- H₇ in Hd.
-             rewrite Pos2Nat.inj_mul in Hd.
-             rewrite Z2Nat.inj_mul in Hd.
-              simpl in Hd.
-              rewrite Nat.mul_shuffle0, Nat.mul_assoc in Hd.
-              apply Nat.mul_cancel_r in Hd; auto.
+           destruct (lt_dec 0 d) as [H₅| ]; [ idtac | reflexivity ].
+           rewrite Nat.add_0_l, Pos.mul_1_r.
+           rewrite Pos2Z.inj_mul, Z.mul_assoc, Z.mul_shuffle0.
+           rewrite Z.div_mul; [ idtac | apply Pos2Z_ne_0 ].
+           rewrite <- Heqdd, <- Heqnd.
+           destruct d; [ reflexivity | simpl ].
+           rewrite Pos.mul_1_r.
+           rewrite Hini₁; simpl.
+           remember (ac_root (Φq pol₁ ns₁)) as c₂.
+           remember (next_pol pol₁ (β ns₁) (γ ns₁) c₂) as pol₂.
+           remember (List.hd phony_ns (newton_segments pol₂)) as ns₂.
+           destruct (ac_zerop c₂) as [| H₆]; [ reflexivity | idtac ].
+           destruct (eq_nat_dec (Z.to_nat nd) (S d)) as [H₇| H₇].
+            subst dd nd dd₁ nd₁ i.
+            rewrite <- H₇ in Hd.
+            rewrite Pos2Nat.inj_mul in Hd.
+            rewrite Z2Nat.inj_mul in Hd; auto.
+             simpl in Hd.
+             rewrite Nat.mul_shuffle0, Nat.mul_assoc in Hd.
+             apply Nat.mul_cancel_r in Hd; auto.
+             Focus 2.
+             apply Z.lt_le_incl; assumption.
+
 bbb.
 (*
            rewrite Hini, Hfin.

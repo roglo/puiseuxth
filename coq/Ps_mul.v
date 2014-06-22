@@ -153,7 +153,6 @@ destruct (zerop (i mod Pos.to_nat k)) as [H₂| H₂].
   rewrite Nat.mod_mul; auto; simpl.
   rewrite Nat.div_mul; auto; simpl.
   rewrite Nat.div_mul; auto; simpl.
-  reflexivity.
 
  unfold convol_mul.
  symmetry.

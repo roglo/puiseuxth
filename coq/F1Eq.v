@@ -1581,7 +1581,6 @@ apply mkps_morphism; simpl; [ idtac | idtac | reflexivity ].
   rewrite summation_only_one; simpl.
   rewrite Nat.mod_0_l; auto; simpl.
   rewrite Nat.div_0_l; auto; simpl.
-  reflexivity.
 
   progress unfold convol_mul; simpl.
   rewrite all_0_summation_0; [ reflexivity | idtac ].

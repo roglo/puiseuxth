@@ -2021,3 +2021,5 @@ unfold Qlt; simpl.
 rewrite Z.mul_1_r.
 apply Z.mul_pos_pos; assumption.
 Qed.
+
+Hint Resolve Pos2Z.is_nonneg.

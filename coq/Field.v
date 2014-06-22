@@ -413,3 +413,5 @@ rewrite fld_mul_inv_l in Heq.
 Qed.
 
 End field_theorems.
+
+Hint Resolve rng_eq_refl.
