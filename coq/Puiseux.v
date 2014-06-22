@@ -1069,11 +1069,11 @@ Fixpoint find_coeff max_iter pow pol_ord pol ns i :=
       if ac_zerop c₁ then 0%K
       else if eq_nat_dec pow i then c₁
       else if lt_dec pow i then
-        let γ₁ := snd (ini_pt ns) in
-        let n := (γ₁ * inject_Z ('pol_ord)) in
-        let pow₁ := (pow + Z.to_nat (Qnum n / ' Qden n))%nat in
         let pol₁ := next_pol pol (β ns) (γ ns) c₁ in
         let ns₁ := List.hd phony_ns (newton_segments pol₁) in
+        let γ₁ := snd (ini_pt ns₁) in
+        let n := (γ₁ * inject_Z ('pol_ord)) in
+        let pow₁ := (pow + Z.to_nat (Qnum n / ' Qden n))%nat in
         find_coeff m pow₁ pol_ord pol₁ ns₁ i
       else 0%K
   end.
@@ -1300,18 +1300,13 @@ induction n; intros.
        apply stretch_morph; auto.
 (**)
        constructor; intros i; simpl.
-       destruct (zerop i) as [H₁| H₁].
-        destruct (lt_dec i (Z.to_nat (Qnum αj₁ * ' Qden αk₁))) as [H₂| H₂].
+       destruct (zerop i) as [| H₁]; [ subst i; simpl | idtac ].
+        destruct (lt_dec 0 (Z.to_nat (Qnum αj₁ * ' Qden αk₁))) as [H₂| H₂].
          rewrite rng_add_0_r.
-         unfold root_series_from_cγ_list.
-         remember O as z; simpl; subst z.
-         rewrite <- Hc₁, Hini, <- Hpol₁, <- Hns₁.
-         remember O as z; simpl; subst z.
-         destruct (ac_zerop c₁) as [| H₃]; [ symmetry; assumption | idtac ].
-         symmetry in H₁.
-         destruct (eq_nat_dec 0 i); auto; contradiction.
+         unfold root_series_from_cγ_list; simpl.
+         rewrite <- Hc₁.
+         destruct (ac_zerop c₁); [ symmetry; assumption | reflexivity ].
 
-         subst i.
          apply Nat.nlt_ge, Nat.le_0_r in H₂.
          rewrite <- Z2Nat.inj_0 in H₂.
          apply Z2Nat.inj in H₂; [ idtac | idtac | reflexivity ].
@@ -1326,18 +1321,14 @@ induction n; intros.
         destruct (lt_dec i (Z.to_nat (Qnum αj₁ * ' Qden αk₁))) as [H₂| H₂].
          unfold root_series_from_cγ_list.
          remember O as z; simpl; subst z.
-         rewrite <- Hc₁, Hini, <- Hpol₁, <- Hns₁.
+         rewrite <- Hc₁, <- Hpol₁, <- Hns₁, Hini₁.
          remember O as z; simpl; subst z.
          destruct (ac_zerop c₁) as [| H₃]; [ reflexivity | idtac ].
-         destruct (eq_nat_dec 0 i) as [H₄| H₄].
-          subst i; exfalso; revert H₁; apply Nat.lt_irrefl.
+         destruct (eq_nat_dec 0 i) as [| H₄]; [ subst i | idtac ].
+          exfalso; revert H₁; apply Nat.lt_irrefl.
 
           destruct (lt_dec 0 i) as [H₅| ]; auto; simpl.
           rewrite Pos.mul_1_r.
-          rewrite Heqdd.
-          rewrite Pos2Z.inj_mul, Z.mul_assoc, Z.mul_shuffle0.
-          rewrite Z.div_mul; auto.
-          rewrite <- Heqdd.
           destruct i; [ exfalso; apply H₄; reflexivity | simpl ].
           rewrite Pos.mul_1_r.
           remember (ac_root (Φq pol₁ ns₁)) as c₂.
@@ -1347,9 +1338,11 @@ induction n; intros.
           apply exists_ini_pt_nat_fst_seg in Hini₂.
           destruct Hini₂ as (j₂, (αj₂, Hini₂)).
           clear H₁ H₄ H₅.
+          rewrite Hini₂; simpl.
           destruct (ac_zerop c₂) as [| H₁]; auto.
-          remember (Qnum αj * ' Qden αk)%Z as nd.
+          remember (Qnum αj₁ * ' dd / ' Qden αj₁)%Z as nd.
           destruct (eq_nat_dec (Z.to_nat nd) (S i)) as [H₄| H₄].
+           subst nd; rewrite <- H₄ in H₂.
 bbb.
 
          apply Nat.nlt_ge in H₁.
