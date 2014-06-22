@@ -1078,18 +1078,15 @@ Fixpoint find_coeff max_iter pow pol_ord pol ns i :=
       else 0%K
   end.
 
-Definition root_series_from_cγ_list pol ns i :=
-  let αj := snd (ini_pt ns) in
-  let αk := snd (fin_pt ns) in
-  let pol_ord := (Qden αj * Qden αk)%positive in
+Definition root_series_from_cγ_list pol_ord pol ns i :=
   find_coeff (S i) 0%nat pol_ord pol ns i.
 
-Definition root_from_cγ_list pol ns :=
+Definition root_from_cγ_list pol_ord pol ns :=
   let αj := snd (ini_pt ns) in
   let αk := snd (fin_pt ns) in
-  {| ps_terms := {| terms := root_series_from_cγ_list pol ns |};
+  {| ps_terms := {| terms := root_series_from_cγ_list pol_ord pol ns |};
      ps_ordnum := Qnum αj * 'Qden αk;
-     ps_polord := Qden αj * Qden αk |}.
+     ps_polord := pol_ord |}.
 
 Definition γ_sum n pol ns :=
   let qr := Q_ring in
@@ -1099,8 +1096,8 @@ Definition root_head n pol ns :=
   let pr := ps_ring R in
   Σ (i = 0, n), ps_monom (nth_c i pol ns) (γ_sum i pol ns).
 
-Definition root_tail n pol ns :=
-  root_from_cγ_list (nth_pol n pol ns) (nth_ns n pol ns).
+Definition root_tail pol_ord n pol ns :=
+  root_from_cγ_list pol_ord (nth_pol n pol ns) (nth_ns n pol ns).
 
 Lemma nth_pol_succ : ∀ n pol ns pol₁ ns₁ c₁,
   pol₁ = nth_pol n pol ns
@@ -1200,18 +1197,19 @@ destruct n.
   reflexivity.
 Qed.
 
-Lemma sss : ∀ pol ns n αj αk,
+Lemma sss : ∀ pol ns n αj αk po,
   ns ∈ newton_segments pol
   → αj > 0
   → αk == 0
   → ini_pt ns = (0, αj)
   → fin_pt ns = (1, αk)
-  → (root_tail 0 pol ns =
+  → po = (Qden αj * Qden αk)%positive
+  → (root_tail po 0 pol ns =
      root_head n pol ns +
-     ps_monom 1%K (γ_sum n pol ns) * root_tail (S n) pol ns)%ps.
+     ps_monom 1%K (γ_sum n pol ns) * root_tail po (S n) pol ns)%ps.
 Proof.
-intros pol ns n αj αk Hns Hαj Hαk Hini Hfin.
-revert pol ns αj αk Hns Hαj Hαk Hini Hfin.
+intros pol ns n αj αk po Hns Hαj Hαk Hini Hfin Hpo.
+revert pol ns αj αk po Hns Hαj Hαk Hini Hfin Hpo.
 induction n; intros.
  unfold root_head, γ_sum; simpl.
  unfold summation; simpl.
@@ -1336,6 +1334,7 @@ induction n; intros.
           rewrite Nat.div_mul; auto.
           unfold root_series_from_cγ_list.
           remember O as z; simpl; subst z.
+bbb.
           rewrite <- Hc₁, Hini, Hfin, <- Hpol₁, <- Hns₁.
           remember O as z; simpl; subst z.
           destruct (ac_zerop c₁) as [H₃| H₃]; [ reflexivity | idtac ].
