@@ -1368,9 +1368,13 @@ induction n; intros.
              simpl in Hd.
              rewrite Nat.mul_shuffle0, Nat.mul_assoc in Hd.
              apply Nat.mul_cancel_r in Hd; auto.
-             Focus 2.
-             apply Z.lt_le_incl; assumption.
-
+             remember (Pos.to_nat (Qden αj)) as p.
+             apply Nat.mul_lt_mono_pos_r with (p := p) in H₁; subst p; auto.
+             rewrite Hd in H₁.
+             rewrite Z2Nat.inj_mul, Nat.mul_shuffle0 in H₁; auto.
+              rewrite Pos2Nat.inj_mul, Nat.mul_assoc in H₁.
+              simpl in H₁.
+              apply Nat.mul_lt_mono_pos_r in H₁; auto.
 bbb.
 (*
            rewrite Hini, Hfin.

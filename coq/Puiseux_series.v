@@ -783,7 +783,6 @@ destruct n as [n| ]; simpl.
   rewrite H₁ in Hin.
   rewrite Nat.mul_comm in Hin.
   apply Nat.mul_lt_mono_pos_r in Hin; auto.
-  apply Pos2Nat.is_pos.
 
   rewrite <- Nat.mul_add_distr_r.
   rewrite Nat.mod_mul; auto; simpl.
