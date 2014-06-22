@@ -1332,13 +1332,24 @@ induction n; intros.
          destruct (eq_nat_dec 0 i) as [H₄| H₄].
           subst i; exfalso; revert H₁; apply Nat.lt_irrefl.
 
-          destruct (lt_dec 0 i) as [H₅| ]; auto.
-          simpl.
+          destruct (lt_dec 0 i) as [H₅| ]; auto; simpl.
           rewrite Pos.mul_1_r.
           rewrite Heqdd.
           rewrite Pos2Z.inj_mul, Z.mul_assoc, Z.mul_shuffle0.
           rewrite Z.div_mul; auto.
           rewrite <- Heqdd.
+          destruct i; [ exfalso; apply H₄; reflexivity | simpl ].
+          rewrite Pos.mul_1_r.
+          remember (ac_root (Φq pol₁ ns₁)) as c₂.
+          remember (next_pol pol₁ (β ns₁) (γ ns₁) c₂) as pol₂.
+          remember (List.hd phony_ns (newton_segments pol₂)) as ns₂.
+          remember Heqns₂ as Hini₂; clear HeqHini₂.
+          apply exists_ini_pt_nat_fst_seg in Hini₂.
+          destruct Hini₂ as (j₂, (αj₂, Hini₂)).
+          clear H₁ H₄ H₅.
+          destruct (ac_zerop c₂) as [| H₁]; auto.
+          remember (Qnum αj * ' Qden αk)%Z as nd.
+          destruct (eq_nat_dec (Z.to_nat nd) (S i)) as [H₄| H₄].
 bbb.
 
          apply Nat.nlt_ge in H₁.
