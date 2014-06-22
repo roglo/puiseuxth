@@ -1277,15 +1277,19 @@ induction n; intros.
      rewrite ps_adjust_eq with (n := O) (k := (dd * dd₁)%positive).
      unfold adjust_ps; simpl.
      rewrite Z.sub_0_r.
+bbb.
      apply mkps_morphism; try reflexivity.
      rewrite series_shift_0.
      rewrite Z.mul_add_distr_r.
-bbb.
-     rewrite Z.mul_shuffle0.
-     rewrite <- Z.mul_assoc, <- Pos2Z.inj_mul.
-     rewrite Z.add_simpl_l.
-     rewrite Z2Nat.inj_mul; auto.
-      simpl.
+
+      rewrite <- Z.mul_assoc, <- Pos2Z.inj_mul.
+      rewrite <- Z.mul_assoc, <- Pos2Z.inj_mul.
+      rewrite Z.mul_shuffle0.
+      rewrite <- Z.mul_assoc, <- Pos2Z.inj_mul.
+      rewrite Z.add_simpl_l.
+      rewrite Z2Nat.inj_mul; auto.
+       simpl.
+
       rewrite <- stretch_shift_series_distr.
       do 2 rewrite stretch_series_const.
       symmetry.
