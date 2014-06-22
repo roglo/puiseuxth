@@ -1250,7 +1250,7 @@ induction n; intros.
   rewrite Pos.mul_1_r.
   rewrite Hαk; simpl.
   rewrite Z.add_0_r, Z.mul_1_r.
-  remember (Qden αj * Qden αk)%positive as dd.
+  rename po into dd; rename Hpo into Heqdd; rewrite <- Heqdd.
   remember (Qnum αj * ' Qden αk)%Z as nd.
   remember (Qden αj₁ * Qden αk₁)%positive as dd₁.
   unfold ps_ordnum_add; simpl.
@@ -1280,6 +1280,7 @@ induction n; intros.
      apply mkps_morphism; try reflexivity.
      rewrite series_shift_0.
      rewrite Z.mul_add_distr_r.
+bbb.
      rewrite Z.mul_shuffle0.
      rewrite <- Z.mul_assoc, <- Pos2Z.inj_mul.
      rewrite Z.add_simpl_l.
@@ -1306,6 +1307,7 @@ induction n; intros.
        rewrite series_stretch_stretch.
        rewrite series_stretch_stretch.
        apply stretch_morph; [ reflexivity | idtac ].
+bbb.
 (**)
        unfold series_stretch; simpl.
        constructor; simpl; intros i.
