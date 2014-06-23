@@ -48,7 +48,7 @@ Definition characteristic_polynomial α {R : ring α} pol ns :=
   {| al := make_char_pol R j tl |}.
 
 Definition ps_list_com_polord α (psl : list (puiseux_series α)) :=
-  List.fold_right (λ ps a, Pos.mul a (ps_polord ps)) 1%positive psl.
+  List.fold_right (λ ps a, (a * ps_polord ps)%positive) 1%positive psl.
 
 (* *)
 
