@@ -1081,12 +1081,10 @@ Fixpoint find_coeff max_iter pow pol_ord pol ns i :=
 Definition root_series_from_cγ_list pol_ord pol ns i :=
   find_coeff (S i) 0%nat pol_ord pol ns i.
 
-Definition root_from_cγ_list pol ns :=
+Definition root_from_cγ_list pol_ord pol ns :=
   let αj := snd (ini_pt ns) in
-  let αk := snd (fin_pt ns) in
-  let pol_ord := (Qden αj * Qden αk)%positive in
   {| ps_terms := {| terms := root_series_from_cγ_list pol_ord pol ns |};
-     ps_ordnum := Qnum αj * 'Qden αk;
+     ps_ordnum := Qnum αj * ' pol_ord / ' Qden αj;
      ps_polord := pol_ord |}.
 
 Definition γ_sum n pol ns :=
@@ -1097,8 +1095,8 @@ Definition root_head n pol ns :=
   let pr := ps_ring R in
   Σ (i = 0, n), ps_monom (nth_c i pol ns) (γ_sum i pol ns).
 
-Definition root_tail n pol ns :=
-  root_from_cγ_list (nth_pol n pol ns) (nth_ns n pol ns).
+Definition root_tail pol_ord n pol ns :=
+  root_from_cγ_list pol_ord (nth_pol n pol ns) (nth_ns n pol ns).
 
 Lemma nth_pol_succ : ∀ n pol ns pol₁ ns₁ c₁,
   pol₁ = nth_pol n pol ns
@@ -1198,18 +1196,19 @@ destruct n.
   reflexivity.
 Qed.
 
-Lemma sss : ∀ pol ns n αj αk,
+Lemma sss : ∀ pol ns n αj αk po,
   ns ∈ newton_segments pol
   → αj > 0
   → αk == 0
   → ini_pt ns = (0, αj)
   → fin_pt ns = (1, αk)
-  → (root_tail 0 pol ns =
+  → po = Qden αj
+  → (root_tail po 0 pol ns =
      root_head n pol ns +
-     ps_monom 1%K (γ_sum n pol ns) * root_tail (S n) pol ns)%ps.
+     ps_monom 1%K (γ_sum n pol ns) * root_tail po (S n) pol ns)%ps.
 Proof.
-intros pol ns n αj αk Hns Hαj Hαk Hini Hfin.
-revert pol ns αj αk Hns Hαj Hαk Hini Hfin.
+intros pol ns n αj αk po Hns Hαj Hαk Hini Hfin Hpo.
+revert pol ns αj αk po Hns Hαj Hαk Hini Hfin Hpo.
 induction n; intros.
  unfold root_head, γ_sum; simpl.
  unfold summation; simpl.
@@ -1239,7 +1238,7 @@ induction n; intros.
   unfold Qeq in Hαk; simpl in Hαk.
   rewrite Z.mul_1_r in Hαk.
   unfold root_from_cγ_list; simpl.
-  rewrite Hini, Hfin, Hini₁, Hfin₁; simpl.
+  rewrite Hini, Hini₁; simpl.
   unfold ps_mul; simpl.
   unfold cm; simpl.
   rewrite fold_series_const.
@@ -1269,51 +1268,51 @@ induction n; intros.
      rewrite Z.sub_diag; simpl.
      unfold adjust_series.
      rewrite series_shift_0.
-     remember (dd * (Qden αj₁ * Qden αk₁))%positive as x.
-     rewrite ps_adjust_eq with (n := O) (k := x); subst x.
+     rewrite ps_adjust_eq with (n := O) (k := (dd * dd)%positive).
      unfold adjust_ps; simpl.
      rewrite Z.sub_0_r.
      apply mkps_morphism; try reflexivity.
-     rewrite series_shift_0.
-     rewrite Z.mul_add_distr_r.
-     remember (Qden αj₁ * Qden αk₁)%positive as dd₁.
-     rewrite Z.mul_shuffle0.
-     rewrite <- Z.mul_assoc, <- Pos2Z.inj_mul.
-     rewrite Z.add_simpl_l.
-     clear nd Heqnd.
-     rewrite Z2Nat.inj_mul; auto.
-      simpl.
-      rewrite <- stretch_shift_series_distr.
-      do 2 rewrite stretch_series_const.
-      rewrite series_stretch_stretch.
-      symmetry.
-      rewrite <- stretch_series_const with (k := dd).
-      rewrite <- series_stretch_add_distr.
-      apply stretch_morph; auto.
-      rewrite series_add_comm.
-      rewrite <- stretch_series_const with (k := dd).
-      rewrite <- series_stretch_mul.
-      rewrite series_mul_1_l.
-      rewrite series_add_comm.
-      rewrite Z2Nat.inj_mul; auto; simpl.
+      rewrite series_shift_0.
+      rewrite Z.mul_add_distr_r.
+      remember (Qden αj₁ * Qden αk₁)%positive as dd₁.
+      rewrite Z.mul_shuffle0.
+      rewrite <- Z.mul_assoc, <- Pos2Z.inj_mul.
+      rewrite Z.add_simpl_l.
+      clear nd Heqnd.
+      rewrite Z2Nat.inj_mul; auto.
+       simpl.
        rewrite <- stretch_shift_series_distr.
+       do 2 rewrite stretch_series_const.
+       rewrite series_stretch_stretch.
+       symmetry.
        rewrite <- stretch_series_const with (k := dd).
        rewrite <- series_stretch_add_distr.
-       symmetry.
        apply stretch_morph; auto.
-bbb.
+       rewrite series_add_comm.
+       rewrite <- stretch_series_const with (k := dd).
+       rewrite <- series_stretch_mul.
+       rewrite series_mul_1_l.
+       rewrite series_add_comm.
+       rewrite Z2Nat.inj_mul; auto; simpl.
+        rewrite <- stretch_shift_series_distr.
+        rewrite <- stretch_series_const with (k := dd).
+        rewrite <- series_stretch_add_distr.
+        symmetry.
+        apply stretch_morph; auto.
 (**)
-       constructor; intros i; simpl.
-       destruct (zerop i) as [| H₁]; [ subst i; simpl | idtac ].
-        destruct (lt_dec 0 (Z.to_nat (Qnum αj₁ * ' Qden αk₁))) as [H₂| H₂].
-         rewrite rng_add_0_r.
-         unfold root_series_from_cγ_list; simpl.
-         rewrite <- Hc₁.
-         destruct (ac_zerop c₁); [ symmetry; assumption | reflexivity ].
+        constructor; intros i; simpl.
+        destruct (zerop i) as [| H₁]; [ subst i; simpl | idtac ].
+         remember (Qnum αj₁ * ' po / ' Qden αj₁)%Z as x.
+         destruct (lt_dec 0 (Z.to_nat x)) as [H₂| H₂]; subst x.
+          rewrite rng_add_0_r.
+          unfold root_series_from_cγ_list; simpl.
+          rewrite <- Hc₁.
+          destruct (ac_zerop c₁); [ symmetry; assumption | reflexivity ].
 
-         apply Nat.nlt_ge, Nat.le_0_r in H₂.
-         rewrite <- Z2Nat.inj_0 in H₂.
-         apply Z2Nat.inj in H₂; [ idtac | idtac | reflexivity ].
+          apply Nat.nlt_ge, Nat.le_0_r in H₂.
+          rewrite <- Z2Nat.inj_0 in H₂.
+          apply Z2Nat.inj in H₂; [ idtac | idtac | reflexivity ].
+bbb.
           apply Z.eq_mul_0_l in H₂; auto.
           rewrite H₂ in Hαj₁.
           exfalso; revert Hαj₁; apply Z.lt_irrefl.
