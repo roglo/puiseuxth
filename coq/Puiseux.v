@@ -1311,7 +1311,11 @@ induction n; intros.
 
           apply Nat.nlt_ge, Nat.le_0_r in H₂.
           rewrite <- Z2Nat.inj_0 in H₂.
-          apply Z2Nat.inj in H₂; [ idtac | idtac | reflexivity ].
+          apply Z2Nat.inj in H₂; [ exfalso | idtac | reflexivity ].
+           apply Z.div_small_iff in H₂; auto.
+           destruct H₂ as [(_, H₂)| H₂].
+            subst po.
+            Focus 1.
 bbb.
           apply Z.eq_mul_0_l in H₂; auto.
           rewrite H₂ in Hαj₁.
