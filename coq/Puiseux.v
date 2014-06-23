@@ -1083,9 +1083,8 @@ Definition root_series_from_cγ_list pol_ord pol ns i :=
 
 Definition root_from_cγ_list pol_ord pol ns :=
   let αj := snd (ini_pt ns) in
-  let αk := snd (fin_pt ns) in
   {| ps_terms := {| terms := root_series_from_cγ_list pol_ord pol ns |};
-     ps_ordnum := Qnum αj * 'Qden αk;
+     ps_ordnum := Qnum (αj * inject_Z (' pol_ord));
      ps_polord := pol_ord |}.
 
 Definition γ_sum n pol ns :=
@@ -1239,7 +1238,7 @@ induction n; intros.
   unfold Qeq in Hαk; simpl in Hαk.
   rewrite Z.mul_1_r in Hαk.
   unfold root_from_cγ_list; simpl.
-  rewrite Hini, Hfin, Hini₁, Hfin₁; simpl.
+  rewrite Hini, Hini₁; simpl.
   unfold ps_mul; simpl.
   unfold cm; simpl.
   rewrite fold_series_const.
@@ -1297,6 +1296,7 @@ induction n; intros.
        rewrite <- stretch_series_const with (k := dd).
        rewrite <- series_stretch_add_distr.
        symmetry.
+bbb.
        apply stretch_morph; auto.
 (**)
        constructor; intros i; simpl.
