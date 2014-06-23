@@ -1202,7 +1202,7 @@ Lemma sss : ∀ pol ns n αj αk po,
   → αk == 0
   → ini_pt ns = (0, αj)
   → fin_pt ns = (1, αk)
-  → po = (Qden αj * Qden αk)%positive
+  → po = Qden αj
   → (root_tail po 0 pol ns =
      root_head n pol ns +
      ps_monom 1%K (γ_sum n pol ns) * root_tail po (S n) pol ns)%ps.
@@ -1268,6 +1268,7 @@ induction n; intros.
      rewrite Z.sub_diag; simpl.
      unfold adjust_series.
      rewrite series_shift_0.
+bbb.
      rewrite ps_adjust_eq with (n := O) (k := (dd * dd)%positive).
      unfold adjust_ps; simpl.
      rewrite Z.sub_0_r.
