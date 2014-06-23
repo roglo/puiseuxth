@@ -1081,9 +1081,10 @@ Fixpoint find_coeff max_iter pow pol_ord pol ns i :=
 Definition root_series_from_cγ_list pol_ord pol ns i :=
   find_coeff (S i) 0%nat pol_ord pol ns i.
 
-Definition root_from_cγ_list pol_ord pol ns :=
+Definition root_from_cγ_list pol ns :=
   let αj := snd (ini_pt ns) in
   let αk := snd (fin_pt ns) in
+  let pol_ord := (Qden αj * Qden αk)%positive in
   {| ps_terms := {| terms := root_series_from_cγ_list pol_ord pol ns |};
      ps_ordnum := Qnum αj * 'Qden αk;
      ps_polord := pol_ord |}.
@@ -1096,8 +1097,8 @@ Definition root_head n pol ns :=
   let pr := ps_ring R in
   Σ (i = 0, n), ps_monom (nth_c i pol ns) (γ_sum i pol ns).
 
-Definition root_tail pol_ord n pol ns :=
-  root_from_cγ_list pol_ord (nth_pol n pol ns) (nth_ns n pol ns).
+Definition root_tail n pol ns :=
+  root_from_cγ_list (nth_pol n pol ns) (nth_ns n pol ns).
 
 Lemma nth_pol_succ : ∀ n pol ns pol₁ ns₁ c₁,
   pol₁ = nth_pol n pol ns
@@ -1197,19 +1198,18 @@ destruct n.
   reflexivity.
 Qed.
 
-Lemma sss : ∀ pol ns n αj αk po,
+Lemma sss : ∀ pol ns n αj αk,
   ns ∈ newton_segments pol
   → αj > 0
   → αk == 0
   → ini_pt ns = (0, αj)
   → fin_pt ns = (1, αk)
-  → po = (Qden αj * Qden αk)%positive
-  → (root_tail po 0 pol ns =
+  → (root_tail 0 pol ns =
      root_head n pol ns +
-     ps_monom 1%K (γ_sum n pol ns) * root_tail po (S n) pol ns)%ps.
+     ps_monom 1%K (γ_sum n pol ns) * root_tail (S n) pol ns)%ps.
 Proof.
-intros pol ns n αj αk po Hns Hαj Hαk Hini Hfin Hpo.
-revert pol ns αj αk po Hns Hαj Hαk Hini Hfin Hpo.
+intros pol ns n αj αk Hns Hαj Hαk Hini Hfin.
+revert pol ns αj αk Hns Hαj Hαk Hini Hfin.
 induction n; intros.
  unfold root_head, γ_sum; simpl.
  unfold summation; simpl.
@@ -1250,7 +1250,7 @@ induction n; intros.
   rewrite Pos.mul_1_r.
   rewrite Hαk; simpl.
   rewrite Z.add_0_r, Z.mul_1_r.
-  rename po into dd; rename Hpo into Heqdd; rewrite <- Heqdd.
+  remember (Qden αj * Qden αk)%positive as dd.
   remember (Qnum αj * ' Qden αk)%Z as nd.
   unfold ps_ordnum_add; simpl.
   rewrite Hini, Hfin; simpl.
@@ -1269,12 +1269,15 @@ induction n; intros.
      rewrite Z.sub_diag; simpl.
      unfold adjust_series.
      rewrite series_shift_0.
-     rewrite ps_adjust_eq with (n := O) (k := (dd * dd)%positive).
+     remember (dd * (Qden αj₁ * Qden αk₁))%positive as x.
+     rewrite ps_adjust_eq with (n := O) (k := x); subst x.
      unfold adjust_ps; simpl.
      rewrite Z.sub_0_r.
      apply mkps_morphism; try reflexivity.
      rewrite series_shift_0.
      rewrite Z.mul_add_distr_r.
+     remember (Qden αj₁ * Qden αk₁)%positive as dd₁.
+     rewrite Z.mul_shuffle0.
      rewrite <- Z.mul_assoc, <- Pos2Z.inj_mul.
      rewrite Z.add_simpl_l.
      clear nd Heqnd.
@@ -1298,6 +1301,7 @@ induction n; intros.
        rewrite <- series_stretch_add_distr.
        symmetry.
        apply stretch_morph; auto.
+bbb.
 (**)
        constructor; intros i; simpl.
        destruct (zerop i) as [| H₁]; [ subst i; simpl | idtac ].
