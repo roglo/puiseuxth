@@ -1251,14 +1251,14 @@ Lemma sss : ∀ pol ns n c m,
      root_head n pol ns +
      ps_monom 1%K (γ_sum n pol ns) * root_tail m (S n) pol ns)%ps.
 Proof.
-intros pol ns n c m Hns Hc Hr Hm.
-revert pol ns c m Hns Hc Hr Hm.
+intros pol ns n c₁ m Hns Hc₁ Hr Hm.
+revert pol ns c₁ m Hns Hc₁ Hr Hm.
 induction n; intros.
  unfold root_head, γ_sum; simpl.
  unfold summation; simpl.
  do 2 rewrite rng_add_0_r.
  unfold root_tail; simpl.
- remember (ac_root (Φq pol ns)) as c₁ eqn:Hc₁ .
+ rewrite <- Hc₁.
  remember (next_pol pol (β ns) (γ ns) c₁) as pol₁ eqn:Hpol₁ .
  remember (List.hd phony_ns (newton_segments pol₁)) as ns₁ eqn:Hns₁ .
  remember Hns as Hini; clear HeqHini.
@@ -1307,15 +1307,29 @@ induction n; intros.
    rewrite Qnum_inv_Qnat_sub; auto.
    rewrite Z.mul_1_r.
    remember (Pos.of_nat (k - j)) as kj.
-   rewrite Z.mul_opp_l.
-   rewrite Z.add_opp_r.
+   rewrite Z.mul_opp_l, Z.add_opp_r.
    remember (Qnum αk * ' Qden αj)%Z as dn.
    rewrite Z.min_l.
     unfold ps_terms_add; simpl.
     rewrite fold_series_const.
     rewrite Hini, Hfin; simpl.
-    rewrite Z.mul_opp_l.
-    rewrite Z.add_opp_r.
+    rewrite Z.mul_opp_l, Z.add_opp_r.
+    rewrite Qden_inv_Qnat_sub; auto.
+    rewrite Qnum_inv_Qnat_sub; auto.
+    rewrite Z.mul_1_r.
+    rewrite <- Heqkj.
+    rewrite <- Heqdd, <- Heqdn.
+    rewrite <- Heqnd.
+    rewrite Z.min_l.
+     rewrite Z.sub_diag; simpl.
+     unfold adjust_series.
+     rewrite series_shift_0.
+     remember (dd * kj * dd * kj)%positive as x.
+     rewrite ps_adjust_eq with (n := O) (k := x); subst x.
+     unfold adjust_ps; simpl.
+     rewrite Z.sub_0_r.
+     apply mkps_morphism; try reflexivity.
+      Focus 2.
 bbb.
 
 intros pol ns n c m Hns Hc Hr Hm.
