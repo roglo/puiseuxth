@@ -1363,6 +1363,21 @@ induction n; intros.
        eapply hd_newton_segments; try apply Nat.lt_0_1; try eassumption.
 
        rewrite Hini₁; reflexivity.
+
+      rewrite series_shift_0.
+      rewrite stretch_series_const.
+      rewrite stretch_series_const.
+      rewrite series_mul_1_l.
+      rewrite Z.mul_add_distr_r.
+      rewrite Z.mul_shuffle0.
+      rewrite <- Z.mul_assoc, <- Pos2Z.inj_mul.
+      rewrite Z.add_simpl_l.
+      rewrite Z2Nat.inj_mul; simpl; auto.
+       rewrite <- stretch_shift_series_distr.
+       rewrite Z2Nat.inj_mul; simpl; auto.
+        rewrite <- stretch_shift_series_distr.
+        rewrite <- series_stretch_stretch.
+        rewrite <- stretch_series_const with (k := (dd * dd)%positive).
 bbb.
 
 intros pol ns n c m Hns Hc Hr Hm.
