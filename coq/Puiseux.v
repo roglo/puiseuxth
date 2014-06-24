@@ -1274,32 +1274,48 @@ induction n; intros.
  apply exists_fin_pt_nat_fst_seg in Hfin₁.
  destruct Hfin₁ as (k₁, (αk₁, Hfin₁)).
  remember Hns as H; clear HeqH.
- eapply r_1_j_0_k_1 in H; try eassumption.
-  destruct H as (Hj₁, (Hk₁, (Hαj₁, (Hαk₁, Hoth₁)))).
-  subst j₁ k₁.
-  unfold Qeq in Hαk₁; simpl in Hαk₁.
-  rewrite Z.mul_1_r in Hαk₁.
-  unfold Qlt in Hαj₁; simpl in Hαj₁.
-  rewrite Z.mul_1_r in Hαj₁.
-  unfold Qnat in Hini₁, Hfin₁.
-  simpl in Hini₁, Hfin₁.
-  unfold root_from_cγ_list; simpl.
-  rewrite Hini, Hini₁; simpl.
-  unfold ps_mul; simpl.
-  unfold cm; simpl.
-  rewrite fold_series_const.
-  rewrite Hini, Hfin; simpl.
-  unfold ps_add; simpl.
-  unfold cm; simpl.
-  rewrite Hini, Hfin; simpl.
-  remember (Qden αj * Qden αk)%positive as dd.
-  remember (Qnum αj * ' Qden αk)%Z as nd.
-  unfold ps_ordnum_add; simpl.
-  rewrite Hini, Hfin; simpl.
-  rewrite <- Heqdd, <- Heqnd.
-  rewrite Qden_inv_Qnat_sub.
-   rewrite Qnum_inv_Qnat_sub.
-    rewrite Z.mul_1_r.
+ assert (j < k)%nat as Hjk.
+  eapply j_lt_k; try eassumption.
+   rewrite Hini; simpl; rewrite nat_num_Qnat; reflexivity.
+
+   rewrite Hfin; simpl; rewrite nat_num_Qnat; reflexivity.
+
+  eapply r_1_j_0_k_1 in H; try eassumption.
+   destruct H as (Hj₁, (Hk₁, (Hαj₁, (Hαk₁, Hoth₁)))).
+   subst j₁ k₁.
+   unfold Qeq in Hαk₁; simpl in Hαk₁.
+   rewrite Z.mul_1_r in Hαk₁.
+   unfold Qlt in Hαj₁; simpl in Hαj₁.
+   rewrite Z.mul_1_r in Hαj₁.
+   unfold Qnat in Hini₁, Hfin₁.
+   simpl in Hini₁, Hfin₁.
+   unfold root_from_cγ_list; simpl.
+   rewrite Hini, Hini₁; simpl.
+   unfold ps_mul; simpl.
+   unfold cm; simpl.
+   rewrite fold_series_const.
+   rewrite Hini, Hfin; simpl.
+   unfold ps_add; simpl.
+   unfold cm; simpl.
+   rewrite Hini, Hfin; simpl.
+   remember (Qden αj * Qden αk)%positive as dd.
+   remember (Qnum αj * ' Qden αk)%Z as nd.
+   unfold ps_ordnum_add; simpl.
+   rewrite Hini, Hfin; simpl.
+   rewrite <- Heqdd, <- Heqnd.
+   rewrite Qden_inv_Qnat_sub; auto.
+   rewrite Qnum_inv_Qnat_sub; auto.
+   rewrite Z.mul_1_r.
+   remember (Pos.of_nat (k - j)) as kj.
+   rewrite Z.mul_opp_l.
+   rewrite Z.add_opp_r.
+   remember (Qnum αk * ' Qden αj)%Z as dn.
+   rewrite Z.min_l.
+    unfold ps_terms_add; simpl.
+    rewrite fold_series_const.
+    rewrite Hini, Hfin; simpl.
+    rewrite Z.mul_opp_l.
+    rewrite Z.add_opp_r.
 bbb.
 
 intros pol ns n c m Hns Hc Hr Hm.
