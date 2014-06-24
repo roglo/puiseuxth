@@ -1196,19 +1196,63 @@ destruct n.
   reflexivity.
 Qed.
 
-Lemma sss : ∀ pol ns n αj αk m,
+Lemma Qnum_inv_Qnat_sub : ∀ j k,
+  (j < k)%nat
+  → Qnum (/ (Qnat k - Qnat j)) = 1%Z.
+Proof.
+intros j k Hjk.
+rewrite Qnum_inv; [ reflexivity | simpl ].
+do 2 rewrite Z.mul_1_r.
+rewrite Z.add_opp_r.
+rewrite <- Nat2Z.inj_sub.
+ rewrite <- Nat2Z.inj_0.
+ apply Nat2Z.inj_lt.
+ apply Nat.lt_add_lt_sub_r; assumption.
+
+ apply Nat.lt_le_incl; assumption.
+Qed.
+
+Lemma Qden_inv_Qnat_sub : ∀ j k,
+  (j < k)%nat
+  → Qden (/ (Qnat k - Qnat j)) = Pos.of_nat (k - j).
+Proof.
+intros j k Hjk.
+apply Pos2Z.inj.
+rewrite Qden_inv.
+ simpl.
+ do 2 rewrite Z.mul_1_r.
+ symmetry.
+ rewrite <- positive_nat_Z; simpl.
+ rewrite Nat2Pos.id.
+  rewrite Nat2Z.inj_sub; auto.
+  apply Nat.lt_le_incl; assumption.
+
+  intros H.
+  apply Nat.sub_0_le in H.
+  apply Nat.nlt_ge in H; contradiction.
+
+ simpl.
+ do 2 rewrite Z.mul_1_r.
+ rewrite Z.add_opp_r.
+ rewrite <- Nat2Z.inj_sub.
+  rewrite <- Nat2Z.inj_0.
+  apply Nat2Z.inj_lt.
+  apply Nat.lt_add_lt_sub_r; assumption.
+
+  apply Nat.lt_le_incl; assumption.
+Qed.
+
+Lemma sss : ∀ pol ns n c m,
   ns ∈ newton_segments pol
-  → αj > 0
-  → αk == 0
-  → ini_pt ns = (0, αj)
-  → fin_pt ns = (1, αk)
+  → c = ac_root (Φq pol ns)
+  → root_multiplicity acf c (Φq pol ns) = 1%nat
   → m = ps_list_com_polord (al pol)
   → (root_tail m 0 pol ns =
      root_head n pol ns +
      ps_monom 1%K (γ_sum n pol ns) * root_tail m (S n) pol ns)%ps.
 Proof.
-intros pol ns n αj αk m Hns Hαj Hαk Hini Hfin Hm.
-revert pol ns αj αk m Hns Hαj Hαk Hini Hfin Hm.
+intros pol ns n c m Hns Hc Hr Hm.
+revert pol ns c m Hns Hc Hr Hm.
 induction n; intros.
  unfold root_head, γ_sum; simpl.
  unfold summation; simpl.
@@ -1217,6 +1261,63 @@ induction n; intros.
  remember (ac_root (Φq pol ns)) as c₁ eqn:Hc₁ .
  remember (next_pol pol (β ns) (γ ns) c₁) as pol₁ eqn:Hpol₁ .
  remember (List.hd phony_ns (newton_segments pol₁)) as ns₁ eqn:Hns₁ .
+ remember Hns as Hini; clear HeqHini.
+ apply exists_ini_pt_nat in Hini.
+ destruct Hini as (j, (αj, Hini)).
+ remember Hns as Hfin; clear HeqHfin.
+ apply exists_fin_pt_nat in Hfin.
+ destruct Hfin as (k, (αk, Hfin)).
+ remember Hns₁ as Hini₁; clear HeqHini₁.
+ apply exists_ini_pt_nat_fst_seg in Hini₁.
+ destruct Hini₁ as (j₁, (αj₁, Hini₁)).
+ remember Hns₁ as Hfin₁; clear HeqHfin₁.
+ apply exists_fin_pt_nat_fst_seg in Hfin₁.
+ destruct Hfin₁ as (k₁, (αk₁, Hfin₁)).
+ remember Hns as H; clear HeqH.
+ eapply r_1_j_0_k_1 in H; try eassumption.
+  destruct H as (Hj₁, (Hk₁, (Hαj₁, (Hαk₁, Hoth₁)))).
+  subst j₁ k₁.
+  unfold Qeq in Hαk₁; simpl in Hαk₁.
+  rewrite Z.mul_1_r in Hαk₁.
+  unfold Qlt in Hαj₁; simpl in Hαj₁.
+  rewrite Z.mul_1_r in Hαj₁.
+  unfold Qnat in Hini₁, Hfin₁.
+  simpl in Hini₁, Hfin₁.
+  unfold root_from_cγ_list; simpl.
+  rewrite Hini, Hini₁; simpl.
+  unfold ps_mul; simpl.
+  unfold cm; simpl.
+  rewrite fold_series_const.
+  rewrite Hini, Hfin; simpl.
+  unfold ps_add; simpl.
+  unfold cm; simpl.
+  rewrite Hini, Hfin; simpl.
+  remember (Qden αj * Qden αk)%positive as dd.
+  remember (Qnum αj * ' Qden αk)%Z as nd.
+  unfold ps_ordnum_add; simpl.
+  rewrite Hini, Hfin; simpl.
+  rewrite <- Heqdd, <- Heqnd.
+  rewrite Qden_inv_Qnat_sub.
+   rewrite Qnum_inv_Qnat_sub.
+    rewrite Z.mul_1_r.
+bbb.
+
+intros pol ns n c m Hns Hc Hr Hm.
+revert pol ns c m Hns Hc Hr Hm.
+induction n; intros.
+ unfold root_head, γ_sum; simpl.
+ unfold summation; simpl.
+ do 2 rewrite rng_add_0_r.
+ unfold root_tail; simpl.
+ remember (ac_root (Φq pol ns)) as c₁ eqn:Hc₁ .
+ remember (next_pol pol (β ns) (γ ns) c₁) as pol₁ eqn:Hpol₁ .
+ remember (List.hd phony_ns (newton_segments pol₁)) as ns₁ eqn:Hns₁ .
+ remember Hns as Hini; clear HeqHini.
+ apply exists_ini_pt_nat in Hini.
+ destruct Hini as (j, (αj, Hini)).
+ remember Hns as Hfin; clear HeqHfin.
+ apply exists_fin_pt_nat in Hfin.
+ destruct Hfin as (k, (αk, Hfin)).
  remember Hns₁ as Hini₁; clear HeqHini₁.
  apply exists_ini_pt_nat_fst_seg in Hini₁.
  destruct Hini₁ as (j₁, (αj₁, Hini₁)).
