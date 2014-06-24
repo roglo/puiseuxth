@@ -1390,11 +1390,12 @@ induction n; intros.
           destruct (ac_zerop c₂); symmetry; auto.
 
           apply Nat.nlt_ge, Nat.le_0_r in H₁.
-          subst nmd.
-          rewrite <- Z2Nat.inj_0 in H₁.
-          apply Z2Nat.inj in H₁; [ exfalso | idtac | reflexivity ].
-           apply Z.div_small_iff in H₁; auto.
-           destruct H₁ as [(_, H₂)| H₂].
+          unfold root_series_from_cγ_list; simpl.
+          rewrite <- Hc₂.
+          remember (ac_root (Φq pol₂ ns₂)) as c₃ eqn:Hc₃ .
+          destruct (ac_zerop c₂) as [H₂| H₂].
+           rewrite H₂, rng_add_0_l.
+           destruct (ac_zerop c₃) as [H₃| H₃]; auto.
 bbb.
 
 intros pol ns n c m Hns Hc Hr Hm.
