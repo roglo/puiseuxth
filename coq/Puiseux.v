@@ -1380,6 +1380,22 @@ induction n; intros.
         rewrite <- stretch_series_const with (k := (dd * dd)%positive).
         rewrite <- series_stretch_add_distr.
         apply stretch_morph; auto.
+        constructor; intros i; simpl.
+        destruct (zerop i) as [| H₁]; [ subst i; simpl | idtac ].
+         remember (Qnum αj₂ * ' m / ' Qden αj₂)%Z as nmd.
+         destruct (lt_dec 0 (Z.to_nat nmd)) as [H₁| H₁].
+          rewrite rng_add_0_r.
+          unfold root_series_from_cγ_list; simpl.
+          rewrite <- Hc₂.
+          destruct (ac_zerop c₂); symmetry; auto.
+
+          apply Nat.nlt_ge, Nat.le_0_r in H₁.
+          subst nmd.
+          rewrite <- Z2Nat.inj_0 in H₁.
+          apply Z2Nat.inj in H₁; [ exfalso | idtac | reflexivity ].
+           apply Z.div_small_iff in H₁; auto.
+           destruct H₁ as [(_, H₂)| H₂].
+            subst m.
 bbb.
 
 intros pol ns n c m Hns Hc Hr Hm.
