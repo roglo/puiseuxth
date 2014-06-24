@@ -1246,7 +1246,7 @@ Lemma sss : ∀ pol ns pol₁ ns₁ n c₁ m,
   ns ∈ newton_segments pol
   → c₁ = ac_root (Φq pol ns)
   → root_multiplicity acf c₁ (Φq pol ns) = 1%nat
-  → m = ps_list_com_polord (al pol)
+  → m = ps_list_com_polord (al pol₁)
   → pol₁ = next_pol pol (β ns) (γ ns) c₁
   → ns₁ = List.hd phony_ns (newton_segments pol₁)
   → (root_tail m 0 pol₁ ns₁ =
@@ -1333,7 +1333,7 @@ induction n; intros.
       rewrite Z_div_mul_swap.
        rewrite Z.div_mul; auto.
 
-       remember (mj_of_ns pol ns₁) as mj.
+       remember (mj_of_ns pol₁ ns₁) as mj.
        eapply com_den_of_ini_pt with (j := O) (αj := αj₁) in Heqmj;
         try eassumption.
         unfold Qeq in Heqmj.
