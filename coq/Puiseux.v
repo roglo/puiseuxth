@@ -1378,6 +1378,8 @@ induction n; intros.
         rewrite <- stretch_shift_series_distr.
         rewrite <- series_stretch_stretch.
         rewrite <- stretch_series_const with (k := (dd * dd)%positive).
+        rewrite <- series_stretch_add_distr.
+        apply stretch_morph; auto.
 bbb.
 
 intros pol ns n c m Hns Hc Hr Hm.
