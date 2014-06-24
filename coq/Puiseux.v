@@ -1196,19 +1196,158 @@ destruct n.
   reflexivity.
 Qed.
 
-Lemma sss : ∀ pol ns n αj αk po,
-  ns ∈ newton_segments pol
-  → αj > 0
-  → αk == 0
-  → ini_pt ns = (0, αj)
-  → fin_pt ns = (1, αk)
-  → po = Qden αj
-  → (root_tail po 0 pol ns =
-     root_head n pol ns +
-     ps_monom 1%K (γ_sum n pol ns) * root_tail po (S n) pol ns)%ps.
+Lemma Qnum_inv_Qnat_sub : ∀ j k,
+  (j < k)%nat
+  → Qnum (/ (Qnat k - Qnat j)) = 1%Z.
 Proof.
-intros pol ns n αj αk po Hns Hαj Hαk Hini Hfin Hpo.
-revert pol ns αj αk po Hns Hαj Hαk Hini Hfin Hpo.
+intros j k Hjk.
+rewrite Qnum_inv; [ reflexivity | simpl ].
+do 2 rewrite Z.mul_1_r.
+rewrite Z.add_opp_r.
+rewrite <- Nat2Z.inj_sub.
+ rewrite <- Nat2Z.inj_0.
+ apply Nat2Z.inj_lt.
+ apply Nat.lt_add_lt_sub_r; assumption.
+
+ apply Nat.lt_le_incl; assumption.
+Qed.
+
+Lemma Qden_inv_Qnat_sub : ∀ j k,
+  (j < k)%nat
+  → Qden (/ (Qnat k - Qnat j)) = Pos.of_nat (k - j).
+Proof.
+intros j k Hjk.
+apply Pos2Z.inj.
+rewrite Qden_inv.
+ simpl.
+ do 2 rewrite Z.mul_1_r.
+ symmetry.
+ rewrite <- positive_nat_Z; simpl.
+ rewrite Nat2Pos.id.
+  rewrite Nat2Z.inj_sub; auto.
+  apply Nat.lt_le_incl; assumption.
+
+  intros H.
+  apply Nat.sub_0_le in H.
+  apply Nat.nlt_ge in H; contradiction.
+
+ simpl.
+ do 2 rewrite Z.mul_1_r.
+ rewrite Z.add_opp_r.
+ rewrite <- Nat2Z.inj_sub.
+  rewrite <- Nat2Z.inj_0.
+  apply Nat2Z.inj_lt.
+  apply Nat.lt_add_lt_sub_r; assumption.
+
+  apply Nat.lt_le_incl; assumption.
+Qed.
+
+Lemma sss : ∀ pol ns pol₁ ns₁ n c₁ m,
+  ns ∈ newton_segments pol
+  → c₁ = ac_root (Φq pol ns)
+  → root_multiplicity acf c₁ (Φq pol ns) = 1%nat
+  → m = ps_list_com_polord (al pol)
+  → pol₁ = next_pol pol (β ns) (γ ns) c₁
+  → ns₁ = List.hd phony_ns (newton_segments pol₁)
+  → (root_tail m 0 pol₁ ns₁ =
+     root_head n pol₁ ns₁ +
+     ps_monom 1%K (γ_sum n pol₁ ns₁) * root_tail m (S n) pol₁ ns₁)%ps.
+Proof.
+intros pol ns pol₁ ns₁ n c₁ m Hns Hc₁ Hr Hm Hpol₁ Hns₁.
+revert pol ns pol₁ ns₁ c₁ m Hns Hc₁ Hr Hm Hpol₁ Hns₁.
+induction n; intros.
+ unfold root_head, γ_sum; simpl.
+ unfold summation; simpl.
+ do 2 rewrite rng_add_0_r.
+ unfold root_tail; simpl.
+ remember (ac_root (Φq pol₁ ns₁)) as c₂ eqn:Hc₂ .
+ remember (next_pol pol₁ (β ns₁) (γ ns₁) c₂) as pol₂ eqn:Hpol₂ .
+ remember (List.hd phony_ns (newton_segments pol₂)) as ns₂ eqn:Hns₂ .
+ remember Hns₁ as Hini₁; clear HeqHini₁.
+ apply exists_ini_pt_nat_fst_seg in Hini₁.
+ destruct Hini₁ as (j₁, (αj₁, Hini₁)).
+ remember Hns₁ as Hfin₁; clear HeqHfin₁.
+ apply exists_fin_pt_nat_fst_seg in Hfin₁.
+ destruct Hfin₁ as (k₁, (αk₁, Hfin₁)).
+ remember Hns₂ as Hini₂; clear HeqHini₂.
+ apply exists_ini_pt_nat_fst_seg in Hini₂.
+ destruct Hini₂ as (j₂, (αj₂, Hini₂)).
+ remember Hns₂ as Hfin₂; clear HeqHfin₂.
+ apply exists_fin_pt_nat_fst_seg in Hfin₂.
+ destruct Hfin₂ as (k₂, (αk₂, Hfin₂)).
+ remember Hns as H; clear HeqH.
+ eapply r_1_j_0_k_1 in H; try eassumption.
+  destruct H as (Hj₁, (Hk₁, (Hαj₁, (Hαk₁, Hoth₁)))).
+  subst j₁ k₁.
+  unfold Qeq in Hαk₁; simpl in Hαk₁.
+  rewrite Z.mul_1_r in Hαk₁.
+  unfold Qlt in Hαj₁; simpl in Hαj₁.
+  rewrite Z.mul_1_r in Hαj₁.
+  unfold Qnat in Hini₁, Hfin₁.
+  simpl in Hini₁, Hfin₁.
+  unfold root_from_cγ_list; simpl.
+  rewrite Hini₁, Hini₂; simpl.
+  unfold ps_mul; simpl.
+  unfold cm; simpl.
+  rewrite fold_series_const.
+  rewrite Hini₁, Hfin₁; simpl.
+  unfold ps_add; simpl.
+  unfold cm; simpl.
+  rewrite Hini₁, Hfin₁; simpl.
+  remember (Qden αj₁ * Qden αk₁)%positive as dd.
+  remember (Qnum αj₁ * ' Qden αk₁)%Z as nd.
+  unfold ps_ordnum_add; simpl.
+  rewrite Hini₁, Hfin₁; simpl.
+  rewrite <- Heqdd, <- Heqnd.
+  rewrite Z.mul_1_r, Pos.mul_1_r.
+  rewrite Z.mul_opp_l, Z.add_opp_r.
+  remember (Qnum αk₁ * ' Qden αj₁)%Z as dn.
+  rewrite Z.min_l.
+   unfold ps_terms_add; simpl.
+   rewrite fold_series_const.
+   rewrite Hini₁, Hfin₁; simpl.
+   rewrite Z.mul_opp_l, Z.add_opp_r.
+   rewrite Z.mul_1_r.
+   rewrite <- Heqdd, <- Heqdn, <- Heqnd.
+   rewrite Pos.mul_1_r.
+   rewrite Z.min_l.
+    rewrite Z.sub_diag; simpl.
+    unfold adjust_series.
+    rewrite series_shift_0.
+    remember (Z.to_nat (dn * 'dd * 'm)%Z) as an.
+    remember (dd * dd)%positive as ak.
+    rewrite ps_adjust_eq with (n := an) (k := ak); subst an ak.
+    unfold adjust_ps; simpl.
+    apply mkps_morphism; try reflexivity.
+     Focus 2.
+     rewrite Z2Nat.id.
+      rewrite Z.mul_sub_distr_r.
+      f_equal; [ idtac | rewrite Pos2Z.inj_mul, Z.mul_assoc; reflexivity ].
+      rewrite Pos2Z.inj_mul, Z.mul_assoc.
+      rewrite Pos2Z.inj_mul, Z.mul_assoc.
+      symmetry; rewrite Z.mul_shuffle0.
+      apply Z.mul_cancel_r; auto.
+      subst nd dd.
+      rewrite Z.mul_shuffle0, Pos2Z.inj_mul, Z.mul_assoc.
+      apply Z.mul_cancel_r; auto.
+      rewrite Z_div_mul_swap.
+       rewrite Z.div_mul; auto.
+
+       remember (mj_of_ns pol ns₁) as mj.
+       eapply com_den_of_ini_pt with (j := O) (αj := αj₁) in Heqmj;
+        try eassumption.
+        unfold Qeq in Heqmj.
+        simpl in Heqmj.
+        rewrite Heqmj.
+        apply Z.divide_factor_r.
+
+        Focus 2.
+        rewrite Hini₁.
+        reflexivity.
+bbb.
+
+intros pol ns n c m Hns Hc Hr Hm.
+revert pol ns c m Hns Hc Hr Hm.
 induction n; intros.
  unfold root_head, γ_sum; simpl.
  unfold summation; simpl.
@@ -1217,6 +1356,12 @@ induction n; intros.
  remember (ac_root (Φq pol ns)) as c₁ eqn:Hc₁ .
  remember (next_pol pol (β ns) (γ ns) c₁) as pol₁ eqn:Hpol₁ .
  remember (List.hd phony_ns (newton_segments pol₁)) as ns₁ eqn:Hns₁ .
+ remember Hns as Hini; clear HeqHini.
+ apply exists_ini_pt_nat in Hini.
+ destruct Hini as (j, (αj, Hini)).
+ remember Hns as Hfin; clear HeqHfin.
+ apply exists_fin_pt_nat in Hfin.
+ destruct Hfin as (k, (αk, Hfin)).
  remember Hns₁ as Hini₁; clear HeqHini₁.
  apply exists_ini_pt_nat_fst_seg in Hini₁.
  destruct Hini₁ as (j₁, (αj₁, Hini₁)).
@@ -1302,7 +1447,7 @@ induction n; intros.
 (**)
         constructor; intros i; simpl.
         destruct (zerop i) as [| H₁]; [ subst i; simpl | idtac ].
-         remember (Qnum αj₁ * ' po / ' Qden αj₁)%Z as x.
+         remember (Qnum αj₁ * ' m / ' Qden αj₁)%Z as x.
          destruct (lt_dec 0 (Z.to_nat x)) as [H₂| H₂]; subst x.
           rewrite rng_add_0_r.
           unfold root_series_from_cγ_list; simpl.
