@@ -1395,7 +1395,6 @@ induction n; intros.
           apply Z2Nat.inj in H₁; [ exfalso | idtac | reflexivity ].
            apply Z.div_small_iff in H₁; auto.
            destruct H₁ as [(_, H₂)| H₂].
-            subst m.
 bbb.
 
 intros pol ns n c m Hns Hc Hr Hm.
