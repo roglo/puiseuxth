@@ -1315,7 +1315,7 @@ induction n; intros.
   rewrite fold_series_const.
   rewrite Hini₁, Hfin₁; simpl.
   rewrite Hαk₁; simpl.
-bbb.
+  rewrite Z.add_0_r, Z.mul_1_r, Pos.mul_1_r.
   unfold ps_add; simpl.
   unfold cm; simpl.
   rewrite Hini₁, Hfin₁; simpl.
@@ -1323,29 +1323,28 @@ bbb.
   remember (Qnum αj₁ * ' Qden αk₁)%Z as nd.
   unfold ps_ordnum_add; simpl.
   rewrite Hini₁, Hfin₁; simpl.
+  rewrite Hαk₁; simpl.
+  rewrite Z.add_0_r, Z.mul_1_r, Pos.mul_1_r.
+  rewrite Pos.mul_1_r.
   rewrite <- Heqdd, <- Heqnd.
-  rewrite Z.mul_1_r, Pos.mul_1_r.
-  rewrite Z.mul_opp_l, Z.add_opp_r.
-bbb.
-  remember (Qnum αk₁ * ' Qden αj₁)%Z as dn.
   rewrite Z.min_l.
    unfold ps_terms_add; simpl.
    rewrite fold_series_const.
    rewrite Hini₁, Hfin₁; simpl.
-   rewrite Z.mul_opp_l, Z.add_opp_r.
-   rewrite Z.mul_1_r.
-   rewrite <- Heqdd, <- Heqdn, <- Heqnd.
-   rewrite Pos.mul_1_r.
+   rewrite Hαk₁; simpl.
+   rewrite Z.add_0_r, Z.mul_1_r, Pos.mul_1_r.
+   rewrite <- Heqdd, <- Heqnd.
    rewrite Z.min_l.
     rewrite Z.sub_diag; simpl.
     unfold adjust_series.
     rewrite series_shift_0.
-    remember (Z.to_nat (dn * 'dd * 'm)%Z) as an.
-    remember (dd * dd)%positive as ak.
-    rewrite ps_adjust_eq with (n := an) (k := ak); subst an ak.
-    unfold adjust_ps; simpl.
-    apply mkps_morphism; try reflexivity.
-     Focus 2.
+    rewrite Z.min_r.
+     rewrite ps_adjust_eq with (n := O) (k := (dd * dd)%positive).
+     unfold adjust_ps; simpl.
+     rewrite Z.sub_0_r.
+     apply mkps_morphism; try reflexivity.
+      Focus 2.
+bbb.
      rewrite Z2Nat.id.
       rewrite Z.mul_sub_distr_r.
       f_equal; [ idtac | rewrite Pos2Z.inj_mul, Z.mul_assoc; reflexivity ].
