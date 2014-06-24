@@ -1242,6 +1242,29 @@ rewrite Qden_inv.
   apply Nat.lt_le_incl; assumption.
 Qed.
 
+Lemma hd_newton_segments : ∀ pol ns j k αj αk,
+  ns = List.hd phony_ns (newton_segments pol)
+  → ini_pt ns = (Qnat j, αj)
+  → fin_pt ns = (Qnat k, αk)
+  → (j < k)%nat
+  → ns ∈ newton_segments pol.
+Proof.
+intros pol ns j k αj αk Hns Hini Hfin Hjk.
+remember (newton_segments pol) as nsl.
+symmetry in Heqnsl.
+destruct nsl as [| ns₁]; simpl in Hns.
+ subst ns; simpl in Hini, Hfin.
+ injection Hini; intros; subst.
+ injection Hfin; intros; subst.
+ rewrite <- Nat2Z.inj_0 in H0.
+ rewrite <- Nat2Z.inj_0 in H1.
+ apply Nat2Z.inj in H0.
+ apply Nat2Z.inj in H1.
+ subst j k; exfalso; revert Hjk; apply Nat.lt_irrefl.
+
+ subst ns; left; reflexivity.
+Qed.
+
 Lemma sss : ∀ pol ns pol₁ ns₁ n c₁ m,
   ns ∈ newton_segments pol
   → c₁ = ac_root (Φq pol ns)
@@ -1291,6 +1314,8 @@ induction n; intros.
   unfold cm; simpl.
   rewrite fold_series_const.
   rewrite Hini₁, Hfin₁; simpl.
+  rewrite Hαk₁; simpl.
+bbb.
   unfold ps_add; simpl.
   unfold cm; simpl.
   rewrite Hini₁, Hfin₁; simpl.
@@ -1301,6 +1326,7 @@ induction n; intros.
   rewrite <- Heqdd, <- Heqnd.
   rewrite Z.mul_1_r, Pos.mul_1_r.
   rewrite Z.mul_opp_l, Z.add_opp_r.
+bbb.
   remember (Qnum αk₁ * ' Qden αj₁)%Z as dn.
   rewrite Z.min_l.
    unfold ps_terms_add; simpl.
@@ -1341,9 +1367,14 @@ induction n; intros.
         rewrite Heqmj.
         apply Z.divide_factor_r.
 
-        Focus 2.
-        rewrite Hini₁.
-        reflexivity.
+        eapply hd_newton_segments; try apply Nat.lt_0_1; try eassumption.
+
+        rewrite Hini₁; reflexivity.
+
+      apply Z.mul_nonneg_nonneg; auto.
+      apply Z.mul_nonneg_nonneg; auto.
+      subst dn.
+      apply Z.mul_nonneg_nonneg; auto.
 bbb.
 
 intros pol ns n c m Hns Hc Hr Hm.
