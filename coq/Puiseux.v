@@ -1390,6 +1390,7 @@ induction n; intros.
           destruct (ac_zerop c₂); symmetry; auto.
 
           apply Nat.nlt_ge, Nat.le_0_r in H₁.
+bbb.
           unfold root_series_from_cγ_list; simpl.
           rewrite <- Hc₂.
           remember (ac_root (Φq pol₂ ns₂)) as c₃ eqn:Hc₃ .
