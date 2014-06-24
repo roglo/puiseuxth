@@ -1196,19 +1196,19 @@ destruct n.
   reflexivity.
 Qed.
 
-Lemma sss : ∀ pol ns n αj αk po,
+Lemma sss : ∀ pol ns n αj αk m,
   ns ∈ newton_segments pol
   → αj > 0
   → αk == 0
   → ini_pt ns = (0, αj)
   → fin_pt ns = (1, αk)
-  → po = Qden αj
-  → (root_tail po 0 pol ns =
+  → m = ps_list_com_polord (al pol)
+  → (root_tail m 0 pol ns =
      root_head n pol ns +
-     ps_monom 1%K (γ_sum n pol ns) * root_tail po (S n) pol ns)%ps.
+     ps_monom 1%K (γ_sum n pol ns) * root_tail m (S n) pol ns)%ps.
 Proof.
-intros pol ns n αj αk po Hns Hαj Hαk Hini Hfin Hpo.
-revert pol ns αj αk po Hns Hαj Hαk Hini Hfin Hpo.
+intros pol ns n αj αk m Hns Hαj Hαk Hini Hfin Hm.
+revert pol ns αj αk m Hns Hαj Hαk Hini Hfin Hm.
 induction n; intros.
  unfold root_head, γ_sum; simpl.
  unfold summation; simpl.
@@ -1302,7 +1302,7 @@ induction n; intros.
 (**)
         constructor; intros i; simpl.
         destruct (zerop i) as [| H₁]; [ subst i; simpl | idtac ].
-         remember (Qnum αj₁ * ' po / ' Qden αj₁)%Z as x.
+         remember (Qnum αj₁ * ' m / ' Qden αj₁)%Z as x.
          destruct (lt_dec 0 (Z.to_nat x)) as [H₂| H₂]; subst x.
           rewrite rng_add_0_r.
           unfold root_series_from_cγ_list; simpl.
