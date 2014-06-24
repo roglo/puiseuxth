@@ -1344,10 +1344,6 @@ induction n; intros.
      rewrite Z.sub_0_r.
      apply mkps_morphism; try reflexivity.
       Focus 2.
-bbb.
-     rewrite Z2Nat.id.
-      rewrite Z.mul_sub_distr_r.
-      f_equal; [ idtac | rewrite Pos2Z.inj_mul, Z.mul_assoc; reflexivity ].
       rewrite Pos2Z.inj_mul, Z.mul_assoc.
       rewrite Pos2Z.inj_mul, Z.mul_assoc.
       symmetry; rewrite Z.mul_shuffle0.
@@ -1355,25 +1351,18 @@ bbb.
       subst nd dd.
       rewrite Z.mul_shuffle0, Pos2Z.inj_mul, Z.mul_assoc.
       apply Z.mul_cancel_r; auto.
-      rewrite Z_div_mul_swap.
-       rewrite Z.div_mul; auto.
+      rewrite Z_div_mul_swap; [ rewrite Z.div_mul; auto | idtac ].
+      remember (mj_of_ns pol₁ ns₁) as mj.
+      eapply com_den_of_ini_pt with (j := O) (αj := αj₁) in Heqmj;
+       try eassumption.
+       unfold Qeq in Heqmj.
+       simpl in Heqmj.
+       rewrite Heqmj.
+       apply Z.divide_factor_r.
 
-       remember (mj_of_ns pol₁ ns₁) as mj.
-       eapply com_den_of_ini_pt with (j := O) (αj := αj₁) in Heqmj;
-        try eassumption.
-        unfold Qeq in Heqmj.
-        simpl in Heqmj.
-        rewrite Heqmj.
-        apply Z.divide_factor_r.
+       eapply hd_newton_segments; try apply Nat.lt_0_1; try eassumption.
 
-        eapply hd_newton_segments; try apply Nat.lt_0_1; try eassumption.
-
-        rewrite Hini₁; reflexivity.
-
-      apply Z.mul_nonneg_nonneg; auto.
-      apply Z.mul_nonneg_nonneg; auto.
-      subst dn.
-      apply Z.mul_nonneg_nonneg; auto.
+       rewrite Hini₁; reflexivity.
 bbb.
 
 intros pol ns n c m Hns Hc Hr Hm.
