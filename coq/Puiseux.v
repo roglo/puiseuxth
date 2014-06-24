@@ -1242,94 +1242,83 @@ rewrite Qden_inv.
   apply Nat.lt_le_incl; assumption.
 Qed.
 
-Lemma sss : ∀ pol ns n c m,
+Lemma sss : ∀ pol ns pol₁ ns₁ n c₁ m,
   ns ∈ newton_segments pol
-  → c = ac_root (Φq pol ns)
-  → root_multiplicity acf c (Φq pol ns) = 1%nat
+  → c₁ = ac_root (Φq pol ns)
+  → root_multiplicity acf c₁ (Φq pol ns) = 1%nat
   → m = ps_list_com_polord (al pol)
-  → (root_tail m 0 pol ns =
-     root_head n pol ns +
-     ps_monom 1%K (γ_sum n pol ns) * root_tail m (S n) pol ns)%ps.
+  → pol₁ = next_pol pol (β ns) (γ ns) c₁
+  → ns₁ = List.hd phony_ns (newton_segments pol₁)
+  → (root_tail m 0 pol₁ ns₁ =
+     root_head n pol₁ ns₁ +
+     ps_monom 1%K (γ_sum n pol₁ ns₁) * root_tail m (S n) pol₁ ns₁)%ps.
 Proof.
-intros pol ns n c₁ m Hns Hc₁ Hr Hm.
-revert pol ns c₁ m Hns Hc₁ Hr Hm.
+intros pol ns pol₁ ns₁ n c₁ m Hns Hc₁ Hr Hm Hpol₁ Hns₁.
+revert pol ns pol₁ ns₁ c₁ m Hns Hc₁ Hr Hm Hpol₁ Hns₁.
 induction n; intros.
  unfold root_head, γ_sum; simpl.
  unfold summation; simpl.
  do 2 rewrite rng_add_0_r.
  unfold root_tail; simpl.
- rewrite <- Hc₁.
- remember (next_pol pol (β ns) (γ ns) c₁) as pol₁ eqn:Hpol₁ .
- remember (List.hd phony_ns (newton_segments pol₁)) as ns₁ eqn:Hns₁ .
- remember Hns as Hini; clear HeqHini.
- apply exists_ini_pt_nat in Hini.
- destruct Hini as (j, (αj, Hini)).
- remember Hns as Hfin; clear HeqHfin.
- apply exists_fin_pt_nat in Hfin.
- destruct Hfin as (k, (αk, Hfin)).
+ remember (ac_root (Φq pol₁ ns₁)) as c₂ eqn:Hc₂ .
+ remember (next_pol pol₁ (β ns₁) (γ ns₁) c₂) as pol₂ eqn:Hpol₂ .
+ remember (List.hd phony_ns (newton_segments pol₂)) as ns₂ eqn:Hns₂ .
  remember Hns₁ as Hini₁; clear HeqHini₁.
  apply exists_ini_pt_nat_fst_seg in Hini₁.
  destruct Hini₁ as (j₁, (αj₁, Hini₁)).
  remember Hns₁ as Hfin₁; clear HeqHfin₁.
  apply exists_fin_pt_nat_fst_seg in Hfin₁.
  destruct Hfin₁ as (k₁, (αk₁, Hfin₁)).
+ remember Hns₂ as Hini₂; clear HeqHini₂.
+ apply exists_ini_pt_nat_fst_seg in Hini₂.
+ destruct Hini₂ as (j₂, (αj₂, Hini₂)).
+ remember Hns₂ as Hfin₂; clear HeqHfin₂.
+ apply exists_fin_pt_nat_fst_seg in Hfin₂.
+ destruct Hfin₂ as (k₂, (αk₂, Hfin₂)).
  remember Hns as H; clear HeqH.
- assert (j < k)%nat as Hjk.
-  eapply j_lt_k; try eassumption.
-   rewrite Hini; simpl; rewrite nat_num_Qnat; reflexivity.
-
-   rewrite Hfin; simpl; rewrite nat_num_Qnat; reflexivity.
-
-  eapply r_1_j_0_k_1 in H; try eassumption.
-   destruct H as (Hj₁, (Hk₁, (Hαj₁, (Hαk₁, Hoth₁)))).
-   subst j₁ k₁.
-   unfold Qeq in Hαk₁; simpl in Hαk₁.
-   rewrite Z.mul_1_r in Hαk₁.
-   unfold Qlt in Hαj₁; simpl in Hαj₁.
-   rewrite Z.mul_1_r in Hαj₁.
-   unfold Qnat in Hini₁, Hfin₁.
-   simpl in Hini₁, Hfin₁.
-   unfold root_from_cγ_list; simpl.
-   rewrite Hini, Hini₁; simpl.
-   unfold ps_mul; simpl.
-   unfold cm; simpl.
+ eapply r_1_j_0_k_1 in H; try eassumption.
+  destruct H as (Hj₁, (Hk₁, (Hαj₁, (Hαk₁, Hoth₁)))).
+  subst j₁ k₁.
+  unfold Qeq in Hαk₁; simpl in Hαk₁.
+  rewrite Z.mul_1_r in Hαk₁.
+  unfold Qlt in Hαj₁; simpl in Hαj₁.
+  rewrite Z.mul_1_r in Hαj₁.
+  unfold Qnat in Hini₁, Hfin₁.
+  simpl in Hini₁, Hfin₁.
+  unfold root_from_cγ_list; simpl.
+  rewrite Hini₁, Hini₂; simpl.
+  unfold ps_mul; simpl.
+  unfold cm; simpl.
+  rewrite fold_series_const.
+  rewrite Hini₁, Hfin₁; simpl.
+  unfold ps_add; simpl.
+  unfold cm; simpl.
+  rewrite Hini₁, Hfin₁; simpl.
+  remember (Qden αj₁ * Qden αk₁)%positive as dd.
+  remember (Qnum αj₁ * ' Qden αk₁)%Z as nd.
+  unfold ps_ordnum_add; simpl.
+  rewrite Hini₁, Hfin₁; simpl.
+  rewrite <- Heqdd, <- Heqnd.
+  rewrite Z.mul_1_r, Pos.mul_1_r.
+  rewrite Z.mul_opp_l, Z.add_opp_r.
+  remember (Qnum αk₁ * ' Qden αj₁)%Z as dn.
+  rewrite Z.min_l.
+   unfold ps_terms_add; simpl.
    rewrite fold_series_const.
-   rewrite Hini, Hfin; simpl.
-   unfold ps_add; simpl.
-   unfold cm; simpl.
-   rewrite Hini, Hfin; simpl.
-   remember (Qden αj * Qden αk)%positive as dd.
-   remember (Qnum αj * ' Qden αk)%Z as nd.
-   unfold ps_ordnum_add; simpl.
-   rewrite Hini, Hfin; simpl.
-   rewrite <- Heqdd, <- Heqnd.
-   rewrite Qden_inv_Qnat_sub; auto.
-   rewrite Qnum_inv_Qnat_sub; auto.
-   rewrite Z.mul_1_r.
-   remember (Pos.of_nat (k - j)) as kj.
+   rewrite Hini₁, Hfin₁; simpl.
    rewrite Z.mul_opp_l, Z.add_opp_r.
-   remember (Qnum αk * ' Qden αj)%Z as dn.
+   rewrite Z.mul_1_r.
+   rewrite <- Heqdd, <- Heqdn, <- Heqnd.
+   rewrite Pos.mul_1_r.
    rewrite Z.min_l.
-    unfold ps_terms_add; simpl.
-    rewrite fold_series_const.
-    rewrite Hini, Hfin; simpl.
-    rewrite Z.mul_opp_l, Z.add_opp_r.
-    rewrite Qden_inv_Qnat_sub; auto.
-    rewrite Qnum_inv_Qnat_sub; auto.
-    rewrite Z.mul_1_r.
-    rewrite <- Heqkj.
-    rewrite <- Heqdd, <- Heqdn.
-    rewrite <- Heqnd.
-    rewrite Z.min_l.
-     rewrite Z.sub_diag; simpl.
-     unfold adjust_series.
-     rewrite series_shift_0.
-     remember (dd * kj * dd * kj)%positive as x.
-     rewrite ps_adjust_eq with (n := O) (k := x); subst x.
-     unfold adjust_ps; simpl.
-     rewrite Z.sub_0_r.
-     apply mkps_morphism; try reflexivity.
-      Focus 2.
+    rewrite Z.sub_diag; simpl.
+    unfold adjust_series.
+    rewrite series_shift_0.
+    rewrite ps_adjust_eq with (n := O) (k := (dd * dd)%positive).
+    unfold adjust_ps; simpl.
+    rewrite Z.sub_0_r.
+    apply mkps_morphism; try reflexivity.
+     Focus 2.
 bbb.
 
 intros pol ns n c m Hns Hc Hr Hm.
