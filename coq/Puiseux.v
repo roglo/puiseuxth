@@ -1353,6 +1353,20 @@ split.
     rewrite Z.min_r; auto.
     rewrite Z.sub_diag; simpl.
     rewrite series_shift_0.
+    rewrite Pos.mul_comm in Heqmab.
+    rewrite Heqmab.
+    rewrite Pos.mul_comm in Heqmab.
+    rewrite Pos2Nat.inj_mul, Nat.mul_assoc.
+    rewrite <- stretch_shift_series_distr.
+    rewrite series_stretch_stretch.
+    rewrite series_stretch_stretch.
+    rewrite <- series_stretch_add_distr.
+    replace O with (O * Pos.to_nat m)%nat by reflexivity.
+    rewrite nth_null_coeff_range_length_stretch.
+    pose proof (Hsa n) as Hsan.
+    pose proof (Hsb n) as Hsbn.
+    destruct Hsan as (na, Hsan).
+    destruct Hsbn as (nb, Hsbn).
 bbb.
 
 Lemma sss : ∀ pol ns pol₁ ns₁ n c₁ m,
