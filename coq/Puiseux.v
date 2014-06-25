@@ -1348,6 +1348,11 @@ split.
   rewrite Z2Nat.inj_mul; auto.
    simpl.
    unfold adjust_series.
+   destruct (Z_le_dec oa ob) as [Hoab| Hoba].
+    rewrite Z.min_l; auto.
+    rewrite Z.min_r; auto.
+    rewrite Z.sub_diag; simpl.
+    rewrite series_shift_0.
 bbb.
 
 Lemma sss : ∀ pol ns pol₁ ns₁ n c₁ m,
