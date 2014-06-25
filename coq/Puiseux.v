@@ -1324,6 +1324,30 @@ split.
   reflexivity.
 
  unfold is_a_series_in_x_power; intros n.
+ unfold ps_terms_add; simpl.
+ unfold cm_factor; simpl.
+ rewrite Hpa, Hpb, Hoa, Hob; simpl.
+ remember (m * ka * kb)%positive as mab.
+ rewrite Z.mul_shuffle0.
+ rewrite Pos2Z.inj_mul.
+ rewrite Z.mul_assoc.
+ rewrite Z.mul_shuffle0, <- Z.mul_assoc, <- Z.mul_assoc.
+ rewrite <- Pos2Z.inj_mul.
+ rewrite <- Pos2Z.inj_mul.
+ rewrite Pos.mul_assoc.
+ rewrite <- Heqmab.
+ rewrite Z.mul_shuffle0.
+ rewrite <- Z.mul_assoc.
+ rewrite <- Pos2Z.inj_mul.
+ rewrite <- Heqmab.
+ rewrite Z.mul_min_distr_nonneg_r; [ idtac | subst mab; auto ].
+ rewrite Z.mul_min_distr_nonneg_r; [ idtac | subst mab; auto ].
+ rewrite <- Z.mul_sub_distr_r.
+ rewrite <- Z.mul_sub_distr_r.
+ rewrite Z2Nat.inj_mul; auto.
+  rewrite Z2Nat.inj_mul; auto.
+   simpl.
+   unfold adjust_series.
 bbb.
 
 Lemma sss : ∀ pol ns pol₁ ns₁ n c₁ m,
