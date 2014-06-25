@@ -1265,6 +1265,69 @@ destruct nsl as [| ns₁]; simpl in Hns.
  subst ns; left; reflexivity.
 Qed.
 
+(* express that some puiseux series ∈ K(1/m)* *)
+Inductive in_K_1_m_star m ps :=
+  InK1ms :
+    (∃ k,
+    is_a_series_in_x_power (ps_terms ps) 0 (Pos.to_nat k)
+    ∧ ('k | ps_ordnum ps)%Z
+    ∧ ps_polord ps = (m * k)%positive)
+    → in_K_1_m_star m ps.
+
+Arguments in_K_1_m_star m%positive ps%ps.
+
+Theorem in_K_1_m_star_add_compat : ∀ m a b,
+  in_K_1_m_star m a
+  → in_K_1_m_star m b
+  → in_K_1_m_star m (a + b).
+Proof.
+intros m a b Ha Hb.
+inversion_clear Ha.
+rename H into Ha.
+inversion_clear Hb.
+rename H into Hb.
+destruct Ha as (ka, (Hsa, (Hoa, Hpa))).
+destruct Hb as (kb, (Hsb, (Hob, Hpb))).
+unfold is_a_series_in_x_power in Hsa.
+unfold is_a_series_in_x_power in Hsb.
+destruct Hoa as (oa, Hoa).
+destruct Hob as (ob, Hob).
+constructor; simpl.
+unfold cm; simpl.
+exists (m * ka * kb)%positive.
+split.
+ unfold is_a_series_in_x_power; intros n.
+ unfold ps_terms_add; simpl.
+ unfold cm_factor; simpl.
+ rewrite Hpa, Hpb, Hoa, Hob; simpl.
+ Focus 2.
+ split.
+  unfold ps_ordnum_add; simpl.
+  unfold cm_factor; simpl.
+  rewrite Hpa, Hpb, Hoa, Hob; simpl.
+  remember (' (m * ka * kb))%Z as mab.
+  rewrite Z.mul_shuffle0.
+  rewrite Pos2Z.inj_mul.
+  rewrite Z.mul_assoc.
+  rewrite Z.mul_shuffle0, <- Z.mul_assoc, <- Z.mul_assoc.
+  rewrite <- Pos2Z.inj_mul.
+  rewrite <- Pos2Z.inj_mul.
+  rewrite Pos.mul_assoc.
+  rewrite <- Heqmab.
+  rewrite Z.mul_shuffle0.
+  rewrite <- Z.mul_assoc.
+  rewrite <- Pos2Z.inj_mul.
+  rewrite <- Heqmab.
+  rewrite Z.mul_min_distr_nonneg_r; [ idtac | subst mab; auto ].
+  apply Z.divide_factor_r.
+
+  rewrite Hpa, Hpb.
+  rewrite Pos_mul_shuffle0.
+  rewrite <- Pos.mul_assoc.
+  rewrite Pos_mul_shuffle0.
+  reflexivity.
+bbb.
+
 Lemma sss : ∀ pol ns pol₁ ns₁ n c₁ m,
   ns ∈ newton_segments pol
   → c₁ = ac_root (Φq pol ns)
