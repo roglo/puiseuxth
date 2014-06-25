@@ -1296,10 +1296,6 @@ constructor; simpl.
 unfold cm; simpl.
 exists (m * ka * kb)%positive.
 split.
- unfold is_a_series_in_x_power; intros n.
- unfold ps_terms_add; simpl.
- unfold cm_factor; simpl.
- rewrite Hpa, Hpb, Hoa, Hob; simpl.
  Focus 2.
  split.
   unfold ps_ordnum_add; simpl.
@@ -1326,6 +1322,8 @@ split.
   rewrite <- Pos.mul_assoc.
   rewrite Pos_mul_shuffle0.
   reflexivity.
+
+ unfold is_a_series_in_x_power; intros n.
 bbb.
 
 Lemma sss : ∀ pol ns pol₁ ns₁ n c₁ m,
