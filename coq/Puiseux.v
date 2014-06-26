@@ -131,7 +131,6 @@ unfold cm, cm_factor in Hab.
 rewrite Hpa, Hpb in Hab.
 rewrite <- Z.mul_add_distr_r in Hab.
 rewrite <- series_stretch_mul in Hab.
-intros m a b Ha Hb.
 exists (mkps (ps_terms psa * ps_terms psb) (ps_ordnum psa + ps_ordnum psb) m).
 bbb.
 
