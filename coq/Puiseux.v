@@ -30,18 +30,42 @@ Require Import Q_field.
 
 Set Implicit Arguments.
 
+(* express that some puiseux series ∈ K(1/m)* *)
+Inductive in_K_1_m_star {α} {R : ring α} ps m :=
+  InK1ms : (∃ ps₁, (ps₁ = ps)%ps ∧ ps_polord ps₁ = m) → in_K_1_m_star ps m.
+
+Arguments in_K_1_m_star _ _ ps%ps m%positive.
+
+Add Parametric Morphism α (R : ring α) : (@in_K_1_m_star _ R)
+  with signature eq_ps ==> eq ==> iff
+  as in_K_1_m_star_prop.
+Proof.
+intros a b Hab n.
+split; intros H.
+ inversion_clear H.
+ destruct H0 as (ps₁, H).
+ constructor.
+ exists ps₁.
+ destruct H as (H, Hpo).
+ split; [ idtac | assumption ].
+ transitivity a; assumption.
+
+ inversion_clear H.
+ destruct H0 as (ps₁, H).
+ constructor.
+ exists ps₁.
+ destruct H as (H, Hpo).
+ split; [ idtac | assumption ].
+ symmetry in Hab.
+ transitivity b; assumption.
+Qed.
+
 Section theorems.
 
 Variable α : Type.
 Variable R : ring α.
 Variable K : field R.
 Variable acf : algeb_closed_field K.
-
-(* express that some puiseux series ∈ K(1/m)* *)
-Inductive in_K_1_m_star ps m :=
-  InK1ms : (∃ ps₁, (ps₁ = ps)%ps ∧ ps_polord ps₁ = m) → in_K_1_m_star ps m.
-
-Arguments in_K_1_m_star ps%ps m%positive.
 
 Require Import Ps_add_compat.
 
@@ -141,20 +165,72 @@ rewrite series_shift_0.
 reflexivity.
 Qed.
 
+Theorem ps_zero_in_K_1_m_star : ∀ m, in_K_1_m_star 0 m.
+Proof.
+intros m.
+constructor.
+exists (mkps 0 0 m).
+split; [ idtac | reflexivity ].
+symmetry.
+rewrite ps_adjust_eq with (n := O) (k := m).
+unfold adjust_ps; simpl.
+rewrite series_shift_0; simpl.
+rewrite series_stretch_series_0.
+reflexivity.
+Qed.
+
 Theorem in_K_1_m_star_lap_mul_compat : ∀ m la lb c,
-  (∀ a, a ∈ la → in_K_1_m_star a m)
-  → (∀ b, b ∈ lb → in_K_1_m_star b m)
-  → List.Exists (eq_ps c) (la * lb)%pslap
+  (∀ a, lap_ps_in R a la → in_K_1_m_star a m)
+  → (∀ b, lap_ps_in R b lb → in_K_1_m_star b m)
+  → lap_ps_in R c (la * lb)%pslap
   → in_K_1_m_star c m.
 Proof.
 intros m la lb c Hla Hlb Hc.
-induction la as [| a]; intros.
- induction lb as [| b]; [ inversion Hc | idtac ].
- simpl in Hc.
 bbb.
- unfold ps_lap_mul in Hc.
- unfold lap_mul in Hc.
- simpl in Hc.
+revert lb Hlb Hc.
+induction la as [| a]; intros.
+ rewrite <- fold_ps_lap_mul in Hc.
+ rewrite lap_mul_nil_l in Hc.
+ contradiction.
+
+ induction lb as [| b].
+  rewrite <- fold_ps_lap_mul in Hc.
+  rewrite lap_mul_nil_r in Hc.
+  contradiction.
+
+  unfold ps_lap_mul in Hc.
+  rewrite lap_mul_cons in Hc.
+  simpl in Hc.
+  destruct Hc as [Hc| Hc].
+   destruct Hc as (Hab, Hc).
+   rewrite <- Hc.
+   apply in_K_1_m_star_mul_compat.
+    destruct (ps_zerop R a) as [H| H].
+     rewrite H.
+     apply ps_zero_in_K_1_m_star.
+
+     apply Hla.
+     left.
+     split; [ idtac | reflexivity ].
+     intros HH; apply H; clear H.
+     apply lap_eq_cons_nil_inv in HH.
+     destruct HH; assumption.
+
+    destruct (ps_zerop R b) as [H| H].
+     rewrite H.
+     apply ps_zero_in_K_1_m_star.
+
+     apply Hlb; left.
+     split; [ idtac | reflexivity ].
+     intros HH; apply H; clear H.
+     apply lap_eq_cons_nil_inv in HH.
+     destruct HH; assumption.
+
+   destruct (ps_zerop R a) as [H| H].
+    rewrite H in Hc.
+    rewrite lap_eq_0, lap_mul_nil_l in Hc.
+    rewrite lap_add_nil_r in Hc.
+    eapply IHla.
 bbb.
 
 Theorem rrr : ∀ pol ns m c b q,
