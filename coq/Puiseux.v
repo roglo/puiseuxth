@@ -141,6 +141,20 @@ rewrite series_shift_0.
 reflexivity.
 Qed.
 
+Theorem rrr : ∀ pol ns m c b q,
+  ns ∈ newton_segments pol
+  → (∀ a, a ∈ al pol → in_K_1_m_star a m)
+  → c = ac_root (Φq pol ns)
+  → q = q_of_ns pol ns
+  → b ∈ al (next_pol pol (γ ns) (β ns) c)
+  → in_K_1_m_star b (q * m).
+Proof.
+intros pol ns m c b q Hns Hla Hc Hq Hb.
+remember (al (next_pol pol (γ ns) (β ns) c)) as la₁ eqn:Hla₁ .
+unfold next_pol in Hla₁; simpl in Hla₁.
+unfold next_lap in Hla₁.
+bbb.
+
 (* *)
 
 Definition phony_ns :=
