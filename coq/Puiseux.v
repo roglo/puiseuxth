@@ -111,6 +111,31 @@ rewrite Z2Nat.inj_mul; simpl; auto.
  apply Z.le_max_l.
 Qed.
 
+Theorem in_K_1_m_star_mul_compat : ∀ m a b,
+  in_K_1_m_star a m
+  → in_K_1_m_star b m
+  → in_K_1_m_star (a * b) m.
+Proof.
+intros m a b Ha Hb.
+inversion_clear Ha.
+rename H into Ha.
+inversion_clear Hb.
+rename H into Hb.
+destruct Ha as (psa, (Ha, Hpa)).
+destruct Hb as (psb, (Hb, Hpb)).
+constructor.
+remember Ha as Hab; clear HeqHab.
+eapply ps_mul_compat_r with (ps₃ := psb) in Hab.
+rewrite Hb in Hab at 2.
+unfold ps_mul in Hab at 1.
+unfold cm, cm_factor in Hab.
+rewrite Hpa, Hpb in Hab.
+rewrite <- Z.mul_add_distr_r in Hab.
+rewrite <- series_stretch_mul in Hab.
+intros m a b Ha Hb.
+exists (mkps (ps_terms psa * ps_terms psb) (ps_ordnum psa + ps_ordnum psb) m).
+bbb.
+
 (* *)
 
 Definition phony_ns :=

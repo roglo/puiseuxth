@@ -19,6 +19,7 @@ Record puiseux_series α := mkps
     ps_ordnum : Z;
     ps_polord : positive }.
 
+Arguments mkps α%type ps_terms%ser ps_ordnum%Z ps_polord%positive.
 Delimit Scope ps_scope with ps.
 
 Section Axioms.
