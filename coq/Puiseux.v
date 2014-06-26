@@ -179,12 +179,52 @@ rewrite series_stretch_series_0.
 reflexivity.
 Qed.
 
+Theorem in_K_1_m_star_lap_add_compat : ∀ m la lb c,
+  (∀ a, lap_ps_in R a la → in_K_1_m_star a m)
+  → (∀ b, lap_ps_in R b lb → in_K_1_m_star b m)
+  → lap_ps_in R c (la + lb)%pslap
+  → in_K_1_m_star c m.
+Proof.
+intros m la lb c Hla Hlb Hc.
+rewrite <- fold_ps_lap_add in Hc.
+revert lb Hlb Hc.
+induction la as [| a]; intros.
+ simpl in Hc.
+ apply Hlb; assumption.
+
+ simpl in Hc.
+ destruct lb as [| b].
+  simpl in Hc.
+  destruct Hc as [(Ha, Hac)| Hc].
+   rewrite <- Hac.
+   destruct (ps_zerop R a) as [H| H].
+    rewrite H.
+    apply ps_zero_in_K_1_m_star.
+
+    apply Hla; left.
+    split; [ assumption | reflexivity ].
+bbb.
+
 Theorem in_K_1_m_star_lap_mul_compat : ∀ m la lb c,
   (∀ a, lap_ps_in R a la → in_K_1_m_star a m)
   → (∀ b, lap_ps_in R b lb → in_K_1_m_star b m)
   → lap_ps_in R c (la * lb)%pslap
   → in_K_1_m_star c m.
 Proof.
+intros m la lb c Hla Hlb Hc.
+rewrite <- fold_ps_lap_mul in Hc.
+revert lb Hlb Hc.
+induction la as [| a]; intros.
+ rewrite lap_mul_nil_l in Hc.
+ contradiction.
+
+ rewrite lap_mul_cons_l in Hc; simpl in Hc.
+ eapply in_K_1_m_star_lap_add_compat.
+  3: eassumption.
+
+  intros b Hb.
+bbb.
+
 intros m la lb c Hla Hlb Hc.
 bbb.
 revert lb Hlb Hc.
