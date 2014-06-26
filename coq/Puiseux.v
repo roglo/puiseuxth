@@ -203,6 +203,12 @@ induction la as [| a]; intros.
 
     apply Hla; left.
     split; [ assumption | reflexivity ].
+
+   apply Hla; right; assumption.
+
+  simpl in Hc.
+  destruct Hc as [(Ha, Hac)| Hc].
+   rewrite <- Hac.
 bbb.
 
 Theorem in_K_1_m_star_lap_mul_compat : ∀ m la lb c,
