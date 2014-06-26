@@ -83,8 +83,7 @@ remember (oa - Z.min oa ob)%Z as omab.
 remember (ob - Z.min ob oa)%Z as omba.
 exists
  (mkps
-    (adjust_series (Z.to_nat omab) 1 sa +
-     adjust_series (Z.to_nat omba) 1 sb)%ser
+    (adjust_series (Z.to_nat omab) 1 sa + adjust_series (Z.to_nat omba) 1 sb)
     (Z.min oa ob) m).
 split; auto.
 rewrite <- Hab.
