@@ -142,13 +142,19 @@ reflexivity.
 Qed.
 
 Theorem in_K_1_m_star_lap_mul_compat : ∀ m la lb c,
-  let qr := ps_ring in
   (∀ a, a ∈ la → in_K_1_m_star a m)
   → (∀ b, b ∈ lb → in_K_1_m_star b m)
-  → c ∈ (la * lb)%lap
+  → List.Exists (eq_ps c) (la * lb)%pslap
   → in_K_1_m_star c m.
 Proof.
-intros m la lb c qr Hla Hlb Hc.
+intros m la lb c Hla Hlb Hc.
+induction la as [| a]; intros.
+ induction lb as [| b]; [ inversion Hc | idtac ].
+ simpl in Hc.
+bbb.
+ unfold ps_lap_mul in Hc.
+ unfold lap_mul in Hc.
+ simpl in Hc.
 bbb.
 
 Theorem rrr : ∀ pol ns m c b q,
