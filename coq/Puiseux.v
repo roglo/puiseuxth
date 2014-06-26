@@ -141,6 +141,16 @@ rewrite series_shift_0.
 reflexivity.
 Qed.
 
+Theorem in_K_1_m_star_lap_mul_compat : ∀ m la lb c,
+  let qr := ps_ring in
+  (∀ a, a ∈ la → in_K_1_m_star a m)
+  → (∀ b, b ∈ lb → in_K_1_m_star b m)
+  → c ∈ (la * lb)%lap
+  → in_K_1_m_star c m.
+Proof.
+intros m la lb c qr Hla Hlb Hc.
+bbb.
+
 Theorem rrr : ∀ pol ns m c b q,
   ns ∈ newton_segments pol
   → (∀ a, a ∈ al pol → in_K_1_m_star a m)
@@ -153,6 +163,12 @@ intros pol ns m c b q Hns Hla Hc Hq Hb.
 remember (al (next_pol pol (γ ns) (β ns) c)) as la₁ eqn:Hla₁ .
 unfold next_pol in Hla₁; simpl in Hla₁.
 unfold next_lap in Hla₁.
+subst la₁.
+eapply in_K_1_m_star_lap_mul_compat; eauto .
+ intros a Ha.
+ destruct Ha as [Ha| ]; [ idtac | contradiction ].
+ subst a; simpl.
+ constructor.
 bbb.
 
 (* *)
