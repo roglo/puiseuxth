@@ -192,7 +192,7 @@ induction la as [| a]; intros.
  simpl in Hc.
  apply Hlb; assumption.
 
- induction lb as [| b].
+ destruct lb as [| b].
   simpl in Hc.
   destruct Hc as [(Ha, Hac)| Hc].
    rewrite <- Hac.
@@ -227,13 +227,28 @@ induction la as [| a]; intros.
      apply lap_eq_cons_nil_inv in H.
      destruct H; assumption.
 
-     apply IHla with (lb := lb).
-      intros d Hd.
-      apply Hla; right; assumption.
+     apply in_K_1_m_star_add_compat.
+      apply Hla; left.
+      split; [ idtac | reflexivity ].
+      intros H; apply Ha; clear Ha.
+      apply lap_eq_cons_nil_inv in H.
+      destruct H; assumption.
 
-      intros d Hd.
-      apply Hlb; right; assumption.
-bbb.
+      apply Hlb; left.
+      split; [ idtac | reflexivity ].
+      intros H; apply Hb; clear Hb.
+      apply lap_eq_cons_nil_inv in H.
+      destruct H; assumption.
+
+   apply IHla with (lb := lb).
+    intros d Hd.
+    apply Hla; right; assumption.
+
+    intros d Hd.
+    apply Hlb; right; assumption.
+
+    assumption.
+Qed.
 
 Theorem in_K_1_m_star_lap_mul_compat : ∀ m la lb c,
   (∀ a, lap_ps_in R a la → in_K_1_m_star a m)
