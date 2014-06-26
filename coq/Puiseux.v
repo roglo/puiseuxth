@@ -1266,21 +1266,32 @@ destruct nsl as [| ns₁]; simpl in Hns.
 Qed.
 
 (* express that some puiseux series ∈ K(1/m)* *)
-Inductive in_K_1_m_star m ps :=
-  InK1ms :
-    (∃ k,
-    is_a_series_in_x_power (ps_terms ps) 0 (Pos.to_nat k)
-    ∧ ('k | ps_ordnum ps)%Z
-    ∧ ps_polord ps = (m * k)%positive)
-    → in_K_1_m_star m ps.
+Inductive in_K_1_m_star ps m :=
+  InK1ms : (∃ ps₁, (ps₁ = ps)%ps ∧ ps_polord ps₁ = m) → in_K_1_m_star ps m.
 
-Arguments in_K_1_m_star m%positive ps%ps.
+Arguments in_K_1_m_star ps%ps m%positive.
 
 Theorem in_K_1_m_star_add_compat : ∀ m a b,
-  in_K_1_m_star m a
-  → in_K_1_m_star m b
-  → in_K_1_m_star m (a + b).
+  in_K_1_m_star a m
+  → in_K_1_m_star b m
+  → in_K_1_m_star (a + b) m.
 Proof.
+intros m a b Ha Hb.
+inversion_clear Ha.
+rename H into Ha.
+inversion_clear Hb.
+rename H into Hb.
+destruct Ha as (psa, (Ha, Hoa)).
+destruct Hb as (psb, (Hb, Hob)).
+constructor.
+inversion Ha.
+subst ps₁ ps₂.
+rename H into Hna.
+inversion Hb.
+subst ps₁ ps₂.
+rename H into Hnb.
+bbb.
+
 intros m a b Ha Hb.
 inversion_clear Ha.
 rename H into Ha.
