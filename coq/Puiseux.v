@@ -61,6 +61,44 @@ constructor.
 remember Ha as Hab; clear HeqHab.
 eapply ps_add_compat_r with (ps₃ := psb) in Hab.
 rewrite Hb in Hab at 2.
+unfold ps_add in Hab at 1.
+unfold cm in Hab.
+rewrite Hpa, Hpb in Hab.
+unfold ps_ordnum_add in Hab.
+unfold cm_factor in Hab.
+rewrite Hpa, Hpb in Hab.
+rewrite Z.mul_min_distr_nonneg_r in Hab; auto.
+unfold ps_terms_add in Hab.
+unfold cm_factor in Hab.
+rewrite Hpa, Hpb in Hab.
+rewrite Z.mul_min_distr_nonneg_r in Hab; auto.
+rewrite Z.mul_min_distr_nonneg_r in Hab; auto.
+rewrite <- Z.mul_sub_distr_r in Hab.
+rewrite <- Z.mul_sub_distr_r in Hab.
+remember (ps_ordnum psa) as oa.
+remember (ps_ordnum psb) as ob.
+remember (ps_terms psa) as sa.
+remember (ps_terms psb) as sb.
+remember (oa - Z.min oa ob)%Z as omab.
+remember (ob - Z.min ob oa)%Z as omba.
+exists
+ (mkps
+    (adjust_series (Z.to_nat omab) m sa +
+     adjust_series (Z.to_nat omba) m sb)%ser
+    (Z.min oa ob) m).
+split; auto.
+rewrite <- Hab.
+rewrite ps_adjust_eq with (n := O) (k := m).
+unfold adjust_ps; simpl.
+rewrite Z.sub_0_r.
+rewrite series_shift_0.
+apply mkps_morphism; auto.
+unfold adjust_series; simpl.
+rewrite Z2Nat.inj_mul; simpl; auto.
+ rewrite Z2Nat.inj_mul; simpl; auto.
+  rewrite <- stretch_shift_series_distr.
+  rewrite <- stretch_shift_series_distr.
+  rewrite <- series_stretch_add_distr.
 bbb.
 
 inversion Ha.
