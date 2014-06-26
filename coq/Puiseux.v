@@ -207,8 +207,18 @@ induction la as [| a]; intros.
    apply Hla; right; assumption.
 
   simpl in Hc.
-  destruct Hc as [(Ha, Hac)| Hc].
+  destruct Hc as [(Hab, Hac)| Hc].
    rewrite <- Hac.
+   destruct (ps_zerop R a) as [Ha| Ha].
+    rewrite Ha, rng_add_0_l.
+    destruct (ps_zerop R b) as [Hb| Hb].
+     rewrite Hb; apply ps_zero_in_K_1_m_star.
+
+     apply Hlb; left.
+     split; [ idtac | reflexivity ].
+     intros H; apply Hb; clear Hb.
+     apply lap_eq_cons_nil_inv in H.
+     destruct H; assumption.
 bbb.
 
 Theorem in_K_1_m_star_lap_mul_compat : ∀ m la lb c,
