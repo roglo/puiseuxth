@@ -132,7 +132,14 @@ rewrite Hpa, Hpb in Hab.
 rewrite <- Z.mul_add_distr_r in Hab.
 rewrite <- series_stretch_mul in Hab.
 exists (mkps (ps_terms psa * ps_terms psb) (ps_ordnum psa + ps_ordnum psb) m).
-bbb.
+split; auto.
+rewrite <- Hab.
+rewrite ps_adjust_eq with (n := O) (k := m).
+unfold adjust_ps; simpl.
+rewrite Z.sub_0_r.
+rewrite series_shift_0.
+reflexivity.
+Qed.
 
 (* *)
 
