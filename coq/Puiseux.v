@@ -187,13 +187,12 @@ Theorem in_K_1_m_star_lap_add_compat : ∀ m la lb c,
 Proof.
 intros m la lb c Hla Hlb Hc.
 rewrite <- fold_ps_lap_add in Hc.
-revert lb Hlb Hc.
+revert c lb Hlb Hc.
 induction la as [| a]; intros.
  simpl in Hc.
  apply Hlb; assumption.
 
- simpl in Hc.
- destruct lb as [| b].
+ induction lb as [| b].
   simpl in Hc.
   destruct Hc as [(Ha, Hac)| Hc].
    rewrite <- Hac.
@@ -227,6 +226,13 @@ induction la as [| a]; intros.
      intros H; apply Ha; clear Ha.
      apply lap_eq_cons_nil_inv in H.
      destruct H; assumption.
+
+     apply IHla with (lb := lb).
+      intros d Hd.
+      apply Hla; right; assumption.
+
+      intros d Hd.
+      apply Hlb; right; assumption.
 bbb.
 
 Theorem in_K_1_m_star_lap_mul_compat : ∀ m la lb c,
