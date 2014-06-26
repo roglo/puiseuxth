@@ -219,6 +219,14 @@ induction la as [| a]; intros.
      intros H; apply Hb; clear Hb.
      apply lap_eq_cons_nil_inv in H.
      destruct H; assumption.
+
+    destruct (ps_zerop R b) as [Hb| Hb].
+     rewrite Hb, rng_add_0_r.
+     apply Hla; left.
+     split; [ idtac | reflexivity ].
+     intros H; apply Ha; clear Ha.
+     apply lap_eq_cons_nil_inv in H.
+     destruct H; assumption.
 bbb.
 
 Theorem in_K_1_m_star_lap_mul_compat : ∀ m la lb c,
