@@ -83,8 +83,8 @@ remember (oa - Z.min oa ob)%Z as omab.
 remember (ob - Z.min ob oa)%Z as omba.
 exists
  (mkps
-    (adjust_series (Z.to_nat omab) m sa +
-     adjust_series (Z.to_nat omba) m sb)%ser
+    (adjust_series (Z.to_nat omab) 1 sa +
+     adjust_series (Z.to_nat omba) 1 sb)%ser
     (Z.min oa ob) m).
 split; auto.
 rewrite <- Hab.
@@ -99,118 +99,19 @@ rewrite Z2Nat.inj_mul; simpl; auto.
   rewrite <- stretch_shift_series_distr.
   rewrite <- stretch_shift_series_distr.
   rewrite <- series_stretch_add_distr.
-bbb.
-
-inversion Ha.
-subst ps₁ ps₂.
-rename H into Hna.
-inversion Hb.
-subst ps₁ ps₂.
-rename H into Hnb.
-inversion_clear Hna.
-rename H into Hona.
-rename H0 into Hpna.
-rename H1 into Hsna.
-inversion_clear Hnb.
-rename H into Honb.
-rename H0 into Hpnb.
-rename H1 into Hsnb.
-remember (normalise_ps a) as na eqn:Hna .
-remember (normalise_ps b) as nb eqn:Hnb .
-remember (normalise_ps psa) as npa eqn:Hnpa .
-remember (normalise_ps psb) as npb eqn:Hnpb .
-unfold normalise_ps in Hna, Hnpa, Hnb, Hnpb.
-rewrite Hpa in Hnpa.
-rewrite Hpb in Hnpb.
-bbb.
-
-intros m a b Ha Hb.
-inversion_clear Ha.
-rename H into Ha.
-inversion_clear Hb.
-rename H into Hb.
-destruct Ha as (ka, (Hsa, (Hoa, Hpa))).
-destruct Hb as (kb, (Hsb, (Hob, Hpb))).
-unfold is_a_series_in_x_power in Hsa.
-unfold is_a_series_in_x_power in Hsb.
-destruct Hoa as (oa, Hoa).
-destruct Hob as (ob, Hob).
-constructor; simpl.
-unfold cm; simpl.
-exists (m * ka * kb)%positive.
-split.
- Focus 2.
- split.
-  unfold ps_ordnum_add; simpl.
-  unfold cm_factor; simpl.
-  rewrite Hpa, Hpb, Hoa, Hob; simpl.
-  remember (' (m * ka * kb))%Z as mab.
-  rewrite Z.mul_shuffle0.
-  rewrite Pos2Z.inj_mul.
-  rewrite Z.mul_assoc.
-  rewrite Z.mul_shuffle0, <- Z.mul_assoc, <- Z.mul_assoc.
-  rewrite <- Pos2Z.inj_mul.
-  rewrite <- Pos2Z.inj_mul.
-  rewrite Pos.mul_assoc.
-  rewrite <- Heqmab.
-  rewrite Z.mul_shuffle0.
-  rewrite <- Z.mul_assoc.
-  rewrite <- Pos2Z.inj_mul.
-  rewrite <- Heqmab.
-  rewrite Z.mul_min_distr_nonneg_r; [ idtac | subst mab; auto ].
-  apply Z.divide_factor_r.
-
-  rewrite Hpa, Hpb.
-  rewrite Pos_mul_shuffle0.
-  rewrite <- Pos.mul_assoc.
-  rewrite Pos_mul_shuffle0.
+  do 2 rewrite series_stretch_1.
   reflexivity.
 
- unfold is_a_series_in_x_power; intros n.
- unfold ps_terms_add; simpl.
- unfold cm_factor; simpl.
- rewrite Hpa, Hpb, Hoa, Hob; simpl.
- remember (m * ka * kb)%positive as mab.
- rewrite Z.mul_shuffle0.
- rewrite Pos2Z.inj_mul.
- rewrite Z.mul_assoc.
- rewrite Z.mul_shuffle0, <- Z.mul_assoc, <- Z.mul_assoc.
- rewrite <- Pos2Z.inj_mul.
- rewrite <- Pos2Z.inj_mul.
- rewrite Pos.mul_assoc.
- rewrite <- Heqmab.
- rewrite Z.mul_shuffle0.
- rewrite <- Z.mul_assoc.
- rewrite <- Pos2Z.inj_mul.
- rewrite <- Heqmab.
- rewrite Z.mul_min_distr_nonneg_r; [ idtac | subst mab; auto ].
- rewrite Z.mul_min_distr_nonneg_r; [ idtac | subst mab; auto ].
- rewrite <- Z.mul_sub_distr_r.
- rewrite <- Z.mul_sub_distr_r.
- rewrite Z2Nat.inj_mul; auto.
-  rewrite Z2Nat.inj_mul; auto.
-   simpl.
-   unfold adjust_series.
-   destruct (Z_le_dec oa ob) as [Hoab| Hoba].
-    rewrite Z.min_l; auto.
-    rewrite Z.min_r; auto.
-    rewrite Z.sub_diag; simpl.
-    rewrite series_shift_0.
-    rewrite Pos.mul_comm in Heqmab.
-    rewrite Heqmab.
-    rewrite Pos.mul_comm in Heqmab.
-    rewrite Pos2Nat.inj_mul, Nat.mul_assoc.
-    rewrite <- stretch_shift_series_distr.
-    rewrite series_stretch_stretch.
-    rewrite series_stretch_stretch.
-    rewrite <- series_stretch_add_distr.
-    replace O with (O * Pos.to_nat m)%nat by reflexivity.
-    rewrite nth_null_coeff_range_length_stretch.
-    pose proof (Hsa n) as Hsan.
-    pose proof (Hsb n) as Hsbn.
-    destruct Hsan as (na, Hsan).
-    destruct Hsbn as (nb, Hsbn).
-bbb.
+  subst omba.
+  rewrite <- Z.sub_max_distr_l, Z.sub_diag.
+  apply Z.le_max_l.
+
+ subst omab.
+ rewrite <- Z.sub_max_distr_l, Z.sub_diag.
+ apply Z.le_max_l.
+Qed.
+
+(* *)
 
 Definition phony_ns :=
   {| ini_pt := (0, 0); fin_pt := (0, 0); oth_pts := [] |}.
