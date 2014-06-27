@@ -253,54 +253,25 @@ induction la as [| a]; intros.
   rewrite lap_mul_cons in Hc.
   simpl in Hc.
   destruct Hc as [(Hab, Hc)| Hc].
-bbb.
-
-intros m la lb c Hla Hlb Hc.
-bbb.
-revert lb Hlb Hc.
-induction la as [| a]; intros.
- rewrite <- fold_ps_lap_mul in Hc.
- rewrite lap_mul_nil_l in Hc.
- contradiction.
-
- induction lb as [| b].
-  rewrite <- fold_ps_lap_mul in Hc.
-  rewrite lap_mul_nil_r in Hc.
-  contradiction.
-
-  unfold ps_lap_mul in Hc.
-  rewrite lap_mul_cons in Hc.
-  simpl in Hc.
-  destruct Hc as [Hc| Hc].
-   destruct Hc as (Hab, Hc).
    rewrite <- Hc.
    apply in_K_1_m_star_mul_compat.
-    destruct (ps_zerop R a) as [H| H].
-     rewrite H.
-     apply ps_zero_in_K_1_m_star.
+    destruct (ps_zerop R a) as [Ha| Ha].
+     rewrite Ha; apply ps_zero_in_K_1_m_star.
 
-     apply Hla.
-     left.
+     apply Hla; left.
      split; [ idtac | reflexivity ].
-     intros HH; apply H; clear H.
-     apply lap_eq_cons_nil_inv in HH.
-     destruct HH; assumption.
+     intros H; apply Ha; clear Ha.
+     apply lap_eq_cons_nil_inv in H.
+     destruct H; assumption.
 
-    destruct (ps_zerop R b) as [H| H].
-     rewrite H.
-     apply ps_zero_in_K_1_m_star.
+    destruct (ps_zerop R b) as [Hb| Hb].
+     rewrite Hb; apply ps_zero_in_K_1_m_star.
 
      apply Hlb; left.
      split; [ idtac | reflexivity ].
-     intros HH; apply H; clear H.
-     apply lap_eq_cons_nil_inv in HH.
-     destruct HH; assumption.
-
-   destruct (ps_zerop R a) as [H| H].
-    rewrite H in Hc.
-    rewrite lap_eq_0, lap_mul_nil_l in Hc.
-    rewrite lap_add_nil_r in Hc.
-    eapply IHla.
+     intros H; apply Hb; clear Hb.
+     apply lap_eq_cons_nil_inv in H.
+     destruct H; assumption.
 bbb.
 
 Theorem rrr : ∀ pol ns m c b q,
