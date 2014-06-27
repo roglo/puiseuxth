@@ -241,7 +241,7 @@ Theorem in_K_1_m_star_lap_mul_compat : ∀ m la lb c,
 Proof.
 intros m la lb c Hla Hlb Hc.
 rewrite <- fold_ps_lap_mul in Hc.
-revert lb Hlb Hc.
+revert lb c Hlb Hc.
 induction la as [| a]; intros.
  rewrite lap_mul_nil_l in Hc.
  contradiction.
@@ -272,7 +272,89 @@ induction la as [| a]; intros.
      intros H; apply Hb; clear Hb.
      apply lap_eq_cons_nil_inv in H.
      destruct H; assumption.
-bbb.
+
+   apply in_K_1_m_star_lap_add_compat with (m := m) in Hc; auto.
+    intros d Hd.
+    apply in_K_1_m_star_lap_add_compat with (m := m) in Hd; auto.
+     intros e He.
+     apply IHla with (lb := [b]); auto.
+      intros f Hf.
+      apply Hla; right; assumption.
+
+      intros f Hf.
+      simpl in Hf.
+      destruct Hf as [(Hb, Hbf)| ]; [ idtac | contradiction ].
+      rewrite <- Hbf.
+      apply Hlb; left.
+      split; [ idtac | reflexivity ].
+      intros H; apply Hb.
+      apply lap_eq_cons_nil_inv in H.
+      destruct H as (H, _); rewrite H.
+      apply lap_eq_0.
+
+     intros f Hf.
+     clear Hc Hd.
+     induction lb as [| b']; [ contradiction | idtac ].
+     rewrite lap_mul_cons in Hf.
+     simpl in Hf.
+     destruct Hf as [(Hab, Habf)| Hf].
+      rewrite <- Habf.
+      apply in_K_1_m_star_mul_compat.
+       destruct (ps_zerop R a) as [Ha| Ha].
+        rewrite Ha; apply ps_zero_in_K_1_m_star.
+
+        apply Hla; left.
+        split; [ idtac | reflexivity ].
+        intros H; apply Ha; clear Ha.
+        apply lap_eq_cons_nil_inv in H.
+        destruct H; assumption.
+
+       destruct (ps_zerop R b') as [Hb| Hb].
+        rewrite Hb; apply ps_zero_in_K_1_m_star.
+
+        apply Hlb; right; left.
+        split; [ idtac | reflexivity ].
+        intros H; apply Hb; clear Hb.
+        apply lap_eq_cons_nil_inv in H.
+        destruct H; assumption.
+
+      rewrite lap_mul_nil_l in Hf.
+      rewrite lap_eq_0, lap_add_nil_r in Hf.
+      apply IHlb; auto.
+      intros e He.
+      apply Hlb.
+      simpl in He; simpl.
+      destruct He as [(Hbb, He)| He].
+       left.
+       split; [ idtac | assumption ].
+       intros H; apply Hbb.
+       apply lap_eq_cons_nil_inv in H.
+       destruct H as (Hb, H).
+       rewrite Hb.
+       apply lap_eq_cons_nil_inv in H.
+       destruct H as (_, H); rewrite H.
+       apply lap_eq_0.
+
+       right; right; assumption.
+
+    intros d Hd.
+    simpl in Hd.
+    destruct Hd as [(Hab, Hd)| Hd].
+     rewrite <- Hd; apply ps_zero_in_K_1_m_star.
+
+     apply IHla with (lb := lb); auto.
+      intros e He.
+      destruct (ps_zerop R e) as [Hf| Hf].
+       rewrite Hf; apply ps_zero_in_K_1_m_star.
+
+       apply Hla; right; assumption.
+
+      intros e He.
+      destruct (ps_zerop R e) as [Hf| Hf].
+       rewrite Hf; apply ps_zero_in_K_1_m_star.
+
+       apply Hlb; right; assumption.
+qed.
 
 Theorem rrr : ∀ pol ns m c b q,
   ns ∈ newton_segments pol
