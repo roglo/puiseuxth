@@ -341,7 +341,7 @@ Theorem rrr : ∀ pol ns m c b q,
   → (∀ a, a ∈ al pol → in_K_1_m_star a m)
   → c = ac_root (Φq pol ns)
   → q = q_of_ns pol ns
-  → b ∈ al (next_pol pol (γ ns) (β ns) c)
+  → lap_ps_in R b (al (next_pol pol (γ ns) (β ns) c))
   → in_K_1_m_star b (q * m).
 Proof.
 intros pol ns m c b q Hns Hla Hc Hq Hb.
@@ -352,7 +352,8 @@ subst la₁.
 eapply in_K_1_m_star_lap_mul_compat; eauto .
  intros a Ha.
  destruct Ha as [Ha| ]; [ idtac | contradiction ].
- subst a; simpl.
+ destruct Ha as (Hm, Ha).
+ rewrite <- Ha.
  constructor.
 bbb.
 
