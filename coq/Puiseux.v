@@ -187,7 +187,7 @@ Theorem in_K_1_m_star_lap_add_compat : ∀ m la lb c,
 Proof.
 intros m la lb c Hla Hlb Hc.
 rewrite <- fold_ps_lap_add in Hc.
-revert c lb Hlb Hc.
+revert lb Hlb Hc.
 induction la as [| a]; intros.
  simpl in Hc.
  apply Hlb; assumption.
@@ -196,20 +196,24 @@ induction la as [| a]; intros.
   simpl in Hc.
   destruct Hc as [(Ha, Hac)| Hc].
    rewrite <- Hac.
-   destruct (ps_zerop R a) as [H| H].
-    rewrite H.
-    apply ps_zero_in_K_1_m_star.
-
-    apply Hla; left.
-    split; [ assumption | reflexivity ].
+   apply Hla; left.
+   split; [ assumption | reflexivity ].
 
    apply Hla; right; assumption.
 
   simpl in Hc.
   destruct Hc as [(Hab, Hac)| Hc].
    rewrite <- Hac.
-   destruct (ps_zerop R a) as [Ha| Ha].
-    rewrite Ha, rng_add_0_l.
+   apply in_K_1_m_star_add_compat.
+    destruct (ps_zerop R a) as [Ha| Ha].
+     rewrite Ha; apply ps_zero_in_K_1_m_star.
+
+     apply Hla; left.
+     split; [ idtac | reflexivity ].
+     intros H; apply Ha; clear Ha.
+     apply lap_eq_cons_nil_inv in H.
+     destruct H; assumption.
+
     destruct (ps_zerop R b) as [Hb| Hb].
      rewrite Hb; apply ps_zero_in_K_1_m_star.
 
@@ -218,27 +222,6 @@ induction la as [| a]; intros.
      intros H; apply Hb; clear Hb.
      apply lap_eq_cons_nil_inv in H.
      destruct H; assumption.
-
-    destruct (ps_zerop R b) as [Hb| Hb].
-     rewrite Hb, rng_add_0_r.
-     apply Hla; left.
-     split; [ idtac | reflexivity ].
-     intros H; apply Ha; clear Ha.
-     apply lap_eq_cons_nil_inv in H.
-     destruct H; assumption.
-
-     apply in_K_1_m_star_add_compat.
-      apply Hla; left.
-      split; [ idtac | reflexivity ].
-      intros H; apply Ha; clear Ha.
-      apply lap_eq_cons_nil_inv in H.
-      destruct H; assumption.
-
-      apply Hlb; left.
-      split; [ idtac | reflexivity ].
-      intros H; apply Hb; clear Hb.
-      apply lap_eq_cons_nil_inv in H.
-      destruct H; assumption.
 
    apply IHla with (lb := lb).
     intros d Hd.
