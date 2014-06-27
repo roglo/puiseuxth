@@ -353,7 +353,6 @@ eapply in_K_1_m_star_lap_mul_compat; eauto .
  intros a Ha.
  destruct Ha as [Ha| ]; [ idtac | contradiction ].
  destruct Ha as (Hm, Ha).
- rewrite <- Ha.
  constructor.
 bbb.
 
