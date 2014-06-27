@@ -246,11 +246,13 @@ induction la as [| a]; intros.
  rewrite lap_mul_nil_l in Hc.
  contradiction.
 
- rewrite lap_mul_cons_l in Hc; simpl in Hc.
- eapply in_K_1_m_star_lap_add_compat.
-  3: eassumption.
+ destruct lb as [| b].
+  rewrite lap_mul_nil_r in Hc.
+  contradiction.
 
-  intros b Hb.
+  rewrite lap_mul_cons in Hc.
+  simpl in Hc.
+  destruct Hc as [(Hab, Hc)| Hc].
 bbb.
 
 intros m la lb c Hla Hlb Hc.
