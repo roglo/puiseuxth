@@ -336,10 +336,76 @@ induction la as [| a]; intros.
        apply Hlb; right; assumption.
 Qed.
 
+(* to be moved in the good file *)
+Theorem ps_inv_monom : ∀ c pow,
+  (c ≠ 0)%K
+  → (¹/(ps_monom c pow) = ps_monom ¹/c%K (- pow))%ps.
+Proof.
+intros c pow Hc.
+unfold ps_inv.
+unfold ps_monom; simpl.
+do 2 rewrite fold_series_const.
+remember (null_coeff_range_length R (series_const c) 0) as v eqn:Hv .
+symmetry in Hv.
+apply null_coeff_range_length_iff in Hv.
+unfold null_coeff_range_length_prop in Hv.
+simpl in Hv.
+destruct v as [v| ].
+ destruct Hv as (Hiv, Hv).
+ symmetry.
+ rewrite ps_adjust_eq with (n := v) (k := xH).
+ unfold adjust_ps; simpl.
+ rewrite series_stretch_1, Z.mul_1_r, Pos.mul_1_r.
+ apply mkps_morphism; try reflexivity.
+ unfold series_inv; simpl.
+ unfold series_shift, series_left_shift; simpl.
+ constructor; intros i; simpl.
+ rewrite Nat.add_0_r.
+ destruct (zerop v) as [H₁| H₁].
+  subst v; simpl.
+  rewrite Nat.sub_0_r.
+  destruct (zerop i) as [H₁| H₁]; [ reflexivity | idtac ].
+  rewrite fold_series_const.
+  rewrite summation_split_first; auto; simpl.
+  rewrite rng_mul_0_l, rng_add_0_l.
+  rewrite all_0_summation_0.
+   rewrite rng_mul_0_r; reflexivity.
+
+   intros j (Hj, Hji).
+   destruct (zerop j) as [H₂| H₂].
+    subst j.
+    apply Nat.nlt_ge in Hj.
+    exfalso; apply Hj, Nat.lt_0_succ.
+
+    rewrite rng_mul_0_l; reflexivity.
+
+  exfalso; apply Hv; reflexivity.
+
+ pose proof (Hv O) as H; simpl in H.
+ contradiction.
+Qed.
+
 Theorem in_K_1_m_monom_pow_opp : ∀ m c pow,
   in_K_1_m (ps_monom c pow) m
   → in_K_1_m (ps_monom c (- pow)) m.
 Proof.
+intros m c pow Hin.
+inversion Hin; constructor.
+destruct H as (ps, (Hps, Hm)).
+apply fld_inv_compat with (f := @ps_field _ _ K) in Hps.
+ simpl in Hps.
+ rewrite ps_inv_monom in Hps.
+bbb.
+
+intros m c pow Hin.
+inversion Hin; constructor.
+destruct H as (ps, (Hps, Hm)).
+apply fld_inv_compat with (f := @ps_field _ _ K) in Hps.
+ simpl in Hps.
+ unfold ps_inv in Hps; simpl in Hps.
+ rewrite fold_series_const in Hps.
+bbb.
+
 intros m c pow Hin.
 inversion Hin; constructor.
 destruct H as (ps, (Hps, Hm)).
