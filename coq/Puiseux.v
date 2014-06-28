@@ -31,14 +31,14 @@ Require Import Q_field.
 Set Implicit Arguments.
 
 (* express that some puiseux series ∈ K(1/m)* *)
-Inductive in_K_1_m_star {α} {R : ring α} ps m :=
-  InK1ms : (∃ ps₁, (ps₁ = ps)%ps ∧ ps_polord ps₁ = m) → in_K_1_m_star ps m.
+Inductive in_K_1_m {α} {R : ring α} ps m :=
+  InK1m : (∃ ps₁, (ps₁ = ps)%ps ∧ ps_polord ps₁ = m) → in_K_1_m ps m.
 
-Arguments in_K_1_m_star _ _ ps%ps m%positive.
+Arguments in_K_1_m _ _ ps%ps m%positive.
 
-Add Parametric Morphism α (R : ring α) : (@in_K_1_m_star _ R)
+Add Parametric Morphism α (R : ring α) : (@in_K_1_m _ R)
   with signature eq_ps ==> eq ==> iff
-  as in_K_1_m_star_prop.
+  as in_K_1_m_prop.
 Proof.
 intros a b Hab n.
 split; intros H.
@@ -69,10 +69,10 @@ Variable acf : algeb_closed_field K.
 
 Require Import Ps_add_compat.
 
-Theorem in_K_1_m_star_add_compat : ∀ m a b,
-  in_K_1_m_star a m
-  → in_K_1_m_star b m
-  → in_K_1_m_star (a + b) m.
+Theorem in_K_1_m_add_compat : ∀ m a b,
+  in_K_1_m a m
+  → in_K_1_m b m
+  → in_K_1_m (a + b) m.
 Proof.
 intros m a b Ha Hb.
 inversion_clear Ha.
@@ -134,10 +134,10 @@ rewrite Z2Nat.inj_mul; simpl; auto.
  apply Z.le_max_l.
 Qed.
 
-Theorem in_K_1_m_star_mul_compat : ∀ m a b,
-  in_K_1_m_star a m
-  → in_K_1_m_star b m
-  → in_K_1_m_star (a * b) m.
+Theorem in_K_1_m_mul_compat : ∀ m a b,
+  in_K_1_m a m
+  → in_K_1_m b m
+  → in_K_1_m (a * b) m.
 Proof.
 intros m a b Ha Hb.
 inversion_clear Ha.
@@ -165,7 +165,7 @@ rewrite series_shift_0.
 reflexivity.
 Qed.
 
-Theorem ps_zero_in_K_1_m_star : ∀ m, in_K_1_m_star 0 m.
+Theorem ps_zero_in_K_1_m : ∀ m, in_K_1_m 0 m.
 Proof.
 intros m.
 constructor.
@@ -179,13 +179,13 @@ rewrite series_stretch_series_0.
 reflexivity.
 Qed.
 
-Lemma hd_in_K_1_m_star : ∀ a la m,
-  (∀ b, lap_ps_in R b [a … la] → in_K_1_m_star b m)
-  → in_K_1_m_star a m.
+Lemma hd_in_K_1_m : ∀ a la m,
+  (∀ b, lap_ps_in R b [a … la] → in_K_1_m b m)
+  → in_K_1_m a m.
 Proof.
 intros a la m Hla.
 destruct (ps_zerop R a) as [Ha| Ha].
- rewrite Ha; apply ps_zero_in_K_1_m_star.
+ rewrite Ha; apply ps_zero_in_K_1_m.
 
  apply Hla; left.
  split; [ idtac | reflexivity ].
@@ -194,11 +194,11 @@ destruct (ps_zerop R a) as [Ha| Ha].
  destruct H; assumption.
 Qed.
 
-Theorem in_K_1_m_star_lap_add_compat : ∀ m la lb c,
-  (∀ a, lap_ps_in R a la → in_K_1_m_star a m)
-  → (∀ b, lap_ps_in R b lb → in_K_1_m_star b m)
+Theorem in_K_1_m_lap_add_compat : ∀ m la lb c,
+  (∀ a, lap_ps_in R a la → in_K_1_m a m)
+  → (∀ b, lap_ps_in R b lb → in_K_1_m b m)
   → lap_ps_in R c (la + lb)%pslap
-  → in_K_1_m_star c m.
+  → in_K_1_m c m.
 Proof.
 intros m la lb c Hla Hlb Hc.
 rewrite <- fold_ps_lap_add in Hc.
@@ -219,10 +219,10 @@ induction la as [| a]; intros.
   simpl in Hc.
   destruct Hc as [(Hab, Hac)| Hc].
    rewrite <- Hac.
-   apply in_K_1_m_star_add_compat.
-    eapply hd_in_K_1_m_star; eauto .
+   apply in_K_1_m_add_compat.
+    eapply hd_in_K_1_m; eauto .
 
-    eapply hd_in_K_1_m_star; eauto .
+    eapply hd_in_K_1_m; eauto .
 
    apply IHla with (lb := lb).
     intros d Hd.
@@ -234,11 +234,11 @@ induction la as [| a]; intros.
     assumption.
 Qed.
 
-Theorem in_K_1_m_star_lap_mul_compat : ∀ m la lb c,
-  (∀ a, lap_ps_in R a la → in_K_1_m_star a m)
-  → (∀ b, lap_ps_in R b lb → in_K_1_m_star b m)
+Theorem in_K_1_m_lap_mul_compat : ∀ m la lb c,
+  (∀ a, lap_ps_in R a la → in_K_1_m a m)
+  → (∀ b, lap_ps_in R b lb → in_K_1_m b m)
   → lap_ps_in R c (la * lb)%pslap
-  → in_K_1_m_star c m.
+  → in_K_1_m c m.
 Proof.
 intros m la lb c Hla Hlb Hc.
 rewrite <- fold_ps_lap_mul in Hc.
@@ -255,14 +255,14 @@ induction la as [| a]; intros.
   simpl in Hc.
   destruct Hc as [(Hab, Hc)| Hc].
    rewrite <- Hc.
-   apply in_K_1_m_star_mul_compat.
-    eapply hd_in_K_1_m_star; eauto .
+   apply in_K_1_m_mul_compat.
+    eapply hd_in_K_1_m; eauto .
 
-    eapply hd_in_K_1_m_star; eauto .
+    eapply hd_in_K_1_m; eauto .
 
-   apply in_K_1_m_star_lap_add_compat with (m := m) in Hc; auto.
+   apply in_K_1_m_lap_add_compat with (m := m) in Hc; auto.
     intros d Hd.
-    apply in_K_1_m_star_lap_add_compat with (m := m) in Hd; auto.
+    apply in_K_1_m_lap_add_compat with (m := m) in Hd; auto.
      intros e He.
      apply IHla with (lb := [b]); auto.
       intros f Hf.
@@ -286,11 +286,11 @@ induction la as [| a]; intros.
      simpl in Hf.
      destruct Hf as [(Hab, Habf)| Hf].
       rewrite <- Habf.
-      apply in_K_1_m_star_mul_compat.
-       eapply hd_in_K_1_m_star; eauto .
+      apply in_K_1_m_mul_compat.
+       eapply hd_in_K_1_m; eauto .
 
        destruct (ps_zerop R b') as [Hb| Hb].
-        rewrite Hb; apply ps_zero_in_K_1_m_star.
+        rewrite Hb; apply ps_zero_in_K_1_m.
 
         apply Hlb; right; left.
         split; [ idtac | reflexivity ].
@@ -320,46 +320,65 @@ induction la as [| a]; intros.
     intros d Hd.
     simpl in Hd.
     destruct Hd as [(Hab, Hd)| Hd].
-     rewrite <- Hd; apply ps_zero_in_K_1_m_star.
+     rewrite <- Hd; apply ps_zero_in_K_1_m.
 
      apply IHla with (lb := lb); auto.
       intros e He.
       destruct (ps_zerop R e) as [Hf| Hf].
-       rewrite Hf; apply ps_zero_in_K_1_m_star.
+       rewrite Hf; apply ps_zero_in_K_1_m.
 
        apply Hla; right; assumption.
 
       intros e He.
       destruct (ps_zerop R e) as [Hf| Hf].
-       rewrite Hf; apply ps_zero_in_K_1_m_star.
+       rewrite Hf; apply ps_zero_in_K_1_m.
 
        apply Hlb; right; assumption.
 Qed.
 
-Theorem qqq : ∀ pol ns m a q,
+Theorem gamma_in_K_1_mq : ∀ pol ns m a q,
   ns ∈ newton_segments pol
   → m = ps_list_com_polord (al pol)
   → q = q_of_ns pol ns
   → a = ps_monom 1%K (γ ns)
-  → in_K_1_m_star a (q * m).
+  → in_K_1_m a (q * m).
 Proof.
 intros pol ns m a q Hns Hm Hq Ha.
-bbb.
+constructor; subst a.
+remember (p_of_ns pol ns) as p eqn:Hp .
+remember Hns as Hgp; clear HeqHgp.
+eapply gamma_eq_p_nq in Hgp; try eassumption.
+exists (ps_monom 1%K (p # m * q)); simpl.
+split; [ idtac | apply Pos.mul_comm ].
+remember (γ ns) as g.
+unfold Qeq in Hgp; simpl in Hgp.
+unfold ps_monom; simpl.
+remember (m * q)%positive as mq.
+rewrite ps_adjust_eq with (n := O) (k := Qden g).
+symmetry.
+rewrite ps_adjust_eq with (n := O) (k := mq).
+unfold adjust_ps; simpl.
+rewrite fold_series_const.
+do 2 rewrite stretch_series_const.
+rewrite Hgp.
+rewrite Pos.mul_comm.
+reflexivity.
+Qed.
 
 Theorem rrr : ∀ pol ns m c b q,
   ns ∈ newton_segments pol
-  → (∀ a, a ∈ al pol → in_K_1_m_star a m)
+  → (∀ a, a ∈ al pol → in_K_1_m a m)
   → c = ac_root (Φq pol ns)
   → q = q_of_ns pol ns
   → lap_ps_in R b (al (next_pol pol (γ ns) (β ns) c))
-  → in_K_1_m_star b (q * m).
+  → in_K_1_m b (q * m).
 Proof.
 intros pol ns m c b q Hns Hla Hc Hq Hb.
 remember (al (next_pol pol (γ ns) (β ns) c)) as la₁ eqn:Hla₁ .
 unfold next_pol in Hla₁; simpl in Hla₁.
 unfold next_lap in Hla₁.
 subst la₁.
-eapply in_K_1_m_star_lap_mul_compat; eauto .
+eapply in_K_1_m_lap_mul_compat; eauto .
  intros a Ha.
  destruct Ha as [Ha| ]; [ idtac | contradiction ].
  destruct Ha as (Hm, Ha).
