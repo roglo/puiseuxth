@@ -346,8 +346,8 @@ destruct H as (ps, (Hps, Hm)).
 unfold ps_monom in Hps.
 rewrite fold_series_const in Hps.
 destruct ps as (pst, pso, psp).
-simpl in Hm.
-subst psp.
+simpl in Hm; subst psp.
+bbb.
 exists (mkps (series_const c) (- pso) m).
 simpl.
 split; [ idtac | reflexivity ].
