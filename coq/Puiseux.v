@@ -343,6 +343,16 @@ Proof.
 intros m c pow Hin.
 inversion Hin; constructor.
 destruct H as (ps, (Hps, Hm)).
+unfold ps_monom in Hps.
+rewrite fold_series_const in Hps.
+destruct ps as (pst, pso, psp).
+simpl in Hm.
+subst psp.
+exists (mkps (series_const c) (- pso) m).
+simpl.
+split; [ idtac | reflexivity ].
+unfold ps_monom; simpl.
+rewrite fold_series_const.
 bbb.
 
 Theorem gamma_in_K_1_mq : ∀ pol ns m a q,
