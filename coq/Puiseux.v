@@ -336,6 +336,16 @@ induction la as [| a]; intros.
        apply Hlb; right; assumption.
 Qed.
 
+Theorem qqq : ∀ pol ns m a q,
+  ns ∈ newton_segments pol
+  → m = ps_list_com_polord (al pol)
+  → q = q_of_ns pol ns
+  → a = ps_monom 1%K (γ ns)
+  → in_K_1_m_star a (q * m).
+Proof.
+intros pol ns m a q Hns Hm Hq Ha.
+bbb.
+
 Theorem rrr : ∀ pol ns m c b q,
   ns ∈ newton_segments pol
   → (∀ a, a ∈ al pol → in_K_1_m_star a m)
