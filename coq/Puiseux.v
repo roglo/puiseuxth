@@ -367,13 +367,13 @@ Qed.
 
 Theorem rrr : ∀ pol ns m c b q,
   ns ∈ newton_segments pol
-  → (∀ a, a ∈ al pol → in_K_1_m a m)
+  → m = ps_list_com_polord (al pol)
   → c = ac_root (Φq pol ns)
   → q = q_of_ns pol ns
   → lap_ps_in R b (al (next_pol pol (γ ns) (β ns) c))
   → in_K_1_m b (q * m).
 Proof.
-intros pol ns m c b q Hns Hla Hc Hq Hb.
+intros pol ns m c b q Hns Hm Hc Hq Hb.
 remember (al (next_pol pol (γ ns) (β ns) c)) as la₁ eqn:Hla₁ .
 unfold next_pol in Hla₁; simpl in Hla₁.
 unfold next_lap in Hla₁.
@@ -381,8 +381,8 @@ subst la₁.
 eapply in_K_1_m_lap_mul_compat; eauto .
  intros a Ha.
  destruct Ha as [Ha| ]; [ idtac | contradiction ].
- destruct Ha as (Hm, Ha).
- constructor.
+ destruct Ha as (_, Ha).
+ eapply gamma_in_K_1_mq; eauto .
 bbb.
 
 (* *)
