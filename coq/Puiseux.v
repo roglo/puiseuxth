@@ -382,6 +382,7 @@ eapply in_K_1_m_lap_mul_compat; eauto .
  intros a Ha.
  destruct Ha as [Ha| ]; [ idtac | contradiction ].
  destruct Ha as (_, Ha).
+ rewrite <- Ha.
  eapply gamma_in_K_1_mq; eauto .
 bbb.
 
