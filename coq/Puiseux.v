@@ -336,6 +336,15 @@ induction la as [| a]; intros.
        apply Hlb; right; assumption.
 Qed.
 
+Theorem in_K_1_m_monom_pow_opp : ∀ m c pow,
+  in_K_1_m (ps_monom c pow) m
+  → in_K_1_m (ps_monom c (- pow)) m.
+Proof.
+intros m c pow Hin.
+inversion Hin; constructor.
+destruct H as (ps, (Hps, Hm)).
+bbb.
+
 Theorem gamma_in_K_1_mq : ∀ pol ns m a q,
   ns ∈ newton_segments pol
   → m = ps_list_com_polord (al pol)
@@ -383,6 +392,7 @@ eapply in_K_1_m_lap_mul_compat; eauto .
  destruct Ha as [Ha| ]; [ idtac | contradiction ].
  destruct Ha as (_, Ha).
  rewrite <- Ha.
+ apply in_K_1_m_monom_pow_opp.
  eapply gamma_in_K_1_mq; eauto .
 bbb.
 
