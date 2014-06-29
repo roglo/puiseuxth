@@ -396,6 +396,7 @@ unfold ps_monom; simpl.
 rewrite fold_series_const.
 destruct ps as (pst, pso, psp).
 simpl in Hm; subst psp.
+bbb.
 unfold ps_monom in Hps.
 rewrite ps_adjust_eq with (n := O) (k := Qden pow) in Hps.
 symmetry in Hps.

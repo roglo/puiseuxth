@@ -147,7 +147,57 @@ constructor; intros n; simpl.
 rewrite Nat.mul_1_r; reflexivity.
 Qed.
 
-Lemma normalise_ps_1 : (normalise_ps 1 ≐ 1)%ps.
+Theorem normalise_ps_monom : ∀ c pow,
+  (normalise_ps (ps_monom c pow) ≐ ps_monom c (Qred pow))%ps.
+Proof.
+intros c pow.
+remember (null_coeff_range_length r (series_const c) 0) as n eqn:Hn .
+symmetry in Hn.
+destruct n as [n| ].
+ destruct n.
+  constructor; simpl.
+   erewrite ps_ordnum_normalise; try reflexivity; try eassumption.
+   rewrite Z.add_0_r.
+   remember Z.gcd as g; simpl; subst g.
+   rewrite fold_series_const.
+   remember (greatest_series_x_power r (series_const c) 0) as g.
+   symmetry in Heqg.
+   apply greatest_series_x_power_iff in Heqg.
+   unfold is_the_greatest_series_x_power in Heqg.
+   remember (null_coeff_range_length r (series_const c) 1) as v.
+   symmetry in Heqv.
+   destruct v as [v| ].
+    apply null_coeff_range_length_iff in Heqv.
+    unfold null_coeff_range_length_prop in Heqv.
+    simpl in Heqv.
+    destruct Heqv as (_, H).
+    exfalso; apply H; reflexivity.
+
+    subst g; simpl.
+    unfold Qred.
+    destruct pow as (pn, pd); simpl.
+    pose proof (Z.ggcd_correct_divisors pn (' pd)) as H.
+    remember (Z.ggcd pn (' pd)) as x.
+    destruct x as (g, (aa, bb)).
+    destruct H as (Hgcd, Hpd).
+    simpl.
+    rewrite Hgcd, Hpd; simpl.
+    rewrite surjective_pairing in Heqx.
+    injection Heqx; clear Heqx; intros Haabb Hg.
+    rewrite Z.ggcd_gcd in Hg.
+    rewrite Z.gcd_mul_mono_l_nonneg.
+     rewrite Z.div_mul_cancel_l.
+      rewrite Hgcd, Hpd in Hg.
+      rewrite Z.gcd_mul_mono_l_nonneg in Hg.
+       symmetry in Hg.
+       rewrite <- Z.mul_1_r in Hg.
+       apply Z.mul_reg_l in Hg.
+        rewrite Hg.
+        rewrite Z.div_1_r.
+        reflexivity.
+bbb.
+
+Theorem normalise_ps_1 : (normalise_ps 1 ≐ 1)%ps.
 Proof.
 remember (null_coeff_range_length r (ps_terms 1%ps) 0) as n eqn:Hn .
 symmetry in Hn.
