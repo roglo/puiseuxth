@@ -392,6 +392,37 @@ Proof.
 intros m c pow Hin.
 inversion Hin; constructor.
 destruct H as (ps, (Hps, Hm)).
+unfold ps_monom; simpl.
+rewrite fold_series_const.
+destruct ps as (pst, pso, psp).
+simpl in Hm; subst psp.
+unfold ps_monom in Hps.
+rewrite ps_adjust_eq with (n := O) (k := Qden pow) in Hps.
+symmetry in Hps.
+rewrite ps_adjust_eq with (n := O) (k := m) in Hps.
+rewrite fold_series_const in Hps.
+unfold adjust_ps in Hps; simpl in Hps.
+do 2 rewrite series_shift_0 in Hps.
+rewrite stretch_series_const in Hps.
+do 2 rewrite Z.sub_0_r in Hps.
+rewrite Pos.mul_comm in Hps.
+exists (mkps pst (- pso) m); simpl.
+split; [ idtac | reflexivity ].
+rewrite <- stretch_series_const with (k := Qden pow) in Hps.
+rewrite ps_adjust_eq with (n := O) (k := Qden pow).
+symmetry.
+rewrite ps_adjust_eq with (n := O) (k := m).
+unfold adjust_ps; simpl.
+do 2 rewrite series_shift_0.
+rewrite stretch_series_const.
+rewrite <- stretch_series_const with (k := Qden pow).
+rewrite Pos.mul_comm.
+apply mkps_morphism; try reflexivity.
+bbb.
+
+intros m c pow Hin.
+inversion Hin; constructor.
+destruct H as (ps, (Hps, Hm)).
 apply fld_inv_compat with (f := @ps_field _ _ K) in Hps.
  simpl in Hps.
  rewrite ps_inv_monom in Hps.
