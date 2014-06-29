@@ -396,62 +396,29 @@ unfold ps_monom; simpl.
 rewrite fold_series_const.
 destruct ps as (pst, pso, psp).
 simpl in Hm; subst psp.
-bbb.
-unfold ps_monom in Hps.
-rewrite ps_adjust_eq with (n := O) (k := Qden pow) in Hps.
-symmetry in Hps.
-rewrite ps_adjust_eq with (n := O) (k := m) in Hps.
-rewrite fold_series_const in Hps.
-unfold adjust_ps in Hps; simpl in Hps.
-do 2 rewrite series_shift_0 in Hps.
-rewrite stretch_series_const in Hps.
-do 2 rewrite Z.sub_0_r in Hps.
-rewrite Pos.mul_comm in Hps.
-exists (mkps pst (- pso) m); simpl.
+exists (mkps (series_const c) (- pso) m).
 split; [ idtac | reflexivity ].
-rewrite <- stretch_series_const with (k := Qden pow) in Hps.
 rewrite ps_adjust_eq with (n := O) (k := Qden pow).
 symmetry.
 rewrite ps_adjust_eq with (n := O) (k := m).
 unfold adjust_ps; simpl.
 do 2 rewrite series_shift_0.
 rewrite stretch_series_const.
-rewrite <- stretch_series_const with (k := Qden pow).
+rewrite stretch_series_const.
+do 2 rewrite Z.sub_0_r.
 rewrite Pos.mul_comm.
 apply mkps_morphism; try reflexivity.
 bbb.
-
-intros m c pow Hin.
-inversion Hin; constructor.
-destruct H as (ps, (Hps, Hm)).
-apply fld_inv_compat with (f := @ps_field _ _ K) in Hps.
- simpl in Hps.
- rewrite ps_inv_monom in Hps.
-bbb.
-
-intros m c pow Hin.
-inversion Hin; constructor.
-destruct H as (ps, (Hps, Hm)).
-apply fld_inv_compat with (f := @ps_field _ _ K) in Hps.
- simpl in Hps.
- unfold ps_inv in Hps; simpl in Hps.
- rewrite fold_series_const in Hps.
-bbb.
-
-intros m c pow Hin.
-inversion Hin; constructor.
-destruct H as (ps, (Hps, Hm)).
-unfold ps_monom in Hps.
-rewrite fold_series_const in Hps.
-destruct ps as (pst, pso, psp).
-simpl in Hm; subst psp.
-bbb.
-exists (mkps (series_const c) (- pso) m).
-simpl.
-split; [ idtac | reflexivity ].
-unfold ps_monom; simpl.
-rewrite fold_series_const.
-bbb.
+inversion Hps; subst.
+inversion H; subst.
+clear Hps H H2.
+symmetry in H0.
+remember (null_coeff_range_length R (ps_terms (ps_monom c pow)) 0) as v.
+symmetry in Heqv.
+apply null_coeff_range_length_iff in Heqv.
+unfold null_coeff_range_length_prop in Heqv.
+simpl in Heqv.
+destruct v as [v| ].
 
 Theorem gamma_in_K_1_mq : ∀ pol ns m a q,
   ns ∈ newton_segments pol
