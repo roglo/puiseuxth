@@ -408,17 +408,27 @@ rewrite stretch_series_const.
 do 2 rewrite Z.sub_0_r.
 rewrite Pos.mul_comm.
 apply mkps_morphism; try reflexivity.
+inversion_clear Hps.
+inversion_clear H.
+clear H0 H2.
+remember (mkps pst pso m) as ps₁.
+remember (ps_monom c pow) as ps₂.
+remember (null_coeff_range_length R (ps_terms ps₁) 0) as v₁.
+symmetry in Heqv₁.
+remember (null_coeff_range_length R (ps_terms ps₂) 0) as v₂.
+symmetry in Heqv₂.
+destruct v₁ as [v₁| ].
+ destruct v₂ as [v₂| ].
+  remember Heqv₁ as Ho₁; clear HeqHo₁.
+  eapply ps_polord_normalise in Ho₁; eauto .
+  remember Heqv₂ as Ho₂; clear HeqHo₂.
+  eapply ps_polord_normalise in Ho₂; eauto .
+  rewrite Ho₁, Ho₂ in H1.
+  remember (greatest_series_x_power R (ps_terms ps₁) v₁) as p₁.
+  remember (greatest_series_x_power R (ps_terms ps₂) v₂) as p₂.
+  rewrite Heqps₁, Heqps₂ in H1.
+  remember Z.gcd as f; simpl in H1; subst f.
 bbb.
-inversion Hps; subst.
-inversion H; subst.
-clear Hps H H2.
-symmetry in H0.
-remember (null_coeff_range_length R (ps_terms (ps_monom c pow)) 0) as v.
-symmetry in Heqv.
-apply null_coeff_range_length_iff in Heqv.
-unfold null_coeff_range_length_prop in Heqv.
-simpl in Heqv.
-destruct v as [v| ].
 
 Theorem gamma_in_K_1_mq : ∀ pol ns m a q,
   ns ∈ newton_segments pol
