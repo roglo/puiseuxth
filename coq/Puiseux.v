@@ -385,6 +385,7 @@ destruct v as [v| ].
  contradiction.
 Qed.
 
+(* faux, je crois, bicose ça commence pas forcément à 0
 Lemma qqq : ∀ p c q,
   (p = ps_monom c q)%ps
   → ∃ r, p = ps_monom c r ∧ r == q.
@@ -405,6 +406,7 @@ destruct n as [n| ].
   rewrite fold_series_const in H1.
   remember (greatest_series_x_power R (series_const c) m) as g'.
 bbb.
+*)
 
 Theorem in_K_1_m_monom_pow_opp : ∀ m c pow,
   in_K_1_m (ps_monom c pow) m
