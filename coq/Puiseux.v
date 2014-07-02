@@ -395,6 +395,31 @@ inversion_clear H.
 remember (null_coeff_range_length R (ps_terms p) 0) as v.
 symmetry in Heqv.
 destruct v as [v| ].
+ erewrite ps_ordnum_normalise in H0; eauto .
+ remember (greatest_series_x_power R (ps_terms p) v) as g.
+ remember (null_coeff_range_length R (ps_terms (ps_monom c q)) 0) as w.
+ symmetry in Heqw.
+ destruct w as [w| ].
+  erewrite ps_ordnum_normalise in H0; eauto .
+  remember Z.gcd as f; simpl in H0; subst f.
+  rewrite fold_series_const in H0.
+  remember (greatest_series_x_power R (series_const c) w) as g'.
+  symmetry in Heqg'.
+  apply greatest_series_x_power_iff in Heqg'.
+  unfold is_the_greatest_series_x_power in Heqg'.
+  remember (null_coeff_range_length R (series_const c) (S w)) as x.
+  symmetry in Heqx.
+  destruct x.
+   destruct Heqg' as (Hwg', Heqg').
+   unfold is_a_series_in_x_power in Hwg'.
+bbb.
+
+intros p c q Hp.
+inversion Hp; subst.
+inversion_clear H.
+remember (null_coeff_range_length R (ps_terms p) 0) as v.
+symmetry in Heqv.
+destruct v as [v| ].
  erewrite ps_polord_normalise in H1; eauto .
  remember (greatest_series_x_power R (ps_terms p) v) as g.
  remember (null_coeff_range_length R (ps_terms (ps_monom c q)) 0) as w.
