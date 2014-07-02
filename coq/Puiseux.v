@@ -385,10 +385,38 @@ destruct v as [v| ].
  contradiction.
 Qed.
 
+Lemma qqq : ∀ p c q,
+  (p = ps_monom c q)%ps
+  → ∃ r, p = ps_monom c r ∧ r == q.
+Proof.
+bbb.
+
 Theorem in_K_1_m_monom_pow_opp : ∀ m c pow,
   in_K_1_m (ps_monom c pow) m
   → in_K_1_m (ps_monom c (- pow)) m.
 Proof.
+intros m c pow Hin.
+inversion Hin; constructor.
+destruct H as (ps, (Hps, Hm)).
+apply qqq in Hps.
+destruct Hps as (i, Hi).
+exists (ps_monom c (- i)).
+destruct Hi as (Hps, Hi).
+subst m ps; simpl.
+split; [ idtac | reflexivity ].
+unfold ps_monom; simpl.
+rewrite ps_adjust_eq with (n := O) (k := Qden pow).
+symmetry.
+rewrite ps_adjust_eq with (n := O) (k := Qden i).
+unfold adjust_ps; simpl.
+do 2 rewrite Z.mul_opp_l.
+rewrite Hi.
+rewrite Pos.mul_comm.
+rewrite fold_series_const.
+do 2 stretch_series_const.
+reflexivity.
+bbb.
+
 intros m c pow Hin.
 inversion Hin; constructor.
 destruct H as (ps, (Hps, Hm)).
