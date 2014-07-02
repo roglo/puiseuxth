@@ -389,6 +389,21 @@ Lemma qqq : ∀ p c q,
   (p = ps_monom c q)%ps
   → ∃ r, p = ps_monom c r ∧ r == q.
 Proof.
+intros p c q Hp.
+inversion Hp; subst.
+inversion_clear H.
+remember (null_coeff_range_length R (ps_terms p) 0) as n.
+symmetry in Heqn.
+destruct n as [n| ].
+ erewrite ps_polord_normalise in H1; eauto .
+ remember (greatest_series_x_power R (ps_terms p) n) as g.
+ remember (null_coeff_range_length R (ps_terms (ps_monom c q)) 0) as m.
+ symmetry in Heqm.
+ destruct m as [m| ].
+  erewrite ps_polord_normalise in H1; eauto .
+  remember Z.gcd as f; simpl in H1; subst f.
+  rewrite fold_series_const in H1.
+  remember (greatest_series_x_power R (series_const c) m) as g'.
 bbb.
 
 Theorem in_K_1_m_monom_pow_opp : ∀ m c pow,
