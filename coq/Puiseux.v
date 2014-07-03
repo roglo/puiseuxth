@@ -461,6 +461,7 @@ remember (null_coeff_range_length R (ps_terms ps) 0) as n.
 symmetry in Heqn.
 destruct n as [n| ].
  inversion Hp; subst.
+ rewrite normalise_ps_monom in H.
 bbb.
 
 Lemma qqq₁ : ∀ p c q,
