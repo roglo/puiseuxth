@@ -453,18 +453,30 @@ Qed.
 
 Lemma qqq : ∀ ps c q,
   (ps = ps_monom c q)%ps
-  → ∃ n k, ps = adjust_ps n k (ps_monom c q).
+  → ∃ n k r, ps = adjust_ps n k (ps_monom c r) ∧ r == q.
 Proof.
 intros ps c q Hp.
 remember (null_coeff_range_length R (ps_terms ps) 0) as n.
 symmetry in Heqn.
 destruct n as [n| ].
- inversion Hp; subst.
- rewrite normalise_ps_monom in H.
-  inversion H; subst.
-  simpl in H0, H1, H2.
-  rewrite fold_series_const in H2.
-  erewrite ps_ordnum_normalise in H0; eauto .
+ remember (greatest_series_x_power R (ps_terms ps) n) as k.
+ symmetry in Heqk.
+ destruct k.
+  apply greatest_series_x_power_iff in Heqk.
+  unfold is_the_greatest_series_x_power in Heqk.
+  remember (null_coeff_range_length R (ps_terms ps) (S n)) as m.
+  symmetry in Heqm.
+  destruct m as [m| ].
+   destruct Heqk as (Hpn, Hkk).
+   unfold is_a_series_in_x_power in Hpn.
+   pose proof (Hpn 0%nat) as H.
+   destruct H as (k, Hk).
+   rewrite Nat.mul_0_r in Hk.
+   unfold nth_null_coeff_range_length in Hk.
+   rewrite Heqm in Hk.
+   discriminate Hk.
+
+   clear Heqk.
 bbb.
 
 Lemma qqq₁ : ∀ p c q,
