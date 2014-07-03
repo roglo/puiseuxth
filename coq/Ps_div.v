@@ -220,10 +220,12 @@ apply Nat.nlt_ge in Hi.
 exfalso; apply Hi, Nat.lt_0_succ.
 Qed.
 
-Theorem greatest_series_x_power_series_const : ∀ c m,
-  greatest_series_x_power r (series_const c) m = 0%nat.
+Theorem greatest_series_x_power_series_const : ∀ s c m,
+  (s = series_const c)%ser
+  → greatest_series_x_power r s m = 0%nat.
 Proof.
-intros c m.
+intros s c m Hs.
+rewrite Hs.
 apply greatest_series_x_power_iff; simpl.
 unfold is_the_greatest_series_x_power.
 remember (null_coeff_range_length r (series_const c) (S m)) as n eqn:Hn .
@@ -238,7 +240,8 @@ Qed.
 Lemma greatest_series_x_power_series_1 :
   greatest_series_x_power r 1%ser 0 = O.
 Proof.
-apply greatest_series_x_power_series_const.
+apply greatest_series_x_power_series_const with (c := 1%K).
+reflexivity.
 Qed.
 
 Theorem ps_mul_inv_l : ∀ ps,

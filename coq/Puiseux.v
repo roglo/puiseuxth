@@ -406,7 +406,7 @@ unfold normalise_ps; simpl.
 rewrite fold_series_const.
 rewrite null_coeff_range_length_const; auto; simpl.
 rewrite Z.add_0_r.
-rewrite greatest_series_x_power_series_const.
+erewrite greatest_series_x_power_series_const; [ idtac | reflexivity ].
 unfold gcd_ps; simpl.
 rewrite Z.add_0_r; simpl.
 rewrite Z.gcd_0_r; simpl.
@@ -478,10 +478,48 @@ rewrite Nat.sub_add; auto.
 bbb.
 *)
 
-Lemma qqq : ∀ ps c q,
+Lemma qqq : ∀ ps c q n,
   (ps = ps_monom c q)%ps
-  → ∃ n k r, ps = adjust_ps n k (ps_monom c r) ∧ r == q.
+  → null_coeff_range_length R (ps_terms ps) 0 = fin n
+  → (ps_terms ps = series_shift n (series_const c))%ser.
 Proof.
+intros ps c q n Hp Hn.
+inversion Hp; subst.
+rewrite normalise_ps_monom in H.
+ unfold normalise_ps in H.
+ rewrite Hn in H.
+ remember (greatest_series_x_power R (ps_terms ps) n) as k.
+ inversion_clear H.
+ simpl in H0, H1, H2.
+ rewrite fold_series_const in H2.
+ rewrite greatest_series_x_power_series_const with (c := c) in Heqk.
+  subst k; simpl in H0, H1, H2.
+  unfold gcd_ps in H0, H1, H2.
+  simpl in H0, H1, H2.
+  rewrite Z.gcd_0_r in H0, H1, H2.
+bbb.
+intros ps c q Hp.
+inversion Hp; subst.
+rewrite normalise_ps_monom in H.
+ unfold normalise_ps in H.
+ remember (null_coeff_range_length R (ps_terms ps) 0) as n.
+ symmetry in Heqn.
+ destruct n as [n| ].
+  remember (greatest_series_x_power R (ps_terms ps) n) as k.
+  inversion_clear H.
+  simpl in H0, H1, H2.
+  rewrite fold_series_const in H2.
+  exists O, (ps_ordnum ps # ps_polord ps).
+  split.
+   constructor; simpl.
+    rewrite Z.mul_1_r, Z.sub_0_r; reflexivity.
+
+    rewrite Pos.mul_1_r; reflexivity.
+
+    rewrite series_shift_0, series_stretch_1.
+    rewrite fold_series_const.
+bbb.
+
 intros ps c q Hp.
 inversion Hp; subst.
 rewrite normalise_ps_monom in H.
