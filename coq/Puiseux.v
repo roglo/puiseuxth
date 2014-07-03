@@ -390,15 +390,18 @@ Lemma qqq : ∀ p c q,
   → ∃ r n, p = adjust_ps n 1 (ps_monom c r) ∧ r == q.
 Proof.
 intros p c q Hp.
-unfold adjust_ps; simpl.
-rewrite fold_series_const.
-inversion_clear Hp.
-inversion_clear H.
-remember (null_coeff_range_length R (ps_terms p) 0) as v.
-symmetry in Heqv.
-destruct v as [v| ].
+remember (null_coeff_range_length R (ps_terms p) 0) as n.
+symmetry in Heqn.
+destruct n as [n| ].
+ exists (ps_ordnum p # ps_polord p), n.
+ unfold ps_monom; simpl.
+ unfold adjust_ps; simpl.
+ rewrite fold_series_const.
+ rewrite Z.mul_1_r, Pos.mul_1_r.
+ inversion_clear Hp.
+ inversion_clear H.
  erewrite ps_ordnum_normalise in H0; eauto .
- remember (greatest_series_x_power R (ps_terms p) v) as g.
+ remember (greatest_series_x_power R (ps_terms p) n) as g.
  remember (null_coeff_range_length R (ps_terms (ps_monom c q)) 0) as w.
  symmetry in Heqw.
  destruct w as [w| ].
