@@ -456,6 +456,19 @@ Lemma qqq : ∀ ps c q,
   → ∃ n k r, ps = adjust_ps n k (ps_monom c r) ∧ r == q.
 Proof.
 intros ps c q Hp.
+inversion Hp; subst.
+rewrite normalise_ps_monom in H.
+ unfold normalise_ps in H.
+ remember (null_coeff_range_length R (ps_terms ps) 0) as n.
+ symmetry in Heqn.
+ destruct n as [n| ].
+  remember (greatest_series_x_power R (ps_terms ps) n) as k.
+  inversion_clear H.
+  simpl in H0, H1, H2.
+  rewrite fold_series_const in H2.
+bbb.
+
+intros ps c q Hp.
 remember (null_coeff_range_length R (ps_terms ps) 0) as n.
 symmetry in Heqn.
 destruct n as [n| ].
