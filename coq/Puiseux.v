@@ -406,6 +406,18 @@ destruct n as [n| ].
  symmetry in Heqw.
  destruct w as [w| ].
   erewrite ps_ordnum_normalise in H0; eauto .
+  remember Z.gcd as f; simpl in H0; subst f.
+  rewrite fold_series_const in H0.
+  remember Z.gcd as f; simpl in H0; subst f.
+  remember Z.gcd as f; simpl in H0; subst f.
+  erewrite ps_polord_normalise in H1; eauto .
+  erewrite ps_polord_normalise in H1; eauto .
+  remember Z.gcd as f; simpl in H1; subst f.
+  rewrite fold_series_const in H1.
+  erewrite ps_terms_normalise in H2; eauto .
+  erewrite ps_terms_normalise in H2; eauto .
+  remember Z.gcd as f; simpl in H2; subst f.
+  rewrite fold_series_const in H2.
   simpl in Heqw.
   rewrite fold_series_const in Heqw.
   apply null_coeff_range_length_iff in Heqw.
@@ -414,13 +426,17 @@ destruct n as [n| ].
   destruct Heqw as (Hiw, Hw).
   destruct w; [ simpl in Hw | exfalso; apply Hw; reflexivity ].
   clear Hiw.
-  rewrite Z.add_0_r in H0.
-  remember Z.gcd as f; simpl in H0; subst f.
-  rewrite fold_series_const in H0.
   rewrite greatest_series_x_power_series_const in H0.
+  rewrite greatest_series_x_power_series_const in H1.
+  rewrite greatest_series_x_power_series_const in H2.
   remember Z.gcd as f; simpl in H0; subst f.
-  rewrite Z.gcd_0_r in H0.
+  remember Z.gcd as f; simpl in H1; subst f.
+  remember Z.gcd as f; simpl in H2; subst f.
+  rewrite Z.gcd_0_r in H0, H2.
+  rewrite Z.add_0_r in H0, H1, H2.
+  rewrite Z.gcd_0_l in H1.
   remember Z.gcd as f; simpl in H0; subst f.
+  remember Z.gcd as f; simpl in H2; subst f.
 bbb.
 *)
 
