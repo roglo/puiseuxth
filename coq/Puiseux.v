@@ -397,7 +397,7 @@ intros i Hi.
 exfalso; revert Hi; apply Nat.nlt_0_r.
 Qed.
 
-Lemma ppp : ∀ c q,
+Lemma normalise_ps_monom : ∀ c q,
   (c ≠ 0)%K
   → normalise_ps (ps_monom c q) ≐ ps_monom c (Qred q).
 Proof.
@@ -443,13 +443,20 @@ assert (g ≠ 0)%Z as Hgnz.
     unfold ps_monom; simpl.
     rewrite fold_series_const.
     constructor; auto; simpl.
-bbb.
+    apply series_shrink_const.
+
+    rewrite Hg1; intros H; discriminate H.
+
+   apply Z.mul_nonneg_nonneg; auto.
+   rewrite Hg1; apply Z.le_0_1.
+Qed.
 
 Lemma qqq : ∀ ps c q,
   (ps = ps_monom c q)%ps
   → ∃ n k, ps = adjust_ps n k (ps_monom c q).
 Proof.
 intros ps c q Hp.
+bbb.
 remember (null_coeff_range_length R (ps_terms ps) 0) as n.
 symmetry in Heqn.
 destruct n as [n| ].
