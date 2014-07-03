@@ -385,7 +385,67 @@ destruct v as [v| ].
  contradiction.
 Qed.
 
-Lemma qqq : ∀ p c q,
+Lemma ppp : ∀ c q n,
+  null_coeff_range_length R (series_const c) 0 = fin n
+  → normalise_ps (ps_monom c q)
+     ≐ ps_monom c (Qred (Qnum q + Z.of_nat n # Qden q)).
+Proof.
+intros c q n Hn.
+constructor.
+ unfold normalise_ps; simpl.
+ rewrite fold_series_const.
+ rewrite Hn; simpl.
+ unfold gcd_ps; simpl.
+ rewrite greatest_series_x_power_series_const; simpl.
+ rewrite Z.gcd_0_r; simpl.
+ remember (Qnum q + Z.of_nat n)%Z as qn.
+ pose proof (Z.ggcd_correct_divisors qn (' Qden q)) as H.
+ remember (Z.ggcd qn (' Qden q)) as x.
+ destruct x as (g, (aa, bb)); simpl.
+ destruct H as (Haa, Hbb).
+ rewrite Haa, Hbb.
+ rewrite Z.gcd_mul_mono_l.
+ remember (Z.abs (Z.abs g * Z.gcd aa bb)) as cc.
+ apply Z.mul_reg_l with (p := cc).
+  Focus 2.
+  pose proof (Z.ggcd_gcd qn (' Qden q)) as Hg.
+  rewrite <- Heqx in Hg; simpl in Hg.
+bbb.
+
+intros c q n Hn.
+constructor.
+ unfold normalise_ps; simpl.
+ rewrite fold_series_const.
+ rewrite Hn; simpl.
+ unfold gcd_ps; simpl.
+ remember (greatest_series_x_power R (series_const c) n) as k eqn:Hk .
+ symmetry in Hk.
+bbb.
+intros c q.
+unfold normalise_ps; simpl.
+rewrite fold_series_const.
+remember (null_coeff_range_length R (series_const c) 0) as n eqn:Hn .
+symmetry in Hn.
+destruct n as [n| ].
+ remember (greatest_series_x_power R (series_const c) n) as g eqn:Hg .
+ unfold ps_monom.
+ rewrite fold_series_const.
+ unfold gcd_ps; simpl.
+ constructor; simpl.
+bbb.
+
+Lemma qqq : ∀ ps c q,
+  (ps = ps_monom c q)%ps
+  → ∃ n k, ps = adjust_ps n k (ps_monom c q).
+Proof.
+intros ps c q Hp.
+remember (null_coeff_range_length R (ps_terms ps) 0) as n.
+symmetry in Heqn.
+destruct n as [n| ].
+ inversion Hp; subst.
+bbb.
+
+Lemma qqq₁ : ∀ p c q,
   (p = ps_monom c q)%ps
   → ∃ r n, p = adjust_ps n 1 (ps_monom c r) ∧ r == q.
 Proof.

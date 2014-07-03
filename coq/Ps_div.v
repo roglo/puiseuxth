@@ -220,13 +220,13 @@ apply Nat.nlt_ge in Hi.
 exfalso; apply Hi, Nat.lt_0_succ.
 Qed.
 
-Theorem greatest_series_x_power_series_const : ∀ c,
-  greatest_series_x_power r (series_const c) 0 = 0%nat.
+Theorem greatest_series_x_power_series_const : ∀ c m,
+  greatest_series_x_power r (series_const c) m = 0%nat.
 Proof.
-intros c.
+intros c m.
 apply greatest_series_x_power_iff; simpl.
 unfold is_the_greatest_series_x_power.
-remember (null_coeff_range_length r (series_const c) 1) as n eqn:Hn .
+remember (null_coeff_range_length r (series_const c) (S m)) as n eqn:Hn .
 symmetry in Hn.
 destruct n as [n| ]; [ idtac | reflexivity ].
 apply null_coeff_range_length_iff in Hn.
