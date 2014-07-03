@@ -731,6 +731,20 @@ rewrite Nat.div_mul; [ simpl | apply Pos2Nat_ne_0 ].
 reflexivity.
 Qed.
 
+Theorem series_shrink_const : ∀ c k,
+  (series_shrink k (series_const c) = series_const c)%ser.
+Proof.
+intros c k.
+unfold series_shrink; simpl.
+constructor; intros i; simpl.
+destruct (zerop (i * Pos.to_nat k)) as [H₁| H₁].
+ apply Nat.eq_mul_0_l in H₁; auto.
+ subst i; reflexivity.
+
+ destruct (zerop i) as [H₂| ]; [ idtac | reflexivity ].
+ subst i; exfalso; revert H₁; apply Nat.lt_irrefl.
+Qed.
+
 Lemma series_nth_mul_shrink : ∀ (s : power_series α) k i,
   s .[Pos.to_nat k * i] = (series_shrink k s) .[i].
 Proof.

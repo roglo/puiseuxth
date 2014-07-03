@@ -402,135 +402,47 @@ Lemma ppp : ∀ c q,
   → normalise_ps (ps_monom c q) ≐ ps_monom c (Qred q).
 Proof.
 intros c q Hc.
-constructor; simpl.
- unfold normalise_ps; simpl.
- rewrite fold_series_const.
- rewrite null_coeff_range_length_const; auto; simpl.
- rewrite Z.add_0_r.
- rewrite greatest_series_x_power_series_const.
- unfold gcd_ps; simpl.
- rewrite Z.add_0_r; simpl.
- rewrite Z.gcd_0_r; simpl.
- unfold Qred; simpl.
- destruct q as (q₁, q₂).
- pose proof (Z.ggcd_correct_divisors q₁ (' q₂)) as H.
- remember (Z.ggcd q₁ (' q₂)) as g.
- destruct g as (g, (aa, bb)).
- destruct H as (Hq₁, Hq₂); simpl.
- rewrite Hq₁, Hq₂; simpl.
- pose proof (Z.ggcd_gcd q₁ (' q₂)) as Hg.
- rewrite <- Heqg in Hg; simpl in Hg.
- assert (0 <= g)%Z as Hgnn by (subst g; apply Z.gcd_nonneg).
- assert (g ≠ 0)%Z as Hgnz.
-  subst g; intros H.
-  apply Z.gcd_eq_0_r in H.
-  revert H; apply Pos2Z_ne_0.
-
-  rewrite Z.gcd_mul_mono_l_nonneg; auto.
-  assert (Z.gcd aa bb = 1)%Z as Hg1.
-   apply Z.mul_reg_l with (p := g); auto.
-   rewrite Z.mul_1_r.
-   rewrite <- Z.gcd_mul_mono_l_nonneg; auto.
-   rewrite <- Hq₁, <- Hq₂.
-   symmetry; assumption.
-
-   rewrite Z.abs_eq.
-    rewrite Z.div_mul_cancel_l; auto.
-     rewrite Hg1, Z.div_1_r; reflexivity.
-
-     rewrite Hg1; intros H; discriminate H.
-
-    apply Z.mul_nonneg_nonneg; auto.
-    rewrite Hg1; apply Z.le_0_1.
-
- unfold normalise_ps; simpl.
- rewrite fold_series_const.
- rewrite null_coeff_range_length_const; auto; simpl.
- rewrite greatest_series_x_power_series_const.
- unfold gcd_ps; simpl.
- rewrite Z.add_0_r; simpl.
- rewrite Z.gcd_0_r; simpl.
- unfold Qred; simpl.
- destruct q as (q₁, q₂).
- pose proof (Z.ggcd_correct_divisors q₁ (' q₂)) as H.
- remember (Z.ggcd q₁ (' q₂)) as g.
- destruct g as (g, (aa, bb)).
- destruct H as (Hq₁, Hq₂); simpl.
- rewrite Hq₁, Hq₂; simpl.
- pose proof (Z.ggcd_gcd q₁ (' q₂)) as Hg.
- rewrite <- Heqg in Hg; simpl in Hg.
- assert (0 <= g)%Z as Hgnn by (subst g; apply Z.gcd_nonneg).
- assert (g ≠ 0)%Z as Hgnz.
-  subst g; intros H.
-  apply Z.gcd_eq_0_r in H.
-  revert H; apply Pos2Z_ne_0.
-
-  rewrite Z.gcd_mul_mono_l_nonneg; auto.
-  assert (Z.gcd aa bb = 1)%Z.
-   apply Z.mul_reg_l with (p := g); auto.
-   rewrite Z.mul_1_r.
-   rewrite <- Z.gcd_mul_mono_l_nonneg; auto.
-   rewrite <- Hq₁, <- Hq₂.
-   symmetry; assumption.
-
-   rename H into Hg1.
-   rewrite Z.abs_eq.
-    rewrite Z.div_mul_cancel_l; auto.
-     rewrite Hg1, Z.div_1_r; reflexivity.
-
-     rewrite Hg1; intros H; discriminate H.
-
-    apply Z.mul_nonneg_nonneg; auto.
-    rewrite Hg1; apply Z.le_0_1.
-bbb.
-
-Lemma ppp₁ : ∀ c q n,
-  null_coeff_range_length R (series_const c) 0 = fin n
-  → normalise_ps (ps_monom c q)
-     ≐ ps_monom c (Qred (Qnum q + Z.of_nat n # Qden q)).
-Proof.
-intros c q n Hn.
-constructor.
- unfold normalise_ps; simpl.
- rewrite fold_series_const.
- rewrite Hn; simpl.
- unfold gcd_ps; simpl.
- rewrite greatest_series_x_power_series_const; simpl.
- rewrite Z.gcd_0_r; simpl.
- remember (Qnum q + Z.of_nat n)%Z as qn.
- pose proof (Z.ggcd_correct_divisors qn (' Qden q)) as H.
- remember (Z.ggcd qn (' Qden q)) as x.
- destruct x as (g, (aa, bb)); simpl.
- destruct H as (Haa, Hbb).
- rewrite Haa, Hbb.
- rewrite Z.gcd_mul_mono_l.
- remember (Z.abs (Z.abs g * Z.gcd aa bb)) as cc.
- apply Z.mul_reg_l with (p := cc).
-  Focus 2.
-  pose proof (Z.ggcd_gcd qn (' Qden q)) as Hg.
-  rewrite <- Heqx in Hg; simpl in Hg.
-bbb.
-
-intros c q n Hn.
-constructor.
- unfold normalise_ps; simpl.
- rewrite fold_series_const.
- rewrite Hn; simpl.
- unfold gcd_ps; simpl.
- remember (greatest_series_x_power R (series_const c) n) as k eqn:Hk .
- symmetry in Hk.
-bbb.
-intros c q.
 unfold normalise_ps; simpl.
 rewrite fold_series_const.
-remember (null_coeff_range_length R (series_const c) 0) as n eqn:Hn .
-symmetry in Hn.
-destruct n as [n| ].
- remember (greatest_series_x_power R (series_const c) n) as g eqn:Hg .
- unfold ps_monom.
- rewrite fold_series_const.
- unfold gcd_ps; simpl.
- constructor; simpl.
+rewrite null_coeff_range_length_const; auto; simpl.
+rewrite Z.add_0_r.
+rewrite greatest_series_x_power_series_const.
+unfold gcd_ps; simpl.
+rewrite Z.add_0_r; simpl.
+rewrite Z.gcd_0_r; simpl.
+unfold Qred; simpl.
+destruct q as (q₁, q₂).
+pose proof (Z.ggcd_correct_divisors q₁ (' q₂)) as H.
+remember (Z.ggcd q₁ (' q₂)) as g.
+destruct g as (g, (aa, bb)).
+destruct H as (Hq₁, Hq₂); simpl.
+rewrite Hq₁, Hq₂; simpl.
+pose proof (Z.ggcd_gcd q₁ (' q₂)) as Hg.
+rewrite <- Heqg in Hg; simpl in Hg.
+assert (0 <= g)%Z as Hgnn by (subst g; apply Z.gcd_nonneg).
+assert (g ≠ 0)%Z as Hgnz.
+ subst g; intros H.
+ apply Z.gcd_eq_0_r in H.
+ revert H; apply Pos2Z_ne_0.
+
+ rewrite Z.gcd_mul_mono_l_nonneg; auto.
+ assert (Z.gcd aa bb = 1)%Z as Hg1.
+  apply Z.mul_reg_l with (p := g); auto.
+  rewrite Z.mul_1_r.
+  rewrite <- Z.gcd_mul_mono_l_nonneg; auto.
+  rewrite <- Hq₁, <- Hq₂.
+  symmetry; assumption.
+
+  rewrite Z.abs_eq.
+   rewrite Z.div_mul_cancel_l; auto.
+    rewrite Hg1, Z.div_1_r, Z.mul_1_r.
+    rewrite Z.mul_comm.
+    rewrite Z.div_mul; auto.
+    unfold normalise_series.
+    rewrite series_left_shift_0.
+    unfold ps_monom; simpl.
+    rewrite fold_series_const.
+    constructor; auto; simpl.
 bbb.
 
 Lemma qqq : ∀ ps c q,
