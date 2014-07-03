@@ -456,12 +456,14 @@ Lemma qqq : ∀ ps c q,
   → ∃ n k, ps = adjust_ps n k (ps_monom c q).
 Proof.
 intros ps c q Hp.
-bbb.
 remember (null_coeff_range_length R (ps_terms ps) 0) as n.
 symmetry in Heqn.
 destruct n as [n| ].
  inversion Hp; subst.
  rewrite normalise_ps_monom in H.
+  inversion H; subst.
+  simpl in H0, H1, H2.
+  rewrite fold_series_const in H2.
 bbb.
 
 Lemma qqq₁ : ∀ p c q,
