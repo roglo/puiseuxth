@@ -385,7 +385,48 @@ destruct v as [v| ].
  contradiction.
 Qed.
 
-Lemma ppp : ∀ c q n,
+Theorem null_coeff_range_length_const : ∀ c,
+  (c ≠ 0)%K
+  → null_coeff_range_length R (series_const c) 0 = 0%Nbar.
+Proof.
+intros c Hc.
+apply null_coeff_range_length_iff.
+unfold null_coeff_range_length_prop; simpl.
+split; [ idtac | assumption ].
+intros i Hi.
+exfalso; revert Hi; apply Nat.nlt_0_r.
+Qed.
+
+Lemma ppp : ∀ c q,
+  normalise_ps (ps_monom c q) ≐ ps_monom c (Qred q)
+Proof.
+intros c q.
+bbb.
+constructor; simpl.
+ unfold normalise_ps; simpl.
+ rewrite fold_series_const.
+ rewrite null_coeff_range_length_const; simpl.
+  rewrite Z.add_0_r.
+  rewrite greatest_series_x_power_series_const.
+  unfold gcd_ps; simpl.
+  rewrite Z.add_0_r; simpl.
+  rewrite Z.gcd_0_r; simpl.
+  unfold Qred; simpl.
+  destruct q as (q₁, q₂).
+  pose proof (Z.ggcd_correct_divisors q₁ (' q₂)) as H.
+  remember (Z.ggcd q₁ (' q₂)) as g.
+  destruct g as (g, (aa, bb)).
+  destruct H as (Hq₁, Hq₂).
+  simpl.
+  rewrite Hq₁, Hq₂; simpl.
+  pose proof (Z.ggcd_gcd q₁ (' q₂)) as Hg.
+  rewrite <- Heqg in Hg; simpl in Hg.
+  rewrite Z.gcd_mul_mono_l_nonneg.
+   rewrite Z.abs_eq.
+    rewrite Z.div_mul_cancel_l.
+bbb.
+
+Lemma ppp₁ : ∀ c q n,
   null_coeff_range_length R (series_const c) 0 = fin n
   → normalise_ps (ps_monom c q)
      ≐ ps_monom c (Qred (Qnum q + Z.of_nat n # Qden q)).
