@@ -420,27 +420,29 @@ constructor; simpl.
   rewrite Hq₁, Hq₂; simpl.
   pose proof (Z.ggcd_gcd q₁ (' q₂)) as Hg.
   rewrite <- Heqg in Hg; simpl in Hg.
-  rewrite Z.gcd_mul_mono_l_nonneg.
-   rewrite Z.abs_eq.
-    rewrite Z.div_mul_cancel_l.
-     assert (Z.gcd aa bb = 1)%Z.
-      apply Z.mul_reg_l with (p := g).
-       rewrite Hg.
-       intros H.
-       apply Z.gcd_eq_0_r in H.
-       revert H; apply Pos2Z_ne_0.
+  assert (0 <= g)%Z as Hgnn by (subst g; apply Z.gcd_nonneg).
+  assert (g ≠ 0)%Z as Hgnz.
+   subst g; intros H.
+   apply Z.gcd_eq_0_r in H.
+   revert H; apply Pos2Z_ne_0.
 
-       rewrite Z.mul_1_r.
-       rewrite <- Z.gcd_mul_mono_l_nonneg.
-        rewrite <- Hq₁, <- Hq₂.
-        symmetry; assumption.
+   rewrite Z.gcd_mul_mono_l_nonneg; auto.
+   assert (Z.gcd aa bb = 1)%Z.
+    apply Z.mul_reg_l with (p := g); auto.
+    rewrite Z.mul_1_r.
+    rewrite <- Z.gcd_mul_mono_l_nonneg; auto.
+    rewrite <- Hq₁, <- Hq₂.
+    symmetry; assumption.
 
-        rewrite Hg.
-        apply Z.gcd_nonneg.
+    rename H into Hg1.
+    rewrite Z.abs_eq.
+     rewrite Z.div_mul_cancel_l; auto.
+      rewrite Hg1, Z.div_1_r; reflexivity.
 
-      rewrite H, Z.div_1_r; reflexivity.
+      rewrite Hg1; intros H; discriminate H.
 
-     intros H.
+     apply Z.mul_nonneg_nonneg; auto.
+     rewrite Hg1; apply Z.le_0_1.
 bbb.
 
 Lemma ppp₁ : ∀ c q n,
