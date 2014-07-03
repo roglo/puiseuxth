@@ -464,6 +464,7 @@ destruct n as [n| ].
   inversion H; subst.
   simpl in H0, H1, H2.
   rewrite fold_series_const in H2.
+  erewrite ps_ordnum_normalise in H0; eauto .
 bbb.
 
 Lemma qqq₁ : ∀ p c q,
