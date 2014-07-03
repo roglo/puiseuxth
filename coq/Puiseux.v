@@ -451,6 +451,33 @@ assert (g ≠ 0)%Z as Hgnz.
    rewrite Hg1; apply Z.le_0_1.
 Qed.
 
+(*
+Theorem normalise_series_is_const : ∀ n k s c,
+  null_coeff_range_length R s 0 = fin n
+  → (normalise_series n k s = series_const c)%ser
+  → (s = series_shift n (series_const c))%ser.
+Proof.
+intros n k s c Hn Hns.
+unfold normalise_series in Hns.
+unfold series_left_shift in Hns.
+unfold series_shrink in Hns.
+simpl in Hns.
+unfold series_const in Hns.
+inversion_clear Hns.
+simpl in H.
+constructor; intros i.
+simpl.
+apply series_shift_left_shift in Hn.
+inversion_clear Hn.
+simpl in H0.
+rewrite <- H0.
+destruct (lt_dec i n) as [H₁| H₁]; [ reflexivity | idtac ].
+apply Nat.nlt_ge in H₁.
+rewrite Nat.add_comm.
+rewrite Nat.sub_add; auto.
+bbb.
+*)
+
 Lemma qqq : ∀ ps c q,
   (ps = ps_monom c q)%ps
   → ∃ n k r, ps = adjust_ps n k (ps_monom c r) ∧ r == q.
