@@ -437,6 +437,8 @@ destruct n as [n| ].
   rewrite Z.gcd_0_l in H1.
   remember Z.gcd as f; simpl in H0; subst f.
   remember Z.gcd as f; simpl in H2; subst f.
+  unfold normalise_series in H2.
+  rewrite series_left_shift_0 in H2.
 bbb.
 *)
 
