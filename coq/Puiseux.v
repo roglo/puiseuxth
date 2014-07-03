@@ -390,7 +390,9 @@ Lemma qqq : ∀ p c q,
   → ∃ r n, p = adjust_ps n 1 (ps_monom c r) ∧ r == q.
 Proof.
 intros p c q Hp.
-inversion Hp; subst.
+unfold adjust_ps; simpl.
+rewrite fold_series_const.
+inversion_clear Hp.
 inversion_clear H.
 remember (null_coeff_range_length R (ps_terms p) 0) as v.
 symmetry in Heqv.
@@ -401,36 +403,23 @@ destruct v as [v| ].
  symmetry in Heqw.
  destruct w as [w| ].
   erewrite ps_ordnum_normalise in H0; eauto .
+  simpl in Heqw.
+  rewrite fold_series_const in Heqw.
+  apply null_coeff_range_length_iff in Heqw.
+  unfold null_coeff_range_length_prop in Heqw.
+  simpl in Heqw.
+  destruct Heqw as (Hiw, Hw).
+  destruct w; [ simpl in Hw | exfalso; apply Hw; reflexivity ].
+  clear Hiw.
+  rewrite Z.add_0_r in H0.
   remember Z.gcd as f; simpl in H0; subst f.
   rewrite fold_series_const in H0.
-  remember (greatest_series_x_power R (series_const c) w) as g'.
-  symmetry in Heqg'.
-  apply greatest_series_x_power_iff in Heqg'.
-  unfold is_the_greatest_series_x_power in Heqg'.
-  remember (null_coeff_range_length R (series_const c) (S w)) as x.
-  symmetry in Heqx.
-  destruct x.
-   destruct Heqg' as (Hwg', Heqg').
-   unfold is_a_series_in_x_power in Hwg'.
+  rewrite greatest_series_x_power_series_const in H0.
+  remember Z.gcd as f; simpl in H0; subst f.
+  rewrite Z.gcd_0_r in H0.
+  remember Z.gcd as f; simpl in H0; subst f.
 bbb.
-
-intros p c q Hp.
-inversion Hp; subst.
-inversion_clear H.
-remember (null_coeff_range_length R (ps_terms p) 0) as v.
-symmetry in Heqv.
-destruct v as [v| ].
- erewrite ps_polord_normalise in H1; eauto .
- remember (greatest_series_x_power R (ps_terms p) v) as g.
- remember (null_coeff_range_length R (ps_terms (ps_monom c q)) 0) as w.
- symmetry in Heqw.
- destruct w as [w| ].
-  erewrite ps_polord_normalise in H1; eauto .
-  remember Z.gcd as f; simpl in H1; subst f.
-  rewrite fold_series_const in H1.
-  remember (greatest_series_x_power R (series_const c) w) as g'.
-bbb.
-(* cf ps_adjust_eq, normalised_exists_adjust *)
+*)
 
 Theorem in_K_1_m_monom_pow_opp : ∀ m c pow,
   in_K_1_m (ps_monom c pow) m
@@ -439,6 +428,7 @@ Proof.
 intros m c pow Hin.
 inversion Hin; constructor.
 destruct H as (ps, (Hps, Hm)).
+bbb.
 apply qqq in Hps.
 destruct Hps as (i, Hi).
 exists (ps_monom c (- i)).
