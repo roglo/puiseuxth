@@ -398,10 +398,9 @@ exfalso; revert Hi; apply Nat.nlt_0_r.
 Qed.
 
 Lemma ppp : ∀ c q,
-  normalise_ps (ps_monom c q) ≐ ps_monom c (Qred q)
+  normalise_ps (ps_monom c q) ≐ ps_monom c (Qred q).
 Proof.
 intros c q.
-bbb.
 constructor; simpl.
  unfold normalise_ps; simpl.
  rewrite fold_series_const.
@@ -424,6 +423,24 @@ constructor; simpl.
   rewrite Z.gcd_mul_mono_l_nonneg.
    rewrite Z.abs_eq.
     rewrite Z.div_mul_cancel_l.
+     assert (Z.gcd aa bb = 1)%Z.
+      apply Z.mul_reg_l with (p := g).
+       rewrite Hg.
+       intros H.
+       apply Z.gcd_eq_0_r in H.
+       revert H; apply Pos2Z_ne_0.
+
+       rewrite Z.mul_1_r.
+       rewrite <- Z.gcd_mul_mono_l_nonneg.
+        rewrite <- Hq₁, <- Hq₂.
+        symmetry; assumption.
+
+        rewrite Hg.
+        apply Z.gcd_nonneg.
+
+      rewrite H, Z.div_1_r; reflexivity.
+
+     intros H.
 bbb.
 
 Lemma ppp₁ : ∀ c q n,
