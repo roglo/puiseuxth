@@ -1089,7 +1089,7 @@ Qed.
           γ₁ = [...] = ---
                        m q
   » *)
-Theorem gamma_eq_p_nq : ∀ pol ns m p q,
+Theorem gamma_eq_p_mq : ∀ pol ns m p q,
   ns ∈ newton_segments pol
   → m = ps_list_com_polord (al pol)
     → p = p_of_ns pol ns
@@ -1476,7 +1476,7 @@ split.
   remember Hns as Hgh; clear HeqHgh.
   eapply gamma_value_jh in Hgh; try eassumption.
   remember Hm as Hgamma; clear HeqHgamma.
-  eapply gamma_eq_p_nq in Hgamma; try eassumption; try reflexivity.
+  eapply gamma_eq_p_mq in Hgamma; try eassumption; try reflexivity.
   rewrite Hgamma in Hgh.
   unfold Qnat in Hgh.
   rewrite <- Qnum_minus_distr_r in Hgh.
@@ -1507,7 +1507,7 @@ split.
   symmetry in Hh.
   eapply gamma_value_jk in Hgh; [ idtac | eassumption ].
   remember Hm as Hgamma; clear HeqHgamma.
-  eapply gamma_eq_p_nq in Hgamma; try eassumption; try reflexivity.
+  eapply gamma_eq_p_mq in Hgamma; try eassumption; try reflexivity.
   rewrite Hgh in Hgamma.
   unfold Qnat in Hgamma.
   rewrite <- Qnum_minus_distr_r in Hgamma.

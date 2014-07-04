@@ -733,6 +733,17 @@ Theorem minus_beta_in_K_1_mq : ∀ pol ns m a c q,
   → a = ps_monom c (- β ns)
   → in_K_1_m a (m * q).
 Proof.
+intros pol ns m a c q Hns Hm Hq Ha.
+constructor; subst a.
+remember (p_of_ns pol ns) as p eqn:Hp .
+remember Hns as Hgp; clear HeqHgp.
+eapply gamma_eq_p_nq in Hgp; try eassumption.
+remember Hns as Hini; clear HeqHini.
+apply exists_ini_pt_nat in Hini.
+destruct Hini as (j, (αj, Hini)).
+remember Hns as Hfin; clear HeqHfin.
+apply exists_fin_pt_nat in Hfin.
+destruct Hfin as (k, (αk, Hfin)).
 bbb.
 
 Theorem gamma_in_K_1_mq : ∀ pol ns m a c q,
