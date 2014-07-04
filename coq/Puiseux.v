@@ -556,28 +556,17 @@ Theorem gamma_in_K_1_mq : ∀ pol ns m a c q,
   ns ∈ newton_segments pol
   → m = ps_list_com_polord (al pol)
   → q = q_of_ns pol ns
-  → a = ps_monom c (γ ns)
+  → (a = ps_monom c (γ ns))%ps
   → in_K_1_m a (m * q).
 Proof.
 intros pol ns m a c q Hns Hm Hq Ha.
-constructor; subst a.
+constructor.
 remember (p_of_ns pol ns) as p eqn:Hp .
 remember Hns as Hgp; clear HeqHgp.
 eapply gamma_eq_p_mq in Hgp; try eassumption.
 exists (ps_monom c (p # m * q)); simpl.
 split; [ idtac | reflexivity ].
-remember (γ ns) as g.
-unfold Qeq in Hgp; simpl in Hgp.
-unfold ps_monom; simpl.
-remember (m * q)%positive as mq.
-rewrite ps_adjust_eq with (n := O) (k := Qden g).
-symmetry.
-rewrite ps_adjust_eq with (n := O) (k := mq).
-unfold adjust_ps; simpl.
-rewrite fold_series_const.
-do 2 rewrite stretch_series_const.
-rewrite Hgp.
-rewrite Pos.mul_comm.
+rewrite Ha, Hgp.
 reflexivity.
 Qed.
 
@@ -646,6 +635,10 @@ eapply in_K_1_m_lap_mul_compat; eauto .
 
   intros a Ha; simpl in Ha.
   destruct Ha as [Ha| [Ha| ]]; [ idtac | idtac | contradiction ].
+   destruct Ha as (Hla, Ha).
+   symmetry in Ha.
+   rewrite Pos.mul_comm.
+   eapply gamma_in_K_1_mq; eassumption.
 bbb.
 
 (* *)
