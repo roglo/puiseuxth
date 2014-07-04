@@ -13,6 +13,7 @@ Require Import Fsummation.
 Require Import Newton.
 Require Import ConvexHullMisc.
 Require Import ConvexHull.
+Require Import PolyConvexHull.
 Require Import NotInSegment.
 Require Import Power_series.
 Require Import Puiseux_series.
@@ -741,21 +742,33 @@ eapply gamma_eq_p_mq in Hgp; try eassumption.
 remember Hns as Hini; clear HeqHini.
 apply exists_ini_pt_nat in Hini.
 destruct Hini as (j, (αj, Hini)).
-remember Hns as Hfin; clear HeqHfin.
-apply exists_fin_pt_nat in Hfin.
-destruct Hfin as (k, (αk, Hfin)).
 remember Hns as Him; clear HeqHim.
 symmetry in Hini.
 eapply com_den_of_ini_pt in Him; eauto .
-remember Hns as Hfm; clear HeqHfm.
-symmetry in Hfin.
-eapply com_den_of_fin_pt in Hfm; eauto .
 remember Hns as Hbm; clear HeqHbm.
-eapply points_in_any_newton_segment in Hbm.
- 2: left; symmetry; eassumption.
-
+apply points_in_any_newton_segment with (h := Qnat j) (αh := αj) in Hbm.
  rewrite Him, Hgp in Hbm.
-bbb.
+ remember (mj_of_ns pol ns) as mj.
+ remember (mj * ' q + Z.of_nat j * p # m * q) as v.
+ exists (ps_monom c (- v)); subst v; simpl.
+ split; [ idtac | reflexivity ].
+ rewrite Hbm.
+ unfold ps_monom; simpl.
+ rewrite ps_adjust_eq with (n := O) (k := m).
+ unfold adjust_ps; simpl.
+ rewrite Z.sub_0_r.
+ rewrite fold_series_const.
+ rewrite stretch_series_const, series_shift_0.
+ apply mkps_morphism; try reflexivity.
+  rewrite Z.mul_opp_l; f_equal.
+  rewrite Z.mul_add_distr_r; f_equal.
+  rewrite <- Z.mul_assoc; f_equal.
+  apply Z.mul_comm.
+
+  apply Pos.mul_comm.
+
+ left; symmetry; eassumption.
+Qed.
 
 Theorem gamma_in_K_1_mq : ∀ pol ns m a c q,
   ns ∈ newton_segments pol
@@ -806,9 +819,8 @@ eapply in_K_1_m_lap_mul_compat; eauto .
  rewrite <- Ha.
  rewrite Pos.mul_comm.
  eapply minus_beta_in_K_1_mq; eauto .
-bbb.
- apply in_K_1_m_monom_pow_opp.
- eapply gamma_in_K_1_mq; eauto .
+
+ intros ps Hps.
 bbb.
 
 (* *)
