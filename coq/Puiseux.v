@@ -879,6 +879,7 @@ eapply in_K_1_m_lap_mul_compat; eauto .
 
  intros ps Hps.
  eapply in_K_1_m_lap_comp_compat; eauto .
+  intros a Ha.
 bbb.
 
 (* *)
