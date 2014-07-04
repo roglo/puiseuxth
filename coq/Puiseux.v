@@ -737,7 +737,7 @@ intros pol ns m a c q Hns Hm Hq Ha.
 constructor; subst a.
 remember (p_of_ns pol ns) as p eqn:Hp .
 remember Hns as Hgp; clear HeqHgp.
-eapply gamma_eq_p_nq in Hgp; try eassumption.
+eapply gamma_eq_p_mq in Hgp; try eassumption.
 remember Hns as Hini; clear HeqHini.
 apply exists_ini_pt_nat in Hini.
 destruct Hini as (j, (αj, Hini)).
@@ -757,7 +757,7 @@ intros pol ns m a c q Hns Hm Hq Ha.
 constructor; subst a.
 remember (p_of_ns pol ns) as p eqn:Hp .
 remember Hns as Hgp; clear HeqHgp.
-eapply gamma_eq_p_nq in Hgp; try eassumption.
+eapply gamma_eq_p_mq in Hgp; try eassumption.
 exists (ps_monom c (p # m * q)); simpl.
 split; [ idtac | reflexivity ].
 remember (γ ns) as g.
