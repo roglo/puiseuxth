@@ -615,10 +615,48 @@ destruct n as [n| ].
 bbb.
 *)
 
+Lemma ooo : ∀ ps c pow m n ss,
+  (ps = ps_monom c pow)%ps
+  → null_coeff_range_length R (ps_terms ps) 0 = fin n
+  → in_K_1_m ps m
+  → ss = (Z.to_nat (Qnum pow * 'm / 'Qden pow) - n)%nat
+  → ps = mkps (series_shift ss (series_const c)) (Z.of_nat n) m.
+Proof.
+intros ps c pow m n ss Hps Hnc Hin Hss.
+inversion_clear Hin.
+destruct H as (ps₁, (Hps₁, Hpo₁)).
+inversion_clear Hps₁.
+inversion_clear H.
+remember (null_coeff_range_length R (ps_terms ps₁) 0) as n₁.
+symmetry in Heqn₁.
+destruct n₁ as [n₁| ].
+ erewrite ps_polord_normalise in H1; eauto .
+ rewrite Hpo₁ in H1.
+ erewrite ps_polord_normalise in H1; eauto .
+ erewrite ps_ordnum_normalise in H0; eauto .
+ erewrite ps_ordnum_normalise in H0; eauto .
+ erewrite ps_terms_normalise in H2; eauto .
+ erewrite ps_terms_normalise in H2; eauto .
+ remember (greatest_series_x_power R (ps_terms ps₁) n₁) as xp₁.
+ remember (greatest_series_x_power R (ps_terms ps) n) as xp.
+ rewrite Hpo₁ in H0, H2.
+bbb.
+
 Theorem in_K_1_m_monom_pow_opp : ∀ m c pow,
   in_K_1_m (ps_monom c pow) m
   → in_K_1_m (ps_monom c (- pow)) m.
 Proof.
+intros m c pow Hin.
+inversion Hin; constructor.
+destruct H as (ps, (Hps, Hm)).
+rewrite <- Hps in Hin.
+remember Hps as H; clear HeqH.
+remember (null_coeff_range_length R (ps_terms ps) 0) as n eqn:Hn .
+symmetry in Hn.
+destruct n as [n| ].
+ eapply ooo in H; eauto .
+bbb.
+
 intros m c pow Hin.
 inversion Hin; constructor.
 destruct H as (ps, (Hps, Hm)).
