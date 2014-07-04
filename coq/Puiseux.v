@@ -615,6 +615,7 @@ destruct n as [n| ].
 bbb.
 *)
 
+(* peut-être vrai mais n'a pas l'air de déboucher...
 Lemma ooo : ∀ ps c pow m n ss,
   (ps = ps_monom c pow)%ps
   → null_coeff_range_length R (ps_terms ps) 0 = fin n
@@ -641,7 +642,9 @@ destruct n₁ as [n₁| ].
  remember (greatest_series_x_power R (ps_terms ps) n) as xp.
  rewrite Hpo₁ in H0, H2.
 bbb.
+*)
 
+(* bizarrement assez dur...
 Theorem in_K_1_m_monom_pow_opp : ∀ m c pow,
   in_K_1_m (ps_monom c pow) m
   → in_K_1_m (ps_monom c (- pow)) m.
@@ -654,6 +657,7 @@ remember Hps as H; clear HeqH.
 remember (null_coeff_range_length R (ps_terms ps) 0) as n eqn:Hn .
 symmetry in Hn.
 destruct n as [n| ].
+bbb.
  eapply ooo in H; eauto .
 bbb.
 
@@ -720,6 +724,7 @@ destruct v₁ as [v₁| ].
   rewrite Heqps₁, Heqps₂ in H1.
   remember Z.gcd as f; simpl in H1; subst f.
 bbb.
+*)
 
 Theorem gamma_in_K_1_mq : ∀ pol ns m a q,
   ns ∈ newton_segments pol
@@ -755,11 +760,11 @@ Theorem rrr : ∀ pol ns m c b q,
   → m = ps_list_com_polord (al pol)
   → c = ac_root (Φq pol ns)
   → q = q_of_ns pol ns
-  → lap_ps_in R b (al (next_pol pol (γ ns) (β ns) c))
+  → lap_ps_in R b (al (next_pol pol (β ns) (γ ns) c))
   → in_K_1_m b (q * m).
 Proof.
 intros pol ns m c b q Hns Hm Hc Hq Hb.
-remember (al (next_pol pol (γ ns) (β ns) c)) as la₁ eqn:Hla₁ .
+remember (al (next_pol pol (β ns) (γ ns) c)) as la₁ eqn:Hla₁ .
 unfold next_pol in Hla₁; simpl in Hla₁.
 unfold next_lap in Hla₁.
 subst la₁.
@@ -768,6 +773,7 @@ eapply in_K_1_m_lap_mul_compat; eauto .
  destruct Ha as [Ha| ]; [ idtac | contradiction ].
  destruct Ha as (_, Ha).
  rewrite <- Ha.
+bbb.
  apply in_K_1_m_monom_pow_opp.
  eapply gamma_in_K_1_mq; eauto .
 bbb.
