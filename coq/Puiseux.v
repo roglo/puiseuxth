@@ -337,6 +337,15 @@ induction la as [| a]; intros.
        apply Hlb; right; assumption.
 Qed.
 
+Theorem in_K_1_m_lap_comp_compat : ∀ m la lb c,
+  (∀ a, lap_ps_in R a la → in_K_1_m a m)
+  → (∀ b, lap_ps_in R b lb → in_K_1_m b m)
+  → lap_ps_in R c (la ∘ lb)%pslap
+  → in_K_1_m c m.
+Proof.
+intros m la lb c Hla Hlb Hc.
+bbb.
+
 (* to be moved in the good file *)
 Theorem ps_inv_monom : ∀ c pow,
   (c ≠ 0)%K
@@ -821,6 +830,7 @@ eapply in_K_1_m_lap_mul_compat; eauto .
  eapply minus_beta_in_K_1_mq; eauto .
 
  intros ps Hps.
+ eapply in_K_1_m_lap_comp_compat; eauto .
 bbb.
 
 (* *)
