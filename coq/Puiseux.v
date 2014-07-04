@@ -744,6 +744,17 @@ destruct Hini as (j, (αj, Hini)).
 remember Hns as Hfin; clear HeqHfin.
 apply exists_fin_pt_nat in Hfin.
 destruct Hfin as (k, (αk, Hfin)).
+remember Hns as Him; clear HeqHim.
+symmetry in Hini.
+eapply com_den_of_ini_pt in Him; eauto .
+remember Hns as Hfm; clear HeqHfm.
+symmetry in Hfin.
+eapply com_den_of_fin_pt in Hfm; eauto .
+remember Hns as Hbm; clear HeqHbm.
+eapply points_in_any_newton_segment in Hbm.
+ 2: left; symmetry; eassumption.
+
+ rewrite Him, Hgp in Hbm.
 bbb.
 
 Theorem gamma_in_K_1_mq : ∀ pol ns m a c q,
