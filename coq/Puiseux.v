@@ -856,6 +856,20 @@ rewrite Pos.mul_comm.
 reflexivity.
 Qed.
 
+Lemma in_K_1_m_lap_mul_r_compat : ∀ a m n,
+  in_K_1_m a m
+  → in_K_1_m a (m * n).
+Proof.
+intros a m n Ha.
+constructor.
+inversion_clear Ha.
+destruct H as (ps, (Hps, Hm)).
+exists (adjust_ps 0 n ps).
+split; [ idtac | simpl; rewrite Hm; reflexivity ].
+rewrite ps_adjust_eq with (n := O) (k := n) in Hps.
+assumption.
+Qed.
+
 Theorem rrr : ∀ pol ns m c b q,
   ns ∈ newton_segments pol
   → m = ps_list_com_polord (al pol)
@@ -880,11 +894,17 @@ eapply in_K_1_m_lap_mul_compat; eauto .
  intros ps Hps.
  eapply in_K_1_m_lap_comp_compat; eauto .
   intros a Ha.
+  rewrite Pos.mul_comm.
+  apply in_K_1_m_lap_mul_r_compat.
+bbb.
   remember (al pol) as la.
   symmetry in Heqla.
   clear Heqla Hb Hps.
   revert m a Hm Ha.
   induction la as [| d]; intros; [ contradiction | idtac ].
+  simpl in Ha.
+  destruct Ha as [Ha| Ha].
+   simpl in Hm.
 bbb.
 
 (* *)
