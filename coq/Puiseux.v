@@ -726,20 +726,20 @@ destruct v₁ as [v₁| ].
 bbb.
 *)
 
-Theorem gamma_in_K_1_mq : ∀ pol ns m a q,
+Theorem gamma_in_K_1_mq : ∀ pol ns m a c q,
   ns ∈ newton_segments pol
   → m = ps_list_com_polord (al pol)
   → q = q_of_ns pol ns
-  → a = ps_monom 1%K (γ ns)
-  → in_K_1_m a (q * m).
+  → a = ps_monom c (γ ns)
+  → in_K_1_m a (m * q).
 Proof.
-intros pol ns m a q Hns Hm Hq Ha.
+intros pol ns m a c q Hns Hm Hq Ha.
 constructor; subst a.
 remember (p_of_ns pol ns) as p eqn:Hp .
 remember Hns as Hgp; clear HeqHgp.
 eapply gamma_eq_p_nq in Hgp; try eassumption.
-exists (ps_monom 1%K (p # m * q)); simpl.
-split; [ idtac | apply Pos.mul_comm ].
+exists (ps_monom c (p # m * q)); simpl.
+split; [ idtac | reflexivity ].
 remember (γ ns) as g.
 unfold Qeq in Hgp; simpl in Hgp.
 unfold ps_monom; simpl.
