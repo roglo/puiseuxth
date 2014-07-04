@@ -726,6 +726,15 @@ destruct v₁ as [v₁| ].
 bbb.
 *)
 
+Theorem minus_beta_in_K_1_mq : ∀ pol ns m a c q,
+  ns ∈ newton_segments pol
+  → m = ps_list_com_polord (al pol)
+  → q = q_of_ns pol ns
+  → a = ps_monom c (- β ns)
+  → in_K_1_m a (m * q).
+Proof.
+bbb.
+
 Theorem gamma_in_K_1_mq : ∀ pol ns m a c q,
   ns ∈ newton_segments pol
   → m = ps_list_com_polord (al pol)
@@ -773,6 +782,8 @@ eapply in_K_1_m_lap_mul_compat; eauto .
  destruct Ha as [Ha| ]; [ idtac | contradiction ].
  destruct Ha as (_, Ha).
  rewrite <- Ha.
+ rewrite Pos.mul_comm.
+ eapply minus_beta_in_K_1_mq; eauto .
 bbb.
  apply in_K_1_m_monom_pow_opp.
  eapply gamma_in_K_1_mq; eauto .
