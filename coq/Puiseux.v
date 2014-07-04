@@ -70,14 +70,6 @@ Variable acf : algeb_closed_field K.
 
 Require Import Ps_add_compat.
 
-Theorem qqq : ∀ m a la,
-  m = ps_list_com_polord la
-  → lap_ps_in R a la
-  → in_K_1_m a m.
-Proof.
-intros m a la Hm Ha.
-bbb.
-
 Theorem in_K_1_m_add_compat : ∀ m a b,
   in_K_1_m a m
   → in_K_1_m b m
@@ -517,144 +509,6 @@ assert (g ≠ 0)%Z as Hgnz.
    rewrite Hg1; apply Z.le_0_1.
 Qed.
 
-(*
-Theorem normalise_series_is_const : ∀ n k s c,
-  null_coeff_range_length R s 0 = fin n
-  → (normalise_series n k s = series_const c)%ser
-  → (s = series_shift n (series_const c))%ser.
-Proof.
-intros n k s c Hn Hns.
-unfold normalise_series in Hns.
-unfold series_left_shift in Hns.
-unfold series_shrink in Hns.
-simpl in Hns.
-unfold series_const in Hns.
-inversion_clear Hns.
-simpl in H.
-constructor; intros i.
-simpl.
-apply series_shift_left_shift in Hn.
-inversion_clear Hn.
-simpl in H0.
-rewrite <- H0.
-destruct (lt_dec i n) as [H₁| H₁]; [ reflexivity | idtac ].
-apply Nat.nlt_ge in H₁.
-rewrite Nat.add_comm.
-rewrite Nat.sub_add; auto.
-bbb.
-*)
-
-(* peut-être vrai mais n'a pas l'air de déboucher...
-Lemma ooo : ∀ ps c pow m n ss,
-  (ps = ps_monom c pow)%ps
-  → null_coeff_range_length R (ps_terms ps) 0 = fin n
-  → in_K_1_m ps m
-  → ss = (Z.to_nat (Qnum pow * 'm / 'Qden pow) - n)%nat
-  → ps = mkps (series_shift ss (series_const c)) (Z.of_nat n) m.
-Proof.
-intros ps c pow m n ss Hps Hnc Hin Hss.
-inversion_clear Hin.
-destruct H as (ps₁, (Hps₁, Hpo₁)).
-inversion_clear Hps₁.
-inversion_clear H.
-remember (null_coeff_range_length R (ps_terms ps₁) 0) as n₁.
-symmetry in Heqn₁.
-destruct n₁ as [n₁| ].
- erewrite ps_polord_normalise in H1; eauto .
- rewrite Hpo₁ in H1.
- erewrite ps_polord_normalise in H1; eauto .
- erewrite ps_ordnum_normalise in H0; eauto .
- erewrite ps_ordnum_normalise in H0; eauto .
- erewrite ps_terms_normalise in H2; eauto .
- erewrite ps_terms_normalise in H2; eauto .
- remember (greatest_series_x_power R (ps_terms ps₁) n₁) as xp₁.
- remember (greatest_series_x_power R (ps_terms ps) n) as xp.
- rewrite Hpo₁ in H0, H2.
-bbb.
-*)
-
-(* bizarrement assez dur...
-Theorem in_K_1_m_monom_pow_opp : ∀ m c pow,
-  in_K_1_m (ps_monom c pow) m
-  → in_K_1_m (ps_monom c (- pow)) m.
-Proof.
-intros m c pow Hin.
-inversion Hin; constructor.
-destruct H as (ps, (Hps, Hm)).
-rewrite <- Hps in Hin.
-remember Hps as H; clear HeqH.
-remember (null_coeff_range_length R (ps_terms ps) 0) as n eqn:Hn .
-symmetry in Hn.
-destruct n as [n| ].
-bbb.
- eapply ooo in H; eauto .
-bbb.
-
-intros m c pow Hin.
-inversion Hin; constructor.
-destruct H as (ps, (Hps, Hm)).
-bbb.
-apply qqq in Hps.
-destruct Hps as (i, Hi).
-exists (ps_monom c (- i)).
-destruct Hi as (Hps, Hi).
-subst m ps; simpl.
-split; [ idtac | reflexivity ].
-unfold ps_monom; simpl.
-rewrite ps_adjust_eq with (n := O) (k := Qden pow).
-symmetry.
-rewrite ps_adjust_eq with (n := O) (k := Qden i).
-unfold adjust_ps; simpl.
-do 2 rewrite Z.mul_opp_l.
-rewrite Hi.
-rewrite Pos.mul_comm.
-rewrite fold_series_const.
-do 2 stretch_series_const.
-reflexivity.
-bbb.
-
-intros m c pow Hin.
-inversion Hin; constructor.
-destruct H as (ps, (Hps, Hm)).
-unfold ps_monom; simpl.
-rewrite fold_series_const.
-destruct ps as (pst, pso, psp).
-simpl in Hm; subst psp.
-exists (mkps (series_const c) (- pso) m).
-split; [ idtac | reflexivity ].
-rewrite ps_adjust_eq with (n := O) (k := Qden pow).
-symmetry.
-rewrite ps_adjust_eq with (n := O) (k := m).
-unfold adjust_ps; simpl.
-do 2 rewrite series_shift_0.
-rewrite stretch_series_const.
-rewrite stretch_series_const.
-do 2 rewrite Z.sub_0_r.
-rewrite Pos.mul_comm.
-apply mkps_morphism; try reflexivity.
-inversion_clear Hps.
-inversion_clear H.
-clear H0 H2.
-remember (mkps pst pso m) as ps₁.
-remember (ps_monom c pow) as ps₂.
-remember (null_coeff_range_length R (ps_terms ps₁) 0) as v₁.
-symmetry in Heqv₁.
-remember (null_coeff_range_length R (ps_terms ps₂) 0) as v₂.
-symmetry in Heqv₂.
-destruct v₁ as [v₁| ].
- destruct v₂ as [v₂| ].
-  remember Heqv₁ as Ho₁; clear HeqHo₁.
-  eapply ps_polord_normalise in Ho₁; eauto .
-  remember Heqv₂ as Ho₂; clear HeqHo₂.
-  eapply ps_polord_normalise in Ho₂; eauto .
-  rewrite Ho₁, Ho₂ in H1.
-  remember (greatest_series_x_power R (ps_terms ps₁) v₁) as p₁.
-  remember (greatest_series_x_power R (ps_terms ps₂) v₂) as p₂.
-  rewrite Heqps₁, Heqps₂ in H1.
-  remember Z.gcd as f; simpl in H1; subst f.
-bbb.
-*)
-
 Theorem minus_beta_in_K_1_mq : ∀ pol ns m a c q,
   ns ∈ newton_segments pol
   → m = ps_list_com_polord (al pol)
@@ -727,7 +581,7 @@ rewrite Pos.mul_comm.
 reflexivity.
 Qed.
 
-Lemma in_K_1_m_lap_mul_r_compat : ∀ a m n,
+Theorem in_K_1_m_lap_mul_r_compat : ∀ a m n,
   in_K_1_m a m
   → in_K_1_m a (m * n).
 Proof.
@@ -739,6 +593,27 @@ exists (adjust_ps 0 n ps).
 split; [ idtac | simpl; rewrite Hm; reflexivity ].
 rewrite ps_adjust_eq with (n := O) (k := n) in Hps.
 assumption.
+Qed.
+
+Theorem com_polord_in_K_1_m : ∀ m a la,
+  m = ps_list_com_polord la
+  → lap_ps_in R a la
+  → in_K_1_m a m.
+Proof.
+intros m a la Hm Ha.
+revert a m Hm Ha.
+induction la as [| b]; intros; [ contradiction | idtac ].
+simpl in Ha.
+destruct Ha as [(Ha, Hb)| Ha].
+ subst m; simpl.
+ rewrite Pos.mul_comm.
+ apply in_K_1_m_lap_mul_r_compat.
+ rewrite <- Hb; constructor.
+ exists b; split; reflexivity.
+
+ subst m; simpl.
+ apply in_K_1_m_lap_mul_r_compat.
+ apply IHla; [ reflexivity | assumption ].
 Qed.
 
 Theorem rrr : ∀ pol ns m c b q,
@@ -767,7 +642,7 @@ eapply in_K_1_m_lap_mul_compat; eauto .
   intros a Ha.
   rewrite Pos.mul_comm.
   apply in_K_1_m_lap_mul_r_compat.
-  eapply qqq; eassumption.
+  eapply com_polord_in_K_1_m; eassumption.
 
   intros a Ha; simpl in Ha.
   destruct Ha as [Ha| [Ha| ]]; [ idtac | idtac | contradiction ].
