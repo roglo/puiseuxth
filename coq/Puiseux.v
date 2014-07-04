@@ -70,6 +70,14 @@ Variable acf : algeb_closed_field K.
 
 Require Import Ps_add_compat.
 
+Theorem qqq : ∀ m a la,
+  m = ps_list_com_polord la
+  → lap_ps_in R a la
+  → in_K_1_m a m.
+Proof.
+intros m a la Hm Ha.
+bbb.
+
 Theorem in_K_1_m_add_compat : ∀ m a b,
   in_K_1_m a m
   → in_K_1_m b m
@@ -536,143 +544,6 @@ rewrite Nat.sub_add; auto.
 bbb.
 *)
 
-(*
-Lemma qqq : ∀ ps c q n,
-  (ps = ps_monom c q)%ps
-  → null_coeff_range_length R (ps_terms ps) 0 = fin n
-  → (ps_terms ps = series_shift n (series_const c))%ser.
-Proof.
-intros ps c q n Hp Hn.
-inversion Hp; subst.
-rewrite normalise_ps_monom in H.
- unfold normalise_ps in H.
- rewrite Hn in H.
- remember (greatest_series_x_power R (ps_terms ps) n) as k.
- inversion_clear H.
- simpl in H0, H1, H2.
- rewrite fold_series_const in H2.
- rewrite greatest_series_x_power_series_const with (c := c) in Heqk.
-  subst k; simpl in H0, H1, H2.
-  unfold gcd_ps in H0, H1, H2.
-  simpl in H0, H1, H2.
-  rewrite Z.gcd_0_r in H0, H1, H2.
-bbb.
-intros ps c q Hp.
-inversion Hp; subst.
-rewrite normalise_ps_monom in H.
- unfold normalise_ps in H.
- remember (null_coeff_range_length R (ps_terms ps) 0) as n.
- symmetry in Heqn.
- destruct n as [n| ].
-  remember (greatest_series_x_power R (ps_terms ps) n) as k.
-  inversion_clear H.
-  simpl in H0, H1, H2.
-  rewrite fold_series_const in H2.
-  exists O, (ps_ordnum ps # ps_polord ps).
-  split.
-   constructor; simpl.
-    rewrite Z.mul_1_r, Z.sub_0_r; reflexivity.
-
-    rewrite Pos.mul_1_r; reflexivity.
-
-    rewrite series_shift_0, series_stretch_1.
-    rewrite fold_series_const.
-bbb.
-
-intros ps c q Hp.
-inversion Hp; subst.
-rewrite normalise_ps_monom in H.
- unfold normalise_ps in H.
- remember (null_coeff_range_length R (ps_terms ps) 0) as n.
- symmetry in Heqn.
- destruct n as [n| ].
-  remember (greatest_series_x_power R (ps_terms ps) n) as k.
-  inversion_clear H.
-  simpl in H0, H1, H2.
-  rewrite fold_series_const in H2.
-bbb.
-
-intros ps c q Hp.
-remember (null_coeff_range_length R (ps_terms ps) 0) as n.
-symmetry in Heqn.
-destruct n as [n| ].
- remember (greatest_series_x_power R (ps_terms ps) n) as k.
- symmetry in Heqk.
- destruct k.
-  apply greatest_series_x_power_iff in Heqk.
-  unfold is_the_greatest_series_x_power in Heqk.
-  remember (null_coeff_range_length R (ps_terms ps) (S n)) as m.
-  symmetry in Heqm.
-  destruct m as [m| ].
-   destruct Heqk as (Hpn, Hkk).
-   unfold is_a_series_in_x_power in Hpn.
-   pose proof (Hpn 0%nat) as H.
-   destruct H as (k, Hk).
-   rewrite Nat.mul_0_r in Hk.
-   unfold nth_null_coeff_range_length in Hk.
-   rewrite Heqm in Hk.
-   discriminate Hk.
-
-   clear Heqk.
-bbb.
-
-Lemma qqq₁ : ∀ p c q,
-  (p = ps_monom c q)%ps
-  → ∃ r n, p = adjust_ps n 1 (ps_monom c r) ∧ r == q.
-Proof.
-intros p c q Hp.
-remember (null_coeff_range_length R (ps_terms p) 0) as n.
-symmetry in Heqn.
-destruct n as [n| ].
- exists (ps_ordnum p # ps_polord p), n.
- unfold ps_monom; simpl.
- unfold adjust_ps; simpl.
- rewrite fold_series_const.
- rewrite Z.mul_1_r, Pos.mul_1_r.
- inversion_clear Hp.
- inversion_clear H.
- erewrite ps_ordnum_normalise in H0; eauto .
- remember (greatest_series_x_power R (ps_terms p) n) as g.
- remember (null_coeff_range_length R (ps_terms (ps_monom c q)) 0) as w.
- symmetry in Heqw.
- destruct w as [w| ].
-  erewrite ps_ordnum_normalise in H0; eauto .
-  remember Z.gcd as f; simpl in H0; subst f.
-  rewrite fold_series_const in H0.
-  remember Z.gcd as f; simpl in H0; subst f.
-  remember Z.gcd as f; simpl in H0; subst f.
-  erewrite ps_polord_normalise in H1; eauto .
-  erewrite ps_polord_normalise in H1; eauto .
-  remember Z.gcd as f; simpl in H1; subst f.
-  rewrite fold_series_const in H1.
-  erewrite ps_terms_normalise in H2; eauto .
-  erewrite ps_terms_normalise in H2; eauto .
-  remember Z.gcd as f; simpl in H2; subst f.
-  rewrite fold_series_const in H2.
-  simpl in Heqw.
-  rewrite fold_series_const in Heqw.
-  apply null_coeff_range_length_iff in Heqw.
-  unfold null_coeff_range_length_prop in Heqw.
-  simpl in Heqw.
-  destruct Heqw as (Hiw, Hw).
-  destruct w; [ simpl in Hw | exfalso; apply Hw; reflexivity ].
-  clear Hiw.
-  rewrite greatest_series_x_power_series_const in H0.
-  rewrite greatest_series_x_power_series_const in H1.
-  rewrite greatest_series_x_power_series_const in H2.
-  remember Z.gcd as f; simpl in H0; subst f.
-  remember Z.gcd as f; simpl in H1; subst f.
-  remember Z.gcd as f; simpl in H2; subst f.
-  rewrite Z.gcd_0_r in H0, H2.
-  rewrite Z.add_0_r in H0, H1, H2.
-  rewrite Z.gcd_0_l in H1.
-  remember Z.gcd as f; simpl in H0; subst f.
-  remember Z.gcd as f; simpl in H2; subst f.
-  unfold normalise_series in H2.
-  rewrite series_left_shift_0 in H2.
-bbb.
-*)
-
 (* peut-être vrai mais n'a pas l'air de déboucher...
 Lemma ooo : ∀ ps c pow m n ss,
   (ps = ps_monom c pow)%ps
@@ -896,15 +767,10 @@ eapply in_K_1_m_lap_mul_compat; eauto .
   intros a Ha.
   rewrite Pos.mul_comm.
   apply in_K_1_m_lap_mul_r_compat.
-bbb.
-  remember (al pol) as la.
-  symmetry in Heqla.
-  clear Heqla Hb Hps.
-  revert m a Hm Ha.
-  induction la as [| d]; intros; [ contradiction | idtac ].
-  simpl in Ha.
-  destruct Ha as [Ha| Ha].
-   simpl in Hm.
+  eapply qqq; eassumption.
+
+  intros a Ha; simpl in Ha.
+  destruct Ha as [Ha| [Ha| ]]; [ idtac | idtac | contradiction ].
 bbb.
 
 (* *)
