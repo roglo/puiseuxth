@@ -478,6 +478,7 @@ rewrite Nat.sub_add; auto.
 bbb.
 *)
 
+(*
 Lemma qqq : ∀ ps c q n,
   (ps = ps_monom c q)%ps
   → null_coeff_range_length R (ps_terms ps) 0 = fin n
