@@ -605,13 +605,13 @@ destruct Ha as [(Ha, Hb)| Ha].
  apply IHla; [ reflexivity | assumption ].
 Qed.
 
-Theorem rrr : ∀ pol ns m c b q,
+Lemma next_pol_in_K_1_mq : ∀ pol ns m c b q,
   ns ∈ newton_segments pol
   → m = ps_list_com_polord (al pol)
   → c = ac_root (Φq pol ns)
   → q = q_of_ns pol ns
   → lap_ps_in R b (al (next_pol pol (β ns) (γ ns) c))
-  → in_K_1_m b (q * m).
+  → in_K_1_m b (m * q).
 Proof.
 intros pol ns m c b q Hns Hm Hc Hq Hb.
 remember (al (next_pol pol (β ns) (γ ns) c)) as la₁ eqn:Hla₁ .
@@ -623,13 +623,11 @@ eapply in_K_1_m_lap_mul_compat; eauto .
  destruct Ha as [Ha| ]; [ idtac | contradiction ].
  destruct Ha as (_, Ha).
  rewrite <- Ha.
- rewrite Pos.mul_comm.
  eapply minus_beta_in_K_1_mq; eauto .
 
  intros ps Hps.
  eapply in_K_1_m_lap_comp_compat; eauto .
   intros a Ha.
-  rewrite Pos.mul_comm.
   apply in_K_1_m_lap_mul_r_compat.
   eapply com_polord_in_K_1_m; eassumption.
 
@@ -637,9 +635,12 @@ eapply in_K_1_m_lap_mul_compat; eauto .
   destruct Ha as [Ha| [Ha| ]]; [ idtac | idtac | contradiction ].
    destruct Ha as (Hla, Ha).
    symmetry in Ha.
-   rewrite Pos.mul_comm.
    eapply gamma_in_K_1_mq; eassumption.
-bbb.
+
+   destruct Ha as (Hla, Ha).
+   symmetry in Ha.
+   eapply gamma_in_K_1_mq; eassumption.
+Qed.
 
 (* *)
 
