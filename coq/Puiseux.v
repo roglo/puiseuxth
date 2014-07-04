@@ -344,7 +344,55 @@ Theorem in_K_1_m_lap_comp_compat : ∀ m la lb c,
   → in_K_1_m c m.
 Proof.
 intros m la lb c Hla Hlb Hc.
-bbb.
+rewrite <- fold_ps_lap_comp in Hc.
+revert lb c Hlb Hc.
+induction la as [| a]; intros; [ contradiction | idtac ].
+destruct lb as [| b].
+ simpl in Hc.
+ rewrite lap_mul_nil_r, lap_add_nil_l in Hc; simpl in Hc.
+ destruct Hc as [(Ha, Hac)| ]; [ idtac | contradiction ].
+ apply Hla; left.
+ split; [ idtac | assumption ].
+ intros H; apply Ha.
+ inversion_clear H.
+ rewrite H0.
+ apply lap_eq_0.
+
+ simpl in Hc.
+ eapply in_K_1_m_lap_add_compat; [ idtac | idtac | eauto  ].
+  intros d Hd.
+  eapply in_K_1_m_lap_mul_compat; [ idtac | idtac | eauto  ].
+   intros e He.
+   apply IHla with (lb := [b … lb]).
+    intros f Hf.
+    apply Hla; right; assumption.
+
+    intros f Hf.
+    simpl in Hf.
+    destruct Hf as [Hf| Hf].
+     apply Hlb; left; assumption.
+
+     apply Hlb; right; assumption.
+
+    assumption.
+
+   intros e He.
+   simpl in He.
+   destruct He as [He| He].
+    apply Hlb; left; assumption.
+
+    apply Hlb; right; assumption.
+
+  intros d Hd.
+  simpl in Hd.
+  destruct Hd as [(Ha, Had)| ]; [ idtac | contradiction ].
+  apply Hla; left.
+  split; [ idtac | assumption ].
+  intros H; apply Ha.
+  inversion_clear H.
+  rewrite H0.
+  apply lap_eq_0.
+Qed.
 
 (* to be moved in the good file *)
 Theorem ps_inv_monom : ∀ c pow,
