@@ -29,10 +29,10 @@ Require Import F1Eq.
 
 Set Implicit Arguments.
 
-Fixpoint lap_ps_in α (R : ring α) a l :=
+Fixpoint lap_ps_in α {R : ring α} a l :=
   match l with
   | [] => False
-  | [b … m] => (l ≠ [])%pslap ∧ (b = a)%ps ∨ lap_ps_in R a m
+  | [b … m] => (l ≠ [])%pslap ∧ (b = a)%ps ∨ lap_ps_in a m
   end.
 
 Arguments lap_ps_in _ _ a%ps l%pslap.
@@ -40,8 +40,8 @@ Arguments lap_ps_in _ _ a%ps l%pslap.
 Lemma lap_ps_in_compat : ∀ α (R : ring α) a b la lb,
   (a = b)%ps
   → (la = lb)%pslap
-    → lap_ps_in R a la
-      → lap_ps_in R b lb.
+    → lap_ps_in a la
+      → lap_ps_in b lb.
 Proof.
 intros α R a b la lb Hab Hlab Hla.
 unfold ps_lap_eq in Hlab.
@@ -72,7 +72,7 @@ destruct Hla as [(Hcla, Hca)| Hla].
   eapply IHla; eassumption.
 Qed.
 
-Add Parametric Morphism α (R : ring α) : (lap_ps_in R)
+Add Parametric Morphism α (R : ring α) : (@lap_ps_in α R)
   with signature eq_ps ==> (@lap_eq _ (ps_ring R)) ==> iff
   as list_in_eq_ps_morph.
 Proof.
@@ -799,7 +799,7 @@ Qed.
 Lemma list_in_lap_ps_in : ∀ a l,
   (a ≠ 0)%ps
   → a ∈ l
-    → lap_ps_in R a l.
+    → lap_ps_in a l.
 Proof.
 intros a l Ha Hal.
 revert a Ha Hal.
@@ -837,9 +837,9 @@ destruct IHla as [IHla| IHla].
 Qed.
 
 Lemma lap_ps_in_add : ∀ la lb,
-  (∀ m, lap_ps_in R m la → (order m > 0)%Qbar)
-  → (∀ m, lap_ps_in R m lb → (order m > 0)%Qbar)
-    → (∀ m, lap_ps_in R m (la + lb)%pslap → (order m > 0)%Qbar).
+  (∀ m, lap_ps_in m la → (order m > 0)%Qbar)
+  → (∀ m, lap_ps_in m lb → (order m > 0)%Qbar)
+    → (∀ m, lap_ps_in m (la + lb) → (order m > 0)%Qbar).
 Proof.
 intros la lb Hla Hlb m Hlab.
 unfold ps_lap_add in Hlab.
@@ -966,9 +966,9 @@ Qed.
 (* very close to 'lap_ps_in_add'. Is there a way to have only one lemma?
    or a lemma grouping these two together? *)
 Lemma lap_ps_in_add_ge : ∀ la lb,
-  (∀ m, lap_ps_in R m la → (order m ≥ 0)%Qbar)
-  → (∀ m, lap_ps_in R m lb → (order m ≥ 0)%Qbar)
-    → (∀ m, lap_ps_in R m (la + lb)%pslap → (order m ≥ 0)%Qbar).
+  (∀ m, lap_ps_in m la → (order m ≥ 0)%Qbar)
+  → (∀ m, lap_ps_in m lb → (order m ≥ 0)%Qbar)
+    → (∀ m, lap_ps_in m (la + lb) → (order m ≥ 0)%Qbar).
 Proof.
 intros la lb Hla Hlb m Hlab.
 unfold ps_lap_add in Hlab.
@@ -1093,9 +1093,9 @@ destruct (lap_ps_nilp la) as [Hlaz| Hlanz].
 Qed.
 
 Lemma lap_ps_in_mul : ∀ la lb,
-  (∀ m, lap_ps_in R m la → (order m > 0)%Qbar)
-  → (∀ m, lap_ps_in R m lb → (order m ≥ 0)%Qbar)
-    → (∀ m, lap_ps_in R m (la * lb)%pslap → (order m > 0)%Qbar).
+  (∀ m, lap_ps_in m la → (order m > 0)%Qbar)
+  → (∀ m, lap_ps_in m lb → (order m ≥ 0)%Qbar)
+    → (∀ m, lap_ps_in m (la * lb) → (order m > 0)%Qbar).
 Proof.
 intros la lb Hla Hlb m Hlab.
 unfold ps_lap_mul in Hlab.
@@ -1150,9 +1150,9 @@ induction la as [| a]; intros.
 Qed.
 
 Lemma lap_ps_in_mul_ge : ∀ la lb,
-  (∀ m, lap_ps_in R m la → (order m ≥ 0)%Qbar)
-  → (∀ m, lap_ps_in R m lb → (order m ≥ 0)%Qbar)
-    → (∀ m, lap_ps_in R m (la * lb)%pslap → (order m ≥ 0)%Qbar).
+  (∀ m, lap_ps_in m la → (order m ≥ 0)%Qbar)
+  → (∀ m, lap_ps_in m lb → (order m ≥ 0)%Qbar)
+    → (∀ m, lap_ps_in m (la * lb) → (order m ≥ 0)%Qbar).
 Proof.
 intros la lb Hla Hlb m Hlab.
 unfold ps_lap_mul in Hlab.
@@ -1207,8 +1207,8 @@ induction la as [| a]; intros.
 Qed.
 
 Lemma lap_ps_in_summation : ∀ f l,
-  (∀ i, i ∈ l → ∀ m, lap_ps_in R m (f i) → (order m > 0)%Qbar)
-  → (∀ m, lap_ps_in R m (ps_lap_summ l f)%lap → (order m > 0)%Qbar).
+  (∀ i, i ∈ l → ∀ m, lap_ps_in m (f i) → (order m > 0)%Qbar)
+  → (∀ m, lap_ps_in m (ps_lap_summ l f) → (order m > 0)%Qbar).
 Proof.
 intros f l Hi m Hm.
 revert m Hm.
@@ -1310,8 +1310,8 @@ unfold Qle; simpl; reflexivity.
 Qed.
 
 Lemma lap_ps_in_power : ∀ la n,
-  (∀ a, lap_ps_in R a la → (order a ≥ 0)%Qbar)
-  → (∀ m, lap_ps_in R m (la ^ n)%pslap → (order m ≥ 0)%Qbar).
+  (∀ a, lap_ps_in a la → (order a ≥ 0)%Qbar)
+  → (∀ m, lap_ps_in m (la ^ n) → (order m ≥ 0)%Qbar).
 Proof.
 intros la n Ha m Hm.
 revert m la Ha Hm.

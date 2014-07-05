@@ -177,7 +177,7 @@ reflexivity.
 Qed.
 
 Lemma hd_in_K_1_m : ∀ a la m,
-  (∀ b, lap_ps_in R b [a … la] → in_K_1_m b m)
+  (∀ b, lap_ps_in b [a … la] → in_K_1_m b m)
   → in_K_1_m a m.
 Proof.
 intros a la m Hla.
@@ -192,9 +192,9 @@ destruct (ps_zerop R a) as [Ha| Ha].
 Qed.
 
 Theorem in_K_1_m_lap_add_compat : ∀ m la lb c,
-  (∀ a, lap_ps_in R a la → in_K_1_m a m)
-  → (∀ b, lap_ps_in R b lb → in_K_1_m b m)
-  → lap_ps_in R c (la + lb)%pslap
+  (∀ a, lap_ps_in a la → in_K_1_m a m)
+  → (∀ b, lap_ps_in b lb → in_K_1_m b m)
+  → lap_ps_in c (la + lb)
   → in_K_1_m c m.
 Proof.
 intros m la lb c Hla Hlb Hc.
@@ -232,9 +232,9 @@ induction la as [| a]; intros.
 Qed.
 
 Theorem in_K_1_m_lap_mul_compat : ∀ m la lb c,
-  (∀ a, lap_ps_in R a la → in_K_1_m a m)
-  → (∀ b, lap_ps_in R b lb → in_K_1_m b m)
-  → lap_ps_in R c (la * lb)%pslap
+  (∀ a, lap_ps_in a la → in_K_1_m a m)
+  → (∀ b, lap_ps_in b lb → in_K_1_m b m)
+  → lap_ps_in c (la * lb)
   → in_K_1_m c m.
 Proof.
 intros m la lb c Hla Hlb Hc.
@@ -334,9 +334,9 @@ induction la as [| a]; intros.
 Qed.
 
 Theorem in_K_1_m_lap_comp_compat : ∀ m la lb c,
-  (∀ a, lap_ps_in R a la → in_K_1_m a m)
-  → (∀ b, lap_ps_in R b lb → in_K_1_m b m)
-  → lap_ps_in R c (la ∘ lb)%pslap
+  (∀ a, lap_ps_in a la → in_K_1_m a m)
+  → (∀ b, lap_ps_in b lb → in_K_1_m b m)
+  → lap_ps_in c (la ∘ lb)
   → in_K_1_m c m.
 Proof.
 intros m la lb c Hla Hlb Hc.
@@ -467,7 +467,7 @@ Qed.
 
 Theorem com_polord_in_K_1_m : ∀ m a la,
   m = ps_list_com_polord la
-  → lap_ps_in R a la
+  → lap_ps_in a la
   → in_K_1_m a m.
 Proof.
 intros m a la Hm Ha.
@@ -491,7 +491,7 @@ Lemma next_pol_in_K_1_mq : ∀ pol ns m c b q,
   → m = ps_list_com_polord (al pol)
   → c = ac_root (Φq pol ns)
   → q = q_of_ns pol ns
-  → lap_ps_in R b (al (next_pol pol (β ns) (γ ns) c))
+  → lap_ps_in b (al (next_pol pol (β ns) (γ ns) c))
   → in_K_1_m b (m * q).
 Proof.
 intros pol ns m c b q Hns Hm Hc Hq Hb.
