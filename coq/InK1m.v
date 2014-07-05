@@ -28,12 +28,12 @@ Inductive in_K_1_m {α} {R : ring α} ps m :=
 
 Arguments in_K_1_m _ _ ps%ps m%positive.
 
-(* faut voir...
-Inductive lap_forall {α} {R : ring α} (P : α → Prop) : list α → Prop :=
-  | PLForall_nil : ∀ l, (l = [])%lap → lap_forall P l
-  | PLForall_cons : ∀ x l, P x → lap_forall P l → lap_forall P [x … l].
+Inductive lap_forall {α} {R : ring α} P : list α → Prop :=
+  | LForall_nil : lap_forall P []
+  | LForall_cons : ∀ x l,
+      ([x … l] ≠ [])%lap → P x → lap_forall P l → lap_forall P [x … l].
+
 Arguments lap_forall α%type_scope _ _ l%lap.
-*)
 
 Add Parametric Morphism α (R : ring α) : (@in_K_1_m _ R)
   with signature eq_ps ==> eq ==> iff
