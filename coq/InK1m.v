@@ -11,6 +11,7 @@ Require Import Puiseux_series.
 Require Import Ps_add.
 Require Import Ps_mul.
 Require Import Ps_div.
+Require Import Ps_add_compat.
 Require Import PSpolynomial.
 Require Import Puiseux_base.
 Require Import AlgCloCharPol.
@@ -57,8 +58,6 @@ Variable α : Type.
 Variable R : ring α.
 Variable K : field R.
 Variable acf : algeb_closed_field K.
-
-Require Import Ps_add_compat.
 
 Theorem in_K_1_m_add_compat : ∀ m a b,
   in_K_1_m a m
