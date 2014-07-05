@@ -32,18 +32,19 @@ Set Implicit Arguments.
 Fixpoint lap_ps_in α (R : ring α) a l :=
   match l with
   | [] => False
-  | [b … m] => ¬(@lap_eq _ (ps_ring R) l []) ∧ (b = a)%ps ∨ lap_ps_in R a m
+  | [b … m] => (l ≠ [])%pslap ∧ (b = a)%ps ∨ lap_ps_in R a m
   end.
 
-Arguments lap_ps_in _ _ a%ps l%lap.
+Arguments lap_ps_in _ _ a%ps l%pslap.
 
 Lemma lap_ps_in_compat : ∀ α (R : ring α) a b la lb,
   (a = b)%ps
-  → @lap_eq _ (ps_ring R) la lb
+  → (la = lb)%pslap
     → lap_ps_in R a la
       → lap_ps_in R b lb.
 Proof.
 intros α R a b la lb Hab Hlab Hla.
+unfold ps_lap_eq in Hlab.
 revert a b Hab lb Hlab Hla.
 induction la as [| c]; intros; [ contradiction | idtac ].
 simpl in Hla.

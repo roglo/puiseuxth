@@ -46,6 +46,7 @@ Arguments ps_lap_pow _ _ a%pslap _.
 Arguments ps_lap_comp _ _ la%pslap lb%pslap.
 
 Notation "a = b" := (ps_lap_eq a b) : ps_lap_scope.
+Notation "a ≠ b" := (not (ps_lap_eq a b)) : ps_lap_scope.
 Notation "a + b" := (ps_lap_add a b) : ps_lap_scope.
 Notation "a * b" := (ps_lap_mul a b) : ps_lap_scope.
 Notation "a ^ b" := (ps_lap_pow a b) : ps_lap_scope.
