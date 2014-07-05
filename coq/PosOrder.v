@@ -29,19 +29,19 @@ Require Import F1Eq.
 
 Set Implicit Arguments.
 
-Fixpoint lap_ps_in α {R : ring α} a l :=
+Fixpoint ps_lap_in α {R : ring α} a l :=
   match l with
   | [] => False
-  | [b … m] => (l ≠ [])%pslap ∧ (b = a)%ps ∨ lap_ps_in a m
+  | [b … m] => (l ≠ [])%pslap ∧ (b = a)%ps ∨ ps_lap_in a m
   end.
 
-Arguments lap_ps_in _ _ a%ps l%pslap.
+Arguments ps_lap_in _ _ a%ps l%pslap.
 
-Lemma lap_ps_in_compat : ∀ α (R : ring α) a b la lb,
+Lemma ps_lap_in_compat : ∀ α (R : ring α) a b la lb,
   (a = b)%ps
   → (la = lb)%pslap
-    → lap_ps_in a la
-      → lap_ps_in b lb.
+    → ps_lap_in a la
+      → ps_lap_in b lb.
 Proof.
 intros α R a b la lb Hab Hlab Hla.
 unfold ps_lap_eq in Hlab.
@@ -72,16 +72,16 @@ destruct Hla as [(Hcla, Hca)| Hla].
   eapply IHla; eassumption.
 Qed.
 
-Add Parametric Morphism α (R : ring α) : (@lap_ps_in α R)
+Add Parametric Morphism α (R : ring α) : (@ps_lap_in α R)
   with signature eq_ps ==> (@lap_eq _ (ps_ring R)) ==> iff
   as list_in_eq_ps_morph.
 Proof.
 intros a b Hab la lb Hlab.
 split; intros Hl.
- eapply lap_ps_in_compat; eassumption.
+ eapply ps_lap_in_compat; eassumption.
 
  symmetry in Hab, Hlab.
- eapply lap_ps_in_compat; eassumption.
+ eapply ps_lap_in_compat; eassumption.
 Qed.
 
 Definition g_lap_of_ns α {R : ring α} {K : field R}
@@ -796,10 +796,10 @@ destruct na as [na| ].
   apply Nat2Z.is_nonneg.
 Qed.
 
-Lemma list_in_lap_ps_in : ∀ a l,
+Lemma list_in_ps_lap_in : ∀ a l,
   (a ≠ 0)%ps
   → a ∈ l
-    → lap_ps_in a l.
+    → ps_lap_in a l.
 Proof.
 intros a l Ha Hal.
 revert a Ha Hal.
@@ -813,7 +813,7 @@ destruct Hal as [Hal| Hal].
  right; apply IHl; assumption.
 Qed.
 
-Lemma lap_ps_nilp : ∀ la : list (puiseux_series α),
+Lemma ps_lap_nilp : ∀ la : list (puiseux_series α),
   {@lap_eq _ (ps_ring R) la []} +
   {not (@lap_eq _ (ps_ring R) la [])}.
 Proof.
@@ -836,19 +836,19 @@ destruct IHla as [IHla| IHla].
  destruct H; assumption.
 Qed.
 
-Lemma lap_ps_in_add : ∀ la lb,
-  (∀ m, lap_ps_in m la → (order m > 0)%Qbar)
-  → (∀ m, lap_ps_in m lb → (order m > 0)%Qbar)
-    → (∀ m, lap_ps_in m (la + lb) → (order m > 0)%Qbar).
+Lemma ps_lap_in_add : ∀ la lb,
+  (∀ m, ps_lap_in m la → (order m > 0)%Qbar)
+  → (∀ m, ps_lap_in m lb → (order m > 0)%Qbar)
+    → (∀ m, ps_lap_in m (la + lb) → (order m > 0)%Qbar).
 Proof.
 intros la lb Hla Hlb m Hlab.
 unfold ps_lap_add in Hlab.
-destruct (lap_ps_nilp la) as [Hlaz| Hlanz].
+destruct (ps_lap_nilp la) as [Hlaz| Hlanz].
  rewrite Hlaz in Hlab.
  rewrite lap_add_nil_l in Hlab.
  apply Hlb; assumption.
 
- destruct (lap_ps_nilp lb) as [Hlbz| Hlbnz].
+ destruct (ps_lap_nilp lb) as [Hlbz| Hlbnz].
   rewrite Hlbz in Hlab.
   rewrite lap_add_nil_r in Hlab.
   apply Hla; assumption.
@@ -902,7 +902,7 @@ destruct (lap_ps_nilp la) as [Hlaz| Hlanz].
        constructor; [ reflexivity | assumption ].
 
       clear Hlbnz.
-      destruct (lap_ps_nilp lb) as [Hlbz| Hlbnz].
+      destruct (ps_lap_nilp lb) as [Hlbz| Hlbnz].
        rewrite Hlbz in Hlab.
        rewrite lap_add_nil_r in Hlab.
        apply Hla; right; assumption.
@@ -922,7 +922,7 @@ destruct (lap_ps_nilp la) as [Hlaz| Hlanz].
      destruct (ps_zerop _ b) as [Hbz| Hbnz].
       rewrite Hbz in Hlbnz.
       clear Hlanz.
-      destruct (lap_ps_nilp la) as [Hlaz| Hlanz].
+      destruct (ps_lap_nilp la) as [Hlaz| Hlanz].
        rewrite Hlaz in Hlab.
        rewrite lap_add_nil_l in Hlab.
        apply Hlb; right; assumption.
@@ -941,12 +941,12 @@ destruct (lap_ps_nilp la) as [Hlaz| Hlanz].
 
       clear Hlanz.
       clear Hlbnz.
-      destruct (lap_ps_nilp la) as [Hlaz| Hlanz].
+      destruct (ps_lap_nilp la) as [Hlaz| Hlanz].
        rewrite Hlaz in Hlab.
        rewrite lap_add_nil_l in Hlab.
        apply Hlb; right; assumption.
 
-       destruct (lap_ps_nilp lb) as [Hlbz| Hlbnz].
+       destruct (ps_lap_nilp lb) as [Hlbz| Hlbnz].
         rewrite Hlbz in Hlab.
         rewrite lap_add_nil_r in Hlab.
         apply Hla; right; assumption.
@@ -963,21 +963,21 @@ destruct (lap_ps_nilp la) as [Hlaz| Hlanz].
          assumption.
 Qed.
 
-(* very close to 'lap_ps_in_add'. Is there a way to have only one lemma?
+(* very close to 'ps_lap_in_add'. Is there a way to have only one lemma?
    or a lemma grouping these two together? *)
-Lemma lap_ps_in_add_ge : ∀ la lb,
-  (∀ m, lap_ps_in m la → (order m ≥ 0)%Qbar)
-  → (∀ m, lap_ps_in m lb → (order m ≥ 0)%Qbar)
-    → (∀ m, lap_ps_in m (la + lb) → (order m ≥ 0)%Qbar).
+Lemma ps_lap_in_add_ge : ∀ la lb,
+  (∀ m, ps_lap_in m la → (order m ≥ 0)%Qbar)
+  → (∀ m, ps_lap_in m lb → (order m ≥ 0)%Qbar)
+    → (∀ m, ps_lap_in m (la + lb) → (order m ≥ 0)%Qbar).
 Proof.
 intros la lb Hla Hlb m Hlab.
 unfold ps_lap_add in Hlab.
-destruct (lap_ps_nilp la) as [Hlaz| Hlanz].
+destruct (ps_lap_nilp la) as [Hlaz| Hlanz].
  rewrite Hlaz in Hlab.
  rewrite lap_add_nil_l in Hlab.
  apply Hlb; assumption.
 
- destruct (lap_ps_nilp lb) as [Hlbz| Hlbnz].
+ destruct (ps_lap_nilp lb) as [Hlbz| Hlbnz].
   rewrite Hlbz in Hlab.
   rewrite lap_add_nil_r in Hlab.
   apply Hla; assumption.
@@ -1031,7 +1031,7 @@ destruct (lap_ps_nilp la) as [Hlaz| Hlanz].
        constructor; [ reflexivity | assumption ].
 
       clear Hlbnz.
-      destruct (lap_ps_nilp lb) as [Hlbz| Hlbnz].
+      destruct (ps_lap_nilp lb) as [Hlbz| Hlbnz].
        rewrite Hlbz in Hlab.
        rewrite lap_add_nil_r in Hlab.
        apply Hla; right; assumption.
@@ -1051,7 +1051,7 @@ destruct (lap_ps_nilp la) as [Hlaz| Hlanz].
      destruct (ps_zerop _ b) as [Hbz| Hbnz].
       rewrite Hbz in Hlbnz.
       clear Hlanz.
-      destruct (lap_ps_nilp la) as [Hlaz| Hlanz].
+      destruct (ps_lap_nilp la) as [Hlaz| Hlanz].
        rewrite Hlaz in Hlab.
        rewrite lap_add_nil_l in Hlab.
        apply Hlb; right; assumption.
@@ -1070,12 +1070,12 @@ destruct (lap_ps_nilp la) as [Hlaz| Hlanz].
 
       clear Hlanz.
       clear Hlbnz.
-      destruct (lap_ps_nilp la) as [Hlaz| Hlanz].
+      destruct (ps_lap_nilp la) as [Hlaz| Hlanz].
        rewrite Hlaz in Hlab.
        rewrite lap_add_nil_l in Hlab.
        apply Hlb; right; assumption.
 
-       destruct (lap_ps_nilp lb) as [Hlbz| Hlbnz].
+       destruct (ps_lap_nilp lb) as [Hlbz| Hlbnz].
         rewrite Hlbz in Hlab.
         rewrite lap_add_nil_r in Hlab.
         apply Hla; right; assumption.
@@ -1092,10 +1092,10 @@ destruct (lap_ps_nilp la) as [Hlaz| Hlanz].
          assumption.
 Qed.
 
-Lemma lap_ps_in_mul : ∀ la lb,
-  (∀ m, lap_ps_in m la → (order m > 0)%Qbar)
-  → (∀ m, lap_ps_in m lb → (order m ≥ 0)%Qbar)
-    → (∀ m, lap_ps_in m (la * lb) → (order m > 0)%Qbar).
+Lemma ps_lap_in_mul : ∀ la lb,
+  (∀ m, ps_lap_in m la → (order m > 0)%Qbar)
+  → (∀ m, ps_lap_in m lb → (order m ≥ 0)%Qbar)
+    → (∀ m, ps_lap_in m (la * lb) → (order m > 0)%Qbar).
 Proof.
 intros la lb Hla Hlb m Hlab.
 unfold ps_lap_mul in Hlab.
@@ -1104,7 +1104,7 @@ induction la as [| a]; intros.
  rewrite lap_mul_nil_l in Hlab; contradiction.
 
  rewrite lap_mul_cons_l in Hlab.
- eapply lap_ps_in_add; [ idtac | idtac | eassumption ].
+ eapply ps_lap_in_add; [ idtac | idtac | eassumption ].
   intros n Hn.
   destruct (ps_zerop _ a) as [Ha| Ha].
    rewrite Ha in Hn.
@@ -1149,10 +1149,10 @@ induction la as [| a]; intros.
    apply Hla; right; assumption.
 Qed.
 
-Lemma lap_ps_in_mul_ge : ∀ la lb,
-  (∀ m, lap_ps_in m la → (order m ≥ 0)%Qbar)
-  → (∀ m, lap_ps_in m lb → (order m ≥ 0)%Qbar)
-    → (∀ m, lap_ps_in m (la * lb) → (order m ≥ 0)%Qbar).
+Lemma ps_lap_in_mul_ge : ∀ la lb,
+  (∀ m, ps_lap_in m la → (order m ≥ 0)%Qbar)
+  → (∀ m, ps_lap_in m lb → (order m ≥ 0)%Qbar)
+    → (∀ m, ps_lap_in m (la * lb) → (order m ≥ 0)%Qbar).
 Proof.
 intros la lb Hla Hlb m Hlab.
 unfold ps_lap_mul in Hlab.
@@ -1161,7 +1161,7 @@ induction la as [| a]; intros.
  rewrite lap_mul_nil_l in Hlab; contradiction.
 
  rewrite lap_mul_cons_l in Hlab.
- eapply lap_ps_in_add_ge; [ idtac | idtac | eassumption ].
+ eapply ps_lap_in_add_ge; [ idtac | idtac | eassumption ].
   intros n Hn.
   destruct (ps_zerop _ a) as [Ha| Ha].
    rewrite Ha in Hn.
@@ -1206,15 +1206,15 @@ induction la as [| a]; intros.
    apply Hla; right; assumption.
 Qed.
 
-Lemma lap_ps_in_summation : ∀ f l,
-  (∀ i, i ∈ l → ∀ m, lap_ps_in m (f i) → (order m > 0)%Qbar)
-  → (∀ m, lap_ps_in m (ps_lap_summ l f) → (order m > 0)%Qbar).
+Lemma ps_lap_in_summation : ∀ f l,
+  (∀ i, i ∈ l → ∀ m, ps_lap_in m (f i) → (order m > 0)%Qbar)
+  → (∀ m, ps_lap_in m (ps_lap_summ l f) → (order m > 0)%Qbar).
 Proof.
 intros f l Hi m Hm.
 revert m Hm.
 induction l as [| j]; intros; [ contradiction | idtac ].
 simpl in Hm.
-apply lap_ps_in_add in Hm; [ assumption | idtac | idtac ].
+apply ps_lap_in_add in Hm; [ assumption | idtac | idtac ].
  intros n Hn.
  apply IHl; [ idtac | assumption ].
  intros k Hk p Hp.
@@ -1309,9 +1309,9 @@ rewrite Z.add_0_r; destruct n; simpl.
 unfold Qle; simpl; reflexivity.
 Qed.
 
-Lemma lap_ps_in_power : ∀ la n,
-  (∀ a, lap_ps_in a la → (order a ≥ 0)%Qbar)
-  → (∀ m, lap_ps_in m (la ^ n) → (order m ≥ 0)%Qbar).
+Lemma ps_lap_in_power : ∀ la n,
+  (∀ a, ps_lap_in a la → (order a ≥ 0)%Qbar)
+  → (∀ m, ps_lap_in m (la ^ n) → (order m ≥ 0)%Qbar).
 Proof.
 intros la n Ha m Hm.
 revert m la Ha Hm.
@@ -1322,7 +1322,7 @@ induction n; intros.
  apply ps_monom_order_ge.
 
  simpl in Hm.
- eapply lap_ps_in_mul_ge in Hm; try eassumption.
+ eapply ps_lap_in_mul_ge in Hm; try eassumption.
  intros p Hp.
  eapply IHn; eassumption.
 Qed.
@@ -1353,22 +1353,22 @@ assert (m ≠ 0)%ps as Hmnz.
  rewrite H in Hom; discriminate Hom.
 
  subst la.
- apply list_in_lap_ps_in in Hm; [ idtac | assumption ].
+ apply list_in_ps_lap_in in Hm; [ idtac | assumption ].
  progress unfold ps_lap_add in Hm.
  progress unfold ps_lap_mul in Hm.
  rewrite lap_mul_add_distr_l in Hm.
  rewrite <- Hom.
- apply lap_ps_in_add in Hm; [ assumption | idtac | idtac ].
+ apply ps_lap_in_add in Hm; [ assumption | idtac | idtac ].
   clear m om Hom Hmnz Hm.
   intros m Hm.
   progress unfold ps_lap_summ in Hm.
   rewrite lap_mul_summation in Hm.
-  eapply lap_ps_in_summation; [ idtac | eassumption ].
+  eapply ps_lap_in_summation; [ idtac | eassumption ].
   clear m Hm.
   intros h Hh m Hm.
   simpl in Hm.
   rewrite lap_mul_assoc in Hm.
-  apply lap_ps_in_mul in Hm; [ assumption | idtac | idtac ].
+  apply ps_lap_in_mul in Hm; [ assumption | idtac | idtac ].
    clear m Hm.
    intros m Hm.
    remember (ps_poly_nth h pol) as āh eqn:Hāh .
@@ -1431,7 +1431,7 @@ assert (m ≠ 0)%ps as Hmnz.
 
    clear m Hm.
    intros m Hm.
-   eapply lap_ps_in_power; [ idtac | eassumption ].
+   eapply ps_lap_in_power; [ idtac | eassumption ].
    clear m Hm.
    intros m Hm.
    simpl in Hm.
@@ -1447,12 +1447,12 @@ assert (m ≠ 0)%ps as Hmnz.
   intros m Hm.
   progress unfold ps_lap_summ in Hm.
   rewrite lap_mul_summation in Hm.
-  eapply lap_ps_in_summation; [ idtac | eassumption ].
+  eapply ps_lap_in_summation; [ idtac | eassumption ].
   clear m Hm.
   intros h Hh m Hm.
   simpl in Hm.
   rewrite lap_mul_assoc in Hm.
-  apply lap_ps_in_mul in Hm; [ assumption | idtac | idtac ].
+  apply ps_lap_in_mul in Hm; [ assumption | idtac | idtac ].
    clear m Hm.
    intros m Hm.
    simpl in Hm.
@@ -1540,7 +1540,7 @@ assert (m ≠ 0)%ps as Hmnz.
 
    clear m Hm.
    intros m Hm.
-   eapply lap_ps_in_power; [ idtac | eassumption ].
+   eapply ps_lap_in_power; [ idtac | eassumption ].
    intros a Ha.
    simpl in Ha.
    destruct Ha as [(Hn, Ha)| Ha].
