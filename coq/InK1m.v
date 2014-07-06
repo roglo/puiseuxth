@@ -551,35 +551,33 @@ Proof.
 intros pol pol₁ ns m c q Hns Hm Hc Hq Hpol₁.
 subst pol₁.
 unfold next_pol, next_lap; simpl.
-bbb.
+apply ps_lap_forall_forall.
+ intros a b Hab Hamq.
+ rewrite <- Hab; assumption.
 
-intros pol pol₁ ns m c q Hns Hm Hc Hq Hpol₁.
-remember (al (next_pol pol (β ns) (γ ns) c)) as la₁ eqn:Hla₁ .
-unfold next_pol in Hla₁; simpl in Hla₁.
-unfold next_lap in Hla₁.
-subst la₁.
-eapply in_K_1_m_lap_mul_compat; eauto .
- intros a Ha.
- destruct Ha as [Ha| ]; [ idtac | contradiction ].
- destruct Ha as (_, Ha).
- rewrite <- Ha.
- eapply minus_beta_in_K_1_mq; eauto .
-
- intros ps Hps.
- eapply in_K_1_m_lap_comp_compat; eauto .
+ intros b Hin.
+ eapply in_K_1_m_lap_mul_compat; eauto .
   intros a Ha.
-  apply in_K_1_m_lap_mul_r_compat.
-  eapply com_polord_in_K_1_m; eassumption.
+  destruct Ha as [Ha| ]; [ idtac | contradiction ].
+  destruct Ha as (_, Ha).
+  rewrite <- Ha.
+  eapply minus_beta_in_K_1_mq; eauto .
 
-  intros a Ha; simpl in Ha.
-  destruct Ha as [Ha| [Ha| ]]; [ idtac | idtac | contradiction ].
-   destruct Ha as (Hla, Ha).
-   symmetry in Ha.
-   eapply gamma_in_K_1_mq; eassumption.
+  intros ps Hps.
+  eapply in_K_1_m_lap_comp_compat; eauto .
+   intros a Ha.
+   apply in_K_1_m_lap_mul_r_compat.
+   eapply com_polord_in_K_1_m; eassumption.
 
-   destruct Ha as (Hla, Ha).
-   symmetry in Ha.
-z   eapply gamma_in_K_1_mq; eassumption.
+   intros a Ha; simpl in Ha.
+   destruct Ha as [Ha| [Ha| ]]; [ idtac | idtac | contradiction ].
+    destruct Ha as (Hla, Ha).
+    symmetry in Ha.
+    eapply gamma_in_K_1_mq; eassumption.
+
+    destruct Ha as (Hla, Ha).
+    symmetry in Ha.
+    eapply gamma_in_K_1_mq; eassumption.
 Qed.
 
 End theorems.
