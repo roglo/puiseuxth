@@ -211,18 +211,22 @@ split; [ intros Hfa a Hin | intros Hfa ].
 Qed.
 
 Lemma hd_in_K_1_m : ∀ a la m,
-  (∀ b, ps_lap_in b [a … la] → in_K_1_m b m)
+  ps_lap_forall (λ b, in_K_1_m b m) [a … la]
   → in_K_1_m a m.
 Proof.
 intros a la m Hla.
 destruct (ps_zerop R a) as [Ha| Ha].
  rewrite Ha; apply ps_zero_in_K_1_m.
 
- apply Hla; left.
- split; [ idtac | reflexivity ].
- intros H; apply Ha; clear Ha.
- apply lap_eq_cons_nil_inv in H.
- destruct H; assumption.
+ eapply ps_lap_forall_forall in Hla; eauto.
+  intros b c Hbc Hb.
+  rewrite <- Hbc; assumption.
+
+  left.
+  split; [ idtac | reflexivity ].
+  intros H; apply Ha; clear Ha.
+  apply lap_eq_cons_nil_inv in H.
+  destruct H; assumption.
 Qed.
 
 Theorem in_K_1_m_lap_add_compat : ∀ m la lb c,
@@ -251,9 +255,15 @@ induction la as [| a]; intros.
   destruct Hc as [(Hab, Hac)| Hc].
    rewrite <- Hac.
    apply in_K_1_m_add_compat.
-    eapply hd_in_K_1_m; eauto .
+    eapply hd_in_K_1_m.
+    apply ps_lap_forall_forall; eauto .
+    intros d e Hde Hd.
+    rewrite <- Hde; assumption.
 
-    eapply hd_in_K_1_m; eauto .
+    eapply hd_in_K_1_m.
+    apply ps_lap_forall_forall; eauto .
+    intros d e Hde Hd.
+    rewrite <- Hde; assumption.
 
    apply IHla with (lb := lb).
     intros d Hd.
@@ -287,9 +297,15 @@ induction la as [| a]; intros.
   destruct Hc as [(Hab, Hc)| Hc].
    rewrite <- Hc.
    apply in_K_1_m_mul_compat.
-    eapply hd_in_K_1_m; eauto .
+    eapply hd_in_K_1_m.
+    apply ps_lap_forall_forall; eauto .
+    intros d e Hde Hd.
+    rewrite <- Hde; assumption.
 
-    eapply hd_in_K_1_m; eauto .
+    eapply hd_in_K_1_m.
+    apply ps_lap_forall_forall; eauto .
+    intros d e Hde Hd.
+    rewrite <- Hde; assumption.
 
    apply in_K_1_m_lap_add_compat with (m := m) in Hc; auto.
     intros d Hd.
@@ -318,7 +334,10 @@ induction la as [| a]; intros.
      destruct Hf as [(Hab, Habf)| Hf].
       rewrite <- Habf.
       apply in_K_1_m_mul_compat.
-       eapply hd_in_K_1_m; eauto .
+       eapply hd_in_K_1_m.
+       apply ps_lap_forall_forall; eauto .
+       intros g h Hgh Hg.
+       rewrite <- Hgh; assumption.
 
        destruct (ps_zerop R b') as [Hb| Hb].
         rewrite Hb; apply ps_zero_in_K_1_m.
