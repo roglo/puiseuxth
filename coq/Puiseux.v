@@ -1448,7 +1448,21 @@ induction n; intros.
    rewrite Qnum_inv_Qnat_sub; auto.
    rewrite Qden_inv_Qnat_sub; auto.
    rewrite Z.mul_1_r.
+   rewrite Z.min_l.
+    unfold ps_terms_add; simpl.
+    rewrite fold_series_const.
+    rewrite <- Heqdd, <- Heqnd.
+    rewrite Qnum_inv_Qnat_sub; auto.
+    rewrite Qden_inv_Qnat_sub; auto.
+    rewrite Z.mul_1_r.
+    rewrite Z.min_l.
+     rewrite Z.min_r.
+      rewrite Z.sub_diag; simpl.
+      unfold adjust_series.
+      rewrite series_shift_0.
+      remember (dd * Pos.of_nat (k - j))%positive as ddkj.
 bbb.
+      rewrite ps_adjust_eq with (n := ...) (k := ...).
 
 Lemma sss₁ : ∀ pol ns pol₁ ns₁ n c₁ m,
   ns ∈ newton_segments pol
