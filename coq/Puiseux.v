@@ -1241,24 +1241,6 @@ remember (S n) as sn; simpl; subst sn.
 apply IHn.
 Qed.
 
-(*
-Lemma find_coeff_le: ∀ pol nc po m i,
-  (m ≤ i)%nat
-  → find_coeff m 0 po pol nc i = 0%K.
-Proof.
-intros pol nc po m i Him.
-revert pol nc i Him.
-induction m; intros; [ reflexivity | idtac ].
-remember O as z; simpl; subst z.
-remember (ac_root (Φq pol nc)) as c₁.
-destruct (ac_zerop c₁) as [| H₁]; [ reflexivity | idtac ].
-destruct (eq_nat_dec 0 i) as [H₂| H₂].
- exfalso; fast_omega Him H₂.
-
- destruct (lt_dec 0 i) as [H₃| H₃]; [ idtac | reflexivity ].
-bbb.
-*)
-
 Lemma exists_ini_pt_nat_n : ∀ pol ns n nsn,
   ns ∈ newton_segments pol
   → nsn = nth_ns n pol ns
@@ -1465,6 +1447,11 @@ induction n; intros.
       unfold adjust_ps; simpl.
       rewrite series_shift_0.
       rewrite Z.sub_0_r.
+      subst dd nd ddkj.
+      remember (Pos.of_nat (k - j)) as kj.
+      rewrite Z.mul_opp_l, Z.add_opp_r.
+      repeat rewrite Pos.mul_assoc.
+      repeat rewrite Pos2Z.inj_mul.
 bbb.
 
 Lemma sss₁ : ∀ pol ns pol₁ ns₁ n c₁ m,
