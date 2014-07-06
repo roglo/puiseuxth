@@ -1451,6 +1451,9 @@ induction n; intros.
       repeat rewrite Pos.mul_assoc.
       repeat rewrite Pos2Z.inj_mul.
       apply mkps_morphism.
+       do 2 rewrite series_stretch_const.
+       rewrite series_mul_1_l.
+       rewrite Z.mul_1_r.
 bbb.
 
 Lemma sss₁ : ∀ pol ns pol₁ ns₁ n c₁ m,
@@ -1555,8 +1558,8 @@ induction n; intros.
        rewrite Hini₁; reflexivity.
 
       rewrite series_shift_0.
-      rewrite stretch_series_const.
-      rewrite stretch_series_const.
+      rewrite series_stretch_const.
+      rewrite series_stretch_const.
       rewrite series_mul_1_l.
       rewrite Z.mul_add_distr_r.
       rewrite Z.mul_shuffle0.
@@ -1567,7 +1570,7 @@ induction n; intros.
        rewrite Z2Nat.inj_mul; simpl; auto.
         rewrite <- stretch_shift_series_distr.
         rewrite <- series_stretch_stretch.
-        rewrite <- stretch_series_const with (k := (dd * dd)%positive).
+        rewrite <- series_stretch_const with (k := (dd * dd)%positive).
         rewrite <- series_stretch_add_distr.
         apply stretch_morph; auto.
         constructor; intros i; simpl.
@@ -1670,20 +1673,20 @@ induction n; intros.
       rewrite Z2Nat.inj_mul; auto.
        simpl.
        rewrite <- stretch_shift_series_distr.
-       do 2 rewrite stretch_series_const.
+       do 2 rewrite series_stretch_const.
        rewrite series_stretch_stretch.
        symmetry.
-       rewrite <- stretch_series_const with (k := dd).
+       rewrite <- series_stretch_const with (k := dd).
        rewrite <- series_stretch_add_distr.
        apply stretch_morph; auto.
        rewrite series_add_comm.
-       rewrite <- stretch_series_const with (k := dd).
+       rewrite <- series_stretch_const with (k := dd).
        rewrite <- series_stretch_mul.
        rewrite series_mul_1_l.
        rewrite series_add_comm.
        rewrite Z2Nat.inj_mul; auto; simpl.
         rewrite <- stretch_shift_series_distr.
-        rewrite <- stretch_series_const with (k := dd).
+        rewrite <- series_stretch_const with (k := dd).
         rewrite <- series_stretch_add_distr.
         symmetry.
         apply stretch_morph; auto.
@@ -1920,8 +1923,8 @@ induction n; intros.
        rewrite <- stretch_shift_series_distr.
        rewrite fold_series_const.
        rewrite fold_series_const.
-       rewrite stretch_series_const.
-       rewrite stretch_series_const.
+       rewrite series_stretch_const.
+       rewrite series_stretch_const.
        rewrite series_mul_1_l.
        rewrite Z2Nat.inj_mul.
         simpl.

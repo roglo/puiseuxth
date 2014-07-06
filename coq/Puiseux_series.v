@@ -693,7 +693,7 @@ destruct (zerop (i mod Pos.to_nat k)) as [Hz| ]; [ idtac | reflexivity ].
 exfalso; revert Hi; rewrite Hz; apply Nat.lt_irrefl.
 Qed.
 
-Lemma stretch_series_const : ∀ k c,
+Lemma series_stretch_const : ∀ k c,
   (series_stretch k (series_const c) = series_const c)%ser.
 Proof.
 intros k c.
@@ -718,7 +718,7 @@ Qed.
 Lemma stretch_series_1 : ∀ k, (series_stretch k 1 = 1)%ser.
 Proof.
 intros k.
-apply stretch_series_const.
+apply series_stretch_const.
 Qed.
 
 Lemma series_nth_mul_stretch : ∀ s k i,

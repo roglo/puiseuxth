@@ -475,7 +475,7 @@ apply points_in_any_newton_segment with (h := Qnat j) (αh := αj) in Hbm.
  unfold adjust_ps; simpl.
  rewrite Z.sub_0_r.
  rewrite fold_series_const.
- rewrite stretch_series_const, series_shift_0.
+ rewrite series_stretch_const, series_shift_0.
  apply mkps_morphism; try reflexivity.
   rewrite Z.mul_opp_l; f_equal.
   rewrite Z.mul_add_distr_r; f_equal.
