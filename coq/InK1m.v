@@ -17,6 +17,7 @@ Require Import Puiseux_base.
 Require Import AlgCloCharPol.
 Require Import PosOrder.
 Require Import CharactPolyn.
+Require Import ConvexHull.
 Require Import PolyConvexHull.
 Require Import F1Eq.
 
@@ -539,15 +540,20 @@ destruct Ha as [(Ha, Hb)| Ha].
  apply IHla; [ reflexivity | assumption ].
 Qed.
 
-Lemma next_pol_in_K_1_mq : ∀ pol ns m c b q,
+Theorem next_pol_in_K_1_mq : ∀ pol pol₁ ns m c q,
   ns ∈ newton_segments pol
   → m = ps_list_com_polord (al pol)
   → c = ac_root (Φq pol ns)
   → q = q_of_ns pol ns
-  → ps_lap_in b (al (next_pol pol (β ns) (γ ns) c))
-  → in_K_1_m b (m * q).
+  → pol₁ = next_pol pol (β ns) (γ ns) c
+  → ps_lap_forall (λ a, in_K_1_m a (m * q)) (al pol₁).
 Proof.
-intros pol ns m c b q Hns Hm Hc Hq Hb.
+intros pol pol₁ ns m c q Hns Hm Hc Hq Hpol₁.
+subst pol₁.
+unfold next_pol, next_lap; simpl.
+bbb.
+
+intros pol pol₁ ns m c q Hns Hm Hc Hq Hpol₁.
 remember (al (next_pol pol (β ns) (γ ns) c)) as la₁ eqn:Hla₁ .
 unfold next_pol in Hla₁; simpl in Hla₁.
 unfold next_lap in Hla₁.
@@ -573,7 +579,7 @@ eapply in_K_1_m_lap_mul_compat; eauto .
 
    destruct Ha as (Hla, Ha).
    symmetry in Ha.
-   eapply gamma_in_K_1_mq; eassumption.
+z   eapply gamma_in_K_1_mq; eassumption.
 Qed.
 
 End theorems.
