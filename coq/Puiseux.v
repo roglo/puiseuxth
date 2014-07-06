@@ -1396,9 +1396,6 @@ Proof.
 intros pol ns n c₁ m Hns Hc₁ Hr Hm.
 remember Hm as HinK1m; clear HeqHinK1m.
 apply com_polord_in_K_1_m with (R := R) in HinK1m.
-bbb.
-(* vérifier d'abord si le lemme est vrai ! *)
-
 revert pol ns c₁ m Hns Hc₁ Hr Hm HinK1m.
 induction n; intros.
  unfold root_head, γ_sum; simpl.
@@ -1439,6 +1436,18 @@ induction n; intros.
    unfold root_from_cγ_list; simpl.
    unfold γ; simpl.
    rewrite Hini, Hfin, Hini₁; simpl.
+   unfold ps_mul; simpl.
+   unfold cm; simpl.
+   rewrite fold_series_const.
+   unfold ps_add; simpl.
+   unfold cm; simpl.
+   remember (Qden αj * Qden αk)%positive as dd.
+   remember (Qnum αj * ' Qden αk)%Z as nd.
+   unfold ps_ordnum_add; simpl.
+   rewrite <- Heqdd, <- Heqnd.
+   rewrite Qnum_inv_Qnat_sub; auto.
+   rewrite Qden_inv_Qnat_sub; auto.
+   rewrite Z.mul_1_r.
 bbb.
 
 Lemma sss₁ : ∀ pol ns pol₁ ns₁ n c₁ m,
