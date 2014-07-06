@@ -519,25 +519,29 @@ rewrite ps_adjust_eq with (n := O) (k := n) in Hps.
 assumption.
 Qed.
 
-Theorem com_polord_in_K_1_m : ∀ m a la,
+Theorem com_polord_in_K_1_m : ∀ m la,
   m = ps_list_com_polord la
-  → ps_lap_in a la
-  → in_K_1_m a m.
+  → ps_lap_forall (λ a, in_K_1_m a m) la.
 Proof.
-intros m a la Hm Ha.
-revert a m Hm Ha.
-induction la as [| b]; intros; [ contradiction | idtac ].
-simpl in Ha.
-destruct Ha as [(Ha, Hb)| Ha].
- subst m; simpl.
- rewrite Pos.mul_comm.
- apply in_K_1_m_lap_mul_r_compat.
- rewrite <- Hb; constructor.
- exists b; split; reflexivity.
+intros m la Hm.
+apply ps_lap_forall_forall.
+ intros a b Hab Hamq.
+ rewrite <- Hab; assumption.
 
- subst m; simpl.
- apply in_K_1_m_lap_mul_r_compat.
- apply IHla; [ reflexivity | assumption ].
+ intros a Ha.
+ revert a m Hm Ha.
+ induction la as [| b]; intros; [ contradiction | idtac ].
+ simpl in Ha.
+ destruct Ha as [(Ha, Hb)| Ha].
+  subst m; simpl.
+  rewrite Pos.mul_comm.
+  apply in_K_1_m_lap_mul_r_compat.
+  rewrite <- Hb; constructor.
+  exists b; split; reflexivity.
+
+  subst m; simpl.
+  apply in_K_1_m_lap_mul_r_compat.
+  apply IHla; [ reflexivity | assumption ].
 Qed.
 
 Theorem next_pol_in_K_1_mq : ∀ pol pol₁ ns m c q,
@@ -567,7 +571,12 @@ apply ps_lap_forall_forall.
   eapply in_K_1_m_lap_comp_compat; eauto .
    intros a Ha.
    apply in_K_1_m_lap_mul_r_compat.
-   eapply com_polord_in_K_1_m; eassumption.
+   revert a Ha.
+   apply ps_lap_forall_forall.
+    intros a d Hab Hamq.
+    rewrite <- Hab; assumption.
+
+    eapply com_polord_in_K_1_m; eassumption.
 
    intros a Ha; simpl in Ha.
    destruct Ha as [Ha| [Ha| ]]; [ idtac | idtac | contradiction ].

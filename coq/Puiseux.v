@@ -1396,7 +1396,9 @@ Lemma sss : ∀ pol ns pol₁ ns₁ n c₁ m,
      ps_monom 1%K (γ_sum n pol₁ ns₁) * root_tail m (S n) pol₁ ns₁)%ps.
 Proof.
 intros pol ns pol₁ ns₁ n c₁ m Hns Hc₁ Hr Hm Hpol₁ Hns₁.
-revert pol ns pol₁ ns₁ c₁ m Hns Hc₁ Hr Hm Hpol₁ Hns₁.
+remember Hm as HinK1m; clear HeqHinK1m.
+apply com_polord_in_K_1_m with (R := R) in HinK1m.
+revert pol ns pol₁ ns₁ c₁ m Hns Hc₁ Hr Hm Hpol₁ Hns₁ HinK1m.
 induction n; intros.
  unfold root_head, γ_sum; simpl.
  unfold summation; simpl.
