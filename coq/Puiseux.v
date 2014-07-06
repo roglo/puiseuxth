@@ -1461,8 +1461,11 @@ induction n; intros.
       unfold adjust_series.
       rewrite series_shift_0.
       remember (dd * Pos.of_nat (k - j))%positive as ddkj.
+      rewrite ps_adjust_eq with (n := O) (k := (ddkj * ddkj)%positive).
+      unfold adjust_ps; simpl.
+      rewrite series_shift_0.
+      rewrite Z.sub_0_r.
 bbb.
-      rewrite ps_adjust_eq with (n := ...) (k := ...).
 
 Lemma sss₁ : ∀ pol ns pol₁ ns₁ n c₁ m,
   ns ∈ newton_segments pol
