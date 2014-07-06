@@ -1396,6 +1396,9 @@ Proof.
 intros pol ns n c₁ m Hns Hc₁ Hr Hm.
 remember Hm as HinK1m; clear HeqHinK1m.
 apply com_polord_in_K_1_m with (R := R) in HinK1m.
+bbb.
+(* vérifier d'abord si le lemme est vrai ! *)
+
 revert pol ns c₁ m Hns Hc₁ Hr Hm HinK1m.
 induction n; intros.
  unfold root_head, γ_sum; simpl.
