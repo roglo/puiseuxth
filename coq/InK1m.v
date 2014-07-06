@@ -28,16 +28,19 @@ Inductive in_K_1_m {α} {R : ring α} ps m :=
 
 Arguments in_K_1_m _ _ ps%ps m%positive.
 
-Inductive lap_forall {α} {R : ring α} P : list α → Prop :=
-  | LForall_nil : lap_forall P []
-  | LForall_cons : ∀ x l,
-      ([x … l] ≠ [])%lap → P x → lap_forall P l → lap_forall P [x … l].
+Inductive ps_lap_forall {α} {R : ring α} P : list (puiseux_series α) → Prop :=
+  | PLForall_nil : ∀ l, (l = [])%pslap → ps_lap_forall P l
+  | PLForall_cons : ∀ x l,
+      ([x … l] ≠ [])%pslap
+      → P x
+      → ps_lap_forall P l
+      → ps_lap_forall P [x … l].
 
-Arguments lap_forall α%type_scope _ _ l%lap.
+Arguments ps_lap_forall α%type_scope _ _ l%pslap.
 
 Add Parametric Morphism α (R : ring α) : (@in_K_1_m _ R)
   with signature eq_ps ==> eq ==> iff
-  as in_K_1_m_prop.
+  as in_K_1_m_morph.
 Proof.
 intros a b Hab n.
 split; intros H.
@@ -174,6 +177,37 @@ unfold adjust_ps; simpl.
 rewrite series_shift_0; simpl.
 rewrite series_stretch_series_0.
 reflexivity.
+Qed.
+
+Theorem ps_lap_forall_forall : ∀ la (P : puiseux_series α → Prop),
+  (∀ a b, (a = b)%ps → P a → P b)
+  → ps_lap_forall P la ↔ (∀ a, ps_lap_in a la → P a).
+Proof.
+intros la P Hmorph.
+split; [ intros Hfa a Hin | intros Hfa ].
+ revert a Hin.
+ induction la as [| b]; intros; [ contradiction | idtac ].
+ simpl in Hin.
+ destruct Hin as [(Hbla, Hba)| Hin].
+  inversion_clear Hfa; [ contradiction | idtac ].
+  eapply Hmorph; eassumption.
+
+  inversion_clear Hfa.
+   inversion_clear H.
+   rewrite H1 in Hin; contradiction.
+
+   apply IHla; assumption.
+
+ induction la as [| b]; [ constructor; reflexivity | idtac ].
+ destruct (ps_lap_nilp _ [b … la]) as [Hba| Hba].
+  constructor 1; assumption.
+
+  constructor 2; [ assumption | idtac | idtac ].
+   apply Hfa; left.
+   split; [ assumption | reflexivity ].
+
+   apply IHla; intros a Ha.
+   apply Hfa; right; assumption.
 Qed.
 
 Lemma hd_in_K_1_m : ∀ a la m,
