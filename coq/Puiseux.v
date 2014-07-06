@@ -1384,7 +1384,61 @@ destruct nsl as [| ns₁]; simpl in Hns.
  subst ns; left; reflexivity.
 Qed.
 
-Lemma sss : ∀ pol ns pol₁ ns₁ n c₁ m,
+Lemma sss : ∀ pol ns n c₁ m,
+  ns ∈ newton_segments pol
+  → c₁ = ac_root (Φq pol ns)
+  → root_multiplicity acf c₁ (Φq pol ns) = 1%nat
+  → m = ps_list_com_polord (al pol)
+  → (root_tail m 0 pol ns =
+     root_head n pol ns +
+     ps_monom 1%K (γ_sum n pol ns) * root_tail m (S n) pol ns)%ps.
+Proof.
+intros pol ns n c₁ m Hns Hc₁ Hr Hm.
+remember Hm as HinK1m; clear HeqHinK1m.
+apply com_polord_in_K_1_m with (R := R) in HinK1m.
+revert pol ns c₁ m Hns Hc₁ Hr Hm HinK1m.
+induction n; intros.
+ unfold root_head, γ_sum; simpl.
+ unfold summation; simpl.
+ do 2 rewrite rng_add_0_r.
+ unfold root_tail; simpl.
+ rewrite <- Hc₁.
+ remember (next_pol pol (β ns) (γ ns) c₁) as pol₁ eqn:Hpol₁ .
+ remember (List.hd phony_ns (newton_segments pol₁)) as ns₁ eqn:Hns₁ .
+ remember Hns as HinK1mq; clear HeqHinK1mq.
+ eapply next_pol_in_K_1_mq in HinK1mq; eauto .
+ remember Hns as Hini; clear HeqHini.
+ apply exists_ini_pt_nat in Hini.
+ destruct Hini as (j, (αj, Hini)).
+ remember Hns as Hfin; clear HeqHfin.
+ apply exists_fin_pt_nat in Hfin.
+ destruct Hfin as (k, (αk, Hfin)).
+ remember Hns₁ as Hini₁; clear HeqHini₁.
+ apply exists_ini_pt_nat_fst_seg in Hini₁.
+ destruct Hini₁ as (j₁, (αj₁, Hini₁)).
+ remember Hns₁ as Hfin₁; clear HeqHfin₁.
+ apply exists_fin_pt_nat_fst_seg in Hfin₁.
+ destruct Hfin₁ as (k₁, (αk₁, Hfin₁)).
+ assert (j < k)%nat as Hjk.
+  eapply j_lt_k; try eassumption.
+   rewrite Hini; simpl; rewrite nat_num_Qnat; reflexivity.
+
+   rewrite Hfin; simpl; rewrite nat_num_Qnat; reflexivity.
+
+  remember Hns as H; clear HeqH.
+  eapply r_1_j_0_k_1 in H; try eassumption.
+   destruct H as (Hj₁, (Hk₁, (Hαj₁, (Hαk₁, Hoth₁)))).
+   subst j₁ k₁.
+   unfold Qeq in Hαk₁; simpl in Hαk₁.
+   rewrite Z.mul_1_r in Hαk₁.
+   unfold Qlt in Hαj₁; simpl in Hαj₁.
+   rewrite Z.mul_1_r in Hαj₁.
+   unfold root_from_cγ_list; simpl.
+   unfold γ; simpl.
+   rewrite Hini, Hfin, Hini₁; simpl.
+bbb.
+
+Lemma sss₁ : ∀ pol ns pol₁ ns₁ n c₁ m,
   ns ∈ newton_segments pol
   → c₁ = ac_root (Φq pol ns)
   → root_multiplicity acf c₁ (Φq pol ns) = 1%nat
