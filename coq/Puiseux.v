@@ -1190,8 +1190,7 @@ Fixpoint find_coeff max_iter pow pol_ord pol ns i :=
       else if lt_dec pow i then
         let pol₁ := next_pol pol (β ns) (γ ns) c₁ in
         let ns₁ := List.hd phony_ns (newton_segments pol₁) in
-        let γ₁ := snd (ini_pt ns₁) in
-        let n := (γ₁ * inject_Z ('pol_ord)) in
+        let n := (γ ns₁ * inject_Z ('pol_ord)) in
         let pow₁ := (pow + Z.to_nat (Qnum n / ' Qden n))%nat in
         find_coeff m pow₁ pol_ord pol₁ ns₁ i
       else 0%K
@@ -1200,11 +1199,10 @@ Fixpoint find_coeff max_iter pow pol_ord pol ns i :=
 Definition root_series_from_cγ_list pol_ord pol ns i :=
   find_coeff (S i) 0%nat pol_ord pol ns i.
 
-Definition root_from_cγ_list pol_ord pol ns :=
-  let αj := snd (ini_pt ns) in
-  {| ps_terms := {| terms := root_series_from_cγ_list pol_ord pol ns |};
-     ps_ordnum := Qnum αj * ' pol_ord / ' Qden αj;
-     ps_polord := pol_ord |}.
+Definition root_from_cγ_list m pol ns :=
+  {| ps_terms := {| terms := root_series_from_cγ_list m pol ns |};
+     ps_ordnum := Qnum (γ ns) * ' m / ' Qden (γ ns);
+     ps_polord := m |}.
 
 Definition γ_sum n pol ns :=
   let qr := Q_ring in
@@ -1214,8 +1212,8 @@ Definition root_head n pol ns :=
   let pr := ps_ring R in
   Σ (i = 0, n), ps_monom (nth_c i pol ns) (γ_sum i pol ns).
 
-Definition root_tail pol_ord n pol ns :=
-  root_from_cγ_list pol_ord (nth_pol n pol ns) (nth_ns n pol ns).
+Definition root_tail m n pol ns :=
+  root_from_cγ_list m (nth_pol n pol ns) (nth_ns n pol ns).
 
 Lemma nth_pol_succ : ∀ n pol ns pol₁ ns₁ c₁,
   pol₁ = nth_pol n pol ns
@@ -1417,7 +1415,7 @@ induction n; intros.
    rewrite Z.mul_1_r in Hαj₁.
    unfold root_from_cγ_list; simpl.
    unfold γ; simpl.
-   rewrite Hini, Hfin, Hini₁; simpl.
+   rewrite Hini, Hfin, Hini₁, Hfin₁; simpl.
    unfold ps_mul; simpl.
    unfold cm; simpl.
    rewrite fold_series_const.
@@ -1429,7 +1427,7 @@ induction n; intros.
    rewrite <- Heqdd, <- Heqnd.
    rewrite Qnum_inv_Qnat_sub; auto.
    rewrite Qden_inv_Qnat_sub; auto.
-   rewrite Z.mul_1_r.
+   do 2 rewrite Z.mul_1_r.
    rewrite Z.min_l.
     unfold ps_terms_add; simpl.
     rewrite fold_series_const.
@@ -1452,6 +1450,7 @@ induction n; intros.
       rewrite Z.mul_opp_l, Z.add_opp_r.
       repeat rewrite Pos.mul_assoc.
       repeat rewrite Pos2Z.inj_mul.
+      apply mkps_morphism.
 bbb.
 
 Lemma sss₁ : ∀ pol ns pol₁ ns₁ n c₁ m,
