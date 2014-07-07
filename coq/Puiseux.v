@@ -1454,6 +1454,32 @@ induction n; intros.
        do 2 rewrite series_stretch_const.
        rewrite series_mul_1_l.
        rewrite Z.mul_1_r.
+       remember (Qnum αj * ' Qden αk)%Z as nd.
+       remember (Qnum αk * ' Qden αj)%Z as dn.
+       rewrite Z.mul_opp_l, Z.add_opp_r.
+       remember (Qnum αj₁ * ' Qden αk₁)%Z as nd₁.
+       remember (Qnum αk₁ * ' Qden αj₁)%Z as dn₁.
+       rewrite <- Pos2Z.inj_mul.
+       rewrite <- Pos2Z.inj_mul.
+       remember (Qden αj * Qden αk)%positive as dd.
+       remember (Qden αj₁ * Qden αk₁)%positive as dd₁.
+       rewrite <- Pos.mul_assoc.
+       rewrite <- Pos.mul_assoc.
+       rewrite Pos.mul_comm.
+       rewrite Pos.mul_assoc.
+       rewrite Pos.mul_assoc.
+       rewrite <- Heqdd.
+       rewrite Z.mul_add_distr_r.
+       rewrite Z.mul_shuffle0.
+       rewrite Z.mul_assoc.
+       rewrite Z.mul_assoc.
+       rewrite Z.mul_assoc.
+       rewrite Z.mul_assoc.
+       rewrite Z.mul_assoc.
+       rewrite Z.add_simpl_l.
+       rewrite <- Z.mul_assoc.
+       rewrite <- Pos2Z.inj_mul.
+       rewrite Z2Nat.inj_mul; simpl.
 bbb.
 
 Lemma sss₁ : ∀ pol ns pol₁ ns₁ n c₁ m,
