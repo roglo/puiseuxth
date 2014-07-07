@@ -1523,7 +1523,28 @@ induction n; intros.
 
              apply ps_lap_in_0th.
              rewrite Hpol₁; simpl.
-             unfold next_lap; rewrite fold_ps_lap_comp.
+             remember (al pol) as la eqn:Hla .
+             symmetry in Hla.
+             destruct la as [| a].
+              unfold next_pol in Hpol₁.
+              rewrite Hla in Hpol₁; simpl in Hpol₁.
+              unfold next_lap in Hpol₁; simpl in Hpol₁.
+              progress unfold lap_mul in Hpol₁; simpl in Hpol₁.
+              subst pol₁.
+              simpl in Hns₁.
+              subst ns₁.
+              simpl in Hfin₁.
+              discriminate Hfin₁.
+
+              unfold next_pol in Hpol₁.
+              rewrite Hla in Hpol₁; simpl in Hpol₁.
+              destruct la as [| b].
+               unfold next_pol in Hpol₁.
+               unfold next_lap in Hpol₁; simpl in Hpol₁.
+               unfold summation in Hpol₁; simpl in Hpol₁.
+               subst pol₁.
+               simpl in HinK1mq.
+               rewrite ps_mul_0_l in HinK1mq.
 bbb.
 
 Lemma uuu₂ : ∀ pol ns n,

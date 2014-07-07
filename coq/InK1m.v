@@ -63,6 +63,28 @@ split; intros H.
  transitivity b; assumption.
 Qed.
 
+Add Parametric Morphism α (R : ring α) : ps_lap_forall
+  with signature eq ==> (@ps_lap_eq _ R) ==> iff
+  as ps_lap_forall_morph.
+Proof.
+intros P la lb Hab.
+split; intros Hfa.
+ revert la Hab Hfa.
+ induction lb as [| b]; intros.
+  constructor.
+  reflexivity.
+
+  destruct (ps_lap_nilp _ [b … lb]) as [Hba| Hba].
+   constructor 1; assumption.
+
+   constructor 2; [ assumption | idtac | idtac ].
+    destruct la as [| a].
+     symmetry in Hab; contradiction.
+
+     apply lap_eq_cons_inv in Hab.
+     destruct Hab as (Hab, Hlab).
+bbb.
+
 Section theorems.
 
 Variable α : Type.
@@ -199,6 +221,7 @@ split; [ intros Hfa a Hin | intros Hfa ].
 
    apply IHla; assumption.
 
+bbb.
  induction la as [| b]; [ constructor; reflexivity | idtac ].
  destruct (ps_lap_nilp _ [b … la]) as [Hba| Hba].
   constructor 1; assumption.
