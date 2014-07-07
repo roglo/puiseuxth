@@ -1372,10 +1372,12 @@ destruct la as [| a]; [ exfalso; apply Hla; reflexivity | simpl ].
 left; split; [ assumption | reflexivity ].
 Qed.
 
+(*
 Lemma rrr : ∀ ns c la, (next_lap la (β ns) (γ ns) c ≠ [])%pslap.
 Proof.
 intros ns c la.
 bbb.
+*)
 
 Lemma sss : ∀ pol ns n c₁ m,
   ns ∈ newton_segments pol
@@ -1521,6 +1523,7 @@ induction n; intros.
 
              apply ps_lap_in_0th.
              rewrite Hpol₁; simpl.
+             unfold next_lap; rewrite fold_ps_lap_comp.
 bbb.
 
 Lemma uuu₂ : ∀ pol ns n,
