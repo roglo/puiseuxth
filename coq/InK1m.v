@@ -29,7 +29,8 @@ Inductive in_K_1_m {α} {R : ring α} ps m :=
 
 Arguments in_K_1_m _ _ ps%ps m%positive.
 
-Inductive ps_lap_forall {α} {R : ring α} P : list (puiseux_series α) → Prop :=
+Inductive ps_lap_forall {α} {R : ring α} (P : _ → Prop) :
+  list (puiseux_series α) → Prop :=
   | PLForall_nil : ∀ l, (l = [])%pslap → ps_lap_forall P l
   | PLForall_cons : ∀ x l,
       ([x … l] ≠ [])%pslap
@@ -63,27 +64,37 @@ split; intros H.
  transitivity b; assumption.
 Qed.
 
-Add Parametric Morphism α (R : ring α) : ps_lap_forall
-  with signature eq ==> (@ps_lap_eq _ R) ==> iff
+Add Parametric Morphism α (R : ring α) m : (ps_lap_forall (λ a, in_K_1_m a m))
+  with signature (@ps_lap_eq _ R) ==> iff
   as ps_lap_forall_morph.
 Proof.
-intros P la lb Hab.
+intros la lb Hab.
 split; intros Hfa.
  revert la Hab Hfa.
- induction lb as [| b]; intros.
-  constructor.
-  reflexivity.
+ induction lb as [| b]; intros; [ constructor; reflexivity | idtac ].
+ destruct (ps_lap_nilp _ [b … lb]) as [Hba| Hba].
+  constructor 1; assumption.
 
-  destruct (ps_lap_nilp _ [b … lb]) as [Hba| Hba].
-   constructor 1; assumption.
+  constructor 2; [ assumption | idtac | idtac ].
+   destruct la as [| a].
+    symmetry in Hab; contradiction.
 
-   constructor 2; [ assumption | idtac | idtac ].
-    destruct la as [| a].
-     symmetry in Hab; contradiction.
-
-     apply lap_eq_cons_inv in Hab.
-     destruct Hab as (Hab, Hlab).
+    apply lap_eq_cons_inv in Hab.
+    destruct Hab as (Hab, Hlab).
+    rewrite <- Hab.
+    inversion Hfa; subst; [ idtac | assumption ].
+    rewrite Hab, Hlab in H; contradiction.
 bbb.
+*)
+
+Theorem zzz {α} {R : ring α} : ∀ la lb m,
+  (la = lb)%pslap
+  → ps_lap_forall (λ a, in_K_1_m a m) la
+  → ps_lap_forall (λ a, in_K_1_m a m) lb.
+Proof.
+Admitted. (*
+bbb.
+*)
 
 Section theorems.
 
@@ -221,7 +232,9 @@ split; [ intros Hfa a Hin | intros Hfa ].
 
    apply IHla; assumption.
 
+(*
 bbb.
+*)
  induction la as [| b]; [ constructor; reflexivity | idtac ].
  destruct (ps_lap_nilp _ [b … la]) as [Hba| Hba].
   constructor 1; assumption.

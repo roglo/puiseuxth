@@ -1544,8 +1544,12 @@ induction n; intros.
                unfold summation in Hpol₁; simpl in Hpol₁.
                subst pol₁.
                simpl in HinK1mq.
+bbb.
                rewrite ps_mul_0_l in HinK1mq.
 bbb.
+               eapply zzz in HinK1mq.
+                2: rewrite ps_mul_0_l, ps_add_0_l, ps_add_0_l.
+                2: reflexivity.
 
 Lemma uuu₂ : ∀ pol ns n,
   ns ∈ newton_segments pol
