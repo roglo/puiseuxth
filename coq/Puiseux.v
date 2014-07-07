@@ -1364,6 +1364,14 @@ destruct nsl as [| ns₁]; simpl in Hns.
  subst ns; left; reflexivity.
 Qed.
 
+Lemma ps_lap_in_0th : ∀ la, (la ≠ [])%pslap → ps_lap_in (ps_lap_nth 0 la) la.
+Proof.
+intros la Hla.
+unfold ps_lap_nth.
+destruct la as [| a]; [ exfalso; apply Hla; reflexivity | simpl ].
+left; split; [ assumption | reflexivity ].
+Qed.
+
 Lemma sss : ∀ pol ns n c₁ m,
   ns ∈ newton_segments pol
   → c₁ = ac_root (Φq pol ns)
@@ -1387,6 +1395,7 @@ induction n; intros.
  remember (List.hd phony_ns (newton_segments pol₁)) as ns₁ eqn:Hns₁ .
  remember Hns as HinK1mq; clear HeqHinK1mq.
  eapply next_pol_in_K_1_mq in HinK1mq; eauto .
+ remember (q_of_ns pol ns) as q eqn:Hq.
  remember Hns as Hini; clear HeqHini.
  apply exists_ini_pt_nat in Hini.
  destruct Hini as (j, (αj, Hini)).
@@ -1469,19 +1478,45 @@ induction n; intros.
        rewrite Z.mul_shuffle0.
        do 5 rewrite Z.mul_assoc.
        rewrite Z.add_simpl_l.
-       rewrite <- Z.mul_assoc.
+       rewrite Z.mul_comm in Heqnd₁.
+       rewrite Pos.mul_comm in Heqdd₁.
+       subst nd₁ dd₁.
+       rewrite Pos2Z.inj_mul.
+       do 4 rewrite <- Z.mul_assoc.
+       rewrite Z.div_mul_cancel_l; auto.
+       do 2 rewrite Z.mul_assoc.
        rewrite <- Pos2Z.inj_mul.
-       rewrite Z2Nat.inj_mul; simpl.
+       rewrite Z2Nat.inj_mul; simpl; auto.
         rewrite <- stretch_shift_series_distr.
         rewrite <- Z.mul_assoc.
         rewrite <- Pos2Z.inj_mul.
-        rewrite Z2Nat.inj_mul; simpl.
+        rewrite Z2Nat.inj_mul; simpl; auto.
          rewrite <- stretch_shift_series_distr.
          rewrite <- series_stretch_stretch.
          rewrite Pos.mul_assoc.
          rewrite <- series_stretch_const.
          rewrite <- series_stretch_add_distr.
          apply stretch_morph; [ reflexivity | idtac ].
+         unfold series_add; simpl.
+         constructor; intros i; simpl.
+         destruct (zerop i) as [H₁| H₁].
+          subst i; simpl.
+          remember (Qnum αj₁ * ' m / ' Qden αj₁)%Z as nmd.
+          destruct (lt_dec 0 (Z.to_nat nmd)) as [H₁| H₁].
+           rewrite rng_add_0_r.
+           unfold root_series_from_cγ_list; simpl.
+           rewrite <- Hc₁.
+           destruct (ac_zerop c₁); [ symmetry; assumption | reflexivity ].
+
+           exfalso; apply H₁; clear H₁.
+           assert (in_K_1_m (ps_lap_nth 0 (al pol₁)) (m * q)) as H.
+            eapply ps_lap_forall_forall in HinK1mq; eauto .
+             intros a b Hab Hamq.
+             rewrite <- Hab; assumption.
+
+             apply ps_lap_in_0th.
+             intros H; rewrite Hpol₁ in H; simpl in H.
+             unfold next_lap in H; simpl in H.
 bbb.
 
 Lemma uuu₂ : ∀ pol ns n,
