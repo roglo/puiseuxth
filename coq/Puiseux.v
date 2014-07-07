@@ -1424,9 +1424,10 @@ induction n; intros.
    remember (Qden αj * Qden αk)%positive as dd.
    remember (Qnum αj * ' Qden αk)%Z as nd.
    unfold ps_ordnum_add; simpl.
-   rewrite <- Heqdd, <- Heqnd.
+   rewrite <- Heqdd, <- Heqnd, Hαk₁.
    rewrite Qnum_inv_Qnat_sub; auto.
    rewrite Qden_inv_Qnat_sub; auto.
+   rewrite Z.add_0_r, Pos.mul_1_r.
    do 2 rewrite Z.mul_1_r.
    rewrite Z.min_l.
     unfold ps_terms_add; simpl.
@@ -1453,33 +1454,34 @@ induction n; intros.
       apply mkps_morphism.
        do 2 rewrite series_stretch_const.
        rewrite series_mul_1_l.
-       rewrite Z.mul_1_r.
        remember (Qnum αj * ' Qden αk)%Z as nd.
        remember (Qnum αk * ' Qden αj)%Z as dn.
-       rewrite Z.mul_opp_l, Z.add_opp_r.
        remember (Qnum αj₁ * ' Qden αk₁)%Z as nd₁.
-       remember (Qnum αk₁ * ' Qden αj₁)%Z as dn₁.
        rewrite <- Pos2Z.inj_mul.
        rewrite <- Pos2Z.inj_mul.
        remember (Qden αj * Qden αk)%positive as dd.
        remember (Qden αj₁ * Qden αk₁)%positive as dd₁.
-       rewrite <- Pos.mul_assoc.
-       rewrite <- Pos.mul_assoc.
+       do 2 rewrite <- Pos.mul_assoc.
        rewrite Pos.mul_comm.
-       rewrite Pos.mul_assoc.
-       rewrite Pos.mul_assoc.
+       do 2 rewrite Pos.mul_assoc.
        rewrite <- Heqdd.
        rewrite Z.mul_add_distr_r.
        rewrite Z.mul_shuffle0.
-       rewrite Z.mul_assoc.
-       rewrite Z.mul_assoc.
-       rewrite Z.mul_assoc.
-       rewrite Z.mul_assoc.
-       rewrite Z.mul_assoc.
+       do 5 rewrite Z.mul_assoc.
        rewrite Z.add_simpl_l.
        rewrite <- Z.mul_assoc.
        rewrite <- Pos2Z.inj_mul.
        rewrite Z2Nat.inj_mul; simpl.
+        rewrite <- stretch_shift_series_distr.
+        rewrite <- Z.mul_assoc.
+        rewrite <- Pos2Z.inj_mul.
+        rewrite Z2Nat.inj_mul; simpl.
+         rewrite <- stretch_shift_series_distr.
+         rewrite <- series_stretch_stretch.
+         rewrite Pos.mul_assoc.
+         rewrite <- series_stretch_const.
+         rewrite <- series_stretch_add_distr.
+         apply stretch_morph; [ reflexivity | idtac ].
 bbb.
 
 Lemma sss₁ : ∀ pol ns pol₁ ns₁ n c₁ m,
