@@ -1380,6 +1380,12 @@ Lemma rrr : ∀ pol ns ns₁ c la αj₁ αk₁,
   → (la ≠ [])%pslap.
 Proof.
 intros pol ns ns₁ c la αj₁ αk₁ Hla Hns₁ Hini₁ Hfin₁.
+intros H.
+symmetry in Hla.
+inversion H; subst.
+ rewrite <- H0 in Hini₁, Hfin₁.
+ simpl in Hini₁, Hfin₁.
+ discriminate Hfin₁.
 bbb.
 *)
 
