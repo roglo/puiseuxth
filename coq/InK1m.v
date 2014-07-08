@@ -64,37 +64,44 @@ split; intros H.
  transitivity b; assumption.
 Qed.
 
+Lemma ps_lap_forall_in_K_1_m_compat {α} {R : ring α} : ∀ la lb m,
+  (la = lb)%pslap
+  → ps_lap_forall (λ a, in_K_1_m a m) la
+  → ps_lap_forall (λ a, in_K_1_m a m) lb.
+Proof.
+intros la lb m Hlab Hfa.
+revert la Hlab Hfa.
+induction lb as [| b]; intros; [ constructor; reflexivity | idtac ].
+destruct (ps_lap_nilp _ [b … lb]) as [Hba| Hba].
+ constructor 1; assumption.
+
+ constructor 2; [ assumption | idtac | idtac ].
+  destruct la as [| a]; [ symmetry in Hlab; contradiction | idtac ].
+  apply lap_eq_cons_inv in Hlab.
+  destruct Hlab as (Hab, Hlab).
+  rewrite <- Hab.
+  inversion Hfa; subst; [ idtac | assumption ].
+  rewrite Hab, Hlab in H; contradiction.
+
+  destruct la as [| a]; [ symmetry in Hlab; contradiction | idtac ].
+  apply lap_eq_cons_inv in Hlab.
+  destruct Hlab as (Hab, Hlab).
+  eapply IHlb; [ eassumption | idtac ].
+  inversion Hfa; subst; [ idtac | assumption ].
+  rewrite Hab, Hlab in H; contradiction.
+Qed.
+
 Add Parametric Morphism α (R : ring α) m : (ps_lap_forall (λ a, in_K_1_m a m))
   with signature (@ps_lap_eq _ R) ==> iff
   as ps_lap_forall_morph.
 Proof.
 intros la lb Hab.
 split; intros Hfa.
- revert la Hab Hfa.
- induction lb as [| b]; intros; [ constructor; reflexivity | idtac ].
- destruct (ps_lap_nilp _ [b … lb]) as [Hba| Hba].
-  constructor 1; assumption.
+ eapply ps_lap_forall_in_K_1_m_compat; eassumption.
 
-  constructor 2; [ assumption | idtac | idtac ].
-   destruct la as [| a].
-    symmetry in Hab; contradiction.
-
-    apply lap_eq_cons_inv in Hab.
-    destruct Hab as (Hab, Hlab).
-    rewrite <- Hab.
-    inversion Hfa; subst; [ idtac | assumption ].
-    rewrite Hab, Hlab in H; contradiction.
-bbb.
-*)
-
-Theorem zzz {α} {R : ring α} : ∀ la lb m,
-  (la = lb)%pslap
-  → ps_lap_forall (λ a, in_K_1_m a m) la
-  → ps_lap_forall (λ a, in_K_1_m a m) lb.
-Proof.
-Admitted. (*
-bbb.
-*)
+ symmetry in Hab.
+ eapply ps_lap_forall_in_K_1_m_compat; eassumption.
+Qed.
 
 Section theorems.
 
@@ -232,9 +239,6 @@ split; [ intros Hfa a Hin | intros Hfa ].
 
    apply IHla; assumption.
 
-(*
-bbb.
-*)
  induction la as [| b]; [ constructor; reflexivity | idtac ].
  destruct (ps_lap_nilp _ [b … la]) as [Hba| Hba].
   constructor 1; assumption.
