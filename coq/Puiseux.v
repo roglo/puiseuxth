@@ -1372,10 +1372,14 @@ destruct la as [| a]; [ exfalso; apply Hla; reflexivity | simpl ].
 left; split; [ assumption | reflexivity ].
 Qed.
 
-(*
-Lemma rrr : ∀ ns c la, (next_lap la (β ns) (γ ns) c ≠ [])%pslap.
+Lemma rrr : ∀ pol ns ns₁ c la αj₁ αk₁,
+  la = next_lap pol (β ns) (γ ns) c
+  → ns₁ = List.hd phony_ns (newton_segments POL la%pol)
+  → ini_pt ns₁ = (Qnat 0, αj₁)
+  → fin_pt ns₁ = (Qnat 1, αk₁)
+  → (la ≠ [])%pslap.
 Proof.
-intros ns c la.
+intros pol ns ns₁ c la αj₁ αk₁ Hla Hns₁ Hini₁ Hfin₁.
 bbb.
 *)
 
@@ -1425,6 +1429,7 @@ induction n; intros.
   eapply r_1_j_0_k_1 in H; try eassumption.
    destruct H as (Hj₁, (Hk₁, (Hαj₁, (Hαk₁, Hoth₁)))).
    subst j₁ k₁.
+   unfold Qnat in Hini₁, Hfin₁; simpl in Hini₁, Hfin₁.
    unfold Qeq in Hαk₁; simpl in Hαk₁.
    rewrite Z.mul_1_r in Hαk₁.
    unfold Qlt in Hαj₁; simpl in Hαj₁.
