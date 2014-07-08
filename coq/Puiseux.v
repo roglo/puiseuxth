@@ -1411,6 +1411,15 @@ inversion H; subst.
  apply IHl with (pow := S pow); auto.
 Qed.
 
+Lemma rrr : ∀ pol ns j αj m ps,
+  ini_pt ns = (Qnat j, αj)
+  → (ps = ps_lap_nth j (al pol))%ps
+  → ps_polord ps = m
+  → ∃ mj, αj == mj # m.
+Proof.
+intros pol ns j αj m ps Hini Hps Hpo.
+bbb.
+
 Lemma sss : ∀ pol ns n c₁ m,
   ns ∈ newton_segments pol
   → c₁ = ac_root (Φq pol ns)
@@ -1560,6 +1569,10 @@ induction n; intros.
 
             inversion Hin.
             destruct H as (ps, (Hps, Hpo)).
+            remember Hini₁ as H; clear HeqH.
+            replace 0 with (Qnat 0) in H by reflexivity.
+            eapply rrr in H; eauto .
+            destruct H as (c, Hc).
 bbb.
 
 Lemma uuu₂ : ∀ pol ns n,
