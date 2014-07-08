@@ -1559,7 +1559,7 @@ induction n; intros.
              rewrite Hpol₁; reflexivity.
 
             inversion Hin.
-            destruct H0 as (ps, (Hps, Hpo)).
+            destruct H as (ps, (Hps, Hpo)).
 bbb.
 
 Lemma uuu₂ : ∀ pol ns n,
