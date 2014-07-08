@@ -1522,6 +1522,7 @@ induction n; intros.
              rewrite <- Hab; assumption.
 
              apply ps_lap_in_0th.
+bbb.
              rewrite Hpol₁; simpl.
              remember (al pol) as la eqn:Hla .
              symmetry in Hla.
