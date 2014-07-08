@@ -1372,11 +1372,11 @@ destruct la as [| a]; [ exfalso; apply Hla; reflexivity | simpl ].
 left; split; [ assumption | reflexivity ].
 Qed.
 
-Lemma rrr : ∀ pol ns ns₁ c la αj₁ αk₁,
+Lemma next_lap_not_nil : ∀ pol ns ns₁ c la αj₁ αk₁,
   la = next_lap pol (β ns) (γ ns) c
   → ns₁ = List.hd phony_ns (newton_segments POL la%pol)
-  → ini_pt ns₁ = (Qnat 0, αj₁)
-  → fin_pt ns₁ = (Qnat 1, αk₁)
+  → ini_pt ns₁ = (0, αj₁)
+  → fin_pt ns₁ = (1, αk₁)
   → (la ≠ [])%pslap.
 Proof.
 intros pol ns ns₁ c la αj₁ αk₁ Hla Hns₁ Hini₁ Hfin₁.
@@ -1386,8 +1386,30 @@ inversion H; subst.
  rewrite <- H0 in Hini₁, Hfin₁.
  simpl in Hini₁, Hfin₁.
  discriminate Hfin₁.
-bbb.
-*)
+
+ rewrite <- H2 in Hini₁, Hfin₁.
+ unfold newton_segments in Hini₁, Hfin₁.
+ unfold points_of_ps_polynom in Hini₁, Hfin₁.
+ unfold points_of_ps_lap in Hini₁, Hfin₁.
+ unfold points_of_ps_lap_gen in Hini₁, Hfin₁.
+ simpl in Hini₁, Hfin₁.
+ simpl in H0.
+ apply order_inf in H0.
+ rewrite H0 in Hini₁, Hfin₁.
+ remember 1%nat as pow.
+ assert (1 <= pow)%nat as Hpow by (subst pow; reflexivity).
+ clear Heqpow.
+ clear x H0 H2.
+ revert pow Hpow Hini₁ Hfin₁.
+ induction l as [| a]; intros; [ discriminate Hfin₁ | idtac ].
+ simpl in Hini₁, Hfin₁.
+ apply lap_eq_cons_nil_inv in H1.
+ destruct H1 as (Ha, Hla).
+ simpl in Ha.
+ apply order_inf in Ha.
+ rewrite Ha in Hini₁, Hfin₁.
+ apply IHl with (pow := S pow); auto.
+Qed.
 
 Lemma sss : ∀ pol ns n c₁ m,
   ns ∈ newton_segments pol
@@ -1527,37 +1549,18 @@ induction n; intros.
            destruct (ac_zerop c₁); [ symmetry; assumption | reflexivity ].
 
            exfalso; apply H₁; clear H₁.
-           assert (in_K_1_m (ps_lap_nth 0 (al pol₁)) (m * q)) as H.
+           assert (in_K_1_m (ps_lap_nth 0 (al pol₁)) (m * q)) as Hin.
             eapply ps_lap_forall_forall in HinK1mq; eauto .
              intros a b Hab Hamq.
              rewrite <- Hab; assumption.
 
              apply ps_lap_in_0th.
-bbb.
-             rewrite Hpol₁; simpl.
-             remember (al pol) as la eqn:Hla .
-             symmetry in Hla.
-             destruct la as [| a].
-              unfold next_pol in Hpol₁.
-              rewrite Hla in Hpol₁; simpl in Hpol₁.
-              unfold next_lap in Hpol₁; simpl in Hpol₁.
-              progress unfold lap_mul in Hpol₁; simpl in Hpol₁.
-              subst pol₁.
-              simpl in Hns₁.
-              subst ns₁.
-              simpl in Hfin₁.
-              discriminate Hfin₁.
+             eapply next_lap_not_nil; eauto .
+             rewrite Hpol₁; reflexivity.
 
-              unfold next_pol in Hpol₁.
-              rewrite Hla in Hpol₁; simpl in Hpol₁.
-              destruct la as [| b].
-               unfold next_pol in Hpol₁.
-               unfold next_lap in Hpol₁; simpl in Hpol₁.
-               unfold summation in Hpol₁; simpl in Hpol₁.
-               subst pol₁.
+            inversion Hin.
+            destruct H0 as (ps, (Hps, Hpo)).
 bbb.
-               simpl in HinK1mq.
-               rewrite ps_mul_0_l, ps_add_0_l, ps_add_0_l in HinK1mq.
 
 Lemma uuu₂ : ∀ pol ns n,
   ns ∈ newton_segments pol
