@@ -1411,13 +1411,57 @@ inversion H; subst.
  apply IHl with (pow := S pow); auto.
 Qed.
 
-Lemma rrr : ∀ pol ns j αj m ps,
-  ini_pt ns = (Qnat j, αj)
+(*
+Lemma rrr : ∀ pol ns pol₁ ns₁ c₁ j₁ αj₁ ps q m,
+  m = ps_list_com_polord (al pol)
+  → q = q_of_ns pol ns
+  → pol₁ = next_pol pol (β ns) (γ ns) c₁
+  → ns₁ = List.hd phony_ns (newton_segments pol₁)
+  → ini_pt ns₁ = (Qnat j₁, αj₁)
+  → (ps = ps_lap_nth j₁ (al pol₁))%ps
+  → ps_polord ps = (m * q)%positive
+  → ∃ mj, αj₁ == mj # m.
+Proof.
+intros pol ns pol₁ ns₁ c₁ j₁ αj₁ ps q m Hm Hq Hpol₁ Hns₁ Hini₁ Hps Hpo.
+bbb.
+*)
+
+(*
+Lemma rrr₁ : ∀ pol ns j αj m ps,
+  m = ps_list_com_polord (al pol)
+  → ini_pt ns = (Qnat j, αj)
   → (ps = ps_lap_nth j (al pol))%ps
   → ps_polord ps = m
   → ∃ mj, αj == mj # m.
 Proof.
-intros pol ns j αj m ps Hini Hps Hpo.
+intros pol ns j αj m ps Hm Hini Hps Hpo.
+remember (ps_lap_nth j (al pol)) as ps₁.
+remember (Qnum αj * ' m / ' ps_polord ps₁)%Z as mj.
+exists mj.
+eapply com_den_of_ps_list; eauto .
+ eapply in_pts_in_pol with (hv := αj); eauto .
+ rewrite <- Hini.
+ eapply ini_fin_ns_in_init_pts.
+Abort.
+bbb.
+*)
+
+Lemma qqq : ∀ pol ns c₁,
+  ns ∈ newton_segments pol
+  → root_multiplicity acf c₁ (Φq pol ns) = 1%nat
+  → q_of_ns pol ns = 1%positive.
+Proof.
+intros pol ns c₁ Hns Hr.
+remember Hns as Hini; clear HeqHini.
+apply exists_ini_pt_nat in Hini.
+destruct Hini as (j, (αj, Hini)).
+remember Hns as Hfin; clear HeqHfin.
+apply exists_fin_pt_nat in Hfin.
+destruct Hfin as (k, (αk, Hfin)).
+unfold q_of_ns; simpl.
+rewrite Hini, Hfin; simpl.
+do 2 rewrite Nat2Z.id.
+remember (ps_list_com_polord (al pol)) as m eqn:Hm .
 bbb.
 
 Lemma sss : ∀ pol ns n c₁ m,
@@ -1443,6 +1487,7 @@ induction n; intros.
  remember (List.hd phony_ns (newton_segments pol₁)) as ns₁ eqn:Hns₁ .
  remember Hns as HinK1mq; clear HeqHinK1mq.
  eapply next_pol_in_K_1_mq in HinK1mq; eauto .
+bbb.
  remember (q_of_ns pol ns) as q eqn:Hq.
  remember Hns as Hini; clear HeqHini.
  apply exists_ini_pt_nat in Hini.
