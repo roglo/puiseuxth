@@ -1563,9 +1563,34 @@ induction n; intros.
  destruct (ps_zerop _ (ps_poly_nth 0 pol₁)) as [Hps₀| Hps₀].
   rewrite ps_mul_0_r, ps_add_0_r; reflexivity.
 
-  unfold γ_sum; simpl.
+  remember Hns as H; clear HeqH.
+  eapply r_1_j_0_k_1 in H; try eassumption.
+  destruct H as (Hj₁, (Hk₁, (Hαj₁, (Hαk₁, Hoth₁)))).
+  subst j₁ k₁; simpl.
+  unfold Qlt in Hαj₁; simpl in Hαj₁.
+  unfold Qeq in Hαk₁; simpl in Hαk₁.
+  rewrite Z.mul_1_r in Hαj₁, Hαk₁.
+  remember Hns₁ as HinK₁; clear HeqHinK₁.
+  eapply hd_newton_segments in HinK₁; eauto .
+  eapply next_pol_in_K_1_mq in HinK₁; eauto .
+  erewrite q_eq_1 in HinK₁; eauto .
+  rewrite Pos.mul_1_r in HinK₁.
+  unfold root_head, γ_sum; simpl.
   unfold summation; simpl.
   do 2 rewrite rng_add_0_r.
+  remember (ac_root (Φq pol₁ ns₁)) as c₁ eqn:Hc₁ .
+  remember (next_pol pol₁ (β ns₁) (γ ns₁) c₁) as pol₂ eqn:Hpol₂ .
+  remember (List.hd phony_ns (newton_segments pol₂)) as ns₂ eqn:Hns₂ .
+  remember Hns₂ as Hini₂; clear HeqHini₂.
+  apply exists_ini_pt_nat_fst_seg in Hini₂.
+  destruct Hini₂ as (j₂, (αj₂, Hini₂)).
+  remember Hns₂ as Hfin₂; clear HeqHfin₂.
+  apply exists_fin_pt_nat_fst_seg in Hfin₂.
+  destruct Hfin₂ as (k₂, (αk₂, Hfin₂)).
+  remember Hns₁ as Hns₁₁; clear HeqHns₁₁.
+  eapply hd_newton_segments in Hns₁₁; eauto .
+  remember Hns₁₁ as H; clear HeqH.
+  eapply r_1_j_0_k_1 in H; try eassumption.
 bbb.
 
 intros pol ns pol₁ ns₁ c m Hns Hc Hr Hpol₁ Hns₁ Hm n.
