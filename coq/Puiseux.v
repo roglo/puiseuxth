@@ -1562,10 +1562,9 @@ induction n; intros.
  eapply r_1_j_0_k_1 in H; try eassumption.
  destruct H as (Hj₁, (Hk₁, (Hαj₁, (Hαk₁, Hoth₁)))).
  subst j₁ k₁; simpl.
- unfold Qeq in Hαk₁; simpl in Hαk₁.
- rewrite Z.mul_1_r in Hαk₁.
  unfold Qlt in Hαj₁; simpl in Hαj₁.
- rewrite Z.mul_1_r in Hαj₁.
+ unfold Qeq in Hαk₁; simpl in Hαk₁.
+ rewrite Z.mul_1_r in Hαj₁, Hαk₁.
  remember Hns₁ as HinK₁; clear HeqHinK₁.
  eapply hd_newton_segments in HinK₁; eauto .
  eapply next_pol_in_K_1_mq in HinK₁; eauto .
@@ -1590,10 +1589,9 @@ induction n; intros.
  eapply r_1_j_0_k_1 in H; try eassumption.
   destruct H as (Hj₂, (Hk₂, (Hαj₂, (Hαk₂, Hoth₂)))).
   subst j₂ k₂.
-  unfold Qeq in Hαk₂; simpl in Hαk₂.
-  rewrite Z.mul_1_r in Hαk₂.
   unfold Qlt in Hαj₂; simpl in Hαj₂.
-  rewrite Z.mul_1_r in Hαj₂.
+  unfold Qeq in Hαk₂; simpl in Hαk₂.
+  rewrite Z.mul_1_r in Hαj₂, Hαk₂.
 bbb.
 
 (* false because we must start after r=1 *)
