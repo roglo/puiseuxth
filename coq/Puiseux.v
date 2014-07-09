@@ -1560,7 +1560,7 @@ induction n; intros.
  apply exists_fin_pt_nat_fst_seg in Hfin₁.
  destruct Hfin₁ as (k₁, (αk₁, Hfin₁)).
  remember Hns as H; clear HeqH.
- (* here, we must treat the case ps_poly_nth 0 pol₁ = 0 *)
+ destruct (ps_zerop _ (ps_poly_nth 0 pol₁)) as [Hps₀| Hps₀].
 bbb.
  eapply r_1_j_0_k_1 in H; try eassumption.
  destruct H as (Hj₁, (Hk₁, (Hαj₁, (Hαk₁, Hoth₁)))).
