@@ -1488,6 +1488,12 @@ Proof.
 intros pol ns pol₁ ns₁ c₁ m Hns Hc₁ Hr Hpol₁ Hns₁ Hm n.
 remember Hm as HinK1m; clear HeqHinK1m.
 apply com_polord_in_K_1_m with (R := R) in HinK1m.
+revert pol ns pol₁ ns₁ c₁ m Hns Hc₁ Hr Hpol₁ Hns₁ Hm HinK1m.
+induction n; intros.
+ unfold root_head, γ_sum; simpl.
+ unfold summation; simpl.
+ do 2 rewrite rng_add_0_r.
+ unfold root_tail; simpl.
 bbb.
 
 (* false because we must start after r=1 *)
