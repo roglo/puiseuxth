@@ -1473,14 +1473,16 @@ rewrite Z.gcd_1_r.
 reflexivity.
 Qed.
 
+(*
 Lemma xxx : ∀ pol ns c pol₁ ns₁,
   ns ∈ newton_segments pol
   → c = ac_root (Φq pol ns)
   → pol₁ = next_pol pol (β ns) (γ ns) c
   → ns₁ = List.hd phony_ns (newton_segments pol₁)
+  → (ps_poly_nth 0 pol₁ ≠ 0)%ps
   → ns₁ ∈ newton_segments pol₁.
 Proof.
-intros pol ns c₁ pol₁ ns₁ Hns Hc₁ Hpol₁ Hns₁.
+intros pol ns c₁ pol₁ ns₁ Hns Hc₁ Hpol₁ Hns₁ Hps₀₁.
 bbb.
 remember Hns as H; clear HeqH.
 remember (root_multiplicity acf c₁ (Φq pol ns)) as r eqn:Hr .
@@ -1540,16 +1542,28 @@ Lemma sss : ∀ pol ns pol₁ ns₁ c m,
   → pol₁ = next_pol pol (β ns) (γ ns) c
   → ns₁ = List.hd phony_ns (newton_segments pol₁)
   → m = ps_list_com_polord (al pol₁)
+  → (ps_poly_nth 0 pol₁ ≠ 0)%ps
   → ∀ n,
     (root_tail m 0 pol₁ ns₁ =
      root_head n pol₁ ns₁ +
      ps_monom 1%K (γ_sum n pol₁ ns₁) * root_tail m (S n) pol₁ ns₁)%ps.
 Proof.
-intros pol ns pol₁ ns₁ c m Hns Hc Hr Hpol₁ Hns₁ Hm n.
+intros pol ns pol₁ ns₁ c m Hns Hc Hr Hpol₁ Hns₁ Hm Hps₀ n.
 remember Hm as HinK1m; clear HeqHinK1m.
 apply com_polord_in_K_1_m with (R := R) in HinK1m.
-revert pol ns pol₁ ns₁ c m Hns Hc Hr Hpol₁ Hns₁ Hm HinK1m.
 induction n; intros.
+ remember Hns₁ as HinK1mq; clear HeqHinK1mq.
+ remember Hns₁ as Hini₁; clear HeqHini₁.
+ apply exists_ini_pt_nat_fst_seg in Hini₁.
+ destruct Hini₁ as (j₁, (αj₁, Hini₁)).
+ remember Hns₁ as Hfin₁; clear HeqHfin₁.
+ apply exists_fin_pt_nat_fst_seg in Hfin₁.
+ destruct Hfin₁ as (k₁, (αk₁, Hfin₁)).
+ remember Hns as H; clear HeqH.
+ eapply r_1_j_0_k_1 in H; try eassumption.
+ destruct H as (Hj₁, (Hk₁, (Hαj₁, (Hαk₁, Hoth₁)))).
+ subst j₁ k₁; simpl.
+ eapply hd_newton_segments in HinK1mq; eauto .
  unfold root_head, γ_sum; simpl.
  unfold summation; simpl.
  do 2 rewrite rng_add_0_r.
@@ -1557,7 +1571,11 @@ induction n; intros.
  remember (ac_root (Φq pol₁ ns₁)) as c₁ eqn:Hc₁ .
  remember (next_pol pol₁ (β ns₁) (γ ns₁) c₁) as pol₂ eqn:Hpol₂ .
  remember (List.hd phony_ns (newton_segments pol₂)) as ns₂ eqn:Hns₂ .
- remember Hns₁ as HinK1mq; clear HeqHinK1mq.
+ eapply next_pol_in_K_1_mq in HinK1mq; eauto .
+ remember (q_of_ns pol₁ ns₁) as q eqn:Hq .
+ erewrite q_eq_1 in Hq; eauto .
+ rewrite Hq in HinK1mq.
+ rewrite Pos.mul_1_r in HinK1mq.
 bbb.
 
 (* false because we must start after r=1 *)
