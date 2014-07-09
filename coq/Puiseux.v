@@ -1214,8 +1214,9 @@ Definition root_head n pol ns :=
   else Σ (i = 0, n), ps_monom (nth_c i pol ns) (γ_sum i pol ns).
 
 Definition root_tail m n pol ns :=
-  if ps_zerop _ (ps_poly_nth 0 pol) then 0%ps
-  else root_from_cγ_list m (nth_pol n pol ns) (nth_ns n pol ns).
+  let poln := nth_pol n pol ns in
+  if ps_zerop _ (ps_poly_nth 0 poln) then 0%ps
+  else root_from_cγ_list m poln (nth_ns n pol ns).
 
 Lemma nth_pol_succ : ∀ n pol ns pol₁ ns₁ c₁,
   pol₁ = nth_pol n pol ns
@@ -1559,10 +1560,19 @@ induction n; intros.
  remember Hns₁ as Hfin₁; clear HeqHfin₁.
  apply exists_fin_pt_nat_fst_seg in Hfin₁.
  destruct Hfin₁ as (k₁, (αk₁, Hfin₁)).
- unfold root_tail, root_head.
+ unfold root_tail, root_head; simpl.
  destruct (ps_zerop _ (ps_poly_nth 0 pol₁)) as [Hps₀| Hps₀].
-  rewrite ps_mul_0_r, ps_add_0_r; reflexivity.
+  (* actually, here, 0 is root of Φq pol₁ ns₁ *)
+bbb.
+  remember (ac_root (Φq pol₁ ns₁)) as c₁ eqn:Hc₁ .
+  remember (next_pol pol₁ (β ns₁) (γ ns₁) c₁) as pol₂ eqn:Hpol₂ .
+  remember (List.hd phony_ns (newton_segments pol₂)) as ns₂ eqn:Hns₂ .
+  destruct (ps_zerop R (ps_poly_nth 0 pol₂)) as [Hps₁| Hps₁].
+   rewrite ps_mul_0_r, ps_add_0_r; reflexivity.
 
+   exfalso; apply Hps₁; clear Hps₁.
+
+bbb.
   remember Hns as H; clear HeqH.
   eapply r_1_j_0_k_1 in H; try eassumption.
   destruct H as (Hj₁, (Hk₁, (Hαj₁, (Hαk₁, Hoth₁)))).
