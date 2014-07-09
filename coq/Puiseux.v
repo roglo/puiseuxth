@@ -1589,6 +1589,8 @@ induction n; intros.
   destruct Hfin₂ as (k₂, (αk₂, Hfin₂)).
   remember Hns₁ as Hns₁₁; clear HeqHns₁₁.
   eapply hd_newton_segments in Hns₁₁; eauto .
+  destruct (ps_zerop _ (ps_poly_nth 0 pol₂)) as [Hps₁| Hps₁].
+bbb.
   remember Hns₁₁ as H; clear HeqH.
   eapply r_1_j_0_k_1 in H; try eassumption.
 bbb.
