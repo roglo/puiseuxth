@@ -1446,7 +1446,8 @@ Abort.
 bbb.
 *)
 
-(* not sure that it is true... *)
+(* not sure that it is true...
+   because we can take q=2 and r=1 with Φ(z^q)=(z-c₁)^r(z+c₁) *)
 Lemma qqq : ∀ pol ns c₁,
   ns ∈ newton_segments pol
   → root_multiplicity acf c₁ (Φq pol ns) = 1%nat
