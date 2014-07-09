@@ -1210,10 +1210,12 @@ Definition γ_sum n pol ns :=
 
 Definition root_head n pol ns :=
   let pr := ps_ring R in
-  Σ (i = 0, n), ps_monom (nth_c i pol ns) (γ_sum i pol ns).
+  if ps_zerop _ (ps_poly_nth 0 pol) then 0%ps
+  else Σ (i = 0, n), ps_monom (nth_c i pol ns) (γ_sum i pol ns).
 
 Definition root_tail m n pol ns :=
-  root_from_cγ_list m (nth_pol n pol ns) (nth_ns n pol ns).
+  if ps_zerop _ (ps_poly_nth 0 pol) then 0%ps
+  else root_from_cγ_list m (nth_pol n pol ns) (nth_ns n pol ns).
 
 Lemma nth_pol_succ : ∀ n pol ns pol₁ ns₁ c₁,
   pol₁ = nth_pol n pol ns
@@ -1423,7 +1425,7 @@ Lemma rrr : ∀ pol ns pol₁ ns₁ c₁ j₁ αj₁ ps q m,
   → ∃ mj, αj₁ == mj # m.
 Proof.
 intros pol ns pol₁ ns₁ c₁ j₁ αj₁ ps q m Hm Hq Hpol₁ Hns₁ Hini₁ Hps Hpo.
-bbb.
+ccc.
 *)
 
 (*
@@ -1443,7 +1445,7 @@ eapply com_den_of_ps_list; eauto .
  rewrite <- Hini.
  eapply ini_fin_ns_in_init_pts.
 Abort.
-bbb.
+ccc.
 *)
 
 Lemma q_eq_1 : ∀ pol ns pol₁ ns₁ c₁,
@@ -1483,7 +1485,7 @@ Lemma xxx : ∀ pol ns c pol₁ ns₁,
   → ns₁ ∈ newton_segments pol₁.
 Proof.
 intros pol ns c₁ pol₁ ns₁ Hns Hc₁ Hpol₁ Hns₁ Hps₀₁.
-bbb.
+ccc.
 remember Hns as H; clear HeqH.
 remember (root_multiplicity acf c₁ (Φq pol ns)) as r eqn:Hr .
 eapply f₁_orders in H; try eassumption.
@@ -1532,7 +1534,7 @@ destruct la₁ as [| a₀].
      destruct r.
       simpl in Hz.
       rewrite Hv₁ in Hz; inversion Hz.
-bbb.
+ccc.
 *)
 
 Lemma sss : ∀ pol ns pol₁ ns₁ c m,
@@ -1542,14 +1544,12 @@ Lemma sss : ∀ pol ns pol₁ ns₁ c m,
   → pol₁ = next_pol pol (β ns) (γ ns) c
   → ns₁ = List.hd phony_ns (newton_segments pol₁)
   → m = ps_list_com_polord (al pol₁)
-  → (ps_poly_nth 0 pol₁ ≠ 0)%ps
   → ∀ n,
     (root_tail m 0 pol₁ ns₁ =
      root_head n pol₁ ns₁ +
      ps_monom 1%K (γ_sum n pol₁ ns₁) * root_tail m (S n) pol₁ ns₁)%ps.
 Proof.
-intros pol ns pol₁ ns₁ c m Hns Hc Hr Hpol₁ Hns₁ Hm Hps₀ n.
-clear Hps₀.
+intros pol ns pol₁ ns₁ c m Hns Hc Hr Hpol₁ Hns₁ Hm n.
 remember Hm as HinK1m; clear HeqHinK1m.
 apply com_polord_in_K_1_m with (R := R) in HinK1m.
 induction n; intros.
@@ -1559,9 +1559,27 @@ induction n; intros.
  remember Hns₁ as Hfin₁; clear HeqHfin₁.
  apply exists_fin_pt_nat_fst_seg in Hfin₁.
  destruct Hfin₁ as (k₁, (αk₁, Hfin₁)).
- remember Hns as H; clear HeqH.
+ unfold root_tail, root_head.
  destruct (ps_zerop _ (ps_poly_nth 0 pol₁)) as [Hps₀| Hps₀].
+  rewrite ps_mul_0_r, ps_add_0_r; reflexivity.
+
+  unfold γ_sum; simpl.
+  unfold summation; simpl.
+  do 2 rewrite rng_add_0_r.
 bbb.
+
+intros pol ns pol₁ ns₁ c m Hns Hc Hr Hpol₁ Hns₁ Hm n.
+remember Hm as HinK1m; clear HeqHinK1m.
+apply com_polord_in_K_1_m with (R := R) in HinK1m.
+induction n; intros.
+ remember Hns₁ as Hini₁; clear HeqHini₁.
+ apply exists_ini_pt_nat_fst_seg in Hini₁.
+ destruct Hini₁ as (j₁, (αj₁, Hini₁)).
+ remember Hns₁ as Hfin₁; clear HeqHfin₁.
+ apply exists_fin_pt_nat_fst_seg in Hfin₁.
+ destruct Hfin₁ as (k₁, (αk₁, Hfin₁)).
+ destruct (ps_zerop _ (ps_poly_nth 0 pol₁)) as [Hps₀| Hps₀].
+ remember Hns as H; clear HeqH.
  eapply r_1_j_0_k_1 in H; try eassumption.
  destruct H as (Hj₁, (Hk₁, (Hαj₁, (Hαk₁, Hoth₁)))).
  subst j₁ k₁; simpl.
