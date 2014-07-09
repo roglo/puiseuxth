@@ -1473,11 +1473,71 @@ rewrite Z.gcd_1_r.
 reflexivity.
 Qed.
 
-Lemma sss : ∀ pol ns pol₁ ns₁ c₁ m,
+Lemma xxx : ∀ pol ns c pol₁ ns₁,
   ns ∈ newton_segments pol
-  → c₁ = ac_root (Φq pol ns)
-  → root_multiplicity acf c₁ (Φq pol ns) = 1%nat
-  → pol₁ = next_pol pol (β ns) (γ ns) c₁
+  → c = ac_root (Φq pol ns)
+  → pol₁ = next_pol pol (β ns) (γ ns) c
+  → ns₁ = List.hd phony_ns (newton_segments pol₁)
+  → ns₁ ∈ newton_segments pol₁.
+Proof.
+intros pol ns c₁ pol₁ ns₁ Hns Hc₁ Hpol₁ Hns₁.
+bbb.
+remember Hns as H; clear HeqH.
+remember (root_multiplicity acf c₁ (Φq pol ns)) as r eqn:Hr .
+eapply f₁_orders in H; try eassumption.
+destruct H as (Hnneg, (Hpos, Hz)).
+unfold next_pol in Hpol₁.
+unfold ps_poly_nth in Hnneg, Hz, Hpos.
+unfold newton_segments in Hns₁; simpl in Hns₁.
+unfold points_of_ps_polynom in Hns₁; simpl in Hns₁.
+remember (al pol₁) as la₁ eqn:Hla₁ .
+rewrite Hpol₁ in Hla₁; simpl in Hla₁.
+unfold ps_lap_nth in Hnneg, Hpos, Hz.
+symmetry in Hla₁, Hr.
+destruct la₁ as [| a₀].
+ simpl in Hz.
+ rewrite match_id in Hz.
+ rewrite order_0 in Hz; inversion Hz.
+
+ simpl in Hz, Hpos.
+ unfold points_of_ps_lap in Hns₁.
+ unfold points_of_ps_lap_gen in Hns₁.
+ simpl in Hns₁.
+ destruct r.
+  exfalso; revert Hr.
+  apply root_multiplicity_ne_0; assumption.
+
+  destruct la₁ as [| a₁].
+   simpl in Hz.
+   rewrite match_id in Hz.
+   rewrite order_0 in Hz; inversion Hz.
+
+   simpl in Hns₁.
+   remember (order a₀) as v₀ eqn:Hv₀ .
+   symmetry in Hv₀.
+   destruct v₀ as [v₀| ].
+    remember (order a₁) as v₁ eqn:Hv₁ .
+    symmetry in Hv₁.
+    destruct v₁ as [v₁| ].
+     unfold newton_segments.
+     rewrite Hpol₁.
+     unfold points_of_ps_polynom; simpl.
+     rewrite Hla₁.
+     unfold points_of_ps_lap.
+     unfold points_of_ps_lap_gen; simpl.
+     rewrite Hv₀, Hv₁, Hns₁; left; reflexivity.
+
+     destruct r.
+      simpl in Hz.
+      rewrite Hv₁ in Hz; inversion Hz.
+bbb.
+*)
+
+Lemma sss : ∀ pol ns pol₁ ns₁ c m,
+  ns ∈ newton_segments pol
+  → c = ac_root (Φq pol ns)
+  → root_multiplicity acf c (Φq pol ns) = 1%nat
+  → pol₁ = next_pol pol (β ns) (γ ns) c
   → ns₁ = List.hd phony_ns (newton_segments pol₁)
   → m = ps_list_com_polord (al pol₁)
   → ∀ n,
@@ -1485,15 +1545,19 @@ Lemma sss : ∀ pol ns pol₁ ns₁ c₁ m,
      root_head n pol₁ ns₁ +
      ps_monom 1%K (γ_sum n pol₁ ns₁) * root_tail m (S n) pol₁ ns₁)%ps.
 Proof.
-intros pol ns pol₁ ns₁ c₁ m Hns Hc₁ Hr Hpol₁ Hns₁ Hm n.
+intros pol ns pol₁ ns₁ c m Hns Hc Hr Hpol₁ Hns₁ Hm n.
 remember Hm as HinK1m; clear HeqHinK1m.
 apply com_polord_in_K_1_m with (R := R) in HinK1m.
-revert pol ns pol₁ ns₁ c₁ m Hns Hc₁ Hr Hpol₁ Hns₁ Hm HinK1m.
+revert pol ns pol₁ ns₁ c m Hns Hc Hr Hpol₁ Hns₁ Hm HinK1m.
 induction n; intros.
  unfold root_head, γ_sum; simpl.
  unfold summation; simpl.
  do 2 rewrite rng_add_0_r.
  unfold root_tail; simpl.
+ remember (ac_root (Φq pol₁ ns₁)) as c₁ eqn:Hc₁ .
+ remember (next_pol pol₁ (β ns₁) (γ ns₁) c₁) as pol₂ eqn:Hpol₂ .
+ remember (List.hd phony_ns (newton_segments pol₂)) as ns₂ eqn:Hns₂ .
+ remember Hns₁ as HinK1mq; clear HeqHinK1mq.
 bbb.
 
 (* false because we must start after r=1 *)
@@ -1752,66 +1816,6 @@ Fixpoint ps_poly_root m pol ns :=
           | Some y => Some (ps_monom c (γ ns) + ps_monom 1%K (γ ns) * y)%ps
           end
   end.
-*)
-
-(*
-Lemma xxx : ∀ pol ns c₁ pol₁ ns₁,
-  ns ∈ newton_segments pol
-  → c₁ = ac_root (Φq pol ns)
-  → pol₁ = next_pol pol (β ns) (γ ns) c₁
-  → ns₁ = List.hd phony_ns (newton_segments pol₁)
-  → ns₁ ∈ newton_segments pol₁.
-Proof.
-intros pol ns c₁ pol₁ ns₁ Hns Hc₁ Hpol₁ Hns₁.
-remember Hns as H; clear HeqH.
-remember (root_multiplicity acf c₁ (Φq pol ns)) as r eqn:Hr .
-eapply f₁_orders in H; try eassumption.
-destruct H as (Hnneg, (Hpos, Hz)).
-unfold next_pol in Hpol₁.
-unfold ps_poly_nth in Hnneg, Hz, Hpos.
-unfold newton_segments in Hns₁; simpl in Hns₁.
-unfold points_of_ps_polynom in Hns₁; simpl in Hns₁.
-remember (al pol₁) as la₁ eqn:Hla₁ .
-rewrite Hpol₁ in Hla₁; simpl in Hla₁.
-unfold ps_lap_nth in Hnneg, Hpos, Hz.
-symmetry in Hla₁, Hr.
-destruct la₁ as [| a₀].
- simpl in Hz.
- rewrite match_id in Hz.
- rewrite order_0 in Hz; inversion Hz.
-
- simpl in Hz, Hpos.
- unfold points_of_ps_lap in Hns₁.
- unfold points_of_ps_lap_gen in Hns₁.
- simpl in Hns₁.
- destruct r.
-  exfalso; revert Hr.
-  apply root_multiplicity_ne_0; assumption.
-
-  destruct la₁ as [| a₁].
-   simpl in Hz.
-   rewrite match_id in Hz.
-   rewrite order_0 in Hz; inversion Hz.
-
-   simpl in Hns₁.
-   remember (order a₀) as v₀ eqn:Hv₀ .
-   symmetry in Hv₀.
-   destruct v₀ as [v₀| ].
-    remember (order a₁) as v₁ eqn:Hv₁ .
-    symmetry in Hv₁.
-    destruct v₁ as [v₁| ].
-     unfold newton_segments.
-     rewrite Hpol₁.
-     unfold points_of_ps_polynom; simpl.
-     rewrite Hla₁.
-     unfold points_of_ps_lap.
-     unfold points_of_ps_lap_gen; simpl.
-     rewrite Hv₀, Hv₁, Hns₁; left; reflexivity.
-
-     destruct r.
-      simpl in Hz.
-      rewrite Hv₁ in Hz; inversion Hz.
-bbb.
 *)
 
 (*
