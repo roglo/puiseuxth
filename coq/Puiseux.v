@@ -1562,16 +1562,14 @@ induction n; intros.
  destruct Hfin₁ as (k₁, (αk₁, Hfin₁)).
  unfold root_tail, root_head; simpl.
  destruct (ps_zerop _ (ps_poly_nth 0 pol₁)) as [Hps₀| Hps₀].
-  (* actually, here, 0 is root of Φq pol₁ ns₁ *)
-bbb.
   remember (ac_root (Φq pol₁ ns₁)) as c₁ eqn:Hc₁ .
+  (* actually, here, 0 is root of Φq pol₁ ns₁ *)
   remember (next_pol pol₁ (β ns₁) (γ ns₁) c₁) as pol₂ eqn:Hpol₂ .
   remember (List.hd phony_ns (newton_segments pol₂)) as ns₂ eqn:Hns₂ .
   destruct (ps_zerop R (ps_poly_nth 0 pol₂)) as [Hps₁| Hps₁].
    rewrite ps_mul_0_r, ps_add_0_r; reflexivity.
 
    exfalso; apply Hps₁; clear Hps₁.
-
 bbb.
   remember Hns as H; clear HeqH.
   eapply r_1_j_0_k_1 in H; try eassumption.
