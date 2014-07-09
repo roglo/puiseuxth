@@ -1446,6 +1446,7 @@ Abort.
 bbb.
 *)
 
+(* not sure that it is true... *)
 Lemma qqq : ∀ pol ns c₁,
   ns ∈ newton_segments pol
   → root_multiplicity acf c₁ (Φq pol ns) = 1%nat
