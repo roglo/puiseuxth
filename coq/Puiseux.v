@@ -1446,48 +1446,48 @@ Abort.
 bbb.
 *)
 
-Lemma qqq : ∀ pol ns pol₁ ns₁ c₁,
+Lemma q_eq_1 : ∀ pol ns pol₁ ns₁ c₁,
   ns ∈ newton_segments pol
   → c₁ = ac_root (Φq pol ns)
   → root_multiplicity acf c₁ (Φq pol ns) = 1%nat
   → pol₁ = next_pol pol (β ns) (γ ns) c₁
   → ns₁ = List.hd phony_ns (newton_segments pol₁)
+  → (ps_poly_nth 0 pol₁ ≠ 0)%ps
   → q_of_ns pol₁ ns₁ = 1%positive.
 Proof.
-intros pol ns pos₁ ns₁ c₁ Hns Hc₁ Hr Hpol₁ Hns₁.
-bbb.
-(* cf multiplicity_1_remains *)
-
-intros pol ns c₁ Hns Hr.
-remember Hns as Hini; clear HeqHini.
-apply exists_ini_pt_nat in Hini.
-destruct Hini as (j, (αj, Hini)).
-remember Hns as Hfin; clear HeqHfin.
-apply exists_fin_pt_nat in Hfin.
-destruct Hfin as (k, (αk, Hfin)).
+intros pol ns pol₁ ns₁ c₁ Hns Hc₁ Hr Hpol₁ Hns₁ Hps₀.
+remember Hns₁ as Hini₁; clear HeqHini₁.
+apply exists_ini_pt_nat_fst_seg in Hini₁.
+destruct Hini₁ as (j₁, (αj₁, Hini₁)).
+remember Hns₁ as Hfin₁; clear HeqHfin₁.
+apply exists_fin_pt_nat_fst_seg in Hfin₁.
+destruct Hfin₁ as (k₁, (αk₁, Hfin₁)).
 unfold q_of_ns; simpl.
-rewrite Hini, Hfin; simpl.
+rewrite Hini₁, Hfin₁; simpl.
 do 2 rewrite Nat2Z.id.
-remember (ps_list_com_polord (al pol)) as m eqn:Hm .
-bbb.
+remember Hns as H; clear HeqH.
+eapply r_1_j_0_k_1 in H; try eassumption.
+destruct H as (Hj₁, (Hk₁, (Hαj₁, (Hαk₁, Hoth₁)))).
+subst j₁ k₁; simpl.
+rewrite Z.gcd_1_r.
+reflexivity.
+Qed.
 
 Lemma sss : ∀ pol ns pol₁ ns₁ c₁ m,
   ns ∈ newton_segments pol
   → c₁ = ac_root (Φq pol ns)
   → root_multiplicity acf c₁ (Φq pol ns) = 1%nat
-  → m = ps_list_com_polord (al pol)
   → pol₁ = next_pol pol (β ns) (γ ns) c₁
   → ns₁ = List.hd phony_ns (newton_segments pol₁)
+  → m = ps_list_com_polord (al pol₁)
   → ∀ n,
     (root_tail m 0 pol₁ ns₁ =
      root_head n pol₁ ns₁ +
      ps_monom 1%K (γ_sum n pol₁ ns₁) * root_tail m (S n) pol₁ ns₁)%ps.
 Proof.
-intros pol ns pol₁ ns₁ c₁ m Hns Hc₁ Hr Hm Hpol₁ Hns₁ n.
+intros pol ns pol₁ ns₁ c₁ m Hns Hc₁ Hr Hpol₁ Hns₁ Hm n.
 remember Hm as HinK1m; clear HeqHinK1m.
 apply com_polord_in_K_1_m with (R := R) in HinK1m.
-remember Hns as HinK1mq; clear HeqHinK1mq.
-eapply next_pol_in_K_1_mq in HinK1mq; eauto .
 bbb.
 
 (* false because we must start after r=1 *)
