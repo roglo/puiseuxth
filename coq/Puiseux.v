@@ -1552,7 +1552,6 @@ intros pol ns pol₁ ns₁ c m Hns Hc Hr Hpol₁ Hns₁ Hm Hps₀ n.
 remember Hm as HinK1m; clear HeqHinK1m.
 apply com_polord_in_K_1_m with (R := R) in HinK1m.
 induction n; intros.
- remember Hns₁ as HinK1mq; clear HeqHinK1mq.
  remember Hns₁ as Hini₁; clear HeqHini₁.
  apply exists_ini_pt_nat_fst_seg in Hini₁.
  destruct Hini₁ as (j₁, (αj₁, Hini₁)).
@@ -1563,7 +1562,16 @@ induction n; intros.
  eapply r_1_j_0_k_1 in H; try eassumption.
  destruct H as (Hj₁, (Hk₁, (Hαj₁, (Hαk₁, Hoth₁)))).
  subst j₁ k₁; simpl.
- eapply hd_newton_segments in HinK1mq; eauto .
+ remember Hns₁ as HinK₁; clear HeqHinK₁.
+ eapply hd_newton_segments in HinK₁; eauto .
+ eapply next_pol_in_K_1_mq in HinK₁; eauto .
+ erewrite q_eq_1 in HinK₁; eauto .
+ rewrite Pos.mul_1_r in HinK₁.
+ unfold Qnat in Hini₁, Hfin₁; simpl in Hini₁, Hfin₁.
+ unfold Qeq in Hαk₁; simpl in Hαk₁.
+ rewrite Z.mul_1_r in Hαk₁.
+ unfold Qlt in Hαj₁; simpl in Hαj₁.
+ rewrite Z.mul_1_r in Hαj₁.
  unfold root_head, γ_sum; simpl.
  unfold summation; simpl.
  do 2 rewrite rng_add_0_r.
@@ -1571,11 +1579,6 @@ induction n; intros.
  remember (ac_root (Φq pol₁ ns₁)) as c₁ eqn:Hc₁ .
  remember (next_pol pol₁ (β ns₁) (γ ns₁) c₁) as pol₂ eqn:Hpol₂ .
  remember (List.hd phony_ns (newton_segments pol₂)) as ns₂ eqn:Hns₂ .
- eapply next_pol_in_K_1_mq in HinK1mq; eauto .
- remember (q_of_ns pol₁ ns₁) as q eqn:Hq .
- erewrite q_eq_1 in Hq; eauto .
- rewrite Hq in HinK1mq.
- rewrite Pos.mul_1_r in HinK1mq.
 bbb.
 
 (* false because we must start after r=1 *)
