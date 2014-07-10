@@ -1563,7 +1563,7 @@ induction n; intros.
  unfold root_tail, root_head; simpl.
  destruct (ps_zerop _ (ps_poly_nth 0 pol₁)) as [Hps₀| Hps₀].
   remember (ac_root (Φq pol₁ ns₁)) as c₁ eqn:Hc₁ .
-  (* actually, here, 0 is root of Φq pol₁ ns₁ but c₁ may not be this root *)
+  (* actually, here, 0 is root of Φq pol₁ ns₁ but c₁ may not be that root *)
   remember (next_pol pol₁ (β ns₁) (γ ns₁) c₁) as pol₂ eqn:Hpol₂ .
   remember (List.hd phony_ns (newton_segments pol₂)) as ns₂ eqn:Hns₂ .
   destruct (ps_zerop R (ps_poly_nth 0 pol₂)) as [Hps₁| Hps₁].
