@@ -1180,19 +1180,22 @@ Fixpoint polydromy_if_r_reaches_one acf m pol {struct m} :=
         (v * Pos.to_nat (Qden (γ ns)))%nat
   end.
 
-Fixpoint find_coeff max_iter pow pol_ord pol ns i :=
+Definition glop pow ns₁ pol_ord :=
+  let n := (γ ns₁ * inject_Z ('pol_ord)) in
+  (pow + Z.to_nat (Qnum n / ' Qden n))%nat.
+
+Fixpoint find_coeff max_iter npow pol_ord pol ns i :=
   match max_iter with
   | 0%nat => 0%K
   | S m =>
       let c₁ := ac_root (Φq pol ns) in
       if ac_zerop c₁ then 0%K
-      else if eq_nat_dec pow i then c₁
-      else if lt_dec pow i then
+      else if eq_nat_dec npow i then c₁
+      else if lt_dec npow i then
         let pol₁ := next_pol pol (β ns) (γ ns) c₁ in
         let ns₁ := List.hd phony_ns (newton_segments pol₁) in
-        let n := (γ ns₁ * inject_Z ('pol_ord)) in
-        let pow₁ := (pow + Z.to_nat (Qnum n / ' Qden n))%nat in
-        find_coeff m pow₁ pol_ord pol₁ ns₁ i
+        let npow₁ := glop npow ns₁ pol_ord in
+        find_coeff m npow₁ pol_ord pol₁ ns₁ i
       else 0%K
   end.
 
@@ -1631,6 +1634,16 @@ induction n; intros.
        apply Nat.eq_mul_0_l in H₁; auto.
        subst d; simpl; rewrite <- Hc₁.
        destruct (ac_zerop c₁); [ symmetry; assumption | reflexivity ].
+
+       simpl.
+       rewrite <- Hc₁, <- Hpol₂, <- Hns₂.
+       destruct (ac_zerop c₁) as [H₂| H₂]; [ reflexivity | idtac ].
+       destruct d.
+        rewrite Hd in H₁.
+        exfalso; revert H₁; apply Nat.lt_irrefl.
+
+        destruct (lt_dec 0 (S d)) as [H₃| H₃]; [ idtac | reflexivity ].
+        clear H₃; simpl.
 bbb.
 
 intros pol ns pol₁ ns₁ c m Hns Hc Hr Hpol₁ Hns₁ Hm n.
