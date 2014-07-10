@@ -1546,11 +1546,12 @@ Lemma sss : ∀ pol ns pol₁ ns₁ c m,
   → ns₁ = List.hd phony_ns (newton_segments pol₁)
   → m = ps_list_com_polord (al pol₁)
   → ∀ n,
-    (root_tail m 0 pol₁ ns₁ =
-     root_head n pol₁ ns₁ +
-     ps_monom 1%K (γ_sum n pol₁ ns₁) * root_tail m (S n) pol₁ ns₁)%ps.
+    (∀ i, (i ≤ n)%nat → (ps_poly_nth 0 (nth_pol i pol₁ ns₁) ≠ 0)%ps)
+    → (root_tail m 0 pol₁ ns₁ =
+       root_head n pol₁ ns₁ +
+       ps_monom 1%K (γ_sum n pol₁ ns₁) * root_tail m (S n) pol₁ ns₁)%ps.
 Proof.
-intros pol ns pol₁ ns₁ c m Hns Hc Hr Hpol₁ Hns₁ Hm n.
+intros pol ns pol₁ ns₁ c m Hns Hc Hr Hpol₁ Hns₁ Hm n Hpsi.
 remember Hm as HinK1m; clear HeqHinK1m.
 apply com_polord_in_K_1_m with (R := R) in HinK1m.
 induction n; intros.
@@ -1561,15 +1562,11 @@ induction n; intros.
  apply exists_fin_pt_nat_fst_seg in Hfin₁.
  destruct Hfin₁ as (k₁, (αk₁, Hfin₁)).
  unfold root_tail, root_head; simpl.
+ unfold root_tail, root_head; simpl.
  destruct (ps_zerop _ (ps_poly_nth 0 pol₁)) as [Hps₀| Hps₀].
-  remember (ac_root (Φq pol₁ ns₁)) as c₁ eqn:Hc₁ .
-  (* actually, here, 0 is root of Φq pol₁ ns₁ but c₁ may not be that root *)
-  remember (next_pol pol₁ (β ns₁) (γ ns₁) c₁) as pol₂ eqn:Hpol₂ .
-  remember (List.hd phony_ns (newton_segments pol₂)) as ns₂ eqn:Hns₂ .
-  destruct (ps_zerop R (ps_poly_nth 0 pol₂)) as [Hps₁| Hps₁].
-   rewrite ps_mul_0_r, ps_add_0_r; reflexivity.
+  pose proof (Hpsi 0%nat (Nat.le_0_l 0)) as H.
+  contradiction.
 
-bbb.
   remember Hns as H; clear HeqH.
   eapply r_1_j_0_k_1 in H; try eassumption.
   destruct H as (Hj₁, (Hk₁, (Hαj₁, (Hαk₁, Hoth₁)))).
@@ -1597,9 +1594,28 @@ bbb.
   remember Hns₁ as Hns₁₁; clear HeqHns₁₁.
   eapply hd_newton_segments in Hns₁₁; eauto .
   destruct (ps_zerop _ (ps_poly_nth 0 pol₂)) as [Hps₁| Hps₁].
-bbb.
-  remember Hns₁₁ as H; clear HeqH.
-  eapply r_1_j_0_k_1 in H; try eassumption.
+   rewrite ps_mul_0_r, ps_add_0_r.
+   unfold root_from_cγ_list, ps_monom; simpl.
+   rewrite Hini₁, Hfin₁; simpl.
+   rewrite Hαk₁; simpl.
+   rewrite Z.mul_1_r, Z.add_0_r, Pos.mul_1_r.
+   rewrite Z.mul_shuffle0.
+   rewrite Pos2Z.inj_mul.
+   rewrite Z.div_mul_cancel_r; auto.
+   rewrite ps_adjust_eq with (n := O) (k := (Qden αj₁ * Qden αk₁)%positive).
+   symmetry.
+   rewrite ps_adjust_eq with (n := O) (k := m).
+   unfold adjust_ps; simpl.
+   rewrite fold_series_const.
+   do 2 rewrite series_shift_0.
+   rewrite series_stretch_const.
+   do 2 rewrite Z.sub_0_r.
+   symmetry.
+   rewrite Z.mul_comm.
+   rewrite <- Z.divide_div_mul_exact; auto.
+    rewrite Pos2Z.inj_mul, <- Z.mul_assoc, Z.mul_comm, Z.mul_assoc.
+    rewrite Z.div_mul; auto.
+    apply mkps_morphism.
 bbb.
 
 intros pol ns pol₁ ns₁ c m Hns Hc Hr Hpol₁ Hns₁ Hm n.
