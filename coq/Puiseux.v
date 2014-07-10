@@ -1616,6 +1616,21 @@ induction n; intros.
     rewrite Pos2Z.inj_mul, <- Z.mul_assoc, Z.mul_comm, Z.mul_assoc.
     rewrite Z.div_mul; auto.
     apply mkps_morphism.
+     unfold series_stretch.
+     constructor; intros i; simpl.
+     destruct (zerop (i mod Pos.to_nat (Qden αj₁ * Qden αk₁))) as [H₁| H₁].
+      apply Nat.mod_divides in H₁; auto.
+      destruct H₁ as (d, Hd).
+      rewrite Nat.mul_comm in Hd.
+      rewrite Hd.
+      rewrite Nat.div_mul; auto.
+      unfold root_series_from_cγ_list.
+      rewrite <- Hd.
+      destruct (zerop i) as [H₁| H₁].
+       subst i.
+       apply Nat.eq_mul_0_l in H₁; auto.
+       subst d; simpl; rewrite <- Hc₁.
+       destruct (ac_zerop c₁); [ symmetry; assumption | reflexivity ].
 bbb.
 
 intros pol ns pol₁ ns₁ c m Hns Hc Hr Hpol₁ Hns₁ Hm n.
