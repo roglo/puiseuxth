@@ -1569,7 +1569,6 @@ induction n; intros.
   destruct (ps_zerop R (ps_poly_nth 0 pol₂)) as [Hps₁| Hps₁].
    rewrite ps_mul_0_r, ps_add_0_r; reflexivity.
 
-   exfalso; apply Hps₁; clear Hps₁.
 bbb.
   remember Hns as H; clear HeqH.
   eapply r_1_j_0_k_1 in H; try eassumption.
