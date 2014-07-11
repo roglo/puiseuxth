@@ -1668,6 +1668,11 @@ induction n; intros.
      apply hd_in_K_1_m in HinK1m.
      inversion HinK1m.
      destruct H as (ps, (Hps, Hpsm)).
+     remember Hns₁₁ as H; clear HeqH.
+     rewrite <- Hla₁ in Hm.
+     eapply com_den_of_ini_pt in H; eauto .
+     exists (mj_of_ns pol₁ ns₁).
+     unfold Qeq in H; simpl in H; assumption.
 bbb.
 
 intros pol ns pol₁ ns₁ c m Hns Hc Hr Hpol₁ Hns₁ Hm n.
