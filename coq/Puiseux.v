@@ -1154,7 +1154,7 @@ Lemma www : ∀ pol ns q c₁ pol₁ ns₁,
   → q = 1%positive.
 Proof.
 intros pol ns q c₁ pol₁ ns₁ Hsr Hc₁ Hpol₁ Hns₁ Hq; subst q.
-bbb.
+ccc.
 unfold same_r in Hsr.
 rewrite <- Hc₁, <- Hpol₁, <- Hns₁ in Hsr.
 remember (ac_root (Φq pol₁ ns₁)) as c₂ eqn:Hc₂ .
@@ -1163,7 +1163,7 @@ remember [ini_pt ns … oth_pts ns ++ [fin_pt ns]] as pl eqn:Hpl .
 remember [ini_pt ns₁ … oth_pts ns₁ ++ [fin_pt ns₁]] as pl₁ eqn:Hpl₁ .
 unfold root_multiplicity in Hsr.
 simpl in Hsr.
-bbb.
+ccc.
 *)
 
 Fixpoint polydromy_if_r_reaches_one acf m pol {struct m} :=
