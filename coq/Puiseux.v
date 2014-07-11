@@ -1674,8 +1674,20 @@ induction n; intros.
      exists (mj_of_ns pol₁ ns₁).
      unfold Qeq in H; simpl in H; assumption.
 
+   remember Hns as Hr₁; clear HeqHr₁.
+   eapply multiplicity_1_remains in Hr₁; eauto .
    remember Hns₁₁ as H; clear HeqH.
    eapply r_1_j_0_k_1 in H; try eassumption.
+   destruct H as (Hj₂, (Hk₂, (Hαj₂, (Hαk₂, Hoth₂)))).
+   subst j₂ k₂; simpl.
+   unfold Qlt in Hαj₂; simpl in Hαj₂.
+   unfold Qeq in Hαk₂; simpl in Hαk₂.
+   rewrite Z.mul_1_r in Hαj₂, Hαk₂.
+   unfold root_from_cγ_list; simpl.
+   rewrite Hini₁, Hfin₁, Hini₂, Hfin₂; simpl.
+   rewrite Hαk₁, Hαk₂; simpl.
+   rewrite Z.mul_1_r, Z.add_0_r, Pos.mul_1_r.
+   rewrite Z.mul_1_r, Z.add_0_r, Pos.mul_1_r.
 bbb.
 
 intros pol ns pol₁ ns₁ c m Hns Hc Hr Hpol₁ Hns₁ Hm n.
