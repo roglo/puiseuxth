@@ -1656,6 +1656,9 @@ induction n; intros.
      rewrite Pos.mul_comm; reflexivity.
 
     apply Z.divide_mul_l.
+    (* I think here Qnum αj₁ is 0, because, ps_poly_nth 0 pol₂ being
+       null, j must be 1 and αj=0 (j replaces the normal k in that
+       case) *)
 bbb.
 
 intros pol ns pol₁ ns₁ c m Hns Hc Hr Hpol₁ Hns₁ Hm n.
