@@ -1644,6 +1644,19 @@ induction n; intros.
 
         destruct (lt_dec 0 (S d)) as [H₃| H₃]; [ idtac | reflexivity ].
         clear H₃; simpl.
+        remember (ac_root (Φq pol₂ ns₂)) as c₂ eqn:Hc₂ .
+        remember (next_pol pol₂ (β ns₂) (γ ns₂) c₂) as pol₃ eqn:Hpol₃ .
+        remember (List.hd phony_ns (newton_segments pol₃)) as ns₃ eqn:Hns₃ .
+        destruct (ac_zerop c₂) as [H₃| H₃]; [ reflexivity | idtac ].
+        destruct (eq_nat_dec (glop 0 ns₂ m) (S d)) as [H₄| H₄].
+         unfold glop in H₄.
+         simpl in H₄.
+         rewrite Hini₂, Hfin₂ in H₄; simpl in H₄.
+         rewrite Z.mul_opp_l, Z.add_opp_r, Pos.mul_1_r in H₄.
+         remember Hns as Hr₁; clear HeqHr₁.
+         eapply multiplicity_1_remains in Hr₁; eauto .
+         remember Hns₁₁ as H; clear HeqH.
+         eapply r_1_j_0_k_1 in H; try eassumption.
 bbb.
 
 intros pol ns pol₁ ns₁ c m Hns Hc Hr Hpol₁ Hns₁ Hm n.
