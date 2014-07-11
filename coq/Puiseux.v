@@ -1188,10 +1188,10 @@ Fixpoint find_coeff max_iter npow pol_ord pol ns i :=
   match max_iter with
   | 0%nat => 0%K
   | S m =>
-      let c₁ := ac_root (Φq pol ns) in
-      if ac_zerop c₁ then 0%K
-      else if eq_nat_dec npow i then c₁
+      if ps_zerop _ (ps_poly_nth 0 pol) then 0%K
+      else if eq_nat_dec npow i then ac_root (Φq pol ns)
       else if lt_dec npow i then
+        let c₁ := ac_root (Φq pol ns) in
         let pol₁ := next_pol pol (β ns) (γ ns) c₁ in
         let ns₁ := List.hd phony_ns (newton_segments pol₁) in
         let npow₁ := glop npow ns₁ pol_ord in
@@ -1633,16 +1633,17 @@ induction n; intros.
        subst i.
        apply Nat.eq_mul_0_l in H₁; auto.
        subst d; simpl; rewrite <- Hc₁.
-       destruct (ac_zerop c₁); [ symmetry; assumption | reflexivity ].
+       destruct (ps_zerop R (ps_poly_nth 0 pol₁)); auto; contradiction.
 
        simpl.
        rewrite <- Hc₁, <- Hpol₂, <- Hns₂.
-       destruct (ac_zerop c₁) as [H₂| H₂]; [ reflexivity | idtac ].
+       destruct (ps_zerop R (ps_poly_nth 0 pol₁)) as [H₂| H₂]; auto.
        destruct d.
         rewrite Hd in H₁.
         exfalso; revert H₁; apply Nat.lt_irrefl.
 
         destruct (lt_dec 0 (S d)) as [H₃| H₃]; [ idtac | reflexivity ].
+bbb.
         clear H₃; simpl.
         remember (ac_root (Φq pol₂ ns₂)) as c₂ eqn:Hc₂ .
         remember (next_pol pol₂ (β ns₂) (γ ns₂) c₂) as pol₃ eqn:Hpol₃ .
