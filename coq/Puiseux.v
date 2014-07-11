@@ -1642,23 +1642,20 @@ induction n; intros.
         rewrite Hd in H₁.
         exfalso; revert H₁; apply Nat.lt_irrefl.
 
-        destruct (lt_dec 0 (S d)) as [H₃| H₃]; [ idtac | reflexivity ].
-bbb.
-        clear H₃; simpl.
-        remember (ac_root (Φq pol₂ ns₂)) as c₂ eqn:Hc₂ .
-        remember (next_pol pol₂ (β ns₂) (γ ns₂) c₂) as pol₃ eqn:Hpol₃ .
-        remember (List.hd phony_ns (newton_segments pol₃)) as ns₃ eqn:Hns₃ .
-        destruct (ac_zerop c₂) as [H₃| H₃]; [ reflexivity | idtac ].
-        destruct (eq_nat_dec (glop 0 ns₂ m) (S d)) as [H₄| H₄].
-bbb.
-         unfold glop in H₄.
-         simpl in H₄.
-         rewrite Hini₂, Hfin₂ in H₄; simpl in H₄.
-         rewrite Z.mul_opp_l, Z.add_opp_r, Pos.mul_1_r in H₄.
-         remember Hns as Hr₁; clear HeqHr₁.
-         eapply multiplicity_1_remains in Hr₁; eauto .
-         remember Hns₁₁ as H; clear HeqH.
-         eapply r_1_j_0_k_1 in H; try eassumption.
+        destruct (lt_dec 0 (S d)) as [H₃| H₃]; [ simpl | reflexivity ].
+        destruct (ps_zerop R (ps_poly_nth 0 pol₂)); auto; contradiction.
+
+      destruct (zerop i); [ idtac | reflexivity ].
+      subst i.
+      rewrite Nat.mod_0_l in H₁; auto.
+      exfalso; revert H₁; apply Nat.lt_irrefl.
+
+     rewrite Z.mul_comm, Z.mul_assoc, Z.mul_shuffle0.
+     rewrite <- Z.mul_assoc, Z.mul_comm; reflexivity.
+
+     rewrite Pos.mul_comm; reflexivity.
+
+    apply Z.divide_mul_l.
 bbb.
 
 intros pol ns pol₁ ns₁ c m Hns Hc Hr Hpol₁ Hns₁ Hm n.
