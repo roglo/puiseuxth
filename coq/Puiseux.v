@@ -1673,6 +1673,9 @@ induction n; intros.
      eapply com_den_of_ini_pt in H; eauto .
      exists (mj_of_ns pol₁ ns₁).
      unfold Qeq in H; simpl in H; assumption.
+
+   remember Hns₁₁ as H; clear HeqH.
+   eapply r_1_j_0_k_1 in H; try eassumption.
 bbb.
 
 intros pol ns pol₁ ns₁ c m Hns Hc Hr Hpol₁ Hns₁ Hm n.
