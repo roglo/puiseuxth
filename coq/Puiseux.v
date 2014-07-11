@@ -1686,8 +1686,36 @@ induction n; intros.
    unfold root_from_cγ_list; simpl.
    rewrite Hini₁, Hfin₁, Hini₂, Hfin₂; simpl.
    rewrite Hαk₁, Hαk₂; simpl.
+   do 2 rewrite Z.mul_1_r, Z.add_0_r, Pos.mul_1_r.
+   rewrite Z.mul_shuffle0, Pos2Z.inj_mul.
+   rewrite Z.div_mul_cancel_r; auto.
+   rewrite Z.mul_shuffle0, Pos2Z.inj_mul.
+   rewrite Z.div_mul_cancel_r; auto.
+   unfold ps_add, ps_mul; simpl.
+   unfold cm; simpl.
+   rewrite Hini₁, Hfin₁; simpl.
+   rewrite Hαk₁; simpl.
    rewrite Z.mul_1_r, Z.add_0_r, Pos.mul_1_r.
+   rewrite fold_series_const.
+   unfold ps_terms_add; simpl.
+   rewrite Hini₁, Hfin₁; simpl.
+   rewrite Hαk₁; simpl.
+   unfold ps_ordnum_add; simpl.
+   rewrite Hini₁, Hfin₁; simpl.
+   rewrite Hαk₁; simpl.
    rewrite Z.mul_1_r, Z.add_0_r, Pos.mul_1_r.
+   remember (Qden αj₁ * Qden αk₁)%positive as dd.
+   rewrite fold_series_const.
+   rewrite series_stretch_const.
+   rewrite series_mul_1_l.
+   remember (Qnum αj₁ * ' Qden αk₁)%Z as nd.
+   do 2 rewrite Z2Nat_sub_min.
+   rewrite Z.mul_add_distr_r.
+   rewrite Pos2Z.inj_mul, Z.mul_assoc, Z.mul_shuffle0.
+   rewrite Z.sub_add_distr.
+   rewrite Z.sub_diag; simpl.
+   rewrite Z.add_simpl_l.
+   rewrite Z.min_l.
 bbb.
 
 intros pol ns pol₁ ns₁ c m Hns Hc Hr Hpol₁ Hns₁ Hm n.
