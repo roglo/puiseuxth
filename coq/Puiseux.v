@@ -1655,10 +1655,19 @@ induction n; intros.
 
      rewrite Pos.mul_comm; reflexivity.
 
-    apply Z.divide_mul_l.
-    (* I think here Qnum αj₁ is 0, because, ps_poly_nth 0 pol₂ being
-       null, j must be 1 and αj=0 (j replaces the normal k in that
-       case) *)
+    remember (al pol₁) as la₁ eqn:Hla₁ .
+    symmetry in Hla₁.
+    destruct la₁ as [| a₁].
+     simpl in Hm.
+     unfold newton_segments in Hns₁.
+     unfold points_of_ps_polynom in Hns₁.
+     rewrite Hla₁ in Hns₁; simpl in Hns₁.
+     subst ns₁; simpl in Hini₁, Hfin₁.
+     discriminate Hfin₁.
+
+     apply hd_in_K_1_m in HinK1m.
+     inversion HinK1m.
+     destruct H as (ps, (Hps, Hpsm)).
 bbb.
 
 intros pol ns pol₁ ns₁ c m Hns Hc Hr Hpol₁ Hns₁ Hm n.
