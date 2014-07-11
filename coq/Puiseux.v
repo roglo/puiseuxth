@@ -1649,6 +1649,7 @@ induction n; intros.
         remember (List.hd phony_ns (newton_segments pol₃)) as ns₃ eqn:Hns₃ .
         destruct (ac_zerop c₂) as [H₃| H₃]; [ reflexivity | idtac ].
         destruct (eq_nat_dec (glop 0 ns₂ m) (S d)) as [H₄| H₄].
+bbb.
          unfold glop in H₄.
          simpl in H₄.
          rewrite Hini₂, Hfin₂ in H₄; simpl in H₄.
