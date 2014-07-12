@@ -1743,6 +1743,9 @@ induction n; intros.
       rewrite Z.div_mul; auto.
 
       eapply den_αj_divides_num_αj_m; eassumption.
+
+     remember Hns₂ as Hns₂₁; clear HeqHns₂₁.
+     eapply hd_newton_segments in Hns₂₁; eauto .
 bbb.
 
 intros pol ns pol₁ ns₁ c m Hns Hc Hr Hpol₁ Hns₁ Hm n.
