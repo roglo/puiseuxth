@@ -1541,14 +1541,14 @@ destruct la₁ as [| a₀].
 ccc.
 *)
 
-Lemma den_αj_divides_num_αj_m : ∀ pol ns αj m,
+Lemma den_αj_divides_num_αj_m : ∀ pol ns j αj m,
   ns ∈ newton_segments pol
-  → ini_pt ns = (Qnat 0, αj)
+  → ini_pt ns = (Qnat j, αj)
   → m = ps_list_com_polord (al pol)
   → ps_lap_forall (λ a : puiseux_series α, in_K_1_m a m) (al pol)
   → (' Qden αj | Qnum αj * ' m)%Z.
 Proof.
-intros pol ns αj m Hns Hini Hm HinK.
+intros pol ns j αj m Hns Hini Hm HinK.
 remember (al pol) as la eqn:Hla .
 symmetry in Hla.
 destruct la as [| a].
