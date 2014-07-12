@@ -1572,11 +1572,17 @@ Lemma den_αj₁_divides_num_αj₁_m : ∀ pol ns pol₁ ns₁ c j₁ αj₁ m,
   → m = ps_list_com_polord (al pol)
   → c = ac_root (Φq pol ns)
   → pol₁ = next_pol pol (β ns) (γ ns) c
+  → ns₁ ∈ newton_segments pol₁
   → ini_pt ns₁ = (Qnat j₁, αj₁)
   → (' Qden αj₁ | Qnum αj₁ * ' m)%Z.
 Proof.
-intros pol ns pol₁ ns₁ c j₁ αj₁ m Hns Hm Hc Hpol₁ Hini₁.
-bbb.
+intros pol ns pol₁ ns₁ c j₁ αj₁ m Hns Hm Hc Hpol₁ Hns₁ Hini₁.
+remember Hns as H; clear HeqH.
+eapply next_pol_in_K_1_mq in H; eauto .
+qqq.
+ eapply com_den_of_ini_pt in H; eauto .
+ exists (mj_of_ns pol₁ ns₁).
+ unfold Qeq in H; simpl in H.
 
 Lemma sss : ∀ pol ns pol₁ ns₁ c m,
   ns ∈ newton_segments pol
