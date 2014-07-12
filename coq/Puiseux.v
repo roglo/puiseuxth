@@ -1746,6 +1746,16 @@ induction n; intros.
 
      remember Hns₂ as Hns₂₁; clear HeqHns₂₁.
      eapply hd_newton_segments in Hns₂₁; eauto .
+     remember Hns₂₁ as H; clear HeqH.
+     remember (ps_list_com_polord (al pol₂)) as m₂ eqn:Hm₂ .
+     eapply den_αj_divides_num_αj_m in H; try eassumption.
+      destruct H as (d, Hd).
+      assert (m₂ | m)%positive.
+       Focus 2.
+       destruct H as (e, He).
+       rewrite Pos.mul_comm in He; rewrite He.
+       rewrite Pos2Z.inj_mul, Z.mul_assoc, Hd.
+       Unfocus.
 bbb.
 
 intros pol ns pol₁ ns₁ c m Hns Hc Hr Hpol₁ Hns₁ Hm n.
