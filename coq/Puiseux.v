@@ -1716,6 +1716,11 @@ induction n; intros.
    rewrite Z.sub_diag; simpl.
    rewrite Z.add_simpl_l.
    rewrite Z.min_l.
+    rewrite ps_adjust_eq with (n := O) (k := (dd * dd)%positive).
+    unfold adjust_ps; simpl.
+    rewrite series_shift_0.
+    rewrite Z.sub_0_r.
+    apply mkps_morphism.
 bbb.
 
 intros pol ns pol₁ ns₁ c m Hns Hc Hr Hpol₁ Hns₁ Hm n.
