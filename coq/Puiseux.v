@@ -1541,6 +1541,33 @@ destruct la₁ as [| a₀].
 ccc.
 *)
 
+Lemma den_αj_divides_num_αj_m : ∀ pol ns αj αk m,
+  ns ∈ newton_segments pol
+  → ini_pt ns = (Qnat 0, αj)
+  → fin_pt ns = (Qnat 1, αk)
+  → m = ps_list_com_polord (al pol)
+  → ps_lap_forall (λ a : puiseux_series α, in_K_1_m a m) (al pol)
+  → (' Qden αj | Qnum αj * ' m)%Z.
+Proof.
+intros pol ns αj αk m Hns Hini Hfin Hm HinK.
+remember (al pol) as la eqn:Hla .
+symmetry in Hla.
+destruct la as [| a].
+ simpl in Hm.
+ unfold newton_segments in Hns.
+ unfold points_of_ps_polynom in Hns.
+ rewrite Hla in Hns; contradiction.
+
+ apply hd_in_K_1_m in HinK.
+ inversion HinK.
+ destruct H as (ps, (Hps, Hpsm)).
+ remember Hns as H; clear HeqH.
+ rewrite <- Hla in Hm.
+ eapply com_den_of_ini_pt in H; eauto .
+ exists (mj_of_ns pol ns).
+ unfold Qeq in H; simpl in H; assumption.
+bbb.
+
 Lemma sss : ∀ pol ns pol₁ ns₁ c m,
   ns ∈ newton_segments pol
   → c = ac_root (Φq pol ns)
@@ -1654,6 +1681,7 @@ induction n; intros.
 
      rewrite Pos.mul_comm; reflexivity.
 
+bbb.
     (* repeated below: perhaps do an 'assert'? *)
     remember (al pol₁) as la₁ eqn:Hla₁ .
     symmetry in Hla₁.
@@ -1734,6 +1762,7 @@ induction n; intros.
       rewrite Z.mul_comm.
       rewrite Z.div_mul; auto.
 
+bbb.
       remember (al pol₁) as la₁ eqn:Hla₁ .
       symmetry in Hla₁.
       destruct la₁ as [| a₁].
