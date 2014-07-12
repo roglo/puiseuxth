@@ -1645,8 +1645,7 @@ induction n; intros.
         destruct (lt_dec 0 (S d)) as [H₃| H₃]; [ simpl | reflexivity ].
         destruct (ps_zerop R (ps_poly_nth 0 pol₂)); auto; contradiction.
 
-      destruct (zerop i); [ idtac | reflexivity ].
-      subst i.
+      destruct (zerop i); [ subst i | reflexivity ].
       rewrite Nat.mod_0_l in H₁; auto.
       exfalso; revert H₁; apply Nat.lt_irrefl.
 
@@ -1655,6 +1654,7 @@ induction n; intros.
 
      rewrite Pos.mul_comm; reflexivity.
 
+    (* repeated below: perhaps do an 'assert'? *)
     remember (al pol₁) as la₁ eqn:Hla₁ .
     symmetry in Hla₁.
     destruct la₁ as [| a₁].
@@ -1721,6 +1721,37 @@ induction n; intros.
     rewrite series_shift_0.
     rewrite Z.sub_0_r.
     apply mkps_morphism.
+     Focus 2.
+     rewrite Pos2Z.inj_mul, Z.mul_assoc.
+     apply Z.mul_cancel_r; auto.
+     subst dd nd.
+     rewrite Pos2Z.inj_mul, Z.mul_assoc.
+     symmetry; rewrite Z.mul_shuffle0.
+     apply Z.mul_cancel_r; auto.
+     symmetry.
+     rewrite Z.mul_comm.
+     rewrite <- Z.divide_div_mul_exact; auto.
+      rewrite Z.mul_comm.
+      rewrite Z.div_mul; auto.
+
+      remember (al pol₁) as la₁ eqn:Hla₁ .
+      symmetry in Hla₁.
+      destruct la₁ as [| a₁].
+       simpl in Hm.
+       unfold newton_segments in Hns₁.
+       unfold points_of_ps_polynom in Hns₁.
+       rewrite Hla₁ in Hns₁; simpl in Hns₁.
+       subst ns₁; simpl in Hini₁, Hfin₁.
+       discriminate Hfin₁.
+
+       apply hd_in_K_1_m in HinK1m.
+       inversion HinK1m.
+       destruct H as (ps, (Hps, Hpsm)).
+       remember Hns₁₁ as H; clear HeqH.
+       rewrite <- Hla₁ in Hm.
+       eapply com_den_of_ini_pt in H; eauto .
+       exists (mj_of_ns pol₁ ns₁).
+       unfold Qeq in H; simpl in H; assumption.
 bbb.
 
 intros pol ns pol₁ ns₁ c m Hns Hc Hr Hpol₁ Hns₁ Hm n.
