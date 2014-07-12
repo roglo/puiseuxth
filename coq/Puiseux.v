@@ -1565,7 +1565,7 @@ destruct la as [| a].
  eapply com_den_of_ini_pt in H; eauto .
  exists (mj_of_ns pol ns).
  unfold Qeq in H; simpl in H; assumption.
-bbb.
+Qed.
 
 Lemma sss : ∀ pol ns pol₁ ns₁ c m,
   ns ∈ newton_segments pol
@@ -1680,26 +1680,7 @@ induction n; intros.
 
      rewrite Pos.mul_comm; reflexivity.
 
-bbb.
-    (* repeated below: perhaps do an 'assert'? *)
-    remember (al pol₁) as la₁ eqn:Hla₁ .
-    symmetry in Hla₁.
-    destruct la₁ as [| a₁].
-     simpl in Hm.
-     unfold newton_segments in Hns₁.
-     unfold points_of_ps_polynom in Hns₁.
-     rewrite Hla₁ in Hns₁; simpl in Hns₁.
-     subst ns₁; simpl in Hini₁, Hfin₁.
-     discriminate Hfin₁.
-
-     apply hd_in_K_1_m in HinK1m.
-     inversion HinK1m.
-     destruct H as (ps, (Hps, Hpsm)).
-     remember Hns₁₁ as H; clear HeqH.
-     rewrite <- Hla₁ in Hm.
-     eapply com_den_of_ini_pt in H; eauto .
-     exists (mj_of_ns pol₁ ns₁).
-     unfold Qeq in H; simpl in H; assumption.
+    eapply den_αj_divides_num_αj_m; eassumption.
 
    remember Hns as Hr₁; clear HeqHr₁.
    eapply multiplicity_1_remains in Hr₁; eauto .
@@ -1761,25 +1742,7 @@ bbb.
       rewrite Z.mul_comm.
       rewrite Z.div_mul; auto.
 
-bbb.
-      remember (al pol₁) as la₁ eqn:Hla₁ .
-      symmetry in Hla₁.
-      destruct la₁ as [| a₁].
-       simpl in Hm.
-       unfold newton_segments in Hns₁.
-       unfold points_of_ps_polynom in Hns₁.
-       rewrite Hla₁ in Hns₁; simpl in Hns₁.
-       subst ns₁; simpl in Hini₁, Hfin₁.
-       discriminate Hfin₁.
-
-       apply hd_in_K_1_m in HinK1m.
-       inversion HinK1m.
-       destruct H as (ps, (Hps, Hpsm)).
-       remember Hns₁₁ as H; clear HeqH.
-       rewrite <- Hla₁ in Hm.
-       eapply com_den_of_ini_pt in H; eauto .
-       exists (mj_of_ns pol₁ ns₁).
-       unfold Qeq in H; simpl in H; assumption.
+      eapply den_αj_divides_num_αj_m; eassumption.
 bbb.
 
 intros pol ns pol₁ ns₁ c m Hns Hc Hr Hpol₁ Hns₁ Hm n.
