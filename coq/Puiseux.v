@@ -1567,6 +1567,17 @@ destruct la as [| a].
  unfold Qeq in H; simpl in H; assumption.
 Qed.
 
+Lemma den_αj₁_divides_num_αj₁_m : ∀ pol ns pol₁ ns₁ c j₁ αj₁ m,
+  ns ∈ newton_segments pol
+  → m = ps_list_com_polord (al pol)
+  → c = ac_root (Φq pol ns)
+  → pol₁ = next_pol pol (β ns) (γ ns) c
+  → ini_pt ns₁ = (Qnat j₁, αj₁)
+  → (' Qden αj₁ | Qnum αj₁ * ' m)%Z.
+Proof.
+intros pol ns pol₁ ns₁ c j₁ αj₁ m Hns Hm Hc Hpol₁ Hini₁.
+bbb.
+
 Lemma sss : ∀ pol ns pol₁ ns₁ c m,
   ns ∈ newton_segments pol
   → c = ac_root (Φq pol ns)
@@ -1743,6 +1754,10 @@ induction n; intros.
       rewrite Z.div_mul; auto.
 
       eapply den_αj_divides_num_αj_m; eassumption.
+
+     remember Hns₁₁ as H; clear HeqH.
+     eapply den_αj₁_divides_num_αj₁_m in H; eauto .
+bbb.
 
      remember Hns₂ as Hns₂₁; clear HeqHns₂₁.
      eapply hd_newton_segments in Hns₂₁; eauto .
