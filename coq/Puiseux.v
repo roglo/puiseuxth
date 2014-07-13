@@ -1567,6 +1567,19 @@ destruct la as [| a].
  unfold Qeq in H; simpl in H; assumption.
 Qed.
 
+Lemma ppp : ∀ m la,
+  ps_lap_forall (λ a, in_K_1_m a m) la
+  → (m | ps_list_com_polord la)%Q.
+Proof.
+intros m la Hla.
+revert m Hla.
+induction la as [| a]; intros.
+ simpl.
+ Focus 2.
+ simpl.
+bbb.
+
+(*
 Lemma qqq : ∀ pol ns pol₁ c,
   ns ∈ newton_segments pol
   → q_of_ns pol ns = 1%positive
@@ -1576,6 +1589,7 @@ Lemma qqq : ∀ pol ns pol₁ c,
 Proof.
 intros pol ns pol₁ c Hns Hq Hc Hpol₁.
 bbb.
+*)
 
 Lemma den_αj₁_divides_num_αj₁_m : ∀ pol ns pol₁ ns₁ c j₁ αj₁ m,
   ns ∈ newton_segments pol
