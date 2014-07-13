@@ -1567,22 +1567,46 @@ destruct la as [| a].
  unfold Qeq in H; simpl in H; assumption.
 Qed.
 
+Lemma qqq : ∀ pol ns pol₁ c,
+  ns ∈ newton_segments pol
+  → q_of_ns pol ns = 1%positive
+  → c = ac_root (Φq pol ns)
+  → pol₁ = next_pol pol (β ns) (γ ns) c
+  → ps_list_com_polord (al pol₁) = ps_list_com_polord (al pol).
+Proof.
+intros pol ns pol₁ c Hns Hq Hc Hpol₁.
+bbb.
+
 Lemma den_αj₁_divides_num_αj₁_m : ∀ pol ns pol₁ ns₁ c j₁ αj₁ m,
   ns ∈ newton_segments pol
   → m = ps_list_com_polord (al pol)
+  → q_of_ns pol ns = 1%positive
   → c = ac_root (Φq pol ns)
   → pol₁ = next_pol pol (β ns) (γ ns) c
   → ns₁ ∈ newton_segments pol₁
   → ini_pt ns₁ = (Qnat j₁, αj₁)
   → (' Qden αj₁ | Qnum αj₁ * ' m)%Z.
 Proof.
-intros pol ns pol₁ ns₁ c j₁ αj₁ m Hns Hm Hc Hpol₁ Hns₁ Hini₁.
-remember Hns as H; clear HeqH.
-eapply next_pol_in_K_1_mq in H; eauto .
-qqq.
+intros pol ns pol₁ ns₁ c j₁ αj₁ m Hns Hm Hq Hc Hpol₁ Hns₁ Hini₁.
+remember Hns as HinK; clear HeqHinK.
+eapply next_pol_in_K_1_mq in HinK; eauto .
+rewrite Hq in HinK.
+rewrite Pos.mul_1_r in HinK.
+remember (al pol₁) as la₁ eqn:Hla₁ .
+symmetry in Hla₁.
+destruct la₁ as [| a₁].
+ unfold newton_segments in Hns₁.
+ unfold points_of_ps_polynom in Hns₁.
+ rewrite Hla₁ in Hns₁; contradiction.
+
+ apply hd_in_K_1_m in HinK.
+ inversion HinK.
+ destruct H as (ps, (Hps, Hpsm)).
+ remember Hns₁ as H; clear HeqH.
  eapply com_den_of_ini_pt in H; eauto .
  exists (mj_of_ns pol₁ ns₁).
  unfold Qeq in H; simpl in H.
+bbb.
 
 Lemma sss : ∀ pol ns pol₁ ns₁ c m,
   ns ∈ newton_segments pol
@@ -1761,13 +1785,13 @@ induction n; intros.
 
       eapply den_αj_divides_num_αj_m; eassumption.
 
-     remember Hns₁₁ as H; clear HeqH.
-     eapply den_αj₁_divides_num_αj₁_m in H; eauto .
-bbb.
-
      remember Hns₂ as Hns₂₁; clear HeqHns₂₁.
      eapply hd_newton_segments in Hns₂₁; eauto .
      remember Hns₂₁ as H; clear HeqH.
+     eapply den_αj₁_divides_num_αj₁_m with (ns := ns₁) in H; eauto .
+     erewrite q_eq_1 with (ns := ns) in H; eauto .
+     rewrite Z.mul_1_r in H.
+bbb.
      remember (ps_list_com_polord (al pol₂)) as m₂ eqn:Hm₂ .
      eapply den_αj_divides_num_αj_m in H; try eassumption.
       destruct H as (d, Hd).
