@@ -1567,43 +1567,24 @@ destruct la as [| a].
  unfold Qeq in H; simpl in H; assumption.
 Qed.
 
-(*
-Lemma ppp : ∀ m la,
-  ps_lap_forall (λ a, in_K_1_m a m) la
-  → (m | ps_list_com_polord la)%positive.
-Proof.
-intros m la Hla.
-revert m Hla.
-induction la as [| a]; intros.
- simpl.
-bbb.
-*)
-
 Lemma qqq : ∀ pol ns m j αj,
   ns ∈ newton_segments pol
   → ps_lap_forall (λ a, in_K_1_m a m) (al pol)
   → ini_pt ns = (Qnat j, αj)
   → ∃ mj, αj == mj # m.
 Proof.
-intros pol ns m j αj Hns Hla Hini.
+intros pol ns m j αj Hns HinK Hini.
+remember (al pol) as la eqn:Hla .
+symmetry in Hla.
+destruct la as [| a].
+ unfold newton_segments in Hns.
+ unfold points_of_ps_polynom in Hns.
+ rewrite Hla in Hns; contradiction.
+
+ apply hd_in_K_1_m in HinK.
+ inversion HinK.
+ destruct H as (ps, (Hps, Hpsm)).
 bbb.
-
-intros pol ns m j αj mj Hns Hm Hini Hmj.
-remember (List.nth j (al pol) 0%ps) as jps.
-eapply com_den_of_ps_list with (ps := jps); try eassumption.
- eapply in_pts_in_pol with (hv := αj); try eassumption; try reflexivity.
- rewrite Hini.
- apply ini_fin_ns_in_init_pts; assumption.
-
- eapply in_pts_in_pol with (hv := αj); try eassumption; try reflexivity.
- rewrite Hini.
- apply ini_fin_ns_in_init_pts; assumption.
-
- subst mj.
- unfold mj_of_ns; simpl.
- rewrite <- Hini, <- Hm; simpl.
- rewrite Nat2Z.id, <- Heqjps; reflexivity.
-Qed.
 
 Lemma den_αj₁_divides_num_αj₁_m : ∀ pol ns pol₁ ns₁ c j₁ αj₁ m,
   ns ∈ newton_segments pol
