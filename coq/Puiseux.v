@@ -1592,17 +1592,17 @@ destruct la as [| a].
   reflexivity.
 Qed.
 
-Lemma den_αj₁_divides_num_αj₁_m : ∀ pol ns pol₁ ns₁ c j₁ αj₁ m,
+Lemma den_αj₁_divides_num_αj₁_m : ∀ pol ns pol₁ ns₁ c αj₁ m,
   ns ∈ newton_segments pol
   → m = ps_list_com_polord (al pol)
   → q_of_ns pol ns = 1%positive
   → c = ac_root (Φq pol ns)
   → pol₁ = next_pol pol (β ns) (γ ns) c
   → ns₁ ∈ newton_segments pol₁
-  → ini_pt ns₁ = (Qnat j₁, αj₁)
+  → ini_pt ns₁ = (Qnat 0, αj₁)
   → (' Qden αj₁ | Qnum αj₁ * ' m)%Z.
 Proof.
-intros pol ns pol₁ ns₁ c j₁ αj₁ m Hns Hm Hq Hc Hpol₁ Hns₁ Hini₁.
+intros pol ns pol₁ ns₁ c αj₁ m Hns Hm Hq Hc Hpol₁ Hns₁ Hini₁.
 remember Hns as HinK; clear HeqHinK.
 eapply next_pol_in_K_1_mq in HinK; eauto .
 rewrite Hq in HinK.
@@ -1614,15 +1614,9 @@ destruct la₁ as [| a₁].
  unfold points_of_ps_polynom in Hns₁.
  rewrite Hla₁ in Hns₁; contradiction.
 
- apply hd_in_K_1_m in HinK.
- inversion HinK.
- destruct H as (ps, (Hps, Hpsm)).
-bbb.
- remember Hns₁ as H; clear HeqH.
- eapply com_den_of_ini_pt in H; eauto .
- exists (mj_of_ns pol₁ ns₁).
- unfold Qeq in H; simpl in H.
-bbb.
+ rewrite <- Hla₁ in HinK.
+ eapply ini_pt_in_K_1_m in HinK; eauto .
+Qed.
 
 Lemma sss : ∀ pol ns pol₁ ns₁ c m,
   ns ∈ newton_segments pol
@@ -1804,9 +1798,24 @@ induction n; intros.
      remember Hns₂ as Hns₂₁; clear HeqHns₂₁.
      eapply hd_newton_segments in Hns₂₁; eauto .
      remember Hns₂₁ as H; clear HeqH.
+     Focus 1.
      eapply den_αj₁_divides_num_αj₁_m with (ns := ns₁) in H; eauto .
-     erewrite q_eq_1 with (ns := ns) in H; eauto .
-     rewrite Z.mul_1_r in H.
+      Focus 2.
+      eapply q_eq_1 with (ns := ns); eauto .
+
+      destruct H as (d, Hd).
+      rewrite Hd.
+      rewrite Z.div_mul; auto.
+      destruct d as [| d| d].
+       simpl.
+       unfold adjust_series; simpl.
+       rewrite series_shift_0.
+       rewrite series_shift_0.
+       rewrite series_stretch_const.
+       rewrite <- series_stretch_const with (k := (dd * dd)%positive).
+       rewrite <- series_stretch_stretch.
+       rewrite <- series_stretch_add_distr.
+       apply stretch_morph; [ reflexivity | idtac ].
 bbb.
      remember (ps_list_com_polord (al pol₂)) as m₂ eqn:Hm₂ .
      eapply den_αj_divides_num_αj_m in H; try eassumption.
