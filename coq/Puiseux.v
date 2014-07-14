@@ -1569,13 +1569,11 @@ Qed.
 
 Lemma ppp : ∀ m la,
   ps_lap_forall (λ a, in_K_1_m a m) la
-  → (m | ps_list_com_polord la)%Q.
+  → (m | ps_list_com_polord la)%positive.
 Proof.
 intros m la Hla.
 revert m Hla.
 induction la as [| a]; intros.
- simpl.
- Focus 2.
  simpl.
 bbb.
 
