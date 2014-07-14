@@ -1567,13 +1567,13 @@ destruct la as [| a].
  unfold Qeq in H; simpl in H; assumption.
 Qed.
 
-Lemma qqq : ∀ pol ns m j αj,
+Lemma ini_pt_in_K_1_m : ∀ pol ns m αj,
   ns ∈ newton_segments pol
   → ps_lap_forall (λ a, in_K_1_m a m) (al pol)
-  → ini_pt ns = (Qnat j, αj)
+  → ini_pt ns = (Qnat 0, αj)
   → ∃ mj, αj == mj # m.
 Proof.
-intros pol ns m j αj Hns HinK Hini.
+intros pol ns m αj Hns HinK Hini.
 remember (al pol) as la eqn:Hla .
 symmetry in Hla.
 destruct la as [| a].
@@ -1582,9 +1582,15 @@ destruct la as [| a].
  rewrite Hla in Hns; contradiction.
 
  apply hd_in_K_1_m in HinK.
- inversion HinK.
- destruct H as (ps, (Hps, Hpsm)).
-bbb.
+ eapply in_K_1_m_order_eq; eauto .
+ eapply in_pts_in_pol with (h := O) (def := 0%ps); eauto .
+  rewrite <- Hini.
+  apply ini_fin_ns_in_init_pts.
+  eassumption.
+
+  rewrite Hla; simpl.
+  reflexivity.
+Qed.
 
 Lemma den_αj₁_divides_num_αj₁_m : ∀ pol ns pol₁ ns₁ c j₁ αj₁ m,
   ns ∈ newton_segments pol
