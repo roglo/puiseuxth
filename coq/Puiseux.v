@@ -1591,6 +1591,7 @@ symmetry in Heqy.
 destruct y as [y| ]; simpl in H0, H1, H2.
  remember (gcd_ps x (greatest_series_x_power R (ps_terms ps) x) ps) as g.
  remember (gcd_ps y (greatest_series_x_power R (ps_terms ps₁) y) ps₁) as g₁.
+ exists (ps_ordnum ps₁ + Z.of_nat y)%Z.
 bbb.
 
 Lemma qqq : ∀ pol ns m j αj,
