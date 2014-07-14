@@ -1579,17 +1579,31 @@ induction la as [| a]; intros.
 bbb.
 *)
 
-(*
-Lemma qqq : ∀ pol ns pol₁ c,
+Lemma qqq : ∀ pol ns m j αj,
   ns ∈ newton_segments pol
-  → q_of_ns pol ns = 1%positive
-  → c = ac_root (Φq pol ns)
-  → pol₁ = next_pol pol (β ns) (γ ns) c
-  → ps_list_com_polord (al pol₁) = ps_list_com_polord (al pol).
+  → ps_lap_forall (λ a, in_K_1_m a m) (al pol)
+  → ini_pt ns = (Qnat j, αj)
+  → ∃ mj, αj == mj # m.
 Proof.
-intros pol ns pol₁ c Hns Hq Hc Hpol₁.
+intros pol ns m j αj Hns Hla Hini.
 bbb.
-*)
+
+intros pol ns m j αj mj Hns Hm Hini Hmj.
+remember (List.nth j (al pol) 0%ps) as jps.
+eapply com_den_of_ps_list with (ps := jps); try eassumption.
+ eapply in_pts_in_pol with (hv := αj); try eassumption; try reflexivity.
+ rewrite Hini.
+ apply ini_fin_ns_in_init_pts; assumption.
+
+ eapply in_pts_in_pol with (hv := αj); try eassumption; try reflexivity.
+ rewrite Hini.
+ apply ini_fin_ns_in_init_pts; assumption.
+
+ subst mj.
+ unfold mj_of_ns; simpl.
+ rewrite <- Hini, <- Hm; simpl.
+ rewrite Nat2Z.id, <- Heqjps; reflexivity.
+Qed.
 
 Lemma den_αj₁_divides_num_αj₁_m : ∀ pol ns pol₁ ns₁ c j₁ αj₁ m,
   ns ∈ newton_segments pol
