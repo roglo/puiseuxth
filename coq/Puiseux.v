@@ -1567,6 +1567,32 @@ destruct la as [| a].
  unfold Qeq in H; simpl in H; assumption.
 Qed.
 
+Lemma ppp : ∀ ps m v,
+  in_K_1_m ps m
+  → order ps = qfin v
+  → ∃ n, v == n # m.
+Proof.
+intros ps m v Hin Ho.
+unfold order in Ho.
+remember (null_coeff_range_length R (ps_terms ps) 0) as x.
+symmetry in Heqx.
+destruct x as [x| ]; [ idtac | discriminate Ho ].
+injection Ho; clear Ho; intros Ho.
+inversion_clear Hin.
+destruct H as (ps₁, (Hps, Hm)).
+subst v m.
+unfold Qeq; simpl.
+inversion_clear Hps.
+inversion_clear H.
+unfold normalise_ps in H0, H1, H2; simpl in H0, H1, H2.
+rewrite Heqx in H0, H1, H2; simpl in H0, H1, H2.
+remember (null_coeff_range_length R (ps_terms ps₁) 0) as y.
+symmetry in Heqy.
+destruct y as [y| ]; simpl in H0, H1, H2.
+ remember (gcd_ps x (greatest_series_x_power R (ps_terms ps) x) ps) as g.
+ remember (gcd_ps y (greatest_series_x_power R (ps_terms ps₁) y) ps₁) as g₁.
+bbb.
+
 Lemma qqq : ∀ pol ns m j αj,
   ns ∈ newton_segments pol
   → ps_lap_forall (λ a, in_K_1_m a m) (al pol)
