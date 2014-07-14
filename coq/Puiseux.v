@@ -1567,6 +1567,7 @@ destruct la as [| a].
  unfold Qeq in H; simpl in H; assumption.
 Qed.
 
+(*
 Lemma ppp : ∀ m la,
   ps_lap_forall (λ a, in_K_1_m a m) la
   → (m | ps_list_com_polord la)%positive.
@@ -1576,6 +1577,7 @@ revert m Hla.
 induction la as [| a]; intros.
  simpl.
 bbb.
+*)
 
 (*
 Lemma qqq : ∀ pol ns pol₁ c,
@@ -1614,6 +1616,7 @@ destruct la₁ as [| a₁].
  apply hd_in_K_1_m in HinK.
  inversion HinK.
  destruct H as (ps, (Hps, Hpsm)).
+bbb.
  remember Hns₁ as H; clear HeqH.
  eapply com_den_of_ini_pt in H; eauto .
  exists (mj_of_ns pol₁ ns₁).
