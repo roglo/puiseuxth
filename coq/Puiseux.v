@@ -1584,33 +1584,92 @@ subst v m.
 unfold Qeq; simpl.
 inversion_clear Hps.
 inversion_clear H.
-unfold normalise_ps in H0, H1, H2; simpl in H0, H1, H2.
-rewrite Heqx in H0, H1, H2; simpl in H0, H1, H2.
+clear H2.
+unfold normalise_ps in H0, H1; simpl in H0, H1.
+rewrite Heqx in H0, H1; simpl in H0, H1.
 remember (null_coeff_range_length R (ps_terms ps₁) 0) as y.
 symmetry in Heqy.
-destruct y as [y| ]; simpl in H0, H1, H2.
- remember (gcd_ps x (greatest_series_x_power R (ps_terms ps) x) ps) as g.
- remember (gcd_ps y (greatest_series_x_power R (ps_terms ps₁) y) ps₁) as g₁.
- exists (ps_ordnum ps₁ + Z.of_nat y)%Z.
- unfold gcd_ps in Heqg, Heqg₁.
+destruct y as [y| ]; simpl in H0, H1.
+ remember (greatest_series_x_power R (ps_terms ps₁) y) as z₁.
+ remember (greatest_series_x_power R (ps_terms ps) x) as z.
+ remember (gcd_ps x z ps) as g.
+ remember (gcd_ps y z₁ ps₁) as g₁.
  remember (ps_ordnum ps₁ + Z.of_nat y)%Z as p₁.
  remember (ps_ordnum ps + Z.of_nat x)%Z as p.
  remember (' ps_polord ps₁)%Z as o₁.
  remember (' ps_polord ps)%Z as o.
- remember (Z.of_nat (greatest_series_x_power R (ps_terms ps₁) y)) as z₁.
- remember (Z.of_nat (greatest_series_x_power R (ps_terms ps) x)) as z.
+ exists p₁.
+ pose proof (gcd_ps_is_pos x z ps) as Hgp.
+ pose proof (gcd_ps_is_pos y z₁ ps₁) as Hgp₁.
+ unfold gcd_ps in Heqg, Heqg₁, Hgp, Hgp₁.
+ rewrite <- Heqp, <- Heqo in Heqg, Hgp.
+ rewrite <- Heqp₁, <- Heqo₁ in Heqg₁, Hgp₁.
  subst g g₁.
  rewrite <- Z.gcd_assoc in H0.
- pose proof (Z.gcd_divide_l p₁ (Z.gcd o₁ z₁)) as H₁.
+ remember (Z.of_nat z₁) as t₁.
+ remember (Z.of_nat z) as t.
+ pose proof (Z.gcd_divide_l p₁ (Z.gcd o₁ t₁)) as H₁.
  destruct H₁ as (c₁, Hc₁).
  rewrite Hc₁ in H0 at 1.
  rewrite Z.div_mul in H0.
   rewrite <- Z.gcd_assoc in H0.
-  pose proof (Z.gcd_divide_l p (Z.gcd o z)) as H.
+  pose proof (Z.gcd_divide_l p (Z.gcd o t)) as H.
   destruct H as (c, Hc).
   rewrite Hc in H0 at 1.
   rewrite Z.div_mul in H0.
    subst c₁.
+   rewrite Z.gcd_comm, Z.gcd_assoc in H1.
+   pose proof (Z.gcd_divide_r (Z.gcd t₁ p₁) o₁) as H₁.
+   destruct H₁ as (d₁, Hd₁).
+   rewrite Hd₁ in H1 at 1.
+   rewrite Z.div_mul in H1.
+    rewrite Z.gcd_comm, Z.gcd_assoc in H1.
+    pose proof (Z.gcd_divide_r (Z.gcd t p) o) as H.
+    destruct H as (d, Hd).
+    rewrite Hd in H1 at 1.
+    rewrite Z.div_mul in H1.
+     apply Z2Pos.inj in H1.
+      subst d₁.
+      rewrite <- Z.gcd_assoc, Z.gcd_comm, <- Z.gcd_assoc in Hd.
+      rewrite <- Z.gcd_assoc, Z.gcd_comm, <- Z.gcd_assoc in Hd₁.
+      remember (Z.gcd p (Z.gcd o t)) as g.
+      remember (Z.gcd p₁ (Z.gcd o₁ t₁)) as g₁.
+      rewrite Hc, Hc₁, Hd, Hd₁.
+      ring.
+
+      apply Zmult_gt_0_lt_0_reg_r with (n := Z.gcd (Z.gcd t₁ p₁) o₁).
+       rewrite <- Z.gcd_assoc, Z.gcd_comm.
+       apply Z.lt_gt; assumption.
+
+       rewrite <- Hd₁, Heqo₁; apply Pos2Z.is_pos.
+
+      apply Zmult_gt_0_lt_0_reg_r with (n := Z.gcd (Z.gcd t p) o).
+       rewrite <- Z.gcd_assoc, Z.gcd_comm.
+       apply Z.lt_gt; assumption.
+
+       rewrite <- Hd, Heqo; apply Pos2Z.is_pos.
+
+     apply Z.neq_sym.
+     apply Z.lt_neq.
+     rewrite <- Z.gcd_assoc, Z.gcd_comm.
+     assumption.
+
+    apply Z.neq_sym.
+    apply Z.lt_neq.
+    rewrite <- Z.gcd_assoc, Z.gcd_comm.
+    assumption.
+
+   apply Z.neq_sym.
+   apply Z.lt_neq.
+   rewrite Z.gcd_assoc.
+   assumption.
+
+  apply Z.neq_sym.
+  apply Z.lt_neq.
+  rewrite Z.gcd_assoc.
+  assumption.
+
+ exfalso.
 bbb.
 
 Lemma qqq : ∀ pol ns m j αj,
