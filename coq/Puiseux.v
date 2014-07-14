@@ -1592,6 +1592,25 @@ destruct y as [y| ]; simpl in H0, H1, H2.
  remember (gcd_ps x (greatest_series_x_power R (ps_terms ps) x) ps) as g.
  remember (gcd_ps y (greatest_series_x_power R (ps_terms ps₁) y) ps₁) as g₁.
  exists (ps_ordnum ps₁ + Z.of_nat y)%Z.
+ unfold gcd_ps in Heqg, Heqg₁.
+ remember (ps_ordnum ps₁ + Z.of_nat y)%Z as p₁.
+ remember (ps_ordnum ps + Z.of_nat x)%Z as p.
+ remember (' ps_polord ps₁)%Z as o₁.
+ remember (' ps_polord ps)%Z as o.
+ remember (Z.of_nat (greatest_series_x_power R (ps_terms ps₁) y)) as z₁.
+ remember (Z.of_nat (greatest_series_x_power R (ps_terms ps) x)) as z.
+ subst g g₁.
+ rewrite <- Z.gcd_assoc in H0.
+ pose proof (Z.gcd_divide_l p₁ (Z.gcd o₁ z₁)) as H₁.
+ destruct H₁ as (c₁, Hc₁).
+ rewrite Hc₁ in H0 at 1.
+ rewrite Z.div_mul in H0.
+  rewrite <- Z.gcd_assoc in H0.
+  pose proof (Z.gcd_divide_l p (Z.gcd o z)) as H.
+  destruct H as (c, Hc).
+  rewrite Hc in H0 at 1.
+  rewrite Z.div_mul in H0.
+   subst c₁.
 bbb.
 
 Lemma qqq : ∀ pol ns m j αj,
