@@ -1807,25 +1807,41 @@ induction n; intros.
       rewrite Hd.
       rewrite Z.div_mul; auto.
       destruct d as [| d| d].
+       simpl in Hd.
+       apply Z.eq_mul_0_l in Hd; auto.
+       rewrite Hd in Hαj₂.
+       exfalso; revert Hαj₂; apply Z.lt_irrefl.
+
        simpl.
        unfold adjust_series; simpl.
        rewrite series_shift_0.
-       rewrite series_shift_0.
        rewrite series_stretch_const.
-       rewrite <- series_stretch_const with (k := (dd * dd)%positive).
        rewrite <- series_stretch_stretch.
+       rewrite <- Pos.mul_assoc, Pos2Nat.inj_mul.
+       rewrite <- stretch_shift_series_distr.
+       rewrite <- series_stretch_const with (k := (dd * dd)%positive).
        rewrite <- series_stretch_add_distr.
        apply stretch_morph; [ reflexivity | idtac ].
-bbb.
-     remember (ps_list_com_polord (al pol₂)) as m₂ eqn:Hm₂ .
-     eapply den_αj_divides_num_αj_m in H; try eassumption.
-      destruct H as (d, Hd).
-      assert (m₂ | m)%positive.
-       Focus 2.
-       destruct H as (e, He).
-       rewrite Pos.mul_comm in He; rewrite He.
-       rewrite Pos2Z.inj_mul, Z.mul_assoc, Hd.
-       Unfocus.
+       unfold series_add; simpl.
+       constructor; intros i; simpl.
+       destruct (zerop i) as [H₁| H₁].
+        subst i; simpl.
+        destruct (lt_dec 0 (Pos.to_nat d)) as [H₁| H₁].
+         rewrite rng_add_0_r.
+         unfold root_series_from_cγ_list; simpl.
+         rewrite <- Hc₁.
+         destruct (ps_zerop R (ps_poly_nth 0 pol₁)) as [H₂| H₂]; auto.
+         contradiction.
+
+         exfalso; apply H₁; auto.
+
+        rewrite rng_add_0_l.
+        destruct (lt_dec i (Pos.to_nat d)) as [H₂| H₂].
+         unfold root_series_from_cγ_list; simpl.
+         destruct (ps_zerop R (ps_poly_nth 0 pol₁)) as [| H₃]; auto.
+         destruct i; [ exfalso; revert H₁; apply Nat.lt_irrefl | idtac ].
+         destruct (lt_dec 0 (S i)) as [H₄| ]; auto.
+         rewrite <- Hc₁, <- Hpol₂.
 bbb.
 
 intros pol ns pol₁ ns₁ c m Hns Hc Hr Hpol₁ Hns₁ Hm n.
