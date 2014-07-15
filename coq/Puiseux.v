@@ -1561,6 +1561,7 @@ assert (g ≠ 0)%Z as Hg0.
    rewrite <- Hgq; apply Pos2Z.is_pos.
 Qed.
 
+(*
 Theorem ppp : ∀ pol ns m a c q,
   ns ∈ newton_segments pol
   → ps_lap_forall (λ a, in_K_1_m a m) (al pol)
@@ -1598,6 +1599,7 @@ apply ps_lap_forall_forall.
   rewrite <- Ha.
   eapply minus_beta_in_K_1_mq; eauto .
 bbb.
+*)
 
 Lemma sss : ∀ pol ns pol₁ ns₁ c m,
   ns ∈ newton_segments pol
