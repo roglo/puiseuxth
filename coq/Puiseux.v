@@ -1541,7 +1541,7 @@ destruct la₁ as [| a₀].
 ccc.
 *)
 
-Lemma den_αj_divides_num_αj_m : ∀ pol ns j αj m,
+Lemma den_αj_divides_num_αj_m₂ : ∀ pol ns j αj m,
   ns ∈ newton_segments pol
   → ini_pt ns = (Qnat j, αj)
   → m = ps_list_com_polord (al pol)
@@ -1566,6 +1566,30 @@ destruct la as [| a].
  exists (mj_of_ns pol ns).
  unfold Qeq in H; simpl in H; assumption.
 Qed.
+
+Lemma any_ini_pt_in_K_1_m : ∀ pol ns m j αj,
+  ns ∈ newton_segments pol
+  → ps_lap_forall (λ a, in_K_1_m a m) (al pol)
+  → ini_pt ns = (Qnat j, αj)
+  → ∃ mj, αj == mj # m.
+Proof.
+intros pol ns m j αj Hns HinK Hini.
+bbb.
+remember Hns as H; clear HeqH.
+apply ini_fin_ns_in_init_pts in H.
+destruct H as (Hin, _).
+unfold newton_segments in Hns.
+remember (points_of_ps_polynom pol) as pts.
+remember Heqpts as H; clear HeqH.
+eapply in_pol_in_pts with (h := j) (hv := αj) in H; eauto .
+ unfold points_of_ps_polynom in Heqpts.
+ remember (al pol) as la; clear pol Heqla.
+ subst pts.
+ induction la as [| a]; intros; [ contradiction | idtac ].
+ inversion_clear HinK.
+  apply lap_eq_cons_nil_inv in H0.
+  destruct H0 as (Ha, Hla).
+bbb.
 
 Lemma ini_pt_in_K_1_m : ∀ pol ns m αj,
   ns ∈ newton_segments pol
@@ -1592,6 +1616,24 @@ destruct la as [| a].
   reflexivity.
 Qed.
 
+Lemma den_αj_divides_num_αj_m : ∀ pol ns j αj m,
+  ns ∈ newton_segments pol
+  → ini_pt ns = (Qnat j, αj)
+  → ps_lap_forall (λ a, in_K_1_m a m) (al pol)
+  → (' Qden αj | Qnum αj * ' m)%Z.
+Proof.
+intros pol ns j αj m Hns Hini HinK.
+remember (al pol) as la eqn:Hla .
+symmetry in Hla.
+destruct la as [| a].
+ unfold newton_segments in Hns.
+ unfold points_of_ps_polynom in Hns.
+ rewrite Hla in Hns; contradiction.
+
+ rewrite <- Hla in HinK.
+ eapply ini_pt_in_K_1_m in HinK; eauto .
+Qed.
+
 Lemma den_αj₁_divides_num_αj₁_m : ∀ pol ns pol₁ ns₁ c αj₁ m,
   ns ∈ newton_segments pol
   → m = ps_list_com_polord (al pol)
@@ -1607,6 +1649,7 @@ remember Hns as HinK; clear HeqHinK.
 eapply next_pol_in_K_1_mq in HinK; eauto .
 rewrite Hq in HinK.
 rewrite Pos.mul_1_r in HinK.
+bbb.
 remember (al pol₁) as la₁ eqn:Hla₁ .
 symmetry in Hla₁.
 destruct la₁ as [| a₁].
