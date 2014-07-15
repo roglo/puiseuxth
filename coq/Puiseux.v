@@ -1855,6 +1855,20 @@ induction n; intros.
           rewrite Z.div_mul in H₆; auto; simpl in H₆.
           rewrite H₆ in H₂.
           exfalso; revert H₂; apply Nat.lt_irrefl.
+
+          clear H₆.
+          destruct (lt_dec (glop 0 ns₂ m) (S i)) as [H₆| ]; auto.
+          unfold glop in H₆; simpl in H₆.
+          rewrite Hini₂, Hfin₂ in H₆; simpl in H₆.
+          rewrite Hαk₂ in H₆; simpl in H₆.
+          rewrite Z.add_0_r, Z.mul_1_r in H₆.
+          do 2 rewrite Pos.mul_1_r in H₆.
+          rewrite Z.mul_shuffle0, Pos2Z.inj_mul in H₆.
+          rewrite Z.div_mul_cancel_r in H₆; auto.
+          rewrite Hd in H₆.
+          rewrite Z.div_mul in H₆; auto; simpl in H₆.
+          apply Nat.lt_le_incl, Nat.nlt_ge in H₆.
+          contradiction.
 bbb.
 
 intros pol ns pol₁ ns₁ c m Hns Hc Hr Hpol₁ Hns₁ Hm n.
