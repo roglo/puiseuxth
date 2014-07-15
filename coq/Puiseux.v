@@ -1836,6 +1836,9 @@ induction n; intros.
          exfalso; apply H₁; auto.
 
         rewrite rng_add_0_l.
+(*
+bbb.
+*)
         assert (glop 0 ns₂ m = Pos.to_nat d) as Hglop.
          unfold glop; simpl.
          rewrite Hini₂, Hfin₂; simpl.
@@ -1895,8 +1898,26 @@ induction n; intros.
                remember (next_pol pol₂ (β ns₂) (γ ns₂) c₂) as pol₃ eqn:Hpol₃ .
                remember (List.hd phony_ns (newton_segments pol₃)) as ns₃
                 eqn:Hns₃ .
-               assert (glop 0 ns₃ m = 42) as Hglop₃.
-                unfold glop; simpl.
+
+  remember Hns₃ as Hini₃; clear HeqHini₃.
+  apply exists_ini_pt_nat_fst_seg in Hini₃.
+  destruct Hini₃ as (j₃, (αj₃, Hini₃)).
+  remember Hns₃ as Hfin₃; clear HeqHfin₃.
+  apply exists_fin_pt_nat_fst_seg in Hfin₃.
+  destruct Hfin₃ as (k₃, (αk₃, Hfin₃)).
+               remember (glop 0 ns₃ m) as g₃.
+               simpl.
+               destruct (ps_zerop R (ps_poly_nth 0 pol₂)) as [H₇| H₇].
+                contradiction.
+
+                destruct (eq_nat_dec (Pos.to_nat d) (S i)) as [H₈| H₈].
+                 Focus 1.
+                 rewrite H₈, Nat.sub_diag in Heqid; discriminate Heqid.
+
+                 destruct (lt_dec (Pos.to_nat d) (S i)) as [H₉| H₉].
+                  Focus 1.
+                  rewrite <- Hc₂, <- Hpol₃, <- Hns₃.
+                  destruct (ps_zerop R (ps_poly_nth 0 pol₃)) as [H₁₀| H₁₀].
 bbb.
 
 intros pol ns pol₁ ns₁ c m Hns Hc Hr Hpol₁ Hns₁ Hm n.
