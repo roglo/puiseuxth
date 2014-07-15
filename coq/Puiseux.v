@@ -1836,39 +1836,67 @@ induction n; intros.
          exfalso; apply H₁; auto.
 
         rewrite rng_add_0_l.
-        destruct (lt_dec i (Pos.to_nat d)) as [H₂| H₂].
-         unfold root_series_from_cγ_list; simpl.
-         destruct (ps_zerop R (ps_poly_nth 0 pol₁)) as [| H₃]; auto.
-         destruct i; [ exfalso; revert H₁; apply Nat.lt_irrefl | idtac ].
-         destruct (lt_dec 0 (S i)) as [H₄| ]; auto.
-         rewrite <- Hc₁, <- Hpol₂, <- Hns₂; simpl.
-         destruct (ps_zerop R (ps_poly_nth 0 pol₂)) as [| H₅]; auto.
-         destruct (eq_nat_dec (glop 0 ns₂ m) (S i)) as [H₆| H₆].
-          unfold glop in H₆; simpl in H₆.
-          rewrite Hini₂, Hfin₂ in H₆; simpl in H₆.
-          rewrite Hαk₂ in H₆; simpl in H₆.
-          rewrite Z.add_0_r, Z.mul_1_r in H₆.
-          do 2 rewrite Pos.mul_1_r in H₆.
-          rewrite Z.mul_shuffle0, Pos2Z.inj_mul in H₆.
-          rewrite Z.div_mul_cancel_r in H₆; auto.
-          rewrite Hd in H₆.
-          rewrite Z.div_mul in H₆; auto; simpl in H₆.
-          rewrite H₆ in H₂.
-          exfalso; revert H₂; apply Nat.lt_irrefl.
+        assert (glop 0 ns₂ m = Pos.to_nat d) as Hglop.
+         unfold glop; simpl.
+         rewrite Hini₂, Hfin₂; simpl.
+         rewrite Hαk₂; simpl.
+         rewrite Z.add_0_r, Z.mul_1_r.
+         do 2 rewrite Pos.mul_1_r.
+         rewrite Z.mul_shuffle0, Pos2Z.inj_mul.
+         rewrite Z.div_mul_cancel_r; auto.
+         rewrite Hd, Z.div_mul; auto.
 
-          clear H₆.
-          destruct (lt_dec (glop 0 ns₂ m) (S i)) as [H₆| ]; auto.
-          unfold glop in H₆; simpl in H₆.
-          rewrite Hini₂, Hfin₂ in H₆; simpl in H₆.
-          rewrite Hαk₂ in H₆; simpl in H₆.
-          rewrite Z.add_0_r, Z.mul_1_r in H₆.
-          do 2 rewrite Pos.mul_1_r in H₆.
-          rewrite Z.mul_shuffle0, Pos2Z.inj_mul in H₆.
-          rewrite Z.div_mul_cancel_r in H₆; auto.
-          rewrite Hd in H₆.
-          rewrite Z.div_mul in H₆; auto; simpl in H₆.
-          apply Nat.lt_le_incl, Nat.nlt_ge in H₆.
-          contradiction.
+         destruct (lt_dec i (Pos.to_nat d)) as [H₂| H₂].
+          unfold root_series_from_cγ_list; simpl.
+          destruct (ps_zerop R (ps_poly_nth 0 pol₁)) as [| H₃]; auto.
+          destruct i; [ exfalso; revert H₁; apply Nat.lt_irrefl | idtac ].
+          destruct (lt_dec 0 (S i)) as [H₄| ]; auto.
+          rewrite <- Hc₁, <- Hpol₂, <- Hns₂; simpl.
+          destruct (ps_zerop R (ps_poly_nth 0 pol₂)) as [| H₅]; auto.
+          rewrite Hglop.
+          destruct (eq_nat_dec (Pos.to_nat d) (S i)) as [H₆| H₆].
+           rewrite H₆ in H₂.
+           exfalso; revert H₂; apply Nat.lt_irrefl.
+
+           destruct (lt_dec (Pos.to_nat d) (S i)) as [H₇| ]; auto.
+           apply Nat.lt_le_incl, Nat.nlt_ge in H₇.
+           contradiction.
+
+          unfold root_series_from_cγ_list; simpl.
+          destruct (ps_zerop R (ps_poly_nth 0 pol₁)) as [H₃| H₃].
+           contradiction.
+
+           destruct (ps_zerop R (ps_poly_nth 0 pol₂)) as [H₄| H₄].
+            contradiction.
+
+            rewrite <- Hc₁, <- Hpol₂, <- Hns₂.
+            destruct i; [ exfalso; revert H₁; apply Nat.lt_irrefl | idtac ].
+            destruct (lt_dec 0 (S i)) as [H₅| H₅].
+             Focus 1.
+             apply Nat.nlt_ge in H₂.
+             remember (S i - Pos.to_nat d)%nat as id.
+             destruct id.
+              simpl.
+              destruct (ps_zerop R (ps_poly_nth 0 pol₂)) as [H₆| H₆].
+               contradiction.
+
+               rewrite Hglop.
+               clear H₆.
+               destruct (eq_nat_dec (Pos.to_nat d) (S i)) as [| H₆]; auto.
+               destruct (lt_dec (Pos.to_nat d) (S i)) as [H₇| H₇].
+                exfalso; fast_omega Heqid H₇.
+
+                apply Nat.nlt_ge in H₇.
+                exfalso; fast_omega H₂ H₆ H₇.
+
+              rewrite Hglop.
+              destruct (lt_dec 0 (S id)) as [H₆| H₆].
+               remember (ac_root (Φq pol₂ ns₂)) as c₂ eqn:Hc₂ .
+               remember (next_pol pol₂ (β ns₂) (γ ns₂) c₂) as pol₃ eqn:Hpol₃ .
+               remember (List.hd phony_ns (newton_segments pol₃)) as ns₃
+                eqn:Hns₃ .
+               assert (glop 0 ns₃ m = 42) as Hglop₃.
+                unfold glop; simpl.
 bbb.
 
 intros pol ns pol₁ ns₁ c m Hns Hc Hr Hpol₁ Hns₁ Hm n.
