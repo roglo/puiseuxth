@@ -1567,6 +1567,56 @@ destruct la as [| a].
  unfold Qeq in H; simpl in H; assumption.
 Qed.
 
+Lemma points_of_nil_ps_lap : ∀ la,
+  (la = [])%pslap
+  → points_of_ps_lap la = [].
+Proof.
+intros la Hla.
+unfold points_of_ps_lap, points_of_ps_lap_gen, qpower_list.
+remember O as pow; clear Heqpow; revert pow.
+induction la as [| a]; intros; [ reflexivity | simpl ].
+apply lap_eq_cons_nil_inv in Hla.
+destruct Hla as (Ha, Hla); simpl in Ha.
+apply order_inf in Ha; rewrite Ha.
+apply IHla; assumption.
+Qed.
+
+Lemma any_in_K_1_m : ∀ la m h αh,
+  ps_lap_forall (λ a, in_K_1_m a m) la
+  → (Qnat h, αh) ∈ points_of_ps_lap la
+  → ∃ mh, αh == mh # m.
+Proof.
+intros la m h αh HinK Hin.
+unfold points_of_ps_lap in Hin.
+unfold points_of_ps_lap_gen in Hin.
+unfold qpower_list in Hin.
+remember O as pow; clear Heqpow.
+revert pow Hin.
+induction la as [| a]; intros; [ contradiction | idtac ].
+simpl in Hin.
+inversion_clear HinK.
+ apply lap_eq_cons_nil_inv in H.
+ destruct H as (Ha, Hla); simpl in Ha.
+ apply order_inf in Ha.
+ rewrite Ha in Hin.
+ eapply IHla; eauto .
+ constructor; assumption.
+
+ remember (order a) as v eqn:Hv .
+ symmetry in Hv.
+ destruct v as [v| ].
+  simpl in Hin.
+  destruct Hin as [Hin| Hin].
+   injection Hin; clear Hin; intros.
+   subst v.
+   eapply in_K_1_m_order_eq; eauto .
+
+   eapply IHla; eauto .
+
+  eapply IHla; eauto .
+Qed.
+
+(*
 Lemma any_ini_pt_in_K_1_m : ∀ pol ns m j αj,
   ns ∈ newton_segments pol
   → ps_lap_forall (λ a, in_K_1_m a m) (al pol)
@@ -1615,6 +1665,7 @@ destruct la as [| a].
   rewrite Hla; simpl.
   reflexivity.
 Qed.
+*)
 
 Lemma den_αj_divides_num_αj_m : ∀ pol ns j αj m,
   ns ∈ newton_segments pol
@@ -1632,7 +1683,7 @@ destruct la as [| a].
 
  rewrite <- Hla in HinK.
  eapply ini_pt_in_K_1_m in HinK; eauto .
-Qed.
+bbb.
 
 Lemma den_αj₁_divides_num_αj₁_m : ∀ pol ns pol₁ ns₁ c αj₁ m,
   ns ∈ newton_segments pol
