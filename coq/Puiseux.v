@@ -1542,6 +1542,34 @@ eapply in_pts_in_pol with (hv := αj) in Heqjps; try eassumption.
 bbb.
 *)
 
+(* oui mais ça fait pas de sens : en fait il faut que gcd(p,q) = 1 *)
+Theorem ooo : ∀ pol ns m,
+  ns ∈ newton_segments pol
+  → ps_lap_forall (λ a, in_K_1_m a m) (al pol)
+  → ∃ p q, γ ns == p # (m * q).
+Proof.
+intros pol ns m Hns Hm.
+remember Hns as Hini; clear HeqHini.
+remember Hns as Hfin; clear HeqHfin.
+apply exists_ini_pt_nat in Hini.
+apply exists_fin_pt_nat in Hfin.
+destruct Hini as (j, (αj, Hini)).
+destruct Hfin as (k, (αk, Hfin)).
+unfold γ.
+rewrite Hini, Hfin; simpl.
+unfold Qeq; simpl.
+rewrite Z.mul_opp_l, Z.add_opp_r.
+rewrite Qnum_inv_Qnat_sub.
+ rewrite Qden_inv_Qnat_sub.
+  rewrite Z.mul_1_r.
+  exists ((Qnum αj * ' Qden αk - Qnum αk * ' Qden αj) * ' m)%Z.
+  exists (Qden αj * Qden αk * Pos.of_nat (k - j))%positive.
+  rewrite Pos2Z.inj_mul.
+  rewrite Pos2Z.inj_mul.
+  rewrite Pos2Z.inj_mul.
+  ring.
+bbb.
+
 Theorem ppp : ∀ pol ns m a c q,
   ns ∈ newton_segments pol
   → ps_lap_forall (λ a, in_K_1_m a m) (al pol)
