@@ -1841,7 +1841,20 @@ induction n; intros.
          destruct (ps_zerop R (ps_poly_nth 0 pol₁)) as [| H₃]; auto.
          destruct i; [ exfalso; revert H₁; apply Nat.lt_irrefl | idtac ].
          destruct (lt_dec 0 (S i)) as [H₄| ]; auto.
-         rewrite <- Hc₁, <- Hpol₂.
+         rewrite <- Hc₁, <- Hpol₂, <- Hns₂; simpl.
+         destruct (ps_zerop R (ps_poly_nth 0 pol₂)) as [| H₅]; auto.
+         destruct (eq_nat_dec (glop 0 ns₂ m) (S i)) as [H₆| H₆].
+          unfold glop in H₆; simpl in H₆.
+          rewrite Hini₂, Hfin₂ in H₆; simpl in H₆.
+          rewrite Hαk₂ in H₆; simpl in H₆.
+          rewrite Z.add_0_r, Z.mul_1_r in H₆.
+          do 2 rewrite Pos.mul_1_r in H₆.
+          rewrite Z.mul_shuffle0, Pos2Z.inj_mul in H₆.
+          rewrite Z.div_mul_cancel_r in H₆; auto.
+          rewrite Hd in H₆.
+          rewrite Z.div_mul in H₆; auto; simpl in H₆.
+          rewrite H₆ in H₂.
+          exfalso; revert H₂; apply Nat.lt_irrefl.
 bbb.
 
 intros pol ns pol₁ ns₁ c m Hns Hc Hr Hpol₁ Hns₁ Hm n.
