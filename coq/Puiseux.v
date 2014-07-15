@@ -1836,9 +1836,6 @@ induction n; intros.
          exfalso; apply H₁; auto.
 
         rewrite rng_add_0_l.
-(*
-bbb.
-*)
         assert (glop 0 ns₂ m = Pos.to_nat d) as Hglop.
          unfold glop; simpl.
          rewrite Hini₂, Hfin₂; simpl.
