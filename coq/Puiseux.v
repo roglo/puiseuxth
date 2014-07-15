@@ -1509,6 +1509,77 @@ apply any_in_K_1_m with (h := j) (αh := αj) in HinK.
  destruct Hns; rewrite <- Hini; assumption.
 Qed.
 
+(*
+Theorem ooo : ∀ pol ns m p q,
+  ns ∈ newton_segments pol
+  → ps_lap_forall (λ a, in_K_1_m a m) (al pol)
+  → p = p_of_ns pol ns
+  → q = q_of_ns pol ns
+  → γ ns == p # (m * q).
+Proof.
+intros pol ns m p q Hns Hlam Hp Hq.
+remember Hns as Hini; clear HeqHini.
+remember Hns as Hfin; clear HeqHfin.
+apply exists_ini_pt_nat in Hini.
+apply exists_fin_pt_nat in Hfin.
+destruct Hini as (j, (αj, Hini)).
+destruct Hfin as (k, (αk, Hfin)).
+remember (points_of_ps_polynom pol) as pts.
+remember (lower_convex_hull_points pts) as hsl.
+symmetry in Hini, Hfin.
+remember Hini as Hg; clear HeqHg.
+eapply gamma_value_jk in Hg; [ idtac | eassumption ].
+subst hsl.
+remember (List.nth j (al pol) 0%ps) as jps.
+remember Heqjps as Hjps_v; clear HeqHjps_v.
+eapply in_pts_in_pol with (hv := αj) in Heqjps; try eassumption.
+ 2: rewrite Hini.
+ 2: apply ini_fin_ns_in_init_pts.
+ 2: unfold newton_segments in Hns.
+ 2: rewrite <- Heqpts in Hns; assumption.
+
+ destruct Heqjps as (Hjps, Hαj).
+bbb.
+*)
+
+Theorem ppp : ∀ pol ns m a c q,
+  ns ∈ newton_segments pol
+  → ps_lap_forall (λ a, in_K_1_m a m) (al pol)
+  → q = q_of_ns pol ns
+  → a = ps_monom c (- β ns)
+  → in_K_1_m a (m * q).
+Proof.
+intros pol ns m a c q Hns Hlam Hq Ha.
+constructor; subst a.
+remember (p_of_ns pol ns) as p eqn:Hp .
+remember Hns as Hgp; clear HeqHgp.
+eapply gamma_eq_p_mq in Hgp; try eassumption.
+bbb.
+
+Lemma rrr : ∀ pol pol₁ ns m c q,
+  ns ∈ newton_segments pol
+  → ps_lap_forall (λ a, in_K_1_m a m) (al pol)
+  → c = ac_root (Φq pol ns)
+  → q = q_of_ns pol ns
+  → pol₁ = next_pol pol (β ns) (γ ns) c
+  → ps_lap_forall (λ a, in_K_1_m a (m * q)) (al pol₁).
+Proof.
+intros pol pol₁ ns m c q Hns Hlam Hc Hq Hpol₁.
+subst pol₁.
+unfold next_pol, next_lap; simpl.
+apply ps_lap_forall_forall.
+ intros a b Hab Hamq.
+ rewrite <- Hab; assumption.
+
+ intros b Hin.
+ eapply in_K_1_m_lap_mul_compat; eauto .
+  intros a Ha.
+  destruct Ha as [Ha| ]; [ idtac | contradiction ].
+  destruct Ha as (_, Ha).
+  rewrite <- Ha.
+  eapply minus_beta_in_K_1_mq; eauto .
+bbb.
+
 Lemma sss : ∀ pol ns pol₁ ns₁ c m,
   ns ∈ newton_segments pol
   → c = ac_root (Φq pol ns)
