@@ -1542,13 +1542,12 @@ eapply in_pts_in_pol with (hv := αj) in Heqjps; try eassumption.
 bbb.
 *)
 
-(* oui mais ça fait pas de sens : en fait il faut que gcd(p,q) = 1 *)
-Theorem ooo : ∀ pol ns m,
-  ns ∈ newton_segments pol
-  → ps_lap_forall (λ a, in_K_1_m a m) (al pol)
-  → ∃ p q, γ ns == p # (m * q).
+Theorem ooo : ∀ a m, ∃ p q, a == p # (m * q) ∧ Z.gcd p ('q) = 1%Z.
 Proof.
-intros pol ns m Hns Hm.
+intros a m.
+bbb.
+
+intros pol ns m Hns.
 remember Hns as Hini; clear HeqHini.
 remember Hns as Hfin; clear HeqHfin.
 apply exists_ini_pt_nat in Hini.
@@ -1562,12 +1561,60 @@ rewrite Z.mul_opp_l, Z.add_opp_r.
 rewrite Qnum_inv_Qnat_sub.
  rewrite Qden_inv_Qnat_sub.
   rewrite Z.mul_1_r.
-  exists ((Qnum αj * ' Qden αk - Qnum αk * ' Qden αj) * ' m)%Z.
-  exists (Qden αj * Qden αk * Pos.of_nat (k - j))%positive.
+  remember ((Qnum αj * ' Qden αk - Qnum αk * ' Qden αj) * ' m)%Z as p.
+  remember (Qden αj * Qden αk * Pos.of_nat (k - j))%positive as q.
+  remember (Z.gcd p (' q)) as g.
+  exists (p / g)%Z, (Z.to_pos (' q / g)).
   rewrite Pos2Z.inj_mul.
-  rewrite Pos2Z.inj_mul.
-  rewrite Pos2Z.inj_mul.
-  ring.
+  rewrite Z.mul_assoc.
+  rewrite <- Heqp.
+  pose proof (Z.gcd_divide_l p (' q)).
+  rewrite <- Heqg in H.
+  destruct H as (gp, Hgp).
+  rewrite Hgp.
+  assert (g ≠ 0)%Z as Hg0.
+   intros H.
+   rewrite Heqg in H.
+   apply Z.gcd_eq_0_r in H; revert H; apply Pos2Z_ne_0.
+
+   rewrite Z.div_mul; auto.
+   pose proof (Z.gcd_divide_r p (' q)).
+   rewrite <- Heqg in H.
+   destruct H as (gq, Hgq).
+   rewrite Hgq.
+   rewrite Z.div_mul; auto.
+   rewrite Z.mul_shuffle0, Z.mul_assoc.
+   rewrite Z2Pos.id; [ reflexivity | idtac ].
+   apply Z.mul_lt_mono_pos_r with (p := g).
+    symmetry in Heqg.
+    destruct g as [| g| g].
+     rewrite Z.mul_0_r in Hgq.
+     exfalso; revert Hgq; apply Pos2Z_ne_0.
+
+     apply Pos2Z.is_pos.
+
+     pose proof (Z.gcd_nonneg p (' q)).
+     rewrite Heqg in H.
+     apply Z.nlt_ge in H.
+     exfalso; apply H.
+     apply Pos2Z.neg_is_neg.
+
+    simpl.
+    rewrite <- Hgq; apply Pos2Z.is_pos.
+
+  eapply j_lt_k; eauto .
+   rewrite Hini; simpl.
+   rewrite nat_num_Qnat; reflexivity.
+
+   rewrite Hfin; simpl.
+   rewrite nat_num_Qnat; reflexivity.
+
+ eapply j_lt_k; eauto .
+  rewrite Hini; simpl.
+  rewrite nat_num_Qnat; reflexivity.
+
+  rewrite Hfin; simpl.
+  rewrite nat_num_Qnat; reflexivity.
 bbb.
 
 Theorem ppp : ∀ pol ns m a c q,
