@@ -1929,8 +1929,15 @@ induction n; intros.
                    unfold Qlt in Hαj₃; simpl in Hαj₃.
                    unfold Qeq in Hαk₃; simpl in Hαk₃.
                    rewrite Z.mul_1_r in Hαj₃, Hαk₃.
+                   unfold glop in Heqg₃; simpl in Heqg₃.
+                   rewrite Hini₃, Hfin₃ in Heqg₃; simpl in Heqg₃.
+                   rewrite Hαk₃ in Heqg₃; simpl in Heqg₃.
+                   rewrite Z.mul_1_r, Z.add_0_r in Heqg₃.
+                   do 2 rewrite Pos.mul_1_r in Heqg₃.
+                   rewrite Z.mul_shuffle0 in Heqg₃.
+                   rewrite Pos2Z.inj_mul in Heqg₃.
+                   rewrite Z.div_mul_cancel_r in Heqg₃; auto.
                    destruct (eq_nat_dec g₃ (S id)) as [H₁₁| H₁₁].
-                    subst g₃.
 bbb.
 
 intros pol ns pol₁ ns₁ c m Hns Hc Hr Hpol₁ Hns₁ Hm n.
