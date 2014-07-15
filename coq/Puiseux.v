@@ -1915,6 +1915,22 @@ induction n; intros.
                   Focus 1.
                   rewrite <- Hc₂, <- Hpol₃, <- Hns₃.
                   destruct (ps_zerop R (ps_poly_nth 0 pol₃)) as [H₁₀| H₁₀].
+                   destruct i; [ reflexivity | simpl ].
+                   destruct (ps_zerop R (ps_poly_nth 0 pol₃)); auto.
+                   contradiction.
+
+                   remember Hns₂ as Hr₂; clear HeqHr₂.
+                   eapply multiplicity_1_remains with (ns := ns₁) in Hr₂;
+                    eauto .
+                   remember Hns₂₁ as H; clear HeqH.
+                   eapply r_1_j_0_k_1 in H; try eassumption.
+                   destruct H as (Hj₃, (Hk₃, (Hαj₃, (Hαk₃, Hoth₃)))).
+                   subst j₃ k₃; simpl.
+                   unfold Qlt in Hαj₃; simpl in Hαj₃.
+                   unfold Qeq in Hαk₃; simpl in Hαk₃.
+                   rewrite Z.mul_1_r in Hαj₃, Hαk₃.
+                   destruct (eq_nat_dec g₃ (S id)) as [H₁₁| H₁₁].
+                    subst g₃.
 bbb.
 
 intros pol ns pol₁ ns₁ c m Hns Hc Hr Hpol₁ Hns₁ Hm n.
