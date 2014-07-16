@@ -545,8 +545,24 @@ Proof.
 intros pol ns m Hns Hm.
 apply any_is_p_mq.
 (* oui, mais bon... *)
+Abort. (*
+bbb.
+*)
+
+(* com_den_of_ini_pt *)
+Lemma www : ∀ pol ns m j αj mj,
+  ns ∈ newton_segments pol
+  → ps_lap_forall (λ a, in_K_1_m a m) (al pol)
+  → (Qnat j, αj) = ini_pt ns
+  → mj = mj_of_ns pol ns
+  → αj == mj # m.
+Proof.
+intros pol ns m j αj mj Hns Hm Hini Hmj.
+pose proof (any_is_p_mq αj m) as H.
+destruct H as (p, (q, (Hmp, Hg))).
 bbb.
 
+(* minus_beta_in_K_1_mq *)
 Theorem yyy : ∀ pol ns m a c q,
   ns ∈ newton_segments pol
   → ps_lap_forall (λ a, in_K_1_m a m) (al pol)
@@ -557,9 +573,17 @@ Proof.
 intros pol ns m a c q Hns Hm Hq Ha.
 constructor; subst a.
 remember (p_of_ns pol ns) as p eqn:Hp .
-remember Hns as Hgp; clear HeqHgp.
-eapply gamma_eq_p_mq in Hgp; try eassumption.
+pose proof (any_is_p_mq (γ ns) m) as Hgp.
+destruct Hgp as (p', (q', (Hgp, Hg))).
+remember Hns as Hini; clear HeqHini.
+apply exists_ini_pt_nat in Hini.
+destruct Hini as (j, (αj, Hini)).
+remember Hns as Him; clear HeqHim.
+symmetry in Hini.
 bbb.
+eapply com_den_of_ini_pt in Him; eauto .
+bbb.
+eapply gamma_eq_p_mq in Hgp; try eassumption.
 
 Theorem minus_beta_in_K_1_mq : ∀ pol ns m a c q,
   ns ∈ newton_segments pol
