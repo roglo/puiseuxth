@@ -786,25 +786,22 @@ Qed.
 Theorem yyy : ∀ pol ns m a c q,
   ns ∈ newton_segments pol
   → ps_lap_forall (λ a, in_K_1_m a m) (al pol)
-  → q = q_of_ns pol ns
+  → q = q_of_m m (γ ns)
   → a = ps_monom c (- β ns)
   → in_K_1_m a (m * q).
 Proof.
 intros pol ns m a c q Hns Hm Hq Ha.
 constructor; subst a.
-bbb.
-remember (p_of_ns pol ns) as p eqn:Hp .
-pose proof (any_is_p_mq (γ ns) m) as Hgp.
-destruct Hgp as (p', (q', (Hgp, Hg))).
+remember (p_of_m m (γ ns)) as p eqn:Hp .
+pose proof (any_is_p_mq (γ ns) m Hp Hq) as Hgp.
+destruct Hgp as (Hgp, Hg).
 remember Hns as Hini; clear HeqHini.
 apply exists_ini_pt_nat in Hini.
 destruct Hini as (j, (αj, Hini)).
 remember Hns as Him; clear HeqHim.
 symmetry in Hini.
+eapply pol_ord_of_ini_pt in Him; eauto .
 bbb.
-eapply com_den_of_ini_pt in Him; eauto .
-bbb.
-eapply gamma_eq_p_mq in Hgp; try eassumption.
 
 Theorem minus_beta_in_K_1_mq : ∀ pol ns m a c q,
   ns ∈ newton_segments pol
