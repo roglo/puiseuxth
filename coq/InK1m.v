@@ -586,6 +586,28 @@ injection H; clear H; intros H.
 rewrite <- H; reflexivity.
 Qed.
 
+Lemma qden_αk_is_ps_polord : ∀ pol ns k αk,
+  ns ∈ newton_segments pol
+  → (Qnat k, αk) = fin_pt ns
+  → Qden αk = ps_polord (ps_poly_nth k pol).
+Proof.
+intros pol ns k αk Hns Hfin.
+remember Hns as H; clear HeqH.
+eapply order_in_newton_segment with (h := k) (αh := αk) in H; eauto .
+ unfold order in H.
+ remember (ps_poly_nth k pol) as ps.
+ remember (null_coeff_range_length R (ps_terms ps) 0) as v eqn:Hv .
+ symmetry in Hv.
+ destruct v; [ idtac | discriminate H ].
+ injection H; clear H; intros H.
+ rewrite <- H; reflexivity.
+
+ rewrite Hfin.
+ rewrite List.app_comm_cons.
+ apply List.in_or_app.
+ right; left; reflexivity.
+Qed.
+
 Lemma in_K_1_m_order_eq : ∀ ps m v,
   in_K_1_m ps m
   → order ps = qfin v
@@ -782,7 +804,7 @@ rewrite Z_div_mul_swap.
  eapply den_αj_divides_num_αj_m; eauto .
 Qed.
 
-(* minus_beta_in_K_1_mq *)
+(* similar to minus_beta_in_K_1_mq *)
 Theorem yyy : ∀ pol ns m a c q,
   ns ∈ newton_segments pol
   → ps_lap_forall (λ a, in_K_1_m a m) (al pol)
@@ -801,6 +823,29 @@ destruct Hini as (j, (αj, Hini)).
 remember Hns as Him; clear HeqHim.
 symmetry in Hini.
 eapply pol_ord_of_ini_pt in Him; eauto .
+remember Hns as Hbm; clear HeqHbm.
+apply points_in_any_newton_segment with (h := Qnat j) (αh := αj) in Hbm.
+ rewrite Him, Hgp in Hbm.
+ remember (mh_of_m m αj (ps_poly_nth j pol)) as mj.
+ remember (mj * ' q + Z.of_nat j * p # m * q) as v.
+ exists (ps_monom c (- v)); subst v; simpl.
+ split; [ idtac | reflexivity ].
+ rewrite Hbm.
+ unfold ps_monom; simpl.
+ rewrite ps_adjust_eq with (n := O) (k := m).
+ unfold adjust_ps; simpl.
+ rewrite Z.sub_0_r.
+ rewrite fold_series_const.
+ rewrite series_stretch_const, series_shift_0.
+ apply mkps_morphism; try reflexivity.
+  rewrite Z.mul_opp_l; f_equal.
+  rewrite Z.mul_add_distr_r; f_equal.
+  rewrite <- Z.mul_assoc; f_equal.
+  apply Z.mul_comm.
+
+  apply Pos.mul_comm.
+
+ left; symmetry; eassumption.
 bbb.
 
 Theorem minus_beta_in_K_1_mq : ∀ pol ns m a c q,
