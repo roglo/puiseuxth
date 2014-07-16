@@ -569,13 +569,22 @@ Abort. (*
 bbb.
 *)
 
-Lemma vvv : ∀ pol ns j αj,
+Lemma qden_αj_is_ps_polord : ∀ pol ns j αj,
   ns ∈ newton_segments pol
   → (Qnat j, αj) = ini_pt ns
-  → Qden αj = ps_polord (List.nth j (al pol) 0%ps).
+  → Qden αj = ps_polord (ps_poly_nth j pol).
 Proof.
 intros pol ns j αj Hns Hini.
-bbb.
+remember Hns as H; clear HeqH.
+eapply order_in_newton_segment in H; eauto ; [ idtac | left; eauto  ].
+unfold order in H.
+remember (ps_poly_nth j pol) as ps.
+remember (null_coeff_range_length R (ps_terms ps) 0) as v eqn:Hv .
+symmetry in Hv.
+destruct v; [ idtac | discriminate H ].
+injection H; clear H; intros H.
+rewrite <- H; reflexivity.
+Qed.
 
 (* com_den_of_ini_pt *)
 Lemma www : ∀ pol ns m j αj mj,
@@ -590,6 +599,8 @@ subst mj; simpl.
 unfold mh_of_m; simpl.
 unfold Qeq; simpl.
 rewrite Z_div_mul_swap.
+ erewrite qden_αj_is_ps_polord; eauto .
+ rewrite Z.div_mul; eauto .
 bbb.
 
 intros pol ns m j αj mj Hns Hm Hini Hmj.
