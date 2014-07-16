@@ -493,17 +493,20 @@ Definition p_of_m m a :=
 Definition q_of_m m a :=
   let p := (Qnum a * ' m)%Z in
   let q := Qden a in
-  (q / Z.gcd p ('q))%Z.
+  Z.to_pos ('q / Z.gcd p ('q)).
 
-Theorem any_is_p_mq : ∀ a m, ∃ p q, a == p # (m * q) ∧ Z.gcd p ('q) = 1%Z.
+Theorem any_is_p_mq : ∀ a m p q,
+  p = p_of_m m a
+  → q = q_of_m m a
+  → a == p # (m * q) ∧ Z.gcd p ('q) = 1%Z.
 Proof.
-intros a m.
-bbb.
+intros a m p q Hp Hq.
 unfold Qeq; simpl.
+subst p q; simpl.
+unfold p_of_m, q_of_m; simpl.
 remember (Qnum a * ' m)%Z as p.
 remember (Qden a) as q.
 remember (Z.gcd p (' q)) as g.
-exists (p / g)%Z, (Z.to_pos (' q / g)).
 rewrite Pos2Z.inj_mul.
 rewrite Z.mul_assoc.
 rewrite <- Heqp.
@@ -549,13 +552,15 @@ assert (g ≠ 0)%Z as Hg0.
 Qed.
 
 (* gamma_eq_p_mq *)
-Theorem xxx : ∀ pol ns m,
+Theorem xxx : ∀ pol ns m p q,
   ns ∈ newton_segments pol
   → ps_lap_forall (λ a, in_K_1_m a m) (al pol)
-  → ∃ p q, γ ns == p # (m * q) ∧ Z.gcd p ('q) = 1%Z.
+  → p = p_of_m m (γ ns)
+  → q = q_of_m m (γ ns)
+  → γ ns == p # (m * q) ∧ Z.gcd p ('q) = 1%Z.
 Proof.
-intros pol ns m Hns Hm.
-apply any_is_p_mq.
+intros pol ns m p q Hns Hm Hp Hq.
+apply any_is_p_mq; assumption.
 (* oui, mais bon... *)
 Abort. (*
 bbb.
@@ -570,8 +575,10 @@ Lemma www : ∀ pol ns m j αj mj,
   → αj == mj # m.
 Proof.
 intros pol ns m j αj mj Hns Hm Hini Hmj.
-pose proof (any_is_p_mq αj m) as H.
-destruct H as (p, (q, (Hmp, Hg))).
+remember (p_of_m m αj) as p.
+remember (q_of_m m αj) as q.
+pose proof (any_is_p_mq αj m Heqp Heqq) as H.
+destruct H as (Hmp, Hg).
 bbb.
 
 (* minus_beta_in_K_1_mq *)
