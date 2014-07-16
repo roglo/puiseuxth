@@ -569,6 +569,14 @@ Abort. (*
 bbb.
 *)
 
+Lemma vvv : ∀ pol ns j αj,
+  ns ∈ newton_segments pol
+  → (Qnat j, αj) = ini_pt ns
+  → Qden αj = ps_polord (List.nth j (al pol) 0%ps).
+Proof.
+intros pol ns j αj Hns Hini.
+bbb.
+
 (* com_den_of_ini_pt *)
 Lemma www : ∀ pol ns m j αj mj,
   ns ∈ newton_segments pol
@@ -581,6 +589,7 @@ intros pol ns m j αj mj Hns Hm Hini Hmj.
 subst mj; simpl.
 unfold mh_of_m; simpl.
 unfold Qeq; simpl.
+rewrite Z_div_mul_swap.
 bbb.
 
 intros pol ns m j αj mj Hns Hm Hini Hmj.
