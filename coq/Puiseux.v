@@ -1949,7 +1949,48 @@ induction n; intros.
                        destruct i; simpl.
                         remember Hns₃ as Hns₃₁; clear HeqHns₃₁.
                         eapply hd_newton_segments in Hns₃₁; eauto .
-                        eapply den_αj_divides_num_αj_m in Hns₃₁; eauto .
+                        eapply den_αj_divides_num_αj_m with (m := m) in Hns₃₁;
+                         eauto .
+                         destruct Hns₃₁ as (e, He).
+                         rewrite He in Heqg₄.
+                         rewrite Z.div_mul in Heqg₄; auto.
+                         symmetry in Heqg₄.
+                         destruct g₄.
+                          apply Nat.eq_add_0 in Heqg₄.
+                          destruct Heqg₄ as (Hdz, Hez).
+                          exfalso; revert Hdz; apply Pos2Nat_ne_0.
+
+                          destruct g₄.
+                           remember (Pos.to_nat d) as dp.
+                           symmetry in Heqdp.
+                           destruct dp.
+                            exfalso; revert Heqdp; apply Pos2Nat_ne_0.
+
+                            simpl in Heqg₄.
+                            apply Nat.succ_inj in Heqg₄.
+                            apply Nat.eq_add_0 in Heqg₄.
+                            destruct Heqg₄ as (hdp, Hez).
+                            rewrite <- Z2Nat.inj_0 in Hez.
+                            apply Z2Nat.inj in Hez.
+                             subst e.
+                             simpl in He.
+                             apply Z.mul_eq_0_l in He; auto.
+                             rewrite He in Hαj₃.
+                             exfalso; revert Hαj₃; apply Z.lt_irrefl.
+
+                             apply
+                              Z.mul_le_mono_pos_r with (p := (' Qden αj₃)%Z).
+                              apply Pos2Z.is_pos.
+
+                              rewrite <- He; simpl.
+                              apply Z.mul_nonneg_nonneg.
+                               apply Z.lt_le_incl; assumption.
+
+                               auto.
+
+                             reflexivity.
+
+                           exfalso; fast_omega H₁₃.
 bbb.
 
 intros pol ns pol₁ ns₁ c m Hns Hc Hr Hpol₁ Hns₁ Hm n.
