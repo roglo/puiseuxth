@@ -578,6 +578,12 @@ Lemma www : ∀ pol ns m j αj mj,
   → αj == mj # m.
 Proof.
 intros pol ns m j αj mj Hns Hm Hini Hmj.
+subst mj; simpl.
+unfold mh_of_m; simpl.
+unfold Qeq; simpl.
+bbb.
+
+intros pol ns m j αj mj Hns Hm Hini Hmj.
 remember (p_of_m m αj) as p.
 remember (q_of_m m αj) as q.
 pose proof (any_is_p_mq αj m Heqp Heqq) as H.
