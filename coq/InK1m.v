@@ -495,6 +495,9 @@ Definition q_of_m m a :=
   let q := Qden a in
   Z.to_pos ('q / Z.gcd p ('q)).
 
+Definition mh_of_m α m αh (hps : puiseux_series α) :=
+  (Qnum αh * ' m / ' ps_polord hps)%Z.
+
 Theorem any_is_p_mq : ∀ a m p q,
   p = p_of_m m a
   → q = q_of_m m a
@@ -571,7 +574,7 @@ Lemma www : ∀ pol ns m j αj mj,
   ns ∈ newton_segments pol
   → ps_lap_forall (λ a, in_K_1_m a m) (al pol)
   → (Qnat j, αj) = ini_pt ns
-  → mj = mj_of_ns pol ns
+  → mj = mh_of_m m αj (List.nth j (al pol) 0%ps)
   → αj == mj # m.
 Proof.
 intros pol ns m j αj mj Hns Hm Hini Hmj.
@@ -579,6 +582,13 @@ remember (p_of_m m αj) as p.
 remember (q_of_m m αj) as q.
 pose proof (any_is_p_mq αj m Heqp Heqq) as H.
 destruct H as (Hmp, Hg).
+unfold mh_of_m in Hmj.
+rewrite Hmj.
+subst p q.
+unfold p_of_m, q_of_m in Hmp.
+simpl in Hmp.
+unfold Qeq in Hmp; simpl in Hmp.
+unfold Qeq; simpl.
 bbb.
 
 (* minus_beta_in_K_1_mq *)
