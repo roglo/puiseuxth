@@ -485,6 +485,31 @@ destruct lb as [| b].
   apply lap_eq_0.
 Qed.
 
+Theorem xxx : ∀ pol ns m p q,
+  ns ∈ newton_segments pol
+  → ps_lap_forall (λ a, in_K_1_m a m) (al pol)
+  → p = p_of_ns pol ns
+  → q = q_of_ns pol ns
+  → γ ns == p # (m * q).
+Proof.
+(* ne marchera pas : car p_of_ns et q_of_ns dépendent d'une définition
+   de m = ps_list_com_polord (al pol) *)
+bbb.
+
+Theorem yyy : ∀ pol ns m a c q,
+  ns ∈ newton_segments pol
+  → ps_lap_forall (λ a, in_K_1_m a m) (al pol)
+  → q = q_of_ns pol ns
+  → a = ps_monom c (- β ns)
+  → in_K_1_m a (m * q).
+Proof.
+intros pol ns m a c q Hns Hm Hq Ha.
+constructor; subst a.
+remember (p_of_ns pol ns) as p eqn:Hp .
+remember Hns as Hgp; clear HeqHgp.
+eapply gamma_eq_p_mq in Hgp; try eassumption.
+bbb.
+
 Theorem minus_beta_in_K_1_mq : ∀ pol ns m a c q,
   ns ∈ newton_segments pol
   → m = ps_list_com_polord (al pol)
@@ -584,6 +609,30 @@ apply ps_lap_forall_forall.
   apply in_K_1_m_lap_mul_r_compat.
   apply IHla; [ reflexivity | assumption ].
 Qed.
+
+Theorem zzz : ∀ pol pol₁ ns m c q,
+  ns ∈ newton_segments pol
+  → ps_lap_forall (λ a, in_K_1_m a m) (al pol)
+  → c = ac_root (Φq pol ns)
+  → q = q_of_ns pol ns
+  → pol₁ = next_pol pol (β ns) (γ ns) c
+  → ps_lap_forall (λ a, in_K_1_m a (m * q)) (al pol₁).
+Proof.
+intros pol pol₁ ns m c q Hns Hm Hc Hq Hpol₁.
+subst pol₁.
+unfold next_pol, next_lap; simpl.
+apply ps_lap_forall_forall.
+ intros a b Hab Hamq.
+ rewrite <- Hab; assumption.
+
+ intros b Hin.
+ eapply in_K_1_m_lap_mul_compat; eauto .
+  intros a Ha.
+  destruct Ha as [Ha| ]; [ idtac | contradiction ].
+  destruct Ha as (_, Ha).
+  rewrite <- Ha.
+  eapply minus_beta_in_K_1_mq; eauto .
+bbb.
 
 Theorem next_pol_in_K_1_mq : ∀ pol pol₁ ns m c q,
   ns ∈ newton_segments pol
