@@ -1458,57 +1458,6 @@ apply order_inf in Ha; rewrite Ha.
 apply IHla; assumption.
 Qed.
 
-Lemma any_in_K_1_m : ∀ la m h αh,
-  ps_lap_forall (λ a, in_K_1_m a m) la
-  → (Qnat h, αh) ∈ points_of_ps_lap la
-  → ∃ mh, αh == mh # m.
-Proof.
-intros la m h αh HinK Hin.
-unfold points_of_ps_lap in Hin.
-unfold points_of_ps_lap_gen in Hin.
-unfold qpower_list in Hin.
-remember O as pow; clear Heqpow.
-revert pow Hin.
-induction la as [| a]; intros; [ contradiction | idtac ].
-simpl in Hin.
-inversion_clear HinK.
- apply lap_eq_cons_nil_inv in H.
- destruct H as (Ha, Hla); simpl in Ha.
- apply order_inf in Ha.
- rewrite Ha in Hin.
- eapply IHla; eauto .
- constructor; assumption.
-
- remember (order a) as v eqn:Hv .
- symmetry in Hv.
- destruct v as [v| ].
-  simpl in Hin.
-  destruct Hin as [Hin| Hin].
-   injection Hin; clear Hin; intros; subst v.
-   eapply in_K_1_m_order_eq; eauto .
-
-   eapply IHla; eauto .
-
-  eapply IHla; eauto .
-Qed.
-
-Lemma den_αj_divides_num_αj_m : ∀ pol ns j αj m,
-  ns ∈ newton_segments pol
-  → ini_pt ns = (Qnat j, αj)
-  → ps_lap_forall (λ a, in_K_1_m a m) (al pol)
-  → (' Qden αj | Qnum αj * ' m)%Z.
-Proof.
-intros pol ns j αj m Hns Hini HinK.
-apply any_in_K_1_m with (h := j) (αh := αj) in HinK.
- destruct HinK as (mh, Hmh).
- exists mh; assumption.
-
- unfold newton_segments in Hns.
- unfold points_of_ps_polynom in Hns.
- apply ini_fin_ns_in_init_pts in Hns.
- destruct Hns; rewrite <- Hini; assumption.
-Qed.
-
 (*
 Theorem ppp : ∀ pol ns m a c q,
   ns ∈ newton_segments pol
