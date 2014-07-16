@@ -485,9 +485,20 @@ destruct lb as [| b].
   apply lap_eq_0.
 Qed.
 
+Definition p_of_m m a :=
+  let p := (Qnum a * ' m)%Z in
+  let q := Qden a in
+  (p / Z.gcd p ('q))%Z.
+
+Definition q_of_m m a :=
+  let p := (Qnum a * ' m)%Z in
+  let q := Qden a in
+  (q / Z.gcd p ('q))%Z.
+
 Theorem any_is_p_mq : ∀ a m, ∃ p q, a == p # (m * q) ∧ Z.gcd p ('q) = 1%Z.
 Proof.
 intros a m.
+bbb.
 unfold Qeq; simpl.
 remember (Qnum a * ' m)%Z as p.
 remember (Qden a) as q.
@@ -537,6 +548,7 @@ assert (g ≠ 0)%Z as Hg0.
    rewrite <- Hgq; apply Pos2Z.is_pos.
 Qed.
 
+(* gamma_eq_p_mq *)
 Theorem xxx : ∀ pol ns m,
   ns ∈ newton_segments pol
   → ps_lap_forall (λ a, in_K_1_m a m) (al pol)
