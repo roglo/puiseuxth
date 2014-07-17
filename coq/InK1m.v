@@ -929,7 +929,24 @@ apply points_in_any_newton_segment with (h := Qnat j) (αh := αj) in Hbm.
  left; symmetry; eassumption.
 Qed.
 
-Theorem gamma_in_K_1_mq : ∀ pol ns m a c q,
+(* similar to gamma_in_K_1_mq₂ *)
+Theorem gamma_in_K_1_mq : ∀ ns m a c q,
+  q = q_of_m m (γ ns)
+  → (a = ps_monom c (γ ns))%ps
+  → in_K_1_m a (m * q).
+Proof.
+intros ns m a c q Hq Ha.
+constructor.
+remember (p_of_m m (γ ns)) as p eqn:Hp .
+pose proof (any_is_p_mq (γ ns) m Hp Hq) as Hgp.
+destruct Hgp as (Hgp, Hg).
+exists (ps_monom c (p # m * q)); simpl.
+split; [ idtac | reflexivity ].
+rewrite Ha, Hgp.
+reflexivity.
+Qed.
+
+Theorem gamma_in_K_1_mq₂ : ∀ pol ns m a c q,
   ns ∈ newton_segments pol
   → m = ps_list_com_polord (al pol)
   → q = q_of_ns pol ns
@@ -986,8 +1003,8 @@ apply ps_lap_forall_forall.
   apply IHla; [ reflexivity | assumption ].
 Qed.
 
-(* similar to next_pol_in_K_1_mq *)
-Theorem zzz : ∀ pol pol₁ ns m c q,
+(* similar to next_pol_in_K_1_mq₂ *)
+Theorem next_pol_in_K_1_mq : ∀ pol pol₁ ns m c q,
   ns ∈ newton_segments pol
   → ps_lap_forall (λ a, in_K_1_m a m) (al pol)
   → c = ac_root (Φq pol ns)
@@ -1025,9 +1042,14 @@ apply ps_lap_forall_forall.
    destruct Ha as [Ha| [Ha| ]]; [ idtac | idtac | contradiction ].
     destruct Ha as (Hla, Ha).
     symmetry in Ha.
-bbb.
+    eapply gamma_in_K_1_mq; eassumption.
 
-Theorem next_pol_in_K_1_mq : ∀ pol pol₁ ns m c q,
+    destruct Ha as (Hla, Ha).
+    symmetry in Ha.
+    eapply gamma_in_K_1_mq; eassumption.
+Qed.
+
+Theorem next_pol_in_K_1_mq₂ : ∀ pol pol₁ ns m c q,
   ns ∈ newton_segments pol
   → m = ps_list_com_polord (al pol)
   → c = ac_root (Φq pol ns)
@@ -1048,7 +1070,7 @@ apply ps_lap_forall_forall.
   destruct Ha as [Ha| ]; [ idtac | contradiction ].
   destruct Ha as (_, Ha).
   rewrite <- Ha.
-  eapply minus_beta_in_K_1_mq; eauto .
+  eapply minus_beta_in_K_1_mq₂; eauto .
 
   intros ps Hps.
   eapply in_K_1_m_lap_comp_compat; eauto .
@@ -1065,11 +1087,11 @@ apply ps_lap_forall_forall.
    destruct Ha as [Ha| [Ha| ]]; [ idtac | idtac | contradiction ].
     destruct Ha as (Hla, Ha).
     symmetry in Ha.
-    eapply gamma_in_K_1_mq; eassumption.
+    eapply gamma_in_K_1_mq₂; eassumption.
 
     destruct Ha as (Hla, Ha).
     symmetry in Ha.
-    eapply gamma_in_K_1_mq; eassumption.
+    eapply gamma_in_K_1_mq₂; eassumption.
 Qed.
 
 End theorems.
