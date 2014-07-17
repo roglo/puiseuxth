@@ -991,7 +991,7 @@ Theorem zzz : ∀ pol pol₁ ns m c q,
   ns ∈ newton_segments pol
   → ps_lap_forall (λ a, in_K_1_m a m) (al pol)
   → c = ac_root (Φq pol ns)
-  → q = q_of_ns pol ns
+  → q = q_of_m m (γ ns)
   → pol₁ = next_pol pol (β ns) (γ ns) c
   → ps_lap_forall (λ a, in_K_1_m a (m * q)) (al pol₁).
 Proof.
@@ -1009,6 +1009,22 @@ apply ps_lap_forall_forall.
   destruct Ha as (_, Ha).
   rewrite <- Ha.
   eapply minus_beta_in_K_1_mq; eauto .
+
+  intros ps Hps.
+  eapply in_K_1_m_lap_comp_compat; eauto .
+   intros a Ha.
+   apply in_K_1_m_lap_mul_r_compat.
+   revert a Ha.
+   apply ps_lap_forall_forall.
+    intros a d Hab Hamq.
+    rewrite <- Hab; assumption.
+
+    assumption.
+
+   intros a Ha; simpl in Ha.
+   destruct Ha as [Ha| [Ha| ]]; [ idtac | idtac | contradiction ].
+    destruct Ha as (Hla, Ha).
+    symmetry in Ha.
 bbb.
 
 Theorem next_pol_in_K_1_mq : ∀ pol pol₁ ns m c q,
