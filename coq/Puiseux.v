@@ -1475,6 +1475,18 @@ split.
     eapply in_pts_in_pol in Hhps; try eassumption.
      destruct Hhps as (Hhps, Hαh).
      do 2 rewrite Qnum_minus_distr_r.
+     eapply pol_ord_of_ini_pt in Hj; try eassumption; rewrite Hj.
+     eapply pol_ord_of_oth_pt in Hh; try eassumption.
+      rewrite Hh; reflexivity.
+
+      subst hps; assumption.
+
+     eapply oth_pts_in_init_pts; try eassumption.
+     unfold newton_segments in Hns.
+     rewrite <- Hpts in Hns; assumption.
+
+   apply Nat.lt_le_incl.
+   eapply j_lt_h; try eassumption; reflexivity.
 bbb.
 *)
 

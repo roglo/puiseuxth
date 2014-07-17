@@ -896,6 +896,26 @@ rewrite Z_div_mul_swap.
  eapply den_αj_divides_num_αj_m; eauto .
 Qed.
 
+(* similar to com_den_of_oth_pt *)
+Lemma pol_ord_of_oth_pt : ∀ pol ns m h αh mh,
+  ns ∈ newton_segments pol
+  → ps_lap_forall (λ a, in_K_1_m a m) (al pol)
+  → (Qnat h, αh) ∈ oth_pts ns
+  → mh = mh_of_m m αh (ps_poly_nth h pol)
+  → αh == mh # m.
+Proof.
+intros pol ns m h αh mh Hns Hm Hfin Hmh.
+subst mh; simpl.
+unfold mh_of_m; simpl.
+unfold Qeq; simpl.
+rewrite Z_div_mul_swap.
+ erewrite qden_αh_is_ps_polord; eauto .
+ rewrite Z.div_mul; eauto .
+
+ erewrite <- qden_αh_is_ps_polord; eauto .
+ eapply den_αh_divides_num_αh_m; eauto .
+Qed.
+
 (* similar to minus_beta_in_K_1_mq₂ *)
 Theorem minus_beta_in_K_1_mq : ∀ pol ns m a c q,
   ns ∈ newton_segments pol
