@@ -1433,15 +1433,20 @@ intros pol ns j αj m mj p q Hns Hj Hmj Hp Hq h αh mh Hh Hmh.
 remember (points_of_ps_polynom pol) as pts eqn:Hpts .
 remember (ps_poly_nth h pol) as hps.
 apply List.in_app_or in Hh.
-unfold newton_segments in Hns.
-rewrite <- Hpts in Hns.
-split.
- rewrite Hmh; simpl.
- unfold Qeq; simpl.
- unfold mh_of_m; simpl.
- subst hps.
- erewrite <- qden_αj_is_ps_polord.
+destruct Hh as [Hh| Hh].
+ split.
+  rewrite Hmh; simpl.
+  unfold Qeq; simpl.
+  unfold mh_of_m; simpl.
+  subst hps.
+  erewrite <- qden_αh_is_ps_polord; eauto .
+  rewrite Z_div_mul_swap.
+   rewrite Z.div_mul; auto.
+
+   eapply den_αj_divides_num_αj_m; eauto .
+Abort. (*
 bbb.
+*)
 
 (* similar to q_is_factor_of_h_minus_j *)
 Theorem qqq : ∀ pol ns j αj m q,
@@ -1454,8 +1459,10 @@ Proof.
 intros pol ns j αj m q Hns Hj Hq h αh Hh.
 remember (p_of_m m (γ ns)) as p eqn:Hp .
 remember Hns as H; clear HeqH.
+Abort. (*
 eapply q_mj_mk_eq_p_h_j in H; try eassumption; try reflexivity.
 bbb.
+*)
 
 (* similar to q_eq_1 *)
 Lemma rrr : ∀ pol ns pol₁ ns₁ c₁ m,

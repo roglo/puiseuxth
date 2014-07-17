@@ -608,6 +608,27 @@ eapply order_in_newton_segment with (h := k) (αh := αk) in H; eauto .
  right; left; reflexivity.
 Qed.
 
+Lemma qden_αh_is_ps_polord : ∀ pol ns h αh,
+  ns ∈ newton_segments pol
+  → (Qnat h, αh) ∈ oth_pts ns
+  → Qden αh = ps_polord (ps_poly_nth h pol).
+Proof.
+intros pol ns h αh Hns Hoth.
+remember Hns as H; clear HeqH.
+eapply order_in_newton_segment with (h := h) (αh := αh) in H; eauto .
+ unfold order in H.
+ remember (ps_poly_nth h pol) as ps.
+ remember (null_coeff_range_length R (ps_terms ps) 0) as v eqn:Hv .
+ symmetry in Hv.
+ destruct v; [ idtac | discriminate H ].
+ injection H; clear H; intros H.
+ rewrite <- H; reflexivity.
+
+ right.
+ apply List.in_or_app.
+ left; assumption.
+Qed.
+
 Lemma in_K_1_m_order_eq : ∀ ps m v,
   in_K_1_m ps m
   → order ps = qfin v
