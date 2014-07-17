@@ -1417,6 +1417,46 @@ inversion H; subst.
  apply IHl with (pow := S pow); auto.
 Qed.
 
+(* similar to q_mj_mk_eq_p_h_j *)
+Theorem ppp : ∀ pol ns j αj m mj p q,
+  ns ∈ newton_segments pol
+  → (Qnat j, αj) = ini_pt ns
+  → mj = mh_of_m m αj (ps_lap_nth j (al pol))
+  → p = p_of_m m (γ ns)
+  → q = Pos.to_nat (q_of_m m (γ ns))
+  → ∀ h αh mh, (Qnat h, αh) ∈ oth_pts ns ++ [fin_pt ns]
+  → mh = mh_of_m m αh (ps_poly_nth h pol)
+  → αh == mh # m
+    ∧ (Z.of_nat q * (mj - mh) = p * Z.of_nat (h - j))%Z.
+Proof.
+intros pol ns j αj m mj p q Hns Hj Hmj Hp Hq h αh mh Hh Hmh.
+remember (points_of_ps_polynom pol) as pts eqn:Hpts .
+remember (ps_poly_nth h pol) as hps.
+apply List.in_app_or in Hh.
+unfold newton_segments in Hns.
+rewrite <- Hpts in Hns.
+split.
+ rewrite Hmh; simpl.
+ unfold Qeq; simpl.
+ unfold mh_of_m; simpl.
+ subst hps.
+ erewrite <- qden_αj_is_ps_polord.
+bbb.
+
+(* similar to q_is_factor_of_h_minus_j *)
+Theorem qqq : ∀ pol ns j αj m q,
+  ns ∈ newton_segments pol
+  → (Qnat j, αj) = ini_pt ns
+  → q = Pos.to_nat (q_of_m m (γ ns))
+  → ∀ h αh, (Qnat h, αh) ∈ oth_pts ns ++ [fin_pt ns]
+  → (q | h - j)%nat.
+Proof.
+intros pol ns j αj m q Hns Hj Hq h αh Hh.
+remember (p_of_m m (γ ns)) as p eqn:Hp .
+remember Hns as H; clear HeqH.
+eapply q_mj_mk_eq_p_h_j in H; try eassumption; try reflexivity.
+bbb.
+
 (* similar to q_eq_1 *)
 Lemma rrr : ∀ pol ns pol₁ ns₁ c₁ m,
   ns ∈ newton_segments pol
