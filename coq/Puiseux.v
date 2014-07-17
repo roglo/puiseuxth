@@ -1455,18 +1455,26 @@ split.
 
    eapply den_αk_divides_num_αk_m; eauto .
 
- rewrite Hmh; simpl.
- unfold Qeq; simpl.
- unfold mh_of_m; simpl.
- subst hps.
- destruct Hh as [Hh| [Hk| ]]; [ idtac | idtac | contradiction ].
-  erewrite <- qden_αh_is_ps_polord; eauto .
-  assert (' Qden αh | Qnum αh * ' m)%Z as H.
-   eapply den_αh_divides_num_αh_m; eauto .
+ destruct Hh as [Hh| [Hh| ]]; [ idtac | idtac | contradiction ].
+  remember Hns as Hgh; clear HeqHgh.
+  eapply gamma_value_jh in Hgh; try eassumption.
+  remember (q_of_m m (γ ns)) as pq eqn:Hpq .
+  pose proof (any_is_p_mq (γ ns) m Hp Hpq) as H.
+  destruct H as (Hgamma, Hg).
+  rewrite Hgamma in Hgh.
+  unfold Qnat in Hgh.
+  rewrite <- Qnum_minus_distr_r in Hgh.
+  rewrite Nat2Z.inj_sub.
+   rewrite Hq.
+   rewrite positive_nat_Z.
+   eapply pmq_qmpm; try reflexivity.
+    eapply j_lt_h; try eassumption; reflexivity.
 
-   destruct H as (c, Hc).
-   rewrite Hc.
-   rewrite Z.div_mul; eauto .
+    rewrite Hgh.
+    remember Heqhps as Hhps; clear HeqHhps.
+    eapply in_pts_in_pol in Hhps; try eassumption.
+     destruct Hhps as (Hhps, Hαh).
+     do 2 rewrite Qnum_minus_distr_r.
 bbb.
 *)
 

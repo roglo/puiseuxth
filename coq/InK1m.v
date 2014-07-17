@@ -554,7 +554,7 @@ assert (g ≠ 0)%Z as Hg0.
    rewrite <- Hgq; apply Pos2Z.is_pos.
 Qed.
 
-(* gamma_eq_p_mq *)
+(* similar to gamma_eq_p_mq *)
 Theorem xxx : ∀ pol ns m p q,
   ns ∈ newton_segments pol
   → ps_lap_forall (λ a, in_K_1_m a m) (al pol)
