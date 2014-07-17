@@ -1417,6 +1417,37 @@ inversion H; subst.
  apply IHl with (pow := S pow); auto.
 Qed.
 
+(* similar to q_eq_1 *)
+Lemma rrr : ∀ pol ns pol₁ ns₁ c₁ m,
+  ns ∈ newton_segments pol
+  → c₁ = ac_root (Φq pol ns)
+  → root_multiplicity acf c₁ (Φq pol ns) = 1%nat
+  → pol₁ = next_pol pol (β ns) (γ ns) c₁
+  → ns₁ = List.hd phony_ns (newton_segments pol₁)
+  → (ps_poly_nth 0 pol₁ ≠ 0)%ps
+  → q_of_m m (γ ns₁) = 1%positive.
+Proof.
+intros pol ns pol₁ ns₁ c₁ m Hns Hc₁ Hr Hpol₁ Hns₁ Hps₀.
+remember Hns₁ as Hini₁; clear HeqHini₁.
+apply exists_ini_pt_nat_fst_seg in Hini₁.
+destruct Hini₁ as (j₁, (αj₁, Hini₁)).
+remember Hns₁ as Hfin₁; clear HeqHfin₁.
+apply exists_fin_pt_nat_fst_seg in Hfin₁.
+destruct Hfin₁ as (k₁, (αk₁, Hfin₁)).
+unfold q_of_m; simpl.
+rewrite Hini₁, Hfin₁; simpl.
+remember Hns as H; clear HeqH.
+eapply r_1_j_0_k_1 in H; try eassumption.
+destruct H as (Hj₁, (Hk₁, (Hαj₁, (Hαk₁, Hoth₁)))).
+subst j₁ k₁; simpl.
+rewrite Pos.mul_1_r, Z.mul_1_r.
+unfold Qlt in Hαj₁; simpl in Hαj₁.
+unfold Qeq in Hαk₁; simpl in Hαk₁.
+rewrite Z.mul_1_r in Hαj₁, Hαk₁.
+rewrite Hαk₁; simpl.
+rewrite Z.add_0_r.
+bbb.
+
 Lemma q_eq_1 : ∀ pol ns pol₁ ns₁ c₁,
   ns ∈ newton_segments pol
   → c₁ = ac_root (Φq pol ns)
@@ -1458,46 +1489,6 @@ apply order_inf in Ha; rewrite Ha.
 apply IHla; assumption.
 Qed.
 
-(*
-Theorem ppp : ∀ pol ns m a c q,
-  ns ∈ newton_segments pol
-  → ps_lap_forall (λ a, in_K_1_m a m) (al pol)
-  → q = q_of_ns pol ns
-  → a = ps_monom c (- β ns)
-  → in_K_1_m a (m * q).
-Proof.
-intros pol ns m a c q Hns Hlam Hq Ha.
-constructor; subst a.
-remember (p_of_ns pol ns) as p eqn:Hp .
-remember Hns as Hgp; clear HeqHgp.
-eapply gamma_eq_p_mq in Hgp; try eassumption.
-bbb.
-
-Lemma rrr : ∀ pol pol₁ ns m c q,
-  ns ∈ newton_segments pol
-  → ps_lap_forall (λ a, in_K_1_m a m) (al pol)
-  → c = ac_root (Φq pol ns)
-  → q = q_of_ns pol ns
-  → pol₁ = next_pol pol (β ns) (γ ns) c
-  → ps_lap_forall (λ a, in_K_1_m a (m * q)) (al pol₁).
-Proof.
-intros pol pol₁ ns m c q Hns Hlam Hc Hq Hpol₁.
-subst pol₁.
-unfold next_pol, next_lap; simpl.
-apply ps_lap_forall_forall.
- intros a b Hab Hamq.
- rewrite <- Hab; assumption.
-
- intros b Hin.
- eapply in_K_1_m_lap_mul_compat; eauto .
-  intros a Ha.
-  destruct Ha as [Ha| ]; [ idtac | contradiction ].
-  destruct Ha as (_, Ha).
-  rewrite <- Ha.
-  eapply minus_beta_in_K_1_mq; eauto .
-bbb.
-*)
-
 Lemma sss : ∀ pol ns pol₁ ns₁ c m,
   ns ∈ newton_segments pol
   → c = ac_root (Φq pol ns)
@@ -1535,6 +1526,7 @@ induction n; intros.
   unfold Qeq in Hαk₁; simpl in Hαk₁.
   rewrite Z.mul_1_r in Hαj₁, Hαk₁.
   remember Hns₁ as HinK₁; clear HeqHinK₁.
+bbb.
   eapply hd_newton_segments in HinK₁; eauto .
   eapply next_pol_in_K_1_mq₂ in HinK₁; eauto .
   erewrite q_eq_1 in HinK₁; eauto .
