@@ -1429,6 +1429,9 @@ Lemma rrr : ∀ pol ns pol₁ ns₁ c₁ m,
   → q_of_m m (γ ns₁) = 1%positive.
 Proof.
 intros pol ns pol₁ ns₁ c₁ m Hns Hm Hc₁ Hr Hpol₁ Hns₁ Hps₀.
+(* voir page 102, plutôt *)
+bbb.
+
 unfold q_of_m; simpl.
 remember Hns₁ as Hini₁; clear HeqHini₁.
 apply exists_ini_pt_nat_fst_seg in Hini₁.
