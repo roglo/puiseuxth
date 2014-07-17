@@ -1429,39 +1429,36 @@ Lemma rrr : ∀ pol ns pol₁ ns₁ c₁ m,
   → q_of_m m (γ ns₁) = 1%positive.
 Proof.
 intros pol ns pol₁ ns₁ c₁ m Hns Hm Hc₁ Hr Hpol₁ Hns₁ Hps₀.
+unfold q_of_m; simpl.
 remember Hns₁ as Hini₁; clear HeqHini₁.
 apply exists_ini_pt_nat_fst_seg in Hini₁.
 destruct Hini₁ as (j₁, (αj₁, Hini₁)).
 remember Hns₁ as Hfin₁; clear HeqHfin₁.
 apply exists_fin_pt_nat_fst_seg in Hfin₁.
 destruct Hfin₁ as (k₁, (αk₁, Hfin₁)).
-unfold q_of_m; simpl.
-rewrite Hini₁, Hfin₁; simpl.
 remember Hns as H; clear HeqH.
 eapply r_1_j_0_k_1 in H; try eassumption.
 destruct H as (Hj₁, (Hk₁, (Hαj₁, (Hαk₁, Hoth₁)))).
 subst j₁ k₁; simpl.
-rewrite Pos.mul_1_r, Z.mul_1_r.
 unfold Qlt in Hαj₁; simpl in Hαj₁.
 unfold Qeq in Hαk₁; simpl in Hαk₁.
 rewrite Z.mul_1_r in Hαj₁, Hαk₁.
+rewrite Hini₁, Hfin₁; simpl.
 rewrite Hαk₁; simpl.
 rewrite Z.add_0_r.
-rewrite Z.mul_shuffle0, Pos2Z.inj_mul.
-rewrite Z.gcd_mul_mono_r_nonneg; auto.
-rewrite Z.div_mul_cancel_r; auto.
-bbb.
- assert (' Qden αj₁ | Qnum αj₁ * ' m)%Z as H.
-  Focus 2.
-  destruct H as (c, Hc).
-  replace (' Qden αj₁)%Z with (1 * ' Qden αj₁)%Z at 2 by reflexivity.
-  rewrite Hc.
-  rewrite Z.gcd_mul_mono_r_nonneg; auto.
-  rewrite Z.gcd_1_r; simpl.
-  rewrite Z.div_same; auto.
+rewrite Pos.mul_1_r, Z.mul_1_r.
+remember (q_of_m m (γ ns)) as q eqn:Hq .
+assert (' Qden αj₁ | Qnum αj₁ * ' m * ' q)%Z as H.
+ rewrite <- Z.mul_assoc.
+ eapply den_αj_divides_num_αj_m with (ns := ns₁); eauto .
+  eapply hd_newton_segments; eauto .
 
-  eapply den_αj_divides_num_αj_m with (ns := ns₁) (pol := pol₁); eauto .
-   eapply hd_newton_segments; eauto .
+  eapply next_pol_in_K_1_mq; eauto .
+  apply com_polord_in_K_1_m; assumption.
+
+ rewrite Z.mul_shuffle0, Pos2Z.inj_mul.
+ rewrite Z.gcd_mul_mono_r_nonneg; auto.
+ rewrite Z.div_mul_cancel_r; auto.
 bbb.
 
 (* I think it is wrong because of a wrong definition of q by q_of_ns which
