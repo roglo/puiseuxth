@@ -843,6 +843,23 @@ apply any_in_K_1_m with (h := j) (αh := αj) in HinK.
  destruct Hns; rewrite <- Hini; assumption.
 Qed.
 
+Lemma den_αk_divides_num_αk_m : ∀ pol ns k αk m,
+  ns ∈ newton_segments pol
+  → fin_pt ns = (Qnat k, αk)
+  → ps_lap_forall (λ a, in_K_1_m a m) (al pol)
+  → (' Qden αk | Qnum αk * ' m)%Z.
+Proof.
+intros pol ns k αk m Hns Hini HinK.
+apply any_in_K_1_m with (h := k) (αh := αk) in HinK.
+ destruct HinK as (mh, Hmh).
+ exists mh; assumption.
+
+ unfold newton_segments in Hns.
+ unfold points_of_ps_polynom in Hns.
+ apply ini_fin_ns_in_init_pts in Hns.
+ destruct Hns; rewrite <- Hini; assumption.
+Qed.
+
 Lemma den_αh_divides_num_αh_m : ∀ pol ns h αh m,
   ns ∈ newton_segments pol
   → (Qnat h, αh) ∈ oth_pts ns

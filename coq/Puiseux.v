@@ -1434,17 +1434,37 @@ intros pol ns j αj m mj p q Hns Hj Hm Hmj Hp Hq h αh mh Hh Hmh.
 remember (points_of_ps_polynom pol) as pts eqn:Hpts .
 remember (ps_poly_nth h pol) as hps.
 apply List.in_app_or in Hh.
-destruct Hh as [Hh| Hh].
- split.
-  rewrite Hmh; simpl.
-  unfold Qeq; simpl.
-  unfold mh_of_m; simpl.
-  subst hps.
+remember Hns as Hfin; clear HeqHfin.
+apply exists_fin_pt_nat in Hfin.
+destruct Hfin as (k, (αk, Hfin)).
+split.
+ rewrite Hmh; simpl.
+ unfold Qeq; simpl.
+ unfold mh_of_m; simpl.
+ subst hps.
+ destruct Hh as [Hh| [Hk| ]]; [ idtac | idtac | contradiction ].
   erewrite <- qden_αh_is_ps_polord; eauto .
   rewrite Z_div_mul_swap.
    rewrite Z.div_mul; auto.
 
    eapply den_αh_divides_num_αh_m; eauto .
+
+  erewrite <- qden_αk_is_ps_polord; eauto .
+  rewrite Z_div_mul_swap.
+   rewrite Z.div_mul; auto.
+
+   eapply den_αk_divides_num_αk_m; eauto .
+
+ rewrite Hmh; simpl.
+ unfold Qeq; simpl.
+ unfold mh_of_m; simpl.
+ subst hps.
+ destruct Hh as [Hh| [Hk| ]]; [ idtac | idtac | contradiction ].
+  erewrite <- qden_αh_is_ps_polord; eauto .
+  rewrite Hp, Hq, Hmj; simpl.
+  rewrite positive_nat_Z.
+  unfold q_of_m, mh_of_m, p_of_m; simpl.
+  rewrite <- Hj, Hfin; simpl.
 bbb.
 *)
 
