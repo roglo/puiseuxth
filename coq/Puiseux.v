@@ -1420,7 +1420,7 @@ Qed.
 (* similar to q_eq_1 *)
 Lemma rrr : ∀ pol ns pol₁ ns₁ c₁ m,
   ns ∈ newton_segments pol
-  → ps_lap_forall (λ a, in_K_1_m a m) (al pol)
+  → m = ps_list_com_polord (al pol)
   → c₁ = ac_root (Φq pol ns)
   → root_multiplicity acf c₁ (Φq pol ns) = 1%nat
   → pol₁ = next_pol pol (β ns) (γ ns) c₁
@@ -1464,6 +1464,9 @@ bbb.
    eapply hd_newton_segments; eauto .
 bbb.
 
+(* I think it is wrong because of a wrong definition of q by q_of_ns which
+   actually depends here on the fact that m = ps_list_com_polord (al pol₁):
+   should be "al pol", not "al pol₁" *)
 Lemma q_eq_1 : ∀ pol ns pol₁ ns₁ c₁,
   ns ∈ newton_segments pol
   → c₁ = ac_root (Φq pol ns)
