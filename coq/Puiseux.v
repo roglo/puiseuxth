@@ -1537,6 +1537,7 @@ induction n; intros.
   remember Hns₁ as HinK₁; clear HeqHinK₁.
   eapply hd_newton_segments in HinK₁; eauto .
   eapply next_pol_in_K_1_mq in HinK₁; eauto .
+bbb.
   erewrite q_eq_1 in HinK₁; eauto .
   rewrite Pos.mul_1_r in HinK₁.
   unfold root_head, γ_sum; simpl.
