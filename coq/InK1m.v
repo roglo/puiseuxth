@@ -767,6 +767,44 @@ inversion_clear HinK.
   eapply IHla; eauto .
 Qed.
 
+(* faut voir...
+Lemma xxx : ∀ pol ns m,
+  ns ∈ newton_segments pol
+  → q_of_m m (γ ns) = q_of_ns pol ns.
+Proof.
+intros pol ns m Hns.
+unfold q_of_m, q_of_ns.
+simpl.
+remember Hns as Hini; clear HeqHini.
+apply exists_ini_pt_nat in Hini.
+destruct Hini as (j, (αj, Hini)).
+remember Hns as Hfin; clear HeqHfin.
+apply exists_fin_pt_nat in Hfin.
+destruct Hfin as (k, (αk, Hfin)).
+rewrite Hini, Hfin; simpl.
+remember (ps_list_com_polord (al pol)) as m₁.
+rewrite Nat2Z.id.
+rewrite Nat2Z.id.
+remember qden_αj_is_ps_polord as qd.
+unfold ps_poly_nth in qd.
+unfold ps_lap_nth in qd.
+erewrite <- qd; eauto .
+clear qd Heqqd.
+remember qden_αk_is_ps_polord as qd.
+unfold ps_poly_nth, ps_lap_nth in qd.
+erewrite <- qd; eauto .
+rewrite Z.mul_opp_l, Z.add_opp_r.
+rewrite Pos2Z.inj_mul.
+rewrite Qden_inv.
+ rewrite Qnum_inv.
+  rewrite Qnum_nat_minus.
+   rewrite <- Nat2Z.inj_sub.
+    rewrite Qden_nat_minus.
+    rewrite Z.mul_1_r.
+    clear qd Heqqd.
+bbb.
+*)
+
 Lemma den_αj_divides_num_αj_m : ∀ pol ns j αj m,
   ns ∈ newton_segments pol
   → ini_pt ns = (Qnat j, αj)
@@ -804,8 +842,8 @@ rewrite Z_div_mul_swap.
  eapply den_αj_divides_num_αj_m; eauto .
 Qed.
 
-(* similar to minus_beta_in_K_1_mq *)
-Theorem yyy : ∀ pol ns m a c q,
+(* similar to minus_beta_in_K_1_mq₂ *)
+Theorem minus_beta_in_K_1_mq : ∀ pol ns m a c q,
   ns ∈ newton_segments pol
   → ps_lap_forall (λ a, in_K_1_m a m) (al pol)
   → q = q_of_m m (γ ns)
@@ -846,9 +884,9 @@ apply points_in_any_newton_segment with (h := Qnat j) (αh := αj) in Hbm.
   apply Pos.mul_comm.
 
  left; symmetry; eassumption.
-bbb.
+Qed.
 
-Theorem minus_beta_in_K_1_mq : ∀ pol ns m a c q,
+Theorem minus_beta_in_K_1_mq₂ : ∀ pol ns m a c q,
   ns ∈ newton_segments pol
   → m = ps_list_com_polord (al pol)
   → q = q_of_ns pol ns
@@ -948,6 +986,7 @@ apply ps_lap_forall_forall.
   apply IHla; [ reflexivity | assumption ].
 Qed.
 
+(* similar to next_pol_in_K_1_mq *)
 Theorem zzz : ∀ pol pol₁ ns m c q,
   ns ∈ newton_segments pol
   → ps_lap_forall (λ a, in_K_1_m a m) (al pol)
