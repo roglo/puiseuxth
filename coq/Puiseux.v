@@ -1536,8 +1536,7 @@ induction n; intros.
   rewrite Z.mul_1_r in Hαj₁, Hαk₁.
   remember Hns₁ as HinK₁; clear HeqHinK₁.
   eapply hd_newton_segments in HinK₁; eauto .
-  eapply next_pol_in_K_1_mq in HinK₁; eauto .
-bbb.
+  eapply next_pol_in_K_1_mq₂ in HinK₁; eauto .
   erewrite q_eq_1 in HinK₁; eauto .
   rewrite Pos.mul_1_r in HinK₁.
   unfold root_head, γ_sum; simpl.
@@ -1889,6 +1888,8 @@ bbb.
                              reflexivity.
 
                            exfalso; fast_omega H₁₃.
+
+                         eapply next_pol_in_K_1_mq in HinK₁; eauto .
 bbb.
 
 intros pol ns pol₁ ns₁ c m Hns Hc Hr Hpol₁ Hns₁ Hm n.
