@@ -1420,6 +1420,7 @@ Qed.
 (* similar to q_eq_1 *)
 Lemma rrr : ∀ pol ns pol₁ ns₁ c₁ m,
   ns ∈ newton_segments pol
+  → ps_lap_forall (λ a, in_K_1_m a m) (al pol)
   → c₁ = ac_root (Φq pol ns)
   → root_multiplicity acf c₁ (Φq pol ns) = 1%nat
   → pol₁ = next_pol pol (β ns) (γ ns) c₁
@@ -1427,7 +1428,7 @@ Lemma rrr : ∀ pol ns pol₁ ns₁ c₁ m,
   → (ps_poly_nth 0 pol₁ ≠ 0)%ps
   → q_of_m m (γ ns₁) = 1%positive.
 Proof.
-intros pol ns pol₁ ns₁ c₁ m Hns Hc₁ Hr Hpol₁ Hns₁ Hps₀.
+intros pol ns pol₁ ns₁ c₁ m Hns Hm Hc₁ Hr Hpol₁ Hns₁ Hps₀.
 remember Hns₁ as Hini₁; clear HeqHini₁.
 apply exists_ini_pt_nat_fst_seg in Hini₁.
 destruct Hini₁ as (j₁, (αj₁, Hini₁)).
@@ -1449,6 +1450,7 @@ rewrite Z.add_0_r.
 rewrite Z.mul_shuffle0, Pos2Z.inj_mul.
 rewrite Z.gcd_mul_mono_r_nonneg; auto.
 rewrite Z.div_mul_cancel_r; auto.
+bbb.
  assert (' Qden αj₁ | Qnum αj₁ * ' m)%Z as H.
   Focus 2.
   destruct H as (c, Hc).
