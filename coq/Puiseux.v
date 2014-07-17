@@ -1421,7 +1421,8 @@ Qed.
 Theorem ppp : ∀ pol ns j αj m mj p q,
   ns ∈ newton_segments pol
   → (Qnat j, αj) = ini_pt ns
-  → mj = mh_of_m m αj (ps_lap_nth j (al pol))
+  → ps_lap_forall (λ a, in_K_1_m a m) (al pol)
+  → mj = mh_of_m m αj (ps_poly_nth j pol)
   → p = p_of_m m (γ ns)
   → q = Pos.to_nat (q_of_m m (γ ns))
   → ∀ h αh mh, (Qnat h, αh) ∈ oth_pts ns ++ [fin_pt ns]
@@ -1429,7 +1430,7 @@ Theorem ppp : ∀ pol ns j αj m mj p q,
   → αh == mh # m
     ∧ (Z.of_nat q * (mj - mh) = p * Z.of_nat (h - j))%Z.
 Proof.
-intros pol ns j αj m mj p q Hns Hj Hmj Hp Hq h αh mh Hh Hmh.
+intros pol ns j αj m mj p q Hns Hj Hm Hmj Hp Hq h αh mh Hh Hmh.
 remember (points_of_ps_polynom pol) as pts eqn:Hpts .
 remember (ps_poly_nth h pol) as hps.
 apply List.in_app_or in Hh.
@@ -1443,8 +1444,7 @@ destruct Hh as [Hh| Hh].
   rewrite Z_div_mul_swap.
    rewrite Z.div_mul; auto.
 
-   eapply den_αj_divides_num_αj_m; eauto .
-Abort. (*
+   eapply den_αh_divides_num_αh_m; eauto .
 bbb.
 *)
 
@@ -1459,7 +1459,6 @@ Proof.
 intros pol ns j αj m q Hns Hj Hq h αh Hh.
 remember (p_of_m m (γ ns)) as p eqn:Hp .
 remember Hns as H; clear HeqH.
-Abort. (*
 eapply q_mj_mk_eq_p_h_j in H; try eassumption; try reflexivity.
 bbb.
 *)
@@ -1476,7 +1475,6 @@ Lemma rrr : ∀ pol ns pol₁ ns₁ c₁ m,
   → q_of_m m (γ ns₁) = 1%positive.
 Proof.
 intros pol ns pol₁ ns₁ c₁ m Hns Hm Hc₁ Hr Hpol₁ Hns₁ Hps₀.
-(* voir page 102, plutôt *)
 bbb.
 
 unfold q_of_m; simpl.

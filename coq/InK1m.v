@@ -1,6 +1,6 @@
 (* InK1m.v *)
 
-Require Import Utf8 QArith.
+Require Import Utf8 QArith NPeano.
 
 Require Import Misc.
 Require Import Field.
@@ -841,6 +841,22 @@ apply any_in_K_1_m with (h := j) (αh := αj) in HinK.
  unfold points_of_ps_polynom in Hns.
  apply ini_fin_ns_in_init_pts in Hns.
  destruct Hns; rewrite <- Hini; assumption.
+Qed.
+
+Lemma den_αh_divides_num_αh_m : ∀ pol ns h αh m,
+  ns ∈ newton_segments pol
+  → (Qnat h, αh) ∈ oth_pts ns
+  → ps_lap_forall (λ a, in_K_1_m a m) (al pol)
+  → (' Qden αh | Qnum αh * ' m)%Z.
+Proof.
+intros pol ns h αh m Hns Hoth HinK.
+apply any_in_K_1_m with (h := h) (αh := αh) in HinK.
+ destruct HinK as (mh, Hmh).
+ exists mh; assumption.
+
+ unfold newton_segments in Hns.
+ unfold points_of_ps_polynom in Hns.
+ eapply oth_pts_in_init_pts in Hns; eauto .
 Qed.
 
 (* similar to com_den_of_ini_pt *)
