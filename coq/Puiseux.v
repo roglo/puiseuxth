@@ -1461,10 +1461,12 @@ split.
  subst hps.
  destruct Hh as [Hh| [Hk| ]]; [ idtac | idtac | contradiction ].
   erewrite <- qden_αh_is_ps_polord; eauto .
-  rewrite Hp, Hq, Hmj; simpl.
-  rewrite positive_nat_Z.
-  unfold q_of_m, mh_of_m, p_of_m; simpl.
-  rewrite <- Hj, Hfin; simpl.
+  assert (' Qden αh | Qnum αh * ' m)%Z as H.
+   eapply den_αh_divides_num_αh_m; eauto .
+
+   destruct H as (c, Hc).
+   rewrite Hc.
+   rewrite Z.div_mul; eauto .
 bbb.
 *)
 
