@@ -1446,6 +1446,20 @@ unfold Qeq in Hαk₁; simpl in Hαk₁.
 rewrite Z.mul_1_r in Hαj₁, Hαk₁.
 rewrite Hαk₁; simpl.
 rewrite Z.add_0_r.
+rewrite Z.mul_shuffle0, Pos2Z.inj_mul.
+rewrite Z.gcd_mul_mono_r_nonneg; auto.
+rewrite Z.div_mul_cancel_r; auto.
+ assert (' Qden αj₁ | Qnum αj₁ * ' m)%Z as H.
+  Focus 2.
+  destruct H as (c, Hc).
+  replace (' Qden αj₁)%Z with (1 * ' Qden αj₁)%Z at 2 by reflexivity.
+  rewrite Hc.
+  rewrite Z.gcd_mul_mono_r_nonneg; auto.
+  rewrite Z.gcd_1_r; simpl.
+  rewrite Z.div_same; auto.
+
+  eapply den_αj_divides_num_αj_m with (ns := ns₁) (pol := pol₁); eauto .
+   eapply hd_newton_segments; eauto .
 bbb.
 
 Lemma q_eq_1 : ∀ pol ns pol₁ ns₁ c₁,
