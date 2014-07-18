@@ -1788,6 +1788,9 @@ induction n; intros.
 
      eapply den_αj_divides_num_αj_m; eauto .
      eapply next_pol_in_K_1_mq in HinK1m; eauto .
+
+    remember Hns₁₁ as H; clear HeqH.
+    eapply r_1_j_0_k_1 with (ns₁ := ns₂) in H; eauto .
 bbb.
 
    remember Hns as Hr₁; clear HeqHr₁.
