@@ -1789,7 +1789,6 @@ induction n; intros.
      eapply den_αj_divides_num_αj_m; eauto .
      eapply next_pol_in_K_1_mq in HinK1m; eauto .
 
-Focus 1.
    remember Hns as Hr₁; clear HeqHr₁.
    eapply multiplicity_1_remains in Hr₁; eauto .
    remember Hns₁₁ as H; clear HeqH.
@@ -1828,9 +1827,8 @@ Focus 1.
    remember (Qnum αj₁ * ' Qden αk₁)%Z as nd.
    do 2 rewrite Z2Nat_sub_min.
    rewrite Z.mul_add_distr_r.
-bbb.
-   do 2 rewrite Pos2Z.inj_mul.
-   rewrite Z.mul_assoc, Z.mul_shuffle0.
+    remember (m * q₀)%positive as m₁.
+   rewrite Pos2Z.inj_mul, Z.mul_assoc, Z.mul_shuffle0.
    rewrite Z.sub_add_distr.
    rewrite Z.sub_diag; simpl.
    rewrite Z.add_simpl_l.
@@ -1853,6 +1851,7 @@ bbb.
       rewrite Z.mul_comm.
       rewrite Z.div_mul; auto.
 
+bbb.
       eapply den_αj_divides_num_αj_m; eassumption.
 
      remember Hns₂ as Hns₂₁; clear HeqHns₂₁.
