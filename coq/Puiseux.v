@@ -1674,18 +1674,18 @@ Qed.
 
 Lemma sss : ∀ pol ns pol₁ ns₁ c m,
   ns ∈ newton_segments pol
+  → m = ps_list_com_polord (al pol)
   → c = ac_root (Φq pol ns)
   → root_multiplicity acf c (Φq pol ns) = 1%nat
   → pol₁ = next_pol pol (β ns) (γ ns) c
   → ns₁ = List.hd phony_ns (newton_segments pol₁)
-  → m = ps_list_com_polord (al pol₁)
   → ∀ n,
     (∀ i, (i ≤ n)%nat → (ps_poly_nth 0 (nth_pol i pol₁ ns₁) ≠ 0)%ps)
     → (root_tail m 0 pol₁ ns₁ =
        root_head n pol₁ ns₁ +
        ps_monom 1%K (γ_sum n pol₁ ns₁) * root_tail m (S n) pol₁ ns₁)%ps.
 Proof.
-intros pol ns pol₁ ns₁ c m Hns Hc Hr Hpol₁ Hns₁ Hm n Hpsi.
+intros pol ns pol₁ ns₁ c m Hns Hm Hc Hr Hpol₁ Hns₁ n Hpsi.
 remember Hm as HinK1m; clear HeqHinK1m.
 apply com_polord_in_K_1_m with (R := R) in HinK1m.
 induction n; intros.
@@ -1711,17 +1711,17 @@ induction n; intros.
   remember Hns₁ as HinK₁; clear HeqHinK₁.
   eapply hd_newton_segments in HinK₁; eauto .
   eapply next_pol_in_K_1_mq in HinK₁; eauto .
-bbb.
-  erewrite q_eq_1 in HinK₁; eauto .
-  rewrite Pos.mul_1_r in HinK₁.
-  unfold root_head, γ_sum; simpl.
-  unfold summation; simpl.
-  do 2 rewrite rng_add_0_r.
-  remember (ac_root (Φq pol₁ ns₁)) as c₁ eqn:Hc₁ .
-  remember (next_pol pol₁ (β ns₁) (γ ns₁) c₁) as pol₂ eqn:Hpol₂ .
-  remember (List.hd phony_ns (newton_segments pol₂)) as ns₂ eqn:Hns₂ .
-  remember Hns₂ as Hini₂; clear HeqHini₂.
-  apply exists_ini_pt_nat_fst_seg in Hini₂.
+   erewrite q_eq_1 in HinK₁; eauto .
+   rewrite Pos.mul_1_r in HinK₁.
+   unfold root_head, γ_sum; simpl.
+   unfold summation; simpl.
+   do 2 rewrite rng_add_0_r.
+   remember (ac_root (Φq pol₁ ns₁)) as c₁ eqn:Hc₁ .
+   remember (next_pol pol₁ (β ns₁) (γ ns₁) c₁) as pol₂ eqn:Hpol₂ .
+   remember (List.hd phony_ns (newton_segments pol₂)) as ns₂ eqn:Hns₂ .
+   remember Hns₂ as Hini₂; clear HeqHini₂.
+   apply exists_ini_pt_nat_fst_seg in Hini₂.
+
   destruct Hini₂ as (j₂, (αj₂, Hini₂)).
   remember Hns₂ as Hfin₂; clear HeqHfin₂.
   apply exists_fin_pt_nat_fst_seg in Hfin₂.
@@ -1786,6 +1786,7 @@ bbb.
 
      rewrite Pos.mul_comm; reflexivity.
 
+bbb.
     eapply den_αj_divides_num_αj_m; eassumption.
 
    remember Hns as Hr₁; clear HeqHr₁.
