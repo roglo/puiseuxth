@@ -1164,7 +1164,7 @@ Qed.
 
 (* [Walker, p. 100]: « [...] where q > 0 and p and q are integers having
    no common factor. » *)
-Theorem p_and_q_have_no_common_factors : ∀ pol ns p q,
+Theorem p_and_q_have_no_common_factors₂ : ∀ pol ns p q,
   ns ∈ newton_segments pol
   → p = p_of_ns pol ns
     → q = q_of_ns pol ns
@@ -1567,7 +1567,7 @@ Qed.
 (* [Walker, p. 100]: « In the first place, we note that [...]
    and since p and q have no common factors, q is a factor
    of h - j. » *)
-Theorem q_is_factor_of_h_minus_j : ∀ pol ns j αj q,
+Theorem q_is_factor_of_h_minus_j₂ : ∀ pol ns j αj q,
   ns ∈ newton_segments pol
   → (Qnat j, αj) = ini_pt ns
     → q = Pos.to_nat (q_of_ns pol ns)
@@ -1581,7 +1581,7 @@ eapply q_mj_mk_eq_p_h_j₂ in H; try eassumption; try reflexivity.
 destruct H as (Hαh, Hqjh).
 apply List.in_app_or in Hh.
 remember Hns as Hgcd; clear HeqHgcd.
-eapply p_and_q_have_no_common_factors in Hgcd; try reflexivity.
+eapply p_and_q_have_no_common_factors₂ in Hgcd; try reflexivity.
 rewrite <- positive_nat_Z, <- Hp, <- Hq in Hgcd.
 rewrite Z.gcd_comm in Hgcd.
 apply Z.gauss with (p := Z.of_nat (h - j)) in Hgcd.
@@ -1617,7 +1617,7 @@ Theorem h_is_j_plus_sq : ∀ pol ns j αj m q,
 Proof.
 intros pol ns j αj m q Hns Hj Heqm Hq h αh s Hh Hs.
 remember Hns as H; clear HeqH.
-eapply q_is_factor_of_h_minus_j in H; try eassumption; try reflexivity.
+eapply q_is_factor_of_h_minus_j₂ in H; try eassumption; try reflexivity.
 apply List.in_app_or in Hh.
 assert (j < h)%nat as Hjh.
  destruct Hh as [Hh| [Hk| ]]; [ idtac | idtac | contradiction ].
@@ -2924,7 +2924,7 @@ apply imp_or_tauto.
      destruct Hpt as [Hpt| ]; [ idtac | contradiction ].
      rewrite <- Hpt, <- Hk; reflexivity.
 
-  eapply q_is_factor_of_h_minus_j; try eassumption.
+  eapply q_is_factor_of_h_minus_j₂; try eassumption.
   apply List.in_or_app; right; left; symmetry; eassumption.
 
  subst l.

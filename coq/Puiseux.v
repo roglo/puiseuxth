@@ -1529,24 +1529,57 @@ split.
     rewrite <- Hh; simpl; rewrite nat_num_Qnat; reflexivity.
 Qed.
 
-(* similar to CharactPolyn.q_is_factor_of_h_minus_j *)
-Theorem qqq : ∀ pol ns j αj m q,
+(* similar to CharactPolyn.p_and_q_have_no_common_factors₂ *)
+Theorem p_and_q_have_no_common_factors : ∀ a m p q,
+  p = p_of_m m a
+  → q = q_of_m m a
+  → Z.gcd p (' q) = 1%Z.
+Proof.
+intros a m p q Hp Hq.
+eapply any_is_p_mq; eauto .
+Qed.
+
+(* similar to CharactPolyn.q_is_factor_of_h_minus_j₂ *)
+Theorem q_is_factor_of_h_minus_j : ∀ pol ns j αj m q,
   ns ∈ newton_segments pol
+  → ps_lap_forall (λ a, in_K_1_m a m) (al pol)
   → (Qnat j, αj) = ini_pt ns
   → q = Pos.to_nat (q_of_m m (γ ns))
   → ∀ h αh, (Qnat h, αh) ∈ oth_pts ns ++ [fin_pt ns]
   → (q | h - j)%nat.
 Proof.
-intros pol ns j αj m q Hns Hj Hq h αh Hh.
+intros pol ns j αj m q Hns Hm Hj Hq h αh Hh.
 remember (p_of_m m (γ ns)) as p eqn:Hp .
 remember Hns as H; clear HeqH.
 eapply q_mj_mk_eq_p_h_j in H; try eassumption; try reflexivity.
- destruct H as (Hαh, Hqjh).
- apply List.in_app_or in Hh.
- remember Hns as Hgcd; clear HeqHgcd.
- eapply p_and_q_have_no_common_factors in Hgcd; try reflexivity.
-bbb.
-*)
+destruct H as (Hαh, Hqjh).
+apply List.in_app_or in Hh.
+remember (q_of_m m (γ ns)) as pq eqn:Hpq ; subst q.
+rename pq into q; rename Hpq into Hq.
+remember Hp as Hgcd; clear HeqHgcd.
+eapply p_and_q_have_no_common_factors in Hgcd; eauto .
+rewrite Z.gcd_comm in Hgcd.
+rewrite <- positive_nat_Z in Hgcd.
+rewrite Z.gcd_comm in Hgcd.
+rewrite Z.gcd_comm in Hgcd.
+apply Z.gauss with (p := Z.of_nat (h - j)) in Hgcd.
+ 2: rewrite <- Hqjh.
+ 2: apply Z.divide_factor_l.
+
+ destruct Hgcd as (c, Hc).
+ exists (Z.to_nat c).
+ apply Nat2Z.inj.
+ rewrite Nat2Z.inj_mul.
+ rewrite Z2Nat.id; [ assumption | idtac ].
+ eapply mul_pos_nonneg; try eassumption.
+ destruct Hh as [Hh| [Hk| ]]; [ idtac | idtac | contradiction ].
+  eapply j_lt_h; try eassumption; reflexivity.
+
+  eapply j_lt_k; try eassumption.
+   rewrite <- Hj; simpl; rewrite nat_num_Qnat; reflexivity.
+
+   rewrite Hk; simpl; rewrite nat_num_Qnat; reflexivity.
+Qed.
 
 (* similar to q_eq_1 *)
 Lemma rrr : ∀ pol ns pol₁ ns₁ c₁ m,
