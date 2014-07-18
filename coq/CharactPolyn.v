@@ -1433,7 +1433,7 @@ Qed.
 
          q (mj - mh) = p (h - j)
    » *)
-Theorem q_mj_mk_eq_p_h_j : ∀ pol ns j αj m mj p q,
+Theorem q_mj_mk_eq_p_h_j₂ : ∀ pol ns j αj m mj p q,
   ns ∈ newton_segments pol
   → (Qnat j, αj) = ini_pt ns
     → m = ps_list_com_polord (al pol)
@@ -1577,7 +1577,7 @@ Proof.
 intros pol ns j αj q Hns Hj Hq h αh Hh.
 remember (p_of_ns pol ns) as p eqn:Hp.
 remember Hns as H; clear HeqH.
-eapply q_mj_mk_eq_p_h_j in H; try eassumption; try reflexivity.
+eapply q_mj_mk_eq_p_h_j₂ in H; try eassumption; try reflexivity.
 destruct H as (Hαh, Hqjh).
 apply List.in_app_or in Hh.
 remember Hns as Hgcd; clear HeqHgcd.

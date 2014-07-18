@@ -896,6 +896,26 @@ rewrite Z_div_mul_swap.
  eapply den_αj_divides_num_αj_m; eauto .
 Qed.
 
+(* similar to com_den_of_fin_pt *)
+Lemma pol_ord_of_fin_pt : ∀ pol ns m k αk mk,
+  ns ∈ newton_segments pol
+  → ps_lap_forall (λ a, in_K_1_m a m) (al pol)
+  → (Qnat k, αk) = fin_pt ns
+  → mk = mh_of_m m αk (ps_poly_nth k pol)
+  → αk == mk # m.
+Proof.
+intros pol ns m k αk mk Hns Hm Hini Hmk.
+subst mk; simpl.
+unfold mh_of_m; simpl.
+unfold Qeq; simpl.
+rewrite Z_div_mul_swap.
+ erewrite qden_αk_is_ps_polord; eauto .
+ rewrite Z.div_mul; eauto .
+
+ erewrite <- qden_αk_is_ps_polord; eauto .
+ eapply den_αk_divides_num_αk_m; eauto .
+Qed.
+
 (* similar to com_den_of_oth_pt *)
 Lemma pol_ord_of_oth_pt : ∀ pol ns m h αh mh,
   ns ∈ newton_segments pol

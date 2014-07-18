@@ -1417,8 +1417,8 @@ inversion H; subst.
  apply IHl with (pow := S pow); auto.
 Qed.
 
-(* similar to q_mj_mk_eq_p_h_j *)
-Theorem ppp : ∀ pol ns j αj m mj p q,
+(* similar to q_mj_mk_eq_p_h_j₂ *)
+Theorem q_mj_mk_eq_p_h_j : ∀ pol ns j αj m mj p q,
   ns ∈ newton_segments pol
   → (Qnat j, αj) = ini_pt ns
   → ps_lap_forall (λ a, in_K_1_m a m) (al pol)
@@ -1487,10 +1487,49 @@ split.
 
    apply Nat.lt_le_incl.
    eapply j_lt_h; try eassumption; reflexivity.
-bbb.
-*)
 
-(* similar to q_is_factor_of_h_minus_j *)
+  remember Hj as Hgh; clear HeqHgh.
+  symmetry in Hh.
+  eapply gamma_value_jk in Hgh; [ idtac | eassumption ].
+  remember (q_of_m m (γ ns)) as pq eqn:Hpq .
+  pose proof (any_is_p_mq (γ ns) m Hp Hpq) as H.
+  destruct H as (Hgamma, Hg).
+  rewrite Hgh in Hgamma.
+  unfold Qnat in Hgamma.
+  rewrite <- Qnum_minus_distr_r in Hgamma.
+  rewrite Nat2Z.inj_sub.
+   rewrite Hq.
+   rewrite positive_nat_Z.
+   eapply pmq_qmpm; try reflexivity.
+    eapply j_lt_k; try eassumption.
+     rewrite <- Hj; simpl; rewrite nat_num_Qnat; reflexivity.
+
+     rewrite <- Hh; simpl; rewrite nat_num_Qnat; reflexivity.
+
+    rewrite <- Hgamma.
+    remember Heqhps as Hhps; clear HeqHhps.
+    eapply in_pts_in_pol with (hv := αh) in Hhps; try eassumption.
+     destruct Hhps as (Hhps, Hαh).
+     do 2 rewrite Qnum_minus_distr_r.
+     eapply pol_ord_of_ini_pt in Hj; try eassumption; rewrite Hj.
+     eapply pol_ord_of_fin_pt in Hh; try eassumption.
+      rewrite Hh; reflexivity.
+
+      subst hps; assumption.
+
+     rewrite Hh.
+     eapply ini_fin_ns_in_init_pts; try eassumption.
+     unfold newton_segments in Hns.
+     rewrite <- Hpts in Hns; assumption.
+
+   apply Nat.lt_le_incl.
+   eapply j_lt_k; try eassumption.
+    rewrite <- Hj; simpl; rewrite nat_num_Qnat; reflexivity.
+
+    rewrite <- Hh; simpl; rewrite nat_num_Qnat; reflexivity.
+Qed.
+
+(* similar to CharactPolyn.q_is_factor_of_h_minus_j *)
 Theorem qqq : ∀ pol ns j αj m q,
   ns ∈ newton_segments pol
   → (Qnat j, αj) = ini_pt ns
@@ -1502,6 +1541,10 @@ intros pol ns j αj m q Hns Hj Hq h αh Hh.
 remember (p_of_m m (γ ns)) as p eqn:Hp .
 remember Hns as H; clear HeqH.
 eapply q_mj_mk_eq_p_h_j in H; try eassumption; try reflexivity.
+ destruct H as (Hαh, Hqjh).
+ apply List.in_app_or in Hh.
+ remember Hns as Hgcd; clear HeqHgcd.
+ eapply p_and_q_have_no_common_factors in Hgcd; try reflexivity.
 bbb.
 *)
 
