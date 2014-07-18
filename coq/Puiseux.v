@@ -1722,70 +1722,69 @@ induction n; intros.
    remember (List.hd phony_ns (newton_segments pol₂)) as ns₂ eqn:Hns₂ .
    remember Hns₂ as Hini₂; clear HeqHini₂.
    apply exists_ini_pt_nat_fst_seg in Hini₂.
+   destruct Hini₂ as (j₂, (αj₂, Hini₂)).
+   remember Hns₂ as Hfin₂; clear HeqHfin₂.
+   apply exists_fin_pt_nat_fst_seg in Hfin₂.
+   destruct Hfin₂ as (k₂, (αk₂, Hfin₂)).
+   remember Hns₁ as Hns₁₁; clear HeqHns₁₁.
+   eapply hd_newton_segments in Hns₁₁; eauto .
+   destruct (ps_zerop _ (ps_poly_nth 0 pol₂)) as [Hps₁| Hps₁].
+    rewrite ps_mul_0_r, ps_add_0_r.
+    unfold root_from_cγ_list, ps_monom; simpl.
+    rewrite Hini₁, Hfin₁; simpl.
+    rewrite Hαk₁; simpl.
+    rewrite Z.mul_1_r, Z.add_0_r, Pos.mul_1_r.
+    rewrite Z.mul_shuffle0.
+    do 2 rewrite Pos2Z.inj_mul.
+    rewrite Z.div_mul_cancel_r; auto.
+    rewrite ps_adjust_eq with (n := O) (k := (Qden αj₁ * Qden αk₁)%positive).
+    symmetry.
+    rewrite ps_adjust_eq with (n := O) (k := (m * q₀)%positive).
+    unfold adjust_ps; simpl.
+    rewrite fold_series_const.
+    do 2 rewrite series_shift_0.
+    rewrite series_stretch_const.
+    do 2 rewrite Z.sub_0_r.
+    symmetry.
+    rewrite Z.mul_comm.
+    rewrite <- Z.divide_div_mul_exact; auto.
+     rewrite Pos2Z.inj_mul, <- Z.mul_assoc, Z.mul_comm, Z.mul_assoc.
+     rewrite Z.div_mul; auto.
+     apply mkps_morphism.
+      unfold series_stretch.
+      constructor; intros i; simpl.
+      destruct (zerop (i mod Pos.to_nat (Qden αj₁ * Qden αk₁))) as [H₁| H₁].
+       apply Nat.mod_divides in H₁; auto.
+       destruct H₁ as (d, Hd).
+       rewrite Nat.mul_comm in Hd.
+       rewrite Hd.
+       rewrite Nat.div_mul; auto.
+       unfold root_series_from_cγ_list.
+       rewrite <- Hd.
+       destruct (zerop i) as [H₁| H₁].
+        subst i.
+        apply Nat.eq_mul_0_l in H₁; auto.
+        subst d; simpl; rewrite <- Hc₁.
+        destruct (ps_zerop R (ps_poly_nth 0 pol₁)); auto; contradiction.
 
-  destruct Hini₂ as (j₂, (αj₂, Hini₂)).
-  remember Hns₂ as Hfin₂; clear HeqHfin₂.
-  apply exists_fin_pt_nat_fst_seg in Hfin₂.
-  destruct Hfin₂ as (k₂, (αk₂, Hfin₂)).
-  remember Hns₁ as Hns₁₁; clear HeqHns₁₁.
-  eapply hd_newton_segments in Hns₁₁; eauto .
-  destruct (ps_zerop _ (ps_poly_nth 0 pol₂)) as [Hps₁| Hps₁].
-   rewrite ps_mul_0_r, ps_add_0_r.
-   unfold root_from_cγ_list, ps_monom; simpl.
-   rewrite Hini₁, Hfin₁; simpl.
-   rewrite Hαk₁; simpl.
-   rewrite Z.mul_1_r, Z.add_0_r, Pos.mul_1_r.
-   rewrite Z.mul_shuffle0.
-   do 2 rewrite Pos2Z.inj_mul.
-   rewrite Z.div_mul_cancel_r; auto.
-   rewrite ps_adjust_eq with (n := O) (k := (Qden αj₁ * Qden αk₁)%positive).
-   symmetry.
-   rewrite ps_adjust_eq with (n := O) (k := (m * q₀)%positive).
-   unfold adjust_ps; simpl.
-   rewrite fold_series_const.
-   do 2 rewrite series_shift_0.
-   rewrite series_stretch_const.
-   do 2 rewrite Z.sub_0_r.
-   symmetry.
-   rewrite Z.mul_comm.
-   rewrite <- Z.divide_div_mul_exact; auto.
-    rewrite Pos2Z.inj_mul, <- Z.mul_assoc, Z.mul_comm, Z.mul_assoc.
-    rewrite Z.div_mul; auto.
-    apply mkps_morphism.
-     unfold series_stretch.
-     constructor; intros i; simpl.
-     destruct (zerop (i mod Pos.to_nat (Qden αj₁ * Qden αk₁))) as [H₁| H₁].
-      apply Nat.mod_divides in H₁; auto.
-      destruct H₁ as (d, Hd).
-      rewrite Nat.mul_comm in Hd.
-      rewrite Hd.
-      rewrite Nat.div_mul; auto.
-      unfold root_series_from_cγ_list.
-      rewrite <- Hd.
-      destruct (zerop i) as [H₁| H₁].
-       subst i.
-       apply Nat.eq_mul_0_l in H₁; auto.
-       subst d; simpl; rewrite <- Hc₁.
-       destruct (ps_zerop R (ps_poly_nth 0 pol₁)); auto; contradiction.
+        simpl.
+        rewrite <- Hc₁, <- Hpol₂, <- Hns₂.
+        destruct (ps_zerop R (ps_poly_nth 0 pol₁)) as [H₂| H₂]; auto.
+        destruct d.
+         rewrite Hd in H₁.
+         exfalso; revert H₁; apply Nat.lt_irrefl.
 
-       simpl.
-       rewrite <- Hc₁, <- Hpol₂, <- Hns₂.
-       destruct (ps_zerop R (ps_poly_nth 0 pol₁)) as [H₂| H₂]; auto.
-       destruct d.
-        rewrite Hd in H₁.
-        exfalso; revert H₁; apply Nat.lt_irrefl.
+         destruct (lt_dec 0 (S d)) as [H₃| H₃]; [ simpl | reflexivity ].
+         destruct (ps_zerop R (ps_poly_nth 0 pol₂)); auto; contradiction.
 
-        destruct (lt_dec 0 (S d)) as [H₃| H₃]; [ simpl | reflexivity ].
-        destruct (ps_zerop R (ps_poly_nth 0 pol₂)); auto; contradiction.
+       destruct (zerop i); [ subst i | reflexivity ].
+       rewrite Nat.mod_0_l in H₁; auto.
+       exfalso; revert H₁; apply Nat.lt_irrefl.
 
-      destruct (zerop i); [ subst i | reflexivity ].
-      rewrite Nat.mod_0_l in H₁; auto.
-      exfalso; revert H₁; apply Nat.lt_irrefl.
+      rewrite Z.mul_comm, Z.mul_assoc, Z.mul_shuffle0.
+      rewrite <- Z.mul_assoc, Z.mul_comm; reflexivity.
 
-     rewrite Z.mul_comm, Z.mul_assoc, Z.mul_shuffle0.
-     rewrite <- Z.mul_assoc, Z.mul_comm; reflexivity.
-
-     rewrite Pos.mul_comm; reflexivity.
+      rewrite Pos.mul_comm; reflexivity.
 
      eapply den_αj_divides_num_αj_m; eauto .
      eapply next_pol_in_K_1_mq in HinK1m; eauto .
