@@ -1593,6 +1593,25 @@ Lemma rrr : ∀ pol ns pol₁ ns₁ c₁ m,
   → q_of_m m (γ ns₁) = 1%positive.
 Proof.
 intros pol ns pol₁ ns₁ c₁ m Hns Hm Hc₁ Hr Hpol₁ Hns₁ Hps₀.
+remember Hns₁ as Hini₁; clear HeqHini₁.
+apply exists_ini_pt_nat_fst_seg in Hini₁.
+destruct Hini₁ as (j₁, (αj₁, Hini₁)).
+remember Hns₁ as Hfin₁; clear HeqHfin₁.
+apply exists_fin_pt_nat_fst_seg in Hfin₁.
+destruct Hfin₁ as (k₁, (αk₁, Hfin₁)).
+remember Hns as H; clear HeqH.
+eapply r_1_j_0_k_1 in H; try eassumption.
+destruct H as (Hj₁, (Hk₁, (Hαj₁, (Hαk₁, Hoth₁)))).
+subst j₁ k₁; simpl.
+unfold Qlt in Hαj₁; simpl in Hαj₁.
+unfold Qeq in Hαk₁; simpl in Hαk₁.
+rewrite Z.mul_1_r in Hαj₁, Hαk₁.
+eapply hd_newton_segments in Hns₁; eauto .
+remember Hns₁ as Hqhj; clear HeqHqhj.
+remember (q_of_m m (γ ns)) as q₀.
+remember (Pos.to_nat (q_of_m (m * q₀) (γ ns₁))) as q.
+eapply q_is_factor_of_h_minus_j in Hqhj; eauto .
+ 3: apply List.in_or_app; right; left; symmetry; eauto .
 bbb.
 
 unfold q_of_m; simpl.
