@@ -1672,20 +1672,21 @@ apply order_inf in Ha; rewrite Ha.
 apply IHla; assumption.
 Qed.
 
-Lemma sss : ∀ pol ns pol₁ ns₁ c m,
+Lemma sss : ∀ pol ns pol₁ ns₁ c m q₀,
   ns ∈ newton_segments pol
   → m = ps_list_com_polord (al pol)
+  → q₀ = q_of_m m (γ ns)
   → c = ac_root (Φq pol ns)
   → root_multiplicity acf c (Φq pol ns) = 1%nat
   → pol₁ = next_pol pol (β ns) (γ ns) c
   → ns₁ = List.hd phony_ns (newton_segments pol₁)
   → ∀ n,
     (∀ i, (i ≤ n)%nat → (ps_poly_nth 0 (nth_pol i pol₁ ns₁) ≠ 0)%ps)
-    → (root_tail m 0 pol₁ ns₁ =
+    → (root_tail (m * q₀) 0 pol₁ ns₁ =
        root_head n pol₁ ns₁ +
-       ps_monom 1%K (γ_sum n pol₁ ns₁) * root_tail m (S n) pol₁ ns₁)%ps.
+       ps_monom 1%K (γ_sum n pol₁ ns₁) * root_tail (m * q₀) (S n) pol₁ ns₁)%ps.
 Proof.
-intros pol ns pol₁ ns₁ c m Hns Hm Hc Hr Hpol₁ Hns₁ n Hpsi.
+intros pol ns pol₁ ns₁ c m q₀ Hns Hm Hq₀ Hc Hr Hpol₁ Hns₁ n Hpsi.
 remember Hm as HinK1m; clear HeqHinK1m.
 apply com_polord_in_K_1_m with (R := R) in HinK1m.
 induction n; intros.
@@ -1736,7 +1737,9 @@ induction n; intros.
    rewrite Z.mul_1_r, Z.add_0_r, Pos.mul_1_r.
    rewrite Z.mul_shuffle0.
    rewrite Pos2Z.inj_mul.
+bbb.
    rewrite Z.div_mul_cancel_r; auto.
+bbb.
    rewrite ps_adjust_eq with (n := O) (k := (Qden αj₁ * Qden αk₁)%positive).
    symmetry.
    rewrite ps_adjust_eq with (n := O) (k := m).
@@ -1747,6 +1750,7 @@ induction n; intros.
    do 2 rewrite Z.sub_0_r.
    symmetry.
    rewrite Z.mul_comm.
+bbb.
    rewrite <- Z.divide_div_mul_exact; auto.
     rewrite Pos2Z.inj_mul, <- Z.mul_assoc, Z.mul_comm, Z.mul_assoc.
     rewrite Z.div_mul; auto.
