@@ -1581,11 +1581,10 @@ apply Z.gauss with (p := Z.of_nat (h - j)) in Hgcd.
    rewrite Hk; simpl; rewrite nat_num_Qnat; reflexivity.
 Qed.
 
-(* similar to q_eq_1₂ *)
 Lemma q_eq_1 : ∀ pol ns pol₁ ns₁ c₁ m q₀,
   ns ∈ newton_segments pol
-  → m = ps_list_com_polord (al pol)
-  → q₀ = q_of_m m (γ ns)
+  → ps_lap_forall (λ a, in_K_1_m a m) (al pol)
+  → ps_lap_forall (λ a, in_K_1_m a (m * q₀)) (al pol₁)
   → c₁ = ac_root (Φq pol ns)
   → root_multiplicity acf c₁ (Φq pol ns) = 1%nat
   → pol₁ = next_pol pol (β ns) (γ ns) c₁
@@ -1611,7 +1610,7 @@ eapply hd_newton_segments in Hns₁; eauto .
 remember Hns₁ as Hqhj; clear HeqHqhj.
 remember (Pos.to_nat (q_of_m (m * q₀) (γ ns₁))) as q.
 eapply q_is_factor_of_h_minus_j in Hqhj; eauto .
- 3: apply List.in_or_app; right; left; symmetry; eauto .
+ 2: apply List.in_or_app; right; left; symmetry; eauto .
 
  simpl in Hqhj.
  destruct Hqhj as (c, Hc).
@@ -1622,41 +1621,7 @@ eapply q_is_factor_of_h_minus_j in Hqhj; eauto .
  rewrite <- Pos2Nat.inj_1 in Heqq.
  apply Pos2Nat.inj in Heqq.
  assumption.
-
- eapply next_pol_in_K_1_mq with (pol := pol); eauto .
- apply com_polord_in_K_1_m; assumption.
 Qed.
-
-(* I think it is wrong because of a wrong definition of q by q_of_ns which
-   actually depends here on the fact that m = ps_list_com_polord (al pol₁):
-   should be "al pol", not "al pol₁"
-Lemma q_eq_1₂ : ∀ pol ns pol₁ ns₁ c₁,
-  ns ∈ newton_segments pol
-  → c₁ = ac_root (Φq pol ns)
-  → root_multiplicity acf c₁ (Φq pol ns) = 1%nat
-  → pol₁ = next_pol pol (β ns) (γ ns) c₁
-  → ns₁ = List.hd phony_ns (newton_segments pol₁)
-  → (ps_poly_nth 0 pol₁ ≠ 0)%ps
-  → q_of_ns pol₁ ns₁ = 1%positive.
-Proof.
-intros pol ns pol₁ ns₁ c₁ Hns Hc₁ Hr Hpol₁ Hns₁ Hps₀.
-remember Hns₁ as Hini₁; clear HeqHini₁.
-apply exists_ini_pt_nat_fst_seg in Hini₁.
-destruct Hini₁ as (j₁, (αj₁, Hini₁)).
-remember Hns₁ as Hfin₁; clear HeqHfin₁.
-apply exists_fin_pt_nat_fst_seg in Hfin₁.
-destruct Hfin₁ as (k₁, (αk₁, Hfin₁)).
-unfold q_of_ns; simpl.
-rewrite Hini₁, Hfin₁; simpl.
-do 2 rewrite Nat2Z.id.
-remember Hns as H; clear HeqH.
-eapply r_1_j_0_k_1 in H; try eassumption.
-destruct H as (Hj₁, (Hk₁, (Hαj₁, (Hαk₁, Hoth₁)))).
-subst j₁ k₁; simpl.
-rewrite Z.gcd_1_r.
-reflexivity.
-Qed.
-*)
 
 Lemma points_of_nil_ps_lap : ∀ la,
   (la = [])%pslap
@@ -1712,7 +1677,7 @@ induction n; intros.
   remember Hns₁ as HinK₁; clear HeqHinK₁.
   eapply hd_newton_segments in HinK₁; eauto .
   eapply next_pol_in_K_1_mq in HinK₁; eauto .
-   erewrite q_eq_1 in HinK₁; eauto .
+   erewrite q_eq_1 with (q₀ := q₀) in HinK₁; eauto .
    rewrite Pos.mul_1_r in HinK₁.
    unfold root_head, γ_sum; simpl.
    unfold summation; simpl.
@@ -2069,8 +2034,13 @@ induction n; intros.
 
                            exfalso; fast_omega H₁₃.
 
-                         eapply next_pol_in_K_1_mq in HinK₁; eauto .
-                          rewrite Heqm₁ in HinK₁.
+                           eapply next_pol_in_K_1_mq in HinK₁; eauto .
+                           rewrite Heqm₁ in HinK₁.
+                           Focus 1.
+                           rewrite Heqm₁.
+                           erewrite q_eq_1 with (pol := pol₁) (pol₁ := pol₂)
+                            in HinK₁; eauto .
+                            rewrite Pos.mul_1_r in HinK₁; assumption.
 bbb.
 
 intros pol ns pol₁ ns₁ c m Hns Hc Hr Hpol₁ Hns₁ Hm n.
