@@ -1180,7 +1180,7 @@ Fixpoint polydromy_if_r_reaches_one acf m pol {struct m} :=
         (v * Pos.to_nat (Qden (γ ns)))%nat
   end.
 
-Definition glop pow ns₁ pol_ord :=
+Definition next_pow pow ns₁ pol_ord :=
   let n := (γ ns₁ * inject_Z ('pol_ord)) in
   (pow + Z.to_nat (Qnum n / ' Qden n))%nat.
 
@@ -1194,7 +1194,7 @@ Fixpoint find_coeff max_iter npow pol_ord pol ns i :=
         let c₁ := ac_root (Φq pol ns) in
         let pol₁ := next_pol pol (β ns) (γ ns) c₁ in
         let ns₁ := List.hd phony_ns (newton_segments pol₁) in
-        let npow₁ := glop npow ns₁ pol_ord in
+        let npow₁ := next_pow npow ns₁ pol_ord in
         find_coeff m npow₁ pol_ord pol₁ ns₁ i
       else 0%K
   end.
@@ -1857,8 +1857,8 @@ induction n; intros.
           exfalso; apply H₁; auto.
 
          rewrite rng_add_0_l.
-         assert (glop 0 ns₂ m₁ = Pos.to_nat d) as Hglop.
-          unfold glop; simpl.
+         assert (next_pow 0 ns₂ m₁ = Pos.to_nat d) as Hnpow.
+          unfold next_pow; simpl.
           rewrite Hini₂, Hfin₂; simpl.
           rewrite Hαk₂; simpl.
           rewrite Z.add_0_r, Z.mul_1_r.
@@ -1874,7 +1874,7 @@ induction n; intros.
            destruct (lt_dec 0 (S i)) as [H₄| ]; auto.
            rewrite <- Hc₁, <- Hpol₂, <- Hns₂; simpl.
            destruct (ps_zerop R (ps_poly_nth 0 pol₂)) as [| H₅]; auto.
-           rewrite Hglop.
+           rewrite Hnpow.
            destruct (eq_nat_dec (Pos.to_nat d) (S i)) as [H₆| H₆].
             rewrite H₆ in H₂.
             exfalso; revert H₂; apply Nat.lt_irrefl.
@@ -1900,7 +1900,7 @@ induction n; intros.
                destruct (ps_zerop R (ps_poly_nth 0 pol₂)) as [H₆| H₆].
                 contradiction.
 
-                rewrite Hglop.
+                rewrite Hnpow.
                 clear H₆.
                 destruct (eq_nat_dec (Pos.to_nat d) (S i)) as [| H₆]; auto.
                 destruct (lt_dec (Pos.to_nat d) (S i)) as [H₇| H₇].
@@ -1909,7 +1909,7 @@ induction n; intros.
                  apply Nat.nlt_ge in H₇.
                  exfalso; fast_omega H₂ H₆ H₇.
 
-               rewrite Hglop.
+               rewrite Hnpow.
                destruct (lt_dec 0 (S id)) as [H₆| H₆].
                 remember (ac_root (Φq pol₂ ns₂)) as c₂ eqn:Hc₂ .
                 remember (next_pol pol₂ (β ns₂) (γ ns₂) c₂) as pol₃ eqn:Hpol₃ .
@@ -1921,7 +1921,7 @@ induction n; intros.
                 remember Hns₃ as Hfin₃; clear HeqHfin₃.
                 apply exists_fin_pt_nat_fst_seg in Hfin₃.
                 destruct Hfin₃ as (k₃, (αk₃, Hfin₃)).
-                remember (glop 0 ns₃ m₁) as g₃.
+                remember (next_pow 0 ns₃ m₁) as g₃.
                 simpl.
                 destruct (ps_zerop R (ps_poly_nth 0 pol₂)) as [H₇| H₇].
                  contradiction.
@@ -1946,7 +1946,7 @@ induction n; intros.
                     unfold Qlt in Hαj₃; simpl in Hαj₃.
                     unfold Qeq in Hαk₃; simpl in Hαk₃.
                     rewrite Z.mul_1_r in Hαj₃, Hαk₃.
-                    unfold glop in Heqg₃; simpl in Heqg₃.
+                    unfold next_pow in Heqg₃; simpl in Heqg₃.
                     rewrite Hini₃, Hfin₃ in Heqg₃; simpl in Heqg₃.
                     rewrite Hαk₃ in Heqg₃; simpl in Heqg₃.
                     rewrite Z.mul_1_r, Z.add_0_r in Heqg₃.
@@ -1955,7 +1955,7 @@ induction n; intros.
                     rewrite Pos2Z.inj_mul in Heqg₃.
                     rewrite Z.div_mul_cancel_r in Heqg₃; auto.
                     destruct (eq_nat_dec g₃ (S id)) as [H₁₁| H₁₁].
-                     remember (glop (Pos.to_nat d) ns₃ m₁) as g₄.
+                     remember (next_pow (Pos.to_nat d) ns₃ m₁) as g₄.
                      destruct i; simpl.
                       apply Nat.lt_1_r in H₉.
                       exfalso; revert H₉; apply Pos2Nat_ne_0.
