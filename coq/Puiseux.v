@@ -1957,7 +1957,7 @@ induction n; intros.
               remember Hns₃ as Hfin₃; clear HeqHfin₃.
               apply exists_fin_pt_nat_fst_seg in Hfin₃.
               destruct Hfin₃ as (k₃, (αk₃, Hfin₃)).
-              remember (glop 0 ns₃ m) as g₃.
+              remember (glop 0 ns₃ m₁) as g₃.
               simpl.
               destruct (ps_zerop R (ps_poly_nth 0 pol₂)) as [H₇| H₇].
                contradiction.
@@ -2004,8 +2004,7 @@ induction n; intros.
                      contradiction.
 
                      clear H₁₂.
-                     remember (glop (Pos.to_nat d) ns₃ m) as g₄.
-bbb.
+                     remember (glop (Pos.to_nat d) ns₃ m₁) as g₄.
                      destruct (eq_nat_dec g₄ (S (S i))) as [H₁₂| H₁₂].
                       reflexivity.
 
