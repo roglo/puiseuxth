@@ -1955,95 +1955,19 @@ induction n; intros.
                     rewrite Pos2Z.inj_mul in Heqg₃.
                     rewrite Z.div_mul_cancel_r in Heqg₃; auto.
                     destruct (eq_nat_dec g₃ (S id)) as [H₁₁| H₁₁].
-                     subst g₃.
+                     remember (glop (Pos.to_nat d) ns₃ m₁) as g₄.
                      destruct i; simpl.
-                      remember (Pos.to_nat d) as e eqn:He .
-                      symmetry in He.
-                      destruct e; [ idtac | discriminate Heqid ].
-                      exfalso; revert He; apply Pos2Nat_ne_0.
+                      apply Nat.lt_1_r in H₉.
+                      exfalso; revert H₉; apply Pos2Nat_ne_0.
 
-                      destruct (ps_zerop R (ps_poly_nth 0 pol₃)) as [| H₁₂].
+                      clear H₁ H₅ H₆ H₇ H₈.
+                      destruct (ps_zerop R (ps_poly_nth 0 pol₃)) as [H₁| H₁].
                        contradiction.
 
-                       clear H₁₂.
-                       remember (glop (Pos.to_nat d) ns₃ m₁) as g₄.
-                       destruct (eq_nat_dec g₄ (S (S i))) as [H₁₂| H₁₂].
-                        reflexivity.
-
-                        unfold glop in Heqg₄; simpl in Heqg₄.
-                        rewrite Hini₃, Hfin₃ in Heqg₄; simpl in Heqg₄.
-                        rewrite Hαk₃ in Heqg₄; simpl in Heqg₄.
-                        rewrite Z.mul_1_r, Z.add_0_r in Heqg₄.
-                        do 2 rewrite Pos.mul_1_r in Heqg₄.
-                        rewrite Z.mul_shuffle0 in Heqg₄.
-                        rewrite Pos2Z.inj_mul in Heqg₄.
-                        rewrite Z.div_mul_cancel_r in Heqg₄; auto.
-                        destruct (lt_dec g₄ (S (S i))) as [H₁₃| H₁₃].
-                         remember (ac_root (Φq pol₃ ns₃)) as c₃ eqn:Hc₃ .
-                         remember (next_pol pol₃ (β ns₃) (γ ns₃) c₃) as pol₄
-                          eqn:Hpol₄ .
-                         remember
-                          (List.hd phony_ns (newton_segments pol₄)) as ns₄
-                          eqn:Hns₄ .
-                         destruct i; simpl.
-                          remember Hns₃ as Hns₃₁; clear HeqHns₃₁.
-                          eapply hd_newton_segments in Hns₃₁; eauto .
-                          eapply den_αj_divides_num_αj_m with (m := m₁)
-                           in Hns₃₁; eauto .
-                           destruct Hns₃₁ as (e, He).
-                           rewrite He in Heqg₄.
-                           rewrite Z.div_mul in Heqg₄; auto.
-                           symmetry in Heqg₄.
-                           destruct g₄.
-                            apply Nat.eq_add_0 in Heqg₄.
-                            destruct Heqg₄ as (Hdz, Hez).
-                            exfalso; revert Hdz; apply Pos2Nat_ne_0.
-
-                            destruct g₄.
-                             remember (Pos.to_nat d) as dp.
-                             symmetry in Heqdp.
-                             destruct dp.
-                              exfalso; revert Heqdp; apply Pos2Nat_ne_0.
-
-                              simpl in Heqg₄.
-                              apply Nat.succ_inj in Heqg₄.
-                              apply Nat.eq_add_0 in Heqg₄.
-                              destruct Heqg₄ as (hdp, Hez).
-                              rewrite <- Z2Nat.inj_0 in Hez.
-                              apply Z2Nat.inj in Hez.
-                               subst e.
-                               simpl in He.
-                               apply Z.mul_eq_0_l in He; auto.
-                               rewrite He in Hαj₃.
-                               exfalso; revert Hαj₃; apply Z.lt_irrefl.
-
-                               apply
-                                Z.mul_le_mono_pos_r
-                                 with (p := (' Qden αj₃)%Z).
-                                apply Pos2Z.is_pos.
-
-                                rewrite <- He; simpl.
-                                apply Z.mul_nonneg_nonneg.
-                                 apply Z.lt_le_incl; assumption.
-
-                                 auto.
-
-                               reflexivity.
-
-                             exfalso; fast_omega H₁₃.
-
-                           replace m₁ with (m₁ * 1)%positive by omega.
-                           eapply next_pol_in_K_1_mq with (ns := ns₂); eauto .
-                           symmetry.
-                           replace m₁ with (m₁ * 1)%positive
-                            by apply Pos.mul_1_r.
-                           eapply q_eq_1 with (pol := pol₁); eauto .
-                            subst m₁.
-                            eapply next_pol_in_K_1_mq with (ns := ns); eauto .
-
-                            rewrite Pos.mul_1_r; assumption.
-
-                          Focus 1.
+                       clear H₁.
+                       destruct (eq_nat_dec g₄ (S (S i))) as [H₁| H₁]; auto.
+                       destruct (lt_dec g₄ (S (S i))) as [H₅| H₅].
+                        clear H₁.
 bbb.
 
 intros pol ns pol₁ ns₁ c m Hns Hc Hr Hpol₁ Hns₁ Hm n.
