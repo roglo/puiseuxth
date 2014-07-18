@@ -2034,49 +2034,16 @@ induction n; intros.
 
                              exfalso; fast_omega H₁₃.
 
-                           Focus 1.
                            replace m₁ with (m₁ * 1)%positive by omega.
-                           eapply next_pol_in_K_1_mq.
-                            5: eauto .
-
-                            3: eauto .
-
-                            2: eauto .
-
-                            eauto .
-
-                            symmetry.
+                           eapply next_pol_in_K_1_mq with (ns := ns₂); eauto .
+                           symmetry.
+                           replace m₁ with (m₁ * 1)%positive
+                            by apply Pos.mul_1_r.
+                           eapply q_eq_1 with (pol := pol₁); eauto .
                             subst m₁.
-                            replace (m * q₀)%positive with
-                             (m * q₀ * 1)%positive .
-                             eapply q_eq_1.
-                              7: eauto .
+                            eapply next_pol_in_K_1_mq with (ns := ns); eauto .
 
-                              7: eauto .
-
-                              6: eauto .
-
-                              5: eauto .
-
-                              4: eauto .
-
-                              eauto .
-
-                              Focus 1.
-                              eapply next_pol_in_K_1_mq.
-                               5: eauto .
-
-                               4: eauto .
-
-                               3: eauto .
-
-                               2: eauto .
-
-                               eauto .
-
-                              rewrite Pos.mul_1_r; assumption.
-
-                             rewrite Pos.mul_1_r; reflexivity.
+                            rewrite Pos.mul_1_r; assumption.
 bbb.
 
 intros pol ns pol₁ ns₁ c m Hns Hc Hr Hpol₁ Hns₁ Hm n.
