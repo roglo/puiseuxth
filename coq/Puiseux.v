@@ -2034,9 +2034,10 @@ induction n; intros.
 
                            exfalso; fast_omega H₁₃.
 
+bbb.
+                           Focus 1.
                            eapply next_pol_in_K_1_mq in HinK₁; eauto .
                            rewrite Heqm₁ in HinK₁.
-                           Focus 1.
                            rewrite Heqm₁.
                            erewrite q_eq_1 with (pol := pol₁) (pol₁ := pol₂)
                             in HinK₁; eauto .
