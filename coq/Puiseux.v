@@ -1787,7 +1787,8 @@ induction n; intros.
 
      rewrite Pos.mul_comm; reflexivity.
 
-    eapply den_αj_divides_num_αj_m; eauto.
+     eapply den_αj_divides_num_αj_m; eauto .
+     eapply next_pol_in_K_1_mq in HinK1m; eauto .
 bbb.
 
    remember Hns as Hr₁; clear HeqHr₁.
