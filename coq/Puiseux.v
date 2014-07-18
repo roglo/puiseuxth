@@ -1851,8 +1851,9 @@ induction n; intros.
       rewrite Z.mul_comm.
       rewrite Z.div_mul; auto.
 
-bbb.
-      eapply den_αj_divides_num_αj_m; eassumption.
+       eapply den_αj_divides_num_αj_m; eauto .
+       eapply next_pol_in_K_1_mq in HinK1m; eauto .
+       subst m₁; assumption.
 
      remember Hns₂ as Hns₂₁; clear HeqHns₂₁.
      eapply hd_newton_segments in Hns₂₁; eauto .
@@ -1899,6 +1900,7 @@ bbb.
         do 2 rewrite Pos.mul_1_r.
         rewrite Z.mul_shuffle0, Pos2Z.inj_mul.
         rewrite Z.div_mul_cancel_r; auto.
+bbb.
         rewrite Hd, Z.div_mul; auto.
 
         destruct (lt_dec i (Pos.to_nat d)) as [H₂| H₂].
