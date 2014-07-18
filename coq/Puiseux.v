@@ -2026,7 +2026,7 @@ induction n; intros.
                        destruct i; simpl.
                         remember Hns₃ as Hns₃₁; clear HeqHns₃₁.
                         eapply hd_newton_segments in Hns₃₁; eauto .
-                        eapply den_αj_divides_num_αj_m with (m := m) in Hns₃₁;
+                        eapply den_αj_divides_num_αj_m with (m := m₁) in Hns₃₁;
                          eauto .
                          destruct Hns₃₁ as (e, He).
                          rewrite He in Heqg₄.
@@ -2070,6 +2070,7 @@ induction n; intros.
                            exfalso; fast_omega H₁₃.
 
                          eapply next_pol_in_K_1_mq in HinK₁; eauto .
+                          rewrite Heqm₁ in HinK₁.
 bbb.
 
 intros pol ns pol₁ ns₁ c m Hns Hc Hr Hpol₁ Hns₁ Hm n.
