@@ -1736,10 +1736,8 @@ induction n; intros.
    rewrite Hαk₁; simpl.
    rewrite Z.mul_1_r, Z.add_0_r, Pos.mul_1_r.
    rewrite Z.mul_shuffle0.
-   rewrite Pos2Z.inj_mul.
-bbb.
+   do 2 rewrite Pos2Z.inj_mul.
    rewrite Z.div_mul_cancel_r; auto.
-bbb.
    rewrite ps_adjust_eq with (n := O) (k := (Qden αj₁ * Qden αk₁)%positive).
    symmetry.
    rewrite ps_adjust_eq with (n := O) (k := m).
@@ -1750,7 +1748,6 @@ bbb.
    do 2 rewrite Z.sub_0_r.
    symmetry.
    rewrite Z.mul_comm.
-bbb.
    rewrite <- Z.divide_div_mul_exact; auto.
     rewrite Pos2Z.inj_mul, <- Z.mul_assoc, Z.mul_comm, Z.mul_assoc.
     rewrite Z.div_mul; auto.
@@ -1786,6 +1783,7 @@ bbb.
       exfalso; revert H₁; apply Nat.lt_irrefl.
 
      rewrite Z.mul_comm, Z.mul_assoc, Z.mul_shuffle0.
+bbb.
      rewrite <- Z.mul_assoc, Z.mul_comm; reflexivity.
 
      rewrite Pos.mul_comm; reflexivity.
