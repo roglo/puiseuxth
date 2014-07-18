@@ -1893,7 +1893,6 @@ induction n; intros.
            rewrite <- Hc₁, <- Hpol₂, <- Hns₂.
            destruct i; [ exfalso; revert H₁; apply Nat.lt_irrefl | idtac ].
            destruct (lt_dec 0 (S i)) as [H₅| H₅].
-            Focus 1.
             apply Nat.nlt_ge in H₂.
             remember (S i - Pos.to_nat d)%nat as id.
             destruct id.
@@ -1928,11 +1927,9 @@ induction n; intros.
                contradiction.
 
                destruct (eq_nat_dec (Pos.to_nat d) (S i)) as [H₈| H₈].
-                Focus 1.
                 rewrite H₈, Nat.sub_diag in Heqid; discriminate Heqid.
 
                 destruct (lt_dec (Pos.to_nat d) (S i)) as [H₉| H₉].
-                 Focus 1.
                  rewrite <- Hc₂, <- Hpol₃, <- Hns₃.
                  destruct (ps_zerop R (ps_poly_nth 0 pol₃)) as [H₁₀| H₁₀].
                   destruct i; [ reflexivity | simpl ].
