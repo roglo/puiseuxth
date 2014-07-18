@@ -1892,7 +1892,7 @@ induction n; intros.
         exfalso; apply H₁; auto.
 
        rewrite rng_add_0_l.
-       assert (glop 0 ns₂ m = Pos.to_nat d) as Hglop.
+       assert (glop 0 ns₂ m₁ = Pos.to_nat d) as Hglop.
         unfold glop; simpl.
         rewrite Hini₂, Hfin₂; simpl.
         rewrite Hαk₂; simpl.
@@ -1900,7 +1900,6 @@ induction n; intros.
         do 2 rewrite Pos.mul_1_r.
         rewrite Z.mul_shuffle0, Pos2Z.inj_mul.
         rewrite Z.div_mul_cancel_r; auto.
-bbb.
         rewrite Hd, Z.div_mul; auto.
 
         destruct (lt_dec i (Pos.to_nat d)) as [H₂| H₂].
@@ -2006,6 +2005,7 @@ bbb.
 
                      clear H₁₂.
                      remember (glop (Pos.to_nat d) ns₃ m) as g₄.
+bbb.
                      destruct (eq_nat_dec g₄ (S (S i))) as [H₁₂| H₁₂].
                       reflexivity.
 
