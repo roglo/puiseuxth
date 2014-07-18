@@ -1740,7 +1740,7 @@ induction n; intros.
    rewrite Z.div_mul_cancel_r; auto.
    rewrite ps_adjust_eq with (n := O) (k := (Qden αj₁ * Qden αk₁)%positive).
    symmetry.
-   rewrite ps_adjust_eq with (n := O) (k := m).
+   rewrite ps_adjust_eq with (n := O) (k := (m * q₀)%positive).
    unfold adjust_ps; simpl.
    rewrite fold_series_const.
    do 2 rewrite series_shift_0.
@@ -1783,13 +1783,12 @@ induction n; intros.
       exfalso; revert H₁; apply Nat.lt_irrefl.
 
      rewrite Z.mul_comm, Z.mul_assoc, Z.mul_shuffle0.
-bbb.
      rewrite <- Z.mul_assoc, Z.mul_comm; reflexivity.
 
      rewrite Pos.mul_comm; reflexivity.
 
+    eapply den_αj_divides_num_αj_m; eauto.
 bbb.
-    eapply den_αj_divides_num_αj_m; eassumption.
 
    remember Hns as Hr₁; clear HeqHr₁.
    eapply multiplicity_1_remains in Hr₁; eauto .
