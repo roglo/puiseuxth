@@ -2015,6 +2015,9 @@ induction n; intros.
 
                           remember (next_pow g₄ ns₄ m₁) as g₅.
                           destruct (eq_nat_dec g₅ (S (S (S i)))) as [H₆| H₆].
+                           Focus 1.
+                           unfold next_pow in Heqg₅.
+                           simpl in Heqg₅.
 bbb.
 
 intros pol ns pol₁ ns₁ c m Hns Hc Hr Hpol₁ Hns₁ Hm n.
