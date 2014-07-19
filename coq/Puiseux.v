@@ -2040,6 +2040,15 @@ induction n; intros.
 
                               apply Pos2Nat.is_pos.
 
+                              simpl in He.
+                              pose proof (Pos2Z.neg_is_neg (e * Qden αj₂))
+                               as H.
+                              rewrite <- He in H.
+                              apply Z.nle_gt in H.
+                              exfalso; apply H.
+                              apply Z.mul_nonneg_nonneg; auto.
+                              apply Z.lt_le_incl; assumption.
+
 bbb.
 
 intros pol ns pol₁ ns₁ c m Hns Hc Hr Hpol₁ Hns₁ Hm n.
