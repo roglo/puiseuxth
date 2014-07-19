@@ -1955,7 +1955,9 @@ induction n; intros.
                     rewrite Pos2Z.inj_mul in Heqg₃.
                     rewrite Z.div_mul_cancel_r in Heqg₃; auto.
                     destruct (eq_nat_dec g₃ (S id)) as [H₁₁| H₁₁].
-                     remember (next_pow (Pos.to_nat d) ns₃ m₁) as g₄.
+                     remember (next_pow 0 ns₂ m₁) as g₂.
+                     rewrite <- Hnpow.
+                     remember (next_pow g₂ ns₃ m₁) as g₄.
                      destruct i; simpl.
                       apply Nat.lt_1_r in H₉.
                       exfalso; revert H₉; apply Pos2Nat_ne_0.
@@ -1990,7 +1992,7 @@ induction n; intros.
                          destruct pd.
                           exfalso; revert Hpd; apply Pos2Nat_ne_0.
 
-                          fast_omega Heqg₄ H₅.
+                          fast_omega Heqg₄ H₅ Hnpow.
 
                          simpl.
                          destruct (ps_zerop R (ps_poly_nth 0 pol₄))
@@ -2006,11 +2008,13 @@ induction n; intros.
                           rewrite <- Heqg₃, H₁₁ in Heqg₄.
                           rewrite Heqid in Heqg₄.
                           rewrite Nat.add_sub_assoc in Heqg₄; auto.
+                          rewrite <- Hnpow in Heqg₄.
                           rewrite Nat.add_comm, Nat.add_sub in Heqg₄.
                           rewrite <- Heqg₄ in H₅.
                           exfalso; revert H₅; apply Nat.lt_irrefl.
 
-                          Focus 1.
+                          remember (next_pow g₄ ns₄ m₁) as g₅.
+                          destruct (eq_nat_dec g₅ (S (S (S i)))) as [H₆| H₆].
 bbb.
 
 intros pol ns pol₁ ns₁ c m Hns Hc Hr Hpol₁ Hns₁ Hm n.
