@@ -2018,6 +2018,22 @@ induction n; intros.
                            Focus 1.
                            unfold next_pow in Heqg₅.
                            simpl in Heqg₅.
+                           assert (0 < g₂)%nat as Hg₂.
+                            subst g₂.
+                            unfold next_pow; simpl.
+                            rewrite Hini₂, Hfin₂; simpl.
+                            rewrite Hαk₂; simpl.
+                            rewrite Z.add_0_r, Z.mul_1_r.
+                            do 2 rewrite Pos.mul_1_r.
+                            rewrite Z.mul_shuffle0, Pos2Z.inj_mul.
+                            rewrite Z.div_mul_cancel_r; auto.
+                            assert (' Qden αj₂ | Qnum αj₂ * ' m₁)%Z.
+                             eapply den_αj_divides_num_αj_m; eauto .
+
+                             destruct H as (e, He).
+                             rewrite He, Z.div_mul; auto.
+                             destruct e as [| e| e].
+                              simpl in He.
 bbb.
 
 intros pol ns pol₁ ns₁ c m Hns Hc Hr Hpol₁ Hns₁ Hm n.
