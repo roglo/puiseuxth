@@ -1968,6 +1968,22 @@ induction n; intros.
                        destruct (eq_nat_dec g₄ (S (S i))) as [H₁| H₁]; auto.
                        destruct (lt_dec g₄ (S (S i))) as [H₅| H₅].
                         clear H₁.
+                        remember (ac_root (Φq pol₃ ns₃)) as c₃ eqn:Hc₃ .
+                        remember (next_pol pol₃ (β ns₃) (γ ns₃) c₃) as pol₄
+                         eqn:Hpol₄ .
+                        remember
+                         (List.hd phony_ns (newton_segments pol₄)) as ns₄
+                         eqn:Hns₄ .
+                        destruct i.
+                         simpl.
+                         unfold next_pow in Heqg₄.
+                         simpl in Heqg₄.
+                         rewrite Hini₃, Hfin₃ in Heqg₄; simpl in Heqg₄.
+                         rewrite Hαk₃ in Heqg₄; simpl in Heqg₄.
+                         rewrite Z.add_0_r, Z.mul_1_r in Heqg₄.
+                         do 2 rewrite Pos.mul_1_r in Heqg₄.
+                         rewrite Z.mul_shuffle0, Pos2Z.inj_mul in Heqg₄.
+                         rewrite Z.div_mul_cancel_r in Heqg₄; auto.
 bbb.
 
 intros pol ns pol₁ ns₁ c m Hns Hc Hr Hpol₁ Hns₁ Hm n.
