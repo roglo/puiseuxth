@@ -2034,6 +2034,12 @@ induction n; intros.
                              rewrite He, Z.div_mul; auto.
                              destruct e as [| e| e].
                               simpl in He.
+                              apply Z.eq_mul_0_l in He; auto.
+                              rewrite He in Hαj₂.
+                              exfalso; revert Hαj₂; apply Z.lt_irrefl.
+
+                              apply Pos2Nat.is_pos.
+
 bbb.
 
 intros pol ns pol₁ ns₁ c m Hns Hc Hr Hpol₁ Hns₁ Hm n.
