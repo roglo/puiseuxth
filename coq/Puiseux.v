@@ -2019,35 +2019,10 @@ induction n; intros.
                            unfold next_pow in Heqg₅.
                            simpl in Heqg₅.
                            assert (0 < g₂)%nat as Hg₂.
-                            subst g₂.
-                            unfold next_pow; simpl.
-                            rewrite Hini₂, Hfin₂; simpl.
-                            rewrite Hαk₂; simpl.
-                            rewrite Z.add_0_r, Z.mul_1_r.
-                            do 2 rewrite Pos.mul_1_r.
-                            rewrite Z.mul_shuffle0, Pos2Z.inj_mul.
-                            rewrite Z.div_mul_cancel_r; auto.
-                            assert (' Qden αj₂ | Qnum αj₂ * ' m₁)%Z.
-                             eapply den_αj_divides_num_αj_m; eauto .
+                            rewrite Hnpow.
+                            apply Pos2Nat.is_pos.
 
-                             destruct H as (e, He).
-                             rewrite He, Z.div_mul; auto.
-                             destruct e as [| e| e].
-                              simpl in He.
-                              apply Z.eq_mul_0_l in He; auto.
-                              rewrite He in Hαj₂.
-                              exfalso; revert Hαj₂; apply Z.lt_irrefl.
-
-                              apply Pos2Nat.is_pos.
-
-                              simpl in He.
-                              pose proof (Pos2Z.neg_is_neg (e * Qden αj₂))
-                               as H.
-                              rewrite <- He in H.
-                              apply Z.nle_gt in H.
-                              exfalso; apply H.
-                              apply Z.mul_nonneg_nonneg; auto.
-                              apply Z.lt_le_incl; assumption.
+                            assert (1 < g₃)%nat as Hg₃.
 
 bbb.
 
