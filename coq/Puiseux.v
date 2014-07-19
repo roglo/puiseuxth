@@ -1984,6 +1984,15 @@ induction n; intros.
                          do 2 rewrite Pos.mul_1_r in Heqg₄.
                          rewrite Z.mul_shuffle0, Pos2Z.inj_mul in Heqg₄.
                          rewrite Z.div_mul_cancel_r in Heqg₄; auto.
+                         rewrite <- Heqg₃, H₁₁ in Heqg₄.
+                         remember (Pos.to_nat d) as pd eqn:Hpd .
+                         symmetry in Hpd.
+                         destruct pd.
+                          exfalso; revert Hpd; apply Pos2Nat_ne_0.
+
+                          fast_omega Heqg₄ H₅.
+
+                         Focus 1.
 bbb.
 
 intros pol ns pol₁ ns₁ c m Hns Hc Hr Hpol₁ Hns₁ Hm n.
