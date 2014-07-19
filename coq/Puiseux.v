@@ -1995,6 +1995,21 @@ induction n; intros.
                          simpl.
                          destruct (ps_zerop R (ps_poly_nth 0 pol₄))
                           as [H₁| H₁].
+                          unfold next_pow in Heqg₄.
+                          simpl in Heqg₄.
+                          rewrite Hini₃, Hfin₃ in Heqg₄; simpl in Heqg₄.
+                          rewrite Hαk₃ in Heqg₄; simpl in Heqg₄.
+                          rewrite Z.add_0_r, Z.mul_1_r in Heqg₄.
+                          do 2 rewrite Pos.mul_1_r in Heqg₄.
+                          rewrite Z.mul_shuffle0, Pos2Z.inj_mul in Heqg₄.
+                          rewrite Z.div_mul_cancel_r in Heqg₄; auto.
+                          rewrite <- Heqg₃, H₁₁ in Heqg₄.
+                          rewrite Heqid in Heqg₄.
+                          rewrite Nat.add_sub_assoc in Heqg₄; auto.
+                          rewrite Nat.add_comm, Nat.add_sub in Heqg₄.
+                          rewrite <- Heqg₄ in H₅.
+                          exfalso; revert H₅; apply Nat.lt_irrefl.
+
                           Focus 1.
 bbb.
 
