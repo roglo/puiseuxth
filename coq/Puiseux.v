@@ -1992,7 +1992,10 @@ induction n; intros.
 
                           fast_omega Heqg₄ H₅.
 
-                         Focus 1.
+                         simpl.
+                         destruct (ps_zerop R (ps_poly_nth 0 pol₄))
+                          as [H₁| H₁].
+                          Focus 1.
 bbb.
 
 intros pol ns pol₁ ns₁ c m Hns Hc Hr Hpol₁ Hns₁ Hm n.
