@@ -1623,6 +1623,37 @@ eapply q_is_factor_of_h_minus_j in Hqhj; eauto .
  assumption.
 Qed.
 
+Lemma num_m_den_is_pos : ∀ pol ns j αj m,
+  ns ∈ newton_segments pol
+  → ini_pt ns = (Qnat j, αj)
+  → (0 < Qnum αj)%Z
+  → ps_lap_forall (λ a, in_K_1_m a m) (al pol)
+  → (0 < Z.to_nat (Qnum αj * ' m / ' Qden αj))%nat.
+Proof.
+intros pol ns j αj m Hns Hini Hn Hm.
+assert (' Qden αj | Qnum αj * ' m)%Z as H.
+ eapply den_αj_divides_num_αj_m; eauto .
+
+ destruct H as (d, Hd).
+ rewrite Hd.
+ rewrite Z.div_mul; auto.
+ destruct d as [| d| d].
+  simpl in Hd.
+  apply Z.eq_mul_0_l in Hd; auto.
+  rewrite Hd in Hn.
+  exfalso; revert Hn; apply Z.lt_irrefl.
+
+  apply Pos2Nat.is_pos.
+
+  simpl in Hd.
+  pose proof (Pos2Z.neg_is_neg (d * Qden αj)) as I.
+  rewrite <- Hd in I.
+  apply Z.nle_gt in I.
+  exfalso; apply I.
+  apply Z.mul_nonneg_nonneg; auto.
+  apply Z.lt_le_incl; assumption.
+Qed.
+
 Lemma points_of_nil_ps_lap : ∀ la,
   (la = [])%pslap
   → points_of_ps_lap la = [].
@@ -1824,16 +1855,17 @@ induction n; intros.
      eapply hd_newton_segments in Hns₂₁; eauto .
      remember Hns₂₁ as H; clear HeqH.
      eapply den_αj_divides_num_αj_m in H; eauto .
+     remember Hns₂₁ as HH; clear HeqHH.
+     eapply num_m_den_is_pos in HH; eauto .
      destruct H as (d, Hd).
+     rewrite Hd in HH.
+     rewrite Z.div_mul in HH; auto.
      rewrite Hd.
      rewrite Z.div_mul; auto.
      destruct d as [| d| d].
-      simpl in Hd.
-      apply Z.eq_mul_0_l in Hd; auto.
-      rewrite Hd in Hαj₂.
-      exfalso; revert Hαj₂; apply Z.lt_irrefl.
+      exfalso; revert HH; apply Nat.lt_irrefl.
 
-      simpl.
+      clear HH; simpl.
       unfold adjust_series; simpl.
       rewrite series_shift_0.
       rewrite series_stretch_const.
@@ -2010,6 +2042,12 @@ induction n; intros.
                     destruct id.
                      apply Nat.lt_1_r in H₇.
                      rewrite Heqg₃ in H₇.
+                     remember Hns₃ as Hns₃₁; clear HeqHns₃₁.
+                     eapply hd_newton_segments in Hns₃₁; eauto .
+                     remember Hini₃ as H; clear HeqH.
+                     eapply num_m_den_is_pos with (m := m₁) in H; eauto .
+                      rewrite H₇ in H.
+                      exfalso; revert H; apply Nat.lt_irrefl.
 bbb.
                destruct (lt_dec (Pos.to_nat d) (S i)) as [H₉| H₉].
                 rewrite <- Hc₂, <- Hpol₃, <- Hns₃.
