@@ -1978,6 +1978,30 @@ induction n; intros.
                 rewrite Z.mul_shuffle0 in Heqg₃.
                 rewrite Pos2Z.inj_mul in Heqg₃.
                 rewrite Z.div_mul_cancel_r in Heqg₃; auto.
+                rewrite <- Heqg₃ in Heqg₂₃.
+                clear H₅ H₆.
+                destruct (lt_dec g₂ (S i)) as [H₅| H₅].
+                 Focus 2.
+                 fast_omega H₅ Heqid Hnpow.
+
+                 destruct (eq_nat_dec g₃ (S id)) as [H₆| H₆].
+                  destruct i.
+                   apply Nat.lt_1_r in H₅.
+                   rewrite H₅ in Hnpow; symmetry in Hnpow.
+                   exfalso; revert Hnpow; apply Pos2Nat_ne_0.
+
+                   simpl.
+                   destruct (ps_zerop R (ps_poly_nth 0 pol₃)) as [H₉| H₉].
+                    contradiction.
+
+                    clear H₉.
+                    destruct (eq_nat_dec g₂₃ (S (S i))) as [H₉| H₉].
+                     rewrite Heqc₃; reflexivity.
+
+                     exfalso; fast_omega H₆ H₉ Heqg₂₃ Heqid Hnpow.
+
+                  clear H₇.
+                  destruct (lt_dec g₃ (S id)) as [H₇| H₇].
 bbb.
                destruct (lt_dec (Pos.to_nat d) (S i)) as [H₉| H₉].
                 rewrite <- Hc₂, <- Hpol₃, <- Hns₃.
