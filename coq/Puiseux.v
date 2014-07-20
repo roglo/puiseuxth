@@ -1966,24 +1966,22 @@ induction n; intros.
                       destruct (ps_zerop R (ps_poly_nth 0 pol₃)) as [H₁| H₁].
                        contradiction.
 
+                       unfold next_pow in Heqg₄.
+                       simpl in Heqg₄.
+                       rewrite Hini₃, Hfin₃ in Heqg₄; simpl in Heqg₄.
+                       rewrite Hαk₃ in Heqg₄; simpl in Heqg₄.
+                       rewrite Z.add_0_r, Z.mul_1_r in Heqg₄.
+                       do 2 rewrite Pos.mul_1_r in Heqg₄.
+                       rewrite Z.mul_shuffle0, Pos2Z.inj_mul in Heqg₄.
+                       rewrite Z.div_mul_cancel_r in Heqg₄; auto.
+                       rewrite <- Heqg₃, H₁₁ in Heqg₄.
+                       rewrite Heqid in Heqg₄.
+                       rewrite Nat.add_sub_assoc in Heqg₄; auto.
+                       rewrite <- Hnpow in Heqg₄.
+                       rewrite Nat.add_comm, Nat.add_sub in Heqg₄.
                        clear H₁.
-                       destruct (eq_nat_dec g₄ (S (S i))) as [H₁| H₁]; auto.
-                       destruct (lt_dec g₄ (S (S i))) as [H₅| H₅].
-                        unfold next_pow in Heqg₄.
-                        simpl in Heqg₄.
-                        rewrite Hini₃, Hfin₃ in Heqg₄; simpl in Heqg₄.
-                        rewrite Hαk₃ in Heqg₄; simpl in Heqg₄.
-                        rewrite Z.add_0_r, Z.mul_1_r in Heqg₄.
-                        do 2 rewrite Pos.mul_1_r in Heqg₄.
-                        rewrite Z.mul_shuffle0, Pos2Z.inj_mul in Heqg₄.
-                        rewrite Z.div_mul_cancel_r in Heqg₄; auto.
-                        rewrite <- Heqg₃, H₁₁ in Heqg₄.
-                        rewrite Heqid in Heqg₄.
-                        rewrite Nat.add_sub_assoc in Heqg₄; auto.
-                        rewrite <- Hnpow in Heqg₄.
-                        rewrite Nat.add_comm, Nat.add_sub in Heqg₄.
-                        rewrite <- Heqg₄ in H₅.
-                        exfalso; revert H₅; apply Nat.lt_irrefl.
+                       destruct (eq_nat_dec g₄ (S (S i))); auto;
+                        contradiction.
 bbb.
 
 intros pol ns pol₁ ns₁ c m Hns Hc Hr Hpol₁ Hns₁ Hm n.
