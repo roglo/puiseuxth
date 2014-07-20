@@ -2002,6 +2002,14 @@ induction n; intros.
 
                   clear H₇.
                   destruct (lt_dec g₃ (S id)) as [H₇| H₇].
+                   destruct i.
+                    rewrite Hnpow in H₅.
+                    apply Nat.lt_1_r in H₅.
+                    exfalso; revert H₅; apply Pos2Nat_ne_0.
+
+                    destruct id.
+                     apply Nat.lt_1_r in H₇.
+                     rewrite Heqg₃ in H₇.
 bbb.
                destruct (lt_dec (Pos.to_nat d) (S i)) as [H₉| H₉].
                 rewrite <- Hc₂, <- Hpol₃, <- Hns₃.
