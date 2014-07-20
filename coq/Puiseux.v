@@ -1947,8 +1947,19 @@ induction n; intros.
                 unfold Qlt in Hαj₃; simpl in Hαj₃.
                 unfold Qeq in Hαk₃; simpl in Hαk₃.
                 rewrite Z.mul_1_r in Hαj₃, Hαk₃.
-
-                Focus 1.
+                rewrite <- Hnpow.
+                remember (next_pow 0 ns₂ m₁) as g₂.
+                rewrite <- Hc₂, <- Hpol₃, <- Hns₃.
+                remember (ac_root (Φq pol₃ ns₃)) as c₃.
+                remember (next_pol pol₃ (β ns₃) (γ ns₃) c₃) as pol₄.
+                remember (List.hd phony_ns (newton_segments pol₄)) as ns₄.
+                rename Heqns₄ into Hns₄.
+                remember Hns₄ as Hini₄; clear HeqHini₄.
+                apply exists_ini_pt_nat_fst_seg in Hini₄.
+                destruct Hini₄ as (j₄, (αj₄, Hini₄)).
+                remember Hns₄ as Hfin₄; clear HeqHfin₄.
+                apply exists_fin_pt_nat_fst_seg in Hfin₄.
+                destruct Hfin₄ as (k₄, (αk₄, Hfin₄)).
 bbb.
                destruct (lt_dec (Pos.to_nat d) (S i)) as [H₉| H₉].
                 rewrite <- Hc₂, <- Hpol₃, <- Hns₃.
