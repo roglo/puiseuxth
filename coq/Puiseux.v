@@ -1960,6 +1960,16 @@ induction n; intros.
                 remember Hns₄ as Hfin₄; clear HeqHfin₄.
                 apply exists_fin_pt_nat_fst_seg in Hfin₄.
                 destruct Hfin₄ as (k₄, (αk₄, Hfin₄)).
+                remember (next_pow g₂ ns₃ m₁) as g₂₃.
+                remember (next_pow g₃ ns₄ m₁) as g₃₄.
+                unfold next_pow in Heqg₂₃; simpl in Heqg₂₃.
+                rewrite Hini₃, Hfin₃ in Heqg₂₃; simpl in Heqg₂₃.
+                rewrite Hαk₃ in Heqg₂₃; simpl in Heqg₂₃.
+                rewrite Z.add_0_r, Z.mul_1_r in Heqg₂₃.
+                do 2 rewrite Pos.mul_1_r in Heqg₂₃.
+                rewrite Z.mul_shuffle0 in Heqg₂₃.
+                rewrite Pos2Z.inj_mul in Heqg₂₃.
+                rewrite Z.div_mul_cancel_r in Heqg₂₃; auto.
 bbb.
                destruct (lt_dec (Pos.to_nat d) (S i)) as [H₉| H₉].
                 rewrite <- Hc₂, <- Hpol₃, <- Hns₃.
