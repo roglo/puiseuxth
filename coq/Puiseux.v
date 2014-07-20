@@ -1970,6 +1970,14 @@ induction n; intros.
                 rewrite Z.mul_shuffle0 in Heqg₂₃.
                 rewrite Pos2Z.inj_mul in Heqg₂₃.
                 rewrite Z.div_mul_cancel_r in Heqg₂₃; auto.
+                unfold next_pow in Heqg₃; simpl in Heqg₃.
+                rewrite Hini₃, Hfin₃ in Heqg₃; simpl in Heqg₃.
+                rewrite Hαk₃ in Heqg₃; simpl in Heqg₃.
+                rewrite Z.add_0_r, Z.mul_1_r in Heqg₃.
+                do 2 rewrite Pos.mul_1_r in Heqg₃.
+                rewrite Z.mul_shuffle0 in Heqg₃.
+                rewrite Pos2Z.inj_mul in Heqg₃.
+                rewrite Z.div_mul_cancel_r in Heqg₃; auto.
 bbb.
                destruct (lt_dec (Pos.to_nat d) (S i)) as [H₉| H₉].
                 rewrite <- Hc₂, <- Hpol₃, <- Hns₃.
