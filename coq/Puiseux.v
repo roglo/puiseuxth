@@ -1652,6 +1652,7 @@ Lemma sss : ∀ pol ns pol₁ ns₁ c m q₀,
        ps_monom 1%K (γ_sum n pol₁ ns₁) * root_tail (m * q₀) (S n) pol₁ ns₁)%ps.
 Proof.
 intros pol ns pol₁ ns₁ c m q₀ Hns Hm Hq₀ Hc Hr Hpol₁ Hns₁ n Hpsi.
+remember (m * q₀)%positive as m₁.
 remember Hm as HinK1m; clear HeqHinK1m.
 apply com_polord_in_K_1_m with (R := R) in HinK1m.
 induction n; intros.
@@ -1678,7 +1679,7 @@ induction n; intros.
   eapply hd_newton_segments in HinK₁; eauto .
   eapply next_pol_in_K_1_mq in HinK₁; eauto .
    erewrite q_eq_1 with (q₀ := q₀) in HinK₁; eauto .
-    rewrite Pos.mul_1_r in HinK₁.
+    rewrite Pos.mul_1_r, <- Heqm₁ in HinK₁.
     unfold root_head, γ_sum; simpl.
     unfold summation; simpl.
     do 2 rewrite rng_add_0_r.
@@ -1700,11 +1701,11 @@ induction n; intros.
      rewrite Hαk₁; simpl.
      rewrite Z.mul_1_r, Z.add_0_r, Pos.mul_1_r.
      rewrite Z.mul_shuffle0.
-     do 2 rewrite Pos2Z.inj_mul.
+     rewrite Pos2Z.inj_mul.
      rewrite Z.div_mul_cancel_r; auto.
      rewrite ps_adjust_eq with (n := O) (k := (Qden αj₁ * Qden αk₁)%positive).
      symmetry.
-     rewrite ps_adjust_eq with (n := O) (k := (m * q₀)%positive).
+     rewrite ps_adjust_eq with (n := O) (k := m₁).
      unfold adjust_ps; simpl.
      rewrite fold_series_const.
      do 2 rewrite series_shift_0.
@@ -1752,6 +1753,7 @@ induction n; intros.
        rewrite Pos.mul_comm; reflexivity.
 
       eapply den_αj_divides_num_αj_m; eauto .
+      rewrite Heqm₁.
       eapply next_pol_in_K_1_mq in HinK1m; eauto .
 
      remember Hns as Hr₁; clear HeqHr₁.
@@ -1767,8 +1769,7 @@ induction n; intros.
      rewrite Hini₁, Hfin₁, Hini₂, Hfin₂; simpl.
      rewrite Hαk₁, Hαk₂; simpl.
      do 2 rewrite Z.mul_1_r, Z.add_0_r, Pos.mul_1_r.
-     rewrite Z.mul_shuffle0.
-     do 2 rewrite Pos2Z.inj_mul.
+     rewrite Z.mul_shuffle0, Pos2Z.inj_mul.
      rewrite Z.div_mul_cancel_r; auto.
      rewrite Z.mul_shuffle0, Pos2Z.inj_mul.
      rewrite Z.div_mul_cancel_r; auto.
@@ -1792,7 +1793,6 @@ induction n; intros.
      remember (Qnum αj₁ * ' Qden αk₁)%Z as nd.
      do 2 rewrite Z2Nat_sub_min.
      rewrite Z.mul_add_distr_r.
-     remember (m * q₀)%positive as m₁.
      rewrite Pos2Z.inj_mul, Z.mul_assoc, Z.mul_shuffle0.
      rewrite Z.sub_add_distr.
      rewrite Z.sub_diag; simpl.
