@@ -1987,18 +1987,23 @@ induction n; intros.
                       apply Nat.lt_1_r in H₉.
                       exfalso; revert H₉; apply Pos2Nat_ne_0.
 
-                      clear H₁ H₅ H₆.
-bbb.
-                     remember (next_pow 0 ns₂ m₁) as g₂.
-                     rewrite <- Hnpow.
-                     remember (next_pow g₂ ns₃ m₁) as g₄.
-                     clear H₆.
-                     remember (ac_root (Φq pol₃ ns₃)) as c₃ eqn:Hc₃ .
-                     remember (next_pol pol₃ (β ns₃) (γ ns₃) c₃) as pol₄
-                      eqn:Hpol₄ .
-                     remember
-                      (List.hd phony_ns (newton_segments pol₄)) as ns₄
-                      eqn:Hns₄ .
+                      clear H₁ H₅ H₆ H₇.
+                      remember (next_pow 0 ns₂ m₁) as g₂.
+                      rewrite <- Hnpow; simpl.
+                      destruct (ps_zerop R (ps_poly_nth 0 pol₃)) as [H₅| H₅].
+                       contradiction.
+
+                       clear H₁₀.
+                       remember (ac_root (Φq pol₃ ns₃)) as c₃.
+                       remember (next_pol pol₃ (β ns₃) (γ ns₃) c₃) as pol₄.
+                       remember
+                        (List.hd phony_ns (newton_segments pol₄)) as ns₄.
+                       rename Heqns₄ into Hns₄.
+                       remember Hns₄ as Hini₄; clear HeqHini₄.
+                       apply exists_ini_pt_nat_fst_seg in Hini₄.
+                       destruct Hini₄ as (j₄, (αj₄, Hini₄)).
+                       remember Hns₄ as Hfin₄; clear HeqHfin₄.
+                       apply exists_fin_pt_nat_fst_seg in Hfin₄.
 bbb.
 
 intros pol ns pol₁ ns₁ c m Hns Hc Hr Hpol₁ Hns₁ Hm n.
