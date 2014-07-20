@@ -1980,8 +1980,19 @@ induction n; intros.
                        rewrite <- Hnpow in Heqg₄.
                        rewrite Nat.add_comm, Nat.add_sub in Heqg₄.
                        clear H₁.
-                       destruct (eq_nat_dec g₄ (S (S i))); auto;
-                        contradiction.
+                       destruct (eq_nat_dec g₄ (S (S i))); auto.
+                       contradiction.
+
+                     remember (next_pow 0 ns₂ m₁) as g₂.
+                     rewrite <- Hnpow.
+                     remember (next_pow g₂ ns₃ m₁) as g₄.
+                     clear H₆.
+                     remember (ac_root (Φq pol₃ ns₃)) as c₃ eqn:Hc₃ .
+                     remember (next_pol pol₃ (β ns₃) (γ ns₃) c₃) as pol₄
+                      eqn:Hpol₄ .
+                     remember
+                      (List.hd phony_ns (newton_segments pol₄)) as nc₄
+                      eqn:Hnc₄ .
 bbb.
 
 intros pol ns pol₁ ns₁ c m Hns Hc Hr Hpol₁ Hns₁ Hm n.
