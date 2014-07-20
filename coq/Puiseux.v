@@ -1991,8 +1991,31 @@ induction n; intros.
                      remember (next_pol pol₃ (β ns₃) (γ ns₃) c₃) as pol₄
                       eqn:Hpol₄ .
                      remember
-                      (List.hd phony_ns (newton_segments pol₄)) as nc₄
-                      eqn:Hnc₄ .
+                      (List.hd phony_ns (newton_segments pol₄)) as ns₄
+                      eqn:Hns₄ .
+                     Focus 1.
+                     destruct i.
+                      simpl.
+                      destruct (lt_dec g₃ (S id)) as [H₆| H₆]; auto.
+                      destruct id.
+                       apply Nat.lt_1_r in H₆.
+                       move H₆ at top; subst g₃.
+                       apply Nat.lt_1_r in H₉.
+                       exfalso; revert H₉; apply Pos2Nat_ne_0.
+
+                       simpl.
+                       clear H₅.
+                       destruct (ps_zerop R (ps_poly_nth 0 pol₄)) as [H₅| H₅];
+                        auto.
+                       remember (ac_root (Φq pol₄ ns₄)) as c₄ eqn:Hc₄ .
+                       remember (next_pol pol₄ (β ns₄) (γ ns₄) c₄) as pol₅.
+                       rename Heqpol₅ into Hpol₅.
+                       remember
+                        (List.hd phony_ns (newton_segments pol₅)) as ns₅.
+                       rename Heqns₅ into Hns₅.
+                       remember Hns₅ as Hini₅; clear HeqHini₅.
+                       apply exists_ini_pt_nat_fst_seg in Hini₅.
+                       destruct Hini₅ as (j₅, (αj₅, Hini₅)).
 bbb.
 
 intros pol ns pol₁ ns₁ c m Hns Hc Hr Hpol₁ Hns₁ Hm n.
