@@ -1969,97 +1969,21 @@ induction n; intros.
                        clear H₁.
                        destruct (eq_nat_dec g₄ (S (S i))) as [H₁| H₁]; auto.
                        destruct (lt_dec g₄ (S (S i))) as [H₅| H₅].
-                        clear H₁.
-                        remember (ac_root (Φq pol₃ ns₃)) as c₃ eqn:Hc₃ .
-                        remember (next_pol pol₃ (β ns₃) (γ ns₃) c₃) as pol₄
-                         eqn:Hpol₄ .
-                        remember
-                         (List.hd phony_ns (newton_segments pol₄)) as ns₄
-                         eqn:Hns₄ .
-                        destruct i.
-                         simpl.
-                         unfold next_pow in Heqg₄.
-                         simpl in Heqg₄.
-                         rewrite Hini₃, Hfin₃ in Heqg₄; simpl in Heqg₄.
-                         rewrite Hαk₃ in Heqg₄; simpl in Heqg₄.
-                         rewrite Z.add_0_r, Z.mul_1_r in Heqg₄.
-                         do 2 rewrite Pos.mul_1_r in Heqg₄.
-                         rewrite Z.mul_shuffle0, Pos2Z.inj_mul in Heqg₄.
-                         rewrite Z.div_mul_cancel_r in Heqg₄; auto.
-                         rewrite <- Heqg₃, H₁₁ in Heqg₄.
-                         remember (Pos.to_nat d) as pd eqn:Hpd .
-                         symmetry in Hpd.
-                         destruct pd.
-                          exfalso; revert Hpd; apply Pos2Nat_ne_0.
-
-                          fast_omega Heqg₄ H₅ Hnpow.
-
-                         simpl.
-                         destruct (ps_zerop R (ps_poly_nth 0 pol₄))
-                          as [H₁| H₁].
-                          unfold next_pow in Heqg₄.
-                          simpl in Heqg₄.
-                          rewrite Hini₃, Hfin₃ in Heqg₄; simpl in Heqg₄.
-                          rewrite Hαk₃ in Heqg₄; simpl in Heqg₄.
-                          rewrite Z.add_0_r, Z.mul_1_r in Heqg₄.
-                          do 2 rewrite Pos.mul_1_r in Heqg₄.
-                          rewrite Z.mul_shuffle0, Pos2Z.inj_mul in Heqg₄.
-                          rewrite Z.div_mul_cancel_r in Heqg₄; auto.
-                          rewrite <- Heqg₃, H₁₁ in Heqg₄.
-                          rewrite Heqid in Heqg₄.
-                          rewrite Nat.add_sub_assoc in Heqg₄; auto.
-                          rewrite <- Hnpow in Heqg₄.
-                          rewrite Nat.add_comm, Nat.add_sub in Heqg₄.
-                          rewrite <- Heqg₄ in H₅.
-                          exfalso; revert H₅; apply Nat.lt_irrefl.
-
-                          Focus 1.
-                          remember Hns₄ as Hini₄; clear HeqHini₄.
-                          apply exists_ini_pt_nat_fst_seg in Hini₄.
-                          destruct Hini₄ as (j₄, (αj₄, Hini₄)).
-                          remember Hns₄ as Hfin₄; clear HeqHfin₄.
-                          apply exists_fin_pt_nat_fst_seg in Hfin₄.
-                          destruct Hfin₄ as (k₄, (αk₄, Hfin₄)).
-                          remember Hns₃ as Hr₃; clear HeqHr₃.
-                          eapply multiplicity_1_remains with (ns := ns₂)
-                           in Hr₃; eauto .
-                          remember Hns₃ as Hns₃₁; clear HeqHns₃₁.
-                          eapply hd_newton_segments in Hns₃₁; eauto .
-                          remember Hns₃₁ as H; clear HeqH.
-                          eapply r_1_j_0_k_1 in H; try eassumption.
-                          destruct H as (Hj₄, (Hk₄, (Hαj₄, (Hαk₄, Hoth₄)))).
-                          subst j₄ k₄; simpl.
-                          unfold Qlt in Hαj₄; simpl in Hαj₄.
-                          unfold Qeq in Hαk₄; simpl in Hαk₄.
-                          rewrite Z.mul_1_r in Hαj₄, Hαk₄.
-                          remember (next_pow g₄ ns₄ m₁) as g₅.
-                          destruct (eq_nat_dec g₅ (S (S (S i)))) as [H₆| H₆].
-                           unfold next_pow in Heqg₅; simpl in Heqg₅.
-                           rewrite Hini₄, Hfin₄ in Heqg₅; simpl in Heqg₅.
-                           rewrite Hαk₄ in Heqg₅; simpl in Heqg₅.
-                           rewrite Z.add_0_r, Z.mul_1_r in Heqg₅.
-                           do 2 rewrite Pos.mul_1_r in Heqg₅.
-                           rewrite Z.mul_shuffle0, Pos2Z.inj_mul in Heqg₅.
-                           rewrite Z.div_mul_cancel_r in Heqg₅; auto.
-bbb.
-                           assert (0 < g₂)%nat as Hg₂.
-                            rewrite Hnpow.
-                            apply Pos2Nat.is_pos.
-
-                            assert (0 < g₃)%nat as Hg₃.
-                             rewrite H₁₁; apply Nat.lt_0_succ.
-
-                             assert (1 < g₄)%nat as Hg₄.
-                              unfold next_pow in Heqg₄; simpl in Heqg₄.
-                              rewrite Hini₃, Hfin₃ in Heqg₄; simpl in Heqg₄.
-                              rewrite Hαk₃ in Heqg₄; simpl in Heqg₄.
-                              rewrite Z.add_0_r, Z.mul_1_r in Heqg₄.
-                              do 2 rewrite Pos.mul_1_r in Heqg₄.
-                              rewrite Z.mul_shuffle0, Pos2Z.inj_mul in Heqg₄.
-                              rewrite Z.div_mul_cancel_r in Heqg₄; auto.
-                              rewrite <- Heqg₃, H₁₁ in Heqg₄.
-                              fast_omega Hg₂ Heqg₄.
-
+                        unfold next_pow in Heqg₄.
+                        simpl in Heqg₄.
+                        rewrite Hini₃, Hfin₃ in Heqg₄; simpl in Heqg₄.
+                        rewrite Hαk₃ in Heqg₄; simpl in Heqg₄.
+                        rewrite Z.add_0_r, Z.mul_1_r in Heqg₄.
+                        do 2 rewrite Pos.mul_1_r in Heqg₄.
+                        rewrite Z.mul_shuffle0, Pos2Z.inj_mul in Heqg₄.
+                        rewrite Z.div_mul_cancel_r in Heqg₄; auto.
+                        rewrite <- Heqg₃, H₁₁ in Heqg₄.
+                        rewrite Heqid in Heqg₄.
+                        rewrite Nat.add_sub_assoc in Heqg₄; auto.
+                        rewrite <- Hnpow in Heqg₄.
+                        rewrite Nat.add_comm, Nat.add_sub in Heqg₄.
+                        rewrite <- Heqg₄ in H₅.
+                        exfalso; revert H₅; apply Nat.lt_irrefl.
 bbb.
 
 intros pol ns pol₁ ns₁ c m Hns Hc Hr Hpol₁ Hns₁ Hm n.
