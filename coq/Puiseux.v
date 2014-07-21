@@ -1702,6 +1702,16 @@ remember (m * q₀)%positive as m₁.
 remember Hm as HinK1m; clear HeqHinK1m.
 apply com_polord_in_K_1_m with (R := R) in HinK1m.
 induction n; intros.
+ unfold γ_sum; simpl.
+ unfold summation; simpl.
+ rewrite rng_add_0_r.
+bbb.
+
+intros pol ns pol₁ ns₁ c m q₀ Hns Hm Hq₀ Hc Hr Hpol₁ Hns₁ n Hpsi.
+remember (m * q₀)%positive as m₁.
+remember Hm as HinK1m; clear HeqHinK1m.
+apply com_polord_in_K_1_m with (R := R) in HinK1m.
+induction n; intros.
  remember Hns₁ as Hini₁; clear HeqHini₁.
  apply exists_ini_pt_nat_fst_seg in Hini₁.
  destruct Hini₁ as (j₁, (αj₁, Hini₁)).
