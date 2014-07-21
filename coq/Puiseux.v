@@ -2077,6 +2077,18 @@ induction n; intros.
                     remember (next_pow g₂ ns₃ m₁) as g₂₃.
                     eapply next_next_pow with (p₂ := g₃) in Heqg₂₃; eauto .
                     simpl in Heqg₂₃.
+                    remember (Nat.compare g₂₃ (S (S i))) as cmp₂₃.
+                    symmetry in Heqcmp₂₃.
+                    destruct cmp₂₃; auto.
+                     apply nat_compare_eq in Heqcmp₂₃.
+                     exfalso; fast_omega Heqg₂₃ Heqcmp Heqcmp₃ Heqcmp₂₃ Heqid.
+
+                     apply nat_compare_lt in Heqcmp₂₃.
+                     destruct i; auto; simpl.
+                     destruct (ps_zerop R (ps_poly_nth 0 pol₄)); auto.
+                     contradiction.
+
+                    Focus 1.
 
 bbb.
               remember (Nat.compare g₂ (S i)) as cmp; symmetry in Heqcmp.
