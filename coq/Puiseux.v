@@ -1189,14 +1189,17 @@ Fixpoint find_coeff max_iter npow pol_ord pol ns i :=
   | 0%nat => 0%K
   | S m =>
       if ps_zerop _ (ps_poly_nth 0 pol) then 0%K
-      else if eq_nat_dec npow i then ac_root (Φq pol ns)
-      else if lt_dec npow i then
-        let c₁ := ac_root (Φq pol ns) in
-        let pol₁ := next_pol pol (β ns) (γ ns) c₁ in
-        let ns₁ := List.hd phony_ns (newton_segments pol₁) in
-        let npow₁ := next_pow npow ns₁ pol_ord in
-        find_coeff m npow₁ pol_ord pol₁ ns₁ i
-      else 0%K
+      else
+        match Nat.compare npow i with
+        | Eq => ac_root (Φq pol ns)
+        | Lt =>
+            let c₁ := ac_root (Φq pol ns) in
+            let pol₁ := next_pol pol (β ns) (γ ns) c₁ in
+            let ns₁ := List.hd phony_ns (newton_segments pol₁) in
+            let npow₁ := next_pow npow ns₁ pol_ord in
+            find_coeff m npow₁ pol_ord pol₁ ns₁ i
+        | Gt => 0%K
+        end
   end.
 
 Definition root_series_from_cγ_list pol_ord pol ns i :=
@@ -1771,7 +1774,7 @@ induction n; intros.
         rewrite Hd in H₁.
         exfalso; revert H₁; apply Nat.lt_irrefl.
 
-        destruct (lt_dec 0 (S d)) as [H₃| H₃]; [ simpl | reflexivity ].
+        simpl.
         destruct (ps_zerop R (ps_poly_nth 0 pol₂)); auto; contradiction.
 
       destruct (zerop i); [ subst i | reflexivity ].
@@ -1903,16 +1906,19 @@ induction n; intros.
          unfold root_series_from_cγ_list; simpl.
          destruct (ps_zerop R (ps_poly_nth 0 pol₁)) as [| H₃]; auto.
          destruct i; [ exfalso; revert H₁; apply Nat.lt_irrefl | idtac ].
-         destruct (lt_dec 0 (S i)) as [H₄| ]; auto.
+         clear H₁.
          rewrite <- Hc₁, <- Hpol₂, <- Hns₂; simpl.
          destruct (ps_zerop R (ps_poly_nth 0 pol₂)) as [| H₅]; auto.
-         rewrite Hnpow.
-         destruct (eq_nat_dec (Pos.to_nat d) (S i)) as [H₆| H₆].
-          rewrite H₆ in H₂.
+         remember (next_pow 0 ns₂ m₁) as g₂.
+         rewrite <- Hnpow in H₂.
+         remember (Nat.compare g₂ (S i)) as cmp; symmetry in Heqcmp.
+         destruct cmp as [H₄| H₄| H₄]; auto.
+          apply nat_compare_eq in Heqcmp.
+          rewrite Heqcmp in H₂.
           exfalso; revert H₂; apply Nat.lt_irrefl.
 
-          destruct (lt_dec (Pos.to_nat d) (S i)) as [H₇| ]; auto.
-          apply Nat.lt_le_incl, Nat.nlt_ge in H₇.
+          apply nat_compare_lt in Heqcmp.
+          apply Nat.lt_le_incl, Nat.nlt_ge in Heqcmp.
           contradiction.
 
          unfold root_series_from_cγ_list; simpl.
@@ -1923,6 +1929,8 @@ induction n; intros.
            contradiction.
 
            rewrite <- Hc₁, <- Hpol₂, <- Hns₂.
+           destruct i; [ exfalso; revert H₁; apply Nat.lt_irrefl | idtac ].
+bbb.
            destruct i; [ exfalso; revert H₁; apply Nat.lt_irrefl | idtac ].
            destruct (lt_dec 0 (S i)) as [H₅| H₅]; [ idtac | exfalso; omega ].
            apply Nat.nlt_ge in H₂.
