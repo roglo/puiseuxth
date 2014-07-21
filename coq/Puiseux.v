@@ -1697,6 +1697,7 @@ Lemma sss : ∀ pol ns pol₁ ns₁ c m q₀,
        root_head n pol₁ ns₁ +
        ps_monom 1%K (γ_sum n pol₁ ns₁) * root_tail (m * q₀) (S n) pol₁ ns₁)%ps.
 Proof.
+(*
 intros pol ns pol₁ ns₁ c m q₀ Hns Hm Hq₀ Hc Hr Hpol₁ Hns₁ n Hpsi.
 remember (m * q₀)%positive as m₁.
 remember Hm as HinK1m; clear HeqHinK1m.
@@ -1706,7 +1707,7 @@ induction n; intros.
  unfold summation; simpl.
  rewrite rng_add_0_r.
 bbb.
-
+*)
 intros pol ns pol₁ ns₁ c m q₀ Hns Hm Hq₀ Hc Hr Hpol₁ Hns₁ n Hpsi.
 remember (m * q₀)%positive as m₁.
 remember Hm as HinK1m; clear HeqHinK1m.
@@ -2137,6 +2138,11 @@ induction n; intros.
                        apply Nat.succ_lt_mono in Heqcmp.
                        exfalso; omega.
 
+                      simpl.
+                      destruct (ps_zerop R (ps_poly_nth 0 pol₄)) as [H₆| H₆].
+                       contradiction.
+
+                       clear H₆.
 bbb.
               remember (Nat.compare g₂ (S i)) as cmp; symmetry in Heqcmp.
               remember (Nat.compare g₃ (S id)) as cmp₃; symmetry in Heqcmp₃.
