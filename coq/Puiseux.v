@@ -2088,7 +2088,25 @@ induction n; intros.
                      destruct (ps_zerop R (ps_poly_nth 0 pol₄)); auto.
                      contradiction.
 
-                    Focus 1.
+                    remember (next_pow g₂ ns₃ m₁) as g₂₃.
+                    eapply next_next_pow with (p₂ := g₃) in Heqg₂₃; eauto .
+                    simpl in Heqg₂₃.
+                    remember (next_pow g₃ ns₄ m₁) as g₃₄.
+                    remember (ac_root (Φq pol₄ ns₄)) as c₄.
+                    remember (next_pol pol₄ (β ns₄) (γ ns₄) c₄) as pol₅.
+                    remember (List.hd phony_ns (newton_segments pol₅)) as ns₅.
+                    remember (next_pow g₂₃ ns₄ m₁) as g₂₃₄.
+                    eapply next_next_pow with (p₂ := g₃₄) in Heqg₂₃₄; eauto .
+                    rewrite Heqg₂₃ in Heqg₂₃₄.
+                    rewrite Nat.add_comm in Heqg₂₃₄.
+                    rewrite Nat.add_assoc, Nat.add_shuffle0 in Heqg₂₃₄.
+                    apply Nat.add_cancel_r in Heqg₂₃₄.
+                    remember Heqns₄ as H; clear HeqH.
+                    apply exists_ini_pt_nat_fst_seg in H.
+                    destruct H as (j₄, (αj₄, Hini₄)).
+                    remember Heqns₄ as H; clear HeqH.
+                    apply exists_fin_pt_nat_fst_seg in H.
+                    destruct H as (k₄, (αk₄, Hfin₄)).
 
 bbb.
               remember (Nat.compare g₂ (S i)) as cmp; symmetry in Heqcmp.
