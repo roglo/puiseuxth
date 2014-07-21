@@ -1940,26 +1940,46 @@ induction n; intros.
              contradiction.
 
              clear H₄.
+             rewrite <- Heqg₂.
              remember (Nat.compare g₂ (S i)) as cmp; symmetry in Heqcmp.
-bbb.
-           destruct i; [ exfalso; revert H₁; apply Nat.lt_irrefl | idtac ].
-           destruct (lt_dec 0 (S i)) as [H₅| H₅]; [ idtac | exfalso; omega ].
-           apply Nat.nlt_ge in H₂.
-           remember (S i - Pos.to_nat d)%nat as id.
-           destruct id.
+             destruct cmp; auto.
+              apply nat_compare_lt in Heqcmp.
+              exfalso; fast_omega Heqid Heqcmp.
+
+              apply nat_compare_gt in Heqcmp.
+              apply Nat.nle_gt in Heqcmp.
+              contradiction.
+
+            remember (ac_root (Φq pol₂ ns₂)) as c₂ eqn:Hc₂ .
+            remember (next_pol pol₂ (β ns₂) (γ ns₂) c₂) as pol₃ eqn:Hpol₃ .
+            remember (List.hd phony_ns (newton_segments pol₃)) as ns₃
+             eqn:Hns₃ .
+            remember Hns₃ as Hini₃; clear HeqHini₃.
+            apply exists_ini_pt_nat_fst_seg in Hini₃.
+            destruct Hini₃ as (j₃, (αj₃, Hini₃)).
+            remember Hns₃ as Hfin₃; clear HeqHfin₃.
+            apply exists_fin_pt_nat_fst_seg in Hfin₃.
+            destruct Hfin₃ as (k₃, (αk₃, Hfin₃)).
+            remember (next_pow 0 ns₃ m₁) as g₃.
+            rewrite <- Heqg₂.
             simpl.
-            destruct (ps_zerop R (ps_poly_nth 0 pol₂)) as [H₆| H₆].
+            destruct (ps_zerop R (ps_poly_nth 0 pol₂)) as [H₇| H₇].
              contradiction.
 
-             rewrite Hnpow.
-             clear H₆.
-             destruct (eq_nat_dec (Pos.to_nat d) (S i)) as [| H₆]; auto.
-             destruct (lt_dec (Pos.to_nat d) (S i)) as [H₇| H₇].
-              exfalso; fast_omega Heqid H₇.
+             clear H₇.
+             rewrite <- Hc₂, <- Hpol₃, <- Hns₃.
+             destruct (ps_zerop R (ps_poly_nth 0 pol₃)) as [H₁| H₁].
+              remember (Nat.compare g₂ (S i)) as cmp; symmetry in Heqcmp.
+              destruct cmp; auto.
+               apply nat_compare_eq in Heqcmp.
+               rewrite Heqcmp, Nat.sub_diag in Heqid; discriminate Heqid.
 
-              apply Nat.nlt_ge in H₇.
-              exfalso; fast_omega H₂ H₆ H₇.
+               apply nat_compare_lt in Heqcmp.
+               destruct i; [ reflexivity | simpl ].
+               destruct (ps_zerop R (ps_poly_nth 0 pol₃)); auto.
+               contradiction.
 
+bbb.
             rewrite Hnpow.
             destruct (lt_dec 0 (S id)) as [H₆| H₆].
              remember (ac_root (Φq pol₂ ns₂)) as c₂ eqn:Hc₂ .
