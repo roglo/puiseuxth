@@ -1671,6 +1671,18 @@ apply order_inf in Ha; rewrite Ha.
 apply IHla; assumption.
 Qed.
 
+Lemma next_next_pow : ∀ p₁ p₂ p₃ p₄ ns m,
+  p₂ = next_pow p₁ ns m
+  → p₄ = next_pow p₃ ns m
+  → (p₁ + p₄)%nat = (p₂ + p₃)%nat.
+Proof.
+intros p₁ p₂ p₃ p₄ ns m Hp₂ Hp₄.
+subst p₂ p₄.
+unfold next_pow; simpl.
+rewrite Nat.add_assoc, Nat.add_shuffle0.
+reflexivity.
+Qed.
+
 Lemma sss : ∀ pol ns pol₁ ns₁ c m q₀,
   ns ∈ newton_segments pol
   → m = ps_list_com_polord (al pol)
@@ -2008,17 +2020,8 @@ induction n; intros.
 
                   clear H₅.
                   remember (next_pow g₂ ns₃ m₁) as g₂₃.
-                  unfold next_pow in Heqg₃, Heqg₂₃.
-                  rewrite Nat.add_0_l in Heqg₃.
-                  rewrite <- Heqg₃ in Heqg₂₃.
-                  simpl in Heqg₃.
-                  rewrite Hini₃, Hfin₃ in Heqg₃; simpl in Heqg₃.
-                  rewrite Hαk₃ in Heqg₃; simpl in Heqg₃.
-                  rewrite Z.add_0_r, Z.mul_1_r in Heqg₃.
-                  do 2 rewrite Pos.mul_1_r in Heqg₃.
-                  rewrite Z.mul_shuffle0 in Heqg₃.
-                  rewrite Pos2Z.inj_mul in Heqg₃.
-                  rewrite Z.div_mul_cancel_r in Heqg₃; auto.
+                  eapply next_next_pow with (p₂ := g₃) in Heqg₂₃; eauto .
+                  simpl in Heqg₂₃.
                   remember (Nat.compare g₂₃ (S (S i))) as cmp₂₃.
                   symmetry in Heqcmp₂₃.
                   destruct cmp₂₃; auto.
@@ -2068,6 +2071,12 @@ induction n; intros.
                      rewrite Heqm₁; assumption.
 
                      rewrite Pos.mul_1_r; assumption.
+
+                   simpl.
+                   destruct (ps_zerop R (ps_poly_nth 0 pol₄)) as [H₅| H₅].
+                    remember (next_pow g₂ ns₃ m₁) as g₂₃.
+                    eapply next_next_pow with (p₂ := g₃) in Heqg₂₃; eauto .
+                    simpl in Heqg₂₃.
 
 bbb.
               remember (Nat.compare g₂ (S i)) as cmp; symmetry in Heqcmp.
