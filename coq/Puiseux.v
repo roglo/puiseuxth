@@ -2008,12 +2008,27 @@ induction n; intros.
 
                   clear H₅.
                   remember (next_pow g₂ ns₃ m₁) as g₂₃.
+                  unfold next_pow in Heqg₃, Heqg₂₃.
+                  rewrite Nat.add_0_l in Heqg₃.
+                  rewrite <- Heqg₃ in Heqg₂₃.
+                  simpl in Heqg₃.
+                  rewrite Hini₃, Hfin₃ in Heqg₃; simpl in Heqg₃.
+                  rewrite Hαk₃ in Heqg₃; simpl in Heqg₃.
+                  rewrite Z.add_0_r, Z.mul_1_r in Heqg₃.
+                  do 2 rewrite Pos.mul_1_r in Heqg₃.
+                  rewrite Z.mul_shuffle0 in Heqg₃.
+                  rewrite Pos2Z.inj_mul in Heqg₃.
+                  rewrite Z.div_mul_cancel_r in Heqg₃; auto.
                   remember (Nat.compare g₂₃ (S (S i))) as cmp₂₃.
                   symmetry in Heqcmp₂₃.
                   destruct cmp₂₃; auto.
                    apply nat_compare_lt in Heqcmp₂₃.
-                   unfold next_pow in Heqg₂₃; simpl in Heqg₂₃.
-                   rewrite Hini₃, Hfin₃ in Heqg₂₃; simpl in Heqg₂₃.
+                   exfalso; fast_omega Heqg₂₃ Heqcmp Heqcmp₃ Heqcmp₂₃ Heqid.
+
+                   apply nat_compare_gt in Heqcmp₂₃.
+                   exfalso; fast_omega Heqg₂₃ Heqcmp Heqcmp₃ Heqcmp₂₃ Heqid.
+
+                apply nat_compare_lt in Heqcmp₃.
 
 bbb.
               remember (Nat.compare g₂ (S i)) as cmp; symmetry in Heqcmp.
