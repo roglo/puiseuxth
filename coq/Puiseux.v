@@ -2146,6 +2146,27 @@ induction n; intros.
                        rewrite <- Heqc₄, <- Heqpol₅, <- Heqns₅.
                        subst g₂₃₄.
                        rewrite Heqid.
+                       remember
+                        (Nat.compare (g₃₄ + g₂) (S (S (S i)))) as cmp₁
+                        eqn:Hcmp₁ .
+                       remember (Nat.compare g₃₄ (S (S (S i)) - g₂)) as cmp₂
+                        eqn:Hcmp₂ .
+                       symmetry in Hcmp₁, Hcmp₂.
+                       destruct cmp₁.
+                        apply nat_compare_eq in Hcmp₁.
+                        destruct cmp₂; auto.
+                         apply nat_compare_lt in Hcmp₂.
+                         exfalso; fast_omega Hcmp₁ Hcmp₂.
+
+                         apply nat_compare_gt in Hcmp₂.
+                         exfalso; fast_omega Hcmp₁ Hcmp₂.
+
+                        apply nat_compare_lt in Hcmp₁.
+                        destruct cmp₂.
+                         apply nat_compare_eq in Hcmp₂.
+                         exfalso; fast_omega Hcmp₁ Hcmp₂.
+
+                         apply nat_compare_lt in Hcmp₂.
 bbb.
               remember (Nat.compare g₂ (S i)) as cmp; symmetry in Heqcmp.
               remember (Nat.compare g₃ (S id)) as cmp₃; symmetry in Heqcmp₃.
