@@ -2107,6 +2107,25 @@ induction n; intros.
                     remember Heqns₄ as H; clear HeqH.
                     apply exists_fin_pt_nat_fst_seg in H.
                     destruct H as (k₄, (αk₄, Hfin₄)).
+                    remember (Nat.compare g₂₃ (S (S i))) as c₂₃ eqn:Hc₂₃ .
+                    symmetry in Hc₂₃.
+                    destruct c₂₃.
+                     apply nat_compare_eq in Hc₂₃.
+                     exfalso; omega.
+
+                     apply nat_compare_lt in Hc₂₃.
+                     destruct i.
+                      exfalso.
+                      rewrite Heqg₂₃ in Hc₂₃.
+                      destruct g₂.
+                       symmetry in Hnpow.
+                       revert Hnpow; apply Pos2Nat_ne_0.
+
+                       rewrite <- Nat.add_succ_comm in Hc₂₃.
+                       simpl in Hc₂₃.
+                       apply Nat.succ_lt_mono in Hc₂₃.
+                       apply Nat.succ_lt_mono in Heqcmp.
+                       exfalso; omega.
 
 bbb.
               remember (Nat.compare g₂ (S i)) as cmp; symmetry in Heqcmp.
