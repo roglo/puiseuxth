@@ -2029,6 +2029,46 @@ induction n; intros.
                    exfalso; fast_omega Heqg₂₃ Heqcmp Heqcmp₃ Heqcmp₂₃ Heqid.
 
                 apply nat_compare_lt in Heqcmp₃.
+                remember (ac_root (Φq pol₃ ns₃)) as c₃.
+                remember (next_pol pol₃ (β ns₃) (γ ns₃) c₃) as pol₄.
+                remember (List.hd phony_ns (newton_segments pol₄)) as ns₄.
+                destruct i.
+                 apply Nat.lt_1_r in Heqcmp.
+                 rewrite Hnpow in Heqcmp.
+                 exfalso; revert Heqcmp; apply Pos2Nat_ne_0.
+
+                 simpl.
+                 destruct (ps_zerop R (ps_poly_nth 0 pol₃)) as [H₅| H₅].
+                  contradiction.
+
+                  clear H₅.
+                  rewrite <- Heqc₃, <- Heqpol₄, <- Heqns₄.
+                  destruct id.
+                   apply Nat.lt_1_r in Heqcmp₃.
+                   rewrite Heqg₃ in Heqcmp₃.
+                   unfold next_pow in Heqcmp₃; simpl in Heqcmp₃.
+                   rewrite Hini₃, Hfin₃ in Heqcmp₃; simpl in Heqcmp₃.
+                   rewrite Hαk₃ in Heqcmp₃; simpl in Heqcmp₃.
+                   rewrite Z.add_0_r, Z.mul_1_r in Heqcmp₃.
+                   do 2 rewrite Pos.mul_1_r in Heqcmp₃.
+                   rewrite Z.mul_shuffle0 in Heqcmp₃.
+                   rewrite Pos2Z.inj_mul in Heqcmp₃.
+                   rewrite Z.div_mul_cancel_r in Heqcmp₃; auto.
+                   remember Hns₃ as H; clear HeqH.
+                   eapply hd_newton_segments in H; eauto .
+                   eapply num_m_den_is_pos with (m := m₁) in H; eauto .
+                    rewrite Heqcmp₃ in H.
+                    exfalso; revert H; apply Nat.lt_irrefl.
+
+                    replace m₁ with (m₁ * 1)%positive by apply Pos.mul_1_r.
+                    eapply next_pol_in_K_1_mq with (pol := pol₂); eauto .
+                    symmetry.
+                    replace m₁ with (m₁ * 1)%positive by apply Pos.mul_1_r.
+                    eapply q_eq_1 with (pol := pol₁) (pol₁ := pol₂); eauto .
+                     rewrite Heqm₁; assumption.
+
+                     rewrite Pos.mul_1_r.
+                     assumption.
 
 bbb.
               remember (Nat.compare g₂ (S i)) as cmp; symmetry in Heqcmp.
