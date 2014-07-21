@@ -2067,8 +2067,7 @@ induction n; intros.
                     eapply q_eq_1 with (pol := pol₁) (pol₁ := pol₂); eauto .
                      rewrite Heqm₁; assumption.
 
-                     rewrite Pos.mul_1_r.
-                     assumption.
+                     rewrite Pos.mul_1_r; assumption.
 
 bbb.
               remember (Nat.compare g₂ (S i)) as cmp; symmetry in Heqcmp.
