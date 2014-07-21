@@ -2044,10 +2044,19 @@ induction n; intros.
                      rewrite Heqg₃ in H₇.
                      remember Hns₃ as Hns₃₁; clear HeqHns₃₁.
                      eapply hd_newton_segments in Hns₃₁; eauto .
-                     remember Hini₃ as H; clear HeqH.
-                     eapply num_m_den_is_pos with (m := m₁) in H; eauto .
+                     remember HinK₁ as HinK₃; clear HeqHinK₃.
+                     eapply next_pol_in_K_1_mq with (q := xH) in HinK₃; eauto .
+                      rewrite Pos.mul_1_r in HinK₃.
+                      remember Hini₃ as H; clear HeqH.
+                      eapply num_m_den_is_pos with (m := m₁) in H; eauto .
                       rewrite H₇ in H.
                       exfalso; revert H; apply Nat.lt_irrefl.
+
+                      symmetry.
+                      replace m₁ with (m₁ * 1)%positive by apply Pos.mul_1_r.
+                      rewrite <- Heqm₁ in HinK1m₁.
+                      eapply q_eq_1 with (pol := pol₁) (pol₁ := pol₂); eauto .
+                      rewrite Pos.mul_1_r; assumption.
 bbb.
                destruct (lt_dec (Pos.to_nat d) (S i)) as [H₉| H₉].
                 rewrite <- Hc₂, <- Hpol₃, <- Hns₃.
