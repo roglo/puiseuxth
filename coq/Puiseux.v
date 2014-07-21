@@ -1979,6 +1979,68 @@ induction n; intros.
                destruct (ps_zerop R (ps_poly_nth 0 pol₃)); auto.
                contradiction.
 
+              remember Hns₂ as Hr₂; clear HeqHr₂.
+              eapply multiplicity_1_remains with (ns := ns₁) in Hr₂; eauto .
+              remember Hns₂₁ as H; clear HeqH.
+              eapply r_1_j_0_k_1 in H; try eassumption.
+              destruct H as (Hj₃, (Hk₃, (Hαj₃, (Hαk₃, Hoth₃)))).
+              subst j₃ k₃; simpl.
+              unfold Qlt in Hαj₃; simpl in Hαj₃.
+              unfold Qeq in Hαk₃; simpl in Hαk₃.
+              rewrite Z.mul_1_r in Hαj₃, Hαk₃.
+              remember (Nat.compare g₂ (S i)) as cmp; symmetry in Heqcmp.
+              remember (Nat.compare g₃ (S id)) as cmp₃; symmetry in Heqcmp₃.
+              destruct cmp.
+               apply nat_compare_eq in Heqcmp.
+               exfalso; fast_omega Heqcmp Heqid.
+
+               apply nat_compare_lt in Heqcmp.
+               destruct cmp₃.
+                apply nat_compare_eq in Heqcmp₃.
+                destruct i.
+                 apply Nat.lt_1_r in Heqcmp.
+                 rewrite Hnpow in Heqcmp.
+                 exfalso; revert Heqcmp; apply Pos2Nat_ne_0.
+
+                 simpl.
+                 destruct (ps_zerop R (ps_poly_nth 0 pol₃)) as [H₅| H₅].
+                  contradiction.
+
+                  clear H₅.
+                  remember (next_pow g₂ ns₃ m₁) as g₂₃.
+                  remember (Nat.compare g₂₃ (S (S i))) as cmp₂₃.
+                  symmetry in Heqcmp₂₃.
+                  destruct cmp₂₃; auto.
+                   apply nat_compare_lt in Heqcmp₂₃.
+                   unfold next_pow in Heqg₂₃; simpl in Heqg₂₃.
+                   rewrite Hini₃, Hfin₃ in Heqg₂₃; simpl in Heqg₂₃.
+
+bbb.
+              remember (Nat.compare g₂ (S i)) as cmp; symmetry in Heqcmp.
+              remember (Nat.compare g₃ (S id)) as cmp₃; symmetry in Heqcmp₃.
+              destruct cmp.
+               apply nat_compare_eq in Heqcmp.
+               exfalso; fast_omega Heqcmp Heqid.
+
+               apply nat_compare_lt in Heqcmp.
+               destruct cmp₃.
+                apply nat_compare_eq in Heqcmp₃.
+                destruct i.
+                 apply Nat.lt_1_r in Heqcmp.
+                 rewrite Hnpow in Heqcmp.
+                 exfalso; revert Heqcmp; apply Pos2Nat_ne_0.
+
+                 simpl.
+                 destruct (ps_zerop R (ps_poly_nth 0 pol₃)) as [H₅| H₅].
+                  contradiction.
+
+                  clear H₅.
+                  remember (next_pow g₂ ns₃ m₁) as g₂₃.
+                  remember (Nat.compare g₂₃ (S (S i))) as cmp₂₃.
+                  symmetry in Heqcmp₂₃.
+                  destruct cmp₂₃; auto.
+                   apply nat_compare_lt in Heqcmp₂₃.
+                   unfold next_pow in Heqg₂₃; simpl in Heqg₂₃.
 bbb.
             rewrite Hnpow.
             destruct (lt_dec 0 (S id)) as [H₆| H₆].
