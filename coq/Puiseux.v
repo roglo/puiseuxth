@@ -1902,15 +1902,16 @@ induction n; intros.
         rewrite Z.div_mul_cancel_r; auto.
         rewrite Hd, Z.div_mul; auto.
 
-        destruct (lt_dec i (Pos.to_nat d)) as [H₂| H₂].
+        remember (next_pow 0 ns₂ m₁) as g₂.
+        rewrite <- Hnpow.
+        destruct (lt_dec i g₂) as [H₂| H₂].
          unfold root_series_from_cγ_list; simpl.
          destruct (ps_zerop R (ps_poly_nth 0 pol₁)) as [| H₃]; auto.
          destruct i; [ exfalso; revert H₁; apply Nat.lt_irrefl | idtac ].
          clear H₁.
          rewrite <- Hc₁, <- Hpol₂, <- Hns₂; simpl.
          destruct (ps_zerop R (ps_poly_nth 0 pol₂)) as [| H₅]; auto.
-         remember (next_pow 0 ns₂ m₁) as g₂.
-         rewrite <- Hnpow in H₂.
+         rewrite <- Heqg₂.
          remember (Nat.compare g₂ (S i)) as cmp; symmetry in Heqcmp.
          destruct cmp as [H₄| H₄| H₄]; auto.
           apply nat_compare_eq in Heqcmp.
@@ -1930,6 +1931,16 @@ induction n; intros.
 
            rewrite <- Hc₁, <- Hpol₂, <- Hns₂.
            destruct i; [ exfalso; revert H₁; apply Nat.lt_irrefl | idtac ].
+           apply Nat.nlt_ge in H₂.
+           clear H₁.
+           remember (S i - g₂)%nat as id.
+           destruct id.
+            simpl.
+            destruct (ps_zerop R (ps_poly_nth 0 pol₂)) as [H₁| H₁].
+             contradiction.
+
+             clear H₄.
+             remember (Nat.compare g₂ (S i)) as cmp; symmetry in Heqcmp.
 bbb.
            destruct i; [ exfalso; revert H₁; apply Nat.lt_irrefl | idtac ].
            destruct (lt_dec 0 (S i)) as [H₅| H₅]; [ idtac | exfalso; omega ].
