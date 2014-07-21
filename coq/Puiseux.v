@@ -2033,6 +2033,8 @@ induction n; intros.
                      exfalso; fast_omega H₆ H₉ Heqg₂₃ Heqid Hnpow.
 
                   clear H₇.
+                  remember Hns₃ as Hns₃₁; clear HeqHns₃₁.
+                  eapply hd_newton_segments in Hns₃₁; eauto .
                   destruct (lt_dec g₃ (S id)) as [H₇| H₇].
                    destruct i.
                     rewrite Hnpow in H₅.
@@ -2042,8 +2044,6 @@ induction n; intros.
                     destruct id.
                      apply Nat.lt_1_r in H₇.
                      rewrite Heqg₃ in H₇.
-                     remember Hns₃ as Hns₃₁; clear HeqHns₃₁.
-                     eapply hd_newton_segments in Hns₃₁; eauto .
                      remember HinK₁ as HinK₃; clear HeqHinK₃.
                      eapply next_pol_in_K_1_mq with (q := xH) in HinK₃; eauto .
                       rewrite Pos.mul_1_r in HinK₃.
@@ -2057,6 +2057,43 @@ induction n; intros.
                       rewrite <- Heqm₁ in HinK1m₁.
                       eapply q_eq_1 with (pol := pol₁) (pol₁ := pol₂); eauto .
                       rewrite Pos.mul_1_r; assumption.
+
+                     simpl.
+                     clear H₆.
+                     rewrite <- Heqc₃, <- Heqpol₄, <- Hns₄.
+                     destruct (ps_zerop R (ps_poly_nth 0 pol₃)) as [H₆| H₆].
+                      contradiction.
+
+                      clear H₆.
+                      destruct (ps_zerop R (ps_poly_nth 0 pol₄)) as [H₆| H₆].
+                       destruct (eq_nat_dec g₂₃ (S (S i))) as [H₉| H₉].
+                        exfalso; fast_omega H₇ H₉ Heqg₂₃ Heqid Hnpow.
+
+                        destruct (lt_dec g₂₃ (S (S i))) as [H₁₀| H₁₀]; auto.
+                        clear H₉.
+                        destruct i; [ reflexivity | simpl ].
+                        destruct (ps_zerop R (ps_poly_nth 0 pol₄))
+                         as [H₉| H₉]; auto.
+                        contradiction.
+
+                       remember Hns₃ as Hr₃; clear HeqHr₃.
+                       eapply multiplicity_1_remains with (ns := ns₂) in Hr₃;
+                        eauto .
+                       remember Hns₃₁ as H; clear HeqH.
+                       eapply r_1_j_0_k_1 in H; try eassumption.
+                       destruct H as (Hj₄, (Hk₄, (Hαj₄, (Hαk₄, Hoth₄)))).
+                       subst j₄ k₄; simpl.
+                       unfold Qlt in Hαj₄; simpl in Hαj₄.
+                       unfold Qeq in Hαk₄; simpl in Hαk₄.
+                       rewrite Z.mul_1_r in Hαj₄, Hαk₄.
+                       unfold next_pow in Heqg₃₄; simpl in Heqg₃₄.
+                       rewrite Hini₄, Hfin₄ in Heqg₃₄; simpl in Heqg₃₄.
+                       rewrite Hαk₄ in Heqg₃₄; simpl in Heqg₃₄.
+                       rewrite Z.add_0_r, Z.mul_1_r in Heqg₃₄.
+                       do 2 rewrite Pos.mul_1_r in Heqg₃₄.
+                       rewrite Z.mul_shuffle0 in Heqg₃₄.
+                       rewrite Pos2Z.inj_mul in Heqg₃₄.
+                       rewrite Z.div_mul_cancel_r in Heqg₃₄; auto.
 bbb.
                destruct (lt_dec (Pos.to_nat d) (S i)) as [H₉| H₉].
                 rewrite <- Hc₂, <- Hpol₃, <- Hns₃.
