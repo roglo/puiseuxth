@@ -2145,6 +2145,7 @@ induction n; intros.
                        clear H₆.
                        rewrite <- Heqc₄, <- Heqpol₅, <- Heqns₅.
                        subst g₂₃₄.
+                       rewrite Heqid.
 bbb.
               remember (Nat.compare g₂ (S i)) as cmp; symmetry in Heqcmp.
               remember (Nat.compare g₃ (S id)) as cmp₃; symmetry in Heqcmp₃.
