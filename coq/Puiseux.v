@@ -1945,6 +1945,45 @@ induction n; intros.
           apply Nat.lt_le_incl, Nat.nlt_ge in Heqcmp.
           contradiction.
 
+         remember (i - g₂)%nat as id.
+         unfold root_series_from_cγ_list; simpl.
+         destruct (ps_zerop R (ps_poly_nth 0 pol₁)) as [H₃| H₃].
+          contradiction.
+
+          destruct (ps_zerop R (ps_poly_nth 0 pol₂)) as [H₄| H₄].
+           contradiction.
+
+           rewrite <- Hc₁, <- Hpol₂, <- Hns₂.
+           remember (ac_root (Φq pol₂ ns₂)) as c₂ eqn:Hc₂ .
+           remember (next_pol pol₂ (β ns₂) (γ ns₂) c₂) as pol₃ eqn:Hpol₃ .
+           remember (List.hd phony_ns (newton_segments pol₃)) as ns₃ eqn:Hns₃ .
+           destruct i; [ exfalso; revert H₁; apply Nat.lt_irrefl | idtac ].
+           simpl.
+           clear H₁.
+           destruct (ps_zerop R (ps_poly_nth 0 pol₂)) as [H₁| H₁].
+            contradiction.
+
+            rewrite <- Hc₂, <- Hpol₃, <- Hns₃.
+            rewrite <- Heqg₂.
+            remember (Nat.compare g₂ (S i)) as cmp₁ eqn:Hcmp₁ .
+            symmetry in Hcmp₁.
+            destruct cmp₁.
+             apply nat_compare_eq in Hcmp₁.
+             destruct id; auto.
+             rewrite Hcmp₁ in Heqid.
+             rewrite Nat.sub_diag in Heqid.
+             discriminate Heqid.
+
+             apply nat_compare_lt in Hcmp₁.
+             destruct id.
+              exfalso; fast_omega Heqid Hcmp₁.
+
+              Focus 2.
+              apply nat_compare_gt in Hcmp₁.
+              contradiction.
+
+             rewrite Heqid.
+bbb.
          unfold root_series_from_cγ_list; simpl.
          destruct (ps_zerop R (ps_poly_nth 0 pol₁)) as [H₃| H₃].
           contradiction.
