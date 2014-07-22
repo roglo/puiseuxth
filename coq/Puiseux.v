@@ -1724,6 +1724,60 @@ destruct c₁.
   exfalso; omega.
 Qed.
 
+Theorem find_coeff_add : ∀ pol ns m mx p dp i,
+  (find_coeff mx (p + dp) m pol ns (i + dp) =
+   find_coeff mx p m pol ns i)%K.
+Proof.
+intros pol ns m mx p dp i.
+revert pol ns m p dp i.
+induction mx; intros; [ reflexivity | simpl ].
+destruct (ps_zerop R (ps_poly_nth 0 pol)) as [H₁| H₁]; auto.
+rewrite <- nat_compare_add.
+remember (Nat.compare p i) as cmp eqn:Hcmp .
+symmetry in Hcmp.
+destruct cmp; auto.
+rewrite next_pow_add.
+apply IHmx.
+Qed.
+
+Theorem qqq : ∀ pol ns m mx p i r,
+  (r = find_coeff mx p m pol ns i)%K
+  → (r ≠ 0)%K ∨ (p < mx)%nat
+  → ∀ d, (r = find_coeff (mx + d) p m pol ns i)%K.
+Proof.
+intros pol ns m mx p i r Hr Hri d.
+destruct Hri as [Hri| Hri].
+ revert pol ns m p i r Hr Hri d.
+ induction mx; intros; [ contradiction | simpl ].
+ simpl in Hr.
+ destruct (ps_zerop R (ps_poly_nth 0 pol)) as [H₁| H₁].
+  contradiction.
+
+  remember (Nat.compare p i) as cmp eqn:Hcmp .
+  symmetry in Hcmp.
+  destruct cmp; auto.
+
+ revert pol ns m p i r Hr Hri d.
+ induction mx; intros.
+  exfalso; revert Hri; apply Nat.nlt_0_r.
+
+  simpl in Hr; simpl.
+  destruct (ps_zerop R (ps_poly_nth 0 pol)) as [H₁| H₁].
+   assumption.
+
+   remember (Nat.compare p i) as cmp eqn:Hcmp .
+   symmetry in Hcmp.
+   destruct cmp; auto.
+   destruct i.
+    apply nat_compare_lt in Hcmp.
+    exfalso; revert Hcmp; apply Nat.nlt_0_r.
+
+    apply lt_S_n in Hri.
+    apply IHmx.
+     assumption.
+bbb.
+
+
 (* réfléchir... il faut réussir à prouver :
   (g₂ < i)%nat
   ============================
