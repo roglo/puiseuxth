@@ -1691,6 +1691,7 @@ unfold next_pow.
 rewrite Nat.add_shuffle0; reflexivity.
 Qed.
 
+(* réfléchir... *)
 Lemma rrr : ∀ pol ns mx p dp m i,
   (dp ≤ mx)%nat
   → (dp ≤ i)%nat
@@ -1698,13 +1699,12 @@ Lemma rrr : ∀ pol ns mx p dp m i,
      find_coeff (mx - dp) p m pol ns (i - dp))%K.
 Proof.
 intros pol ns mx p dp m i Hmx Hi.
+bbb.
 revert pol ns p dp m i Hmx Hi.
 induction mx; intros; [ reflexivity | idtac ].
 destruct dp.
- rewrite Nat.sub_0_r.
- simpl.
+ do 2 rewrite Nat.sub_0_r; simpl.
  destruct (ps_zerop R (ps_poly_nth 0 pol)) as [H₁| H₁]; auto.
- rewrite Nat.sub_0_r.
  remember (Nat.compare (p + 1) (S i)) as cmp₁ eqn:Hcmp₁ .
  remember (Nat.compare p i) as cmp₂ eqn:Hcmp₂ .
  symmetry in Hcmp₁, Hcmp₂.
@@ -1745,7 +1745,12 @@ destruct dp.
 
  apply le_S_n in Hmx.
  simpl.
+Abort. (* ça va pas... *)
+  ============================
+   (find_coeff (S mx) (p + S (S dp)) m pol ns (S i) =
+    find_coeff (S mx - S dp) p m pol ns (i - S dp))%K
 bbb.
+*)
 
 Lemma sss : ∀ pol ns pol₁ ns₁ c m q₀,
   ns ∈ newton_segments pol
@@ -2045,8 +2050,9 @@ induction n; intros.
 
               simpl.
               apply lt_S_n in Hcmp₁.
-              apply Nat.lt_le_incl in Hcmp₁.
-              apply rrr; auto.
+              apply Nat.nlt_ge in H₂.
+              apply le_S_n in H₂.
+              apply rrr; assumption.
 bbb.
               clear H₂.
               clear Heqid.
