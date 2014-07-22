@@ -2192,6 +2192,21 @@ induction n; intros.
                remember (List.hd phony_ns (newton_segments pol₄)) as ns₄
                 eqn:Hns₄ .
                remember (next_pow g₃ ns₄ m₁) as g₃₄.
+               destruct id.
+                simpl.
+                destruct (ps_zerop R (ps_poly_nth 0 pol₄)); auto.
+                remember (g₃₄ + S (S g₂))%nat as x.
+                rewrite <- Nat.add_1_l.
+                subst x.
+                rewrite <- nat_compare_add.
+                remember (Nat.compare g₃₄ 1).
+                symmetry in Heqc0.
+                destruct c0; auto.
+                 apply nat_compare_eq in Heqc0.
+                 move Heqc0 at top; subst g₃₄.
+                 apply Nat.lt_1_r in Hcmp.
+                 move Hcmp at top; subst g₃.
+                 unfold next_pow in Hg₃; simpl in Hg₃.
 bbb.
               apply rrr; assumption.
 bbb.
