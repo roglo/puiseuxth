@@ -1691,7 +1691,12 @@ unfold next_pow.
 rewrite Nat.add_shuffle0; reflexivity.
 Qed.
 
-(* réfléchir... *)
+(* réfléchir... il faut réussir à prouver :
+  (g₂ < i)%nat
+  ============================
+   (find_coeff i (g₃ + S g₂) m₁ pol₃ ns₃ (S i) =
+    find_coeff (i - g₂) g₃ m₁ pol₃ ns₃ (i - g₂))%K
+*)
 Lemma rrr : ∀ pol ns mx p dp m i,
   (dp ≤ mx)%nat
   → (dp ≤ i)%nat
@@ -1745,7 +1750,7 @@ destruct dp.
 
  apply le_S_n in Hmx.
  simpl.
-Abort. (* ça va pas... *)
+Abort. (* ça va pas...
   ============================
    (find_coeff (S mx) (p + S (S dp)) m pol ns (S i) =
     find_coeff (S mx - S dp) p m pol ns (i - S dp))%K
