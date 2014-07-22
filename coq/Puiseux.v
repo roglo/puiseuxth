@@ -1986,6 +1986,42 @@ induction n; intros.
              eapply next_next_pow in Hg₂₃; eauto .
              simpl in Hg₂₃.
              subst g₂₃.
+             destruct g₂.
+              symmetry in Hnpow.
+              exfalso; revert Hnpow; apply Pos2Nat_ne_0.
+
+              simpl.
+              apply lt_S_n in Hcmp₁.
+              clear H₂.
+              clear Heqid.
+              clear Heqg₂ Hnpow.
+              revert g₂ Hcmp₁.
+bbb.
+              induction i; intros; [ reflexivity | idtac ].
+              destruct g₂.
+               rewrite Nat.sub_0_r.
+               simpl.
+               destruct (ps_zerop R (ps_poly_nth 0 pol₃)) as [H₂| H₂]; auto.
+               remember (ac_root (Φq pol₃ ns₃)) as c₃ eqn:Hc₃ .
+               remember (next_pol pol₃ (β ns₃) (γ ns₃) c₃) as pol₄ eqn:Hpol₄ .
+               remember (List.hd phony_ns (newton_segments pol₄)) as ns₅
+                eqn:Hns₅ .
+               remember (Nat.compare (g₃ + 1) (S (S i))) as cmp₂ eqn:Hcmp₂ .
+               remember (Nat.compare g₃ (S i)) as cmp₃ eqn:Hcmp₃ .
+               symmetry in Hcmp₂, Hcmp₃.
+               destruct cmp₂.
+                apply nat_compare_eq in Hcmp₂.
+                destruct cmp₃; auto.
+                 apply nat_compare_lt in Hcmp₃.
+                 exfalso; fast_omega Hcmp₂ Hcmp₃.
+
+                 apply nat_compare_gt in Hcmp₃.
+                 exfalso; fast_omega Hcmp₂ Hcmp₃.
+
+                apply nat_compare_lt in Hcmp₂.
+                destruct cmp₃.
+                 apply nat_compare_eq in Hcmp₃.
+                 exfalso; fast_omega Hcmp₂ Hcmp₃.
 bbb.
 
 (* mmm... faut voir... *)
