@@ -1683,12 +1683,45 @@ rewrite Nat.add_assoc, Nat.add_shuffle0.
 reflexivity.
 Qed.
 
-Lemma next_pow_succ : ∀ p ns m,
-  next_pow (p + 1) ns m = (next_pow p ns m + 1)%nat.
+Lemma next_pow_add : ∀ p q ns m,
+  next_pow (p + q) ns m = (next_pow p ns m + q)%nat.
 Proof.
-intros p ns m.
+intros p q ns m.
 unfold next_pow.
 rewrite Nat.add_shuffle0; reflexivity.
+Qed.
+
+Lemma nat_compare_add : ∀ a b c,
+  Nat.compare a b = Nat.compare (a + c) (b + c).
+Proof.
+intros a b c.
+remember (Nat.compare a b) as c₁ eqn:Hc₁ .
+remember (Nat.compare (a + c) (b + c)) as c₂ eqn:Hc₂ .
+symmetry in Hc₁, Hc₂.
+destruct c₁.
+ apply nat_compare_eq in Hc₁.
+ destruct c₂; auto.
+  apply nat_compare_lt in Hc₂.
+  exfalso; omega.
+
+  apply nat_compare_gt in Hc₂.
+  exfalso; omega.
+
+ apply nat_compare_lt in Hc₁.
+ destruct c₂; auto.
+  apply nat_compare_eq in Hc₂.
+  exfalso; omega.
+
+  apply nat_compare_gt in Hc₂.
+  exfalso; omega.
+
+ apply nat_compare_gt in Hc₁.
+ destruct c₂; auto.
+  apply nat_compare_eq in Hc₂.
+  exfalso; omega.
+
+  apply nat_compare_lt in Hc₂.
+  exfalso; omega.
 Qed.
 
 (* réfléchir... il faut réussir à prouver :
@@ -1696,15 +1729,90 @@ Qed.
   ============================
    (find_coeff i (g₃ + S g₂) m₁ pol₃ ns₃ (S i) =
     find_coeff (i - g₂) g₃ m₁ pol₃ ns₃ (i - g₂))%K
+
+  ============================
+   (find_coeff (id + S g₂) (p + S (S g₂)) m₁ pol₄ ns₄ (S id + S (S g₂)) =
+    find_coeff id p m₁ pol₄ ns₄ (S id))%K
 *)
-Lemma rrr : ∀ pol ns mx p dp m i,
-  (dp ≤ mx)%nat
-  → (dp ≤ i)%nat
+(*
+Lemma rrr : ∀ pol ns m i p dp,
+  (dp < i)%nat
+  → (find_coeff i (p + S dp) m pol ns (S i) =
+     find_coeff (i - dp) p m pol ns (i - dp))%K.
+Proof.
+intros pol ns m i p dp Hdpi.
+destruct i; [ reflexivity | idtac ].
+simpl.
+destruct dp.
+ simpl.
+ Focus 1.
+ clear Hdpi.
+ destruct (ps_zerop R (ps_poly_nth 0 pol)) as [H₁| H₁]; auto.
+ remember 1%nat as one.
+ rewrite <- Nat.add_1_r.
+ subst one.
+ rewrite <- nat_compare_add.
+ remember (Nat.compare p (S i)) as cmp eqn:Hcmp .
+ symmetry in Hcmp.
+ destruct cmp; auto.
+ apply nat_compare_lt in Hcmp.
+ remember (ac_root (Φq pol ns)) as c₁ eqn:Hc₁ .
+ remember (next_pol pol (β ns) (γ ns) c₁) as pol₁ eqn:Hpol₁ .
+ remember (List.hd phony_ns (newton_segments pol₁)) as ns₁ eqn:Hns₁ .
+ destruct i; [ reflexivity | simpl ].
+ destruct (ps_zerop R (ps_poly_nth 0 pol₁)) as [H₂| H₂]; auto.
+ remember 1%nat as one.
+ rewrite <- Nat.add_1_r.
+ subst one.
+ rewrite next_pow_succ.
+ rewrite <- nat_compare_add.
+ rewrite Nat.add_1_r.
+ remember (next_pow p ns₁ m) as p₁ eqn:Hp₁ .
+ remember (Nat.compare p₁ (S (S i))) as cmp₁ eqn:Hcmp₁ .
+ symmetry in Hcmp₁.
+ destruct cmp₁; auto.
+ apply nat_compare_lt in Hcmp₁.
+ remember (ac_root (Φq pol₁ ns₁)) as c₂ eqn:Hc₂ .
+ remember (next_pol pol₁ (β ns₁) (γ ns₁) c₂) as pol₂ eqn:Hpol₂ .
+ remember (List.hd phony_ns (newton_segments pol₂)) as ns₂ eqn:Hns₂ .
+ destruct i; [ reflexivity | simpl ].
+ destruct (ps_zerop R (ps_poly_nth 0 pol₂)) as [H₃| H₃]; auto.
+ remember 1%nat as one.
+ rewrite <- Nat.add_1_r.
+ subst one.
+ rewrite next_pow_succ.
+ rewrite <- nat_compare_add.
+ rewrite Nat.add_1_r.
+ remember (next_pow p₁ ns₂ m) as p₂ eqn:Hp₂ .
+ Unfocus.
+ Focus 2.
+ destruct (ps_zerop R (ps_poly_nth 0 pol)) as [H₁| H₁].
+bbb.
+*)
+
+(*
+Lemma rrr₁ : ∀ pol ns mx p dp m i,
+  (dp < i)%nat
   → (find_coeff mx (p + S dp) m pol ns (S i) =
      find_coeff (mx - dp) p m pol ns (i - dp))%K.
 Proof.
-intros pol ns mx p dp m i Hmx Hi.
+intros pol ns mx p dp m i Hdpi.
+revert pol ns mx p dp m Hdpi.
+induction mx; intros; [ reflexivity | idtac ].
+destruct dp.
+ do 2 rewrite Nat.sub_0_r; simpl.
+ destruct (ps_zerop R (ps_poly_nth 0 pol)) as [H₁| H₁]; auto.
+ remember 1%nat as one.
+ rewrite <- Nat.add_1_r.
+ subst one.
+ rewrite <- nat_compare_add.
+ remember (Nat.compare p i) as cmp eqn:Hcmp .
+ symmetry in Hcmp.
+ destruct cmp; auto.
+ apply nat_compare_lt in Hcmp.
+ rewrite next_pow_succ.
 bbb.
+
 revert pol ns p dp m i Hmx Hi.
 induction mx; intros; [ reflexivity | idtac ].
 destruct dp.
@@ -1750,7 +1858,7 @@ destruct dp.
 
  apply le_S_n in Hmx.
  simpl.
-Abort. (* ça va pas...
+Abort.
   ============================
    (find_coeff (S mx) (p + S (S dp)) m pol ns (S i) =
     find_coeff (S mx - S dp) p m pol ns (i - S dp))%K
@@ -2057,11 +2165,34 @@ induction n; intros.
               apply lt_S_n in Hcmp₁.
               apply Nat.nlt_ge in H₂.
               apply le_S_n in H₂.
-              apply rrr; assumption.
+              destruct i; [ reflexivity | idtac ].
+              simpl.
+              destruct g₂.
+               Focus 2.
+               simpl in Heqid.
+               rewrite <- Heqid.
+               simpl.
+               destruct (ps_zerop R (ps_poly_nth 0 pol₃)); auto.
+               assert (i = g₂ + S id)%nat as Hig by omega.
+               rewrite Hig.
+               remember (g₃ + S (S g₂))%nat as x.
+               rewrite Nat.add_comm.
+               rewrite Nat.add_succ_l, <- Nat.add_succ_r.
+               rewrite <- Nat.add_succ_r.
+               rewrite <- Nat.add_succ_l.
+               subst x.
+               rewrite <- nat_compare_add.
+               remember (Nat.compare g₃ (S id)) as cmp eqn:Hcmp .
+               symmetry in Hcmp.
+               destruct cmp; auto.
+               apply nat_compare_lt in Hcmp.
+               rewrite next_pow_add.
+               remember (ac_root (Φq pol₃ ns₃)) as c₃ eqn:Hc₃ .
+               remember (next_pol pol₃ (β ns₃) (γ ns₃) c₃) as pol₄ eqn:Hpol₄ .
+               remember (List.hd phony_ns (newton_segments pol₄)) as ns₄
+                eqn:Hns₄ .
 bbb.
-              clear H₂.
-              clear Heqid.
-              clear Heqg₂ Hnpow.
+              apply rrr; assumption.
 bbb.
               revert g₂ Hcmp₁.
               induction i; intros; [ reflexivity | idtac ].
