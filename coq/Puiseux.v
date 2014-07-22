@@ -1740,9 +1740,10 @@ rewrite next_pow_add.
 apply IHmx.
 Qed.
 
+(*
 Theorem qqq : ∀ pol ns m mx p i r,
   (r = find_coeff mx p m pol ns i)%K
-  → (r ≠ 0)%K ∨ (p < mx)%nat
+  → (r ≠ 0)%K ∨ (i < mx)%nat
   → ∀ d, (r = find_coeff (mx + d) p m pol ns i)%K.
 Proof.
 intros pol ns m mx p i r Hr Hri d.
@@ -1776,7 +1777,7 @@ destruct Hri as [Hri| Hri].
     apply IHmx.
      assumption.
 bbb.
-
+*)
 
 (* réfléchir... il faut réussir à prouver :
   (g₂ < i)%nat
@@ -2171,6 +2172,24 @@ induction n; intros.
           contradiction.
 
          remember (i - g₂)%nat as id.
+         unfold root_series_from_cγ_list.
+         remember (S id) as x; simpl; subst x.
+         destruct (ps_zerop R (ps_poly_nth 0 pol₁)) as [H₃| H₃].
+          contradiction.
+
+          rewrite <- Hc₁, <- Hpol₂, <- Hns₂.
+          destruct i.
+           exfalso; revert H₁; apply Nat.lt_irrefl.
+
+           rewrite <- Heqg₂.
+           apply Nat.nlt_ge in H₂.
+           rewrite Heqid.
+           symmetry.
+           rewrite <- find_coeff_add with (dp := g₂).
+           rewrite Nat.add_0_l.
+           rewrite Nat.sub_add; auto.
+
+bbb.
          unfold root_series_from_cγ_list; simpl.
          destruct (ps_zerop R (ps_poly_nth 0 pol₁)) as [H₃| H₃].
           contradiction.
@@ -2220,6 +2239,7 @@ induction n; intros.
               apply Nat.nlt_ge in H₂.
               apply le_S_n in H₂.
               destruct i; [ reflexivity | idtac ].
+bbb.
               simpl.
               destruct g₂.
                Focus 2.
