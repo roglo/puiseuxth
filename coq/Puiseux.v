@@ -1683,6 +1683,70 @@ rewrite Nat.add_assoc, Nat.add_shuffle0.
 reflexivity.
 Qed.
 
+Lemma next_pow_succ : ∀ p ns m,
+  next_pow (p + 1) ns m = (next_pow p ns m + 1)%nat.
+Proof.
+intros p ns m.
+unfold next_pow.
+rewrite Nat.add_shuffle0; reflexivity.
+Qed.
+
+Lemma rrr : ∀ pol ns mx p dp m i,
+  (dp ≤ mx)%nat
+  → (dp ≤ i)%nat
+  → (find_coeff mx (p + S dp) m pol ns (S i) =
+     find_coeff (mx - dp) p m pol ns (i - dp))%K.
+Proof.
+intros pol ns mx p dp m i Hmx Hi.
+revert pol ns p dp m i Hmx Hi.
+induction mx; intros; [ reflexivity | idtac ].
+destruct dp.
+ rewrite Nat.sub_0_r.
+ simpl.
+ destruct (ps_zerop R (ps_poly_nth 0 pol)) as [H₁| H₁]; auto.
+ rewrite Nat.sub_0_r.
+ remember (Nat.compare (p + 1) (S i)) as cmp₁ eqn:Hcmp₁ .
+ remember (Nat.compare p i) as cmp₂ eqn:Hcmp₂ .
+ symmetry in Hcmp₁, Hcmp₂.
+ destruct cmp₁.
+  apply nat_compare_eq in Hcmp₁.
+  destruct cmp₂; auto.
+   apply nat_compare_lt in Hcmp₂.
+   exfalso; fast_omega Hcmp₁ Hcmp₂.
+
+   apply nat_compare_gt in Hcmp₂.
+   exfalso; fast_omega Hcmp₁ Hcmp₂.
+
+  apply nat_compare_lt in Hcmp₁.
+  destruct cmp₂.
+   apply nat_compare_eq in Hcmp₂.
+   exfalso; fast_omega Hcmp₁ Hcmp₂.
+
+   apply nat_compare_lt in Hcmp₂.
+   rewrite next_pow_succ.
+   rewrite IHmx.
+    do 2 rewrite Nat.sub_0_r.
+    reflexivity.
+
+    apply Nat.le_0_l.
+
+    apply Nat.le_0_l.
+
+   apply nat_compare_gt in Hcmp₂.
+   exfalso; fast_omega Hcmp₁ Hcmp₂.
+
+  apply nat_compare_gt in Hcmp₁.
+  destruct cmp₂; auto.
+   apply nat_compare_eq in Hcmp₂.
+   exfalso; fast_omega Hcmp₁ Hcmp₂.
+
+   apply nat_compare_lt in Hcmp₂.
+   exfalso; fast_omega Hcmp₁ Hcmp₂.
+
+ apply le_S_n in Hmx.
+ simpl.
+bbb.
+
 Lemma sss : ∀ pol ns pol₁ ns₁ c m q₀,
   ns ∈ newton_segments pol
   → m = ps_list_com_polord (al pol)
@@ -1697,17 +1761,6 @@ Lemma sss : ∀ pol ns pol₁ ns₁ c m q₀,
        root_head n pol₁ ns₁ +
        ps_monom 1%K (γ_sum n pol₁ ns₁) * root_tail (m * q₀) (S n) pol₁ ns₁)%ps.
 Proof.
-(*
-intros pol ns pol₁ ns₁ c m q₀ Hns Hm Hq₀ Hc Hr Hpol₁ Hns₁ n Hpsi.
-remember (m * q₀)%positive as m₁.
-remember Hm as HinK1m; clear HeqHinK1m.
-apply com_polord_in_K_1_m with (R := R) in HinK1m.
-induction n; intros.
- unfold γ_sum; simpl.
- unfold summation; simpl.
- rewrite rng_add_0_r.
-bbb.
-*)
 intros pol ns pol₁ ns₁ c m q₀ Hns Hm Hq₀ Hc Hr Hpol₁ Hns₁ n Hpsi.
 remember (m * q₀)%positive as m₁.
 remember Hm as HinK1m; clear HeqHinK1m.
@@ -1992,11 +2045,14 @@ induction n; intros.
 
               simpl.
               apply lt_S_n in Hcmp₁.
+              apply Nat.lt_le_incl in Hcmp₁.
+              apply rrr; auto.
+bbb.
               clear H₂.
               clear Heqid.
               clear Heqg₂ Hnpow.
-              revert g₂ Hcmp₁.
 bbb.
+              revert g₂ Hcmp₁.
               induction i; intros; [ reflexivity | idtac ].
               destruct g₂.
                rewrite Nat.sub_0_r.
