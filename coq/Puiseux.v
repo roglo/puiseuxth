@@ -2191,6 +2191,7 @@ induction n; intros.
                remember (next_pol pol₃ (β ns₃) (γ ns₃) c₃) as pol₄ eqn:Hpol₄ .
                remember (List.hd phony_ns (newton_segments pol₄)) as ns₄
                 eqn:Hns₄ .
+               remember (next_pow g₃ ns₄ m₁) as g₃₄.
 bbb.
               apply rrr; assumption.
 bbb.
