@@ -1180,11 +1180,11 @@ Fixpoint polydromy_if_r_reaches_one acf m pol {struct m} :=
         (v * Pos.to_nat (Qden (γ ns)))%nat
   end.
 
-Definition next_pow pow ns₁ pol_ord :=
-  let n := (γ ns₁ * inject_Z ('pol_ord)) in
+Definition next_pow pow ns₁ m :=
+  let n := (γ ns₁ * inject_Z ('m)) in
   (pow + Z.to_nat (Qnum n / ' Qden n))%nat.
 
-Fixpoint find_coeff max_iter npow pol_ord pol ns i :=
+Fixpoint find_coeff max_iter npow m pol ns i :=
   match max_iter with
   | 0%nat => 0%K
   | S m =>
@@ -1196,14 +1196,14 @@ Fixpoint find_coeff max_iter npow pol_ord pol ns i :=
             let c₁ := ac_root (Φq pol ns) in
             let pol₁ := next_pol pol (β ns) (γ ns) c₁ in
             let ns₁ := List.hd phony_ns (newton_segments pol₁) in
-            let npow₁ := next_pow npow ns₁ pol_ord in
-            find_coeff m npow₁ pol_ord pol₁ ns₁ i
+            let npow₁ := next_pow npow ns₁ m in
+            find_coeff m npow₁ m pol₁ ns₁ i
         | Gt => 0%K
         end
   end.
 
-Definition root_series_from_cγ_list pol_ord pol ns i :=
-  find_coeff (S i) 0%nat pol_ord pol ns i.
+Definition root_series_from_cγ_list m pol ns i :=
+  find_coeff (S i) 0%nat m pol ns i.
 
 Definition root_from_cγ_list m pol ns :=
   {| ps_terms := {| terms := root_series_from_cγ_list m pol ns |};
@@ -1740,7 +1740,6 @@ rewrite next_pow_add.
 apply IHmx.
 Qed.
 
-(* zut, ça n'a pas l'air de marcher... *)
 (* faut démontrer :
   g₂ = next_pow 0 ns₂ m₁
   g₂ = Pos.to_nat d
@@ -1748,9 +1747,13 @@ Qed.
   ============================
    (find_coeff (S (S i - g₂)) g₂ m₁ pol₂ ns₂ (S i) =
     find_coeff (S i) g₂ m₁ pol₂ ns₂ (S i))%K
+  ============================
+   (find_coeff (S i - (g₂ - 1)) g₂ m₁ pol₂ ns₂ (S i) =
+    find_coeff (S i) g₂ m₁ pol₂ ns₂ (S i))%K
 *)
+(* zut, ça n'a pas l'air de marcher... *)
 Theorem qqq : ∀ pol ns m mx p d i,
-  (d ≤ p)%nat
+  (d < p)%nat
   → (find_coeff mx p m pol ns i =
      find_coeff (mx - d) p m pol ns i)%K.
 Proof.
