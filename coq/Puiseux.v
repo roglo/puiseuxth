@@ -1748,6 +1748,7 @@ rewrite Z.mul_1_r in Hαj₁, Hαk₁.
 exists αj₁, αk₁; auto.
 Qed.
 
+(* mouais, bon...
 Lemma nnn : ∀ i id j g₂ g₂₃ pol₃ ns₃ m₁ c₁ c₂ pol₂ ns₂ d pol₁ ns₁,
   ns₁ ∈ newton_segments pol₁
   → ps_lap_forall (λ a, in_K_1_m a m₁) (al pol₁)
@@ -1817,7 +1818,6 @@ induction i; intros.
 
   destruct id.
    exfalso; omega.
-Abort. (*
 bbb.
 *)
 
@@ -2099,14 +2099,12 @@ induction n; intros.
           remember (List.hd phony_ns (newton_segments pol₃)) as ns₃ eqn:Hns₃ .
           remember (next_pow g₂ ns₃ m₁) as g₂₃ eqn:Hg₂₃ .
           apply nat_compare_lt in Hcmp.
-(* *)
           clear H₁ H₂.
-bbb.
-          revert id g₂ g₂₃ pol₃ ns₃ Heqid Heqg₂ Hnpow Hcmp Hg₂₃ Hpol₃ Hns₃.
-          induction i; intros.
-           apply Nat.lt_1_r in Hcmp.
-           rewrite Hnpow in Hcmp.
-           exfalso; revert Hcmp; apply Pos2Nat_ne_0.
+(*1*)
+          destruct i.
+           destruct g₂; [ idtac | exfalso; omega ].
+           symmetry in Hnpow.
+           exfalso; revert Hnpow; apply Pos2Nat_ne_0.
 
            destruct id; [ exfalso; fast_omega Hcmp Heqid | simpl ].
            destruct (ps_zerop R (ps_poly_nth 0 pol₃)) as [H₁| H₁]; auto.
@@ -2133,7 +2131,7 @@ bbb.
            remember (next_pol pol₃ (β ns₃) (γ ns₃) c₃) as pol₄ eqn:Hpol₄ .
            remember (List.hd phony_ns (newton_segments pol₄)) as ns₄
             eqn:Hns₄ .
-           remember (next_pow g₂₃ ns₄ m₁) as g₂₃₄.
+           remember (next_pow g₂₃ ns₄ m₁) as g₂₃₄ eqn:Hg₂₃₄.
            apply nat_compare_lt in Hcmp₁.
            remember Hns₃₁ as H; clear HeqH.
            eapply num_m_den_is_pos with (m := m₁) in H; eauto .
@@ -2147,64 +2145,64 @@ bbb.
 
              rewrite Pos.mul_1_r; assumption.
 
-            destruct i.
-             destruct g₂; [ idtac | exfalso; omega ].
-             symmetry in Hnpow.
-             exfalso; revert Hnpow; apply Pos2Nat_ne_0.
+(*2*)
+          destruct i.
+           destruct g₂; [ idtac | exfalso; omega ].
+           symmetry in Hnpow.
+           exfalso; revert Hnpow; apply Pos2Nat_ne_0.
 
-             destruct id; [ exfalso; omega | idtac ].
-             simpl.
-             destruct (ps_zerop R (ps_poly_nth 0 pol₄)) as [H₂| H₂]; auto.
-             unfold next_pow in Heqg₂₃₄; simpl in Heqg₂₃₄.
-             remember Hns₂₁ as Hr₃; clear HeqHr₃.
-             eapply multiplicity_1_remains in Hr₃; eauto .
-             rename H into Hnmd₃.
-             remember Hr₃ as H; clear HeqH.
-             eapply r_1_next_ns in H; eauto .
-             destruct H as (αj₄, (αk₄, H)).
-             destruct H as (Hoth₄, (Hini₄, (Hfin₄, (Hαj₄, Hαk₄)))).
-             rewrite Hini₄, Hfin₄ in Heqg₂₃₄; simpl in Heqg₂₃₄.
-             rewrite Hαk₄ in Heqg₂₃₄; simpl in Heqg₂₃₄.
-             rewrite Z.add_0_r, Z.mul_1_r in Heqg₂₃₄.
-             do 2 rewrite Pos.mul_1_r in Heqg₂₃₄.
-             rewrite Z.mul_shuffle0 in Heqg₂₃₄.
-             rewrite Pos2Z.inj_mul in Heqg₂₃₄.
-             rewrite Z.div_mul_cancel_r in Heqg₂₃₄; auto.
-             remember Hns₄ as Hns₄₁; clear HeqHns₄₁.
-             eapply hd_newton_segments in Hns₄₁; eauto .
-             remember (Nat.compare g₂₃₄ (S (S (S i)))) as cmp₂ eqn:Hcmp₂ .
-             symmetry in Hcmp₂.
-             destruct cmp₂; auto.
-             remember (ac_root (Φq pol₄ ns₄)) as c₄ eqn:Hc₄ .
-             remember (next_pol pol₄ (β ns₄) (γ ns₄) c₄) as pol₅ eqn:Hpol₅ .
-             remember (List.hd phony_ns (newton_segments pol₅)) as ns₅
-              eqn:Hns₅ .
-             remember (next_pow g₂₃₄ ns₅ m₁) as g₂₃₄₅.
-             apply nat_compare_lt in Hcmp₂.
-             remember Hns₄₁ as H; clear HeqH.
-             eapply num_m_den_is_pos with (m := m₁) in H; eauto .
-              Focus 2.
-              replace m₁ with (m₁ * 1)%positive by apply Pos.mul_1_r.
-              eapply next_pol_in_K_1_mq with (pol := pol₃); eauto .
-               replace m₁ with (m₁ * 1)%positive by apply Pos.mul_1_r.
-               eapply next_pol_in_K_1_mq with (pol := pol₂); eauto .
-               symmetry.
-               replace m₁ with (m₁ * 1)%positive by apply Pos.mul_1_r.
-               eapply q_eq_1 with (pol := pol₁) (pol₁ := pol₂); eauto .
-                rewrite Heqm₁; assumption.
+           destruct id; [ exfalso; omega | simpl ].
+           destruct (ps_zerop R (ps_poly_nth 0 pol₄)) as [H₂| H₂]; auto.
+           unfold next_pow in Hg₂₃₄; simpl in Hg₂₃₄.
+           remember Hns₂₁ as Hr₃; clear HeqHr₃.
+           eapply multiplicity_1_remains in Hr₃; eauto .
+           rename H into Hnmd₃.
+           remember Hr₃ as H; clear HeqH.
+           eapply r_1_next_ns in H; eauto .
+           destruct H as (αj₄, (αk₄, H)).
+           destruct H as (Hoth₄, (Hini₄, (Hfin₄, (Hαj₄, Hαk₄)))).
+           rewrite Hini₄, Hfin₄ in Hg₂₃₄; simpl in Hg₂₃₄.
+           rewrite Hαk₄ in Hg₂₃₄; simpl in Hg₂₃₄.
+           rewrite Z.add_0_r, Z.mul_1_r in Hg₂₃₄.
+           do 2 rewrite Pos.mul_1_r in Hg₂₃₄.
+           rewrite Z.mul_shuffle0 in Hg₂₃₄.
+           rewrite Pos2Z.inj_mul in Hg₂₃₄.
+           rewrite Z.div_mul_cancel_r in Hg₂₃₄; auto.
+           remember Hns₄ as Hns₄₁; clear HeqHns₄₁.
+           eapply hd_newton_segments in Hns₄₁; eauto .
+           remember (Nat.compare g₂₃₄ (S (S (S i)))) as cmp₂ eqn:Hcmp₂ .
+           symmetry in Hcmp₂.
+           destruct cmp₂; auto.
+           remember (ac_root (Φq pol₄ ns₄)) as c₄ eqn:Hc₄ .
+           remember (next_pol pol₄ (β ns₄) (γ ns₄) c₄) as pol₅ eqn:Hpol₅ .
+           remember (List.hd phony_ns (newton_segments pol₅)) as ns₅
+            eqn:Hns₅ .
+           remember (next_pow g₂₃₄ ns₅ m₁) as g₂₃₄₅.
+           apply nat_compare_lt in Hcmp₂.
+           remember Hns₄₁ as H; clear HeqH.
+           eapply num_m_den_is_pos with (m := m₁) in H; eauto .
+            Focus 2.
+            replace m₁ with (m₁ * 1)%positive by apply Pos.mul_1_r.
+            eapply next_pol_in_K_1_mq with (pol := pol₃); eauto .
+             replace m₁ with (m₁ * 1)%positive by apply Pos.mul_1_r.
+             eapply next_pol_in_K_1_mq with (pol := pol₂); eauto .
+             symmetry.
+             replace m₁ with (m₁ * 1)%positive by apply Pos.mul_1_r.
+             eapply q_eq_1 with (pol := pol₁) (pol₁ := pol₂); eauto .
+              rewrite Heqm₁; assumption.
 
-                rewrite Pos.mul_1_r; assumption.
+              rewrite Pos.mul_1_r; assumption.
 
-               symmetry.
-               replace m₁ with (m₁ * 1)%positive by apply Pos.mul_1_r.
-               eapply q_eq_1 with (pol := pol₂) (pol₁ := pol₃); eauto .
-               eapply next_pol_in_K_1_mq with (pol := pol₂); eauto .
-               symmetry.
-               replace m₁ with (m₁ * 1)%positive by apply Pos.mul_1_r.
-               eapply q_eq_1 with (pol := pol₁) (pol₁ := pol₂); eauto .
-                rewrite Heqm₁; assumption.
+             symmetry.
+             replace m₁ with (m₁ * 1)%positive by apply Pos.mul_1_r.
+             eapply q_eq_1 with (pol := pol₂) (pol₁ := pol₃); eauto .
+             eapply next_pol_in_K_1_mq with (pol := pol₂); eauto .
+             symmetry.
+             replace m₁ with (m₁ * 1)%positive by apply Pos.mul_1_r.
+             eapply q_eq_1 with (pol := pol₁) (pol₁ := pol₂); eauto .
+              rewrite Heqm₁; assumption.
 
-                rewrite Pos.mul_1_r; assumption.
+              rewrite Pos.mul_1_r; assumption.
 bbb.
           rewrite qqq with (d := (g₂ - 1)%nat).
            rewrite Nat_sub_sub_distr.
