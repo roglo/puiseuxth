@@ -1748,6 +1748,21 @@ rewrite Z.mul_1_r in Hαj₁, Hαk₁.
 exists αj₁, αk₁; auto.
 Qed.
 
+Lemma nnn : ∀ i id g₂ g₂₃ pol₃ ns₃ m₁ c₂ pol₂ ns₂ d,
+  id = (S i - g₂)%nat
+  → g₂ = next_pow 0 ns₂ m₁
+  → g₂ = Pos.to_nat d
+  → (g₂ < S i)%nat
+  → g₂₃ = next_pow g₂ ns₃ m₁
+  → pol₃ = next_pol pol₂ (β ns₂) (γ ns₂) c₂
+  → ns₃ = List.hd phony_ns (newton_segments pol₃)
+  → (find_coeff i g₂₃ m₁ pol₃ ns₃ (S i) =
+      find_coeff id g₂₃ m₁ pol₃ ns₃ (S i))%K.
+Proof.
+intros i id g₂ g₂₃ pol₃ ns₃ m₁ c₂ pol₂ ns₂ d.
+intros Hid Hg₂ Hg₂' Hg₂i Hg₂₃ Hpol₃ Hns₃.
+bbb.
+
 Lemma sss : ∀ pol ns pol₁ ns₁ c m q₀,
   ns ∈ newton_segments pol
   → m = ps_list_com_polord (al pol)
@@ -2008,6 +2023,7 @@ induction n; intros.
           rewrite <- Hc₁, <- Hpol₂, <- Hns₂.
           rewrite <- Heqg₂, Heqid.
           destruct i; [ exfalso; revert H₁; apply Nat.lt_irrefl | idtac ].
+
           apply Nat.nlt_ge in H₂.
           symmetry.
           rewrite <- find_coeff_add with (dp := g₂).
@@ -2027,7 +2043,8 @@ induction n; intros.
           apply nat_compare_lt in Hcmp.
 (* *)
           clear H₁ H₂.
-          revert id g₂ Heqid Heqg₂ Hnpow Hcmp Hg₂₃.
+bbb.
+          revert id g₂ g₂₃ pol₃ ns₃ Heqid Heqg₂ Hnpow Hcmp Hg₂₃ Hpol₃ Hns₃.
           induction i; intros.
            apply Nat.lt_1_r in Hcmp.
            rewrite Hnpow in Hcmp.
