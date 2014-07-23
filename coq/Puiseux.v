@@ -1187,7 +1187,7 @@ Definition next_pow pow ns₁ m :=
 Fixpoint find_coeff max_iter npow m pol ns i :=
   match max_iter with
   | 0%nat => 0%K
-  | S m =>
+  | S mx =>
       if ps_zerop _ (ps_poly_nth 0 pol) then 0%K
       else
         match Nat.compare npow i with
@@ -1197,7 +1197,7 @@ Fixpoint find_coeff max_iter npow m pol ns i :=
             let pol₁ := next_pol pol (β ns) (γ ns) c₁ in
             let ns₁ := List.hd phony_ns (newton_segments pol₁) in
             let npow₁ := next_pow npow ns₁ m in
-            find_coeff m npow₁ m pol₁ ns₁ i
+            find_coeff mx npow₁ m pol₁ ns₁ i
         | Gt => 0%K
         end
   end.
@@ -1758,6 +1758,7 @@ Theorem qqq : ∀ pol ns m mx p d i,
      find_coeff (mx - d) p m pol ns i)%K.
 Proof.
 intros pol ns m mx p d i Hdp.
+Abort. (*
 bbb.
 *)
 
