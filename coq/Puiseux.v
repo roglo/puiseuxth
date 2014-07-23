@@ -2268,8 +2268,8 @@ induction n; intros.
             eapply multiplicity_1_remains in Hr₂; eauto .
             remember Hr₂ as H; clear HeqH.
             eapply r_1_next_ns in H; eauto .
-            destruct H
-             as (αj₃, (αk₃, (Hoth₃, (Hini₃, (Hfin₃, (Hαj₃, Hαk₃)))))).
+            destruct H as (αj₃, (αk₃, H)).
+            destruct H as (Hoth₃, (Hini₃, (Hfin₃, (Hαj₃, Hαk₃)))).
             rewrite Hini₃, Hfin₃ in Hg₂₃; simpl in Hg₂₃.
             rewrite Hαk₃ in Hg₂₃; simpl in Hg₂₃.
             rewrite Z.add_0_r, Z.mul_1_r in Hg₂₃.
