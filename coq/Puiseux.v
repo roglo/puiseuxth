@@ -1748,8 +1748,12 @@ rewrite Z.mul_1_r in Hαj₁, Hαk₁.
 exists αj₁, αk₁; auto.
 Qed.
 
-Lemma nnn : ∀ i id g₂ g₂₃ pol₃ ns₃ m₁ c₂ pol₂ ns₂ d mx pol₁ ns₁,
+Lemma nnn : ∀ i id g₂ g₂₃ pol₃ ns₃ m₁ c₁ c₂ pol₂ ns₂ d mx pol₁ ns₁,
   ns₁ ∈ newton_segments pol₁
+  → c₁ = ac_root (Φq pol₁ ns₁)
+  → root_multiplicity acf c₁ (Φq pol₁ ns₁) = 1%nat
+  → pol₂ = next_pol pol₁ (β ns₁) (γ ns₁) c₁
+  → (ps_poly_nth 0 pol₂ ≠ 0)%ps
   → id = (S i - g₂)%nat
   → g₂ = next_pow 0 ns₂ m₁
   → g₂ = Pos.to_nat d
@@ -1759,12 +1763,12 @@ Lemma nnn : ∀ i id g₂ g₂₃ pol₃ ns₃ m₁ c₂ pol₂ ns₂ d mx pol�
   → ns₃ = List.hd phony_ns (newton_segments pol₃)
   → (i ≤ mx)%nat
   → (find_coeff mx g₂₃ m₁ pol₃ ns₃ (S i) =
-      find_coeff id g₂₃ m₁ pol₃ ns₃ (S i))%K.
+     find_coeff id g₂₃ m₁ pol₃ ns₃ (S i))%K.
 Proof.
-intros i id g₂ g₂₃ pol₃ ns₃ m₁ c₂ pol₂ ns₂ d mx pol₁ ns₁.
-intros Hns₁₁ Heqid Hg₂ Hnpow Hcmp Hg₂₃ Hpol₃ Hns₃ Hmx.
+intros i id g₂ g₂₃ pol₃ ns₃ m₁ c₁ c₂ pol₂ ns₂ d mx pol₁ ns₁.
+intros Hns₁₁ Hc₁ Hr₁ Hpol₂ Hp₂nz Heqid Hg₂ Hnpow Hcmp Hg₂₃ Hpol₃ Hns₃ Hmx.
 revert i id g₂ g₂₃ pol₃ ns₃ c₂ pol₂ ns₂ d Heqid Hg₂ Hnpow Hcmp Hg₂₃ Hpol₃
- Hns₃ Hmx.
+ Hns₃ Hmx Hpol₂ Hp₂nz.
 induction mx; intros.
  apply Nat.le_0_r in Hmx.
  move Hmx at top; subst i.
@@ -1776,7 +1780,7 @@ induction mx; intros.
  destruct (ps_zerop R (ps_poly_nth 0 pol₃)) as [H₁| H₁]; auto.
  unfold next_pow in Hg₂₃; simpl in Hg₂₃.
  remember Hns₁₁ as Hr₂; clear HeqHr₂.
- eapply multiplicity_1_remains in Hr₂.
+ eapply multiplicity_1_remains in Hr₂; eauto .
 bbb.
 *)
 
