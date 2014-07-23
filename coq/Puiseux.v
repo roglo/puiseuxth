@@ -1942,6 +1942,37 @@ Abort.
 bbb.
 *)
 
+Lemma r_1_next_ns : ∀ pol ns c pol₁ ns₁,
+  ns ∈ newton_segments pol
+  → root_multiplicity acf c (Φq pol ns) = 1%nat
+  → c = ac_root (Φq pol ns)
+  → pol₁ = next_pol pol (β ns) (γ ns) c
+  → ns₁ = List.hd phony_ns (newton_segments pol₁)
+  → (ps_poly_nth 0 pol₁ ≠ 0)%ps
+  → ∃ αj αk,
+    oth_pts ns₁ = [] ∧
+    ini_pt ns₁ = (Qnat 0, αj) ∧
+    fin_pt ns₁ = (Qnat 1, αk) ∧
+    (0 < Qnum αj)%Z ∧
+    Qnum αk = 0%Z.
+Proof.
+intros pol ns c pol₁ ns₁ Hns Hr Hc Hpol₁ Hns₁ Hpnz.
+remember Hns₁ as H; clear HeqH.
+apply exists_ini_pt_nat_fst_seg in H.
+destruct H as (j₁, (αj₁, Hini₁)).
+remember Hns₁ as H; clear HeqH.
+apply exists_fin_pt_nat_fst_seg in H.
+destruct H as (k₁, (αk₁, Hfin₁)).
+remember Hns₁ as H; clear HeqH.
+eapply r_1_j_0_k_1 in H; eauto .
+destruct H as (Hj₁, (Hk₁, (Hαj₁, (Hαk₁, Hoth₁)))).
+subst j₁ k₁.
+unfold Qlt in Hαj₁; simpl in Hαj₁.
+unfold Qeq in Hαk₁; simpl in Hαk₁.
+rewrite Z.mul_1_r in Hαj₁, Hαk₁.
+exists αj₁, αk₁; auto.
+Qed.
+
 Lemma sss : ∀ pol ns pol₁ ns₁ c m q₀,
   ns ∈ newton_segments pol
   → m = ps_list_com_polord (al pol)
@@ -2233,22 +2264,12 @@ induction n; intros.
             clear H₁.
             destruct (ps_zerop R (ps_poly_nth 0 pol₃)) as [H₁| H₁]; auto.
             unfold next_pow in Hg₂₃; simpl in Hg₂₃.
-            remember Hns₃ as H; clear HeqH.
-            apply exists_ini_pt_nat_fst_seg in H.
-            destruct H as (j₃, (αj₃, Hini₃)).
-            remember Hns₃ as H; clear HeqH.
-            apply exists_fin_pt_nat_fst_seg in H.
-            destruct H as (k₃, (αk₃, Hfin₃)).
-            remember Hns₃ as Hns₃₁; clear HeqHns₃₁.
             remember Hns₁₁ as Hr₂; clear HeqHr₂.
             eapply multiplicity_1_remains in Hr₂; eauto .
-            remember Hns₂₁ as H; clear HeqH.
-            eapply r_1_j_0_k_1 in H; eauto .
-            destruct H as (Hj₃, (Hk₃, (Hαj₃, (Hαk₃, Hoth₃)))).
-            subst j₃ k₃.
-            unfold Qlt in Hαj₃; simpl in Hαj₃.
-            unfold Qeq in Hαk₃; simpl in Hαk₃.
-            rewrite Z.mul_1_r in Hαj₃, Hαk₃.
+            remember Hr₂ as H; clear HeqH.
+            eapply r_1_next_ns in H; eauto .
+            destruct H
+             as (αj₃, (αk₃, (Hoth₃, (Hini₃, (Hfin₃, (Hαj₃, Hαk₃)))))).
             rewrite Hini₃, Hfin₃ in Hg₂₃; simpl in Hg₂₃.
             rewrite Hαk₃ in Hg₂₃; simpl in Hg₂₃.
             rewrite Z.add_0_r, Z.mul_1_r in Hg₂₃.
@@ -2256,6 +2277,7 @@ induction n; intros.
             rewrite Z.mul_shuffle0 in Hg₂₃.
             rewrite Pos2Z.inj_mul in Hg₂₃.
             rewrite Z.div_mul_cancel_r in Hg₂₃; auto.
+            remember Hns₃ as Hns₃₁; clear HeqHns₃₁.
             eapply hd_newton_segments in Hns₃₁; eauto .
             remember (Nat.compare g₂₃ (S (S i))) as cmp₁ eqn:Hcmp₁ .
             symmetry in Hcmp₁.
@@ -2266,25 +2288,22 @@ induction n; intros.
              eqn:Hns₄ .
             remember (next_pow g₂₃ ns₄ m₁) as g₂₃₄.
             apply nat_compare_lt in Hcmp₁.
-            destruct i.
-             destruct g₂.
+            remember Hns₃₁ as H; clear HeqH.
+            eapply num_m_den_is_pos with (m := m₁) in H; eauto .
+             Focus 2.
+             replace m₁ with (m₁ * 1)%positive by apply Pos.mul_1_r.
+             eapply next_pol_in_K_1_mq with (pol := pol₂); eauto .
+             symmetry.
+             replace m₁ with (m₁ * 1)%positive by apply Pos.mul_1_r.
+             eapply q_eq_1 with (pol := pol₁) (pol₁ := pol₂); eauto .
+              rewrite Heqm₁; assumption.
+
+              rewrite Pos.mul_1_r; assumption.
+
+             destruct i.
+              destruct g₂; [ idtac | exfalso; omega ].
               symmetry in Hnpow.
               exfalso; revert Hnpow; apply Pos2Nat_ne_0.
-
-              replace id with O by omega.
-              reflexivity.
-
-             remember Hns₃₁ as H; clear HeqH.
-             eapply num_m_den_is_pos with (m := m₁) in H; eauto .
-              Focus 2.
-              replace m₁ with (m₁ * 1)%positive by apply Pos.mul_1_r.
-              eapply next_pol_in_K_1_mq with (pol := pol₂); eauto .
-              symmetry.
-              replace m₁ with (m₁ * 1)%positive by apply Pos.mul_1_r.
-              eapply q_eq_1 with (pol := pol₁) (pol₁ := pol₂); eauto .
-               rewrite Heqm₁; assumption.
-
-               rewrite Pos.mul_1_r; assumption.
 
               destruct id; [ exfalso; omega | idtac ].
 bbb.
