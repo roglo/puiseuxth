@@ -1753,22 +1753,26 @@ Lemma nnn : ∀ i id g₂ g₂₃ pol₃ ns₃ m₁ c₁ c₂ pol₂ ns₂ d mx 
   → c₁ = ac_root (Φq pol₁ ns₁)
   → root_multiplicity acf c₁ (Φq pol₁ ns₁) = 1%nat
   → pol₂ = next_pol pol₁ (β ns₁) (γ ns₁) c₁
+  → ns₂ = List.hd phony_ns (newton_segments pol₂)
+  → ns₂ ∈ newton_segments pol₂
+  → c₂ = ac_root (Φq pol₂ ns₂)
+  → pol₃ = next_pol pol₂ (β ns₂) (γ ns₂) c₂
+  → ns₃ = List.hd phony_ns (newton_segments pol₃)
   → (ps_poly_nth 0 pol₂ ≠ 0)%ps
   → id = (S i - g₂)%nat
   → g₂ = next_pow 0 ns₂ m₁
   → g₂ = Pos.to_nat d
   → (g₂ < S i)%nat
   → g₂₃ = next_pow g₂ ns₃ m₁
-  → pol₃ = next_pol pol₂ (β ns₂) (γ ns₂) c₂
-  → ns₃ = List.hd phony_ns (newton_segments pol₃)
   → (i ≤ mx)%nat
   → (find_coeff mx g₂₃ m₁ pol₃ ns₃ (S i) =
      find_coeff id g₂₃ m₁ pol₃ ns₃ (S i))%K.
 Proof.
 intros i id g₂ g₂₃ pol₃ ns₃ m₁ c₁ c₂ pol₂ ns₂ d mx pol₁ ns₁.
-intros Hns₁₁ Hc₁ Hr₁ Hpol₂ Hp₂nz Heqid Hg₂ Hnpow Hcmp Hg₂₃ Hpol₃ Hns₃ Hmx.
+intros Hns₁₁ Hc₁ Hr₁ Hpol₂ Hns₂ Hns₂₁ Hc₂ Hpol₃ Hns₃ Hp₂nz Heqid Hg₂ Hnpow
+ Hcmp Hg₂₃ Hmx.
 revert i id g₂ g₂₃ pol₃ ns₃ c₂ pol₂ ns₂ d Heqid Hg₂ Hnpow Hcmp Hg₂₃ Hpol₃
- Hns₃ Hmx Hpol₂ Hp₂nz.
+ Hns₃ Hmx Hpol₂ Hp₂nz Hns₂ Hns₂₁ Hc₂.
 induction mx; intros.
  apply Nat.le_0_r in Hmx.
  move Hmx at top; subst i.
@@ -1781,6 +1785,32 @@ induction mx; intros.
  unfold next_pow in Hg₂₃; simpl in Hg₂₃.
  remember Hns₁₁ as Hr₂; clear HeqHr₂.
  eapply multiplicity_1_remains in Hr₂; eauto .
+ remember Hr₂ as H; clear HeqH.
+ eapply r_1_next_ns in H; eauto .
+ destruct H as (αj₃, (αk₃, H)).
+ destruct H as (Hoth₃, (Hini₃, (Hfin₃, (Hαj₃, Hαk₃)))).
+ rewrite Hini₃, Hfin₃ in Hg₂₃; simpl in Hg₂₃.
+ rewrite Hαk₃ in Hg₂₃; simpl in Hg₂₃.
+ rewrite Z.add_0_r, Z.mul_1_r in Hg₂₃.
+ do 2 rewrite Pos.mul_1_r in Hg₂₃.
+ rewrite Z.mul_shuffle0 in Hg₂₃.
+ rewrite Pos2Z.inj_mul in Hg₂₃.
+ rewrite Z.div_mul_cancel_r in Hg₂₃; auto.
+ remember Hns₃ as Hns₃₁; clear HeqHns₃₁.
+ eapply hd_newton_segments in Hns₃₁; eauto .
+ remember (Nat.compare g₂₃ (S i)) as cmp₁ eqn:Hcmp₁ .
+ symmetry in Hcmp₁.
+ destruct cmp₁; auto.
+ remember (ac_root (Φq pol₃ ns₃)) as c₃ eqn:Hc₃ .
+ remember (next_pol pol₃ (β ns₃) (γ ns₃) c₃) as pol₄ eqn:Hpol₄ .
+ remember (List.hd phony_ns (newton_segments pol₄)) as ns₄ eqn:Hns₄ .
+ remember (next_pow g₂₃ ns₄ m₁) as g₂₃₄.
+ apply nat_compare_lt in Hcmp₁.
+ remember Hns₃₁ as H; clear HeqH.
+ eapply num_m_den_is_pos with (m := m₁) in H; eauto .
+  Focus 2.
+  replace m₁ with (m₁ * 1)%positive by apply Pos.mul_1_r.
+  eapply next_pol_in_K_1_mq with (pol := pol₂); eauto .
 bbb.
 *)
 
