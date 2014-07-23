@@ -2134,8 +2134,7 @@ induction n; intros.
            remember (next_pow g₂₃ ns₄ m₁) as g₂₃₄ eqn:Hg₂₃₄.
            apply nat_compare_lt in Hcmp₁.
            remember Hns₃₁ as H; clear HeqH.
-           eapply num_m_den_is_pos with (m := m₁) in H; eauto .
-            Focus 2.
+           assert (ps_lap_forall (λ a, in_K_1_m a m₁) (al pol₃)) as HK₃.
             replace m₁ with (m₁ * 1)%positive by apply Pos.mul_1_r.
             eapply next_pol_in_K_1_mq with (pol := pol₂); eauto .
             symmetry.
@@ -2144,6 +2143,8 @@ induction n; intros.
              rewrite Heqm₁; assumption.
 
              rewrite Pos.mul_1_r; assumption.
+
+            eapply num_m_den_is_pos with (m := m₁) in H; eauto .
 
 (*2*)
           destruct i.
@@ -2180,29 +2181,15 @@ induction n; intros.
            remember (next_pow g₂₃₄ ns₅ m₁) as g₂₃₄₅.
            apply nat_compare_lt in Hcmp₂.
            remember Hns₄₁ as H; clear HeqH.
-           eapply num_m_den_is_pos with (m := m₁) in H; eauto .
-            Focus 2.
+           assert (ps_lap_forall (λ a, in_K_1_m a m₁) (al pol₄)) as HK₄.
             replace m₁ with (m₁ * 1)%positive by apply Pos.mul_1_r.
             eapply next_pol_in_K_1_mq with (pol := pol₃); eauto .
-             replace m₁ with (m₁ * 1)%positive by apply Pos.mul_1_r.
-             eapply next_pol_in_K_1_mq with (pol := pol₂); eauto .
-             symmetry.
-             replace m₁ with (m₁ * 1)%positive by apply Pos.mul_1_r.
-             eapply q_eq_1 with (pol := pol₁) (pol₁ := pol₂); eauto .
-              rewrite Heqm₁; assumption.
+            symmetry.
+            replace m₁ with (m₁ * 1)%positive by apply Pos.mul_1_r.
+            eapply q_eq_1 with (pol := pol₂) (pol₁ := pol₃); eauto .
+            rewrite Pos.mul_1_r; assumption.
 
-              rewrite Pos.mul_1_r; assumption.
-
-             symmetry.
-             replace m₁ with (m₁ * 1)%positive by apply Pos.mul_1_r.
-             eapply q_eq_1 with (pol := pol₂) (pol₁ := pol₃); eauto .
-             eapply next_pol_in_K_1_mq with (pol := pol₂); eauto .
-             symmetry.
-             replace m₁ with (m₁ * 1)%positive by apply Pos.mul_1_r.
-             eapply q_eq_1 with (pol := pol₁) (pol₁ := pol₂); eauto .
-              rewrite Heqm₁; assumption.
-
-              rewrite Pos.mul_1_r; assumption.
+            eapply num_m_den_is_pos with (m := m₁) in H; eauto .
 bbb.
           rewrite qqq with (d := (g₂ - 1)%nat).
            rewrite Nat_sub_sub_distr.
