@@ -1748,7 +1748,7 @@ rewrite Z.mul_1_r in Hαj₁, Hαk₁.
 exists αj₁, αk₁; auto.
 Qed.
 
-Lemma nnn : ∀ i id g₂ g₂₃ pol₃ ns₃ m₁ c₁ c₂ pol₂ ns₂ d mx pol₁ ns₁,
+Lemma nnn : ∀ i id j g₂ g₂₃ pol₃ ns₃ m₁ c₁ c₂ pol₂ ns₂ d pol₁ ns₁,
   ns₁ ∈ newton_segments pol₁
   → ps_lap_forall (λ a, in_K_1_m a m₁) (al pol₁)
   → c₁ = ac_root (Φq pol₁ ns₁)
@@ -1761,23 +1761,20 @@ Lemma nnn : ∀ i id g₂ g₂₃ pol₃ ns₃ m₁ c₁ c₂ pol₂ ns₂ d mx 
   → ns₃ = List.hd phony_ns (newton_segments pol₃)
   → (ps_poly_nth 0 pol₂ ≠ 0)%ps
   → ps_lap_forall (λ a, in_K_1_m a m₁) (al pol₂)
-  → id = (S i - g₂)%nat
+  → id = (S j - g₂)%nat
   → g₂ = next_pow 0 ns₂ m₁
   → g₂ = Pos.to_nat d
-  → (g₂ < S i)%nat
+  → (g₂ < S j)%nat
   → g₂₃ = next_pow g₂ ns₃ m₁
-  → (i ≤ mx)%nat
-  → (find_coeff mx g₂₃ m₁ pol₃ ns₃ (S i) =
-     find_coeff id g₂₃ m₁ pol₃ ns₃ (S i))%K.
+  → (find_coeff i g₂₃ m₁ pol₃ ns₃ (S j) =
+     find_coeff id g₂₃ m₁ pol₃ ns₃ (S j))%K.
 Proof.
-intros i id g₂ g₂₃ pol₃ ns₃ m₁ c₁ c₂ pol₂ ns₂ d mx pol₁ ns₁.
+intros i id j g₂ g₂₃ pol₃ ns₃ m₁ c₁ c₂ pol₂ ns₂ d pol₁ ns₁.
 intros Hns₁₁ HK₁ Hc₁ Hr₁ Hpol₂ Hns₂ Hns₂₁ Hc₂ Hpol₃ Hns₃ Hp₂nz HK₂ Heqid Hg₂
- Hnpow Hcmp Hg₂₃ Hmx.
-revert i id g₂ g₂₃ pol₃ ns₃ c₂ pol₂ ns₂ d Heqid Hg₂ Hnpow Hcmp Hg₂₃ Hpol₃
- Hns₃ Hmx Hpol₂ Hp₂nz Hns₂ Hns₂₁ Hc₂ HK₂.
-induction mx; intros.
- apply Nat.le_0_r in Hmx.
- move Hmx at top; subst i.
+ Hnpow Hcmp Hg₂₃.
+revert i id j g₂ g₂₃ pol₃ ns₃ c₂ pol₂ ns₂ d Heqid Hg₂ Hnpow Hcmp Hg₂₃ Hpol₃
+ Hns₃ Hpol₂ Hp₂nz Hns₂ Hns₂₁ Hc₂ HK₂.
+induction i; intros.
  rewrite Hnpow in Hcmp.
  apply Nat.lt_1_r in Hcmp.
  exfalso; revert Hcmp; apply Pos2Nat_ne_0.
@@ -1800,7 +1797,7 @@ induction mx; intros.
  rewrite Z.div_mul_cancel_r in Hg₂₃; auto.
  remember Hns₃ as Hns₃₁; clear HeqHns₃₁.
  eapply hd_newton_segments in Hns₃₁; eauto .
- remember (Nat.compare g₂₃ (S i)) as cmp₁ eqn:Hcmp₁ .
+ remember (Nat.compare g₂₃ (S j)) as cmp₁ eqn:Hcmp₁ .
  symmetry in Hcmp₁.
  destruct cmp₁; auto.
  remember (ac_root (Φq pol₃ ns₃)) as c₃ eqn:Hc₃ .
