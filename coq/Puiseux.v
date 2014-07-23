@@ -2276,7 +2276,7 @@ induction n; intros.
 
              remember Hns₃₁ as H; clear HeqH.
              eapply num_m_den_is_pos with (m := m₁) in H; eauto .
-              destruct id; [ exfalso; omega | idtac ].
+              Focus 2.
               replace m₁ with (m₁ * 1)%positive by apply Pos.mul_1_r.
               eapply next_pol_in_K_1_mq with (pol := pol₂); eauto .
               symmetry.
@@ -2285,6 +2285,8 @@ induction n; intros.
                rewrite Heqm₁; assumption.
 
                rewrite Pos.mul_1_r; assumption.
+
+              destruct id; [ exfalso; omega | idtac ].
 bbb.
           rewrite qqq with (d := (g₂ - 1)%nat).
            rewrite Nat_sub_sub_distr.
