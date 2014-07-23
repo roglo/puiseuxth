@@ -1741,6 +1741,14 @@ apply IHmx.
 Qed.
 
 (* zut, ça n'a pas l'air de marcher... *)
+(* faut démontrer :
+  g₂ = next_pow 0 ns₂ m₁
+  g₂ = Pos.to_nat d
+  g₂ ≤ S i
+  ============================
+   (find_coeff (S (S i - g₂)) g₂ m₁ pol₂ ns₂ (S i) =
+    find_coeff (S i) g₂ m₁ pol₂ ns₂ (S i))%K
+*)
 Theorem qqq : ∀ pol ns m mx p d i,
   (d ≤ p)%nat
   → (find_coeff mx p m pol ns i =
