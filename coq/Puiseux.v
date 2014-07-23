@@ -1740,6 +1740,16 @@ rewrite next_pow_add.
 apply IHmx.
 Qed.
 
+(* zut, ça n'a pas l'air de marcher... *)
+Theorem qqq : ∀ pol ns m mx p d i,
+  (d ≤ p)%nat
+  → (find_coeff mx p m pol ns i =
+     find_coeff (mx - d) p m pol ns i)%K.
+Proof.
+intros pol ns m mx p d i Hdp.
+bbb.
+*)
+
 (*
 Theorem qqq : ∀ pol ns m mx p i r,
   (r = find_coeff mx p m pol ns i)%K
@@ -2178,17 +2188,23 @@ induction n; intros.
           contradiction.
 
           rewrite <- Hc₁, <- Hpol₂, <- Hns₂.
-          destruct i.
-           exfalso; revert H₁; apply Nat.lt_irrefl.
+          rewrite <- Heqg₂, Heqid.
+          destruct i; [ exfalso; revert H₁; apply Nat.lt_irrefl | idtac ].
+          apply Nat.nlt_ge in H₂.
+          symmetry.
+          rewrite <- find_coeff_add with (dp := g₂).
+          rewrite Nat.add_0_l, Nat.sub_add; auto.
+          symmetry.
+          rewrite qqq with (d := (g₂ - 1)%nat).
+           rewrite Nat_sub_sub_distr.
+            rewrite Nat.add_1_r.
+            rewrite <- Nat.sub_succ_l; auto.
 
-           rewrite <- Heqg₂.
-           apply Nat.nlt_ge in H₂.
-           rewrite Heqid.
-           symmetry.
-           rewrite <- find_coeff_add with (dp := g₂).
-           rewrite Nat.add_0_l.
-           rewrite Nat.sub_add; auto.
+            rewrite Hnpow.
+            apply Pos2Nat.is_pos.
 
+           apply Nat.le_sub_le_add_l.
+           apply Nat.le_le_succ_r; reflexivity.
 bbb.
          unfold root_series_from_cγ_list; simpl.
          destruct (ps_zerop R (ps_poly_nth 0 pol₁)) as [H₃| H₃].
