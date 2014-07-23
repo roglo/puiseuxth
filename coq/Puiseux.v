@@ -1750,6 +1750,7 @@ Qed.
 
 Lemma nnn : ∀ i id g₂ g₂₃ pol₃ ns₃ m₁ c₁ c₂ pol₂ ns₂ d mx pol₁ ns₁,
   ns₁ ∈ newton_segments pol₁
+  → ps_lap_forall (λ a, in_K_1_m a m₁) (al pol₁)
   → c₁ = ac_root (Φq pol₁ ns₁)
   → root_multiplicity acf c₁ (Φq pol₁ ns₁) = 1%nat
   → pol₂ = next_pol pol₁ (β ns₁) (γ ns₁) c₁
@@ -1770,7 +1771,7 @@ Lemma nnn : ∀ i id g₂ g₂₃ pol₃ ns₃ m₁ c₁ c₂ pol₂ ns₂ d mx 
      find_coeff id g₂₃ m₁ pol₃ ns₃ (S i))%K.
 Proof.
 intros i id g₂ g₂₃ pol₃ ns₃ m₁ c₁ c₂ pol₂ ns₂ d mx pol₁ ns₁.
-intros Hns₁₁ Hc₁ Hr₁ Hpol₂ Hns₂ Hns₂₁ Hc₂ Hpol₃ Hns₃ Hp₂nz HK₂ Heqid Hg₂
+intros Hns₁₁ HK₁ Hc₁ Hr₁ Hpol₂ Hns₂ Hns₂₁ Hc₂ Hpol₃ Hns₃ Hp₂nz HK₂ Heqid Hg₂
  Hnpow Hcmp Hg₂₃ Hmx.
 revert i id g₂ g₂₃ pol₃ ns₃ c₂ pol₂ ns₂ d Heqid Hg₂ Hnpow Hcmp Hg₂₃ Hpol₃
  Hns₃ Hmx Hpol₂ Hp₂nz Hns₂ Hns₂₁ Hc₂ HK₂.
@@ -1812,6 +1813,14 @@ induction mx; intros.
   Focus 2.
   replace m₁ with (m₁ * 1)%positive by apply Pos.mul_1_r.
   eapply next_pol_in_K_1_mq with (pol := pol₂); eauto .
+  symmetry.
+  replace m₁ with (m₁ * 1)%positive by apply Pos.mul_1_r.
+  eapply q_eq_1 with (pol := pol₁) (pol₁ := pol₂); eauto .
+  rewrite Pos.mul_1_r; assumption.
+
+  destruct id.
+   exfalso; omega.
+Abort. (*
 bbb.
 *)
 
