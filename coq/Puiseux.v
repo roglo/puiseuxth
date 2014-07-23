@@ -1759,6 +1759,7 @@ Lemma nnn : ∀ i id g₂ g₂₃ pol₃ ns₃ m₁ c₁ c₂ pol₂ ns₂ d mx 
   → pol₃ = next_pol pol₂ (β ns₂) (γ ns₂) c₂
   → ns₃ = List.hd phony_ns (newton_segments pol₃)
   → (ps_poly_nth 0 pol₂ ≠ 0)%ps
+  → ps_lap_forall (λ a, in_K_1_m a m₁) (al pol₂)
   → id = (S i - g₂)%nat
   → g₂ = next_pow 0 ns₂ m₁
   → g₂ = Pos.to_nat d
@@ -1769,10 +1770,10 @@ Lemma nnn : ∀ i id g₂ g₂₃ pol₃ ns₃ m₁ c₁ c₂ pol₂ ns₂ d mx 
      find_coeff id g₂₃ m₁ pol₃ ns₃ (S i))%K.
 Proof.
 intros i id g₂ g₂₃ pol₃ ns₃ m₁ c₁ c₂ pol₂ ns₂ d mx pol₁ ns₁.
-intros Hns₁₁ Hc₁ Hr₁ Hpol₂ Hns₂ Hns₂₁ Hc₂ Hpol₃ Hns₃ Hp₂nz Heqid Hg₂ Hnpow
- Hcmp Hg₂₃ Hmx.
+intros Hns₁₁ Hc₁ Hr₁ Hpol₂ Hns₂ Hns₂₁ Hc₂ Hpol₃ Hns₃ Hp₂nz HK₂ Heqid Hg₂
+ Hnpow Hcmp Hg₂₃ Hmx.
 revert i id g₂ g₂₃ pol₃ ns₃ c₂ pol₂ ns₂ d Heqid Hg₂ Hnpow Hcmp Hg₂₃ Hpol₃
- Hns₃ Hmx Hpol₂ Hp₂nz Hns₂ Hns₂₁ Hc₂.
+ Hns₃ Hmx Hpol₂ Hp₂nz Hns₂ Hns₂₁ Hc₂ HK₂.
 induction mx; intros.
  apply Nat.le_0_r in Hmx.
  move Hmx at top; subst i.
