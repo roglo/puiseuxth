@@ -2157,6 +2157,7 @@ induction n; intros.
              remember Hns₂₁ as Hr₃; clear HeqHr₃.
              eapply multiplicity_1_remains in Hr₃; eauto .
              clear H₁ Hg₂₃ H Hcmp₁.
+             clear Heqg₂.
              rename Hg₂₃₄ into Hg₂₃.
              clear pol₂ Hpol₂ HK₂ Hns₂ Hps₁ Hns₂₁ Hc₂ Hpol₃ Hr₂.
              rename pol₃ into pol₂.
