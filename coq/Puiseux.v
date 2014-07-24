@@ -2163,6 +2163,11 @@ induction n; intros.
              rename pol₄ into pol₃.
              rename Hr₃ into Hr₂.
              clear αj₃ αk₃ Hoth₃ Hini₃ Hfin₃ Hαj₃ Hαk₃.
+             clear Hns₂ Hns₂₁.
+             rename Hns₃ into Hns₂.
+             rename Hns₃₁ into Hns₂₁.
+             rename Hns₄ into Hns₃.
+             rename Hns₄₁ into Hns₃₁.
 (*2*)
           destruct i.
            destruct g₂; [ idtac | exfalso; fast_omega Hcmp Heqid ].
@@ -2183,8 +2188,8 @@ induction n; intros.
            rewrite Z.mul_shuffle0 in Hg₂₃.
            rewrite Pos2Z.inj_mul in Hg₂₃.
            rewrite Z.div_mul_cancel_r in Hg₂₃; auto.
-           remember Hns₄ as Hns₄₁; clear HeqHns₄₁.
-           eapply hd_newton_segments in Hns₄₁; eauto .
+           remember Hns₃ as Hns₃₁; clear HeqHns₃₁.
+           eapply hd_newton_segments in Hns₃₁; eauto .
            remember (Nat.compare g₂₃₄ (S (S (S i)))) as cmp₁ eqn:Hcmp₁ .
            symmetry in Hcmp₁.
            destruct cmp₁; auto.
@@ -2198,7 +2203,7 @@ induction n; intros.
             replace m₁ with (m₁ * 1)%positive by apply Pos.mul_1_r.
             eapply next_pol_in_K_1_mq with (pol := pol₂); eauto .
 
-            remember Hns₄₁ as H; clear HeqH.
+            remember Hns₃₁ as H; clear HeqH.
             eapply num_m_den_is_pos with (m := m₁) in H; eauto .
 bbb.
           rewrite qqq with (d := (g₂ - 1)%nat).
