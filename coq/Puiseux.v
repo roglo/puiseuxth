@@ -2165,10 +2165,10 @@ induction n; intros.
 
              remember Hns₂₁ as Hr₃; clear HeqHr₃.
              eapply multiplicity_1_remains in Hr₃; eauto .
-(*
-             clear H₁ Hg₂₃ H Hcmp₁.
-             clear Heqg₂.
-*)rename H₁ into H2; rename Hg₂₃ into H3; rename H into H4; rename Hcmp₁ into H5; clear Heqg₂.
+
+             clear H₁ Hcmp₁ Heqg₂.
+             rename Hg₂₃ into H3.
+             rename H into H4.
              rename Hg₂₃₄ into Hg₂₃.
              rename g₂₃ into g₂.
              rename g₂₃₄ into g₂₃.
@@ -2178,8 +2178,9 @@ induction n; intros.
              rename pol₄ into pol₃.
              rename Hpol₄ into Hpol₃.
              rename Hr₃ into Hr₂.
-             clear (*αj₃*) αk₃ Hoth₃ Hini₃ Hfin₃ Hαj₃ Hαk₃.
-rename αj₃ into H6.
+             remember (Z.to_nat (Qnum αj₃ * ' m₁ / ' Qden αj₃)) as g₀.
+             clear Heqg₀.
+             clear αj₃ αk₃ Hoth₃ Hini₃ Hfin₃ Hαj₃ Hαk₃.
              rename ns₃ into ns₂.
              rename ns₄ into ns₃.
              rename Hns₃ into Hns₂.
@@ -2237,6 +2238,49 @@ rename αj₃ into H6.
             eapply num_m_den_is_pos with (m := m₁) in H; eauto .
 
 (*preamble for 3*)
+            clear Hcmp.
+            assert (g₁ < i + di)%nat as Hcmp by fast_omega H Hg₂₃ Hcmp₁ H3.
+clear Hq₃.
+            assert (q_of_m m₁ (γ ns₃) = 1%positive) as Hq₃.
+             replace m₁ with (m₁ * 1)%positive by apply Pos.mul_1_r.
+             eapply q_eq_1 with (pol := pol₂) (pol₁ := pol₃); eauto .
+             rewrite Pos.mul_1_r; assumption.
+
+             remember Hns₂₁ as Hr₃; clear HeqHr₃.
+             eapply multiplicity_1_remains in Hr₃; eauto .
+
+             clear H₁ Hcmp₁.
+             rename Hg₂₃ into H5.
+             rename H into H6.
+             rename Hg₂₃₄ into Hg₂₃.
+             rename g₂₃ into g₂.
+             rename g₂₃₄ into g₂₃.
+             clear pol₂ Hpol₂ HK₂ Hns₂ Hps₁ Hns₂₁ Hc₂ Hpol₃ Hr₂.
+             clear ns₂ Hoth₂ Hini₂ Hfin₂ Hq₂.
+             rename pol₃ into pol₂.
+             rename pol₄ into pol₃.
+             rename Hpol₄ into Hpol₃.
+             rename Hr₃ into Hr₂.
+             remember (Z.to_nat (Qnum αj₃ * ' m₁ / ' Qden αj₃)) as g₀.
+             clear Heqg₀.
+             clear αj₃ αk₃ Hoth₃ Hini₃ Hfin₃ Hαj₃ Hαk₃.
+             rename ns₃ into ns₂.
+             rename ns₄ into ns₃.
+             rename Hns₃ into Hns₂.
+             rename Hns₃₁ into Hns₂₁.
+             rename Hns₄ into Hns₃.
+             clear c₂.
+             rename c₃ into c₂.
+             rename Hc₃ into Hc₂.
+             rewrite Nat.add_succ_l, <- Nat.add_succ_r in Heqid.
+             remember (S di) as dj.
+             subst di.
+             rename dj into di.
+             rename Heqdj into Hdi.
+             replace (S (i + 1)) with (i + di)%nat by omega.
+             rename HK₃ into HK₂.
+xxx.
+
             clear H₁.
             remember (S di) as dj.
             subst di.
@@ -2253,7 +2297,6 @@ rename αj₃ into H6.
             replace id with O by omega.
             reflexivity.
 
-Check Hcmp. Check Heqid. Check Hdi.
            clear (* pol₂*) Hns₂ Hns₂₁ Hc₂ Hpol₃ HK₂ Hr₂.
 rename pol₂ into H7.
            rename pol₃ into pol₂.
