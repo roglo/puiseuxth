@@ -2157,6 +2157,7 @@ induction n; intros.
 
 (*preamble for 2*)
             clear Hcmp.
+ccc.
             assert (g₁ < i + di)%nat as Hcmp by fast_omega H Hg₂₃ Hcmp₁.
             assert (q_of_m m₁ (γ ns₃) = 1%positive) as Hq₃.
              replace m₁ with (m₁ * 1)%positive by apply Pos.mul_1_r.
@@ -2167,8 +2168,8 @@ induction n; intros.
              eapply multiplicity_1_remains in Hr₃; eauto .
 
              clear H₁ Hcmp₁ Heqg₂.
-             rename Hg₂₃ into H3.
-             rename H into H4.
+             rename Hg₂₃ into Hggg.
+             rename H into Hgnz.
              rename Hg₂₃₄ into Hg₂₃.
              rename g₂₃ into g₂.
              rename g₂₃₄ into g₂₃.
@@ -2239,7 +2240,8 @@ induction n; intros.
 
 (*preamble for 3*)
             clear Hcmp.
-            assert (g₁ < i + di)%nat as Hcmp by fast_omega H Hg₂₃ Hcmp₁ H3.
+bbb.
+            assert (g₁ < i + di)%nat as Hcmp by fast_omega H Hg₂₃ Hcmp₁ Hggg.
 clear Hq₃.
             assert (q_of_m m₁ (γ ns₃) = 1%positive) as Hq₃.
              replace m₁ with (m₁ * 1)%positive by apply Pos.mul_1_r.
@@ -2253,6 +2255,7 @@ clear Hq₃.
              rename Hg₂₃ into H5.
              rename H into H6.
              rename Hg₂₃₄ into Hg₂₃.
+bbb.
              rename g₂₃ into g₂.
              rename g₂₃₄ into g₂₃.
              clear pol₂ Hpol₂ HK₂ Hns₂ Hps₁ Hns₂₁ Hc₂ Hpol₃ Hr₂.
