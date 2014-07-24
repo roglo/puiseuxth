@@ -2116,10 +2116,12 @@ induction n; intros.
            subst j.
 (*1*)
           destruct i.
-Check Hcmp. Check Heqid. Check Hdi.
-           destruct g₁; [ idtac | exfalso; fast_omega Hcmp Heqid Hdi ].
-           symmetry in Hnpow.
-           exfalso; revert Hnpow; apply Pos2Nat_ne_0.
+           destruct g₁.
+            symmetry in Hnpow.
+            exfalso; revert Hnpow; apply Pos2Nat_ne_0.
+
+            replace id with O by omega.
+            reflexivity.
 
            destruct id; [ exfalso; fast_omega Hcmp Heqid Hdi | simpl ].
            destruct (ps_zerop R (ps_poly_nth 0 pol₃)) as [H₁| H₁]; auto.
@@ -2192,10 +2194,12 @@ Check Hcmp. Check Heqid. Check Hdi.
              rename HK₃ into HK₂.
 (*2*)
           destruct i.
-Check Hcmp. Check Heqid. Check Hdi.
-           destruct g₁; [ idtac | exfalso; fast_omega Hcmp Heqid Hdi ].
-           symmetry in Hnpow.
-           exfalso; revert Hnpow; apply Pos2Nat_ne_0.
+           destruct g₁.
+            symmetry in Hnpow.
+            exfalso; revert Hnpow; apply Pos2Nat_ne_0.
+
+            replace id with O by omega.
+            reflexivity.
 
            destruct id; [ exfalso; fast_omega Hcmp Heqid Hdi | simpl ].
            destruct (ps_zerop R (ps_poly_nth 0 pol₃)) as [H₁| H₁]; auto.
@@ -2230,6 +2234,7 @@ Check Hcmp. Check Heqid. Check Hdi.
             eapply num_m_den_is_pos with (m := m₁) in H; eauto .
 
 (*preambl for 3*)
+            clear H₁.
             remember (S di) as dj.
             subst di.
             rename dj into di.
@@ -2238,12 +2243,19 @@ Check Hcmp. Check Heqid. Check Hdi.
 
 (*3*)
           destruct i.
-Check Hcmp. Check Heqid. Check Hdi.
-bbb.
-           destruct g₁; [ idtac | exfalso; fast_omega Hcmp Heqid Hdi ].
-           symmetry in Hnpow.
-           exfalso; revert Hnpow; apply Pos2Nat_ne_0.
+           destruct g₁.
+            symmetry in Hnpow.
+            exfalso; revert Hnpow; apply Pos2Nat_ne_0.
 
+            replace id with O by omega.
+            reflexivity.
+
+Check Hcmp. Check Heqid. Check Hdi.
+           clear pol₂ Hns₂ Hns₂₁ Hc₂ Hpol₃ HK₂ Hr₂.
+           rename pol₃ into pol₂.
+           rename pol₄ into pol₃.
+           destruct (ps_zerop R (ps_poly_nth 0 pol₃)) as [H₁| H₁]; auto.
+bbb.
            destruct id; [ exfalso; fast_omega Hcmp Heqid Hdi | simpl ].
            destruct (ps_zerop R (ps_poly_nth 0 pol₃)) as [H₁| H₁]; auto.
            unfold next_pow in Hg₂₃; simpl in Hg₂₃.
