@@ -2163,11 +2163,9 @@ induction n; intros.
              rename pol₄ into pol₃.
              rename Hr₃ into Hr₂.
              clear αj₃ αk₃ Hoth₃ Hini₃ Hfin₃ Hαj₃ Hαk₃.
-             clear Hns₂ Hns₂₁.
              rename Hns₃ into Hns₂.
              rename Hns₃₁ into Hns₂₁.
              rename Hns₄ into Hns₃.
-             rename Hns₄₁ into Hns₃₁.
 (*2*)
           destruct i.
            destruct g₂; [ idtac | exfalso; fast_omega Hcmp Heqid ].
