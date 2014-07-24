@@ -2100,6 +2100,15 @@ induction n; intros.
           remember (next_pow g₂ ns₃ m₁) as g₂₃ eqn:Hg₂₃ .
           apply nat_compare_lt in Hcmp.
           clear H₁ H₂.
+(*preamble for 1*)
+          assert (q_of_m m₁ (γ ns₂) = 1%positive) as Hq₂.
+           replace m₁ with (m₁ * 1)%positive by apply Pos.mul_1_r.
+           rewrite <- Heqm₁ in HinK1m₁.
+           eapply q_eq_1 with (pol := pol₁) (pol₁ := pol₂); eauto .
+           rewrite Pos.mul_1_r; assumption.
+
+           remember Hns₁₁ as Hr₂; clear HeqHr₂.
+           eapply multiplicity_1_remains in Hr₂; eauto .
 (*1*)
           destruct i.
            destruct g₂; [ idtac | exfalso; fast_omega Hcmp Heqid ].
@@ -2109,8 +2118,6 @@ induction n; intros.
            destruct id; [ exfalso; fast_omega Hcmp Heqid | simpl ].
            destruct (ps_zerop R (ps_poly_nth 0 pol₃)) as [H₁| H₁]; auto.
            unfold next_pow in Hg₂₃; simpl in Hg₂₃.
-           remember Hns₁₁ as Hr₂; clear HeqHr₂.
-           eapply multiplicity_1_remains in Hr₂; eauto .
            remember Hr₂ as H; clear HeqH.
            eapply r_1_next_ns in H; eauto .
            destruct H as (αj₃, (αk₃, H)).
@@ -2133,28 +2140,24 @@ induction n; intros.
             eqn:Hns₄ .
            remember (next_pow g₂₃ ns₄ m₁) as g₂₃₄ eqn:Hg₂₃₄.
            apply nat_compare_lt in Hcmp₁.
-           remember Hns₃₁ as H; clear HeqH.
            assert (ps_lap_forall (λ a, in_K_1_m a m₁) (al pol₃)) as HK₃.
             replace m₁ with (m₁ * 1)%positive by apply Pos.mul_1_r.
             eapply next_pol_in_K_1_mq with (pol := pol₂); eauto .
-            symmetry.
-            replace m₁ with (m₁ * 1)%positive by apply Pos.mul_1_r.
-            eapply q_eq_1 with (pol := pol₁) (pol₁ := pol₂); eauto .
-             rewrite Heqm₁; assumption.
 
-             rewrite Pos.mul_1_r; assumption.
-
+(*preamble for 2*)
+            remember Hns₃₁ as H; clear HeqH.
             eapply num_m_den_is_pos with (m := m₁) in H; eauto .
             clear Hcmp.
             assert (g₂ < S i)%nat as Hcmp by fast_omega H Hg₂₃ Hcmp₁.
-            assert (q_of_m m₁ (γ ns₃) = 1%positive) as Hq₁.
+            assert (q_of_m m₁ (γ ns₃) = 1%positive) as Hq₃.
              replace m₁ with (m₁ * 1)%positive by apply Pos.mul_1_r.
              eapply q_eq_1 with (pol := pol₂) (pol₁ := pol₃); eauto .
              rewrite Pos.mul_1_r; assumption.
 
              remember Hns₂₁ as Hr₃; clear HeqHr₃.
              eapply multiplicity_1_remains in Hr₃; eauto .
-             clear H₁.
+             clear H₁ Hg₂₃ H Hcmp₁.
+             rename Hg₂₃₄ into Hg₂₃.
 (*2*)
           destruct i.
            destruct g₂; [ idtac | exfalso; fast_omega Hcmp Heqid ].
@@ -2163,35 +2166,34 @@ induction n; intros.
 
            destruct id; [ exfalso; fast_omega Hcmp Heqid | simpl ].
            destruct (ps_zerop R (ps_poly_nth 0 pol₄)) as [H₁| H₁]; auto.
-           unfold next_pow in Hg₂₃₄; simpl in Hg₂₃₄.
-           rename H into Hnmd₃.
+           unfold next_pow in Hg₂₃; simpl in Hg₂₃.
            remember Hr₃ as H; clear HeqH.
            eapply r_1_next_ns in H; eauto .
            destruct H as (αj₄, (αk₄, H)).
            destruct H as (Hoth₄, (Hini₄, (Hfin₄, (Hαj₄, Hαk₄)))).
-           rewrite Hini₄, Hfin₄ in Hg₂₃₄; simpl in Hg₂₃₄.
-           rewrite Hαk₄ in Hg₂₃₄; simpl in Hg₂₃₄.
-           rewrite Z.add_0_r, Z.mul_1_r in Hg₂₃₄.
-           do 2 rewrite Pos.mul_1_r in Hg₂₃₄.
-           rewrite Z.mul_shuffle0 in Hg₂₃₄.
-           rewrite Pos2Z.inj_mul in Hg₂₃₄.
-           rewrite Z.div_mul_cancel_r in Hg₂₃₄; auto.
+           rewrite Hini₄, Hfin₄ in Hg₂₃; simpl in Hg₂₃.
+           rewrite Hαk₄ in Hg₂₃; simpl in Hg₂₃.
+           rewrite Z.add_0_r, Z.mul_1_r in Hg₂₃.
+           do 2 rewrite Pos.mul_1_r in Hg₂₃.
+           rewrite Z.mul_shuffle0 in Hg₂₃.
+           rewrite Pos2Z.inj_mul in Hg₂₃.
+           rewrite Z.div_mul_cancel_r in Hg₂₃; auto.
            remember Hns₄ as Hns₄₁; clear HeqHns₄₁.
            eapply hd_newton_segments in Hns₄₁; eauto .
-           remember (Nat.compare g₂₃₄ (S (S (S i)))) as cmp₂ eqn:Hcmp₂ .
-           symmetry in Hcmp₂.
-           destruct cmp₂; auto.
+           remember (Nat.compare g₂₃₄ (S (S (S i)))) as cmp₁ eqn:Hcmp₁ .
+           symmetry in Hcmp₁.
+           destruct cmp₁; auto.
            remember (ac_root (Φq pol₄ ns₄)) as c₄ eqn:Hc₄ .
            remember (next_pol pol₄ (β ns₄) (γ ns₄) c₄) as pol₅ eqn:Hpol₅ .
            remember (List.hd phony_ns (newton_segments pol₅)) as ns₅
             eqn:Hns₅ .
            remember (next_pow g₂₃₄ ns₅ m₁) as g₂₃₄₅.
-           apply nat_compare_lt in Hcmp₂.
-           remember Hns₄₁ as H; clear HeqH.
+           apply nat_compare_lt in Hcmp₁.
            assert (ps_lap_forall (λ a, in_K_1_m a m₁) (al pol₄)) as HK₄.
             replace m₁ with (m₁ * 1)%positive by apply Pos.mul_1_r.
             eapply next_pol_in_K_1_mq with (pol := pol₃); eauto .
 
+            remember Hns₄₁ as H; clear HeqH.
             eapply num_m_den_is_pos with (m := m₁) in H; eauto .
 bbb.
           rewrite qqq with (d := (g₂ - 1)%nat).
