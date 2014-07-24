@@ -2192,6 +2192,7 @@ Check Hcmp. Check Heqid. Check Hdi.
              rename HK₃ into HK₂.
 (*2*)
           destruct i.
+Check Hcmp. Check Heqid. Check Hdi.
            destruct g₁; [ idtac | exfalso; fast_omega Hcmp Heqid Hdi ].
            symmetry in Hnpow.
            exfalso; revert Hnpow; apply Pos2Nat_ne_0.
