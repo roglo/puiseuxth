@@ -2159,6 +2159,10 @@ induction n; intros.
              clear H₁ Hg₂₃ H Hcmp₁.
              rename Hg₂₃₄ into Hg₂₃.
              clear pol₂ Hpol₂ HK₂ Hns₂ Hps₁ Hns₂₁ Hc₂ Hpol₃ Hr₂.
+             rename pol₃ into pol₂.
+             rename pol₄ into pol₃.
+             rename Hr₃ into Hr₂.
+             clear αj₃ αk₃ Hoth₃ Hini₃ Hfin₃ Hαj₃ Hαk₃.
 (*2*)
           destruct i.
            destruct g₂; [ idtac | exfalso; fast_omega Hcmp Heqid ].
@@ -2166,14 +2170,14 @@ induction n; intros.
            exfalso; revert Hnpow; apply Pos2Nat_ne_0.
 
            destruct id; [ exfalso; fast_omega Hcmp Heqid | simpl ].
-           destruct (ps_zerop R (ps_poly_nth 0 pol₄)) as [H₁| H₁]; auto.
+           destruct (ps_zerop R (ps_poly_nth 0 pol₃)) as [H₁| H₁]; auto.
            unfold next_pow in Hg₂₃; simpl in Hg₂₃.
-           remember Hr₃ as H; clear HeqH.
+           remember Hr₂ as H; clear HeqH.
            eapply r_1_next_ns in H; eauto .
-           destruct H as (αj₄, (αk₄, H)).
-           destruct H as (Hoth₄, (Hini₄, (Hfin₄, (Hαj₄, Hαk₄)))).
-           rewrite Hini₄, Hfin₄ in Hg₂₃; simpl in Hg₂₃.
-           rewrite Hαk₄ in Hg₂₃; simpl in Hg₂₃.
+           destruct H as (αj₃, (αk₃, H)).
+           destruct H as (Hoth₃, (Hini₃, (Hfin₃, (Hαj₃, Hαk₃)))).
+           rewrite Hini₃, Hfin₃ in Hg₂₃; simpl in Hg₂₃.
+           rewrite Hαk₃ in Hg₂₃; simpl in Hg₂₃.
            rewrite Z.add_0_r, Z.mul_1_r in Hg₂₃.
            do 2 rewrite Pos.mul_1_r in Hg₂₃.
            rewrite Z.mul_shuffle0 in Hg₂₃.
@@ -2184,15 +2188,15 @@ induction n; intros.
            remember (Nat.compare g₂₃₄ (S (S (S i)))) as cmp₁ eqn:Hcmp₁ .
            symmetry in Hcmp₁.
            destruct cmp₁; auto.
-           remember (ac_root (Φq pol₄ ns₄)) as c₄ eqn:Hc₄ .
-           remember (next_pol pol₄ (β ns₄) (γ ns₄) c₄) as pol₅ eqn:Hpol₅ .
+           remember (ac_root (Φq pol₃ ns₄)) as c₄ eqn:Hc₄ .
+           remember (next_pol pol₃ (β ns₄) (γ ns₄) c₄) as pol₅ eqn:Hpol₅ .
            remember (List.hd phony_ns (newton_segments pol₅)) as ns₅
             eqn:Hns₅ .
            remember (next_pow g₂₃₄ ns₅ m₁) as g₂₃₄₅.
            apply nat_compare_lt in Hcmp₁.
-           assert (ps_lap_forall (λ a, in_K_1_m a m₁) (al pol₄)) as HK₄.
+           assert (ps_lap_forall (λ a, in_K_1_m a m₁) (al pol₃)) as HK₄.
             replace m₁ with (m₁ * 1)%positive by apply Pos.mul_1_r.
-            eapply next_pol_in_K_1_mq with (pol := pol₃); eauto .
+            eapply next_pol_in_K_1_mq with (pol := pol₂); eauto .
 
             remember Hns₄₁ as H; clear HeqH.
             eapply num_m_den_is_pos with (m := m₁) in H; eauto .
