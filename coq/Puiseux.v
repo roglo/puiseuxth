@@ -2268,7 +2268,8 @@ Check Hcmp. Check Heqid. Check Hdi.
 *)rename pol₂ into H29; rename Hns₂ into H30; rename Hns₂₁ into H31; rename Hc₂ into H32; rename Hpol₃ into H33; rename HK₂ into H34; rename Hr₂ into H35.
            rename pol₃ into pol₂.
            rename pol₄ into pol₃.
-           destruct id; [ exfalso; omega | simpl ].
+                 destruct id.
+                  exfalso; fast_omega Heqid Hcmp₁ H Hg₂₃ H3 H4.
 bbb.
            destruct id; [ exfalso; fast_omega Hcmp Heqid Hdi | simpl ].
            destruct (ps_zerop R (ps_poly_nth 0 pol₃)) as [H₁| H₁]; auto.
