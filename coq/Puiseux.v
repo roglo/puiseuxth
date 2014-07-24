@@ -1862,10 +1862,10 @@ induction n; intros.
   rewrite Z.mul_1_r in Hαj₁, Hαk₁.
   remember Hns₁ as Hns₁₁; clear HeqHns₁₁.
   eapply hd_newton_segments in Hns₁₁; eauto .
-  remember Hns₁₁ as HinK₁; clear HeqHinK₁.
-  eapply next_pol_in_K_1_mq in HinK₁; eauto .
-  erewrite q_eq_1 with (q₀ := q₀) (ns := ns) in HinK₁; eauto .
-  rewrite Pos.mul_1_r, <- Heqm₁ in HinK₁.
+  remember Hns₁₁ as HK₂; clear HeqHK₂.
+  eapply next_pol_in_K_1_mq in HK₂; eauto .
+  erewrite q_eq_1 with (q₀ := q₀) (ns := ns) in HK₂; eauto .
+  rewrite Pos.mul_1_r, <- Heqm₁ in HK₂.
   unfold γ_sum; simpl.
   unfold summation; simpl.
   do 2 rewrite rng_add_0_r.
@@ -2158,6 +2158,7 @@ induction n; intros.
              eapply multiplicity_1_remains in Hr₃; eauto .
              clear H₁ Hg₂₃ H Hcmp₁.
              rename Hg₂₃₄ into Hg₂₃.
+             clear pol₂ Hpol₂ HK₂ Hns₂ Hps₁ Hns₂₁ Hc₂ Hpol₃ Hr₂.
 (*2*)
           destruct i.
            destruct g₂; [ idtac | exfalso; fast_omega Hcmp Heqid ].
