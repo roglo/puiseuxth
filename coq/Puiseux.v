@@ -2257,6 +2257,10 @@ bbb.
              rename H into Hgnz.
 Hgnz
      : (0 < g₀)%nat
+H
+     : (0 < Z.to_nat (Qnum αj₃ * ' m₁ / ' Qden αj₃))%nat
+Hggg
+     : g₂₃ = (g₁ + g₀ + Z.to_nat (Qnum αj₃ * ' m₁ / ' Qden αj₃))%nat
 
 (*3*)
           destruct i.
