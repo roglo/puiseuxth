@@ -2147,6 +2147,14 @@ induction n; intros.
             eapply num_m_den_is_pos with (m := m₁) in H; eauto .
             clear Hcmp.
             assert (g₂ < S i)%nat as Hcmp by fast_omega H Hg₂₃ Hcmp₁.
+            assert (q_of_m m₁ (γ ns₃) = 1%positive) as Hq₁.
+             replace m₁ with (m₁ * 1)%positive by apply Pos.mul_1_r.
+             eapply q_eq_1 with (pol := pol₂) (pol₁ := pol₃); eauto .
+             rewrite Pos.mul_1_r; assumption.
+
+             remember Hns₂₁ as Hr₃; clear HeqHr₃.
+             eapply multiplicity_1_remains in Hr₃; eauto .
+             clear H₁.
 (*2*)
           destruct i.
            destruct g₂; [ idtac | exfalso; fast_omega Hcmp Heqid ].
@@ -2154,10 +2162,8 @@ induction n; intros.
            exfalso; revert Hnpow; apply Pos2Nat_ne_0.
 
            destruct id; [ exfalso; fast_omega Hcmp Heqid | simpl ].
-           destruct (ps_zerop R (ps_poly_nth 0 pol₄)) as [H₂| H₂]; auto.
+           destruct (ps_zerop R (ps_poly_nth 0 pol₄)) as [H₁| H₁]; auto.
            unfold next_pow in Hg₂₃₄; simpl in Hg₂₃₄.
-           remember Hns₂₁ as Hr₃; clear HeqHr₃.
-           eapply multiplicity_1_remains in Hr₃; eauto .
            rename H into Hnmd₃.
            remember Hr₃ as H; clear HeqH.
            eapply r_1_next_ns in H; eauto .
@@ -2185,10 +2191,6 @@ induction n; intros.
            assert (ps_lap_forall (λ a, in_K_1_m a m₁) (al pol₄)) as HK₄.
             replace m₁ with (m₁ * 1)%positive by apply Pos.mul_1_r.
             eapply next_pol_in_K_1_mq with (pol := pol₃); eauto .
-            symmetry.
-            replace m₁ with (m₁ * 1)%positive by apply Pos.mul_1_r.
-            eapply q_eq_1 with (pol := pol₂) (pol₁ := pol₃); eauto .
-            rewrite Pos.mul_1_r; assumption.
 
             eapply num_m_den_is_pos with (m := m₁) in H; eauto .
 bbb.
