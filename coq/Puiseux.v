@@ -2149,9 +2149,10 @@ induction n; intros.
             replace m₁ with (m₁ * 1)%positive by apply Pos.mul_1_r.
             eapply next_pol_in_K_1_mq with (pol := pol₂); eauto .
 
-(*preamble for 2*)
             remember Hns₃₁ as H; clear HeqH.
             eapply num_m_den_is_pos with (m := m₁) in H; eauto .
+
+(*preamble for 2*)
             clear Hcmp.
             assert (g₁ < i + di)%nat as Hcmp by fast_omega H Hg₂₃ Hcmp₁.
             assert (q_of_m m₁ (γ ns₃) = 1%positive) as Hq₃.
@@ -2167,19 +2168,27 @@ induction n; intros.
              rename g₂₃ into g₂.
              rename g₂₃₄ into g₂₃.
              clear pol₂ Hpol₂ HK₂ Hns₂ Hps₁ Hns₂₁ Hc₂ Hpol₃ Hr₂.
+             clear ns₂ Hoth₂ Hini₂ Hfin₂ Hq₂.
              rename pol₃ into pol₂.
              rename pol₄ into pol₃.
+             rename Hpol₄ into Hpol₃.
              rename Hr₃ into Hr₂.
              clear αj₃ αk₃ Hoth₃ Hini₃ Hfin₃ Hαj₃ Hαk₃.
+             rename ns₃ into ns₂.
+             rename ns₄ into ns₃.
              rename Hns₃ into Hns₂.
              rename Hns₃₁ into Hns₂₁.
              rename Hns₄ into Hns₃.
+             clear c₂.
+             rename c₃ into c₂.
+             rename Hc₃ into Hc₂.
              rewrite Nat.add_succ_l, <- Nat.add_succ_r in Heqid.
              remember (S di) as dj.
              subst di.
              rename dj into di.
              rename Heqdj into Hdi.
              replace (S (i + 1)) with (i + di)%nat by omega.
+             rename HK₃ into HK₂.
 (*2*)
           destruct i.
            destruct g₁; [ idtac | exfalso; fast_omega Hcmp Heqid Hdi ].
@@ -2205,13 +2214,13 @@ induction n; intros.
            remember (Nat.compare g₂₃ (S (i + di))) as cmp₁ eqn:Hcmp₁ .
            symmetry in Hcmp₁.
            destruct cmp₁; auto.
-           remember (ac_root (Φq pol₃ ns₄)) as c₄ eqn:Hc₄ .
-           remember (next_pol pol₃ (β ns₄) (γ ns₄) c₄) as pol₅ eqn:Hpol₅ .
-           remember (List.hd phony_ns (newton_segments pol₅)) as ns₅
-            eqn:Hns₅ .
-           remember (next_pow g₂₃ ns₅ m₁) as g₂₃₅.
+           remember (ac_root (Φq pol₃ ns₃)) as c₃ eqn:Hc₃ .
+           remember (next_pol pol₃ (β ns₃) (γ ns₃) c₃) as pol₄ eqn:Hpol₄ .
+           remember (List.hd phony_ns (newton_segments pol₄)) as ns₄
+            eqn:Hns₄ .
+           remember (next_pow g₂₃ ns₄ m₁) as g₂₃₄ eqn:Hg₂₃₄.
            apply nat_compare_lt in Hcmp₁.
-           assert (ps_lap_forall (λ a, in_K_1_m a m₁) (al pol₃)) as HK₄.
+           assert (ps_lap_forall (λ a, in_K_1_m a m₁) (al pol₃)) as HK₃.
             replace m₁ with (m₁ * 1)%positive by apply Pos.mul_1_r.
             eapply next_pol_in_K_1_mq with (pol := pol₂); eauto .
 
