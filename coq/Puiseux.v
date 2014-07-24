@@ -2240,8 +2240,9 @@ clear Heqg₂.
 
 (*preamble for 3*)
 clear Hq₃.
+subst g₂.
             clear Hcmp.
-            assert (g₁ < i + di)%nat as Hcmp by fast_omega H Hg₂₃ Hcmp₁ Hggg.
+            assert (g₁ < i + di)%nat as Hcmp by fast_omega H Hg₂₃ Hcmp₁.
             assert (q_of_m m₁ (γ ns₃) = 1%positive) as Hq₃.
              replace m₁ with (m₁ * 1)%positive by apply Pos.mul_1_r.
              eapply q_eq_1 with (pol := pol₂) (pol₁ := pol₃); eauto .
@@ -2251,7 +2252,11 @@ clear Hq₃.
              eapply multiplicity_1_remains in Hr₃; eauto .
 
              clear H₁ Hcmp₁.
+             rename Hg₂₃ into Hggg.
 bbb.
+             rename H into Hgnz.
+Hgnz
+     : (0 < g₀)%nat
 
 (*3*)
           destruct i.
