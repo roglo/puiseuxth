@@ -2110,13 +2110,17 @@ induction n; intros.
            remember Hns₁₁ as Hr₂; clear HeqHr₂.
            eapply multiplicity_1_remains in Hr₂; eauto .
            rename g₂ into g₁.
+           remember (S i) as j.
+           rewrite <- Nat.add_1_r in Heqj.
+           remember 1%nat as di eqn:Hdi in Heqj.
+           subst j.
 (*1*)
           destruct i.
-           destruct g₁; [ idtac | exfalso; fast_omega Hcmp Heqid ].
+           destruct g₁; [ idtac | exfalso; fast_omega Hcmp Heqid Hdi ].
            symmetry in Hnpow.
            exfalso; revert Hnpow; apply Pos2Nat_ne_0.
 
-           destruct id; [ exfalso; fast_omega Hcmp Heqid | simpl ].
+           destruct id; [ exfalso; fast_omega Hcmp Heqid Hdi | simpl ].
            destruct (ps_zerop R (ps_poly_nth 0 pol₃)) as [H₁| H₁]; auto.
            unfold next_pow in Hg₂₃; simpl in Hg₂₃.
            remember Hr₂ as H; clear HeqH.
@@ -2132,7 +2136,7 @@ induction n; intros.
            rewrite Z.div_mul_cancel_r in Hg₂₃; auto.
            remember Hns₃ as Hns₃₁; clear HeqHns₃₁.
            eapply hd_newton_segments in Hns₃₁; eauto .
-           remember (Nat.compare g₂₃ (S (S i))) as cmp₁ eqn:Hcmp₁ .
+           remember (Nat.compare g₂₃ (S (i + di))) as cmp₁ eqn:Hcmp₁ .
            symmetry in Hcmp₁.
            destruct cmp₁; auto.
            remember (ac_root (Φq pol₃ ns₃)) as c₃ eqn:Hc₃ .
@@ -2149,7 +2153,7 @@ induction n; intros.
             remember Hns₃₁ as H; clear HeqH.
             eapply num_m_den_is_pos with (m := m₁) in H; eauto .
             clear Hcmp.
-            assert (g₁ < S i)%nat as Hcmp by fast_omega H Hg₂₃ Hcmp₁.
+            assert (g₁ < i + di)%nat as Hcmp by fast_omega H Hg₂₃ Hcmp₁.
             assert (q_of_m m₁ (γ ns₃) = 1%positive) as Hq₃.
              replace m₁ with (m₁ * 1)%positive by apply Pos.mul_1_r.
              eapply q_eq_1 with (pol := pol₂) (pol₁ := pol₃); eauto .
@@ -2170,13 +2174,19 @@ induction n; intros.
              rename Hns₃ into Hns₂.
              rename Hns₃₁ into Hns₂₁.
              rename Hns₄ into Hns₃.
+             rewrite Nat.add_succ_l, <- Nat.add_succ_r in Heqid.
+             remember (S di) as dj.
+             subst di.
+             rename dj into di.
+             rename Heqdj into Hdi.
+             replace (S (i + 1)) with (i + di)%nat by omega.
 (*2*)
           destruct i.
-           destruct g₁; [ idtac | exfalso; fast_omega Hcmp Heqid ].
+           destruct g₁; [ idtac | exfalso; fast_omega Hcmp Heqid Hdi ].
            symmetry in Hnpow.
            exfalso; revert Hnpow; apply Pos2Nat_ne_0.
 
-           destruct id; [ exfalso; fast_omega Hcmp Heqid | simpl ].
+           destruct id; [ exfalso; fast_omega Hcmp Heqid Hdi | simpl ].
            destruct (ps_zerop R (ps_poly_nth 0 pol₃)) as [H₁| H₁]; auto.
            unfold next_pow in Hg₂₃; simpl in Hg₂₃.
            remember Hr₂ as H; clear HeqH.
@@ -2192,7 +2202,7 @@ induction n; intros.
            rewrite Z.div_mul_cancel_r in Hg₂₃; auto.
            remember Hns₃ as Hns₃₁; clear HeqHns₃₁.
            eapply hd_newton_segments in Hns₃₁; eauto .
-           remember (Nat.compare g₂₃ (S (S (S i)))) as cmp₁ eqn:Hcmp₁ .
+           remember (Nat.compare g₂₃ (S (i + di))) as cmp₁ eqn:Hcmp₁ .
            symmetry in Hcmp₁.
            destruct cmp₁; auto.
            remember (ac_root (Φq pol₃ ns₄)) as c₄ eqn:Hc₄ .
