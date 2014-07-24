@@ -2102,7 +2102,7 @@ induction n; intros.
           clear H₁ H₂.
 (*1*)
           destruct i.
-           destruct g₂; [ idtac | exfalso; omega ].
+           destruct g₂; [ idtac | exfalso; fast_omega Hcmp Heqid ].
            symmetry in Hnpow.
            exfalso; revert Hnpow; apply Pos2Nat_ne_0.
 
@@ -2145,14 +2145,15 @@ induction n; intros.
              rewrite Pos.mul_1_r; assumption.
 
             eapply num_m_den_is_pos with (m := m₁) in H; eauto .
-
+            clear Hcmp.
+            assert (g₂ < S i)%nat as Hcmp by fast_omega H Hg₂₃ Hcmp₁.
 (*2*)
           destruct i.
-           destruct g₂; [ idtac | exfalso; omega ].
+           destruct g₂; [ idtac | exfalso; fast_omega Hcmp Heqid ].
            symmetry in Hnpow.
            exfalso; revert Hnpow; apply Pos2Nat_ne_0.
 
-           destruct id; [ exfalso; omega | simpl ].
+           destruct id; [ exfalso; fast_omega Hcmp Heqid | simpl ].
            destruct (ps_zerop R (ps_poly_nth 0 pol₄)) as [H₂| H₂]; auto.
            unfold next_pow in Hg₂₃₄; simpl in Hg₂₃₄.
            remember Hns₂₁ as Hr₃; clear HeqHr₃.
