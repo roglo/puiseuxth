@@ -2156,9 +2156,7 @@ induction n; intros.
             eapply num_m_den_is_pos with (m := m₁) in H; eauto .
 
 (*preamble for 2*)
-(*
             clear Hcmp.
-*)rename Hcmp into H1.
             assert (g₁ < i + di)%nat as Hcmp by fast_omega H Hg₂₃ Hcmp₁.
             assert (q_of_m m₁ (γ ns₃) = 1%positive) as Hq₃.
              replace m₁ with (m₁ * 1)%positive by apply Pos.mul_1_r.
@@ -2170,31 +2168,24 @@ induction n; intros.
 (*
              clear H₁ Hg₂₃ H Hcmp₁.
              clear Heqg₂.
-*)rename H₁ into H2; rename Hg₂₃ into H3; rename H into H4; rename Hcmp₁ into H5; rename Heqg₂ into H6.
+*)rename H₁ into H2; rename Hg₂₃ into H3; rename H into H4; rename Hcmp₁ into H5; clear Heqg₂.
              rename Hg₂₃₄ into Hg₂₃.
              rename g₂₃ into g₂.
              rename g₂₃₄ into g₂₃.
-(*
              clear pol₂ Hpol₂ HK₂ Hns₂ Hps₁ Hns₂₁ Hc₂ Hpol₃ Hr₂.
-*)rename pol₂ into H7; rename Hpol₂ into H8; rename HK₂ into H9; rename Hns₂ into H10; rename Hps₁ into H11; rename Hns₂₁ into H12; rename Hc₂ into H13; rename  Hpol₃ into H14; rename Hr₂ into H15.
-(*
              clear ns₂ Hoth₂ Hini₂ Hfin₂ Hq₂.
-*)rename ns₂ into H16; rename Hoth₂ into H17; rename Hini₂ into H18; rename Hfin₂ into H19; rename Hq₂ into H20.
              rename pol₃ into pol₂.
              rename pol₄ into pol₃.
              rename Hpol₄ into Hpol₃.
              rename Hr₃ into Hr₂.
-(*
-             clear αj₃ αk₃ Hoth₃ Hini₃ Hfin₃ Hαj₃ Hαk₃.
-*)rename αj₃ into H21; rename αk₃ into H22; rename Hoth₃ into H23; rename  Hini₃ into H24; rename Hfin₃ into H25; rename Hαj₃ into H26; rename Hαk₃ into H27.
+             clear (*αj₃*) αk₃ Hoth₃ Hini₃ Hfin₃ Hαj₃ Hαk₃.
+rename αj₃ into H6.
              rename ns₃ into ns₂.
              rename ns₄ into ns₃.
              rename Hns₃ into Hns₂.
              rename Hns₃₁ into Hns₂₁.
              rename Hns₄ into Hns₃.
-(*
              clear c₂.
-*)rename c₂ into H28.
              rename c₃ into c₂.
              rename Hc₃ into Hc₂.
              rewrite Nat.add_succ_l, <- Nat.add_succ_r in Heqid.
@@ -2245,7 +2236,7 @@ induction n; intros.
             remember Hns₃₁ as H; clear HeqH.
             eapply num_m_den_is_pos with (m := m₁) in H; eauto .
 
-(*preambl for 3*)
+(*preamble for 3*)
             clear H₁.
             remember (S di) as dj.
             subst di.
@@ -2263,13 +2254,17 @@ induction n; intros.
             reflexivity.
 
 Check Hcmp. Check Heqid. Check Hdi.
-(*
-           clear pol₂ Hns₂ Hns₂₁ Hc₂ Hpol₃ HK₂ Hr₂.
-*)rename pol₂ into H29; rename Hns₂ into H30; rename Hns₂₁ into H31; rename Hc₂ into H32; rename Hpol₃ into H33; rename HK₂ into H34; rename Hr₂ into H35.
+           clear (* pol₂*) Hns₂ Hns₂₁ Hc₂ Hpol₃ HK₂ Hr₂.
+rename pol₂ into H7.
            rename pol₃ into pol₂.
            rename pol₄ into pol₃.
                  destruct id.
                   exfalso; fast_omega Heqid Hcmp₁ H Hg₂₃ H3 H4.
+
+                  simpl.
+                  destruct (ps_zerop R (ps_poly_nth 0 pol₃)) as [H₁| H₁];
+                   auto.
+                  unfold next_pow in Hg₂₃; simpl in Hg₂₃.
 bbb.
            destruct id; [ exfalso; fast_omega Hcmp Heqid Hdi | simpl ].
            destruct (ps_zerop R (ps_poly_nth 0 pol₃)) as [H₁| H₁]; auto.
