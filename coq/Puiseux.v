@@ -2343,6 +2343,7 @@ subst g₂.
              clear H₁.
 bbb.
              rename Hcmp₁ into Hcmp₂.
+bbb.
 (*
   Hcmp : (g₁ < i + di)%nat
   Hcmp₂ : (g₁ + g₀ < S (S i + 2))%nat
