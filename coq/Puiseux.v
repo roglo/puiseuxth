@@ -2350,6 +2350,7 @@ bbb.
   Hcmp₁ : (g₂₃ < S (i + di))%nat
   H : (0 < Z.to_nat (Qnum αj₃ * ' m₁ / ' Qden αj₃))%nat
   Hg₂₃ : g₂₃ = (g₁ + g₀ + Z.to_nat (Qnum αj₃ * ' m₁ / ' Qden αj₃))%nat
+  Hdi : di = 3
 *)
 bbb.
 
