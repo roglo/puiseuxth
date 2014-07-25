@@ -335,7 +335,7 @@ induction n; intros.
            revert g₁ id i di Hg₁ Hg₂₃ Heqid Hcmp Hdi Hr₂ Hpol₃ Hns₃ Hns₂₁ Hc₂
             Hq₂ HK₂; clear; intros.
            revert m₁ pol₂ ns₂ c₂ pol₃ ns₃ g₁ g₂₃ i di id Hns₂₁ HK₂ Hq₂ Hc₂ Hr₂
-            Hpol₃ Hns₃ Hdi Hg₁ Hcmp Hg₂₃ Heqid.
+            Hpol₃ Hns₃ Heqid Hdi Hg₁ Hcmp Hg₂₃.
            intros.
 (*1*)
            destruct i.
@@ -393,6 +393,7 @@ induction n; intros.
               rename g₂₃₄ into g₂₃.
               clear pol₂ HK₂ Hns₂₁ Hc₂ Hpol₃ Hr₂.
               clear ns₂ Hq₂.
+              rename Hq₃ into Hq₂.
               rename pol₃ into pol₂.
               rename pol₄ into pol₃.
               rename Hpol₄ into Hpol₃.
@@ -413,8 +414,9 @@ induction n; intros.
               rename Heqdj into Hdi.
               replace (S (i + 1)) with (i + di)%nat by omega.
               rename HK₃ into HK₂.
-           revert m₁ pol₂ ns₂ c₂ pol₃ ns₃ g₀ g₁ g₂ g₂₃ i di id Hns₂₁ HK₂ Hq₃
-            Hc₂ Hr₂ Hpol₃ Hns₃ Hdi Hgnz Hg₁ Hcmp Hg₂₃ Heqid Hns₂ Hggg.
+           clear Hns₂.
+           revert m₁ pol₂ ns₂ c₂ pol₃ ns₃ g₀ g₁ g₂ g₂₃ i di id Hns₂₁ HK₂ Hq₂
+            Hc₂ Hr₂ Hpol₃ Hns₃ Heqid Hdi Hgnz Hg₁ Hcmp Hg₂₃ Hggg.
            intros.
 (*2*)
            destruct i.
@@ -453,11 +455,11 @@ induction n; intros.
              remember Hns₃₁ as H; clear HeqH.
              eapply num_m_den_is_pos with (m := m₁) in H; eauto .
 (**)
-             clear Hq₃.
+             clear Hq₂.
              subst g₂.
              clear Hcmp.
              assert (g₁ < i + di)%nat as Hcmp by fast_omega H Hg₂₃ Hcmp₁.
-             assert (q_of_m m₁ (γ ns₃) = 1%positive) as Hq₃.
+             assert (q_of_m m₁ (γ ns₃) = 1%positive) as Hq₂.
               replace m₁ with (m₁ * 1)%positive by apply Pos.mul_1_r.
               eapply q_eq_1 with (pol := pol₂) (pol₁ := pol₃); eauto .
               rewrite Pos.mul_1_r; assumption.
@@ -477,7 +479,7 @@ induction n; intros.
               rename Hg₂₃₄ into Hg₂₃.
               rename g₂₃ into g₂.
               rename g₂₃₄ into g₂₃.
-              clear pol₂ HK₂ Hns₂ Hns₂₁ Hc₂ Hpol₃ Hr₂.
+              clear pol₂ HK₂ Hns₂₁ Hc₂ Hpol₃ Hr₂.
               clear ns₂.
               rename pol₃ into pol₂.
               rename pol₄ into pol₃.
@@ -536,11 +538,11 @@ induction n; intros.
              remember Hns₃₁ as H; clear HeqH.
              eapply num_m_den_is_pos with (m := m₁) in H; eauto .
 (**)
-             clear Hq₃.
+             clear Hq₂.
              subst g₂.
              clear Hcmp.
              assert (g₁ < i + di)%nat as Hcmp by fast_omega H Hg₂₃ Hcmp₁.
-             assert (q_of_m m₁ (γ ns₃) = 1%positive) as Hq₃.
+             assert (q_of_m m₁ (γ ns₃) = 1%positive) as Hq₂.
               replace m₁ with (m₁ * 1)%positive by apply Pos.mul_1_r.
               eapply q_eq_1 with (pol := pol₂) (pol₁ := pol₃); eauto .
               rewrite Pos.mul_1_r; assumption.
