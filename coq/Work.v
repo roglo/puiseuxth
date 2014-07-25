@@ -333,6 +333,9 @@ induction n; intros.
            rewrite <- Nat.add_1_r in Heqj.
            remember 1%nat as di eqn:Hdi in Heqj.
            subst j.
+
+revert g₁ id i di Heqg₂ Hnpow Hg₂₃ Heqid Hcmp Hdi Hr₂ Hpol₃ Hns₃ Hns₂₁ Hc₂ Hq₂ HK₂; clear; intros.
+
 (*1*)
           destruct i.
            destruct g₁.
@@ -393,8 +396,8 @@ clear Heqg₂.
              rename Hg₂₃₄ into Hg₂₃.
              rename g₂₃ into g₂.
              rename g₂₃₄ into g₂₃.
-             clear pol₂ Hpol₂ HK₂ Hns₂ Hps₁ Hns₂₁ Hc₂ Hpol₃ Hr₂.
-             clear ns₂ Hoth₂ Hini₂ Hfin₂ Hq₂.
+             clear pol₂ (*Hpol₂*) HK₂ (*Hns₂ Hps₁*) Hns₂₁ Hc₂ Hpol₃ Hr₂.
+             clear ns₂ (*Hoth₂ Hini₂ Hfin₂*) Hq₂.
              rename pol₃ into pol₂.
              rename pol₄ into pol₃.
              rename Hpol₄ into Hpol₃.
