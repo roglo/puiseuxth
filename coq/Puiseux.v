@@ -1749,7 +1749,7 @@ exists αj₁, αk₁; auto.
 Qed.
 
 (* mouais, bon...
-Lemma nnn : ∀ i id j g₂ g₂₃ pol₃ ns₃ m₁ c₁ c₂ pol₂ ns₂ d pol₁ ns₁,
+Lemma nnn : ∀ i id di g₂ g₂₃ pol₃ ns₃ m₁ c₁ c₂ pol₂ ns₂ d pol₁ ns₁,
   ns₁ ∈ newton_segments pol₁
   → ps_lap_forall (λ a, in_K_1_m a m₁) (al pol₁)
   → c₁ = ac_root (Φq pol₁ ns₁)
@@ -1767,8 +1767,8 @@ Lemma nnn : ∀ i id j g₂ g₂₃ pol₃ ns₃ m₁ c₁ c₂ pol₂ ns₂ d p
   → g₂ = Pos.to_nat d
   → (g₂ < S j)%nat
   → g₂₃ = next_pow g₂ ns₃ m₁
-  → (find_coeff i g₂₃ m₁ pol₃ ns₃ (S j) =
-     find_coeff id g₂₃ m₁ pol₃ ns₃ (S j))%K.
+  → (find_coeff i g₂₃ m₁ pol₃ ns₃ (i + di) =
+     find_coeff id g₂₃ m₁ pol₃ ns₃ (i + di))%K.
 Proof.
 intros i id j g₂ g₂₃ pol₃ ns₃ m₁ c₁ c₂ pol₂ ns₂ d pol₁ ns₁.
 intros Hns₁₁ HK₁ Hc₁ Hr₁ Hpol₂ Hns₂ Hns₂₁ Hc₂ Hpol₃ Hns₃ Hp₂nz HK₂ Heqid Hg₂
@@ -2169,6 +2169,8 @@ clear Heqg₂.
 
              clear H₁ Hcmp₁.
              rename Hg₂₃ into Hggg.
+             remember (Z.to_nat (Qnum αj₃ * ' m₁ / ' Qden αj₃)) as g₀.
+             clear Heqg₀.
              rename H into Hgnz.
              rename Hg₂₃₄ into Hg₂₃.
              rename g₂₃ into g₂.
@@ -2179,8 +2181,6 @@ clear Heqg₂.
              rename pol₄ into pol₃.
              rename Hpol₄ into Hpol₃.
              rename Hr₃ into Hr₂.
-             remember (Z.to_nat (Qnum αj₃ * ' m₁ / ' Qden αj₃)) as g₀.
-             clear Heqg₀.
              clear αj₃ αk₃ Hoth₃ Hini₃ Hfin₃ Hαj₃ Hαk₃.
              rename ns₃ into ns₂.
              rename ns₄ into ns₃.
@@ -2253,14 +2253,41 @@ subst g₂.
 
              clear H₁ Hcmp₁.
              rename Hg₂₃ into Hggg.
+             remember (Z.to_nat (Qnum αj₃ * ' m₁ / ' Qden αj₃)) as g.
+(**)
+             rewrite <- Nat.add_assoc in Hggg.
+             assert (1 < g₀ + g)%nat as Hg' by fast_omega Hgnz H.
+             remember (g₀ + g)%nat as g'.
+             clear Heqg' g g₀ Hgnz H Heqg.
+             rename g' into g₀.
+             rename Hg' into Hgnz.
+(**)
+             rename Hg₂₃₄ into Hg₂₃.
+             rename g₂₃ into g₂.
+             rename g₂₃₄ into g₂₃.
+             clear pol₂ HK₂ Hns₂ Hns₂₁ Hc₂ Hpol₃ Hr₂.
+             clear ns₂.
+             rename pol₃ into pol₂.
+             rename pol₄ into pol₃.
+             rename Hpol₄ into Hpol₃.
+             rename Hr₃ into Hr₂.
+             clear αj₃ αk₃ Hoth₃ Hini₃ Hfin₃ Hαj₃ Hαk₃.
+             rename ns₃ into ns₂.
+             rename ns₄ into ns₃.
+             rename Hns₃ into Hns₂.
+             rename Hns₃₁ into Hns₂₁.
+             rename Hns₄ into Hns₃.
+             clear c₂.
+             rename c₃ into c₂.
+             rename Hc₃ into Hc₂.
+             rewrite Nat.add_succ_l, <- Nat.add_succ_r in Heqid.
+             remember (S di) as dj.
+             subst di.
+             rename dj into di.
+             rename Heqdj into Hdi.
+             replace (S (i + 2)) with (i + di)%nat by omega.
+             rename HK₃ into HK₂.
 bbb.
-             rename H into Hgnz.
-Hgnz
-     : (0 < g₀)%nat
-H
-     : (0 < Z.to_nat (Qnum αj₃ * ' m₁ / ' Qden αj₃))%nat
-Hggg
-     : g₂₃ = (g₁ + g₀ + Z.to_nat (Qnum αj₃ * ' m₁ / ' Qden αj₃))%nat
 
 (*3*)
           destruct i.
