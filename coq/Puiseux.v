@@ -2326,6 +2326,31 @@ subst g₂.
 
             remember Hns₃₁ as H; clear HeqH.
             eapply num_m_den_is_pos with (m := m₁) in H; eauto .
+
+(*preamble for 4*)
+clear Hq₃.
+subst g₂.
+            clear Hcmp.
+            assert (g₁ < i + di)%nat as Hcmp by fast_omega H Hg₂₃ Hcmp₁.
+            assert (q_of_m m₁ (γ ns₃) = 1%positive) as Hq₃.
+             replace m₁ with (m₁ * 1)%positive by apply Pos.mul_1_r.
+             eapply q_eq_1 with (pol := pol₂) (pol₁ := pol₃); eauto .
+             rewrite Pos.mul_1_r; assumption.
+
+             remember Hns₂₁ as Hr₃; clear HeqHr₃.
+             eapply multiplicity_1_remains in Hr₃; eauto .
+
+             clear H₁.
+bbb.
+             rename Hcmp₁ into Hcmp₂.
+(*
+  Hcmp : (g₁ < i + di)%nat
+  Hcmp₂ : (g₁ + g₀ < S (S i + 2))%nat
+  Hgnz : (1 < g₀)%nat
+  Hcmp₁ : (g₂₃ < S (i + di))%nat
+  H : (0 < Z.to_nat (Qnum αj₃ * ' m₁ / ' Qden αj₃))%nat
+  Hg₂₃ : g₂₃ = (g₁ + g₀ + Z.to_nat (Qnum αj₃ * ' m₁ / ' Qden αj₃))%nat
+*)
 bbb.
 
           rewrite qqq with (d := (g₂ - 1)%nat).
