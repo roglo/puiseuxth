@@ -335,10 +335,10 @@ induction n; intros.
            subst j.
 
            assert (0 < g₁)%nat as Hg₁ by (rewrite Hnpow; auto).
-           clear Hnpow.
+           clear Hnpow Heqg₂.
 
-revert g₁ id i di Heqg₂ Hg₁ Hg₂₃ Heqid Hcmp Hdi Hr₂ Hpol₃ Hns₃ Hns₂₁ Hc₂ Hq₂ HK₂; clear; intros.
-revert pol₂ ns₂ c₂ pol₃ ns₃ g₁ g₂₃ i di id Hns₂₁ HK₂ Hq₂ Hc₂ Hr₂ Hpol₃ Hns₃ Hdi Hg₁ Heqg₂ Hcmp Hg₂₃ Heqid; clear; intros.
+revert g₁ id i di Hg₁ Hg₂₃ Heqid Hcmp Hdi Hr₂ Hpol₃ Hns₃ Hns₂₁ Hc₂ Hq₂ HK₂; clear; intros.
+revert pol₂ ns₂ c₂ pol₃ ns₃ g₁ g₂₃ i di id Hns₂₁ HK₂ Hq₂ Hc₂ Hr₂ Hpol₃ Hns₃ Hdi Hg₁ Hcmp Hg₂₃ Heqid; clear; intros.
 
 (*1*)
           destruct i.
@@ -378,7 +378,6 @@ revert pol₂ ns₂ c₂ pol₃ ns₃ g₁ g₂₃ i di id Hns₂₁ HK₂ Hq₂
             eapply num_m_den_is_pos with (m := m₁) in H; eauto .
 
 (*preamble for 2*)
-clear Heqg₂.
             clear Hcmp.
             assert (g₁ < i + di)%nat as Hcmp by fast_omega H Hg₂₃ Hcmp₁.
             assert (q_of_m m₁ (γ ns₃) = 1%positive) as Hq₃.
