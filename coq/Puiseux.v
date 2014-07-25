@@ -2341,19 +2341,52 @@ subst g₂.
              eapply multiplicity_1_remains in Hr₃; eauto .
 
              clear H₁.
+             rename Hcmp₁ into Hcmp₃.
+             rename Hg₂₃ into Hggg.
+             remember (Z.to_nat (Qnum αj₃ * ' m₁ / ' Qden αj₃)) as g.
+             rewrite <- Nat.add_assoc in Hggg.
+             assert (1 < g₀ + g)%nat as Hg' by fast_omega Hgnz H.
+             remember (g₀ + g)%nat as g'.
+             clear Heqg' g Hgnz H Heqg.
+             rename g₀ into g'₀.
+             rename g' into g₀.
+             rename Hg' into Hgnz.
+             rename Hg₂₃₄ into Hg₂₃.
+             rename g₂₃ into g₂.
+             rename g₂₃₄ into g₂₃.
+             clear pol₂ HK₂ Hns₂ Hns₂₁ Hc₂ Hpol₃ Hr₂.
+             clear ns₂.
+             rename pol₃ into pol₂.
+             rename pol₄ into pol₃.
+             rename Hpol₄ into Hpol₃.
+             rename Hr₃ into Hr₂.
+             clear αj₃ αk₃ Hoth₃ Hini₃ Hfin₃ Hαj₃ Hαk₃.
+             rename ns₃ into ns₂.
+             rename ns₄ into ns₃.
+             rename Hns₃ into Hns₂.
+             rename Hns₃₁ into Hns₂₁.
+             rename Hns₄ into Hns₃.
+             clear c₂.
+             rename c₃ into c₂.
+             rename Hc₃ into Hc₂.
+             rewrite Nat.add_succ_l, <- Nat.add_succ_r in Heqid.
+             remember (S di) as dj.
+             subst di.
+             rename dj into di.
+             rename Heqdj into Hdi.
+             replace (S (i + 3)) with (i + di)%nat by omega.
+             rename HK₃ into HK₂.
+
+(*4*)
+          destruct i.
+           destruct g₁.
+            symmetry in Hnpow.
+            exfalso; revert Hnpow; apply Pos2Nat_ne_0.
+
+            replace id with O by omega; reflexivity.
+
 bbb.
-             rename Hcmp₁ into Hcmp₂.
-bbb.
-(*
-  Hcmp : (g₁ < i + di)%nat
-  Hcmp₂ : (g₁ + g₀ < S (S i + 2))%nat
-  Hgnz : (1 < g₀)%nat
-  Hcmp₁ : (g₂₃ < S (i + di))%nat
-  H : (0 < Z.to_nat (Qnum αj₃ * ' m₁ / ' Qden αj₃))%nat
-  Hg₂₃ : g₂₃ = (g₁ + g₀ + Z.to_nat (Qnum αj₃ * ' m₁ / ' Qden αj₃))%nat
-  Hdi : di = 3
-*)
-bbb.
+           destruct id; [ exfalso; omega | simpl ].
 
           rewrite qqq with (d := (g₂ - 1)%nat).
            rewrite Nat_sub_sub_distr.
