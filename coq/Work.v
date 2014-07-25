@@ -335,6 +335,7 @@ induction n; intros.
            subst j.
 
 revert g₁ id i di Heqg₂ Hnpow Hg₂₃ Heqid Hcmp Hdi Hr₂ Hpol₃ Hns₃ Hns₂₁ Hc₂ Hq₂ HK₂; clear; intros.
+revert pol₂ ns₂ c₂ pol₃ ns₃ d g₁ g₂₃ i di id Hns₂₁ HK₂ Hq₂ Hc₂ Hr₂ Hpol₃ Hns₃ Hdi Hnpow Heqg₂ Hcmp Hg₂₃ Heqid; clear; intros.
 
 (*1*)
           destruct i.
