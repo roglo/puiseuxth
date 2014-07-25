@@ -2347,7 +2347,9 @@ subst g₂.
              rewrite <- Nat.add_assoc in Hggg.
              assert (1 < g₀ + g)%nat as Hg' by fast_omega Hgnz H.
              remember (g₀ + g)%nat as g'.
+(*
              clear Heqg' g Hgnz H Heqg.
+*)remember Heqg' as H1; remember Hgnz as H2; remember H as H3; clear Heqg.
              rename g₀ into g'₀.
              rename g' into g₀.
              rename Hg' into Hgnz.
@@ -2385,8 +2387,8 @@ subst g₂.
 
             replace id with O by omega; reflexivity.
 
-bbb.
            destruct id; [ exfalso; omega | simpl ].
+bbb.
 
           rewrite qqq with (d := (g₂ - 1)%nat).
            rewrite Nat_sub_sub_distr.
