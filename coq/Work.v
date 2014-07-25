@@ -332,10 +332,11 @@ induction n; intros.
            subst j.
            assert (0 < g₁)%nat as Hg₁ by (rewrite Hnpow; auto).
            clear Hnpow Heqg₂.
+           rewrite Hdi in Hcmp.
            revert g₁ id i di Hg₁ Hg₂₃ Heqid Hcmp Hdi Hr₂ Hpol₃ Hns₃ Hns₂₁ Hc₂
             Hq₂ HK₂; clear; intros.
            revert m₁ pol₂ ns₂ c₂ pol₃ ns₃ g₁ g₂₃ i di id Hns₂₁ HK₂ Hq₂ Hc₂ Hr₂
-            Hpol₃ Hns₃ Heqid Hdi Hg₁ Hcmp Hg₂₃.
+            Hpol₃ Hns₃ Heqid Hg₁ Hcmp Hdi Hg₂₃.
            intros.
 (*1*)
            destruct i.
@@ -416,7 +417,7 @@ induction n; intros.
               rename HK₃ into HK₂.
            clear Hns₂.
            revert m₁ pol₂ ns₂ c₂ pol₃ ns₃ g₀ g₁ g₂ g₂₃ i di id Hns₂₁ HK₂ Hq₂
-            Hc₂ Hr₂ Hpol₃ Hns₃ Heqid Hdi Hgnz Hg₁ Hcmp Hggg Hg₂₃.
+            Hc₂ Hr₂ Hpol₃ Hns₃ Heqid Hg₁ Hcmp Hdi Hgnz Hggg Hg₂₃.
            intros.
 (*2*)
            destruct i.
