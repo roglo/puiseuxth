@@ -31,3 +31,4 @@ SlopeMisc.vo SlopeMisc.glob SlopeMisc.v.beautified: SlopeMisc.v Slope_base.vo Mi
 Slope_base.vo Slope_base.glob Slope_base.v.beautified: Slope_base.v
 SplitList.vo SplitList.glob SplitList.v.beautified: SplitList.v Misc.vo
 T.vo T.glob T.v.beautified: T.v
+Work.vo Work.glob Work.v.beautified: Work.v Misc.vo SlopeMisc.vo Slope_base.vo Qbar.vo Nbar.vo Field.vo Fpolynomial.vo Fsummation.vo Newton.vo ConvexHullMisc.vo ConvexHull.vo PolyConvexHull.vo NotInSegment.vo Power_series.vo Puiseux_series.vo Ps_add.vo Ps_mul.vo Ps_div.vo PSpolynomial.vo Puiseux_base.vo AlgCloCharPol.vo CharactPolyn.vo F1Eq.vo PosOrder.vo F1Prop.vo InK1m.vo Q_field.vo Puiseux.vo
