@@ -334,16 +334,16 @@ induction n; intros.
            remember 1%nat as di eqn:Hdi in Heqj.
            subst j.
 
-revert g₁ id i di Heqg₂ Hnpow Hg₂₃ Heqid Hcmp Hdi Hr₂ Hpol₃ Hns₃ Hns₂₁ Hc₂ Hq₂ HK₂; clear; intros.
-revert pol₂ ns₂ c₂ pol₃ ns₃ d g₁ g₂₃ i di id Hns₂₁ HK₂ Hq₂ Hc₂ Hr₂ Hpol₃ Hns₃ Hdi Hnpow Heqg₂ Hcmp Hg₂₃ Heqid; clear; intros.
+           assert (0 < g₁)%nat as Hg₁ by (rewrite Hnpow; auto).
+           clear Hnpow.
+
+revert g₁ id i di Heqg₂ Hg₁ Hg₂₃ Heqid Hcmp Hdi Hr₂ Hpol₃ Hns₃ Hns₂₁ Hc₂ Hq₂ HK₂; clear; intros.
+revert pol₂ ns₂ c₂ pol₃ ns₃ g₁ g₂₃ i di id Hns₂₁ HK₂ Hq₂ Hc₂ Hr₂ Hpol₃ Hns₃ Hdi Hg₁ Heqg₂ Hcmp Hg₂₃ Heqid; clear; intros.
 
 (*1*)
           destruct i.
-           destruct g₁.
-            symmetry in Hnpow.
-            exfalso; revert Hnpow; apply Pos2Nat_ne_0.
-
-            replace id with O by omega; reflexivity.
+           destruct g₁; [ exfalso; revert Hg₁; apply Nat.lt_irrefl | idtac ].
+           replace id with O by omega; reflexivity.
 
            destruct id; [ exfalso; fast_omega Hcmp Heqid Hdi | simpl ].
            destruct (ps_zerop R (ps_poly_nth 0 pol₃)) as [H₁| H₁]; auto.
@@ -421,11 +421,8 @@ clear Heqg₂.
              rename HK₃ into HK₂.
 (*2*)
           destruct i.
-           destruct g₁.
-            symmetry in Hnpow.
-            exfalso; revert Hnpow; apply Pos2Nat_ne_0.
-
-            replace id with O by omega; reflexivity.
+           destruct g₁; [ exfalso; revert Hg₁; apply Nat.lt_irrefl | idtac ].
+           replace id with O by omega; reflexivity.
 
            destruct id; [ exfalso; fast_omega Hcmp Heqid Hdi | simpl ].
            destruct (ps_zerop R (ps_poly_nth 0 pol₃)) as [H₁| H₁]; auto.
@@ -512,11 +509,8 @@ subst g₂.
 
 (*3*)
           destruct i.
-           destruct g₁.
-            symmetry in Hnpow.
-            exfalso; revert Hnpow; apply Pos2Nat_ne_0.
-
-            replace id with O by omega; reflexivity.
+           destruct g₁; [ exfalso; revert Hg₁; apply Nat.lt_irrefl | idtac ].
+           replace id with O by omega; reflexivity.
 
            destruct id; [ fast_omega Hcmp₂ Heqid Hdi Hggg Hgnz | simpl ].
            destruct (ps_zerop R (ps_poly_nth 0 pol₃)) as [H₁| H₁]; auto.
@@ -605,11 +599,8 @@ subst g₂.
 
 (*4*)
           destruct i.
-           destruct g₁.
-            symmetry in Hnpow.
-            exfalso; revert Hnpow; apply Pos2Nat_ne_0.
-
-            replace id with O by omega; reflexivity.
+           destruct g₁; [ exfalso; revert Hg₁; apply Nat.lt_irrefl | idtac ].
+           replace id with O by omega; reflexivity.
 
            destruct id; [ exfalso; omega | simpl ].
 bbb.
