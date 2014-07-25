@@ -2250,6 +2250,7 @@ subst g₂.
              eapply multiplicity_1_remains in Hr₃; eauto .
 
              clear H₁.
+             rename Hcmp₁ into Hcmp₂.
              rename Hg₂₃ into Hggg.
              remember (Z.to_nat (Qnum αj₃ * ' m₁ / ' Qden αj₃)) as g.
 (**)
@@ -2294,9 +2295,39 @@ subst g₂.
 
             replace id with O by omega; reflexivity.
 
-           destruct id; [ fast_omega Hcmp₁ Heqid Hdi Hggg Hgnz | simpl ].
+           destruct id; [ fast_omega Hcmp₂ Heqid Hdi Hggg Hgnz | simpl ].
+           destruct (ps_zerop R (ps_poly_nth 0 pol₃)) as [H₁| H₁]; auto.
+           unfold next_pow in Hg₂₃; simpl in Hg₂₃.
+           remember Hr₂ as H; clear HeqH.
+           eapply r_1_next_ns in H; eauto .
+           destruct H as (αj₃, (αk₃, H)).
+           destruct H as (Hoth₃, (Hini₃, (Hfin₃, (Hαj₃, Hαk₃)))).
+           rewrite Hini₃, Hfin₃ in Hg₂₃; simpl in Hg₂₃.
+           rewrite Hαk₃ in Hg₂₃; simpl in Hg₂₃.
+           rewrite Z.add_0_r, Z.mul_1_r in Hg₂₃.
+           do 2 rewrite Pos.mul_1_r in Hg₂₃.
+           rewrite Z.mul_shuffle0 in Hg₂₃.
+           rewrite Pos2Z.inj_mul in Hg₂₃.
+           rewrite Z.div_mul_cancel_r in Hg₂₃; auto.
+           remember Hns₃ as Hns₃₁; clear HeqHns₃₁.
+           eapply hd_newton_segments in Hns₃₁; eauto .
+           remember (Nat.compare g₂₃ (S (i + di))) as cmp₁ eqn:Hcmp₁ .
+           symmetry in Hcmp₁.
+           destruct cmp₁; auto.
+           remember (ac_root (Φq pol₃ ns₃)) as c₃ eqn:Hc₃ .
+           remember (next_pol pol₃ (β ns₃) (γ ns₃) c₃) as pol₄ eqn:Hpol₄ .
+           remember (List.hd phony_ns (newton_segments pol₄)) as ns₄
+            eqn:Hns₄ .
+           remember (next_pow g₂₃ ns₄ m₁) as g₂₃₄ eqn:Hg₂₃₄.
+           apply nat_compare_lt in Hcmp₁.
+           assert (ps_lap_forall (λ a, in_K_1_m a m₁) (al pol₃)) as HK₃.
+            replace m₁ with (m₁ * 1)%positive by apply Pos.mul_1_r.
+            eapply next_pol_in_K_1_mq with (pol := pol₂); eauto .
 
+            remember Hns₃₁ as H; clear HeqH.
+            eapply num_m_den_is_pos with (m := m₁) in H; eauto .
 bbb.
+
           rewrite qqq with (d := (g₂ - 1)%nat).
            rewrite Nat_sub_sub_distr.
             rewrite Nat.add_1_r.
