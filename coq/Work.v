@@ -334,9 +334,9 @@ induction n; intros.
            clear Hnpow Heqg₂.
            revert g₁ id i di Hg₁ Hg₂₃ Heqid Hcmp Hdi Hr₂ Hpol₃ Hns₃ Hns₂₁ Hc₂
             Hq₂ HK₂; clear; intros.
-           revert pol₂ ns₂ c₂ pol₃ ns₃ g₁ g₂₃ i di id Hns₂₁ HK₂ Hq₂ Hc₂ Hr₂
+           revert m₁ pol₂ ns₂ c₂ pol₃ ns₃ g₁ g₂₃ i di id Hns₂₁ HK₂ Hq₂ Hc₂ Hr₂
             Hpol₃ Hns₃ Hdi Hg₁ Hcmp Hg₂₃ Heqid.
-           clear; intros.
+           intros.
 (*1*)
            destruct i.
             destruct g₁; [ exfalso; revert Hg₁; apply Nat.lt_irrefl | idtac ].
@@ -413,6 +413,9 @@ induction n; intros.
               rename Heqdj into Hdi.
               replace (S (i + 1)) with (i + di)%nat by omega.
               rename HK₃ into HK₂.
+           revert m₁ pol₂ ns₂ c₂ pol₃ ns₃ g₀ g₁ g₂ g₂₃ i di id Hns₂₁ HK₂ Hq₃
+            Hc₂ Hr₂ Hpol₃ Hns₃ Hdi Hgnz Hg₁ Hcmp Hg₂₃ Heqid Hns₂ Hggg.
+           intros.
 (*2*)
            destruct i.
             destruct g₁; [ exfalso; revert Hg₁; apply Nat.lt_irrefl | idtac ].
