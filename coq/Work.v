@@ -416,8 +416,9 @@ induction n; intros.
               rename HK₃ into HK₂.
            clear Hns₂.
            revert m₁ pol₂ ns₂ c₂ pol₃ ns₃ g₀ g₁ g₂ g₂₃ i di id Hns₂₁ HK₂ Hq₂
-            Hc₂ Hr₂ Hpol₃ Hns₃ Heqid Hdi Hgnz Hg₁ Hcmp Hg₂₃ Hggg.
+            Hc₂ Hr₂ Hpol₃ Hns₃ Heqid Hdi Hgnz Hg₁ Hcmp Hggg Hg₂₃.
            intros.
+bbb.
 (*2*)
            destruct i.
             destruct g₁; [ exfalso; revert Hg₁; apply Nat.lt_irrefl | idtac ].
