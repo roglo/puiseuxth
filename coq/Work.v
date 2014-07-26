@@ -58,7 +58,9 @@ Lemma rrr : ∀ pol₂ ns₂ m₁ c₂ pol₃ ns₃ i id di p₁ p₂ p₂₃,
 Proof.
 intros pol₂ ns₂ m₁ c₂ pol₃ ns₃ i id di p₁ p₂ p₂₃.
 intros Hns₂₁ HK₂ Hq₂ Hc₂ Hr₂ Hpol₃ Hns₃ Heqid Hp₁ Hcmp Hdip Hp₂₃.
-induction i.
+revert pol₂ ns₂ m₁ c₂ pol₃ ns₃ id di p₁ p₂ p₂₃ Hns₂₁ HK₂ Hq₂ Hc₂ Hr₂ Hpol₃
+ Hns₃ Heqid Hp₁ Hcmp Hdip Hp₂₃.
+induction i; intros.
  destruct p₁; [ exfalso; revert Hp₁; apply Nat.lt_irrefl | idtac ].
  replace id with O by omega; reflexivity.
 
@@ -92,6 +94,8 @@ induction i.
 
   remember Hns₃₁ as H; clear HeqH.
   eapply num_m_den_is_pos with (m := m₁) in H; eauto .
+  rewrite <- Nat.add_succ_r.
+  eapply IHi with (p₁ := p₁).
 bbb.
 
 Lemma sss : ∀ pol ns pol₁ ns₁ c m q₀,
