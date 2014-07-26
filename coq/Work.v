@@ -652,10 +652,8 @@ induction n; intros.
              eapply num_m_den_is_pos with (m := m₁) in H; eauto .
 (**)
              clear Hq₂.
-bbb.
-             subst p₃.
              clear Hcmp.
-             assert (p₁ < i + di)%nat as Hcmp by fast_omega H Hp₂₃ Hcmp₁.
+             assert (p₁ < i + di)%nat as Hcmp by omega.
              assert (q_of_m m₁ (γ ns₃) = 1%positive) as Hq₂.
               replace m₁ with (m₁ * 1)%positive by apply Pos.mul_1_r.
               eapply q_eq_1 with (pol := pol₂) (pol₁ := pol₃); eauto .
@@ -664,7 +662,8 @@ bbb.
               remember Hns₂₁ as Hr₃; clear HeqHr₃.
               eapply multiplicity_1_remains in Hr₃; eauto .
               clear H₁.
-              rename Hcmp₁ into Hcmp₄.
+              rename Hcmp₁ into Hcmp₅.
+bbb.
               rename Hp₂₃ into Hppp.
               remember (Z.to_nat (Qnum αj₃ * ' m₁ / ' Qden αj₃)) as g.
               rewrite <- Nat.add_assoc in Hppp.
