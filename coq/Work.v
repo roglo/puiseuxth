@@ -610,10 +610,17 @@ induction n; intros.
               assert (id = (i + 1 - p₁)%nat) as H by omega.
               clear Heqid; rename H into Heqid.
               clear Hns₂ Hp₄₂ Hcmp₄.
-              revert m₁ pol₂ ns₂ c₂ pol₃ ns₃ p₄ p₃ p₁ p₂ p₂₃ i di id
+              rewrite <- Nat.add_assoc in Hppp.
+              assert (2 < p₂ + p₃)%nat as H by fast_omega Hp₂ Hp₃.
+              clear Hp₂ Hp₃.
+              remember (p₂ + p₃)%nat as pp; clear p₂ p₃ Heqpp.
+              rename pp into p₂; rename H into Hp₂.
+              rename p₄ into p₃.
+              revert m₁ pol₂ ns₂ c₂ pol₃ ns₃ p₃ p₁ p₂ p₂₃ i di id
                Hns₂₁ HK₂ Hq₂ Hc₂ Hr₂ Hpol₃ Hns₃ Heqid Hp₁ Hcmp Hdi
-               Hp₂ Hp₃ Hppp Hp₂₃.
+               Hp₂ Hppp Hp₂₃.
               intros.
+bbb.
 (*4*)
            destruct i.
             destruct p₁; [ exfalso; revert Hp₁; apply Nat.lt_irrefl | idtac ].
@@ -652,7 +659,7 @@ induction n; intros.
              eapply num_m_den_is_pos with (m := m₁) in H; eauto .
 (**)
              clear Hq₂.
-             subst p₄.
+             subst p₃.
              clear Hcmp.
              assert (p₁ < i + di)%nat as Hcmp by omega.
              assert (q_of_m m₁ (γ ns₃) = 1%positive) as Hq₂.
