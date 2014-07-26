@@ -620,7 +620,6 @@ induction n; intros.
                Hns₂₁ HK₂ Hq₂ Hc₂ Hr₂ Hpol₃ Hns₃ Heqid Hp₁ Hcmp Hdi
                Hp₂ Hppp Hp₂₃.
               intros.
-bbb.
 (*4*)
            destruct i.
             destruct p₁; [ exfalso; revert Hp₁; apply Nat.lt_irrefl | idtac ].
