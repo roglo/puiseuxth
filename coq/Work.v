@@ -332,7 +332,7 @@ induction n; intros.
            subst j.
            assert (0 < g₁)%nat as Hg₁ by (rewrite Hnpow; auto).
            clear Hnpow Heqg₂.
-           rewrite Hdi in Hcmp.
+           rewrite Hdi in Hcmp, Heqid.
            revert g₁ id i di Hg₁ Hg₂₃ Heqid Hcmp Hdi Hr₂ Hpol₃ Hns₃ Hns₂₁ Hc₂
             Hq₂ HK₂; clear; intros.
            revert m₁ pol₂ ns₂ c₂ pol₃ ns₃ g₁ g₂₃ i di id Hns₂₁ HK₂ Hq₂ Hc₂ Hr₂
@@ -415,6 +415,8 @@ induction n; intros.
               rename Heqdj into Hdi.
               replace (S (i + 1)) with (i + di)%nat by omega.
               rename HK₃ into HK₂.
+           assert (id = (i + 1 - g₁)%nat) as H by omega.
+           clear Heqid; rename H into Heqid.
            clear Hns₂.
            revert m₁ pol₂ ns₂ c₂ pol₃ ns₃ g₀ g₁ g₂ g₂₃ i di id Hns₂₁ HK₂ Hq₂
             Hc₂ Hr₂ Hpol₃ Hns₃ Heqid Hg₁ Hcmp Hdi Hgnz Hggg Hg₂₃.
@@ -502,6 +504,15 @@ induction n; intros.
               rename Heqdj into Hdi.
               replace (S (i + 2)) with (i + di)%nat by omega.
               rename HK₃ into HK₂.
+              assert (g₁ < i + 1)%nat by omega.
+              clear Hcmp; rename H into Hcmp.
+              assert (id = (i + 1 - g₁)%nat) as H by omega.
+              clear Heqid; rename H into Heqid.
+              clear Hns₂.
+              revert m₁ pol₂ ns₂ c₂ pol₃ ns₃ g₀ g₁ g₂ g₂₃ i di id Hns₂₁
+               HK₂ Hq₂ Hc₂ Hr₂ Hpol₃ Hns₃ Heqid Hg₁ Hcmp Hdi Hgnz Hggg
+               Hcmp₂ Hg₂₃.
+              intros.
 (*3*)
            destruct i.
             destruct g₁; [ exfalso; revert Hg₁; apply Nat.lt_irrefl | idtac ].
@@ -567,7 +578,7 @@ induction n; intros.
               rename Hg₂₃₄ into Hg₂₃.
               rename g₂₃ into g₂.
               rename g₂₃₄ into g₂₃.
-              clear pol₂ HK₂ Hns₂ Hns₂₁ Hc₂ Hpol₃ Hr₂.
+              clear pol₂ HK₂ Hns₂₁ Hc₂ Hpol₃ Hr₂.
               clear ns₂.
               rename pol₃ into pol₂.
               rename pol₄ into pol₃.
