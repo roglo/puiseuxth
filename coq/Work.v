@@ -604,10 +604,10 @@ induction n; intros.
               clear Hcmp; rename H into Hcmp.
               assert (id = (i + 1 - g₁)%nat) as H by omega.
               clear Heqid; rename H into Heqid.
-              clear Hns₂.
+              clear Hns₂ Hgnz Hcmp₂.
               revert m₁ pol₂ ns₂ c₂ pol₃ ns₃ g g₀ g'₀ g₁ g₂ g₂₃ i di id
-               Hns₂₁ HK₂ Hq₂ Hc₂ Hr₂ Hpol₃ Hns₃ Heqid Hg₁ Hcmp Hdi Hgnz
-               Hggg Hcmp₂ Heqg'' Hcmp₃ Hgnz' Hgnz'' Hg₂₃.
+               Hns₂₁ HK₂ Hq₂ Hc₂ Hr₂ Hpol₃ Hns₃ Heqid Hg₁ Hcmp Hdi
+               Hggg Heqg'' Hcmp₃ Hgnz' Hgnz'' Hg₂₃.
               intros.
 (*4*)
            destruct i.
