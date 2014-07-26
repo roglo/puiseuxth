@@ -508,17 +508,17 @@ induction n; intros.
               clear Hcmp; rename H into Hcmp.
               assert (id = (i + 1 - p₁)%nat) as H by omega.
               clear Heqid; rename H into Heqid.
-              clear Hns₂.
+              clear Hns₂ Hcmp₃.
               revert m₁ pol₂ ns₂ c₂ pol₃ ns₃ p₂ p₁ p₃ p₂₃ i di id Hns₂₁
                HK₂ Hq₂ Hc₂ Hr₂ Hpol₃ Hns₃ Heqid Hp₁ Hcmp Hdi Hp₂ Hppp
-               Hcmp₃ Hp₂₃.
+               Hp₂₃.
               intros.
 (*3*)
            destruct i.
             destruct p₁; [ exfalso; revert Hp₁; apply Nat.lt_irrefl | idtac ].
             replace id with O by omega; reflexivity.
 
-            destruct id; [ fast_omega Hcmp₃ Heqid Hdi Hppp Hp₂ | simpl ].
+            destruct id; [ exfalso; omega | simpl ].
             destruct (ps_zerop R (ps_poly_nth 0 pol₃)) as [H₁| H₁]; auto.
             unfold next_pow in Hp₂₃; simpl in Hp₂₃.
             remember Hr₂ as H; clear HeqH.
@@ -609,10 +609,10 @@ induction n; intros.
               clear Hcmp; rename H into Hcmp.
               assert (id = (i + 1 - p₁)%nat) as H by omega.
               clear Heqid; rename H into Heqid.
-              clear Hns₂ Hp₄₂ Hcmp₃.
+              clear Hns₂ Hp₄₂ Hcmp₄.
               revert m₁ pol₂ ns₂ c₂ pol₃ ns₃ p₄ p₃ p₁ p₂ p₂₃ i di id
                Hns₂₁ HK₂ Hq₂ Hc₂ Hr₂ Hpol₃ Hns₃ Heqid Hp₁ Hcmp Hdi
-               Hp₂ Hp₃ Hppp Hcmp₄ Hp₂₃.
+               Hp₂ Hp₃ Hppp Hp₂₃.
               intros.
 (*4*)
            destruct i.
