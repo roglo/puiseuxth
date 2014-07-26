@@ -40,6 +40,60 @@ Variable R : ring α.
 Variable K : field R.
 Variable acf : algeb_closed_field K.
 
+Lemma rrr : ∀ pol₂ ns₂ m₁ c₂ pol₃ ns₃ i id di p₁ p₂ p₂₃,
+  ns₂ ∈ newton_segments pol₂
+  → ps_lap_forall (λ a : puiseux_series α, in_K_1_m a m₁) (al pol₂)
+  → q_of_m m₁ (γ ns₂) = 1%positive
+  → c₂ = ac_root (Φq pol₂ ns₂)
+  → root_multiplicity acf c₂ (Φq pol₂ ns₂) = 1%nat
+  → pol₃ = next_pol pol₂ (β ns₂) (γ ns₂) c₂
+  → ns₃ = List.hd phony_ns (newton_segments pol₃)
+  → id = (i + 1 - p₁)%nat
+  → (0 < p₁)%nat
+  → (p₁ < i + 1)%nat
+  → (di < p₂ + 2)%nat
+  → p₂₃ = next_pow (p₁ + p₂) ns₃ m₁
+  → (find_coeff i p₂₃ m₁ pol₃ ns₃ (i + di) =
+     find_coeff id p₂₃ m₁ pol₃ ns₃ (i + di))%K.
+Proof.
+intros pol₂ ns₂ m₁ c₂ pol₃ ns₃ i id di p₁ p₂ p₂₃.
+intros Hns₂₁ HK₂ Hq₂ Hc₂ Hr₂ Hpol₃ Hns₃ Heqid Hp₁ Hcmp Hdip Hp₂₃.
+induction i.
+ destruct p₁; [ exfalso; revert Hp₁; apply Nat.lt_irrefl | idtac ].
+ replace id with O by omega; reflexivity.
+
+ destruct id; [ exfalso; fast_omega Hcmp Heqid | simpl ].
+ destruct (ps_zerop R (ps_poly_nth 0 pol₃)) as [H₁| H₁]; auto.
+ unfold next_pow in Hp₂₃; simpl in Hp₂₃.
+ remember Hr₂ as H; clear HeqH.
+ eapply r_1_next_ns in H; eauto .
+ destruct H as (αj₃, (αk₃, H)).
+ destruct H as (Hoth₃, (Hini₃, (Hfin₃, (Hαj₃, Hαk₃)))).
+ rewrite Hini₃, Hfin₃ in Hp₂₃; simpl in Hp₂₃.
+ rewrite Hαk₃ in Hp₂₃; simpl in Hp₂₃.
+ rewrite Z.add_0_r, Z.mul_1_r in Hp₂₃.
+ do 2 rewrite Pos.mul_1_r in Hp₂₃.
+ rewrite Z.mul_shuffle0 in Hp₂₃.
+ rewrite Pos2Z.inj_mul in Hp₂₃.
+ rewrite Z.div_mul_cancel_r in Hp₂₃; auto.
+ remember Hns₃ as Hns₃₁; clear HeqHns₃₁.
+ eapply hd_newton_segments in Hns₃₁; eauto .
+ remember (Nat.compare p₂₃ (S (i + di))) as cmp₁ eqn:Hcmp₁ .
+ symmetry in Hcmp₁.
+ destruct cmp₁; auto.
+ remember (ac_root (Φq pol₃ ns₃)) as c₃ eqn:Hc₃ .
+ remember (next_pol pol₃ (β ns₃) (γ ns₃) c₃) as pol₄ eqn:Hpol₄ .
+ remember (List.hd phony_ns (newton_segments pol₄)) as ns₄ eqn:Hns₄ .
+ remember (next_pow p₂₃ ns₄ m₁) as p₂₃₄ eqn:Hp₂₃₄ .
+ apply nat_compare_lt in Hcmp₁.
+ assert (ps_lap_forall (λ a, in_K_1_m a m₁) (al pol₃)) as HK₃.
+  replace m₁ with (m₁ * 1)%positive by apply Pos.mul_1_r.
+  eapply next_pol_in_K_1_mq with (pol := pol₂); eauto .
+
+  remember Hns₃₁ as H; clear HeqH.
+  eapply num_m_den_is_pos with (m := m₁) in H; eauto .
+bbb.
+
 Lemma sss : ∀ pol ns pol₁ ns₁ c m q₀,
   ns ∈ newton_segments pol
   → m = ps_list_com_polord (al pol)
