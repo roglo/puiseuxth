@@ -476,11 +476,8 @@ induction n; intros.
   rewrite <- ps_add_assoc.
   apply rng_add_compat_l.
 bbb.
-  rewrite root_tail_nth.
-  symmetry.
-  rewrite root_tail_nth.
-  symmetry.
-  simpl.
+  rewrite root_tail_nth; symmetry.
+  rewrite root_tail_nth; symmetry; simpl.
   remember (ac_root (Φq pol₁ ns₁)) as c₁ eqn:Hc₁ .
   remember (next_pol pol₁ (β ns₁) (γ ns₁) c₁) as pol₂ eqn:Hpol₂ .
   remember (List.hd phony_ns (newton_segments pol₂)) as ns₂ eqn:Hns₂ .
