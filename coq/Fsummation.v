@@ -11,9 +11,6 @@ Require Import Field.
 
 Set Implicit Arguments.
 
-Notation "x ≤ y ≤ z" := (x ≤ y ∧ y ≤ z)%nat (at level 70, y at next level).
-Notation "x ≤ y < z" := (x ≤ y ∧ y < z)%nat (at level 70, y at next level).
-
 Fixpoint summation_aux α (r : ring α) b len g :=
   match len with
   | O => 0%K

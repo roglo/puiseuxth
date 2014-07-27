@@ -9,8 +9,11 @@ Notation "[ ]" := nil.
 Notation "[ x ; .. ; y … l ]" := (cons x .. (cons y l) ..).
 Notation "[ x ]" := (cons x nil).
 Notation "x ++ y" := (List.app x y) (right associativity, at level 60).
-Notation "x < y < z" := (x < y ∧ y < z) (at level 70, y at next level).
 Notation "x < y <= z" := (x < y ∧ y <= z) (at level 70, y at next level).
+Notation "x < y < z" := (x < y ∧ y < z) (at level 70, y at next level).
+Notation "x < y ≤ z" := (x < y ∧ y <= z)%nat (at level 70, y at next level).
+Notation "x ≤ y ≤ z" := (x <= y ∧ y <= z)%nat (at level 70, y at next level).
+Notation "x ≤ y < z" := (x <= y ∧ y < z)%nat (at level 70, y at next level).
 Notation "x ∈ l" := (List.In x l) (at level 70).
 Notation "x ∉ l" := (not (List.In x l)) (at level 70).
 

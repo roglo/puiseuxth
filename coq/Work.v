@@ -40,7 +40,7 @@ Variable R : ring α.
 Variable K : field R.
 Variable acf : algeb_closed_field K.
 
-Lemma find_coeff_step : ∀ pol₂ ns₂ m₁ c₂ pol₃ ns₃ i id di p₁ p₂ p₂₃,
+Lemma find_coeff_step : ∀ pol₂ ns₂ m₁ c₂ pol₃ ns₃ i id di p dp p₂₃,
   ns₂ ∈ newton_segments pol₂
   → ps_lap_forall (λ a : puiseux_series α, in_K_1_m a m₁) (al pol₂)
   → q_of_m m₁ (γ ns₂) = 1%positive
@@ -48,16 +48,15 @@ Lemma find_coeff_step : ∀ pol₂ ns₂ m₁ c₂ pol₃ ns₃ i id di p₁ p�
   → root_multiplicity acf c₂ (Φq pol₂ ns₂) = 1%nat
   → pol₃ = next_pol pol₂ (β ns₂) (γ ns₂) c₂
   → ns₃ = List.hd phony_ns (newton_segments pol₃)
-  → id = (S i - p₁)%nat
-  → (0 < p₁)%nat
-  → (p₁ ≤ i)%nat
-  → (di < p₂ + 2)%nat
-  → p₂₃ = next_pow (p₁ + p₂) ns₃ m₁
+  → id = (S i - p)%nat
+  → (0 < p <= i)%nat
+  → (di < dp + 2)%nat
+  → p₂₃ = next_pow (p + dp) ns₃ m₁
   → (find_coeff i p₂₃ m₁ pol₃ ns₃ (i + di) =
      find_coeff id p₂₃ m₁ pol₃ ns₃ (i + di))%K.
 Proof.
 intros pol₂ ns₂ m₁ c₂ pol₃ ns₃ i id di p₁ p₂ p₂₃.
-intros Hns₂₁ HK₂ Hq₂ Hc₂ Hr₂ Hpol₃ Hns₃ Heqid Hp₁ Hcmp Hdip Hp₂₃.
+intros Hns₂₁ HK₂ Hq₂ Hc₂ Hr₂ Hpol₃ Hns₃ Heqid (Hp₁, Hcmp) Hdip Hp₂₃.
 revert pol₂ ns₂ m₁ c₂ pol₃ ns₃ id di p₁ p₂ p₂₃ Hns₂₁ HK₂ Hq₂ Hc₂ Hr₂ Hpol₃
  Hns₃ Heqid Hp₁ Hcmp Hdip Hp₂₃.
 induction i; intros.
