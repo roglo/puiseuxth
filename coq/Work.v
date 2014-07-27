@@ -110,6 +110,18 @@ induction i; intros.
     fast_omega H Hdip.
 Qed.
 
+Lemma root_head_succ : ∀ pol ns n,
+  (ps_poly_nth 0 pol ≠ 0)%ps
+  → (root_head (S n) pol ns =
+     root_head n pol ns +
+     ps_monom (nth_c (S n) pol ns) (γ_sum (S n) pol ns))%ps.
+Proof.
+intros pol ns n Hp₀.
+unfold root_head.
+destruct (ps_zerop R (ps_poly_nth 0 pol)); [ contradiction | idtac ].
+rewrite summation_split_last; [ reflexivity | apply Nat.le_0_l ].
+Qed.
+
 Lemma sss : ∀ pol ns pol₁ ns₁ c m q₀,
   ns ∈ newton_segments pol
   → m = ps_list_com_polord (al pol)
@@ -415,6 +427,9 @@ induction n; intros.
     apply Z.div_pos; [ idtac | apply Pos2Z.is_pos ].
     apply Z.mul_nonneg_nonneg; auto.
     apply Z.lt_le_incl; assumption.
+
+ destruct (ps_zerop R (ps_poly_nth 0 pol₁)) as [H₁| H₁].
+  2: rewrite root_head_succ; auto.
 bbb.
 
 (* mmm... faut voir... *)
