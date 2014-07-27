@@ -443,6 +443,9 @@ induction n; intros.
   contradiction.
 
   rewrite root_head_succ; auto.
+  rewrite IHn.
+   rewrite <- ps_add_assoc.
+   apply rng_add_compat_l.
 bbb.
 
 (* mmm... faut voir... *)
