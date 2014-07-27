@@ -105,33 +105,9 @@ induction i; intros.
 
    remember Hns₂₁ as Hr₃; clear HeqHr₃.
    eapply multiplicity_1_remains in Hr₃; eauto .
-   eapply IHi.
-    3: eauto .
-
-    3: eauto .
-
-    eauto .
-
-    eauto .
-
-    eauto .
-
-    eauto .
-
-    eauto .
-
-    Focus 5.
-    subst p₂₃.
-    rewrite <- Nat.add_assoc in Hp₂₃₄.
-    eauto .
-
-    omega.
-
-    eauto .
-
-    omega.
-
-    omega.
+   subst p₂₃.
+   rewrite <- Nat.add_assoc in Hp₂₃₄.
+   eapply IHi with (p₁ := p₁); eauto ; omega.
 qed.
 
 Lemma sss : ∀ pol ns pol₁ ns₁ c m q₀,
