@@ -110,6 +110,16 @@ induction i; intros.
     fast_omega H Hdip.
 Qed.
 
+Lemma root_head_0 : ∀ pol ns n,
+  (ps_poly_nth 0 pol = 0)%ps
+  → (root_head n pol ns = 0)%ps.
+Proof.
+intros pol ns n H.
+unfold root_head.
+destruct (ps_zerop R (ps_poly_nth 0 pol)); [ reflexivity | idtac ].
+contradiction.
+Qed.
+
 Lemma root_head_succ : ∀ pol ns n,
   (ps_poly_nth 0 pol ≠ 0)%ps
   → (root_head (S n) pol ns =
@@ -430,6 +440,8 @@ induction n; intros.
 
  destruct (ps_zerop R (ps_poly_nth 0 pol₁)) as [H₁| H₁].
   2: rewrite root_head_succ; auto.
+  rewrite root_head_0; auto.
+  rewrite ps_add_0_l.
 bbb.
 
 (* mmm... faut voir... *)
