@@ -49,8 +49,8 @@ Lemma find_coeff_step : ∀ pol₂ ns₂ m₁ c₂ pol₃ ns₃ i id di p dp p�
   → pol₃ = next_pol pol₂ (β ns₂) (γ ns₂) c₂
   → ns₃ = List.hd phony_ns (newton_segments pol₃)
   → id = (S i - p)%nat
-  → (0 < p <= i)%nat
-  → (di < dp + 2)%nat
+  → (0 < p ≤ i)%nat
+  → (di ≤ dp + 1)%nat
   → p₂₃ = next_pow (p + dp) ns₃ m₁
   → (find_coeff i p₂₃ m₁ pol₃ ns₃ (i + di) =
      find_coeff id p₂₃ m₁ pol₃ ns₃ (i + di))%K.
@@ -400,8 +400,7 @@ induction n; intros.
            assert (0 < p₂)%nat as Hp₁ by (rewrite Hnpow; auto).
            replace p₂ with (p₂ + 0)%nat in Hp₂₃ by omega.
            apply Nat.succ_le_mono in Hcmp.
-           eapply find_coeff_step; eauto .
-           apply Nat.lt_1_2.
+           eapply find_coeff_step; eauto; reflexivity.
 bbb.
 
 (* mmm... faut voir... *)
