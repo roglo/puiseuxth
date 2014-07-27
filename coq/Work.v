@@ -40,38 +40,38 @@ Variable R : ring α.
 Variable K : field R.
 Variable acf : algeb_closed_field K.
 
-Lemma find_coeff_step : ∀ pol ns m₁ c pol₁ ns₁ i id di p dp np,
+Lemma find_coeff_step : ∀ pol ns m c pol₁ ns₁ i di p dp np,
   ns ∈ newton_segments pol
-  → ps_lap_forall (λ a : puiseux_series α, in_K_1_m a m₁) (al pol)
-  → q_of_m m₁ (γ ns) = 1%positive
+  → ps_lap_forall (λ a : puiseux_series α, in_K_1_m a m) (al pol)
+  → q_of_m m (γ ns) = 1%positive
   → c = ac_root (Φq pol ns)
   → root_multiplicity acf c (Φq pol ns) = 1%nat
   → pol₁ = next_pol pol (β ns) (γ ns) c
   → ns₁ = List.hd phony_ns (newton_segments pol₁)
-  → id = (S i - p)%nat
   → (0 < p ≤ i)%nat
   → (di ≤ dp + 1)%nat
-  → np = next_pow (p + dp) ns₁ m₁
-  → (find_coeff i np m₁ pol₁ ns₁ (i + di) =
-     find_coeff id np m₁ pol₁ ns₁ (i + di))%K.
+  → np = next_pow (p + dp) ns₁ m
+  → (find_coeff i np m pol₁ ns₁ (i + di) =
+     find_coeff (S i - p) np m pol₁ ns₁ (i + di))%K.
 Proof.
-intros pol ns m₁ c pol₁ ns₁ i id di p₁ p₂ np.
-intros Hns HK₂ Hq₂ Hc Hr₂ Hpol₁ Hns₁ Heqid (Hp₁, Hpi) Hdip Hnp.
-revert pol ns m₁ c pol₁ ns₁ id di p₁ p₂ np Hns HK₂ Hq₂ Hc Hr₂ Hpol₁
- Hns₁ Heqid Hp₁ Hpi Hdip Hnp.
+intros pol ns m c pol₁ ns₁ i di p dp np.
+intros Hns HK Hq Hc Hr Hpol₁ Hns₁ (Hp, Hpi) Hdip Hnp.
+remember (S i - p)%nat as id.
+revert pol ns c pol₁ ns₁ id di p dp np Hns HK Hq Hc Hr Hpol₁
+ Hns₁ Heqid Hp Hpi Hdip Hnp.
 induction i; intros.
- destruct p₁; [ exfalso; revert Hp₁; apply Nat.lt_irrefl | idtac ].
+ destruct p; [ exfalso; revert Hp; apply Nat.lt_irrefl | idtac ].
  exfalso; revert Hpi; apply Nat.nle_succ_0.
 
  destruct id; [ exfalso; fast_omega Hpi Heqid | simpl ].
  destruct (ps_zerop R (ps_poly_nth 0 pol₁)) as [H₁| H₁]; auto.
  unfold next_pow in Hnp; simpl in Hnp.
- remember Hr₂ as H; clear HeqH.
+ remember Hr as H; clear HeqH.
  eapply r_1_next_ns in H; eauto .
- destruct H as (αj₃, (αk₃, H)).
- destruct H as (Hoth₃, (Hini₃, (Hfin₃, (Hαj₃, Hαk₃)))).
- rewrite Hini₃, Hfin₃ in Hnp; simpl in Hnp.
- rewrite Hαk₃ in Hnp; simpl in Hnp.
+ destruct H as (αj₁, (αk₁, H)).
+ destruct H as (Hoth₁, (Hini₁, (Hfin₁, (Hαj₁, Hαk₁)))).
+ rewrite Hini₁, Hfin₁ in Hnp; simpl in Hnp.
+ rewrite Hαk₁ in Hnp; simpl in Hnp.
  rewrite Z.add_0_r, Z.mul_1_r in Hnp.
  do 2 rewrite Pos.mul_1_r in Hnp.
  rewrite Z.mul_shuffle0 in Hnp.
@@ -82,33 +82,32 @@ induction i; intros.
  remember (Nat.compare np (S (i + di))) as cmp₁ eqn:Hnpi .
  symmetry in Hnpi.
  destruct cmp₁; auto.
- remember (ac_root (Φq pol₁ ns₁)) as c₃ eqn:Hc₃ .
- remember (next_pol pol₁ (β ns₁) (γ ns₁) c₃) as pol₄ eqn:Hpol₄ .
- remember (List.hd phony_ns (newton_segments pol₄)) as ns₄ eqn:Hns₄ .
- remember (next_pow np ns₄ m₁) as nnp eqn:Hnnp .
+ remember (ac_root (Φq pol₁ ns₁)) as c₁ eqn:Hc₁ .
+ remember (next_pol pol₁ (β ns₁) (γ ns₁) c₁) as pol₂ eqn:Hpol₂ .
+ remember (List.hd phony_ns (newton_segments pol₂)) as ns₂ eqn:Hns₂ .
+ remember (next_pow np ns₂ m) as nnp eqn:Hnnp .
  apply nat_compare_lt in Hnpi.
- assert (ps_lap_forall (λ a, in_K_1_m a m₁) (al pol₁)) as HK₃.
-  replace m₁ with (m₁ * 1)%positive by apply Pos.mul_1_r.
+ assert (ps_lap_forall (λ a, in_K_1_m a m) (al pol₁)) as HK₁.
+  replace m with (m * 1)%positive by apply Pos.mul_1_r.
   eapply next_pol_in_K_1_mq with (pol := pol); eauto .
 
   remember Hns₁₁ as H; clear HeqH.
-  eapply num_m_den_is_pos with (m := m₁) in H; eauto .
+  eapply num_m_den_is_pos with (m := m) in H; eauto .
   rewrite <- Nat.add_succ_r.
-  assert (q_of_m m₁ (γ ns₁) = 1%positive) as Hq₃.
-   replace m₁ with (m₁ * 1)%positive by apply Pos.mul_1_r.
+  assert (q_of_m m (γ ns₁) = 1%positive) as Hq₁.
+   replace m with (m * 1)%positive by apply Pos.mul_1_r.
    eapply q_eq_1 with (pol := pol) (pol₁ := pol₁); eauto .
    rewrite Pos.mul_1_r; assumption.
 
-   remember Hns as Hr₃; clear HeqHr₃.
-   eapply multiplicity_1_remains in Hr₃; eauto .
-   subst np.
-   rewrite <- Nat.add_assoc in Hnnp.
-   eapply IHi with (p₁ := p₁); eauto .
-    fast_omega Heqid H.
+   remember Hns as Hr₁; clear HeqHr₁.
+   eapply multiplicity_1_remains in Hr₁; eauto .
+   subst np; rewrite <- Nat.add_assoc in Hnnp.
+   eapply IHi with (p := p); eauto.
+    fast_omega H Heqid.
 
-    fast_omega Hnpi H Hdip.
+    fast_omega H Hnpi Hdip.
 
-    fast_omega Hdip H.
+    fast_omega H Hdip.
 Qed.
 
 Lemma sss : ∀ pol ns pol₁ ns₁ c m q₀,
@@ -400,6 +399,7 @@ induction n; intros.
            assert (0 < p₂)%nat as Hp₁ by (rewrite Hnpow; auto).
            replace p₂ with (p₂ + 0)%nat in Hp₂₃ by omega.
            apply Nat.succ_le_mono in Hcmp.
+           subst id.
            eapply find_coeff_step; eauto; reflexivity.
 bbb.
 
