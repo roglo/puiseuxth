@@ -120,29 +120,6 @@ destruct (ps_zerop R (ps_poly_nth 0 pol)); [ reflexivity | idtac ].
 contradiction.
 Qed.
 
-Lemma root_tail_0 : ∀ pol ns m n,
-  (ps_poly_nth 0 pol = 0)%ps
-  → (root_tail m n pol ns = 0)%ps.
-Proof.
-intros pol ns m n H.
-bbb.
-revert pol ns m H.
-induction n; intros.
- unfold root_tail; simpl.
- destruct (ps_zerop R (ps_poly_nth 0 pol)); [ reflexivity | idtac ].
- contradiction.
-
- unfold root_tail.
- remember (nth_pol (S n) pol ns) as poln eqn:Hpoln .
- destruct (ps_zerop R (ps_poly_nth 0 poln)) as [H₁| H₁].
-  reflexivity.
-
-  simpl in Hpoln.
-  remember (ac_root (Φq pol ns)) as c eqn:Hc .
-  remember (next_pol pol (β ns) (γ ns) c) as pol₁ eqn:Hpol₁ .
-  remember (List.hd phony_ns (newton_segments pol₁)) as ns₁ eqn:Hns₁ .
-bbb.
-
 Lemma root_head_succ : ∀ pol ns n,
   (ps_poly_nth 0 pol ≠ 0)%ps
   → (root_head (S n) pol ns =
@@ -462,9 +439,10 @@ induction n; intros.
     apply Z.lt_le_incl; assumption.
 
  destruct (ps_zerop R (ps_poly_nth 0 pol₁)) as [H₁| H₁].
-  2: rewrite root_head_succ; auto.
-  rewrite root_head_0; auto.
-  rewrite ps_add_0_l.
+  pose proof (Hpsi O (Nat.le_0_l (S n))) as H.
+  contradiction.
+
+  rewrite root_head_succ; auto.
 bbb.
 
 (* mmm... faut voir... *)
