@@ -144,13 +144,19 @@ rewrite <- Hc, <- Hpol₁, <- Hns₁.
 reflexivity.
 Qed.
 
-(*
-Lemma root_tail_succ₂ : ∀ pol ns m n,
-  → (root_tail m (S n) pol ns =
-     root_tail m n pol ns)%ps.
+Lemma root_tail_nth : ∀ pol ns m n,
+  (root_tail m n pol ns =
+   root_tail m 0 (nth_pol n pol ns) (nth_ns n pol ns))%ps.
 Proof.
-bbb.
-*)
+intros pol ns m n.
+revert pol ns m.
+induction n; intros; [ reflexivity | simpl ].
+remember (ac_root (Φq pol ns)) as c eqn:Hc .
+remember (next_pol pol (β ns) (γ ns) c) as pol₁ eqn:Hpol₁ .
+remember (List.hd phony_ns (newton_segments pol₁)) as ns₁ eqn:Hns₁ .
+rewrite <- IHn.
+eapply root_tail_succ; eauto .
+Qed.
 
 Lemma sss : ∀ pol ns pol₁ ns₁ c m q₀,
   ns ∈ newton_segments pol
@@ -170,6 +176,7 @@ intros pol ns pol₁ ns₁ c m q₀ Hns Hm Hq₀ Hc Hr Hpol₁ Hns₁ n Hpsi.
 remember (m * q₀)%positive as m₁.
 remember Hm as HinK1m; clear HeqHinK1m.
 apply com_polord_in_K_1_m with (R := R) in HinK1m.
+revert pol ns pol₁ ns₁ Hns Hm Hq₀ Hc Hr Hpol₁ Hns₁ HinK1m Hpsi.
 induction n; intros.
  remember Hns₁ as Hini₁; clear HeqHini₁.
  apply exists_ini_pt_nat_fst_seg in Hini₁.
@@ -463,9 +470,21 @@ induction n; intros.
   contradiction.
 
   rewrite root_head_succ; auto.
-  rewrite IHn.
-   rewrite <- ps_add_assoc.
-   apply rng_add_compat_l.
+  rewrite IHn; eauto.
+  rewrite <- ps_add_assoc.
+bbb.
+  apply rng_add_compat_l.
+  rewrite root_tail_nth.
+  symmetry.
+  rewrite root_tail_nth.
+  symmetry.
+  simpl.
+  remember (ac_root (Φq pol₁ ns₁)) as c₁ eqn:Hc₁ .
+  remember (next_pol pol₁ (β ns₁) (γ ns₁) c₁) as pol₂ eqn:Hpol₂ .
+  remember (List.hd phony_ns (newton_segments pol₂)) as ns₂ eqn:Hns₂ .
+  remember (ac_root (Φq pol₂ ns₂)) as c₂ eqn:Hc₂ .
+  remember (next_pol pol₂ (β ns₂) (γ ns₂) c₂) as pol₃ eqn:Hpol₃ .
+  remember (List.hd phony_ns (newton_segments pol₃)) as ns₃ eqn:Hns₃ .
 bbb.
 
 (* mmm... faut voir... *)
