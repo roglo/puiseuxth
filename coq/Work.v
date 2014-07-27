@@ -56,14 +56,14 @@ Lemma find_coeff_step : ∀ pol ns m₁ c pol₁ ns₁ i id di p dp np,
      find_coeff id np m₁ pol₁ ns₁ (i + di))%K.
 Proof.
 intros pol ns m₁ c pol₁ ns₁ i id di p₁ p₂ np.
-intros Hns HK₂ Hq₂ Hc Hr₂ Hpol₁ Hns₁ Heqid (Hp₁, Hcmp) Hdip Hnp.
+intros Hns HK₂ Hq₂ Hc Hr₂ Hpol₁ Hns₁ Heqid (Hp₁, Hpi) Hdip Hnp.
 revert pol ns m₁ c pol₁ ns₁ id di p₁ p₂ np Hns HK₂ Hq₂ Hc Hr₂ Hpol₁
- Hns₁ Heqid Hp₁ Hcmp Hdip Hnp.
+ Hns₁ Heqid Hp₁ Hpi Hdip Hnp.
 induction i; intros.
  destruct p₁; [ exfalso; revert Hp₁; apply Nat.lt_irrefl | idtac ].
- replace id with O by omega; reflexivity.
+ exfalso; revert Hpi; apply Nat.nle_succ_0.
 
- destruct id; [ exfalso; fast_omega Hcmp Heqid | simpl ].
+ destruct id; [ exfalso; fast_omega Hpi Heqid | simpl ].
  destruct (ps_zerop R (ps_poly_nth 0 pol₁)) as [H₁| H₁]; auto.
  unfold next_pow in Hnp; simpl in Hnp.
  remember Hr₂ as H; clear HeqH.
@@ -79,14 +79,14 @@ induction i; intros.
  rewrite Z.div_mul_cancel_r in Hnp; auto.
  remember Hns₁ as Hns₁₁; clear HeqHns₁₁.
  eapply hd_newton_segments in Hns₁₁; eauto .
- remember (Nat.compare np (S (i + di))) as cmp₁ eqn:Hcmp₁ .
- symmetry in Hcmp₁.
+ remember (Nat.compare np (S (i + di))) as cmp₁ eqn:Hnpi .
+ symmetry in Hnpi.
  destruct cmp₁; auto.
  remember (ac_root (Φq pol₁ ns₁)) as c₃ eqn:Hc₃ .
  remember (next_pol pol₁ (β ns₁) (γ ns₁) c₃) as pol₄ eqn:Hpol₄ .
  remember (List.hd phony_ns (newton_segments pol₄)) as ns₄ eqn:Hns₄ .
  remember (next_pow np ns₄ m₁) as nnp eqn:Hnnp .
- apply nat_compare_lt in Hcmp₁.
+ apply nat_compare_lt in Hnpi.
  assert (ps_lap_forall (λ a, in_K_1_m a m₁) (al pol₁)) as HK₃.
   replace m₁ with (m₁ * 1)%positive by apply Pos.mul_1_r.
   eapply next_pol_in_K_1_mq with (pol := pol); eauto .
@@ -106,7 +106,7 @@ induction i; intros.
    eapply IHi with (p₁ := p₁); eauto .
     fast_omega Heqid H.
 
-    fast_omega Hcmp₁ H Hdip.
+    fast_omega Hnpi H Hdip.
 
     fast_omega Hdip H.
 Qed.
