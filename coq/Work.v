@@ -112,7 +112,7 @@ Qed.
 
 Lemma root_head_0 : ∀ pol ns n,
   (ps_poly_nth 0 pol = 0)%ps
-  → (root_head n pol ns = 0)%ps.
+  → (root_head 0 n pol ns = 0)%ps.
 Proof.
 intros pol ns n H.
 unfold root_head.
@@ -122,8 +122,8 @@ Qed.
 
 Lemma root_head_succ : ∀ pol ns n,
   (ps_poly_nth 0 pol ≠ 0)%ps
-  → (root_head (S n) pol ns =
-     root_head n pol ns +
+  → (root_head 0 (S n) pol ns =
+     root_head 0 n pol ns +
      ps_monom (nth_c (S n) pol ns) (γ_sum (S n) pol ns))%ps.
 Proof.
 intros pol ns n Hp₀.
@@ -169,7 +169,7 @@ Lemma sss : ∀ pol ns pol₁ ns₁ c m q₀,
   → ∀ n,
     (∀ i, (i ≤ n)%nat → (ps_poly_nth 0 (nth_pol i pol₁ ns₁) ≠ 0)%ps)
     → (root_tail (m * q₀) 0 pol₁ ns₁ =
-       root_head n pol₁ ns₁ +
+       root_head 0 n pol₁ ns₁ +
        ps_monom 1%K (γ_sum n pol₁ ns₁) * root_tail (m * q₀) (S n) pol₁ ns₁)%ps.
 Proof.
 intros pol ns pol₁ ns₁ c m q₀ Hns Hm Hq₀ Hc Hr Hpol₁ Hns₁ n Hpsi.
