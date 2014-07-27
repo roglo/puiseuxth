@@ -40,7 +40,7 @@ Variable R : ring α.
 Variable K : field R.
 Variable acf : algeb_closed_field K.
 
-Lemma rrr : ∀ pol₂ ns₂ m₁ c₂ pol₃ ns₃ i id di p₁ p₂ p₂₃,
+Lemma find_coeff_step : ∀ pol₂ ns₂ m₁ c₂ pol₃ ns₃ i id di p₁ p₂ p₂₃,
   ns₂ ∈ newton_segments pol₂
   → ps_lap_forall (λ a : puiseux_series α, in_K_1_m a m₁) (al pol₂)
   → q_of_m m₁ (γ ns₂) = 1%positive
@@ -48,9 +48,9 @@ Lemma rrr : ∀ pol₂ ns₂ m₁ c₂ pol₃ ns₃ i id di p₁ p₂ p₂₃,
   → root_multiplicity acf c₂ (Φq pol₂ ns₂) = 1%nat
   → pol₃ = next_pol pol₂ (β ns₂) (γ ns₂) c₂
   → ns₃ = List.hd phony_ns (newton_segments pol₃)
-  → id = (i + 1 - p₁)%nat
+  → id = (S i - p₁)%nat
   → (0 < p₁)%nat
-  → (p₁ < i + 1)%nat
+  → (p₁ ≤ i)%nat
   → (di < p₂ + 2)%nat
   → p₂₃ = next_pow (p₁ + p₂) ns₃ m₁
   → (find_coeff i p₂₃ m₁ pol₃ ns₃ (i + di) =
@@ -95,10 +95,7 @@ induction i; intros.
   remember Hns₃₁ as H; clear HeqH.
   eapply num_m_den_is_pos with (m := m₁) in H; eauto .
   rewrite <- Nat.add_succ_r.
-  clear Hq₂.
-  clear Hcmp.
-  assert (p₁ < i + di)%nat as Hcmp by fast_omega H Hp₂₃ Hcmp₁.
-  assert (q_of_m m₁ (γ ns₃) = 1%positive) as Hq₂.
+  assert (q_of_m m₁ (γ ns₃) = 1%positive) as Hq₃.
    replace m₁ with (m₁ * 1)%positive by apply Pos.mul_1_r.
    eapply q_eq_1 with (pol := pol₂) (pol₁ := pol₃); eauto .
    rewrite Pos.mul_1_r; assumption.
@@ -107,8 +104,13 @@ induction i; intros.
    eapply multiplicity_1_remains in Hr₃; eauto .
    subst p₂₃.
    rewrite <- Nat.add_assoc in Hp₂₃₄.
-   eapply IHi with (p₁ := p₁); eauto ; omega.
-qed.
+   eapply IHi with (p₁ := p₁); eauto .
+    fast_omega Heqid H.
+
+    fast_omega Hcmp₁ H Hdip.
+
+    fast_omega Hdip H.
+Qed.
 
 Lemma sss : ∀ pol ns pol₁ ns₁ c m q₀,
   ns ∈ newton_segments pol
@@ -395,17 +397,12 @@ induction n; intros.
 
            remember Hns₁₁ as Hr₂; clear HeqHr₂.
            eapply multiplicity_1_remains in Hr₂; eauto .
-           rename p₂ into p₁.
-           remember (S i) as j.
-           rewrite <- Nat.add_1_r in Heqj.
-           remember 1%nat as di eqn:Hdi  in Heqj.
-           subst j.
-           assert (0 < p₁)%nat as Hp₁ by (rewrite Hnpow; auto).
-           clear Hnpow Heqp₂.
-           rewrite Hdi in Hcmp, Heqid.
-           replace p₁ with (p₁ + 0)%nat in Hp₂₃ by omega.
-           eapply rrr; eauto .
-           omega.
+           rewrite <- Nat.add_1_r.
+           assert (0 < p₂)%nat as Hp₁ by (rewrite Hnpow; auto).
+           replace p₂ with (p₂ + 0)%nat in Hp₂₃ by omega.
+           apply Nat.succ_le_mono in Hcmp.
+           eapply find_coeff_step; eauto .
+           apply Nat.lt_1_2.
 bbb.
 
 (* mmm... faut voir... *)
