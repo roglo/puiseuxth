@@ -177,6 +177,7 @@ remember (m * q₀)%positive as m₁.
 remember Hm as HinK1m; clear HeqHinK1m.
 apply com_polord_in_K_1_m with (R := R) in HinK1m.
 revert pol ns pol₁ ns₁ Hns Hm Hq₀ Hc Hr Hpol₁ Hns₁ HinK1m Hpsi.
+revert c m q₀ m₁ Heqm₁.
 induction n; intros.
  remember Hns₁ as Hini₁; clear HeqHini₁.
  apply exists_ini_pt_nat_fst_seg in Hini₁.
@@ -472,8 +473,8 @@ induction n; intros.
   rewrite root_head_succ; auto.
   rewrite IHn; eauto.
   rewrite <- ps_add_assoc.
-bbb.
   apply rng_add_compat_l.
+bbb.
   rewrite root_tail_nth.
   symmetry.
   rewrite root_tail_nth.
