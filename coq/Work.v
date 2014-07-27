@@ -401,6 +401,20 @@ induction n; intros.
            apply Nat.succ_le_mono in Hcmp.
            subst id.
            eapply find_coeff_step; eauto; reflexivity.
+
+      simpl in HH.
+      exfalso; revert HH; apply Nat.lt_irrefl.
+
+     rewrite Pos.mul_comm, Pos.mul_assoc.
+     reflexivity.
+
+    apply Z.le_sub_le_add_l.
+    rewrite Z.sub_diag.
+    apply Z.mul_nonneg_nonneg; auto.
+    apply Z.mul_nonneg_nonneg; auto.
+    apply Z.div_pos; [ idtac | apply Pos2Z.is_pos ].
+    apply Z.mul_nonneg_nonneg; auto.
+    apply Z.lt_le_incl; assumption.
 bbb.
 
 (* mmm... faut voir... *)
