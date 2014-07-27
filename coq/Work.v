@@ -132,6 +132,26 @@ destruct (ps_zerop R (ps_poly_nth 0 pol)); [ contradiction | idtac ].
 rewrite summation_split_last; [ reflexivity | apply Nat.le_0_l ].
 Qed.
 
+Lemma root_tail_succ : ∀ pol ns m n c pol₁ ns₁,
+  c = ac_root (Φq pol ns)
+  → pol₁ = next_pol pol (β ns) (γ ns) c
+  → ns₁ = List.hd phony_ns (newton_segments pol₁)
+  → (root_tail m (S n) pol ns = root_tail m n pol₁ ns₁)%ps.
+Proof.
+intros pol ns m n c pol₁ ns₁ Hc Hpol₁ Hns₁.
+unfold root_tail; simpl.
+rewrite <- Hc, <- Hpol₁, <- Hns₁.
+reflexivity.
+Qed.
+
+(*
+Lemma root_tail_succ₂ : ∀ pol ns m n,
+  → (root_tail m (S n) pol ns =
+     root_tail m n pol ns)%ps.
+Proof.
+bbb.
+*)
+
 Lemma sss : ∀ pol ns pol₁ ns₁ c m q₀,
   ns ∈ newton_segments pol
   → m = ps_list_com_polord (al pol)
