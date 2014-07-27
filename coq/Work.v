@@ -110,26 +110,27 @@ induction i; intros.
     fast_omega H Hdip.
 Qed.
 
-Lemma root_head_0 : ∀ pol ns n,
+Lemma root_head_0 : ∀ pol ns b n,
   (ps_poly_nth 0 pol = 0)%ps
-  → (root_head 0 n pol ns = 0)%ps.
+  → (root_head b n pol ns = 0)%ps.
 Proof.
-intros pol ns n H.
+intros pol ns b n H.
 unfold root_head.
 destruct (ps_zerop R (ps_poly_nth 0 pol)); [ reflexivity | idtac ].
 contradiction.
 Qed.
 
-Lemma root_head_succ : ∀ pol ns n,
+Lemma root_head_succ : ∀ pol ns b n,
   (ps_poly_nth 0 pol ≠ 0)%ps
-  → (root_head 0 (S n) pol ns =
-     root_head 0 n pol ns +
+  → (b ≤ S n)%nat
+  → (root_head b (S n) pol ns =
+     root_head b n pol ns +
      ps_monom (nth_c (S n) pol ns) (γ_sum (S n) pol ns))%ps.
 Proof.
-intros pol ns n Hp₀.
+intros pol ns b n Hp₀ Hbn.
 unfold root_head.
 destruct (ps_zerop R (ps_poly_nth 0 pol)); [ contradiction | idtac ].
-rewrite summation_split_last; [ reflexivity | apply Nat.le_0_l ].
+rewrite summation_split_last; [ reflexivity | assumption ].
 Qed.
 
 Lemma root_tail_succ : ∀ pol ns m n c pol₁ ns₁,
@@ -470,7 +471,7 @@ induction n; intros.
   pose proof (Hpsi O (Nat.le_0_l (S n))) as H.
   contradiction.
 
-  rewrite root_head_succ; auto.
+  rewrite root_head_succ; auto; [ idtac | apply Nat.le_0_l ].
   rewrite IHn; eauto.
   rewrite <- ps_add_assoc.
   apply rng_add_compat_l.
