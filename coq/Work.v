@@ -40,13 +40,13 @@ Variable R : ring α.
 Variable K : field R.
 Variable acf : algeb_closed_field K.
 
-Lemma find_coeff_step : ∀ pol₂ ns₂ m₁ c₂ pol₃ ns₃ i id di p dp p₂₃,
-  ns₂ ∈ newton_segments pol₂
-  → ps_lap_forall (λ a : puiseux_series α, in_K_1_m a m₁) (al pol₂)
-  → q_of_m m₁ (γ ns₂) = 1%positive
-  → c₂ = ac_root (Φq pol₂ ns₂)
-  → root_multiplicity acf c₂ (Φq pol₂ ns₂) = 1%nat
-  → pol₃ = next_pol pol₂ (β ns₂) (γ ns₂) c₂
+Lemma find_coeff_step : ∀ pol ns m₁ c₂ pol₃ ns₃ i id di p dp p₂₃,
+  ns ∈ newton_segments pol
+  → ps_lap_forall (λ a : puiseux_series α, in_K_1_m a m₁) (al pol)
+  → q_of_m m₁ (γ ns) = 1%positive
+  → c₂ = ac_root (Φq pol ns)
+  → root_multiplicity acf c₂ (Φq pol ns) = 1%nat
+  → pol₃ = next_pol pol (β ns) (γ ns) c₂
   → ns₃ = List.hd phony_ns (newton_segments pol₃)
   → id = (S i - p)%nat
   → (0 < p ≤ i)%nat
@@ -55,9 +55,9 @@ Lemma find_coeff_step : ∀ pol₂ ns₂ m₁ c₂ pol₃ ns₃ i id di p dp p�
   → (find_coeff i p₂₃ m₁ pol₃ ns₃ (i + di) =
      find_coeff id p₂₃ m₁ pol₃ ns₃ (i + di))%K.
 Proof.
-intros pol₂ ns₂ m₁ c₂ pol₃ ns₃ i id di p₁ p₂ p₂₃.
-intros Hns₂₁ HK₂ Hq₂ Hc₂ Hr₂ Hpol₃ Hns₃ Heqid (Hp₁, Hcmp) Hdip Hp₂₃.
-revert pol₂ ns₂ m₁ c₂ pol₃ ns₃ id di p₁ p₂ p₂₃ Hns₂₁ HK₂ Hq₂ Hc₂ Hr₂ Hpol₃
+intros pol ns m₁ c₂ pol₃ ns₃ i id di p₁ p₂ p₂₃.
+intros Hns HK₂ Hq₂ Hc₂ Hr₂ Hpol₃ Hns₃ Heqid (Hp₁, Hcmp) Hdip Hp₂₃.
+revert pol ns m₁ c₂ pol₃ ns₃ id di p₁ p₂ p₂₃ Hns HK₂ Hq₂ Hc₂ Hr₂ Hpol₃
  Hns₃ Heqid Hp₁ Hcmp Hdip Hp₂₃.
 induction i; intros.
  destruct p₁; [ exfalso; revert Hp₁; apply Nat.lt_irrefl | idtac ].
@@ -89,17 +89,17 @@ induction i; intros.
  apply nat_compare_lt in Hcmp₁.
  assert (ps_lap_forall (λ a, in_K_1_m a m₁) (al pol₃)) as HK₃.
   replace m₁ with (m₁ * 1)%positive by apply Pos.mul_1_r.
-  eapply next_pol_in_K_1_mq with (pol := pol₂); eauto .
+  eapply next_pol_in_K_1_mq with (pol := pol); eauto .
 
   remember Hns₃₁ as H; clear HeqH.
   eapply num_m_den_is_pos with (m := m₁) in H; eauto .
   rewrite <- Nat.add_succ_r.
   assert (q_of_m m₁ (γ ns₃) = 1%positive) as Hq₃.
    replace m₁ with (m₁ * 1)%positive by apply Pos.mul_1_r.
-   eapply q_eq_1 with (pol := pol₂) (pol₁ := pol₃); eauto .
+   eapply q_eq_1 with (pol := pol) (pol₁ := pol₃); eauto .
    rewrite Pos.mul_1_r; assumption.
 
-   remember Hns₂₁ as Hr₃; clear HeqHr₃.
+   remember Hns as Hr₃; clear HeqHr₃.
    eapply multiplicity_1_remains in Hr₃; eauto .
    subst p₂₃.
    rewrite <- Nat.add_assoc in Hp₂₃₄.
