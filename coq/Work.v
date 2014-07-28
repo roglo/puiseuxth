@@ -192,28 +192,20 @@ induction n; intros.
    apply exists_fin_pt_nat_fst_seg in Hfin₁.
    destruct Hfin₁ as (k₁, (αk₁, Hfin₁)).
    subst nsb polb.
-   induction b.
-    simpl.
+   revert pol₁ ns₁ Hpol₁ Hns₁ Hpsi Hini₁ Hfin₁ Hps₀.
+   induction b; intros; simpl.
     eapply hd_newton_segments; eauto .
-bbb.
+    remember Hns as H; clear HeqH.
+    eapply r_1_j_0_k_1 in H; try eassumption.
+    destruct H as (Hj₁, (Hk₁, (Hαj₁, (Hαk₁, Hoth₁)))).
+    subst j₁ k₁; simpl.
+    apply Nat.lt_0_1.
 
-intros pol ns pol₁ ns₁ c m q₀ b Hns Hm Hq₀ Hc Hr Hpol₁ Hns₁ n Hpsi.
-remember (m * q₀)%positive as m₁.
-revert pol ns pol₁ ns₁ Hns Hm Hq₀ Hc Hr Hpol₁ Hns₁ Hpsi.
-revert b c m q₀ m₁ Heqm₁.
-induction n; intros.
- remember Hns₁ as Hini₁; clear HeqHini₁.
- apply exists_ini_pt_nat_fst_seg in Hini₁.
- destruct Hini₁ as (j₁, (αj₁, Hini₁)).
- remember Hns₁ as Hfin₁; clear HeqHfin₁.
- apply exists_fin_pt_nat_fst_seg in Hfin₁.
- destruct Hfin₁ as (k₁, (αk₁, Hfin₁)).
- unfold root_tail, root_head; simpl.
- destruct (ps_zerop _ (ps_poly_nth 0 (nth_pol b pol₁ ns₁))) as [Hps₀| Hps₀].
-  pose proof (Hpsi b (Nat.le_add_r b 0)); contradiction.
-
-  remember Hns as HinK1m₁; clear HeqHinK1m₁.
-  eapply next_pol_in_K_1_mq in HinK1m₁; eauto .
+    rewrite Nat.add_0_r in IHb.
+    remember (ac_root (Φq pol₁ ns₁)) as c₁ eqn:Hc₁ .
+    remember (next_pol pol₁ (β ns₁) (γ ns₁) c₁) as pol₂ eqn:Hpol₂ .
+    remember (List.hd phony_ns (newton_segments pol₂)) as ns₂ eqn:Hns₂ .
+    apply IHb; eauto .
 bbb.
 
   remember Hns as HinK1m₁; clear HeqHinK1m₁.
