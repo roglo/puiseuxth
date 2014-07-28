@@ -178,19 +178,14 @@ remember (m * q₀)%positive as m₁.
 revert pol ns pol₁ ns₁ Hns Hm Hq₀ Hc Hr Hpol₁ Hns₁ Hpsi.
 revert b c m q₀ m₁ Heqm₁.
 induction n; intros.
- remember Hns₁ as Hini₁; clear HeqHini₁.
- apply exists_ini_pt_nat_fst_seg in Hini₁.
- destruct Hini₁ as (j₁, (αj₁, Hini₁)).
- remember Hns₁ as Hfin₁; clear HeqHfin₁.
- apply exists_fin_pt_nat_fst_seg in Hfin₁.
- destruct Hfin₁ as (k₁, (αk₁, Hfin₁)).
  unfold root_tail, root_head; simpl.
  destruct (ps_zerop _ (ps_poly_nth 0 (nth_pol b pol₁ ns₁))) as [Hps₀| Hps₀].
-  pose proof (Hpsi b (Nat.le_add_r b 0)) as H.
-  contradiction.
+  pose proof (Hpsi b (Nat.le_add_r b 0)); contradiction.
 
-  remember Hns as HinK1m₁; clear HeqHinK1m₁.
-  eapply next_pol_in_K_1_mq in HinK1m₁; eauto .
+  remember (nth_pol b pol₁ ns₁) as polb eqn:Hpolb .
+  remember (nth_ns b pol₁ ns₁) as nsb eqn:Hnsb .
+  assert (nsb ∈ newton_segments polb) as Hbns.
+
 bbb.
 
 intros pol ns pol₁ ns₁ c m q₀ b Hns Hm Hq₀ Hc Hr Hpol₁ Hns₁ n Hpsi.
@@ -205,9 +200,12 @@ induction n; intros.
  apply exists_fin_pt_nat_fst_seg in Hfin₁.
  destruct Hfin₁ as (k₁, (αk₁, Hfin₁)).
  unfold root_tail, root_head; simpl.
- destruct (ps_zerop _ (ps_poly_nth 0 pol₁)) as [Hps₀| Hps₀].
-  pose proof (Hpsi 0%nat (Nat.le_0_l 0)) as H.
-  contradiction.
+ destruct (ps_zerop _ (ps_poly_nth 0 (nth_pol b pol₁ ns₁))) as [Hps₀| Hps₀].
+  pose proof (Hpsi b (Nat.le_add_r b 0)); contradiction.
+
+  remember Hns as HinK1m₁; clear HeqHinK1m₁.
+  eapply next_pol_in_K_1_mq in HinK1m₁; eauto .
+bbb.
 
   remember Hns as HinK1m₁; clear HeqHinK1m₁.
   eapply next_pol_in_K_1_mq in HinK1m₁; eauto .
