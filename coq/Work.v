@@ -172,6 +172,13 @@ remember (ac_root (Φq pol₁ ns₁)) as c₁ eqn:Hc₁ .
 remember (next_pol pol₁ (β ns₁) (γ ns₁) c₁) as pol₂ eqn:Hpol₂ .
 remember (List.hd phony_ns (newton_segments pol₂)) as ns₂ eqn:Hns₂ .
 apply IHb.
+remember Hns₂ as H; clear HeqH.
+apply exists_ini_pt_nat_fst_seg in H.
+destruct H as (j₂, (αj₂, Hini₂)).
+remember Hns₂ as H; clear HeqH.
+apply exists_fin_pt_nat_fst_seg in H.
+destruct H as (k₂, (αk₂, Hfin₂)).
+eapply hd_newton_segments; eauto .
 bbb.
 
 Lemma sss : ∀ pol ns pol₁ ns₁ c m q₀ b,
