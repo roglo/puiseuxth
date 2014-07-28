@@ -185,7 +185,16 @@ induction n; intros.
   remember (nth_pol b pol₁ ns₁) as polb eqn:Hpolb .
   remember (nth_ns b pol₁ ns₁) as nsb eqn:Hnsb .
   assert (nsb ∈ newton_segments polb) as Hbns.
-
+   remember Hns₁ as Hini₁; clear HeqHini₁.
+   apply exists_ini_pt_nat_fst_seg in Hini₁.
+   destruct Hini₁ as (j₁, (αj₁, Hini₁)).
+   remember Hns₁ as Hfin₁; clear HeqHfin₁.
+   apply exists_fin_pt_nat_fst_seg in Hfin₁.
+   destruct Hfin₁ as (k₁, (αk₁, Hfin₁)).
+   subst nsb polb.
+   induction b.
+    simpl.
+    eapply hd_newton_segments; eauto .
 bbb.
 
 intros pol ns pol₁ ns₁ c m q₀ b Hns Hm Hq₀ Hc Hr Hpol₁ Hns₁ n Hpsi.
