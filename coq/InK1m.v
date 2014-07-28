@@ -554,21 +554,6 @@ assert (g ≠ 0)%Z as Hg0.
    rewrite <- Hgq; apply Pos2Z.is_pos.
 Qed.
 
-(* similar to gamma_eq_p_mq *)
-Theorem xxx : ∀ pol ns m p q,
-  ns ∈ newton_segments pol
-  → ps_lap_forall (λ a, in_K_1_m a m) (al pol)
-  → p = p_of_m m (γ ns)
-  → q = q_of_m m (γ ns)
-  → γ ns == p # (m * q) ∧ Z.gcd p ('q) = 1%Z.
-Proof.
-intros pol ns m p q Hns Hm Hp Hq.
-apply any_is_p_mq; assumption.
-(* oui, mais bon... *)
-Abort. (*
-bbb.
-*)
-
 Lemma qden_αj_is_ps_polord : ∀ pol ns j αj,
   ns ∈ newton_segments pol
   → (Qnat j, αj) = ini_pt ns
@@ -788,44 +773,6 @@ inversion_clear HinK.
   eapply IHla; eauto .
 Qed.
 
-(* faut voir...
-Lemma xxx : ∀ pol ns m,
-  ns ∈ newton_segments pol
-  → q_of_m m (γ ns) = q_of_ns pol ns.
-Proof.
-intros pol ns m Hns.
-unfold q_of_m, q_of_ns.
-simpl.
-remember Hns as Hini; clear HeqHini.
-apply exists_ini_pt_nat in Hini.
-destruct Hini as (j, (αj, Hini)).
-remember Hns as Hfin; clear HeqHfin.
-apply exists_fin_pt_nat in Hfin.
-destruct Hfin as (k, (αk, Hfin)).
-rewrite Hini, Hfin; simpl.
-remember (ps_list_com_polord (al pol)) as m₁.
-rewrite Nat2Z.id.
-rewrite Nat2Z.id.
-remember qden_αj_is_ps_polord as qd.
-unfold ps_poly_nth in qd.
-unfold ps_lap_nth in qd.
-erewrite <- qd; eauto .
-clear qd Heqqd.
-remember qden_αk_is_ps_polord as qd.
-unfold ps_poly_nth, ps_lap_nth in qd.
-erewrite <- qd; eauto .
-rewrite Z.mul_opp_l, Z.add_opp_r.
-rewrite Pos2Z.inj_mul.
-rewrite Qden_inv.
- rewrite Qnum_inv.
-  rewrite Qnum_nat_minus.
-   rewrite <- Nat2Z.inj_sub.
-    rewrite Qden_nat_minus.
-    rewrite Z.mul_1_r.
-    clear qd Heqqd.
-bbb.
-*)
-
 Lemma den_αj_divides_num_αj_m : ∀ pol ns j αj m,
   ns ∈ newton_segments pol
   → ini_pt ns = (Qnat j, αj)
@@ -936,7 +883,6 @@ rewrite Z_div_mul_swap.
  eapply den_αh_divides_num_αh_m; eauto .
 Qed.
 
-(* similar to minus_beta_in_K_1_mq₂ *)
 Theorem minus_beta_in_K_1_mq : ∀ pol ns m a c q,
   ns ∈ newton_segments pol
   → ps_lap_forall (λ a, in_K_1_m a m) (al pol)
@@ -980,50 +926,6 @@ apply points_in_any_newton_segment with (h := Qnat j) (αh := αj) in Hbm.
  left; symmetry; eassumption.
 Qed.
 
-Theorem minus_beta_in_K_1_mq₂ : ∀ pol ns m a c q,
-  ns ∈ newton_segments pol
-  → m = ps_list_com_polord (al pol)
-  → q = q_of_ns pol ns
-  → a = ps_monom c (- β ns)
-  → in_K_1_m a (m * q).
-Proof.
-intros pol ns m a c q Hns Hm Hq Ha.
-constructor; subst a.
-remember (p_of_ns pol ns) as p eqn:Hp .
-remember Hns as Hgp; clear HeqHgp.
-eapply gamma_eq_p_mq in Hgp; try eassumption.
-remember Hns as Hini; clear HeqHini.
-apply exists_ini_pt_nat in Hini.
-destruct Hini as (j, (αj, Hini)).
-remember Hns as Him; clear HeqHim.
-symmetry in Hini.
-eapply com_den_of_ini_pt in Him; eauto .
-remember Hns as Hbm; clear HeqHbm.
-apply points_in_any_newton_segment with (h := Qnat j) (αh := αj) in Hbm.
- rewrite Him, Hgp in Hbm.
- remember (mj_of_ns pol ns) as mj.
- remember (mj * ' q + Z.of_nat j * p # m * q) as v.
- exists (ps_monom c (- v)); subst v; simpl.
- split; [ idtac | reflexivity ].
- rewrite Hbm.
- unfold ps_monom; simpl.
- rewrite ps_adjust_eq with (n := O) (k := m).
- unfold adjust_ps; simpl.
- rewrite Z.sub_0_r.
- rewrite fold_series_const.
- rewrite series_stretch_const, series_shift_0.
- apply mkps_morphism; try reflexivity.
-  rewrite Z.mul_opp_l; f_equal.
-  rewrite Z.mul_add_distr_r; f_equal.
-  rewrite <- Z.mul_assoc; f_equal.
-  apply Z.mul_comm.
-
-  apply Pos.mul_comm.
-
- left; symmetry; eassumption.
-Qed.
-
-(* similar to gamma_in_K_1_mq₂ *)
 Theorem gamma_in_K_1_mq : ∀ ns m a c q,
   q = q_of_m m (γ ns)
   → (a = ps_monom c (γ ns))%ps
@@ -1034,24 +936,6 @@ constructor.
 remember (p_of_m m (γ ns)) as p eqn:Hp .
 pose proof (any_is_p_mq (γ ns) m Hp Hq) as Hgp.
 destruct Hgp as (Hgp, Hg).
-exists (ps_monom c (p # m * q)); simpl.
-split; [ idtac | reflexivity ].
-rewrite Ha, Hgp.
-reflexivity.
-Qed.
-
-Theorem gamma_in_K_1_mq₂ : ∀ pol ns m a c q,
-  ns ∈ newton_segments pol
-  → m = ps_list_com_polord (al pol)
-  → q = q_of_ns pol ns
-  → (a = ps_monom c (γ ns))%ps
-  → in_K_1_m a (m * q).
-Proof.
-intros pol ns m a c q Hns Hm Hq Ha.
-constructor.
-remember (p_of_ns pol ns) as p eqn:Hp .
-remember Hns as Hgp; clear HeqHgp.
-eapply gamma_eq_p_mq in Hgp; try eassumption.
 exists (ps_monom c (p # m * q)); simpl.
 split; [ idtac | reflexivity ].
 rewrite Ha, Hgp.
@@ -1097,7 +981,6 @@ apply ps_lap_forall_forall.
   apply IHla; [ reflexivity | assumption ].
 Qed.
 
-(* similar to next_pol_in_K_1_mq₂ *)
 Theorem next_pol_in_K_1_mq : ∀ pol pol₁ ns m c q,
   ns ∈ newton_segments pol
   → ps_lap_forall (λ a, in_K_1_m a m) (al pol)
@@ -1141,51 +1024,6 @@ apply ps_lap_forall_forall.
     destruct Ha as (Hla, Ha).
     symmetry in Ha.
     eapply gamma_in_K_1_mq; eassumption.
-Qed.
-
-Theorem next_pol_in_K_1_mq₂ : ∀ pol pol₁ ns m c q,
-  ns ∈ newton_segments pol
-  → m = ps_list_com_polord (al pol)
-  → c = ac_root (Φq pol ns)
-  → q = q_of_ns pol ns
-  → pol₁ = next_pol pol (β ns) (γ ns) c
-  → ps_lap_forall (λ a, in_K_1_m a (m * q)) (al pol₁).
-Proof.
-intros pol pol₁ ns m c q Hns Hm Hc Hq Hpol₁.
-subst pol₁.
-unfold next_pol, next_lap; simpl.
-apply ps_lap_forall_forall.
- intros a b Hab Hamq.
- rewrite <- Hab; assumption.
-
- intros b Hin.
- eapply in_K_1_m_lap_mul_compat; eauto .
-  intros a Ha.
-  destruct Ha as [Ha| ]; [ idtac | contradiction ].
-  destruct Ha as (_, Ha).
-  rewrite <- Ha.
-  eapply minus_beta_in_K_1_mq₂; eauto .
-
-  intros ps Hps.
-  eapply in_K_1_m_lap_comp_compat; eauto .
-   intros a Ha.
-   apply in_K_1_m_lap_mul_r_compat.
-   revert a Ha.
-   apply ps_lap_forall_forall.
-    intros a d Hab Hamq.
-    rewrite <- Hab; assumption.
-
-    eapply com_polord_in_K_1_m; eassumption.
-
-   intros a Ha; simpl in Ha.
-   destruct Ha as [Ha| [Ha| ]]; [ idtac | idtac | contradiction ].
-    destruct Ha as (Hla, Ha).
-    symmetry in Ha.
-    eapply gamma_in_K_1_mq₂; eassumption.
-
-    destruct Ha as (Hla, Ha).
-    symmetry in Ha.
-    eapply gamma_in_K_1_mq₂; eassumption.
 Qed.
 
 End theorems.
