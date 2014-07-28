@@ -158,27 +158,33 @@ rewrite <- IHn.
 eapply root_tail_succ; eauto .
 Qed.
 
-Lemma rrr : ∀ pol₁ ns₁ polb nsb b,
+Lemma rrr : ∀ pol₁ ns₁ c₁ polb nsb b,
   ns₁ ∈ newton_segments pol₁
+  → c₁ = ac_root (Φq pol₁ ns₁)
+  → root_multiplicity acf c₁ (Φq pol₁ ns₁) = 1%nat
   → polb = nth_pol b pol₁ ns₁
   → nsb = nth_ns b pol₁ ns₁
   → nsb ∈ newton_segments polb.
 Proof.
-intros pol₁ ns₁ polb nsb b Hns₁ Hpolb Hnsb.
+intros pol₁ ns₁ c₁ polb nsb b Hns₁ Hc₁ Hr₁ Hpolb Hnsb.
 subst polb nsb.
-revert pol₁ ns₁ Hns₁.
+revert pol₁ ns₁ c₁ Hns₁ Hc₁ Hr₁.
 induction b; intros; [ assumption | simpl ].
-remember (ac_root (Φq pol₁ ns₁)) as c₁ eqn:Hc₁ .
+rewrite <- Hc₁.
 remember (next_pol pol₁ (β ns₁) (γ ns₁) c₁) as pol₂ eqn:Hpol₂ .
 remember (List.hd phony_ns (newton_segments pol₂)) as ns₂ eqn:Hns₂ .
-apply IHb.
-remember Hns₂ as H; clear HeqH.
-apply exists_ini_pt_nat_fst_seg in H.
-destruct H as (j₂, (αj₂, Hini₂)).
-remember Hns₂ as H; clear HeqH.
-apply exists_fin_pt_nat_fst_seg in H.
-destruct H as (k₂, (αk₂, Hfin₂)).
-eapply hd_newton_segments; eauto .
+eapply IHb; eauto .
+ remember Hns₂ as H; clear HeqH.
+ apply exists_ini_pt_nat_fst_seg in H.
+ destruct H as (j₂, (αj₂, Hini₂)).
+ remember Hns₂ as H; clear HeqH.
+ apply exists_fin_pt_nat_fst_seg in H.
+ destruct H as (k₂, (αk₂, Hfin₂)).
+ eapply hd_newton_segments; eauto .
+ remember Hns₁ as H; clear HeqH.
+ eapply r_1_j_0_k_1 in H; try eassumption.
+  destruct H as (Hj₂, (Hk₂, (Hαj₂, (Hαk₂, Hoth₂)))).
+  subst j₂ k₂; apply Nat.lt_0_1.
 bbb.
 
 Lemma sss : ∀ pol ns pol₁ ns₁ c m q₀ b,
