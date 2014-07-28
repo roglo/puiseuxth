@@ -139,15 +139,15 @@ Definition root_from_cγ_list α {R : ring α} {K : field R}
      ps_polord := m |}.
 
 Definition γ_sum α {R : ring α} {K : field R}
-  {acf : algeb_closed_field K} n pol ns :=
+  {acf : algeb_closed_field K} b n pol ns :=
   let qr := Q_ring in
-  Σ (i = 0, n), nth_γ i pol ns.
+  Σ (i = 0, n), nth_γ (b + i) pol ns.
 
 Definition root_head α {R : ring α} {K : field R} {acf : algeb_closed_field K}
   b n pol ns :=
   let pr := ps_ring R in
   if ps_zerop _ (ps_poly_nth 0 pol) then 0%ps
-  else Σ (i = b, b + n), ps_monom (nth_c i pol ns) (γ_sum i pol ns).
+  else Σ (i = 0, n), ps_monom (nth_c (b + i) pol ns) (γ_sum b i pol ns).
 
 Definition root_tail α {R : ring α} {K : field R} {acf : algeb_closed_field K}
   m n pol ns :=

@@ -124,15 +124,12 @@ Lemma root_head_succ : ∀ pol ns b n,
   (ps_poly_nth 0 pol ≠ 0)%ps
   → (root_head b (S n) pol ns =
      root_head b n pol ns +
-     ps_monom (nth_c (b + S n) pol ns) (γ_sum (b + S n) pol ns))%ps.
+     ps_monom (nth_c (b + S n) pol ns) (γ_sum b (S n) pol ns))%ps.
 Proof.
 intros pol ns b n Hp₀.
 unfold root_head.
 destruct (ps_zerop R (ps_poly_nth 0 pol)); [ contradiction | idtac ].
-rewrite Nat.add_succ_r.
-rewrite summation_split_last; [ reflexivity | idtac ].
-rewrite <- Nat.add_succ_r.
-apply Nat.le_add_r.
+rewrite summation_split_last; [ reflexivity | apply Nat.le_0_l ].
 Qed.
 
 Lemma root_tail_succ : ∀ pol ns m n c pol₁ ns₁,
@@ -173,7 +170,8 @@ Lemma sss : ∀ pol ns pol₁ ns₁ c m q₀,
     (∀ i, (i ≤ n)%nat → (ps_poly_nth 0 (nth_pol i pol₁ ns₁) ≠ 0)%ps)
     → (root_tail (m * q₀) 0 pol₁ ns₁ =
        root_head 0 n pol₁ ns₁ +
-       ps_monom 1%K (γ_sum n pol₁ ns₁) * root_tail (m * q₀) (S n) pol₁ ns₁)%ps.
+         ps_monom 1%K (γ_sum 0 n pol₁ ns₁) *
+         root_tail (m * q₀) (S n) pol₁ ns₁)%ps.
 Proof.
 intros pol ns pol₁ ns₁ c m q₀ Hns Hm Hq₀ Hc Hr Hpol₁ Hns₁ n Hpsi.
 remember (m * q₀)%positive as m₁.
