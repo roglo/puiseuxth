@@ -161,7 +161,7 @@ Qed.
 
 Lemma sss : ∀ pol ns pol₁ ns₁ c m q₀,
   ns ∈ newton_segments pol
-  → m = ps_list_com_polord (al pol)
+  → ps_lap_forall (λ a, in_K_1_m a m) (al pol)
   → q₀ = q_of_m m (γ ns)
   → c = ac_root (Φq pol ns)
   → root_multiplicity acf c (Φq pol ns) = 1%nat
@@ -175,9 +175,7 @@ Lemma sss : ∀ pol ns pol₁ ns₁ c m q₀,
 Proof.
 intros pol ns pol₁ ns₁ c m q₀ Hns Hm Hq₀ Hc Hr Hpol₁ Hns₁ n Hpsi.
 remember (m * q₀)%positive as m₁.
-remember Hm as HinK1m; clear HeqHinK1m.
-apply com_polord_in_K_1_m with (R := R) in HinK1m.
-revert pol ns pol₁ ns₁ Hns Hm Hq₀ Hc Hr Hpol₁ Hns₁ HinK1m Hpsi.
+revert pol ns pol₁ ns₁ Hns Hm Hq₀ Hc Hr Hpol₁ Hns₁ Hpsi.
 revert c m q₀ m₁ Heqm₁.
 induction n; intros.
  remember Hns₁ as Hini₁; clear HeqHini₁.
@@ -278,7 +276,7 @@ induction n; intros.
 
     eapply den_αj_divides_num_αj_m; eauto .
     rewrite Heqm₁.
-    eapply next_pol_in_K_1_mq in HinK1m; eauto .
+    eapply next_pol_in_K_1_mq in Hm; eauto .
 
    remember Hns as Hr₁; clear HeqHr₁.
    eapply multiplicity_1_remains in Hr₁; eauto .
@@ -341,7 +339,7 @@ induction n; intros.
       rewrite Z.div_mul; auto.
 
       eapply den_αj_divides_num_αj_m; eauto .
-      eapply next_pol_in_K_1_mq in HinK1m; eauto .
+      eapply next_pol_in_K_1_mq in Hm; eauto .
       subst m₁; assumption.
 
      remember Hns₂ as Hns₂₁; clear HeqHns₂₁.
@@ -484,6 +482,7 @@ bbb.
   remember (ac_root (Φq pol₂ ns₂)) as c₂ eqn:Hc₂ .
   remember (next_pol pol₂ (β ns₂) (γ ns₂) c₂) as pol₃ eqn:Hpol₃ .
   remember (List.hd phony_ns (newton_segments pol₃)) as ns₃ eqn:Hns₃ .
+  rewrite IHn.
 bbb.
 
 (* mmm... faut voir... *)
