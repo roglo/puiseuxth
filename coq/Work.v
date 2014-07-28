@@ -158,7 +158,7 @@ rewrite <- IHn.
 eapply root_tail_succ; eauto .
 Qed.
 
-Lemma sss : ∀ pol ns pol₁ ns₁ c m q₀,
+Lemma sss : ∀ pol ns pol₁ ns₁ c m q₀ b,
   ns ∈ newton_segments pol
   → ps_lap_forall (λ a, in_K_1_m a m) (al pol)
   → q₀ = q_of_m m (γ ns)
@@ -167,16 +167,36 @@ Lemma sss : ∀ pol ns pol₁ ns₁ c m q₀,
   → pol₁ = next_pol pol (β ns) (γ ns) c
   → ns₁ = List.hd phony_ns (newton_segments pol₁)
   → ∀ n,
-    (∀ i, (i ≤ n)%nat → (ps_poly_nth 0 (nth_pol i pol₁ ns₁) ≠ 0)%ps)
-    → (root_tail (m * q₀) 0 pol₁ ns₁ =
-       root_head 0 n pol₁ ns₁ +
-         ps_monom 1%K (γ_sum 0 n pol₁ ns₁) *
-         root_tail (m * q₀) (S n) pol₁ ns₁)%ps.
+    (∀ i, (i ≤ b + n)%nat → (ps_poly_nth 0 (nth_pol i pol₁ ns₁) ≠ 0)%ps)
+    → (root_tail (m * q₀) b pol₁ ns₁ =
+       root_head b n pol₁ ns₁ +
+         ps_monom 1%K (γ_sum b n pol₁ ns₁) *
+         root_tail (m * q₀) (b + S n) pol₁ ns₁)%ps.
 Proof.
-intros pol ns pol₁ ns₁ c m q₀ Hns Hm Hq₀ Hc Hr Hpol₁ Hns₁ n Hpsi.
+intros pol ns pol₁ ns₁ c m q₀ b Hns Hm Hq₀ Hc Hr Hpol₁ Hns₁ n Hpsi.
 remember (m * q₀)%positive as m₁.
 revert pol ns pol₁ ns₁ Hns Hm Hq₀ Hc Hr Hpol₁ Hns₁ Hpsi.
-revert c m q₀ m₁ Heqm₁.
+revert b c m q₀ m₁ Heqm₁.
+induction n; intros.
+ remember Hns₁ as Hini₁; clear HeqHini₁.
+ apply exists_ini_pt_nat_fst_seg in Hini₁.
+ destruct Hini₁ as (j₁, (αj₁, Hini₁)).
+ remember Hns₁ as Hfin₁; clear HeqHfin₁.
+ apply exists_fin_pt_nat_fst_seg in Hfin₁.
+ destruct Hfin₁ as (k₁, (αk₁, Hfin₁)).
+ unfold root_tail, root_head; simpl.
+ destruct (ps_zerop _ (ps_poly_nth 0 (nth_pol b pol₁ ns₁))) as [Hps₀| Hps₀].
+  pose proof (Hpsi b (Nat.le_add_r b 0)) as H.
+  contradiction.
+
+  remember Hns as HinK1m₁; clear HeqHinK1m₁.
+  eapply next_pol_in_K_1_mq in HinK1m₁; eauto .
+bbb.
+
+intros pol ns pol₁ ns₁ c m q₀ b Hns Hm Hq₀ Hc Hr Hpol₁ Hns₁ n Hpsi.
+remember (m * q₀)%positive as m₁.
+revert pol ns pol₁ ns₁ Hns Hm Hq₀ Hc Hr Hpol₁ Hns₁ Hpsi.
+revert b c m q₀ m₁ Heqm₁.
 induction n; intros.
  remember Hns₁ as Hini₁; clear HeqHini₁.
  apply exists_ini_pt_nat_fst_seg in Hini₁.
@@ -217,6 +237,7 @@ induction n; intros.
   apply exists_fin_pt_nat_fst_seg in Hfin₂.
   destruct Hfin₂ as (k₂, (αk₂, Hfin₂)).
   destruct (ps_zerop _ (ps_poly_nth 0 pol₂)) as [Hps₁| Hps₁].
+bbb.
    rewrite ps_mul_0_r, ps_add_0_r.
    unfold root_from_cγ_list, ps_monom; simpl.
    rewrite Hini₁, Hfin₁; simpl.
