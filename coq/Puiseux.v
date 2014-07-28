@@ -1409,7 +1409,11 @@ inversion H; subst.
  apply IHl with (pow := S pow); auto.
 Qed.
 
-(* similar to q_mj_mk_eq_p_h_j₂ *)
+(* similar to q_mj_mk_eq_p_h_j₂ which should be removed one day *)
+(* [Walker, p. 100]: « In the first place, we note that [...]
+
+         q (mj - mh) = p (h - j)
+   » *)
 Theorem q_mj_mk_eq_p_h_j : ∀ pol ns j αj m mj p q,
   ns ∈ newton_segments pol
   → (Qnat j, αj) = ini_pt ns
@@ -1531,7 +1535,8 @@ intros a m p q Hp Hq.
 eapply any_is_p_mq; eauto .
 Qed.
 
-(* similar to CharactPolyn.q_is_factor_of_h_minus_j₂ *)
+(* similar to CharactPolyn.q_is_factor_of_h_minus_j₂ which should
+   be removed one day *)
 Theorem q_is_factor_of_h_minus_j : ∀ pol ns j αj m q,
   ns ∈ newton_segments pol
   → ps_lap_forall (λ a, in_K_1_m a m) (al pol)
