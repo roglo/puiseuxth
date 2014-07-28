@@ -147,7 +147,7 @@ Definition root_head α {R : ring α} {K : field R} {acf : algeb_closed_field K}
   b n pol ns :=
   let pr := ps_ring R in
   if ps_zerop _ (ps_poly_nth 0 pol) then 0%ps
-  else Σ (i = b, n), ps_monom (nth_c i pol ns) (γ_sum i pol ns).
+  else Σ (i = b, b + n), ps_monom (nth_c i pol ns) (γ_sum i pol ns).
 
 Definition root_tail α {R : ring α} {K : field R} {acf : algeb_closed_field K}
   m n pol ns :=

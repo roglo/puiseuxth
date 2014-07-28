@@ -122,15 +122,17 @@ Qed.
 
 Lemma root_head_succ : ∀ pol ns b n,
   (ps_poly_nth 0 pol ≠ 0)%ps
-  → (b ≤ S n)%nat
   → (root_head b (S n) pol ns =
      root_head b n pol ns +
-     ps_monom (nth_c (S n) pol ns) (γ_sum (S n) pol ns))%ps.
+     ps_monom (nth_c (b + S n) pol ns) (γ_sum (b + S n) pol ns))%ps.
 Proof.
-intros pol ns b n Hp₀ Hbn.
+intros pol ns b n Hp₀.
 unfold root_head.
 destruct (ps_zerop R (ps_poly_nth 0 pol)); [ contradiction | idtac ].
-rewrite summation_split_last; [ reflexivity | assumption ].
+rewrite Nat.add_succ_r.
+rewrite summation_split_last; [ reflexivity | idtac ].
+rewrite <- Nat.add_succ_r.
+apply Nat.le_add_r.
 Qed.
 
 Lemma root_tail_succ : ∀ pol ns m n c pol₁ ns₁,
@@ -469,10 +471,11 @@ induction n; intros.
   pose proof (Hpsi O (Nat.le_0_l (S n))) as H.
   contradiction.
 
-  rewrite root_head_succ; auto; [ idtac | apply Nat.le_0_l ].
-  rewrite IHn; eauto.
+  rewrite root_head_succ; auto.
+  rewrite IHn; eauto .
   rewrite <- ps_add_assoc.
   apply rng_add_compat_l.
+  rewrite Nat.add_0_l.
 bbb.
   rewrite root_tail_nth; symmetry.
   rewrite root_tail_nth; symmetry; simpl.
