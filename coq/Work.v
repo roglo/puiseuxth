@@ -232,26 +232,16 @@ induction n; intros.
    pose proof (Hpsi 0%nat (Nat.le_0_l b)); contradiction.
 
    rewrite Nat.add_0_r, ps_add_0_r.
-(* compute here
-ini_pt (nth_ns b pol₁ ns₁)
-fin_pt (nth_ns b pol₁ ns₁)
-*)
-   remember (nth_pol (b + 1) pol₁ ns₁) as polb₁ eqn:Hpolb₁ .
-   destruct (ps_zerop R (ps_poly_nth 0 polb₁)) as [H₂| H₂].
-    rewrite ps_mul_0_r, ps_add_0_r.
-    unfold root_from_cγ_list, ps_monom; simpl.
-
-bbb.
-  remember Hns as HinK1m₁; clear HeqHinK1m₁.
-  eapply next_pol_in_K_1_mq in HinK1m₁; eauto .
-  remember Hns₁ as Hini₁; clear HeqHini₁.
-  apply exists_ini_pt_nat_fst_seg in Hini₁.
-  destruct Hini₁ as (j₁, (αj₁, Hini₁)).
-  remember Hns₁ as Hfin₁; clear HeqHfin₁.
-  apply exists_fin_pt_nat_fst_seg in Hfin₁.
-  destruct Hfin₁ as (k₁, (αk₁, Hfin₁)).
-  remember Hns as H; clear HeqH.
-  eapply r_1_j_0_k_1 in H; try eassumption.
+   remember Hns as HinK1m₁; clear HeqHinK1m₁.
+   eapply next_pol_in_K_1_mq in HinK1m₁; eauto .
+   remember Hns₁ as Hini₁; clear HeqHini₁.
+   apply exists_ini_pt_nat_fst_seg in Hini₁.
+   destruct Hini₁ as (j₁, (αj₁, Hini₁)).
+   remember Hns₁ as Hfin₁; clear HeqHfin₁.
+   apply exists_fin_pt_nat_fst_seg in Hfin₁.
+   destruct Hfin₁ as (k₁, (αk₁, Hfin₁)).
+   remember Hns as H; clear HeqH.
+   eapply r_1_j_0_k_1 in H; try eassumption.
    destruct H as (Hj₁, (Hk₁, (Hαj₁, (Hαk₁, Hoth₁)))).
    subst j₁ k₁; simpl.
    unfold Qlt in Hαj₁; simpl in Hαj₁.
@@ -262,49 +252,25 @@ bbb.
    remember Hns₁₁ as HK₂; clear HeqHK₂.
    eapply next_pol_in_K_1_mq in HK₂; eauto .
    erewrite q_eq_1 with (q₀ := q₀) (ns := ns) in HK₂; eauto .
-    remember Hns₁₁ as H; clear HeqH.
-    eapply nth_in_newton_segments with (n := b) in H; eauto .
-     remember (nth_pol b pol₁ ns₁) as polb eqn:Hpolb .
-     remember (nth_ns b pol₁ ns₁) as nsb eqn:Hnsb .
-     rename H into Hbns.
-bbb.
-  assert (nsb ∈ newton_segments polb) as Hbns.
-   remember Hns₁ as Hini₁; clear HeqHini₁.
-   apply exists_ini_pt_nat_fst_seg in Hini₁.
-   destruct Hini₁ as (j₁, (αj₁, Hini₁)).
-   remember Hns₁ as Hfin₁; clear HeqHfin₁.
-   apply exists_fin_pt_nat_fst_seg in Hfin₁.
-   destruct Hfin₁ as (k₁, (αk₁, Hfin₁)).
-   subst nsb polb.
-   revert pol ns c pol₁ ns₁ Hns Hm Hq₀ Hc Hr Hpol₁ Hns₁ Hpsi Hini₁ Hfin₁ Hps₀.
-   induction b; intros; simpl.
-    eapply hd_newton_segments; eauto .
-    remember Hns as H; clear HeqH.
-    eapply r_1_j_0_k_1 in H; try eassumption.
-    destruct H as (Hj₁, (Hk₁, (Hαj₁, (Hαk₁, Hoth₁)))).
-    subst j₁ k₁; simpl.
-    apply Nat.lt_0_1.
-
-    rewrite Nat.add_0_r in IHb.
-    remember (ac_root (Φq pol₁ ns₁)) as c₁ eqn:Hc₁ .
-    remember (next_pol pol₁ (β ns₁) (γ ns₁) c₁) as pol₂ eqn:Hpol₂ .
-    remember (List.hd phony_ns (newton_segments pol₂)) as ns₂ eqn:Hns₂ .
-    apply IHb with (pol := pol₁) (ns := ns₁) (c := c₁); eauto .
+   rewrite Pos.mul_1_r, <- Heqm₁ in HK₂.
+   remember Hns₁₁ as H; clear HeqH.
+   eapply nth_in_newton_segments with (n := b) in H; eauto .
+    remember (nth_pol b pol₁ ns₁) as polb eqn:Hpolb .
+    remember (nth_ns b pol₁ ns₁) as nsb eqn:Hnsb .
+    rename H into Hbns.
+    remember Hbns as H; clear HeqH.
+    apply exists_ini_pt_nat in H.
+    destruct H as (jb, (αjb, Hinib)).
+    remember Hbns as H; clear HeqH.
+    apply exists_fin_pt_nat in H.
+    destruct H as (kb, (αkb, Hfinb)).
+    remember (nth_pol (b + 1) pol₁ ns₁) as polb₁ eqn:Hpolb₁ .
+    destruct (ps_zerop R (ps_poly_nth 0 polb₁)) as [H₂| H₂].
+     rewrite ps_mul_0_r, ps_add_0_r.
+     unfold root_from_cγ_list, ps_monom; simpl.
+     rewrite Hinib, Hfinb; simpl.
 bbb.
 
-  remember Hns as HinK1m₁; clear HeqHinK1m₁.
-  eapply next_pol_in_K_1_mq in HinK1m₁; eauto .
-  remember Hns as H; clear HeqH.
-  eapply r_1_j_0_k_1 in H; try eassumption.
-  destruct H as (Hj₁, (Hk₁, (Hαj₁, (Hαk₁, Hoth₁)))).
-  subst j₁ k₁; simpl.
-  unfold Qlt in Hαj₁; simpl in Hαj₁.
-  unfold Qeq in Hαk₁; simpl in Hαk₁.
-  rewrite Z.mul_1_r in Hαj₁, Hαk₁.
-  remember Hns₁ as Hns₁₁; clear HeqHns₁₁.
-  eapply hd_newton_segments in Hns₁₁; eauto .
-  remember Hns₁₁ as HK₂; clear HeqHK₂.
-  eapply next_pol_in_K_1_mq in HK₂; eauto .
   erewrite q_eq_1 with (q₀ := q₀) (ns := ns) in HK₂; eauto .
   rewrite Pos.mul_1_r, <- Heqm₁ in HK₂.
   unfold γ_sum; simpl.
