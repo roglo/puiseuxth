@@ -204,7 +204,15 @@ induction n; intros.
  simpl in Hpoln, Hnsn; simpl.
  subst poln nsn npoln pol₁ ns₁ c cn.
  reflexivity.
-bbb.
+
+ simpl in Hpoln, Hnsn; simpl.
+ rewrite <- Hc, <- Hpol₁, <- Hns₁ in Hpoln, Hnsn.
+ remember (ac_root (Φq pol₁ ns₁)) as c₁ eqn:Hc₁ .
+ remember (next_pol pol₁ (β ns₁) (γ ns₁) c₁) as pol₂ eqn:Hpol₂ .
+ remember (List.hd phony_ns (newton_segments pol₂)) as ns₂.
+ rename Heqns₂ into Hns₂.
+ eapply IHn with (c := c₁); eauto .
+Qed.
 
 Lemma root_tail_nth : ∀ pol ns m a b,
   (root_tail m (a + b) pol ns =
@@ -236,7 +244,9 @@ induction a; intros; simpl.
  rename Heqnnsb into Hnnsb.
  erewrite <- nth_pol_n with (c₁ := c); eauto .
  rewrite <- Hnpolb.
-bbb.
+ erewrite nth_ns_n with (c := c); eauto .
+ subst nnsb; reflexivity.
+Qed.
 
 Lemma nth_in_newton_segments : ∀ pol₁ ns₁ c₁ poln nsn n,
   ns₁ ∈ newton_segments pol₁
