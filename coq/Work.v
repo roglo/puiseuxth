@@ -202,6 +202,24 @@ assert (1 ≤ S n) as H₁.
   assumption.
 Qed.
 
+Lemma nth_c_root : ∀ pol₁ ns₁ poln nsn n,
+  poln = nth_pol n pol₁ ns₁
+  → nsn = nth_ns n pol₁ ns₁
+  → (nth_c n pol₁ ns₁ = ac_root (Φq poln nsn))%K.
+Proof.
+intros pol₁ ns₁ poln nsn n Hpoln Hnsn.
+revert pol₁ ns₁ poln nsn Hpoln Hnsn.
+induction n; intros.
+ simpl in Hpoln, Hnsn; simpl.
+ subst poln nsn; reflexivity.
+
+ simpl in Hpoln, Hnsn; simpl.
+ remember (ac_root (Φq pol₁ ns₁)) as c₁ eqn:Hc₁ .
+ remember (next_pol pol₁ (β ns₁) (γ ns₁) c₁) as pol₂ eqn:Hpol₂ .
+ remember (List.hd phony_ns (newton_segments pol₂)) as ns₂ eqn:Hns₂ .
+ apply IHn; assumption.
+Qed.
+
 Lemma root_tail_split_1st : ∀ pol ns pol₁ ns₁ c m q₀,
   ns ∈ newton_segments pol
   → ps_lap_forall (λ a, in_K_1_m a m) (al pol)
@@ -618,6 +636,8 @@ induction n; intros.
           subst d; simpl.
           destruct (ps_zerop R (ps_poly_nth 0 polb)).
            contradiction.
+
+           apply nth_c_root; assumption.
 bbb.
    do 2 rewrite Z.sub_0_r.
    symmetry.
