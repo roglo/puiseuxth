@@ -612,7 +612,6 @@ Lemma sss : ∀ pol ns pol₁ ns₁ c m q₀ b,
          root_tail (m * q₀) (b + S n) pol₁ ns₁)%ps.
 Proof.
 intros pol ns pol₁ ns₁ c m q₀ b Hns Hm Hq₀ Hc Hr Hpol₁ Hns₁ n Hpsi.
-bbb.
 remember (m * q₀)%positive as m₁.
 revert pol ns pol₁ ns₁ Hns Hm Hq₀ Hc Hr Hpol₁ Hns₁ Hpsi.
 revert b c m q₀ m₁ Heqm₁.
@@ -727,6 +726,8 @@ induction n; intros.
            destruct (ps_zerop R (ps_poly_nth 0 polb)); auto; simpl.
            erewrite nth_pol_n with (c₁ := c₁) in Hpolb'; eauto .
            rewrite <- Hpolb₂ in Hpolb'; subst polb'.
+           destruct (ps_zerop R (ps_poly_nth 0 polb₂)) as [H₃| H₃]; auto.
+           contradiction.
 bbb.
        destruct (ps_zerop R (ps_poly_nth 0 pol₁)); auto; contradiction.
 
