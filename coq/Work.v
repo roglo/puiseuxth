@@ -144,19 +144,99 @@ rewrite <- Hc, <- Hpol₁, <- Hns₁.
 reflexivity.
 Qed.
 
-Lemma root_tail_nth : ∀ pol ns m n,
-  (root_tail m n pol ns =
-   root_tail m 0 (nth_pol n pol ns) (nth_ns n pol ns))%ps.
+Lemma nth_c_root : ∀ pol₁ ns₁ poln nsn n,
+  poln = nth_pol n pol₁ ns₁
+  → nsn = nth_ns n pol₁ ns₁
+  → (nth_c n pol₁ ns₁ = ac_root (Φq poln nsn))%K.
 Proof.
-intros pol ns m n.
-revert pol ns m.
-induction n; intros; [ reflexivity | simpl ].
-remember (ac_root (Φq pol ns)) as c eqn:Hc .
-remember (next_pol pol (β ns) (γ ns) c) as pol₁ eqn:Hpol₁ .
-remember (List.hd phony_ns (newton_segments pol₁)) as ns₁ eqn:Hns₁ .
-rewrite <- IHn.
-eapply root_tail_succ; eauto .
+intros pol₁ ns₁ poln nsn n Hpoln Hnsn.
+revert pol₁ ns₁ poln nsn Hpoln Hnsn.
+induction n; intros.
+ simpl in Hpoln, Hnsn; simpl.
+ subst poln nsn; reflexivity.
+
+ simpl in Hpoln, Hnsn; simpl.
+ remember (ac_root (Φq pol₁ ns₁)) as c₁ eqn:Hc₁ .
+ remember (next_pol pol₁ (β ns₁) (γ ns₁) c₁) as pol₂ eqn:Hpol₂ .
+ remember (List.hd phony_ns (newton_segments pol₂)) as ns₂ eqn:Hns₂ .
+ apply IHn; assumption.
 Qed.
+
+Lemma nth_pol_n : ∀ pol₁ ns₁ c₁ pol₂ ns₂ poln nsn cn n,
+  c₁ = ac_root (Φq pol₁ ns₁)
+  → pol₂ = next_pol pol₁ (β ns₁) (γ ns₁) c₁
+  → ns₂ = List.hd phony_ns (newton_segments pol₂)
+  → poln = nth_pol n pol₁ ns₁
+  → nsn = nth_ns n pol₁ ns₁
+  → cn = ac_root (Φq poln nsn)
+  → next_pol poln (β nsn) (γ nsn) cn = nth_pol n pol₂ ns₂.
+Proof.
+intros pol₁ ns₁ c₁ pol₂ ns₂ poln nsn cn n.
+intros Hc₁ Hpol₂ Hns₂ Hpoln Hnsn Hcn.
+revert pol₁ ns₁ c₁ pol₂ ns₂ poln nsn cn Hc₁ Hpol₂ Hns₂ Hpoln Hnsn Hcn.
+induction n; intros.
+ simpl in Hpoln, Hnsn; simpl.
+ subst poln nsn pol₂ c₁ cn; reflexivity.
+
+ simpl in Hpoln, Hnsn; simpl.
+ remember (ac_root (Φq pol₂ ns₂)) as c₂ eqn:Hc₂ .
+ remember (next_pol pol₂ (β ns₂) (γ ns₂) c₂) as pol₃ eqn:Hpol₃ .
+ remember (List.hd phony_ns (newton_segments pol₃)) as ns₃ eqn:Hns₃ .
+ rewrite <- Hc₁, <- Hpol₂, <- Hns₂ in Hpoln, Hnsn.
+ eapply IHn; eauto .
+Qed.
+
+Lemma nth_ns_n : ∀ pol ns c pol₁ ns₁ poln nsn cn npoln n,
+  c = ac_root (Φq pol ns)
+  → pol₁ = next_pol pol (β ns) (γ ns) c
+  → ns₁ = List.hd phony_ns (newton_segments pol₁)
+  → poln = nth_pol n pol ns
+  → nsn = nth_ns n pol ns
+  → cn = ac_root (Φq poln nsn)
+  → npoln = next_pol poln (β nsn) (γ nsn) cn
+  → nth_ns n pol₁ ns₁ = List.hd phony_ns (newton_segments npoln).
+Proof.
+intros pol ns c pol₁ ns₁ poln nsn cn npoln n.
+intros Hc Hpol₁ Hns₁ Hpoln Hnsn Hcn Hnpoln.
+revert pol ns c pol₁ ns₁ poln nsn cn npoln Hc Hpol₁ Hns₁ Hpoln Hnsn Hcn
+ Hnpoln.
+induction n; intros.
+ simpl in Hpoln, Hnsn; simpl.
+ subst poln nsn npoln pol₁ ns₁ c cn.
+ reflexivity.
+bbb.
+
+Lemma root_tail_nth : ∀ pol ns m a b,
+  (root_tail m (a + b) pol ns =
+   root_tail m a (nth_pol b pol ns) (nth_ns b pol ns))%ps.
+Proof.
+intros pol ns m a b.
+revert pol ns m b.
+induction a; intros; simpl.
+ revert pol ns m.
+ induction b; intros; [ reflexivity | simpl ].
+ remember (ac_root (Φq pol ns)) as c eqn:Hc .
+ remember (next_pol pol (β ns) (γ ns) c) as pol₁ eqn:Hpol₁ .
+ remember (List.hd phony_ns (newton_segments pol₁)) as ns₁ eqn:Hns₁ .
+ rewrite <- IHb.
+ eapply root_tail_succ; eauto .
+
+ rewrite root_tail_succ; eauto ; symmetry.
+ rewrite root_tail_succ; eauto ; symmetry.
+ remember (ac_root (Φq pol ns)) as c eqn:Hc .
+ remember (next_pol pol (β ns) (γ ns) c) as pol₁ eqn:Hpol₁ .
+ remember (List.hd phony_ns (newton_segments pol₁)) as ns₁ eqn:Hns₁ .
+ rewrite IHa.
+ remember (nth_ns b pol ns) as nsb eqn:Hnsb .
+ remember (nth_pol b pol ns) as polb eqn:Hpolb .
+ remember (ac_root (Φq polb nsb)) as cb eqn:Hcb .
+ remember (next_pol polb (β nsb) (γ nsb) cb) as npolb.
+ rename Heqnpolb into Hnpolb.
+ remember (List.hd phony_ns (newton_segments npolb)) as nnsb.
+ rename Heqnnsb into Hnnsb.
+ erewrite <- nth_pol_n with (c₁ := c); eauto .
+ rewrite <- Hnpolb.
+bbb.
 
 Lemma nth_in_newton_segments : ∀ pol₁ ns₁ c₁ poln nsn n,
   ns₁ ∈ newton_segments pol₁
@@ -200,48 +280,6 @@ assert (1 ≤ S n) as H₁.
   apply Hpsi in Hin; simpl in Hin.
   rewrite <- Hc₁, <- Hpol₂, <- Hns₂ in Hin.
   assumption.
-Qed.
-
-Lemma nth_pol_n : ∀ pol₁ ns₁ c₁ pol₂ ns₂ poln nsn cn n,
-  c₁ = ac_root (Φq pol₁ ns₁)
-  → pol₂ = next_pol pol₁ (β ns₁) (γ ns₁) c₁
-  → ns₂ = List.hd phony_ns (newton_segments pol₂)
-  → poln = nth_pol n pol₁ ns₁
-  → nsn = nth_ns n pol₁ ns₁
-  → cn = ac_root (Φq poln nsn)
-  → next_pol poln (β nsn) (γ nsn) cn = nth_pol n pol₂ ns₂.
-Proof.
-intros pol₁ ns₁ c₁ pol₂ ns₂ poln nsn cn n.
-intros Hc₁ Hpol₂ Hns₂ Hpoln Hnsn Hcn.
-revert pol₁ ns₁ c₁ pol₂ ns₂ poln nsn cn Hc₁ Hpol₂ Hns₂ Hpoln Hnsn Hcn.
-induction n; intros.
- simpl in Hpoln, Hnsn; simpl.
- subst poln nsn pol₂ c₁ cn; reflexivity.
-
- simpl in Hpoln, Hnsn; simpl.
- remember (ac_root (Φq pol₂ ns₂)) as c₂ eqn:Hc₂ .
- remember (next_pol pol₂ (β ns₂) (γ ns₂) c₂) as pol₃ eqn:Hpol₃ .
- remember (List.hd phony_ns (newton_segments pol₃)) as ns₃ eqn:Hns₃ .
- rewrite <- Hc₁, <- Hpol₂, <- Hns₂ in Hpoln, Hnsn.
- eapply IHn; eauto .
-Qed.
-
-Lemma nth_c_root : ∀ pol₁ ns₁ poln nsn n,
-  poln = nth_pol n pol₁ ns₁
-  → nsn = nth_ns n pol₁ ns₁
-  → (nth_c n pol₁ ns₁ = ac_root (Φq poln nsn))%K.
-Proof.
-intros pol₁ ns₁ poln nsn n Hpoln Hnsn.
-revert pol₁ ns₁ poln nsn Hpoln Hnsn.
-induction n; intros.
- simpl in Hpoln, Hnsn; simpl.
- subst poln nsn; reflexivity.
-
- simpl in Hpoln, Hnsn; simpl.
- remember (ac_root (Φq pol₁ ns₁)) as c₁ eqn:Hc₁ .
- remember (next_pol pol₁ (β ns₁) (γ ns₁) c₁) as pol₂ eqn:Hpol₂ .
- remember (List.hd phony_ns (newton_segments pol₂)) as ns₂ eqn:Hns₂ .
- apply IHn; assumption.
 Qed.
 
 Lemma root_tail_split_1st : ∀ pol ns pol₁ ns₁ c m q₀,
@@ -564,6 +602,7 @@ Lemma sss : ∀ pol ns pol₁ ns₁ c m q₀ b,
          root_tail (m * q₀) (b + S n) pol₁ ns₁)%ps.
 Proof.
 intros pol ns pol₁ ns₁ c m q₀ b Hns Hm Hq₀ Hc Hr Hpol₁ Hns₁ n Hpsi.
+bbb.
 remember (m * q₀)%positive as m₁.
 revert pol ns pol₁ ns₁ Hns Hm Hq₀ Hc Hr Hpol₁ Hns₁ Hpsi.
 revert b c m q₀ m₁ Heqm₁.
