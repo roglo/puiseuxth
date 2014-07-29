@@ -575,6 +575,36 @@ induction n; intros.
      remember Hb₁ns as H; clear HeqH.
      apply exists_fin_pt_nat in H.
      destruct H as (kb₁, (αkb₁, Hfinb₁)).
+     remember Hns₁₁ as H; clear HeqH.
+     eapply nth_in_newton_segments with (n := b) in H; eauto .
+      rename H into Hbns.
+      remember (nth_pol b pol₁ ns₁) as polb eqn:Hpolb .
+      remember (nth_ns b pol₁ ns₁) as nsb eqn:Hnsb .
+      remember Hbns as H; clear HeqH.
+      apply exists_ini_pt_nat in H.
+      destruct H as (jb, (αjb, Hinib)).
+      remember Hbns as H; clear HeqH.
+      apply exists_fin_pt_nat in H.
+      destruct H as (kb, (αkb, Hfinb)).
+      remember (ac_root (Φq polb nsb)) as cb eqn:Hcb .
+      remember (next_pol polb (β nsb) (γ nsb) cb) as polb₁' eqn:Hpolb₁' .
+      remember (List.hd phony_ns (newton_segments polb₁')) as nsb₁'.
+      rename Heqnsb₁' into Hnsb₁'.
+      remember Hbns as H; clear HeqH.
+      eapply r_1_j_0_k_1 with (ns₁ := nsb) in H.
+       2: eauto .
+
+       6: eauto .
+
+       6: eauto .
+
+       3: eauto .
+
+       destruct H as (Hjb, (Hkb, (Hαjb, (Hαkb, Hothb)))).
+       subst jb kb.
+       unfold Qlt in Hαjb; simpl in Hαjb.
+       unfold Qeq in Hαkb; simpl in Hαkb.
+       rewrite Z.mul_1_r in Hαjb, Hαkb.
 bbb.
 (*
     remember Hbns as H; clear HeqH.
