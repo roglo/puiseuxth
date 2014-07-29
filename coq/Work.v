@@ -605,6 +605,10 @@ induction n; intros.
        unfold Qlt in Hαjb; simpl in Hαjb.
        unfold Qeq in Hαkb; simpl in Hαkb.
        rewrite Z.mul_1_r in Hαjb, Hαkb.
+       remember (nth_pol (b₁ + 1) pol₁ ns₁) as polb₂ eqn:Hpolb₂ .
+       destruct (ps_zerop R (ps_poly_nth 0 polb₂)) as [H₂| H₂].
+        rewrite ps_mul_0_r, ps_add_0_r.
+        unfold root_from_cγ_list, ps_monom; simpl.
 bbb.
 (*
     remember Hbns as H; clear HeqH.
