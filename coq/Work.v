@@ -222,11 +222,26 @@ remember (m * q₀)%positive as m₁.
 revert pol ns pol₁ ns₁ Hns Hm Hq₀ Hc Hr Hpol₁ Hns₁ Hpsi.
 revert b c m q₀ m₁ Heqm₁.
 induction n; intros.
+ rewrite Nat.add_0_r in Hpsi.
  unfold root_tail, root_head; simpl.
  destruct (ps_zerop _ (ps_poly_nth 0 (nth_pol b pol₁ ns₁))) as [Hps₀| Hps₀].
-  pose proof (Hpsi b (Nat.le_add_r b 0)); contradiction.
+  pose proof (Hpsi b (Nat.le_refl b)); contradiction.
 
-  rewrite Nat.add_0_r in Hpsi.
+  unfold summation; simpl.
+  destruct (ps_zerop R (ps_poly_nth 0 pol₁)) as [H₁| H₁].
+   pose proof (Hpsi 0%nat (Nat.le_0_l b)); contradiction.
+
+   rewrite Nat.add_0_r, ps_add_0_r.
+(* compute here
+ini_pt (nth_ns b pol₁ ns₁)
+fin_pt (nth_ns b pol₁ ns₁)
+*)
+   remember (nth_pol (b + 1) pol₁ ns₁) as polb₁ eqn:Hpolb₁ .
+   destruct (ps_zerop R (ps_poly_nth 0 polb₁)) as [H₂| H₂].
+    rewrite ps_mul_0_r, ps_add_0_r.
+    unfold root_from_cγ_list, ps_monom; simpl.
+
+bbb.
   remember Hns as HinK1m₁; clear HeqHinK1m₁.
   eapply next_pol_in_K_1_mq in HinK1m₁; eauto .
   remember Hns₁ as Hini₁; clear HeqHini₁.
