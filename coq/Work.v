@@ -213,6 +213,10 @@ Lemma rrr : ∀ pol₁ ns₁ c₁ pol₂ ns₂ poln nsn cn n,
 Proof.
 intros pol₁ ns₁ c₁ pol₂ ns₂ poln nsn cn n.
 intros Hc₁ Hpol₂ Hns₂ Hpoln Hnsn Hcn.
+revert pol₁ ns₁ c₁ pol₂ ns₂ poln nsn cn Hc₁ Hpol₂ Hns₂ Hpoln Hnsn Hcn.
+induction n; intros.
+ simpl in Hpoln, Hnsn; simpl.
+ subst poln nsn pol₂ c₁ cn; reflexivity.
 bbb.
 
 Lemma nth_c_root : ∀ pol₁ ns₁ poln nsn n,
