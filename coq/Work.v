@@ -638,28 +638,19 @@ induction n; intros.
            contradiction.
 
            apply nth_c_root; assumption.
+
+          simpl.
+          remember (ac_root (Φq polb nsb)) as cb eqn:Hcb .
+          remember (next_pol polb (β nsb) (γ nsb) cb) as polb' eqn:Hpolb' .
+          remember (List.hd phony_ns (newton_segments polb')) as nsb'.
+          rename Heqnsb' into Hnsb'.
+          destruct d.
+           rewrite Hd in H₁.
+           exfalso; revert H₁; apply Nat.lt_irrefl.
+
+           destruct (ps_zerop R (ps_poly_nth 0 polb)); auto.
+           simpl.
 bbb.
-   do 2 rewrite Z.sub_0_r.
-   symmetry.
-   rewrite Z.mul_comm.
-   rewrite <- Z.divide_div_mul_exact; auto.
-    rewrite Pos2Z.inj_mul, <- Z.mul_assoc, Z.mul_comm, Z.mul_assoc.
-    rewrite Z.div_mul; auto.
-    apply mkps_morphism.
-     unfold series_stretch.
-     constructor; intros i; simpl.
-     destruct (zerop (i mod Pos.to_nat (Qden αj₁ * Qden αk₁))) as [H₁| H₁].
-      apply Nat.mod_divides in H₁; auto.
-      destruct H₁ as (d, Hd).
-      rewrite Nat.mul_comm in Hd.
-      rewrite Hd.
-      rewrite Nat.div_mul; auto.
-      unfold root_series_from_cγ_list.
-      rewrite <- Hd.
-      destruct (zerop i) as [H₁| H₁].
-       subst i.
-       apply Nat.eq_mul_0_l in H₁; auto.
-       subst d; simpl; rewrite <- Hc₁.
        destruct (ps_zerop R (ps_poly_nth 0 pol₁)); auto; contradiction.
 
        simpl.
