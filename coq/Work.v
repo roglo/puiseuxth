@@ -528,13 +528,14 @@ revert b c m q₀ m₁ Heqm₁.
 induction n; intros.
  rewrite Nat.add_0_r in Hpsi.
  unfold root_tail, root_head; simpl.
- destruct (ps_zerop _ (ps_poly_nth 0 (nth_pol b pol₁ ns₁))) as [Hps₀| Hps₀].
+ destruct (ps_zerop _ (ps_poly_nth 0 (nth_pol b pol₁ ns₁))) as [Hpbs₀| Hpbs₀].
   pose proof (Hpsi b (Nat.le_refl b)); contradiction.
 
   unfold summation; simpl.
   destruct (ps_zerop R (ps_poly_nth 0 pol₁)) as [H₁| H₁].
    pose proof (Hpsi 0%nat (Nat.le_0_l b)); contradiction.
 
+   clear H₁.
    rewrite Nat.add_0_r, ps_add_0_r.
    remember Hns as HinK1m₁; clear HeqHinK1m₁.
    eapply next_pol_in_K_1_mq in HinK1m₁; eauto .
@@ -544,6 +545,7 @@ induction n; intros.
    remember Hns₁ as Hfin₁; clear HeqHfin₁.
    apply exists_fin_pt_nat_fst_seg in Hfin₁.
    destruct Hfin₁ as (k₁, (αk₁, Hfin₁)).
+   pose proof (Hpsi O (Nat.le_0_l b)) as Hps₀.
    remember Hns as H; clear HeqH.
    eapply r_1_j_0_k_1 in H; try eassumption.
    destruct H as (Hj₁, (Hk₁, (Hαj₁, (Hαk₁, Hoth₁)))).
@@ -598,6 +600,24 @@ induction n; intros.
        do 2 rewrite series_shift_0.
        rewrite series_stretch_const.
        do 2 rewrite Z.sub_0_r.
+       apply mkps_morphism; auto.
+        unfold series_stretch.
+        constructor; intros i; simpl.
+        remember (nth_γ b pol₁ ns₁) as γb eqn:Hγb .
+        destruct (zerop (i mod Pos.to_nat (Qden γb))) as [H₁| H₁].
+         apply Nat.mod_divides in H₁; auto.
+         destruct H₁ as (d, Hd).
+         rewrite Nat.mul_comm in Hd.
+         rewrite Hd.
+         rewrite Nat.div_mul; auto.
+         unfold root_series_from_cγ_list.
+         rewrite <- Hd.
+         destruct (zerop i) as [H₁| H₁].
+          subst i.
+          apply Nat.eq_mul_0_l in H₁; auto.
+          subst d; simpl.
+          destruct (ps_zerop R (ps_poly_nth 0 polb)).
+           contradiction.
 bbb.
    do 2 rewrite Z.sub_0_r.
    symmetry.
