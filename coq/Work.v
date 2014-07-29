@@ -253,6 +253,8 @@ induction n; intros.
    eapply next_pol_in_K_1_mq in HK₂; eauto .
    erewrite q_eq_1 with (q₀ := q₀) (ns := ns) in HK₂; eauto .
    rewrite Pos.mul_1_r, <- Heqm₁ in HK₂.
+   remember (ac_root (Φq pol₁ ns₁)) as c₁ eqn:Hc₁ .
+   remember (next_pol pol₁ (β ns₁) (γ ns₁) c₁) as pol₂ eqn:Hpol₂ .
    remember Hns₁₁ as H; clear HeqH.
    eapply nth_in_newton_segments with (n := b) in H; eauto .
     remember (nth_pol b pol₁ ns₁) as polb eqn:Hpolb .
@@ -264,11 +266,20 @@ induction n; intros.
     remember Hbns as H; clear HeqH.
     apply exists_fin_pt_nat in H.
     destruct H as (kb, (αkb, Hfinb)).
+bbb.
+(* différencier le cas b=0 et b=S b₁ car il faut considérer b₁ pour
+   r_1_j_0_k_1
+
+    remember Hbns₁ as H; clear HeqH.
+    eapply r_1_j_0_k_1 with (ns₁ := nsb₁) in H; try eassumption.
+    ...
+*)
     remember (nth_pol (b + 1) pol₁ ns₁) as polb₁ eqn:Hpolb₁ .
     destruct (ps_zerop R (ps_poly_nth 0 polb₁)) as [H₂| H₂].
      rewrite ps_mul_0_r, ps_add_0_r.
      unfold root_from_cγ_list, ps_monom; simpl.
      rewrite Hinib, Hfinb; simpl.
+     rewrite Nat.add_0_r, Z.mul_1_r, Z.add_0_r, Pos.mul_1_r.
 bbb.
 
   erewrite q_eq_1 with (q₀ := q₀) (ns := ns) in HK₂; eauto .
