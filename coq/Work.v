@@ -202,7 +202,7 @@ assert (1 ≤ S n) as H₁.
   assumption.
 Qed.
 
-Lemma rrr : ∀ pol₁ ns₁ c₁ pol₂ ns₂ poln nsn cn n,
+Lemma nth_pol_n : ∀ pol₁ ns₁ c₁ pol₂ ns₂ poln nsn cn n,
   c₁ = ac_root (Φq pol₁ ns₁)
   → pol₂ = next_pol pol₁ (β ns₁) (γ ns₁) c₁
   → ns₂ = List.hd phony_ns (newton_segments pol₂)
@@ -217,7 +217,14 @@ revert pol₁ ns₁ c₁ pol₂ ns₂ poln nsn cn Hc₁ Hpol₂ Hns₂ Hpoln Hns
 induction n; intros.
  simpl in Hpoln, Hnsn; simpl.
  subst poln nsn pol₂ c₁ cn; reflexivity.
-bbb.
+
+ simpl in Hpoln, Hnsn; simpl.
+ remember (ac_root (Φq pol₂ ns₂)) as c₂ eqn:Hc₂ .
+ remember (next_pol pol₂ (β ns₂) (γ ns₂) c₂) as pol₃ eqn:Hpol₃ .
+ remember (List.hd phony_ns (newton_segments pol₃)) as ns₃ eqn:Hns₃ .
+ rewrite <- Hc₁, <- Hpol₂, <- Hns₂ in Hpoln, Hnsn.
+ eapply IHn; eauto .
+Qed.
 
 Lemma nth_c_root : ∀ pol₁ ns₁ poln nsn n,
   poln = nth_pol n pol₁ ns₁
@@ -669,6 +676,8 @@ induction n; intros.
            exfalso; revert H₁; apply Nat.lt_irrefl.
 
            destruct (ps_zerop R (ps_poly_nth 0 polb)); auto; simpl.
+           erewrite nth_pol_n with (c₁ := c₁) in Hpolb'; eauto .
+           rewrite <- Hpolb₂ in Hpolb'; subst polb'.
 bbb.
        destruct (ps_zerop R (ps_poly_nth 0 pol₁)); auto; contradiction.
 
