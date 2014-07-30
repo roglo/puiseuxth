@@ -852,7 +852,7 @@ induction n; intros.
          remember (nth_pol (b + 1) pol ns) as polb'₁ eqn:Hpolb'₁ .
          remember (ac_root (Φq polb'₁ ns'₁)) as cb'₁ eqn:Hcb'₁ .
          remember (next_pol polb'₁ (β ns'₁) (γ ns'₁) cb'₁) as polb'₂.
-         rename HeqHpolb'₂ into Hpolb'₂.
+         rename Heqpolb'₂ into Hpolb'₂.
 bbb.
 
       destruct (zerop i); [ subst i | reflexivity ].
