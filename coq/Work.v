@@ -846,6 +846,15 @@ induction n; intros.
         remember (List.hd phony_ns (newton_segments pol₂)) as ns₂ eqn:Hns₂ .
         remember (List.hd phony_ns (newton_segments polb₂)) as nsb₂.
         rename Heqnsb₂ into Hnsb₂.
+        remember Hbns as H; clear HeqH.
+        eapply r_1_next_ns in H; eauto .
+         remember (next_pol polb (β nsb) (γ nsb) cb) as polb₁ eqn:Hpolb₁ .
+         erewrite nth_pol_n with (c₁ := c₁) in Hpolb₁; eauto .
+         rewrite <- Hpolb₂ in Hpolb₁; subst polb₁.
+         rewrite <- Hnsb₂ in H.
+         destruct H as (αjb₂, (αkb₂, H)).
+         destruct H as (Hothb₂, (Hinib₂, (Hfinb₂, (Hαjb₂, Hαkb₂)))).
+         unfold root_from_cγ_list; simpl.
 bbb.
 
       destruct (zerop i); [ subst i | reflexivity ].
