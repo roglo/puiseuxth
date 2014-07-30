@@ -834,6 +834,19 @@ induction n; intros.
          eapply q_eq_1 with (ns := ns); eauto .
 
          rewrite Heqm₁; assumption.
+
+       remember Hbns as Hrb₁; clear HeqHrb₁.
+       eapply multiplicity_1_remains in Hrb₁; eauto .
+        remember (ac_root (Φq polb nsb)) as cb eqn:Hcb .
+        remember (next_pol polb (β nsb) (γ nsb) cb) as polb₁ eqn:Hpolb₁ .
+        erewrite nth_pol_n with (c₁ := c₁) in Hpolb₁; eauto .
+        rewrite Nat.add_comm in Hpolb₂.
+        simpl in Hpolb₂.
+        rewrite <- Hc₁, <- Hpol₂ in Hpolb₂.
+        rewrite <- Hpolb₂ in Hpolb₁; subst polb₁.
+        remember (List.hd phony_ns (newton_segments pol₂)) as ns₂ eqn:Hns₂ .
+        remember (List.hd phony_ns (newton_segments polb₂)) as nsb₂.
+        rename Heqnsb₂ into Hnsb₂.
 bbb.
 
       destruct (zerop i); [ subst i | reflexivity ].
