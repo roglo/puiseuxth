@@ -214,6 +214,24 @@ induction n; intros.
  eapply IHn with (c := c₁); eauto .
 Qed.
 
+Lemma nth_γ_n : ∀ pol ns n nsn jn αjn kn αkn,
+  nsn = nth_ns n pol ns
+  → ini_pt nsn = (jn, αjn)
+  → fin_pt nsn = (kn, αkn)
+  → nth_γ n pol ns = (αjn - αkn) / (kn - jn).
+Proof.
+intros pol ns n nsn jm αjn kn αkn Hnsn Hini Hfin.
+revert pol ns nsn jm αjn kn αkn Hnsn Hini Hfin.
+induction n; intros.
+ simpl in Hnsn; simpl.
+ subst nsn; unfold γ; simpl.
+ rewrite Hini, Hfin; simpl.
+ reflexivity.
+
+ simpl in Hnsn; simpl.
+ eapply IHn; eauto .
+Qed.
+
 Lemma root_tail_nth : ∀ pol ns m a b,
   (root_tail m (a + b) pol ns =
    root_tail m a (nth_pol b pol ns) (nth_ns b pol ns))%ps.
@@ -732,6 +750,16 @@ induction n; intros.
          destruct (zerop i); [ subst i | reflexivity ].
          rewrite Nat.mod_0_l in H₁; auto.
          exfalso; revert H₁; apply Nat.lt_irrefl.
+
+        erewrite nth_γ_n; eauto ; simpl.
+        rewrite Hαkb; simpl.
+        rewrite Z.add_0_r, Z.mul_1_r, Pos.mul_1_r.
+        rewrite Pos2Z.inj_mul, Z.mul_assoc, Z.mul_shuffle0.
+        apply Z.mul_cancel_r; auto.
+        rewrite Z_div_mul_swap.
+         rewrite Z.div_mul; auto.
+
+         eapply den_αj_divides_num_αj_m; eauto .
 bbb.
 
       destruct (zerop i); [ subst i | reflexivity ].
