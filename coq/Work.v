@@ -846,6 +846,8 @@ induction n; intros.
          destruct H as (αjb₂, (αkb₂, H)).
          destruct H as (Hothb₂, (Hinib₂, (Hfinb₂, (Hαjb₂, Hαkb₂)))).
          unfold root_from_cγ_list; simpl.
+         remember (nth_ns (b + 1) pol₁ ns₁) as ns' eqn:Hns' .
+         erewrite nth_ns_n with (c := c) in Hns'; eauto .
 bbb.
 
       destruct (zerop i); [ subst i | reflexivity ].
