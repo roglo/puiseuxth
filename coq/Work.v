@@ -716,20 +716,11 @@ induction n; intros.
    rewrite Nat.add_0_r, ps_add_0_r.
    remember Hns as HinK1m₁; clear HeqHinK1m₁.
    eapply next_pol_in_K_1_mq in HinK1m₁; eauto .
-   remember Hns₁ as Hini₁; clear HeqHini₁.
-   apply exists_ini_pt_nat_fst_seg in Hini₁.
-   destruct Hini₁ as (j₁, (αj₁, Hini₁)).
-   remember Hns₁ as Hfin₁; clear HeqHfin₁.
-   apply exists_fin_pt_nat_fst_seg in Hfin₁.
-   destruct Hfin₁ as (k₁, (αk₁, Hfin₁)).
    pose proof (Hpsi O (Nat.le_0_l b)) as Hps₀.
-   remember Hns as H; clear HeqH.
-   eapply r_1_j_0_k_1 in H; try eassumption.
-   destruct H as (Hj₁, (Hk₁, (Hαj₁, (Hαk₁, Hoth₁)))).
-   subst j₁ k₁; simpl.
-   unfold Qlt in Hαj₁; simpl in Hαj₁.
-   unfold Qeq in Hαk₁; simpl in Hαk₁.
-   rewrite Z.mul_1_r in Hαj₁, Hαk₁.
+   remember Hns₁ as H; clear HeqH.
+   eapply r_1_next_ns in H; eauto .
+   destruct H as (αj₁, (αk₁, H)).
+   destruct H as (Hoth₁, (Hini₁, (Hfin₁, (Hαj₁, Hαk₁)))).
    remember Hns₁ as Hns₁₁; clear HeqHns₁₁.
    eapply hd_newton_segments in Hns₁₁; eauto .
    remember Hns₁₁ as HK₂; clear HeqHK₂.
