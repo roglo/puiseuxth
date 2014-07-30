@@ -728,18 +728,11 @@ induction n; intros.
            rewrite <- Hpolb₂ in Hpolb'; subst polb'.
            destruct (ps_zerop R (ps_poly_nth 0 polb₂)) as [H₃| H₃]; auto.
            contradiction.
+
+         destruct (zerop i); [ subst i | reflexivity ].
+         rewrite Nat.mod_0_l in H₁; auto.
+         exfalso; revert H₁; apply Nat.lt_irrefl.
 bbb.
-       destruct (ps_zerop R (ps_poly_nth 0 pol₁)); auto; contradiction.
-
-       simpl.
-       rewrite <- Hc₁, <- Hpol₂, <- Hns₂.
-       destruct (ps_zerop R (ps_poly_nth 0 pol₁)) as [H₂| H₂]; auto.
-       destruct d.
-        rewrite Hd in H₁.
-        exfalso; revert H₁; apply Nat.lt_irrefl.
-
-        simpl.
-        destruct (ps_zerop R (ps_poly_nth 0 pol₂)); auto; contradiction.
 
       destruct (zerop i); [ subst i | reflexivity ].
       rewrite Nat.mod_0_l in H₁; auto.
