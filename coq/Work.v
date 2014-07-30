@@ -829,6 +829,11 @@ induction n; intros.
         eapply den_αj_divides_num_αj_m; eauto .
         eapply lap_forall_nth with (ns := ns₁); eauto .
          eapply multiplicity_1_remains with (ns := ns); eauto .
+
+         rewrite Heqm₁.
+         eapply q_eq_1 with (ns := ns); eauto .
+
+         rewrite Heqm₁; assumption.
 bbb.
 
       destruct (zerop i); [ subst i | reflexivity ].
