@@ -848,6 +848,11 @@ induction n; intros.
          unfold root_from_cγ_list; simpl.
          remember (nth_ns (b + 1) pol₁ ns₁) as ns' eqn:Hns' .
          erewrite nth_ns_n with (c := c) in Hns'; eauto .
+         remember (nth_ns (b + 1) pol ns) as ns'₁ eqn:Hns'₁ .
+         remember (nth_pol (b + 1) pol ns) as polb'₁ eqn:Hpolb'₁ .
+         remember (ac_root (Φq polb'₁ ns'₁)) as cb'₁ eqn:Hcb'₁ .
+         remember (next_pol polb'₁ (β ns'₁) (γ ns'₁) cb'₁) as polb'₂.
+         rename HeqHpolb'₂ into Hpolb'₂.
 bbb.
 
       destruct (zerop i); [ subst i | reflexivity ].
