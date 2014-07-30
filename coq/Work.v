@@ -614,6 +614,23 @@ destruct (ps_zerop _ (ps_poly_nth 0 pol₁)) as [| H₁].
    apply Z.lt_le_incl; assumption.
 Qed.
 
+Lemma rrr : ∀ pol ns n poln m,
+  poln = nth_pol n pol ns
+  → ps_lap_forall (λ a, in_K_1_m a m) (al pol)
+  → ps_lap_forall (λ a, in_K_1_m a m) (al poln).
+Proof.
+intros pol ns n poln m Hpoln HK.
+revert pol ns poln m Hpoln HK.
+induction n; intros.
+ simpl in Hpoln; subst poln; assumption.
+
+ simpl in Hpoln.
+ remember (ac_root (Φq pol ns)) as c eqn:Hc .
+ remember (next_pol pol (β ns) (γ ns) c) as pol₁ eqn:Hpol₁ .
+ remember (List.hd phony_ns (newton_segments pol₁)) as ns₁ eqn:Hns₁ .
+ eapply IHn; eauto .
+bbb.
+
 Lemma sss : ∀ pol ns pol₁ ns₁ c m q₀ b,
   ns ∈ newton_segments pol
   → ps_lap_forall (λ a, in_K_1_m a m) (al pol)
@@ -756,10 +773,8 @@ induction n; intros.
         rewrite Z.add_0_r, Z.mul_1_r, Pos.mul_1_r.
         rewrite Pos2Z.inj_mul, Z.mul_assoc, Z.mul_shuffle0.
         apply Z.mul_cancel_r; auto.
-        rewrite Z_div_mul_swap.
-         rewrite Z.div_mul; auto.
-
-         eapply den_αj_divides_num_αj_m; eauto .
+        rewrite Z_div_mul_swap; [ rewrite Z.div_mul; auto | idtac ].
+        eapply den_αj_divides_num_αj_m; eauto .
 bbb.
 
       destruct (zerop i); [ subst i | reflexivity ].
