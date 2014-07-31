@@ -969,8 +969,15 @@ induction n; intros.
               eapply num_m_den_is_pos with (pol := polb₂); eauto .
                eapply hd_newton_segments; eauto .
 
-               eapply lap_forall_nth with (ns := ns₂); eauto .
-                eapply hd_newton_segments; eauto .
+               replace m₁ with (m₁ * 1)%positive by apply Pos.mul_1_r.
+               eapply next_pol_in_K_1_mq with (pol := polb); eauto .
+                rewrite <- Heqm₁ in HinK1m₁.
+                eapply lap_forall_nth with (ns := ns₁); eauto .
+                 eapply multiplicity_1_remains with (ns := ns); eauto .
+
+                 replace m₁ with (m₁ * 1)%positive by apply Pos.mul_1_r.
+                 eapply q_eq_1 with (ns := ns); eauto .
+
 bbb.
       apply stretch_morph; [ reflexivity | idtac ].
       unfold series_add; simpl.
