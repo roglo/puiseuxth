@@ -961,13 +961,16 @@ induction n; intros.
               destruct (ps_zerop R (ps_poly_nth 0 polb)) as [H₃| H₃].
                contradiction.
 
-               clear H₃.
-               symmetry.
+               clear H₃; symmetry.
                apply nth_c_root; auto.
 
               exfalso; apply H₁.
               subst d.
-(* cf num_m_den_is_pos *)
+              eapply num_m_den_is_pos with (pol := polb₂); eauto .
+               eapply hd_newton_segments; eauto .
+
+               eapply lap_forall_nth with (ns := ns₂); eauto .
+                eapply hd_newton_segments; eauto .
 bbb.
       apply stretch_morph; [ reflexivity | idtac ].
       unfold series_add; simpl.
