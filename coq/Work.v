@@ -683,6 +683,15 @@ induction n; intros.
   assumption.
 Qed.
 
+(* to Misc.v *)
+Lemma Z2Nat_neg_eq_0 : ∀ z, (z <= 0)%Z → Z.to_nat z = 0%nat.
+Proof.
+intros z Hz.
+destruct z as [| z| z]; auto.
+apply Z.nlt_ge in Hz.
+exfalso; apply Hz, Pos2Z.is_pos.
+Qed.
+
 Lemma sss : ∀ pol ns pol₁ ns₁ c m q₀ b,
   ns ∈ newton_segments pol
   → ps_lap_forall (λ a, in_K_1_m a m) (al pol)
@@ -926,31 +935,26 @@ induction n; intros.
 
              rewrite Heqm₁.
              eapply q_eq_1 with (ns := ns); eauto .
+
+           rewrite <- series_stretch_const with (k := (dd * dd)%positive).
+           rewrite <- Z.mul_opp_l.
+           do 2 rewrite Z2Nat_inj_mul_pos_r.
+           do 2 rewrite <- stretch_shift_series_distr.
+           rewrite <- series_stretch_add_distr.
+           apply stretch_morph; [ reflexivity | idtac ].
+           rewrite Z2Nat_neg_eq_0.
+            Focus 2.
+            apply Z.opp_nonpos_nonneg.
+            apply Z.div_pos; [ idtac | apply Pos2Z.is_pos ].
+            apply Z.mul_nonneg_nonneg; auto.
+            apply Z.lt_le_incl; assumption.
+
+            rewrite series_shift_0.
+            unfold series_add; simpl.
+            constructor; simpl; intros i.
+            destruct (zerop i) as [H₁| H₁].
+             subst i; simpl.
 bbb.
-
-     remember Hns₂ as Hns₂₁; clear HeqHns₂₁.
-     eapply hd_newton_segments in Hns₂₁; eauto .
-     remember Hns₂₁ as H; clear HeqH.
-     eapply den_αj_divides_num_αj_m in H; eauto .
-     remember Hns₂₁ as HH; clear HeqHH.
-     eapply num_m_den_is_pos in HH; eauto .
-     destruct H as (d, Hd).
-     rewrite Hd in HH.
-     rewrite Z.div_mul in HH; auto.
-     rewrite Hd.
-     rewrite Z.div_mul; auto.
-     destruct d as [| d| d].
-      exfalso; revert HH; apply Nat.lt_irrefl.
-
-      clear HH; simpl.
-      unfold adjust_series; simpl.
-      rewrite series_shift_0.
-      rewrite series_stretch_const.
-      rewrite <- series_stretch_stretch.
-      rewrite <- Pos.mul_assoc, Pos2Nat.inj_mul.
-      rewrite <- stretch_shift_series_distr.
-      rewrite <- series_stretch_const with (k := (dd * dd)%positive).
-      rewrite <- series_stretch_add_distr.
       apply stretch_morph; [ reflexivity | idtac ].
       unfold series_add; simpl.
       constructor; intros i; simpl.
