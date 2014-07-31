@@ -877,8 +877,15 @@ induction n; intros.
          unfold ps_ordnum_add; simpl.
          rewrite Z.mul_1_r, Z.add_0_r, Pos.mul_1_r, Nat.add_0_r.
          remember (nth_γ b pol₁ ns₁) as γb₁ eqn:Hγb₁ .
-bbb.
-(* normalement γb₁ = αjb : à voir *)
+         erewrite nth_γ_n in Hγb₁; eauto .
+         unfold Qdiv in Hγb₁; simpl in Hγb₁.
+         unfold Qmult in Hγb₁; simpl in Hγb₁.
+         rewrite Hαkb in Hγb₁; simpl in Hγb₁.
+         rewrite Z.add_0_r, Z.mul_1_r, Pos.mul_1_r in Hγb₁.
+         subst γb₁; simpl.
+         remember (Qden αjb * Qden αkb)%positive as dd.
+         remember (Qnum αjb * ' Qden αkb)%Z as nd.
+         rewrite Pos.mul_assoc.
          rewrite series_stretch_const.
          rewrite series_mul_1_l.
          do 2 rewrite Z2Nat_sub_min.
@@ -888,42 +895,38 @@ bbb.
          rewrite Z.sub_diag; simpl.
          rewrite Z.add_simpl_l.
          rewrite Z.min_l.
-          rewrite Pos.mul_assoc.
           rewrite <- Z.mul_assoc, <- Pos2Z.inj_mul.
-          remember (Qden γb₁ * Qden γb₁)%positive as dd.
           unfold adjust_series.
           rewrite series_stretch_const.
           rewrite <- series_stretch_stretch.
-          rewrite <- Heqdd.
-          rewrite ps_adjust_eq with (n := O) (k := dd).
+          rewrite ps_adjust_eq with (n := O) (k := (dd * dd)%positive).
           unfold adjust_ps; simpl.
           rewrite series_shift_0.
           rewrite Z.sub_0_r.
-          rewrite Pos.mul_comm.
-          apply mkps_morphism; auto.
-bbb.
-   rewrite Z.min_l.
-    rewrite ps_adjust_eq with (n := O) (k := (dd * dd)%positive).
-    unfold adjust_ps; simpl.
-    rewrite series_shift_0.
-    rewrite Z.sub_0_r.
-    apply mkps_morphism.
-     Focus 2.
-     rewrite Pos2Z.inj_mul, Z.mul_assoc.
-     apply Z.mul_cancel_r; auto.
-     subst dd nd.
-     rewrite Pos2Z.inj_mul, Z.mul_assoc.
-     symmetry; rewrite Z.mul_shuffle0.
-     apply Z.mul_cancel_r; auto.
-     symmetry.
-     rewrite Z.mul_comm.
-     rewrite <- Z.divide_div_mul_exact; auto.
-      rewrite Z.mul_comm.
-      rewrite Z.div_mul; auto.
+          apply mkps_morphism.
+           Focus 2.
+           rewrite Pos2Z.inj_mul, Z.mul_assoc.
+           apply Z.mul_cancel_r; auto.
+           subst dd nd.
+           rewrite Pos2Z.inj_mul, Z.mul_assoc.
+           symmetry; rewrite Z.mul_shuffle0.
+           apply Z.mul_cancel_r; auto.
+           symmetry.
+           rewrite Z.mul_comm.
+           rewrite <- Z.divide_div_mul_exact; auto.
+            rewrite Z.mul_comm.
+            rewrite Z.div_mul; auto.
 
-      eapply den_αj_divides_num_αj_m; eauto .
-      eapply next_pol_in_K_1_mq in Hm; eauto .
-      subst m₁; assumption.
+            eapply den_αj_divides_num_αj_m; eauto .
+            remember Hm as H; clear HeqH.
+            eapply next_pol_in_K_1_mq in H; eauto .
+            rewrite <- Heqm₁ in H.
+            eapply lap_forall_nth with (ns := ns₁); eauto .
+             eapply multiplicity_1_remains with (ns := ns); eauto .
+
+             rewrite Heqm₁.
+             eapply q_eq_1 with (ns := ns); eauto .
+bbb.
 
      remember Hns₂ as Hns₂₁; clear HeqHns₂₁.
      eapply hd_newton_segments in Hns₂₁; eauto .
