@@ -857,35 +857,18 @@ induction n; intros.
          rewrite <- Hc, <- Hpol₁, <- Hns₁ in Hns'₁.
          rewrite <- Hnsb in Hns'₁; subst ns'₁.
          rewrite <- Hcb in Hns'.
+         erewrite nth_pol_n with (c₁ := c₁) in Hns'; eauto .
+         rewrite <- Hpolb₂ in Hns'.
+         rewrite <- Hnsb₂ in Hns'; subst ns'.
+         rewrite Hinib, Hfinb, Hinib₂, Hfinb₂; simpl.
+         rewrite Hαkb, Hαkb₂; simpl.
+         do 2 rewrite Z.mul_1_r, Z.add_0_r, Pos.mul_1_r.
+         rewrite Z.mul_shuffle0, Pos2Z.inj_mul.
+         rewrite Z.div_mul_cancel_r; auto.
+         rewrite Z.mul_shuffle0, Pos2Z.inj_mul.
+         rewrite Z.div_mul_cancel_r; auto.
 bbb.
-         remember (ac_root (Φq polb'₁ ns'₁)) as cb'₁ eqn:Hcb'₁ .
-         remember (next_pol polb'₁ (β ns'₁) (γ ns'₁) cb'₁) as polb'₂.
-         rename Heqpolb'₂ into Hpolb'₂.
-bbb.
 
-      destruct (zerop i); [ subst i | reflexivity ].
-      rewrite Nat.mod_0_l in H₁; auto.
-      exfalso; revert H₁; apply Nat.lt_irrefl.
-
-     rewrite Z.mul_comm, Z.mul_assoc, Z.mul_shuffle0.
-     rewrite <- Z.mul_assoc, Z.mul_comm; reflexivity.
-
-     rewrite Pos.mul_comm; reflexivity.
-
-    eapply den_αj_divides_num_αj_m; eauto .
-    rewrite Heqm₁.
-    eapply next_pol_in_K_1_mq in Hm; eauto .
-
-   remember Hns as Hr₁; clear HeqHr₁.
-   eapply multiplicity_1_remains in Hr₁; eauto .
-   remember Hns₁₁ as H; clear HeqH.
-   eapply r_1_j_0_k_1 in H; try eassumption.
-   destruct H as (Hj₂, (Hk₂, (Hαj₂, (Hαk₂, Hoth₂)))).
-   subst j₂ k₂; simpl.
-   unfold Qlt in Hαj₂; simpl in Hαj₂.
-   unfold Qeq in Hαk₂; simpl in Hαk₂.
-   rewrite Z.mul_1_r in Hαj₂, Hαk₂.
-   unfold root_from_cγ_list; simpl.
    rewrite Hini₁, Hfin₁, Hini₂, Hfin₂; simpl.
    rewrite Hαk₁, Hαk₂; simpl.
    do 2 rewrite Z.mul_1_r, Z.add_0_r, Pos.mul_1_r.
