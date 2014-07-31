@@ -995,6 +995,26 @@ induction n; intros.
 
                 symmetry.
                 rewrite Heqm₁.
+                destruct b.
+                 simpl in Hnsb; subst nsb.
+                 eapply q_eq_1 with (ns := ns); eauto .
+
+                 simpl in Hnsb.
+                 rewrite <- Hc₁, <- Hpol₂, <- Hns₂ in Hnsb.
+                 rewrite <- Heqm₁.
+                 replace m₁ with (m₁ * 1)%positive by apply Pos.mul_1_r.
+                 destruct b.
+                  simpl in Hnsb; subst nsb.
+                  rewrite <- Heqm₁ in HinK1m₁.
+                  eapply q_eq_1 with (ns := ns₁); eauto .
+                   rewrite Pos.mul_1_r; assumption.
+
+                   eapply multiplicity_1_remains with (ns := ns); eauto .
+
+                   pose proof (Hpsi 1%nat (Nat.le_refl 1)) as H.
+                   simpl in H.
+                   rewrite <- Hc₁, <- Hpol₂ in H.
+                   assumption.
 bbb.
 
       apply stretch_morph; [ reflexivity | idtac ].
