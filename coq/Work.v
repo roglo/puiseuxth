@@ -977,8 +977,26 @@ induction n; intros.
 
                  replace m₁ with (m₁ * 1)%positive by apply Pos.mul_1_r.
                  eapply q_eq_1 with (ns := ns); eauto .
+                  rewrite Heqm₁.
+                  apply ps_lap_forall_forall.
+                   intros p₁ p₂ H₁₂ Hmq.
+                   rewrite <- H₁₂.
+                   assumption.
 
+                   intros a Hain.
+                   apply in_K_1_m_lap_mul_r_compat.
+                   revert a Hain.
+                   apply ps_lap_forall_forall; auto.
+                   intros p₁ p₂ H₁₂ Hmq.
+                   rewrite <- H₁₂.
+                   assumption.
+
+                  rewrite Pos.mul_1_r; assumption.
+
+                symmetry.
+                rewrite Heqm₁.
 bbb.
+
       apply stretch_morph; [ reflexivity | idtac ].
       unfold series_add; simpl.
       constructor; intros i; simpl.
