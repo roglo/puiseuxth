@@ -877,6 +877,8 @@ induction n; intros.
          unfold ps_ordnum_add; simpl.
          rewrite Z.mul_1_r, Z.add_0_r, Pos.mul_1_r, Nat.add_0_r.
          remember (nth_γ b pol₁ ns₁) as γb₁ eqn:Hγb₁ .
+bbb.
+(* normalement γb₁ = αjb : à voir *)
          rewrite series_stretch_const.
          rewrite series_mul_1_l.
          do 2 rewrite Z2Nat_sub_min.
@@ -886,6 +888,19 @@ induction n; intros.
          rewrite Z.sub_diag; simpl.
          rewrite Z.add_simpl_l.
          rewrite Z.min_l.
+          rewrite Pos.mul_assoc.
+          rewrite <- Z.mul_assoc, <- Pos2Z.inj_mul.
+          remember (Qden γb₁ * Qden γb₁)%positive as dd.
+          unfold adjust_series.
+          rewrite series_stretch_const.
+          rewrite <- series_stretch_stretch.
+          rewrite <- Heqdd.
+          rewrite ps_adjust_eq with (n := O) (k := dd).
+          unfold adjust_ps; simpl.
+          rewrite series_shift_0.
+          rewrite Z.sub_0_r.
+          rewrite Pos.mul_comm.
+          apply mkps_morphism; auto.
 bbb.
    rewrite Z.min_l.
     rewrite ps_adjust_eq with (n := O) (k := (dd * dd)%positive).
