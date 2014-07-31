@@ -954,6 +954,20 @@ induction n; intros.
             constructor; simpl; intros i.
             destruct (zerop i) as [H₁| H₁].
              subst i; simpl.
+             remember (Qnum αjb₂ * ' m₁ / ' Qden αjb₂)%Z as d.
+             destruct (lt_dec 0 (Z.to_nat d)) as [H₁| H₁].
+              rewrite rng_add_0_r.
+              unfold root_series_from_cγ_list; simpl.
+              destruct (ps_zerop R (ps_poly_nth 0 polb)) as [H₃| H₃].
+               contradiction.
+
+               clear H₃.
+               symmetry.
+               apply nth_c_root; auto.
+
+              exfalso; apply H₁.
+              subst d.
+(* cf num_m_den_is_pos *)
 bbb.
       apply stretch_morph; [ reflexivity | idtac ].
       unfold series_add; simpl.
