@@ -736,11 +736,13 @@ induction n; intros.
    remember Hns₁₁ as HK₂; clear HeqHK₂.
    rewrite Heqm₁ in HK₁.
    eapply next_pol_in_K_1_mq in HK₂; eauto .
-   rewrite <- Heqm₁ in HK₁.
    erewrite q_eq_1 with (q₀ := q₀) (ns := ns) in HK₂; eauto .
+   rewrite <- Heqm₁ in HK₁.
    rewrite Pos.mul_1_r, <- Heqm₁ in HK₂.
    remember (ac_root (Φq pol₁ ns₁)) as c₁ eqn:Hc₁ .
    remember (next_pol pol₁ (β ns₁) (γ ns₁) c₁) as pol₂ eqn:Hpol₂ .
+   remember Hr as Hr₁; clear HeqHr₁.
+   eapply multiplicity_1_remains in Hr₁; eauto .
    remember Hns₁₁ as H; clear HeqH.
    eapply nth_in_newton_segments with (n := b) in H; eauto .
     remember (nth_pol b pol₁ ns₁) as polb eqn:Hpolb .
@@ -831,8 +833,6 @@ induction n; intros.
         rewrite Z_div_mul_swap; [ rewrite Z.div_mul; auto | idtac ].
         eapply den_αj_divides_num_αj_m; eauto .
         eapply lap_forall_nth with (ns := ns₁); eauto .
-         eapply multiplicity_1_remains with (ns := ns); eauto .
-
          rewrite Heqm₁.
          eapply q_eq_1 with (ns := ns); eauto .
 
@@ -934,8 +934,6 @@ induction n; intros.
             eapply next_pol_in_K_1_mq in H; eauto .
             rewrite <- Heqm₁ in H.
             eapply lap_forall_nth with (ns := ns₁); eauto .
-             eapply multiplicity_1_remains with (ns := ns); eauto .
-
              rewrite Heqm₁.
              eapply q_eq_1 with (ns := ns); eauto .
 
@@ -977,8 +975,6 @@ induction n; intros.
                replace m₁ with (m₁ * 1)%positive by apply Pos.mul_1_r.
                eapply next_pol_in_K_1_mq with (pol := polb); eauto .
                 eapply lap_forall_nth with (ns := ns₁); eauto .
-                 eapply multiplicity_1_remains with (ns := ns); eauto .
-
                  replace m₁ with (m₁ * 1)%positive by apply Pos.mul_1_r.
                  eapply q_eq_1 with (ns := ns); eauto .
                   rewrite Heqm₁.
@@ -1011,8 +1007,6 @@ induction n; intros.
                   eapply q_eq_1 with (ns := ns₁); eauto .
                    rewrite Pos.mul_1_r; assumption.
 
-                   eapply multiplicity_1_remains with (ns := ns); eauto .
-
                    pose proof (Hpsi 1%nat (Nat.le_refl 1)) as H.
                    simpl in H.
                    rewrite <- Hc₁, <- Hpol₂ in H; assumption.
@@ -1025,8 +1019,6 @@ induction n; intros.
                   eapply r_1_next_ns with (ns := ns₁) in H; eauto .
                    destruct H as (αj₂, (αk₂, H)).
                    destruct H as (Hoth₂, (Hini₂, (Hfin₂, (Hαj₂, Hαk₂)))).
-                   Focus 2.
-                   eapply multiplicity_1_remains with (ns := ns); eauto .
 
                    Focus 2.
                    clear H.
@@ -1046,8 +1038,6 @@ induction n; intros.
                       replace m₁ with (m₁ * 1)%positive by apply Pos.mul_1_r.
                       eapply q_eq_1 with (ns := ns₃); eauto .
                        eapply lap_forall_nth with (ns := ns₁); eauto .
-                        eapply multiplicity_1_remains with (ns := ns); eauto .
-
                         replace m₁ with (m₁ * 1)%positive
                          by apply Pos.mul_1_r.
                         eapply q_eq_1 with (ns := ns); eauto .
@@ -1064,6 +1054,7 @@ induction n; intros.
                           rewrite <- H₁₂; assumption.
 
                          rewrite Pos.mul_1_r.
+(* 20 buts *)
 bbb.
 
       apply stretch_morph; [ reflexivity | idtac ].
