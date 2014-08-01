@@ -683,14 +683,21 @@ induction n; intros.
   assumption.
 Qed.
 
-(* to Misc.v *)
-Lemma Z2Nat_neg_eq_0 : ∀ z, (z <= 0)%Z → Z.to_nat z = 0%nat.
+Lemma multiplicity_1_remains_in_nth : ∀ pol ns c₁ pol₁ ns₁,
+  ns ∈ newton_segments pol
+  → c₁ = ac_root (Φq pol ns)
+  → root_multiplicity acf c₁ (Φq pol ns) = 1%nat
+  → pol₁ = next_pol pol (β ns) (γ ns) c₁
+  → ns₁ = List.hd phony_ns (newton_segments pol₁)
+  → ∀ n poln nsn cn,
+  (∀ i, (i ≤ n)%nat → (ps_poly_nth 0 (nth_pol i pol₁ ns₁) ≠ 0)%ps)
+  → poln = nth_pol n pol₁ ns₁
+  → nsn = nth_ns n pol₁ ns₁
+  → cn = ac_root (Φq poln nsn)
+  → root_multiplicity acf cn (Φq poln nsn) = 1%nat.
 Proof.
-intros z Hz.
-destruct z as [| z| z]; auto.
-apply Z.nlt_ge in Hz.
-exfalso; apply Hz, Pos2Z.is_pos.
-Qed.
+bbb.
+*)
 
 Lemma sss : ∀ pol ns pol₁ ns₁ c m q₀ b,
   ns ∈ newton_segments pol
@@ -753,8 +760,10 @@ induction n; intros.
     destruct H as (jb, (αjb, Hinib)).
     remember Hbns as H; clear HeqH.
     apply exists_fin_pt_nat in H.
-    destruct H as (kb, (αkb, Hfinb)).
+   destruct H as (kb, (αkb, Hfinb)).
    remember (ac_root (Φq polb nsb)) as cb eqn:Hcb .
+   remember Hr as Hrb; clear HeqHrb.
+   eapply multiplicity_1_remains_in_nth in Hrb; eauto .
    remember Hns₁₁ as H; clear HeqH.
    eapply nth_in_newton_segments with (n := b) in H; eauto .
    eapply r_1_j_0_k_1 with (ns₁ := nsb) in H; eauto .
@@ -1054,7 +1063,7 @@ induction n; intros.
                           rewrite <- H₁₂; assumption.
 
                          rewrite Pos.mul_1_r.
-(* 20 buts *)
+(* 16 buts *)
 bbb.
 
       apply stretch_morph; [ reflexivity | idtac ].

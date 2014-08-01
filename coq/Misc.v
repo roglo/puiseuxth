@@ -2025,6 +2025,14 @@ rewrite Z.mul_1_r.
 apply Z.mul_pos_pos; assumption.
 Qed.
 
+Theorem Z2Nat_neg_eq_0 : ∀ z, (z <= 0)%Z → Z.to_nat z = 0%nat.
+Proof.
+intros z Hz.
+destruct z as [| z| z]; auto.
+apply Z.nlt_ge in Hz.
+exfalso; apply Hz, Pos2Z.is_pos.
+Qed.
+
 Hint Resolve Pos2Z.is_nonneg.
 Hint Resolve Pos2Nat.is_pos.
 Hint Resolve Pos2Z_ne_0.
