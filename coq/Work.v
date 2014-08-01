@@ -906,21 +906,27 @@ induction n; intros.
        destruct (zerop i); [ subst i | reflexivity ].
        rewrite Nat.mod_0_l in H₁; auto.
        exfalso; revert H₁; apply Nat.lt_irrefl.
+
+      erewrite nth_γ_n; eauto ; simpl.
+      rewrite Hαkb; simpl.
+      rewrite Z.add_0_r, Z.mul_1_r, Pos.mul_1_r.
+      rewrite Pos2Z.inj_mul, Z.mul_assoc.
+      symmetry.
+      rewrite Z.mul_shuffle0.
+      apply Z.mul_cancel_r; auto.
+      rewrite Z_div_mul_swap; [ rewrite Z.div_mul; auto | idtac ].
+      eapply den_αj_divides_num_αj_m; eauto .
+      eapply lap_forall_nth with (ns := ns₁); eauto .
+       rewrite Heqm₁.
+       eapply q_eq_1 with (ns := ns); eauto .
+       rewrite <- Heqm₁; assumption.
+
+       simpl; rewrite <- Hc₁, <- Hpol₂, <- Hns₂; assumption.
+
+     remember Hbns as Hrb₁; clear HeqHrb₁.
+     eapply multiplicity_1_remains in Hrb₁; eauto .
+      remember (next_pol polb (β nsb) (γ nsb) cb) as polb₁ eqn:Hpolb₁ .
 bbb.
-         rewrite Nat.mod_0_l in H₁; auto.
-         exfalso; revert H₁; apply Nat.lt_irrefl.
-
-        erewrite nth_γ_n; eauto ; simpl.
-        rewrite Hαkb; simpl.
-        rewrite Z.add_0_r, Z.mul_1_r, Pos.mul_1_r.
-        rewrite Pos2Z.inj_mul, Z.mul_assoc, Z.mul_shuffle0.
-        apply Z.mul_cancel_r; auto.
-        rewrite Z_div_mul_swap; [ rewrite Z.div_mul; auto | idtac ].
-        eapply den_αj_divides_num_αj_m; eauto .
-        eapply lap_forall_nth with (ns := ns₁); eauto .
-         rewrite Heqm₁.
-         eapply q_eq_1 with (ns := ns); eauto .
-
          rewrite <- Heqm₁; assumption.
 
        remember Hbns as Hrb₁; clear HeqHrb₁.
