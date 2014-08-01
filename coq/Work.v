@@ -1013,8 +1013,16 @@ induction n; intros.
 
                    pose proof (Hpsi 1%nat (Nat.le_refl 1)) as H.
                    simpl in H.
-                   rewrite <- Hc₁, <- Hpol₂ in H.
-                   assumption.
+                   rewrite <- Hc₁, <- Hpol₂ in H; assumption.
+
+                  simpl in Hnsb.
+                  remember (ac_root (Φq pol₂ ns₂)) as c₂ eqn:Hc₂ .
+                  remember (next_pol pol₂ (β ns₂) (γ ns₂) c₂) as pol₃.
+                  remember (List.hd phony_ns (newton_segments pol₃)) as ns₄.
+                  destruct b.
+                   simpl in Hnsb; subst nsb.
+                   eapply q_eq_1 with (ns := ns₂); eauto .
+                    eapply hd_newton_segments; eauto .
 bbb.
 
       apply stretch_morph; [ reflexivity | idtac ].
