@@ -712,10 +712,26 @@ induction n; intros.
  remember (nth_pol n pol₂ ns₂) as poln₂ eqn:Hpoln₂ .
  remember Hr as Hr₁; clear HeqHr₁.
  eapply multiplicity_1_remains with (ns₁ := ns₁) in Hr₁; try eassumption.
-  eapply IHn with (ns := ns₁) (pol := pol₁); eauto .
-   eapply hd_newton_segments.
-bbb.
-*)
+  remember Hns₁ as H; clear HeqH.
+  eapply r_1_next_ns with (ns := ns) in H; try eassumption.
+   destruct H as (αj₁, (αk₁, H)).
+   destruct H as (Hoth₁, (Hini₁, (Hfin₁, (Hαj₁, Hαk₁)))).
+   eapply IHn with (ns := ns₁) (pol := pol₁); eauto .
+    eapply hd_newton_segments; eauto .
+
+    intros i Hin.
+    apply Nat.succ_le_mono in Hin.
+    apply Hpsi in Hin; simpl in Hin.
+    rewrite <- Hc₁, <- Hpol₂, <- Hns₂ in Hin.
+    assumption.
+
+   clear H.
+   assert (0 ≤ S n)%nat as H by apply Nat.le_0_l.
+   apply Hpsi in H; assumption.
+
+  assert (0 ≤ S n)%nat as H by apply Nat.le_0_l.
+  apply Hpsi in H; assumption.
+Qed.
 
 Lemma sss : ∀ pol ns pol₁ ns₁ c m q₀ b,
   ns ∈ newton_segments pol
