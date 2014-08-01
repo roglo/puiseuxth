@@ -696,6 +696,24 @@ Lemma multiplicity_1_remains_in_nth : ∀ pol ns c₁ pol₁ ns₁,
   → cn = ac_root (Φq poln nsn)
   → root_multiplicity acf cn (Φq poln nsn) = 1%nat.
 Proof.
+intros pol ns c pol₁ ns₁ Hns Hc Hr Hpol₁ Hns₁.
+intros n poln nsn cn Hpsi Hpoln Hnsn Hcn.
+revert poln nsn cn Hpsi Hpoln Hnsn Hcn.
+revert pol ns c pol₁ ns₁ Hns Hc Hr Hpol₁ Hns₁.
+induction n; intros.
+ simpl in Hpoln, Hnsn; subst poln nsn; simpl.
+ eapply multiplicity_1_remains; eauto .
+ pose proof (Hpsi O (le_refl O)) as H; assumption.
+
+ simpl in Hpoln, Hnsn; subst poln nsn; simpl.
+ remember (ac_root (Φq pol₁ ns₁)) as c₁ eqn:Hc₁ .
+ remember (next_pol pol₁ (β ns₁) (γ ns₁) c₁) as pol₂ eqn:Hpol₂ .
+ remember (List.hd phony_ns (newton_segments pol₂)) as ns₂ eqn:Hns₂ .
+ remember (nth_pol n pol₂ ns₂) as poln₂ eqn:Hpoln₂ .
+ remember Hr as Hr₁; clear HeqHr₁.
+ eapply multiplicity_1_remains with (ns₁ := ns₁) in Hr₁; try eassumption.
+  eapply IHn with (ns := ns₁) (pol := pol₁); eauto .
+   eapply hd_newton_segments.
 bbb.
 *)
 
