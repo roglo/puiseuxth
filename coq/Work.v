@@ -754,9 +754,10 @@ induction n; intros.
     remember Hbns as H; clear HeqH.
     apply exists_fin_pt_nat in H.
     destruct H as (kb, (αkb, Hfinb)).
-    remember Hns₁₁ as H; clear HeqH.
-    eapply nth_in_newton_segments with (n := b) in H; eauto .
-     eapply r_1_j_0_k_1 with (ns₁ := nsb) in H; eauto .
+   remember (ac_root (Φq polb nsb)) as cb eqn:Hcb .
+   remember Hns₁₁ as H; clear HeqH.
+   eapply nth_in_newton_segments with (n := b) in H; eauto .
+   eapply r_1_j_0_k_1 with (ns₁ := nsb) in H; eauto .
       destruct H as (Hjb, (Hkb, (Hαjb, (Hαkb, Hothb)))).
       subst jb kb.
       unfold Qlt in Hαjb; simpl in Hαjb.
@@ -804,10 +805,10 @@ induction n; intros.
            apply nth_c_root; assumption.
 
           simpl.
+          rewrite <- Hcb.
           rewrite Nat.add_comm in Hpolb₂; simpl in Hpolb₂.
           rewrite <- Hc₁, <- Hpol₂ in Hpolb₂.
           remember (List.hd phony_ns (newton_segments pol₂)) as ns₂ eqn:Hns₂ .
-          remember (ac_root (Φq polb nsb)) as cb eqn:Hcb .
           remember (next_pol polb (β nsb) (γ nsb) cb) as polb' eqn:Hpolb' .
           remember (List.hd phony_ns (newton_segments polb')) as nsb'.
           rename Heqnsb' into Hnsb'.
@@ -840,7 +841,6 @@ induction n; intros.
 
        remember Hbns as Hrb₁; clear HeqHrb₁.
        eapply multiplicity_1_remains in Hrb₁; eauto .
-        remember (ac_root (Φq polb nsb)) as cb eqn:Hcb .
         remember (next_pol polb (β nsb) (γ nsb) cb) as polb₁ eqn:Hpolb₁ .
         erewrite nth_pol_n with (c₁ := c₁) in Hpolb₁; eauto .
         rewrite Nat.add_comm in Hpolb₂; simpl in Hpolb₂.
