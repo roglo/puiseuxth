@@ -754,6 +754,9 @@ revert pol ns pol₁ ns₁ Hns Hm Hq₀ Hc Hr Hpol₁ Hns₁ Hpsi.
 revert b c m q₀ m₁ Heqm₁.
 induction n; intros.
  rewrite Nat.add_0_r in Hpsi.
+ destruct b; [ subst m₁; eapply root_tail_split_1st; eauto  | idtac ].
+ rename b into b₁.
+ remember (S b₁) as b eqn:Hb₁.
  unfold root_tail, root_head; simpl.
  destruct (ps_zerop _ (ps_poly_nth 0 (nth_pol b pol₁ ns₁))) as [Hpbs₀| Hpbs₀].
   pose proof (Hpsi b (Nat.le_refl b)); contradiction.
