@@ -742,13 +742,15 @@ Lemma sss : ∀ pol ns pol₁ ns₁ c m q₀ b,
   → pol₁ = next_pol pol (β ns) (γ ns) c
   → ns₁ = List.hd phony_ns (newton_segments pol₁)
   → ∀ n,
-    (∀ i, (i ≤ b + n)%nat → (ps_poly_nth 0 (nth_pol i pol₁ ns₁) ≠ 0)%ps)
+    (∀ i, (i ≤ b + S n)%nat → (ps_poly_nth 0 (nth_pol i pol₁ ns₁) ≠ 0)%ps)
     → (root_tail (m * q₀) b pol₁ ns₁ =
        root_head b n pol₁ ns₁ +
          ps_monom 1%K (γ_sum b n pol₁ ns₁) *
          root_tail (m * q₀) (b + S n) pol₁ ns₁)%ps.
 Proof.
 intros pol ns pol₁ ns₁ c m q₀ b Hns Hm Hq₀ Hc Hr Hpol₁ Hns₁ n Hpsi.
+(* I changed n into S n) in Hpsi: proof must be redone *)
+bbb.
 remember (m * q₀)%positive as m₁.
 revert pol ns pol₁ ns₁ Hns Hm Hq₀ Hc Hr Hpol₁ Hns₁ Hpsi.
 revert b c m q₀ m₁ Heqm₁.
@@ -800,6 +802,18 @@ induction n; intros.
    remember (ac_root (Φq polb nsb)) as cb eqn:Hcb .
    remember Hr as Hrb; clear HeqHrb.
    eapply multiplicity_1_remains_in_nth in Hrb; eauto .
+   remember (ps_poly_nth 0 (nth_pol (b₁ + 1) pol₁ ns₁)) as polb₂ eqn:Hpolb₂ .
+   destruct (ps_zerop R polb₂) as [H₁| H₁].
+    rewrite rng_mul_0_r, rng_add_0_r.
+    subst b₁.
+    simpl in Hpolb, Hnsb, Hpolb₂; simpl.
+    unfold γ_sum; simpl.
+    unfold summation; simpl.
+    rewrite Nat.add_0_r, rng_add_0_r.
+    rewrite <- Hc₁, <- Hpol₂ in Hpolb, Hnsb, Hpolb₂.
+    rewrite <- Hc₁, <- Hpol₂.
+    remember (List.hd phony_ns (newton_segments pol₂)) as ns₂ eqn:Hns₂ .
+bbb.
    remember Hns₁₁ as H; clear HeqH.
    eapply nth_in_newton_segments with (n := b₁) in H; eauto .
    eapply r_1_j_0_k_1 with (ns₁ := nsb) in H; eauto .
