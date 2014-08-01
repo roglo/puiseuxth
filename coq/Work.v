@@ -923,9 +923,11 @@ induction n; intros.
 
        simpl; rewrite <- Hc₁, <- Hpol₂, <- Hns₂; assumption.
 
+bbb.
      remember Hbns as Hrb₁; clear HeqHrb₁.
      eapply multiplicity_1_remains in Hrb₁; eauto .
       remember (next_pol polb (β nsb) (γ nsb) cb) as polb₁ eqn:Hpolb₁ .
+      erewrite nth_pol_n with (c₁ := c₁) (n := S b) in Hpolb₁; eauto .
 bbb.
          rewrite <- Heqm₁; assumption.
 
