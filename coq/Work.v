@@ -887,29 +887,26 @@ induction n; intros.
         simpl.
         rewrite <- Hcb.
         rewrite Nat.add_comm in Hpolb₂; simpl in Hpolb₂.
+        remember (ac_root (Φq pol₂ ns₂)) as c₂ eqn:Hc₂ .
+        remember (next_pol pol₂ (β ns₂) (γ ns₂) c₂) as pol₃ eqn:Hpol₃ .
+        remember (List.hd phony_ns (newton_segments pol₃)) as ns₃ eqn:Hns₃ .
+        remember (next_pol polb (β nsb) (γ nsb) cb) as polb' eqn:Hpolb' .
+        remember (List.hd phony_ns (newton_segments polb')) as nsb'.
+        rename Heqnsb' into Hnsb'.
+        destruct d.
+         rewrite Hd in H₁.
+         exfalso; revert H₁; apply Nat.lt_irrefl.
+
+         destruct (ps_zerop R (ps_poly_nth 0 polb)); auto; simpl.
+         erewrite nth_pol_n with (c₁ := c₂) in Hpolb'; eauto .
+         rewrite <- Hpolb' in Hpolb₂.
+         destruct (ps_zerop R (ps_poly_nth 0 polb')) as [H₃| H₃]; auto.
+         contradiction.
+
+       destruct (zerop i); [ subst i | reflexivity ].
+       rewrite Nat.mod_0_l in H₁; auto.
+       exfalso; revert H₁; apply Nat.lt_irrefl.
 bbb.
-   remember Hns₁₁ as H; clear HeqH.
-   eapply nth_in_newton_segments with (n := b₁) in H; eauto .
-
-          simpl.
-          rewrite <- Hcb.
-          rewrite Nat.add_comm in Hpolb₂; simpl in Hpolb₂.
-          rewrite <- Hc₁, <- Hpol₂ in Hpolb₂.
-          remember (List.hd phony_ns (newton_segments pol₂)) as ns₂ eqn:Hns₂ .
-          remember (next_pol polb (β nsb) (γ nsb) cb) as polb' eqn:Hpolb' .
-          remember (List.hd phony_ns (newton_segments polb')) as nsb'.
-          rename Heqnsb' into Hnsb'.
-          destruct d.
-           rewrite Hd in H₁.
-           exfalso; revert H₁; apply Nat.lt_irrefl.
-
-           destruct (ps_zerop R (ps_poly_nth 0 polb)); auto; simpl.
-           erewrite nth_pol_n with (c₁ := c₁) in Hpolb'; eauto .
-           rewrite <- Hpolb₂ in Hpolb'; subst polb'.
-           destruct (ps_zerop R (ps_poly_nth 0 polb₂)) as [H₃| H₃]; auto.
-           contradiction.
-
-         destruct (zerop i); [ subst i | reflexivity ].
          rewrite Nat.mod_0_l in H₁; auto.
          exfalso; revert H₁; apply Nat.lt_irrefl.
 
