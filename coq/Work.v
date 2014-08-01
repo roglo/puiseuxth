@@ -801,43 +801,55 @@ induction n; intros.
    remember Hr as Hrb; clear HeqHrb.
    eapply multiplicity_1_remains_in_nth in Hrb; eauto .
    remember (ps_poly_nth 0 (nth_pol (b₁ + 1) pol₁ ns₁)) as polb₂ eqn:Hpolb₂ .
-   destruct (ps_zerop R polb₂) as [H₁| H₁].
-    rewrite rng_mul_0_r, rng_add_0_r.
-    subst b₁.
-    simpl in Hpolb, Hnsb, Hpolb₂; simpl.
-    unfold γ_sum; simpl.
-    unfold summation; simpl.
-    rewrite Nat.add_0_r, rng_add_0_r.
-    rewrite <- Hc₁, <- Hpol₂ in Hpolb, Hnsb, Hpolb₂.
-    rewrite <- Hc₁, <- Hpol₂.
-    remember (List.hd phony_ns (newton_segments pol₂)) as ns₂ eqn:Hns₂ .
-    remember Hns₁₁ as H; clear HeqH.
-    eapply nth_in_newton_segments with (n := b) in H; eauto .
-    eapply r_1_j_0_k_1 with (ns₁ := nsb) in H; eauto .
-     Focus 2.
-     remember (nth_ns b pol₁ ns₁) as nsb₁ eqn:Hnsb₁ .
-     remember (nth_pol b pol₁ ns₁) as polb₁ eqn:Hpolb₁ .
-     remember (ac_root (Φq polb₁ nsb₁)) as cb₁ eqn:Hcb₁ .
-     eapply multiplicity_1_remains_in_nth with (ns := ns) (n := b); eauto .
+   subst b₁.
+   simpl in Hpolb, Hnsb, Hpolb₂.
+   rewrite <- Hc₁, <- Hpol₂ in Hpolb, Hnsb, Hpolb₂.
+   remember (List.hd phony_ns (newton_segments pol₂)) as ns₂ eqn:Hns₂ .
+   remember Hns₁₁ as H; clear HeqH.
+   eapply nth_in_newton_segments with (n := b) in H; eauto .
+   eapply r_1_j_0_k_1 with (ns₁ := nsb) in H; eauto .
+    Focus 2.
+    remember (nth_ns b pol₁ ns₁) as nsb₁ eqn:Hnsb₁ .
+    remember (nth_pol b pol₁ ns₁) as polb₁ eqn:Hpolb₁ .
+    remember (ac_root (Φq polb₁ nsb₁)) as cb₁ eqn:Hcb₁ .
+    eapply multiplicity_1_remains_in_nth with (ns := ns) (n := b); eauto .
 
-     Focus 2.
-     remember (nth_ns b pol₁ ns₁) as nsb₁ eqn:Hnsb₁ .
-     remember (nth_pol b pol₁ ns₁) as polb₁ eqn:Hpolb₁ .
-     remember (ac_root (Φq polb₁ nsb₁)) as cb₁ eqn:Hcb₁ .
-     erewrite nth_pol_n with (c₁ := c₁) (pol₂ := pol₂); eauto .
-     clear H.
-     pose proof (Hpsi (S b) (Nat.le_refl (S b))) as H; simpl in H.
-     rewrite <- Hc₁, <- Hpol₂, <- Hns₂ in H; assumption.
+    Focus 2.
+    remember (nth_ns b pol₁ ns₁) as nsb₁ eqn:Hnsb₁ .
+    remember (nth_pol b pol₁ ns₁) as polb₁ eqn:Hpolb₁ .
+    remember (ac_root (Φq polb₁ nsb₁)) as cb₁ eqn:Hcb₁ .
+    erewrite nth_pol_n with (c₁ := c₁) (pol₂ := pol₂); eauto .
+    clear H.
+    pose proof (Hpsi (S b) (Nat.le_refl (S b))) as H; simpl in H.
+    rewrite <- Hc₁, <- Hpol₂, <- Hns₂ in H; assumption.
 
-     Focus 2.
-     remember (nth_pol b pol₁ ns₁) as polb₁ eqn:Hpolb₁ .
-     remember (nth_ns b pol₁ ns₁) as nsb₁ eqn:Hnsb₁ .
-     remember (ac_root (Φq polb₁ nsb₁)) as cb₁ eqn:Hcb₁ .
-     erewrite nth_pol_n with (c₁ := c₁) (pol₂ := pol₂); eauto .
-     rewrite <- Hpolb, Hnsb.
-     eapply nth_ns_n with (c := c₁); eauto .
-     rewrite Hpolb; symmetry.
-     eapply nth_pol_n with (c₁ := c₁); eauto .
+    Focus 2.
+    remember (nth_pol b pol₁ ns₁) as polb₁ eqn:Hpolb₁ .
+    remember (nth_ns b pol₁ ns₁) as nsb₁ eqn:Hnsb₁ .
+    remember (ac_root (Φq polb₁ nsb₁)) as cb₁ eqn:Hcb₁ .
+    erewrite nth_pol_n with (c₁ := c₁) (pol₂ := pol₂); eauto .
+    rewrite <- Hpolb, Hnsb.
+    eapply nth_ns_n with (c := c₁); eauto .
+    rewrite Hpolb; symmetry.
+    eapply nth_pol_n with (c₁ := c₁); eauto .
+
+    destruct H as (Hjb, (Hkb, (Hαjb, (Hαkb, Hothb)))).
+    subst jb kb.
+    unfold Qlt in Hαjb; simpl in Hαjb.
+    unfold Qeq in Hαkb; simpl in Hαkb.
+    rewrite Z.mul_1_r in Hαjb, Hαkb.
+    destruct (ps_zerop R polb₂) as [H₁| H₁].
+     rewrite rng_mul_0_r, rng_add_0_r.
+     unfold γ_sum; simpl.
+     unfold summation; simpl.
+     rewrite Nat.add_0_r, rng_add_0_r.
+     rewrite <- Hc₁, <- Hpol₂, <- Hns₂.
+     unfold root_from_cγ_list, ps_monom; simpl.
+     rewrite Hinib, Hfinb; simpl.
+     rewrite Hαkb; simpl.
+     rewrite Z.add_0_r, Z.mul_1_r, Pos.mul_1_r.
+     rewrite Z.mul_shuffle0, Pos2Z.inj_mul.
+     rewrite Z.div_mul_cancel_r; auto.
 bbb.
    remember Hns₁₁ as H; clear HeqH.
    eapply nth_in_newton_segments with (n := b₁) in H; eauto .
