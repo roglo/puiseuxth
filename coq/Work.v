@@ -824,6 +824,20 @@ induction n; intros.
      remember (nth_ns b pol₁ ns₁) as nsb₁ eqn:Hnsb₁ .
      remember (nth_pol b pol₁ ns₁) as polb₁ eqn:Hpolb₁ .
      remember (ac_root (Φq polb₁ nsb₁)) as cb₁ eqn:Hcb₁ .
+     erewrite nth_pol_n with (c₁ := c₁) (pol₂ := pol₂); eauto .
+     clear H.
+     pose proof (Hpsi (S b) (Nat.le_refl (S b))) as H; simpl in H.
+     rewrite <- Hc₁, <- Hpol₂, <- Hns₂ in H; assumption.
+
+     Focus 2.
+     remember (nth_pol b pol₁ ns₁) as polb₁ eqn:Hpolb₁ .
+     remember (nth_ns b pol₁ ns₁) as nsb₁ eqn:Hnsb₁ .
+     remember (ac_root (Φq polb₁ nsb₁)) as cb₁ eqn:Hcb₁ .
+     erewrite nth_pol_n with (c₁ := c₁) (pol₂ := pol₂); eauto .
+     rewrite <- Hpolb, Hnsb.
+     eapply nth_ns_n with (c := c₁); eauto .
+     rewrite Hpolb; symmetry.
+     eapply nth_pol_n with (c₁ := c₁); eauto .
 bbb.
    remember Hns₁₁ as H; clear HeqH.
    eapply nth_in_newton_segments with (n := b₁) in H; eauto .
