@@ -850,55 +850,46 @@ induction n; intros.
      rewrite Z.add_0_r, Z.mul_1_r, Pos.mul_1_r.
      rewrite Z.mul_shuffle0, Pos2Z.inj_mul.
      rewrite Z.div_mul_cancel_r; auto.
+     rewrite ps_adjust_eq with (n := O) (k := Qden (nth_γ b pol₂ ns₂)).
+     symmetry.
+     rewrite ps_adjust_eq with (n := O) (k := m₁).
+     symmetry.
+     unfold adjust_ps; simpl.
+     rewrite Pos.mul_comm.
+     rewrite fold_series_const.
+     do 2 rewrite series_shift_0.
+     rewrite series_stretch_const.
+     do 2 rewrite Z.sub_0_r.
+     apply mkps_morphism; auto.
+      unfold series_stretch.
+      constructor; intros i; simpl.
+      remember (nth_γ b pol₂ ns₂) as γb eqn:Hγb .
+      subst polb₂.
+      rename H₁ into Hpolb₂.
+      destruct (zerop (i mod Pos.to_nat (Qden γb))) as [H₁| H₁].
+       apply Nat.mod_divides in H₁; auto.
+       destruct H₁ as (d, Hd).
+       rewrite Nat.mul_comm in Hd.
+       rewrite Hd.
+       rewrite Nat.div_mul; auto.
+       unfold root_series_from_cγ_list.
+       rewrite <- Hd.
+       destruct (zerop i) as [H₁| H₁].
+        subst i.
+        apply Nat.eq_mul_0_l in H₁; auto.
+        subst d; simpl.
+        destruct (ps_zerop R (ps_poly_nth 0 polb)).
+         contradiction.
+
+         symmetry.
+         apply nth_c_root; assumption.
+
+        simpl.
+        rewrite <- Hcb.
+        rewrite Nat.add_comm in Hpolb₂; simpl in Hpolb₂.
 bbb.
    remember Hns₁₁ as H; clear HeqH.
    eapply nth_in_newton_segments with (n := b₁) in H; eauto .
-   eapply r_1_j_0_k_1 with (ns₁ := nsb) in H; eauto .
-      destruct H as (Hjb, (Hkb, (Hαjb, (Hαkb, Hothb)))).
-      subst jb kb.
-      unfold Qlt in Hαjb; simpl in Hαjb.
-      unfold Qeq in Hαkb; simpl in Hαkb.
-      rewrite Z.mul_1_r in Hαjb, Hαkb.
-      remember (nth_pol (b₁ + 1) pol₁ ns₁) as polb₂ eqn:Hpolb₂ .
-      destruct (ps_zerop R (ps_poly_nth 0 polb₂)) as [H₂| H₂].
-       rewrite ps_mul_0_r, ps_add_0_r.
-       unfold root_from_cγ_list, ps_monom; simpl.
-       rewrite Hinib, Hfinb; simpl.
-       rewrite Hαkb; simpl.
-       rewrite Z.mul_1_r, Z.add_0_r, Pos.mul_1_r.
-       rewrite Nat.add_0_r, Z.mul_1_r, Z.add_0_r, Pos.mul_1_r.
-       rewrite Z.mul_shuffle0.
-       rewrite Pos2Z.inj_mul.
-       rewrite Z.div_mul_cancel_r; auto.
-       rewrite ps_adjust_eq with (n := O) (k := Qden (nth_γ b₁ pol₁ ns₁)).
-       symmetry.
-       rewrite ps_adjust_eq with (n := O) (k := m₁).
-       unfold adjust_ps; simpl.
-       rewrite Pos.mul_comm.
-       rewrite fold_series_const.
-       do 2 rewrite series_shift_0.
-       rewrite series_stretch_const.
-       do 2 rewrite Z.sub_0_r.
-       apply mkps_morphism; auto.
-        unfold series_stretch.
-        constructor; intros i; simpl.
-        remember (nth_γ b₁ pol₁ ns₁) as γb eqn:Hγb .
-        destruct (zerop (i mod Pos.to_nat (Qden γb))) as [H₁| H₁].
-         apply Nat.mod_divides in H₁; auto.
-         destruct H₁ as (d, Hd).
-         rewrite Nat.mul_comm in Hd.
-         rewrite Hd.
-         rewrite Nat.div_mul; auto.
-         unfold root_series_from_cγ_list.
-         rewrite <- Hd.
-         destruct (zerop i) as [H₁| H₁].
-          subst i.
-          apply Nat.eq_mul_0_l in H₁; auto.
-          subst d; simpl.
-          destruct (ps_zerop R (ps_poly_nth 0 polb)).
-           contradiction.
-
-           apply nth_c_root; assumption.
 
           simpl.
           rewrite <- Hcb.
