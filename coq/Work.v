@@ -923,7 +923,10 @@ induction n; intros.
 
        simpl; rewrite <- Hc₁, <- Hpol₂, <- Hns₂; assumption.
 
-     simpl; rewrite <- Hc₁, <- Hpol₂, <- Hns₂.
+     unfold γ_sum; simpl.
+     rewrite <- Hc₁, <- Hpol₂, <- Hns₂.
+     unfold summation; simpl.
+     rewrite Nat.add_0_r, rng_add_0_r.
 bbb.
      remember Hbns as Hrb₁; clear HeqHrb₁.
      eapply multiplicity_1_remains in Hrb₁; eauto .
