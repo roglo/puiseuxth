@@ -923,6 +923,7 @@ induction n; intros.
 
        simpl; rewrite <- Hc₁, <- Hpol₂, <- Hns₂; assumption.
 
+     simpl; rewrite <- Hc₁, <- Hpol₂, <- Hns₂.
 bbb.
      remember Hbns as Hrb₁; clear HeqHrb₁.
      eapply multiplicity_1_remains in Hrb₁; eauto .
