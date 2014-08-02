@@ -931,7 +931,14 @@ induction n; intros.
      remember (ac_root (Φq pol₂ ns₂)) as c₂ eqn:Hc₂ .
      remember (next_pol pol₂ (β ns₂) (γ ns₂) c₂) as pol₃ eqn:Hpol₃ .
      remember (List.hd phony_ns (newton_segments pol₃)) as ns₃ eqn:Hns₃ .
-     unfold ps_mul; simpl.
+     remember (nth_pol b pol₃ ns₃) as polb₃ eqn:Hpolb₃ .
+     remember (nth_ns b pol₃ ns₃) as nsb₃ eqn:Hnsb₃ .
+     unfold root_from_cγ_list; simpl.
+     rewrite Hinib, Hfinb; simpl.
+     rewrite Hαkb; simpl.
+     rewrite Z.add_0_r, Z.mul_1_r, Pos.mul_1_r.
+     rewrite Z.mul_shuffle0, Pos2Z.inj_mul.
+     rewrite Z.div_mul_cancel_r; auto.
 bbb.
      remember Hbns as Hrb₁; clear HeqHrb₁.
      eapply multiplicity_1_remains in Hrb₁; eauto .
