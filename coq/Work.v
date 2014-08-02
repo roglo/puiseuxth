@@ -939,6 +939,12 @@ induction n; intros.
      rewrite Z.add_0_r, Z.mul_1_r, Pos.mul_1_r.
      rewrite Z.mul_shuffle0, Pos2Z.inj_mul.
      rewrite Z.div_mul_cancel_r; auto.
+     remember Hns₃ as H; clear HeqH.
+     eapply nth_ns_n in H; eauto .
+     rewrite <- Hnsb₃ in H.
+     eapply r_1_next_ns in H; eauto .
+      Focus 2.
+      erewrite nth_pol_n with (pol₂ := pol₃); eauto .
 bbb.
      remember Hbns as Hrb₁; clear HeqHrb₁.
      eapply multiplicity_1_remains in Hrb₁; eauto .
