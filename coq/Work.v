@@ -927,6 +927,11 @@ induction n; intros.
      rewrite <- Hc₁, <- Hpol₂, <- Hns₂.
      unfold summation; simpl.
      rewrite Nat.add_0_r, rng_add_0_r.
+     rewrite Nat.add_comm; simpl.
+     remember (ac_root (Φq pol₂ ns₂)) as c₂ eqn:Hc₂ .
+     remember (next_pol pol₂ (β ns₂) (γ ns₂) c₂) as pol₃ eqn:Hpol₃ .
+     remember (List.hd phony_ns (newton_segments pol₃)) as ns₃ eqn:Hns₃ .
+     unfold ps_mul; simpl.
 bbb.
      remember Hbns as Hrb₁; clear HeqHrb₁.
      eapply multiplicity_1_remains in Hrb₁; eauto .
