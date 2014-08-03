@@ -960,18 +960,16 @@ destruct (ps_zerop _ (ps_poly_nth 0 (nth_pol b₁ pol₁ ns₁)))
 
       simpl; rewrite <- Hc₁, <- Hpol₂, <- Hns₂; assumption.
 
-    remember Hns₂ as H; clear HeqH.
-    eapply r_1_next_ns with (pol := pol₁) in H; eauto .
-     destruct H as (αj₂, (αk₂, H)).
-     destruct H as (Hoth₂, (Hini₂, (Hfin₂, (Hαj₂, Hαk₂)))).
-     Focus 2.
-     clear H.
-     assert (1 ≤ S b)%nat as H by fast_omega .
-     apply Hpsi in H; simpl in H.
-     rewrite <- Hc₁, <- Hpol₂ in H; assumption.
-
-     unfold γ_sum; simpl.
-     rewrite <- Hc₁, <- Hpol₂, <- Hns₂.
+   assert (1 ≤ S b)%nat as H by fast_omega .
+   apply Hpsi in H; simpl in H.
+   rewrite <- Hc₁, <- Hpol₂ in H.
+   rename H into Hps₂.
+   remember Hns₂ as H; clear HeqH.
+   eapply r_1_next_ns with (pol := pol₁) in H; eauto .
+   destruct H as (αj₂, (αk₂, H)).
+   destruct H as (Hoth₂, (Hini₂, (Hfin₂, (Hαj₂, Hαk₂)))).
+   unfold γ_sum; simpl.
+   rewrite <- Hc₁, <- Hpol₂, <- Hns₂.
      unfold summation; simpl.
      rewrite Nat.add_0_r, rng_add_0_r.
      rewrite Nat.add_comm; simpl.
@@ -1210,18 +1208,10 @@ destruct (ps_zerop _ (ps_poly_nth 0 (nth_pol b₁ pol₁ ns₁)))
               eapply hd_newton_segments; eauto .
 
               eapply multiplicity_1_remains with (ns := ns₁); eauto .
-              assert (1 ≤ S b)%nat as H by fast_omega .
-              apply Hpsi in H.
-              simpl in H.
-              rewrite <- Hc₁, <- Hpol₂ in H; assumption.
 
               replace m₁ with (m₁ * 1)%positive by apply Pos.mul_1_r.
               eapply q_eq_1 with (ns := ns₁); eauto .
                rewrite Pos.mul_1_r; assumption.
-
-               assert (1 ≤ S b)%nat as H by fast_omega .
-               apply Hpsi in H; simpl in H.
-               rewrite <- Hc₁, <- Hpol₂ in H; assumption.
 
               intros j Hj.
               destruct (eq_nat_dec j (S b)) as [H₁| H₁].
@@ -1262,17 +1252,10 @@ destruct (ps_zerop _ (ps_poly_nth 0 (nth_pol b₁ pol₁ ns₁)))
                eapply hd_newton_segments; eauto .
 
                eapply multiplicity_1_remains with (ns := ns₁); eauto .
-               assert (1 ≤ S b)%nat as H by fast_omega .
-               apply Hpsi in H; simpl in H.
-               rewrite <- Hc₁, <- Hpol₂ in H; assumption.
 
                replace m₁ with (m₁ * 1)%positive by apply Pos.mul_1_r.
                eapply q_eq_1 with (ns := ns₁); eauto .
                 rewrite Pos.mul_1_r; assumption.
-
-                assert (1 ≤ S b)%nat as H by fast_omega .
-                apply Hpsi in H; simpl in H.
-                rewrite <- Hc₁, <- Hpol₂ in H; assumption.
 
                intros j Hj.
                destruct (eq_nat_dec j (S b)) as [H₁| H₁].
@@ -1305,17 +1288,10 @@ destruct (ps_zerop _ (ps_poly_nth 0 (nth_pol b₁ pol₁ ns₁)))
                eapply hd_newton_segments; eauto .
 
                eapply multiplicity_1_remains with (ns := ns₁); eauto .
-               assert (1 ≤ S b)%nat as H by fast_omega .
-               apply Hpsi in H; simpl in H.
-               rewrite <- Hc₁, <- Hpol₂ in H; assumption.
 
                replace m₁ with (m₁ * 1)%positive by apply Pos.mul_1_r.
                eapply q_eq_1 with (ns := ns₁); eauto .
                 rewrite Pos.mul_1_r; assumption.
-
-                assert (1 ≤ S b)%nat as H by fast_omega .
-                apply Hpsi in H; simpl in H.
-                rewrite <- Hc₁, <- Hpol₂ in H; assumption.
 
                intros j Hj.
                destruct (eq_nat_dec j (S b)) as [H₁| H₁].
