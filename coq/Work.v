@@ -1216,6 +1216,61 @@ induction n; intros.
              remember (next_pol polb₂ (β nsb₂) (γ nsb₂) cb₂) as polb₃.
              remember (List.hd phony_ns (newton_segments polb₃)) as nsb₃.
              rewrite <- Nat.add_1_r.
+             rewrite
+              find_coeff_step
+               with (ns := nsb₂) (pol := polb₂) (p := Z.to_nat d) (dp := O);
+              eauto .
+              rewrite <- Heqid; symmetry.
+              rewrite <- find_coeff_add with (dp := Z.to_nat d).
+              rewrite Heqid.
+              rewrite Nat.sub_add; auto.
+              rewrite Nat.add_comm, Nat.add_1_r.
+              unfold next_pow.
+              rewrite Nat.add_0_l; reflexivity.
+
+              eapply hd_newton_segments; eauto .
+
+              remember Hns₂ as H; clear HeqH.
+              eapply r_1_next_ns with (pol := pol₁) in H; eauto .
+               destruct H as (αj₂, (αk₂, H)).
+               destruct H as (Hoth₂, (Hini₂, (Hfin₂, (Hαj₂, Hαk₂)))).
+               eapply lap_forall_nth with (ns := ns₂) (n := S b); eauto .
+                eapply hd_newton_segments; eauto .
+
+                eapply multiplicity_1_remains with (ns := ns₁); eauto .
+                assert (1 ≤ S b)%nat as H by fast_omega .
+                apply Hpsi in H.
+                simpl in H.
+                rewrite <- Hc₁, <- Hpol₂ in H; assumption.
+
+                replace m₁ with (m₁ * 1)%positive by apply Pos.mul_1_r.
+                eapply q_eq_1 with (ns := ns₁); eauto .
+                 rewrite Pos.mul_1_r; assumption.
+
+                 assert (1 ≤ S b)%nat as H by fast_omega .
+                 apply Hpsi in H.
+                 simpl in H.
+                 rewrite <- Hc₁, <- Hpol₂ in H; assumption.
+
+                intros j Hj.
+                destruct (eq_nat_dec j (S b)) as [H₁| H₁].
+                 subst j; simpl.
+                 rewrite <- Hc₂, <- Hpol₃, <- Hns₃.
+                 erewrite <- nth_pol_n with (c₁ := c₂); eauto .
+                 rewrite <- Hpolb₂; assumption.
+
+                 apply le_neq_lt in Hj; eauto .
+                 apply Nat.succ_le_mono in Hj.
+                 apply Nat.succ_le_mono in Hj.
+                 apply Hpsi in Hj.
+                 simpl in Hj.
+                 rewrite <- Hc₁, <- Hpol₂, <- Hns₂ in Hj.
+                 assumption.
+
+                simpl.
+                rewrite <- Hc₂, <- Hpol₃, <- Hns₃.
+                erewrite <- nth_pol_n with (c₁ := c₂); eauto .
+bbb.
              rewrite find_coeff_step with (p := Z.to_nat d) (dp := O).
               rewrite <- Heqid; symmetry.
               rewrite <- find_coeff_add with (dp := Z.to_nat d).
