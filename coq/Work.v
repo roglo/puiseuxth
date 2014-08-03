@@ -1191,7 +1191,17 @@ induction n; intros.
            destruct (ps_zerop R (ps_poly_nth 0 polb)) as [H₁| H₁].
             contradiction.
 
-            clear H₁; subst sid.
+            clear H₁.
+            remember (S i) as si.
+            unfold next_pow; simpl.
+            rewrite Hinib₂, Hfinb₂; simpl.
+            rewrite Hαkb₂; simpl.
+            rewrite Z.add_0_r, Z.mul_1_r.
+            do 2 rewrite Pos.mul_1_r.
+            rewrite Pos2Z.inj_mul.
+            rewrite Z.mul_shuffle0, Z.div_mul_cancel_r; auto.
+            rewrite <- Heqd.
+            subst sid si.
 bbb.
            apply Nat.nlt_ge in H₂.
            remember (i - Z.to_nat d)%nat as id.
