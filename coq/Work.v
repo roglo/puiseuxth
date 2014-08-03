@@ -810,7 +810,7 @@ destruct b; [ subst m₁; eapply root_tail_split_1st; eauto  | idtac ].
 remember (S b) as b₁ eqn:Hb₁ .
 unfold root_tail, root_head; simpl.
 destruct (ps_zerop _ (ps_poly_nth 0 (nth_pol b₁ pol₁ ns₁)))
- as [Hpbs₀| Hpbs₀].
+ as [Hpsb| Hpsb].
  pose proof (Hpsi b₁ (Nat.le_refl b₁)); contradiction.
 
  unfold summation; simpl.
@@ -858,9 +858,6 @@ destruct (ps_zerop _ (ps_poly_nth 0 (nth_pol b₁ pol₁ ns₁)))
   simpl in Hpolb, Hnsb, Hpolb₂.
   rewrite <- Hc₁, <- Hpol₂ in Hpolb, Hnsb, Hpolb₂.
   remember (List.hd phony_ns (newton_segments pol₂)) as ns₂ eqn:Hns₂ .
-  pose proof (Hpsi (S b) (Nat.le_refl (S b))) as H; simpl in H.
-  rewrite <- Hc₁, <- Hpol₂, <- Hns₂ in H.
-  rename H into Hpsb.
   remember Hns₁₁ as H; clear HeqH.
   eapply nth_in_newton_segments with (n := b) in H; eauto .
   remember Hns as Hrb₁; clear HeqHrb₁.
@@ -868,6 +865,7 @@ destruct (ps_zerop _ (ps_poly_nth 0 (nth_pol b₁ pol₁ ns₁)))
   remember (nth_ns b pol₁ ns₁) as nsb₁ eqn:Hnsb₁ .
   remember (nth_pol b pol₁ ns₁) as polb₁ eqn:Hpolb₁ .
   remember (ac_root (Φq polb₁ nsb₁)) as cb₁ eqn:Hcb₁ .
+  rewrite Hpolb in Hpsb.
   erewrite <- nth_pol_n with (c₁ := c₁) in Hpsb; eauto .
   eapply r_1_j_0_k_1 with (ns₁ := nsb) in H; eauto .
    Focus 2.
@@ -877,6 +875,8 @@ destruct (ps_zerop _ (ps_poly_nth 0 (nth_pol b₁ pol₁ ns₁)))
    rewrite Hpolb; symmetry.
    eapply nth_pol_n with (c₁ := c₁); eauto .
 
+   erewrite nth_pol_n with (c₁ := c₁) in Hpsb; eauto .
+   rewrite <- Hpolb in Hpsb.
    destruct H as (Hjb, (Hkb, (Hαjb, (Hαkb, Hothb)))).
    subst jb kb.
    unfold Qlt in Hαjb; simpl in Hαjb.
@@ -922,11 +922,9 @@ destruct (ps_zerop _ (ps_poly_nth 0 (nth_pol b₁ pol₁ ns₁)))
        subst i.
        apply Nat.eq_mul_0_l in H₁; auto.
        subst d; simpl.
-       destruct (ps_zerop R (ps_poly_nth 0 polb)).
-        contradiction.
-
-        symmetry.
-        apply nth_c_root; assumption.
+       destruct (ps_zerop R (ps_poly_nth 0 polb)); [ contradiction | idtac ].
+       symmetry.
+       apply nth_c_root; assumption.
 
        simpl.
        rewrite <- Hcb.
