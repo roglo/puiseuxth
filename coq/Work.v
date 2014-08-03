@@ -858,15 +858,14 @@ destruct (ps_zerop _ (ps_poly_nth 0 (nth_pol b₁ pol₁ ns₁)))
   simpl in Hpolb, Hnsb, Hpolb₂.
   rewrite <- Hc₁, <- Hpol₂ in Hpolb, Hnsb, Hpolb₂.
   remember (List.hd phony_ns (newton_segments pol₂)) as ns₂ eqn:Hns₂ .
+  remember Hns as Hrb₁; clear HeqHrb₁.
+  eapply multiplicity_1_remains_in_nth with (n := b) in Hrb₁; eauto .
   remember Hns₁₁ as H; clear HeqH.
   eapply nth_in_newton_segments with (n := b) in H; eauto .
   remember (nth_ns b pol₁ ns₁) as nsb₁ eqn:Hnsb₁ .
   remember (nth_pol b pol₁ ns₁) as polb₁ eqn:Hpolb₁ .
   remember (ac_root (Φq polb₁ nsb₁)) as cb₁ eqn:Hcb₁ .
   eapply r_1_j_0_k_1 with (ns₁ := nsb) in H; eauto .
-   Focus 2.
-   eapply multiplicity_1_remains_in_nth with (ns := ns) (n := b); eauto .
-
    Focus 2.
    erewrite nth_pol_n with (c₁ := c₁) (pol₂ := pol₂); eauto .
    clear H.
