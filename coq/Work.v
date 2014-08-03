@@ -1367,7 +1367,7 @@ induction n; intros.
 
   rewrite summation_split_last; [ idtac | apply Nat.le_0_l ].
   rewrite <- rng_add_assoc.
-  apply rng_add_compat_l.
+  apply rng_add_compat_l; simpl.
 bbb.
 
 (* mmm... faut voir... *)
