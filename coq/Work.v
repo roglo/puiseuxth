@@ -933,12 +933,6 @@ induction n; intros.
      remember (List.hd phony_ns (newton_segments pol₃)) as ns₃ eqn:Hns₃ .
      remember (nth_pol b pol₃ ns₃) as polb₃ eqn:Hpolb₃ .
      remember (nth_ns b pol₃ ns₃) as nsb₃ eqn:Hnsb₃ .
-     unfold root_from_cγ_list; simpl.
-     rewrite Hinib, Hfinb; simpl.
-     rewrite Hαkb; simpl.
-     rewrite Z.add_0_r, Z.mul_1_r, Pos.mul_1_r.
-     rewrite Z.mul_shuffle0, Pos2Z.inj_mul.
-     rewrite Z.div_mul_cancel_r; auto.
      remember Hns₃ as H; clear HeqH.
      eapply nth_ns_n in H; eauto .
      rewrite <- Hnsb₃ in H.
@@ -948,7 +942,16 @@ induction n; intros.
       rewrite Nat.add_comm in Hpolb₂; simpl in Hpolb₂.
       rewrite <- Hc₂, <- Hpol₃, <- Hns₃ in Hpolb₂.
       rewrite Hpolb₂ in H₁; assumption.
-      erewrite nth_pol_n with (pol₂ := pol₃); eauto .
+
+      destruct H as (αjb₃, (αkb₃, H)).
+      destruct H as (Hothb₃, (Hinib₃, (Hfinb₃, (Hαjb₃, Hαkb₃)))).
+      unfold root_from_cγ_list; simpl.
+      rewrite Hinib, Hfinb, Hinib₃, Hfinb₃; simpl.
+      rewrite Hαkb, Hαkb₃; simpl.
+      do 2 rewrite Z.add_0_r, Z.mul_1_r, Pos.mul_1_r.
+      do 2 rewrite Pos2Z.inj_mul.
+      rewrite Z.mul_shuffle0, Z.div_mul_cancel_r; auto.
+      rewrite Z.mul_shuffle0, Z.div_mul_cancel_r; auto.
 bbb.
      remember Hbns as Hrb₁; clear HeqHrb₁.
      eapply multiplicity_1_remains in Hrb₁; eauto .
