@@ -1183,6 +1183,18 @@ induction n; intros.
 
            apply Nat.nlt_ge in H₂.
            remember (i - Z.to_nat d)%nat as id.
+           unfold root_series_from_cγ_list.
+           remember (S id) as sid; simpl.
+           rewrite <- Hcb, <- Hpolb₂, <- Hbns₂.
+           destruct i; [ exfalso; revert H₁; apply Nat.lt_irrefl | idtac ].
+           clear H₁.
+           destruct (ps_zerop R (ps_poly_nth 0 polb)) as [H₁| H₁].
+            contradiction.
+
+            clear H₁; subst sid.
+bbb.
+           apply Nat.nlt_ge in H₂.
+           remember (i - Z.to_nat d)%nat as id.
            unfold root_series_from_cγ_list; simpl.
            destruct (ps_zerop R (ps_poly_nth 0 polb)) as [H₃| H₃].
             pose proof (Hpsi (S b) (Nat.le_refl (S b))) as H.
