@@ -1100,12 +1100,52 @@ induction n; intros.
 
               simpl in Hpolb, Hnsb.
               rewrite <- Hc₂, <- Hpol₃, <- Hns₃ in Hpolb, Hnsb.
-              eapply q_eq_1 with (pol := pol₂).
-               eapply hd_newton_segments; eauto .
-                7: eauto .
+              remember Hns₂ as H; clear HeqH.
+              eapply r_1_next_ns with (pol := pol₁) in H; eauto .
+               Focus 2.
+               clear H.
+               assert (1 ≤ S (S b))%nat as H by fast_omega .
+               apply Hpsi in H; simpl in H.
+               rewrite <- Hc₁, <- Hpol₂ in H; assumption.
 
-                5: eauto .
-(* polb = next_pol de quelque chose mais je ne sais pas quoi *)
+               destruct H as (αj₂, (αk₂, H)).
+               destruct H as (Hoth₂, (Hini₂, (Hfin₂, (Hαj₂, Hαk₂)))).
+               eapply q_eq_1 with (pol := pol₂).
+                eapply hd_newton_segments; eauto .
+
+                auto.
+
+                4: eauto .
+
+                2: eauto .
+
+                Focus 1.
+                rewrite Pos.mul_1_r.
+                eapply lap_forall_nth with (ns := ns₁) (n := 2); eauto .
+                 replace m₁ with (m₁ * 1)%positive by apply Pos.mul_1_r.
+                 Focus 1.
+                 eapply q_eq_1 with (ns := ns); eauto .
+                  rewrite Heqm₁.
+                  apply ps_lap_forall_forall.
+                   intros p₁ p₂ H₁₂ Hmq.
+                   rewrite <- H₁₂; assumption.
+
+                   intros a Hain.
+                   apply in_K_1_m_lap_mul_r_compat.
+                   revert a Hain.
+                   apply ps_lap_forall_forall; auto.
+                   intros p₁ p₂ H₁₂ Hmq.
+                   rewrite <- H₁₂; assumption.
+
+                  rewrite Pos.mul_1_r; assumption.
+
+                 intros i Hi.
+                 apply Hpsi.
+                 fast_omega Hi.
+
+                 simpl.
+                 rewrite <- Hc₁, <- Hpol₂, <- Hns₂.
+                 rewrite <- Hc₂; assumption.
 bbb.
                 symmetry.
              replace m₁ with (m₁ * 1)%positive by apply Pos.mul_1_r.
