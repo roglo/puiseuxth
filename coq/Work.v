@@ -858,20 +858,18 @@ destruct (ps_zerop _ (ps_poly_nth 0 (nth_pol b₁ pol₁ ns₁)))
   simpl in Hpolb, Hnsb, Hpolb₂.
   rewrite <- Hc₁, <- Hpol₂ in Hpolb, Hnsb, Hpolb₂.
   remember (List.hd phony_ns (newton_segments pol₂)) as ns₂ eqn:Hns₂ .
-  remember Hns as Hrb₁; clear HeqHrb₁.
-  eapply multiplicity_1_remains_in_nth with (n := b) in Hrb₁; eauto .
+  pose proof (Hpsi (S b) (Nat.le_refl (S b))) as H; simpl in H.
+  rewrite <- Hc₁, <- Hpol₂, <- Hns₂ in H.
+  rename H into Hpsb.
   remember Hns₁₁ as H; clear HeqH.
   eapply nth_in_newton_segments with (n := b) in H; eauto .
+  remember Hns as Hrb₁; clear HeqHrb₁.
+  eapply multiplicity_1_remains_in_nth with (n := b) in Hrb₁; eauto .
   remember (nth_ns b pol₁ ns₁) as nsb₁ eqn:Hnsb₁ .
   remember (nth_pol b pol₁ ns₁) as polb₁ eqn:Hpolb₁ .
   remember (ac_root (Φq polb₁ nsb₁)) as cb₁ eqn:Hcb₁ .
+  erewrite <- nth_pol_n with (c₁ := c₁) in Hpsb; eauto .
   eapply r_1_j_0_k_1 with (ns₁ := nsb) in H; eauto .
-   Focus 2.
-   erewrite nth_pol_n with (c₁ := c₁) (pol₂ := pol₂); eauto .
-   clear H.
-   pose proof (Hpsi (S b) (Nat.le_refl (S b))) as H; simpl in H.
-   rewrite <- Hc₁, <- Hpol₂, <- Hns₂ in H; assumption.
-
    Focus 2.
    erewrite nth_pol_n with (c₁ := c₁) (pol₂ := pol₂); eauto .
    rewrite <- Hpolb, Hnsb.
@@ -1236,7 +1234,7 @@ destruct (ps_zerop _ (ps_poly_nth 0 (nth_pol b₁ pol₁ ns₁)))
               destruct (eq_nat_dec j (S b)) as [H₁| H₁].
                subst j; simpl.
                rewrite <- Hc₂, <- Hpol₃, <- Hns₃.
-               erewrite <- nth_pol_n with (c₁ := c₂); eauto .
+               erewrite <- nth_pol_n with (c₁ := c₂) (poln := polb); eauto .
                rewrite <- Hpolb₂; assumption.
 
                apply le_neq_lt in Hj; eauto .
@@ -1287,7 +1285,7 @@ destruct (ps_zerop _ (ps_poly_nth 0 (nth_pol b₁ pol₁ ns₁)))
                destruct (eq_nat_dec j (S b)) as [H₁| H₁].
                 subst j; simpl.
                 rewrite <- Hc₂, <- Hpol₃, <- Hns₃.
-                erewrite <- nth_pol_n with (c₁ := c₂); eauto .
+                erewrite <- nth_pol_n with (c₁ := c₂) (poln := polb); eauto .
                 rewrite <- Hpolb₂; assumption.
 
                 apply le_neq_lt in Hj; eauto .
@@ -1330,7 +1328,7 @@ destruct (ps_zerop _ (ps_poly_nth 0 (nth_pol b₁ pol₁ ns₁)))
                destruct (eq_nat_dec j (S b)) as [H₁| H₁].
                 subst j; simpl.
                 rewrite <- Hc₂, <- Hpol₃, <- Hns₃.
-                erewrite <- nth_pol_n with (c₁ := c₂); eauto .
+                erewrite <- nth_pol_n with (c₁ := c₂) (poln := polb); eauto .
                 rewrite <- Hpolb₂; assumption.
 
                 apply le_neq_lt in Hj; eauto .
