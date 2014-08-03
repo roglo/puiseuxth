@@ -1092,10 +1092,19 @@ induction n; intros.
              rewrite <- Hpolb in Hnsb'.
              symmetry.
              replace m₁ with (m₁ * 1)%positive by apply Pos.mul_1_r.
-             eapply q_eq_1 with (pol₁ := polb).
-              7: eauto .
+             destruct b.
+              simpl in Hpolb, Hnsb.
+              subst polb nsb.
+              eapply q_eq_1 with (ns := ns₁); eauto .
+              rewrite Pos.mul_1_r; assumption.
 
-              7: eauto .
+              simpl in Hpolb, Hnsb.
+              rewrite <- Hc₂, <- Hpol₃, <- Hns₃ in Hpolb, Hnsb.
+              eapply q_eq_1 with (pol := pol₂).
+               eapply hd_newton_segments; eauto .
+                7: eauto .
+
+                5: eauto .
 (* polb = next_pol de quelque chose mais je ne sais pas quoi *)
 bbb.
                 symmetry.
