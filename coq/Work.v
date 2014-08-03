@@ -1202,6 +1202,12 @@ induction n; intros.
             rewrite Z.mul_shuffle0, Z.div_mul_cancel_r; auto.
             rewrite <- Heqd.
             subst sid si.
+            replace (Z.to_nat d) with (0 + Z.to_nat d)%nat by fast_omega .
+            replace (S i) with (id + Z.to_nat d)%nat by omega.
+            rewrite find_coeff_add.
+            rewrite Heqid.
+            rewrite Nat.sub_add; eauto .
+            rewrite <- Heqid.
 bbb.
            apply Nat.nlt_ge in H₂.
            remember (i - Z.to_nat d)%nat as id.
