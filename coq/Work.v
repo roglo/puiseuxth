@@ -860,26 +860,20 @@ destruct (ps_zerop _ (ps_poly_nth 0 (nth_pol b₁ pol₁ ns₁)))
   remember (List.hd phony_ns (newton_segments pol₂)) as ns₂ eqn:Hns₂ .
   remember Hns₁₁ as H; clear HeqH.
   eapply nth_in_newton_segments with (n := b) in H; eauto .
+  remember (nth_ns b pol₁ ns₁) as nsb₁ eqn:Hnsb₁ .
+  remember (nth_pol b pol₁ ns₁) as polb₁ eqn:Hpolb₁ .
+  remember (ac_root (Φq polb₁ nsb₁)) as cb₁ eqn:Hcb₁ .
   eapply r_1_j_0_k_1 with (ns₁ := nsb) in H; eauto .
    Focus 2.
-   remember (nth_ns b pol₁ ns₁) as nsb₁ eqn:Hnsb₁ .
-   remember (nth_pol b pol₁ ns₁) as polb₁ eqn:Hpolb₁ .
-   remember (ac_root (Φq polb₁ nsb₁)) as cb₁ eqn:Hcb₁ .
    eapply multiplicity_1_remains_in_nth with (ns := ns) (n := b); eauto .
 
    Focus 2.
-   remember (nth_ns b pol₁ ns₁) as nsb₁ eqn:Hnsb₁ .
-   remember (nth_pol b pol₁ ns₁) as polb₁ eqn:Hpolb₁ .
-   remember (ac_root (Φq polb₁ nsb₁)) as cb₁ eqn:Hcb₁ .
    erewrite nth_pol_n with (c₁ := c₁) (pol₂ := pol₂); eauto .
    clear H.
    pose proof (Hpsi (S b) (Nat.le_refl (S b))) as H; simpl in H.
    rewrite <- Hc₁, <- Hpol₂, <- Hns₂ in H; assumption.
 
    Focus 2.
-   remember (nth_pol b pol₁ ns₁) as polb₁ eqn:Hpolb₁ .
-   remember (nth_ns b pol₁ ns₁) as nsb₁ eqn:Hnsb₁ .
-   remember (ac_root (Φq polb₁ nsb₁)) as cb₁ eqn:Hcb₁ .
    erewrite nth_pol_n with (c₁ := c₁) (pol₂ := pol₂); eauto .
    rewrite <- Hpolb, Hnsb.
    eapply nth_ns_n with (c := c₁); eauto .
@@ -997,13 +991,13 @@ destruct (ps_zerop _ (ps_poly_nth 0 (nth_pol b₁ pol₁ ns₁)))
      remember (List.hd phony_ns (newton_segments pol₃)) as ns₃ eqn:Hns₃ .
      remember (nth_ns b pol₃ ns₃) as nsb₂ eqn:Hnsb₂ .
      remember Hns₃ as H; clear HeqH.
-     eapply nth_ns_n in H; eauto .
+     eapply nth_ns_n with (c := c₂) in H; eauto .
      rewrite <- Hnsb₂ in H.
-     erewrite nth_pol_n with (pol₂ := pol₃) in H; eauto .
+     erewrite nth_pol_n with (c₁ := c₂) in H; eauto .
      rewrite <- Hpolb₂ in H.
      rename H into Hbns₂.
      remember Hbns₂ as H; clear HeqH.
-     erewrite <- nth_pol_n in Hpolb₂; eauto .
+     erewrite <- nth_pol_n with (c₁ := c₂) in Hpolb₂; eauto .
      eapply r_1_next_ns in H; eauto .
      destruct H as (αjb₂, (αkb₂, H)).
      destruct H as (Hothb₂, (Hinib₂, (Hfinb₂, (Hαjb₂, Hαkb₂)))).
