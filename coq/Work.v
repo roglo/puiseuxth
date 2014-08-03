@@ -867,17 +867,12 @@ destruct (ps_zerop _ (ps_poly_nth 0 (nth_pol b₁ pol₁ ns₁)))
   remember (ac_root (Φq polb₁ nsb₁)) as cb₁ eqn:Hcb₁ .
   rewrite Hpolb in Hpsb.
   erewrite <- nth_pol_n with (c₁ := c₁) in Hpsb; eauto .
+  erewrite nth_ns_n with (c := c₁) in Hnsb; eauto .
   eapply r_1_j_0_k_1 with (ns₁ := nsb) in H; eauto .
-   Focus 2.
-   erewrite nth_pol_n with (c₁ := c₁) (pol₂ := pol₂); eauto .
-   rewrite <- Hpolb, Hnsb.
-   eapply nth_ns_n with (c := c₁); eauto .
-   rewrite Hpolb; symmetry.
-   eapply nth_pol_n with (c₁ := c₁); eauto .
-
-   erewrite nth_pol_n with (c₁ := c₁) in Hpsb; eauto .
-   rewrite <- Hpolb in Hpsb.
-   destruct H as (Hjb, (Hkb, (Hαjb, (Hαkb, Hothb)))).
+  erewrite <- nth_ns_n with (c := c₁) in Hnsb; eauto .
+  erewrite nth_pol_n with (c₁ := c₁) in Hpsb; eauto .
+  rewrite <- Hpolb in Hpsb.
+  destruct H as (Hjb, (Hkb, (Hαjb, (Hαkb, Hothb)))).
    subst jb kb.
    unfold Qlt in Hαjb; simpl in Hαjb.
    unfold Qeq in Hαkb; simpl in Hαkb.
