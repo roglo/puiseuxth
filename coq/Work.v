@@ -1201,7 +1201,38 @@ induction n; intros.
             rewrite Pos2Z.inj_mul.
             rewrite Z.mul_shuffle0, Z.div_mul_cancel_r; auto.
             rewrite <- Heqd.
-            subst sid si.
+            subst sid si; simpl.
+            destruct (ps_zerop R (ps_poly_nth 0 polb₂)) as [| H₁]; auto.
+            clear H₁.
+            remember (Nat.compare (Z.to_nat d) (S i)) as cmp₁ eqn:Hcmp₁ .
+            symmetry in Hcmp₁.
+            destruct cmp₁.
+             apply nat_compare_eq in Hcmp₁.
+             rewrite Hcmp₁, Nat.sub_diag in Heqid; subst id; reflexivity.
+
+             apply nat_compare_lt in Hcmp₁.
+             destruct id; [ exfalso; fast_omega Heqid Hcmp₁ | idtac ].
+             remember (ac_root (Φq polb₂ nsb₂)) as cb₂ eqn:Hcb₂ .
+             remember (next_pol polb₂ (β nsb₂) (γ nsb₂) cb₂) as polb₃.
+             remember (List.hd phony_ns (newton_segments polb₃)) as nsb₃.
+             rewrite <- Nat.add_1_r.
+             rewrite find_coeff_step with (p := Z.to_nat d) (dp := O).
+              rewrite <- Heqid; symmetry.
+              rewrite <- find_coeff_add with (dp := Z.to_nat d).
+              rewrite Heqid.
+              rewrite Nat.sub_add; auto.
+              rewrite Nat.add_comm, Nat.add_1_r.
+              unfold next_pow.
+              rewrite Nat.add_0_l; reflexivity.
+
+              7: eauto .
+
+              6: eauto .
+
+              4: eauto .
+
+              6: eauto .
+bbb.
             replace (Z.to_nat d) with (0 + Z.to_nat d)%nat by fast_omega .
             replace (S i) with (id + Z.to_nat d)%nat by omega.
             rewrite find_coeff_add.
