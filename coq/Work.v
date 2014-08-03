@@ -746,7 +746,49 @@ Lemma q_eq_1_nth : ∀ pol ns pol₁ ns₁ c₁ m q₀,
     → nsn = nth_ns n pol₁ ns₁
     → q_of_m (m * q₀) (γ nsn) = 1%positive.
 Proof.
-bbb.
+intros pol ns pol₁ ns₁ c₁ m q₀.
+intros Hns Hm Hm₁ Hc₁ Hr₁ Hpol₁ Hns₁.
+intros n nsn Hpsi Hnsn.
+revert nsn Hpsi Hnsn.
+revert Hns Hm Hm₁ Hc₁ Hr₁ Hpol₁ Hns₁.
+revert pol ns pol₁ ns₁ c₁ m q₀.
+induction n; intros.
+ subst nsn; simpl.
+ eapply q_eq_1; eauto .
+ pose proof (Hpsi O (Nat.le_refl O)) as H; assumption.
+
+ simpl in Hnsn.
+ remember (ac_root (Φq pol₁ ns₁)) as c₂ eqn:Hc₂ .
+ remember (next_pol pol₁ (β ns₁) (γ ns₁) c₂) as pol₂ eqn:Hpol₂ .
+ remember (List.hd phony_ns (newton_segments pol₂)) as ns₂ eqn:Hns₂ .
+ remember Hns as H; clear HeqH.
+ eapply r_1_next_ns in H; eauto .
+  destruct H as (αj₁, (αk₁, H)).
+  destruct H as (Hoth₁, (Hini₁, (Hfin₁, (Hαj₁, Hαk₁)))).
+  remember Hns₁ as Hns₁₁; clear HeqHns₁₁.
+  eapply hd_newton_segments in Hns₁₁; eauto .
+  remember (m * q₀)%positive as m₁.
+  replace m₁ with (m₁ * 1)%positive by apply Pos.mul_1_r.
+  eapply IHn with (pol₁ := pol₂) (ns := ns₁) (pol := pol₁); eauto .
+   eapply next_pol_in_K_1_mq with (pol := pol₁); eauto .
+   symmetry; subst m₁.
+   eapply q_eq_1 with (ns := ns); eauto .
+   pose proof (Hpsi O (Nat.le_0_l (S n))) as H; assumption.
+
+   eapply multiplicity_1_remains_in_nth with (ns := ns) (n := O); eauto .
+   intros i Hi.
+   apply Nat.le_0_r in Hi; subst i; simpl.
+   pose proof (Hpsi O (Nat.le_0_l (S n))) as H; assumption.
+
+   intros i Hi.
+   apply Nat.succ_le_mono in Hi.
+   apply Hpsi in Hi.
+   simpl in Hi.
+   rewrite <- Hc₂, <- Hpol₂, <- Hns₂ in Hi; assumption.
+
+  clear H.
+  pose proof (Hpsi O (Nat.le_0_l (S n))) as H; assumption.
+Qed.
 
 Lemma sss : ∀ pol ns pol₁ ns₁ c m q₀ b,
   ns ∈ newton_segments pol
@@ -1105,136 +1147,13 @@ induction n; intros.
              erewrite nth_ns_n with (c := c₁) in Hnsb'; eauto .
              erewrite nth_pol_n with (c₁ := c₁) in Hnsb'; eauto .
              rewrite <- Hpolb in Hnsb'.
-             symmetry.
-             rewrite Heqm₁.
+             symmetry; rewrite Heqm₁.
              eapply q_eq_1_nth with (ns := ns); eauto .
+              eapply next_pol_in_K_1_mq with (pol := pol); eauto .
 
-bbb.
-             replace m₁ with (m₁ * 1)%positive by apply Pos.mul_1_r.
-             destruct b.
-              simpl in Hpolb, Hnsb.
-              subst polb nsb.
-              eapply q_eq_1 with (ns := ns₁); eauto .
-              rewrite Pos.mul_1_r; assumption.
+              simpl; rewrite <- Hc₁, <- Hpol₂, <- Hns₂.
+              assumption.
 
-bbb.
-              simpl in Hpolb, Hnsb.
-              rewrite <- Hc₂, <- Hpol₃, <- Hns₃ in Hpolb, Hnsb.
-              remember Hns₂ as H; clear HeqH.
-              eapply r_1_next_ns with (pol := pol₁) in H; eauto .
-               Focus 2.
-               clear H.
-               assert (1 ≤ S (S b))%nat as H by fast_omega .
-               apply Hpsi in H; simpl in H.
-               rewrite <- Hc₁, <- Hpol₂ in H; assumption.
-
-               destruct H as (αj₂, (αk₂, H)).
-               destruct H as (Hoth₂, (Hini₂, (Hfin₂, (Hαj₂, Hαk₂)))).
-               eapply q_eq_1 with (pol := pol₂).
-                eapply hd_newton_segments; eauto .
-
-                auto.
-
-                4: eauto .
-
-                2: eauto .
-
-                Focus 1.
-                rewrite Pos.mul_1_r.
-                eapply lap_forall_nth with (ns := ns₁) (n := 2); eauto .
-                 replace m₁ with (m₁ * 1)%positive by apply Pos.mul_1_r.
-                 Focus 1.
-                 eapply q_eq_1 with (ns := ns); eauto .
-                  rewrite Heqm₁.
-                  apply ps_lap_forall_forall.
-                   intros p₁ p₂ H₁₂ Hmq.
-                   rewrite <- H₁₂; assumption.
-
-                   intros a Hain.
-                   apply in_K_1_m_lap_mul_r_compat.
-                   revert a Hain.
-                   apply ps_lap_forall_forall; auto.
-                   intros p₁ p₂ H₁₂ Hmq.
-                   rewrite <- H₁₂; assumption.
-
-                  rewrite Pos.mul_1_r; assumption.
-
-                 intros i Hi.
-                 apply Hpsi.
-                 fast_omega Hi.
-
-                 simpl.
-                 rewrite <- Hc₁, <- Hpol₂, <- Hns₂.
-                 rewrite <- Hc₂; assumption.
-
-                eapply
-                 multiplicity_1_remains_in_nth with (ns := ns₁) (n := O);
-                 eauto .
-                intros i Hi.
-                apply Nat.le_0_r in Hi; subst i; simpl.
-                assert (1 ≤ S (S b))%nat as H by fast_omega .
-                apply Hpsi in H; simpl in H.
-                rewrite <- Hc₁, <- Hpol₂ in H; assumption.
-bbb.
-                symmetry.
-             replace m₁ with (m₁ * 1)%positive by apply Pos.mul_1_r.
-                rewrite Heqm₁.
-              subst b₁.
-              simpl in Hpolb, Hnsb.
-              rewrite <- Hc₁, <- Hpol₂, <- Hns₂ in Hpolb, Hnsb.
-              rewrite <- Heqm₁.
-              replace m₁ with (m₁ * 1)%positive by apply Pos.mul_1_r.
-              destruct b.
-               simpl in Hnsb; subst nsb.
-               eapply q_eq_1 with (ns := ns₁); eauto .
-                rewrite Pos.mul_1_r; assumption.
-
-                pose proof (Hpsi 1%nat (Nat.le_refl 1)) as H.
-                simpl in H.
-                rewrite <- Hc₁, <- Hpol₂ in H; assumption.
-
-               simpl in Hnsb.
-               remember (ac_root (Φq pol₂ ns₂)) as c₂ eqn:Hc₂ .
-               remember (next_pol pol₂ (β ns₂) (γ ns₂) c₂) as pol₃.
-               remember (List.hd phony_ns (newton_segments pol₃)) as ns₃.
-               remember Hns₂ as H; clear HeqH.
-               eapply r_1_next_ns with (ns := ns₁) in H; eauto .
-                destruct H as (αj₂, (αk₂, H)).
-                destruct H as (Hoth₂, (Hini₂, (Hfin₂, (Hαj₂, Hαk₂)))).
-                Focus 2.
-                clear H.
-                assert (1 ≤ S (S b)) as H by fast_omega .
-                apply Hpsi in H; simpl in H.
-                rewrite <- Hc₁, <- Hpol₂ in H; assumption.
-
-                destruct b.
-                 simpl in Hnsb; subst nsb.
-                 eapply q_eq_1 with (ns := ns₂); eauto .
-                  eapply hd_newton_segments; eauto .
-
-                  eapply next_pol_in_K_1_mq with (ns := ns₂); eauto .
-                   eapply hd_newton_segments; eauto .
-
-                   symmetry.
-                   replace m₁ with (m₁ * 1)%positive by apply Pos.mul_1_r.
-                   eapply q_eq_1 with (ns := ns₃); eauto .
-                    eapply lap_forall_nth with (ns := ns₁); eauto .
-                     replace m₁ with (m₁ * 1)%positive by apply Pos.mul_1_r.
-                     eapply q_eq_1 with (ns := ns); eauto .
-                      rewrite Heqm₁.
-                      apply ps_lap_forall_forall.
-                       intros p₁ p₂ H₁₂ Hmq.
-                       rewrite <- H₁₂; assumption.
-
-                       intros a Hain.
-                       apply in_K_1_m_lap_mul_r_compat.
-                       revert a Hain.
-                       apply ps_lap_forall_forall; auto.
-                       intros p₁ p₂ H₁₂ Hmq.
-                       rewrite <- H₁₂; assumption.
-
-                      rewrite Pos.mul_1_r.
-(* 17 buts *)
 bbb.
 
       apply stretch_morph; [ reflexivity | idtac ].
