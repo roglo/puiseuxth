@@ -1195,6 +1195,69 @@ induction n; intros.
              rewrite <- Hcb, <- Hpolb₂, <- Hbns₂; simpl; clear H₁.
              destruct (ps_zerop R (ps_poly_nth 0 polb₂)) as [H₁| H₁]; auto.
              contradiction.
+
+             rewrite <- Hcb, <- Hpolb₂, <- Hbns₂.
+             destruct i; [ exfalso; revert H₁; apply Nat.lt_irrefl | idtac ].
+             destruct id.
+              simpl.
+              unfold next_pow at 1; simpl.
+              rewrite Hinib₂, Hfinb₂; simpl.
+              rewrite Hαkb₂; simpl.
+              rewrite Z.add_0_r, Z.mul_1_r.
+              do 2 rewrite Pos.mul_1_r.
+              rewrite Pos2Z.inj_mul.
+              rewrite Z.mul_shuffle0, Z.div_mul_cancel_r; auto.
+              rewrite <- Heqd.
+              remember (Nat.compare (Z.to_nat d) (S i)) as cmp₁ eqn:Hcmp₁ .
+              symmetry in Hcmp₁.
+              clear H₁.
+              destruct (ps_zerop R (ps_poly_nth 0 polb₂)) as [H₁| H₁].
+               contradiction.
+
+               clear H₁.
+               destruct cmp₁; auto.
+                apply nat_compare_lt in Hcmp₁.
+                exfalso; fast_omega H₂ Heqid Hcmp₁.
+
+                apply nat_compare_gt in Hcmp₁.
+                apply Nat.nle_gt in Hcmp₁.
+                contradiction.
+
+              remember (S id) as sid.
+              simpl.
+              clear H₁.
+              destruct (ps_zerop R (ps_poly_nth 0 polb₂)) as [H₁| H₁].
+               contradiction.
+
+               clear H₁.
+               unfold next_pow at 1; simpl.
+               rewrite Hinib₂, Hfinb₂; simpl.
+               rewrite Hαkb₂; simpl.
+               rewrite Z.add_0_r, Z.mul_1_r.
+               do 2 rewrite Pos.mul_1_r.
+               rewrite Pos2Z.inj_mul.
+               rewrite Z.mul_shuffle0, Z.div_mul_cancel_r; auto.
+               rewrite <- Heqd.
+               remember (Nat.compare (Z.to_nat d) (S i)) as cmp₁ eqn:Hcmp₁ .
+               symmetry in Hcmp₁.
+               destruct cmp₁; auto.
+                apply nat_compare_eq in Hcmp₁.
+                subst sid.
+                rewrite Hcmp₁, Nat.sub_diag in Heqid.
+                discriminate Heqid.
+
+                apply nat_compare_lt in Hcmp₁.
+                remember (ac_root (Φq polb₂ nsb₂)) as cb₂ eqn:Hcb₂ .
+                remember (next_pol polb₂ (β nsb₂) (γ nsb₂) cb₂) as polb₃.
+                remember (List.hd phony_ns (newton_segments polb₃)) as nsb₃.
+                unfold next_pow at 2; simpl.
+                rewrite Hinib₂, Hfinb₂; simpl.
+                rewrite Hαkb₂; simpl.
+                rewrite Z.add_0_r, Z.mul_1_r.
+                do 2 rewrite Pos.mul_1_r.
+                rewrite Pos2Z.inj_mul.
+                rewrite Z.mul_shuffle0, Z.div_mul_cancel_r; auto.
+                rewrite <- Heqd.
 bbb.
 
         rewrite <- Hnpow.
