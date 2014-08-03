@@ -733,6 +733,21 @@ induction n; intros.
   apply Hpsi in H; assumption.
 Qed.
 
+Lemma q_eq_1_nth : ∀ pol ns pol₁ ns₁ c₁ m q₀,
+  ns ∈ newton_segments pol
+  → ps_lap_forall (λ a, in_K_1_m a m) (al pol)
+  → ps_lap_forall (λ a, in_K_1_m a (m * q₀)) (al pol₁)
+  → c₁ = ac_root (Φq pol ns)
+  → root_multiplicity acf c₁ (Φq pol ns) = 1%nat
+  → pol₁ = next_pol pol (β ns) (γ ns) c₁
+  → ns₁ = List.hd phony_ns (newton_segments pol₁)
+  → ∀ n nsn,
+    (∀ i : nat, i ≤ n → (ps_poly_nth 0 (nth_pol i pol₁ ns₁) ≠ 0)%ps)
+    → nsn = nth_ns n pol₁ ns₁
+    → q_of_m (m * q₀) (γ nsn) = 1%positive.
+Proof.
+bbb.
+
 Lemma sss : ∀ pol ns pol₁ ns₁ c m q₀ b,
   ns ∈ newton_segments pol
   → ps_lap_forall (λ a, in_K_1_m a m) (al pol)
@@ -1091,6 +1106,10 @@ induction n; intros.
              erewrite nth_pol_n with (c₁ := c₁) in Hnsb'; eauto .
              rewrite <- Hpolb in Hnsb'.
              symmetry.
+             rewrite Heqm₁.
+             eapply q_eq_1_nth with (ns := ns); eauto .
+
+bbb.
              replace m₁ with (m₁ * 1)%positive by apply Pos.mul_1_r.
              destruct b.
               simpl in Hpolb, Hnsb.
@@ -1098,6 +1117,7 @@ induction n; intros.
               eapply q_eq_1 with (ns := ns₁); eauto .
               rewrite Pos.mul_1_r; assumption.
 
+bbb.
               simpl in Hpolb, Hnsb.
               rewrite <- Hc₂, <- Hpol₃, <- Hns₃ in Hpolb, Hnsb.
               remember Hns₂ as H; clear HeqH.
@@ -1146,6 +1166,15 @@ induction n; intros.
                  simpl.
                  rewrite <- Hc₁, <- Hpol₂, <- Hns₂.
                  rewrite <- Hc₂; assumption.
+
+                eapply
+                 multiplicity_1_remains_in_nth with (ns := ns₁) (n := O);
+                 eauto .
+                intros i Hi.
+                apply Nat.le_0_r in Hi; subst i; simpl.
+                assert (1 ≤ S (S b))%nat as H by fast_omega .
+                apply Hpsi in H; simpl in H.
+                rewrite <- Hc₁, <- Hpol₂ in H; assumption.
 bbb.
                 symmetry.
              replace m₁ with (m₁ * 1)%positive by apply Pos.mul_1_r.
