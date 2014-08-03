@@ -753,7 +753,21 @@ remember (m * q₀)%positive as m₁.
 revert pol ns pol₁ ns₁ Hns Hm Hq₀ Hc Hr Hpol₁ Hns₁ Hpsi.
 revert b c m q₀ m₁ Heqm₁.
 induction n; intros.
- rewrite Nat.add_0_r in Hpsi.
+ Focus 2.
+ rewrite IHn; eauto ; [ idtac | intros i H; apply Hpsi; fast_omega H ].
+ unfold root_head.
+ destruct (ps_zerop R (ps_poly_nth 0 pol₁)) as [H₁| H₁].
+  assert (0 ≤ b + S n) as H by fast_omega .
+  apply Hpsi in H; contradiction.
+
+  rewrite summation_split_last; [ idtac | apply Nat.le_0_l ].
+  rewrite <- rng_add_assoc.
+  apply rng_add_compat_l.
+  (* seems to work: to be continued... *)
+  Unfocus.
+
+  rewrite Nat.add_0_r in Hpsi.
+
  destruct b; [ subst m₁; eapply root_tail_split_1st; eauto  | idtac ].
  remember (S b) as b₁ eqn:Hb₁.
  unfold root_tail, root_head; simpl.
