@@ -1151,37 +1151,52 @@ induction n; intros.
              eapply q_eq_1_nth with (ns := ns); eauto .
               eapply next_pol_in_K_1_mq with (pol := pol); eauto .
 
-              simpl; rewrite <- Hc₁, <- Hpol₂, <- Hns₂.
-              assumption.
+              simpl; rewrite <- Hc₁, <- Hpol₂, <- Hns₂; assumption.
 
+          rewrite rng_add_0_l.
+          remember (Qnum αjb₂ * ' m₁ / ' Qden αjb₂)%Z as d.
+          destruct (lt_dec i (Z.to_nat d)) as [H₂| H₂].
+           unfold root_series_from_cγ_list; simpl.
+           rewrite <- Hcb, <- Hpolb₂, <- Hbns₂.
+           destruct i; [ exfalso; revert H₁; apply Nat.lt_irrefl | idtac ].
+           clear H₁.
+           destruct (ps_zerop R (ps_poly_nth 0 polb)) as [| H₁]; auto.
+           simpl.
+           destruct (ps_zerop R (ps_poly_nth 0 polb₂)) as [| H₃]; auto.
+           unfold next_pow at 1; simpl.
+           rewrite Hinib₂, Hfinb₂; simpl.
+           rewrite Hαkb₂; simpl.
+           rewrite Z.add_0_r, Z.mul_1_r.
+           do 2 rewrite Pos.mul_1_r.
+           rewrite Pos2Z.inj_mul.
+           rewrite Z.mul_shuffle0, Z.div_mul_cancel_r; auto.
+           rewrite <- Heqd.
+           remember (Nat.compare (Z.to_nat d) (S i)) as cmp₁ eqn:Hcmp₁ .
+           symmetry in Hcmp₁.
+           destruct cmp₁; auto.
+            apply nat_compare_eq in Hcmp₁.
+            rewrite Hcmp₁ in H₂.
+            exfalso; revert H₂; apply Nat.lt_irrefl.
+
+            apply nat_compare_lt in Hcmp₁.
+            exfalso; fast_omega H₂ Hcmp₁.
+
+           apply Nat.nlt_ge in H₂.
+           remember (i - Z.to_nat d)%nat as id.
+           unfold root_series_from_cγ_list; simpl.
+           destruct (ps_zerop R (ps_poly_nth 0 polb)) as [H₃| H₃].
+            pose proof (Hpsi (S b) (Nat.le_refl (S b))) as H.
+            simpl in H.
+            rewrite <- Hc₁, <- Hpol₂, <- Hns₂ in H.
+            rewrite <- Hpolb in H; contradiction.
+
+            destruct (ps_zerop R (ps_poly_nth 0 polb₂)) as [H₄| H₄].
+             destruct i; [ exfalso; revert H₁; apply Nat.lt_irrefl | idtac ].
+             rewrite <- Hcb, <- Hpolb₂, <- Hbns₂; simpl; clear H₁.
+             destruct (ps_zerop R (ps_poly_nth 0 polb₂)) as [H₁| H₁]; auto.
+             contradiction.
 bbb.
 
-      apply stretch_morph; [ reflexivity | idtac ].
-      unfold series_add; simpl.
-      constructor; intros i; simpl.
-      destruct (zerop i) as [H₁| H₁].
-       subst i; simpl.
-       destruct (lt_dec 0 (Pos.to_nat d)) as [H₁| H₁].
-        rewrite rng_add_0_r.
-        unfold root_series_from_cγ_list; simpl.
-        rewrite <- Hc₁.
-        destruct (ps_zerop R (ps_poly_nth 0 pol₁)) as [H₂| H₂]; auto.
-        contradiction.
-
-        exfalso; apply H₁; auto.
-
-       rewrite rng_add_0_l.
-       assert (next_pow 0 ns₂ m₁ = Pos.to_nat d) as Hnpow.
-        unfold next_pow; simpl.
-        rewrite Hini₂, Hfin₂; simpl.
-        rewrite Hαk₂; simpl.
-        rewrite Z.add_0_r, Z.mul_1_r.
-        do 2 rewrite Pos.mul_1_r.
-        rewrite Z.mul_shuffle0, Pos2Z.inj_mul.
-        rewrite Z.div_mul_cancel_r; auto.
-        rewrite Hd, Z.div_mul; auto.
-
-        remember (next_pow 0 ns₂ m₁) as p₂.
         rewrite <- Hnpow.
         destruct (lt_dec i p₂) as [H₂| H₂].
          unfold root_series_from_cγ_list; simpl.
