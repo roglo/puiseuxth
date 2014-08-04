@@ -1028,30 +1028,6 @@ destruct (ps_zerop _ (ps_poly_nth 0 (nth_pol b₁ pol₁ ns₁))) as [Hpsb| Hpsb
     rewrite series_shift_0.
     rewrite Z.sub_0_r.
     apply mkps_morphism; [ idtac | idtac | apply Pos.mul_comm ].
-     Focus 2.
-     rewrite Pos2Z.inj_mul, Z.mul_assoc.
-     apply Z.mul_cancel_r; auto.
-     subst dd nd.
-     rewrite Pos2Z.inj_mul, Z.mul_assoc.
-     symmetry; rewrite Z.mul_shuffle0.
-     apply Z.mul_cancel_r; auto.
-     symmetry.
-     rewrite Z.mul_comm.
-     rewrite <- Z.divide_div_mul_exact; auto.
-      rewrite Z.mul_comm.
-      rewrite Z.div_mul; auto.
-
-      eapply den_αj_divides_num_αj_m; eauto .
-      remember Hm as H; clear HeqH.
-      eapply next_pol_in_K_1_mq in H; eauto .
-      rewrite <- Heqm₁ in H.
-      eapply lap_forall_nth with (ns := ns₁); eauto .
-       rewrite Heqm₁.
-       eapply q_eq_1 with (ns := ns); eauto .
-       rewrite <- Heqm₁; assumption.
-
-       simpl; rewrite <- Hc₁, <- Hpol₂, <- Hns₂; assumption.
-
      rewrite <- series_stretch_const with (k := (dd * dd)%positive).
      rewrite <- Z.mul_opp_l.
      do 2 rewrite Z2Nat_inj_mul_pos_r.
@@ -1248,6 +1224,29 @@ destruct (ps_zerop _ (ps_poly_nth 0 (nth_pol b₁ pol₁ ns₁))) as [Hpsb| Hpsb
           apply nat_compare_gt in Hcmp₁.
           apply Nat.nle_gt in Hcmp₁.
           contradiction.
+
+     rewrite Pos2Z.inj_mul, Z.mul_assoc.
+     apply Z.mul_cancel_r; auto.
+     subst dd nd.
+     rewrite Pos2Z.inj_mul, Z.mul_assoc.
+     symmetry; rewrite Z.mul_shuffle0.
+     apply Z.mul_cancel_r; auto.
+     symmetry.
+     rewrite Z.mul_comm.
+     rewrite <- Z.divide_div_mul_exact; auto.
+      rewrite Z.mul_comm.
+      rewrite Z.div_mul; auto.
+
+      eapply den_αj_divides_num_αj_m; eauto .
+      remember Hm as H; clear HeqH.
+      eapply next_pol_in_K_1_mq in H; eauto .
+      rewrite <- Heqm₁ in H.
+      eapply lap_forall_nth with (ns := ns₁); eauto .
+       rewrite Heqm₁.
+       eapply q_eq_1 with (ns := ns); eauto .
+       rewrite <- Heqm₁; assumption.
+
+       simpl; rewrite <- Hc₁, <- Hpol₂, <- Hns₂; assumption.
 
     apply Z.le_sub_le_add_l.
     rewrite Z.sub_diag.
