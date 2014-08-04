@@ -1168,6 +1168,51 @@ Lemma rrr : ∀ pol ns pol₁ ns₁ c m q₀ n,
        root_tail (m * q₀) (S n) pol₁ ns₁)%ps.
 Proof.
 intros pol ns pol₁ ns₁ c m q₀ n Hns Hm Hq₀ Hc Hr Hpol₁ Hns₁ Hps₁.
+unfold root_tail, ps_monom.
+simpl.
+remember (ac_root (Φq pol₁ ns₁)) as c₁ eqn:Hc₁ .
+remember (next_pol pol₁ (β ns₁) (γ ns₁) c₁) as pol₂ eqn:Hpol₂ .
+remember (List.hd phony_ns (newton_segments pol₂)) as ns₂ eqn:Hns₂ .
+remember (nth_pol n pol₁ ns₁) as poln₁ eqn:Hpoln₁ .
+remember (nth_pol n pol₂ ns₂) as poln₂ eqn:Hpoln₂ .
+destruct (ps_zerop R (ps_poly_nth 0 poln₁)) as [H₁| H₁].
+ destruct (ps_zerop R (ps_poly_nth 0 poln₂)) as [H₂| H₂].
+  Focus 1.
+  rewrite fold_series_const.
+  rewrite fold_series_const.
+  rewrite ps_mul_0_r.
+  rewrite ps_add_0_r.
+  Unfocus.
+  Focus 3.
+  destruct (ps_zerop R (ps_poly_nth 0 poln₂)) as [H₂| H₂].
+   Focus 2.
+   rewrite fold_series_const.
+   rewrite fold_series_const.
+   remember Hpoln₁ as H; clear HeqH.
+   remember (nth_ns n pol₁ ns₁) as nsn₁ eqn:Hnsn₁ .
+   eapply nth_in_newton_segments in H; eauto .
+    eapply r_1_next_ns in H; eauto .
+     remember (ac_root (Φq poln₁ nsn₁)) as cn₁ eqn:Hcn₁ .
+     remember (next_pol poln₁ (β nsn₁) (γ nsn₁) cn₁) as poln₁₂ eqn:Hpoln₁₂ .
+     remember (List.hd phony_ns (newton_segments poln₁₂)) as ns₁₂ eqn:Hns₁₂ .
+     erewrite nth_pol_n in Hpoln₁₂.
+      5: eauto .
+
+      2: eauto .
+
+      2: eauto .
+
+      2: eauto .
+
+      2: eauto .
+
+      2: eauto .
+
+      rewrite <- Hpoln₂ in Hpoln₁₂; subst poln₁₂.
+bbb.
+
+intros pol ns pol₁ ns₁ c m q₀ n Hns Hm Hq₀ Hc Hr Hpol₁ Hns₁ Hps₁.
+bbb.
 revert pol ns pol₁ ns₁ c m q₀ Hns Hm Hq₀ Hc Hr Hpol₁ Hns₁ Hps₁.
 induction n; intros.
  simpl.
