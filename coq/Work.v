@@ -1163,8 +1163,9 @@ Lemma rrr : ∀ pol ns pol₁ ns₁ c m q₀ n,
   → ns₁ = List.hd phony_ns (newton_segments pol₁)
   → (ps_poly_nth 0 pol₁ ≠ 0)%ps
   → (root_tail (m * q₀) n pol₁ ns₁ =
-     ps_monom 1%K (nth_γ n pol₁ ns₁) *
-     (ps_monom (nth_c n pol₁ ns₁) 0 + root_tail (m * q₀) (S n) pol₁ ns₁))%ps.
+       ps_monom (nth_c n pol₁ ns₁) (nth_γ n pol₁ ns₁) +
+       ps_monom 1%K (nth_γ n pol₁ ns₁) *
+       root_tail (m * q₀) (S n) pol₁ ns₁)%ps.
 Proof.
 intros pol ns pol₁ ns₁ c m q₀ n Hns Hm Hq₀ Hc Hr Hpol₁ Hns₁ Hps₁.
 revert pol ns pol₁ ns₁ c m q₀ Hns Hm Hq₀ Hc Hr Hpol₁ Hns₁ Hps₁.
@@ -1173,16 +1174,13 @@ induction n; intros.
  remember (ac_root (Φq pol₁ ns₁)) as c₁ eqn:Hc₁ .
  rewrite root_tail_split_1st; eauto .
  unfold γ_sum, summation; simpl.
- rewrite Qplus_0_r.
+ rewrite rng_add_0_r.
  unfold root_head, summation; simpl.
- unfold γ_sum, summation; simpl.
  destruct (ps_zerop R (ps_poly_nth 0 pol₁)) as [H₁| H₁]; try contradiction.
- rewrite rng_add_0_r.
- rewrite rng_add_0_r.
- rewrite ps_monom_split_mul.
- rewrite ps_mul_comm.
- rewrite ps_mul_add_distr_l.
  rewrite <- Hc₁.
+ unfold γ_sum, summation; simpl.
+ rewrite rng_add_0_r.
+ rewrite rng_add_0_r.
  reflexivity.
 
  rewrite root_tail_succ; eauto .
@@ -1192,6 +1190,7 @@ induction n; intros.
  remember (List.hd phony_ns (newton_segments pol₂)) as ns₂ eqn:Hns₂ .
 bbb.
  rewrite IHn with (pol := pol₁) (ns := ns₁); eauto .
+*)
 
 Lemma sss : ∀ pol ns pol₁ ns₁ c m q₀ b,
   ns ∈ newton_segments pol
@@ -1237,10 +1236,13 @@ induction n; intros.
   rewrite <- ps_mul_assoc.
   rewrite <- ps_mul_add_distr_l.
   apply ps_mul_compat_l.
-  rewrite <- ps_mul_add_distr_l.
-  do 3 rewrite Nat.add_succ_r.
   symmetry.
+  do 3 rewrite Nat.add_succ_r.
   remember (S (b + n)) as bn.
+  rewrite ps_mul_comm.
+  rewrite <- ps_monom_split_mul.
+  remember (nth_c bn pol₁ ns₁) as cbn eqn:Hcbn .
+  remember (nth_γ bn pol₁ ns₁) as γbn eqn:Hγbn .
 bbb.
 
 (* mmm... faut voir... *)
