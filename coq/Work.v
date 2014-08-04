@@ -1161,17 +1161,30 @@ Lemma rrr : ∀ pol ns pol₁ ns₁ c m q₀ n,
   → root_multiplicity acf c (Φq pol ns) = 1%nat
   → pol₁ = next_pol pol (β ns) (γ ns) c
   → ns₁ = List.hd phony_ns (newton_segments pol₁)
-  → (∀ i, (i ≤ n)%nat → ps_poly_nth 0 pol₁ ≠ 0)%ps
+  → (∀ i, (i ≤ n)%nat → (ps_poly_nth 0 (nth_pol i pol₁ ns₁) ≠ 0)%ps)
   → (root_tail (m * q₀) n pol₁ ns₁ =
        ps_monom (nth_c n pol₁ ns₁) (nth_γ n pol₁ ns₁) +
        ps_monom 1%K (nth_γ n pol₁ ns₁) *
        root_tail (m * q₀) (S n) pol₁ ns₁)%ps.
 Proof.
 intros pol ns pol₁ ns₁ c m q₀ n Hns Hm Hq₀ Hc Hr Hpol₁ Hns₁ Hpsi.
+unfold root_tail, ps_monom; simpl.
+rewrite fold_series_const.
+rewrite fold_series_const.
+remember (ac_root (Φq pol₁ ns₁)) as c₁ eqn:Hc₁ .
+remember (next_pol pol₁ (β ns₁) (γ ns₁) c₁) as pol₂ eqn:Hpol₂ .
+remember (List.hd phony_ns (newton_segments pol₂)) as ns₂ eqn:Hns₂ .
+remember (nth_pol n pol₁ ns₁) as poln₁ eqn:Hpoln₁ .
+remember (nth_pol n pol₂ ns₂) as poln₂ eqn:Hpoln₂ .
+destruct (ps_zerop R (ps_poly_nth 0 poln₁)) as [H₁| H₁].
+ pose proof (Hpsi n (Nat.le_refl n)) as H; simpl in H.
+ subst poln₁; contradiction.
+
+ destruct (ps_zerop R (ps_poly_nth 0 poln₂)) as [H₂| H₂].
+  rewrite ps_mul_0_r, ps_add_0_r.
 bbb.
 
-unfold root_tail, ps_monom.
-simpl.
+unfold root_tail, ps_monom; simpl.
 remember (ac_root (Φq pol₁ ns₁)) as c₁ eqn:Hc₁ .
 remember (next_pol pol₁ (β ns₁) (γ ns₁) c₁) as pol₂ eqn:Hpol₂ .
 remember (List.hd phony_ns (newton_segments pol₂)) as ns₂ eqn:Hns₂ .
