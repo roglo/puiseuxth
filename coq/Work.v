@@ -1155,14 +1155,19 @@ Proof. reflexivity. Qed.
 
 Lemma rrr : ∀ pol ns pol₁ ns₁ c m q₀ n,
   ns ∈ newton_segments pol
+  → ps_lap_forall (λ a, in_K_1_m a m) (al pol)
+  → q₀ = q_of_m m (γ ns)
   → c = ac_root (Φq pol ns)
+  → root_multiplicity acf c (Φq pol ns) = 1%nat
   → pol₁ = next_pol pol (β ns) (γ ns) c
+  → ns₁ = List.hd phony_ns (newton_segments pol₁)
+  → (ps_poly_nth 0 pol₁ ≠ 0)%ps
   → (root_tail (m * q₀) n pol₁ ns₁ =
      ps_monom 1%K (nth_γ n pol₁ ns₁) *
      (ps_monom (nth_c n pol₁ ns₁) 0 + root_tail (m * q₀) (S n) pol₁ ns₁))%ps.
 Proof.
-intros pol ns pol₁ ns₁ c m q₀ n Hns Hc Hpol₁.
-revert pol ns pol₁ ns₁ c m q₀ Hns Hc Hpol₁.
+intros pol ns pol₁ ns₁ c m q₀ n Hns Hm Hq₀ Hc Hr Hpol₁ Hns₁ Hps₁.
+revert pol ns pol₁ ns₁ c m q₀ Hns Hm Hq₀ Hc Hr Hpol₁ Hns₁ Hps₁.
 induction n; intros.
  simpl.
  remember (ac_root (Φq pol₁ ns₁)) as c₁ eqn:Hc₁ .
@@ -1171,15 +1176,14 @@ induction n; intros.
   rewrite Qplus_0_r.
   unfold root_head, summation; simpl.
   unfold γ_sum, summation; simpl.
-  destruct (ps_zerop R (ps_poly_nth 0 pol₁)) as [H₁| H₁].
-   Focus 2.
-   rewrite rng_add_0_r.
-   rewrite rng_add_0_r.
-   rewrite ps_monom_split_mul.
-   rewrite ps_mul_comm.
-   rewrite ps_mul_add_distr_l.
-   rewrite <- Hc₁.
-   reflexivity.
+  destruct (ps_zerop R (ps_poly_nth 0 pol₁)) as [H₁| H₁]; try contradiction.
+  rewrite rng_add_0_r.
+  rewrite rng_add_0_r.
+  rewrite ps_monom_split_mul.
+  rewrite ps_mul_comm.
+  rewrite ps_mul_add_distr_l.
+  rewrite <- Hc₁.
+  reflexivity.
 bbb.
 
 Lemma sss : ∀ pol ns pol₁ ns₁ c m q₀ b,
