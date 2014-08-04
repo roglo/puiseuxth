@@ -1019,15 +1019,6 @@ destruct (ps_zerop _ (ps_poly_nth 0 (nth_pol b₁ pol₁ ns₁))) as [Hpsb| Hpsb
    rewrite Z.sub_add_distr, Z.sub_diag; simpl.
    rewrite Z.add_simpl_l.
    rewrite Z.min_l.
-    Focus 2.
-    apply Z.le_sub_le_add_l.
-    rewrite Z.sub_diag.
-    apply Z.mul_nonneg_nonneg; auto.
-    apply Z.mul_nonneg_nonneg; auto.
-    apply Z.div_pos; [ idtac | apply Pos2Z.is_pos ].
-    apply Z.mul_nonneg_nonneg; auto.
-    apply Z.lt_le_incl; assumption.
-
     rewrite <- Z.mul_assoc, <- Pos2Z.inj_mul.
     unfold adjust_series.
     rewrite series_stretch_const.
@@ -1257,6 +1248,14 @@ destruct (ps_zerop _ (ps_poly_nth 0 (nth_pol b₁ pol₁ ns₁))) as [Hpsb| Hpsb
           apply nat_compare_gt in Hcmp₁.
           apply Nat.nle_gt in Hcmp₁.
           contradiction.
+
+    apply Z.le_sub_le_add_l.
+    rewrite Z.sub_diag.
+    apply Z.mul_nonneg_nonneg; auto.
+    apply Z.mul_nonneg_nonneg; auto.
+    apply Z.div_pos; [ idtac | apply Pos2Z.is_pos ].
+    apply Z.mul_nonneg_nonneg; auto.
+    apply Z.lt_le_incl; assumption.
 Qed.
 
 Lemma sss : ∀ pol ns pol₁ ns₁ c m q₀ b,
