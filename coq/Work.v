@@ -1148,6 +1148,40 @@ destruct (ps_zerop _ (ps_poly_nth 0 (nth_pol b₁ pol₁ ns₁))) as [Hpsb| Hpsb
     apply Z.lt_le_incl; assumption.
 Qed.
 
+Lemma fold_γ_sum : ∀ b n pol ns,
+  let qr := Q_ring in
+  Σ (i = 0, n), nth_γ (b + i) pol ns = γ_sum b n pol ns.
+Proof. reflexivity. Qed.
+
+Lemma rrr : ∀ pol ns pol₁ ns₁ c m q₀ n,
+  ns ∈ newton_segments pol
+  → c = ac_root (Φq pol ns)
+  → pol₁ = next_pol pol (β ns) (γ ns) c
+  → (root_tail (m * q₀) n pol₁ ns₁ =
+     ps_monom 1%K (nth_γ n pol₁ ns₁) *
+     (ps_monom (nth_c n pol₁ ns₁) 0 + root_tail (m * q₀) (S n) pol₁ ns₁))%ps.
+Proof.
+intros pol ns pol₁ ns₁ c m q₀ n Hns Hc Hpol₁.
+revert pol ns pol₁ ns₁ c m q₀ Hns Hc Hpol₁.
+induction n; intros.
+ simpl.
+ remember (ac_root (Φq pol₁ ns₁)) as c₁ eqn:Hc₁ .
+ rewrite root_tail_split_1st; eauto .
+  unfold γ_sum, summation; simpl.
+  rewrite Qplus_0_r.
+  unfold root_head, summation; simpl.
+  unfold γ_sum, summation; simpl.
+  destruct (ps_zerop R (ps_poly_nth 0 pol₁)) as [H₁| H₁].
+   Focus 2.
+   rewrite rng_add_0_r.
+   rewrite rng_add_0_r.
+   rewrite ps_monom_split_mul.
+   rewrite ps_mul_comm.
+   rewrite ps_mul_add_distr_l.
+   rewrite <- Hc₁.
+   reflexivity.
+bbb.
+
 Lemma sss : ∀ pol ns pol₁ ns₁ c m q₀ b,
   ns ∈ newton_segments pol
   → ps_lap_forall (λ a, in_K_1_m a m) (al pol)
@@ -1180,6 +1214,22 @@ induction n; intros.
   rewrite summation_split_last; [ idtac | apply Nat.le_0_l ].
   rewrite <- rng_add_assoc.
   apply rng_add_compat_l; simpl.
+  unfold γ_sum at 3; simpl.
+  rewrite summation_split_last; [ idtac | apply Nat.le_0_l ].
+  rewrite ps_monom_add_r, fold_γ_sum.
+  symmetry.
+  rewrite ps_monom_split_mul in |- * at 1.
+  unfold γ_sum at 1; simpl.
+  rewrite summation_split_last; [ idtac | apply Nat.le_0_l ].
+  rewrite ps_monom_add_r, fold_γ_sum.
+  rewrite ps_mul_comm, <- ps_mul_assoc.
+  rewrite <- ps_mul_assoc.
+  rewrite <- ps_mul_add_distr_l.
+  apply ps_mul_compat_l.
+  rewrite <- ps_mul_add_distr_l.
+  do 3 rewrite Nat.add_succ_r.
+  symmetry.
+  remember (S (b + n)) as bn.
 bbb.
 
 (* mmm... faut voir... *)
