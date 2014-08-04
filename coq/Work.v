@@ -1184,6 +1184,7 @@ destruct (ps_zerop _ (ps_poly_nth 0 (nth_pol b₁ pol₁ ns₁))) as [Hpsb| Hpsb
           apply nat_compare_eq in Hcmp₁.
           rewrite Hcmp₁, Nat.sub_diag in Heqid; subst id; reflexivity.
 
+(* clean from here! *)
           apply nat_compare_lt in Hcmp₁.
           destruct id; [ exfalso; fast_omega Heqid Hcmp₁ | idtac ].
           remember (ac_root (Φq polb₂ nsb₂)) as cb₂ eqn:Hcb₂ .
