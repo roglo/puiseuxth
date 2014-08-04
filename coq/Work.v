@@ -1161,13 +1161,15 @@ Lemma rrr : ∀ pol ns pol₁ ns₁ c m q₀ n,
   → root_multiplicity acf c (Φq pol ns) = 1%nat
   → pol₁ = next_pol pol (β ns) (γ ns) c
   → ns₁ = List.hd phony_ns (newton_segments pol₁)
-  → (ps_poly_nth 0 pol₁ ≠ 0)%ps
+  → (∀ i, (i ≤ n)%nat → ps_poly_nth 0 pol₁ ≠ 0)%ps
   → (root_tail (m * q₀) n pol₁ ns₁ =
        ps_monom (nth_c n pol₁ ns₁) (nth_γ n pol₁ ns₁) +
        ps_monom 1%K (nth_γ n pol₁ ns₁) *
        root_tail (m * q₀) (S n) pol₁ ns₁)%ps.
 Proof.
-intros pol ns pol₁ ns₁ c m q₀ n Hns Hm Hq₀ Hc Hr Hpol₁ Hns₁ Hps₁.
+intros pol ns pol₁ ns₁ c m q₀ n Hns Hm Hq₀ Hc Hr Hpol₁ Hns₁ Hpsi.
+bbb.
+
 unfold root_tail, ps_monom.
 simpl.
 remember (ac_root (Φq pol₁ ns₁)) as c₁ eqn:Hc₁ .
