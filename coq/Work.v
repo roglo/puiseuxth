@@ -1172,19 +1172,26 @@ induction n; intros.
  simpl.
  remember (ac_root (Φq pol₁ ns₁)) as c₁ eqn:Hc₁ .
  rewrite root_tail_split_1st; eauto .
-  unfold γ_sum, summation; simpl.
-  rewrite Qplus_0_r.
-  unfold root_head, summation; simpl.
-  unfold γ_sum, summation; simpl.
-  destruct (ps_zerop R (ps_poly_nth 0 pol₁)) as [H₁| H₁]; try contradiction.
-  rewrite rng_add_0_r.
-  rewrite rng_add_0_r.
-  rewrite ps_monom_split_mul.
-  rewrite ps_mul_comm.
-  rewrite ps_mul_add_distr_l.
-  rewrite <- Hc₁.
-  reflexivity.
+ unfold γ_sum, summation; simpl.
+ rewrite Qplus_0_r.
+ unfold root_head, summation; simpl.
+ unfold γ_sum, summation; simpl.
+ destruct (ps_zerop R (ps_poly_nth 0 pol₁)) as [H₁| H₁]; try contradiction.
+ rewrite rng_add_0_r.
+ rewrite rng_add_0_r.
+ rewrite ps_monom_split_mul.
+ rewrite ps_mul_comm.
+ rewrite ps_mul_add_distr_l.
+ rewrite <- Hc₁.
+ reflexivity.
+
+ rewrite root_tail_succ; eauto .
+ rewrite root_tail_succ; eauto .
+ remember (ac_root (Φq pol₁ ns₁)) as c₁ eqn:Hc₁ .
+ remember (next_pol pol₁ (β ns₁) (γ ns₁) c₁) as pol₂ eqn:Hpol₂ .
+ remember (List.hd phony_ns (newton_segments pol₂)) as ns₂ eqn:Hns₂ .
 bbb.
+ rewrite IHn with (pol := pol₁) (ns := ns₁); eauto .
 
 Lemma sss : ∀ pol ns pol₁ ns₁ c m q₀ b,
   ns ∈ newton_segments pol
