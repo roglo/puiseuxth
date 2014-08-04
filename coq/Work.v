@@ -1035,12 +1035,6 @@ destruct (ps_zerop _ (ps_poly_nth 0 (nth_pol b₁ pol₁ ns₁))) as [Hpsb| Hpsb
      rewrite <- series_stretch_add_distr.
      apply stretch_morph; [ reflexivity | idtac ].
      rewrite Z2Nat_neg_eq_0.
-      Focus 2.
-      apply Z.opp_nonpos_nonneg.
-      apply Z.div_pos; [ idtac | apply Pos2Z.is_pos ].
-      apply Z.mul_nonneg_nonneg; auto.
-      apply Z.lt_le_incl; assumption.
-
       rewrite series_shift_0.
       unfold series_add; simpl.
       constructor; simpl; intros i.
@@ -1224,6 +1218,11 @@ destruct (ps_zerop _ (ps_poly_nth 0 (nth_pol b₁ pol₁ ns₁))) as [Hpsb| Hpsb
           apply nat_compare_gt in Hcmp₁.
           apply Nat.nle_gt in Hcmp₁.
           contradiction.
+
+      apply Z.opp_nonpos_nonneg.
+      apply Z.div_pos; [ idtac | apply Pos2Z.is_pos ].
+      apply Z.mul_nonneg_nonneg; auto.
+      apply Z.lt_le_incl; assumption.
 
      rewrite Pos2Z.inj_mul, Z.mul_assoc.
      apply Z.mul_cancel_r; auto.
