@@ -473,23 +473,6 @@ destruct (ps_zerop _ (ps_poly_nth 0 pol₁)) as [| H₁].
    rewrite series_shift_0.
    rewrite Z.sub_0_r.
    apply mkps_morphism.
-    Focus 2.
-    rewrite Pos2Z.inj_mul, Z.mul_assoc.
-    apply Z.mul_cancel_r; auto.
-    subst dd nd.
-    rewrite Pos2Z.inj_mul, Z.mul_assoc.
-    symmetry; rewrite Z.mul_shuffle0.
-    apply Z.mul_cancel_r; auto.
-    symmetry.
-    rewrite Z.mul_comm.
-    rewrite <- Z.divide_div_mul_exact; auto.
-     rewrite Z.mul_comm.
-     rewrite Z.div_mul; auto.
-
-     eapply den_αj_divides_num_αj_m; eauto .
-     eapply next_pol_in_K_1_mq in Hm; eauto .
-     subst m₁; assumption.
-
     remember Hns₂ as Hns₂₁; clear HeqHns₂₁.
     eapply hd_newton_segments in Hns₂₁; eauto .
     remember Hns₂₁ as H; clear HeqH.
@@ -601,6 +584,22 @@ destruct (ps_zerop _ (ps_poly_nth 0 pol₁)) as [| H₁].
 
      simpl in HH.
      exfalso; revert HH; apply Nat.lt_irrefl.
+
+    rewrite Pos2Z.inj_mul, Z.mul_assoc.
+    apply Z.mul_cancel_r; auto.
+    subst dd nd.
+    rewrite Pos2Z.inj_mul, Z.mul_assoc.
+    symmetry; rewrite Z.mul_shuffle0.
+    apply Z.mul_cancel_r; auto.
+    symmetry.
+    rewrite Z.mul_comm.
+    rewrite <- Z.divide_div_mul_exact; auto.
+     rewrite Z.mul_comm.
+     rewrite Z.div_mul; auto.
+
+     eapply den_αj_divides_num_αj_m; eauto .
+     eapply next_pol_in_K_1_mq in Hm; eauto .
+     subst m₁; assumption.
 
     rewrite Pos.mul_comm, Pos.mul_assoc.
     reflexivity.
