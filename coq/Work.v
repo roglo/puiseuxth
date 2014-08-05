@@ -1256,6 +1256,58 @@ destruct (ps_zerop R (ps_poly_nth 0 poln₁)) as [H₁| H₁].
   rewrite Hαkn₁; simpl.
   rewrite Z.mul_1_r, Z.add_0_r, Pos.mul_1_r, Pos2Z.inj_mul.
   rewrite Z.mul_shuffle0, Z.div_mul_cancel_r; auto.
+  erewrite nth_γ_n; eauto ; simpl.
+  rewrite Hαkn₁; simpl.
+  rewrite Z.add_0_r, Z.mul_1_r, Pos.mul_1_r.
+  rewrite ps_adjust_eq with (n := O) (k := (Qden αjn₁ * Qden αkn₁)%positive).
+  symmetry.
+  rewrite ps_adjust_eq with (n := O) (k := m₁); symmetry.
+  unfold adjust_ps; simpl.
+  do 2 rewrite series_shift_0.
+  rewrite series_stretch_const.
+  rewrite Z.sub_0_r.
+  rewrite Pos2Z.inj_mul, Z.mul_assoc.
+  rewrite Z_div_mul_swap.
+   rewrite Z.div_mul; auto.
+   rewrite Z.mul_shuffle0, Z.sub_0_r.
+   apply mkps_morphism; eauto .
+    constructor; intros i; simpl.
+    destruct (zerop (i mod Pos.to_nat (Qden αjn₁ * Qden αkn₁))) as [H₃| H₃].
+     apply Nat.mod_divides in H₃; auto.
+     destruct H₃ as (d, Hd).
+     rewrite Nat.mul_comm in Hd; rewrite Hd in |- * at 1.
+     rewrite Nat.div_mul; auto.
+     destruct (zerop i) as [H₃| H₃].
+      subst i.
+      apply Nat.mul_eq_0_l in H₃; auto.
+      subst d; simpl.
+      unfold root_series_from_cγ_list; simpl.
+      destruct (ps_zerop R (ps_poly_nth 0 poln₁)) as [H₃| H₃].
+       contradiction.
+
+       symmetry.
+       apply nth_c_root; auto.
+
+      unfold root_series_from_cγ_list; simpl.
+      destruct (ps_zerop R (ps_poly_nth 0 poln₁)) as [| H₄]; auto.
+      clear H₄.
+      destruct d.
+       exfalso; subst i; revert H₃; apply Nat.lt_irrefl.
+
+       remember (ac_root (Φq poln₁ nsn₁)) as cn₁ eqn:Hcn₁ .
+       remember (next_pol poln₁ (β nsn₁) (γ nsn₁) cn₁) as poln₁s eqn:Hpoln₁s .
+       erewrite nth_pol_n with (ns₁ := ns₁) in Hpoln₁s; eauto .
+       rewrite <- Hpoln₂ in Hpoln₁s; subst poln₁s.
+       remember (List.hd phony_ns (newton_segments poln₂)) as nsn₂ eqn:Hnsn₂ .
+       simpl.
+       destruct (ps_zerop R (ps_poly_nth 0 poln₂)) as [H₄| H₄]; auto.
+       contradiction.
+
+     destruct (zerop i) as [H₄| H₄]; auto.
+     subst i; rewrite Nat.mod_0_l in H₃; auto.
+     exfalso; revert H₃; apply Nat.lt_irrefl.
+
+    apply Pos.mul_comm; reflexivity.
 bbb.
 
 Lemma sss : ∀ pol ns pol₁ ns₁ c m q₀ b,
