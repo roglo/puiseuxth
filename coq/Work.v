@@ -1867,17 +1867,14 @@ induction n; intros.
   rewrite summation_split_last; [ idtac | apply Nat.le_0_l ].
   rewrite ps_monom_add_r, fold_γ_sum.
   rewrite ps_mul_comm, <- ps_mul_assoc.
-  rewrite <- ps_mul_assoc.
-  rewrite <- ps_mul_add_distr_l.
+  rewrite <- ps_mul_assoc, <- ps_mul_add_distr_l.
   apply ps_mul_compat_l.
   symmetry.
   do 3 rewrite Nat.add_succ_r.
-  remember (S (b + n)) as bn.
   rewrite ps_mul_comm.
   rewrite <- ps_monom_split_mul.
   subst m₁.
   eapply root_tail_sep_1st_monom; eauto .
-  subst bn.
   rewrite <- Nat.add_succ_r.
   assumption.
 Qed.
