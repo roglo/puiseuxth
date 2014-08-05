@@ -1464,6 +1464,23 @@ destruct (ps_zerop R (ps_poly_nth 0 poln₁)) as [H₁| H₁].
                     rewrite Z.div_mul_cancel_r; auto.
                     eapply num_m_den_is_pos with (ns := nsn₂) (pol := poln₂);
                      eauto .
+
+                   remember (ac_root (Φq poln₂ nsn₂)) as cn₂ eqn:Hcn₂ .
+                   remember (next_pol poln₂ (β nsn₂) (γ nsn₂) cn₂) as poln₃
+                    eqn:Hpoln₃ .
+                   remember
+                    (List.hd phony_ns (newton_segments poln₃)) as nsn₃
+                    eqn:Hnsn₃ .
+                   remember
+                    (List.hd phony_ns (newton_segments poln₂)) as nsn₂p
+                    eqn:Hnsn₂p .
+                   simpl.
+                   rewrite rng_add_0_l.
+                   destruct (ps_zerop R (ps_poly_nth 0 poln₂)) as [H₃| H₃].
+                    contradiction.
+
+                    clear H₃.
+                    unfold next_pow at 1; simpl.
 bbb.
 
 Lemma sss : ∀ pol ns pol₁ ns₁ c m q₀ b,
