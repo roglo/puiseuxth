@@ -1543,6 +1543,7 @@ destruct (ps_zerop R (ps_poly_nth 0 poln₁)) as [H₁| H₁].
                        destruct ix;
                         [ exfalso; fast_omega Heqix Hcmp₂ | idtac ].
 bbb.
+*)
 
 Lemma sss : ∀ pol ns pol₁ ns₁ c m q₀ b,
   ns ∈ newton_segments pol
@@ -1596,6 +1597,12 @@ induction n; intros.
   remember (nth_c bn pol₁ ns₁) as cbn eqn:Hcbn .
   remember (nth_γ bn pol₁ ns₁) as γbn eqn:Hγbn .
 bbb.
+  subst m₁.
+  subst cbn γbn.
+  eapply rrr; eauto .
+  subst bn.
+  rewrite <- Nat.add_succ_r.
+  assumption.
 
 (* mmm... faut voir... *)
 Lemma uuu₂ : ∀ pol ns n,
