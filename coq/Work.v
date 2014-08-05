@@ -1,4 +1,4 @@
-(* Puiseux.v *)
+(* Work.v *)
 
 Require Import Utf8 QArith NPeano Sorting.
 
@@ -1322,15 +1322,45 @@ destruct (ps_zerop R (ps_poly_nth 0 poln₁)) as [H₁| H₁].
     eapply next_pol_in_K_1_mq with (ns := ns); eauto .
 
   remember Hns as H; clear HeqH.
+  eapply r_1_nth_ns with (poln := poln₁) in H; eauto .
+  destruct H as (αjn₁, (αkn₁, H)).
+  destruct H as (_, (Hinin₁, (Hfinn₁, (Hαjn₁, Hαkn₁)))).
+  remember Hns as H; clear HeqH.
   eapply r_1_nth_ns with (poln := poln₂) (n := S n) in H; eauto .
-   Focus 3.
-   simpl.
-   rewrite <- Hc₁, <- Hpol₂, <- Hns₂; assumption.
-
    destruct H as (αjn₂, (αkn₂, H)).
    destruct H as (_, (Hinin₂, (Hfinn₂, (Hαjn₂, Hαkn₂)))).
+   remember (nth_ns (S n) pol₁ ns₁) as nsn₂ eqn:Hnsn₂ .
+   simpl in Hnsn₂.
+   rewrite <- Hc₁, <- Hpol₂, <- Hns₂ in Hnsn₂.
+   remember (nth_ns n pol₁ ns₁) as nsn₁ eqn:Hnsn₁ .
    unfold ps_add, ps_mul; simpl.
    unfold cm; simpl.
+   unfold ps_terms_add, ps_ordnum_add; simpl.
+   unfold root_from_cγ_list; simpl.
+   rewrite <- Hnsn₂.
+   rewrite Hinin₁, Hfinn₁, Hinin₂, Hfinn₂; simpl.
+   rewrite Hαkn₁, Hαkn₂; simpl.
+   rewrite Z.add_0_r, Z.mul_1_r, Pos.mul_1_r.
+   erewrite nth_γ_n; eauto ; simpl.
+   rewrite Hαkn₁; simpl.
+   rewrite Z.add_0_r, Z.mul_1_r, Pos.mul_1_r.
+   rewrite Z.add_0_r, Z.mul_1_r, Pos.mul_1_r.
+   remember (Qnum αjn₁ * ' Qden αkn₁)%Z as nd₁ eqn:Hnd₁ .
+   remember (Qden αjn₁ * Qden αkn₁)%positive as dd₁ eqn:Hdd₁ .
+   remember (Qnum αjn₂ * ' Qden αkn₂)%Z as nd₂ eqn:Hnd₂ .
+   remember (Qden αjn₂ * Qden αkn₂)%positive as dd₂ eqn:Hdd₂ .
+   rewrite Z.min_l.
+    rewrite Z.min_r.
+     rewrite Z.sub_diag; simpl.
+     rewrite series_stretch_const.
+     rewrite series_mul_1_l.
+     rewrite Z.mul_add_distr_r.
+     rewrite Pos2Z.inj_mul.
+     rewrite Z.mul_shuffle0.
+     rewrite Z.mul_assoc.
+     rewrite Z.add_simpl_l.
+     unfold adjust_series at 1.
+     rewrite series_shift_0, series_stretch_const.
 bbb.
 
 Lemma sss : ∀ pol ns pol₁ ns₁ c m q₀ b,
