@@ -1153,6 +1153,58 @@ Lemma fold_γ_sum : ∀ b n pol ns,
   Σ (i = 0, n), nth_γ (b + i) pol ns = γ_sum b n pol ns.
 Proof. reflexivity. Qed.
 
+Lemma r_1_nth_ns : ∀ pol ns c pol₁ ns₁,
+  ns ∈ newton_segments pol
+  → c = ac_root (Φq pol ns)
+  → root_multiplicity acf c (Φq pol ns) = 1%nat
+  → pol₁ = next_pol pol (β ns) (γ ns) c
+  → ns₁ = List.hd phony_ns (newton_segments pol₁)
+  → ∀ n poln nsn,
+    (∀ i, (i ≤ n)%nat → (ps_poly_nth 0 (nth_pol i pol₁ ns₁) ≠ 0)%ps)
+    → poln = nth_pol n pol₁ ns₁
+    → nsn = nth_ns n pol₁ ns₁
+    → ∃ αj αk,
+      oth_pts nsn = [] ∧
+      ini_pt nsn = (Qnat 0, αj) ∧
+      fin_pt nsn = (Qnat 1, αk) ∧
+      (0 < Qnum αj)%Z ∧
+      Qnum αk = 0%Z.
+Proof.
+intros pol ns c pol₁ ns₁ Hns Hc Hr Hpol₁ Hns₁.
+intros n poln nsn Hpsi Hpoln Hnsn.
+revert poln nsn Hpsi Hpoln Hnsn.
+revert pol ns c pol₁ ns₁ Hns Hc Hr Hpol₁ Hns₁.
+induction n; intros.
+ pose proof (Hpsi O (Nat.le_0_l O)) as H; simpl in H.
+ rename H into Hnz₁.
+ simpl in Hpoln, Hnsn; subst poln nsn.
+ remember Hns as H; clear HeqH.
+ eapply r_1_next_ns in H; eauto .
+
+ pose proof (Hpsi O (Nat.le_0_l (S n))) as H; simpl in H.
+ rename H into Hnz₁.
+ remember Hns as H; clear HeqH.
+ eapply r_1_next_ns with (ns₁ := ns₁) in H; eauto .
+ destruct H as (αj₁, (αk₁, H)).
+ destruct H as (_, (Hini₁, (Hfin₁, (Hαj₁, Hαk₁)))).
+ remember Hns₁ as H; clear HeqH.
+ eapply hd_newton_segments in H; eauto .
+ rename H into Hns₁i.
+ remember Hr as H; clear HeqH.
+ eapply multiplicity_1_remains in H; eauto .
+ rename H into Hr₁.
+ simpl in Hpoln, Hnsn.
+ remember (ac_root (Φq pol₁ ns₁)) as c₁ eqn:Hc₁ .
+ remember (next_pol pol₁ (β ns₁) (γ ns₁) c₁) as pol₂ eqn:Hpol₂ .
+ remember (List.hd phony_ns (newton_segments pol₂)) as ns₂ eqn:Hns₂ .
+ eapply IHn with (ns := ns₁); eauto .
+ intros i Hin.
+ apply Nat.succ_le_mono in Hin.
+ apply Hpsi in Hin; simpl in Hin.
+ rewrite <- Hc₁, <- Hpol₂, <- Hns₂ in Hin.
+ assumption.
+Qed.
+
 Lemma rrr : ∀ pol ns pol₁ ns₁ c m q₀ n,
   ns ∈ newton_segments pol
   → ps_lap_forall (λ a, in_K_1_m a m) (al pol)
@@ -1168,6 +1220,7 @@ Lemma rrr : ∀ pol ns pol₁ ns₁ c m q₀ n,
        root_tail (m * q₀) (S n) pol₁ ns₁)%ps.
 Proof.
 intros pol ns pol₁ ns₁ c m q₀ n Hns Hm Hq₀ Hc Hr Hpol₁ Hns₁ Hpsi.
+remember (m * q₀)%positive as m₁.
 unfold root_tail, ps_monom; simpl.
 rewrite fold_series_const.
 rewrite fold_series_const.
@@ -1195,9 +1248,14 @@ destruct (ps_zerop R (ps_poly_nth 0 poln₁)) as [H₁| H₁].
   rewrite ps_mul_0_r, ps_add_0_r.
   unfold root_from_cγ_list; simpl.
   remember (nth_ns n pol₁ ns₁) as nsn₁ eqn:Hnsn₁ .
-  remember Hnsn₁ as H; clear HeqH.
-  eapply nth_in_newton_segments in H; eauto .
-  rename H into Hnsn₁i.
+  remember Hns as H; clear HeqH.
+  eapply r_1_nth_ns with (poln := poln₁) in H; eauto .
+  destruct H as (αjn₁, (αkn₁, H)).
+  destruct H as (_, (Hinin₁, (Hfinn₁, (Hαjn₁, Hαkn₁)))).
+  rewrite Hinin₁, Hfinn₁; simpl.
+  rewrite Hαkn₁; simpl.
+  rewrite Z.mul_1_r, Z.add_0_r, Pos.mul_1_r, Pos2Z.inj_mul.
+  rewrite Z.mul_shuffle0, Z.div_mul_cancel_r; auto.
 bbb.
 
 Lemma sss : ∀ pol ns pol₁ ns₁ c m q₀ b,
