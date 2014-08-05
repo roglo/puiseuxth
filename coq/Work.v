@@ -1542,6 +1542,11 @@ destruct (ps_zerop R (ps_poly_nth 0 poln₁)) as [H₁| H₁].
                        remember (i - x)%nat as ix.
                        destruct ix;
                         [ exfalso; fast_omega Heqix Hcmp₂ | idtac ].
+                       replace (S x) with (0 + S x)%nat by fast_omega .
+                       rewrite next_pow_add.
+                       replace (S i) with (S ix + S x)%nat
+                        by fast_omega Heqix.
+                       rewrite find_coeff_add.
 bbb.
 *)
 
