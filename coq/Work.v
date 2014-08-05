@@ -1635,6 +1635,100 @@ destruct (ps_zerop R (ps_poly_nth 0 poln₁)) as [H₁| H₁].
    simpl.
    rewrite <- Hc₁, <- Hpol₂, <- Hns₂.
    assumption.
+
+   symmetry.
+   rewrite Nat.add_1_r.
+   rewrite Heqix.
+   rewrite <- find_coeff_add with (dp := x).
+   replace (S i - x + x)%nat with (S i) by fast_omega Hcmp₂.
+   symmetry.
+   rewrite <- find_coeff_add with (dp := x).
+   replace (S i - x + x)%nat with (S i) by fast_omega Hcmp₂.
+   rewrite <- next_pow_add.
+   symmetry.
+   rewrite <- Nat.add_1_r.
+   replace ix with (S i - S x)%nat by fast_omega Heqix.
+   remember Heqnsn₃ as H; clear HeqH.
+   eapply r_1_next_ns with (pol := poln₂) in H; eauto .
+    destruct H as (αjn₃, (αkn₃, H)).
+    destruct H as (_, (Hinin₃, (Hfinn₃, (Hαjn₃, Hαkn₃)))).
+    eapply
+     find_coeff_step with (ns := nsn₃) (pol := poln₃) (dp := (np₁ - 1)%nat);
+     eauto .
+     eapply hd_newton_segments; eauto .
+
+     replace m₁ with (m₁ * 1)%positive by apply Pos.mul_1_r.
+     eapply next_pol_in_K_1_mq with (ns := nsn₂); eauto .
+     symmetry.
+     replace m₁ with (m₁ * 1)%positive by apply Pos.mul_1_r.
+     eapply q_eq_1 with (pol := poln₁) (ns := nsn₁); eauto .
+      eapply hd_newton_segments; eauto .
+      rewrite Hnsn₁.
+      eapply nth_ns_n with (c := c); eauto .
+      erewrite nth_pol_n with (c₁ := c); eauto .
+
+      eapply lap_forall_nth with (ns := ns₁); eauto .
+
+      erewrite nth_pol_n with (pol₁ := pol₁) (ns₁ := ns₁); eauto .
+      eapply lap_forall_nth with (ns := ns₂); eauto .
+       eapply q_eq_1 with (ns := ns₁); eauto .
+       eapply next_pol_in_K_1_mq with (ns := ns₁); eauto .
+
+       clear i H₃ Hcmp₂ Heqix.
+       intros i Hisn.
+       destruct (eq_nat_dec i n) as [H₅| H₅].
+        subst i; simpl.
+        rewrite <- Hpoln₂.
+        assumption.
+
+        apply le_neq_lt in Hisn; auto.
+        apply Hpsi in Hisn; simpl in Hisn.
+        rewrite <- Hc₁, <- Hpol₂, <- Hns₂ in Hisn.
+        assumption.
+
+       eapply next_pol_in_K_1_mq with (ns := ns₁); eauto .
+
+      eapply multiplicity_1_remains_in_nth with (ns := ns); eauto .
+
+      erewrite nth_pol_n with (c₁ := c₁); eauto .
+      rewrite <- Hpoln₂.
+      assumption.
+
+      erewrite nth_pol_n with (c₁ := c₁) (pol₂ := pol₂); eauto .
+      rewrite <- Hpoln₂; assumption.
+
+     replace m₁ with (m₁ * 1)%positive by apply Pos.mul_1_r.
+     eapply q_eq_1 with (pol := poln₂) (ns := nsn₂); eauto .
+      eapply next_pol_in_K_1_mq with (ns := nsn₂); eauto .
+      symmetry.
+      replace m₁ with (m₁ * 1)%positive by apply Pos.mul_1_r.
+      eapply q_eq_1_nth with (ns := ns₁); eauto .
+       eapply next_pol_in_K_1_mq with (ns := ns₁); eauto .
+
+       clear i H₃ Hcmp₂ Heqix.
+       intros i Hisn.
+       destruct (eq_nat_dec i n) as [H₅| H₅].
+        subst i; simpl.
+        rewrite <- Hpoln₂.
+        assumption.
+
+        apply le_neq_lt in Hisn; auto.
+        apply Hpsi in Hisn; simpl in Hisn.
+        rewrite <- Hc₁, <- Hpol₂, <- Hns₂ in Hisn.
+        assumption.
+
+      eapply multiplicity_1_remains_in_nth with (ns := ns₁); eauto .
+      clear i H₃ Hcmp₂ Heqix.
+      intros i Hisn.
+      destruct (eq_nat_dec i n) as [H₅| H₅].
+       subst i; simpl.
+       rewrite <- Hpoln₂.
+       assumption.
+
+       apply le_neq_lt in Hisn; auto.
+       apply Hpsi in Hisn; simpl in Hisn.
+       rewrite <- Hc₁, <- Hpol₂, <- Hns₂ in Hisn.
+       assumption.
 bbb.
 *)
 
