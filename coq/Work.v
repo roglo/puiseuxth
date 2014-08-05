@@ -1320,6 +1320,17 @@ destruct (ps_zerop R (ps_poly_nth 0 poln₁)) as [H₁| H₁].
 
     rewrite Heqm₁.
     eapply next_pol_in_K_1_mq with (ns := ns); eauto .
+
+  remember Hns as H; clear HeqH.
+  eapply r_1_nth_ns with (poln := poln₂) (n := S n) in H; eauto .
+   Focus 3.
+   simpl.
+   rewrite <- Hc₁, <- Hpol₂, <- Hns₂; assumption.
+
+   destruct H as (αjn₂, (αkn₂, H)).
+   destruct H as (_, (Hinin₂, (Hfinn₂, (Hαjn₂, Hαkn₂)))).
+   unfold ps_add, ps_mul; simpl.
+   unfold cm; simpl.
 bbb.
 
 Lemma sss : ∀ pol ns pol₁ ns₁ c m q₀ b,
