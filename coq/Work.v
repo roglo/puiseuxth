@@ -1072,7 +1072,6 @@ destruct (ps_zerop _ (ps_poly_nth 0 (nth_pol b₁ pol₁ ns₁))) as [Hpsb| Hpsb
            remember (next_pol polb₂ (β nsb₂) (γ nsb₂) cb₂) as polb₃.
            remember (List.hd phony_ns (newton_segments polb₃)) as nsb₃.
            rewrite <- Nat.add_1_r.
-(* aaaa *)
            rewrite
             find_coeff_step
              with (ns := nsb₂) (pol := polb₂) (p := Z.to_nat d) (dp := O);
@@ -1206,7 +1205,7 @@ induction n; intros.
  assumption.
 Qed.
 
-Lemma rrr : ∀ pol ns pol₁ ns₁ c m q₀ n,
+Lemma root_tail_sep_1st_monom : ∀ pol ns pol₁ ns₁ c m q₀ n,
   ns ∈ newton_segments pol
   → ps_lap_forall (λ a, in_K_1_m a m) (al pol)
   → q₀ = q_of_m m (γ ns)
@@ -1220,6 +1219,7 @@ Lemma rrr : ∀ pol ns pol₁ ns₁ c m q₀ n,
        ps_monom 1%K (nth_γ n pol₁ ns₁) *
        root_tail (m * q₀) (S n) pol₁ ns₁)%ps.
 Proof.
+(* à nettoyer sérieusement *)
 intros pol ns pol₁ ns₁ c m q₀ n Hns Hm Hq₀ Hc Hr Hpol₁ Hns₁ Hpsi.
 remember (m * q₀)%positive as m₁.
 unfold root_tail, ps_monom; simpl.
@@ -1811,10 +1811,22 @@ destruct (ps_zerop R (ps_poly_nth 0 poln₁)) as [H₁| H₁].
 
        replace (S x + (np₁ - 1))%nat with (np₁ + x)%nat ; auto.
        fast_omega Hnp₁p.
-bbb.
-*)
 
-Lemma sss : ∀ pol ns pol₁ ns₁ c m q₀ b,
+    eapply multiplicity_1_remains_in_nth with (ns := ns₁); eauto .
+    clear i H₃ Hcmp₂ Heqix.
+    intros i Hisn.
+    destruct (eq_nat_dec i n) as [H₅| H₅].
+     subst i; simpl.
+     rewrite <- Hpoln₂.
+     assumption.
+
+     apply le_neq_lt in Hisn; auto.
+     apply Hpsi in Hisn; simpl in Hisn.
+     rewrite <- Hc₁, <- Hpol₂, <- Hns₂ in Hisn.
+     assumption.
+Qed.
+
+Lemma root_tail_when_r_1 : ∀ pol ns pol₁ ns₁ c m q₀ b,
   ns ∈ newton_segments pol
   → ps_lap_forall (λ a, in_K_1_m a m) (al pol)
   → q₀ = q_of_m m (γ ns)
@@ -1863,15 +1875,14 @@ induction n; intros.
   remember (S (b + n)) as bn.
   rewrite ps_mul_comm.
   rewrite <- ps_monom_split_mul.
-  remember (nth_c bn pol₁ ns₁) as cbn eqn:Hcbn .
-  remember (nth_γ bn pol₁ ns₁) as γbn eqn:Hγbn .
-bbb.
   subst m₁.
-  subst cbn γbn.
-  eapply rrr; eauto .
+  eapply root_tail_sep_1st_monom; eauto .
   subst bn.
   rewrite <- Nat.add_succ_r.
   assumption.
+Qed.
+
+bbb.
 
 (* mmm... faut voir... *)
 Lemma uuu₂ : ∀ pol ns n,
