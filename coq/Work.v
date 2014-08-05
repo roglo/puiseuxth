@@ -1349,6 +1349,13 @@ destruct (ps_zerop R (ps_poly_nth 0 poln₁)) as [H₁| H₁].
    remember (Qden αjn₁ * Qden αkn₁)%positive as dd₁ eqn:Hdd₁ .
    remember (Qnum αjn₂ * ' Qden αkn₂)%Z as nd₂ eqn:Hnd₂ .
    remember (Qden αjn₂ * Qden αkn₂)%positive as dd₂ eqn:Hdd₂ .
+   remember (nd₂ * ' m₁ / ' dd₂ * ' dd₁)%Z as x.
+   rewrite Hnd₂, Hdd₂, Hdd₁ in Heqx.
+   rewrite Pos2Z.inj_mul, Z.mul_shuffle0 in Heqx.
+   rewrite Z.div_mul_cancel_r in Heqx; auto.
+   rewrite <- Hdd₁ in Heqx.
+   remember (Qnum αjn₂ * ' m₁ / ' Qden αjn₂)%Z as nmd₂ eqn:Hnmd₂ .
+   subst x.
    rewrite Z.min_l.
     rewrite Z.min_r.
      rewrite Z.sub_diag; simpl.
@@ -1451,34 +1458,26 @@ destruct (ps_zerop R (ps_poly_nth 0 poln₁)) as [H₁| H₁].
                   rewrite <- Hpoln₂ in Hpoln₁s; subst poln₁s.
                   destruct i.
                    simpl.
-                   destruct (lt_dec 0 (Z.to_nat (nd₂ * ' m₁ / ' dd₂)))
-                    as [H₃| H₃].
+                   destruct (lt_dec 0 (Z.to_nat nmd₂)) as [H₃| H₃].
                     rewrite rng_add_0_r; subst cn₁; symmetry.
                     apply nth_c_root; auto.
 
-                    exfalso; apply H₃.
-                    subst nd₂ dd₂.
-                    rewrite Pos2Z.inj_mul, Z.mul_shuffle0.
-                    rewrite Z.div_mul_cancel_r; auto.
+                    exfalso; apply H₃; subst nmd₂.
                     eapply num_m_den_is_pos with (ns := nsn₂) (pol := poln₂);
                      eauto .
 
+                   remember Hnsn₂ as H; clear HeqH.
+                   erewrite nth_ns_n with (c := c₁) in H; eauto .
+                   erewrite nth_pol_n with (c₁ := c₁) in H; eauto .
+                   rewrite <- Hpoln₂ in H.
+                   rename H into Hnsn₂p.
+                   rewrite <- Hnsn₂p.
                    remember (ac_root (Φq poln₂ nsn₂)) as cn₂ eqn:Hcn₂ .
-                   remember (next_pol poln₂ (β nsn₂) (γ nsn₂) cn₂) as poln₃
-                    eqn:Hpoln₃ .
+                   remember (next_pol poln₂ (β nsn₂) (γ nsn₂) cn₂) as poln₃.
                    remember
-                    (List.hd phony_ns (newton_segments poln₃)) as nsn₃
-                    eqn:Hnsn₃ .
-                   remember
-                    (List.hd phony_ns (newton_segments poln₂)) as nsn₂p
-                    eqn:Hnsn₂p .
-                   simpl.
+                    (List.hd phony_ns (newton_segments poln₃)) as nsn₃.
+                   remember (find_coeff (S i)) as f; simpl; subst f.
                    rewrite rng_add_0_l.
-                   destruct (ps_zerop R (ps_poly_nth 0 poln₂)) as [H₃| H₃].
-                    contradiction.
-
-                    clear H₃.
-                    unfold next_pow at 1; simpl.
 bbb.
 
 Lemma sss : ∀ pol ns pol₁ ns₁ c m q₀ b,
