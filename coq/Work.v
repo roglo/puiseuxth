@@ -1362,8 +1362,6 @@ destruct (ps_zerop R (ps_poly_nth 0 poln₁)) as [H₁| H₁].
      unfold adjust_series at 1.
      rewrite series_shift_0, series_stretch_const.
      rewrite ps_adjust_eq with (n := O) (k := (dd₁ * dd₁)%positive).
-     symmetry.
-     symmetry.
      unfold adjust_ps; simpl.
      rewrite series_shift_0, Z.sub_0_r.
      rewrite Pos2Z.inj_mul, Z.mul_assoc.
