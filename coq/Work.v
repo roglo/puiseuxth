@@ -1308,6 +1308,18 @@ destruct (ps_zerop R (ps_poly_nth 0 poln₁)) as [H₁| H₁].
      exfalso; revert H₃; apply Nat.lt_irrefl.
 
     apply Pos.mul_comm; reflexivity.
+
+   remember Hns₁i as H; clear HeqH.
+   eapply nth_in_newton_segments in H; eauto .
+   rename H into Hnsn₁i.
+   eapply den_αj_divides_num_αj_m with (ns := nsn₁); eauto .
+   eapply lap_forall_nth with (ns := ns₁); eauto .
+    rewrite Heqm₁.
+    eapply q_eq_1 with (ns := ns); eauto .
+    eapply next_pol_in_K_1_mq with (ns := ns); eauto .
+
+    rewrite Heqm₁.
+    eapply next_pol_in_K_1_mq with (ns := ns); eauto .
 bbb.
 
 Lemma sss : ∀ pol ns pol₁ ns₁ c m q₀ b,
