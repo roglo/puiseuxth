@@ -1478,6 +1478,70 @@ destruct (ps_zerop R (ps_poly_nth 0 poln₁)) as [H₁| H₁].
                     (List.hd phony_ns (newton_segments poln₃)) as nsn₃.
                    remember (find_coeff (S i)) as f; simpl; subst f.
                    rewrite rng_add_0_l.
+                   destruct (lt_dec (S i) (Z.to_nat nmd₂)) as [H₃| H₃].
+                    remember (S i) as si.
+                    unfold next_pow; simpl.
+                    rewrite Hinin₂, Hfinn₂; simpl.
+                    rewrite Hαkn₂; simpl.
+                    rewrite Z.add_0_r, Z.mul_1_r.
+                    do 2 rewrite Pos.mul_1_r.
+                    rewrite Pos2Z.inj_mul, Z.mul_shuffle0.
+                    rewrite Z.div_mul_cancel_r; auto.
+                    subst si; simpl.
+                    destruct (ps_zerop R (ps_poly_nth 0 poln₂)) as [H₄| H₄];
+                     auto.
+                    clear H₄.
+                    rewrite <- Hnmd₂.
+                    remember (Nat.compare (Z.to_nat nmd₂) (S i)) as cmp₂
+                     eqn:Hcmp₂ .
+                    symmetry in Hcmp₂.
+                    destruct cmp₂; auto.
+                     apply nat_compare_eq in Hcmp₂.
+                     rewrite Hcmp₂ in H₃.
+                     exfalso; revert H₃; apply Nat.lt_irrefl.
+
+                     apply nat_compare_lt in Hcmp₂.
+                     exfalso; fast_omega H₃ Hcmp₂.
+
+                    apply Nat.nlt_ge in H₃.
+                    remember (S i) as si.
+                    unfold next_pow at 1; simpl.
+                    rewrite Hinin₂, Hfinn₂; simpl.
+                    rewrite Hαkn₂; simpl.
+                    rewrite Z.add_0_r, Z.mul_1_r.
+                    do 2 rewrite Pos.mul_1_r.
+                    rewrite Pos2Z.inj_mul, Z.mul_shuffle0.
+                    rewrite Z.div_mul_cancel_r; auto.
+                    rewrite <- Hnmd₂.
+                    subst si; simpl.
+                    destruct (ps_zerop R (ps_poly_nth 0 poln₂)) as [H₄| H₄];
+                     auto.
+                     contradiction.
+
+                     clear H₄.
+                     remember (Nat.compare (Z.to_nat nmd₂) (S i)) as cmp₂
+                      eqn:Hcmp₂ .
+                     symmetry in Hcmp₂.
+                     destruct cmp₂; auto.
+                      apply nat_compare_eq in Hcmp₂.
+                      rewrite Hcmp₂.
+                      rewrite Nat.sub_diag; simpl.
+                      symmetry.
+                      rewrite Hcn₂; reflexivity.
+
+                      apply nat_compare_lt in Hcmp₂.
+                      rewrite <- Hcn₂, <- Heqpoln₃, <- Heqnsn₃.
+                      remember (Z.to_nat nmd₂) as x eqn:Hx .
+                      symmetry in Hx.
+                      destruct x.
+                       exfalso; symmetry in Hx; revert Hx.
+                       apply lt_0_neq.
+                       subst nmd₂.
+                       eapply num_m_den_is_pos with (ns := nsn₂); eauto .
+
+                       remember (i - x)%nat as ix.
+                       destruct ix;
+                        [ exfalso; fast_omega Heqix Hcmp₂ | idtac ].
 bbb.
 
 Lemma sss : ∀ pol ns pol₁ ns₁ c m q₀ b,
