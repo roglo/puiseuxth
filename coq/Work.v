@@ -1451,6 +1451,28 @@ destruct (ps_zerop R (ps_poly_nth 0 poln₁)) as [H₁| H₁].
               assert (1 ≤ S n)%nat as H by fast_omega .
               apply Hpsi in H; simpl in H.
               rewrite <- Hc₁, <- Hpol₂ in H; assumption.
+
+             intros i Hin.
+             clear H₃.
+             destruct (eq_nat_dec i n) as [H₃| H₃].
+              subst i.
+              rewrite <- Hpoln₂; assumption.
+
+              apply le_neq_lt in Hin; auto.
+              apply Hpsi in Hin.
+              simpl in Hin.
+              rewrite <- Hc₁, <- Hpol₂, <- Hns₂ in Hin.
+              assumption.
+
+             replace m₁ with (m₁ * 1)%positive by apply Pos.mul_1_r.
+             eapply next_pol_in_K_1_mq with (ns := ns₁); eauto .
+              rewrite Heqm₁.
+              eapply next_pol_in_K_1_mq with (ns := ns); eauto .
+
+              symmetry.
+              rewrite Heqm₁.
+              eapply q_eq_1 with (ns := ns); eauto .
+              eapply next_pol_in_K_1_mq with (ns := ns); eauto .
 bbb.
 
 Lemma sss : ∀ pol ns pol₁ ns₁ c m q₀ b,
