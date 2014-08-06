@@ -2140,6 +2140,7 @@ Lemma root_tail_nth : ∀ pol ns m a b,
   → (root_tail m (a + b) pol ns =
      root_tail m a (nth_pol b pol ns) (nth_ns b pol ns))%ps.
 Proof.
+(* essayer par induction sur b, peut-être ? *)
 intros pol ns m a b Hnz.
 revert pol ns m b Hnz.
 induction a; intros; simpl.
@@ -2157,6 +2158,21 @@ induction a; intros; simpl.
   apply Hnz in Hib; simpl in Hib.
   subst; assumption.
 
+ destruct b.
+  rewrite Nat.add_0_r; reflexivity.
+
+  rewrite root_tail_succ; eauto .
+   Focus 2.
+   left.
+   pose proof (Hnz O (Nat.lt_0_succ b)) as H; assumption.
+
+   remember (S a) as sa; simpl.
+   remember (ac_root (Φq pol ns)) as c eqn:Hc .
+   remember (next_pol pol (β ns) (γ ns) c) as pol₁ eqn:Hpol₁ .
+   remember (List.hd phony_ns (newton_segments pol₁)) as ns₁ eqn:Hns₁ .
+   subst sa.
+
+bbb.
  rewrite root_tail_succ; eauto .
   rewrite root_tail_succ; eauto .
    remember (ac_root (Φq pol ns)) as c eqn:Hc .
