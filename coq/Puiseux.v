@@ -145,25 +145,38 @@ Definition γ_sum α {R : ring α} {K : field R}
 
 Fixpoint root_head_from_cγ_list α {R : ring α} {K : field R}
   {acf : algeb_closed_field K} pol ns b n i :=
-  if ps_zerop R (ps_poly_nth 0 (nth_pol (b + i) pol ns)) then 0%ps
-  else
-    (ps_monom (nth_c (b + i) pol ns) (γ_sum b i pol ns) +
-     match n with
-     | O => 0%ps
-     | S n₁ => root_head_from_cγ_list pol ns b n₁ (S i)
-     end)%ps.
+  (ps_monom (nth_c (b + i) pol ns) (γ_sum b i pol ns) +
+   match n with
+   | O => 0%ps
+   | S n₁ =>
+       if ps_zerop R (ps_poly_nth 0 (nth_pol (b + i) pol ns)) then 0%ps
+       else root_head_from_cγ_list pol ns b n₁ (S i)
+   end)%ps.
 
-(* Σ _(i=0,n) c_{b+i} x^Σ_(j=0,i) γ_{b+j} *)
+Fixpoint zerop_1st_n_const_coeff α {R : ring α} {K : field R}
+  {acf : algeb_closed_field K} n pol ns :=
+  if ps_zerop _ (ps_poly_nth 0 pol) then true
+  else
+    match n with
+    | O => false
+    | S n₁ =>
+        let c₁ := ac_root (Φq pol ns) in
+        let pol₁ := next_pol pol (β ns) (γ ns) c₁ in
+        let ns₁ := List.hd phony_ns (newton_segments pol₁) in
+        zerop_1st_n_const_coeff n₁ pol₁ ns₁
+    end.
+
+(* Σ _(i=0,n).c_{b+i} x^Σ_(j=0,i) γ_{b+j} *)
 Definition root_head α {R : ring α} {K : field R} {acf : algeb_closed_field K}
   b n pol ns :=
-  root_head_from_cγ_list pol ns b n 0.
+  if zerop_1st_n_const_coeff b pol ns then 0%ps
+  else root_head_from_cγ_list pol ns b n 0.
 
-(* Σ _(i=n+1,∞) c_{b+i} x^Σ_(j=n+1,∞) γ_{b+j} *)
+(* Σ _(i=n+1,∞).c_i x^Σ_(j=n+1,∞) γ_j *)
 Definition root_tail α {R : ring α} {K : field R} {acf : algeb_closed_field K}
   m n pol ns :=
-  let poln := nth_pol n pol ns in
-  if ps_zerop _ (ps_poly_nth 0 poln) then 0%ps
-  else root_tail_from_cγ_list m poln (nth_ns n pol ns).
+  if zerop_1st_n_const_coeff n pol ns then 0%ps
+  else root_tail_from_cγ_list m (nth_pol n pol ns) (nth_ns n pol ns).
 
 Section theorems.
 
@@ -2009,6 +2022,13 @@ rewrite next_pow_add.
 apply IHmx.
 Qed.
 
+Lemma zzz : ∀ pol ns n,
+  zerop_1st_n_const_coeff (S n) pol ns =
+  zerop_1st_n_const_coeff 0 pol ns ||
+  zerop_1st_n_const_coeff n (nth_pol 1 pol ns) (nth_ns 1 pol ns).
+Proof.
+bbb.
+
 Lemma root_tail_succ : ∀ pol ns m n c pol₁ ns₁,
   c = ac_root (Φq pol ns)
   → pol₁ = next_pol pol (β ns) (γ ns) c
@@ -2016,8 +2036,25 @@ Lemma root_tail_succ : ∀ pol ns m n c pol₁ ns₁,
   → (root_tail m (S n) pol ns = root_tail m n pol₁ ns₁)%ps.
 Proof.
 intros pol ns m n c pol₁ ns₁ Hc Hpol₁ Hns₁.
+unfold root_tail.
+rewrite zzz.
+simpl.
+rewrite <- Hc, <- Hpol₁, <- Hns₁.
+remember (zerop_1st_n_const_coeff n pol₁ ns₁) as z eqn:Hz .
+symmetry in Hz.
+destruct z.
+ rewrite Bool.orb_true_r.
+ reflexivity.
+
+ destruct (ps_zerop R (ps_poly_nth 0 pol)) as [H₁| H₁].
+  simpl.
+  2: reflexivity.
+bbb.
+
+intros pol ns m n c pol₁ ns₁ Hc Hpol₁ Hns₁.
 unfold root_tail; simpl.
 rewrite <- Hc, <- Hpol₁, <- Hns₁.
+bbb.
 reflexivity.
 Qed.
 
