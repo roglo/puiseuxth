@@ -2035,7 +2035,7 @@ Lemma root_tail_succ : ∀ pol ns m n c pol₁ ns₁,
   c = ac_root (Φq pol ns)
   → pol₁ = next_pol pol (β ns) (γ ns) c
   → ns₁ = List.hd phony_ns (newton_segments pol₁)
-  → (ps_poly_nth 0 pol ≠ 0)%ps
+  → (ps_poly_nth 0 pol ≠ 0)%ps ∨ zerop_1st_n_const_coeff n pol₁ ns₁ = true
   → (root_tail m (S n) pol ns = root_tail m n pol₁ ns₁)%ps.
 Proof.
 intros pol ns m n c pol₁ ns₁ Hc Hpol₁ Hns₁ Hnz.
@@ -2043,13 +2043,8 @@ unfold root_tail.
 rewrite zerop_1st_n_const_coeff_succ; simpl.
 rewrite <- Hc, <- Hpol₁, <- Hns₁.
 destruct (ps_zerop R (ps_poly_nth 0 pol)) as [H₁| ]; [ simpl | reflexivity ].
-contradiction.
-bbb.
-
-intros pol ns m n c pol₁ ns₁ Hc Hpol₁ Hns₁.
-unfold root_tail; simpl.
-rewrite <- Hc, <- Hpol₁, <- Hns₁.
-reflexivity.
+destruct Hnz as [Hnz| Hnz]; [ contradiction | idtac ].
+rewrite Hnz; reflexivity.
 Qed.
 
 Lemma nth_c_root : ∀ pol₁ ns₁ poln nsn n,
@@ -2153,6 +2148,7 @@ induction a; intros; simpl.
  remember (next_pol pol (β ns) (γ ns) c) as pol₁ eqn:Hpol₁ .
  remember (List.hd phony_ns (newton_segments pol₁)) as ns₁ eqn:Hns₁ .
  rewrite <- IHb.
+bbb.
  eapply root_tail_succ; eauto .
 
  rewrite root_tail_succ; eauto ; symmetry.
