@@ -2022,12 +2022,14 @@ rewrite next_pow_add.
 apply IHmx.
 Qed.
 
-Lemma zzz : ∀ pol ns n,
+Lemma zerop_1st_n_const_coeff_succ : ∀ pol ns n,
   zerop_1st_n_const_coeff (S n) pol ns =
   zerop_1st_n_const_coeff 0 pol ns ||
   zerop_1st_n_const_coeff n (nth_pol 1 pol ns) (nth_ns 1 pol ns).
 Proof.
-bbb.
+intros pol ns n; simpl.
+destruct (ps_zerop R (ps_poly_nth 0 pol)); reflexivity.
+Qed.
 
 Lemma root_tail_succ : ∀ pol ns m n c pol₁ ns₁,
   c = ac_root (Φq pol ns)
@@ -2037,24 +2039,17 @@ Lemma root_tail_succ : ∀ pol ns m n c pol₁ ns₁,
 Proof.
 intros pol ns m n c pol₁ ns₁ Hc Hpol₁ Hns₁.
 unfold root_tail.
-rewrite zzz.
-simpl.
+rewrite zerop_1st_n_const_coeff_succ; simpl.
 rewrite <- Hc, <- Hpol₁, <- Hns₁.
 remember (zerop_1st_n_const_coeff n pol₁ ns₁) as z eqn:Hz .
 symmetry in Hz.
-destruct z.
- rewrite Bool.orb_true_r.
- reflexivity.
-
- destruct (ps_zerop R (ps_poly_nth 0 pol)) as [H₁| H₁].
-  simpl.
-  2: reflexivity.
+destruct (ps_zerop R (ps_poly_nth 0 pol)) as [H₁| ]; [ simpl | reflexivity ].
+destruct z; [ reflexivity | idtac ].
 bbb.
 
 intros pol ns m n c pol₁ ns₁ Hc Hpol₁ Hns₁.
 unfold root_tail; simpl.
 rewrite <- Hc, <- Hpol₁, <- Hns₁.
-bbb.
 reflexivity.
 Qed.
 
