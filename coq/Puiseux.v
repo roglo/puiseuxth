@@ -2035,16 +2035,15 @@ Lemma root_tail_succ : ∀ pol ns m n c pol₁ ns₁,
   c = ac_root (Φq pol ns)
   → pol₁ = next_pol pol (β ns) (γ ns) c
   → ns₁ = List.hd phony_ns (newton_segments pol₁)
+  → (ps_poly_nth 0 pol ≠ 0)%ps
   → (root_tail m (S n) pol ns = root_tail m n pol₁ ns₁)%ps.
 Proof.
-intros pol ns m n c pol₁ ns₁ Hc Hpol₁ Hns₁.
+intros pol ns m n c pol₁ ns₁ Hc Hpol₁ Hns₁ Hnz.
 unfold root_tail.
 rewrite zerop_1st_n_const_coeff_succ; simpl.
 rewrite <- Hc, <- Hpol₁, <- Hns₁.
-remember (zerop_1st_n_const_coeff n pol₁ ns₁) as z eqn:Hz .
-symmetry in Hz.
 destruct (ps_zerop R (ps_poly_nth 0 pol)) as [H₁| ]; [ simpl | reflexivity ].
-destruct z; [ reflexivity | idtac ].
+contradiction.
 bbb.
 
 intros pol ns m n c pol₁ ns₁ Hc Hpol₁ Hns₁.
