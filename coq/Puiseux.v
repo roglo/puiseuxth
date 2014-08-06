@@ -143,14 +143,14 @@ Definition γ_sum α {R : ring α} {K : field R}
   let qr := Q_ring in
   Σ (i = 0, n), nth_γ (b + i) pol ns.
 
-(* Σ _(i=0) ^n c_{b+i} x^Σ_(j=0)^n γ_{b+j} *)
+(* Σ _(i=0,n) c_{b+i} x^Σ_(j=0,n) γ_{b+j} *)
 Definition root_head α {R : ring α} {K : field R} {acf : algeb_closed_field K}
   b n pol ns :=
   let pr := ps_ring R in
   if ps_zerop _ (ps_poly_nth 0 pol) then 0%ps
   else Σ (i = 0, n), ps_monom (nth_c (b + i) pol ns) (γ_sum b i pol ns).
 
-(* Σ _(i=n+1) ^∞ c_{b+i} x^Σ_(j=n+1)^∞ γ_{b+j} *)
+(* Σ _(i=n+1,∞) c_{b+i} x^Σ_(j=n+1,∞) γ_{b+j} *)
 Definition root_tail α {R : ring α} {K : field R} {acf : algeb_closed_field K}
   m n pol ns :=
   let poln := nth_pol n pol ns in
