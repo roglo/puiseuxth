@@ -82,7 +82,7 @@ destruct (ps_zerop R (ps_poly_nth 0 poln₁)) as [H₁| H₁].
  rename H into Hr₁.
  destruct (ps_zerop R (ps_poly_nth 0 poln₂)) as [H₂| H₂].
   rewrite ps_mul_0_r, ps_add_0_r.
-  unfold root_from_cγ_list; simpl.
+  unfold root_tail_from_cγ_list; simpl.
   remember (nth_ns n pol₁ ns₁) as nsn₁ eqn:Hnsn₁ .
   remember Hns as H; clear HeqH.
   eapply r_1_nth_ns with (poln := poln₁) in H; eauto .
@@ -117,14 +117,14 @@ destruct (ps_zerop R (ps_poly_nth 0 poln₁)) as [H₁| H₁].
       subst i.
       apply Nat.mul_eq_0_l in H₃; auto.
       subst d; simpl.
-      unfold root_series_from_cγ_list; simpl.
+      unfold root_tail_series_from_cγ_list; simpl.
       destruct (ps_zerop R (ps_poly_nth 0 poln₁)) as [H₃| H₃].
        contradiction.
 
        symmetry.
        apply nth_c_root; auto.
 
-      unfold root_series_from_cγ_list; simpl.
+      unfold root_tail_series_from_cγ_list; simpl.
       destruct (ps_zerop R (ps_poly_nth 0 poln₁)) as [| H₄]; auto.
       clear H₄.
       destruct d.
@@ -221,7 +221,7 @@ destruct (ps_zerop R (ps_poly_nth 0 poln₁)) as [H₁| H₁].
            unfold ps_add, ps_mul; simpl.
            unfold cm; simpl.
            unfold ps_terms_add, ps_ordnum_add; simpl.
-           unfold root_from_cγ_list; simpl.
+           unfold root_tail_from_cγ_list; simpl.
            rewrite <- Hnsn₂.
            rewrite Hinin₁, Hfinn₁, Hinin₂, Hfinn₂; simpl.
            rewrite Hαkn₁, Hαkn₂; simpl.
@@ -277,7 +277,7 @@ destruct (ps_zerop R (ps_poly_nth 0 poln₁)) as [H₁| H₁].
                 eapply nth_ns_n with (c := c₁); eauto .
                 erewrite nth_pol_n with (c₁ := c₁); eauto .
 
-                unfold root_series_from_cγ_list; simpl.
+                unfold root_tail_series_from_cγ_list; simpl.
                 destruct (ps_zerop R (ps_poly_nth 0 poln₁)) as [H₃| H₃].
                  contradiction.
 

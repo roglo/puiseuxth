@@ -128,13 +128,13 @@ Fixpoint find_coeff α {R : ring α} {K : field R}
         end
   end.
 
-Definition root_series_from_cγ_list α {R : ring α} {K : field R}
+Definition root_tail_series_from_cγ_list α {R : ring α} {K : field R}
   {acf : algeb_closed_field K} m pol ns i :=
   find_coeff (S i) 0%nat m pol ns i.
 
-Definition root_from_cγ_list α {R : ring α} {K : field R}
+Definition root_tail_from_cγ_list α {R : ring α} {K : field R}
   {acf : algeb_closed_field K} m pol ns :=
-  {| ps_terms := {| terms := root_series_from_cγ_list m pol ns |};
+  {| ps_terms := {| terms := root_tail_series_from_cγ_list m pol ns |};
      ps_ordnum := Qnum (γ ns) * ' m / ' Qden (γ ns);
      ps_polord := m |}.
 
@@ -155,7 +155,7 @@ Definition root_tail α {R : ring α} {K : field R} {acf : algeb_closed_field K}
   m n pol ns :=
   let poln := nth_pol n pol ns in
   if ps_zerop _ (ps_poly_nth 0 poln) then 0%ps
-  else root_from_cγ_list m poln (nth_ns n pol ns).
+  else root_tail_from_cγ_list m poln (nth_ns n pol ns).
 
 Section theorems.
 
@@ -2257,7 +2257,7 @@ destruct (ps_zerop _ (ps_poly_nth 0 pol₁)) as [| H₁].
  destruct Hfin₂ as (k₂, (αk₂, Hfin₂)).
  destruct (ps_zerop _ (ps_poly_nth 0 pol₂)) as [Hps₁| Hps₁].
   rewrite ps_mul_0_r, ps_add_0_r.
-  unfold root_from_cγ_list, ps_monom; simpl.
+  unfold root_tail_from_cγ_list, ps_monom; simpl.
   rewrite Hini₁, Hfin₁; simpl.
   rewrite Hαk₁; simpl.
   rewrite Z.mul_1_r, Z.add_0_r, Pos.mul_1_r.
@@ -2286,7 +2286,7 @@ destruct (ps_zerop _ (ps_poly_nth 0 pol₁)) as [| H₁].
      rewrite Nat.mul_comm in Hd.
      rewrite Hd.
      rewrite Nat.div_mul; auto.
-     unfold root_series_from_cγ_list.
+     unfold root_tail_series_from_cγ_list.
      rewrite <- Hd.
      destruct (zerop i) as [H₁| H₁].
       subst i.
@@ -2326,7 +2326,7 @@ destruct (ps_zerop _ (ps_poly_nth 0 pol₁)) as [| H₁].
   unfold Qlt in Hαj₂; simpl in Hαj₂.
   unfold Qeq in Hαk₂; simpl in Hαk₂.
   rewrite Z.mul_1_r in Hαj₂, Hαk₂.
-  unfold root_from_cγ_list; simpl.
+  unfold root_tail_from_cγ_list; simpl.
   rewrite Hini₁, Hfin₁, Hini₂, Hfin₂; simpl.
   rewrite Hαk₁, Hαk₂; simpl.
   do 2 rewrite Z.mul_1_r, Z.add_0_r, Pos.mul_1_r.
@@ -2394,7 +2394,7 @@ destruct (ps_zerop _ (ps_poly_nth 0 pol₁)) as [| H₁].
       subst i; simpl.
       destruct (lt_dec 0 (Pos.to_nat d)) as [H₁| H₁].
        rewrite rng_add_0_r.
-       unfold root_series_from_cγ_list; simpl.
+       unfold root_tail_series_from_cγ_list; simpl.
        rewrite <- Hc₁.
        destruct (ps_zerop R (ps_poly_nth 0 pol₁)) as [H₂| H₂]; auto.
        contradiction.
@@ -2415,7 +2415,7 @@ destruct (ps_zerop _ (ps_poly_nth 0 pol₁)) as [| H₁].
        remember (next_pow 0 ns₂ m₁) as p₂.
        rewrite <- Hnpow.
        destruct (lt_dec i p₂) as [H₂| H₂].
-        unfold root_series_from_cγ_list; simpl.
+        unfold root_tail_series_from_cγ_list; simpl.
         destruct (ps_zerop R (ps_poly_nth 0 pol₁)) as [| H₃]; auto.
         destruct i; [ exfalso; revert H₁; apply Nat.lt_irrefl | idtac ].
         clear H₁.
@@ -2433,7 +2433,7 @@ destruct (ps_zerop _ (ps_poly_nth 0 pol₁)) as [| H₁].
          contradiction.
 
         remember (i - p₂)%nat as id.
-        unfold root_series_from_cγ_list.
+        unfold root_tail_series_from_cγ_list.
         remember (S id) as x; simpl; subst x.
         destruct (ps_zerop R (ps_poly_nth 0 pol₁)) as [H₃| H₃].
          contradiction.
@@ -2665,7 +2665,7 @@ destruct (ps_zerop _ (ps_poly_nth 0 (nth_pol b₁ pol₁ ns₁))) as [Hpsb| Hpsb
    unfold summation; simpl.
    rewrite Nat.add_0_r, rng_add_0_r.
    rewrite <- Hc₁, <- Hpol₂, <- Hns₂.
-   unfold root_from_cγ_list, ps_monom; simpl.
+   unfold root_tail_from_cγ_list, ps_monom; simpl.
    rewrite Hinib, Hfinb; simpl.
    rewrite Hαkb; simpl.
    rewrite Z.add_0_r, Z.mul_1_r, Pos.mul_1_r.
@@ -2693,7 +2693,7 @@ destruct (ps_zerop _ (ps_poly_nth 0 (nth_pol b₁ pol₁ ns₁))) as [Hpsb| Hpsb
      rewrite Nat.mul_comm in Hd.
      rewrite Hd.
      rewrite Nat.div_mul; auto.
-     unfold root_series_from_cγ_list.
+     unfold root_tail_series_from_cγ_list.
      rewrite <- Hd.
      destruct (zerop i) as [H₁| H₁].
       subst i.
@@ -2771,7 +2771,7 @@ destruct (ps_zerop _ (ps_poly_nth 0 (nth_pol b₁ pol₁ ns₁))) as [Hpsb| Hpsb
    eapply r_1_next_ns in H; eauto .
    destruct H as (αjb₂, (αkb₂, H)).
    destruct H as (Hothb₂, (Hinib₂, (Hfinb₂, (Hαjb₂, Hαkb₂)))).
-   unfold root_from_cγ_list; simpl.
+   unfold root_tail_from_cγ_list; simpl.
    rewrite Hinib, Hfinb, Hinib₂, Hfinb₂; simpl.
    rewrite Hαkb, Hαkb₂; simpl.
    do 2 rewrite Z.add_0_r, Z.mul_1_r, Pos.mul_1_r.
@@ -2827,7 +2827,7 @@ destruct (ps_zerop _ (ps_poly_nth 0 (nth_pol b₁ pol₁ ns₁))) as [Hpsb| Hpsb
        remember (Qnum αjb₂ * ' m₁ / ' Qden αjb₂)%Z as d.
        destruct (lt_dec 0 (Z.to_nat d)) as [H₁| H₁].
         rewrite rng_add_0_r.
-        unfold root_series_from_cγ_list; simpl.
+        unfold root_tail_series_from_cγ_list; simpl.
         destruct (ps_zerop R (ps_poly_nth 0 polb)) as [H₃| H₃].
          contradiction.
 
@@ -2874,7 +2874,7 @@ destruct (ps_zerop _ (ps_poly_nth 0 (nth_pol b₁ pol₁ ns₁))) as [Hpsb| Hpsb
        rewrite rng_add_0_l.
        remember (Qnum αjb₂ * ' m₁ / ' Qden αjb₂)%Z as d.
        destruct (lt_dec i (Z.to_nat d)) as [H₂| H₂].
-        unfold root_series_from_cγ_list; simpl.
+        unfold root_tail_series_from_cγ_list; simpl.
         rewrite <- Hcb, <- Hpolb₂, <- Hbns₂.
         destruct i; [ exfalso; revert H₁; apply Nat.lt_irrefl | idtac ].
         clear H₁.
@@ -2901,7 +2901,7 @@ destruct (ps_zerop _ (ps_poly_nth 0 (nth_pol b₁ pol₁ ns₁))) as [Hpsb| Hpsb
 
         apply Nat.nlt_ge in H₂.
         remember (i - Z.to_nat d)%nat as id.
-        unfold root_series_from_cγ_list.
+        unfold root_tail_series_from_cγ_list.
         remember (S id) as sid; simpl.
         rewrite <- Hcb, <- Hpolb₂, <- Hbns₂.
         destruct i; [ exfalso; revert H₁; apply Nat.lt_irrefl | idtac ].
