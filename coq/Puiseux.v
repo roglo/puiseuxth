@@ -143,12 +143,16 @@ Definition γ_sum α {R : ring α} {K : field R}
   let qr := Q_ring in
   Σ (i = 0, n), nth_γ (b + i) pol ns.
 
+Definition root_head_from_cγ_list α {R : ring α} {K : field R}
+  {acf : algeb_closed_field K} pol ns b n :=
+  let pr := ps_ring R in
+  Σ (i = 0, n), ps_monom (nth_c (b + i) pol ns) (γ_sum b i pol ns).
+
 (* Σ _(i=0,n) c_{b+i} x^Σ_(j=0,n) γ_{b+j} *)
 Definition root_head α {R : ring α} {K : field R} {acf : algeb_closed_field K}
   b n pol ns :=
-  let pr := ps_ring R in
   if ps_zerop _ (ps_poly_nth 0 pol) then 0%ps
-  else Σ (i = 0, n), ps_monom (nth_c (b + i) pol ns) (γ_sum b i pol ns).
+  else root_head_from_cγ_list pol ns b n.
 
 (* Σ _(i=n+1,∞) c_{b+i} x^Σ_(j=n+1,∞) γ_{b+j} *)
 Definition root_tail α {R : ring α} {K : field R} {acf : algeb_closed_field K}
@@ -2020,6 +2024,7 @@ Proof.
 intros pol ns b n Hp₀.
 unfold root_head.
 destruct (ps_zerop R (ps_poly_nth 0 pol)); [ contradiction | idtac ].
+unfold root_head_from_cγ_list.
 rewrite summation_split_last; [ reflexivity | apply Nat.le_0_l ].
 Qed.
 
@@ -2243,7 +2248,7 @@ destruct (ps_zerop _ (ps_poly_nth 0 pol₁)) as [| H₁].
  eapply next_pol_in_K_1_mq in HK₂; eauto .
  erewrite q_eq_1 with (q₀ := q₀) (ns := ns) in HK₂; eauto .
  rewrite Pos.mul_1_r, <- Heqm₁ in HK₂.
- unfold γ_sum; simpl.
+ unfold root_head_from_cγ_list, γ_sum; simpl.
  unfold summation; simpl.
  do 2 rewrite rng_add_0_r.
  remember (ac_root (Φq pol₁ ns₁)) as c₁ eqn:Hc₁ .
@@ -2595,7 +2600,7 @@ unfold root_tail, root_head; simpl.
 destruct (ps_zerop _ (ps_poly_nth 0 (nth_pol b₁ pol₁ ns₁))) as [Hpsb| Hpsb].
  pose proof (Hpsi b₁ (Nat.le_refl b₁)); contradiction.
 
- unfold summation; simpl.
+ unfold root_head_from_cγ_list, summation; simpl.
  destruct (ps_zerop R (ps_poly_nth 0 pol₁)) as [H₁| H₁].
   pose proof (Hpsi 0%nat (Nat.le_0_l b₁)); contradiction.
 

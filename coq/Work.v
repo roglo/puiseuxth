@@ -710,7 +710,7 @@ induction n; intros.
  eapply root_tail_from_0; eauto .
 
  rewrite IHn; eauto ; [ idtac | intros i H; apply Hpsi; fast_omega H ].
- unfold root_head.
+ unfold root_head, root_head_from_cγ_list.
  destruct (ps_zerop R (ps_poly_nth 0 pol₁)) as [H₁| H₁].
   assert (0 ≤ b + S n) as H by fast_omega .
   apply Hpsi in H; contradiction.
