@@ -143,16 +143,20 @@ Definition γ_sum α {R : ring α} {K : field R}
   let qr := Q_ring in
   Σ (i = 0, n), nth_γ (b + i) pol ns.
 
-Definition root_head_from_cγ_list α {R : ring α} {K : field R}
-  {acf : algeb_closed_field K} pol ns b n :=
-  let pr := ps_ring R in
-  Σ (i = 0, n), ps_monom (nth_c (b + i) pol ns) (γ_sum b i pol ns).
+Fixpoint root_head_from_cγ_list α {R : ring α} {K : field R}
+  {acf : algeb_closed_field K} pol ns b n i :=
+  if ps_zerop R (ps_poly_nth 0 (nth_pol (b + i) pol ns)) then 0%ps
+  else
+    (ps_monom (nth_c (b + i) pol ns) (γ_sum b i pol ns) +
+     match n with
+     | O => 0%ps
+     | S n₁ => root_head_from_cγ_list pol ns b n₁ (S i)
+     end)%ps.
 
-(* Σ _(i=0,n) c_{b+i} x^Σ_(j=0,n) γ_{b+j} *)
+(* Σ _(i=0,n) c_{b+i} x^Σ_(j=0,i) γ_{b+j} *)
 Definition root_head α {R : ring α} {K : field R} {acf : algeb_closed_field K}
   b n pol ns :=
-  if ps_zerop _ (ps_poly_nth 0 pol) then 0%ps
-  else root_head_from_cγ_list pol ns b n.
+  root_head_from_cγ_list pol ns b n 0.
 
 (* Σ _(i=n+1,∞) c_{b+i} x^Σ_(j=n+1,∞) γ_{b+j} *)
 Definition root_tail α {R : ring α} {K : field R} {acf : algeb_closed_field K}
@@ -2005,29 +2009,6 @@ rewrite next_pow_add.
 apply IHmx.
 Qed.
 
-Lemma root_head_0 : ∀ pol ns b n,
-  (ps_poly_nth 0 pol = 0)%ps
-  → (root_head b n pol ns = 0)%ps.
-Proof.
-intros pol ns b n H.
-unfold root_head.
-destruct (ps_zerop R (ps_poly_nth 0 pol)); [ reflexivity | idtac ].
-contradiction.
-Qed.
-
-Lemma root_head_succ : ∀ pol ns b n,
-  (ps_poly_nth 0 pol ≠ 0)%ps
-  → (root_head b (S n) pol ns =
-     root_head b n pol ns +
-     ps_monom (nth_c (b + S n) pol ns) (γ_sum b (S n) pol ns))%ps.
-Proof.
-intros pol ns b n Hp₀.
-unfold root_head.
-destruct (ps_zerop R (ps_poly_nth 0 pol)); [ contradiction | idtac ].
-unfold root_head_from_cγ_list.
-rewrite summation_split_last; [ reflexivity | apply Nat.le_0_l ].
-Qed.
-
 Lemma root_tail_succ : ∀ pol ns m n c pol₁ ns₁,
   c = ac_root (Φq pol ns)
   → pol₁ = next_pol pol (β ns) (γ ns) c
@@ -2214,13 +2195,12 @@ Lemma root_tail_split_1st : ∀ pol ns pol₁ ns₁ c m q₀,
   → root_multiplicity acf c (Φq pol ns) = 1%nat
   → pol₁ = next_pol pol (β ns) (γ ns) c
   → ns₁ = List.hd phony_ns (newton_segments pol₁)
-  → (ps_poly_nth 0 (nth_pol 0 pol₁ ns₁) ≠ 0)%ps
   → (root_tail (m * q₀) 0 pol₁ ns₁ =
      root_head 0 0 pol₁ ns₁ +
        ps_monom 1%K (γ_sum 0 0 pol₁ ns₁) *
        root_tail (m * q₀) 1 pol₁ ns₁)%ps.
 Proof.
-intros pol ns pol₁ ns₁ c m q₀ Hns Hm Hq₀ Hc Hr Hpol₁ Hns₁ Hps₀.
+intros pol ns pol₁ ns₁ c m q₀ Hns Hm Hq₀ Hc Hr Hpol₁ Hns₁.
 remember (m * q₀)%positive as m₁.
 remember Hns₁ as Hini₁; clear HeqHini₁.
 apply exists_ini_pt_nat_fst_seg in Hini₁.
@@ -2229,7 +2209,26 @@ remember Hns₁ as Hfin₁; clear HeqHfin₁.
 apply exists_fin_pt_nat_fst_seg in Hfin₁.
 destruct Hfin₁ as (k₁, (αk₁, Hfin₁)).
 unfold root_tail, root_head; simpl.
-destruct (ps_zerop _ (ps_poly_nth 0 pol₁)) as [| H₁].
+destruct (ps_zerop _ (ps_poly_nth 0 pol₁)) as [H₁| H₁].
+ remember (ac_root (Φq pol₁ ns₁)) as c₁ eqn:Hc₁ .
+ remember (next_pol pol₁ (β ns₁) (γ ns₁) c₁) as pol₂ eqn:Hpol₂ .
+ destruct (ps_zerop R (ps_poly_nth 0 pol₂)) as [H₂| H₂].
+  rewrite ps_mul_0_r, ps_add_0_r; reflexivity.
+
+  remember (List.hd phony_ns (newton_segments pol₂)) as ns₂ eqn:Hns₂ .
+bbb.
+
+intros pol ns pol₁ ns₁ c m q₀ Hns Hm Hq₀ Hc Hr Hpol₁ Hns₁.
+remember (m * q₀)%positive as m₁.
+remember Hns₁ as Hini₁; clear HeqHini₁.
+apply exists_ini_pt_nat_fst_seg in Hini₁.
+destruct Hini₁ as (j₁, (αj₁, Hini₁)).
+remember Hns₁ as Hfin₁; clear HeqHfin₁.
+apply exists_fin_pt_nat_fst_seg in Hfin₁.
+destruct Hfin₁ as (k₁, (αk₁, Hfin₁)).
+unfold root_tail, root_head; simpl.
+bbb.
+destruct (ps_zerop _ (ps_poly_nth 0 pol₁)) as [H₁| H₁].
  contradiction.
 
  clear H₁.
@@ -2586,14 +2585,14 @@ Lemma root_tail_from_0 : ∀ pol ns pol₁ ns₁ c m q₀ b,
   → root_multiplicity acf c (Φq pol ns) = 1%nat
   → pol₁ = next_pol pol (β ns) (γ ns) c
   → ns₁ = List.hd phony_ns (newton_segments pol₁)
-  → (∀ i, (i ≤ b)%nat → (ps_poly_nth 0 (nth_pol i pol₁ ns₁) ≠ 0)%ps)
   → (root_tail (m * q₀) b pol₁ ns₁ =
      root_head b 0 pol₁ ns₁ +
        ps_monom 1%K (γ_sum b 0 pol₁ ns₁) *
        root_tail (m * q₀) (b + 1) pol₁ ns₁)%ps.
 Proof.
-intros pol ns pol₁ ns₁ c m q₀ b Hns Hm Hq₀ Hc Hr Hpol₁ Hns₁ Hpsi.
+intros pol ns pol₁ ns₁ c m q₀ b Hns Hm Hq₀ Hc Hr Hpol₁ Hns₁.
 remember (m * q₀)%positive as m₁.
+bbb.
 destruct b; [ subst m₁; eapply root_tail_split_1st; eauto  | idtac ].
 remember (S b) as b₁ eqn:Hb₁ .
 unfold root_tail, root_head; simpl.
