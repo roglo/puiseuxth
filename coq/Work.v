@@ -1219,7 +1219,7 @@ Lemma root_tail_sep_1st_monom : ∀ pol ns pol₁ ns₁ c m q₀ n,
        ps_monom 1%K (nth_γ n pol₁ ns₁) *
        root_tail (m * q₀) (S n) pol₁ ns₁)%ps.
 Proof.
-(* à nettoyer sérieusement *)
+(* à nettoyer *)
 intros pol ns pol₁ ns₁ c m q₀ n Hns Hm Hq₀ Hc Hr Hpol₁ Hns₁ Hpsi.
 remember (m * q₀)%positive as m₁.
 unfold root_tail, ps_monom; simpl.
