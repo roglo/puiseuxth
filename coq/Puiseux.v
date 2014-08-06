@@ -2136,7 +2136,7 @@ induction n; intros.
 Qed.
 
 Lemma root_tail_nth : ∀ pol ns m a b,
-  (ps_poly_nth 0 pol ≠ 0)%ps
+  (∀ i, (i < b)%nat → (ps_poly_nth 0 (nth_pol i pol ns) ≠ 0)%ps)
   → (root_tail m (a + b) pol ns =
      root_tail m a (nth_pol b pol ns) (nth_ns b pol ns))%ps.
 Proof.
@@ -2149,7 +2149,33 @@ induction a; intros; simpl.
  remember (next_pol pol (β ns) (γ ns) c) as pol₁ eqn:Hpol₁ .
  remember (List.hd phony_ns (newton_segments pol₁)) as ns₁ eqn:Hns₁ .
  rewrite <- IHb.
- eapply root_tail_succ; eauto .
+  eapply root_tail_succ; eauto ; left.
+  pose proof (Hnz O (Nat.lt_0_succ b)) as H; auto.
+
+  intros i Hib.
+  apply Nat.succ_lt_mono in Hib.
+  apply Hnz in Hib; simpl in Hib.
+  subst; assumption.
+
+ rewrite root_tail_succ; eauto .
+  rewrite root_tail_succ; eauto .
+   remember (ac_root (Φq pol ns)) as c eqn:Hc .
+   remember (next_pol pol (β ns) (γ ns) c) as pol₁ eqn:Hpol₁ .
+   remember (List.hd phony_ns (newton_segments pol₁)) as ns₁ eqn:Hns₁ .
+   rewrite IHa.
+    remember (nth_ns b pol ns) as nsb eqn:Hnsb .
+    remember (nth_pol b pol ns) as polb eqn:Hpolb .
+    remember (ac_root (Φq polb nsb)) as cb eqn:Hcb .
+    remember (next_pol polb (β nsb) (γ nsb) cb) as npolb.
+    rename Heqnpolb into Hnpolb.
+    remember (List.hd phony_ns (newton_segments npolb)) as nnsb.
+    rename Heqnnsb into Hnnsb.
+    erewrite <- nth_pol_n with (c₁ := c); eauto .
+    rewrite <- Hnpolb.
+    erewrite nth_ns_n with (c := c); eauto .
+    subst nnsb; reflexivity.
+
+    intros i Hib.
 bbb.
 
  rewrite root_tail_succ; eauto ; symmetry.
