@@ -2136,20 +2136,21 @@ induction n; intros.
 Qed.
 
 Lemma root_tail_nth : ∀ pol ns m a b,
-  (root_tail m (a + b) pol ns =
-   root_tail m a (nth_pol b pol ns) (nth_ns b pol ns))%ps.
+  (ps_poly_nth 0 pol ≠ 0)%ps
+  → (root_tail m (a + b) pol ns =
+     root_tail m a (nth_pol b pol ns) (nth_ns b pol ns))%ps.
 Proof.
-intros pol ns m a b.
-revert pol ns m b.
+intros pol ns m a b Hnz.
+revert pol ns m b Hnz.
 induction a; intros; simpl.
- revert pol ns m.
+ revert pol ns m Hnz.
  induction b; intros; [ reflexivity | simpl ].
  remember (ac_root (Φq pol ns)) as c eqn:Hc .
  remember (next_pol pol (β ns) (γ ns) c) as pol₁ eqn:Hpol₁ .
  remember (List.hd phony_ns (newton_segments pol₁)) as ns₁ eqn:Hns₁ .
  rewrite <- IHb.
-bbb.
  eapply root_tail_succ; eauto .
+bbb.
 
  rewrite root_tail_succ; eauto ; symmetry.
  rewrite root_tail_succ; eauto ; symmetry.
