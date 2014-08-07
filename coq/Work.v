@@ -56,7 +56,6 @@ Lemma root_tail_sep_1st_monom : ∀ pol ns pol₁ ns₁ c m q₀ n,
 Proof.
 (* à nettoyer *)
 intros pol ns pol₁ ns₁ c m q₀ n Hns Hm Hq₀ Hc Hr Hpol₁ Hns₁ Hpsi.
-clear Hpsi.
 remember (m * q₀)%positive as m₁.
 remember (S n) as sn.
 unfold root_tail, ps_monom; simpl.
@@ -72,17 +71,11 @@ rewrite zerop_1st_n_const_coeff_succ2.
 remember (zerop_1st_n_const_coeff n pol₁ ns₁) as z₁ eqn:Hz₁ .
 symmetry in Hz₁.
 destruct z₁.
- rewrite Bool.orb_true_l.
- rewrite rng_mul_0_r, rng_add_0_r.
-bbb.
+ apply zerop_1st_n_const_coeff_false_iff in Hpsi.
+ rewrite Hpsi in Hz₁.
+ discriminate Hz₁.
 
-remember (List.hd phony_ns (newton_segments pol₂)) as ns₂ eqn:Hns₂ .
-remember (nth_pol n pol₁ ns₁) as poln₁ eqn:Hpoln₁ .
-remember (nth_pol n pol₂ ns₂) as poln₂ eqn:Hpoln₂ .
-destruct (ps_zerop R (ps_poly_nth 0 poln₁)) as [H₁| H₁].
- pose proof (Hpsi n (Nat.le_refl n)) as H; simpl in H.
- subst poln₁; contradiction.
-
+ rewrite Bool.orb_false_l.
  pose proof (Hpsi O (Nat.le_0_l n)) as H; simpl in H.
  rename H into Hnz₁.
  remember Hns₁ as H; clear HeqH.
@@ -94,10 +87,14 @@ destruct (ps_zerop R (ps_poly_nth 0 poln₁)) as [H₁| H₁].
  remember Hr as H; clear HeqH.
  eapply multiplicity_1_remains in H; eauto .
  rename H into Hr₁.
+ remember (nth_ns n pol₁ ns₁) as nsn₁ eqn:Hnsn₁ .
+ simpl.
+ rewrite <- Hc₁, <- Hpol₂, <- Hns₂.
+ rewrite <- Hpoln₂.
+ remember (nth_ns n pol₂ ns₂) as nsn₂.
  destruct (ps_zerop R (ps_poly_nth 0 poln₂)) as [H₂| H₂].
   rewrite ps_mul_0_r, ps_add_0_r.
   unfold root_tail_from_cγ_list; simpl.
-  remember (nth_ns n pol₁ ns₁) as nsn₁ eqn:Hnsn₁ .
   remember Hns as H; clear HeqH.
   eapply r_1_nth_ns with (poln := poln₁) in H; eauto .
   destruct H as (αjn₁, (αkn₁, H)).
@@ -133,6 +130,8 @@ destruct (ps_zerop R (ps_poly_nth 0 poln₁)) as [H₁| H₁].
       subst d; simpl.
       unfold root_tail_series_from_cγ_list; simpl.
       destruct (ps_zerop R (ps_poly_nth 0 poln₁)) as [H₃| H₃].
+       pose proof (Hpsi n (Nat.le_refl n)) as H.
+       rewrite <- Hpoln₁ in H.
        contradiction.
 
        symmetry.
@@ -148,6 +147,7 @@ destruct (ps_zerop R (ps_poly_nth 0 poln₁)) as [H₁| H₁].
        remember (next_pol poln₁ (β nsn₁) (γ nsn₁) cn₁) as poln₁s eqn:Hpoln₁s .
        erewrite nth_pol_n with (ns₁ := ns₁) in Hpoln₁s; eauto .
        rewrite <- Hpoln₂ in Hpoln₁s; subst poln₁s.
+bbb.
        remember (List.hd phony_ns (newton_segments poln₂)) as nsn₂ eqn:Hnsn₂ .
        simpl.
        destruct (ps_zerop R (ps_poly_nth 0 poln₂)) as [H₄| H₄]; auto.
