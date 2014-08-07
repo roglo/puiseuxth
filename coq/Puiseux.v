@@ -2726,20 +2726,14 @@ destruct z₁.
   unfold Qeq in Hαkb; simpl in Hαkb.
   rewrite Z.mul_1_r in Hαjb, Hαkb.
   destruct (ps_zerop R (ps_poly_nth 0 polb₂)) as [H₁| H₁].
-   rewrite rng_mul_0_r, rng_add_0_r.
-bbb.
-
-   rewrite rng_mul_0_r, rng_add_0_r.
-   unfold γ_sum; simpl.
-   unfold summation; simpl.
-   rewrite Nat.add_0_r, rng_add_0_r.
-   rewrite <- Hc₁, <- Hpol₂, <- Hns₂.
+   rewrite rng_mul_0_r, rng_add_0_r, Nat.add_1_r.
    unfold root_tail_from_cγ_list, ps_monom; simpl.
    rewrite Hinib, Hfinb; simpl.
    rewrite Hαkb; simpl.
    rewrite Z.add_0_r, Z.mul_1_r, Pos.mul_1_r.
    rewrite Z.mul_shuffle0, Pos2Z.inj_mul.
    rewrite Z.div_mul_cancel_r; auto.
+   rewrite <- Hc₁, <- Hpol₂, <- Hns₂.
    rewrite ps_adjust_eq with (n := O) (k := Qden (nth_γ b pol₂ ns₂)).
    symmetry.
    rewrite ps_adjust_eq with (n := O) (k := m₁).
@@ -2759,8 +2753,7 @@ bbb.
     destruct (zerop (i mod Pos.to_nat (Qden γb))) as [H₁| H₁].
      apply Nat.mod_divides in H₁; auto.
      destruct H₁ as (d, Hd).
-     rewrite Nat.mul_comm in Hd.
-     rewrite Hd.
+     rewrite Nat.mul_comm in Hd; rewrite Hd.
      rewrite Nat.div_mul; auto.
      unfold root_tail_series_from_cγ_list.
      rewrite <- Hd.
@@ -2771,6 +2764,10 @@ bbb.
       destruct (ps_zerop R (ps_poly_nth 0 polb)); [ contradiction | idtac ].
       symmetry.
       apply nth_c_root; assumption.
+
+      simpl.
+      rewrite <- Hcb.
+bbb.
 
       simpl.
       rewrite <- Hcb.
