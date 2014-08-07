@@ -56,12 +56,26 @@ Lemma root_tail_sep_1st_monom : ∀ pol ns pol₁ ns₁ c m q₀ n,
 Proof.
 (* à nettoyer *)
 intros pol ns pol₁ ns₁ c m q₀ n Hns Hm Hq₀ Hc Hr Hpol₁ Hns₁ Hpsi.
+clear Hpsi.
 remember (m * q₀)%positive as m₁.
+remember (S n) as sn.
 unfold root_tail, ps_monom; simpl.
 rewrite fold_series_const.
 rewrite fold_series_const.
 remember (ac_root (Φq pol₁ ns₁)) as c₁ eqn:Hc₁ .
 remember (next_pol pol₁ (β ns₁) (γ ns₁) c₁) as pol₂ eqn:Hpol₂ .
+remember (List.hd phony_ns (newton_segments pol₂)) as ns₂ eqn:Hns₂ .
+remember (nth_pol n pol₁ ns₁) as poln₁ eqn:Hpoln₁ .
+remember (nth_pol n pol₂ ns₂) as poln₂ eqn:Hpoln₂ .
+subst sn.
+rewrite zerop_1st_n_const_coeff_succ2.
+remember (zerop_1st_n_const_coeff n pol₁ ns₁) as z₁ eqn:Hz₁ .
+symmetry in Hz₁.
+destruct z₁.
+ rewrite Bool.orb_true_l.
+ rewrite rng_mul_0_r, rng_add_0_r.
+bbb.
+
 remember (List.hd phony_ns (newton_segments pol₂)) as ns₂ eqn:Hns₂ .
 remember (nth_pol n pol₁ ns₁) as poln₁ eqn:Hpoln₁ .
 remember (nth_pol n pol₂ ns₂) as poln₂ eqn:Hpoln₂ .
