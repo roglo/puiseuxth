@@ -2676,16 +2676,15 @@ destruct z₁.
  rewrite Pos.mul_1_r, <- Heqm₁ in HK₂.
  remember Hr as Hr₁; clear HeqHr₁.
  eapply multiplicity_1_remains in Hr₁; eauto .
- remember Hns₁₁ as H; clear HeqH.
- eapply nth_in_newton_segments with (n := b₁) in H; eauto .
-  Focus 2.
+ assert (∀ i : nat, i ≤ b₁ → (ps_poly_nth 0 (nth_pol i pol₁ ns₁) ≠ 0)%ps).
   apply zerop_1st_n_const_coeff_false_iff; subst b₁.
   rewrite zerop_1st_n_const_coeff_succ.
   rewrite Hbz₁, Bool.orb_false_r; simpl.
   destruct (ps_zerop R (ps_poly_nth 0 pol₁)); auto.
   contradiction.
-bbb.
 
+  clear Hbz₁; rename H into Hbz₁.
+  remember Hns₁₁ as H; clear HeqH.
   eapply nth_in_newton_segments with (n := b₁) in H; eauto .
   remember (nth_pol b₁ pol₁ ns₁) as polb eqn:Hpolb .
   remember (nth_ns b₁ pol₁ ns₁) as nsb eqn:Hnsb .
@@ -2703,13 +2702,16 @@ bbb.
   subst b₁.
   simpl in Hpolb, Hnsb, Hpolb₂.
   rewrite <- Hc₁, <- Hpol₂ in Hpolb, Hnsb, Hpolb₂.
-  remember (List.hd phony_ns (newton_segments pol₂)) as ns₂ eqn:Hns₂ .
+  rewrite <- Hns₂ in Hpolb, Hnsb, Hpolb₂.
   remember Hns₁₁ as H; clear HeqH.
   eapply nth_in_newton_segments with (n := b) in H; eauto .
   remember Hns as Hrb₁; clear HeqHrb₁.
   eapply multiplicity_1_remains_in_nth with (n := b) in Hrb₁; eauto .
   remember (nth_ns b pol₁ ns₁) as nsb₁ eqn:Hnsb₁ .
   remember (nth_pol b pol₁ ns₁) as polb₁ eqn:Hpolb₁ .
+  remember (ac_root (Φq polb₁ nsb₁)) as cb₁ eqn:Hcb₁ .
+bbb.
+
   remember (ac_root (Φq polb₁ nsb₁)) as cb₁ eqn:Hcb₁ .
   rewrite Hpolb in Hpsb.
   erewrite <- nth_pol_n with (c₁ := c₁) in Hpsb; eauto .
