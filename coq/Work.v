@@ -699,6 +699,24 @@ destruct z₁.
            assumption.
 Qed.
 
+Lemma zerop_1st_n_const_coeff_true_if : ∀ pol ns b,
+  zerop_1st_n_const_coeff b pol ns = true
+  → ∀ n, zerop_1st_n_const_coeff (b + n) pol ns = true.
+Proof.
+intros pol ns b Hz n.
+revert pol ns Hz n.
+induction b; intros.
+ simpl.
+ revert pol ns Hz.
+ induction n; intros; auto.
+ simpl in Hz; simpl.
+ destruct (ps_zerop R (ps_poly_nth 0 pol)); auto.
+ discriminate Hz.
+
+ simpl in Hz; simpl.
+ destruct (ps_zerop R (ps_poly_nth 0 pol)); auto.
+Qed.
+
 Lemma root_tail_when_r_1 : ∀ pol ns pol₁ ns₁ c m q₀ b,
   ns ∈ newton_segments pol
   → ps_lap_forall (λ a, in_K_1_m a m) (al pol)
@@ -714,6 +732,64 @@ Lemma root_tail_when_r_1 : ∀ pol ns pol₁ ns₁ c m q₀ b,
          ps_monom 1%K (γ_sum b n pol₁ ns₁) *
          root_tail (m * q₀) (b + S n) pol₁ ns₁)%ps.
 Proof.
+intros pol ns pol₁ ns₁ c m q₀ b Hns Hm Hq₀ Hc Hr Hpol₁ Hns₁ n Hpsi.
+clear Hpsi.
+remember (m * q₀)%positive as m₁.
+revert pol ns pol₁ ns₁ Hns Hm Hq₀ Hc Hr Hpol₁ Hns₁.
+revert b c m q₀ m₁ Heqm₁.
+induction n; intros.
+ unfold root_head.
+ simpl.
+ remember (zerop_1st_n_const_coeff b pol₁ ns₁) as z₁ eqn:Hz₁ .
+ symmetry in Hz₁.
+ destruct z₁.
+  rewrite rng_add_0_l.
+  unfold root_tail.
+  rewrite Hz₁, Nat.add_1_r.
+  rewrite zerop_1st_n_const_coeff_succ2.
+  rewrite Hz₁, Bool.orb_true_l.
+  rewrite rng_mul_0_r; reflexivity.
+
+  rewrite Nat.add_0_r, rng_add_0_r, Heqm₁.
+  rewrite root_tail_from_0; eauto .
+  unfold root_head.
+  rewrite Hz₁.
+  unfold root_head_from_cγ_list.
+  rewrite Nat.add_0_r, rng_add_0_r.
+  reflexivity.
+
+ rewrite IHn; eauto .
+ unfold root_head.
+ remember (zerop_1st_n_const_coeff b pol₁ ns₁) as z₁ eqn:Hz₁ .
+ symmetry in Hz₁.
+ destruct z₁.
+  do 2 rewrite rng_add_0_l.
+  unfold root_tail.
+  rewrite zerop_1st_n_const_coeff_true_if; auto.
+  rewrite zerop_1st_n_const_coeff_true_if; auto.
+  do 2 rewrite rng_mul_0_r; reflexivity.
+
+  simpl.
+  rewrite Nat.add_0_r.
+  rewrite zerop_1st_n_const_coeff_false_iff in Hz₁.
+  rename Hz₁ into Hpsi.
+  destruct (ps_zerop R (ps_poly_nth 0 (nth_pol b pol₁ ns₁))) as [H₁| H₁].
+   pose proof (Hpsi b (Nat.le_refl b)) as H.
+   contradiction.
+
+bbb.
+   unfold γ_sum at 3; simpl.
+   rewrite summation_split_last; [ idtac | apply Nat.le_0_l ].
+   rewrite ps_monom_add_r, fold_γ_sum.
+   symmetry.
+   rewrite ps_monom_split_mul in |- * at 1.
+   unfold γ_sum at 1; simpl.
+   unfold summation; simpl.
+   rewrite Nat.add_0_r.
+   rewrite rng_add_0_r.
+bbb.
+
+
 intros pol ns pol₁ ns₁ c m q₀ b Hns Hm Hq₀ Hc Hr Hpol₁ Hns₁ n Hpsi.
 remember (m * q₀)%positive as m₁.
 revert pol ns pol₁ ns₁ Hns Hm Hq₀ Hc Hr Hpol₁ Hns₁ Hpsi.
