@@ -759,7 +759,11 @@ induction n; intros.
   reflexivity.
 
  rewrite IHn; eauto .
- unfold root_head.
+ unfold γ_sum.
+ rewrite summation_split_last; [ idtac | apply Nat.le_0_l ].
+ rewrite ps_monom_add_r, fold_γ_sum.
+ unfold root_head; simpl.
+ rewrite Nat.add_0_r.
  remember (zerop_1st_n_const_coeff b pol₁ ns₁) as z₁ eqn:Hz₁ .
  symmetry in Hz₁.
  destruct z₁.
@@ -769,13 +773,13 @@ induction n; intros.
   rewrite zerop_1st_n_const_coeff_true_if; auto.
   do 2 rewrite rng_mul_0_r; reflexivity.
 
-  simpl.
-  rewrite Nat.add_0_r.
   rewrite zerop_1st_n_const_coeff_false_iff in Hz₁.
   rename Hz₁ into Hpsi.
   destruct (ps_zerop R (ps_poly_nth 0 (nth_pol b pol₁ ns₁))) as [H₁| H₁].
-   pose proof (Hpsi b (Nat.le_refl b)) as H.
-   contradiction.
+   pose proof (Hpsi b (Nat.le_refl b)); contradiction.
+
+   rewrite Heqm₁.
+   rewrite root_tail_sep_1st_monom; eauto .
 
 bbb.
    unfold γ_sum at 3; simpl.
@@ -823,7 +827,7 @@ induction n; intros.
   rewrite ps_mul_comm.
   rewrite <- ps_monom_split_mul.
   subst m₁.
-  eapply root_tail_sep_1st_monom; eauto .
+  eapply root_tail_sep_1st_monom; Eauto .
   rewrite <- Nat.add_succ_r.
   assumption.
 Qed.
