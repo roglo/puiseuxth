@@ -779,7 +779,9 @@ induction n; intros.
    pose proof (Hpsi b (Nat.le_refl b)); contradiction.
 
    rewrite Heqm₁.
+bbb.
    rewrite root_tail_sep_1st_monom; eauto .
+(* cf root_tail_nth too *)
 
 bbb.
    unfold γ_sum at 3; simpl.
@@ -827,7 +829,7 @@ induction n; intros.
   rewrite ps_mul_comm.
   rewrite <- ps_monom_split_mul.
   subst m₁.
-  eapply root_tail_sep_1st_monom; Eauto .
+  eapply root_tail_sep_1st_monom; eauto .
   rewrite <- Nat.add_succ_r.
   assumption.
 Qed.
