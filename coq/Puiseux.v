@@ -2652,7 +2652,7 @@ destruct z₁.
  remember (zerop_1st_n_const_coeff 0 pol₁ ns₁) as x.
  simpl in Heqx.
  remember (ps_poly_nth 0 pol₁) as y.
- destruct (ps_zerop R y) as [| H₁]; [ discriminate Hz₁ | subst y ].
+ destruct (ps_zerop R y) as [| Hnz₁]; [ discriminate Hz₁ | subst y ].
  clear Hz₁; subst x.
  rewrite Bool.orb_false_l, Hb₁.
  rewrite zerop_1st_n_const_coeff_succ2, Hbz₁.
@@ -2703,6 +2703,7 @@ destruct z₁.
   simpl in Hpolb, Hnsb, Hpolb₂.
   rewrite <- Hc₁, <- Hpol₂ in Hpolb, Hnsb, Hpolb₂.
   rewrite <- Hns₂ in Hpolb, Hnsb, Hpolb₂.
+  rewrite <- Nat.add_1_r, <- Hpolb₂.
   remember Hns₁₁ as H; clear HeqH.
   eapply nth_in_newton_segments with (n := b) in H; eauto .
   remember Hns as Hrb₁; clear HeqHrb₁.
@@ -2710,10 +2711,9 @@ destruct z₁.
   remember (nth_ns b pol₁ ns₁) as nsb₁ eqn:Hnsb₁ .
   remember (nth_pol b pol₁ ns₁) as polb₁ eqn:Hpolb₁ .
   remember (ac_root (Φq polb₁ nsb₁)) as cb₁ eqn:Hcb₁ .
-bbb.
-
-  remember (ac_root (Φq polb₁ nsb₁)) as cb₁ eqn:Hcb₁ .
-  rewrite Hpolb in Hpsb.
+  pose proof (Hbz₁ (S b) (Nat.le_refl (S b))) as Hpsb.
+  simpl in Hpsb.
+  rewrite <- Hc₁, <- Hpol₂, <- Hns₂ in Hpsb.
   erewrite <- nth_pol_n with (c₁ := c₁) in Hpsb; eauto .
   erewrite nth_ns_n with (c := c₁) in Hnsb; eauto .
   eapply r_1_j_0_k_1 with (ns₁ := nsb) in H; eauto .
@@ -2726,6 +2726,9 @@ bbb.
   unfold Qeq in Hαkb; simpl in Hαkb.
   rewrite Z.mul_1_r in Hαjb, Hαkb.
   destruct (ps_zerop R (ps_poly_nth 0 polb₂)) as [H₁| H₁].
+   rewrite rng_mul_0_r, rng_add_0_r.
+bbb.
+
    rewrite rng_mul_0_r, rng_add_0_r.
    unfold γ_sum; simpl.
    unfold summation; simpl.
