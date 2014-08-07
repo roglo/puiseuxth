@@ -91,7 +91,7 @@ destruct z₁.
  simpl.
  rewrite <- Hc₁, <- Hpol₂, <- Hns₂.
  rewrite <- Hpoln₂.
- remember (nth_ns n pol₂ ns₂) as nsn₂.
+ remember (nth_ns n pol₂ ns₂) as nsn₂ eqn:Hnsn₂.
  destruct (ps_zerop R (ps_poly_nth 0 poln₂)) as [H₂| H₂].
   rewrite ps_mul_0_r, ps_add_0_r.
   unfold root_tail_from_cγ_list; simpl.
@@ -147,8 +147,7 @@ destruct z₁.
        remember (next_pol poln₁ (β nsn₁) (γ nsn₁) cn₁) as poln₁s eqn:Hpoln₁s .
        erewrite nth_pol_n with (ns₁ := ns₁) in Hpoln₁s; eauto .
        rewrite <- Hpoln₂ in Hpoln₁s; subst poln₁s.
-bbb.
-       remember (List.hd phony_ns (newton_segments poln₂)) as nsn₂ eqn:Hnsn₂ .
+       remember (List.hd phony_ns (newton_segments poln₂)) as nsn₂'.
        simpl.
        destruct (ps_zerop R (ps_poly_nth 0 poln₂)) as [H₄| H₄]; auto.
        contradiction.
@@ -228,15 +227,13 @@ bbb.
           eapply r_1_nth_ns with (poln := poln₂) (n := S n) in H; eauto .
            destruct H as (αjn₂, (αkn₂, H)).
            destruct H as (_, (Hinin₂, (Hfinn₂, (Hαjn₂, Hαkn₂)))).
-           remember (nth_ns (S n) pol₁ ns₁) as nsn₂ eqn:Hnsn₂ .
-           simpl in Hnsn₂.
-           rewrite <- Hc₁, <- Hpol₂, <- Hns₂ in Hnsn₂.
-           remember (nth_ns n pol₁ ns₁) as nsn₁ eqn:Hnsn₁ .
+           simpl in Hinin₂, Hfinn₂.
+           rewrite <- Hc₁, <- Hpol₂, <- Hns₂ in Hinin₂, Hfinn₂.
+           rewrite <- Hnsn₂ in Hinin₂, Hfinn₂.
            unfold ps_add, ps_mul; simpl.
            unfold cm; simpl.
            unfold ps_terms_add, ps_ordnum_add; simpl.
            unfold root_tail_from_cγ_list; simpl.
-           rewrite <- Hnsn₂.
            rewrite Hinin₁, Hfinn₁, Hinin₂, Hfinn₂; simpl.
            rewrite Hαkn₁, Hαkn₂; simpl.
            rewrite Z.add_0_r, Z.mul_1_r, Pos.mul_1_r.
@@ -293,6 +290,8 @@ bbb.
 
                 unfold root_tail_series_from_cγ_list; simpl.
                 destruct (ps_zerop R (ps_poly_nth 0 poln₁)) as [H₃| H₃].
+                 pose proof (Hpsi n (Nat.le_refl n)) as H.
+                 rewrite <- Hpoln₁ in H.
                  contradiction.
 
                  clear H₃.
