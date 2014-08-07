@@ -2645,7 +2645,7 @@ destruct z₁.
  rewrite Hb₁ in Hz₁.
  rewrite zerop_1st_n_const_coeff_succ in Hz₁.
  apply Bool.orb_false_iff in Hz₁.
- destruct Hz₁ as (Hz₁, Hbz₁).
+ destruct Hz₁ as (Hz₁, Hpsi).
  simpl in Hz₁.
  rewrite Nat.add_1_r.
  rewrite zerop_1st_n_const_coeff_succ.
@@ -2655,7 +2655,7 @@ destruct z₁.
  destruct (ps_zerop R y) as [| Hnz₁]; [ discriminate Hz₁ | subst y ].
  clear Hz₁; subst x.
  rewrite Bool.orb_false_l, Hb₁.
- rewrite zerop_1st_n_const_coeff_succ2, Hbz₁.
+ rewrite zerop_1st_n_const_coeff_succ2, Hpsi.
  rewrite Bool.orb_false_l.
  rewrite <- Hb₁.
  remember (S b₁) as sb₁; simpl; subst sb₁.
@@ -2679,11 +2679,11 @@ destruct z₁.
  assert (∀ i : nat, i ≤ b₁ → (ps_poly_nth 0 (nth_pol i pol₁ ns₁) ≠ 0)%ps).
   apply zerop_1st_n_const_coeff_false_iff; subst b₁.
   rewrite zerop_1st_n_const_coeff_succ.
-  rewrite Hbz₁, Bool.orb_false_r; simpl.
+  rewrite Hpsi, Bool.orb_false_r; simpl.
   destruct (ps_zerop R (ps_poly_nth 0 pol₁)); auto.
   contradiction.
 
-  clear Hbz₁; rename H into Hbz₁.
+  clear Hpsi; rename H into Hpsi.
   remember Hns₁₁ as H; clear HeqH.
   eapply nth_in_newton_segments with (n := b₁) in H; eauto .
   remember (nth_pol b₁ pol₁ ns₁) as polb eqn:Hpolb .
@@ -2711,7 +2711,7 @@ destruct z₁.
   remember (nth_ns b pol₁ ns₁) as nsb₁ eqn:Hnsb₁ .
   remember (nth_pol b pol₁ ns₁) as polb₁ eqn:Hpolb₁ .
   remember (ac_root (Φq polb₁ nsb₁)) as cb₁ eqn:Hcb₁ .
-  pose proof (Hbz₁ (S b) (Nat.le_refl (S b))) as Hpsb.
+  pose proof (Hpsi (S b) (Nat.le_refl (S b))) as Hpsb.
   simpl in Hpsb.
   rewrite <- Hc₁, <- Hpol₂, <- Hns₂ in Hpsb.
   erewrite <- nth_pol_n with (c₁ := c₁) in Hpsb; eauto .
@@ -2767,10 +2767,6 @@ destruct z₁.
 
       simpl.
       rewrite <- Hcb.
-bbb.
-
-      simpl.
-      rewrite <- Hcb.
       rewrite Nat.add_comm in Hpolb₂; simpl in Hpolb₂.
       remember (ac_root (Φq pol₂ ns₂)) as c₂ eqn:Hc₂ .
       remember (next_pol pol₂ (β ns₂) (γ ns₂) c₂) as pol₃ eqn:Hpol₃ .
@@ -2816,15 +2812,14 @@ bbb.
    eapply r_1_next_ns with (pol := pol₁) in H; eauto .
    destruct H as (αj₂, (αk₂, H)).
    destruct H as (Hoth₂, (Hini₂, (Hfin₂, (Hαj₂, Hαk₂)))).
-   unfold γ_sum; simpl.
+   rewrite Nat.add_1_r; simpl.
    rewrite <- Hc₁, <- Hpol₂, <- Hns₂.
-   unfold summation; simpl.
-   rewrite Nat.add_0_r, rng_add_0_r.
-   rewrite Nat.add_comm; simpl.
-   rewrite Nat.add_comm in Hpolb₂; simpl in Hpolb₂.
    remember (ac_root (Φq pol₂ ns₂)) as c₂ eqn:Hc₂ .
    remember (next_pol pol₂ (β ns₂) (γ ns₂) c₂) as pol₃ eqn:Hpol₃ .
    remember (List.hd phony_ns (newton_segments pol₃)) as ns₃ eqn:Hns₃ .
+   rewrite Nat.add_comm in Hpolb₂; simpl in Hpolb₂.
+   rewrite <- Hc₂, <- Hpol₃, <- Hns₃ in Hpolb₂.
+   rewrite <- Hpolb₂.
    remember (nth_ns b pol₃ ns₃) as nsb₂ eqn:Hnsb₂ .
    remember Hns₃ as H; clear HeqH.
    eapply nth_ns_n with (c := c₂) in H; eauto .
