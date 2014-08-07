@@ -2060,6 +2060,42 @@ induction n; intros.
    destruct (ps_zerop R (ps_poly_nth 0 pol)); [ contradiction | subst; auto ].
 Qed.
 
+Lemma zerop_1st_n_const_coeff_false_iff : ∀ pol ns n,
+  zerop_1st_n_const_coeff n pol ns = false
+  ↔ ∀ i : nat, i ≤ n → (ps_poly_nth 0 (nth_pol i pol ns) ≠ 0)%ps.
+Proof.
+intros pol ns n.
+split; intros H.
+ intros i Hin.
+ revert pol ns i H Hin.
+ induction n; intros.
+  simpl in H.
+  apply Nat.le_0_r in Hin; subst i.
+  destruct (ps_zerop R (ps_poly_nth 0 pol)); auto.
+  discriminate H.
+
+  simpl in H.
+  destruct (ps_zerop R (ps_poly_nth 0 pol)) as [H₁| H₁].
+   discriminate H.
+
+   destruct i; auto; simpl.
+   apply IHn; auto.
+   apply Nat.succ_le_mono; assumption.
+
+ revert pol ns H.
+ induction n; intros; simpl.
+  destruct (ps_zerop R (ps_poly_nth 0 pol)) as [H₁| H₁]; auto.
+  pose proof (H O (Nat.le_refl 0)) as H₂.
+  contradiction.
+
+  destruct (ps_zerop R (ps_poly_nth 0 pol)) as [H₁| H₁].
+   pose proof (H O (Nat.le_0_l (S n))) as H₂.
+   contradiction.
+
+   apply IHn; intros i Hin.
+   apply Nat.succ_le_mono, H in Hin; assumption.
+Qed.
+
 Lemma root_tail_succ : ∀ pol ns m n c pol₁ ns₁,
   c = ac_root (Φq pol ns)
   → pol₁ = next_pol pol (β ns) (γ ns) c
@@ -2618,10 +2654,8 @@ destruct z₁.
  remember (ps_poly_nth 0 pol₁) as y.
  destruct (ps_zerop R y) as [| H₁]; [ discriminate Hz₁ | subst y ].
  clear Hz₁; subst x.
- rewrite Bool.orb_false_l.
- rewrite Hb₁.
- rewrite zerop_1st_n_const_coeff_succ2.
- rewrite Hbz₁.
+ rewrite Bool.orb_false_l, Hb₁.
+ rewrite zerop_1st_n_const_coeff_succ2, Hbz₁.
  rewrite Bool.orb_false_l.
  rewrite <- Hb₁.
  remember (S b₁) as sb₁; simpl; subst sb₁.
@@ -2644,10 +2678,14 @@ destruct z₁.
  eapply multiplicity_1_remains in Hr₁; eauto .
  remember Hns₁₁ as H; clear HeqH.
  eapply nth_in_newton_segments with (n := b₁) in H; eauto .
+  Focus 2.
+  apply zerop_1st_n_const_coeff_false_iff; subst b₁.
+  rewrite zerop_1st_n_const_coeff_succ.
+  rewrite Hbz₁, Bool.orb_false_r; simpl.
+  destruct (ps_zerop R (ps_poly_nth 0 pol₁)); auto.
+  contradiction.
 bbb.
 
-  eapply multiplicity_1_remains in Hr₁; eauto .
-  remember Hns₁₁ as H; clear HeqH.
   eapply nth_in_newton_segments with (n := b₁) in H; eauto .
   remember (nth_pol b₁ pol₁ ns₁) as polb eqn:Hpolb .
   remember (nth_ns b₁ pol₁ ns₁) as nsb eqn:Hnsb .
