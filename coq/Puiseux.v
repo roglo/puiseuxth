@@ -2031,6 +2031,35 @@ intros pol ns n; simpl.
 destruct (ps_zerop R (ps_poly_nth 0 pol)); reflexivity.
 Qed.
 
+Lemma zerop_1st_n_const_coeff_succ2 : ∀ pol ns n,
+  zerop_1st_n_const_coeff (S n) pol ns =
+  zerop_1st_n_const_coeff n pol ns ||
+  zerop_1st_n_const_coeff 0 (nth_pol (S n) pol ns) (nth_ns (S n) pol ns).
+Proof.
+intros pol ns n.
+revert pol ns.
+induction n; intros.
+ simpl.
+ destruct (ps_zerop R (ps_poly_nth 0 pol)); reflexivity.
+
+ remember (S n) as sn; simpl.
+ destruct (ps_zerop R (ps_poly_nth 0 pol)) as [H₁| H₁].
+  rewrite Heqsn in |- * at 1; simpl.
+  destruct (ps_zerop R (ps_poly_nth 0 pol)); [ auto | contradiction ].
+
+  remember (ac_root (Φq pol ns)) as c₁ eqn:Hc₁ .
+  remember (next_pol pol (β ns) (γ ns) c₁) as pol₁ eqn:Hpol₁ .
+  remember (List.hd phony_ns (newton_segments pol₁)) as ns₁ eqn:Hns₁ .
+  rewrite IHn; simpl.
+  remember (nth_pol sn pol₁ ns₁) as poln eqn:Hpoln .
+  destruct (ps_zerop R (ps_poly_nth 0 poln)) as [H₂| H₂].
+   do 2 rewrite Bool.orb_true_r; reflexivity.
+
+   do 2 rewrite Bool.orb_false_r.
+   subst sn; simpl.
+   destruct (ps_zerop R (ps_poly_nth 0 pol)); [ contradiction | subst; auto ].
+Qed.
+
 Lemma root_tail_succ : ∀ pol ns m n c pol₁ ns₁,
   c = ac_root (Φq pol ns)
   → pol₁ = next_pol pol (β ns) (γ ns) c
@@ -2556,6 +2585,22 @@ Lemma root_tail_from_0 : ∀ pol ns pol₁ ns₁ c m q₀ b,
        ps_monom 1%K (γ_sum b 0 pol₁ ns₁) *
        root_tail (m * q₀) (b + 1) pol₁ ns₁)%ps.
 Proof.
+intros pol ns pol₁ ns₁ c m q₀ b Hns Hm Hq₀ Hc Hr Hpol₁ Hns₁.
+remember (m * q₀)%positive as m₁.
+destruct b; [ subst m₁; eapply root_tail_split_1st; eauto  | idtac ].
+remember (S b) as b₁ eqn:Hb₁ .
+unfold root_tail, root_head; simpl.
+rewrite Nat.add_0_r.
+remember (zerop_1st_n_const_coeff b₁ pol₁ ns₁) as z₁ eqn:Hz₁ .
+symmetry in Hz₁.
+destruct z₁.
+ rewrite Nat.add_1_r.
+ rewrite zerop_1st_n_const_coeff_succ2.
+ rewrite Hz₁; simpl.
+ rewrite rng_add_0_l, rng_mul_0_r; reflexivity.
+
+bbb.
+
 intros pol ns pol₁ ns₁ c m q₀ b Hns Hm Hq₀ Hc Hr Hpol₁ Hns₁.
 remember (m * q₀)%positive as m₁.
 bbb.
