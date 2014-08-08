@@ -717,6 +717,30 @@ induction b; intros.
  destruct (ps_zerop R (ps_poly_nth 0 pol)); auto.
 Qed.
 
+(* mmm... pas sûr que ça soit bon...
+Lemma zzz : ∀ pol ns b n,
+  (root_head_from_cγ_list pol ns b n 0 +
+   ps_monom (nth_c (b + S n) pol ns)
+     (nth_γ (b + n) pol ns + nth_γ (b + S n) pol ns) =
+   ps_monom (nth_c b pol ns) (nth_γ b pol ns) +
+   root_head_from_cγ_list pol ns b n 1)%ps.
+Proof.
+intros pol ns b n.
+revert pol ns b.
+induction n; intros.
+ simpl.
+ unfold γ_sum, summation; simpl.
+ rewrite Nat.add_0_r.
+ do 4 rewrite rng_add_0_r.
+ reflexivity.
+
+ simpl.
+ rewrite Nat.add_0_r.
+ destruct (ps_zerop R (ps_poly_nth 0 (nth_pol b pol ns))) as [H₁| H₁].
+  rewrite rng_add_0_r.
+bbb.
+*)
+
 Lemma root_tail_when_r_1 : ∀ pol ns pol₁ ns₁ c m q₀ b,
   ns ∈ newton_segments pol
   → ps_lap_forall (λ a, in_K_1_m a m) (al pol)
@@ -758,6 +782,11 @@ induction n; intros.
   rewrite Nat.add_0_r, rng_add_0_r.
   reflexivity.
 
+ remember (zerop_1st_n_const_coeff b pol₁ ns₁) as z₁ eqn:Hz₁ .
+ symmetry in Hz₁.
+ destruct z₁.
+bbb.
+
  rewrite IHn; eauto .
  unfold γ_sum.
  rewrite summation_split_last; [ idtac | apply Nat.le_0_l ].
@@ -779,6 +808,9 @@ induction n; intros.
    pose proof (Hpsi b (Nat.le_refl b)); contradiction.
 
    rewrite Heqm₁.
+   unfold γ_sum at 2; simpl.
+   unfold summation; simpl.
+   rewrite Nat.add_0_r, rng_add_0_r.
 bbb.
    rewrite root_tail_sep_1st_monom; eauto .
 (* cf root_tail_nth too *)
