@@ -744,14 +744,12 @@ destruct (ps_zerop R (ps_poly_nth 0 (nth_pol (b + i) pol ns))) as [H₁| H₁].
   apply Nat.le_refl.
 
  revert b i Hz H₁.
- induction n; intros.
-  simpl.
+ induction n; intros; simpl.
   rewrite Nat.add_0_r.
   do 2 rewrite rng_add_0_r.
   rewrite Hz, <- Nat.add_1_r, Nat.add_assoc.
   reflexivity.
 
-  simpl.
   rewrite <- rng_add_assoc; simpl.
   apply rng_add_compat_l; simpl.
   destruct (ps_zerop R (ps_poly_nth 0 (nth_pol (b + i) pol ns))) as [H₂| H₂].
@@ -765,6 +763,42 @@ destruct (ps_zerop R (ps_poly_nth 0 (nth_pol (b + i) pol ns))) as [H₁| H₁].
     rewrite rng_add_0_r.
     destruct z₁.
      rewrite rng_add_0_r.
+     destruct n.
+      simpl.
+      rewrite rng_add_0_r.
+      reflexivity.
+
+      simpl.
+      destruct (ps_zerop R (ps_poly_nth 0 (nth_pol (b + S i) pol ns)))
+       as [H₃| H₃].
+       rewrite rng_add_0_r.
+       reflexivity.
+
+       contradiction.
+
+     eapply zerop_1st_n_const_coeff_false_iff with (i := (b + S i)%nat)
+      in Hz₁.
+      contradiction.
+
+      rewrite <- Nat.add_assoc.
+      apply Nat.add_le_mono_l.
+      rewrite Nat.add_succ_r, <- Nat.add_succ_l.
+      apply Nat.le_sub_le_add_l.
+      rewrite Nat.sub_diag.
+      apply Nat.le_0_l.
+
+    rewrite IHn; auto.
+     apply rng_add_compat_l.
+     rewrite Nat.add_succ_r, Nat.add_succ_l, <- Nat.add_succ_r.
+     rewrite Hz₁.
+     destruct z₁; [ reflexivity | idtac ].
+     rewrite Nat.add_succ_l, <- Nat.add_succ_r.
+     rewrite Nat.add_succ_l, <- Nat.add_succ_r.
+     reflexivity.
+
+     rewrite Nat.add_succ_r.
+     rewrite zerop_1st_n_const_coeff_succ2.
+     rewrite Hz.
 bbb.
 
   root_head_from_cγ_list pol ns b n i =
