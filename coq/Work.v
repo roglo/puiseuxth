@@ -748,9 +748,23 @@ destruct (ps_zerop R (ps_poly_nth 0 (nth_pol (b + i) pol ns))) as [H₁| H₁].
   simpl.
   rewrite Nat.add_0_r.
   do 2 rewrite rng_add_0_r.
-  rewrite Hz.
-  rewrite <- Nat.add_1_r, Nat.add_assoc.
+  rewrite Hz, <- Nat.add_1_r, Nat.add_assoc.
   reflexivity.
+
+  simpl.
+  rewrite <- rng_add_assoc; simpl.
+  apply rng_add_compat_l; simpl.
+  destruct (ps_zerop R (ps_poly_nth 0 (nth_pol (b + i) pol ns))) as [H₂| H₂].
+   contradiction.
+
+   clear H₂.
+   remember (zerop_1st_n_const_coeff (b + i + S n) pol ns) as z₁ eqn:Hz₁ .
+   symmetry in Hz₁.
+   destruct (ps_zerop R (ps_poly_nth 0 (nth_pol (b + S i) pol ns)))
+    as [H₂| H₂].
+    rewrite rng_add_0_r.
+    destruct z₁.
+     rewrite rng_add_0_r.
 bbb.
 
   root_head_from_cγ_list pol ns b n i =
