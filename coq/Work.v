@@ -725,6 +725,8 @@ Lemma root_head_succ : ∀ pol ns b n,
      else ps_monom (nth_c (b + S n) pol ns) (γ_sum b (S n) pol ns))%ps.
 Proof.
 intros pol ns b n Hz.
+(* oui, je crois que l'énoncé est juste *)
+bbb.
 unfold root_head; simpl.
 rewrite Hz.
 rewrite Nat.add_0_r.
