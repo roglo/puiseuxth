@@ -785,6 +785,10 @@ induction n; intros.
  remember (zerop_1st_n_const_coeff b pol₁ ns₁) as z₁ eqn:Hz₁ .
  symmetry in Hz₁.
  destruct z₁.
+  unfold root_head, root_tail.
+  rewrite Hz₁.
+  rewrite zerop_1st_n_const_coeff_true_if; auto.
+  rewrite rng_add_0_l, rng_mul_0_r; reflexivity.
 bbb.
 
  rewrite IHn; eauto .
