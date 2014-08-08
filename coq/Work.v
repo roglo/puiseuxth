@@ -717,29 +717,128 @@ induction b; intros.
  destruct (ps_zerop R (ps_poly_nth 0 pol)); auto.
 Qed.
 
-(* mmm... pas sûr que ça soit bon...
-Lemma zzz : ∀ pol ns b n,
-  (root_head_from_cγ_list pol ns b n 0 +
-   ps_monom (nth_c (b + S n) pol ns)
-     (nth_γ (b + n) pol ns + nth_γ (b + S n) pol ns) =
-   ps_monom (nth_c b pol ns) (nth_γ b pol ns) +
-   root_head_from_cγ_list pol ns b n 1)%ps.
+Lemma root_head_succ : ∀ pol ns b n,
+  zerop_1st_n_const_coeff b pol ns = false
+  → (root_head b (S n) pol ns =
+     root_head b n pol ns +
+     if ps_zerop R (ps_poly_nth 0 (nth_pol (b + S n) pol ns)) then 0
+     else ps_monom (nth_c (b + S n) pol ns) (γ_sum b (S n) pol ns))%ps.
 Proof.
-intros pol ns b n.
-revert pol ns b.
-induction n; intros.
- simpl.
- unfold γ_sum, summation; simpl.
- rewrite Nat.add_0_r.
- do 4 rewrite rng_add_0_r.
- reflexivity.
+intros pol ns b n Hz.
+unfold root_head; simpl.
+rewrite Hz.
+rewrite Nat.add_0_r.
+destruct (ps_zerop R (ps_poly_nth 0 (nth_pol b pol ns))) as [H₁| H₁].
+ rewrite rng_add_0_r.
+ apply zerop_1st_n_const_coeff_false_iff with (i := b) in Hz; eauto .
+ contradiction.
 
- simpl.
- rewrite Nat.add_0_r.
- destruct (ps_zerop R (ps_poly_nth 0 (nth_pol b pol ns))) as [H₁| H₁].
-  rewrite rng_add_0_r.
+ revert b Hz H₁.
+ induction n; intros.
+  destruct (ps_zerop R (ps_poly_nth 0 (nth_pol (b + 1) pol ns))) as [H₂| H₂].
+   unfold γ_sum, summation; simpl.
+   rewrite Nat.add_0_r.
+   do 4 rewrite rng_add_0_r.
+   unfold γ_sum, summation; simpl.
+   rewrite Nat.add_0_r.
+   do 2 rewrite rng_add_0_r.
 bbb.
-*)
+
+intros pol ns b n Hz.
+unfold root_head; simpl.
+rewrite Hz.
+rewrite Nat.add_0_r.
+destruct (ps_zerop R (ps_poly_nth 0 (nth_pol b pol ns))) as [H₁| H₁].
+ rewrite rng_add_0_r.
+ apply zerop_1st_n_const_coeff_false_iff with (i := b) in Hz; eauto .
+ contradiction.
+
+ revert b Hz H₁.
+ induction n; intros.
+  rewrite Nat.add_0_r.
+  destruct (ps_zerop R (ps_poly_nth 0 (nth_pol b pol ns))) as [H₂| H₂].
+   contradiction.
+
+   clear H₂; simpl.
+   unfold γ_sum, summation; simpl.
+   rewrite Nat.add_0_r.
+   do 4 rewrite rng_add_0_r.
+   apply rng_add_compat_l.
+bbb.
+
+intros pol ns b n Hz.
+unfold root_head; simpl.
+rewrite Hz.
+rewrite Nat.add_0_r.
+destruct (ps_zerop R (ps_poly_nth 0 (nth_pol b pol ns))) as [H₁| H₁].
+ rewrite rng_add_0_r.
+ apply zerop_1st_n_const_coeff_false_iff with (i := b) in Hz; eauto .
+ contradiction.
+
+bbb.
+ destruct (ps_zerop R (ps_poly_nth 0 (nth_pol (b + n) pol ns))) as [H₂| H₂].
+  rewrite rng_add_0_r.
+  unfold γ_sum; simpl.
+  unfold summation; simpl.
+  rewrite Nat.add_0_r, rng_add_0_r.
+  destruct n; simpl.
+   rewrite Nat.add_0_r in H₂; contradiction.
+
+   destruct n.
+    destruct (ps_zerop R (ps_poly_nth 0 (nth_pol (b + 1) pol ns)))
+     as [H₃| H₃].
+     rewrite Nat.add_0_r, rng_add_0_r.
+     destruct (ps_zerop R (ps_poly_nth 0 (nth_pol b pol ns))) as [H₄| H₄].
+      contradiction.
+
+      unfold γ_sum, summation; simpl.
+      rewrite Nat.add_0_r, rng_add_0_r, rng_add_0_r.
+      rewrite rng_add_0_r.
+      apply rng_add_compat_l.
+      unfold γ_sum, summation; simpl.
+      rewrite Nat.add_0_r, rng_add_0_r.
+      reflexivity.
+
+     contradiction.
+
+    rewrite Nat.add_0_r.
+    destruct (ps_zerop R (ps_poly_nth 0 (nth_pol b pol ns))) as [H₃| H₄].
+     contradiction.
+
+     simpl.
+     destruct (ps_zerop R (ps_poly_nth 0 (nth_pol (b + 1) pol ns)))
+      as [H₃| H₃].
+      unfold γ_sum, summation; simpl.
+      rewrite rng_add_0_r.
+      rewrite rng_add_0_r.
+      rewrite rng_add_0_r.
+      rewrite Nat.add_0_r.
+      reflexivity.
+bbb.
+
+intros pol ns b n Hz.
+unfold root_head; simpl.
+remember (zerop_1st_n_const_coeff b pol ns) as z₁ eqn:Hz₁ .
+symmetry in Hz₁.
+destruct z₁.
+ destruct (ps_zerop R (ps_poly_nth 0 (nth_pol (b + n) pol ns))) as [H₁| H₁].
+  rewrite rng_add_0_l; reflexivity.
+
+  apply zerop_1st_n_const_coeff_true_if with (n := n) in Hz₁.
+  remember (b + n)%nat as bn; clear Heqbn.
+  exfalso; apply H₁; clear H₁.
+  revert pol ns Hz₁.
+  induction bn; intros.
+   simpl in Hz₁; simpl.
+   destruct (ps_zerop R (ps_poly_nth 0 pol)); auto.
+   discriminate Hz₁.
+
+   simpl.
+   simpl in Hz₁.
+   destruct (ps_zerop R (ps_poly_nth 0 pol)).
+    Focus 2.
+    apply IHbn; assumption.
+bbb.
 
 Lemma root_tail_when_r_1 : ∀ pol ns pol₁ ns₁ c m q₀ b,
   ns ∈ newton_segments pol
@@ -789,6 +888,8 @@ induction n; intros.
   rewrite Hz₁.
   rewrite zerop_1st_n_const_coeff_true_if; auto.
   rewrite rng_add_0_l, rng_mul_0_r; reflexivity.
+
+  rewrite IHn; eauto .
 bbb.
 
  rewrite IHn; eauto .
