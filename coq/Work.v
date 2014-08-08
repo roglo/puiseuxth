@@ -736,6 +736,7 @@ Lemma zzz : ∀ pol ns b n i,
          ps_monom (nth_c (b + i + S n) pol ns)
            (γ_sum b (i + S n) pol ns)))%ps.
 Proof.
+(* à nettoyer *)
 intros pol ns b n i Hz; simpl.
 destruct (ps_zerop R (ps_poly_nth 0 (nth_pol (b + i) pol ns))) as [H₁| H₁].
  eapply zerop_1st_n_const_coeff_false_iff with (i := (b + i)%nat) in Hz.
@@ -787,7 +788,11 @@ destruct (ps_zerop R (ps_poly_nth 0 (nth_pol (b + i) pol ns))) as [H₁| H₁].
       rewrite Nat.sub_diag.
       apply Nat.le_0_l.
 
-    rewrite IHn; auto.
+    remember (zerop_1st_n_const_coeff (b + S i) pol ns) as z₂ eqn:Hz₂ .
+    symmetry in Hz₂.
+    destruct z₂.
+     Focus 2.
+     rewrite IHn; auto.
      apply rng_add_compat_l.
      rewrite Nat.add_succ_r, Nat.add_succ_l, <- Nat.add_succ_r.
      rewrite Hz₁.
@@ -796,41 +801,55 @@ destruct (ps_zerop R (ps_poly_nth 0 (nth_pol (b + i) pol ns))) as [H₁| H₁].
      rewrite Nat.add_succ_l, <- Nat.add_succ_r.
      reflexivity.
 
-     rewrite Nat.add_succ_r.
-     rewrite zerop_1st_n_const_coeff_succ2.
-     rewrite Hz.
-bbb.
+     destruct z₁.
+      Focus 2.
+      apply zerop_1st_n_const_coeff_true_if with (n := n) in Hz₂.
+      rewrite Nat.add_succ_r, Nat.add_succ_l, <- Nat.add_succ_r in Hz₂.
+      rewrite Hz₁ in Hz₂.
+      discriminate Hz₂.
 
-  root_head_from_cγ_list pol ns b n i =
-   ps_monom (nth_c (b + i) pol ns) (γ_sum b i pol ns) +
-   ps_monom (nth_c (b + i + 1) pol ns) (γ_sum b (i + 1) pol ns) +
-   ps_monom (nth_c (b + i + 2) pol ns) (γ_sum b (i + 2) pol ns) +
-   ...
-   ps_monom (nth_c (b + i + n) pol ns) (γ_sum b (i + n) pol ns) +
+      (* a lemma here could be cool *)
+      revert Hz H₂ Hz₂; clear; intros.
+      exfalso; apply H₂; clear H₂.
+      rewrite Nat.add_succ_r in Hz₂.
+      rewrite Nat.add_succ_r.
+      clear n.
+      remember (b + i)%nat as n; clear Heqn.
+      revert Hz Hz₂; clear; intros.
+      revert pol ns Hz Hz₂.
+      induction n; intros.
+       simpl.
+       simpl in Hz₂.
+       simpl in Hz.
+       destruct (ps_zerop R (ps_poly_nth 0 pol)) as [H₁| H₁].
+        discriminate Hz.
 
-  root_head_from_cγ_list pol ns b (S n) i =
-   root_head_from_cγ_list pol ns b n i +
-   ps_monom (nth_c (b + i + S n) pol ns) (γ_sum b (i + S n) pol ns) +
+        clear Hz.
+        remember (ac_root (Φq pol ns)) as c.
+        remember (next_pol pol (β ns) (γ ns) c) as pol₁.
+        destruct (ps_zerop R (ps_poly_nth 0 pol₁)) as [H₂| H₂].
+         assumption.
 
-Lemma zzz₁ : ∀ pol ns b n i,
-  zerop_1st_n_const_coeff (b + i) pol ns = false
-  → (root_head_from_cγ_list pol ns b (S n) i =
-     root_head_from_cγ_list pol ns b n i +
-      (if zerop_1st_n_const_coeff (b + i + n) pol ns
-       then 0
-       else
-         ps_monom (nth_c (b + i + S n) pol ns)
-           (γ_sum (b + i) (S n) pol ns)))%ps.
-Proof.
-intros pol ns b n i Hz.
-bbb.
-revert b i Hz.
-induction n; intros.
- rewrite Nat.add_0_r; rewrite Hz; simpl.
- symmetry; rewrite rng_add_0_r; symmetry.
- apply rng_add_compat_l; simpl.
- destruct (ps_zerop R (ps_poly_nth 0 (nth_pol (b + i) pol ns))) as [H₁| H₁].
-bbb.
+         discriminate Hz₂.
+
+       remember (S n) as sn; simpl; subst sn.
+       remember (ac_root (Φq pol ns)) as c.
+       remember (next_pol pol (β ns) (γ ns) c) as pol₁.
+       remember (List.hd phony_ns (newton_segments pol₁)) as ns₁.
+       apply IHn.
+        simpl in Hz.
+        destruct (ps_zerop R (ps_poly_nth 0 pol)) as [H₁| H₁].
+         discriminate Hz.
+
+         subst; assumption.
+
+        remember (S n) as sn; simpl in Hz₂; subst sn.
+        simpl in Hz.
+        destruct (ps_zerop R (ps_poly_nth 0 pol)) as [H₁| H₁].
+         discriminate Hz.
+
+         subst; assumption.
+qed.
 
 Lemma root_head_succ : ∀ pol ns b n,
   zerop_1st_n_const_coeff b pol ns = false
