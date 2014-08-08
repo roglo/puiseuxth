@@ -717,10 +717,57 @@ induction b; intros.
  destruct (ps_zerop R (ps_poly_nth 0 pol)); auto.
 Qed.
 
+Lemma root_head_from_cγ_list_succ : ∀ pol ns b n i,
+  (root_head_from_cγ_list pol ns b (S n) i =
+   ps_monom (nth_c (b + i) pol ns) (γ_sum b i pol ns) +
+     if ps_zerop R (ps_poly_nth 0 (nth_pol (b + i) pol ns)) then 0
+     else root_head_from_cγ_list pol ns b n (S i))%ps.
+Proof.
+intros pol ns b n i.
+reflexivity.
+Qed.
+
 Lemma zzz : ∀ pol ns b n i,
   zerop_1st_n_const_coeff (b + i) pol ns = false
   → (root_head_from_cγ_list pol ns b (S n) i =
-      root_head_from_cγ_list pol ns b n i +
+     root_head_from_cγ_list pol ns b n i +
+      (if zerop_1st_n_const_coeff (b + i + n) pol ns then 0
+       else
+         ps_monom (nth_c (b + i + S n) pol ns)
+           (γ_sum b (i + S n) pol ns)))%ps.
+Proof.
+intros pol ns b n i Hz; simpl.
+destruct (ps_zerop R (ps_poly_nth 0 (nth_pol (b + i) pol ns))) as [H₁| H₁].
+ eapply zerop_1st_n_const_coeff_false_iff with (i := (b + i)%nat) in Hz.
+  contradiction.
+
+  apply Nat.le_refl.
+
+ revert b i Hz H₁.
+ induction n; intros.
+  simpl.
+  rewrite Nat.add_0_r.
+  do 2 rewrite rng_add_0_r.
+  rewrite Hz.
+  rewrite <- Nat.add_1_r, Nat.add_assoc.
+  reflexivity.
+bbb.
+
+  root_head_from_cγ_list pol ns b n i =
+   ps_monom (nth_c (b + i) pol ns) (γ_sum b i pol ns) +
+   ps_monom (nth_c (b + i + 1) pol ns) (γ_sum b (i + 1) pol ns) +
+   ps_monom (nth_c (b + i + 2) pol ns) (γ_sum b (i + 2) pol ns) +
+   ...
+   ps_monom (nth_c (b + i + n) pol ns) (γ_sum b (i + n) pol ns) +
+
+  root_head_from_cγ_list pol ns b (S n) i =
+   root_head_from_cγ_list pol ns b n i +
+   ps_monom (nth_c (b + i + S n) pol ns) (γ_sum b (i + S n) pol ns) +
+
+Lemma zzz₁ : ∀ pol ns b n i,
+  zerop_1st_n_const_coeff (b + i) pol ns = false
+  → (root_head_from_cγ_list pol ns b (S n) i =
+     root_head_from_cγ_list pol ns b n i +
       (if zerop_1st_n_const_coeff (b + i + n) pol ns
        then 0
        else
@@ -735,9 +782,6 @@ induction n; intros.
  symmetry; rewrite rng_add_0_r; symmetry.
  apply rng_add_compat_l; simpl.
  destruct (ps_zerop R (ps_poly_nth 0 (nth_pol (b + i) pol ns))) as [H₁| H₁].
-  eapply zerop_1st_n_const_coeff_false_iff with (i := (b + i)%nat) in Hz;
-   auto.
-  contradiction.
 bbb.
 
 Lemma root_head_succ : ∀ pol ns b n,
