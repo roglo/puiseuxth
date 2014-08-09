@@ -965,20 +965,26 @@ induction n; intros.
 
     unfold root_tail at 2.
     rewrite Hz₂, rng_mul_0_r, rng_add_0_r.
-    unfold root_head.
-    rewrite Hz₁.
-    revert Hz Hz₁; clear; intros.
-    destruct n.
-     simpl.
-     rewrite rng_add_0_r.
-     rewrite Nat.add_0_r.
-     unfold γ_sum; simpl.
-     unfold summation; simpl.
-     rewrite Nat.add_0_r.
-     rewrite rng_add_0_r.
-     rewrite rng_add_0_r.
+    remember (zerop_1st_n_const_coeff (S (b + n)) pol₁ ns₁) as z₃ eqn:Hz₃ .
+    symmetry in Hz₃.
+    destruct z₃.
+     Focus 2.
+     rewrite IHn; eauto .
+     apply rng_add_compat_l; simpl.
+     unfold γ_sum at 2; simpl.
+     rewrite summation_split_last; [ idtac | apply Nat.le_0_l ].
+     rewrite fold_γ_sum, ps_monom_add_r.
+     rewrite <- ps_monom_add_r.
+     rewrite rng_add_comm.
      rewrite ps_monom_add_r.
+     rewrite rng_mul_comm.
+     apply rng_mul_compat_r; simpl.
 bbb.
+  Hz₂ : zerop_1st_n_const_coeff (b + S (S n)) pol₁ ns₁ = true
+  Hz₃ : zerop_1st_n_const_coeff (b + S n) pol₁ ns₁ = false
+  ============================
+   (root_tail m₁ (b + S n) pol₁ ns₁ =
+    ps_monom (nth_c (b + S n) pol₁ ns₁) (nth_γ (b + S n) pol₁ ns₁))%ps
 
  rewrite IHn; eauto .
  unfold γ_sum.
