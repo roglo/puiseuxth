@@ -924,6 +924,25 @@ induction n; intros.
    rewrite <- Nat.add_succ_r.
    rewrite zerop_1st_n_const_coeff_true_if; auto.
    rewrite rng_mul_0_r; reflexivity.
+
+   rewrite IHn; eauto .
+   rewrite <- rng_add_assoc.
+   apply rng_add_compat_l; simpl.
+   symmetry.
+   rewrite ps_monom_split_mul.
+   rewrite rng_mul_comm, <- rng_mul_add_distr_l.
+   unfold γ_sum at 1; simpl.
+   rewrite summation_split_last; [ idtac | apply Nat.le_0_l ].
+   rewrite fold_γ_sum, ps_monom_add_r.
+   rewrite <- rng_mul_assoc.
+   apply rng_mul_compat_l.
+   rewrite rng_mul_add_distr_l.
+   rewrite rng_mul_comm; simpl.
+   rewrite <- ps_monom_split_mul.
+   symmetry.
+   do 3 rewrite Nat.add_succ_r.
+   rewrite Heqm₁.
+   eapply root_tail_sep_1st_monom; eauto .
 bbb.
 
  rewrite IHn; eauto .
