@@ -965,6 +965,10 @@ induction n; intros.
 
     unfold root_tail at 2.
     rewrite Hz₂, rng_mul_0_r, rng_add_0_r.
+    remember Hz₁ as H; clear HeqH.
+    apply root_head_succ with (n := n) in H.
+    rewrite Hz in H; rewrite <- H.
+    clear H.
 bbb.
 
  rewrite IHn; eauto .
