@@ -857,6 +857,16 @@ rewrite root_head_from_cγ_list_succ.
  rewrite Nat.add_0_r; assumption.
 Qed.
 
+Lemma zzz : ∀ pol ns m n,
+  zerop_1st_n_const_coeff n pol ns = false
+  → zerop_1st_n_const_coeff (S n) pol ns = true
+  → (root_tail_from_cγ_list m (nth_pol n pol ns) (nth_ns n pol ns) =
+     ps_monom (nth_c n pol ns) (nth_γ n pol ns))%ps.
+Proof.
+intros pol ns m n Hz₁ Hz₂.
+bbb.
+*)
+
 Lemma root_tail_when_r_1 : ∀ pol ns pol₁ ns₁ c m q₀ b,
   ns ∈ newton_segments pol
   → ps_lap_forall (λ a, in_K_1_m a m) (al pol)
@@ -979,6 +989,11 @@ induction n; intros.
      rewrite ps_monom_add_r.
      rewrite rng_mul_comm.
      apply rng_mul_compat_r; simpl.
+     unfold root_tail.
+     rewrite Nat.add_succ_r in Hz₂.
+     rewrite <- Nat.add_succ_r in Hz₃.
+     rewrite Hz₃.
+     apply zzz; assumption.
 bbb.
   Hz₂ : zerop_1st_n_const_coeff (b + S (S n)) pol₁ ns₁ = true
   Hz₃ : zerop_1st_n_const_coeff (b + S n) pol₁ ns₁ = false
