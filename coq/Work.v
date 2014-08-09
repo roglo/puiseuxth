@@ -857,67 +857,6 @@ rewrite root_head_from_cγ_list_succ.
  rewrite Nat.add_0_r; assumption.
 Qed.
 
-Lemma zzz : ∀ pol ns m n,
-  ns ∈ newton_segments pol
-  → zerop_1st_n_const_coeff n pol ns = false
-  → zerop_1st_n_const_coeff (S n) pol ns = true
-  → (root_tail_from_cγ_list m (nth_pol n pol ns) (nth_ns n pol ns) =
-     ps_monom (nth_c n pol ns) (nth_γ n pol ns))%ps.
-Proof.
-intros pol ns m n Hns Hz₁ Hz₂.
-remember Hz₁ as H; clear HeqH.
-rewrite zerop_1st_n_const_coeff_false_iff in H.
-rename H into Hpsi.
-remember Hns as H; clear HeqH.
-eapply nth_in_newton_segments with (n := n) in H; eauto .
- rename H into Hnsn.
- revert pol ns n Hns Hz₁ Hz₂ Hpsi Hnsn.
- induction n; intros.
-  simpl.
-  simpl in Hz₁, Hz₂.
-  destruct (ps_zerop R (ps_poly_nth 0 pol)) as [H| H].
-   discriminate Hz₁.
-
-   clear Hz₁.
-   unfold root_tail_from_cγ_list, ps_monom; simpl.
-   rewrite fold_series_const.
-   remember (Qden (snd (ini_pt ns))) as dj.
-   remember (Qden (snd (fin_pt ns))) as dk.
-   remember (Qden (/ (fst (fin_pt ns) - fst (ini_pt ns)))) as dkj.
-   remember (dj * dk * dkj)%positive as po.
-   rewrite ps_adjust_eq with (n := O) (k := po).
-   symmetry.
-   rewrite ps_adjust_eq with (n := O) (k := m).
-   symmetry.
-   unfold adjust_ps; simpl.
-   rewrite Pos.mul_comm.
-   apply mkps_morphism; auto.
-    Focus 2.
-    rename H into Hz.
-    remember Hnsn as H; clear HeqH.
-    apply exists_ini_pt_nat in H.
-    destruct H as (j, (aj, Hini)).
-    simpl in Hini.
-    remember Hnsn as H; clear HeqH.
-    apply exists_fin_pt_nat in H.
-    destruct H as (k, (ak, Hfin)).
-    simpl in Hfin.
-    rewrite Hini, Hfin; simpl.
-    rewrite Z_div_mul_swap.
-     rewrite Z.div_mul; auto.
-
-     rewrite Z.mul_opp_l, Z.add_opp_r.
-     rewrite Qnum_inv_Qnat_sub.
-      rewrite Z.mul_1_r.
-      rewrite Hini in Heqdj, Heqdkj.
-      rewrite Hfin in Heqdk, Heqdkj.
-      simpl in Heqdj, Heqdk, Heqdkj.
-      rewrite Qden_inv_Qnat_sub in Heqdkj.
-       subst dj dk dkj.
-       subst po.
-bbb.
-*)
-
 Lemma root_tail_when_r_1 : ∀ pol ns pol₁ ns₁ c m q₀ b,
   ns ∈ newton_segments pol
   → ps_lap_forall (λ a, in_K_1_m a m) (al pol)
@@ -1040,17 +979,26 @@ induction n; intros.
      rewrite ps_monom_add_r.
      rewrite rng_mul_comm.
      apply rng_mul_compat_r; simpl.
-     unfold root_tail.
-     rewrite Nat.add_succ_r in Hz₂.
-     rewrite <- Nat.add_succ_r in Hz₃.
-     rewrite Hz₃.
-     apply zzz; assumption.
+     rewrite Heqm₁.
+     rewrite root_tail_sep_1st_monom; eauto .
+      Focus 2.
+      apply zerop_1st_n_const_coeff_false_iff.
+      rewrite Nat.add_succ_r; assumption.
+
+      unfold root_tail.
+      rewrite <- Nat.add_succ_r.
+      rewrite Hz₂.
+      rewrite rng_mul_0_r, rng_add_0_r.
+      reflexivity.
 bbb.
+  Hz₁ : zerop_1st_n_const_coeff b pol₁ ns₁ = false
+  Hz : zerop_1st_n_const_coeff (b + n) pol₁ ns₁ = false
   Hz₂ : zerop_1st_n_const_coeff (b + S (S n)) pol₁ ns₁ = true
-  Hz₃ : zerop_1st_n_const_coeff (b + S n) pol₁ ns₁ = false
+  Hz₃ : zerop_1st_n_const_coeff (S (b + n)) pol₁ ns₁ = true
   ============================
-   (root_tail m₁ (b + S n) pol₁ ns₁ =
-    ps_monom (nth_c (b + S n) pol₁ ns₁) (nth_γ (b + S n) pol₁ ns₁))%ps
+   (root_tail m₁ b pol₁ ns₁ =
+    root_head b n pol₁ ns₁ +
+    ps_monom (nth_c (b + S n) pol₁ ns₁) (γ_sum b (S n) pol₁ ns₁))%ps
 
  rewrite IHn; eauto .
  unfold γ_sum.
