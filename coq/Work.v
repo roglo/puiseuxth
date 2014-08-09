@@ -737,6 +737,7 @@ destruct (ps_zerop R (ps_poly_nth 0 (nth_pol (b + i) pol ns))) as [H₁| H₁].
  revert b i Hz H₁.
  induction n; intros; simpl.
   rewrite Nat.add_0_r.
+bbb.
   do 2 rewrite rng_add_0_r.
   rewrite Hz, <- Nat.add_1_r, Nat.add_assoc.
   reflexivity.
