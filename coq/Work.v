@@ -968,6 +968,16 @@ induction n; intros.
     unfold root_head.
     rewrite Hz₁.
     revert Hz Hz₁; clear; intros.
+    destruct n.
+     simpl.
+     rewrite rng_add_0_r.
+     rewrite Nat.add_0_r.
+     unfold γ_sum; simpl.
+     unfold summation; simpl.
+     rewrite Nat.add_0_r.
+     rewrite rng_add_0_r.
+     rewrite rng_add_0_r.
+     rewrite ps_monom_add_r.
 bbb.
 
  rewrite IHn; eauto .
