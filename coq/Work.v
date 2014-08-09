@@ -910,8 +910,20 @@ induction n; intros.
   remember (zerop_1st_n_const_coeff (b + n) pol₁ ns₁) as z eqn:Hz .
   symmetry in Hz.
   destruct z.
-   rewrite rng_add_0_r.
-   rewrite Nat.add_succ_r.
+   rewrite rng_add_0_r, Nat.add_succ_r.
+   rewrite IHn; eauto .
+   apply rng_add_compat_l.
+   unfold γ_sum at 2; simpl.
+   rewrite summation_split_last; [ idtac | apply Nat.le_0_l ].
+   rewrite fold_γ_sum, ps_monom_add_r.
+   rewrite <- rng_mul_assoc.
+   apply rng_mul_compat_l.
+   unfold root_tail.
+   rewrite <- Nat.add_1_r, Nat.add_assoc.
+   rewrite zerop_1st_n_const_coeff_true_if; auto.
+   rewrite <- Nat.add_succ_r.
+   rewrite zerop_1st_n_const_coeff_true_if; auto.
+   rewrite rng_mul_0_r; reflexivity.
 bbb.
 
  rewrite IHn; eauto .
