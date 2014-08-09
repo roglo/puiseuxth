@@ -721,12 +721,11 @@ Lemma root_head_from_cγ_list_succ : ∀ pol ns b n i,
   zerop_1st_n_const_coeff (b + i) pol ns = false
   → (root_head_from_cγ_list pol ns b (S n) i =
      root_head_from_cγ_list pol ns b n i +
-      (if zerop_1st_n_const_coeff (b + i + n) pol ns then 0
+      (if zerop_1st_n_const_coeff (b + i + S n) pol ns then 0
        else
          ps_monom (nth_c (b + i + S n) pol ns)
            (γ_sum b (i + S n) pol ns)))%ps.
 Proof.
-(* à nettoyer *)
 intros pol ns b n i Hz; simpl.
 destruct (ps_zerop R (ps_poly_nth 0 (nth_pol (b + i) pol ns))) as [H₁| H₁].
  eapply zerop_1st_n_const_coeff_false_iff with (i := (b + i)%nat) in Hz.
@@ -736,11 +735,30 @@ destruct (ps_zerop R (ps_poly_nth 0 (nth_pol (b + i) pol ns))) as [H₁| H₁].
 
  revert b i Hz H₁.
  induction n; intros; simpl.
-  rewrite Nat.add_0_r.
+  symmetry; rewrite rng_add_0_r; symmetry.
+  rewrite Nat.add_1_r.
+  remember (zerop_1st_n_const_coeff (S (b + i)) pol ns) as z₁ eqn:Hz₁ .
+  symmetry in Hz₁.
+  rewrite Nat.add_succ_r.
+  destruct z₁.
+   rewrite zerop_1st_n_const_coeff_succ2 in Hz₁.
+   rewrite Hz, Bool.orb_false_l in Hz₁.
+   remember (nth_pol (S (b + i)) pol ns) as p.
+   simpl in Hz₁.
+   destruct (ps_zerop R (ps_poly_nth 0 p)) as [H₂| H₂]; subst p.
+    reflexivity.
+
+    discriminate Hz₁.
+
+   apply zerop_1st_n_const_coeff_false_iff with (i := S (b + i)) in Hz₁.
+    remember (nth_pol (S (b + i)) pol ns) as p.
+    destruct (ps_zerop R (ps_poly_nth 0 p)) as [H₂| H₂]; subst p.
+     contradiction.
+
+     rewrite rng_add_0_r, Nat.add_1_r; reflexivity.
+
+    reflexivity.
 bbb.
-  do 2 rewrite rng_add_0_r.
-  rewrite Hz, <- Nat.add_1_r, Nat.add_assoc.
-  reflexivity.
 
   rewrite <- rng_add_assoc; simpl.
   apply rng_add_compat_l; simpl.
