@@ -906,6 +906,16 @@ induction n; intros.
   rewrite zerop_1st_n_const_coeff_true_if; auto.
   rewrite rng_add_0_l, rng_mul_0_r; reflexivity.
 
+bbb.
+  Hz₁ : zerop_1st_n_const_coeff b pol₁ ns₁ = false
+  ============================
+   (root_tail m₁ b pol₁ ns₁ =
+    root_head b (S n) pol₁ ns₁ +
+    ps_monom 1%K (γ_sum b (S n) pol₁ ns₁) *
+    root_tail m₁ (b + S (S n)) pol₁ ns₁)%ps
+
+problème avec définition de root_head_from_cγ_list...
+
   rewrite root_head_succ; auto.
   remember (zerop_1st_n_const_coeff (b + n) pol₁ ns₁) as z eqn:Hz .
   symmetry in Hz.
@@ -925,6 +935,19 @@ induction n; intros.
    rewrite zerop_1st_n_const_coeff_true_if; auto.
    rewrite rng_mul_0_r; reflexivity.
 
+(*
+  Hz : zerop_1st_n_const_coeff (b + n) pol₁ ns₁ = false
+  ============================
+   (root_tail m₁ b pol₁ ns₁ =
+    root_head b n pol₁ ns₁ +
+    ps_monom (nth_c (b + S n) pol₁ ns₁) (γ_sum b (S n) pol₁ ns₁) +
+    ps_monom 1%K (γ_sum b (S n) pol₁ ns₁) *
+    root_tail m₁ (b + S (S n)) pol₁ ns₁)%ps
+FAUX si nul à partir de b + S n parce que le terme
+    ps_monom (nth_c (b + S n) pol₁ ns₁) (γ_sum b (S n) pol₁ ns₁)
+reste alors qu'il n'aurait pas dû rester
+*)
+bbb.
    remember (zerop_1st_n_const_coeff (b + S (S n)) pol₁ ns₁) as z₂ eqn:Hz₂ .
    symmetry in Hz₂.
    destruct z₂.
@@ -963,6 +986,7 @@ induction n; intros.
      revert i Hibn.
      apply zerop_1st_n_const_coeff_false_iff; assumption.
 
+bbb.
     unfold root_tail at 2.
     rewrite Hz₂, rng_mul_0_r, rng_add_0_r.
     remember (zerop_1st_n_const_coeff (S (b + n)) pol₁ ns₁) as z₃ eqn:Hz₃ .

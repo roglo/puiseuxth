@@ -143,6 +143,13 @@ Definition γ_sum α {R : ring α} {K : field R}
   let qr := Q_ring in
   Σ (i = 0, n), nth_γ (b + i) pol ns.
 
+bbb.
+
+Je pense qu'il y a un bug ci-dessous : il faut remplacer
+       if ps_zerop R (ps_poly_nth 0 (nth_pol (b + i) pol ns)) then 0%ps
+par
+       if ps_zerop R (ps_poly_nth 0 (nth_pol (b + S i) pol ns)) then 0%ps
+
 Fixpoint root_head_from_cγ_list α {R : ring α} {K : field R}
   {acf : algeb_closed_field K} pol ns b n i :=
   (ps_monom (nth_c (b + i) pol ns) (γ_sum b i pol ns) +
