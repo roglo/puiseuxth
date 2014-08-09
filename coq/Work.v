@@ -906,10 +906,12 @@ induction n; intros.
   rewrite zerop_1st_n_const_coeff_true_if; auto.
   rewrite rng_add_0_l, rng_mul_0_r; reflexivity.
 
-  rewrite IHn; eauto .
   rewrite root_head_succ; auto.
-  rewrite <- rng_add_assoc.
-  apply rng_add_compat_l; simpl.
+  remember (zerop_1st_n_const_coeff (b + n) pol₁ ns₁) as z eqn:Hz .
+  symmetry in Hz.
+  destruct z.
+   rewrite rng_add_0_r.
+   rewrite Nat.add_succ_r.
 bbb.
 
  rewrite IHn; eauto .
