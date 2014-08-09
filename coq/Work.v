@@ -718,16 +718,6 @@ induction b; intros.
 Qed.
 
 Lemma root_head_from_cγ_list_succ : ∀ pol ns b n i,
-  (root_head_from_cγ_list pol ns b (S n) i =
-   ps_monom (nth_c (b + i) pol ns) (γ_sum b i pol ns) +
-     if ps_zerop R (ps_poly_nth 0 (nth_pol (b + i) pol ns)) then 0
-     else root_head_from_cγ_list pol ns b n (S i))%ps.
-Proof.
-intros pol ns b n i.
-reflexivity.
-Qed.
-
-Lemma zzz : ∀ pol ns b n i,
   zerop_1st_n_const_coeff (b + i) pol ns = false
   → (root_head_from_cγ_list pol ns b (S n) i =
      root_head_from_cγ_list pol ns b n i +
@@ -849,7 +839,7 @@ destruct (ps_zerop R (ps_poly_nth 0 (nth_pol (b + i) pol ns))) as [H₁| H₁].
          discriminate Hz.
 
          subst; assumption.
-qed.
+Qed.
 
 Lemma root_head_succ : ∀ pol ns b n,
   zerop_1st_n_const_coeff b pol ns = false
@@ -860,37 +850,12 @@ Lemma root_head_succ : ∀ pol ns b n,
 Proof.
 intros pol ns b n Hz.
 unfold root_head; rewrite Hz.
-bbb.
-revert b Hz.
-induction n; intros.
- rewrite Nat.add_0_r; rewrite Hz; simpl.
- symmetry; rewrite rng_add_0_r; symmetry.
- apply rng_add_compat_l; simpl.
- rewrite Nat.add_0_r.
- destruct (ps_zerop R (ps_poly_nth 0 (nth_pol b pol ns))) as [H₁| H₁].
-  eapply zerop_1st_n_const_coeff_false_iff with (i := b) in Hz; auto.
-  contradiction.
+rewrite root_head_from_cγ_list_succ.
+ rewrite Nat.add_0_r, Nat.add_0_l.
+ reflexivity.
 
-  rewrite rng_add_0_r; reflexivity.
-
- remember (S n) as sn in |- *; simpl; subst sn.
- rewrite Nat.add_0_r.
- destruct (ps_zerop R (ps_poly_nth 0 (nth_pol b pol ns))) as [H₁| H₁].
-  eapply zerop_1st_n_const_coeff_false_iff with (i := b) in Hz; auto.
-  contradiction.
-
-  simpl.
-  rewrite Nat.add_0_r.
-  rewrite <- rng_add_assoc.
-  apply rng_add_compat_l; simpl.
-  destruct (ps_zerop R (ps_poly_nth 0 (nth_pol b pol ns))) as [H₂| H₂].
-   contradiction.
-
-   clear H₂.
-   destruct (ps_zerop R (ps_poly_nth 0 (nth_pol (b + 1) pol ns))) as [H₂| H₂].
-    rewrite rng_add_0_r.
-bbb.
-*)
+ rewrite Nat.add_0_r; assumption.
+Qed.
 
 Lemma root_tail_when_r_1 : ∀ pol ns pol₁ ns₁ c m q₀ b,
   ns ∈ newton_segments pol
@@ -942,6 +907,9 @@ induction n; intros.
   rewrite rng_add_0_l, rng_mul_0_r; reflexivity.
 
   rewrite IHn; eauto .
+  rewrite root_head_succ; auto.
+  rewrite <- rng_add_assoc.
+  apply rng_add_compat_l; simpl.
 bbb.
 
  rewrite IHn; eauto .
