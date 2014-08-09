@@ -925,57 +925,46 @@ induction n; intros.
    rewrite zerop_1st_n_const_coeff_true_if; auto.
    rewrite rng_mul_0_r; reflexivity.
 
-   rewrite IHn; eauto .
-   rewrite <- rng_add_assoc.
-   apply rng_add_compat_l; simpl.
-   symmetry.
-   rewrite ps_monom_split_mul.
-   rewrite rng_mul_comm, <- rng_mul_add_distr_l.
-   unfold γ_sum at 1; simpl.
-   rewrite summation_split_last; [ idtac | apply Nat.le_0_l ].
-   rewrite fold_γ_sum, ps_monom_add_r.
-   rewrite <- rng_mul_assoc.
-   apply rng_mul_compat_l.
-   rewrite rng_mul_add_distr_l.
-   rewrite rng_mul_comm; simpl.
-   rewrite <- ps_monom_split_mul.
-   symmetry.
-   do 3 rewrite Nat.add_succ_r.
-   remember (nth_pol (S (b + n)) pol₁ ns₁) as polsbn.
-   destruct (ps_zerop R (ps_poly_nth 0 polsbn)) as [H₂| H₂].
-    subst polsbn.
-    remember (S (b + n)) as sbn.
-    unfold root_tail.
-    remember (zerop_1st_n_const_coeff sbn pol₁ ns₁) as z₂ eqn:Hz₂ .
-    symmetry in Hz₂.
-    destruct z₂.
-     remember (zerop_1st_n_const_coeff (S sbn) pol₁ ns₁) as z₃ eqn:Hz₃ .
-     symmetry in Hz₃.
-     destruct z₃.
-      rewrite rng_mul_0_r, rng_add_0_r.
-      subst sbn.
-      Focus 2.
-      rewrite zerop_1st_n_const_coeff_succ2 in Hz₃.
-      rewrite Hz₂ in Hz₃.
-      discriminate Hz₃.
+   remember (zerop_1st_n_const_coeff (b + S (S n)) pol₁ ns₁) as z₂ eqn:Hz₂ .
+   symmetry in Hz₂.
+   destruct z₂.
+    Focus 2.
+    rewrite IHn; eauto .
+    rewrite <- rng_add_assoc.
+    apply rng_add_compat_l; simpl.
+    symmetry.
+    rewrite ps_monom_split_mul.
+    rewrite rng_mul_comm, <- rng_mul_add_distr_l.
+    unfold γ_sum at 1; simpl.
+    rewrite summation_split_last; [ idtac | apply Nat.le_0_l ].
+    rewrite fold_γ_sum, ps_monom_add_r.
+    rewrite <- rng_mul_assoc.
+    apply rng_mul_compat_l.
+    rewrite rng_mul_add_distr_l.
+    rewrite rng_mul_comm; simpl.
+    rewrite <- ps_monom_split_mul.
+    symmetry.
+    do 3 rewrite Nat.add_succ_r.
+    rewrite Heqm₁.
+    eapply root_tail_sep_1st_monom; eauto .
+    intros i Hibn.
+    destruct (eq_nat_dec i (S (b + n))) as [H₁| H₁].
+     subst i.
+     apply zerop_1st_n_const_coeff_false_iff with (i := S (b + n)) in Hz₂.
+      assumption.
 
-      Focus 2.
-      apply zerop_1st_n_const_coeff_false_iff with (i := sbn) in Hz₂; auto.
-      contradiction.
+      do 2 rewrite Nat.add_succ_r.
+      apply Nat.le_succ_r.
+      left; reflexivity.
 
-     Focus 2.
-     subst polsbn.
-     rewrite Heqm₁.
-     eapply root_tail_sep_1st_monom; eauto .
-     intros i Hibn.
-     destruct (eq_nat_dec i (S (b + n))) as [H₁| H₁].
-      subst i; assumption.
+     apply le_neq_lt in Hibn; auto.
+     apply Nat.succ_le_mono in Hibn.
+     clear H₁.
+     revert i Hibn.
+     apply zerop_1st_n_const_coeff_false_iff; assumption.
 
-      apply le_neq_lt in Hibn; auto.
-      apply Nat.succ_le_mono in Hibn.
-      clear H₁.
-      revert i Hibn.
-      apply zerop_1st_n_const_coeff_false_iff; assumption.
+    unfold root_tail at 2.
+    rewrite Hz₂, rng_mul_0_r, rng_add_0_r.
 bbb.
 
  rewrite IHn; eauto .
