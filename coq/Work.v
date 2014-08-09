@@ -941,8 +941,41 @@ induction n; intros.
    rewrite <- ps_monom_split_mul.
    symmetry.
    do 3 rewrite Nat.add_succ_r.
-   rewrite Heqm₁.
-   eapply root_tail_sep_1st_monom; eauto .
+   remember (nth_pol (S (b + n)) pol₁ ns₁) as polsbn.
+   destruct (ps_zerop R (ps_poly_nth 0 polsbn)) as [H₂| H₂].
+    subst polsbn.
+    remember (S (b + n)) as sbn.
+    unfold root_tail.
+    remember (zerop_1st_n_const_coeff sbn pol₁ ns₁) as z₂ eqn:Hz₂ .
+    symmetry in Hz₂.
+    destruct z₂.
+     remember (zerop_1st_n_const_coeff (S sbn) pol₁ ns₁) as z₃ eqn:Hz₃ .
+     symmetry in Hz₃.
+     destruct z₃.
+      rewrite rng_mul_0_r, rng_add_0_r.
+      subst sbn.
+      Focus 2.
+      rewrite zerop_1st_n_const_coeff_succ2 in Hz₃.
+      rewrite Hz₂ in Hz₃.
+      discriminate Hz₃.
+
+      Focus 2.
+      apply zerop_1st_n_const_coeff_false_iff with (i := sbn) in Hz₂; auto.
+      contradiction.
+
+     Focus 2.
+     subst polsbn.
+     rewrite Heqm₁.
+     eapply root_tail_sep_1st_monom; eauto .
+     intros i Hibn.
+     destruct (eq_nat_dec i (S (b + n))) as [H₁| H₁].
+      subst i; assumption.
+
+      apply le_neq_lt in Hibn; auto.
+      apply Nat.succ_le_mono in Hibn.
+      clear H₁.
+      revert i Hibn.
+      apply zerop_1st_n_const_coeff_false_iff; assumption.
 bbb.
 
  rewrite IHn; eauto .
