@@ -1484,19 +1484,6 @@ rewrite apply_lap_compose; simpl.
 rewrite rng_mul_0_r, rng_add_0_l; reflexivity.
 Qed.
 
-(* à voir...
-Lemma taylor_lap_formula_sub : ∀ α (r : ring α) la a,
-  lap_eq la (lap_compose (taylor_lap la a) [- a; 1 … []])%K.
-Proof.
-intros α r la a.
-remember (lap_compose la [a; 1%K … []]) as lb eqn:Hlb .
-pose proof (taylor_lap_formula_0 r lb) as H.
-subst lb.
-rewrite taylor_lap_compose_deg_1 in H.
-rewrite <- H.
-bbb.
-*)
-
 Lemma apply_taylor_lap_formula_sub : ∀ α (r : ring α) x la a,
   (apply_lap la x =
    apply_lap (taylor_lap la a) (x - a))%K.
@@ -1564,17 +1551,6 @@ destruct len; simpl.
  remember (k + i)%nat as x.
  rewrite Nat.add_comm; subst x; reflexivity.
 Qed.
-
-(*
-Theorem apply_taylor_formula : ∀ α (r : ring α) x c P,
-  (apply_poly P (x + c) =
-   apply_poly (taylor_poly P c) x)%K.
-Proof.
-intros α r x c P.
-rewrite taylor_formula_sub.
-rewrite rng_add_sub; reflexivity.
-Qed.
-*)
 
 (* test
 Load Q_field.
@@ -1945,7 +1921,7 @@ destruct cnt; simpl.
  pose proof (H (S n)); assumption.
 Qed.
 
-Lemma cpol_degree_ge_1 : ∀ pol ns,
+Lemma cpol_degree_ge_1₉ : ∀ pol ns,
   ns ∈ newton_segments pol
   → degree ac_zerop (Φq pol ns) ≥ 1.
 Proof.
@@ -1962,11 +1938,11 @@ apply exists_fin_pt_nat in Hk.
 destruct Hk as (k, (αk, Hk)).
 symmetry in Hk.
 remember Hns as Hdeg; clear HeqHdeg.
-eapply phi_degree_is_k_sub_j_div_q in Hdeg; try eassumption.
+eapply phi_degree_is_k_sub_j_div_q₉ in Hdeg; try eassumption.
 unfold has_degree in Hdeg.
 destruct Hdeg as (Hdeg, Hcnz).
 remember Hns as Hqkj; clear HeqHqkj.
-eapply q_is_factor_of_h_minus_j₂ with (h := k) in Hqkj; try eassumption.
+eapply q_is_factor_of_h_minus_j₉ with (h := k) in Hqkj; try eassumption.
  destruct Hqkj as (n, Hqkj).
  destruct n.
   simpl in Hqkj.
@@ -1986,7 +1962,7 @@ eapply q_is_factor_of_h_minus_j₂ with (h := k) in Hqkj; try eassumption.
   rewrite Nat.div_mul in Hcnz; [ idtac | subst q; apply Pos2Nat_ne_0 ].
   unfold pseudo_degree in Hdeg.
   unfold degree.
-  remember (al (Φ₂ pol ns)) as la eqn:Hla .
+  remember (al (Φ₉ pol ns)) as la eqn:Hla .
   simpl in Hla.
   rewrite Nat.sub_diag in Hla; simpl in Hla.
   rewrite skipn_pad in Hla.

@@ -156,7 +156,7 @@ Definition Φq α {R : ring α} pol ns :=
   let j := nat_num (fst (ini_pt ns)) in
   poly_left_shift j (summation_ah_xh_pol pol ns).
 
-Definition Φ₂ α {R : ring α} pol ns :=
+Definition Φ₉ α {R : ring α} pol ns :=
   let q := Pos.to_nat (q_of_ns pol ns) in
   poly_shrink q (Φq pol ns).
 
@@ -1126,7 +1126,7 @@ Qed.
           γ₁ = [...] = ---
                        m q
   » *)
-Theorem gamma_eq_p_mq : ∀ pol ns m p q,
+Theorem gamma_eq_p_mq₉ : ∀ pol ns m p q,
   ns ∈ newton_segments pol
   → m = ps_list_com_polord (al pol)
     → p = p_of_ns pol ns
@@ -1255,7 +1255,7 @@ assert (g ≠ 0)%Z as Hg0.
    rewrite <- Hgq; apply Pos2Z.is_pos.
 Qed.
 
-(* similar to CharactPolyn.p_and_q_have_no_common_factors₂ *)
+(* similar to p_and_q_have_no_common_factors₉ *)
 Theorem p_and_q_have_no_common_factors : ∀ a m p q,
   p = p_of_m m a
   → q = q_of_m m a
@@ -1267,7 +1267,7 @@ Qed.
 
 (* [Walker, p. 100]: « [...] where q > 0 and p and q are integers having
    no common factor. » *)
-Theorem p_and_q_have_no_common_factors₂ : ∀ pol ns p q,
+Theorem p_and_q_have_no_common_factors₉ : ∀ pol ns p q,
   ns ∈ newton_segments pol
   → p = p_of_ns pol ns
     → q = q_of_ns pol ns
@@ -1676,7 +1676,7 @@ apply any_in_K_1_m with (h := j) (αh := αj) in HinK.
  destruct Hns; rewrite <- Hini; assumption.
 Qed.
 
-(* similar to com_den_of_ini_pt *)
+(* similar to com_den_of_ini_pt₉ *)
 Lemma pol_ord_of_ini_pt : ∀ pol ns m j αj mj,
   ns ∈ newton_segments pol
   → ps_lap_forall (λ a, in_K_1_m a m) (al pol)
@@ -1696,7 +1696,7 @@ rewrite Z_div_mul_swap.
  eapply den_αj_divides_num_αj_m; eauto .
 Qed.
 
-Lemma com_den_of_ini_pt : ∀ pol ns m j αj mj,
+Lemma com_den_of_ini_pt₉ : ∀ pol ns m j αj mj,
   ns ∈ newton_segments pol
   → m = ps_list_com_polord (al pol)
     → (Qnat j, αj) = ini_pt ns
@@ -1759,7 +1759,7 @@ apply any_in_K_1_m with (h := k) (αh := αk) in HinK.
  destruct Hns; rewrite <- Hini; assumption.
 Qed.
 
-(* similar to com_den_of_fin_pt *)
+(* similar to com_den_of_fin_pt₉ *)
 Lemma pol_ord_of_fin_pt : ∀ pol ns m k αk mk,
   ns ∈ newton_segments pol
   → ps_lap_forall (λ a, in_K_1_m a m) (al pol)
@@ -1779,7 +1779,7 @@ rewrite Z_div_mul_swap.
  eapply den_αk_divides_num_αk_m; eauto .
 Qed.
 
-Lemma com_den_of_fin_pt : ∀ pol ns m k αk mk,
+Lemma com_den_of_fin_pt₉ : ∀ pol ns m k αk mk,
   ns ∈ newton_segments pol
   → m = ps_list_com_polord (al pol)
     → (Qnat k, αk) = fin_pt ns
@@ -1840,7 +1840,7 @@ apply any_in_K_1_m with (h := h) (αh := αh) in HinK.
  eapply oth_pts_in_init_pts in Hns; eauto .
 Qed.
 
-(* similar to com_den_of_oth_pt *)
+(* similar to com_den_of_oth_pt₉ *)
 Lemma pol_ord_of_oth_pt : ∀ pol ns m h αh mh,
   ns ∈ newton_segments pol
   → ps_lap_forall (λ a, in_K_1_m a m) (al pol)
@@ -1860,7 +1860,7 @@ rewrite Z_div_mul_swap.
  eapply den_αh_divides_num_αh_m; eauto .
 Qed.
 
-Lemma com_den_of_oth_pt : ∀ pol ns m h αh mh,
+Lemma com_den_of_oth_pt₉ : ∀ pol ns m h αh mh,
   ns ∈ newton_segments pol
   → m = ps_list_com_polord (al pol)
     → (Qnat h, αh) ∈ oth_pts ns
@@ -1887,7 +1887,7 @@ eapply com_den_of_ps_list with (ps := hps); try eassumption.
  reflexivity.
 Qed.
 
-Lemma mk_mh_of_ns : ∀ pol ns h αh,
+Lemma mk_mh_of_ns₉ : ∀ pol ns h αh,
   (Qnat h, αh) = fin_pt ns
   → mk_of_ns pol ns = mh_of_ns pol h αh.
 Proof.
@@ -1897,7 +1897,7 @@ rewrite <- Hfin; simpl.
 rewrite Nat2Z.id; reflexivity.
 Qed.
 
-(* similar to q_mj_mk_eq_p_h_j₂ which should be removed one day *)
+(* similar to q_mj_mk_eq_p_h_j₉ which should be removed one day *)
 (* [Walker, p. 100]: « In the first place, we note that [...]
 
          q (mj - mh) = p (h - j)
@@ -2017,7 +2017,7 @@ Qed.
 
          q (mj - mh) = p (h - j)
    » *)
-Theorem q_mj_mk_eq_p_h_j₂ : ∀ pol ns j αj m mj p q,
+Theorem q_mj_mk_eq_p_h_j₉ : ∀ pol ns j αj m mj p q,
   ns ∈ newton_segments pol
   → (Qnat j, αj) = ini_pt ns
     → m = ps_list_com_polord (al pol)
@@ -2060,7 +2060,7 @@ split.
   remember Hns as Hgh; clear HeqHgh.
   eapply gamma_value_jh in Hgh; try eassumption.
   remember Hm as Hgamma; clear HeqHgamma.
-  eapply gamma_eq_p_mq in Hgamma; try eassumption; try reflexivity.
+  eapply gamma_eq_p_mq₉ in Hgamma; try eassumption; try reflexivity.
   rewrite Hgamma in Hgh.
   unfold Qnat in Hgh.
   rewrite <- Qnum_minus_distr_r in Hgh.
@@ -2075,8 +2075,8 @@ split.
     eapply in_pts_in_pol in Hhps; try eassumption.
      destruct Hhps as (Hhps, Hαh).
      do 2 rewrite Qnum_minus_distr_r.
-     eapply com_den_of_ini_pt in Hj; try eassumption; rewrite Hj.
-     eapply com_den_of_oth_pt in Hh; try eassumption.
+     eapply com_den_of_ini_pt₉ in Hj; try eassumption; rewrite Hj.
+     eapply com_den_of_oth_pt₉ in Hh; try eassumption.
      rewrite Hh; reflexivity.
 
      eapply oth_pts_in_init_pts; try eassumption.
@@ -2091,7 +2091,7 @@ split.
   symmetry in Hh.
   eapply gamma_value_jk in Hgh; [ idtac | eassumption ].
   remember Hm as Hgamma; clear HeqHgamma.
-  eapply gamma_eq_p_mq in Hgamma; try eassumption; try reflexivity.
+  eapply gamma_eq_p_mq₉ in Hgamma; try eassumption; try reflexivity.
   rewrite Hgh in Hgamma.
   unfold Qnat in Hgamma.
   rewrite <- Qnum_minus_distr_r in Hgamma.
@@ -2109,11 +2109,11 @@ split.
     eapply in_pts_in_pol with (hv := αh) in Hhps; try eassumption.
      destruct Hhps as (Hhps, Hαh).
      do 2 rewrite Qnum_minus_distr_r.
-     eapply com_den_of_ini_pt in Hj; try eassumption; rewrite Hj.
-     eapply com_den_of_fin_pt in Hh; try eassumption.
+     eapply com_den_of_ini_pt₉ in Hj; try eassumption; rewrite Hj.
+     eapply com_den_of_fin_pt₉ in Hh; try eassumption.
       rewrite Hh; reflexivity.
 
-      erewrite mk_mh_of_ns; eassumption.
+      erewrite mk_mh_of_ns₉; eassumption.
 
      rewrite Hh.
      eapply ini_fin_ns_in_init_pts; try eassumption.
@@ -2148,7 +2148,7 @@ apply Z.mul_le_mono_pos_r with (p := Z.of_nat d).
  apply Nat2Z.is_nonneg.
 Qed.
 
-(* similar to CharactPolyn.q_is_factor_of_h_minus_j₂ which should
+(* similar to CharactPolyn.q_is_factor_of_h_minus_j₉ which should
    be removed one day *)
 Theorem q_is_factor_of_h_minus_j : ∀ pol ns j αj m q,
   ns ∈ newton_segments pol
@@ -2194,7 +2194,7 @@ Qed.
 (* [Walker, p. 100]: « In the first place, we note that [...]
    and since p and q have no common factors, q is a factor
    of h - j. » *)
-Theorem q_is_factor_of_h_minus_j₂ : ∀ pol ns j αj q,
+Theorem q_is_factor_of_h_minus_j₉ : ∀ pol ns j αj q,
   ns ∈ newton_segments pol
   → (Qnat j, αj) = ini_pt ns
     → q = Pos.to_nat (q_of_ns pol ns)
@@ -2204,11 +2204,11 @@ Proof.
 intros pol ns j αj q Hns Hj Hq h αh Hh.
 remember (p_of_ns pol ns) as p eqn:Hp.
 remember Hns as H; clear HeqH.
-eapply q_mj_mk_eq_p_h_j₂ in H; try eassumption; try reflexivity.
+eapply q_mj_mk_eq_p_h_j₉ in H; try eassumption; try reflexivity.
 destruct H as (Hαh, Hqjh).
 apply List.in_app_or in Hh.
 remember Hns as Hgcd; clear HeqHgcd.
-eapply p_and_q_have_no_common_factors₂ in Hgcd; try reflexivity.
+eapply p_and_q_have_no_common_factors₉ in Hgcd; try reflexivity.
 rewrite <- positive_nat_Z, <- Hp, <- Hq in Hgcd.
 rewrite Z.gcd_comm in Hgcd.
 apply Z.gauss with (p := Z.of_nat (h - j)) in Hgcd.
@@ -2233,7 +2233,7 @@ Qed.
 (* [Walker, p. 100]: « In the first place, we note that [...]
    Thus for every Ph on L we have h = j + s q, s being a
    non-negative integer. » *)
-Theorem h_is_j_plus_sq : ∀ pol ns j αj m q,
+Theorem h_is_j_plus_sq₉ : ∀ pol ns j αj m q,
   ns ∈ newton_segments pol
   → (Qnat j, αj) = ini_pt ns
     → m = ps_list_com_polord (al pol)
@@ -2244,7 +2244,7 @@ Theorem h_is_j_plus_sq : ∀ pol ns j αj m q,
 Proof.
 intros pol ns j αj m q Hns Hj Heqm Hq h αh s Hh Hs.
 remember Hns as H; clear HeqH.
-eapply q_is_factor_of_h_minus_j₂ in H; try eassumption; try reflexivity.
+eapply q_is_factor_of_h_minus_j₉ in H; try eassumption; try reflexivity.
 apply List.in_app_or in Hh.
 assert (j < h)%nat as Hjh.
  destruct Hh as [Hh| [Hk| ]]; [ idtac | idtac | contradiction ].
@@ -2714,7 +2714,7 @@ Qed.
 Close Scope nat_scope.
 
 (* [Walker, p. 100] « Therefore (3.4) has the form c^j Φ(c^q) = 0 » *)
-Theorem characteristic_polynomial_is_in_x_power_q : ∀ pol ns cpol q,
+Theorem characteristic_polynomial_is_in_x_power_q₉ : ∀ pol ns cpol q,
   ns ∈ newton_segments pol
   → cpol = characteristic_polynomial pol ns
     → q = Pos.to_nat (q_of_ns pol ns)
@@ -2743,7 +2743,7 @@ destruct i.
  unfold nat_num in Hc; simpl in Hc.
  rewrite Nat2Z.id in Hc.
  remember ((k - j) / q)%nat as sk eqn:H .
- eapply h_is_j_plus_sq in H; try eassumption.
+ eapply h_is_j_plus_sq₉ in H; try eassumption.
   2: apply List.in_or_app; right; left; symmetry; eassumption.
 
   destruct H as (Hqjk, Hsk).
@@ -2770,10 +2770,10 @@ destruct i.
     destruct Hh as (h, (ah, Hh)).
     injection Hh; clear Hh; intros; subst ah hq.
     remember ((h - j) / S q)%nat as sh eqn:H .
-    eapply h_is_j_plus_sq in H; try eassumption.
+    eapply h_is_j_plus_sq₉ in H; try eassumption.
      destruct H as (Hh, Hshnz).
      remember Hhαh as H; clear HeqH.
-     eapply com_den_of_oth_pt in H; try eassumption; [ idtac | reflexivity ].
+     eapply com_den_of_oth_pt₉ in H; try eassumption; [ idtac | reflexivity ].
      remember (mh_of_ns pol h) as mh eqn:Hmh .
      rename H into Hah.
      destruct sh; [ exfalso; apply Hshnz; reflexivity | clear Hshnz ].
@@ -3078,12 +3078,12 @@ destruct l as [| b]; constructor.
  assumption.
 Qed.
 
-Lemma phi_pseudo_degree_is_k_sub_j_div_q : ∀ pol ns j αj k αk q,
+Lemma phi_pseudo_degree_is_k_sub_j_div_q₉ : ∀ pol ns j αj k αk q,
   ns ∈ newton_segments pol
   → (Qnat j, αj) = ini_pt ns
     → (Qnat k, αk) = fin_pt ns
       → q = Pos.to_nat (q_of_ns pol ns)
-        → pseudo_degree (Φ₂ pol ns) = ((k - j) / q)%nat.
+        → pseudo_degree (Φ₉ pol ns) = ((k - j) / q)%nat.
 Proof.
 intros pol ns j αj k αk q Hns Hj Hk Hq.
 unfold pseudo_degree; simpl.
@@ -3426,20 +3426,20 @@ Qed.
 
 (* [Walker, p. 100] « Therefore (3.4) has the form c^j Φ(c^q) = 0
    where Φ(z) is a polynomial, of degree (k - j)/q » *)
-Theorem phi_degree_is_k_sub_j_div_q : ∀ pol ns j αj k αk q,
+Theorem phi_degree_is_k_sub_j_div_q₉ : ∀ pol ns j αj k αk q,
   ns ∈ newton_segments pol
   → (Qnat j, αj) = ini_pt ns
     → (Qnat k, αk) = fin_pt ns
       → q = Pos.to_nat (q_of_ns pol ns)
-        → has_degree (Φ₂ pol ns) ((k - j) / q).
+        → has_degree (Φ₉ pol ns) ((k - j) / q).
 Proof.
 intros pol ns j αj k αk q Hns Hj Hk Hq.
 unfold has_degree.
 unfold pseudo_degree.
-remember (al (Φ₂ pol ns)) as l.
+remember (al (Φ₉ pol ns)) as l.
 apply imp_or_tauto.
  intros H.
- unfold Φ₂ in Heql.
+ unfold Φ₉ in Heql.
  rewrite Φq_pol in Heql.
  remember [ini_pt ns … oth_pts ns ++ [fin_pt ns]] as pl.
  rewrite <- Hj in Heql; simpl in Heql.
@@ -3551,20 +3551,20 @@ apply imp_or_tauto.
      destruct Hpt as [Hpt| ]; [ idtac | contradiction ].
      rewrite <- Hpt, <- Hk; reflexivity.
 
-  eapply q_is_factor_of_h_minus_j₂; try eassumption.
+  eapply q_is_factor_of_h_minus_j₉; try eassumption.
   apply List.in_or_app; right; left; symmetry; eassumption.
 
  subst l.
- eapply phi_pseudo_degree_is_k_sub_j_div_q; eassumption.
+ eapply phi_pseudo_degree_is_k_sub_j_div_q₉; eassumption.
 Qed.
 
 Definition apply_K_poly := (horner 0 rng_add rng_mul)%K.
 
 (* [Walker, p. 100] « Therefore (3.4) has the form c^j Φ(c^q) = 0
    where Φ(z) is a polynomial, of degree (k - j)/q, with Φ(0) ≠ 0 » *)
-Theorem phi_0_ne_0 : ∀ pol ns,
+Theorem phi_0_ne_0₉ : ∀ pol ns,
   ns ∈ newton_segments pol
-  → (apply_K_poly (Φ₂ pol ns) 0 ≠ 0)%K.
+  → (apply_K_poly (Φ₉ pol ns) 0 ≠ 0)%K.
 Proof.
 intros pol ns Hns.
 unfold apply_K_poly; simpl.

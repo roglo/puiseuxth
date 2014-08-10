@@ -724,14 +724,14 @@ apply Qbar.min_glb_lt.
  apply nth_g_order_pos; assumption.
 Qed.
 
-Lemma char_pol_root_ne_0 : ∀ pol ns c₁,
+Lemma char_pol_root_ne_0₉ : ∀ pol ns c₁,
   ns ∈ newton_segments pol
   → c₁ = ac_root (Φq pol ns)
     → (c₁ ≠ 0)%K.
 Proof.
 intros pol ns c₁ Hns Hc₁.
 remember Hns as Happ; clear HeqHapp.
-apply cpol_degree_ge_1 with (K := K) (acf := acf) in Happ.
+apply cpol_degree_ge_1₉ with (K := K) (acf := acf) in Happ.
 apply ac_prop_root in Happ.
 rewrite <- Hc₁ in Happ.
 remember Hns as Hini; clear HeqHini.
@@ -749,7 +749,7 @@ rewrite nat_num_Qnat; reflexivity.
 Qed.
 
 (* [Walker, p 101] « O(br) = 0 » *)
-Theorem order_bbar_r_is_0 : ∀ pol ns c₁ r f₁,
+Theorem order_bbar_r_is_0₉ : ∀ pol ns c₁ r f₁,
   ns ∈ newton_segments pol
   → c₁ = ac_root (Φq pol ns)
     → r = root_multiplicity acf c₁ (Φq pol ns)
@@ -798,12 +798,12 @@ assert (order (ps_lap_nth r (yr * ycj * psy ∘ yc)) = 0)%Qbar as Hor.
    rewrite ps_monom_order; [ reflexivity | idtac ].
    eapply psy_c₁_ne_0 in HΨ; eassumption.
 
-   eapply char_pol_root_ne_0; eassumption.
+   eapply char_pol_root_ne_0₉; eassumption.
 
   intros HH.
   apply ps_monom_0_coeff_0 in HH.
   revert HH.
-  eapply char_pol_root_ne_0; eassumption.
+  eapply char_pol_root_ne_0₉; eassumption.
 
  subst yr ycj psy yc.
  rewrite fold_ps_lap_add.
@@ -824,7 +824,7 @@ Qed.
      O(br) = 0
    »
 *)
-Theorem f₁_orders : ∀ pol ns c₁ r f₁,
+Theorem f₁_orders₉ : ∀ pol ns c₁ r f₁,
   ns ∈ newton_segments pol
   → c₁ = ac_root (Φq pol ns)
   → r = root_multiplicity acf c₁ (Φq pol ns)
@@ -836,7 +836,7 @@ Proof.
 intros pol ns c₁ r f₁ Hns Hc₁ Hr Hf₁.
 split; [ eapply order_bbar_nonneg; eassumption | idtac ].
 split; [ eapply order_bbar_pos; eassumption | idtac ].
-eapply order_bbar_r_is_0; eassumption.
+eapply order_bbar_r_is_0₉; eassumption.
 Qed.
 
 End theorems.
