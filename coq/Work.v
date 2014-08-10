@@ -755,141 +755,28 @@ induction n; intros; simpl.
 
  rewrite <- rng_add_assoc; simpl.
  apply rng_add_compat_l; simpl.
-bbb.
-
-intros pol ns b n i Hz; simpl.
-destruct (ps_zerop R (ps_poly_nth 0 (nth_pol (b + S i) pol ns))) as [H₁| H₁].
- eapply zerop_1st_n_const_coeff_false_iff with (i := (b + i)%nat) in Hz.
-  contradiction.
-
-  apply Nat.le_refl.
-
- revert b i Hz H₁.
- induction n; intros; simpl.
-  symmetry; rewrite rng_add_0_r; symmetry.
-  rewrite Nat.add_1_r.
-  remember (zerop_1st_n_const_coeff (S (b + i)) pol ns) as z₁ eqn:Hz₁ .
+ remember (nth_pol (b + S i) pol ns) as p.
+ destruct (ps_zerop R (ps_poly_nth 0 p)) as [H₁| H₁]; subst p.
+  rewrite rng_add_0_l.
+  remember (zerop_1st_n_const_coeff (b + i + S (S n)) pol ns) as z₁ eqn:Hz₁ .
   symmetry in Hz₁.
-  rewrite Nat.add_succ_r.
-  destruct z₁.
-   rewrite zerop_1st_n_const_coeff_succ2 in Hz₁.
-   rewrite Hz, Bool.orb_false_l in Hz₁.
-   remember (nth_pol (S (b + i)) pol ns) as p.
-   simpl in Hz₁.
-   destruct (ps_zerop R (ps_poly_nth 0 p)) as [H₂| H₂]; subst p.
-    reflexivity.
+  destruct z₁; [ reflexivity | idtac ].
+  rewrite zerop_1st_n_const_coeff_false_iff in Hz₁.
+  assert (b + S i ≤ b + i + S (S n)) as H by fast_omega .
+  apply Hz₁ in H; contradiction.
 
-    discriminate Hz₁.
+  rewrite IHn.
+   do 7 rewrite Nat.add_succ_r; rewrite Nat.add_succ_l.
+   reflexivity.
 
-   apply zerop_1st_n_const_coeff_false_iff with (i := S (b + i)) in Hz₁.
-    remember (nth_pol (S (b + i)) pol ns) as p.
-    destruct (ps_zerop R (ps_poly_nth 0 p)) as [H₂| H₂]; subst p.
-     contradiction.
-
-     rewrite rng_add_0_r, Nat.add_1_r; reflexivity.
-
-    reflexivity.
-
-  rewrite <- rng_add_assoc; simpl.
-  apply rng_add_compat_l; simpl.
-  destruct (ps_zerop R (ps_poly_nth 0 (nth_pol (b + i) pol ns))) as [H₂| H₂].
-   contradiction.
-
-   clear H₂.
-bbb.
-   remember (zerop_1st_n_const_coeff (b + i + S (S n)) pol ns) as z₁ eqn:Hz₁ .
-   symmetry in Hz₁.
-   destruct (ps_zerop R (ps_poly_nth 0 (nth_pol (b + S i) pol ns)))
-    as [H₂| H₂].
-bbb.
-    rewrite rng_add_0_r.
-    destruct z₁.
-     rewrite rng_add_0_r.
-     destruct n.
-      simpl.
-      rewrite rng_add_0_r.
-      reflexivity.
-
-      simpl.
-      destruct (ps_zerop R (ps_poly_nth 0 (nth_pol (b + S i) pol ns)))
-       as [H₃| H₃].
-       rewrite rng_add_0_r.
-       reflexivity.
-
-       contradiction.
-
-     eapply zerop_1st_n_const_coeff_false_iff with (i := (b + S i)%nat)
-      in Hz₁.
-      contradiction.
-
-      rewrite <- Nat.add_assoc.
-      apply Nat.add_le_mono_l.
-      rewrite Nat.add_succ_r, <- Nat.add_succ_l.
-      apply Nat.le_sub_le_add_l.
-      rewrite Nat.sub_diag.
-      apply Nat.le_0_l.
-
-    remember (zerop_1st_n_const_coeff (b + S i) pol ns) as z₂ eqn:Hz₂ .
-    symmetry in Hz₂.
-    destruct z₂.
-     Focus 2.
-     rewrite IHn; auto.
-     apply rng_add_compat_l.
-     rewrite Nat.add_succ_r, Nat.add_succ_l, <- Nat.add_succ_r.
-     rewrite Hz₁.
-     destruct z₁; [ reflexivity | idtac ].
-     rewrite Nat.add_succ_l, <- Nat.add_succ_r.
-     rewrite Nat.add_succ_l, <- Nat.add_succ_r.
-     reflexivity.
-
-     destruct z₁.
-      Focus 2.
-      apply zerop_1st_n_const_coeff_true_if with (n := n) in Hz₂.
-      rewrite Nat.add_succ_r, Nat.add_succ_l, <- Nat.add_succ_r in Hz₂.
-      rewrite Hz₁ in Hz₂.
-      discriminate Hz₂.
-
-      (* a lemma here could be cool *)
-      revert Hz H₂ Hz₂; clear; intros.
-      exfalso; apply H₂; clear H₂.
-      rewrite Nat.add_succ_r in Hz₂.
-      rewrite Nat.add_succ_r.
-      clear n.
-      remember (b + i)%nat as n; clear Heqn.
-      revert Hz Hz₂; clear; intros.
-      revert pol ns Hz Hz₂.
-      induction n; intros.
-       simpl.
-       simpl in Hz₂.
-       simpl in Hz.
-       destruct (ps_zerop R (ps_poly_nth 0 pol)) as [H₁| H₁].
-        discriminate Hz.
-
-        clear Hz.
-        remember (ac_root (Φq pol ns)) as c.
-        remember (next_pol pol (β ns) (γ ns) c) as pol₁.
-        destruct (ps_zerop R (ps_poly_nth 0 pol₁)) as [H₂| H₂].
-         assumption.
-
-         discriminate Hz₂.
-
-       remember (S n) as sn; simpl; subst sn.
-       remember (ac_root (Φq pol ns)) as c.
-       remember (next_pol pol (β ns) (γ ns) c) as pol₁.
-       remember (List.hd phony_ns (newton_segments pol₁)) as ns₁.
-       apply IHn.
-        simpl in Hz.
-        destruct (ps_zerop R (ps_poly_nth 0 pol)) as [H₁| H₁].
-         discriminate Hz.
-
-         subst; assumption.
-
-        remember (S n) as sn; simpl in Hz₂; subst sn.
-        simpl in Hz.
-        destruct (ps_zerop R (ps_poly_nth 0 pol)) as [H₁| H₁].
-         discriminate Hz.
-
-         subst; assumption.
+   rewrite Nat.add_succ_r.
+   rewrite zerop_1st_n_const_coeff_succ2.
+   rewrite Hz, Bool.orb_false_l.
+   rewrite <- Nat.add_succ_r.
+   apply zerop_1st_n_const_coeff_false_iff.
+   intros j Hj.
+   apply Nat.le_0_r in Hj; subst j.
+   assumption.
 Qed.
 
 Lemma root_head_succ : ∀ pol ns b n,
@@ -900,6 +787,8 @@ Lemma root_head_succ : ∀ pol ns b n,
      else ps_monom (nth_c (b + S n) pol ns) (γ_sum b (S n) pol ns))%ps.
 Proof.
 intros pol ns b n Hz.
+bbb.
+
 unfold root_head; rewrite Hz.
 rewrite root_head_from_cγ_list_succ.
  rewrite Nat.add_0_r, Nat.add_0_l.
