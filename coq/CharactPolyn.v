@@ -3661,28 +3661,4 @@ Qed.
 
 Definition apply_K_poly := (horner 0 rng_add rng_mul)%K.
 
-(* [Walker, p. 100] « Therefore (3.4) has the form c^j Φ(c^q) = 0
-   where Φ(z) is a polynomial, of degree (k - j)/q, with Φ(0) ≠ 0 » *)
-Theorem phi_0_ne_0₉ : ∀ pol ns,
-  ns ∈ newton_segments pol
-  → (apply_K_poly (Φ₉ pol ns) 0 ≠ 0)%K.
-Proof.
-intros pol ns Hns.
-unfold apply_K_poly; simpl.
-unfold horner; simpl.
-remember (ini_pt ns) as jj eqn:Hj .
-destruct jj as (jq, αj); simpl.
-rewrite Nat.sub_diag; simpl.
-rewrite skipn_pad; simpl.
-rewrite rng_mul_0_r, rng_add_0_l.
-eapply ord_coeff_non_zero_in_newt_segm; try eassumption; try reflexivity.
-left; rewrite <- Hj.
-unfold Qnat, nat_num; simpl.
-apply exists_ini_pt_nat in Hns.
-destruct Hns as (i, (αi, Hi)).
-rewrite Hi in Hj.
-injection Hj; clear Hj; intros; subst jq αj.
-rewrite Z2Nat.id; [ reflexivity | apply Nat2Z.is_nonneg ].
-Qed.
-
 End theorems.

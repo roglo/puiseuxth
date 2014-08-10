@@ -1870,10 +1870,9 @@ induction n; intros.
   assumption.
 Qed.
 
-Lemma r_1_nth_ns : ∀ pol ns c pol₁ ns₁ m q₀,
+Lemma r_1_nth_ns : ∀ pol ns c pol₁ ns₁ m,
   ns ∈ newton_segments pol
   → ps_lap_forall (λ a, in_K_1_m a m) (al pol)
-  → q₀ = q_of_m m (γ ns)
   → c = ac_root (Φq pol ns)
   → root_multiplicity acf c (Φq pol ns) = 1%nat
   → pol₁ = next_pol pol (β ns) (γ ns) c
@@ -1889,8 +1888,9 @@ Lemma r_1_nth_ns : ∀ pol ns c pol₁ ns₁ m q₀,
       (0 < Qnum αj)%Z ∧
       Qnum αk = 0%Z.
 Proof.
-intros pol ns c pol₁ ns₁ m q₀ Hns Hm Hq₀ Hc Hr Hpol₁ Hns₁.
+intros pol ns c pol₁ ns₁ m Hns Hm Hc Hr Hpol₁ Hns₁.
 intros n poln nsn Hpsi Hpoln Hnsn.
+remember (q_of_m m (γ ns)) as q₀ eqn:Hq₀.
 revert poln nsn Hpsi Hpoln Hnsn.
 revert pol ns c pol₁ ns₁ m q₀ Hns Hm Hq₀ Hc Hr Hpol₁ Hns₁.
 induction n; intros.
@@ -2535,8 +2535,9 @@ induction b; intros; simpl.
   pose proof (Hnz O (Nat.lt_0_succ b)) as H; auto.
 Qed.
 
-Lemma nth_in_newton_segments₉ : ∀ pol₁ ns₁ c₁ poln nsn n,
+Lemma nth_in_newton_segments : ∀ pol₁ ns₁ c₁ poln nsn n m,
   ns₁ ∈ newton_segments pol₁
+  → ps_lap_forall (λ a, in_K_1_m a m) (al pol₁)
   → c₁ = ac_root (Φq pol₁ ns₁)
   → root_multiplicity acf c₁ (Φq pol₁ ns₁) = 1%nat
   → (∀ i, (i ≤ n)%nat → (ps_poly_nth 0 (nth_pol i pol₁ ns₁) ≠ 0)%ps)
@@ -2544,9 +2545,9 @@ Lemma nth_in_newton_segments₉ : ∀ pol₁ ns₁ c₁ poln nsn n,
   → nsn = nth_ns n pol₁ ns₁
   → nsn ∈ newton_segments poln.
 Proof.
-intros pol₁ ns₁ c₁ poln nsn n Hns₁ Hc₁ Hr₁ Hpsi Hpoln Hnsn.
+intros pol₁ ns₁ c₁ poln nsn n m Hns₁ Hm Hc₁ Hr₁ Hpsi Hpoln Hnsn.
 subst poln nsn.
-revert pol₁ ns₁ c₁ Hns₁ Hc₁ Hr₁ Hpsi.
+revert pol₁ ns₁ c₁ m Hns₁ Hm Hc₁ Hr₁ Hpsi.
 induction n; intros; [ assumption | simpl ].
 rewrite <- Hc₁.
 remember (next_pol pol₁ (β ns₁) (γ ns₁) c₁) as pol₂ eqn:Hpol₂ .
@@ -2557,7 +2558,8 @@ assert (1 ≤ S n) as H₁.
 
  apply Hpsi in H₁; simpl in H₁.
  rewrite <- Hc₁, <- Hpol₂ in H₁.
- eapply IHn; eauto .
+ remember (q_of_m m (γ ns₁)) as q₀ eqn:Hq₀ .
+ eapply IHn with (m := (m * q₀)%positive); eauto .
   remember Hns₂ as H; clear HeqH.
   apply exists_ini_pt_nat_fst_seg in H.
   destruct H as (j₂, (αj₂, Hini₂)).
@@ -2566,11 +2568,13 @@ assert (1 ≤ S n) as H₁.
   destruct H as (k₂, (αk₂, Hfin₂)).
   eapply hd_newton_segments; eauto .
   remember Hns₁ as H; clear HeqH.
-  eapply r_1_j_0_k_1₉ in H; try eassumption.
+  eapply r_1_j_0_k_1 in H; try eassumption.
   destruct H as (Hj₂, (Hk₂, (Hαj₂, (Hαk₂, Hoth₂)))).
   subst j₂ k₂; apply Nat.lt_0_1.
 
-  eapply multiplicity_1_remains₉; eauto .
+  eapply next_pol_in_K_1_mq; eauto .
+
+  eapply multiplicity_1_remains; eauto .
 
   intros i Hin.
   apply Nat.succ_le_mono in Hin.
@@ -2986,7 +2990,7 @@ destruct z₁.
 
   clear Hpsi; rename H into Hpsi.
   remember Hns₁₁ as H; clear HeqH.
-  eapply nth_in_newton_segments₉ with (n := b₁) in H; eauto .
+  eapply nth_in_newton_segments with (n := b₁) in H; eauto .
   remember (nth_pol b₁ pol₁ ns₁) as polb eqn:Hpolb .
   remember (nth_ns b₁ pol₁ ns₁) as nsb eqn:Hnsb .
   rename H into Hbns.
@@ -3006,7 +3010,7 @@ destruct z₁.
   rewrite <- Hns₂ in Hpolb, Hnsb, Hpolb₂.
   rewrite <- Nat.add_1_r, <- Hpolb₂.
   remember Hns₁₁ as H; clear HeqH.
-  eapply nth_in_newton_segments₉ with (n := b) in H; eauto .
+  eapply nth_in_newton_segments with (n := b) in H; eauto .
   remember Hns as Hrb₁; clear HeqHrb₁.
   eapply multiplicity_1_remains_in_nth₉ with (n := b) in Hrb₁; eauto .
   remember (nth_ns b pol₁ ns₁) as nsb₁ eqn:Hnsb₁ .
@@ -3520,15 +3524,17 @@ destruct z₁.
     apply Pos.mul_comm; reflexivity.
 
    remember Hns₁i as H; clear HeqH.
-   eapply nth_in_newton_segments₉ in H; eauto .
-   rename H into Hnsn₁i.
-   eapply den_αj_divides_num_αj_m with (ns := nsn₁); eauto .
-   eapply lap_forall_nth with (ns := ns₁); eauto .
-    rewrite Heqm₁.
-    eapply q_eq_1 with (ns := ns); eauto .
-    eapply next_pol_in_K_1_mq with (ns := ns); eauto .
+   eapply nth_in_newton_segments with (m := (m * q₀)%positive) in H; eauto .
+    rename H into Hnsn₁i.
+    eapply den_αj_divides_num_αj_m with (ns := nsn₁); eauto .
+    eapply lap_forall_nth with (ns := ns₁); eauto .
+     rewrite Heqm₁.
+     eapply q_eq_1 with (ns := ns); eauto .
+     eapply next_pol_in_K_1_mq with (ns := ns); eauto .
 
-    rewrite Heqm₁.
+     rewrite Heqm₁.
+     eapply next_pol_in_K_1_mq with (ns := ns); eauto .
+
     eapply next_pol_in_K_1_mq with (ns := ns); eauto .
 
   remember Hns as H; clear HeqH.
