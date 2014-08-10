@@ -2002,6 +2002,7 @@ eapply q_is_factor_of_h_minus_j with (h := k) in Hqkj; try eassumption.
  apply List.in_or_app; right; left; symmetry; eassumption.
 Qed.
 
+(* to be removed one day *)
 Lemma cpol_degree_ge_1₉ : ∀ pol ns,
   ns ∈ newton_segments pol
   → degree ac_zerop (Φq pol ns) ≥ 1.

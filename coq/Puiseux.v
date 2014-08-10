@@ -1926,6 +1926,62 @@ induction n; intros.
   assumption.
 Qed.
 
+(* similar to multiplicity_1_remains₉ which should be removed one day *)
+Lemma multiplicity_1_remains_in_nth : ∀ pol ns c₁ pol₁ ns₁ m,
+  ns ∈ newton_segments pol
+  → ps_lap_forall (λ a, in_K_1_m a m) (al pol)
+  → c₁ = ac_root (Φq pol ns)
+  → root_multiplicity acf c₁ (Φq pol ns) = 1%nat
+  → pol₁ = next_pol pol (β ns) (γ ns) c₁
+  → ns₁ = List.hd phony_ns (newton_segments pol₁)
+  → ∀ n poln nsn cn,
+  (∀ i, (i ≤ n)%nat → (ps_poly_nth 0 (nth_pol i pol₁ ns₁) ≠ 0)%ps)
+  → poln = nth_pol n pol₁ ns₁
+  → nsn = nth_ns n pol₁ ns₁
+  → cn = ac_root (Φq poln nsn)
+  → root_multiplicity acf cn (Φq poln nsn) = 1%nat.
+Proof.
+intros pol ns c pol₁ ns₁ m Hns Hm Hc Hr Hpol₁ Hns₁.
+intros n poln nsn cn Hpsi Hpoln Hnsn Hcn.
+revert poln nsn cn Hpsi Hpoln Hnsn Hcn.
+revert pol ns c pol₁ ns₁ m Hns Hm Hc Hr Hpol₁ Hns₁.
+induction n; intros.
+ simpl in Hpoln, Hnsn; subst poln nsn; simpl.
+ eapply multiplicity_1_remains; eauto .
+ pose proof (Hpsi O (le_refl O)) as H; assumption.
+
+ simpl in Hpoln, Hnsn; subst poln nsn; simpl.
+ remember (ac_root (Φq pol₁ ns₁)) as c₁ eqn:Hc₁ .
+ remember (next_pol pol₁ (β ns₁) (γ ns₁) c₁) as pol₂ eqn:Hpol₂ .
+ remember (List.hd phony_ns (newton_segments pol₂)) as ns₂ eqn:Hns₂ .
+ remember (nth_pol n pol₂ ns₂) as poln₂ eqn:Hpoln₂ .
+ remember Hr as Hr₁; clear HeqHr₁.
+ eapply multiplicity_1_remains with (ns₁ := ns₁) in Hr₁; try eassumption.
+  remember Hns₁ as H; clear HeqH.
+  eapply r_1_next_ns with (ns := ns) in H; try eassumption.
+   destruct H as (αj₁, (αk₁, H)).
+   destruct H as (Hoth₁, (Hini₁, (Hfin₁, (Hαj₁, Hαk₁)))).
+   remember (q_of_m m (γ ns)) as q₀ eqn:Hq₀.
+   eapply IHn with (ns := ns₁) (pol := pol₁) (m := (m * q₀)%positive); eauto .
+    eapply hd_newton_segments; eauto .
+
+    eapply next_pol_in_K_1_mq; eauto .
+
+    intros i Hin.
+    apply Nat.succ_le_mono in Hin.
+    apply Hpsi in Hin; simpl in Hin.
+    rewrite <- Hc₁, <- Hpol₂, <- Hns₂ in Hin.
+    assumption.
+
+   clear H.
+   assert (0 ≤ S n)%nat as H by apply Nat.le_0_l.
+   apply Hpsi in H; assumption.
+
+  assert (0 ≤ S n)%nat as H by apply Nat.le_0_l.
+  apply Hpsi in H; assumption.
+Qed.
+
+(* to be removed one day *)
 Lemma multiplicity_1_remains_in_nth₉ : ∀ pol ns c₁ pol₁ ns₁,
   ns ∈ newton_segments pol
   → c₁ = ac_root (Φq pol ns)
@@ -2898,7 +2954,7 @@ induction n; intros.
    eapply q_eq_1 with (ns := ns); eauto .
    pose proof (Hpsi O (Nat.le_0_l (S n))) as H; assumption.
 
-   eapply multiplicity_1_remains_in_nth₉ with (ns := ns) (n := O); eauto .
+   eapply multiplicity_1_remains_in_nth with (ns := ns) (n := O); eauto .
    intros i Hi.
    apply Nat.le_0_r in Hi; subst i; simpl.
    pose proof (Hpsi O (Nat.le_0_l (S n))) as H; assumption.
@@ -3002,7 +3058,7 @@ destruct z₁.
   destruct H as (kb, (αkb, Hfinb)).
   remember (ac_root (Φq polb nsb)) as cb eqn:Hcb .
   remember Hr as Hrb; clear HeqHrb.
-  eapply multiplicity_1_remains_in_nth₉ in Hrb; eauto .
+  eapply multiplicity_1_remains_in_nth in Hrb; eauto .
   remember (nth_pol (b₁ + 1) pol₁ ns₁) as polb₂ eqn:Hpolb₂ .
   subst b₁.
   simpl in Hpolb, Hnsb, Hpolb₂.
@@ -3012,7 +3068,7 @@ destruct z₁.
   remember Hns₁₁ as H; clear HeqH.
   eapply nth_in_newton_segments with (n := b) in H; eauto .
   remember Hns as Hrb₁; clear HeqHrb₁.
-  eapply multiplicity_1_remains_in_nth₉ with (n := b) in Hrb₁; eauto .
+  eapply multiplicity_1_remains_in_nth with (n := b) in Hrb₁; eauto .
   remember (nth_ns b pol₁ ns₁) as nsb₁ eqn:Hnsb₁ .
   remember (nth_pol b pol₁ ns₁) as polb₁ eqn:Hpolb₁ .
   remember (ac_root (Φq polb₁ nsb₁)) as cb₁ eqn:Hcb₁ .
@@ -3850,7 +3906,7 @@ destruct z₁.
                             eapply next_pol_in_K_1_mq with (ns := ns₁); eauto .
 
                            eapply
-                            multiplicity_1_remains_in_nth₉ with (ns := ns);
+                            multiplicity_1_remains_in_nth with (ns := ns);
                             eauto .
 
                            erewrite nth_pol_n with (c₁ := c₁); eauto .
@@ -3917,7 +3973,7 @@ destruct z₁.
                               eauto .
 
                             eapply
-                             multiplicity_1_remains_in_nth₉ with (ns := ns);
+                             multiplicity_1_remains_in_nth with (ns := ns);
                              eauto .
 
                             erewrite nth_pol_n with (c₁ := c₁); eauto .
@@ -3954,7 +4010,7 @@ destruct z₁.
                               assumption.
 
                             eapply
-                             multiplicity_1_remains_in_nth₉ with (ns := ns₁);
+                             multiplicity_1_remains_in_nth with (ns := ns₁);
                              eauto .
                             clear i H₅ H₃ Hcmp₂ Heqix.
                             intros i Hisn.
@@ -3971,7 +4027,7 @@ destruct z₁.
                            eapply multiplicity_1_remains with (ns := nsn₂);
                             eauto .
                            eapply
-                            multiplicity_1_remains_in_nth₉ with (ns := ns₁);
+                            multiplicity_1_remains_in_nth with (ns := ns₁);
                             eauto .
                            clear i H₅ H₃ Hcmp₂ Heqix.
                            intros i Hisn.
@@ -3994,7 +4050,7 @@ destruct z₁.
                             auto.
                            fast_omega Hnp₁p.
 
-                        eapply multiplicity_1_remains_in_nth₉ with (ns := ns₁);
+                        eapply multiplicity_1_remains_in_nth with (ns := ns₁);
                          eauto .
                         clear i H₃ Hcmp₂ Heqix.
                         intros i Hisn.
