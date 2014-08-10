@@ -2249,7 +2249,7 @@ destruct c₁.
   exfalso; omega.
 Qed.
 
-Lemma find_coeff_step₉ : ∀ pol ns m c pol₁ ns₁ i di p dp np,
+Lemma find_coeff_step : ∀ pol ns m c pol₁ ns₁ i di p dp np,
   ns ∈ newton_segments pol
   → ps_lap_forall (λ a, in_K_1_m a m) (al pol)
   → q_of_m m (γ ns) = 1%positive
@@ -2583,7 +2583,7 @@ assert (1 ≤ S n) as H₁.
   assumption.
 Qed.
 
-Lemma root_tail_split_1st₉ : ∀ pol ns pol₁ ns₁ c m q₀,
+Lemma root_tail_split_1st : ∀ pol ns pol₁ ns₁ c m q₀,
   ns ∈ newton_segments pol
   → ps_lap_forall (λ a, in_K_1_m a m) (al pol)
   → q₀ = q_of_m m (γ ns)
@@ -2823,7 +2823,7 @@ destruct (ps_zerop _ (ps_poly_nth 0 pol₁)) as [H₁| H₁].
           replace p₂ with (p₂ + 0)%nat in Hp₂₃ by omega.
           apply Nat.succ_le_mono in Hcmp.
           subst id.
-          eapply find_coeff_step₉; eauto ; reflexivity.
+          eapply find_coeff_step; eauto ; reflexivity.
 
      simpl in HH.
      exfalso; revert HH; apply Nat.lt_irrefl.
@@ -2928,7 +2928,7 @@ Lemma root_tail_from_0₉ : ∀ pol ns pol₁ ns₁ c m q₀ b,
 Proof.
 intros pol ns pol₁ ns₁ c m q₀ b Hns Hm Hq₀ Hc Hr Hpol₁ Hns₁.
 remember (m * q₀)%positive as m₁.
-destruct b; [ subst m₁; eapply root_tail_split_1st₉; eauto  | idtac ].
+destruct b; [ subst m₁; eapply root_tail_split_1st; eauto  | idtac ].
 remember (S b) as b₁ eqn:Hb₁ .
 unfold root_tail, root_head; simpl.
 rewrite Nat.add_0_r.
@@ -3330,7 +3330,7 @@ destruct z₁.
            remember (List.hd phony_ns (newton_segments polb₃)) as nsb₃.
            rewrite <- Nat.add_1_r.
            rewrite
-            find_coeff_step₉
+            find_coeff_step
              with (ns := nsb₂) (pol := polb₂) (p := Z.to_nat d) (dp := O);
             eauto .
             rewrite <- Heqid; symmetry.
@@ -3870,7 +3870,7 @@ destruct z₁.
                           exfalso; fast_omega Hcmp₃ Hnp₁p.
 
                           eapply
-                           find_coeff_step₉
+                           find_coeff_step
                             with
                               (ns := nsn₃)
                               (pol := poln₃)
