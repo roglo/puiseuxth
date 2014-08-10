@@ -2412,7 +2412,7 @@ induction n; intros.
    assumption.
 
    replace m with (m * 1)%positive by apply Pos.mul_1_r.
-   eapply q_eq_1; eauto .
+   eapply q_eq_1₉; eauto .
     eapply next_pol_in_K_1_mq; eauto .
 
     assert (1 ≤ S n) as H by omega.
@@ -2439,7 +2439,7 @@ induction n; intros.
   assumption.
 Qed.
 
-Lemma root_tail_from_0 : ∀ pol ns pol₁ ns₁ c m q₀ b,
+Lemma root_tail_from_0₉ : ∀ pol ns pol₁ ns₁ c m q₀ b,
   ns ∈ newton_segments pol
   → ps_lap_forall (λ a, in_K_1_m a m) (al pol)
   → q₀ = q_of_m m (γ ns)
@@ -2454,7 +2454,7 @@ Lemma root_tail_from_0 : ∀ pol ns pol₁ ns₁ c m q₀ b,
 Proof.
 intros pol ns pol₁ ns₁ c m q₀ b Hns Hm Hq₀ Hc Hr Hpol₁ Hns₁.
 remember (m * q₀)%positive as m₁.
-destruct b; [ subst m₁; eapply root_tail_split_1st; eauto  | idtac ].
+destruct b; [ subst m₁; eapply root_tail_split_1st₉; eauto  | idtac ].
 remember (S b) as b₁ eqn:Hb₁ .
 unfold root_tail, root_head; simpl.
 rewrite Nat.add_0_r.
@@ -2494,7 +2494,7 @@ destruct z₁.
  remember (next_pol pol₁ (β ns₁) (γ ns₁) c₁) as pol₂ eqn:Hpol₂ .
  remember (List.hd phony_ns (newton_segments pol₂)) as ns₂ eqn:Hns₂ .
  remember Hns₁ as H; clear HeqH.
- eapply r_1_next_ns in H; eauto .
+ eapply r_1_next_ns₉ in H; eauto .
  destruct H as (αj₁, (αk₁, H)).
  destruct H as (Hoth₁, (Hini₁, (Hfin₁, (Hαj₁, Hαk₁)))).
  remember Hns₁ as Hns₁₁; clear HeqHns₁₁.
@@ -2502,11 +2502,11 @@ destruct z₁.
  remember Hns₁₁ as HK₂; clear HeqHK₂.
  rewrite Heqm₁ in HK₁.
  eapply next_pol_in_K_1_mq in HK₂; eauto .
- erewrite q_eq_1 with (q₀ := q₀) (ns := ns) in HK₂; eauto .
+ erewrite q_eq_1₉ with (q₀ := q₀) (ns := ns) in HK₂; eauto .
  rewrite <- Heqm₁ in HK₁.
  rewrite Pos.mul_1_r, <- Heqm₁ in HK₂.
  remember Hr as Hr₁; clear HeqHr₁.
- eapply multiplicity_1_remains in Hr₁; eauto .
+ eapply multiplicity_1_remains₉ in Hr₁; eauto .
  assert (∀ i : nat, i ≤ b₁ → (ps_poly_nth 0 (nth_pol i pol₁ ns₁) ≠ 0)%ps).
   apply zerop_1st_n_const_coeff_false_iff; subst b₁.
   rewrite zerop_1st_n_const_coeff_succ.
@@ -2516,7 +2516,7 @@ destruct z₁.
 
   clear Hpsi; rename H into Hpsi.
   remember Hns₁₁ as H; clear HeqH.
-  eapply nth_in_newton_segments with (n := b₁) in H; eauto .
+  eapply nth_in_newton_segments₉ with (n := b₁) in H; eauto .
   remember (nth_pol b₁ pol₁ ns₁) as polb eqn:Hpolb .
   remember (nth_ns b₁ pol₁ ns₁) as nsb eqn:Hnsb .
   rename H into Hbns.
@@ -2528,7 +2528,7 @@ destruct z₁.
   destruct H as (kb, (αkb, Hfinb)).
   remember (ac_root (Φq polb nsb)) as cb eqn:Hcb .
   remember Hr as Hrb; clear HeqHrb.
-  eapply multiplicity_1_remains_in_nth in Hrb; eauto .
+  eapply multiplicity_1_remains_in_nth₉ in Hrb; eauto .
   remember (nth_pol (b₁ + 1) pol₁ ns₁) as polb₂ eqn:Hpolb₂ .
   subst b₁.
   simpl in Hpolb, Hnsb, Hpolb₂.
@@ -2536,9 +2536,9 @@ destruct z₁.
   rewrite <- Hns₂ in Hpolb, Hnsb, Hpolb₂.
   rewrite <- Nat.add_1_r, <- Hpolb₂.
   remember Hns₁₁ as H; clear HeqH.
-  eapply nth_in_newton_segments with (n := b) in H; eauto .
+  eapply nth_in_newton_segments₉ with (n := b) in H; eauto .
   remember Hns as Hrb₁; clear HeqHrb₁.
-  eapply multiplicity_1_remains_in_nth with (n := b) in Hrb₁; eauto .
+  eapply multiplicity_1_remains_in_nth₉ with (n := b) in Hrb₁; eauto .
   remember (nth_ns b pol₁ ns₁) as nsb₁ eqn:Hnsb₁ .
   remember (nth_pol b pol₁ ns₁) as polb₁ eqn:Hpolb₁ .
   remember (ac_root (Φq polb₁ nsb₁)) as cb₁ eqn:Hcb₁ .
@@ -2547,7 +2547,7 @@ destruct z₁.
   rewrite <- Hc₁, <- Hpol₂, <- Hns₂ in Hpsb.
   erewrite <- nth_pol_n with (c₁ := c₁) in Hpsb; eauto .
   erewrite nth_ns_n with (c := c₁) in Hnsb; eauto .
-  eapply r_1_j_0_k_1 with (ns₁ := nsb) in H; eauto .
+  eapply r_1_j_0_k_1₉ with (ns₁ := nsb) in H; eauto .
   erewrite <- nth_ns_n with (c := c₁) in Hnsb; eauto .
   erewrite nth_pol_n with (c₁ := c₁) in Hpsb; eauto .
   rewrite <- Hpolb in Hpsb.
@@ -2628,9 +2628,9 @@ destruct z₁.
     apply Z.mul_cancel_r; auto.
     rewrite Z_div_mul_swap; [ rewrite Z.div_mul; auto | idtac ].
     eapply den_αj_divides_num_αj_m; eauto .
-    eapply lap_forall_nth with (ns := ns₁); eauto .
+    eapply lap_forall_nth₉ with (ns := ns₁); eauto .
      rewrite Heqm₁.
-     eapply q_eq_1 with (ns := ns); eauto .
+     eapply q_eq_1₉ with (ns := ns); eauto .
      rewrite <- Heqm₁; assumption.
 
      simpl; rewrite <- Hc₁, <- Hpol₂, <- Hns₂; assumption.
@@ -2640,7 +2640,7 @@ destruct z₁.
    rewrite <- Hc₁, <- Hpol₂ in H.
    rename H into Hps₂.
    remember Hns₂ as H; clear HeqH.
-   eapply r_1_next_ns with (pol := pol₁) in H; eauto .
+   eapply r_1_next_ns₉ with (pol := pol₁) in H; eauto .
    destruct H as (αj₂, (αk₂, H)).
    destruct H as (Hoth₂, (Hini₂, (Hfin₂, (Hαj₂, Hαk₂)))).
    rewrite Nat.add_1_r; simpl.
@@ -2660,7 +2660,7 @@ destruct z₁.
    rename H into Hbns₂.
    remember Hbns₂ as H; clear HeqH.
    erewrite <- nth_pol_n with (c₁ := c₂) in Hpolb₂; eauto .
-   eapply r_1_next_ns in H; eauto .
+   eapply r_1_next_ns₉ in H; eauto .
    destruct H as (αjb₂, (αkb₂, H)).
    destruct H as (Hothb₂, (Hinib₂, (Hfinb₂, (Hαjb₂, Hαkb₂)))).
    unfold root_tail_from_cγ_list; simpl.
@@ -2737,16 +2737,16 @@ destruct z₁.
          erewrite nth_pol_n with (c₁ := c₁) in Hnsb'; eauto .
          rewrite <- Hpolb in Hnsb'.
          rewrite Heqm₁.
-         eapply q_eq_1_nth with (ns := ns); eauto .
+         eapply q_eq_1_nth₉ with (ns := ns); eauto .
           eapply next_pol_in_K_1_mq with (pol := pol); eauto .
 
           simpl; rewrite <- Hc₁, <- Hpol₂, <- Hns₂; assumption.
 
          replace m₁ with (m₁ * 1)%positive by apply Pos.mul_1_r.
          eapply next_pol_in_K_1_mq with (pol := polb); eauto .
-         eapply lap_forall_nth with (ns := ns₁); eauto .
+         eapply lap_forall_nth₉ with (ns := ns₁); eauto .
           replace m₁ with (m₁ * 1)%positive by apply Pos.mul_1_r.
-          eapply q_eq_1 with (ns := ns); eauto .
+          eapply q_eq_1₉ with (ns := ns); eauto .
            rewrite Heqm₁.
            apply ps_lap_forall_forall.
             intros p₁ p₂ H₁₂ Hmq.
@@ -2821,13 +2821,13 @@ destruct z₁.
           rewrite Hcmp₁, Nat.sub_diag in Heqid; subst id; reflexivity.
 
           assert (ps_lap_forall (λ a, in_K_1_m a m₁) (al polb₂)) as HKb₂.
-           eapply lap_forall_nth with (ns := ns₂) (n := S b); eauto .
+           eapply lap_forall_nth₉ with (ns := ns₂) (n := S b); eauto .
             eapply hd_newton_segments; eauto .
 
-            eapply multiplicity_1_remains with (ns := ns₁); eauto .
+            eapply multiplicity_1_remains₉ with (ns := ns₁); eauto .
 
             replace m₁ with (m₁ * 1)%positive by apply Pos.mul_1_r.
-            eapply q_eq_1 with (ns := ns₁); eauto .
+            eapply q_eq_1₉ with (ns := ns₁); eauto .
             rewrite Pos.mul_1_r; assumption.
 
             intros j Hj.
@@ -2856,7 +2856,7 @@ destruct z₁.
            remember (List.hd phony_ns (newton_segments polb₃)) as nsb₃.
            rewrite <- Nat.add_1_r.
            rewrite
-            find_coeff_step
+            find_coeff_step₉
              with (ns := nsb₂) (pol := polb₂) (p := Z.to_nat d) (dp := O);
             eauto .
             rewrite <- Heqid; symmetry.
@@ -2870,10 +2870,10 @@ destruct z₁.
             eapply hd_newton_segments; eauto .
 
             replace m₁ with (m₁ * 1)%positive by apply Pos.mul_1_r.
-            eapply q_eq_1 with (ns := nsb); eauto .
-             eapply lap_forall_nth with (ns := ns₁); eauto .
+            eapply q_eq_1₉ with (ns := nsb); eauto .
+             eapply lap_forall_nth₉ with (ns := ns₁); eauto .
               rewrite Heqm₁.
-              eapply q_eq_1 with (ns := ns); eauto .
+              eapply q_eq_1₉ with (ns := ns); eauto .
               rewrite <- Heqm₁; assumption.
 
               simpl.
@@ -2881,7 +2881,7 @@ destruct z₁.
 
              rewrite Pos.mul_1_r; assumption.
 
-            eapply multiplicity_1_remains with (ns := nsb); eauto .
+            eapply multiplicity_1_remains₉ with (ns := nsb); eauto .
 
             split; [ idtac | fast_omega Hcmp₁ ].
             rewrite Heqd.
@@ -2915,9 +2915,9 @@ destruct z₁.
       remember Hm as H; clear HeqH.
       eapply next_pol_in_K_1_mq in H; eauto .
       rewrite <- Heqm₁ in H.
-      eapply lap_forall_nth with (ns := ns₁); eauto .
+      eapply lap_forall_nth₉ with (ns := ns₁); eauto .
        rewrite Heqm₁.
-       eapply q_eq_1 with (ns := ns); eauto .
+       eapply q_eq_1₉ with (ns := ns); eauto .
        rewrite <- Heqm₁; assumption.
 
        simpl; rewrite <- Hc₁, <- Hpol₂, <- Hns₂; assumption.
@@ -2931,7 +2931,7 @@ destruct z₁.
     apply Z.lt_le_incl; assumption.
 Qed.
 
-Lemma root_tail_sep_1st_monom : ∀ pol ns pol₁ ns₁ c m q₀ n,
+Lemma root_tail_sep_1st_monom₉ : ∀ pol ns pol₁ ns₁ c m q₀ n,
   ns ∈ newton_segments pol
   → ps_lap_forall (λ a, in_K_1_m a m) (al pol)
   → q₀ = q_of_m m (γ ns)
@@ -2970,13 +2970,13 @@ destruct z₁.
  pose proof (Hpsi O (Nat.le_0_l n)) as H; simpl in H.
  rename H into Hnz₁.
  remember Hns₁ as H; clear HeqH.
- eapply r_1_next_ns in H; eauto .
+ eapply r_1_next_ns₉ in H; eauto .
  destruct H as (αj₁, (αk₁, H)).
  destruct H as (_, (Hini₁, (Hfin₁, (Hαj₁, Hαk₁)))).
  remember Hns₁ as Hns₁i; clear HeqHns₁i.
  eapply hd_newton_segments in Hns₁i; eauto .
  remember Hr as H; clear HeqH.
- eapply multiplicity_1_remains in H; eauto .
+ eapply multiplicity_1_remains₉ in H; eauto .
  rename H into Hr₁.
  remember (nth_ns n pol₁ ns₁) as nsn₁ eqn:Hnsn₁ .
  simpl.
@@ -2987,7 +2987,7 @@ destruct z₁.
   rewrite ps_mul_0_r, ps_add_0_r.
   unfold root_tail_from_cγ_list; simpl.
   remember Hns as H; clear HeqH.
-  eapply r_1_nth_ns with (poln := poln₁) in H; eauto .
+  eapply r_1_nth_ns₉ with (poln := poln₁) in H; eauto .
   destruct H as (αjn₁, (αkn₁, H)).
   destruct H as (_, (Hinin₁, (Hfinn₁, (Hαjn₁, Hαkn₁)))).
   rewrite Hinin₁, Hfinn₁; simpl.
@@ -3050,19 +3050,19 @@ destruct z₁.
     apply Pos.mul_comm; reflexivity.
 
    remember Hns₁i as H; clear HeqH.
-   eapply nth_in_newton_segments in H; eauto .
+   eapply nth_in_newton_segments₉ in H; eauto .
    rename H into Hnsn₁i.
    eapply den_αj_divides_num_αj_m with (ns := nsn₁); eauto .
-   eapply lap_forall_nth with (ns := ns₁); eauto .
+   eapply lap_forall_nth₉ with (ns := ns₁); eauto .
     rewrite Heqm₁.
-    eapply q_eq_1 with (ns := ns); eauto .
+    eapply q_eq_1₉ with (ns := ns); eauto .
     eapply next_pol_in_K_1_mq with (ns := ns); eauto .
 
     rewrite Heqm₁.
     eapply next_pol_in_K_1_mq with (ns := ns); eauto .
 
   remember Hns as H; clear HeqH.
-  eapply r_1_nth_ns with (poln := poln₁) in H; eauto .
+  eapply r_1_nth_ns₉ with (poln := poln₁) in H; eauto .
   destruct H as (αjn₁, (αkn₁, H)).
   destruct H as (_, (Hinin₁, (Hfinn₁, (Hαjn₁, Hαkn₁)))).
   assert (ps_poly_nth 0 pol₂ ≠ 0)%ps as Hps₂.
@@ -3073,14 +3073,14 @@ destruct z₁.
 
    assert (ns₂ ∈ newton_segments pol₂) as Hns₂i.
     remember Hns₂ as H; clear HeqH.
-    eapply r_1_next_ns with (pol := pol₁) in H; eauto .
+    eapply r_1_next_ns₉ with (pol := pol₁) in H; eauto .
     destruct H as (αj₂, (αk₂, H)).
     destruct H as (Hoth₂, (Hini₂, (Hfin₂, (Hαj₂, Hαk₂)))).
     eapply hd_newton_segments; eauto .
 
     remember (ac_root (Φq pol₂ ns₂)) as c₂ eqn:Hc₂ .
     assert (root_multiplicity acf c₂ (Φq pol₂ ns₂) = 1%nat) as Hr₂.
-     eapply multiplicity_1_remains with (ns := ns₁); eauto .
+     eapply multiplicity_1_remains₉ with (ns := ns₁); eauto .
 
      assert (ps_lap_forall (λ a, in_K_1_m a m₁) (al pol₁)) as Hps₁.
       rewrite Heqm₁.
@@ -3088,12 +3088,12 @@ destruct z₁.
 
       assert (q_of_m m₁ (γ ns₁) = 1%positive) as Hq₁.
        rewrite Heqm₁.
-       eapply q_eq_1 with (ns := ns); eauto .
+       eapply q_eq_1₉ with (ns := ns); eauto .
        eapply next_pol_in_K_1_mq with (ns := ns); eauto .
 
        assert (q_of_m m₁ (γ ns₂) = 1%positive) as Hq₂.
         replace m₁ with (m₁ * 1)%positive by apply Pos.mul_1_r.
-        eapply q_eq_1 with (ns := ns₁); eauto .
+        eapply q_eq_1₉ with (ns := ns₁); eauto .
         eapply next_pol_in_K_1_mq with (ns := ns₁); eauto .
 
         rename Hps₂ into Hnz₂.
@@ -3102,7 +3102,7 @@ destruct z₁.
          eapply next_pol_in_K_1_mq with (ns := ns₁); eauto .
 
          assert (ps_lap_forall (λ a, in_K_1_m a m₁) (al poln₂)) as Hpsn₂.
-          eapply lap_forall_nth with (ns := ns₂); eauto .
+          eapply lap_forall_nth₉ with (ns := ns₂); eauto .
           intros i Hin.
           destruct (eq_nat_dec i n) as [H₃| H₃].
            subst i.
@@ -3115,7 +3115,7 @@ destruct z₁.
            assumption.
 
           remember Hns as H; clear HeqH.
-          eapply r_1_nth_ns with (poln := poln₂) (n := S n) in H; eauto .
+          eapply r_1_nth_ns₉ with (poln := poln₂) (n := S n) in H; eauto .
            destruct H as (αjn₂, (αkn₂, H)).
            destruct H as (_, (Hinin₂, (Hfinn₂, (Hαjn₂, Hαkn₂)))).
            simpl in Hinin₂, Hfinn₂.
@@ -3320,7 +3320,7 @@ destruct z₁.
                        rewrite <- Nat.add_1_r.
                        replace ix with (S i - S x)%nat by fast_omega Heqix.
                        remember Heqnsn₃ as H; clear HeqH.
-                       eapply r_1_next_ns with (pol := poln₂) in H; eauto .
+                       eapply r_1_next_ns₉ with (pol := poln₂) in H; eauto .
                         destruct H as (αjn₃, (αkn₃, H)).
                         destruct H as (_, (Hinin₃, (Hfinn₃, (Hαjn₃, Hαkn₃)))).
                         assert (0 < np₁)%nat as Hnp₁p.
@@ -3343,20 +3343,20 @@ destruct z₁.
                           symmetry.
                           replace m₁ with (m₁ * 1)%positive
                            by apply Pos.mul_1_r.
-                          eapply q_eq_1 with (pol := poln₁) (ns := nsn₁);
+                          eapply q_eq_1₉ with (pol := poln₁) (ns := nsn₁);
                            eauto .
                            eapply hd_newton_segments; eauto .
                            rewrite Hnsn₁.
                            eapply nth_ns_n with (c := c); eauto .
                            erewrite nth_pol_n with (c₁ := c); eauto .
 
-                           eapply lap_forall_nth with (ns := ns₁); eauto .
+                           eapply lap_forall_nth₉ with (ns := ns₁); eauto .
 
                            erewrite
                             nth_pol_n with (pol₁ := pol₁) (ns₁ := ns₁); 
                             eauto .
-                           eapply lap_forall_nth with (ns := ns₂); eauto .
-                            eapply q_eq_1 with (ns := ns₁); eauto .
+                           eapply lap_forall_nth₉ with (ns := ns₂); eauto .
+                            eapply q_eq_1₉ with (ns := ns₁); eauto .
                             eapply next_pol_in_K_1_mq with (ns := ns₁); eauto .
 
                             clear i H₃ Hcmp₂ Heqix.
@@ -3374,7 +3374,7 @@ destruct z₁.
                             eapply next_pol_in_K_1_mq with (ns := ns₁); eauto .
 
                            eapply
-                            multiplicity_1_remains_in_nth with (ns := ns);
+                            multiplicity_1_remains_in_nth₉ with (ns := ns);
                             eauto .
 
                            erewrite nth_pol_n with (c₁ := c₁); eauto .
@@ -3394,7 +3394,7 @@ destruct z₁.
                           exfalso; fast_omega Hcmp₃ Hnp₁p.
 
                           eapply
-                           find_coeff_step
+                           find_coeff_step₉
                             with
                               (ns := nsn₃)
                               (pol := poln₃)
@@ -3408,20 +3408,20 @@ destruct z₁.
                            symmetry.
                            replace m₁ with (m₁ * 1)%positive
                             by apply Pos.mul_1_r.
-                           eapply q_eq_1 with (pol := poln₁) (ns := nsn₁);
+                           eapply q_eq_1₉ with (pol := poln₁) (ns := nsn₁);
                             eauto .
                             eapply hd_newton_segments; eauto .
                             rewrite Hnsn₁.
                             eapply nth_ns_n with (c := c); eauto .
                             erewrite nth_pol_n with (c₁ := c); eauto .
 
-                            eapply lap_forall_nth with (ns := ns₁); eauto .
+                            eapply lap_forall_nth₉ with (ns := ns₁); eauto .
 
                             erewrite
                              nth_pol_n with (pol₁ := pol₁) (ns₁ := ns₁);
                              eauto .
-                            eapply lap_forall_nth with (ns := ns₂); eauto .
-                             eapply q_eq_1 with (ns := ns₁); eauto .
+                            eapply lap_forall_nth₉ with (ns := ns₂); eauto .
+                             eapply q_eq_1₉ with (ns := ns₁); eauto .
                              eapply next_pol_in_K_1_mq with (ns := ns₁);
                               eauto .
 
@@ -3441,7 +3441,7 @@ destruct z₁.
                               eauto .
 
                             eapply
-                             multiplicity_1_remains_in_nth with (ns := ns);
+                             multiplicity_1_remains_in_nth₉ with (ns := ns);
                              eauto .
 
                             erewrite nth_pol_n with (c₁ := c₁); eauto .
@@ -3454,14 +3454,14 @@ destruct z₁.
 
                            replace m₁ with (m₁ * 1)%positive
                             by apply Pos.mul_1_r.
-                           eapply q_eq_1 with (pol := poln₂) (ns := nsn₂);
+                           eapply q_eq_1₉ with (pol := poln₂) (ns := nsn₂);
                             eauto .
                             eapply next_pol_in_K_1_mq with (ns := nsn₂);
                              eauto .
                             symmetry.
                             replace m₁ with (m₁ * 1)%positive
                              by apply Pos.mul_1_r.
-                            eapply q_eq_1_nth with (ns := ns₁); eauto .
+                            eapply q_eq_1_nth₉ with (ns := ns₁); eauto .
                              eapply next_pol_in_K_1_mq with (ns := ns₁);
                               eauto .
 
@@ -3478,7 +3478,7 @@ destruct z₁.
                               assumption.
 
                             eapply
-                             multiplicity_1_remains_in_nth with (ns := ns₁);
+                             multiplicity_1_remains_in_nth₉ with (ns := ns₁);
                              eauto .
                             clear i H₅ H₃ Hcmp₂ Heqix.
                             intros i Hisn.
@@ -3492,10 +3492,10 @@ destruct z₁.
                              rewrite <- Hc₁, <- Hpol₂, <- Hns₂ in Hisn.
                              assumption.
 
-                           eapply multiplicity_1_remains with (ns := nsn₂);
+                           eapply multiplicity_1_remains₉ with (ns := nsn₂);
                             eauto .
                            eapply
-                            multiplicity_1_remains_in_nth with (ns := ns₁);
+                            multiplicity_1_remains_in_nth₉ with (ns := ns₁);
                             eauto .
                            clear i H₅ H₃ Hcmp₂ Heqix.
                            intros i Hisn.
@@ -3518,7 +3518,7 @@ destruct z₁.
                             auto.
                            fast_omega Hnp₁p.
 
-                        eapply multiplicity_1_remains_in_nth with (ns := ns₁);
+                        eapply multiplicity_1_remains_in_nth₉ with (ns := ns₁);
                          eauto .
                         clear i H₃ Hcmp₂ Heqix.
                         intros i Hisn.
@@ -3550,7 +3550,7 @@ destruct z₁.
                symmetry.
                eapply nth_pol_n with (c₁ := c); eauto .
 
-               eapply lap_forall_nth with (ns := ns₁); eauto .
+               eapply lap_forall_nth₉ with (ns := ns₁); eauto .
 
              rewrite Pos2Z.inj_mul, Z.mul_add_distr_r.
              rewrite Z.mul_assoc, Z.mul_shuffle0.
