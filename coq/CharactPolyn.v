@@ -114,7 +114,7 @@ Arguments ps_lap_forall α%type_scope _ _ l%pslap.
    therefore should be removed one day with a cleanup; the good
    functions to use are p_of_m, q_of_m and in_K_1_m, and ps_lap_forall
    in InK1m.v *)
-Definition jk_mjk_g_of_ns α {R : ring α} pol ns :=
+Definition jk_mjk_g_of_ns₉ α {R : ring α} pol ns :=
   let m := ps_list_com_polord (al pol) in
   let j := Z.to_nat (Qnum (fst (ini_pt ns))) in
   let k := Z.to_nat (Qnum (fst (fin_pt ns))) in
@@ -128,19 +128,19 @@ Definition jk_mjk_g_of_ns α {R : ring α} pol ns :=
   (j, k, mj, mk, g).
 
 Definition p_of_ns α {R : ring α} pol ns :=
-  let '(j, k, mj, mk, g) := jk_mjk_g_of_ns pol ns in
+  let '(j, k, mj, mk, g) := jk_mjk_g_of_ns₉ pol ns in
   ((mj - mk) / g)%Z.
 
 Definition q_of_ns α {R : ring α} pol ns :=
-  let '(j, k, mj, mk, g) := jk_mjk_g_of_ns pol ns in
+  let '(j, k, mj, mk, g) := jk_mjk_g_of_ns₉ pol ns in
   Z.to_pos ((Z.of_nat k - Z.of_nat j) / g).
 
 Definition mj_of_ns α {R : ring α} pol ns :=
-  let '(j, k, mj, mk, g) := jk_mjk_g_of_ns pol ns in
+  let '(j, k, mj, mk, g) := jk_mjk_g_of_ns₉ pol ns in
   mj.
 
 Definition mk_of_ns α {R : ring α} pol ns :=
-  let '(j, k, mj, mk, g) := jk_mjk_g_of_ns pol ns in
+  let '(j, k, mj, mk, g) := jk_mjk_g_of_ns₉ pol ns in
   mk.
 
 Definition mh_of_ns α {R : ring α} pol h αh :=
