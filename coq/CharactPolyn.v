@@ -77,12 +77,25 @@ Definition poly_shrink α k (p : polynomial α) :=
 Definition poly_left_shift α n (p : polynomial α) :=
   POL (List.skipn n (al p))%pol.
 
+Definition p_of_m m a :=
+  let p := (Qnum a * ' m)%Z in
+  let q := Qden a in
+  (p / Z.gcd p ('q))%Z.
+
+Definition q_of_m m a :=
+  let p := (Qnum a * ' m)%Z in
+  let q := Qden a in
+  Z.to_pos ('q / Z.gcd p ('q)).
+
+Definition mh_of_m α m αh (hps : puiseux_series α) :=
+  (Qnum αh * ' m / ' ps_polord hps)%Z.
+
 (* these definitions are incorrect because they depend on the fact
    that m is the common polydromy order: this is true for the first
    iteration, but not for the next ones; the following definition
    therefore should be removed one day with a cleanup; the good
-   functions to use are p_of_m, q_of_m, etc. defined in InK1m.v,
-   and in_K_1_m and ps_lap_forall in InK1m.v too *)
+   functions to use are p_of_m, q_of_m and in_K_1_m, and ps_lap_forall
+   in InK1m.v *)
 Definition jk_mjk_g_of_ns α {R : ring α} pol ns :=
   let m := ps_list_com_polord (al pol) in
   let j := Z.to_nat (Qnum (fst (ini_pt ns))) in

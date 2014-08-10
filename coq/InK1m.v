@@ -485,19 +485,6 @@ destruct lb as [| b].
   apply lap_eq_0.
 Qed.
 
-Definition p_of_m m a :=
-  let p := (Qnum a * ' m)%Z in
-  let q := Qden a in
-  (p / Z.gcd p ('q))%Z.
-
-Definition q_of_m m a :=
-  let p := (Qnum a * ' m)%Z in
-  let q := Qden a in
-  Z.to_pos ('q / Z.gcd p ('q)).
-
-Definition mh_of_m α m αh (hps : puiseux_series α) :=
-  (Qnum αh * ' m / ' ps_polord hps)%Z.
-
 Theorem any_is_p_mq : ∀ a m p q,
   p = p_of_m m a
   → q = q_of_m m a
