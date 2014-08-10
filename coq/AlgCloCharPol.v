@@ -1986,7 +1986,7 @@ eapply q_is_factor_of_h_minus_j₂ with (h := k) in Hqkj; try eassumption.
   rewrite Nat.div_mul in Hcnz; [ idtac | subst q; apply Pos2Nat_ne_0 ].
   unfold pseudo_degree in Hdeg.
   unfold degree.
-  remember (al (Φ pol ns)) as la eqn:Hla .
+  remember (al (Φ₂ pol ns)) as la eqn:Hla .
   simpl in Hla.
   rewrite Nat.sub_diag in Hla; simpl in Hla.
   rewrite skipn_pad in Hla.

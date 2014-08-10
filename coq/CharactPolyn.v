@@ -90,7 +90,7 @@ Definition q_of_m m a :=
 Definition mh_of_m α m αh (hps : puiseux_series α) :=
   (Qnum αh * ' m / ' ps_polord hps)%Z.
 
-(* these definitions are incorrect because they depend on the fact
+(* the following definitions are incorrect because they depend on the fact
    that m is the common polydromy order: this is true for the first
    iteration, but not for the next ones; the following definition
    therefore should be removed one day with a cleanup; the good
@@ -138,7 +138,7 @@ Definition Φq α {R : ring α} pol ns :=
   let j := nat_num (fst (ini_pt ns)) in
   poly_left_shift j (summation_ah_xh_pol pol ns).
 
-Definition Φ α {R : ring α} pol ns :=
+Definition Φ₂ α {R : ring α} pol ns :=
   let q := Pos.to_nat (q_of_ns pol ns) in
   poly_shrink q (Φq pol ns).
 
@@ -2475,7 +2475,7 @@ Lemma phi_pseudo_degree_is_k_sub_j_div_q : ∀ pol ns j αj k αk q,
   → (Qnat j, αj) = ini_pt ns
     → (Qnat k, αk) = fin_pt ns
       → q = Pos.to_nat (q_of_ns pol ns)
-        → pseudo_degree (Φ pol ns) = ((k - j) / q)%nat.
+        → pseudo_degree (Φ₂ pol ns) = ((k - j) / q)%nat.
 Proof.
 intros pol ns j αj k αk q Hns Hj Hk Hq.
 unfold pseudo_degree; simpl.
@@ -2823,15 +2823,15 @@ Theorem phi_degree_is_k_sub_j_div_q : ∀ pol ns j αj k αk q,
   → (Qnat j, αj) = ini_pt ns
     → (Qnat k, αk) = fin_pt ns
       → q = Pos.to_nat (q_of_ns pol ns)
-        → has_degree (Φ pol ns) ((k - j) / q).
+        → has_degree (Φ₂ pol ns) ((k - j) / q).
 Proof.
 intros pol ns j αj k αk q Hns Hj Hk Hq.
 unfold has_degree.
 unfold pseudo_degree.
-remember (al (Φ pol ns)) as l.
+remember (al (Φ₂ pol ns)) as l.
 apply imp_or_tauto.
  intros H.
- unfold Φ in Heql.
+ unfold Φ₂ in Heql.
  rewrite Φq_pol in Heql.
  remember [ini_pt ns … oth_pts ns ++ [fin_pt ns]] as pl.
  rewrite <- Hj in Heql; simpl in Heql.
@@ -2956,7 +2956,7 @@ Definition apply_K_poly := (horner 0 rng_add rng_mul)%K.
    where Φ(z) is a polynomial, of degree (k - j)/q, with Φ(0) ≠ 0 » *)
 Theorem phi_0_ne_0 : ∀ pol ns,
   ns ∈ newton_segments pol
-  → (apply_K_poly (Φ pol ns) 0 ≠ 0)%K.
+  → (apply_K_poly (Φ₂ pol ns) 0 ≠ 0)%K.
 Proof.
 intros pol ns Hns.
 unfold apply_K_poly; simpl.
