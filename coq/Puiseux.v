@@ -836,7 +836,7 @@ assert (nat_num (fst (ini_pt ns₁)) = 0)%nat as Hini.
  subst pt₁; reflexivity.
 
  rewrite Hini in Hc₂; rewrite Hini.
- assert (oth_pts ns₁ = [] (*∧ nat_num (fst (fin_pt ns₁)) = 1%nat*)) as Hoth.
+ assert (oth_pts ns₁ = []) as Hoth.
   symmetry in Hpts.
   destruct pts as [| pt₁].
    exfalso; apply Hps₀, no_pts_order_inf; assumption.
@@ -1568,16 +1568,6 @@ inversion H; subst.
  apply order_inf in Ha.
  rewrite Ha in Hini₁, Hfin₁.
  apply IHl with (pow := S pow); auto.
-Qed.
-
-(* similar to CharactPolyn.p_and_q_have_no_common_factors₂ *)
-Theorem p_and_q_have_no_common_factors : ∀ a m p q,
-  p = p_of_m m a
-  → q = q_of_m m a
-  → Z.gcd p (' q) = 1%Z.
-Proof.
-intros a m p q Hp Hq.
-eapply any_is_p_mq; eauto .
 Qed.
 
 (* similar to CharactPolyn.q_is_factor_of_h_minus_j₂ which should

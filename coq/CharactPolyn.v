@@ -1199,6 +1199,72 @@ eapply in_pts_in_pol with (hv := αj) in Heqjps; try eassumption.
     rewrite Z.sub_add; assumption.
 Qed.
 
+Theorem any_is_p_mq : ∀ a m p q,
+  p = p_of_m m a
+  → q = q_of_m m a
+  → a == p # (m * q) ∧ Z.gcd p ('q) = 1%Z.
+Proof.
+intros a m p q Hp Hq.
+unfold Qeq; simpl.
+subst p q; simpl.
+unfold p_of_m, q_of_m; simpl.
+remember (Qnum a * ' m)%Z as p.
+remember (Qden a) as q.
+remember (Z.gcd p (' q)) as g.
+rewrite Pos2Z.inj_mul.
+rewrite Z.mul_assoc.
+rewrite <- Heqp.
+pose proof (Z.gcd_divide_l p (' q)).
+rewrite <- Heqg in H.
+destruct H as (gp, Hgp).
+rewrite Hgp.
+assert (g ≠ 0)%Z as Hg0.
+ intros H.
+ rewrite Heqg in H.
+ apply Z.gcd_eq_0_r in H; revert H; apply Pos2Z_ne_0.
+
+ rewrite Z.div_mul; auto.
+ pose proof (Z.gcd_divide_r p (' q)).
+ rewrite <- Heqg in H.
+ destruct H as (gq, Hgq).
+ rewrite Hgq.
+ rewrite Z.div_mul; auto.
+ rewrite Z.mul_shuffle0, Z.mul_assoc.
+ rewrite Z2Pos.id.
+  split; [ reflexivity | idtac ].
+  apply Z.gcd_div_gcd in Heqg; auto.
+  rewrite Hgp, Hgq in Heqg.
+  rewrite Z.div_mul in Heqg; auto.
+  rewrite Z.div_mul in Heqg; auto.
+
+  apply Z.mul_lt_mono_pos_r with (p := g).
+   symmetry in Heqg.
+   destruct g as [| g| g].
+    rewrite Z.mul_0_r in Hgq.
+    exfalso; revert Hgq; apply Pos2Z_ne_0.
+
+    apply Pos2Z.is_pos.
+
+    pose proof (Z.gcd_nonneg p (' q)).
+    rewrite Heqg in H.
+    apply Z.nlt_ge in H.
+    exfalso; apply H.
+    apply Pos2Z.neg_is_neg.
+
+   simpl.
+   rewrite <- Hgq; apply Pos2Z.is_pos.
+Qed.
+
+(* similar to CharactPolyn.p_and_q_have_no_common_factors₂ *)
+Theorem p_and_q_have_no_common_factors : ∀ a m p q,
+  p = p_of_m m a
+  → q = q_of_m m a
+  → Z.gcd p (' q) = 1%Z.
+Proof.
+intros a m p q Hp Hq.
+eapply any_is_p_mq; eauto .
+Qed.
+
 (* [Walker, p. 100]: « [...] where q > 0 and p and q are integers having
    no common factor. » *)
 Theorem p_and_q_have_no_common_factors₂ : ∀ pol ns p q,
@@ -1829,62 +1895,6 @@ intros pol ns h αh Hfin.
 unfold mk_of_ns, mh_of_ns; simpl.
 rewrite <- Hfin; simpl.
 rewrite Nat2Z.id; reflexivity.
-Qed.
-
-Theorem any_is_p_mq : ∀ a m p q,
-  p = p_of_m m a
-  → q = q_of_m m a
-  → a == p # (m * q) ∧ Z.gcd p ('q) = 1%Z.
-Proof.
-intros a m p q Hp Hq.
-unfold Qeq; simpl.
-subst p q; simpl.
-unfold p_of_m, q_of_m; simpl.
-remember (Qnum a * ' m)%Z as p.
-remember (Qden a) as q.
-remember (Z.gcd p (' q)) as g.
-rewrite Pos2Z.inj_mul.
-rewrite Z.mul_assoc.
-rewrite <- Heqp.
-pose proof (Z.gcd_divide_l p (' q)).
-rewrite <- Heqg in H.
-destruct H as (gp, Hgp).
-rewrite Hgp.
-assert (g ≠ 0)%Z as Hg0.
- intros H.
- rewrite Heqg in H.
- apply Z.gcd_eq_0_r in H; revert H; apply Pos2Z_ne_0.
-
- rewrite Z.div_mul; auto.
- pose proof (Z.gcd_divide_r p (' q)).
- rewrite <- Heqg in H.
- destruct H as (gq, Hgq).
- rewrite Hgq.
- rewrite Z.div_mul; auto.
- rewrite Z.mul_shuffle0, Z.mul_assoc.
- rewrite Z2Pos.id.
-  split; [ reflexivity | idtac ].
-  apply Z.gcd_div_gcd in Heqg; auto.
-  rewrite Hgp, Hgq in Heqg.
-  rewrite Z.div_mul in Heqg; auto.
-  rewrite Z.div_mul in Heqg; auto.
-
-  apply Z.mul_lt_mono_pos_r with (p := g).
-   symmetry in Heqg.
-   destruct g as [| g| g].
-    rewrite Z.mul_0_r in Hgq.
-    exfalso; revert Hgq; apply Pos2Z_ne_0.
-
-    apply Pos2Z.is_pos.
-
-    pose proof (Z.gcd_nonneg p (' q)).
-    rewrite Heqg in H.
-    apply Z.nlt_ge in H.
-    exfalso; apply H.
-    apply Pos2Z.neg_is_neg.
-
-   simpl.
-   rewrite <- Hgq; apply Pos2Z.is_pos.
 Qed.
 
 (* similar to q_mj_mk_eq_p_h_j₂ which should be removed one day *)
