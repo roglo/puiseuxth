@@ -750,6 +750,7 @@ rewrite Hini; left; simpl.
 rewrite nat_num_Qnat; reflexivity.
 Qed.
 
+(* to be removed one day *)
 Lemma char_pol_root_ne_0₉ : ∀ pol ns c₁,
   ns ∈ newton_segments pol
   → c₁ = ac_root (Φq pol ns)
