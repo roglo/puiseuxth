@@ -143,7 +143,7 @@ Definition mk_of_ns₉ α {R : ring α} pol ns :=
   let '(j, k, mj, mk, g) := jk_mjk_g_of_ns₉ pol ns in
   mk.
 
-Definition mh_of_ns α {R : ring α} pol h αh :=
+Definition mh_of_ns₉ α {R : ring α} pol h αh :=
  let m := ps_list_com_polord (al pol) in
  let hps := List.nth h (al pol) 0%ps in
  (Qnum αh * ' m / ' ps_polord hps)%Z.
@@ -1864,7 +1864,7 @@ Lemma com_den_of_oth_pt₉ : ∀ pol ns m h αh mh,
   ns ∈ newton_segments pol
   → m = ps_list_com_polord (al pol)
     → (Qnat h, αh) ∈ oth_pts ns
-      → mh = mh_of_ns pol h αh
+      → mh = mh_of_ns₉ pol h αh
         → αh == mh # m.
 Proof.
 intros pol ns m h αh mh Hns Hm Hfin Hmh.
@@ -1882,17 +1882,17 @@ eapply com_den_of_ps_list with (ps := hps); try eassumption.
  rewrite <- Hpts in Hns; assumption.
 
  subst mh.
- unfold mh_of_ns; simpl.
+ unfold mh_of_ns₉; simpl.
  rewrite <- Heqhps, <- Hm.
  reflexivity.
 Qed.
 
 Lemma mk_mh_of_ns₉ : ∀ pol ns h αh,
   (Qnat h, αh) = fin_pt ns
-  → mk_of_ns₉ pol ns = mh_of_ns pol h αh.
+  → mk_of_ns₉ pol ns = mh_of_ns₉ pol h αh.
 Proof.
 intros pol ns h αh Hfin.
-unfold mk_of_ns₉, mh_of_ns; simpl.
+unfold mk_of_ns₉, mh_of_ns₉; simpl.
 rewrite <- Hfin; simpl.
 rewrite Nat2Z.id; reflexivity.
 Qed.
@@ -2025,7 +2025,7 @@ Theorem q_mj_mk_eq_p_h_j₉ : ∀ pol ns j αj m mj p q,
         → p = p_of_ns₉ pol ns
           → q = Pos.to_nat (q_of_ns₉ pol ns)
             → ∀ h αh mh, (Qnat h, αh) ∈ oth_pts ns ++ [fin_pt ns]
-              → mh = mh_of_ns pol h αh
+              → mh = mh_of_ns₉ pol h αh
                 → αh == mh # m
                   ∧ Z.of_nat q * (mj - mh) = p * Z.of_nat (h - j).
 Proof.
@@ -2052,7 +2052,7 @@ split.
    apply ini_fin_ns_in_init_pts; assumption.
 
   rewrite Hmh.
-  unfold mh_of_ns; simpl.
+  unfold mh_of_ns₉; simpl.
   rewrite <- Hm, <- Heqhps; reflexivity.
 
  destruct Hh as [Hh| [Hh| ]]; [ idtac | idtac | contradiction ].
@@ -2774,7 +2774,7 @@ destruct i.
      destruct H as (Hh, Hshnz).
      remember Hhαh as H; clear HeqH.
      eapply com_den_of_oth_pt₉ in H; try eassumption; [ idtac | reflexivity ].
-     remember (mh_of_ns pol h) as mh eqn:Hmh .
+     remember (mh_of_ns₉ pol h) as mh eqn:Hmh .
      rename H into Hah.
      destruct sh; [ exfalso; apply Hshnz; reflexivity | clear Hshnz ].
      exists h, (S sh).
