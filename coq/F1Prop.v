@@ -724,7 +724,6 @@ apply Qbar.min_glb_lt.
  apply nth_g_order_pos; assumption.
 Qed.
 
-(* similar to char_pol_root_ne_0₉ which should be removed one day *)
 Lemma char_pol_root_ne_0 : ∀ pol ns m c₁,
   ns ∈ newton_segments pol
   → ps_lap_forall (λ a, in_K_1_m a m) (al pol)
@@ -750,32 +749,6 @@ rewrite Hini; left; simpl.
 rewrite nat_num_Qnat; reflexivity.
 Qed.
 
-(* to be removed one day *)
-Lemma char_pol_root_ne_0₉ : ∀ pol ns c₁,
-  ns ∈ newton_segments pol
-  → c₁ = ac_root (Φq pol ns)
-    → (c₁ ≠ 0)%K.
-Proof.
-intros pol ns c₁ Hns Hc₁.
-remember Hns as Happ; clear HeqHapp.
-apply cpol_degree_ge_1₉ with (K := K) (acf := acf) in Happ.
-apply ac_prop_root in Happ.
-rewrite <- Hc₁ in Happ.
-remember Hns as Hini; clear HeqHini.
-apply exists_ini_pt_nat in Hini.
-destruct Hini as (j, (αj, Hini)).
-intros Hc; rewrite Hc in Happ.
-unfold apply_poly in Happ; simpl in Happ.
-rewrite Nat.sub_diag, list_pad_0, skipn_pad in Happ.
-simpl in Happ.
-rewrite rng_mul_0_r, rng_add_0_l in Happ.
-revert Happ.
-eapply ord_coeff_non_zero_in_newt_segm; eauto .
-rewrite Hini; left; simpl.
-rewrite nat_num_Qnat; reflexivity.
-Qed.
-
-(* similar to order_bbar_r_is_0₉ which should be removed one day *)
 (* [Walker, p 101] « O(br) = 0 » *)
 Theorem order_bbar_r_is_0 : ∀ pol ns m c₁ r f₁,
   ns ∈ newton_segments pol
@@ -847,77 +820,6 @@ assert (order (ps_lap_nth r (yr * ycj * psy ∘ yc)) = 0)%Qbar as Hor.
   apply nth_g_order_pos; assumption.
 Qed.
 
-(* [Walker, p 101] « O(br) = 0 » *)
-Theorem order_bbar_r_is_0₉ : ∀ pol ns c₁ r f₁,
-  ns ∈ newton_segments pol
-  → c₁ = ac_root (Φq pol ns)
-  → r = root_multiplicity acf c₁ (Φq pol ns)
-  → f₁ = next_pol pol (β ns) (γ ns) c₁
-  → (order (ps_poly_nth r f₁) = 0)%Qbar.
-Proof.
-intros pol ns c₁ r f₁ Hns Hc₁ Hr Hf₁.
-remember (quotient_phi_x_sub_c_pow_r (Φq pol ns) c₁ r) as Ψ eqn:HΨ .
-remember Hns as Hini; clear HeqHini.
-apply exists_ini_pt_nat in Hini.
-destruct Hini as (j, (αj, Hini)).
-rewrite f₁_eq_term_with_Ψ_plus_g; try eassumption.
-unfold ps_poly_nth; simpl.
-remember ([0%ps; 1%ps … []] ^ r)%pslap as yr.
-remember ([ps_monom c₁ 0; 1%ps … []] ^ j)%pslap as ycj.
-remember (lap_inject_K_in_Kx (al Ψ)) as psy.
-remember [ps_monom c₁ 0; 1%ps … []] as yc.
-assert (order (ps_lap_nth r (yr * ycj * psy ∘ yc)) = 0)%Qbar as Hor.
- subst yr ycj psy yc.
- progress unfold ps_lap_mul.
- rewrite <- lap_mul_assoc.
- do 2 rewrite fold_ps_lap_mul.
- erewrite ps_lap_nth_x_le_pow_mul; [ idtac | reflexivity ].
- rewrite Nat.sub_diag.
- progress unfold ps_lap_mul.
- progress unfold lap_mul.
- progress unfold ps_lap_nth; simpl.
- rewrite list_nth_lap_convol_mul; [ idtac | reflexivity ].
- unfold summation; simpl.
- rewrite ps_add_0_r.
- rewrite order_mul; [ idtac | assumption ].
- rewrite fold_ps_lap_nth.
- rewrite ps_lap_nth_0_cons_pow.
- rewrite order_pow.
-  rewrite ps_monom_order.
-   rewrite Qbar.mul_0_r; [ idtac | intros HH; discriminate HH ].
-   rewrite Qbar.add_0_l.
-   rewrite fold_ps_lap_nth.
-   rewrite ps_lap_nth_0_apply_0.
-   unfold ps_lap_comp.
-   rewrite apply_lap_compose.
-   unfold apply_lap at 2; simpl.
-   rewrite ps_mul_0_l, ps_add_0_l.
-   rewrite ps_mul_0_r, ps_add_0_l.
-   rewrite apply_lap_inject_K_in_Kx_monom.
-   rewrite ps_monom_order; [ reflexivity | idtac ].
-   eapply psy_c₁_ne_0 in HΨ; eassumption.
-
-   eapply char_pol_root_ne_0₉; eassumption.
-
-  intros HH.
-  apply ps_monom_0_coeff_0 in HH.
-  revert HH.
-  eapply char_pol_root_ne_0₉; eassumption.
-
- subst yr ycj psy yc.
- rewrite fold_ps_lap_add.
- rewrite ps_lap_nth_add.
- rewrite fold_ps_lap_comp.
- rewrite order_add_eq_min; rewrite Hor.
- rewrite Qbar.min_l; [ reflexivity | idtac ].
-  apply Qbar.lt_le_incl.
-  apply nth_g_order_pos; assumption.
-
-  apply Qbar.lt_neq.
-  apply nth_g_order_pos; assumption.
-Qed.
-
-(* similar to f₁_orders₉ which should be removed one day *)
 (* [Walker, p 101] «
      O(bi) ≥ 0,  i = 0,...,n
      O(bi) > 0,  i = 0,...,r-1
@@ -938,27 +840,6 @@ intros pol ns m c₁ r f₁ Hns Hm Hc₁ Hr Hf₁.
 split; [ eapply order_bbar_nonneg; eassumption | idtac ].
 split; [ eapply order_bbar_pos; eassumption | idtac ].
 eapply order_bbar_r_is_0; eassumption.
-Qed.
-
-(* [Walker, p 101] «
-     O(bi) ≥ 0,  i = 0,...,n
-     O(bi) > 0,  i = 0,...,r-1
-     O(br) = 0
-   »
-*)
-Theorem f₁_orders₉ : ∀ pol ns c₁ r f₁,
-  ns ∈ newton_segments pol
-  → c₁ = ac_root (Φq pol ns)
-  → r = root_multiplicity acf c₁ (Φq pol ns)
-  → f₁ = next_pol pol (β ns) (γ ns) c₁
-  → (∀ i, (order (ps_poly_nth i f₁) ≥ 0)%Qbar)
-    ∧ (∀ i, (i < r)%nat → (order (ps_poly_nth i f₁) > 0)%Qbar)
-    ∧ (order (ps_poly_nth r f₁) = 0)%Qbar.
-Proof.
-intros pol ns c₁ r f₁ Hns Hc₁ Hr Hf₁.
-split; [ eapply order_bbar_nonneg; eassumption | idtac ].
-split; [ eapply order_bbar_pos; eassumption | idtac ].
-eapply order_bbar_r_is_0₉; eassumption.
 Qed.
 
 End theorems.

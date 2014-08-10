@@ -1921,7 +1921,6 @@ destruct cnt; simpl.
  pose proof (H (S n)); assumption.
 Qed.
 
-(* similar to cpol_degree_ge_1₉ which should be removed one day *)
 Lemma cpol_degree_ge_1 : ∀ pol ns m,
   ns ∈ newton_segments pol
   → ps_lap_forall (λ a, in_K_1_m a m) (al pol)
@@ -1997,86 +1996,6 @@ eapply q_is_factor_of_h_minus_j with (h := k) in Hqkj; try eassumption.
   apply le_S_n in Hlen.
   apply Hcnz.
   apply all_0_shrink_0; intros p.
-  apply lap_eq_nil_nth; assumption.
-
- apply List.in_or_app; right; left; symmetry; eassumption.
-Qed.
-
-(* to be removed one day *)
-Lemma cpol_degree_ge_1₉ : ∀ pol ns,
-  ns ∈ newton_segments pol
-  → degree ac_zerop (Φq pol ns) ≥ 1.
-Proof.
-intros pol ns Hns.
-remember (Pos.to_nat (q_of_ns₉ pol ns)) as q eqn:Hq .
-remember (ini_pt ns) as jj eqn:Hj .
-destruct jj as (jq, αj); simpl.
-remember Hns as H; clear HeqH.
-apply exists_ini_pt_nat in H.
-destruct H as (j, (x, Hx)).
-rewrite <- Hj in Hx; injection Hx; clear Hx; intros; subst jq x.
-remember Hns as Hk; clear HeqHk.
-apply exists_fin_pt_nat in Hk.
-destruct Hk as (k, (αk, Hk)).
-symmetry in Hk.
-remember Hns as Hdeg; clear HeqHdeg.
-eapply phi_degree_is_k_sub_j_div_q₉ in Hdeg; try eassumption.
-unfold has_degree in Hdeg.
-destruct Hdeg as (Hdeg, Hcnz).
-remember Hns as Hqkj; clear HeqHqkj.
-eapply q_is_factor_of_h_minus_j₉ with (h := k) in Hqkj; try eassumption.
- destruct Hqkj as (n, Hqkj).
- destruct n.
-  simpl in Hqkj.
-  exfalso.
-  remember Hns as H; clear HeqH.
-  apply j_lt_k with (j := j) (k := k) in H.
-   fast_omega Hqkj H.
-
-   rewrite <- Hj; simpl.
-   rewrite nat_num_Qnat; reflexivity.
-
-   rewrite <- Hk; simpl.
-   rewrite nat_num_Qnat; reflexivity.
-
-  rewrite Hqkj in Hdeg, Hcnz.
-  rewrite Nat.div_mul in Hdeg; [ idtac | subst q; apply Pos2Nat_ne_0 ].
-  rewrite Nat.div_mul in Hcnz; [ idtac | subst q; apply Pos2Nat_ne_0 ].
-  unfold pseudo_degree in Hdeg.
-  unfold degree.
-  remember (al (Φ₉ pol ns)) as la eqn:Hla .
-  simpl in Hla.
-  rewrite Nat.sub_diag in Hla; simpl in Hla.
-  rewrite skipn_pad in Hla.
-  rewrite <- Hj in Hla; simpl in Hla.
-  rewrite nat_num_Qnat in Hla; simpl.
-  rewrite Nat.sub_diag; simpl.
-  rewrite skipn_pad.
-  rewrite <- Hj; unfold fst.
-  rewrite nat_num_Qnat.
-  remember (order_coeff (List.nth j (al pol) 0%ps)) as v eqn:Hv .
-  remember (oth_pts ns ++ [fin_pt ns]) as pts eqn:Hpts .
-  remember (List.map (term_of_point pol) pts) as tl eqn:Htl .
-  subst la; simpl.
-  remember (make_char_pol R (S j) tl) as cpol eqn:Hcpol .
-  remember (degree_plus_1_of_list ac_zerop cpol) as d eqn:Hd .
-  symmetry in Hd.
-  destruct d; [ exfalso | omega ].
-  subst cpol.
-  remember (Pos.to_nat (q_of_ns₉ pol ns)) as nq.
-  remember (make_char_pol R (S j) tl) as cpol.
-  pose proof (list_length_shrink_le nq [v … cpol]) as Hlen.
-  remember [v … cpol] as vcpol.
-  rewrite Heqvcpol in Hlen at 2.
-  simpl in Hlen.
-  subst vcpol.
-  apply degree_plus_1_is_0 in Hd.
-  simpl in Hcnz.
-  simpl in Hdeg.
-  simpl in Hlen.
-  apply le_S_n in Hlen.
-  apply Hcnz.
-  apply all_0_shrink_0; intros m.
   apply lap_eq_nil_nth; assumption.
 
  apply List.in_or_app; right; left; symmetry; eassumption.

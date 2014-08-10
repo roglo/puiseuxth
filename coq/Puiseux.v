@@ -562,7 +562,6 @@ apply minimise_slope_end_2nd_pt in Heqms.
    pose proof (Hnneg (3 + i)%nat) as H; assumption.
 Qed.
 
-(* similar to r_1_j_0_k_1₉ which should be removed one day *)
 Lemma r_1_j_0_k_1 : ∀ pol ns c₁ pol₁ ns₁ j₁ αj₁ k₁ αk₁ m,
   ns ∈ newton_segments pol
   → ps_lap_forall (λ a, in_K_1_m a m) (al pol)
@@ -581,69 +580,6 @@ apply order_fin in Hps₀.
 remember Hns as H; clear HeqH.
 symmetry in Hr.
 eapply f₁_orders in H; try eassumption.
-destruct H as (Hnneg, (Hpos, Hz)).
-assert (0 < 1)%nat as H by apply Nat.lt_0_1.
-apply Hpos in H; clear Hpos; rename H into Hpos.
-unfold newton_segments in Hns₁; simpl in Hns₁.
-unfold points_of_ps_polynom in Hns₁; simpl in Hns₁.
-unfold ps_poly_nth in Hnneg, Hz, Hpos.
-remember (al pol₁) as la.
-destruct la as [| a₀].
- unfold ps_lap_nth in Hz; simpl in Hz.
- rewrite order_0 in Hz; inversion Hz.
-
- unfold ps_lap_nth in Hnneg, Hz, Hpos.
- simpl in Hz, Hpos.
- unfold points_of_ps_lap in Hns₁.
- unfold points_of_ps_lap_gen in Hns₁.
- simpl in Hns₁.
- remember (order a₀) as v₀.
- symmetry in Heqv₀.
- destruct v₀ as [v₀| ].
-  destruct la as [| a₁]; [ rewrite order_0 in Hz; contradiction | idtac ].
-  simpl in Hz, Hns₁.
-  remember (order a₁) as v₁.
-  symmetry in Heqv₁.
-  destruct v₁ as [v₁| ]; [ idtac | contradiction ].
-  apply Qbar.qfin_inj in Hz.
-  apply Qbar.qfin_lt_mono in Hpos.
-  remember (pair_rec (λ pow ps, (Qnat pow, ps))) as f.
-  simpl in Hns₁.
-  remember (filter_finite_ord R (List.map f (power_list 2 la))) as ffo.
-  remember (minimise_slope (Qnat 0, v₀) (Qnat 1, v₁) ffo) as ms.
-  subst ns₁; simpl in Hini₁, Hfin₁.
-  rewrite Heqms, minimised_slope_beg_pt in Hini₁.
-  eapply pouet in Hfin₁; try eassumption.
-  destruct Hfin₁ as (H₁, (H₂, (H₃, (H₄, (H₅, H₆))))).
-  split; [ assumption | idtac ].
-  split; [ omega | idtac ].
-  split; [ assumption | idtac ].
-  split; assumption.
-
-  unfold ps_poly_nth in Hps₀.
-  rewrite <- Heqla in Hps₀.
-  unfold ps_lap_nth in Hps₀; simpl in Hps₀.
-  contradiction.
-Qed.
-
-(* to be removed one day *)
-Lemma r_1_j_0_k_1₉ : ∀ pol ns c₁ pol₁ ns₁ j₁ αj₁ k₁ αk₁,
-  ns ∈ newton_segments pol
-  → c₁ = ac_root (Φq pol ns)
-  → root_multiplicity acf c₁ (Φq pol ns) = 1%nat
-  → pol₁ = next_pol pol (β ns) (γ ns) c₁
-  → (ps_poly_nth 0 pol₁ ≠ 0)%ps
-  → ns₁ = List.hd phony_ns (newton_segments pol₁)
-  → ini_pt ns₁ = (Qnat j₁, αj₁)
-  → fin_pt ns₁ = (Qnat k₁, αk₁)
-  → j₁ = 0%nat ∧ k₁ = 1%nat ∧ αj₁ > 0 ∧ αk₁ == 0 ∧ oth_pts ns₁ = [].
-Proof.
-intros pol ns c₁ pol₁ ns₁ j₁ αj₁ k₁ αk₁.
-intros Hns Hc₁ Hr Hpol₁ Hps₀ Hns₁ Hini₁ Hfin₁.
-apply order_fin in Hps₀.
-remember Hns as H; clear HeqH.
-symmetry in Hr.
-eapply f₁_orders₉ in H; try eassumption.
 destruct H as (Hnneg, (Hpos, Hz)).
 assert (0 < 1)%nat as H by apply Nat.lt_0_1.
 apply Hpos in H; clear Hpos; rename H into Hpos.
@@ -1236,7 +1172,6 @@ revert Hnneg Hpos Hz Hpts; clear; intros.
       contradiction.
 Qed.
 
-(* similar to r_1_next_ns₉ which should be removed one day *)
 Lemma r_1_next_ns : ∀ pol ns c pol₁ ns₁ m,
   ns ∈ newton_segments pol
   → ps_lap_forall (λ a, in_K_1_m a m) (al pol)
@@ -1261,38 +1196,6 @@ apply exists_fin_pt_nat_fst_seg in H.
 destruct H as (k₁, (αk₁, Hfin₁)).
 remember Hns₁ as H; clear HeqH.
 eapply r_1_j_0_k_1 in H; eauto .
-destruct H as (Hj₁, (Hk₁, (Hαj₁, (Hαk₁, Hoth₁)))).
-subst j₁ k₁.
-unfold Qlt in Hαj₁; simpl in Hαj₁.
-unfold Qeq in Hαk₁; simpl in Hαk₁.
-rewrite Z.mul_1_r in Hαj₁, Hαk₁.
-exists αj₁, αk₁; auto.
-Qed.
-
-(* to be removed one day *)
-Lemma r_1_next_ns₉ : ∀ pol ns c pol₁ ns₁,
-  ns ∈ newton_segments pol
-  → root_multiplicity acf c (Φq pol ns) = 1%nat
-  → c = ac_root (Φq pol ns)
-  → pol₁ = next_pol pol (β ns) (γ ns) c
-  → ns₁ = List.hd phony_ns (newton_segments pol₁)
-  → (ps_poly_nth 0 pol₁ ≠ 0)%ps
-  → ∃ αj αk,
-    oth_pts ns₁ = [] ∧
-    ini_pt ns₁ = (Qnat 0, αj) ∧
-    fin_pt ns₁ = (Qnat 1, αk) ∧
-    (0 < Qnum αj)%Z ∧
-    Qnum αk = 0%Z.
-Proof.
-intros pol ns c pol₁ ns₁ Hns Hr Hc Hpol₁ Hns₁ Hpnz.
-remember Hns₁ as H; clear HeqH.
-apply exists_ini_pt_nat_fst_seg in H.
-destruct H as (j₁, (αj₁, Hini₁)).
-remember Hns₁ as H; clear HeqH.
-apply exists_fin_pt_nat_fst_seg in H.
-destruct H as (k₁, (αk₁, Hfin₁)).
-remember Hns₁ as H; clear HeqH.
-eapply r_1_j_0_k_1₉ in H; eauto .
 destruct H as (Hj₁, (Hk₁, (Hαj₁, (Hαk₁, Hoth₁)))).
 subst j₁ k₁.
 unfold Qlt in Hαj₁; simpl in Hαj₁.
@@ -2590,9 +2493,16 @@ destruct z₁.
   rewrite <- Hc₁, <- Hpol₂, <- Hns₂ in Hpsb.
   erewrite <- nth_pol_n with (c₁ := c₁) in Hpsb; eauto .
   erewrite nth_ns_n with (c := c₁) in Hnsb; eauto .
-  eapply r_1_j_0_k_1₉ with (ns₁ := nsb) in H; eauto .
-  erewrite <- nth_ns_n with (c := c₁) in Hnsb; eauto .
-  erewrite nth_pol_n with (c₁ := c₁) in Hpsb; eauto .
+  eapply r_1_j_0_k_1 with (ns₁ := nsb) (m := (m * q₀)%positive) in H; eauto .
+   Focus 2.
+   eapply lap_forall_nth with (ns := ns₁) (n := b); eauto .
+    eapply q_eq_1 with (ns := ns); eauto .
+    eapply next_pol_in_K_1_mq with (ns := ns); eauto .
+
+    eapply next_pol_in_K_1_mq with (ns := ns); eauto .
+
+   erewrite <- nth_ns_n with (c := c₁) in Hnsb; eauto .
+   erewrite nth_pol_n with (c₁ := c₁) in Hpsb; eauto .
   rewrite <- Hpolb in Hpsb.
   destruct H as (Hjb, (Hkb, (Hαjb, (Hαkb, Hothb)))).
   subst jb kb.
@@ -2703,7 +2613,17 @@ destruct z₁.
    rename H into Hbns₂.
    remember Hbns₂ as H; clear HeqH.
    erewrite <- nth_pol_n with (c₁ := c₂) in Hpolb₂; eauto .
-   eapply r_1_next_ns₉ in H; eauto .
+   eapply r_1_next_ns with (m := (m * q₀)%positive) in H; eauto .
+    Focus 2.
+    eapply lap_forall_nth with (ns := ns₁); eauto .
+     eapply q_eq_1 with (ns := ns); eauto .
+     eapply next_pol_in_K_1_mq with (ns := ns); eauto .
+
+     simpl.
+     rewrite <- Hc₁, <- Hpol₂, <- Hns₂.
+     assumption.
+
+     eapply next_pol_in_K_1_mq with (ns := ns); eauto .
    destruct H as (αjb₂, (αkb₂, H)).
    destruct H as (Hothb₂, (Hinib₂, (Hfinb₂, (Hαjb₂, Hαkb₂)))).
    unfold root_tail_from_cγ_list; simpl.

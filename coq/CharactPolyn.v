@@ -1864,6 +1864,7 @@ rewrite Z_div_mul_swap.
  eapply den_αh_divides_num_αh_m; eauto .
 Qed.
 
+(* to be removed one day *)
 Lemma com_den_of_oth_pt₉ : ∀ pol ns m h αh mh,
   ns ∈ newton_segments pol
   → m = ps_list_com_polord (al pol)
