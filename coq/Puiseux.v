@@ -2425,7 +2425,7 @@ destruct (ps_zerop _ (ps_poly_nth 0 pol₁)) as [H₁| H₁].
    apply Z.lt_le_incl; assumption.
 Qed.
 
-Lemma q_eq_1_nth₉ : ∀ pol ns pol₁ ns₁ c₁ m q₀,
+Lemma q_eq_1_nth : ∀ pol ns pol₁ ns₁ c₁ m q₀,
   ns ∈ newton_segments pol
   → ps_lap_forall (λ a, in_K_1_m a m) (al pol)
   → ps_lap_forall (λ a, in_K_1_m a (m * q₀)) (al pol₁)
@@ -2780,7 +2780,7 @@ destruct z₁.
          erewrite nth_pol_n with (c₁ := c₁) in Hnsb'; eauto .
          rewrite <- Hpolb in Hnsb'.
          rewrite Heqm₁.
-         eapply q_eq_1_nth₉ with (ns := ns); eauto .
+         eapply q_eq_1_nth with (ns := ns); eauto .
           eapply next_pol_in_K_1_mq with (pol := pol); eauto .
 
           simpl; rewrite <- Hc₁, <- Hpol₂, <- Hns₂; assumption.
@@ -3535,7 +3535,7 @@ destruct z₁.
                             symmetry.
                             replace m₁ with (m₁ * 1)%positive
                              by apply Pos.mul_1_r.
-                            eapply q_eq_1_nth₉ with (ns := ns₁); eauto .
+                            eapply q_eq_1_nth with (ns := ns₁); eauto .
                              eapply next_pol_in_K_1_mq with (ns := ns₁);
                               eauto .
 
