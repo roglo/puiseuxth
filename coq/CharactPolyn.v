@@ -1259,7 +1259,8 @@ assert (g ≠ 0)%Z as Hg0.
    rewrite <- Hgq; apply Pos2Z.is_pos.
 Qed.
 
-(* similar to p_and_q_have_no_common_factors₉ *)
+(* [Walker, p. 100]: « [...] where q > 0 and p and q are integers having
+   no common factor. » *)
 Theorem p_and_q_have_no_common_factors : ∀ a m p q,
   p = p_of_m m a
   → q = q_of_m m a
@@ -1267,124 +1268,6 @@ Theorem p_and_q_have_no_common_factors : ∀ a m p q,
 Proof.
 intros a m p q Hp Hq.
 eapply any_is_p_mq; eauto .
-Qed.
-
-(* [Walker, p. 100]: « [...] where q > 0 and p and q are integers having
-   no common factor. » *)
-Theorem p_and_q_have_no_common_factors₉ : ∀ pol ns p q,
-  ns ∈ newton_segments pol
-  → p = p_of_ns₉ pol ns
-    → q = q_of_ns₉ pol ns
-      → Z.gcd p (' q) = 1%Z.
-Proof.
-intros pol ns p q Hns Hp Hq.
-remember (ps_list_com_polord (al pol)) as m eqn:Hm .
-remember Hns as Hini; clear HeqHini.
-remember Hns as Hfin; clear HeqHfin.
-apply exists_ini_pt_nat in Hini.
-apply exists_fin_pt_nat in Hfin.
-destruct Hini as (j, (αj, Hini)).
-destruct Hfin as (k, (αk, Hfin)).
-remember (points_of_ps_polynom pol) as pts.
-remember (lower_convex_hull_points pts) as hsl.
-symmetry in Hini, Hfin.
-remember Hini as Hg; clear HeqHg.
-eapply gamma_value_jk in Hg; [ idtac | eassumption ].
-subst hsl.
-remember (List.nth j (al pol) 0%ps) as jps.
-remember Heqjps as Hjps_v; clear HeqHjps_v.
-eapply in_pts_in_pol with (hv := αj) in Heqjps; try eassumption.
- 2: rewrite Hini.
- 2: apply ini_fin_ns_in_init_pts.
- 2: unfold newton_segments in Hns.
- 2: rewrite <- Heqpts in Hns; assumption.
-
- destruct Heqjps as (Hjps, Hαj).
- eapply com_den_of_ps_list in Hαj; try eassumption; [ idtac | reflexivity ].
- remember (Qnum αj * ' m / ' ps_polord jps)%Z as mj eqn:Hmj .
- remember (List.nth k (al pol) 0%ps) as kps.
- remember Heqkps as Hkps_v; clear HeqHkps_v.
- eapply in_pts_in_pol with (hv := αk) in Heqkps; try eassumption.
-  2: rewrite Hfin.
-  2: apply ini_fin_ns_in_init_pts.
-  2: unfold newton_segments in Hns.
-  2: rewrite <- Heqpts in Hns; assumption.
-
-  destruct Heqkps as (Hkps, Hαk).
-  eapply com_den_of_ps_list in Hαk; try eassumption; [ idtac | reflexivity ].
-  remember (Qnum αk * ' m / ' ps_polord kps)%Z as mk eqn:Hmk .
-  remember (Z.gcd (mj - mk) (Z.of_nat k - Z.of_nat j)) as g.
-  assert (Z.of_nat j < Z.of_nat k)%Z as Hjk.
-   eapply jz_lt_kz; try eassumption.
-    rewrite <- Hini; reflexivity.
-
-    rewrite <- Hfin; reflexivity.
-
-   subst p q.
-   unfold p_of_ns₉, q_of_ns₉; simpl.
-   rewrite <- Hini, <- Hfin; simpl.
-   do 2 rewrite Nat2Z.id.
-   rewrite <- Hm.
-   rewrite <- Hjps_v, <- Hkps_v.
-   rewrite <- Hmj, <- Hmk.
-   rewrite <- Heqg.
-   rewrite Z2Pos.id.
-    apply Z.gcd_div_gcd; [ idtac | assumption ].
-    unfold p_of_ns₉, q_of_ns₉; simpl.
-    rewrite Heqg; intros H.
-    apply Z.gcd_eq_0_r in H.
-    apply Zminus_eq in H.
-    symmetry in H; revert H.
-    apply Z.lt_neq.
-    assumption.
-
-    assert (g ≠ 0%Z) as Hgnz.
-     rewrite Heqg; intros H.
-     apply Z.gcd_eq_0_r in H.
-     apply Zminus_eq in H.
-     symmetry in H; revert H.
-     apply Z.lt_neq.
-     assumption.
-
-     assert (0 <= g)%Z as Hgnn.
-      subst g.
-      apply Z.gcd_nonneg.
-
-      apply Z.div_str_pos.
-      split; [ fast_omega Hgnz Hgnn | idtac ].
-      pose proof (Z.gcd_divide_r (mj - mk) (Z.of_nat k - Z.of_nat j)) as H.
-      rewrite <- Heqg in H.
-      destruct H as (v, H).
-      destruct v as [| v| v].
-       simpl in H.
-       apply Zminus_eq in H.
-       rewrite H in Hjk.
-       apply Z.lt_irrefl in Hjk; contradiction.
-
-       rewrite H.
-       remember (' v * g)%Z as x.
-       replace g with (1 * g)%Z by apply Zmult_1_l.
-       subst x.
-       apply Zmult_le_compat_r.
-        replace 1%Z with (Z.succ 0)%Z by reflexivity.
-        apply Zlt_le_succ.
-        apply Pos2Z.is_pos.
-
-        rewrite Heqg.
-        apply Z.gcd_nonneg.
-
-       exfalso.
-       assert (Z.neg v * g < 0)%Z as Hn.
-        apply Z.mul_neg_pos.
-         apply Zlt_neg_0.
-
-         fast_omega Hgnz Hgnn.
-
-        rewrite <- H in Hn.
-        apply Zlt_not_le in Hn.
-        apply Hn.
-        apply Z.lt_le_incl.
-        revert Hjk; clear; intros; omega.
 Qed.
 
 (* [Walker, p. 100]: « If Ph is on L, then also
@@ -1902,7 +1785,6 @@ rewrite <- Hfin; simpl.
 rewrite Nat2Z.id; reflexivity.
 Qed.
 
-(* similar to q_mj_mk_eq_p_h_j₉ which should be removed one day *)
 (* [Walker, p. 100]: « In the first place, we note that [...]
 
          q (mj - mh) = p (h - j)
@@ -2018,119 +1900,6 @@ split.
     rewrite <- Hh; simpl; rewrite nat_num_Qnat; reflexivity.
 Qed.
 
-(* [Walker, p. 100]: « In the first place, we note that [...]
-
-         q (mj - mh) = p (h - j)
-   » *)
-Theorem q_mj_mk_eq_p_h_j₉ : ∀ pol ns j αj m mj p q,
-  ns ∈ newton_segments pol
-  → (Qnat j, αj) = ini_pt ns
-    → m = ps_list_com_polord (al pol)
-      → mj = mj_of_ns₉ pol ns
-        → p = p_of_ns₉ pol ns
-          → q = Pos.to_nat (q_of_ns₉ pol ns)
-            → ∀ h αh mh, (Qnat h, αh) ∈ oth_pts ns ++ [fin_pt ns]
-              → mh = mh_of_ns₉ pol h αh
-                → αh == mh # m
-                  ∧ Z.of_nat q * (mj - mh) = p * Z.of_nat (h - j).
-Proof.
-intros pol ns j αj m mj p q Hns Hj Hm Hmj Hp Hq h αh mh Hh Hmh.
-remember (points_of_ps_polynom pol) as pts eqn:Hpts .
-remember (List.nth h (al pol) 0%ps) as hps.
-apply List.in_app_or in Hh.
-unfold newton_segments in Hns.
-rewrite <- Hpts in Hns.
-split.
- eapply com_den_of_ps_list with (ps := hps); try eassumption.
-  eapply in_pts_in_pol; try eassumption.
-  destruct Hh as [Hh| [Hk| ]]; [ idtac | idtac | contradiction ].
-   eapply oth_pts_in_init_pts; eassumption.
-
-   rewrite <- Hk.
-   apply ini_fin_ns_in_init_pts; assumption.
-
-  eapply in_pts_in_pol; try eassumption.
-  destruct Hh as [Hh| [Hh| ]]; [ idtac | idtac | contradiction ].
-   eapply oth_pts_in_init_pts; eassumption.
-
-   rewrite <- Hh.
-   apply ini_fin_ns_in_init_pts; assumption.
-
-  rewrite Hmh.
-  unfold mh_of_ns₉; simpl.
-  rewrite <- Hm, <- Heqhps; reflexivity.
-
- destruct Hh as [Hh| [Hh| ]]; [ idtac | idtac | contradiction ].
-  rewrite Hpts in Hns.
-  remember Hns as Hgh; clear HeqHgh.
-  eapply gamma_value_jh in Hgh; try eassumption.
-  remember Hm as Hgamma; clear HeqHgamma.
-  eapply gamma_eq_p_mq₉ in Hgamma; try eassumption; try reflexivity.
-  rewrite Hgamma in Hgh.
-  unfold Qnat in Hgh.
-  rewrite <- Qnum_minus_distr_r in Hgh.
-  rewrite Nat2Z.inj_sub.
-   rewrite Hq.
-   rewrite positive_nat_Z.
-   eapply pmq_qmpm; try reflexivity.
-    eapply j_lt_h; try eassumption; reflexivity.
-
-    rewrite Hgh.
-    remember Heqhps as Hhps; clear HeqHhps.
-    eapply in_pts_in_pol in Hhps; try eassumption.
-     destruct Hhps as (Hhps, Hαh).
-     do 2 rewrite Qnum_minus_distr_r.
-     eapply com_den_of_ini_pt₉ in Hj; try eassumption; rewrite Hj.
-     eapply com_den_of_oth_pt₉ in Hh; try eassumption.
-     rewrite Hh; reflexivity.
-
-     eapply oth_pts_in_init_pts; try eassumption.
-     unfold newton_segments in Hns.
-     rewrite <- Hpts in Hns; assumption.
-
-   apply Nat.lt_le_incl.
-   eapply j_lt_h; try eassumption; reflexivity.
-
-  rewrite Hpts in Hns.
-  remember Hj as Hgh; clear HeqHgh.
-  symmetry in Hh.
-  eapply gamma_value_jk in Hgh; [ idtac | eassumption ].
-  remember Hm as Hgamma; clear HeqHgamma.
-  eapply gamma_eq_p_mq₉ in Hgamma; try eassumption; try reflexivity.
-  rewrite Hgh in Hgamma.
-  unfold Qnat in Hgamma.
-  rewrite <- Qnum_minus_distr_r in Hgamma.
-  rewrite Nat2Z.inj_sub.
-   rewrite Hq.
-   rewrite positive_nat_Z.
-   eapply pmq_qmpm; try reflexivity.
-    eapply j_lt_k; try eassumption.
-     rewrite <- Hj; simpl; rewrite nat_num_Qnat; reflexivity.
-
-     rewrite <- Hh; simpl; rewrite nat_num_Qnat; reflexivity.
-
-    rewrite <- Hgamma.
-    remember Heqhps as Hhps; clear HeqHhps.
-    eapply in_pts_in_pol with (hv := αh) in Hhps; try eassumption.
-     destruct Hhps as (Hhps, Hαh).
-     do 2 rewrite Qnum_minus_distr_r.
-     eapply com_den_of_ini_pt₉ in Hj; try eassumption; rewrite Hj.
-     eapply com_den_of_fin_pt₉ in Hh; try eassumption.
-      rewrite Hh; reflexivity.
-
-      erewrite mk_mh_of_ns₉; eassumption.
-
-     rewrite Hh.
-     eapply ini_fin_ns_in_init_pts; try eassumption.
-     rewrite <- Hpts in Hns; assumption.
-
-   apply Nat.lt_le_incl.
-   eapply j_lt_k; try eassumption.
-    rewrite <- Hj; simpl; rewrite nat_num_Qnat; reflexivity.
-
-    rewrite <- Hh; simpl; rewrite nat_num_Qnat; reflexivity.
-Qed.
-
 Lemma mul_pos_nonneg : ∀ j k c d,
   (j < k)%nat
   → Z.of_nat (k - j) = c * Z.of_nat d
@@ -2153,7 +1922,9 @@ apply Z.mul_le_mono_pos_r with (p := Z.of_nat d).
  apply Nat2Z.is_nonneg.
 Qed.
 
-(* similar to q_is_factor_of_h_minus_j₉ which should be removed one day *)
+(* [Walker, p. 100]: « In the first place, we note that [...]
+   and since p and q have no common factors, q is a factor
+   of h - j. » *)
 Theorem q_is_factor_of_h_minus_j : ∀ pol ns j αj m q,
   ns ∈ newton_segments pol
   → ps_lap_forall (λ a, in_K_1_m a m) (al pol)
@@ -2175,45 +1946,6 @@ eapply p_and_q_have_no_common_factors in Hgcd; eauto .
 rewrite Z.gcd_comm in Hgcd.
 rewrite <- positive_nat_Z in Hgcd.
 rewrite Z.gcd_comm in Hgcd.
-rewrite Z.gcd_comm in Hgcd.
-apply Z.gauss with (p := Z.of_nat (h - j)) in Hgcd.
- 2: rewrite <- Hqjh.
- 2: apply Z.divide_factor_l.
-
- destruct Hgcd as (c, Hc).
- exists (Z.to_nat c).
- apply Nat2Z.inj.
- rewrite Nat2Z.inj_mul.
- rewrite Z2Nat.id; [ assumption | idtac ].
- eapply mul_pos_nonneg; try eassumption.
- destruct Hh as [Hh| [Hk| ]]; [ idtac | idtac | contradiction ].
-  eapply j_lt_h; try eassumption; reflexivity.
-
-  eapply j_lt_k; try eassumption.
-   rewrite <- Hj; simpl; rewrite nat_num_Qnat; reflexivity.
-
-   rewrite Hk; simpl; rewrite nat_num_Qnat; reflexivity.
-Qed.
-
-(* [Walker, p. 100]: « In the first place, we note that [...]
-   and since p and q have no common factors, q is a factor
-   of h - j. » *)
-Theorem q_is_factor_of_h_minus_j₉ : ∀ pol ns j αj q,
-  ns ∈ newton_segments pol
-  → (Qnat j, αj) = ini_pt ns
-    → q = Pos.to_nat (q_of_ns₉ pol ns)
-      → ∀ h αh, (Qnat h, αh) ∈ oth_pts ns ++ [fin_pt ns]
-        → (q | h - j)%nat.
-Proof.
-intros pol ns j αj q Hns Hj Hq h αh Hh.
-remember (p_of_ns₉ pol ns) as p eqn:Hp.
-remember Hns as H; clear HeqH.
-eapply q_mj_mk_eq_p_h_j₉ in H; try eassumption; try reflexivity.
-destruct H as (Hαh, Hqjh).
-apply List.in_app_or in Hh.
-remember Hns as Hgcd; clear HeqHgcd.
-eapply p_and_q_have_no_common_factors₉ in Hgcd; try reflexivity.
-rewrite <- positive_nat_Z, <- Hp, <- Hq in Hgcd.
 rewrite Z.gcd_comm in Hgcd.
 apply Z.gauss with (p := Z.of_nat (h - j)) in Hgcd.
  2: rewrite <- Hqjh.
@@ -2955,8 +2687,6 @@ destruct l as [| b]; constructor.
  assumption.
 Qed.
 
-(* similar to phi_pseudo_degree_is_k_sub_j_div_q with should be removed
-   one day *)
 Lemma phi_pseudo_degree_is_k_sub_j_div_q : ∀ pol ns j αj k αk q m,
   ns ∈ newton_segments pol
   → (Qnat j, αj) = ini_pt ns
@@ -2965,92 +2695,6 @@ Lemma phi_pseudo_degree_is_k_sub_j_div_q : ∀ pol ns j αj k αk q m,
   → pseudo_degree (Φ m pol ns) = ((k - j) / q)%nat.
 Proof.
 intros pol ns j αj k αk q m Hns Hj Hk Hq.
-unfold pseudo_degree; simpl.
-rewrite Nat.sub_diag; simpl.
-rewrite <- Hj; simpl.
-rewrite nat_num_Qnat, skipn_pad.
-unfold list_shrink.
-rewrite list_length_shrink; simpl.
- rewrite divmod_div.
- rewrite Nat.sub_0_r.
- f_equal.
-  rewrite List.map_app; simpl.
-  rewrite length_char_pol_succ.
-   rewrite <- Hk; simpl.
-   rewrite nat_num_Qnat; reflexivity.
-
-   remember (oth_pts ns) as opts eqn:Hopts .
-   symmetry in Hopts.
-   destruct opts as [| (h, αh)].
-    simpl.
-    rewrite <- Hk; simpl.
-    rewrite nat_num_Qnat.
-    eapply j_lt_k; try eassumption.
-     rewrite <- Hj; simpl.
-     rewrite nat_num_Qnat; reflexivity.
-
-     rewrite <- Hk; simpl.
-     rewrite nat_num_Qnat; reflexivity.
-
-    simpl.
-    assert ((h, αh) ∈ oth_pts ns) as H.
-     rewrite Hopts; left; reflexivity.
-
-     eapply j_lt_h; try eassumption; try reflexivity.
-     unfold newton_segments in Hns.
-     eapply oth_pts_in_init_pts in H; try eassumption.
-     eapply pt_absc_is_nat in H; [ idtac | reflexivity ].
-     simpl in H; assumption.
-
-   rewrite list_map_app_at.
-   apply Sorted_map.
-   apply Sorted_fst_lt_nat_num_fst.
-    intros a Ha.
-    remember (points_of_ps_polynom pol) as pts.
-    symmetry in Heqpts.
-    eapply pt_absc_is_nat; [ eassumption | idtac ].
-    apply List.in_app_or in Ha.
-    unfold newton_segments in Hns.
-    rewrite Heqpts in Hns.
-    destruct Ha as [Ha| [Ha| ]]; [ idtac | idtac | contradiction ].
-     eapply oth_pts_in_init_pts; eassumption.
-
-     subst a.
-     apply ini_fin_ns_in_init_pts; eassumption.
-
-    eapply Sorted_inv_1.
-    eapply ini_oth_fin_pts_sorted; eassumption.
-
-  subst q.
-  rewrite <- Nat.sub_succ_l; [ apply Nat_sub_succ_1 | idtac ].
-  apply Pos2Nat.is_pos.
-
- apply lt_n_S.
- clear Hj.
- revert j.
- induction (oth_pts ns); intros.
-  simpl.
-  rewrite list_length_pad; simpl.
-  rewrite <- Hk; simpl.
-  rewrite nat_num_Qnat; omega.
-
-  simpl.
-  rewrite list_length_pad; simpl.
-  eapply lt_le_trans.
-   apply IHl with (j := nat_num (fst a)).
-
-   rewrite Nat.add_succ_r, <- Nat.add_succ_l.
-   apply le_plus_r.
-Qed.
-
-Lemma phi_pseudo_degree_is_k_sub_j_div_q₉ : ∀ pol ns j αj k αk q,
-  ns ∈ newton_segments pol
-  → (Qnat j, αj) = ini_pt ns
-    → (Qnat k, αk) = fin_pt ns
-      → q = Pos.to_nat (q_of_ns₉ pol ns)
-        → pseudo_degree (Φ₉ pol ns) = ((k - j) / q)%nat.
-Proof.
-intros pol ns j αj k αk q Hns Hj Hk Hq.
 unfold pseudo_degree; simpl.
 rewrite Nat.sub_diag; simpl.
 rewrite <- Hj; simpl.
@@ -3389,8 +3033,6 @@ destruct pts as [| pt₂]; constructor.
  do 2 rewrite Z.mul_1_r in H3; assumption.
 Qed.
 
-(* similar to phi_pseudo_degree_is_k_sub_j_div_q₉
-   which should be removed one day *)
 (* [Walker, p. 100] « Therefore (3.4) has the form c^j Φ(c^q) = 0
    where Φ(z) is a polynomial, of degree (k - j)/q » *)
 Theorem phi_degree_is_k_sub_j_div_q : ∀ pol ns j αj k αk q m,
@@ -3524,140 +3166,6 @@ apply imp_or_tauto.
 
  subst l.
  eapply phi_pseudo_degree_is_k_sub_j_div_q; eassumption.
-Qed.
-
-(* [Walker, p. 100] « Therefore (3.4) has the form c^j Φ(c^q) = 0
-   where Φ(z) is a polynomial, of degree (k - j)/q » *)
-Theorem phi_degree_is_k_sub_j_div_q₉ : ∀ pol ns j αj k αk q,
-  ns ∈ newton_segments pol
-  → (Qnat j, αj) = ini_pt ns
-    → (Qnat k, αk) = fin_pt ns
-      → q = Pos.to_nat (q_of_ns₉ pol ns)
-        → has_degree (Φ₉ pol ns) ((k - j) / q).
-Proof.
-intros pol ns j αj k αk q Hns Hj Hk Hq.
-unfold has_degree.
-unfold pseudo_degree.
-remember (al (Φ₉ pol ns)) as l.
-apply imp_or_tauto.
- intros H.
- unfold Φ₉ in Heql.
- rewrite Φq_pol in Heql.
- remember [ini_pt ns … oth_pts ns ++ [fin_pt ns]] as pl.
- rewrite <- Hj in Heql; simpl in Heql.
- rewrite nat_num_Qnat in Heql.
- subst l.
- unfold list_shrink.
- rewrite list_nth_shrink.
- rewrite Nat.add_0_l.
- rewrite <- Nat.sub_succ_l; [ idtac | subst q; apply Pos2Nat.is_pos ].
- rewrite Nat_sub_succ_1.
- rewrite Nat.mul_comm.
- rewrite <- Nat.divide_div_mul_exact; [ idtac | subst q; auto | idtac ].
-  rewrite Nat.mul_comm, <- Hq.
-  rewrite Nat.div_mul; [ idtac | subst q; auto ].
-  subst pl.
-  erewrite list_nth_coeff_last; try eassumption.
-   rewrite list_last_cons_app; simpl.
-   rewrite <- Hk; simpl.
-   rewrite nat_num_Qnat; simpl.
-   eapply ord_coeff_non_zero_in_newt_segm; try eassumption; try reflexivity.
-   rewrite <- Hk; right.
-   apply List.in_or_app; right; left; reflexivity.
-
-   rewrite list_last_cons_app; eassumption.
-
-   eapply j_lt_k; try eassumption.
-    rewrite <- Hj; simpl; rewrite nat_num_Qnat; reflexivity.
-
-    rewrite <- Hk; simpl; rewrite nat_num_Qnat; reflexivity.
-
-   constructor.
-    apply Sorted_app_at_r.
-     remember Hns as Hsort; clear HeqHsort.
-     apply ini_oth_fin_pts_sorted in Hsort.
-     apply Sorted_inv_1 in Hsort.
-     apply Sorted_app in Hsort.
-     destruct Hsort as (Hsort, _).
-     apply Sorted_Qnat_Sorted_Qnum.
-      apply ini_oth_fin_pts_sorted in Hns.
-      apply Sorted_inv_1 in Hns.
-      apply Sorted_app in Hns.
-      destruct Hns; assumption.
-
-      eapply oth_pts_den_1; eassumption.
-
-     intros pt Hpt.
-     remember Hns as Hsort; clear HeqHsort.
-     apply ini_oth_fin_pts_sorted in Hsort.
-     apply Sorted_inv_1 in Hsort.
-     apply Sorted_Qnat_Sorted_Qnum in Hsort.
-      eapply Sorted_trans_app in Hsort; try eassumption.
-      intros x y z H₁ H₂; eapply Z.lt_trans; eassumption.
-
-      apply List.Forall_forall; intros x Hx.
-      apply List.in_app_or in Hx.
-      destruct Hx as [Hx| Hx].
-       revert x Hx.
-       apply List.Forall_forall.
-       eapply oth_pts_den_1; eassumption.
-
-       destruct Hx as [Hx| ]; [ idtac | contradiction ].
-       rewrite <- Hx, <- Hk; reflexivity.
-
-    apply HdRel_app; [ idtac | constructor ].
-     remember (oth_pts ns) as pts eqn:Hpts .
-     symmetry in Hpts.
-     destruct pts as [| pt]; constructor.
-     rewrite <- Hj; simpl.
-     apply Z2Nat.inj_lt.
-      apply Nat2Z.is_nonneg.
-
-      apply oth_pts_in_init_pts with (pt := pt) in Hns.
-       eapply pt_absc_is_nat in Hns; [ idtac | reflexivity ].
-       rewrite Hns; simpl.
-       apply Nat2Z.is_nonneg.
-
-       rewrite Hpts; left; reflexivity.
-
-      rewrite Nat2Z.id.
-      destruct pt as (h, αh); simpl.
-      eapply j_lt_h; try eassumption; try reflexivity.
-      rewrite Hpts; left.
-      unfold Qnat; simpl.
-      remember Hns as Hpt; clear HeqHpt.
-      apply oth_pts_in_init_pts with (pt := (h, αh)) in Hpt.
-       eapply pt_absc_is_nat in Hpt; [ idtac | reflexivity ].
-       simpl in Hpt; rewrite Hpt.
-       unfold Qnat; simpl.
-       rewrite Nat2Z.id; reflexivity.
-
-       rewrite Hpts; left; reflexivity.
-
-     rewrite <- Hj, <- Hk; simpl.
-     eapply jz_lt_kz; try eassumption.
-      rewrite <- Hj; reflexivity.
-
-      rewrite <- Hk; reflexivity.
-
-   constructor.
-    rewrite <- Hj; reflexivity.
-
-    apply List.Forall_forall; intros pt Hpt.
-    apply List.in_app_or in Hpt.
-    destruct Hpt as [Hpt| Hpt].
-     revert pt Hpt.
-     apply List.Forall_forall.
-     eapply oth_pts_den_1; eassumption.
-
-     destruct Hpt as [Hpt| ]; [ idtac | contradiction ].
-     rewrite <- Hpt, <- Hk; reflexivity.
-
-  eapply q_is_factor_of_h_minus_j₉; try eassumption.
-  apply List.in_or_app; right; left; symmetry; eassumption.
-
- subst l.
- eapply phi_pseudo_degree_is_k_sub_j_div_q₉; eassumption.
 Qed.
 
 Definition apply_K_poly := (horner 0 rng_add rng_mul)%K.
