@@ -156,6 +156,10 @@ Definition Φq α {R : ring α} pol ns :=
   let j := nat_num (fst (ini_pt ns)) in
   poly_left_shift j (summation_ah_xh_pol pol ns).
 
+Definition Φ α {R : ring α} m pol ns :=
+  let q := Pos.to_nat (q_of_m m (γ ns)) in
+  poly_shrink q (Φq pol ns).
+
 Definition Φ₉ α {R : ring α} pol ns :=
   let q := Pos.to_nat (q_of_ns₉ pol ns) in
   poly_shrink q (Φq pol ns).
@@ -2148,8 +2152,7 @@ apply Z.mul_le_mono_pos_r with (p := Z.of_nat d).
  apply Nat2Z.is_nonneg.
 Qed.
 
-(* similar to CharactPolyn.q_is_factor_of_h_minus_j₉ which should
-   be removed one day *)
+(* similar to q_is_factor_of_h_minus_j₉ which should be removed one day *)
 Theorem q_is_factor_of_h_minus_j : ∀ pol ns j αj m q,
   ns ∈ newton_segments pol
   → ps_lap_forall (λ a, in_K_1_m a m) (al pol)
@@ -3423,6 +3426,147 @@ destruct pts as [| pt₂]; constructor.
  rewrite Hden1, Hden₂ in H3.
  do 2 rewrite Z.mul_1_r in H3; assumption.
 Qed.
+
+(* to be completed *)
+(* similar to phi_pseudo_degree_is_k_sub_j_div_q₉
+   which should be removed one day *)
+(* [Walker, p. 100] « Therefore (3.4) has the form c^j Φ(c^q) = 0
+   where Φ(z) is a polynomial, of degree (k - j)/q » *)
+(*
+Theorem phi_degree_is_k_sub_j_div_q : ∀ pol ns j αj k αk q m,
+  ns ∈ newton_segments pol
+  → ps_lap_forall (λ a, in_K_1_m a m) (al pol)
+  → (Qnat j, αj) = ini_pt ns
+  → (Qnat k, αk) = fin_pt ns
+  → q = Pos.to_nat (q_of_m m (γ ns))
+  → has_degree (Φ m pol ns) ((k - j) / q).
+Proof.
+intros pol ns j αj k αk q m Hns Hm Hj Hk Hq.
+unfold has_degree.
+unfold pseudo_degree.
+remember (al (Φ m pol ns)) as l.
+apply imp_or_tauto.
+ intros H.
+ unfold Φ in Heql.
+ rewrite Φq_pol in Heql.
+ remember [ini_pt ns … oth_pts ns ++ [fin_pt ns]] as pl.
+ rewrite <- Hj in Heql; simpl in Heql.
+ rewrite nat_num_Qnat in Heql.
+ subst l.
+ unfold list_shrink.
+ rewrite list_nth_shrink.
+ rewrite Nat.add_0_l.
+ rewrite <- Nat.sub_succ_l; [ idtac | subst q; apply Pos2Nat.is_pos ].
+ rewrite Nat_sub_succ_1.
+ rewrite Nat.mul_comm.
+ rewrite <- Nat.divide_div_mul_exact; [ idtac | subst q; auto | idtac ].
+  rewrite Nat.mul_comm, <- Hq.
+  rewrite Nat.div_mul; [ idtac | subst q; auto ].
+  subst pl.
+  erewrite list_nth_coeff_last; try eassumption.
+   rewrite list_last_cons_app; simpl.
+   rewrite <- Hk; simpl.
+   rewrite nat_num_Qnat; simpl.
+   eapply ord_coeff_non_zero_in_newt_segm; try eassumption; try reflexivity.
+   rewrite <- Hk; right.
+   apply List.in_or_app; right; left; reflexivity.
+
+   rewrite list_last_cons_app; eassumption.
+
+   eapply j_lt_k; try eassumption.
+    rewrite <- Hj; simpl; rewrite nat_num_Qnat; reflexivity.
+
+    rewrite <- Hk; simpl; rewrite nat_num_Qnat; reflexivity.
+
+   constructor.
+    apply Sorted_app_at_r.
+     remember Hns as Hsort; clear HeqHsort.
+     apply ini_oth_fin_pts_sorted in Hsort.
+     apply Sorted_inv_1 in Hsort.
+     apply Sorted_app in Hsort.
+     destruct Hsort as (Hsort, _).
+     apply Sorted_Qnat_Sorted_Qnum.
+      apply ini_oth_fin_pts_sorted in Hns.
+      apply Sorted_inv_1 in Hns.
+      apply Sorted_app in Hns.
+      destruct Hns; assumption.
+
+      eapply oth_pts_den_1; eassumption.
+
+     intros pt Hpt.
+     remember Hns as Hsort; clear HeqHsort.
+     apply ini_oth_fin_pts_sorted in Hsort.
+     apply Sorted_inv_1 in Hsort.
+     apply Sorted_Qnat_Sorted_Qnum in Hsort.
+      eapply Sorted_trans_app in Hsort; try eassumption.
+      intros x y z H₁ H₂; eapply Z.lt_trans; eassumption.
+
+      apply List.Forall_forall; intros x Hx.
+      apply List.in_app_or in Hx.
+      destruct Hx as [Hx| Hx].
+       revert x Hx.
+       apply List.Forall_forall.
+       eapply oth_pts_den_1; eassumption.
+
+       destruct Hx as [Hx| ]; [ idtac | contradiction ].
+       rewrite <- Hx, <- Hk; reflexivity.
+
+    apply HdRel_app; [ idtac | constructor ].
+     remember (oth_pts ns) as pts eqn:Hpts .
+     symmetry in Hpts.
+     destruct pts as [| pt]; constructor.
+     rewrite <- Hj; simpl.
+     apply Z2Nat.inj_lt.
+      apply Nat2Z.is_nonneg.
+
+      apply oth_pts_in_init_pts with (pt := pt) in Hns.
+       eapply pt_absc_is_nat in Hns; [ idtac | reflexivity ].
+       rewrite Hns; simpl.
+       apply Nat2Z.is_nonneg.
+
+       rewrite Hpts; left; reflexivity.
+
+      rewrite Nat2Z.id.
+      destruct pt as (h, αh); simpl.
+      eapply j_lt_h; try eassumption; try reflexivity.
+      rewrite Hpts; left.
+      unfold Qnat; simpl.
+      remember Hns as Hpt; clear HeqHpt.
+      apply oth_pts_in_init_pts with (pt := (h, αh)) in Hpt.
+       eapply pt_absc_is_nat in Hpt; [ idtac | reflexivity ].
+       simpl in Hpt; rewrite Hpt.
+       unfold Qnat; simpl.
+       rewrite Nat2Z.id; reflexivity.
+
+       rewrite Hpts; left; reflexivity.
+
+     rewrite <- Hj, <- Hk; simpl.
+     eapply jz_lt_kz; try eassumption.
+      rewrite <- Hj; reflexivity.
+
+      rewrite <- Hk; reflexivity.
+
+   constructor.
+    rewrite <- Hj; reflexivity.
+
+    apply List.Forall_forall; intros pt Hpt.
+    apply List.in_app_or in Hpt.
+    destruct Hpt as [Hpt| Hpt].
+     revert pt Hpt.
+     apply List.Forall_forall.
+     eapply oth_pts_den_1; eassumption.
+
+     destruct Hpt as [Hpt| ]; [ idtac | contradiction ].
+     rewrite <- Hpt, <- Hk; reflexivity.
+
+  eapply q_is_factor_of_h_minus_j; try eassumption.
+  apply List.in_or_app; right; left; symmetry; eassumption.
+
+ subst l.
+bbb.
+ eapply phi_pseudo_degree_is_k_sub_j_div_q; eassumption.
+bbb.
+*)
 
 (* [Walker, p. 100] « Therefore (3.4) has the form c^j Φ(c^q) = 0
    where Φ(z) is a polynomial, of degree (k - j)/q » *)
