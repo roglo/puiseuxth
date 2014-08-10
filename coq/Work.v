@@ -783,12 +783,10 @@ Lemma root_head_succ : ∀ pol ns b n,
   zerop_1st_n_const_coeff b pol ns = false
   → (root_head b (S n) pol ns =
      root_head b n pol ns +
-     if zerop_1st_n_const_coeff (b + n) pol ns then 0
+     if zerop_1st_n_const_coeff (b + S n) pol ns then 0
      else ps_monom (nth_c (b + S n) pol ns) (γ_sum b (S n) pol ns))%ps.
 Proof.
 intros pol ns b n Hz.
-bbb.
-
 unfold root_head; rewrite Hz.
 rewrite root_head_from_cγ_list_succ.
  rewrite Nat.add_0_r, Nat.add_0_l.
@@ -846,6 +844,8 @@ induction n; intros.
   rewrite zerop_1st_n_const_coeff_true_if; auto.
   rewrite rng_add_0_l, rng_mul_0_r; reflexivity.
 
+(* there were a problem with definition of root_head_from_cγ_list;
+   fixed now. To be seen *)
 bbb.
   Hz₁ : zerop_1st_n_const_coeff b pol₁ ns₁ = false
   ============================
