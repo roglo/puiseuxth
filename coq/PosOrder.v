@@ -115,42 +115,6 @@ Variable R : ring α.
 Variable K : field R.
 Variable acf : algeb_closed_field K.
 
-Lemma order_in_newton_segment : ∀ pol ns pl h αh,
-  ns ∈ newton_segments pol
-  → pl = [ini_pt ns … oth_pts ns ++ [fin_pt ns]]
-    → (Qnat h, αh) ∈ pl
-      → order (ps_poly_nth h pol) = qfin αh.
-Proof.
-intros pol ns pl h αh Hns Hpl Hαh.
-remember Hns as Hini; clear HeqHini.
-apply exists_ini_pt_nat in Hini.
-destruct Hini as (j, (αj, Hini)).
-remember Hns as Hfin; clear HeqHfin.
-apply exists_fin_pt_nat in Hfin.
-destruct Hfin as (k, (αk, Hfin)).
-unfold ps_poly_nth, ps_lap_nth; simpl.
-edestruct in_pts_in_pol; try reflexivity; try eassumption.
-subst pl.
-simpl in Hαh.
-destruct Hαh as [Hαh| Hαh].
- rewrite Hini in Hαh.
- injection Hαh; clear Hαh; intros HH H; subst αh.
- apply Nat2Z.inj in H; subst h.
- rewrite <- Hini.
- apply ini_fin_ns_in_init_pts; assumption.
-
- apply List.in_app_or in Hαh.
- destruct Hαh as [Hαh| Hαh].
-  eapply oth_pts_in_init_pts; try reflexivity; try eassumption.
-
-  destruct Hαh as [Hαh| Hαh]; [ idtac | contradiction ].
-  rewrite Hfin in Hαh.
-  injection Hαh; clear Hαh; intros HH H; subst αh.
-  apply Nat2Z.inj in H; subst h.
-  rewrite <- Hfin.
-  apply ini_fin_ns_in_init_pts; assumption.
-Qed.
-
 Lemma coeff_of_hl_eq_order : ∀ h la li,
   h ∈ li
   → coeff_of_hl R la h li = order_coeff (List.nth h la 0%ps).
