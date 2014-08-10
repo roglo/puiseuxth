@@ -1926,7 +1926,7 @@ Lemma cpol_degree_ge_1₉ : ∀ pol ns,
   → degree ac_zerop (Φq pol ns) ≥ 1.
 Proof.
 intros pol ns Hns.
-remember (Pos.to_nat (q_of_ns pol ns)) as q eqn:Hq .
+remember (Pos.to_nat (q_of_ns₉ pol ns)) as q eqn:Hq .
 remember (ini_pt ns) as jj eqn:Hj .
 destruct jj as (jq, αj); simpl.
 remember Hns as H; clear HeqH.
@@ -1981,7 +1981,7 @@ eapply q_is_factor_of_h_minus_j₉ with (h := k) in Hqkj; try eassumption.
   symmetry in Hd.
   destruct d; [ exfalso | omega ].
   subst cpol.
-  remember (Pos.to_nat (q_of_ns pol ns)) as nq.
+  remember (Pos.to_nat (q_of_ns₉ pol ns)) as nq.
   remember (make_char_pol R (S j) tl) as cpol.
   pose proof (list_length_shrink_le nq [v … cpol]) as Hlen.
   remember [v … cpol] as vcpol.

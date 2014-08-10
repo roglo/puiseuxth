@@ -127,19 +127,19 @@ Definition jk_mjk_g_of_ns₉ α {R : ring α} pol ns :=
   let g := Z.gcd (mj - mk) (Z.of_nat k - Z.of_nat j) in
   (j, k, mj, mk, g).
 
-Definition p_of_ns α {R : ring α} pol ns :=
+Definition p_of_ns₉ α {R : ring α} pol ns :=
   let '(j, k, mj, mk, g) := jk_mjk_g_of_ns₉ pol ns in
   ((mj - mk) / g)%Z.
 
-Definition q_of_ns α {R : ring α} pol ns :=
+Definition q_of_ns₉ α {R : ring α} pol ns :=
   let '(j, k, mj, mk, g) := jk_mjk_g_of_ns₉ pol ns in
   Z.to_pos ((Z.of_nat k - Z.of_nat j) / g).
 
-Definition mj_of_ns α {R : ring α} pol ns :=
+Definition mj_of_ns₉ α {R : ring α} pol ns :=
   let '(j, k, mj, mk, g) := jk_mjk_g_of_ns₉ pol ns in
   mj.
 
-Definition mk_of_ns α {R : ring α} pol ns :=
+Definition mk_of_ns₉ α {R : ring α} pol ns :=
   let '(j, k, mj, mk, g) := jk_mjk_g_of_ns₉ pol ns in
   mk.
 
@@ -157,7 +157,7 @@ Definition Φq α {R : ring α} pol ns :=
   poly_left_shift j (summation_ah_xh_pol pol ns).
 
 Definition Φ₉ α {R : ring α} pol ns :=
-  let q := Pos.to_nat (q_of_ns pol ns) in
+  let q := Pos.to_nat (q_of_ns₉ pol ns) in
   poly_shrink q (Φq pol ns).
 
 Section theorems.
@@ -1129,8 +1129,8 @@ Qed.
 Theorem gamma_eq_p_mq₉ : ∀ pol ns m p q,
   ns ∈ newton_segments pol
   → m = ps_list_com_polord (al pol)
-    → p = p_of_ns pol ns
-      → q = q_of_ns pol ns
+    → p = p_of_ns₉ pol ns
+      → q = q_of_ns₉ pol ns
         → γ ns == p # (m * q).
 Proof.
 intros pol ns m p q Hns Hm Hp Hq.
@@ -1179,7 +1179,7 @@ eapply in_pts_in_pol with (hv := αj) in Heqjps; try eassumption.
     rewrite <- Hfin; reflexivity.
 
    subst p q.
-   unfold p_of_ns, q_of_ns; simpl.
+   unfold p_of_ns₉, q_of_ns₉; simpl.
    rewrite <- Hini, <- Hfin; simpl.
    do 2 rewrite Nat2Z.id.
    unfold Qnat.
@@ -1269,8 +1269,8 @@ Qed.
    no common factor. » *)
 Theorem p_and_q_have_no_common_factors₉ : ∀ pol ns p q,
   ns ∈ newton_segments pol
-  → p = p_of_ns pol ns
-    → q = q_of_ns pol ns
+  → p = p_of_ns₉ pol ns
+    → q = q_of_ns₉ pol ns
       → Z.gcd p (' q) = 1%Z.
 Proof.
 intros pol ns p q Hns Hp Hq.
@@ -1317,7 +1317,7 @@ eapply in_pts_in_pol with (hv := αj) in Heqjps; try eassumption.
     rewrite <- Hfin; reflexivity.
 
    subst p q.
-   unfold p_of_ns, q_of_ns; simpl.
+   unfold p_of_ns₉, q_of_ns₉; simpl.
    rewrite <- Hini, <- Hfin; simpl.
    do 2 rewrite Nat2Z.id.
    rewrite <- Hm.
@@ -1326,7 +1326,7 @@ eapply in_pts_in_pol with (hv := αj) in Heqjps; try eassumption.
    rewrite <- Heqg.
    rewrite Z2Pos.id.
     apply Z.gcd_div_gcd; [ idtac | assumption ].
-    unfold p_of_ns, q_of_ns; simpl.
+    unfold p_of_ns₉, q_of_ns₉; simpl.
     rewrite Heqg; intros H.
     apply Z.gcd_eq_0_r in H.
     apply Zminus_eq in H.
@@ -1700,7 +1700,7 @@ Lemma com_den_of_ini_pt₉ : ∀ pol ns m j αj mj,
   ns ∈ newton_segments pol
   → m = ps_list_com_polord (al pol)
     → (Qnat j, αj) = ini_pt ns
-      → mj = mj_of_ns pol ns
+      → mj = mj_of_ns₉ pol ns
         → αj == mj # m.
 Proof.
 intros pol ns m j αj mj Hns Hm Hini Hmj.
@@ -1715,7 +1715,7 @@ eapply com_den_of_ps_list with (ps := jps); try eassumption.
  apply ini_fin_ns_in_init_pts; assumption.
 
  subst mj.
- unfold mj_of_ns; simpl.
+ unfold mj_of_ns₉; simpl.
  rewrite <- Hini, <- Hm; simpl.
  rewrite Nat2Z.id, <- Heqjps; reflexivity.
 Qed.
@@ -1783,7 +1783,7 @@ Lemma com_den_of_fin_pt₉ : ∀ pol ns m k αk mk,
   ns ∈ newton_segments pol
   → m = ps_list_com_polord (al pol)
     → (Qnat k, αk) = fin_pt ns
-      → mk = mk_of_ns pol ns
+      → mk = mk_of_ns₉ pol ns
         → αk == mk # m.
 Proof.
 intros pol ns m k αk mk Hns Hm Hfin Hmk.
@@ -1798,7 +1798,7 @@ eapply com_den_of_ps_list with (ps := kps); try eassumption.
  apply ini_fin_ns_in_init_pts; assumption.
 
  subst mk.
- unfold mk_of_ns; simpl.
+ unfold mk_of_ns₉; simpl.
  rewrite <- Hfin, <- Hm; simpl.
  rewrite Nat2Z.id, <- Heqkps; reflexivity.
 Qed.
@@ -1889,10 +1889,10 @@ Qed.
 
 Lemma mk_mh_of_ns₉ : ∀ pol ns h αh,
   (Qnat h, αh) = fin_pt ns
-  → mk_of_ns pol ns = mh_of_ns pol h αh.
+  → mk_of_ns₉ pol ns = mh_of_ns pol h αh.
 Proof.
 intros pol ns h αh Hfin.
-unfold mk_of_ns, mh_of_ns; simpl.
+unfold mk_of_ns₉, mh_of_ns; simpl.
 rewrite <- Hfin; simpl.
 rewrite Nat2Z.id; reflexivity.
 Qed.
@@ -2021,9 +2021,9 @@ Theorem q_mj_mk_eq_p_h_j₉ : ∀ pol ns j αj m mj p q,
   ns ∈ newton_segments pol
   → (Qnat j, αj) = ini_pt ns
     → m = ps_list_com_polord (al pol)
-      → mj = mj_of_ns pol ns
-        → p = p_of_ns pol ns
-          → q = Pos.to_nat (q_of_ns pol ns)
+      → mj = mj_of_ns₉ pol ns
+        → p = p_of_ns₉ pol ns
+          → q = Pos.to_nat (q_of_ns₉ pol ns)
             → ∀ h αh mh, (Qnat h, αh) ∈ oth_pts ns ++ [fin_pt ns]
               → mh = mh_of_ns pol h αh
                 → αh == mh # m
@@ -2197,12 +2197,12 @@ Qed.
 Theorem q_is_factor_of_h_minus_j₉ : ∀ pol ns j αj q,
   ns ∈ newton_segments pol
   → (Qnat j, αj) = ini_pt ns
-    → q = Pos.to_nat (q_of_ns pol ns)
+    → q = Pos.to_nat (q_of_ns₉ pol ns)
       → ∀ h αh, (Qnat h, αh) ∈ oth_pts ns ++ [fin_pt ns]
         → (q | h - j)%nat.
 Proof.
 intros pol ns j αj q Hns Hj Hq h αh Hh.
-remember (p_of_ns pol ns) as p eqn:Hp.
+remember (p_of_ns₉ pol ns) as p eqn:Hp.
 remember Hns as H; clear HeqH.
 eapply q_mj_mk_eq_p_h_j₉ in H; try eassumption; try reflexivity.
 destruct H as (Hαh, Hqjh).
@@ -2237,7 +2237,7 @@ Theorem h_is_j_plus_sq₉ : ∀ pol ns j αj m q,
   ns ∈ newton_segments pol
   → (Qnat j, αj) = ini_pt ns
     → m = ps_list_com_polord (al pol)
-      → q = Pos.to_nat (q_of_ns pol ns)
+      → q = Pos.to_nat (q_of_ns₉ pol ns)
         → ∀ h αh s, (Qnat h, αh) ∈ oth_pts ns ++ [fin_pt ns]
           → s = ((h - j) / q)%nat
             → h = (j + s * q)%nat ∧ s ≠ O.
@@ -2717,7 +2717,7 @@ Close Scope nat_scope.
 Theorem characteristic_polynomial_is_in_x_power_q₉ : ∀ pol ns cpol q,
   ns ∈ newton_segments pol
   → cpol = characteristic_polynomial pol ns
-    → q = Pos.to_nat (q_of_ns pol ns)
+    → q = Pos.to_nat (q_of_ns₉ pol ns)
       → is_polynomial_in_x_power_q cpol q.
 Proof.
 intros pol ns cpol q Hns Hcpol Hq.
@@ -3082,7 +3082,7 @@ Lemma phi_pseudo_degree_is_k_sub_j_div_q₉ : ∀ pol ns j αj k αk q,
   ns ∈ newton_segments pol
   → (Qnat j, αj) = ini_pt ns
     → (Qnat k, αk) = fin_pt ns
-      → q = Pos.to_nat (q_of_ns pol ns)
+      → q = Pos.to_nat (q_of_ns₉ pol ns)
         → pseudo_degree (Φ₉ pol ns) = ((k - j) / q)%nat.
 Proof.
 intros pol ns j αj k αk q Hns Hj Hk Hq.
@@ -3430,7 +3430,7 @@ Theorem phi_degree_is_k_sub_j_div_q₉ : ∀ pol ns j αj k αk q,
   ns ∈ newton_segments pol
   → (Qnat j, αj) = ini_pt ns
     → (Qnat k, αk) = fin_pt ns
-      → q = Pos.to_nat (q_of_ns pol ns)
+      → q = Pos.to_nat (q_of_ns₉ pol ns)
         → has_degree (Φ₉ pol ns) ((k - j) / q).
 Proof.
 intros pol ns j αj k αk q Hns Hj Hk Hq.
