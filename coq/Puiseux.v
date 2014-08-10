@@ -2385,7 +2385,7 @@ induction n; intros.
   pose proof (Hpsi O (Nat.le_0_l (S n))) as H; assumption.
 Qed.
 
-Lemma root_tail_from_0₉ : ∀ pol ns pol₁ ns₁ c m q₀ b,
+Lemma root_tail_from_0 : ∀ pol ns pol₁ ns₁ c m q₀ b,
   ns ∈ newton_segments pol
   → ps_lap_forall (λ a, in_K_1_m a m) (al pol)
   → q₀ = q_of_m m (γ ns)
@@ -2923,7 +2923,7 @@ destruct z₁.
     apply Z.lt_le_incl; assumption.
 Qed.
 
-Lemma root_tail_sep_1st_monom₉ : ∀ pol ns pol₁ ns₁ c m q₀ n,
+Lemma root_tail_sep_1st_monom : ∀ pol ns pol₁ ns₁ c m q₀ n,
   ns ∈ newton_segments pol
   → ps_lap_forall (λ a, in_K_1_m a m) (al pol)
   → q₀ = q_of_m m (γ ns)

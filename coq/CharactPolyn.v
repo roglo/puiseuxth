@@ -108,46 +108,6 @@ Inductive ps_lap_forall {α} {R : ring α} (P : _ → Prop) :
 
 Arguments ps_lap_forall α%type_scope _ _ l%pslap.
 
-(* the following definitions are incorrect because they depend on the fact
-   that m is the common polydromy order: this is true for the first
-   iteration, but not for the next ones; the following definition
-   therefore should be removed one day with a cleanup; the good
-   functions to use are p_of_m, q_of_m and in_K_1_m, and ps_lap_forall
-   in InK1m.v *)
-Definition jk_mjk_g_of_ns₉ α {R : ring α} pol ns :=
-  let m := ps_list_com_polord (al pol) in
-  let j := Z.to_nat (Qnum (fst (ini_pt ns))) in
-  let k := Z.to_nat (Qnum (fst (fin_pt ns))) in
-  let αj := snd (ini_pt ns) in
-  let αk := snd (fin_pt ns) in
-  let jps := List.nth j (al pol) 0%ps in
-  let kps := List.nth k (al pol) 0%ps in
-  let mj := (Qnum αj * ' m / ' ps_polord jps)%Z in
-  let mk := (Qnum αk * ' m / ' ps_polord kps)%Z in
-  let g := Z.gcd (mj - mk) (Z.of_nat k - Z.of_nat j) in
-  (j, k, mj, mk, g).
-
-Definition p_of_ns₉ α {R : ring α} pol ns :=
-  let '(j, k, mj, mk, g) := jk_mjk_g_of_ns₉ pol ns in
-  ((mj - mk) / g)%Z.
-
-Definition q_of_ns₉ α {R : ring α} pol ns :=
-  let '(j, k, mj, mk, g) := jk_mjk_g_of_ns₉ pol ns in
-  Z.to_pos ((Z.of_nat k - Z.of_nat j) / g).
-
-Definition mj_of_ns₉ α {R : ring α} pol ns :=
-  let '(j, k, mj, mk, g) := jk_mjk_g_of_ns₉ pol ns in
-  mj.
-
-Definition mk_of_ns₉ α {R : ring α} pol ns :=
-  let '(j, k, mj, mk, g) := jk_mjk_g_of_ns₉ pol ns in
-  mk.
-
-Definition mh_of_ns₉ α {R : ring α} pol h αh :=
- let m := ps_list_com_polord (al pol) in
- let hps := List.nth h (al pol) 0%ps in
- (Qnum αh * ' m / ' ps_polord hps)%Z.
-
 Definition summation_ah_xh_pol α {R : ring α} pol ns :=
   let j := nat_num (fst (ini_pt ns)) in
   POL (list_pad j 0%K (al (characteristic_polynomial pol ns)))%pol.
@@ -158,10 +118,6 @@ Definition Φq α {R : ring α} pol ns :=
 
 Definition Φ α {R : ring α} m pol ns :=
   let q := Pos.to_nat (q_of_m m (γ ns)) in
-  poly_shrink q (Φq pol ns).
-
-Definition Φ₉ α {R : ring α} pol ns :=
-  let q := Pos.to_nat (q_of_ns₉ pol ns) in
   poly_shrink q (Φq pol ns).
 
 Section theorems.
@@ -1130,79 +1086,6 @@ Qed.
           γ₁ = [...] = ---
                        m q
   » *)
-Theorem gamma_eq_p_mq₉ : ∀ pol ns m p q,
-  ns ∈ newton_segments pol
-  → m = ps_list_com_polord (al pol)
-    → p = p_of_ns₉ pol ns
-      → q = q_of_ns₉ pol ns
-        → γ ns == p # (m * q).
-Proof.
-intros pol ns m p q Hns Hm Hp Hq.
-remember Hns as Hini; clear HeqHini.
-remember Hns as Hfin; clear HeqHfin.
-apply exists_ini_pt_nat in Hini.
-apply exists_fin_pt_nat in Hfin.
-destruct Hini as (j, (αj, Hini)).
-destruct Hfin as (k, (αk, Hfin)).
-remember (points_of_ps_polynom pol) as pts.
-remember (lower_convex_hull_points pts) as hsl.
-symmetry in Hini, Hfin.
-remember Hini as Hg; clear HeqHg.
-eapply gamma_value_jk in Hg; [ idtac | eassumption ].
-subst hsl.
-remember (List.nth j (al pol) 0%ps) as jps.
-remember Heqjps as Hjps_v; clear HeqHjps_v.
-eapply in_pts_in_pol with (hv := αj) in Heqjps; try eassumption.
- 2: rewrite Hini.
- 2: apply ini_fin_ns_in_init_pts.
- 2: unfold newton_segments in Hns.
- 2: rewrite <- Heqpts in Hns; assumption.
-
- destruct Heqjps as (Hjps, Hαj).
- eapply com_den_of_ps_list in Hαj; try eassumption; [ idtac | reflexivity ].
- remember (Qnum αj * ' m / ' ps_polord jps)%Z as mj eqn:Hmj .
- remember (List.nth k (al pol) 0%ps) as kps.
- remember Heqkps as Hkps_v; clear HeqHkps_v.
- eapply in_pts_in_pol with (hv := αk) in Heqkps; try eassumption.
-  2: rewrite Hfin.
-  2: apply ini_fin_ns_in_init_pts.
-  2: unfold newton_segments in Hns.
-  2: rewrite <- Heqpts in Hns; assumption.
-
-  destruct Heqkps as (Hkps, Hαk).
-  eapply com_den_of_ps_list in Hαk; try eassumption; [ idtac | reflexivity ].
-  remember (Qnum αk * ' m / ' ps_polord kps)%Z as mk eqn:Hmk .
-  rewrite Hg.
-  setoid_rewrite Hαj.
-  setoid_rewrite Hαk.
-  remember (Z.gcd (mj - mk) (Z.of_nat k - Z.of_nat j)) as g.
-  assert (Z.of_nat j < Z.of_nat k)%Z as Hjk.
-   eapply jz_lt_kz; try eassumption.
-    rewrite <- Hini; reflexivity.
-
-    rewrite <- Hfin; reflexivity.
-
-   subst p q.
-   unfold p_of_ns₉, q_of_ns₉; simpl.
-   rewrite <- Hini, <- Hfin; simpl.
-   do 2 rewrite Nat2Z.id.
-   unfold Qnat.
-   rewrite p_mq_formula; [ idtac | idtac | eassumption ].
-    rewrite <- Hm.
-    unfold Qeq; simpl.
-    subst g.
-    rewrite Pos.mul_comm, Pos2Z.inj_mul.
-    rewrite Pos.mul_comm, Pos2Z.inj_mul.
-    do 2 rewrite Z.mul_assoc.
-    f_equal.
-    subst mj mk.
-    rewrite <- Hjps_v, <- Hkps_v.
-    reflexivity.
-
-    apply Zplus_lt_reg_r with (p := Z.of_nat j).
-    rewrite Z.sub_add; assumption.
-Qed.
-
 Theorem any_is_p_mq : ∀ a m p q,
   p = p_of_m m a
   → q = q_of_m m a
@@ -1563,7 +1446,6 @@ apply any_in_K_1_m with (h := j) (αh := αj) in HinK.
  destruct Hns; rewrite <- Hini; assumption.
 Qed.
 
-(* similar to com_den_of_ini_pt₉ *)
 Lemma pol_ord_of_ini_pt : ∀ pol ns m j αj mj,
   ns ∈ newton_segments pol
   → ps_lap_forall (λ a, in_K_1_m a m) (al pol)
@@ -1581,30 +1463,6 @@ rewrite Z_div_mul_swap.
 
  erewrite <- qden_αj_is_ps_polord; eauto .
  eapply den_αj_divides_num_αj_m; eauto .
-Qed.
-
-Lemma com_den_of_ini_pt₉ : ∀ pol ns m j αj mj,
-  ns ∈ newton_segments pol
-  → m = ps_list_com_polord (al pol)
-    → (Qnat j, αj) = ini_pt ns
-      → mj = mj_of_ns₉ pol ns
-        → αj == mj # m.
-Proof.
-intros pol ns m j αj mj Hns Hm Hini Hmj.
-remember (List.nth j (al pol) 0%ps) as jps.
-eapply com_den_of_ps_list with (ps := jps); try eassumption.
- eapply in_pts_in_pol with (hv := αj); try eassumption; try reflexivity.
- rewrite Hini.
- apply ini_fin_ns_in_init_pts; assumption.
-
- eapply in_pts_in_pol with (hv := αj); try eassumption; try reflexivity.
- rewrite Hini.
- apply ini_fin_ns_in_init_pts; assumption.
-
- subst mj.
- unfold mj_of_ns₉; simpl.
- rewrite <- Hini, <- Hm; simpl.
- rewrite Nat2Z.id, <- Heqjps; reflexivity.
 Qed.
 
 Lemma qden_αk_is_ps_polord : ∀ pol ns k αk,
@@ -1646,7 +1504,6 @@ apply any_in_K_1_m with (h := k) (αh := αk) in HinK.
  destruct Hns; rewrite <- Hini; assumption.
 Qed.
 
-(* similar to com_den_of_fin_pt₉ *)
 Lemma pol_ord_of_fin_pt : ∀ pol ns m k αk mk,
   ns ∈ newton_segments pol
   → ps_lap_forall (λ a, in_K_1_m a m) (al pol)
@@ -1664,30 +1521,6 @@ rewrite Z_div_mul_swap.
 
  erewrite <- qden_αk_is_ps_polord; eauto .
  eapply den_αk_divides_num_αk_m; eauto .
-Qed.
-
-Lemma com_den_of_fin_pt₉ : ∀ pol ns m k αk mk,
-  ns ∈ newton_segments pol
-  → m = ps_list_com_polord (al pol)
-    → (Qnat k, αk) = fin_pt ns
-      → mk = mk_of_ns₉ pol ns
-        → αk == mk # m.
-Proof.
-intros pol ns m k αk mk Hns Hm Hfin Hmk.
-remember (List.nth k (al pol) 0%ps) as kps.
-eapply com_den_of_ps_list with (ps := kps); try eassumption.
- eapply in_pts_in_pol with (hv := αk); try eassumption; try reflexivity.
- rewrite Hfin.
- apply ini_fin_ns_in_init_pts; assumption.
-
- eapply in_pts_in_pol with (hv := αk); try eassumption; try reflexivity.
- rewrite Hfin.
- apply ini_fin_ns_in_init_pts; assumption.
-
- subst mk.
- unfold mk_of_ns₉; simpl.
- rewrite <- Hfin, <- Hm; simpl.
- rewrite Nat2Z.id, <- Heqkps; reflexivity.
 Qed.
 
 Lemma qden_αh_is_ps_polord : ∀ pol ns h αh,
@@ -1727,7 +1560,6 @@ apply any_in_K_1_m with (h := h) (αh := αh) in HinK.
  eapply oth_pts_in_init_pts in Hns; eauto .
 Qed.
 
-(* similar to com_den_of_oth_pt₉ *)
 Lemma pol_ord_of_oth_pt : ∀ pol ns m h αh mh,
   ns ∈ newton_segments pol
   → ps_lap_forall (λ a, in_K_1_m a m) (al pol)
@@ -1745,44 +1577,6 @@ rewrite Z_div_mul_swap.
 
  erewrite <- qden_αh_is_ps_polord; eauto .
  eapply den_αh_divides_num_αh_m; eauto .
-Qed.
-
-(* to be removed one day *)
-Lemma com_den_of_oth_pt₉ : ∀ pol ns m h αh mh,
-  ns ∈ newton_segments pol
-  → m = ps_list_com_polord (al pol)
-    → (Qnat h, αh) ∈ oth_pts ns
-      → mh = mh_of_ns₉ pol h αh
-        → αh == mh # m.
-Proof.
-intros pol ns m h αh mh Hns Hm Hfin Hmh.
-remember (List.nth h (al pol) 0%ps) as hps.
-remember (points_of_ps_polynom pol) as pts eqn:Hpts .
-eapply com_den_of_ps_list with (ps := hps); try eassumption.
- eapply in_pts_in_pol with (hv := αh); try eassumption.
- eapply oth_pts_in_init_pts; [ idtac | eassumption ].
- unfold newton_segments in Hns.
- rewrite <- Hpts in Hns; assumption.
-
- eapply in_pts_in_pol with (hv := αh); try eassumption.
- eapply oth_pts_in_init_pts; [ idtac | eassumption ].
- unfold newton_segments in Hns.
- rewrite <- Hpts in Hns; assumption.
-
- subst mh.
- unfold mh_of_ns₉; simpl.
- rewrite <- Heqhps, <- Hm.
- reflexivity.
-Qed.
-
-Lemma mk_mh_of_ns₉ : ∀ pol ns h αh,
-  (Qnat h, αh) = fin_pt ns
-  → mk_of_ns₉ pol ns = mh_of_ns₉ pol h αh.
-Proof.
-intros pol ns h αh Hfin.
-unfold mk_of_ns₉, mh_of_ns₉; simpl.
-rewrite <- Hfin; simpl.
-rewrite Nat2Z.id; reflexivity.
 Qed.
 
 (* [Walker, p. 100]: « In the first place, we note that [...]

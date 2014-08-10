@@ -40,7 +40,7 @@ Variable R : ring α.
 Variable K : field R.
 Variable acf : algeb_closed_field K.
 
-Lemma root_tail_when_r_1₉ : ∀ pol ns pol₁ ns₁ c m q₀ b,
+Lemma root_tail_when_r_1 : ∀ pol ns pol₁ ns₁ c m q₀ b,
   ns ∈ newton_segments pol
   → ps_lap_forall (λ a, in_K_1_m a m) (al pol)
   → q₀ = q_of_m m (γ ns)
@@ -71,7 +71,7 @@ induction n; intros.
   rewrite rng_mul_0_r; reflexivity.
 
   rewrite Nat.add_0_r, rng_add_0_r, Heqm₁.
-  rewrite root_tail_from_0₉; eauto .
+  rewrite root_tail_from_0; eauto .
   unfold root_head.
   rewrite Hz₁.
   unfold root_head_from_cγ_list.
@@ -121,7 +121,7 @@ induction n; intros.
    symmetry.
    do 3 rewrite Nat.add_succ_r.
    rewrite Heqm₁.
-   eapply root_tail_sep_1st_monom₉; eauto .
+   eapply root_tail_sep_1st_monom; eauto .
    rewrite <- Nat.add_succ_r.
    apply zerop_1st_n_const_coeff_false_iff.
    assumption.
