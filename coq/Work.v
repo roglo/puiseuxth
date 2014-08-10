@@ -804,20 +804,17 @@ Lemma root_tail_when_r_1 : ∀ pol ns pol₁ ns₁ c m q₀ b,
   → pol₁ = next_pol pol (β ns) (γ ns) c
   → ns₁ = List.hd phony_ns (newton_segments pol₁)
   → ∀ n,
-    (∀ i, (i ≤ b + n)%nat → (ps_poly_nth 0 (nth_pol i pol₁ ns₁) ≠ 0)%ps)
-    → (root_tail (m * q₀) b pol₁ ns₁ =
-       root_head b n pol₁ ns₁ +
-         ps_monom 1%K (γ_sum b n pol₁ ns₁) *
-         root_tail (m * q₀) (b + S n) pol₁ ns₁)%ps.
+    (root_tail (m * q₀) b pol₁ ns₁ =
+     root_head b n pol₁ ns₁ +
+       ps_monom 1%K (γ_sum b n pol₁ ns₁) *
+       root_tail (m * q₀) (b + S n) pol₁ ns₁)%ps.
 Proof.
-intros pol ns pol₁ ns₁ c m q₀ b Hns Hm Hq₀ Hc Hr Hpol₁ Hns₁ n Hpsi.
-clear Hpsi.
+intros pol ns pol₁ ns₁ c m q₀ b Hns Hm Hq₀ Hc Hr Hpol₁ Hns₁ n.
 remember (m * q₀)%positive as m₁.
 revert pol ns pol₁ ns₁ Hns Hm Hq₀ Hc Hr Hpol₁ Hns₁.
 revert b c m q₀ m₁ Heqm₁.
 induction n; intros.
- unfold root_head.
- simpl.
+ unfold root_head; simpl.
  remember (zerop_1st_n_const_coeff b pol₁ ns₁) as z₁ eqn:Hz₁ .
  symmetry in Hz₁.
  destruct z₁.
@@ -844,20 +841,8 @@ induction n; intros.
   rewrite zerop_1st_n_const_coeff_true_if; auto.
   rewrite rng_add_0_l, rng_mul_0_r; reflexivity.
 
-(* there were a problem with definition of root_head_from_cγ_list;
-   fixed now. To be seen *)
-bbb.
-  Hz₁ : zerop_1st_n_const_coeff b pol₁ ns₁ = false
-  ============================
-   (root_tail m₁ b pol₁ ns₁ =
-    root_head b (S n) pol₁ ns₁ +
-    ps_monom 1%K (γ_sum b (S n) pol₁ ns₁) *
-    root_tail m₁ (b + S (S n)) pol₁ ns₁)%ps
-
-problème avec définition de root_head_from_cγ_list...
-
   rewrite root_head_succ; auto.
-  remember (zerop_1st_n_const_coeff (b + n) pol₁ ns₁) as z eqn:Hz .
+  remember (zerop_1st_n_const_coeff (b + S n) pol₁ ns₁) as z eqn:Hz .
   symmetry in Hz.
   destruct z.
    rewrite rng_add_0_r, Nat.add_succ_r.
@@ -869,178 +854,32 @@ problème avec définition de root_head_from_cγ_list...
    rewrite <- rng_mul_assoc.
    apply rng_mul_compat_l.
    unfold root_tail.
-   rewrite <- Nat.add_1_r, Nat.add_assoc.
-   rewrite zerop_1st_n_const_coeff_true_if; auto.
-   rewrite <- Nat.add_succ_r.
+   rewrite Hz.
+   remember (b + S n)%nat as x; rewrite <- Nat.add_1_r; subst x.
    rewrite zerop_1st_n_const_coeff_true_if; auto.
    rewrite rng_mul_0_r; reflexivity.
 
-(*
-  Hz : zerop_1st_n_const_coeff (b + n) pol₁ ns₁ = false
-  ============================
-   (root_tail m₁ b pol₁ ns₁ =
-    root_head b n pol₁ ns₁ +
-    ps_monom (nth_c (b + S n) pol₁ ns₁) (γ_sum b (S n) pol₁ ns₁) +
-    ps_monom 1%K (γ_sum b (S n) pol₁ ns₁) *
-    root_tail m₁ (b + S (S n)) pol₁ ns₁)%ps
-FAUX si nul à partir de b + S n parce que le terme
-    ps_monom (nth_c (b + S n) pol₁ ns₁) (γ_sum b (S n) pol₁ ns₁)
-reste alors qu'il n'aurait pas dû rester
-*)
-bbb.
-   remember (zerop_1st_n_const_coeff (b + S (S n)) pol₁ ns₁) as z₂ eqn:Hz₂ .
-   symmetry in Hz₂.
-   destruct z₂.
-    Focus 2.
-    rewrite IHn; eauto .
-    rewrite <- rng_add_assoc.
-    apply rng_add_compat_l; simpl.
-    symmetry.
-    rewrite ps_monom_split_mul.
-    rewrite rng_mul_comm, <- rng_mul_add_distr_l.
-    unfold γ_sum at 1; simpl.
-    rewrite summation_split_last; [ idtac | apply Nat.le_0_l ].
-    rewrite fold_γ_sum, ps_monom_add_r.
-    rewrite <- rng_mul_assoc.
-    apply rng_mul_compat_l.
-    rewrite rng_mul_add_distr_l.
-    rewrite rng_mul_comm; simpl.
-    rewrite <- ps_monom_split_mul.
-    symmetry.
-    do 3 rewrite Nat.add_succ_r.
-    rewrite Heqm₁.
-    eapply root_tail_sep_1st_monom; eauto .
-    intros i Hibn.
-    destruct (eq_nat_dec i (S (b + n))) as [H₁| H₁].
-     subst i.
-     apply zerop_1st_n_const_coeff_false_iff with (i := S (b + n)) in Hz₂.
-      assumption.
-
-      do 2 rewrite Nat.add_succ_r.
-      apply Nat.le_succ_r.
-      left; reflexivity.
-
-     apply le_neq_lt in Hibn; auto.
-     apply Nat.succ_le_mono in Hibn.
-     clear H₁.
-     revert i Hibn.
-     apply zerop_1st_n_const_coeff_false_iff; assumption.
-
-bbb.
-    unfold root_tail at 2.
-    rewrite Hz₂, rng_mul_0_r, rng_add_0_r.
-    remember (zerop_1st_n_const_coeff (S (b + n)) pol₁ ns₁) as z₃ eqn:Hz₃ .
-    symmetry in Hz₃.
-    destruct z₃.
-     Focus 2.
-     rewrite IHn; eauto .
-     apply rng_add_compat_l; simpl.
-     unfold γ_sum at 2; simpl.
-     rewrite summation_split_last; [ idtac | apply Nat.le_0_l ].
-     rewrite fold_γ_sum, ps_monom_add_r.
-     rewrite <- ps_monom_add_r.
-     rewrite rng_add_comm.
-     rewrite ps_monom_add_r.
-     rewrite rng_mul_comm.
-     apply rng_mul_compat_r; simpl.
-     rewrite Heqm₁.
-     rewrite root_tail_sep_1st_monom; eauto .
-      Focus 2.
-      apply zerop_1st_n_const_coeff_false_iff.
-      rewrite Nat.add_succ_r; assumption.
-
-      unfold root_tail.
-      rewrite <- Nat.add_succ_r.
-      rewrite Hz₂.
-      rewrite rng_mul_0_r, rng_add_0_r.
-      reflexivity.
-bbb.
-  Hz₁ : zerop_1st_n_const_coeff b pol₁ ns₁ = false
-  Hz : zerop_1st_n_const_coeff (b + n) pol₁ ns₁ = false
-  Hz₂ : zerop_1st_n_const_coeff (b + S (S n)) pol₁ ns₁ = true
-  Hz₃ : zerop_1st_n_const_coeff (S (b + n)) pol₁ ns₁ = true
-  ============================
-   (root_tail m₁ b pol₁ ns₁ =
-    root_head b n pol₁ ns₁ +
-    ps_monom (nth_c (b + S n) pol₁ ns₁) (γ_sum b (S n) pol₁ ns₁))%ps
-
- rewrite IHn; eauto .
- unfold γ_sum.
- rewrite summation_split_last; [ idtac | apply Nat.le_0_l ].
- rewrite ps_monom_add_r, fold_γ_sum.
- unfold root_head; simpl.
- rewrite Nat.add_0_r.
- remember (zerop_1st_n_const_coeff b pol₁ ns₁) as z₁ eqn:Hz₁ .
- symmetry in Hz₁.
- destruct z₁.
-  do 2 rewrite rng_add_0_l.
-  unfold root_tail.
-  rewrite zerop_1st_n_const_coeff_true_if; auto.
-  rewrite zerop_1st_n_const_coeff_true_if; auto.
-  do 2 rewrite rng_mul_0_r; reflexivity.
-
-  rewrite zerop_1st_n_const_coeff_false_iff in Hz₁.
-  rename Hz₁ into Hpsi.
-  destruct (ps_zerop R (ps_poly_nth 0 (nth_pol b pol₁ ns₁))) as [H₁| H₁].
-   pose proof (Hpsi b (Nat.le_refl b)); contradiction.
-
-   rewrite Heqm₁.
-   unfold γ_sum at 2; simpl.
-   unfold summation; simpl.
-   rewrite Nat.add_0_r, rng_add_0_r.
-bbb.
-   rewrite root_tail_sep_1st_monom; eauto .
-(* cf root_tail_nth too *)
-
-bbb.
-   unfold γ_sum at 3; simpl.
-   rewrite summation_split_last; [ idtac | apply Nat.le_0_l ].
-   rewrite ps_monom_add_r, fold_γ_sum.
+   rewrite IHn; eauto .
+   rewrite <- rng_add_assoc.
+   apply rng_add_compat_l; simpl.
    symmetry.
-   rewrite ps_monom_split_mul in |- * at 1.
+   rewrite ps_monom_split_mul.
+   rewrite rng_mul_comm, <- rng_mul_add_distr_l.
    unfold γ_sum at 1; simpl.
-   unfold summation; simpl.
-   rewrite Nat.add_0_r.
-   rewrite rng_add_0_r.
-bbb.
-
-
-intros pol ns pol₁ ns₁ c m q₀ b Hns Hm Hq₀ Hc Hr Hpol₁ Hns₁ n Hpsi.
-remember (m * q₀)%positive as m₁.
-revert pol ns pol₁ ns₁ Hns Hm Hq₀ Hc Hr Hpol₁ Hns₁ Hpsi.
-revert b c m q₀ m₁ Heqm₁.
-induction n; intros.
- rewrite Nat.add_0_r in Hpsi; subst m₁.
- eapply root_tail_from_0; eauto .
-
- rewrite IHn; eauto ; [ idtac | intros i H; apply Hpsi; fast_omega H ].
- unfold root_head, root_head_from_cγ_list.
- destruct (ps_zerop R (ps_poly_nth 0 pol₁)) as [H₁| H₁].
-  assert (0 ≤ b + S n) as H by fast_omega .
-  apply Hpsi in H; contradiction.
-
-  rewrite summation_split_last; [ idtac | apply Nat.le_0_l ].
-  rewrite <- rng_add_assoc.
-  apply rng_add_compat_l; simpl.
-  unfold γ_sum at 3; simpl.
-  rewrite summation_split_last; [ idtac | apply Nat.le_0_l ].
-  rewrite ps_monom_add_r, fold_γ_sum.
-  symmetry.
-  rewrite ps_monom_split_mul in |- * at 1.
-  unfold γ_sum at 1; simpl.
-  rewrite summation_split_last; [ idtac | apply Nat.le_0_l ].
-  rewrite ps_monom_add_r, fold_γ_sum.
-  rewrite ps_mul_comm, <- ps_mul_assoc.
-  rewrite <- ps_mul_assoc, <- ps_mul_add_distr_l.
-  apply ps_mul_compat_l.
-  symmetry.
-  do 3 rewrite Nat.add_succ_r.
-  rewrite ps_mul_comm.
-  rewrite <- ps_monom_split_mul.
-  subst m₁.
-  eapply root_tail_sep_1st_monom; eauto .
-  rewrite <- Nat.add_succ_r.
-  assumption.
+   rewrite summation_split_last; [ idtac | apply Nat.le_0_l ].
+   rewrite fold_γ_sum, ps_monom_add_r.
+   rewrite <- rng_mul_assoc.
+   apply rng_mul_compat_l.
+   rewrite rng_mul_add_distr_l.
+   rewrite rng_mul_comm; simpl.
+   rewrite <- ps_monom_split_mul.
+   symmetry.
+   do 3 rewrite Nat.add_succ_r.
+   rewrite Heqm₁.
+   eapply root_tail_sep_1st_monom; eauto .
+   rewrite <- Nat.add_succ_r.
+   apply zerop_1st_n_const_coeff_false_iff.
+   assumption.
 Qed.
 
 bbb.
