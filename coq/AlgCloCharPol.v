@@ -1923,7 +1923,7 @@ Qed.
 
 Lemma cpol_degree_ge_1 : ∀ pol ns m,
   ns ∈ newton_segments pol
-  → ps_lap_forall (λ a, in_K_1_m a m) (al pol)
+  → pol_in_K_1_m pol m
   → degree ac_zerop (Φq pol ns) ≥ 1.
 Proof.
 intros pol ns m Hns Hm.

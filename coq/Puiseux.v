@@ -564,7 +564,7 @@ Qed.
 
 Lemma r_1_j_0_k_1 : ∀ pol ns c₁ pol₁ ns₁ j₁ αj₁ k₁ αk₁ m,
   ns ∈ newton_segments pol
-  → ps_lap_forall (λ a, in_K_1_m a m) (al pol)
+  → pol_in_K_1_m pol m
   → c₁ = ac_root (Φq pol ns)
   → root_multiplicity acf c₁ (Φq pol ns) = 1%nat
   → pol₁ = next_pol pol (β ns) (γ ns) c₁
@@ -740,7 +740,7 @@ Qed.
 
 Lemma multiplicity_1_remains : ∀ pol ns c₁ c₂ pol₁ ns₁ m,
   ns ∈ newton_segments pol
-  → ps_lap_forall (λ a, in_K_1_m a m) (al pol)
+  → pol_in_K_1_m pol m
   → c₁ = ac_root (Φq pol ns)
   → root_multiplicity acf c₁ (Φq pol ns) = 1%nat
   → pol₁ = next_pol pol (β ns) (γ ns) c₁
@@ -1174,7 +1174,7 @@ Qed.
 
 Lemma r_1_next_ns : ∀ pol ns c pol₁ ns₁ m,
   ns ∈ newton_segments pol
-  → ps_lap_forall (λ a, in_K_1_m a m) (al pol)
+  → pol_in_K_1_m pol m
   → root_multiplicity acf c (Φq pol ns) = 1%nat
   → c = ac_root (Φq pol ns)
   → pol₁ = next_pol pol (β ns) (γ ns) c
@@ -1229,8 +1229,8 @@ Qed.
 
 Lemma q_eq_1 : ∀ pol ns pol₁ ns₁ c₁ m q₀,
   ns ∈ newton_segments pol
-  → ps_lap_forall (λ a, in_K_1_m a m) (al pol)
-  → ps_lap_forall (λ a, in_K_1_m a (m * q₀)) (al pol₁)
+  → pol_in_K_1_m pol m
+  → pol_in_K_1_m pol₁ (m * q₀)
   → c₁ = ac_root (Φq pol ns)
   → root_multiplicity acf c₁ (Φq pol ns) = 1%nat
   → pol₁ = next_pol pol (β ns) (γ ns) c₁
@@ -1277,8 +1277,8 @@ Lemma lap_forall_nth : ∀ pol ns poln m c,
   → ∀ n,
     (∀ i, (i ≤ n)%nat → (ps_poly_nth 0 (nth_pol i pol ns) ≠ 0)%ps)
     → poln = nth_pol n pol ns
-    → ps_lap_forall (λ a, in_K_1_m a m) (al pol)
-    → ps_lap_forall (λ a, in_K_1_m a m) (al poln).
+    → pol_in_K_1_m pol m
+    → pol_in_K_1_m poln m.
 Proof.
 intros pol ns poln m c Hns Hc Hr Hq n Hnz Hpoln HK.
 revert pol ns poln m c Hns Hc Hr Hq Hnz Hpoln HK.
@@ -1340,7 +1340,7 @@ Qed.
 
 Lemma r_1_nth_ns : ∀ pol ns c pol₁ ns₁ m,
   ns ∈ newton_segments pol
-  → ps_lap_forall (λ a, in_K_1_m a m) (al pol)
+  → pol_in_K_1_m pol m
   → c = ac_root (Φq pol ns)
   → root_multiplicity acf c (Φq pol ns) = 1%nat
   → pol₁ = next_pol pol (β ns) (γ ns) c
@@ -1396,7 +1396,7 @@ Qed.
 
 Lemma multiplicity_1_remains_in_nth : ∀ pol ns c₁ pol₁ ns₁ m,
   ns ∈ newton_segments pol
-  → ps_lap_forall (λ a, in_K_1_m a m) (al pol)
+  → pol_in_K_1_m pol m
   → c₁ = ac_root (Φq pol ns)
   → root_multiplicity acf c₁ (Φq pol ns) = 1%nat
   → pol₁ = next_pol pol (β ns) (γ ns) c₁
@@ -1625,12 +1625,12 @@ Qed.
 
 Lemma num_m_den_is_pos : ∀ pol ns j αj m,
   ns ∈ newton_segments pol
+  → pol_in_K_1_m pol m
   → ini_pt ns = (Qnat j, αj)
   → (0 < Qnum αj)%Z
-  → ps_lap_forall (λ a, in_K_1_m a m) (al pol)
   → (0 < Z.to_nat (Qnum αj * ' m / ' Qden αj))%nat.
 Proof.
-intros pol ns j αj m Hns Hini Hn Hm.
+intros pol ns j αj m Hns Hm Hini Hn.
 assert (' Qden αj | Qnum αj * ' m)%Z as H.
  eapply den_αj_divides_num_αj_m; eauto .
 
@@ -1723,7 +1723,7 @@ Qed.
 
 Lemma find_coeff_step : ∀ pol ns m c pol₁ ns₁ i di p dp np,
   ns ∈ newton_segments pol
-  → ps_lap_forall (λ a, in_K_1_m a m) (al pol)
+  → pol_in_K_1_m pol m
   → q_of_m m (γ ns) = 1%positive
   → c = ac_root (Φq pol ns)
   → root_multiplicity acf c (Φq pol ns) = 1%nat
@@ -1768,7 +1768,7 @@ induction i; intros.
  remember (List.hd phony_ns (newton_segments pol₂)) as ns₂ eqn:Hns₂ .
  remember (next_pow np ns₂ m) as nnp eqn:Hnnp .
  apply nat_compare_lt in Hnpi.
- assert (ps_lap_forall (λ a, in_K_1_m a m) (al pol₁)) as HK₁.
+ assert (pol_in_K_1_m pol₁ m) as HK₁.
   replace m with (m * 1)%positive by apply Pos.mul_1_r.
   eapply next_pol_in_K_1_mq with (pol := pol); eauto .
 
@@ -2009,7 +2009,7 @@ Qed.
 
 Lemma nth_in_newton_segments : ∀ pol₁ ns₁ c₁ poln nsn n m,
   ns₁ ∈ newton_segments pol₁
-  → ps_lap_forall (λ a, in_K_1_m a m) (al pol₁)
+  → pol_in_K_1_m pol₁ m
   → c₁ = ac_root (Φq pol₁ ns₁)
   → root_multiplicity acf c₁ (Φq pol₁ ns₁) = 1%nat
   → (∀ i, (i ≤ n)%nat → (ps_poly_nth 0 (nth_pol i pol₁ ns₁) ≠ 0)%ps)
@@ -2057,7 +2057,7 @@ Qed.
 
 Lemma root_tail_split_1st : ∀ pol ns pol₁ ns₁ c m q₀,
   ns ∈ newton_segments pol
-  → ps_lap_forall (λ a, in_K_1_m a m) (al pol)
+  → pol_in_K_1_m pol m
   → q₀ = q_of_m m (γ ns)
   → c = ac_root (Φq pol ns)
   → root_multiplicity acf c (Φq pol ns) = 1%nat
@@ -2330,8 +2330,8 @@ Qed.
 
 Lemma q_eq_1_nth : ∀ pol ns pol₁ ns₁ c₁ m q₀,
   ns ∈ newton_segments pol
-  → ps_lap_forall (λ a, in_K_1_m a m) (al pol)
-  → ps_lap_forall (λ a, in_K_1_m a (m * q₀)) (al pol₁)
+  → pol_in_K_1_m pol m
+  → pol_in_K_1_m pol₁ (m * q₀)
   → c₁ = ac_root (Φq pol ns)
   → root_multiplicity acf c₁ (Φq pol ns) = 1%nat
   → pol₁ = next_pol pol (β ns) (γ ns) c₁
@@ -2387,7 +2387,7 @@ Qed.
 
 Lemma root_tail_from_0 : ∀ pol ns pol₁ ns₁ c m q₀ b,
   ns ∈ newton_segments pol
-  → ps_lap_forall (λ a, in_K_1_m a m) (al pol)
+  → pol_in_K_1_m pol m
   → q₀ = q_of_m m (γ ns)
   → c = ac_root (Φq pol ns)
   → root_multiplicity acf c (Φq pol ns) = 1%nat
@@ -2783,7 +2783,7 @@ destruct z₁.
           apply nat_compare_eq in Hcmp₁.
           rewrite Hcmp₁, Nat.sub_diag in Heqid; subst id; reflexivity.
 
-          assert (ps_lap_forall (λ a, in_K_1_m a m₁) (al polb₂)) as HKb₂.
+          assert (pol_in_K_1_m polb₂ m₁) as HKb₂.
            eapply lap_forall_nth with (ns := ns₂) (n := S b); eauto .
             eapply hd_newton_segments; eauto .
 
@@ -2925,7 +2925,7 @@ Qed.
 
 Lemma root_tail_sep_1st_monom : ∀ pol ns pol₁ ns₁ c m q₀ n,
   ns ∈ newton_segments pol
-  → ps_lap_forall (λ a, in_K_1_m a m) (al pol)
+  → pol_in_K_1_m pol m
   → q₀ = q_of_m m (γ ns)
   → c = ac_root (Φq pol ns)
   → root_multiplicity acf c (Φq pol ns) = 1%nat
@@ -3065,7 +3065,7 @@ destruct z₁.
    apply Hpsi in H; simpl in H.
    rewrite <- Hc₁, <- Hpol₂ in H; assumption.
 
-   assert (ps_lap_forall (λ a, in_K_1_m a m₁) (al pol₁)) as Hps₁.
+   assert (pol_in_K_1_m pol₁ m₁) as Hps₁.
     rewrite Heqm₁.
     eapply next_pol_in_K_1_mq with (ns := ns); eauto .
 
@@ -3091,11 +3091,11 @@ destruct z₁.
         eapply next_pol_in_K_1_mq with (ns := ns₁); eauto .
 
         rename Hps₂ into Hnz₂.
-        assert (ps_lap_forall (λ a, in_K_1_m a m₁) (al pol₂)) as Hps₂.
+        assert (pol_in_K_1_m pol₂ m₁) as Hps₂.
          replace m₁ with (m₁ * 1)%positive by apply Pos.mul_1_r.
          eapply next_pol_in_K_1_mq with (ns := ns₁); eauto .
 
-         assert (ps_lap_forall (λ a, in_K_1_m a m₁) (al poln₂)) as Hpsn₂.
+         assert (pol_in_K_1_m poln₂ m₁) as Hpsn₂.
           eapply lap_forall_nth with (ns := ns₂); eauto .
           intros i Hin.
           destruct (eq_nat_dec i n) as [H₃| H₃].

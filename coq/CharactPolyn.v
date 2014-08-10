@@ -108,6 +108,9 @@ Inductive ps_lap_forall {α} {R : ring α} (P : _ → Prop) :
 
 Arguments ps_lap_forall α%type_scope _ _ l%pslap.
 
+Definition pol_in_K_1_m {α} {R : ring α} pol m :=
+  ps_lap_forall (λ a, in_K_1_m a m) (al pol).
+
 Definition summation_ah_xh_pol α {R : ring α} pol ns :=
   let j := nat_num (fst (ini_pt ns)) in
   POL (list_pad j 0%K (al (characteristic_polynomial pol ns)))%pol.
@@ -1432,7 +1435,7 @@ Qed.
 Lemma den_αj_divides_num_αj_m : ∀ pol ns j αj m,
   ns ∈ newton_segments pol
   → ini_pt ns = (Qnat j, αj)
-  → ps_lap_forall (λ a, in_K_1_m a m) (al pol)
+  → pol_in_K_1_m pol m
   → (' Qden αj | Qnum αj * ' m)%Z.
 Proof.
 intros pol ns j αj m Hns Hini HinK.
@@ -1448,7 +1451,7 @@ Qed.
 
 Lemma pol_ord_of_ini_pt : ∀ pol ns m j αj mj,
   ns ∈ newton_segments pol
-  → ps_lap_forall (λ a, in_K_1_m a m) (al pol)
+  → pol_in_K_1_m pol m
   → (Qnat j, αj) = ini_pt ns
   → mj = mh_of_m m αj (ps_poly_nth j pol)
   → αj == mj # m.
@@ -1489,11 +1492,11 @@ Qed.
 
 Lemma den_αk_divides_num_αk_m : ∀ pol ns k αk m,
   ns ∈ newton_segments pol
+  → pol_in_K_1_m pol m
   → fin_pt ns = (Qnat k, αk)
-  → ps_lap_forall (λ a, in_K_1_m a m) (al pol)
   → (' Qden αk | Qnum αk * ' m)%Z.
 Proof.
-intros pol ns k αk m Hns Hini HinK.
+intros pol ns k αk m Hns HinK Hini.
 apply any_in_K_1_m with (h := k) (αh := αk) in HinK.
  destruct HinK as (mh, Hmh).
  exists mh; assumption.
@@ -1506,7 +1509,7 @@ Qed.
 
 Lemma pol_ord_of_fin_pt : ∀ pol ns m k αk mk,
   ns ∈ newton_segments pol
-  → ps_lap_forall (λ a, in_K_1_m a m) (al pol)
+  → pol_in_K_1_m pol m
   → (Qnat k, αk) = fin_pt ns
   → mk = mh_of_m m αk (ps_poly_nth k pol)
   → αk == mk # m.
@@ -1546,11 +1549,11 @@ Qed.
 
 Lemma den_αh_divides_num_αh_m : ∀ pol ns h αh m,
   ns ∈ newton_segments pol
+  → pol_in_K_1_m pol m
   → (Qnat h, αh) ∈ oth_pts ns
-  → ps_lap_forall (λ a, in_K_1_m a m) (al pol)
   → (' Qden αh | Qnum αh * ' m)%Z.
 Proof.
-intros pol ns h αh m Hns Hoth HinK.
+intros pol ns h αh m Hns HinK Hoth.
 apply any_in_K_1_m with (h := h) (αh := αh) in HinK.
  destruct HinK as (mh, Hmh).
  exists mh; assumption.
@@ -1562,7 +1565,7 @@ Qed.
 
 Lemma pol_ord_of_oth_pt : ∀ pol ns m h αh mh,
   ns ∈ newton_segments pol
-  → ps_lap_forall (λ a, in_K_1_m a m) (al pol)
+  → pol_in_K_1_m pol m
   → (Qnat h, αh) ∈ oth_pts ns
   → mh = mh_of_m m αh (ps_poly_nth h pol)
   → αh == mh # m.
@@ -1585,8 +1588,8 @@ Qed.
    » *)
 Theorem q_mj_mk_eq_p_h_j : ∀ pol ns j αj m mj p q,
   ns ∈ newton_segments pol
+  → pol_in_K_1_m pol m
   → (Qnat j, αj) = ini_pt ns
-  → ps_lap_forall (λ a, in_K_1_m a m) (al pol)
   → mj = mh_of_m m αj (ps_poly_nth j pol)
   → p = p_of_m m (γ ns)
   → q = Pos.to_nat (q_of_m m (γ ns))
@@ -1595,7 +1598,7 @@ Theorem q_mj_mk_eq_p_h_j : ∀ pol ns j αj m mj p q,
   → αh == mh # m
     ∧ (Z.of_nat q * (mj - mh) = p * Z.of_nat (h - j))%Z.
 Proof.
-intros pol ns j αj m mj p q Hns Hj Hm Hmj Hp Hq h αh mh Hh Hmh.
+intros pol ns j αj m mj p q Hns Hm Hj Hmj Hp Hq h αh mh Hh Hmh.
 remember (points_of_ps_polynom pol) as pts eqn:Hpts .
 remember (ps_poly_nth h pol) as hps.
 apply List.in_app_or in Hh.
@@ -1721,7 +1724,7 @@ Qed.
    of h - j. » *)
 Theorem q_is_factor_of_h_minus_j : ∀ pol ns j αj m q,
   ns ∈ newton_segments pol
-  → ps_lap_forall (λ a, in_K_1_m a m) (al pol)
+  → pol_in_K_1_m pol m
   → (Qnat j, αj) = ini_pt ns
   → q = Pos.to_nat (q_of_m m (γ ns))
   → ∀ h αh, (Qnat h, αh) ∈ oth_pts ns ++ [fin_pt ns]
@@ -2831,7 +2834,7 @@ Qed.
    where Φ(z) is a polynomial, of degree (k - j)/q » *)
 Theorem phi_degree_is_k_sub_j_div_q : ∀ pol ns j αj k αk q m,
   ns ∈ newton_segments pol
-  → ps_lap_forall (λ a, in_K_1_m a m) (al pol)
+  → pol_in_K_1_m pol m
   → (Qnat j, αj) = ini_pt ns
   → (Qnat k, αk) = fin_pt ns
   → q = Pos.to_nat (q_of_m m (γ ns))

@@ -470,7 +470,7 @@ Qed.
 
 Theorem minus_beta_in_K_1_mq : ∀ pol ns m a c q,
   ns ∈ newton_segments pol
-  → ps_lap_forall (λ a, in_K_1_m a m) (al pol)
+  → pol_in_K_1_m pol m
   → q = q_of_m m (γ ns)
   → a = ps_monom c (- β ns)
   → in_K_1_m a (m * q).
@@ -543,11 +543,11 @@ Qed.
 
 Theorem next_pol_in_K_1_mq : ∀ pol pol₁ ns m c q,
   ns ∈ newton_segments pol
-  → ps_lap_forall (λ a, in_K_1_m a m) (al pol)
+  → pol_in_K_1_m pol m
   → c = ac_root (Φq pol ns)
   → q = q_of_m m (γ ns)
   → pol₁ = next_pol pol (β ns) (γ ns) c
-  → ps_lap_forall (λ a, in_K_1_m a (m * q)) (al pol₁).
+  → pol_in_K_1_m pol₁ (m * q).
 Proof.
 intros pol pol₁ ns m c q Hns Hm Hc Hq Hpol₁.
 subst pol₁.

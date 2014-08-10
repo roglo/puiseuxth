@@ -726,7 +726,7 @@ Qed.
 
 Lemma char_pol_root_ne_0 : ∀ pol ns m c₁,
   ns ∈ newton_segments pol
-  → ps_lap_forall (λ a, in_K_1_m a m) (al pol)
+  → pol_in_K_1_m pol m
   → c₁ = ac_root (Φq pol ns)
   → (c₁ ≠ 0)%K.
 Proof.
@@ -752,7 +752,7 @@ Qed.
 (* [Walker, p 101] « O(br) = 0 » *)
 Theorem order_bbar_r_is_0 : ∀ pol ns m c₁ r f₁,
   ns ∈ newton_segments pol
-  → ps_lap_forall (λ a, in_K_1_m a m) (al pol)
+  → pol_in_K_1_m pol m
   → c₁ = ac_root (Φq pol ns)
   → r = root_multiplicity acf c₁ (Φq pol ns)
   → f₁ = next_pol pol (β ns) (γ ns) c₁
@@ -828,7 +828,7 @@ Qed.
 *)
 Theorem f₁_orders : ∀ pol ns m c₁ r f₁,
   ns ∈ newton_segments pol
-  → ps_lap_forall (λ a, in_K_1_m a m) (al pol)
+  → pol_in_K_1_m pol m
   → c₁ = ac_root (Φq pol ns)
   → r = root_multiplicity acf c₁ (Φq pol ns)
   → f₁ = next_pol pol (β ns) (γ ns) c₁
