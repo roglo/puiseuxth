@@ -238,8 +238,23 @@ destruct (ps_zerop R (ps_poly_nth 0 pol₁)) as [H₁| H₁].
  destruct ofs as [ofs| ]; [ exfalso | reflexivity ].
  subst s.
  remember (1 # 2 * m * q_of_m m (γ ns)) as η eqn:Hη .
- remember (Z.to_nat (Qnum (ofs * η))) as N eqn:HN .
+ remember (Z.to_nat (2 * Qnum (ofs * η))) as N eqn:HN .
  assert (ofs * η < Qnat N).
+  subst N.
+  unfold Qnat.
+  rewrite Z2Nat.id.
+   rewrite Z.mul_comm; simpl.
+   unfold Qlt; simpl.
+   rewrite Z.mul_1_r.
+   remember (Qnum ofs * Qnum η)%Z as qq.
+   rewrite <- Z.mul_assoc.
+   replace qq with (qq * 1)%Z at 1 by fast_omega .
+   apply Z.mul_lt_mono_pos_l.
+    subst η; simpl in Heqqq; simpl.
+    rewrite Z.mul_1_r in Heqqq; subst qq.
+    Focus 2.
+    subst η; simpl in Heqqq.
+    remember (2 * m)%positive as mm; simpl; subst mm.
 bbb.
   subst N; simpl.
   unfold Qnat.
