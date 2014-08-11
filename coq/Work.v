@@ -127,6 +127,30 @@ induction n; intros.
    assumption.
 Qed.
 
+Lemma yyy : ∀ pol ns pol₁ ns₁ m η,
+  ns ∈ newton_segments pol
+  → pol_in_K_1_m pol m
+  → root_multiplicity acf (ac_root (Φq pol ns)) (Φq pol ns) = 1%nat
+  → pol₁ = next_pol pol (β ns) (γ ns) (ac_root (Φq pol ns))
+  → ns₁ = List.hd phony_ns (newton_segments pol₁)
+  → η = 1 # (2 * m * q_of_m m (γ ns))
+  → ∀ n nsn,
+    zerop_1st_n_const_coeff n pol₁ ns₁ = false
+    → nsn = nth_ns n pol₁ ns₁
+    → η < β nsn.
+Proof.
+intros pol ns pol₁ ns₁ m η Hns Hm Hr Hpol₁ Hns₁ Hη n nsn Hnz Hnsn.
+remember Hns as H; clear HeqH.
+rewrite zerop_1st_n_const_coeff_false_iff in Hnz.
+eapply r_1_nth_ns in H; eauto .
+destruct H as (αjn, (αkn, H)).
+destruct H as (_, (Hinin, (Hfinn, (Hαjn, Hαkn)))).
+unfold β.
+rewrite Hinin; simpl.
+unfold Qnat; simpl.
+rewrite rng_mul_0_l, rng_add_0_r.
+bbb.
+
 Theorem zzz : ∀ pol ns pol₁ c m,
   ns ∈ newton_segments pol
   → pol_in_K_1_m pol m
