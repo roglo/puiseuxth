@@ -185,8 +185,8 @@ eapply lap_forall_nth with (ns := ns₁) in H; eauto .
     apply Z.lt_le_incl; assumption.
 
     eapply num_m_den_is_pos with (ns := nsn); eauto .
-
 bbb.
+(* oui, c'est supérieur à 1/2, si c'est supérieur à 0 *)
 
 Theorem zzz : ∀ pol ns pol₁ c m,
   ns ∈ newton_segments pol
