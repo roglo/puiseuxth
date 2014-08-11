@@ -140,6 +140,23 @@ unfold ps_pol_apply.
 destruct (ps_zerop R (ps_poly_nth 0 pol₁)) as [H₁| H₁].
  exists 0%ps.
  Focus 2.
+ remember (List.hd phony_ns (newton_segments pol₁)) as ns₁ eqn:Hns₁ .
+ remember (q_of_m m (γ ns)) as q₀ eqn:Hq₀ .
+ remember (root_tail (m * q₀) 0 pol₁ ns₁) as s eqn:Hs .
+ exists s.
+ apply order_inf.
+ remember (order (apply_poly pol₁ s)) as ofs eqn:Hofs .
+ symmetry in Hofs.
+ destruct ofs as [ofs| ]; [ exfalso | reflexivity ].
+ subst s.
+bbb.
+(* choose n so that Σ (j=0,n) βj > ofs *)
+
+intros pol ns pol₁ c m Hns Hm Hc Hr Hpol₁.
+unfold ps_pol_apply.
+destruct (ps_zerop R (ps_poly_nth 0 pol₁)) as [H₁| H₁].
+ exists 0%ps.
+ Focus 2.
  remember (List.hd phony_ns (newton_segments pol₁)) as ns₁ eqn:Hns₁.
  remember (q_of_m m (γ ns)) as q₀ eqn:Hq₀.
  exists (root_tail (m * q₀) 0 pol₁ ns₁).
