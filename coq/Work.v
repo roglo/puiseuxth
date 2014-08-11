@@ -153,6 +153,10 @@ destruct (ps_zerop R (ps_poly_nth 0 pol₁)) as [H₁| H₁].
   clear H₂.
   unfold γ_sum, summation; simpl.
   do 2 rewrite rng_add_0_r.
+  remember (ac_root (Φq pol₁ ns₁)) as c₁ eqn:Hc₁ .
+  rewrite Hpol₁.
+  unfold next_pol, next_lap.
+  unfold apply_poly; simpl.
 bbb.
 
 End theorems.
