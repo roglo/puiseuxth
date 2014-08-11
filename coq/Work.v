@@ -127,7 +127,7 @@ induction n; intros.
    assumption.
 Qed.
 
-Lemma yyy : ∀ pol ns pol₁ ns₁ m η,
+Lemma β_lower_bound : ∀ pol ns pol₁ ns₁ m η,
   ns ∈ newton_segments pol
   → pol_in_K_1_m pol m
   → root_multiplicity acf (ac_root (Φq pol ns)) (Φq pol ns) = 1%nat
@@ -185,8 +185,35 @@ eapply lap_forall_nth with (ns := ns₁) in H; eauto .
     apply Z.lt_le_incl; assumption.
 
     eapply num_m_den_is_pos with (ns := nsn); eauto .
-bbb.
-(* oui, c'est supérieur à 1/2, si c'est supérieur à 0 *)
+
+   rewrite Pos2Z.inj_mul, Z.mul_assoc.
+   replace (' m₁)%Z with (1 * ' m₁)%Z at 1 by reflexivity.
+   apply Z.mul_lt_mono_pos_r; [ apply Pos2Z.is_pos | idtac ].
+   fast_omega H.
+
+  eapply multiplicity_1_remains with (ns := ns); eauto .
+
+ eapply multiplicity_1_remains with (ns := ns); eauto .
+
+ remember (m * q_of_m m (γ ns))%positive as m₁ eqn:Hm₁ .
+ replace m₁ with (m₁ * 1)%positive by apply Pos.mul_1_r.
+ eapply q_eq_1 with (ns := ns); eauto .
+  subst m₁.
+  apply ps_lap_forall_forall.
+   clear H.
+   intros a b Hab H.
+   rewrite <- Hab; assumption.
+
+   intros a Ha.
+   apply in_K_1_m_lap_mul_r_compat.
+   revert a Ha.
+   apply ps_lap_forall_forall; auto.
+   clear H.
+   intros a b Hab H.
+   rewrite <- Hab; assumption.
+
+  rewrite Pos.mul_1_r; assumption.
+Qed.
 
 Theorem zzz : ∀ pol ns pol₁ c m,
   ns ∈ newton_segments pol
