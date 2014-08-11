@@ -218,6 +218,38 @@ Qed.
 Theorem eq_Qbar_eq : ∀ a b, a = b → (a = b)%Qbar.
 Proof. intros a b Hab; subst a; reflexivity. Qed.
 
+(* first approximation: valid for n = 1 *)
+Lemma yyy : ∀ pol ns y n,
+  (ps_pol_apply pol
+     (root_head 0 n pol ns + ps_monom 1%K (γ_sum 0 n pol ns) * y) =
+   ps_monom 1%K (β ns) *
+   ps_pol_apply (nth_pol (S n) pol ns) y)%ps.
+Proof.
+intros.
+destruct n.
+ simpl.
+ unfold root_head, γ_sum, summation; simpl.
+ destruct (ps_zerop R (ps_poly_nth 0 pol)) as [H₁| H₁].
+  rewrite rng_add_0_l, rng_add_0_r.
+  Focus 2.
+  unfold γ_sum, summation; simpl.
+  rewrite rng_add_0_r, rng_add_0_r.
+  unfold next_pol; simpl.
+  unfold ps_pol_apply; simpl.
+  unfold apply_poly; simpl.
+  unfold next_lap; simpl.
+  remember (ac_root (Φq pol ns)) as c eqn:Hc .
+  rewrite apply_lap_mul; simpl.
+  rewrite rng_mul_0_l, rng_add_0_l.
+  rewrite apply_lap_compose; simpl.
+  rewrite rng_mul_0_l, rng_add_0_l.
+  rewrite rng_mul_assoc; simpl.
+  rewrite <- ps_monom_add_r.
+  rewrite rng_add_opp_r; simpl.
+  rewrite ps_mul_1_l.
+  rewrite ps_add_comm; reflexivity.
+bbb.
+
 Theorem zzz : ∀ pol ns pol₁ c m,
   ns ∈ newton_segments pol
   → pol_in_K_1_m pol m
