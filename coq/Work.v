@@ -215,6 +215,9 @@ eapply lap_forall_nth with (ns := ns₁) in H; eauto .
   rewrite Pos.mul_1_r; assumption.
 Qed.
 
+Theorem eq_Qbar_eq : ∀ a b, a = b → (a = b)%Qbar.
+Proof. intros a b Hab; subst a; reflexivity. Qed.
+
 Theorem zzz : ∀ pol ns pol₁ c m,
   ns ∈ newton_segments pol
   → pol_in_K_1_m pol m
@@ -224,7 +227,6 @@ Theorem zzz : ∀ pol ns pol₁ c m,
   → ∃ s, (ps_pol_apply pol₁ s = 0)%ps.
 Proof.
 intros pol ns pol₁ c m Hns Hm Hc Hr Hpol₁.
-unfold ps_pol_apply.
 destruct (ps_zerop R (ps_poly_nth 0 pol₁)) as [H₁| H₁].
  exists 0%ps.
  Focus 2.
@@ -233,78 +235,16 @@ destruct (ps_zerop R (ps_poly_nth 0 pol₁)) as [H₁| H₁].
  remember (root_tail (m * q₀) 0 pol₁ ns₁) as s eqn:Hs .
  exists s.
  apply order_inf.
- remember (order (apply_poly pol₁ s)) as ofs eqn:Hofs .
+ remember (order (ps_pol_apply pol₁ s)) as ofs eqn:Hofs .
  symmetry in Hofs.
  destruct ofs as [ofs| ]; [ exfalso | reflexivity ].
  subst s.
  remember (1 # 2 * m * q_of_m m (γ ns)) as η eqn:Hη .
  remember (Z.to_nat (2 * Qnum (ofs * η))) as N eqn:HN .
- assert (ofs * η < Qnat N).
-  subst N.
-  unfold Qnat.
-  rewrite Z2Nat.id.
-   rewrite Z.mul_comm; simpl.
-   unfold Qlt; simpl.
-   rewrite Z.mul_1_r.
-   remember (Qnum ofs * Qnum η)%Z as qq.
-   rewrite <- Z.mul_assoc.
-   replace qq with (qq * 1)%Z at 1 by fast_omega .
-   apply Z.mul_lt_mono_pos_l.
-    subst η; simpl in Heqqq; simpl.
-    rewrite Z.mul_1_r in Heqqq; subst qq.
-    Focus 2.
-    subst η; simpl in Heqqq.
-    remember (2 * m)%positive as mm; simpl; subst mm.
-bbb.
-  subst N; simpl.
-  unfold Qnat.
-  rewrite Z2Nat.id.
-   unfold Qlt; simpl.
-   rewrite Z.mul_1_r.
-   remember (Qnum ofs * Qnum η)%Z as qq.
-   replace qq with (qq * 1)%Z at 1 by fast_omega .
-   apply Z.mul_lt_mono_pos_l.
-    subst η; simpl in Heqqq; simpl.
-    rewrite Z.mul_1_r in Heqqq; subst qq.
-    Focus 2.
-    subst η; simpl in Heqqq.
-    remember (2 * m)%positive as mm; simpl; subst mm.
-    rewrite Pos2Z.inj_mul.
-    rewrite Pos2Z.inj_mul.
-    rewrite Pos2Z.inj_mul.
-    rewrite Z.mul_comm.
-    rewrite <- Z.mul_assoc, <- Z.mul_assoc, Z.mul_comm.
-    apply Z.lt_mul_r.
-     apply Z.lt_0_1.
-
-     apply Z.lt_1_2.
-
-     Unfocus.
-bbb.
-(* choose N so that Σ (j=0,n) βj > ofs *)
-
-intros pol ns pol₁ c m Hns Hm Hc Hr Hpol₁.
-unfold ps_pol_apply.
-destruct (ps_zerop R (ps_poly_nth 0 pol₁)) as [H₁| H₁].
- exists 0%ps.
- Focus 2.
- remember (List.hd phony_ns (newton_segments pol₁)) as ns₁ eqn:Hns₁.
- remember (q_of_m m (γ ns)) as q₀ eqn:Hq₀.
- exists (root_tail (m * q₀) 0 pol₁ ns₁).
- rewrite root_tail_when_r_1 with (n := O); eauto .
- unfold γ_sum, summation; simpl.
- rewrite rng_add_0_r.
- unfold root_head; simpl.
- destruct (ps_zerop R (ps_poly_nth 0 pol₁)) as [H₂| H₂].
-  contradiction.
-
-  clear H₂.
-  unfold γ_sum, summation; simpl.
-  do 2 rewrite rng_add_0_r.
-  remember (ac_root (Φq pol₁ ns₁)) as c₁ eqn:Hc₁ .
-  rewrite Hpol₁.
-  unfold next_pol, next_lap.
-  unfold apply_poly; simpl.
+ apply eq_Qbar_eq in Hofs.
+ rewrite root_tail_when_r_1 with (n := N) in Hofs; eauto .
+ unfold ps_pol_apply in Hofs.
+ simpl in Hofs.
 bbb.
 
 End theorems.
