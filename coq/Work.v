@@ -237,8 +237,36 @@ destruct (ps_zerop R (ps_poly_nth 0 pol₁)) as [H₁| H₁].
  symmetry in Hofs.
  destruct ofs as [ofs| ]; [ exfalso | reflexivity ].
  subst s.
+ remember (1 # 2 * m * q_of_m m (γ ns)) as η eqn:Hη .
+ remember (Z.to_nat (Qnum (ofs * η))) as N eqn:HN .
+ assert (ofs * η < Qnat N).
 bbb.
-(* choose n so that Σ (j=0,n) βj > ofs *)
+  subst N; simpl.
+  unfold Qnat.
+  rewrite Z2Nat.id.
+   unfold Qlt; simpl.
+   rewrite Z.mul_1_r.
+   remember (Qnum ofs * Qnum η)%Z as qq.
+   replace qq with (qq * 1)%Z at 1 by fast_omega .
+   apply Z.mul_lt_mono_pos_l.
+    subst η; simpl in Heqqq; simpl.
+    rewrite Z.mul_1_r in Heqqq; subst qq.
+    Focus 2.
+    subst η; simpl in Heqqq.
+    remember (2 * m)%positive as mm; simpl; subst mm.
+    rewrite Pos2Z.inj_mul.
+    rewrite Pos2Z.inj_mul.
+    rewrite Pos2Z.inj_mul.
+    rewrite Z.mul_comm.
+    rewrite <- Z.mul_assoc, <- Z.mul_assoc, Z.mul_comm.
+    apply Z.lt_mul_r.
+     apply Z.lt_0_1.
+
+     apply Z.lt_1_2.
+
+     Unfocus.
+bbb.
+(* choose N so that Σ (j=0,n) βj > ofs *)
 
 intros pol ns pol₁ c m Hns Hm Hc Hr Hpol₁.
 unfold ps_pol_apply.
