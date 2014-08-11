@@ -250,6 +250,19 @@ induction n; intros.
 
   do 2 rewrite rng_add_0_r.
   rewrite rng_add_comm; reflexivity.
+
+ remember (S n) as sn in |- *; simpl.
+ remember (ac_root (Φq pol ns)) as c eqn:Hc .
+ remember (next_pol pol (β ns) (γ ns) c) as pol₁ eqn:Hpol₁ .
+ remember (List.hd phony_ns (newton_segments pol₁)) as ns₁ eqn:Hns₁ .
+ subst sn; simpl.
+ rewrite <- Hc, <- Hpol₁, <- Hns₁.
+ remember (ac_root (Φq pol₁ ns₁)) as c₁ eqn:Hc₁ .
+ remember (next_pol pol₁ (β ns₁) (γ ns₁) c₁) as pol₂ eqn:Hpol₂ .
+ remember (List.hd phony_ns (newton_segments pol₂)) as ns₂ eqn:Hns₂ .
+ erewrite <- nth_pol_n with (pol₁ := pol₁) (ns₁ := ns₁); eauto .
+ erewrite <- nth_pol_succ; eauto .
+  rewrite <- IHn.
 bbb.
 
 Theorem zzz : ∀ pol ns pol₁ c m,
