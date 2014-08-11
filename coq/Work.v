@@ -149,6 +149,43 @@ unfold β.
 rewrite Hinin; simpl.
 unfold Qnat; simpl.
 rewrite rng_mul_0_l, rng_add_0_r.
+remember Hpol₁ as H; clear HeqH.
+eapply next_pol_in_K_1_mq in H; eauto .
+rename H into HK₁.
+pose proof (Hnz O (Nat.le_0_l n)) as Hnz₀.
+simpl in Hnz₀.
+remember Hns₁ as H; clear HeqH.
+eapply r_1_next_ns in H; eauto .
+destruct H as (αj₁, (αk₁, H)).
+destruct H as (_, (Hini₁, (Hfin₁, (Hαj₁, Hαk₁)))).
+remember Hns₁ as H; clear HeqH.
+eapply hd_newton_segments in H; eauto .
+rename H into Hns₁i.
+remember HK₁ as H; clear HeqH.
+eapply lap_forall_nth with (ns := ns₁) in H; eauto .
+ rename H into HKn.
+ remember (nth_pol n pol₁ ns₁) as poln eqn:Hpoln .
+ remember Hns₁i as H; clear HeqH.
+ eapply nth_in_newton_segments with (n := n) in H; eauto .
+  rename H into Hnsni.
+  remember HKn as H; clear HeqH.
+  eapply pol_ord_of_ini_pt in H; eauto .
+  rewrite Hη, H.
+  rewrite <- Pos.mul_assoc.
+  remember (m * q_of_m m (γ ns))%positive as m₁ eqn:Hm₁ .
+  unfold mh_of_m.
+  erewrite <- qden_αj_is_ps_polord; eauto .
+  remember (2 * m₁)%positive as m₂.
+  unfold Qlt; simpl; subst m₂.
+  clear H.
+  assert (0 < Qnum αjn * ' m₁ / ' Qden αjn)%Z as H.
+   apply Z2Nat.inj_lt; [ reflexivity | idtac | idtac ].
+    apply Z.div_pos; [ idtac | apply Pos2Z.is_pos ].
+    apply Z.mul_nonneg_nonneg; auto.
+    apply Z.lt_le_incl; assumption.
+
+    eapply num_m_den_is_pos with (ns := nsn); eauto .
+
 bbb.
 
 Theorem zzz : ∀ pol ns pol₁ c m,
