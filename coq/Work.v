@@ -303,6 +303,12 @@ induction n; intros.
      rewrite Hpol₁; simpl.
      unfold next_pol; simpl.
      unfold next_lap; simpl.
+     remember
+      (List.hd phony_ns
+         (newton_segments
+            POL (([ps_monom 1%K (- β ns)] *
+                  lap_compose (al pol)
+                    [ps_monom c (γ ns); ps_monom 1%K (γ ns) … []])%lap)%pol)) as x.
 bbb.
 
 Theorem zzz : ∀ pol ns pol₁ c m,
