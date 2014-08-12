@@ -441,8 +441,6 @@ destruct (ps_zerop R (ps_poly_nth 0 pol₁)) as [H₁| H₁].
  apply order_inf.
  remember (order (ps_pol_apply pol₁ s)) as ofs eqn:Hofs .
  symmetry in Hofs.
- destruct ofs as [ofs| ]; [ exfalso | reflexivity ].
- subst s.
  remember (1 # 2 * m * q₀) as η eqn:Hη .
  remember (Z.to_nat (2 * ' m * ' q₀ * Qnum ofs)) as N eqn:HN .
  apply eq_Qbar_eq in Hofs.
@@ -482,13 +480,31 @@ destruct (ps_zerop R (ps_poly_nth 0 pol₁)) as [H₁| H₁].
      rewrite Pos2Z.inj_mul.
      rewrite Zpos_P_of_succ_nat.
      rewrite Nat2Z.inj_mul.
-     rewrite Z2Nat.id.
+     remember (Qnum ofs) as nofs eqn:Hnofs .
+     symmetry in Hnofs.
+     destruct nofs as [| nofs| nofs]; simpl; auto.
       rewrite positive_nat_Z.
       rewrite Z.mul_succ_l.
+      rewrite positive_nat_Z.
+      rewrite <- Pos2Z.inj_mul.
       rewrite <- Z.mul_1_r in |- * at 1.
       eapply Z.le_trans.
-       apply Z.mul_le_mono_nonneg_l with (m := (' Qden ofs)%Z).
-        apply Z.mul_nonneg_nonneg; auto.
+       apply Z.mul_le_mono_nonneg_l with (m := (' Qden ofs)%Z); auto.
+       rewrite Z.one_succ.
+       apply Zlt_le_succ.
+       apply Pos2Z.is_pos.
+
+       apply Z.le_sub_le_add_l.
+       rewrite Z.sub_diag; auto.
+
+      apply Zle_neg_pos.
+
+    apply Qlt_not_le in H.
+    apply H.
+    apply Qbar.qfin_le_mono.
+    rewrite <- Hofs.
+    apply Qbar.le_sub_le_add_l.
+    rewrite Qbar.sub_diag.
 bbb.
 
 End theorems.
