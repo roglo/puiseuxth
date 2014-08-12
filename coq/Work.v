@@ -252,18 +252,23 @@ induction n; intros.
   do 2 rewrite rng_add_0_r.
   rewrite rng_add_comm; reflexivity.
 
- rewrite summation_split_first; [ idtac | apply Nat.le_0_l ].
- rewrite summation_shift; [ idtac | fast_omega  ].
- rewrite Nat_sub_succ_1.
- remember (S n) as sn in |- *; simpl.
- remember (ac_root (Φq pol ns)) as c eqn:Hc .
- remember (next_pol pol (β ns) (γ ns) c) as pol₁ eqn:Hpol₁ .
- remember (List.hd phony_ns (newton_segments pol₁)) as ns₁ eqn:Hns₁ .
- rewrite ps_monom_add_r.
- rewrite <- rng_mul_assoc.
- subst sn; simpl.
- erewrite <- nth_pol_n with (pol₁ := pol₁) (ns₁ := ns₁); eauto .
- erewrite <- nth_pol_succ; eauto .
+ simpl in Hnz.
+ destruct (ps_zerop R (ps_poly_nth 0 pol)) as [H₁| H₁].
+  discriminate Hnz.
+
+  rewrite summation_split_first; [ idtac | apply Nat.le_0_l ].
+  rewrite summation_shift; [ idtac | fast_omega  ].
+  rewrite Nat_sub_succ_1.
+  remember (S n) as sn in |- *; simpl.
+  remember (ac_root (Φq pol ns)) as c eqn:Hc .
+  remember (next_pol pol (β ns) (γ ns) c) as pol₁ eqn:Hpol₁ .
+  remember (List.hd phony_ns (newton_segments pol₁)) as ns₁ eqn:Hns₁ .
+  rewrite ps_monom_add_r.
+  rewrite <- rng_mul_assoc.
+  subst sn; simpl.
+  erewrite <- nth_pol_n with (pol₁ := pol₁) (ns₁ := ns₁); eauto .
+  erewrite <- nth_pol_succ; eauto ; [ idtac | erewrite nth_c_root; eauto  ].
+  rewrite <- IHn; eauto .
 bbb.
   rewrite <- IHn.
    rewrite Hpol₁; simpl.
