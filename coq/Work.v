@@ -264,6 +264,7 @@ induction n; intros.
  subst sn; simpl.
  erewrite <- nth_pol_n with (pol₁ := pol₁) (ns₁ := ns₁); eauto .
  erewrite <- nth_pol_succ; eauto .
+bbb.
   rewrite <- IHn.
    rewrite Hpol₁; simpl.
    unfold root_head; simpl.

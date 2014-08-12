@@ -1900,7 +1900,7 @@ Qed.
 Lemma nth_c_root : ∀ pol₁ ns₁ poln nsn n,
   poln = nth_pol n pol₁ ns₁
   → nsn = nth_ns n pol₁ ns₁
-  → (nth_c n pol₁ ns₁ = ac_root (Φq poln nsn))%K.
+  → nth_c n pol₁ ns₁ = ac_root (Φq poln nsn).
 Proof.
 intros pol₁ ns₁ poln nsn n Hpoln Hnsn.
 revert pol₁ ns₁ poln nsn Hpoln Hnsn.
@@ -2547,7 +2547,7 @@ destruct z₁.
       subst d; simpl.
       destruct (ps_zerop R (ps_poly_nth 0 polb)); [ contradiction | idtac ].
       symmetry.
-      apply nth_c_root; assumption.
+      erewrite nth_c_root; eauto.
 
       simpl.
       rewrite <- Hcb.
@@ -2687,7 +2687,7 @@ destruct z₁.
          contradiction.
 
          clear H₃; symmetry.
-         apply nth_c_root; auto.
+         erewrite nth_c_root; eauto.
 
         exfalso; apply H₁.
         subst d.
@@ -3018,7 +3018,7 @@ destruct z₁.
        contradiction.
 
        symmetry.
-       apply nth_c_root; auto.
+       erewrite nth_c_root; eauto.
 
       unfold root_tail_series_from_cγ_list; simpl.
       destruct (ps_zerop R (ps_poly_nth 0 poln₁)) as [| H₄]; auto.
@@ -3193,7 +3193,7 @@ destruct z₁.
                    simpl.
                    destruct (lt_dec 0 (Z.to_nat nmd₂)) as [H₃| H₃].
                     rewrite rng_add_0_r; subst cn₁; symmetry.
-                    apply nth_c_root; auto.
+                    erewrite nth_c_root; eauto.
 
                     exfalso; apply H₃; subst nmd₂.
                     eapply num_m_den_is_pos with (ns := nsn₂) (pol := poln₂);
