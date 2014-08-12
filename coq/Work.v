@@ -384,17 +384,22 @@ induction n; intros.
      reflexivity.
 Qed.
 
-Lemma xxx : ∀ n x, x * Qnat (S n) == x * Qnat n + x.
+Lemma Qnat_succ : ∀ n x, x * Qnat (S n) == x * Qnat n + x.
 Proof.
 intros n x.
 unfold Qnat.
 setoid_replace x with (x * 1) at 3.
  rewrite <- rng_mul_add_distr_l.
- rewrite rng_add_comm.
- simpl.
-bbb.
+ apply rng_mul_compat_l; simpl.
+ unfold Qeq; simpl.
+ do 2 rewrite Z.mul_1_r.
+ rewrite Pos.mul_1_r, Z.add_1_r.
+ apply Zpos_P_of_succ_nat.
 
-Lemma yyy : ∀ f n x,
+ rewrite rng_mul_1_r; reflexivity.
+Qed.
+
+Lemma summation_all_lt : ∀ f n x,
   let qr := Q_ring in
   (∀ i : nat, i ≤ n → x < f i)
   → x * Qnat (S n) < Σ (i = 0, n), f i.
@@ -407,7 +412,15 @@ induction n.
  apply Hi; reflexivity.
 
  rewrite summation_split_last; [ simpl | apply Nat.le_0_l ].
-bbb.
+ rewrite Qnat_succ.
+ apply Qplus_lt_le_compat.
+  apply IHn.
+  intros i Hin; apply Hi.
+  fast_omega Hin.
+
+  apply Qlt_le_weak.
+  apply Hi; reflexivity.
+Qed.
 
 Theorem zzz : ∀ pol ns pol₁ c m,
   ns ∈ newton_segments pol
@@ -430,8 +443,8 @@ destruct (ps_zerop R (ps_poly_nth 0 pol₁)) as [H₁| H₁].
  symmetry in Hofs.
  destruct ofs as [ofs| ]; [ exfalso | reflexivity ].
  subst s.
- remember (1 # 2 * m * q_of_m m (γ ns)) as η eqn:Hη .
- remember (Z.to_nat (2 * Qnum (ofs * η))) as N eqn:HN .
+ remember (1 # 2 * m * q₀) as η eqn:Hη .
+ remember (Z.to_nat (2 * ' m * ' q₀ * Qnum ofs)) as N eqn:HN .
  apply eq_Qbar_eq in Hofs.
  rewrite root_tail_when_r_1 with (n := N) in Hofs; eauto .
  remember (zerop_1st_n_const_coeff N pol₁ ns₁) as z eqn:Hz .
@@ -441,28 +454,41 @@ destruct (ps_zerop R (ps_poly_nth 0 pol₁)) as [H₁| H₁].
   rewrite apply_nth_pol in Hofs; auto.
   rewrite order_mul in Hofs; auto.
   rewrite ps_monom_order in Hofs.
-   set (qr := Q_ring).
-   assert (ofs < Σ (i = 0, N), β (nth_ns i pol₁ ns₁)).
+   remember Σ (i = 0, N), β (nth_ns i pol₁ ns₁) as u eqn:Hu .
+   assert (ofs < u) as H.
+    subst u.
     assert (∀ i, i ≤ N → η < β (nth_ns i pol₁ ns₁)).
      intros i Hi.
-     apply
-      β_lower_bound
-       with
-         (pol := pol)
-         (ns := ns)
-         (ns₁ := ns₁)
-         (pol₁ := pol₁)
-         (n := i)
-         (m := m); auto.
-      rewrite <- Hc; assumption.
-
-      rewrite <- Hc; assumption.
-
+     subst c q₀.
+     assert (zerop_1st_n_const_coeff i pol₁ ns₁ = false).
       rewrite zerop_1st_n_const_coeff_false_iff in Hz.
       apply zerop_1st_n_const_coeff_false_iff.
       intros j Hj.
       apply Hz.
       transitivity i; assumption.
+
+      eapply β_lower_bound with (n := i); eauto .
+
+     apply summation_all_lt in H.
+     eapply Qle_lt_trans; eauto .
+     rewrite Hη, HN.
+     rewrite <- Pos2Z.inj_mul.
+     rewrite <- Pos2Z.inj_mul.
+     remember (2 * m * q₀)%positive as mq eqn:Hmq .
+     rewrite Z.mul_comm.
+     rewrite Z2Nat_inj_mul_pos_r.
+     unfold Qle; simpl.
+     rewrite Pos.mul_1_r.
+     rewrite Pos2Z.inj_mul.
+     rewrite Zpos_P_of_succ_nat.
+     rewrite Nat2Z.inj_mul.
+     rewrite Z2Nat.id.
+      rewrite positive_nat_Z.
+      rewrite Z.mul_succ_l.
+      rewrite <- Z.mul_1_r in |- * at 1.
+      eapply Z.le_trans.
+       apply Z.mul_le_mono_nonneg_l with (m := (' Qden ofs)%Z).
+        apply Z.mul_nonneg_nonneg; auto.
 bbb.
 
 End theorems.
