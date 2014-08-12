@@ -279,14 +279,39 @@ induction n; intros.
    destruct (ps_zerop R (ps_poly_nth 0 pol₁)) as [H₂| H₂].
     rewrite zerop_1st_n_const_coeff_false_iff in Hnz.
     pose proof (Hnz O (Nat.le_0_l n)) as H; contradiction.
+
+    subst sn.
+    rewrite <- IHn; auto.
+    unfold root_head; simpl.
+    destruct (ps_zerop R (ps_poly_nth 0 pol₁)) as [H₃| H₃].
+     contradiction.
+
+     clear H₃.
+     unfold γ_sum at 1, summation; simpl.
+     rewrite rng_add_0_r.
+     unfold γ_sum.
+     rewrite summation_split_first; [ idtac | apply Nat.le_0_l ].
+     rewrite summation_shift; [ idtac | fast_omega  ].
+     rewrite Nat_sub_succ_1; simpl.
+     rewrite <- Hc, <- Hpol₁, <- Hns₁.
+     rewrite ps_monom_add_r.
+     remember Σ (i = 0, n), nth_γ i pol₁ ns₁ as sγ eqn:Hsγ .
+     rewrite <- ps_mul_assoc.
+     remember (ps_monom 1%K sγ * y)%ps as u eqn:Hu .
+     rewrite Hpol₁ at 1; simpl.
+     unfold next_pol; simpl.
+     unfold ps_pol_apply; simpl.
+     unfold apply_poly; simpl.
+     unfold next_lap; simpl.
+     rewrite apply_lap_mul; simpl.
+     rewrite rng_mul_0_l, rng_add_0_l.
+     rewrite rng_mul_assoc; simpl.
+     rewrite <- ps_monom_add_r.
+     rewrite rng_add_opp_r; simpl.
+     rewrite ps_mul_1_l.
+     rewrite apply_lap_compose; simpl.
+     rewrite rng_mul_0_l, rng_add_0_l.
 bbb.
-   rewrite Hpol₁; simpl.
-   unfold root_head; simpl.
-   unfold γ_sum, summation; simpl.
-   unfold next_pol; simpl.
-   unfold ps_pol_apply; simpl.
-   unfold apply_poly; simpl.
-   unfold next_lap; simpl.
    rewrite apply_lap_mul; simpl.
    rewrite rng_mul_0_l, rng_add_0_l.
    rewrite rng_mul_assoc; simpl.
