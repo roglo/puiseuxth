@@ -447,6 +447,7 @@ destruct (ps_zerop R (ps_poly_nth 0 pol₁)) as [H₁| H₁].
  remember (Z.to_nat (2 * ' m * ' q₀ * Qnum ofs)) as N eqn:HN .
  apply eq_Qbar_eq in Hofs.
  rewrite root_tail_when_r_1 with (n := N) in Hofs; eauto .
+ rewrite Nat.add_0_l in Hofs.
  remember (zerop_1st_n_const_coeff N pol₁ ns₁) as z eqn:Hz .
  symmetry in Hz.
  destruct z.
