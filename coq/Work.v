@@ -509,5 +509,13 @@ destruct (ps_zerop R (ps_poly_nth 0 pol₁)) as [H₁| H₁].
     apply Qbar.le_sub_le_add_l.
     rewrite Qbar.sub_diag.
 bbb.
+  Problem: I have to prove that
+  ============================
+   (0
+    ≤ order
+        (ps_pol_apply (nth_pol (S N) pol₁ ns₁)
+           (root_tail (m * q₀) (S N) pol₁ ns₁)))%Qbar
+
+  and it depends on N.
 
 End theorems.
