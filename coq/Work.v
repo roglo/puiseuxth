@@ -268,9 +268,18 @@ induction n; intros.
   subst sn; simpl.
   erewrite <- nth_pol_n with (pol₁ := pol₁) (ns₁ := ns₁); eauto .
   erewrite <- nth_pol_succ; eauto ; [ idtac | erewrite nth_c_root; eauto  ].
-  rewrite <- IHn; eauto .
+  remember (S n) as sn in |- *; simpl.
+  unfold root_head; simpl.
+  destruct (ps_zerop R (ps_poly_nth 0 pol)) as [H₂| H₂].
+   contradiction.
+
+   clear H₂.
+   rewrite Heqsn in |- * at 1; simpl.
+   rewrite <- Hc, <- Hpol₁.
+   destruct (ps_zerop R (ps_poly_nth 0 pol₁)) as [H₂| H₂].
+    rewrite zerop_1st_n_const_coeff_false_iff in Hnz.
+    pose proof (Hnz O (Nat.le_0_l n)) as H; contradiction.
 bbb.
-  rewrite <- IHn.
    rewrite Hpol₁; simpl.
    unfold root_head; simpl.
    unfold γ_sum, summation; simpl.
