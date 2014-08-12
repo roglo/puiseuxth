@@ -422,6 +422,59 @@ induction n.
   apply Hi; reflexivity.
 Qed.
 
+(* oops... perhaps a co-induction is required here... *)
+Lemma yyy : ∀ pol₁ ns₁ m q₀ n,
+  (ps_pol_apply (nth_pol n pol₁ ns₁) (root_tail (m * q₀) n pol₁ ns₁) = 0)%ps.
+Proof.
+intros pol₁ ns₁ m q₀ n.
+revert pol₁ ns₁ m q₀.
+induction n; intros.
+bbb.
+ unfold root_head, root_tail; simpl.
+ destruct (ps_zerop R (ps_poly_nth 0 pol₁)) as [H₁| H₁].
+  rewrite rng_add_0_l, rng_mul_0_r; simpl.
+  unfold ps_pol_apply; simpl.
+  unfold apply_poly; simpl.
+  rewrite apply_lap_lap2.
+  unfold apply_lap2.
+  simpl.
+  rewrite all_0_summation_0.
+   reflexivity.
+
+   intros i Hi.
+   simpl.
+   destruct i.
+    Focus 2.
+    rewrite rng_power_0_l; [ idtac | intros H; discriminate H ].
+    simpl.
+    rewrite ps_mul_0_r; reflexivity.
+
+    simpl.
+    unfold ps_poly_nth in H₁.
+    unfold ps_lap_nth in H₁; simpl in H₁.
+    rewrite H₁.
+    rewrite ps_mul_0_l; reflexivity.
+
+  remember (ac_root (Φq pol₁ ns₁)) as c₁ eqn:Hc₁ .
+  remember (next_pol pol₁ (β ns₁) (γ ns₁) c₁) as pol₂ eqn:Hpol₂ .
+  remember (List.hd phony_ns (newton_segments pol₂)) as ns₂ eqn:Hns₂ .
+  destruct (ps_zerop R (ps_poly_nth 0 pol₂)) as [H₂| H₂].
+   rewrite rng_add_0_r, rng_mul_0_r, rng_add_0_r.
+   unfold γ_sum; simpl.
+   unfold summation; simpl.
+   rewrite rng_add_0_r; simpl.
+   unfold ps_pol_apply; simpl.
+   unfold apply_poly; simpl.
+   rewrite apply_lap_lap2.
+   unfold apply_lap2; simpl.
+   rewrite all_0_summation_0; [ reflexivity | idtac ].
+   intros i Hi; simpl.
+   destruct i.
+    simpl.
+    unfold ps_poly_nth in H₁.
+    unfold ps_lap_nth in H₁; simpl in H₁.
+bbb.
+
 Theorem zzz : ∀ pol ns pol₁ c m,
   ns ∈ newton_segments pol
   → pol_in_K_1_m pol m
