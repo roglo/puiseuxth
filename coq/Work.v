@@ -422,14 +422,65 @@ induction n.
   apply Hi; reflexivity.
 Qed.
 
-(* oops... perhaps a co-induction is required here... *)
+Lemma series_0_ps_0 : ∀ p,
+  (∀ i, ((ps_terms p) .[i] = 0)%K)
+  → (p = 0)%ps.
+Proof.
+intros p Hi.
+destruct p as (t, o, p); simpl in Hi; simpl.
+unfold ps_zero.
+destruct o as [| o| o].
+ symmetry.
+ rewrite ps_adjust_eq with (n := O) (k := p).
+ unfold adjust_ps; simpl.
+ apply mkps_morphism; auto.
+ rewrite series_shift_0.
+ rewrite series_stretch_series_0.
+ symmetry; constructor; simpl.
+ assumption.
+
+ rewrite ps_adjust_eq with (n := Pos.to_nat o) (k := xH).
+ symmetry.
+ rewrite ps_adjust_eq with (n := O) (k := p).
+ unfold adjust_ps.
+ rewrite positive_nat_Z; simpl.
+ rewrite Pos.mul_1_r; simpl.
+ rewrite Z.pos_sub_diag.
+ rewrite Pos.mul_1_r.
+ apply mkps_morphism; auto.
+ rewrite series_shift_0.
+ rewrite series_stretch_series_0.
+ rewrite series_stretch_1.
+ symmetry; constructor; intros i; simpl.
+ destruct (lt_dec i (Pos.to_nat o)); auto.
+
+ symmetry.
+ rewrite ps_adjust_eq with (n := Pos.to_nat o) (k := p).
+ unfold adjust_ps; simpl.
+ rewrite positive_nat_Z; simpl.
+ apply mkps_morphism; auto.
+ rewrite series_stretch_series_0.
+ rewrite series_shift_series_0.
+ symmetry; constructor; simpl.
+ assumption.
+Qed.
+
 Lemma yyy : ∀ pol₁ ns₁ m q₀ n,
   (ps_pol_apply (nth_pol n pol₁ ns₁) (root_tail (m * q₀) n pol₁ ns₁) = 0)%ps.
 Proof.
 intros pol₁ ns₁ m q₀ n.
+apply series_0_ps_0; intros i.
+bbb.
+  stopped... one cannot apply root_tail_when_r_1 since not a morphism
+  ============================
+   rng_eq
+     (terms
+        (ps_terms
+           (ps_pol_apply (nth_pol n pol₁ ns₁)
+              (root_tail (Pos.mul m q₀) n pol₁ ns₁))) i) rng_zero
+
 revert pol₁ ns₁ m q₀.
 induction n; intros.
-bbb.
  unfold root_head, root_tail; simpl.
  destruct (ps_zerop R (ps_poly_nth 0 pol₁)) as [H₁| H₁].
   rewrite rng_add_0_l, rng_mul_0_r; simpl.
