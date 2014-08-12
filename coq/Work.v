@@ -33,6 +33,14 @@ Require Import Puiseux.
 
 Set Implicit Arguments.
 
+(*
+Add Parametric Morphism α (R : ring α) : (@ps_pol_apply α R)
+  with signature @ps_pol_eq α R ==> eq_ps ==> eq_ps
+  as ps_pol_apply_morph.
+Proof.
+Hmmm....
+*)
+
 Section theorems.
 
 Variable α : Type.
