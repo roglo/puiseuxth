@@ -384,6 +384,31 @@ induction n; intros.
      reflexivity.
 Qed.
 
+Lemma xxx : ∀ n x, x * Qnat (S n) == x * Qnat n + x.
+Proof.
+intros n x.
+unfold Qnat.
+setoid_replace x with (x * 1) at 3.
+ rewrite <- rng_mul_add_distr_l.
+ rewrite rng_add_comm.
+ simpl.
+bbb.
+
+Lemma yyy : ∀ f n x,
+  let qr := Q_ring in
+  (∀ i : nat, i ≤ n → x < f i)
+  → x * Qnat (S n) < Σ (i = 0, n), f i.
+Proof.
+intros f n x qr Hi.
+induction n.
+ unfold Qnat, summation; simpl.
+ rewrite rng_add_0_r.
+ rewrite rng_mul_1_r.
+ apply Hi; reflexivity.
+
+ rewrite summation_split_last; [ simpl | apply Nat.le_0_l ].
+bbb.
+
 Theorem zzz : ∀ pol ns pol₁ c m,
   ns ∈ newton_segments pol
   → pol_in_K_1_m pol m
@@ -417,7 +442,27 @@ destruct (ps_zerop R (ps_poly_nth 0 pol₁)) as [H₁| H₁].
   rewrite order_mul in Hofs; auto.
   rewrite ps_monom_order in Hofs.
    set (qr := Q_ring).
-   assert (η * Qnat (S N) < Σ (i = 0, N), β (nth_ns i pol₁ ns₁)).
+   assert (ofs < Σ (i = 0, N), β (nth_ns i pol₁ ns₁)).
+    assert (∀ i, i ≤ N → η < β (nth_ns i pol₁ ns₁)).
+     intros i Hi.
+     apply
+      β_lower_bound
+       with
+         (pol := pol)
+         (ns := ns)
+         (ns₁ := ns₁)
+         (pol₁ := pol₁)
+         (n := i)
+         (m := m); auto.
+      rewrite <- Hc; assumption.
+
+      rewrite <- Hc; assumption.
+
+      rewrite zerop_1st_n_const_coeff_false_iff in Hz.
+      apply zerop_1st_n_const_coeff_false_iff.
+      intros j Hj.
+      apply Hz.
+      transitivity i; assumption.
 bbb.
 
 End theorems.
