@@ -219,10 +219,11 @@ Theorem eq_Qbar_eq : ∀ a b, a = b → (a = b)%Qbar.
 Proof. intros a b Hab; subst a; reflexivity. Qed.
 
 Lemma yyy : ∀ pol ns y n,
+  let qr := Q_ring in
   zerop_1st_n_const_coeff n pol ns = false
   → (ps_pol_apply pol
        (root_head 0 n pol ns + ps_monom 1%K (γ_sum 0 n pol ns) * y) =
-     ps_monom 1%K (Σ (i = 0, n) β (nth_ns i pol ns)) *
+     ps_monom 1%K (Σ (i = 0, n), β (nth_ns i pol ns)) *
      ps_pol_apply (nth_pol (S n) pol ns) y)%ps.
 Proof.
 intros; revert H; intros Hnz.
