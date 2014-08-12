@@ -309,6 +309,16 @@ induction n; intros.
             POL (([ps_monom 1%K (- β ns)] *
                   lap_compose (al pol)
                     [ps_monom c (γ ns); ps_monom 1%K (γ ns) … []])%lap)%pol)) as x.
+     remember
+      POL (([ps_monom 1%K (- β ns)] *
+            lap_compose (al pol)
+              [ps_monom c (γ ns); ps_monom 1%K (γ ns) … []])%lap)%pol as z.
+     rename z into pol₄.
+     remember Hpol₁ as H; clear HeqH.
+     unfold next_pol in H; simpl in H.
+     unfold next_lap in H; simpl in H.
+     rewrite <- H in Heqz.
+     subst pol₄; clear H.
 bbb.
 
 Theorem zzz : ∀ pol ns pol₁ c m,
