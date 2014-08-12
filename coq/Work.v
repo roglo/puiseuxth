@@ -441,6 +441,8 @@ destruct (ps_zerop R (ps_poly_nth 0 pol₁)) as [H₁| H₁].
  apply order_inf.
  remember (order (ps_pol_apply pol₁ s)) as ofs eqn:Hofs .
  symmetry in Hofs.
+ destruct ofs as [ofs| ]; [ exfalso | reflexivity ].
+ subst s.
  remember (1 # 2 * m * q₀) as η eqn:Hη .
  remember (Z.to_nat (2 * ' m * ' q₀ * Qnum ofs)) as N eqn:HN .
  apply eq_Qbar_eq in Hofs.
