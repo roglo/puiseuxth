@@ -455,7 +455,12 @@ Proof.
 intros pol₁ ns₁ m q₀ n.
 apply series_0_ps_0; intros i.
 bbb.
-  stopped... one cannot apply root_tail_when_r_1 since not a morphism
+  blocked... one cannot 'rewrite root_tail_when_r_1' here to allow to
+  put any 'n' value, since not a morphism
+  ============================
+   ((ps_terms
+       (ps_pol_apply (nth_pol n pol₁ ns₁) (root_tail (m * q₀) n pol₁ ns₁)))
+    .[ i] = 0)%K
   ============================
    rng_eq
      (terms
