@@ -227,11 +227,9 @@ Lemma yyy : ∀ pol ns y n,
      ps_pol_apply (nth_pol (S n) pol ns) y)%ps.
 Proof.
 intros; revert H; intros Hnz.
-bbb.
 revert pol ns y Hnz.
 induction n; intros.
- simpl.
- unfold root_head, γ_sum, summation; simpl.
+ unfold root_head; simpl.
  unfold γ_sum, summation; simpl.
  unfold next_pol; simpl.
  unfold ps_pol_apply; simpl.
@@ -240,6 +238,7 @@ induction n; intros.
  remember (ac_root (Φq pol ns)) as c eqn:Hc .
  rewrite apply_lap_mul; simpl.
  rewrite rng_mul_0_l, rng_add_0_l.
+ symmetry; rewrite rng_add_0_r; symmetry.
  rewrite rng_mul_assoc; simpl.
  rewrite <- ps_monom_add_r.
  rewrite rng_add_opp_r; simpl.
@@ -253,18 +252,57 @@ induction n; intros.
   do 2 rewrite rng_add_0_r.
   rewrite rng_add_comm; reflexivity.
 
+ rewrite summation_split_first; [ idtac | apply Nat.le_0_l ].
+ rewrite summation_shift; [ idtac | fast_omega  ].
+ rewrite Nat_sub_succ_1.
  remember (S n) as sn in |- *; simpl.
  remember (ac_root (Φq pol ns)) as c eqn:Hc .
  remember (next_pol pol (β ns) (γ ns) c) as pol₁ eqn:Hpol₁ .
  remember (List.hd phony_ns (newton_segments pol₁)) as ns₁ eqn:Hns₁ .
+ rewrite ps_monom_add_r.
+ rewrite <- rng_mul_assoc.
  subst sn; simpl.
- rewrite <- Hc, <- Hpol₁, <- Hns₁.
- remember (ac_root (Φq pol₁ ns₁)) as c₁ eqn:Hc₁ .
- remember (next_pol pol₁ (β ns₁) (γ ns₁) c₁) as pol₂ eqn:Hpol₂ .
- remember (List.hd phony_ns (newton_segments pol₂)) as ns₂ eqn:Hns₂ .
  erewrite <- nth_pol_n with (pol₁ := pol₁) (ns₁ := ns₁); eauto .
  erewrite <- nth_pol_succ; eauto .
   rewrite <- IHn.
+   rewrite Hpol₁; simpl.
+   unfold root_head; simpl.
+   unfold γ_sum, summation; simpl.
+   unfold next_pol; simpl.
+   unfold ps_pol_apply; simpl.
+   unfold apply_poly; simpl.
+   unfold next_lap; simpl.
+   rewrite apply_lap_mul; simpl.
+   rewrite rng_mul_0_l, rng_add_0_l.
+   rewrite rng_mul_assoc; simpl.
+   rewrite <- ps_monom_add_r.
+   rewrite rng_add_opp_r; simpl.
+   rewrite ps_mul_1_l.
+   rewrite apply_lap_compose; simpl.
+   rewrite rng_mul_0_l, rng_add_0_l.
+   simpl in Hnz.
+   destruct (ps_zerop R (ps_poly_nth 0 pol)) as [H₁| H₁].
+    discriminate Hnz.
+
+    rewrite <- Hc, <- Hpol₁, <- Hns₁ in Hnz.
+    rewrite <- Hc.
+    rewrite rng_add_0_r.
+    destruct
+     (ps_zerop R
+        (ps_poly_nth 0
+           POL (([ps_monom 1%K (- β ns)] *
+                 lap_compose (al pol)
+                   [ps_monom c (γ ns); ps_monom 1%K (γ ns) … []])%lap)%pol))
+     as [H₂| H₂].
+     rewrite rng_add_0_r, rng_add_0_l.
+     rewrite rng_mul_assoc; simpl.
+     rewrite <- ps_monom_add_r.
+     symmetry; rewrite rng_add_comm; symmetry.
+     simpl.
+     rewrite Hns₁; simpl.
+     rewrite Hpol₁; simpl.
+     unfold next_pol; simpl.
+     unfold next_lap; simpl.
 bbb.
 
 Theorem zzz : ∀ pol ns pol₁ c m,
