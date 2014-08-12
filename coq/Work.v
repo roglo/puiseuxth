@@ -427,42 +427,18 @@ Lemma series_0_ps_0 : ∀ p,
   → (p = 0)%ps.
 Proof.
 intros p Hi.
-destruct p as (t, o, p); simpl in Hi; simpl.
-unfold ps_zero.
-destruct o as [| o| o].
- symmetry.
- rewrite ps_adjust_eq with (n := O) (k := p).
- unfold adjust_ps; simpl.
- apply mkps_morphism; auto.
- rewrite series_shift_0.
- rewrite series_stretch_series_0.
- symmetry; constructor; simpl.
- assumption.
-
- rewrite ps_adjust_eq with (n := Pos.to_nat o) (k := xH).
- symmetry.
- rewrite ps_adjust_eq with (n := O) (k := p).
- unfold adjust_ps.
- rewrite positive_nat_Z; simpl.
- rewrite Pos.mul_1_r; simpl.
- rewrite Z.pos_sub_diag.
- rewrite Pos.mul_1_r.
- apply mkps_morphism; auto.
- rewrite series_shift_0.
- rewrite series_stretch_series_0.
- rewrite series_stretch_1.
- symmetry; constructor; intros i; simpl.
- destruct (lt_dec i (Pos.to_nat o)); auto.
-
- symmetry.
- rewrite ps_adjust_eq with (n := Pos.to_nat o) (k := p).
- unfold adjust_ps; simpl.
- rewrite positive_nat_Z; simpl.
- apply mkps_morphism; auto.
- rewrite series_stretch_series_0.
- rewrite series_shift_series_0.
- symmetry; constructor; simpl.
- assumption.
+apply order_inf.
+remember (order p) as op eqn:Hop .
+symmetry in Hop.
+unfold order in Hop.
+remember (null_coeff_range_length R (ps_terms p) 0) as v eqn:Hv .
+symmetry in Hv.
+destruct v as [v| ]; auto.
+apply null_coeff_range_length_iff in Hv.
+unfold null_coeff_range_length_prop in Hv; simpl in Hv.
+destruct Hv as (Hiv, Hv).
+rewrite Hi in Hv.
+exfalso; apply Hv; reflexivity.
 Qed.
 
 Lemma yyy : ∀ pol₁ ns₁ m q₀ n,
