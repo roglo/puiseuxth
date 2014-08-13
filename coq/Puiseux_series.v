@@ -22,6 +22,10 @@ Record puiseux_series α := mkps
 Arguments mkps α%type ps_terms%ser ps_ordnum%Z ps_polord%positive.
 Delimit Scope ps_scope with ps.
 
+Arguments ps_terms α%type p%ps.
+Arguments ps_ordnum α%type p%ps.
+Arguments ps_polord α%type p%ps.
+
 Section Axioms.
 
 (* [null_coeff_range_length fld s n] returns the number of consecutive
@@ -133,6 +137,7 @@ Inductive eq_ps {α} {r : ring α} :
   | eq_ps_base : ∀ ps₁ ps₂,
       eq_ps_strong (normalise_ps ps₁) (normalise_ps ps₂)
       → eq_ps ps₁ ps₂.
+Arguments eq_ps _ _ ps₁%ps ps₂%ps.
 
 Definition ps_monom {α} {r : ring α} (c : α) pow :=
   {| ps_terms := {| terms i := if zerop i then c else 0%K |};
