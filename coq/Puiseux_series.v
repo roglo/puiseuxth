@@ -22,6 +22,10 @@ Record puiseux_series α := mkps
 Arguments mkps α%type ps_terms%ser ps_ordnum%Z ps_polord%positive.
 Delimit Scope ps_scope with ps.
 
+Arguments ps_terms α%type p%ps.
+Arguments ps_ordnum α%type p%ps.
+Arguments ps_polord α%type p%ps.
+
 Section Axioms.
 
 (* [null_coeff_range_length fld s n] returns the number of consecutive

@@ -445,7 +445,7 @@ exfalso; apply Hv; reflexivity.
 Qed.
 
 (* TODO: to be correctly defined *)
-Definition krull_eq a b := eq_ps (a - b) 0.
+Definition krull_eq a b := ∀ n, ((ps_terms (a - b)).[n] = 0)%K.
 Arguments krull_eq a%ps b%ps.
 
 Delimit Scope psk_scope with psk.
