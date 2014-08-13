@@ -444,17 +444,37 @@ rewrite Hi in Hv.
 exfalso; apply Hv; reflexivity.
 Qed.
 
-(* TODO: to be correctly defined *)
-Definition krull_eq a b := ∀ n, ((ps_terms (a - b)).[n] = 0)%K.
+Definition krull_eq a b := ∀ i, ∃ p, (a - b = p)%ps ∧ ((ps_terms p).[i] = 0)%K.
 Arguments krull_eq a%ps b%ps.
 
 Delimit Scope psk_scope with psk.
 Notation "a = b" := (krull_eq a b) : psk_scope.
 
-Lemma yyy : ∀ pol₁ ns₁ m q₀ n,
-  (ps_pol_apply (nth_pol n pol₁ ns₁) (root_tail (m * q₀) n pol₁ ns₁) = 0)%psk.
+Lemma yyy : ∀ pol ns pol₁ ns₁ c m q₀ n,
+  ns ∈ newton_segments pol
+  → pol_in_K_1_m pol m
+  → q₀ = q_of_m m (γ ns)
+  → c = ac_root (Φq pol ns)
+  → root_multiplicity acf c (Φq pol ns) = 1%nat
+  → pol₁ = next_pol pol (β ns) (γ ns) c
+  → ns₁ = List.hd phony_ns (newton_segments pol₁)
+  → (ps_pol_apply (nth_pol n pol₁ ns₁) (root_tail (m * q₀) n pol₁ ns₁) = 0)%psk.
 Proof.
-intros pol₁ ns₁ m q₀ n.
+intros pol ns pol₁ ns₁ c m q₀ n Hns Hm Hq₀ Hc Hr Hpol₁ Hns₁.
+intros i.
+remember Hns as H; clear HeqH.
+remember 42 as N.
+eapply root_tail_when_r_1 with (b := n) (n := N) in H; eauto .
+simpl in H.
+exists
+ (ps_pol_apply (nth_pol n pol₁ ns₁)
+    (root_head n N pol₁ ns₁ +
+     ps_monom 1%K (γ_sum n N pol₁ ns₁) *
+     root_tail (m * q₀) (n + S N) pol₁ ns₁))%ps.
+split.
+ rewrite rng_sub_0_r.
+ rewrite H.
+ reflexivity.
 bbb.
 
 Lemma yyy : ∀ pol₁ ns₁ m q₀ n,
