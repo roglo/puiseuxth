@@ -456,7 +456,7 @@ intros pol₁ ns₁ m q₀ n.
 apply series_0_ps_0; intros i.
 bbb.
   blocked... one cannot 'rewrite root_tail_when_r_1' here to allow to
-  put any 'n' value, since not a morphism
+  put any 'n' (of 'root_tail_when_r_1') value, since not a morphism
   ============================
    ((ps_terms
        (ps_pol_apply (nth_pol n pol₁ ns₁) (root_tail (m * q₀) n pol₁ ns₁)))
