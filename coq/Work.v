@@ -444,6 +444,16 @@ rewrite Hi in Hv.
 exfalso; apply Hv; reflexivity.
 Qed.
 
+Definition krull_eq a b := eq_ps a b.
+Arguments krull_eq a%ps b%ps.
+
+Lemma yyy : ∀ pol₁ ns₁ m q₀ n,
+  krull_eq (ps_pol_apply (nth_pol n pol₁ ns₁) (root_tail (m * q₀) n pol₁ ns₁))
+    0.
+Proof.
+intros pol₁ ns₁ m q₀ n.
+bbb.
+
 Lemma yyy : ∀ pol₁ ns₁ m q₀ n,
   (ps_pol_apply (nth_pol n pol₁ ns₁) (root_tail (m * q₀) n pol₁ ns₁) = 0)%ps.
 Proof.
