@@ -33,14 +33,6 @@ Require Import Puiseux.
 
 Set Implicit Arguments.
 
-(*
-Add Parametric Morphism α (R : ring α) : (@ps_pol_apply α R)
-  with signature @ps_pol_eq α R ==> eq_ps ==> eq_ps
-  as ps_pol_apply_morph.
-Proof.
-Hmmm....
-*)
-
 Section theorems.
 
 Variable α : Type.
@@ -225,6 +217,9 @@ Qed.
 
 Theorem eq_Qbar_eq : ∀ a b, a = b → (a = b)%Qbar.
 Proof. intros a b Hab; subst a; reflexivity. Qed.
+
+Theorem eq_Qbar_qinf : ∀ a, (a = ∞)%Qbar → a = ∞%Qbar.
+Proof. intros a H; destruct a; auto; inversion H. Qed.
 
 Lemma root_head_from_cγ_list_succ_r : ∀ pol ns pol₁ ns₁ c n i,
   c = ac_root (Φq pol ns)
