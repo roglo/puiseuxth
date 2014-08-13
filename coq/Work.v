@@ -542,6 +542,7 @@ induction n; intros.
     unfold ps_poly_nth in H₁.
     unfold ps_lap_nth in H₁; simpl in H₁.
 bbb.
+*)
 
 Theorem zzz : ∀ pol ns pol₁ c m,
   ns ∈ newton_segments pol
@@ -549,7 +550,7 @@ Theorem zzz : ∀ pol ns pol₁ c m,
   → c = ac_root (Φq pol ns)
   → root_multiplicity acf c (Φq pol ns) = 1%nat
   → pol₁ = next_pol pol (β ns) (γ ns) c
-  → ∃ s, (ps_pol_apply pol₁ s = 0)%ps.
+  → ∃ s, (ps_pol_apply pol₁ s = 0)%psk.
 Proof.
 intros pol ns pol₁ c m Hns Hm Hc Hr Hpol₁.
 destruct (ps_zerop R (ps_poly_nth 0 pol₁)) as [H₁| H₁].
