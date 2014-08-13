@@ -444,6 +444,7 @@ rewrite Hi in Hv.
 exfalso; apply Hv; reflexivity.
 Qed.
 
+(* TODO: to be correctly defined *)
 Definition krull_eq a b := eq_ps a b.
 Arguments krull_eq a%ps b%ps.
 
