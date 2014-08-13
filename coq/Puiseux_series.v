@@ -133,6 +133,7 @@ Inductive eq_ps {α} {r : ring α} :
   | eq_ps_base : ∀ ps₁ ps₂,
       eq_ps_strong (normalise_ps ps₁) (normalise_ps ps₂)
       → eq_ps ps₁ ps₂.
+Arguments eq_ps _ _ ps₁%ps ps₂%ps.
 
 Definition ps_monom {α} {r : ring α} (c : α) pow :=
   {| ps_terms := {| terms i := if zerop i then c else 0%K |};

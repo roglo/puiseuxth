@@ -445,12 +445,14 @@ exfalso; apply Hv; reflexivity.
 Qed.
 
 (* TODO: to be correctly defined *)
-Definition krull_eq a b := eq_ps a b.
+Definition krull_eq a b := eq_ps (a - b) 0.
 Arguments krull_eq a%ps b%ps.
 
+Delimit Scope psk_scope with psk.
+Notation "a = b" := (krull_eq a b) : psk_scope.
+
 Lemma yyy : ∀ pol₁ ns₁ m q₀ n,
-  krull_eq (ps_pol_apply (nth_pol n pol₁ ns₁) (root_tail (m * q₀) n pol₁ ns₁))
-    0.
+  (ps_pol_apply (nth_pol n pol₁ ns₁) (root_tail (m * q₀) n pol₁ ns₁) = 0)%psk.
 Proof.
 intros pol₁ ns₁ m q₀ n.
 bbb.
