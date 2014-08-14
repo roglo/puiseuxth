@@ -551,14 +551,13 @@ Lemma yyy : ∀ pol ns c₁ pol₁ ns₁ m q₀ n,
   → c₁ = ac_root (Φq pol ns)
   → pol₁ = next_pol pol (β ns) (γ ns) c₁
   → ns₁ = List.hd phony_ns (newton_segments pol₁)
-  → (0 ≤ order (root_tail (m * q₀) (S n) pol₁ ns₁))%Qbar.
+  → (0 ≤ order (root_tail (m * q₀) n pol₁ ns₁))%Qbar.
 Proof.
 intros pol ns c₁ pol₁ ns₁ m q₀ n Hns Hm Hc₁ Hpol₁ Hns₁.
 unfold root_tail.
-remember (zerop_1st_n_const_coeff (S n) pol₁ ns₁) as z₁ eqn:Hz₁ .
+remember (zerop_1st_n_const_coeff n pol₁ ns₁) as z₁ eqn:Hz₁ .
 symmetry in Hz₁.
-destruct z₁.
- rewrite order_0; constructor.
+destruct z₁; [ rewrite order_0; constructor | idtac ].
 bbb.
 
 Theorem zzz : ∀ pol ns pol₁ c m,
