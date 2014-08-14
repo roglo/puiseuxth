@@ -551,28 +551,8 @@ Theorem zzz : ∀ pol ns pol₁ c m,
   → c = ac_root (Φq pol ns)
   → root_multiplicity acf c (Φq pol ns) = 1%nat
   → pol₁ = next_pol pol (β ns) (γ ns) c
-  → ∃ s, (ps_pol_apply pol₁ s = 0)%psk.
+  → ∃ s, (ps_pol_apply pol₁ s = 0)%ps.
 Proof.
-intros pol ns pol₁ c m Hns Hm Hc Hr Hpol₁.
-destruct (ps_zerop R (ps_poly_nth 0 pol₁)) as [H₁| H₁].
- exists 0%ps.
- Focus 2.
- remember (List.hd phony_ns (newton_segments pol₁)) as ns₁ eqn:Hns₁ .
- remember (q_of_m m (γ ns)) as q₀ eqn:Hq₀ .
- remember (root_tail (m * q₀) 0 pol₁ ns₁) as s eqn:Hs .
- exists s; intros i.
- remember (order (ps_pol_apply pol₁ s)) as ofs eqn:Hofs .
- symmetry in Hofs.
- destruct ofs as [ofs| ].
-  Focus 2.
-  exists (ps_pol_apply pol₁ s).
-  split.
-   rewrite rng_sub_0_r; reflexivity.
-
-   apply order_inf in Hofs.
-
-bbb.
-
 intros pol ns pol₁ c m Hns Hm Hc Hr Hpol₁.
 destruct (ps_zerop R (ps_poly_nth 0 pol₁)) as [H₁| H₁].
  exists 0%ps.
@@ -660,5 +640,31 @@ bbb.
            (root_tail (m * q₀) (S N) pol₁ ns₁)))%Qbar
 
   and it depends on N.
+
+(*
+intros pol ns pol₁ c m Hns Hm Hc Hr Hpol₁.
+destruct (ps_zerop R (ps_poly_nth 0 pol₁)) as [H₁| H₁].
+ exists 0%ps.
+ Focus 2.
+ remember (List.hd phony_ns (newton_segments pol₁)) as ns₁ eqn:Hns₁ .
+ remember (q_of_m m (γ ns)) as q₀ eqn:Hq₀ .
+ remember (root_tail (m * q₀) 0 pol₁ ns₁) as s eqn:Hs .
+ exists s; intros i.
+ remember (order (ps_pol_apply pol₁ s)) as ofs eqn:Hofs .
+ symmetry in Hofs.
+ destruct ofs as [ofs| ].
+  Focus 2.
+  exists (ps_pol_apply pol₁ s).
+  split; [ rewrite rng_sub_0_r; reflexivity | idtac ].
+  unfold order in Hofs.
+  remember (ps_terms (ps_pol_apply pol₁ s)) as t eqn:Ht .
+  remember (null_coeff_range_length R t 0) as v eqn:Hv .
+  symmetry in Hv.
+  destruct v; [ discriminate Hofs | idtac ].
+  apply null_coeff_range_length_iff in Hv.
+  unfold null_coeff_range_length_prop in Hv.
+  simpl in Hv; apply Hv.
+bbb.
+*)
 
 End theorems.
