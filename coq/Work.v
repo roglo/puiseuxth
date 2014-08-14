@@ -545,6 +545,22 @@ induction n; intros.
 bbb.
 *)
 
+Lemma yyy : ∀ pol ns c₁ pol₁ ns₁ m q₀ n,
+  ns ∈ newton_segments pol
+  → pol_in_K_1_m pol m
+  → c₁ = ac_root (Φq pol ns)
+  → pol₁ = next_pol pol (β ns) (γ ns) c₁
+  → ns₁ = List.hd phony_ns (newton_segments pol₁)
+  → (0 ≤ order (root_tail (m * q₀) (S n) pol₁ ns₁))%Qbar.
+Proof.
+intros pol ns c₁ pol₁ ns₁ m q₀ n Hns Hm Hc₁ Hpol₁ Hns₁.
+unfold root_tail.
+remember (zerop_1st_n_const_coeff (S n) pol₁ ns₁) as z₁ eqn:Hz₁ .
+symmetry in Hz₁.
+destruct z₁.
+ rewrite order_0; constructor.
+bbb.
+
 Theorem zzz : ∀ pol ns pol₁ c m,
   ns ∈ newton_segments pol
   → pol_in_K_1_m pol m
@@ -631,6 +647,7 @@ destruct (ps_zerop R (ps_poly_nth 0 pol₁)) as [H₁| H₁].
     rewrite <- Hofs.
     apply Qbar.le_sub_le_add_l.
     rewrite Qbar.sub_diag.
+bbb.
     unfold ps_pol_apply.
     unfold apply_poly.
     remember (S N) as SN.
