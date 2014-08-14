@@ -475,6 +475,7 @@ split.
  rewrite rng_sub_0_r.
  rewrite H.
  reflexivity.
+Abort. (*
 bbb.
 
 Lemma yyy : ∀ pol₁ ns₁ m q₀ n,
@@ -552,6 +553,19 @@ Theorem zzz : ∀ pol ns pol₁ c m,
   → pol₁ = next_pol pol (β ns) (γ ns) c
   → ∃ s, (ps_pol_apply pol₁ s = 0)%psk.
 Proof.
+intros pol ns pol₁ c m Hns Hm Hc Hr Hpol₁.
+destruct (ps_zerop R (ps_poly_nth 0 pol₁)) as [H₁| H₁].
+ exists 0%ps.
+ Focus 2.
+ remember (List.hd phony_ns (newton_segments pol₁)) as ns₁ eqn:Hns₁ .
+ remember (q_of_m m (γ ns)) as q₀ eqn:Hq₀ .
+ remember (root_tail (m * q₀) 0 pol₁ ns₁) as s eqn:Hs .
+ exists s.
+ intros i.
+ remember (order (ps_pol_apply pol₁ s)) as ofs eqn:Hofs .
+ symmetry in Hofs.
+bbb.
+
 intros pol ns pol₁ c m Hns Hm Hc Hr Hpol₁.
 destruct (ps_zerop R (ps_poly_nth 0 pol₁)) as [H₁| H₁].
  exists 0%ps.
