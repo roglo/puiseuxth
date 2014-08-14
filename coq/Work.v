@@ -545,19 +545,46 @@ induction n; intros.
 bbb.
 *)
 
-Lemma yyy : ∀ pol ns c₁ pol₁ ns₁ m q₀ n,
+Lemma yyy : ∀ pol ns c pol₁ ns₁ m q₀ n,
   ns ∈ newton_segments pol
   → pol_in_K_1_m pol m
-  → c₁ = ac_root (Φq pol ns)
-  → pol₁ = next_pol pol (β ns) (γ ns) c₁
+  → c = ac_root (Φq pol ns)
+  → root_multiplicity acf c (Φq pol ns) = 1%nat
+  → pol₁ = next_pol pol (β ns) (γ ns) c
   → ns₁ = List.hd phony_ns (newton_segments pol₁)
+  → (ps_poly_nth 0 pol₁ ≠ 0)%ps
   → (0 ≤ order (root_tail (m * q₀) n pol₁ ns₁))%Qbar.
 Proof.
-intros pol ns c₁ pol₁ ns₁ m q₀ n Hns Hm Hc₁ Hpol₁ Hns₁.
+intros pol ns c pol₁ ns₁ m q₀ n Hns Hm Hc Hr Hpol₁ Hns₁ Hnz₁.
 unfold root_tail.
 remember (zerop_1st_n_const_coeff n pol₁ ns₁) as z₁ eqn:Hz₁ .
 symmetry in Hz₁.
 destruct z₁; [ rewrite order_0; constructor | idtac ].
+destruct n.
+ simpl.
+ unfold order; simpl.
+ remember Hns₁ as H; clear HeqH.
+ eapply r_1_next_ns in H; eauto .
+ destruct H as (αj₁, (αk₁, H)).
+ destruct H as (_, (Hini₁, (Hfin₁, (Hαj₁, Hαk₁)))).
+ rewrite Hini₁, Hfin₁; simpl.
+ rewrite Hαk₁; simpl.
+ rewrite Z.add_0_r, Z.mul_1_r, Pos.mul_1_r.
+ remember (root_tail_series_from_cγ_list (m * q₀) pol₁ ns₁) as t.
+ remember (null_coeff_range_length R {| terms := t |} 0) as v eqn:Hv .
+ symmetry in Hv.
+ destruct v; [ idtac | constructor ].
+ apply Qbar.qfin_le_mono.
+ unfold Qle; simpl.
+ rewrite Z.mul_1_r.
+ remember (m * q₀)%positive as m₁.
+ rewrite Pos2Z.inj_mul.
+ rewrite Z.mul_shuffle0.
+ rewrite Z.div_mul_cancel_r; auto.
+ apply Z.add_nonneg_nonneg; [ idtac | apply Nat2Z.is_nonneg ].
+ apply Z.div_pos; [ idtac | apply Pos2Z.is_pos ].
+ apply Z.mul_nonneg_nonneg; auto.
+ apply Z.lt_le_incl; assumption.
 bbb.
 
 Theorem zzz : ∀ pol ns pol₁ c m,
