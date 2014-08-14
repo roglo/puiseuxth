@@ -560,10 +560,17 @@ destruct (ps_zerop R (ps_poly_nth 0 pol₁)) as [H₁| H₁].
  remember (List.hd phony_ns (newton_segments pol₁)) as ns₁ eqn:Hns₁ .
  remember (q_of_m m (γ ns)) as q₀ eqn:Hq₀ .
  remember (root_tail (m * q₀) 0 pol₁ ns₁) as s eqn:Hs .
- exists s.
- intros i.
+ exists s; intros i.
  remember (order (ps_pol_apply pol₁ s)) as ofs eqn:Hofs .
  symmetry in Hofs.
+ destruct ofs as [ofs| ].
+  Focus 2.
+  exists (ps_pol_apply pol₁ s).
+  split.
+   rewrite rng_sub_0_r; reflexivity.
+
+   apply order_inf in Hofs.
+
 bbb.
 
 intros pol ns pol₁ c m Hns Hm Hc Hr Hpol₁.
