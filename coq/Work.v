@@ -641,6 +641,11 @@ destruct (ps_zerop R (ps_poly_nth 0 pol₁)) as [H₁| H₁].
     remember (next_pol pol₁ (β ns₁) (γ ns₁) c₁) as pol₂ eqn:Hpol₂ .
     remember (List.hd phony_ns (newton_segments pol₂)) as ns₂ eqn:Hns₂ .
 bbb.
+   ============================
+    (0
+     ≤ order
+         (ps_pol_apply (nth_pol (S N) pol₁ ns₁)
+            (root_tail (m * q₀) (S N) pol₁ ns₁)))%Qbar
 
 (*
 intros pol ns pol₁ c m Hns Hm Hc Hr Hpol₁.
