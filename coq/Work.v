@@ -617,6 +617,14 @@ induction n; intros.
    eapply multiplicity_1_remains; eauto .
 Qed.
 
+Lemma yyy : ∀ pol y a₀,
+  a₀ = ps_poly_nth 0 pol
+  → (Qbar.min (order a₀) (order y) ≤ order (ps_pol_apply pol y))%Qbar.
+Proof.
+intros pol y a₀ Ha₀.
+eapply Qbar.le_trans; [ apply order_add | idtac ].
+bbb.
+
 Theorem zzz : ∀ pol ns pol₁ c m,
   ns ∈ newton_segments pol
   → pol_in_K_1_m pol m
