@@ -444,6 +444,7 @@ rewrite Hi in Hv.
 exfalso; apply Hv; reflexivity.
 Qed.
 
+(*
 Definition krull_eq a b := ∀ i, ∃ p, (a - b = p)%ps ∧ ((ps_terms p).[i] = 0)%K.
 Arguments krull_eq a%ps b%ps.
 
@@ -475,7 +476,6 @@ split.
  rewrite rng_sub_0_r.
  rewrite H.
  reflexivity.
-Abort. (*
 bbb.
 
 Lemma yyy : ∀ pol₁ ns₁ m q₀ n,
@@ -545,21 +545,22 @@ induction n; intros.
 bbb.
 *)
 
-Lemma yyy : ∀ pol ns c pol₁ ns₁ m q₀ n,
+Lemma order_root_tail_nonneg : ∀ pol ns c pol₁ ns₁ m q₀ n,
   ns ∈ newton_segments pol
   → pol_in_K_1_m pol m
+  → q₀ = q_of_m m (γ ns)
   → c = ac_root (Φq pol ns)
   → root_multiplicity acf c (Φq pol ns) = 1%nat
   → pol₁ = next_pol pol (β ns) (γ ns) c
   → ns₁ = List.hd phony_ns (newton_segments pol₁)
   → (0 ≤ order (root_tail (m * q₀) n pol₁ ns₁))%Qbar.
 Proof.
-intros pol ns c pol₁ ns₁ m q₀ n Hns Hm Hc Hr Hpol₁ Hns₁.
+intros pol ns c pol₁ ns₁ m q₀ n Hns Hm Hq₀ Hc Hr Hpol₁ Hns₁.
 unfold root_tail.
 remember (zerop_1st_n_const_coeff n pol₁ ns₁) as z₁ eqn:Hz₁ .
 symmetry in Hz₁.
 destruct z₁; [ rewrite order_0; constructor | idtac ].
-revert pol ns c pol₁ ns₁ m q₀ Hns Hm Hc Hr Hpol₁ Hns₁ Hz₁.
+revert pol ns c pol₁ ns₁ m q₀ Hns Hm Hq₀ Hc Hr Hpol₁ Hns₁ Hz₁.
 induction n; intros.
  simpl.
  unfold order; simpl.
@@ -589,16 +590,32 @@ induction n; intros.
   rewrite zerop_1st_n_const_coeff_false_iff in Hz₁.
   apply (Hz₁ O); reflexivity.
 
- simpl.
- simpl in Hz₁.
+ simpl in Hz₁; simpl.
  remember (ac_root (Φq pol₁ ns₁)) as c₁ eqn:Hc₁ .
  remember (next_pol pol₁ (β ns₁) (γ ns₁) c₁) as pol₂ eqn:Hpol₂ .
  remember (List.hd phony_ns (newton_segments pol₂)) as ns₂ eqn:Hns₂ .
  destruct (ps_zerop R (ps_poly_nth 0 pol₁)) as [H₁| H₁].
   discriminate Hz₁.
 
+  remember (m * q₀)%positive as m₁.
+  replace m₁ with (m₁ * 1)%positive by apply Pos.mul_1_r.
   eapply IHn with (ns := ns₁) (pol := pol₁); eauto .
-bbb.
+   remember Hns₁ as H; clear HeqH.
+   eapply r_1_next_ns in H; eauto .
+   destruct H as (αj₁, (αk₁, H)).
+   destruct H as (_, (Hini₁, (Hfin₁, (Hαj₁, Hαk₁)))).
+   eapply hd_newton_segments; eauto .
+
+   rewrite Heqm₁.
+   eapply next_pol_in_K_1_mq; eauto .
+
+   symmetry.
+   rewrite Heqm₁.
+   eapply q_eq_1; eauto .
+   eapply next_pol_in_K_1_mq; eauto .
+
+   eapply multiplicity_1_remains; eauto .
+Qed.
 
 Theorem zzz : ∀ pol ns pol₁ c m,
   ns ∈ newton_segments pol
@@ -687,6 +704,12 @@ destruct (ps_zerop R (ps_poly_nth 0 pol₁)) as [H₁| H₁].
     apply Qbar.le_sub_le_add_l.
     rewrite Qbar.sub_diag.
 bbb.
+Using order_root_tail_nonneg, we can prove that
+   order (apply_poly ... (root_tail ... ...)
+   ≥ min (O(a₀), O(root_tail ...))
+   ≥ 0
+(Lemmas to be proved)
+
     unfold ps_pol_apply.
     unfold apply_poly.
     remember (S N) as SN.
