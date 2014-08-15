@@ -559,7 +559,8 @@ unfold root_tail.
 remember (zerop_1st_n_const_coeff n pol₁ ns₁) as z₁ eqn:Hz₁ .
 symmetry in Hz₁.
 destruct z₁; [ rewrite order_0; constructor | idtac ].
-destruct n.
+revert pol ns c pol₁ ns₁ m q₀ Hns Hm Hc Hr Hpol₁ Hns₁ Hz₁.
+induction n; intros.
  simpl.
  unfold order; simpl.
  remember Hns₁ as H; clear HeqH.
@@ -587,6 +588,16 @@ destruct n.
 
   rewrite zerop_1st_n_const_coeff_false_iff in Hz₁.
   apply (Hz₁ O); reflexivity.
+
+ simpl.
+ simpl in Hz₁.
+ remember (ac_root (Φq pol₁ ns₁)) as c₁ eqn:Hc₁ .
+ remember (next_pol pol₁ (β ns₁) (γ ns₁) c₁) as pol₂ eqn:Hpol₂ .
+ remember (List.hd phony_ns (newton_segments pol₂)) as ns₂ eqn:Hns₂ .
+ destruct (ps_zerop R (ps_poly_nth 0 pol₁)) as [H₁| H₁].
+  discriminate Hz₁.
+
+  eapply IHn with (ns := ns₁) (pol := pol₁); eauto .
 bbb.
 
 Theorem zzz : ∀ pol ns pol₁ c m,
