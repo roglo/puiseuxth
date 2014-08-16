@@ -750,11 +750,12 @@ destruct (ps_zerop R (ps_poly_nth 0 pol₁)) as [H₁| H₁].
       move H at top; subst b.
       subst a.
 bbb.
-Using order_root_tail_nonneg, we can prove that
-   order (apply_poly ... (root_tail ... ...)
-   ≥ min (O(a₀), O(root_tail ...))
-   ≥ 0
-(Lemmas to be proved)
+      remember Hns as H; clear HeqH.
+      eapply f₁_orders in H; eauto .
+      destruct H as (Hall, (Haftr, Hforr)).
+      unfold ps_poly_nth in Hall.
+      rewrite Hpol₁ in Hall.
+bbb.
 
     unfold ps_pol_apply.
     unfold apply_poly.
