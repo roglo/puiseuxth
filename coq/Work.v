@@ -627,14 +627,11 @@ unfold apply_lap; simpl.
 unfold ps_poly_nth, ps_lap_nth in Ha₀.
 remember (al pol) as la; clear Heqla.
 subst a₀.
-revert pol y.
-induction la; intros; simpl; [ rewrite order_0; constructor | idtac ].
+destruct la; intros; simpl; [ rewrite order_0; constructor | idtac ].
 eapply Qbar.le_trans; [ idtac | apply order_add ].
 rewrite Qbar.min_comm.
-
+apply Qbar.min_le_compat_r.
 bbb.
-cf Nat.min_le_compat_r: ∀ n m p : nat, n ≤ m → min n p ≤ min m p
-faire une version Qbar.min_le_compat_r, peut-être ?
 
 Theorem zzz : ∀ pol ns pol₁ c m,
   ns ∈ newton_segments pol
