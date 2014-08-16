@@ -749,12 +749,20 @@ destruct (ps_zerop R (ps_poly_nth 0 pol₁)) as [H₁| H₁].
       rewrite Nat.sub_diag in H; simpl in H.
       move H at top; subst b.
       subst a.
-bbb.
-      remember Hns as H; clear HeqH.
+      remember Hns₁ as H; clear HeqH.
+      eapply r_1_next_ns in H; eauto .
+      destruct H as (αj₁, (αk₁, H)).
+      destruct H as (_, (Hini₁, (Hfin₁, (Hαj₁, Hαk₁)))).
+      remember Hns₁ as H; clear HeqH.
+      eapply hd_newton_segments in H; eauto .
+      rename H into Hns₁i.
+      remember Hns₁i as H; clear HeqH.
       eapply f₁_orders in H; eauto .
       destruct H as (Hall, (Haftr, Hforr)).
       unfold ps_poly_nth in Hall.
-      rewrite Hpol₁ in Hall.
+      unfold next_pol in Hall; simpl in Hall.
+      rewrite <- Hla₁ in Hall.
+      apply Hall.
 bbb.
 
     unfold ps_pol_apply.
