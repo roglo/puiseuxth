@@ -22,6 +22,7 @@ Require Import AlgCloCharPol.
 Require Import CharactPolyn.
 Require Import F1Eq.
 Require Import PosOrder.
+Require Import InK1m.
 
 Set Implicit Arguments.
 
@@ -820,23 +821,31 @@ assert (order (ps_lap_nth r (yr * ycj * psy ∘ yc)) = 0)%Qbar as Hor.
   apply nth_g_order_pos; assumption.
 Qed.
 
-Lemma zzz : ∀ pol, ∃ m, pol_in_K_1_m pol m.
+Lemma exists_pol_ord : ∀ pol, ∃ m, pol_in_K_1_m pol m.
 Proof.
 intros pol.
 unfold pol_in_K_1_m.
 exists (ps_list_com_polord (al pol)).
-remember (al pol) as la; clear Heqla.
-induction la as [| a].
- constructor; reflexivity.
+apply ps_lap_forall_forall.
+ intros a b Hab H.
+ rewrite <- Hab; assumption.
 
- destruct (ps_lap_nilp R [a … la]) as [H₁| H₁].
-  constructor; assumption.
+ intros a Ha.
+ remember (al pol) as la; clear Heqla.
+ revert a Ha.
+ induction la as [| b]; intros; [ contradiction | idtac ].
+ simpl in Ha.
+ destruct Ha as [(Hbla, Hba)| Ha]; simpl.
+  constructor.
+  remember (ps_list_com_polord la) as m eqn:Hm .
+  exists (adjust_ps 0 m b).
+  split; [ idtac | rewrite Pos.mul_comm; reflexivity ].
+  transitivity b; [ idtac | assumption ].
+  symmetry; apply ps_adjust_eq.
 
-  constructor 2.
-   assumption.
-
-   constructor.
-bbb.
+  apply in_K_1_m_lap_mul_r_compat.
+  apply IHla, Ha.
+Qed.
 
 (* [Walker, p 101] «
      O(bi) ≥ 0,  i = 0,...,n
@@ -844,9 +853,8 @@ bbb.
      O(br) = 0
    »
 *)
-Theorem f₁_orders : ∀ pol ns m c₁ r f₁,
+Theorem f₁_orders : ∀ pol ns c₁ r f₁,
   ns ∈ newton_segments pol
-  → pol_in_K_1_m pol m
   → c₁ = ac_root (Φq pol ns)
   → r = root_multiplicity acf c₁ (Φq pol ns)
   → f₁ = next_pol pol (β ns) (γ ns) c₁
@@ -854,10 +862,11 @@ Theorem f₁_orders : ∀ pol ns m c₁ r f₁,
     ∧ (∀ i, (i < r)%nat → (order (ps_poly_nth i f₁) > 0)%Qbar)
     ∧ (order (ps_poly_nth r f₁) = 0)%Qbar.
 Proof.
-intros pol ns m c₁ r f₁ Hns Hm Hc₁ Hr Hf₁.
-clear m Hm.
+intros pol ns c₁ r f₁ Hns Hc₁ Hr Hf₁.
 split; [ eapply order_bbar_nonneg; eassumption | idtac ].
 split; [ eapply order_bbar_pos; eassumption | idtac ].
+pose proof (exists_pol_ord pol) as H.
+destruct H as (m, Hm).
 eapply order_bbar_r_is_0; eassumption.
 Qed.
 
