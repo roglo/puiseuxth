@@ -617,13 +617,12 @@ induction n; intros.
    eapply multiplicity_1_remains; eauto .
 Qed.
 
-Lemma yyy : ∀ pol y a₀ a₁,
-  a₀ = ps_poly_nth 0 pol
-  → a₁ = ps_poly_nth 1 pol
-  → (order a₀ > 0)%Qbar
-  → (order a₁ = 0)%Qbar
-  → (Qbar.min (order a₀) (order y) ≤ order (ps_pol_apply pol y))%Qbar.
+Lemma yyy : ∀ pol y,
+  (∀ a, a ∈ al pol → (0 ≤ order a)%Qbar)
+  → (0 ≤ order y)%Qbar
+  → (0 ≤ order (ps_pol_apply pol y))%Qbar.
 Proof.
+bbb.
 intros pol y a₀ a₁ Ha₀ Ha₁ Hoa₀ Hoa₁.
 unfold ps_pol_apply, apply_poly.
 unfold apply_lap; simpl.
@@ -646,6 +645,8 @@ destruct la as [| a₂].
  apply Qbar.min_le_compat_r.
  rewrite order_mul; auto.
 bbb.
+*)
+
 
 Theorem zzz : ∀ pol ns pol₁ c m,
   ns ∈ newton_segments pol
