@@ -733,8 +733,9 @@ destruct (ps_zerop R (ps_poly_nth 0 pol₁)) as [H₁| H₁].
      eapply order_root_tail_nonneg; eauto .
 
      intros a Ha.
-     clear Hu HN.
-     induction N.
+     clear Hu Hofs HN Hη Hz.
+     revert m pol ns c pol₁ ns₁ q₀ Hns Hm Hc Hr Hpol₁ H₁ Hns₁ Hq₀ Ha.
+     induction N; intros.
       simpl in Ha.
       remember (ac_root (Φq pol₁ ns₁)) as c₁ eqn:Hc₁ .
       remember (next_lap (al pol₁) (β ns₁) (γ ns₁) c₁) as la₁ eqn:Hla₁ .
@@ -763,6 +764,15 @@ destruct (ps_zerop R (ps_poly_nth 0 pol₁)) as [H₁| H₁].
       unfold next_pol in Hall; simpl in Hall.
       rewrite <- Hla₁ in Hall.
       apply Hall.
+
+      remember (S N) as SN in Ha; simpl in Ha; subst SN.
+      remember (ac_root (Φq pol₁ ns₁)) as c₁ eqn:Hc₁ .
+      remember (next_pol pol₁ (β ns₁) (γ ns₁) c₁) as pol₂ eqn:Hpol₂ .
+      remember (List.hd phony_ns (newton_segments pol₂)) as ns₂ eqn:Hns₂ .
+      remember (m * q₀)%positive as m₁.
+      destruct (ps_zerop R (ps_poly_nth 0 pol₂)) as [H₂| H₂].
+       Focus 2.
+       eapply IHN with (pol := pol₁) (ns := ns₁) (m := m₁); eauto .
 bbb.
 
     unfold ps_pol_apply.
