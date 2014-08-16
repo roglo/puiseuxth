@@ -617,36 +617,30 @@ induction n; intros.
    eapply multiplicity_1_remains; eauto .
 Qed.
 
-Lemma yyy : ∀ pol y,
+Lemma order_pol_apply_nonneg : ∀ pol y,
   (∀ a, a ∈ al pol → (0 ≤ order a)%Qbar)
   → (0 ≤ order y)%Qbar
   → (0 ≤ order (ps_pol_apply pol y))%Qbar.
 Proof.
-bbb.
-intros pol y a₀ a₁ Ha₀ Ha₁ Hoa₀ Hoa₁.
+intros pol y Ha Hy.
 unfold ps_pol_apply, apply_poly.
-unfold apply_lap; simpl.
-unfold ps_poly_nth, ps_lap_nth in Ha₀, Ha₁.
 remember (al pol) as la; clear Heqla.
-subst a₀.
-destruct la as [| a₀]; simpl; [ rewrite order_0; constructor | idtac ].
-eapply Qbar.le_trans; [ idtac | apply order_add ].
-simpl in Ha₁, Hoa₀.
-destruct la as [| a₂].
- simpl in Ha₁.
- subst a₁; simpl.
- rewrite order_0 in Hoa₁.
- inversion Hoa₁.
+induction la as [| a]; intros; simpl.
+ rewrite order_0; constructor.
 
- simpl.
- simpl in Ha₁.
- subst a₂.
- rewrite Qbar.min_comm.
- apply Qbar.min_le_compat_r.
+ eapply Qbar.le_trans; [ idtac | apply order_add ].
  rewrite order_mul; auto.
-bbb.
-*)
+ apply Qbar.min_glb.
+  eapply Qbar.le_trans; eauto .
+  rewrite Qbar.add_comm.
+  apply Qbar.le_sub_le_add_l.
+  rewrite Qbar.sub_diag.
+  apply IHla.
+  intros b Hb.
+  apply Ha; right; assumption.
 
+  apply Ha; left; reflexivity.
+Qed.
 
 Theorem zzz : ∀ pol ns pol₁ c m,
   ns ∈ newton_segments pol
