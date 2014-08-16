@@ -653,7 +653,16 @@ Proof.
 intros pol ns pol₁ c m Hns Hm Hc Hr Hpol₁.
 destruct (ps_zerop R (ps_poly_nth 0 pol₁)) as [H₁| H₁].
  exists 0%ps.
- Focus 2.
+ unfold ps_pol_apply, apply_poly.
+ unfold apply_lap.
+ unfold ps_poly_nth in H₁.
+ destruct (al pol₁) as [| a la].
+  reflexivity.
+
+  simpl.
+  unfold ps_lap_nth in H₁; simpl in H₁.
+  rewrite rng_mul_0_r, rng_add_0_l; assumption.
+
  remember (List.hd phony_ns (newton_segments pol₁)) as ns₁ eqn:Hns₁ .
  remember (q_of_m m (γ ns)) as q₀ eqn:Hq₀ .
  remember (root_tail (m * q₀) 0 pol₁ ns₁) as s eqn:Hs .
