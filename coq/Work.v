@@ -737,7 +737,18 @@ destruct (ps_zerop R (ps_poly_nth 0 pol₁)) as [H₁| H₁].
      induction N.
       simpl in Ha.
       remember (ac_root (Φq pol₁ ns₁)) as c₁ eqn:Hc₁ .
-      remember (next_pol pol₁ (β ns₁) (γ ns₁) c₁) as pol₂ eqn:Hpol₂ .
+      remember (next_lap (al pol₁) (β ns₁) (γ ns₁) c₁) as la₁ eqn:Hla₁ .
+      apply List.In_split in Ha.
+      destruct Ha as (l₁, (l₂, Ha)).
+      remember (ps_lap_nth (List.length l₁) la₁) as b eqn:Hb .
+      rename H into Huofs.
+      remember Hb as H; clear HeqH.
+      rewrite Ha in H; simpl in H.
+      unfold ps_lap_nth in H; simpl in H.
+      rewrite List.app_nth2 in H; auto.
+      rewrite Nat.sub_diag in H; simpl in H.
+      move H at top; subst b.
+      subst a.
 bbb.
 Using order_root_tail_nonneg, we can prove that
    order (apply_poly ... (root_tail ... ...)
