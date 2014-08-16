@@ -617,20 +617,34 @@ induction n; intros.
    eapply multiplicity_1_remains; eauto .
 Qed.
 
-Lemma yyy : ∀ pol y a₀,
+Lemma yyy : ∀ pol y a₀ a₁,
   a₀ = ps_poly_nth 0 pol
+  → a₁ = ps_poly_nth 1 pol
+  → (order a₀ > 0)%Qbar
+  → (order a₁ = 0)%Qbar
   → (Qbar.min (order a₀) (order y) ≤ order (ps_pol_apply pol y))%Qbar.
 Proof.
-intros pol y a₀ Ha₀.
+intros pol y a₀ a₁ Ha₀ Ha₁ Hoa₀ Hoa₁.
 unfold ps_pol_apply, apply_poly.
 unfold apply_lap; simpl.
-unfold ps_poly_nth, ps_lap_nth in Ha₀.
+unfold ps_poly_nth, ps_lap_nth in Ha₀, Ha₁.
 remember (al pol) as la; clear Heqla.
 subst a₀.
-destruct la; intros; simpl; [ rewrite order_0; constructor | idtac ].
+destruct la as [| a₀]; simpl; [ rewrite order_0; constructor | idtac ].
 eapply Qbar.le_trans; [ idtac | apply order_add ].
-rewrite Qbar.min_comm.
-apply Qbar.min_le_compat_r.
+simpl in Ha₁, Hoa₀.
+destruct la as [| a₂].
+ simpl in Ha₁.
+ subst a₁; simpl.
+ rewrite order_0 in Hoa₁.
+ inversion Hoa₁.
+
+ simpl.
+ simpl in Ha₁.
+ subst a₂.
+ rewrite Qbar.min_comm.
+ apply Qbar.min_le_compat_r.
+ rewrite order_mul; auto.
 bbb.
 
 Theorem zzz : ∀ pol ns pol₁ c m,
