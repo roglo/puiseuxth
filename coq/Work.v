@@ -663,7 +663,8 @@ destruct (ac_zerop 1%K) as [H₀| H₀].
 
      intros a Ha.
      clear Hu Hofs HN Hη Hz.
-     revert m pol ns c pol₁ ns₁ q₀ Hns Hm Hc Hr Hpol₁ H₁ Hns₁ Hq₀ Ha.
+clear H₁.
+     revert m pol ns c pol₁ ns₁ q₀ Hns Hm Hc Hr Hpol₁ (*H₁*) Hns₁ Hq₀ Ha.
      induction N; intros.
       simpl in Ha.
       remember (ac_root (Φq pol₁ ns₁)) as c₁ eqn:Hc₁ .
@@ -679,6 +680,13 @@ destruct (ac_zerop 1%K) as [H₀| H₀].
       rewrite Nat.sub_diag in H; simpl in H.
       move H at top; subst b.
       subst a.
+(**)
+      destruct (ps_zerop R (ps_poly_nth 0 pol₁)) as [H₁| H₁].
+       unfold ps_poly_nth, apply_poly in H₁.
+       destruct l₁ as [| x₁].
+        simpl in Ha; simpl.
+        unfold next_lap in Hla₁.
+bbb.
       remember Hns₁ as H; clear HeqH.
       eapply r_1_next_ns in H; eauto .
       destruct H as (αj₁, (αk₁, H)).
