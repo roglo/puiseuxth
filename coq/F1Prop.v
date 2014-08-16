@@ -820,6 +820,12 @@ assert (order (ps_lap_nth r (yr * ycj * psy ∘ yc)) = 0)%Qbar as Hor.
   apply nth_g_order_pos; assumption.
 Qed.
 
+Lemma zzz : ∀ pol, ∃ m, pol_in_K_1_m pol m.
+Proof.
+intros pol.
+unfold pol_in_K_1_m.
+bbb.
+
 (* [Walker, p 101] «
      O(bi) ≥ 0,  i = 0,...,n
      O(bi) > 0,  i = 0,...,r-1
@@ -837,6 +843,7 @@ Theorem f₁_orders : ∀ pol ns m c₁ r f₁,
     ∧ (order (ps_poly_nth r f₁) = 0)%Qbar.
 Proof.
 intros pol ns m c₁ r f₁ Hns Hm Hc₁ Hr Hf₁.
+clear m Hm.
 split; [ eapply order_bbar_nonneg; eassumption | idtac ].
 split; [ eapply order_bbar_pos; eassumption | idtac ].
 eapply order_bbar_r_is_0; eassumption.

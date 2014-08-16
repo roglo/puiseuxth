@@ -733,6 +733,11 @@ destruct (ps_zerop R (ps_poly_nth 0 pol₁)) as [H₁| H₁].
      eapply order_root_tail_nonneg; eauto .
 
      intros a Ha.
+     clear Hu HN.
+     induction N.
+      simpl in Ha.
+      remember (ac_root (Φq pol₁ ns₁)) as c₁ eqn:Hc₁ .
+      remember (next_pol pol₁ (β ns₁) (γ ns₁) c₁) as pol₂ eqn:Hpol₂ .
 bbb.
 Using order_root_tail_nonneg, we can prove that
    order (apply_poly ... (root_tail ... ...)
