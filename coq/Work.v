@@ -773,6 +773,18 @@ destruct (ps_zerop R (ps_poly_nth 0 pol₁)) as [H₁| H₁].
       destruct (ps_zerop R (ps_poly_nth 0 pol₂)) as [H₂| H₂].
        Focus 2.
        eapply IHN with (pol := pol₁) (ns := ns₁) (m := m₁); eauto .
+        rename H into Huofs.
+        remember Hns₁ as H; clear HeqH.
+        eapply r_1_next_ns in H; eauto .
+        destruct H as (αj₁, (αk₁, H)).
+        destruct H as (_, (Hini₁, (Hfin₁, (Hαj₁, Hαk₁)))).
+        remember Hns₁ as H; clear HeqH.
+        eapply hd_newton_segments in H; eauto .
+
+        rewrite Heqm₁.
+        eapply next_pol_in_K_1_mq with (ns := ns); eauto .
+
+        eapply multiplicity_1_remains with (ns := ns); eauto .
 bbb.
 
     unfold ps_pol_apply.
