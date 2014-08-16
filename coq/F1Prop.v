@@ -824,6 +824,18 @@ Lemma zzz : ∀ pol, ∃ m, pol_in_K_1_m pol m.
 Proof.
 intros pol.
 unfold pol_in_K_1_m.
+exists (ps_list_com_polord (al pol)).
+remember (al pol) as la; clear Heqla.
+induction la as [| a].
+ constructor; reflexivity.
+
+ destruct (ps_lap_nilp R [a … la]) as [H₁| H₁].
+  constructor; assumption.
+
+  constructor 2.
+   assumption.
+
+   constructor.
 bbb.
 
 (* [Walker, p 101] «
