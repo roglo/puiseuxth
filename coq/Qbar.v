@@ -158,6 +158,34 @@ intros n m p Hpn Hpm.
 destruct (min_dec n m) as [H| H]; rewrite H; assumption.
 Qed.
 
+Theorem min_le_compat_r : ∀ n m p, n ≤ m → min n p ≤ min m p.
+Proof.
+intros n m p Hnm.
+unfold min, binop.
+destruct n as [n| ].
+ destruct m as [m| ].
+  destruct p as [p| ]; auto.
+  apply qfin_le_mono in Hnm.
+  apply qfin_le_mono.
+  unfold Qmin.
+  destruct (Qlt_le_dec n p) as [H₁| H₁].
+   destruct (Qlt_le_dec m p) as [H₂| H₂]; auto.
+   apply Qlt_le_weak; assumption.
+
+   destruct (Qlt_le_dec m p) as [H₂| H₂]; [ idtac | apply Qle_refl ].
+   eapply Qle_trans; eauto .
+
+  destruct p as [p| ]; auto.
+  apply qfin_le_mono.
+  unfold Qmin.
+  destruct (Qlt_le_dec n p) as [H₂| H₂]; [ idtac | apply Qle_refl ].
+  apply Qlt_le_weak; assumption.
+
+ destruct m as [m| ]; [ inversion Hnm | idtac ].
+ destruct p as [p| ]; auto.
+ apply qfin_le_mono, Qle_refl.
+Qed.
+
 Theorem lt_irrefl : ∀ x, ¬(x < x).
 Proof.
 intros x H.
