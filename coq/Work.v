@@ -642,6 +642,21 @@ induction la as [| a]; intros; simpl.
   apply Ha; left; reflexivity.
 Qed.
 
+Theorem eq_1_0_ps_0 : (1 = 0)%K → ∀ a, (a = 0)%ps.
+Proof.
+intros H a.
+apply order_inf.
+unfold order.
+remember (null_coeff_range_length R (ps_terms a) 0) as v eqn:Hv .
+symmetry in Hv.
+destruct v as [v| ]; auto.
+apply null_coeff_range_length_iff in Hv.
+unfold null_coeff_range_length_prop in Hv.
+destruct Hv as (_, Hv).
+exfalso; apply Hv; simpl.
+apply eq_1_0_all_0; assumption.
+Qed.
+
 Theorem zzz : ∀ pol ns pol₁ c m,
   ns ∈ newton_segments pol
   → pol_in_K_1_m pol m
@@ -651,39 +666,45 @@ Theorem zzz : ∀ pol ns pol₁ c m,
   → ∃ s, (ps_pol_apply pol₁ s = 0)%ps.
 Proof.
 intros pol ns pol₁ c m Hns Hm Hc Hr Hpol₁.
-destruct (ps_zerop R (ps_poly_nth 0 pol₁)) as [H₁| H₁].
+destruct (ac_zerop 1%K) as [H₀| H₀].
  exists 0%ps.
  unfold ps_pol_apply, apply_poly.
- unfold apply_lap.
- unfold ps_poly_nth in H₁.
- destruct (al pol₁) as [| a la].
-  reflexivity.
+ unfold apply_lap; simpl.
+ remember (al pol₁) as la; clear Heqla.
+ destruct la as [| a]; [ reflexivity | simpl ].
+ rewrite rng_mul_0_r, rng_add_0_l.
+ apply eq_1_0_ps_0; assumption.
 
-  simpl.
+ destruct (ps_zerop R (ps_poly_nth 0 pol₁)) as [H₁| H₁].
+  exists 0%ps.
+  unfold ps_pol_apply, apply_poly.
+  unfold apply_lap.
+  unfold ps_poly_nth in H₁.
+  destruct (al pol₁) as [| a la]; [ reflexivity | simpl ].
   unfold ps_lap_nth in H₁; simpl in H₁.
   rewrite rng_mul_0_r, rng_add_0_l; assumption.
 
- remember (List.hd phony_ns (newton_segments pol₁)) as ns₁ eqn:Hns₁ .
- remember (q_of_m m (γ ns)) as q₀ eqn:Hq₀ .
- remember (root_tail (m * q₀) 0 pol₁ ns₁) as s eqn:Hs .
- exists s.
- apply order_inf.
- remember (order (ps_pol_apply pol₁ s)) as ofs eqn:Hofs .
- symmetry in Hofs.
- destruct ofs as [ofs| ]; [ exfalso | reflexivity ].
- subst s.
- remember (1 # 2 * m * q₀) as η eqn:Hη .
- remember (Z.to_nat (2 * ' m * ' q₀ * Qnum ofs)) as N eqn:HN .
- apply eq_Qbar_eq in Hofs.
- rewrite root_tail_when_r_1 with (n := N) in Hofs; eauto .
- rewrite Nat.add_0_l in Hofs.
- remember (zerop_1st_n_const_coeff N pol₁ ns₁) as z eqn:Hz .
- symmetry in Hz.
- destruct z.
-  Focus 2.
-  rewrite apply_nth_pol in Hofs; auto.
-  rewrite order_mul in Hofs; auto.
-  rewrite ps_monom_order in Hofs.
+  remember (List.hd phony_ns (newton_segments pol₁)) as ns₁ eqn:Hns₁ .
+  remember (q_of_m m (γ ns)) as q₀ eqn:Hq₀ .
+  remember (root_tail (m * q₀) 0 pol₁ ns₁) as s eqn:Hs .
+  exists s.
+  apply order_inf.
+  remember (order (ps_pol_apply pol₁ s)) as ofs eqn:Hofs .
+  symmetry in Hofs.
+  destruct ofs as [ofs| ]; [ exfalso | reflexivity ].
+  subst s.
+  remember (1 # 2 * m * q₀) as η eqn:Hη .
+  remember (Z.to_nat (2 * ' m * ' q₀ * Qnum ofs)) as N eqn:HN .
+  apply eq_Qbar_eq in Hofs.
+  rewrite root_tail_when_r_1 with (n := N) in Hofs; eauto .
+  rewrite Nat.add_0_l in Hofs.
+  remember (zerop_1st_n_const_coeff N pol₁ ns₁) as z eqn:Hz .
+  symmetry in Hz.
+  destruct z.
+   Focus 2.
+   rewrite apply_nth_pol in Hofs; auto.
+   rewrite order_mul in Hofs; auto.
+   rewrite ps_monom_order in Hofs; auto.
    remember Σ (i = 0, N), β (nth_ns i pol₁ ns₁) as u eqn:Hu .
    assert (ofs < u) as H.
     subst u.
