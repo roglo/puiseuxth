@@ -728,6 +728,11 @@ destruct (ps_zerop R (ps_poly_nth 0 pol₁)) as [H₁| H₁].
     rewrite <- Hofs.
     apply Qbar.le_sub_le_add_l.
     rewrite Qbar.sub_diag.
+    apply order_pol_apply_nonneg.
+     Focus 2.
+     eapply order_root_tail_nonneg; eauto .
+
+     intros a Ha.
 bbb.
 Using order_root_tail_nonneg, we can prove that
    order (apply_poly ... (root_tail ... ...)
