@@ -558,24 +558,25 @@ Qed.
 
 Lemma yyy : ∀ pol ns n,
   zerop_1st_n_const_coeff n pol ns = true
-  → ∃ i, i ≤ n
-    → (∀ j, (j < i)%nat → zerop_1st_n_const_coeff n pol ns = false) ∧
-      zerop_1st_n_const_coeff i pol ns = true.
+  → ∃ i,
+    i ≤ n ∧
+    (∀ j, (j < i)%nat → zerop_1st_n_const_coeff n pol ns = false) ∧
+    zerop_1st_n_const_coeff i pol ns = true.
 Proof.
 intros pol ns n Hz.
 revert pol ns Hz.
 induction n; intros.
  exists O.
- intros _.
- split; auto.
+ split; [ reflexivity | idtac ].
+ split; [ idtac | assumption ].
  intros j Hj.
  exfalso; revert Hj; apply Nat.nlt_0_r.
 
  simpl in Hz.
  destruct (ps_zerop R (ps_poly_nth 0 pol)) as [H₁| H₁].
   exists O.
-  intros _.
-  split; auto.
+  split; [ apply Nat.le_0_l | idtac ].
+  split.
    intros j Hj.
    exfalso; revert Hj; apply Nat.nlt_0_r.
 
@@ -583,19 +584,16 @@ induction n; intros.
    destruct (ps_zerop R (ps_poly_nth 0 pol)); auto.
 
   apply IHn in Hz.
-  destruct Hz as (i, Hz).
-bbb.
-  exists i; intros Hi.
-  split.
-   intros j Hj.
-   simpl.
-   destruct (ps_zerop R (ps_poly_nth 0 pol)) as [H₂| H₂].
-    contradiction.
+  destruct Hz as (i, (Hin, (Hji, Hz))).
+  destruct i.
+   exists O.
+   split; [ apply Nat.le_0_l | idtac ].
+   split.
+    intros j Hj.
+    exfalso; revert Hj; apply Nat.nlt_0_r.
 
-    clear H₂.
-    destruct (eq_nat_dec i (S n)) as [H₂| H₂].
-     subst i.
-     clear Hi Hz.
+    simpl.
+    destruct (ps_zerop R (ps_poly_nth 0 pol)); auto.
 bbb.
 *)
 
