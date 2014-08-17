@@ -650,6 +650,8 @@ destruct (ac_zerop 1%K) as [H₀| H₀].
     rewrite rng_mul_0_r, rng_add_0_r in Hofs.
     apply lowest_zerop_1st_n_const_coeff in Hz.
     destruct Hz as (i, (Hin, (Hji, Hz))).
+    exists (root_head 0 i pol₁ ns₁).
+    apply order_inf.
 bbb.
      Focus 2.
      remember (root_tail (m * q₀) 0 pol₁ ns₁) as s eqn:Hs .
