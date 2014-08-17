@@ -556,13 +556,46 @@ exfalso; apply Hv; simpl.
 apply eq_1_0_all_0; assumption.
 Qed.
 
-(*
-Lemma yyy :
+Lemma yyy : ∀ pol ns n,
   zerop_1st_n_const_coeff n pol ns = true
   → ∃ i, i ≤ n
-    → (∀ j, j < i → zerop_1st_n_const_coeff n pol ns = false) ∧
+    → (∀ j, (j < i)%nat → zerop_1st_n_const_coeff n pol ns = false) ∧
       zerop_1st_n_const_coeff i pol ns = true.
 Proof.
+intros pol ns n Hz.
+revert pol ns Hz.
+induction n; intros.
+ exists O.
+ intros _.
+ split; auto.
+ intros j Hj.
+ exfalso; revert Hj; apply Nat.nlt_0_r.
+
+ simpl in Hz.
+ destruct (ps_zerop R (ps_poly_nth 0 pol)) as [H₁| H₁].
+  exists O.
+  intros _.
+  split; auto.
+   intros j Hj.
+   exfalso; revert Hj; apply Nat.nlt_0_r.
+
+   simpl.
+   destruct (ps_zerop R (ps_poly_nth 0 pol)); auto.
+
+  apply IHn in Hz.
+  destruct Hz as (i, Hz).
+bbb.
+  exists i; intros Hi.
+  split.
+   intros j Hj.
+   simpl.
+   destruct (ps_zerop R (ps_poly_nth 0 pol)) as [H₂| H₂].
+    contradiction.
+
+    clear H₂.
+    destruct (eq_nat_dec i (S n)) as [H₂| H₂].
+     subst i.
+     clear Hi Hz.
 bbb.
 *)
 
@@ -608,11 +641,11 @@ destruct (ac_zerop 1%K) as [H₀| H₀].
    remember (zerop_1st_n_const_coeff N pol₁ ns₁) as z eqn:Hz .
    symmetry in Hz.
    destruct z.
-(*
     unfold root_tail in Hofs.
     rewrite <- Nat.add_1_r in Hofs.
     rewrite zerop_1st_n_const_coeff_true_if in Hofs; auto.
     rewrite rng_mul_0_r, rng_add_0_r in Hofs.
+(*
     unfold root_head in Hofs.
     unfold zerop_1st_n_const_coeff in Hofs.
     destruct (ps_zerop R (ps_poly_nth 0 pol₁)) as [H₂| H₂].
