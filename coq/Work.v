@@ -560,7 +560,7 @@ Lemma lowest_zerop_1st_n_const_coeff : ∀ pol ns n,
   zerop_1st_n_const_coeff n pol ns = true
   → ∃ i,
     i ≤ n ∧
-    (∀ j, (j < i)%nat → zerop_1st_n_const_coeff j pol ns = false) ∧
+    (i = O ∨ zerop_1st_n_const_coeff (pred i) pol ns = false) ∧
     zerop_1st_n_const_coeff i pol ns = true.
 Proof.
 intros pol ns n Hz.
@@ -568,38 +568,47 @@ revert pol ns Hz.
 induction n; intros.
  exists O.
  split; [ reflexivity | idtac ].
- split; [ idtac | assumption ].
- intros j Hj.
- exfalso; revert Hj; apply Nat.nlt_0_r.
+ split; [ left; reflexivity | assumption ].
 
  simpl in Hz.
  destruct (ps_zerop R (ps_poly_nth 0 pol)) as [H₁| H₁].
   exists O.
   split; [ apply Nat.le_0_l | idtac ].
-  split.
-   intros j Hj.
-   exfalso; revert Hj; apply Nat.nlt_0_r.
-
-   simpl.
-   destruct (ps_zerop R (ps_poly_nth 0 pol)); auto.
+  split; [ left; reflexivity | simpl ].
+  destruct (ps_zerop R (ps_poly_nth 0 pol)); auto.
 
   apply IHn in Hz.
   destruct Hz as (i, (Hin, (Hji, Hz))).
-  exists (S i).
-  split.
-   apply Nat.succ_le_mono in Hin; assumption.
+  destruct Hji as [Hji| Hji].
+   subst i.
+   simpl in Hz.
+   remember (ac_root (Φq pol ns)) as c eqn:Hc .
+   remember (next_pol pol (β ns) (γ ns) c) as pol₁ eqn:Hpol₁ .
+   destruct (ps_zerop R (ps_poly_nth 0 pol₁)) as [H₂| H₂].
+    exists 1%nat.
+    split; [ fast_omega  | simpl ].
+    destruct (ps_zerop R (ps_poly_nth 0 pol)); [ contradiction | idtac ].
+    split; [ right; reflexivity | idtac ].
+    rewrite <- Hc, <- Hpol₁.
+    destruct (ps_zerop R (ps_poly_nth 0 pol₁)); auto.
 
-   split.
-    intros j Hj.
-    destruct j; simpl.
+    discriminate Hz.
+
+   destruct i.
+    simpl in Hji, Hz.
+    rewrite Hji in Hz.
+    discriminate Hz.
+
+    simpl in Hji.
+    exists (S (S i)).
+    split; [ fast_omega Hin | idtac ].
+    split.
+     right; simpl.
      destruct (ps_zerop R (ps_poly_nth 0 pol)); auto.
      contradiction.
 
-     destruct (ps_zerop R (ps_poly_nth 0 pol)); [ contradiction | idtac ].
-     apply Hji, Nat.succ_lt_mono; assumption.
-
-    simpl.
-    destruct (ps_zerop R (ps_poly_nth 0 pol)); auto.
+     remember (S i) as si; simpl; subst si.
+     destruct (ps_zerop R (ps_poly_nth 0 pol)); auto.
 Qed.
 
 Theorem zzz : ∀ pol ns pol₁ c m,
@@ -648,6 +657,22 @@ destruct (ac_zerop 1%K) as [H₀| H₀].
     rewrite <- Nat.add_1_r in Hofs.
     rewrite zerop_1st_n_const_coeff_true_if in Hofs; auto.
     rewrite rng_mul_0_r, rng_add_0_r in Hofs.
+    destruct N.
+     exists 0%ps.
+     simpl in Hz.
+     destruct (ps_zerop R (ps_poly_nth 0 pol₁)); [ contradiction | idtac ].
+     discriminate Hz.
+
+     apply lowest_zerop_1st_n_const_coeff in Hz.
+     destruct Hz as (i, (Hin, (Hji, Hz))).
+     destruct Hji as [Hi| Hpi].
+      subst i.
+      simpl in Hz.
+      destruct (ps_zerop R (ps_poly_nth 0 pol₁)); [ contradiction | idtac ].
+      discriminate Hz.
+
+      exists (root_head 0 (pred i) pol₁ ns₁).
+bbb.
     apply lowest_zerop_1st_n_const_coeff in Hz.
     destruct Hz as (i, (Hin, (Hji, Hz))).
     destruct i.
