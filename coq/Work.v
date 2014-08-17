@@ -661,9 +661,17 @@ destruct (ac_zerop 1%K) as [H₀| H₀].
      eapply apply_nth_pol with (y := 0%ps) in H.
      rewrite rng_mul_0_r, rng_add_0_r in H.
      rewrite H.
-     apply order_inf.
-     apply eq_Qbar_qinf.
-     rewrite order_mul; auto.
+     unfold ps_pol_apply, apply_poly.
+     remember (S i) as si.
+     unfold apply_lap; simpl.
+     remember (al (nth_pol si pol₁ ns₁)) as la₁ eqn:Hla₁ .
+     symmetry in Hla₁.
+     destruct la₁ as [| a₁].
+      simpl.
+      rewrite rng_mul_0_r; reflexivity.
+
+      simpl.
+      rewrite rng_mul_0_r, rng_add_0_l.
 bbb.
      Focus 2.
      remember (root_tail (m * q₀) 0 pol₁ ns₁) as s eqn:Hs .
