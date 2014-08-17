@@ -600,6 +600,18 @@ destruct (ac_zerop 1%K) as [H₀| H₀].
   remember (zerop_1st_n_const_coeff N pol₁ ns₁) as z eqn:Hz .
   symmetry in Hz.
   destruct z.
+(**)
+   unfold root_tail in Hofs.
+   rewrite <- Nat.add_1_r in Hofs.
+   rewrite zerop_1st_n_const_coeff_true_if in Hofs; auto.
+   rewrite rng_mul_0_r, rng_add_0_r in Hofs.
+   unfold root_head in Hofs.
+   unfold zerop_1st_n_const_coeff in Hofs.
+   destruct (ps_zerop R (ps_poly_nth 0 pol₁)) as [H₂| H₂].
+    contradiction.
+
+    clear H₂.
+bbb.
    Focus 2.
    rewrite apply_nth_pol in Hofs; auto.
    rewrite order_mul in Hofs; auto.
@@ -662,16 +674,21 @@ destruct (ac_zerop 1%K) as [H₀| H₀].
      eapply order_root_tail_nonneg; eauto .
 
      intros a Ha.
+bbb.
      clear Hu Hofs HN Hη Hz.
+(**)
 clear H₁.
-     revert m pol ns c pol₁ ns₁ q₀ Hns Hm Hc Hr Hpol₁ (*H₁*) Hns₁ Hq₀ Ha.
+revert m pol ns c pol₁ ns₁ q₀ Hns Hm Hc Hr Hpol₁ Hns₁ Hq₀ Ha.
+(*
+     revert m pol ns c pol₁ ns₁ q₀ Hns Hm Hc Hr Hpol₁ H₁ Hns₁ Hq₀ Ha.
+*)
      induction N; intros.
       simpl in Ha.
       remember (ac_root (Φq pol₁ ns₁)) as c₁ eqn:Hc₁ .
-      remember (next_lap (al pol₁) (β ns₁) (γ ns₁) c₁) as la₁ eqn:Hla₁ .
+      remember (next_lap (al pol₁) (β ns₁) (γ ns₁) c₁) as la₂ eqn:Hla₂ .
       apply List.In_split in Ha.
       destruct Ha as (l₁, (l₂, Ha)).
-      remember (ps_lap_nth (List.length l₁) la₁) as b eqn:Hb .
+      remember (ps_lap_nth (List.length l₁) la₂) as b eqn:Hb .
       rename H into Huofs.
       remember Hb as H; clear HeqH.
       rewrite Ha in H; simpl in H.
@@ -685,7 +702,7 @@ clear H₁.
        unfold ps_poly_nth, apply_poly in H₁.
        destruct l₁ as [| x₁].
         simpl in Ha; simpl.
-        unfold next_lap in Hla₁.
+        unfold next_lap in Hla₂.
 bbb.
       remember Hns₁ as H; clear HeqH.
       eapply r_1_next_ns in H; eauto .
@@ -699,7 +716,7 @@ bbb.
       destruct H as (Hall, (Haftr, Hforr)).
       unfold ps_poly_nth in Hall.
       unfold next_pol in Hall; simpl in Hall.
-      rewrite <- Hla₁ in Hall.
+      rewrite <- Hla₂ in Hall.
       apply Hall.
 
       remember (S N) as SN in Ha; simpl in Ha; subst SN.
