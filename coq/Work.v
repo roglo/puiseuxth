@@ -672,31 +672,28 @@ destruct (ac_zerop 1%K) as [H₀| H₀].
       discriminate Hz.
 
       exists (root_head 0 (pred i) pol₁ ns₁).
-bbb.
-    apply lowest_zerop_1st_n_const_coeff in Hz.
-    destruct Hz as (i, (Hin, (Hji, Hz))).
-    destruct i.
-     simpl in Hz.
-     destruct (ps_zerop R (ps_poly_nth 0 pol₁)); [ contradiction | idtac ].
-     discriminate Hz.
+      destruct i.
+       rewrite Nat.pred_0 in Hpi.
+       rewrite Hpi in Hz; discriminate Hz.
 
-     exists (root_head 0 i pol₁ ns₁).
-     assert (i < S i)%nat as H by (apply Nat.lt_succ_r; reflexivity).
-     apply Hji in H.
-     eapply apply_nth_pol with (y := 0%ps) in H.
-     rewrite rng_mul_0_r, rng_add_0_r in H.
-     rewrite H.
-     unfold ps_pol_apply, apply_poly.
-     remember (S i) as si.
-     unfold apply_lap; simpl.
-     remember (al (nth_pol si pol₁ ns₁)) as la₁ eqn:Hla₁ .
-     symmetry in Hla₁.
-     destruct la₁ as [| a₁].
-      simpl.
-      rewrite rng_mul_0_r; reflexivity.
+       rewrite Nat.pred_succ in Hpi.
+       rewrite Nat.pred_succ.
+       remember Hpi as H; clear HeqH.
+       eapply apply_nth_pol with (y := 0%ps) in H.
+       rewrite rng_mul_0_r, rng_add_0_r in H.
+       rewrite H.
+       unfold ps_pol_apply, apply_poly.
+       remember (S i) as si.
+       unfold apply_lap; simpl.
+       remember (al (nth_pol si pol₁ ns₁)) as la₁ eqn:Hla₁ .
+       symmetry in Hla₁.
+       destruct la₁ as [| a₁].
+        simpl.
+        rewrite rng_mul_0_r; reflexivity.
 
-      simpl.
-      rewrite rng_mul_0_r, rng_add_0_l.
+        simpl.
+        rewrite rng_mul_0_r, rng_add_0_l.
+        subst si.
 bbb.
      Focus 2.
      remember (root_tail (m * q₀) 0 pol₁ ns₁) as s eqn:Hs .
