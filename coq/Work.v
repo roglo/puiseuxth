@@ -650,8 +650,20 @@ destruct (ac_zerop 1%K) as [H₀| H₀].
     rewrite rng_mul_0_r, rng_add_0_r in Hofs.
     apply lowest_zerop_1st_n_const_coeff in Hz.
     destruct Hz as (i, (Hin, (Hji, Hz))).
-    exists (root_head 0 i pol₁ ns₁).
-    apply order_inf.
+    destruct i.
+     simpl in Hz.
+     destruct (ps_zerop R (ps_poly_nth 0 pol₁)); [ contradiction | idtac ].
+     discriminate Hz.
+
+     exists (root_head 0 i pol₁ ns₁).
+     assert (i < S i)%nat as H by (apply Nat.lt_succ_r; reflexivity).
+     apply Hji in H.
+     eapply apply_nth_pol with (y := 0%ps) in H.
+     rewrite rng_mul_0_r, rng_add_0_r in H.
+     rewrite H.
+     apply order_inf.
+     apply eq_Qbar_qinf.
+     rewrite order_mul; auto.
 bbb.
      Focus 2.
      remember (root_tail (m * q₀) 0 pol₁ ns₁) as s eqn:Hs .
