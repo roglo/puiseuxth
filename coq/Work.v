@@ -556,11 +556,11 @@ exfalso; apply Hv; simpl.
 apply eq_1_0_all_0; assumption.
 Qed.
 
-Lemma yyy : ∀ pol ns n,
+Lemma lowest_zerop_1st_n_const_coeff : ∀ pol ns n,
   zerop_1st_n_const_coeff n pol ns = true
   → ∃ i,
     i ≤ n ∧
-    (∀ j, (j < i)%nat → zerop_1st_n_const_coeff n pol ns = false) ∧
+    (∀ j, (j < i)%nat → zerop_1st_n_const_coeff j pol ns = false) ∧
     zerop_1st_n_const_coeff i pol ns = true.
 Proof.
 intros pol ns n Hz.
@@ -585,17 +585,22 @@ induction n; intros.
 
   apply IHn in Hz.
   destruct Hz as (i, (Hin, (Hji, Hz))).
-  destruct i.
-   exists O.
-   split; [ apply Nat.le_0_l | idtac ].
+  exists (S i).
+  split.
+   apply Nat.succ_le_mono in Hin; assumption.
+
    split.
     intros j Hj.
-    exfalso; revert Hj; apply Nat.nlt_0_r.
+    destruct j; simpl.
+     destruct (ps_zerop R (ps_poly_nth 0 pol)); auto.
+     contradiction.
+
+     destruct (ps_zerop R (ps_poly_nth 0 pol)); [ contradiction | idtac ].
+     apply Hji, Nat.succ_lt_mono; assumption.
 
     simpl.
     destruct (ps_zerop R (ps_poly_nth 0 pol)); auto.
-bbb.
-*)
+Qed.
 
 Theorem zzz : ∀ pol ns pol₁ c m,
   ns ∈ newton_segments pol
@@ -643,14 +648,8 @@ destruct (ac_zerop 1%K) as [H₀| H₀].
     rewrite <- Nat.add_1_r in Hofs.
     rewrite zerop_1st_n_const_coeff_true_if in Hofs; auto.
     rewrite rng_mul_0_r, rng_add_0_r in Hofs.
-(*
-    unfold root_head in Hofs.
-    unfold zerop_1st_n_const_coeff in Hofs.
-    destruct (ps_zerop R (ps_poly_nth 0 pol₁)) as [H₂| H₂].
-     contradiction.
-
-     clear H₂.
-*)
+    apply lowest_zerop_1st_n_const_coeff in Hz.
+    destruct Hz as (i, (Hin, (Hji, Hz))).
 bbb.
      Focus 2.
      remember (root_tail (m * q₀) 0 pol₁ ns₁) as s eqn:Hs .
