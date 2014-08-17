@@ -586,94 +586,93 @@ destruct (ac_zerop 1%K) as [H₀| H₀].
   remember (List.hd phony_ns (newton_segments pol₁)) as ns₁ eqn:Hns₁ .
   remember (q_of_m m (γ ns)) as q₀ eqn:Hq₀ .
   remember (root_tail (m * q₀) 0 pol₁ ns₁) as s eqn:Hs .
-  exists s.
-  apply order_inf.
   remember (order (ps_pol_apply pol₁ s)) as ofs eqn:Hofs .
   symmetry in Hofs.
-  destruct ofs as [ofs| ]; [ exfalso | reflexivity ].
-  subst s.
-  remember (1 # 2 * m * q₀) as η eqn:Hη .
-  remember (Z.to_nat (2 * ' m * ' q₀ * Qnum ofs)) as N eqn:HN .
-  apply eq_Qbar_eq in Hofs.
-  rewrite root_tail_when_r_1 with (n := N) in Hofs; eauto .
-  rewrite Nat.add_0_l in Hofs.
-  remember (zerop_1st_n_const_coeff N pol₁ ns₁) as z eqn:Hz .
-  symmetry in Hz.
-  destruct z.
-(**)
-   unfold root_tail in Hofs.
-   rewrite <- Nat.add_1_r in Hofs.
-   rewrite zerop_1st_n_const_coeff_true_if in Hofs; auto.
-   rewrite rng_mul_0_r, rng_add_0_r in Hofs.
-   unfold root_head in Hofs.
-   unfold zerop_1st_n_const_coeff in Hofs.
-   destruct (ps_zerop R (ps_poly_nth 0 pol₁)) as [H₂| H₂].
-    contradiction.
+  destruct ofs as [ofs| ].
+   subst s.
+   remember (1 # 2 * m * q₀) as η eqn:Hη .
+   remember (Z.to_nat (2 * ' m * ' q₀ * Qnum ofs)) as N eqn:HN .
+   apply eq_Qbar_eq in Hofs.
+   rewrite root_tail_when_r_1 with (n := N) in Hofs; eauto .
+   rewrite Nat.add_0_l in Hofs.
+   remember (zerop_1st_n_const_coeff N pol₁ ns₁) as z eqn:Hz .
+   symmetry in Hz.
+   destruct z.
+    unfold root_tail in Hofs.
+    rewrite <- Nat.add_1_r in Hofs.
+    rewrite zerop_1st_n_const_coeff_true_if in Hofs; auto.
+    rewrite rng_mul_0_r, rng_add_0_r in Hofs.
+    unfold root_head in Hofs.
+    unfold zerop_1st_n_const_coeff in Hofs.
+    destruct (ps_zerop R (ps_poly_nth 0 pol₁)) as [H₂| H₂].
+     contradiction.
 
-    clear H₂.
-bbb.
-   Focus 2.
-   rewrite apply_nth_pol in Hofs; auto.
-   rewrite order_mul in Hofs; auto.
-   rewrite ps_monom_order in Hofs; auto.
-   remember Σ (i = 0, N), β (nth_ns i pol₁ ns₁) as u eqn:Hu .
-   assert (ofs < u) as H.
-    subst u.
-    assert (∀ i, i ≤ N → η < β (nth_ns i pol₁ ns₁)).
-     intros i Hi.
-     subst c q₀.
-     assert (zerop_1st_n_const_coeff i pol₁ ns₁ = false).
-      rewrite zerop_1st_n_const_coeff_false_iff in Hz.
-      apply zerop_1st_n_const_coeff_false_iff.
-      intros j Hj.
-      apply Hz.
-      transitivity i; assumption.
-
-      eapply β_lower_bound with (n := i); eauto .
-
-     apply summation_all_lt in H.
-     eapply Qle_lt_trans; eauto .
-     rewrite Hη, HN.
-     rewrite <- Pos2Z.inj_mul.
-     rewrite <- Pos2Z.inj_mul.
-     remember (2 * m * q₀)%positive as mq eqn:Hmq .
-     rewrite Z.mul_comm.
-     rewrite Z2Nat_inj_mul_pos_r.
-     unfold Qle; simpl.
-     rewrite Pos.mul_1_r.
-     rewrite Pos2Z.inj_mul.
-     rewrite Zpos_P_of_succ_nat.
-     rewrite Nat2Z.inj_mul.
-     remember (Qnum ofs) as nofs eqn:Hnofs .
-     symmetry in Hnofs.
-     destruct nofs as [| nofs| nofs]; simpl; auto.
-      rewrite positive_nat_Z.
-      rewrite Z.mul_succ_l.
-      rewrite positive_nat_Z.
-      rewrite <- Pos2Z.inj_mul.
-      rewrite <- Z.mul_1_r in |- * at 1.
-      eapply Z.le_trans.
-       apply Z.mul_le_mono_nonneg_l with (m := (' Qden ofs)%Z); auto.
-       rewrite Z.one_succ.
-       apply Zlt_le_succ.
-       apply Pos2Z.is_pos.
-
-       apply Z.le_sub_le_add_l.
-       rewrite Z.sub_diag; auto.
-
-      apply Zle_neg_pos.
-
-    apply Qlt_not_le in H.
-    apply H.
-    apply Qbar.qfin_le_mono.
-    rewrite <- Hofs.
-    apply Qbar.le_sub_le_add_l.
-    rewrite Qbar.sub_diag.
-    apply order_pol_apply_nonneg.
+     clear H₂.
      Focus 2.
-     eapply order_root_tail_nonneg; eauto .
+     remember (root_tail (m * q₀) 0 pol₁ ns₁) as s eqn:Hs .
+     exists s.
+     apply order_inf.
+     rewrite apply_nth_pol in Hofs; auto.
+     rewrite order_mul in Hofs; auto.
+     rewrite ps_monom_order in Hofs; auto.
+     remember Σ (i = 0, N), β (nth_ns i pol₁ ns₁) as u eqn:Hu .
+     assert (ofs < u) as H.
+      subst u.
+      assert (∀ i, i ≤ N → η < β (nth_ns i pol₁ ns₁)).
+       intros i Hi.
+       subst c q₀.
+       assert (zerop_1st_n_const_coeff i pol₁ ns₁ = false).
+        rewrite zerop_1st_n_const_coeff_false_iff in Hz.
+        apply zerop_1st_n_const_coeff_false_iff.
+        intros j Hj.
+        apply Hz.
+        transitivity i; assumption.
 
-     intros a Ha.
+        eapply β_lower_bound with (n := i); eauto .
+
+       apply summation_all_lt in H.
+       eapply Qle_lt_trans; eauto .
+       rewrite Hη, HN.
+       rewrite <- Pos2Z.inj_mul.
+       rewrite <- Pos2Z.inj_mul.
+       remember (2 * m * q₀)%positive as mq eqn:Hmq .
+       rewrite Z.mul_comm.
+       rewrite Z2Nat_inj_mul_pos_r.
+       unfold Qle; simpl.
+       rewrite Pos.mul_1_r.
+       rewrite Pos2Z.inj_mul.
+       rewrite Zpos_P_of_succ_nat.
+       rewrite Nat2Z.inj_mul.
+       remember (Qnum ofs) as nofs eqn:Hnofs .
+       symmetry in Hnofs.
+       destruct nofs as [| nofs| nofs]; simpl; auto.
+        rewrite positive_nat_Z.
+        rewrite Z.mul_succ_l.
+        rewrite positive_nat_Z.
+        rewrite <- Pos2Z.inj_mul.
+        rewrite <- Z.mul_1_r in |- * at 1.
+        eapply Z.le_trans.
+         apply Z.mul_le_mono_nonneg_l with (m := (' Qden ofs)%Z); auto.
+         rewrite Z.one_succ.
+         apply Zlt_le_succ.
+         apply Pos2Z.is_pos.
+
+         apply Z.le_sub_le_add_l.
+         rewrite Z.sub_diag; auto.
+
+        apply Zle_neg_pos.
+
+      apply Qlt_not_le in H.
+      exfalso; apply H.
+      apply Qbar.qfin_le_mono.
+      rewrite <- Hofs.
+      apply Qbar.le_sub_le_add_l.
+      rewrite Qbar.sub_diag.
+      apply order_pol_apply_nonneg.
+       Focus 2.
+       eapply order_root_tail_nonneg; eauto .
+
+       intros a Ha.
 bbb.
      clear Hu Hofs HN Hη Hz.
 (**)
