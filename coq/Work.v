@@ -556,6 +556,16 @@ exfalso; apply Hv; simpl.
 apply eq_1_0_all_0; assumption.
 Qed.
 
+(*
+Lemma yyy :
+  zerop_1st_n_const_coeff n pol ns = true
+  → ∃ i, i ≤ n
+    → (∀ j, j < i → zerop_1st_n_const_coeff n pol ns = false) ∧
+      zerop_1st_n_const_coeff i pol ns = true.
+Proof.
+bbb.
+*)
+
 Theorem zzz : ∀ pol ns pol₁ c m,
   ns ∈ newton_segments pol
   → pol_in_K_1_m pol m
@@ -598,6 +608,7 @@ destruct (ac_zerop 1%K) as [H₀| H₀].
    remember (zerop_1st_n_const_coeff N pol₁ ns₁) as z eqn:Hz .
    symmetry in Hz.
    destruct z.
+(*
     unfold root_tail in Hofs.
     rewrite <- Nat.add_1_r in Hofs.
     rewrite zerop_1st_n_const_coeff_true_if in Hofs; auto.
@@ -608,6 +619,8 @@ destruct (ac_zerop 1%K) as [H₀| H₀].
      contradiction.
 
      clear H₂.
+*)
+bbb.
      Focus 2.
      remember (root_tail (m * q₀) 0 pol₁ ns₁) as s eqn:Hs .
      exists s.
