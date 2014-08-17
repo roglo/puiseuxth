@@ -694,6 +694,72 @@ destruct (ac_zerop 1%K) as [H₀| H₀].
         simpl.
         rewrite rng_mul_0_r, rng_add_0_l.
         subst si.
+        simpl in Hla₁, Hz.
+        destruct (ps_zerop R (ps_poly_nth 0 pol₁)) as [H₂| H₂].
+         contradiction.
+
+         remember (ac_root (Φq pol₁ ns₁)) as c₁ eqn:Hc₁ .
+         remember (next_pol pol₁ (β ns₁) (γ ns₁) c₁) as pol₂ eqn:Hpol₂ .
+         remember (List.hd phony_ns (newton_segments pol₂)) as ns₂ eqn:Hns₂ .
+         clear H₂.
+         destruct i.
+          simpl in Hz.
+          destruct (ps_zerop R (ps_poly_nth 0 pol₂)) as [H₂| H₂].
+           unfold ps_poly_nth in H₂.
+           simpl in Hla₁.
+           rewrite Hla₁ in H₂.
+           unfold ps_lap_nth in H₂; simpl in H₂.
+           rewrite H₂.
+           rewrite rng_mul_0_r; reflexivity.
+
+           discriminate Hz.
+
+          apply zerop_1st_n_const_coeff_true_if with (n := 1%nat) in Hz.
+          rewrite Nat.add_1_r in Hz.
+          remember (S i) as si; simpl in Hz; subst si.
+          simpl in Hla₁.
+          destruct (ps_zerop R (ps_poly_nth 0 pol₂)) as [H₂| H₂].
+           simpl in Hpi.
+           destruct (ps_zerop R (ps_poly_nth 0 pol₁)) as [H₃| H₃].
+            discriminate Hpi.
+
+            clear H₃.
+            rewrite <- Hc₁, <- Hpol₂, <- Hns₂ in Hpi.
+            clear Hz.
+            remember (ac_root (Φq pol₂ ns₂)) as c₂ eqn:Hc₂ .
+            remember (next_pol pol₂ (β ns₂) (γ ns₂) c₂) as pol₃ eqn:Hpol₃ .
+            remember (List.hd phony_ns (newton_segments pol₃)) as ns₃
+             eqn:Hns₃ .
+            destruct i.
+             simpl in Hpi, Hla₁.
+             unfold ps_poly_nth in H₂.
+             destruct (ps_zerop R (ps_poly_nth 0 pol₂)) as [H₃| H₃].
+              discriminate Hpi.
+
+              contradiction.
+
+             simpl in Hpi, Hla₁.
+             unfold ps_poly_nth in H₂.
+             destruct (ps_zerop R (ps_poly_nth 0 pol₂)) as [H₃| H₃].
+              discriminate Hpi.
+
+              contradiction.
+
+           simpl in Hpi.
+           destruct (ps_zerop R (ps_poly_nth 0 pol₁)) as [H₃| H₃].
+            discriminate Hpi.
+
+            clear H₃.
+            rewrite <- Hc₁, <- Hpol₂, <- Hns₂ in Hpi.
+            remember (ac_root (Φq pol₂ ns₂)) as c₂ eqn:Hc₂ .
+            remember (next_pol pol₂ (β ns₂) (γ ns₂) c₂) as pol₃ eqn:Hpol₃ .
+            remember (List.hd phony_ns (newton_segments pol₃)) as ns₃
+             eqn:Hns₃ .
+            destruct i.
+             simpl in Hpi, Hla₁.
+             unfold ps_poly_nth in H₂.
+             destruct (ps_zerop R (ps_poly_nth 0 pol₂)) as [H₃| H₃].
+              discriminate Hpi.
 bbb.
      Focus 2.
      remember (root_tail (m * q₀) 0 pol₁ ns₁) as s eqn:Hs .
