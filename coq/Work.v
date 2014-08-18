@@ -853,4 +853,20 @@ destruct (ac_zerop 1%K) as [H₀| H₀].
    apply order_inf; assumption.
 Qed.
 
+Theorem zzz : ∀ pol ns n cn,
+  ns ∈ newton_segments pol
+  → cn = ac_root (Φq (nth_pol n pol ns) (nth_ns n pol ns))
+  → root_multiplicity acf cn (Φq (nth_pol n pol ns) (nth_ns n pol ns)) = 1%nat
+  → ∃ s, (ps_pol_apply pol s = 0)%ps.
+Proof.
+intros pol ns n cn Hns Hcn Hrn.
+revert pol ns cn Hns Hcn Hrn.
+induction n; intros.
+ simpl in Hcn, Hrn.
+ remember (next_pol pol (β ns) (γ ns) cn) as pol₁ eqn:Hpol₁ .
+ remember Hrn as H; clear HeqH.
+ apply root_when_r_eq_1_at_once with (pol₁ := pol₁) in H; auto.
+ destruct H as (s, Hs).
+bbb.
+
 End theorems.
