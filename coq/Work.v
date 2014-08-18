@@ -714,9 +714,10 @@ destruct (ac_zerop 1%K) as [H₀| H₀].
 
            discriminate Hz.
 
-          apply zerop_1st_n_const_coeff_true_if with (n := 1%nat) in Hz.
-          rewrite Nat.add_1_r in Hz.
-          remember (S i) as si; simpl in Hz; subst si.
+          remember Hz as Hz₁; clear HeqHz₁.
+          apply zerop_1st_n_const_coeff_true_if with (n := 1%nat) in Hz₁.
+          rewrite Nat.add_1_r in Hz₁.
+          remember (S i) as si; simpl in Hz₁; subst si.
           simpl in Hla₁.
           destruct (ps_zerop R (ps_poly_nth 0 pol₂)) as [H₂| H₂].
            simpl in Hpi.
@@ -725,7 +726,7 @@ destruct (ac_zerop 1%K) as [H₀| H₀].
 
             clear H₃.
             rewrite <- Hc₁, <- Hpol₂, <- Hns₂ in Hpi.
-            clear Hz.
+            clear Hz₁.
             remember (ac_root (Φq pol₂ ns₂)) as c₂ eqn:Hc₂ .
             remember (next_pol pol₂ (β ns₂) (γ ns₂) c₂) as pol₃ eqn:Hpol₃ .
             remember (List.hd phony_ns (newton_segments pol₃)) as ns₃
@@ -760,6 +761,20 @@ destruct (ac_zerop 1%K) as [H₀| H₀].
              unfold ps_poly_nth in H₂.
              destruct (ps_zerop R (ps_poly_nth 0 pol₂)) as [H₃| H₃].
               discriminate Hpi.
+
+              simpl in Hz.
+              destruct (ps_zerop R (ps_poly_nth 0 pol₂)) as [H₄| H₄].
+               contradiction.
+
+               rewrite <- Hc₂, <- Hpol₃ in Hz.
+               clear H₄.
+               destruct (ps_zerop R (ps_poly_nth 0 pol₃)) as [H₄| H₄].
+                unfold ps_poly_nth in H₄.
+                rewrite Hla₁ in H₄; simpl in H₄.
+                unfold ps_lap_nth in H₄; simpl in H₄.
+                rewrite H₄, rng_mul_0_r; reflexivity.
+
+                discriminate Hz.
 bbb.
      Focus 2.
      remember (root_tail (m * q₀) 0 pol₁ ns₁) as s eqn:Hs .
