@@ -832,6 +832,11 @@ destruct (ac_zerop 1%K) as [H₀| H₀].
 
         symmetry.
         apply nth_c_root; eauto .
+
+       rewrite zerop_1st_n_const_coeff_false_iff in Hz.
+       remember (m * q₀)%positive as m₁.
+       eapply nth_in_newton_segments with (ns₁ := ns₁) (m := m₁); eauto .
+        eapply hd_newton_segments; eauto .
 bbb.
      clear Hu Hofs HN Hη Hz.
 (**)
