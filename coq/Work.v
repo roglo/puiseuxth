@@ -863,25 +863,33 @@ Theorem zzz : ∀ pol ns,
   → ∃ s, (ps_pol_apply pol s = 0)%ps.
 Proof.
 intros pol ns Hns Hr.
-pose proof (exists_pol_ord R pol) as H.
-destruct H as (m, Hm).
-remember (q_of_m m (γ ns)) as q₀ eqn:Hq₀ .
 destruct Hr as (n, Hr).
 remember (nth_pol n pol ns) as poln eqn:Hpoln  in |- *.
 remember (nth_ns n pol ns) as nsn eqn:Hnsn  in |- *.
 remember (nth_c n pol ns) as cn eqn:Hcn  in |- *.
+remember (zerop_1st_n_const_coeff n pol ns) as z eqn:Hz .
+symmetry in Hz.
+pose proof (exists_pol_ord R pol) as H.
+destruct H as (m, Hm).
+remember (q_of_m m (γ ns)) as q₀ eqn:Hq₀ .
 remember Hpoln as H; clear HeqH.
 eapply Hr in H; eauto .
 clear Hr.
 rename H into Hrn.
 remember (next_pol poln (β nsn) (γ nsn) cn) as polSn eqn:HpolSn .
 remember Hrn as H; clear HeqH.
-eapply root_when_r_eq_1_at_once with (pol₁ := polSn) in H; eauto .
- destruct H as (s, Hs).
- exists (root_head 0 n pol ns + ps_monom 1%K (γ_sum 0 n pol ns) * s)%ps.
- (* must first discriminate the case when zerop_1st_n_const_coeff n pol ns
-    is true *)
- rewrite apply_nth_pol.
+destruct z.
+ Focus 2.
+ eapply root_when_r_eq_1_at_once with (pol₁ := polSn) in H; eauto .
+  destruct H as (s, Hs).
+  exists (root_head 0 n pol ns + ps_monom 1%K (γ_sum 0 n pol ns) * s)%ps.
+  rewrite apply_nth_pol; eauto ; simpl.
+  erewrite <- nth_pol_n; eauto .
+  erewrite <- nth_c_root; eauto .
+  rewrite <- Hcn, <- HpolSn, Hs.
+  rewrite rng_mul_0_r; reflexivity.
+
+  rewrite zerop_1st_n_const_coeff_false_iff in Hz.
 bbb.
 
 End theorems.
