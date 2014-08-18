@@ -159,7 +159,7 @@ eapply r_1_next_ns in H; eauto .
 destruct H as (αj₁, (αk₁, H)).
 destruct H as (_, (Hini₁, (Hfin₁, (Hαj₁, Hαk₁)))).
 remember Hns₁ as H; clear HeqH.
-eapply hd_newton_segments in H; eauto .
+eapply hd_newton_segments₉ in H; eauto .
 rename H into Hns₁i.
 remember HK₁ as H; clear HeqH.
 eapply lap_forall_nth with (ns := ns₁) in H; eauto .
@@ -503,7 +503,7 @@ induction n; intros.
    eapply r_1_next_ns in H; eauto .
    destruct H as (αj₁, (αk₁, H)).
    destruct H as (_, (Hini₁, (Hfin₁, (Hαj₁, Hαk₁)))).
-   eapply hd_newton_segments; eauto .
+   eapply hd_newton_segments₉; eauto .
 
    rewrite Heqm₁.
    eapply next_pol_in_K_1_mq; eauto .
@@ -842,7 +842,7 @@ destruct (ac_zerop 1%K) as [H₀| H₀].
         eapply r_1_next_ns in H; eauto .
         destruct H as (αj₁, (αk₁, H)).
         destruct H as (_, (Hini₁, (Hfin₁, (Hαj₁, Hαk₁)))).
-        eapply hd_newton_segments; eauto .
+        eapply hd_newton_segments₉; eauto .
 
         rewrite Heqm₁.
         eapply next_pol_in_K_1_mq; eauto .
