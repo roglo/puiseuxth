@@ -3112,7 +3112,8 @@ destruct z₁.
      eapply r_1_next_ns with (pol := pol₁) in H; eauto .
      destruct H as (αj₂, (αk₂, H)).
      destruct H as (Hoth₂, (Hini₂, (Hfin₂, (Hαj₂, Hαk₂)))).
-     eapply hd_newton_segments₉; eauto .
+     eapply List_hd_in; eauto .
+     intros H; rewrite H in Hns₂; subst ns₂; discriminate Hfin₂.
 
      remember (ac_root (Φq pol₂ ns₂)) as c₂ eqn:Hc₂ .
      assert (root_multiplicity acf c₂ (Φq pol₂ ns₂) = 1%nat) as Hr₂.
@@ -3368,7 +3369,10 @@ destruct z₁.
                          eapply
                           num_m_den_is_pos with (ns := nsn₃) (pol := poln₃);
                           eauto .
-                          eapply hd_newton_segments₉; eauto .
+                          eapply List_hd_in; eauto .
+                          intros H; rewrite H in Heqnsn₃.
+                          rewrite Heqnsn₃ in Hfinn₃.
+                          discriminate Hfinn₃.
 
                           replace m₁ with (m₁ * 1)%positive
                            by apply Pos.mul_1_r.
