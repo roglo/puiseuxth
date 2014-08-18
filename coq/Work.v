@@ -836,114 +836,20 @@ destruct (ac_zerop 1%K) as [H₀| H₀].
        rewrite zerop_1st_n_const_coeff_false_iff in Hz.
        remember (m * q₀)%positive as m₁.
        eapply nth_in_newton_segments with (ns₁ := ns₁) (m := m₁); eauto .
-        eapply hd_newton_segments; eauto .
-bbb.
-     clear Hu Hofs HN Hη Hz.
-(**)
-clear H₁ Hs.
-revert m pol ns c pol₁ ns₁ q₀ Hns Hm Hc Hr Hpol₁ Hns₁ Hq₀ Ha.
-(*
-     revert m pol ns c pol₁ ns₁ q₀ Hns Hm Hc Hr Hpol₁ H₁ Hns₁ Hq₀ Ha.
-*)
-     induction N; intros.
-      simpl in Ha.
-      remember (ac_root (Φq pol₁ ns₁)) as c₁ eqn:Hc₁ .
-      remember (next_lap (al pol₁) (β ns₁) (γ ns₁) c₁) as la₂ eqn:Hla₂ .
-      apply List.In_split in Ha.
-      destruct Ha as (l₁, (l₂, Ha)).
-      remember (ps_lap_nth (List.length l₁) la₂) as b eqn:Hb .
-      rename H into Huofs.
-      remember Hb as H; clear HeqH.
-      rewrite Ha in H; simpl in H.
-      unfold ps_lap_nth in H; simpl in H.
-      rewrite List.app_nth2 in H; auto.
-      rewrite Nat.sub_diag in H; simpl in H.
-      move H at top; subst b.
-      subst a.
-(**)
-      destruct (ps_zerop R (ps_poly_nth 0 pol₁)) as [H₁| H₁].
-       unfold ps_poly_nth, apply_poly in H₁.
-       destruct l₁ as [| x₁].
-        simpl in Ha; simpl.
-        unfold next_lap in Hla₂.
-bbb.
-      remember Hns₁ as H; clear HeqH.
-      eapply r_1_next_ns in H; eauto .
-      destruct H as (αj₁, (αk₁, H)).
-      destruct H as (_, (Hini₁, (Hfin₁, (Hαj₁, Hαk₁)))).
-      remember Hns₁ as H; clear HeqH.
-      eapply hd_newton_segments in H; eauto .
-      rename H into Hns₁i.
-      remember Hns₁i as H; clear HeqH.
-      eapply f₁_orders in H; eauto .
-      destruct H as (Hall, (Haftr, Hforr)).
-      unfold ps_poly_nth in Hall.
-      unfold next_pol in Hall; simpl in Hall.
-      rewrite <- Hla₂ in Hall.
-      apply Hall.
-
-      remember (S N) as SN in Ha; simpl in Ha; subst SN.
-      remember (ac_root (Φq pol₁ ns₁)) as c₁ eqn:Hc₁ .
-      remember (next_pol pol₁ (β ns₁) (γ ns₁) c₁) as pol₂ eqn:Hpol₂ .
-      remember (List.hd phony_ns (newton_segments pol₂)) as ns₂ eqn:Hns₂ .
-      remember (m * q₀)%positive as m₁.
-      destruct (ps_zerop R (ps_poly_nth 0 pol₂)) as [H₂| H₂].
-       Focus 2.
-       eapply IHN with (pol := pol₁) (ns := ns₁) (m := m₁); eauto .
-        rename H into Huofs.
+        clear H.
         remember Hns₁ as H; clear HeqH.
         eapply r_1_next_ns in H; eauto .
         destruct H as (αj₁, (αk₁, H)).
         destruct H as (_, (Hini₁, (Hfin₁, (Hαj₁, Hαk₁)))).
-        remember Hns₁ as H; clear HeqH.
-        eapply hd_newton_segments in H; eauto .
+        eapply hd_newton_segments; eauto .
 
         rewrite Heqm₁.
-        eapply next_pol_in_K_1_mq with (ns := ns); eauto .
+        eapply next_pol_in_K_1_mq; eauto .
 
-        eapply multiplicity_1_remains with (ns := ns); eauto .
-bbb.
+        eapply multiplicity_1_remains; eauto .
 
-    unfold ps_pol_apply.
-    unfold apply_poly.
-    remember (S N) as SN.
-    unfold apply_lap.
-    simpl.
-    subst SN; simpl.
-    remember (ac_root (Φq pol₁ ns₁)) as c₁ eqn:Hc₁ .
-    remember (next_pol pol₁ (β ns₁) (γ ns₁) c₁) as pol₂ eqn:Hpol₂ .
-    remember (List.hd phony_ns (newton_segments pol₂)) as ns₂ eqn:Hns₂ .
+   exists s.
+   apply order_inf; assumption.
 bbb.
-   ============================
-    (0
-     ≤ order
-         (ps_pol_apply (nth_pol (S N) pol₁ ns₁)
-            (root_tail (m * q₀) (S N) pol₁ ns₁)))%Qbar
-
-(*
-intros pol ns pol₁ c m Hns Hm Hc Hr Hpol₁.
-destruct (ps_zerop R (ps_poly_nth 0 pol₁)) as [H₁| H₁].
- exists 0%ps.
- Focus 2.
- remember (List.hd phony_ns (newton_segments pol₁)) as ns₁ eqn:Hns₁ .
- remember (q_of_m m (γ ns)) as q₀ eqn:Hq₀ .
- remember (root_tail (m * q₀) 0 pol₁ ns₁) as s eqn:Hs .
- exists s; intros i.
- remember (order (ps_pol_apply pol₁ s)) as ofs eqn:Hofs .
- symmetry in Hofs.
- destruct ofs as [ofs| ].
-  Focus 2.
-  exists (ps_pol_apply pol₁ s).
-  split; [ rewrite rng_sub_0_r; reflexivity | idtac ].
-  unfold order in Hofs.
-  remember (ps_terms (ps_pol_apply pol₁ s)) as t eqn:Ht .
-  remember (null_coeff_range_length R t 0) as v eqn:Hv .
-  symmetry in Hv.
-  destruct v; [ discriminate Hofs | idtac ].
-  apply null_coeff_range_length_iff in Hv.
-  unfold null_coeff_range_length_prop in Hv.
-  simpl in Hv; apply Hv.
-bbb.
-*)
 
 End theorems.
