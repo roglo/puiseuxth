@@ -647,6 +647,24 @@ induction i; intros.
   eapply IHi; eauto .
 Qed.
 
+Theorem List_In_nth : ∀ α a la (d : α),
+  a ∈ la
+  → ∃ n, a = List.nth n la d.
+Proof.
+intros u a la d Ha.
+revert a Ha.
+induction la as [| b]; intros; [ contradiction | idtac ].
+simpl in Ha.
+destruct Ha as [Ha| Ha].
+ subst b.
+ exists O; reflexivity.
+
+ apply IHla in Ha.
+ destruct Ha as (n, Ha).
+ exists (S n); simpl.
+ assumption.
+Qed.
+
 Theorem zzz : ∀ pol ns pol₁ c m,
   ns ∈ newton_segments pol
   → pol_in_K_1_m pol m
@@ -798,10 +816,26 @@ destruct (ac_zerop 1%K) as [H₀| H₀].
       eapply order_root_tail_nonneg; eauto .
 
       intros a Ha.
+      remember (nth_pol N pol₁ ns₁) as polN eqn:HpolN .
+      remember (nth_ns N pol₁ ns₁) as nsN eqn:HnsN .
+      assert (List.In nsN (newton_segments polN)) as HnsNi.
+       Focus 2.
+       rename H into Huofs.
+       remember HnsNi as H; clear HeqH.
+       eapply f₁_orders in H; eauto .
+       erewrite <- nth_pol_succ in H; eauto .
+        destruct H as (H, _).
+        apply List_In_nth with (d := 0%ps) in Ha.
+        destruct Ha as (n, Hn).
+        rewrite Hn.
+        apply H.
+
+        symmetry.
+        apply nth_c_root; eauto .
 bbb.
      clear Hu Hofs HN Hη Hz.
 (**)
-clear H₁.
+clear H₁ Hs.
 revert m pol ns c pol₁ ns₁ q₀ Hns Hm Hc Hr Hpol₁ Hns₁ Hq₀ Ha.
 (*
      revert m pol ns c pol₁ ns₁ q₀ Hns Hm Hc Hr Hpol₁ H₁ Hns₁ Hq₀ Ha.
