@@ -159,60 +159,63 @@ eapply r_1_next_ns in H; eauto .
 destruct H as (αj₁, (αk₁, H)).
 destruct H as (_, (Hini₁, (Hfin₁, (Hαj₁, Hαk₁)))).
 remember Hns₁ as H; clear HeqH.
-eapply hd_newton_segments₉ in H; eauto .
-rename H into Hns₁i.
-remember HK₁ as H; clear HeqH.
-eapply lap_forall_nth with (ns := ns₁) in H; eauto .
- rename H into HKn.
- remember (nth_pol n pol₁ ns₁) as poln eqn:Hpoln .
- remember Hns₁i as H; clear HeqH.
- eapply nth_in_newton_segments with (n := n) in H; eauto .
-  rename H into Hnsni.
-  remember HKn as H; clear HeqH.
-  eapply pol_ord_of_ini_pt in H; eauto .
-  rewrite Hη, H.
-  rewrite <- Pos.mul_assoc.
-  remember (m * q_of_m m (γ ns))%positive as m₁ eqn:Hm₁ .
-  unfold mh_of_m.
-  erewrite <- qden_αj_is_ps_polord; eauto .
-  remember (2 * m₁)%positive as m₂.
-  unfold Qlt; simpl; subst m₂.
-  clear H.
-  assert (0 < Qnum αjn * ' m₁ / ' Qden αjn)%Z as H.
-   apply Z2Nat.inj_lt; [ reflexivity | idtac | idtac ].
-    apply Z.div_pos; [ idtac | apply Pos2Z.is_pos ].
-    apply Z.mul_nonneg_nonneg; auto.
-    apply Z.lt_le_incl; assumption.
+eapply List_hd_in in H; eauto .
+ rename H into Hns₁i.
+ remember HK₁ as H; clear HeqH.
+ eapply lap_forall_nth with (ns := ns₁) in H; eauto .
+  rename H into HKn.
+  remember (nth_pol n pol₁ ns₁) as poln eqn:Hpoln .
+  remember Hns₁i as H; clear HeqH.
+  eapply nth_in_newton_segments with (n := n) in H; eauto .
+   rename H into Hnsni.
+   remember HKn as H; clear HeqH.
+   eapply pol_ord_of_ini_pt in H; eauto .
+   rewrite Hη, H.
+   rewrite <- Pos.mul_assoc.
+   remember (m * q_of_m m (γ ns))%positive as m₁ eqn:Hm₁ .
+   unfold mh_of_m.
+   erewrite <- qden_αj_is_ps_polord; eauto .
+   remember (2 * m₁)%positive as m₂.
+   unfold Qlt; simpl; subst m₂.
+   clear H.
+   assert (0 < Qnum αjn * ' m₁ / ' Qden αjn)%Z as H.
+    apply Z2Nat.inj_lt; [ reflexivity | idtac | idtac ].
+     apply Z.div_pos; [ idtac | apply Pos2Z.is_pos ].
+     apply Z.mul_nonneg_nonneg; auto.
+     apply Z.lt_le_incl; assumption.
 
-    eapply num_m_den_is_pos with (ns := nsn); eauto .
+     eapply num_m_den_is_pos with (ns := nsn); eauto .
 
-   rewrite Pos2Z.inj_mul, Z.mul_assoc.
-   replace (' m₁)%Z with (1 * ' m₁)%Z at 1 by reflexivity.
-   apply Z.mul_lt_mono_pos_r; [ apply Pos2Z.is_pos | idtac ].
-   fast_omega H.
+    rewrite Pos2Z.inj_mul, Z.mul_assoc.
+    replace (' m₁)%Z with (1 * ' m₁)%Z at 1 by reflexivity.
+    apply Z.mul_lt_mono_pos_r; [ apply Pos2Z.is_pos | idtac ].
+    fast_omega H.
+
+   eapply multiplicity_1_remains with (ns := ns); eauto .
 
   eapply multiplicity_1_remains with (ns := ns); eauto .
 
- eapply multiplicity_1_remains with (ns := ns); eauto .
+  remember (m * q_of_m m (γ ns))%positive as m₁ eqn:Hm₁ .
+  replace m₁ with (m₁ * 1)%positive by apply Pos.mul_1_r.
+  eapply q_eq_1 with (ns := ns); eauto .
+   subst m₁.
+   apply ps_lap_forall_forall.
+    clear H.
+    intros a b Hab H.
+    rewrite <- Hab; assumption.
 
- remember (m * q_of_m m (γ ns))%positive as m₁ eqn:Hm₁ .
- replace m₁ with (m₁ * 1)%positive by apply Pos.mul_1_r.
- eapply q_eq_1 with (ns := ns); eauto .
-  subst m₁.
-  apply ps_lap_forall_forall.
-   clear H.
-   intros a b Hab H.
-   rewrite <- Hab; assumption.
+    intros a Ha.
+    apply in_K_1_m_lap_mul_r_compat.
+    revert a Ha.
+    apply ps_lap_forall_forall; auto.
+    clear H.
+    intros a b Hab H.
+    rewrite <- Hab; assumption.
 
-   intros a Ha.
-   apply in_K_1_m_lap_mul_r_compat.
-   revert a Ha.
-   apply ps_lap_forall_forall; auto.
-   clear H.
-   intros a b Hab H.
-   rewrite <- Hab; assumption.
+   rewrite Pos.mul_1_r; assumption.
 
-  rewrite Pos.mul_1_r; assumption.
+ clear H.
+ intros H; rewrite H in Hns₁; subst ns₁; discriminate Hfin₁.
 Qed.
 
 Theorem eq_Qbar_eq : ∀ a b, a = b → (a = b)%Qbar.
@@ -503,7 +506,8 @@ induction n; intros.
    eapply r_1_next_ns in H; eauto .
    destruct H as (αj₁, (αk₁, H)).
    destruct H as (_, (Hini₁, (Hfin₁, (Hαj₁, Hαk₁)))).
-   eapply hd_newton_segments₉; eauto .
+   eapply List_hd_in; eauto .
+   intros H; rewrite H in Hns₁; subst ns₁; discriminate Hfin₁.
 
    rewrite Heqm₁.
    eapply next_pol_in_K_1_mq; eauto .
@@ -842,7 +846,8 @@ destruct (ac_zerop 1%K) as [H₀| H₀].
         eapply r_1_next_ns in H; eauto .
         destruct H as (αj₁, (αk₁, H)).
         destruct H as (_, (Hini₁, (Hfin₁, (Hαj₁, Hαk₁)))).
-        eapply hd_newton_segments₉; eauto .
+        eapply List_hd_in; eauto .
+        intros H; rewrite H in Hns₁; subst ns₁; discriminate Hfin₁.
 
         rewrite Heqm₁.
         eapply next_pol_in_K_1_mq; eauto .
