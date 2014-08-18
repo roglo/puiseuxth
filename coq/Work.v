@@ -611,6 +611,42 @@ induction n; intros.
      destruct (ps_zerop R (ps_poly_nth 0 pol)); auto.
 Qed.
 
+Lemma first_null_coeff : ∀ pol₁ ns₁ i a₁ la₁,
+  zerop_1st_n_const_coeff i pol₁ ns₁ = false
+  → zerop_1st_n_const_coeff (S i) pol₁ ns₁ = true
+  → al (nth_pol (S i) pol₁ ns₁) = [a₁ … la₁]
+  → (a₁ = 0)%ps.
+Proof.
+intros pol₁ ns₁ i a₁ la₁ Hnz₁ Hz₁ Hla₁.
+revert pol₁ ns₁ a₁ la₁ Hnz₁ Hz₁ Hla₁.
+induction i; intros.
+ simpl in Hnz₁, Hz₁, Hla₁.
+ destruct (ps_zerop R (ps_poly_nth 0 pol₁)) as [H₁| H₁].
+  discriminate Hnz₁.
+
+  remember (ac_root (Φq pol₁ ns₁)) as c₁ eqn:Hc₁ .
+  remember (next_pol pol₁ (β ns₁) (γ ns₁) c₁) as pol₂ eqn:Hpol₂ .
+  remember (List.hd phony_ns (newton_segments pol₂)) as ns₂ eqn:Hns₂ .
+  destruct (ps_zerop R (ps_poly_nth 0 pol₂)) as [H₂| H₂].
+   unfold ps_poly_nth, ps_lap_nth in H₂; simpl in H₂.
+   unfold next_pol in Hpol₂.
+   rewrite Hla₁ in Hpol₂.
+   rewrite Hpol₂ in H₂; simpl in H₂.
+   assumption.
+
+   discriminate Hz₁.
+
+ remember (S i) as si; simpl in Hz₁, Hla₁; subst si.
+ simpl in Hnz₁.
+ destruct (ps_zerop R (ps_poly_nth 0 pol₁)) as [H₁| H₁].
+  discriminate Hnz₁.
+
+  remember (ac_root (Φq pol₁ ns₁)) as c₁ eqn:Hc₁ .
+  remember (next_pol pol₁ (β ns₁) (γ ns₁) c₁) as pol₂ eqn:Hpol₂ .
+  remember (List.hd phony_ns (newton_segments pol₂)) as ns₂ eqn:Hns₂ .
+  eapply IHi; eauto .
+Qed.
+
 Theorem zzz : ∀ pol ns pol₁ c m,
   ns ∈ newton_segments pol
   → pol_in_K_1_m pol m
@@ -694,6 +730,11 @@ destruct (ac_zerop 1%K) as [H₀| H₀].
         simpl.
         rewrite rng_mul_0_r, rng_add_0_l.
         subst si.
+        rewrite first_null_coeff with (a₁ := a₁); eauto .
+        rewrite rng_mul_0_r; reflexivity.
+
+    simpl.
+bbb.
         simpl in Hla₁, Hz.
         destruct (ps_zerop R (ps_poly_nth 0 pol₁)) as [H₂| H₂].
          contradiction.
