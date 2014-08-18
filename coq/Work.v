@@ -665,15 +665,16 @@ destruct Ha as [Ha| Ha].
  assumption.
 Qed.
 
-Theorem zzz : ∀ pol ns pol₁ c m,
+Theorem root_when_r_eq_1_at_once : ∀ pol ns pol₁ c,
   ns ∈ newton_segments pol
-  → pol_in_K_1_m pol m
   → c = ac_root (Φq pol ns)
   → root_multiplicity acf c (Φq pol ns) = 1%nat
   → pol₁ = next_pol pol (β ns) (γ ns) c
   → ∃ s, (ps_pol_apply pol₁ s = 0)%ps.
 Proof.
-intros pol ns pol₁ c m Hns Hm Hc Hr Hpol₁.
+intros pol ns pol₁ c Hns Hc Hr Hpol₁.
+pose proof (exists_pol_ord R pol) as H.
+destruct H as (m, Hm).
 destruct (ac_zerop 1%K) as [H₀| H₀].
  exists 0%ps.
  unfold ps_pol_apply, apply_poly.
@@ -850,6 +851,6 @@ destruct (ac_zerop 1%K) as [H₀| H₀].
 
    exists s.
    apply order_inf; assumption.
-bbb.
+Qed.
 
 End theorems.
