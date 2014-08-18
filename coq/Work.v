@@ -853,20 +853,35 @@ destruct (ac_zerop 1%K) as [H₀| H₀].
    apply order_inf; assumption.
 Qed.
 
-Theorem zzz : ∀ pol ns n cn,
+Theorem zzz : ∀ pol ns,
   ns ∈ newton_segments pol
-  → cn = ac_root (Φq (nth_pol n pol ns) (nth_ns n pol ns))
-  → root_multiplicity acf cn (Φq (nth_pol n pol ns) (nth_ns n pol ns)) = 1%nat
+  → (∃ n, ∀ poln nsn cn,
+     poln = nth_pol n pol ns
+     → nsn = nth_ns n pol ns
+     → cn = nth_c n pol ns
+     → root_multiplicity acf cn (Φq poln nsn) = 1%nat)
   → ∃ s, (ps_pol_apply pol s = 0)%ps.
 Proof.
-intros pol ns n cn Hns Hcn Hrn.
-revert pol ns cn Hns Hcn Hrn.
-induction n; intros.
- simpl in Hcn, Hrn.
- remember (next_pol pol (β ns) (γ ns) cn) as pol₁ eqn:Hpol₁ .
- remember Hrn as H; clear HeqH.
- apply root_when_r_eq_1_at_once with (pol₁ := pol₁) in H; auto.
+intros pol ns Hns Hr.
+pose proof (exists_pol_ord R pol) as H.
+destruct H as (m, Hm).
+remember (q_of_m m (γ ns)) as q₀ eqn:Hq₀ .
+destruct Hr as (n, Hr).
+remember (nth_pol n pol ns) as poln eqn:Hpoln  in |- *.
+remember (nth_ns n pol ns) as nsn eqn:Hnsn  in |- *.
+remember (nth_c n pol ns) as cn eqn:Hcn  in |- *.
+remember Hpoln as H; clear HeqH.
+eapply Hr in H; eauto .
+clear Hr.
+rename H into Hrn.
+remember (next_pol poln (β nsn) (γ nsn) cn) as polSn eqn:HpolSn .
+remember Hrn as H; clear HeqH.
+eapply root_when_r_eq_1_at_once with (pol₁ := polSn) in H; eauto .
  destruct H as (s, Hs).
+ exists (root_head 0 n pol ns + ps_monom 1%K (γ_sum 0 n pol ns) * s)%ps.
+ (* must first discriminate the case when zerop_1st_n_const_coeff n pol ns
+    is true *)
+ rewrite apply_nth_pol.
 bbb.
 
 End theorems.
