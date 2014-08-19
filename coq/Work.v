@@ -968,13 +968,24 @@ induction n; intros.
     pose proof (exists_pol_ord R pol) as H.
     destruct H as (m, Hm).
     remember Hpoln as H; clear HeqH.
-    eapply IHn in H; eauto .
-     destruct H as (s₁, Hs₁).
-     exists (ps_monom c (γ ns) + ps_monom 1%K (γ ns) * s₁)%ps.
-     eapply f₁_root_f_root; eauto .
-     reflexivity.
+    remember (newton_segments pol₁) as nsl₁ eqn:Hnsl₁ .
+    symmetry in Hnsl₁.
+    destruct nsl₁ as [| ns₂ nsl₁].
+     Focus 2.
+     eapply IHn in H; eauto .
+      destruct H as (s₁, Hs₁).
+      exists (ps_monom c (γ ns) + ps_monom 1%K (γ ns) * s₁)%ps.
+      eapply f₁_root_f_root; eauto .
+      reflexivity.
 
-     eapply List_hd_in; eauto .
+      rewrite <- Hnsl₁ in Hns₁.
+      eapply List_hd_in; eauto .
+      clear H.
+      rewrite Hnsl₁; intros H; discriminate H.
+
+     simpl in Hns₁.
+     subst ns₁.
+     simpl in Hpoln, Hnsn, Hcn; clear H.
 bbb.
 
 intros pol ns Hns Hr.
