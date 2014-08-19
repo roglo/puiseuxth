@@ -1107,6 +1107,10 @@ induction n; intros.
 
       clear H₃ Hlt H.
 bbb.
+  I must add a hypothesis saying that pol is not a constant polynomial.
+  I think that, in that case, the multiplicity of c cannot be 0 which
+  would be contradictory with
+    Hr₁ : root_multiplicity acf c (Φq pol ns) = 0
 
 intros pol ns Hns Hr.
 destruct Hr as (n, Hr).
