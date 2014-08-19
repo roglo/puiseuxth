@@ -1114,6 +1114,62 @@ induction n; intros.
        remember (degree_plus_1_of_list (ps_zerop R) la) as p.
        symmetry in Heqp.
        destruct p; [ destruct (ps_zerop R a); apply Nat.le_0_l | exfalso ].
+(*
+bbb.
+*)
+       remember (degree ac_zerop (Φq pol ns)) as deg eqn:Hdeg .
+       symmetry in Hdeg.
+       destruct deg.
+        unfold degree in Hdeg.
+        remember (Φq pol ns) as phi eqn:Hphi .
+        unfold Φq in Hphi; simpl in Hphi.
+        unfold summation_ah_xh_pol in Hphi; simpl in Hphi.
+        rewrite Nat.sub_diag in Hphi; simpl in Hphi.
+        rewrite Heqla in Hphi; simpl in Hphi.
+        remember (nat_num (fst (ini_pt ns))) as x.
+        symmetry in Heqx.
+        destruct x.
+         unfold poly_left_shift in Hphi; simpl in Hphi.
+         rewrite Hphi in Hdeg.
+         simpl in Hdeg.
+         remember
+          (make_char_pol R 1
+             (List.map (term_of_point pol) (oth_pts ns ++ [fin_pt ns]))) as cp.
+         remember (degree_plus_1_of_list ac_zerop cp) as deg.
+         symmetry in Heqdeg.
+         destruct deg.
+          destruct (ac_zerop (order_coeff a)); simpl in Hdeg.
+           destruct cp.
+            clear Heqdeg Hdeg.
+            subst phi.
+            unfold root_multiplicity in Hr₁.
+            simpl in Hr₁.
+            destruct (ac_zerop (lap_mod_deg_1 [order_coeff a] c)).
+             discriminate Hr₁.
+
+             clear Hr₁.
+             unfold ps_poly_nth, ps_lap_nth in H₁.
+             rewrite Heqla in H₁; simpl in H₁.
+             apply order_fin in H₁.
+             unfold order in H₁.
+             unfold order_coeff in n0.
+             remember (null_coeff_range_length R (ps_terms a) 0) as v.
+             symmetry in Heqv.
+             destruct v as [v| ].
+              clear H₁.
+              unfold lap_mod_deg_1 in n0.
+              simpl in n0.
+              rewrite rng_mul_0_l, rng_add_0_l in n0.
+              unfold order_coeff in r.
+              rewrite Heqv in r.
+              contradiction.
+
+              unfold lap_mod_deg_1 in n0.
+              simpl in n0.
+              rewrite rng_mul_0_l, rng_add_0_l in n0.
+              apply n0; reflexivity.
+
+            clear Hdeg.
 bbb.
 
 intros pol ns Hns Hr.
