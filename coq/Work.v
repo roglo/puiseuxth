@@ -904,6 +904,15 @@ destruct Hr as (n, Hr).
 remember (nth_pol n pol ns) as poln eqn:Hpoln  in |- *.
 remember (nth_ns n pol ns) as nsn eqn:Hnsn  in |- *.
 remember (nth_c n pol ns) as cn eqn:Hcn  in |- *.
+remember Hpoln as H; clear HeqH.
+eapply Hr in H; eauto ; clear Hr.
+bbb.
+
+intros pol ns Hns Hr.
+destruct Hr as (n, Hr).
+remember (nth_pol n pol ns) as poln eqn:Hpoln  in |- *.
+remember (nth_ns n pol ns) as nsn eqn:Hnsn  in |- *.
+remember (nth_c n pol ns) as cn eqn:Hcn  in |- *.
 remember (zerop_1st_n_const_coeff n pol ns) as z eqn:Hz .
 symmetry in Hz.
 pose proof (exists_pol_ord R pol) as H.
