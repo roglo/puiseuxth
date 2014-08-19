@@ -882,9 +882,9 @@ eapply Hr in H; eauto .
 clear Hr.
 rename H into Hrn.
 remember (next_pol poln (β nsn) (γ nsn) cn) as polSn eqn:HpolSn .
-remember Hrn as H; clear HeqH.
 destruct z.
  Focus 2.
+ remember Hrn as H; clear HeqH.
  eapply root_when_r_eq_1_at_once with (pol₁ := polSn) in H; eauto .
   destruct H as (s, Hs).
   exists (root_head 0 n pol ns + ps_monom 1%K (γ_sum 0 n pol ns) * s)%ps.
@@ -899,9 +899,14 @@ destruct z.
   eapply List_hd_in.
    rewrite Hnsn; simpl.
    eapply nth_ns_n; eauto .
-   subst poln; simpl.
-   symmetry.
+   subst poln; simpl; symmetry.
    eapply nth_pol_n; eauto .
+
+   clear H.
+   pose proof (Hz (S n) (Nat.le_refl (S n))) as H.
+   rewrite <- Hpoln in H.
+   rename H into Hnz.
+   intros H; apply Hnz.
 bbb.
 
 End theorems.
