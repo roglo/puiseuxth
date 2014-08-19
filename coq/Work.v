@@ -986,6 +986,10 @@ induction n; intros.
      simpl in Hns₁.
      subst ns₁.
      simpl in Hpoln, Hnsn, Hcn; clear H.
+     remember Hns as H; clear HeqH.
+     eapply f₁_orders in H; eauto .
+     rewrite Hr₁ in H.
+     destruct H as (Hall, (Hlt, Heq)).
 bbb.
 
 intros pol ns Hns Hr.
