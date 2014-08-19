@@ -1106,11 +1106,15 @@ induction n; intros.
        apply Nat.lt_0_succ.
 
       clear H₃ Hlt H.
+      assert (degree (ps_zerop R) pol ≤ 1)%nat as Hdeg.
+       unfold degree; simpl.
+       remember (al pol) as la.
+       symmetry in Heqla.
+       destruct la as [| a]; [ apply Nat.le_0_l | simpl ].
+       remember (degree_plus_1_of_list (ps_zerop R) la) as p.
+       symmetry in Heqp.
+       destruct p; [ destruct (ps_zerop R a); apply Nat.le_0_l | exfalso ].
 bbb.
-  I must add a hypothesis saying that pol is not a constant polynomial.
-  I think that, in that case, the multiplicity of c cannot be 0 which
-  would be contradictory with
-    Hr₁ : root_multiplicity acf c (Φq pol ns) = 0
 
 intros pol ns Hns Hr.
 destruct Hr as (n, Hr).
