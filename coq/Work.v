@@ -858,6 +858,28 @@ destruct (ac_zerop 1%K) as [H₀| H₀].
    apply order_inf; assumption.
 Qed.
 
+Theorem yyy : ∀ pol ns c,
+  ns ∈ newton_segments pol
+  → c = ac_root (Φq pol ns)
+  → root_multiplicity acf c (Φq pol ns) = 1%nat
+  → ∃ s, (ps_pol_apply pol s = 0)%ps.
+Proof.
+intros pol ns c Hns Hc Hr.
+remember (zerop_1st_n_const_coeff 0 pol ns) as z eqn:Hz .
+symmetry in Hz.
+destruct z.
+ Focus 2.
+ remember (next_pol pol (β ns) (γ ns) c) as pol₁ eqn:Hpol₁ .
+ remember Hns as H; clear HeqH.
+ eapply root_when_r_eq_1_at_once with (pol₁ := pol₁) in H; eauto .
+ destruct H as (s₁, Hs₁).
+ exists (root_head 0 0 pol ns + ps_monom 1%K (γ_sum 0 0 pol ns) * s₁)%ps.
+ rewrite apply_nth_pol; auto.
+ erewrite nth_pol_succ; eauto .
+ simpl; rewrite <- Hpol₁, Hs₁.
+ rewrite rng_mul_0_r; reflexivity.
+bbb.
+
 Theorem zzz : ∀ pol ns,
   ns ∈ newton_segments pol
   → (∃ n, ∀ poln nsn cn,
@@ -901,6 +923,17 @@ destruct z.
    eapply nth_ns_n; eauto .
    subst poln; simpl; symmetry.
    eapply nth_pol_n; eauto .
+
+   clear H.
+   remember (m * q₀)%positive as m₁.
+   remember (nth_pol n pol ns) as poln₁ eqn:Hpoln₁ .
+   remember Hpoln as H; clear HeqH; simpl in H.
+   erewrite <- nth_pol_n with (pol₁ := pol) in H; eauto .
+   eapply r_1_next_ns with (m := m₁) in H; eauto .
+    destruct H as (αjn₁, (αkn₁, H)).
+    destruct H as (_, (Hinin₁, (Hfinn₁, (Hαjn₁, Hαkn₁)))).
+    intros H; rewrite H in Hfinn₁; discriminate Hfinn₁.
+bbb.
 
    clear H.
    pose proof (Hz (S n) (Nat.le_refl (S n))) as H.
