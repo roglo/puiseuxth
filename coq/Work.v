@@ -890,6 +890,111 @@ destruct z.
  rewrite rng_mul_0_r; reflexivity.
 Qed.
 
+Lemma no_newton_segments : ∀ pol,
+  (ps_poly_nth 0 pol ≠ 0)%ps
+  → newton_segments pol = []
+  → (∀ i, (0 < i)%nat → (ps_poly_nth i pol = 0)%ps).
+Proof.
+(* perhaps simplifiable *)
+intros pol Hnz Hns i Hi.
+destruct i; [ exfalso; revert Hi; apply Nat.lt_irrefl | idtac ].
+clear Hi.
+unfold newton_segments in Hns.
+unfold lower_convex_hull_points in Hns.
+unfold points_of_ps_polynom in Hns.
+unfold points_of_ps_lap in Hns.
+remember (al pol) as la eqn:Hla .
+symmetry in Hla.
+unfold ps_poly_nth.
+unfold ps_poly_nth in Hnz.
+rewrite Hla in Hnz; rewrite Hla.
+clear pol Hla.
+unfold points_of_ps_lap_gen in Hns.
+unfold qpower_list in Hns.
+remember (pair_rec (λ pow ps, (Qnat pow, ps))) as f.
+unfold ps_lap_nth in Hnz.
+unfold ps_lap_nth.
+revert la Hnz Hns.
+induction i; intros.
+ destruct la as [| a].
+  exfalso; apply Hnz; reflexivity.
+
+  simpl in Hnz; simpl.
+  simpl in Hns.
+  remember (f (O, a)) as fa.
+  rewrite Heqf in Heqfa.
+  simpl in Heqfa.
+  unfold pair_rec in Heqfa; simpl in Heqfa.
+  subst fa; simpl in Hns.
+  apply order_fin in Hnz.
+  remember (order a) as oa.
+  symmetry in Heqoa.
+  destruct oa as [oa| ]; [ idtac | exfalso; apply Hnz; reflexivity ].
+  simpl in Hns.
+  remember (filter_finite_ord R (List.map f (power_list 1 la))) as pts.
+  symmetry in Heqpts.
+  destruct pts; [ idtac | discriminate Hns ].
+  clear Hns Hnz.
+  destruct la as [| b]; [ reflexivity | simpl ].
+  simpl in Heqpts.
+  remember (f (1%nat, b)) as fb.
+  rewrite Heqf in Heqfb.
+  unfold pair_rec in Heqfb.
+  simpl in Heqfb.
+  subst fb; simpl in Heqpts.
+  remember (order b) as ob.
+  symmetry in Heqob.
+  destruct ob as [ob| ]; auto.
+   discriminate Heqpts.
+
+   apply order_inf; assumption.
+
+ destruct la as [| a]; [ reflexivity | simpl ].
+ simpl in Hnz.
+ simpl in Hns.
+ remember (f (O, a)) as fa.
+ rewrite Heqf in Heqfa.
+ simpl in Heqfa.
+ unfold pair_rec in Heqfa; simpl in Heqfa.
+ subst fa; simpl in Hns.
+ apply order_fin in Hnz.
+ remember (order a) as oa.
+ symmetry in Heqoa.
+ destruct oa as [oa| ]; [ idtac | exfalso; apply Hnz; reflexivity ].
+ simpl in Hns.
+ remember (filter_finite_ord R (List.map f (power_list 1 la))) as pts.
+ symmetry in Heqpts.
+ destruct pts; [ idtac | discriminate Hns ].
+ clear Hns.
+ clear Hnz.
+ revert Heqf Heqpts; clear; intros.
+ remember 1%nat as pow; clear Heqpow.
+ revert i pow Heqpts.
+ induction la as [| a]; intros; [ reflexivity | idtac ].
+ simpl in Heqpts.
+ remember (f (pow, a)) as fa.
+ rewrite Heqf in Heqfa.
+ unfold pair_rec in Heqfa.
+ simpl in Heqfa.
+ subst fa; simpl in Heqpts.
+ remember (order a) as oa.
+ symmetry in Heqoa.
+ destruct oa as [oa| ]; [ discriminate Heqpts | simpl ].
+ destruct i.
+  destruct la as [| b]; [ reflexivity | simpl ].
+  simpl in Heqpts.
+  remember (f (S pow, b)) as fb.
+  rewrite Heqf in Heqfb.
+  unfold pair_rec in Heqfb; simpl in Heqfb.
+  subst fb.
+  apply order_inf.
+  remember (order b) as ob.
+  symmetry in Heqob.
+  destruct ob as [ob| ]; [ discriminate Heqpts | reflexivity ].
+
+  eapply IHla; eauto .
+Qed.
+
 Theorem zzz : ∀ pol ns,
   ns ∈ newton_segments pol
   → (∃ n, ∀ poln nsn cn,
@@ -990,6 +1095,17 @@ induction n; intros.
      eapply f₁_orders in H; eauto .
      rewrite Hr₁ in H.
      destruct H as (Hall, (Hlt, Heq)).
+     remember H₂ as H; clear HeqH.
+     destruct r₁.
+      Focus 2.
+      eapply no_newton_segments with (i := S r₁) in H; eauto .
+       apply order_inf in H.
+       rewrite H in Heq.
+       contradiction.
+
+       apply Nat.lt_0_succ.
+
+      clear H₃ Hlt H.
 bbb.
 
 intros pol ns Hns Hr.
