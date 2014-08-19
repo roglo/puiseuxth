@@ -906,6 +906,64 @@ remember (nth_ns n pol ns) as nsn eqn:Hnsn  in |- *.
 remember (nth_c n pol ns) as cn eqn:Hcn  in |- *.
 remember Hpoln as H; clear HeqH.
 eapply Hr in H; eauto ; clear Hr.
+rename H into Hr.
+revert pol ns poln nsn cn Hns Hpoln Hnsn Hcn Hr.
+induction n; intros.
+ simpl in Hpoln, Hnsn, Hcn.
+ subst poln nsn.
+ eapply root_when_r_eq_1_at_once; eauto .
+
+ destruct (ps_zerop R (ps_poly_nth 0 pol)) as [H₁| H₁].
+  exists 0%ps.
+  unfold ps_pol_apply, apply_poly, apply_lap; simpl.
+  unfold ps_poly_nth, ps_lap_nth in H₁.
+  destruct (al pol) as [| a la]; [ reflexivity | idtac ].
+  simpl in H₁; simpl.
+  rewrite rng_mul_0_r, rng_add_0_l; assumption.
+
+  simpl in Hpoln, Hnsn, Hcn.
+  remember (ac_root (Φq pol ns)) as c eqn:Hc .
+  remember (next_pol pol (β ns) (γ ns) c) as pol₁ eqn:Hpol₁ .
+  remember (List.hd phony_ns (newton_segments pol₁)) as ns₁ eqn:Hns₁ .
+  destruct (ps_zerop R (ps_poly_nth 0 pol₁)) as [H₂| H₂].
+   pose proof (exists_pol_ord R pol) as H.
+   destruct H as (m, Hm).
+   exists (ps_monom c (γ ns)).
+   eapply f₁_root_f_root with (y₁ := 0%ps); eauto .
+    rewrite rng_mul_0_r, rng_add_0_r.
+    reflexivity.
+
+    unfold ps_pol_apply, apply_poly, apply_lap; simpl.
+    unfold ps_poly_nth, ps_lap_nth in H₂.
+    destruct (al pol₁) as [| a la]; [ reflexivity | idtac ].
+    simpl in H₂; simpl.
+    rewrite rng_mul_0_r, rng_add_0_l; assumption.
+
+   remember (root_multiplicity acf c (Φq pol ns)) as r₁ eqn:Hr₁ .
+   symmetry in Hr₁.
+   destruct (eq_nat_dec r₁ 1%nat) as [H₃| H₃].
+    remember Hpoln as H; clear HeqH.
+    eapply IHn in H; eauto .
+     destruct H as (s₁, Hs₁).
+     exists (root_head 0 0 pol ns + ps_monom 1%K (γ_sum 0 0 pol ns) * s₁)%ps.
+     rewrite apply_nth_pol; auto.
+      erewrite nth_pol_succ; eauto .
+      simpl; rewrite <- Hpol₁, Hs₁.
+      rewrite rng_mul_0_r; reflexivity.
+
+      simpl.
+      destruct (ps_zerop R (ps_poly_nth 0 pol)) as [H₄| H₄]; auto.
+      contradiction.
+
+     eapply List_hd_in; eauto .
+     clear H; subst r₁.
+     pose proof (exists_pol_ord R pol) as H.
+     destruct H as (m, Hm).
+     remember Hns as H; clear HeqH.
+     eapply r_1_next_ns with (m := m) in H; eauto .
+     destruct H as (αj₁, (αk₁, H)).
+     destruct H as (_, (Hini₁, (Hfin₁, (Hαj₁, Hαk₁)))).
+     intros H; rewrite H in Hns₁; rewrite Hns₁ in Hfin₁; discriminate Hfin₁.
 bbb.
 
 intros pol ns Hns Hr.
