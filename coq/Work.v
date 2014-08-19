@@ -964,6 +964,17 @@ induction n; intros.
      destruct H as (αj₁, (αk₁, H)).
      destruct H as (_, (Hini₁, (Hfin₁, (Hαj₁, Hαk₁)))).
      intros H; rewrite H in Hns₁; rewrite Hns₁ in Hfin₁; discriminate Hfin₁.
+
+    pose proof (exists_pol_ord R pol) as H.
+    destruct H as (m, Hm).
+    remember Hpoln as H; clear HeqH.
+    eapply IHn in H; eauto .
+     destruct H as (s₁, Hs₁).
+     exists (ps_monom c (γ ns) + ps_monom 1%K (γ ns) * s₁)%ps.
+     eapply f₁_root_f_root; eauto .
+     reflexivity.
+
+     eapply List_hd_in; eauto .
 bbb.
 
 intros pol ns Hns Hr.
