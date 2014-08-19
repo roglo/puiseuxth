@@ -1114,9 +1114,7 @@ induction n; intros.
        remember (degree_plus_1_of_list (ps_zerop R) la) as p.
        symmetry in Heqp.
        destruct p; [ destruct (ps_zerop R a); apply Nat.le_0_l | exfalso ].
-(*
 bbb.
-*)
        remember (degree ac_zerop (Φq pol ns)) as deg eqn:Hdeg .
        symmetry in Hdeg.
        destruct deg.
