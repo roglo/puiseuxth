@@ -895,6 +895,13 @@ destruct z.
   rewrite rng_mul_0_r; reflexivity.
 
   rewrite zerop_1st_n_const_coeff_false_iff in Hz.
+  destruct n; [ subst poln nsn; auto | idtac ].
+  eapply List_hd_in.
+   rewrite Hnsn; simpl.
+   eapply nth_ns_n; eauto .
+   subst poln; simpl.
+   symmetry.
+   eapply nth_pol_n; eauto .
 bbb.
 
 End theorems.
