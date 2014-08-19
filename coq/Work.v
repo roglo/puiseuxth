@@ -905,8 +905,39 @@ destruct z.
    clear H.
    pose proof (Hz (S n) (Nat.le_refl (S n))) as H.
    rewrite <- Hpoln in H.
+   unfold root_multiplicity in Hrn; simpl in Hrn.
+   rewrite Nat.sub_diag in Hrn; simpl in Hrn.
+   rewrite skipn_pad in Hrn.
+   erewrite nth_ns_succ in Hnsn; eauto .
    rename H into Hnz.
-   intros H; apply Hnz.
+   intros H; rewrite H in Hnsn.
+   simpl in Hnsn.
+   subst nsn.
+   simpl in Hrn.
+   unfold nat_num in Hrn; simpl in Hrn.
+   unfold ps_poly_nth, ps_lap_nth in Hnz.
+   remember (List.nth 0 (al poln) 0%ps) as a₀ eqn:Ha₀ .
+   remember [order_coeff a₀; order_coeff a₀ … []] as v eqn:Hv .
+   destruct (ac_zerop (lap_mod_deg_1 v cn)) as [H₁| H₁].
+    destruct (ac_zerop (lap_mod_deg_1 (lap_div_deg_1 v cn) cn)) as [H₂| H₂].
+     discriminate Hrn.
+
+     clear Hrn.
+     subst v.
+     unfold lap_mod_deg_1 in H₁.
+     unfold lap_mod_div_deg_1 in H₁.
+     simpl in H₁.
+     rewrite rng_mul_0_l, rng_add_0_l in H₁.
+     unfold lap_mod_deg_1, lap_div_deg_1 in H₂.
+     simpl in H₂.
+     rewrite rng_mul_0_l, rng_add_0_l, rng_add_0_l in H₂.
+     erewrite nth_c_root in Hcn; eauto .
+     remember (nth_ns (S n) pol ns) as nsn eqn:Hnsn .
+     assert (degree ac_zerop (Φq poln nsn) ≥ 1)%nat as Hd.
+      unfold degree; simpl.
+      rewrite Nat.sub_diag; simpl.
+      rewrite skipn_pad; simpl.
 bbb.
+... parti en couille, mais y a quequ'chose à vouar e'd'dans...
 
 End theorems.
