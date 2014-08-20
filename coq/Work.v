@@ -995,6 +995,26 @@ induction i; intros.
   eapply IHla; eauto .
 Qed.
 
+Lemma root_multiplicity_0 : ∀ c cpol,
+  root_multiplicity acf c cpol = 0%nat
+  → (degree ac_zerop cpol = 0)%nat ∨ (apply_poly cpol c ≠ 0)%K.
+Proof.
+intros c cpol Hr.
+unfold root_multiplicity in Hr.
+unfold degree, apply_poly.
+remember (al cpol) as la; clear cpol Heqla.
+induction la as [| a].
+ left; reflexivity.
+
+ simpl.
+ simpl in Hr.
+ unfold lap_mod_deg_1 in Hr; simpl in Hr.
+ destruct (ac_zerop (apply_lap la c * c + a)%K) as [H₁| H₁].
+  discriminate Hr.
+
+  right; assumption.
+Qed.
+
 Theorem zzz : ∀ pol ns,
   ns ∈ newton_segments pol
   → (∃ n, ∀ poln nsn cn,
@@ -1105,6 +1125,10 @@ induction n; intros.
 
        apply Nat.lt_0_succ.
 
+      apply root_multiplicity_0 in Hr₁.
+      destruct Hr₁ as [Hr₁| Hr₁].
+
+bbb.
       clear H₃ Hlt H.
       assert (degree (ps_zerop R) pol ≤ 1)%nat as Hdeg.
        unfold degree; simpl.
