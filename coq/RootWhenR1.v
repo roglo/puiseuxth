@@ -1088,6 +1088,7 @@ Theorem root_when_r_eq_1 : ∀ pol ns,
      → root_multiplicity acf cn (Φq poln nsn) = 1%nat)
   → ∃ s, (ps_pol_apply pol s = 0)%ps.
 Proof.
+(* à nettoyer, faire un lemme pour le cas multiplicity=0 *)
 intros pol ns Hns Hr.
 destruct Hr as (n, Hr).
 remember (nth_pol n pol ns) as poln eqn:Hpoln  in |- *.
