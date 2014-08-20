@@ -52,6 +52,8 @@ remember (root_multiplicity acf c (Φq pol ns)) as r eqn:Hr .
 symmetry in Hr.
 revert pol ns c pol₁ Hns Hc Hpol₁ Hr.
 induction r; intros.
+ exfalso; revert Hr.
+ apply multiplicity_neq_0; assumption.
 bbb.
 
 End theorems.
