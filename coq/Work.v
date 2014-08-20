@@ -1202,6 +1202,45 @@ induction n; intros.
         left; eassumption.
 
         destruct Hr₁ as (a, (Ha, Hcpol)).
+        unfold Φq in Hcpol.
+        clear H.
+        remember Hns as H; clear HeqH.
+        apply exists_ini_pt_nat in H.
+        destruct H as (j, (αj, Hini)).
+        unfold summation_ah_xh_pol in Hcpol.
+        simpl in Hcpol.
+        rewrite Hini in Hcpol; simpl in Hcpol.
+        rewrite nat_num_Qnat in Hcpol.
+        rewrite Nat.sub_diag in Hcpol.
+        simpl in Hcpol.
+        unfold poly_left_shift in Hcpol.
+        simpl in Hcpol.
+        rewrite skipn_pad in Hcpol.
+        unfold eq_poly in Hcpol; simpl in Hcpol.
+        apply lap_eq_cons_inv in Hcpol.
+        destruct Hcpol as (Hoa, Hcpol).
+        remember (oth_pts ns) as opts eqn:Hopts .
+        symmetry in Hopts.
+        destruct opts as [| pt].
+         simpl in Hcpol.
+         remember Hns as H; clear HeqH.
+         apply exists_fin_pt_nat in H.
+         destruct H as (k, (αk, Hfin)).
+         rewrite Hfin in Hcpol.
+         simpl in Hcpol.
+         rewrite nat_num_Qnat in Hcpol; simpl in Hcpol.
+         remember (k - S j)%nat as kj.
+         symmetry in Heqkj.
+         destruct kj.
+          simpl in Hcpol.
+          apply lap_eq_cons_nil_inv in Hcpol.
+          destruct Hcpol as (Hcpol, _).
+          exfalso; revert Hcpol.
+          eapply ord_coeff_non_zero_in_newt_segm; eauto .
+          rewrite Hopts; simpl.
+          right; left; eassumption.
+
+          simpl in Hcpol.
 
 bbb.
       clear H₃ Hlt H.
