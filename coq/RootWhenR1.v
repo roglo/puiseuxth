@@ -29,7 +29,7 @@ Require Import PosOrder.
 Require Import F1Prop.
 Require Import InK1m.
 Require Import Q_field.
-Require Import Puiseux.
+Require Import RootHeadTail.
 
 Set Implicit Arguments.
 
