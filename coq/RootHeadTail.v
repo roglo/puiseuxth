@@ -1,4 +1,4 @@
-(* Puiseux.v *)
+(* RootHeadTail.v *)
 
 Require Import Utf8 QArith NPeano Sorting.
 
