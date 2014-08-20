@@ -41,4 +41,17 @@ Variable R : ring α.
 Variable K : field R.
 Variable acf : algeb_closed_field K.
 
+Theorem zzz : ∀ pol ns c pol₁,
+  ns ∈ newton_segments pol
+  → c = ac_root (Φq pol ns)
+  → pol₁ = next_pol pol (β ns) (γ ns) c
+  → ∃ s, (ps_pol_apply pol₁ s = 0)%ps.
+Proof.
+intros pol ns c pol₁ Hns Hc Hpol₁.
+remember (root_multiplicity acf c (Φq pol ns)) as r eqn:Hr .
+symmetry in Hr.
+revert pol ns c pol₁ Hns Hc Hpol₁ Hr.
+induction r; intros.
 bbb.
+
+End theorems.
