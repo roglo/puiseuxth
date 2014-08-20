@@ -1015,6 +1015,57 @@ induction la as [| a].
   right; assumption.
 Qed.
 
+Lemma degree_eq_0_if : ∀ cpol,
+  degree ac_zerop cpol = O
+  → (cpol = POL [])%pol ∨ (∃ a, (a ≠ 0)%K ∧ (cpol = POL [a])%pol).
+Proof.
+intros cpol Hdeg.
+unfold degree in Hdeg.
+unfold eq_poly; simpl.
+remember (al cpol) as la; clear Heqla.
+induction la as [| a]; [ left; reflexivity | idtac ].
+simpl in Hdeg.
+remember (degree_plus_1_of_list ac_zerop la) as deg eqn:Hdeg₁ .
+symmetry in Hdeg₁.
+destruct deg.
+ clear Hdeg.
+ pose proof (IHla (Nat.eq_refl O)) as H.
+ clear IHla.
+ destruct H as [Hla| Hla].
+  rewrite Hla.
+  destruct (ac_zerop a) as [H₁| H₁].
+   left; rewrite H₁.
+   apply lap_eq_0.
+
+   right.
+   exists a.
+   split; [ assumption | idtac ].
+   rewrite Hla; reflexivity.
+
+  clear cpol.
+  destruct Hla as (b, (Hb, Hla)).
+  rewrite Hla.
+  right.
+  revert a b Hb Hla.
+  induction la as [| c]; intros.
+   apply lap_eq_nil_cons_inv in Hla.
+   destruct Hla; contradiction.
+
+   simpl in Hdeg₁.
+   apply lap_eq_cons_inv in Hla.
+   destruct Hla as (Hcb, Hla).
+   remember (degree_plus_1_of_list ac_zerop la) as deg eqn:Hdeg .
+   symmetry in Hdeg.
+   destruct deg.
+    destruct (ac_zerop c) as [H₁| H₁]; [ idtac | discriminate Hdeg₁ ].
+    rewrite H₁ in Hcb.
+    symmetry in Hcb; contradiction.
+
+    discriminate Hdeg₁.
+
+ discriminate Hdeg.
+Qed.
+
 Theorem zzz : ∀ pol ns,
   ns ∈ newton_segments pol
   → (∃ n, ∀ poln nsn cn,
@@ -1127,6 +1178,30 @@ induction n; intros.
 
       apply root_multiplicity_0 in Hr₁.
       destruct Hr₁ as [Hr₁| Hr₁].
+       apply degree_eq_0_if in Hr₁.
+       destruct Hr₁ as [Hr₁| Hr₁].
+        unfold Φq in Hr₁; simpl in Hr₁.
+        clear H.
+        remember Hns as H; clear HeqH.
+        apply exists_ini_pt_nat in H.
+        destruct H as (j, (αj, Hini)).
+        rewrite Hini in Hr₁.
+        simpl in Hr₁.
+        rewrite nat_num_Qnat in Hr₁.
+        unfold eq_poly in Hr₁.
+        simpl in Hr₁.
+        rewrite Hini in Hr₁; simpl in Hr₁.
+        rewrite nat_num_Qnat in Hr₁.
+        rewrite Nat.sub_diag in Hr₁.
+        rewrite skipn_pad in Hr₁.
+        rewrite list_pad_0 in Hr₁.
+        apply lap_eq_cons_nil_inv in Hr₁.
+        destruct Hr₁ as (Hoj, Hcpol).
+        exfalso; revert Hoj.
+        eapply ord_coeff_non_zero_in_newt_segm; eauto .
+        left; eassumption.
+
+        destruct Hr₁ as (a, (Ha, Hcpol)).
 
 bbb.
       clear H₃ Hlt H.
