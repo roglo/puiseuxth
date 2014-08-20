@@ -996,23 +996,36 @@ induction i; intros.
 Qed.
 
 Lemma root_multiplicity_0 : ∀ c cpol,
-  root_multiplicity acf c cpol = 0%nat
-  → (degree ac_zerop cpol = 0)%nat ∨ (apply_poly cpol c ≠ 0)%K.
+  c = ac_root cpol
+  → root_multiplicity acf c cpol = 0%nat
+  → (degree ac_zerop cpol = 0)%nat.
 Proof.
-intros c cpol Hr.
+intros c cpol Hc Hr.
 unfold root_multiplicity in Hr.
 unfold degree, apply_poly.
-remember (al cpol) as la; clear cpol Heqla.
-induction la as [| a].
- left; reflexivity.
+remember (al cpol) as la.
+symmetry in Heqla.
+destruct la as [| a]; [ reflexivity | simpl ].
+simpl in Hr.
+unfold lap_mod_deg_1 in Hr; simpl in Hr.
+destruct (ac_zerop (apply_lap la c * c + a)%K) as [H₁| H₁].
+ discriminate Hr.
 
- simpl.
- simpl in Hr.
- unfold lap_mod_deg_1 in Hr; simpl in Hr.
- destruct (ac_zerop (apply_lap la c * c + a)%K) as [H₁| H₁].
-  discriminate Hr.
+ remember (degree ac_zerop cpol) as deg eqn:Hdeg .
+ symmetry in Hdeg.
+ destruct deg.
+  unfold degree in Hdeg.
+  rewrite Heqla in Hdeg.
+  simpl in Hdeg.
+  assumption.
 
-  right; assumption.
+  assert (degree ac_zerop cpol ≥ 1)%nat as H by fast_omega Hdeg.
+  clear Hdeg.
+  apply ac_prop_root in H.
+  rewrite <- Hc in H.
+  unfold apply_poly in H.
+  rewrite Heqla in H; simpl in H.
+  contradiction.
 Qed.
 
 Lemma degree_eq_0_if : ∀ cpol,
@@ -1066,7 +1079,7 @@ destruct deg.
  discriminate Hdeg.
 Qed.
 
-Theorem zzz : ∀ pol ns,
+Theorem root_when_r_eq_1 : ∀ pol ns,
   ns ∈ newton_segments pol
   → (∃ n, ∀ poln nsn cn,
      poln = nth_pol n pol ns
@@ -1176,221 +1189,101 @@ induction n; intros.
 
        apply Nat.lt_0_succ.
 
-      apply root_multiplicity_0 in Hr₁.
+      apply root_multiplicity_0 in Hr₁; eauto.
+      apply degree_eq_0_if in Hr₁.
       destruct Hr₁ as [Hr₁| Hr₁].
-       apply degree_eq_0_if in Hr₁.
-       destruct Hr₁ as [Hr₁| Hr₁].
-        unfold Φq in Hr₁; simpl in Hr₁.
-        clear H.
-        remember Hns as H; clear HeqH.
-        apply exists_ini_pt_nat in H.
-        destruct H as (j, (αj, Hini)).
-        rewrite Hini in Hr₁.
-        simpl in Hr₁.
-        rewrite nat_num_Qnat in Hr₁.
-        unfold eq_poly in Hr₁.
-        simpl in Hr₁.
-        rewrite Hini in Hr₁; simpl in Hr₁.
-        rewrite nat_num_Qnat in Hr₁.
-        rewrite Nat.sub_diag in Hr₁.
-        rewrite skipn_pad in Hr₁.
-        rewrite list_pad_0 in Hr₁.
-        apply lap_eq_cons_nil_inv in Hr₁.
-        destruct Hr₁ as (Hoj, Hcpol).
-        exfalso; revert Hoj.
-        eapply ord_coeff_non_zero_in_newt_segm; eauto .
-        left; eassumption.
+       unfold Φq in Hr₁; simpl in Hr₁.
+       clear H.
+       remember Hns as H; clear HeqH.
+       apply exists_ini_pt_nat in H.
+       destruct H as (j, (αj, Hini)).
+       rewrite Hini in Hr₁.
+       simpl in Hr₁.
+       rewrite nat_num_Qnat in Hr₁.
+       unfold eq_poly in Hr₁.
+       simpl in Hr₁.
+       rewrite Hini in Hr₁; simpl in Hr₁.
+       rewrite nat_num_Qnat in Hr₁.
+       rewrite Nat.sub_diag in Hr₁.
+       rewrite skipn_pad in Hr₁.
+       rewrite list_pad_0 in Hr₁.
+       apply lap_eq_cons_nil_inv in Hr₁.
+       destruct Hr₁ as (Hoj, Hcpol).
+       exfalso; revert Hoj.
+       eapply ord_coeff_non_zero_in_newt_segm; eauto .
+       left; eassumption.
 
-        destruct Hr₁ as (a, (Ha, Hcpol)).
-        unfold Φq in Hcpol.
-        clear H.
+       destruct Hr₁ as (a, (Ha, Hcpol)).
+       unfold Φq in Hcpol.
+       clear H.
+       remember Hns as H; clear HeqH.
+       apply exists_ini_pt_nat in H.
+       destruct H as (j, (αj, Hini)).
+       unfold summation_ah_xh_pol in Hcpol.
+       simpl in Hcpol.
+       rewrite Hini in Hcpol; simpl in Hcpol.
+       rewrite nat_num_Qnat in Hcpol.
+       rewrite Nat.sub_diag in Hcpol.
+       simpl in Hcpol.
+       unfold poly_left_shift in Hcpol.
+       simpl in Hcpol.
+       rewrite skipn_pad in Hcpol.
+       unfold eq_poly in Hcpol; simpl in Hcpol.
+       apply lap_eq_cons_inv in Hcpol.
+       destruct Hcpol as (Hoa, Hcpol).
+       remember (oth_pts ns) as opts eqn:Hopts .
+       symmetry in Hopts.
+       destruct opts as [| pt].
+        simpl in Hcpol.
         remember Hns as H; clear HeqH.
-        apply exists_ini_pt_nat in H.
-        destruct H as (j, (αj, Hini)).
-        unfold summation_ah_xh_pol in Hcpol.
+        apply exists_fin_pt_nat in H.
+        destruct H as (k, (αk, Hfin)).
+        rewrite Hfin in Hcpol.
         simpl in Hcpol.
-        rewrite Hini in Hcpol; simpl in Hcpol.
-        rewrite nat_num_Qnat in Hcpol.
-        rewrite Nat.sub_diag in Hcpol.
-        simpl in Hcpol.
-        unfold poly_left_shift in Hcpol.
-        simpl in Hcpol.
-        rewrite skipn_pad in Hcpol.
-        unfold eq_poly in Hcpol; simpl in Hcpol.
-        apply lap_eq_cons_inv in Hcpol.
-        destruct Hcpol as (Hoa, Hcpol).
-        remember (oth_pts ns) as opts eqn:Hopts .
-        symmetry in Hopts.
-        destruct opts as [| pt].
+        rewrite nat_num_Qnat in Hcpol; simpl in Hcpol.
+        remember (k - S j)%nat as kj.
+        clear Heqkj.
+        induction kj.
          simpl in Hcpol.
-         remember Hns as H; clear HeqH.
-         apply exists_fin_pt_nat in H.
-         destruct H as (k, (αk, Hfin)).
-         rewrite Hfin in Hcpol.
+         apply lap_eq_cons_nil_inv in Hcpol.
+         destruct Hcpol as (Hoc, _).
+         exfalso; revert Hoc.
+         eapply ord_coeff_non_zero_in_newt_segm; eauto .
+         rewrite Hopts; simpl.
+         right; left; eassumption.
+
          simpl in Hcpol.
-         rewrite nat_num_Qnat in Hcpol; simpl in Hcpol.
-         remember (k - S j)%nat as kj.
-         symmetry in Heqkj.
-         destruct kj.
+         apply lap_eq_cons_nil_inv in Hcpol.
+         destruct Hcpol as (_, Hcpol).
+         apply IHkj in Hcpol.
+         assumption.
+
+        simpl in Hcpol.
+        remember Hns as H; clear HeqH.
+        eapply exists_oth_pt_nat with (pt := pt) in H.
+         destruct H as (h, (αh, Hoth)).
+         rewrite Hoth in Hcpol; simpl in Hcpol.
+         rewrite nat_num_Qnat in Hcpol.
+         remember (h - S j)%nat as hj.
+         clear Heqhj.
+         induction hj.
           simpl in Hcpol.
           apply lap_eq_cons_nil_inv in Hcpol.
-          destruct Hcpol as (Hcpol, _).
-          exfalso; revert Hcpol.
+          destruct Hcpol as (Hoc, _).
+          exfalso; revert Hoc.
           eapply ord_coeff_non_zero_in_newt_segm; eauto .
-          rewrite Hopts; simpl.
-          right; left; eassumption.
+          right.
+          apply List.in_or_app.
+          left.
+          rewrite Hopts; left; eassumption.
 
           simpl in Hcpol.
+          apply lap_eq_cons_nil_inv in Hcpol.
+          destruct Hcpol as (_, Hcpol).
+          apply IHhj in Hcpol.
+          assumption.
 
-bbb.
-      clear H₃ Hlt H.
-      assert (degree (ps_zerop R) pol ≤ 1)%nat as Hdeg.
-       unfold degree; simpl.
-       remember (al pol) as la.
-       symmetry in Heqla.
-       destruct la as [| a]; [ apply Nat.le_0_l | simpl ].
-       remember (degree_plus_1_of_list (ps_zerop R) la) as p.
-       symmetry in Heqp.
-       destruct p; [ destruct (ps_zerop R a); apply Nat.le_0_l | exfalso ].
-bbb.
-       remember (degree ac_zerop (Φq pol ns)) as deg eqn:Hdeg .
-       symmetry in Hdeg.
-       destruct deg.
-        unfold degree in Hdeg.
-        remember (Φq pol ns) as phi eqn:Hphi .
-        unfold Φq in Hphi; simpl in Hphi.
-        unfold summation_ah_xh_pol in Hphi; simpl in Hphi.
-        rewrite Nat.sub_diag in Hphi; simpl in Hphi.
-        rewrite Heqla in Hphi; simpl in Hphi.
-        remember (nat_num (fst (ini_pt ns))) as x.
-        symmetry in Heqx.
-        destruct x.
-         unfold poly_left_shift in Hphi; simpl in Hphi.
-         rewrite Hphi in Hdeg.
-         simpl in Hdeg.
-         remember
-          (make_char_pol R 1
-             (List.map (term_of_point pol) (oth_pts ns ++ [fin_pt ns]))) as cp.
-         remember (degree_plus_1_of_list ac_zerop cp) as deg.
-         symmetry in Heqdeg.
-         destruct deg.
-          destruct (ac_zerop (order_coeff a)); simpl in Hdeg.
-           destruct cp.
-            clear Heqdeg Hdeg.
-            subst phi.
-            unfold root_multiplicity in Hr₁.
-            simpl in Hr₁.
-            destruct (ac_zerop (lap_mod_deg_1 [order_coeff a] c)).
-             discriminate Hr₁.
-
-             clear Hr₁.
-             unfold ps_poly_nth, ps_lap_nth in H₁.
-             rewrite Heqla in H₁; simpl in H₁.
-             apply order_fin in H₁.
-             unfold order in H₁.
-             unfold order_coeff in n0.
-             remember (null_coeff_range_length R (ps_terms a) 0) as v.
-             symmetry in Heqv.
-             destruct v as [v| ].
-              clear H₁.
-              unfold lap_mod_deg_1 in n0.
-              simpl in n0.
-              rewrite rng_mul_0_l, rng_add_0_l in n0.
-              unfold order_coeff in r.
-              rewrite Heqv in r.
-              contradiction.
-
-              unfold lap_mod_deg_1 in n0.
-              simpl in n0.
-              rewrite rng_mul_0_l, rng_add_0_l in n0.
-              apply n0; reflexivity.
-
-            clear Hdeg.
-bbb.
-
-intros pol ns Hns Hr.
-destruct Hr as (n, Hr).
-remember (nth_pol n pol ns) as poln eqn:Hpoln  in |- *.
-remember (nth_ns n pol ns) as nsn eqn:Hnsn  in |- *.
-remember (nth_c n pol ns) as cn eqn:Hcn  in |- *.
-remember (zerop_1st_n_const_coeff n pol ns) as z eqn:Hz .
-symmetry in Hz.
-pose proof (exists_pol_ord R pol) as H.
-destruct H as (m, Hm).
-remember (q_of_m m (γ ns)) as q₀ eqn:Hq₀ .
-remember Hpoln as H; clear HeqH.
-eapply Hr in H; eauto .
-clear Hr.
-rename H into Hrn.
-remember (next_pol poln (β nsn) (γ nsn) cn) as polSn eqn:HpolSn .
-destruct z.
- Focus 2.
- remember Hrn as H; clear HeqH.
-bbb.
- eapply root_after_r_eq_1 with (pol₁ := polSn) in H; eauto .
-  destruct H as (s, Hs).
-  exists (root_head 0 n pol ns + ps_monom 1%K (γ_sum 0 n pol ns) * s)%ps.
-  rewrite apply_nth_pol; eauto ; simpl.
-  erewrite <- nth_pol_n; eauto .
-  erewrite <- nth_c_root; eauto .
-  rewrite <- Hcn, <- HpolSn, Hs.
-  rewrite rng_mul_0_r; reflexivity.
-
-  rewrite zerop_1st_n_const_coeff_false_iff in Hz.
-  destruct n; [ subst poln nsn; auto | idtac ].
-  eapply List_hd_in.
-   rewrite Hnsn; simpl.
-   eapply nth_ns_n; eauto .
-   subst poln; simpl; symmetry.
-   eapply nth_pol_n; eauto .
-
-   clear H.
-   remember (m * q₀)%positive as m₁.
-   remember (nth_pol n pol ns) as poln₁ eqn:Hpoln₁ .
-   remember Hpoln as H; clear HeqH; simpl in H.
-   erewrite <- nth_pol_n with (pol₁ := pol) in H; eauto .
-   eapply r_1_next_ns with (m := m₁) in H; eauto .
-    destruct H as (αjn₁, (αkn₁, H)).
-    destruct H as (_, (Hinin₁, (Hfinn₁, (Hαjn₁, Hαkn₁)))).
-    intros H; rewrite H in Hfinn₁; discriminate Hfinn₁.
-bbb.
-
-   clear H.
-   pose proof (Hz (S n) (Nat.le_refl (S n))) as H.
-   rewrite <- Hpoln in H.
-   unfold root_multiplicity in Hrn; simpl in Hrn.
-   rewrite Nat.sub_diag in Hrn; simpl in Hrn.
-   rewrite skipn_pad in Hrn.
-   erewrite nth_ns_succ in Hnsn; eauto .
-   rename H into Hnz.
-   intros H; rewrite H in Hnsn.
-   simpl in Hnsn.
-   subst nsn.
-   simpl in Hrn.
-   unfold nat_num in Hrn; simpl in Hrn.
-   unfold ps_poly_nth, ps_lap_nth in Hnz.
-   remember (List.nth 0 (al poln) 0%ps) as a₀ eqn:Ha₀ .
-   remember [order_coeff a₀; order_coeff a₀ … []] as v eqn:Hv .
-   destruct (ac_zerop (lap_mod_deg_1 v cn)) as [H₁| H₁].
-    destruct (ac_zerop (lap_mod_deg_1 (lap_div_deg_1 v cn) cn)) as [H₂| H₂].
-     discriminate Hrn.
-
-     clear Hrn.
-     subst v.
-     unfold lap_mod_deg_1 in H₁.
-     unfold lap_mod_div_deg_1 in H₁.
-     simpl in H₁.
-     rewrite rng_mul_0_l, rng_add_0_l in H₁.
-     unfold lap_mod_deg_1, lap_div_deg_1 in H₂.
-     simpl in H₂.
-     rewrite rng_mul_0_l, rng_add_0_l, rng_add_0_l in H₂.
-     erewrite nth_c_root in Hcn; eauto .
-     remember (nth_ns (S n) pol ns) as nsn eqn:Hnsn .
-     assert (degree ac_zerop (Φq poln nsn) ≥ 1)%nat as Hd.
-      unfold degree; simpl.
-      rewrite Nat.sub_diag; simpl.
-      rewrite skipn_pad; simpl.
-bbb.
-... parti en couille, mais y a quequ'chose à vouar e'd'dans...
+         rewrite Hopts; left; reflexivity.
+Qed.
 
 End theorems.
