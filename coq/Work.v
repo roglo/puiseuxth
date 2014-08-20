@@ -44,15 +44,13 @@ Variable K : field R.
 Variable acf : algeb_closed_field K.
 
 Definition multiplicity_decreases pol ns n :=
+  let c := ac_root (Φq pol ns) in
+  let r := root_multiplicity acf c (Φq pol ns) in
   let poln := nth_pol n pol ns in
   let nsn := nth_ns n pol ns in
   let cn := nth_c n pol ns in
   let rn := root_multiplicity acf cn (Φq poln nsn) in
-  let poln₁ := nth_pol (S n) pol ns in
-  let nsn₁ := nth_ns (S n) pol ns in
-  let cn₁ := nth_c (S n) pol ns in
-  let rn₁ := root_multiplicity acf cn₁ (Φq poln₁ nsn₁) in
-  (rn₁ < rn)%nat.
+  (rn < r)%nat.
 
 Theorem zzz : ∀ pol ns c pol₁,
   ns ∈ newton_segments pol
@@ -74,18 +72,30 @@ destruct r.
  destruct H as [Hn| Hn].
   destruct Hn as (n, Hn).
   unfold multiplicity_decreases in Hn.
+  rewrite <- Hc, Hr in Hn.
   remember (nth_pol n pol ns) as poln eqn:Hpoln .
   remember (nth_ns n pol ns) as nsn eqn:Hnsn .
   remember (nth_c n pol ns) as cn eqn:Hcn .
-  remember (nth_pol (S n) pol ns) as poln₁ eqn:Hpoln₁ .
-  remember (nth_ns (S n) pol ns) as nsn₁ eqn:Hnsn₁ .
-  remember (nth_c (S n) pol ns) as cn₁ eqn:Hcn₁ .
   remember (root_multiplicity acf cn (Φq poln nsn)) as rn eqn:Hrn .
-  remember (root_multiplicity acf cn₁ (Φq poln₁ nsn₁)) as rn₁ eqn:Hrn₁ .
-  symmetry in Hrn, Hrn₁.
-bbb.
-  destruct rn.
-   exfalso; revert Hn; apply Nat.nlt_0_r.
+  symmetry in Hrn.
+  destruct n.
+   simpl in Hpoln, Hnsn, Hcn.
+   subst poln nsn cn.
+   rewrite <- Hc in Hrn.
+   rewrite Hrn in Hr; subst rn.
+   exfalso; revert Hn; apply Nat.lt_irrefl.
+
+   remember (next_pol poln (β nsn) (γ nsn) cn) as poln₁ eqn:Hpoln₁ .
+   eapply IHm with (ns := nsn) (c := cn) (pol₁ := poln₁) in Hn; eauto .
+    erewrite nth_pol_n in Hpoln₁; eauto .
+     remember (List.hd phony_ns (newton_segments pol₁)) as ns₁ eqn:Hns₁ .
+     destruct Hn as (sn₁, Hsn₁).
+     remember (root_head 0 n pol₁ ns₁) as rh₁.
+     remember (ps_monom 1%K (γ_sum 0 n pol₁ ns₁)) as mo₁.
+     exists (rh₁ + mo₁ * sn₁)%ps; subst rh₁ mo₁.
+     rewrite apply_nth_pol; auto.
+      rewrite <- Hpoln₁, Hsn₁.
+      rewrite rng_mul_0_r; reflexivity.
 bbb.
 
 End theorems.
