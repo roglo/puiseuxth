@@ -29,10 +29,10 @@ Set Implicit Arguments.
 (* *)
 
 (* pol₁(x,y₁) = x^(-β₁).pol(x,x^γ₁.(c₁ + y₁)) *)
-Definition next_lap α {R : ring α} pol β₁ γ₁ c₁ :=
-  @lap_mul _ (ps_ring R) [ps_monom 1%K (- β₁)]
-    (@lap_compose _ (ps_ring R) pol
-       [ps_monom c₁ γ₁; ps_monom 1%K γ₁ … []]).
+Definition next_lap α {R : ring α} pol β₁ γ₁ (c₁ : α) :=
+  let _ := ps_ring R in
+  ([ps_monom 1%K (- β₁)] *
+   lap_compose pol [ps_monom c₁ γ₁; ps_monom 1%K γ₁ … []])%lap.
 
 Definition next_pol α {R : ring α} pol β₁ γ₁ c₁ :=
   (POL (next_lap (al pol) β₁ γ₁ c₁))%pol.
