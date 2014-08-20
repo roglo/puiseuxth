@@ -96,6 +96,9 @@ destruct r.
      rewrite apply_nth_pol; auto.
       rewrite <- Hpoln₁, Hsn₁.
       rewrite rng_mul_0_r; reflexivity.
+
+      apply zerop_1st_n_const_coeff_false_iff.
+      intros i Hin.
 bbb.
 
 End theorems.
