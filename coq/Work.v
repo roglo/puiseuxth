@@ -106,33 +106,9 @@ destruct r.
 
      eapply List_hd_in.
       rewrite Hnsn; simpl.
-      eapply nth_ns_n.
-       2: eauto .
-
-       2: eauto .
-
-       eauto .
-
-       eauto .
-
-       eauto .
-
-       eauto .
-
-       erewrite nth_pol_n.
-        5: eauto .
-
-        eauto .
-
-        reflexivity.
-
-        reflexivity.
-
-        reflexivity.
-
-        reflexivity.
-
-        reflexivity.
+      eapply nth_ns_n; try reflexivity.
+      erewrite nth_pol_n; try reflexivity.
+      assumption.
 bbb.
 
 End theorems.
