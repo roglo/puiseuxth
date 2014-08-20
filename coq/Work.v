@@ -34,12 +34,25 @@ Require Import RootWhenR1.
 
 Set Implicit Arguments.
 
+Axiom exists_or_not_forall : ∀ P : nat → Prop, (∃ n, P n) ∨ (∀ n, ¬P n).
+
 Section theorems.
 
 Variable α : Type.
 Variable R : ring α.
 Variable K : field R.
 Variable acf : algeb_closed_field K.
+
+Definition multiplicity_decreases pol ns n :=
+  let poln := nth_pol n pol ns in
+  let nsn := nth_ns n pol ns in
+  let cn := nth_c n pol ns in
+  let rn := root_multiplicity acf cn (Φq poln nsn) in
+  let poln₁ := nth_pol (S n) pol ns in
+  let nsn₁ := nth_ns (S n) pol ns in
+  let cn₁ := nth_c (S n) pol ns in
+  let rn₁ := root_multiplicity acf cn₁ (Φq poln₁ nsn₁) in
+  (rn₁ < rn)%nat.
 
 Theorem zzz : ∀ pol ns c pol₁,
   ns ∈ newton_segments pol
@@ -55,6 +68,24 @@ induction r using all_lt_all; intros.
 destruct r.
  exfalso; revert Hr.
  apply multiplicity_neq_0; assumption.
+
+ rename H into IHm.
+ pose proof (exists_or_not_forall (multiplicity_decreases pol ns)) as H.
+ destruct H as [Hn| Hn].
+  destruct Hn as (n, Hn).
+  unfold multiplicity_decreases in Hn.
+  remember (nth_pol n pol ns) as poln eqn:Hpoln .
+  remember (nth_ns n pol ns) as nsn eqn:Hnsn .
+  remember (nth_c n pol ns) as cn eqn:Hcn .
+  remember (nth_pol (S n) pol ns) as poln₁ eqn:Hpoln₁ .
+  remember (nth_ns (S n) pol ns) as nsn₁ eqn:Hnsn₁ .
+  remember (nth_c (S n) pol ns) as cn₁ eqn:Hcn₁ .
+  remember (root_multiplicity acf cn (Φq poln nsn)) as rn eqn:Hrn .
+  remember (root_multiplicity acf cn₁ (Φq poln₁ nsn₁)) as rn₁ eqn:Hrn₁ .
+  symmetry in Hrn, Hrn₁.
+bbb.
+  destruct rn.
+   exfalso; revert Hn; apply Nat.nlt_0_r.
 bbb.
 
 End theorems.
