@@ -36,6 +36,17 @@ Set Implicit Arguments.
 
 Axiom exists_or_not_forall : ∀ P : nat → Prop, (∃ n, P n) ∨ (∀ n, ¬P n).
 
+Fixpoint nth_r α {R : ring α} {K : field R} {acf : algeb_closed_field K}
+  n pol ns :=
+  match n with
+  | 0%nat => root_multiplicity acf (ac_root (Φq pol ns)) (Φq pol ns)
+  | S n₁ =>
+      let c₁ := ac_root (Φq pol ns) in
+      let pol₁ := next_pol pol (β ns) (γ ns) c₁ in
+      let ns₁ := List.hd phony_ns (newton_segments pol₁) in
+      nth_r n₁ pol₁ ns₁
+  end.
+
 Section theorems.
 
 Variable α : Type.
@@ -51,6 +62,44 @@ Definition multiplicity_decreases pol ns n :=
   let cn := nth_c n pol ns in
   let rn := root_multiplicity acf cn (Φq poln nsn) in
   (rn < r)%nat.
+
+Lemma lowest_i_such_that_ri_lt_r₀ : ∀ pol ns r rn n,
+  r = nth_r 0 pol ns
+  → rn = nth_r n pol ns
+  → (rn < r)%nat
+  → ∃ i,
+    i ≤ n ∧
+    (i = O ∨ nth_r (pred i) pol ns = r) ∧
+    (nth_r i pol ns < r)%nat.
+Proof.
+intros pol ns r rn n Hr Hrn Hrnr.
+revert pol ns r rn Hr Hrn Hrnr.
+induction n; intros.
+ simpl in Hr, Hrn; subst.
+ exfalso; revert Hrnr; apply Nat.lt_irrefl.
+
+ simpl in Hrn.
+ eapply IHn in Hrn; eauto .
+  remember (ac_root (Φq pol ns)) as c eqn:Hc .
+  remember (next_pol pol (β ns) (γ ns) c) as pol₁ eqn:Hpol₁ .
+  remember (List.hd phony_ns (newton_segments pol₁)) as ns₁ eqn:Hns₁ .
+  destruct Hrn as (i, (Hin, (Hir, Hri))).
+  destruct i.
+   exfalso; revert Hri; apply Nat.lt_irrefl.
+
+   destruct Hir as [Hir| Hir].
+    discriminate Hir.
+
+    exists (S (S i)).
+    split.
+     apply Nat.succ_le_mono in Hin; assumption.
+
+     split.
+      right.
+      simpl in Hir; simpl.
+      rewrite <- Hc, <- Hpol₁, <- Hns₁.
+bbb.
+parti en couille...
 
 Theorem zzz : ∀ pol ns c pol₁,
   ns ∈ newton_segments pol
@@ -85,6 +134,8 @@ destruct r.
    rewrite Hrn in Hr; subst rn.
    exfalso; revert Hn; apply Nat.lt_irrefl.
 
+bbb.
+(* find lowest_n_such_that_rn_lt_r₀ *)
    remember (List.hd phony_ns (newton_segments pol₁)) as ns₁ eqn:Hns₁ .
    remember (next_pol poln (β nsn) (γ nsn) cn) as poln₁ eqn:Hpoln₁ .
    remember (zerop_1st_n_const_coeff n pol₁ ns₁) as z eqn:Hz .
@@ -109,6 +160,11 @@ destruct r.
       eapply nth_ns_n; try reflexivity.
       erewrite nth_pol_n; try reflexivity.
       assumption.
+
+      pose proof (exists_pol_ord R pol) as H.
+      destruct H as (m, Hm).
+      remember Hns as H; clear HeqH.
 bbb.
+waiting for a version of r_1_nth_ns with any r: r_n_nth_ns...
 
 End theorems.
