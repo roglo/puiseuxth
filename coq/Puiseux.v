@@ -79,32 +79,6 @@ Fixpoint nth_γ α {R : ring α} {K : field R} {acf : algeb_closed_field K}
       nth_γ n₁ pol₁ ns₁
   end.
 
-Definition same_r α {R : ring α} {K : field R} {acf : algeb_closed_field K}
-  pol ns :=
-  let c₁ := ac_root (Φq pol ns) in
-  let r₁ := root_multiplicity acf c₁ (Φq pol ns) in
-  let pol₁ := next_pol pol (β ns) (γ ns) c₁ in
-  let ns₁ := List.hd phony_ns (newton_segments pol₁) in
-  let c₂ := ac_root (Φq pol₁ ns₁) in
-  let r₁ := root_multiplicity acf c₁ (Φq pol ns) in
-  let r₂ := root_multiplicity acf c₂ (Φq pol₁ ns₁) in
-  r₁ = r₂.
-
-Fixpoint polydromy_if_r_reaches_one α {R : ring α} {K : field R}
-  {acf : algeb_closed_field K} m pol {struct m} :=
-  match m with
-  | 0%nat => 0%nat
-  | S m₁ =>
-      let ns := List.hd phony_ns (newton_segments pol) in
-      let c₁ := ac_root (Φq pol ns) in
-      let r₁ := root_multiplicity acf c₁ (Φq pol ns) in
-      if eq_nat_dec r₁ 1 then 1%nat
-      else
-        let pol₁ := next_pol pol (β ns) (γ ns) c₁ in
-        let v := polydromy_if_r_reaches_one m₁ pol₁ in
-        (v * Pos.to_nat (Qden (γ ns)))%nat
-  end.
-
 Definition next_pow pow ns₁ m :=
   let n := (γ ns₁ * inject_Z ('m)) in
   (pow + Z.to_nat (Qnum n / ' Qden n))%nat.
