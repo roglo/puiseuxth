@@ -214,6 +214,9 @@ destruct r.
  exfalso.
  symmetry in Hr.
  apply root_multiplicity_0 in Hr; auto.
+ revert Hr.
+ apply degree_neq_0; assumption.
+
 bbb.
 
 intros pol ns c₁ pol₁ ns₁ j₁ αj₁ k₁ αk₁ m r.
