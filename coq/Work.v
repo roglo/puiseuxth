@@ -161,28 +161,27 @@ destruct r.
      subst ns₁.
      simpl in Hini₁, Hfin₁; simpl.
      rewrite minimised_slope_beg_pt in Hini₁.
-bbb.
-  eapply pouet in Hfin₁; try eassumption.
+     apply Qbar.qfin_lt_mono in Hpos.
+     remember (pair_rec (λ pow ps, (Qnat pow, ps))) as f.
+     remember (filter_finite_ord R (List.map f (power_list 2 la))) as ffo.
+     remember (minimise_slope (Qnat 0, v₀) (Qnat 1, v₁) ffo) as ms.
+     rewrite Heqv₁ in Hz; simpl in Hz.
+     eapply pouet in Hfin₁; try eassumption.
+     destruct Hfin₁ as (H₁, (H₂, (H₃, (H₄, (H₅, H₆))))).
+     split; [ assumption | idtac ].
+     split; [ omega | idtac ].
+     split; [ assumption | idtac ].
+     split; [ assumption | idtac ].
+     split; assumption.
 
- symmetry in Heqv₀.
- destruct v₀ as [v₀| ].
-  destruct la as [| a₁]; [ rewrite order_0 in Hz; contradiction | idtac ].
-  simpl in Hz, Hns₁.
-  remember (order a₁) as v₁.
-  symmetry in Heqv₁.
-  destruct v₁ as [v₁| ]; [ idtac | contradiction ].
-  apply Qbar.qfin_inj in Hz.
-  apply Qbar.qfin_lt_mono in Hpos.
-  remember (pair_rec (λ pow ps, (Qnat pow, ps))) as f.
-  simpl in Hns₁.
-  remember (filter_finite_ord R (List.map f (power_list 2 la))) as ffo.
-  remember (minimise_slope (Qnat 0, v₀) (Qnat 1, v₁) ffo) as ms.
-  subst ns₁; simpl in Hini₁, Hfin₁.
-  rewrite Heqms, minimised_slope_beg_pt in Hini₁.
-  eapply pouet in Hfin₁; try eassumption.
-  destruct Hfin₁ as (H₁, (H₂, (H₃, (H₄, (H₅, H₆))))).
-  split; [ assumption | idtac ].
-  split; [ omega | idtac ].
+     subst ns₁.
+     simpl in Hini₁, Hfin₁; simpl.
+     rewrite minimised_slope_beg_pt in Hini₁.
+     apply Qbar.qfin_lt_mono in Hpos.
+     remember (pair_rec (λ pow ps, (Qnat pow, ps))) as f.
+     remember (filter_finite_ord R (List.map f (power_list 2 la))) as ffo.
+     remember (minimise_slope (Qnat 0, v₀) (Qnat 1, v₁) ffo) as ms.
+bbb.
   split; [ assumption | idtac ].
   split; assumption.
 
