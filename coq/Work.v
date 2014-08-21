@@ -103,6 +103,92 @@ induction n; intros; [ subst; reflexivity | simpl ].
 apply IHn; subst; reflexivity.
 Qed.
 
+Lemma degree_neq_0 : ∀ pol ns,
+  ns ∈ newton_segments pol
+  → degree ac_zerop (Φq pol ns) ≠ 0%nat.
+Proof.
+intros pol ns Hns.
+unfold degree; simpl.
+rewrite Nat.sub_diag, skipn_pad; simpl.
+remember Hns as H; clear HeqH.
+apply exists_ini_pt_nat in H.
+destruct H as (j, (aj, Hini)).
+remember Hns as H; clear HeqH.
+apply exists_fin_pt_nat in H.
+destruct H as (k, (ak, Hfin)).
+rewrite Hini, Hfin; simpl.
+rewrite nat_num_Qnat.
+rewrite <- Hfin.
+remember (oth_pts ns ++ [fin_pt ns]) as pts eqn:Hpts .
+remember (List.map (term_of_point pol) pts) as tl eqn:Htl .
+remember (make_char_pol R (S j) tl) as cpol eqn:Hcpol .
+remember (degree_plus_1_of_list ac_zerop cpol) as d eqn:Hd .
+subst cpol tl pts.
+symmetry in Hd.
+destruct d; [ exfalso | intros H; discriminate H ].
+remember (oth_pts ns) as opts eqn:Hopts .
+symmetry in Hopts.
+destruct opts.
+ simpl in Hd.
+ rewrite Hfin in Hd; simpl in Hd.
+ rewrite nat_num_Qnat in Hd.
+ remember (k - S j)%nat as v; clear Heqv.
+ induction v.
+  simpl in Hd.
+  destruct (ac_zerop (order_coeff (List.nth k (al pol) 0%ps))).
+   revert r.
+   eapply ord_coeff_non_zero_in_newt_segm; eauto .
+   rewrite Hopts; simpl.
+   right; left; eauto .
+
+   discriminate Hd.
+
+  simpl in Hd.
+  remember (order_coeff (List.nth k (al pol) 0%ps)) as o.
+  remember (list_pad v 0%K [o]) as po.
+  destruct (degree_plus_1_of_list ac_zerop po) as [| x].
+   apply IHv; reflexivity.
+
+   discriminate Hd.
+
+ simpl in Hd.
+ remember (nat_num (fst p) - S j)%nat as v; clear Heqv.
+ induction v.
+  simpl in Hd.
+  remember (opts ++ [fin_pt ns]) as pts eqn:Hpts .
+  remember (List.map (term_of_point pol) pts) as tl eqn:Htl .
+  remember (make_char_pol R (S (nat_num (fst p))) tl) as cpol eqn:Hcpol .
+  remember (degree_plus_1_of_list ac_zerop cpol) as e eqn:He .
+  symmetry in He.
+  destruct e; [ idtac | discriminate Hd ].
+  remember (nat_num (fst p)) as h.
+  destruct (ac_zerop (order_coeff (List.nth h (al pol) 0%ps))) as [H| ].
+   revert H.
+   remember Hns as H; clear HeqH.
+   apply exists_oth_pt_nat with (pt := p) in H.
+    destruct H as (h₁, (ah, Hoth)).
+    eapply ord_coeff_non_zero_in_newt_segm; eauto .
+    rewrite Hopts; simpl.
+    right; left; simpl.
+    subst h p; simpl.
+    rewrite nat_num_Qnat; reflexivity.
+
+    rewrite Hopts; left; reflexivity.
+
+   discriminate Hd.
+
+  simpl in Hd.
+  remember (opts ++ [fin_pt ns]) as pts eqn:Hpts .
+  remember (List.map (term_of_point pol) pts) as tl eqn:Htl .
+  remember (make_char_pol R (S (nat_num (fst p))) tl) as cpol eqn:Hcpol .
+  remember (List.nth (nat_num (fst p)) (al pol) 0%ps) as hps eqn:Hhps .
+  remember (list_pad v 0%K [order_coeff hps … cpol]) as cpol₁.
+  destruct (degree_plus_1_of_list ac_zerop cpol₁) as [| x].
+   apply IHv; reflexivity.
+
+   discriminate Hd.
+Qed.
+
 (* more general than r_1_j_0_k_1 which could be simplified if this
    lemma works *)
 Lemma r_n_j_0_k_1r : ∀ pol ns c₁ pol₁ ns₁ j₁ αj₁ k₁ αk₁ m r,
@@ -117,6 +203,70 @@ Lemma r_n_j_0_k_1r : ∀ pol ns c₁ pol₁ ns₁ j₁ αj₁ k₁ αk₁ m r,
   → fin_pt ns₁ = (Qnat k₁, αk₁)
   → j₁ = 0%nat ∧ (0 < k₁)%nat ∧ k₁ ≤ r ∧ αj₁ > 0 ∧ αk₁ == 0 ∧ oth_pts ns₁ = [].
 Proof.
+intros pol ns c₁ pol₁ ns₁ j₁ αj₁ k₁ αk₁ m r.
+intros Hns Hm Hc₁ Hr Hpol₁ Hps₀ Hns₁ Hini₁ Hfin₁.
+apply order_fin in Hps₀.
+remember Hns as H; clear HeqH.
+symmetry in Hr.
+eapply f₁_orders in H; try eassumption.
+destruct H as (Hnneg, (Hpos, Hz)).
+destruct r.
+ exfalso.
+ symmetry in Hr.
+ apply root_multiplicity_0 in Hr; auto.
+bbb.
+
+intros pol ns c₁ pol₁ ns₁ j₁ αj₁ k₁ αk₁ m r.
+intros Hns Hm Hc₁ Hr Hpol₁ Hps₀ Hns₁ Hini₁ Hfin₁.
+apply order_fin in Hps₀.
+remember Hns as H; clear HeqH.
+symmetry in Hr.
+eapply f₁_orders in H; try eassumption.
+destruct H as (Hnneg, (Hpos, Hz)).
+assert (0 < 1)%nat as H by apply Nat.lt_0_1.
+apply Hpos in H; clear Hpos; rename H into Hpos.
+unfold newton_segments in Hns₁; simpl in Hns₁.
+unfold points_of_ps_polynom in Hns₁; simpl in Hns₁.
+unfold ps_poly_nth in Hnneg, Hz, Hpos.
+remember (al pol₁) as la.
+destruct la as [| a₀].
+ unfold ps_lap_nth in Hz; simpl in Hz.
+ rewrite order_0 in Hz; inversion Hz.
+
+ unfold ps_lap_nth in Hnneg, Hz, Hpos.
+ simpl in Hz, Hpos.
+ unfold points_of_ps_lap in Hns₁.
+ unfold points_of_ps_lap_gen in Hns₁.
+ simpl in Hns₁.
+ remember (order a₀) as v₀.
+ symmetry in Heqv₀.
+ destruct v₀ as [v₀| ].
+  destruct la as [| a₁]; [ rewrite order_0 in Hz; contradiction | idtac ].
+  simpl in Hz, Hns₁.
+  remember (order a₁) as v₁.
+  symmetry in Heqv₁.
+  destruct v₁ as [v₁| ]; [ idtac | contradiction ].
+  apply Qbar.qfin_inj in Hz.
+  apply Qbar.qfin_lt_mono in Hpos.
+  remember (pair_rec (λ pow ps, (Qnat pow, ps))) as f.
+  simpl in Hns₁.
+  remember (filter_finite_ord R (List.map f (power_list 2 la))) as ffo.
+  remember (minimise_slope (Qnat 0, v₀) (Qnat 1, v₁) ffo) as ms.
+  subst ns₁; simpl in Hini₁, Hfin₁.
+  rewrite Heqms, minimised_slope_beg_pt in Hini₁.
+  eapply pouet in Hfin₁; try eassumption.
+  destruct Hfin₁ as (H₁, (H₂, (H₃, (H₄, (H₅, H₆))))).
+  split; [ assumption | idtac ].
+  split; [ omega | idtac ].
+  split; [ assumption | idtac ].
+  split; assumption.
+
+  unfold ps_poly_nth in Hps₀.
+  rewrite <- Heqla in Hps₀.
+  unfold ps_lap_nth in Hps₀; simpl in Hps₀.
+  contradiction.
+bbb.
+
 intros pol ns c₁ pol₁ ns₁ j₁ αj₁ k₁ αk₁ m r.
 intros Hns Hm Hc₁ Hr Hpol₁ Hps₀ Hns₁ Hini₁ Hfin₁.
 apply order_fin in Hps₀.
@@ -192,66 +342,83 @@ assert (0 < r)%nat as H.
       (ac_zerop (order_coeff (List.nth (nat_num (fst p)) (al pol) 0%ps))).
       exfalso.
       revert r.
-      eapply ord_coeff_non_zero_in_newt_segm.
-       3: eauto .
+      remember Hns as H; clear HeqH.
+      apply exists_oth_pt_nat with (pt := p) in H.
+       destruct H as (h, (ah, Hoth)).
+       eapply ord_coeff_non_zero_in_newt_segm.
+        3: eauto .
 
-       eauto .
+        eauto .
 
-       rewrite Hopts.
-       simpl.
-       right; left.
-bbb.
+        rewrite Hopts.
+        simpl.
+        right; left.
+        subst p.
+        simpl.
+        rewrite nat_num_Qnat; reflexivity.
 
-intros pol ns c₁ pol₁ ns₁ j₁ αj₁ k₁ αk₁ m r.
-intros Hns Hm Hc₁ Hr Hpol₁ Hps₀ Hns₁ Hini₁ Hfin₁.
-apply order_fin in Hps₀.
-remember Hns as H; clear HeqH.
-symmetry in Hr.
-eapply f₁_orders in H; try eassumption.
-destruct H as (Hnneg, (Hpos, Hz)).
-assert (0 < 1)%nat as H by apply Nat.lt_0_1.
-apply Hpos in H; clear Hpos; rename H into Hpos.
-unfold newton_segments in Hns₁; simpl in Hns₁.
-unfold points_of_ps_polynom in Hns₁; simpl in Hns₁.
-unfold ps_poly_nth in Hnneg, Hz, Hpos.
-remember (al pol₁) as la.
-destruct la as [| a₀].
- unfold ps_lap_nth in Hz; simpl in Hz.
- rewrite order_0 in Hz; inversion Hz.
+       rewrite Hopts; left; reflexivity.
 
- unfold ps_lap_nth in Hnneg, Hz, Hpos.
- simpl in Hz, Hpos.
- unfold points_of_ps_lap in Hns₁.
- unfold points_of_ps_lap_gen in Hns₁.
- simpl in Hns₁.
- remember (order a₀) as v₀.
- symmetry in Heqv₀.
- destruct v₀ as [v₀| ].
-  destruct la as [| a₁]; [ rewrite order_0 in Hz; contradiction | idtac ].
-  simpl in Hz, Hns₁.
-  remember (order a₁) as v₁.
-  symmetry in Heqv₁.
-  destruct v₁ as [v₁| ]; [ idtac | contradiction ].
-  apply Qbar.qfin_inj in Hz.
-  apply Qbar.qfin_lt_mono in Hpos.
-  remember (pair_rec (λ pow ps, (Qnat pow, ps))) as f.
+      discriminate Heqx.
+
+     simpl in Heqx.
+     remember
+      (degree_plus_1_of_list ac_zerop
+         (list_pad v 0%K
+            [order_coeff (List.nth (nat_num (fst p)) (al pol) 0%ps)
+            … make_char_pol R (S (nat_num (fst p)))
+                (List.map (term_of_point pol) (opts ++ [(Qnat k, ak)]))])) as y.
+     destruct y.
+      apply IHv; reflexivity.
+
+      discriminate Heqx.
+
+   assumption.
+
+  apply Nat.lt_0_succ.
+
+ apply Hpos in H; clear Hpos; rename H into Hpos.
+ unfold newton_segments in Hns₁; simpl in Hns₁.
+ unfold points_of_ps_polynom in Hns₁; simpl in Hns₁.
+ unfold ps_poly_nth in Hnneg, Hz, Hpos.
+ remember (al pol₁) as la.
+ destruct la as [| a₀].
+  unfold ps_lap_nth in Hz; simpl in Hz.
+  rewrite match_id in Hz.
+  rewrite order_0 in Hz; inversion Hz.
+
+  unfold ps_lap_nth in Hnneg, Hz, Hpos.
+  simpl in Hz, Hpos.
+  unfold points_of_ps_lap in Hns₁.
+  unfold points_of_ps_lap_gen in Hns₁.
   simpl in Hns₁.
-  remember (filter_finite_ord R (List.map f (power_list 2 la))) as ffo.
-  remember (minimise_slope (Qnat 0, v₀) (Qnat 1, v₁) ffo) as ms.
-  subst ns₁; simpl in Hini₁, Hfin₁.
-  rewrite Heqms, minimised_slope_beg_pt in Hini₁.
-  eapply pouet in Hfin₁; try eassumption.
-  destruct Hfin₁ as (H₁, (H₂, (H₃, (H₄, (H₅, H₆))))).
-  split; [ assumption | idtac ].
-  split; [ omega | idtac ].
-  split; [ assumption | idtac ].
-  split; assumption.
+  remember (order a₀) as v₀.
+  symmetry in Heqv₀.
+  destruct v₀ as [v₀| ].
+   destruct la as [| a₁].
+    destruct r.
+     rewrite Heqv₀ in Hz.
+     rewrite Hz in Hpos.
+     exfalso; revert Hpos; apply Qbar.lt_irrefl.
 
-  unfold ps_poly_nth in Hps₀.
-  rewrite <- Heqla in Hps₀.
-  unfold ps_lap_nth in Hps₀; simpl in Hps₀.
-  contradiction.
-Qed.
+     simpl in Hz.
+     rewrite match_id in Hz.
+     rewrite order_0 in Hz; inversion Hz.
+
+    simpl in Hz, Hns₁.
+    remember (order a₁) as v₁.
+    symmetry in Heqv₁.
+    destruct v₁ as [v₁| ].
+     Focus 2.
+     destruct r.
+      rewrite Heqv₀ in Hz.
+      rewrite Hz in Hpos.
+      exfalso; revert Hpos; apply Qbar.lt_irrefl.
+
+      destruct r.
+       rewrite Heqv₁ in Hz.
+       inversion Hz.
+bbb.
 
 (* more general than r_1_next_ns which could be simplified if this
    lemma works *)
