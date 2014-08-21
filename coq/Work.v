@@ -126,91 +126,36 @@ eapply f₁_orders in H; try eassumption.
 destruct H as (Hnneg, (Hpos, Hz)).
 destruct r.
  exfalso.
- symmetry in Hr.
- revert Hr.
+ symmetry in Hr; revert Hr.
  apply multiplicity_neq_0; eauto .
 
  assert (0 < S r)%nat as H by apply Nat.lt_0_succ.
  apply Hpos in H; clear Hpos; rename H into Hpos.
  unfold newton_segments in Hns₁; simpl in Hns₁.
  unfold points_of_ps_polynom in Hns₁; simpl in Hns₁.
- unfold ps_poly_nth in Hnneg, Hz, Hpos.
+ unfold ps_poly_nth in Hps₀, Hnneg, Hz, Hpos.
  remember (al pol₁) as la.
  clear Heqla.
  unfold points_of_ps_lap in Hns₁.
  unfold points_of_ps_lap_gen in Hns₁.
- unfold ps_lap_nth in Hz, Hpos.
- remember O as pow in Hns₁; clear Heqpow.
- revert pow Hns₁.
- induction la as [| a₁]; intros.
+ unfold ps_lap_nth in Hps₀, Hz, Hpos.
+ destruct la as [| a₀]; intros.
   rewrite order_0 in Hz; inversion Hz.
 
-  simpl in Hz, Hns₁, Hpos.
-  remember (order a₁) as v₁.
-  symmetry in Heqv₁.
-  destruct v₁ as [v₁| ].
-bbb.
-
-intros pol ns c₁ pol₁ ns₁ j₁ αj₁ k₁ αk₁ m r.
-intros Hns Hm Hc₁ Hr Hpol₁ Hps₀ Hns₁ Hini₁ Hfin₁.
-apply order_fin in Hps₀.
-remember Hns as H; clear HeqH.
-symmetry in Hr.
-eapply f₁_orders in H; try eassumption.
-destruct H as (Hnneg, (Hpos, Hz)).
-destruct r.
- exfalso.
- symmetry in Hr.
- revert Hr.
- apply multiplicity_neq_0; eauto .
-
- assert (0 < S r)%nat as H by apply Nat.lt_0_succ.
- apply Hpos in H; clear Hpos; rename H into Hpos.
- unfold newton_segments in Hns₁; simpl in Hns₁.
- unfold points_of_ps_polynom in Hns₁; simpl in Hns₁.
- unfold ps_poly_nth in Hnneg, Hz, Hpos.
- remember (al pol₁) as la.
- destruct la as [| a₀].
-  unfold ps_lap_nth in Hz; simpl in Hz.
-  rewrite order_0 in Hz; inversion Hz.
-
-  unfold ps_lap_nth in Hnneg, Hz, Hpos.
-  simpl in Hz, Hpos.
-  unfold points_of_ps_lap in Hns₁.
-  unfold points_of_ps_lap_gen in Hns₁.
+  simpl in Hps₀, Hz, Hpos.
   simpl in Hns₁.
   remember (order a₀) as v₀.
   symmetry in Heqv₀.
-bbb.
-  destruct v₀ as [v₀| ].
-   destruct la as [| a₁].
-    simpl in Hz.
-    rewrite match_id in Hz.
-    rewrite order_0 in Hz; contradiction.
+  destruct v₀ as [v₀| ]; [ idtac | exfalso; apply Hps₀; reflexivity ].
+  destruct la as [| a₁].
+   simpl in Hz.
+   rewrite match_id in Hz.
+   rewrite order_0 in Hz; contradiction.
 
-    simpl in Hz, Hns₁.
-    remember (order a₁) as v₁.
-    symmetry in Heqv₁.
-    destruct v₁ as [v₁| ].
-     Focus 2.
-     destruct r.
-      rewrite Heqv₁ in Hz; inversion Hz.
+   clear Hps₀.
 
 bbb.
 
-intros pol ns c₁ pol₁ ns₁ j₁ αj₁ k₁ αk₁ m r.
-intros Hns Hm Hc₁ Hr Hpol₁ Hps₀ Hns₁ Hini₁ Hfin₁.
-apply order_fin in Hps₀.
-remember Hns as H; clear HeqH.
-symmetry in Hr.
-eapply f₁_orders in H; try eassumption.
-destruct H as (Hnneg, (Hpos, Hz)).
-assert (0 < 1)%nat as H by apply Nat.lt_0_1.
-apply Hpos in H; clear Hpos; rename H into Hpos.
-unfold newton_segments in Hns₁; simpl in Hns₁.
-unfold points_of_ps_polynom in Hns₁; simpl in Hns₁.
-unfold ps_poly_nth in Hnneg, Hz, Hpos.
-remember (al pol₁) as la.
 destruct la as [| a₀].
  unfold ps_lap_nth in Hz; simpl in Hz.
  rewrite order_0 in Hz; inversion Hz.
