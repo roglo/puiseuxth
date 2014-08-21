@@ -178,6 +178,10 @@ destruct r.
          rewrite Hc; reflexivity.
 
         simpl in Hir.
+        remember (zerop_1st_n_const_coeff n polsi nssi) as z eqn:Hz .
+        symmetry in Hz.
+        destruct z.
+         Focus 2.
 bbb.
 
    remember (List.hd phony_ns (newton_segments pol₁)) as ns₁ eqn:Hns₁ .
