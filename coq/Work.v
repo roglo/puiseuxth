@@ -153,19 +153,17 @@ destruct r.
    rewrite order_0 in Hz; contradiction.
 
    clear Hps₀.
-
+   simpl in Hz, Hns₁.
+   remember (order a₁) as v₁.
+   symmetry in Heqv₁.
+   destruct v₁ as [v₁| ].
+    destruct r.
+     subst ns₁.
+     simpl in Hini₁, Hfin₁; simpl.
+     rewrite minimised_slope_beg_pt in Hini₁.
 bbb.
+  eapply pouet in Hfin₁; try eassumption.
 
-destruct la as [| a₀].
- unfold ps_lap_nth in Hz; simpl in Hz.
- rewrite order_0 in Hz; inversion Hz.
-
- unfold ps_lap_nth in Hnneg, Hz, Hpos.
- simpl in Hz, Hpos.
- unfold points_of_ps_lap in Hns₁.
- unfold points_of_ps_lap_gen in Hns₁.
- simpl in Hns₁.
- remember (order a₀) as v₀.
  symmetry in Heqv₀.
  destruct v₀ as [v₀| ].
   destruct la as [| a₁]; [ rewrite order_0 in Hz; contradiction | idtac ].
