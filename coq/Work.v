@@ -63,43 +63,45 @@ Definition multiplicity_decreases pol ns n :=
   let rn := root_multiplicity acf cn (Φq poln nsn) in
   (rn < r)%nat.
 
-Lemma lowest_i_such_that_ri_lt_r₀ : ∀ pol ns r rn n,
+Lemma lowest_i_such_that_ri_lt_r₀ : ∀ pol ns r n,
   r = nth_r 0 pol ns
-  → rn = nth_r n pol ns
-  → (rn < r)%nat
+  → (nth_r n pol ns < r)%nat
   → ∃ i,
     i ≤ n ∧
-    (i = O ∨ nth_r (pred i) pol ns = r) ∧
+    (i = O ∨ r ≤ nth_r (pred i) pol ns) ∧
     (nth_r i pol ns < r)%nat.
 Proof.
-intros pol ns r rn n Hr Hrn Hrnr.
-revert pol ns r rn Hr Hrn Hrnr.
+intros pol ns r n Hr Hrnr.
+subst r.
+revert pol ns Hrnr.
 induction n; intros.
- simpl in Hr, Hrn; subst.
  exfalso; revert Hrnr; apply Nat.lt_irrefl.
 
- simpl in Hrn.
- eapply IHn in Hrn; eauto .
-  remember (ac_root (Φq pol ns)) as c eqn:Hc .
-  remember (next_pol pol (β ns) (γ ns) c) as pol₁ eqn:Hpol₁ .
-  remember (List.hd phony_ns (newton_segments pol₁)) as ns₁ eqn:Hns₁ .
-  destruct Hrn as (i, (Hin, (Hir, Hri))).
-  destruct i.
-   exfalso; revert Hri; apply Nat.lt_irrefl.
+ destruct (lt_dec (nth_r n pol ns) (nth_r 0 pol ns)) as [H| H].
+  apply IHn in H.
+  destruct H as (i, (Hin, (Hir, Hri))).
+  exists i.
+  split; [ fast_omega Hin | idtac ].
+  split; assumption.
 
-   destruct Hir as [Hir| Hir].
-    discriminate Hir.
+  apply Nat.nlt_ge in H.
+  exists (S n).
+  split; [ reflexivity | idtac ].
+  split; [ idtac | assumption ].
+  right; rewrite Nat.pred_succ; assumption.
+Qed.
 
-    exists (S (S i)).
-    split.
-     apply Nat.succ_le_mono in Hin; assumption.
-
-     split.
-      right.
-      simpl in Hir; simpl.
-      rewrite <- Hc, <- Hpol₁, <- Hns₁.
-bbb.
-parti en couille...
+Lemma nth_r_n : ∀ pol ns pol₁ ns₁ c₁ n,
+  pol₁ = nth_pol n pol ns
+  → ns₁ = nth_ns n pol ns
+  → c₁ = nth_c n pol ns
+  → nth_r n pol ns = root_multiplicity acf c₁ (Φq pol₁ ns₁).
+Proof.
+intros pol ns pol₁ ns₁ c₁ n Hpol₁ Hns₁ Hc₁.
+revert pol ns pol₁ ns₁ c₁ Hpol₁ Hns₁ Hc₁.
+induction n; intros; [ subst; reflexivity | simpl ].
+apply IHn; subst; reflexivity.
+Qed.
 
 Theorem zzz : ∀ pol ns c pol₁,
   ns ∈ newton_segments pol
@@ -134,8 +136,50 @@ destruct r.
    rewrite Hrn in Hr; subst rn.
    exfalso; revert Hn; apply Nat.lt_irrefl.
 
+   remember (List.hd phony_ns (newton_segments pol₁)) as ns₁ eqn:Hns₁ .
+   erewrite <- nth_r_n in Hrn; eauto ; subst rn.
+   apply lowest_i_such_that_ri_lt_r₀ in Hn.
+    2: subst; auto.
+
+    destruct Hn as (i, (Hin, (Hir, Hri))).
+    destruct Hir as [Hir| Hir].
+     subst i.
+     exfalso; revert Hri; rewrite <- Hr; subst.
+     apply Nat.lt_irrefl.
+
+     destruct i.
+      exfalso; revert Hri; rewrite <- Hr; subst.
+      apply Nat.lt_irrefl.
+
+      remember (nth_pol i pol ns) as poli eqn:Hpoli .
+      remember (nth_ns i pol ns) as nsi eqn:Hnsi .
+      remember (nth_pol (S i) pol ns) as polsi.
+      remember (nth_ns (S i) pol ns) as nssi.
+      eapply IHm in Hri.
+       Focus 5.
+       symmetry.
+       apply nth_r_n; eauto .
+
+       Focus 3.
+       erewrite nth_c_root; eauto .
+
+       3: eauto .
+
+       Focus 2.
+       eapply List_hd_in.
+        subst nssi.
+        simpl.
+        eapply nth_ns_n; eauto .
+         rewrite Hc; reflexivity.
+
+         subst polsi; simpl.
+         symmetry.
+         eapply nth_pol_n; eauto .
+         rewrite Hc; reflexivity.
+
+        simpl in Hir.
 bbb.
-(* find lowest_n_such_that_rn_lt_r₀ *)
+
    remember (List.hd phony_ns (newton_segments pol₁)) as ns₁ eqn:Hns₁ .
    remember (next_pol poln (β nsn) (γ nsn) cn) as poln₁ eqn:Hpoln₁ .
    remember (zerop_1st_n_const_coeff n pol₁ ns₁) as z eqn:Hz .
