@@ -104,6 +104,7 @@ apply IHn; subst; reflexivity.
 Qed.
 
 (* see pouet *)
+(*
 Lemma pouet2 : ∀ f ffo ms a₀ a₁ la v₀ v₁ j k αj αk r,
   f = pair_rec (λ pow ps, (Qnat pow, ps))
   → ffo = filter_finite_ord R (List.map f (power_list 2 la))
@@ -237,6 +238,7 @@ Qed.
 
 (* more general than r_1_j_0_k_1 which could be simplified if this
    lemma works *)
+(*
 Lemma r_n_j_0_k_1r : ∀ pol ns c₁ pol₁ ns₁ j₁ αj₁ k₁ αk₁ m r,
   ns ∈ newton_segments pol
   → pol_in_K_1_m pol m
@@ -483,9 +485,11 @@ assert (0 < r)%nat as H.
        rewrite Heqv₁ in Hz.
        inversion Hz.
 bbb.
+*)
 
 (* more general than r_1_next_ns which could be simplified if this
    lemma works *)
+(*
 Lemma r_n_next_ns : ∀ pol ns c pol₁ ns₁ m r,
   ns ∈ newton_segments pol
   → pol_in_K_1_m pol m
@@ -520,9 +524,11 @@ unfold Qeq in Hαk₁; simpl in Hαk₁.
 rewrite Z.mul_1_r in Hαj₁, Hαk₁.
 exists αj₁, αk₁; auto.
 Qed.
+*)
 
 (* more general than r_1_nth_ns which could be simplified if this
    lemma works *)
+(*
 Lemma r_n_nth_ns : ∀ pol ns c pol₁ ns₁ m r,
   ns ∈ newton_segments pol
   → pol_in_K_1_m pol m
@@ -555,6 +561,7 @@ induction n; intros.
 bbb.
  eapply r_1_next_ns in H; eauto .
 bbb.
+*)
 
 Theorem zzz : ∀ pol ns c pol₁,
   ns ∈ newton_segments pol
@@ -608,36 +615,33 @@ destruct r.
       remember (nth_ns i pol ns) as nsi eqn:Hnsi .
       remember (nth_pol (S i) pol ns) as polsi eqn:Hpolsi.
       remember (nth_ns (S i) pol ns) as nssi eqn:Hnssi.
-      eapply IHm in Hri.
-       Focus 5.
-       symmetry.
-       apply nth_r_n; eauto .
-
-       Focus 3.
-       erewrite nth_c_root; eauto .
-
-       3: eauto .
-
+      remember (newton_segments polsi) as nsl eqn:Hnsl .
+      symmetry in Hnsl.
+      destruct nsl as [| ns₂].
        Focus 2.
-       eapply List_hd_in.
-        subst nssi.
-        simpl.
-        eapply nth_ns_n; eauto .
-         rewrite Hc; reflexivity.
+       eapply IHm in Hri.
+        Focus 5.
+        symmetry.
+        apply nth_r_n; eauto .
 
-         subst polsi; simpl.
-         symmetry.
-         eapply nth_pol_n; eauto .
-         rewrite Hc; reflexivity.
+        Focus 3.
+        erewrite nth_c_root; eauto .
 
-        simpl in Hir.
-        erewrite nth_ns_succ in Hnssi; eauto .
-        remember Hnssi as H; clear HeqH.
-        apply exists_ini_pt_nat_fst_seg in H.
-        destruct H as (jsi, (ajsi, Hinisi)).
-        remember Hnssi as H; clear HeqH.
-        apply exists_fin_pt_nat_fst_seg in H.
-        destruct H as (ksi, (aksi, Hifinsi)).
+        3: eauto .
+
+        Focus 2.
+        eapply List_hd_in.
+         subst nssi.
+         simpl.
+         eapply nth_ns_n; eauto .
+          rewrite Hc; reflexivity.
+
+          subst polsi; simpl.
+          symmetry.
+          eapply nth_pol_n; eauto .
+          rewrite Hc; reflexivity.
+
+         intros H; rewrite H in Hnsl; discriminate Hnsl.
 bbb.
 
    remember (List.hd phony_ns (newton_segments pol₁)) as ns₁ eqn:Hns₁ .
