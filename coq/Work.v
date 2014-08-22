@@ -563,14 +563,78 @@ bbb.
 bbb.
 *)
 
-(*
-Theorem yyy : ∀ pol ns,
+Theorem next_has_root_0_or_newton_segments : ∀ pol ns c pol₁,
   ns ∈ newton_segments pol
-  → (∃ n, (ps_poly_nth 0 (nth_pol (S n) pol ns) = 0)%ps) ∨
-     (∀ n, newton_segments (nth_pol n pol ns) ≠ []).
+  → c = ac_root (Φq pol ns)
+  → pol₁ = nth_pol 1 pol ns
+  → (ps_poly_nth 0 pol₁ = 0)%ps ∨ (newton_segments pol₁ ≠ []).
 Proof.
-intros pol ns.
-*)
+intros pol ns c pol₁ Hns Hc Hpol₁.
+remember Hns as H; clear HeqH.
+eapply f₁_orders in H; eauto ; simpl.
+simpl in Hpol₁.
+rewrite <- Hc in Hpol₁.
+rewrite <- Hpol₁ in H.
+remember (root_multiplicity acf c (Φq pol ns)) as r eqn:Hr .
+symmetry in Hr.
+destruct H as (Hnneg, (Hpos, Hz)).
+destruct r.
+ exfalso; revert Hr.
+ apply multiplicity_neq_0; auto.
+
+ pose proof (Hpos O (Nat.lt_0_succ r)) as H₂.
+ destruct (ps_zerop R (ps_poly_nth 0 pol₁)) as [H₁| H₁].
+  left; assumption.
+
+  right.
+  apply order_fin in H₁; intros H.
+  unfold newton_segments in H.
+  unfold points_of_ps_polynom in H.
+  unfold points_of_ps_lap in H.
+  unfold points_of_ps_lap_gen in H.
+  unfold qpower_list in H.
+  unfold ps_poly_nth in Hz, H₁.
+  remember (al pol₁) as la; clear Heqla.
+  unfold ps_lap_nth in Hz, H₁.
+  destruct la as [| a].
+   simpl in Hz.
+   rewrite order_0 in Hz; inversion Hz.
+
+   simpl in Hz, H₁, H.
+   remember (order a) as oa eqn:Hoa .
+   symmetry in Hoa.
+   destruct oa as [oa| ].
+    remember 1%nat as pow.
+    assert (1 ≤ pow)%nat as Hpow by fast_omega Heqpow.
+    clear Heqpow Hr Hpos a Hoa.
+    revert r pow H Hz Hpow.
+    induction la as [| a]; intros.
+     simpl in Hz.
+     rewrite match_id in Hz.
+     rewrite order_0 in Hz; inversion Hz.
+
+     simpl in Hz.
+     destruct r.
+      simpl in H.
+      remember (order a) as oa₁ eqn:Hoa .
+      symmetry in Hoa.
+      destruct oa₁ as [oa₁| ].
+       unfold lower_convex_hull_points in H.
+       discriminate H.
+
+       inversion Hz.
+
+      simpl in H.
+      remember (order a) as oa₁ eqn:Hoa .
+      symmetry in Hoa.
+      destruct oa₁ as [oa₁| ].
+       unfold lower_convex_hull_points in H.
+       discriminate H.
+
+       eapply IHla; eauto .
+
+    apply H₁; reflexivity.
+Qed.
 
 Theorem zzz : ∀ pol ns c pol₁,
   ns ∈ newton_segments pol
