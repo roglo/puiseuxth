@@ -874,35 +874,4 @@ destruct r.
          destruct H; auto.
 bbb.
 
-   remember (List.hd phony_ns (newton_segments pol₁)) as ns₁ eqn:Hns₁ .
-   remember (next_pol poln (β nsn) (γ nsn) cn) as poln₁ eqn:Hpoln₁ .
-   remember (zerop_1st_n_const_coeff n pol₁ ns₁) as z eqn:Hz .
-   symmetry in Hz.
-   destruct z.
-    Focus 2.
-    eapply IHm with (ns := nsn) (c := cn) (pol₁ := poln₁) in Hn; eauto .
-     erewrite nth_pol_n in Hpoln₁; eauto .
-      destruct Hn as (sn₁, Hsn₁).
-      remember (root_head 0 n pol₁ ns₁) as rh₁.
-      remember (ps_monom 1%K (γ_sum 0 n pol₁ ns₁)) as mo₁.
-      exists (rh₁ + mo₁ * sn₁)%ps; subst rh₁ mo₁.
-      rewrite apply_nth_pol; auto.
-      rewrite <- Hpoln₁, Hsn₁.
-      rewrite rng_mul_0_r; reflexivity.
-
-      rewrite Hcn.
-      apply nth_c_root; assumption.
-
-     eapply List_hd_in.
-      rewrite Hnsn; simpl.
-      eapply nth_ns_n; try reflexivity.
-      erewrite nth_pol_n; try reflexivity.
-      assumption.
-
-      pose proof (exists_pol_ord R pol) as H.
-      destruct H as (m, Hm).
-      remember Hns as H; clear HeqH.
-bbb.
-waiting for a version of r_1_nth_ns with any r: r_n_nth_ns...
-
 End theorems.
