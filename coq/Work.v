@@ -119,7 +119,6 @@ Lemma pouet2 : ∀ f ffo ms a₀ a₁ la v₀ v₁ j k αj αk r,
 Proof.
 intros f ffo ms a₀ a₁ la v₀ v₁ j k αj αk r.
 intros Heqf Heqffo Heqms Hnneg Hz Hpos₀ Hpos₁ Hini Hfin.
-Admitted. (*
 bbb.
 remember Heqms as Hms; clear HeqHms.
 apply minimise_slope_end_2nd_pt in Heqms.
