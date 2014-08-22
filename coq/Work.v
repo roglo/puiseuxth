@@ -103,6 +103,138 @@ induction n; intros; [ subst; reflexivity | simpl ].
 apply IHn; subst; reflexivity.
 Qed.
 
+(* more general than pouet which could be simplified if this
+   lemma works *)
+(*
+Lemma pouet2 : ∀ f ffo ms a₀ a₁ la v₀ v₁ j k αj αk,
+  f = pair_rec (λ pow ps, (Qnat pow, ps))
+  → ffo = filter_finite_ord R (List.map f (power_list 2 la))
+  → ms = minimise_slope (Qnat 0, v₀) (Qnat 1, v₁) ffo
+  → (∀ i : nat, (order (List.nth i [a₀; a₁ … la] 0%ps) ≥ 0)%Qbar)
+  → 0 ≤ v₁
+  → 0 < v₀
+  → (Qnat 0, v₀) = (Qnat j, αj)
+  → end_pt ms = (Qnat k, αk)
+  → (j = 0)%nat ∧ (0 < k)%nat ∧ (k ≤ r)%nat ∧ 0 < αj ∧ αk == 0 ∧ seg ms = [].
+Proof.
+intros f ffo ms a₀ a₁ la v₀ v₁ j k αj αk.
+intros Heqf Heqffo Heqms Hnneg Hz Hpos Hini Hfin.
+bbb.
+remember Heqms as Hms; clear HeqHms.
+apply minimise_slope_end_2nd_pt in Heqms.
+ rewrite Heqms in Hfin.
+ injection Hini; clear Hini; intros; subst αj.
+ injection Hfin; clear Hfin; intros; subst αk.
+ apply Z2Nat.inj_iff in H0; [ idtac | reflexivity | apply Nat2Z.is_nonneg ].
+ apply Z2Nat.inj_iff in H1; [ idtac | idtac | apply Nat2Z.is_nonneg ].
+  rewrite Nat2Z.id in H0, H1.
+  simpl in H0, H1.
+  rewrite Pos2Nat.inj_1 in H1.
+  subst j k.
+  split; [ reflexivity | idtac ].
+  split; [ apply Nat.lt_0_1 | idtac ].
+  split; [ reflexivity | idtac ].
+  split; [ assumption | idtac ].
+  split; [ assumption | idtac ].
+  eapply minimise_slope_2_pts; try eassumption.
+  subst ffo; revert Heqf; clear; intros.
+  remember 2%nat as pow.
+  assert (2 <= pow)%nat as Hpow by (subst pow; reflexivity).
+  clear Heqpow.
+  revert pow Hpow.
+  induction la as [| a]; intros; [ intros H; assumption | simpl ].
+  rewrite Heqf; simpl; rewrite <- Heqf.
+  destruct (order a) as [v| ].
+   intros H; simpl in H.
+   destruct H as [H| H].
+    injection H; clear H; intros; subst v.
+    apply Z2Nat.inj_iff in H0.
+     rewrite Nat2Z.id in H0; simpl in H0.
+     unfold Pos.to_nat in H0; simpl in H0.
+     rewrite H0 in Hpow.
+     apply Nat.nlt_ge in Hpow.
+     apply Hpow, Nat.lt_1_2.
+
+     apply Nat2Z.is_nonneg.
+
+     apply Z.le_0_1.
+
+    revert H; apply IHla.
+    apply Nat.le_le_succ_r; assumption.
+
+   apply IHla.
+   apply Nat.le_le_succ_r; assumption.
+
+  apply Z.le_0_1.
+
+ subst ffo; revert Heqf; clear; intros.
+ constructor.
+  remember 2%nat as pow.
+  assert (1 < pow)%nat as Hpow by (subst pow; apply Nat.lt_1_2).
+  clear Heqpow.
+  remember 1%nat as n.
+  clear Heqn.
+  revert n v₁ pow Hpow.
+  induction la as [| a]; intros.
+   constructor; [ constructor; constructor | constructor ].
+
+   unfold fst_lt; simpl.
+   rewrite Heqf; simpl; rewrite <- Heqf.
+   destruct (order a) as [v| ].
+    constructor.
+     apply IHla, Nat.lt_succ_r; reflexivity.
+
+     constructor.
+     unfold fst_lt; simpl.
+     apply Qnat_lt; assumption.
+
+    apply IHla, Nat.lt_lt_succ_r; assumption.
+
+  constructor.
+  unfold fst_lt; simpl.
+  apply Qnat_lt, Nat.lt_0_1.
+
+ simpl.
+ rewrite Hz; assumption.
+
+ intros pt Hpt; simpl; rewrite Hz.
+ rewrite Heqffo in Hpt.
+ revert Heqf Hnneg Hpt; clear; intros.
+ remember 2%nat as pow; clear Heqpow.
+ revert pow Hpt.
+ induction la as [| a]; intros; [ contradiction | idtac ].
+ simpl in Hpt.
+ rewrite Heqf in Hpt; simpl in Hpt; rewrite <- Heqf in Hpt.
+ remember (order a) as v.
+ symmetry in Heqv.
+ destruct v as [v| ].
+  simpl in Hpt.
+  destruct Hpt as [Hpt| Hpt].
+   subst pt; simpl.
+   pose proof (Hnneg 2%nat) as H; simpl in H.
+   rewrite Heqv in H.
+   apply Qbar.qfin_le_mono; assumption.
+
+   eapply IHla; [ intros i | eassumption ].
+   revert Hnneg; clear; intros.
+   revert la Hnneg.
+   induction i; intros; simpl.
+    pose proof (Hnneg 0%nat); assumption.
+
+    destruct i; [ pose proof (Hnneg 1%nat); assumption | idtac ].
+    pose proof (Hnneg (3 + i)%nat) as H; assumption.
+
+  eapply IHla; [ intros i | eassumption ].
+  revert Hnneg; clear; intros.
+  revert la Hnneg.
+  induction i; intros; simpl.
+   pose proof (Hnneg 0%nat); assumption.
+
+   destruct i; [ pose proof (Hnneg 1%nat); assumption | idtac ].
+   pose proof (Hnneg (3 + i)%nat) as H; assumption.
+Qed.
+*)
+
 (* more general than r_1_j_0_k_1 which could be simplified if this
    lemma works *)
 Lemma r_n_j_0_k_1r : ∀ pol ns c₁ pol₁ ns₁ j₁ αj₁ k₁ αk₁ m r,
@@ -130,19 +262,19 @@ destruct r.
  apply multiplicity_neq_0; eauto .
 
  assert (0 < S r)%nat as H by apply Nat.lt_0_succ.
- apply Hpos in H; clear Hpos; rename H into Hpos.
+ apply Hpos in H; rename H into Hpos₀.
  unfold newton_segments in Hns₁; simpl in Hns₁.
  unfold points_of_ps_polynom in Hns₁; simpl in Hns₁.
- unfold ps_poly_nth in Hps₀, Hnneg, Hz, Hpos.
+ unfold ps_poly_nth in Hps₀, Hnneg, Hz, Hpos, Hpos₀.
  remember (al pol₁) as la.
  clear Heqla.
  unfold points_of_ps_lap in Hns₁.
  unfold points_of_ps_lap_gen in Hns₁.
- unfold ps_lap_nth in Hps₀, Hz, Hpos.
+ unfold ps_lap_nth in Hps₀, Hz, Hpos, Hpos₀.
  destruct la as [| a₀]; intros.
   rewrite order_0 in Hz; inversion Hz.
 
-  simpl in Hps₀, Hz, Hpos.
+  simpl in Hps₀, Hz, Hpos₀.
   simpl in Hns₁.
   remember (order a₀) as v₀.
   symmetry in Heqv₀.
@@ -161,7 +293,7 @@ destruct r.
      subst ns₁.
      simpl in Hini₁, Hfin₁; simpl.
      rewrite minimised_slope_beg_pt in Hini₁.
-     apply Qbar.qfin_lt_mono in Hpos.
+     apply Qbar.qfin_lt_mono in Hpos₀.
      remember (pair_rec (λ pow ps, (Qnat pow, ps))) as f.
      remember (filter_finite_ord R (List.map f (power_list 2 la))) as ffo.
      remember (minimise_slope (Qnat 0, v₀) (Qnat 1, v₁) ffo) as ms.
@@ -177,10 +309,14 @@ destruct r.
      subst ns₁.
      simpl in Hini₁, Hfin₁; simpl.
      rewrite minimised_slope_beg_pt in Hini₁.
-     apply Qbar.qfin_lt_mono in Hpos.
+     apply Qbar.qfin_lt_mono in Hpos₀.
      remember (pair_rec (λ pow ps, (Qnat pow, ps))) as f.
      remember (filter_finite_ord R (List.map f (power_list 2 la))) as ffo.
      remember (minimise_slope (Qnat 0, v₀) (Qnat 1, v₁) ffo) as ms.
+     assert (1 < S (S r))%nat as H by fast_omega .
+     apply Hpos in H; rename H into Hpos₁.
+     simpl in Hpos₁; rewrite Heqv₁ in Hpos₁.
+     apply Qbar.qfin_lt_mono in Hpos₁.
 bbb.
   split; [ assumption | idtac ].
   split; assumption.
