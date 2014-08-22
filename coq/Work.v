@@ -563,6 +563,15 @@ bbb.
 bbb.
 *)
 
+(*
+Theorem yyy : ∀ pol ns,
+  ns ∈ newton_segments pol
+  → (∃ n, (ps_poly_nth 0 (nth_pol (S n) pol ns) = 0)%ps) ∨
+     (∀ n, newton_segments (nth_pol n pol ns) ≠ []).
+Proof.
+intros pol ns.
+*)
+
 Theorem zzz : ∀ pol ns c pol₁,
   ns ∈ newton_segments pol
   → c = ac_root (Φq pol ns)
