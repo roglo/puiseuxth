@@ -636,6 +636,109 @@ destruct r.
     apply H₁; reflexivity.
 Qed.
 
+Theorem nth_newton_segments_nil : ∀ pol ns n,
+  ns ∈ newton_segments pol
+  → newton_segments (nth_pol n pol ns) = []
+  → (∃ i,
+     i ≤ n ∧
+     (i = O ∨ zerop_1st_n_const_coeff (pred i) pol ns = false) ∧
+     zerop_1st_n_const_coeff i pol ns = true).
+Proof.
+intros pol ns n Hns Hnse.
+revert pol ns Hns Hnse.
+induction n; intros.
+ simpl in Hnse; rewrite Hnse in Hns; contradiction.
+
+ simpl in Hnse.
+ remember Hns as H; clear HeqH.
+ eapply next_has_root_0_or_newton_segments in H; eauto .
+ destruct H as [H| H].
+  simpl in H.
+  remember (ac_root (Φq pol ns)) as c eqn:Hc .
+  remember (next_pol pol (β ns) (γ ns) c) as pol₁ eqn:Hpol₁ .
+  remember (List.hd phony_ns (newton_segments pol₁)) as ns₁ eqn:Hns₁ .
+  destruct (ps_zerop R (ps_poly_nth 0 pol)) as [H₁| H₁].
+   exists 0%nat.
+   split; [ apply Nat.le_0_l | idtac ].
+   split; [ left; reflexivity | simpl ].
+   destruct (ps_zerop R (ps_poly_nth 0 pol)); auto.
+
+   exists 1%nat.
+   split; [ apply le_n_S, Nat.le_0_l | idtac ].
+   split.
+    right; simpl.
+    destruct (ps_zerop R (ps_poly_nth 0 pol)); auto.
+    contradiction.
+
+    simpl.
+    destruct (ps_zerop R (ps_poly_nth 0 pol)); auto.
+    rewrite <- Hc, <- Hpol₁.
+    destruct (ps_zerop R (ps_poly_nth 0 pol₁)); auto.
+
+  simpl in H.
+  remember (ac_root (Φq pol ns)) as c eqn:Hc .
+  remember (next_pol pol (β ns) (γ ns) c) as pol₁ eqn:Hpol₁ .
+  remember (List.hd phony_ns (newton_segments pol₁)) as ns₁ eqn:Hns₁ .
+  rename H into Hnse₁.
+  remember Hnse as H; clear HeqH.
+  apply IHn in H; eauto .
+   destruct H as (i, (Hin, (Hiz, Hinz))).
+   destruct Hiz as [Hiz| Hiz].
+    subst i.
+    simpl in Hinz.
+    destruct (ps_zerop R (ps_poly_nth 0 pol₁)); eauto .
+     destruct (ps_zerop R (ps_poly_nth 0 pol)) as [H₂| H₂].
+      exists 0%nat.
+      split; [ apply Nat.le_0_l | idtac ].
+      split; [ left; reflexivity | simpl ].
+      destruct (ps_zerop R (ps_poly_nth 0 pol)); auto.
+
+      exists 1%nat.
+      split; [ apply le_n_S, Nat.le_0_l | idtac ].
+      split.
+       right; simpl.
+       destruct (ps_zerop R (ps_poly_nth 0 pol)); auto.
+       contradiction.
+
+       simpl.
+       destruct (ps_zerop R (ps_poly_nth 0 pol)); auto.
+       rewrite <- Hc, <- Hpol₁.
+       destruct (ps_zerop R (ps_poly_nth 0 pol₁)); auto.
+
+     discriminate Hinz.
+
+    destruct i.
+     rewrite Nat.pred_0 in Hiz.
+     rewrite Hinz in Hiz; discriminate Hiz.
+
+     rewrite Nat.pred_succ in Hiz.
+     destruct (ps_zerop R (ps_poly_nth 0 pol)) as [H₁| H₁].
+      exists 0%nat.
+      split; [ apply Nat.le_0_l | idtac ].
+      split; [ left; reflexivity | simpl ].
+      destruct (ps_zerop R (ps_poly_nth 0 pol)); auto.
+
+      exists (S (S i)).
+      split; [ fast_omega Hin | idtac ].
+      split.
+       right; rewrite Nat.pred_succ.
+       simpl.
+       destruct (ps_zerop R (ps_poly_nth 0 pol)).
+        contradiction.
+
+        rewrite <- Hc, <- Hpol₁, <- Hns₁.
+        assumption.
+
+       remember (S i) as si; simpl; subst si.
+       destruct (ps_zerop R (ps_poly_nth 0 pol)).
+        reflexivity.
+
+        rewrite <- Hc, <- Hpol₁, <- Hns₁.
+        assumption.
+
+   eapply List_hd_in; eauto .
+Qed.
+
 Theorem zzz : ∀ pol ns c pol₁,
   ns ∈ newton_segments pol
   → c = ac_root (Φq pol ns)
@@ -742,8 +845,33 @@ destruct r.
 
           eapply root_when_fin; eauto .
 
-       assert (newton_segments polsi ≠ []); [ idtac | contradiction ].
-       clear Hnsl.
+       destruct (ps_zerop R (ps_poly_nth 0 pol₁)) as [H₁| H₁].
+        apply a₀_0_root_0 in H₁.
+        exists 0%ps; assumption.
+
+        remember Hnsl as H; clear HeqH.
+        rewrite Hpolsi in H.
+        simpl in H.
+        rewrite <- Hc, <- Hpol₁, <- Hns₁ in H.
+        apply nth_newton_segments_nil in H; auto.
+         destruct H as (j, (Hjn, (Hjz, Hjnz))).
+         destruct Hjz as [Hjz| Hjz].
+          subst j.
+          simpl in Hjnz.
+          destruct (ps_zerop R (ps_poly_nth 0 pol₁)).
+           contradiction.
+
+           discriminate Hjnz.
+
+          eapply root_when_fin; eauto .
+
+         eapply List_hd_in; eauto .
+         clear H.
+         remember Hns as H; clear HeqH.
+         eapply next_has_root_0_or_newton_segments in H; eauto .
+         simpl in H.
+         rewrite <- Hc, <- Hpol₁ in H.
+         destruct H; auto.
 bbb.
 
    remember (List.hd phony_ns (newton_segments pol₁)) as ns₁ eqn:Hns₁ .
