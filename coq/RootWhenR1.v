@@ -669,6 +669,18 @@ destruct Ha as [Ha| Ha].
  assumption.
 Qed.
 
+Theorem a₀_0_root_0 : ∀ pol,
+  (ps_poly_nth 0 pol = 0)%ps
+  → (ps_pol_apply pol 0 = 0)%ps.
+Proof.
+intros pol H.
+unfold ps_pol_apply, apply_poly, apply_lap; simpl.
+unfold ps_poly_nth in H.
+destruct (al pol) as [| a la]; [ reflexivity | simpl ].
+unfold ps_lap_nth in H; simpl in H.
+rewrite rng_mul_0_r, rng_add_0_l; assumption.
+Qed.
+
 Theorem root_after_r_eq_1 : ∀ pol ns pol₁ c,
   ns ∈ newton_segments pol
   → c = ac_root (Φq pol ns)
@@ -681,8 +693,7 @@ pose proof (exists_pol_ord R pol) as H.
 destruct H as (m, Hm).
 destruct (ac_zerop 1%K) as [H₀| H₀].
  exists 0%ps.
- unfold ps_pol_apply, apply_poly.
- unfold apply_lap; simpl.
+ unfold ps_pol_apply, apply_poly, apply_lap; simpl.
  remember (al pol₁) as la; clear Heqla.
  destruct la as [| a]; [ reflexivity | simpl ].
  rewrite rng_mul_0_r, rng_add_0_l.
@@ -690,12 +701,7 @@ destruct (ac_zerop 1%K) as [H₀| H₀].
 
  destruct (ps_zerop R (ps_poly_nth 0 pol₁)) as [H₁| H₁].
   exists 0%ps.
-  unfold ps_pol_apply, apply_poly.
-  unfold apply_lap.
-  unfold ps_poly_nth in H₁.
-  destruct (al pol₁) as [| a la]; [ reflexivity | simpl ].
-  unfold ps_lap_nth in H₁; simpl in H₁.
-  rewrite rng_mul_0_r, rng_add_0_l; assumption.
+  apply a₀_0_root_0; assumption.
 
   remember (List.hd phony_ns (newton_segments pol₁)) as ns₁ eqn:Hns₁ .
   remember (q_of_m m (γ ns)) as q₀ eqn:Hq₀ .
@@ -871,11 +877,7 @@ destruct z.
  simpl in Hz.
  destruct (ps_zerop R (ps_poly_nth 0 pol)) as [H₂| H₂].
   exists 0%ps.
-  unfold ps_pol_apply, apply_poly, apply_lap; simpl.
-  unfold ps_poly_nth, ps_lap_nth in H₂.
-  destruct (al pol) as [| a la]; [ reflexivity | idtac ].
-  simpl in H₂; simpl.
-  rewrite rng_mul_0_r, rng_add_0_l; assumption.
+  apply a₀_0_root_0; assumption.
 
   discriminate Hz.
 
@@ -1204,11 +1206,7 @@ induction n; intros.
 
  destruct (ps_zerop R (ps_poly_nth 0 pol)) as [H₁| H₁].
   exists 0%ps.
-  unfold ps_pol_apply, apply_poly, apply_lap; simpl.
-  unfold ps_poly_nth, ps_lap_nth in H₁.
-  destruct (al pol) as [| a la]; [ reflexivity | idtac ].
-  simpl in H₁; simpl.
-  rewrite rng_mul_0_r, rng_add_0_l; assumption.
+  apply a₀_0_root_0; assumption.
 
   simpl in Hpoln, Hnsn, Hcn.
   remember (ac_root (Φq pol ns)) as c eqn:Hc .

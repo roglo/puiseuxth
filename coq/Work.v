@@ -655,6 +655,17 @@ destruct r.
          erewrite <- nth_pol_n; eauto .
          erewrite <- nth_c_root; eauto .
          rewrite Hs₁, rng_mul_0_r; reflexivity.
+
+         apply lowest_zerop_1st_n_const_coeff in Hz.
+         destruct Hz as (m, (Hmi, (Hle, Heq))).
+         destruct Hle as [Hle| Hle].
+          subst m.
+          simpl in Heq.
+          destruct (ps_zerop R (ps_poly_nth 0 pol₁)) as [H₁| H₁].
+           2: discriminate Heq.
+
+           exists 0%ps.
+           apply a₀_0_root_0; assumption.
 bbb.
 
    remember (List.hd phony_ns (newton_segments pol₁)) as ns₁ eqn:Hns₁ .
