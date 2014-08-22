@@ -1730,8 +1730,8 @@ Proof.
 intros pol ns m c pol₁ ns₁ i di p dp np.
 intros Hns HK Hq Hc Hr Hpol₁ Hns₁ (Hp, Hpi) Hdip Hnp.
 remember (S i - p)%nat as id.
-revert pol ns c pol₁ ns₁ id di p dp np Hns HK Hq Hc Hr Hpol₁
- Hns₁ Heqid Hp Hpi Hdip Hnp.
+revert pol ns c pol₁ ns₁ id di p dp np Hns HK Hq Hc Hr Hpol₁ Hns₁ Heqid Hp
+ Hpi Hdip Hnp.
 induction i; intros.
  destruct p; [ exfalso; revert Hp; apply Nat.lt_irrefl | idtac ].
  exfalso; revert Hpi; apply Nat.nle_succ_0.
@@ -1744,12 +1744,8 @@ induction i; intros.
  destruct H as (αj₁, (αk₁, H)).
  destruct H as (Hoth₁, (Hini₁, (Hfin₁, (Hαj₁, Hαk₁)))).
  rewrite Hini₁, Hfin₁ in Hnp; simpl in Hnp.
- rewrite Hαk₁ in Hnp; simpl in Hnp.
- rewrite Z.add_0_r, Z.mul_1_r in Hnp.
+ rewrite Z.mul_opp_l, Z.add_opp_r, Z.mul_1_r in Hnp.
  do 2 rewrite Pos.mul_1_r in Hnp.
- rewrite Z.mul_shuffle0 in Hnp.
- rewrite Pos2Z.inj_mul in Hnp.
- rewrite Z.div_mul_cancel_r in Hnp; auto.
  remember Hns₁ as Hns₁₁; clear HeqHns₁₁.
  eapply List_hd_in in Hns₁₁; eauto .
   remember (Nat.compare np (S (i + di))) as cmp₁ eqn:Hnpi .
@@ -1774,8 +1770,13 @@ induction i; intros.
 
     remember Hns as Hr₁; clear HeqHr₁.
     eapply multiplicity_1_remains in Hr₁; eauto .
+    rewrite Hαk₁ in Hnp; simpl in Hnp.
+    rewrite Z.sub_0_r in Hnp.
+    rewrite Z.mul_shuffle0 in Hnp.
+    rewrite Pos2Z.inj_mul in Hnp.
+    rewrite Z.div_mul_cancel_r in Hnp; auto.
     subst np; rewrite <- Nat.add_assoc in Hnnp.
-    eapply IHi with (p := p); eauto.
+    eapply IHi with (p := p); eauto .
      fast_omega H Heqid.
 
      fast_omega H Hnpi Hdip.
