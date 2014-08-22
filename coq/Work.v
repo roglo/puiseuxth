@@ -666,6 +666,8 @@ destruct r.
 
            exists 0%ps.
            apply a₀_0_root_0; assumption.
+
+          eapply root_when_fin; eauto .
 bbb.
 
    remember (List.hd phony_ns (newton_segments pol₁)) as ns₁ eqn:Hns₁ .

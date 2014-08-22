@@ -681,6 +681,35 @@ unfold ps_lap_nth in H; simpl in H.
 rewrite rng_mul_0_r, rng_add_0_l; assumption.
 Qed.
 
+Theorem root_when_fin : ∀ pol ns n,
+  zerop_1st_n_const_coeff (pred n) pol ns = false
+  → zerop_1st_n_const_coeff n pol ns = true
+  → ∃ s, (ps_pol_apply pol s = 0)%ps.
+Proof.
+intros pol ns n Hnz Hz.
+exists (root_head 0 (pred n) pol ns).
+destruct n.
+ rewrite Nat.pred_0 in Hnz.
+ rewrite Hnz in Hz; discriminate Hz.
+
+ rewrite Nat.pred_succ in Hnz.
+ rewrite Nat.pred_succ.
+ remember Hnz as H; clear HeqH.
+ eapply apply_nth_pol with (y := 0%ps) in H.
+ rewrite rng_mul_0_r, rng_add_0_r in H; rewrite H.
+ unfold ps_pol_apply, apply_poly.
+ remember (S n) as sn.
+ unfold apply_lap; simpl.
+ remember (al (nth_pol sn pol ns)) as la eqn:Hla .
+ symmetry in Hla.
+ destruct la as [| a]; simpl.
+  rewrite rng_mul_0_r; reflexivity.
+
+  rewrite rng_mul_0_r, rng_add_0_l; subst sn.
+  rewrite first_null_coeff with (a₁ := a); eauto .
+  rewrite rng_mul_0_r; reflexivity.
+Qed.
+
 Theorem root_after_r_eq_1 : ∀ pol ns pol₁ c,
   ns ∈ newton_segments pol
   → c = ac_root (Φq pol ns)
@@ -736,31 +765,7 @@ destruct (ac_zerop 1%K) as [H₀| H₀].
       destruct (ps_zerop R (ps_poly_nth 0 pol₁)); [ contradiction | idtac ].
       discriminate Hz.
 
-      exists (root_head 0 (pred i) pol₁ ns₁).
-      destruct i.
-       rewrite Nat.pred_0 in Hpi.
-       rewrite Hpi in Hz; discriminate Hz.
-
-       rewrite Nat.pred_succ in Hpi.
-       rewrite Nat.pred_succ.
-       remember Hpi as H; clear HeqH.
-       eapply apply_nth_pol with (y := 0%ps) in H.
-       rewrite rng_mul_0_r, rng_add_0_r in H.
-       rewrite H.
-       unfold ps_pol_apply, apply_poly.
-       remember (S i) as si.
-       unfold apply_lap; simpl.
-       remember (al (nth_pol si pol₁ ns₁)) as la₁ eqn:Hla₁ .
-       symmetry in Hla₁.
-       destruct la₁ as [| a₁].
-        simpl.
-        rewrite rng_mul_0_r; reflexivity.
-
-        simpl.
-        rewrite rng_mul_0_r, rng_add_0_l.
-        subst si.
-        rewrite first_null_coeff with (a₁ := a₁); eauto .
-        rewrite rng_mul_0_r; reflexivity.
+      eapply root_when_fin; eauto .
 
     simpl.
     remember (root_tail (m * q₀) 0 pol₁ ns₁) as s eqn:Hs .
