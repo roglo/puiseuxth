@@ -114,12 +114,11 @@ Lemma pouet2 : ∀ f ffo ms a₀ a₁ la v₀ v₁ j k αj αk r,
   → 0 < v₀
   → (Qnat 0, v₀) = (Qnat j, αj)
   → end_pt ms = (Qnat k, αk)
-  → (j = 0)%nat ∧ (0 < k)%nat ∧ (k ≤ S (S r))%nat ∧ 0 < αj ∧ αk == 0 ∧
+  → (j = 0)%nat ∧ (0 < k)%nat ∧ (k ≤ S (S r))%nat ∧ 0 < αj ∧ αk >= 0 ∧
     seg ms = [].
 Proof.
 intros f ffo ms a₀ a₁ la v₀ v₁ j k αj αk r.
 intros Heqf Heqffo Heqms Hnneg Hz Hpos₀ Hpos₁ Hini Hfin.
-bbb.
 remember Heqms as Hms; clear HeqHms.
 apply minimise_slope_end_2nd_pt in Heqms.
  rewrite Heqms in Hfin.
@@ -133,9 +132,9 @@ apply minimise_slope_end_2nd_pt in Heqms.
   subst j k.
   split; [ reflexivity | idtac ].
   split; [ apply Nat.lt_0_1 | idtac ].
-  split; [ reflexivity | idtac ].
+  split; [ fast_omega | idtac ].
   split; [ assumption | idtac ].
-  split; [ assumption | idtac ].
+  split; [ apply Qlt_le_weak; assumption | idtac ].
   eapply minimise_slope_2_pts; try eassumption.
   subst ffo; revert Heqf; clear; intros.
   remember 2%nat as pow.
@@ -195,6 +194,7 @@ apply minimise_slope_end_2nd_pt in Heqms.
   apply Qnat_lt, Nat.lt_0_1.
 
  simpl.
+ggg.
  rewrite Hz; assumption.
 
  intros pt Hpt; simpl; rewrite Hz.
@@ -247,7 +247,8 @@ Lemma r_n_j_0_k_1r : ∀ pol ns c₁ pol₁ ns₁ j₁ αj₁ k₁ αk₁ m r,
   → ns₁ = List.hd phony_ns (newton_segments pol₁)
   → ini_pt ns₁ = (Qnat j₁, αj₁)
   → fin_pt ns₁ = (Qnat k₁, αk₁)
-  → j₁ = 0%nat ∧ (0 < k₁)%nat ∧ k₁ ≤ r ∧ αj₁ > 0 ∧ αk₁ == 0 ∧ oth_pts ns₁ = [].
+  → j₁ = 0%nat ∧ (0 < k₁)%nat ∧ k₁ ≤ r ∧ αj₁ > 0 ∧ αk₁ >= 0 ∧
+    oth_pts ns₁ = [].
 Proof.
 intros pol ns c₁ pol₁ ns₁ j₁ αj₁ k₁ αk₁ m r.
 intros Hns Hm Hc₁ Hr Hpol₁ Hps₀ Hns₁ Hini₁ Hfin₁.
