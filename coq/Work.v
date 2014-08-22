@@ -303,6 +303,9 @@ bbb.
   destruct la as [| a₁]; [ rewrite order_0 in Hz; contradiction | idtac ].
 si la multiplicité suivante est (S r) comme celle de la courante, c'est
 qu'il n'y a qu'un seul segment de Newton entre 0 et S r dans la suivante.
+cf
+  length_char_pol
+  al_Φq
 
 (* more general than r_1_next_ns which could be simplified if this
    lemma works *)
