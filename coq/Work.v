@@ -644,17 +644,17 @@ destruct r.
          intros H; rewrite H in Hnsl; discriminate Hnsl.
 
         destruct Hri as (s₁, Hs₁).
-        remember (root_head 0 i pol₁ ns₁) as rh.
-        remember (ps_monom 1%K (γ_sum 0 i pol₁ ns₁)) as mo.
-        exists (rh + mo * s₁)%ps; subst rh mo.
-        rewrite apply_nth_pol.
+        remember (zerop_1st_n_const_coeff i pol₁ ns₁) as z eqn:Hz .
+        symmetry in Hz.
+        destruct z.
+         Focus 2.
+         remember (root_head 0 i pol₁ ns₁) as rh.
+         remember (ps_monom 1%K (γ_sum 0 i pol₁ ns₁)) as mo.
+         exists (rh + mo * s₁)%ps; subst rh mo.
+         rewrite apply_nth_pol; auto.
          erewrite <- nth_pol_n; eauto .
          erewrite <- nth_c_root; eauto .
          rewrite Hs₁, rng_mul_0_r; reflexivity.
-
-         apply zerop_1st_n_const_coeff_false_iff.
-         intros j Hji.
-         simpl in Hir.
 bbb.
 
    remember (List.hd phony_ns (newton_segments pol₁)) as ns₁ eqn:Hns₁ .
