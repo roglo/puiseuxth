@@ -236,6 +236,22 @@ ggg.
 Qed.
 *)
 
+Lemma multiplicity_le_length : ∀ cpol c,
+  root_multiplicity acf c cpol ≤ List.length (al cpol).
+Proof.
+intros cpol c.
+unfold root_multiplicity.
+remember (al cpol) as la; clear Heqla.
+remember (length la) as len; clear Heqlen.
+revert la.
+induction len; intros; [ reflexivity | simpl ].
+destruct (ac_zerop (lap_mod_deg_1 la c)) as [H₁| H₁].
+ apply le_n_S.
+ apply IHlen.
+
+ apply Nat.le_0_l.
+Qed.
+
 (* more general than r_1_j_0_k_1 which could be simplified if this
    lemma works *)
 Lemma r_n_j_0_k_n : ∀ pol ns c pol₁ ns₁ c₁ j₁ αj₁ k₁ αk₁ m r,
