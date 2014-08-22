@@ -741,6 +741,9 @@ destruct r.
            apply a₀_0_root_0; assumption.
 
           eapply root_when_fin; eauto .
+
+       assert (newton_segments polsi ≠ []); [ idtac | contradiction ].
+       clear Hnsl.
 bbb.
 
    remember (List.hd phony_ns (newton_segments pol₁)) as ns₁ eqn:Hns₁ .
