@@ -103,22 +103,23 @@ induction n; intros; [ subst; reflexivity | simpl ].
 apply IHn; subst; reflexivity.
 Qed.
 
-(* more general than pouet which could be simplified if this
-   lemma works *)
-(*
-Lemma pouet2 : ∀ f ffo ms a₀ a₁ la v₀ v₁ j k αj αk,
+(* see pouet *)
+Lemma pouet2 : ∀ f ffo ms a₀ a₁ la v₀ v₁ j k αj αk r,
   f = pair_rec (λ pow ps, (Qnat pow, ps))
   → ffo = filter_finite_ord R (List.map f (power_list 2 la))
   → ms = minimise_slope (Qnat 0, v₀) (Qnat 1, v₁) ffo
   → (∀ i : nat, (order (List.nth i [a₀; a₁ … la] 0%ps) ≥ 0)%Qbar)
-  → 0 ≤ v₁
+  → (order (List.nth r la 0%ps) = 0)%Qbar
+  → 0 < v₁
   → 0 < v₀
   → (Qnat 0, v₀) = (Qnat j, αj)
   → end_pt ms = (Qnat k, αk)
-  → (j = 0)%nat ∧ (0 < k)%nat ∧ (k ≤ r)%nat ∧ 0 < αj ∧ αk == 0 ∧ seg ms = [].
+  → (j = 0)%nat ∧ (0 < k)%nat ∧ (k ≤ S (S r))%nat ∧ 0 < αj ∧ αk == 0 ∧
+    seg ms = [].
 Proof.
-intros f ffo ms a₀ a₁ la v₀ v₁ j k αj αk.
-intros Heqf Heqffo Heqms Hnneg Hz Hpos Hini Hfin.
+intros f ffo ms a₀ a₁ la v₀ v₁ j k αj αk r.
+intros Heqf Heqffo Heqms Hnneg Hz Hpos₀ Hpos₁ Hini Hfin.
+Admitted. (*
 bbb.
 remember Heqms as Hms; clear HeqHms.
 apply minimise_slope_end_2nd_pt in Heqms.
@@ -285,7 +286,7 @@ destruct r.
    rewrite order_0 in Hz; contradiction.
 
    clear Hps₀.
-   simpl in Hz, Hns₁.
+   simpl in Hns₁.
    remember (order a₁) as v₁.
    symmetry in Heqv₁.
    destruct v₁ as [v₁| ].
@@ -297,7 +298,7 @@ destruct r.
      remember (pair_rec (λ pow ps, (Qnat pow, ps))) as f.
      remember (filter_finite_ord R (List.map f (power_list 2 la))) as ffo.
      remember (minimise_slope (Qnat 0, v₀) (Qnat 1, v₁) ffo) as ms.
-     rewrite Heqv₁ in Hz; simpl in Hz.
+     simpl in Hz; rewrite Heqv₁ in Hz; simpl in Hz.
      eapply pouet in Hfin₁; try eassumption.
      destruct Hfin₁ as (H₁, (H₂, (H₃, (H₄, (H₅, H₆))))).
      split; [ assumption | idtac ].
@@ -317,6 +318,9 @@ destruct r.
      apply Hpos in H; rename H into Hpos₁.
      simpl in Hpos₁; rewrite Heqv₁ in Hpos₁.
      apply Qbar.qfin_lt_mono in Hpos₁.
+     eapply pouet2 in Hfin₁; try eassumption.
+
+    simpl.
 bbb.
   split; [ assumption | idtac ].
   split; assumption.
