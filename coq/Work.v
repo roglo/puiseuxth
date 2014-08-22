@@ -238,20 +238,23 @@ Qed.
 
 (* more general than r_1_j_0_k_1 which could be simplified if this
    lemma works *)
-Lemma r_n_j_0_k_n : ∀ pol ns c₁ pol₁ ns₁ j₁ αj₁ k₁ αk₁ m r,
+Lemma r_n_j_0_k_n : ∀ pol ns c pol₁ ns₁ c₁ j₁ αj₁ k₁ αk₁ m r,
   ns ∈ newton_segments pol
   → pol_in_K_1_m pol m
-  → c₁ = ac_root (Φq pol ns)
-  → root_multiplicity acf c₁ (Φq pol ns) = r
-  → pol₁ = next_pol pol (β ns) (γ ns) c₁
-  → (ps_poly_nth 0 pol₁ ≠ 0)%ps
+  → c = ac_root (Φq pol ns)
+  → pol₁ = next_pol pol (β ns) (γ ns) c
   → ns₁ = List.hd phony_ns (newton_segments pol₁)
+  → c₁ = ac_root (Φq pol₁ ns₁)
+  → (ps_poly_nth 0 pol₁ ≠ 0)%ps
+  → root_multiplicity acf c (Φq pol ns) = r
+  → root_multiplicity acf c₁ (Φq pol₁ ns₁) = r
   → ini_pt ns₁ = (Qnat j₁, αj₁)
   → fin_pt ns₁ = (Qnat k₁, αk₁)
   → j₁ = 0%nat ∧ k₁ = r ∧ αj₁ > 0 ∧ αk₁ == 0 ∧ oth_pts ns₁ = [].
 Proof.
-intros pol ns c₁ pol₁ ns₁ j₁ αj₁ k₁ αk₁ m r.
-intros Hns Hm Hc₁ Hr Hpol₁ Hps₀ Hns₁ Hini₁ Hfin₁.
+intros pol ns c pol₁ ns₁ c₁ j₁ αj₁ k₁ αk₁ m r.
+intros Hns Hm Hc Hpol₁ Hns₁ Hc₁ Hps₀ Hr Hr₁ Hini₁ Hfin₁.
+bbb.
 apply order_fin in Hps₀.
 remember Hns as H; clear HeqH.
 symmetry in Hr.
