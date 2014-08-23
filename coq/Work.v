@@ -351,6 +351,11 @@ destruct r.
     apply Nat.lt_0_succ.
 
    destruct v₀ as [v₀| ].
+    Focus 2.
+    unfold ps_poly_nth, ps_lap_nth in Hps₀.
+    rewrite <- Heqla in Hps₀; simpl in Hps₀.
+    contradiction.
+
     assert (al (Φq pol₁ ns₁) ≠ [])%lap as Hnz.
      rewrite al_Φq; simpl.
      rewrite Nat.sub_diag; simpl.
@@ -368,6 +373,10 @@ destruct r.
      rewrite Hr₁ in H.
      rewrite al_Φq in H.
      erewrite length_char_pol with (ns := ns₁) in H; eauto .
+      Focus 2.
+      rewrite Hini₁; simpl.
+      rewrite nat_num_Qnat; reflexivity.
+
       rewrite Hini₁ in H; simpl in H.
       rewrite nat_num_Qnat in H.
       apply lt_S_n in H.
@@ -405,21 +414,6 @@ destruct r.
        apply Qbar.qfin_lt_mono in Hpos₀.
        split; [ assumption | idtac ].
 bbb.
-      destruct la as [| a₁].
-       simpl in Hz.
-       rewrite match_id in Hz.
-       rewrite order_0 in Hz; contradiction.
-
-       simpl in Hz, Hns₁.
-       remember (order a₁) as v₁.
-       symmetry in Heqv₁.
-       destruct v₁ as [v₁| ].
-        Focus 2.
-        destruct r.
-         rewrite Heqv₁ in Hz.
-         contradiction.
-bbb.
-  destruct la as [| a₁]; [ rewrite order_0 in Hz; contradiction | idtac ].
 
 (* more general than r_1_next_ns which could be simplified if this
    lemma works *)
