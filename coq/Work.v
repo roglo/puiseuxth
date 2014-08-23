@@ -316,7 +316,7 @@ destruct r.
  apply multiplicity_neq_0; eauto .
 
  assert (0 < S r)%nat as H by apply Nat.lt_0_succ.
- apply Hpos in H; clear Hpos; rename H into Hpos.
+ apply Hpos in H; rename H into Hpos₀.
  remember Hns₁ as Hns₁v; clear HeqHns₁v.
  unfold newton_segments in Hns₁; simpl in Hns₁.
  unfold points_of_ps_polynom in Hns₁; simpl in Hns₁.
@@ -326,8 +326,8 @@ destruct r.
   unfold ps_lap_nth in Hz; simpl in Hz.
   rewrite order_0 in Hz; inversion Hz.
 
-  unfold ps_lap_nth in Hnneg, Hz, Hpos.
-  simpl in Hz, Hpos.
+  unfold ps_lap_nth in Hnneg, Hz, Hpos₀.
+  simpl in Hz, Hpos₀.
   unfold points_of_ps_lap in Hns₁.
   unfold points_of_ps_lap_gen in Hns₁.
   simpl in Hns₁.
