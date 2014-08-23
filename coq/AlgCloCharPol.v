@@ -1603,7 +1603,7 @@ Fixpoint list_root_multiplicity
 Definition root_multiplicity α {r : ring α} {K : field r}
   (acf : algeb_closed_field K) c
     pol :=
-  list_root_multiplicity acf c (al pol) (degree ac_zerop pol).
+  list_root_multiplicity acf c (al pol) (List.length (al pol)).
 
 Fixpoint list_quotient_phi_x_sub_c_pow_r α (R : ring α) la c₁ r :=
   match r with
@@ -2051,11 +2051,10 @@ Qed.
 Lemma list_div_x_sub_c_ne_0 : ∀ la c r len,
   not (lap_eq la [])
   → list_root_multiplicity acf c la len = r
-    → degree_plus_1_of_list ac_zerop la ≤ len
+    → length la ≤ len
       → (apply_lap (list_quotient_phi_x_sub_c_pow_r R la c r) c ≠ 0)%K.
 Proof.
 intros la c r len Hla Hmult Hlen.
-bbb.
 revert la len Hla Hmult Hlen.
 induction r; intros; simpl.
  intros Happ; apply Hla; clear Hla.
@@ -2144,7 +2143,6 @@ induction r; intros; simpl.
     apply le_n_S, IHla; assumption.
 
    discriminate Hmult.
-bbb.
 Qed.
 
 (* [Walker, p. 100] « If c₁ ≠ 0 is an r-fold root, r ≥ 1, of Φ(z^q) = 0,

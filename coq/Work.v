@@ -236,33 +236,55 @@ ggg.
 Qed.
 *)
 
-Lemma multiplicity_le_degree : ∀ cpol c,
-  root_multiplicity acf c cpol ≤ degree ac_zerop cpol.
+Lemma multiplicity_lt_length : ∀ cpol c,
+  (al cpol ≠ [])%lap
+  → (root_multiplicity acf c cpol < length (al cpol))%nat.
 Proof.
-intros cpol c.
-unfold root_multiplicity.
-unfold degree.
-remember (al cpol) as la; clear Heqla.
-destruct la as [| a]; [ reflexivity | idtac ].
-simpl.
-remember (degree_plus_1_of_list ac_zerop la) as d.
-symmetry in Heqd.
-destruct d; simpl.
- apply degree_plus_1_is_0 in Heqd.
- destruct (ac_zerop a) as [H₁| H₁].
-bbb.
-
-intros cpol c.
+intros cpol c Hnz.
 unfold root_multiplicity.
 remember (al cpol) as la; clear Heqla.
-remember (length la) as len; clear Heqlen.
-revert la.
-induction len; intros; [ reflexivity | simpl ].
-destruct (ac_zerop (lap_mod_deg_1 la c)) as [H₁| H₁].
- apply le_n_S.
- apply IHlen.
+remember (length la) as len.
+assert (length la ≤ len) as Hlen by omega.
+clear Heqlen.
+revert la Hnz Hlen.
+induction len; intros.
+ apply Nat.le_0_r in Hlen.
+ destruct la as [| a]; [ exfalso; apply Hnz; reflexivity | idtac ].
+ discriminate Hlen.
 
- apply Nat.le_0_l.
+ simpl.
+ destruct (ac_zerop (lap_mod_deg_1 la c)) as [H₁| H₁].
+  apply lt_n_S.
+  destruct la as [| a]; [ exfalso; apply Hnz; reflexivity | idtac ].
+  simpl in Hlen.
+  apply le_S_n in Hlen.
+  unfold lap_mod_deg_1 in H₁; simpl in H₁.
+  unfold lap_div_deg_1; simpl.
+  apply IHlen.
+   revert Hnz H₁; clear; intros.
+   revert a c Hnz H₁.
+   induction la as [| b]; intros.
+    simpl in H₁.
+    rewrite rng_mul_0_l, rng_add_0_l in H₁.
+    exfalso; apply Hnz; rewrite H₁.
+    constructor; reflexivity.
+
+    simpl in H₁; simpl.
+    intros H.
+    apply lap_eq_cons_nil_inv in H.
+    destruct H as (H₂, H₃).
+    rewrite H₂ in H₁.
+    rewrite rng_mul_0_l, rng_add_0_l in H₁.
+    revert H₃.
+    apply IHla with (a := b); auto.
+    intros H.
+    rewrite H in Hnz.
+    apply Hnz; rewrite H₁.
+    constructor; reflexivity.
+
+   rewrite length_lap_mod_div_deg_1; auto.
+
+  apply Nat.lt_0_succ.
 Qed.
 
 (* more general than r_1_j_0_k_1 which could be simplified if this
@@ -311,17 +333,16 @@ destruct r.
   remember (order a₀) as v₀.
   symmetry in Heqv₀.
   destruct v₀ as [v₀| ].
-   pose proof (multiplicity_le_length (Φq pol ns) c) as Hrl.
-   pose proof (multiplicity_le_length (Φq pol₁ ns₁) c₁) as Hrl₁.
-   rewrite al_Φq in Hrl, Hrl₁.
-   remember [ini_pt ns₁ … oth_pts ns₁ ++ [fin_pt ns₁]] as pts₁.
-   erewrite length_char_pol with (ns := ns₁) in Hrl₁; eauto .
-    rewrite Hini₁ in Hrl₁; simpl in Hrl₁.
-    rewrite nat_num_Qnat in Hrl₁.
-    rewrite Hr₁ in Hrl₁.
-    apply Nat.succ_le_mono in Hrl₁.
-    3: rewrite Hini₁; simpl.
-    3: rewrite nat_num_Qnat; reflexivity.
+   assert (al (Φq pol₁ ns₁) ≠ [])%lap as Hnz.
+    rewrite al_Φq; simpl.
+    rewrite Nat.sub_diag; simpl.
+    intros H.
+    apply lap_eq_cons_nil_inv in H.
+    destruct H as (H₁, H₂).
+    revert H₁.
+    rewrite Hini₁; simpl.
+    rewrite nat_num_Qnat.
+    eapply ord_coeff_non_zero_in_newt_segm with (ns := ns₁); eauto .
 bbb.
     unfold root_multiplicity in Hr, Hr₁.
     rewrite al_Φq in Hr, Hr₁.

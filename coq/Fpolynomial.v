@@ -1726,6 +1726,7 @@ Notation "'POL' l" := {| al := l |} (at level 1) : poly_scope.
 Definition eq_poly {α} {r : ring α} x y := lap_eq (al x) (al y).
 
 Notation "a = b" := (eq_poly a b) : poly_scope.
+Notation "a ≠ b" := (¬eq_poly a b) : poly_scope.
 
 Definition poly_one {α} {r : ring α} := POL [1%K]%pol.
 Notation "1" := poly_one : poly_scope.
