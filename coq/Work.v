@@ -413,6 +413,18 @@ destruct r.
        rewrite Heqv₀ in Hpos₀.
        apply Qbar.qfin_lt_mono in Hpos₀.
        split; [ assumption | idtac ].
+(**)
+       destruct la as [| a₁]; [ discriminate Heqffo | idtac ].
+       simpl in Heqffo.
+       remember (f (1%nat, a₁)) as x.
+       rewrite Heqf in Heqx; simpl in Heqx.
+       unfold pair_rec in Heqx; simpl in Heqx.
+       subst x.
+       remember (order a₁) as v₁.
+       symmetry in Heqv₁.
+       destruct v₁ as [v₁| ].
+        injection Heqffo; clear Heqffo; intros H₁ H₂.
+        subst pt.
 bbb.
 
 (* more general than r_1_next_ns which could be simplified if this
