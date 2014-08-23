@@ -236,9 +236,22 @@ ggg.
 Qed.
 *)
 
-Lemma multiplicity_le_length : ∀ cpol c,
-  root_multiplicity acf c cpol ≤ List.length (al cpol).
+Lemma multiplicity_le_degree : ∀ cpol c,
+  root_multiplicity acf c cpol ≤ degree ac_zerop cpol.
 Proof.
+intros cpol c.
+unfold root_multiplicity.
+unfold degree.
+remember (al cpol) as la; clear Heqla.
+destruct la as [| a]; [ reflexivity | idtac ].
+simpl.
+remember (degree_plus_1_of_list ac_zerop la) as d.
+symmetry in Heqd.
+destruct d; simpl.
+ apply degree_plus_1_is_0 in Heqd.
+ destruct (ac_zerop a) as [H₁| H₁].
+bbb.
+
 intros cpol c.
 unfold root_multiplicity.
 remember (al cpol) as la; clear Heqla.
