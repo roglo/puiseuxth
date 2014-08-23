@@ -144,7 +144,7 @@ remember Hns as H; clear HeqH.
 rewrite zerop_1st_n_const_coeff_false_iff in Hnz.
 eapply r_1_nth_ns in H; eauto .
 destruct H as (αjn, (αkn, H)).
-destruct H as (_, (Hinin, (Hfinn, (Hαjn, Hαkn)))).
+destruct H as (Hinin, (Hfinn, (Hαjn, Hαkn))).
 unfold β.
 rewrite Hinin; simpl.
 unfold Qnat; simpl.
@@ -157,7 +157,7 @@ simpl in Hnz₀.
 remember Hns₁ as H; clear HeqH.
 eapply r_1_next_ns in H; eauto .
 destruct H as (αj₁, (αk₁, H)).
-destruct H as (_, (Hini₁, (Hfin₁, (Hαj₁, Hαk₁)))).
+destruct H as (Hini₁, (Hfin₁, (Hαj₁, Hαk₁))).
 remember Hns₁ as H; clear HeqH.
 eapply List_hd_in in H; eauto .
  rename H into Hns₁i.
@@ -469,7 +469,7 @@ induction n; intros.
  remember Hns₁ as H; clear HeqH.
  eapply r_1_next_ns in H; eauto .
   destruct H as (αj₁, (αk₁, H)).
-  destruct H as (_, (Hini₁, (Hfin₁, (Hαj₁, Hαk₁)))).
+  destruct H as (Hini₁, (Hfin₁, (Hαj₁, Hαk₁))).
   rewrite Hini₁, Hfin₁; simpl.
   rewrite Hαk₁; simpl.
   rewrite Z.add_0_r, Z.mul_1_r, Pos.mul_1_r.
@@ -505,7 +505,7 @@ induction n; intros.
    remember Hns₁ as H; clear HeqH.
    eapply r_1_next_ns in H; eauto .
    destruct H as (αj₁, (αk₁, H)).
-   destruct H as (_, (Hini₁, (Hfin₁, (Hαj₁, Hαk₁)))).
+   destruct H as (Hini₁, (Hfin₁, (Hαj₁, Hαk₁))).
    eapply List_hd_in; eauto .
    intros H; rewrite H in Hns₁; subst ns₁; discriminate Hfin₁.
 
@@ -856,7 +856,7 @@ destruct (ac_zerop 1%K) as [H₀| H₀].
         remember Hns₁ as H; clear HeqH.
         eapply r_1_next_ns in H; eauto .
         destruct H as (αj₁, (αk₁, H)).
-        destruct H as (_, (Hini₁, (Hfin₁, (Hαj₁, Hαk₁)))).
+        destruct H as (Hini₁, (Hfin₁, (Hαj₁, Hαk₁))).
         eapply List_hd_in; eauto .
         intros H; rewrite H in Hns₁; subst ns₁; discriminate Hfin₁.
 
@@ -1254,7 +1254,7 @@ induction n; intros.
      remember Hns as H; clear HeqH.
      eapply r_1_next_ns with (m := m) in H; eauto .
      destruct H as (αj₁, (αk₁, H)).
-     destruct H as (_, (Hini₁, (Hfin₁, (Hαj₁, Hαk₁)))).
+     destruct H as (Hini₁, (Hfin₁, (Hαj₁, Hαk₁))).
      intros H; rewrite H in Hns₁; rewrite Hns₁ in Hfin₁; discriminate Hfin₁.
 
     pose proof (exists_pol_ord R pol) as H.

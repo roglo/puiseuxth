@@ -546,7 +546,7 @@ Lemma r_1_j_0_k_1 : ∀ pol ns c₁ pol₁ ns₁ j₁ αj₁ k₁ αk₁ m,
   → ns₁ = List.hd phony_ns (newton_segments pol₁)
   → ini_pt ns₁ = (Qnat j₁, αj₁)
   → fin_pt ns₁ = (Qnat k₁, αk₁)
-  → j₁ = 0%nat ∧ k₁ = 1%nat ∧ αj₁ > 0 ∧ αk₁ == 0 ∧ oth_pts ns₁ = [].
+  → j₁ = 0%nat ∧ k₁ = 1%nat ∧ αj₁ > 0 ∧ αk₁ == 0.
 Proof.
 intros pol ns c₁ pol₁ ns₁ j₁ αj₁ k₁ αk₁ m.
 intros Hns Hm Hc₁ Hr Hpol₁ Hps₀ Hns₁ Hini₁ Hfin₁.
@@ -590,7 +590,6 @@ destruct la as [| a₀].
   destruct Hfin₁ as (H₁, (H₂, (H₃, (H₄, (H₅, H₆))))).
   split; [ assumption | idtac ].
   split; [ omega | idtac ].
-  split; [ assumption | idtac ].
   split; assumption.
 
   unfold ps_poly_nth in Hps₀.
@@ -1155,7 +1154,6 @@ Lemma r_1_next_ns : ∀ pol ns c pol₁ ns₁ m,
   → ns₁ = List.hd phony_ns (newton_segments pol₁)
   → (ps_poly_nth 0 pol₁ ≠ 0)%ps
   → ∃ αj αk,
-    oth_pts ns₁ = [] ∧
     ini_pt ns₁ = (Qnat 0, αj) ∧
     fin_pt ns₁ = (Qnat 1, αk) ∧
     (0 < Qnum αj)%Z ∧
@@ -1170,7 +1168,7 @@ apply exists_fin_pt_nat_fst_seg in H.
 destruct H as (k₁, (αk₁, Hfin₁)).
 remember Hns₁ as H; clear HeqH.
 eapply r_1_j_0_k_1 in H; eauto .
-destruct H as (Hj₁, (Hk₁, (Hαj₁, (Hαk₁, Hoth₁)))).
+destruct H as (Hj₁, (Hk₁, (Hαj₁, Hαk₁))).
 subst j₁ k₁.
 unfold Qlt in Hαj₁; simpl in Hαj₁.
 unfold Qeq in Hαk₁; simpl in Hαk₁.
@@ -1231,7 +1229,7 @@ apply exists_fin_pt_nat_fst_seg in Hfin₁.
 destruct Hfin₁ as (k₁, (αk₁, Hfin₁)).
 remember Hns as H; clear HeqH.
 eapply r_1_j_0_k_1 in H; try eassumption.
-destruct H as (Hj₁, (Hk₁, (Hαj₁, (Hαk₁, Hoth₁)))).
+destruct H as (Hj₁, (Hk₁, (Hαj₁, Hαk₁))).
 subst j₁ k₁; simpl.
 unfold Qlt in Hαj₁; simpl in Hαj₁.
 unfold Qeq in Hαk₁; simpl in Hαk₁.
@@ -1283,7 +1281,7 @@ induction n; intros.
  destruct H as (k₁, (αk₁, Hfin₁)).
  remember Hns as H; clear HeqH.
  eapply r_1_j_0_k_1 in H; try eassumption.
-  destruct H as (Hj₁, (Hk₁, (Hαj₁, (Hαk₁, Hoth₁)))).
+  destruct H as (Hj₁, (Hk₁, (Hαj₁, Hαk₁))).
   subst j₁ k₁; simpl.
   unfold Qlt in Hαj₁; simpl in Hαj₁.
   unfold Qeq in Hαk₁; simpl in Hαk₁.
@@ -1338,7 +1336,6 @@ Lemma r_1_nth_ns : ∀ pol ns c pol₁ ns₁ m,
     → poln = nth_pol n pol₁ ns₁
     → nsn = nth_ns n pol₁ ns₁
     → ∃ αj αk,
-      oth_pts nsn = [] ∧
       ini_pt nsn = (Qnat 0, αj) ∧
       fin_pt nsn = (Qnat 1, αk) ∧
       (0 < Qnum αj)%Z ∧
@@ -1361,7 +1358,7 @@ induction n; intros.
  remember Hns as H; clear HeqH.
  eapply r_1_next_ns with (ns₁ := ns₁) in H; eauto .
  destruct H as (αj₁, (αk₁, H)).
- destruct H as (_, (Hini₁, (Hfin₁, (Hαj₁, Hαk₁)))).
+ destruct H as (Hini₁, (Hfin₁, (Hαj₁, Hαk₁))).
  remember Hns₁ as H; clear HeqH.
  eapply List_hd_in in H; eauto .
   rename H into Hns₁i.
@@ -1418,7 +1415,7 @@ induction n; intros.
   remember Hns₁ as H; clear HeqH.
   eapply r_1_next_ns with (ns := ns) in H; try eassumption.
    destruct H as (αj₁, (αk₁, H)).
-   destruct H as (Hoth₁, (Hini₁, (Hfin₁, (Hαj₁, Hαk₁)))).
+   destruct H as (Hini₁, (Hfin₁, (Hαj₁, Hαk₁))).
    remember (q_of_m m (γ ns)) as q₀ eqn:Hq₀.
    eapply IHn with (ns := ns₁) (pol := pol₁) (m := (m * q₀)%positive); eauto .
     eapply List_hd_in; eauto .
@@ -1742,7 +1739,7 @@ induction i; intros.
  remember Hr as H; clear HeqH.
  eapply r_1_next_ns in H; eauto .
  destruct H as (αj₁, (αk₁, H)).
- destruct H as (Hoth₁, (Hini₁, (Hfin₁, (Hαj₁, Hαk₁)))).
+ destruct H as (Hini₁, (Hfin₁, (Hαj₁, Hαk₁))).
  rewrite Hini₁, Hfin₁ in Hnp; simpl in Hnp.
  rewrite Z.mul_opp_l, Z.add_opp_r, Z.mul_1_r in Hnp.
  do 2 rewrite Pos.mul_1_r in Hnp.
@@ -2036,7 +2033,7 @@ assert (1 ≤ S n) as H₁.
   eapply hd_newton_segments₉; eauto .
   remember Hns₁ as H; clear HeqH.
   eapply r_1_j_0_k_1 in H; try eassumption.
-  destruct H as (Hj₂, (Hk₂, (Hαj₂, (Hαk₂, Hoth₂)))).
+  destruct H as (Hj₂, (Hk₂, (Hαj₂, Hαk₂))).
   subst j₂ k₂; apply Nat.lt_0_1.
 
   eapply next_pol_in_K_1_mq; eauto .
@@ -2075,7 +2072,7 @@ destruct (ps_zerop _ (ps_poly_nth 0 pol₁)) as [H₁| H₁].
  remember Hns as H; clear HeqH.
  eapply r_1_next_ns in H; eauto .
  destruct H as (αj₁, (αk₁, H)).
- destruct H as (_, (Hini₁, (Hfin₁, (Hαj₁, Hαk₁)))).
+ destruct H as (Hini₁, (Hfin₁, (Hαj₁, Hαk₁))).
  remember Hns₁ as Hns₁₁; clear HeqHns₁₁.
  eapply List_hd_in in Hns₁₁; eauto .
  remember Hns₁₁ as HK₂; clear HeqHK₂.
@@ -2153,7 +2150,7 @@ destruct (ps_zerop _ (ps_poly_nth 0 pol₁)) as [H₁| H₁].
    remember Hns₁₁ as H; clear HeqH.
    eapply r_1_next_ns in H; eauto .
    destruct H as (αj₂, (αk₂, H)).
-   destruct H as (_, (Hini₂, (Hfin₂, (Hαj₂, Hαk₂)))).
+   destruct H as (Hini₂, (Hfin₂, (Hαj₂, Hαk₂))).
    unfold root_tail_from_cγ_list; simpl.
    unfold ps_add, ps_mul; simpl.
    unfold cm; simpl.
@@ -2358,7 +2355,7 @@ induction n; intros.
  remember Hns as H; clear HeqH.
  eapply r_1_next_ns in H; eauto .
   destruct H as (αj₁, (αk₁, H)).
-  destruct H as (Hoth₁, (Hini₁, (Hfin₁, (Hαj₁, Hαk₁)))).
+  destruct H as (Hini₁, (Hfin₁, (Hαj₁, Hαk₁))).
   remember Hns₁ as Hns₁₁; clear HeqHns₁₁.
   eapply List_hd_in in Hns₁₁; eauto .
    remember (m * q₀)%positive as m₁.
@@ -2443,7 +2440,7 @@ destruct z₁.
  remember Hns₁ as H; clear HeqH.
  eapply r_1_next_ns in H; eauto .
  destruct H as (αj₁, (αk₁, H)).
- destruct H as (Hoth₁, (Hini₁, (Hfin₁, (Hαj₁, Hαk₁)))).
+ destruct H as (Hini₁, (Hfin₁, (Hαj₁, Hαk₁))).
  remember Hns₁ as Hns₁₁; clear HeqHns₁₁.
  eapply List_hd_in in Hns₁₁; eauto .
  remember Hns₁₁ as HK₂; clear HeqHK₂.
@@ -2505,7 +2502,7 @@ destruct z₁.
    erewrite <- nth_ns_n with (c := c₁) in Hnsb; eauto .
    erewrite nth_pol_n with (c₁ := c₁) in Hpsb; eauto .
   rewrite <- Hpolb in Hpsb.
-  destruct H as (Hjb, (Hkb, (Hαjb, (Hαkb, Hothb)))).
+  destruct H as (Hjb, (Hkb, (Hαjb, Hαkb))).
   subst jb kb.
   unfold Qlt in Hαjb; simpl in Hαjb.
   unfold Qeq in Hαkb; simpl in Hαkb.
@@ -2596,7 +2593,7 @@ destruct z₁.
    remember Hns₂ as H; clear HeqH.
    eapply r_1_next_ns with (pol := pol₁) in H; eauto .
    destruct H as (αj₂, (αk₂, H)).
-   destruct H as (Hoth₂, (Hini₂, (Hfin₂, (Hαj₂, Hαk₂)))).
+   destruct H as (Hini₂, (Hfin₂, (Hαj₂, Hαk₂))).
    rewrite Nat.add_1_r; simpl.
    rewrite <- Hc₁, <- Hpol₂, <- Hns₂.
    remember (ac_root (Φq pol₂ ns₂)) as c₂ eqn:Hc₂ .
@@ -2626,7 +2623,7 @@ destruct z₁.
 
      eapply next_pol_in_K_1_mq with (ns := ns); eauto .
    destruct H as (αjb₂, (αkb₂, H)).
-   destruct H as (Hothb₂, (Hinib₂, (Hfinb₂, (Hαjb₂, Hαkb₂)))).
+   destruct H as (Hinib₂, (Hfinb₂, (Hαjb₂, Hαkb₂))).
    unfold root_tail_from_cγ_list; simpl.
    rewrite Hinib, Hfinb, Hinib₂, Hfinb₂; simpl.
    rewrite Hαkb, Hαkb₂; simpl.
@@ -2977,7 +2974,7 @@ destruct z₁.
  remember Hns₁ as H; clear HeqH.
  eapply r_1_next_ns in H; eauto .
  destruct H as (αj₁, (αk₁, H)).
- destruct H as (_, (Hini₁, (Hfin₁, (Hαj₁, Hαk₁)))).
+ destruct H as (Hini₁, (Hfin₁, (Hαj₁, Hαk₁))).
  remember Hns₁ as Hns₁i; clear HeqHns₁i.
  eapply hd_newton_segments₉ in Hns₁i; eauto .
  remember Hr as H; clear HeqH.
@@ -2994,7 +2991,7 @@ destruct z₁.
   remember Hns as H; clear HeqH.
   eapply r_1_nth_ns with (poln := poln₁) in H; eauto .
   destruct H as (αjn₁, (αkn₁, H)).
-  destruct H as (_, (Hinin₁, (Hfinn₁, (Hαjn₁, Hαkn₁)))).
+  destruct H as (Hinin₁, (Hfinn₁, (Hαjn₁, Hαkn₁))).
   rewrite Hinin₁, Hfinn₁; simpl.
   rewrite Hαkn₁; simpl.
   rewrite Z.mul_1_r, Z.add_0_r, Pos.mul_1_r, Pos2Z.inj_mul.
@@ -3071,7 +3068,7 @@ destruct z₁.
   remember Hns as H; clear HeqH.
   eapply r_1_nth_ns with (poln := poln₁) in H; eauto .
   destruct H as (αjn₁, (αkn₁, H)).
-  destruct H as (_, (Hinin₁, (Hfinn₁, (Hαjn₁, Hαkn₁)))).
+  destruct H as (Hinin₁, (Hfinn₁, (Hαjn₁, Hαkn₁))).
   assert (ps_poly_nth 0 pol₂ ≠ 0)%ps as Hps₂.
    destruct n; [ simpl in Hpoln₂; subst poln₂; assumption | idtac ].
    assert (1 ≤ S n)%nat as H by fast_omega .
@@ -3086,7 +3083,7 @@ destruct z₁.
      remember Hns₂ as H; clear HeqH.
      eapply r_1_next_ns with (pol := pol₁) in H; eauto .
      destruct H as (αj₂, (αk₂, H)).
-     destruct H as (Hoth₂, (Hini₂, (Hfin₂, (Hαj₂, Hαk₂)))).
+     destruct H as (Hini₂, (Hfin₂, (Hαj₂, Hαk₂))).
      eapply List_hd_in; eauto .
      intros H; rewrite H in Hns₂; subst ns₂; discriminate Hfin₂.
 
@@ -3126,7 +3123,7 @@ destruct z₁.
           remember Hns as H; clear HeqH.
           eapply r_1_nth_ns with (poln := poln₂) (n := S n) in H; eauto .
            destruct H as (αjn₂, (αkn₂, H)).
-           destruct H as (_, (Hinin₂, (Hfinn₂, (Hαjn₂, Hαkn₂)))).
+           destruct H as (Hinin₂, (Hfinn₂, (Hαjn₂, Hαkn₂))).
            simpl in Hinin₂, Hfinn₂.
            rewrite <- Hc₁, <- Hpol₂, <- Hns₂ in Hinin₂, Hfinn₂.
            rewrite <- Hnsn₂ in Hinin₂, Hfinn₂.
@@ -3331,7 +3328,7 @@ destruct z₁.
                        remember Heqnsn₃ as H; clear HeqH.
                        eapply r_1_next_ns with (pol := poln₂) in H; eauto .
                         destruct H as (αjn₃, (αkn₃, H)).
-                        destruct H as (_, (Hinin₃, (Hfinn₃, (Hαjn₃, Hαkn₃)))).
+                        destruct H as (Hinin₃, (Hfinn₃, (Hαjn₃, Hαkn₃))).
                         assert (0 < np₁)%nat as Hnp₁p.
                          subst np₁.
                          unfold next_pow; simpl.
