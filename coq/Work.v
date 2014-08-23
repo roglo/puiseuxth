@@ -425,6 +425,32 @@ destruct r.
        destruct v₁ as [v₁| ].
         injection Heqffo; clear Heqffo; intros H₁ H₂.
         subst pt.
+        rewrite minimised_slope_beg_pt in Hns₁.
+        unfold root_multiplicity in Hr₁.
+        rewrite al_Φq in Hr₁.
+        erewrite length_char_pol in Hr₁; eauto .
+         Focus 2.
+         rewrite Hns₁; simpl.
+         rewrite nat_num_Qnat; reflexivity.
+
+         Focus 2.
+         rewrite Hns₁; simpl.
+         rewrite Hfin₁; simpl.
+         reflexivity.
+
+         rewrite Hns₁ in Hr₁; simpl in Hr₁.
+         rewrite Hfin₁ in Hr₁; simpl in Hr₁.
+         rewrite nat_num_Qnat in Hr₁.
+         unfold lap_mod_deg_1 in Hr₁; simpl in Hr₁.
+         rewrite <- Heqla in Hr₁; simpl in Hr₁.
+         rewrite Nat.sub_0_r in Hr₁.
+         unfold lap_div_deg_1 in Hr₁; simpl in Hr₁.
+         remember (oth_pts ns₁) as x.
+         rename H into Hrk₁.
+         remember Heqx as H; clear HeqH.
+         rewrite Hns₁ in H; simpl in H.
+         rewrite H in Heqx; clear H.
+         rewrite Heqx in Hr₁.
 bbb.
 
 (* more general than r_1_next_ns which could be simplified if this
