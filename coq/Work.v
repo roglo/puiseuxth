@@ -301,7 +301,7 @@ Lemma r_n_j_0_k_n : ∀ pol ns c pol₁ ns₁ c₁ j₁ αj₁ k₁ αk₁ m r,
   → root_multiplicity acf c₁ (Φq pol₁ ns₁) = r
   → ini_pt ns₁ = (Qnat j₁, αj₁)
   → fin_pt ns₁ = (Qnat k₁, αk₁)
-  → j₁ = 0%nat ∧ k₁ = r ∧ αj₁ > 0 ∧ αk₁ == 0 ∧ oth_pts ns₁ = [].
+  → j₁ = 0%nat ∧ k₁ = r ∧ αj₁ > 0 ∧ αk₁ == 0.
 Proof.
 intros pol ns c pol₁ ns₁ c₁ j₁ αj₁ k₁ αk₁ m r.
 intros Hns Hm Hc Hpol₁ Hns₁ Hc₁ Hps₀ Hr Hr₁ Hini₁ Hfin₁.
@@ -371,8 +371,40 @@ destruct r.
       rewrite Hini₁ in H; simpl in H.
       rewrite nat_num_Qnat in H.
       apply lt_S_n in H.
+      unfold lower_convex_hull_points in Hns₁.
+      simpl in Hns₁.
+      remember (pair_rec (λ pow ps, (Qnat pow, ps))) as f.
+      remember (filter_finite_ord R (List.map f (power_list 1 la))) as ffo.
+      symmetry in Heqffo.
+      destruct ffo as [| pt].
+       rewrite Hns₁ in Hini₁, Hfin₁; simpl in Hini₁, Hfin₁.
+       injection Hini₁; intros H₁ H₂.
+       injection Hfin₁; intros H₃ H₄.
+       rewrite <- Nat2Z.inj_0 in H₂, H₄.
+       apply Nat2Z.inj in H₂.
+       apply Nat2Z.inj in H₄.
+       subst j₁ k₁.
+       rewrite Nat.sub_diag in H.
+       apply Nat.nle_gt in H.
+       exfalso; apply H, Nat.le_0_l.
+
+       simpl in Hns₁.
+       rewrite Hns₁ in Hini₁, Hfin₁; simpl in Hini₁, Hfin₁.
+       rewrite minimised_slope_beg_pt in Hini₁.
+       injection Hini₁; clear Hini₁; intros H₁ H₂.
+       subst v₀.
+       rewrite <- Nat2Z.inj_0 in H₂.
+       apply Nat2Z.inj in H₂.
+       subst j₁.
+       rewrite Nat.sub_0_r in H.
+       split; [ reflexivity | idtac ].
+       rewrite and_comm, and_assoc.
+       unfold ps_poly_nth, ps_lap_nth in Hpos₀.
+       rewrite <- Heqla in Hpos₀; simpl in Hpos₀.
+       rewrite Heqv₀ in Hpos₀.
+       apply Qbar.qfin_lt_mono in Hpos₀.
+       split; [ assumption | idtac ].
 bbb.
-perhaps an induction with la is required, because I have to reach r
       destruct la as [| a₁].
        simpl in Hz.
        rewrite match_id in Hz.
