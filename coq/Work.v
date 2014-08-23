@@ -317,6 +317,7 @@ destruct r.
 
  assert (0 < S r)%nat as H by apply Nat.lt_0_succ.
  apply Hpos in H; clear Hpos; rename H into Hpos.
+ remember Hns₁ as Hns₁v; clear HeqHns₁v.
  unfold newton_segments in Hns₁; simpl in Hns₁.
  unfold points_of_ps_polynom in Hns₁; simpl in Hns₁.
  unfold ps_poly_nth in Hnneg, Hz, Hpos.
