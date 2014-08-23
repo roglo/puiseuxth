@@ -333,32 +333,44 @@ destruct r.
   simpl in Hns₁.
   remember (order a₀) as v₀.
   symmetry in Heqv₀.
-  destruct v₀ as [v₀| ].
-   assert (al (Φq pol₁ ns₁) ≠ [])%lap as Hnz.
-    rewrite al_Φq; simpl.
-    rewrite Nat.sub_diag; simpl.
-    intros H.
-    apply lap_eq_cons_nil_inv in H.
-    destruct H as (H₁, H₂).
-    revert H₁.
-    rewrite Hini₁; simpl.
-    rewrite nat_num_Qnat.
-    eapply ord_coeff_non_zero_in_newt_segm with (ns := ns₁); eauto .
-bbb.
-    unfold root_multiplicity in Hr, Hr₁.
-    rewrite al_Φq in Hr, Hr₁.
-    rewrite <- Heqpts₁ in Hr₁.
-    erewrite length_char_pol with (ns := ns₁) in Hr₁; eauto .
-     3: rewrite Hini₁; simpl.
-     3: rewrite nat_num_Qnat; reflexivity.
+  assert (ns₁ ∈ newton_segments pol₁) as Hns₁i.
+   eapply List_hd_in; eauto .
+   intros H.
+   apply no_newton_segments with (i := S r) in H.
+    unfold ps_poly_nth, ps_lap_nth in H; simpl in H.
+    rewrite <- Heqla in H; simpl in H.
+    rewrite H in Hz.
+    rewrite order_0 in Hz; inversion Hz.
 
-     rewrite Hini₁ in Hr₁; simpl in Hr₁.
-     rewrite nat_num_Qnat in Hr₁.
-     remember (List.map (term_of_point pol₁)) as tl₁.
-     remember (make_char_pol R j₁ (tl₁ pts₁)) as cpol₁.
-     destruct (ac_zerop (lap_mod_deg_1 cpol₁ c₁)) as [H₁| H₁].
-      apply Nat.succ_inj in Hr₁.
-     apply Nat.succ_inj in Hr₁.
+    clear H; intros H.
+    apply Hps₀.
+    apply eq_Qbar_qinf.
+    rewrite H.
+    rewrite order_0; reflexivity.
+
+    apply Nat.lt_0_succ.
+
+   destruct v₀ as [v₀| ].
+    assert (al (Φq pol₁ ns₁) ≠ [])%lap as Hnz.
+     rewrite al_Φq; simpl.
+     rewrite Nat.sub_diag; simpl.
+     intros H.
+     apply lap_eq_cons_nil_inv in H.
+     destruct H as (H₁, H₂).
+     revert H₁.
+     rewrite Hini₁; simpl.
+     rewrite nat_num_Qnat.
+     eapply ord_coeff_non_zero_in_newt_segm with (ns := ns₁); eauto .
+     left; rewrite Hini₁; reflexivity.
+
+     remember Hnz as H; clear HeqH.
+     apply multiplicity_lt_length with (c := c₁) in H.
+     rewrite Hr₁ in H.
+     rewrite al_Φq in H.
+     erewrite length_char_pol with (ns := ns₁) in H; eauto .
+      rewrite Hini₁ in H; simpl in H.
+      rewrite nat_num_Qnat in H.
+      apply lt_S_n in H.
 bbb.
   destruct la as [| a₁]; [ rewrite order_0 in Hz; contradiction | idtac ].
 
