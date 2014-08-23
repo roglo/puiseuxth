@@ -270,7 +270,6 @@ Lemma r_n_j_0_k_n : ∀ pol ns c pol₁ ns₁ c₁ j₁ αj₁ k₁ αk₁ m r,
 Proof.
 intros pol ns c pol₁ ns₁ c₁ j₁ αj₁ k₁ αk₁ m r.
 intros Hns Hm Hc Hpol₁ Hns₁ Hc₁ Hps₀ Hr Hr₁ Hini₁ Hfin₁.
-bbb.
 apply order_fin in Hps₀.
 remember Hns as H; clear HeqH.
 symmetry in Hr.
@@ -299,6 +298,29 @@ destruct r.
   remember (order a₀) as v₀.
   symmetry in Heqv₀.
   destruct v₀ as [v₀| ].
+   pose proof (multiplicity_le_length (Φq pol ns) c) as Hrl.
+   pose proof (multiplicity_le_length (Φq pol₁ ns₁) c₁) as Hrl₁.
+   rewrite al_Φq in Hrl, Hrl₁.
+   remember [ini_pt ns₁ … oth_pts ns₁ ++ [fin_pt ns₁]] as pts₁.
+   erewrite length_char_pol with (ns := ns₁) in Hrl₁; eauto .
+    rewrite Hini₁ in Hrl₁; simpl in Hrl₁.
+    rewrite nat_num_Qnat in Hrl₁.
+    rewrite Hr₁ in Hrl₁.
+    apply Nat.succ_le_mono in Hrl₁.
+    unfold root_multiplicity in Hr, Hr₁.
+    rewrite al_Φq in Hr, Hr₁.
+    rewrite <- Heqpts₁ in Hr₁.
+    erewrite length_char_pol with (ns := ns₁) in Hr₁; eauto .
+     3: rewrite Hini₁; simpl.
+     3: rewrite nat_num_Qnat; reflexivity.
+
+     rewrite Hini₁ in Hr₁; simpl in Hr₁.
+     rewrite nat_num_Qnat in Hr₁.
+     remember (List.map (term_of_point pol₁)) as tl₁.
+     remember (make_char_pol R j₁ (tl₁ pts₁)) as cpol₁.
+     destruct (ac_zerop (lap_mod_deg_1 cpol₁ c₁)) as [H₁| H₁].
+      apply Nat.succ_inj in Hr₁.
+     apply Nat.succ_inj in Hr₁.
 bbb.
   destruct la as [| a₁]; [ rewrite order_0 in Hz; contradiction | idtac ].
 si la multiplicité suivante est (S r) comme celle de la courante, c'est
