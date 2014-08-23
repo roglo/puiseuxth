@@ -372,6 +372,21 @@ destruct r.
       rewrite nat_num_Qnat in H.
       apply lt_S_n in H.
 bbb.
+perhaps an induction with la is required, because I have to reach r
+      destruct la as [| a₁].
+       simpl in Hz.
+       rewrite match_id in Hz.
+       rewrite order_0 in Hz; contradiction.
+
+       simpl in Hz, Hns₁.
+       remember (order a₁) as v₁.
+       symmetry in Heqv₁.
+       destruct v₁ as [v₁| ].
+        Focus 2.
+        destruct r.
+         rewrite Heqv₁ in Hz.
+         contradiction.
+bbb.
   destruct la as [| a₁]; [ rewrite order_0 in Hz; contradiction | idtac ].
 
 (* more general than r_1_next_ns which could be simplified if this
