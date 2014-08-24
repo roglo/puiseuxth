@@ -415,51 +415,47 @@ destruct r.
        split; [ assumption | idtac ].
 bbb.
 (**)
+       rewrite minimised_slope_beg_pt in Hns₁.
+       rewrite Hfin₁ in Hns₁.
+       remember (minimise_slope (Qnat 0, αj₁) pt pts) as ms.
        destruct r.
         destruct la as [| a₁].
          simpl in Hz.
          rewrite order_0 in Hz; contradiction.
 
-         simpl in Hz.
-         simpl in Heqpts.
+         simpl in Hz, Heqpts.
          remember (f (1%nat, a₁)) as x.
          rewrite Heqf in Heqx; simpl in Heqx.
          unfold pair_rec in Heqx; simpl in Heqx.
          subst x.
          remember (order a₁) as v₁.
          symmetry in Heqv₁.
-         destruct v₁ as [v₁| ].
-          injection Heqpts; clear Heqpts; intros H₁ H₂.
-          subst pt.
-          apply Qbar.qfin_inj in Hz.
-          destruct (eq_nat_dec k₁ 1) as [H₂| H₂].
-           split; [ idtac | assumption ].
-           subst k₁.
-           rewrite minimised_slope_beg_pt in Hns₁.
-           rewrite Hfin₁ in Hns₁.
-           simpl in Hfin₁.
-           destruct pts as [| pt].
-            simpl in Hfin₁.
-            injection Hfin₁; intros.
-            subst v₁.
-            assumption.
+         destruct v₁ as [v₁| ]; [ idtac | contradiction ].
+         injection Heqpts; clear Heqpts; intros H₁ H₂.
+         subst pt.
+         apply Qbar.qfin_inj in Hz.
+         destruct (eq_nat_dec k₁ 1) as [H₂| H₂].
+          split; [ idtac | assumption ].
+          subst k₁.
+          destruct pts as [| pt].
+           rewrite Heqms in Hfin₁; simpl in Hfin₁.
+           injection Hfin₁; intros.
+           subst v₁; assumption.
 
-            remember
-             (minimise_slope (Qnat 0, αj₁) (Qnat 1, v₁) [pt … pts]) as ms.
-            simpl in Heqms.
-            remember (minimise_slope (Qnat 0, αj₁) pt pts) as ms₁.
-            unfold slope_expr in Heqms.
-            simpl in Heqms.
-            rewrite <- Qnat_inj_sub in Heqms; [ idtac | apply Nat.le_0_1 ].
-            simpl in Heqms.
-            rewrite Q_div_1_r in Heqms.
-            remember (v₁ - αj₁ ?= slope ms₁) as cmp.
-            symmetry in Heqcmp.
-            destruct cmp; simpl in Heqms.
-             rewrite Hz in Heqcmp.
-             apply Qeq_alt in Heqcmp.
-             rewrite Heqms in Hns₁.
-             simpl in Hns₁.
+           simpl in Heqms.
+           remember (minimise_slope (Qnat 0, αj₁) pt pts) as ms₁.
+           unfold slope_expr in Heqms.
+           simpl in Heqms.
+           rewrite <- Qnat_inj_sub in Heqms; [ idtac | apply Nat.le_0_1 ].
+           simpl in Heqms.
+           rewrite Q_div_1_r in Heqms.
+           remember (v₁ - αj₁ ?= slope ms₁) as cmp.
+           symmetry in Heqcmp.
+           destruct cmp; simpl in Heqms.
+            rewrite Hz in Heqcmp.
+            apply Qeq_alt in Heqcmp.
+            rewrite Heqms in Hns₁.
+            simpl in Hns₁.
 bbb.
 
 (* more general than r_1_next_ns which could be simplified if this
