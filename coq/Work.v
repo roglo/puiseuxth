@@ -415,43 +415,51 @@ destruct r.
        split; [ assumption | idtac ].
 bbb.
 (**)
-       destruct la as [| a₁]; [ discriminate Heqpts | idtac ].
-       simpl in Heqpts.
-       remember (f (1%nat, a₁)) as x.
-       rewrite Heqf in Heqx; simpl in Heqx.
-       unfold pair_rec in Heqx; simpl in Heqx.
-       subst x.
-       remember (order a₁) as v₁.
-       symmetry in Heqv₁.
-       destruct v₁ as [v₁| ].
-        injection Heqpts; clear Heqpts; intros H₁ H₂.
-        subst pt.
-        rewrite minimised_slope_beg_pt in Hns₁.
-        unfold root_multiplicity in Hr₁.
-        rewrite al_Φq in Hr₁.
-        erewrite length_char_pol in Hr₁; eauto .
-         Focus 2.
-         rewrite Hns₁; simpl.
-         rewrite nat_num_Qnat; reflexivity.
+       destruct r.
+        destruct la as [| a₁].
+         simpl in Hz.
+         rewrite order_0 in Hz; contradiction.
 
-         Focus 2.
-         rewrite Hns₁; simpl.
-         rewrite Hfin₁; simpl.
-         reflexivity.
+         simpl in Hz.
+         simpl in Heqpts.
+         remember (f (1%nat, a₁)) as x.
+         rewrite Heqf in Heqx; simpl in Heqx.
+         unfold pair_rec in Heqx; simpl in Heqx.
+         subst x.
+         remember (order a₁) as v₁.
+         symmetry in Heqv₁.
+         destruct v₁ as [v₁| ].
+          injection Heqpts; clear Heqpts; intros H₁ H₂.
+          subst pt.
+          apply Qbar.qfin_inj in Hz.
+          destruct (eq_nat_dec k₁ 1) as [H₂| H₂].
+           split; [ idtac | assumption ].
+           subst k₁.
+           rewrite minimised_slope_beg_pt in Hns₁.
+           rewrite Hfin₁ in Hns₁.
+           simpl in Hfin₁.
+           destruct pts as [| pt].
+            simpl in Hfin₁.
+            injection Hfin₁; intros.
+            subst v₁.
+            assumption.
 
-         rewrite Hns₁ in Hr₁; simpl in Hr₁.
-         rewrite Hfin₁ in Hr₁; simpl in Hr₁.
-         rewrite nat_num_Qnat in Hr₁.
-         unfold lap_mod_deg_1 in Hr₁; simpl in Hr₁.
-         rewrite <- Heqla in Hr₁; simpl in Hr₁.
-         rewrite Nat.sub_0_r in Hr₁.
-         unfold lap_div_deg_1 in Hr₁; simpl in Hr₁.
-         remember (oth_pts ns₁) as x.
-         rename H into Hrk₁.
-         remember Heqx as H; clear HeqH.
-         rewrite Hns₁ in H; simpl in H.
-         rewrite H in Heqx; clear H.
-         rewrite Heqx in Hr₁.
+            remember
+             (minimise_slope (Qnat 0, αj₁) (Qnat 1, v₁) [pt … pts]) as ms.
+            simpl in Heqms.
+            remember (minimise_slope (Qnat 0, αj₁) pt pts) as ms₁.
+            unfold slope_expr in Heqms.
+            simpl in Heqms.
+            rewrite <- Qnat_inj_sub in Heqms; [ idtac | apply Nat.le_0_1 ].
+            simpl in Heqms.
+            rewrite Q_div_1_r in Heqms.
+            remember (v₁ - αj₁ ?= slope ms₁) as cmp.
+            symmetry in Heqcmp.
+            destruct cmp; simpl in Heqms.
+             rewrite Hz in Heqcmp.
+             apply Qeq_alt in Heqcmp.
+             rewrite Heqms in Hns₁.
+             simpl in Hns₁.
 bbb.
 
 (* more general than r_1_next_ns which could be simplified if this
