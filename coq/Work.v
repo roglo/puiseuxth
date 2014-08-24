@@ -416,6 +416,12 @@ destruct r.
        rewrite minimised_slope_beg_pt in Hns₁.
        rewrite Hfin₁ in Hns₁.
        remember (minimise_slope (Qnat 0, αj₁) pt pts) as ms.
+       rename H into Hrk.
+       remember Heqms as H; clear HeqH.
+       symmetry in H.
+       apply end_pt_in in H.
+       apply List.in_split in H.
+       destruct H as (pts₁, (pts₂, Hpts)).
 bbb.
 (**)
        destruct r.
