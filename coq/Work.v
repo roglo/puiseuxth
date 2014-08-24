@@ -383,9 +383,9 @@ destruct r.
       unfold lower_convex_hull_points in Hns₁.
       simpl in Hns₁.
       remember (pair_rec (λ pow ps, (Qnat pow, ps))) as f.
-      remember (filter_finite_ord R (List.map f (power_list 1 la))) as ffo.
-      symmetry in Heqffo.
-      destruct ffo as [| pt].
+      remember (filter_finite_ord R (List.map f (power_list 1 la))) as pts.
+      symmetry in Heqpts.
+      destruct pts as [| pt].
        rewrite Hns₁ in Hini₁, Hfin₁; simpl in Hini₁, Hfin₁.
        injection Hini₁; intros H₁ H₂.
        injection Hfin₁; intros H₃ H₄.
@@ -413,9 +413,10 @@ destruct r.
        rewrite Heqv₀ in Hpos₀.
        apply Qbar.qfin_lt_mono in Hpos₀.
        split; [ assumption | idtac ].
+bbb.
 (**)
-       destruct la as [| a₁]; [ discriminate Heqffo | idtac ].
-       simpl in Heqffo.
+       destruct la as [| a₁]; [ discriminate Heqpts | idtac ].
+       simpl in Heqpts.
        remember (f (1%nat, a₁)) as x.
        rewrite Heqf in Heqx; simpl in Heqx.
        unfold pair_rec in Heqx; simpl in Heqx.
@@ -423,7 +424,7 @@ destruct r.
        remember (order a₁) as v₁.
        symmetry in Heqv₁.
        destruct v₁ as [v₁| ].
-        injection Heqffo; clear Heqffo; intros H₁ H₂.
+        injection Heqpts; clear Heqpts; intros H₁ H₂.
         subst pt.
         rewrite minimised_slope_beg_pt in Hns₁.
         unfold root_multiplicity in Hr₁.
