@@ -443,6 +443,17 @@ destruct r.
 
         apply Nat.neq_sym in H₁.
         apply le_neq_lt in Hrk; auto; clear H₁.
+        remember (order (List.nth r la 0%ps)) as v.
+        unfold Qbar.qeq in Hz.
+        destruct v as [v| ]; [ idtac | contradiction ].
+        symmetry in Heqv.
+        remember Heqpts as H; clear HeqH.
+        symmetry in H.
+        rewrite Heqf, fold_qpower_list in H.
+        eapply in_ppl_in_pts with (h := S r) (hv := v) in H; eauto .
+         2: apply le_n_S, Nat.le_0_l.
+
+         2: rewrite Nat_sub_succ_1; assumption.
 bbb.
 (**)
        destruct r.
