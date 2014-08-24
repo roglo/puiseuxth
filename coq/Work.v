@@ -422,6 +422,27 @@ destruct r.
        apply end_pt_in in H.
        apply List.in_split in H.
        destruct H as (pts₁, (pts₂, Hpts)).
+       destruct (eq_nat_dec k₁ (S r)) as [H₁| H₁]; [ idtac | exfalso ].
+        subst k₁.
+        split; [ idtac | reflexivity ].
+        remember Heqpts as H; clear HeqH.
+        symmetry in H.
+        rewrite Heqf in H.
+        rewrite fold_qpower_list in H.
+        remember Heqms as HH; clear HeqHH.
+        symmetry in HH.
+        apply end_pt_in in HH.
+        rewrite Hfin₁ in HH.
+        eapply in_pts_in_psl with (def := 0%ps) in H; eauto .
+        unfold Qnat, Qnum in H.
+        rewrite Nat2Z.id, Nat_sub_succ_1 in H.
+        destruct H as (_, H).
+        rewrite H in Hz.
+        apply Qbar.qfin_inj in Hz.
+        assumption.
+
+        apply Nat.neq_sym in H₁.
+        apply le_neq_lt in Hrk; auto; clear H₁.
 bbb.
 (**)
        destruct r.
