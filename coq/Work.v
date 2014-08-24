@@ -413,11 +413,11 @@ destruct r.
        rewrite Heqv₀ in Hpos₀.
        apply Qbar.qfin_lt_mono in Hpos₀.
        split; [ assumption | idtac ].
-bbb.
-(**)
        rewrite minimised_slope_beg_pt in Hns₁.
        rewrite Hfin₁ in Hns₁.
        remember (minimise_slope (Qnat 0, αj₁) pt pts) as ms.
+bbb.
+(**)
        destruct r.
         destruct la as [| a₁].
          simpl in Hz.
