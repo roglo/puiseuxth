@@ -540,7 +540,7 @@ destruct r.
            subst pt.
            clear Heqpts Hlch.
            subst pts.
-           revert Hsort Heqms Hfin₁ Hrk Hz Hpos Heqv₀ Hnneg Hnnegk; clear; intros.
+           revert Hsort Heqms Hfin₁ Hrk Hz Hpos Heqv₀ Hnnegk; clear; intros.
            remember Heqms as H; clear HeqH.
            symmetry in H.
            eapply minimise_slope_expr_le in H; eauto .
