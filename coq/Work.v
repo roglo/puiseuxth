@@ -395,8 +395,7 @@ assert (slope ms < slope_expr (Qnat (S r), v) (Qnat k₁, αk₁)) as H.
    simpl; apply Qnat_lt; assumption.
 Qed.
 
-(* more general than r_1_j_0_k_1 which could be simplified if this
-   lemma works *)
+(* more general than r_1_j_0_k_1 which could be simplified perhaps *)
 Lemma r_n_j_0_k_n : ∀ pol ns c pol₁ ns₁ c₁ j₁ αj₁ k₁ αk₁ m r,
   ns ∈ newton_segments pol
   → pol_in_K_1_m pol m
@@ -649,8 +648,7 @@ destruct r.
            eapply k_le_r; eauto .
 Qed.
 
-(* more general than r_1_next_ns which could be simplified if this
-   lemma works *)
+(* more general than r_1_next_ns which could be simplified perhaps *)
 Lemma r_n_next_ns : ∀ pol ns c pol₁ ns₁ c₁ m r,
   ns ∈ newton_segments pol
   → pol_in_K_1_m pol m
@@ -687,40 +685,98 @@ Qed.
 
 (* more general than r_1_nth_ns which could be simplified if this
    lemma works *)
-(*
-Lemma r_n_nth_ns : ∀ pol ns c pol₁ ns₁ m r,
+Lemma r_n_nth_ns : ∀ pol ns c pol₁ ns₁ c₁ m r,
   ns ∈ newton_segments pol
   → pol_in_K_1_m pol m
   → c = ac_root (Φq pol ns)
-  → root_multiplicity acf c (Φq pol ns) = r
   → pol₁ = next_pol pol (β ns) (γ ns) c
   → ns₁ = List.hd phony_ns (newton_segments pol₁)
+  → c₁ = ac_root (Φq pol₁ ns₁)
   → ∀ n poln nsn,
     (∀ i, (i ≤ n)%nat → (ps_poly_nth 0 (nth_pol i pol₁ ns₁) ≠ 0)%ps)
+    → (∀ i, (i ≤ S n)%nat → (nth_r i pol ns = r))
     → poln = nth_pol n pol₁ ns₁
     → nsn = nth_ns n pol₁ ns₁
-    → ∃ αj αk k,
-      (0 < k)%nat ∧ (k ≤ r)%nat ∧
-      oth_pts nsn = [] ∧
+    → ∃ αj αk,
       ini_pt nsn = (Qnat 0, αj) ∧
-      fin_pt nsn = (Qnat k, αk) ∧
+      fin_pt nsn = (Qnat r, αk) ∧
       (0 < Qnum αj)%Z ∧
       Qnum αk = 0%Z.
 Proof.
-intros pol ns c pol₁ ns₁ m r Hns Hm Hc Hr Hpol₁ Hns₁.
-intros n poln nsn Hpsi Hpoln Hnsn.
-remember (q_of_m m (γ ns)) as q₀ eqn:Hq₀ .
-revert poln nsn Hpsi Hpoln Hnsn.
-revert pol ns c pol₁ ns₁ m q₀ r Hns Hm Hq₀ Hc Hr Hpol₁ Hns₁.
-induction n; intros.
- pose proof (Hpsi O (Nat.le_0_l O)) as H; simpl in H.
- rename H into Hnz₁.
- simpl in Hpoln, Hnsn; subst poln nsn.
- remember Hns as H; clear HeqH.
+intros pol ns c pol₁ ns₁ c₁ m r Hns Hm Hc Hpol₁ Hns₁ Hc₁.
+intros n poln nsn Hpsi Hri Hpoln Hnsn.
+destruct r.
+ pose proof (Hri O (Nat.le_0_l (S n))) as H.
+ simpl in H.
+ rewrite <- Hc in H.
+ eapply multiplicity_neq_0 in Hns; eauto .
+ contradiction.
+
+ remember (S r) as r'.
+ assert (0 < r')%nat as Hrnz by (subst r'; apply Nat.lt_0_succ).
+ clear r Heqr'; rename r' into r.
+ remember (q_of_m m (γ ns)) as q₀ eqn:Hq₀ .
+ revert poln nsn Hpsi Hpoln Hnsn.
+ revert pol ns c pol₁ ns₁ c₁ m q₀ r Hns Hm Hq₀ Hc Hc₁ Hpol₁ Hns₁ Hri Hrnz.
+ induction n; intros.
+  pose proof (Hpsi O (Nat.le_0_l O)) as Hnz; simpl in Hnz.
+  simpl in Hpoln, Hnsn; subst poln nsn.
+  remember Hns as H; clear HeqH.
+  eapply r_n_next_ns in H; eauto .
+   pose proof (Hri O Nat.le_0_1) as Hr; simpl in Hr.
+   rewrite <- Hc in Hr; assumption.
+
+   pose proof (Hri 1%nat (Nat.le_refl 1)) as Hr₁; simpl in Hr₁.
+   rewrite <- Hc, <- Hpol₁, <- Hns₁, <- Hc₁ in Hr₁; assumption.
+
+  pose proof (Hpsi O (Nat.le_0_l (S n))) as H; simpl in H.
+  rename H into Hnz₁.
+  remember Hns as H; clear HeqH.
+  eapply r_n_next_ns with (ns₁ := ns₁) (r := r) in H; try eassumption.
+   Focus 2.
+   assert (0 ≤ S (S n)) as H₁ by apply Nat.le_0_l.
+   apply Hri in H₁; simpl in H₁.
+   rewrite <- Hc in H₁; assumption.
+
+   Focus 2.
+   assert (1 ≤ S (S n)) as H₁ by fast_omega .
+   apply Hri in H₁; simpl in H₁.
+   rewrite <- Hc, <- Hpol₁, <- Hns₁, <- Hc₁ in H₁; assumption.
+
+   destruct H as (αj₁, (αk₁, H)).
+   destruct H as (Hini₁, (Hfin₁, (Hαj₁, Hαk₁))).
+   remember Hns₁ as H; clear HeqH.
+   eapply List_hd_in in H.
+    rename H into Hns₁i.
+    simpl in Hpoln, Hnsn.
+    rewrite <- Hc₁ in Hpoln, Hnsn.
+    remember (next_pol pol₁ (β ns₁) (γ ns₁) c₁) as pol₂ eqn:Hpol₂ .
+    remember (List.hd phony_ns (newton_segments pol₂)) as ns₂ eqn:Hns₂ .
+    eapply IHn with (ns := ns₁) (ns₁ := ns₂) (m := (m * q₀)%positive); eauto .
+     Focus 2.
+     intros i Hin.
+     apply le_n_S in Hin.
+     apply Hri in Hin; simpl in Hin.
+     rewrite <- Hc, <- Hpol₁, <- Hns₁ in Hin.
+     assumption.
+
+     Focus 2.
+     intros i Hin.
+     apply le_n_S in Hin.
+     apply Hpsi in Hin; simpl in Hin.
+     rewrite <- Hc₁, <- Hpol₂, <- Hns₂ in Hin.
+     assumption.
+
+     Focus 2.
+     clear H.
+     intros H; rewrite H in Hns₁; subst ns₁.
+     simpl in Hini₁, Hfin₁.
+     injection Hfin₁; intros H₁ H₂.
+     rewrite <- Nat2Z.inj_0 in H₂.
+     apply Nat2Z.inj in H₂.
+     subst r.
+     revert Hrnz; apply Nat.lt_irrefl.
 bbb.
- eapply r_1_next_ns in H; eauto .
-bbb.
-*)
 
 Theorem next_has_root_0_or_newton_segments : ∀ pol ns c pol₁,
   ns ∈ newton_segments pol
