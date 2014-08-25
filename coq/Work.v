@@ -955,7 +955,6 @@ induction n; intros.
    eapply List_hd_in; eauto .
 Qed.
 
-(*
 Lemma root_tail_split_1st₄₂ : ∀ pol ns pol₁ ns₁ c m q₀ r,
   ns ∈ newton_segments pol
   → pol_in_K_1_m pol m
@@ -986,9 +985,44 @@ destruct (ps_zerop _ (ps_poly_nth 0 pol₁)) as [H₁| H₁].
   eapply List_hd_in in Hns₁₁; eauto .
    remember Hns₁₁ as HK₂; clear HeqHK₂.
    eapply next_pol_in_K_1_mq in HK₂; eauto .
+   remember (ac_root (Φq pol₁ ns₁)) as c₁ eqn:Hc₁ .
+   remember (next_pol pol₁ (β ns₁) (γ ns₁) c₁) as pol₂ eqn:Hpol₂ .
+   destruct (ps_zerop R (ps_poly_nth 0 pol₂)) as [H₁| H₁].
+    rewrite rng_mul_0_r, rng_add_0_r.
+    rewrite rng_add_0_r.
+    unfold γ_sum.
+    unfold summation; simpl.
+    rewrite rng_add_0_r.
+    unfold root_tail_from_cγ_list, ps_monom; simpl.
+    rewrite Hini₁, Hfin₁; simpl.
+    rewrite Hαk₁; simpl.
+    rewrite Z.add_0_r.
+    rewrite Qnum_inv_Qnat_sub.
+     rewrite Qden_inv_Qnat_sub.
+      rewrite Z.mul_1_r, Nat.sub_0_r.
+      rewrite Z.mul_shuffle0, Pos_mul_shuffle0.
+      rewrite Pos2Z.inj_mul.
+      rewrite Z.div_mul_cancel_r; auto.
+      rewrite fold_series_const.
+      remember (Pos.of_nat r) as pr.
+      remember (Qden αj₁ * pr * Qden αk₁)%positive as x.
+      rewrite ps_adjust_eq with (n := O) (k := x); subst x.
+      symmetry.
+      rewrite ps_adjust_eq with (n := O) (k := m₁).
+      symmetry.
+      unfold adjust_ps; simpl.
+      rewrite series_shift_0.
+      rewrite series_shift_0.
+      rewrite series_stretch_const.
+      rewrite Z.sub_0_r.
+      rewrite Z.sub_0_r.
+      rewrite Z.mul_comm.
+      rewrite Pos2Z.inj_mul.
+      rewrite <- Z.divide_div_mul_exact; auto.
+       rewrite Z.mul_assoc, Z.mul_comm.
+       rewrite Z.mul_assoc.
+       rewrite Z.mul_assoc.
 bbb.
-   erewrite q_eq_1 with (q₀ := q₀) (ns := ns) in HK₂; eauto .
-*)
 
 (*
 Lemma root_tail_from_0₄₂ : ∀ pol ns pol₁ ns₁ c m q₀ b r,
