@@ -513,34 +513,80 @@ destruct r.
             eapply Sorted_minus_2nd; eauto .
             intros x y z H₁ H₂; eapply Qlt_trans; eassumption.
 
-          remember Heqms as H; clear HeqH.
-          symmetry in H.
-          eapply minimise_slope_expr_le in H; eauto .
-           Focus 2.
-           simpl.
-           clear Heqms Heqpts Hlch H.
-           destruct pts₁ as [| pt₁]; [ contradiction | idtac ].
-           simpl in Hpts.
-           injection Hpts; clear Hpts; intros Hpts H₁.
-           subst pt₁.
-           destruct Hsr as [Hsr| Hsr].
-            subst pt; simpl.
-            apply Qnat_lt; assumption.
+          destruct pts₁ as [| pt₁]; [ contradiction | idtac ].
+          simpl in Hpts.
+          injection Hpts; clear Hpts; intros Hpts H₁.
+          subst pt₁.
+          destruct Hsr as [Hsr| Hsr].
+           subst pt.
+           clear Heqpts Hlch.
+           subst pts.
+           remember Heqms as H; clear HeqH.
+           symmetry in H.
+           eapply minimise_slope_expr_le in H; eauto .
+            2: simpl; apply Qnat_lt; assumption.
 
-            subst pts.
-            rewrite Hfin₁ in Hsort.
-            apply Sorted_inv_1 in Hsort.
-            clear Hsr.
-            induction pts₁ as [| pt₁].
-             simpl in Hsort.
-             apply Sorted_inv in Hsort.
-             destruct Hsort as (_, H).
-             apply HdRel_inv in H.
-             assumption.
+            rewrite slope_slope_expr in H; eauto .
+            rewrite <- Hfin₁ in H.
+            rewrite Hfin₁ in H; simpl in H.
+            unfold slope_expr in H; simpl in H.
+            rewrite Hz in H.
+            rewrite Q_sub_0_r in H.
+            unfold Qle in H; simpl in H.
+            rewrite Qnum_inv_Qnat_sub in H; eauto .
+            rewrite Z.mul_1_r in H.
+            rewrite Qnum_inv_Qnat_sub in H; [ idtac | fast_omega Hrk ].
+            rewrite Z.mul_1_r in H.
+            rewrite Qden_inv_Qnat_sub in H.
+             rewrite Qden_inv_Qnat_sub in H; [ idtac | fast_omega Hrk ].
+             rewrite Nat.sub_0_r in H.
+             rewrite Z.mul_opp_l in H.
+             rewrite Z.add_opp_r in H.
+             rewrite Z.mul_comm in H.
+             rewrite Pos2Z.inj_mul in H.
+             rewrite Pos2Z.inj_mul in H.
+             rewrite Z.mul_comm in H.
+             rewrite Pos2Z.inj_mul in H.
+             rewrite Z.mul_comm in H.
+             do 2 rewrite <- Z.mul_assoc in H.
+             rewrite Z.mul_comm in H.
+             rewrite Z.mul_assoc in H.
+             rewrite Z.mul_assoc in H.
+             remember
+              (' Qden αj₁ * ' Pos.of_nat k₁ * Qnum αk₁ * ' Qden αk₁)%Z as x.
+             rewrite Z.mul_shuffle0 in H.
+             subst x.
+             apply Z.mul_le_mono_pos_r in H; [ idtac | apply Pos2Z.is_pos ].
+             rewrite Z.mul_sub_distr_r in H.
+             rewrite Nat2Pos.inj_sub in H;
+              [ idtac | intros HH; discriminate HH ].
+             rewrite Pos2Z.inj_sub in H.
+              rewrite Z.mul_sub_distr_l in H.
+              rewrite <- Z.mul_assoc, Z.mul_comm in H.
+              rewrite <- Z.mul_assoc, Z.mul_comm in H.
+              apply Z.le_add_le_sub_r in H.
+              apply Z.le_add_le_sub_r in H.
+              apply Z.nlt_ge in H.
+              apply H.
+              rewrite <- Z.add_assoc.
+              apply Z.lt_sub_lt_add_l.
+              rewrite Z.sub_diag.
+              apply Z.add_pos_nonneg.
+               apply Z.mul_pos_pos.
+                apply Z.mul_pos_pos; [ idtac | apply Pos2Z.is_pos ].
+                pose proof (Hpos O (Nat.lt_0_succ r)) as HH.
+                unfold ps_lap_nth in HH; simpl in HH.
+                rewrite Heqv₀ in HH.
+                apply Qbar.qfin_lt_mono in HH.
+                unfold Qlt in HH; simpl in HH.
+                rewrite Z.mul_1_r in HH; assumption.
 
-             apply IHpts₁.
-             eapply Sorted_minus_2nd; eauto .
-             intros x y z H₁ H₂; eapply Qlt_trans; eassumption.
+                rewrite <- Pos2Z.inj_sub; [ apply Pos2Z.is_pos | idtac ].
+                Focus 2.
+                apply Z.mul_nonneg_nonneg; auto.
+                apply Z.mul_nonneg_nonneg; auto.
+                Unfocus.
+                Focus 5.
 bbb.
 (**)
        destruct r.
