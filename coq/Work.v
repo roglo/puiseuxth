@@ -455,31 +455,32 @@ destruct r.
 
          2: rewrite Nat_sub_succ_1; assumption.
 
-         rewrite Hpts in H.
-         apply List.in_app_or in H.
-         destruct H as [Hsr| Hsr].
+         rename H into Hsr.
+         remember Hns₁i as H; clear HeqH.
+         unfold newton_segments in H.
+         unfold points_of_ps_polynom in H.
+         unfold points_of_ps_lap in H.
+         remember (points_of_ps_lap_gen 0 (al pol₁)) as ptsi.
+         rename H into Hlch.
+         remember Heqptsi as H; clear HeqH.
+         apply points_of_polyn_sorted in H.
+         rewrite <- Heqla in Heqptsi.
+         unfold points_of_ps_lap_gen in Heqptsi.
+         unfold qpower_list in Heqptsi.
+         rewrite <- Heqf in Heqptsi.
+         simpl in Heqptsi.
+         remember (f (O, a₀)) as x.
+         rewrite Heqf in Heqx.
+         unfold pair_rec in Heqx; simpl in Heqx.
+         subst x.
+         rewrite Heqv₀ in Heqptsi.
+         rewrite Heqpts in Heqptsi.
+         subst ptsi.
+         rename H into Hsort.
+         rewrite Hpts in Hsr.
+         apply List.in_app_or in Hsr.
+         destruct Hsr as [Hsr| Hsr].
           Focus 2.
-          remember Hns₁i as H; clear HeqH.
-          unfold newton_segments in H.
-          unfold points_of_ps_polynom in H.
-          unfold points_of_ps_lap in H.
-          remember (points_of_ps_lap_gen 0 (al pol₁)) as ptsi.
-          rename H into Hlch.
-          remember Heqptsi as H; clear HeqH.
-          apply points_of_polyn_sorted in H.
-          rewrite <- Heqla in Heqptsi.
-          unfold points_of_ps_lap_gen in Heqptsi.
-          unfold qpower_list in Heqptsi.
-          rewrite <- Heqf in Heqptsi.
-          simpl in Heqptsi.
-          remember (f (O, a₀)) as x.
-          rewrite Heqf in Heqx.
-          unfold pair_rec in Heqx; simpl in Heqx.
-          subst x.
-          rewrite Heqv₀ in Heqptsi.
-          rewrite Heqpts in Heqptsi.
-          subst ptsi.
-          rename H into Hsort.
           rewrite Hpts in Hsort.
           remember Hsort as H; clear HeqH.
           apply Sorted_inv_1 in H.
@@ -511,6 +512,35 @@ destruct r.
             apply IHpts₂; auto.
             eapply Sorted_minus_2nd; eauto .
             intros x y z H₁ H₂; eapply Qlt_trans; eassumption.
+
+          remember Heqms as H; clear HeqH.
+          symmetry in H.
+          eapply minimise_slope_expr_le in H; eauto .
+           Focus 2.
+           simpl.
+           clear Heqms Heqpts Hlch H.
+           destruct pts₁ as [| pt₁]; [ contradiction | idtac ].
+           simpl in Hpts.
+           injection Hpts; clear Hpts; intros Hpts H₁.
+           subst pt₁.
+           destruct Hsr as [Hsr| Hsr].
+            subst pt; simpl.
+            apply Qnat_lt; assumption.
+
+            subst pts.
+            rewrite Hfin₁ in Hsort.
+            apply Sorted_inv_1 in Hsort.
+            clear Hsr.
+            induction pts₁ as [| pt₁].
+             simpl in Hsort.
+             apply Sorted_inv in Hsort.
+             destruct Hsort as (_, H).
+             apply HdRel_inv in H.
+             assumption.
+
+             apply IHpts₁.
+             eapply Sorted_minus_2nd; eauto .
+             intros x y z H₁ H₂; eapply Qlt_trans; eassumption.
 bbb.
 (**)
        destruct r.
