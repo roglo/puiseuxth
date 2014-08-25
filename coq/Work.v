@@ -1045,15 +1045,15 @@ destruct (ps_zerop _ (ps_poly_nth 0 pol₁)) as [H₁| H₁].
         remember HK₁ as H; clear HeqH.
         rewrite <- Heqm₁ in H.
         apply any_in_K_1_m with (h := O) (αh := αj₁) in H.
-         destruct H as (mh, Hmh).
-         unfold Qeq in Hmh; simpl in Hmh.
-         rewrite Hmh, Z.mul_comm.
+         destruct H as (mj, Hmj).
+         unfold Qeq in Hmj; simpl in Hmj.
+         rewrite Hmj, Z.mul_comm.
          apply Z.mul_divide_cancel_r; auto.
          subst pr.
          remember Hns₁₁ as H; clear HeqH.
          eapply q_mj_mk_eq_p_h_j with (h := r) (αh := αk₁) in H; eauto .
           remember (q_of_m (m * q₀) (γ ns₁)) as q₁.
-          remember (mh_of_m (m * q₀) αj₁ (ps_poly_nth 0 pol₁)) as mj.
+          remember (mh_of_m (m * q₀) αj₁ (ps_poly_nth 0 pol₁)) as mj'.
           remember (mh_of_m (m * q₀) αk₁ (ps_poly_nth r pol₁)) as mk.
           remember (p_of_m (m * q₀) (γ ns₁)) as p₁.
           rewrite Nat.sub_0_r in H.
@@ -1065,6 +1065,9 @@ destruct (ps_zerop _ (ps_poly_nth 0 pol₁)) as [H₁| H₁].
           move H₂ at top; subst mk.
           rewrite Z.sub_0_r in H₃.
           rewrite positive_nat_Z in H₃.
+          unfold mh_of_m in Heqmj'.
+          rewrite <- Heqm₁ in Heqmj'.
+          erewrite <- qden_αj_is_ps_polord in Heqmj'; eauto .
 bbb.
 q * mj = p * r
 mj = p * r
