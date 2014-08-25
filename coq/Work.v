@@ -683,8 +683,7 @@ rewrite Z.mul_1_r in Hαj₁, Hαk₁.
 exists αj₁, αk₁; auto.
 Qed.
 
-(* more general than r_1_nth_ns which could be simplified if this
-   lemma works *)
+(* more general than r_1_nth_ns which could be simplified perhaps *)
 Lemma r_n_nth_ns : ∀ pol ns c pol₁ ns₁ c₁ m r,
   ns ∈ newton_segments pol
   → pol_in_K_1_m pol m
@@ -776,7 +775,9 @@ destruct r.
      apply Nat2Z.inj in H₂.
      subst r.
      revert Hrnz; apply Nat.lt_irrefl.
-bbb.
+
+    eapply next_pol_in_K_1_mq with (ns := ns); eauto .
+Qed.
 
 Theorem next_has_root_0_or_newton_segments : ∀ pol ns c pol₁,
   ns ∈ newton_segments pol
@@ -785,6 +786,7 @@ Theorem next_has_root_0_or_newton_segments : ∀ pol ns c pol₁,
   → (ps_poly_nth 0 pol₁ = 0)%ps ∨ (newton_segments pol₁ ≠ []).
 Proof.
 intros pol ns c pol₁ Hns Hc Hpol₁.
+bbb.
 remember Hns as H; clear HeqH.
 eapply f₁_orders in H; eauto ; simpl.
 simpl in Hpol₁.
