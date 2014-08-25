@@ -497,6 +497,20 @@ destruct r.
            destruct H as (_, H).
            rewrite Hfin₁ in H.
            revert Hrk Hsr H; clear; intros.
+           induction pts₂ as [| pt]; [ contradiction | idtac ].
+           destruct Hsr as [Hsr| Hsr].
+            subst pt.
+            apply Sorted_inv in H.
+            destruct H as (_, H).
+            apply HdRel_inv in H.
+            unfold fst_lt in H; simpl in H.
+            apply Qnat_lt in H.
+            eapply Nat.lt_trans in H; eauto .
+            revert H; apply Nat.lt_irrefl.
+
+            apply IHpts₂; auto.
+            eapply Sorted_minus_2nd; eauto .
+            intros x y z H₁ H₂; eapply Qlt_trans; eassumption.
 bbb.
 (**)
        destruct r.
