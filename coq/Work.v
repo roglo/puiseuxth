@@ -540,7 +540,7 @@ destruct r.
            subst pt.
            clear Heqpts Hlch.
            subst pts.
-           revert Hsort Heqms Hfin₁ Hrk Hz Hpos Heqv₀ Hnnegk; clear; intros.
+           revert Hsort Heqms Hfin₁ Hrk Hz Hpos₀ Heqv₀ Hnnegk; clear; intros.
            remember Heqms as H; clear HeqH.
            symmetry in H.
            eapply minimise_slope_expr_le in H; eauto .
@@ -588,18 +588,14 @@ destruct r.
              apply Z.le_add_le_sub_r in H.
              apply Z.nlt_ge in H.
              apply H.
-             rewrite <- Z.add_assoc.
-             apply Z.lt_sub_lt_add_l.
-             rewrite Z.sub_diag.
-             apply Z.add_pos_nonneg.
-              apply Z.mul_pos_pos.
-               apply Z.mul_pos_pos; [ idtac | apply Pos2Z.is_pos ].
-               pose proof (Hpos O (Nat.lt_0_succ r)) as HH.
-               unfold ps_lap_nth in HH; simpl in HH.
-               rewrite Heqv₀ in HH.
-               apply Qbar.qfin_lt_mono in HH.
-               unfold Qlt in HH; simpl in HH.
-               rewrite Z.mul_1_r in HH; assumption.
+              rewrite <- Z.add_assoc.
+              apply Z.lt_sub_lt_add_l.
+              rewrite Z.sub_diag.
+              apply Z.add_pos_nonneg.
+               apply Z.mul_pos_pos.
+                apply Z.mul_pos_pos; [ idtac | apply Pos2Z.is_pos ].
+                unfold Qlt in Hpos₀; simpl in Hpos₀.
+                rewrite Z.mul_1_r in Hpos₀; assumption.
 
                 rewrite <- Pos2Z.inj_sub; [ apply Pos2Z.is_pos | idtac ].
                 apply -> Pos.compare_lt_iff.
