@@ -960,15 +960,15 @@ Lemma root_tail_split_1st₄₂ : ∀ pol ns pol₁ ns₁ c m q₀ r,
   → pol_in_K_1_m pol m
   → q₀ = q_of_m m (γ ns)
   → c = ac_root (Φq pol ns)
-  → root_multiplicity acf c (Φq pol ns) = r
   → pol₁ = next_pol pol (β ns) (γ ns) c
   → ns₁ = List.hd phony_ns (newton_segments pol₁)
+  → (∀ i, nth_r i pol ns = r)
   → (root_tail (m * q₀) 0 pol₁ ns₁ =
      root_head 0 0 pol₁ ns₁ +
        ps_monom 1%K (γ_sum 0 0 pol₁ ns₁) *
        root_tail (m * q₀) 1 pol₁ ns₁)%ps.
 Proof.
-intros pol ns pol₁ ns₁ c m q₀ r Hns Hm Hq₀ Hc Hr Hpol₁ Hns₁.
+intros pol ns pol₁ ns₁ c m q₀ r Hns Hm Hq₀ Hc Hpol₁ Hns₁ Hri.
 remember (m * q₀)%positive as m₁.
 unfold root_tail, root_head; simpl.
 destruct (ps_zerop _ (ps_poly_nth 0 pol₁)) as [H₁| H₁].
@@ -979,6 +979,9 @@ destruct (ps_zerop _ (ps_poly_nth 0 pol₁)) as [H₁| H₁].
  eapply next_pol_in_K_1_mq in HK₁; eauto .
  remember Hns as H; clear HeqH.
  eapply r_n_next_ns in H; eauto .
+  pose proof (Hri O) as Hr₀; simpl in Hr₀.
+  rewrite <- Hc in Hr₀.
+  rewrite Hr₀ in H.
   destruct H as (αj₁, (αk₁, H)).
   destruct H as (Hini₁, (Hfin₁, (Hαj₁, Hαk₁))).
   remember Hns₁ as Hns₁₁; clear HeqHns₁₁.
@@ -1028,6 +1031,7 @@ destruct (ps_zerop _ (ps_poly_nth 0 pol₁)) as [H₁| H₁].
         contradiction.
 
        do 2 rewrite Z.sub_0_r.
+       rewrite Nat.add_0_r, <- Heqpr.
        rewrite Z.mul_comm.
        rewrite Pos2Z.inj_mul.
        rewrite <- Z.divide_div_mul_exact; auto.
