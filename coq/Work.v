@@ -955,6 +955,7 @@ induction n; intros.
    eapply List_hd_in; eauto .
 Qed.
 
+(*
 Lemma root_tail_split_1st₄₂ : ∀ pol ns pol₁ ns₁ c m q₀ r,
   ns ∈ newton_segments pol
   → pol_in_K_1_m pol m
@@ -969,7 +970,6 @@ Lemma root_tail_split_1st₄₂ : ∀ pol ns pol₁ ns₁ c m q₀ r,
        root_tail (m * q₀) 1 pol₁ ns₁)%ps.
 Proof.
 intros pol ns pol₁ ns₁ c m q₀ r Hns Hm Hq₀ Hc Hr Hpol₁ Hns₁.
-bbb.
 remember (m * q₀)%positive as m₁.
 unfold root_tail, root_head; simpl.
 destruct (ps_zerop _ (ps_poly_nth 0 pol₁)) as [H₁| H₁].
@@ -979,9 +979,18 @@ destruct (ps_zerop _ (ps_poly_nth 0 pol₁)) as [H₁| H₁].
  remember Hns as HK₁; clear HeqHK₁.
  eapply next_pol_in_K_1_mq in HK₁; eauto .
  remember Hns as H; clear HeqH.
+ eapply r_n_next_ns in H; eauto .
+  destruct H as (αj₁, (αk₁, H)).
+  destruct H as (Hini₁, (Hfin₁, (Hαj₁, Hαk₁))).
+  remember Hns₁ as Hns₁₁; clear HeqHns₁₁.
+  eapply List_hd_in in Hns₁₁; eauto .
+   remember Hns₁₁ as HK₂; clear HeqHK₂.
+   eapply next_pol_in_K_1_mq in HK₂; eauto .
 bbb.
- eapply r_1_next_ns in H; eauto .
+   erewrite q_eq_1 with (q₀ := q₀) (ns := ns) in HK₂; eauto .
+*)
 
+(*
 Lemma root_tail_from_0₄₂ : ∀ pol ns pol₁ ns₁ c m q₀ b r,
   ns ∈ newton_segments pol
   → pol_in_K_1_m pol m
@@ -999,7 +1008,9 @@ intros pol ns pol₁ ns₁ c m q₀ b r Hns Hm Hq₀ Hc Hr Hpol₁ Hns₁.
 remember (m * q₀)%positive as m₁.
 bbb.
 destruct b; [ subst m₁; eapply root_tail_split_1st; eauto  | idtac ].
+*)
 
+(*
 Lemma root_tail_when_r_r : ∀ pol ns pol₁ ns₁ c m q₀ b r,
   ns ∈ newton_segments pol
   → pol_in_K_1_m pol m
@@ -1033,6 +1044,7 @@ induction n; intros.
   rewrite Nat.add_0_r, rng_add_0_r, Heqm₁.
 bbb.
   rewrite root_tail_from_0; eauto .
+*)
 
 Theorem zzz : ∀ pol ns c pol₁,
   ns ∈ newton_segments pol
