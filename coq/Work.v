@@ -326,13 +326,6 @@ destruct r.
   unfold ps_lap_nth in Hz; simpl in Hz.
   rewrite order_0 in Hz; inversion Hz.
 
-  unfold ps_lap_nth in Hnneg, Hz, Hpos₀.
-  simpl in Hz, Hpos₀.
-  unfold points_of_ps_lap in Hns₁.
-  unfold points_of_ps_lap_gen in Hns₁.
-  simpl in Hns₁.
-  remember (order a₀) as v₀.
-  symmetry in Heqv₀.
   assert (ns₁ ∈ newton_segments pol₁) as Hns₁i.
    eapply List_hd_in; eauto .
    intros H.
@@ -350,6 +343,13 @@ destruct r.
 
     apply Nat.lt_0_succ.
 
+   unfold ps_lap_nth in Hnneg, Hz, Hpos₀.
+   simpl in Hz, Hpos₀.
+   unfold points_of_ps_lap in Hns₁.
+   unfold points_of_ps_lap_gen in Hns₁.
+   simpl in Hns₁.
+   remember (order a₀) as v₀.
+   symmetry in Heqv₀.
    destruct v₀ as [v₀| ].
     Focus 2.
     unfold ps_poly_nth, ps_lap_nth in Hps₀.
@@ -521,6 +521,7 @@ destruct r.
            subst pt.
            clear Heqpts Hlch.
            subst pts.
+           revert Hsort Heqms Hfin₁ Hrk Hz Hpos Heqv₀ Hnneg; clear; intros.
            remember Heqms as H; clear HeqH.
            symmetry in H.
            eapply minimise_slope_expr_le in H; eauto .
@@ -537,56 +538,56 @@ destruct r.
             rewrite Z.mul_1_r in H.
             rewrite Qnum_inv_Qnat_sub in H; [ idtac | fast_omega Hrk ].
             rewrite Z.mul_1_r in H.
-            rewrite Qden_inv_Qnat_sub in H.
-             rewrite Qden_inv_Qnat_sub in H; [ idtac | fast_omega Hrk ].
-             rewrite Nat.sub_0_r in H.
-             rewrite Z.mul_opp_l in H.
-             rewrite Z.add_opp_r in H.
-             rewrite Z.mul_comm in H.
-             rewrite Pos2Z.inj_mul in H.
-             rewrite Pos2Z.inj_mul in H.
-             rewrite Z.mul_comm in H.
-             rewrite Pos2Z.inj_mul in H.
-             rewrite Z.mul_comm in H.
-             do 2 rewrite <- Z.mul_assoc in H.
-             rewrite Z.mul_comm in H.
-             rewrite Z.mul_assoc in H.
-             rewrite Z.mul_assoc in H.
-             remember
-              (' Qden αj₁ * ' Pos.of_nat k₁ * Qnum αk₁ * ' Qden αk₁)%Z as x.
-             rewrite Z.mul_shuffle0 in H.
-             subst x.
-             apply Z.mul_le_mono_pos_r in H; [ idtac | apply Pos2Z.is_pos ].
-             rewrite Z.mul_sub_distr_r in H.
-             rewrite Nat2Pos.inj_sub in H;
-              [ idtac | intros HH; discriminate HH ].
-             rewrite Pos2Z.inj_sub in H.
-              rewrite Z.mul_sub_distr_l in H.
-              rewrite <- Z.mul_assoc, Z.mul_comm in H.
-              rewrite <- Z.mul_assoc, Z.mul_comm in H.
-              apply Z.le_add_le_sub_r in H.
-              apply Z.le_add_le_sub_r in H.
-              apply Z.nlt_ge in H.
-              apply H.
-              rewrite <- Z.add_assoc.
-              apply Z.lt_sub_lt_add_l.
-              rewrite Z.sub_diag.
-              apply Z.add_pos_nonneg.
-               apply Z.mul_pos_pos.
-                apply Z.mul_pos_pos; [ idtac | apply Pos2Z.is_pos ].
-                pose proof (Hpos O (Nat.lt_0_succ r)) as HH.
-                unfold ps_lap_nth in HH; simpl in HH.
-                rewrite Heqv₀ in HH.
-                apply Qbar.qfin_lt_mono in HH.
-                unfold Qlt in HH; simpl in HH.
-                rewrite Z.mul_1_r in HH; assumption.
+            rewrite Qden_inv_Qnat_sub in H; [ idtac | fast_omega Hrk ].
+            rewrite Qden_inv_Qnat_sub in H; [ idtac | fast_omega Hrk ].
+            rewrite Nat.sub_0_r in H.
+            rewrite Z.mul_opp_l in H.
+            rewrite Z.add_opp_r in H.
+            rewrite Z.mul_comm in H.
+            rewrite Pos2Z.inj_mul in H.
+            rewrite Pos2Z.inj_mul in H.
+            rewrite Z.mul_comm in H.
+            rewrite Pos2Z.inj_mul in H.
+            rewrite Z.mul_comm in H.
+            do 2 rewrite <- Z.mul_assoc in H.
+            rewrite Z.mul_comm in H.
+            rewrite Z.mul_assoc in H.
+            rewrite Z.mul_assoc in H.
+            remember
+             (' Qden αj₁ * ' Pos.of_nat k₁ * Qnum αk₁ * ' Qden αk₁)%Z as x.
+            rewrite Z.mul_shuffle0 in H.
+            subst x.
+            apply Z.mul_le_mono_pos_r in H; [ idtac | apply Pos2Z.is_pos ].
+            rewrite Z.mul_sub_distr_r in H.
+            rewrite Nat2Pos.inj_sub in H;
+             [ idtac | intros HH; discriminate HH ].
+            rewrite Pos2Z.inj_sub in H.
+             rewrite Z.mul_sub_distr_l in H.
+             rewrite <- Z.mul_assoc, Z.mul_comm in H.
+             rewrite <- Z.mul_assoc, Z.mul_comm in H.
+             apply Z.le_add_le_sub_r in H.
+             apply Z.le_add_le_sub_r in H.
+             apply Z.nlt_ge in H.
+             apply H.
+             rewrite <- Z.add_assoc.
+             apply Z.lt_sub_lt_add_l.
+             rewrite Z.sub_diag.
+             apply Z.add_pos_nonneg.
+              apply Z.mul_pos_pos.
+               apply Z.mul_pos_pos; [ idtac | apply Pos2Z.is_pos ].
+               pose proof (Hpos O (Nat.lt_0_succ r)) as HH.
+               unfold ps_lap_nth in HH; simpl in HH.
+               rewrite Heqv₀ in HH.
+               apply Qbar.qfin_lt_mono in HH.
+               unfold Qlt in HH; simpl in HH.
+               rewrite Z.mul_1_r in HH; assumption.
 
-                rewrite <- Pos2Z.inj_sub; [ apply Pos2Z.is_pos | idtac ].
-                Focus 2.
-                apply Z.mul_nonneg_nonneg; auto.
-                apply Z.mul_nonneg_nonneg; auto.
-                Unfocus.
-                Focus 5.
+               rewrite <- Pos2Z.inj_sub; [ apply Pos2Z.is_pos | idtac ].
+               Focus 2.
+               apply Z.mul_nonneg_nonneg; auto.
+               apply Z.mul_nonneg_nonneg; auto.
+               Unfocus.
+               Focus 4.
 bbb.
 (**)
        destruct r.
