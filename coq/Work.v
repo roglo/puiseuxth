@@ -786,7 +786,6 @@ Theorem next_has_root_0_or_newton_segments : ∀ pol ns c pol₁,
   → (ps_poly_nth 0 pol₁ = 0)%ps ∨ (newton_segments pol₁ ≠ []).
 Proof.
 intros pol ns c pol₁ Hns Hc Hpol₁.
-bbb.
 remember Hns as H; clear HeqH.
 eapply f₁_orders in H; eauto ; simpl.
 simpl in Hpol₁.
@@ -970,6 +969,7 @@ Lemma root_tail_split_1st₄₂ : ∀ pol ns pol₁ ns₁ c m q₀ r,
        root_tail (m * q₀) 1 pol₁ ns₁)%ps.
 Proof.
 intros pol ns pol₁ ns₁ c m q₀ r Hns Hm Hq₀ Hc Hr Hpol₁ Hns₁.
+bbb.
 remember (m * q₀)%positive as m₁.
 unfold root_tail, root_head; simpl.
 destruct (ps_zerop _ (ps_poly_nth 0 pol₁)) as [H₁| H₁].
