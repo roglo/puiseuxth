@@ -651,22 +651,24 @@ Qed.
 
 (* more general than r_1_next_ns which could be simplified if this
    lemma works *)
-Lemma r_n_next_ns : ∀ pol ns c pol₁ ns₁ m r,
+Lemma r_n_next_ns : ∀ pol ns c pol₁ ns₁ c₁ m r,
   ns ∈ newton_segments pol
   → pol_in_K_1_m pol m
-  → root_multiplicity acf c (Φq pol ns) = r
   → c = ac_root (Φq pol ns)
   → pol₁ = next_pol pol (β ns) (γ ns) c
   → ns₁ = List.hd phony_ns (newton_segments pol₁)
+  → c₁ = ac_root (Φq pol₁ ns₁)
   → (ps_poly_nth 0 pol₁ ≠ 0)%ps
+  → root_multiplicity acf c (Φq pol ns) = r
+  → root_multiplicity acf c₁ (Φq pol₁ ns₁) = r
   → ∃ αj αk,
-    oth_pts ns₁ = [] ∧
     ini_pt ns₁ = (Qnat 0, αj) ∧
     fin_pt ns₁ = (Qnat r, αk) ∧
     (0 < Qnum αj)%Z ∧
     Qnum αk = 0%Z.
 Proof.
-intros pol ns c pol₁ ns₁ m r Hns Hm Hr Hc Hpol₁ Hns₁ Hpnz.
+intros pol ns c pol₁ ns₁ c₁ m r.
+intros Hns Hm Hc Hpol₁ Hns₁ Hc₁ Hps₀ Hr Hr₁.
 remember Hns₁ as H; clear HeqH.
 apply exists_ini_pt_nat_fst_seg in H.
 destruct H as (j₁, (αj₁, Hini₁)).
@@ -674,8 +676,14 @@ remember Hns₁ as H; clear HeqH.
 apply exists_fin_pt_nat_fst_seg in H.
 destruct H as (k₁, (αk₁, Hfin₁)).
 remember Hns₁ as H; clear HeqH.
-bbb.
-eapply r_1_j_0_k_1 in H; eauto .
+eapply r_n_j_0_k_n in H; eauto .
+destruct H as (Hj₁, (Hk₁, (Hαj₁, Hαk₁))).
+subst j₁ k₁.
+unfold Qlt in Hαj₁; simpl in Hαj₁.
+unfold Qeq in Hαk₁; simpl in Hαk₁.
+rewrite Z.mul_1_r in Hαj₁, Hαk₁.
+exists αj₁, αk₁; auto.
+Qed.
 
 (* more general than r_1_nth_ns which could be simplified if this
    lemma works *)
@@ -903,7 +911,6 @@ Lemma root_tail_split_1st₄₂ : ∀ pol ns pol₁ ns₁ c m q₀ r,
        ps_monom 1%K (γ_sum 0 0 pol₁ ns₁) *
        root_tail (m * q₀) 1 pol₁ ns₁)%ps.
 Proof.
-root_tail_split_1st₄₂ < Show Script.
 intros pol ns pol₁ ns₁ c m q₀ r Hns Hm Hq₀ Hc Hr Hpol₁ Hns₁.
 remember (m * q₀)%positive as m₁.
 unfold root_tail, root_head; simpl.
