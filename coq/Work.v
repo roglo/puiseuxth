@@ -418,10 +418,22 @@ destruct r.
        rewrite Heqv₀ in Hpos₀.
        apply Qbar.qfin_lt_mono in Hpos₀.
        split; [ assumption | idtac ].
+       rename H into Hrk.
+       remember Hns₁i as H; clear HeqH.
+       eapply order_in_newton_segment with (h := k₁) (αh := αk₁) in H; eauto .
+        2: rewrite Hpl, <- Hfin₁, Hns₁; simpl; right.
+        2: apply List.in_or_app; right; left; reflexivity.
+
+        rename H into Hαk₁.
+        pose proof (Hnneg k₁) as H.
+        unfold ps_poly_nth, ps_lap_nth in Hαk₁.
+        rewrite <- Heqla in Hαk₁.
+        rewrite Hαk₁ in H.
+        apply Qbar.qfin_le_mono in H.
+        rename H into Hnnegk.
        rewrite minimised_slope_beg_pt in Hns₁.
        rewrite Hfin₁ in Hns₁.
        remember (minimise_slope (Qnat 0, αj₁) pt pts) as ms.
-       rename H into Hrk.
        remember Heqms as H; clear HeqH.
        symmetry in H.
        apply end_pt_in in H.
@@ -528,7 +540,7 @@ destruct r.
            subst pt.
            clear Heqpts Hlch.
            subst pts.
-           revert Hsort Heqms Hfin₁ Hrk Hz Hpos Heqv₀ Hnneg; clear; intros.
+           revert Hsort Heqms Hfin₁ Hrk Hz Hpos Heqv₀ Hnneg Hnnegk; clear; intros.
            remember Heqms as H; clear HeqH.
            symmetry in H.
            eapply minimise_slope_expr_le in H; eauto .
@@ -589,12 +601,27 @@ destruct r.
                unfold Qlt in HH; simpl in HH.
                rewrite Z.mul_1_r in HH; assumption.
 
-               rewrite <- Pos2Z.inj_sub; [ apply Pos2Z.is_pos | idtac ].
-               Focus 2.
+                rewrite <- Pos2Z.inj_sub; [ apply Pos2Z.is_pos | idtac ].
+                apply -> Pos.compare_lt_iff.
+                rewrite <- Nat2Pos.inj_compare.
+                 apply nat_compare_lt; assumption.
+
+                 intros HH; discriminate HH.
+
+                 fast_omega Hrk.
+
                apply Z.mul_nonneg_nonneg; auto.
                apply Z.mul_nonneg_nonneg; auto.
-               Unfocus.
-               Focus 4.
+               unfold Qle in Hnnegk; simpl in Hnnegk.
+               rewrite Z.mul_1_r in Hnnegk; assumption.
+
+              apply -> Pos.compare_lt_iff.
+              rewrite <- Nat2Pos.inj_compare.
+               apply nat_compare_lt; assumption.
+
+               intros HH; discriminate HH.
+
+               fast_omega Hrk.
 bbb.
 (**)
        destruct r.
