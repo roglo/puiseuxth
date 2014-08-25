@@ -988,11 +988,9 @@ destruct (ps_zerop _ (ps_poly_nth 0 pol₁)) as [H₁| H₁].
    remember (ac_root (Φq pol₁ ns₁)) as c₁ eqn:Hc₁ .
    remember (next_pol pol₁ (β ns₁) (γ ns₁) c₁) as pol₂ eqn:Hpol₂ .
    destruct (ps_zerop R (ps_poly_nth 0 pol₂)) as [H₁| H₁].
-    rewrite rng_mul_0_r, rng_add_0_r.
-    rewrite rng_add_0_r.
-    unfold γ_sum.
-    unfold summation; simpl.
-    rewrite rng_add_0_r.
+    unfold γ_sum, summation; simpl.
+    rewrite rng_mul_0_r.
+    do 3 rewrite rng_add_0_r.
     unfold root_tail_from_cγ_list, ps_monom; simpl.
     rewrite Hini₁, Hfin₁; simpl.
     rewrite Hαk₁; simpl.
@@ -1011,18 +1009,49 @@ destruct (ps_zerop _ (ps_poly_nth 0 pol₁)) as [H₁| H₁].
       rewrite ps_adjust_eq with (n := O) (k := m₁).
       symmetry.
       unfold adjust_ps; simpl.
-      rewrite series_shift_0.
-      rewrite series_shift_0.
-      rewrite series_stretch_const.
-      rewrite Z.sub_0_r.
-      rewrite Z.sub_0_r.
-      rewrite Z.mul_comm.
-      rewrite Pos2Z.inj_mul.
-      rewrite <- Z.divide_div_mul_exact; auto.
-       rewrite Z.mul_assoc, Z.mul_comm.
-       rewrite Z.mul_assoc.
-       rewrite Z.mul_assoc.
+      do 2 rewrite series_shift_0.
+      apply mkps_morphism.
+       rewrite series_stretch_const.
+       remember (Qden αj₁ * pr * Qden αk₁)%positive as x.
+       symmetry.
+       rewrite <- series_stretch_const with (k := x); subst x.
+       apply stretch_morph; auto.
+       constructor; intros i; simpl.
+       unfold root_tail_series_from_cγ_list; simpl.
+       rewrite <- Hc₁, <- Hpol₂.
+       remember (List.hd phony_ns (newton_segments pol₂)) as ns₂ eqn:Hns₂ .
+       destruct (ps_zerop R (ps_poly_nth 0 pol₁)) as [H₂| H₂].
+        contradiction.
+
+        destruct i; [ reflexivity | simpl ].
+        destruct (ps_zerop R (ps_poly_nth 0 pol₂)) as [H₃| H₃]; auto.
+        contradiction.
+
+       do 2 rewrite Z.sub_0_r.
+       rewrite Z.mul_comm.
+       rewrite Pos2Z.inj_mul.
+       rewrite <- Z.divide_div_mul_exact; auto.
+        rewrite <- Z.mul_assoc.
+        rewrite Z.mul_comm.
+        rewrite Z.div_mul; auto.
+        rewrite Z.mul_comm, Z.mul_shuffle0.
+        reflexivity.
+
+        rewrite Pos2Z.inj_mul.
+        rewrite <- Heqm₁ in HK₁.
+        apply any_in_K_1_m with (h := O) (αh := αj₁) in HK₁.
+         destruct HK₁ as (mh, Hmh).
+         unfold Qeq in Hmh; simpl in Hmh.
+         rewrite Hmh, Z.mul_comm.
+         apply Z.mul_divide_cancel_r; auto.
+         subst pr.
 bbb.
+den_αj_divides_num_αj_m:
+  ∀ (α : Type) (R : ring α) (pol : polynomial (puiseux_series α))
+  (ns : newton_segment) (j : nat) (αj : Q) (m : positive),
+  ns ∈ newton_segments pol
+  → ini_pt ns = (Qnat j, αj)
+    → pol_in_K_1_m pol m → (' Qden αj | Qnum αj * ' m)%Z
 
 (*
 Lemma root_tail_from_0₄₂ : ∀ pol ns pol₁ ns₁ c m q₀ b r,
