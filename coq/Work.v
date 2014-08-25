@@ -287,100 +287,113 @@ induction len; intros.
   apply Nat.lt_0_succ.
 Qed.
 
-Lemma yyy : ∀ αj₁ αk₁ k₁ r pt pts v ms pts₁ pts₂,
+Lemma k_le_r : ∀ αj₁ αk₁ k₁ r pt pts v ms pts₁ pts₂,
   pts = pts₁ ++ [end_pt ms … pts₂]
   → Sorted fst_lt [(Qnat 0, αj₁); pt … pts]
   → ms = minimise_slope (Qnat 0, αj₁) pt pts
   → end_pt ms = (Qnat k₁, αk₁)
-  → (S r < k₁)%nat
   → v == 0
   → 0 < αj₁
   → 0 <= αk₁
   → (Qnat (S r), v) ∈ [pt … pts₁]
-  → False.
+  → k₁ ≤ S r.
 Proof.
 intros αj₁ αk₁ k₁ r pt pts v ms pts₁ pts₂.
-intros Hpts Hsort Heqms Hfin₁ Hrk Hz Hpos₀ Hnnegk Hsr.
-destruct Hsr as [Hsr| Hsr].
- subst pt.
+intros Hpts Hsort Heqms Hfin₁ Hz Hpos₀ Hnnegk Hsr.
+apply Nat.nlt_ge.
+intros Hrk.
+assert (slope ms < slope_expr (Qnat (S r), v) (Qnat k₁, αk₁)) as H.
+ apply Qnot_le_lt.
+ intros H.
+ rewrite slope_slope_expr in H; eauto .
+ rewrite <- Hfin₁ in H.
+ rewrite Hfin₁ in H; simpl in H.
+ unfold slope_expr in H; simpl in H.
+ rewrite Hz in H.
+ rewrite Q_sub_0_r in H.
+ unfold Qle in H; simpl in H.
+ rewrite Qnum_inv_Qnat_sub in H; eauto .
+ rewrite Z.mul_1_r in H.
+ rewrite Qnum_inv_Qnat_sub in H; [ idtac | fast_omega Hrk ].
+ rewrite Z.mul_1_r in H.
+ rewrite Qden_inv_Qnat_sub in H; [ idtac | fast_omega Hrk ].
+ rewrite Qden_inv_Qnat_sub in H; [ idtac | fast_omega Hrk ].
+ rewrite Nat.sub_0_r in H.
+ rewrite Z.mul_opp_l in H.
+ rewrite Z.add_opp_r in H.
+ rewrite Z.mul_comm in H.
+ rewrite Pos2Z.inj_mul in H.
+ rewrite Pos2Z.inj_mul in H.
+ rewrite Z.mul_comm in H.
+ rewrite Pos2Z.inj_mul in H.
+ rewrite Z.mul_comm in H.
+ do 2 rewrite <- Z.mul_assoc in H.
+ rewrite Z.mul_comm in H.
+ rewrite Z.mul_assoc in H.
+ rewrite Z.mul_assoc in H.
+ remember (' Qden αj₁ * ' Pos.of_nat k₁ * Qnum αk₁ * ' Qden αk₁)%Z as x.
+ rewrite Z.mul_shuffle0 in H.
+ subst x.
+ apply Z.mul_le_mono_pos_r in H; [ idtac | apply Pos2Z.is_pos ].
+ rewrite Z.mul_sub_distr_r in H.
+ rewrite Nat2Pos.inj_sub in H; [ idtac | intros HH; discriminate HH ].
+ rewrite Pos2Z.inj_sub in H.
+  rewrite Z.mul_sub_distr_l in H.
+  rewrite <- Z.mul_assoc, Z.mul_comm in H.
+  rewrite <- Z.mul_assoc, Z.mul_comm in H.
+  apply Z.le_add_le_sub_r in H.
+  apply Z.le_add_le_sub_r in H.
+  apply Z.nlt_ge in H.
+  apply H.
+  rewrite <- Z.add_assoc.
+  apply Z.lt_sub_lt_add_l.
+  rewrite Z.sub_diag.
+  apply Z.add_pos_nonneg.
+   apply Z.mul_pos_pos.
+    apply Z.mul_pos_pos; [ idtac | apply Pos2Z.is_pos ].
+    unfold Qlt in Hpos₀; simpl in Hpos₀.
+    rewrite Z.mul_1_r in Hpos₀; assumption.
+
+    rewrite <- Pos2Z.inj_sub; [ apply Pos2Z.is_pos | idtac ].
+    apply -> Pos.compare_lt_iff.
+    rewrite <- Nat2Pos.inj_compare.
+     apply nat_compare_lt; assumption.
+
+     intros HH; discriminate HH.
+
+     fast_omega Hrk.
+
+   apply Z.mul_nonneg_nonneg; auto.
+   apply Z.mul_nonneg_nonneg; auto.
+   unfold Qle in Hnnegk; simpl in Hnnegk.
+   rewrite Z.mul_1_r in Hnnegk; assumption.
+
+  apply -> Pos.compare_lt_iff.
+  rewrite <- Nat2Pos.inj_compare.
+   apply nat_compare_lt; assumption.
+
+   intros HH; discriminate HH.
+
+   fast_omega Hrk.
+
+ rename H into Hsl.
  subst pts.
  remember Heqms as H; clear HeqH.
  symmetry in H.
- eapply minimise_slope_expr_le in H; eauto .
-  2: simpl; apply Qnat_lt; assumption.
+ destruct Hsr as [Hsr| Hsr].
+  subst pt.
+  eapply minimise_slope_expr_le in H; eauto .
+   apply Qle_not_lt in H; contradiction.
 
-  rewrite slope_slope_expr in H; eauto .
-  rewrite <- Hfin₁ in H.
-  rewrite Hfin₁ in H; simpl in H.
-  unfold slope_expr in H; simpl in H.
-  rewrite Hz in H.
-  rewrite Q_sub_0_r in H.
-  unfold Qle in H; simpl in H.
-  rewrite Qnum_inv_Qnat_sub in H; eauto .
-  rewrite Z.mul_1_r in H.
-  rewrite Qnum_inv_Qnat_sub in H; [ idtac | fast_omega Hrk ].
-  rewrite Z.mul_1_r in H.
-  rewrite Qden_inv_Qnat_sub in H; [ idtac | fast_omega Hrk ].
-  rewrite Qden_inv_Qnat_sub in H; [ idtac | fast_omega Hrk ].
-  rewrite Nat.sub_0_r in H.
-  rewrite Z.mul_opp_l in H.
-  rewrite Z.add_opp_r in H.
-  rewrite Z.mul_comm in H.
-  rewrite Pos2Z.inj_mul in H.
-  rewrite Pos2Z.inj_mul in H.
-  rewrite Z.mul_comm in H.
-  rewrite Pos2Z.inj_mul in H.
-  rewrite Z.mul_comm in H.
-  do 2 rewrite <- Z.mul_assoc in H.
-  rewrite Z.mul_comm in H.
-  rewrite Z.mul_assoc in H.
-  rewrite Z.mul_assoc in H.
-  remember (' Qden αj₁ * ' Pos.of_nat k₁ * Qnum αk₁ * ' Qden αk₁)%Z as x.
-  rewrite Z.mul_shuffle0 in H.
-  subst x.
-  apply Z.mul_le_mono_pos_r in H; [ idtac | apply Pos2Z.is_pos ].
-  rewrite Z.mul_sub_distr_r in H.
-  rewrite Nat2Pos.inj_sub in H; [ idtac | intros HH; discriminate HH ].
-  rewrite Pos2Z.inj_sub in H.
-   rewrite Z.mul_sub_distr_l in H.
-   rewrite <- Z.mul_assoc, Z.mul_comm in H.
-   rewrite <- Z.mul_assoc, Z.mul_comm in H.
-   apply Z.le_add_le_sub_r in H.
-   apply Z.le_add_le_sub_r in H.
-   apply Z.nlt_ge in H.
-   apply H.
-   rewrite <- Z.add_assoc.
-   apply Z.lt_sub_lt_add_l.
-   rewrite Z.sub_diag.
-   apply Z.add_pos_nonneg.
-    apply Z.mul_pos_pos.
-     apply Z.mul_pos_pos; [ idtac | apply Pos2Z.is_pos ].
-     unfold Qlt in Hpos₀; simpl in Hpos₀.
-     rewrite Z.mul_1_r in Hpos₀; assumption.
+   simpl; apply Qnat_lt; assumption.
 
-     rewrite <- Pos2Z.inj_sub; [ apply Pos2Z.is_pos | idtac ].
-     apply -> Pos.compare_lt_iff.
-     rewrite <- Nat2Pos.inj_compare.
-      apply nat_compare_lt; assumption.
+  eapply min_slope_le with (pt₃ := (Qnat (S r), v)) in H; eauto .
+   apply Qle_not_lt in H; contradiction.
 
-      intros HH; discriminate HH.
+   apply List.in_or_app; left; assumption.
 
-      fast_omega Hrk.
-
-    apply Z.mul_nonneg_nonneg; auto.
-    apply Z.mul_nonneg_nonneg; auto.
-    unfold Qle in Hnnegk; simpl in Hnnegk.
-    rewrite Z.mul_1_r in Hnnegk; assumption.
-
-   apply -> Pos.compare_lt_iff.
-   rewrite <- Nat2Pos.inj_compare.
-    apply nat_compare_lt; assumption.
-
-    intros HH; discriminate HH.
-
-    fast_omega Hrk.
-bbb.
-*)
+   simpl; apply Qnat_lt; assumption.
+Qed.
 
 (* more general than r_1_j_0_k_1 which could be simplified if this
    lemma works *)
@@ -526,156 +539,115 @@ destruct r.
         rewrite Hαk₁ in H.
         apply Qbar.qfin_le_mono in H.
         rename H into Hnnegk.
-       rewrite minimised_slope_beg_pt in Hns₁.
-       rewrite Hfin₁ in Hns₁.
-       remember (minimise_slope (Qnat 0, αj₁) pt pts) as ms.
-       remember Heqms as H; clear HeqH.
-       symmetry in H.
-       apply end_pt_in in H.
-       apply List.in_split in H.
-       destruct H as (pts₁, (pts₂, Hpts)).
-       destruct (eq_nat_dec k₁ (S r)) as [H₁| H₁]; [ idtac | exfalso ].
-        subst k₁.
-        split; [ idtac | reflexivity ].
-        remember Heqpts as H; clear HeqH.
+        rewrite minimised_slope_beg_pt in Hns₁.
+        rewrite Hfin₁ in Hns₁.
+        remember (minimise_slope (Qnat 0, αj₁) pt pts) as ms.
+        remember Heqms as H; clear HeqH.
         symmetry in H.
-        rewrite Heqf in H.
-        rewrite fold_qpower_list in H.
-        remember Heqms as HH; clear HeqHH.
-        symmetry in HH.
-        apply end_pt_in in HH.
-        rewrite Hfin₁ in HH.
-        eapply in_pts_in_psl with (def := 0%ps) in H; eauto .
-        unfold Qnat, Qnum in H.
-        rewrite Nat2Z.id, Nat_sub_succ_1 in H.
-        destruct H as (_, H).
-        simpl in Hz.
-        rewrite H in Hz.
-        apply Qbar.qfin_inj in Hz.
-        assumption.
-
-        apply Nat.neq_sym in H₁.
-        apply le_neq_lt in Hrk; auto; clear H₁.
-        simpl in Hz.
-        remember (order (List.nth r la 0%ps)) as v.
-        unfold Qbar.qeq in Hz.
-        destruct v as [v| ]; [ idtac | contradiction ].
-        symmetry in Heqv.
-        remember Heqpts as H; clear HeqH.
-        symmetry in H.
-        rewrite Heqf, fold_qpower_list in H.
-        eapply in_ppl_in_pts with (h := S r) (hv := v) in H; eauto .
-         2: apply le_n_S, Nat.le_0_l.
-
-         2: rewrite Nat_sub_succ_1; assumption.
-
-         rename H into Hsr.
-         remember Hns₁i as H; clear HeqH.
-         unfold newton_segments in H.
-         unfold points_of_ps_polynom in H.
-         unfold points_of_ps_lap in H.
-         remember (points_of_ps_lap_gen 0 (al pol₁)) as ptsi.
-         rename H into Hlch.
-         remember Heqptsi as H; clear HeqH.
-         apply points_of_polyn_sorted in H.
-         rewrite <- Heqla in Heqptsi.
-         unfold points_of_ps_lap_gen in Heqptsi.
-         unfold qpower_list in Heqptsi.
-         rewrite <- Heqf in Heqptsi.
-         simpl in Heqptsi.
-         remember (f (O, a₀)) as x.
-         rewrite Heqf in Heqx.
-         unfold pair_rec in Heqx; simpl in Heqx.
-         subst x.
-         rewrite Heqv₀ in Heqptsi.
-         rewrite Heqpts in Heqptsi.
-         subst ptsi.
-         rename H into Hsort.
-         rewrite Hpts in Hsr.
-         apply List.in_app_or in Hsr.
-         destruct Hsr as [Hsr| Hsr].
-          Focus 2.
-          rewrite Hpts in Hsort.
-          remember Hsort as H; clear HeqH.
-          apply Sorted_inv_1 in H.
-          simpl in Hsr.
-          destruct Hsr as [Hsr| Hsr].
-           rewrite Hfin₁ in Hsr.
-           injection Hsr; intros H₁ H₂.
-           rewrite <- positive_nat_Z in H₂.
-           apply Nat2Z.inj in H₂.
-           rewrite SuccNat2Pos.id_succ in H₂.
-           rewrite <- H₂ in Hrk.
-           revert Hrk; apply Nat.lt_irrefl.
-
-           apply Sorted_app in H.
-           destruct H as (_, H).
-           rewrite Hfin₁ in H.
-           revert Hrk Hsr H; clear; intros.
-           induction pts₂ as [| pt]; [ contradiction | idtac ].
-           destruct Hsr as [Hsr| Hsr].
-            subst pt.
-            apply Sorted_inv in H.
-            destruct H as (_, H).
-            apply HdRel_inv in H.
-            unfold fst_lt in H; simpl in H.
-            apply Qnat_lt in H.
-            eapply Nat.lt_trans in H; eauto .
-            revert H; apply Nat.lt_irrefl.
-
-            apply IHpts₂; auto.
-            eapply Sorted_minus_2nd; eauto .
-            intros x y z H₁ H₂; eapply Qlt_trans; eassumption.
-
-          destruct pts₁ as [| pt₁]; [ contradiction | idtac ].
-          simpl in Hpts.
-          injection Hpts; clear Hpts; intros Hpts H₁.
-           subst pt₁.
-           eapply yyy; eauto.
-bbb.
-           revert Hpts Hsort Heqms Hfin₁ Hrk Hz Hpos₀ Hnnegk Hsr.
-           clear; intros.
-Show. bbb.
-(**)
-       destruct r.
-        destruct la as [| a₁].
+        apply end_pt_in in H.
+        apply List.in_split in H.
+        destruct H as (pts₁, (pts₂, Hpts)).
+        destruct (eq_nat_dec k₁ (S r)) as [H₁| H₁]; [ idtac | exfalso ].
+         subst k₁.
+         split; [ idtac | reflexivity ].
+         remember Heqpts as H; clear HeqH.
+         symmetry in H.
+         rewrite Heqf in H.
+         rewrite fold_qpower_list in H.
+         remember Heqms as HH; clear HeqHH.
+         symmetry in HH.
+         apply end_pt_in in HH.
+         rewrite Hfin₁ in HH.
+         eapply in_pts_in_psl with (def := 0%ps) in H; eauto .
+         unfold Qnat, Qnum in H.
+         rewrite Nat2Z.id, Nat_sub_succ_1 in H.
+         destruct H as (_, H).
          simpl in Hz.
-         rewrite order_0 in Hz; contradiction.
-
-         simpl in Hz, Heqpts.
-         remember (f (1%nat, a₁)) as x.
-         rewrite Heqf in Heqx; simpl in Heqx.
-         unfold pair_rec in Heqx; simpl in Heqx.
-         subst x.
-         remember (order a₁) as v₁.
-         symmetry in Heqv₁.
-         destruct v₁ as [v₁| ]; [ idtac | contradiction ].
-         injection Heqpts; clear Heqpts; intros H₁ H₂.
-         subst pt.
+         rewrite H in Hz.
          apply Qbar.qfin_inj in Hz.
-         destruct (eq_nat_dec k₁ 1) as [H₂| H₂].
-          split; [ idtac | assumption ].
-          subst k₁.
-          destruct pts as [| pt].
-           rewrite Heqms in Hfin₁; simpl in Hfin₁.
-           injection Hfin₁; intros.
-           subst v₁; assumption.
+         assumption.
 
-           simpl in Heqms.
-           remember (minimise_slope (Qnat 0, αj₁) pt pts) as ms₁.
-           unfold slope_expr in Heqms.
-           simpl in Heqms.
-           rewrite <- Qnat_inj_sub in Heqms; [ idtac | apply Nat.le_0_1 ].
-           simpl in Heqms.
-           rewrite Q_div_1_r in Heqms.
-           remember (v₁ - αj₁ ?= slope ms₁) as cmp.
-           symmetry in Heqcmp.
-           destruct cmp; simpl in Heqms.
-            rewrite Hz in Heqcmp.
-            apply Qeq_alt in Heqcmp.
-            rewrite Heqms in Hns₁.
-            simpl in Hns₁.
-bbb.
+         apply Nat.neq_sym in H₁.
+         apply le_neq_lt in Hrk; auto; clear H₁.
+         simpl in Hz.
+         remember (order (List.nth r la 0%ps)) as v.
+         unfold Qbar.qeq in Hz.
+         destruct v as [v| ]; [ idtac | contradiction ].
+         symmetry in Heqv.
+         remember Heqpts as H; clear HeqH.
+         symmetry in H.
+         rewrite Heqf, fold_qpower_list in H.
+         eapply in_ppl_in_pts with (h := S r) (hv := v) in H; eauto .
+          2: apply le_n_S, Nat.le_0_l.
+
+          2: rewrite Nat_sub_succ_1; assumption.
+
+          rename H into Hsr.
+          remember Hns₁i as H; clear HeqH.
+          unfold newton_segments in H.
+          unfold points_of_ps_polynom in H.
+          unfold points_of_ps_lap in H.
+          remember (points_of_ps_lap_gen 0 (al pol₁)) as ptsi.
+          rename H into Hlch.
+          remember Heqptsi as H; clear HeqH.
+          apply points_of_polyn_sorted in H.
+          rewrite <- Heqla in Heqptsi.
+          unfold points_of_ps_lap_gen in Heqptsi.
+          unfold qpower_list in Heqptsi.
+          rewrite <- Heqf in Heqptsi.
+          simpl in Heqptsi.
+          remember (f (O, a₀)) as x.
+          rewrite Heqf in Heqx.
+          unfold pair_rec in Heqx; simpl in Heqx.
+          subst x.
+          rewrite Heqv₀ in Heqptsi.
+          rewrite Heqpts in Heqptsi.
+          subst ptsi.
+          rename H into Hsort.
+          rewrite Hpts in Hsr.
+          apply List.in_app_or in Hsr.
+          destruct Hsr as [Hsr| Hsr].
+           Focus 2.
+           rewrite Hpts in Hsort.
+           remember Hsort as H; clear HeqH.
+           apply Sorted_inv_1 in H.
+           simpl in Hsr.
+           destruct Hsr as [Hsr| Hsr].
+            rewrite Hfin₁ in Hsr.
+            injection Hsr; intros H₁ H₂.
+            rewrite <- positive_nat_Z in H₂.
+            apply Nat2Z.inj in H₂.
+            rewrite SuccNat2Pos.id_succ in H₂.
+            rewrite <- H₂ in Hrk.
+            revert Hrk; apply Nat.lt_irrefl.
+
+            apply Sorted_app in H.
+            destruct H as (_, H).
+            rewrite Hfin₁ in H.
+            revert Hrk Hsr H; clear; intros.
+            induction pts₂ as [| pt]; [ contradiction | idtac ].
+            destruct Hsr as [Hsr| Hsr].
+             subst pt.
+             apply Sorted_inv in H.
+             destruct H as (_, H).
+             apply HdRel_inv in H.
+             unfold fst_lt in H; simpl in H.
+             apply Qnat_lt in H.
+             eapply Nat.lt_trans in H; eauto .
+             revert H; apply Nat.lt_irrefl.
+
+             apply IHpts₂; auto.
+             eapply Sorted_minus_2nd; eauto .
+             intros x y z H₁ H₂; eapply Qlt_trans; eassumption.
+
+           destruct pts₁ as [| pt₁]; [ contradiction | idtac ].
+           simpl in Hpts.
+           injection Hpts; clear Hpts; intros Hpts H₁.
+           subst pt₁.
+           apply Nat.nle_gt in Hrk.
+           apply Hrk.
+           eapply k_le_r; eauto .
+Qed.
 
 (* more general than r_1_next_ns which could be simplified if this
    lemma works *)
