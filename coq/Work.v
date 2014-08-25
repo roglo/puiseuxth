@@ -348,9 +348,7 @@ destruct r.
    rewrite Hini₁ in H.
    eapply order_in_newton_segment in H; eauto .
    rename H into Hαj₁.
-bbb.
    unfold ps_lap_nth in Hnneg, Hz, Hpos₀.
-   simpl in Hz, Hpos₀.
    unfold points_of_ps_lap in Hns₁.
    unfold points_of_ps_lap_gen in Hns₁.
    simpl in Hns₁.
@@ -378,6 +376,7 @@ bbb.
      apply multiplicity_lt_length with (c := c₁) in H.
      rewrite Hr₁ in H.
      rewrite al_Φq in H.
+     rewrite <- Hpl in H.
      erewrite length_char_pol with (ns := ns₁) in H; eauto .
       Focus 2.
       rewrite Hini₁; simpl.
@@ -443,12 +442,14 @@ bbb.
         unfold Qnat, Qnum in H.
         rewrite Nat2Z.id, Nat_sub_succ_1 in H.
         destruct H as (_, H).
+        simpl in Hz.
         rewrite H in Hz.
         apply Qbar.qfin_inj in Hz.
         assumption.
 
         apply Nat.neq_sym in H₁.
         apply le_neq_lt in Hrk; auto; clear H₁.
+        simpl in Hz.
         remember (order (List.nth r la 0%ps)) as v.
         unfold Qbar.qeq in Hz.
         destruct v as [v| ]; [ idtac | contradiction ].
