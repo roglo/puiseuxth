@@ -206,12 +206,16 @@ do 2 rewrite Z.mul_1_r.
 reflexivity.
 Qed.
 
-Lemma Qnat_lt : ∀ i j, (i < j)%nat → Qnat i < Qnat j.
+Theorem Qnat_lt : ∀ i j, (i < j)%nat ↔ Qnat i < Qnat j.
 Proof.
-intros i j H.
-unfold Qnat, Qlt; simpl.
-do 2 rewrite Zmult_1_r.
-apply inj_lt; assumption.
+intros i j; split; intros H.
+ unfold Qnat, Qlt; simpl.
+ do 2 rewrite Zmult_1_r.
+ apply inj_lt; assumption.
+
+ unfold Qlt in H; simpl in H.
+ do 2 rewrite Z.mul_1_r in H.
+ apply Nat2Z.inj_lt in H; assumption.
 Qed.
 
 Lemma Qnat_le : ∀ i j, (i ≤ j)%nat → Qnat i <= Qnat j.

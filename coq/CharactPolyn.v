@@ -408,10 +408,7 @@ Proof.
 intros pol j αj jq h αh hq ns Hns Hj Hh Hjq Hhq.
 eapply jq_lt_hq in Hh; try eassumption.
 rewrite Hjq, Hhq in Hh.
-unfold Qnat in Hh; simpl in Hh.
-unfold Qlt in Hh; simpl in Hh.
-do 2 rewrite Zmult_1_r in Hh.
-apply Nat2Z.inj_lt; assumption.
+apply Qnat_lt; assumption.
 Qed.
 
 Lemma seg_bef_end_pt : ∀ pt₁ pt₂ pts ms₁ hq αh kq αk,
@@ -528,10 +525,7 @@ Proof.
 intros pol h αh hq k αk kq ns Hns Hoth Hfin Hhq Hkq.
 eapply hq_lt_kq in Hoth; try eassumption.
 rewrite Hhq, Hkq in Hoth.
-unfold Qnat in Hoth; simpl in Hoth.
-unfold Qlt in Hoth; simpl in Hoth.
-do 2 rewrite Zmult_1_r in Hoth.
-apply Nat2Z.inj_lt; assumption.
+apply Qnat_lt; assumption.
 Qed.
 
 Lemma j_lt_k : ∀ (pol : puis_ser_pol α) j k ns,
@@ -552,25 +546,8 @@ eapply pt_absc_is_nat with (pt := ini_pt ns) in Hj₁.
    eapply ini_lt_fin_pt; eassumption.
 
    rewrite Hj₁, Hk₁ in H.
-   unfold Qnat in H; simpl in H.
-   rewrite Z2Nat.id in H.
-    rewrite Z2Nat.id in H.
-     unfold nat_num in Hj, Hk.
-     rewrite <- Hj in Hj₁.
-     rewrite <- Hk in Hk₁.
-     rewrite Hj₁, Hk₁ in H.
-     unfold Qlt in H.
-     simpl in H.
-     do 2 rewrite Z.mul_1_r in H.
-     apply Nat2Z.inj_lt; assumption.
-
-     rewrite Hk₁.
-     unfold Qnat; simpl.
-     apply Nat2Z.is_nonneg.
-
-    rewrite Hj₁.
-    unfold Qnat; simpl.
-    apply Nat2Z.is_nonneg.
+   apply Qnat_lt in H.
+   subst j k; assumption.
 
   apply ini_fin_ns_in_init_pts; assumption.
 
@@ -1917,17 +1894,12 @@ destruct (lt_dec i s) as [Hlt| Hge].
 
       apply Hsh in H₁.
       destruct H₁ as (h₂, (sh₂, (Hh₂, (Hsh₂, (Hhj₂, Hhk₂))))).
-      rewrite Hh₂ in Hsort |- *.
-      simpl.
+      rewrite Hh₂ in Hsort |- *; simpl.
       rewrite Nat2Z.id.
-      unfold Qnat in Hsort.
-      unfold Qlt in Hsort.
-      simpl in Hsort.
-      do 2 rewrite Zmult_1_r in Hsort.
-      apply Nat2Z.inj_lt; assumption.
+      apply Qnat_lt; assumption.
 
-   apply not_eq_sym in Hne.
-   apply le_neq_lt; assumption.
+    apply not_eq_sym in Hne.
+    apply le_neq_lt; assumption.
 Qed.
 
 Lemma minimise_slope_lt_seg : ∀ pt₁ pt₂ pt₃ pts ms₂,
@@ -2444,10 +2416,7 @@ rewrite length_char_pol_succ; simpl.
    destruct H₂ as (h₂, (ah₂, Hh₂)).
    subst pt pt₁; simpl in Hrel; simpl.
    do 2 rewrite nat_num_Qnat.
-   unfold Qnat in Hrel.
-   unfold Qlt in Hrel; simpl in Hrel.
-   do 2 rewrite Z.mul_1_r in Hrel.
-   apply Nat2Z.inj_lt; assumption.
+   apply Qnat_lt; assumption.
 Qed.
 
 Lemma Sorted_fst_lt_nat_num_fst : ∀ l,
@@ -2477,11 +2446,7 @@ destruct l as [| b]; constructor.
  apply Qlt_not_le in H3.
  rewrite Hnat in H3; [ idtac | right; left; reflexivity ].
  apply Qnot_le_lt in H3.
- unfold Qlt in H3.
- simpl in H3.
- do 2 rewrite Z.mul_1_r in H3.
- apply Nat2Z.inj_lt in H3.
- assumption.
+ apply Qnat_lt; assumption.
 Qed.
 
 Lemma phi_pseudo_degree_is_k_sub_j_div_q : ∀ pol ns j αj k αk q m,

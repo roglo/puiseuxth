@@ -946,10 +946,7 @@ assert (j < k)%nat as Hjk.
          destruct Hsort as (_, Hrel).
          apply HdRel_inv in Hrel.
          progress unfold fst_lt in Hrel; simpl in Hrel.
-         progress unfold Qlt in Hrel; simpl in Hrel.
-         do 2 rewrite Z.mul_1_r in Hrel.
-         apply Nat2Z.inj_lt in Hrel.
-         assumption.
+         apply Qnat_lt; assumption.
 
          destruct (eq_nat_dec l k) as [H₂| H₂].
           subst l; reflexivity.
@@ -991,9 +988,7 @@ assert (j < k)%nat as Hjk.
              destruct Hsort as (_, Hrel).
              apply HdRel_inv in Hrel.
              progress unfold fst_lt in Hrel; simpl in Hrel.
-             progress unfold Qlt in Hrel; simpl in Hrel.
-             do 2 rewrite Z.mul_1_r in Hrel.
-             apply Nat2Z.inj_lt; assumption.
+             apply Qnat_lt; assumption.
 
              apply Sorted_minus_2nd in Hsort.
               revert Hsort H; clear; intros.
@@ -1005,9 +1000,7 @@ assert (j < k)%nat as Hjk.
                destruct Hsort as (_, Hrel).
                apply HdRel_inv in Hrel.
                progress unfold fst_lt in Hrel; simpl in Hrel.
-               progress unfold Qlt in Hrel; simpl in Hrel.
-               do 2 rewrite Z.mul_1_r in Hrel.
-               apply Nat2Z.inj_lt; assumption.
+               apply Qnat_lt; assumption.
 
                eapply IHpts; [ idtac | eassumption ].
                eapply Sorted_minus_2nd; [ idtac | eassumption ].
@@ -1047,9 +1040,7 @@ assert (j < k)%nat as Hjk.
             destruct Hsort as (_, Hrel).
             apply HdRel_inv in Hrel.
             progress unfold fst_lt in Hrel; simpl in Hrel.
-            progress unfold Qlt in Hrel; simpl in Hrel.
-            do 2 rewrite Z.mul_1_r in Hrel.
-            apply Nat2Z.inj_lt in Hrel.
+            apply Qnat_lt in Hrel.
             apply Nat.nle_gt in Hrel.
             exfalso; apply Hrel, Nat.lt_le_incl; assumption.
 
@@ -1379,9 +1370,7 @@ assert (∀ iq αi, (iq, αi) ∈ pl → ∃ i, iq = Qnat i) as Hnat.
 
      destruct H as (jm, H); subst j; rename jm into j.
      do 2 rewrite nat_num_Qnat.
-     progress unfold Qlt in Hrel; simpl in Hrel.
-     do 2 rewrite Z.mul_1_r in Hrel.
-     apply Nat2Z.inj_lt; assumption.
+     apply Qnat_lt; assumption.
 
   assert (∀ m, m ∈ li → (j ≤ m)%nat) as Hm.
    intros m Hm.

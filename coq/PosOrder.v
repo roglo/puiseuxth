@@ -1469,11 +1469,7 @@ assert (m ≠ 0)%ps as Hmnz.
       destruct Hq as (i, (αi, Hq)).
       subst p q; simpl in Hrel; simpl.
       do 2 rewrite Nat2Z.id.
-      unfold Qnat in Hrel.
-      unfold Qlt in Hrel; simpl in Hrel.
-      do 2 rewrite Z.mul_1_r in Hrel.
-      apply Nat2Z.inj_lt in Hrel.
-      assumption.
+      apply Qnat_lt; assumption.
 
      subst l₁; simpl.
      apply List.Forall_forall; intros i Hi.

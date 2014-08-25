@@ -454,6 +454,49 @@ destruct r.
          2: apply le_n_S, Nat.le_0_l.
 
          2: rewrite Nat_sub_succ_1; assumption.
+
+         rewrite Hpts in H.
+         apply List.in_app_or in H.
+         destruct H as [Hsr| Hsr].
+          Focus 2.
+          remember Hns₁i as H; clear HeqH.
+          unfold newton_segments in H.
+          unfold points_of_ps_polynom in H.
+          unfold points_of_ps_lap in H.
+          remember (points_of_ps_lap_gen 0 (al pol₁)) as ptsi.
+          rename H into Hlch.
+          remember Heqptsi as H; clear HeqH.
+          apply points_of_polyn_sorted in H.
+          rewrite <- Heqla in Heqptsi.
+          unfold points_of_ps_lap_gen in Heqptsi.
+          unfold qpower_list in Heqptsi.
+          rewrite <- Heqf in Heqptsi.
+          simpl in Heqptsi.
+          remember (f (O, a₀)) as x.
+          rewrite Heqf in Heqx.
+          unfold pair_rec in Heqx; simpl in Heqx.
+          subst x.
+          rewrite Heqv₀ in Heqptsi.
+          rewrite Heqpts in Heqptsi.
+          subst ptsi.
+          rename H into Hsort.
+          rewrite Hpts in Hsort.
+          remember Hsort as H; clear HeqH.
+          apply Sorted_inv_1 in H.
+          simpl in Hsr.
+          destruct Hsr as [Hsr| Hsr].
+           rewrite Hfin₁ in Hsr.
+           injection Hsr; intros H₁ H₂.
+           rewrite <- positive_nat_Z in H₂.
+           apply Nat2Z.inj in H₂.
+           rewrite SuccNat2Pos.id_succ in H₂.
+           rewrite <- H₂ in Hrk.
+           revert Hrk; apply Nat.lt_irrefl.
+
+           apply Sorted_app in H.
+           destruct H as (_, H).
+           rewrite Hfin₁ in H.
+           revert Hrk Hsr H; clear; intros.
 bbb.
 (**)
        destruct r.
