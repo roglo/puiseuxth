@@ -1038,14 +1038,33 @@ destruct (ps_zerop _ (ps_poly_nth 0 pol₁)) as [H₁| H₁].
         reflexivity.
 
         rewrite Pos2Z.inj_mul.
-        rewrite <- Heqm₁ in HK₁.
-        apply any_in_K_1_m with (h := O) (αh := αj₁) in HK₁.
-         destruct HK₁ as (mh, Hmh).
+        remember HK₁ as H; clear HeqH.
+        rewrite <- Heqm₁ in H.
+        apply any_in_K_1_m with (h := O) (αh := αj₁) in H.
+         destruct H as (mh, Hmh).
          unfold Qeq in Hmh; simpl in Hmh.
          rewrite Hmh, Z.mul_comm.
          apply Z.mul_divide_cancel_r; auto.
          subst pr.
+         remember Hns₁₁ as H; clear HeqH.
+         eapply q_mj_mk_eq_p_h_j with (h := r) (αh := αk₁) in H; eauto .
+          remember (q_of_m (m * q₀) (γ ns₁)) as q₁.
+          remember (mh_of_m (m * q₀) αj₁ (ps_poly_nth 0 pol₁)) as mj.
+          remember (mh_of_m (m * q₀) αk₁ (ps_poly_nth r pol₁)) as mk.
+          remember (p_of_m (m * q₀) (γ ns₁)) as p₁.
+          rewrite Nat.sub_0_r in H.
+          destruct H as (H₂, H₃).
+          unfold Qeq in H₂; simpl in H₂.
+          rewrite Hαk₁ in H₂; simpl in H₂.
+          symmetry in H₂.
+          apply Z.eq_mul_0_l in H₂; auto.
+          move H₂ at top; subst mk.
+          rewrite Z.sub_0_r in H₃.
+          rewrite positive_nat_Z in H₃.
 bbb.
+q * mj = p * r
+mj = p * r
+
 den_αj_divides_num_αj_m:
   ∀ (α : Type) (R : ring α) (pol : polynomial (puiseux_series α))
   (ns : newton_segment) (j : nat) (αj : Q) (m : positive),
