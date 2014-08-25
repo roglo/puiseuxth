@@ -343,6 +343,12 @@ destruct r.
 
     apply Nat.lt_0_succ.
 
+   remember [ini_pt ns₁ … oth_pts ns₁ ++ [fin_pt ns₁]] as pl eqn:Hpl .
+   assert (ini_pt ns₁ ∈ pl) as H by (subst pl; left; reflexivity).
+   rewrite Hini₁ in H.
+   eapply order_in_newton_segment in H; eauto .
+   rename H into Hαj₁.
+bbb.
    unfold ps_lap_nth in Hnneg, Hz, Hpos₀.
    simpl in Hz, Hpos₀.
    unfold points_of_ps_lap in Hns₁.
