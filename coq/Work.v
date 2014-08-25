@@ -287,6 +287,101 @@ induction len; intros.
   apply Nat.lt_0_succ.
 Qed.
 
+Lemma yyy : ∀ αj₁ αk₁ k₁ r pt pts v ms pts₁ pts₂,
+  pts = pts₁ ++ [end_pt ms … pts₂]
+  → Sorted fst_lt [(Qnat 0, αj₁); pt … pts]
+  → ms = minimise_slope (Qnat 0, αj₁) pt pts
+  → end_pt ms = (Qnat k₁, αk₁)
+  → (S r < k₁)%nat
+  → v == 0
+  → 0 < αj₁
+  → 0 <= αk₁
+  → (Qnat (S r), v) ∈ [pt … pts₁]
+  → False.
+Proof.
+intros αj₁ αk₁ k₁ r pt pts v ms pts₁ pts₂.
+intros Hpts Hsort Heqms Hfin₁ Hrk Hz Hpos₀ Hnnegk Hsr.
+destruct Hsr as [Hsr| Hsr].
+ subst pt.
+ subst pts.
+ remember Heqms as H; clear HeqH.
+ symmetry in H.
+ eapply minimise_slope_expr_le in H; eauto .
+  2: simpl; apply Qnat_lt; assumption.
+
+  rewrite slope_slope_expr in H; eauto .
+  rewrite <- Hfin₁ in H.
+  rewrite Hfin₁ in H; simpl in H.
+  unfold slope_expr in H; simpl in H.
+  rewrite Hz in H.
+  rewrite Q_sub_0_r in H.
+  unfold Qle in H; simpl in H.
+  rewrite Qnum_inv_Qnat_sub in H; eauto .
+  rewrite Z.mul_1_r in H.
+  rewrite Qnum_inv_Qnat_sub in H; [ idtac | fast_omega Hrk ].
+  rewrite Z.mul_1_r in H.
+  rewrite Qden_inv_Qnat_sub in H; [ idtac | fast_omega Hrk ].
+  rewrite Qden_inv_Qnat_sub in H; [ idtac | fast_omega Hrk ].
+  rewrite Nat.sub_0_r in H.
+  rewrite Z.mul_opp_l in H.
+  rewrite Z.add_opp_r in H.
+  rewrite Z.mul_comm in H.
+  rewrite Pos2Z.inj_mul in H.
+  rewrite Pos2Z.inj_mul in H.
+  rewrite Z.mul_comm in H.
+  rewrite Pos2Z.inj_mul in H.
+  rewrite Z.mul_comm in H.
+  do 2 rewrite <- Z.mul_assoc in H.
+  rewrite Z.mul_comm in H.
+  rewrite Z.mul_assoc in H.
+  rewrite Z.mul_assoc in H.
+  remember (' Qden αj₁ * ' Pos.of_nat k₁ * Qnum αk₁ * ' Qden αk₁)%Z as x.
+  rewrite Z.mul_shuffle0 in H.
+  subst x.
+  apply Z.mul_le_mono_pos_r in H; [ idtac | apply Pos2Z.is_pos ].
+  rewrite Z.mul_sub_distr_r in H.
+  rewrite Nat2Pos.inj_sub in H; [ idtac | intros HH; discriminate HH ].
+  rewrite Pos2Z.inj_sub in H.
+   rewrite Z.mul_sub_distr_l in H.
+   rewrite <- Z.mul_assoc, Z.mul_comm in H.
+   rewrite <- Z.mul_assoc, Z.mul_comm in H.
+   apply Z.le_add_le_sub_r in H.
+   apply Z.le_add_le_sub_r in H.
+   apply Z.nlt_ge in H.
+   apply H.
+   rewrite <- Z.add_assoc.
+   apply Z.lt_sub_lt_add_l.
+   rewrite Z.sub_diag.
+   apply Z.add_pos_nonneg.
+    apply Z.mul_pos_pos.
+     apply Z.mul_pos_pos; [ idtac | apply Pos2Z.is_pos ].
+     unfold Qlt in Hpos₀; simpl in Hpos₀.
+     rewrite Z.mul_1_r in Hpos₀; assumption.
+
+     rewrite <- Pos2Z.inj_sub; [ apply Pos2Z.is_pos | idtac ].
+     apply -> Pos.compare_lt_iff.
+     rewrite <- Nat2Pos.inj_compare.
+      apply nat_compare_lt; assumption.
+
+      intros HH; discriminate HH.
+
+      fast_omega Hrk.
+
+    apply Z.mul_nonneg_nonneg; auto.
+    apply Z.mul_nonneg_nonneg; auto.
+    unfold Qle in Hnnegk; simpl in Hnnegk.
+    rewrite Z.mul_1_r in Hnnegk; assumption.
+
+   apply -> Pos.compare_lt_iff.
+   rewrite <- Nat2Pos.inj_compare.
+    apply nat_compare_lt; assumption.
+
+    intros HH; discriminate HH.
+
+    fast_omega Hrk.
+bbb.
+*)
+
 (* more general than r_1_j_0_k_1 which could be simplified if this
    lemma works *)
 Lemma r_n_j_0_k_n : ∀ pol ns c pol₁ ns₁ c₁ j₁ αj₁ k₁ αk₁ m r,
@@ -535,90 +630,12 @@ destruct r.
           destruct pts₁ as [| pt₁]; [ contradiction | idtac ].
           simpl in Hpts.
           injection Hpts; clear Hpts; intros Hpts H₁.
-          subst pt₁.
-          destruct Hsr as [Hsr| Hsr].
-           subst pt.
-           clear Heqpts Hlch.
-           revert Hpts Hsort Heqms Hfin₁ Hrk Hz Hpos₀ Hnnegk; clear; intros.
-           subst pts.
-           remember Heqms as H; clear HeqH.
-           symmetry in H.
-           eapply minimise_slope_expr_le in H; eauto .
-            2: simpl; apply Qnat_lt; assumption.
-
-            rewrite slope_slope_expr in H; eauto .
-            rewrite <- Hfin₁ in H.
-            rewrite Hfin₁ in H; simpl in H.
-            unfold slope_expr in H; simpl in H.
-            rewrite Hz in H.
-            rewrite Q_sub_0_r in H.
-            unfold Qle in H; simpl in H.
-            rewrite Qnum_inv_Qnat_sub in H; eauto .
-            rewrite Z.mul_1_r in H.
-            rewrite Qnum_inv_Qnat_sub in H; [ idtac | fast_omega Hrk ].
-            rewrite Z.mul_1_r in H.
-            rewrite Qden_inv_Qnat_sub in H; [ idtac | fast_omega Hrk ].
-            rewrite Qden_inv_Qnat_sub in H; [ idtac | fast_omega Hrk ].
-            rewrite Nat.sub_0_r in H.
-            rewrite Z.mul_opp_l in H.
-            rewrite Z.add_opp_r in H.
-            rewrite Z.mul_comm in H.
-            rewrite Pos2Z.inj_mul in H.
-            rewrite Pos2Z.inj_mul in H.
-            rewrite Z.mul_comm in H.
-            rewrite Pos2Z.inj_mul in H.
-            rewrite Z.mul_comm in H.
-            do 2 rewrite <- Z.mul_assoc in H.
-            rewrite Z.mul_comm in H.
-            rewrite Z.mul_assoc in H.
-            rewrite Z.mul_assoc in H.
-            remember
-             (' Qden αj₁ * ' Pos.of_nat k₁ * Qnum αk₁ * ' Qden αk₁)%Z as x.
-            rewrite Z.mul_shuffle0 in H.
-            subst x.
-            apply Z.mul_le_mono_pos_r in H; [ idtac | apply Pos2Z.is_pos ].
-            rewrite Z.mul_sub_distr_r in H.
-            rewrite Nat2Pos.inj_sub in H;
-             [ idtac | intros HH; discriminate HH ].
-            rewrite Pos2Z.inj_sub in H.
-             rewrite Z.mul_sub_distr_l in H.
-             rewrite <- Z.mul_assoc, Z.mul_comm in H.
-             rewrite <- Z.mul_assoc, Z.mul_comm in H.
-             apply Z.le_add_le_sub_r in H.
-             apply Z.le_add_le_sub_r in H.
-             apply Z.nlt_ge in H.
-             apply H.
-              rewrite <- Z.add_assoc.
-              apply Z.lt_sub_lt_add_l.
-              rewrite Z.sub_diag.
-              apply Z.add_pos_nonneg.
-               apply Z.mul_pos_pos.
-                apply Z.mul_pos_pos; [ idtac | apply Pos2Z.is_pos ].
-                unfold Qlt in Hpos₀; simpl in Hpos₀.
-                rewrite Z.mul_1_r in Hpos₀; assumption.
-
-                rewrite <- Pos2Z.inj_sub; [ apply Pos2Z.is_pos | idtac ].
-                apply -> Pos.compare_lt_iff.
-                rewrite <- Nat2Pos.inj_compare.
-                 apply nat_compare_lt; assumption.
-
-                 intros HH; discriminate HH.
-
-                 fast_omega Hrk.
-
-               apply Z.mul_nonneg_nonneg; auto.
-               apply Z.mul_nonneg_nonneg; auto.
-               unfold Qle in Hnnegk; simpl in Hnnegk.
-               rewrite Z.mul_1_r in Hnnegk; assumption.
-
-              apply -> Pos.compare_lt_iff.
-              rewrite <- Nat2Pos.inj_compare.
-               apply nat_compare_lt; assumption.
-
-               intros HH; discriminate HH.
-
-               fast_omega Hrk.
+           subst pt₁.
+           eapply yyy; eauto.
 bbb.
+           revert Hpts Hsort Heqms Hfin₁ Hrk Hz Hpos₀ Hnnegk Hsr.
+           clear; intros.
+Show. bbb.
 (**)
        destruct r.
         destruct la as [| a₁].
