@@ -955,6 +955,7 @@ induction n; intros.
    eapply List_hd_in; eauto .
 Qed.
 
+(* try and try again...
 Lemma q_eq_1₄₂ : ∀ pol ns c pol₁ ns₁ c₁ m q₀ r,
   ns ∈ newton_segments pol
   → pol_in_K_1_m pol m
@@ -1015,6 +1016,7 @@ bbb.
            Z.gcd (Qnum αj₁ * ' m₁) (' Qden αj₁ * ' Pos.of_nat r))
   ============================
    qn = 1%positive
+*)
 
 (* don't know if it is useful *)
 Lemma q_divides_r : ∀ pol ns c pol₁ ns₁ c₁ m q₀ r q,
@@ -1064,8 +1066,95 @@ eapply List_hd_in in Hns₁.
   assumption.
 Qed.
 
+Lemma ttt : ∀ pol ns c αj αk m q r,
+  ns ∈ newton_segments pol
+  → pol_in_K_1_m pol m
+  → q = q_of_m m (γ ns)
+  → c = ac_root (Φq pol ns)
+  → r = root_multiplicity acf c (Φq pol ns)
+  → ini_pt ns = (Qnat 0, αj)
+  → fin_pt ns = (Qnat r, αk)
+  → q = 1%positive.
+Proof.
+intros pol ns c αj αk m q r Hns Hm Hq Hc Hr Hini Hfin.
+unfold root_multiplicity in Hr.
+rewrite al_Φq in Hr.
+erewrite length_char_pol in Hr; eauto .
+ remember [ini_pt ns … oth_pts ns ++ [fin_pt ns]] as pl eqn:Hpl .
+ remember (List.map (term_of_point pol) pl) as tl eqn:Htl .
+ rewrite Hini in Hr.
+ remember S as s; simpl in Hr; subst s.
+ rewrite nat_num_Qnat in Hr.
+ remember (make_char_pol R 0 tl) as cpol eqn:Hcpol .
+ rewrite Nat.sub_0_r in Hr.
+bbb.
+ revert pol ns c αj αk m q pl tl cpol Hns Hm Hq Hc Hini Hfin Hpl Htl Hcpol Hr.
+ induction r; intros.
+  remember Hns as H; clear HeqH.
+  eapply multiplicity_neq_0 in H; eauto .
+  unfold root_multiplicity in H.
+  rewrite al_Φq in H.
+  rewrite <- Hpl, <- Htl in H.
+  rewrite Hini in H.
+  erewrite length_char_pol in H; eauto .
+  remember S as s; simpl in H; subst s.
+  rewrite nat_num_Qnat, <- Hcpol in H.
+  symmetry in Hr; contradiction.
+
+  remember (S r) as s in Hr; simpl in Hr; subst s.
+  destruct (ac_zerop (lap_mod_deg_1 cpol c)) as [H₁| H₁].
+   apply Nat.succ_inj in Hr.
+   eapply IHr.
+    10: eauto .
+
+    3: eauto .
+
+    3: eauto .
+
+    auto.
+
+    auto.
+
+    eauto .
+
+    eauto .
+    2: eauto .
+
+    2: eauto .
+
+    Focus 2.
+    unfold lap_mod_deg_1 in H₁.
+    unfold lap_div_deg_1 in Hr.
+    unfold lap_div_deg_1.
+    remember (lap_mod_div_deg_1 R cpol c) as md eqn:Hmd .
+    destruct md as [| pt pts].
+     pose proof (length_lap_mod_div_deg_1 R cpol c) as H.
+     rewrite <- Hmd in H; simpl in H.
+     destruct cpol; auto; discriminate H.
+
+     rewrite <- Hcpol.
+     destruct tl as [| t].
+      simpl in Hcpol.
+      subst cpol.
+      simpl in Hmd.
+      discriminate Hmd.
+
+      simpl in Hcpol.
+      rewrite Nat.sub_0_r in Hcpol.
+      rewrite Hcpol in Hmd.
+      rewrite Hpl in Htl.
+      simpl in Htl.
+      injection Htl; clear Htl; intros Htl Ht.
+      rewrite Hini in Ht; simpl in Ht.
+      unfold term_of_point in Ht; simpl in Ht.
+      unfold lap_term_of_point in Ht; simpl in Ht.
+      rewrite nat_num_Qnat in Ht; simpl in Ht.
+      rewrite Ht in Hmd; simpl in Hmd.
+      injection Hmd; clear Hmd; intros Hpts Hpt.
+      rewrite Ht in Hcpol; simpl in Hcpol.
+bbb.
+
 (* isn't it similar to multiplicity_lt_length? *)
-(*
 Lemma uuu : ∀ pol ns c j αj k αk m q r,
   ns ∈ newton_segments pol
   → pol_in_K_1_m pol m
@@ -1076,6 +1165,26 @@ Lemma uuu : ∀ pol ns c j αj k αk m q r,
   → fin_pt ns = (Qnat k, αk)
   → (Pos.to_nat q * r ≤ k - j)%nat.
 Proof.
+intros pol ns c j αj k αk m q r Hns Hm Hq Hc Hr Hini Hfin.
+unfold root_multiplicity in Hr.
+rewrite al_Φq in Hr.
+erewrite length_char_pol in Hr; eauto .
+ remember [ini_pt ns … oth_pts ns ++ [fin_pt ns]] as pl eqn:Hpl .
+ remember (List.map (term_of_point pol) pl) as tl eqn:Htl .
+ rewrite Hini in Hr.
+ remember S as s; simpl in Hr; subst s.
+ rewrite nat_num_Qnat in Hr.
+ remember (make_char_pol R j tl) as cpol eqn:Hcpol .
+ unfold γ in Hq.
+ rewrite Hini, Hfin in Hq; simpl in Hq.
+ unfold q_of_m in Hq.
+ simpl in Hq.
+ rewrite Qden_inv_Qnat_sub in Hq.
+  rewrite Qnum_inv_Qnat_sub in Hq.
+   rewrite Z.mul_1_r in Hq.
+   rewrite Z.mul_opp_l, Z.add_opp_r in Hq.
+bbb.
+
 intros pol ns c j αj k αk m q r Hns Hm Hq Hc Hr Hini Hfin.
 assert (j < k)%nat as Hjk.
  eapply j_lt_k; eauto .
@@ -1090,7 +1199,6 @@ assert (j < k)%nat as Hjk.
   symmetry in Hr.
   exfalso; revert Hr.
   apply multiplicity_neq_0; assumption.
-
   rewrite Hr.
   unfold root_multiplicity; simpl.
   rewrite Hini, Hfin; simpl.
