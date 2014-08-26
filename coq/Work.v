@@ -974,38 +974,55 @@ assert (j < k)%nat as Hjk.
   rewrite Hfin; simpl.
   rewrite nat_num_Qnat; reflexivity.
 
- subst q r.
- unfold q_of_m, root_multiplicity; simpl.
- rewrite Hini, Hfin; simpl.
- rewrite skipn_pad; simpl.
- rewrite Nat.sub_diag; simpl.
- rewrite nat_num_Qnat; simpl.
- rewrite Qnum_inv_Qnat_sub; auto.
- rewrite Qden_inv_Qnat_sub; auto.
- rewrite Z.mul_opp_l, Z.add_opp_r.
- rewrite Z.mul_1_r.
- rewrite fold_char_pol with (αj := αj).
- rewrite <- Hini, <- Hfin.
- remember [ini_pt ns … oth_pts ns ++ [fin_pt ns]] as pl eqn:Hpl .
- remember (List.map (term_of_point pol) pl) as tl eqn:Htl .
- remember (make_char_pol R j tl) as cpol eqn:Hcpol .
- destruct (ac_zerop (lap_mod_deg_1 cpol c)) as [H₁| H₁].
-  2: rewrite Nat.mul_0_r; apply Nat.le_0_l.
+ destruct r.
+  symmetry in Hr.
+  exfalso; revert Hr.
+  apply multiplicity_neq_0; assumption.
 
-  rewrite List.map_app; simpl.
-  rewrite length_char_pol_succ.
-   Focus 2.
-   remember (oth_pts ns) as oth eqn:Hoth .
-   symmetry in Hoth.
-   destruct oth as [| pt pts]; simpl.
-    rewrite Hfin; simpl.
-    rewrite nat_num_Qnat.
-    assumption.
+  rewrite Hq, Hr.
+  unfold q_of_m, root_multiplicity; simpl.
+  rewrite Hini, Hfin; simpl.
+  rewrite skipn_pad; simpl.
+  rewrite Nat.sub_diag; simpl.
+  rewrite nat_num_Qnat; simpl.
+  rewrite Qnum_inv_Qnat_sub; auto.
+  rewrite Qden_inv_Qnat_sub; auto.
+  rewrite Z.mul_opp_l, Z.add_opp_r.
+  rewrite Z.mul_1_r.
+  rewrite fold_char_pol with (αj := αj).
+  rewrite <- Hini, <- Hfin.
+  remember [ini_pt ns … oth_pts ns ++ [fin_pt ns]] as pl eqn:Hpl .
+  remember (List.map (term_of_point pol) pl) as tl eqn:Htl .
+  remember (make_char_pol R j tl) as cpol eqn:Hcpol .
+  assert (cpol = al (Φq pol ns)) as Hphi.
+   rewrite Φq_pol.
+   rewrite <- Hpl, <- Htl.
+   rewrite Hini; simpl.
+   rewrite nat_num_Qnat, <- Hcpol.
+   reflexivity.
 
-    eapply j_lt_h with (αh := snd pt); eauto .
-    rewrite Hoth; left.
-    unfold Qnat, nat_num; simpl.
-    rewrite Z2Nat.id.
+   destruct (ac_zerop (lap_mod_deg_1 cpol c)) as [H₁| H₁].
+    2: rewrite Nat.mul_0_r; apply Nat.le_0_l.
+
+    rewrite List.map_app; simpl.
+    rewrite length_char_pol_succ.
+     rewrite Hfin; simpl.
+     rewrite nat_num_Qnat.
+     Focus 2.
+     rewrite Hfin; simpl.
+     remember (oth_pts ns) as oth eqn:Hoth .
+     symmetry in Hoth.
+     destruct oth as [| pt pts]; simpl.
+      rewrite nat_num_Qnat; assumption.
+
+      Unfocus.
+      unfold lap_div_deg_1; simpl.
+      unfold lap_mod_deg_1 in H₁; simpl in H₁.
+      remember (lap_mod_div_deg_1 R cpol c) as md eqn:Hmd .
+      symmetry in Hmd.
+      symmetry in Hr.
+      remember Hr as H; clear HeqH.
+      eapply list_root_mult_succ_if in H; eauto .
 bbb.
 
 Lemma root_tail_split_1st₄₂ : ∀ pol ns pol₁ ns₁ c m q₀ r,
