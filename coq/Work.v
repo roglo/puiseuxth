@@ -956,6 +956,7 @@ induction n; intros.
 Qed.
 
 (* isn't it similar to multiplicity_lt_length? *)
+(*
 Lemma uuu : ∀ pol ns c j αj k αk m q r,
   ns ∈ newton_segments pol
   → pol_in_K_1_m pol m
@@ -1025,6 +1026,7 @@ assert (j < k)%nat as Hjk.
       rewrite <- Hphi in Hlrm.
       clear Hz.
 bbb.
+*)
 
 Lemma root_tail_split_1st₄₂ : ∀ pol ns pol₁ ns₁ c m q₀ r,
   ns ∈ newton_segments pol
@@ -1140,6 +1142,9 @@ destruct (ps_zerop _ (ps_poly_nth 0 pol₁)) as [H₁| H₁].
           rewrite <- Heqm₁ in Heqmj'.
           erewrite <- qden_αj_is_ps_polord in Heqmj'; eauto .
 bbb.
+  ============================
+   (' Pos.of_nat r | mj)%Z
+
 q * mj = p * r
 mj = p * r
 
