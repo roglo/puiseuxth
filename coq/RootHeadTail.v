@@ -1250,7 +1250,6 @@ eapply List_hd_in in Hns₁.
   apply Pos2Nat.inj in Heqq.
   assumption.
 
-
  intros H; rewrite H in Hns₁; subst ns₁; discriminate Hfin₁.
 Qed.
 

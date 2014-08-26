@@ -955,7 +955,56 @@ induction n; intros.
    eapply List_hd_in; eauto .
 Qed.
 
+(* don't know if it is useful *)
+Lemma q_divides_r : ∀ pol ns c pol₁ ns₁ c₁ m q₀ r q,
+  ns ∈ newton_segments pol
+  → pol_in_K_1_m pol m
+  → pol_in_K_1_m pol₁ (m * q₀)
+  → c = ac_root (Φq pol ns)
+  → pol₁ = next_pol pol (β ns) (γ ns) c
+  → ns₁ = List.hd phony_ns (newton_segments pol₁)
+  → c₁ = ac_root (Φq pol₁ ns₁)
+  → (ps_poly_nth 0 pol₁ ≠ 0)%ps
+  → root_multiplicity acf c (Φq pol ns) = r
+  → root_multiplicity acf c₁ (Φq pol₁ ns₁) = r
+  → q = Pos.to_nat (q_of_m (m * q₀) (γ ns₁))
+  → (q | r)%nat.
+Proof.
+intros pol ns c pol₁ ns₁ c₁ m q₀ r q.
+intros Hns Hm Hq₀ Hc Hpol₁ Hns₁ Hc₁ Hps₀ Hr Hr₁ Hq.
+remember Hns₁ as Hini₁; clear HeqHini₁.
+apply exists_ini_pt_nat_fst_seg in Hini₁.
+destruct Hini₁ as (j₁, (αj₁, Hini₁)).
+remember Hns₁ as Hfin₁; clear HeqHfin₁.
+apply exists_fin_pt_nat_fst_seg in Hfin₁.
+destruct Hfin₁ as (k₁, (αk₁, Hfin₁)).
+remember Hns as H; clear HeqH.
+eapply r_n_j_0_k_n in H; try eassumption.
+destruct H as (Hj₁, (Hk₁, (Hαj₁, Hαk₁))).
+subst j₁ k₁; simpl.
+unfold Qlt in Hαj₁; simpl in Hαj₁.
+unfold Qeq in Hαk₁; simpl in Hαk₁.
+rewrite Z.mul_1_r in Hαj₁, Hαk₁.
+eapply List_hd_in in Hns₁.
+ Focus 2.
+ intros H; rewrite H in Hns₁; subst ns₁; simpl in Hfin₁.
+ injection Hfin₁; clear Hfin₁; intros H₁ H₂.
+ rewrite <- Nat2Z.inj_0 in H₂.
+ apply Nat2Z.inj in H₂.
+ move H₂ at top; subst r.
+ revert Hr.
+ apply multiplicity_neq_0; auto.
+
+ remember Hns₁ as Hqhj; clear HeqHqhj.
+ eapply q_is_factor_of_h_minus_j in Hqhj; eauto .
+  2: apply List.in_or_app; right; left; symmetry; eauto .
+
+  rewrite Nat.sub_0_r in Hqhj.
+  assumption.
+Qed.
+
 (* isn't it similar to multiplicity_lt_length? *)
+(*
 Lemma uuu : ∀ pol ns c j αj k αk m q r,
   ns ∈ newton_segments pol
   → pol_in_K_1_m pol m
@@ -981,16 +1030,12 @@ assert (j < k)%nat as Hjk.
   exfalso; revert Hr.
   apply multiplicity_neq_0; assumption.
 
-  rewrite Hq, Hr.
-  unfold q_of_m, root_multiplicity; simpl.
+  rewrite Hr.
+  unfold root_multiplicity; simpl.
   rewrite Hini, Hfin; simpl.
   rewrite skipn_pad; simpl.
   rewrite Nat.sub_diag; simpl.
   rewrite nat_num_Qnat; simpl.
-  rewrite Qnum_inv_Qnat_sub; auto.
-  rewrite Qden_inv_Qnat_sub; auto.
-  rewrite Z.mul_opp_l, Z.add_opp_r.
-  rewrite Z.mul_1_r.
   rewrite fold_char_pol with (αj := αj).
   rewrite <- Hini, <- Hfin.
   remember [ini_pt ns … oth_pts ns ++ [fin_pt ns]] as pl eqn:Hpl .
@@ -1010,26 +1055,16 @@ assert (j < k)%nat as Hjk.
     rewrite length_char_pol_succ.
      rewrite Hfin; simpl.
      rewrite nat_num_Qnat.
-     Focus 2.
-     rewrite Hfin; simpl.
-     remember (oth_pts ns) as oth eqn:Hoth .
-     symmetry in Hoth.
-     destruct oth as [| pt pts]; simpl.
-      rewrite nat_num_Qnat; assumption.
-
-      Unfocus.
-      symmetry in Hr.
-      remember Hr as H; clear HeqH.
-      eapply list_root_mult_succ_if in H; eauto .
-      destruct H as (Hlen, (Hz, Hlrm)).
-      rewrite <- Hphi in Hlrm.
-      clear Hz.
-      rewrite Hcpol in Hlrm.
-      erewrite length_char_pol in Hlrm; eauto .
-      rewrite Nat.pred_succ in Hlrm.
-      rewrite <- Hcpol in Hlrm.
-      rewrite Hlrm.
-      rewrite Nat.mul_succ_r.
+     symmetry in Hr.
+     remember Hr as H; clear HeqH.
+     eapply list_root_mult_succ_if in H; eauto .
+     destruct H as (Hlen, (Hz, Hlrm)).
+     rewrite <- Hphi in Hlrm.
+     rewrite Hcpol in Hlrm.
+     erewrite length_char_pol in Hlrm; eauto .
+     rewrite Nat.pred_succ in Hlrm.
+     rewrite <- Hcpol in Hlrm.
+     rewrite Hlrm.
 bbb.
 *)
 
