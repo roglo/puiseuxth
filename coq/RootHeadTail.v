@@ -1221,19 +1221,10 @@ Lemma q_eq_1 : ∀ pol ns pol₁ ns₁ c₁ m q₀,
   → q_of_m (m * q₀) (γ ns₁) = 1%positive.
 Proof.
 intros pol ns pol₁ ns₁ c₁ m q₀ Hns Hm Hq₀ Hc₁ Hr Hpol₁ Hns₁ Hps₀.
-remember Hns₁ as Hini₁; clear HeqHini₁.
-apply exists_ini_pt_nat_fst_seg in Hini₁.
-destruct Hini₁ as (j₁, (αj₁, Hini₁)).
-remember Hns₁ as Hfin₁; clear HeqHfin₁.
-apply exists_fin_pt_nat_fst_seg in Hfin₁.
-destruct Hfin₁ as (k₁, (αk₁, Hfin₁)).
 remember Hns as H; clear HeqH.
-eapply r_1_j_0_k_1 in H; try eassumption.
-destruct H as (Hj₁, (Hk₁, (Hαj₁, Hαk₁))).
-subst j₁ k₁; simpl.
-unfold Qlt in Hαj₁; simpl in Hαj₁.
-unfold Qeq in Hαk₁; simpl in Hαk₁.
-rewrite Z.mul_1_r in Hαj₁, Hαk₁.
+eapply r_1_next_ns in H; eauto .
+destruct H as (αj₁, (αk₁, H)).
+destruct H as (Hini₁, (Hfin₁, (Hαj₁, Hαk₁))).
 eapply List_hd_in in Hns₁.
  remember Hns₁ as Hqhj; clear HeqHqhj.
  remember (Pos.to_nat (q_of_m (m * q₀) (γ ns₁))) as q.
