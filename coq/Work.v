@@ -955,6 +955,19 @@ induction n; intros.
    eapply List_hd_in; eauto .
 Qed.
 
+Lemma uuu : ∀ pol ns c j αj k αk m q r,
+  ns ∈ newton_segments pol
+  → pol_in_K_1_m pol m
+  → q = q_of_m m (γ ns)
+  → c = ac_root (Φq pol ns)
+  → r = root_multiplicity acf c (Φq pol ns)
+  → ini_pt ns = (Qnat j, αj)
+  → fin_pt ns = (Qnat k, αk)
+  → (Pos.to_nat q * r ≤ k - j)%nat.
+Proof.
+intros pol ns c j αj k αk m q r Hns Hm Hq Hc Hr Hini Hfin.
+bbb.
+
 Lemma root_tail_split_1st₄₂ : ∀ pol ns pol₁ ns₁ c m q₀ r,
   ns ∈ newton_segments pol
   → pol_in_K_1_m pol m
