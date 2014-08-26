@@ -955,6 +955,7 @@ induction n; intros.
    eapply List_hd_in; eauto .
 Qed.
 
+(* isn't it similar to multiplicity_lt_length? *)
 Lemma uuu : ∀ pol ns c j αj k αk m q r,
   ns ∈ newton_segments pol
   → pol_in_K_1_m pol m
@@ -974,7 +975,8 @@ assert (j < k)%nat as Hjk.
   rewrite Hfin; simpl.
   rewrite nat_num_Qnat; reflexivity.
 
- destruct r.
+ revert pol ns c j αj k αk m q Hns Hm Hq Hc Hr Hini Hfin Hjk.
+ induction r; intros.
   symmetry in Hr.
   exfalso; revert Hr.
   apply multiplicity_neq_0; assumption.
