@@ -966,6 +966,46 @@ Lemma uuu : ∀ pol ns c j αj k αk m q r,
   → (Pos.to_nat q * r ≤ k - j)%nat.
 Proof.
 intros pol ns c j αj k αk m q r Hns Hm Hq Hc Hr Hini Hfin.
+assert (j < k)%nat as Hjk.
+ eapply j_lt_k; eauto .
+  rewrite Hini; simpl.
+  rewrite nat_num_Qnat; reflexivity.
+
+  rewrite Hfin; simpl.
+  rewrite nat_num_Qnat; reflexivity.
+
+ subst q r.
+ unfold q_of_m, root_multiplicity; simpl.
+ rewrite Hini, Hfin; simpl.
+ rewrite skipn_pad; simpl.
+ rewrite Nat.sub_diag; simpl.
+ rewrite nat_num_Qnat; simpl.
+ rewrite Qnum_inv_Qnat_sub; auto.
+ rewrite Qden_inv_Qnat_sub; auto.
+ rewrite Z.mul_opp_l, Z.add_opp_r.
+ rewrite Z.mul_1_r.
+ rewrite fold_char_pol with (αj := αj).
+ rewrite <- Hini, <- Hfin.
+ remember [ini_pt ns … oth_pts ns ++ [fin_pt ns]] as pl eqn:Hpl .
+ remember (List.map (term_of_point pol) pl) as tl eqn:Htl .
+ remember (make_char_pol R j tl) as cpol eqn:Hcpol .
+ destruct (ac_zerop (lap_mod_deg_1 cpol c)) as [H₁| H₁].
+  2: rewrite Nat.mul_0_r; apply Nat.le_0_l.
+
+  rewrite List.map_app; simpl.
+  rewrite length_char_pol_succ.
+   Focus 2.
+   remember (oth_pts ns) as oth eqn:Hoth .
+   symmetry in Hoth.
+   destruct oth as [| pt pts]; simpl.
+    rewrite Hfin; simpl.
+    rewrite nat_num_Qnat.
+    assumption.
+
+    eapply j_lt_h with (αh := snd pt); eauto .
+    rewrite Hoth; left.
+    unfold Qnat, nat_num; simpl.
+    rewrite Z2Nat.id.
 bbb.
 
 Lemma root_tail_split_1st₄₂ : ∀ pol ns pol₁ ns₁ c m q₀ r,
