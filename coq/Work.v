@@ -1016,13 +1016,12 @@ assert (j < k)%nat as Hjk.
       rewrite nat_num_Qnat; assumption.
 
       Unfocus.
-      unfold lap_div_deg_1; simpl.
-      unfold lap_mod_deg_1 in H₁; simpl in H₁.
-      remember (lap_mod_div_deg_1 R cpol c) as md eqn:Hmd .
-      symmetry in Hmd.
       symmetry in Hr.
       remember Hr as H; clear HeqH.
       eapply list_root_mult_succ_if in H; eauto .
+      destruct H as (Hlen, (Hz, Hlrm)).
+      rewrite <- Hphi in Hlrm.
+      clear Hz.
 bbb.
 
 Lemma root_tail_split_1st₄₂ : ∀ pol ns pol₁ ns₁ c m q₀ r,
