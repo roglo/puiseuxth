@@ -1181,19 +1181,13 @@ destruct (ps_zerop _ (ps_poly_nth 0 pol₁)) as [H₁| H₁].
           unfold mh_of_m in Heqmj'.
           rewrite <- Heqm₁ in Heqmj'.
           erewrite <- qden_αj_is_ps_polord in Heqmj'; eauto .
+          rewrite Hmj in Heqmj'.
+          rewrite Z.div_mul in Heqmj'; auto; subst mj'.
 bbb.
   ============================
    (' Pos.of_nat r | mj)%Z
 
-q * mj = p * r
-mj = p * r
-
-den_αj_divides_num_αj_m:
-  ∀ (α : Type) (R : ring α) (pol : polynomial (puiseux_series α))
-  (ns : newton_segment) (j : nat) (αj : Q) (m : positive),
-  ns ∈ newton_segments pol
-  → ini_pt ns = (Qnat j, αj)
-    → pol_in_K_1_m pol m → (' Qden αj | Qnum αj * ' m)%Z
+Current goal could be done if I can prove that q₁ = 1.
 
 (*
 Lemma root_tail_from_0₄₂ : ∀ pol ns pol₁ ns₁ c m q₀ b r,
