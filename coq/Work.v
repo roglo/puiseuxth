@@ -956,7 +956,6 @@ induction n; intros.
 Qed.
 
 (* isn't it similar to multiplicity_lt_length? *)
-(*
 Lemma uuu : ∀ pol ns c j αj k αk m q r,
   ns ∈ newton_segments pol
   → pol_in_K_1_m pol m
@@ -1025,6 +1024,12 @@ assert (j < k)%nat as Hjk.
       destruct H as (Hlen, (Hz, Hlrm)).
       rewrite <- Hphi in Hlrm.
       clear Hz.
+      rewrite Hcpol in Hlrm.
+      erewrite length_char_pol in Hlrm; eauto .
+      rewrite Nat.pred_succ in Hlrm.
+      rewrite <- Hcpol in Hlrm.
+      rewrite Hlrm.
+      rewrite Nat.mul_succ_r.
 bbb.
 *)
 
