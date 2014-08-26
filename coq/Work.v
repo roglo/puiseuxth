@@ -955,7 +955,7 @@ induction n; intros.
    eapply List_hd_in; eauto .
 Qed.
 
-Lemma q_eq_1₄₂ : ∀ pol ns c pol₁ ns₁ c₁ m q₀ r q,
+Lemma q_eq_1₄₂ : ∀ pol ns c pol₁ ns₁ c₁ m q₀ r,
   ns ∈ newton_segments pol
   → pol_in_K_1_m pol m
   → pol_in_K_1_m pol₁ (m * q₀)
@@ -966,24 +966,14 @@ Lemma q_eq_1₄₂ : ∀ pol ns c pol₁ ns₁ c₁ m q₀ r q,
   → (ps_poly_nth 0 pol₁ ≠ 0)%ps
   → root_multiplicity acf c (Φq pol ns) = r
   → root_multiplicity acf c₁ (Φq pol₁ ns₁) = r
-  → q = q_of_m (m * q₀) (γ ns₁)
-  → q = 1%positive.
+  → q_of_m (m * q₀) (γ ns₁) = 1%positive.
 Proof.
-intros pol ns c pol₁ ns₁ c₁ m q₀ r q.
-intros Hns Hm Hq₀ Hc Hpol₁ Hns₁ Hc₁ Hps₀ Hr Hr₁ Hq.
-remember Hns₁ as Hini₁; clear HeqHini₁.
-apply exists_ini_pt_nat_fst_seg in Hini₁.
-destruct Hini₁ as (j₁, (αj₁, Hini₁)).
-remember Hns₁ as Hfin₁; clear HeqHfin₁.
-apply exists_fin_pt_nat_fst_seg in Hfin₁.
-destruct Hfin₁ as (k₁, (αk₁, Hfin₁)).
+intros pol ns c pol₁ ns₁ c₁ m q₀ r.
+intros Hns Hm Hq₀ Hc Hpol₁ Hns₁ Hc₁ Hps₀ Hr Hr₁.
 remember Hns as H; clear HeqH.
-eapply r_n_j_0_k_n in H; try eassumption.
-destruct H as (Hj₁, (Hk₁, (Hαj₁, Hαk₁))).
-subst j₁ k₁; simpl.
-unfold Qlt in Hαj₁; simpl in Hαj₁.
-unfold Qeq in Hαk₁; simpl in Hαk₁.
-rewrite Z.mul_1_r in Hαj₁, Hαk₁.
+eapply r_n_next_ns in H; eauto .
+destruct H as (αj₁, (αk₁, H)).
+destruct H as (Hini₁, (Hfin₁, (Hαj₁, Hαk₁))).
 eapply List_hd_in in Hns₁.
  Focus 2.
  intros H; rewrite H in Hns₁; subst ns₁; simpl in Hfin₁.
@@ -994,15 +984,37 @@ eapply List_hd_in in Hns₁.
  revert Hr.
  apply multiplicity_neq_0; auto.
 
- subst q; simpl.
- unfold q_of_m; simpl.
- rewrite Hini₁, Hfin₁; simpl.
- rewrite Qnum_inv_Qnat_sub.
-  rewrite Qden_inv_Qnat_sub.
-   rewrite Nat.sub_0_r, Z.mul_1_r.
-   rewrite Hαk₁; simpl.
-   rewrite Z.add_0_r.
+ remember Hns₁ as Hqhj; clear HeqHqhj.
+ remember (Pos.to_nat (q_of_m (m * q₀) (γ ns₁))) as q.
+ eapply q_is_factor_of_h_minus_j in Hqhj; eauto .
+  2: apply List.in_or_app; right; left; symmetry; eauto .
+
+  rewrite Nat.sub_0_r in Hqhj.
+  destruct Hqhj as (d, Hd).
+  symmetry in Hd.
+  remember (q_of_m (m * q₀) (γ ns₁)) as qn eqn:Hqn .
+  subst q.
+  unfold q_of_m in Hqn; simpl in Hqn.
+  rewrite Hini₁, Hfin₁ in Hqn; simpl in Hqn.
+  rewrite Hαk₁ in Hqn; simpl in Hqn.
+  rewrite Qden_inv_Qnat_sub in Hqn.
+   rewrite Qnum_inv_Qnat_sub in Hqn.
+    rewrite Nat.sub_0_r, Z.add_0_r, Z.mul_1_r in Hqn.
+    remember (m * q₀)%positive as m₁ eqn:Hm₁ .
+    rewrite Z.mul_shuffle0 in Hqn.
+    do 2 rewrite Pos2Z.inj_mul in Hqn.
+    remember (Qnum αj₁ * ' m₁ * ' Qden αk₁)%Z as x.
+    rewrite Z.mul_shuffle0 in Hqn; subst x.
+    rewrite Z.gcd_mul_mono_r_nonneg in Hqn; auto.
+    rewrite Z.div_mul_cancel_r in Hqn; auto.
 bbb.
+  Hd : (d * Pos.to_nat qn)%nat = r
+  Hqn : qn =
+        Z.to_pos
+          (' Qden αj₁ * ' Pos.of_nat r /
+           Z.gcd (Qnum αj₁ * ' m₁) (' Qden αj₁ * ' Pos.of_nat r))
+  ============================
+   qn = 1%positive
 
 (* don't know if it is useful *)
 Lemma q_divides_r : ∀ pol ns c pol₁ ns₁ c₁ m q₀ r q,
