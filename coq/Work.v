@@ -1128,10 +1128,16 @@ eapply q_mj_mk_eq_p_h_j with (h := r) (αh := αk) in H; eauto .
  unfold Φ in H.
  rewrite Nat.sub_0_r, <- Hq in H.
  unfold has_degree in H.
- unfold poly_shrink in H.
- rewrite Hcpol in H.
- unfold pseudo_degree in H; simpl in H.
+ unfold pseudo_degree in H.
+ remember (al (poly_shrink (Pos.to_nat q) (Φq pol ns))) as psh eqn:Hpsh .
+ unfold poly_shrink in Hpsh.
+ rewrite Hcpol in Hpsh.
+ simpl in Hpsh.
  destruct H as (Hdeg, Hpdeg).
+ remember (Pos.to_nat q) as nq eqn:Hnq .
+ symmetry in Hnq.
+ destruct nq; [ exfalso; revert Hnq; apply Pos2Nat_ne_0 | idtac ].
+ destruct nq; [ apply Pos2Nat.inj; assumption | exfalso ].
 bbb.
   Hcp : (make_char_pol R 0 tl = [(- c)%K; 1%K … []] ^ r * al Ψ)%lap
   HeqΨ : length (al Ψ) = 1
