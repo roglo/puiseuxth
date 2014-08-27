@@ -2472,11 +2472,10 @@ Theorem phi_pseudo_degree_is_k_sub_j_div_q : ∀ pol ns j αj k αk q m,
   → pseudo_degree (Φ m pol ns) = ((k - j) / q)%nat.
 Proof.
 intros pol ns j αj k αk q m Hns Hj Hk Hq.
-unfold pseudo_degree, Φ.
-rewrite Φq_Φq₉; simpl.
-rewrite Nat.sub_diag; simpl.
+unfold pseudo_degree, Φ; simpl.
 rewrite <- Hj; simpl.
-rewrite nat_num_Qnat, skipn_pad.
+rewrite Nat.sub_diag, list_pad_0.
+rewrite nat_num_Qnat.
 unfold list_shrink.
 rewrite list_length_shrink; simpl.
  rewrite divmod_div.
