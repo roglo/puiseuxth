@@ -1123,7 +1123,18 @@ eapply q_mj_mk_eq_p_h_j with (h := r) (αh := αk) in H; eauto .
  rewrite positive_nat_Z in Hqjr.
  remember (p_of_m m (γ ns)) as p eqn:Hp .
  move Hp after Hq.
+ remember Hns as H; clear HeqH.
+ eapply phi_degree_is_k_sub_j_div_q in H; eauto .
+ unfold Φ in H.
+ rewrite Nat.sub_0_r, <- Hq in H.
+ unfold has_degree in H.
+ unfold poly_shrink in H.
+ rewrite Hcpol in H.
+ unfold pseudo_degree in H; simpl in H.
+ destruct H as (Hdeg, Hpdeg).
 bbb.
+  Hcp : (make_char_pol R 0 tl = [(- c)%K; 1%K … []] ^ r * al Ψ)%lap
+  HeqΨ : length (al Ψ) = 1
   Hmj : αj == mj # m
   Hqjr : (' q * mj)%Z = (p * Z.of_nat r)%Z
   ============================
