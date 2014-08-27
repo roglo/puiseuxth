@@ -740,6 +740,7 @@ remember Hns as Hini; clear HeqHini.
 apply exists_ini_pt_nat in Hini.
 destruct Hini as (j, (αj, Hini)).
 intros Hc; rewrite Hc in Happ.
+rewrite Φq_Φq₉ in Happ.
 unfold apply_poly in Happ; simpl in Happ.
 rewrite Nat.sub_diag, list_pad_0, skipn_pad in Happ.
 simpl in Happ.

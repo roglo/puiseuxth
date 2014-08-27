@@ -1095,7 +1095,8 @@ intros pol ns c Hns Hc Hr.
 apply root_multiplicity_0 in Hr; eauto .
 apply degree_eq_0_if in Hr.
 destruct Hr as [Hr| Hr].
- unfold Φq in Hr; simpl in Hr.
+ rewrite Φq_Φq₉ in Hr.
+ unfold Φq₉ in Hr; simpl in Hr.
  remember Hns as H; clear HeqH.
  apply exists_ini_pt_nat in H.
  destruct H as (j, (αj, Hini)).
@@ -1114,9 +1115,9 @@ destruct Hr as [Hr| Hr].
  exfalso; revert Hoj.
  eapply ord_coeff_non_zero_in_newt_segm; eauto .
  left; eassumption.
-
  destruct Hr as (a, (Ha, Hcpol)).
- unfold Φq in Hcpol.
+ rewrite Φq_Φq₉ in Hcpol.
+ unfold Φq₉ in Hcpol.
  remember Hns as H; clear HeqH.
  apply exists_ini_pt_nat in H.
  destruct H as (j, (αj, Hini)).

@@ -1408,6 +1408,7 @@ assert (∀ iq αi, (iq, αi) ∈ pl → ∃ i, iq = Qnat i) as Hnat.
    destruct Hfin as (k, (αk, Hfin)).
    progress unfold poly_inject_K_in_Kx.
    progress unfold lap_inject_K_in_Kx.
+   rewrite Φq_Φq₉.
    remember List.map as lm; simpl.
    rewrite Hini; simpl.
    rewrite nat_num_Qnat; simpl.
@@ -1679,8 +1680,9 @@ Theorem Ψ_length : ∀ pol ns j k αj αk c₁ r Ψ,
           → length (al Ψ) = (S (k - j) - r)%nat.
 Proof.
 intros pol ns j k αj αk c₁ r Ψ Hns Hini Hfin Hr HΨ.
-remember S as s.
-subst Ψ; simpl.
+subst Ψ.
+rewrite Φq_Φq₉.
+remember S as s; simpl.
 rewrite Hini; simpl.
 rewrite nat_num_Qnat; simpl.
 rewrite skipn_pad; simpl.

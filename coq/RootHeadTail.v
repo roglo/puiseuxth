@@ -730,6 +730,7 @@ symmetry in Hr.
 eapply f₁_orders in H; try eassumption.
 destruct H as (Hnneg, (Hpos, Hz)).
 symmetry in Hr.
+rewrite Φq_Φq₉.
 unfold root_multiplicity; simpl.
 rewrite Nat.sub_diag; simpl.
 rewrite skipn_pad; simpl.
@@ -741,7 +742,8 @@ rewrite Hpol₁ in H; simpl in H.
 clear Hpol₁; rename H into Hpol₁.
 unfold ps_poly_nth in Hps₀; rewrite <- Hla in Hps₀.
 unfold newton_segments, points_of_ps_polynom in Hns₁; rewrite <- Hla in Hns₁.
-unfold Φq, summation_ah_xh_pol, characteristic_polynomial in Hc₂.
+rewrite Φq_Φq₉ in Hc₂.
+unfold Φq₉, summation_ah_xh_pol, characteristic_polynomial in Hc₂.
 unfold term_of_point in Hc₂; rewrite <- Hla in Hc₂.
 unfold ps_poly_nth in Hnneg; rewrite <- Hla in Hnneg.
 unfold ps_poly_nth in Hpos; rewrite <- Hla in Hpos.

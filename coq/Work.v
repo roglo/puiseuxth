@@ -1214,8 +1214,10 @@ q | r
       injection Hmd; clear Hmd; intros Hpts Hpt.
       rewrite Ht in Hcpol; simpl in Hcpol.
 bbb.
+*)
 
 (* isn't it similar to multiplicity_lt_length? *)
+(*
 Theorem uuu : ∀ pol ns c j αj k αk m q r,
   ns ∈ newton_segments pol
   → pol_in_K_1_m pol m
@@ -1418,6 +1420,7 @@ bbb.
    (' Pos.of_nat r | mj)%Z
 
 Current goal could be done if I can prove that q₁ = 1.
+*)
 
 (*
 Theorem root_tail_from_0₄₂ : ∀ pol ns pol₁ ns₁ c m q₀ b r,

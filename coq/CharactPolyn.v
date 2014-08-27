@@ -111,17 +111,21 @@ Arguments ps_lap_forall α%type_scope _ _ l%pslap.
 Definition pol_in_K_1_m {α} {R : ring α} pol m :=
   ps_lap_forall (λ a, in_K_1_m a m) (al pol).
 
-Definition summation_ah_xh_pol α {R : ring α} pol ns :=
-  let j := nat_num (fst (ini_pt ns)) in
-  POL (list_pad j 0%K (al (characteristic_polynomial pol ns)))%pol.
-
 Definition Φq α {R : ring α} pol ns :=
-  let j := nat_num (fst (ini_pt ns)) in
-  poly_left_shift j (summation_ah_xh_pol pol ns).
+  characteristic_polynomial pol ns.
 
 Definition Φ α {R : ring α} m pol ns :=
   let q := Pos.to_nat (q_of_m m (γ ns)) in
   poly_shrink q (Φq pol ns).
+
+(*old version*)
+Definition summation_ah_xh_pol α {R : ring α} pol ns :=
+  let j := nat_num (fst (ini_pt ns)) in
+  POL (list_pad j 0%K (al (characteristic_polynomial pol ns)))%pol.
+Definition Φq₉ α {R : ring α} pol ns :=
+  let j := nat_num (fst (ini_pt ns)) in
+  poly_left_shift j (summation_ah_xh_pol pol ns).
+(**)
 
 Section theorems.
 
@@ -139,8 +143,7 @@ Theorem al_Φq : ∀ pol ns,
   = make_char_pol R (nat_num (fst (ini_pt ns)))
       (List.map (term_of_point pol) [ini_pt ns … oth_pts ns ++ [fin_pt ns]]).
 Proof.
-intros pol ns; simpl.
-rewrite skipn_pad, Nat.sub_diag; reflexivity.
+intros pol ns; reflexivity.
 Qed.
 
 Theorem Φq_pol : ∀ pol ns,
@@ -152,7 +155,7 @@ Theorem Φq_pol : ∀ pol ns,
 Proof.
 intros pol ns.
 unfold Φq, poly_left_shift; simpl.
-rewrite skipn_pad, Nat.sub_diag; reflexivity.
+reflexivity.
 Qed.
 
 Theorem pt_absc_is_nat : ∀ pol pts pt,
@@ -2449,6 +2452,18 @@ destruct l as [| b]; constructor.
  apply Qnat_lt; assumption.
 Qed.
 
+(* ensure compatibility with old version *)
+Theorem Φq_Φq₉ : ∀ pol ns, Φq pol ns = Φq₉ pol ns.
+Proof.
+intros pol ns.
+unfold Φq, Φq₉; simpl.
+unfold summation_ah_xh_pol.
+remember (characteristic_polynomial pol ns) as cpol; simpl.
+unfold poly_left_shift; simpl.
+rewrite skipn_pad; simpl.
+destruct cpol; reflexivity.
+Qed.
+
 Theorem phi_pseudo_degree_is_k_sub_j_div_q : ∀ pol ns j αj k αk q m,
   ns ∈ newton_segments pol
   → (Qnat j, αj) = ini_pt ns
@@ -2457,7 +2472,8 @@ Theorem phi_pseudo_degree_is_k_sub_j_div_q : ∀ pol ns j αj k αk q m,
   → pseudo_degree (Φ m pol ns) = ((k - j) / q)%nat.
 Proof.
 intros pol ns j αj k αk q m Hns Hj Hk Hq.
-unfold pseudo_degree; simpl.
+unfold pseudo_degree, Φ.
+rewrite Φq_Φq₉; simpl.
 rewrite Nat.sub_diag; simpl.
 rewrite <- Hj; simpl.
 rewrite nat_num_Qnat, skipn_pad.
