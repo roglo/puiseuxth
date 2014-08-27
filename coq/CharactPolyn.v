@@ -43,7 +43,7 @@ Definition lap_term_of_point α {R : ring α} la (pt : (Q * Q)) :=
 Definition term_of_point α {R : ring α} pol (pt : (Q * Q)) :=
   lap_term_of_point (al pol) pt.
 
-Definition characteristic_polynomial α {R : ring α} pol ns :=
+Definition Φq α {R : ring α} pol ns :=
   let pl := [ini_pt ns … oth_pts ns ++ [fin_pt ns]] in
   let tl := List.map (term_of_point pol) pl in
   let j := nat_num (fst (ini_pt ns)) in
@@ -75,9 +75,6 @@ Definition list_shrink α k (l : list α) := list_shrink_aux 0 (k - 1) l.
 
 Definition poly_shrink α k (p : polynomial α) :=
   POL (list_shrink k (al p))%pol.
-
-Definition poly_left_shift α n (p : polynomial α) :=
-  POL (List.skipn n (al p))%pol.
 
 Definition p_of_m m a :=
   let p := (Qnum a * ' m)%Z in
@@ -112,14 +109,6 @@ Arguments ps_lap_forall α%type_scope _ _ l%pslap.
 Definition pol_in_K_1_m {α} {R : ring α} pol m :=
   ps_lap_forall (λ a, in_K_1_m a m) (al pol).
 
-Definition summation_ah_xh_pol α {R : ring α} pol ns :=
-  let j := nat_num (fst (ini_pt ns)) in
-  POL (list_pad j 0%K (al (characteristic_polynomial pol ns)))%pol.
-
-Definition Φq α {R : ring α} pol ns :=
-  let j := nat_num (fst (ini_pt ns)) in
-  poly_left_shift j (summation_ah_xh_pol pol ns).
-
 Definition poly_shrinkable α (R : ring α) q pol :=
   ∀ n, n mod q ≠ O → List.nth n (al pol) 0%K = 0%K.
 
@@ -143,8 +132,7 @@ Theorem al_Φq : ∀ pol ns,
   = make_char_pol R (nat_num (fst (ini_pt ns)))
       (List.map (term_of_point pol) [ini_pt ns … oth_pts ns ++ [fin_pt ns]]).
 Proof.
-intros pol ns; simpl.
-rewrite skipn_pad, Nat.sub_diag; reflexivity.
+intros pol ns; reflexivity.
 Qed.
 
 Theorem Φq_pol : ∀ pol ns,
@@ -155,8 +143,8 @@ Theorem Φq_pol : ∀ pol ns,
             [ini_pt ns … oth_pts ns ++ [fin_pt ns]]))%pol.
 Proof.
 intros pol ns.
-unfold Φq, poly_left_shift; simpl.
-rewrite skipn_pad, Nat.sub_diag; reflexivity.
+unfold Φq; simpl.
+reflexivity.
 Qed.
 
 Theorem pt_absc_is_nat : ∀ pol pts pt,
@@ -2496,10 +2484,10 @@ split.
 bbb.
 
 intros pol ns j αj k αk q m Hns Hj Hk Hq.
-unfold pseudo_degree; simpl.
-rewrite Nat.sub_diag; simpl.
+unfold pseudo_degree, Φs; simpl.
 rewrite <- Hj; simpl.
-rewrite nat_num_Qnat, skipn_pad.
+rewrite Nat.sub_diag, list_pad_0.
+rewrite nat_num_Qnat.
 unfold list_shrink.
 rewrite list_length_shrink; simpl.
  rewrite divmod_div.

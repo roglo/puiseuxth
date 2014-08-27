@@ -1964,13 +1964,11 @@ eapply q_is_factor_of_h_minus_j with (h := k) in Hqkj; try eassumption.
   unfold pseudo_degree in Hdeg.
   unfold degree.
   remember (al (Φ m pol ns)) as la eqn:Hla .
-  simpl in Hla.
+  unfold Φ in Hla; simpl in Hla.
   rewrite Nat.sub_diag in Hla; simpl in Hla.
-  rewrite skipn_pad in Hla.
   rewrite <- Hj in Hla; simpl in Hla.
   rewrite nat_num_Qnat in Hla; simpl.
-  rewrite Nat.sub_diag; simpl.
-  rewrite skipn_pad.
+  rewrite Nat.sub_diag, list_pad_0.
   rewrite <- Hj; unfold fst.
   rewrite nat_num_Qnat.
   remember (order_coeff (List.nth j (al pol) 0%ps)) as v eqn:Hv .

@@ -1412,7 +1412,6 @@ assert (∀ iq αi, (iq, αi) ∈ pl → ∃ i, iq = Qnat i) as Hnat.
    rewrite Hini; simpl.
    rewrite nat_num_Qnat; simpl.
    rewrite Nat.sub_diag; simpl.
-   rewrite skipn_pad; simpl.
    progress unfold ps_pol_eq, eq_poly; simpl.
    rewrite fold_char_pol with (αj := αj); rewrite <- Hini, <- Hpl.
    subst lm; simpl.
@@ -1679,11 +1678,10 @@ Theorem Ψ_length : ∀ pol ns j k αj αk c₁ r Ψ,
           → length (al Ψ) = (S (k - j) - r)%nat.
 Proof.
 intros pol ns j k αj αk c₁ r Ψ Hns Hini Hfin Hr HΨ.
-remember S as s.
-subst Ψ; simpl.
+subst Ψ.
+remember S as s; simpl.
 rewrite Hini; simpl.
 rewrite nat_num_Qnat; simpl.
-rewrite skipn_pad; simpl.
 rewrite Nat.sub_diag; simpl.
 rewrite fold_char_pol with (αj := αj).
 rewrite <- Hini.

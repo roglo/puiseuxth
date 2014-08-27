@@ -1104,10 +1104,7 @@ destruct Hr as [Hr| Hr].
  rewrite nat_num_Qnat in Hr.
  unfold eq_poly in Hr.
  simpl in Hr.
- rewrite Hini in Hr; simpl in Hr.
- rewrite nat_num_Qnat in Hr.
  rewrite Nat.sub_diag in Hr.
- rewrite skipn_pad in Hr.
  rewrite list_pad_0 in Hr.
  apply lap_eq_cons_nil_inv in Hr.
  destruct Hr as (Hoj, Hcpol).
@@ -1116,19 +1113,14 @@ destruct Hr as [Hr| Hr].
  left; eassumption.
 
  destruct Hr as (a, (Ha, Hcpol)).
- unfold Φq in Hcpol.
+ unfold Φq in Hcpol; simpl in Hcpol.
  remember Hns as H; clear HeqH.
  apply exists_ini_pt_nat in H.
  destruct H as (j, (αj, Hini)).
- unfold summation_ah_xh_pol in Hcpol.
- simpl in Hcpol.
  rewrite Hini in Hcpol; simpl in Hcpol.
  rewrite nat_num_Qnat in Hcpol.
  rewrite Nat.sub_diag in Hcpol.
  simpl in Hcpol.
- unfold poly_left_shift in Hcpol.
- simpl in Hcpol.
- rewrite skipn_pad in Hcpol.
  unfold eq_poly in Hcpol; simpl in Hcpol.
  apply lap_eq_cons_inv in Hcpol.
  destruct Hcpol as (Hoa, Hcpol).

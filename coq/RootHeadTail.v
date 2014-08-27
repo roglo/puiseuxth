@@ -732,7 +732,6 @@ destruct H as (Hnneg, (Hpos, Hz)).
 symmetry in Hr.
 unfold root_multiplicity; simpl.
 rewrite Nat.sub_diag; simpl.
-rewrite skipn_pad; simpl.
 remember (al pol₁) as la eqn:Hla .
 unfold term_of_point; rewrite <- Hla.
 unfold next_pol in Hpol₁.
@@ -741,7 +740,7 @@ rewrite Hpol₁ in H; simpl in H.
 clear Hpol₁; rename H into Hpol₁.
 unfold ps_poly_nth in Hps₀; rewrite <- Hla in Hps₀.
 unfold newton_segments, points_of_ps_polynom in Hns₁; rewrite <- Hla in Hns₁.
-unfold Φq, summation_ah_xh_pol, characteristic_polynomial in Hc₂.
+unfold Φq in Hc₂.
 unfold term_of_point in Hc₂; rewrite <- Hla in Hc₂.
 unfold ps_poly_nth in Hnneg; rewrite <- Hla in Hnneg.
 unfold ps_poly_nth in Hpos; rewrite <- Hla in Hpos.
@@ -754,8 +753,7 @@ remember (points_of_ps_lap la) as pts eqn:Hpts .
 unfold points_of_ps_lap in Hpts.
 unfold points_of_ps_lap_gen in Hpts.
 clear pol₁ Hla; simpl in Hc₂.
-unfold poly_left_shift in Hc₂; simpl in Hc₂.
-rewrite skipn_pad, Nat.sub_diag, list_pad_0 in Hc₂.
+rewrite Nat.sub_diag, list_pad_0 in Hc₂.
 assert (nat_num (fst (ini_pt ns₁)) = 0)%nat as Hini.
  destruct pts as [| pt₁]; [ subst ns₁; reflexivity | idtac ].
  destruct pts as [| pt₂]; [ subst ns₁; reflexivity | idtac ].
