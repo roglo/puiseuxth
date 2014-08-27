@@ -2026,9 +2026,8 @@ Qed.
 
 Lemma list_root_mul_power_quotient : ∀ la c r len,
   list_root_multiplicity acf c la len = r
-  → lap_eq la
-       (lap_mul (lap_power [(- c)%K; 1%K … []] r)
-       (list_quotient_phi_x_sub_c_pow_r R la c r)).
+  → (la =
+     [(- c)%K; 1%K … []] ^ r * list_quotient_phi_x_sub_c_pow_r R la c r)%lap.
 Proof.
 intros la c r len Hmult.
 revert la len Hmult.
