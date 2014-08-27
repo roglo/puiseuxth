@@ -733,16 +733,15 @@ Theorem char_pol_root_ne_0 : ∀ pol ns m c₁,
 Proof.
 intros pol ns m c₁ Hns Hm Hc₁.
 remember Hns as Happ; clear HeqHapp.
-eapply cpol_degree_ge_1 with (K := K) (acf := acf) in Happ; eauto.
+eapply cpol_degree_ge_1 with (K := K) (acf := acf) in Happ; eauto .
 apply ac_prop_root in Happ.
 rewrite <- Hc₁ in Happ.
 remember Hns as Hini; clear HeqHini.
 apply exists_ini_pt_nat in Hini.
 destruct Hini as (j, (αj, Hini)).
 intros Hc; rewrite Hc in Happ.
-rewrite Φq_Φq₉ in Happ.
 unfold apply_poly in Happ; simpl in Happ.
-rewrite Nat.sub_diag, list_pad_0, skipn_pad in Happ.
+rewrite Nat.sub_diag, list_pad_0 in Happ.
 simpl in Happ.
 rewrite rng_mul_0_r, rng_add_0_l in Happ.
 revert Happ.
