@@ -1074,20 +1074,64 @@ Theorem ttt : ∀ pol ns c αj αk m q r,
   → r = root_multiplicity acf c (Φq pol ns)
   → ini_pt ns = (Qnat 0, αj)
   → fin_pt ns = (Qnat r, αk)
+  → (0 < Qnum αj)%Z
+  → Qnum αk = 0%Z
   → q = 1%positive.
 Proof.
-intros pol ns c αj αk m q r Hns Hm Hq Hc Hr Hini Hfin.
+intros pol ns c αj αk m q r Hns Hm Hq Hc Hr Hini Hfin Hαj Hαk.
+remember Hr as Hrv; clear HeqHrv.
+remember (al (Φq pol ns)) as cpol eqn:Hcpol .
+remember Hcpol as H; clear HeqH.
+rewrite al_Φq in H.
+remember [ini_pt ns … oth_pts ns ++ [fin_pt ns]] as pl eqn:Hpl .
+remember (List.map (term_of_point pol) pl) as tl eqn:Htl .
+rewrite Hini in H.
+simpl in H.
+rewrite nat_num_Qnat in H; simpl in H.
+subst cpol.
+rename H into Hcpol.
 unfold root_multiplicity in Hr.
-rewrite al_Φq in Hr.
+rewrite Hcpol in Hr.
 erewrite length_char_pol in Hr; eauto .
- remember [ini_pt ns … oth_pts ns ++ [fin_pt ns]] as pl eqn:Hpl .
- remember (List.map (term_of_point pol) pl) as tl eqn:Htl .
- rewrite Hini in Hr.
- remember S as s; simpl in Hr; subst s.
- rewrite nat_num_Qnat in Hr.
- remember (make_char_pol R 0 tl) as cpol eqn:Hcpol .
- rewrite Nat.sub_0_r in Hr.
+rewrite <- Hcpol in Hr.
+rewrite Nat.sub_0_r in Hr.
+remember Hrv as H; clear HeqH.
+eapply phi_zq_eq_z_sub_c₁_psy in H; eauto .
+unfold eq_poly in H.
+rewrite Hcpol in H.
+remember quotient_phi_x_sub_c_pow_r as f; simpl in H; subst f.
+remember (quotient_phi_x_sub_c_pow_r (Φq pol ns) c r) as Ψ.
+eapply Ψ_length in HeqΨ; eauto .
+rewrite Nat.sub_0_r, minus_Sn_n in HeqΨ.
+rename H into Hcp.
+remember Hns as H; clear HeqH.
+eapply q_mj_mk_eq_p_h_j with (h := r) (αh := αk) in H; eauto .
+ rewrite <- Hq, Nat.sub_0_r in H.
+ remember (mh_of_m m αj (ps_poly_nth 0 pol)) as mj eqn:Hmj .
+ eapply pol_ord_of_ini_pt in Hmj; eauto .
+ remember (mh_of_m m αk (ps_poly_nth r pol)) as mk eqn:Hmk .
+ eapply pol_ord_of_fin_pt in Hmk; eauto .
+ destruct H as (_, Hqjr).
+ unfold Qeq in Hmk.
+ simpl in Hmk.
+ rewrite Hαk in Hmk.
+ simpl in Hmk.
+ symmetry in Hmk.
+ apply Z.mul_eq_0_l in Hmk; auto.
+ subst mk.
+ rewrite Z.sub_0_r in Hqjr.
+ rewrite positive_nat_Z in Hqjr.
+ remember (p_of_m m (γ ns)) as p eqn:Hp .
+ move Hp after Hq.
 bbb.
+  Hmj : αj == mj # m
+  Hqjr : (' q * mj)%Z = (p * Z.of_nat r)%Z
+  ============================
+   q = 1%positive
+
+p | mj
+q | r
+
  revert pol ns c αj αk m q pl tl cpol Hns Hm Hq Hc Hini Hfin Hpl Htl Hcpol Hr.
  induction r; intros.
   remember Hns as H; clear HeqH.
