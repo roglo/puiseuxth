@@ -15,6 +15,7 @@ Require Import PSpolynomial.
 Require Import Puiseux_base.
 Require Import Power_series.
 Require Import Puiseux_series.
+Require Import Ps_div.
 Require Import Slope_base.
 
 Set Implicit Arguments.
@@ -119,8 +120,11 @@ Definition Φq α {R : ring α} pol ns :=
   let j := nat_num (fst (ini_pt ns)) in
   poly_left_shift j (summation_ah_xh_pol pol ns).
 
-Definition Φ α {R : ring α} m pol ns :=
-  let q := Pos.to_nat (q_of_m m (γ ns)) in
+Definition poly_shrinkable α (R : ring α) q pol :=
+  ∀ n, n mod q ≠ O → List.nth n (al pol) 0%K = 0%K.
+
+(* usable only if poly_shrinkable q (Φq pol ns) *)
+Definition Φs α {R : ring α} q pol ns :=
   poly_shrink q (Φq pol ns).
 
 Section theorems.
@@ -2454,8 +2458,43 @@ Theorem phi_pseudo_degree_is_k_sub_j_div_q : ∀ pol ns j αj k αk q m,
   → (Qnat j, αj) = ini_pt ns
   → (Qnat k, αk) = fin_pt ns
   → q = Pos.to_nat (q_of_m m (γ ns))
-  → pseudo_degree (Φ m pol ns) = ((k - j) / q)%nat.
+  → poly_shrinkable R q (Φq pol ns)
+     ∧ pseudo_degree (Φs q pol ns) = ((k - j) / q)%nat.
 Proof.
+intros pol ns j αj k αk q m Hns Hj Hk Hq.
+split.
+ unfold poly_shrinkable; intros n Hn.
+ rewrite al_Φq.
+ remember [ini_pt ns … oth_pts ns ++ [fin_pt ns]] as pl eqn:Hpl .
+ remember (List.map (term_of_point pol) pl) as tl eqn:Htl .
+ rewrite <- Hj; simpl.
+ rewrite nat_num_Qnat.
+ revert n Hn.
+ revert j αj Hj.
+ induction tl as [| t]; intros; [ destruct n; reflexivity | simpl ].
+ destruct (lt_dec n (power t - j)) as [H₁| H₁].
+  rewrite list_nth_pad_lt; auto.
+
+  apply Nat.nlt_ge in H₁.
+  rewrite list_nth_pad_sub; auto.
+  remember (n - (power t - j))%nat as ntj eqn:Hntj .
+  symmetry in Hntj.
+  rewrite Hpl in Htl; simpl in Hpl.
+  unfold term_of_point in Htl; simpl in Htl.
+  injection Htl; clear Htl; intros Htl Ht.
+  rewrite <- Hj in Ht; simpl in Ht.
+  unfold lap_term_of_point in Ht; simpl in Ht.
+  rewrite nat_num_Qnat in Ht.
+  subst t; simpl in H₁, Hntj; simpl.
+  rewrite Nat.sub_diag, Nat.sub_0_r in Hntj.
+  subst ntj; clear H₁.
+  destruct n.
+   rewrite Nat.mod_0_l in Hn.
+    exfalso; apply Hn; reflexivity.
+
+    rewrite Hq; apply Pos2Nat_ne_0.
+bbb.
+
 intros pol ns j αj k αk q m Hns Hj Hk Hq.
 unfold pseudo_degree; simpl.
 rewrite Nat.sub_diag; simpl.
@@ -2469,6 +2508,7 @@ rewrite list_length_shrink; simpl.
   rewrite List.map_app; simpl.
   rewrite length_char_pol_succ.
    rewrite <- Hk; simpl.
+bbb.
    rewrite nat_num_Qnat; reflexivity.
 
    remember (oth_pts ns) as opts eqn:Hopts .
