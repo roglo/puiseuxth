@@ -16,7 +16,7 @@ Section theorem_add_compat.
 Variable α : Type.
 Variable r : ring α.
 
-Lemma series_nth_0_series_nth_shift_0 : ∀ s n,
+Theorem series_nth_0_series_nth_shift_0 : ∀ s n,
   (∀ i, (s .[i] = 0)%K)
   → ∀ i, ((series_shift n s) .[i] = 0)%K.
 Proof.
@@ -25,7 +25,7 @@ destruct (lt_dec i n) as [| H₁]; [ reflexivity | idtac ].
 apply H.
 Qed.
 
-Lemma normalise_series_add_shift : ∀ s n m k,
+Theorem normalise_series_add_shift : ∀ s n m k,
   (normalise_series (n + m) k (series_shift m s) =
    normalise_series n k s)%ser.
 Proof.
@@ -42,7 +42,7 @@ destruct (lt_dec (n + m + i * Pos.to_nat k) m) as [H₂| H₂].
  rewrite Nat.add_comm; reflexivity.
 Qed.
 
-Lemma eq_strong_ps_add_compat_r : ∀ ps₁ ps₂ ps₃,
+Theorem eq_strong_ps_add_compat_r : ∀ ps₁ ps₂ ps₃,
   eq_ps_strong ps₁ ps₂
   → eq_ps_strong (ps₁ + ps₃)%ps (ps₂ + ps₃)%ps.
 Proof.
@@ -65,7 +65,7 @@ constructor; simpl.
  reflexivity.
 Qed.
 
-Lemma eq_strong_ps_add_compat_l : ∀ ps₁ ps₂ ps₃,
+Theorem eq_strong_ps_add_compat_l : ∀ ps₁ ps₂ ps₃,
   (ps₁ ≐ ps₂)%ps
   → (ps₃ + ps₁ ≐ ps₃ + ps₂)%ps.
 Proof.
@@ -75,7 +75,7 @@ rewrite eq_strong_ps_add_comm; symmetry.
 apply eq_strong_ps_add_compat_r; assumption.
 Qed.
 
-Lemma ps_adjust_adjust : ∀ ps n₁ n₂ k₁ k₂,
+Theorem ps_adjust_adjust : ∀ ps n₁ n₂ k₁ k₂,
   eq_ps_strong (adjust_ps n₁ k₁ (adjust_ps n₂ k₂ ps))
     (adjust_ps (n₁ + n₂ * Pos.to_nat k₁) (k₁ * k₂) ps).
 Proof.
@@ -98,7 +98,7 @@ constructor; simpl.
  reflexivity.
 Qed.
 
-Lemma ps_adjust_adjusted : ∀ ps₁ ps₂ n k,
+Theorem ps_adjust_adjusted : ∀ ps₁ ps₂ n k,
   eq_ps_strong (adjust_ps n k (adjusted_ps_add ps₁ ps₂))
     (adjusted_ps_add (adjust_ps n k ps₁) (adjust_ps n k ps₂)).
 Proof.
@@ -109,7 +109,7 @@ rewrite series_shift_add_distr.
 reflexivity.
 Qed.
 
-Lemma eq_strong_ps_add_adjust_0_l : ∀ ps₁ ps₂ k,
+Theorem eq_strong_ps_add_adjust_0_l : ∀ ps₁ ps₂ k,
   normalise_ps (ps₁ + ps₂)%ps ≐
   normalise_ps (adjust_ps 0 k ps₁ + ps₂)%ps.
 Proof.
@@ -138,7 +138,7 @@ rewrite Pos_mul_shuffle0, <- Hy.
 reflexivity.
 Qed.
 
-Lemma normalise_ps_adjust : ∀ ps₁ ps₂ n,
+Theorem normalise_ps_adjust : ∀ ps₁ ps₂ n,
   normalise_ps (adjusted_ps_add (adjust_ps n 1 ps₁) (adjust_ps n 1 ps₂))
   ≐ normalise_ps (adjusted_ps_add ps₁ ps₂).
 Proof.
@@ -202,7 +202,7 @@ constructor; simpl.
  reflexivity.
 Qed.
 
-Lemma normalise_ps_adjust_add : ∀ ps₁ ps₂ n n₁ n₂ k₁ k₂,
+Theorem normalise_ps_adjust_add : ∀ ps₁ ps₂ n n₁ n₂ k₁ k₂,
   normalise_ps
     (adjusted_ps_add
        (adjust_ps (n + n₁) k₁ ps₁)
@@ -227,7 +227,7 @@ replace (n + n₁)%nat with (n + n₁ * Pos.to_nat 1)%nat .
  rewrite Nat.mul_1_r; reflexivity.
 Qed.
 
-Lemma normalise_ps_add_adjust : ∀ ps₁ ps₂ n k m,
+Theorem normalise_ps_add_adjust : ∀ ps₁ ps₂ n k m,
   normalise_ps (adjust_ps m k ps₁ + ps₂)%ps ≐
   normalise_ps (adjust_ps n k ps₁ + ps₂)%ps.
 Proof.
@@ -364,7 +364,7 @@ rewrite <- Z2Nat.inj_add.
  apply Pos2Z.is_nonneg.
 Qed.
 
-Lemma normalise_ps_add_adjust_l : ∀ ps₁ ps₂ n k,
+Theorem normalise_ps_add_adjust_l : ∀ ps₁ ps₂ n k,
   normalise_ps (ps₁ + ps₂)%ps ≐
   normalise_ps (adjust_ps n k ps₁ + ps₂)%ps.
 Proof.
@@ -373,7 +373,7 @@ rewrite eq_strong_ps_add_adjust_0_l with (k := k).
 apply normalise_ps_add_adjust.
 Qed.
 
-Lemma normalised_exists_adjust : ∀ ps ps₁,
+Theorem normalised_exists_adjust : ∀ ps ps₁,
   null_coeff_range_length r (ps_terms ps) 0 ≠ ∞
   → normalise_ps ps = ps₁
     → ∃ n k, eq_ps_strong ps (adjust_ps n k ps₁).
@@ -468,7 +468,7 @@ Qed.
 Definition ps_neg_zero :=
   {| ps_terms := 0%ser; ps_ordnum := -1; ps_polord := 1 |}.
 
-Lemma eq_strong_ps_adjust_zero_neg_zero : ∀ ps,
+Theorem eq_strong_ps_adjust_zero_neg_zero : ∀ ps,
   null_coeff_range_length r (ps_terms ps) 0 = ∞
   → ∃ n₁ n₂ k₁ k₂,
     eq_ps_strong (adjust_ps n₁ k₁ ps) (adjust_ps n₂ k₂ ps_neg_zero).
@@ -525,7 +525,7 @@ destruct (Z_le_dec 0 (ps_ordnum ps)) as [H₁| H₁].
    assumption.
 Qed.
 
-Lemma null_coeff_range_length_inf_compat : ∀ ps₁ ps₂,
+Theorem null_coeff_range_length_inf_compat : ∀ ps₁ ps₂,
   normalise_ps ps₁ ≐ normalise_ps ps₂
   → null_coeff_range_length r (ps_terms ps₁) 0 = ∞
     → null_coeff_range_length r (ps_terms ps₂) 0 = ∞.
@@ -537,7 +537,7 @@ inversion Hinf; constructor.
 rewrite <- Heq, H; reflexivity.
 Qed.
 
-Lemma ps_normal_add_compat_r : ∀ ps₁ ps₂ ps₃,
+Theorem ps_normal_add_compat_r : ∀ ps₁ ps₂ ps₃,
   normalise_ps ps₁ ≐ normalise_ps ps₂
   → normalise_ps (ps₁ + ps₃)%ps ≐ normalise_ps (ps₂ + ps₃)%ps.
 Proof.

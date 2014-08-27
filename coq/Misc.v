@@ -24,13 +24,13 @@ Set Implicit Arguments.
 
 Definition Qnat i := Z.of_nat i # 1.
 
-Lemma minus_Sn_n : ∀ n, (S n - n = 1)%nat.
+Theorem minus_Sn_n : ∀ n, (S n - n = 1)%nat.
 Proof.
 intros n.
 rewrite <- minus_Sn_m; [ rewrite minus_diag; reflexivity | apply le_n ].
 Qed.
 
-Lemma le_neq_lt : ∀ x y : nat, x ≤ y → x ≠ y → (x < y)%nat.
+Theorem le_neq_lt : ∀ x y : nat, x ≤ y → x ≠ y → (x < y)%nat.
 Proof.
 intros x y Hxy Hnxy.
 apply le_lt_eq_dec in Hxy.
@@ -38,7 +38,7 @@ destruct Hxy; [ assumption | idtac ].
 exfalso; subst x; apply Hnxy; reflexivity.
 Qed.
 
-Lemma Qle_neq_lt : ∀ x y, x <= y → ¬ x == y → x < y.
+Theorem Qle_neq_lt : ∀ x y, x <= y → ¬ x == y → x < y.
 Proof.
 intros x y Hxy Hnxy.
 apply Qnot_le_lt.
@@ -46,7 +46,7 @@ intros H; apply Hnxy.
 apply Qle_antisym; assumption.
 Qed.
 
-Lemma rev_app_not_nil {α} : ∀ (x : α) l₁ l₂, List.rev l₁ ++ [x … l₂] ≠ [ ].
+Theorem rev_app_not_nil {α} : ∀ (x : α) l₁ l₂, List.rev l₁ ++ [x … l₂] ≠ [ ].
 Proof.
 intros x l₁ l₂.
 revert x l₂.
@@ -57,7 +57,7 @@ induction l₁ as [| y]; intros x l₂.
  apply IHl₁.
 Qed.
 
-Lemma Qmutual_shift_div : ∀ x y z t,
+Theorem Qmutual_shift_div : ∀ x y z t,
   0 < y
   → 0 < t
     → x / y < z / t
@@ -80,21 +80,21 @@ rewrite Qmult_div_r in H.
  intros HH; rewrite HH in Hb; apply Qlt_irrefl in Hb; contradiction.
 Qed.
 
-Lemma Qdiv_lt_compat_r : ∀ x y z, 0 < z → x < y → x / z < y / z.
+Theorem Qdiv_lt_compat_r : ∀ x y z, 0 < z → x < y → x / z < y / z.
 Proof.
 intros x y z Hc H.
 apply Qmult_lt_compat_r; [ idtac | assumption ].
 apply Qinv_lt_0_compat; assumption.
 Qed.
 
-Lemma Qdiv_lt_reg_r : ∀ x y z, 0 < z → x / z < y / z → x < y.
+Theorem Qdiv_lt_reg_r : ∀ x y z, 0 < z → x / z < y / z → x < y.
 Proof.
 intros x y z Hc H.
 apply Qmutual_shift_div in H; [ idtac | assumption | assumption ].
 apply Qmult_lt_r in H; assumption.
 Qed.
 
-Lemma Qdiv_minus_distr_r : ∀ x y z, (x - y) / z == x / z - y / z.
+Theorem Qdiv_minus_distr_r : ∀ x y z, (x - y) / z == x / z - y / z.
 Proof.
 intros x y z.
 destruct (Qeq_dec z 0) as [Heq| Hne].
@@ -106,7 +106,7 @@ destruct (Qeq_dec z 0) as [Heq| Hne].
  field; assumption.
 Qed.
 
-Lemma Qdiv_plus_distr_r : ∀ x y z, (x + y) / z == x / z + y / z.
+Theorem Qdiv_plus_distr_r : ∀ x y z, (x + y) / z == x / z + y / z.
 Proof.
 intros x y z.
 destruct (Qeq_dec z 0) as [Heq| Hne].
@@ -118,19 +118,19 @@ destruct (Qeq_dec z 0) as [Heq| Hne].
  field; assumption.
 Qed.
 
-Lemma Qeq_opp_l : ∀ x y, - x == - y → x == y.
+Theorem Qeq_opp_l : ∀ x y, - x == - y → x == y.
 Proof.
 intros x y H.
 rewrite <- Qopp_opp, H.
 apply Qopp_opp.
 Qed.
 
-Lemma Qeq_opp_r : ∀ x y, x == y → - x == - y.
+Theorem Qeq_opp_r : ∀ x y, x == y → - x == - y.
 Proof.
 intros x y H; rewrite H; reflexivity.
 Qed.
 
-Lemma Qgt_0_not_0 : ∀ x, 0 < x → ¬x == 0.
+Theorem Qgt_0_not_0 : ∀ x, 0 < x → ¬x == 0.
 Proof.
 intros x Ha.
 intros H.
@@ -138,7 +138,7 @@ rewrite H in Ha.
 apply Qlt_irrefl in Ha; assumption.
 Qed.
 
-Lemma Qlt_minus : ∀ x y, x < y → 0 < y - x.
+Theorem Qlt_minus : ∀ x y, x < y → 0 < y - x.
 Proof.
 intros x y H.
 unfold Qlt in H |-*; simpl.
@@ -147,7 +147,7 @@ apply Zlt_left_lt.
 assumption.
 Qed.
 
-Lemma Qminus_eq : ∀ x y, x - y == 0 → x == y.
+Theorem Qminus_eq : ∀ x y, x - y == 0 → x == y.
 Proof.
 intros x y H.
 apply Qplus_inj_r with (z := - y).
@@ -155,10 +155,10 @@ rewrite Qplus_opp_r.
 assumption.
 Qed.
 
-Lemma Qmult_div_assoc : ∀ x y z, x * (y / z) == (x * y) / z.
+Theorem Qmult_div_assoc : ∀ x y z, x * (y / z) == (x * y) / z.
 Proof. intros x y z; unfold Qdiv; apply Qmult_assoc. Qed.
 
-Lemma Qmult_opp_l : ∀ x y, (- x) * y == - (x * y).
+Theorem Qmult_opp_l : ∀ x y, (- x) * y == - (x * y).
 Proof.
 intros x y.
 unfold Qeq, Qmult, Qopp; simpl.
@@ -166,7 +166,7 @@ rewrite Z.mul_opp_l.
 reflexivity.
 Qed.
 
-Lemma Qmult_opp_r : ∀ x y, x * - y == - (x * y).
+Theorem Qmult_opp_r : ∀ x y, x * - y == - (x * y).
 Proof.
 intros x y.
 unfold Qeq, Qmult, Qopp; simpl.
@@ -174,7 +174,7 @@ rewrite Z.mul_opp_r.
 reflexivity.
 Qed.
 
-Lemma Qmult_minus_distr_l : ∀ x y z, (x - y) * z == x * z - y * z.
+Theorem Qmult_minus_distr_l : ∀ x y z, (x - y) * z == x * z - y * z.
 Proof.
 intros x y z.
 unfold Qminus.
@@ -182,7 +182,7 @@ rewrite Qmult_plus_distr_l.
 rewrite Qmult_opp_l; reflexivity.
 Qed.
 
-Lemma Qmult_minus_distr_r : ∀ x y z, x * (y - z) == x * y - x * z.
+Theorem Qmult_minus_distr_r : ∀ x y z, x * (y - z) == x * y - x * z.
 Proof.
 intros x y z.
 unfold Qminus.
@@ -190,7 +190,7 @@ rewrite Qmult_plus_distr_r.
 rewrite Qmult_opp_r; reflexivity.
 Qed.
 
-Lemma QZ_plus : ∀ x y z, x + y # z == (x # z) + (y # z).
+Theorem QZ_plus : ∀ x y z, x + y # z == (x # z) + (y # z).
 Proof.
 intros x y z.
 unfold Qplus; simpl.
@@ -198,7 +198,7 @@ unfold Qeq; simpl.
 rewrite Pos2Z.inj_mul; ring.
 Qed.
 
-Lemma QZ_minus : ∀ x y, x - y # 1 == (x # 1) - (y # 1).
+Theorem QZ_minus : ∀ x y, x - y # 1 == (x # 1) - (y # 1).
 Proof.
 intros.
 unfold Qminus, Qplus, Zminus; simpl.
@@ -218,7 +218,7 @@ intros i j; split; intros H.
  apply Nat2Z.inj_lt in H; assumption.
 Qed.
 
-Lemma Qnat_le : ∀ i j, (i ≤ j)%nat → Qnat i <= Qnat j.
+Theorem Qnat_le : ∀ i j, (i ≤ j)%nat → Qnat i <= Qnat j.
 Proof.
 intros i j H.
 unfold Qnat, Qle; simpl.
@@ -226,14 +226,14 @@ do 2 rewrite Zmult_1_r.
 apply inj_le; assumption.
 Qed.
 
-Lemma Qlt_not_0 : ∀ x y, x < y → ¬ y - x == 0.
+Theorem Qlt_not_0 : ∀ x y, x < y → ¬ y - x == 0.
 Proof.
 intros i j H HH.
 apply Qminus_eq in HH.
 rewrite HH in H; apply Qlt_irrefl in H; contradiction.
 Qed.
 
-Lemma Qopp_lt_compat: ∀ p q : Q, p < q → - q < - p.
+Theorem Qopp_lt_compat: ∀ p q : Q, p < q → - q < - p.
 Proof.
 intros (x₁, x₂) (y₁, y₂); unfold Qlt; simpl; intros H.
 apply Z.opp_lt_mono.
@@ -242,26 +242,26 @@ do 2 rewrite Z.opp_involutive.
 assumption.
 Qed.
 
-Lemma Qopp_minus : ∀ x y, - (x - y) == y - x.
+Theorem Qopp_minus : ∀ x y, - (x - y) == y - x.
 Proof. intros; field. Qed.
 
-Lemma Qplus_div : ∀ x y z, ¬(z == 0) → x + y / z == (x * z + y) / z.
+Theorem Qplus_div : ∀ x y z, ¬(z == 0) → x + y / z == (x * z + y) / z.
 Proof.
 intros x y z Hc.
 rewrite Qdiv_plus_distr_r.
 rewrite Qdiv_mult_l; [ reflexivity | assumption ].
 Qed.
 
-Lemma Qminus_minus_assoc : ∀ x y z, x - (y - z) == (x - y) + z.
+Theorem Qminus_minus_assoc : ∀ x y z, x - (y - z) == (x - y) + z.
 Proof. intros x y z; ring. Qed.
 
-Lemma Qminus_plus_assoc : ∀ x y z, x - (y + z) == (x - y) - z.
+Theorem Qminus_plus_assoc : ∀ x y z, x - (y + z) == (x - y) - z.
 Proof. intros x y z; ring. Qed.
 
-Lemma Qplus_minus_assoc : ∀ x y z, x + (y - z) == (x + y) - z.
+Theorem Qplus_minus_assoc : ∀ x y z, x + (y - z) == (x + y) - z.
 Proof. intros x y z; ring. Qed.
 
-Lemma Zposnat2Znat : ∀ i, (0 < i)%nat → Zpos (Pos.of_nat i) = Z.of_nat i.
+Theorem Zposnat2Znat : ∀ i, (0 < i)%nat → Zpos (Pos.of_nat i) = Z.of_nat i.
 Proof.
 intros i Hi.
 destruct i; [ apply lt_irrefl in Hi; contradiction | clear Hi ].
@@ -272,16 +272,16 @@ Qed.
 
 (* *)
 
-Lemma Qplus_plus_swap : ∀ x y z, x + y + z == x + z + y.
+Theorem Qplus_plus_swap : ∀ x y z, x + y + z == x + z + y.
 Proof. intros; ring. Qed.
 
-Lemma Qplus_minus_swap : ∀ x y z, x + y - z == x - z + y.
+Theorem Qplus_minus_swap : ∀ x y z, x + y - z == x - z + y.
 Proof. intros; ring. Qed.
 
-Lemma Qminus_minus_swap : ∀ x y z, x - y - z == x - z - y.
+Theorem Qminus_minus_swap : ∀ x y z, x - y - z == x - z - y.
 Proof. intros; ring. Qed.
 
-Lemma Qplus_lt_compat_r : ∀ x y z, x < y → x + z < y + z.
+Theorem Qplus_lt_compat_r : ∀ x y z, x < y → x + z < y + z.
 Proof.
 intros (x₁, x₂) (y₁, y₂) (z₁, z₂) H.
 unfold Qlt in H; simpl in H.
@@ -306,7 +306,7 @@ rewrite <- Pos2Z.inj_mul.
 apply Pos2Z.is_pos.
 Qed.
 
-Lemma Qminus_lt_lt_plus_r : ∀ x y z, x - y < z → x < z + y.
+Theorem Qminus_lt_lt_plus_r : ∀ x y z, x - y < z → x < z + y.
 Proof.
 intros x y z H.
 apply Qplus_lt_compat_r with (z := y) in H.
@@ -316,7 +316,7 @@ rewrite Qplus_opp_r, Qplus_0_r in H.
 assumption.
 Qed.
 
-Lemma Qlt_minus_plus_lt_r : ∀ x y z, x < y - z → x + z < y.
+Theorem Qlt_minus_plus_lt_r : ∀ x y z, x < y - z → x + z < y.
 Proof.
 intros x y z H.
 apply Qplus_lt_compat_r with (z := z) in H.
@@ -329,14 +329,14 @@ Qed.
 
 (* to be inserted *)
 
-Lemma Qmult_div_swap : ∀ x y z, x / y * z == x * z / y.
+Theorem Qmult_div_swap : ∀ x y z, x / y * z == x * z / y.
 Proof.
 intros.
 rewrite Qmult_comm, Qmult_div_assoc, Qmult_comm.
 reflexivity.
 Qed.
 
-Lemma Qeq_shift_mult_l : ∀ x y z, ¬z == 0 → x / z == y → x == y * z.
+Theorem Qeq_shift_mult_l : ∀ x y z, ¬z == 0 → x / z == y → x == y * z.
 Proof.
 intros x y z Hc H.
 rewrite <- H.
@@ -344,17 +344,17 @@ rewrite Qmult_div_swap.
 rewrite Qdiv_mult_l; [ reflexivity | assumption ].
 Qed.
 
-Lemma Qeq_shift_div_l : ∀ x y z, ¬z == 0 → x == y * z → x / z == y.
+Theorem Qeq_shift_div_l : ∀ x y z, ¬z == 0 → x == y * z → x / z == y.
 Proof.
 intros x y z Hz H.
 rewrite H.
 rewrite Qdiv_mult_l; [ reflexivity | assumption ].
 Qed.
 
-Lemma Qminus_diag : ∀ x, x - x == 0.
+Theorem Qminus_diag : ∀ x, x - x == 0.
 Proof. intros; apply Qplus_opp_r. Qed.
 
-Lemma Qminus_eq_eq_plus_r : ∀ x y z, x - y == z → x == z + y.
+Theorem Qminus_eq_eq_plus_r : ∀ x y z, x - y == z → x == z + y.
 Proof.
 intros.
 rewrite <- H.
@@ -365,7 +365,7 @@ Qed.
 
 (* TODO: transform the above with ?= like below. *)
 
-Lemma Zplus_cmp_compat_r : ∀ n m p,
+Theorem Zplus_cmp_compat_r : ∀ n m p,
   (n ?= m)%Z = (n + p ?= m + p)%Z.
 Proof.
 intros.
@@ -374,7 +374,7 @@ replace (m + p)%Z with (p + m)%Z by apply Zplus_comm.
 symmetry; apply Zcompare_plus_compat.
 Qed.
 
-Lemma Zmult_cmp_compat_r : ∀ n m p,
+Theorem Zmult_cmp_compat_r : ∀ n m p,
   (0 < p)%Z
   → (n ?= m)%Z = (n * p ?= m * p)%Z.
 Proof.
@@ -383,7 +383,7 @@ apply Zmult_compare_compat_r.
 apply Z.lt_gt; assumption.
 Qed.
 
-Lemma Qplus_cmp_compat_r : ∀ x y z,
+Theorem Qplus_cmp_compat_r : ∀ x y z,
   (x ?= y) = (x + z ?= y + z).
 Proof.
 intros (x₁, x₂) (y₁, y₂) (z₁, z₂).
@@ -408,13 +408,13 @@ rewrite <- Pos2Z.inj_mul.
 apply Pos2Z.is_pos.
 Qed.
 
-Lemma Qminus_cmp_compat_r : ∀ x y z,
+Theorem Qminus_cmp_compat_r : ∀ x y z,
   (x ?= y) = (x - z ?= y - z).
 Proof.
 intros; unfold Qminus; apply Qplus_cmp_compat_r.
 Qed.
 
-Lemma Qcmp_plus_minus_cmp_r : ∀ x y z,
+Theorem Qcmp_plus_minus_cmp_r : ∀ x y z,
   (x ?= y + z) = (x - z ?= y).
 Proof.
 intros x y z.
@@ -423,20 +423,20 @@ rewrite <- Qplus_assoc.
 rewrite Qplus_opp_r, Qplus_0_r.
 reflexivity.
 Qed.
-Lemma Qeq_plus_minus_eq_r : ∀ x y z, x == y + z → x - z == y.
+Theorem Qeq_plus_minus_eq_r : ∀ x y z, x == y + z → x - z == y.
 Proof.
 intros.
 apply Qeq_alt in H; apply Qeq_alt.
 rewrite <- H; symmetry; apply Qcmp_plus_minus_cmp_r.
 Qed.
-Lemma Qlt_plus_minus_lt_r : ∀ x y z, x < y + z → x - z < y.
+Theorem Qlt_plus_minus_lt_r : ∀ x y z, x < y + z → x - z < y.
 Proof.
 intros.
 apply Qlt_alt in H; apply Qlt_alt.
 rewrite <- H; symmetry; apply Qcmp_plus_minus_cmp_r.
 Qed.
 
-Lemma Qmult_cmp_compat_r : ∀ x y z,
+Theorem Qmult_cmp_compat_r : ∀ x y z,
   0 < z
   → (x ?= y) = (x * z ?= y * z).
 Proof.
@@ -450,7 +450,7 @@ unfold Qlt in H; simpl in H.
 rewrite Zmult_1_r in H; assumption.
 Qed.
 
-Lemma Qcmp_shift_mult_l : ∀ x y z,
+Theorem Qcmp_shift_mult_l : ∀ x y z,
   0 < z
   → (x / z ?= y) = (x ?= y * z).
 Proof.
@@ -462,14 +462,14 @@ rewrite <- Qmult_assoc.
 rewrite Qmult_inv_r; [ idtac | apply Qgt_0_not_0; assumption ].
 rewrite Qmult_1_r; reflexivity.
 Qed.
-Lemma Qlt_shift_mult_l : ∀ x y z, 0 < z → x / z < y → x < y * z.
+Theorem Qlt_shift_mult_l : ∀ x y z, 0 < z → x / z < y → x < y * z.
 Proof.
 intros x y z Hc H.
 rewrite Qlt_alt in H |- *.
 rewrite <- H; symmetry; apply Qcmp_shift_mult_l; assumption.
 Qed.
 
-Lemma Qcmp_shift_mult_r : ∀ x y z,
+Theorem Qcmp_shift_mult_r : ∀ x y z,
   0 < z
   → (x ?= y / z) = (x * z ?= y).
 Proof.
@@ -481,14 +481,14 @@ rewrite <- Qmult_assoc.
 rewrite Qmult_inv_r; [ idtac | apply Qgt_0_not_0; assumption ].
 rewrite Qmult_1_r; reflexivity.
 Qed.
-Lemma Qlt_shift_mult_r : ∀ x y z, 0 < z → x < y / z → x * z < y.
+Theorem Qlt_shift_mult_r : ∀ x y z, 0 < z → x < y / z → x * z < y.
 Proof.
 intros x y z Hc H.
 rewrite Qlt_alt in H |- *.
 rewrite <- H; symmetry; apply Qcmp_shift_mult_r; assumption.
 Qed.
 
-Lemma Qplus_cmp_cmp_minus_r : ∀ x y z,
+Theorem Qplus_cmp_cmp_minus_r : ∀ x y z,
   (x + y ?= z) = (x ?= z - y).
 Proof.
 intros x y z.
@@ -497,14 +497,14 @@ rewrite <- Qplus_assoc.
 rewrite Qplus_opp_r, Qplus_0_r.
 reflexivity.
 Qed.
-Lemma Qplus_lt_lt_minus_r : ∀ x y z, x + y < z → x < z - y.
+Theorem Qplus_lt_lt_minus_r : ∀ x y z, x + y < z → x < z - y.
 Proof.
 intros x y z H.
 rewrite Qlt_alt in H |- *.
 rewrite <- H; symmetry; apply Qplus_cmp_cmp_minus_r.
 Qed.
 
-Lemma Qplus_cmp_compat_l : ∀ x y z,
+Theorem Qplus_cmp_compat_l : ∀ x y z,
   (x ?= y) = (z + x ?= z + y).
 Proof.
 intros x y z.
@@ -512,17 +512,17 @@ do 2 rewrite (Qplus_comm z).
 apply Qplus_cmp_compat_r.
 Qed.
 
-Lemma list_cons_app {T} : ∀ x : T, ∀ l, [x … l] = [x] ++ l.
+Theorem list_cons_app {T} : ∀ x : T, ∀ l, [x … l] = [x] ++ l.
 Proof. reflexivity. Qed.
 
-Lemma list_Forall_inv : ∀ A (P : A → Prop) a l,
+Theorem list_Forall_inv : ∀ A (P : A → Prop) a l,
   List.Forall P [a … l] → P a ∧ List.Forall P l.
 Proof.
 intros A P a l H.
 inversion H; split; assumption.
 Qed.
 
-Lemma Pos2Z_ne_0 : ∀ p, (' p ≠ 0)%Z.
+Theorem Pos2Z_ne_0 : ∀ p, (' p ≠ 0)%Z.
 Proof.
 intros p H.
 pose proof (Zgt_pos_0 p) as HH.
@@ -530,7 +530,7 @@ rewrite H in HH.
 apply Zgt_irrefl in HH; assumption.
 Qed.
 
-Lemma Qnum_inv : ∀ a, (0 < Qnum a)%Z → Qnum (/ a) = Zpos (Qden a).
+Theorem Qnum_inv : ∀ a, (0 < Qnum a)%Z → Qnum (/ a) = Zpos (Qden a).
 Proof.
 intros (a, b) Ha; simpl in Ha |- *.
 unfold Qinv; simpl.
@@ -543,7 +543,7 @@ destruct a as [| a| a]; simpl.
  exfalso; apply Ha, Z.lt_le_incl, Zlt_neg_0.
 Qed.
 
-Lemma Qden_inv : ∀ a, (0 < Qnum a)%Z → Zpos (Qden (/ a)) = Qnum a.
+Theorem Qden_inv : ∀ a, (0 < Qnum a)%Z → Zpos (Qden (/ a)) = Qnum a.
 Proof.
 intros (a, b) Ha; simpl in Ha |- *.
 unfold Qinv; simpl.
@@ -556,7 +556,7 @@ destruct a as [| a| a]; simpl.
  exfalso; apply Ha, Z.lt_le_incl, Zlt_neg_0.
 Qed.
 
-Lemma Qdiv_mul : ∀ a b c d,
+Theorem Qdiv_mul : ∀ a b c d,
   a ≠ 0%Z
   → (0 < c)%Z
     → (a # b) / (c # d) == a * Zpos d # b * Z.to_pos c.
@@ -577,7 +577,7 @@ apply Z.mul_cancel_l.
  symmetry; apply Z2Pos.id; assumption.
 Qed.
 
-Lemma Qnum_minus_distr_r : ∀ a b c, a - b # c == ((a # c) - (b # c)).
+Theorem Qnum_minus_distr_r : ∀ a b c, a - b # c == ((a # c) - (b # c)).
 Proof.
 intros a b c.
 unfold Qeq; simpl.
@@ -589,7 +589,7 @@ do 2 rewrite Z.mul_opp_l.
 reflexivity.
 Qed.
 
-Lemma Qnum_nat_minus : ∀ a b,
+Theorem Qnum_nat_minus : ∀ a b,
   (b ≤ a)%nat
   → Qnum (Qnat a - Qnat b) = Z.of_nat (a - b).
 Proof.
@@ -600,10 +600,10 @@ symmetry.
 apply Nat2Z.inj_sub; assumption.
 Qed.
 
-Lemma Qden_nat_minus : ∀ a b, Zpos (Qden (Qnat a - Qnat b)) = 1%Z.
+Theorem Qden_nat_minus : ∀ a b, Zpos (Qden (Qnat a - Qnat b)) = 1%Z.
 Proof. reflexivity. Qed.
 
-Lemma Pmul_not_1 : ∀ a b, (1 < a)%positive → (a * b ≠ 1)%positive.
+Theorem Pmul_not_1 : ∀ a b, (1 < a)%positive → (a * b ≠ 1)%positive.
 Proof.
 intros a b Ha H.
 apply Pos.mul_eq_1_l in H.
@@ -614,7 +614,7 @@ Definition pair_rec A B C (f : A → B → C) := λ xy, f (fst xy) (snd xy).
 
 Definition Plcm a b := Z.to_pos (Z.lcm (Zpos a) (Zpos b)).
 
-Lemma Plcm_comm : ∀ a b, Plcm a b = Plcm b a.
+Theorem Plcm_comm : ∀ a b, Plcm a b = Plcm b a.
 Proof.
 intros a b.
 unfold Plcm.
@@ -622,7 +622,7 @@ rewrite Z.lcm_comm.
 reflexivity.
 Qed.
 
-Lemma Plcm_diag : ∀ a, Plcm a a = a.
+Theorem Plcm_diag : ∀ a, Plcm a a = a.
 Proof.
 intros a.
 unfold Plcm.
@@ -630,7 +630,7 @@ rewrite Z.lcm_diag.
 reflexivity.
 Qed.
 
-Lemma Zlcm_pos_pos_is_pos : ∀ a b, (0 < Z.lcm (' a) (' b))%Z.
+Theorem Zlcm_pos_pos_is_pos : ∀ a b, (0 < Z.lcm (' a) (' b))%Z.
 Proof.
 intros a b.
 remember (Z.lcm (' a) (' b)) as l.
@@ -648,7 +648,7 @@ destruct l as [| l| l].
  apply Zlt_neg_0.
 Qed.
 
-Lemma Plcm_assoc : ∀ a b c, Plcm (Plcm a b) c = Plcm a (Plcm b c).
+Theorem Plcm_assoc : ∀ a b c, Plcm (Plcm a b) c = Plcm a (Plcm b c).
 Proof.
 intros a b c.
 unfold Plcm; simpl.
@@ -657,20 +657,20 @@ rewrite Z2Pos.id; [ idtac | apply Zlcm_pos_pos_is_pos ].
 rewrite Z.lcm_assoc; reflexivity.
 Qed.
 
-Lemma Plcm_1_l : ∀ n, Plcm 1 n = n.
+Theorem Plcm_1_l : ∀ n, Plcm 1 n = n.
 Proof.
 intros n.
 unfold Plcm.
 rewrite Z.lcm_1_l; reflexivity.
 Qed.
 
-Lemma divmod_div : ∀ a b, fst (divmod a b 0 b) = (a / S b)%nat.
+Theorem divmod_div : ∀ a b, fst (divmod a b 0 b) = (a / S b)%nat.
 Proof. intros a b; reflexivity. Qed.
 
-Lemma divmod_mod : ∀ a b, (b - snd (divmod a b 0 b) = a mod S b)%nat.
+Theorem divmod_mod : ∀ a b, (b - snd (divmod a b 0 b) = a mod S b)%nat.
 Proof. intros a b; reflexivity. Qed.
 
-Lemma Pos2Nat_ne_0 : ∀ a, (Pos.to_nat a ≠ 0)%nat.
+Theorem Pos2Nat_ne_0 : ∀ a, (Pos.to_nat a ≠ 0)%nat.
 Proof.
 intros a H.
 pose proof Pos2Nat.is_pos a as HH.
@@ -681,7 +681,7 @@ Hint Resolve Pos2Nat_ne_0.
 
 Open Scope Z_scope.
 
-Lemma Zpos_divides_div : ∀ a b, ('a | 'b) → 'b / 'a ≠ 0.
+Theorem Zpos_divides_div : ∀ a b, ('a | 'b) → 'b / 'a ≠ 0.
 Proof.
 intros a b Hab.
 destruct Hab as (c, Hab).
@@ -694,7 +694,7 @@ Close Scope Z_scope.
 
 Open Scope positive_scope.
 
-Lemma Pos_mul_shuffle0 : ∀ n m p, n * m * p = n * p * m.
+Theorem Pos_mul_shuffle0 : ∀ n m p, n * m * p = n * p * m.
 Proof.
 intros n m p.
 rewrite <- Pos.mul_assoc.
@@ -703,7 +703,7 @@ rewrite Pos.mul_comm in Heqmp; subst mp.
 apply Pos.mul_assoc.
 Qed.
 
-Lemma Pos_div_mul_r : ∀ a b,
+Theorem Pos_div_mul_r : ∀ a b,
   (a | b)
   → (Pos.of_nat (Pos.to_nat b / Pos.to_nat a) * a) = b.
 Proof.
@@ -715,7 +715,7 @@ rewrite Nat.div_mul; [ idtac | apply Pos2Nat_ne_0 ].
 rewrite Pos2Nat.id; reflexivity.
 Qed.
 
-Lemma Pos_div_mul_l : ∀ a b,
+Theorem Pos_div_mul_l : ∀ a b,
   (a | b)
   → (a * Pos.of_nat (Pos.to_nat b / Pos.to_nat a)) = b.
 Proof.
@@ -724,7 +724,7 @@ rewrite Pos.mul_comm.
 apply Pos_div_mul_r; assumption.
 Qed.
 
-Lemma Pos_divides_lcm_l : ∀ a b, (a | Plcm a b).
+Theorem Pos_divides_lcm_l : ∀ a b, (a | Plcm a b).
 Proof.
 intros a b.
 unfold Plcm, Z.lcm, Pos.divide.
@@ -741,14 +741,14 @@ rewrite Z2Pos.inj_mul; simpl.
  apply Pos2Z.is_pos.
 Qed.
 
-Lemma Pos_divides_lcm_r : ∀ a b, (b | Plcm a b).
+Theorem Pos_divides_lcm_r : ∀ a b, (b | Plcm a b).
 Proof.
 intros a b.
 rewrite Plcm_comm.
 apply Pos_divides_lcm_l.
 Qed.
 
-Lemma Pos_mul_shuffle1 : ∀ n m p q, n * m * (p * q) = n * p * (m * q).
+Theorem Pos_mul_shuffle1 : ∀ n m p q, n * m * (p * q) = n * p * (m * q).
 Proof.
 intros n m p q.
 do 2 rewrite <- Pos.mul_assoc.
@@ -760,7 +760,7 @@ Qed.
 
 Close Scope positive_scope.
 
-Lemma min_add_sub : ∀ x y, (min x y + (x - y) = x)%nat.
+Theorem min_add_sub : ∀ x y, (min x y + (x - y) = x)%nat.
 Proof.
 intros x y.
 destruct (le_dec x y) as [Hle| Hgt].
@@ -772,7 +772,7 @@ destruct (le_dec x y) as [Hle| Hgt].
  apply le_plus_minus_r, Nat.lt_le_incl; assumption.
 Qed.
 
-Lemma Z2Nat_sub_min :  ∀ x y, Z.to_nat (x - Z.min x y) = Z.to_nat (x - y).
+Theorem Z2Nat_sub_min :  ∀ x y, Z.to_nat (x - Z.min x y) = Z.to_nat (x - y).
 Proof.
 intros x y.
 destruct (Z.min_dec x y) as [H₁| H₁].
@@ -787,7 +787,7 @@ destruct (Z.min_dec x y) as [H₁| H₁].
  rewrite H₁; reflexivity.
 Qed.
 
-Lemma Z2Nat_sub_min1 : ∀ x y z,
+Theorem Z2Nat_sub_min1 : ∀ x y z,
   (Z.to_nat (Z.min x y - z) + Z.to_nat (y - x))%nat =
   Z.to_nat (y - Z.min z x).
 Proof.
@@ -841,7 +841,7 @@ destruct (Z_le_dec (x - z) (y - z)) as [Hle₁| Hgt₁].
   exfalso; apply Hgt₁, Pos2Z.is_pos.
 Qed.
 
-Lemma Z2Nat_sub_min2 : ∀ x y z,
+Theorem Z2Nat_sub_min2 : ∀ x y z,
   (Z.to_nat (Z.min x y - z) + Z.to_nat (x - y))%nat =
   Z.to_nat (x - Z.min y z).
 Proof.
@@ -894,7 +894,7 @@ destruct (Z_le_dec (x - z) (y - z)) as [Hle₁| Hgt₁].
   exfalso; apply Hgt₂, Pos2Z.is_pos.
 Qed.
 
-Lemma Z2Nat_inj_mul_pos_r : ∀ n m,
+Theorem Z2Nat_inj_mul_pos_r : ∀ n m,
   Z.to_nat (n * 'm) = (Z.to_nat n * Pos.to_nat m)%nat.
 Proof.
 intros n m.
@@ -902,10 +902,10 @@ destruct n as [| n| ]; [ reflexivity | simpl | reflexivity ].
 rewrite Pos2Nat.inj_mul; reflexivity.
 Qed.
 
-Lemma Z_add_neg : ∀ a b, (a + Z.neg b = a - Z.pos b)%Z.
+Theorem Z_add_neg : ∀ a b, (a + Z.neg b = a - Z.pos b)%Z.
 Proof. reflexivity. Qed.
 
-Lemma Z2Nat_sub_add_nat_l : ∀ a b, (0 <= a)%Z
+Theorem Z2Nat_sub_add_nat_l : ∀ a b, (0 <= a)%Z
   → (Z.to_nat (a + Z.of_nat b) - Z.to_nat a)%nat = b.
 Proof.
 intros a b Ha.
@@ -926,7 +926,7 @@ destruct a as [| a| a]; simpl.
  exfalso; apply Ha, Pos2Z.neg_is_neg.
 Qed.
 
-Lemma Z2Nat_sub_add_nat_r : ∀ a b,
+Theorem Z2Nat_sub_add_nat_r : ∀ a b,
   (Z.to_nat a - Z.to_nat (a + Z.of_nat b))%nat = O.
 Proof.
 intros a b.
@@ -939,7 +939,7 @@ destruct b as [| b]; simpl.
  rewrite Nat.sub_add_distr, Nat.sub_diag; reflexivity.
 Qed.
 
-Lemma min_if_then_else : ∀ x y, min x y = if lt_dec x y then x else y.
+Theorem min_if_then_else : ∀ x y, min x y = if lt_dec x y then x else y.
 Proof.
 intros x y.
 destruct (Nat.min_dec x y) as [Hlt| Hge].
@@ -958,7 +958,7 @@ destruct (Nat.min_dec x y) as [Hlt| Hge].
  apply Min.le_min_l.
 Qed.
 
-Lemma Z2Nat_lt_le : ∀ n m, (n < m)%Z → (Z.to_nat n ≤ Z.to_nat m)%nat.
+Theorem Z2Nat_lt_le : ∀ n m, (n < m)%Z → (Z.to_nat n ≤ Z.to_nat m)%nat.
 Proof.
 intros n m Hnm.
 destruct n as [| n| n].
@@ -980,7 +980,7 @@ destruct n as [| n| n].
  apply Nat.le_0_l.
 Qed.
 
-Lemma Z2Nat_lt_lt : ∀ n m, (Z.to_nat n < Z.to_nat m)%nat → (n < m)%Z.
+Theorem Z2Nat_lt_lt : ∀ n m, (Z.to_nat n < Z.to_nat m)%nat → (n < m)%Z.
 Proof.
 intros n m Hnm.
 destruct n as [| n| n].
@@ -1011,7 +1011,7 @@ destruct n as [| n| n].
   exfalso; revert Hnm; apply Nat.lt_irrefl.
 Qed.
 
-Lemma Z2Nat_add_cancel_r : ∀ n m p,
+Theorem Z2Nat_add_cancel_r : ∀ n m p,
   (Z.to_nat (n + p) < Z.to_nat (m + p))%nat → (n < m)%Z.
 Proof.
 intros n m p Hnm.
@@ -1020,7 +1020,7 @@ apply Z2Nat_lt_lt.
 assumption.
 Qed.
 
-Lemma Nat_sub_sub_distr : ∀ n m p, (p ≤ m → n - (m - p) = n + p - m)%nat.
+Theorem Nat_sub_sub_distr : ∀ n m p, (p ≤ m → n - (m - p) = n + p - m)%nat.
 Proof.
 intros n m p Hpm.
 rewrite Nat.add_comm.
@@ -1036,14 +1036,14 @@ induction p; intros.
   apply IHp; assumption.
 Qed.
 
-Lemma Z2Nat_id_max : ∀ x, Z.of_nat (Z.to_nat x) = Z.max 0 x.
+Theorem Z2Nat_id_max : ∀ x, Z.of_nat (Z.to_nat x) = Z.max 0 x.
 Proof.
 intros x.
 destruct x as [| x| x]; [ reflexivity | idtac | reflexivity ].
 rewrite Z2Nat.id; [ reflexivity | apply Pos2Z.is_nonneg ].
 Qed.
 
-Lemma Nat_sub_succ_1 : ∀ n, (S n - 1 = n)%nat.
+Theorem Nat_sub_succ_1 : ∀ n, (S n - 1 = n)%nat.
 Proof. intros n; simpl; rewrite Nat.sub_0_r; reflexivity. Qed.
 
 Definition Nat_div_sup x y := ((x + y - 1) / y)%nat.
@@ -1158,7 +1158,7 @@ destruct (zerop (m mod S p)) as [Hz| Hnz].
    intros H; discriminate H.
 Qed.
 
-Lemma le_div_sup_mul : ∀ a b, (0 < b → a ≤ Nat_div_sup a b * b)%nat.
+Theorem le_div_sup_mul : ∀ a b, (0 < b → a ≤ Nat_div_sup a b * b)%nat.
 Proof.
 intros a b Hbpos.
 unfold Nat_div_sup.
@@ -1177,7 +1177,7 @@ rewrite <- Nat.div_mod.
  intros H; subst b; revert Hbpos; apply Nat.lt_irrefl.
 Qed.
 
-Lemma Z_div_pos_is_nonneg : ∀ x y, (0 <= ' x / ' y)%Z.
+Theorem Z_div_pos_is_nonneg : ∀ x y, (0 <= ' x / ' y)%Z.
 Proof.
 intros x y.
 apply Z_div_pos.
@@ -1186,7 +1186,7 @@ apply Z_div_pos.
  apply Pos2Z.is_nonneg.
 Qed.
 
-Lemma Pos2Nat_to_pos : ∀ x,
+Theorem Pos2Nat_to_pos : ∀ x,
   (0 < x)%Z
   → Pos.to_nat (Z.to_pos x) = Z.to_nat x.
 Proof.
@@ -1200,7 +1200,7 @@ destruct x as [| x| x].
  apply Hx, Pos2Z.neg_is_nonpos.
 Qed.
 
-Lemma Z_gcd3_div_gcd3 : ∀ a b c g,
+Theorem Z_gcd3_div_gcd3 : ∀ a b c g,
   g ≠ 0%Z
   → g = Z.gcd (Z.gcd a b) c
     → Z.gcd (Z.gcd (a / g) (b / g)) (c / g) = 1%Z.
@@ -1228,7 +1228,7 @@ rewrite Z.gcd_div_factor.
  etransitivity; [ apply Z.gcd_divide_l | apply Z.gcd_divide_r ].
 Qed.
 
-Lemma Nat_mod_add_1 : ∀ a b, (b ≠ 0 → (a + b) mod b = a mod b)%nat.
+Theorem Nat_mod_add_1 : ∀ a b, (b ≠ 0 → (a + b) mod b = a mod b)%nat.
 Proof.
 intros a b Hb.
 symmetry.
@@ -1242,7 +1242,7 @@ Qed.
 
    Then, the proof may be easier to perform.
 *)
-Lemma all_lt_all : ∀ P : nat → Prop,
+Theorem all_lt_all : ∀ P : nat → Prop,
   (∀ n, (∀ m, (m < n)%nat → P m) → P n)
   → ∀ n, P n.
 Proof.
@@ -1263,7 +1263,7 @@ Qed.
 (* it makes 'exists_prime_divisor' work, that's a miracle.
    I was supposed to program 'infinite descent' method, but
    it turned out like this by some rewrittings *)
-Lemma infinite_descent : ∀ P : nat → Prop,
+Theorem infinite_descent : ∀ P : nat → Prop,
   (∀ n, (∀ m, n ≤ m ∨ P m) → P n)
   → ∀ n, P n.
 Proof.
@@ -1284,7 +1284,7 @@ Qed.
 
 Require Import Znumtheory.
 
-Lemma exists_prime_divisor : ∀ n, (1 < n)%Z → ∃ p, prime p ∧ (p | n)%Z.
+Theorem exists_prime_divisor : ∀ n, (1 < n)%Z → ∃ p, prime p ∧ (p | n)%Z.
 Proof.
 (* à nettoyer, peut-être *)
 intros n Hn.
@@ -1358,7 +1358,7 @@ assert (n = Z.of_nat nn) as H.
      fast_omega .
 Qed.
 
-Lemma Nat_divides_l : ∀ a b, (∃ c, a = (b * c)%nat) ↔ (b | a)%nat.
+Theorem Nat_divides_l : ∀ a b, (∃ c, a = (b * c)%nat) ↔ (b | a)%nat.
 Proof.
 intros a b.
 split; intros H.
@@ -1369,7 +1369,7 @@ split; intros H.
  exists c; apply Nat.mul_comm.
 Qed.
 
-Lemma Nat_lcm_divides : ∀ a b c,
+Theorem Nat_lcm_divides : ∀ a b c,
   (a ≠ 0
    → b ≠ 0
      → (a | c)
@@ -1426,7 +1426,7 @@ apply Nat.gcd_div_gcd in Hg.
  intros H; apply Hlp; subst g; auto.
 Qed.
 
-Lemma Nat_gcd_le_l : ∀ a b, (a ≠ 0 → Nat.gcd a b ≤ a)%nat.
+Theorem Nat_gcd_le_l : ∀ a b, (a ≠ 0 → Nat.gcd a b ≤ a)%nat.
 Proof.
 intros a b Ha.
 pose proof (Nat.gcd_divide_l a b) as Hg.
@@ -1437,7 +1437,7 @@ destruct c; [ contradiction | simpl ].
 apply le_plus_l.
 Qed.
 
-Lemma Nat_le_lcm_l : ∀ a b, (b ≠ 0 → a ≤ Nat.lcm a b)%nat.
+Theorem Nat_le_lcm_l : ∀ a b, (b ≠ 0 → a ≤ Nat.lcm a b)%nat.
 Proof.
 intros a b Hb.
 remember Hb as Hab; clear HeqHab.
@@ -1455,7 +1455,7 @@ eapply Nat.div_le_mono in Hab.
  intros H; apply Nat.gcd_eq_0_r in H; contradiction.
 Qed.
 
-Lemma Nat_divides_lcm_l : ∀ a b, (a | Nat.lcm a b)%nat.
+Theorem Nat_divides_lcm_l : ∀ a b, (a | Nat.lcm a b)%nat.
 Proof.
 intros a b.
 unfold Nat.lcm.
@@ -1463,7 +1463,7 @@ exists (b / gcd a b)%nat.
 apply Nat.mul_comm.
 Qed.
 
-Lemma List_in_nth : ∀ A (x : A) l d,
+Theorem List_in_nth : ∀ A (x : A) l d,
   x ∈ l
   → ∃ n, List.nth n l d = x ∧ (n < List.length l)%nat.
 Proof.
@@ -1480,7 +1480,7 @@ subst l; split.
  apply Nat.lt_0_succ.
 Qed.
 
-Lemma list_in_cons_app : ∀ A (a : A) x y l,
+Theorem list_in_cons_app : ∀ A (a : A) x y l,
   List.In a [x … l ++ [y]] → List.In a [x; y … l].
 Proof.
 intros A a x y l H.
@@ -1496,7 +1496,7 @@ destruct H as [H| H].
  destruct H as [H| H]; [ left | right; right ]; assumption.
 Qed.
 
-Lemma list_map_app_at : ∀ A B (g : A → B) l x,
+Theorem list_map_app_at : ∀ A B (g : A → B) l x,
   List.map g l ++ [g x] = List.map g (l ++ [x]).
 Proof.
 intros.
@@ -1504,10 +1504,10 @@ induction l as [| b]; [ reflexivity | simpl ].
 rewrite IHl; reflexivity.
 Qed.
 
-Lemma imp_or_tauto : ∀ A B : Prop, (A → B) → A → A ∧ B.
+Theorem imp_or_tauto : ∀ A B : Prop, (A → B) → A → A ∧ B.
 Proof. tauto. Qed.
 
-Lemma list_nth_last : ∀ A (l : list A) d len,
+Theorem list_nth_last : ∀ A (l : list A) d len,
   pred (length l) = len
   → List.nth len l d = List.last l d.
 Proof.
@@ -1529,7 +1529,7 @@ induction l as [| x]; intros.
    rewrite H; reflexivity.
 Qed.
 
-Lemma list_last_cons_app : ∀ A x y (l : list A) d,
+Theorem list_last_cons_app : ∀ A x y (l : list A) d,
   List.last [x … l ++ [y]] d = y.
 Proof.
 intros A x y l d.
@@ -1539,7 +1539,7 @@ simpl in IHl; simpl.
 apply IHl.
 Qed.
 
-Lemma list_skipn_cons_nth : ∀ A c₁ (cl cl₁ : list A) i d,
+Theorem list_skipn_cons_nth : ∀ A c₁ (cl cl₁ : list A) i d,
   List.skipn i cl = [c₁ … cl₁]
   → List.nth i cl d = c₁.
 Proof.
@@ -1555,13 +1555,13 @@ induction i; intros.
  apply IHi; assumption.
 Qed.
 
-Lemma list_nth_nil : ∀ A n (d : A), List.nth n [] d = d.
+Theorem list_nth_nil : ∀ A n (d : A), List.nth n [] d = d.
 Proof. intros A n d; destruct n; reflexivity. Qed.
 
-Lemma list_skipn_nil : ∀ A n, List.skipn n [] = ([] : list A).
+Theorem list_skipn_nil : ∀ A n, List.skipn n [] = ([] : list A).
 Proof. intros A n; destruct n; reflexivity. Qed.
 
-Lemma list_skipn_overflow : ∀ A n (cl : list A),
+Theorem list_skipn_overflow : ∀ A n (cl : list A),
   length cl ≤ n → List.skipn n cl = [].
 Proof.
 intros A n cl H.
@@ -1573,7 +1573,7 @@ induction cl as [| c]; intros.
  apply IHcl, le_S_n; assumption.
 Qed.
 
-Lemma list_skipn_overflow_if : ∀ A n (cl : list A),
+Theorem list_skipn_overflow_if : ∀ A n (cl : list A),
   List.skipn n cl = [] → length cl ≤ n.
 Proof.
 intros A n cl H.
@@ -1583,7 +1583,7 @@ destruct n; [ discriminate H | idtac ].
 apply le_n_S, IHcl; assumption.
 Qed.
 
-Lemma list_nth_skipn : ∀ α i j (l : list α) d,
+Theorem list_nth_skipn : ∀ α i j (l : list α) d,
   List.nth i (List.skipn j l) d = List.nth (i + j) l d.
 Proof.
 intros α i j l d.
@@ -1596,14 +1596,14 @@ induction l as [| x]; intros; simpl.
  rewrite IHl, Nat.add_succ_r; reflexivity.
 Qed.
 
-Lemma match_id : ∀ α a (b : α), match a with O => b | S _ => b end = b.
+Theorem match_id : ∀ α a (b : α), match a with O => b | S _ => b end = b.
 Proof. intros α a b; destruct a; reflexivity. Qed.
 
-Lemma fold_sub_succ_l : ∀ a b,
+Theorem fold_sub_succ_l : ∀ a b,
   (match a with 0 => S b | S c => b - c end = S b - a)%nat.
 Proof. reflexivity. Qed.
 
-Lemma list_skipn_map : ∀ A B (f : A → B) n l,
+Theorem list_skipn_map : ∀ A B (f : A → B) n l,
   List.skipn n (List.map f l) = List.map f (List.skipn n l).
 Proof.
 intros A B f n l.
@@ -1614,7 +1614,7 @@ induction l as [| x]; intros; simpl.
  destruct n; [ reflexivity | apply IHl ].
 Qed.
 
-Lemma Sorted_inv_1 {A} : ∀ (f : A → A → Prop) x l,
+Theorem Sorted_inv_1 {A} : ∀ (f : A → A → Prop) x l,
   Sorted f [x … l]
   → Sorted f l.
 Proof.
@@ -1624,7 +1624,7 @@ apply Sorted_LocallySorted_iff.
 inversion H; [ constructor | assumption ].
 Qed.
 
-Lemma Sorted_inv_2 {A} : ∀ (f : A → A → Prop) x y l,
+Theorem Sorted_inv_2 {A} : ∀ (f : A → A → Prop) x y l,
   Sorted f [x; y … l]
   → f x y ∧ Sorted f [y … l].
 Proof.
@@ -1635,7 +1635,7 @@ inversion H; subst a b l0.
 split; assumption.
 Qed.
 
-Lemma Sorted_minus_2nd {A} : ∀ (f : A → A → Prop) x₁ x₂ xl,
+Theorem Sorted_minus_2nd {A} : ∀ (f : A → A → Prop) x₁ x₂ xl,
   (∀ x y z, f x y → f y z → f x z)
   → Sorted f [x₁; x₂ … xl]
     → Sorted f [x₁ … xl].
@@ -1653,7 +1653,7 @@ constructor.
  eapply Ht; eassumption.
 Qed.
 
-Lemma Sorted_minus_3rd {A} : ∀ (f : A → A → Prop) x₁ x₂ x₃ xl,
+Theorem Sorted_minus_3rd {A} : ∀ (f : A → A → Prop) x₁ x₂ x₃ xl,
   (∀ x y z, f x y → f y z → f x z)
   → Sorted f [x₁; x₂; x₃ … xl]
     → Sorted f [x₁; x₂ … xl].
@@ -1668,7 +1668,7 @@ constructor.
  apply Sorted_inv_2 in H; destruct H; assumption.
 Qed.
 
-Lemma Sorted_minus_4th {A} : ∀ (f : A → A → Prop) x₁ x₂ x₃ x₄ xl,
+Theorem Sorted_minus_4th {A} : ∀ (f : A → A → Prop) x₁ x₂ x₃ x₄ xl,
   (∀ x y z, f x y → f y z → f x z)
   → Sorted f [x₁; x₂; x₃; x₄ … xl]
     → Sorted f [x₁; x₂; x₃ … xl].
@@ -1884,7 +1884,7 @@ rewrite Z.divide_div_mul_exact.
  rewrite Z.mul_1_l; reflexivity.
 Qed.
 
-Lemma list_forall2_length : ∀ A f (l₁ l₂ : list A),
+Theorem list_forall2_length : ∀ A f (l₁ l₂ : list A),
   List.Forall2 f l₁ l₂
   → length l₁ = length l₂.
 Proof.

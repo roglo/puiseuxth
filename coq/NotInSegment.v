@@ -13,7 +13,7 @@ Require Import Newton.
 Require Import NotInSegMisc.
 
 (* is there a way to group together the cases c = Eq and c = Gt? *)
-Lemma aft_end_in_rem : ∀ pt₁ pt₂ pts ms,
+Theorem aft_end_in_rem : ∀ pt₁ pt₂ pts ms,
   Sorted fst_lt [pt₁; pt₂ … pts]
   → minimise_slope pt₁ pt₂ pts = ms
     → ∀ h αh, (h, αh) ∈ [pt₁; pt₂ … pts] 
@@ -73,7 +73,7 @@ destruct Hαh as [Hαh| Hαh].
     intros x y z H₁ H₂; eapply Qlt_trans; eassumption.
 Qed.
 
-Lemma consec_end_lt : ∀ pt₁ pt₂ pt₃ pts pts₃ ms₁ ms₂,
+Theorem consec_end_lt : ∀ pt₁ pt₂ pt₃ pts pts₃ ms₁ ms₂,
   Sorted fst_lt [pt₁; pt₂ … pts]
   → minimise_slope pt₁ pt₂ pts = ms₁
     → minimise_slope (end_pt ms₁) pt₃ pts₃ = ms₂
@@ -93,7 +93,7 @@ apply minimise_slope_le in Hms₂.
  eapply Sorted_inv_1; eassumption.
 Qed.
 
-Lemma min_slope_lt : ∀ pt₁ pt₂ pt₃ pts ms₁₃ ms₂₃,
+Theorem min_slope_lt : ∀ pt₁ pt₂ pt₃ pts ms₁₃ ms₂₃,
   Sorted fst_lt [pt₁; pt₂; pt₃ … pts]
   → minimise_slope pt₁ pt₃ pts = ms₁₃
     → minimise_slope pt₂ pt₃ pts = ms₂₃
@@ -201,7 +201,7 @@ induction pts as [| pt₄]; intros.
    intros x y z H₁ H₂; eapply Qlt_trans; eassumption.
 Qed.
 
-Lemma consec_slope_lt : ∀ pt₁ pt₂ pt₃ pts pts₃ ms₁ ms₂,
+Theorem consec_slope_lt : ∀ pt₁ pt₂ pt₃ pts pts₃ ms₁ ms₂,
   Sorted fst_lt [pt₁; pt₂ … pts]
   → minimise_slope pt₁ pt₂ pts = ms₁
     → minimise_slope (end_pt ms₁) pt₃ pts₃ = ms₂
@@ -250,7 +250,7 @@ induction pts as [| pt₄]; intros.
   intros x y z H₁ H₂; eapply Qlt_trans; eassumption.
 Qed.
 
-Lemma j_aft_prev_end :
+Theorem j_aft_prev_end :
   ∀ n pt₁ pt₂ pts ms pt₃ pts₃ ms₁ hsl₁ j αj k αk seg hsl,
   Sorted fst_lt [pt₁; pt₂ … pts]
   → minimise_slope pt₁ pt₂ pts = ms
@@ -291,7 +291,7 @@ destruct hsl₁ as [| h₁].
   eapply consec_end_lt; eassumption.
 Qed.
 
-Lemma aft_j_in_rem :
+Theorem aft_j_in_rem :
   ∀ n pt₁ pt₂ pts ms hsl₁ j αj k αk seg hsl,
   Sorted fst_lt [pt₁; pt₂ … pts]
   → minimise_slope pt₁ pt₂ pts = ms
@@ -328,7 +328,7 @@ destruct hsl₁ as [| hs₁].
  eapply j_aft_prev_end; eassumption.
 Qed.
 
-Lemma lt_aft_k : ∀ n pts hsl₁ hsl j αj k αk seg,
+Theorem lt_aft_k : ∀ n pts hsl₁ hsl j αj k αk seg,
   Sorted fst_lt pts
   → next_ch_points n pts = hsl₁ ++ [mkns (j, αj) (k, αk) seg … hsl]
     → ∀ h αh, (h, αh) ∈ pts
@@ -365,7 +365,7 @@ induction hsl₁ as [| hs₁]; intros.
   induction hsl₁; [ left; reflexivity | right; assumption ].
 Qed.
 
-Lemma not_k : ∀ n pts hsl₁ hsl j αj k αk seg,
+Theorem not_k : ∀ n pts hsl₁ hsl j αj k αk seg,
   Sorted fst_lt pts
   → next_ch_points n pts = hsl₁ ++ [mkns (j, αj) (k, αk) seg … hsl]
     → ∀ h αh, (h, αh) ∈ pts
@@ -392,7 +392,7 @@ eapply sorted_qeq_eq with (k := k) (αk := αk) in Hαh.
  subst h; reflexivity.
 Qed.
 
-Lemma next_ch_points_sorted₂ : ∀ n pt₁ pt₂ pt₃ pts hsl₁ hsl sg,
+Theorem next_ch_points_sorted₂ : ∀ n pt₁ pt₂ pt₃ pts hsl₁ hsl sg,
   Sorted fst_lt [pt₁ … pts]
   → next_ch_points n [pt₁ … pts] = hsl₁ ++ [mkns pt₂ pt₃ sg … hsl]
     → fst pt₁ < fst pt₃.
@@ -424,7 +424,7 @@ induction hsl₁ as [| h₂]; intros.
   eapply minimise_slope_sorted; eassumption.
 Qed.
 
-Lemma next_ch_points_sorted : ∀ n pt₁ pt₂ pt₃ pts h₁ hsl₁ hsl sg,
+Theorem next_ch_points_sorted : ∀ n pt₁ pt₂ pt₃ pts h₁ hsl₁ hsl sg,
   Sorted fst_lt [pt₁ … pts]
   → next_ch_points n [pt₁ … pts] = [h₁ … hsl₁] ++ [mkns pt₂ pt₃ sg … hsl]
     → fst pt₁ < fst pt₂.
@@ -465,7 +465,7 @@ induction hsl₁ as [| h₂]; intros.
   eapply minimise_slope_sorted; eassumption.
 Qed.
 
-Lemma lt_bet_j_and_k : ∀ n pts hsl₁ hsl j αj k αk seg,
+Theorem lt_bet_j_and_k : ∀ n pts hsl₁ hsl j αj k αk seg,
   Sorted fst_lt pts
   → next_ch_points n pts = hsl₁ ++ [mkns (j, αj) (k, αk) seg … hsl]
     → ∀ h αh, (h, αh) ∈ pts
@@ -508,7 +508,7 @@ destruct hsl₁ as [| h₁].
   eapply minimise_slope_sorted; eassumption.
 Qed.
 
-Lemma not_j : ∀ n pts hsl₁ j αj k αk seg hsl,
+Theorem not_j : ∀ n pts hsl₁ j αj k αk seg hsl,
   Sorted fst_lt pts
   → next_ch_points n pts = hsl₁ ++ [mkns (j, αj) (k, αk) seg … hsl]
     → ∀ h αh, (h, αh) ∈ pts
@@ -532,7 +532,7 @@ eapply sorted_qeq_eq with (k := j) (αk := αj) in Hαh; try eassumption.
  subst h; reflexivity.
 Qed.
 
-Lemma slope_expr_eq : ∀ pt₁ pt₂ pt₃ pts,
+Theorem slope_expr_eq : ∀ pt₁ pt₂ pt₃ pts,
   Sorted fst_lt [pt₁; pt₂ … pts]
   → pt₃ ∈ pts
     → slope_expr pt₁ pt₂ == slope_expr pt₁ pt₃
@@ -581,7 +581,7 @@ apply slope_eq; [ idtac | idtac | idtac | assumption ].
 Qed.
 
 (* réunion avec 'min_slope_le' ? *)
-Lemma minimise_slope_expr_le : ∀ pt₁ pt₂ pt₃ pts ms,
+Theorem minimise_slope_expr_le : ∀ pt₁ pt₂ pt₃ pts ms,
   Sorted fst_lt [pt₁; pt₂ … pts]
   → minimise_slope pt₁ pt₂ pts = ms
     → end_pt ms = pt₃
@@ -661,7 +661,7 @@ induction pts as [| pt₄]; intros.
 Qed.
 
 (* réunion avec 'minimise_slope_expr_le' ? *)
-Lemma min_slope_le : ∀ pt₁ pt₂ pt₃ pt₄ pts ms,
+Theorem min_slope_le : ∀ pt₁ pt₂ pt₃ pt₄ pts ms,
   Sorted fst_lt [pt₁; pt₂ … pts]
   → minimise_slope pt₁ pt₂ pts = ms
     → pt₃ ∈ pts
@@ -715,7 +715,7 @@ destruct c.
   intros x y z H₁ H₂; eapply Qlt_trans; eassumption.
 Qed.
 
-Lemma sl_lt_bef_j_in_ch : ∀ n pts h αh i αi j αj k αk ptk seg hsl₁ hsl ms,
+Theorem sl_lt_bef_j_in_ch : ∀ n pts h αh i αi j αj k αk ptk seg hsl₁ hsl ms,
   Sorted fst_lt [(h, αh); (i, αi) … pts]
   → h < j < k
     → minimise_slope (h, αh) (i, αi) pts = ms
@@ -801,7 +801,7 @@ induction hsl₁ as [| hs₁]; intros.
     eapply minimise_slope_sorted; eassumption.
 Qed.
 
-Lemma sl_lt_bef_j_in_ch₂ : ∀ n pts h αh i αi j αj k αk ept seg hsl₁ hsl ms,
+Theorem sl_lt_bef_j_in_ch₂ : ∀ n pts h αh i αi j αj k αk ept seg hsl₁ hsl ms,
   Sorted fst_lt [(h, αh); (i, αi) … pts]
   → h < j < k
     → minimise_slope (h, αh) (i, αi) pts = ms
@@ -900,7 +900,7 @@ induction hsl₁ as [| hs₁]; intros.
     eapply minimise_slope_sorted; eassumption.
 Qed.
 
-Lemma lt_expr_bef_j_in_ch : ∀ n pts h αh i αi j αj k αk segjk hsl₁ hsl ms,
+Theorem lt_expr_bef_j_in_ch : ∀ n pts h αh i αi j αj k αk segjk hsl₁ hsl ms,
   Sorted fst_lt [(h, αh); (i, αi) … pts]
   → h < j < k
     → minimise_slope (h, αh) (i, αi) pts = ms
@@ -955,7 +955,7 @@ induction hsl₁ as [| hs₁]; intros.
    eapply minimise_slope_sorted; eassumption.
 Qed.
 
-Lemma lt_bef_j_in_ch : ∀ n pts h αh pt₂ j αj k αk segjk hsl₁ hsl ms,
+Theorem lt_bef_j_in_ch : ∀ n pts h αh pt₂ j αj k αk segjk hsl₁ hsl ms,
   Sorted fst_lt [(h, αh); pt₂ … pts]
   → h < j < k
     → minimise_slope (h, αh) pt₂ pts = ms
@@ -970,7 +970,7 @@ do 2 rewrite fold_slope_expr.
 eapply lt_expr_bef_j_in_ch; try eassumption.
 Qed.
 
-Lemma sl_lt_bef_j_any : ∀ n pts pt₁ pt₂ h αh j αj k αk segkx ptk hsl₁ hsl ms,
+Theorem sl_lt_bef_j_any : ∀ n pts pt₁ pt₂ h αh j αj k αk segkx ptk hsl₁ hsl ms,
   Sorted fst_lt [pt₁; pt₂ … pts]
   → (h, αh) ∈ [pt₂ … pts]
     → h < j < k
@@ -1014,7 +1014,7 @@ apply Qle_lt_trans with (y := slope_expr (g, αg) (j, αj)).
   rewrite Hend in Hms; assumption.
 Qed.
 
-Lemma sl_lt_bef_j_any₂ : ∀ n pts pt₁ pt₂ h αh j αj k αk segkx ptk hsl₁ hsl ms,
+Theorem sl_lt_bef_j_any₂ : ∀ n pts pt₁ pt₂ h αh j αj k αk segkx ptk hsl₁ hsl ms,
   Sorted fst_lt [pt₁; pt₂ … pts]
   → (h, αh) ∈ [pt₂ … pts]
     → h < j < k
@@ -1065,7 +1065,7 @@ apply Qle_lt_trans with (y := slope_expr (g, αg) (j, αj)).
    rewrite Hend in Hms; assumption.
 Qed.
 
-Lemma sl_lt_1st_ns_any_hp :
+Theorem sl_lt_1st_ns_any_hp :
   ∀ n pt₁ pt₂ pt₃ pt₄ pt₅ pts pts₁ ms₁ ms₂ sg₄ hsl₁ hsl,
   Sorted fst_lt [pt₁; pt₂ … pts]
   → minimise_slope pt₁ pt₂ pts = ms₁
@@ -1129,7 +1129,7 @@ induction hsl₁ as [| hs₁]; intros.
    eapply minimise_slope_sorted; eassumption.
 Qed.
 
-Lemma sl_lt_any_ns : ∀ n pt₁ pt₂ pt₃ pt₄ pts sg ms hsl₁ hsl,
+Theorem sl_lt_any_ns : ∀ n pt₁ pt₂ pt₃ pt₄ pts sg ms hsl₁ hsl,
   Sorted fst_lt [pt₁; pt₂ … pts]
   → minimise_slope pt₁ pt₂ pts = ms
     → next_ch_points n [end_pt ms … rem_pts ms] =
@@ -1201,7 +1201,7 @@ induction hsl₁ as [| hs₁]; intros.
   eapply minimise_slope_sorted; eassumption.
 Qed.
 
-Lemma sl_lt_bef_j : ∀ n pt₁ pt₂ pts h αh j αj k αk ms segjk hsl₁ hsl,
+Theorem sl_lt_bef_j : ∀ n pt₁ pt₂ pts h αh j αj k αk ms segjk hsl₁ hsl,
   Sorted fst_lt [pt₁; pt₂ … pts]
   → (h, αh) ∈ [pt₂ … pts]
     → h < j < k
@@ -1272,7 +1272,7 @@ destruct hsl₁ as [| hs₁]; intros.
    eapply sl_lt_any_ns; eassumption.
 Qed.
 
-Lemma lt_bef_j_aft_1st_ch : ∀ n pts pt₁ pt₂ h αh j αj k αk segjk hsl₁ hsl ms,
+Theorem lt_bef_j_aft_1st_ch : ∀ n pts pt₁ pt₂ h αh j αj k αk segjk hsl₁ hsl ms,
   Sorted fst_lt [pt₁; pt₂ … pts]
   → (h, αh) ∈ [pt₂ … pts]
     → h < j < k
@@ -1332,7 +1332,7 @@ destruct (Qlt_le_dec l h) as [Hgt| Hle].
  eapply Sorted_in; eassumption.
 Qed.
 
-Lemma lt_bef_j₁ : ∀ n pts j αj k αk segjk hs₁ hsl,
+Theorem lt_bef_j₁ : ∀ n pts j αj k αk segjk hs₁ hsl,
   Sorted fst_lt pts
   → next_ch_points n pts = [hs₁; mkns (j, αj) (k, αk) segjk … hsl]
     → ∀ h αh, (h, αh) ∈ pts
@@ -1387,7 +1387,7 @@ destruct Hαh as [Hαh| Hαh].
     rewrite Hend₁; apply Qlt_le_weak; destruct Hjk; assumption.
 Qed.
 
-Lemma lt_bef_j : ∀ n pts j αj segjk k αk hsl₁ hsl,
+Theorem lt_bef_j : ∀ n pts j αj segjk k αk hsl₁ hsl,
   Sorted fst_lt pts
   → next_ch_points n pts = hsl₁ ++ [mkns (j, αj) (k, αk) segjk … hsl]
     → ∀ h αh, (h, αh) ∈ pts
@@ -1433,7 +1433,7 @@ destruct hsl₁ as [| hs₁].
    split; assumption.
 Qed.
 
-Lemma lt_not_in_some_ns : ∀ n pts nsl₁ ns nsl,
+Theorem lt_not_in_some_ns : ∀ n pts nsl₁ ns nsl,
   Sorted fst_lt pts
   → next_ch_points n pts = nsl₁ ++ [ns … nsl]
     → ∀ h αh, (h, αh) ∈ pts
@@ -1474,7 +1474,7 @@ destruct (Qlt_le_dec k h) as [Hlt| Hge].
      right; left; reflexivity.
 Qed.
 
-Lemma lt_not_in_ns : ∀ n pts hsl₁ hsl ns,
+Theorem lt_not_in_ns : ∀ n pts hsl₁ hsl ns,
   Sorted fst_lt pts
   → next_ch_points n pts = hsl₁ ++ hsl
     → ns ∈ hsl
@@ -1494,7 +1494,7 @@ destruct Hns as [Hns| Hns].
  rewrite <- List.app_assoc; eassumption.
 Qed.
 
-Lemma points_not_in_any_newton_segment₁ : ∀ pts ns,
+Theorem points_not_in_any_newton_segment₁ : ∀ pts ns,
   Sorted fst_lt pts
   → ns ∈ lower_convex_hull_points pts
   → ∀ h αh, (h, αh) ∈ pts ∧ (h, αh) ∉ [ini_pt ns; fin_pt ns … oth_pts ns]

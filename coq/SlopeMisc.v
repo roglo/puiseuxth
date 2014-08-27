@@ -6,22 +6,22 @@ Require Import QArith.
 Require Import Slope_base.
 Require Import Misc.
 
-Lemma Qcmp_eq : ∀ a, (a ?= a) = Eq.
+Theorem Qcmp_eq : ∀ a, (a ?= a) = Eq.
 Proof.
 intros a; apply Qeq_alt; reflexivity.
 Qed.
 
-Lemma Qcmp_lt_gt : ∀ a b, (a ?= b) = Lt → (b ?= a) = Gt.
+Theorem Qcmp_lt_gt : ∀ a b, (a ?= b) = Lt → (b ?= a) = Gt.
 Proof.
 intros a b H; apply Qlt_alt in H; apply Qgt_alt; assumption.
 Qed.
 
-Lemma Qcmp_gt_lt : ∀ a b, (a ?= b) = Gt → (b ?= a) = Lt.
+Theorem Qcmp_gt_lt : ∀ a b, (a ?= b) = Gt → (b ?= a) = Lt.
 Proof.
 intros a b H; apply Qgt_alt in H; apply Qlt_alt; assumption.
 Qed.
 
-Lemma Qcmp_sym : ∀ a b c d,
+Theorem Qcmp_sym : ∀ a b c d,
   (a ?= b) = (c ?= d)
   → (b ?= a) = (d ?= c).
 Proof.
@@ -44,7 +44,7 @@ destruct cmp.
  rewrite <- H in Heqcmp; assumption.
 Qed.
 
-Lemma slope_cmp_flatten : ∀ x₁ y₁ x₂ y₂ x₃ y₃ x₄ y₄,
+Theorem slope_cmp_flatten : ∀ x₁ y₁ x₂ y₂ x₃ y₃ x₄ y₄,
   x₁ < x₂
   → x₃ < x₄
     → (slope_expr (x₁, y₁) (x₂, y₂) ?= slope_expr (x₃, y₃) (x₄, y₄)) =
@@ -66,9 +66,9 @@ repeat rewrite <- Qplus_cmp_cmp_minus_r.
 reflexivity.
 Qed.
 
-(* should use 'slope_cmp_flatten' like the other lemmas, but pb with
+(* should use 'slope_cmp_flatten' like the other theorems, but pb with
    conditions... *)
-Lemma slope_eq : ∀ x₁ y₁ x₂ y₂ x₃ y₃,
+Theorem slope_eq : ∀ x₁ y₁ x₂ y₂ x₃ y₃,
   ¬x₁ == x₂
   → ¬x₂ == x₃
     → ¬x₃ == x₁
@@ -122,7 +122,7 @@ apply Qeq_shift_mult_l in H.
  symmetry; apply Qminus_eq; assumption.
 Qed.
 
-Lemma slope_cmp_norm₁₂₁₃ : ∀ x₁ y₁ x₂ y₂ x₃ y₃,
+Theorem slope_cmp_norm₁₂₁₃ : ∀ x₁ y₁ x₂ y₂ x₃ y₃,
   x₁ < x₂ < x₃
   → (slope_expr (x₁, y₁) (x₂, y₂) ?= slope_expr (x₁, y₁) (x₃, y₃)) =
     (x₁ * y₃ + x₂ * y₁ + x₃ * y₂ ?= x₁ * y₂ + x₂ * y₃ + x₃ * y₁).
@@ -141,7 +141,7 @@ setoid_replace (y₁ * x₃ + y₂ * x₁ + y₃ * x₂) with
 reflexivity.
 Qed.
 
-Lemma slope_cmp_norm₁₃₁₂ : ∀ x₁ y₁ x₂ y₂ x₃ y₃,
+Theorem slope_cmp_norm₁₃₁₂ : ∀ x₁ y₁ x₂ y₂ x₃ y₃,
   x₁ < x₂ < x₃
   → (slope_expr (x₁, y₁) (x₃, y₃) ?= slope_expr (x₁, y₁) (x₂, y₂)) =
     (x₁ * y₂ + x₂ * y₃ + x₃ * y₁ ?= x₁ * y₃ + x₂ * y₁ + x₃ * y₂).
@@ -149,7 +149,7 @@ Proof.
 intros; apply Qcmp_sym, slope_cmp_norm₁₂₁₃; assumption.
 Qed.
 
-Lemma slope_cmp_norm₁₂₂₃ : ∀ x₁ y₁ x₂ y₂ x₃ y₃,
+Theorem slope_cmp_norm₁₂₂₃ : ∀ x₁ y₁ x₂ y₂ x₃ y₃,
   x₁ < x₂ < x₃
   → (slope_expr (x₁, y₁) (x₂, y₂) ?= slope_expr (x₂, y₂) (x₃, y₃)) =
     (x₁ * y₃ + x₂ * y₁ + x₃ * y₂ ?= x₁ * y₂ + x₂ * y₃ + x₃ * y₁).
@@ -166,7 +166,7 @@ setoid_replace (y₃ * x₂ + y₂ * x₁ + y₁ * x₃) with
 reflexivity.
 Qed.
 
-Lemma slope_cmp_norm₂₃₁₂ : ∀ x₁ y₁ x₂ y₂ x₃ y₃,
+Theorem slope_cmp_norm₂₃₁₂ : ∀ x₁ y₁ x₂ y₂ x₃ y₃,
   x₁ < x₂ < x₃
  → (slope_expr (x₂, y₂) (x₃, y₃) ?= slope_expr (x₁, y₁) (x₂, y₂)) =
    (x₁ * y₂ + x₂ * y₃ + x₃ * y₁ ?= x₁ * y₃ + x₂ * y₁ + x₃ * y₂).
@@ -174,7 +174,7 @@ Proof.
 intros; apply Qcmp_sym, slope_cmp_norm₁₂₂₃; assumption.
 Qed.
 
-Lemma slope_cmp_norm₁₃₂₃ : ∀ x₁ y₁ x₂ y₂ x₃ y₃,
+Theorem slope_cmp_norm₁₃₂₃ : ∀ x₁ y₁ x₂ y₂ x₃ y₃,
   x₁ < x₂ < x₃
   → (slope_expr (x₁, y₁) (x₃, y₃) ?= slope_expr (x₂, y₂) (x₃, y₃)) =
     (x₁ * y₃ + x₂ * y₁ + x₃ * y₂ ?= x₁ * y₂ + x₂ * y₃ + x₃ * y₁).
@@ -192,7 +192,7 @@ setoid_replace (y₂ * x₁ + y₁ * x₃ + y₃ * x₂) with
 reflexivity.
 Qed.
 
-Lemma slope_cmp_norm₂₃₁₃ : ∀ x₁ y₁ x₂ y₂ x₃ y₃,
+Theorem slope_cmp_norm₂₃₁₃ : ∀ x₁ y₁ x₂ y₂ x₃ y₃,
   x₁ < x₂ < x₃
   → (slope_expr (x₂, y₂) (x₃, y₃) ?= slope_expr (x₁, y₁) (x₃, y₃)) =
     (x₁ * y₂ + x₂ * y₃ + x₃ * y₁ ?= x₁ * y₃ + x₂ * y₁ + x₃ * y₂).
@@ -200,7 +200,7 @@ Proof.
 intros; apply Qcmp_sym, slope_cmp_norm₁₃₂₃; assumption.
 Qed.
 
-Lemma slope_cmp₁ : ∀ pt₁ pt₂ pt₃,
+Theorem slope_cmp₁ : ∀ pt₁ pt₂ pt₃,
   fst pt₁ < fst pt₂ < fst pt₃
   → (slope_expr pt₁ pt₂ ?= slope_expr pt₁ pt₃) =
     (slope_expr pt₁ pt₃ ?= slope_expr pt₂ pt₃).
@@ -211,7 +211,7 @@ rewrite slope_cmp_norm₁₂₁₃; [ idtac | split; assumption ].
 rewrite slope_cmp_norm₁₃₂₃; [ idtac | split; assumption ].
 reflexivity.
 Qed.
-Lemma slope_lt_1213_1323 : ∀ pt₁ pt₂ pt₃,
+Theorem slope_lt_1213_1323 : ∀ pt₁ pt₂ pt₃,
   fst pt₁ < fst pt₂ < fst pt₃
   → slope_expr pt₁ pt₂ < slope_expr pt₁ pt₃
     → slope_expr pt₁ pt₃ < slope_expr pt₂ pt₃.
@@ -220,7 +220,7 @@ intros (x₁, y₁) (x₂, y₂) (x₃, y₃) Hlt H.
 rewrite Qlt_alt in H |- *; rewrite <- H.
 symmetry; apply slope_cmp₁; assumption.
 Qed.
-Lemma slope_lt_1323_1213 : ∀ pt₁ pt₂ pt₃,
+Theorem slope_lt_1323_1213 : ∀ pt₁ pt₂ pt₃,
   fst pt₁ < fst pt₂ < fst pt₃
   → slope_expr pt₁ pt₃ < slope_expr pt₂ pt₃
     → slope_expr pt₁ pt₂ < slope_expr pt₁ pt₃.
@@ -230,7 +230,7 @@ rewrite Qlt_alt in H |- *; rewrite <- H.
 apply slope_cmp₁; assumption.
 Qed.
 
-Lemma slope_cmp₂ : ∀ pt₁ pt₂ pt₃,
+Theorem slope_cmp₂ : ∀ pt₁ pt₂ pt₃,
   fst pt₁ < fst pt₂ < fst pt₃
   → (slope_expr pt₁ pt₃ ?= slope_expr pt₁ pt₂) =
     (slope_expr pt₂ pt₃ ?= slope_expr pt₁ pt₃).
@@ -241,7 +241,7 @@ rewrite slope_cmp_norm₁₃₁₂; [ idtac | split; assumption ].
 rewrite slope_cmp_norm₂₃₁₃; [ idtac | split; assumption ].
 reflexivity.
 Qed.
-Lemma slope_lt_1312_2313 : ∀ pt₁ pt₂ pt₃,
+Theorem slope_lt_1312_2313 : ∀ pt₁ pt₂ pt₃,
   fst pt₁ < fst pt₂ < fst pt₃
   → slope_expr pt₁ pt₃ < slope_expr pt₁ pt₂
     → slope_expr pt₂ pt₃ < slope_expr pt₁ pt₃.
@@ -251,7 +251,7 @@ rewrite Qlt_alt in H |- *; rewrite <- H.
 symmetry; apply slope_cmp₂; assumption.
 Qed.
 
-Lemma slope_cmp₃ : ∀ pt₁ pt₂ pt₃,
+Theorem slope_cmp₃ : ∀ pt₁ pt₂ pt₃,
   fst pt₁ < fst pt₂ < fst pt₃
   → (slope_expr pt₁ pt₂ ?= slope_expr pt₂ pt₃) =
     (slope_expr pt₁ pt₃ ?= slope_expr pt₂ pt₃).
@@ -262,7 +262,7 @@ rewrite slope_cmp_norm₁₂₂₃; [ idtac | split; assumption ].
 rewrite slope_cmp_norm₁₃₂₃; [ idtac | split; assumption ].
 reflexivity.
 Qed.
-Lemma slope_lt_1223_1323 : ∀ pt₁ pt₂ pt₃,
+Theorem slope_lt_1223_1323 : ∀ pt₁ pt₂ pt₃,
   fst pt₁ < fst pt₂ < fst pt₃
   → slope_expr pt₁ pt₂ < slope_expr pt₂ pt₃
     → slope_expr pt₁ pt₃ < slope_expr pt₂ pt₃.
@@ -271,7 +271,7 @@ intros (x₁, y₁) (x₂, y₂) (x₃, y₃) Hlt H.
 rewrite Qlt_alt in H |- *; rewrite <- H.
 symmetry; apply slope_cmp₃; assumption.
 Qed.
-Lemma slope_lt_1323_1223 : ∀ pt₁ pt₂ pt₃,
+Theorem slope_lt_1323_1223 : ∀ pt₁ pt₂ pt₃,
   fst pt₁ < fst pt₂ < fst pt₃
   → slope_expr pt₁ pt₃ < slope_expr pt₂ pt₃
     → slope_expr pt₁ pt₂ < slope_expr pt₂ pt₃.
@@ -281,7 +281,7 @@ rewrite Qlt_alt in H |- *; rewrite <- H.
 apply slope_cmp₃; assumption.
 Qed.
 
-Lemma slope_cmp₄ : ∀ pt₁ pt₂ pt₃,
+Theorem slope_cmp₄ : ∀ pt₁ pt₂ pt₃,
   fst pt₁ < fst pt₂ < fst pt₃
   → (slope_expr pt₁ pt₂ ?= slope_expr pt₁ pt₃) =
     (slope_expr pt₁ pt₂ ?= slope_expr pt₂ pt₃).
@@ -292,7 +292,7 @@ rewrite slope_cmp_norm₁₂₁₃; [ idtac | split; assumption ].
 rewrite slope_cmp_norm₁₂₂₃; [ idtac | split; assumption ].
 reflexivity.
 Qed.
-Lemma slope_lt_1213_1223 : ∀ pt₁ pt₂ pt₃,
+Theorem slope_lt_1213_1223 : ∀ pt₁ pt₂ pt₃,
   fst pt₁ < fst pt₂ < fst pt₃
   → slope_expr pt₁ pt₂ < slope_expr pt₁ pt₃
     → slope_expr pt₁ pt₂ < slope_expr pt₂ pt₃.
@@ -301,7 +301,7 @@ intros (x₁, y₁) (x₂, y₂) (x₃, y₃) Hlt H.
 rewrite Qlt_alt in H |- *; rewrite <- H.
 symmetry; apply slope_cmp₄; assumption.
 Qed.
-Lemma slope_lt_1223_1213 : ∀ pt₁ pt₂ pt₃,
+Theorem slope_lt_1223_1213 : ∀ pt₁ pt₂ pt₃,
   fst pt₁ < fst pt₂ < fst pt₃
   → slope_expr pt₁ pt₂ < slope_expr pt₂ pt₃
     → slope_expr pt₁ pt₂ < slope_expr pt₁ pt₃.

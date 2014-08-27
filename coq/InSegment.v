@@ -10,7 +10,7 @@ Require Import ConvexHull.
 Require Import ConvexHullMisc.
 Require Import Newton.
 
-Lemma points_in_any_newton_segment₁ : ∀ ns pts,
+Theorem points_in_any_newton_segment₁ : ∀ ns pts,
   Sorted fst_lt pts
   → ns ∈ lower_convex_hull_points pts
     → ∀ h αh, (h, αh) ∈ [ini_pt ns; fin_pt ns … oth_pts ns]

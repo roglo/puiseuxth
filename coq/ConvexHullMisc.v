@@ -16,7 +16,7 @@ Definition fst_lt (x y : Q * Q) := (fst x < fst y).
 Definition hs_x_lt (x y : newton_segment) :=
   (fst (ini_pt x) < fst (ini_pt y)).
 
-Lemma Sorted_in : ∀ pt₁ pt₂ pts,
+Theorem Sorted_in : ∀ pt₁ pt₂ pts,
   Sorted fst_lt [pt₁ … pts]
   → pt₂ ∈ [pt₁ … pts]
     → fst pt₁ <= fst pt₂.
@@ -38,7 +38,7 @@ induction pts as [| pt₃]; intros.
    eapply Sorted_inv_1; eassumption.
 Qed.
 
-Lemma Sorted_app {A} : ∀ (f : A → A → Prop) l₁ l₂,
+Theorem Sorted_app {A} : ∀ (f : A → A → Prop) l₁ l₂,
   Sorted f (l₁ ++ l₂) → Sorted f l₁ ∧ Sorted f l₂.
 Proof.
 intros f l₁ l₂ H.
@@ -52,7 +52,7 @@ split.
  eapply Sorted_inv_1; eassumption.
 Qed.
 
-Lemma Sorted_app_at_r : ∀ α f l (x : α),
+Theorem Sorted_app_at_r : ∀ α f l (x : α),
   Sorted f l
   → (∀ y, y ∈ l → f y x)
     → Sorted f (l ++ [x]).
@@ -72,7 +72,7 @@ apply IHl in Hs.
  apply Hf; right; assumption.
 Qed.
 
-Lemma Sorted_hd : ∀ (pt₁ pt₂ : Q * Q) pts,
+Theorem Sorted_hd : ∀ (pt₁ pt₂ : Q * Q) pts,
   Sorted fst_lt [pt₁ … pts]
   → pt₂ ∈ pts
     → fst pt₁ < fst pt₂.
@@ -87,7 +87,7 @@ eapply Qlt_trans; [ eassumption | idtac ].
 apply IHpts; assumption.
 Qed.
 
-Lemma Sorted_not_in {A} : ∀ (f : A → A → Prop) a b l,
+Theorem Sorted_not_in {A} : ∀ (f : A → A → Prop) a b l,
   (∀ x, ¬f x x)
   → (∀ x y z, f x y → f y z → f x z)
     → Sorted f [b … l]
@@ -109,7 +109,7 @@ destruct Hin as [Hin| Hin].
   eapply Sorted_minus_2nd; eassumption.
 Qed.
 
-Lemma Sorted_map : ∀ A B P (Q : A → B) (l : list A),
+Theorem Sorted_map : ∀ A B P (Q : A → B) (l : list A),
   Sorted (λ x y, P (Q x) (Q y)) l
   → Sorted P (List.map Q l).
 Proof.
@@ -124,7 +124,7 @@ destruct l as [| b]; simpl; constructor.
  inversion Hsort; subst; assumption.
 Qed.
 
-Lemma Sorted_trans_app : ∀ A (g : A → A → Prop) x y l,
+Theorem Sorted_trans_app : ∀ A (g : A → A → Prop) x y l,
   (∀ x y z, g x y → g y z → g x z)
   → x ∈ l
     → Sorted g (l ++ [y])
@@ -160,7 +160,7 @@ inversion Hsort.
   rewrite <- H0; assumption.
 Qed.
 
-Lemma HdRel_app : ∀ A (R : A → A → Prop) a l₁ l₂,
+Theorem HdRel_app : ∀ A (R : A → A → Prop) a l₁ l₂,
   HdRel R a l₁
   → HdRel R a l₂
     → HdRel R a (l₁ ++ l₂).
@@ -172,7 +172,7 @@ Qed.
 
 (* *)
 
-Lemma minimise_slope_le : ∀ pt₁ pt₂ pts₂ ms,
+Theorem minimise_slope_le : ∀ pt₁ pt₂ pts₂ ms,
   Sorted fst_lt [pt₂ … pts₂]
   → minimise_slope pt₁ pt₂ pts₂ = ms
     → fst pt₂ <= fst (end_pt ms).
@@ -201,7 +201,7 @@ induction pts₂ as [| pt]; intros.
   eapply IHpts₂; eassumption.
 Qed.
 
-Lemma next_ch_points_hd : ∀ n pt₁ pt₂ pt₃ pts₁ seg hsl,
+Theorem next_ch_points_hd : ∀ n pt₁ pt₂ pt₃ pts₁ seg hsl,
   next_ch_points n [pt₁ … pts₁] = [mkns pt₂ pt₃ seg … hsl]
   → pt₁ = pt₂.
 Proof.
@@ -213,7 +213,7 @@ rewrite minimised_slope_beg_pt in Hnp.
 injection Hnp; intros; subst pt₂; reflexivity.
 Qed.
 
-Lemma minimise_slope_rem_length : ∀ pt₁ pt₂ pts ms n,
+Theorem minimise_slope_rem_length : ∀ pt₁ pt₂ pts ms n,
   (length pts < n)%nat
   → ms = minimise_slope pt₁ pt₂ pts
   → (length (rem_pts ms) < n)%nat.
@@ -239,7 +239,7 @@ induction pts as [| pt]; intros.
   apply lt_S_n, lt_S; assumption.
 Qed.
 
-Lemma minimise_slope_length : ∀ pt₁ pt₂ pts ms n,
+Theorem minimise_slope_length : ∀ pt₁ pt₂ pts ms n,
   length [pt₁; pt₂ … pts] ≤ S n
   → ms = minimise_slope pt₁ pt₂ pts
   → length [end_pt ms … rem_pts ms] ≤ n.
@@ -250,7 +250,7 @@ apply le_S_n in Hlen.
 eapply minimise_slope_rem_length; eassumption.
 Qed.
 
-Lemma minimise_slope_sorted : ∀ pt₁ pt₂ pts ms,
+Theorem minimise_slope_sorted : ∀ pt₁ pt₂ pts ms,
   Sorted fst_lt [pt₁; pt₂ … pts]
   → minimise_slope pt₁ pt₂ pts = ms
     → Sorted fst_lt [end_pt ms … rem_pts ms].
@@ -284,7 +284,7 @@ destruct c; subst ms; simpl; [ idtac | assumption | idtac ].
  constructor; [ assumption | eapply Qlt_trans; eassumption ].
 Qed.
 
-Lemma beg_lt_end_pt : ∀ pt₁ pt₂ pts ms,
+Theorem beg_lt_end_pt : ∀ pt₁ pt₂ pts ms,
   Sorted fst_lt [pt₁; pt₂ … pts]
   → minimise_slope pt₁ pt₂ pts = ms
   → fst (beg_pt ms) < fst (end_pt ms).
@@ -318,7 +318,7 @@ induction pts as [| pt₃]; intros.
   intros x y z H₁ H₂; eapply Qlt_trans; eassumption.
 Qed.
 
-Lemma ini_lt_fin_pt : ∀ pts ns n,
+Theorem ini_lt_fin_pt : ∀ pts ns n,
   Sorted fst_lt pts
   → ns ∈ next_ch_points n pts
   → fst (ini_pt ns) < fst (fin_pt ns).
@@ -347,7 +347,7 @@ destruct Hns as [Hns| Hns].
  eapply minimise_slope_sorted; [ eassumption | reflexivity ].
 Qed.
 
-Lemma next_ch_points_le : ∀ n pt₁ pt₂ pt₃ pts₁ sg hsl₁ hsl,
+Theorem next_ch_points_le : ∀ n pt₁ pt₂ pt₃ pts₁ sg hsl₁ hsl,
   Sorted fst_lt [pt₁ … pts₁]
   → next_ch_points n [pt₁ … pts₁] = hsl₁ ++ [mkns pt₂ pt₃ sg … hsl]
     → fst pt₁ <= fst pt₂.
@@ -375,7 +375,7 @@ induction hsl₁ as [| hs₁]; intros.
    reflexivity.
 Qed.
 
-Lemma next_points_sorted : ∀ n pts hsl,
+Theorem next_points_sorted : ∀ n pts hsl,
   Sorted fst_lt pts
   → next_ch_points n pts = hsl
     → Sorted hs_x_lt hsl.
@@ -415,7 +415,7 @@ apply IHn in Heqhsl₁.
  eapply minimise_slope_sorted; eassumption.
 Qed.
 
-Lemma lower_convex_hull_points_sorted : ∀ pts hsl,
+Theorem lower_convex_hull_points_sorted : ∀ pts hsl,
   Sorted fst_lt pts
   → lower_convex_hull_points pts = hsl
     → Sorted hs_x_lt hsl.
@@ -424,7 +424,7 @@ intros pts hsl Hsort Hch.
 eapply next_points_sorted; eassumption.
 Qed.
 
-Lemma minimised_slope : ∀ pt₁ pt₂ pt pts ms,
+Theorem minimised_slope : ∀ pt₁ pt₂ pt pts ms,
   minimise_slope pt₁ pt pts = ms
   → pt₂ = end_pt ms
     → slope ms == slope_expr pt₁ pt₂.
@@ -434,7 +434,7 @@ unfold slope; subst.
 rewrite minimised_slope_beg_pt; reflexivity.
 Qed.
 
-Lemma end_pt_in : ∀ pt₁ pt₂ pts ms,
+Theorem end_pt_in : ∀ pt₁ pt₂ pts ms,
   minimise_slope pt₁ pt₂ pts = ms
   → end_pt ms ∈ [pt₂ … pts].
 Proof.
@@ -459,7 +459,7 @@ induction pts as [| pt₃]; intros.
   right; eapply IHpts; eassumption.
 Qed.
 
-Lemma rem_pts_in : ∀ pt₁ pt₂ pts₂ ms pt,
+Theorem rem_pts_in : ∀ pt₁ pt₂ pts₂ ms pt,
   minimise_slope pt₁ pt₂ pts₂ = ms
   → pt ∈ rem_pts ms
     → pt ∈ pts₂.

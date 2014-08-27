@@ -35,7 +35,7 @@ Variable f : field r.
 
 Open Scope nat_scope.
 
-Lemma summation_aux_compat : ∀ g h b₁ b₂ len,
+Theorem summation_aux_compat : ∀ g h b₁ b₂ len,
   (∀ i, 0 ≤ i < len → (g (b₁ + i)%nat = h (b₂ + i)%nat)%K)
   → (summation_aux r b₁ len g = summation_aux r b₂ len h)%K.
 Proof.
@@ -58,7 +58,7 @@ rewrite IHlen.
  destruct Hi; assumption.
 Qed.
 
-Lemma summation_compat : ∀ g h b k,
+Theorem summation_compat : ∀ g h b k,
   (∀ i, b ≤ i ≤ k → (g i = h i)%K)
   → (Σ (i = b, k), g i = Σ (i = b, k), h i)%K.
 Proof.
@@ -69,7 +69,7 @@ apply Hgh.
 split; [ apply Nat.le_add_r | omega ].
 Qed.
 
-Lemma summation_mul_comm : ∀ g h b k,
+Theorem summation_mul_comm : ∀ g h b k,
   (Σ (i = b, k), g i * h i
    = Σ (i = b, k), h i * g i)%K.
 Proof.
@@ -78,7 +78,7 @@ apply summation_compat; intros i Hi.
 apply rng_mul_comm.
 Qed.
 
-Lemma all_0_summation_aux_0 : ∀ g b len,
+Theorem all_0_summation_aux_0 : ∀ g b len,
   (∀ i, (b ≤ i < b + len) → (g i = 0)%K)
   → (summation_aux r b len (λ i, g i) = 0)%K.
 Proof.
@@ -90,7 +90,7 @@ rewrite rng_add_0_l, IHlen; [ reflexivity | idtac ].
 intros i Hi; apply H; omega.
 Qed.
 
-Lemma all_0_summation_0 : ∀ g i₁ i₂,
+Theorem all_0_summation_0 : ∀ g i₁ i₂,
   (∀ i, i₁ ≤ i ≤ i₂ → (g i = 0)%K)
   → (Σ (i = i₁, i₂), g i = 0)%K.
 Proof.
@@ -101,7 +101,7 @@ apply H.
 split; [ assumption | omega ].
 Qed.
 
-Lemma summation_aux_succ_last : ∀ g b len,
+Theorem summation_aux_succ_last : ∀ g b len,
   (summation_aux r b (S len) g =
    summation_aux r b len g + g (b + len)%nat)%K.
 Proof.
@@ -119,7 +119,7 @@ induction len; intros.
  reflexivity.
 Qed.
 
-Lemma summation_aux_rtl : ∀ g b len,
+Theorem summation_aux_rtl : ∀ g b len,
   (summation_aux r b len g =
    summation_aux r b len (λ i, g (b + len - 1 + b - i)%nat))%K.
 Proof.
@@ -144,7 +144,7 @@ replace (b + len + S b - S (b + i)) with
 reflexivity.
 Qed.
 
-Lemma summation_rtl : ∀ g b k,
+Theorem summation_rtl : ∀ g b k,
   (Σ (i = b, k), g i = Σ (i = b, k), g (k + b - i)%nat)%K.
 Proof.
 (* supprimer ce putain de omega trop lent *)
@@ -162,7 +162,7 @@ destruct b; simpl.
  reflexivity.
 Qed.
 
-Lemma summation_aux_mul_swap : ∀ a g b len,
+Theorem summation_aux_mul_swap : ∀ a g b len,
   (summation_aux r b len (λ i, a * g i) =
    a * summation_aux r b len g)%K.
 Proof.
@@ -174,14 +174,14 @@ induction len; intros; simpl.
  reflexivity.
 Qed.
 
-Lemma summation_mul_swap : ∀ a g k,
+Theorem summation_mul_swap : ∀ a g k,
   (Σ (i = 0, k), a * g i = a * Σ (i = 0, k), g i)%K.
 Proof.
 intros a g k.
 apply summation_aux_mul_swap.
 Qed.
 
-Lemma summation_aux_summation_aux_mul_swap : ∀ g₁ g₂ g₃ b₁ b₂ len,
+Theorem summation_aux_summation_aux_mul_swap : ∀ g₁ g₂ g₃ b₁ b₂ len,
   (summation_aux r b₁ len
      (λ i, summation_aux r b₂ (g₁ i) (λ j, g₂ i * g₃ i j))
    = summation_aux r b₁ len
@@ -195,7 +195,7 @@ apply rng_add_compat_r.
 apply summation_aux_mul_swap.
 Qed.
 
-Lemma summation_summation_mul_swap : ∀ g₁ g₂ g₃ k,
+Theorem summation_summation_mul_swap : ∀ g₁ g₂ g₃ k,
   (Σ (i = 0, k), Σ (j = 0, g₁ i), g₂ i * g₃ i j
    = Σ (i = 0, k), g₂ i * Σ (j = 0, g₁ i), g₃ i j)%K.
 Proof.
@@ -203,7 +203,7 @@ intros g₁ g₂ g₃ k.
 apply summation_aux_summation_aux_mul_swap.
 Qed.
 
-Lemma summation_only_one_non_0 : ∀ g b v k,
+Theorem summation_only_one_non_0 : ∀ g b v k,
   (b ≤ v ≤ k)
   → (∀ i, (b ≤ i ≤ k) → (i ≠ v) → (g i = 0)%K)
     → (Σ (i = b, k), g i = g v)%K.
@@ -242,7 +242,7 @@ induction len; intros.
    apply Hi; [ omega | assumption ].
 Qed.
 
-Lemma summation_shift : ∀ b g k,
+Theorem summation_shift : ∀ b g k,
   b ≤ k
   → (Σ (i = b, k), g i =
      Σ (i = 0, k - b), g (b + i)%nat)%K.
@@ -255,7 +255,7 @@ apply summation_aux_compat; intros j Hj.
 reflexivity.
 Qed.
 
-Lemma summation_summation_shift : ∀ g k,
+Theorem summation_summation_shift : ∀ g k,
   (Σ (i = 0, k), Σ (j = i, k), g i j =
    Σ (i = 0, k), Σ (j = 0, k - i), g i (i + j)%nat)%K.
 Proof.
@@ -268,7 +268,7 @@ apply summation_aux_compat; intros j Hj.
 rewrite Nat.add_0_l; reflexivity.
 Qed.
 
-Lemma summation_only_one : ∀ g n, (Σ (i = n, n), g i = g n)%K.
+Theorem summation_only_one : ∀ g n, (Σ (i = n, n), g i = g n)%K.
 Proof.
 intros g n.
 unfold summation.
@@ -277,7 +277,7 @@ rewrite Nat.sub_diag; simpl.
 rewrite rng_add_0_r; reflexivity.
 Qed.
 
-Lemma summation_split_last : ∀ g b k,
+Theorem summation_split_last : ∀ g b k,
   (b ≤ S k)
   → (Σ (i = b, S k), g i = Σ (i = b, k), g i + g (S k))%K.
 Proof.
@@ -290,11 +290,11 @@ rewrite Nat.add_comm, Nat.add_sub.
 reflexivity.
 Qed.
 
-Lemma summation_aux_succ_first : ∀ g b len,
+Theorem summation_aux_succ_first : ∀ g b len,
   summation_aux r b (S len) g = (g b + summation_aux r (S b) len g)%K.
 Proof. reflexivity. Qed.
 
-Lemma summation_split_first : ∀ g b k,
+Theorem summation_split_first : ∀ g b k,
   b ≤ k
   → Σ (i = b, k), g i = (g b + Σ (i = S b, k), g i)%K.
 Proof.
@@ -305,7 +305,7 @@ rewrite <- summation_aux_succ_first.
 rewrite <- Nat.sub_succ_l; [ reflexivity | assumption ].
 Qed.
 
-Lemma summation_add_distr : ∀ g h b k,
+Theorem summation_add_distr : ∀ g h b k,
   (Σ (i = b, k), (g i + h i) =
    Σ (i = b, k), g i + Σ (i = b, k), h i)%K.
 Proof.
@@ -345,7 +345,7 @@ destruct (le_dec b k) as [Hbk| Hbk].
  rewrite rng_add_0_r; reflexivity.
 Qed.
 
-Lemma summation_summation_exch : ∀ g k,
+Theorem summation_summation_exch : ∀ g k,
   (Σ (j = 0, k), Σ (i = 0, j), g i j =
    Σ (i = 0, k), Σ (j = i, k), g i j)%K.
 Proof.
@@ -364,7 +364,7 @@ rewrite summation_split_last; [ reflexivity | idtac ].
 apply Nat.le_le_succ_r; assumption.
 Qed.
 
-Lemma summation_aux_ub_add : ∀ g b k₁ k₂,
+Theorem summation_aux_ub_add : ∀ g b k₁ k₂,
   (summation_aux r b (k₁ + k₂) g =
    summation_aux r b k₁ g + summation_aux r (b + k₁) k₂ g)%K.
 Proof.
@@ -390,7 +390,7 @@ induction k₂; intros.
   rewrite Nat.add_succ_r, <- Nat.add_succ_l; reflexivity.
 Qed.
 
-Lemma summation_ub_add : ∀ g k₁ k₂,
+Theorem summation_ub_add : ∀ g k₁ k₂,
   (Σ (i = 0, k₁ + k₂), g i =
    Σ (i = 0, k₁), g i + Σ (i = S k₁, k₁ + k₂), g i)%K.
 Proof.
@@ -402,7 +402,7 @@ rewrite summation_aux_ub_add; simpl.
 rewrite Nat.add_comm, Nat.add_sub; reflexivity.
 Qed.
 
-Lemma summation_aux_mul_summation_aux_summation_aux : ∀ g k n,
+Theorem summation_aux_mul_summation_aux_summation_aux : ∀ g k n,
   (summation_aux r 0 (S k * S n) g =
    summation_aux r 0 (S k)
      (λ i, summation_aux r 0 (S n) (λ j, g (i * S n + j)%nat)))%K.
@@ -435,7 +435,7 @@ revert n; induction k; intros.
  rewrite Nat.add_succ_r; reflexivity.
 Qed.
 
-Lemma summation_mul_summation_summation : ∀ g n k,
+Theorem summation_mul_summation_summation : ∀ g n k,
   (0 < n)%nat
   → (0 < k)%nat
     → (Σ (i = 0, k * n - 1), g i =
@@ -456,7 +456,7 @@ rewrite <- Nat.sub_succ_l, Nat.sub_succ, Nat.sub_0_r.
  simpl; apply le_n_S, Nat.le_0_l.
 Qed.
 
-Lemma inserted_0_summation : ∀ g h k n,
+Theorem inserted_0_summation : ∀ g h k n,
   n ≠ O
   → (∀ i, i mod n ≠ O → (g i = 0)%K)
     → (∀ i, (g (n * i)%nat = h i)%K)
@@ -516,7 +516,7 @@ destruct k.
   rewrite Nat.add_comm; reflexivity.
 Qed.
 
-Lemma summation_add_add_sub : ∀ g b k n,
+Theorem summation_add_add_sub : ∀ g b k n,
   (Σ (i = b, k), g i = Σ (i = b + n, k + n), g (i - n)%nat)%K.
 Proof.
 intros g b k n.
@@ -528,7 +528,7 @@ replace (b + n + i - n)%nat with (b + i)%nat by omega.
 reflexivity.
 Qed.
 
-Lemma summation_succ_succ : ∀ b k g,
+Theorem summation_succ_succ : ∀ b k g,
   (Σ (i = S b, S k), g i = Σ (i = b, k), g (S i))%K.
 Proof.
 intros b k g.
@@ -540,7 +540,7 @@ induction len; intros; [ reflexivity | simpl ].
 rewrite IHlen; reflexivity.
 Qed.
 
-Lemma summation_lt : ∀ k b g,
+Theorem summation_lt : ∀ k b g,
   (k < b)%nat
   → (Σ (i = b, k), g i = 0)%K.
 Proof.

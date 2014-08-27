@@ -48,7 +48,7 @@ split; intros H.
  transitivity b; assumption.
 Qed.
 
-Lemma ps_lap_forall_in_K_1_m_compat {α} {R : ring α} : ∀ la lb m,
+Theorem ps_lap_forall_in_K_1_m_compat {α} {R : ring α} : ∀ la lb m,
   (la = lb)%pslap
   → ps_lap_forall (λ a, in_K_1_m a m) la
   → ps_lap_forall (λ a, in_K_1_m a m) lb.
@@ -235,7 +235,7 @@ split; [ intros Hfa a Hin | intros Hfa ].
    apply Hfa; right; assumption.
 Qed.
 
-Lemma hd_in_K_1_m : ∀ a la m,
+Theorem hd_in_K_1_m : ∀ a la m,
   ps_lap_forall (λ b, in_K_1_m b m) [a … la]
   → in_K_1_m a m.
 Proof.

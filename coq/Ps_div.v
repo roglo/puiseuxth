@@ -43,7 +43,7 @@ Variable α : Type.
 Variable r : ring α.
 Variable f : field r.
 
-Lemma null_coeff_range_length_left_adjust : ∀ n ps,
+Theorem null_coeff_range_length_left_adjust : ∀ n ps,
   null_coeff_range_length r (ps_terms ps) 0 = fin n
   → null_coeff_range_length r (ps_terms (ps_left_adjust ps)) 0 = 0%Nbar.
 Proof.
@@ -61,7 +61,7 @@ split.
  rewrite Nat.add_0_r; assumption.
 Qed.
 
-Lemma null_coeff_range_length_inf_left_adjust : ∀ ps,
+Theorem null_coeff_range_length_inf_left_adjust : ∀ ps,
   null_coeff_range_length r (ps_terms ps) 0 = ∞
   → null_coeff_range_length r (ps_terms (ps_left_adjust ps)) 0 = ∞.
 Proof.
@@ -73,7 +73,7 @@ apply null_coeff_range_length_iff in Hn.
 assumption.
 Qed.
 
-Lemma ps_left_adjust_eq : ∀ ps, (ps = ps_left_adjust ps)%ps.
+Theorem ps_left_adjust_eq : ∀ ps, (ps = ps_left_adjust ps)%ps.
 Proof.
 intros ps.
 remember (null_coeff_range_length r (ps_terms ps) 0) as n eqn:Hn .
@@ -132,14 +132,14 @@ destruct n as [n| ].
   assumption.
 Qed.
 
-Lemma series_left_shift_0 : ∀ s, (series_left_shift 0 s = s)%ser.
+Theorem series_left_shift_0 : ∀ s, (series_left_shift 0 s = s)%ser.
 Proof.
 intros s.
 unfold series_left_shift.
 destruct s; reflexivity.
 Qed.
 
-Lemma series_shrink_1 : ∀ s, (series_shrink 1 s = s)%ser.
+Theorem series_shrink_1 : ∀ s, (series_shrink 1 s = s)%ser.
 Proof.
 intros s.
 unfold series_shrink; simpl.
@@ -190,7 +190,7 @@ destruct n as [n| ].
 Qed.
 
 (* should be moved in Power_series.v *)
-Lemma series_inv_compat : ∀ a b,
+Theorem series_inv_compat : ∀ a b,
   (a.[0] ≠ 0)%K
   → (a = b)%ser
     → (series_inv a = series_inv b)%ser.
@@ -208,7 +208,7 @@ rewrite series_mul_1_r in Hab.
 symmetry; assumption.
 Qed.
 
-Lemma null_coeff_range_length_series_1 :
+Theorem null_coeff_range_length_series_1 :
   (1 ≠ 0)%K
   → null_coeff_range_length r 1%ser 0 = 0%Nbar.
 Proof.
@@ -237,7 +237,7 @@ destruct Hn as (Hz, Hnz).
 exfalso; apply Hnz; reflexivity.
 Qed.
 
-Lemma greatest_series_x_power_series_1 :
+Theorem greatest_series_x_power_series_1 :
   greatest_series_x_power r 1%ser 0 = O.
 Proof.
 apply greatest_series_x_power_series_const with (c := 1%K).

@@ -52,23 +52,23 @@ Notation "a * b" := (ps_lap_mul a b) : ps_lap_scope.
 Notation "a ^ b" := (ps_lap_pow a b) : ps_lap_scope.
 Notation "a ∘ b" := (ps_lap_comp a b) : ps_lap_scope.
 
-Lemma fold_ps_lap_add : ∀ α (R : ring α) a b,
+Theorem fold_ps_lap_add : ∀ α (R : ring α) a b,
   @lap_add _ (ps_ring R) a b = ps_lap_add a b.
 Proof. reflexivity. Qed.
 
-Lemma fold_ps_lap_mul : ∀ α (R : ring α) a b,
+Theorem fold_ps_lap_mul : ∀ α (R : ring α) a b,
   @lap_mul _ (ps_ring R) a b = ps_lap_mul a b.
 Proof. reflexivity. Qed.
 
-Lemma fold_ps_lap_pow : ∀ α (R : ring α) a n,
+Theorem fold_ps_lap_pow : ∀ α (R : ring α) a n,
   @lap_power _ (ps_ring R) a n = ps_lap_pow a n.
 Proof. reflexivity. Qed.
 
-Lemma fold_ps_lap_comp : ∀ α (R : ring α) a b,
+Theorem fold_ps_lap_comp : ∀ α (R : ring α) a b,
   @lap_compose _ (ps_ring R) a b = ps_lap_comp a b.
 Proof. reflexivity. Qed.
 
-Lemma fold_ps_lap_nth : ∀ α (R : ring α) h la,
+Theorem fold_ps_lap_nth : ∀ α (R : ring α) h la,
   List.nth h la 0%ps = ps_lap_nth h la.
 Proof. reflexivity. Qed.
 
@@ -132,15 +132,15 @@ Definition ps_pol_apply α {R : ring α} a b :=
 
 Definition ps_pol α a := @mkpol (puiseux_series α) a.
 
-Lemma fold_ps_pol_add : ∀ α (R : ring α) a b,
+Theorem fold_ps_pol_add : ∀ α (R : ring α) a b,
   @poly_add _ (ps_ring R) a b = ps_pol_add a b.
 Proof. reflexivity. Qed.
 
-Lemma fold_ps_pol_mul : ∀ α (R : ring α) a b,
+Theorem fold_ps_pol_mul : ∀ α (R : ring α) a b,
   @poly_mul _ (ps_ring R) a b = ps_pol_mul a b.
 Proof. reflexivity. Qed.
 
-Lemma fold_ps_pol_pow : ∀ α (R : ring α) a b,
+Theorem fold_ps_pol_pow : ∀ α (R : ring α) a b,
   @poly_power _ (ps_ring R) a b = ps_pol_pow a b.
 Proof. reflexivity. Qed.
 

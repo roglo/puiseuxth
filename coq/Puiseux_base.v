@@ -77,17 +77,17 @@ Section theorems.
 Variable α : Type.
 Variable r : ring α.
 
-Lemma fold_qpower_list : ∀ pow (psl : list (puiseux_series α)),
+Theorem fold_qpower_list : ∀ pow (psl : list (puiseux_series α)),
   List.map (pair_rec (λ pow ps, (Qnat pow, ps))) (power_list pow psl) =
   qpower_list pow psl.
 Proof. reflexivity. Qed.
 
-Lemma fold_points_of_ps_lap_gen : ∀ pow (cl : list (puiseux_series α)),
+Theorem fold_points_of_ps_lap_gen : ∀ pow (cl : list (puiseux_series α)),
   filter_finite_ord r (qpower_list pow cl) =
   points_of_ps_lap_gen pow cl.
 Proof. reflexivity. Qed.
 
-Lemma order_inf : ∀ x, order x = qinf ↔ (x = 0)%ps.
+Theorem order_inf : ∀ x, order x = qinf ↔ (x = 0)%ps.
 Proof.
 intros x.
 split; intros H.
@@ -102,13 +102,13 @@ split; intros H.
  rewrite H; reflexivity.
 Qed.
 
-Lemma order_fin : ∀ x, order x ≠ qinf ↔ (x ≠ 0)%ps.
+Theorem order_fin : ∀ x, order x ≠ qinf ↔ (x ≠ 0)%ps.
 Proof.
 intros x.
 split; intros H I; apply H, order_inf; assumption.
 Qed.
 
-Lemma order_0 : order 0%ps = Qbar.qinf.
+Theorem order_0 : order 0%ps = Qbar.qinf.
 Proof.
 unfold order; simpl.
 rewrite null_coeff_range_length_series_0; reflexivity.
@@ -146,13 +146,13 @@ destruct (ps_zerop (a - b)%ps) as [H| H].
  apply ps_add_opp_r.
 Qed.
 
-Lemma fold_points_of_ps_polynom_gen : ∀ pow (cl : list (puiseux_series α)),
+Theorem fold_points_of_ps_polynom_gen : ∀ pow (cl : list (puiseux_series α)),
   filter_finite_ord r
     (List.map (pair_rec (λ pow ps, (Qnat pow, ps))) (power_list pow cl)) =
   points_of_ps_lap_gen pow cl.
 Proof. reflexivity. Qed.
 
-Lemma points_of_polyn_sorted : ∀ deg (cl : list (puiseux_series α)) pts,
+Theorem points_of_polyn_sorted : ∀ deg (cl : list (puiseux_series α)) pts,
   pts = points_of_ps_lap_gen deg cl
   → Sorted fst_lt pts.
 Proof.
@@ -199,7 +199,7 @@ Qed.
 
 End theorems.
 
-Lemma div_gcd_gcd_0_r : ∀ a b c d e f,
+Theorem div_gcd_gcd_0_r : ∀ a b c d e f,
   (b / Z.gcd (Z.gcd a b) c)%Z = (e / Z.gcd (Z.gcd d e) f)%Z
   → e = 0%Z
     → (a * e)%Z = (d * b)%Z.
@@ -233,7 +233,7 @@ destruct (Z_zerop d) as [Hd| Hd].
   apply Z.abs_0_iff; assumption.
 Qed.
 
-Lemma div_gcd_gcd_mul_compat : ∀ a b c d e f,
+Theorem div_gcd_gcd_mul_compat : ∀ a b c d e f,
   (a / Z.gcd (Z.gcd a b) c)%Z = (d / Z.gcd (Z.gcd d e) f)%Z
   → (b / Z.gcd (Z.gcd a b) c)%Z = (e / Z.gcd (Z.gcd d e) f)%Z
     → (a * e)%Z = (d * b)%Z.

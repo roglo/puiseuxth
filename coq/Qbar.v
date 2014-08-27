@@ -504,7 +504,7 @@ rewrite <- Hab, <- Hcd.
 inversion Hac; assumption.
 Qed.
 
-Lemma Qmin_same_den : ∀ a b c, Qmin (a # c) (b # c) = Z.min a b # c.
+Theorem Qmin_same_den : ∀ a b c, Qmin (a # c) (b # c) = Z.min a b # c.
 Proof.
 intros a b c.
 unfold Qmin; simpl.

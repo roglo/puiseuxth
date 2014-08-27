@@ -37,7 +37,7 @@ Fixpoint ps_lap_in α {R : ring α} a l :=
 
 Arguments ps_lap_in _ _ a%ps l%pslap.
 
-Lemma ps_lap_in_compat : ∀ α (R : ring α) a b la lb,
+Theorem ps_lap_in_compat : ∀ α (R : ring α) a b la lb,
   (a = b)%ps
   → (la = lb)%pslap
     → ps_lap_in a la
@@ -115,7 +115,7 @@ Variable R : ring α.
 Variable K : field R.
 Variable acf : algeb_closed_field K.
 
-Lemma coeff_of_hl_eq_order : ∀ h la li,
+Theorem coeff_of_hl_eq_order : ∀ h la li,
   h ∈ li
   → coeff_of_hl R la h li = order_coeff (List.nth h la 0%ps).
 Proof.
@@ -457,7 +457,7 @@ destruct n as [n| ].
  rewrite Hn; constructor.
 Qed.
 
-Lemma ps_list_in_split : ∀ (a : puiseux_series α) la,
+Theorem ps_list_in_split : ∀ (a : puiseux_series α) la,
   a ∈ la
   → ∃ l1 l2, (la = l1 ++ [a … l2])%pslap.
 Proof.
@@ -474,7 +474,7 @@ destruct Ha as [Ha| Ha].
  rewrite Ha; reflexivity.
 Qed.
 
-Lemma order_mul : ∀ a b, (order (a * b)%ps = order a + order b)%Qbar.
+Theorem order_mul : ∀ a b, (order (a * b)%ps = order a + order b)%Qbar.
 Proof.
 intros a b.
 symmetry.
@@ -629,7 +629,7 @@ destruct na as [na| ].
  subst nc; constructor.
 Qed.
 
-Lemma order_add : ∀ a b,
+Theorem order_add : ∀ a b,
   (order (a + b)%ps ≥ Qbar.min (order a) (order b))%Qbar.
 Proof.
 intros a b.
@@ -760,7 +760,7 @@ destruct na as [na| ].
   apply Nat2Z.is_nonneg.
 Qed.
 
-Lemma list_in_ps_lap_in : ∀ a l,
+Theorem list_in_ps_lap_in : ∀ a l,
   (a ≠ 0)%ps
   → a ∈ l
     → ps_lap_in a l.
@@ -777,7 +777,7 @@ destruct Hal as [Hal| Hal].
  right; apply IHl; assumption.
 Qed.
 
-Lemma ps_lap_nilp : ∀ la : list (puiseux_series α),
+Theorem ps_lap_nilp : ∀ la : list (puiseux_series α),
   {@lap_eq _ (ps_ring R) la []} +
   {not (@lap_eq _ (ps_ring R) la [])}.
 Proof.
@@ -800,7 +800,7 @@ destruct IHla as [IHla| IHla].
  destruct H; assumption.
 Qed.
 
-Lemma ps_lap_in_add : ∀ la lb,
+Theorem ps_lap_in_add : ∀ la lb,
   (∀ m, ps_lap_in m la → (order m > 0)%Qbar)
   → (∀ m, ps_lap_in m lb → (order m > 0)%Qbar)
     → (∀ m, ps_lap_in m (la + lb) → (order m > 0)%Qbar).
@@ -927,9 +927,9 @@ destruct (ps_lap_nilp la) as [Hlaz| Hlanz].
          assumption.
 Qed.
 
-(* very close to 'ps_lap_in_add'. Is there a way to have only one lemma?
-   or a lemma grouping these two together? *)
-Lemma ps_lap_in_add_ge : ∀ la lb,
+(* very close to 'ps_lap_in_add'. Is there a way to have only one theorem?
+   or a theorem grouping these two together? *)
+Theorem ps_lap_in_add_ge : ∀ la lb,
   (∀ m, ps_lap_in m la → (order m ≥ 0)%Qbar)
   → (∀ m, ps_lap_in m lb → (order m ≥ 0)%Qbar)
     → (∀ m, ps_lap_in m (la + lb) → (order m ≥ 0)%Qbar).
@@ -1056,7 +1056,7 @@ destruct (ps_lap_nilp la) as [Hlaz| Hlanz].
          assumption.
 Qed.
 
-Lemma ps_lap_in_mul : ∀ la lb,
+Theorem ps_lap_in_mul : ∀ la lb,
   (∀ m, ps_lap_in m la → (order m > 0)%Qbar)
   → (∀ m, ps_lap_in m lb → (order m ≥ 0)%Qbar)
     → (∀ m, ps_lap_in m (la * lb) → (order m > 0)%Qbar).
@@ -1113,7 +1113,7 @@ induction la as [| a]; intros.
    apply Hla; right; assumption.
 Qed.
 
-Lemma ps_lap_in_mul_ge : ∀ la lb,
+Theorem ps_lap_in_mul_ge : ∀ la lb,
   (∀ m, ps_lap_in m la → (order m ≥ 0)%Qbar)
   → (∀ m, ps_lap_in m lb → (order m ≥ 0)%Qbar)
     → (∀ m, ps_lap_in m (la * lb) → (order m ≥ 0)%Qbar).
@@ -1170,7 +1170,7 @@ induction la as [| a]; intros.
    apply Hla; right; assumption.
 Qed.
 
-Lemma ps_lap_in_summation : ∀ f l,
+Theorem ps_lap_in_summation : ∀ f l,
   (∀ i, i ∈ l → ∀ m, ps_lap_in m (f i) → (order m > 0)%Qbar)
   → (∀ m, ps_lap_in m (ps_lap_summ l f) → (order m > 0)%Qbar).
 Proof.
@@ -1191,7 +1191,7 @@ apply ps_lap_in_add in Hm; [ assumption | idtac | idtac ].
 Qed.
 
 (* to be moved to the good file *)
-Lemma lap_mul_summation : ∀ α (Kx : ring (puiseux_series α)) la l f,
+Theorem lap_mul_summation : ∀ α (Kx : ring (puiseux_series α)) la l f,
   (la * lap_summation l f = lap_summation l (λ i, la * f i))%lap.
 Proof.
 clear.
@@ -1203,7 +1203,7 @@ induction l as [| j]; intros; simpl.
  reflexivity.
 Qed.
 
-Lemma ps_monom_order : ∀ c n, (c ≠ 0)%K → order (ps_monom c n) = qfin n.
+Theorem ps_monom_order : ∀ c n, (c ≠ 0)%K → order (ps_monom c n) = qfin n.
 Proof.
 intros c n Hc.
 unfold order.
@@ -1221,7 +1221,7 @@ destruct m as [m| ].
  pose proof (Hm 0%nat); contradiction.
 Qed.
 
-Lemma ps_monom_0_order : ∀ c n, (c = 0)%K → order (ps_monom c n) = qinf.
+Theorem ps_monom_0_order : ∀ c n, (c = 0)%K → order (ps_monom c n) = qinf.
 Proof.
 intros c n Hc.
 unfold order.
@@ -1235,7 +1235,7 @@ destruct Hm as (Him, Hm).
 destruct m as [| m]; apply Hm; [ assumption | reflexivity ].
 Qed.
 
-Lemma ps_const_order : ∀ a c,
+Theorem ps_const_order : ∀ a c,
   (c ≠ 0)%K
   → a = ps_monom c 0
     → (order a = 0)%Qbar.
@@ -1244,7 +1244,7 @@ intros a c Hc Ha; subst a.
 rewrite ps_monom_order; [ reflexivity | assumption ].
 Qed.
 
-Lemma ps_monom_order_opp_r : ∀ c n,
+Theorem ps_monom_order_opp_r : ∀ c n,
   (c ≠ 0)%K
   → order (ps_monom c (- n)) = (- order (ps_monom c n))%Qbar.
 Proof.
@@ -1254,7 +1254,7 @@ rewrite ps_monom_order; [ idtac | assumption ].
 reflexivity.
 Qed.
 
-Lemma ps_monom_order_ge : ∀ c n, (order (ps_monom c n) ≥ qfin n)%Qbar.
+Theorem ps_monom_order_ge : ∀ c n, (order (ps_monom c n) ≥ qfin n)%Qbar.
 Proof.
 intros c n.
 unfold order.
@@ -1273,7 +1273,7 @@ rewrite Z.add_0_r; destruct n; simpl.
 unfold Qle; simpl; reflexivity.
 Qed.
 
-Lemma ps_lap_in_power : ∀ la n,
+Theorem ps_lap_in_power : ∀ la n,
   (∀ a, ps_lap_in a la → (order a ≥ 0)%Qbar)
   → (∀ m, ps_lap_in m (la ^ n) → (order m ≥ 0)%Qbar).
 Proof.
@@ -1293,7 +1293,7 @@ Qed.
 
 (* [Walker, p 101: « each power of y₁ in g(x,y₁) has a coefficient of
    positive order » *)
-Lemma each_power_of_y₁_in_g_has_coeff_pos_ord : ∀ pol ns g,
+Theorem each_power_of_y₁_in_g_has_coeff_pos_ord : ∀ pol ns g,
   ns ∈ newton_segments pol
   → g = g_of_ns pol ns
     → ∀ m, m ∈ al g → (order m > 0)%Qbar.

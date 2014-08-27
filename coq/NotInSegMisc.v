@@ -7,10 +7,10 @@ Require Import Slope_base.
 Require Import ConvexHull.
 Require Import ConvexHullMisc.
 
-(* 1/ two lemmas very close to each other; another lemma to factorise them,
+(* 1/ two theorems very close to each other; another theorem to factorise them,
    perhaps? the most part is normalisation *)
-(* 2/ perhaps could be proved shorter by the lemmas of Slope.v? *)
-Lemma ad_hoc_lt_lt₂ : ∀ i j k x y z,
+(* 2/ perhaps could be proved shorter by the theorems of Slope.v? *)
+Theorem ad_hoc_lt_lt₂ : ∀ i j k x y z,
   j < i < k
   → (x - z) / (i - j) < (y - x) / (k - i)
     → x + i * ((x - y) / (k - i)) < z + j * ((x - y) / (k - i)).
@@ -55,7 +55,7 @@ setoid_replace (x * j + z * k + x * i + y * i) with
 assumption.
 Qed.
 
-Lemma ad_hoc_lt_lt : ∀ i j k x y z,
+Theorem ad_hoc_lt_lt : ∀ i j k x y z,
   i < j ∧ i < k
   → (y - x) / (k - i) < (z - x) / (j - i)
     → x + i * ((x - y) / (k - i)) < z + j * ((x - y) / (k - i)).
@@ -99,7 +99,7 @@ rewrite Qplus_plus_swap; apply Qlt_not_le.
 assumption.
 Qed.
 
-Lemma minimised_slope_le : ∀ pt₁ pt₂ pts ms,
+Theorem minimised_slope_le : ∀ pt₁ pt₂ pts ms,
   minimise_slope pt₁ pt₂ pts = ms
   → slope ms <= slope_expr pt₁ pt₂.
 Proof.
@@ -128,7 +128,7 @@ induction pts as [| pt]; intros.
   apply Qlt_le_weak; eassumption.
 Qed.
 
-Lemma minimise_slope_pts_le : ∀ j αj pt pts ms,
+Theorem minimise_slope_pts_le : ∀ j αj pt pts ms,
   minimise_slope (j, αj) pt pts = ms
   → ∀ h αh,
      (h, αh) ∈ pts
@@ -176,7 +176,7 @@ destruct Hαh as [Hαh| Hαh].
   eapply IHpts; eassumption.
 Qed.
 
-Lemma min_slope_lt_after_k : ∀ j αj k αk pt pts ms,
+Theorem min_slope_lt_after_k : ∀ j αj k αk pt pts ms,
   Sorted fst_lt pts
   → minimise_slope (j, αj) pt pts = ms
     → end_pt ms = (k, αk)
@@ -247,7 +247,7 @@ destruct Hαh as [Hαh| Hαh].
   apply Sorted_inv_2 in Hsort; destruct Hsort; assumption.
 Qed.
 
-Lemma points_after_k : ∀ n pts j αj k αk seg hsl γ β,
+Theorem points_after_k : ∀ n pts j αj k αk seg hsl γ β,
   Sorted fst_lt pts
   → j < k
     → γ = (αj - αk) / (k - j)
@@ -299,7 +299,7 @@ destruct Hαh as [Hαh| Hαh].
    apply Sorted_inv_1 in Hsort; assumption.
 Qed.
 
-Lemma not_seg_min_sl_lt : ∀ j αj k αk pt pts ms h αh,
+Theorem not_seg_min_sl_lt : ∀ j αj k αk pt pts ms h αh,
   Sorted fst_lt [(j, αj); pt; (h, αh) … pts]
   → minimise_slope (j, αj) pt [(h, αh) … pts] = ms
     → j < h < k
@@ -387,7 +387,7 @@ induction pts as [| pt₁]; intros.
    assumption.
 Qed.
 
-Lemma points_between_j_and_k : ∀ n pts j αj k αk oth hsl γ β,
+Theorem points_between_j_and_k : ∀ n pts j αj k αk oth hsl γ β,
   Sorted fst_lt pts
   → γ = (αj - αk) / (k - j)
     → β = αj + j * γ
@@ -510,7 +510,7 @@ destruct Hαh as [Hαh| Hαh].
      intros x y z H₁ H₂; eapply Qlt_trans; eassumption.
 Qed.
 
-Lemma in_ch_in_pts : ∀ n pts pt₁ pt₂ s,
+Theorem in_ch_in_pts : ∀ n pts pt₁ pt₂ s,
   mkns pt₁ pt₂ s ∈ next_ch_points n pts
   → pt₁ ∈ pts ∧ pt₂ ∈ pts.
 Proof.
@@ -553,7 +553,7 @@ destruct Hhs as [Hhs| ].
    eapply rem_pts_in; eassumption.
 Qed.
 
-Lemma sorted_qeq_eq : ∀ pts j αj k αk,
+Theorem sorted_qeq_eq : ∀ pts j αj k αk,
   Sorted fst_lt pts
   → (j, αj) ∈ pts
     → (k, αk) ∈ pts
@@ -599,7 +599,7 @@ destruct Hj as [Hj| Hj].
   apply IHpts; assumption.
 Qed.
 
-Lemma qeq_eq_ini : ∀ n pts h αh j αj ptj s hsl₁ hsl,
+Theorem qeq_eq_ini : ∀ n pts h αh j αj ptj s hsl₁ hsl,
   Sorted fst_lt pts
   → next_ch_points n pts = hsl₁ ++ [mkns (j, αj) ptj s … hsl]
     → (h, αh) ∈ pts
@@ -616,7 +616,7 @@ eapply sorted_qeq_eq with (αk := αj) in Hhk; try eassumption.
  right; left; reflexivity.
 Qed.
 
-Lemma qeq_eq_fin : ∀ n pts h αh k αk ptk s hsl₁ hsl,
+Theorem qeq_eq_fin : ∀ n pts h αh k αk ptk s hsl₁ hsl,
   Sorted fst_lt pts
   → next_ch_points n pts = hsl₁ ++ [mkns ptk (k, αk) s … hsl]
     → (h, αh) ∈ pts

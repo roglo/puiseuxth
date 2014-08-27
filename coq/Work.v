@@ -63,7 +63,7 @@ Definition multiplicity_decreases pol ns n :=
   let rn := root_multiplicity acf cn (Φq poln nsn) in
   (rn < r)%nat.
 
-Lemma lowest_i_such_that_ri_lt_r₀ : ∀ pol ns r n,
+Theorem lowest_i_such_that_ri_lt_r₀ : ∀ pol ns r n,
   r = nth_r 0 pol ns
   → (nth_r n pol ns < r)%nat
   → ∃ i,
@@ -91,7 +91,7 @@ induction n; intros.
   right; rewrite Nat.pred_succ; assumption.
 Qed.
 
-Lemma nth_r_n : ∀ pol ns pol₁ ns₁ c₁ n,
+Theorem nth_r_n : ∀ pol ns pol₁ ns₁ c₁ n,
   pol₁ = nth_pol n pol ns
   → ns₁ = nth_ns n pol ns
   → c₁ = nth_c n pol ns
@@ -105,7 +105,7 @@ Qed.
 
 (* see pouet *)
 (*
-Lemma pouet2 : ∀ f ffo ms a₀ a₁ la v₀ v₁ j k αj αk r,
+Theorem pouet2 : ∀ f ffo ms a₀ a₁ la v₀ v₁ j k αj αk r,
   f = pair_rec (λ pow ps, (Qnat pow, ps))
   → ffo = filter_finite_ord R (List.map f (power_list 2 la))
   → ms = minimise_slope (Qnat 0, v₀) (Qnat 1, v₁) ffo
@@ -236,7 +236,7 @@ ggg.
 Qed.
 *)
 
-Lemma multiplicity_lt_length : ∀ cpol c,
+Theorem multiplicity_lt_length : ∀ cpol c,
   (al cpol ≠ [])%lap
   → (root_multiplicity acf c cpol < length (al cpol))%nat.
 Proof.
@@ -287,7 +287,7 @@ induction len; intros.
   apply Nat.lt_0_succ.
 Qed.
 
-Lemma k_le_r : ∀ αj₁ αk₁ k₁ r pt pts v ms pts₁ pts₂,
+Theorem k_le_r : ∀ αj₁ αk₁ k₁ r pt pts v ms pts₁ pts₂,
   pts = pts₁ ++ [end_pt ms … pts₂]
   → Sorted fst_lt [(Qnat 0, αj₁); pt … pts]
   → ms = minimise_slope (Qnat 0, αj₁) pt pts
@@ -396,7 +396,7 @@ assert (slope ms < slope_expr (Qnat (S r), v) (Qnat k₁, αk₁)) as H.
 Qed.
 
 (* more general than r_1_j_0_k_1 which could be simplified perhaps *)
-Lemma r_n_j_0_k_n : ∀ pol ns c pol₁ ns₁ c₁ j₁ αj₁ k₁ αk₁ m r,
+Theorem r_n_j_0_k_n : ∀ pol ns c pol₁ ns₁ c₁ j₁ αj₁ k₁ αk₁ m r,
   ns ∈ newton_segments pol
   → pol_in_K_1_m pol m
   → c = ac_root (Φq pol ns)
@@ -649,7 +649,7 @@ destruct r.
 Qed.
 
 (* more general than r_1_next_ns which could be simplified perhaps *)
-Lemma r_n_next_ns : ∀ pol ns c pol₁ ns₁ c₁ m r,
+Theorem r_n_next_ns : ∀ pol ns c pol₁ ns₁ c₁ m r,
   ns ∈ newton_segments pol
   → pol_in_K_1_m pol m
   → c = ac_root (Φq pol ns)
@@ -684,7 +684,7 @@ exists αj₁, αk₁; auto.
 Qed.
 
 (* more general than r_1_nth_ns which could be simplified perhaps *)
-Lemma r_n_nth_ns : ∀ pol ns c pol₁ ns₁ c₁ m r,
+Theorem r_n_nth_ns : ∀ pol ns c pol₁ ns₁ c₁ m r,
   ns ∈ newton_segments pol
   → pol_in_K_1_m pol m
   → c = ac_root (Φq pol ns)
@@ -956,7 +956,7 @@ induction n; intros.
 Qed.
 
 (* try and try again...
-Lemma q_eq_1₄₂ : ∀ pol ns c pol₁ ns₁ c₁ m q₀ r,
+Theorem q_eq_1₄₂ : ∀ pol ns c pol₁ ns₁ c₁ m q₀ r,
   ns ∈ newton_segments pol
   → pol_in_K_1_m pol m
   → pol_in_K_1_m pol₁ (m * q₀)
@@ -1019,7 +1019,7 @@ bbb.
 *)
 
 (* don't know if it is useful *)
-Lemma q_divides_r : ∀ pol ns c pol₁ ns₁ c₁ m q₀ r q,
+Theorem q_divides_r : ∀ pol ns c pol₁ ns₁ c₁ m q₀ r q,
   ns ∈ newton_segments pol
   → pol_in_K_1_m pol m
   → pol_in_K_1_m pol₁ (m * q₀)
@@ -1066,7 +1066,7 @@ eapply List_hd_in in Hns₁.
   assumption.
 Qed.
 
-Lemma ttt : ∀ pol ns c αj αk m q r,
+Theorem ttt : ∀ pol ns c αj αk m q r,
   ns ∈ newton_segments pol
   → pol_in_K_1_m pol m
   → q = q_of_m m (γ ns)
@@ -1155,7 +1155,7 @@ bbb.
 bbb.
 
 (* isn't it similar to multiplicity_lt_length? *)
-Lemma uuu : ∀ pol ns c j αj k αk m q r,
+Theorem uuu : ∀ pol ns c j αj k αk m q r,
   ns ∈ newton_segments pol
   → pol_in_K_1_m pol m
   → q = q_of_m m (γ ns)
@@ -1237,7 +1237,7 @@ assert (j < k)%nat as Hjk.
 bbb.
 *)
 
-Lemma root_tail_split_1st₄₂ : ∀ pol ns pol₁ ns₁ c m q₀ r,
+Theorem root_tail_split_1st₄₂ : ∀ pol ns pol₁ ns₁ c m q₀ r,
   ns ∈ newton_segments pol
   → pol_in_K_1_m pol m
   → q₀ = q_of_m m (γ ns)
@@ -1359,7 +1359,7 @@ bbb.
 Current goal could be done if I can prove that q₁ = 1.
 
 (*
-Lemma root_tail_from_0₄₂ : ∀ pol ns pol₁ ns₁ c m q₀ b r,
+Theorem root_tail_from_0₄₂ : ∀ pol ns pol₁ ns₁ c m q₀ b r,
   ns ∈ newton_segments pol
   → pol_in_K_1_m pol m
   → q₀ = q_of_m m (γ ns)
@@ -1379,7 +1379,7 @@ destruct b; [ subst m₁; eapply root_tail_split_1st; eauto  | idtac ].
 *)
 
 (*
-Lemma root_tail_when_r_r : ∀ pol ns pol₁ ns₁ c m q₀ b r,
+Theorem root_tail_when_r_r : ∀ pol ns pol₁ ns₁ c m q₀ b r,
   ns ∈ newton_segments pol
   → pol_in_K_1_m pol m
   → q₀ = q_of_m m (γ ns)

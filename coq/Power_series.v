@@ -66,7 +66,7 @@ Add Parametric Relation α (r : ring α) : (power_series α) eq_series
 
 (* *)
 
-Lemma fold_series_const : ∀ α (r : ring α) c,
+Theorem fold_series_const : ∀ α (r : ring α) c,
   {| terms := λ i, if zerop i then c else 0%K |} =
   series_const c.
 Proof. reflexivity. Qed.
@@ -104,7 +104,7 @@ constructor; intros i; simpl.
 rewrite rng_add_assoc; reflexivity.
 Qed.
 
-Lemma series_nth_series_0 : ∀ i, (0%ser .[i])%K = 0%K.
+Theorem series_nth_series_0 : ∀ i, (0%ser .[i])%K = 0%K.
 Proof. reflexivity. Qed.
 
 Theorem series_add_0_l : ∀ s, (0 + s = s)%ser.
@@ -153,7 +153,7 @@ inversion Hcd; subst.
 rewrite H, H0; reflexivity.
 Qed.
 
-Section misc_lemmas.
+Section misc_theorems.
 
 Variable α : Type.
 Variable r : ring α.
@@ -238,11 +238,11 @@ rewrite Nat.add_comm, Nat.sub_add_distr.
 reflexivity.
 Qed.
 
-Lemma series_nth_add : ∀ a b i,
+Theorem series_nth_add : ∀ a b i,
   (((a + b)%ser) .[i] = a.[i] + b.[i])%K.
 Proof. reflexivity. Qed.
 
-Lemma convol_mul_add_distr_l : ∀ a b c i,
+Theorem convol_mul_add_distr_l : ∀ a b c i,
   (convol_mul a (b + c)%ser i = convol_mul a b i + convol_mul a c i)%K.
 Proof.
 intros a b c k.
@@ -262,7 +262,7 @@ constructor; intros k; simpl.
 apply convol_mul_add_distr_l.
 Qed.
 
-End misc_lemmas.
+End misc_theorems.
 
 Add Parametric Morphism α (R : ring α) : series_add
   with signature eq_series ==> eq_series ==> eq_series
@@ -284,7 +284,7 @@ inversion Heq; subst.
 apply H.
 Qed.
 
-Section other_lemmas.
+Section other_theorems.
 
 Variable α : Type.
 Variable r : ring α.
@@ -326,7 +326,7 @@ apply series_add_compat_l.
 apply series_mul_comm.
 Qed.
 
-End other_lemmas.
+End other_theorems.
 
 Fixpoint term_inv {α} {r : ring α} {f : field r} c s n :=
   if zerop n then ¹/ (s.[0])%K
@@ -343,13 +343,13 @@ Definition series_inv {α} {r : ring α} {f : field r} s :=
 
 Notation "¹/ a" := (series_inv a) : series_scope.
 
-Section lemmas_again.
+Section theorems_again.
 
 Variable α : Type.
 Variable R : ring α.
 Variable K : field R.
 
-Lemma term_inv_iter_enough : ∀ a i j k,
+Theorem term_inv_iter_enough : ∀ a i j k,
   k ≤ i → k ≤ j → (term_inv i a k = term_inv j a k)%K.
 Proof.
 intros a i j k Hki Hkj.
@@ -376,7 +376,7 @@ induction i; intros.
     apply IHi; omega.
 Qed.
 
-Lemma term_inv_nth_gen_formula : ∀ k a a' i,
+Theorem term_inv_nth_gen_formula : ∀ k a a' i,
   (a.[0] ≠ 0)%K
   → a' = series_inv a
     → (S k - i ≠ 0)%nat
@@ -416,7 +416,7 @@ destruct ki.
   apply Nat.le_sub_l.
 Qed.
 
-Lemma term_inv_nth_formula : ∀ k a a',
+Theorem term_inv_nth_formula : ∀ k a a',
   (a.[0] ≠ 0)%K
   → a' = series_inv a
     → (a'.[S k] =
@@ -440,7 +440,7 @@ destruct (zerop (S k - i)) as [H₂| H₂].
  apply term_inv_iter_enough; fast_omega Hj.
 Qed.
 
-Lemma convol_mul_inv_r : ∀ k a a',
+Theorem convol_mul_inv_r : ∀ k a a',
   (a.[0] ≠ 0)%K
   → a' = series_inv a
     → (convol_mul a a' (S k) = 0)%K.
@@ -490,7 +490,7 @@ apply series_mul_inv_r.
 assumption.
 Qed.
 
-End lemmas_again.
+End theorems_again.
 
 Definition series_ring α {R : ring α} : ring (power_series α) :=
   {| rng_zero := series_0;

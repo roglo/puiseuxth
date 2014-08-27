@@ -42,7 +42,7 @@ eapply points_not_in_any_newton_segment₁; try eassumption.
 eapply points_of_polyn_sorted; reflexivity.
 Qed.
 
-Lemma list_Q_pair_in_dec : ∀ a b (l : list (Q * Q)),
+Theorem list_Q_pair_in_dec : ∀ a b (l : list (Q * Q)),
   {(a, b) ∈ l} + {(a, b) ∉ l}.
 Proof.
 intros a b l.

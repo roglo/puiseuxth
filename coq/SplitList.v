@@ -16,7 +16,7 @@ Inductive split_list α : list α → list α → list α → Prop :=
   | sl_cons_r : ∀ x l l₁ l₂,
       split_list l l₁ l₂ → split_list [x … l] l₁ [x … l₂].
 
-Lemma split_list_comm : ∀ α (l la lb : list α),
+Theorem split_list_comm : ∀ α (l la lb : list α),
   split_list l la lb
   → split_list l lb la.
 Proof.
@@ -28,7 +28,7 @@ induction l as [| x]; intros.
  inversion H; subst; constructor; apply IHl; assumption.
 Qed.
 
-Lemma split_list_length : ∀ α (l la lb : list α),
+Theorem split_list_length : ∀ α (l la lb : list α),
   split_list l la lb → length l = (length la + length lb)%nat.
 Proof.
 intros A l la lb H.
@@ -41,7 +41,7 @@ inversion H; subst; simpl.
  apply eq_S, IHl; assumption.
 Qed.
 
-Lemma split_list_nil_l : ∀ α (l la : list α),
+Theorem split_list_nil_l : ∀ α (l la : list α),
   split_list l [] la → la = l.
 Proof.
 intros A l la H.
@@ -53,7 +53,7 @@ induction l as [| x]; intros.
  apply IHl; assumption.
 Qed.
 
-Lemma split_sorted_cons_r : ∀ l la lb b,
+Theorem split_sorted_cons_r : ∀ l la lb b,
   split_list l la [b … lb]
   → Sorted Nat.lt [b … l]
     → False.
@@ -78,7 +78,7 @@ induction la as [| a]; intros.
   revert Hrel; apply Nat.lt_irrefl.
 Qed.
 
-Lemma split_list_sorted_cons_cons : ∀ l la lb a b,
+Theorem split_list_sorted_cons_cons : ∀ l la lb a b,
   split_list l la [b … lb]
   → Sorted Nat.lt [a … l]
     → a ∉ lb.
@@ -114,7 +114,7 @@ destruct (eq_nat_dec c b) as [Hcb| Hcb].
   apply Hcb; reflexivity.
 Qed.
 
-Lemma split_list_sorted_cons_not_in : ∀ l la lb a,
+Theorem split_list_sorted_cons_not_in : ∀ l la lb a,
   split_list l la lb
   → Sorted Nat.lt [a … l]
     → a ∉ lb.
@@ -128,7 +128,7 @@ destruct Hlb as [Hlb| Hlb].
  eapply split_list_sorted_cons_cons; eassumption.
 Qed.
 
-Lemma sorted_split_cons_not_in : ∀ l la lb a,
+Theorem sorted_split_cons_not_in : ∀ l la lb a,
   Sorted Nat.lt l
   → split_list l [a … la] lb
     → a ∉ lb.
@@ -156,7 +156,7 @@ destruct (eq_nat_dec a b) as [Hab| Hab].
   eapply Sorted_inv; eassumption.
 Qed.
 
-Lemma sorted_split_in_not_in : ∀ l la lb x,
+Theorem sorted_split_in_not_in : ∀ l la lb x,
   Sorted Nat.lt l
   → split_list l la lb
     → x ∈ la
@@ -254,7 +254,7 @@ Fixpoint list_seq_except start len except :=
       end
   end.
 
-Lemma list_seq_except_nil : ∀ start len,
+Theorem list_seq_except_nil : ∀ start len,
   list_seq_except start len [] = List.seq start len.
 Proof.
 intros start len.
@@ -263,7 +263,7 @@ induction len; intros; [ reflexivity | simpl ].
 rewrite IHlen; reflexivity.
 Qed.
 
-Lemma split_seq_le : ∀ start len a la lb,
+Theorem split_seq_le : ∀ start len a la lb,
   split_list (List.seq start len) [a … la] lb
   → start ≤ a.
 Proof.
@@ -276,7 +276,7 @@ eapply Nat.le_trans; [ idtac | eassumption ].
 apply Nat.le_succ_r; left; reflexivity.
 Qed.
 
-Lemma split_seq_except : ∀ start len la lb,
+Theorem split_seq_except : ∀ start len la lb,
   split_list (List.seq start len) la lb
   → lb = list_seq_except start len la.
 Proof.
@@ -305,7 +305,7 @@ induction len; intros; simpl in Hs; simpl.
     apply IHlen; assumption.
 Qed.
 
-Lemma except_split_seq : ∀ start len la lb,
+Theorem except_split_seq : ∀ start len la lb,
   Sorted Nat.lt la
   → List.Forall (λ i : nat, start ≤ i ∧ i < start + len) la
     → lb = list_seq_except start len la

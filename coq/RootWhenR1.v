@@ -40,7 +40,7 @@ Variable R : ring α.
 Variable K : field R.
 Variable acf : algeb_closed_field K.
 
-Lemma root_tail_when_r_1 : ∀ pol ns pol₁ ns₁ c m q₀ b,
+Theorem root_tail_when_r_1 : ∀ pol ns pol₁ ns₁ c m q₀ b,
   ns ∈ newton_segments pol
   → pol_in_K_1_m pol m
   → q₀ = q_of_m m (γ ns)
@@ -127,7 +127,7 @@ induction n; intros.
    assumption.
 Qed.
 
-Lemma β_lower_bound : ∀ pol ns pol₁ ns₁ m η,
+Theorem β_lower_bound : ∀ pol ns pol₁ ns₁ m η,
   ns ∈ newton_segments pol
   → pol_in_K_1_m pol m
   → root_multiplicity acf (ac_root (Φq pol ns)) (Φq pol ns) = 1%nat
@@ -224,7 +224,7 @@ Proof. intros a b Hab; subst a; reflexivity. Qed.
 Theorem eq_Qbar_qinf : ∀ a, (a = ∞)%Qbar → a = ∞%Qbar.
 Proof. intros a H; destruct a; auto; inversion H. Qed.
 
-Lemma root_head_from_cγ_list_succ_r : ∀ pol ns pol₁ ns₁ c n i,
+Theorem root_head_from_cγ_list_succ_r : ∀ pol ns pol₁ ns₁ c n i,
   c = ac_root (Φq pol ns)
   → pol₁ = next_pol pol (β ns) (γ ns) c
   → ns₁ = List.hd phony_ns (newton_segments pol₁)
@@ -290,7 +290,7 @@ induction n; intros.
     fast_omega Hin.
 Qed.
 
-Lemma apply_nth_pol : ∀ pol ns y n,
+Theorem apply_nth_pol : ∀ pol ns y n,
   let qr := Q_ring in
   zerop_1st_n_const_coeff n pol ns = false
   → (ps_pol_apply pol
@@ -390,7 +390,7 @@ induction n; intros.
      reflexivity.
 Qed.
 
-Lemma Qnat_succ : ∀ n x, x * Qnat (S n) == x * Qnat n + x.
+Theorem Qnat_succ : ∀ n x, x * Qnat (S n) == x * Qnat n + x.
 Proof.
 intros n x.
 unfold Qnat.
@@ -405,7 +405,7 @@ setoid_replace x with (x * 1) at 3.
  rewrite rng_mul_1_r; reflexivity.
 Qed.
 
-Lemma summation_all_lt : ∀ f n x,
+Theorem summation_all_lt : ∀ f n x,
   let qr := Q_ring in
   (∀ i : nat, i ≤ n → x < f i)
   → x * Qnat (S n) < Σ (i = 0, n), f i.
@@ -428,7 +428,7 @@ induction n.
   apply Hi; reflexivity.
 Qed.
 
-Lemma series_0_ps_0 : ∀ p,
+Theorem series_0_ps_0 : ∀ p,
   (∀ i, ((ps_terms p) .[i] = 0)%K)
   → (p = 0)%ps.
 Proof.
@@ -447,7 +447,7 @@ rewrite Hi in Hv.
 exfalso; apply Hv; reflexivity.
 Qed.
 
-Lemma order_root_tail_nonneg : ∀ pol ns c pol₁ ns₁ m q₀ n,
+Theorem order_root_tail_nonneg : ∀ pol ns c pol₁ ns₁ m q₀ n,
   ns ∈ newton_segments pol
   → pol_in_K_1_m pol m
   → q₀ = q_of_m m (γ ns)
@@ -520,7 +520,7 @@ induction n; intros.
    eapply multiplicity_1_remains; eauto .
 Qed.
 
-Lemma order_pol_apply_nonneg : ∀ pol y,
+Theorem order_pol_apply_nonneg : ∀ pol y,
   (∀ a, a ∈ al pol → (0 ≤ order a)%Qbar)
   → (0 ≤ order y)%Qbar
   → (0 ≤ order (ps_pol_apply pol y))%Qbar.
@@ -560,7 +560,7 @@ exfalso; apply Hv; simpl.
 apply eq_1_0_all_0; assumption.
 Qed.
 
-Lemma lowest_zerop_1st_n_const_coeff : ∀ pol ns n,
+Theorem lowest_zerop_1st_n_const_coeff : ∀ pol ns n,
   zerop_1st_n_const_coeff n pol ns = true
   → ∃ i,
     i ≤ n ∧
@@ -615,7 +615,7 @@ induction n; intros.
      destruct (ps_zerop R (ps_poly_nth 0 pol)); auto.
 Qed.
 
-Lemma first_null_coeff : ∀ pol₁ ns₁ i a₁ la₁,
+Theorem first_null_coeff : ∀ pol₁ ns₁ i a₁ la₁,
   zerop_1st_n_const_coeff i pol₁ ns₁ = false
   → zerop_1st_n_const_coeff (S i) pol₁ ns₁ = true
   → al (nth_pol (S i) pol₁ ns₁) = [a₁ … la₁]
@@ -897,7 +897,7 @@ destruct z.
  rewrite rng_mul_0_r; reflexivity.
 Qed.
 
-Lemma no_newton_segments : ∀ pol,
+Theorem no_newton_segments : ∀ pol,
   (ps_poly_nth 0 pol ≠ 0)%ps
   → newton_segments pol = []
   → (∀ i, (0 < i)%nat → (ps_poly_nth i pol = 0)%ps).
@@ -1002,7 +1002,7 @@ induction i; intros.
   eapply IHla; eauto .
 Qed.
 
-Lemma root_multiplicity_0 : ∀ c cpol,
+Theorem root_multiplicity_0 : ∀ c cpol,
   c = ac_root cpol
   → root_multiplicity acf c cpol = 0%nat
   → (degree ac_zerop cpol = 0)%nat.
@@ -1035,7 +1035,7 @@ destruct (ac_zerop (apply_lap la c * c + a)%K) as [H₁| H₁].
   contradiction.
 Qed.
 
-Lemma degree_eq_0_if : ∀ cpol,
+Theorem degree_eq_0_if : ∀ cpol,
   degree ac_zerop cpol = O
   → (cpol = POL [])%pol ∨ (∃ a, (a ≠ 0)%K ∧ (cpol = POL [a])%pol).
 Proof.
@@ -1086,7 +1086,7 @@ destruct deg.
  discriminate Hdeg.
 Qed.
 
-Lemma multiplicity_neq_0 : ∀ pol ns c,
+Theorem multiplicity_neq_0 : ∀ pol ns c,
   ns ∈ newton_segments pol
   → c = ac_root (Φq pol ns)
   → root_multiplicity acf c (Φq pol ns) ≠ O.

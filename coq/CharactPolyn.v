@@ -53,7 +53,7 @@ Definition ps_list_com_polord α (psl : list (puiseux_series α)) :=
 
 (* *)
 
-Lemma nat_num_Qnat : ∀ i, nat_num (Qnat i) = i.
+Theorem nat_num_Qnat : ∀ i, nat_num (Qnat i) = i.
 Proof.
 intros i.
 unfold nat_num, Qnat; simpl.
@@ -128,13 +128,13 @@ Section theorems.
 Variable α : Type.
 Variable R : ring α.
 
-Lemma skipn_pad : ∀ n (z : α) l, List.skipn n (list_pad n z l) = l.
+Theorem skipn_pad : ∀ n (z : α) l, List.skipn n (list_pad n z l) = l.
 Proof.
 intros n z l.
 induction n; [ reflexivity | apply IHn ].
 Qed.
 
-Lemma al_Φq : ∀ pol ns,
+Theorem al_Φq : ∀ pol ns,
   al (Φq pol ns)
   = make_char_pol R (nat_num (fst (ini_pt ns)))
       (List.map (term_of_point pol) [ini_pt ns … oth_pts ns ++ [fin_pt ns]]).
@@ -143,7 +143,7 @@ intros pol ns; simpl.
 rewrite skipn_pad, Nat.sub_diag; reflexivity.
 Qed.
 
-Lemma Φq_pol : ∀ pol ns,
+Theorem Φq_pol : ∀ pol ns,
   Φq pol ns
   = POL
       (make_char_pol R (nat_num (fst (ini_pt ns)))
@@ -155,7 +155,7 @@ unfold Φq, poly_left_shift; simpl.
 rewrite skipn_pad, Nat.sub_diag; reflexivity.
 Qed.
 
-Lemma pt_absc_is_nat : ∀ pol pts pt,
+Theorem pt_absc_is_nat : ∀ pol pts pt,
   points_of_ps_polynom pol = pts
   → pt ∈ pts
     → fst pt = Qnat (Z.to_nat (Qnum (fst pt))).
@@ -190,7 +190,7 @@ destruct cl as [| c₁].
   eapply IHcl; eassumption.
 Qed.
 
-Lemma in_seg_in_pts : ∀ pt pt₁ pt₂ pts,
+Theorem in_seg_in_pts : ∀ pt pt₁ pt₂ pts,
   pt ∈ seg (minimise_slope pt₁ pt₂ pts)
   → pt ∈ [pt₂ … pts].
 Proof.
@@ -211,7 +211,7 @@ destruct c; simpl in Hpt.
  right; subst ms₃; apply IHpts; assumption.
 Qed.
 
-Lemma hull_seg_edge_in_init_pts : ∀ n pts hs hsl pt,
+Theorem hull_seg_edge_in_init_pts : ∀ n pts hs hsl pt,
   next_ch_points n pts = hsl
   → hs ∈ hsl
     → pt ∈ oth_pts hs
@@ -243,7 +243,7 @@ destruct Hhs as [Hhs| Hhs].
   right; right; eapply rem_pts_in; eassumption.
 Qed.
 
-Lemma hull_seg_vert_in_init_pts : ∀ n pts hs hsl,
+Theorem hull_seg_vert_in_init_pts : ∀ n pts hs hsl,
   next_ch_points n pts = hsl
   → hs ∈ hsl
     → ini_pt hs ∈ pts ∧ fin_pt hs ∈ pts.
@@ -283,7 +283,7 @@ destruct Hhs as [Hhs| Hhs].
    right; right; eapply rem_pts_in; eassumption.
 Qed.
 
-Lemma oth_pts_in_init_pts : ∀ pts ns pt,
+Theorem oth_pts_in_init_pts : ∀ pts ns pt,
   ns ∈ lower_convex_hull_points pts
   → pt ∈ oth_pts ns
     → pt ∈ pts.
@@ -292,7 +292,7 @@ intros pts ns pt Hns Hpt.
 eapply hull_seg_edge_in_init_pts; try eassumption; reflexivity.
 Qed.
 
-Lemma ini_fin_ns_in_init_pts : ∀ pts ns,
+Theorem ini_fin_ns_in_init_pts : ∀ pts ns,
   ns ∈ lower_convex_hull_points pts
   → ini_pt ns ∈ pts ∧ fin_pt ns ∈ pts.
 Proof.
@@ -300,7 +300,7 @@ intros pts ns Hns.
 eapply hull_seg_vert_in_init_pts; try eassumption; reflexivity.
 Qed.
 
-Lemma ns_in_init_pts : ∀ pts ns pt,
+Theorem ns_in_init_pts : ∀ pts ns pt,
   ns ∈ lower_convex_hull_points pts
   → pt ∈ [ini_pt ns … oth_pts ns ++ [fin_pt ns]]
     → pt ∈ pts.
@@ -319,7 +319,7 @@ destruct Hpt as [Hpt| Hpt].
   apply ini_fin_ns_in_init_pts; assumption.
 Qed.
 
-Lemma pt₁_bef_seg : ∀ pt₁ pt₂ pts pth,
+Theorem pt₁_bef_seg : ∀ pt₁ pt₂ pts pth,
   Sorted fst_lt [pt₁; pt₂ … pts]
   → pth ∈ seg (minimise_slope pt₁ pt₂ pts)
     → fst pt₁ < fst pth.
@@ -350,7 +350,7 @@ destruct c.
  intros x y z H₁ H₂; eapply Qlt_trans; eassumption.
 Qed.
 
-Lemma vert_bef_edge : ∀ pts n hs hsl j αj h αh,
+Theorem vert_bef_edge : ∀ pts n hs hsl j αj h αh,
   Sorted fst_lt pts
   → next_ch_points n pts = [hs … hsl]
     → (j, αj) = ini_pt hs
@@ -367,7 +367,7 @@ rewrite minimised_slope_beg_pt in Hj.
 apply pt₁_bef_seg in Hh; [ subst pt₁; assumption | assumption ].
 Qed.
 
-Lemma jq_lt_hq : ∀ (pol : puis_ser_pol α) j αj h αh ns,
+Theorem jq_lt_hq : ∀ (pol : puis_ser_pol α) j αj h αh ns,
   ns ∈ newton_segments pol
   → (j, αj) = ini_pt ns
     → (h, αh) ∈ oth_pts ns
@@ -397,7 +397,7 @@ destruct Hns as [Hns| Hns].
  eapply minimise_slope_sorted; [ eassumption | reflexivity ].
 Qed.
 
-Lemma j_lt_h : ∀ (pol : puis_ser_pol α) j αj jq h αh hq ns,
+Theorem j_lt_h : ∀ (pol : puis_ser_pol α) j αj jq h αh hq ns,
   ns ∈ newton_segments pol
   → (jq, αj) = ini_pt ns
     → (hq, αh) ∈ oth_pts ns
@@ -411,7 +411,7 @@ rewrite Hjq, Hhq in Hh.
 apply Qnat_lt; assumption.
 Qed.
 
-Lemma seg_bef_end_pt : ∀ pt₁ pt₂ pts ms₁ hq αh kq αk,
+Theorem seg_bef_end_pt : ∀ pt₁ pt₂ pts ms₁ hq αh kq αk,
   Sorted fst_lt [pt₁; pt₂ … pts]
   → minimise_slope pt₁ pt₂ pts = ms₁
     → (hq, αh) ∈ seg ms₁
@@ -448,7 +448,7 @@ destruct c.
  intros x y z H₁ H₂; eapply Qlt_trans; eassumption.
 Qed.
 
-Lemma edge_bef_vert : ∀ pts n hs₁ hs₂ hsl hq αh kq αk,
+Theorem edge_bef_vert : ∀ pts n hs₁ hs₂ hsl hq αh kq αk,
   Sorted fst_lt pts
   → next_ch_points n pts = [hs₁; hs₂ … hsl]
     → (hq, αh) ∈ oth_pts hs₁
@@ -476,7 +476,7 @@ rewrite minimised_slope_beg_pt in Hk.
 eapply seg_bef_end_pt; eassumption.
 Qed.
 
-Lemma hq_lt_kq : ∀ (pol : puis_ser_pol α) hq αh kq αk ns,
+Theorem hq_lt_kq : ∀ (pol : puis_ser_pol α) hq αh kq αk ns,
   ns ∈ newton_segments pol
   → (hq, αh) ∈ oth_pts ns
     → (kq, αk) = fin_pt ns
@@ -514,7 +514,7 @@ destruct hsl as [| hs₂].
   eapply minimise_slope_sorted; [ eassumption | reflexivity ].
 Qed.
 
-Lemma h_lt_k : ∀ (pol : puis_ser_pol α) h αh hq k αk kq ns,
+Theorem h_lt_k : ∀ (pol : puis_ser_pol α) h αh hq k αk kq ns,
   ns ∈ newton_segments pol
   → (hq, αh) ∈ oth_pts ns
     → (kq, αk) = fin_pt ns
@@ -528,7 +528,7 @@ rewrite Hhq, Hkq in Hoth.
 apply Qnat_lt; assumption.
 Qed.
 
-Lemma j_lt_k : ∀ (pol : puis_ser_pol α) j k ns,
+Theorem j_lt_k : ∀ (pol : puis_ser_pol α) j k ns,
   ns ∈ newton_segments pol
   → j = nat_num (fst (ini_pt ns))
     → k = nat_num (fst (fin_pt ns))
@@ -554,7 +554,7 @@ eapply pt_absc_is_nat with (pt := ini_pt ns) in Hj₁.
  apply ini_fin_ns_in_init_pts; assumption.
 Qed.
 
-Lemma jz_lt_kz : ∀ (pol : puis_ser_pol α) jz kz ns,
+Theorem jz_lt_kz : ∀ (pol : puis_ser_pol α) jz kz ns,
   ns ∈ newton_segments pol
   → jz = Qnum (fst (ini_pt ns))
     → kz = Qnum (fst (fin_pt ns))
@@ -650,7 +650,7 @@ unfold γ; simpl.
 rewrite <- Hjαj, <- Hkαk; reflexivity.
 Qed.
 
-Lemma first_power_le : ∀ pow cl h hv,
+Theorem first_power_le : ∀ pow cl h hv,
   (h, hv) ∈ filter_finite_ord R (qpower_list pow cl)
   → pow ≤ Z.to_nat (Qnum h).
 Proof.
@@ -683,7 +683,7 @@ destruct cl as [| c₁].
   left; reflexivity.
 Qed.
 
-Lemma simpl_match_1 : ∀ α β (g : list α → list β) x l,
+Theorem simpl_match_1 : ∀ α β (g : list α → list β) x l,
   g [] = []
   → match l with
     | [] => [x]
@@ -694,13 +694,13 @@ intros.
 destruct l; [ rewrite H; reflexivity | reflexivity ].
 Qed.
 
-Lemma simpl_map_qpower : ∀ α pow (c : puiseux_series α) cl,
+Theorem simpl_map_qpower : ∀ α pow (c : puiseux_series α) cl,
   List.map (pair_rec (λ pow ps, (Qnat pow, ps)))
     [(pow, c) … power_list (S pow) cl] =
   qpower_list pow [c … cl].
 Proof. reflexivity. Qed.
 
-Lemma in_pts_in_ppl : ∀ pow cl ppl pts h hv hps def,
+Theorem in_pts_in_ppl : ∀ pow cl ppl pts h hv hps def,
   ppl = qpower_list pow cl
   → pts = filter_finite_ord R ppl
     → (h, hv) ∈ pts
@@ -763,7 +763,7 @@ induction cl as [| c]; intros.
    apply first_power_le in Hhhv; contradiction.
 Qed.
 
-Lemma in_pts_in_psl : ∀ pow pts psl h hv hps def,
+Theorem in_pts_in_psl : ∀ pow pts psl h hv hps def,
   pts = filter_finite_ord R (qpower_list pow psl)
   → (h, hv) ∈ pts
     → hps = List.nth (Z.to_nat (Qnum h) - pow) psl def
@@ -805,7 +805,7 @@ assert (pow ≤ Z.to_nat (Qnum h)) as H.
      apply le_neq_lt; assumption.
 Qed.
 
-Lemma in_pts_in_pol : ∀ pol pts h hv hps def,
+Theorem in_pts_in_pol : ∀ pol pts h hv hps def,
   pts = points_of_ps_polynom pol
   → (Qnat h, hv) ∈ pts
     → hps = List.nth h (al pol) def
@@ -816,7 +816,7 @@ eapply in_pts_in_psl; try eassumption.
 simpl; rewrite Nat.sub_0_r, Nat2Z.id; eassumption.
 Qed.
 
-Lemma in_ppl_in_pts : ∀ pow cl ppl pts h hv hps,
+Theorem in_ppl_in_pts : ∀ pow cl ppl pts h hv hps,
   ppl = qpower_list pow cl
   → pts = filter_finite_ord R ppl
     → pow ≤ h
@@ -916,7 +916,7 @@ destruct cl as [| c₁]; intros; simpl.
      assumption.
 Qed.
 
-Lemma in_pol_in_pts : ∀ pol pts h hv hps,
+Theorem in_pol_in_pts : ∀ pol pts h hv hps,
   pts = points_of_ps_polynom pol
   → hps = List.nth h (al pol) 0%ps
     → order hps = qfin hv
@@ -929,7 +929,7 @@ eapply in_ppl_in_pts; try eassumption; try reflexivity.
  rewrite Nat.sub_0_r; assumption.
 Qed.
 
-Lemma p_mq_formula : ∀ m j k mj mk g,
+Theorem p_mq_formula : ∀ m j k mj mk g,
   (0 < k - j)%Z
   → g = Z.gcd (mj - mk) (k - j)
     → ((mj # m) - (mk # m)) / ((k # 1) - (j # 1)) ==
@@ -989,7 +989,7 @@ destruct (Z.eq_dec (mj - mk) 0)%Z as [Hz| Hnz].
   contradiction.
 Qed.
 
-Lemma exists_ini_pt_nat : ∀ pol ns,
+Theorem exists_ini_pt_nat : ∀ pol ns,
   ns ∈ newton_segments pol
   → ∃ i αi, ini_pt ns = (Qnat i, αi).
 Proof.
@@ -1007,7 +1007,7 @@ rewrite <- Heqii in Heqpts; simpl in Heqpts.
 rewrite Heqpts; reflexivity.
 Qed.
 
-Lemma exists_fin_pt_nat : ∀ pol ns,
+Theorem exists_fin_pt_nat : ∀ pol ns,
   ns ∈ newton_segments pol
   → ∃ i αi, fin_pt ns = (Qnat i, αi).
 Proof.
@@ -1025,7 +1025,7 @@ rewrite <- Heqii in Heqpts; simpl in Heqpts.
 rewrite Heqpts; reflexivity.
 Qed.
 
-Lemma exists_oth_pt_nat : ∀ pol ns pt,
+Theorem exists_oth_pt_nat : ∀ pol ns pt,
   ns ∈ newton_segments pol
   → pt ∈ oth_pts ns
     → ∃ h αh, pt = (Qnat h, αh).
@@ -1042,7 +1042,7 @@ simpl in Heqpts.
 rewrite Heqpts; reflexivity.
 Qed.
 
-Lemma points_in_newton_segment_have_nat_abscissa : ∀ pol ns,
+Theorem points_in_newton_segment_have_nat_abscissa : ∀ pol ns,
   ns ∈ newton_segments pol
   → ∀ pt, pt ∈ [ini_pt ns … oth_pts ns ++ [fin_pt ns]]
     → ∃ h αh, pt = (Qnat h, αh).
@@ -1162,7 +1162,7 @@ Qed.
 
 Open Scope Z_scope.
 
-Lemma pmq_qmpm : ∀ m p q j k jz kz mj mk,
+Theorem pmq_qmpm : ∀ m p q j k jz kz mj mk,
   (j < k)%nat
   → jz = Z.of_nat j
     → kz = Z.of_nat k
@@ -1197,7 +1197,7 @@ rewrite Qden_inv in Hpq.
  apply Z.lt_0_sub, inj_lt; assumption.
 Qed.
 
-Lemma order_in_newton_segment : ∀ pol ns pl h αh,
+Theorem order_in_newton_segment : ∀ pol ns pl h αh,
   ns ∈ newton_segments pol
   → pl = [ini_pt ns … oth_pts ns ++ [fin_pt ns]]
     → (Qnat h, αh) ∈ pl
@@ -1233,7 +1233,7 @@ destruct Hαh as [Hαh| Hαh].
   apply ini_fin_ns_in_init_pts; assumption.
 Qed.
 
-Lemma qden_αj_is_ps_polord : ∀ pol ns j αj,
+Theorem qden_αj_is_ps_polord : ∀ pol ns j αj,
   ns ∈ newton_segments pol
   → (Qnat j, αj) = ini_pt ns
   → Qden αj = ps_polord (ps_poly_nth j pol).
@@ -1250,7 +1250,7 @@ injection H; clear H; intros H.
 rewrite <- H; reflexivity.
 Qed.
 
-Lemma in_K_1_m_order_eq : ∀ ps m v,
+Theorem in_K_1_m_order_eq : ∀ ps m v,
   in_K_1_m ps m
   → order ps = qfin v
   → ∃ n, v == n # m.
@@ -1375,7 +1375,7 @@ destruct y as [y| ]; simpl in H0, H1.
   assumption.
 Qed.
 
-Lemma any_in_K_1_m : ∀ la m h αh,
+Theorem any_in_K_1_m : ∀ la m h αh,
   ps_lap_forall (λ a, in_K_1_m a m) la
   → (Qnat h, αh) ∈ points_of_ps_lap la
   → ∃ mh, αh == mh # m.
@@ -1409,7 +1409,7 @@ inversion_clear HinK.
   eapply IHla; eauto .
 Qed.
 
-Lemma den_αj_divides_num_αj_m : ∀ pol ns j αj m,
+Theorem den_αj_divides_num_αj_m : ∀ pol ns j αj m,
   ns ∈ newton_segments pol
   → ini_pt ns = (Qnat j, αj)
   → pol_in_K_1_m pol m
@@ -1426,7 +1426,7 @@ apply any_in_K_1_m with (h := j) (αh := αj) in HinK.
  destruct Hns; rewrite <- Hini; assumption.
 Qed.
 
-Lemma pol_ord_of_ini_pt : ∀ pol ns m j αj mj,
+Theorem pol_ord_of_ini_pt : ∀ pol ns m j αj mj,
   ns ∈ newton_segments pol
   → pol_in_K_1_m pol m
   → (Qnat j, αj) = ini_pt ns
@@ -1445,7 +1445,7 @@ rewrite Z_div_mul_swap.
  eapply den_αj_divides_num_αj_m; eauto .
 Qed.
 
-Lemma qden_αk_is_ps_polord : ∀ pol ns k αk,
+Theorem qden_αk_is_ps_polord : ∀ pol ns k αk,
   ns ∈ newton_segments pol
   → (Qnat k, αk) = fin_pt ns
   → Qden αk = ps_polord (ps_poly_nth k pol).
@@ -1467,7 +1467,7 @@ eapply order_in_newton_segment with (h := k) (αh := αk) in H; eauto .
  right; left; reflexivity.
 Qed.
 
-Lemma den_αk_divides_num_αk_m : ∀ pol ns k αk m,
+Theorem den_αk_divides_num_αk_m : ∀ pol ns k αk m,
   ns ∈ newton_segments pol
   → pol_in_K_1_m pol m
   → fin_pt ns = (Qnat k, αk)
@@ -1484,7 +1484,7 @@ apply any_in_K_1_m with (h := k) (αh := αk) in HinK.
  destruct Hns; rewrite <- Hini; assumption.
 Qed.
 
-Lemma pol_ord_of_fin_pt : ∀ pol ns m k αk mk,
+Theorem pol_ord_of_fin_pt : ∀ pol ns m k αk mk,
   ns ∈ newton_segments pol
   → pol_in_K_1_m pol m
   → (Qnat k, αk) = fin_pt ns
@@ -1503,7 +1503,7 @@ rewrite Z_div_mul_swap.
  eapply den_αk_divides_num_αk_m; eauto .
 Qed.
 
-Lemma qden_αh_is_ps_polord : ∀ pol ns h αh,
+Theorem qden_αh_is_ps_polord : ∀ pol ns h αh,
   ns ∈ newton_segments pol
   → (Qnat h, αh) ∈ oth_pts ns
   → Qden αh = ps_polord (ps_poly_nth h pol).
@@ -1524,7 +1524,7 @@ eapply order_in_newton_segment with (h := h) (αh := αh) in H; eauto .
  left; assumption.
 Qed.
 
-Lemma den_αh_divides_num_αh_m : ∀ pol ns h αh m,
+Theorem den_αh_divides_num_αh_m : ∀ pol ns h αh m,
   ns ∈ newton_segments pol
   → pol_in_K_1_m pol m
   → (Qnat h, αh) ∈ oth_pts ns
@@ -1540,7 +1540,7 @@ apply any_in_K_1_m with (h := h) (αh := αh) in HinK.
  eapply oth_pts_in_init_pts in Hns; eauto .
 Qed.
 
-Lemma pol_ord_of_oth_pt : ∀ pol ns m h αh mh,
+Theorem pol_ord_of_oth_pt : ∀ pol ns m h αh mh,
   ns ∈ newton_segments pol
   → pol_in_K_1_m pol m
   → (Qnat h, αh) ∈ oth_pts ns
@@ -1674,7 +1674,7 @@ split.
     rewrite <- Hh; simpl; rewrite nat_num_Qnat; reflexivity.
 Qed.
 
-Lemma mul_pos_nonneg : ∀ j k c d,
+Theorem mul_pos_nonneg : ∀ j k c d,
   (j < k)%nat
   → Z.of_nat (k - j) = c * Z.of_nat d
     → 0 <= c.
@@ -1747,10 +1747,10 @@ Definition is_polynomial_in_x_power_q pol q :=
   → c = List.nth i (al pol) 0%K
     → (c = 0)%K.
 
-Lemma list_pad_0 : ∀ z (r : list α), list_pad 0 z r = r.
+Theorem list_pad_0 : ∀ z (r : list α), list_pad 0 z r = r.
 Proof. reflexivity. Qed.
 
-Lemma list_nth_add_pad : ∀ i s (v : α) cl d,
+Theorem list_nth_add_pad : ∀ i s (v : α) cl d,
   List.nth (i + s) (list_pad s v cl) d = List.nth i cl d.
 Proof.
 intros i s v cl d.
@@ -1762,7 +1762,7 @@ Qed.
 
 Open Scope nat_scope.
 
-Lemma nth_minus_char_pol_plus_cons : ∀ i j s t tl d,
+Theorem nth_minus_char_pol_plus_cons : ∀ i j s t tl d,
   s ≤ i
   → j + s ≤ power t
     → List.nth (i - s) (make_char_pol R (j + s) [t … tl]) d =
@@ -1795,7 +1795,7 @@ induction s; intros.
   apply Nat.lt_le_incl; assumption.
 Qed.
 
-Lemma nth_is_zero : ∀ (pol : polynomial (puiseux_series α)) q i j k sk tl,
+Theorem nth_is_zero : ∀ (pol : polynomial (puiseux_series α)) q i j k sk tl,
   0 < q
   → 0 < sk
     → k = (j + sk * q)
@@ -1902,7 +1902,7 @@ destruct (lt_dec i s) as [Hlt| Hge].
     apply le_neq_lt; assumption.
 Qed.
 
-Lemma minimise_slope_lt_seg : ∀ pt₁ pt₂ pt₃ pts ms₂,
+Theorem minimise_slope_lt_seg : ∀ pt₁ pt₂ pt₃ pts ms₂,
   Sorted fst_lt [pt₁; pt₂; pt₃ … pts]
   → minimise_slope pt₁ pt₃ pts = ms₂
     → HdRel fst_lt pt₂ (seg ms₂).
@@ -1933,7 +1933,7 @@ induction pts as [| pt₄]; intros.
   intros x y z H₁ H₂; eapply Qlt_trans; eassumption.
 Qed.
 
-Lemma minimise_slope_seg_sorted : ∀ pt₁ pt₂ pts ms₁,
+Theorem minimise_slope_seg_sorted : ∀ pt₁ pt₂ pts ms₁,
   Sorted fst_lt [pt₁; pt₂ … pts]
   → minimise_slope pt₁ pt₂ pts = ms₁
     → Sorted fst_lt (seg ms₁).
@@ -1964,7 +1964,7 @@ induction pts as [| pt₃]; intros.
   intros x y z H₁ H₂; eapply Qlt_trans; eassumption.
 Qed.
 
-Lemma edge_pts_sorted : ∀ n pts hs,
+Theorem edge_pts_sorted : ∀ n pts hs,
   Sorted fst_lt pts
   → hs ∈ next_ch_points n pts
     → Sorted fst_lt (oth_pts hs).
@@ -1982,7 +1982,7 @@ destruct Hhs as [Hhs| Hhs].
  eapply minimise_slope_sorted; [ eassumption | reflexivity ].
 Qed.
 
-Lemma minimise_slope_edge_sorted : ∀ pt₁ pt₂ pts ms₁ hs n,
+Theorem minimise_slope_edge_sorted : ∀ pt₁ pt₂ pts ms₁ hs n,
   Sorted fst_lt [pt₁; pt₂ … pts]
   → minimise_slope pt₁ pt₂ pts = ms₁
     → hs ∈ next_ch_points n [end_pt ms₁ … rem_pts ms₁]
@@ -2015,7 +2015,7 @@ induction pts as [| pt₃]; intros.
   intros x y z H₁ H₂; eapply Qlt_trans; eassumption.
 Qed.
 
-Lemma minimise_slope_end_lt : ∀ pt₁ pt₂ pt₃ pt₄ pts pts₁ ms₁,
+Theorem minimise_slope_end_lt : ∀ pt₁ pt₂ pt₃ pt₄ pts pts₁ ms₁,
   Sorted fst_lt [pt₁; pt₂ … pts]
   → minimise_slope pt₁ pt₂ pts = ms₁
     → end_pt ms₁ = pt₃
@@ -2051,7 +2051,7 @@ destruct pts as [| pt₅].
   intros x y z H₁ H₂; eapply Qlt_trans; eassumption.
 Qed.
 
-Lemma minimise_slope_rem_lt : ∀ pt₁ pt₂ pt₃ pts pts₁ ms₁,
+Theorem minimise_slope_rem_lt : ∀ pt₁ pt₂ pt₃ pts pts₁ ms₁,
   Sorted fst_lt [pt₁; pt₂ … pts]
   → minimise_slope pt₁ pt₂ pts = ms₁
     → rem_pts ms₁ = [pt₃ … pts₁]
@@ -2086,7 +2086,7 @@ induction pts as [| pt₄]; intros.
   intros x y z H₁ H₂; eapply Qlt_trans; eassumption.
 Qed.
 
-Lemma minimise_slope_oth_pts_sorted : ∀ pt₁ pt₂ pts hsl ns ms₁ n,
+Theorem minimise_slope_oth_pts_sorted : ∀ pt₁ pt₂ pts hsl ns ms₁ n,
   Sorted fst_lt [pt₁; pt₂ … pts]
   → minimise_slope pt₁ pt₂ pts = ms₁
     → next_ch_points n [end_pt ms₁ … rem_pts ms₁] = hsl
@@ -2124,7 +2124,7 @@ destruct Hns as [Hns| Hns].
   eapply minimise_slope_end_lt; try eassumption; reflexivity.
 Qed.
 
-Lemma ini_oth_fin_pts_sorted : ∀ pol ns,
+Theorem ini_oth_fin_pts_sorted : ∀ pol ns,
   ns ∈ newton_segments pol
   → Sorted fst_lt [ini_pt ns … oth_pts ns ++ [fin_pt ns]].
 Proof.
@@ -2178,7 +2178,7 @@ Close Scope nat_scope.
 (* not real degree, since last coefficient can be null *)
 Definition pseudo_degree (p : polynomial α) := pred (List.length (al p)).
 
-Lemma list_shrink_skipn : ∀ cnt k (l : list α),
+Theorem list_shrink_skipn : ∀ cnt k (l : list α),
   list_shrink_aux cnt k l = list_shrink_aux 0 k (List.skipn cnt l).
 Proof.
 intros cnt k l.
@@ -2190,7 +2190,7 @@ induction l as [| x]; intros; [ idtac | simpl ].
  apply IHl.
 Qed.
 
-Lemma length_shrink_skipn_lt : ∀ k (l : list α) m,
+Theorem length_shrink_skipn_lt : ∀ k (l : list α) m,
   (length l < S k)%nat
   → length (list_shrink_aux 0 m (List.skipn k l)) = 0%nat.
 Proof.
@@ -2205,7 +2205,7 @@ destruct k.
  simpl; apply IHl; assumption.
 Qed.
 
-Lemma length_shrink_skipn_eq : ∀ k (l : list α) m,
+Theorem length_shrink_skipn_eq : ∀ k (l : list α) m,
   length l = S k
   → length (list_shrink_aux 0 m (List.skipn k l)) = 1%nat.
 Proof.
@@ -2220,7 +2220,7 @@ destruct k.
  simpl; apply IHl; assumption.
 Qed.
 
-Lemma list_length_shrink : ∀ cnt k (l : list α),
+Theorem list_length_shrink : ∀ cnt k (l : list α),
   (S cnt < length l)%nat
   → List.length (list_shrink_aux cnt k l) = S ((List.length l - S cnt) / S k).
 Proof.
@@ -2257,7 +2257,7 @@ induction l; intros.
   apply IHl; assumption.
 Qed.
 
-Lemma list_length_pad : ∀ n (z : α) l,
+Theorem list_length_pad : ∀ n (z : α) l,
   List.length (list_pad n z l) = (n + List.length l)%nat.
 Proof.
 intros n z l.
@@ -2265,12 +2265,12 @@ induction n; [ reflexivity | simpl ].
 rewrite IHn; reflexivity.
 Qed.
 
-Lemma length_char_pol_succ : ∀ j x l,
+Theorem length_char_pol_succ : ∀ j x l,
   (j < power (List.hd x l))%nat
   → Sorted (λ a b, (power a < power b)%nat) (l ++ [x])
     → List.length (make_char_pol R (S j) (l ++ [x])) = (power x - j)%nat.
 Proof.
-(* to be simplified; add a (general) lemma about Sorted *)
+(* to be simplified; add a (general) theorem about Sorted *)
 intros j x l Hjpx Hsort.
 revert j x Hjpx Hsort.
 induction l as [| a]; intros.
@@ -2335,7 +2335,7 @@ induction l as [| a]; intros.
   destruct Hsort; assumption.
 Qed.
 
-Lemma length_char_pol : ∀ pol ns pl tl j αj k αk,
+Theorem length_char_pol : ∀ pol ns pl tl j αj k αk,
   ns ∈ newton_segments pol
   → ini_pt ns = (Qnat j, αj)
     → fin_pt ns = (Qnat k, αk)
@@ -2419,7 +2419,7 @@ rewrite length_char_pol_succ; simpl.
    apply Qnat_lt; assumption.
 Qed.
 
-Lemma Sorted_fst_lt_nat_num_fst : ∀ l,
+Theorem Sorted_fst_lt_nat_num_fst : ∀ l,
   (∀ a, a ∈ l → fst a = Qnat (Z.to_nat (Qnum (fst a))))
   → Sorted fst_lt l
     → Sorted (λ x y, (nat_num (fst x) < nat_num (fst y))%nat) l.
@@ -2449,7 +2449,7 @@ destruct l as [| b]; constructor.
  apply Qnat_lt; assumption.
 Qed.
 
-Lemma phi_pseudo_degree_is_k_sub_j_div_q : ∀ pol ns j αj k αk q m,
+Theorem phi_pseudo_degree_is_k_sub_j_div_q : ∀ pol ns j αj k αk q m,
   ns ∈ newton_segments pol
   → (Qnat j, αj) = ini_pt ns
   → (Qnat k, αk) = fin_pt ns
@@ -2538,7 +2538,7 @@ Qed.
 Definition has_degree pol d :=
   pseudo_degree pol = d ∧ (List.nth d (al pol) 0 ≠ 0)%K.
 
-Lemma list_nth_shrink : ∀ n k l (d : α) cnt,
+Theorem list_nth_shrink : ∀ n k l (d : α) cnt,
   List.nth n (list_shrink_aux cnt k l) d = List.nth (cnt + n * S k) l d.
 Proof.
 intros n k l d cnt.
@@ -2550,7 +2550,7 @@ destruct n; simpl.
  destruct cnt; simpl; rewrite IHl; reflexivity.
 Qed.
 
-Lemma fold_char_pol : ∀ pol j αj tl,
+Theorem fold_char_pol : ∀ pol j αj tl,
   [order_coeff (List.nth j (al pol) 0%ps)
    … make_char_pol R (S j) (List.map (term_of_point pol) tl)] =
   make_char_pol R j
@@ -2561,13 +2561,13 @@ rewrite nat_num_Qnat, Nat.sub_diag; simpl.
 reflexivity.
 Qed.
 
-Lemma make_char_pol_cons : ∀ pow t tl,
+Theorem make_char_pol_cons : ∀ pow t tl,
   make_char_pol R pow [t … tl] =
   list_pad (power t - pow) 0%K
     [coeff t … make_char_pol R (S (power t)) tl].
 Proof. reflexivity. Qed.
 
-Lemma ord_coeff_non_zero_in_newt_segm : ∀ pol ns h αh hps,
+Theorem ord_coeff_non_zero_in_newt_segm : ∀ pol ns h αh hps,
   ns ∈ newton_segments pol
   → (Qnat h, αh) ∈ [ini_pt ns … oth_pts ns ++ [fin_pt ns]]
     → hps = List.nth h (al pol) 0%ps
@@ -2604,7 +2604,7 @@ destruct n as [n| ].
     destruct Hns; eassumption.
 Qed.
 
-Lemma Sorted_fst_2nd_lt_last : ∀ j αj k αk t₁ t₂ t₃ tl,
+Theorem Sorted_fst_2nd_lt_last : ∀ j αj k αk t₁ t₂ t₃ tl,
   Sorted (λ pt₁ pt₂, Qnum (fst pt₁) < Qnum (fst pt₂)) [t₁; t₂; t₃ … tl]
   → (Qnat j, αj) = t₁
     → (Qnat (S k), αk) = List.last [t₃ … tl] (0, 0)%Q
@@ -2638,7 +2638,7 @@ induction tl as [| t₄]; intros.
  intros x y z H₁ H₂; eapply Z.lt_trans; eassumption.
 Qed.
 
-Lemma list_nth_coeff_last : ∀ pol j αj k αk tl,
+Theorem list_nth_coeff_last : ∀ pol j αj k αk tl,
   (Qnat j, αj) = List.hd (0, 0)%Q tl
   → (Qnat k, αk) = List.last tl (0, 0)%Q
     → (j < k)%nat
@@ -2757,7 +2757,7 @@ destruct tl as [| t₁].
     eapply Sorted_fst_2nd_lt_last; eassumption.
 Qed.
 
-Lemma oth_pts_den_1 : ∀ pol ns,
+Theorem oth_pts_den_1 : ∀ pol ns,
   ns ∈ newton_segments pol
   → List.Forall (λ pt, Qden (fst pt) = 1%positive) (oth_pts ns).
 Proof.
@@ -2769,7 +2769,7 @@ destruct Hpt as (h, (αh, Hpt)).
 subst pt; reflexivity.
 Qed.
 
-Lemma Sorted_Qnat_Sorted_Qnum : ∀ pts,
+Theorem Sorted_Qnat_Sorted_Qnum : ∀ pts,
   Sorted fst_lt pts
   → List.Forall (λ pt, Qden (fst pt) = 1%positive) pts
     → Sorted (λ pt₁ pt₂, Qnum (fst pt₁) < Qnum (fst pt₂)) pts.

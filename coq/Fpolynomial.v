@@ -33,7 +33,7 @@ Inductive lap_eq {α} {r : ring α} : list α → list α → Prop :=
 Definition lap_zero {α} {r : ring α} := ([] : list α).
 Definition lap_one {α} {r : ring α} := [1%K].
 
-Lemma lap_eq_cons_inv : ∀ α (r : ring α) x₁ x₂ l₁ l₂,
+Theorem lap_eq_cons_inv : ∀ α (r : ring α) x₁ x₂ l₁ l₂,
   lap_eq [x₁ … l₁] [x₂ … l₂]
   → (x₁ = x₂)%K ∧ lap_eq l₁ l₂.
 Proof.
@@ -41,7 +41,7 @@ intros α r x₁ x₂ l₁ l₂ H.
 inversion H; split; assumption.
 Qed.
 
-Lemma lap_eq_cons_nil_inv : ∀ α (r : ring α) x l,
+Theorem lap_eq_cons_nil_inv : ∀ α (r : ring α) x l,
   lap_eq [x … l] []
   → (x = 0)%K ∧ lap_eq l [].
 Proof.
@@ -49,7 +49,7 @@ intros α r x l H.
 inversion H; split; assumption.
 Qed.
 
-Lemma lap_eq_nil_cons_inv : ∀ α (r : ring α) x l,
+Theorem lap_eq_nil_cons_inv : ∀ α (r : ring α) x l,
   lap_eq [] [x … l]
   → (x = 0)%K ∧ lap_eq [] l.
 Proof.
@@ -130,7 +130,7 @@ Add Parametric Relation α (r : ring α) : (list α) lap_eq
  transitivity proved by lap_eq_trans
  as lap_eq_rel.
 
-Lemma lap_eq_list_fold_right : ∀ α (K : ring α) β g h x (l : list β),
+Theorem lap_eq_list_fold_right : ∀ α (K : ring α) β g h x (l : list β),
   (∀ i a b, i ∈ l → lap_eq a b → lap_eq (g i a) (h i b))
   → lap_eq (List.fold_right g x l) (List.fold_right h x l).
 Proof.
@@ -208,7 +208,7 @@ Notation "a ^ b" := (lap_power a b) : lap_scope.
 
 Definition list_nth_def_0 α {R : ring α} n l := List.nth n l 0%K.
 
-Lemma fold_list_nth_def_0 : ∀ α (R : ring α) n l,
+Theorem fold_list_nth_def_0 : ∀ α (R : ring α) n l,
   List.nth n l 0%K = list_nth_def_0 n l.
 Proof. reflexivity. Qed.
 
@@ -259,7 +259,7 @@ induction la as [| a]; intros; simpl.
    apply IHla; assumption.
 Qed.
 
-Lemma lap_eq_nil_lap_add_r : ∀ α (r : ring α) la lb,
+Theorem lap_eq_nil_lap_add_r : ∀ α (r : ring α) la lb,
   lap_eq [] la
   → lap_eq lb (lap_add la lb).
 Proof.
@@ -273,7 +273,7 @@ constructor; [ rewrite Ha, rng_add_0_l; reflexivity | idtac ].
 apply IHla; assumption.
 Qed.
 
-Lemma lap_eq_nil_lap_add_l : ∀ α (r : ring α) la lb,
+Theorem lap_eq_nil_lap_add_l : ∀ α (r : ring α) la lb,
   lap_eq [] lb
   → lap_eq la (lap_add la lb).
 Proof.
@@ -352,7 +352,7 @@ induction la as [| a]; intros.
     constructor; [ rewrite Hac, Hbd; reflexivity | apply IHla; assumption ].
 Qed.
 
-Lemma lap_convol_mul_comm : ∀ α (R : ring α) l₁ l₂ i len,
+Theorem lap_convol_mul_comm : ∀ α (R : ring α) l₁ l₂ i len,
   lap_eq (lap_convol_mul R l₁ l₂ i len) (lap_convol_mul R l₂ l₁ i len).
 Proof.
 intros α R l₁ l₂ i len.
@@ -368,7 +368,7 @@ rewrite Nat_sub_sub_distr; [ idtac | assumption ].
 rewrite Nat.add_comm, Nat.add_sub; reflexivity.
 Qed.
 
-Lemma lap_convol_mul_nil_l : ∀ α (R : ring α) l i len,
+Theorem lap_convol_mul_nil_l : ∀ α (R : ring α) l i len,
   lap_eq (lap_convol_mul R [] l i len) [].
 Proof.
 intros α R l i len.
@@ -380,7 +380,7 @@ intros k (_, Hk).
 destruct k; rewrite rng_mul_0_l; reflexivity.
 Qed.
 
-Lemma lap_convol_mul_nil_r : ∀ α (R : ring α) l i len,
+Theorem lap_convol_mul_nil_r : ∀ α (R : ring α) l i len,
   lap_eq (lap_convol_mul R l [] i len) [].
 Proof.
 intros α R l i len.
@@ -388,7 +388,7 @@ rewrite lap_convol_mul_comm.
 apply lap_convol_mul_nil_l.
 Qed.
 
-Lemma lap_convol_mul_compat : ∀ α (r : ring α) la lb lc ld i len,
+Theorem lap_convol_mul_compat : ∀ α (r : ring α) la lb lc ld i len,
   lap_eq la lc
   → lap_eq lb ld
     → lap_eq (lap_convol_mul r la lb i len)
@@ -429,7 +429,7 @@ constructor.
  apply IHlen; assumption.
 Qed.
 
-Lemma lap_eq_nil_lap_convol_mul_nil_l : ∀ α (r : ring α) la lb i len,
+Theorem lap_eq_nil_lap_convol_mul_nil_l : ∀ α (r : ring α) la lb i len,
   lap_eq la []
   → lap_eq (lap_convol_mul r la lb i len) [].
 Proof.
@@ -453,7 +453,7 @@ constructor.
  apply IHlen; assumption.
 Qed.
 
-Lemma lap_eq_nil_lap_convol_mul_nil_r : ∀ α (r : ring α) la lb i len,
+Theorem lap_eq_nil_lap_convol_mul_nil_r : ∀ α (r : ring α) la lb i len,
   lap_eq lb []
   → lap_eq (lap_convol_mul r la lb i len) [].
 Proof.
@@ -477,7 +477,7 @@ constructor.
  apply IHlen; assumption.
 Qed.
 
-Lemma list_nth_rng_eq : ∀ α (r : ring α) la lb n,
+Theorem list_nth_rng_eq : ∀ α (r : ring α) la lb n,
   lap_eq la lb → (List.nth n la 0 = List.nth n lb 0)%K.
 Proof.
 intros α r la lb n Hlab.
@@ -518,7 +518,7 @@ apply summation_compat; intros j (_, Hj).
 apply rng_mul_compat; apply list_nth_rng_eq; assumption.
 Qed.
 
-Lemma lap_convol_mul_succ : ∀ α (r : ring α) la lb i len,
+Theorem lap_convol_mul_succ : ∀ α (r : ring α) la lb i len,
   lap_eq
     (lap_convol_mul r la lb i (S len))
     (lap_convol_mul r la lb i len ++
@@ -537,7 +537,7 @@ induction len; intros; simpl.
  reflexivity.
 Qed.
 
-Lemma lap_eq_app_0s : ∀ α (r : ring α) la lb,
+Theorem lap_eq_app_0s : ∀ α (r : ring α) la lb,
   List.Forall (λ b, b = 0)%K lb
   → lap_eq la (la ++ lb).
 Proof.
@@ -553,7 +553,7 @@ induction la as [| a]; simpl.
  constructor; [ reflexivity | assumption ].
 Qed.
 
-Lemma lap_convol_mul_more : ∀ α (r : ring α) la lb i n,
+Theorem lap_convol_mul_more : ∀ α (r : ring α) la lb i n,
   lap_eq (lap_convol_mul r la lb i (pred (length la + length lb)))
     (lap_convol_mul r la lb i (pred (length la + length lb) + n)).
 Proof.
@@ -609,7 +609,7 @@ intros a b H la lb Hab.
 constructor; assumption.
 Qed.
 
-Lemma list_nth_lap_eq : ∀ α (r : ring α) la lb,
+Theorem list_nth_lap_eq : ∀ α (r : ring α) la lb,
   (∀ i, (List.nth i la 0 = List.nth i lb 0)%K)
   → lap_eq la lb.
 Proof.
@@ -663,21 +663,21 @@ Eval vm_compute in Qtest_comp [-1#1; 4#1 … []] [-2#1; 4#1; -3#1 … []].
      : list Q
 *)
 
-Lemma lap_add_nil_l : ∀ α (r : ring α) la,
+Theorem lap_add_nil_l : ∀ α (r : ring α) la,
   lap_eq (lap_add [] la) la.
 Proof. intros α r la; destruct la; reflexivity. Qed.
 
-Lemma lap_add_nil_r : ∀ α (r : ring α) la,
+Theorem lap_add_nil_r : ∀ α (r : ring α) la,
   lap_eq (lap_add la []) la.
 Proof. intros α r la; destruct la; reflexivity. Qed.
 
-Lemma lap_mul_nil_l : ∀ α (r : ring α) la, lap_eq (lap_mul [] la) [].
+Theorem lap_mul_nil_l : ∀ α (r : ring α) la, lap_eq (lap_mul [] la) [].
 Proof. intros α r la; apply lap_convol_mul_nil_l. Qed.
 
-Lemma lap_mul_nil_r : ∀ α (r : ring α) la, lap_eq (lap_mul la []) [].
+Theorem lap_mul_nil_r : ∀ α (r : ring α) la, lap_eq (lap_mul la []) [].
 Proof. intros α r la; apply lap_convol_mul_nil_r. Qed.
 
-Lemma lap_add_compat : ∀ α (r : ring α) a b c d,
+Theorem lap_add_compat : ∀ α (r : ring α) a b c d,
   lap_eq a c
   → lap_eq b d
     → lap_eq (lap_add a b) (lap_add c d).
@@ -686,7 +686,7 @@ intros α r a b c d Hac Hbd.
 rewrite Hac, Hbd; reflexivity.
 Qed.
 
-Lemma lap_add_compat_l {α} {r : ring α} : ∀ a b c,
+Theorem lap_add_compat_l {α} {r : ring α} : ∀ a b c,
   lap_eq a b
   → lap_eq (lap_add c a) (lap_add c b).
 Proof.
@@ -694,7 +694,7 @@ intros a b c Hab.
 rewrite Hab; reflexivity.
 Qed.
 
-Lemma lap_mul_compat : ∀ α (r : ring α) a b c d,
+Theorem lap_mul_compat : ∀ α (r : ring α) a b c d,
   lap_eq a c
   → lap_eq b d
     → lap_eq (lap_mul a b) (lap_mul c d).
@@ -745,7 +745,7 @@ Variable r : ring α.
 
 (* addition theorems *)
 
-Lemma lap_add_comm : ∀ al₁ al₂,
+Theorem lap_add_comm : ∀ al₁ al₂,
   lap_eq (lap_add al₁ al₂) (lap_add al₂ al₁).
 Proof.
 intros al₁ al₂.
@@ -760,7 +760,7 @@ induction al₁; intros.
   constructor; [ apply rng_add_comm | apply IHal₁ ].
 Qed.
 
-Lemma lap_add_assoc : ∀ al₁ al₂ al₃,
+Theorem lap_add_assoc : ∀ al₁ al₂ al₃,
   lap_eq (lap_add al₁ (lap_add al₂ al₃))
     (lap_add (lap_add al₁ al₂) al₃).
 Proof.
@@ -788,7 +788,7 @@ induction al₁; intros.
    constructor; [ apply rng_add_assoc | apply IHal₁ ].
 Qed.
 
-Lemma lap_add_shuffle0 : ∀ la lb lc,
+Theorem lap_add_shuffle0 : ∀ la lb lc,
   lap_eq (lap_add (lap_add la lb) lc)
      (lap_add (lap_add la lc) lb).
 Proof.
@@ -798,7 +798,7 @@ apply lap_add_compat; [ reflexivity | simpl ].
 apply lap_add_comm.
 Qed.
 
-Lemma length_lap_add : ∀ la lb,
+Theorem length_lap_add : ∀ la lb,
   length (lap_add la lb) = max (length la) (length lb).
 Proof.
 intros la lb.
@@ -810,14 +810,14 @@ Qed.
 
 (* multiplication theorems *)
 
-Lemma lap_mul_comm : ∀ a b, lap_eq (lap_mul a b) (lap_mul b a).
+Theorem lap_mul_comm : ∀ a b, lap_eq (lap_mul a b) (lap_mul b a).
 Proof.
 intros a b.
 unfold lap_mul.
 rewrite lap_convol_mul_comm, Nat.add_comm; reflexivity.
 Qed.
 
-Lemma list_nth_lap_convol_mul_aux : ∀ la lb n i len,
+Theorem list_nth_lap_convol_mul_aux : ∀ la lb n i len,
   pred (List.length la + List.length lb) = (i + len)%nat
   → (List.nth n (lap_convol_mul r la lb i len) 0%K =
      Σ (j = 0, n + i),
@@ -849,7 +849,7 @@ induction len; intros.
 Qed.
 
 (* to be unified perhaps with list_nth_convol_mul below *)
-Lemma list_nth_lap_convol_mul : ∀ la lb i len,
+Theorem list_nth_lap_convol_mul : ∀ la lb i len,
   len = pred (length la + length lb)
   → (List.nth i (lap_convol_mul r la lb 0 len) 0 =
      Σ (j = 0, i), List.nth j la 0 * List.nth (i - j) lb 0)%K.
@@ -860,7 +860,7 @@ rewrite list_nth_lap_convol_mul_aux; [ idtac | assumption ].
 rewrite Nat.add_0_r; reflexivity.
 Qed.
 
-Lemma summation_mul_list_nth_lap_convol_mul : ∀ la lb lc k,
+Theorem summation_mul_list_nth_lap_convol_mul : ∀ la lb lc k,
   (Σ (i = 0, k),
      List.nth i la 0 *
      List.nth (k - i)
@@ -877,7 +877,7 @@ apply rng_mul_compat_l.
 rewrite list_nth_lap_convol_mul; reflexivity.
 Qed.
 
-Lemma summation_mul_list_nth_lap_convol_mul_2 : ∀ la lb lc k,
+Theorem summation_mul_list_nth_lap_convol_mul_2 : ∀ la lb lc k,
    (Σ (i = 0, k),
       List.nth i lc 0 *
       List.nth (k - i)
@@ -898,7 +898,7 @@ apply list_nth_lap_convol_mul; reflexivity.
 Qed.
 
 (* inspired from series_mul_assoc *)
-Lemma lap_mul_assoc : ∀ la lb lc,
+Theorem lap_mul_assoc : ∀ la lb lc,
   lap_eq (lap_mul la (lap_mul lb lc))
     (lap_mul (lap_mul la lb) lc).
 Proof.
@@ -922,7 +922,7 @@ rewrite Nat.add_comm, Nat.sub_add_distr.
 reflexivity.
 Qed.
 
-Lemma lap_mul_shuffle0 : ∀ la lb lc,
+Theorem lap_mul_shuffle0 : ∀ la lb lc,
   lap_eq (lap_mul (lap_mul la lb) lc) (lap_mul (lap_mul la lc) lb).
 Proof.
 intros la lb lc.
@@ -930,7 +930,7 @@ do 2 rewrite <- lap_mul_assoc.
 apply lap_mul_compat; [ reflexivity | apply lap_mul_comm ].
 Qed.
 
-Lemma lap_eq_skipn_succ : ∀ cl i,
+Theorem lap_eq_skipn_succ : ∀ cl i,
   lap_eq [List.nth i cl 0%K … List.skipn (S i) cl] (List.skipn i cl).
 Proof.
 intros cl i.
@@ -941,7 +941,7 @@ induction cl as [| c]; intros; simpl.
  destruct i; [ reflexivity | apply IHcl ].
 Qed.
 
-Lemma lap_convol_mul_1_l : ∀ cl i len,
+Theorem lap_convol_mul_1_l : ∀ cl i len,
   length cl = (i + len)%nat
   → lap_eq (lap_convol_mul r [1%K] cl i len) (List.skipn i cl).
 Proof.
@@ -965,7 +965,7 @@ induction len; intros.
   destruct j; rewrite rng_mul_0_l; reflexivity.
 Qed.
 
-Lemma lap_convol_mul_x_l : ∀ cl i len,
+Theorem lap_convol_mul_x_l : ∀ cl i len,
   length cl = (i + len)%nat
   → lap_eq
       (lap_convol_mul r [0%K; 1%K … []] cl (S i) len)
@@ -1005,7 +1005,7 @@ Fixpoint lap_convol_mul_add al₁ al₂ al₃ i len :=
 
 (* *)
 
-Lemma list_nth_add : ∀ k la lb,
+Theorem list_nth_add : ∀ k la lb,
   (List.nth k (lap_add la lb) 0 =
    List.nth k la 0 + List.nth k lb 0)%K.
 Proof.
@@ -1021,7 +1021,7 @@ induction k; intros.
  apply IHk.
 Qed.
 
-Lemma lap_convol_mul_lap_add : ∀ la lb lc i len,
+Theorem lap_convol_mul_lap_add : ∀ la lb lc i len,
   lap_eq
     (lap_convol_mul r la (lap_add lb lc) i len)
     (lap_convol_mul_add la lb lc i len).
@@ -1035,7 +1035,7 @@ apply rng_mul_compat_l.
 rewrite list_nth_add; reflexivity.
 Qed.
 
-Lemma lap_add_lap_convol_mul : ∀ la lb lc i len,
+Theorem lap_add_lap_convol_mul : ∀ la lb lc i len,
    lap_eq
      (lap_add
         (lap_convol_mul r la lb i len)
@@ -1051,7 +1051,7 @@ apply summation_compat; intros j (_, Hj).
 rewrite rng_mul_add_distr_l; reflexivity.
 Qed.
 
-Lemma lap_mul_add_distr_l : ∀ la lb lc,
+Theorem lap_mul_add_distr_l : ∀ la lb lc,
   lap_eq (lap_mul la (lap_add lb lc))
     (lap_add (lap_mul la lb) (lap_mul la lc)).
 Proof.
@@ -1080,7 +1080,7 @@ rewrite lap_add_lap_convol_mul.
 reflexivity.
 Qed.
 
-Lemma lap_mul_add_distr_r : ∀ la lb lc,
+Theorem lap_mul_add_distr_r : ∀ la lb lc,
   lap_eq (lap_mul (lap_add la lb) lc)
     (lap_add (lap_mul la lc) (lap_mul lb lc)).
 Proof.
@@ -1089,7 +1089,7 @@ rewrite lap_mul_comm, lap_mul_add_distr_l, lap_mul_comm.
 apply lap_add_compat; [ reflexivity | apply lap_mul_comm ].
 Qed.
 
-Lemma lap_convol_mul_1_r : ∀ la i len,
+Theorem lap_convol_mul_1_r : ∀ la i len,
   (i + len = length la)%nat
   → lap_eq (lap_convol_mul r la [1%K] i len) (List.skipn i la).
 Proof.
@@ -1117,7 +1117,7 @@ induction len; intros; simpl.
   destruct j; rewrite rng_mul_0_r; reflexivity.
 Qed.
 
-Lemma lap_mul_1_l : ∀ la, lap_eq (lap_mul [1%K] la) la.
+Theorem lap_mul_1_l : ∀ la, lap_eq (lap_mul [1%K] la) la.
 Proof.
 intros la.
 unfold lap_mul.
@@ -1125,7 +1125,7 @@ apply lap_convol_mul_1_l; simpl.
 reflexivity.
 Qed.
 
-Lemma lap_mul_1_r : ∀ la, lap_eq (lap_mul la [1%K]) la.
+Theorem lap_mul_1_r : ∀ la, lap_eq (lap_mul la [1%K]) la.
 Proof.
 intros la.
 unfold lap_mul.
@@ -1133,7 +1133,7 @@ apply lap_convol_mul_1_r; simpl.
 rewrite Nat.add_comm; reflexivity.
 Qed.
 
-Lemma length_lap_mul : ∀ la lb,
+Theorem length_lap_mul : ∀ la lb,
   length (lap_mul la lb) = pred (length la + length lb).
 Proof.
 intros la lb.
@@ -1147,7 +1147,7 @@ rewrite IHlen; reflexivity.
 Qed.
 
 (* to be unified perhaps with list_nth_lap_convol_mul above *)
-Lemma list_nth_convol_mul : ∀ la lb i k len,
+Theorem list_nth_convol_mul : ∀ la lb i k len,
   (i + len)%nat = pred (length la + length lb)
   → (List.nth k (lap_convol_mul r la lb i len) 0 =
      Σ (j = 0, i + k),
@@ -1177,7 +1177,7 @@ induction len; intros; simpl.
  apply IHlen; assumption.
 Qed.
 
-Lemma list_nth_lap_mul : ∀ la lb k,
+Theorem list_nth_lap_mul : ∀ la lb k,
   (List.nth k (lap_mul la lb) 0 =
    Σ (i = 0, k), List.nth i la 0 * List.nth (k - i) lb 0)%K.
 Proof.
@@ -1187,7 +1187,7 @@ Qed.
 
 (* compose theorems *)
 
-Lemma lap_mul_fold_add_distr : ∀ β la li (g : β → list α) x,
+Theorem lap_mul_fold_add_distr : ∀ β la li (g : β → list α) x,
   lap_eq
     (lap_mul x (List.fold_right (λ i accu, lap_add accu (g i)) la li))
     (List.fold_right (λ i accu, lap_add accu (lap_mul x (g i)))
@@ -1200,7 +1200,7 @@ rewrite lap_mul_add_distr_l.
 rewrite IHli; reflexivity.
 Qed.
 
-Lemma list_fold_right_seq : ∀ g h la lb s t len,
+Theorem list_fold_right_seq : ∀ g h la lb s t len,
   lap_eq la lb
   → (∀ x y z, lap_eq y z → lap_eq (g x y) (g x z))
     → (∀ i accu, lap_eq (g (s + i)%nat accu) (h (t + i)%nat accu))
@@ -1221,7 +1221,7 @@ do 2 rewrite Nat.add_succ_l, <- Nat.add_succ_r.
 apply Hgh.
 Qed.
 
-Lemma lap_compose_compose2 : ∀ la lb,
+Theorem lap_compose_compose2 : ∀ la lb,
   lap_eq (lap_compose la lb) (lap_compose2 la lb).
 Proof.
 intros la lb.
@@ -1249,7 +1249,7 @@ apply list_fold_right_seq.
  apply lap_mul_comm.
 Qed.
 
-Lemma lap_compose_compat : ∀ la lb lc ld,
+Theorem lap_compose_compat : ∀ la lb lc ld,
   lap_eq la lc
   → lap_eq lb ld
     → lap_eq (lap_compose la lb) (lap_compose lc ld).
@@ -1260,7 +1260,7 @@ Qed.
 
 (* power *)
 
-Lemma lap_power_add : ∀ la i j,
+Theorem lap_power_add : ∀ la i j,
   lap_eq (lap_power la (i + j))
     (lap_mul (lap_power la i) (lap_power la j)).
 Proof.
@@ -1272,7 +1272,7 @@ induction i; intros; simpl.
  rewrite IHi, lap_mul_assoc; reflexivity.
 Qed.
 
-Lemma lap_power_mul : ∀ la lb n,
+Theorem lap_power_mul : ∀ la lb n,
   lap_eq
     (lap_power (lap_mul la lb) n)
     (lap_mul (lap_power la n) (lap_power lb n)).
@@ -1290,10 +1290,10 @@ induction n; intros; simpl.
  apply lap_mul_comm.
 Qed.
 
-Lemma lap_power_succ : ∀ la n, (la ^ S n = la * la ^ n)%lap.
+Theorem lap_power_succ : ∀ la n, (la ^ S n = la * la ^ n)%lap.
 Proof. reflexivity. Qed.
 
-Lemma length_lap_power : ∀ la n,
+Theorem length_lap_power : ∀ la n,
   la ≠ []
   → length (lap_power la n) = S (n * pred (length la)).
 Proof.
@@ -1306,13 +1306,13 @@ rewrite <- Nat.add_succ_l.
 destruct la; [ exfalso; apply Hla; reflexivity | reflexivity ].
 Qed.
 
-Lemma lap_power_1 : ∀ la, (la ^ 1 = la)%lap.
+Theorem lap_power_1 : ∀ la, (la ^ 1 = la)%lap.
 Proof.
 intros la; simpl.
 rewrite lap_mul_1_r; reflexivity.
 Qed.
 
-Lemma list_nth_pad_lt : ∀ i s (v : α) cl d,
+Theorem list_nth_pad_lt : ∀ i s (v : α) cl d,
   (i < s)%nat
   → List.nth i (list_pad s v cl) d = v.
 Proof.
@@ -1326,7 +1326,7 @@ induction s; intros.
  apply IHs, lt_S_n; assumption.
 Qed.
 
-Lemma list_nth_pad_sub : ∀ i s (v : α) cl d,
+Theorem list_nth_pad_sub : ∀ i s (v : α) cl d,
   (s ≤ i)%nat
   → List.nth i (list_pad s v cl) d = List.nth (i - s) cl d.
 Proof.
@@ -1339,7 +1339,7 @@ rewrite Nat.sub_succ.
 apply IHs; assumption.
 Qed.
 
-Lemma lap_power_x : ∀ n,
+Theorem lap_power_x : ∀ n,
   lap_eq (lap_power [0; 1 … []] n)%K (list_pad n 0 [1])%K.
 Proof.
 intros n.
@@ -1427,7 +1427,7 @@ destruct (lt_dec i n) as [Hin| Hin].
      rewrite Nat.mul_1_r; reflexivity.
 Qed.
 
-Lemma lap_mul_cons_l : ∀ a la lb,
+Theorem lap_mul_cons_l : ∀ a la lb,
   lap_eq (lap_mul [a … la] lb)
     (lap_add (lap_mul [a] lb) [0%K … lap_mul la lb]).
 Proof.
@@ -1459,7 +1459,7 @@ destruct k.
   destruct i; rewrite rng_mul_0_l; reflexivity.
 Qed.
 
-Lemma lap_mul_cons_r : ∀ la b lb,
+Theorem lap_mul_cons_r : ∀ la b lb,
   lap_eq (lap_mul la [b … lb])
     (lap_add (lap_mul la [b]) [0%K … lap_mul la lb]).
 Proof.
@@ -1471,10 +1471,10 @@ apply lap_add_compat; [ reflexivity | idtac ].
 rewrite lap_mul_comm; reflexivity.
 Qed.
 
-Lemma lap_eq_0 : lap_eq [0%K] [].
+Theorem lap_eq_0 : lap_eq [0%K] [].
 Proof. constructor; reflexivity. Qed.
 
-Lemma lap_convol_mul_cons_succ : ∀ a b lb i len,
+Theorem lap_convol_mul_cons_succ : ∀ a b lb i len,
   lap_eq (lap_convol_mul r [a] [b … lb] (S i) len)
     (lap_convol_mul r [a] lb i len).
 Proof.
@@ -1490,7 +1490,7 @@ apply rng_mul_compat_l.
 rewrite Nat.sub_succ_l; [ reflexivity | assumption ].
 Qed.
 
-Lemma lap_mul_cons : ∀ a b la lb,
+Theorem lap_mul_cons : ∀ a b la lb,
   lap_eq (lap_mul [a … la] [b … lb])
     [(a * b)%K
     … lap_add (lap_add (lap_mul la [b]) (lap_mul [a] lb))
@@ -1510,7 +1510,7 @@ apply lap_add_compat; [ reflexivity | idtac ].
 apply lap_convol_mul_cons_succ.
 Qed.
 
-Lemma lap_mul_power : ∀ n la,
+Theorem lap_mul_power : ∀ n la,
   lap_eq
     (lap_mul (lap_power [0; 1 … []] n) la)%K
     (list_pad n 0 la)%K.
@@ -1541,7 +1541,7 @@ destruct la as [| a]; simpl.
   apply IHn.
 Qed.
 
-Lemma nth_lap_power_id : ∀ n,
+Theorem nth_lap_power_id : ∀ n,
   (List.nth n (lap_power [0; 1 … []] n) 0 = 1)%K.
 Proof.
 intros n.
@@ -1553,7 +1553,7 @@ Qed.
 
 (* *)
 
-Lemma lap_fold_compat_l : ∀ A (g h : A → _) la lb l,
+Theorem lap_fold_compat_l : ∀ A (g h : A → _) la lb l,
   lap_eq la lb
   → lap_eq
       (List.fold_right (λ v accu, lap_add accu (lap_mul (g v) (h v)))
@@ -1565,14 +1565,14 @@ intros A g h la lb l Heq.
 induction l; [ assumption | simpl; rewrite IHl; reflexivity ].
 Qed.
 
-Lemma lap_cons_add : ∀ a lb lc,
+Theorem lap_cons_add : ∀ a lb lc,
   ([a … lb + lc] = [a … lb] + [0%K … lc])%lap.
 Proof.
 intros a lb lc.
 destruct lb as [| b]; simpl; rewrite rng_add_0_r; reflexivity.
 Qed.
 
-Lemma lap_compose_single : ∀ a lb lc,
+Theorem lap_compose_single : ∀ a lb lc,
   (lap_compose ([a] * lb) lc = [a] * lap_compose lb lc)%lap.
 Proof.
 intros a lb lc.
@@ -1589,7 +1589,7 @@ induction lb as [| b].
  rewrite lap_eq_0; reflexivity.
 Qed.
 
-Lemma lap_compose_add : ∀ la lb lc,
+Theorem lap_compose_add : ∀ la lb lc,
   (lap_compose (la + lb) lc = lap_compose la lc + lap_compose lb lc)%lap.
 Proof.
 intros la lb lc.
@@ -1609,7 +1609,7 @@ destruct lb as [| b]; simpl.
  rewrite lap_add_comm; reflexivity.
 Qed.
 
-Lemma lap_compose_mul : ∀ la lb lc,
+Theorem lap_compose_mul : ∀ la lb lc,
   (lap_compose (la * lb) lc = lap_compose la lc * lap_compose lb lc)%lap.
 Proof.
 (* inspiré de apply_lap_mul *)
@@ -1674,7 +1674,7 @@ rewrite IHla, rng_add_opp_l.
 constructor; reflexivity.
 Qed.
 
-Lemma lap_mul_compat_l : ∀ α (r : ring α) a b c,
+Theorem lap_mul_compat_l : ∀ α (r : ring α) a b c,
   lap_eq a b
   → lap_eq (lap_mul c a) (lap_mul c b).
 Proof.
@@ -1848,7 +1848,7 @@ unfold eq_poly.
 eapply lap_add_comm; reflexivity.
 Qed.
 
-Lemma poly_add_assoc : ∀ pol₁ pol₂ pol₃,
+Theorem poly_add_assoc : ∀ pol₁ pol₂ pol₃,
   (pol₁ + (pol₂ + pol₃) = (pol₁ + pol₂) + pol₃)%pol.
 Proof.
 intros pol₁ pol₂ pol₃.
@@ -1882,7 +1882,7 @@ rewrite Nat.add_comm.
 rewrite lap_convol_mul_comm; reflexivity.
 Qed.
 
-Lemma poly_mul_assoc : ∀ P Q R,
+Theorem poly_mul_assoc : ∀ P Q R,
   (P * (Q * R) = (P * Q) * R)%pol.
 Proof.
 intros P Q R.
@@ -1904,14 +1904,14 @@ rewrite poly_mul_comm.
 apply poly_mul_1_l.
 Qed.
 
-Lemma poly_mul_add_distr_l : ∀ P Q R,
+Theorem poly_mul_add_distr_l : ∀ P Q R,
   (P * (Q + R) = P * Q + P * R)%pol.
 Proof.
 intros P Q R.
 apply lap_mul_add_distr_l.
 Qed.
 
-Lemma poly_mul_add_distr_r : ∀ P Q R,
+Theorem poly_mul_add_distr_r : ∀ P Q R,
   ((P + Q) * R = P * R + Q * R)%pol.
 Proof.
 intros P Q R.

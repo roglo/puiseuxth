@@ -17,12 +17,12 @@ Definition adjust_ps α {R : ring α} n k ps :=
      ps_ordnum := ps_ordnum ps * Zpos k - Z.of_nat n;
      ps_polord := ps_polord ps * k |}.
 
-Section first_lemmas.
+Section first_theorems.
 
 Variable α : Type.
 Variable r : ring α.
 
-Lemma ncrl_inf_gsxp : ∀ s n,
+Theorem ncrl_inf_gsxp : ∀ s n,
   null_coeff_range_length r s (S n) = ∞
   → greatest_series_x_power r s n = O.
 Proof.
@@ -33,7 +33,7 @@ rewrite Hn.
 reflexivity.
 Qed.
 
-Lemma greatest_series_x_power_stretch_inf : ∀ s b k,
+Theorem greatest_series_x_power_stretch_inf : ∀ s b k,
   null_coeff_range_length r s (S b) = ∞
   → greatest_series_x_power r (series_stretch k s) (b * Pos.to_nat k) = O.
 Proof.
@@ -47,7 +47,7 @@ rewrite Hs in Hn.
 rewrite null_coeff_range_length_stretch_succ_inf; auto.
 Qed.
 
-Lemma gcd_ps_0_m : ∀ n (ps : puiseux_series α),
+Theorem gcd_ps_0_m : ∀ n (ps : puiseux_series α),
   gcd_ps n O ps = Z.abs (Z.gcd (ps_ordnum ps + Z.of_nat n) (' ps_polord ps)).
 Proof.
 intros n ps.
@@ -55,7 +55,7 @@ unfold gcd_ps.
 rewrite Z.gcd_0_r; reflexivity.
 Qed.
 
-Lemma ps_normal_adjust_eq : ∀ ps n k,
+Theorem ps_normal_adjust_eq : ∀ ps n k,
   normalise_ps ps ≐ normalise_ps (adjust_ps n k ps).
 Proof.
 intros ps n k.
@@ -180,7 +180,7 @@ constructor.
 apply ps_normal_adjust_eq.
 Qed.
 
-End first_lemmas.
+End first_theorems.
 
 Definition adjust_series α {R : ring α} n k s :=
   series_shift n (series_stretch k s).
@@ -241,7 +241,7 @@ Section theorems_add.
 Variable α : Type.
 Variable r : ring α.
 
-Lemma series_stretch_add_distr : ∀ k s₁ s₂,
+Theorem series_stretch_add_distr : ∀ k s₁ s₂,
   (series_stretch k (s₁ + s₂) =
    series_stretch k s₁ + series_stretch k s₂)%ser.
 Proof.
@@ -253,7 +253,7 @@ destruct (zerop (i mod k)); [ reflexivity | idtac ].
 rewrite rng_add_0_l; reflexivity.
 Qed.
 
-Lemma ps_terms_add_comm : ∀ ps₁ ps₂,
+Theorem ps_terms_add_comm : ∀ ps₁ ps₂,
   (ps_terms_add ps₁ ps₂ = ps_terms_add ps₂ ps₁)%ser.
 Proof.
 intros ps₁ ps₂.
@@ -261,7 +261,7 @@ unfold ps_terms_add.
 rewrite series_add_comm; reflexivity.
 Qed.
 
-Lemma cm_comm : ∀ (ps₁ ps₂ : puiseux_series α), cm ps₁ ps₂ = cm ps₂ ps₁.
+Theorem cm_comm : ∀ (ps₁ ps₂ : puiseux_series α), cm ps₁ ps₂ = cm ps₂ ps₁.
 Proof.
 intros ps₁ ps₂.
 unfold cm.
@@ -307,7 +307,7 @@ rewrite eq_strong_ps_add₂_comm; reflexivity.
 Qed.
 *)
 
-Lemma series_shift_add_distr : ∀ s₁ s₂ n,
+Theorem series_shift_add_distr : ∀ s₁ s₂ n,
   (series_shift n (s₁ + s₂) =
    series_shift n s₁ + series_shift n s₂)%ser.
 Proof.
@@ -317,7 +317,7 @@ destruct (lt_dec i n) as [H₁| H₁]; [ idtac | reflexivity ].
 rewrite rng_add_0_l; reflexivity.
 Qed.
 
-Lemma ps_terms_add_assoc : ∀ ps₁ ps₂ ps₃,
+Theorem ps_terms_add_assoc : ∀ ps₁ ps₂ ps₃,
   (ps_terms_add (ps₁ + ps₂)%ps ps₃ =
    ps_terms_add ps₁ (ps₂ + ps₃)%ps)%ser.
 Proof.
@@ -364,7 +364,7 @@ do 2 rewrite Z2Nat_sub_min.
 simpl; rewrite rng_add_assoc; reflexivity.
 Qed.
 
-Lemma gcd_ps_add_assoc : ∀ ps₁ ps₂ ps₃ n k,
+Theorem gcd_ps_add_assoc : ∀ ps₁ ps₂ ps₃ n k,
   gcd_ps n k ((ps₁ + ps₂) + ps₃)%ps =
   gcd_ps n k (ps₁ + (ps₂ + ps₃))%ps.
 Proof.
@@ -383,7 +383,7 @@ f_equal; [ idtac | rewrite Z.mul_shuffle0; reflexivity ].
 f_equal; rewrite Z.mul_shuffle0; reflexivity.
 Qed.
 
-Lemma ps_normal_add_assoc : ∀ ps₁ ps₂ ps₃,
+Theorem ps_normal_add_assoc : ∀ ps₁ ps₂ ps₃,
   normalise_ps ((ps₁ + ps₂) + ps₃)%ps ≐
   normalise_ps (ps₁ + (ps₂ + ps₃))%ps.
 Proof.
@@ -525,7 +525,7 @@ rewrite ps_add_comm.
 apply ps_add_opp_r.
 Qed.
 
-Lemma eq_strong_ps_add_add₂ : ∀ ps₁ ps₂,
+Theorem eq_strong_ps_add_add₂ : ∀ ps₁ ps₂,
   (ps₁ + ps₂)%ps ≐ ps_add₂ ps₁ ps₂.
 Proof.
 intros ps₁ ps₂.
@@ -549,21 +549,21 @@ constructor; [ simpl | reflexivity | simpl ].
  reflexivity.
 Qed.
 
-Lemma eq_strong_ps_normal_add_add₂ : ∀ ps₁ ps₂,
+Theorem eq_strong_ps_normal_add_add₂ : ∀ ps₁ ps₂,
   normalise_ps (ps₁ + ps₂)%ps ≐ normalise_ps (ps_add₂ ps₁ ps₂).
 Proof.
 intros ps₁ ps₂.
 rewrite eq_strong_ps_add_add₂; reflexivity.
 Qed.
 
-Lemma eq_ps_add_add₂ : ∀ ps₁ ps₂, (ps₁ + ps₂ = ps_add₂ ps₁ ps₂)%ps.
+Theorem eq_ps_add_add₂ : ∀ ps₁ ps₂, (ps₁ + ps₂ = ps_add₂ ps₁ ps₂)%ps.
 Proof.
 intros ps₁ ps₂.
 constructor.
 apply eq_strong_ps_normal_add_add₂.
 Qed.
 
-Lemma ps_monom_add : ∀ a b n,
+Theorem ps_monom_add : ∀ a b n,
   (ps_monom a n + ps_monom b n = ps_monom (a + b)%K n)%ps.
 Proof.
 intros a b n.

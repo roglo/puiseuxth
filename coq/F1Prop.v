@@ -33,19 +33,19 @@ Variable R : ring α.
 Variable K : field R.
 Variable acf : algeb_closed_field K.
 
-Lemma eq_poly_lap_add : ∀ α (R : ring α) la lb,
+Theorem eq_poly_lap_add : ∀ α (R : ring α) la lb,
   (POL la + POL lb = POL (la + lb)%lap)%pol.
 Proof. reflexivity. Qed.
 
-Lemma eq_poly_lap_mul : ∀ α (R : ring α) la lb,
+Theorem eq_poly_lap_mul : ∀ α (R : ring α) la lb,
   (POL la * POL lb = POL (la * lb)%lap)%pol.
 Proof. reflexivity. Qed.
 
-Lemma eq_poly_lap_pow : ∀ α (R : ring α) la n,
+Theorem eq_poly_lap_pow : ∀ α (R : ring α) la n,
   (POL la ^ n = POL (la ^ n)%lap)%pol.
 Proof. reflexivity. Qed.
 
-Lemma ps_poly_lap_summ : ∀ f g l,
+Theorem ps_poly_lap_summ : ∀ f g l,
   (∀ i, (f i = POL (g i))%pspol)
   → (ps_pol_summ l f = POL (ps_lap_summ l g))%pspol.
 Proof.
@@ -58,8 +58,8 @@ rewrite <- IHl, <- Hi.
 reflexivity.
 Qed.
 
-(* things similar with order_add, perhaps good lemmas? *)
-Lemma order_add_eq_min : ∀ a b,
+(* things similar with order_add, perhaps good theorems? *)
+Theorem order_add_eq_min : ∀ a b,
   (order a ≠ order b)%Qbar
   → (order (a + b) = Qbar.min (order a) (order b))%Qbar.
 Proof.
@@ -284,7 +284,7 @@ destruct na as [na| ].
   exfalso; apply Hab; reflexivity.
 Qed.
 
-Lemma ps_lap_nth_x_le_pow_mul : ∀ la m n,
+Theorem ps_lap_nth_x_le_pow_mul : ∀ la m n,
   (n ≤ m)%nat
   → (ps_lap_nth m ([0; 1 … []] ^ n * la) = ps_lap_nth (m - n) la)%ps.
 Proof.
@@ -310,7 +310,7 @@ induction n; intros.
  apply IHn; assumption.
 Qed.
 
-Lemma ps_lap_nth_x_gt_pow_mul : ∀ la m n,
+Theorem ps_lap_nth_x_gt_pow_mul : ∀ la m n,
   (m < n)%nat
   → (ps_lap_nth m ([0; 1 … []] ^ n * la) = 0)%ps.
 Proof.
@@ -329,7 +329,7 @@ induction n; intros.
  apply IHn; assumption.
 Qed.
 
-Lemma ps_lap_nth_0_cons_pow : ∀ a la n,
+Theorem ps_lap_nth_0_cons_pow : ∀ a la n,
   (ps_lap_nth 0 ([a … la] ^ n) = a ^ n)%ps.
 Proof.
 intros a la n.
@@ -345,7 +345,7 @@ induction n; simpl.
  rewrite ps_add_0_r; reflexivity.
 Qed.
 
-Lemma eq_1_0_all_0 : (1 = 0)%K → ∀ a, (a = 0)%K.
+Theorem eq_1_0_all_0 : (1 = 0)%K → ∀ a, (a = 0)%K.
 Proof.
 intros H a.
 rewrite <- rng_mul_1_l.
@@ -353,7 +353,7 @@ rewrite H, rng_mul_0_l.
 reflexivity.
 Qed.
 
-Lemma order_pow : ∀ a n,
+Theorem order_pow : ∀ a n,
   (a ≠ 0)%ps
   → (order (a ^ n) = qfin (Qnat n) * order a)%Qbar.
 Proof.
@@ -388,7 +388,7 @@ induction n; simpl.
  rewrite Qmult_1_l; reflexivity.
 Qed.
 
-Lemma ps_lap_nth_0_apply_0 : ∀ la,
+Theorem ps_lap_nth_0_apply_0 : ∀ la,
   (ps_lap_nth 0 la = @apply_lap _ (ps_ring R) la 0)%ps.
 Proof.
 intros la.
@@ -397,7 +397,7 @@ rewrite ps_mul_0_r, ps_add_0_l.
 reflexivity.
 Qed.
 
-Lemma apply_lap_inject_K_in_Kx_monom : ∀ P c,
+Theorem apply_lap_inject_K_in_Kx_monom : ∀ P c,
   (@apply_lap _ (ps_ring R) (lap_inject_K_in_Kx P) (ps_monom c 0) =
    ps_monom (apply_lap P c) 0)%ps.
 Proof.
@@ -414,7 +414,7 @@ induction P as [| a]; simpl.
  reflexivity.
 Qed.
 
-Lemma ps_monom_0_coeff_0 : ∀ c pow, (ps_monom c pow = 0)%ps → (c = 0)%K.
+Theorem ps_monom_0_coeff_0 : ∀ c pow, (ps_monom c pow = 0)%ps → (c = 0)%K.
 Proof.
 intros c pow Hc.
 apply ps_null_coeff_range_length_inf_iff in Hc.
@@ -424,7 +424,7 @@ simpl in Hc.
 pose proof (Hc O); assumption.
 Qed.
 
-Lemma in_power_list_lt : ∀ A la h (hv : puiseux_series A) pow,
+Theorem in_power_list_lt : ∀ A la h (hv : puiseux_series A) pow,
   (h, hv) ∈ qpower_list pow la
   → (nat_num h < pow + length la)%nat.
 Proof.
@@ -445,7 +445,7 @@ destruct Hh as [Hh| Hh].
  apply IHla; assumption.
 Qed.
 
-Lemma in_points_of_ps_lap_gen_lt : ∀ la pow pt,
+Theorem in_points_of_ps_lap_gen_lt : ∀ la pow pt,
   pt ∈ points_of_ps_lap_gen pow la
   → (nat_num (fst pt) < pow + length la)%nat.
 Proof.
@@ -457,7 +457,7 @@ destruct Hpt as (Hpt, Hord).
 eapply in_power_list_lt; eassumption.
 Qed.
 
-Lemma in_points_of_ps_lap_lt : ∀ la pt,
+Theorem in_points_of_ps_lap_lt : ∀ la pt,
   pt ∈ points_of_ps_lap la
   → (nat_num (fst pt) < length la)%nat.
 Proof.
@@ -466,7 +466,7 @@ apply in_points_of_ps_lap_gen_lt in Hpt.
 assumption.
 Qed.
 
-Lemma f₁_eq_term_with_Ψ_plus_g : ∀ pol ns j αj c₁ r f₁ Ψ,
+Theorem f₁_eq_term_with_Ψ_plus_g : ∀ pol ns j αj c₁ r f₁ Ψ,
   ns ∈ newton_segments pol
   → ini_pt ns = (Qnat j, αj)
     → c₁ = ac_root (Φq pol ns)
@@ -532,7 +532,7 @@ rewrite f₁_eq_term_with_Ψ_plus_sum with (l₂ := l₂); try eassumption.
   apply in_points_of_ps_lap_lt; assumption.
 Qed.
 
-Lemma nth_g_order_pos : ∀ pol ns h,
+Theorem nth_g_order_pos : ∀ pol ns h,
   ns ∈ newton_segments pol
   → (order (ps_lap_nth h (g_lap_of_ns pol ns)) > 0)%Qbar.
 Proof.
@@ -551,7 +551,7 @@ destruct (lt_dec h (length (g_lap_of_ns pol ns))) as [Hlt| Hge].
  rewrite order_0; constructor.
 Qed.
 
-Lemma order_nth_inject_K : ∀ la i,
+Theorem order_nth_inject_K : ∀ la i,
   (0 ≤ order (ps_lap_nth i (lap_inject_K_in_Kx la)))%Qbar.
 Proof.
 intros la i.
@@ -566,7 +566,7 @@ induction la as [| a]; intros; simpl.
  apply ps_monom_order_ge.
 Qed.
 
-Lemma monom_y_plus_c_is_inject_K : ∀ c,
+Theorem monom_y_plus_c_is_inject_K : ∀ c,
   ([ps_monom c 0; 1%ps … []] = lap_inject_K_in_Kx [c; 1%K … []])%pslap.
 Proof.
 intros c.
@@ -574,15 +574,15 @@ unfold ps_lap_eq.
 reflexivity.
 Qed.
 
-Lemma fold_lap_inject_K_in_Kx : ∀ la,
+Theorem fold_lap_inject_K_in_Kx : ∀ la,
   List.map (λ c : α, ps_monom c 0) la = lap_inject_K_in_Kx la.
 Proof. reflexivity. Qed.
 
-Lemma lap_add_cons : ∀ α (R : ring α) a b la lb,
+Theorem lap_add_cons : ∀ α (R : ring α) a b la lb,
   ([a … la] + [b … lb] = [(a + b)%K … la + lb])%lap.
 Proof. reflexivity. Qed.
 
-Lemma lap_inject_add : ∀ la lb,
+Theorem lap_inject_add : ∀ la lb,
   (lap_inject_K_in_Kx la + lap_inject_K_in_Kx lb =
    lap_inject_K_in_Kx (la + lb)%lap)%pslap.
 Proof.
@@ -603,7 +603,7 @@ induction la as [| a]; intros; simpl.
   rewrite ps_monom_add; reflexivity.
 Qed.
 
-Lemma lap_inject_mul : ∀ la lb,
+Theorem lap_inject_mul : ∀ la lb,
   (lap_inject_K_in_Kx la * lap_inject_K_in_Kx lb =
    lap_inject_K_in_Kx (la * lb)%lap)%pslap.
 Proof.
@@ -633,7 +633,7 @@ induction la as [| a]; intros; simpl.
   apply lap_add_compat; rewrite lap_mul_map_ps; reflexivity.
 Qed.
 
-Lemma lap_inject_comp : ∀ la lb,
+Theorem lap_inject_comp : ∀ la lb,
   (lap_inject_K_in_Kx la ∘ lap_inject_K_in_Kx lb =
    lap_inject_K_in_Kx (lap_compose la lb))%pslap.
 Proof.
@@ -725,7 +725,7 @@ apply Qbar.min_glb_lt.
  apply nth_g_order_pos; assumption.
 Qed.
 
-Lemma char_pol_root_ne_0 : ∀ pol ns m c₁,
+Theorem char_pol_root_ne_0 : ∀ pol ns m c₁,
   ns ∈ newton_segments pol
   → pol_in_K_1_m pol m
   → c₁ = ac_root (Φq pol ns)
@@ -821,7 +821,7 @@ assert (order (ps_lap_nth r (yr * ycj * psy ∘ yc)) = 0)%Qbar as Hor.
   apply nth_g_order_pos; assumption.
 Qed.
 
-Lemma exists_pol_ord : ∀ pol, ∃ m, pol_in_K_1_m pol m.
+Theorem exists_pol_ord : ∀ pol, ∃ m, pol_in_K_1_m pol m.
 Proof.
 intros pol.
 unfold pol_in_K_1_m.

@@ -161,7 +161,7 @@ progress unfold eq_poly; simpl.
 rewrite HPQ; reflexivity.
 Qed.
 
-Lemma list_fold_right_compat : ∀ α β equal g h (a₀ : α) (l : list β),
+Theorem list_fold_right_compat : ∀ α β equal g h (a₀ : α) (l : list β),
   (∀ x y z, equal x y → equal (g z x) (h z y))
   → equal a₀ a₀
     → equal (List.fold_right g a₀ l) (List.fold_right h a₀ l).
@@ -176,7 +176,7 @@ Section on_fields.
 Variable α : Type.
 Variable R : ring α.
 
-Lemma split_summation : ∀ g l l₁ l₂,
+Theorem split_summation : ∀ g l l₁ l₂,
   split_list l l₁ l₂
   → (poly_summation l₁ g + poly_summation l₂ g =
      poly_summation l g)%pol.
@@ -196,7 +196,7 @@ induction l as [| n]; intros; simpl.
   rewrite IHl; [ reflexivity | assumption ].
 Qed.
 
-Lemma ps_monom_split_mul : ∀ c pow,
+Theorem ps_monom_split_mul : ∀ c pow,
   (ps_monom c pow = ps_monom c 0 * ps_monom 1%K pow)%ps.
 Proof.
 intros c pow.
@@ -204,7 +204,7 @@ rewrite <- ps_monom_add_r.
 rewrite Qplus_0_l; reflexivity.
 Qed.
 
-Lemma ps_monom_mul_r_pow : ∀ c p n,
+Theorem ps_monom_mul_r_pow : ∀ c p n,
   (ps_monom c (Qnat n * p) =
    ps_monom c 0 * ps_monom 1%K p ^ n)%ps.
 Proof.
@@ -240,7 +240,7 @@ induction n; simpl.
   reflexivity.
 Qed.
 
-Lemma poly_summation_add : ∀ g h l,
+Theorem poly_summation_add : ∀ g h l,
   (poly_summation l g + poly_summation l h =
    poly_summation l (λ i, g i + h i))%pol.
 Proof.
@@ -253,7 +253,7 @@ rewrite lap_add_shuffle0.
 apply lap_add_compat; [ assumption | reflexivity ].
 Qed.
 
-Lemma rng_list_map_nth : ∀ A n f l (d : A) fd,
+Theorem rng_list_map_nth : ∀ A n f l (d : A) fd,
   (fd = f d)%K
   → (List.nth n (List.map f l) fd = f (List.nth n l d))%K.
 Proof.
@@ -266,14 +266,14 @@ induction l as [| x]; intros; simpl.
  apply IHl; assumption.
 Qed.
 
-Lemma rng_power_0_l : ∀ n, n ≠ O → (0 ^ n = 0)%K.
+Theorem rng_power_0_l : ∀ n, n ≠ O → (0 ^ n = 0)%K.
 Proof.
 intros n Hn; simpl.
 destruct n; [ exfalso; apply Hn; reflexivity | simpl ].
 rewrite rng_mul_0_l; reflexivity.
 Qed.
 
-Lemma list_nth_pad_ne : ∀ i n,
+Theorem list_nth_pad_ne : ∀ i n,
   i ≠ n
   → (List.nth i (list_pad n 0 [1]) 0 = 0)%K.
 Proof.
@@ -297,7 +297,7 @@ Variable R : ring α.
 Variable K : field R.
 Variable acf : algeb_closed_field K.
 
-Lemma lap_f₁_eq_x_min_β₁_comp : ∀ la β₁ γ₁ c₁,
+Theorem lap_f₁_eq_x_min_β₁_comp : ∀ la β₁ γ₁ c₁,
   (next_lap la β₁ γ₁ c₁ =
    [ps_monom 1%K (- β₁)] *
    la ∘ ([ps_monom 1%K γ₁] * [ps_monom c₁ 0; 1%ps … []]))%pslap.
@@ -429,7 +429,7 @@ Fixpoint ord_of_pt i pl :=
 
 (* Σāh.x^(hγ₁).(c₁+y₁)^h =
    Σah.x^(αh+hγ₁).(c₁+y₁)^h + Σ(āh-ah.x^αh).x^(hγ₁).(c₁+y₁)^h *)
-Lemma summation_split_val : ∀ pol ns γ₁ c₁ pl tl l,
+Theorem summation_split_val : ∀ pol ns γ₁ c₁ pl tl l,
   ns ∈ newton_segments pol
   → pl = [ini_pt ns … oth_pts ns ++ [fin_pt ns]]
     → tl = List.map (term_of_point pol) pl
@@ -522,7 +522,7 @@ rewrite <- summation_split_val; try eassumption.
 apply f₁_eq_x_min_β₁_summation_split; assumption.
 Qed.
 
-Lemma ord_is_ord_of_pt : ∀ pl h,
+Theorem ord_is_ord_of_pt : ∀ pl h,
   Sorted fst_lt pl
   → (∀ pt, pt ∈ pl → ∃ (h : nat) (αh : Q), pt = (Qnat h, αh))
     → h ∈ List.map (λ x, nat_num (fst x)) pl
@@ -602,7 +602,7 @@ destruct (Qeq_dec (Qnat h) l) as [H| H].
 Qed.
 
 (* Σah.x^(αh+h.γ).(c₁+y₁)^h = Σah.x^β.(c₁+y₁)^h *)
-Lemma subst_αh_hγ : ∀ pol ns pl tl l₁ c₁,
+Theorem subst_αh_hγ : ∀ pol ns pl tl l₁ c₁,
   ns ∈ newton_segments pol
   → pl = [ini_pt ns … oth_pts ns ++ [fin_pt ns]]
     → tl = List.map (term_of_point pol) pl
@@ -642,7 +642,7 @@ assert (∀ pt, pt ∈ pl → ∃ h αh, pt = (Qnat h, αh)) as Hnat.
  apply ord_is_ord_of_pt; assumption.
 Qed.
 
-Lemma poly_summation_mul : ∀ l x g₁ g₂,
+Theorem poly_summation_mul : ∀ l x g₁ g₂,
   (ps_pol_summ l (λ h, POL [(g₁ h * x)%ps] * g₂ h) =
    POL [x] * ps_pol_summ l (λ h, POL [g₁ h] * g₂ h))%pspol.
 Proof.
@@ -726,7 +726,7 @@ rewrite series_shift_0, stretch_series_1.
 subst k; reflexivity.
 Qed.
 
-Lemma lap_summation_compat_r : ∀ A (r : ring A) g h la,
+Theorem lap_summation_compat_r : ∀ A (r : ring A) g h la,
   (∀ i, lap_eq (g i) (h i))
   → lap_eq (lap_summation la g) (lap_summation la h).
 Proof.
@@ -737,7 +737,7 @@ rewrite Hi.
 reflexivity.
 Qed.
 
-Lemma match_nat_eq_false : ∀ i,
+Theorem match_nat_eq_false : ∀ i,
   match i with
   | 0%nat => false
   | S j => Nat.eqb i j
@@ -751,7 +751,7 @@ rewrite Heqj in |- * at 2.
 assumption.
 Qed.
 
-Lemma fold_nothing : ∀ A j len (f : _ → _ → A) g la,
+Theorem fold_nothing : ∀ A j len (f : _ → _ → A) g la,
   (∀ i, j ≤ i → (i < j + len)%nat → g i = false)
   → List.fold_right (λ i accu, if g i then f i accu else accu) la
        (List.seq j len) = la.
@@ -766,7 +766,7 @@ intros i Hji Hij.
 apply Hg; [ omega | assumption ].
 Qed.
 
-Lemma fold_right_if_compat : ∀ A B f₁ f₂ (g h : A → bool) (la : B) li,
+Theorem fold_right_if_compat : ∀ A B f₁ f₂ (g h : A → bool) (la : B) li,
   (∀ i, i ∈ li → g i = h i)
   → List.fold_right (λ i a, if g i then f₁ i a else f₂ i a) la li =
     List.fold_right (λ i a, if h i then f₁ i a else f₂ i a) la li.
@@ -778,7 +778,7 @@ replace (h i) with (g i) ; [ idtac | apply Hi; left; reflexivity ].
 reflexivity.
 Qed.
 
-Lemma fold_right_eqb_or : ∀ A j k len f (g : _ → A → A) la,
+Theorem fold_right_eqb_or : ∀ A j k len f (g : _ → A → A) la,
   (j < k)%nat
   → List.fold_right (λ i accu, if Nat.eqb i j || f i then g i accu else accu)
       la (List.seq k len) =
@@ -798,7 +798,7 @@ rewrite IHlen.
  apply Nat.lt_lt_succ_r; assumption.
 Qed.
 
-Lemma ns_nat : ∀ pol ns pts,
+Theorem ns_nat : ∀ pol ns pts,
   ns ∈ newton_segments pol
   → pts = [ini_pt ns … oth_pts ns ++ [fin_pt ns]]
     → ∀ iq αi, (iq, αi) ∈ pts
@@ -814,7 +814,7 @@ assert (∃ h ah, (iq, αi) = (Qnat h, ah)) as Hnat.
  exists h; reflexivity.
 Qed.
 
-Lemma fold_right_exists : ∀ pol ns pts j k αj αk f la,
+Theorem fold_right_exists : ∀ pol ns pts j k αj αk f la,
   ns ∈ newton_segments pol
   → pts = [ini_pt ns … oth_pts ns ++ [fin_pt ns]]
     → ini_pt ns = (Qnat j, αj)
@@ -1081,7 +1081,7 @@ Fixpoint coeff_of_hl la i hl :=
 Definition coeff_of_pt pol i (pts : list (Q * Q)) :=
   coeff_of_hl (al pol) i (List.map (λ pt, nat_num (fst pt)) pts).
 
-Lemma make_char_pol_of_pts_eq : ∀ pol pts j,
+Theorem make_char_pol_of_pts_eq : ∀ pol pts j,
   make_char_pol R j (List.map (term_of_point pol) pts) =
   make_char_pol_of_pts pol j pts.
 Proof.
@@ -1091,7 +1091,7 @@ induction pts as [| (h, ah)]; intros; [ reflexivity | simpl ].
 rewrite IHpts; reflexivity.
 Qed.
 
-Lemma coeff_of_term_pt_eq : ∀ pol pts i,
+Theorem coeff_of_term_pt_eq : ∀ pol pts i,
   coeff_of_term i (List.map (term_of_point pol) pts) =
   coeff_of_pt pol i pts.
 Proof.
@@ -1102,7 +1102,7 @@ induction pts as [| (h, ah)]; intros; [ reflexivity | simpl ].
 rewrite IHpts; reflexivity.
 Qed.
 
-Lemma nth_char_lap_eq_coeff : ∀ i j li la,
+Theorem nth_char_lap_eq_coeff : ∀ i j li la,
   (j + i)%nat ∈ li
   → Sorted Nat.lt li
     → (∀ m : nat, m ∈ li → j ≤ m)
@@ -1209,7 +1209,7 @@ induction li as [| n]; intros; simpl.
       apply IHli; assumption.
 Qed.
 
-Lemma nth_char_lap_eq_0 : ∀ i j li la,
+Theorem nth_char_lap_eq_0 : ∀ i j li la,
   (j + i)%nat ∉ [j … li]
   → Sorted Nat.lt [j … li]
     → (∀ m : nat, m ∈ li → j ≤ m)
@@ -1536,7 +1536,7 @@ assert (∀ iq αi, (iq, αi) ∈ pl → ∃ i, iq = Qnat i) as Hnat.
 Qed.
 
 (* to be moved to the right file... *)
-Lemma ps_monom_summation_aux : ∀ f b len,
+Theorem ps_monom_summation_aux : ∀ f b len,
   (ps_monom (summation_aux R b len f) 0 =
    summation_aux (ps_ring R) b len (λ i, ps_monom (f i) 0))%ps.
 Proof.
@@ -1549,7 +1549,7 @@ apply IHlen.
 Qed.
 
 (* to be moved to the right file... *)
-Lemma ps_monom_summation : ∀ f n,
+Theorem ps_monom_summation : ∀ f n,
   (ps_monom (Σ (i = 0, n), f i) 0 =
    @summation _ (ps_ring R) 0 n (λ i, ps_monom (f i) 0))%ps.
 Proof.
@@ -1558,7 +1558,7 @@ apply ps_monom_summation_aux.
 Qed.
 
 (* to be moved to Ps_mul.v *)
-Lemma ps_monom_mul_l : ∀ c d n,
+Theorem ps_monom_mul_l : ∀ c d n,
   (ps_monom (c * d)%K n = ps_monom c 0 * ps_monom d n)%ps.
 Proof.
 intros c d n.
@@ -1594,7 +1594,7 @@ apply mkps_morphism; simpl; [ idtac | idtac | reflexivity ].
  rewrite Z.mul_1_r; reflexivity.
 Qed.
 
-Lemma lap_add_map : ∀ α β (Rα : ring α) (Rβ : ring β) (f : α → β) la lb,
+Theorem lap_add_map : ∀ α β (Rα : ring α) (Rβ : ring β) (f : α → β) la lb,
   (∀ a b, (f (a + b) = f a + f b)%K)
   → (List.map f (la + lb) = List.map f la + List.map f lb)%lap.
 Proof.
@@ -1606,7 +1606,7 @@ destruct lb as [| b]; [ reflexivity | simpl ].
 rewrite Hab, IHla; reflexivity.
 Qed.
 
-Lemma lap_add_map_ps : ∀ la lb,
+Theorem lap_add_map_ps : ∀ la lb,
   (List.map (λ c, ps_monom c 0) (la + lb)%lap =
    List.map (λ c, ps_monom c 0) la + List.map (λ c, ps_monom c 0) lb)%pslap.
 Proof.
@@ -1641,7 +1641,7 @@ rewrite rng_list_map_nth.
  rewrite ps_zero_monom_eq; reflexivity.
 Qed.
 
-Lemma poly_inject_inj_mul : ∀ P Q,
+Theorem poly_inject_inj_mul : ∀ P Q,
   (poly_inject_K_in_Kx (P * Q)%pol =
    (poly_inject_K_in_Kx P * poly_inject_K_in_Kx Q))%pspol.
 Proof.
@@ -1649,7 +1649,7 @@ intros P Q.
 apply lap_mul_map_ps.
 Qed.
 
-Lemma summation_lap_compose_deg_1_mul : ∀ la c d k f,
+Theorem summation_lap_compose_deg_1_mul : ∀ la c d k f,
   let _ := ps_ring R in
   (Σ (i = 0, k),
    (List.nth (f i) (la ∘ [c; 1 … []])%pslap 0 * d i)%ps =
@@ -1670,7 +1670,7 @@ rewrite list_nth_compose2_deg_1; [ idtac | reflexivity ].
 reflexivity.
 Qed.
 
-Lemma Ψ_length : ∀ pol ns j k αj αk c₁ r Ψ,
+Theorem Ψ_length : ∀ pol ns j k αj αk c₁ r Ψ,
   ns ∈ newton_segments pol
   → ini_pt ns = (Qnat j, αj)
     → fin_pt ns = (Qnat k, αk)
@@ -1692,7 +1692,7 @@ erewrite length_char_pol; try eassumption; try reflexivity.
 subst s; reflexivity.
 Qed.
 
-Lemma lap_power_map_ps : ∀ la n,
+Theorem lap_power_map_ps : ∀ la n,
   (lap_inject_K_in_Kx la ^ n = lap_inject_K_in_Kx (la ^ n)%lap)%pslap.
 Proof.
 intros la n.
@@ -1703,7 +1703,7 @@ rewrite IHn; symmetry.
 apply lap_mul_map_ps.
 Qed.
 
-Lemma ps_monom_opp : ∀ c pow,
+Theorem ps_monom_opp : ∀ c pow,
   (ps_monom (- c)%K pow = - ps_monom c pow)%ps.
 Proof.
 intros c pow.
