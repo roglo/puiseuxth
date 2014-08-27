@@ -740,7 +740,7 @@ rewrite Hpol₁ in H; simpl in H.
 clear Hpol₁; rename H into Hpol₁.
 unfold ps_poly_nth in Hps₀; rewrite <- Hla in Hps₀.
 unfold newton_segments, points_of_ps_polynom in Hns₁; rewrite <- Hla in Hns₁.
-unfold Φq, characteristic_polynomial in Hc₂.
+unfold Φq in Hc₂.
 unfold term_of_point in Hc₂; rewrite <- Hla in Hc₂.
 unfold ps_poly_nth in Hnneg; rewrite <- Hla in Hnneg.
 unfold ps_poly_nth in Hpos; rewrite <- Hla in Hpos.

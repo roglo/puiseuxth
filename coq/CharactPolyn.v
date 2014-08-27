@@ -42,7 +42,7 @@ Definition lap_term_of_point α {R : ring α} la (pt : (Q * Q)) :=
 Definition term_of_point α {R : ring α} pol (pt : (Q * Q)) :=
   lap_term_of_point (al pol) pt.
 
-Definition characteristic_polynomial α {R : ring α} pol ns :=
+Definition Φq α {R : ring α} pol ns :=
   let pl := [ini_pt ns … oth_pts ns ++ [fin_pt ns]] in
   let tl := List.map (term_of_point pol) pl in
   let j := nat_num (fst (ini_pt ns)) in
@@ -107,9 +107,6 @@ Arguments ps_lap_forall α%type_scope _ _ l%pslap.
 
 Definition pol_in_K_1_m {α} {R : ring α} pol m :=
   ps_lap_forall (λ a, in_K_1_m a m) (al pol).
-
-Definition Φq α {R : ring α} pol ns :=
-  characteristic_polynomial pol ns.
 
 Definition Φ α {R : ring α} m pol ns :=
   let q := Pos.to_nat (q_of_m m (γ ns)) in

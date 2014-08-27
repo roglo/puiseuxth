@@ -1095,7 +1095,7 @@ intros pol ns c Hns Hc Hr.
 apply root_multiplicity_0 in Hr; eauto .
 apply degree_eq_0_if in Hr.
 destruct Hr as [Hr| Hr].
- unfold Φq, characteristic_polynomial in Hr; simpl in Hr.
+ unfold Φq in Hr; simpl in Hr.
  remember Hns as H; clear HeqH.
  apply exists_ini_pt_nat in H.
  destruct H as (j, (αj, Hini)).
@@ -1113,7 +1113,7 @@ destruct Hr as [Hr| Hr].
  left; eassumption.
 
  destruct Hr as (a, (Ha, Hcpol)).
- unfold Φq, characteristic_polynomial in Hcpol; simpl in Hcpol.
+ unfold Φq in Hcpol; simpl in Hcpol.
  remember Hns as H; clear HeqH.
  apply exists_ini_pt_nat in H.
  destruct H as (j, (αj, Hini)).
