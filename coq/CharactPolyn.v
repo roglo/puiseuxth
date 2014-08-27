@@ -2441,16 +2441,62 @@ destruct l as [| b]; constructor.
  apply Qnat_lt; assumption.
 Qed.
 
+Theorem fold_char_pol : ∀ pol j αj tl,
+  [order_coeff (List.nth j (al pol) 0%ps)
+   … make_char_pol R (S j) (List.map (term_of_point pol) tl)] =
+  make_char_pol R j
+    (List.map (term_of_point pol) [(Qnat j, αj) … tl]).
+Proof.
+intros pol j αj tl; simpl.
+rewrite nat_num_Qnat, Nat.sub_diag; simpl.
+reflexivity.
+Qed.
+
+Theorem zzz : ∀ pol ns pl q,
+  ns ∈ newton_segments pol
+  → pl = [ini_pt ns … oth_pts ns ++ [fin_pt ns]]
+  → List.Forall (λ pt, (q | nat_num (fst pt))%nat) pl
+  → poly_shrinkable R q (Φq pol ns).
+Proof.
+intros pol ns pl q Hns Hpl Hqh.
+rewrite List.Forall_forall in Hqh.
+unfold poly_shrinkable.
+intros n Hn.
+rewrite al_Φq.
+rewrite <- Hpl.
+remember (nat_num (fst (ini_pt ns))) as j eqn:Hj .
+assert (j = nat_num (fst (List.hd (ini_pt ns) pl))) as H by (subst; auto).
+clear Hpl Hj.
+rename H into Hj.
+revert n j Hn Hj.
+induction pl as [| p]; intros.
+ simpl.
+ destruct n; reflexivity.
+
+ simpl.
+ simpl in Hj.
+ subst j.
+ rewrite Nat.sub_diag, list_pad_0.
+ destruct n.
+  rewrite Nat.mod_0_l in Hn.
+   exfalso; apply Hn; reflexivity.
+
+   Focus 2.
+   simpl.
+   apply IHpl.
+bbb.
+
 Theorem phi_pseudo_degree_is_k_sub_j_div_q : ∀ pol ns j αj k αk q m,
   ns ∈ newton_segments pol
   → (Qnat j, αj) = ini_pt ns
   → (Qnat k, αk) = fin_pt ns
   → q = Pos.to_nat (q_of_m m (γ ns))
   → poly_shrinkable R q (Φq pol ns)
-     ∧ pseudo_degree (Φs q pol ns) = ((k - j) / q)%nat.
+    ∧ pseudo_degree (Φs q pol ns) = ((k - j) / q)%nat.
 Proof.
 intros pol ns j αj k αk q m Hns Hj Hk Hq.
 split.
+bbb.
  unfold poly_shrinkable; intros n Hn.
  rewrite al_Φq.
  remember [ini_pt ns … oth_pts ns ++ [fin_pt ns]] as pl eqn:Hpl .
@@ -2576,17 +2622,6 @@ destruct n; simpl.
  destruct cnt; simpl; [ reflexivity | rewrite IHl; reflexivity ].
 
  destruct cnt; simpl; rewrite IHl; reflexivity.
-Qed.
-
-Theorem fold_char_pol : ∀ pol j αj tl,
-  [order_coeff (List.nth j (al pol) 0%ps)
-   … make_char_pol R (S j) (List.map (term_of_point pol) tl)] =
-  make_char_pol R j
-    (List.map (term_of_point pol) [(Qnat j, αj) … tl]).
-Proof.
-intros pol j αj tl; simpl.
-rewrite nat_num_Qnat, Nat.sub_diag; simpl.
-reflexivity.
 Qed.
 
 Theorem make_char_pol_cons : ∀ pow t tl,
