@@ -75,9 +75,6 @@ Definition list_shrink α k (l : list α) := list_shrink_aux 0 (k - 1) l.
 Definition poly_shrink α k (p : polynomial α) :=
   POL (list_shrink k (al p))%pol.
 
-Definition poly_left_shift α n (p : polynomial α) :=
-  POL (List.skipn n (al p))%pol.
-
 Definition p_of_m m a :=
   let p := (Qnum a * ' m)%Z in
   let q := Qden a in
@@ -118,15 +115,6 @@ Definition Φ α {R : ring α} m pol ns :=
   let q := Pos.to_nat (q_of_m m (γ ns)) in
   poly_shrink q (Φq pol ns).
 
-(*old version*)
-Definition summation_ah_xh_pol α {R : ring α} pol ns :=
-  let j := nat_num (fst (ini_pt ns)) in
-  POL (list_pad j 0%K (al (characteristic_polynomial pol ns)))%pol.
-Definition Φq₉ α {R : ring α} pol ns :=
-  let j := nat_num (fst (ini_pt ns)) in
-  poly_left_shift j (summation_ah_xh_pol pol ns).
-(**)
-
 Section theorems.
 
 Variable α : Type.
@@ -154,7 +142,7 @@ Theorem Φq_pol : ∀ pol ns,
             [ini_pt ns … oth_pts ns ++ [fin_pt ns]]))%pol.
 Proof.
 intros pol ns.
-unfold Φq, poly_left_shift; simpl.
+unfold Φq; simpl.
 reflexivity.
 Qed.
 
@@ -2450,18 +2438,6 @@ destruct l as [| b]; constructor.
  rewrite Hnat in H3; [ idtac | right; left; reflexivity ].
  apply Qnot_le_lt in H3.
  apply Qnat_lt; assumption.
-Qed.
-
-(* ensure compatibility with old version *)
-Theorem Φq_Φq₉ : ∀ pol ns, Φq pol ns = Φq₉ pol ns.
-Proof.
-intros pol ns.
-unfold Φq, Φq₉; simpl.
-unfold summation_ah_xh_pol.
-remember (characteristic_polynomial pol ns) as cpol; simpl.
-unfold poly_left_shift; simpl.
-rewrite skipn_pad; simpl.
-destruct cpol; reflexivity.
 Qed.
 
 Theorem phi_pseudo_degree_is_k_sub_j_div_q : ∀ pol ns j αj k αk q m,

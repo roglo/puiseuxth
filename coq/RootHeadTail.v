@@ -753,7 +753,6 @@ remember (points_of_ps_lap la) as pts eqn:Hpts .
 unfold points_of_ps_lap in Hpts.
 unfold points_of_ps_lap_gen in Hpts.
 clear pol₁ Hla; simpl in Hc₂.
-unfold poly_left_shift in Hc₂; simpl in Hc₂.
 rewrite Nat.sub_diag, list_pad_0 in Hc₂.
 assert (nat_num (fst (ini_pt ns₁)) = 0)%nat as Hini.
  destruct pts as [| pt₁]; [ subst ns₁; reflexivity | idtac ].
