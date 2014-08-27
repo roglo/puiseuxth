@@ -1408,12 +1408,10 @@ assert (∀ iq αi, (iq, αi) ∈ pl → ∃ i, iq = Qnat i) as Hnat.
    destruct Hfin as (k, (αk, Hfin)).
    progress unfold poly_inject_K_in_Kx.
    progress unfold lap_inject_K_in_Kx.
-   rewrite Φq_Φq₉.
    remember List.map as lm; simpl.
    rewrite Hini; simpl.
    rewrite nat_num_Qnat; simpl.
    rewrite Nat.sub_diag; simpl.
-   rewrite skipn_pad; simpl.
    progress unfold ps_pol_eq, eq_poly; simpl.
    rewrite fold_char_pol with (αj := αj); rewrite <- Hini, <- Hpl.
    subst lm; simpl.
@@ -1681,11 +1679,9 @@ Theorem Ψ_length : ∀ pol ns j k αj αk c₁ r Ψ,
 Proof.
 intros pol ns j k αj αk c₁ r Ψ Hns Hini Hfin Hr HΨ.
 subst Ψ.
-rewrite Φq_Φq₉.
 remember S as s; simpl.
 rewrite Hini; simpl.
 rewrite nat_num_Qnat; simpl.
-rewrite skipn_pad; simpl.
 rewrite Nat.sub_diag; simpl.
 rewrite fold_char_pol with (αj := αj).
 rewrite <- Hini.
