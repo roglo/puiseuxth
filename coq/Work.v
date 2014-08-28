@@ -1245,6 +1245,7 @@ eapply q_mj_mk_eq_p_h_j with (h := r) (αh := αk) in H; eauto .
       apply rng_add_opp_r.
 bbb.
 *)
+Check ttt.
 
 (* isn't it similar to multiplicity_lt_length? *)
 (*
@@ -1338,12 +1339,13 @@ Theorem root_tail_split_1st₄₂ : ∀ pol ns pol₁ ns₁ c m q₀ r,
   → pol₁ = next_pol pol (β ns) (γ ns) c
   → ns₁ = List.hd phony_ns (newton_segments pol₁)
   → (∀ i, nth_r i pol ns = r)
+  → (1 ≠ 0)%K
   → (root_tail (m * q₀) 0 pol₁ ns₁ =
      root_head 0 0 pol₁ ns₁ +
        ps_monom 1%K (γ_sum 0 0 pol₁ ns₁) *
        root_tail (m * q₀) 1 pol₁ ns₁)%ps.
 Proof.
-intros pol ns pol₁ ns₁ c m q₀ r Hns Hm Hq₀ Hc Hpol₁ Hns₁ Hri.
+intros pol ns pol₁ ns₁ c m q₀ r Hns Hm Hq₀ Hc Hpol₁ Hns₁ Hri H₀.
 remember (m * q₀)%positive as m₁.
 unfold root_tail, root_head; simpl.
 destruct (ps_zerop _ (ps_poly_nth 0 pol₁)) as [H₁| H₁].
@@ -1354,6 +1356,7 @@ destruct (ps_zerop _ (ps_poly_nth 0 pol₁)) as [H₁| H₁].
  eapply next_pol_in_K_1_mq in HK₁; eauto .
  remember Hns as H; clear HeqH.
  eapply r_n_next_ns in H; eauto .
+  rewrite Nat.add_0_r in H.
   pose proof (Hri O) as Hr₀; simpl in Hr₀.
   rewrite <- Hc in Hr₀.
   rewrite Hr₀ in H.
@@ -1406,7 +1409,6 @@ destruct (ps_zerop _ (ps_poly_nth 0 pol₁)) as [H₁| H₁].
         contradiction.
 
        do 2 rewrite Z.sub_0_r.
-       rewrite Nat.add_0_r, <- Heqpr.
        rewrite Z.mul_comm.
        rewrite Pos2Z.inj_mul.
        rewrite <- Z.divide_div_mul_exact; auto.
@@ -1445,11 +1447,49 @@ destruct (ps_zerop _ (ps_poly_nth 0 pol₁)) as [H₁| H₁].
           erewrite <- qden_αj_is_ps_polord in Heqmj'; eauto .
           rewrite Hmj in Heqmj'.
           rewrite Z.div_mul in Heqmj'; auto; subst mj'.
-bbb.
-  ============================
-   (' Pos.of_nat r | mj)%Z
+          remember Heqq₁ as H; clear HeqH.
+          eapply ttt in H; eauto .
+           rewrite H in H₃.
+           rewrite Z.mul_1_l in H₃.
+           exists p₁.
+           rewrite Zposnat2Znat.
+            assumption.
 
-Current goal could be done if I can prove that q₁ = 1.
+            destruct r; [ idtac | apply Nat.lt_0_succ ].
+            exfalso; revert Hr₀.
+            apply multiplicity_neq_0; auto.
+
+           clear H.
+           pose proof (Hri 1%nat) as H; simpl in H.
+           rewrite <- Hc, <- Hpol₁, <- Hns₁ in H.
+           rewrite <- Hc₁ in H.
+           rewrite H; assumption.
+
+          apply List.in_or_app; right; left; assumption.
+
+         clear H.
+         remember Hns₁₁ as H; clear HeqH.
+         unfold newton_segments in H.
+         unfold points_of_ps_polynom in H.
+         apply ini_fin_ns_in_init_pts in H.
+         rewrite <- Hini₁; destruct H; assumption.
+
+       apply Pos.mul_comm.
+
+      destruct r; [ idtac | apply Nat.lt_0_succ ].
+      exfalso; revert Hr₀.
+      apply multiplicity_neq_0; auto.
+
+     destruct r; [ idtac | apply Nat.lt_0_succ ].
+     exfalso; revert Hr₀.
+     apply multiplicity_neq_0; auto.
+
+    remember (List.hd phony_ns (newton_segments pol₂)) as ns₂ eqn:Hns₂ .
+    rewrite rng_add_0_r.
+    unfold γ_sum; simpl.
+    unfold summation; simpl.
+    rewrite rng_add_0_r.
+bbb.
 *)
 
 (*
