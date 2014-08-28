@@ -2455,67 +2455,69 @@ Qed.
 Definition nat_fst_lt (x y : Q * Q) :=
   (nat_num (fst x) < nat_num (fst y))%nat.
 
-Theorem zzz : ∀ pol q pt pts,
-  Sorted nat_fst_lt [pt … pts]
+Theorem zzz : ∀ pol q pt₁ pts,
+  Sorted nat_fst_lt [pt₁ … pts]
   → q ≠ O
-  → List.Forall (λ pt₁, (q | nat_num (fst pt₁) - nat_num (fst pt))%nat) pts
+  → List.Forall (λ pt, (q | nat_num (fst pt) - nat_num (fst pt₁))%nat) pts
   → poly_shrinkable R q
-      POL (make_char_pol R (nat_num (fst pt))
-            (List.map (term_of_point pol) [pt … pts]))%pol.
+      POL (make_char_pol R (nat_num (fst pt₁))
+            (List.map (term_of_point pol) [pt₁ … pts]))%pol.
 Proof.
-intros pol q pt pts Hsort Hq Hpts; simpl.
+intros pol q pt₁ pts Hsort Hq Hpts; simpl.
 rewrite Nat.sub_diag, list_pad_0.
+rewrite List.Forall_forall in Hpts.
 unfold poly_shrinkable; intros n Hn; simpl.
 destruct n.
  rewrite Nat.mod_0_l in Hn; auto.
  exfalso; apply Hn; reflexivity.
 
- remember (nat_num (fst pt)) as pow in |- *.
- assert (q | pow - nat_num (fst pt))%nat as Hpow.
-  rewrite Heqpow, Nat.sub_diag.
-  apply Nat.divide_0_r.
+ revert n pt₁ Hsort Hpts Hn.
+ induction pts as [| pt₂]; intros; [ destruct n; reflexivity | simpl ].
+ apply Sorted_inv in Hsort.
+ destruct Hsort as (Hsort, Hrel).
+ apply HdRel_inv in Hrel.
+ unfold nat_fst_lt in Hrel; simpl in Hrel.
+ destruct (lt_dec (nat_num (fst pt₁)) (nat_num (fst pt₂))) as [H₁| H₁].
+  2: contradiction.
 
-  assert (nat_num (fst pt) ≤ pow)%nat as Hpt by fast_omega Heqpow.
-  clear Heqpow.
-  revert pt pow n Hsort Hpts Hn Hpow Hpt.
-  induction pts as [| pt₁]; intros; [ destruct n; reflexivity | simpl ].
-  destruct (le_dec (nat_num (fst pt₁) - S pow) n) as [H₁| H₁].
-   rewrite list_nth_pad_sub; auto.
-   remember (n - (nat_num (fst pt₁) - S pow))%nat as nn eqn:Hnn .
-   symmetry in Hnn.
-   destruct nn; simpl.
-    rewrite List.Forall_forall in Hpts.
-    assert (pt₁ ∈ [pt₁ … pts]) as H by (left; auto).
-    apply Hpts in H.
-    destruct H as (c, Hc).
-    destruct Hpow as (d, Hd).
-    apply Sorted_inv in Hsort.
-    destruct Hsort as (Hsort, Hrel).
-    apply HdRel_inv in Hrel.
-    unfold nat_fst_lt in Hrel.
-    assert (n = nat_num (fst pt₁) - S pow)%nat by fast_omega Hnn H₁.
+  unfold lt in H₁.
+  remember (nat_num (fst pt₁)) as j eqn:Hj .
+  remember (nat_num (fst pt₂)) as h eqn:Hh .
+  destruct (eq_nat_dec (S j) h) as [H₂| H₂].
+   assert (pt₂ ∈ [pt₂ … pts]) as H by (left; auto).
+   apply Hpts in H.
+   rewrite <- Hh in H.
+   rewrite <- H₂ in H.
+   rewrite minus_Sn_n in H.
+   destruct H as (c, Hc).
+   symmetry in Hc.
+   apply Nat.mul_eq_1 in Hc.
+   destruct Hc as (Hc, Hq₁).
+   rewrite Hq₁ in Hn.
+   exfalso; apply Hn.
+   reflexivity.
+
+   destruct (lt_dec n (h - S j)) as [H₃| H₃].
+    rewrite list_nth_pad_lt; auto.
+
+    apply Nat.nlt_ge in H₃.
+    rewrite list_nth_pad_sub; auto.
+    destruct (eq_nat_dec (h - S j) n) as [H₄| H₄].
+     exfalso.
+     assert (pt₂ ∈ [pt₂ … pts]) as H by (left; auto).
+     apply Hpts in H.
+     rewrite <- Hh in H.
+     destruct H as (c, Hc).
+     rewrite <- H₄ in Hn.
+     rewrite <- Nat.sub_succ_l in Hn.
+      2: fast_omega H₁ H₂.
+
+      rewrite Nat.sub_succ in Hn.
+      rewrite Hc in Hn.
+      apply Hn.
+      apply Nat.mod_mul; auto.
 bbb.
-    rewrite <- Nat.sub_succ in Hc.
-    destruct (le_dec (S pow) (nat_num (fst pt₁))) as [H₂| H₂].
-     rewrite Nat.sub_succ_l in Hc; auto.
-     rewrite <- Nat.sub_succ in Hnn.
-     rewrite Hc in Hnn.
-     exfalso; apply Hn; clear Hn.
-     apply Nat.mod_divides; auto.
-     exists c.
-     rewrite Nat.mul_comm.
-     fast_omega Hnn H₁ Hc.
 
-     apply Nat.nle_gt in H₂.
-     rewrite Nat.sub_succ in Hc.
-     destruct Hpow as (d, Hd).
-     apply Sorted_inv in Hsort.
-     destruct Hsort as (Hsort, Hrel).
-     apply HdRel_inv in Hrel.
-     unfold nat_fst_lt in Hrel.
-bbb.
-
-    Focus 2.
     apply IHpts.
      apply List.Forall_forall; intros pt₁ Hpt₁.
      rewrite List.Forall_forall in Hpts.
