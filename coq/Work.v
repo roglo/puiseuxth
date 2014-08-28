@@ -1139,6 +1139,8 @@ eapply q_mj_mk_eq_p_h_j with (h := r) (αh := αk) in H; eauto .
  destruct nq; [ exfalso; revert Hnq; apply Pos2Nat_ne_0 | idtac ].
  destruct nq; [ apply Pos2Nat.inj; assumption | exfalso ].
 bbb.
+  Hnq : Pos.to_nat q = S (S nq)
+  Hshr : poly_shrinkable R (S (S nq)) (Φq pol ns)
   Hcp : (make_char_pol R 0 tl = [(- c)%K; 1%K … []] ^ r * al Ψ)%lap
   HeqΨ : length (al Ψ) = 1
   Hmj : αj == mj # m
