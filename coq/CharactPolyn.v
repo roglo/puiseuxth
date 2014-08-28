@@ -2618,117 +2618,82 @@ split.
    apply List.in_or_app.
    right; left; eauto .
 
-bbb.
- unfold poly_shrinkable; intros n Hn.
- rewrite al_Φq.
- remember [ini_pt ns … oth_pts ns ++ [fin_pt ns]] as pl eqn:Hpl .
- remember (List.map (term_of_point pol) pl) as tl eqn:Htl .
+ unfold pseudo_degree, Φs; simpl.
  rewrite <- Hj; simpl.
+ rewrite Nat.sub_diag, list_pad_0.
  rewrite nat_num_Qnat.
- revert n Hn.
- revert j αj Hj.
- induction tl as [| t]; intros; [ destruct n; reflexivity | simpl ].
- destruct (lt_dec n (power t - j)) as [H₁| H₁].
-  rewrite list_nth_pad_lt; auto.
-
-  apply Nat.nlt_ge in H₁.
-  rewrite list_nth_pad_sub; auto.
-  remember (n - (power t - j))%nat as ntj eqn:Hntj .
-  symmetry in Hntj.
-  rewrite Hpl in Htl; simpl in Hpl.
-  unfold term_of_point in Htl; simpl in Htl.
-  injection Htl; clear Htl; intros Htl Ht.
-  rewrite <- Hj in Ht; simpl in Ht.
-  unfold lap_term_of_point in Ht; simpl in Ht.
-  rewrite nat_num_Qnat in Ht.
-  subst t; simpl in H₁, Hntj; simpl.
-  rewrite Nat.sub_diag, Nat.sub_0_r in Hntj.
-  subst ntj; clear H₁.
-  destruct n.
-   rewrite Nat.mod_0_l in Hn.
-    exfalso; apply Hn; reflexivity.
-
-    rewrite Hq; apply Pos2Nat_ne_0.
-bbb.
-
-intros pol ns j αj k αk q m Hns Hj Hk Hq.
-unfold pseudo_degree, Φs; simpl.
-rewrite <- Hj; simpl.
-rewrite Nat.sub_diag, list_pad_0.
-rewrite nat_num_Qnat.
-unfold list_shrink.
-rewrite list_length_shrink; simpl.
- rewrite divmod_div.
- rewrite Nat.sub_0_r.
- f_equal.
-  rewrite List.map_app; simpl.
-  rewrite length_char_pol_succ.
-   rewrite <- Hk; simpl.
-bbb.
-   rewrite nat_num_Qnat; reflexivity.
-
-   remember (oth_pts ns) as opts eqn:Hopts .
-   symmetry in Hopts.
-   destruct opts as [| (h, αh)].
-    simpl.
+ unfold list_shrink.
+ rewrite list_length_shrink; simpl.
+  rewrite divmod_div.
+  rewrite Nat.sub_0_r.
+  f_equal.
+   rewrite List.map_app; simpl.
+   rewrite length_char_pol_succ.
     rewrite <- Hk; simpl.
-    rewrite nat_num_Qnat.
-    eapply j_lt_k; try eassumption.
-     rewrite <- Hj; simpl.
-     rewrite nat_num_Qnat; reflexivity.
+    rewrite nat_num_Qnat; reflexivity.
 
+    remember (oth_pts ns) as opts eqn:Hopts .
+    symmetry in Hopts.
+    destruct opts as [| (h, αh)].
+     simpl.
      rewrite <- Hk; simpl.
-     rewrite nat_num_Qnat; reflexivity.
+     rewrite nat_num_Qnat.
+     eapply j_lt_k; try eassumption.
+      rewrite <- Hj; simpl.
+      rewrite nat_num_Qnat; reflexivity.
 
-    simpl.
-    assert ((h, αh) ∈ oth_pts ns) as H.
-     rewrite Hopts; left; reflexivity.
+      rewrite <- Hk; simpl.
+      rewrite nat_num_Qnat; reflexivity.
 
-     eapply j_lt_h; try eassumption; try reflexivity.
+     simpl.
+     assert ((h, αh) ∈ oth_pts ns) as H.
+      rewrite Hopts; left; reflexivity.
+
+      eapply j_lt_h; try eassumption; try reflexivity.
+      unfold newton_segments in Hns.
+      eapply oth_pts_in_init_pts in H; try eassumption.
+      eapply pt_absc_is_nat in H; [ idtac | reflexivity ].
+      simpl in H; assumption.
+
+    rewrite list_map_app_at.
+    apply Sorted_map.
+    apply Sorted_fst_lt_nat_num_fst.
+     intros a Ha.
+     remember (points_of_ps_polynom pol) as pts.
+     symmetry in Heqpts.
+     eapply pt_absc_is_nat; [ eassumption | idtac ].
+     apply List.in_app_or in Ha.
      unfold newton_segments in Hns.
-     eapply oth_pts_in_init_pts in H; try eassumption.
-     eapply pt_absc_is_nat in H; [ idtac | reflexivity ].
-     simpl in H; assumption.
+     rewrite Heqpts in Hns.
+     destruct Ha as [Ha| [Ha| ]]; [ idtac | idtac | contradiction ].
+      eapply oth_pts_in_init_pts; eassumption.
 
-   rewrite list_map_app_at.
-   apply Sorted_map.
-   apply Sorted_fst_lt_nat_num_fst.
-    intros a Ha.
-    remember (points_of_ps_polynom pol) as pts.
-    symmetry in Heqpts.
-    eapply pt_absc_is_nat; [ eassumption | idtac ].
-    apply List.in_app_or in Ha.
-    unfold newton_segments in Hns.
-    rewrite Heqpts in Hns.
-    destruct Ha as [Ha| [Ha| ]]; [ idtac | idtac | contradiction ].
-     eapply oth_pts_in_init_pts; eassumption.
+      subst a.
+      apply ini_fin_ns_in_init_pts; eassumption.
 
-     subst a.
-     apply ini_fin_ns_in_init_pts; eassumption.
+     eapply Sorted_inv_1.
+     eapply ini_oth_fin_pts_sorted; eassumption.
 
-    eapply Sorted_inv_1.
-    eapply ini_oth_fin_pts_sorted; eassumption.
+   subst q.
+   rewrite <- Nat.sub_succ_l; [ apply Nat_sub_succ_1 | idtac ].
+   apply Pos2Nat.is_pos.
 
-  subst q.
-  rewrite <- Nat.sub_succ_l; [ apply Nat_sub_succ_1 | idtac ].
-  apply Pos2Nat.is_pos.
+  apply lt_n_S.
+  clear Hj.
+  revert j.
+  induction (oth_pts ns); intros.
+   simpl.
+   rewrite list_length_pad; simpl.
+   rewrite <- Hk; simpl.
+   rewrite nat_num_Qnat; omega.
 
- apply lt_n_S.
- clear Hj.
- revert j.
- induction (oth_pts ns); intros.
-  simpl.
-  rewrite list_length_pad; simpl.
-  rewrite <- Hk; simpl.
-  rewrite nat_num_Qnat; omega.
+   simpl.
+   rewrite list_length_pad; simpl.
+   eapply lt_le_trans.
+    apply IHl with (j := nat_num (fst a)).
 
-  simpl.
-  rewrite list_length_pad; simpl.
-  eapply lt_le_trans.
-   apply IHl with (j := nat_num (fst a)).
-
-   rewrite Nat.add_succ_r, <- Nat.add_succ_l.
-   apply le_plus_r.
+    rewrite Nat.add_succ_r, <- Nat.add_succ_l.
+    apply le_plus_r.
 Qed.
 
 Definition has_degree pol d :=
