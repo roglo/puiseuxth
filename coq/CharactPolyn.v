@@ -2455,7 +2455,7 @@ Qed.
 Definition nat_fst_lt (x y : Q * Q) :=
   (nat_num (fst x) < nat_num (fst y))%nat.
 
-Theorem zzz : ∀ pol q pt₁ pts,
+Theorem shrinkable_if : ∀ pol q pt₁ pts,
   Sorted nat_fst_lt [pt₁ … pts]
   → q ≠ O
   → List.Forall (λ pt, (q | nat_num (fst pt) - nat_num (fst pt₁))%nat) pts
@@ -2553,7 +2553,24 @@ destruct n.
       exists (c - d)%nat.
       rewrite Nat.mul_sub_distr_r.
       rewrite <- Hc, <- Hd.
-bbb.
+      rewrite Nat_sub_sub_distr; [ idtac | apply Nat.lt_le_incl; auto ].
+      rewrite Nat.sub_add; auto.
+      apply Nat.lt_le_incl.
+      eapply Nat.lt_trans; eauto .
+      revert Hsort Hh Hpt; clear; intros; subst h.
+      revert pt₂ pt Hsort Hpt.
+      induction pts as [| pt₃]; intros; [ contradiction | idtac ].
+      destruct Hpt as [Hpt| Hpt].
+       subst pt.
+       apply Sorted_inv in Hsort.
+       destruct Hsort as (_, Hrel).
+       apply HdRel_inv in Hrel.
+       assumption.
+
+       apply IHpts; auto.
+       eapply Sorted_minus_2nd; eauto .
+       intros x y z H₁ H₂; eapply Nat.lt_trans; eassumption.
+Qed.
 
 Theorem phi_pseudo_degree_is_k_sub_j_div_q : ∀ pol ns j αj k αk q m,
   ns ∈ newton_segments pol
@@ -2566,7 +2583,11 @@ Theorem phi_pseudo_degree_is_k_sub_j_div_q : ∀ pol ns j αj k αk q m,
 Proof.
 intros pol ns j αj k αk q m Hns Hm Hj Hk Hq.
 split.
- apply zzz.
+ apply shrinkable_if.
+  remember Hns as H; clear HeqH.
+  apply ini_oth_fin_pts_sorted in H.
+
+bbb.
   rewrite Hq.
   apply Pos2Nat_ne_0.
 
