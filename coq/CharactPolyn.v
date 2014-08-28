@@ -2453,31 +2453,50 @@ reflexivity.
 Qed.
 
 Theorem zzz : ∀ pol q pt pts,
-  q ≠ O
+  Sorted fst_lt [pt … pts]
+  → q ≠ O
   → List.Forall (λ pt₁, (q | nat_num (fst pt₁) - nat_num (fst pt))%nat) pts
   → poly_shrinkable R q
       POL (make_char_pol R (nat_num (fst pt))
             (List.map (term_of_point pol) [pt … pts]))%pol.
 Proof.
-intros pol q pt pts Hq Hpts; simpl.
+intros pol q pt pts Hsort Hq Hpts; simpl.
 rewrite Nat.sub_diag, list_pad_0.
 unfold poly_shrinkable; intros n Hn; simpl.
-remember (nat_num (fst pt)) as pow.
-clear pt Heqpow.
 destruct n.
  rewrite Nat.mod_0_l in Hn; auto.
  exfalso; apply Hn; reflexivity.
 
- revert pow n Hpts Hn.
- induction pts as [| pt]; intros.
-  destruct n; reflexivity.
+ remember (nat_num (fst pt)) as pow.
+ assert (nat_num (fst pt) ≤ pow)%nat as Hpow by fast_omega Heqpow.
+ clear Heqpow.
+ revert pt pow n Hsort Hpts Hn Hpow.
+ induction pts as [| pt₁]; intros; [ destruct n; reflexivity | simpl ].
+ destruct (le_dec (nat_num (fst pt₁) - S pow) n) as [H₁| H₁].
+  rewrite list_nth_pad_sub; auto.
+  remember (n - (nat_num (fst pt₁) - S pow))%nat as nn eqn:Hnn .
+  symmetry in Hnn.
+  destruct nn; simpl.
+   rewrite List.Forall_forall in Hpts.
+   assert (pt₁ ∈ [pt₁ … pts]) as H by (left; auto).
+   apply Hpts in H.
+   destruct H as (c, Hc).
+   rewrite <- Nat.sub_succ in Hc.
+   destruct (le_dec (S pow) (nat_num (fst pt₁))) as [H₂| H₂].
+    rewrite Nat.sub_succ_l in Hc; auto.
+    rewrite <- Nat.sub_succ in Hnn.
+    rewrite Hc in Hnn.
+    exfalso; apply Hn; clear Hn.
+    apply Nat.mod_divides; auto.
+    exists c.
+    rewrite Nat.mul_comm.
+    fast_omega Hnn H₁ Hc.
 
-  simpl.
-  destruct (le_dec (nat_num (fst pt) - S pow) n) as [H₁| H₁].
-   rewrite list_nth_pad_sub; auto.
-   remember (n - (nat_num (fst pt) - S pow))%nat as nn eqn:Hnn .
-   symmetry in Hnn.
-   destruct nn; simpl.
+    apply Nat.nle_gt in H₂.
+    clear H₁ Hc.
+    apply le_S_n in H₂.
+bbb.
+
     Focus 2.
     apply IHpts.
      apply List.Forall_forall; intros pt₁ Hpt₁.
