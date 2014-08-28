@@ -1125,7 +1125,7 @@ eapply q_mj_mk_eq_p_h_j with (h := r) (αh := αk) in H; eauto .
  move Hp after Hq.
  remember Hns as H; clear HeqH.
  eapply phi_degree_is_k_sub_j_div_q in H; eauto .
- unfold Φ in H.
+ unfold Φs in H.
  rewrite Nat.sub_0_r, <- Hq in H.
  unfold has_degree in H.
  unfold pseudo_degree in H.
@@ -1133,7 +1133,7 @@ eapply q_mj_mk_eq_p_h_j with (h := r) (αh := αk) in H; eauto .
  unfold poly_shrink in Hpsh.
  rewrite Hcpol in Hpsh.
  simpl in Hpsh.
- destruct H as (Hdeg, Hpdeg).
+ destruct H as (Hshr, (Hdeg, Hpdeg)).
  remember (Pos.to_nat q) as nq eqn:Hnq .
  symmetry in Hnq.
  destruct nq; [ exfalso; revert Hnq; apply Pos2Nat_ne_0 | idtac ].
