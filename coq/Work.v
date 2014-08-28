@@ -1132,9 +1132,10 @@ Theorem ttt : ∀ pol ns c αj αk m q r,
   → fin_pt ns = (Qnat r, αk)
   → (0 < Qnum αj)%Z
   → Qnum αk = 0%Z
+  → (1 ≠ 0)%K
   → q = 1%positive.
 Proof.
-intros pol ns c αj αk m q r Hns Hm Hq Hc Hr Hini Hfin Hαj Hαk.
+intros pol ns c αj αk m q r Hns Hm Hq Hc Hr Hini Hfin Hαj Hαk H₀.
 remember Hr as Hrv; clear HeqHrv.
 remember (al (Φq pol ns)) as cpol eqn:Hcpol .
 remember Hcpol as H; clear HeqH.
@@ -1241,6 +1242,30 @@ eapply q_mj_mk_eq_p_h_j with (h := r) (αh := αk) in H; eauto .
      rewrite Nat.add_1_l in HH.
      rewrite Nat.sub_0_r in HH.
      apply fld_eq_mul_0_r in HH; auto.
+     rewrite <- rng_mul_1_l in HH.
+     rewrite rng_mul_comm in HH.
+     rewrite rng_mul_nat_assoc2 in HH.
+     rewrite rng_mul_comm in HH.
+     rewrite <- rng_mul_nat_assoc2 in HH.
+     apply fld_eq_mul_0_r in HH; auto.
+      clear H.
+      remember Hns as H; clear HeqH.
+      eapply char_pol_root_ne_0 with (m := m) (c₁ := c) in H; eauto .
+      apply H.
+      apply rng_opp_inj_wd.
+      rewrite rng_opp_0.
+      remember r as n in HH.
+      clear Heqn.
+      induction n; [ contradiction | idtac ].
+      simpl in HH.
+      apply fld_eq_mul_0_r in HH; auto.
+      intros I.
+      apply rng_opp_inj_wd in I.
+      apply H.
+      rewrite rng_opp_0 in I.
+      rewrite <- I.
+      apply rng_add_move_0_r.
+      apply rng_add_opp_r.
 bbb.
 *)
 

@@ -296,6 +296,19 @@ do 2 rewrite rng_mul_opp_1_l.
 reflexivity.
 Qed.
 
+Theorem rng_opp_inj_wd : ∀ a b, (- a = - b)%K ↔ (a = b)%K.
+Proof.
+intros a b; split; intros H.
+ apply rng_add_move_0_r in H.
+ rewrite rng_add_comm in H.
+ apply rng_add_move_0_r in H.
+ rewrite H.
+ apply rng_add_move_0_r.
+ apply rng_add_opp_r.
+
+ rewrite H; reflexivity.
+Qed.
+
 Theorem rng_add_shuffle0 : ∀ n m p, (n + m + p = n + p + m)%K.
 Proof.
 intros n m p; simpl.
