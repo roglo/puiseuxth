@@ -1066,6 +1066,65 @@ eapply List_hd_in in Hns₁.
   assumption.
 Qed.
 
+Definition nth_coeff (a : α) n i := rng_mul_nat R (comb n i) (a ^ (n - i))%K.
+
+Theorem sss : ∀ (a : α) n,
+  (lap_power [a; 1%K … []] n =
+   List.map (nth_coeff a n) (List.seq 0 (S n)))%lap.
+Proof.
+intros a n.
+induction n.
+ simpl.
+ unfold nth_coeff; simpl.
+ rewrite rng_add_0_l.
+ reflexivity.
+
+ simpl.
+ rewrite IHn.
+ rewrite lap_mul_cons_l.
+ rewrite lap_mul_1_l.
+ rewrite lap_mul_const_l.
+ simpl.
+ rewrite rng_add_0_r.
+ constructor.
+  unfold nth_coeff; simpl.
+  rewrite comb_0_r; simpl.
+  rewrite rng_add_0_l, Nat.sub_0_r.
+  rewrite rng_add_0_l; reflexivity.
+
+  rewrite List.map_map.
+  clear IHn.
+  unfold nth_coeff at 2.
+  rewrite comb_0_r; simpl.
+  rewrite rng_add_0_l, Nat.sub_0_r.
+  unfold nth_coeff at 3.
+  simpl.
+  rewrite comb_0_r, comb_1_r.
+  simpl.
+  rewrite Nat.sub_0_r.
+bbb.
+
+Theorem sss₉ : ∀ (a : α) n i,
+  (List.nth i (lap_power [a; 1%K … []] n) 0 =
+   rng_mul_nat R (comb n i) (a ^ (n - i)))%K.
+Proof.
+intros a n i.
+revert i.
+induction n; intros; simpl.
+ destruct i; [ simpl | destruct i; reflexivity ].
+ rewrite rng_add_0_l; reflexivity.
+
+ unfold summation; simpl.
+ destruct i.
+  simpl.
+  rewrite rng_add_0_r, rng_add_0_l.
+  rewrite IHn.
+  rewrite comb_0_r.
+  simpl.
+  rewrite rng_add_0_l, Nat.sub_0_r.
+  reflexivity.
+bbb.
+
 Theorem ttt : ∀ pol ns c αj αk m q r,
   ns ∈ newton_segments pol
   → pol_in_K_1_m pol m
@@ -1138,6 +1197,19 @@ eapply q_mj_mk_eq_p_h_j with (h := r) (αh := αk) in H; eauto .
  symmetry in Hnq.
  destruct nq; [ exfalso; revert Hnq; apply Pos2Nat_ne_0 | idtac ].
  destruct nq; [ apply Pos2Nat.inj; assumption | exfalso ].
+ unfold poly_shrinkable in Hshr.
+ rewrite Hcpol in Hshr.
+ assert (1 mod S (S nq) ≠ 0)%nat as H.
+  rewrite Nat.mod_1_l; auto.
+  apply lt_n_S, Nat.lt_0_succ.
+
+  apply Hshr in H.
+  remember (al Ψ) as la eqn:Hla .
+  symmetry in Hla.
+  destruct la as [| a]; [ discriminate HeqΨ | idtac ].
+  destruct la; [ idtac | discriminate HeqΨ ].
+  rewrite lap_mul_comm in Hcp.
+  rewrite lap_mul_const_l in Hcp.
 bbb.
   Hnq : Pos.to_nat q = S (S nq)
   Hshr : poly_shrinkable R (S (S nq)) (Φq pol ns)
