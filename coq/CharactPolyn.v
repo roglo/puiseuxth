@@ -2516,48 +2516,43 @@ destruct n.
       rewrite Hc in Hn.
       apply Hn.
       apply Nat.mod_mul; auto.
-bbb.
 
-    apply IHpts.
-     apply List.Forall_forall; intros pt₁ Hpt₁.
-     rewrite List.Forall_forall in Hpts.
-     assert (pt₁ ∈ [pt … pts]) as H by (right; assumption).
-     apply Hpts in H.
-     destruct H as (c, Hc).
-     unfold divide.
-     assert (pt ∈ [pt … pts]) as H by (left; reflexivity).
-     apply Hpts in H.
-     destruct H as (d, Hd).
-     exists (c - d)%nat.
-     rewrite Nat.mul_sub_distr_r.
-     rewrite <- Hc, <- Hd.
-     rewrite Nat_sub_sub_distr.
-      rewrite Nat.sub_add; auto.
-      Focus 3.
-      intros H; apply Hn; clear Hn.
-      apply Nat.mod_divides in H; auto.
-      destruct H as (c, Hc).
-      rewrite List.Forall_forall in Hpts.
-      assert (pt ∈ [pt … pts]) as H by (left; reflexivity).
+     remember (n - (h - S j))%nat as nhj eqn:Hnhj .
+     symmetry in Hnhj.
+     destruct nhj; [ exfalso; fast_omega H₁ H₂ H₃ H₄ Hnhj | simpl ].
+     destruct (eq_nat_dec (S nhj mod q) 0) as [H₅| H₅].
+      apply Nat.mod_divides in H₅; auto.
+      destruct H₅ as (c, Hc).
+      apply Nat.add_sub_eq_nz in Hnhj; [ idtac | intros H; discriminate H ].
+      exfalso; apply Hn.
+      rewrite <- Hnhj.
+      rewrite Hc.
+      rewrite <- Nat.add_succ_l.
+      rewrite <- Nat.sub_succ_l; auto.
+      rewrite Nat.sub_succ.
+      assert (pt₂ ∈ [pt₂ … pts]) as H by (left; auto).
       apply Hpts in H.
+      rewrite <- Hh in H.
       destruct H as (d, Hd).
-      rewrite <- Nat.sub_succ in Hd.
-      rewrite Nat.sub_succ_l in Hd.
-       rewrite <- Nat.sub_succ in Hnn.
-       rewrite Hc, Hd in Hnn.
-       apply Nat.add_sub_eq_nz in Hnn.
-        rewrite Nat.mul_comm, <- Nat.mul_add_distr_l in Hnn.
-        rewrite <- Hnn.
-        rewrite Nat.mul_comm.
-        apply Nat.mod_mul; auto.
+      rewrite Nat.mul_comm.
+      rewrite Hd, <- Nat.mul_add_distr_r.
+      apply Nat.mod_mul; auto.
 
-        intros H.
-        apply Nat.mul_eq_0_r in H; auto.
-        subst c.
-        rewrite Nat.mul_0_r in Hc; discriminate Hc.
-
-       Unfocus.
-       Unfocus.
+      rewrite Hh.
+      apply IHpts; auto.
+      intros pt Hpt.
+      assert (pt ∈ [pt₂ … pts]) as H by (right; auto).
+      apply Hpts in H.
+      destruct H as (c, Hc).
+      rewrite <- Hh.
+      unfold divide.
+      assert (pt₂ ∈ [pt₂ … pts]) as H by (left; auto).
+      apply Hpts in H.
+      rewrite <- Hh in H.
+      destruct H as (d, Hd).
+      exists (c - d)%nat.
+      rewrite Nat.mul_sub_distr_r.
+      rewrite <- Hc, <- Hd.
 bbb.
 
 Theorem phi_pseudo_degree_is_k_sub_j_div_q : ∀ pol ns j αj k αk q m,
