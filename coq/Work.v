@@ -1079,6 +1079,19 @@ induction n.
  rewrite rng_add_0_l.
  reflexivity.
 
+ remember List.seq as f; simpl; subst f.
+ rewrite IHn.
+ rewrite lap_mul_cons_l.
+ rewrite lap_mul_1_l.
+bbb.
+
+intros a n.
+induction n.
+ simpl.
+ unfold nth_coeff; simpl.
+ rewrite rng_add_0_l.
+ reflexivity.
+
  simpl.
  rewrite IHn.
  rewrite lap_mul_cons_l.
@@ -1106,6 +1119,8 @@ induction n.
   rewrite <- H, Heqx.
   clear x Heqx H.
 bbb.
+*)
+Check sss.
 
 Theorem ttt : ∀ pol ns c αj αk m q r,
   ns ∈ newton_segments pol
