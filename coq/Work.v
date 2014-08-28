@@ -1092,38 +1092,22 @@ induction n.
   rewrite rng_add_0_l, Nat.sub_0_r.
   rewrite rng_add_0_l; reflexivity.
 
+  remember (List.map (nth_coeff a n) (List.seq 0 (S n))) as x.
+  remember Heqx as H; clear HeqH.
+  simpl in H.
+  rewrite <- H, Heqx.
+  clear x H Heqx IHn.
+  rewrite <- List.seq_shift.
   rewrite List.map_map.
-  clear IHn.
-  unfold nth_coeff at 2.
-  rewrite comb_0_r; simpl.
-  rewrite rng_add_0_l, Nat.sub_0_r.
-  unfold nth_coeff at 3.
-  simpl.
-  rewrite comb_0_r, comb_1_r.
-  simpl.
-  rewrite Nat.sub_0_r.
+  rewrite List.map_map.
+  remember (List.map (nth_coeff a (S n)) (List.seq 1 (S n))) as x.
+  remember Heqx as H; clear HeqH.
+  simpl in H.
+  rewrite <- H, Heqx.
+  clear x Heqx H.
+Abort. (*
 bbb.
-
-Theorem sss₉ : ∀ (a : α) n i,
-  (List.nth i (lap_power [a; 1%K … []] n) 0 =
-   rng_mul_nat R (comb n i) (a ^ (n - i)))%K.
-Proof.
-intros a n i.
-revert i.
-induction n; intros; simpl.
- destruct i; [ simpl | destruct i; reflexivity ].
- rewrite rng_add_0_l; reflexivity.
-
- unfold summation; simpl.
- destruct i.
-  simpl.
-  rewrite rng_add_0_r, rng_add_0_l.
-  rewrite IHn.
-  rewrite comb_0_r.
-  simpl.
-  rewrite rng_add_0_l, Nat.sub_0_r.
-  reflexivity.
-bbb.
+*)
 
 Theorem ttt : ∀ pol ns c αj αk m q r,
   ns ∈ newton_segments pol
@@ -1210,6 +1194,32 @@ eapply q_mj_mk_eq_p_h_j with (h := r) (αh := αk) in H; eauto .
   destruct la; [ idtac | discriminate HeqΨ ].
   rewrite lap_mul_comm in Hcp.
   rewrite lap_mul_const_l in Hcp.
+bbb.
+  destruct r.
+   simpl in Hcp.
+   symmetry in Hrv; revert Hrv.
+   apply multiplicity_neq_0; auto.
+
+   simpl in Hcp.
+   unfold summation in Hcp; simpl in Hcp.
+   rewrite rng_add_0_r in Hcp.
+   rewrite length_lap_power in Hcp.
+    simpl in Hcp.
+    unfold summation in Hcp; simpl in Hcp.
+    rewrite rng_add_0_r, rng_mul_1_l, Nat.mul_1_r in Hcp; simpl in Hcp.
+    inversion Hcp.
+     rewrite <- H0 in H; simpl in H.
+     inversion H4.
+      rewrite <- H7 in H; simpl in H.
+      rewrite H in H8.
+      revert H8; clear; intros.
+      Focus 2.
+      subst.
+      apply lap_eq_nil_cons_inv in H4.
+      destruct H4 as (H4, H10).
+      remember (ac_root (Φq pol ns)) as c eqn:Hc .
+      revert Hc H4; clear; intros.
+      Unfocus.
 bbb.
   Hnq : Pos.to_nat q = S (S nq)
   Hshr : poly_shrinkable R (S (S nq)) (Φq pol ns)
