@@ -1941,7 +1941,7 @@ symmetry in Hk.
 remember Hns as Hdeg; clear HeqHdeg.
 eapply phi_degree_is_k_sub_j_div_q in Hdeg; try eassumption.
 unfold has_degree in Hdeg.
-destruct Hdeg as (Hdeg, Hcnz).
+destruct Hdeg as (Hshr, (Hdeg, Hcnz)).
 remember Hns as Hqkj; clear HeqHqkj.
 eapply q_is_factor_of_h_minus_j with (h := k) in Hqkj; try eassumption.
  destruct Hqkj as (n, Hqkj).
@@ -1963,8 +1963,8 @@ eapply q_is_factor_of_h_minus_j with (h := k) in Hqkj; try eassumption.
   rewrite Nat.div_mul in Hcnz; [ idtac | subst q; apply Pos2Nat_ne_0 ].
   unfold pseudo_degree in Hdeg.
   unfold degree.
-  remember (al (Φ m pol ns)) as la eqn:Hla .
-  unfold Φ in Hla; simpl in Hla.
+  remember (al (Φs q pol ns)) as la eqn:Hla .
+  unfold Φs in Hla; simpl in Hla.
   rewrite Nat.sub_diag in Hla; simpl in Hla.
   rewrite <- Hj in Hla; simpl in Hla.
   rewrite nat_num_Qnat in Hla; simpl.
