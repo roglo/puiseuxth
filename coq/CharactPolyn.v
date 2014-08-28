@@ -2452,50 +2452,112 @@ rewrite nat_num_Qnat, Nat.sub_diag; simpl.
 reflexivity.
 Qed.
 
-Theorem zzz : ∀ pol ns pl q,
-  ns ∈ newton_segments pol
-  → pl = [ini_pt ns … oth_pts ns ++ [fin_pt ns]]
-  → List.Forall (λ pt, (q | nat_num (fst pt))%nat) pl
-  → poly_shrinkable R q (Φq pol ns).
+Theorem zzz : ∀ pol q pt pts,
+  q ≠ O
+  → List.Forall (λ pt₁, (q | nat_num (fst pt₁) - nat_num (fst pt))%nat) pts
+  → poly_shrinkable R q
+      POL (make_char_pol R (nat_num (fst pt))
+            (List.map (term_of_point pol) [pt … pts]))%pol.
 Proof.
-intros pol ns pl q Hns Hpl Hqh.
-rewrite List.Forall_forall in Hqh.
-unfold poly_shrinkable.
-intros n Hn.
-rewrite al_Φq.
-rewrite <- Hpl.
-remember (nat_num (fst (ini_pt ns))) as j eqn:Hj .
-assert (j = nat_num (fst (List.hd (ini_pt ns) pl))) as H by (subst; auto).
-clear Hpl Hj.
-rename H into Hj.
-revert n j Hn Hj.
-induction pl as [| p]; intros.
- simpl.
- destruct n; reflexivity.
+intros pol q pt pts Hq Hpts; simpl.
+rewrite Nat.sub_diag, list_pad_0.
+unfold poly_shrinkable; intros n Hn; simpl.
+remember (nat_num (fst pt)) as pow.
+clear pt Heqpow.
+destruct n.
+ rewrite Nat.mod_0_l in Hn; auto.
+ exfalso; apply Hn; reflexivity.
 
- simpl.
- simpl in Hj.
- subst j.
- rewrite Nat.sub_diag, list_pad_0.
- destruct n.
-  rewrite Nat.mod_0_l in Hn.
-   exfalso; apply Hn; reflexivity.
+ revert pow n Hpts Hn.
+ induction pts as [| pt]; intros.
+  destruct n; reflexivity.
 
-   Focus 2.
-   simpl.
-   apply IHpl.
+  simpl.
+  destruct (le_dec (nat_num (fst pt) - S pow) n) as [H₁| H₁].
+   rewrite list_nth_pad_sub; auto.
+   remember (n - (nat_num (fst pt) - S pow))%nat as nn eqn:Hnn .
+   symmetry in Hnn.
+   destruct nn; simpl.
+    Focus 2.
+    apply IHpts.
+     apply List.Forall_forall; intros pt₁ Hpt₁.
+     rewrite List.Forall_forall in Hpts.
+     assert (pt₁ ∈ [pt … pts]) as H by (right; assumption).
+     apply Hpts in H.
+     destruct H as (c, Hc).
+     unfold divide.
+     assert (pt ∈ [pt … pts]) as H by (left; reflexivity).
+     apply Hpts in H.
+     destruct H as (d, Hd).
+     exists (c - d)%nat.
+     rewrite Nat.mul_sub_distr_r.
+     rewrite <- Hc, <- Hd.
+     rewrite Nat_sub_sub_distr.
+      rewrite Nat.sub_add; auto.
+      Focus 3.
+      intros H; apply Hn; clear Hn.
+      apply Nat.mod_divides in H; auto.
+      destruct H as (c, Hc).
+      rewrite List.Forall_forall in Hpts.
+      assert (pt ∈ [pt … pts]) as H by (left; reflexivity).
+      apply Hpts in H.
+      destruct H as (d, Hd).
+      rewrite <- Nat.sub_succ in Hd.
+      rewrite Nat.sub_succ_l in Hd.
+       rewrite <- Nat.sub_succ in Hnn.
+       rewrite Hc, Hd in Hnn.
+       apply Nat.add_sub_eq_nz in Hnn.
+        rewrite Nat.mul_comm, <- Nat.mul_add_distr_l in Hnn.
+        rewrite <- Hnn.
+        rewrite Nat.mul_comm.
+        apply Nat.mod_mul; auto.
+
+        intros H.
+        apply Nat.mul_eq_0_r in H; auto.
+        subst c.
+        rewrite Nat.mul_0_r in Hc; discriminate Hc.
+
+       Unfocus.
+       Unfocus.
 bbb.
 
 Theorem phi_pseudo_degree_is_k_sub_j_div_q : ∀ pol ns j αj k αk q m,
   ns ∈ newton_segments pol
+  → pol_in_K_1_m pol m
   → (Qnat j, αj) = ini_pt ns
   → (Qnat k, αk) = fin_pt ns
   → q = Pos.to_nat (q_of_m m (γ ns))
   → poly_shrinkable R q (Φq pol ns)
     ∧ pseudo_degree (Φs q pol ns) = ((k - j) / q)%nat.
 Proof.
-intros pol ns j αj k αk q m Hns Hj Hk Hq.
+intros pol ns j αj k αk q m Hns Hm Hj Hk Hq.
 split.
+ apply zzz.
+  rewrite Hq.
+  apply Pos2Nat_ne_0.
+
+  apply List.Forall_forall.
+  intros pt Hpt.
+  rewrite <- Hj; simpl.
+  rewrite nat_num_Qnat.
+  apply List.in_app_or in Hpt.
+  destruct Hpt as [Hpt| Hpt].
+   remember Hpt as H; clear HeqH.
+   eapply exists_oth_pt_nat in H; eauto .
+   destruct H as (h, (ah, Hoth)).
+   subst pt; simpl.
+   rewrite nat_num_Qnat.
+   eapply q_is_factor_of_h_minus_j; eauto .
+   apply List.in_or_app; left; eauto .
+
+   destruct Hpt as [Hpt| ]; [ idtac | contradiction ].
+   subst pt; simpl.
+   rewrite <- Hk; simpl.
+   rewrite nat_num_Qnat.
+   eapply q_is_factor_of_h_minus_j; eauto .
+   apply List.in_or_app.
+   right; left; eauto .
+
 bbb.
  unfold poly_shrinkable; intros n Hn.
  rewrite al_Φq.
