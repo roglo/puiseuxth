@@ -1105,11 +1105,7 @@ induction n.
   simpl in H.
   rewrite <- H, Heqx.
   clear x Heqx H.
-Admitted. (*
 bbb.
-*)
-
-Check sss.
 
 Theorem ttt : ∀ pol ns c αj αk m q r,
   ns ∈ newton_segments pol
