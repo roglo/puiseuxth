@@ -2586,10 +2586,15 @@ split.
  apply shrinkable_if.
   remember Hns as H; clear HeqH.
   apply ini_oth_fin_pts_sorted in H.
+  apply Sorted_fst_lt_nat_num_fst in H; auto.
+  intros pt Hpt.
+  unfold Qnat.
+  eapply points_in_newton_segment_have_nat_abscissa in Hpt; eauto .
+  destruct Hpt as (h, (ah, Hpt)).
+  subst pt; simpl.
+  rewrite Nat2Z.id; reflexivity.
 
-bbb.
-  rewrite Hq.
-  apply Pos2Nat_ne_0.
+  rewrite Hq; auto.
 
   apply List.Forall_forall.
   intros pt Hpt.
