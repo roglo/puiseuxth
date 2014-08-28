@@ -1083,41 +1083,18 @@ induction n.
  rewrite IHn.
  rewrite lap_mul_cons_l.
  rewrite lap_mul_1_l.
-bbb.
+ rewrite lap_add_comm.
+ rewrite list_seq_app with (dj := 1%nat) in |- * at 1.
+  2: apply le_n_S, Nat.le_0_l.
 
-intros a n.
-induction n.
- simpl.
- unfold nth_coeff; simpl.
- rewrite rng_add_0_l.
- reflexivity.
-
- simpl.
- rewrite IHn.
- rewrite lap_mul_cons_l.
- rewrite lap_mul_1_l.
- rewrite lap_mul_const_l.
- simpl.
- rewrite rng_add_0_r.
- constructor.
-  unfold nth_coeff; simpl.
-  rewrite comb_0_r; simpl.
-  rewrite rng_add_0_l, Nat.sub_0_r.
-  rewrite rng_add_0_l; reflexivity.
-
-  remember (List.map (nth_coeff a n) (List.seq 0 (S n))) as x.
-  remember Heqx as H; clear HeqH.
-  simpl in H.
-  rewrite <- H, Heqx.
-  clear x H Heqx IHn.
-  rewrite <- List.seq_shift.
-  rewrite List.map_map.
-  rewrite List.map_map.
-  remember (List.map (nth_coeff a (S n)) (List.seq 1 (S n))) as x.
-  remember Heqx as H; clear HeqH.
-  simpl in H.
-  rewrite <- H, Heqx.
-  clear x Heqx H.
+  rewrite List.map_app.
+  unfold List.seq at 1.
+  rewrite Nat.add_0_l, Nat_sub_succ_1.
+  remember (List.map (nth_coeff a (S n)) (List.seq 0 (S (S n)))) as r.
+  rewrite lap_mul_const_l.
+  remember (List.map (nth_coeff a n) [O]) as x; simpl in Heqx; subst x.
+  rewrite <- list_cons_app.
+  rewrite rng_add_comm.
 bbb.
 *)
 Check sss.
