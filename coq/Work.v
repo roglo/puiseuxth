@@ -1105,9 +1105,11 @@ induction n.
   simpl in H.
   rewrite <- H, Heqx.
   clear x Heqx H.
-Abort. (*
+Admitted. (*
 bbb.
 *)
+
+Check sss.
 
 Theorem ttt : ∀ pol ns c αj αk m q r,
   ns ∈ newton_segments pol
@@ -1149,6 +1151,8 @@ rewrite Nat.sub_0_r, minus_Sn_n in HeqΨ.
 rename H into Hcp.
 remember Hns as H; clear HeqH.
 eapply q_mj_mk_eq_p_h_j with (h := r) (αh := αk) in H; eauto .
+ 2: apply List.in_or_app; right; left; assumption.
+
  rewrite <- Hq, Nat.sub_0_r in H.
  remember (mh_of_m m αj (ps_poly_nth 0 pol)) as mj eqn:Hmj .
  eapply pol_ord_of_ini_pt in Hmj; eauto .
@@ -1192,111 +1196,40 @@ eapply q_mj_mk_eq_p_h_j with (h := r) (αh := αk) in H; eauto .
   symmetry in Hla.
   destruct la as [| a]; [ discriminate HeqΨ | idtac ].
   destruct la; [ idtac | discriminate HeqΨ ].
-  rewrite lap_mul_comm in Hcp.
-  rewrite lap_mul_const_l in Hcp.
-bbb.
-  destruct r.
+  destruct (ac_zerop a) as [H₁| H₁].
+   rewrite H₁ in Hcp.
+   rewrite lap_eq_0 in Hcp.
+   rewrite lap_mul_nil_r in Hcp.
+   rewrite Htl, Hpl in Hcp.
    simpl in Hcp.
-   symmetry in Hrv; revert Hrv.
-   apply multiplicity_neq_0; auto.
+   rewrite Hini in Hcp; simpl in Hcp.
+   apply lap_eq_cons_nil_inv in Hcp.
+   rewrite nat_num_Qnat in Hcp.
+   destruct Hcp as (Hoj, Hcp).
+   revert Hoj.
+   eapply ord_coeff_non_zero_in_newt_segm; eauto .
+   left; symmetry; eauto .
 
-   simpl in Hcp.
-   unfold summation in Hcp; simpl in Hcp.
-   rewrite rng_add_0_r in Hcp.
-   rewrite length_lap_power in Hcp.
-    simpl in Hcp.
-    unfold summation in Hcp; simpl in Hcp.
-    rewrite rng_add_0_r, rng_mul_1_l, Nat.mul_1_r in Hcp; simpl in Hcp.
-    inversion Hcp.
-     rewrite <- H0 in H; simpl in H.
-     inversion H4.
-      rewrite <- H7 in H; simpl in H.
-      rewrite H in H8.
-      revert H8; clear; intros.
-      Focus 2.
-      subst.
-      apply lap_eq_nil_cons_inv in H4.
-      destruct H4 as (H4, H10).
-      remember (ac_root (Φq pol ns)) as c eqn:Hc .
-      revert Hc H4; clear; intros.
-      Unfocus.
-bbb.
-  Hnq : Pos.to_nat q = S (S nq)
-  Hshr : poly_shrinkable R (S (S nq)) (Φq pol ns)
-  Hcp : (make_char_pol R 0 tl = [(- c)%K; 1%K … []] ^ r * al Ψ)%lap
-  HeqΨ : length (al Ψ) = 1
-  Hmj : αj == mj # m
-  Hqjr : (' q * mj)%Z = (p * Z.of_nat r)%Z
-  ============================
-   q = 1%positive
+   rewrite lap_mul_comm in Hcp.
+   rewrite sss in Hcp.
+   rewrite lap_mul_const_l in Hcp.
+   rewrite List.map_map in Hcp.
+   assert (List.nth 1 (make_char_pol R 0 tl) 0 = 0)%K as HH.
+    rewrite H; reflexivity.
 
-p | mj
-q | r
+    rewrite list_nth_rng_eq in HH; eauto .
+    simpl in HH.
+    destruct r.
+     symmetry in Hrv.
+     revert Hrv; apply multiplicity_neq_0; auto.
 
- revert pol ns c αj αk m q pl tl cpol Hns Hm Hq Hc Hini Hfin Hpl Htl Hcpol Hr.
- induction r; intros.
-  remember Hns as H; clear HeqH.
-  eapply multiplicity_neq_0 in H; eauto .
-  unfold root_multiplicity in H.
-  rewrite al_Φq in H.
-  rewrite <- Hpl, <- Htl in H.
-  rewrite Hini in H.
-  erewrite length_char_pol in H; eauto .
-  remember S as s; simpl in H; subst s.
-  rewrite nat_num_Qnat, <- Hcpol in H.
-  symmetry in Hr; contradiction.
-
-  remember (S r) as s in Hr; simpl in Hr; subst s.
-  destruct (ac_zerop (lap_mod_deg_1 cpol c)) as [H₁| H₁].
-   apply Nat.succ_inj in Hr.
-   eapply IHr.
-    10: eauto .
-
-    3: eauto .
-
-    3: eauto .
-
-    auto.
-
-    auto.
-
-    eauto .
-
-    eauto .
-    2: eauto .
-
-    2: eauto .
-
-    Focus 2.
-    unfold lap_mod_deg_1 in H₁.
-    unfold lap_div_deg_1 in Hr.
-    unfold lap_div_deg_1.
-    remember (lap_mod_div_deg_1 R cpol c) as md eqn:Hmd .
-    destruct md as [| pt pts].
-     pose proof (length_lap_mod_div_deg_1 R cpol c) as H.
-     rewrite <- Hmd in H; simpl in H.
-     destruct cpol; auto; discriminate H.
-
-     rewrite <- Hcpol.
-     destruct tl as [| t].
-      simpl in Hcpol.
-      subst cpol.
-      simpl in Hmd.
-      discriminate Hmd.
-
-      simpl in Hcpol.
-      rewrite Nat.sub_0_r in Hcpol.
-      rewrite Hcpol in Hmd.
-      rewrite Hpl in Htl.
-      simpl in Htl.
-      injection Htl; clear Htl; intros Htl Ht.
-      rewrite Hini in Ht; simpl in Ht.
-      unfold term_of_point in Ht; simpl in Ht.
-      unfold lap_term_of_point in Ht; simpl in Ht.
-      rewrite nat_num_Qnat in Ht; simpl in Ht.
-      rewrite Ht in Hmd; simpl in Hmd.
-      injection Hmd; clear Hmd; intros Hpts Hpt.
-      rewrite Ht in Hcpol; simpl in Hcpol.
+     simpl in HH.
+     unfold nth_coeff in HH.
+     simpl in HH.
+     rewrite comb_0_r, comb_1_r in HH.
+     rewrite Nat.add_1_l in HH.
+     rewrite Nat.sub_0_r in HH.
+     apply fld_eq_mul_0_r in HH; auto.
 bbb.
 *)
 
