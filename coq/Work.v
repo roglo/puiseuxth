@@ -1778,7 +1778,7 @@ destruct (ps_zerop _ (ps_poly_nth 0 pol₁)) as [H₁| H₁].
 
                remember (i - p₂)%nat as id.
 bbb.
-continuing using RootHeadTail.v around line 2206
+continuing using RootHeadTail.v around line 2241
 *)
 
 (*
