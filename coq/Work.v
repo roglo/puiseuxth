@@ -1725,8 +1725,7 @@ destruct (ps_zerop _ (ps_poly_nth 0 pol₁)) as [H₁| H₁].
 
                   clear H.
                   pose proof (Hri 2%nat) as H.
-                  remember 1%nat as one in H.
-                  simpl in H.
+                  remember 1%nat as one in H; simpl in H.
                   rewrite <- Hc, <- Hpol₁, <- Hns₁ in H.
                   subst one; simpl in H.
                   rewrite <- Hc₁, <- Hpol₂, <- Hns₂ in H.
@@ -1777,8 +1776,68 @@ destruct (ps_zerop _ (ps_poly_nth 0 pol₁)) as [H₁| H₁].
                 contradiction.
 
                remember (i - p₂)%nat as id.
+               unfold root_tail_series_from_cγ_list.
+               remember (S id) as x; simpl; subst x.
+               destruct (ps_zerop R (ps_poly_nth 0 pol₁)) as [H₃| H₃].
+                contradiction.
+
+                rewrite <- Hc₁, <- Hpol₂, <- Hns₂.
+                rewrite <- Heqp₂, Heqid.
+                destruct i; [ exfalso; fast_omega H₁ | idtac ].
+                apply Nat.nlt_ge in H₂; symmetry.
+                rewrite <- find_coeff_add with (dp := p₂).
+                rewrite Nat.add_0_l, Nat.sub_add; auto.
+                symmetry.
+                rewrite <- Heqid; simpl.
+                destruct (ps_zerop R (ps_poly_nth 0 pol₂)); try contradiction.
+                clear n.
+                remember (Nat.compare p₂ (S i)) as cmp eqn:Hcmp .
+                symmetry in Hcmp.
+                destruct cmp; auto.
+                remember (ac_root (Φq pol₂ ns₂)) as c₂ eqn:Hc₂ .
+                remember (next_pol pol₂ (β ns₂) (γ ns₂) c₂) as pol₃ eqn:Hpol₃ .
+                remember (List.hd phony_ns (newton_segments pol₃)) as ns₃.
+                rename Heqns₃ into Hns₃.
+                remember (next_pow p₂ ns₃ m₁) as p₂₃ eqn:Hp₂₃ .
+                apply nat_compare_lt in Hcmp.
+                clear H₁ H₂.
+                assert (q_of_m m₁ (γ ns₂) = 1%positive) as Hq₂.
+                 replace m₁ with (m₁ * 1)%positive by apply Pos.mul_1_r.
+                 rewrite <- Heqm₁ in HK₁.
+                 eapply q_eq_1_any_r.
+                  3: eauto .
+
+                  3: eauto .
+
+                  4: eauto .
+
+                  4: eauto .
+
+                  4: eauto .
+
+                  4: eauto .
+
+                  4: eauto .
+
+                  2: rewrite Pos.mul_1_r.
+                  2: auto.
+
+                  auto.
+
+                  pose proof (Hri 2%nat) as H.
+                  remember 1%nat as one in H; simpl in H.
+                  rewrite <- Hc, <- Hpol₁, <- Hns₁ in H.
+                  subst one; simpl in H.
+                  rewrite <- Hc₁, <- Hpol₂, <- Hns₂ in H.
+                  rewrite <- Hc₂ in H.
+                  symmetry; assumption.
+
+                 rewrite <- Nat.add_1_r.
+                 replace p₂ with (p₂ + 0)%nat in Hp₂₃ by omega.
+                 subst id.
+                 eapply find_coeff_step; eauto .
 bbb.
-continuing using RootHeadTail.v around line 2241
+continuing using RootHeadTail.v around line 2279
 *)
 
 (*
