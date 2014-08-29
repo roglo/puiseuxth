@@ -1646,8 +1646,8 @@ destruct (ps_zerop _ (ps_poly_nth 0 pol₁)) as [H₁| H₁].
                rewrite <- Hc₁.
                destruct (ps_zerop R (ps_poly_nth 0 pol₁)) as [H₃| H₃]; auto.
                contradiction.
+               contradiction.
 
-               exfalso; apply H₁; auto.
                apply Nat.nlt_ge in H₂.
                apply Nat.le_0_r in H₂.
                rewrite <- Z2Nat.inj_0 in H₂.
