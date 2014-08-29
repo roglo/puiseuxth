@@ -1529,16 +1529,14 @@ destruct (ps_zerop _ (ps_poly_nth 0 pol₁)) as [H₁| H₁].
           rewrite Hmj in Heqmj'.
           rewrite Z.div_mul in Heqmj'; auto; subst mj'.
           remember Heqq₁ as H; clear HeqH.
-          eapply ttt in H; eauto .
+          eapply q_eq_1_any_r in H; eauto .
            rewrite H in H₃.
            rewrite Z.mul_1_l in H₃.
            exists p₁.
-           rewrite Zposnat2Znat.
-            assumption.
-
-            destruct r; [ idtac | apply Nat.lt_0_succ ].
-            exfalso; revert Hr₀.
-            apply multiplicity_neq_0; auto.
+           rewrite Zposnat2Znat; [ assumption | idtac ].
+           destruct r; [ idtac | apply Nat.lt_0_succ ].
+           exfalso; revert Hr₀.
+           apply multiplicity_neq_0; auto.
 
            clear H.
            pose proof (Hri 1%nat) as H; simpl in H.
