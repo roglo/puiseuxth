@@ -1802,39 +1802,20 @@ destruct (ps_zerop _ (ps_poly_nth 0 pol₁)) as [H₁| H₁].
                 apply nat_compare_lt in Hcmp.
                 clear H₁ H₂.
                 assert (q_of_m m₁ (γ ns₂) = 1%positive) as Hq₂.
-                 replace m₁ with (m₁ * 1)%positive by apply Pos.mul_1_r.
                  rewrite <- Heqm₁ in HK₁.
-                 eapply q_eq_1_any_r.
-                  3: eauto .
-
-                  3: eauto .
-
-                  4: eauto .
-
-                  4: eauto .
-
-                  4: eauto .
-
-                  4: eauto .
-
-                  4: eauto .
-
-                  2: rewrite Pos.mul_1_r.
-                  2: auto.
-
-                  auto.
-
-                  pose proof (Hri 2%nat) as H.
-                  remember 1%nat as one in H; simpl in H.
-                  rewrite <- Hc, <- Hpol₁, <- Hns₁ in H.
-                  subst one; simpl in H.
-                  rewrite <- Hc₁, <- Hpol₂, <- Hns₂ in H.
-                  rewrite <- Hc₂ in H.
-                  symmetry; assumption.
+                 eapply q_eq_1_any_r with (ns := ns₂); eauto .
+                 pose proof (Hri 2%nat) as H.
+                 remember 1%nat as one in H; simpl in H.
+                 rewrite <- Hc, <- Hpol₁, <- Hns₁ in H.
+                 subst one; simpl in H.
+                 rewrite <- Hc₁, <- Hpol₂, <- Hns₂ in H.
+                 rewrite <- Hc₂ in H.
+                 rewrite H; assumption.
 
                  rewrite <- Nat.add_1_r.
                  replace p₂ with (p₂ + 0)%nat in Hp₂₃ by omega.
                  subst id.
+bbb.
                  eapply find_coeff_step; eauto .
 bbb.
 continuing using RootHeadTail.v around line 2279
