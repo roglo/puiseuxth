@@ -1082,6 +1082,15 @@ induction len; intros; simpl.
  rewrite <- IHlen; reflexivity.
 Qed.
 
+Theorem lap_app_add : ∀ la lb,
+  (la ++ lb = la + list_pad (length la) 0%K lb)%lap.
+Proof.
+intros la lb.
+induction la as [| a]; [ reflexivity | simpl ].
+rewrite rng_add_0_r.
+constructor; [ reflexivity | assumption ].
+Qed.
+
 Definition nth_coeff (a : α) n i := rng_mul_nat R (comb n i) (a ^ (n - i))%K.
 
 Theorem sss : ∀ (a : α) n,
@@ -1113,6 +1122,12 @@ induction n.
  rewrite <- List.seq_shift.
  rewrite List.map_map.
  rewrite List.map_app; simpl.
+ rewrite lap_app_add, lap_add_assoc.
+ rewrite List.map_length, List.seq_length.
+ unfold nth_coeff at 3.
+ rewrite comb_id.
+ rewrite Nat.sub_diag.
+ simpl.
 bbb.
 *)
 Check sss.
