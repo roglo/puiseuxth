@@ -1709,6 +1709,19 @@ destruct (ps_zerop _ (ps_poly_nth 0 pol₁)) as [H₁| H₁].
                    destruct p₂ as [| p₂| p₂].
                     simpl in H₃.
                     exfalso; revert H₃; apply Pos2Z_ne_0.
+
+                    do 2 rewrite <- positive_nat_Z.
+                    apply Nat2Z.inj_le, Pos2Nat.inj_le.
+                    apply Pos.le_1_l.
+
+                    clear H.
+                    pose proof (Pos2Z.is_nonneg d) as H.
+                    rewrite H₃ in H.
+                    apply Z.nlt_ge in H.
+                    exfalso; apply H.
+                    apply Z.mul_neg_pos; [ apply Pos2Z.neg_is_neg | idtac ].
+                    rewrite <- Nat2Z.inj_0.
+                    apply Nat2Z.inj_lt; assumption.
 bbb.
 continuing using RootHeadTail.v around line 2206
 *)
