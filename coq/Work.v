@@ -1722,6 +1722,27 @@ destruct (ps_zerop _ (ps_poly_nth 0 pol₁)) as [H₁| H₁].
                     apply Z.mul_neg_pos; [ apply Pos2Z.neg_is_neg | idtac ].
                     rewrite <- Nat2Z.inj_0.
                     apply Nat2Z.inj_lt; assumption.
+
+                  clear H.
+                  pose proof (Hri 2%nat) as H.
+                  remember 1%nat as one in H.
+                  simpl in H.
+                  rewrite <- Hc, <- Hpol₁, <- Hns₁ in H.
+                  subst one; simpl in H.
+                  rewrite <- Hc₁, <- Hpol₂, <- Hns₂ in H.
+                  rewrite H; assumption.
+
+                 apply List.in_or_app; right; left; assumption.
+
+                clear H.
+                remember Hns₂₁ as H; clear HeqH.
+                unfold newton_segments in H.
+                unfold points_of_ps_polynom in H.
+                apply ini_fin_ns_in_init_pts in H.
+                rewrite <- Hini₂; destruct H; assumption.
+
+             rewrite rng_add_0_l.
+             assert (next_pow 0 ns₂ m₁ = Pos.to_nat d) as Hnpow.
 bbb.
 continuing using RootHeadTail.v around line 2206
 *)
