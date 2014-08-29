@@ -2064,7 +2064,7 @@ destruct (ps_zerop _ (ps_poly_nth 0 pol₁)) as [H₁| H₁].
  remember Hns₁ as Hns₁₁; clear HeqHns₁₁.
  eapply List_hd_in in Hns₁₁; eauto .
  remember Hns₁₁ as HK₂; clear HeqHK₂.
-  eapply next_pol_in_K_1_mq in HK₂; eauto .
+  eapply next_pol_in_K_1_mq in HK₂; eauto.
   erewrite q_eq_1 with (q₀ := q₀) (ns := ns) in HK₂; eauto .
   rewrite Pos.mul_1_r, <- Heqm₁ in HK₂.
   unfold γ_sum; simpl.

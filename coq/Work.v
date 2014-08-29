@@ -1444,65 +1444,71 @@ destruct (ps_zerop _ (ps_poly_nth 0 pol₁)) as [H₁| H₁].
   destruct H as (αj₁, (αk₁, H)).
   destruct H as (Hini₁, (Hfin₁, (Hαj₁, Hαk₁))).
   remember Hns₁ as Hns₁₁; clear HeqHns₁₁.
-  eapply List_hd_in in Hns₁₁; eauto .
-   remember Hns₁₁ as HK₂; clear HeqHK₂.
-   eapply next_pol_in_K_1_mq in HK₂; eauto .
-   remember (ac_root (Φq pol₁ ns₁)) as c₁ eqn:Hc₁ .
-   remember (next_pol pol₁ (β ns₁) (γ ns₁) c₁) as pol₂ eqn:Hpol₂ .
-   assert (0 < r)%nat as Hrpos.
-    destruct r; [ idtac | apply Nat.lt_0_succ ].
-    exfalso; revert Hr₀.
-    apply multiplicity_neq_0; auto.
+  assert (0 < r)%nat as Hrpos.
+   destruct r; [ idtac | apply Nat.lt_0_succ ].
+   exfalso; revert Hr₀.
+   apply multiplicity_neq_0; auto.
 
-    destruct (ps_zerop R (ps_poly_nth 0 pol₂)) as [H₁| H₁].
-     unfold γ_sum, summation; simpl.
-     rewrite rng_mul_0_r.
-     do 3 rewrite rng_add_0_r.
-     unfold root_tail_from_cγ_list, ps_monom; simpl.
-     rewrite Hini₁, Hfin₁; simpl.
-     rewrite Hαk₁; simpl.
-     rewrite Z.add_0_r.
-     rewrite Qnum_inv_Qnat_sub; auto.
-     rewrite Qden_inv_Qnat_sub; auto.
-     rewrite Z.mul_1_r, Nat.sub_0_r.
-     rewrite Z.mul_shuffle0, Pos_mul_shuffle0.
-     rewrite Pos2Z.inj_mul.
-     rewrite Z.div_mul_cancel_r; auto.
-     rewrite fold_series_const.
-     remember (Pos.of_nat r) as pr.
-     remember (Qden αj₁ * pr * Qden αk₁)%positive as x.
-     rewrite ps_adjust_eq with (n := O) (k := x); subst x.
-     symmetry.
-     rewrite ps_adjust_eq with (n := O) (k := m₁).
-     symmetry.
-     unfold adjust_ps; simpl.
-     do 2 rewrite series_shift_0.
-     apply mkps_morphism.
-      rewrite series_stretch_const.
+   eapply List_hd_in in Hns₁₁; eauto .
+    remember Hns₁₁ as HK₂; clear HeqHK₂.
+    eapply next_pol_in_K_1_mq in HK₂; eauto .
+    remember Hns₁₁ as H; clear HeqH.
+    eapply q_eq_1_any_r in H; eauto .
+     rewrite H in HK₂; clear H.
+     rewrite Pos.mul_1_r, <- Heqm₁ in HK₂.
+     unfold γ_sum; simpl.
+     unfold summation; simpl.
+     do 2 rewrite rng_add_0_r.
+     remember (ac_root (Φq pol₁ ns₁)) as c₁ eqn:Hc₁ .
+     remember (next_pol pol₁ (β ns₁) (γ ns₁) c₁) as pol₂ eqn:Hpol₂ .
+     remember (List.hd phony_ns (newton_segments pol₂)) as ns₂ eqn:Hns₂ .
+     destruct (ps_zerop _ (ps_poly_nth 0 pol₂)) as [H₁| H₁].
+      rewrite ps_mul_0_r, ps_add_0_r.
+      unfold root_tail_from_cγ_list, ps_monom; simpl.
+      rewrite Hini₁, Hfin₁; simpl.
+      rewrite Hαk₁; simpl.
+      rewrite Qnum_inv_Qnat_sub; auto.
+      rewrite Qden_inv_Qnat_sub; auto.
+      rewrite Z.mul_1_r, Nat.sub_0_r.
+      rewrite Z.add_0_r.
+      rewrite Z.mul_shuffle0, Pos_mul_shuffle0.
+      rewrite Pos2Z.inj_mul.
+      rewrite Z.div_mul_cancel_r; auto.
+      rewrite fold_series_const.
+      remember (Pos.of_nat r) as pr.
       remember (Qden αj₁ * pr * Qden αk₁)%positive as x.
+      rewrite ps_adjust_eq with (n := O) (k := x); subst x.
       symmetry.
-      rewrite <- series_stretch_const with (k := x); subst x.
-      apply stretch_morph; auto.
-      constructor; intros i; simpl.
-      unfold root_tail_series_from_cγ_list; simpl.
-      rewrite <- Hc₁, <- Hpol₂.
-      remember (List.hd phony_ns (newton_segments pol₂)) as ns₂ eqn:Hns₂ .
-      destruct (ps_zerop R (ps_poly_nth 0 pol₁)) as [H₂| H₂].
-       contradiction.
-
-       destruct i; [ reflexivity | simpl ].
-       destruct (ps_zerop R (ps_poly_nth 0 pol₂)) as [H₃| H₃]; auto.
-       contradiction.
-
+      rewrite ps_adjust_eq with (n := O) (k := m₁).
+      symmetry.
+      unfold adjust_ps; simpl.
+      do 2 rewrite series_shift_0.
+      rewrite series_stretch_const.
       do 2 rewrite Z.sub_0_r.
       rewrite Z.mul_comm.
-      rewrite Pos2Z.inj_mul.
       rewrite <- Z.divide_div_mul_exact; auto.
-       rewrite <- Z.mul_assoc.
-       rewrite Z.mul_comm.
+       rewrite Pos2Z.inj_mul, <- Z.mul_assoc, Z.mul_comm, Z.mul_assoc.
        rewrite Z.div_mul; auto.
-       rewrite Z.mul_comm, Z.mul_shuffle0.
-       reflexivity.
+       apply mkps_morphism.
+        remember (Qden αj₁ * pr * Qden αk₁)%positive as x.
+        symmetry.
+        rewrite <- series_stretch_const with (k := x); subst x.
+        apply stretch_morph; auto.
+        constructor; intros i; simpl.
+        unfold root_tail_series_from_cγ_list; simpl.
+        rewrite <- Hc₁, <- Hpol₂.
+        rewrite <- Hns₂.
+        destruct (ps_zerop R (ps_poly_nth 0 pol₁)) as [H₂| H₂].
+         contradiction.
+
+         destruct i; [ reflexivity | simpl ].
+         destruct (ps_zerop R (ps_poly_nth 0 pol₂)) as [H₃| H₃]; auto.
+         contradiction.
+
+        rewrite Z.mul_comm, Z.mul_assoc, Z.mul_shuffle0.
+        rewrite <- Z.mul_assoc, Z.mul_comm; reflexivity.
+
+        rewrite Pos.mul_comm; reflexivity.
 
        rewrite Pos2Z.inj_mul.
        remember HK₁ as H; clear HeqH.
@@ -1548,6 +1554,16 @@ destruct (ps_zerop _ (ps_poly_nth 0 pol₁)) as [H₁| H₁].
           rewrite <- Hc, <- Hpol₁, <- Hns₁ in H.
           rewrite <- Hc₁ in H.
           rewrite H; assumption.
+
+         apply List.in_or_app; right; left; assumption.
+
+        clear H.
+        remember Hns₁₁ as H; clear HeqH.
+        unfold newton_segments in H.
+        unfold points_of_ps_polynom in H.
+        apply ini_fin_ns_in_init_pts in H.
+        rewrite <- Hini₁; destruct H; assumption.
+bbb.
 
          apply List.in_or_app; right; left; assumption.
 
@@ -1605,8 +1621,21 @@ destruct (ps_zerop _ (ps_poly_nth 0 pol₁)) as [H₁| H₁].
       rewrite Z.add_simpl_l.
       rewrite Z.min_l.
        rewrite ps_adjust_eq with (n := O) (k := (dd * dd)%positive).
+       unfold adjust_ps; simpl.
+       rewrite series_shift_0.
+       rewrite Z.sub_0_r.
+       apply mkps_morphism.
+        remember Hns₂ as Hns₂₁; clear HeqHns₂₁.
+        eapply List_hd_in in Hns₂₁; eauto .
+         remember Hns₂₁ as H; clear HeqH.
+         eapply den_αj_divides_num_αj_m in H; eauto .
+         remember Hns₂₁ as HH; clear HeqHH.
+         eapply num_m_den_is_pos in HH; eauto .
+         destruct H as (d, Hd).
+         rewrite Hd in HH.
+         rewrite Z.div_mul in HH; auto.
 bbb.
-continuing with RootHeadTail.v line 2166
+continuing with RootHeadTail.v
 *)
 
 (*
