@@ -1742,7 +1742,41 @@ destruct (ps_zerop _ (ps_poly_nth 0 pol₁)) as [H₁| H₁].
                 rewrite <- Hini₂; destruct H; assumption.
 
              rewrite rng_add_0_l.
-             assert (next_pow 0 ns₂ m₁ = Pos.to_nat d) as Hnpow.
+             assert (next_pow 0 ns₂ m₁ = Z.to_nat (' d / ' qr)) as Hnpow.
+              unfold next_pow; simpl.
+              rewrite Hini₂, Hfin₂; simpl.
+              rewrite Hαk₂; simpl.
+              rewrite Qnum_inv_Qnat_sub; auto.
+              rewrite Qden_inv_Qnat_sub; auto.
+              rewrite Z.add_0_r, Z.mul_1_r.
+              rewrite Nat.sub_0_r, Pos.mul_1_r.
+              rewrite Z.mul_shuffle0, Pos_mul_shuffle0, Pos2Z.inj_mul.
+              rewrite Z.div_mul_cancel_r; auto.
+              rewrite Hd.
+              rewrite Pos.mul_comm, Pos2Z.inj_mul.
+              rewrite Z.div_mul_cancel_r; auto.
+              rewrite <- Hqr; reflexivity.
+
+              remember (next_pow 0 ns₂ m₁) as p₂.
+              rewrite <- Hnpow.
+              destruct (lt_dec i p₂) as [H₂| H₂].
+               unfold root_tail_series_from_cγ_list; simpl.
+               destruct (ps_zerop R (ps_poly_nth 0 pol₁)) as [| H₃]; auto.
+               destruct i; [ exfalso; fast_omega H₁ | clear H₁ ].
+               rewrite <- Hc₁, <- Hpol₂, <- Hns₂; simpl.
+               destruct (ps_zerop R (ps_poly_nth 0 pol₂)) as [| H₅]; auto.
+               rewrite <- Heqp₂.
+               remember (Nat.compare p₂ (S i)) as cmp; symmetry in Heqcmp.
+               destruct cmp as [H₄| H₄| H₄]; auto.
+                apply nat_compare_eq in Heqcmp.
+                rewrite Heqcmp in H₂.
+                exfalso; revert H₂; apply Nat.lt_irrefl.
+
+                apply nat_compare_lt in Heqcmp.
+                apply Nat.lt_le_incl, Nat.nlt_ge in Heqcmp.
+                contradiction.
+
+               remember (i - p₂)%nat as id.
 bbb.
 continuing using RootHeadTail.v around line 2206
 *)
