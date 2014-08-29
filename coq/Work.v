@@ -1091,9 +1091,17 @@ rewrite rng_add_0_r.
 constructor; [ reflexivity | assumption ].
 Qed.
 
+Theorem lap_add_map2 : ∀ β (f g : β → α) la,
+  (List.map f la + List.map g la = List.map (λ b, (f b + g b)%K) la)%lap.
+Proof.
+intros β f g la.
+induction la as [| b]; [ reflexivity | simpl ].
+constructor; auto.
+Qed.
+
 Definition nth_coeff (a : α) n i := rng_mul_nat R (comb n i) (a ^ (n - i))%K.
 
-Theorem sss : ∀ (a : α) n,
+Theorem binomial_expansion : ∀ (a : α) n,
   (lap_power [a; 1%K … []] n =
    List.map (nth_coeff a n) (List.seq 0 (S n)))%lap.
 Proof.
@@ -1125,12 +1133,51 @@ induction n.
  rewrite lap_app_add, lap_add_assoc.
  rewrite List.map_length, List.seq_length.
  unfold nth_coeff at 3.
- rewrite comb_id.
- rewrite Nat.sub_diag.
- simpl.
-bbb.
-*)
-Check sss.
+ rewrite comb_id, Nat.sub_diag; simpl.
+ rewrite lap_add_map2.
+ unfold nth_coeff; simpl.
+ subst r.
+ remember (S n) as sn; simpl; subst sn.
+ constructor.
+  unfold nth_coeff; simpl.
+  rewrite rng_add_0_l; reflexivity.
+
+  rewrite List_seq_split_last.
+  simpl.
+  rewrite List.map_app.
+  simpl.
+  rewrite lap_app_add.
+  rewrite List.map_length.
+  rewrite List.seq_length.
+  unfold nth_coeff at 2.
+  rewrite Nat.sub_diag.
+  rewrite comb_id.
+  apply lap_add_compat; [ idtac | destruct n; reflexivity ].
+  rewrite <- List.seq_shift.
+  rewrite List.map_map.
+  apply lap_eq_map_ext.
+  intros b.
+  unfold nth_coeff; simpl.
+  rewrite <- rng_mul_nat_mul_swap.
+  rewrite rng_mul_nat_add_distr_r.
+  rewrite rng_add_comm.
+  apply rng_add_compat_l.
+  destruct (eq_nat_dec n b) as [H₁| H₁].
+   subst b; simpl.
+   rewrite comb_lt; auto.
+
+   destruct (le_dec (S b) n) as [H₂| H₂].
+    rewrite Nat.sub_succ_r.
+    remember (n - b)%nat as nb eqn:Hnb .
+    symmetry in Hnb.
+    destruct nb; [ simpl | reflexivity ].
+    exfalso; fast_omega H₁ H₂ Hnb.
+
+    apply Nat.nle_gt in H₂.
+    replace (n - S b)%nat with O by fast_omega H₂.
+    replace (n - b)%nat with O by fast_omega H₂; simpl.
+    rewrite comb_lt; auto.
+Qed.
 
 Theorem ttt : ∀ pol ns c αj αk m q r,
   ns ∈ newton_segments pol
@@ -1233,7 +1280,7 @@ eapply q_mj_mk_eq_p_h_j with (h := r) (αh := αk) in H; eauto .
    left; symmetry; eauto .
 
    rewrite lap_mul_comm in Hcp.
-   rewrite sss in Hcp.
+   rewrite binomial_expansion in Hcp.
    rewrite lap_mul_const_l in Hcp.
    rewrite List.map_map in Hcp.
    assert (List.nth 1 (make_char_pol R 0 tl) 0 = 0)%K as HH.
