@@ -1528,6 +1528,7 @@ destruct (ps_zerop _ (ps_poly_nth 0 pol₁)) as [H₁| H₁].
          rewrite Nat.sub_0_r in H.
          destruct H as (H₂, H₃).
          unfold Qeq in H₂; simpl in H₂.
+(**)
          rewrite Hαk₁ in H₂; simpl in H₂.
          symmetry in H₂.
          apply Z.eq_mul_0_l in H₂; auto.
@@ -1657,6 +1658,14 @@ destruct (ps_zerop _ (ps_poly_nth 0 pol₁)) as [H₁| H₁].
               contradiction.
 
               apply Nat.nlt_ge, Nat.le_0_r in H₁.
+              exfalso.
+              rewrite <- Z2Nat.inj_0 in H₁.
+              apply Z2Nat.inj in H₁; auto; [ idtac | reflexivity ].
+              apply Z.div_small_iff in H₁; auto.
+              destruct H₁ as [(_, H₁)| (_, H₁)].
+               Focus 2.
+               apply Z2Nat_neg_eq_0 in H₁; simpl in H₁.
+               revert H₁; apply Pos2Nat_ne_0.
 bbb.
 continuing using RootHeadTail.v around line 2206
 *)
