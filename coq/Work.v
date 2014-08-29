@@ -1179,7 +1179,7 @@ induction n.
     rewrite comb_lt; auto.
 Qed.
 
-Theorem ttt : ∀ pol ns c αj αk m q r,
+Theorem q_eq_1_any_r : ∀ pol ns c αj αk m q r,
   ns ∈ newton_segments pol
   → pol_in_K_1_m pol m
   → q = q_of_m m (γ ns)
@@ -1323,9 +1323,10 @@ eapply q_mj_mk_eq_p_h_j with (h := r) (αh := αk) in H; eauto .
       rewrite <- I.
       apply rng_add_move_0_r.
       apply rng_add_opp_r.
-bbb.
-*)
-Check ttt.
+
+      destruct r; [ simpl; rewrite rng_add_0_l; auto | idtac ].
+      apply ac_charac_01.
+Qed.
 
 (* isn't it similar to multiplicity_lt_length? *)
 (*

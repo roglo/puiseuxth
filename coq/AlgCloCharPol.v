@@ -1581,8 +1581,13 @@ Fixpoint degree_plus_1_of_list α {R : ring α}
 Definition degree α {R : ring α} zerop (pol : polynomial α) :=
   pred (degree_plus_1_of_list zerop (al pol)).
 
+(* actually, field which is:
+   - with decidable equality
+   - with characteristic 0 or 1
+   - algebraically closed *)
 Class algeb_closed_field α (ac_ring : ring α) (ac_field : field ac_ring) :=
   { ac_zerop : ∀ a, {(a = 0)%K} + {(a ≠ 0)%K};
+    ac_charac_01 : ∀ n, (rng_mul_nat ac_ring (S (S n)) 1 ≠ 0)%K;
     ac_root : polynomial α → α;
     ac_prop_root : ∀ pol, degree ac_zerop pol ≥ 1
       → (apply_poly pol (ac_root pol) = 0)%K }.
