@@ -1694,6 +1694,21 @@ destruct (ps_zerop _ (ps_poly_nth 0 pol₁)) as [H₁| H₁].
                  eapply q_eq_1_any_r in H; eauto .
                   rewrite H in H₃.
                   rewrite Z.mul_1_l in H₃.
+                  rewrite Hd in Hmj.
+                  apply Z.mul_cancel_r in Hmj; auto.
+                  subst mj.
+                  rewrite H₃, Hqr in H₁; simpl in H₁.
+                  rewrite <- positive_nat_Z in H₁.
+                  rewrite Nat2Pos.id in H₁; [ idtac | fast_omega Hrpos ].
+                  rewrite <- Z.mul_1_l in H₁.
+                  apply Z.nle_gt in H₁; apply H₁.
+                  apply Z.mul_le_mono_pos_r.
+                   rewrite <- Nat2Z.inj_0.
+                   apply Nat2Z.inj_lt; assumption.
+
+                   destruct p₂ as [| p₂| p₂].
+                    simpl in H₃.
+                    exfalso; revert H₃; apply Pos2Z_ne_0.
 bbb.
 continuing using RootHeadTail.v around line 2206
 *)
