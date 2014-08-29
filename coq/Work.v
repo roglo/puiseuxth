@@ -1066,6 +1066,22 @@ eapply List_hd_in in Hns₁.
   assumption.
 Qed.
 
+Theorem List_seq_split_first : ∀ len start,
+  List.seq start (S len) = [start … List.seq (S start) len].
+Proof. reflexivity. Qed.
+
+Theorem List_seq_split_last : ∀ len start,
+  List.seq start (S len) = List.seq start len ++ [start + len]%nat.
+Proof.
+intros len start; simpl.
+revert start.
+induction len; intros; simpl.
+ rewrite Nat.add_0_r; reflexivity.
+
+ rewrite Nat.add_succ_r, <- Nat.add_succ_l.
+ rewrite <- IHlen; reflexivity.
+Qed.
+
 Definition nth_coeff (a : α) n i := rng_mul_nat R (comb n i) (a ^ (n - i))%K.
 
 Theorem sss : ∀ (a : α) n,
@@ -1081,20 +1097,22 @@ induction n.
 
  remember List.seq as f; simpl; subst f.
  rewrite IHn.
+ remember (List.map (nth_coeff a (S n)) (List.seq 0 (S (S n)))) as r.
  rewrite lap_mul_cons_l.
  rewrite lap_mul_1_l.
- rewrite lap_add_comm.
- rewrite list_seq_app with (dj := 1%nat) in |- * at 1.
-  2: apply le_n_S, Nat.le_0_l.
-
-  rewrite List.map_app.
-  unfold List.seq at 1.
-  rewrite Nat.add_0_l, Nat_sub_succ_1.
-  remember (List.map (nth_coeff a (S n)) (List.seq 0 (S (S n)))) as r.
-  rewrite lap_mul_const_l.
-  remember (List.map (nth_coeff a n) [O]) as x; simpl in Heqx; subst x.
-  rewrite <- list_cons_app.
-  rewrite rng_add_comm.
+ rewrite lap_mul_const_l.
+ rewrite List.map_map.
+ rewrite List_seq_split_first in |- * at 1.
+ remember (S n) as s; simpl.
+ unfold nth_coeff at 1; simpl.
+ rewrite comb_0_r, Nat.sub_0_r, rng_add_0_r.
+ rewrite rng_mul_nat_1_l.
+ subst s.
+ rewrite List_seq_split_last.
+ rewrite Nat.add_0_l.
+ rewrite <- List.seq_shift.
+ rewrite List.map_map.
+ rewrite List.map_app; simpl.
 bbb.
 *)
 Check sss.
