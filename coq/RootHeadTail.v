@@ -2203,6 +2203,7 @@ destruct (ps_zerop _ (ps_poly_nth 0 pol₁)) as [H₁| H₁].
          destruct (ps_zerop R (ps_poly_nth 0 pol₁)) as [H₂| H₂]; auto.
          contradiction.
 
+(**)
          exfalso; apply H₁; auto.
 
         rewrite rng_add_0_l.

@@ -1625,37 +1625,40 @@ destruct (ps_zerop _ (ps_poly_nth 0 pol₁)) as [H₁| H₁].
            exfalso; revert HH; apply Nat.lt_irrefl.
 
            clear HH; simpl.
-           unfold adjust_series; simpl.
-           rewrite Z2Nat_neg_eq_0.
+           assert (0 <= ' d / ' qr)%Z as Hdr by apply Z_div_pos_is_nonneg.
+           assert (Z.to_nat (- (' d / ' qr * ' dd * ' dd)) = 0)%nat as H.
+            remember (' d / ' qr)%Z as x.
+            symmetry in Heqx.
+            destruct x as [| x| x]; try reflexivity.
+            apply Z.nlt_ge in Hdr.
+            exfalso; apply Hdr, Zlt_neg_0.
+
+            rewrite H; clear H.
+            unfold adjust_series; simpl.
             rewrite series_shift_0.
             rewrite series_stretch_const.
             rewrite <- series_stretch_stretch.
             rewrite <- Z.mul_assoc, <- Pos2Z.inj_mul.
             rewrite Z2Nat.inj_mul; auto; simpl.
-             rewrite <- stretch_shift_series_distr.
-             rewrite <- series_stretch_const with (k := (dd * dd)%positive).
-             rewrite <- series_stretch_add_distr.
-             apply stretch_morph; [ reflexivity | idtac ].
-             unfold series_add; simpl.
-             constructor; intros i; simpl.
-             destruct (zerop i) as [H₂| H₂].
-              subst i; simpl.
-              destruct (lt_dec 0 (Z.to_nat (' d / ' qr))) as [H₂| H₂].
-               rewrite rng_add_0_r.
-               unfold root_tail_series_from_cγ_list; simpl.
-               rewrite <- Hc₁.
-               destruct (ps_zerop R (ps_poly_nth 0 pol₁)) as [H₃| H₃]; auto.
-               contradiction.
-               contradiction.
+            rewrite <- stretch_shift_series_distr.
+            rewrite <- series_stretch_const with (k := (dd * dd)%positive).
+            rewrite <- series_stretch_add_distr.
+            apply stretch_morph; [ reflexivity | idtac ].
+            unfold series_add; simpl.
+            constructor; intros i; simpl.
+            rename H₁ into Hz₂.
+            destruct (zerop i) as [H₁| H₁].
+             subst i; simpl.
+             destruct (lt_dec 0 (Z.to_nat (' d / ' qr))) as [H₁| H₁].
+              rewrite rng_add_0_r.
+              unfold root_tail_series_from_cγ_list; simpl.
+              rewrite <- Hc₁.
+              destruct (ps_zerop R (ps_poly_nth 0 pol₁)) as [H₂| H₂]; auto.
+              contradiction.
 
-               apply Nat.nlt_ge in H₂.
-               apply Nat.le_0_r in H₂.
-               rewrite <- Z2Nat.inj_0 in H₂.
-               apply Z2Nat.inj in H₂.
-                apply Z.div_small_iff in H₂; auto.
-                destruct H₂ as [(_, H₂)| H₂].
+              apply Nat.nlt_ge, Nat.le_0_r in H₁.
 bbb.
-continuing with RootHeadTail.v around line 2208 after this case treated
+continuing using RootHeadTail.v around line 2206
 *)
 
 (*
