@@ -1568,7 +1568,17 @@ destruct (ps_zerop _ (ps_poly_nth 0 pol₁)) as [H₁| H₁].
     unfold γ_sum; simpl.
     unfold summation; simpl.
     rewrite rng_add_0_r.
+    remember Hns as Hr₁; clear HeqHr₁.
+    remember Hns₁₁ as H; clear HeqH.
+    eapply r_n_next_ns in H; eauto .
+     rewrite Nat.add_0_r in H.
+     destruct H as (αj₂, (αk₂, H)).
+     destruct H as (Hini₂, (Hfin₂, (Hαj₂, Hαk₂))).
+     pose proof (Hri 1%nat) as H; simpl in H.
+     rewrite <- Hc, <- Hpol₁, <- Hns₁, <- Hc₁ in H.
+     rewrite H in Hfin₂; clear H.
 bbb.
+continuing with RootHeadTail.v line 2142
 *)
 
 (*
