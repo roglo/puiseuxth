@@ -1666,6 +1666,34 @@ destruct (ps_zerop _ (ps_poly_nth 0 pol₁)) as [H₁| H₁].
                Focus 2.
                apply Z2Nat_neg_eq_0 in H₁; simpl in H₁.
                revert H₁; apply Pos2Nat_ne_0.
+
+               remember HK₂ as H; clear HeqH.
+               apply any_in_K_1_m with (h := O) (αh := αj₂) in H.
+                destruct H as (mj, Hmj).
+                unfold Qeq in Hmj; simpl in Hmj.
+                remember Hns₂₁ as H; clear HeqH.
+                eapply q_mj_mk_eq_p_h_j with (h := r) (αh := αk₂) in H; eauto .
+                 remember (q_of_m m₁ (γ ns₂)) as q₂.
+                 remember (mh_of_m m₁ αj₂ (ps_poly_nth 0 pol₂)) as mj'.
+                 remember (mh_of_m m₁ αk₂ (ps_poly_nth r pol₂)) as mk.
+                 remember (p_of_m m₁ (γ ns₂)) as p₂.
+                 rewrite Nat.sub_0_r in H.
+                 destruct H as (H₂, H₃).
+                 unfold Qeq in H₂; simpl in H₂.
+                 rewrite Hαk₂ in H₂; simpl in H₂.
+                 symmetry in H₂.
+                 apply Z.eq_mul_0_l in H₂; auto.
+                 move H₂ at top; subst mk.
+                 rewrite Z.sub_0_r in H₃.
+                 rewrite positive_nat_Z in H₃.
+                 unfold mh_of_m in Heqmj'.
+                 erewrite <- qden_αj_is_ps_polord in Heqmj'; eauto .
+                 rewrite Hmj in Heqmj'.
+                 rewrite Z.div_mul in Heqmj'; auto; subst mj'.
+                 remember Heqq₂ as H; clear HeqH.
+                 eapply q_eq_1_any_r in H; eauto .
+                  rewrite H in H₃.
+                  rewrite Z.mul_1_l in H₃.
 bbb.
 continuing using RootHeadTail.v around line 2206
 *)
