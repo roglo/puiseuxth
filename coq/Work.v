@@ -36,17 +36,6 @@ Set Implicit Arguments.
 
 Axiom exists_or_not_forall : ∀ P : nat → Prop, (∃ n, P n) ∨ (∀ n, ¬P n).
 
-Fixpoint nth_r α {R : ring α} {K : field R} {acf : algeb_closed_field K}
-  n pol ns :=
-  match n with
-  | 0%nat => root_multiplicity acf (ac_root (Φq pol ns)) (Φq pol ns)
-  | S n₁ =>
-      let c₁ := ac_root (Φq pol ns) in
-      let pol₁ := next_pol pol (β ns) (γ ns) c₁ in
-      let ns₁ := List.hd phony_ns (newton_segments pol₁) in
-      nth_r n₁ pol₁ ns₁
-  end.
-
 Section theorems.
 
 Variable α : Type.
@@ -1434,11 +1423,6 @@ intros Hns HK Hq Hc (*Hr*) Hpol₁ Hns₁ (Hp, Hpi) Hdip Hnp.
 bbb.
 Check find_coeff_step₄₂.
 *)
-
-Theorem Zpos_le_1 : ∀ p, (' p <= 1)%Z → (p = 1)%positive.
-Proof.
-intros p Hp.
-bbb.
 
 Theorem root_tail_split_1st₄₂ : ∀ pol ns pol₁ ns₁ c m q₀ r,
   ns ∈ newton_segments pol

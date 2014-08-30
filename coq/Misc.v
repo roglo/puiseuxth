@@ -2037,6 +2037,12 @@ apply Z.nlt_ge in Hz.
 exfalso; apply Hz, Pos2Z.is_pos.
 Qed.
 
+Theorem Zpos_le_1 : ∀ p, (' p <= 1)%Z → (p = 1)%positive.
+Proof.
+intros p Hp.
+apply Pos.le_antisym in Hp; [ subst p; reflexivity | apply Pos.le_1_l ].
+Qed.
+
 Hint Resolve Pos2Z.is_nonneg.
 Hint Resolve Pos2Nat.is_pos.
 Hint Resolve Pos2Z_ne_0.

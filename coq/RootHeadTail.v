@@ -79,6 +79,17 @@ Fixpoint nth_γ α {R : ring α} {K : field R} {acf : algeb_closed_field K}
       nth_γ n₁ pol₁ ns₁
   end.
 
+Fixpoint nth_r α {R : ring α} {K : field R} {acf : algeb_closed_field K}
+  n pol ns :=
+  match n with
+  | 0%nat => root_multiplicity acf (ac_root (Φq pol ns)) (Φq pol ns)
+  | S n₁ =>
+      let c₁ := ac_root (Φq pol ns) in
+      let pol₁ := next_pol pol (β ns) (γ ns) c₁ in
+      let ns₁ := List.hd phony_ns (newton_segments pol₁) in
+      nth_r n₁ pol₁ ns₁
+  end.
+
 Definition next_pow pow ns₁ m :=
   let n := (γ ns₁ * inject_Z ('m)) in
   (pow + Z.to_nat (Qnum n / ' Qden n))%nat.
