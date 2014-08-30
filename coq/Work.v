@@ -1401,6 +1401,7 @@ assert (j < k)%nat as Hjk.
 bbb.
 *)
 
+(* cf find_coeff_step *)
 Theorem find_coeff_step₄₂ : ∀ pol ns m c pol₁ ns₁ i di p dp np,
   ns ∈ newton_segments pol
   → pol_in_K_1_m pol m
