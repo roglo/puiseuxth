@@ -1412,6 +1412,29 @@ assert (j < k)%nat as Hjk.
 bbb.
 *)
 
+(*
+Theorem find_coeff_step₄₂ : ∀ pol ns m c pol₁ ns₁ i di p dp np,
+  ns ∈ newton_segments pol
+  → pol_in_K_1_m pol m
+  → q_of_m m (γ ns) = 1%positive
+  → c = ac_root (Φq pol ns)
+(*
+  → root_multiplicity acf c (Φq pol ns) = 1%nat
+*)
+  → pol₁ = next_pol pol (β ns) (γ ns) c
+  → ns₁ = List.hd phony_ns (newton_segments pol₁)
+  → (0 < p ≤ i)%nat
+  → (di ≤ dp + 1)%nat
+  → np = next_pow (p + dp) ns₁ m
+  → (find_coeff i np m pol₁ ns₁ (i + di) =
+     find_coeff (S i - p) np m pol₁ ns₁ (i + di))%K.
+Proof.
+intros pol ns m c pol₁ ns₁ i di p dp np.
+intros Hns HK Hq Hc (*Hr*) Hpol₁ Hns₁ (Hp, Hpi) Hdip Hnp.
+bbb.
+Check find_coeff_step₄₂.
+*)
+
 Theorem root_tail_split_1st₄₂ : ∀ pol ns pol₁ ns₁ c m q₀ r,
   ns ∈ newton_segments pol
   → pol_in_K_1_m pol m
@@ -1648,6 +1671,16 @@ destruct (ps_zerop _ (ps_poly_nth 0 pol₁)) as [H₁| H₁].
             unfold series_add; simpl.
             constructor; intros i; simpl.
             rename H₁ into Hz₂.
+(**)
+            destruct (lt_dec i (Z.to_nat (' d / ' qr))) as [H₁| H₁].
+             destruct (zerop i) as [H₂| H₂].
+              subst i; simpl.
+              rewrite rng_add_0_r.
+              unfold root_tail_series_from_cγ_list; simpl.
+              rewrite <- Hc₁.
+              destruct (ps_zerop R (ps_poly_nth 0 pol₁)) as [H₂| H₂]; auto.
+              contradiction.
+bbb.
             destruct (zerop i) as [H₁| H₁].
              subst i; simpl.
              destruct (lt_dec 0 (Z.to_nat (' d / ' qr))) as [H₁| H₁].
@@ -1816,8 +1849,15 @@ destruct (ps_zerop _ (ps_poly_nth 0 pol₁)) as [H₁| H₁].
                  replace p₂ with (p₂ + 0)%nat in Hp₂₃ by omega.
                  subst id.
 bbb.
-                 eapply find_coeff_step; eauto .
+                 eapply find_coeff_step₄₂; eauto .
+                  split; [ idtac | fast_omega Hcmp ].
+                  rewrite Hnpow.
 bbb.
+  Hdr : (0 <= ' d / ' qr)%Z
+  ============================
+   (0 < Z.to_nat (' d / ' qr))%nat
+
+
 continuing using RootHeadTail.v around line 2279
 *)
 

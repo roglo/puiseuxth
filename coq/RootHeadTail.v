@@ -2273,6 +2273,7 @@ destruct (ps_zerop _ (ps_poly_nth 0 pol₁)) as [H₁| H₁].
             eapply multiplicity_1_remains in Hr₂; eauto .
             rewrite <- Nat.add_1_r.
             assert (0 < p₂)%nat as Hp₁ by (rewrite Hnpow; auto).
+bbb.
             replace p₂ with (p₂ + 0)%nat in Hp₂₃ by omega.
             apply Nat.succ_le_mono in Hcmp.
             subst id.
