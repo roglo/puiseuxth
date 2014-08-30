@@ -1808,8 +1808,11 @@ destruct (ps_zerop _ (ps_poly_nth 0 pol₁)) as [H₁| H₁].
                    contradiction.
 
                    destruct i; [ fast_omega H₂ | clear H₂ H₄ ].
-                   rewrite <- Hc₁, <- Hpol₂, <- Hns₂, Hnpow.
+                   rewrite <- Hc₁, <- Hpol₂, <- Hns₂, Hnpow; symmetry.
                    rewrite <- find_coeff_add with (dp := n₂).
+                   rewrite Heqid.
+                   rewrite Nat.add_0_l, Nat.sub_add; auto.
+                   rewrite <- Heqid.
 bbb.
 
                 rewrite <- Heqp₂, Heqid.
