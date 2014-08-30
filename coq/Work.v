@@ -1778,6 +1778,16 @@ destruct (ps_zerop _ (ps_poly_nth 0 pol₁)) as [H₁| H₁].
                      apply Nat2Z.inj_lt; assumption.
 
                      apply Zpos_le_1 in Hdrq.
+                     rewrite Hdrq, Z.mul_1_l in H₃.
+                     rewrite H₃ in Hmj₂; rewrite H₃, Hrq.
+                     rewrite <- positive_nat_Z.
+                     rewrite Nat2Pos.id; [ idtac | fast_omega Hrpos ].
+                     rewrite Z.div_same; [ idtac | fast_omega Hrpos ].
+                     unfold Z.to_nat, Pos.to_nat; simpl.
+                     rewrite rng_add_0_l.
+                     unfold root_tail_series_from_cγ_list.
+                     rewrite <- Nat.sub_succ_l; auto.
+                     rewrite Nat.sub_succ, Nat.sub_0_r.
 
 bbb.
   Hdrq : p₂ = 1%positive
