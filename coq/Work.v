@@ -1418,8 +1418,20 @@ Theorem find_coeff_step₄₂ : ∀ pol ns m c pol₁ ns₁ i di p dp np,
      find_coeff (S i - p) np m pol₁ ns₁ (i + di))%K.
 Proof.
 intros pol ns m c pol₁ ns₁ i di p dp np.
-intros Hns HK Hq Hc (*Hr*) Hpol₁ Hns₁ (Hp, Hpi) Hdip Hnp.
+intros Hns HK Hq Hc Hpol₁ Hns₁ (Hp, Hpi) Hdip Hnp.
+remember (S i - p)%nat as id.
+revert pol ns c pol₁ ns₁ id di p dp np Hns HK Hq Hc Hpol₁ Hns₁ Heqid Hp Hpi
+ Hdip Hnp.
+induction i; intros.
+ destruct p; [ exfalso; revert Hp; apply Nat.lt_irrefl | idtac ].
+ exfalso; revert Hpi; apply Nat.nle_succ_0.
+
+ destruct id; [ exfalso; fast_omega Hpi Heqid | simpl ].
+ destruct (ps_zerop R (ps_poly_nth 0 pol₁)) as [H₁| H₁]; auto.
+ unfold next_pow in Hnp; simpl in Hnp.
 bbb.
+ remember Hr as H; clear HeqH.
+ eapply r_1_next_ns in H; eauto .
 *)
 Check find_coeff_step₄₂.
 
