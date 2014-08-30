@@ -1785,23 +1785,21 @@ destruct (ps_zerop _ (ps_poly_nth 0 pol₁)) as [H₁| H₁].
                   apply Nat2Z.inj_lt; assumption.
 
                  rewrite rng_add_0_l.
+                 assert (next_pow 0 ns₂ m₁ = Z.to_nat p₂) as Hnpow.
+                  unfold next_pow; simpl.
+                  rewrite Hini₂, Hfin₂; simpl.
+                  rewrite Hαk₂; simpl.
+                  rewrite Qnum_inv_Qnat_sub; auto.
+                  rewrite Qden_inv_Qnat_sub; auto.
+                  rewrite Z.add_0_r, Z.mul_1_r.
+                  rewrite Nat.sub_0_r, Pos.mul_1_r.
+                  rewrite Z.mul_shuffle0, Pos_mul_shuffle0, Pos2Z.inj_mul.
+                  rewrite Hmj₂, Pos.mul_comm, Pos2Z.inj_mul.
+                  rewrite <- Zposnat2Znat; auto.
+                  do 3 rewrite <- Z.mul_assoc.
+                  rewrite Z.div_mul; auto.
+                  do 2 rewrite <- Pos2Z.inj_mul; auto.
 bbb.
-
-             rewrite rng_add_0_l.
-             assert (next_pow 0 ns₂ m₁ = Z.to_nat (' mj₂ / ' rq)) as Hnpow.
-              unfold next_pow; simpl.
-              rewrite Hini₂, Hfin₂; simpl.
-              rewrite Hαk₂; simpl.
-              rewrite Qnum_inv_Qnat_sub; auto.
-              rewrite Qden_inv_Qnat_sub; auto.
-              rewrite Z.add_0_r, Z.mul_1_r.
-              rewrite Nat.sub_0_r, Pos.mul_1_r.
-              rewrite Z.mul_shuffle0, Pos_mul_shuffle0, Pos2Z.inj_mul.
-              rewrite Z.div_mul_cancel_r; auto.
-              rewrite Hd.
-              rewrite Pos.mul_comm, Pos2Z.inj_mul.
-              rewrite Z.div_mul_cancel_r; auto.
-              rewrite <- Hrq; reflexivity.
 
               remember (next_pow 0 ns₂ m₁) as p₂.
               rewrite <- Hnpow.
