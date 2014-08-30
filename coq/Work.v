@@ -1790,6 +1790,29 @@ destruct (ps_zerop _ (ps_poly_nth 0 pol₁)) as [H₁| H₁].
                    rewrite <- Nat.sub_succ_l; auto.
                    rewrite Nat.sub_succ, Nat.sub_0_r.
 
+                   Focus 2.
+                   clear H.
+                   pose proof (Hri 2%nat) as H.
+                   remember 1%nat as one in H; simpl in H.
+                   rewrite <- Hc, <- Hpol₁, <- Hns₁ in H.
+                   subst one; simpl in H.
+                   rewrite <- Hc₁, <- Hpol₂, <- Hns₂ in H.
+                   rewrite H; assumption.
+
+                 Focus 2.
+                 apply List.in_or_app; right; left; assumption.
+
+                Focus 2.
+                clear H.
+                remember Hns₂₁ as H; clear HeqH.
+                unfold newton_segments in H.
+                unfold points_of_ps_polynom in H.
+                apply ini_fin_ns_in_init_pts in H.
+                rewrite <- Hini₂; destruct H; assumption.
+
+               Focus 2.
+               apply Z.nle_gt in H₂.
+
 bbb.
   Hdrq : p₂ = 1%positive
 
