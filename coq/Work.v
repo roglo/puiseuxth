@@ -1435,6 +1435,11 @@ bbb.
 Check find_coeff_step₄₂.
 *)
 
+Theorem Zpos_le_1 : ∀ p, (' p <= 1)%Z → (p = 1)%positive.
+Proof.
+intros p Hp.
+bbb.
+
 Theorem root_tail_split_1st₄₂ : ∀ pol ns pol₁ ns₁ c m q₀ r,
   ns ∈ newton_segments pol
   → pol_in_K_1_m pol m
@@ -1788,13 +1793,10 @@ destruct (ps_zerop _ (ps_poly_nth 0 pol₁)) as [H₁| H₁].
                      rewrite <- Nat2Z.inj_0.
                      apply Nat2Z.inj_lt; assumption.
 
-                     do 2 rewrite <- positive_nat_Z in Hdqr.
-                     apply Nat2Z.inj_le in Hdqr.
-                     apply Pos2Nat.inj_le in Hdqr.
+                     apply Zpos_le_1 in Hdqr.
 
 bbb.
-  Hdqr : (p₂ <= 1)%positive
-comment prouver que p₂ = 1 ?
+  Hdqr : p₂ = 1%positive
 
              destruct (zerop i) as [H₂| H₂].
               subst i; simpl.
