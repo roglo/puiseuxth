@@ -1401,7 +1401,6 @@ assert (j < k)%nat as Hjk.
 bbb.
 *)
 
-(*
 Theorem find_coeff_step₄₂ : ∀ pol ns m c pol₁ ns₁ i di p dp np,
   ns ∈ newton_segments pol
   → pol_in_K_1_m pol m
@@ -1421,8 +1420,8 @@ Proof.
 intros pol ns m c pol₁ ns₁ i di p dp np.
 intros Hns HK Hq Hc (*Hr*) Hpol₁ Hns₁ (Hp, Hpi) Hdip Hnp.
 bbb.
-Check find_coeff_step₄₂.
 *)
+Check find_coeff_step₄₂.
 
 Theorem root_tail_split_1st₄₂ : ∀ pol ns pol₁ ns₁ c m q₀ r,
   ns ∈ newton_segments pol
@@ -1767,15 +1766,12 @@ destruct (ps_zerop _ (ps_poly_nth 0 pol₁)) as [H₁| H₁].
                 rewrite Nat2Pos.id; auto.
                 rewrite Z.div_mul; auto.
                 rename H into Hq₂.
-                destruct (zerop i) as [H₂| H₂].
-                 subst i.
-                 apply Nat.le_0_r in H₁.
-                 rewrite <- Z2Nat.inj_0 in H₁.
-                 apply Z2Nat.inj in H₁; try reflexivity.
-                  rewrite H₁ in H₃; simpl in H₃.
+                assert (0 < p₂)%Z as Hp₂pos.
+                 destruct p₂ as [| p₂| p₂].
                   exfalso; revert H₃; apply Pos2Z_ne_0.
 
-                  destruct p₂ as [| p₂| p₂]; auto; [ reflexivity | idtac ].
+                  apply Pos2Z.is_pos.
+
                   pose proof (Pos2Z.is_nonneg mj₂) as H.
                   rewrite H₃ in H.
                   apply Z.nlt_ge in H.
@@ -1784,58 +1780,72 @@ destruct (ps_zerop _ (ps_poly_nth 0 pol₁)) as [H₁| H₁].
                   rewrite <- Nat2Z.inj_0.
                   apply Nat2Z.inj_lt; assumption.
 
-                 rewrite rng_add_0_l.
-                 remember (Z.to_nat p₂) as n₂ eqn:Hn₂ .
-                 assert (next_pow 0 ns₂ m₁ = n₂) as Hnpow.
-                  unfold next_pow; simpl.
-                  rewrite Hini₂, Hfin₂; simpl.
-                  rewrite Hαk₂; simpl.
-                  rewrite Qnum_inv_Qnat_sub; auto.
-                  rewrite Qden_inv_Qnat_sub; auto.
-                  rewrite Z.add_0_r, Z.mul_1_r.
-                  rewrite Nat.sub_0_r, Pos.mul_1_r.
-                  rewrite Z.mul_shuffle0, Pos_mul_shuffle0, Pos2Z.inj_mul.
-                  rewrite Hmj₂, Pos.mul_comm, Pos2Z.inj_mul.
-                  rewrite <- Zposnat2Znat; auto.
-                  do 3 rewrite <- Z.mul_assoc.
-                  rewrite Z.div_mul; auto.
-                  do 2 rewrite <- Pos2Z.inj_mul; auto.
+                 destruct (zerop i) as [H₂| H₂].
+                  subst i.
+                  apply Nat.le_0_r in H₁.
+                  rewrite <- Z2Nat.inj_0 in H₁.
+                  apply Z2Nat.inj in H₁; try reflexivity.
+                   rewrite H₁ in H₃; simpl in H₃.
+                   exfalso; revert H₃; apply Pos2Z_ne_0.
 
-                  remember (i - n₂)%nat as id.
-                  unfold root_tail_series_from_cγ_list.
-                  remember (S id) as x; simpl; subst x.
-                  destruct (ps_zerop R (ps_poly_nth 0 pol₁)) as [H₄| H₄].
-                   contradiction.
+                   apply Z.lt_le_incl; auto.
 
-                   destruct i; [ fast_omega H₂ | clear H₂ H₄ ].
-                   rewrite <- Hc₁, <- Hpol₂, <- Hns₂, Hnpow; symmetry.
-                   rewrite <- find_coeff_add with (dp := n₂).
-                   rewrite Heqid.
-                   rewrite Nat.add_0_l, Nat.sub_add; auto.
-                   rewrite <- Heqid; simpl.
-                   destruct (ps_zerop R (ps_poly_nth 0 pol₂)); auto; clear n.
-                   remember (Nat.compare n₂ (S i)) as cmp eqn:Hcmp .
-                   symmetry in Hcmp.
-                   destruct cmp; auto.
-                   remember (ac_root (Φq pol₂ ns₂)) as c₂ eqn:Hc₂ .
-                   remember (next_pol pol₂ (β ns₂) (γ ns₂) c₂) as pol₃.
-                   remember (List.hd phony_ns (newton_segments pol₃)) as ns₃.
-                   rename Heqpol₃ into Hpol₃.
-                   rename Heqns₃ into Hns₃.
-                   remember (next_pow n₂ ns₃ m₁) as p₂₃ eqn:Hp₂₃ .
-                   apply nat_compare_lt in Hcmp.
-                   rewrite <- Nat.add_1_r.
-                   replace n₂ with (n₂ + 0)%nat in Hp₂₃ by fast_omega .
-                   subst id; symmetry.
+                  rewrite rng_add_0_l.
+                  remember (Z.to_nat p₂) as n₂ eqn:Hn₂ .
+                  assert (next_pow 0 ns₂ m₁ = n₂) as Hnpow.
+                   unfold next_pow; simpl.
+                   rewrite Hini₂, Hfin₂; simpl.
+                   rewrite Hαk₂; simpl.
+                   rewrite Qnum_inv_Qnat_sub; auto.
+                   rewrite Qden_inv_Qnat_sub; auto.
+                   rewrite Z.add_0_r, Z.mul_1_r.
+                   rewrite Nat.sub_0_r, Pos.mul_1_r.
+                   rewrite Z.mul_shuffle0, Pos_mul_shuffle0, Pos2Z.inj_mul.
+                   rewrite Hmj₂, Pos.mul_comm, Pos2Z.inj_mul.
+                   rewrite <- Zposnat2Znat; auto.
+                   do 3 rewrite <- Z.mul_assoc.
+                   rewrite Z.div_mul; auto.
+                   do 2 rewrite <- Pos2Z.inj_mul; auto.
+
+                   remember (i - n₂)%nat as id.
+                   unfold root_tail_series_from_cγ_list.
+                   remember (S id) as x; simpl; subst x.
+                   destruct (ps_zerop R (ps_poly_nth 0 pol₁)) as [H₄| H₄].
+                    contradiction.
+
+                    destruct i; [ fast_omega H₂ | clear H₂ H₄ ].
+                    rewrite <- Hc₁, <- Hpol₂, <- Hns₂, Hnpow; symmetry.
+                    rewrite <- find_coeff_add with (dp := n₂).
+                    rewrite Heqid.
+                    rewrite Nat.add_0_l, Nat.sub_add; auto.
+                    rewrite <- Heqid; simpl.
+                    destruct (ps_zerop R (ps_poly_nth 0 pol₂)); auto; clear n.
+                    remember (Nat.compare n₂ (S i)) as cmp eqn:Hcmp .
+                    symmetry in Hcmp.
+                    destruct cmp; auto.
+                    remember (ac_root (Φq pol₂ ns₂)) as c₂ eqn:Hc₂ .
+                    remember (next_pol pol₂ (β ns₂) (γ ns₂) c₂) as pol₃.
+                    remember (List.hd phony_ns (newton_segments pol₃)) as ns₃.
+                    rename Heqpol₃ into Hpol₃.
+                    rename Heqns₃ into Hns₃.
+                    remember (next_pow n₂ ns₃ m₁) as p₂₃ eqn:Hp₂₃ .
+                    apply nat_compare_lt in Hcmp.
+                    rewrite <- Nat.add_1_r.
+                    replace n₂ with (n₂ + 0)%nat in Hp₂₃ by fast_omega .
+                    subst id; symmetry.
+                    rewrite Heqq₂ in Hq₂.
 bbb.
-                 eapply find_coeff_step₄₂; eauto .
-                  split; [ idtac | fast_omega Hcmp ].
-                  rewrite Hnpow.
+                    eapply find_coeff_step₄₂; eauto ; try reflexivity.
 bbb.
-  Hdr : (0 <= ' mj₂ / ' rq)%Z
-  ============================
-   (0 < Z.to_nat (' mj₂ / ' rq))%nat
+                    eapply find_coeff_step; eauto ; try reflexivity.
+                     Focus 2.
+                     split.
+                      rewrite <- Z2Nat.inj_0, Hn₂.
+                      apply Z2Nat.inj_lt; [ reflexivity | idtac | auto ].
+                      apply Z.lt_le_incl; auto.
 
+                      apply Nat.succ_le_mono; auto.
+bbb.
 
 continuing using RootHeadTail.v around line 2279
 *)
