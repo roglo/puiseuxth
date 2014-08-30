@@ -1785,7 +1785,8 @@ destruct (ps_zerop _ (ps_poly_nth 0 pol₁)) as [H₁| H₁].
                   apply Nat2Z.inj_lt; assumption.
 
                  rewrite rng_add_0_l.
-                 assert (next_pow 0 ns₂ m₁ = Z.to_nat p₂) as Hnpow.
+                 remember (Z.to_nat p₂) as n₂ eqn:Hn₂ .
+                 assert (next_pow 0 ns₂ m₁ = n₂) as Hnpow.
                   unfold next_pow; simpl.
                   rewrite Hini₂, Hfin₂; simpl.
                   rewrite Hαk₂; simpl.
@@ -1799,34 +1800,18 @@ destruct (ps_zerop _ (ps_poly_nth 0 pol₁)) as [H₁| H₁].
                   do 3 rewrite <- Z.mul_assoc.
                   rewrite Z.div_mul; auto.
                   do 2 rewrite <- Pos2Z.inj_mul; auto.
+
+                  remember (i - n₂)%nat as id.
+                  unfold root_tail_series_from_cγ_list.
+                  remember (S id) as x; simpl; subst x.
+                  destruct (ps_zerop R (ps_poly_nth 0 pol₁)) as [H₄| H₄].
+                   contradiction.
+
+                   destruct i; [ fast_omega H₂ | clear H₂ H₄ ].
+                   rewrite <- Hc₁, <- Hpol₂, <- Hns₂, Hnpow.
+                   rewrite <- find_coeff_add with (dp := n₂).
 bbb.
 
-              remember (next_pow 0 ns₂ m₁) as p₂.
-              rewrite <- Hnpow.
-              destruct (lt_dec i p₂) as [H₂| H₂].
-               unfold root_tail_series_from_cγ_list; simpl.
-               destruct (ps_zerop R (ps_poly_nth 0 pol₁)) as [| H₃]; auto.
-               destruct i; [ exfalso; fast_omega H₁ | clear H₁ ].
-               rewrite <- Hc₁, <- Hpol₂, <- Hns₂; simpl.
-               destruct (ps_zerop R (ps_poly_nth 0 pol₂)) as [| H₅]; auto.
-               rewrite <- Heqp₂.
-               remember (Nat.compare p₂ (S i)) as cmp; symmetry in Heqcmp.
-               destruct cmp as [H₄| H₄| H₄]; auto.
-                apply nat_compare_eq in Heqcmp.
-                rewrite Heqcmp in H₂.
-                exfalso; revert H₂; apply Nat.lt_irrefl.
-
-                apply nat_compare_lt in Heqcmp.
-                apply Nat.lt_le_incl, Nat.nlt_ge in Heqcmp.
-                contradiction.
-
-               remember (i - p₂)%nat as id.
-               unfold root_tail_series_from_cγ_list.
-               remember (S id) as x; simpl; subst x.
-               destruct (ps_zerop R (ps_poly_nth 0 pol₁)) as [H₃| H₃].
-                contradiction.
-
-                rewrite <- Hc₁, <- Hpol₂, <- Hns₂.
                 rewrite <- Heqp₂, Heqid.
                 destruct i; [ exfalso; fast_omega H₁ | idtac ].
                 apply Nat.nlt_ge in H₂; symmetry.
