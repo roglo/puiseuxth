@@ -1812,42 +1812,21 @@ destruct (ps_zerop _ (ps_poly_nth 0 pol₁)) as [H₁| H₁].
                    rewrite <- find_coeff_add with (dp := n₂).
                    rewrite Heqid.
                    rewrite Nat.add_0_l, Nat.sub_add; auto.
-                   rewrite <- Heqid.
-bbb.
-
-                rewrite <- Heqp₂, Heqid.
-                destruct i; [ exfalso; fast_omega H₁ | idtac ].
-                apply Nat.nlt_ge in H₂; symmetry.
-                rewrite <- find_coeff_add with (dp := p₂).
-                rewrite Nat.add_0_l, Nat.sub_add; auto.
-                symmetry.
-                rewrite <- Heqid; simpl.
-                destruct (ps_zerop R (ps_poly_nth 0 pol₂)); try contradiction.
-                clear n.
-                remember (Nat.compare p₂ (S i)) as cmp eqn:Hcmp .
-                symmetry in Hcmp.
-                destruct cmp; auto.
-                remember (ac_root (Φq pol₂ ns₂)) as c₂ eqn:Hc₂ .
-                remember (next_pol pol₂ (β ns₂) (γ ns₂) c₂) as pol₃ eqn:Hpol₃ .
-                remember (List.hd phony_ns (newton_segments pol₃)) as ns₃.
-                rename Heqns₃ into Hns₃.
-                remember (next_pow p₂ ns₃ m₁) as p₂₃ eqn:Hp₂₃ .
-                apply nat_compare_lt in Hcmp.
-                clear H₁ H₂.
-                assert (q_of_m m₁ (γ ns₂) = 1%positive) as Hq₂.
-                 rewrite <- Heqm₁ in HK₁.
-                 eapply q_eq_1_any_r with (ns := ns₂); eauto .
-                 pose proof (Hri 2%nat) as H.
-                 remember 1%nat as one in H; simpl in H.
-                 rewrite <- Hc, <- Hpol₁, <- Hns₁ in H.
-                 subst one; simpl in H.
-                 rewrite <- Hc₁, <- Hpol₂, <- Hns₂ in H.
-                 rewrite <- Hc₂ in H.
-                 rewrite H; assumption.
-
-                 rewrite <- Nat.add_1_r.
-                 replace p₂ with (p₂ + 0)%nat in Hp₂₃ by omega.
-                 subst id.
+                   rewrite <- Heqid; simpl.
+                   destruct (ps_zerop R (ps_poly_nth 0 pol₂)); auto; clear n.
+                   remember (Nat.compare n₂ (S i)) as cmp eqn:Hcmp .
+                   symmetry in Hcmp.
+                   destruct cmp; auto.
+                   remember (ac_root (Φq pol₂ ns₂)) as c₂ eqn:Hc₂ .
+                   remember (next_pol pol₂ (β ns₂) (γ ns₂) c₂) as pol₃.
+                   remember (List.hd phony_ns (newton_segments pol₃)) as ns₃.
+                   rename Heqpol₃ into Hpol₃.
+                   rename Heqns₃ into Hns₃.
+                   remember (next_pow n₂ ns₃ m₁) as p₂₃ eqn:Hp₂₃ .
+                   apply nat_compare_lt in Hcmp.
+                   rewrite <- Nat.add_1_r.
+                   replace n₂ with (n₂ + 0)%nat in Hp₂₃ by fast_omega .
+                   subst id; symmetry.
 bbb.
                  eapply find_coeff_step₄₂; eauto .
                   split; [ idtac | fast_omega Hcmp ].
