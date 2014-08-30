@@ -1443,6 +1443,34 @@ induction i; intros.
     rewrite Z.mul_shuffle0, Pos_mul_shuffle0 in Hnp.
     do 2 rewrite Pos2Z.inj_mul in Hnp.
     rewrite Z.div_mul_cancel_r in Hnp; auto.
+     Focus 1.
+     remember Hns₁ as Hns₁₁; clear HeqHns₁₁.
+     eapply List_hd_in in Hns₁₁; eauto .
+      remember (Nat.compare np (S (i + di))) as cmp₁ eqn:Hnpi .
+      symmetry in Hnpi.
+      destruct cmp₁; auto.
+      remember (ac_root (Φq pol₁ ns₁)) as c₁ eqn:Hc₁ .
+      remember (next_pol pol₁ (β ns₁) (γ ns₁) c₁) as pol₂ eqn:Hpol₂ .
+      remember (List.hd phony_ns (newton_segments pol₂)) as ns₂ eqn:Hns₂ .
+      remember (next_pow np ns₂ m) as nnp eqn:Hnnp .
+      apply nat_compare_lt in Hnpi.
+      assert (pol_in_K_1_m pol₁ m) as HK₁.
+       replace m with (m * 1)%positive by apply Pos.mul_1_r.
+       eapply next_pol_in_K_1_mq with (pol := pol); eauto .
+
+       remember Hns₁₁ as H; clear HeqH.
+       eapply num_m_den_is_pos with (m := m) in H; eauto .
+       rewrite <- Nat.add_succ_r.
+       assert (q_of_m m (γ ns₁) = 1%positive) as Hq₁.
+        replace m with (m * 1)%positive by apply Pos.mul_1_r.
+        eapply q_eq_1_any_r; eauto .
+         rewrite Pos.mul_1_r; reflexivity.
+
+         Unfocus.
+         Focus 3.
+         rewrite Nat.sub_succ_l in Heqid; auto.
+         apply eq_add_S in Heqid.
+         eapply IHi with (p := p); eauto.
 bbb.
 *)
 Check find_coeff_step₄₂.
