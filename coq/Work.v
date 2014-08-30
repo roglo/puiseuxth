@@ -1420,8 +1420,8 @@ Proof.
 intros pol ns m c pol₁ ns₁ i di p dp np.
 intros Hns HK Hq Hc Hpol₁ Hns₁ (Hp, Hpi) Hdip Hnp.
 remember (S i - p)%nat as id.
-revert pol ns c pol₁ ns₁ id di p dp np Hns HK Hq Hc Hpol₁ Hns₁ Heqid Hp Hpi
- Hdip Hnp.
+revert id Heqid.
+revert pol ns c pol₁ ns₁ di p dp np Hns HK Hq Hc Hpol₁ Hns₁ Hp Hpi Hdip Hnp.
 induction i; intros.
  destruct p; [ exfalso; revert Hp; apply Nat.lt_irrefl | idtac ].
  exfalso; revert Hpi; apply Nat.nle_succ_0.
@@ -1429,9 +1429,21 @@ induction i; intros.
  destruct id; [ exfalso; fast_omega Hpi Heqid | simpl ].
  destruct (ps_zerop R (ps_poly_nth 0 pol₁)) as [H₁| H₁]; auto.
  unfold next_pow in Hnp; simpl in Hnp.
+ remember Hns as H; clear HeqH.
+ eapply r_n_next_ns in H; eauto .
+  destruct H as (αj₁, (αk₁, H)).
+  destruct H as (Hini₁, (Hfin₁, (Hαj₁, Hαk₁))).
+  rewrite Hini₁, Hfin₁ in Hnp; simpl in Hnp.
+  rewrite Hαk₁ in Hnp; simpl in Hnp.
+  rewrite Qnum_inv_Qnat_sub in Hnp.
+   rewrite Qden_inv_Qnat_sub in Hnp.
+    simpl in Hnp.
+    rewrite Z.add_0_r, Z.mul_1_r, Nat.add_0_r, Nat.sub_0_r in Hnp.
+    rewrite Pos.mul_1_r in Hnp.
+    rewrite Z.mul_shuffle0, Pos_mul_shuffle0 in Hnp.
+    do 2 rewrite Pos2Z.inj_mul in Hnp.
+    rewrite Z.div_mul_cancel_r in Hnp; auto.
 bbb.
- remember Hr as H; clear HeqH.
- eapply r_1_next_ns in H; eauto .
 *)
 Check find_coeff_step₄₂.
 
