@@ -1461,6 +1461,9 @@ destruct (ps_zerop _ (ps_poly_nth 0 pol₁)) as [H₁| H₁].
    exfalso; revert Hr₀.
    apply multiplicity_neq_0; auto.
 
+   assert (0 < Z.of_nat r)%Z as Hrpos₁ by fast_omega Hrpos.
+   assert (r ≠ 0)%nat as Hrpos₂ by fast_omega Hrpos.
+   assert (Z.of_nat r ≠ 0%Z)%nat as Hrpos₃ by fast_omega Hrpos.
    eapply List_hd_in in Hns₁₁; eauto .
     remember Hns₁₁ as HK₂; clear HeqHK₂.
     eapply next_pol_in_K_1_mq in HK₂; eauto .
@@ -1540,7 +1543,6 @@ destruct (ps_zerop _ (ps_poly_nth 0 pol₁)) as [H₁| H₁].
          rewrite Nat.sub_0_r in H.
          destruct H as (H₂, H₃).
          unfold Qeq in H₂; simpl in H₂.
-(**)
          rewrite Hαk₁ in H₂; simpl in H₂.
          symmetry in H₂.
          apply Z.eq_mul_0_l in H₂; auto.
@@ -1660,7 +1662,6 @@ destruct (ps_zerop _ (ps_poly_nth 0 pol₁)) as [H₁| H₁].
             unfold series_add; simpl.
             constructor; intros i; simpl.
             rename H₁ into Hz₂.
-(**)
             destruct (lt_dec i (Z.to_nat (' mj₂ / ' rq))) as [H₁| H₁].
              destruct (zerop i) as [H₂| H₂].
               subst i; simpl.
@@ -1739,55 +1740,55 @@ destruct (ps_zerop _ (ps_poly_nth 0 pol₁)) as [H₁| H₁].
                  subst mj.
                  rewrite H₃, Hrq in H₁; simpl in H₁.
                  rewrite <- positive_nat_Z in H₁.
-                 rewrite Nat2Pos.id in H₁; [ idtac | fast_omega Hrpos ].
-                 rewrite Z.div_mul in H₁.
-                  destruct (zerop i) as [H₂| H₂].
-                   subst i.
-                   apply Nat.le_0_r in H₁.
-                   rewrite <- Z2Nat.inj_0 in H₁.
-                   apply Z2Nat.inj in H₁; try reflexivity.
-                    rewrite H₁ in H₃; simpl in H₃.
-                    exfalso; revert H₃; apply Pos2Z_ne_0.
+                 rewrite Nat2Pos.id in H₁; auto.
+                 rewrite Z.div_mul in H₁; auto.
+                 destruct (zerop i) as [H₂| H₂].
+                  subst i.
+                  apply Nat.le_0_r in H₁.
+                  rewrite <- Z2Nat.inj_0 in H₁.
+                  apply Z2Nat.inj in H₁; try reflexivity.
+                   rewrite H₁ in H₃; simpl in H₃.
+                   exfalso; revert H₃; apply Pos2Z_ne_0.
 
-                    destruct p₂ as [| p₂| p₂]; auto; [ reflexivity | idtac ].
-                    clear H.
-                    pose proof (Pos2Z.is_nonneg mj₂) as H.
-                    rewrite H₃ in H.
-                    apply Z.nlt_ge in H.
-                    exfalso; apply H.
-                    apply Z.mul_neg_pos; [ apply Pos2Z.neg_is_neg | idtac ].
-                    rewrite <- Nat2Z.inj_0.
-                    apply Nat2Z.inj_lt; assumption.
+                   destruct p₂ as [| p₂| p₂]; auto; [ reflexivity | idtac ].
+                   clear H.
+                   pose proof (Pos2Z.is_nonneg mj₂) as H.
+                   rewrite H₃ in H.
+                   apply Z.nlt_ge in H.
+                   exfalso; apply H.
+                   apply Z.mul_neg_pos; [ apply Pos2Z.neg_is_neg | idtac ].
+                   rewrite <- Nat2Z.inj_0.
+                   apply Nat2Z.inj_lt; assumption.
 
-                   rewrite H₃, Hrq in Hdrq.
-                   rewrite <- positive_nat_Z in Hdrq.
-                   rewrite Nat2Pos.id in Hdrq; [ idtac | fast_omega Hrpos ].
-                   rewrite <- Z.mul_1_l in Hdrq.
-                   apply Z.mul_le_mono_pos_r in Hdrq.
-                    destruct p₂ as [| p₂| p₂].
-                     exfalso; revert H₃; apply Pos2Z_ne_0.
+                  rewrite H₃, Hrq in Hdrq.
+                  rewrite <- positive_nat_Z in Hdrq.
+                  rewrite Nat2Pos.id in Hdrq; auto.
+                  rewrite <- Z.mul_1_l in Hdrq.
+                  apply Z.mul_le_mono_pos_r in Hdrq; auto.
+                  destruct p₂ as [| p₂| p₂].
+                   exfalso; revert H₃; apply Pos2Z_ne_0.
 
-                     Focus 2.
-                     clear H.
-                     pose proof (Pos2Z.is_nonneg mj₂) as H.
-                     rewrite H₃ in H.
-                     apply Z.nlt_ge in H.
-                     exfalso; apply H.
-                     apply Z.mul_neg_pos; [ apply Pos2Z.neg_is_neg | idtac ].
-                     rewrite <- Nat2Z.inj_0.
-                     apply Nat2Z.inj_lt; assumption.
+                   Focus 2.
+                   clear H.
+                   pose proof (Pos2Z.is_nonneg mj₂) as H.
+                   rewrite H₃ in H.
+                   apply Z.nlt_ge in H.
+                   exfalso; apply H.
+                   apply Z.mul_neg_pos; [ apply Pos2Z.neg_is_neg | idtac ].
+                   rewrite <- Nat2Z.inj_0.
+                   apply Nat2Z.inj_lt; assumption.
 
-                     apply Zpos_le_1 in Hdrq.
-                     rewrite Hdrq, Z.mul_1_l in H₃.
-                     rewrite H₃ in Hmj₂; rewrite H₃, Hrq.
-                     rewrite <- positive_nat_Z.
-                     rewrite Nat2Pos.id; [ idtac | fast_omega Hrpos ].
-                     rewrite Z.div_same; [ idtac | fast_omega Hrpos ].
-                     unfold Z.to_nat, Pos.to_nat; simpl.
-                     rewrite rng_add_0_l.
-                     unfold root_tail_series_from_cγ_list.
-                     rewrite <- Nat.sub_succ_l; auto.
-                     rewrite Nat.sub_succ, Nat.sub_0_r.
+                   apply Zpos_le_1 in Hdrq.
+                   rewrite Hdrq, Z.mul_1_l in H₃.
+                   rewrite H₃ in Hmj₂; rewrite H₃, Hrq.
+                   rewrite <- positive_nat_Z.
+                   rewrite Nat2Pos.id; auto.
+                   rewrite Z.div_same; auto.
+                   unfold Z.to_nat, Pos.to_nat; simpl.
+                   rewrite rng_add_0_l.
+                   unfold root_tail_series_from_cγ_list.
+                   rewrite <- Nat.sub_succ_l; auto.
+                   rewrite Nat.sub_succ, Nat.sub_0_r.
 
 bbb.
   Hdrq : p₂ = 1%positive
