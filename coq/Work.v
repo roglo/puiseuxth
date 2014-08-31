@@ -1545,7 +1545,7 @@ induction i; intros.
    apply Pos2Z_ne_0.
 Qed.
 
-Theorem root_tail_split_1st₄₂ : ∀ pol ns pol₁ ns₁ c m q₀ r,
+Theorem root_tail_split_1st_any_r : ∀ pol ns pol₁ ns₁ c m q₀ r,
   ns ∈ newton_segments pol
   → pol_in_K_1_m pol m
   → q₀ = q_of_m m (γ ns)
@@ -1565,438 +1565,454 @@ unfold root_tail, root_head; simpl.
 destruct (ps_zerop _ (ps_poly_nth 0 pol₁)) as [H₁| H₁].
  rewrite rng_add_0_l, rng_mul_0_r; reflexivity.
 
+ pose proof (Hri O) as Hr₀; simpl in Hr₀.
+ rewrite <- Hc in Hr₀.
+ pose proof (Hri 1%nat) as Hr₁; simpl in Hr₁.
+ rewrite <- Hc, <- Hpol₁, <- Hns₁ in Hr₁.
+ pose proof (Hri 2%nat) as Hr₂.
+ remember 1%nat as one in Hr₂; simpl in Hr₂.
+ rewrite <- Hc, <- Hpol₁, <- Hns₁ in Hr₂.
+ subst one; simpl in Hr₂.
  rename H₁ into Hnz₁.
  remember Hns as HK₁; clear HeqHK₁.
  eapply next_pol_in_K_1_mq in HK₁; eauto .
  remember Hns as H; clear HeqH.
  eapply r_n_next_ns in H; eauto .
-  rewrite Nat.add_0_r in H.
-  pose proof (Hri O) as Hr₀; simpl in Hr₀.
-  rewrite <- Hc in Hr₀.
-  pose proof (Hri 1%nat) as Hr₁; simpl in Hr₁.
-  rewrite <- Hc, <- Hpol₁, <- Hns₁ in Hr₁.
-  rewrite Hr₀ in H.
-  destruct H as (αj₁, (αk₁, H)).
-  destruct H as (Hini₁, (Hfin₁, (Hαj₁, Hαk₁))).
-  remember Hns₁ as Hns₁₁; clear HeqHns₁₁.
-  assert (0 < r)%nat as Hrpos.
-   destruct r; [ idtac | apply Nat.lt_0_succ ].
-   exfalso; revert Hr₀.
-   apply multiplicity_neq_0; auto.
+ destruct H as (αj₁, (αk₁, H)).
+ destruct H as (Hini₁, (Hfin₁, (Hαj₁, Hαk₁))).
+ remember Hns₁ as Hns₁₁; clear HeqHns₁₁.
+ assert (0 < r)%nat as Hrpos.
+  destruct r; [ idtac | apply Nat.lt_0_succ ].
+  exfalso; revert Hr₀.
+  apply multiplicity_neq_0; auto.
 
-   assert (0 < Z.of_nat r)%Z as Hrpos₁ by fast_omega Hrpos.
-   assert (r ≠ 0)%nat as Hrpos₂ by fast_omega Hrpos.
-   assert (Z.of_nat r ≠ 0%Z)%nat as Hrpos₃ by fast_omega Hrpos.
-   eapply List_hd_in in Hns₁₁; eauto .
-    remember Hns₁₁ as HK₂; clear HeqHK₂.
-    eapply next_pol_in_K_1_mq in HK₂; eauto .
-    remember Hns₁₁ as H; clear HeqH.
-    eapply q_eq_1_any_r in H; eauto .
-     rewrite H in HK₂; clear H.
-     rewrite Pos.mul_1_r, <- Heqm₁ in HK₂.
-     unfold γ_sum; simpl.
-     unfold summation; simpl.
-     do 2 rewrite rng_add_0_r.
-     remember (ac_root (Φq pol₁ ns₁)) as c₁ eqn:Hc₁ .
-     remember (next_pol pol₁ (β ns₁) (γ ns₁) c₁) as pol₂ eqn:Hpol₂ .
-     remember (List.hd phony_ns (newton_segments pol₂)) as ns₂ eqn:Hns₂ .
-     destruct (ps_zerop _ (ps_poly_nth 0 pol₂)) as [H₁| H₁].
-      rewrite ps_mul_0_r, ps_add_0_r.
-      unfold root_tail_from_cγ_list, ps_monom; simpl.
-      rewrite Hini₁, Hfin₁; simpl.
-      rewrite Hαk₁; simpl.
-      rewrite Qnum_inv_Qnat_sub; auto.
-      rewrite Qden_inv_Qnat_sub; auto.
-      rewrite Z.mul_1_r, Nat.sub_0_r.
-      rewrite Z.add_0_r.
-      rewrite Z.mul_shuffle0, Pos_mul_shuffle0.
+  assert (0 < Z.of_nat r)%Z as Hrpos₁ by fast_omega Hrpos.
+  assert (r ≠ 0)%nat as Hrpos₂ by fast_omega Hrpos.
+  assert (Z.of_nat r ≠ 0%Z)%nat as Hrpos₃ by fast_omega Hrpos.
+  eapply List_hd_in in Hns₁₁; eauto .
+   remember Hns₁₁ as HK₂; clear HeqHK₂.
+   eapply next_pol_in_K_1_mq in HK₂; eauto .
+   remember Hns₁₁ as H; clear HeqH.
+   eapply q_eq_1_any_r in H; eauto .
+    rewrite H in HK₂; clear H.
+    rewrite Pos.mul_1_r, <- Heqm₁ in HK₂.
+    unfold γ_sum; simpl.
+    unfold summation; simpl.
+    do 2 rewrite rng_add_0_r.
+    remember (ac_root (Φq pol₁ ns₁)) as c₁ eqn:Hc₁ .
+    remember (next_pol pol₁ (β ns₁) (γ ns₁) c₁) as pol₂ eqn:Hpol₂ .
+    remember (List.hd phony_ns (newton_segments pol₂)) as ns₂ eqn:Hns₂ .
+    destruct (ps_zerop _ (ps_poly_nth 0 pol₂)) as [H₁| H₁].
+     rewrite ps_mul_0_r, ps_add_0_r.
+     unfold root_tail_from_cγ_list, ps_monom; simpl.
+     rewrite Hini₁, Hfin₁; simpl.
+     rewrite Hαk₁; simpl.
+     rewrite Qnum_inv_Qnat_sub; auto.
+     rewrite Qden_inv_Qnat_sub; auto.
+     rewrite Z.mul_1_r, Nat.sub_0_r.
+     rewrite Z.add_0_r.
+     rewrite Z.mul_shuffle0, Pos_mul_shuffle0.
+     rewrite Pos2Z.inj_mul.
+     rewrite Z.div_mul_cancel_r; auto.
+     rewrite fold_series_const.
+     remember (Pos.of_nat r) as pr.
+     remember (Qden αj₁ * pr * Qden αk₁)%positive as x.
+     rewrite ps_adjust_eq with (n := O) (k := x); subst x.
+     symmetry.
+     rewrite ps_adjust_eq with (n := O) (k := m₁).
+     symmetry.
+     unfold adjust_ps; simpl.
+     do 2 rewrite series_shift_0.
+     rewrite series_stretch_const.
+     do 2 rewrite Z.sub_0_r.
+     rewrite Z.mul_comm.
+     rewrite <- Z.divide_div_mul_exact; auto.
+      rewrite Pos2Z.inj_mul, <- Z.mul_assoc, Z.mul_comm, Z.mul_assoc.
+      rewrite Z.div_mul; auto.
+      apply mkps_morphism.
+       remember (Qden αj₁ * pr * Qden αk₁)%positive as x.
+       symmetry.
+       rewrite <- series_stretch_const with (k := x); subst x.
+       apply stretch_morph; auto.
+       constructor; intros i; simpl.
+       unfold root_tail_series_from_cγ_list; simpl.
+       rewrite <- Hc₁, <- Hpol₂.
+       rewrite <- Hns₂.
+       destruct (ps_zerop R (ps_poly_nth 0 pol₁)) as [H₂| H₂].
+        contradiction.
+
+        destruct i; [ reflexivity | simpl ].
+        destruct (ps_zerop R (ps_poly_nth 0 pol₂)) as [H₃| H₃]; auto.
+        contradiction.
+
+       rewrite Z.mul_comm, Z.mul_assoc, Z.mul_shuffle0.
+       rewrite <- Z.mul_assoc, Z.mul_comm; reflexivity.
+
+       rewrite Pos.mul_comm; reflexivity.
+
       rewrite Pos2Z.inj_mul.
-      rewrite Z.div_mul_cancel_r; auto.
-      rewrite fold_series_const.
-      remember (Pos.of_nat r) as pr.
-      remember (Qden αj₁ * pr * Qden αk₁)%positive as x.
-      rewrite ps_adjust_eq with (n := O) (k := x); subst x.
-      symmetry.
-      rewrite ps_adjust_eq with (n := O) (k := m₁).
-      symmetry.
+      remember HK₁ as H; clear HeqH.
+      rewrite <- Heqm₁ in H.
+      apply any_in_K_1_m with (h := O) (αh := αj₁) in H.
+       destruct H as (mj, Hmj).
+       unfold Qeq in Hmj; simpl in Hmj.
+       rewrite Hmj, Z.mul_comm.
+       apply Z.mul_divide_cancel_r; auto.
+       subst pr.
+       remember Hns₁₁ as H; clear HeqH.
+       eapply q_mj_mk_eq_p_h_j with (h := r) (αh := αk₁) in H; eauto .
+        remember (q_of_m (m * q₀) (γ ns₁)) as q₁.
+        remember (mh_of_m (m * q₀) αj₁ (ps_poly_nth 0 pol₁)) as mj'.
+        remember (mh_of_m (m * q₀) αk₁ (ps_poly_nth r pol₁)) as mk.
+        remember (p_of_m (m * q₀) (γ ns₁)) as p₁.
+        rewrite Nat.sub_0_r in H.
+        destruct H as (H₂, H₃).
+        unfold Qeq in H₂; simpl in H₂.
+        rewrite Hαk₁ in H₂; simpl in H₂.
+        symmetry in H₂.
+        apply Z.eq_mul_0_l in H₂; auto.
+        move H₂ at top; subst mk.
+        rewrite Z.sub_0_r in H₃.
+        rewrite positive_nat_Z in H₃.
+        unfold mh_of_m in Heqmj'.
+        rewrite <- Heqm₁ in Heqmj'.
+        erewrite <- qden_αj_is_ps_polord in Heqmj'; eauto .
+        rewrite Hmj in Heqmj'.
+        rewrite Z.div_mul in Heqmj'; auto; subst mj'.
+        remember Heqq₁ as H; clear HeqH.
+        eapply q_eq_1_any_r in H; eauto .
+         rewrite H in H₃.
+         rewrite Z.mul_1_l in H₃.
+         exists p₁.
+         rewrite Zposnat2Znat; [ assumption | idtac ].
+         destruct r; [ idtac | apply Nat.lt_0_succ ].
+         exfalso; revert Hr₀.
+         apply multiplicity_neq_0; auto.
+
+         rewrite Hr₁; assumption.
+
+        apply List.in_or_app; right; left; assumption.
+
+       clear H.
+       remember Hns₁₁ as H; clear HeqH.
+       unfold newton_segments in H.
+       unfold points_of_ps_polynom in H.
+       apply ini_fin_ns_in_init_pts in H.
+       rewrite <- Hini₁; destruct H; assumption.
+
+     remember Hns₁₁ as H; clear HeqH.
+     eapply r_n_next_ns in H; eauto .
+     destruct H as (αj₂, (αk₂, H)).
+     destruct H as (Hini₂, (Hfin₂, (Hαj₂, Hαk₂))).
+     unfold root_tail_from_cγ_list; simpl.
+     unfold ps_add, ps_mul; simpl.
+     unfold cm; simpl.
+     unfold ps_terms_add; simpl.
+     unfold ps_ordnum_add; simpl.
+     rewrite Hini₁, Hfin₁, Hini₂, Hfin₂; simpl.
+     rewrite Hαk₁, Hαk₂; simpl.
+     do 2 rewrite Z.add_0_r.
+     rewrite Qnum_inv_Qnat_sub; auto.
+     rewrite Qden_inv_Qnat_sub; auto.
+     rewrite Nat.sub_0_r.
+     rewrite Z.mul_1_r.
+     rewrite Z.mul_1_r.
+     remember (Pos.of_nat r) as rq eqn:Hrq .
+     remember (Qnum αj₁ * ' Qden αk₁)%Z as nd.
+     remember (Qden αj₁ * Qden αk₁ * rq)%positive as dd.
+     remember (dd * m₁)%positive as x.
+     rewrite Z.mul_shuffle0, Pos_mul_shuffle0, Pos2Z.inj_mul.
+     rewrite Z.div_mul_cancel_r; auto.
+     subst x.
+     do 2 rewrite fold_series_const.
+     rewrite series_stretch_const.
+     rewrite series_mul_1_l.
+     do 2 rewrite Z2Nat_sub_min.
+     rewrite Z.mul_add_distr_r.
+     rewrite Pos2Z.inj_mul, Z.mul_assoc, Z.mul_shuffle0.
+     rewrite Z.sub_add_distr.
+     rewrite Z.sub_diag; simpl.
+     rewrite Z.add_simpl_l.
+     rewrite Z.min_l.
+      rewrite ps_adjust_eq with (n := O) (k := (dd * dd)%positive).
       unfold adjust_ps; simpl.
-      do 2 rewrite series_shift_0.
-      rewrite series_stretch_const.
-      do 2 rewrite Z.sub_0_r.
-      rewrite Z.mul_comm.
-      rewrite <- Z.divide_div_mul_exact; auto.
-       rewrite Pos2Z.inj_mul, <- Z.mul_assoc, Z.mul_comm, Z.mul_assoc.
-       rewrite Z.div_mul; auto.
-       apply mkps_morphism.
-        remember (Qden αj₁ * pr * Qden αk₁)%positive as x.
-        symmetry.
-        rewrite <- series_stretch_const with (k := x); subst x.
-        apply stretch_morph; auto.
-        constructor; intros i; simpl.
-        unfold root_tail_series_from_cγ_list; simpl.
-        rewrite <- Hc₁, <- Hpol₂.
-        rewrite <- Hns₂.
-        destruct (ps_zerop R (ps_poly_nth 0 pol₁)) as [H₂| H₂].
-         contradiction.
+      rewrite series_shift_0.
+      rewrite Z.sub_0_r.
+      apply mkps_morphism.
+       remember Hns₂ as Hns₂₁; clear HeqHns₂₁.
+       eapply List_hd_in in Hns₂₁; eauto .
+        remember Hns₂₁ as H; clear HeqH.
+        eapply den_αj_divides_num_αj_m in H; eauto .
+        remember Hns₂₁ as HH; clear HeqHH.
+        eapply num_m_den_is_pos in HH; eauto .
+        destruct H as (mj₂, Hmj₂).
+        rewrite Hmj₂ in HH.
+        rewrite Z.div_mul in HH; auto.
+        rewrite Hmj₂.
+        remember (Qden αj₂ * rq)%positive as x.
+        rewrite Pos.mul_comm in Heqx; subst x.
+        rewrite Pos2Z.inj_mul.
+        rewrite Z.div_mul_cancel_r; auto.
+        destruct mj₂ as [| mj₂| mj₂]; [ exfalso | idtac | exfalso ].
+         revert HH; apply Nat.lt_irrefl.
 
-         destruct i; [ reflexivity | simpl ].
-         destruct (ps_zerop R (ps_poly_nth 0 pol₂)) as [H₃| H₃]; auto.
-         contradiction.
+         clear HH; simpl.
+         assert (0 <= ' mj₂ / ' rq)%Z as Hdr by apply Z_div_pos_is_nonneg.
+         assert (Z.to_nat (- (' mj₂ / ' rq * ' dd * ' dd)) = 0)%nat as H.
+          remember (' mj₂ / ' rq)%Z as x.
+          symmetry in Heqx.
+          destruct x as [| x| x]; try reflexivity.
+          apply Z.nlt_ge in Hdr.
+          exfalso; apply Hdr, Zlt_neg_0.
 
-        rewrite Z.mul_comm, Z.mul_assoc, Z.mul_shuffle0.
-        rewrite <- Z.mul_assoc, Z.mul_comm; reflexivity.
+          rewrite H; clear H.
+          unfold adjust_series; simpl.
+          rewrite series_shift_0.
+          rewrite series_stretch_const.
+          rewrite <- series_stretch_stretch.
+          rewrite <- Z.mul_assoc, <- Pos2Z.inj_mul.
+          rewrite Z2Nat.inj_mul; auto; simpl.
+          rewrite <- stretch_shift_series_distr.
+          rewrite <- series_stretch_const with (k := (dd * dd)%positive).
+          rewrite <- series_stretch_add_distr.
+          apply stretch_morph; [ reflexivity | idtac ].
+          unfold series_add; simpl.
+          constructor; intros i; simpl.
+          rename H₁ into Hz₂.
+          destruct (lt_dec i (Z.to_nat (' mj₂ / ' rq))) as [H₁| H₁].
+           destruct (zerop i) as [H₂| H₂].
+            subst i; simpl.
+            rewrite rng_add_0_r.
+            unfold root_tail_series_from_cγ_list; simpl.
+            rewrite <- Hc₁.
+            destruct (ps_zerop R (ps_poly_nth 0 pol₁)) as [H₂| H₂]; auto.
+            contradiction.
 
-        rewrite Pos.mul_comm; reflexivity.
+            rewrite rng_add_0_l.
+            assert (next_pow 0 ns₂ m₁ = Z.to_nat (' mj₂ / ' rq)) as Hnpow.
+             unfold next_pow; simpl.
+             rewrite Hini₂, Hfin₂; simpl.
+             rewrite Hαk₂; simpl.
+             rewrite Qnum_inv_Qnat_sub; auto.
+             rewrite Qden_inv_Qnat_sub; auto.
+             rewrite Z.add_0_r, Z.mul_1_r.
+             rewrite Nat.sub_0_r, Pos.mul_1_r.
+             rewrite Z.mul_shuffle0, Pos_mul_shuffle0, Pos2Z.inj_mul.
+             rewrite Z.div_mul_cancel_r; auto.
+             rewrite Hmj₂.
+             rewrite Pos.mul_comm, Pos2Z.inj_mul.
+             rewrite Z.div_mul_cancel_r; auto.
+             rewrite <- Hrq; reflexivity.
 
-       rewrite Pos2Z.inj_mul.
-       remember HK₁ as H; clear HeqH.
-       rewrite <- Heqm₁ in H.
-       apply any_in_K_1_m with (h := O) (αh := αj₁) in H.
-        destruct H as (mj, Hmj).
-        unfold Qeq in Hmj; simpl in Hmj.
-        rewrite Hmj, Z.mul_comm.
-        apply Z.mul_divide_cancel_r; auto.
-        subst pr.
-        remember Hns₁₁ as H; clear HeqH.
-        eapply q_mj_mk_eq_p_h_j with (h := r) (αh := αk₁) in H; eauto .
-         remember (q_of_m (m * q₀) (γ ns₁)) as q₁.
-         remember (mh_of_m (m * q₀) αj₁ (ps_poly_nth 0 pol₁)) as mj'.
-         remember (mh_of_m (m * q₀) αk₁ (ps_poly_nth r pol₁)) as mk.
-         remember (p_of_m (m * q₀) (γ ns₁)) as p₁.
-         rewrite Nat.sub_0_r in H.
-         destruct H as (H₂, H₃).
-         unfold Qeq in H₂; simpl in H₂.
-         rewrite Hαk₁ in H₂; simpl in H₂.
-         symmetry in H₂.
-         apply Z.eq_mul_0_l in H₂; auto.
-         move H₂ at top; subst mk.
-         rewrite Z.sub_0_r in H₃.
-         rewrite positive_nat_Z in H₃.
-         unfold mh_of_m in Heqmj'.
-         rewrite <- Heqm₁ in Heqmj'.
-         erewrite <- qden_αj_is_ps_polord in Heqmj'; eauto .
-         rewrite Hmj in Heqmj'.
-         rewrite Z.div_mul in Heqmj'; auto; subst mj'.
-         remember Heqq₁ as H; clear HeqH.
-         eapply q_eq_1_any_r in H; eauto .
-          rewrite H in H₃.
-          rewrite Z.mul_1_l in H₃.
-          exists p₁.
-          rewrite Zposnat2Znat; [ assumption | idtac ].
-          destruct r; [ idtac | apply Nat.lt_0_succ ].
-          exfalso; revert Hr₀.
-          apply multiplicity_neq_0; auto.
+             remember (next_pow 0 ns₂ m₁) as p₂.
+             rewrite <- Hnpow in H₁.
+             unfold root_tail_series_from_cγ_list; simpl.
+             destruct (ps_zerop R (ps_poly_nth 0 pol₁)) as [| H₃]; auto.
+             destruct i; [ exfalso; fast_omega H₂ | clear H₂ ].
+             rewrite <- Hc₁, <- Hpol₂, <- Hns₂; simpl.
+             destruct (ps_zerop R (ps_poly_nth 0 pol₂)) as [| H₅]; auto.
+             rewrite <- Heqp₂.
+             remember (Nat.compare p₂ (S i)) as cmp; symmetry in Heqcmp.
+             destruct cmp as [H₄| H₄| H₄]; auto.
+              apply nat_compare_eq in Heqcmp.
+              rewrite Heqcmp in H₁.
+              exfalso; revert H₁; apply Nat.lt_irrefl.
 
-          rewrite Hr₁; assumption.
-
-         apply List.in_or_app; right; left; assumption.
-
-        clear H.
-        remember Hns₁₁ as H; clear HeqH.
-        unfold newton_segments in H.
-        unfold points_of_ps_polynom in H.
-        apply ini_fin_ns_in_init_pts in H.
-        rewrite <- Hini₁; destruct H; assumption.
-
-      remember Hns₁₁ as H; clear HeqH.
-      eapply r_n_next_ns in H; eauto .
-       destruct H as (αj₂, (αk₂, H)).
-       destruct H as (Hini₂, (Hfin₂, (Hαj₂, Hαk₂))).
-       unfold root_tail_from_cγ_list; simpl.
-       unfold ps_add, ps_mul; simpl.
-       unfold cm; simpl.
-       unfold ps_terms_add; simpl.
-       unfold ps_ordnum_add; simpl.
-       rewrite Hini₁, Hfin₁, Hini₂, Hfin₂; simpl.
-       rewrite Hαk₁, Hαk₂; simpl.
-       do 2 rewrite Z.add_0_r.
-       rewrite Qnum_inv_Qnat_sub; auto.
-       rewrite Qden_inv_Qnat_sub; auto.
-       rewrite Nat.sub_0_r.
-       rewrite Z.mul_1_r.
-       rewrite Z.mul_1_r.
-       remember (Pos.of_nat r) as rq eqn:Hrq .
-       remember (Qnum αj₁ * ' Qden αk₁)%Z as nd.
-       remember (Qden αj₁ * Qden αk₁ * rq)%positive as dd.
-       remember (dd * m₁)%positive as x.
-       rewrite Z.mul_shuffle0, Pos_mul_shuffle0, Pos2Z.inj_mul.
-       rewrite Z.div_mul_cancel_r; auto.
-       subst x.
-       do 2 rewrite fold_series_const.
-       rewrite series_stretch_const.
-       rewrite series_mul_1_l.
-       do 2 rewrite Z2Nat_sub_min.
-       rewrite Z.mul_add_distr_r.
-       rewrite Pos2Z.inj_mul, Z.mul_assoc, Z.mul_shuffle0.
-       rewrite Z.sub_add_distr.
-       rewrite Z.sub_diag; simpl.
-       rewrite Z.add_simpl_l.
-       rewrite Z.min_l.
-        rewrite ps_adjust_eq with (n := O) (k := (dd * dd)%positive).
-        unfold adjust_ps; simpl.
-        rewrite series_shift_0.
-        rewrite Z.sub_0_r.
-        apply mkps_morphism.
-         remember Hns₂ as Hns₂₁; clear HeqHns₂₁.
-         eapply List_hd_in in Hns₂₁; eauto .
-          remember Hns₂₁ as H; clear HeqH.
-          eapply den_αj_divides_num_αj_m in H; eauto .
-          remember Hns₂₁ as HH; clear HeqHH.
-          eapply num_m_den_is_pos in HH; eauto .
-          destruct H as (mj₂, Hmj₂).
-          rewrite Hmj₂ in HH.
-          rewrite Z.div_mul in HH; auto.
-          rewrite Hmj₂.
-          remember (Qden αj₂ * rq)%positive as x.
-          rewrite Pos.mul_comm in Heqx; subst x.
-          rewrite Pos2Z.inj_mul.
-          rewrite Z.div_mul_cancel_r; auto.
-          destruct mj₂ as [| mj₂| mj₂]; [ exfalso | idtac | exfalso ].
-           revert HH; apply Nat.lt_irrefl.
-
-           clear HH; simpl.
-           assert (0 <= ' mj₂ / ' rq)%Z as Hdr by apply Z_div_pos_is_nonneg.
-           assert (Z.to_nat (- (' mj₂ / ' rq * ' dd * ' dd)) = 0)%nat as H.
-            remember (' mj₂ / ' rq)%Z as x.
-            symmetry in Heqx.
-            destruct x as [| x| x]; try reflexivity.
-            apply Z.nlt_ge in Hdr.
-            exfalso; apply Hdr, Zlt_neg_0.
-
-            rewrite H; clear H.
-            unfold adjust_series; simpl.
-            rewrite series_shift_0.
-            rewrite series_stretch_const.
-            rewrite <- series_stretch_stretch.
-            rewrite <- Z.mul_assoc, <- Pos2Z.inj_mul.
-            rewrite Z2Nat.inj_mul; auto; simpl.
-            rewrite <- stretch_shift_series_distr.
-            rewrite <- series_stretch_const with (k := (dd * dd)%positive).
-            rewrite <- series_stretch_add_distr.
-            apply stretch_morph; [ reflexivity | idtac ].
-            unfold series_add; simpl.
-            constructor; intros i; simpl.
-            rename H₁ into Hz₂.
-            destruct (lt_dec i (Z.to_nat (' mj₂ / ' rq))) as [H₁| H₁].
-             destruct (zerop i) as [H₂| H₂].
-              subst i; simpl.
-              rewrite rng_add_0_r.
-              unfold root_tail_series_from_cγ_list; simpl.
-              rewrite <- Hc₁.
-              destruct (ps_zerop R (ps_poly_nth 0 pol₁)) as [H₂| H₂]; auto.
+              apply nat_compare_lt in Heqcmp.
+              apply Nat.lt_le_incl, Nat.nlt_ge in Heqcmp.
               contradiction.
 
-              rewrite rng_add_0_l.
-              assert (next_pow 0 ns₂ m₁ = Z.to_nat (' mj₂ / ' rq)) as Hnpow.
-               unfold next_pow; simpl.
-               rewrite Hini₂, Hfin₂; simpl.
-               rewrite Hαk₂; simpl.
-               rewrite Qnum_inv_Qnat_sub; auto.
-               rewrite Qden_inv_Qnat_sub; auto.
-               rewrite Z.add_0_r, Z.mul_1_r.
-               rewrite Nat.sub_0_r, Pos.mul_1_r.
-               rewrite Z.mul_shuffle0, Pos_mul_shuffle0, Pos2Z.inj_mul.
-               rewrite Z.div_mul_cancel_r; auto.
-               rewrite Hmj₂.
-               rewrite Pos.mul_comm, Pos2Z.inj_mul.
-               rewrite Z.div_mul_cancel_r; auto.
-               rewrite <- Hrq; reflexivity.
+           apply Nat.nlt_ge in H₁.
+           remember HK₂ as H; clear HeqH.
+           apply any_in_K_1_m with (h := O) (αh := αj₂) in H.
+            Focus 2.
+            clear H.
+            remember Hns₂₁ as H; clear HeqH.
+            unfold newton_segments in H.
+            unfold points_of_ps_polynom in H.
+            apply ini_fin_ns_in_init_pts in H.
+            rewrite <- Hini₂; destruct H; assumption.
 
-               remember (next_pow 0 ns₂ m₁) as p₂.
-               rewrite <- Hnpow in H₁.
-               unfold root_tail_series_from_cγ_list; simpl.
-               destruct (ps_zerop R (ps_poly_nth 0 pol₁)) as [| H₃]; auto.
-               destruct i; [ exfalso; fast_omega H₂ | clear H₂ ].
-               rewrite <- Hc₁, <- Hpol₂, <- Hns₂; simpl.
-               destruct (ps_zerop R (ps_poly_nth 0 pol₂)) as [| H₅]; auto.
-               rewrite <- Heqp₂.
-               remember (Nat.compare p₂ (S i)) as cmp; symmetry in Heqcmp.
-               destruct cmp as [H₄| H₄| H₄]; auto.
-                apply nat_compare_eq in Heqcmp.
-                rewrite Heqcmp in H₁.
-                exfalso; revert H₁; apply Nat.lt_irrefl.
+            destruct H as (mj, Hmj).
+            unfold Qeq in Hmj; simpl in Hmj.
+            remember Hns₂₁ as H; clear HeqH.
+            eapply q_mj_mk_eq_p_h_j with (h := r) (αh := αk₂) in H; eauto .
+             Focus 2.
+             apply List.in_or_app; right; left; assumption.
 
-                apply nat_compare_lt in Heqcmp.
-                apply Nat.lt_le_incl, Nat.nlt_ge in Heqcmp.
-                contradiction.
+             remember (q_of_m m₁ (γ ns₂)) as q₂.
+             remember (mh_of_m m₁ αj₂ (ps_poly_nth 0 pol₂)) as mj'.
+             remember (mh_of_m m₁ αk₂ (ps_poly_nth r pol₂)) as mk.
+             remember (p_of_m m₁ (γ ns₂)) as p₂.
+             rewrite Nat.sub_0_r in H.
+             destruct H as (H₂, H₃).
+             unfold Qeq in H₂; simpl in H₂.
+             rewrite Hαk₂ in H₂; simpl in H₂.
+             symmetry in H₂.
+             apply Z.eq_mul_0_l in H₂; auto.
+             move H₂ at top; subst mk.
+             rewrite Z.sub_0_r in H₃.
+             rewrite positive_nat_Z in H₃.
+             unfold mh_of_m in Heqmj'.
+             erewrite <- qden_αj_is_ps_polord in Heqmj'; eauto .
+             rewrite Hmj in Heqmj'.
+             rewrite Z.div_mul in Heqmj'; auto; subst mj'.
+             remember Heqq₂ as H; clear HeqH.
+             eapply q_eq_1_any_r in H; eauto .
+              2: rewrite Hr₂; assumption.
 
-             apply Nat.nlt_ge in H₁.
-             remember HK₂ as H; clear HeqH.
-             apply any_in_K_1_m with (h := O) (αh := αj₂) in H.
-              Focus 2.
-              clear H.
-              remember Hns₂₁ as H; clear HeqH.
-              unfold newton_segments in H.
-              unfold points_of_ps_polynom in H.
-              apply ini_fin_ns_in_init_pts in H.
-              rewrite <- Hini₂; destruct H; assumption.
+              rewrite H in H₃.
+              rewrite Z.mul_1_l in H₃.
+              rewrite Hmj₂ in Hmj.
+              apply Z.mul_cancel_r in Hmj; auto.
+              subst mj.
+              rewrite H₃, Hrq in H₁; simpl in H₁.
+              rewrite <- positive_nat_Z in H₁.
+              rewrite Nat2Pos.id in H₁; auto.
+              rewrite Z.div_mul in H₁; auto.
+              rewrite H₃ in Hmj₂.
+              rewrite H₃, Hrq.
+              rewrite <- positive_nat_Z.
+              rewrite Nat2Pos.id; auto.
+              rewrite Z.div_mul; auto.
+              rename H into Hq₂.
+              assert (0 < p₂)%Z as Hp₂pos.
+               destruct p₂ as [| p₂| p₂].
+                exfalso; revert H₃; apply Pos2Z_ne_0.
 
-              destruct H as (mj, Hmj).
-              unfold Qeq in Hmj; simpl in Hmj.
-              remember Hns₂₁ as H; clear HeqH.
-              eapply q_mj_mk_eq_p_h_j with (h := r) (αh := αk₂) in H; eauto .
-               Focus 2.
-               apply List.in_or_app; right; left; assumption.
+                apply Pos2Z.is_pos.
 
-               remember (q_of_m m₁ (γ ns₂)) as q₂.
-               remember (mh_of_m m₁ αj₂ (ps_poly_nth 0 pol₂)) as mj'.
-               remember (mh_of_m m₁ αk₂ (ps_poly_nth r pol₂)) as mk.
-               remember (p_of_m m₁ (γ ns₂)) as p₂.
-               rewrite Nat.sub_0_r in H.
-               destruct H as (H₂, H₃).
-               unfold Qeq in H₂; simpl in H₂.
-               rewrite Hαk₂ in H₂; simpl in H₂.
-               symmetry in H₂.
-               apply Z.eq_mul_0_l in H₂; auto.
-               move H₂ at top; subst mk.
-               rewrite Z.sub_0_r in H₃.
-               rewrite positive_nat_Z in H₃.
-               unfold mh_of_m in Heqmj'.
-               erewrite <- qden_αj_is_ps_polord in Heqmj'; eauto .
-               rewrite Hmj in Heqmj'.
-               rewrite Z.div_mul in Heqmj'; auto; subst mj'.
-               remember Heqq₂ as H; clear HeqH.
-               eapply q_eq_1_any_r in H; eauto .
-                Focus 2.
-                clear H.
-                pose proof (Hri 2%nat) as H.
-                remember 1%nat as one in H; simpl in H.
-                rewrite <- Hc, <- Hpol₁, <- Hns₁ in H.
-                subst one; simpl in H.
-                rewrite <- Hc₁, <- Hpol₂, <- Hns₂ in H.
-                rewrite H; assumption.
+                pose proof (Pos2Z.is_nonneg mj₂) as H.
+                rewrite H₃ in H.
+                apply Z.nlt_ge in H.
+                exfalso; apply H.
+                apply Z.mul_neg_pos; [ apply Pos2Z.neg_is_neg | idtac ].
+                rewrite <- Nat2Z.inj_0.
+                apply Nat2Z.inj_lt; assumption.
 
-                rewrite H in H₃.
-                rewrite Z.mul_1_l in H₃.
-                rewrite Hmj₂ in Hmj.
-                apply Z.mul_cancel_r in Hmj; auto.
-                subst mj.
-                rewrite H₃, Hrq in H₁; simpl in H₁.
-                rewrite <- positive_nat_Z in H₁.
-                rewrite Nat2Pos.id in H₁; auto.
-                rewrite Z.div_mul in H₁; auto.
-                rewrite H₃ in Hmj₂.
-                rewrite H₃, Hrq.
-                rewrite <- positive_nat_Z.
-                rewrite Nat2Pos.id; auto.
-                rewrite Z.div_mul; auto.
-                rename H into Hq₂.
-                assert (0 < p₂)%Z as Hp₂pos.
-                 destruct p₂ as [| p₂| p₂].
-                  exfalso; revert H₃; apply Pos2Z_ne_0.
+               destruct (zerop i) as [H₂| H₂].
+                subst i.
+                apply Nat.le_0_r in H₁.
+                rewrite <- Z2Nat.inj_0 in H₁.
+                apply Z2Nat.inj in H₁; try reflexivity.
+                 rewrite H₁ in H₃; simpl in H₃.
+                 exfalso; revert H₃; apply Pos2Z_ne_0.
 
-                  apply Pos2Z.is_pos.
+                 apply Z.lt_le_incl; auto.
 
-                  pose proof (Pos2Z.is_nonneg mj₂) as H.
-                  rewrite H₃ in H.
-                  apply Z.nlt_ge in H.
-                  exfalso; apply H.
-                  apply Z.mul_neg_pos; [ apply Pos2Z.neg_is_neg | idtac ].
-                  rewrite <- Nat2Z.inj_0.
-                  apply Nat2Z.inj_lt; assumption.
+                rewrite rng_add_0_l.
+                remember (Z.to_nat p₂) as n₂ eqn:Hn₂ .
+                assert (next_pow 0 ns₂ m₁ = n₂) as Hnpow.
+                 unfold next_pow; simpl.
+                 rewrite Hini₂, Hfin₂; simpl.
+                 rewrite Hαk₂; simpl.
+                 rewrite Qnum_inv_Qnat_sub; auto.
+                 rewrite Qden_inv_Qnat_sub; auto.
+                 rewrite Z.add_0_r, Z.mul_1_r.
+                 rewrite Nat.sub_0_r, Pos.mul_1_r.
+                 rewrite Z.mul_shuffle0, Pos_mul_shuffle0, Pos2Z.inj_mul.
+                 rewrite Hmj₂, Pos.mul_comm, Pos2Z.inj_mul.
+                 rewrite <- Zposnat2Znat; auto.
+                 do 3 rewrite <- Z.mul_assoc.
+                 rewrite Z.div_mul; auto.
+                 do 2 rewrite <- Pos2Z.inj_mul; auto.
 
-                 destruct (zerop i) as [H₂| H₂].
-                  subst i.
-                  apply Nat.le_0_r in H₁.
-                  rewrite <- Z2Nat.inj_0 in H₁.
-                  apply Z2Nat.inj in H₁; try reflexivity.
-                   rewrite H₁ in H₃; simpl in H₃.
-                   exfalso; revert H₃; apply Pos2Z_ne_0.
+                 remember (i - n₂)%nat as id.
+                 unfold root_tail_series_from_cγ_list.
+                 remember (S id) as x; simpl; subst x.
+                 destruct (ps_zerop R (ps_poly_nth 0 pol₁)) as [H₄| H₄].
+                  contradiction.
 
+                  destruct i; [ fast_omega H₂ | clear H₂ H₄ ].
+                  rewrite <- Hc₁, <- Hpol₂, <- Hns₂, Hnpow; symmetry.
+                  rewrite <- find_coeff_add with (dp := n₂).
+                  rewrite Heqid.
+                  rewrite Nat.add_0_l, Nat.sub_add; auto.
+                  rewrite <- Heqid; simpl.
+                  destruct (ps_zerop R (ps_poly_nth 0 pol₂)); auto; clear n.
+                  remember (Nat.compare n₂ (S i)) as cmp eqn:Hcmp .
+                  symmetry in Hcmp.
+                  destruct cmp; auto.
+                  remember (ac_root (Φq pol₂ ns₂)) as c₂ eqn:Hc₂ .
+                  remember (next_pol pol₂ (β ns₂) (γ ns₂) c₂) as pol₃.
+                  remember (List.hd phony_ns (newton_segments pol₃)) as ns₃.
+                  rename Heqpol₃ into Hpol₃.
+                  rename Heqns₃ into Hns₃.
+                  remember (next_pow n₂ ns₃ m₁) as p₂₃ eqn:Hp₂₃ .
+                  apply nat_compare_lt in Hcmp.
+                  rewrite <- Nat.add_1_r.
+                  replace n₂ with (n₂ + 0)%nat in Hp₂₃ by fast_omega .
+                  subst id; symmetry.
+                  rewrite Heqq₂ in Hq₂.
+                  eapply find_coeff_step_any_r with (r := r); eauto .
+                   intros j.
+                   pose proof (Hri (S (S j))) as H.
+                   remember (S j) as sj; simpl in H.
+                   rewrite <- Hc, <- Hpol₁, <- Hns₁ in H.
+                   subst sj; simpl in H.
+                   rewrite <- Hc₁, <- Hpol₂, <- Hns₂ in H.
+                   assumption.
+
+                   apply le_S_n in Hcmp.
+                   split; auto.
+                   rewrite Hn₂.
+                   rewrite <- Z2Nat.inj_0.
+                   apply Z2Nat.inj_lt; auto; [ reflexivity | idtac ].
                    apply Z.lt_le_incl; auto.
 
-                  rewrite rng_add_0_l.
-                  remember (Z.to_nat p₂) as n₂ eqn:Hn₂ .
-                  assert (next_pow 0 ns₂ m₁ = n₂) as Hnpow.
-                   unfold next_pow; simpl.
-                   rewrite Hini₂, Hfin₂; simpl.
-                   rewrite Hαk₂; simpl.
-                   rewrite Qnum_inv_Qnat_sub; auto.
-                   rewrite Qden_inv_Qnat_sub; auto.
-                   rewrite Z.add_0_r, Z.mul_1_r.
-                   rewrite Nat.sub_0_r, Pos.mul_1_r.
-                   rewrite Z.mul_shuffle0, Pos_mul_shuffle0, Pos2Z.inj_mul.
-                   rewrite Hmj₂, Pos.mul_comm, Pos2Z.inj_mul.
-                   rewrite <- Zposnat2Znat; auto.
-                   do 3 rewrite <- Z.mul_assoc.
-                   rewrite Z.div_mul; auto.
-                   do 2 rewrite <- Pos2Z.inj_mul; auto.
+                   reflexivity.
 
-                   remember (i - n₂)%nat as id.
-                   unfold root_tail_series_from_cγ_list.
-                   remember (S id) as x; simpl; subst x.
-                   destruct (ps_zerop R (ps_poly_nth 0 pol₁)) as [H₄| H₄].
-                    contradiction.
+         revert HH; apply Nat.lt_irrefl.
 
-                    destruct i; [ fast_omega H₂ | clear H₂ H₄ ].
-                    rewrite <- Hc₁, <- Hpol₂, <- Hns₂, Hnpow; symmetry.
-                    rewrite <- find_coeff_add with (dp := n₂).
-                    rewrite Heqid.
-                    rewrite Nat.add_0_l, Nat.sub_add; auto.
-                    rewrite <- Heqid; simpl.
-                    destruct (ps_zerop R (ps_poly_nth 0 pol₂)); auto; clear n.
-                    remember (Nat.compare n₂ (S i)) as cmp eqn:Hcmp .
-                    symmetry in Hcmp.
-                    destruct cmp; auto.
-                    remember (ac_root (Φq pol₂ ns₂)) as c₂ eqn:Hc₂ .
-                    remember (next_pol pol₂ (β ns₂) (γ ns₂) c₂) as pol₃.
-                    remember (List.hd phony_ns (newton_segments pol₃)) as ns₃.
-                    rename Heqpol₃ into Hpol₃.
-                    rename Heqns₃ into Hns₃.
-                    remember (next_pow n₂ ns₃ m₁) as p₂₃ eqn:Hp₂₃ .
-                    apply nat_compare_lt in Hcmp.
-                    rewrite <- Nat.add_1_r.
-                    replace n₂ with (n₂ + 0)%nat in Hp₂₃ by fast_omega .
-                    subst id; symmetry.
-                    rewrite Heqq₂ in Hq₂.
-                    eapply find_coeff_step_any_r with (r := r); eauto .
-                     intros j.
-                     pose proof (Hri (S (S j))) as H.
-                     remember (S j) as sj; simpl in H.
-                     rewrite <- Hc, <- Hpol₁, <- Hns₁ in H.
-                     subst sj; simpl in H.
-                     rewrite <- Hc₁, <- Hpol₂, <- Hns₂ in H.
-                     assumption.
+        intros H; rewrite H in Hns₂.
+        rewrite Hns₂ in Hfin₂; simpl in Hfin₂.
+        injection Hfin₂; intros H₂ H₃.
+        rewrite <- Nat2Z.inj_0 in H₃.
+        apply Nat2Z.inj in H₃.
+        rewrite H₃ in Hrpos₂.
+        apply Hrpos₂; reflexivity.
 
-                     apply le_S_n in Hcmp.
-                     split; auto.
-                     rewrite Hn₂.
-                     rewrite <- Z2Nat.inj_0.
-                     apply Z2Nat.inj_lt; auto; [ reflexivity | idtac ].
-                     apply Z.lt_le_incl; auto.
+       rewrite Pos2Z.inj_mul, Z.mul_assoc.
+       apply Z.mul_cancel_r; auto.
+       rewrite Z.mul_comm.
+       rewrite <- Z.divide_div_mul_exact; auto.
+        rewrite Z.mul_comm.
+        apply Z.div_mul; auto.
 
-                     reflexivity.
+        rewrite Heqdd, Heqnd.
+        rewrite Pos_mul_shuffle0, Z.mul_shuffle0, Pos2Z.inj_mul.
+        apply Z.mul_divide_mono_r.
+        rewrite <- Heqm₁ in HK₁.
+        erewrite αj_m_eq_p_r; eauto .
+        rewrite Pos.mul_comm, Hrq.
+        rewrite Pos2Z.inj_mul, Zposnat2Znat; auto.
+        exists (p_of_m m₁ (γ ns₁)).
+        rewrite Z.mul_assoc; reflexivity.
 
-           revert HH; apply Nat.lt_irrefl.
+       rewrite Pos.mul_comm, Pos.mul_assoc; reflexivity.
 
-          intros H; rewrite H in Hns₂.
-          rewrite Hns₂ in Hfin₂; simpl in Hfin₂.
-          injection Hfin₂; intros H₂ H₃.
-          rewrite <- Nat2Z.inj_0 in H₃.
-          apply Nat2Z.inj in H₃.
-          rewrite H₃ in Hrpos₂.
-          apply Hrpos₂; reflexivity.
+      apply Z.le_sub_le_add_l.
+      rewrite Z.sub_diag.
+      apply Z.mul_nonneg_nonneg; auto.
+      apply Z.mul_nonneg_nonneg; auto.
+      destruct (Qnum αj₂); simpl.
+       rewrite Z.div_0_l; auto; reflexivity.
 
-         rewrite Pos2Z.inj_mul, Z.mul_assoc.
-         apply Z.mul_cancel_r; auto.
-         rewrite Z.mul_comm.
-         rewrite <- Z.divide_div_mul_exact; auto.
-          rewrite Z.mul_comm.
-          apply Z.div_mul; auto.
+       apply Z_div_pos_is_nonneg.
 
-          rewrite Heqdd, Heqnd.
-          rewrite Pos_mul_shuffle0, Z.mul_shuffle0, Pos2Z.inj_mul.
-          apply Z.mul_divide_mono_r.
-          rewrite <- Heqm₁ in HK₁.
-          erewrite αj_m_eq_p_r; eauto .
-          rewrite Pos.mul_comm, Hrq.
-          rewrite Pos2Z.inj_mul, Zposnat2Znat; auto.
-          exists (p_of_m m₁ (γ ns₁)).
-          rewrite Z.mul_assoc; reflexivity.
+       apply Z.nle_gt in Hαj₂.
+       exfalso; apply Hαj₂, Pos2Z.neg_is_nonpos.
 
-         rewrite Pos.mul_comm, Pos.mul_assoc; reflexivity.
-bbb.
-*)
+    rewrite Hr₁; assumption.
+
+   intros H; rewrite H in Hns₁.
+   rewrite Hns₁ in Hfin₁; simpl in Hfin₁.
+   injection Hfin₁; intros H₁ H₂.
+   rewrite <- Nat2Z.inj_0 in H₂.
+   apply Nat2Z.inj in H₂.
+   rewrite H₂ in Hrpos₂.
+   apply Hrpos₂; reflexivity.
+Qed.
 
 (*
 Theorem root_tail_from_0₄₂ : ∀ pol ns pol₁ ns₁ c m q₀ b r,
