@@ -1967,6 +1967,17 @@ destruct (ps_zerop _ (ps_poly_nth 0 pol₁)) as [H₁| H₁].
           apply Nat2Z.inj in H₃.
           rewrite H₃ in Hrpos₂.
           apply Hrpos₂; reflexivity.
+
+         rewrite Pos2Z.inj_mul, Z.mul_assoc.
+         apply Z.mul_cancel_r; auto.
+         rewrite Z.mul_comm.
+         rewrite <- Z.divide_div_mul_exact; auto.
+          rewrite Z.mul_comm.
+          apply Z.div_mul; auto.
+
+          rewrite Heqdd, Heqnd.
+          rewrite Pos_mul_shuffle0, Z.mul_shuffle0, Pos2Z.inj_mul.
+          apply Z.mul_divide_mono_r.
 bbb.
 *)
 
