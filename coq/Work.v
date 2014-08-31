@@ -1473,11 +1473,13 @@ induction i; intros.
 
        rewrite Nat.sub_succ_l in Heqid; auto.
        apply eq_add_S in Heqid.
+       subst np; rewrite <- Nat.add_assoc in Hnnp.
        eapply IHi with (p := p); eauto .
         intros j.
         pose proof (Hri (S j)) as H; simpl in H.
         rewrite <- Hc, <- Hpol₁, <- Hns₁ in H; eauto .
 bbb.
+        fast_omega H₂ Hnpi Hdip.
 *)
 Check find_coeff_step₄₂.
 
