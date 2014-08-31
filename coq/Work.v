@@ -1957,6 +1957,16 @@ destruct (ps_zerop _ (ps_poly_nth 0 pol₁)) as [H₁| H₁].
                      apply Z.lt_le_incl; auto.
 
                      reflexivity.
+
+           revert HH; apply Nat.lt_irrefl.
+
+          intros H; rewrite H in Hns₂.
+          rewrite Hns₂ in Hfin₂; simpl in Hfin₂.
+          injection Hfin₂; intros H₂ H₃.
+          rewrite <- Nat2Z.inj_0 in H₃.
+          apply Nat2Z.inj in H₃.
+          rewrite H₃ in Hrpos₂.
+          apply Hrpos₂; reflexivity.
 bbb.
 *)
 
