@@ -1465,6 +1465,12 @@ induction i; intros.
       remember Hns₁₁ as H; clear HeqH.
       eapply num_m_den_is_pos with (m := m) in H; eauto .
       rename H into H₂.
+bbb.
+  H₂ : (0 < Z.to_nat (Qnum αj₁ * ' m / ' Qden αj₁))%nat
+
+I would like to have:
+  (0 < Z.to_nat (Qnum αj₁ * ' m / (' Qden αj₁ * ' Pos.of_nat r)))%nat
+
       rewrite <- Nat.add_succ_r.
       assert (q_of_m m (γ ns₁) = 1%positive) as Hq₁.
        replace m with (m * 1)%positive by apply Pos.mul_1_r.
