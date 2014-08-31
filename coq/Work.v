@@ -1355,7 +1355,6 @@ Theorem find_coeff_step₄₂ : ∀ pol ns m c pol₁ ns₁ i di p dp np r,
      find_coeff (S i - p) np m pol₁ ns₁ (i + di))%K.
 Proof.
 (* preuve à la va-vite : gros nettoyage à prévoir *)
-find_coeff_step₄₂ < Show Script.
 intros pol ns m c pol₁ ns₁ i di p dp np r.
 intros Hns HK Hq Hc Hpol₁ Hns₁ Hri H₀ (Hp, Hpi) Hdip Hnp.
 remember (S i - p)%nat as id.
@@ -1511,7 +1510,8 @@ induction i; intros.
           rewrite Z.div_mul_cancel_r; auto.
           rewrite Zposnat2Znat; auto.
           rewrite Z.div_mul; auto.
-          assert (Z.to_nat p₁ > 0)%nat; [ idtac | omega ].
+bbb.
+          assert (0 < Z.to_nat p₁)%nat; [ idtac | omega ].
 bbb.
   H₂ : (0 < Z.to_nat (Qnum αj₁ * ' m / ' Qden αj₁))%nat
 
