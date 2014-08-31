@@ -1940,20 +1940,24 @@ destruct (ps_zerop _ (ps_poly_nth 0 pol₁)) as [H₁| H₁].
                     replace n₂ with (n₂ + 0)%nat in Hp₂₃ by fast_omega .
                     subst id; symmetry.
                     rewrite Heqq₂ in Hq₂.
-bbb.
-                    eapply find_coeff_step₄₂; eauto ; try reflexivity.
-bbb.
-                    eapply find_coeff_step; eauto ; try reflexivity.
-                     Focus 2.
-                     split.
-                      rewrite <- Z2Nat.inj_0, Hn₂.
-                      apply Z2Nat.inj_lt; [ reflexivity | idtac | auto ].
-                      apply Z.lt_le_incl; auto.
+                    eapply find_coeff_step_any_r with (r := r); eauto .
+                     intros j.
+                     pose proof (Hri (S (S j))) as H.
+                     remember (S j) as sj; simpl in H.
+                     rewrite <- Hc, <- Hpol₁, <- Hns₁ in H.
+                     subst sj; simpl in H.
+                     rewrite <- Hc₁, <- Hpol₂, <- Hns₂ in H.
+                     assumption.
 
-                      apply Nat.succ_le_mono; auto.
-bbb.
+                     apply le_S_n in Hcmp.
+                     split; auto.
+                     rewrite Hn₂.
+                     rewrite <- Z2Nat.inj_0.
+                     apply Z2Nat.inj_lt; auto; [ reflexivity | idtac ].
+                     apply Z.lt_le_incl; auto.
 
-continuing using RootHeadTail.v around line 2279
+                     reflexivity.
+bbb.
 *)
 
 (*
