@@ -1457,17 +1457,12 @@ induction i; intros.
          rewrite Nat.sub_succ_l in Heqid; auto.
          apply eq_add_S in Heqid.
          subst np; rewrite <- Nat.add_assoc in Hnnp.
-         eapply IHi with (p := p); eauto .
-          intros j.
-          pose proof (Hri (S j)) as H; simpl in H.
-          rewrite <- Hc, <- Hpol₁, <- Hns₁ in H; eauto .
-
+         assert (0 < Z.to_nat p₁)%nat as Hp₁pos.
           rewrite He in Hnpi.
           rewrite Z.mul_shuffle0 in Hnpi.
           rewrite Zposnat2Znat in Hnpi; auto.
           rewrite Z.div_mul_cancel_r in Hnpi; auto.
           rewrite Z.div_mul in Hnpi; auto.
-          assert (0 < Z.to_nat p₁)%nat; [ idtac | omega ].
           rewrite He in H₂.
           rewrite Z.div_mul in H₂; auto.
           rewrite Z2Nat.inj_mul in H₂.
@@ -1504,35 +1499,25 @@ induction i; intros.
 
             apply Nat2Z.is_nonneg.
 
-          rewrite He.
-          rewrite <- Pos2Z.inj_mul, Pos.mul_comm.
-          rewrite Pos2Z.inj_mul.
-          rewrite Z.div_mul_cancel_r; auto.
-          rewrite Zposnat2Znat; auto.
-          rewrite Z.div_mul; auto.
-bbb.
-          assert (0 < Z.to_nat p₁)%nat; [ idtac | omega ].
-bbb.
-  H₂ : (0 < Z.to_nat (Qnum αj₁ * ' m / ' Qden αj₁))%nat
+          eapply IHi with (p := p); eauto .
+           intros j.
+           pose proof (Hri (S j)) as H; simpl in H.
+           rewrite <- Hc, <- Hpol₁, <- Hns₁ in H; eauto .
 
-I would like to have:
-  (0 < Z.to_nat (Qnum αj₁ * ' m / (' Qden αj₁ * ' Pos.of_nat r)))%nat
+           rewrite He in Hnpi.
+           rewrite Z.mul_shuffle0 in Hnpi.
+           rewrite Zposnat2Znat in Hnpi; auto.
+           rewrite Z.div_mul_cancel_r in Hnpi; auto.
+           rewrite Z.div_mul in Hnpi; auto.
+           omega.
 
-      rewrite <- Nat.add_succ_r.
-      assert (q_of_m m (γ ns₁) = 1%positive) as Hq₁.
-       replace m with (m * 1)%positive by apply Pos.mul_1_r.
-       eapply q_eq_1_any_r; eauto; [ rewrite Pos.mul_1_r; auto | idtac ].
-       rewrite Hr₁; auto.
-
-       rewrite Nat.sub_succ_l in Heqid; auto.
-       apply eq_add_S in Heqid.
-       subst np; rewrite <- Nat.add_assoc in Hnnp.
-       eapply IHi with (p := p); eauto .
-        intros j.
-        pose proof (Hri (S j)) as H; simpl in H.
-        rewrite <- Hc, <- Hpol₁, <- Hns₁ in H; eauto .
+           rewrite He.
+           rewrite Z.mul_shuffle0.
+           rewrite Zposnat2Znat; auto.
+           rewrite Z.div_mul_cancel_r; auto.
+           rewrite Z.div_mul; auto.
+           omega.
 bbb.
-        fast_omega H₂ Hnpi Hdip.
 *)
 Check find_coeff_step₄₂.
 
