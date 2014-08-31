@@ -1545,6 +1545,7 @@ induction i; intros.
    apply Pos2Z_ne_0.
 Qed.
 
+(* cf root_tail_split_1st *)
 Theorem root_tail_split_1st_any_r : ∀ pol ns pol₁ ns₁ c m q₀ r,
   ns ∈ newton_segments pol
   → pol_in_K_1_m pol m
@@ -2014,7 +2015,7 @@ destruct (ps_zerop _ (ps_poly_nth 0 pol₁)) as [H₁| H₁].
    apply Hrpos₂; reflexivity.
 Qed.
 
-(*
+(* cf root_tail_from_0 *)
 Theorem root_tail_from_0₄₂ : ∀ pol ns pol₁ ns₁ c m q₀ b r,
   ns ∈ newton_segments pol
   → pol_in_K_1_m pol m
@@ -2030,8 +2031,9 @@ Theorem root_tail_from_0₄₂ : ∀ pol ns pol₁ ns₁ c m q₀ b r,
 Proof.
 intros pol ns pol₁ ns₁ c m q₀ b r Hns Hm Hq₀ Hc Hr Hpol₁ Hns₁.
 remember (m * q₀)%positive as m₁.
+destruct b; [ subst m₁; eapply root_tail_split_1st_any_r; eauto  | idtac ].
 bbb.
-destruct b; [ subst m₁; eapply root_tail_split_1st; eauto  | idtac ].
+  continue with root_tail_from_0
 *)
 
 (*
