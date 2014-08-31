@@ -1757,6 +1757,7 @@ induction i; intros.
    eapply next_pol_in_K_1_mq with (pol := pol); eauto .
 
    remember Hns₁₁ as H; clear HeqH.
+bbb.
    eapply num_m_den_is_pos with (m := m) in H; eauto .
    rewrite <- Nat.add_succ_r.
    assert (q_of_m m (γ ns₁) = 1%positive) as Hq₁.
