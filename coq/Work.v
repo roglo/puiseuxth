@@ -365,13 +365,11 @@ destruct z₁.
                 rewrite Hαkb; simpl.
                 erewrite Qnum_inv_Qnat_sub; eauto .
                 erewrite Qden_inv_Qnat_sub; eauto ; simpl.
-                rewrite Nat.sub_0_r.
-                rewrite Z.mul_1_r.
-                rewrite Z.add_0_r.
-                remember (Qden αjb * Qden αkb)%positive as dd.
-                remember (Qnum αjb * ' Qden αkb)%Z as nd.
+                rewrite Nat.sub_0_r, Z.mul_1_r, Z.add_0_r.
                 remember (p_of_m m₁ (γ nsb₂)) as pb₂ eqn:Hpb₂ .
                 remember (Pos.of_nat r) as rq eqn:Hrq .
+                remember (Qden αjb * Qden αkb * rq)%positive as dd.
+                remember (Qnum αjb * ' Qden αkb)%Z as nd.
                 rewrite series_stretch_const.
                 rewrite series_mul_1_l.
                 do 2 rewrite Z2Nat_sub_min.
@@ -384,7 +382,6 @@ destruct z₁.
                  unfold adjust_series.
                  rewrite series_stretch_const.
                  rewrite <- series_stretch_stretch.
-bbb.
                  rewrite ps_adjust_eq with (n := O) (k := (dd * dd)%positive).
                  unfold adjust_ps; simpl.
                  rewrite series_shift_0.
