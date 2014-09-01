@@ -352,6 +352,19 @@ destruct z₁.
 
           destruct H as (αjb₂, (αkb₂, H)).
           destruct H as (Hinib₂, (Hfinb₂, (Hαjb₂, Hαkb₂))).
+          rewrite Nat.add_0_r in Hfinb₂.
+          unfold root_tail_from_cγ_list; simpl.
+          rewrite Hinib, Hfinb, Hinib₂, Hfinb₂; simpl.
+          rewrite Hαkb, Hαkb₂; simpl.
+          rewrite Qnum_inv_Qnat_sub; auto.
+          rewrite Qnum_inv_Qnat_sub; auto.
+           rewrite Qden_inv_Qnat_sub; auto.
+           rewrite Qden_inv_Qnat_sub; auto.
+            do 2 rewrite Z.add_0_r, Z.mul_1_r, Nat.sub_0_r.
+            rewrite Z.mul_shuffle0, Pos_mul_shuffle0.
+            do 2 rewrite Pos2Z.inj_mul.
+            rewrite Z.div_mul_cancel_r; auto.
+             erewrite αj_m_eq_p_r; eauto .
 
 bbb.
   continue with root_tail_from_0 around line 2627
