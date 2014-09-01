@@ -1258,14 +1258,14 @@ Theorem first_n_pol_in_K_1_m : ∀ pol ns poln m c,
   → c = ac_root (Φq pol ns)
   → root_multiplicity acf c (Φq pol ns) = 1%nat
   → q_of_m m (γ ns) = 1%positive
+  → pol_in_K_1_m pol m
   → ∀ n,
     (∀ i, (i ≤ n)%nat → (ps_poly_nth 0 (nth_pol i pol ns) ≠ 0)%ps)
     → poln = nth_pol n pol ns
-    → pol_in_K_1_m pol m
     → pol_in_K_1_m poln m.
 Proof.
-intros pol ns poln m c Hns Hc Hr Hq n Hnz Hpoln HK.
-revert pol ns poln m c Hns Hc Hr Hq Hnz Hpoln HK.
+intros pol ns poln m c Hns Hc Hr Hq HK n Hnz Hpoln.
+revert pol ns poln m c Hns Hc Hr Hq HK Hnz Hpoln.
 induction n; intros.
  simpl in Hpoln; subst poln; assumption.
 
@@ -1304,6 +1304,9 @@ induction n; intros.
     rewrite <- Hc, <- Hpol₁ in H.
     assumption.
 
+   replace m with (m * 1)%positive by apply Pos.mul_1_r.
+   eapply next_pol_in_K_1_mq; eauto .
+
    intros i Hin.
    apply Nat.succ_le_mono in Hin.
    apply Hnz in Hin; simpl in Hin.
@@ -1312,9 +1315,6 @@ induction n; intros.
 
    rewrite <- Hc, <- Hpol₁, <- Hns₁ in Hpoln.
    assumption.
-
-   replace m with (m * 1)%positive by apply Pos.mul_1_r.
-   eapply next_pol_in_K_1_mq; eauto .
 
   clear H.
   assert (1 ≤ S n) as H by omega.
@@ -2616,11 +2616,12 @@ destruct z₁.
      eapply q_eq_1 with (ns := ns); eauto .
      eapply next_pol_in_K_1_mq with (ns := ns); eauto .
 
+     eapply next_pol_in_K_1_mq with (ns := ns); eauto .
+
      simpl.
      rewrite <- Hc₁, <- Hpol₂, <- Hns₂.
      assumption.
 
-     eapply next_pol_in_K_1_mq with (ns := ns); eauto .
    destruct H as (αjb₂, (αkb₂, H)).
    destruct H as (Hinib₂, (Hfinb₂, (Hαjb₂, Hαkb₂))).
    unfold root_tail_from_cγ_list; simpl.
@@ -2865,12 +2866,6 @@ destruct z₁.
              eapply q_eq_1 with (ns := ns); eauto .
              eapply next_pol_in_K_1_mq with (ns := ns); eauto .
 
-             intros j Hj.
-             apply Nat.succ_le_mono in Hj.
-             apply Hpsi in Hj; simpl in Hj.
-             rewrite <- Hc₁, <- Hpol₂, <- Hns₂ in Hj.
-             assumption.
-
              rewrite <- Heqm₁.
              replace m₁ with (m₁ * 1)%positive by apply Pos.mul_1_r.
              eapply next_pol_in_K_1_mq with (ns := ns₁); eauto .
@@ -2878,6 +2873,12 @@ destruct z₁.
              rewrite Heqm₁.
              eapply q_eq_1 with (ns := ns); eauto .
              eapply next_pol_in_K_1_mq with (ns := ns); eauto .
+
+             intros j Hj.
+             apply Nat.succ_le_mono in Hj.
+             apply Hpsi in Hj; simpl in Hj.
+             rewrite <- Hc₁, <- Hpol₂, <- Hns₂ in Hj.
+             assumption.
 
             split; [ idtac | fast_omega Hcmp₁ ].
             rewrite Heqd.
@@ -3367,6 +3368,8 @@ destruct z₁.
                             eapply q_eq_1 with (ns := ns₁); eauto .
                             eapply next_pol_in_K_1_mq with (ns := ns₁); eauto .
 
+                            eapply next_pol_in_K_1_mq with (ns := ns₁); eauto .
+
                             clear i H₃ Hcmp₂ Heqix.
                             intros i Hisn.
                             destruct (eq_nat_dec i n) as [H₅| H₅].
@@ -3378,8 +3381,6 @@ destruct z₁.
                              apply Hpsi in Hisn; simpl in Hisn.
                              rewrite <- Hc₁, <- Hpol₂, <- Hns₂ in Hisn.
                              assumption.
-
-                            eapply next_pol_in_K_1_mq with (ns := ns₁); eauto .
 
                            eapply
                             multiplicity_1_remains_in_nth with (ns := ns);
@@ -3433,6 +3434,9 @@ destruct z₁.
                              eapply next_pol_in_K_1_mq with (ns := ns₁);
                               eauto .
 
+                             eapply next_pol_in_K_1_mq with (ns := ns₁);
+                              eauto .
+
                              clear i H₅ H₃ Hcmp₂ Heqix.
                              intros i Hisn.
                              destruct (eq_nat_dec i n) as [H₅| H₅].
@@ -3444,9 +3448,6 @@ destruct z₁.
                               apply Hpsi in Hisn; simpl in Hisn.
                               rewrite <- Hc₁, <- Hpol₂, <- Hns₂ in Hisn.
                               assumption.
-
-                             eapply next_pol_in_K_1_mq with (ns := ns₁);
-                              eauto .
 
                             eapply
                              multiplicity_1_remains_in_nth with (ns := ns);
