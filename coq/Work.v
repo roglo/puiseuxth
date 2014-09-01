@@ -2123,6 +2123,10 @@ destruct z₁.
  rewrite Bool.orb_false_l.
  rewrite <- Hb₁.
  remember (S b₁) as sb₁; simpl; subst sb₁.
+ pose proof Hri 0%nat as Hr₀; simpl in Hr₀.
+ pose proof Hri 1%nat as Hr₁; simpl in Hr₁.
+ rewrite <- Hc in Hr₀.
+ rewrite <- Hc, <- Hpol₁, <- Hns₁ in Hr₁.
  remember (ac_root (Φq pol₁ ns₁)) as c₁ eqn:Hc₁ .
  remember (next_pol pol₁ (β ns₁) (γ ns₁) c₁) as pol₂ eqn:Hpol₂ .
  remember (List.hd phony_ns (newton_segments pol₂)) as ns₂ eqn:Hns₂ .
@@ -2130,7 +2134,6 @@ destruct z₁.
  eapply r_n_next_ns in H; eauto .
   destruct H as (αj₁, (αk₁, H)).
   destruct H as (Hini₁, (Hfin₁, (Hαj₁, Hαk₁))).
-  rewrite Nat.add_0_r in Hfin₁.
   assert (∀ i : nat, i ≤ b₁ → (ps_poly_nth 0 (nth_pol i pol₁ ns₁) ≠ 0)%ps).
    apply zerop_1st_n_const_coeff_false_iff; subst b₁.
    rewrite zerop_1st_n_const_coeff_succ.
@@ -2153,31 +2156,29 @@ destruct z₁.
      apply exists_fin_pt_nat in H.
      destruct H as (kb, (αkb, Hfinb)).
      remember (ac_root (Φq polb nsb)) as cb eqn:Hcb .
+     remember (nth_pol (b₁ + 1) pol₁ ns₁) as polb₂ eqn:Hpolb₂ .
+     subst b₁.
+     simpl in Hpolb, Hnsb, Hpolb₂.
+     rewrite <- Hc₁, <- Hpol₂ in Hpolb, Hnsb, Hpolb₂.
+     rewrite <- Hns₂ in Hpolb, Hnsb, Hpolb₂.
+     rewrite <- Nat.add_1_r, <- Hpolb₂.
+     remember Hns₁₁ as H; clear HeqH.
+     eapply nth_in_newton_segments_any_r with (n := b) in H; eauto .
+      remember (nth_ns b pol₁ ns₁) as nsb₁ eqn:Hnsb₁ .
+      remember (nth_pol b pol₁ ns₁) as polb₁ eqn:Hpolb₁ .
+      remember (ac_root (Φq polb₁ nsb₁)) as cb₁ eqn:Hcb₁ .
+      pose proof (Hpsi (S b) (Nat.le_refl (S b))) as Hpsb.
+      simpl in Hpsb.
+      rewrite <- Hc₁, <- Hpol₂, <- Hns₂ in Hpsb.
+      erewrite <- nth_pol_n with (c₁ := c₁) in Hpsb; eauto .
+      erewrite nth_ns_n with (c := c₁) in Hnsb; eauto .
+      eapply r_n_j_0_k_n with (ns₁ := nsb) (m := (m * q₀)%positive) in H;
+       eauto .
+       Focus 2.
+       eapply first_n_pol_in_K_1_m with (ns := ns₁) (n := b); eauto .
 bbb.
-  remember (ac_root (Φq polb nsb)) as cb eqn:Hcb .
-  remember Hr as Hrb; clear HeqHrb.
-  eapply multiplicity_1_remains_in_nth in Hrb; eauto .
-  remember (nth_pol (b₁ + 1) pol₁ ns₁) as polb₂ eqn:Hpolb₂ .
-  subst b₁.
-  simpl in Hpolb, Hnsb, Hpolb₂.
-  rewrite <- Hc₁, <- Hpol₂ in Hpolb, Hnsb, Hpolb₂.
-  rewrite <- Hns₂ in Hpolb, Hnsb, Hpolb₂.
-  rewrite <- Nat.add_1_r, <- Hpolb₂.
-  remember Hns₁₁ as H; clear HeqH.
-  eapply nth_in_newton_segments with (n := b) in H; eauto .
-  remember Hns as Hrb₁; clear HeqHrb₁.
-  eapply multiplicity_1_remains_in_nth with (n := b) in Hrb₁; eauto .
-  remember (nth_ns b pol₁ ns₁) as nsb₁ eqn:Hnsb₁ .
-  remember (nth_pol b pol₁ ns₁) as polb₁ eqn:Hpolb₁ .
-  remember (ac_root (Φq polb₁ nsb₁)) as cb₁ eqn:Hcb₁ .
-  pose proof (Hpsi (S b) (Nat.le_refl (S b))) as Hpsb.
-  simpl in Hpsb.
-  rewrite <- Hc₁, <- Hpol₂, <- Hns₂ in Hpsb.
-  erewrite <- nth_pol_n with (c₁ := c₁) in Hpsb; eauto .
-  erewrite nth_ns_n with (c := c₁) in Hnsb; eauto .
-  eapply r_1_j_0_k_1 with (ns₁ := nsb) (m := (m * q₀)%positive) in H; eauto .
    Focus 2.
-   eapply lap_forall_nth with (ns := ns₁) (n := b); eauto .
+   eapply first_n_pol_in_K_1_m with (ns := ns₁) (n := b); eauto .
     eapply q_eq_1 with (ns := ns); eauto .
     eapply next_pol_in_K_1_mq with (ns := ns); eauto .
 
@@ -2263,7 +2264,7 @@ bbb.
     apply Z.mul_cancel_r; auto.
     rewrite Z_div_mul_swap; [ rewrite Z.div_mul; auto | idtac ].
     eapply den_αj_divides_num_αj_m; eauto .
-    eapply lap_forall_nth with (ns := ns₁); eauto .
+    eapply first_n_pol_in_K_1_m with (ns := ns₁); eauto .
      rewrite Heqm₁.
      eapply q_eq_1 with (ns := ns); eauto .
      rewrite <- Heqm₁; assumption.
@@ -2297,7 +2298,7 @@ bbb.
    erewrite <- nth_pol_n with (c₁ := c₂) in Hpolb₂; eauto .
    eapply r_1_next_ns with (m := (m * q₀)%positive) in H; eauto .
     Focus 2.
-    eapply lap_forall_nth with (ns := ns₁); eauto .
+    eapply first_n_pol_in_K_1_m with (ns := ns₁); eauto .
      eapply q_eq_1 with (ns := ns); eauto .
      eapply next_pol_in_K_1_mq with (ns := ns); eauto .
 
@@ -2389,7 +2390,7 @@ bbb.
 
           replace m₁ with (m₁ * 1)%positive by apply Pos.mul_1_r.
           eapply next_pol_in_K_1_mq with (pol := polb); eauto .
-          eapply lap_forall_nth with (ns := ns₁); eauto .
+          eapply first_n_pol_in_K_1_m with (ns := ns₁); eauto .
            replace m₁ with (m₁ * 1)%positive by apply Pos.mul_1_r.
            eapply q_eq_1 with (ns := ns); eauto .
             rewrite Heqm₁.
@@ -2469,7 +2470,7 @@ bbb.
           rewrite Hcmp₁, Nat.sub_diag in Heqid; subst id; reflexivity.
 
           assert (pol_in_K_1_m polb₂ m₁) as HKb₂.
-           eapply lap_forall_nth with (ns := ns₂) (n := S b); eauto .
+           eapply first_n_pol_in_K_1_m with (ns := ns₂) (n := S b); eauto .
             eapply List_hd_in; eauto .
             intros H; rewrite H in Hns₂; subst ns₂; discriminate Hfin₂.
 
@@ -2522,7 +2523,7 @@ bbb.
 
             replace m₁ with (m₁ * 1)%positive by apply Pos.mul_1_r.
             eapply q_eq_1 with (ns := nsb); eauto .
-             eapply lap_forall_nth with (ns := ns₁); eauto .
+             eapply first_n_pol_in_K_1_m with (ns := ns₁); eauto .
               rewrite Heqm₁.
               eapply q_eq_1 with (ns := ns); eauto .
               rewrite <- Heqm₁; assumption.
@@ -2535,7 +2536,7 @@ bbb.
             eapply
              multiplicity_1_remains with (ns := nsb) (m := (m * q₀)%positive);
              eauto .
-            eapply lap_forall_nth with (ns := ns₂); eauto .
+            eapply first_n_pol_in_K_1_m with (ns := ns₂); eauto .
              eapply List_hd_in; eauto .
              intros H; rewrite H in Hns₂; subst ns₂; discriminate Hfin₂.
 
@@ -2599,7 +2600,7 @@ bbb.
       remember Hm as H; clear HeqH.
       eapply next_pol_in_K_1_mq in H; eauto .
       rewrite <- Heqm₁ in H.
-      eapply lap_forall_nth with (ns := ns₁); eauto .
+      eapply first_n_pol_in_K_1_m with (ns := ns₁); eauto .
        rewrite Heqm₁.
        eapply q_eq_1 with (ns := ns); eauto .
        rewrite <- Heqm₁; assumption.

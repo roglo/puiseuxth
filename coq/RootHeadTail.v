@@ -1253,7 +1253,7 @@ eapply List_hd_in in Hns₁.
  intros H; rewrite H in Hns₁; subst ns₁; discriminate Hfin₁.
 Qed.
 
-Theorem lap_forall_nth : ∀ pol ns poln m c,
+Theorem first_n_pol_in_K_1_m : ∀ pol ns poln m c,
   ns ∈ newton_segments pol
   → c = ac_root (Φq pol ns)
   → root_multiplicity acf c (Φq pol ns) = 1%nat
@@ -2492,7 +2492,7 @@ destruct z₁.
   erewrite nth_ns_n with (c := c₁) in Hnsb; eauto .
   eapply r_1_j_0_k_1 with (ns₁ := nsb) (m := (m * q₀)%positive) in H; eauto .
    Focus 2.
-   eapply lap_forall_nth with (ns := ns₁) (n := b); eauto .
+   eapply first_n_pol_in_K_1_m with (ns := ns₁) (n := b); eauto .
     eapply q_eq_1 with (ns := ns); eauto .
     eapply next_pol_in_K_1_mq with (ns := ns); eauto .
 
@@ -2578,7 +2578,7 @@ destruct z₁.
     apply Z.mul_cancel_r; auto.
     rewrite Z_div_mul_swap; [ rewrite Z.div_mul; auto | idtac ].
     eapply den_αj_divides_num_αj_m; eauto .
-    eapply lap_forall_nth with (ns := ns₁); eauto .
+    eapply first_n_pol_in_K_1_m with (ns := ns₁); eauto .
      rewrite Heqm₁.
      eapply q_eq_1 with (ns := ns); eauto .
      rewrite <- Heqm₁; assumption.
@@ -2612,7 +2612,7 @@ destruct z₁.
    erewrite <- nth_pol_n with (c₁ := c₂) in Hpolb₂; eauto .
    eapply r_1_next_ns with (m := (m * q₀)%positive) in H; eauto .
     Focus 2.
-    eapply lap_forall_nth with (ns := ns₁); eauto .
+    eapply first_n_pol_in_K_1_m with (ns := ns₁); eauto .
      eapply q_eq_1 with (ns := ns); eauto .
      eapply next_pol_in_K_1_mq with (ns := ns); eauto .
 
@@ -2704,7 +2704,7 @@ destruct z₁.
 
           replace m₁ with (m₁ * 1)%positive by apply Pos.mul_1_r.
           eapply next_pol_in_K_1_mq with (pol := polb); eauto .
-          eapply lap_forall_nth with (ns := ns₁); eauto .
+          eapply first_n_pol_in_K_1_m with (ns := ns₁); eauto .
            replace m₁ with (m₁ * 1)%positive by apply Pos.mul_1_r.
            eapply q_eq_1 with (ns := ns); eauto .
             rewrite Heqm₁.
@@ -2784,7 +2784,7 @@ destruct z₁.
           rewrite Hcmp₁, Nat.sub_diag in Heqid; subst id; reflexivity.
 
           assert (pol_in_K_1_m polb₂ m₁) as HKb₂.
-           eapply lap_forall_nth with (ns := ns₂) (n := S b); eauto .
+           eapply first_n_pol_in_K_1_m with (ns := ns₂) (n := S b); eauto .
             eapply List_hd_in; eauto .
             intros H; rewrite H in Hns₂; subst ns₂; discriminate Hfin₂.
 
@@ -2837,7 +2837,7 @@ destruct z₁.
 
             replace m₁ with (m₁ * 1)%positive by apply Pos.mul_1_r.
             eapply q_eq_1 with (ns := nsb); eauto .
-             eapply lap_forall_nth with (ns := ns₁); eauto .
+             eapply first_n_pol_in_K_1_m with (ns := ns₁); eauto .
               rewrite Heqm₁.
               eapply q_eq_1 with (ns := ns); eauto .
               rewrite <- Heqm₁; assumption.
@@ -2850,7 +2850,7 @@ destruct z₁.
             eapply
              multiplicity_1_remains with (ns := nsb) (m := (m * q₀)%positive);
              eauto .
-            eapply lap_forall_nth with (ns := ns₂); eauto .
+            eapply first_n_pol_in_K_1_m with (ns := ns₂); eauto .
              eapply List_hd_in; eauto .
              intros H; rewrite H in Hns₂; subst ns₂; discriminate Hfin₂.
 
@@ -2914,7 +2914,7 @@ destruct z₁.
       remember Hm as H; clear HeqH.
       eapply next_pol_in_K_1_mq in H; eauto .
       rewrite <- Heqm₁ in H.
-      eapply lap_forall_nth with (ns := ns₁); eauto .
+      eapply first_n_pol_in_K_1_m with (ns := ns₁); eauto .
        rewrite Heqm₁.
        eapply q_eq_1 with (ns := ns); eauto .
        rewrite <- Heqm₁; assumption.
@@ -3054,7 +3054,7 @@ destruct z₁.
    eapply nth_in_newton_segments with (m := (m * q₀)%positive) in H; eauto .
     rename H into Hnsn₁i.
     eapply den_αj_divides_num_αj_m with (ns := nsn₁); eauto .
-    eapply lap_forall_nth with (ns := ns₁); eauto .
+    eapply first_n_pol_in_K_1_m with (ns := ns₁); eauto .
      rewrite Heqm₁.
      eapply q_eq_1 with (ns := ns); eauto .
      eapply next_pol_in_K_1_mq with (ns := ns); eauto .
@@ -3106,7 +3106,7 @@ destruct z₁.
          eapply next_pol_in_K_1_mq with (ns := ns₁); eauto .
 
          assert (pol_in_K_1_m poln₂ m₁) as Hpsn₂.
-          eapply lap_forall_nth with (ns := ns₂); eauto .
+          eapply first_n_pol_in_K_1_m with (ns := ns₂); eauto .
 
           intros i Hin.
           destruct (eq_nat_dec i n) as [H₃| H₃].
@@ -3358,12 +3358,12 @@ destruct z₁.
                            eapply nth_ns_n with (c := c); eauto .
                            erewrite nth_pol_n with (c₁ := c); eauto .
 
-                           eapply lap_forall_nth with (ns := ns₁); eauto .
+                           eapply first_n_pol_in_K_1_m with (ns := ns₁); eauto .
 
                            erewrite
                             nth_pol_n with (pol₁ := pol₁) (ns₁ := ns₁); 
                             eauto .
-                           eapply lap_forall_nth with (ns := ns₂); eauto .
+                           eapply first_n_pol_in_K_1_m with (ns := ns₂); eauto .
                             eapply q_eq_1 with (ns := ns₁); eauto .
                             eapply next_pol_in_K_1_mq with (ns := ns₁); eauto .
 
@@ -3423,12 +3423,12 @@ destruct z₁.
                             eapply nth_ns_n with (c := c); eauto .
                             erewrite nth_pol_n with (c₁ := c); eauto .
 
-                            eapply lap_forall_nth with (ns := ns₁); eauto .
+                            eapply first_n_pol_in_K_1_m with (ns := ns₁); eauto .
 
                             erewrite
                              nth_pol_n with (pol₁ := pol₁) (ns₁ := ns₁);
                              eauto .
-                            eapply lap_forall_nth with (ns := ns₂); eauto .
+                            eapply first_n_pol_in_K_1_m with (ns := ns₂); eauto .
                              eapply q_eq_1 with (ns := ns₁); eauto .
                              eapply next_pol_in_K_1_mq with (ns := ns₁);
                               eauto .
@@ -3558,7 +3558,7 @@ destruct z₁.
                symmetry.
                eapply nth_pol_n with (c₁ := c); eauto .
 
-               eapply lap_forall_nth with (ns := ns₁); eauto .
+               eapply first_n_pol_in_K_1_m with (ns := ns₁); eauto .
 
              rewrite Pos2Z.inj_mul, Z.mul_add_distr_r.
              rewrite Z.mul_assoc, Z.mul_shuffle0.

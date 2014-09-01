@@ -162,7 +162,7 @@ remember Hns₁ as H; clear HeqH.
 eapply List_hd_in in H; eauto .
  rename H into Hns₁i.
  remember HK₁ as H; clear HeqH.
- eapply lap_forall_nth with (ns := ns₁) in H; eauto .
+ eapply first_n_pol_in_K_1_m with (ns := ns₁) in H; eauto .
   rename H into HKn.
   remember (nth_pol n pol₁ ns₁) as poln eqn:Hpoln .
   remember Hns₁i as H; clear HeqH.
