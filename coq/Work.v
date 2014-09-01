@@ -126,6 +126,10 @@ destruct z₁.
      remember (nth_pol b₁ pol₁ ns₁) as polb eqn:Hpolb .
      remember (nth_ns b₁ pol₁ ns₁) as nsb eqn:Hnsb .
      rename H into Hbns.
+     pose proof (Hri (S b₁)) as Hrb; simpl in Hrb.
+     rewrite <- Hc, <- Hpol₁, <- Hns₁ in Hrb.
+     erewrite nth_r_n in Hrb; eauto .
+     erewrite nth_c_root in Hrb; eauto .
      remember Hbns as H; clear HeqH.
      apply exists_ini_pt_nat in H.
      destruct H as (jb, (αjb, Hinib)).
@@ -264,26 +268,16 @@ destruct z₁.
             rewrite Z.mul_shuffle0.
             rewrite Zposnat2Znat; auto.
             eapply αj_m_eq_p_r; eauto .
-             eapply first_n_pol_in_K_1_m_any_r with (ns := ns₁); eauto .
-              eapply q_eq_1_any_r with (ns := ns₁) (αk := αk₁); eauto .
-              rewrite Hr₁; assumption.
+            eapply first_n_pol_in_K_1_m_any_r with (ns := ns₁); eauto .
+             eapply q_eq_1_any_r with (ns := ns₁) (αk := αk₁); eauto .
+             rewrite Hr₁; assumption.
 
-              intros i.
-              pose proof (Hri (S i)%nat) as H; simpl in H.
-              rewrite <- Hc, <- Hpol₁, <- Hns₁ in H; eauto.
+             intros i.
+             pose proof (Hri (S i)%nat) as H; simpl in H.
+             rewrite <- Hc, <- Hpol₁, <- Hns₁ in H; eauto .
 
-              simpl.
-              rewrite <- Hc₁, <- Hpol₂, <- Hns₂; auto.
-
-             erewrite <- nth_r_n with (ns := ns₂); eauto .
-              pose proof (Hri (S (S b))) as H.
-              remember (S b) as sb; simpl in H.
-              rewrite <- Hc, <- Hpol₁, <- Hns₁ in H.
-              subst sb; simpl in H.
-              rewrite <- Hc₁, <- Hpol₂, <- Hns₂ in H.
-              assumption.
-
-              erewrite nth_c_root; eauto .
+             simpl.
+             rewrite <- Hc₁, <- Hpol₂, <- Hns₂; auto.
 
            rewrite <- Zposnat2Znat; auto.
            apply Pos2Z_ne_0.
@@ -298,16 +292,6 @@ destruct z₁.
 
            simpl.
            rewrite <- Hc₁, <- Hpol₂, <- Hns₂; auto.
-
-          erewrite <- nth_r_n with (ns := ns₂); eauto .
-           pose proof (Hri (S (S b))) as H.
-           remember (S b) as sb; simpl in H.
-           rewrite <- Hc, <- Hpol₁, <- Hns₁ in H.
-           subst sb; simpl in H.
-           rewrite <- Hc₁, <- Hpol₂, <- Hns₂ in H.
-           assumption.
-
-           erewrite nth_c_root; eauto .
 
          apply Pos2Z_ne_0.
 
@@ -352,22 +336,19 @@ destruct z₁.
 
           destruct H as (αjb₂, (αkb₂, H)).
           destruct H as (Hinib₂, (Hfinb₂, (Hαjb₂, Hαkb₂))).
-          rewrite Nat.add_0_r in Hfinb₂.
           unfold root_tail_from_cγ_list; simpl.
           rewrite Hinib, Hfinb, Hinib₂, Hfinb₂; simpl.
           rewrite Hαkb, Hαkb₂; simpl.
           rewrite Qnum_inv_Qnat_sub; auto.
-          rewrite Qnum_inv_Qnat_sub; auto.
-           rewrite Qden_inv_Qnat_sub; auto.
-           rewrite Qden_inv_Qnat_sub; auto.
-            do 2 rewrite Z.add_0_r, Z.mul_1_r, Nat.sub_0_r.
-            rewrite Z.mul_shuffle0, Pos_mul_shuffle0.
-            do 2 rewrite Pos2Z.inj_mul.
-            rewrite Z.div_mul_cancel_r; auto.
-             erewrite αj_m_eq_p_r; eauto .
-
+          rewrite Qden_inv_Qnat_sub; auto.
+          rewrite Z.add_0_r, Z.mul_1_r, Nat.sub_0_r.
+          rewrite Z.add_0_r, Z.mul_1_r.
+          rewrite Z.mul_shuffle0, Pos_mul_shuffle0.
+          do 2 rewrite Pos2Z.inj_mul.
+          rewrite Z.div_mul_cancel_r; auto.
+           erewrite αj_m_eq_p_r; eauto .
 bbb.
-  continue with root_tail_from_0 around line 2627
+  continue with root_tail_from_0 around line 2633
 *)
 
 (*
