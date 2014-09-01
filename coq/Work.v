@@ -253,6 +253,17 @@ destruct z₁.
              exfalso; revert H₁; apply Nat.lt_irrefl.
 
             erewrite nth_γ_n; eauto ; simpl.
+            rewrite Hαkb; simpl.
+            rewrite Qnum_inv_Qnat_sub; auto.
+            rewrite Qden_inv_Qnat_sub; auto.
+            rewrite Z.add_0_r, Z.mul_1_r, Nat.sub_0_r.
+            rewrite Z.mul_shuffle0, Pos_mul_shuffle0.
+            do 2 rewrite Pos2Z.inj_mul, Z.mul_assoc.
+            apply Z.mul_cancel_r; auto.
+            symmetry.
+            rewrite Z.mul_shuffle0.
+            rewrite Zposnat2Znat; auto.
+            eapply αj_m_eq_p_r; eauto .
 
 bbb.
 
