@@ -346,14 +346,15 @@ destruct z₁.
           rewrite Z.mul_shuffle0, Pos_mul_shuffle0.
           do 2 rewrite Pos2Z.inj_mul.
           rewrite Z.div_mul_cancel_r; auto.
-           erewrite αj_m_eq_p_r; eauto .
-            rewrite Z.mul_shuffle0, Zposnat2Znat; auto.
-            rewrite <- Z.mul_assoc.
-            rewrite Z.div_mul.
-             rewrite Z.mul_shuffle0, Pos_mul_shuffle0.
-             do 2 rewrite Pos2Z.inj_mul.
-             rewrite Z.div_mul_cancel_r; auto.
-              erewrite αj_m_eq_p_r; eauto .
+           rewrite Z.mul_shuffle0, Pos_mul_shuffle0.
+           do 2 rewrite Pos2Z.inj_mul.
+           rewrite Z.div_mul_cancel_r; auto.
+            erewrite αj_m_eq_p_r; eauto .
+             erewrite αj_m_eq_p_r with (ns₁ := nsb₂) (pol₁ := polb₂); eauto .
+              rewrite Z.mul_shuffle0, Zposnat2Znat; auto.
+              rewrite <- Z.mul_assoc, Z.div_mul.
+               rewrite Z.mul_shuffle0.
+               rewrite <- Z.mul_assoc, Z.div_mul.
 bbb.
   continue with root_tail_from_0 around line 2633
 *)
