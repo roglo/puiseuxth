@@ -355,6 +355,40 @@ destruct z₁.
               rewrite <- Z.mul_assoc, Z.div_mul.
                rewrite Z.mul_shuffle0.
                rewrite <- Z.mul_assoc, Z.div_mul.
+                unfold ps_add, ps_mul; simpl.
+                unfold cm; simpl.
+                rewrite fold_series_const.
+                unfold ps_terms_add; simpl.
+                rewrite fold_series_const.
+                unfold ps_ordnum_add; simpl.
+                erewrite nth_γ_n; eauto ; simpl.
+                rewrite Hαkb; simpl.
+                erewrite Qnum_inv_Qnat_sub; eauto .
+                erewrite Qden_inv_Qnat_sub; eauto ; simpl.
+                rewrite Nat.sub_0_r.
+                rewrite Z.mul_1_r.
+                rewrite Z.add_0_r.
+                remember (Qden αjb * Qden αkb)%positive as dd.
+                remember (Qnum αjb * ' Qden αkb)%Z as nd.
+                remember (p_of_m m₁ (γ nsb₂)) as pb₂ eqn:Hpb₂ .
+                remember (Pos.of_nat r) as rq eqn:Hrq .
+                rewrite series_stretch_const.
+                rewrite series_mul_1_l.
+                do 2 rewrite Z2Nat_sub_min.
+                rewrite Z.mul_add_distr_r.
+                rewrite Pos2Z.inj_mul, Z.mul_assoc, Z.mul_shuffle0.
+                rewrite Z.sub_add_distr, Z.sub_diag; simpl.
+                rewrite Z.add_simpl_l.
+                rewrite Z.min_l.
+                 rewrite <- Z.mul_assoc, <- Pos2Z.inj_mul.
+                 unfold adjust_series.
+                 rewrite series_stretch_const.
+                 rewrite <- series_stretch_stretch.
+bbb.
+                 rewrite ps_adjust_eq with (n := O) (k := (dd * dd)%positive).
+                 unfold adjust_ps; simpl.
+                 rewrite series_shift_0.
+                 rewrite Z.sub_0_r.
 bbb.
   continue with root_tail_from_0 around line 2633
 *)
