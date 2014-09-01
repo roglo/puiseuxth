@@ -2136,7 +2136,17 @@ induction n; intros.
    rewrite <- Hc, <- Hpol₁ in H.
    assumption.
 
-bbb.
+  clear H.
+  remember Hns as H; clear HeqH.
+  eapply next_has_root_0_or_newton_segments in H; eauto .
+  simpl in H.
+  rewrite <- Hc, <- Hpol₁ in H.
+  destruct H as [H| H]; auto.
+  assert (1 ≤ S n)%nat as HH by fast_omega .
+  apply Hnz in HH; simpl in HH.
+  rewrite <- Hc, <- Hpol₁ in HH.
+  contradiction.
+Qed.
 
 (* cf root_tail_from_0 *)
 Theorem root_tail_from_0₄₂ : ∀ pol ns pol₁ ns₁ c m q₀ b r,
