@@ -264,6 +264,16 @@ destruct z₁.
             rewrite Z.mul_shuffle0.
             rewrite Zposnat2Znat; auto.
             eapply αj_m_eq_p_r; eauto .
+             eapply first_n_pol_in_K_1_m_any_r with (ns := ns₁); eauto .
+              eapply q_eq_1_any_r with (ns := ns₁) (αk := αk₁); eauto .
+              rewrite Hr₁; assumption.
+
+              intros i.
+              pose proof (Hri (S i)%nat) as H; simpl in H.
+              rewrite <- Hc, <- Hpol₁, <- Hns₁ in H; eauto.
+
+              simpl.
+              rewrite <- Hc₁, <- Hpol₂, <- Hns₂; auto.
 
 bbb.
 
