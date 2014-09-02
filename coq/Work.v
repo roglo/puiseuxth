@@ -412,8 +412,46 @@ destruct z₁.
 
                      exfalso; apply H₁.
                      subst pb₂.
+                     unfold p_of_m; simpl.
+                     rewrite Hinib₂, Hfinb₂; simpl.
+                     rewrite Hαkb₂; simpl.
+                     rewrite Qnum_inv_Qnat_sub; auto.
+                     rewrite Qden_inv_Qnat_sub; auto.
+                     rewrite Z.add_0_r, Z.mul_1_r, Nat.sub_0_r.
+                     do 2 rewrite Pos2Z.inj_mul.
+                     remember (Qnum αjb₂ * ' Qden αkb₂ * ' m₁)%Z as x.
+                     rewrite Z.mul_shuffle0 in Heqx.
+                     rewrite Z.mul_shuffle0; subst x.
+                     rewrite Z.gcd_mul_mono_r; simpl.
+                     rewrite Z.div_mul_cancel_r; auto.
+                      rewrite <- Z2Nat.inj_0.
+                      apply Z2Nat.inj_lt; auto.
+                       reflexivity.
+
+                       apply Z.div_pos.
+                        apply Z.mul_nonneg_nonneg; auto.
+                        apply Z.lt_le_incl; auto.
+
+                        remember (Qnum αjb₂ * ' m₁)%Z as x.
+                        remember (Qden αjb₂ * Pos.of_nat r)%positive as y.
+                        pose proof (Z.gcd_nonneg x (' y)) as H.
+                        assert (Z.gcd x (' y) ≠ 0)%Z as HH; [ idtac | omega ].
+                        intros HH.
+                        apply Z.gcd_eq_0_r in HH.
+                        revert HH; apply Pos2Z_ne_0.
+
+                       rewrite Z.gcd_comm.
+                       apply Z_div_gcd_r_pos.
+                       apply Z.mul_pos_pos; auto.
+                       apply Pos2Z.is_pos.
+
+                      intros H.
+                      apply Z.gcd_eq_0_r in H.
+                      revert H; apply Pos2Z_ne_0.
+
+                    rewrite rng_add_0_l.
 bbb.
-  continue with root_tail_from_0 around line 2633
+  continue with root_tail_from_0 around line 2730
 *)
 
 (*
