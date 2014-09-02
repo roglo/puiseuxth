@@ -233,12 +233,14 @@ destruct z₁.
    assert (pol_in_K_1_m polb₁ m₁) as HKb₁.
     eapply nth_pol_in_K_1_m with (ns := ns₁) (n := b); eauto .
 
-(**)
+    erewrite nth_pol_n with (c₁ := c₁) in Hnsb; eauto .
+    rewrite <- Hpolb in Hnsb.
+    erewrite <- nth_pol_n with (c₁ := c₁) in Hpolb; eauto .
+    rewrite <- Hpolb in Hpsb.
     eapply r_n_j_0_k_n with (ns₁ := nsb) (m := m₁) in H; eauto .
      erewrite <- nth_ns_n with (c := c₁) in Hnsb; eauto .
-     erewrite nth_pol_n with (c₁ := c₁) in Hpsb; eauto .
-    rewrite <- Hpolb in Hpsb.
-    destruct H as (Hjb, (Hkb, (Hαjb, Hαkb))).
+     destruct H as (Hjb, (Hkb, (Hαjb, Hαkb))).
+
     subst jb kb.
     unfold Qlt in Hαjb; simpl in Hαjb.
     unfold Qeq in Hαkb; simpl in Hαkb.
@@ -299,6 +301,7 @@ destruct z₁.
            symmetry.
            erewrite nth_c_root; eauto .
 
+bbb.
            simpl.
            rewrite <- Hcb.
            rewrite Nat.add_comm in Hpolb₂; simpl in Hpolb₂.
