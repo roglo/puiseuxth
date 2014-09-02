@@ -200,9 +200,9 @@ destruct z₁.
 
    remember Hns₁₁ as H; clear HeqH.
    eapply nth_in_newton_segments_any_r with (n := b₁) in H; eauto .
+   rename H into Hbns.
    remember (nth_pol b₁ pol₁ ns₁) as polb eqn:Hpolb .
    remember (nth_ns b₁ pol₁ ns₁) as nsb eqn:Hnsb .
-   rename H into Hbns.
    pose proof (Hri (S b₁)) as Hrb; simpl in Hrb.
    rewrite <- Hc, <- Hpol₁, <- Hns₁ in Hrb.
    erewrite nth_r_n in Hrb; eauto .
@@ -225,6 +225,11 @@ destruct z₁.
    remember (nth_ns b pol₁ ns₁) as nsb₁ eqn:Hnsb₁ .
    remember (nth_pol b pol₁ ns₁) as polb₁ eqn:Hpolb₁ .
    remember (ac_root (Φq polb₁ nsb₁)) as cb₁ eqn:Hcb₁ .
+   pose proof (Hri (S b)) as Hrb₁; simpl in Hrb₁.
+   rewrite <- Hc, <- Hpol₁, <- Hns₁ in Hrb₁.
+   erewrite nth_r_n in Hrb₁; eauto .
+   erewrite nth_c_root in Hrb₁; eauto .
+   rewrite <- Hcb₁ in Hrb₁.
    pose proof (Hpsi (S b) (Nat.le_refl (S b))) as Hpsb.
    simpl in Hpsb.
    rewrite <- Hc₁, <- Hpol₂, <- Hns₂ in Hpsb.
@@ -238,20 +243,13 @@ destruct z₁.
     erewrite <- nth_pol_n with (c₁ := c₁) in Hpolb; eauto .
     rewrite <- Hpolb in Hpsb.
     eapply r_n_j_0_k_n with (ns₁ := nsb) (m := m₁) in H; eauto .
-     erewrite <- nth_ns_n with (c := c₁) in Hnsb; eauto .
-     destruct H as (Hjb, (Hkb, (Hαjb, Hαkb))).
-
-     erewrite nth_pol_n with (c₁ := c₁) in Hpolb; eauto .
+    erewrite <- nth_ns_n with (c := c₁) in Hnsb; eauto .
+    destruct H as (Hjb, (Hkb, (Hαjb, Hαkb))).
+    erewrite nth_pol_n with (c₁ := c₁) in Hpolb; eauto .
     subst jb kb.
     unfold Qlt in Hαjb; simpl in Hαjb.
     unfold Qeq in Hαkb; simpl in Hαkb.
     rewrite Z.mul_1_r in Hαjb, Hαkb.
-    rewrite Nat.add_0_r in Hfinb.
-    erewrite <- nth_r_n in Hfinb; eauto ;
-     [ idtac | erewrite nth_c_root; eauto  ].
-    pose proof (Hri (S b)%nat) as Hrsb₁; simpl in Hrsb₁.
-    rewrite <- Hc, <- Hpol₁, <- Hns₁ in Hrsb₁.
-    rewrite Hrsb₁ in Hfinb.
     destruct (ps_zerop R (ps_poly_nth 0 polb₂)) as [H₁| H₁].
      rewrite rng_mul_0_r, rng_add_0_r, Nat.add_1_r.
      unfold root_tail_from_cγ_list, ps_monom; simpl.
@@ -312,8 +310,7 @@ destruct z₁.
            rewrite <- Hc₁, <- Hpol₂, <- Hns₂ in Hr₂.
            remember (ac_root (Φq pol₂ ns₂)) as c₂ eqn:Hc₂ .
            remember (next_pol pol₂ (β ns₂) (γ ns₂) c₂) as pol₃ eqn:Hpol₃ .
-           remember (List.hd phony_ns (newton_segments pol₃)) as ns₃
-            eqn:Hns₃ .
+           remember (List.hd phony_ns (newton_segments pol₃)) as ns₃ eqn:Hns₃ .
            remember (next_pol polb (β nsb) (γ nsb) cb) as polb' eqn:Hpolb' .
            remember (List.hd phony_ns (newton_segments polb')) as nsb'.
            rename Heqnsb' into Hnsb'.
@@ -517,8 +514,8 @@ destruct z₁.
                    rewrite <- Hcb, <- Hpolb₂, <- Hbns₂.
                    destruct i;
                     [ exfalso; revert H₁; apply Nat.lt_irrefl | clear H₁ ].
-                   destruct (ps_zerop R (ps_poly_nth 0 polb)) as [| H₁];
-                    auto; simpl.
+                   destruct (ps_zerop R (ps_poly_nth 0 polb)) as [| H₁]; auto;
+                    simpl.
                    destruct (ps_zerop R (ps_poly_nth 0 polb₂)) as [| H₃];
                     auto.
                    unfold next_pow at 1; simpl.
@@ -586,8 +583,7 @@ destruct z₁.
                       replace m₁ with (m₁ * 1)%positive by apply Pos.mul_1_r.
                       eapply next_pol_in_K_1_mq with (ns := ns₁); eauto .
                       symmetry.
-                      eapply q_eq_1_any_r with (ns := ns₁) (αk := αk₁);
-                       eauto .
+                      eapply q_eq_1_any_r with (ns := ns₁) (αk := αk₁); eauto .
                       rewrite Hr₁; auto.
 
 bbb.
