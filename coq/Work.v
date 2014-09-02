@@ -85,6 +85,19 @@ rewrite H₂ in Hr.
 revert Hr; apply Nat.lt_irrefl.
 Qed.
 
+Theorem all_same_r_next : ∀ pol ns c pol₁ ns₁ r,
+  c = ac_root (Φq pol ns)
+  → pol₁ = next_pol pol (β ns) (γ ns) c
+  → ns₁ = List.hd phony_ns (newton_segments pol₁)
+  → (∀ i : nat, nth_r i pol ns = r)
+  → (∀ i : nat, nth_r i pol₁ ns₁ = r).
+Proof.
+intros pol ns c pol₁ ns₁ r Hc Hpol₁ Hns₁ Hri i.
+pose proof (Hri (S i)) as H; simpl in H.
+rewrite <- Hc, <- Hpol₁, <- Hns₁ in H.
+assumption.
+Qed.
+
 (* cf root_tail_from_0 *)
 Theorem root_tail_from_0₄₂ : ∀ pol ns pol₁ ns₁ c m q₀ b r,
   ns ∈ newton_segments pol
@@ -159,8 +172,11 @@ destruct z₁.
   rename H into Hns₁nz.
   remember Hns₁ as Hns₁₁; clear HeqHns₁₁.
   eapply List_hd_in in Hns₁₁; eauto .
-  remember Hns₁₁ as H; clear HeqH.
-  eapply nth_in_newton_segments_any_r with (n := b₁) in H; eauto .
+  assert (∀ i, nth_r i pol₁ ns₁ = r) as Hri₁.
+   eapply all_same_r_next with (ns := ns); eauto .
+
+   remember Hns₁₁ as H; clear HeqH.
+   eapply nth_in_newton_segments_any_r with (n := b₁) in H; eauto .
    remember (nth_pol b₁ pol₁ ns₁) as polb eqn:Hpolb .
    remember (nth_ns b₁ pol₁ ns₁) as nsb eqn:Hnsb .
    rename H into Hbns.
@@ -199,11 +215,6 @@ destruct z₁.
       rewrite <- Heqm₁.
       eapply q_eq_1_any_r with (ns := ns₁); eauto .
       rewrite Hr₁; assumption.
-
-      intros i.
-      clear H.
-      pose proof (Hri (S i)) as H; simpl in H.
-      rewrite <- Hc, <- Hpol₁, <- Hns₁ in H; eauto .
 
      erewrite <- nth_ns_n with (c := c₁) in Hnsb; eauto .
      erewrite nth_pol_n with (c₁ := c₁) in Hpsb; eauto .
@@ -314,10 +325,6 @@ destruct z₁.
            eapply q_eq_1_any_r with (ns := ns₁) (αk := αk₁); eauto .
            rewrite Hr₁; assumption.
 
-           intros i.
-           pose proof (Hri (S i)%nat) as H; simpl in H.
-           rewrite <- Hc, <- Hpol₁, <- Hns₁ in H; eauto .
-
            simpl.
            rewrite <- Hc₁, <- Hpol₂, <- Hns₂; auto.
 
@@ -327,10 +334,6 @@ destruct z₁.
         eapply first_n_pol_in_K_1_m_any_r with (ns := ns₁); eauto .
          eapply q_eq_1_any_r with (ns := ns₁) (αk := αk₁); eauto .
          rewrite Hr₁; assumption.
-
-         intros i.
-         pose proof (Hri (S i)%nat) as H; simpl in H.
-         rewrite <- Hc, <- Hpol₁, <- Hns₁ in H; eauto .
 
          simpl.
          rewrite <- Hc₁, <- Hpol₂, <- Hns₂; auto.
@@ -367,11 +370,6 @@ destruct z₁.
         eapply first_n_pol_in_K_1_m_any_r with (ns := ns₁); eauto .
          eapply q_eq_1_any_r with (ns := ns₁) (αk := αk₁); eauto .
          rewrite Hr₁; assumption.
-
-         intros i.
-         clear H.
-         pose proof (Hri (S i)%nat) as H; simpl in H.
-         rewrite <- Hc, <- Hpol₁, <- Hns₁ in H; eauto .
 
          simpl.
          rewrite <- Hc₁, <- Hpol₂, <- Hns₂; auto.
