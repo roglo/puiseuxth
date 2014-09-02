@@ -386,6 +386,32 @@ destruct z₁.
                  unfold adjust_ps; simpl.
                  rewrite series_shift_0.
                  rewrite Z.sub_0_r.
+                 apply mkps_morphism.
+                  rewrite
+                   <- series_stretch_const with (k := (dd * dd)%positive).
+                  rewrite <- Z.mul_opp_l.
+                  do 2 rewrite Z2Nat_inj_mul_pos_r.
+                  do 2 rewrite <- stretch_shift_series_distr.
+                  rewrite <- series_stretch_add_distr.
+                  apply stretch_morph; [ reflexivity | idtac ].
+                  rewrite Z2Nat_neg_eq_0.
+                   rewrite series_shift_0.
+                   unfold series_add; simpl.
+                   constructor; simpl; intros i.
+                   rename H₁ into Hpsb₂.
+                   destruct (zerop i) as [H₁| H₁].
+                    subst i; simpl.
+                    destruct (lt_dec 0 (Z.to_nat pb₂)) as [H₁| H₁].
+                     rewrite rng_add_0_r.
+                     unfold root_tail_series_from_cγ_list; simpl.
+                     destruct (ps_zerop R (ps_poly_nth 0 polb)) as [H₃| H₃].
+                      contradiction.
+
+                      clear H₃; symmetry.
+                      erewrite nth_c_root; eauto .
+
+                     exfalso; apply H₁.
+                     subst pb₂.
 bbb.
   continue with root_tail_from_0 around line 2633
 *)
