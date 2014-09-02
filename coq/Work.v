@@ -235,6 +235,11 @@ destruct z₁.
               simpl.
               rewrite <- Hcb.
               rewrite Nat.add_comm in Hpolb₂; simpl in Hpolb₂.
+              pose proof (Hri 2%nat) as Hr₂.
+              remember 1%nat as one; simpl in Hr₂.
+              rewrite <- Hc, <- Hpol₁, <- Hns₁ in Hr₂.
+              subst one; simpl in Hr₂.
+              rewrite <- Hc₁, <- Hpol₂, <- Hns₂ in Hr₂.
               remember (ac_root (Φq pol₂ ns₂)) as c₂ eqn:Hc₂ .
               remember (next_pol pol₂ (β ns₂) (γ ns₂) c₂) as pol₃ eqn:Hpol₃ .
               remember (List.hd phony_ns (newton_segments pol₃)) as ns₃
@@ -492,7 +497,49 @@ destruct z₁.
                        rewrite <- Hcb, <- Hpolb₂ in H.
                        destruct H as [H| H]; auto.
 
+                       eapply first_n_pol_in_K_1_m_any_r with (pol := pol₂);
+                        eauto .
+                        eapply List_hd_in; eauto .
+                        intros H; rewrite H in Hns₂; subst ns₂.
+                        simpl in Hfin₂.
+                        injection Hfin₂; intros H₄ H₅.
+                        rewrite <- Nat2Z.inj_0 in H₅.
+                        apply Nat2Z.inj in H₅.
+                        rewrite H₅ in Hrpos.
+                        revert Hrpos; apply Nat.lt_irrefl.
+
+                        replace m₁ with (m₁ * 1)%positive
+                         by apply Pos.mul_1_r.
+                        eapply next_pol_in_K_1_mq with (ns := ns₁); eauto .
+                        symmetry.
+                        eapply q_eq_1_any_r with (ns := ns₁) (αk := αk₁);
+                         eauto .
+                        rewrite Hr₁; auto.
+
+                        eapply q_eq_1_any_r with (pol := pol₂) (αk := αk₂);
+                         eauto .
+                         eapply List_hd_in; eauto .
+                         intros H; rewrite H in Hns₂; subst ns₂.
+                         simpl in Hfin₂.
+                         injection Hfin₂; intros H₄ H₅.
+                         rewrite <- Nat2Z.inj_0 in H₅.
+                         apply Nat2Z.inj in H₅.
+                         rewrite H₅ in Hrpos.
+                         revert Hrpos; apply Nat.lt_irrefl.
+
+                         replace m₁ with (m₁ * 1)%positive
+                          by apply Pos.mul_1_r.
+                         eapply next_pol_in_K_1_mq with (ns := ns₁); eauto .
+                         symmetry.
+                         eapply q_eq_1_any_r with (ns := ns₁) (αk := αk₁);
+                          eauto .
+                         rewrite Hr₁; auto.
+
 bbb.
+  1/ try to build a Hr₂ (see assert () as Hr₂ above) which could be
+     more general.
+  2/ try to make lemmas to prevent making too many asserts.
+
   continue with root_tail_from_0 around line 2730
 *)
 
