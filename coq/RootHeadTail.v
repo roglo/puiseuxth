@@ -2732,10 +2732,8 @@ destruct z₁.
        destruct (lt_dec i (Z.to_nat d)) as [H₂| H₂].
         unfold root_tail_series_from_cγ_list; simpl.
         rewrite <- Hcb, <- Hpolb₂, <- Hbns₂.
-        destruct i; [ exfalso; revert H₁; apply Nat.lt_irrefl | idtac ].
-        clear H₁.
-        destruct (ps_zerop R (ps_poly_nth 0 polb)) as [| H₁]; auto.
-        simpl.
+        destruct i; [ exfalso; revert H₁; apply Nat.lt_irrefl | clear H₁ ].
+        destruct (ps_zerop R (ps_poly_nth 0 polb)) as [| H₁]; auto; simpl.
         destruct (ps_zerop R (ps_poly_nth 0 polb₂)) as [| H₃]; auto.
         unfold next_pow at 1; simpl.
         rewrite Hinib₂, Hfinb₂; simpl.

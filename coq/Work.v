@@ -450,6 +450,30 @@ destruct z₁.
                       revert H; apply Pos2Z_ne_0.
 
                     rewrite rng_add_0_l.
+                    destruct (lt_dec i (Z.to_nat pb₂)) as [H₂| H₂].
+                     unfold root_tail_series_from_cγ_list; simpl.
+                     rewrite <- Hcb, <- Hpolb₂, <- Hbns₂.
+                     destruct i;
+                      [ exfalso; revert H₁; apply Nat.lt_irrefl | clear H₁ ].
+                     destruct (ps_zerop R (ps_poly_nth 0 polb)) as [| H₁];
+                      auto; simpl.
+                     destruct (ps_zerop R (ps_poly_nth 0 polb₂)) as [| H₃];
+                      auto.
+                     unfold next_pow at 1; simpl.
+                     rewrite Hinib₂, Hfinb₂; simpl.
+                     rewrite Hαkb₂; simpl.
+                     rewrite Qnum_inv_Qnat_sub; auto.
+                     rewrite Qden_inv_Qnat_sub; auto.
+                     rewrite Z.add_0_r, Z.mul_1_r, Nat.sub_0_r, Pos.mul_1_r.
+                     rewrite Z.mul_shuffle0, Pos_mul_shuffle0.
+                     rewrite Pos2Z.inj_mul.
+                     rewrite Z.div_mul_cancel_r; auto.
+                     erewrite αj_m_eq_p_r with (pol₁ := polb₂); eauto .
+                      rewrite Pos2Z.inj_mul.
+                      rewrite Z.mul_shuffle0, Zposnat2Znat; auto.
+                      rewrite <- Z.mul_assoc, Z.div_mul.
+                       remember (Nat.compare (Z.to_nat pb₂) (S i)) as cmp₁.
+                       rename Heqcmp₁ into Hcmp₁.
 bbb.
   continue with root_tail_from_0 around line 2730
 *)
