@@ -241,6 +241,7 @@ destruct z₁.
      erewrite <- nth_ns_n with (c := c₁) in Hnsb; eauto .
      destruct H as (Hjb, (Hkb, (Hαjb, Hαkb))).
 
+     erewrite nth_pol_n with (c₁ := c₁) in Hpolb; eauto .
     subst jb kb.
     unfold Qlt in Hαjb; simpl in Hαjb.
     unfold Qeq in Hαkb; simpl in Hαkb.
@@ -301,7 +302,6 @@ destruct z₁.
            symmetry.
            erewrite nth_c_root; eauto .
 
-bbb.
            simpl.
            rewrite <- Hcb.
            rewrite Nat.add_comm in Hpolb₂; simpl in Hpolb₂.
