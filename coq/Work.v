@@ -273,6 +273,38 @@ induction i; intros.
    apply Pos2Z_ne_0.
 Qed.
 
+Theorem next_pow_eq_p : ∀ pol ns c αj αk m r,
+  ns ∈ newton_segments pol
+  → pol_in_K_1_m pol m
+  → c = ac_root (Φq pol ns)
+  → root_multiplicity acf c (Φq pol ns) = r
+  → ini_pt ns = (Qnat 0, αj)
+  → fin_pt ns = (Qnat r, αk)
+  → (0 < Qnum αj)%Z
+  → Qnum αk = 0%Z
+  → (0 < r)%nat
+  → (1 ≠ 0)%K
+  → next_pow 0 ns m = Z.to_nat (p_of_m m (γ ns)).
+Proof.
+intros pol ns c αj αk m r Hns Hm Hc Hr Hini Hfin Hαj Hαk Hrp H₀.
+unfold next_pow; simpl.
+rewrite Hini, Hfin; simpl.
+rewrite Hαk; simpl.
+rewrite Qnum_inv_Qnat_sub; auto.
+rewrite Qden_inv_Qnat_sub; auto.
+rewrite Z.add_0_r, Z.mul_1_r, Nat.sub_0_r, Pos.mul_1_r.
+rewrite Z.mul_shuffle0, Pos_mul_shuffle0.
+rewrite Pos2Z.inj_mul.
+rewrite Z.div_mul_cancel_r; auto.
+erewrite αj_m_eq_p_r with (pol₁ := pol); eauto .
+rewrite Pos.mul_comm.
+rewrite Pos2Z.inj_mul, Zposnat2Znat; auto.
+rewrite <- Z.mul_assoc.
+rewrite Z.div_mul; auto.
+rewrite <- Zposnat2Znat; auto.
+apply Pos2Z_ne_0.
+Qed.
+
 (* cf root_tail_from_0 *)
 Theorem root_tail_from_0₄₂ : ∀ pol ns pol₁ ns₁ c m q₀ b r,
   ns ∈ newton_segments pol
@@ -740,22 +772,9 @@ destruct z₁.
               contradiction.
 
               clear H₁.
-              remember (S i) as si.
-              unfold next_pow; simpl.
-              rewrite Hinib₃, Hfinb₃; simpl.
-              rewrite Hαkb₃; simpl.
-              rewrite Qnum_inv_Qnat_sub; auto.
-              rewrite Qden_inv_Qnat_sub; auto.
-              rewrite Z.add_0_r, Z.mul_1_r, Nat.sub_0_r, Pos.mul_1_r.
-              rewrite Z.mul_shuffle0, Pos_mul_shuffle0.
-              rewrite Pos2Z.inj_mul.
-              rewrite Z.div_mul_cancel_r; auto.
-              erewrite αj_m_eq_p_r with (pol₁ := polb₃); eauto .
-              rewrite Pos2Z.inj_mul.
-              rewrite Z.mul_shuffle0, Zposnat2Znat; auto.
-              rewrite <- Zposnat2Znat; auto.
-              rewrite <- Z.mul_assoc, Z.div_mul; simpl; auto.
-              subst sid si; simpl.
+              erewrite next_pow_eq_p; eauto .
+              rewrite <- Hpb₃.
+              subst sid; simpl.
               destruct (ps_zerop R (ps_poly_nth 0 polb₃)) as [| H₁]; auto.
               clear H₁.
               remember (Nat.compare (Z.to_nat pb₃) (S i)) as cmp₁ eqn:Hcmp₁ .
@@ -786,6 +805,9 @@ destruct z₁.
                 exfalso; fast_omega Hpb₃pos Hcmp₁.
 
                 rewrite <- Heqid.
+(*
+bbb
+*)
                 simpl.
                 destruct (ps_zerop R (ps_poly_nth 0 polb₄)) as [| H₁]; auto.
                 remember (Nat.compare y (S id)) as cmp₂ eqn:Hcmp₂ .
