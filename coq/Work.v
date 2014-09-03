@@ -805,7 +805,6 @@ destruct z₁.
                 exfalso; fast_omega Hpb₃pos Hcmp₁.
 
                 rewrite <- Heqid.
-(*
 bbb
 *)
                 simpl.
