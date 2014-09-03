@@ -171,7 +171,6 @@ induction i; intros.
   rewrite Z.mul_shuffle0, Pos_mul_shuffle0 in Hnp.
   do 2 rewrite Pos2Z.inj_mul in Hnp.
   rewrite Z.div_mul_cancel_r in Hnp; auto.
-   Focus 1.
    remember Hns₁ as Hns₁₁; clear HeqHns₁₁.
    eapply List_hd_in in Hns₁₁; eauto .
     remember (Nat.compare np (S (id + di))) as cmp₁ eqn:Hnpi .
@@ -799,10 +798,46 @@ destruct z₁.
                 apply eq_add_S in Heqid.
                 rewrite Heqid.
                 replace (S (S i - z)) with (S i - z + 1)%nat by fast_omega .
-                eapply find_coeff_step_any_r.
-bbb.
-  Goal 11 cannot work
+                Focus 1.
+                destruct (lt_dec y z) as [H₃| H₃].
+                 Focus 2.
+                 apply Nat.nlt_ge in H₃.
+                 replace y with (z + (y - z))%nat by fast_omega H₃.
+                 apply nat_compare_lt in Hcmp₂.
+                 eapply
+                  find_coeff_step_any_r
+                   with (dp := (y - z)%nat) (pol := polb₄); 
+                  eauto .
+                  5: fast_omega Hcmp₂ H₃ Hpb₃pos Heqid.
 
+                  5: fast_omega H₃.
+
+                  Unfocus.
+                  Focus 1.
+                  remember Hnsb₃₁ as H; clear HeqH.
+                  eapply r_n_next_ns in H; eauto .
+                   destruct H as (αjb₄, (αkb₄, H)).
+                   destruct H as (Hinib₄, (Hfinb₄, (Hαjb₄, Hαkb₄))).
+                   unfold next_pow in Heqy; simpl in Heqy.
+                   rewrite Hinib₄, Hfinb₄ in Heqy; simpl in Heqy.
+                   rewrite Hαkb₄ in Heqy; simpl in Heqy.
+                   rewrite Qnum_inv_Qnat_sub in Heqy; auto.
+                   rewrite Qden_inv_Qnat_sub in Heqy; auto.
+                   rewrite Z.add_0_r, Z.mul_1_r, Nat.sub_0_r, 
+                    Pos.mul_1_r in Heqy.
+                   rewrite Z.mul_shuffle0, Pos_mul_shuffle0 in Heqy.
+                   do 2 rewrite Pos2Z.inj_mul in Heqy.
+                   rewrite Z.div_mul_cancel_r in Heqy; auto.
+                    erewrite αj_m_eq_p_r with (pol₁ := polb₄) in Heqy; eauto .
+                     rewrite Z.mul_shuffle0 in Heqy.
+                     rewrite Zposnat2Znat in Heqy; auto.
+                     rewrite Z.div_mul_cancel_r in Heqy; auto.
+                      rewrite Z.div_mul in Heqy; auto.
+                      remember (next_pow y nsb₅ m₁) as np eqn:Hnp .
+                      rewrite Heqy in Hnp.
+                      rename y into p.
+                      rewrite <- Heqy in Hnp.
+bbb.
   cf RootAnyR.v around line 1948
   cf RootHeadTail.v around line 2822
 *)
