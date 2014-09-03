@@ -574,8 +574,66 @@ destruct z₁.
 
               apply nat_compare_lt in Hcmp₁.
               exfalso; fast_omega H₂ Hcmp₁.
+
+             apply Nat.nlt_ge in H₂.
+             remember (i - Z.to_nat pb₃)%nat as id.
+             unfold root_tail_series_from_cγ_list.
+             remember (S id) as sid; simpl.
+             rewrite <- Hcb₂, <- Hpolb₃.
+             erewrite <- nth_ns_n with (ns := ns₂); eauto .
+             rewrite <- Hnsb₃.
+             destruct i; [ exfalso; revert H₁; apply Nat.lt_irrefl | idtac ].
+             clear H₁.
+             destruct (ps_zerop R (ps_poly_nth 0 polb₂)) as [H₁| H₁].
+              contradiction.
+
+              clear H₁.
+              remember (S i) as si.
+              unfold next_pow; simpl.
+              rewrite Hinib₃, Hfinb₃; simpl.
+              rewrite Hαkb₃; simpl.
+              rewrite Qnum_inv_Qnat_sub; auto.
+              rewrite Qden_inv_Qnat_sub; auto.
+              rewrite Z.add_0_r, Z.mul_1_r, Nat.sub_0_r, Pos.mul_1_r.
+              rewrite Z.mul_shuffle0, Pos_mul_shuffle0.
+              rewrite Pos2Z.inj_mul.
+              rewrite Z.div_mul_cancel_r; auto.
+              erewrite αj_m_eq_p_r with (pol₁ := polb₃); eauto .
+              rewrite Pos2Z.inj_mul.
+              rewrite Z.mul_shuffle0, Zposnat2Znat; auto.
+              rewrite <- Zposnat2Znat; auto.
+              rewrite <- Z.mul_assoc, Z.div_mul; simpl; auto.
+              subst sid si; simpl.
+              destruct (ps_zerop R (ps_poly_nth 0 polb₃)) as [| H₁]; auto.
+              clear H₁.
+              remember (Nat.compare (Z.to_nat pb₃) (S i)) as cmp₁ eqn:Hcmp₁ .
+              symmetry in Hcmp₁.
+              destruct cmp₁.
+               apply nat_compare_eq in Hcmp₁.
+               rewrite Hcmp₁, Nat.sub_diag in Heqid; subst id; reflexivity.
+
+               apply nat_compare_lt in Hcmp₁.
+               destruct id; [ exfalso; fast_omega Heqid Hcmp₁ | idtac ].
+               rewrite <- Hcb₃.
+               remember (next_pol polb₃ (β nsb₃) (γ nsb₃) cb₃) as polb₄.
+               remember (List.hd phony_ns (newton_segments polb₄)) as nsb₄.
+               rewrite <- Nat.add_1_r.
+               remember (next_pow (Z.to_nat pb₃) nsb₄ m₁) as x.
+               unfold next_pow in Heqx; simpl in Heqx.
+               remember (next_pow 0 nsb₄ m₁) as y.
+               unfold next_pow in Heqy; simpl in Heqy.
+               rewrite <- Heqy in Heqx.
+               rewrite Nat.add_comm in Heqx.
+               subst x.
+               replace (i + 1)%nat with
+                (S i - Z.to_nat pb₃ + Z.to_nat pb₃)%nat .
+                2: fast_omega H₂.
+
+                rewrite find_coeff_add.
+                rewrite <- Heqid.
 bbb.
-  continue with root_tail_from_0 around line 2730
+  cf RootAnyR.v around line 1948
+  cf RootHeadTail.v around line 2822
 *)
 
 (*
