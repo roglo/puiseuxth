@@ -1392,7 +1392,9 @@ eapply q_mj_mk_eq_p_h_j in H; eauto .
 Qed.
 
 (* cf find_coeff_step *)
-Theorem find_coeff_step_any_r : ∀ pol ns m c pol₁ ns₁ i di p dp np r,
+(* a better version has been done: find_coeff_step_any_r
+   therefore the following theorem should be removed one day *)
+Theorem find_coeff_step_any_r₉ : ∀ pol ns m c pol₁ ns₁ i di p dp np r,
   ns ∈ newton_segments pol
   → pol_in_K_1_m pol m
   → q_of_m m (γ ns) = 1%positive
@@ -1945,7 +1947,7 @@ destruct (ps_zerop _ (ps_poly_nth 0 pol₁)) as [H₁| H₁].
                   replace n₂ with (n₂ + 0)%nat in Hp₂₃ by fast_omega .
                   subst id; symmetry.
                   rewrite Heqq₂ in Hq₂.
-                  eapply find_coeff_step_any_r with (r := r); eauto .
+                  eapply find_coeff_step_any_r₉ with (r := r); eauto .
                    intros j.
                    pose proof (Hri (S (S j))) as H.
                    remember (S j) as sj; simpl in H.
