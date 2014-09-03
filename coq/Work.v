@@ -203,7 +203,7 @@ destruct z₁.
    rename H into Hbns.
    remember (nth_pol b₁ pol₁ ns₁) as polb₂ eqn:Hpolb₂ .
    remember (nth_ns b₁ pol₁ ns₁) as nsb₂ eqn:Hnsb₂ .
-   assert (pol_in_K_1_m polb₂ m₁) as HKb.
+   assert (pol_in_K_1_m polb₂ m₁) as HKb₂.
     eapply nth_pol_in_K_1_m with (ns := ns₁) (n := b₁); eauto .
 
     pose proof (Hri (S b₁)) as Hrb; simpl in Hrb.
@@ -408,10 +408,8 @@ destruct z₁.
       remember Hns₂ as Hns₂₁; clear HeqHns₂₁.
       apply List_hd_in in Hns₂₁; eauto .
       erewrite αj_m_eq_p_r with (ns₁ := nsb₂); eauto .
-(*
-      assert (pol_in_K_1_m polb₃ m₁) as HKb₂.
-       erewrite nth_pol_n with (pol₂ := pol₂) (c₁ := c₁) (n := S b) in Hpolb₃;
-        eauto .
+      assert (pol_in_K_1_m polb₃ m₁) as HKb₃.
+       erewrite nth_pol_n with (c₁ := c₁) (n := S b) in Hpolb₃; eauto .
         eapply nth_pol_in_K_1_m with (ns := ns₂); eauto .
          replace m₁ with (m₁ * 1)%positive by apply Pos.mul_1_r.
          eapply next_pol_in_K_1_mq with (ns := ns₁); eauto .
@@ -427,25 +425,25 @@ destruct z₁.
 
          intros i Hi.
          destruct (eq_nat_dec i (S b)) as [H₂| H₂].
-          subst i.
-          simpl.
+          subst i; simpl.
           rewrite <- Hc₂, <- Hpol₃, <- Hns₃.
-          Focus 2.
+          simpl in Hpolb₃.
+          rewrite <- Hc₂, <- Hpol₃, <- Hns₃ in Hpolb₃.
+          rewrite <- Hpolb₃.
+          apply order_fin.
+          erewrite order_in_newton_segment; eauto ; [ idtac | left; eauto  ].
+          intros H; discriminate H.
+
           assert (S i ≤ S b) as H by fast_omega Hi H₂.
           apply Hpsi in H; simpl in H.
           rewrite <- Hc₁, <- Hpol₂, <- Hns₂ in H.
           assumption.
 
-          2: simpl; rewrite <- Hc₁, <- Hpol₂, <- Hns₂; assumption.
+        simpl; rewrite <- Hc₁, <- Hpol₂, <- Hns₂; assumption.
 
-        2: simpl; rewrite <- Hc₁, <- Hpol₂, <- Hns₂; assumption.
+        simpl; rewrite <- Hc₁, <- Hpol₂, <- Hns₂; assumption.
 
-        simpl in Hpolb₃.
-        rewrite <- Hc₂, <- Hpol₃, <- Hns₃ in Hpolb₃.
-        rewrite <- Hpolb₃.
-bbb.
-*)
-      erewrite αj_m_eq_p_r with (ns₁ := nsb₃) (pol₁ := polb₃); eauto .
+       erewrite αj_m_eq_p_r with (ns₁ := nsb₃) (pol₁ := polb₃); eauto .
        rewrite Z.mul_shuffle0, Zposnat2Znat; auto.
        rewrite <- Zposnat2Znat; eauto .
        rewrite <- Z.mul_assoc, Z.div_mul; simpl; auto.
@@ -466,7 +464,6 @@ bbb.
        remember (Pos.of_nat r) as rq eqn:Hrq .
        remember (Qden αjb₂ * Qden αkb₂ * rq)%positive as dd.
        remember (Qnum αjb₂ * ' Qden αkb₂)%Z as nd.
-(**)
        assert (0 < Z.to_nat pb₃)%nat as Hpb₃pos.
         subst pb₃.
         unfold p_of_m; simpl.
@@ -504,7 +501,6 @@ bbb.
          apply Z.gcd_eq_0_r in H.
          revert H; apply Pos2Z_ne_0.
 
-(**)
         rewrite series_stretch_const.
         rewrite series_mul_1_l.
         do 2 rewrite Z2Nat_sub_min.
@@ -564,20 +560,20 @@ bbb.
              rewrite Pos2Z.inj_mul.
              rewrite Z.div_mul_cancel_r; auto.
              erewrite αj_m_eq_p_r with (pol₁ := polb₃); eauto .
-              rewrite Pos2Z.inj_mul.
-              rewrite Z.mul_shuffle0, Zposnat2Znat; auto.
-              rewrite <- Zposnat2Znat; auto.
-              rewrite <- Z.mul_assoc, Z.div_mul; simpl; auto.
-              remember (Nat.compare (Z.to_nat pb₃) (S i)) as cmp₁.
-              rename Heqcmp₁ into Hcmp₁.
-              symmetry in Hcmp₁.
-              destruct cmp₁; auto.
-               apply nat_compare_eq in Hcmp₁.
-               rewrite Hcmp₁ in H₂.
-               exfalso; revert H₂; apply Nat.lt_irrefl.
+             rewrite Pos2Z.inj_mul.
+             rewrite Z.mul_shuffle0, Zposnat2Znat; auto.
+             rewrite <- Zposnat2Znat; auto.
+             rewrite <- Z.mul_assoc, Z.div_mul; simpl; auto.
+             remember (Nat.compare (Z.to_nat pb₃) (S i)) as cmp₁.
+             rename Heqcmp₁ into Hcmp₁.
+             symmetry in Hcmp₁.
+             destruct cmp₁; auto.
+              apply nat_compare_eq in Hcmp₁.
+              rewrite Hcmp₁ in H₂.
+              exfalso; revert H₂; apply Nat.lt_irrefl.
 
-               apply nat_compare_lt in Hcmp₁.
-               exfalso; fast_omega H₂ Hcmp₁.
+              apply nat_compare_lt in Hcmp₁.
+              exfalso; fast_omega H₂ Hcmp₁.
 bbb.
   continue with root_tail_from_0 around line 2730
 *)
