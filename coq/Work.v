@@ -617,6 +617,8 @@ destruct z₁.
                rewrite <- Hcb₃.
                remember (next_pol polb₃ (β nsb₃) (γ nsb₃) cb₃) as polb₄.
                remember (List.hd phony_ns (newton_segments polb₄)) as nsb₄.
+               rename Heqpolb₄ into Hpolb₄.
+               rename Heqnsb₄ into Hnsb₄.
                rewrite <- Nat.add_1_r.
                remember (next_pow (Z.to_nat pb₃) nsb₄ m₁) as x.
                remember (next_pow 0 nsb₄ m₁) as y.
