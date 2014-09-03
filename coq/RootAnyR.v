@@ -2081,6 +2081,43 @@ destruct (ps_zerop _ (ps_poly_nth 0 pol₁)) as [H₁| H₁].
 
                   destruct i; [ fast_omega H₂ | clear H₂ H₄ ].
                   rewrite <- Hc₁, <- Hpol₂, <- Hns₂, Hnpow; symmetry.
+(*
+                  Focus 1.
+                  simpl.
+                  destruct (ps_zerop R (ps_poly_nth 0 pol₂)); auto; clear n.
+                  destruct id.
+                   remember (Nat.compare n₂ (S i)) as cmp₁ eqn:Hcmp₁ .
+                   symmetry in Hcmp₁.
+                   Focus 1.
+                   destruct cmp₁; auto.
+                    apply nat_compare_lt in Hcmp₁.
+                    exfalso; fast_omega Heqid Hcmp₁.
+
+                    apply nat_compare_gt in Hcmp₁.
+                    exfalso; fast_omega H₁ Hcmp₁.
+
+                   remember (Nat.compare n₂ (S i)) as cmp₁ eqn:Hcmp₁ .
+                   symmetry in Hcmp₁.
+                   destruct cmp₁.
+                    Focus 1.
+                    apply nat_compare_eq in Hcmp₁.
+                    exfalso; fast_omega Heqid Hcmp₁.
+
+                    apply nat_compare_lt in Hcmp₁.
+                    remember (ac_root (Φq pol₂ ns₂)) as c₂ eqn:Hc₂ .
+                    remember (next_pol pol₂ (β ns₂) (γ ns₂) c₂) as pol₃.
+                    remember (List.hd phony_ns (newton_segments pol₃)) as ns₃.
+                    symmetry.
+                    rewrite Heqid.
+                    remember (next_pow n₂ ns₃ m₁) as x.
+                    replace n₂ with (n₂ + 0)%nat in Heqx by fast_omega .
+                    subst x.
+                    replace (S i) with (S i + 0)%nat at 1 by fast_omega .
+                    replace (S i - n₂)%nat with (S i - n₂ + 0)%nat at 2
+                     by fast_omega .
+                    eapply xxx; eauto .
+bbb.
+*)
                   rewrite <- find_coeff_add with (dp := n₂).
                   rewrite Heqid.
                   rewrite Nat.add_0_l, Nat.sub_add; auto.
@@ -2100,7 +2137,6 @@ destruct (ps_zerop _ (ps_poly_nth 0 pol₁)) as [H₁| H₁].
                   replace n₂ with (n₂ + 0)%nat in Hp₂₃ by fast_omega .
                   subst id; symmetry.
                   rewrite Heqq₂ in Hq₂.
-bbb.
                   eapply find_coeff_step_any_r₉ with (r := r); eauto .
                    intros j.
                    pose proof (Hri (S (S j))) as H.
