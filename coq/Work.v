@@ -121,24 +121,6 @@ rewrite <- Hc in H; rewrite H.
 assumption.
 Qed.
 
-(*
-Theorem xxx : ∀ pol ns m c pol₁ ns₁ i di p dp r,
-  ns ∈ newton_segments pol
-  → pol_in_K_1_m pol m
-  → q_of_m m (γ ns) = 1%positive
-  → c = ac_root (Φq pol ns)
-  → pol₁ = next_pol pol (β ns) (γ ns) c
-  → ns₁ = List.hd phony_ns (newton_segments pol₁)
-  → (∀ i, nth_r i pol ns = r)
-  → (1 ≠ 0)%K
-  → (0 < p ≤ i)%nat
-  → (di ≤ dp + 1)%nat
-  → (find_coeff i (next_pow (p + dp) ns₁ m) m pol₁ ns₁ (S i + di) =
-     find_coeff (S i - p) (next_pow dp ns₁ m) m pol₁ ns₁ (S i - p + di))%K.
-Proof.
-bbb.
-*)
-
 (* cf root_tail_from_0 *)
 Theorem root_tail_from_0₄₂ : ∀ pol ns pol₁ ns₁ c m q₀ b r,
   ns ∈ newton_segments pol
@@ -635,17 +617,15 @@ destruct z₁.
                rewrite <- Hcb₃.
                remember (next_pol polb₃ (β nsb₃) (γ nsb₃) cb₃) as polb₄.
                remember (List.hd phony_ns (newton_segments polb₄)) as nsb₄.
-(*
-bbb.
-*)
                rewrite <- Nat.add_1_r.
                remember (next_pow (Z.to_nat pb₃) nsb₄ m₁) as x.
-               unfold next_pow in Heqx; simpl in Heqx.
                remember (next_pow 0 nsb₄ m₁) as y.
-               unfold next_pow in Heqy; simpl in Heqy.
-               rewrite <- Heqy in Heqx.
-               rewrite Nat.add_comm in Heqx.
-               subst x.
+               remember Heqx as Heqxx; clear HeqHeqxx.
+               remember Heqy as Heqyy; clear HeqHeqyy.
+               unfold next_pow in Heqxx, Heqyy; simpl in Heqxx, Heqyy.
+               rewrite <- Heqyy in Heqxx.
+               rewrite Nat.add_comm in Heqxx.
+               rewrite Heqxx.
                replace (i + 1)%nat with
                 (S i - Z.to_nat pb₃ + Z.to_nat pb₃)%nat .
                 2: fast_omega H₂.
@@ -655,8 +635,8 @@ bbb.
                 replace (S id) with (S id + 0)%nat at 1 by fast_omega .
                 replace (S id) with (S id + 0)%nat at 3 by fast_omega .
                 rewrite Heqid.
-                Focus 1.
-                eapply find_coeff_step_any_r with (ns := nsb₃) (r := r); eauto .
+                eapply find_coeff_step_any_r with (ns := nsb₃) (r := r);
+                 eauto .
 bbb.
   cf RootAnyR.v around line 1948
   cf RootHeadTail.v around line 2822
