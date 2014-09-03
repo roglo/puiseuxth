@@ -439,6 +439,10 @@ destruct z₁.
           2: simpl; rewrite <- Hc₁, <- Hpol₂, <- Hns₂; assumption.
 
         2: simpl; rewrite <- Hc₁, <- Hpol₂, <- Hns₂; assumption.
+
+        simpl in Hpolb₃.
+        rewrite <- Hc₂, <- Hpol₃, <- Hns₃ in Hpolb₃.
+        rewrite <- Hpolb₃.
 bbb.
 *)
       erewrite αj_m_eq_p_r with (ns₁ := nsb₃) (pol₁ := polb₃); eauto .
