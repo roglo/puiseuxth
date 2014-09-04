@@ -358,54 +358,57 @@ induction n₁; intros.
      apply Nat.le_0_l.
 Qed.
 
-(*
 Theorem find_coeff_more_iter : ∀ pol ns pow m i n,
   (i < n)%nat
-  → (find_coeff n pow m pol ns i = 0)%K ∨
-    (find_coeff n pow m pol ns i =
-     find_coeff (S n) pow m pol ns i)%K.
-Proof.
-bbb.
-
-Theorem find_coeff_more_iter₉ : ∀ pol ns pow m i n,
-  (i < n)%nat
-  → (n ≤ pow)
   → (find_coeff n pow m pol ns i =
      find_coeff (S n) pow m pol ns i)%K.
 Proof.
-intros pol ns pow m i n Hn Hpow.
-revert pol ns pow m i Hn Hpow.
-induction n; intros.
- exfalso; revert Hn; apply Nat.nlt_0_r.
+intros pol ns pow m i n Hin.
+revert pol ns pow m n Hin.
+induction i; intros.
+ destruct n; [ exfalso; revert Hin; apply Nat.lt_irrefl | idtac ].
+ remember (S n) as sn.
+ rewrite Heqsn in |- * at 1; simpl.
+ destruct (ps_zerop _ (ps_poly_nth 0 pol)) as [| H₁]; auto.
+ remember (Nat.compare pow 0) as cmp₁ eqn:Hcmp₁ .
+ symmetry in Hcmp₁.
+ destruct cmp₁; auto.
+ apply nat_compare_lt in Hcmp₁.
+ exfalso; revert Hcmp₁; apply Nat.nlt_0_r.
 
- remember (S n) as sn eqn:Hsn  in |- *.
- rewrite Hsn in |- * at 1; simpl.
- destruct (ps_zerop R (ps_poly_nth 0 pol)) as [| H₁]; auto.
- remember (Nat.compare pow i) as cmp eqn:Hcmp .
- symmetry in Hcmp.
- destruct cmp; auto.
-apply nat_compare_lt in Hcmp.
-exfalso; omega.
-!!! ???
-Abort.
- remember (ac_root (Φq pol ns)) as c eqn:Hc .
- remember (next_pol pol (β ns) (γ ns) c) as pol₁ eqn:Hpol₁ .
- remember (List.hd phony_ns (newton_segments pol₁)) as ns₁ eqn:Hns₁ .
- subst sn.
- destruct (eq_nat_dec i n) as [H₂| H₂].
-  subst i.
- apply nat_compare_lt in Hcmp.
-  exfalso; fast_omega Hpow Hcmp.
+ destruct n.
+  exfalso; revert Hin; apply Nat.nlt_0_r.
 
-  apply IHn; [ fast_omega Hn H₂ | idtac ].
-  apply le_trans with (m := pow); [ omega | idtac ].
-  replace pow with (0 + pow)%nat by reflexivity.
-  rewrite next_pow_add; simpl.
-  apply Nat.le_sub_le_add_r.
-  rewrite Nat.sub_diag.
-  apply Nat.le_0_l.
-Qed.
-*)
+  remember (S n) as sn.
+  rewrite Heqsn in |- * at 1; simpl.
+  destruct (ps_zerop _ (ps_poly_nth 0 pol)) as [| H₁]; auto.
+  remember (Nat.compare pow (S i)) as cmp₁ eqn:Hcmp₁ .
+  symmetry in Hcmp₁.
+  destruct cmp₁; auto.
+  remember (ac_root (Φq pol ns)) as c eqn:Hc .
+  remember (next_pol pol (β ns) (γ ns) c) as pol₁ eqn:Hpol₁ .
+  remember (List.hd phony_ns (newton_segments pol₁)) as ns₁ eqn:Hns₁ .
+  remember (next_pow pow ns₁ m) as pow₁ eqn:Hpow₁ .
+  symmetry in Hpow₁.
+  destruct pow₁.
+   Focus 2.
+   remember (S pow₁) as x.
+   rewrite <- Nat.add_1_r.
+   subst x.
+   rewrite <- Nat.add_1_r.
+   do 2 rewrite find_coeff_add.
+   subst sn.
+   apply IHi.
+   apply Nat.succ_lt_mono; auto.
+
+   replace pow with (0 + pow)%nat in Hpow₁ by auto.
+   rewrite next_pow_add in Hpow₁.
+   apply Nat.eq_add_0 in Hpow₁.
+   destruct Hpow₁ as (Hpow₁, Hpow).
+   erewrite next_pow_eq_p in Hpow₁.
+bbb.
+ça devrait le faire, mais là, je vais voir François Delebecque pour
+lui dire bonjour.
 
 (* cf root_tail_from_0 *)
 Theorem root_tail_from_0₄₂ : ∀ pol ns pol₁ ns₁ c m q₀ b r,
