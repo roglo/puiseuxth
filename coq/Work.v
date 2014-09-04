@@ -938,28 +938,35 @@ destruct z₁.
              apply Nat.nlt_ge in H₂.
              remember (i - Z.to_nat pb₃)%nat as id.
              unfold root_tail_series_from_cγ_list.
-             Focus 1.
-             rewrite find_coeff_more_iter with (pol := polb₁).
-              5: erewrite nth_pol_n.
-               5: eauto .
-
-               6: eauto .
-
-               7: eauto .
-
-               4: eauto .
-
-               2: eauto .
-               4: eauto .
-
-               4: eauto .
-
-               4: eauto .
-
-              4: eauto .
-
-              4: eauto .
+             rewrite find_coeff_more_iter with (r := r); auto.
+              symmetry.
+              rewrite find_coeff_more_iter with (r := r); auto.
+               symmetry.
 bbb.
+  ============================
+   (find_coeff (S (S i)) 0 m₁ polb₂ nsb₂ i =
+    find_coeff (S (S id)) 0 m₁ polb₃ nsb₃ id)%K
+
+subgoal 2 is:
+ q_of_m m₁ (γ nsb₃) = 1%positive
+subgoal 3 is:
+ ∀ j : nat, nth_r j polb₃ nsb₃ = r
+subgoal 4 is:
+ ∀ j : nat, j ≤ S (S id) → (ps_poly_nth 0 (nth_pol j polb₃ nsb₃) ≠ 0)%ps
+subgoal 5 is:
+ q_of_m m₁ (γ nsb₂) = 1%positive
+subgoal 6 is:
+ ∀ j : nat, nth_r j polb₂ nsb₂ = r
+subgoal 7 is:
+ ∀ j : nat, j ≤ S (S i) → (ps_poly_nth 0 (nth_pol j polb₂ nsb₂) ≠ 0)%ps
+subgoal 8 is:
+ (- pb₃ <= 0)%Z
+subgoal 9 is:
+ (p_of_m m₁ (γ nsb₂) * ' (dd * dd))%Z = (nd * ' m₁ * ' dd)%Z
+subgoal 10 is:
+ (m₁ * (dd * dd))%positive = (dd * (dd * m₁))%positive
+subgoal 11 is:
+ (nd * ' m₁ * ' dd <= nd * ' m₁ * ' dd + pb₃ * ' dd * ' dd)%Z
 *)
              remember (S id) as sid; simpl.
              rewrite <- Hcb₂, <- Hpolb₃.
