@@ -496,8 +496,73 @@ Theorem xxx : ∀ pol ns pow m i n n' r,
 Proof.
 intros pol ns pow m i n n' r Hns Hm Hq₀ Hri Hpsi H₀ Hin Hn'.
 clear Hpsi.
+remember (n' - n)%nat as d eqn:Hd .
+replace n' with (n + d)%nat by fast_omega Hd Hn'.
+clear n' Hn' Hd.
+rewrite Nat.add_comm.
+revert n pow Hin.
+revert pol ns Hns Hm Hq₀ Hri.
+induction d; intros; [ reflexivity | idtac ].
+rewrite find_coeff_more_iter; auto; simpl.
+destruct (ps_zerop R (ps_poly_nth 0 pol)) as [| H₁]; auto.
+remember (Nat.compare pow i) as cmp eqn:Hcmp .
+symmetry in Hcmp.
+destruct cmp; auto.
+remember (ac_root (Φq pol ns)) as c eqn:Hc .
+remember (next_pol pol (β ns) (γ ns) c) as pol₁ eqn:Hpol₁ .
+remember (List.hd phony_ns (newton_segments pol₁)) as ns₁ eqn:Hns₁ .
+remember (next_pow pow ns₁ m) as pow₁.
+destruct (ps_zerop _ (ps_poly_nth 0 pol₁)) as [H₂| H₂].
+ rewrite Nat.add_comm.
+ destruct n; simpl.
+  exfalso; revert Hin; apply Nat.nlt_0_r.
 
+  destruct (ps_zerop _ (ps_poly_nth 0 pol₁)) as [H₃| H₃].
+   reflexivity.
+
+   contradiction.
+
+ apply IHd; auto.
+  eapply List_hd_in; eauto .
+  remember Hns as H; clear HeqH.
+  eapply next_has_root_0_or_newton_segments in H; eauto .
+  destruct H as [H| H].
+   simpl in H.
+   rewrite <- Hc, <- Hpol₁ in H; contradiction.
+
+   simpl in H.
+   rewrite <- Hc, <- Hpol₁ in H; assumption.
+
+  eapply first_n_pol_in_K_1_m_any_r with (n := 1%nat); eauto .
+   intros j Hj.
+   destruct j; auto.
+   destruct j; [ simpl | exfalso; fast_omega Hj ].
+   rewrite <- Hc, <- Hpol₁; assumption.
+
+   simpl; rewrite <- Hc; auto.
+
+  remember Hns as H; clear HeqH.
+  eapply r_n_next_ns in H; eauto .
+   rewrite Nat.add_0_r in H.
+   destruct H as (αj₁, (αk₁, H)).
+   destruct H as (Hini₁, (Hfin₁, (Hαj₁, Hαk₁))).
+   eapply q_eq_1_any_r with (pol := pol₁); eauto .
+    eapply List_hd_in; eauto .
 bbb.
+  ============================
+   newton_segments pol₁ ≠ []
+
+subgoal 2 is:
+ pol_in_K_1_m pol₁ m
+subgoal 3 is:
+ fin_pt ns₁ =
+ (Qnat (root_multiplicity acf (ac_root (Φq pol₁ ns₁)) (Φq pol₁ ns₁)), αk₁)
+subgoal 4 is:
+ root_multiplicity acf (ac_root (Φq pol₁ ns₁)) (Φq pol₁ ns₁) =
+ (root_multiplicity acf c (Φq pol ns) + 0)%nat
+subgoal 5 is:
+ ∀ j : nat, nth_r j pol₁ ns₁ = r
+
 intros pol ns pow m i n n' r Hns Hm Hq₀ Hri Hpsi H₀ Hin Hn'.
 remember (n' - n)%nat as d eqn:Hd .
 replace n' with (n + d)%nat by fast_omega Hd Hn'.
