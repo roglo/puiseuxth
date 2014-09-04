@@ -493,7 +493,6 @@ Theorem xxx : ∀ pol ns pow m i n n' r,
   → (find_coeff n pow m pol ns i =
      find_coeff n' pow m pol ns i)%K.
 Proof.
-xxx < Show Script.
 intros pol ns pow m i n n' r Hns Hm Hq₀ Hri Hpsi H₀ Hin Hn'.
 remember (n' - n)%nat as d eqn:Hd .
 replace n' with (n + d)%nat by fast_omega Hd Hn'.
@@ -530,16 +529,34 @@ destruct (ps_zerop _ (ps_poly_nth 0 (nth_pol (S n) pol₁ ns₁))) as [H₂| H�
   apply le_neq_lt in Hj; auto.
   apply Hpsi in Hj; simpl in Hj.
   rewrite <- Hc, <- Hpol₁, <- Hns₁ in Hj; assumption.
+
+  eapply first_n_pol_in_K_1_m_any_r with (n := 1%nat); eauto .
+   intros j Hj.
+   assert (j ≤ S n) as H by fast_omega Hj.
+   apply Hpsi in H; assumption.
+
+   simpl; rewrite <- Hc; assumption.
+
+  eapply q_eq_1_any_r with (pol := pol₁); eauto .
 bbb.
   H₂ : (ps_poly_nth 0 (nth_pol (S n) pol₁ ns₁) = 0)%ps
   ============================
    (find_coeff n pow₁ m pol₁ ns₁ i = find_coeff (d + n) pow₁ m pol₁ ns₁ i)%K
 
 subgoal 2 is:
- pol_in_K_1_m pol₁ m
+ ns₁ ∈ newton_segments pol₁
 subgoal 3 is:
- q_of_m m (γ ns₁) = 1%positive
+ pol_in_K_1_m pol₁ m
 subgoal 4 is:
+ ini_pt ns₁ = (Qnat 0, ?5504)
+subgoal 5 is:
+ fin_pt ns₁ =
+ (Qnat (root_multiplicity acf (ac_root (Φq pol₁ ns₁)) (Φq pol₁ ns₁)), ?5505)
+subgoal 6 is:
+ (0 < Qnum ?5504)%Z
+subgoal 7 is:
+ Qnum ?5505 = 0%Z
+subgoal 8 is:
  ∀ j : nat, nth_r j pol₁ ns₁ = r
 
 (* cf root_tail_from_0 *)
