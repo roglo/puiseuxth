@@ -425,7 +425,21 @@ induction i; intros.
   eapply r_n_next_ns in H; eauto .
   destruct H as (αj₁, (αk₁, H)).
   destruct H as (Hini₁, (Hfin₁, (Hαj₁, Hαk₁))).
+  remember (next_pow pow ns₁ m) as pow₁ eqn:Hpow₁ .
+  symmetry in Hpow₁.
+  destruct pow₁.
+   replace pow with (0 + pow)%nat in Hpow₁ by auto.
+   rewrite next_pow_add in Hpow₁.
+   apply Nat.eq_add_0 in Hpow₁.
+   destruct Hpow₁ as (Hpow₁, Hpow).
+   erewrite next_pow_eq_p with (pol := pol₁) in Hpow₁; eauto .
 bbb.
+subgoal 2 is:
+ ns₁ ∈ newton_segments pol₁
+subgoal 3 is:
+ pol_in_K_1_m pol₁ m
+subgoal 4 is:
+ (1 ≠ 0)%K
 
 Theorem find_coeff_more_iter₉ : ∀ pol ns c pol₁ ns₁ pow m m₁ i n r,
   ns ∈ newton_segments pol
