@@ -600,6 +600,7 @@ bbb.
   H₂ : (ps_poly_nth 0 (nth_pol (S n) pol₁ ns₁) = 0)%ps
   ============================
    (find_coeff n pow₁ m pol₁ ns₁ i = find_coeff (d + n) pow₁ m pol₁ ns₁ i)%K
+*)
 
 (* cf root_tail_from_0 *)
 Theorem root_tail_from_0₄₂ : ∀ pol ns pol₁ ns₁ c m q₀ b r,
