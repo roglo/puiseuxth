@@ -1392,8 +1392,7 @@ eapply q_mj_mk_eq_p_h_j in H; eauto .
 Qed.
 
 (* cf find_coeff_step *)
-(* a better version has been done: find_coeff_step_any_r
-   therefore the following theorem should be removed one day *)
+(* rather use find_coeff_more_iter *)
 Theorem find_coeff_step_any_r₉ : ∀ pol ns m c pol₁ ns₁ i di p dp np r,
   ns ∈ newton_segments pol
   → pol_in_K_1_m pol m
