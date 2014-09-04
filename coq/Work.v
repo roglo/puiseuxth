@@ -387,12 +387,13 @@ Theorem find_coeff_more_iter : ∀ pol ns c pol₁ ns₁ pow m m₁ i n r,
   → ns₁ = List.hd phony_ns (newton_segments pol₁)
   → m₁ = (m * q_of_m m (γ ns))%positive
   → (∀ i, nth_r i pol ns = r)
+  → (∀ i, i ≤ S n → (ps_poly_nth 0 (nth_pol i pol₁ ns₁) ≠ 0)%ps)
   → (i < n)%nat
   → (find_coeff n pow m₁ pol₁ ns₁ i =
      find_coeff (S n) pow m₁ pol₁ ns₁ i)%K.
 Proof.
-intros pol ns c pol₁ ns₁ pow m m₁ i n r Hns Hm Hc Hpol₁ Hns₁ Hm₁ Hri Hin.
-revert pol ns c pol₁ ns₁ pow m m₁ n Hns Hm Hc Hpol₁ Hns₁ Hm₁ Hri Hin.
+intros pol ns c pol₁ ns₁ pow m m₁ i n r Hns Hm Hc Hpol₁ Hns₁ Hm₁ Hri Hpsi Hin.
+revert pol ns c pol₁ ns₁ pow m m₁ n Hns Hm Hc Hpol₁ Hns₁ Hm₁ Hri Hpsi Hin.
 induction i; intros.
  destruct n; [ exfalso; revert Hin; apply Nat.lt_irrefl | idtac ].
  remember (S n) as sn.
@@ -404,7 +405,14 @@ induction i; intros.
  apply nat_compare_lt in Hcmp₁.
  exfalso; revert Hcmp₁; apply Nat.nlt_0_r.
 
- pose proof Hri O as Hr₀; simpl in Hr₀.
+ pose proof (Hri O) as Hr₀; simpl in Hr₀.
+ rewrite <- Hc in Hr₀.
+ pose proof (Hri 1%nat) as Hr₁; simpl in Hr₁.
+ rewrite <- Hc, <- Hpol₁, <- Hns₁ in Hr₁.
+ remember Hns as H; clear HeqH.
+ eapply next_pol_in_K_1_mq in H; eauto .
+ rewrite <- Hm₁ in H.
+ rename H into HK₁.
  assert (0 < r)%nat as Hrp.
   destruct r; [ idtac | apply Nat.lt_0_succ ].
   exfalso; revert Hr₀.
@@ -417,8 +425,52 @@ induction i; intros.
   remember (Nat.compare pow (S i)) as cmp₁ eqn:Hcmp₁ .
   symmetry in Hcmp₁.
   destruct cmp₁; auto.
+  remember (ac_root (Φq pol₁ ns₁)) as c₁ eqn:Hc₁ .
+  remember (next_pol pol₁ (β ns₁) (γ ns₁) c₁) as pol₂ eqn:Hpol₂ .
+  remember (List.hd phony_ns (newton_segments pol₂)) as ns₂ eqn:Hns₂ .
+  remember Hns as H; clear HeqH.
+  eapply r_n_next_ns in H; eauto .
+  destruct H as (αj₁, (αk₁, H)).
+  destruct H as (Hini₁, (Hfin₁, (Hαj₁, Hαk₁))).
+  remember Hns₁ as H; clear HeqH.
+  eapply newton_segments_not_nil in H; eauto .
+  rename H into Hns₁nz.
+  remember Hns₁ as H; clear HeqH.
+  apply List_hd_in in H; auto.
+  rename H into Hns₁₁.
+  destruct (ps_zerop _ (ps_poly_nth 0 pol₂)) as [H₂| H₂].
 bbb.
-  remember (ac_root (Φq pol ns)) as c eqn:Hc .
+  remember Hns₁₁ as H; clear HeqH.
+  eapply r_n_next_ns in H; eauto .
+
+  rename H into Hns₁nz.
+  remember Hns₁ as H; clear HeqH.
+  apply List_hd_in in H; auto.
+  rename H into Hns₁₁.
+  remember (next_pow pow ns₂ m₁) as pow₁ eqn:Hpow₁ .
+  symmetry in Hpow₁.
+  destruct pow₁.
+   replace pow with (0 + pow)%nat in Hpow₁ by auto.
+   rewrite next_pow_add in Hpow₁.
+   apply Nat.eq_add_0 in Hpow₁.
+   destruct Hpow₁ as (Hpow₁, Hpow).
+   erewrite next_pow_eq_p in Hpow₁; eauto .
+bbb.
+  remember (next_pow pow ns₂ m₁) as pow₁ eqn:Hpow₁ .
+  symmetry in Hpow₁.
+  destruct pow₁.
+   replace pow with (0 + pow)%nat in Hpow₁ by auto.
+   rewrite next_pow_add in Hpow₁.
+   apply Nat.eq_add_0 in Hpow₁.
+   destruct Hpow₁ as (Hpow₁, Hpow).
+bbb.
+   remember Hns as H; clear HeqH.
+   eapply r_n_next_ns in H; eauto .
+    destruct H as (αj₁, (αk₁, H)).
+    destruct H as (Hini₁, (Hfin₁, (Hαj₁, Hαk₁))).
+    erewrite next_pow_eq_p with (pol := pol₂) in Hpow₁; eauto .
+bbb.
+  remember (ac_root (Φq pol₁ ns₁)) as c₁ eqn:Hc₁ .
   remember (next_pol pol (β ns) (γ ns) c) as pol₁ eqn:Hpol₁ .
   remember (List.hd phony_ns (newton_segments pol₁)) as ns₁ eqn:Hns₁ .
   remember (next_pow pow ns₁ m) as pow₁ eqn:Hpow₁ .
@@ -484,6 +536,7 @@ bbb.
 bbb.
    erewrite next_pow_eq_p in Hpow₁.
 bbb.
+*)
 
 (* cf root_tail_from_0 *)
 Theorem root_tail_from_0₄₂ : ∀ pol ns pol₁ ns₁ c m q₀ b r,
@@ -942,6 +995,27 @@ destruct z₁.
              apply Nat.nlt_ge in H₂.
              remember (i - Z.to_nat pb₃)%nat as id.
              unfold root_tail_series_from_cγ_list.
+             Focus 1.
+             rewrite find_coeff_more_iter with (pol := polb₁).
+              5: erewrite nth_pol_n.
+               5: eauto .
+
+               6: eauto .
+
+               7: eauto .
+
+               4: eauto .
+
+               2: eauto .
+               4: eauto .
+
+               4: eauto .
+
+               4: eauto .
+
+              4: eauto .
+
+              4: eauto .
 bbb.
 *)
              remember (S id) as sid; simpl.
