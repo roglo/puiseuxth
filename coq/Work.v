@@ -537,27 +537,69 @@ destruct (ps_zerop _ (ps_poly_nth 0 (nth_pol (S n) pol₁ ns₁))) as [H₂| H�
 
    simpl; rewrite <- Hc; assumption.
 
-  eapply q_eq_1_any_r with (pol := pol₁); eauto .
+  remember Hns as H; clear HeqH.
+  eapply r_n_next_ns in H; eauto .
+   rewrite Nat.add_0_r in H.
+   destruct H as (αj₁, (αk₁, H)).
+   destruct H as (Hini₁, (Hfin₁, (Hαj₁, Hαk₁))).
+   eapply q_eq_1_any_r with (pol := pol₁); eauto .
+    eapply List_hd_in; eauto .
+    remember Hns as H; clear HeqH.
+    eapply next_has_root_0_or_newton_segments in H; eauto .
+    destruct H as [H| H].
+     exfalso; revert H.
+     apply Hpsi, le_n_S, Nat.le_0_l.
+
+     simpl in H.
+     rewrite <- Hc, <- Hpol₁ in H; assumption.
+
+    eapply first_n_pol_in_K_1_m_any_r with (n := 1%nat); eauto .
+     intros j Hj.
+     assert (j ≤ S n) as H by fast_omega Hj.
+     apply Hpsi in H; assumption.
+
+     simpl; rewrite <- Hc; assumption.
+
+    erewrite <- nth_r_n with (n := 1%nat); eauto .
+     rewrite Hri.
+     erewrite <- nth_r_n with (n := 0%nat) in Hfin₁; eauto .
+      rewrite Hri in Hfin₁; auto.
+
+      reflexivity.
+
+      reflexivity.
+
+     simpl.
+     rewrite <- Hc; auto.
+
+     simpl; rewrite <- Hc, <- Hpol₁; auto.
+
+     simpl; rewrite <- Hc, <- Hpol₁, <- Hns₁; auto.
+
+   clear H.
+   assert (1 ≤ S n)%nat as H by fast_omega .
+   apply Hpsi in H; simpl in H.
+   rewrite <- Hc, <- Hpol₁ in H; auto.
+
+   rewrite Nat.add_0_r.
+   erewrite <- nth_r_n with (n := 1%nat); eauto .
+    rewrite Hri.
+    erewrite <- nth_r_n with (n := 0%nat); eauto .
+
+    simpl.
+    rewrite <- Hc; auto.
+
+    simpl; rewrite <- Hc, <- Hpol₁; auto.
+
+    simpl; rewrite <- Hc, <- Hpol₁, <- Hns₁; auto.
+
+  intros j.
+  pose proof (Hri (S j)) as H; simpl in H.
+  rewrite <- Hc, <- Hpol₁, <- Hns₁ in H; auto.
 bbb.
   H₂ : (ps_poly_nth 0 (nth_pol (S n) pol₁ ns₁) = 0)%ps
   ============================
    (find_coeff n pow₁ m pol₁ ns₁ i = find_coeff (d + n) pow₁ m pol₁ ns₁ i)%K
-
-subgoal 2 is:
- ns₁ ∈ newton_segments pol₁
-subgoal 3 is:
- pol_in_K_1_m pol₁ m
-subgoal 4 is:
- ini_pt ns₁ = (Qnat 0, ?5504)
-subgoal 5 is:
- fin_pt ns₁ =
- (Qnat (root_multiplicity acf (ac_root (Φq pol₁ ns₁)) (Φq pol₁ ns₁)), ?5505)
-subgoal 6 is:
- (0 < Qnum ?5504)%Z
-subgoal 7 is:
- Qnum ?5505 = 0%Z
-subgoal 8 is:
- ∀ j : nat, nth_r j pol₁ ns₁ = r
 
 (* cf root_tail_from_0 *)
 Theorem root_tail_from_0₄₂ : ∀ pol ns pol₁ ns₁ c m q₀ b r,
