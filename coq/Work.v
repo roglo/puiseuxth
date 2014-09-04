@@ -864,7 +864,7 @@ destruct z₁.
              apply Nat.nlt_ge in H₂.
              remember (i - Z.to_nat pb₃)%nat as id.
              unfold root_tail_series_from_cγ_list.
-bbb
+bbb.
 *)
              remember (S id) as sid; simpl.
              rewrite <- Hcb₂, <- Hpolb₃.
