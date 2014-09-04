@@ -522,16 +522,14 @@ destruct (ps_zerop _ (ps_poly_nth 0 pol₁)) as [H₂| H₂].
 
    contradiction.
 
+ remember Hns as H; clear HeqH.
+ eapply next_has_root_0_or_newton_segments in H; eauto .
+ simpl in H.
+ rewrite <- Hc, <- Hpol₁ in H.
+ destruct H as [| H]; [ contradiction | idtac ].
+ rename H into Hns₁nz.
  apply IHd; auto.
   eapply List_hd_in; eauto .
-  remember Hns as H; clear HeqH.
-  eapply next_has_root_0_or_newton_segments in H; eauto .
-  destruct H as [H| H].
-   simpl in H.
-   rewrite <- Hc, <- Hpol₁ in H; contradiction.
-
-   simpl in H.
-   rewrite <- Hc, <- Hpol₁ in H; assumption.
 
   eapply first_n_pol_in_K_1_m_any_r with (n := 1%nat); eauto .
    intros j Hj.
@@ -548,19 +546,41 @@ destruct (ps_zerop _ (ps_poly_nth 0 pol₁)) as [H₂| H₂].
    destruct H as (Hini₁, (Hfin₁, (Hαj₁, Hαk₁))).
    eapply q_eq_1_any_r with (pol := pol₁); eauto .
     eapply List_hd_in; eauto .
+
+    eapply first_n_pol_in_K_1_m_any_r with (n := 1%nat); eauto .
+     intros j Hj.
+     destruct j; auto.
+     destruct j; [ simpl | exfalso; fast_omega Hj ].
+     rewrite <- Hc, <- Hpol₁; assumption.
+
+     simpl; rewrite <- Hc; auto.
+
+    erewrite <- nth_r_n with (n := 1%nat); eauto .
+     rewrite Hri.
+     erewrite <- nth_r_n with (n := 0%nat) in Hfin₁; eauto .
+      rewrite Hri in Hfin₁; auto.
+
+      reflexivity.
+
+      reflexivity.
+
+     simpl; rewrite <- Hc; auto.
+
+     simpl; rewrite <- Hc, <- Hpol₁; auto.
+
+     symmetry.
+     apply nth_c_root.
+      simpl; rewrite <- Hc; auto.
+
+      simpl; rewrite <- Hc, <- Hpol₁; auto.
+
+   rewrite Nat.add_0_r.
 bbb.
   ============================
-   newton_segments pol₁ ≠ []
+   root_multiplicity acf (ac_root (Φq pol₁ ns₁)) (Φq pol₁ ns₁) =
+   (root_multiplicity acf c (Φq pol ns) + 0)%nat
 
 subgoal 2 is:
- pol_in_K_1_m pol₁ m
-subgoal 3 is:
- fin_pt ns₁ =
- (Qnat (root_multiplicity acf (ac_root (Φq pol₁ ns₁)) (Φq pol₁ ns₁)), αk₁)
-subgoal 4 is:
- root_multiplicity acf (ac_root (Φq pol₁ ns₁)) (Φq pol₁ ns₁) =
- (root_multiplicity acf c (Φq pol ns) + 0)%nat
-subgoal 5 is:
  ∀ j : nat, nth_r j pol₁ ns₁ = r
 
 intros pol ns pow m i n n' r Hns Hm Hq₀ Hri Hpsi H₀ Hin Hn'.
