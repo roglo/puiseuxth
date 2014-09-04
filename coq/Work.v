@@ -379,21 +379,25 @@ apply Z.mul_pos_pos; [ idtac | apply Pos2Z.is_pos ].
 apply Z.mul_pos_pos; [ auto | apply Pos2Z.is_pos ].
 Qed.
 
-Theorem find_coeff_more_iter : ∀ pol ns pow m i n r,
+Theorem find_coeff_more_iter : ∀ pol ns c pol₁ ns₁ pow m m₁ i n r,
   ns ∈ newton_segments pol
   → pol_in_K_1_m pol m
+  → c = ac_root (Φq pol ns)
+  → pol₁ = next_pol pol (β ns) (γ ns) c
+  → ns₁ = List.hd phony_ns (newton_segments pol₁)
+  → m₁ = (m * q_of_m m (γ ns))%positive
   → (∀ i, nth_r i pol ns = r)
   → (i < n)%nat
-  → (find_coeff n pow m pol ns i =
-     find_coeff (S n) pow m pol ns i)%K.
+  → (find_coeff n pow m₁ pol₁ ns₁ i =
+     find_coeff (S n) pow m₁ pol₁ ns₁ i)%K.
 Proof.
-intros pol ns pow m i n r Hns Hm Hri Hin.
-revert pol ns pow m n Hns Hm Hri Hin.
+intros pol ns c pol₁ ns₁ pow m m₁ i n r Hns Hm Hc Hpol₁ Hns₁ Hm₁ Hri Hin.
+revert pol ns c pol₁ ns₁ pow m m₁ n Hns Hm Hc Hpol₁ Hns₁ Hm₁ Hri Hin.
 induction i; intros.
  destruct n; [ exfalso; revert Hin; apply Nat.lt_irrefl | idtac ].
  remember (S n) as sn.
  rewrite Heqsn in |- * at 1; simpl.
- destruct (ps_zerop _ (ps_poly_nth 0 pol)) as [| H₁]; auto.
+ destruct (ps_zerop _ (ps_poly_nth 0 pol₁)) as [| H₁]; auto.
  remember (Nat.compare pow 0) as cmp₁ eqn:Hcmp₁ .
  symmetry in Hcmp₁.
  destruct cmp₁; auto.
@@ -409,10 +413,11 @@ induction i; intros.
   destruct n; [ exfalso; revert Hin; apply Nat.nlt_0_r | idtac ].
   remember (S n) as sn.
   rewrite Heqsn in |- * at 1; simpl.
-  destruct (ps_zerop _ (ps_poly_nth 0 pol)) as [| H₁]; auto.
+  destruct (ps_zerop _ (ps_poly_nth 0 pol₁)) as [| H₁]; auto.
   remember (Nat.compare pow (S i)) as cmp₁ eqn:Hcmp₁ .
   symmetry in Hcmp₁.
   destruct cmp₁; auto.
+bbb.
   remember (ac_root (Φq pol ns)) as c eqn:Hc .
   remember (next_pol pol (β ns) (γ ns) c) as pol₁ eqn:Hpol₁ .
   remember (List.hd phony_ns (newton_segments pol₁)) as ns₁ eqn:Hns₁ .
