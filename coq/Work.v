@@ -379,7 +379,55 @@ apply Z.mul_pos_pos; [ idtac | apply Pos2Z.is_pos ].
 apply Z.mul_pos_pos; [ auto | apply Pos2Z.is_pos ].
 Qed.
 
-Theorem find_coeff_more_iter : ∀ pol ns c pol₁ ns₁ pow m m₁ i n r,
+Theorem find_coeff_more_iter : ∀ pol ns pow m i n r,
+  ns ∈ newton_segments pol
+  → pol_in_K_1_m pol m
+  → (∀ j, nth_r j pol ns = r)
+  → (∀ j, j ≤ S n → (ps_poly_nth 0 (nth_pol j pol ns) ≠ 0)%ps)
+  → (i < n)%nat
+  → (find_coeff n pow m pol ns i =
+     find_coeff (S n) pow m pol ns i)%K.
+Proof.
+intros pol ns pow m i n r Hns Hm Hri Hpsi Hin.
+revert pol ns pow m n Hns Hm Hri Hpsi Hin.
+induction i; intros.
+ destruct n; [ exfalso; revert Hin; apply Nat.lt_irrefl | idtac ].
+ remember (S n) as sn.
+ rewrite Heqsn in |- * at 1; simpl.
+ destruct (ps_zerop _ (ps_poly_nth 0 pol)) as [| H₁]; auto.
+ remember (Nat.compare pow 0) as cmp₁ eqn:Hcmp₁ .
+ symmetry in Hcmp₁.
+ destruct cmp₁; auto.
+ apply nat_compare_lt in Hcmp₁.
+ exfalso; revert Hcmp₁; apply Nat.nlt_0_r.
+
+ pose proof (Hri O) as Hr₀; simpl in Hr₀.
+ assert (0 < r)%nat as Hrp.
+  destruct r; [ idtac | apply Nat.lt_0_succ ].
+  exfalso; revert Hr₀.
+  apply multiplicity_neq_0; auto.
+
+  destruct n; [ exfalso; revert Hin; apply Nat.nlt_0_r | idtac ].
+  remember (S n) as sn.
+  rewrite Heqsn in |- * at 1; simpl.
+  destruct (ps_zerop _ (ps_poly_nth 0 pol)) as [| H₁]; auto.
+  remember (Nat.compare pow (S i)) as cmp₁ eqn:Hcmp₁ .
+  symmetry in Hcmp₁.
+  destruct cmp₁; auto.
+  pose proof (Hri 1%nat) as Hr₁; simpl in Hr₁.
+  assert (1 ≤ S sn) as H by fast_omega .
+  apply Hpsi in H; simpl in H.
+  rename H into Hnz₁.
+  remember (ac_root (Φq pol ns)) as c eqn:Hc .
+  remember (next_pol pol (β ns) (γ ns) c) as pol₁ eqn:Hpol₁ .
+  remember (List.hd phony_ns (newton_segments pol₁)) as ns₁ eqn:Hns₁ .
+  remember Hns as H; clear HeqH.
+  eapply r_n_next_ns in H; eauto .
+  destruct H as (αj₁, (αk₁, H)).
+  destruct H as (Hini₁, (Hfin₁, (Hαj₁, Hαk₁))).
+bbb.
+
+Theorem find_coeff_more_iter₉ : ∀ pol ns c pol₁ ns₁ pow m m₁ i n r,
   ns ∈ newton_segments pol
   → pol_in_K_1_m pol m
   → c = ac_root (Φq pol ns)
