@@ -1066,39 +1066,60 @@ destruct z₁.
                  rewrite find_coeff_add.
                  rewrite <- Heqid.
                  symmetry.
-                 apply find_coeff_more_iter with (r := r); auto.
-                  eapply List_hd_in; eauto .
+                 destruct (ps_zerop R (ps_poly_nth 0 polb₄)) as [H₁| H₁].
+                  remember (S id) as sid; simpl.
+                  destruct (ps_zerop R (ps_poly_nth 0 polb₄)) as [H₃| H₃].
+                   reflexivity.
+
+                   contradiction.
+
+                  apply find_coeff_more_iter with (r := r); auto.
+                   eapply List_hd_in; eauto .
+                   remember Hnsb₃₁ as H; clear HeqH.
+                   eapply next_has_root_0_or_newton_segments in H; eauto .
+                   simpl in H.
+                   rewrite <- Hcb₃, <- Hpolb₄ in H.
+                   destruct H; [ contradiction | auto ].
+
+                   eapply
+                    first_n_pol_in_K_1_m_any_r
+                     with (pol := polb₃) (n := 1%nat); 
+                    eauto .
 bbb.
   ============================
-   newton_segments polb₄ ≠ []
+   q_of_m m₁ (γ nsb₃) = 1%positive
 
 subgoal 2 is:
- pol_in_K_1_m polb₄ m₁
+ ∀ i0 : nat, nth_r i0 polb₃ nsb₃ = ?11295
 subgoal 3 is:
- q_of_m m₁ (γ nsb₄) = 1%positive
+ ∀ i0 : nat, i0 ≤ 1 → (ps_poly_nth 0 (nth_pol i0 polb₃ nsb₃) ≠ 0)%ps
 subgoal 4 is:
- ∀ j : nat, nth_r j polb₄ nsb₄ = r
+ polb₄ = nth_pol 1 polb₃ nsb₃
 subgoal 5 is:
- S (S id) ≤ S i
+ q_of_m m₁ (γ nsb₄) = 1%positive
 subgoal 6 is:
+ ∀ j : nat, nth_r j polb₄ nsb₄ = r
+subgoal 7 is:
+ S (S id) ≤ S i
+subgoal 8 is:
  (0 =
   match match id with
   ...
-subgoal 7 is:
- q_of_m m₁ (γ nsb₃) = 1%positive
-subgoal 8 is:
- ∀ j : nat, nth_r j polb₃ nsb₃ = r
 subgoal 9 is:
- q_of_m m₁ (γ nsb₂) = 1%positive
+ q_of_m m₁ (γ nsb₃) = 1%positive
 subgoal 10 is:
- ∀ j : nat, nth_r j polb₂ nsb₂ = r
+ ∀ j : nat, nth_r j polb₃ nsb₃ = r
 subgoal 11 is:
- (- pb₃ <= 0)%Z
+ q_of_m m₁ (γ nsb₂) = 1%positive
 subgoal 12 is:
- (p_of_m m₁ (γ nsb₂) * ' (dd * dd))%Z = (nd * ' m₁ * ' dd)%Z
+ ∀ j : nat, nth_r j polb₂ nsb₂ = r
 subgoal 13 is:
- (m₁ * (dd * dd))%positive = (dd * (dd * m₁))%positive
+ (- pb₃ <= 0)%Z
 subgoal 14 is:
+ (p_of_m m₁ (γ nsb₂) * ' (dd * dd))%Z = (nd * ' m₁ * ' dd)%Z
+subgoal 15 is:
+ (m₁ * (dd * dd))%positive = (dd * (dd * m₁))%positive
+subgoal 16 is:
  (nd * ' m₁ * ' dd <= nd * ' m₁ * ' dd + pb₃ * ' dd * ' dd)%Z
 *)
 
