@@ -430,9 +430,23 @@ induction i; intros.
     erewrite next_pow_eq_p with (pol := pol₁) in Hpow₁; eauto .
      assert (0 < p_of_m m (γ ns₁))%Z as H.
       eapply p_is_pos; eauto .
+
+      rewrite <- Z2Nat.inj_0 in Hpow₁.
+      apply Z2Nat.inj in Hpow₁.
+       rewrite Hpow₁ in H.
+       exfalso; revert H; apply Z.lt_irrefl.
+
+       apply Z.lt_le_incl; auto.
+
+       reflexivity.
+
+     eapply List_hd_in; eauto .
+     eapply newton_segments_not_nil; eauto .
+
+     replace m with (m * 1)%positive by apply Pos.mul_1_r.
+     eapply next_pol_in_K_1_mq; eauto .
+     symmetry.
 bbb.
-  Hpow₁ : Z.to_nat (p_of_m m (γ ns₁)) = 0
-  H : (0 < p_of_m m (γ ns₁))%Z
 
   Focus 2.
   remember (S pow₁) as x.
