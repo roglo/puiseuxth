@@ -358,6 +358,55 @@ induction n₁; intros.
      apply Nat.le_0_l.
 Qed.
 
+(*
+Theorem find_coeff_more_iter : ∀ pol ns pow m i n,
+  (i < n)%nat
+  → (find_coeff n pow m pol ns i = 0)%K ∨
+    (find_coeff n pow m pol ns i =
+     find_coeff (S n) pow m pol ns i)%K.
+Proof.
+bbb.
+
+Theorem find_coeff_more_iter₉ : ∀ pol ns pow m i n,
+  (i < n)%nat
+  → (n ≤ pow)
+  → (find_coeff n pow m pol ns i =
+     find_coeff (S n) pow m pol ns i)%K.
+Proof.
+intros pol ns pow m i n Hn Hpow.
+revert pol ns pow m i Hn Hpow.
+induction n; intros.
+ exfalso; revert Hn; apply Nat.nlt_0_r.
+
+ remember (S n) as sn eqn:Hsn  in |- *.
+ rewrite Hsn in |- * at 1; simpl.
+ destruct (ps_zerop R (ps_poly_nth 0 pol)) as [| H₁]; auto.
+ remember (Nat.compare pow i) as cmp eqn:Hcmp .
+ symmetry in Hcmp.
+ destruct cmp; auto.
+apply nat_compare_lt in Hcmp.
+exfalso; omega.
+!!! ???
+Abort.
+ remember (ac_root (Φq pol ns)) as c eqn:Hc .
+ remember (next_pol pol (β ns) (γ ns) c) as pol₁ eqn:Hpol₁ .
+ remember (List.hd phony_ns (newton_segments pol₁)) as ns₁ eqn:Hns₁ .
+ subst sn.
+ destruct (eq_nat_dec i n) as [H₂| H₂].
+  subst i.
+ apply nat_compare_lt in Hcmp.
+  exfalso; fast_omega Hpow Hcmp.
+
+  apply IHn; [ fast_omega Hn H₂ | idtac ].
+  apply le_trans with (m := pow); [ omega | idtac ].
+  replace pow with (0 + pow)%nat by reflexivity.
+  rewrite next_pow_add; simpl.
+  apply Nat.le_sub_le_add_r.
+  rewrite Nat.sub_diag.
+  apply Nat.le_0_l.
+Qed.
+*)
+
 (* cf root_tail_from_0 *)
 Theorem root_tail_from_0₄₂ : ∀ pol ns pol₁ ns₁ c m q₀ b r,
   ns ∈ newton_segments pol
@@ -815,6 +864,8 @@ destruct z₁.
              apply Nat.nlt_ge in H₂.
              remember (i - Z.to_nat pb₃)%nat as id.
              unfold root_tail_series_from_cγ_list.
+bbb
+*)
              remember (S id) as sid; simpl.
              rewrite <- Hcb₂, <- Hpolb₃.
              erewrite <- nth_ns_n with (ns := ns₂); eauto .
@@ -858,7 +909,6 @@ destruct z₁.
                 exfalso; fast_omega Hpb₃pos Hcmp₁.
 
                 rewrite <- Heqid.
-(*
 bbb
 *)
                 simpl.
