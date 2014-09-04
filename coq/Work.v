@@ -481,6 +481,67 @@ induction i; intros.
    apply le_n_S, Nat.le_0_l.
 Qed.
 
+Theorem xxx : ∀ pol ns pow m i n n' r,
+  ns ∈ newton_segments pol
+  → pol_in_K_1_m pol m
+  → q_of_m m (γ ns) = 1%positive
+  → (∀ j, nth_r j pol ns = r)
+  → (∀ j, j ≤ S n → (ps_poly_nth 0 (nth_pol j pol ns) ≠ 0)%ps)
+  → (1 ≠ 0)%K
+  → (i < n)%nat
+  → n ≤ n'
+  → (find_coeff n pow m pol ns i =
+     find_coeff n' pow m pol ns i)%K.
+Proof.
+xxx < Show Script.
+intros pol ns pow m i n n' r Hns Hm Hq₀ Hri Hpsi H₀ Hin Hn'.
+remember (n' - n)%nat as d eqn:Hd .
+replace n' with (n + d)%nat by fast_omega Hd Hn'.
+clear n' Hn' Hd.
+rewrite Nat.add_comm.
+revert n pow Hpsi Hin.
+revert pol ns Hns Hm Hq₀ Hri.
+induction d; intros; [ reflexivity | idtac ].
+rewrite find_coeff_more_iter; auto; simpl.
+destruct (ps_zerop R (ps_poly_nth 0 pol)) as [| H₁]; auto.
+remember (Nat.compare pow i) as cmp eqn:Hcmp .
+symmetry in Hcmp.
+destruct cmp; auto.
+remember (ac_root (Φq pol ns)) as c eqn:Hc .
+remember (next_pol pol (β ns) (γ ns) c) as pol₁ eqn:Hpol₁ .
+remember (List.hd phony_ns (newton_segments pol₁)) as ns₁ eqn:Hns₁ .
+remember (next_pow pow ns₁ m) as pow₁.
+destruct (ps_zerop _ (ps_poly_nth 0 (nth_pol (S n) pol₁ ns₁))) as [H₂| H₂].
+ Focus 2.
+ apply IHd; auto.
+  eapply List_hd_in; eauto .
+  remember Hns as H; clear HeqH.
+  eapply next_has_root_0_or_newton_segments in H; eauto .
+  destruct H as [H| H].
+   exfalso; revert H.
+   apply Hpsi, le_n_S, Nat.le_0_l.
+
+   simpl in H.
+   rewrite <- Hc, <- Hpol₁ in H; assumption.
+
+  Focus 4.
+  intros j Hj.
+  destruct (eq_nat_dec j (S n)) as [| H₃]; [ subst j; auto | idtac ].
+  apply le_neq_lt in Hj; auto.
+  apply Hpsi in Hj; simpl in Hj.
+  rewrite <- Hc, <- Hpol₁, <- Hns₁ in Hj; assumption.
+bbb.
+  H₂ : (ps_poly_nth 0 (nth_pol (S n) pol₁ ns₁) = 0)%ps
+  ============================
+   (find_coeff n pow₁ m pol₁ ns₁ i = find_coeff (d + n) pow₁ m pol₁ ns₁ i)%K
+
+subgoal 2 is:
+ pol_in_K_1_m pol₁ m
+subgoal 3 is:
+ q_of_m m (γ ns₁) = 1%positive
+subgoal 4 is:
+ ∀ j : nat, nth_r j pol₁ ns₁ = r
+
 (* cf root_tail_from_0 *)
 Theorem root_tail_from_0₄₂ : ∀ pol ns pol₁ ns₁ c m q₀ b r,
   ns ∈ newton_segments pol
@@ -983,38 +1044,64 @@ destruct z₁.
                   by fast_omega Hcmp₁.
                  rewrite find_coeff_add.
                  rewrite <- Heqid.
+                 apply xxx with (r := r); auto.
 bbb.
   ============================
-   (find_coeff (S i) (next_pow 0 nsb₄ m₁) m₁ polb₄ nsb₄ (S id) =
-    find_coeff (S (S id)) (next_pow 0 nsb₄ m₁) m₁ polb₄ nsb₄ (S id))%K
+   nsb₄ ∈ newton_segments polb₄
 
 subgoal 2 is:
+ pol_in_K_1_m polb₄ m₁
+subgoal 3 is:
+ q_of_m m₁ (γ nsb₄) = 1%positive
+subgoal 4 is:
+ ∀ j : nat, nth_r j polb₄ nsb₄ = r
+subgoal 5 is:
+ ∀ j : nat, j ≤ S (S i) → (ps_poly_nth 0 (nth_pol j polb₄ nsb₄) ≠ 0)%ps
+subgoal 6 is:
+ (S id < S i)%nat
+subgoal 7 is:
+ S i ≤ S (S id)
+subgoal 8 is:
  (0 =
   match match id with
-  ...
-subgoal 3 is:
- q_of_m m₁ (γ nsb₃) = 1%positive
-subgoal 4 is:
- ∀ j : nat, nth_r j polb₃ nsb₃ = r
-subgoal 5 is:
- ∀ j : nat, j ≤ S (S id) → (ps_poly_nth 0 (nth_pol j polb₃ nsb₃) ≠ 0)%ps
-subgoal 6 is:
- q_of_m m₁ (γ nsb₂) = 1%positive
-subgoal 7 is:
- ∀ j : nat, nth_r j polb₂ nsb₂ = r
-subgoal 8 is:
- ∀ j : nat, j ≤ S (S i) → (ps_poly_nth 0 (nth_pol j polb₂ nsb₂) ≠ 0)%ps
+        | 0 => Eq
+        | S _ => Lt
+        end with
+  | Eq => ac_root (Φq polb₃ nsb₃)
+  | Lt =>
+      find_coeff sid
+        (next_pow 0
+           (List.hd phony_ns
+              (newton_segments
+                 (next_pol polb₃ (β nsb₃) (γ nsb₃) (ac_root (Φq polb₃ nsb₃)))))
+           m₁) m₁
+        (next_pol polb₃ (β nsb₃) (γ nsb₃) (ac_root (Φq polb₃ nsb₃)))
+        (List.hd phony_ns
+           (newton_segments
+              (next_pol polb₃ (β nsb₃) (γ nsb₃) (ac_root (Φq polb₃ nsb₃)))))
+        id
+  | Gt => 0
+  end)%K
 subgoal 9 is:
- (- pb₃ <= 0)%Z
+ q_of_m m₁ (γ nsb₃) = 1%positive
 subgoal 10 is:
- (p_of_m m₁ (γ nsb₂) * ' (dd * dd))%Z = (nd * ' m₁ * ' dd)%Z
+ ∀ j : nat, nth_r j polb₃ nsb₃ = r
 subgoal 11 is:
- (m₁ * (dd * dd))%positive = (dd * (dd * m₁))%positive
+ ∀ j : nat, j ≤ S (S id) → (ps_poly_nth 0 (nth_pol j polb₃ nsb₃) ≠ 0)%ps
 subgoal 12 is:
+ q_of_m m₁ (γ nsb₂) = 1%positive
+subgoal 13 is:
+ ∀ j : nat, nth_r j polb₂ nsb₂ = r
+subgoal 14 is:
+ ∀ j : nat, j ≤ S (S i) → (ps_poly_nth 0 (nth_pol j polb₂ nsb₂) ≠ 0)%ps
+subgoal 15 is:
+ (- pb₃ <= 0)%Z
+subgoal 16 is:
+ (p_of_m m₁ (γ nsb₂) * ' (dd * dd))%Z = (nd * ' m₁ * ' dd)%Z
+subgoal 17 is:
+ (m₁ * (dd * dd))%positive = (dd * (dd * m₁))%positive
+subgoal 18 is:
  (nd * ' m₁ * ' dd <= nd * ' m₁ * ' dd + pb₃ * ' dd * ' dd)%Z
-
-  cf RootAnyR.v around line 1948
-  cf RootHeadTail.v around line 2822
 *)
 
 (*
