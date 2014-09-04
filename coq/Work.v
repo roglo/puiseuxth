@@ -382,14 +382,16 @@ Qed.
 Theorem find_coeff_more_iter : ∀ pol ns pow m i n r,
   ns ∈ newton_segments pol
   → pol_in_K_1_m pol m
+  → q_of_m m (γ ns) = 1%positive
   → (∀ j, nth_r j pol ns = r)
   → (∀ j, j ≤ S n → (ps_poly_nth 0 (nth_pol j pol ns) ≠ 0)%ps)
+  → (1 ≠ 0)%K
   → (i < n)%nat
   → (find_coeff n pow m pol ns i =
      find_coeff (S n) pow m pol ns i)%K.
 Proof.
-intros pol ns pow m i n r Hns Hm Hri Hpsi Hin.
-revert pol ns pow m n Hns Hm Hri Hpsi Hin.
+intros pol ns pow m i n r Hns Hm Hq₀ Hri Hpsi H₀ Hin.
+revert pol ns pow m n Hns Hm Hq₀ Hri Hpsi Hin.
 induction i; intros.
  destruct n; [ exfalso; revert Hin; apply Nat.lt_irrefl | idtac ].
  remember (S n) as sn.
@@ -431,20 +433,30 @@ induction i; intros.
   remember Hns₁ as H; clear HeqH.
   apply List_hd_in in H; auto.
   rename H into Hns₁₁.
-  remember (next_pow pow ns₁ m) as pow₁ eqn:Hpow₁ .
-  symmetry in Hpow₁.
-  destruct pow₁.
-   replace pow with (0 + pow)%nat in Hpow₁ by auto.
-   rewrite next_pow_add in Hpow₁.
-   apply Nat.eq_add_0 in Hpow₁.
-   destruct Hpow₁ as (Hpow₁, Hpow).
-   erewrite next_pow_eq_p with (pol := pol₁) in Hpow₁; eauto .
+  remember Hpol₁ as H; clear HeqH.
+  erewrite <- nth_pol_succ with (n := O) in H; simpl; eauto .
+  eapply first_n_pol_in_K_1_m_any_r in H; eauto .
+   rename H into HK₁.
+   remember (next_pow pow ns₁ m) as pow₁ eqn:Hpow₁ .
+   symmetry in Hpow₁.
+   destruct pow₁.
+    replace pow with (0 + pow)%nat in Hpow₁ by auto.
+    rewrite next_pow_add in Hpow₁.
+    apply Nat.eq_add_0 in Hpow₁.
+    destruct Hpow₁ as (Hpow₁, Hpow).
+    erewrite next_pow_eq_p with (pol := pol₁) in Hpow₁; eauto .
 bbb.
-subgoal 2 is:
- pol_in_K_1_m pol₁ m
-subgoal 3 is:
- (1 ≠ 0)%K
+  ============================
+   (find_coeff n 0 m pol₁ ns₁ (S i) = find_coeff sn 0 m pol₁ ns₁ (S i))%K
 
+subgoal 2 is:
+ (find_coeff n (S pow₁) m pol₁ ns₁ (S i) =
+  find_coeff sn (S pow₁) m pol₁ ns₁ (S i))%K
+subgoal 3 is:
+ ∀ i0 : nat, i0 ≤ 1 → (ps_poly_nth 0 (nth_pol i0 pol ns) ≠ 0)%ps
+*)
+
+(*
 Theorem find_coeff_more_iter₉ : ∀ pol ns c pol₁ ns₁ pow m m₁ i n r,
   ns ∈ newton_segments pol
   → pol_in_K_1_m pol m
