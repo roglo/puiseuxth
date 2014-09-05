@@ -1100,36 +1100,81 @@ destruct z₁.
                       eapply
                        nth_pol_in_K_1_m with (ns := ns₁) (n := (3 + b)%nat);
                        eauto .
-bbb.
-  ============================
-   ∀ i0 : nat, i0 ≤ 3 + b → (ps_poly_nth 0 (nth_pol i0 pol₁ ns₁) ≠ 0)%ps
+                       intros j Hj.
+                       destruct (le_dec j (S b)) as [H₃| H₃].
+                        apply Hpsi; auto.
 
-subgoal 2 is:
- polb₄ = nth_pol (3 + b) pol₁ ns₁
-subgoal 3 is:
- fin_pt nsb₄ =
- (Qnat (root_multiplicity acf (ac_root (Φq polb₄ nsb₄)) (Φq polb₄ nsb₄)),
- αkb₄)
-subgoal 4 is:
- root_multiplicity acf (ac_root (Φq polb₄ nsb₄)) (Φq polb₄ nsb₄) = r
-subgoal 5 is:
- ∀ j : nat, nth_r j polb₄ nsb₄ = r
-subgoal 6 is:
- S (S id) ≤ S i
-subgoal 7 is:
- (0 =
-  match match id with
-  ...
-subgoal 8 is:
- q_of_m m₁ (γ nsb₂) = 1%positive
-subgoal 9 is:
- (- pb₃ <= 0)%Z
-subgoal 10 is:
- (p_of_m m₁ (γ nsb₂) * ' (dd * dd))%Z = (nd * ' m₁ * ' dd)%Z
-subgoal 11 is:
- (m₁ * (dd * dd))%positive = (dd * (dd * m₁))%positive
-subgoal 12 is:
- (nd * ' m₁ * ' dd <= nd * ' m₁ * ' dd + pb₃ * ' dd * ' dd)%Z
+                        apply Nat.nle_gt in H₃.
+                        destruct (eq_nat_dec j (S (S b))) as [H₄| H₄].
+                         subst j.
+                         remember (S b) as sb; simpl.
+                         rewrite <- Hc₁, <- Hpol₂, <- Hns₂.
+                         subst sb; simpl.
+                         rewrite <- Hc₂, <- Hpol₃, <- Hns₃.
+                         erewrite <- nth_pol_n with (c₁ := c₂); eauto .
+                         rewrite <- Hpolb₃.
+                         auto.
+
+                         destruct (eq_nat_dec j (S (S (S b)))) as [H₅| H₅].
+                          2: exfalso; fast_omega Hj H₃ H₄ H₅.
+
+                          subst j.
+                          remember (S (S b)) as sb; simpl.
+                          rewrite <- Hc₁, <- Hpol₂, <- Hns₂.
+                          subst sb; remember (S b) as sb; simpl.
+                          rewrite <- Hc₂, <- Hpol₃, <- Hns₃.
+                          subst sb; simpl.
+                          remember (ac_root (Φq pol₃ ns₃)) as c₃ eqn:Hc₃ .
+                          erewrite
+                           <- nth_pol_n with (poln := polb₃) (c₁ := c₃);
+                           eauto .
+                           rewrite <- Hpolb₄; auto.
+
+                           erewrite <- nth_pol_n with (c₁ := c₂); eauto .
+
+                       remember (3 + b)%nat as y; simpl in Heqy; subst y.
+                       remember (S (S b)) as sb; simpl.
+                       rewrite <- Hc₁, <- Hpol₂, <- Hns₂.
+                       subst sb; remember (S b) as sb; simpl.
+                       rewrite <- Hc₂, <- Hpol₃, <- Hns₃.
+                       subst sb; simpl.
+                       remember (ac_root (Φq pol₃ ns₃)) as c₃ eqn:Hc₃ .
+                       erewrite <- nth_pol_n with (poln := polb₃) (c₁ := c₃);
+                        eauto .
+                       erewrite <- nth_pol_n with (c₁ := c₂); eauto .
+
+                      remember (ac_root (Φq pol₃ ns₃)) as c₃ eqn:Hc₃ .
+                      remember (next_pol pol₃ (β ns₃) (γ ns₃) c₃) as pol₄
+                       eqn:Hpol₄ .
+                      remember
+                       (List.hd phony_ns (newton_segments pol₄)) as ns₄
+                       eqn:Hns₄ .
+                      remember (ac_root (Φq pol₄ ns₄)) as c₄ eqn:Hc₄ .
+                      remember (next_pol pol₄ (β ns₄) (γ ns₄) c₄) as pol₅
+                       eqn:Hpol₅ .
+                      remember
+                       (List.hd phony_ns (newton_segments pol₅)) as ns₅
+                       eqn:Hns₅ .
+                      erewrite <- nth_r_n with (pol := pol₅) (ns := ns₅).
+                       4: symmetry; apply nth_c_n.
+                        2: erewrite <- nth_pol_n.
+                         2: eauto .
+
+                         5: erewrite <- nth_pol_n with (c₁ := c₃).
+                          5: eauto .
+
+                          5: eauto .
+
+                          5: eauto .
+
+                          2: eauto .
+
+                          2: eauto .
+
+                          2: eauto .
+
+                          2: eauto .
+bbb.
 *)
 
 (*
