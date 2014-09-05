@@ -605,6 +605,114 @@ destruct z₁.
 
                      simpl; rewrite <- Hcb₃; auto.
 
+                    remember (ac_root (Φq polb₄ nsb₄)) as c₄ eqn:Hc₄ .
+                    assert (root_multiplicity acf c₄ (Φq polb₄ nsb₄) = r)
+                     as Hr₄.
+                     rewrite <- Hri₁ with (i := S (S (S b))); symmetry.
+                     apply nth_r_n.
+                      rewrite Hpolb₄.
+                      eapply nth_pol_n with (c₁ := c); eauto .
+                       rewrite Hpolb₃.
+                       remember (S (S b)) as sb; simpl.
+                       rewrite <- Hc, <- Hpol₁, <- Hns₁.
+                       subst sb.
+                       eapply nth_pol_n with (c₁ := c); eauto .
+                        rewrite Hpolb₂.
+                        remember (S b) as sb; simpl.
+                        rewrite <- Hc, <- Hpol₁, <- Hns₁.
+                        subst sb; simpl.
+                        rewrite <- Hc₁, <- Hpol₂, <- Hns₂; auto.
+
+                        rewrite Hnsb₂.
+                        remember (S b) as sb; simpl.
+                        rewrite <- Hc, <- Hpol₁, <- Hns₁.
+                        subst sb; simpl.
+                        rewrite <- Hc₁, <- Hpol₂, <- Hns₂; auto.
+
+                       rewrite Hnsb₃.
+                       remember (S (S b)) as sb; simpl.
+                       rewrite <- Hc, <- Hpol₁, <- Hns₁.
+                       subst sb; remember (S b) as sb; simpl.
+                       rewrite <- Hc₁, <- Hpol₂, <- Hns₂; auto.
+                       subst sb; simpl.
+                       rewrite <- Hc₂, <- Hpol₃, <- Hns₃; auto.
+
+                      rewrite Hnsb₄; symmetry.
+                      eapply nth_ns_n with (c := c); eauto .
+                      rewrite Hpolb₄.
+                      remember (S (S b)) as sb; simpl.
+                      rewrite <- Hc, <- Hpol₁, <- Hns₁.
+                      subst sb; remember (S b) as sb; simpl.
+                      rewrite <- Hc₁, <- Hpol₂, <- Hns₂; auto.
+                      subst sb; simpl.
+                      rewrite <- Hc₂, <- Hpol₃, <- Hns₃.
+                      f_equal.
+                       rewrite Hpolb₃.
+                       eapply nth_pol_n with (c₁ := c₂); eauto .
+
+                       f_equal.
+                       rewrite Hnsb₃; auto.
+
+                       rewrite Hnsb₃; auto.
+
+                       rewrite Hcb₃.
+                       rewrite Hpolb₃, Hnsb₃.
+                       f_equal; f_equal.
+                       eapply nth_pol_n with (c₁ := c₂); eauto .
+
+                      rewrite Hc₄.
+                      symmetry.
+                      apply nth_c_n.
+                       rewrite Hpolb₄.
+                       eapply nth_pol_n with (c₁ := c); eauto .
+                        rewrite Hpolb₃.
+                        remember (S (S b)) as sb; simpl.
+                        rewrite <- Hc, <- Hpol₁, <- Hns₁.
+                        subst sb.
+                        eapply nth_pol_n with (c₁ := c); eauto .
+                         rewrite Hpolb₂.
+                         remember (S b) as sb; simpl.
+                         rewrite <- Hc, <- Hpol₁, <- Hns₁.
+                         subst sb; simpl.
+                         rewrite <- Hc₁, <- Hpol₂, <- Hns₂; auto.
+
+                         rewrite Hnsb₂.
+                         remember (S b) as sb; simpl.
+                         rewrite <- Hc, <- Hpol₁, <- Hns₁.
+                         subst sb; simpl.
+                         rewrite <- Hc₁, <- Hpol₂, <- Hns₂; auto.
+
+                        rewrite Hnsb₃.
+                        remember (S (S b)) as sb; simpl.
+                        rewrite <- Hc, <- Hpol₁, <- Hns₁.
+                        subst sb; remember (S b) as sb; simpl.
+                        rewrite <- Hc₁, <- Hpol₂, <- Hns₂; auto.
+                        subst sb; simpl.
+                        rewrite <- Hc₂, <- Hpol₃, <- Hns₃; auto.
+
+                       rewrite Hnsb₄; symmetry.
+                       eapply nth_ns_n with (c := c); eauto .
+                       rewrite Hpolb₄.
+                       remember (S (S b)) as sb; simpl.
+                       rewrite <- Hc, <- Hpol₁, <- Hns₁.
+                       subst sb; remember (S b) as sb; simpl.
+                       rewrite <- Hc₁, <- Hpol₂, <- Hns₂; auto.
+                       subst sb; simpl.
+                       rewrite <- Hc₂, <- Hpol₃, <- Hns₃.
+                       f_equal.
+                        rewrite Hpolb₃.
+                        eapply nth_pol_n with (c₁ := c₂); eauto .
+
+                        f_equal.
+                        rewrite Hnsb₃; auto.
+
+                        rewrite Hnsb₃; auto.
+
+                        rewrite Hcb₃.
+                        rewrite Hpolb₃, Hnsb₃.
+                        f_equal; f_equal.
+                        eapply nth_pol_n with (c₁ := c₂); eauto .
+
                     remember Hnsb₃₁ as H; clear HeqH.
                     eapply r_n_next_ns in H; eauto .
                      destruct H as (αjb₄, (αkb₄, H)).
@@ -659,133 +767,28 @@ destruct z₁.
                         eauto .
                        erewrite <- nth_pol_n with (c₁ := c₂); eauto .
 
-                      rewrite
-                       <- nth_r_n
-                           with (n := S (S (S b))) (pol := pol₁) (ns := ns₁).
-                       rewrite Hri₁; auto.
+                      rewrite Hr₄; auto.
 
-                       rewrite Hpolb₄.
-                       eapply nth_pol_n with (c₁ := c); eauto .
-                        rewrite Hpolb₃.
-                        remember (S (S b)) as sb; simpl.
-                        rewrite <- Hc, <- Hpol₁, <- Hns₁.
-                        subst sb.
-                        eapply nth_pol_n with (c₁ := c); eauto .
-                         rewrite Hpolb₂.
-                         remember (S b) as sb; simpl.
-                         rewrite <- Hc, <- Hpol₁, <- Hns₁.
-                         subst sb; simpl.
-                         rewrite <- Hc₁, <- Hpol₂, <- Hns₂; auto.
-
-                         rewrite Hnsb₂.
-                         remember (S b) as sb; simpl.
-                         rewrite <- Hc, <- Hpol₁, <- Hns₁.
-                         subst sb; simpl.
-                         rewrite <- Hc₁, <- Hpol₂, <- Hns₂; auto.
-
-                        rewrite Hnsb₃.
-                        remember (S (S b)) as sb; simpl.
-                        rewrite <- Hc, <- Hpol₁, <- Hns₁.
-                        subst sb; remember (S b) as sb; simpl.
-                        rewrite <- Hc₁, <- Hpol₂, <- Hns₂; auto.
-                        subst sb; simpl.
-                        rewrite <- Hc₂, <- Hpol₃, <- Hns₃; auto.
-
-                       rewrite Hnsb₄; symmetry.
-                       eapply nth_ns_n with (c := c); eauto .
-                       rewrite Hpolb₄.
-                       remember (S (S b)) as sb; simpl.
-                       rewrite <- Hc, <- Hpol₁, <- Hns₁.
-                       subst sb; remember (S b) as sb; simpl.
-                       rewrite <- Hc₁, <- Hpol₂, <- Hns₂; auto.
-                       subst sb; simpl.
-                       rewrite <- Hc₂, <- Hpol₃, <- Hns₃.
-                       f_equal.
-                        rewrite Hpolb₃.
-                        eapply nth_pol_n with (c₁ := c₂); eauto .
-
-                        f_equal.
-                        rewrite Hnsb₃; auto.
-
-                        rewrite Hnsb₃; auto.
-
-                        rewrite Hcb₃.
-                        rewrite Hpolb₃, Hnsb₃.
-                        f_equal; f_equal.
-                        eapply nth_pol_n with (c₁ := c₂); eauto .
-
-                       symmetry.
-                       apply nth_c_n.
-                        rewrite Hpolb₄.
-                        eapply nth_pol_n with (c₁ := c); eauto .
-                         rewrite Hpolb₃.
-                         remember (S (S b)) as sb; simpl.
-                         rewrite <- Hc, <- Hpol₁, <- Hns₁.
-                         subst sb.
-                         eapply nth_pol_n with (c₁ := c); eauto .
-                          rewrite Hpolb₂.
-                          remember (S b) as sb; simpl.
-                          rewrite <- Hc, <- Hpol₁, <- Hns₁.
-                          subst sb; simpl.
-                          rewrite <- Hc₁, <- Hpol₂, <- Hns₂; auto.
-
-                          rewrite Hnsb₂.
-                          remember (S b) as sb; simpl.
-                          rewrite <- Hc, <- Hpol₁, <- Hns₁.
-                          subst sb; simpl.
-                          rewrite <- Hc₁, <- Hpol₂, <- Hns₂; auto.
-
-                         rewrite Hnsb₃.
-                         remember (S (S b)) as sb; simpl.
-                         rewrite <- Hc, <- Hpol₁, <- Hns₁.
-                         subst sb; remember (S b) as sb; simpl.
-                         rewrite <- Hc₁, <- Hpol₂, <- Hns₂; auto.
-                         subst sb; simpl.
-                         rewrite <- Hc₂, <- Hpol₃, <- Hns₃; auto.
-
-                        rewrite Hnsb₄; symmetry.
-                        eapply nth_ns_n with (c := c); eauto .
-                        rewrite Hpolb₄.
-                        remember (S (S b)) as sb; simpl.
-                        rewrite <- Hc, <- Hpol₁, <- Hns₁.
-                        subst sb; remember (S b) as sb; simpl.
-                        rewrite <- Hc₁, <- Hpol₂, <- Hns₂; auto.
-                        subst sb; simpl.
-                        rewrite <- Hc₂, <- Hpol₃, <- Hns₃.
-                        f_equal.
-                         rewrite Hpolb₃.
-                         eapply nth_pol_n with (c₁ := c₂); eauto .
-
-                         f_equal.
-                         rewrite Hnsb₃; auto.
-
-                         rewrite Hnsb₃; auto.
-
-                         rewrite Hcb₃.
-                         rewrite Hpolb₃, Hnsb₃.
-                         f_equal; f_equal.
-                         eapply nth_pol_n with (c₁ := c₂); eauto .
+                    intros j.
 bbb.
   ============================
-   root_multiplicity acf (ac_root (Φq polb₄ nsb₄)) (Φq polb₄ nsb₄) = r
+   nth_r j polb₄ nsb₄ = r
 
 subgoal 2 is:
- ∀ j : nat, nth_r j polb₄ nsb₄ = r
-subgoal 3 is:
  S (S id) ≤ S i
-subgoal 4 is:
+subgoal 3 is:
  (0 =
   match match id with
   ...
-subgoal 5 is:
+subgoal 4 is:
  q_of_m m₁ (γ nsb₂) = 1%positive
-subgoal 6 is:
+subgoal 5 is:
  (- pb₃ <= 0)%Z
-subgoal 7 is:
+subgoal 6 is:
  (p_of_m m₁ (γ nsb₂) * ' (dd * dd))%Z = (nd * ' m₁ * ' dd)%Z
-subgoal 8 is:
+subgoal 7 is:
  (m₁ * (dd * dd))%positive = (dd * (dd * m₁))%positive
-subgoal 9 is:
+subgoal 8 is:
  (nd * ' m₁ * ' dd <= nd * ' m₁ * ' dd + pb₃ * ' dd * ' dd)%Z
 *)
 
