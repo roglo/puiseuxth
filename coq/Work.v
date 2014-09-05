@@ -770,6 +770,34 @@ destruct z₁.
                       rewrite Hr₄; auto.
 
                     intros j.
+                    rewrite <- (Hri₁ (j + S (S (S b)))%nat).
+                    rewrite nth_r_add; f_equal.
+                     rewrite Hpolb₄.
+                     eapply nth_pol_n with (c₁ := c); eauto .
+                      rewrite Hpolb₃.
+                      remember (S (S b)) as sb; simpl.
+                      rewrite <- Hc, <- Hpol₁, <- Hns₁.
+                      subst sb.
+                      eapply nth_pol_n with (c₁ := c); eauto .
+                       rewrite Hpolb₂.
+                       remember (S b) as sb; simpl.
+                       rewrite <- Hc, <- Hpol₁, <- Hns₁.
+                       subst sb; simpl.
+                       rewrite <- Hc₁, <- Hpol₂, <- Hns₂; auto.
+
+                       rewrite Hnsb₂.
+                       remember (S b) as sb; simpl.
+                       rewrite <- Hc, <- Hpol₁, <- Hns₁.
+                       subst sb; simpl.
+                       rewrite <- Hc₁, <- Hpol₂, <- Hns₂; auto.
+
+                      rewrite Hnsb₃.
+                      remember (S (S b)) as sb; simpl.
+                      rewrite <- Hc, <- Hpol₁, <- Hns₁.
+                      subst sb; remember (S b) as sb; simpl.
+                      rewrite <- Hc₁, <- Hpol₂, <- Hns₂; auto.
+                      subst sb; simpl.
+                      rewrite <- Hc₂, <- Hpol₃, <- Hns₃; auto.
 bbb.
   ============================
    nth_r j polb₄ nsb₄ = r
