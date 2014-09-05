@@ -1096,33 +1096,39 @@ destruct z₁.
                      eapply q_eq_1_any_r with (pol := polb₄); eauto .
                       eapply List_hd_in; eauto .
                       eapply newton_segments_not_nil; eauto .
+
+                      eapply
+                       nth_pol_in_K_1_m with (ns := ns₁) (n := (3 + b)%nat);
+                       eauto .
 bbb.
   ============================
-   pol_in_K_1_m polb₄ m₁
+   ∀ i0 : nat, i0 ≤ 3 + b → (ps_poly_nth 0 (nth_pol i0 pol₁ ns₁) ≠ 0)%ps
 
 subgoal 2 is:
+ polb₄ = nth_pol (3 + b) pol₁ ns₁
+subgoal 3 is:
  fin_pt nsb₄ =
  (Qnat (root_multiplicity acf (ac_root (Φq polb₄ nsb₄)) (Φq polb₄ nsb₄)),
  αkb₄)
-subgoal 3 is:
- root_multiplicity acf (ac_root (Φq polb₄ nsb₄)) (Φq polb₄ nsb₄) = r
 subgoal 4 is:
- ∀ j : nat, nth_r j polb₄ nsb₄ = r
+ root_multiplicity acf (ac_root (Φq polb₄ nsb₄)) (Φq polb₄ nsb₄) = r
 subgoal 5 is:
- S (S id) ≤ S i
+ ∀ j : nat, nth_r j polb₄ nsb₄ = r
 subgoal 6 is:
+ S (S id) ≤ S i
+subgoal 7 is:
  (0 =
   match match id with
   ...
-subgoal 7 is:
- q_of_m m₁ (γ nsb₂) = 1%positive
 subgoal 8 is:
- (- pb₃ <= 0)%Z
+ q_of_m m₁ (γ nsb₂) = 1%positive
 subgoal 9 is:
- (p_of_m m₁ (γ nsb₂) * ' (dd * dd))%Z = (nd * ' m₁ * ' dd)%Z
+ (- pb₃ <= 0)%Z
 subgoal 10 is:
- (m₁ * (dd * dd))%positive = (dd * (dd * m₁))%positive
+ (p_of_m m₁ (γ nsb₂) * ' (dd * dd))%Z = (nd * ' m₁ * ' dd)%Z
 subgoal 11 is:
+ (m₁ * (dd * dd))%positive = (dd * (dd * m₁))%positive
+subgoal 12 is:
  (nd * ' m₁ * ' dd <= nd * ' m₁ * ' dd + pb₃ * ' dd * ' dd)%Z
 *)
 
