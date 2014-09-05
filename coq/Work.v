@@ -86,12 +86,57 @@ induction n; intros.
 
   rewrite Nat.add_0_r, rng_add_0_r, Heqm₁.
   rewrite root_tail_from_0_const_r; eauto .
-  apply rng_add_compat_r; simpl.
-  unfold root_head; simpl.
+  unfold root_head.
   rewrite Hz₁.
-  rewrite Nat.add_0_r, rng_add_0_r; reflexivity.
+  unfold root_head_from_cγ_list.
+  rewrite Nat.add_0_r, rng_add_0_r.
+  reflexivity.
+
+ remember (zerop_1st_n_const_coeff b pol₁ ns₁) as z₁ eqn:Hz₁ .
+ symmetry in Hz₁.
+ destruct z₁.
+  unfold root_head, root_tail.
+  rewrite Hz₁.
+  rewrite zerop_1st_n_const_coeff_true_if; auto.
+  rewrite rng_add_0_l, rng_mul_0_r; reflexivity.
+
+  rewrite root_head_succ; auto.
+  remember (zerop_1st_n_const_coeff (b + S n) pol₁ ns₁) as z eqn:Hz .
+  symmetry in Hz.
+  destruct z.
+   rewrite rng_add_0_r, Nat.add_succ_r.
+   rewrite IHn; eauto .
+   apply rng_add_compat_l.
+   unfold γ_sum at 2; simpl.
+   rewrite summation_split_last; [ idtac | apply Nat.le_0_l ].
+   rewrite fold_γ_sum, ps_monom_add_r.
+   rewrite <- rng_mul_assoc.
+   apply rng_mul_compat_l.
+   unfold root_tail.
+   rewrite Hz.
+   remember (b + S n)%nat as x; rewrite <- Nat.add_1_r; subst x.
+   rewrite zerop_1st_n_const_coeff_true_if; auto.
+   rewrite rng_mul_0_r; reflexivity.
+
+   rewrite IHn; eauto .
+   rewrite <- rng_add_assoc.
+   apply rng_add_compat_l; simpl.
+   symmetry.
+   rewrite ps_monom_split_mul.
+   rewrite rng_mul_comm, <- rng_mul_add_distr_l.
+   unfold γ_sum at 1; simpl.
+   rewrite summation_split_last; [ idtac | apply Nat.le_0_l ].
+   rewrite fold_γ_sum, ps_monom_add_r.
+   rewrite <- rng_mul_assoc.
+   apply rng_mul_compat_l.
+   rewrite rng_mul_add_distr_l.
+   rewrite rng_mul_comm; simpl.
+   rewrite <- ps_monom_split_mul.
+   symmetry.
+   do 3 rewrite Nat.add_succ_r.
+   rewrite Heqm₁.
 bbb.
-*)
+   eapply root_tail_sep_1st_monom; eauto .
 
 Theorem zzz : ∀ pol ns c pol₁,
   ns ∈ newton_segments pol
