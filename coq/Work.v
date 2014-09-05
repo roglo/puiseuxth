@@ -801,10 +801,9 @@ Theorem root_tail_when_r_r : ∀ pol ns pol₁ ns₁ c m q₀ b r,
        ps_monom 1%K (γ_sum b n pol₁ ns₁) *
        root_tail (m * q₀) (b + S n) pol₁ ns₁)%ps.
 Proof.
-bbb.
-intros pol ns pol₁ ns₁ c m q₀ b r Hns Hm Hq₀ Hc Hr Hpol₁ Hns₁ n.
+intros pol ns pol₁ ns₁ c m q₀ b r Hns Hm Hq₀ Hc Hpol₁ Hns₁ Hri n.
 remember (m * q₀)%positive as m₁.
-revert pol ns pol₁ ns₁ Hns Hm Hq₀ Hc Hr Hpol₁ Hns₁.
+revert pol ns pol₁ ns₁ Hns Hm Hq₀ Hc Hpol₁ Hns₁ Hri.
 revert b c m q₀ m₁ Heqm₁.
 induction n; intros.
  unfold root_head; simpl.
@@ -819,8 +818,8 @@ induction n; intros.
   rewrite rng_mul_0_r; reflexivity.
 
   rewrite Nat.add_0_r, rng_add_0_r, Heqm₁.
+  rewrite root_tail_from_0_const_r; eauto .
 bbb.
-  rewrite root_tail_from_0; eauto .
 *)
 
 Theorem zzz : ∀ pol ns c pol₁,
