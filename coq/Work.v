@@ -305,59 +305,6 @@ rewrite <- Zposnat2Znat; auto.
 apply Pos2Z_ne_0.
 Qed.
 
-Theorem find_coeff_enough_iter : ∀ pol ns pow m i n₁ n₂,
-  (i < n₁)%nat
-  → (n₁ ≤ pow)
-  → (i < n₂)%nat
-  → (n₂ ≤ pow)
-  → (find_coeff n₁ pow m pol ns i =
-     find_coeff n₂ pow m pol ns i)%K.
-Proof.
-intros pol ns pow m i n₁ n₂ Hn₁ Hn₁p Hn₂ Hn₂p.
-revert pol ns pow m i n₂ Hn₁ Hn₂ Hn₁p Hn₂p.
-induction n₁; intros.
- exfalso; revert Hn₁; apply Nat.nlt_0_r.
-
- destruct n₂.
-  exfalso; revert Hn₂; apply Nat.nlt_0_r.
-
-  simpl.
-  destruct (ps_zerop R (ps_poly_nth 0 pol)) as [| H₁]; auto.
-  remember (Nat.compare pow i) as cmp eqn:Hcmp .
-  symmetry in Hcmp.
-  destruct cmp; auto.
-  remember (ac_root (Φq pol ns)) as c eqn:Hc .
-  remember (next_pol pol (β ns) (γ ns) c) as pol₁ eqn:Hpol₁ .
-  remember (List.hd phony_ns (newton_segments pol₁)) as ns₁ eqn:Hns₁ .
-  destruct (eq_nat_dec i n₁) as [H₂| H₂].
-   subst i.
-   destruct (eq_nat_dec n₂ n₁) as [H₃| H₃].
-    subst n₂; reflexivity.
-
-    apply nat_compare_lt in Hcmp.
-    exfalso; fast_omega Hn₁p Hcmp.
-
-   destruct (eq_nat_dec i n₂) as [H₃| H₃].
-    subst i.
-    apply nat_compare_lt in Hcmp.
-    exfalso; fast_omega Hn₂p Hcmp.
-
-    apply IHn₁; try omega.
-     apply le_trans with (m := pow); [ omega | idtac ].
-     replace pow with (0 + pow)%nat by reflexivity.
-     rewrite next_pow_add; simpl.
-     apply Nat.le_sub_le_add_r.
-     rewrite Nat.sub_diag.
-     apply Nat.le_0_l.
-
-     apply le_trans with (m := pow); [ omega | idtac ].
-     replace pow with (0 + pow)%nat by reflexivity.
-     rewrite next_pow_add; simpl.
-     apply Nat.le_sub_le_add_r.
-     rewrite Nat.sub_diag.
-     apply Nat.le_0_l.
-Qed.
-
 Theorem p_is_pos : ∀ ns αj αk m r,
   ini_pt ns = (Qnat 0, αj)
   → fin_pt ns = (Qnat r, αk)
