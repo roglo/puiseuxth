@@ -1022,11 +1022,28 @@ destruct z₁.
              unfold root_tail_series_from_cγ_list.
              rewrite find_coeff_iter_succ with (r := r); auto.
               symmetry.
+              pose proof (Hri (S (S (S b)))) as H.
+              erewrite nth_r_n in H; eauto .
+              remember (S (S b)) as b₂; simpl in H.
+              rewrite <- Hc, <- Hpol₁, <- Hns₁ in H.
+              subst b₂; remember (S b) as b₁; simpl in H.
+              rewrite <- Hc₁, <- Hpol₂, <- Hns₂ in H.
+              subst b₁; simpl in H.
+              rewrite <- Hc₂, <- Hpol₃, <- Hns₃ in H.
+              rewrite <- Hnsb₃ in H.
+              erewrite nth_c_root in H; eauto .
+              erewrite <- nth_pol_n with (c₁ := c₂) in H; eauto .
+              rewrite <- Hpolb₃, <- Hcb₃ in H.
+              rename H into Hrb₃.
+              symmetry in Hrb₃.
+              remember Hnsb₃₁ as H; clear HeqH.
+              eapply q_eq_1_any_r in H; eauto .
+              rename H into Hqb₃.
               rewrite find_coeff_iter_succ with (r := r); auto.
-               symmetry.
-               remember (S i) as si.
-               remember (S (S id)) as ssid; simpl.
-               rewrite <- Hcb₂, <- Hpolb₃.
+                symmetry.
+                remember (S i) as si.
+                remember (S (S id)) as ssid; simpl.
+                rewrite <- Hcb₂, <- Hpolb₃.
                erewrite <- nth_ns_n with (ns := ns₂); eauto .
                rewrite <- Hnsb₃.
                destruct i;
@@ -1087,39 +1104,35 @@ destruct z₁.
                     eauto .
 bbb.
   ============================
-   q_of_m m₁ (γ nsb₃) = 1%positive
+   ∀ i0 : nat, nth_r i0 polb₃ nsb₃ = ?10993
 
 subgoal 2 is:
- ∀ i0 : nat, nth_r i0 polb₃ nsb₃ = ?11295
-subgoal 3 is:
  ∀ i0 : nat, i0 ≤ 1 → (ps_poly_nth 0 (nth_pol i0 polb₃ nsb₃) ≠ 0)%ps
-subgoal 4 is:
+subgoal 3 is:
  polb₄ = nth_pol 1 polb₃ nsb₃
-subgoal 5 is:
+subgoal 4 is:
  q_of_m m₁ (γ nsb₄) = 1%positive
-subgoal 6 is:
+subgoal 5 is:
  ∀ j : nat, nth_r j polb₄ nsb₄ = r
-subgoal 7 is:
+subgoal 6 is:
  S (S id) ≤ S i
-subgoal 8 is:
+subgoal 7 is:
  (0 =
   match match id with
   ...
-subgoal 9 is:
- q_of_m m₁ (γ nsb₃) = 1%positive
-subgoal 10 is:
+subgoal 8 is:
  ∀ j : nat, nth_r j polb₃ nsb₃ = r
-subgoal 11 is:
+subgoal 9 is:
  q_of_m m₁ (γ nsb₂) = 1%positive
-subgoal 12 is:
+subgoal 10 is:
  ∀ j : nat, nth_r j polb₂ nsb₂ = r
-subgoal 13 is:
+subgoal 11 is:
  (- pb₃ <= 0)%Z
-subgoal 14 is:
+subgoal 12 is:
  (p_of_m m₁ (γ nsb₂) * ' (dd * dd))%Z = (nd * ' m₁ * ' dd)%Z
-subgoal 15 is:
+subgoal 13 is:
  (m₁ * (dd * dd))%positive = (dd * (dd * m₁))%positive
-subgoal 16 is:
+subgoal 14 is:
  (nd * ' m₁ * ' dd <= nd * ' m₁ * ' dd + pb₃ * ' dd * ' dd)%Z
 *)
 
