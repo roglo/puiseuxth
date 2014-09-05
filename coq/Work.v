@@ -571,7 +571,7 @@ revert pol ns j.
 induction i; intros.
  simpl.
  apply nth_r_n; auto; symmetry.
- apply nth_c_root; auto.
+ apply nth_c_n; auto.
 
  rewrite Nat.add_succ_l, <- Nat.add_succ_r; simpl.
  rewrite IHi; simpl.
@@ -667,7 +667,7 @@ destruct z₁.
     pose proof (Hri (S b₁)) as Hrb; simpl in Hrb.
     rewrite <- Hc, <- Hpol₁, <- Hns₁ in Hrb.
     erewrite nth_r_n in Hrb; eauto .
-    erewrite nth_c_root in Hrb; eauto .
+    erewrite nth_c_n in Hrb; eauto .
     remember Hbns as H; clear HeqH.
     apply exists_ini_pt_nat in H.
     destruct H as (jb, (αjb₂, Hinib₂)).
@@ -689,7 +689,7 @@ destruct z₁.
     pose proof (Hri (S b)) as Hrb₁; simpl in Hrb₁.
     rewrite <- Hc, <- Hpol₁, <- Hns₁ in Hrb₁.
     erewrite nth_r_n in Hrb₁; eauto .
-    erewrite nth_c_root in Hrb₁; eauto .
+    erewrite nth_c_n in Hrb₁; eauto .
     rewrite <- Hcb₁ in Hrb₁.
     pose proof (Hpsi (S b) (Nat.le_refl (S b))) as Hpsb₂.
     simpl in Hpsb₂.
@@ -769,7 +769,7 @@ destruct z₁.
          destruct (ps_zerop R (ps_poly_nth 0 polb₂));
           [ contradiction | idtac ].
          symmetry.
-         erewrite nth_c_root; eauto .
+         erewrite nth_c_n; eauto .
 
          simpl.
          rewrite <- Hcb₂.
@@ -838,7 +838,7 @@ destruct z₁.
       erewrite nth_r_n in Hrb₂; eauto .
       erewrite nth_pol_n with (c₁ := c₂) in Hpolb₃; eauto .
       rewrite <- Hpolb₃ in Hrb₂.
-      erewrite nth_c_root in Hrb₂; eauto .
+      erewrite nth_c_n in Hrb₂; eauto .
       rewrite <- Hcb₃ in Hrb₂.
       erewrite <- nth_pol_n with (c₁ := c₂) in Hpolb₃; eauto .
       eapply r_n_next_ns in H; eauto .
@@ -996,7 +996,7 @@ destruct z₁.
               contradiction.
 
               clear H₃; symmetry.
-              erewrite nth_c_root; eauto .
+              erewrite nth_c_n; eauto .
 
              contradiction.
 
@@ -1060,7 +1060,7 @@ destruct z₁.
               subst b₁; simpl in H.
               rewrite <- Hc₂, <- Hpol₃, <- Hns₃ in H.
               rewrite <- Hnsb₃ in H.
-              erewrite nth_c_root in H; eauto .
+              erewrite nth_c_n in H; eauto .
               erewrite <- nth_pol_n with (c₁ := c₂) in H; eauto .
               rewrite <- Hpolb₃, <- Hcb₃ in H.
               rename H into Hrb₃.
@@ -1277,7 +1277,7 @@ destruct r.
         apply nth_r_n; eauto .
 
         Focus 3.
-        erewrite nth_c_root; eauto .
+        erewrite nth_c_n; eauto .
 
         3: eauto .
 
@@ -1305,7 +1305,7 @@ destruct r.
          exists (rh + mo * s₁)%ps; subst rh mo.
          rewrite apply_nth_pol; auto.
          erewrite <- nth_pol_n; eauto .
-         erewrite <- nth_c_root; eauto .
+         erewrite <- nth_c_n; eauto .
          rewrite Hs₁, rng_mul_0_r; reflexivity.
 
          apply lowest_zerop_1st_n_const_coeff in Hz.

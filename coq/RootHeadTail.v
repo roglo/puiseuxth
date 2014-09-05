@@ -1888,7 +1888,7 @@ destruct Hnz as [Hnz| Hnz]; [ contradiction | idtac ].
 rewrite Hnz; reflexivity.
 Qed.
 
-Theorem nth_c_root : ∀ pol₁ ns₁ poln nsn n,
+Theorem nth_c_n : ∀ pol₁ ns₁ poln nsn n,
   poln = nth_pol n pol₁ ns₁
   → nsn = nth_ns n pol₁ ns₁
   → nth_c n pol₁ ns₁ = ac_root (Φq poln nsn).
@@ -2544,7 +2544,7 @@ destruct z₁.
       subst d; simpl.
       destruct (ps_zerop R (ps_poly_nth 0 polb)); [ contradiction | idtac ].
       symmetry.
-      erewrite nth_c_root; eauto.
+      erewrite nth_c_n; eauto.
 
       simpl.
       rewrite <- Hcb.
@@ -2685,7 +2685,7 @@ destruct z₁.
          contradiction.
 
          clear H₃; symmetry.
-         erewrite nth_c_root; eauto.
+         erewrite nth_c_n; eauto.
 
         exfalso; apply H₁.
         subst d.
@@ -3026,7 +3026,7 @@ destruct z₁.
        contradiction.
 
        symmetry.
-       erewrite nth_c_root; eauto.
+       erewrite nth_c_n; eauto.
 
       unfold root_tail_series_from_cγ_list; simpl.
       destruct (ps_zerop R (ps_poly_nth 0 poln₁)) as [| H₄]; auto.
@@ -3203,7 +3203,7 @@ destruct z₁.
                    simpl.
                    destruct (lt_dec 0 (Z.to_nat nmd₂)) as [H₃| H₃].
                     rewrite rng_add_0_r; subst cn₁; symmetry.
-                    erewrite nth_c_root; eauto.
+                    erewrite nth_c_n; eauto.
 
                     exfalso; apply H₃; subst nmd₂.
                     eapply num_m_den_is_pos with (ns := nsn₂) (pol := poln₂);

@@ -339,7 +339,7 @@ induction n; intros.
   rewrite <- rng_mul_assoc.
   subst sn; simpl.
   erewrite <- nth_pol_n with (pol₁ := pol₁) (ns₁ := ns₁); eauto .
-  erewrite <- nth_pol_succ; eauto ; [ idtac | erewrite nth_c_root; eauto  ].
+  erewrite <- nth_pol_succ; eauto ; [ idtac | erewrite nth_c_n; eauto  ].
   remember (S n) as sn in |- *; simpl.
   unfold root_head; simpl.
   destruct (ps_zerop R (ps_poly_nth 0 pol)) as [H₂| H₂].
@@ -847,7 +847,7 @@ destruct (ac_zerop 1%K) as [H₀| H₀].
         apply H.
 
         symmetry.
-        apply nth_c_root; eauto .
+        apply nth_c_n; eauto .
 
        rewrite zerop_1st_n_const_coeff_false_iff in Hz.
        remember (m * q₀)%positive as m₁.
