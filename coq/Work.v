@@ -53,6 +53,24 @@ Definition multiplicity_decreases pol ns n :=
   let rn := root_multiplicity acf cn (Φq poln nsn) in
   (rn < r)%nat.
 
+Theorem root_tail_sep_1st_monom_any_r : ∀ pol ns pol₁ ns₁ c m q₀ n r,
+  ns ∈ newton_segments pol
+  → pol_in_K_1_m pol m
+  → q₀ = q_of_m m (γ ns)
+  → c = ac_root (Φq pol ns)
+  → pol₁ = next_pol pol (β ns) (γ ns) c
+  → ns₁ = List.hd phony_ns (newton_segments pol₁)
+  → (∀ i, (i ≤ n)%nat → (ps_poly_nth 0 (nth_pol i pol₁ ns₁) ≠ 0)%ps)
+  → (∀ i, nth_r i pol ns = r)
+  → (root_tail (m * q₀) n pol₁ ns₁ =
+       ps_monom (nth_c n pol₁ ns₁) (nth_γ n pol₁ ns₁) +
+       ps_monom 1%K (nth_γ n pol₁ ns₁) *
+       root_tail (m * q₀) (S n) pol₁ ns₁)%ps.
+Proof.
+intros pol ns pol₁ ns₁ c m q₀ n r Hns Hm Hq₀ Hc Hpol₁ Hns₁ Hpsi Hri.
+remember (m * q₀)%positive as m₁.
+bbb.
+
 Theorem root_tail_when_r_r : ∀ pol ns pol₁ ns₁ c m q₀ b r,
   ns ∈ newton_segments pol
   → pol_in_K_1_m pol m
@@ -135,8 +153,11 @@ induction n; intros.
    symmetry.
    do 3 rewrite Nat.add_succ_r.
    rewrite Heqm₁.
-bbb.
-   eapply root_tail_sep_1st_monom; eauto .
+   eapply root_tail_sep_1st_monom_any_r; eauto .
+   rewrite <- Nat.add_succ_r.
+   apply zerop_1st_n_const_coeff_false_iff.
+   assumption.
+Qed.
 
 Theorem zzz : ∀ pol ns c pol₁,
   ns ∈ newton_segments pol
