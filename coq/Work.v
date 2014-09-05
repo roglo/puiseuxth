@@ -716,24 +716,23 @@ destruct z₁.
                       intros j.
                       rewrite <- (Hri₁ (j + S (S (S b)))%nat).
                       rewrite nth_r_add; f_equal; auto.
+
+                      fast_omega Heqid Hpb₃pos.
+
+                  apply nat_compare_gt in Hcmp₁.
+                  apply Nat.nle_gt in Hcmp₁.
+                  contradiction.
 bbb.
   ============================
-   S (S id) ≤ S i
+   q_of_m m₁ (γ nsb₂) = 1%positive
 
 subgoal 2 is:
- (0 =
-  match match id with
-  ...
-  end)%K
-subgoal 3 is:
- q_of_m m₁ (γ nsb₂) = 1%positive
-subgoal 4 is:
  (- pb₃ <= 0)%Z
-subgoal 5 is:
+subgoal 3 is:
  (p_of_m m₁ (γ nsb₂) * ' (dd * dd))%Z = (nd * ' m₁ * ' dd)%Z
-subgoal 6 is:
+subgoal 4 is:
  (m₁ * (dd * dd))%positive = (dd * (dd * m₁))%positive
-subgoal 7 is:
+subgoal 5 is:
  (nd * ' m₁ * ' dd <= nd * ' m₁ * ' dd + pb₃ * ' dd * ' dd)%Z
 *)
 
