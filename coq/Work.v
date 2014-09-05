@@ -563,6 +563,22 @@ destruct (ps_zerop _ (ps_poly_nth 0 pol₁)) as [H₂| H₂].
   rewrite <- Hc, <- Hpol₁, <- Hns₁ in H; auto.
 Qed.
 
+Theorem nth_r_add : ∀ pol ns i j,
+  nth_r (i + j) pol ns = nth_r i (nth_pol j pol ns) (nth_ns j pol ns).
+Proof.
+intros pol ns i j.
+revert pol ns j.
+induction i; intros.
+ simpl.
+ apply nth_r_n; auto; symmetry.
+ apply nth_c_root; auto.
+
+ rewrite Nat.add_succ_l, <- Nat.add_succ_r; simpl.
+ rewrite IHi; simpl.
+ f_equal; [ symmetry; eapply nth_pol_n; eauto | idtac ].
+ eapply nth_ns_n; eauto .
+Qed.
+
 (* cf root_tail_from_0 *)
 Theorem root_tail_from_0₄₂ : ∀ pol ns pol₁ ns₁ c m q₀ b r,
   ns ∈ newton_segments pol
@@ -1020,6 +1036,19 @@ destruct z₁.
              apply Nat.nlt_ge in H₂.
              remember (i - Z.to_nat pb₃)%nat as id.
              unfold root_tail_series_from_cγ_list.
+             assert (∀ j, nth_r j polb₂ nsb₂ = r) as Hrib₂.
+              eapply all_same_r_next with (ns := nsb₁); eauto .
+               erewrite nth_pol_n with (c₁ := c₁); eauto .
+
+               erewrite <- nth_ns_n with (c := c₁); eauto .
+               erewrite nth_pol_n with (c₁ := c₁); eauto .
+
+               intros j.
+               rewrite Hpolb₁, Hnsb₁.
+               pose proof (Hri (S j + b)%nat) as H; simpl in H.
+               rewrite <- Hc, <- Hpol₁, <- Hns₁ in H.
+               rewrite nth_r_add in H; auto.
+
              rewrite find_coeff_iter_succ with (r := r); auto.
               symmetry.
               pose proof (Hri (S (S (S b)))) as H.
@@ -1038,8 +1067,12 @@ destruct z₁.
               symmetry in Hrb₃.
               remember Hnsb₃₁ as H; clear HeqH.
               eapply q_eq_1_any_r in H; eauto .
-              rename H into Hqb₃.
-              rewrite find_coeff_iter_succ with (r := r); auto.
+               rename H into Hqb₃.
+               assert (∀ j, nth_r j polb₃ nsb₃ = r) as Hrib₃.
+                intros j.
+                eapply all_same_r_next with (ns := nsb₂); eauto .
+
+                rewrite find_coeff_iter_succ with (r := r); auto.
                 symmetry.
                 remember (S i) as si.
                 remember (S (S id)) as ssid; simpl.
@@ -1102,37 +1135,33 @@ destruct z₁.
                     first_n_pol_in_K_1_m_any_r
                      with (pol := polb₃) (n := 1%nat); 
                     eauto .
+                     intros j Hj.
+                     destruct j; auto.
+                     destruct j; [ simpl | exfalso; fast_omega Hj ].
+                     rewrite <- Hcb₃, <- Hpolb₄; auto.
+
+                     simpl; rewrite <- Hcb₃; auto.
 bbb.
   ============================
-   ∀ i0 : nat, nth_r i0 polb₃ nsb₃ = ?10993
+   q_of_m m₁ (γ nsb₄) = 1%positive
 
 subgoal 2 is:
- ∀ i0 : nat, i0 ≤ 1 → (ps_poly_nth 0 (nth_pol i0 polb₃ nsb₃) ≠ 0)%ps
-subgoal 3 is:
- polb₄ = nth_pol 1 polb₃ nsb₃
-subgoal 4 is:
- q_of_m m₁ (γ nsb₄) = 1%positive
-subgoal 5 is:
  ∀ j : nat, nth_r j polb₄ nsb₄ = r
-subgoal 6 is:
+subgoal 3 is:
  S (S id) ≤ S i
-subgoal 7 is:
+subgoal 4 is:
  (0 =
   match match id with
   ...
-subgoal 8 is:
- ∀ j : nat, nth_r j polb₃ nsb₃ = r
-subgoal 9 is:
+subgoal 5 is:
  q_of_m m₁ (γ nsb₂) = 1%positive
-subgoal 10 is:
- ∀ j : nat, nth_r j polb₂ nsb₂ = r
-subgoal 11 is:
+subgoal 6 is:
  (- pb₃ <= 0)%Z
-subgoal 12 is:
+subgoal 7 is:
  (p_of_m m₁ (γ nsb₂) * ' (dd * dd))%Z = (nd * ' m₁ * ' dd)%Z
-subgoal 13 is:
+subgoal 8 is:
  (m₁ * (dd * dd))%positive = (dd * (dd * m₁))%positive
-subgoal 14 is:
+subgoal 9 is:
  (nd * ' m₁ * ' dd <= nd * ' m₁ * ' dd + pb₃ * ' dd * ' dd)%Z
 *)
 
