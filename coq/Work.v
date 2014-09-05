@@ -801,7 +801,7 @@ Theorem root_tail_when_r_r : ∀ pol ns pol₁ ns₁ c m q₀ b r,
        ps_monom 1%K (γ_sum b n pol₁ ns₁) *
        root_tail (m * q₀) (b + S n) pol₁ ns₁)%ps.
 Proof.
-Admitted. (*
+bbb.
 intros pol ns pol₁ ns₁ c m q₀ b r Hns Hm Hq₀ Hc Hr Hpol₁ Hns₁ n.
 remember (m * q₀)%positive as m₁.
 revert pol ns pol₁ ns₁ Hns Hm Hq₀ Hc Hr Hpol₁ Hns₁.
