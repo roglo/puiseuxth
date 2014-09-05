@@ -722,19 +722,43 @@ destruct z₁.
                   apply nat_compare_gt in Hcmp₁.
                   apply Nat.nle_gt in Hcmp₁.
                   contradiction.
-bbb.
-  ============================
-   q_of_m m₁ (γ nsb₂) = 1%positive
 
-subgoal 2 is:
- (- pb₃ <= 0)%Z
-subgoal 3 is:
- (p_of_m m₁ (γ nsb₂) * ' (dd * dd))%Z = (nd * ' m₁ * ' dd)%Z
-subgoal 4 is:
- (m₁ * (dd * dd))%positive = (dd * (dd * m₁))%positive
-subgoal 5 is:
- (nd * ' m₁ * ' dd <= nd * ' m₁ * ' dd + pb₃ * ' dd * ' dd)%Z
-*)
+               eapply q_eq_1_any_r with (pol := polb₂) (αk := αkb₂); eauto .
+               pose proof (Hrib₂ O) as H; simpl in H.
+               rewrite <- Hcb₂ in H.
+               rewrite H; auto.
+
+           apply Z.opp_le_mono.
+           rewrite Z.opp_0.
+           rewrite Z.opp_involutive.
+           rewrite Hpb₃.
+           apply Z.lt_le_incl.
+           eapply p_is_pos; eauto .
+
+          rewrite Pos2Z.inj_mul, Z.mul_assoc.
+          apply Z.mul_cancel_r; auto.
+          subst dd nd.
+          rewrite Z.mul_shuffle0, Pos_mul_shuffle0.
+          do 2 rewrite Pos2Z.inj_mul.
+          rewrite Z.mul_assoc.
+          apply Z.mul_cancel_r; auto.
+          symmetry.
+          rewrite Z.mul_assoc, Z.mul_shuffle0.
+          subst rq.
+          rewrite Zposnat2Znat; auto.
+          eapply αj_m_eq_p_r with (ns₁ := nsb₂); eauto .
+
+          rewrite Pos.mul_comm, Pos.mul_assoc.
+          reflexivity.
+
+         apply Z.le_sub_le_add_l.
+         rewrite Z.sub_diag.
+         apply Z.mul_nonneg_nonneg; auto.
+         apply Z.mul_nonneg_nonneg; auto.
+         rewrite Hpb₃.
+         apply Z.lt_le_incl.
+         eapply p_is_pos; eauto .
+Qed.
 
 (*
 Theorem root_tail_when_r_r : ∀ pol ns pol₁ ns₁ c m q₀ b r,
