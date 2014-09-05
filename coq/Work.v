@@ -512,24 +512,24 @@ destruct z₁.
                rewrite <- Hc, <- Hpol₁, <- Hns₁ in H.
                rewrite nth_r_add in H; auto.
 
-             rewrite find_coeff_iter_succ with (r := r); auto.
-              symmetry.
-              pose proof (Hri (S (S (S b)))) as H.
-              erewrite nth_r_n in H; eauto .
-              remember (S (S b)) as b₂; simpl in H.
-              rewrite <- Hc, <- Hpol₁, <- Hns₁ in H.
-              subst b₂; remember (S b) as b₁; simpl in H.
-              rewrite <- Hc₁, <- Hpol₂, <- Hns₂ in H.
-              subst b₁; simpl in H.
-              rewrite <- Hc₂, <- Hpol₃, <- Hns₃ in H.
-              rewrite <- Hnsb₃ in H.
-              erewrite nth_c_n in H; eauto .
-              erewrite <- nth_pol_n with (c₁ := c₂) in H; eauto .
-              rewrite <- Hpolb₃, <- Hcb₃ in H.
-              rename H into Hrb₃.
-              symmetry in Hrb₃.
-              remember Hnsb₃₁ as H; clear HeqH.
-              eapply q_eq_1_any_r in H; eauto .
+              rewrite find_coeff_iter_succ with (r := r); auto.
+               symmetry.
+               pose proof (Hri (S (S (S b)))) as H.
+               erewrite nth_r_n in H; eauto .
+               remember (S (S b)) as b₂; simpl in H.
+               rewrite <- Hc, <- Hpol₁, <- Hns₁ in H.
+               subst b₂; remember (S b) as b₁; simpl in H.
+               rewrite <- Hc₁, <- Hpol₂, <- Hns₂ in H.
+               subst b₁; simpl in H.
+               rewrite <- Hc₂, <- Hpol₃, <- Hns₃ in H.
+               rewrite <- Hnsb₃ in H.
+               erewrite nth_c_n in H; eauto .
+               erewrite <- nth_pol_n with (c₁ := c₂) in H; eauto .
+               rewrite <- Hpolb₃, <- Hcb₃ in H.
+               rename H into Hrb₃.
+               symmetry in Hrb₃.
+               remember Hnsb₃₁ as H; clear HeqH.
+               eapply q_eq_1_any_r in H; eauto .
                rename H into Hqb₃.
                assert (∀ j, nth_r j polb₃ nsb₃ = r) as Hrib₃.
                 intros j.
@@ -540,36 +540,37 @@ destruct z₁.
                 remember (S i) as si.
                 remember (S (S id)) as ssid; simpl.
                 rewrite <- Hcb₂, <- Hpolb₃.
-               erewrite <- nth_ns_n with (ns := ns₂); eauto .
-               rewrite <- Hnsb₃.
-               destruct i;
-                [ exfalso; revert H₁; apply Nat.lt_irrefl | idtac ].
-               clear H₁.
-               destruct (ps_zerop R (ps_poly_nth 0 polb₂)) as [H₁| H₁].
-                contradiction.
-
+                erewrite <- nth_ns_n with (ns := ns₂); eauto .
+                rewrite <- Hnsb₃.
+                destruct i;
+                 [ exfalso; revert H₁; apply Nat.lt_irrefl | idtac ].
                 clear H₁.
-                erewrite next_pow_eq_p; eauto .
-                rewrite <- Hpb₃.
-                subst si ssid.
-                remember (S i) as si.
-                remember (S id) as sid; simpl.
-                destruct (ps_zerop R (ps_poly_nth 0 polb₃)) as [| H₁]; auto.
-                clear H₁.
-                subst si.
-                remember (Nat.compare (Z.to_nat pb₃) (S i)) as cmp₁ eqn:Hcmp₁ .
-                symmetry in Hcmp₁.
-                destruct cmp₁.
-                 apply nat_compare_eq in Hcmp₁.
-                 rewrite Hcmp₁, Nat.sub_diag in Heqid; subst id; reflexivity.
+                destruct (ps_zerop R (ps_poly_nth 0 polb₂)) as [H₁| H₁].
+                 contradiction.
 
-                 apply nat_compare_lt in Hcmp₁.
-                 destruct id; [ exfalso; fast_omega Heqid Hcmp₁ | idtac ].
-                 rewrite <- Hcb₃.
-                 remember (next_pol polb₃ (β nsb₃) (γ nsb₃) cb₃) as polb₄.
-                 remember (List.hd phony_ns (newton_segments polb₄)) as nsb₄.
-                 rename Heqpolb₄ into Hpolb₄.
-                 rename Heqnsb₄ into Hnsb₄.
+                 clear H₁.
+                 erewrite next_pow_eq_p; eauto .
+                 rewrite <- Hpb₃.
+                 subst si ssid.
+                 remember (S i) as si.
+                 remember (S id) as sid; simpl.
+                 destruct (ps_zerop R (ps_poly_nth 0 polb₃)) as [| H₁]; auto.
+                 clear H₁.
+                 subst si.
+                 remember (Nat.compare (Z.to_nat pb₃) (S i)) as cmp₁
+                  eqn:Hcmp₁ .
+                 symmetry in Hcmp₁.
+                 destruct cmp₁.
+                  apply nat_compare_eq in Hcmp₁.
+                  rewrite Hcmp₁, Nat.sub_diag in Heqid; subst id; reflexivity.
+
+                  apply nat_compare_lt in Hcmp₁.
+                  destruct id; [ exfalso; fast_omega Heqid Hcmp₁ | idtac ].
+                  rewrite <- Hcb₃.
+                  remember (next_pol polb₃ (β nsb₃) (γ nsb₃) cb₃) as polb₄.
+                  remember (List.hd phony_ns (newton_segments polb₄)) as nsb₄.
+                  rename Heqpolb₄ into Hpolb₄.
+                  rename Heqnsb₄ into Hnsb₄.
                   assert (polb₄ = nth_pol (S (S (S b))) pol₁ ns₁)
                    as Hpolb₄pol₁.
                    rewrite Hpolb₄.
@@ -599,144 +600,141 @@ destruct z₁.
                     subst sb; simpl.
                     rewrite <- Hc₂, <- Hpol₃, <- Hns₃; auto.
 
-                 subst sid.
-                 remember (Z.to_nat pb₃) as x.
-                 replace x with (0 + x)%nat by reflexivity.
-                 rewrite next_pow_add.
-                 replace (S i)%nat with (S i - x + x)%nat at 2
-                  by fast_omega Hcmp₁.
-                 rewrite find_coeff_add.
-                 rewrite <- Heqid.
-                 symmetry.
-                 destruct (ps_zerop R (ps_poly_nth 0 polb₄)) as [H₁| H₁].
-                  remember (S id) as sid; simpl.
-                  destruct (ps_zerop R (ps_poly_nth 0 polb₄)) as [H₃| H₃].
-                   reflexivity.
+                   assert (nsb₄ = nth_ns (S (S (S b))) pol₁ ns₁) as Hnsb₄ns₁.
+                    rewrite Hnsb₄; symmetry.
+                    eapply nth_ns_n with (c := c); eauto .
+                    rewrite Hpolb₄.
+                    remember (S (S b)) as sb; simpl.
+                    rewrite <- Hc, <- Hpol₁, <- Hns₁.
+                    subst sb; remember (S b) as sb; simpl.
+                    rewrite <- Hc₁, <- Hpol₂, <- Hns₂; auto.
+                    subst sb; simpl.
+                    rewrite <- Hc₂, <- Hpol₃, <- Hns₃.
+                    f_equal.
+                     rewrite Hpolb₃.
+                     eapply nth_pol_n with (c₁ := c₂); eauto .
 
-                   contradiction.
+                     f_equal.
+                     rewrite Hnsb₃; auto.
 
-                  apply find_coeff_more_iter with (r := r); auto.
-                   eapply List_hd_in; eauto .
-                   remember Hnsb₃₁ as H; clear HeqH.
-                   eapply next_has_root_0_or_newton_segments in H; eauto .
-                   simpl in H.
-                   rewrite <- Hcb₃, <- Hpolb₄ in H.
-                   destruct H; [ contradiction | auto ].
+                     rewrite Hnsb₃; auto.
 
-                   eapply
-                    first_n_pol_in_K_1_m_any_r
-                     with (pol := polb₃) (n := 1%nat); 
-                    eauto .
-                     intros j Hj.
-                     destruct j; auto.
-                     destruct j; [ simpl | exfalso; fast_omega Hj ].
-                     rewrite <- Hcb₃, <- Hpolb₄; auto.
+                     rewrite Hcb₃.
+                     rewrite Hpolb₃, Hnsb₃.
+                     f_equal; f_equal.
+                     eapply nth_pol_n with (c₁ := c₂); eauto .
 
-                     simpl; rewrite <- Hcb₃; auto.
+                    subst sid.
+                    remember (Z.to_nat pb₃) as x.
+                    replace x with (0 + x)%nat by reflexivity.
+                    rewrite next_pow_add.
+                    replace (S i)%nat with (S i - x + x)%nat at 2
+                     by fast_omega Hcmp₁.
+                    rewrite find_coeff_add.
+                    rewrite <- Heqid.
+                    symmetry.
+                    destruct (ps_zerop R (ps_poly_nth 0 polb₄)) as [H₁| H₁].
+                     remember (S id) as sid; simpl.
+                     destruct (ps_zerop R (ps_poly_nth 0 polb₄)) as [H₃| H₃].
+                      reflexivity.
 
-                    remember (ac_root (Φq polb₄ nsb₄)) as c₄ eqn:Hc₄ .
-                    assert (root_multiplicity acf c₄ (Φq polb₄ nsb₄) = r)
-                     as Hr₄.
-                     rewrite <- Hri₁ with (i := S (S (S b))); symmetry.
-                     apply nth_r_n; auto.
-                      rewrite Hnsb₄; symmetry.
-                      eapply nth_ns_n with (c := c); eauto .
-                      rewrite Hpolb₄.
-                      remember (S (S b)) as sb; simpl.
-                      rewrite <- Hc, <- Hpol₁, <- Hns₁.
-                      subst sb; remember (S b) as sb; simpl.
-                      rewrite <- Hc₁, <- Hpol₂, <- Hns₂; auto.
-                      subst sb; simpl.
-                      rewrite <- Hc₂, <- Hpol₃, <- Hns₃.
-                      f_equal.
-                       rewrite Hpolb₃.
-                       eapply nth_pol_n with (c₁ := c₂); eauto .
+                      contradiction.
 
-                       f_equal.
-                       rewrite Hnsb₃; auto.
-
-                       rewrite Hnsb₃; auto.
-
-                       rewrite Hcb₃.
-                       rewrite Hpolb₃, Hnsb₃.
-                       f_equal; f_equal.
-                       eapply nth_pol_n with (c₁ := c₂); eauto .
-
-                      rewrite Hc₄.
-                      symmetry.
-                      apply nth_c_n; auto.
-                       rewrite Hnsb₄; symmetry.
-                       eapply nth_ns_n with (c := c); eauto .
-                       rewrite Hpolb₄.
-                       remember (S (S b)) as sb; simpl.
-                       rewrite <- Hc, <- Hpol₁, <- Hns₁.
-                       subst sb; remember (S b) as sb; simpl.
-                       rewrite <- Hc₁, <- Hpol₂, <- Hns₂; auto.
-                       subst sb; simpl.
-                       rewrite <- Hc₂, <- Hpol₃, <- Hns₃.
-                       f_equal.
-                        rewrite Hpolb₃.
-                        eapply nth_pol_n with (c₁ := c₂); eauto .
-
-                        f_equal.
-                        rewrite Hnsb₃; auto.
-
-                        rewrite Hnsb₃; auto.
-
-                        rewrite Hcb₃.
-                        rewrite Hpolb₃, Hnsb₃.
-                        f_equal; f_equal.
-                        eapply nth_pol_n with (c₁ := c₂); eauto .
-
-                    remember Hnsb₃₁ as H; clear HeqH.
-                    eapply r_n_next_ns in H; eauto .
-                     destruct H as (αjb₄, (αkb₄, H)).
-                     destruct H as (Hinib₄, (Hfinb₄, (Hαjb₄, Hαkb₄))).
-                     eapply q_eq_1_any_r with (pol := polb₄); eauto .
+                     apply find_coeff_more_iter with (r := r); auto.
                       eapply List_hd_in; eauto .
-                      eapply newton_segments_not_nil; eauto .
+                      remember Hnsb₃₁ as H; clear HeqH.
+                      eapply next_has_root_0_or_newton_segments in H; eauto .
+                      simpl in H.
+                      rewrite <- Hcb₃, <- Hpolb₄ in H.
+                      destruct H; [ contradiction | auto ].
 
                       eapply
-                       nth_pol_in_K_1_m with (ns := ns₁) (n := (3 + b)%nat);
+                       first_n_pol_in_K_1_m_any_r
+                        with (pol := polb₃) (n := 1%nat); 
                        eauto .
                        intros j Hj.
-                       destruct (le_dec j (S b)) as [H₃| H₃].
-                        apply Hpsi; auto.
+                       destruct j; auto.
+                       destruct j; [ simpl | exfalso; fast_omega Hj ].
+                       rewrite <- Hcb₃, <- Hpolb₄; auto.
 
-                        apply Nat.nle_gt in H₃.
-                        destruct (eq_nat_dec j (S (S b))) as [H₄| H₄].
-                         subst j.
-                         remember (S b) as sb; simpl.
-                         rewrite <- Hc₁, <- Hpol₂, <- Hns₂.
-                         subst sb; simpl.
-                         rewrite <- Hc₂, <- Hpol₃, <- Hns₃.
-                         erewrite <- nth_pol_n with (c₁ := c₂); eauto .
-                         rewrite <- Hpolb₃.
-                         auto.
+                       simpl; rewrite <- Hcb₃; auto.
 
-                         destruct (eq_nat_dec j (S (S (S b)))) as [H₅| H₅].
-                          2: exfalso; fast_omega Hj H₃ H₄ H₅.
+                      remember (ac_root (Φq polb₄ nsb₄)) as c₄ eqn:Hc₄ .
+                      assert (root_multiplicity acf c₄ (Φq polb₄ nsb₄) = r)
+                       as Hr₄.
+                       rewrite <- Hri₁ with (i := S (S (S b))); symmetry.
+                       apply nth_r_n; auto.
+                       rewrite Hc₄.
+                       symmetry.
+                       apply nth_c_n; auto.
 
+                       remember Hnsb₃₁ as H; clear HeqH.
+                       eapply r_n_next_ns in H; eauto .
+                       destruct H as (αjb₄, (αkb₄, H)).
+                       destruct H as (Hinib₄, (Hfinb₄, (Hαjb₄, Hαkb₄))).
+                       eapply q_eq_1_any_r with (pol := polb₄); eauto .
+                        eapply List_hd_in; eauto .
+                        eapply newton_segments_not_nil; eauto .
+
+                        eapply
+                         nth_pol_in_K_1_m with (ns := ns₁) (n := (3 + b)%nat);
+                         eauto .
+                        intros j Hj.
+                        destruct (le_dec j (S b)) as [H₃| H₃].
+                         apply Hpsi; auto.
+
+                         apply Nat.nle_gt in H₃.
+                         destruct (eq_nat_dec j (S (S b))) as [H₄| H₄].
                           subst j.
-                          remember (S (S b)) as sb; simpl.
+                          remember (S b) as sb; simpl.
                           rewrite <- Hc₁, <- Hpol₂, <- Hns₂.
-                          subst sb; remember (S b) as sb; simpl.
-                          rewrite <- Hc₂, <- Hpol₃, <- Hns₃.
                           subst sb; simpl.
-                          remember (ac_root (Φq pol₃ ns₃)) as c₃ eqn:Hc₃ .
-                          erewrite
-                           <- nth_pol_n with (poln := polb₃) (c₁ := c₃);
-                           eauto .
-                           rewrite <- Hpolb₄; auto.
+                          rewrite <- Hc₂, <- Hpol₃, <- Hns₃.
+                          erewrite <- nth_pol_n with (c₁ := c₂); eauto .
+                          rewrite <- Hpolb₃.
+                          auto.
 
-                           erewrite <- nth_pol_n with (c₁ := c₂); eauto .
+                          destruct (eq_nat_dec j (S (S (S b)))) as [H₅| H₅].
+                           2: exfalso; fast_omega Hj H₃ H₄ H₅.
 
-                      rewrite Hr₄; auto.
+                           subst j.
+                           remember (S (S b)) as sb; simpl.
+                           rewrite <- Hc₁, <- Hpol₂, <- Hns₂.
+                           subst sb; remember (S b) as sb; simpl.
+                           rewrite <- Hc₂, <- Hpol₃, <- Hns₃.
+                           subst sb; simpl.
+                           remember (ac_root (Φq pol₃ ns₃)) as c₃ eqn:Hc₃ .
+                           erewrite
+                            <- nth_pol_n with (poln := polb₃) (c₁ := c₃);
+                            eauto .
+                            rewrite <- Hpolb₄; auto.
 
-                    intros j.
-                    rewrite <- (Hri₁ (j + S (S (S b)))%nat).
-                    rewrite nth_r_add; f_equal; auto.
+                            erewrite <- nth_pol_n with (c₁ := c₂); eauto .
+
+                        rewrite Hr₄; auto.
+
+                      intros j.
+                      rewrite <- (Hri₁ (j + S (S (S b)))%nat).
+                      rewrite nth_r_add; f_equal; auto.
 bbb.
+  ============================
+   S (S id) ≤ S i
+
+subgoal 2 is:
+ (0 =
+  match match id with
+  ...
+  end)%K
+subgoal 3 is:
+ q_of_m m₁ (γ nsb₂) = 1%positive
+subgoal 4 is:
+ (- pb₃ <= 0)%Z
+subgoal 5 is:
+ (p_of_m m₁ (γ nsb₂) * ' (dd * dd))%Z = (nd * ' m₁ * ' dd)%Z
+subgoal 6 is:
+ (m₁ * (dd * dd))%positive = (dd * (dd * m₁))%positive
+subgoal 7 is:
+ (nd * ' m₁ * ' dd <= nd * ' m₁ * ' dd + pb₃ * ' dd * ' dd)%Z
 *)
 
 (*
