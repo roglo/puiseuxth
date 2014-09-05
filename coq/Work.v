@@ -69,7 +69,37 @@ Theorem root_tail_sep_1st_monom_any_r : ∀ pol ns pol₁ ns₁ c m q₀ n r,
 Proof.
 intros pol ns pol₁ ns₁ c m q₀ n r Hns Hm Hq₀ Hc Hpol₁ Hns₁ Hpsi Hri.
 remember (m * q₀)%positive as m₁.
+remember (S n) as sn.
+unfold root_tail, ps_monom; simpl.
+do 2 rewrite fold_series_const.
+remember (ac_root (Φq pol₁ ns₁)) as c₁ eqn:Hc₁ .
+remember (next_pol pol₁ (β ns₁) (γ ns₁) c₁) as pol₂ eqn:Hpol₂ .
+remember (List.hd phony_ns (newton_segments pol₂)) as ns₂ eqn:Hns₂ .
+remember (nth_pol n pol₁ ns₁) as poln₁ eqn:Hpoln₁ .
+remember (nth_pol n pol₂ ns₂) as poln₂ eqn:Hpoln₂ .
+subst sn.
+rewrite zerop_1st_n_const_coeff_succ2.
+remember (zerop_1st_n_const_coeff n pol₁ ns₁) as z₁ eqn:Hz₁ .
+symmetry in Hz₁.
+destruct z₁.
+ apply zerop_1st_n_const_coeff_false_iff in Hpsi.
+ rewrite Hpsi in Hz₁.
+ discriminate Hz₁.
+
+ rewrite Bool.orb_false_l.
+ pose proof (Hpsi O (Nat.le_0_l n)) as H; simpl in H.
+ rename H into Hnz₁.
+ remember Hns₁ as H; clear HeqH.
+ eapply r_n_next_ns in H; eauto .
+  rewrite Nat.add_0_r in H.
+  destruct H as (αj₁, (αk₁, H)).
+  destruct H as (Hini₁, (Hfin₁, (Hαj₁, Hαk₁))).
+  remember Hns₁ as Hns₁i; clear HeqHns₁i.
+  eapply hd_newton_segments₉ in Hns₁i; eauto .
 bbb.
+ remember Hr as H; clear HeqH.
+
+cf RootHeadTail.v around line 2979
 *)
 
 Theorem root_tail_when_r_r : ∀ pol ns pol₁ ns₁ c m q₀ b r,
