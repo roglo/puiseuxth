@@ -659,38 +659,76 @@ destruct z₁.
                         eauto .
                        erewrite <- nth_pol_n with (c₁ := c₂); eauto .
 
-                      remember (ac_root (Φq pol₃ ns₃)) as c₃ eqn:Hc₃ .
-                      remember (next_pol pol₃ (β ns₃) (γ ns₃) c₃) as pol₄
-                       eqn:Hpol₄ .
-                      remember
-                       (List.hd phony_ns (newton_segments pol₄)) as ns₄
-                       eqn:Hns₄ .
-                      remember (ac_root (Φq pol₄ ns₄)) as c₄ eqn:Hc₄ .
-                      remember (next_pol pol₄ (β ns₄) (γ ns₄) c₄) as pol₅
-                       eqn:Hpol₅ .
-                      remember
-                       (List.hd phony_ns (newton_segments pol₅)) as ns₅
-                       eqn:Hns₅ .
-                      erewrite <- nth_r_n with (pol := pol₅) (ns := ns₅).
-                       4: symmetry; apply nth_c_n.
-                        2: erewrite <- nth_pol_n.
-                         2: eauto .
+                      rewrite
+                       <- nth_r_n
+                           with (n := S (S (S b))) (pol := pol₁) (ns := ns₁).
+                       rewrite Hri₁; auto.
 
-                         5: erewrite <- nth_pol_n with (c₁ := c₃).
-                          5: eauto .
+                       rewrite Hpolb₄.
+                       eapply nth_pol_n with (c₁ := c); eauto .
+                        rewrite Hpolb₃.
+                        remember (S (S b)) as sb; simpl.
+                        rewrite <- Hc, <- Hpol₁, <- Hns₁.
+                        subst sb.
+                        eapply nth_pol_n with (c₁ := c); eauto .
+                         rewrite Hpolb₂.
+                         remember (S b) as sb; simpl.
+                         rewrite <- Hc, <- Hpol₁, <- Hns₁.
+                         subst sb; simpl.
+                         rewrite <- Hc₁, <- Hpol₂, <- Hns₂; auto.
 
-                          5: eauto .
+                         rewrite Hnsb₂.
+                         remember (S b) as sb; simpl.
+                         rewrite <- Hc, <- Hpol₁, <- Hns₁.
+                         subst sb; simpl.
+                         rewrite <- Hc₁, <- Hpol₂, <- Hns₂; auto.
 
-                          5: eauto .
+                        rewrite Hnsb₃.
+                        remember (S (S b)) as sb; simpl.
+                        rewrite <- Hc, <- Hpol₁, <- Hns₁.
+                        subst sb; remember (S b) as sb; simpl.
+                        rewrite <- Hc₁, <- Hpol₂, <- Hns₂; auto.
+                        subst sb; simpl.
+                        rewrite <- Hc₂, <- Hpol₃, <- Hns₃; auto.
 
-                          2: eauto .
-
-                          2: eauto .
-
-                          2: eauto .
-
-                          2: eauto .
+                       rewrite Hnsb₄; symmetry.
+                       eapply nth_ns_n with (c := c); eauto .
+                       rewrite Hpolb₄.
+                       remember (S (S b)) as sb; simpl.
+                       rewrite <- Hc, <- Hpol₁, <- Hns₁.
+                       subst sb; remember (S b) as sb; simpl.
+                       rewrite <- Hc₁, <- Hpol₂, <- Hns₂; auto.
+                       subst sb; simpl.
+                       rewrite <- Hc₂, <- Hpol₃, <- Hns₃.
 bbb.
+  ============================
+   next_pol polb₃ (β nsb₃) (γ nsb₃) cb₃ =
+   next_pol (nth_pol b pol₃ ns₃) (β (nth_ns b pol₃ ns₃))
+     (γ (nth_ns b pol₃ ns₃))
+     (ac_root (Φq (nth_pol b pol₃ ns₃) (nth_ns b pol₃ ns₃)))
+
+subgoal 2 is:
+ ac_root (Φq polb₄ nsb₄) = nth_c (S (S (S b))) pol₁ ns₁
+subgoal 3 is:
+ root_multiplicity acf (ac_root (Φq polb₄ nsb₄)) (Φq polb₄ nsb₄) = r
+subgoal 4 is:
+ ∀ j : nat, nth_r j polb₄ nsb₄ = r
+subgoal 5 is:
+ S (S id) ≤ S i
+subgoal 6 is:
+ (0 =
+  match match id with
+  ...
+subgoal 7 is:
+ q_of_m m₁ (γ nsb₂) = 1%positive
+subgoal 8 is:
+ (- pb₃ <= 0)%Z
+subgoal 9 is:
+ (p_of_m m₁ (γ nsb₂) * ' (dd * dd))%Z = (nd * ' m₁ * ' dd)%Z
+subgoal 10 is:
+ (m₁ * (dd * dd))%positive = (dd * (dd * m₁))%positive
+subgoal 11 is:
+ (nd * ' m₁ * ' dd <= nd * ' m₁ * ' dd + pb₃ * ' dd * ' dd)%Z
 *)
 
 (*
