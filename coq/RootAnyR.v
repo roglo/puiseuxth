@@ -34,23 +34,12 @@ Require Import RootWhenR1.
 
 Set Implicit Arguments.
 
-Axiom exists_or_not_forall : ∀ P : nat → Prop, (∃ n, P n) ∨ (∀ n, ¬P n).
-
 Section theorems.
 
 Variable α : Type.
 Variable R : ring α.
 Variable K : field R.
 Variable acf : algeb_closed_field K.
-
-Definition multiplicity_decreases pol ns n :=
-  let c := ac_root (Φq pol ns) in
-  let r := root_multiplicity acf c (Φq pol ns) in
-  let poln := nth_pol n pol ns in
-  let nsn := nth_ns n pol ns in
-  let cn := nth_c n pol ns in
-  let rn := root_multiplicity acf cn (Φq poln nsn) in
-  (rn < r)%nat.
 
 Theorem lowest_i_such_that_ri_lt_r₀ : ∀ pol ns r n,
   r = nth_r 0 pol ns

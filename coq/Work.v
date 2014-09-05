@@ -35,12 +35,23 @@ Require Import RootAnyR.
 
 Set Implicit Arguments.
 
+Axiom exists_or_not_forall : ∀ P : nat → Prop, (∃ n, P n) ∨ (∀ n, ¬P n).
+
 Section theorems.
 
 Variable α : Type.
 Variable R : ring α.
 Variable K : field R.
 Variable acf : algeb_closed_field K.
+
+Definition multiplicity_decreases pol ns n :=
+  let c := ac_root (Φq pol ns) in
+  let r := root_multiplicity acf c (Φq pol ns) in
+  let poln := nth_pol n pol ns in
+  let nsn := nth_ns n pol ns in
+  let cn := nth_c n pol ns in
+  let rn := root_multiplicity acf cn (Φq poln nsn) in
+  (rn < r)%nat.
 
 (* cf root_tail_from_0 *)
 Theorem root_tail_from_0_const_r : ∀ pol ns pol₁ ns₁ c m q₀ b r,
@@ -761,20 +772,36 @@ destruct z₁.
 Qed.
 
 (*
+Theorem root_tail_from_0_const_r : ∀ pol ns pol₁ ns₁ c m q₀ b r,
+  ns ∈ newton_segments pol
+  → pol_in_K_1_m pol m
+  → q₀ = q_of_m m (γ ns)
+  → c = ac_root (Φq pol ns)
+  → pol₁ = next_pol pol (β ns) (γ ns) c
+  → ns₁ = List.hd phony_ns (newton_segments pol₁)
+  → (∀ i, nth_r i pol ns = r)
+  → (1 ≠ 0)%K
+  → (root_tail (m * q₀) b pol₁ ns₁ =
+     root_head b 0 pol₁ ns₁ +
+       ps_monom 1%K (γ_sum b 0 pol₁ ns₁) *
+       root_tail (m * q₀) (b + 1) pol₁ ns₁)%ps.
+*)
+
 Theorem root_tail_when_r_r : ∀ pol ns pol₁ ns₁ c m q₀ b r,
   ns ∈ newton_segments pol
   → pol_in_K_1_m pol m
   → q₀ = q_of_m m (γ ns)
   → c = ac_root (Φq pol ns)
-  → root_multiplicity acf c (Φq pol ns) = r
   → pol₁ = next_pol pol (β ns) (γ ns) c
   → ns₁ = List.hd phony_ns (newton_segments pol₁)
+  → (∀ i, nth_r i pol ns = r)
   → ∀ n,
     (root_tail (m * q₀) b pol₁ ns₁ =
      root_head b n pol₁ ns₁ +
        ps_monom 1%K (γ_sum b n pol₁ ns₁) *
        root_tail (m * q₀) (b + S n) pol₁ ns₁)%ps.
 Proof.
+Admitted. (*
 intros pol ns pol₁ ns₁ c m q₀ b r Hns Hm Hq₀ Hc Hr Hpol₁ Hns₁ n.
 remember (m * q₀)%positive as m₁.
 revert pol ns pol₁ ns₁ Hns Hm Hq₀ Hc Hr Hpol₁ Hns₁.
