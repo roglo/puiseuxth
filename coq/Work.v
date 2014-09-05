@@ -35,7 +35,7 @@ Require Import RootAnyR.
 
 Set Implicit Arguments.
 
-Axiom exists_or_not_forall : ∀ P : nat → Prop, (∃ n, P n) ∨ (∀ n, ¬P n).
+Axiom exists_or_not_forall : ∀ P : nat → Prop, { ∃ n, P n } + { ∀ n, ¬P n }.
 
 Section theorems.
 
@@ -70,6 +70,7 @@ Proof.
 intros pol ns pol₁ ns₁ c m q₀ n r Hns Hm Hq₀ Hc Hpol₁ Hns₁ Hpsi Hri.
 remember (m * q₀)%positive as m₁.
 bbb.
+*)
 
 Theorem root_tail_when_r_r : ∀ pol ns pol₁ ns₁ c m q₀ b r,
   ns ∈ newton_segments pol
@@ -175,8 +176,7 @@ destruct r.
  apply multiplicity_neq_0; assumption.
 
  rename H into IHm.
- pose proof (exists_or_not_forall (multiplicity_decreases pol ns)) as H.
- destruct H as [Hn| Hn].
+ destruct (exists_or_not_forall (multiplicity_decreases pol ns)) as [Hn|Hn].
   destruct Hn as (n, Hn).
   unfold multiplicity_decreases in Hn.
   rewrite <- Hc, Hr in Hn.
