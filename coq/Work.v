@@ -795,13 +795,14 @@ Theorem root_tail_when_r_r : ∀ pol ns pol₁ ns₁ c m q₀ b r,
   → pol₁ = next_pol pol (β ns) (γ ns) c
   → ns₁ = List.hd phony_ns (newton_segments pol₁)
   → (∀ i, nth_r i pol ns = r)
+  → (1 ≠ 0)%K
   → ∀ n,
     (root_tail (m * q₀) b pol₁ ns₁ =
      root_head b n pol₁ ns₁ +
        ps_monom 1%K (γ_sum b n pol₁ ns₁) *
        root_tail (m * q₀) (b + S n) pol₁ ns₁)%ps.
 Proof.
-intros pol ns pol₁ ns₁ c m q₀ b r Hns Hm Hq₀ Hc Hpol₁ Hns₁ Hri n.
+intros pol ns pol₁ ns₁ c m q₀ b r Hns Hm Hq₀ Hc Hpol₁ Hns₁ Hri H₀ n.
 remember (m * q₀)%positive as m₁.
 revert pol ns pol₁ ns₁ Hns Hm Hq₀ Hc Hpol₁ Hns₁ Hri.
 revert b c m q₀ m₁ Heqm₁.
@@ -819,6 +820,10 @@ induction n; intros.
 
   rewrite Nat.add_0_r, rng_add_0_r, Heqm₁.
   rewrite root_tail_from_0_const_r; eauto .
+  apply rng_add_compat_r; simpl.
+  unfold root_head; simpl.
+  rewrite Hz₁.
+  rewrite Nat.add_0_r, rng_add_0_r; reflexivity.
 bbb.
 *)
 
