@@ -580,7 +580,7 @@ induction i; intros.
 Qed.
 
 (* cf root_tail_from_0 *)
-Theorem root_tail_from_0₄₂ : ∀ pol ns pol₁ ns₁ c m q₀ b r,
+Theorem root_tail_from_0_const_r : ∀ pol ns pol₁ ns₁ c m q₀ b r,
   ns ∈ newton_segments pol
   → pol_in_K_1_m pol m
   → q₀ = q_of_m m (γ ns)
