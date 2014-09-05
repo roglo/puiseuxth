@@ -1141,27 +1141,41 @@ destruct z₁.
                      rewrite <- Hcb₃, <- Hpolb₄; auto.
 
                      simpl; rewrite <- Hcb₃; auto.
+
+                    remember Hnsb₃₁ as H; clear HeqH.
+                    eapply r_n_next_ns in H; eauto .
+                     destruct H as (αjb₄, (αkb₄, H)).
+                     destruct H as (Hinib₄, (Hfinb₄, (Hαjb₄, Hαkb₄))).
+                     eapply q_eq_1_any_r with (pol := polb₄); eauto .
+                      eapply List_hd_in; eauto .
+                      eapply newton_segments_not_nil; eauto .
 bbb.
   ============================
-   q_of_m m₁ (γ nsb₄) = 1%positive
+   pol_in_K_1_m polb₄ m₁
 
 subgoal 2 is:
- ∀ j : nat, nth_r j polb₄ nsb₄ = r
+ fin_pt nsb₄ =
+ (Qnat (root_multiplicity acf (ac_root (Φq polb₄ nsb₄)) (Φq polb₄ nsb₄)),
+ αkb₄)
 subgoal 3 is:
- S (S id) ≤ S i
+ root_multiplicity acf (ac_root (Φq polb₄ nsb₄)) (Φq polb₄ nsb₄) = r
 subgoal 4 is:
+ ∀ j : nat, nth_r j polb₄ nsb₄ = r
+subgoal 5 is:
+ S (S id) ≤ S i
+subgoal 6 is:
  (0 =
   match match id with
   ...
-subgoal 5 is:
- q_of_m m₁ (γ nsb₂) = 1%positive
-subgoal 6 is:
- (- pb₃ <= 0)%Z
 subgoal 7 is:
- (p_of_m m₁ (γ nsb₂) * ' (dd * dd))%Z = (nd * ' m₁ * ' dd)%Z
+ q_of_m m₁ (γ nsb₂) = 1%positive
 subgoal 8 is:
- (m₁ * (dd * dd))%positive = (dd * (dd * m₁))%positive
+ (- pb₃ <= 0)%Z
 subgoal 9 is:
+ (p_of_m m₁ (γ nsb₂) * ' (dd * dd))%Z = (nd * ' m₁ * ' dd)%Z
+subgoal 10 is:
+ (m₁ * (dd * dd))%positive = (dd * (dd * m₁))%positive
+subgoal 11 is:
  (nd * ' m₁ * ' dd <= nd * ' m₁ * ' dd + pb₃ * ' dd * ' dd)%Z
 *)
 
