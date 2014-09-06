@@ -262,6 +262,9 @@ destruct z₁.
    remember Hpoln₂ as H; clear HeqH.
    erewrite <- nth_pol_succ2 with (c := c₁) in H; eauto .
    rename H into Hpoln₂₁; move Hpoln₂₁ before Hpoln₂.
+   remember Hnsn₂ as H; clear HeqH.
+   erewrite <- nth_ns_succ2 with (c := c₁) in H; eauto .
+   rename H into Hnsn₂₁; move Hnsn₂₁ before Hnsn₂.
    remember Hpsi as H; clear HeqH.
    apply zerop_1st_n_const_coeff_false_iff in H.
    remember Hnzn₂ as HH; clear HeqHH.
@@ -271,7 +274,6 @@ destruct z₁.
    clear Hpsi; rename H into Hpsi; move Hpsi after Hri.
    remember Hns as H; clear HeqH.
    eapply r_n_nth_ns with (poln := poln₂) (n := S n) in H; eauto .
-   simpl in H; rewrite <- Hc₁, <- Hpol₂, <- Hns₂, <- Hnsn₂ in H.
    destruct H as (αjn₂, (αkn₂, H)).
    destruct H as (Hinin₂, (Hfinn₂, (Hαjn₂, Hαkn₂))).
    unfold ps_add, ps_mul; simpl.
@@ -324,10 +326,8 @@ destruct z₁.
     move Hcn₂ before Hnsn₂.
     pose proof (Hri₁ (S n)) as H.
     erewrite nth_r_n in H; eauto .
-    erewrite nth_ns_succ2 in H; eauto .
-    erewrite nth_c_succ2 in H; eauto .
     erewrite nth_c_n in H; eauto .
-    rewrite <- Hnsn₂, <- Hcn₂ in H.
+    rewrite <- Hcn₂ in H.
     rename H into Hrn₂; move Hrn₂ after Hcn₂.
     rewrite Z.min_l; auto.
     rewrite Z.min_r; auto.
@@ -422,13 +422,15 @@ destruct z₁.
        eapply q_eq_1_any_r in H; eauto .
        rename H into Hqn₂; move Hqn₂ before HKn₂.
        assert (∀ j, nth_r j poln₁ nsn₁ = r) as Hrin₁.
-        intros j.
-        rewrite Hpoln₁, Hnsn₁, <- nth_r_add.
-        apply Hri₁.
+        intros j; rewrite Hpoln₁, Hnsn₁, <- nth_r_add; apply Hri₁.
 
-        move Hrin₁ before Hqn₁.
-        rewrite find_coeff_iter_succ with (r := r); auto; symmetry.
-        rewrite find_coeff_iter_succ with (r := r); auto.
+        assert (∀ j, nth_r j poln₂ nsn₂ = r) as Hrin₂.
+         intros j; rewrite Hpoln₂₁, Hnsn₂₁, <- nth_r_add; apply Hri₁.
+
+         move Hrin₁ before Hqn₁.
+         move Hrin₂ before Hqn₂.
+         rewrite find_coeff_iter_succ with (r := r); auto; symmetry.
+         rewrite find_coeff_iter_succ with (r := r); auto; symmetry.
 bbb.
 
 cf RootAnyR.v around line 3011
