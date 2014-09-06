@@ -306,6 +306,29 @@ destruct z₁.
     pose proof (Hpsi n (Nat.le_succ_diag_r n)) as H.
     rewrite <- Hpoln₁ in H.
     rename H into Hnzn₁; move Hnzn₁ before Hnsn₁.
+    remember Hnsn₂ as H; clear HeqH.
+    erewrite nth_ns_n with (c := c₁) in H; eauto .
+    erewrite <- nth_pol_n with (c := c₁) in H; eauto .
+    rewrite <- Hpoln₂ in H.
+    rename H into Hnsn₂h; move Hnsn₂h before Hαkn₂.
+    remember Hnsn₂h as H; clear HeqH.
+    eapply newton_segments_not_nil in H; eauto .
+    rename H into Hns₂nz; move Hns₂nz before Hnzn₂.
+    remember Hnsn₂h as H; clear HeqH.
+    eapply List_hd_in in H; eauto .
+    rename H into Hnsn₂i; move Hnsn₂i before Hnsn₂h.
+    remember Hpoln₂₁ as H; clear HeqH.
+    eapply nth_pol_in_K_1_m in H; eauto .
+    rename H into HZn₂; move HZn₂ before Hnsn₂i.
+    remember (ac_root (Φq poln₂ nsn₂)) as cn₂ eqn:Hcn₂ .
+    move Hcn₂ before Hnsn₂.
+    pose proof (Hri₁ (S n)) as H.
+    erewrite nth_r_n in H; eauto .
+    erewrite nth_ns_succ2 in H; eauto .
+    erewrite nth_c_succ2 in H; eauto .
+    erewrite nth_c_n in H; eauto .
+    rewrite <- Hnsn₂, <- Hcn₂ in H.
+    rename H into Hrn₂; move Hrn₂ after Hcn₂.
     rewrite Z.min_l; auto.
     rewrite Z.min_r; auto.
     rewrite Z.sub_diag; simpl.
@@ -344,66 +367,40 @@ destruct z₁.
        rewrite Pos2Z.inj_mul in H₁.
        rewrite Z.div_mul_cancel_r in H₁; auto.
        erewrite αj_m_eq_p_r with (pol₁ := poln₂) in H₁; eauto .
-        rewrite <- Zposnat2Znat in H₁; eauto .
-        rewrite Z.mul_shuffle0, <- Z.mul_assoc in H₁.
-        rewrite <- Pos2Z.inj_mul in H₁.
-        rewrite Z.div_mul in H₁; auto.
-        remember Hinin₂ as H; clear HeqH.
-        eapply p_is_pos with (m := m₁) in H; eauto .
-        remember (p_of_m m₁ (γ nsn₂)) as pn₂ eqn:Hpn₂ .
-        destruct pn₂ as [| p| p]; exfalso.
-         revert H; apply Z.lt_irrefl.
+       rewrite <- Zposnat2Znat in H₁; eauto .
+       rewrite Z.mul_shuffle0, <- Z.mul_assoc in H₁.
+       rewrite <- Pos2Z.inj_mul in H₁.
+       rewrite Z.div_mul in H₁; auto.
+       remember Hinin₂ as H; clear HeqH.
+       eapply p_is_pos with (m := m₁) in H; eauto .
+       remember (p_of_m m₁ (γ nsn₂)) as pn₂ eqn:Hpn₂ .
+       destruct pn₂ as [| p| p]; exfalso.
+        revert H; apply Z.lt_irrefl.
 
-         revert H₁; apply Pos2Nat_ne_0.
+        revert H₁; apply Pos2Nat_ne_0.
 
-         apply Z.nle_gt in H.
-         apply H, Pos2Z.neg_is_nonpos.
+        apply Z.nle_gt in H.
+        apply H, Pos2Z.neg_is_nonpos.
+
+      remember minus as f; simpl; subst f.
+      rewrite rng_add_0_l.
 bbb.
   ============================
-   nsn₂ ∈ newton_segments poln₂
+   (root_tail_series_from_cγ_list m₁ poln₁ nsn₁ (S i) =
+    (if zerop (S i) then cn₁ else 0) +
+    (if lt_dec (S i) (Z.to_nat (nd₂ * ' m₁ / ' dd₂))
+     then 0
+     else
+      root_tail_series_from_cγ_list m₁ poln₂ nsn₂
+        (S i - Z.to_nat (nd₂ * ' m₁ / ' dd₂))))%K
 
 subgoal 2 is:
- pol_in_K_1_m poln₂ m₁
-subgoal 3 is:
- root_multiplicity acf (ac_root (Φq poln₂ nsn₂)) (Φq poln₂ nsn₂) = r
-subgoal 4 is:
- (root_tail_series_from_cγ_list m₁ poln₁ nsn₁ (S i) =
-  (if zerop (S i) then cn₁ else 0) +
-  (if lt_dec (S i) (Z.to_nat (nd₂ * ' m₁ / ' dd₂))
-   then 0
-   else
-    root_tail_series_from_cγ_list m₁ poln₂ nsn₂
-      (S i - Z.to_nat (nd₂ * ' m₁ / ' dd₂))))%K
-subgoal 5 is:
  (nd₁ * ' m₁ / ' dd₁ * ' (dd₁ * dd₁))%Z = (nd₁ * ' m₁ * ' dd₁)%Z
 
 cf RootHeadTail.v around line 3143
 *)
 
 (*
-   remember Hnsn₂ as H; clear HeqH.
-   erewrite nth_ns_n with (c := c₁) in H; eauto .
-   erewrite <- nth_pol_n with (c := c₁) in H; eauto .
-   rewrite <- Hpoln₂ in H.
-   rename H into Hnsn₂h; move Hnsn₂h before Hαkn₂.
-   remember Hnsn₂h as H; clear HeqH.
-   eapply newton_segments_not_nil in H; eauto .
-   rename H into Hns₂nz; move Hns₂nz before Hnzn₂.
-   remember Hnsn₂h as H; clear HeqH.
-   eapply List_hd_in in H; eauto .
-   rename H into Hnsn₂i; move Hnsn₂i before Hnsn₂h.
-   remember Hpoln₂₁ as H; clear HeqH.
-   eapply nth_pol_in_K_1_m in H; eauto .
-   rename H into HZn₂; move HZn₂ before Hnsn₂i.
-   remember (ac_root (Φq poln₂ nsn₂)) as cn₂ eqn:Hcn₂ .
-   move Hcn₂ before Hnsn₂.
-   pose proof (Hri₁ (S n)) as H.
-   erewrite nth_r_n in H; eauto .
-   erewrite nth_ns_succ2 in H; eauto .
-   erewrite nth_c_succ2 in H; eauto .
-   erewrite nth_c_n in H; eauto .
-   rewrite <- Hnsn₂, <- Hcn₂ in H.
-   rename H into Hrn₂; move Hrn₂ after Hcn₂.
    remember (nd₂ * ' m₁ / ' dd₂ * ' dd₁)%Z as x eqn:Hx .
    rewrite Hnd₂, Hdd₂, Hdd₁ in Hx.
    rewrite Z.mul_shuffle0, Pos_mul_shuffle0 in Hx.
