@@ -319,7 +319,7 @@ destruct z₁.
     rename H into Hnsn₂i; move Hnsn₂i before Hnsn₂h.
     remember Hpoln₂₁ as H; clear HeqH.
     eapply nth_pol_in_K_1_m in H; eauto .
-    rename H into HZn₂; move HZn₂ before Hnsn₂i.
+    rename H into HKn₂; move HKn₂ before Hnsn₂i.
     remember (ac_root (Φq poln₂ nsn₂)) as cn₂ eqn:Hcn₂ .
     move Hcn₂ before Hnsn₂.
     pose proof (Hri₁ (S n)) as H.
@@ -417,20 +417,19 @@ destruct z₁.
        remember Hnsn₁i as H; clear HeqH.
        eapply q_eq_1_any_r in H; eauto .
        rename H into Hqn₁; move Hqn₁ before HKn₁.
+       symmetry in Hrn₂.
+       remember Hnsn₂i as H; clear HeqH.
+       eapply q_eq_1_any_r in H; eauto .
+       rename H into Hqn₂; move Hqn₂ before HKn₂.
        assert (∀ j, nth_r j poln₁ nsn₁ = r) as Hrin₁.
         intros j.
         rewrite Hpoln₁, Hnsn₁, <- nth_r_add.
         apply Hri₁.
 
         move Hrin₁ before Hqn₁.
+        rewrite find_coeff_iter_succ with (r := r); auto; symmetry.
         rewrite find_coeff_iter_succ with (r := r); auto.
 bbb.
-  ============================
-   (find_coeff (S (S si)) 0 m₁ poln₁ nsn₁ si =
-    find_coeff (S id) 0 m₁ poln₂ nsn₂ id)%K
-
-subgoal 2 is:
- (nd₁ * ' m₁ / ' dd₁ * ' (dd₁ * dd₁))%Z = (nd₁ * ' m₁ * ' dd₁)%Z
 
 cf RootAnyR.v around line 3011
 cf RootHeadTail.v around line 3143
