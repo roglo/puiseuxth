@@ -417,15 +417,19 @@ destruct z₁.
        remember Hnsn₁i as H; clear HeqH.
        eapply q_eq_1_any_r in H; eauto .
        rename H into Hqn₁; move Hqn₁ before HKn₁.
-       rewrite find_coeff_iter_succ with (r := r); auto.
+       assert (∀ j, nth_r j poln₁ nsn₁ = r) as Hrin₁.
+        intros j.
+        rewrite Hpoln₁, Hnsn₁, <- nth_r_add.
+        apply Hri₁.
+
+        move Hrin₁ before Hqn₁.
+        rewrite find_coeff_iter_succ with (r := r); auto.
 bbb.
   ============================
    (find_coeff (S (S si)) 0 m₁ poln₁ nsn₁ si =
     find_coeff (S id) 0 m₁ poln₂ nsn₂ id)%K
 
 subgoal 2 is:
- ∀ j : nat, nth_r j poln₁ nsn₁ = r
-subgoal 3 is:
  (nd₁ * ' m₁ / ' dd₁ * ' (dd₁ * dd₁))%Z = (nd₁ * ' m₁ * ' dd₁)%Z
 
 cf RootAnyR.v around line 3011
