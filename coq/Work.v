@@ -413,18 +413,22 @@ destruct z₁.
           exfalso; revert H₁; apply Nat.lt_irrefl.
 
        apply Nat.nlt_ge in H₁.
+       symmetry in Hrn₁.
+       remember Hnsn₁i as H; clear HeqH.
+       eapply q_eq_1_any_r in H; eauto .
+       rename H into Hqn₁; move Hqn₁ before HKn₁.
+       rewrite find_coeff_iter_succ with (r := r); auto.
 bbb.
-  Hpn₂ : pn₂ = p_of_m m₁ (γ nsn₂)
-  Heqsi : si = S i
-  Hid : id = (si - Z.to_nat pn₂)%nat
-  H₁ : Z.to_nat pn₂ ≤ si
   ============================
-   (find_coeff (S si) 0 m₁ poln₁ nsn₁ si =
+   (find_coeff (S (S si)) 0 m₁ poln₁ nsn₁ si =
     find_coeff (S id) 0 m₁ poln₂ nsn₂ id)%K
 
 subgoal 2 is:
+ ∀ j : nat, nth_r j poln₁ nsn₁ = r
+subgoal 3 is:
  (nd₁ * ' m₁ / ' dd₁ * ' (dd₁ * dd₁))%Z = (nd₁ * ' m₁ * ' dd₁)%Z
 
+cf RootAnyR.v around line 3011
 cf RootHeadTail.v around line 3143
 *)
 
