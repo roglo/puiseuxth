@@ -92,12 +92,6 @@ Theorem root_tail_sep_1st_monom_any_r : ∀ pol ns pol₁ ns₁ c m q₀ n r,
        root_tail (m * q₀) (S n) pol₁ ns₁)%ps.
 Proof.
 intros pol ns pol₁ ns₁ c m q₀ n r Hns Hm Hq₀ Hc Hpol₁ Hns₁ Hpsi Hri H₀.
-remember (m * q₀)%positive as m₁.
-remember (S n) as sn.
-unfold root_tail, ps_monom; simpl.
-do 2 rewrite fold_series_const.
-subst sn.
-rewrite zerop_1st_n_const_coeff_succ2.
 remember (zerop_1st_n_const_coeff n pol₁ ns₁) as z₁ eqn:Hz₁ .
 symmetry in Hz₁.
 destruct z₁.
@@ -105,6 +99,13 @@ destruct z₁.
  rewrite Hpsi in Hz₁.
  discriminate Hz₁.
 
+ remember (m * q₀)%positive as m₁.
+ remember (S n) as sn.
+ unfold root_tail, ps_monom; simpl.
+ do 2 rewrite fold_series_const.
+ subst sn.
+ rewrite zerop_1st_n_const_coeff_succ2.
+ rewrite Hz₁.
  rewrite Bool.orb_false_l.
  remember (ac_root (Φq pol₁ ns₁)) as c₁ eqn:Hc₁ .
  move Hc₁ before Hns₁.
@@ -205,6 +206,24 @@ destruct z₁.
      rename H₁ into Hnzn₁.
      move Hnzn₁ before Hrn₁.
      destruct (ps_zerop R (ps_poly_nth 0 poln₂)); auto; contradiction.
+
+    subst d₁.
+    erewrite nth_γ_n; eauto ; simpl.
+    rewrite Hαkn₁; simpl.
+    rewrite Qnum_inv_Qnat_sub; auto.
+    rewrite Qden_inv_Qnat_sub; auto.
+    rewrite Z.add_0_r, Z.mul_1_r, Nat.sub_0_r.
+    rewrite Z.mul_shuffle0, Pos_mul_shuffle0.
+    do 2 rewrite Pos2Z.inj_mul.
+    rewrite Z.mul_assoc.
+    apply Z.mul_cancel_r; auto.
+    erewrite αj_m_eq_p_r; eauto .
+    rewrite Zposnat2Znat; auto.
+    rewrite Z.mul_assoc, Z.mul_shuffle0.
+    reflexivity.
+
+   rename H₂ into Hnzn₂.
+   move Hnzn₂ before Hnsn₂.
 
 bbb.
 
