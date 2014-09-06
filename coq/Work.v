@@ -339,13 +339,34 @@ destruct z₁.
 
        apply Nat.nlt_ge in H₁.
        apply Nat.le_0_r in H₁.
+       rewrite Hnd₂, Hdd₂ in H₁.
+       rewrite Z.mul_shuffle0, Pos_mul_shuffle0 in H₁.
+       rewrite Pos2Z.inj_mul in H₁.
+       rewrite Z.div_mul_cancel_r in H₁; auto.
+       erewrite αj_m_eq_p_r with (pol₁ := poln₂) in H₁; eauto .
+        rewrite <- Zposnat2Znat in H₁; eauto .
+        rewrite Z.mul_shuffle0, <- Z.mul_assoc in H₁.
+        rewrite <- Pos2Z.inj_mul in H₁.
+        rewrite Z.div_mul in H₁; auto.
+        remember Hinin₂ as H; clear HeqH.
+        eapply p_is_pos with (m := m₁) in H; eauto .
+        remember (p_of_m m₁ (γ nsn₂)) as pn₂ eqn:Hpn₂ .
+        destruct pn₂ as [| p| p]; exfalso.
+         revert H; apply Z.lt_irrefl.
+
+         revert H₁; apply Pos2Nat_ne_0.
+
+         apply Z.nle_gt in H.
+         apply H, Pos2Z.neg_is_nonpos.
 bbb.
-  H₁ : Z.to_nat (nd₂ * ' m₁ / ' dd₂) = 0
   ============================
-   (root_tail_series_from_cγ_list m₁ poln₁ nsn₁ 0 =
-    cn₁ + root_tail_series_from_cγ_list m₁ poln₂ nsn₂ 0)%K
+   nsn₂ ∈ newton_segments poln₂
 
 subgoal 2 is:
+ pol_in_K_1_m poln₂ m₁
+subgoal 3 is:
+ root_multiplicity acf (ac_root (Φq poln₂ nsn₂)) (Φq poln₂ nsn₂) = r
+subgoal 4 is:
  (root_tail_series_from_cγ_list m₁ poln₁ nsn₁ (S i) =
   (if zerop (S i) then cn₁ else 0) +
   (if lt_dec (S i) (Z.to_nat (nd₂ * ' m₁ / ' dd₂))
@@ -353,7 +374,7 @@ subgoal 2 is:
    else
     root_tail_series_from_cγ_list m₁ poln₂ nsn₂
       (S i - Z.to_nat (nd₂ * ' m₁ / ' dd₂))))%K
-subgoal 3 is:
+subgoal 5 is:
  (nd₁ * ' m₁ / ' dd₁ * ' (dd₁ * dd₁))%Z = (nd₁ * ' m₁ * ' dd₁)%Z
 
 cf RootHeadTail.v around line 3143
