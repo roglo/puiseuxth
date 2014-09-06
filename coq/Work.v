@@ -278,7 +278,21 @@ destruct z₁.
    remember (Qden αjn₁ * Qden αkn₁ * Pos.of_nat r)%positive as dd₁ eqn:Hdd₁ .
    remember (Qnum αjn₂ * ' Qden αkn₂)%Z as nd₂ eqn:Hnd₂ .
    remember (Qden αjn₂ * Qden αkn₂ * Pos.of_nat r)%positive as dd₂ eqn:Hdd₂ .
-   remember (nd₂ * ' m₁ / ' dd₂ * ' dd₁)%Z as x eqn:Hx.
+   remember Hnsn₂ as H; clear HeqH.
+   erewrite nth_ns_n with (c := c₁) in H; eauto .
+   erewrite <- nth_pol_n with (c := c₁) in H; eauto .
+   rewrite <- Hpoln₂ in H.
+   rename H into Hnsn₂h.
+   move Hnsn₂h before Hαkn₂.
+   remember Hnsn₂h as H; clear HeqH.
+   eapply newton_segments_not_nil in H; eauto .
+   rename H into Hns₂nz.
+   move Hns₂nz before Hnzn₂.
+   remember Hnsn₂h as H; clear HeqH.
+   eapply List_hd_in in H; eauto .
+   rename H into Hnsn₂i.
+   move Hnsn₂i before Hnsn₂h.
+   remember (nd₂ * ' m₁ / ' dd₂ * ' dd₁)%Z as x eqn:Hx .
    rewrite Hnd₂, Hdd₂, Hdd₁ in Hx.
    rewrite Z.mul_shuffle0, Pos_mul_shuffle0 in Hx.
    do 2 rewrite Pos2Z.inj_mul in Hx.
