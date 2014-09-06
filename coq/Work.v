@@ -171,11 +171,21 @@ destruct z₁.
     constructor; intros i; simpl.
     unfold root_tail_series_from_cγ_list; simpl.
     destruct (ps_zerop R (ps_poly_nth 0 poln₁)) as [H₁| H₁].
-     Focus 1.
-bbb.
+     unfold ps_poly_nth, ps_lap_nth in H₁.
      remember Hnsn₁i as H; clear HeqH.
-     eapply next_has_root_0_or_newton_segments in H; eauto .
-     simpl in H.
+     remember (List.nth 0 (al poln₁) 0%ps) as jps eqn:Hjps .
+     eapply ord_coeff_non_zero_in_newt_segm with (hps := jps) in H; eauto.
+      2: left; symmetry; eauto .
+
+      apply order_inf in H₁.
+      unfold order in H₁; simpl in H₁.
+      unfold order_coeff in H; simpl in H.
+      remember (null_coeff_range_length R (ps_terms jps) 0) as v eqn:Hv .
+      destruct v as [v| ].
+       discriminate H₁.
+
+       exfalso; apply H; reflexivity.
+bbb.
 
 cf RootHeadTail.v around line 2979
 *)
