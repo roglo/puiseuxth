@@ -227,6 +227,14 @@ destruct z₁.
 
    rename H₂ into Hnzn₂.
    move Hnzn₂ before Hnsn₂.
+bbb.
+   assert (poln₂ = nth_pol (S n) pol₁ ns₁) as Hpoln₂₁.
+    simpl.
+    rewrite <- Hc₁, <- Hpol₂, <- Hns₂; auto.
+
+    move Hpoln₂₁ before Hpoln₂.
+    remember Hns as H; clear HeqH.
+    eapply r_n_nth_ns with (poln := poln₂) (n := S n) in H; eauto .
 
 bbb.
 
