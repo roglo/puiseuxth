@@ -147,11 +147,13 @@ destruct z₁.
  eapply next_pol_in_K_1_mq in H; eauto .
  rewrite <- Heqm₁ in H.
  rename H into HK₁.
+ move HK₁ before Hns₁i.
  assert (∀ i, nth_r i pol₁ ns₁ = r) as Hri₁.
   intros i.
   pose proof (Hri (S i)) as H; simpl in H.
   rewrite <- Hc, <- Hpol₁, <- Hns₁ in H; auto.
 
+  move Hri₁ before HK₁.
   remember Hns₁i as H; clear HeqH.
   eapply nth_pol_in_K_1_m in H; eauto .
   rename H into HKn₁.
