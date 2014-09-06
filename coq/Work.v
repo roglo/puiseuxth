@@ -260,9 +260,27 @@ destruct z₁.
    clear Hpsi; rename H into Hpsi; move Hpsi after Hri.
    remember Hns as H; clear HeqH.
    eapply r_n_nth_ns with (poln := poln₂) (n := S n) in H; eauto .
+   simpl in H; rewrite <- Hc₁, <- Hpol₂, <- Hns₂, <- Hnsn₂ in H.
+   destruct H as (αjn₂, (αkn₂, H)).
+   destruct H as (Hinin₂, (Hfinn₂, (Hαjn₂, Hαkn₂))).
+   unfold ps_add, ps_mul; simpl.
+   unfold cm; simpl.
+   unfold ps_terms_add, ps_ordnum_add; simpl.
+   unfold root_tail_from_cγ_list; simpl.
+   erewrite nth_γ_n; eauto ; simpl.
+   rewrite Hinin₁, Hfinn₁, Hinin₂, Hfinn₂; simpl.
+   rewrite Hαkn₁, Hαkn₂; simpl.
+   rewrite Qnum_inv_Qnat_sub; auto.
+   rewrite Qden_inv_Qnat_sub; auto.
+   do 2 rewrite Z.add_0_r, Z.mul_1_r.
+   rewrite Nat.sub_0_r.
+   remember (Qnum αjn₁ * ' Qden αkn₁)%Z as nd₁ eqn:Hnd₁ .
+   remember (Qden αjn₁ * Qden αkn₁ * Pos.of_nat r)%positive as dd₁ eqn:Hdd₁ .
+   remember (Qnum αjn₂ * ' Qden αkn₂)%Z as nd₂ eqn:Hnd₂ .
+   remember (Qden αjn₂ * Qden αkn₂ * Pos.of_nat r)%positive as dd₂ eqn:Hdd₂ .
 bbb.
 
-cf RootHeadTail.v around line 3122
+cf RootHeadTail.v around line 3143
 *)
 
 Theorem root_tail_when_r_r : ∀ pol ns pol₁ ns₁ c m q₀ b r,
