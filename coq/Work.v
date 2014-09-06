@@ -100,13 +100,6 @@ destruct z₁.
  discriminate Hz₁.
 
  remember (m * q₀)%positive as m₁.
- remember (S n) as sn.
- unfold root_tail, ps_monom; simpl.
- do 2 rewrite fold_series_const.
- subst sn.
- rewrite zerop_1st_n_const_coeff_succ2.
- rewrite Hz₁.
- rewrite Bool.orb_false_l.
  remember (ac_root (Φq pol₁ ns₁)) as c₁ eqn:Hc₁ .
  move Hc₁ before Hns₁.
  move c₁ before c.
@@ -130,9 +123,6 @@ destruct z₁.
  remember (ac_root (Φq poln₁ nsn₁)) as cn₁ eqn:Hcn₁ .
  remember (nth_pol n pol₂ ns₂) as poln₂ eqn:Hpoln₂ .
  remember (nth_ns n pol₂ ns₂) as nsn₂ eqn:Hnsn₂ .
- simpl.
- rewrite <- Hc₁, <- Hpol₂, <- Hns₂.
- rewrite <- Hpoln₂, <- Hnsn₂.
  remember Hns as H; clear HeqH.
  eapply r_n_nth_ns with (poln := poln₁) in H; eauto .
  destruct H as (αjn₁, (αkn₁, H)).
@@ -165,6 +155,19 @@ destruct z₁.
   remember Hns₁i as H; clear HeqH.
   eapply nth_pol_in_K_1_m in H; eauto .
   rename H into HKn₁.
+  remember (S n) as sn.
+  unfold root_tail, ps_monom; simpl.
+  do 2 rewrite fold_series_const.
+  subst sn.
+  rewrite zerop_1st_n_const_coeff_succ2.
+  rewrite Hz₁.
+  rewrite Bool.orb_false_l.
+  simpl.
+  rewrite <- Hc₁, <- Hpol₂, <- Hns₂.
+  rewrite <- Hpoln₂, <- Hnsn₂.
+  rewrite <- Hpoln₁, <- Hnsn₁.
+  erewrite nth_c_n; eauto .
+  rewrite <- Hcn₁.
   destruct (ps_zerop R (ps_poly_nth 0 poln₂)) as [H₂| H₂].
    rewrite ps_mul_0_r, ps_add_0_r.
    unfold root_tail_from_cγ_list; simpl.
@@ -202,9 +205,7 @@ destruct z₁.
      erewrite <- nth_ns_n with (c := c₁); eauto .
      erewrite nth_pol_n with (c₁ := c₁); eauto .
      rewrite <- Hpoln₂, <- Hnsn₂.
-     destruct i; simpl; [ rewrite Hcn₁; erewrite nth_c_n; eauto | idtac ].
-     rename H₁ into Hnzn₁.
-     move Hnzn₁ before Hrn₁.
+     destruct i; simpl; [ rewrite Hcn₁; eauto  | idtac ].
      destruct (ps_zerop R (ps_poly_nth 0 poln₂)); auto; contradiction.
 
     subst d₁.
