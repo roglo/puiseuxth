@@ -431,6 +431,38 @@ destruct z₁.
          move Hrin₂ before Hqn₂.
          rewrite find_coeff_iter_succ with (r := r); auto; symmetry.
          rewrite find_coeff_iter_succ with (r := r); auto; symmetry.
+         remember (S (S si)) as ssi.
+         remember (S id) as sid.
+         simpl.
+         destruct (ps_zerop R (ps_poly_nth 0 poln₂)) as [H₂| H₂].
+          contradiction.
+
+          destruct id.
+           clear H₂.
+           subst ssi; remember (S si) as ssi; simpl.
+           destruct (ps_zerop R (ps_poly_nth 0 poln₁)) as [H₂| H₂].
+            contradiction.
+
+            destruct si; [ discriminate Heqsi | idtac ].
+            rewrite <- Hcn₁.
+            erewrite <- nth_pol_n with (c := c₁); eauto .
+            rewrite <- Hpoln₂.
+            erewrite <- nth_ns_n with (c := c₁) (poln := poln₁); eauto .
+             clear H₂.
+             subst ssi; remember (S si) as ssi; simpl.
+             destruct (ps_zerop R (ps_poly_nth 0 poln₂)) as [H₂| H₂].
+              contradiction.
+
+              clear H₂.
+              remember (next_pow 0 (nth_ns n pol₂ ns₂) m₁) as pow₁ eqn:Hpow₁ .
+              remember (Nat.compare pow₁ ssi) as cmp₁ eqn:Hcmp₁ .
+              symmetry in Hcmp₁.
+              rewrite <- Hnsn₂, <- Hcn₂.
+              destruct cmp₁; auto.
+               apply nat_compare_lt in Hcmp₁.
+               subst sid ssi.
+               remember (nth_ns n pol₂ ns₂) as ns₃ eqn:Hns₃ .
+               erewrite next_pow_eq_p in Hpow₁.
 bbb.
 
 cf RootAnyR.v around line 3011
