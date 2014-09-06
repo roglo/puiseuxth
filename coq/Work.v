@@ -324,7 +324,32 @@ destruct z₁.
      rewrite <- series_stretch_add_distr.
      apply stretch_morph; auto.
      constructor; simpl; intros i.
+     destruct i.
+      simpl.
+      destruct (lt_dec 0 (Z.to_nat (nd₂ * ' m₁ / ' dd₂))) as [H₁| H₁].
+       rewrite rng_add_0_r.
+       unfold root_tail_series_from_cγ_list.
+       simpl.
+       destruct (ps_zerop R (ps_poly_nth 0 poln₁)) as [H₂| H₂].
+        2: rewrite Hcn₁; reflexivity.
 bbb.
+  H₂ : (ps_poly_nth 0 poln₁ = 0)%ps
+  ============================
+   (0 = cn₁)%K
+
+subgoal 2 is:
+ (root_tail_series_from_cγ_list m₁ poln₁ nsn₁ 0 =
+  cn₁ + root_tail_series_from_cγ_list m₁ poln₂ nsn₂ 0)%K
+subgoal 3 is:
+ (root_tail_series_from_cγ_list m₁ poln₁ nsn₁ (S i) =
+  (if zerop (S i) then cn₁ else 0) +
+  (if lt_dec (S i) (Z.to_nat (nd₂ * ' m₁ / ' dd₂))
+   then 0
+   else
+    root_tail_series_from_cγ_list m₁ poln₂ nsn₂
+      (S i - Z.to_nat (nd₂ * ' m₁ / ' dd₂))))%K
+subgoal 4 is:
+ (nd₁ * ' m₁ / ' dd₁ * ' (dd₁ * dd₁))%Z = (nd₁ * ' m₁ * ' dd₁)%Z
 
 cf RootHeadTail.v around line 3143
 *)
