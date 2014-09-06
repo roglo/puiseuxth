@@ -303,6 +303,9 @@ destruct z₁.
     apply Z.mul_nonneg_nonneg; auto.
     apply Z.lt_le_incl; auto.
 
+    pose proof (Hpsi n (Nat.le_succ_diag_r n)) as H.
+    rewrite <- Hpoln₁ in H.
+    rename H into Hnzn₁; move Hnzn₁ before Hnsn₁.
     rewrite Z.min_l; auto.
     rewrite Z.min_r; auto.
     rewrite Z.sub_diag; simpl.
@@ -328,19 +331,21 @@ destruct z₁.
       simpl.
       destruct (lt_dec 0 (Z.to_nat (nd₂ * ' m₁ / ' dd₂))) as [H₁| H₁].
        rewrite rng_add_0_r.
-       unfold root_tail_series_from_cγ_list.
-       simpl.
+       unfold root_tail_series_from_cγ_list; simpl.
        destruct (ps_zerop R (ps_poly_nth 0 poln₁)) as [H₂| H₂].
-        2: rewrite Hcn₁; reflexivity.
+        contradiction.
+
+        rewrite Hcn₁; reflexivity.
+
+       apply Nat.nlt_ge in H₁.
+       apply Nat.le_0_r in H₁.
 bbb.
-  H₂ : (ps_poly_nth 0 poln₁ = 0)%ps
+  H₁ : Z.to_nat (nd₂ * ' m₁ / ' dd₂) = 0
   ============================
-   (0 = cn₁)%K
+   (root_tail_series_from_cγ_list m₁ poln₁ nsn₁ 0 =
+    cn₁ + root_tail_series_from_cγ_list m₁ poln₂ nsn₂ 0)%K
 
 subgoal 2 is:
- (root_tail_series_from_cγ_list m₁ poln₁ nsn₁ 0 =
-  cn₁ + root_tail_series_from_cγ_list m₁ poln₂ nsn₂ 0)%K
-subgoal 3 is:
  (root_tail_series_from_cγ_list m₁ poln₁ nsn₁ (S i) =
   (if zerop (S i) then cn₁ else 0) +
   (if lt_dec (S i) (Z.to_nat (nd₂ * ' m₁ / ' dd₂))
@@ -348,7 +353,7 @@ subgoal 3 is:
    else
     root_tail_series_from_cγ_list m₁ poln₂ nsn₂
       (S i - Z.to_nat (nd₂ * ' m₁ / ' dd₂))))%K
-subgoal 4 is:
+subgoal 3 is:
  (nd₁ * ' m₁ / ' dd₁ * ' (dd₁ * dd₁))%Z = (nd₁ * ' m₁ * ' dd₁)%Z
 
 cf RootHeadTail.v around line 3143
