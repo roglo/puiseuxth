@@ -76,6 +76,13 @@ eapply ord_coeff_non_zero_in_newt_segm with (hps := jps) in H; eauto .
  left; symmetry; eauto .
 Qed.
 
+Theorem nth_pol_succ2 : ∀ pol ns c pol₁ ns₁ n,
+  c = ac_root (Φq pol ns)
+  → pol₁ = next_pol pol (β ns) (γ ns) c
+  → ns₁ = List.hd phony_ns (newton_segments pol₁)
+  → nth_pol (S n) pol ns = nth_pol n pol₁ ns₁.
+Proof. intros; subst; reflexivity. Qed.
+
 Theorem root_tail_sep_1st_monom_any_r : ∀ pol ns pol₁ ns₁ c m q₀ n r,
   ns ∈ newton_segments pol
   → pol_in_K_1_m pol m
@@ -227,14 +234,12 @@ destruct z₁.
 
    rename H₂ into Hnzn₂.
    move Hnzn₂ before Hnsn₂.
-bbb.
-   assert (poln₂ = nth_pol (S n) pol₁ ns₁) as Hpoln₂₁.
-    simpl.
-    rewrite <- Hc₁, <- Hpol₂, <- Hns₂; auto.
-
-    move Hpoln₂₁ before Hpoln₂.
-    remember Hns as H; clear HeqH.
-    eapply r_n_nth_ns with (poln := poln₂) (n := S n) in H; eauto .
+   remember Hpoln₂ as H; clear HeqH.
+   erewrite <- nth_pol_succ2 with (c := c₁) in H; eauto .
+   rename H into Hpoln₂₁.
+   move Hpoln₂₁ before Hpoln₂.
+   remember Hns as H; clear HeqH.
+   eapply r_n_nth_ns with (poln := poln₂) (n := S n) in H; eauto .
 
 bbb.
 
