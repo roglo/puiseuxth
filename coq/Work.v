@@ -278,7 +278,25 @@ destruct z₁.
    remember (Qden αjn₁ * Qden αkn₁ * Pos.of_nat r)%positive as dd₁ eqn:Hdd₁ .
    remember (Qnum αjn₂ * ' Qden αkn₂)%Z as nd₂ eqn:Hnd₂ .
    remember (Qden αjn₂ * Qden αkn₂ * Pos.of_nat r)%positive as dd₂ eqn:Hdd₂ .
+   remember (nd₂ * ' m₁ / ' dd₂ * ' dd₁)%Z as x eqn:Hx.
+   rewrite Hnd₂, Hdd₂, Hdd₁ in Hx.
+   rewrite Z.mul_shuffle0, Pos_mul_shuffle0 in Hx.
+   do 2 rewrite Pos2Z.inj_mul in Hx.
+   rewrite Z.div_mul_cancel_r in Hx; simpl; auto.
+   erewrite αj_m_eq_p_r with (pol₁ := poln₂) in Hx; eauto .
 bbb.
+  ============================
+   ({|
+    ps_terms := {| terms := root_tail_series_from_cγ_list m₁ poln₁ nsn₁ |};
+    ...
+    ps_polord := dd₁ * (dd₁ * m₁) |})%ps
+
+subgoal 2 is:
+ nsn₂ ∈ newton_segments poln₂
+subgoal 3 is:
+ pol_in_K_1_m poln₂ m₁
+subgoal 4 is:
+ root_multiplicity acf (ac_root (Φq poln₂ nsn₂)) (Φq poln₂ nsn₂) = r
 
 cf RootHeadTail.v around line 3143
 *)
