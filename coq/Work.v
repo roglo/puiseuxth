@@ -129,7 +129,7 @@ destruct z₁.
  destruct H as (Hinin₁, (Hfinn₁, (Hαjn₁, Hαkn₁))).
  remember Hnsn₁ as H; clear HeqH.
  erewrite nth_ns_n with (c := c) in H; eauto .
- erewrite nth_pol_n with (c₁ := c) in H; eauto .
+ erewrite <- nth_pol_n with (c := c) in H; eauto .
  rewrite <- Hpoln₁ in H.
  rename H into Hnsn₁h.
  remember Hnsn₁h as H; clear HeqH.
@@ -205,7 +205,7 @@ destruct z₁.
 
      rewrite <- Hcn₁.
      erewrite <- nth_ns_n with (c := c₁); eauto .
-     erewrite nth_pol_n with (c₁ := c₁); eauto .
+     erewrite <- nth_pol_n with (c := c₁); eauto .
      rewrite <- Hpoln₂, <- Hnsn₂.
      destruct i; simpl; [ rewrite Hcn₁; eauto  | idtac ].
      destruct (ps_zerop R (ps_poly_nth 0 poln₂)); auto; contradiction.
@@ -403,7 +403,7 @@ destruct r.
 
           subst polsi; simpl.
           symmetry.
-          eapply nth_pol_n; eauto .
+          eapply <- nth_pol_n; eauto .
           rewrite Hc; reflexivity.
 
          intros H; rewrite H in Hnsl; discriminate Hnsl.
@@ -417,7 +417,7 @@ destruct r.
          remember (ps_monom 1%K (γ_sum 0 i pol₁ ns₁)) as mo.
          exists (rh + mo * s₁)%ps; subst rh mo.
          rewrite apply_nth_pol; auto.
-         erewrite <- nth_pol_n; eauto .
+         erewrite nth_pol_n; eauto .
          erewrite <- nth_c_n; eauto .
          rewrite Hs₁, rng_mul_0_r; reflexivity.
 

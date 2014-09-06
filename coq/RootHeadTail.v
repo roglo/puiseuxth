@@ -1906,14 +1906,14 @@ induction n; intros.
  apply IHn; assumption.
 Qed.
 
-Theorem nth_pol_n : ∀ pol₁ ns₁ c₁ pol₂ ns₂ poln nsn cn n,
-  c₁ = ac_root (Φq pol₁ ns₁)
-  → pol₂ = next_pol pol₁ (β ns₁) (γ ns₁) c₁
-  → ns₂ = List.hd phony_ns (newton_segments pol₂)
-  → poln = nth_pol n pol₁ ns₁
-  → nsn = nth_ns n pol₁ ns₁
+Theorem nth_pol_n : ∀ pol ns c pol₁ ns₁ poln nsn cn n,
+  c = ac_root (Φq pol ns)
+  → pol₁ = next_pol pol (β ns) (γ ns) c
+  → ns₁ = List.hd phony_ns (newton_segments pol₁)
+  → poln = nth_pol n pol ns
+  → nsn = nth_ns n pol ns
   → cn = ac_root (Φq poln nsn)
-  → next_pol poln (β nsn) (γ nsn) cn = nth_pol n pol₂ ns₂.
+  → nth_pol n pol₁ ns₁ = next_pol poln (β nsn) (γ nsn) cn.
 Proof.
 intros pol₁ ns₁ c₁ pol₂ ns₂ poln nsn cn n.
 intros Hc₁ Hpol₂ Hns₂ Hpoln Hnsn Hcn.
@@ -2488,7 +2488,7 @@ destruct z₁.
   pose proof (Hpsi (S b) (Nat.le_refl (S b))) as Hpsb.
   simpl in Hpsb.
   rewrite <- Hc₁, <- Hpol₂, <- Hns₂ in Hpsb.
-  erewrite <- nth_pol_n with (c₁ := c₁) in Hpsb; eauto .
+  erewrite nth_pol_n with (c := c₁) in Hpsb; eauto .
   erewrite nth_ns_n with (c := c₁) in Hnsb; eauto .
   eapply r_1_j_0_k_1 with (ns₁ := nsb) (m := (m * q₀)%positive) in H; eauto .
    Focus 2.
@@ -2499,7 +2499,7 @@ destruct z₁.
     eapply next_pol_in_K_1_mq with (ns := ns); eauto .
 
    erewrite <- nth_ns_n with (c := c₁) in Hnsb; eauto .
-   erewrite nth_pol_n with (c₁ := c₁) in Hpsb; eauto .
+   erewrite <- nth_pol_n with (c := c₁) in Hpsb; eauto .
   rewrite <- Hpolb in Hpsb.
   destruct H as (Hjb, (Hkb, (Hαjb, Hαkb))).
   subst jb kb.
@@ -2560,7 +2560,7 @@ destruct z₁.
        exfalso; revert H₁; apply Nat.lt_irrefl.
 
        destruct (ps_zerop R (ps_poly_nth 0 polb)); auto; simpl.
-       erewrite nth_pol_n with (c₁ := c₂) in Hpolb'; eauto .
+       erewrite <- nth_pol_n with (c := c₂) in Hpolb'; eauto .
        rewrite <- Hpolb' in Hpolb₂.
        destruct (ps_zerop R (ps_poly_nth 0 polb')) as [H₃| H₃]; auto.
        contradiction.
@@ -2605,11 +2605,11 @@ destruct z₁.
    remember Hns₃ as H; clear HeqH.
    eapply nth_ns_n with (c := c₂) in H; eauto .
    rewrite <- Hnsb₂ in H.
-   erewrite nth_pol_n with (c₁ := c₂) in H; eauto .
+   erewrite <- nth_pol_n with (c := c₂) in H; eauto .
    rewrite <- Hpolb₂ in H.
    rename H into Hbns₂.
    remember Hbns₂ as H; clear HeqH.
-   erewrite <- nth_pol_n with (c₁ := c₂) in Hpolb₂; eauto .
+   erewrite nth_pol_n with (c := c₂) in Hpolb₂; eauto .
    eapply r_1_next_ns with (m := (m * q₀)%positive) in H; eauto .
     Focus 2.
     eapply first_n_pol_in_K_1_m with (ns := ns₁); eauto .
@@ -2695,7 +2695,7 @@ destruct z₁.
          assert (q_of_m m₁ (γ nsb) = 1%positive) as Hqb.
           remember Hnsb as Hnsb'; clear HeqHnsb'.
           erewrite nth_ns_n with (c := c₁) in Hnsb'; eauto .
-          erewrite nth_pol_n with (c₁ := c₁) in Hnsb'; eauto .
+          erewrite <- nth_pol_n with (c := c₁) in Hnsb'; eauto .
           rewrite <- Hpolb in Hnsb'.
           rewrite Heqm₁.
           eapply q_eq_1_nth with (ns := ns); eauto .
@@ -2797,7 +2797,7 @@ destruct z₁.
             destruct (eq_nat_dec j (S b)) as [H₁| H₁].
              subst j; simpl.
              rewrite <- Hc₂, <- Hpol₃, <- Hns₃.
-             erewrite <- nth_pol_n with (c₁ := c₂) (poln := polb); eauto .
+             erewrite nth_pol_n with (c := c₂) (poln := polb); eauto .
              rewrite <- Hpolb₂; assumption.
 
              apply le_neq_lt in Hj; eauto .
@@ -2810,7 +2810,7 @@ destruct z₁.
 
             simpl.
             rewrite <- Hc₂, <- Hpol₃, <- Hns₃.
-            erewrite <- nth_pol_n with (c₁ := c₂); eauto .
+            erewrite nth_pol_n with (c := c₂); eauto .
 
            apply nat_compare_lt in Hcmp₁.
            destruct id; [ exfalso; fast_omega Heqid Hcmp₁ | idtac ].
@@ -3036,7 +3036,7 @@ destruct z₁.
 
        remember (ac_root (Φq poln₁ nsn₁)) as cn₁ eqn:Hcn₁ .
        remember (next_pol poln₁ (β nsn₁) (γ nsn₁) cn₁) as poln₁s eqn:Hpoln₁s .
-       erewrite nth_pol_n with (ns₁ := ns₁) in Hpoln₁s; eauto .
+       erewrite <- nth_pol_n with (ns := ns₁) in Hpoln₁s; eauto .
        rewrite <- Hpoln₂ in Hpoln₁s; subst poln₁s.
        remember (List.hd phony_ns (newton_segments poln₂)) as nsn₂'.
        simpl.
@@ -3181,7 +3181,7 @@ destruct z₁.
                 eapply hd_newton_segments₉; eauto .
                 subst nsn₂.
                 eapply nth_ns_n with (c := c₁); eauto .
-                erewrite nth_pol_n with (c₁ := c₁); eauto .
+                erewrite <- nth_pol_n with (c := c₁); eauto .
 
                 unfold root_tail_series_from_cγ_list; simpl.
                 destruct (ps_zerop R (ps_poly_nth 0 poln₁)) as [H₃| H₃].
@@ -3197,7 +3197,7 @@ destruct z₁.
                   remember (ac_root (Φq poln₁ nsn₁)) as cn₁ eqn:Hcn₁ .
                   remember (next_pol poln₁ (β nsn₁) (γ nsn₁) cn₁) as poln₁s
                    eqn:Hpoln₁s .
-                  erewrite nth_pol_n with (ns₁ := ns₁) in Hpoln₁s; eauto .
+                  erewrite <- nth_pol_n with (ns := ns₁) in Hpoln₁s; eauto .
                   rewrite <- Hpoln₂ in Hpoln₁s; subst poln₁s.
                   destruct i.
                    simpl.
@@ -3211,7 +3211,7 @@ destruct z₁.
 
                    remember Hnsn₂ as H; clear HeqH.
                    erewrite nth_ns_n with (c := c₁) in H; eauto .
-                   erewrite nth_pol_n with (c₁ := c₁) in H; eauto .
+                   erewrite <- nth_pol_n with (c := c₁) in H; eauto .
                    rewrite <- Hpoln₂ in H.
                    rename H into Hnsn₂p.
                    rewrite <- Hnsn₂p.
@@ -3355,12 +3355,12 @@ destruct z₁.
                            eapply hd_newton_segments₉; eauto .
                            rewrite Hnsn₁.
                            eapply nth_ns_n with (c := c); eauto .
-                           erewrite nth_pol_n with (c₁ := c); eauto .
+                           erewrite <- nth_pol_n with (c := c); eauto .
 
                            eapply first_n_pol_in_K_1_m with (ns := ns₁); eauto .
 
                            erewrite
-                            nth_pol_n with (pol₁ := pol₁) (ns₁ := ns₁); 
+                            <- nth_pol_n with (pol := pol₁) (ns := ns₁); 
                             eauto .
                            eapply first_n_pol_in_K_1_m with (ns := ns₂); eauto .
                             eapply q_eq_1 with (ns := ns₁); eauto .
@@ -3384,11 +3384,12 @@ destruct z₁.
                             multiplicity_1_remains_in_nth with (ns := ns);
                             eauto .
 
-                           erewrite nth_pol_n with (c₁ := c₁); eauto .
+                           erewrite <- nth_pol_n with (c := c₁); eauto .
                            rewrite <- Hpoln₂.
                            assumption.
 
-                           erewrite nth_pol_n with (c₁ := c₁) (pol₂ := pol₂);
+                           erewrite
+                            <- nth_pol_n with (c := c₁) (pol₁ := pol₂); 
                             eauto .
                            rewrite <- Hpoln₂; assumption.
 
@@ -3420,12 +3421,12 @@ destruct z₁.
                             eapply hd_newton_segments₉; eauto .
                             rewrite Hnsn₁.
                             eapply nth_ns_n with (c := c); eauto .
-                            erewrite nth_pol_n with (c₁ := c); eauto .
+                            erewrite <- nth_pol_n with (c := c); eauto .
 
                             eapply first_n_pol_in_K_1_m with (ns := ns₁); eauto .
 
                             erewrite
-                             nth_pol_n with (pol₁ := pol₁) (ns₁ := ns₁);
+                             <- nth_pol_n with (pol := pol₁) (ns := ns₁);
                              eauto .
                             eapply first_n_pol_in_K_1_m with (ns := ns₂); eauto .
                              eapply q_eq_1 with (ns := ns₁); eauto .
@@ -3451,11 +3452,11 @@ destruct z₁.
                              multiplicity_1_remains_in_nth with (ns := ns);
                              eauto .
 
-                            erewrite nth_pol_n with (c₁ := c₁); eauto .
+                            erewrite <- nth_pol_n with (c := c₁); eauto .
                             rewrite <- Hpoln₂.
                             assumption.
 
-                            erewrite nth_pol_n with (c₁ := c₁) (pol₂ := pol₂);
+                            erewrite <- nth_pol_n with (c := c₁) (pol₁ := pol₂);
                              eauto .
                             rewrite <- Hpoln₂; assumption.
 
@@ -3554,8 +3555,7 @@ destruct z₁.
                rewrite Hnsn₁.
                eapply nth_ns_n with (c := c); eauto .
                rewrite Hpoln₁.
-               symmetry.
-               eapply nth_pol_n with (c₁ := c); eauto .
+               eapply nth_pol_n with (c := c); eauto .
 
                eapply first_n_pol_in_K_1_m with (ns := ns₁); eauto .
 

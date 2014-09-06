@@ -338,7 +338,7 @@ induction n; intros.
   rewrite ps_monom_add_r.
   rewrite <- rng_mul_assoc.
   subst sn; simpl.
-  erewrite <- nth_pol_n with (pol₁ := pol₁) (ns₁ := ns₁); eauto .
+  erewrite nth_pol_n with (pol := pol₁) (ns := ns₁); eauto .
   erewrite <- nth_pol_succ; eauto ; [ idtac | erewrite nth_c_n; eauto  ].
   remember (S n) as sn in |- *; simpl.
   unfold root_head; simpl.
