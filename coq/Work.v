@@ -83,6 +83,19 @@ Theorem nth_pol_succ2 : ∀ pol ns c pol₁ ns₁ n,
   → nth_pol (S n) pol ns = nth_pol n pol₁ ns₁.
 Proof. intros; subst; reflexivity. Qed.
 
+Theorem zerop_1st_n_const_coeff_more : ∀ pol ns n,
+  zerop_1st_n_const_coeff n pol ns = false
+  → (ps_poly_nth 0 (nth_pol (S n) pol ns) ≠ 0)%ps
+  → zerop_1st_n_const_coeff (S n) pol ns = false.
+Proof.
+intros pol ns n Hz Hn.
+rewrite zerop_1st_n_const_coeff_succ2.
+rewrite Hz, Bool.orb_false_l.
+remember (S n) as sn; simpl; subst sn.
+destruct (ps_zerop R (ps_poly_nth 0 (nth_pol (S n) pol ns))); auto.
+contradiction.
+Qed.
+
 Theorem root_tail_sep_1st_monom_any_r : ∀ pol ns pol₁ ns₁ c m q₀ n r,
   ns ∈ newton_segments pol
   → pol_in_K_1_m pol m
@@ -238,12 +251,18 @@ destruct z₁.
    erewrite <- nth_pol_succ2 with (c := c₁) in H; eauto .
    rename H into Hpoln₂₁.
    move Hpoln₂₁ before Hpoln₂.
+   remember Hpsi as H; clear HeqH.
+   apply zerop_1st_n_const_coeff_false_iff in H.
+   remember Hnzn₂ as HH; clear HeqHH.
+   rewrite Hpoln₂₁ in HH.
+   apply zerop_1st_n_const_coeff_more in H; auto; clear HH.
+   rewrite zerop_1st_n_const_coeff_false_iff in H.
+   clear Hpsi; rename H into Hpsi; move Hpsi after Hri.
    remember Hns as H; clear HeqH.
    eapply r_n_nth_ns with (poln := poln₂) (n := S n) in H; eauto .
-
 bbb.
 
-cf RootHeadTail.v around line 2979
+cf RootHeadTail.v around line 3122
 *)
 
 Theorem root_tail_when_r_r : ∀ pol ns pol₁ ns₁ c m q₀ b r,
