@@ -53,6 +53,29 @@ Definition multiplicity_decreases pol ns n :=
   let rn := root_multiplicity acf cn (Φq poln nsn) in
   (rn < r)%nat.
 
+Theorem a₀_neq_0 : ∀ pol ns αj,
+  ns ∈ newton_segments pol
+  → ini_pt ns = (Qnat 0, αj)
+  → (ps_poly_nth 0 pol ≠ 0)%ps.
+Proof.
+intros pol ns αj Hns Hini.
+intros H₁.
+unfold ps_poly_nth, ps_lap_nth in H₁.
+remember Hns as H; clear HeqH.
+remember (List.nth 0 (al pol) 0%ps) as jps eqn:Hjps .
+eapply ord_coeff_non_zero_in_newt_segm with (hps := jps) in H; eauto .
+ apply order_inf in H₁.
+ unfold order in H₁; simpl in H₁.
+ unfold order_coeff in H; simpl in H.
+ remember (null_coeff_range_length R (ps_terms jps) 0) as v eqn:Hv .
+ destruct v as [v| ].
+  discriminate H₁.
+
+  exfalso; apply H; reflexivity.
+
+ left; symmetry; eauto .
+Qed.
+
 Theorem root_tail_sep_1st_monom_any_r : ∀ pol ns pol₁ ns₁ c m q₀ n r,
   ns ∈ newton_segments pol
   → pol_in_K_1_m pol m
@@ -171,20 +194,18 @@ destruct z₁.
     constructor; intros i; simpl.
     unfold root_tail_series_from_cγ_list; simpl.
     destruct (ps_zerop R (ps_poly_nth 0 poln₁)) as [H₁| H₁].
-     unfold ps_poly_nth, ps_lap_nth in H₁.
-     remember Hnsn₁i as H; clear HeqH.
-     remember (List.nth 0 (al poln₁) 0%ps) as jps eqn:Hjps .
-     eapply ord_coeff_non_zero_in_newt_segm with (hps := jps) in H; eauto.
-      2: left; symmetry; eauto .
+     exfalso; revert H₁.
+     eapply a₀_neq_0; eauto .
 
-      apply order_inf in H₁.
-      unfold order in H₁; simpl in H₁.
-      unfold order_coeff in H; simpl in H.
-      remember (null_coeff_range_length R (ps_terms jps) 0) as v eqn:Hv .
-      destruct v as [v| ].
-       discriminate H₁.
+     rewrite <- Hcn₁.
+     erewrite <- nth_ns_n with (c := c₁); eauto .
+     erewrite nth_pol_n with (c₁ := c₁); eauto .
+     rewrite <- Hpoln₂, <- Hnsn₂.
+     destruct i; simpl; [ rewrite Hcn₁; erewrite nth_c_n; eauto | idtac ].
+     rename H₁ into Hnzn₁.
+     move Hnzn₁ before Hrn₁.
+     destruct (ps_zerop R (ps_poly_nth 0 poln₂)); auto; contradiction.
 
-       exfalso; apply H; reflexivity.
 bbb.
 
 cf RootHeadTail.v around line 2979
