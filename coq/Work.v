@@ -378,13 +378,49 @@ destruct z₁.
 
       remember minus as f; simpl; subst f.
       rewrite rng_add_0_l.
+      unfold root_tail_series_from_cγ_list.
+      remember (S i) as si.
+      remember (si - Z.to_nat pn₂)%nat as id eqn:Hid .
+      destruct (lt_dec si (Z.to_nat pn₂)) as [H₁| H₁].
+       simpl.
+       destruct (ps_zerop R (ps_poly_nth 0 poln₁)) as [H₂| H₂].
+        contradiction.
+
+        clear H₂.
+        rewrite <- Hcn₁.
+        erewrite <- nth_pol_n with (c := c₁); eauto .
+        rewrite <- Hpoln₂.
+        erewrite nth_pol_n with (c := c₁) in Hpoln₂; eauto .
+        erewrite <- nth_ns_n with (c := c₁) (n := n); eauto .
+        erewrite <- nth_pol_n with (c := c₁) in Hpoln₂; eauto .
+        rewrite <- Hnsn₂.
+        subst si; simpl.
+        destruct (ps_zerop R (ps_poly_nth 0 poln₂)) as [H₂| H₂].
+         contradiction.
+
+         clear H₂.
+         erewrite next_pow_eq_p; eauto .
+         rewrite <- Hpn₂.
+         remember (Nat.compare (Z.to_nat pn₂) (S i)) as cmp₁ eqn:Hcmp₁ .
+         symmetry in Hcmp₁.
+         destruct cmp₁; [ idtac | idtac | reflexivity ].
+          apply nat_compare_eq in Hcmp₁.
+          rewrite Hcmp₁ in H₁.
+          exfalso; revert H₁; apply Nat.lt_irrefl.
+
+          apply nat_compare_lt in Hcmp₁.
+          eapply Nat.lt_trans in H₁; eauto .
+          exfalso; revert H₁; apply Nat.lt_irrefl.
+
+       apply Nat.nlt_ge in H₁.
 bbb.
   Hpn₂ : pn₂ = p_of_m m₁ (γ nsn₂)
+  Heqsi : si = S i
+  Hid : id = (si - Z.to_nat pn₂)%nat
+  H₁ : Z.to_nat pn₂ ≤ si
   ============================
-   (root_tail_series_from_cγ_list m₁ poln₁ nsn₁ (S i) =
-    (if lt_dec (S i) (Z.to_nat pn₂)
-     then 0
-     else root_tail_series_from_cγ_list m₁ poln₂ nsn₂ (S i - Z.to_nat pn₂)))%K
+   (find_coeff (S si) 0 m₁ poln₁ nsn₁ si =
+    find_coeff (S id) 0 m₁ poln₂ nsn₂ id)%K
 
 subgoal 2 is:
  (nd₁ * ' m₁ / ' dd₁ * ' (dd₁ * dd₁))%Z = (nd₁ * ' m₁ * ' dd₁)%Z
