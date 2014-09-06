@@ -153,7 +153,29 @@ destruct z₁.
    do 2 rewrite Pos2Z.inj_mul.
    rewrite Z.div_mul_cancel_r; simpl; auto.
    erewrite αj_m_eq_p_r with (ns₁ := nsn₁); eauto .
+   rewrite Pos2Z.inj_mul.
+   rewrite Z.mul_shuffle0, Zposnat2Znat; auto.
+   rewrite <- Zposnat2Znat; auto.
+   rewrite <- Z.mul_assoc, Z.div_mul; simpl; auto.
+   remember (Qden (nth_γ n pol₁ ns₁)) as d₁ eqn:Hd₁ .
+   rewrite ps_adjust_eq with (n := O) (k := d₁); symmetry.
+   rewrite ps_adjust_eq with (n := O) (k := m₁); symmetry.
+   unfold adjust_ps; simpl.
+   do 2 rewrite series_shift_0.
+   rewrite series_stretch_const.
+   do 2 rewrite Z.sub_0_r.
+   rewrite Pos.mul_comm.
+   apply mkps_morphism; auto.
+    rewrite <- series_stretch_const with (k := d₁).
+    apply stretch_morph; auto.
+    constructor; intros i; simpl.
+    unfold root_tail_series_from_cγ_list; simpl.
+    destruct (ps_zerop R (ps_poly_nth 0 poln₁)) as [H₁| H₁].
+     Focus 1.
 bbb.
+     remember Hnsn₁i as H; clear HeqH.
+     eapply next_has_root_0_or_newton_segments in H; eauto .
+     simpl in H.
 
 cf RootHeadTail.v around line 2979
 *)
