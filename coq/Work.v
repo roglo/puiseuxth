@@ -292,6 +292,10 @@ destruct z₁.
    eapply List_hd_in in H; eauto .
    rename H into Hnsn₂i.
    move Hnsn₂i before Hnsn₂h.
+   remember Hpoln₂₁ as H; clear HeqH.
+   eapply nth_pol_in_K_1_m in H; eauto .
+   rename H into HZn₂.
+   move HZn₂ before Hnsn₂i.
    remember (nd₂ * ' m₁ / ' dd₂ * ' dd₁)%Z as x eqn:Hx .
    rewrite Hnd₂, Hdd₂, Hdd₁ in Hx.
    rewrite Z.mul_shuffle0, Pos_mul_shuffle0 in Hx.
@@ -299,17 +303,7 @@ destruct z₁.
    rewrite Z.div_mul_cancel_r in Hx; simpl; auto.
    erewrite αj_m_eq_p_r with (pol₁ := poln₂) in Hx; eauto .
 bbb.
-  ============================
-   ({|
-    ps_terms := {| terms := root_tail_series_from_cγ_list m₁ poln₁ nsn₁ |};
-    ...
-    ps_polord := dd₁ * (dd₁ * m₁) |})%ps
-
 subgoal 2 is:
- nsn₂ ∈ newton_segments poln₂
-subgoal 3 is:
- pol_in_K_1_m poln₂ m₁
-subgoal 4 is:
  root_multiplicity acf (ac_root (Φq poln₂ nsn₂)) (Φq poln₂ nsn₂) = r
 
 cf RootHeadTail.v around line 3143
