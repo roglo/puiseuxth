@@ -432,39 +432,39 @@ destruct z₁.
          rewrite find_coeff_iter_succ with (r := r); auto; symmetry.
          rewrite find_coeff_iter_succ with (r := r); auto; symmetry.
          remember (S (S si)) as ssi.
-         remember (S id) as sid.
-         simpl.
-(*
-bbb.
-*)
+         remember (S id) as sid; simpl.
+         rewrite <- Hcn₂.
+         remember (next_pol poln₂ (β nsn₂) (γ nsn₂) cn₂) as poln₃ eqn:Hpoln₃ .
+         remember (List.hd phony_ns (newton_segments poln₃)) as nsn₃.
+         rename Heqnsn₃ into Hnsn₃.
          destruct (ps_zerop R (ps_poly_nth 0 poln₂)) as [H₂| H₂].
           contradiction.
 
+          clear H₂.
           destruct id.
-           clear H₂.
+           subst sid.
            subst ssi; remember (S si) as ssi; simpl.
            destruct (ps_zerop R (ps_poly_nth 0 poln₁)) as [H₂| H₂].
             contradiction.
 
-            destruct si; [ discriminate Heqsi | idtac ].
+            clear H₂; subst si.
             rewrite <- Hcn₁.
             erewrite <- nth_pol_n with (c := c₁); eauto .
             rewrite <- Hpoln₂.
             erewrite <- nth_ns_n with (c := c₁) (poln := poln₁); eauto .
-             clear H₂.
-             subst ssi; remember (S si) as ssi; simpl.
+             subst ssi; remember (S i) as si; simpl; subst si.
+             rewrite <- Hnsn₂, <- Hcn₂, <- Hpoln₃, <- Hnsn₃.
              destruct (ps_zerop R (ps_poly_nth 0 poln₂)) as [H₂| H₂].
               contradiction.
 
               clear H₂.
-              rewrite <- Hnsn₂, <- Hcn₂.
               remember (next_pow 0 nsn₂ m₁) as pow₁ eqn:Hpow₁ .
-              remember (Nat.compare pow₁ ssi) as cmp₁ eqn:Hcmp₁ .
+              remember (Nat.compare pow₁ (S i)) as cmp₁ eqn:Hcmp₁ .
               symmetry in Hcmp₁.
               destruct cmp₁; auto.
                apply nat_compare_lt in Hcmp₁.
-               subst sid ssi.
-               erewrite next_pow_eq_p in Hpow₁.
+               symmetry in Hrn₂.
+               erewrite next_pow_eq_p in Hpow₁; eauto .
 bbb.
 
 cf RootAnyR.v around line 3011
