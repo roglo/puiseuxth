@@ -138,6 +138,153 @@ eapply first_n_pol_in_K_1_m_any_r with (ns := ns₁) in H; eauto .
  eauto .
 Qed.
 
+(* weak version of r_n_j_0_k_n where r and r₁ are possibly different
+   perhaps r_n_j_0_k_n should be rewritten using this theorem *)
+Theorem r_n_j_0_k_le_n : ∀ pol ns c pol₁ ns₁ c₁ j₁ αj₁ k₁ αk₁ r r₁,
+  ns ∈ newton_segments pol
+  → c = ac_root (Φq pol ns)
+  → pol₁ = next_pol pol (β ns) (γ ns) c
+  → ns₁ = List.hd phony_ns (newton_segments pol₁)
+  → c₁ = ac_root (Φq pol₁ ns₁)
+  → (ps_poly_nth 0 pol₁ ≠ 0)%ps
+  → root_multiplicity acf c (Φq pol ns) = r
+  → root_multiplicity acf c₁ (Φq pol₁ ns₁) = r₁
+  → ini_pt ns₁ = (Qnat j₁, αj₁)
+  → fin_pt ns₁ = (Qnat k₁, αk₁)
+  → j₁ = 0%nat ∧ r₁ ≤ k₁ ∧ αj₁ > 0 ∧ αk₁ >= 0.
+Proof.
+intros pol ns c pol₁ ns₁ c₁ j₁ αj₁ k₁ αk₁ r r₁.
+intros Hns Hc Hpol₁ Hns₁ Hc₁ Hps₀ Hr Hr₁ Hini₁ Hfin₁.
+apply order_fin in Hps₀.
+remember Hns as H; clear HeqH.
+symmetry in Hr.
+eapply f₁_orders in H; try eassumption.
+destruct H as (Hnneg, (Hpos, Hz)).
+destruct r.
+ symmetry in Hr.
+ exfalso; revert Hr.
+ apply multiplicity_neq_0; eauto .
+
+ assert (0 < S r)%nat as H by apply Nat.lt_0_succ.
+ apply Hpos in H; rename H into Hpos₀.
+ remember Hns₁ as Hns₁v; clear HeqHns₁v.
+ unfold newton_segments in Hns₁; simpl in Hns₁.
+ unfold points_of_ps_polynom in Hns₁; simpl in Hns₁.
+ unfold ps_poly_nth in Hnneg, Hz, Hpos.
+ remember (al pol₁) as la.
+ destruct la as [| a₀].
+  unfold ps_lap_nth in Hz; simpl in Hz.
+  rewrite order_0 in Hz; inversion Hz.
+
+  assert (ns₁ ∈ newton_segments pol₁) as Hns₁i.
+   eapply List_hd_in; eauto .
+   intros H.
+   apply no_newton_segments with (i := S r) in H.
+    unfold ps_poly_nth, ps_lap_nth in H; simpl in H.
+    rewrite <- Heqla in H; simpl in H.
+    rewrite H in Hz.
+    rewrite order_0 in Hz; inversion Hz.
+
+    clear H; intros H.
+    apply Hps₀.
+    apply eq_Qbar_qinf.
+    rewrite H.
+    rewrite order_0; reflexivity.
+
+    apply Nat.lt_0_succ.
+
+   remember [ini_pt ns₁ … oth_pts ns₁ ++ [fin_pt ns₁]] as pl eqn:Hpl .
+   assert (ini_pt ns₁ ∈ pl) as H by (subst pl; left; reflexivity).
+   rewrite Hini₁ in H.
+   eapply order_in_newton_segment in H; eauto .
+   rename H into Hαj₁.
+   unfold ps_lap_nth in Hnneg, Hz, Hpos₀.
+   unfold points_of_ps_lap in Hns₁.
+   unfold points_of_ps_lap_gen in Hns₁.
+   simpl in Hns₁.
+   remember (order a₀) as v₀.
+   symmetry in Heqv₀.
+   destruct v₀ as [v₀| ].
+    Focus 2.
+    unfold ps_poly_nth, ps_lap_nth in Hps₀.
+    rewrite <- Heqla in Hps₀; simpl in Hps₀.
+    contradiction.
+
+    assert (al (Φq pol₁ ns₁) ≠ [])%lap as Hnz.
+     rewrite al_Φq; simpl.
+     rewrite Nat.sub_diag; simpl.
+     intros H.
+     apply lap_eq_cons_nil_inv in H.
+     destruct H as (H₁, H₂).
+     revert H₁.
+     rewrite Hini₁; simpl.
+     rewrite nat_num_Qnat.
+     eapply ord_coeff_non_zero_in_newt_segm with (ns := ns₁); eauto .
+     left; rewrite Hini₁; reflexivity.
+
+     remember Hnz as H; clear HeqH.
+     apply multiplicity_lt_length with (acf := acf) (c := c₁) in H.
+     rewrite Hr₁ in H.
+     rewrite al_Φq in H.
+     rewrite <- Hpl in H.
+     erewrite length_char_pol with (ns := ns₁) in H; eauto .
+      Focus 2.
+      rewrite Hini₁; simpl.
+      rewrite nat_num_Qnat; reflexivity.
+
+      rewrite Hini₁ in H; simpl in H.
+      rewrite nat_num_Qnat in H.
+      unfold lower_convex_hull_points in Hns₁.
+      simpl in Hns₁.
+      remember (pair_rec (λ pow ps, (Qnat pow, ps))) as f.
+      remember (filter_finite_ord R (List.map f (power_list 1 la))) as pts.
+      symmetry in Heqpts.
+      destruct pts as [| pt].
+       rewrite Hns₁ in Hini₁, Hfin₁; simpl in Hini₁, Hfin₁.
+       injection Hini₁; intros H₁ H₂.
+       injection Hfin₁; intros H₃ H₄.
+       rewrite <- Nat2Z.inj_0 in H₂, H₄.
+       apply Nat2Z.inj in H₂.
+       apply Nat2Z.inj in H₄.
+       subst j₁ k₁.
+       rewrite Nat.sub_diag in H.
+       apply Nat.lt_1_r in H.
+       exfalso; revert H; rewrite <- Hr₁.
+       apply multiplicity_neq_0; auto.
+
+       simpl in Hns₁.
+       rewrite Hns₁ in Hini₁, Hfin₁; simpl in Hini₁, Hfin₁.
+       rewrite minimised_slope_beg_pt in Hini₁.
+       injection Hini₁; clear Hini₁; intros H₁ H₂.
+       subst v₀.
+       rewrite <- Nat2Z.inj_0 in H₂.
+       apply Nat2Z.inj in H₂.
+       subst j₁.
+       rewrite Nat.sub_0_r in H.
+       split; [ reflexivity | idtac ].
+       rewrite and_comm, and_assoc.
+       unfold ps_poly_nth, ps_lap_nth in Hpos₀.
+       rewrite <- Heqla in Hpos₀; simpl in Hpos₀.
+       rewrite Heqv₀ in Hpos₀.
+       apply Qbar.qfin_lt_mono in Hpos₀.
+       split; [ assumption | idtac ].
+       apply le_S_n in H.
+       split; [ idtac | assumption ].
+       rename H into Hrk.
+       remember Hns₁i as H; clear HeqH.
+       eapply order_in_newton_segment with (h := k₁) (αh := αk₁) in H; eauto .
+        2: rewrite Hpl, <- Hfin₁, Hns₁; simpl; right.
+        2: apply List.in_or_app; right; left; reflexivity.
+
+        rename H into Hαk₁.
+        pose proof (Hnneg k₁) as H.
+        unfold ps_poly_nth, ps_lap_nth in Hαk₁.
+        rewrite <- Heqla in Hαk₁.
+        rewrite Hαk₁ in H.
+        apply Qbar.qfin_le_mono in H.
+        assumption.
+Qed.
+
 Theorem xxx : ∀ pol ns,
   ns ∈ newton_segments pol
   → nth_r 1 pol ns ≤ nth_r 0 pol ns.
@@ -166,6 +313,12 @@ rename H into Hrpos.
 destruct (ps_zerop _ (ps_poly_nth 0 pol₁)) as [H₁| H₁].
  Focus 2.
  rename H₁ into Hnz₁.
+ remember Hns as H; clear HeqH.
+ subst cpol₁; symmetry in Hr₁.
+ eapply r_n_j_0_k_le_n in H; eauto .
+ destruct H as (Hj₁, (Hr₁k₁, (Hαj₁, Hαk₁))).
+ remember (Φq pol₁ ns₁) as cpol₁ eqn:Hcpol₁ .
+ symmetry in Hr₁.
  remember Hns as H; clear HeqH.
  eapply next_has_root_0_or_newton_segments in H; eauto .
  simpl in H.
@@ -206,6 +359,8 @@ destruct (ps_zerop _ (ps_poly_nth 0 pol₁)) as [H₁| H₁].
     unfold points_of_ps_lap in H.
     unfold points_of_ps_lap_gen in H.
     simpl in H.
+    remember (pair_rec (λ pow ps, (Qnat pow, ps))) as f.
+    remember (filter_finite_ord R (List.map f (power_list 1 la))) as pts.
     remember (order a₀) as v₀.
     symmetry in Heqv₀.
     destruct v₀ as [v₀| ].
@@ -221,13 +376,17 @@ destruct (ps_zerop _ (ps_poly_nth 0 pol₁)) as [H₁| H₁].
       destruct v₁ as [v₁| ].
        destruct r; [ exfalso; revert Hrpos; apply Nat.lt_irrefl | idtac ].
        simpl in H.
-       rewrite minimised_slope_beg_pt in H.
-       rewrite H in Hini₁; simpl in Hini₁.
+       rewrite H, Heqpts, Heqf in Hini₁; simpl in Hini₁.
+       rewrite Heqv₁ in Hini₁; simpl in Hini₁.
+       rewrite minimised_slope_beg_pt in Hini₁.
        injection Hini₁; clear Hini₁; intros H₁ H₂; subst v₀.
        rewrite <- Nat2Z.inj_0 in H₂.
        apply Nat2Z.inj in H₂.
        subst j₁.
        rewrite Nat.sub_0_r.
+       rewrite H, Heqpts, Heqf in Hfin₁; simpl in Hfin₁.
+       rewrite Heqv₁ in Hfin₁; simpl in Hfin₁.
+       rewrite <- Heqf in Hfin₁.
 bbb.
    remember Hns₁i as H; clear HeqH.
    unfold newton_segments in H.
