@@ -147,23 +147,118 @@ remember (ac_root (Φq pol ns)) as c eqn:Hc .
 remember (next_pol pol (β ns) (γ ns) c) as pol₁ eqn:Hpol₁ .
 remember (List.hd phony_ns (newton_segments pol₁)) as ns₁ eqn:Hns₁ .
 remember (ac_root (Φq pol₁ ns₁)) as c₁ eqn:Hc₁ .
+remember Hns₁ as H; clear HeqH.
+apply exists_ini_pt_nat_fst_seg in H.
+destruct H as (j₁, (αj₁, Hini₁)).
+remember Hns₁ as H; clear HeqH.
+apply exists_fin_pt_nat_fst_seg in H.
+destruct H as (k₁, (αk₁, Hfin₁)).
 remember Hns as H; clear HeqH.
 eapply f₁_orders in H; eauto .
 destruct H as (Hnneg, (Hpos, Hz)).
 remember (Φq pol₁ ns₁) as cpol₁ eqn:Hcpol₁ .
-assert (root_multiplicity acf c₁ cpol₁ < length (al cpol₁))%nat as H.
- apply multiplicity_lt_length.
- intros H.
+remember (root_multiplicity acf c (Φq pol ns)) as r eqn:Hr .
+remember (root_multiplicity acf c₁ cpol₁) as r₁ eqn:Hr₁ .
+remember Hns as H; clear HeqH.
+eapply multiplicity_is_pos in H; eauto .
+rewrite Nat.add_0_r, <- Hr in H.
+rename H into Hrpos.
+destruct (ps_zerop _ (ps_poly_nth 0 pol₁)) as [H₁| H₁].
  Focus 2.
- unfold lt in H.
- apply le_S_n.
- eapply le_trans; eauto .
- remember (root_multiplicity acf c (Φq pol ns)) as r eqn:Hr .
- remember (root_multiplicity acf c₁ cpol₁) as r₁ eqn:Hr₁ .
- subst cpol₁.
- rewrite al_Φq.
- erewrite length_char_pol with (ns := ns₁); eauto .
-  apply le_n_S.
+ rename H₁ into Hnz₁.
+ remember Hns as H; clear HeqH.
+ eapply next_has_root_0_or_newton_segments in H; eauto .
+ simpl in H.
+ rewrite <- Hc, <- Hpol₁ in H.
+ destruct H as [H| H]; [ contradiction | idtac ].
+ rename H into Hns₁nz.
+ remember Hns₁ as H; clear HeqH.
+ apply List_hd_in in H; auto.
+ rename H into Hns₁i.
+ assert (r₁ < length (al cpol₁))%nat as H.
+  rewrite Hr₁.
+  apply multiplicity_lt_length.
+  intros H.
+  Focus 2.
+  unfold lt in H.
+  apply le_S_n.
+  eapply le_trans; eauto .
+  subst cpol₁.
+  rewrite al_Φq.
+  erewrite length_char_pol with (ns := ns₁); eauto .
+   rewrite Hini₁; simpl.
+   rewrite nat_num_Qnat.
+   apply le_n_S.
+   clear H.
+   remember Hns₁ as H; clear HeqH.
+   unfold newton_segments in H.
+   unfold points_of_ps_polynom in Hns₁; simpl in Hns₁.
+   unfold points_of_ps_polynom in H.
+   unfold ps_poly_nth in Hnneg, Hz, Hpos.
+   remember (al pol₁) as la.
+   destruct la as [| a₀].
+    unfold ps_lap_nth in Hz; simpl in Hz.
+    rewrite match_id in Hz.
+    rewrite order_0 in Hz; inversion Hz.
+
+    unfold ps_lap_nth in Hnneg, Hz, Hpos.
+    simpl in Hz, Hpos.
+    unfold points_of_ps_lap in H.
+    unfold points_of_ps_lap_gen in H.
+    simpl in H.
+    remember (order a₀) as v₀.
+    symmetry in Heqv₀.
+    destruct v₀ as [v₀| ].
+     destruct la as [| a₁].
+      simpl in Hz.
+      destruct r; [ exfalso; revert Hrpos; apply Nat.lt_irrefl | idtac ].
+      rewrite match_id in Hz.
+      rewrite order_0 in Hz; contradiction.
+
+      simpl in Hz, H.
+      remember (order a₁) as v₁.
+      symmetry in Heqv₁.
+      destruct v₁ as [v₁| ].
+       destruct r; [ exfalso; revert Hrpos; apply Nat.lt_irrefl | idtac ].
+       simpl in H.
+       rewrite minimised_slope_beg_pt in H.
+       rewrite H in Hini₁; simpl in Hini₁.
+       injection Hini₁; clear Hini₁; intros H₁ H₂; subst v₀.
+       rewrite <- Nat2Z.inj_0 in H₂.
+       apply Nat2Z.inj in H₂.
+       subst j₁.
+       rewrite Nat.sub_0_r.
+bbb.
+   remember Hns₁i as H; clear HeqH.
+   unfold newton_segments in H.
+   unfold points_of_ps_polynom in Hns₁; simpl in Hns₁.
+   unfold points_of_ps_polynom in H.
+   unfold ps_poly_nth in Hnneg, Hz, Hpos.
+   remember (al pol₁) as la.
+   destruct la as [| a₀].
+    unfold ps_lap_nth in Hz; simpl in Hz.
+    rewrite match_id in Hz.
+    rewrite order_0 in Hz; inversion Hz.
+
+    unfold ps_lap_nth in Hnneg, Hz, Hpos.
+    simpl in Hz, Hpos.
+    unfold points_of_ps_lap in H.
+    unfold points_of_ps_lap_gen in H.
+    simpl in H.
+    remember (order a₀) as v₀.
+    symmetry in Heqv₀.
+    destruct v₀ as [v₀| ].
+     destruct la as [| a₁].
+      simpl in Hz.
+      destruct r; [ exfalso; revert Hrpos; apply Nat.lt_irrefl | idtac ].
+      rewrite match_id in Hz.
+      rewrite order_0 in Hz; contradiction.
+
+      simpl in Hz, H.
+      remember (order a₁) as v₁.
+      symmetry in Heqv₁.
+      destruct v₁ as [v₁| ].
+       destruct r; [ exfalso; revert Hrpos; apply Nat.lt_irrefl | idtac ].
 bbb.
 
 Theorem yyy : ∀ pol ns r,
