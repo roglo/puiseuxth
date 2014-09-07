@@ -53,6 +53,91 @@ Definition multiplicity_decreases pol ns n :=
   let rn := root_multiplicity acf cn (Φq poln nsn) in
   (rn < r)%nat.
 
+Theorem β_lower_bound_r_const : ∀ pol ns pol₁ ns₁ m r η,
+  ns ∈ newton_segments pol
+  → pol_in_K_1_m pol m
+  → (∀ i, nth_r i pol ns = r)
+  → (0 < r)%nat
+  → (1 ≠ 0)%K
+  → pol₁ = next_pol pol (β ns) (γ ns) (ac_root (Φq pol ns))
+  → ns₁ = List.hd phony_ns (newton_segments pol₁)
+  → η = 1 # (2 * m * q_of_m m (γ ns))
+  → ∀ n nsn,
+    zerop_1st_n_const_coeff n pol₁ ns₁ = false
+    → nsn = nth_ns n pol₁ ns₁
+    → η < β nsn.
+Proof.
+intros pol ns pol₁ ns₁ m r η Hns Hm Hri Hr H₀ Hpol₁ Hns₁ Hη n nsn Hnz Hnsn.
+remember Hns as H; clear HeqH.
+rewrite zerop_1st_n_const_coeff_false_iff in Hnz.
+eapply r_n_nth_ns in H; eauto .
+destruct H as (αjn, (αkn, H)).
+destruct H as (Hinin, (Hfinn, (Hαjn, Hαkn))).
+unfold β.
+rewrite Hinin; simpl.
+unfold Qnat; simpl.
+rewrite rng_mul_0_l, rng_add_0_r.
+remember Hpol₁ as H; clear HeqH.
+eapply next_pol_in_K_1_mq in H; eauto .
+rename H into HK₁.
+pose proof (Hnz O (Nat.le_0_l n)) as Hnz₀.
+simpl in Hnz₀.
+remember Hns₁ as H; clear HeqH.
+pose proof (Hri 0%nat) as Hr₀; simpl in Hr₀.
+pose proof (Hri 1%nat) as Hr₁; simpl in Hr₁.
+rewrite <- Hpol₁, <- Hns₁ in Hr₁.
+eapply r_n_next_ns in H; eauto .
+destruct H as (αj₁, (αk₁, H)).
+destruct H as (Hini₁, (Hfin₁, (Hαj₁, Hαk₁))).
+remember Hns₁ as H; clear HeqH.
+eapply hd_newton_segments₉ in H; eauto .
+rename H into Hns₁i.
+remember HK₁ as H; clear HeqH.
+eapply first_n_pol_in_K_1_m_any_r with (ns := ns₁) in H; eauto .
+ rename H into HKn.
+ remember (nth_pol n pol₁ ns₁) as poln eqn:Hpoln .
+ remember Hns₁i as H; clear HeqH.
+ eapply nth_in_newton_segments_any_r with (n := n) in H; eauto .
+  rename H into Hnsni.
+  remember HKn as H; clear HeqH.
+  eapply pol_ord_of_ini_pt in H; eauto .
+  rewrite Hη, H.
+  rewrite <- Pos.mul_assoc.
+  remember (m * q_of_m m (γ ns))%positive as m₁ eqn:Hm₁ .
+  unfold mh_of_m.
+  erewrite <- qden_αj_is_ps_polord; eauto .
+  remember (2 * m₁)%positive as m₂.
+  unfold Qlt; simpl; subst m₂.
+  clear H.
+  assert (0 < Qnum αjn * ' m₁ / ' Qden αjn)%Z as H.
+   apply Z2Nat.inj_lt; [ reflexivity | idtac | idtac ].
+    apply Z.div_pos; [ idtac | apply Pos2Z.is_pos ].
+    apply Z.mul_nonneg_nonneg; auto.
+    apply Z.lt_le_incl; assumption.
+
+    eapply num_m_den_is_pos with (ns := nsn); eauto .
+
+   rewrite Pos2Z.inj_mul, Z.mul_assoc.
+   replace (' m₁)%Z with (1 * ' m₁)%Z at 1 by reflexivity.
+   apply Z.mul_lt_mono_pos_r; [ apply Pos2Z.is_pos | idtac ].
+   fast_omega H.
+
+  clear H.
+  intros i.
+  pose proof (Hri (S i)) as H; simpl in H.
+  rewrite <- Hpol₁, <- Hns₁ in H.
+  eauto .
+
+ eapply q_eq_1_any_r with (ns := ns₁); eauto .
+ rewrite Hr₁; eauto .
+
+ clear H.
+ intros i.
+ pose proof (Hri (S i)) as H; simpl in H.
+ rewrite <- Hpol₁, <- Hns₁ in H.
+ eauto .
+Qed.
+
 Theorem zzz : ∀ pol ns c pol₁,
   ns ∈ newton_segments pol
   → c = ac_root (Φq pol ns)
@@ -254,8 +339,10 @@ destruct r.
           apply Hz.
           transitivity i; assumption.
 
+          eapply β_lower_bound_r_const with (n := i) (r := r); eauto .
+           intros j.
+           unfold multiplicity_decreases in Hn.
 bbb.
-       eapply β_lower_bound with (n := i); eauto .
 
   pose proof (exists_pol_ord R pol) as H.
   destruct H as (m, Hm).
