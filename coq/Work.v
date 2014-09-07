@@ -138,6 +138,19 @@ eapply first_n_pol_in_K_1_m_any_r with (ns := ns₁) in H; eauto .
  eauto .
 Qed.
 
+Theorem yyy : ∀ pol ns r,
+  nth_r 0 pol ns = r
+  → (∀ i, r ≤ nth_r i pol ns)
+    → (∀ i, r = nth_r i pol ns).
+Proof.
+intros pol ns r Hr₀ Hri n.
+revert pol ns r Hr₀ Hri.
+induction n; intros; auto; simpl.
+remember (ac_root (Φq pol ns)) as c eqn:Hc .
+remember (next_pol pol (β ns) (γ ns) c) as pol₁ eqn:Hpol₁ .
+remember (List.hd phony_ns (newton_segments pol₁)) as ns₁ eqn:Hns₁ .
+bbb.
+
 Theorem zzz : ∀ pol ns c pol₁,
   ns ∈ newton_segments pol
   → c = ac_root (Φq pol ns)
