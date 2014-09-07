@@ -150,6 +150,14 @@ remember (ac_root (Φq pol₁ ns₁)) as c₁ eqn:Hc₁ .
 remember Hns as H; clear HeqH.
 eapply f₁_orders in H; eauto .
 destruct H as (Hnneg, (Hpos, Hz)).
+remember (Φq pol₁ ns₁) as cpol₁ eqn:Hcpol₁ .
+assert (root_multiplicity acf c₁ cpol₁ < length (al cpol₁))%nat as H.
+ apply multiplicity_lt_length.
+ intros H.
+ Focus 2.
+ unfold lt in H.
+ apply le_S_n.
+ eapply le_trans; eauto .
 bbb.
 
 Theorem yyy : ∀ pol ns r,
