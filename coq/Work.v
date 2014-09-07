@@ -152,6 +152,10 @@ destruct z₁.
  eapply hd_newton_segments₉ in Hns₁i; eauto .
  remember (next_pol pol₁ (β ns₁) (γ ns₁) c₁) as pol₂ eqn:Hpol₂ .
  remember (List.hd phony_ns (newton_segments pol₂)) as ns₂ eqn:Hns₂ .
+ remember Hns as H; clear HeqH.
+ eapply next_pol_in_K_1_mq in H; eauto .
+ rewrite <- Heqm₁ in H.
+ rename H into HK₁; move HK₁ before Hns₁i.
  remember (nth_pol n pol₁ ns₁) as poln₁ eqn:Hpoln₁ .
  remember (nth_ns n pol₁ ns₁) as nsn₁ eqn:Hnsn₁ .
  remember (ac_root (Φq poln₁ nsn₁)) as cn₁ eqn:Hcn₁ .
@@ -177,10 +181,6 @@ destruct z₁.
  erewrite nth_r_n in Hrn₁; eauto .
  erewrite nth_c_n in Hrn₁; eauto .
  rewrite <- Hcn₁ in Hrn₁.
- remember Hns as H; clear HeqH.
- eapply next_pol_in_K_1_mq in H; eauto .
- rewrite <- Heqm₁ in H.
- rename H into HK₁; move HK₁ before Hns₁i.
  assert (∀ i, nth_r i pol₁ ns₁ = r) as Hri₁.
   intros i.
   pose proof (Hri (S i)) as H; simpl in H.
@@ -437,7 +437,12 @@ destruct z₁.
          rewrite <- Hcn₂.
          remember (next_pol poln₂ (β nsn₂) (γ nsn₂) cn₂) as poln₃ eqn:Hpoln₃ .
          remember (List.hd phony_ns (newton_segments poln₃)) as nsn₃.
-         rename Heqnsn₃ into Hnsn₃.
+         rename Heqnsn₃ into Hnsn₃h.
+(*
+         remember Hnsn₃h as H; clear HeqH.
+         eapply newton_segments_not_nil in H; eauto .
+bbb.
+*)
          destruct (ps_zerop R (ps_poly_nth 0 poln₂)) as [H₂| H₂].
           contradiction.
 
@@ -457,7 +462,7 @@ destruct z₁.
             erewrite <- nth_ns_n with (c := c₁) (poln := poln₁); eauto .
             clear H.
             subst ssi; remember (S i) as si; simpl; subst si.
-            rewrite <- Hnsn₂, <- Hcn₂, <- Hpoln₃, <- Hnsn₃.
+            rewrite <- Hnsn₂, <- Hcn₂, <- Hpoln₃, <- Hnsn₃h.
             destruct (ps_zerop R (ps_poly_nth 0 poln₂)) as [H₂| H₂].
              contradiction.
 
@@ -490,7 +495,7 @@ destruct z₁.
             clear H.
             rewrite <- Hnsn₂.
             subst ssi; remember (S i) as si; simpl.
-            rewrite <- Hcn₂, <- Hpoln₃, <- Hnsn₃.
+            rewrite <- Hcn₂, <- Hpoln₃, <- Hnsn₃h.
             destruct (ps_zerop R (ps_poly_nth 0 poln₂)) as [H₂| H₂].
              contradiction.
 
