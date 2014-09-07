@@ -778,8 +778,7 @@ destruct r.
           rewrite Hc; reflexivity.
 
           subst polsi; simpl.
-          symmetry.
-          eapply <- nth_pol_n; eauto .
+          eapply nth_pol_n; eauto .
           rewrite Hc; reflexivity.
 
          intros H; rewrite H in Hnsl; discriminate Hnsl.
