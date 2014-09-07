@@ -434,6 +434,9 @@ destruct z₁.
          remember (S (S si)) as ssi.
          remember (S id) as sid.
          simpl.
+(*
+bbb.
+*)
          destruct (ps_zerop R (ps_poly_nth 0 poln₂)) as [H₂| H₂].
           contradiction.
 
@@ -454,14 +457,13 @@ destruct z₁.
               contradiction.
 
               clear H₂.
-              remember (next_pow 0 (nth_ns n pol₂ ns₂) m₁) as pow₁ eqn:Hpow₁ .
+              rewrite <- Hnsn₂, <- Hcn₂.
+              remember (next_pow 0 nsn₂ m₁) as pow₁ eqn:Hpow₁ .
               remember (Nat.compare pow₁ ssi) as cmp₁ eqn:Hcmp₁ .
               symmetry in Hcmp₁.
-              rewrite <- Hnsn₂, <- Hcn₂.
               destruct cmp₁; auto.
                apply nat_compare_lt in Hcmp₁.
                subst sid ssi.
-               remember (nth_ns n pol₂ ns₂) as ns₃ eqn:Hns₃ .
                erewrite next_pow_eq_p in Hpow₁.
 bbb.
 
