@@ -158,6 +158,12 @@ assert (root_multiplicity acf c₁ cpol₁ < length (al cpol₁))%nat as H.
  unfold lt in H.
  apply le_S_n.
  eapply le_trans; eauto .
+ remember (root_multiplicity acf c (Φq pol ns)) as r eqn:Hr .
+ remember (root_multiplicity acf c₁ cpol₁) as r₁ eqn:Hr₁ .
+ subst cpol₁.
+ rewrite al_Φq.
+ erewrite length_char_pol with (ns := ns₁); eauto .
+  apply le_n_S.
 bbb.
 
 Theorem yyy : ∀ pol ns r,
