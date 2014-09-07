@@ -841,7 +841,9 @@ destruct r.
   destruct H as (m, Hm).
   remember (q_of_m m (γ ns)) as q₀ eqn:Hq₀ .
   remember (List.hd phony_ns (newton_segments pol₁)) as ns₁ eqn:Hns₁ .
-  exists (root_tail (m * q₀) 0 pol₁ ns₁).
+  remember (root_tail (m * q₀) 0 pol₁ ns₁) as s eqn:Hs.
+  exists s.
+  apply order_inf.
 bbb.
 
 End theorems.
