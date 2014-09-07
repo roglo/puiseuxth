@@ -381,6 +381,7 @@ destruct z₁.
       unfold root_tail_series_from_cγ_list.
       remember (S i) as si.
       remember (si - Z.to_nat pn₂)%nat as id eqn:Hid .
+      symmetry in Hid.
       destruct (lt_dec si (Z.to_nat pn₂)) as [H₁| H₁].
        simpl.
        destruct (ps_zerop R (ps_poly_nth 0 poln₁)) as [H₂| H₂].
@@ -458,13 +459,19 @@ destruct z₁.
               contradiction.
 
               clear H₂.
-              remember (next_pow 0 nsn₂ m₁) as pow₁ eqn:Hpow₁ .
-              remember (Nat.compare pow₁ (S i)) as cmp₁ eqn:Hcmp₁ .
+              symmetry in Hrn₂.
+              erewrite next_pow_eq_p; eauto .
+              rewrite <- Hpn₂.
+              apply Nat.sub_0_le in Hid.
+              eapply Nat.le_antisymm in Hid; eauto; rewrite Hid.
+              remember (Nat.compare (S i) (S i)) as cmp₁ eqn:Hcmp₁ .
               symmetry in Hcmp₁.
               destruct cmp₁; auto.
                apply nat_compare_lt in Hcmp₁.
-               symmetry in Hrn₂.
-               erewrite next_pow_eq_p in Hpow₁; eauto .
+               exfalso; revert Hcmp₁; apply Nat.lt_irrefl.
+
+               apply nat_compare_gt in Hcmp₁.
+               exfalso; revert Hcmp₁; apply Nat.lt_irrefl.
 bbb.
 
 cf RootAnyR.v around line 3011
