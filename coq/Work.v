@@ -599,7 +599,23 @@ destruct z₁.
               apply nat_compare_gt in Hcmp₁.
               apply Nat.nle_gt in Hcmp₁; contradiction.
 
-bbb.
+     rewrite Pos2Z.inj_mul, Z.mul_assoc.
+     apply Z.mul_cancel_r; auto.
+     rewrite Z.mul_comm.
+     rewrite <- Z.divide_div_mul_exact; auto.
+      rewrite Z.mul_comm.
+      rewrite Z.div_mul; auto.
+
+      rewrite Hnd₁, Hdd₁.
+      rewrite Pos_mul_shuffle0, Z.mul_shuffle0.
+      do 2 rewrite Pos2Z.inj_mul.
+      apply Z.mul_divide_cancel_r; auto.
+      erewrite αj_m_eq_p_r with (ns₁ := nsn₁); eauto .
+      rewrite <- Zposnat2Znat; eauto .
+      rewrite Z.mul_shuffle0, <- Z.mul_assoc.
+      rewrite <- Pos2Z.inj_mul.
+      apply Z.divide_factor_r.
+Qed.
 
 Theorem root_tail_when_r_r : ∀ pol ns pol₁ ns₁ c m q₀ b r,
   ns ∈ newton_segments pol
