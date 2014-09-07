@@ -156,6 +156,10 @@ assert (nth_r n pol₁ ns₁ < length (al poln₁))%nat as Hlt.
  remember (nth_c n pol₁ ns₁) as cn₁ eqn:Hcn₁ .
  eapply Nat.lt_le_trans.
   apply multiplicity_lt_length.
+  rewrite al_Φq.
+  Focus 2.
+  rewrite al_Φq.
+  erewrite length_char_pol with (pol := poln₁); eauto .
 bbb.
 
 Theorem zzz : ∀ pol ns c pol₁,
