@@ -332,16 +332,20 @@ destruct r.
         assert (∀ i, i ≤ N → η < β (nth_ns i pol₁ ns₁)).
          intros i Hi.
          subst c q₀.
-         assert (zerop_1st_n_const_coeff i pol₁ ns₁ = false).
+         assert (zerop_1st_n_const_coeff i pol₁ ns₁ = false) as Hz₁.
           rewrite zerop_1st_n_const_coeff_false_iff in Hz.
           apply zerop_1st_n_const_coeff_false_iff.
           intros j Hj.
           apply Hz.
           transitivity i; assumption.
 
-          eapply β_lower_bound_r_const with (n := i) (r := r); eauto .
+          eapply β_lower_bound_r_const with (n := i) (r := S r); eauto .
            intros j.
            unfold multiplicity_decreases in Hn.
+           rewrite Hr in Hn.
+           pose proof (Hn j) as H.
+           apply Nat.nlt_ge in H.
+           erewrite <- nth_r_n in H; eauto .
 bbb.
 
   pose proof (exists_pol_ord R pol) as H.
