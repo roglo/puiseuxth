@@ -151,10 +151,11 @@ Theorem r_n_j_0_k_le_n : ∀ pol ns c pol₁ ns₁ c₁ j₁ αj₁ k₁ αk₁ 
   → root_multiplicity acf c₁ (Φq pol₁ ns₁) = r₁
   → ini_pt ns₁ = (Qnat j₁, αj₁)
   → fin_pt ns₁ = (Qnat k₁, αk₁)
-  → j₁ = 0%nat ∧ r₁ ≤ k₁ ∧ αj₁ > 0 ∧ αk₁ >= 0.
+  → j₁ = 0%nat ∧ r₁ ≤ k₁ ∧ k₁ ≤ r ∧ αj₁ > 0 ∧ αk₁ >= 0.
 Proof.
 intros pol ns c pol₁ ns₁ c₁ j₁ αj₁ k₁ αk₁ r r₁.
 intros Hns Hc Hpol₁ Hns₁ Hc₁ Hps₀ Hr Hr₁ Hini₁ Hfin₁.
+bbb.
 apply order_fin in Hps₀.
 remember Hns as H; clear HeqH.
 symmetry in Hr.
