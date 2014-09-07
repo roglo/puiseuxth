@@ -149,6 +149,13 @@ induction n; intros; auto; simpl.
 remember (ac_root (Φq pol ns)) as c eqn:Hc .
 remember (next_pol pol (β ns) (γ ns) c) as pol₁ eqn:Hpol₁ .
 remember (List.hd phony_ns (newton_segments pol₁)) as ns₁ eqn:Hns₁ .
+remember (nth_pol n pol₁ ns₁) as poln₁ eqn:Hpoln₁ .
+assert (nth_r n pol₁ ns₁ < length (al poln₁))%nat as Hlt.
+ erewrite nth_r_n with (pol₁ := poln₁); eauto .
+ remember (nth_ns n pol₁ ns₁) as nsn₁ eqn:Hnsn₁ .
+ remember (nth_c n pol₁ ns₁) as cn₁ eqn:Hcn₁ .
+ eapply Nat.lt_le_trans.
+  apply multiplicity_lt_length.
 bbb.
 
 Theorem zzz : ∀ pol ns c pol₁,
