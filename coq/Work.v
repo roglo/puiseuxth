@@ -438,11 +438,6 @@ destruct z₁.
          remember (next_pol poln₂ (β nsn₂) (γ nsn₂) cn₂) as poln₃ eqn:Hpoln₃ .
          remember (List.hd phony_ns (newton_segments poln₃)) as nsn₃.
          rename Heqnsn₃ into Hnsn₃h.
-(*
-         remember Hnsn₃h as H; clear HeqH.
-         eapply newton_segments_not_nil in H; eauto .
-bbb.
-*)
          destruct (ps_zerop R (ps_poly_nth 0 poln₂)) as [H₂| H₂].
           contradiction.
 
@@ -518,7 +513,25 @@ bbb.
                rewrite <- Hid.
                rewrite find_coeff_add, Hid.
                subst si sid; symmetry.
-               apply find_coeff_more_iter with (r := r); auto.
+               destruct (ps_zerop R (ps_poly_nth 0 poln₃)) as [H₂| H₂].
+                remember (S id) as sid; simpl.
+                destruct (ps_zerop R (ps_poly_nth 0 poln₃)) as [H₃| H₃].
+                 reflexivity.
+
+                 contradiction.
+
+                rename H₂ into Hnzn₃; move Hnzn₃ before Hnsn₃h.
+                remember Hnsn₂i as H; clear HeqH.
+                eapply next_has_root_0_or_newton_segments in H; eauto .
+                simpl in H.
+                rewrite <- Hcn₂, <- Hpoln₃ in H.
+                destruct H as [| H]; [ contradiction | idtac ].
+                rename H into Hns₃nz; move Hns₃nz before Hnzn₃.
+                remember Hnsn₃h as H; clear HeqH.
+                apply List_hd_in in H; auto.
+                rename H into Hnsn₃i.
+                move Hnsn₃i before Hnsn₃h.
+                apply find_coeff_more_iter with (r := r); auto.
 bbb.
 
 cf RootAnyR.v around line 3011
