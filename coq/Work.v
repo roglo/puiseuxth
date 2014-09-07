@@ -475,6 +475,45 @@ destruct z₁.
 
               apply nat_compare_gt in Hcmp₁.
               exfalso; revert Hcmp₁; apply Nat.lt_irrefl.
+
+           subst ssi; remember (S si) as ssi; simpl.
+           destruct (ps_zerop R (ps_poly_nth 0 poln₁)) as [H₂| H₂].
+            contradiction.
+
+            clear H₂; subst si.
+            rewrite <- Hcn₁.
+            erewrite <- nth_pol_n with (c := c₁); eauto .
+            rewrite <- Hpoln₂.
+            remember Hpoln₂ as H; clear HeqH.
+            erewrite nth_pol_n with (c := c₁) in H; eauto .
+            erewrite <- nth_ns_n with (c := c₁) (poln := poln₁); eauto .
+            clear H.
+            rewrite <- Hnsn₂.
+            subst ssi; remember (S i) as si; simpl.
+            rewrite <- Hcn₂, <- Hpoln₃, <- Hnsn₃.
+            destruct (ps_zerop R (ps_poly_nth 0 poln₂)) as [H₂| H₂].
+             contradiction.
+
+             clear H₂.
+             symmetry in Hrn₂.
+             erewrite next_pow_eq_p; eauto .
+             rewrite <- Hpn₂.
+             remember (Nat.compare (Z.to_nat pn₂) si) as cmp₁ eqn:Hcmp₁ .
+             symmetry in Hcmp₁.
+             destruct cmp₁.
+              apply nat_compare_eq in Hcmp₁.
+              rewrite Hcmp₁, Nat.sub_diag in Hid.
+              discriminate Hid.
+
+              apply nat_compare_lt in Hcmp₁.
+              replace (Z.to_nat pn₂) with (0 + Z.to_nat pn₂)%nat by auto.
+              rewrite next_pow_add.
+              apply Nat.add_sub_eq_nz in Hid.
+               rewrite Nat.add_comm in Hid.
+               rewrite <- Hid.
+               rewrite find_coeff_add, Hid.
+               subst si sid; symmetry.
+               apply find_coeff_more_iter with (r := r); auto.
 bbb.
 
 cf RootAnyR.v around line 3011
