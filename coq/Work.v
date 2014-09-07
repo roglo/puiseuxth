@@ -836,6 +836,12 @@ destruct r.
          simpl in H.
          rewrite <- Hc, <- Hpol₁ in H.
          destruct H; auto.
+
+  pose proof (exists_pol_ord R pol) as H.
+  destruct H as (m, Hm).
+  remember (q_of_m m (γ ns)) as q₀ eqn:Hq₀ .
+  remember (List.hd phony_ns (newton_segments pol₁)) as ns₁ eqn:Hns₁ .
+  exists (root_tail (m * q₀) 0 pol₁ ns₁).
 bbb.
 
 End theorems.
