@@ -138,6 +138,20 @@ eapply first_n_pol_in_K_1_m_any_r with (ns := ns₁) in H; eauto .
  eauto .
 Qed.
 
+Theorem xxx : ∀ pol ns,
+  ns ∈ newton_segments pol
+  → nth_r 1 pol ns ≤ nth_r 0 pol ns.
+Proof.
+intros pol ns Hns; simpl.
+remember (ac_root (Φq pol ns)) as c eqn:Hc .
+remember (next_pol pol (β ns) (γ ns) c) as pol₁ eqn:Hpol₁ .
+remember (List.hd phony_ns (newton_segments pol₁)) as ns₁ eqn:Hns₁ .
+remember (ac_root (Φq pol₁ ns₁)) as c₁ eqn:Hc₁ .
+remember Hns as H; clear HeqH.
+eapply f₁_orders in H; eauto .
+destruct H as (Hnneg, (Hpos, Hz)).
+bbb.
+
 Theorem yyy : ∀ pol ns r,
   nth_r 0 pol ns = r
   → (∀ i, r ≤ nth_r i pol ns)
@@ -150,10 +164,10 @@ remember (ac_root (Φq pol ns)) as c eqn:Hc .
 remember (next_pol pol (β ns) (γ ns) c) as pol₁ eqn:Hpol₁ .
 remember (List.hd phony_ns (newton_segments pol₁)) as ns₁ eqn:Hns₁ .
 remember (nth_pol n pol₁ ns₁) as poln₁ eqn:Hpoln₁ .
+remember (nth_ns n pol₁ ns₁) as nsn₁ eqn:Hnsn₁ .
+remember (nth_c n pol₁ ns₁) as cn₁ eqn:Hcn₁ .
 assert (nth_r n pol₁ ns₁ < length (al poln₁))%nat as Hlt.
  erewrite nth_r_n with (pol₁ := poln₁); eauto .
- remember (nth_ns n pol₁ ns₁) as nsn₁ eqn:Hnsn₁ .
- remember (nth_c n pol₁ ns₁) as cn₁ eqn:Hcn₁ .
  eapply Nat.lt_le_trans.
   apply multiplicity_lt_length.
   rewrite al_Φq.
