@@ -844,6 +844,14 @@ destruct r.
   remember (root_tail (m * q₀) 0 pol₁ ns₁) as s eqn:Hs.
   exists s.
   apply order_inf.
+  unfold order; simpl.
+  remember (ps_pol_apply pol₁ s) as ps₀ eqn:Hps₀ .
+  remember (null_coeff_range_length R (ps_terms ps₀) 0) as ofs eqn:Hofs .
+  symmetry in Hofs.
+  destruct ofs as [ofs| ]; auto; exfalso.
+  apply null_coeff_range_length_iff in Hofs.
+  unfold null_coeff_range_length_prop in Hofs; simpl in Hofs.
+  destruct Hofs as (Hofsi, Hofs).
 bbb.
 
 End theorems.
