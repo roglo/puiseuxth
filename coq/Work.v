@@ -548,7 +548,19 @@ destruct z₁.
                 erewrite nth_pol_n with (c := c₁) in H; eauto .
                 rewrite <- Hpoln₃ in H.
                 rename H into HKn₃; move HKn₃ before Hns₃nz.
-                apply find_coeff_more_iter with (r := r); auto.
+                remember Hns as H; clear HeqH.
+                eapply r_n_nth_ns in H; eauto .
+                remember (S n) as sn in H; simpl in H.
+                rewrite <- Hc₁, <- Hpol₂, <- Hns₂ in H.
+                subst sn.
+                erewrite nth_ns_n with (c := c₁) in H; eauto .
+                rewrite <- Hnsn₃h in H.
+                destruct H as (αjn₃, (αkn₃, H)).
+                destruct H as (Hinin₃, (Hfinn₃, (Hαjn₃, Hαkn₃))).
+                remember Hnsn₃i as H; clear HeqH.
+                eapply q_eq_1_any_r in H; eauto .
+                 rename H into Hqn₃; move Hqn₃ before HKn₃.
+                 apply find_coeff_more_iter with (r := r); auto.
 bbb.
 
 cf RootAnyR.v around line 3011
