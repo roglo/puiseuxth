@@ -557,15 +557,49 @@ destruct z₁.
                 rewrite <- Hnsn₃h in H.
                 destruct H as (αjn₃, (αkn₃, H)).
                 destruct H as (Hinin₃, (Hfinn₃, (Hαjn₃, Hαkn₃))).
+                remember (ac_root (Φq poln₃ nsn₃)) as cn₃ eqn:Hcn₃ .
+                move Hcn₃ before HKn₃.
+                pose proof (Hri₁ (S (S n))) as H.
+                remember (S n) as sn in H; simpl in H.
+                rewrite <- Hc₁, <- Hpol₂, <- Hns₂ in H.
+                subst sn.
+                erewrite nth_r_n in H; eauto .
+                erewrite nth_c_n in H; eauto .
+                erewrite nth_ns_succ in H; eauto .
+                erewrite nth_pol_n with (c := c₁) in H; eauto .
+                rewrite <- Hpoln₃, <- Hnsn₃h, <- Hcn₃ in H.
+                rename H into Hrn₃.
+                move Hrn₃ before Hcn₃.
+                symmetry in Hrn₃.
                 remember Hnsn₃i as H; clear HeqH.
                 eapply q_eq_1_any_r in H; eauto .
-                 rename H into Hqn₃; move Hqn₃ before HKn₃.
-                 apply find_coeff_more_iter with (r := r); auto.
-bbb.
+                rename H into Hqn₃; move Hqn₃ before HKn₃.
+                apply find_coeff_more_iter with (r := r); auto.
+                 intros j.
+                 pose proof (Hrin₂ (S j)) as H; simpl in H.
+                 rewrite <- Hcn₂, <- Hpoln₃, <- Hnsn₃h in H; auto.
 
-cf RootAnyR.v around line 3011
-cf RootHeadTail.v around line 3143
-*)
+                 remember Hinin₂ as H; clear HeqH.
+                 eapply p_is_pos with (m := m₁) in H; eauto .
+                 rewrite <- Hpn₂ in H.
+                 apply Z2Nat.inj_lt in H; [ idtac | reflexivity | idtac ].
+                  simpl in H.
+                  rewrite <- Hid.
+                  destruct (Z.to_nat pn₂) as [| pn].
+                   exfalso; revert H; apply Nat.lt_irrefl.
+
+                   rewrite Nat.add_succ_r, Nat.add_succ_l.
+                   do 2 apply le_n_S.
+                   apply Nat.le_add_r.
+
+                  apply Z.lt_le_incl; auto.
+
+               intros H; discriminate H.
+
+              apply nat_compare_gt in Hcmp₁.
+              apply Nat.nle_gt in Hcmp₁; contradiction.
+
+bbb.
 
 Theorem root_tail_when_r_r : ∀ pol ns pol₁ ns₁ c m q₀ b r,
   ns ∈ newton_segments pol
