@@ -1923,15 +1923,15 @@ Qed.
 Theorem nth_in_newton_segments_any_r : ∀ pol₁ ns₁ c₁ poln nsn n r,
   ns₁ ∈ newton_segments pol₁
   → c₁ = ac_root (Φq pol₁ ns₁)
-  → (∀ i, (i ≤ n)%nat → (ps_poly_nth 0 (nth_pol i pol₁ ns₁) ≠ 0)%ps)
+  → (∀ i, i ≤ n → (ps_poly_nth 0 (nth_pol i pol₁ ns₁) ≠ 0)%ps)
+  → (∀ i, i ≤ n → nth_r i pol₁ ns₁ = r)
   → poln = nth_pol n pol₁ ns₁
   → nsn = nth_ns n pol₁ ns₁
-  → (∀ i, nth_r i pol₁ ns₁ = r)
   → nsn ∈ newton_segments poln.
 Proof.
-intros pol₁ ns₁ c₁ poln nsn n r Hns₁ Hc₁ Hpsi Hpoln Hnsn Hri.
+intros pol₁ ns₁ c₁ poln nsn n r Hns₁ Hc₁ Hpsi Hri Hpoln Hnsn.
 subst poln nsn.
-pose proof exists_pol_ord R pol₁ as H.
+pose proof (exists_pol_ord R pol₁) as H.
 destruct H as (m, Hm).
 revert pol₁ ns₁ c₁ m Hns₁ Hm Hc₁ Hpsi Hri.
 induction n; intros; [ assumption | simpl ].
@@ -1942,11 +1942,13 @@ assert (1 ≤ S n) as H₁ by apply le_n_S, Nat.le_0_l.
 apply Hpsi in H₁; simpl in H₁.
 rewrite <- Hc₁, <- Hpol₂ in H₁.
 remember (q_of_m m (γ ns₁)) as q₀ eqn:Hq₀ .
+assert (0 ≤ S n)%nat as H by apply Nat.le_0_l.
+apply Hri in H; simpl in H; rename H into Hr₀.
+assert (1 ≤ S n)%nat as H by apply le_n_S, Nat.le_0_l.
+apply Hri in H; simpl in H; rename H into Hr₁.
+rewrite <- Hc₁ in Hr₀.
+rewrite <- Hc₁, <- Hpol₂, <- Hns₂ in Hr₁.
 eapply IHn with (m := (m * q₀)%positive); eauto .
- pose proof (Hri 0%nat) as Hr₁; simpl in Hr₁.
- rewrite <- Hc₁ in Hr₁.
- pose proof (Hri 1%nat) as Hr₂; simpl in Hr₂.
- rewrite <- Hc₁, <- Hpol₂, <- Hns₂ in Hr₂.
  remember Hns₂ as H; clear HeqH.
  apply exists_ini_pt_nat_fst_seg in H.
  destruct H as (j₂, (αj₂, Hini₂)).
@@ -1959,7 +1961,7 @@ eapply IHn with (m := (m * q₀)%positive); eauto .
  destruct H as (Hj₂, (Hk₂, (Hαj₂, Hαk₂))).
  subst j₂ k₂.
  destruct r; [ idtac | apply Nat.lt_0_succ ].
- exfalso; revert Hr₁; apply multiplicity_neq_0; auto.
+ exfalso; revert Hr₀; apply multiplicity_neq_0; auto.
 
  eapply next_pol_in_K_1_mq; eauto .
 
@@ -1969,9 +1971,10 @@ eapply IHn with (m := (m * q₀)%positive); eauto .
  rewrite <- Hc₁, <- Hpol₂, <- Hns₂ in Hin.
  assumption.
 
- intros i.
- pose proof (Hri (S i)) as H; simpl in H.
- rewrite <- Hc₁, <- Hpol₂, <- Hns₂ in H.
+ intros i Hin.
+ apply Nat.succ_le_mono in Hin.
+ apply Hri in Hin; simpl in Hin.
+ rewrite <- Hc₁, <- Hpol₂, <- Hns₂ in Hin.
  assumption.
 Qed.
 

@@ -101,8 +101,8 @@ eapply first_n_pol_in_K_1_m_any_r with (ns := ns₁) in H; eauto .
  rename H into HKn.
  remember (nth_pol n pol₁ ns₁) as poln eqn:Hpoln .
  remember Hns₁i as H; clear HeqH.
-bbb.
  eapply nth_in_newton_segments_any_r with (n := n) in H; eauto .
+bbb.
   rename H into Hnsni.
   remember HKn as H; clear HeqH.
   eapply pol_ord_of_ini_pt in H; eauto .
