@@ -102,7 +102,6 @@ eapply first_n_pol_in_K_1_m_any_r with (ns := ns₁) in H; eauto .
  remember (nth_pol n pol₁ ns₁) as poln eqn:Hpoln .
  remember Hns₁i as H; clear HeqH.
  eapply nth_in_newton_segments_any_r with (n := n) in H; eauto .
-bbb.
   rename H into Hnsni.
   remember HKn as H; clear HeqH.
   eapply pol_ord_of_ini_pt in H; eauto .
@@ -127,22 +126,21 @@ bbb.
    apply Z.mul_lt_mono_pos_r; [ apply Pos2Z.is_pos | idtac ].
    fast_omega H.
 
-  clear H.
-  intros i.
-  pose proof (Hri (S i)) as H; simpl in H.
-  rewrite <- Hpol₁, <- Hns₁ in H.
+  intros i Hin.
+  apply Nat.succ_le_mono in Hin.
+  apply Hri in Hin; simpl in Hin.
+  rewrite <- Hpol₁, <- Hns₁ in Hin.
   eauto .
 
  eapply q_eq_1_any_r with (ns := ns₁); eauto .
  rewrite Hr₁; eauto .
 
- clear H.
- intros i.
- pose proof (Hri (S i)) as H; simpl in H.
- rewrite <- Hpol₁, <- Hns₁ in H.
+ intros i Hin.
+ apply Nat.succ_le_mono in Hin.
+ apply Hri in Hin; simpl in Hin.
+ rewrite <- Hpol₁, <- Hns₁ in Hin.
  eauto .
 Qed.
-*)
 
 (*
 Theorem k_le_pol_degree : ∀ pol ns k αk,
@@ -673,6 +671,10 @@ destruct r.
           transitivity i; assumption.
 
           eapply β_lower_bound_r_const with (n := i) (r := S r); eauto .
+           apply Nat.lt_0_succ.
+
+           intros j Hji.
+bbb.
            intros j.
            unfold multiplicity_decreases in Hn.
            rewrite Hr in Hn.
