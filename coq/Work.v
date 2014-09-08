@@ -699,10 +699,24 @@ destruct r.
            apply Nat.nlt_ge in H.
            erewrite <- nth_r_n in H; eauto .
            rename H into Hrj.
-           assert (nth_ns j pol ns ∈ newton_segments (nth_pol j pol ns)) as H.
-            Focus 2.
-            eapply r₁_le_r₀ in H; eauto .
-             do 2 rewrite <- nth_r_add in H.
+           symmetry.
+           Focus 1.
+           eapply yyy; eauto .
+            intros k Hki.
+            rewrite zerop_1st_n_const_coeff_false_iff in Hz.
+            destruct k.
+             simpl.
+             Focus 2.
+             assert (k ≤ N) as H.
+              transitivity i; auto.
+              apply Nat.succ_le_mono; auto.
+
+              apply Hz in H.
+              simpl.
+              rewrite <- Hpol₁, <- Hns₁; auto.
+
+             Focus 2.
+             intros k Hki.
 bbb.
 
            2: apply Nat.lt_0_succ.
