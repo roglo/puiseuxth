@@ -450,22 +450,23 @@ destruct H as (Hj₁, (Hr₁, (Hr, _))).
 transitivity k₁; auto.
 Qed.
 
-(*
-Theorem yyy : ∀ pol ns r,
+Theorem yyy : ∀ pol ns r n,
   ns ∈ newton_segments pol
   → nth_r 0 pol ns = r
-  → (∀ i, r ≤ nth_r i pol ns)
-    → (∀ i, r = nth_r i pol ns).
+  → (∀ i, i ≤ n → (ps_poly_nth 0 (nth_pol i pol ns) ≠ 0)%ps)
+  → (∀ i, i ≤ n → r ≤ nth_r i pol ns)
+  → (∀ i, i ≤ n → r = nth_r i pol ns).
 Proof.
-intros pol ns r Hns Hr₀ Hri n.
-destruct n; auto.
-destruct n.
- pose proof (Hri 1%nat) as H.
- rename H into H₁.
- remember Hns as H; clear HeqH.
- eapply r₁_le_r₀ in H; eauto .
-  apply Nat.le_antisymm; auto.
-  subst r; auto.
+intros pol ns r n Hns Hr₀ Hnz Hri i Hin.
+destruct i; auto.
+destruct i.
+ remember Hin as H; clear HeqH.
+ apply Hri in H.
+ apply Nat.le_antisymm; auto.
+ rewrite <- Hr₀.
+ eapply r₁_le_r₀; eauto .
+
+ destruct i.
 bbb.
 *)
 
