@@ -138,6 +138,14 @@ eapply first_n_pol_in_K_1_m_any_r with (ns := ns₁) in H; eauto .
  eauto .
 Qed.
 
+Theorem k_le_pol_degree : ∀ pol ns k αk,
+  ns ∈ newton_segments pol
+  → fin_pt ns = (Qnat k, αk)
+  → (k ≤ degree (ps_zerop _) pol)%nat.
+Proof.
+intros pol ns k αk Hns Hfin.
+bbb.
+
 Theorem k_lt_pol_length : ∀ pol ns k αk,
   ns ∈ newton_segments pol
   → fin_pt ns = (Qnat k, αk)
@@ -169,6 +177,20 @@ eapply in_pts_in_ppl with (h := Qnat k) (hv := αk) (def := 0%ps) in H; eauto .
  right; left; auto.
 Qed.
 
+Theorem pol_length_const : ∀ pol ns c pol₁,
+  ns ∈ newton_segments pol
+  → pol₁ = next_pol pol (β ns) (γ ns) c
+  → length (al pol₁) = length (al pol).
+Proof.
+intros pol ns c pol₁ Hns Hpol₁.
+subst pol₁.
+unfold next_pol; simpl.
+unfold next_lap; simpl.
+rewrite length_lap_mul; simpl.
+rewrite length_lap_compose_deg_1; reflexivity.
+Qed.
+
+(* c'est pas sa length, c'est son degré !
 Theorem www : ∀ pol ns c pol₁ r,
   ns ∈ newton_segments pol
   → r = root_multiplicity acf c (Φq pol ns)
@@ -352,6 +374,7 @@ destruct r.
         destruct H as (pts₁, (pts₂, Hpts)).
         remember Hns₁i as H; clear HeqH.
         eapply k_lt_pol_length in H; [ idtac | rewrite Hns₁; reflexivity ].
+bbb.
         erewrite www with (ns := ns) in H; eauto .
         apply le_S_n; auto.
 qed.
