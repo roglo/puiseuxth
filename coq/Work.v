@@ -462,6 +462,7 @@ destruct n.
   apply Nat.le_antisymm; auto.
   subst r; auto.
 bbb.
+*)
 
 Theorem zzz : ∀ pol ns c pol₁,
   ns ∈ newton_segments pol
