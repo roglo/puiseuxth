@@ -447,30 +447,21 @@ transitivity k₁; auto.
 Qed.
 
 Theorem yyy : ∀ pol ns r,
-  nth_r 0 pol ns = r
+  ns ∈ newton_segments pol
+  → nth_r 0 pol ns = r
   → (∀ i, r ≤ nth_r i pol ns)
     → (∀ i, r = nth_r i pol ns).
 Proof.
-intros pol ns r Hr₀ Hri n.
+intros pol ns r Hns Hr₀ Hri n.
+destruct n; auto.
+destruct n.
+ pose proof (Hri 1%nat) as H.
+ rename H into H₁.
+ remember Hns as H; clear HeqH.
+ eapply r₁_le_r₀ in H; eauto .
+  apply Nat.le_antisymm; auto.
+  subst r; auto.
 bbb.
-revert pol ns r Hr₀ Hri.
-induction n; intros; auto; simpl.
-remember (ac_root (Φq pol ns)) as c eqn:Hc .
-remember (next_pol pol (β ns) (γ ns) c) as pol₁ eqn:Hpol₁ .
-remember (List.hd phony_ns (newton_segments pol₁)) as ns₁ eqn:Hns₁ .
-remember (nth_pol n pol₁ ns₁) as poln₁ eqn:Hpoln₁ .
-remember (nth_ns n pol₁ ns₁) as nsn₁ eqn:Hnsn₁ .
-remember (nth_c n pol₁ ns₁) as cn₁ eqn:Hcn₁ .
-assert (nth_r n pol₁ ns₁ < length (al poln₁))%nat as Hlt.
- erewrite nth_r_n with (pol₁ := poln₁); eauto .
- eapply Nat.lt_le_trans.
-  apply multiplicity_lt_length.
-  rewrite al_Φq.
-  Focus 2.
-  rewrite al_Φq.
-  erewrite length_char_pol with (pol := poln₁); eauto .
-bbb.
-*)
 
 Theorem zzz : ∀ pol ns c pol₁,
   ns ∈ newton_segments pol
