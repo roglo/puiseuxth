@@ -547,9 +547,8 @@ apply minimise_slope_end_2nd_pt in Heqms.
    pose proof (Hnneg (3 + i)%nat) as H; assumption.
 Qed.
 
-Theorem r_1_j_0_k_1 : ∀ pol ns c₁ pol₁ ns₁ j₁ αj₁ k₁ αk₁ m,
+Theorem r_1_j_0_k_1 : ∀ pol ns c₁ pol₁ ns₁ j₁ αj₁ k₁ αk₁,
   ns ∈ newton_segments pol
-  → pol_in_K_1_m pol m
   → c₁ = ac_root (Φq pol ns)
   → root_multiplicity acf c₁ (Φq pol ns) = 1%nat
   → pol₁ = next_pol pol (β ns) (γ ns) c₁
@@ -559,8 +558,8 @@ Theorem r_1_j_0_k_1 : ∀ pol ns c₁ pol₁ ns₁ j₁ αj₁ k₁ αk₁ m,
   → fin_pt ns₁ = (Qnat k₁, αk₁)
   → j₁ = 0%nat ∧ k₁ = 1%nat ∧ αj₁ > 0 ∧ αk₁ == 0.
 Proof.
-intros pol ns c₁ pol₁ ns₁ j₁ αj₁ k₁ αk₁ m.
-intros Hns Hm Hc₁ Hr Hpol₁ Hps₀ Hns₁ Hini₁ Hfin₁.
+intros pol ns c₁ pol₁ ns₁ j₁ αj₁ k₁ αk₁.
+intros Hns Hc₁ Hr Hpol₁ Hps₀ Hns₁ Hini₁ Hfin₁.
 apply order_fin in Hps₀.
 remember Hns as H; clear HeqH.
 symmetry in Hr.
@@ -1154,9 +1153,8 @@ revert Hnneg Hpos Hz Hpts; clear; intros.
       contradiction.
 Qed.
 
-Theorem r_1_next_ns : ∀ pol ns c pol₁ ns₁ m,
+Theorem r_1_next_ns : ∀ pol ns c pol₁ ns₁,
   ns ∈ newton_segments pol
-  → pol_in_K_1_m pol m
   → root_multiplicity acf c (Φq pol ns) = 1%nat
   → c = ac_root (Φq pol ns)
   → pol₁ = next_pol pol (β ns) (γ ns) c
@@ -1168,7 +1166,7 @@ Theorem r_1_next_ns : ∀ pol ns c pol₁ ns₁ m,
     (0 < Qnum αj)%Z ∧
     Qnum αk = 0%Z.
 Proof.
-intros pol ns c pol₁ ns₁ m Hns Hm Hr Hc Hpol₁ Hns₁ Hpnz.
+intros pol ns c pol₁ ns₁ Hns Hr Hc Hpol₁ Hns₁ Hpnz.
 remember Hns₁ as H; clear HeqH.
 apply exists_ini_pt_nat_fst_seg in H.
 destruct H as (j₁, (αj₁, Hini₁)).
@@ -2490,16 +2488,9 @@ destruct z₁.
   rewrite <- Hc₁, <- Hpol₂, <- Hns₂ in Hpsb.
   erewrite nth_pol_n with (c := c₁) in Hpsb; eauto .
   erewrite nth_ns_n with (c := c₁) in Hnsb; eauto .
-  eapply r_1_j_0_k_1 with (ns₁ := nsb) (m := (m * q₀)%positive) in H; eauto .
-   Focus 2.
-   eapply first_n_pol_in_K_1_m with (ns := ns₁) (n := b); eauto .
-    eapply q_eq_1 with (ns := ns); eauto .
-    eapply next_pol_in_K_1_mq with (ns := ns); eauto .
-
-    eapply next_pol_in_K_1_mq with (ns := ns); eauto .
-
-   erewrite <- nth_ns_n with (c := c₁) in Hnsb; eauto .
-   erewrite <- nth_pol_n with (c := c₁) in Hpsb; eauto .
+  eapply r_1_j_0_k_1 with (ns₁ := nsb) in H; eauto .
+  erewrite <- nth_ns_n with (c := c₁) in Hnsb; eauto .
+  erewrite <- nth_pol_n with (c := c₁) in Hpsb; eauto .
   rewrite <- Hpolb in Hpsb.
   destruct H as (Hjb, (Hkb, (Hαjb, Hαkb))).
   subst jb kb.
@@ -2610,18 +2601,7 @@ destruct z₁.
    rename H into Hbns₂.
    remember Hbns₂ as H; clear HeqH.
    erewrite nth_pol_n with (c := c₂) in Hpolb₂; eauto .
-   eapply r_1_next_ns with (m := (m * q₀)%positive) in H; eauto .
-    Focus 2.
-    eapply first_n_pol_in_K_1_m with (ns := ns₁); eauto .
-     eapply q_eq_1 with (ns := ns); eauto .
-     eapply next_pol_in_K_1_mq with (ns := ns); eauto .
-
-     eapply next_pol_in_K_1_mq with (ns := ns); eauto .
-
-     simpl.
-     rewrite <- Hc₁, <- Hpol₂, <- Hns₂.
-     assumption.
-
+   eapply r_1_next_ns in H; eauto .
    destruct H as (αjb₂, (αkb₂, H)).
    destruct H as (Hinib₂, (Hfinb₂, (Hαjb₂, Hαkb₂))).
    unfold root_tail_from_cγ_list; simpl.

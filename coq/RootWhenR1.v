@@ -1244,7 +1244,7 @@ induction n; intros.
      pose proof (exists_pol_ord R pol) as H.
      destruct H as (m, Hm).
      remember Hns as H; clear HeqH.
-     eapply r_1_next_ns with (m := m) in H; eauto .
+     eapply r_1_next_ns in H; eauto .
      destruct H as (αj₁, (αk₁, H)).
      destruct H as (Hini₁, (Hfin₁, (Hαj₁, Hαk₁))).
      intros H; rewrite H in Hns₁; rewrite Hns₁ in Hfin₁; discriminate Hfin₁.

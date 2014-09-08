@@ -374,9 +374,8 @@ assert (slope ms < slope_expr (Qnat (S r), v) (Qnat k₁, αk₁)) as H.
 Qed.
 
 (* more general than r_1_j_0_k_1 which could be simplified perhaps *)
-Theorem r_n_j_0_k_n : ∀ pol ns c pol₁ ns₁ c₁ j₁ αj₁ k₁ αk₁ m r,
+Theorem r_n_j_0_k_n : ∀ pol ns c pol₁ ns₁ c₁ j₁ αj₁ k₁ αk₁ r,
   ns ∈ newton_segments pol
-  → pol_in_K_1_m pol m
   → c = ac_root (Φq pol ns)
   → pol₁ = next_pol pol (β ns) (γ ns) c
   → ns₁ = List.hd phony_ns (newton_segments pol₁)
@@ -388,8 +387,8 @@ Theorem r_n_j_0_k_n : ∀ pol ns c pol₁ ns₁ c₁ j₁ αj₁ k₁ αk₁ m r
   → fin_pt ns₁ = (Qnat k₁, αk₁)
   → j₁ = 0%nat ∧ k₁ = r ∧ αj₁ > 0 ∧ αk₁ == 0.
 Proof.
-intros pol ns c pol₁ ns₁ c₁ j₁ αj₁ k₁ αk₁ m r.
-intros Hns Hm Hc Hpol₁ Hns₁ Hc₁ Hps₀ Hr Hr₁ Hini₁ Hfin₁.
+intros pol ns c pol₁ ns₁ c₁ j₁ αj₁ k₁ αk₁ r.
+intros Hns Hc Hpol₁ Hns₁ Hc₁ Hps₀ Hr Hr₁ Hini₁ Hfin₁.
 apply order_fin in Hps₀.
 remember Hns as H; clear HeqH.
 symmetry in Hr.
@@ -627,9 +626,8 @@ destruct r.
 Qed.
 
 (* more general than r_1_next_ns which could be simplified perhaps *)
-Theorem r_n_next_ns : ∀ pol ns c pol₁ ns₁ c₁ m r,
+Theorem r_n_next_ns : ∀ pol ns c pol₁ ns₁ c₁ r,
   ns ∈ newton_segments pol
-  → pol_in_K_1_m pol m
   → c = ac_root (Φq pol ns)
   → pol₁ = next_pol pol (β ns) (γ ns) c
   → ns₁ = List.hd phony_ns (newton_segments pol₁)
@@ -643,8 +641,8 @@ Theorem r_n_next_ns : ∀ pol ns c pol₁ ns₁ c₁ m r,
     (0 < Qnum αj)%Z ∧
     Qnum αk = 0%Z.
 Proof.
-intros pol ns c pol₁ ns₁ c₁ m r.
-intros Hns Hm Hc Hpol₁ Hns₁ Hc₁ Hps₀ Hr Hr₁.
+intros pol ns c pol₁ ns₁ c₁ r.
+intros Hns Hc Hpol₁ Hns₁ Hc₁ Hps₀ Hr Hr₁.
 remember Hns₁ as H; clear HeqH.
 apply exists_ini_pt_nat_fst_seg in H.
 destruct H as (j₁, (αj₁, Hini₁)).
@@ -1922,9 +1920,8 @@ destruct (ps_zerop _ (ps_poly_nth 0 pol₁)) as [H₁| H₁].
 Qed.
 
 (* cf nth_in_newton_segments *)
-Theorem nth_in_newton_segments_any_r : ∀ pol₁ ns₁ c₁ poln nsn n m r,
+Theorem nth_in_newton_segments_any_r : ∀ pol₁ ns₁ c₁ poln nsn n r,
   ns₁ ∈ newton_segments pol₁
-  → pol_in_K_1_m pol₁ m
   → c₁ = ac_root (Φq pol₁ ns₁)
   → (∀ i, (i ≤ n)%nat → (ps_poly_nth 0 (nth_pol i pol₁ ns₁) ≠ 0)%ps)
   → poln = nth_pol n pol₁ ns₁
@@ -1932,8 +1929,10 @@ Theorem nth_in_newton_segments_any_r : ∀ pol₁ ns₁ c₁ poln nsn n m r,
   → (∀ i, nth_r i pol₁ ns₁ = r)
   → nsn ∈ newton_segments poln.
 Proof.
-intros pol₁ ns₁ c₁ poln nsn n m r Hns₁ Hm Hc₁ Hpsi Hpoln Hnsn Hri.
+intros pol₁ ns₁ c₁ poln nsn n r Hns₁ Hc₁ Hpsi Hpoln Hnsn Hri.
 subst poln nsn.
+pose proof exists_pol_ord R pol₁ as H.
+destruct H as (m, Hm).
 revert pol₁ ns₁ c₁ m Hns₁ Hm Hc₁ Hpsi Hri.
 induction n; intros; [ assumption | simpl ].
 rewrite <- Hc₁.
@@ -2662,7 +2661,7 @@ destruct z₁.
      rewrite <- Hpolb₂ in Hnsb₂.
      erewrite nth_pol_n with (c := c₁) in Hpolb₂; eauto .
      rewrite <- Hpolb₂ in Hpsb₂.
-     eapply r_n_j_0_k_n with (ns₁ := nsb₂) (m := m₁) in H; eauto .
+     eapply r_n_j_0_k_n with (ns₁ := nsb₂) in H; eauto .
      erewrite <- nth_ns_n with (c := c₁) in Hnsb₂; eauto .
      destruct H as (Hjb, (Hkb, (Hαjb₂, Hαkb₂))).
      erewrite <- nth_pol_n with (c := c₁) in Hpolb₂; eauto .
