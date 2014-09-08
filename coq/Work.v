@@ -683,6 +683,7 @@ destruct r.
            assert (nth_ns j pol ns ∈ newton_segments (nth_pol j pol ns)) as H.
             Focus 2.
             eapply r₁_le_r₀ in H; eauto .
+             do 2 rewrite <- nth_r_add in H.
 bbb.
 
            2: apply Nat.lt_0_succ.
