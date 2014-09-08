@@ -458,15 +458,33 @@ Theorem yyy : ∀ pol ns r n,
   → (∀ i, i ≤ n → r = nth_r i pol ns).
 Proof.
 intros pol ns r n Hns Hr₀ Hnz Hri i Hin.
-destruct i; auto.
-destruct i.
+bbb.
+remember Hin as H; clear HeqH.
+apply Hri in H.
+apply Nat.le_antisymm; auto.
+clear H.
+revert pol ns r n Hns Hr₀ Hnz Hri Hin.
+induction i; intros.
+ rewrite <- Hr₀; reflexivity.
+
  remember Hin as H; clear HeqH.
  apply Hri in H.
- apply Nat.le_antisymm; auto.
- rewrite <- Hr₀.
- eapply r₁_le_r₀; eauto .
+ simpl in H; simpl.
+ remember (ac_root (Φq pol ns)) as c eqn:Hc .
+ remember (next_pol pol (β ns) (γ ns) c) as pol₁ eqn:Hpol₁ .
+ remember (List.hd phony_ns (newton_segments pol₁)) as ns₁ eqn:Hns₁ .
+ eapply IHi; eauto .
+  Focus 2.
+  apply Nat.le_antisymm.
+   Focus 2.
+   clear H.
+   destruct n.
+    exfalso; revert Hin; apply Nat.nle_succ_0.
 
- destruct i.
+    assert (1 ≤ S n)%nat as H by apply le_n_S, Nat.le_0_l.
+    apply Hri in H.
+    simpl in H.
+    rewrite <- Hc, <- Hpol₁, <- Hns₁ in H; auto.
 bbb.
 *)
 
