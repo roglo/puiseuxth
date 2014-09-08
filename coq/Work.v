@@ -173,7 +173,7 @@ Theorem www : ∀ pol ns c pol₁ r,
   ns ∈ newton_segments pol
   → r = root_multiplicity acf c (Φq pol ns)
   → pol₁ = next_pol pol (β ns) (γ ns) c
-  → length (al pol₁) = r.
+  → length (al pol₁) = S r.
 Proof.
 intros pol ns c pol₁ r Hns Hr Hpol₁.
 subst pol₁.
@@ -353,7 +353,7 @@ destruct r.
         remember Hns₁i as H; clear HeqH.
         eapply k_lt_pol_length in H; [ idtac | rewrite Hns₁; reflexivity ].
         erewrite www with (ns := ns) in H; eauto .
-        apply Nat.lt_le_incl; auto.
+        apply le_S_n; auto.
 qed.
         destruct (eq_nat_dec k₁ (S r)) as [H₁| H₁]; [ idtac | exfalso ].
 
