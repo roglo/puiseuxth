@@ -960,10 +960,10 @@ apply rng_add_compat_r.
 apply apply_lap_mul.
 Qed.
 
-Theorem length_lap_compose_deg_1 : ∀ α (R : ring α) la c,
-  length (lap_compose la [c; 1%K … []]) = length la.
+Theorem length_lap_compose_deg_1 : ∀ α (R : ring α) la c d,
+  length (lap_compose la [c; d … []]) = length la.
 Proof.
-intros α R la c.
+intros α R la c d.
 induction la as [| a]; [ reflexivity | simpl ].
 rewrite length_lap_add; simpl.
 rewrite length_lap_mul; simpl.
