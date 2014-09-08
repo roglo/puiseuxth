@@ -56,7 +56,6 @@ Definition multiplicity_decreases pol ns n :=
 Theorem β_lower_bound_r_const : ∀ pol ns pol₁ ns₁ m r η,
   ns ∈ newton_segments pol
   → pol_in_K_1_m pol m
-  → (∀ i, nth_r i pol ns = r)
   → (0 < r)%nat
   → (1 ≠ 0)%K
   → pol₁ = next_pol pol (β ns) (γ ns) (ac_root (Φq pol ns))
@@ -64,10 +63,11 @@ Theorem β_lower_bound_r_const : ∀ pol ns pol₁ ns₁ m r η,
   → η = 1 # (2 * m * q_of_m m (γ ns))
   → ∀ n nsn,
     zerop_1st_n_const_coeff n pol₁ ns₁ = false
+    → (∀ i, i ≤ S n → nth_r i pol ns = r)
     → nsn = nth_ns n pol₁ ns₁
     → η < β nsn.
 Proof.
-intros pol ns pol₁ ns₁ m r η Hns Hm Hri Hr H₀ Hpol₁ Hns₁ Hη n nsn Hnz Hnsn.
+intros pol ns pol₁ ns₁ m r η Hns Hm Hr H₀ Hpol₁ Hns₁ Hη n nsn Hnz Hri Hnsn.
 remember Hns as H; clear HeqH.
 rewrite zerop_1st_n_const_coeff_false_iff in Hnz.
 eapply r_n_nth_ns in H; eauto .
@@ -82,10 +82,14 @@ eapply next_pol_in_K_1_mq in H; eauto .
 rename H into HK₁.
 pose proof (Hnz O (Nat.le_0_l n)) as Hnz₀.
 simpl in Hnz₀.
+assert (0 ≤ S n)%nat as H by apply Nat.le_0_l.
+apply Hri in H; simpl in H.
+rename H into Hr₀.
+assert (1 ≤ S n)%nat as H by apply le_n_S, Nat.le_0_l.
+apply Hri in H; simpl in H.
+rewrite <- Hpol₁, <- Hns₁ in H.
+rename H into Hr₁.
 remember Hns₁ as H; clear HeqH.
-pose proof (Hri 0%nat) as Hr₀; simpl in Hr₀.
-pose proof (Hri 1%nat) as Hr₁; simpl in Hr₁.
-rewrite <- Hpol₁, <- Hns₁ in Hr₁.
 eapply r_n_next_ns in H; eauto .
 destruct H as (αj₁, (αk₁, H)).
 destruct H as (Hini₁, (Hfin₁, (Hαj₁, Hαk₁))).
@@ -97,6 +101,7 @@ eapply first_n_pol_in_K_1_m_any_r with (ns := ns₁) in H; eauto .
  rename H into HKn.
  remember (nth_pol n pol₁ ns₁) as poln eqn:Hpoln .
  remember Hns₁i as H; clear HeqH.
+bbb.
  eapply nth_in_newton_segments_any_r with (n := n) in H; eauto .
   rename H into Hnsni.
   remember HKn as H; clear HeqH.
@@ -137,6 +142,7 @@ eapply first_n_pol_in_K_1_m_any_r with (ns := ns₁) in H; eauto .
  rewrite <- Hpol₁, <- Hns₁ in H.
  eauto .
 Qed.
+*)
 
 (*
 Theorem k_le_pol_degree : ∀ pol ns k αk,
@@ -446,6 +452,7 @@ destruct H as (Hj₁, (Hr₁, (Hr, _))).
 transitivity k₁; auto.
 Qed.
 
+(*
 Theorem yyy : ∀ pol ns r,
   ns ∈ newton_segments pol
   → nth_r 0 pol ns = r

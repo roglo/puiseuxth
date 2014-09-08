@@ -1981,21 +1981,23 @@ Theorem first_n_pol_in_K_1_m_any_r : ∀ pol ns poln m c r,
   → pol_in_K_1_m pol m
   → c = ac_root (Φq pol ns)
   → q_of_m m (γ ns) = 1%positive
-  → (∀ i, nth_r i pol ns = r)
   → (1 ≠ 0)%K
   → ∀ n,
-    (∀ i, (i ≤ n)%nat → (ps_poly_nth 0 (nth_pol i pol ns) ≠ 0)%ps)
+    (∀ i, i ≤ n → (ps_poly_nth 0 (nth_pol i pol ns) ≠ 0)%ps)
+    → (∀ i, i ≤ n → nth_r i pol ns = r)
     → poln = nth_pol n pol ns
     → pol_in_K_1_m poln m.
 Proof.
-intros pol ns poln m c r Hns HK Hc Hq Hri H₀ n Hnz Hpoln.
+intros pol ns poln m c r Hns HK Hc Hq H₀ n Hnz Hri Hpoln.
 revert pol ns poln m c r Hns HK Hc Hq Hri H₀ Hnz Hpoln.
 induction n; intros.
  simpl in Hpoln; subst poln; assumption.
 
  simpl in Hpoln.
- pose proof (Hri 0%nat) as Hr₀; simpl in Hr₀.
- pose proof (Hri 1%nat) as Hr₁; simpl in Hr₁.
+ assert (0 ≤ S n)%nat as H by apply Nat.le_0_l.
+ apply Hri in H; simpl in H; rename H into Hr₀.
+ assert (1 ≤ S n)%nat as H by apply le_n_S, Nat.le_0_l.
+ apply Hri in H; simpl in H; rename H into Hr₁.
  rewrite <- Hc in Hr₀, Hr₁.
  remember (next_pol pol (β ns) (γ ns) c) as pol₁ eqn:Hpol₁ .
  remember (List.hd phony_ns (newton_segments pol₁)) as ns₁ eqn:Hns₁ .
@@ -2025,31 +2027,35 @@ induction n; intros.
      eapply q_eq_1_any_r with (ns := ns₁); eauto .
      rewrite Hr₁; assumption.
 
-     intros i.
-     pose proof (Hri (S i)) as H; simpl in H.
-     rewrite <- Hc, <- Hpol₁, <- Hns₁ in H; eauto .
+     intros i Hin.
+     remember Hin as H; clear HeqH.
+     apply Nat.succ_le_mono in H.
+     apply Hri in H; simpl in H.
+     rewrite <- Hc, <- Hpol₁, <- Hns₁ in H.
+     eauto .
 
      intros i Hin.
-     apply Nat.succ_le_mono in Hin.
-     apply Hnz in Hin; simpl in Hin.
-     rewrite <- Hc, <- Hpol₁, <- Hns₁ in Hin.
-     assumption.
+     remember Hin as H; clear HeqH.
+     apply Nat.succ_le_mono in H.
+     apply Hnz in H; simpl in H.
+     rewrite <- Hc, <- Hpol₁, <- Hns₁ in H.
+     auto.
 
    clear H.
-   assert (1 ≤ S n) as H by omega.
+   assert (1 ≤ S n)%nat as H by apply le_n_S, Nat.le_0_l.
    apply Hnz in H; simpl in H.
    rewrite <- Hc, <- Hpol₁ in H.
-   assumption.
+   auto.
 
   clear H.
   remember Hns as H; clear HeqH.
   eapply next_has_root_0_or_newton_segments in H; eauto .
   simpl in H.
   rewrite <- Hc, <- Hpol₁ in H.
-  destruct H as [H| H]; auto.
-  assert (1 ≤ S n)%nat as HH by fast_omega .
-  apply Hnz in HH; simpl in HH.
-  rewrite <- Hc, <- Hpol₁ in HH.
+  destruct H as [H₁| H₁]; auto.
+  assert (1 ≤ S n)%nat as H by apply le_n_S, Nat.le_0_l.
+  apply Hnz in H; simpl in H.
+  rewrite <- Hc, <- Hpol₁ in H.
   contradiction.
 Qed.
 
