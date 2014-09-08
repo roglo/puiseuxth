@@ -138,6 +138,7 @@ eapply first_n_pol_in_K_1_m_any_r with (ns := ns₁) in H; eauto .
  eauto .
 Qed.
 
+(*
 Theorem k_le_pol_degree : ∀ pol ns k αk,
   ns ∈ newton_segments pol
   → fin_pt ns = (Qnat k, αk)
@@ -145,6 +146,7 @@ Theorem k_le_pol_degree : ∀ pol ns k αk,
 Proof.
 intros pol ns k αk Hns Hfin.
 bbb.
+*)
 
 Theorem k_lt_pol_length : ∀ pol ns k αk,
   ns ∈ newton_segments pol
@@ -480,6 +482,7 @@ qed.
            apply Hrk.
            eapply k_le_r; eauto .
 Qed.
+*)
 
 (* weak version of r_n_j_0_k_n where r and r₁ are possibly different
    perhaps r_n_j_0_k_n should be rewritten using this theorem *)
@@ -765,6 +768,7 @@ bbb.
       destruct v₁ as [v₁| ].
        destruct r; [ exfalso; revert Hrpos; apply Nat.lt_irrefl | idtac ].
 bbb.
+*)
 
 Theorem yyy : ∀ pol ns r,
   nth_r 0 pol ns = r
@@ -789,6 +793,7 @@ assert (nth_r n pol₁ ns₁ < length (al poln₁))%nat as Hlt.
   rewrite al_Φq.
   erewrite length_char_pol with (pol := poln₁); eauto .
 bbb.
+*)
 
 Theorem zzz : ∀ pol ns c pol₁,
   ns ∈ newton_segments pol
@@ -998,6 +1003,54 @@ destruct r.
            pose proof (Hn j) as H.
            apply Nat.nlt_ge in H.
            erewrite <- nth_r_n in H; eauto .
+bbb.
+
+           2: apply Nat.lt_0_succ.
+
+           Focus 2.
+           apply summation_all_lt in H.
+           eapply Qle_lt_trans; eauto .
+           rewrite Hη, HN.
+           rewrite <- Pos2Z.inj_mul.
+           rewrite <- Pos2Z.inj_mul.
+           remember (2 * m * q₀)%positive as mq eqn:Hmq .
+           rewrite Z.mul_comm.
+           rewrite Z2Nat_inj_mul_pos_r.
+           unfold Qle; simpl.
+           rewrite Pos.mul_1_r.
+           rewrite Pos2Z.inj_mul.
+           rewrite Zpos_P_of_succ_nat.
+           rewrite Nat2Z.inj_mul.
+           remember (Qnum ofs) as nofs eqn:Hnofs .
+           symmetry in Hnofs.
+           destruct nofs as [| nofs| nofs]; simpl; auto.
+            rewrite positive_nat_Z.
+            rewrite Z.mul_succ_l.
+            rewrite positive_nat_Z.
+            rewrite <- Pos2Z.inj_mul.
+            rewrite <- Z.mul_1_r in |- * at 1.
+            eapply Z.le_trans.
+             apply Z.mul_le_mono_nonneg_l with (m := (' Qden ofs)%Z); auto.
+             rewrite Z.one_succ.
+             apply Zlt_le_succ.
+             apply Pos2Z.is_pos.
+
+             apply Z.le_sub_le_add_l.
+             rewrite Z.sub_diag; auto.
+
+            apply Zle_neg_pos.
+
+         Focus 2.
+         apply Qlt_not_le in H.
+         exfalso; apply H.
+         apply Qbar.qfin_le_mono.
+         rewrite <- Hofs.
+         apply Qbar.le_sub_le_add_l.
+         rewrite Qbar.sub_diag.
+         apply order_pol_apply_nonneg.
+          auto.
+
+          Focus 2.
 bbb.
 
   pose proof (exists_pol_ord R pol) as H.
