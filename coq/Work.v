@@ -138,6 +138,65 @@ eapply first_n_pol_in_K_1_m_any_r with (ns := ns₁) in H; eauto .
  eauto .
 Qed.
 
+Theorem k_lt_pol_length : ∀ pol ns k αk,
+  ns ∈ newton_segments pol
+  → fin_pt ns = (Qnat k, αk)
+  → (k < length (al pol))%nat.
+Proof.
+intros pol ns k αk Hns Hfin.
+remember Hns as H; clear HeqH.
+unfold newton_segments, points_of_ps_polynom in H.
+unfold points_of_ps_lap, points_of_ps_lap_gen in H.
+remember (qpower_list 0 (al pol)) as ppl eqn:Hppl .
+remember (filter_finite_ord R ppl) as pts.
+rename H into Hlch.
+remember Hppl as H; clear HeqH.
+remember (List.nth k (al pol) 0%ps) as kps eqn:Hkps .
+eapply in_pts_in_ppl with (h := Qnat k) (hv := αk) (def := 0%ps) in H; eauto .
+ simpl in H.
+ rewrite Nat2Z.id, Nat.sub_0_r in H.
+ rewrite <- Hkps in H.
+ destruct H as (Hkppl, Hkord).
+ remember Hkppl as H; clear HeqH.
+ rewrite Hppl in H.
+ apply in_power_list_lt in H.
+ rewrite nat_num_Qnat in H; auto.
+
+ eapply in_ppl_in_pts; eauto; [ apply Nat.le_0_l | idtac ].
+ rewrite Nat.sub_0_r.
+ eapply order_in_newton_segment; eauto .
+ right; apply List.in_or_app.
+ right; left; auto.
+Qed.
+
+Theorem www : ∀ pol ns c pol₁ r,
+  ns ∈ newton_segments pol
+  → r = root_multiplicity acf c (Φq pol ns)
+  → pol₁ = next_pol pol (β ns) (γ ns) c
+  → length (al pol₁) = r.
+Proof.
+intros pol ns c pol₁ r Hns Hr Hpol₁.
+subst pol₁.
+unfold next_pol; simpl.
+unfold next_lap; simpl.
+rewrite length_lap_mul; simpl.
+subst r.
+unfold root_multiplicity.
+rewrite al_Φq.
+remember Hns as H; clear HeqH.
+apply exists_ini_pt_nat in H.
+destruct H as (j, (αj, Hini)).
+remember Hns as H; clear HeqH.
+apply exists_fin_pt_nat in H.
+destruct H as (k, (αk, Hfin)).
+rewrite Hini.
+remember List.map as f; simpl; subst f.
+rewrite nat_num_Qnat.
+rewrite <- Hini.
+erewrite length_char_pol; eauto .
+bbb.
+*)
+
 (* 2nd attempt *)
 Theorem xxx (* r_n_j_0_k_n *) : ∀ pol ns c pol₁ ns₁ c₁ j₁ αj₁ k₁ αk₁ r r₁,
   ns ∈ newton_segments pol
@@ -291,7 +350,11 @@ destruct r.
         apply end_pt_in in H.
         apply List.in_split in H.
         destruct H as (pts₁, (pts₂, Hpts)).
-bbb.
+        remember Hns₁i as H; clear HeqH.
+        eapply k_lt_pol_length in H; [ idtac | rewrite Hns₁; reflexivity ].
+        erewrite www with (ns := ns) in H; eauto .
+        apply Nat.lt_le_incl; auto.
+qed.
         destruct (eq_nat_dec k₁ (S r)) as [H₁| H₁]; [ idtac | exfalso ].
 
          subst k₁.
