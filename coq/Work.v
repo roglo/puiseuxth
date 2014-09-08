@@ -674,13 +674,15 @@ destruct r.
            apply Nat.lt_0_succ.
 
            intros j Hji.
-bbb.
-           intros j.
            unfold multiplicity_decreases in Hn.
            rewrite Hr in Hn.
            pose proof (Hn j) as H.
            apply Nat.nlt_ge in H.
            erewrite <- nth_r_n in H; eauto .
+           rename H into Hrj.
+           assert (nth_ns j pol ns ∈ newton_segments (nth_pol j pol ns)) as H.
+            Focus 2.
+            eapply r₁_le_r₀ in H; eauto .
 bbb.
 
            2: apply Nat.lt_0_succ.
