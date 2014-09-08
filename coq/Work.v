@@ -458,7 +458,6 @@ Theorem yyy : ∀ pol ns r n,
   → (∀ i, i ≤ n → r = nth_r i pol ns).
 Proof.
 intros pol ns r n Hns Hr₀ Hnz Hri i Hin.
-bbb.
 remember Hin as H; clear HeqH.
 apply Hri in H.
 apply Nat.le_antisymm; auto.
@@ -467,24 +466,53 @@ revert pol ns r n Hns Hr₀ Hnz Hri Hin.
 induction i; intros.
  rewrite <- Hr₀; reflexivity.
 
- remember Hin as H; clear HeqH.
- apply Hri in H.
- simpl in H; simpl.
- remember (ac_root (Φq pol ns)) as c eqn:Hc .
- remember (next_pol pol (β ns) (γ ns) c) as pol₁ eqn:Hpol₁ .
- remember (List.hd phony_ns (newton_segments pol₁)) as ns₁ eqn:Hns₁ .
- eapply IHi; eauto .
-  Focus 2.
-  apply Nat.le_antisymm.
+ destruct n.
+  exfalso; revert Hin; apply Nat.nle_succ_0.
+
+  remember Hin as H; clear HeqH.
+  apply Hri in H.
+  simpl in H; simpl.
+  remember (ac_root (Φq pol ns)) as c eqn:Hc .
+  remember (next_pol pol (β ns) (γ ns) c) as pol₁ eqn:Hpol₁ .
+  remember (List.hd phony_ns (newton_segments pol₁)) as ns₁ eqn:Hns₁ .
+  eapply IHi; eauto .
+bbb.
+
+   Focus 2.
+   apply Nat.le_antisymm.
+    clear H.
+    remember Hns as H; clear HeqH.
+    eapply r₁_le_r₀ in H; eauto .
+     rewrite Hr₀ in H; simpl in H.
+     rewrite <- Hc, <- Hpol₁, <- Hns₁ in H; auto.
+
+     clear H.
+     assert (1 ≤ S n)%nat as H by apply le_n_S, Nat.le_0_l.
+     apply Hnz in H; auto.
+
+    clear H.
+    assert (1 ≤ S n)%nat as H by apply le_n_S, Nat.le_0_l.
+    apply Hri in H; simpl in H.
+    rewrite <- Hc, <- Hpol₁, <- Hns₁ in H.
+    auto.
+
    Focus 2.
    clear H.
-   destruct n.
-    exfalso; revert Hin; apply Nat.nle_succ_0.
+   intros j Hji.
+   apply Nat.succ_le_mono in Hji.
+   eapply Nat.le_trans in Hin; eauto .
+   apply Hnz in Hin; simpl in Hin.
+   rewrite <- Hc, <- Hpol₁, <- Hns₁ in Hin.
+   auto.
 
-    assert (1 ≤ S n)%nat as H by apply le_n_S, Nat.le_0_l.
-    apply Hri in H.
-    simpl in H.
-    rewrite <- Hc, <- Hpol₁, <- Hns₁ in H; auto.
+   Focus 2.
+   clear H.
+   intros j Hji.
+   apply Nat.succ_le_mono in Hji.
+   eapply Nat.le_trans in Hin; eauto .
+   apply Hri in Hin; simpl in Hin.
+   rewrite <- Hc, <- Hpol₁, <- Hns₁ in Hin.
+   auto.
 bbb.
 *)
 
