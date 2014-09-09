@@ -292,6 +292,16 @@ destruct (ps_zerop _ (ps_poly_nth 0 pol₁)) as [H₁| H₁].
     apply stretch_morph; [ reflexivity | idtac ].
     unfold series_add; simpl.
     constructor; intros i; simpl.
+    destruct (lt_dec i (Z.to_nat (p_of_m m₁ (γ ns₂)))) as [H₁| H₁].
+     destruct (zerop i) as [H₂| H₂].
+      subst i; simpl.
+      rewrite rng_add_0_r.
+      unfold root_tail_series_from_cγ_list; simpl.
+      rewrite <- Hc₁.
+      destruct (ps_zerop R (ps_poly_nth 0 pol₁)) as [H₂| H₂]; auto.
+      contradiction.
+
+      rewrite rng_add_0_l.
 bbb.
 
           constructor; intros i; simpl.
