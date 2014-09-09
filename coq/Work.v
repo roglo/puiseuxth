@@ -186,6 +186,7 @@ destruct (ps_zerop _ (ps_poly_nth 0 pol₁)) as [H₁| H₁].
    rewrite Zposnat2Znat; auto.
    eapply αj_m_eq_p_r; eauto .
 
+  rename H₁ into Hnz₂.
   remember Hns₁₁ as H; clear HeqH.
   symmetry in Hr₁.
   eapply r_n_next_ns in H; eauto .
@@ -240,10 +241,16 @@ destruct (ps_zerop _ (ps_poly_nth 0 pol₁)) as [H₁| H₁].
    rewrite series_shift_0.
    rewrite Z.sub_0_r.
    apply mkps_morphism.
+    remember Hns₁₁ as H; clear HeqH.
+    eapply next_has_root_0_or_newton_segments in H; eauto .
+    simpl in H; rewrite <- Hc₁, <- Hpol₂ in H.
+    destruct H as [| H]; [ contradiction | idtac ].
+    rename H into Hns₂nz; move Hns₂nz before Hnz₂.
+    remember Hns₂ as H; clear HeqH.
+    eapply List_hd_in in H; eauto .
+    rename H into Hns₂i; move Hns₂i before ns₂.
 bbb.
 
-      apply mkps_morphism.
-       remember Hns₂ as Hns₂₁; clear HeqHns₂₁.
        eapply List_hd_in in Hns₂₁; eauto .
         remember Hns₂₁ as H; clear HeqH.
         eapply den_αj_divides_num_αj_m in H; eauto .
