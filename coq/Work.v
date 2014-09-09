@@ -553,31 +553,34 @@ induction n; intros.
  rename H into Hrpos; move Hrpos before Hnz₁.
  remember Hns₁ as H; clear HeqH.
  eapply r_n_next_ns in H; eauto .
+ move H before Hnz₁.
  destruct H as (αj₁, (αk₁, H)).
  destruct H as (Hini₁, (Hfin₁, (Hαj₁, Hαk₁))).
  remember Hns₁ as H; clear HeqH.
  eapply hd_newton_segments in H; eauto .
  rename H into Hns₁i; move Hns₁i before Hns₁.
+ remember Hns as H; clear HeqH.
+ eapply next_pol_in_K_1_mq in H; eauto .
+ remember (m * q₀)%positive as m₁ eqn:Hm₁.
+ rename H into HK₁; move HK₁ before Hnz₁.
+ move Hm₁ before Hq₀.
  rewrite Hini₁, Hfin₁; simpl.
  rewrite Hαk₁; simpl.
  rewrite Qnum_inv_Qnat_sub; auto.
  rewrite Qden_inv_Qnat_sub; auto.
  rewrite Z.add_0_r, Z.mul_1_r.
- remember (root_tail_series_from_cγ_list (m * q₀) pol₁ ns₁) as t.
+ remember (root_tail_series_from_cγ_list m₁ pol₁ ns₁) as t.
  remember (null_coeff_range_length R {| terms := t |} 0) as v eqn:Hv .
  symmetry in Hv.
  destruct v; [ idtac | constructor ].
  apply Qbar.qfin_le_mono.
  rewrite Nat.sub_0_r.
  rewrite Z.mul_shuffle0, Pos_mul_shuffle0.
- remember (m * q₀)%positive as m₁.
  rewrite Pos2Z.inj_mul; auto.
  rewrite Z.div_mul_cancel_r; auto.
  erewrite αj_m_eq_p_r with (ns₁ := ns₁); eauto .
 bbb.
 subgoal 2 is:
- pol_in_K_1_m pol₁ m₁
-subgoal 3 is:
  (1 ≠ 0)%K
 
     rewrite Pos2Z.inj_mul; auto.
