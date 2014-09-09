@@ -830,6 +830,7 @@ destruct (ps_zerop _ (ps_poly_nth 0 pol₁)) as [H₁| H₁].
 (*
       rewrite find_coeff_iter_succ.
 *)
+Abort. (*
 bbb.
       remember (S id) as x; simpl; subst x.
       destruct (ps_zerop R (ps_poly_nth 0 pol₁)) as [H₄| H₄].
@@ -1231,6 +1232,7 @@ Theorem root_tail_from_0_const_r : ∀ pol ns c pol₁ ns₁ c₁ m q₀ b r,
 Proof.
 intros pol ns c pol₁ ns₁ c₁ m q₀ b r Hns Hm Hq₀ Hc Hpol₁ Hns₁ Hc₁ Hr₀ Hr₁ H₀.
 remember (m * q₀)%positive as m₁.
+Abort. (*
 bbb.
 destruct b; [ subst m₁; eapply root_tail_split_1st_any_r; eauto  | idtac ].
 remember (S b) as b₁ eqn:Hb₁ .
@@ -2512,14 +2514,15 @@ Theorem root_tail_when_r_r : ∀ pol ns pol₁ ns₁ c m q₀ b r,
   → (1 ≠ 0)%K
   → ∀ n,
     (∀ i, (i ≤ S n)%nat → (nth_r i pol ns = r))
+    → zerop_1st_n_const_coeff n pol₁ ns₁ = false
     → (root_tail (m * q₀) b pol₁ ns₁ =
        root_head b n pol₁ ns₁ +
          ps_monom 1%K (γ_sum b n pol₁ ns₁) *
          root_tail (m * q₀) (b + S n) pol₁ ns₁)%ps.
 Proof.
-intros pol ns pol₁ ns₁ c m q₀ b r Hns Hm Hq₀ Hc Hpol₁ Hns₁ H₀ n Hri.
+intros pol ns pol₁ ns₁ c m q₀ b r Hns Hm Hq₀ Hc Hpol₁ Hns₁ H₀ n Hri Hnz.
 remember (m * q₀)%positive as m₁.
-revert pol ns pol₁ ns₁ Hns Hm Hq₀ Hc Hpol₁ Hns₁ Hri.
+revert pol ns pol₁ ns₁ Hns Hm Hq₀ Hc Hpol₁ Hns₁ Hri Hnz.
 revert b c m q₀ m₁ Heqm₁.
 induction n; intros.
  unfold root_head; simpl.
@@ -3296,6 +3299,53 @@ destruct r.
         apply nth_r_n; eauto .
         erewrite nth_c_n; eauto .
 
+  pose proof (exists_pol_ord R pol) as H.
+  destruct H as (m, Hm).
+  destruct (ac_zerop 1%K) as [H₀| H₀].
+   exists 0%ps.
+   unfold ps_pol_apply, apply_poly, apply_lap; simpl.
+   remember (al pol₁) as la; clear Heqla.
+   destruct la as [| a]; [ reflexivity | simpl ].
+   rewrite rng_mul_0_r, rng_add_0_l.
+   apply eq_1_0_ps_0; assumption.
+
+   destruct (ps_zerop R (ps_poly_nth 0 pol₁)) as [H₁| H₁].
+    exists 0%ps.
+    apply a₀_0_root_0; assumption.
+
+    remember (List.hd phony_ns (newton_segments pol₁)) as ns₁ eqn:Hns₁ .
+    remember (q_of_m m (γ ns)) as q₀ eqn:Hq₀ .
+    remember (root_tail (m * q₀) 0 pol₁ ns₁) as s eqn:Hs .
+    remember (order (ps_pol_apply pol₁ s)) as ofs eqn:Hofs .
+    symmetry in Hofs.
+    destruct ofs as [ofs| ].
+     subst s.
+     remember (1 # 2 * m * q₀) as η eqn:Hη .
+     remember (Z.to_nat (2 * ' m * ' q₀ * Qnum ofs)) as N eqn:HN .
+     apply eq_Qbar_eq in Hofs.
+     remember (zerop_1st_n_const_coeff N pol₁ ns₁) as z eqn:Hz .
+     symmetry in Hz.
+     destruct z.
+      unfold root_tail in Hofs.
+      destruct N.
+       exists 0%ps.
+       simpl in Hz.
+       destruct (ps_zerop R (ps_poly_nth 0 pol₁)); [ contradiction | idtac ].
+       discriminate Hz.
+
+       apply lowest_zerop_1st_n_const_coeff in Hz.
+       destruct Hz as (i, (Hin, (Hji, Hz))).
+       destruct Hji as [Hi| Hpi].
+        subst i.
+        simpl in Hz.
+        destruct (ps_zerop R (ps_poly_nth 0 pol₁)); [ contradiction | idtac ].
+        discriminate Hz.
+
+        eapply root_when_fin; eauto .
+bbb.
+     rewrite root_tail_when_r_r with (n := N) in Hofs; eauto .
+
+bbb.
   pose proof (exists_pol_ord R pol) as H.
   destruct H as (m, Hm).
   destruct (ac_zerop 1%K) as [H₀| H₀].
