@@ -142,16 +142,6 @@ eapply first_n_pol_in_K_1_m_any_r with (ns := ns₁) in H; eauto .
  eauto .
 Qed.
 
-(*
-Theorem k_le_pol_degree : ∀ pol ns k αk,
-  ns ∈ newton_segments pol
-  → fin_pt ns = (Qnat k, αk)
-  → (k ≤ degree (ps_zerop _) pol)%nat.
-Proof.
-intros pol ns k αk Hns Hfin.
-bbb.
-*)
-
 Theorem k_lt_pol_length : ∀ pol ns k αk,
   ns ∈ newton_segments pol
   → fin_pt ns = (Qnat k, αk)
@@ -622,8 +612,19 @@ induction n; intros.
   eapply IHn with (ns := ns₁) (pol := pol₁); eauto .
    symmetry in Hr₁; symmetry.
    eapply q_eq_1_any_r with (pol := pol₁); eauto .
-bbb.
-*)
+
+   intros i Hin.
+   apply Nat.succ_le_mono in Hin.
+   apply Hpsi in Hin; simpl in Hin.
+   rewrite <- Hc, <- Hpol₁, <- Hns₁ in Hin.
+   assumption.
+
+   intros i Hin.
+   apply Nat.succ_le_mono in Hin.
+   apply Hri in Hin; simpl in Hin.
+   rewrite <- Hc, <- Hpol₁, <- Hns₁ in Hin.
+   assumption.
+Qed.
 
 Theorem zzz : ∀ pol ns c pol₁,
   ns ∈ newton_segments pol
