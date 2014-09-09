@@ -263,7 +263,8 @@ induction i; intros.
   destruct (ps_zerop _ (ps_poly_nth 0 pol₁)) as [H₂| H₂].
    subst sn; simpl.
    destruct (ps_zerop R (ps_poly_nth 0 pol₁)) as [H₃| H₃].
-    destruct n; [ exfalso; fast_omega Hin | simpl ].
+    apply lt_S_n in Hin.
+    destruct n; [ exfalso; revert Hin; apply Nat.nlt_0_r | simpl ].
     destruct (ps_zerop R (ps_poly_nth 0 pol₁)) as [H₄| H₄].
      reflexivity.
 
@@ -320,7 +321,8 @@ induction i; intros.
     intros j Hjn.
     destruct j; auto.
     destruct j; [ simpl; rewrite <- Hc, <- Hpol₁; auto | idtac ].
-    exfalso; fast_omega Hjn.
+    apply le_S_n in Hjn.
+    exfalso; revert Hjn; apply Nat.nle_succ_0.
 Qed.
 
 Theorem find_coeff_more_iter : ∀ pol ns pow m i n n' r,
@@ -377,7 +379,8 @@ destruct (ps_zerop _ (ps_poly_nth 0 pol₁)) as [H₂| H₂].
   eapply first_n_pol_in_K_1_m_any_r with (n := 1%nat); eauto .
    intros j Hj.
    destruct j; auto.
-   destruct j; [ simpl | exfalso; fast_omega Hj ].
+   apply le_S_n in Hj.
+   apply Nat.le_0_r in Hj; rewrite Hj; simpl.
    rewrite <- Hc, <- Hpol₁; assumption.
 
    simpl; rewrite <- Hc; auto.
@@ -392,7 +395,8 @@ destruct (ps_zerop _ (ps_poly_nth 0 pol₁)) as [H₂| H₂].
    eapply first_n_pol_in_K_1_m_any_r with (n := 1%nat); eauto .
     intros j Hj.
     destruct j; auto.
-    destruct j; [ simpl | exfalso; fast_omega Hj ].
+    apply le_S_n in Hj.
+    apply Nat.le_0_r in Hj; rewrite Hj; simpl.
     rewrite <- Hc, <- Hpol₁; assumption.
 
     simpl; rewrite <- Hc; auto.
@@ -443,9 +447,13 @@ destruct (ps_zerop _ (ps_poly_nth 0 pol₁)) as [H₁| H₁].
  remember Hns as H; clear HeqH.
  eapply multiplicity_is_pos in H; eauto .
  rename H into Hrpos.
- assert (0 < Z.of_nat r)%Z as Hrpos₁ by fast_omega Hrpos.
- assert (r ≠ 0)%nat as Hrpos₂ by fast_omega Hrpos.
- assert (Z.of_nat r ≠ 0%Z)%nat as Hrpos₃ by fast_omega Hrpos.
+ remember Hrpos as H; clear HeqH.
+ apply Nat2Z.inj_lt in H; simpl in H.
+ rename H into Hrpos₁.
+ remember Hrpos as H; clear HeqH.
+ apply Nat.sub_gt in H.
+ rewrite Nat.sub_0_r in H.
+ rename H into Hrpos₃.
  remember Hns as H; clear HeqH.
  eapply next_has_root_0_or_newton_segments in H; eauto .
  simpl in H; rewrite <- Hc, <- Hpol₁ in H.
@@ -624,7 +632,8 @@ destruct (ps_zerop _ (ps_poly_nth 0 pol₁)) as [H₁| H₁].
       rewrite <- Hc₁, <- Hpol₂, <- Hns₂.
       erewrite <- next_pow_eq_p in H₁; eauto .
       destruct (ps_zerop R (ps_poly_nth 0 pol₁)) as [| H₃]; auto.
-      destruct i; [ exfalso; fast_omega H₂ | clear H₂; simpl ].
+      destruct i; [ exfalso; revert H₂; apply Nat.lt_irrefl | idtac ].
+      clear H₂; simpl.
       destruct (ps_zerop R (ps_poly_nth 0 pol₂)) as [| H₅]; auto.
       remember (next_pow 0 ns₂ m₁) as p₂ eqn:Hp₂ .
       remember (Nat.compare p₂ (S i)) as cmp; symmetry in Heqcmp.
