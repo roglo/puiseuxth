@@ -589,6 +589,7 @@ induction n; intros.
 
    eapply multiplicity_1_remains; eauto .
 Qed.
+*)
 
 Theorem zzz : ∀ pol ns c pol₁,
   ns ∈ newton_segments pol
@@ -956,6 +957,18 @@ destruct r.
 
            symmetry.
            apply nth_c_n; eauto .
+
+         eapply order_root_tail_nonneg_any_r; eauto .
+
+      intros i.
+      unfold multiplicity_decreases in Hn.
+      rewrite <- Hc, Hr in Hn.
+      pose proof (Hn i) as H.
+      erewrite <- nth_r_n in H; eauto .
+      apply Nat.nlt_ge in H.
+      symmetry.
+      eapply r_le_eq_incl; eauto .
+       intros j HjN.
 bbb.
 Check order_root_tail_nonneg.
 
