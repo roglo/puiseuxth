@@ -206,7 +206,7 @@ destruct (ps_zerop _ (ps_poly_nth 0 pol₁)) as [H₁| H₁].
   remember (Pos.of_nat r) as rq eqn:Hrq .
   remember (Qnum αj₁ * ' Qden αk₁)%Z as nd.
   remember (Qden αj₁ * Qden αk₁ * rq)%positive as dd.
-  remember (dd * m₁)%positive as x.
+  remember (dd * m₁)%positive as x eqn:Hx.
   rewrite Z.mul_shuffle0, Pos_mul_shuffle0, Pos2Z.inj_mul.
   rewrite Z.div_mul_cancel_r; auto.
   subst x.
@@ -216,14 +216,14 @@ destruct (ps_zerop _ (ps_poly_nth 0 pol₁)) as [H₁| H₁].
   rewrite Z.mul_add_distr_r.
   rewrite Pos.mul_comm.
   rewrite Pos2Z.inj_mul, Z.mul_assoc.
-  remember (nd * ' m₁ * ' dd)%Z as x.
-  remember (Qnum αj₂ * ' m₁ / ' (Qden αj₂ * rq))%Z as y₁.
-  assert (x <= x + y₁ * ' dd * ' dd)%Z as Hle.
+  remember (nd * ' m₁ * ' dd)%Z as x eqn:Hx.
+  remember (Qnum αj₂ * ' m₁ / ' (Qden αj₂ * rq))%Z as y eqn:Hy.
+  assert (x <= x + y * ' dd * ' dd)%Z as Hle.
    apply Z.le_sub_le_add_l.
    rewrite Z.sub_diag.
    apply Z.mul_nonneg_nonneg; auto.
    apply Z.mul_nonneg_nonneg; auto.
-   subst y₁.
+   subst y.
    destruct (Qnum αj₂); simpl.
     rewrite Z.div_0_l; auto; reflexivity.
 
@@ -235,7 +235,7 @@ destruct (ps_zerop _ (ps_poly_nth 0 pol₁)) as [H₁| H₁].
    rewrite Z.min_l; auto.
    rewrite Z.min_r; auto.
    clear Hle.
-   rewrite Z.sub_diag; simpl.
+   rewrite Z.sub_diag, Z.add_simpl_l; simpl.
    rewrite ps_adjust_eq with (n := O) (k := (dd * dd)%positive).
    unfold adjust_ps; simpl.
    rewrite series_shift_0.
@@ -249,6 +249,12 @@ destruct (ps_zerop _ (ps_poly_nth 0 pol₁)) as [H₁| H₁].
     remember Hns₂ as H; clear HeqH.
     eapply List_hd_in in H; eauto .
     rename H into Hns₂i; move Hns₂i before ns₂.
+    erewrite αj_m_eq_p_r in Hy; eauto; subst rq.
+    rewrite Pos2Z.inj_mul, Z.mul_shuffle0, Zposnat2Znat in Hy; auto.
+    rewrite <- Z.mul_assoc in Hy.
+    rewrite <- Zposnat2Znat in Hy; auto; simpl in Hy.
+    rewrite Z.div_mul in Hy; eauto .
+    subst y.
 bbb.
 
        eapply List_hd_in in Hns₂₁; eauto .
