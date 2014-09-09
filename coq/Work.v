@@ -514,46 +514,71 @@ eapply IHi; eauto .
  rewrite <- Hc, <- Hpol₁, <- Hns₁ in Hin; auto.
 Qed.
 
-Theorem order_root_tail_nonneg_any_r : ∀ pol ns c pol₁ ns₁ m q₀ n,
+Theorem order_root_tail_nonneg_any_r : ∀ pol ns c pol₁ ns₁ m q₀ n r,
   ns ∈ newton_segments pol
   → pol_in_K_1_m pol m
   → q₀ = q_of_m m (γ ns)
   → c = ac_root (Φq pol ns)
-(*
-  → root_multiplicity acf c (Φq pol ns) = 1%nat
-*)
+  → (∀ i, i ≤ S n → (ps_poly_nth 0 (nth_pol i pol ns) ≠ 0)%ps)
+  → (∀ i, i ≤ S n → nth_r i pol ns = r)
   → pol₁ = next_pol pol (β ns) (γ ns) c
   → ns₁ = List.hd phony_ns (newton_segments pol₁)
   → (0 ≤ order (root_tail (m * q₀) n pol₁ ns₁))%Qbar.
 Proof.
-intros pol ns c pol₁ ns₁ m q₀ n Hns Hm Hq₀ Hc Hpol₁ Hns₁.
+intros pol ns c pol₁ ns₁ m q₀ n r Hns Hm Hq₀ Hc Hpsi Hri Hpol₁ Hns₁.
 unfold root_tail.
 remember (zerop_1st_n_const_coeff n pol₁ ns₁) as z₁ eqn:Hz₁ .
 symmetry in Hz₁.
 destruct z₁; [ rewrite order_0; constructor | idtac ].
-revert pol ns c pol₁ ns₁ m q₀ Hns Hm Hq₀ Hc Hpol₁ Hns₁ Hz₁.
+revert pol ns c pol₁ ns₁ m q₀ r Hns Hm Hq₀ Hc Hpol₁ Hns₁ Hz₁ Hpsi Hri.
 induction n; intros.
  simpl.
  unfold order; simpl.
+ pose proof (Hpsi 1%nat (Nat.le_refl 1)) as H; simpl in H.
+ rewrite <- Hc, <- Hpol₁ in H.
+ rename H into Hnz₁; move Hnz₁ before Hns₁.
+ pose proof (Hri 0%nat Nat.le_0_1) as H.
+ simpl in H.
+ rewrite <- Hc in H.
+ rename H into Hr₀; move Hr₀ before Hc.
+ pose proof (Hri 1%nat (Nat.le_refl 1)) as H.
+ simpl in H.
+ rewrite <- Hc, <- Hpol₁, <- Hns₁ in H.
+ remember (ac_root (Φq pol₁ ns₁)) as c₁ eqn:Hc₁ .
+ move Hc₁ before Hns₁.
+ move c₁ before ns₁.
+ rename H into Hr₁; move Hr₁ before Hc₁.
+ remember Hc as H; clear HeqH.
+ eapply multiplicity_is_pos in H; eauto .
+ rename H into Hrpos; move Hrpos before Hnz₁.
  remember Hns₁ as H; clear HeqH.
  eapply r_n_next_ns in H; eauto .
-  destruct H as (αj₁, (αk₁, H)).
-  rewrite Nat.add_0_r in H.
-  remember (root_multiplicity acf c (Φq pol ns)) as r eqn:Hr .
-  destruct H as (Hini₁, (Hfin₁, (Hαj₁, Hαk₁))).
-  rewrite Hini₁, Hfin₁; simpl.
-  rewrite Hαk₁; simpl.
-  rewrite Qnum_inv_Qnat_sub; auto.
-   rewrite Qden_inv_Qnat_sub; auto.
-    rewrite Z.add_0_r, Z.mul_1_r.
-    remember (root_tail_series_from_cγ_list (m * q₀) pol₁ ns₁) as t.
-    remember (null_coeff_range_length R {| terms := t |} 0) as v eqn:Hv .
-    symmetry in Hv.
-    destruct v; [ idtac | constructor ].
-    apply Qbar.qfin_le_mono.
-    rewrite Nat.sub_0_r.
-    rewrite Z.mul_shuffle0, Pos_mul_shuffle0.
-    remember (m * q₀)%positive as m₁.
+ destruct H as (αj₁, (αk₁, H)).
+ destruct H as (Hini₁, (Hfin₁, (Hαj₁, Hαk₁))).
+ rewrite Hini₁, Hfin₁; simpl.
+ rewrite Hαk₁; simpl.
+ rewrite Qnum_inv_Qnat_sub; auto.
+ rewrite Qden_inv_Qnat_sub; auto.
+ rewrite Z.add_0_r, Z.mul_1_r.
+ remember (root_tail_series_from_cγ_list (m * q₀) pol₁ ns₁) as t.
+ remember (null_coeff_range_length R {| terms := t |} 0) as v eqn:Hv .
+ symmetry in Hv.
+ destruct v; [ idtac | constructor ].
+ apply Qbar.qfin_le_mono.
+ rewrite Nat.sub_0_r.
+ rewrite Z.mul_shuffle0, Pos_mul_shuffle0.
+ remember (m * q₀)%positive as m₁.
+ rewrite Pos2Z.inj_mul; auto.
+ rewrite Z.div_mul_cancel_r; auto.
+ erewrite αj_m_eq_p_r with (ns₁ := ns₁); eauto .
+bbb.
+subgoal 2 is:
+ ns₁ ∈ newton_segments pol₁
+subgoal 3 is:
+ pol_in_K_1_m pol₁ m₁
+subgoal 4 is:
+ (1 ≠ 0)%K
+
     rewrite Pos2Z.inj_mul; auto.
     rewrite Z.div_mul_cancel_r; auto.
     erewrite αj_m_eq_p_r; eauto .
