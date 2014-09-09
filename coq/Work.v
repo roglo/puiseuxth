@@ -646,6 +646,7 @@ destruct (ps_zerop _ (ps_poly_nth 0 pol₁)) as [H₁| H₁].
        apply Nat.lt_le_incl, Nat.nlt_ge in Heqcmp.
        contradiction.
 
+     clear x Hx.
      apply Nat.nlt_ge in H₁.
      destruct (zerop i) as [H₂| H₂].
       subst i; simpl.
@@ -660,7 +661,7 @@ destruct (ps_zerop _ (ps_poly_nth 0 pol₁)) as [H₁| H₁].
       remember (i - n₂)%nat as id.
       unfold root_tail_series_from_cγ_list.
 bbb.
-      clear x Hx.
+
       remember (S id) as x; simpl; subst x.
       destruct (ps_zerop R (ps_poly_nth 0 pol₁)) as [H₄| H₄].
        contradiction.
@@ -764,6 +765,7 @@ bbb.
    rewrite H₂ in Hrpos₂.
    apply Hrpos₂; reflexivity.
 Qed.
+*)
 
 (* cf nth_in_newton_segments *)
 Theorem nth_in_newton_segments_any_r : ∀ pol₁ ns₁ c₁ poln nsn n r,
@@ -1765,6 +1767,7 @@ destruct z₁.
          apply Z.lt_le_incl.
          eapply p_is_pos; eauto .
 Qed.
+*)
 
 Theorem a₀_neq_0 : ∀ pol ns αj,
   ns ∈ newton_segments pol
