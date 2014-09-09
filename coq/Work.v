@@ -379,7 +379,7 @@ Theorem find_coeff_iter_succ : ∀ pol ns pow m i n r,
   ns ∈ newton_segments pol
   → pol_in_K_1_m pol m
   → q_of_m m (γ ns) = 1%positive
-  → (∀ j, nth_r j pol ns = r)
+  → (∀ j, j ≤ n → nth_r j pol ns = r)
   → (1 ≠ 0)%K
   → (i < n)%nat
   → (find_coeff n pow m pol ns i =
@@ -398,7 +398,7 @@ induction i; intros.
  apply nat_compare_lt in Hcmp₁.
  exfalso; revert Hcmp₁; apply Nat.nlt_0_r.
 
- pose proof (Hri O) as Hr₀; simpl in Hr₀.
+ pose proof (Hri O (Nat.le_0_l n)) as Hr₀; simpl in Hr₀.
  assert (0 < r)%nat as Hrp.
   destruct r; [ idtac | apply Nat.lt_0_succ ].
   exfalso; revert Hr₀.
@@ -411,7 +411,9 @@ induction i; intros.
   remember (Nat.compare pow (S i)) as cmp₁ eqn:Hcmp₁ .
   symmetry in Hcmp₁.
   destruct cmp₁; auto.
-  pose proof (Hri 1%nat) as Hr₁; simpl in Hr₁.
+  assert (1 ≤ sn)%nat as H by (rewrite Heqsn; apply le_n_S, Nat.le_0_l).
+  apply Hri in H; simpl in H.
+  rename H into Hr₁.
   remember (ac_root (Φq pol ns)) as c eqn:Hc .
   remember (next_pol pol (β ns) (γ ns) c) as pol₁ eqn:Hpol₁ .
   remember (List.hd phony_ns (newton_segments pol₁)) as ns₁ eqn:Hns₁ .
@@ -468,9 +470,10 @@ induction i; intros.
       symmetry in Hr₁.
       eapply q_eq_1_any_r; eauto .
 
-      intros j.
-      pose proof (Hri (S j)) as H; simpl in H.
-      rewrite <- Hc, <- Hpol₁, <- Hns₁ in H.
+      intros j Hjn.
+      apply Nat.succ_le_mono in Hjn.
+      apply Hri in Hjn; simpl in Hjn.
+      rewrite <- Hc, <- Hpol₁, <- Hns₁ in Hjn.
       assumption.
 
     intros j Hjn.
@@ -478,6 +481,15 @@ induction i; intros.
     destruct j; [ simpl; rewrite <- Hc, <- Hpol₁; auto | idtac ].
     apply le_S_n in Hjn.
     exfalso; revert Hjn; apply Nat.nle_succ_0.
+
+    intros j Hjn.
+    destruct j; auto.
+    destruct j; [ simpl; rewrite <- Hc, <- Hpol₁; auto | idtac ].
+     rewrite <- Hns₁, Hr₁, Hr₀.
+     rewrite Nat.add_0_r; reflexivity.
+
+     apply le_S_n in Hjn.
+     exfalso; revert Hjn; apply Nat.nle_succ_0.
 Qed.
 
 Theorem find_coeff_more_iter : ∀ pol ns pow m i n n' r,
@@ -815,6 +827,10 @@ destruct (ps_zerop _ (ps_poly_nth 0 pol₁)) as [H₁| H₁].
       remember (Z.to_nat (p_of_m m₁ (γ ns₂))) as n₂.
       remember (i - n₂)%nat as id.
       unfold root_tail_series_from_cγ_list.
+(*
+      rewrite find_coeff_iter_succ.
+*)
+bbb.
       remember (S id) as x; simpl; subst x.
       destruct (ps_zerop R (ps_poly_nth 0 pol₁)) as [H₄| H₄].
        contradiction.
@@ -2574,6 +2590,7 @@ bbb.
    apply zerop_1st_n_const_coeff_false_iff.
    assumption.
 Qed.
+*)
 
 Theorem β_lower_bound_r_const : ∀ pol ns pol₁ ns₁ m r η,
   ns ∈ newton_segments pol
@@ -3304,8 +3321,8 @@ destruct r.
      remember (1 # 2 * m * q₀) as η eqn:Hη .
      remember (Z.to_nat (2 * ' m * ' q₀ * Qnum ofs)) as N eqn:HN .
      apply eq_Qbar_eq in Hofs.
-     rewrite root_tail_when_r_r with (n := N) in Hofs; eauto .
 bbb.
+     rewrite root_tail_when_r_r with (n := N) in Hofs; eauto .
       rewrite Nat.add_0_l in Hofs.
       remember (zerop_1st_n_const_coeff N pol₁ ns₁) as z eqn:Hz .
       symmetry in Hz.
