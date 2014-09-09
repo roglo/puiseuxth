@@ -526,18 +526,59 @@ Theorem order_root_tail_nonneg_any_r : ∀ pol ns c pol₁ ns₁ m q₀ n,
   → ns₁ = List.hd phony_ns (newton_segments pol₁)
   → (0 ≤ order (root_tail (m * q₀) n pol₁ ns₁))%Qbar.
 Proof.
+intros pol ns c pol₁ ns₁ m q₀ n Hns Hm Hq₀ Hc Hpol₁ Hns₁.
+unfold root_tail.
+remember (zerop_1st_n_const_coeff n pol₁ ns₁) as z₁ eqn:Hz₁ .
+symmetry in Hz₁.
+destruct z₁; [ rewrite order_0; constructor | idtac ].
+revert pol ns c pol₁ ns₁ m q₀ Hns Hm Hq₀ Hc Hpol₁ Hns₁ Hz₁.
+induction n; intros.
+ simpl.
+ unfold order; simpl.
+ remember Hns₁ as H; clear HeqH.
+ eapply r_n_next_ns in H; eauto .
+  destruct H as (αj₁, (αk₁, H)).
+  rewrite Nat.add_0_r in H.
+  remember (root_multiplicity acf c (Φq pol ns)) as r eqn:Hr .
+  destruct H as (Hini₁, (Hfin₁, (Hαj₁, Hαk₁))).
+  rewrite Hini₁, Hfin₁; simpl.
+  rewrite Hαk₁; simpl.
+  rewrite Qnum_inv_Qnat_sub; auto.
+   rewrite Qden_inv_Qnat_sub; auto.
+    rewrite Z.add_0_r, Z.mul_1_r.
+    remember (root_tail_series_from_cγ_list (m * q₀) pol₁ ns₁) as t.
+    remember (null_coeff_range_length R {| terms := t |} 0) as v eqn:Hv .
+    symmetry in Hv.
+    destruct v; [ idtac | constructor ].
+    apply Qbar.qfin_le_mono.
+    rewrite Nat.sub_0_r.
+    rewrite Z.mul_shuffle0, Pos_mul_shuffle0.
+    remember (m * q₀)%positive as m₁.
+    rewrite Pos2Z.inj_mul; auto.
+    rewrite Z.div_mul_cancel_r; auto.
+    erewrite αj_m_eq_p_r; eauto .
+     rewrite <- Hr, Nat.add_0_r.
+     rewrite Z.mul_shuffle0.
+     rewrite <- Zposnat2Znat; auto.
+      rewrite <- Z.mul_assoc, <- Pos2Z.inj_mul.
+      rewrite Z.div_mul; auto.
+      unfold Qle; simpl.
+      rewrite Z.mul_1_r.
+      apply Z.add_nonneg_nonneg; [ idtac | apply Nat2Z.is_nonneg ].
+      apply Z.lt_le_incl.
+      eapply p_is_pos; eauto .
 bbb.
 intros pol ns c pol₁ ns₁ m q₀ n Hns Hm Hq₀ Hc Hr Hpol₁ Hns₁.
 unfold root_tail.
 remember (zerop_1st_n_const_coeff n pol₁ ns₁) as z₁ eqn:Hz₁ .
 symmetry in Hz₁.
 destruct z₁; [ rewrite order_0; constructor | idtac ].
-revert pol ns c pol₁ ns₁ m q₀ Hns Hm Hq₀ Hc Hr Hpol₁ Hns₁ Hz₁.
+revert pol ns c pol₁ ns₁ m q₀ Hns Hm Hq₀ Hc Hpol₁ Hns₁ Hz₁.
 induction n; intros.
  simpl.
  unfold order; simpl.
  remember Hns₁ as H; clear HeqH.
- eapply r_1_next_ns in H; eauto .
+ eapply r_n_next_ns in H; eauto .
   destruct H as (αj₁, (αk₁, H)).
   destruct H as (Hini₁, (Hfin₁, (Hαj₁, Hαk₁))).
   rewrite Hini₁, Hfin₁; simpl.
