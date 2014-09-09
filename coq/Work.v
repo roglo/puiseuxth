@@ -94,7 +94,7 @@ eapply r_n_next_ns in H; eauto .
 destruct H as (αj₁, (αk₁, H)).
 destruct H as (Hini₁, (Hfin₁, (Hαj₁, Hαk₁))).
 remember Hns₁ as H; clear HeqH.
-eapply hd_newton_segments₉ in H; eauto .
+eapply hd_newton_segments in H; eauto .
 rename H into Hns₁i.
 remember HK₁ as H; clear HeqH.
 eapply first_n_pol_in_K_1_m_any_r with (ns := ns₁) in H; eauto .
@@ -555,6 +555,9 @@ induction n; intros.
  eapply r_n_next_ns in H; eauto .
  destruct H as (αj₁, (αk₁, H)).
  destruct H as (Hini₁, (Hfin₁, (Hαj₁, Hαk₁))).
+ remember Hns₁ as H; clear HeqH.
+ eapply hd_newton_segments in H; eauto .
+ rename H into Hns₁i; move Hns₁i before Hns₁.
  rewrite Hini₁, Hfin₁; simpl.
  rewrite Hαk₁; simpl.
  rewrite Qnum_inv_Qnat_sub; auto.
@@ -573,10 +576,8 @@ induction n; intros.
  erewrite αj_m_eq_p_r with (ns₁ := ns₁); eauto .
 bbb.
 subgoal 2 is:
- ns₁ ∈ newton_segments pol₁
-subgoal 3 is:
  pol_in_K_1_m pol₁ m₁
-subgoal 4 is:
+subgoal 3 is:
  (1 ≠ 0)%K
 
     rewrite Pos2Z.inj_mul; auto.

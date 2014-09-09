@@ -1955,7 +1955,7 @@ eapply IHn with (m := (m * q₀)%positive); eauto .
  remember Hns₂ as H; clear HeqH.
  apply exists_fin_pt_nat_fst_seg in H.
  destruct H as (k₂, (αk₂, Hfin₂)).
- eapply hd_newton_segments₉; eauto .
+ eapply hd_newton_segments; eauto .
  remember Hns₁ as H; clear HeqH.
  eapply r_n_j_0_k_n in H; eauto .
  destruct H as (Hj₂, (Hk₂, (Hαj₂, Hαk₂))).
@@ -3364,7 +3364,7 @@ destruct z₁.
  destruct H as (αj₁, (αk₁, H)).
  destruct H as (Hini₁, (Hfin₁, (Hαj₁, Hαk₁))).
  remember Hns₁ as Hns₁i; clear HeqHns₁i.
- eapply hd_newton_segments₉ in Hns₁i; eauto .
+ eapply hd_newton_segments in Hns₁i; eauto .
  remember (next_pol pol₁ (β ns₁) (γ ns₁) c₁) as pol₂ eqn:Hpol₂ .
  remember (List.hd phony_ns (newton_segments pol₂)) as ns₂ eqn:Hns₂ .
  remember Hns as H; clear HeqH.

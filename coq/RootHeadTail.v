@@ -1192,8 +1192,7 @@ intros α₁ l d a Ha Hl.
 destruct l; [ exfalso; apply Hl; reflexivity | left; auto ].
 Qed.
 
-(* should be removed : List_hd_in to be used *)
-Theorem hd_newton_segments₉ : ∀ pol ns j k αj αk,
+Theorem hd_newton_segments : ∀ pol ns j k αj αk,
   ns = List.hd phony_ns (newton_segments pol)
  → ini_pt ns = (Qnat j, αj)
   → fin_pt ns = (Qnat k, αk)
@@ -2027,7 +2026,7 @@ assert (1 ≤ S n) as H₁.
   remember Hns₂ as H; clear HeqH.
   apply exists_fin_pt_nat_fst_seg in H.
   destruct H as (k₂, (αk₂, Hfin₂)).
-  eapply hd_newton_segments₉; eauto .
+  eapply hd_newton_segments; eauto .
   remember Hns₁ as H; clear HeqH.
   eapply r_1_j_0_k_1 in H; try eassumption.
   destruct H as (Hj₂, (Hk₂, (Hαj₂, Hαk₂))).
@@ -2954,7 +2953,7 @@ destruct z₁.
  destruct H as (αj₁, (αk₁, H)).
  destruct H as (Hini₁, (Hfin₁, (Hαj₁, Hαk₁))).
  remember Hns₁ as Hns₁i; clear HeqHns₁i.
- eapply hd_newton_segments₉ in Hns₁i; eauto .
+ eapply hd_newton_segments in Hns₁i; eauto .
  remember Hr as H; clear HeqH.
  eapply multiplicity_1_remains in H; eauto .
  rename H into Hr₁.
@@ -3158,7 +3157,7 @@ destruct z₁.
                apply stretch_morph; auto.
                constructor; intros i; simpl.
                assert (nsn₂ ∈ newton_segments poln₂) as Hnsn₂i.
-                eapply hd_newton_segments₉; eauto .
+                eapply hd_newton_segments; eauto .
                 subst nsn₂.
                 eapply nth_ns_n with (c := c₁); eauto .
                 erewrite <- nth_pol_n with (c := c₁); eauto .
@@ -3332,7 +3331,7 @@ destruct z₁.
                            by apply Pos.mul_1_r.
                           eapply q_eq_1 with (pol := poln₁) (ns := nsn₁);
                            eauto .
-                           eapply hd_newton_segments₉; eauto .
+                           eapply hd_newton_segments; eauto .
                            rewrite Hnsn₁.
                            eapply nth_ns_n with (c := c); eauto .
                            erewrite <- nth_pol_n with (c := c); eauto .
@@ -3388,7 +3387,7 @@ destruct z₁.
                               (pol := poln₃)
                               (dp := (np₁ - 1)%nat); 
                            eauto .
-                           eapply hd_newton_segments₉; eauto .
+                           eapply hd_newton_segments; eauto .
 
                            replace m₁ with (m₁ * 1)%positive
                             by apply Pos.mul_1_r.
@@ -3398,7 +3397,7 @@ destruct z₁.
                             by apply Pos.mul_1_r.
                            eapply q_eq_1 with (pol := poln₁) (ns := nsn₁);
                             eauto .
-                            eapply hd_newton_segments₉; eauto .
+                            eapply hd_newton_segments; eauto .
                             rewrite Hnsn₁.
                             eapply nth_ns_n with (c := c); eauto .
                             erewrite <- nth_pol_n with (c := c); eauto .
@@ -3531,7 +3530,7 @@ destruct z₁.
               apply Z.mul_divide_cancel_r; auto.
               eapply den_αj_divides_num_αj_m with (ns := nsn₁) (pol := poln₁);
                eauto .
-               eapply hd_newton_segments₉; eauto .
+               eapply hd_newton_segments; eauto .
                rewrite Hnsn₁.
                eapply nth_ns_n with (c := c); eauto .
                rewrite Hpoln₁.
