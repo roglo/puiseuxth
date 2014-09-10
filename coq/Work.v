@@ -1290,6 +1290,9 @@ destruct (ps_zerop _ (ps_poly_nth 0 pol₁)) as [H₁| H₁].
            rewrite <- Heqid.
            do 2 rewrite find_coeff_add.
            subst sid.
+           remember Hns₂i as H; clear HeqH.
+           eapply next_ns_in_pol in H; eauto .
+           rename H into Hns₃i.
            eapply find_coeff_more_iter; eauto .
 bbb.
   Hnz₃ : (ps_poly_nth 0 pol₃ ≠ 0)%ps
@@ -1306,8 +1309,6 @@ subgoal 4 is:
  ≤ nth_r j pol₃ ns₃
 subgoal 5 is:
  S id ≤ id + pow₁
-subgoal 6 is:
- (nd * ' m₁ / ' dd * ' (dd * dd))%Z = x
 
         rewrite <- Heqid; simpl.
         destruct (ps_zerop R (ps_poly_nth 0 pol₂)); auto.
