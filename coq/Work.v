@@ -1293,21 +1293,20 @@ destruct (ps_zerop _ (ps_poly_nth 0 pol₁)) as [H₁| H₁].
            remember Hns₂i as H; clear HeqH.
            eapply next_ns_in_pol in H; eauto .
            rename H into Hns₃i.
+           remember Hns₂i as H; clear HeqH.
+           eapply next_pol_in_K_1_mq with (q := xH) in H; eauto .
+           rewrite Pos.mul_1_r in H.
+           rename H into HK₃.
            eapply find_coeff_more_iter; eauto .
 bbb.
-  Hnz₃ : (ps_poly_nth 0 pol₃ ≠ 0)%ps
   ============================
-   ns₃ ∈ newton_segments pol₃
+   q_of_m m₁ (γ ns₃) = 1%positive
 
 subgoal 2 is:
- pol_in_K_1_m pol₃ m₁
-subgoal 3 is:
- q_of_m m₁ (γ ns₃) = 1%positive
-subgoal 4 is:
  ∀ j : nat,
  root_multiplicity acf (ac_root (Φq pol₃ ns₃)) (Φq pol₃ ns₃) + 0
  ≤ nth_r j pol₃ ns₃
-subgoal 5 is:
+subgoal 3 is:
  S id ≤ id + pow₁
 
         rewrite <- Heqid; simpl.
