@@ -355,6 +355,68 @@ destruct r.
            eapply Nat.le_trans; eauto .
 Qed.
 
+(* not yet ideal; work in progress *)
+Theorem xxx : ∀ pol ns c pol₁ ns₁ c₁ pol₂ ns₂ r,
+  c = ac_root (Φq pol ns)
+  → pol₁ = next_pol pol (β ns) (γ ns) c
+  → ns₁ = List.hd phony_ns (newton_segments pol₁)
+  → ns₁ ∈ newton_segments pol₁
+  → c₁ = ac_root (Φq pol₁ ns₁)
+  → pol₂ = next_pol pol₁ (β ns₁) (γ ns₁) c₁
+  → ns₂ = List.hd phony_ns (newton_segments pol₂)
+  → (ps_poly_nth 0 pol₂ ≠ 0)%ps
+  → newton_segments pol₂ ≠ []
+  → root_multiplicity acf c₁ (Φq pol₁ ns₁) = r
+  → (∀ n, r ≤ nth_r n pol ns)
+  → ∃ αj₂ αk₂,
+    ini_pt ns₂ = (Qnat 0, αj₂) ∧
+    fin_pt ns₂ = (Qnat r, αk₂) ∧
+    (0 < Qnum αj₂)%Z ∧
+    Qnum αk₂ = 0%Z.
+Proof.
+intros pol ns c pol₁ ns₁ c₁ pol₂ ns₂ r.
+intros Hc Hpol₁ Hns₁ Hns₁₁ Hc₁ Hpol₂ Hns₂ Hnz₂ Hns₂nz Hr₁ Hrle.
+pose proof (Hrle 2%nat) as H.
+remember (S 0) as one in H; simpl in H.
+rewrite <- Hc, <- Hpol₁, <- Hns₁ in H.
+subst one; simpl in H.
+rewrite <- Hc₁, <- Hpol₂, <- Hns₂ in H.
+rename H into Hrle₂.
+remember (ac_root (Φq pol₂ ns₂)) as c₂ eqn:Hc₂ .
+remember (root_multiplicity acf c₂ (Φq pol₂ ns₂)) as r₂ eqn:Hr₂ .
+remember Hns₂ as H; clear HeqH.
+eapply List_hd_in in H; eauto .
+rename H into Hns₂i.
+remember Hns₂i as H; clear HeqH.
+apply exists_ini_pt_nat in H.
+destruct H as (j₂, (αj₂, Hini₂)).
+remember Hns₂i as H; clear HeqH.
+apply exists_fin_pt_nat in H.
+destruct H as (k₂, (αk₂, Hfin₂)).
+remember Hns₁₁ as H; clear HeqH.
+symmetry in Hr₂.
+eapply j_0_k_betw_r₀_r₁ with (c := c₁) in H; eauto .
+destruct H as (Hj₂, (Hrk₂, (Hk₂r, (Hαj₂, (Hαk₂, Hαk₂z))))).
+remember Hrle₂ as H; clear HeqH.
+eapply Nat.le_trans in H; eauto .
+eapply Nat.le_antisymm in H; eauto .
+move H at top; subst r₂.
+clear Hrk₂.
+apply Nat.le_antisymm in Hrle₂; eauto .
+move Hrle₂ at top; subst k₂.
+destruct Hαk₂z; [ exfalso; revert H; apply Nat.lt_irrefl | idtac ].
+clear Hk₂r.
+subst j₂.
+exists αj₂, αk₂.
+split; [ assumption | idtac ].
+split; [ assumption | idtac ].
+unfold Qlt in Hαj₂; simpl in Hαj₂.
+unfold Qeq in H; simpl in H.
+rewrite Z.mul_1_r in Hαj₂, H.
+split; assumption.
+qed.
+*)
+
 (* cf root_tail_split_1st *)
 Theorem root_tail_split_1st_any_r : ∀ pol ns c pol₁ ns₁ c₁ m q₀ r,
   ns ∈ newton_segments pol
