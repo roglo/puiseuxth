@@ -573,13 +573,15 @@ induction n; intros.
   contradiction.
 Qed.
 
-Theorem find_coeff_iter_succ : ∀ pol ns pow m i n r,
+Theorem find_coeff_iter_succ : ∀ pol ns c pow m i n r,
   ns ∈ newton_segments pol
   → pol_in_K_1_m pol m
   → q_of_m m (γ ns) = 1%positive
 (*
   → (∀ j, j ≤ n → nth_r j pol ns = r)
 *)
+  → c = ac_root (Φq pol ns)
+  → root_multiplicity acf c (Φq pol ns) = r
   → (∀ n, r ≤ nth_r n pol ns)
 (**)
   → (1 ≠ 0)%K
@@ -587,9 +589,8 @@ Theorem find_coeff_iter_succ : ∀ pol ns pow m i n r,
   → (find_coeff n pow m pol ns i =
      find_coeff (S n) pow m pol ns i)%K.
 Proof.
-intros pol ns pow m i n r Hns Hm Hq₀ Hrle H₀ Hin.
-revert pol ns pow m n Hns Hm Hq₀ Hrle Hin.
-bbb.
+intros pol ns c pow m i n r Hns Hm Hq₀ Hc Hr₀ Hrle H₀ Hin.
+revert pol ns pow m n Hns Hm Hq₀ Hc Hr₀ Hrle Hin.
 induction i; intros.
  destruct n; [ exfalso; revert Hin; apply Nat.lt_irrefl | idtac ].
  remember (S n) as sn.
@@ -601,7 +602,6 @@ induction i; intros.
  apply nat_compare_lt in Hcmp₁.
  exfalso; revert Hcmp₁; apply Nat.nlt_0_r.
 
- pose proof (Hri O (Nat.le_0_l n)) as Hr₀; simpl in Hr₀.
  assert (0 < r)%nat as Hrp.
   destruct r; [ idtac | apply Nat.lt_0_succ ].
   exfalso; revert Hr₀.
@@ -613,6 +613,21 @@ induction i; intros.
   destruct (ps_zerop _ (ps_poly_nth 0 pol)) as [| H₁]; auto.
   remember (Nat.compare pow (S i)) as cmp₁ eqn:Hcmp₁ .
   symmetry in Hcmp₁.
+  destruct cmp₁; auto.
+  rewrite <- Hc.
+  remember (next_pol pol (β ns) (γ ns) c) as pol₁ eqn:Hpol₁ .
+  remember (List.hd phony_ns (newton_segments pol₁)) as ns₁ eqn:Hns₁ .
+bbb.
+  subst sn; simpl.
+  destruct (ps_zerop _ (ps_poly_nth 0 pol₁)) as [H₂| H₂].
+   apply lt_S_n in Hin.
+   destruct n; [ exfalso; revert Hin; apply Nat.nlt_0_r | simpl ].
+   destruct (ps_zerop R (ps_poly_nth 0 pol₁)) as [H₄| H₄].
+    reflexivity.
+
+    contradiction.
+bbb.
+
   destruct cmp₁; auto.
   assert (1 ≤ sn)%nat as H by (rewrite Heqsn; apply le_n_S, Nat.le_0_l).
   apply Hri in H; simpl in H.
