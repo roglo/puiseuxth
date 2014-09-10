@@ -1215,6 +1215,10 @@ destruct (ps_zerop _ (ps_poly_nth 0 pol₁)) as [H₁| H₁].
       remember (Z.to_nat y) as n₂.
       remember (i - n₂)%nat as id.
       unfold root_tail_series_from_cγ_list.
+      clear H.
+      remember Hns₁i as H; clear HeqH.
+      eapply q_eq_1_any_r in H; eauto .
+      rename H into Hq₁; move Hq₁ before Hns₁nz.
       symmetry in Hr₁.
       rewrite find_coeff_iter_succ with (r := r); eauto .
        subst x.
@@ -1282,7 +1286,9 @@ subgoal 5 is:
 subgoal 6 is:
  id ≤ id + pow₁
 subgoal 7 is:
- q_of_m m₁ (γ ns₁) = 1%positive
+ ∀ n : nat, r ≤ nth_r n pol₁ ns₁
+subgoal 8 is:
+ fin_pt ns₁ = (Qnat (root_multiplicity acf c₁ (Φq pol₁ ns₁)), αk₂)
 
         rewrite <- Heqid; simpl.
         destruct (ps_zerop R (ps_poly_nth 0 pol₂)); auto.
@@ -1583,7 +1589,7 @@ destruct (ps_zerop _ (ps_poly_nth 0 pol₁)) as [H₁| H₁].
       remember (i - n₂)%nat as id.
       unfold root_tail_series_from_cγ_list.
 (**)
-z(*
+(*
       rewrite find_coeff_iter_succ.
 *)
 bbb.
