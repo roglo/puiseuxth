@@ -80,6 +80,27 @@ simpl in Hns; rewrite <- Hc, <- Hpol₁ in Hns.
 destruct Hns; auto; contradiction.
 Qed.
 
+Theorem p_is_pos : ∀ ns αj αk m r,
+  ini_pt ns = (Qnat 0, αj)
+  → fin_pt ns = (Qnat r, αk)
+  → (0 < Qnum αj)%Z
+  → Qnum αk = 0%Z
+  → (0 < r)%nat
+  → (0 < p_of_m m (γ ns))%Z.
+Proof.
+intros ns αj αk m r Hini Hfin Hαj Hαk Hr.
+unfold p_of_m; simpl.
+rewrite Hini, Hfin; simpl.
+rewrite Hαk; simpl.
+rewrite Qnum_inv_Qnat_sub; auto.
+rewrite Qden_inv_Qnat_sub; auto.
+rewrite Z.add_0_r, Z.mul_1_r, Nat.sub_0_r.
+rewrite Z.gcd_comm.
+apply Z_div_gcd_r_pos.
+apply Z.mul_pos_pos; [ idtac | apply Pos2Z.is_pos ].
+apply Z.mul_pos_pos; [ auto | apply Pos2Z.is_pos ].
+Qed.
+
 (* more general version of r_n_j_0_k_n where r and r₁ are possibly
    different perhaps r_n_j_0_k_n should be rewritten using this theorem *)
 Theorem j_0_k_betw_r₀_r₁ : ∀ pol ns c pol₁ ns₁ c₁ j₁ αj₁ k₁ αk₁ r r₁,
@@ -579,9 +600,9 @@ destruct (ps_zerop _ (ps_poly_nth 0 pol₁)) as [H₁| H₁].
   eapply next_ns_in_pol in H; eauto .
   rename H into Hns₂i; move Hns₂i before Hns₂.
   remember (nd * ' dd * ' m₁)%Z as x.
-  remember (Qnum αj₂ * ' m₁ / ' (Qden αj₂ * rq) * ' dd * ' dd)%Z as y.
+  remember (Qnum αj₂ * ' m₁ / ' (Qden αj₂ * rq))%Z as y.
   rename Heqy into Hy.
-  assert (x <= x + y)%Z as Hle.
+  assert (x <= x + y * '  dd * ' dd)%Z as Hle.
    apply Z.le_sub_le_add_l.
    rewrite Z.sub_diag.
    subst y.
@@ -604,10 +625,28 @@ destruct (ps_zerop _ (ps_poly_nth 0 pol₁)) as [H₁| H₁].
    rewrite Z.sub_0_r.
    apply mkps_morphism.
     erewrite αj_m_eq_p_r in Hy; eauto ; subst rq.
-bbb.
-
-  erewrite αj_m_eq_p_r with (ns₁ := ns₂); eauto .
-
+    rewrite <- Zposnat2Znat in Hy; auto; simpl in Hy.
+    rewrite Pos.mul_comm, Pos2Z.inj_mul in Hy.
+    rewrite <- Z.mul_assoc in Hy; simpl in Hy.
+    rewrite Z.div_mul in Hy; eauto .
+    unfold adjust_series; simpl.
+    rewrite series_shift_0.
+    do 2 rewrite fold_series_const.
+    do 2 rewrite series_stretch_const.
+    rewrite series_mul_1_l.
+    rewrite <- series_stretch_stretch.
+    rewrite <- Z.mul_assoc, <- Pos2Z.inj_mul.
+    remember Hini₂ as H; clear HeqH.
+    eapply p_is_pos with (m := m₁) in H; eauto .
+    rewrite <- Hy in H.
+    rename H into Hppos.
+    remember Hppos as H; clear HeqH.
+    apply Z.lt_le_incl in H.
+    rewrite Z2Nat.inj_mul; auto; simpl.
+    rewrite <- stretch_shift_series_distr.
+    rewrite <- series_stretch_const with (k := (dd * dd)%positive).
+    rewrite <- series_stretch_add_distr.
+    apply stretch_morph; [ reflexivity | idtac ].
 bbb.
 
   rewrite Z.min_l.
@@ -2691,27 +2730,6 @@ induction i; intros.
     apply multiplicity_neq_0; auto.
 
    apply Pos2Z_ne_0.
-Qed.
-
-Theorem p_is_pos : ∀ ns αj αk m r,
-  ini_pt ns = (Qnat 0, αj)
-  → fin_pt ns = (Qnat r, αk)
-  → (0 < Qnum αj)%Z
-  → Qnum αk = 0%Z
-  → (0 < r)%nat
-  → (0 < p_of_m m (γ ns))%Z.
-Proof.
-intros ns αj αk m r Hini Hfin Hαj Hαk Hr.
-unfold p_of_m; simpl.
-rewrite Hini, Hfin; simpl.
-rewrite Hαk; simpl.
-rewrite Qnum_inv_Qnat_sub; auto.
-rewrite Qden_inv_Qnat_sub; auto.
-rewrite Z.add_0_r, Z.mul_1_r, Nat.sub_0_r.
-rewrite Z.gcd_comm.
-apply Z_div_gcd_r_pos.
-apply Z.mul_pos_pos; [ idtac | apply Pos2Z.is_pos ].
-apply Z.mul_pos_pos; [ auto | apply Pos2Z.is_pos ].
 Qed.
 
 Theorem next_pow_eq_p : ∀ pol ns c αj αk m r,
