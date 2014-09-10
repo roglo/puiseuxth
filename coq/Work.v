@@ -67,6 +67,19 @@ rewrite <- Hc, Hr in H.
 assumption.
 Qed.
 
+Theorem next_has_ns : ∀ pol ns c pol₁,
+  ns ∈ newton_segments pol
+  → c = ac_root (Φq pol ns)
+  → pol₁ = next_pol pol (β ns) (γ ns) c
+  → (ps_poly_nth 0 pol₁ ≠ 0)%ps
+  → newton_segments pol₁ ≠ [].
+Proof.
+intros pol ns c pol₁ Hns Hc Hpol₁ Hnz₁.
+eapply next_has_root_0_or_newton_segments in Hns; eauto .
+simpl in Hns; rewrite <- Hc, <- Hpol₁ in Hns.
+destruct Hns; auto; contradiction.
+Qed.
+
 (* more general version of r_n_j_0_k_n where r and r₁ are possibly
    different perhaps r_n_j_0_k_n should be rewritten using this theorem *)
 Theorem j_0_k_betw_r₀_r₁ : ∀ pol ns c pol₁ ns₁ c₁ j₁ αj₁ k₁ αk₁ r r₁,
@@ -488,6 +501,7 @@ destruct (ps_zerop _ (ps_poly_nth 0 pol₁)) as [H₁| H₁].
   symmetry in Hr₁.
 (**)
 (* faire un lemme *)
+bbb.
   eapply j_0_k_betw_r₀_r₁ with (c := c₁) in H; eauto .
   rewrite Nat.add_0_r in H.
   rewrite <- Hr₂ in H.
@@ -2985,19 +2999,6 @@ destruct (ps_zerop _ (ps_poly_nth 0 pol₁)) as [H₂| H₂].
   intros j.
   pose proof (Hri (S j)) as H; simpl in H.
   rewrite <- Hc, <- Hpol₁, <- Hns₁ in H; auto.
-Qed.
-
-Theorem next_has_ns : ∀ pol ns c pol₁,
-  ns ∈ newton_segments pol
-  → c = ac_root (Φq pol ns)
-  → pol₁ = next_pol pol (β ns) (γ ns) c
-  → (ps_poly_nth 0 pol₁ ≠ 0)%ps
-  → newton_segments pol₁ ≠ [].
-Proof.
-intros pol ns c pol₁ Hns Hc Hpol₁ Hnz₁.
-eapply next_has_root_0_or_newton_segments in Hns; eauto .
-simpl in Hns; rewrite <- Hc, <- Hpol₁ in Hns.
-destruct Hns; auto; contradiction.
 Qed.
 
 (* cf nth_in_newton_segments *)
