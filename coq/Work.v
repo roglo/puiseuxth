@@ -649,9 +649,6 @@ destruct (ps_zerop _ (ps_poly_nth 0 pol₁)) as [H₁| H₁].
     apply stretch_morph; [ reflexivity | idtac ].
 bbb.
 
-  rewrite Z.min_l.
-   rewrite Z.min_r.
-
 intros pol ns c pol₁ ns₁ c₁ m q₀ r.
 intros Hns Hm Hq₀ Hc Hpol₁ Hns₁ Hc₁ Hri H₀.
 remember (m * q₀)%positive as m₁.
