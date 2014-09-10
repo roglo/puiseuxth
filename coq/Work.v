@@ -487,6 +487,7 @@ destruct (ps_zerop _ (ps_poly_nth 0 pol₁)) as [H₁| H₁].
   remember Hns₁₁ as H; clear HeqH.
   symmetry in Hr₁.
 (**)
+(* faire un lemme *)
   eapply j_0_k_betw_r₀_r₁ with (c := c₁) in H; eauto .
   rewrite Nat.add_0_r in H.
   rewrite <- Hr₂ in H.
