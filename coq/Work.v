@@ -1297,17 +1297,36 @@ destruct (ps_zerop _ (ps_poly_nth 0 pol₁)) as [H₁| H₁].
            eapply next_pol_in_K_1_mq with (q := xH) in H; eauto .
            rewrite Pos.mul_1_r in H.
            rename H into HK₃.
+           pose proof (Hrle₁ 2%nat) as H.
+           remember (S 0) as one; simpl in H.
+           rewrite <- Hc₁, <- Hpol₂, <- Hns₂ in H.
+           subst one; simpl in H.
+           rename Heqpol₃ into Hpol₃.
+           rename Heqns₃ into Hns₃.
+           rewrite <- Hc₂, <- Hpol₃, <- Hns₃ in H.
+           remember (ac_root (Φq pol₃ ns₃)) as c₃ eqn:Hc₃ .
+           remember (root_multiplicity acf c₃ (Φq pol₃ ns₃)) as r₃ eqn:Hr₃ .
+           rename H into Hrr.
+           remember Hns₂i as H; clear HeqH.
+           symmetry in Hr₃.
+           eapply next_ns_r_non_decr in H; eauto ; clear Hrr.
+           destruct H as (Heq, H); move Heq at top; subst r₃.
+           destruct H as (αj₃, (αk₃, H)).
+           destruct H as (Hini₃, (Hfin₃, (Hαj₃, Hαk₃))).
+           remember Hns₃i as H; clear HeqH.
+           symmetry in Hr₃.
+           eapply q_eq_1_any_r in H; eauto .
            eapply find_coeff_more_iter; eauto .
 bbb.
   ============================
-   q_of_m m₁ (γ ns₃) = 1%positive
+   ∀ j : nat, root_multiplicity acf c₃ (Φq pol₃ ns₃) + 0 ≤ nth_r j pol₃ ns₃
 
 subgoal 2 is:
- ∀ j : nat,
- root_multiplicity acf (ac_root (Φq pol₃ ns₃)) (Φq pol₃ ns₃) + 0
- ≤ nth_r j pol₃ ns₃
-subgoal 3 is:
  S id ≤ id + pow₁
+subgoal 3 is:
+ (nd * ' m₁ / ' dd * ' (dd * dd))%Z = x
+subgoal 4 is:
+ (m₁ * (dd * dd))%positive = (dd * (dd * m₁))%positive
 
         rewrite <- Heqid; simpl.
         destruct (ps_zerop R (ps_poly_nth 0 pol₂)); auto.
