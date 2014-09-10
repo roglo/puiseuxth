@@ -849,19 +849,21 @@ induction i; intros.
    apply Pos2Z_ne_0.
 Qed.
 
-Theorem find_coeff_more_iter : ∀ pol ns pow m i n n' r,
+Theorem find_coeff_more_iter : ∀ pol ns c pow m i n n' r,
   ns ∈ newton_segments pol
   → pol_in_K_1_m pol m
   → q_of_m m (γ ns) = 1%positive
-  → (∀ j, nth_r j pol ns = r)
+  → c = ac_root (Φq pol ns)
+  → root_multiplicity acf c (Φq pol ns) = r
+  → (∀ j, r ≤ nth_r j pol ns)
   → (1 ≠ 0)%K
   → (i < n)%nat
   → n ≤ n'
   → (find_coeff n pow m pol ns i =
      find_coeff n' pow m pol ns i)%K.
 Proof.
+intros pol ns c pow m i n n' r Hns Hm Hq₀ Hc Hr₀ Hrle H₀ Hin Hn'.
 bbb.
-intros pol ns pow m i n n' r Hns Hm Hq₀ Hri H₀ Hin Hn'.
 remember (n' - n)%nat as d eqn:Hd .
 replace n' with (n + d)%nat by fast_omega Hd Hn'.
 clear n' Hn' Hd.
