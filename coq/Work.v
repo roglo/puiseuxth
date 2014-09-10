@@ -1216,10 +1216,10 @@ destruct (ps_zerop _ (ps_poly_nth 0 pol₁)) as [H₁| H₁].
       remember (i - n₂)%nat as id.
       unfold root_tail_series_from_cγ_list.
       clear H.
+      symmetry in Hr₁.
       remember Hns₁i as H; clear HeqH.
       eapply q_eq_1_any_r in H; eauto .
       rename H into Hq₁; move Hq₁ before Hns₁nz.
-      symmetry in Hr₁.
       rewrite find_coeff_iter_succ with (r := r); eauto .
        subst x.
        remember (S i) as si.
