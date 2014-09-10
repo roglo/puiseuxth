@@ -101,6 +101,38 @@ apply Z.mul_pos_pos; [ idtac | apply Pos2Z.is_pos ].
 apply Z.mul_pos_pos; [ auto | apply Pos2Z.is_pos ].
 Qed.
 
+Theorem next_pow_eq_p : ∀ pol ns c αj αk m r,
+  ns ∈ newton_segments pol
+  → pol_in_K_1_m pol m
+  → c = ac_root (Φq pol ns)
+  → root_multiplicity acf c (Φq pol ns) = r
+  → ini_pt ns = (Qnat 0, αj)
+  → fin_pt ns = (Qnat r, αk)
+  → (0 < Qnum αj)%Z
+  → Qnum αk = 0%Z
+  → (0 < r)%nat
+  → (1 ≠ 0)%K
+  → next_pow 0 ns m = Z.to_nat (p_of_m m (γ ns)).
+Proof.
+intros pol ns c αj αk m r Hns Hm Hc Hr Hini Hfin Hαj Hαk Hrp H₀.
+unfold next_pow; simpl.
+rewrite Hini, Hfin; simpl.
+rewrite Hαk; simpl.
+rewrite Qnum_inv_Qnat_sub; auto.
+rewrite Qden_inv_Qnat_sub; auto.
+rewrite Z.add_0_r, Z.mul_1_r, Nat.sub_0_r, Pos.mul_1_r.
+rewrite Z.mul_shuffle0, Pos_mul_shuffle0.
+rewrite Pos2Z.inj_mul.
+rewrite Z.div_mul_cancel_r; auto.
+erewrite αj_m_eq_p_r with (pol₁ := pol); eauto .
+rewrite Pos.mul_comm.
+rewrite Pos2Z.inj_mul, Zposnat2Znat; auto.
+rewrite <- Z.mul_assoc.
+rewrite Z.div_mul; auto.
+rewrite <- Zposnat2Znat; auto.
+apply Pos2Z_ne_0.
+Qed.
+
 (* more general version of r_n_j_0_k_n where r and r₁ are possibly
    different perhaps r_n_j_0_k_n should be rewritten using this theorem *)
 Theorem j_0_k_betw_r₀_r₁ : ∀ pol ns c pol₁ ns₁ c₁ j₁ αj₁ k₁ αk₁ r r₁,
@@ -647,6 +679,52 @@ destruct (ps_zerop _ (ps_poly_nth 0 pol₁)) as [H₁| H₁].
     rewrite <- series_stretch_const with (k := (dd * dd)%positive).
     rewrite <- series_stretch_add_distr.
     apply stretch_morph; [ reflexivity | idtac ].
+    unfold series_add; simpl.
+    constructor; intros i; simpl.
+    destruct (lt_dec i (Z.to_nat y)) as [H₁| H₁].
+     destruct (zerop i) as [H₂| H₂].
+      subst i; simpl.
+      rewrite rng_add_0_r.
+      unfold root_tail_series_from_cγ_list; simpl.
+      rewrite <- Hc₁.
+      destruct (ps_zerop R (ps_poly_nth 0 pol₁)) as [H₂| H₂]; auto.
+      contradiction.
+
+      rewrite rng_add_0_l.
+      unfold root_tail_series_from_cγ_list; simpl.
+      rewrite <- Hc₁, <- Hpol₂, <- Hns₂.
+      rewrite Hy in H₁.
+      erewrite <- next_pow_eq_p in H₁; eauto .
+      destruct i; [ exfalso; revert H₂; apply Nat.lt_irrefl | idtac ].
+      clear H₂; simpl.
+      destruct (ps_zerop R (ps_poly_nth 0 pol₁)) as [| H₂]; auto.
+      clear H₂.
+      destruct (ps_zerop R (ps_poly_nth 0 pol₂)) as [| H₂]; auto.
+      clear H₂.
+      remember (next_pow 0 ns₂ m₁) as p₂ eqn:Hp₂ .
+      remember (Nat.compare p₂ (S i)) as cmp; symmetry in Heqcmp.
+      destruct cmp as [H₄| H₄| H₄]; auto.
+       apply nat_compare_eq in Heqcmp.
+       rewrite Heqcmp in H₁.
+       exfalso; revert H₁; apply Nat.lt_irrefl.
+
+       apply nat_compare_lt in Heqcmp.
+       apply Nat.lt_le_incl, Nat.nlt_ge in Heqcmp.
+       contradiction.
+
+     apply Nat.nlt_ge in H₁.
+     destruct (zerop i) as [H₂| H₂].
+      subst i; simpl.
+      apply Nat.le_0_r in H₁.
+      rewrite <- Z2Nat.inj_0 in H₁.
+      apply Z2Nat.inj in H₁; auto; [ idtac | reflexivity ].
+      rewrite H₁ in Hppos.
+      exfalso; revert Hppos; apply Z.lt_irrefl.
+
+      rewrite rng_add_0_l.
+      remember (Z.to_nat y) as n₂.
+      remember (i - n₂)%nat as id.
+      unfold root_tail_series_from_cγ_list.
 bbb.
 
 intros pol ns c pol₁ ns₁ c₁ m q₀ r.
@@ -672,7 +750,6 @@ destruct (ps_zerop _ (ps_poly_nth 0 pol₁)) as [H₁| H₁].
  apply Hri in H; simpl in H; rewrite <- Hc, <- Hpol₁, <- Hns₁, <- Hc₁ in H.
  rename H into Hr₁; move Hr₁ before Hc₁.
  rename H₁ into Hnz₁.
-(**)
  remember Hns as HK₁; clear HeqHK₁.
  eapply next_pol_in_K_1_mq in HK₁; eauto .
  rewrite <- Heqm₁ in HK₁.
@@ -868,6 +945,7 @@ destruct (ps_zerop _ (ps_poly_nth 0 pol₁)) as [H₁| H₁].
       rewrite rng_add_0_l.
       unfold root_tail_series_from_cγ_list; simpl.
       rewrite <- Hc₁, <- Hpol₂, <- Hns₂.
+(**)
       erewrite <- next_pow_eq_p in H₁; eauto .
       destruct (ps_zerop R (ps_poly_nth 0 pol₁)) as [| H₃]; auto.
       destruct i; [ exfalso; revert H₂; apply Nat.lt_irrefl | idtac ].
@@ -2727,38 +2805,6 @@ induction i; intros.
     apply multiplicity_neq_0; auto.
 
    apply Pos2Z_ne_0.
-Qed.
-
-Theorem next_pow_eq_p : ∀ pol ns c αj αk m r,
-  ns ∈ newton_segments pol
-  → pol_in_K_1_m pol m
-  → c = ac_root (Φq pol ns)
-  → root_multiplicity acf c (Φq pol ns) = r
-  → ini_pt ns = (Qnat 0, αj)
-  → fin_pt ns = (Qnat r, αk)
-  → (0 < Qnum αj)%Z
-  → Qnum αk = 0%Z
-  → (0 < r)%nat
-  → (1 ≠ 0)%K
-  → next_pow 0 ns m = Z.to_nat (p_of_m m (γ ns)).
-Proof.
-intros pol ns c αj αk m r Hns Hm Hc Hr Hini Hfin Hαj Hαk Hrp H₀.
-unfold next_pow; simpl.
-rewrite Hini, Hfin; simpl.
-rewrite Hαk; simpl.
-rewrite Qnum_inv_Qnat_sub; auto.
-rewrite Qden_inv_Qnat_sub; auto.
-rewrite Z.add_0_r, Z.mul_1_r, Nat.sub_0_r, Pos.mul_1_r.
-rewrite Z.mul_shuffle0, Pos_mul_shuffle0.
-rewrite Pos2Z.inj_mul.
-rewrite Z.div_mul_cancel_r; auto.
-erewrite αj_m_eq_p_r with (pol₁ := pol); eauto .
-rewrite Pos.mul_comm.
-rewrite Pos2Z.inj_mul, Zposnat2Znat; auto.
-rewrite <- Z.mul_assoc.
-rewrite Z.div_mul; auto.
-rewrite <- Zposnat2Znat; auto.
-apply Pos2Z_ne_0.
 Qed.
 
 Theorem newton_segments_not_nil : ∀ pol ns αk r,
