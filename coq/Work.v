@@ -1244,7 +1244,30 @@ destruct (ps_zerop _ (ps_poly_nth 0 pol₁)) as [H₁| H₁].
          rewrite <- Hc₂.
          remember (next_pol pol₂ (β ns₂) (γ ns₂) c₂) as pol₃.
          remember (List.hd phony_ns (newton_segments pol₃)) as ns₃.
+         replace pow₁ with (0 + pow₁)%nat by auto.
+         rewrite next_pow_add.
+         apply Nat.add_cancel_r with (p := pow₁) in Heqid.
+         rewrite Nat.sub_add in Heqid; auto.
+         rewrite <- Heqid.
+         do 2 rewrite find_coeff_add.
+         eapply find_coeff_more_iter; eauto .
 bbb.
+  ============================
+   ns₃ ∈ newton_segments pol₃
+
+subgoal 2 is:
+ pol_in_K_1_m pol₃ m₁
+subgoal 3 is:
+ q_of_m m₁ (γ ns₃) = 1%positive
+subgoal 4 is:
+ ∀ j : nat,
+ root_multiplicity acf (ac_root (Φq pol₃ ns₃)) (Φq pol₃ ns₃) + 0
+ ≤ nth_r j pol₃ ns₃
+subgoal 5 is:
+ (id < id)%nat
+subgoal 6 is:
+ id ≤ id + pow₁
+
         rewrite <- Heqid; simpl.
         destruct (ps_zerop R (ps_poly_nth 0 pol₂)); auto.
          contradiction.
