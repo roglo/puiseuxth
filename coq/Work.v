@@ -81,6 +81,19 @@ Theorem nth_r_succ2 : ∀ pol ns c pol₁ ns₁ n,
   → nth_r (S n) pol ns = nth_r n pol₁ ns₁.
 Proof. intros; subst; reflexivity. Qed.
 
+Theorem all_r_le_next : ∀ pol ns c pol₁ ns₁ r,
+  c = ac_root (Φq pol ns)
+  → pol₁ = next_pol pol (β ns) (γ ns) c
+  → ns₁ = List.hd phony_ns (newton_segments pol₁)
+  → (∀ n : nat, r ≤ nth_r n pol ns)
+  → (∀ n : nat, r ≤ nth_r n pol₁ ns₁).
+Proof.
+intros pol ns c pol₁ ns₁ r Hc Hpol₁ Hns₁ Hri i.
+pose proof (Hri (S i)) as H; simpl in H.
+rewrite <- Hc, <- Hpol₁, <- Hns₁ in H.
+assumption.
+Qed.
+
 Theorem multiplicity_is_pos : ∀ pol ns c r,
   ns ∈ newton_segments pol
   → c = ac_root (Φq pol ns)
@@ -981,7 +994,7 @@ Theorem root_tail_split_1st_any_r : ∀ pol ns c pol₁ ns₁ c₁ m q₀ r,
        root_tail (m * q₀) 1 pol₁ ns₁)%ps.
 Proof.
 intros pol ns c pol₁ ns₁ c₁ m q₀ r.
-intros Hns Hm Hq₀ Hc Hpol₁ Hns₁ Hc₁ Hri Hric H₀.
+intros Hns Hm Hq₀ Hc Hpol₁ Hns₁ Hc₁ Hri Hrle H₀.
 remember (m * q₀)%positive as m₁.
 unfold root_tail, root_head; simpl.
 destruct (ps_zerop _ (ps_poly_nth 0 pol₁)) as [H₁| H₁].
@@ -1082,7 +1095,7 @@ destruct (ps_zerop _ (ps_poly_nth 0 pol₁)) as [H₁| H₁].
    eapply αj_m_eq_p_r; eauto .
 
   rename H₁ into Hnz₂.
-  pose proof (Hric 2%nat) as H.
+  pose proof (Hrle 2%nat) as H.
   remember (S 0) as one in H; simpl in H.
   rewrite <- Hc, <- Hpol₁, <- Hns₁ in H.
   subst one; simpl in H.
@@ -1220,7 +1233,11 @@ destruct (ps_zerop _ (ps_poly_nth 0 pol₁)) as [H₁| H₁].
       remember Hns₁i as H; clear HeqH.
       eapply q_eq_1_any_r in H; eauto .
       rename H into Hq₁; move Hq₁ before Hns₁nz.
-      rewrite find_coeff_iter_succ with (r := r); eauto .
+      assert (∀ n, r ≤ nth_r n pol₁ ns₁) as Hrle₁.
+       eapply all_r_le_next with (pol := pol); eauto .
+
+       move Hrle₁ before Hrle.
+       rewrite find_coeff_iter_succ with (r := r); eauto .
        subst x.
        remember (S i) as si.
        remember (S id) as x; simpl; subst x.
@@ -1285,10 +1302,6 @@ subgoal 5 is:
  (id < id)%nat
 subgoal 6 is:
  id ≤ id + pow₁
-subgoal 7 is:
- ∀ n : nat, r ≤ nth_r n pol₁ ns₁
-subgoal 8 is:
- fin_pt ns₁ = (Qnat (root_multiplicity acf c₁ (Φq pol₁ ns₁)), αk₂)
 
         rewrite <- Heqid; simpl.
         destruct (ps_zerop R (ps_poly_nth 0 pol₂)); auto.
@@ -3334,19 +3347,6 @@ rewrite zerop_1st_n_const_coeff_succ.
 rewrite Hpsi, Bool.orb_false_r; simpl.
 destruct (ps_zerop R (ps_poly_nth 0 pol)); auto.
 contradiction.
-Qed.
-
-Theorem all_same_r_next : ∀ pol ns c pol₁ ns₁ r,
-  c = ac_root (Φq pol ns)
-  → pol₁ = next_pol pol (β ns) (γ ns) c
-  → ns₁ = List.hd phony_ns (newton_segments pol₁)
-  → (∀ i : nat, nth_r i pol ns = r)
-  → (∀ i : nat, nth_r i pol₁ ns₁ = r).
-Proof.
-intros pol ns c pol₁ ns₁ r Hc Hpol₁ Hns₁ Hri i.
-pose proof (Hri (S i)) as H; simpl in H.
-rewrite <- Hc, <- Hpol₁, <- Hns₁ in H.
-assumption.
 Qed.
 
 Theorem nth_pol_in_K_1_m : ∀ pol ns c αj αk poln m n r,
