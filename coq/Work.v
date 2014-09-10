@@ -1316,16 +1316,31 @@ destruct (ps_zerop _ (ps_poly_nth 0 pol₁)) as [H₁| H₁].
            remember Hns₃i as H; clear HeqH.
            symmetry in Hr₃.
            eapply q_eq_1_any_r in H; eauto .
-           eapply find_coeff_more_iter; eauto .
+           rename H into Hq₃.
+           assert (∀ n, r ≤ nth_r n pol₃ ns₃) as Hrle₃.
+            eapply all_r_le_next with (pol := pol₂); eauto .
+
+            move Hrle₃ before Hrle₂.
+            symmetry in Hr₃.
+            eapply find_coeff_more_iter; eauto .
+            erewrite next_pow_eq_p in Hpow₁; eauto .
+            rewrite <- Hy in Hpow₁.
+            destruct pow₁.
+             rewrite <- Z2Nat.inj_0 in Hpow₁.
+             apply Z2Nat.inj in Hpow₁; [ idtac | reflexivity | idtac ].
+              rewrite <- Hpow₁ in Hppos.
+              exfalso; revert Hppos; apply Z.lt_irrefl.
+
+              apply Z.lt_le_incl; auto.
+
+             rewrite Nat.add_succ_r, <- Nat.add_succ_l.
+             apply Nat.le_sub_le_add_l.
+             rewrite Nat.sub_diag; apply Nat.le_0_l.
 bbb.
   ============================
-   ∀ j : nat, root_multiplicity acf c₃ (Φq pol₃ ns₃) + 0 ≤ nth_r j pol₃ ns₃
+   (nd * ' m₁ / ' dd * ' (dd * dd))%Z = x
 
 subgoal 2 is:
- S id ≤ id + pow₁
-subgoal 3 is:
- (nd * ' m₁ / ' dd * ' (dd * dd))%Z = x
-subgoal 4 is:
  (m₁ * (dd * dd))%positive = (dd * (dd * m₁))%positive
 
         rewrite <- Heqid; simpl.
