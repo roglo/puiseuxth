@@ -849,6 +849,90 @@ induction i; intros.
    apply Pos2Z_ne_0.
 Qed.
 
+Theorem find_coeff_more_iter : ∀ pol ns pow m i n n' r,
+  ns ∈ newton_segments pol
+  → pol_in_K_1_m pol m
+  → q_of_m m (γ ns) = 1%positive
+  → (∀ j, nth_r j pol ns = r)
+  → (1 ≠ 0)%K
+  → (i < n)%nat
+  → n ≤ n'
+  → (find_coeff n pow m pol ns i =
+     find_coeff n' pow m pol ns i)%K.
+Proof.
+bbb.
+intros pol ns pow m i n n' r Hns Hm Hq₀ Hri H₀ Hin Hn'.
+remember (n' - n)%nat as d eqn:Hd .
+replace n' with (n + d)%nat by fast_omega Hd Hn'.
+clear n' Hn' Hd.
+rewrite Nat.add_comm.
+revert n pow Hin.
+revert pol ns Hns Hm Hq₀ Hri.
+induction d; intros; [ reflexivity | idtac ].
+rewrite find_coeff_iter_succ; auto; simpl.
+destruct (ps_zerop R (ps_poly_nth 0 pol)) as [| H₁]; auto.
+remember (Nat.compare pow i) as cmp eqn:Hcmp .
+symmetry in Hcmp.
+destruct cmp; auto.
+remember (ac_root (Φq pol ns)) as c eqn:Hc .
+remember (next_pol pol (β ns) (γ ns) c) as pol₁ eqn:Hpol₁ .
+remember (List.hd phony_ns (newton_segments pol₁)) as ns₁ eqn:Hns₁ .
+remember (next_pow pow ns₁ m) as pow₁.
+destruct (ps_zerop _ (ps_poly_nth 0 pol₁)) as [H₂| H₂].
+ rewrite Nat.add_comm.
+ destruct n; simpl.
+  exfalso; revert Hin; apply Nat.nlt_0_r.
+
+  destruct (ps_zerop _ (ps_poly_nth 0 pol₁)) as [H₃| H₃].
+   reflexivity.
+
+   contradiction.
+
+ remember Hns as H; clear HeqH.
+ eapply next_has_root_0_or_newton_segments in H; eauto .
+ simpl in H.
+ rewrite <- Hc, <- Hpol₁ in H.
+ destruct H as [| H]; [ contradiction | idtac ].
+ rename H into Hns₁nz.
+ pose proof (Hri O) as Hr₀; simpl in Hr₀.
+ rewrite <- Hc in Hr₀.
+ pose proof (Hri 1%nat) as Hr₁; simpl in Hr₁.
+ rewrite <- Hc, <- Hpol₁, <- Hns₁ in Hr₁.
+ apply IHd; auto.
+  eapply List_hd_in; eauto .
+
+  eapply first_n_pol_in_K_1_m_any_r with (n := 1%nat); eauto .
+   intros j Hj.
+   destruct j; auto.
+   apply le_S_n in Hj.
+   apply Nat.le_0_r in Hj; rewrite Hj; simpl.
+   rewrite <- Hc, <- Hpol₁; assumption.
+
+   simpl; rewrite <- Hc; auto.
+
+  remember Hns as H; clear HeqH.
+  eapply r_n_next_ns in H; eauto .
+  destruct H as (αj₁, (αk₁, H)).
+  destruct H as (Hini₁, (Hfin₁, (Hαj₁, Hαk₁))).
+  eapply q_eq_1_any_r with (pol := pol₁); eauto .
+   eapply List_hd_in; eauto .
+
+   eapply first_n_pol_in_K_1_m_any_r with (n := 1%nat); eauto .
+    intros j Hj.
+    destruct j; auto.
+    apply le_S_n in Hj.
+    apply Nat.le_0_r in Hj; rewrite Hj; simpl.
+    rewrite <- Hc, <- Hpol₁; assumption.
+
+    simpl; rewrite <- Hc; auto.
+
+   rewrite Hr₁; auto.
+
+  intros j.
+  pose proof (Hri (S j)) as H; simpl in H.
+  rewrite <- Hc, <- Hpol₁, <- Hns₁ in H; auto.
+Qed.
+
 (* cf root_tail_split_1st *)
 Theorem root_tail_split_1st_any_r : ∀ pol ns c pol₁ ns₁ c₁ m q₀ r,
   ns ∈ newton_segments pol
@@ -1114,6 +1198,23 @@ destruct (ps_zerop _ (ps_poly_nth 0 pol₁)) as [H₁| H₁].
         rewrite <- find_coeff_add with (dp := n₂).
         rewrite Heqid.
         rewrite Nat.add_0_l, Nat.sub_add; auto.
+        rewrite <- Heqid.
+        subst si; remember (S i) as si.
+        rewrite Hy in Heqn₂.
+        erewrite <- next_pow_eq_p in Heqn₂; eauto .
+        subst n₂.
+        simpl.
+        destruct (ps_zerop R (ps_poly_nth 0 pol₂)) as [H₃| H₃].
+         reflexivity.
+
+         remember (next_pow 0 ns₂ m₁) as pow₁ eqn:Hpow₁ .
+         remember (Nat.compare pow₁ si) as cmp₁ eqn:Hcmp₁ .
+         symmetry in Hcmp₁.
+         destruct cmp₁; auto.
+         rewrite <- Hc₂.
+         remember (next_pol pol₂ (β ns₂) (γ ns₂) c₂) as pol₃.
+         remember (List.hd phony_ns (newton_segments pol₃)) as ns₃.
+bbb.
         rewrite <- Heqid; simpl.
         destruct (ps_zerop R (ps_poly_nth 0 pol₂)); auto.
          contradiction.
@@ -3087,89 +3188,6 @@ bbb.
 bbb.
 
 
-
-Theorem find_coeff_more_iter : ∀ pol ns pow m i n n' r,
-  ns ∈ newton_segments pol
-  → pol_in_K_1_m pol m
-  → q_of_m m (γ ns) = 1%positive
-  → (∀ j, nth_r j pol ns = r)
-  → (1 ≠ 0)%K
-  → (i < n)%nat
-  → n ≤ n'
-  → (find_coeff n pow m pol ns i =
-     find_coeff n' pow m pol ns i)%K.
-Proof.
-intros pol ns pow m i n n' r Hns Hm Hq₀ Hri H₀ Hin Hn'.
-remember (n' - n)%nat as d eqn:Hd .
-replace n' with (n + d)%nat by fast_omega Hd Hn'.
-clear n' Hn' Hd.
-rewrite Nat.add_comm.
-revert n pow Hin.
-revert pol ns Hns Hm Hq₀ Hri.
-induction d; intros; [ reflexivity | idtac ].
-rewrite find_coeff_iter_succ; auto; simpl.
-destruct (ps_zerop R (ps_poly_nth 0 pol)) as [| H₁]; auto.
-remember (Nat.compare pow i) as cmp eqn:Hcmp .
-symmetry in Hcmp.
-destruct cmp; auto.
-remember (ac_root (Φq pol ns)) as c eqn:Hc .
-remember (next_pol pol (β ns) (γ ns) c) as pol₁ eqn:Hpol₁ .
-remember (List.hd phony_ns (newton_segments pol₁)) as ns₁ eqn:Hns₁ .
-remember (next_pow pow ns₁ m) as pow₁.
-destruct (ps_zerop _ (ps_poly_nth 0 pol₁)) as [H₂| H₂].
- rewrite Nat.add_comm.
- destruct n; simpl.
-  exfalso; revert Hin; apply Nat.nlt_0_r.
-
-  destruct (ps_zerop _ (ps_poly_nth 0 pol₁)) as [H₃| H₃].
-   reflexivity.
-
-   contradiction.
-
- remember Hns as H; clear HeqH.
- eapply next_has_root_0_or_newton_segments in H; eauto .
- simpl in H.
- rewrite <- Hc, <- Hpol₁ in H.
- destruct H as [| H]; [ contradiction | idtac ].
- rename H into Hns₁nz.
- pose proof (Hri O) as Hr₀; simpl in Hr₀.
- rewrite <- Hc in Hr₀.
- pose proof (Hri 1%nat) as Hr₁; simpl in Hr₁.
- rewrite <- Hc, <- Hpol₁, <- Hns₁ in Hr₁.
- apply IHd; auto.
-  eapply List_hd_in; eauto .
-
-  eapply first_n_pol_in_K_1_m_any_r with (n := 1%nat); eauto .
-   intros j Hj.
-   destruct j; auto.
-   apply le_S_n in Hj.
-   apply Nat.le_0_r in Hj; rewrite Hj; simpl.
-   rewrite <- Hc, <- Hpol₁; assumption.
-
-   simpl; rewrite <- Hc; auto.
-
-  remember Hns as H; clear HeqH.
-  eapply r_n_next_ns in H; eauto .
-  destruct H as (αj₁, (αk₁, H)).
-  destruct H as (Hini₁, (Hfin₁, (Hαj₁, Hαk₁))).
-  eapply q_eq_1_any_r with (pol := pol₁); eauto .
-   eapply List_hd_in; eauto .
-
-   eapply first_n_pol_in_K_1_m_any_r with (n := 1%nat); eauto .
-    intros j Hj.
-    destruct j; auto.
-    apply le_S_n in Hj.
-    apply Nat.le_0_r in Hj; rewrite Hj; simpl.
-    rewrite <- Hc, <- Hpol₁; assumption.
-
-    simpl; rewrite <- Hc; auto.
-
-   rewrite Hr₁; auto.
-
-  intros j.
-  pose proof (Hri (S j)) as H; simpl in H.
-  rewrite <- Hc, <- Hpol₁, <- Hns₁ in H; auto.
-Qed.
 
 (* cf nth_in_newton_segments *)
 Theorem nth_in_newton_segments_any_r : ∀ pol₁ ns₁ c₁ poln nsn n r,
