@@ -80,7 +80,8 @@ Theorem j_0_k_betw_r₀_r₁ : ∀ pol ns c pol₁ ns₁ c₁ j₁ αj₁ k₁ �
   → root_multiplicity acf c₁ (Φq pol₁ ns₁) = r₁
   → ini_pt ns₁ = (Qnat j₁, αj₁)
   → fin_pt ns₁ = (Qnat k₁, αk₁)
-  → j₁ = 0%nat ∧ r₁ ≤ k₁ ∧ k₁ ≤ r ∧ αj₁ > 0 ∧ αk₁ >= 0.
+  → j₁ = 0%nat ∧ r₁ ≤ k₁ ∧ k₁ ≤ r ∧ αj₁ > 0 ∧ αk₁ >= 0 ∧
+    ((r₁ < r)%nat ∨ αk₁ == 0).
 Proof.
 intros pol ns c pol₁ ns₁ c₁ j₁ αj₁ k₁ αk₁ r r₁.
 intros Hns Hc Hpol₁ Hns₁ Hc₁ Hps₀ Hr Hr₁ Hini₁ Hfin₁.
@@ -211,6 +212,7 @@ destruct r.
         rewrite <- Heqla in Hαk₁.
         rewrite Hαk₁ in H.
         apply Qbar.qfin_le_mono in H.
+        rewrite and_assoc.
         split; [ assumption | idtac ].
         rename H into Hnnegk.
         rewrite minimised_slope_beg_pt in Hns₁.
@@ -270,7 +272,9 @@ destruct r.
            rewrite <- positive_nat_Z in H₂.
            apply Nat2Z.inj in H₂.
            rewrite SuccNat2Pos.id_succ in H₂.
-           rewrite H₂; reflexivity.
+           rewrite H₂; split; [ idtac | reflexivity ].
+           rewrite <- H₁ in Hz.
+           right; assumption.
 
            apply Sorted_app in H.
            destruct H as (_, H).
@@ -284,7 +288,8 @@ destruct r.
             apply HdRel_inv in H.
             unfold fst_lt in H; simpl in H.
             apply Qnat_lt in H.
-            apply Nat.lt_le_incl; auto.
+            split; [ idtac | apply Nat.lt_le_incl; auto ].
+            left; eapply Nat.le_lt_trans; eauto .
 
             apply IHpts₂; auto.
             eapply Sorted_minus_2nd; eauto .
@@ -294,7 +299,47 @@ destruct r.
           simpl in Hpts.
           injection Hpts; clear Hpts; intros Hpts H₁.
           subst pt₁.
-          eapply k_le_r; eauto .
+          assert (k₁ ≤ S r) as H by (eapply k_le_r; eauto ).
+          split; auto.
+          destruct (eq_nat_dec r₁ (S r)) as [H₁| H₁].
+           move H₁ at top; subst r₁.
+           right.
+           apply Nat.le_antisymm in H; auto.
+           move H at top; subst k₁.
+           clear Hrk.
+           rewrite <- Hz.
+           rewrite Hfin₁ in Hpts.
+           apply Sorted_inv_1 in Hsort.
+           rewrite Hpts in Hsort.
+           rewrite List.app_comm_cons in Hsort.
+           remember [pt … pts₁] as pts₃ eqn:Hpts₃ .
+           exfalso; revert Hsort Hsr; clear; intros.
+           induction pts₃ as [| pt]; [ contradiction | idtac ].
+           simpl in Hsr.
+           destruct Hsr as [Hsr| Hsr].
+            subst pt.
+            clear IHpts₃.
+            induction pts₃ as [| pt].
+             simpl in Hsort.
+             apply Sorted_inv in Hsort.
+             destruct Hsort as (_, Hrel).
+             apply HdRel_inv in Hrel.
+             unfold fst_lt in Hrel; simpl in Hrel.
+             revert Hrel; apply Qlt_irrefl.
+
+             simpl in Hsort.
+             apply Sorted_minus_2nd in Hsort.
+              apply IHpts₃; auto.
+
+              intros x y z H₁ H₂; eapply Qlt_trans; eassumption.
+
+            apply IHpts₃; auto.
+            simpl in Hsort.
+            apply Sorted_inv_1 in Hsort; auto.
+
+           left.
+           apply le_neq_lt; auto.
+           eapply Nat.le_trans; eauto .
 Qed.
 
 (* cf root_tail_split_1st *)
@@ -441,10 +486,11 @@ destruct (ps_zerop _ (ps_poly_nth 0 pol₁)) as [H₁| H₁].
   remember (root_multiplicity acf c₂ (Φq pol₂ ns₂)) as r₂ eqn:Hr₂ .
   remember Hns₁₁ as H; clear HeqH.
   symmetry in Hr₁.
+(**)
   eapply j_0_k_betw_r₀_r₁ with (c := c₁) in H; eauto .
   rewrite Nat.add_0_r in H.
   rewrite <- Hr₂ in H.
-  destruct H as (Hj₂, (Hrk₂, (Hk₂r, (Hαj₂, Hαk₂)))).
+  destruct H as (Hj₂, (Hrk₂, (Hk₂r, (Hαj₂, (Hαk₂, Hαk₂z))))).
   remember Hrle₂ as H; clear HeqH.
   eapply Nat.le_trans in H; eauto .
   eapply Nat.le_antisymm in H; eauto .
@@ -452,10 +498,11 @@ destruct (ps_zerop _ (ps_poly_nth 0 pol₁)) as [H₁| H₁].
   clear Hrk₂.
   apply Nat.le_antisymm in Hrle₂; eauto .
   move Hrle₂ at top; subst k₂.
+  destruct Hαk₂z; [ exfalso; revert H; apply Nat.lt_irrefl | idtac ].
   clear Hk₂r.
   subst j₂.
+  clear Hαk₂; rename H into Hαk₂.
 bbb.
-  je voudrais prouver que αk₂ est alors nul.
 
   remember Hns₂i as H; clear HeqH.
   eapply multiplicity_is_pos in H; eauto .
