@@ -1233,60 +1233,66 @@ destruct (ps_zerop _ (ps_poly_nth 0 pol₁)) as [H₁| H₁].
       remember Hns₁i as H; clear HeqH.
       eapply q_eq_1_any_r in H; eauto .
       rename H into Hq₁; move Hq₁ before Hns₁nz.
+      symmetry in Hr₂.
+      remember Hns₂i as H; clear HeqH.
+      eapply q_eq_1_any_r in H; eauto .
+      rename H into Hq₂; move Hq₂ before Hnz₂.
       assert (∀ n, r ≤ nth_r n pol₁ ns₁) as Hrle₁.
        eapply all_r_le_next with (pol := pol); eauto .
 
        move Hrle₁ before Hrle.
-       rewrite find_coeff_iter_succ with (r := r); eauto .
-       subst x.
-       remember (S i) as si.
-       remember (S id) as x; simpl; subst x.
-       destruct (ps_zerop R (ps_poly_nth 0 pol₁)) as [H₄| H₄].
-        contradiction.
+       assert (∀ n, r ≤ nth_r n pol₂ ns₂) as Hrle₂.
+        eapply all_r_le_next with (pol := pol₁); eauto .
 
-        destruct i; [ exfalso; revert H₂; apply Nat.lt_irrefl | idtac ].
-        rewrite <- Hc₁, <- Hpol₂, <- Hns₂; symmetry.
-        rewrite <- find_coeff_add with (dp := n₂).
-        rewrite Heqid.
-        rewrite Nat.add_0_l, Nat.sub_add; auto.
-        rewrite <- Heqid.
-        subst si; remember (S i) as si.
-        rewrite Hy in Heqn₂.
-        erewrite <- next_pow_eq_p in Heqn₂; eauto .
-        subst n₂; simpl.
-        destruct (ps_zerop R (ps_poly_nth 0 pol₂)) as [H₃| H₃].
-         reflexivity.
+        move Hrle₂ before Hrle₁.
+        rewrite find_coeff_iter_succ with (r := r); eauto; symmetry.
+        rewrite find_coeff_iter_succ with (r := r); eauto; symmetry.
+        subst x; clear Hle.
+        remember (S i) as si.
+        remember (S (S id)) as x; simpl; subst x.
+        destruct (ps_zerop R (ps_poly_nth 0 pol₁)) as [H₄| H₄].
+         contradiction.
 
-         remember (next_pow 0 ns₂ m₁) as pow₁ eqn:Hpow₁ .
-         remember (Nat.compare pow₁ si) as cmp₁ eqn:Hcmp₁ .
-         symmetry in Hcmp₁.
-         destruct cmp₁; auto.
-         rewrite <- Hc₂.
-         remember (next_pol pol₂ (β ns₂) (γ ns₂) c₂) as pol₃.
-         remember (List.hd phony_ns (newton_segments pol₃)) as ns₃.
-         destruct (ps_zerop _ (ps_poly_nth 0 pol₃)) as [H₅| H₅].
-          destruct id.
-           apply Nat.add_cancel_r with (p := pow₁) in Heqid.
-           rewrite Nat.sub_add in Heqid; auto.
-           apply nat_compare_lt in Hcmp₁.
-           rewrite <- Heqid in Hcmp₁.
-           exfalso; revert Hcmp₁; apply Nat.lt_irrefl.
+         destruct i; [ exfalso; revert H₂; apply Nat.lt_irrefl | idtac ].
+         rewrite <- Hc₁, <- Hpol₂, <- Hns₂; symmetry.
+         rewrite <- find_coeff_add with (dp := n₂).
+         rewrite Heqid.
+         rewrite Nat.add_0_l, Nat.sub_add; auto.
+         rewrite <- Heqid.
+         subst si; remember (S i) as si.
+         rewrite Hy in Heqn₂.
+         symmetry in Hr₂.
+         erewrite <- next_pow_eq_p in Heqn₂; eauto .
+         remember (S id) as sid.
+         subst n₂; simpl.
+         destruct (ps_zerop R (ps_poly_nth 0 pol₂)) as [H₃| H₃].
+          reflexivity.
 
-           subst si; simpl.
+          remember (next_pow 0 ns₂ m₁) as pow₁ eqn:Hpow₁ .
+          remember (Nat.compare pow₁ si) as cmp₁ eqn:Hcmp₁ .
+          symmetry in Hcmp₁.
+          destruct cmp₁; auto.
+          rewrite <- Hc₂.
+          remember (next_pol pol₂ (β ns₂) (γ ns₂) c₂) as pol₃.
+          remember (List.hd phony_ns (newton_segments pol₃)) as ns₃.
+          destruct (ps_zerop _ (ps_poly_nth 0 pol₃)) as [H₅| H₅].
+           subst si sid; simpl.
            destruct (ps_zerop _ (ps_poly_nth 0 pol₃)) as [H₆| H₆].
             reflexivity.
 
             contradiction.
 
-          replace pow₁ with (0 + pow₁)%nat by auto.
-          rewrite next_pow_add.
-          apply Nat.add_cancel_r with (p := pow₁) in Heqid.
-          rewrite Nat.sub_add in Heqid; auto.
-          rewrite <- Heqid.
-          do 2 rewrite find_coeff_add.
-          eapply find_coeff_more_iter; eauto .
+           rename H₅ into Hnz₃.
+           replace pow₁ with (0 + pow₁)%nat by auto.
+           rewrite next_pow_add.
+           apply Nat.add_cancel_r with (p := pow₁) in Heqid.
+           rewrite Nat.sub_add in Heqid; auto.
+           rewrite <- Heqid.
+           do 2 rewrite find_coeff_add.
+           subst sid.
+           eapply find_coeff_more_iter; eauto .
 bbb.
-  H₅ : (ps_poly_nth 0 pol₃ ≠ 0)%ps
+  Hnz₃ : (ps_poly_nth 0 pol₃ ≠ 0)%ps
   ============================
    ns₃ ∈ newton_segments pol₃
 
@@ -1299,9 +1305,9 @@ subgoal 4 is:
  root_multiplicity acf (ac_root (Φq pol₃ ns₃)) (Φq pol₃ ns₃) + 0
  ≤ nth_r j pol₃ ns₃
 subgoal 5 is:
- (id < id)%nat
+ S id ≤ id + pow₁
 subgoal 6 is:
- id ≤ id + pow₁
+ (nd * ' m₁ / ' dd * ' (dd * dd))%Z = x
 
         rewrite <- Heqid; simpl.
         destruct (ps_zerop R (ps_poly_nth 0 pol₂)); auto.
