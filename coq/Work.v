@@ -616,92 +616,19 @@ induction n; intros.
  eapply next_ns_r_non_decr in H; try eassumption.
  destruct H as (H, _); move H at top; subst r₁.
  clear Hrr.
- assert (∀ i, r ≤ nth_r i pol₁ ns₁) as Hrle₁.
+ eapply IHn with (pol := pol₁); try eassumption.
+  replace m with (m * 1)%positive by apply Pos.mul_1_r.
+  symmetry in Hq.
+  eapply next_pol_in_K_1_mq with (ns := ns); try eassumption.
+
   eapply all_r_le_next with (pol := pol); eauto .
 
-  eapply IHn with (pol := pol₁); try eassumption.
-bbb.
-  ============================
-   pol_in_K_1_m pol₁ m
-
-subgoal 2 is:
- ∀ i : nat, i ≤ n → (ps_poly_nth 0 (nth_pol i pol₁ ns₁) ≠ 0)%ps
-
-    eapply IHn with (pol := pol₁) (ns := ns₁); eauto .
-     eapply q_eq_1_any_r with (ns := ns₁); eauto .
-bbb.
-intros pol ns poln m c r Hns HK Hc Hq Hri H₀ n Hnz Hpoln.
-revert pol ns poln m c Hns HK Hc Hq Hri Hnz Hpoln.
-bbb.
-induction n; intros.
- simpl in Hpoln; subst poln; assumption.
-
- simpl in Hpoln.
-(*
- assert (0 ≤ S n)%nat as H by apply Nat.le_0_l.
- apply Hri in H; simpl in H; rename H into Hr₀.
- assert (1 ≤ S n)%nat as H by apply le_n_S, Nat.le_0_l.
- apply Hri in H; simpl in H; rename H into Hr₁.
- rewrite <- Hc in Hr₀, Hr₁.
-*)
- remember (next_pol pol (β ns) (γ ns) c) as pol₁ eqn:Hpol₁ .
- remember (List.hd phony_ns (newton_segments pol₁)) as ns₁ eqn:Hns₁ .
- remember Hns₁ as H; clear HeqH.
- apply exists_ini_pt_nat_fst_seg in H.
- destruct H as (j₁, (αj₁, Hini₁)).
- remember Hns₁ as H; clear HeqH.
- apply exists_fin_pt_nat_fst_seg in H.
- destruct H as (k₁, (αk₁, Hfin₁)).
- rewrite <- Hc, <- Hpol₁, <- Hns₁ in Hpoln.
- remember (ac_root (Φq pol₁ ns₁)) as c₁ eqn:Hc₁ .
- remember Hns₁ as H; clear HeqH.
- apply List_hd_in in H.
-  rename H into Hns₁₁.
-  remember Hns as H; clear HeqH.
-  eapply r_n_j_0_k_n with (r := r) in H; try eassumption.
-   destruct H as (Hj₁, (Hk₁, (Hαj₁, Hαk₁))).
-   subst j₁ k₁; simpl.
-   unfold Qlt in Hαj₁; simpl in Hαj₁.
-   unfold Qeq in Hαk₁; simpl in Hαk₁.
-   rewrite Z.mul_1_r in Hαj₁, Hαk₁.
-   assert (pol_in_K_1_m pol₁ m) as HK₁.
-    replace m with (m * 1)%positive by apply Pos.mul_1_r.
-    eapply next_pol_in_K_1_mq with (ns := ns); eauto .
-
-     rewrite Hr₁; assumption.
-
-     intros i Hin.
-     remember Hin as H; clear HeqH.
-     apply Nat.succ_le_mono in H.
-     apply Hri in H; simpl in H.
-     rewrite <- Hc, <- Hpol₁, <- Hns₁ in H.
-     eauto .
-
-     intros i Hin.
-     remember Hin as H; clear HeqH.
-     apply Nat.succ_le_mono in H.
-     apply Hnz in H; simpl in H.
-     rewrite <- Hc, <- Hpol₁, <- Hns₁ in H.
-     auto.
-
-   clear H.
-   assert (1 ≤ S n)%nat as H by apply le_n_S, Nat.le_0_l.
-   apply Hnz in H; simpl in H.
-   rewrite <- Hc, <- Hpol₁ in H.
-   auto.
-
-  clear H.
-  remember Hns as H; clear HeqH.
-  eapply next_has_root_0_or_newton_segments in H; eauto .
-  simpl in H.
-  rewrite <- Hc, <- Hpol₁ in H.
-  destruct H as [H₁| H₁]; auto.
-  assert (1 ≤ S n)%nat as H by apply le_n_S, Nat.le_0_l.
-  apply Hnz in H; simpl in H.
-  rewrite <- Hc, <- Hpol₁ in H.
-  contradiction.
+  intros i Hin.
+  apply Nat.succ_le_mono in Hin.
+  apply Hnz in Hin; simpl in Hin.
+  rewrite <- Hc, <- Hpol₁, <- Hns₁ in Hin.
+  assumption.
 Qed.
-*)
 
 Theorem find_coeff_iter_succ : ∀ pol ns c pow m i n r,
   ns ∈ newton_segments pol
