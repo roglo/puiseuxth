@@ -191,12 +191,17 @@ destruct z₁.
    remember Hpolb₂ as H; clear HeqH.
    erewrite nth_pol_n with (c := c₁) in H; try eassumption.
    rename H into Hpolb₂n.
+   pose proof (Hpsi (S b) (Nat.le_refl (S b))) as H.
+   simpl in H.
+   rewrite <- Hc₁, <- Hpol₂, <- Hns₂ in H.
+   rewrite <- Hpolb₂ in H.
+   rename H into Hnzb₂.
+   remember (root_multiplicity acf cb₁ (Φq polb₁ nsb₁)) as rb₁ eqn:Hrb₁ .
+   symmetry in Hrb₁.
    remember Hnsb₁i as H; clear HeqH.
    eapply next_ns_r_non_decr with (pol₁ := polb₂) in H; eauto .
 bbb.
 subgoal 2 is:
- (ps_poly_nth 0 polb₂ ≠ 0)%ps
-subgoal 3 is:
  root_multiplicity acf cb₁ (Φq polb₁ nsb₁) + 0
  ≤ root_multiplicity acf
      (ac_root (Φq polb₂ (List.hd phony_ns (newton_segments polb₂))))
