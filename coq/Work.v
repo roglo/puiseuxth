@@ -76,6 +76,22 @@ eapply q_eq_1_any_r; try eassumption.
 reflexivity.
 Qed.
 
+Theorem xxx : ∀ pol ns b r,
+  zerop_1st_n_const_coeff b pol ns = false
+  → nth_r 0 pol ns = r
+  → (∀ i, r ≤ nth_r i pol ns)
+  → ∀ n : nat, n ≤ b → r = nth_r n pol ns.
+Proof.
+intros pol ns b r Hz Hr Hri n Hnb.
+rewrite zerop_1st_n_const_coeff_false_iff in Hz.
+revert pol ns n Hz Hr Hri Hnb.
+induction b; intros.
+ apply Nat.le_0_r in Hnb; subst n; auto.
+
+ destruct n; auto.
+ apply le_S_n in Hnb.
+bbb.
+
 (* cf root_tail_from_0 *)
 Theorem root_tail_from_0_const_r : ∀ pol ns c pol₁ ns₁ c₁ m q₀ b r,
   ns ∈ newton_segments pol
@@ -108,6 +124,7 @@ destruct z₁.
  rewrite Hz₁; simpl.
  rewrite rng_add_0_l, rng_mul_0_r; reflexivity.
 
+bbb.
  rewrite rng_add_0_r.
  unfold γ_sum; simpl.
  unfold summation; simpl.
