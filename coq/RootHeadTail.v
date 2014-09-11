@@ -1459,6 +1459,18 @@ remember (S n) as sn; simpl; subst sn.
 apply IHn.
 Qed.
 
+Theorem nth_c_succ : ∀ n pol ns pol₁ ns₁,
+  pol₁ = nth_pol (S n) pol ns
+  → ns₁ = nth_ns (S n) pol ns
+  → nth_c (S n) pol ns = ac_root (Φq pol₁ ns₁).
+Proof.
+intros n pol ns pol₁ ns₁ Hpol₁ Hns₁; subst.
+revert pol ns.
+induction n; intros; [ reflexivity | idtac ].
+remember (S n) as sn; simpl; subst sn.
+apply IHn.
+Qed.
+
 Theorem exists_ini_pt_nat_n : ∀ pol ns n nsn,
   ns ∈ newton_segments pol
   → nsn = nth_ns n pol ns

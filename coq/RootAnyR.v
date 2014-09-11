@@ -2495,4 +2495,81 @@ eapply IHn with (m := (m * q₀)%positive); try eassumption; try reflexivity.
  assumption.
 Qed.
 
+Theorem nth_pol_in_K_1_m : ∀ pol ns c αj αk poln m n r,
+  ns ∈ newton_segments pol
+  → pol_in_K_1_m pol m
+  → c = ac_root (Φq pol ns)
+  → ini_pt ns = (Qnat 0, αj)
+  → fin_pt ns = (Qnat r, αk)
+  → (0 < Qnum αj)%Z
+  → Qnum αk = 0%Z
+  → root_multiplicity acf c (Φq pol ns) = r
+  → (∀ n, r ≤ nth_r n pol ns)
+  → (∀ i : nat, i ≤ n → (ps_poly_nth 0 (nth_pol i pol ns) ≠ 0)%ps)
+  → (1 ≠ 0)%K
+  → poln = nth_pol n pol ns
+  → pol_in_K_1_m poln m.
+Proof.
+intros pol ns c αj αk poln m n r.
+intros Hns HK Hc Hini Hfin Hαj Hαk Hr Hrle Hpsi H₀ Hpoln.
+eapply first_n_pol_in_K_1_m_any_r; try eassumption.
+symmetry in Hr.
+eapply q_eq_1_any_r; try eassumption.
+reflexivity.
+Qed.
+
+Theorem all_ns_in_newton_segments : ∀ pol ns b r,
+  ns ∈ newton_segments pol
+  → zerop_1st_n_const_coeff b pol ns = false
+  → nth_r 0 pol ns = r
+  → (∀ i, r ≤ nth_r i pol ns)
+  → ∀ n : nat, n ≤ b → nth_ns n pol ns ∈ newton_segments (nth_pol n pol ns).
+Proof.
+intros pol ns b r Hns Hz Hr Hri n Hnb.
+rewrite zerop_1st_n_const_coeff_false_iff in Hz.
+revert pol ns n Hns Hz Hr Hri Hnb.
+induction b; intros; [ apply Nat.le_0_r in Hnb; subst n; auto | idtac ].
+destruct n; auto.
+apply le_S_n in Hnb; simpl.
+remember (ac_root (Φq pol ns)) as c eqn:Hc .
+remember (next_pol pol (β ns) (γ ns) c) as pol₁ eqn:Hpol₁ .
+remember (List.hd phony_ns (newton_segments pol₁)) as ns₁ eqn:Hns₁ .
+apply IHb; auto.
+ eapply nth_in_newton_segments_any_r with (n := 1%nat); try eassumption.
+  intros i Hi1.
+  apply Hz.
+  transitivity 1%nat; auto; apply le_n_S, Nat.le_0_l.
+
+  simpl; rewrite <- Hc; assumption.
+
+  simpl; rewrite <- Hc, <- Hpol₁; assumption.
+
+ intros i Hib.
+ apply Nat.succ_le_mono in Hib.
+ apply Hz in Hib; simpl in Hib.
+ rewrite <- Hc, <- Hpol₁, <- Hns₁ in Hib; assumption.
+
+ simpl in Hr; rewrite <- Hc in Hr.
+ remember (ac_root (Φq pol₁ ns₁)) as c₁ eqn:Hc₁ .
+ remember (root_multiplicity acf c₁ (Φq pol₁ ns₁)) as r₁ eqn:Hr₁ .
+ remember Hns as H; clear HeqH.
+ symmetry in Hr₁.
+ eapply next_ns_r_non_decr in H; try eassumption.
+  destruct H as (H, _); move H at top; subst r₁.
+  simpl; rewrite <- Hc₁; assumption.
+
+  clear H.
+  assert (1 ≤ S b)%nat as H by apply le_n_S, Nat.le_0_l.
+  apply Hz in H; simpl in H.
+  rewrite <- Hc, <- Hpol₁ in H; assumption.
+
+  clear H.
+  pose proof (Hri 1%nat) as H; simpl in H.
+  rewrite <- Hc, <- Hpol₁, <- Hns₁, <- Hc₁, Hr₁ in H; assumption.
+
+ intros i.
+ pose proof (Hri (S i)) as H; simpl in H.
+ rewrite <- Hc, <- Hpol₁, <- Hns₁ in H; assumption.
+Qed.
+
 End theorems.
