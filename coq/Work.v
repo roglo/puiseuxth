@@ -557,10 +557,22 @@ induction n; intros.
  apply exists_fin_pt_nat_fst_seg in H.
  destruct H as (k₁, (αk₁, Hfin₁)).
  remember (ac_root (Φq pol₁ ns₁)) as c₁ eqn:Hc₁ .
- remember Hns₁ as H; clear HeqH.
- apply List_hd_in in H.
-  rename H into Hns₁₁.
+ simpl in Hpoln.
+ rewrite <- Hc, <- Hpol₁, <- Hns₁ in Hpoln.
+ eapply IHn with (pol := pol₁); eauto .
+
 bbb.
+  ============================
+   ns₁ ∈ newton_segments pol₁
+
+subgoal 2 is:
+ pol_in_K_1_m pol₁ m
+subgoal 3 is:
+ q_of_m m (γ ns₁) = 1%positive
+subgoal 4 is:
+ ∀ i : nat, r ≤ nth_r i pol₁ ns₁
+subgoal 5 is:
+ ∀ i : nat, i ≤ n → (ps_poly_nth 0 (nth_pol i pol₁ ns₁) ≠ 0)%ps
 
 intros pol ns poln m c r Hns HK Hc Hq Hri H₀ n Hnz Hpoln.
 revert pol ns poln m c Hns HK Hc Hq Hri Hnz Hpoln.
