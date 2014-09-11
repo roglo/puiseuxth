@@ -530,41 +530,40 @@ rewrite H₂ in Hr.
 revert Hr; apply Nat.lt_irrefl.
 Qed.
 
-Theorem xxx : ∀ pol ns c pol₁ ns₁ m,
+Theorem xxx : ∀ pol ns c pol₁ ns₁ m r,
   ns ∈ newton_segments pol
   → c = ac_root (Φq pol ns)
   → pol₁ = next_pol pol (β ns) (γ ns) c
   → ns₁ = List.hd phony_ns (newton_segments pol₁)
   → (ps_poly_nth 0 pol₁ ≠ 0)%ps
+  → root_multiplicity acf c (Φq pol ns) = r
+  → (∀ i, r ≤ nth_r i pol ns)
+  → (1 ≠ 0)%K
   → q_of_m m (γ ns₁) = 1%positive.
 Proof.
-intros pol ns c pol₁ ns₁ m Hns Hc Hpol₁ Hns₁ Hnz₁.
+intros pol ns c pol₁ ns₁ m r Hns Hc Hpol₁ Hns₁ Hnz₁ Hr₀ Hrle H₀.
 remember Hns as H; clear HeqH.
 eapply next_ns_in_pol in H; eauto .
 rename H into Hns₁i.
+pose proof (Hrle 1%nat) as H; simpl in H.
+rewrite <- Hc, <- Hpol₁, <- Hns₁ in H.
+remember (ac_root (Φq pol₁ ns₁)) as c₁ eqn:Hc₁ .
+rename H into Hrle₁.
+remember (root_multiplicity acf c₁ (Φq pol₁ ns₁)) as r₁ eqn:Hr₁ .
 remember Hns as H; clear HeqH.
+symmetry in Hr₁.
 eapply next_ns_r_non_decr in H; eauto .
-bbb.
-subgoal 2 is:
- root_multiplicity acf c (Φq pol ns) + 0
- ≤ root_multiplicity acf (ac_root (Φq pol₁ ns₁)) (Φq pol₁ ns₁) + 0
-
+clear Hrle₁.
+destruct H as (Heq, H); move Heq at top; subst r₁.
+destruct H as (αj₁, (αk₁, H)).
+destruct H as (Hini₁, (Hfin₁, (Hαj₁, Hαk₁))).
 remember Hns₁i as H; clear HeqH.
+symmetry in Hr₁.
 eapply q_eq_1_any_r with (ns := ns₁); eauto .
 bbb.
   ============================
    pol_in_K_1_m pol₁ m
-
-subgoal 2 is:
- ini_pt ns₁ = (Qnat 0, ?18058)
-subgoal 3 is:
- fin_pt ns₁ =
- (Qnat (root_multiplicity acf (ac_root (Φq pol₁ ns₁)) (Φq pol₁ ns₁)), ?18059)
-subgoal 4 is:
- (0 < Qnum ?18058)%Z
-subgoal 5 is:
- Qnum ?18059 = 0%Z
-subgoal 6 is:
+*)
 
 (* cf first_n_pol_in_K_1_m *)
 Theorem first_n_pol_in_K_1_m_any_r : ∀ pol ns poln m c r,
