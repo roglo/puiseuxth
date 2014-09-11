@@ -530,6 +530,33 @@ rewrite H₂ in Hr.
 revert Hr; apply Nat.lt_irrefl.
 Qed.
 
+Theorem xxx : ∀ pol ns c pol₁ ns₁ m,
+  ns ∈ newton_segments pol
+  → c = ac_root (Φq pol ns)
+  → pol₁ = next_pol pol (β ns) (γ ns) c
+  → ns₁ = List.hd phony_ns (newton_segments pol₁)
+  → (ps_poly_nth 0 pol₁ ≠ 0)%ps
+  → q_of_m m (γ ns₁) = 1%positive.
+Proof.
+intros pol ns c pol₁ ns₁ m Hns Hc Hpol₁ Hns₁ Hnz₁.
+remember Hns as H; clear HeqH.
+eapply next_ns_in_pol in H; eauto .
+eapply q_eq_1_any_r with (ns := ns₁).
+bbb.
+  ============================
+   pol_in_K_1_m pol₁ m
+
+subgoal 2 is:
+ ini_pt ns₁ = (Qnat 0, ?18058)
+subgoal 3 is:
+ fin_pt ns₁ =
+ (Qnat (root_multiplicity acf (ac_root (Φq pol₁ ns₁)) (Φq pol₁ ns₁)), ?18059)
+subgoal 4 is:
+ (0 < Qnum ?18058)%Z
+subgoal 5 is:
+ Qnum ?18059 = 0%Z
+subgoal 6 is:
+
 (* cf first_n_pol_in_K_1_m *)
 Theorem first_n_pol_in_K_1_m_any_r : ∀ pol ns poln m c r,
   ns ∈ newton_segments pol
