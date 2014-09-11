@@ -541,7 +541,16 @@ Proof.
 intros pol ns c pol₁ ns₁ m Hns Hc Hpol₁ Hns₁ Hnz₁.
 remember Hns as H; clear HeqH.
 eapply next_ns_in_pol in H; eauto .
-eapply q_eq_1_any_r with (ns := ns₁); eauto.
+rename H into Hns₁i.
+remember Hns as H; clear HeqH.
+eapply next_ns_r_non_decr in H; eauto .
+bbb.
+subgoal 2 is:
+ root_multiplicity acf c (Φq pol ns) + 0
+ ≤ root_multiplicity acf (ac_root (Φq pol₁ ns₁)) (Φq pol₁ ns₁) + 0
+
+remember Hns₁i as H; clear HeqH.
+eapply q_eq_1_any_r with (ns := ns₁); eauto .
 bbb.
   ============================
    pol_in_K_1_m pol₁ m
