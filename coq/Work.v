@@ -739,39 +739,10 @@ induction i; intros.
      subst sn.
      apply lt_S_n in Hin.
      eapply IHi; try eassumption.
-bbb.
-  ============================
-   q_of_m m (γ ns₁) = 1%positive
+      eapply q_eq_1_r_non_decr with (ns := ns); eassumption.
 
-subgoal 2 is:
- ∀ n0 : nat, r ≤ nth_r n0 pol₁ ns₁
-
-     apply lt_S_n in Hin.
-     eapply IHi; eauto .
-      symmetry in Hr₁.
-      eapply q_eq_1_any_r; eauto .
-
-      intros j.
-      pose proof (Hrle (S j)) as H.
-      simpl in H.
-      rewrite <- Hc, <- Hpol₁, <- Hns₁ in H; auto.
-
-    intros j Hjn.
-    destruct j; auto.
-    destruct j; [ simpl; rewrite <- Hc, <- Hpol₁; auto | idtac ].
-    apply le_S_n in Hjn.
-    exfalso; revert Hjn; apply Nat.nle_succ_0.
-
-    intros j Hjn.
-    destruct j; auto.
-    destruct j; [ simpl; rewrite <- Hc, <- Hpol₁; auto | idtac ].
-     rewrite <- Hns₁, <- Hc₁, Hr₀, Hr₁.
-     rewrite Nat.add_0_r; reflexivity.
-
-     apply le_S_n in Hjn.
-     exfalso; revert Hjn; apply Nat.nle_succ_0.
+      eapply all_r_le_next with (pol := pol); eauto .
 Qed.
-*)
 
 Theorem find_coeff_more_iter : ∀ pol ns c pow m i n n' r,
   ns ∈ newton_segments pol
