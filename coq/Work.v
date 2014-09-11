@@ -559,6 +559,12 @@ induction n; intros.
  remember (ac_root (Φq pol₁ ns₁)) as c₁ eqn:Hc₁ .
  simpl in Hpoln.
  rewrite <- Hc, <- Hpol₁, <- Hns₁ in Hpoln.
+ remember Hns as H; clear HeqH.
+ apply next_ns_in_pol with (c := c) (pol₁ := pol₁) (ns₁ := ns₁) in H; auto.
+bbb.
+subgoal 2 is:
+ (ps_poly_nth 0 pol₁ ≠ 0)%ps
+
  eapply IHn with (pol := pol₁); eauto .
 
 bbb.
