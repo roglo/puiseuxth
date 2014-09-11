@@ -766,8 +766,7 @@ revert n pow Hin.
 revert pol ns Hns Hm Hq₀ Hr₀ Hc Hrle.
 revert c.
 induction d; intros; [ reflexivity | idtac ].
-bbb.
-erewrite find_coeff_iter_succ; eauto ; simpl.
+erewrite find_coeff_iter_succ; try eassumption; simpl.
 destruct (ps_zerop R (ps_poly_nth 0 pol)) as [| H₁]; auto.
 remember (Nat.compare pow i) as cmp eqn:Hcmp .
 symmetry in Hcmp.
@@ -821,16 +820,7 @@ destruct (ps_zerop _ (ps_poly_nth 0 pol₁)) as [H₂| H₂].
   apply le_S_n in Hj.
   apply Nat.le_0_r in Hj; rewrite Hj; simpl.
   rewrite <- Hc, <- Hpol₁; assumption.
-
-  intros j Hj.
-  destruct j; auto.
-  rewrite Nat.add_0_r.
-  apply le_S_n in Hj.
-  apply Nat.le_0_r in Hj; subst j; simpl.
-  rewrite <- Hc, <- Hpol₁, <- Hns₁, <- Hc₁.
-  rewrite Hr₀, Hr₁; reflexivity.
 Qed.
-*)
 
 (* cf root_tail_split_1st *)
 Theorem root_tail_split_1st_any_r : ∀ pol ns c pol₁ ns₁ c₁ m q₀ r,
