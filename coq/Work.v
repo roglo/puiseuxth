@@ -53,7 +53,7 @@ Definition multiplicity_decreases pol ns n :=
   let rn := root_multiplicity acf cn (Φq poln nsn) in
   (rn < r)%nat.
 
-Theorem xxx : ∀ pol ns b r,
+Theorem non_decr_imp_eq : ∀ pol ns b r,
   ns ∈ newton_segments pol
   → zerop_1st_n_const_coeff b pol ns = false
   → nth_r 0 pol ns = r
@@ -61,59 +61,61 @@ Theorem xxx : ∀ pol ns b r,
   → ∀ n : nat, n ≤ b → r = nth_r n pol ns.
 Proof.
 intros pol ns b r Hns Hz Hr Hri n Hnb.
-rewrite zerop_1st_n_const_coeff_false_iff in Hz.
 revert pol ns n Hns Hz Hr Hri Hnb.
 induction b; intros; [ apply Nat.le_0_r in Hnb; subst n; auto | idtac ].
 destruct n; auto.
 apply le_S_n in Hnb.
+remember Hz as H; clear HeqH.
+rewrite zerop_1st_n_const_coeff_succ2 in H.
+apply orb_false_iff in H.
+destruct H as (Hz₁, _).
 remember Hns as H; clear HeqH.
 eapply all_ns_in_newton_segments in H; try eassumption.
- remember (nth_ns n pol ns) as nsn eqn:Hnsn .
- remember (nth_pol n pol ns) as poln eqn:Hpoln .
- remember (ac_root (Φq poln nsn)) as cn eqn:Hcn .
- remember (next_pol poln (β nsn) (γ nsn) cn) as poln₁ eqn:Hpoln₁ .
- remember (List.hd phony_ns (newton_segments poln₁)) as nsn₁ eqn:Hnsn₁ .
- remember (ac_root (Φq poln₁ nsn₁)) as cn₁ eqn:Hcn₁ .
- remember (nth_r (S n) pol ns) as r₁ eqn:Hr₁ .
- eapply next_ns_r_non_decr with (r := r) (r₁ := r₁) in H; eauto .
-  destruct H; assumption.
+rename H into Hnsni.
+remember (nth_ns n pol ns) as nsn eqn:Hnsn .
+remember (nth_pol n pol ns) as poln eqn:Hpoln .
+remember (ac_root (Φq poln nsn)) as cn eqn:Hcn .
+remember (next_pol poln (β nsn) (γ nsn) cn) as poln₁ eqn:Hpoln₁ .
+remember (List.hd phony_ns (newton_segments poln₁)) as nsn₁ eqn:Hnsn₁ .
+remember (ac_root (Φq poln₁ nsn₁)) as cn₁ eqn:Hcn₁ .
+remember (nth_r (S n) pol ns) as r₁ eqn:Hr₁ .
+remember Hnb as H; clear HeqH.
+apply Nat.succ_le_mono in H.
+rewrite zerop_1st_n_const_coeff_false_iff in Hz.
+apply Hz in H.
+erewrite nth_pol_succ in H; try eassumption; try reflexivity.
+erewrite nth_c_n in H; try eassumption.
+rewrite <- Hcn, <- Hpoln₁ in H.
+rename H into Hnzn₁.
+remember Hns as H; clear HeqH.
+eapply IHb in H; eauto .
+symmetry in H.
+rename H into Hrn.
+remember Hcn as H; clear HeqH.
+erewrite <- nth_c_n in H; try eassumption.
+rename H into Hcnn.
+remember Hnsni as H; clear HeqH.
+eapply next_ns_r_non_decr with (r := r) (r₁ := r₁) in H; eauto .
+ destruct H; assumption.
 
-  clear H.
-  remember Hnb as H; clear HeqH.
-  apply Nat.succ_le_mono in H.
-  apply Hz in H.
-  erewrite nth_pol_succ in H; try eassumption; try reflexivity.
-  erewrite nth_c_n in H; try eassumption.
-  rewrite <- Hcn in H.
-  rewrite <- Hpoln₁ in H; assumption.
+ erewrite <- nth_r_n; try eassumption.
 
-  erewrite <- nth_r_n.
-   2: eauto .
+ symmetry; clear H.
+ remember Hpoln as H; clear HeqH.
+ eapply nth_pol_succ in H; try eassumption.
+ rewrite <- Hpoln₁ in H.
+ symmetry in H.
+ rename H into Hpoln₁₁.
+ remember Hpoln₁₁ as H; clear HeqH.
+ eapply nth_ns_succ in H; try eassumption.
+ rewrite <- Hnsn₁ in H.
+ symmetry in H.
+ rename H into Hnsn₁₁.
+ erewrite nth_r_n in Hr₁; try eassumption.
+ erewrite nth_c_n; try eassumption.
 
-   2: eauto .
-
-   symmetry.
-   apply IHb; auto.
-
-   erewrite nth_c_n; try eassumption.
-
-  symmetry.
-  erewrite nth_r_n in Hr₁; try eassumption.
-   erewrite nth_pol_succ; try eassumption.
-   erewrite nth_c_n; try eassumption.
-
-   erewrite nth_ns_succ; try eassumption.
-   erewrite nth_pol_succ; try eassumption.
-   erewrite nth_c_n; try eassumption.
-
-   Focus 2.
-   rewrite Hr₁; apply Hri.
-
-  Focus 2.
-  apply zerop_1st_n_const_coeff_false_iff; intros i Hib.
-  apply Hz.
-  apply Nat.le_le_succ_r; assumption.
-bbb.
+ rewrite Hr₁; apply Hri.
+Qed.
 
 (* cf root_tail_from_0 *)
 Theorem root_tail_from_0_const_r : ∀ pol ns c pol₁ ns₁ c₁ m q₀ b r,
@@ -147,7 +149,30 @@ destruct z₁.
  rewrite Hz₁; simpl.
  rewrite rng_add_0_l, rng_mul_0_r; reflexivity.
 
+ remember Hns as H; clear HeqH.
+ eapply all_ns_in_newton_segments with (n := 1%nat) (b := S b₁) in H; auto.
+  simpl in H.
+  rewrite <- Hc, <- Hpol₁, <- Hns₁ in H.
+  rename H into Hns₁i.
+  assert (∀ n, n ≤ b₁ → r = nth_r n pol₁ ns₁) as Hreq.
+   apply non_decr_imp_eq; auto.
+    Focus 4.
+    simpl.
+    destruct (ps_zerop R (ps_poly_nth 0 pol)) as [H₁| H₁].
+     rewrite zerop_1st_n_const_coeff_false_iff in Hz₁.
+
 bbb.
+  H₁ : (ps_poly_nth 0 pol = 0)%ps
+  ============================
+   true = false
+
+subgoal 2 is:
+ zerop_1st_n_const_coeff b₁
+   (next_pol pol (β ns) (γ ns) (ac_root (Φq pol ns)))
+   (List.hd phony_ns
+      (newton_segments (next_pol pol (β ns) (γ ns) (ac_root (Φq pol ns))))) =
+ false
+
  rewrite rng_add_0_r.
  unfold γ_sum; simpl.
  unfold summation; simpl.
