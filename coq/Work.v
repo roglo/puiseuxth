@@ -605,18 +605,30 @@ induction n; intros.
  rename H into Hns₁i.
  remember Hns as H; clear HeqH.
  eapply q_eq_1_r_non_decr in H; try eassumption.
+ rename H into Hq₁.
+ remember (root_multiplicity acf c₁ (Φq pol₁ ns₁)) as r₁ eqn:Hr₁ .
+ pose proof (Hri 1%nat) as H; simpl in H.
+ rewrite <- Hc, <- Hpol₁, <- Hns₁, <- Hc₁ in H.
+ rewrite <- Hr₁ in H.
+ rename H into Hrr.
+ remember Hns as H; clear HeqH.
+ symmetry in Hr₁.
+ eapply next_ns_r_non_decr in H; try eassumption.
+ destruct H as (H, _); move H at top; subst r₁.
+ clear Hrr.
  eapply IHn with (pol := pol₁); try eassumption.
 bbb.
   ============================
    pol_in_K_1_m pol₁ m
 
 subgoal 2 is:
- root_multiplicity acf c₁ (Φq pol₁ ns₁) = r
-subgoal 3 is:
  ∀ i : nat, r ≤ nth_r i pol₁ ns₁
-subgoal 4 is:
+subgoal 3 is:
  ∀ i : nat, i ≤ n → (ps_poly_nth 0 (nth_pol i pol₁ ns₁) ≠ 0)%ps
 
+    eapply IHn with (pol := pol₁) (ns := ns₁); eauto .
+     eapply q_eq_1_any_r with (ns := ns₁); eauto .
+bbb.
 intros pol ns poln m c r Hns HK Hc Hq Hri H₀ n Hnz Hpoln.
 revert pol ns poln m c Hns HK Hc Hq Hri Hnz Hpoln.
 bbb.
@@ -655,9 +667,6 @@ induction n; intros.
     replace m with (m * 1)%positive by apply Pos.mul_1_r.
     eapply next_pol_in_K_1_mq with (ns := ns); eauto .
 
-    eapply IHn with (pol := pol₁) (ns := ns₁); eauto .
-     eapply q_eq_1_any_r with (ns := ns₁); eauto .
-bbb.
      rewrite Hr₁; assumption.
 
      intros i Hin.
