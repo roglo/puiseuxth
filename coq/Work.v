@@ -1211,9 +1211,8 @@ Theorem root_tail_from_0_const_r : ∀ pol ns c pol₁ ns₁ c₁ m q₀ b r,
   → pol₁ = next_pol pol (β ns) (γ ns) c
   → ns₁ = List.hd phony_ns (newton_segments pol₁)
   → c₁ = ac_root (Φq pol₁ ns₁)
-  → root_multiplicity acf c (Φq pol ns) = r
-  → root_multiplicity acf c₁ (Φq pol₁ ns₁) = r
-  → zerop_1st_n_const_coeff b pol₁ ns₁ = false
+  → (∀ i, i ≤ 1%nat → nth_r i pol ns = r)
+  → (∀ n, r ≤ nth_r n pol ns)
   → (1 ≠ 0)%K
   → (root_tail (m * q₀) b pol₁ ns₁ =
      root_head b 0 pol₁ ns₁ +
@@ -1221,9 +1220,8 @@ Theorem root_tail_from_0_const_r : ∀ pol ns c pol₁ ns₁ c₁ m q₀ b r,
        root_tail (m * q₀) (b + 1) pol₁ ns₁)%ps.
 Proof.
 intros pol ns c pol₁ ns₁ c₁ m q₀ b r.
-intros Hns Hm Hq₀ Hc Hpol₁ Hns₁ Hc₁ Hr₀ Hr₁ H₀ Hnz.
+intros Hns Hm Hq₀ Hc Hpol₁ Hns₁ Hc₁ Hri Hnle H₀.
 remember (m * q₀)%positive as m₁.
-bbb.
 destruct b; [ subst m₁; eapply root_tail_split_1st_any_r; eauto  | idtac ].
 remember (S b) as b₁ eqn:Hb₁ .
 unfold root_tail, root_head; simpl.
@@ -1260,11 +1258,12 @@ destruct z₁.
  rewrite Bool.orb_false_l.
  rewrite <- Hb₁.
  remember (S b₁) as sb₁; simpl; subst sb₁.
- pose proof (Hri 0%nat) as Hr₀; simpl in Hr₀.
- pose proof (Hri 1%nat) as Hr₁; simpl in Hr₁.
+ pose proof (Hri O Nat.le_0_1) as H; simpl in H.
+ rename H into Hr₀.
+ pose proof (Hri 1%nat (Nat.le_refl 1)) as H; simpl in H.
+ rename H into Hr₁.
  rewrite <- Hc in Hr₀.
- rewrite <- Hc, <- Hpol₁, <- Hns₁ in Hr₁.
- remember (ac_root (Φq pol₁ ns₁)) as c₁ eqn:Hc₁ .
+ rewrite <- Hc, <- Hpol₁, <- Hns₁, <- Hc₁ in Hr₁.
  remember (next_pol pol₁ (β ns₁) (γ ns₁) c₁) as pol₂ eqn:Hpol₂ .
  remember (List.hd phony_ns (newton_segments pol₂)) as ns₂ eqn:Hns₂ .
  assert (0 < r)%nat as Hrpos by (eapply multiplicity_is_pos; eauto ).
@@ -1273,6 +1272,7 @@ destruct z₁.
  destruct H as (αj₁, (αk₁, H)).
  destruct H as (Hini₁, (Hfin₁, (Hαj₁, Hαk₁))).
  assert (∀ i : nat, i ≤ b₁ → (ps_poly_nth 0 (nth_pol i pol₁ ns₁) ≠ 0)%ps).
+bbb.
   rewrite Hb₁; apply not_zero_1st_prop; auto.
 
   clear Hpsi; rename H into Hpsi.
