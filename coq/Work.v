@@ -648,6 +648,7 @@ bbb.
   rewrite <- Hc, <- Hpol₁ in H.
   contradiction.
 Qed.
+*)
 
 Theorem find_coeff_iter_succ : ∀ pol ns c pow m i n r,
   ns ∈ newton_segments pol
@@ -721,6 +722,7 @@ induction i; intros.
    rename H into Hns₁₁.
    remember Hpol₁ as H; clear HeqH.
    erewrite <- nth_pol_succ with (n := O) in H; simpl; eauto .
+bbb.
    eapply first_n_pol_in_K_1_m_any_r in H; eauto .
     rename H into HK₁.
     remember (next_pow pow ns₁ m) as pow₁ eqn:Hpow₁ .
@@ -769,6 +771,7 @@ induction i; intros.
      apply le_S_n in Hjn.
      exfalso; revert Hjn; apply Nat.nle_succ_0.
 Qed.
+*)
 
 Theorem find_coeff_more_iter : ∀ pol ns c pow m i n n' r,
   ns ∈ newton_segments pol
@@ -792,6 +795,7 @@ revert n pow Hin.
 revert pol ns Hns Hm Hq₀ Hr₀ Hc Hrle.
 revert c.
 induction d; intros; [ reflexivity | idtac ].
+bbb.
 erewrite find_coeff_iter_succ; eauto ; simpl.
 destruct (ps_zerop R (ps_poly_nth 0 pol)) as [| H₁]; auto.
 remember (Nat.compare pow i) as cmp eqn:Hcmp .
@@ -855,6 +859,7 @@ destruct (ps_zerop _ (ps_poly_nth 0 pol₁)) as [H₂| H₂].
   rewrite <- Hc, <- Hpol₁, <- Hns₁, <- Hc₁.
   rewrite Hr₀, Hr₁; reflexivity.
 Qed.
+*)
 
 (* cf root_tail_split_1st *)
 Theorem root_tail_split_1st_any_r : ∀ pol ns c pol₁ ns₁ c₁ m q₀ r,
@@ -1125,6 +1130,7 @@ destruct (ps_zerop _ (ps_poly_nth 0 pol₁)) as [H₁| H₁].
         eapply all_r_le_next with (pol := pol₁); eauto .
 
         move Hrle₂ before Hrle₁.
+bbb.
         rewrite find_coeff_iter_succ with (r := r); eauto; symmetry.
         rewrite find_coeff_iter_succ with (r := r); eauto; symmetry.
         subst x; clear Hle.
@@ -1236,6 +1242,7 @@ destruct (ps_zerop _ (ps_poly_nth 0 pol₁)) as [H₁| H₁].
 
     rewrite Pos.mul_comm, Pos.mul_assoc; reflexivity.
 Qed.
+*)
 
 Theorem not_zero_1st_prop : ∀ pol ns b,
   zerop_1st_n_const_coeff b (nth_pol 1 pol ns) (nth_ns 1 pol ns) = false
@@ -1309,6 +1316,7 @@ pose proof (Hri 0%nat) as H; simpl in H.
 rewrite <- Hc in H; rewrite H.
 assumption.
 Qed.
+*)
 
 (* cf root_tail_from_0 *)
 Theorem root_tail_from_0_const_r : ∀ pol ns c pol₁ ns₁ c₁ m q₀ b r,
@@ -1330,6 +1338,7 @@ Proof.
 intros pol ns c pol₁ ns₁ c₁ m q₀ b r.
 intros Hns Hm Hq₀ Hc Hpol₁ Hns₁ Hc₁ Hri Hnle H₀.
 remember (m * q₀)%positive as m₁.
+bbb.
 destruct b; [ subst m₁; eapply root_tail_split_1st_any_r; eauto  | idtac ].
 remember (S b) as b₁ eqn:Hb₁ .
 unfold root_tail, root_head; simpl.
@@ -2073,7 +2082,6 @@ induction n; intros.
   rewrite rng_mul_0_r; reflexivity.
 
   rewrite Nat.add_0_r, rng_add_0_r, Heqm₁.
-Abort. (*
 bbb.
   rewrite root_tail_from_0_const_r; eauto .
   unfold root_head.
