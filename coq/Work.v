@@ -616,14 +616,15 @@ induction n; intros.
  eapply next_ns_r_non_decr in H; try eassumption.
  destruct H as (H, _); move H at top; subst r₁.
  clear Hrr.
- eapply IHn with (pol := pol₁); try eassumption.
+ assert (∀ i, r ≤ nth_r i pol₁ ns₁) as Hrle₁.
+  eapply all_r_le_next with (pol := pol); eauto .
+
+  eapply IHn with (pol := pol₁); try eassumption.
 bbb.
   ============================
    pol_in_K_1_m pol₁ m
 
 subgoal 2 is:
- ∀ i : nat, r ≤ nth_r i pol₁ ns₁
-subgoal 3 is:
  ∀ i : nat, i ≤ n → (ps_poly_nth 0 (nth_pol i pol₁ ns₁) ≠ 0)%ps
 
     eapply IHn with (pol := pol₁) (ns := ns₁); eauto .
