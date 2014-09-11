@@ -702,9 +702,23 @@ induction i; intros.
    rename H into Hns₁₁.
    remember Hpol₁ as H; clear HeqH.
    erewrite <- nth_pol_succ with (n := O) in H; simpl; eauto .
-bbb.
-   eapply first_n_pol_in_K_1_m_any_r in H; eauto .
+   rename H into Hpol₁n.
+   assert (∀ i : nat, i ≤ 1 → (ps_poly_nth 0 (nth_pol i pol ns) ≠ 0)%ps) as H.
+    intros j Hj1.
+    destruct j; [ assumption | idtac ].
+    destruct j; [ simpl; rewrite <- Hc, <- Hpol₁; assumption | idtac ].
+    exfalso; apply le_S_n in Hj1; revert Hj1; apply Nat.nle_succ_0.
+
+    rename H into Hrle₁.
+    remember Hpol₁n as H; clear HeqH.
+    eapply first_n_pol_in_K_1_m_any_r in H; eauto .
     rename H into HK₁.
+    remember Hini₁ as H; clear HeqH.
+    eapply p_is_pos with (m := m) in H; try eassumption.
+    rename H into Hppos.
+    remember Hppos as H; clear HeqH.
+    apply Z.lt_le_incl in H.
+    rename H into Hpnneg.
     remember (next_pow pow ns₁ m) as pow₁ eqn:Hpow₁ .
     symmetry in Hpow₁.
     destruct pow₁.
@@ -713,19 +727,25 @@ bbb.
      apply Nat.eq_add_0 in Hpow₁.
      destruct Hpow₁ as (Hpow₁, Hpow).
      erewrite next_pow_eq_p with (pol := pol₁) in Hpow₁; eauto .
-     assert (0 < p_of_m m (γ ns₁))%Z as H by (eapply p_is_pos; eauto ).
      rewrite <- Z2Nat.inj_0 in Hpow₁.
-     apply Z2Nat.inj in Hpow₁; [ idtac | idtac | reflexivity ].
-      rewrite Hpow₁ in H.
-      exfalso; revert H; apply Z.lt_irrefl.
-
-      apply Z.lt_le_incl; auto.
+     apply Z2Nat.inj in Hpow₁; try assumption; [ idtac | reflexivity ].
+     rewrite Hpow₁ in Hppos.
+     exfalso; revert Hppos; apply Z.lt_irrefl.
 
      remember (S pow₁) as x.
      rewrite <- Nat.add_1_r; subst x.
      rewrite <- Nat.add_1_r.
      do 2 rewrite find_coeff_add.
      subst sn.
+     apply lt_S_n in Hin.
+     eapply IHi; try eassumption.
+bbb.
+  ============================
+   q_of_m m (γ ns₁) = 1%positive
+
+subgoal 2 is:
+ ∀ n0 : nat, r ≤ nth_r n0 pol₁ ns₁
+
      apply lt_S_n in Hin.
      eapply IHi; eauto .
       symmetry in Hr₁.
