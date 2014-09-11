@@ -198,14 +198,14 @@ destruct z₁.
    rename H into Hnzb₂.
    remember (root_multiplicity acf cb₁ (Φq polb₁ nsb₁)) as rb₁ eqn:Hrb₁ .
    symmetry in Hrb₁.
+   erewrite nth_ns_n with (c := c₁) in Hnsb₂; try eassumption.
+   remember (root_multiplicity acf cb₂ (Φq polb₂ nsb₂)) as rb₂ eqn:Hrb₂ .
+   symmetry in Hrb₂.
    remember Hnsb₁i as H; clear HeqH.
    eapply next_ns_r_non_decr with (pol₁ := polb₂) in H; eauto .
 bbb.
 subgoal 2 is:
- root_multiplicity acf cb₁ (Φq polb₁ nsb₁) + 0
- ≤ root_multiplicity acf
-     (ac_root (Φq polb₂ (List.hd phony_ns (newton_segments polb₂))))
-     (Φq polb₂ (List.hd phony_ns (newton_segments polb₂))) + 0
+ rb₁ ≤ rb₂
 
      erewrite <- nth_pol_n with (c := c₁) in Hnsb₂; try eassumption .
      rewrite <- Hpolb₂ in Hnsb₂.
