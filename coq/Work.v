@@ -145,7 +145,24 @@ destruct n; auto.
 apply le_S_n in Hnb.
 remember Hns as H; clear HeqH.
 eapply all_ns_in_newton_segments in H; try eassumption.
- eapply next_ns_r_non_decr with (r := r) (r₁ := nth_r (S n) pol) in H; eauto .
+ remember (nth_ns n pol ns) as nsn eqn:Hnsn .
+ remember (nth_pol n pol ns) as poln eqn:Hpoln .
+ remember (ac_root (Φq poln nsn)) as cn eqn:Hcn .
+ remember (next_pol poln (β nsn) (γ nsn) cn) as poln₁ eqn:Hpoln₁ .
+ remember (List.hd phony_ns (newton_segments poln₁)) as nsn₁ eqn:Hnsn₁ .
+ remember (ac_root (Φq poln₁ nsn₁)) as cn₁ eqn:Hcn₁ .
+ remember (nth_r (S n) pol ns) as r₁ eqn:Hr₁ .
+ eapply next_ns_r_non_decr with (r := r) (r₁ := r₁) in H; eauto .
+  destruct H; assumption.
+
+  clear H.
+  remember Hnb as H; clear HeqH.
+  apply Nat.succ_le_mono in H.
+  apply Hz in H.
+  erewrite nth_pol_succ in H; try eassumption; try reflexivity.
+  erewrite nth_c_n in H; try eassumption.
+  rewrite <- Hcn in H.
+  rewrite <- Hpoln₁ in H; assumption.
 bbb.
 
 (* cf root_tail_from_0 *)
