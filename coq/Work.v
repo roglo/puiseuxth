@@ -536,24 +536,46 @@ Theorem first_n_pol_in_K_1_m_any_r : ∀ pol ns poln m c r,
   → pol_in_K_1_m pol m
   → c = ac_root (Φq pol ns)
   → q_of_m m (γ ns) = 1%positive
+  → (∀ i, r ≤ nth_r i pol ns)
   → (1 ≠ 0)%K
   → ∀ n,
     (∀ i, i ≤ n → (ps_poly_nth 0 (nth_pol i pol ns) ≠ 0)%ps)
-    → (∀ i, i ≤ n → nth_r i pol ns = r)
     → poln = nth_pol n pol ns
     → pol_in_K_1_m poln m.
 Proof.
-intros pol ns poln m c r Hns HK Hc Hq H₀ n Hnz Hri Hpoln.
-revert pol ns poln m c r Hns HK Hc Hq Hri H₀ Hnz Hpoln.
+intros pol ns poln m c r Hns HK Hc Hq Hri H₀ n Hnz Hpoln.
+revert pol ns poln m c Hns HK Hc Hq Hri Hnz Hpoln.
+induction n; intros.
+ simpl in Hpoln; subst poln; assumption.
+
+ remember (next_pol pol (β ns) (γ ns) c) as pol₁ eqn:Hpol₁ .
+ remember (List.hd phony_ns (newton_segments pol₁)) as ns₁ eqn:Hns₁ .
+ remember Hns₁ as H; clear HeqH.
+ apply exists_ini_pt_nat_fst_seg in H.
+ destruct H as (j₁, (αj₁, Hini₁)).
+ remember Hns₁ as H; clear HeqH.
+ apply exists_fin_pt_nat_fst_seg in H.
+ destruct H as (k₁, (αk₁, Hfin₁)).
+ remember (ac_root (Φq pol₁ ns₁)) as c₁ eqn:Hc₁ .
+ remember Hns₁ as H; clear HeqH.
+ apply List_hd_in in H.
+  rename H into Hns₁₁.
+bbb.
+
+intros pol ns poln m c r Hns HK Hc Hq Hri H₀ n Hnz Hpoln.
+revert pol ns poln m c Hns HK Hc Hq Hri Hnz Hpoln.
+bbb.
 induction n; intros.
  simpl in Hpoln; subst poln; assumption.
 
  simpl in Hpoln.
+(*
  assert (0 ≤ S n)%nat as H by apply Nat.le_0_l.
  apply Hri in H; simpl in H; rename H into Hr₀.
  assert (1 ≤ S n)%nat as H by apply le_n_S, Nat.le_0_l.
  apply Hri in H; simpl in H; rename H into Hr₁.
  rewrite <- Hc in Hr₀, Hr₁.
+*)
  remember (next_pol pol (β ns) (γ ns) c) as pol₁ eqn:Hpol₁ .
  remember (List.hd phony_ns (newton_segments pol₁)) as ns₁ eqn:Hns₁ .
  remember Hns₁ as H; clear HeqH.
@@ -580,6 +602,7 @@ induction n; intros.
 
     eapply IHn with (pol := pol₁) (ns := ns₁); eauto .
      eapply q_eq_1_any_r with (ns := ns₁); eauto .
+bbb.
      rewrite Hr₁; assumption.
 
      intros i Hin.
@@ -1202,6 +1225,79 @@ destruct (ps_zerop _ (ps_poly_nth 0 pol₁)) as [H₁| H₁].
     rewrite Pos.mul_comm, Pos.mul_assoc; reflexivity.
 Qed.
 
+Theorem not_zero_1st_prop : ∀ pol ns b,
+  zerop_1st_n_const_coeff b (nth_pol 1 pol ns) (nth_ns 1 pol ns) = false
+  → (ps_poly_nth 0 pol ≠ 0)%ps
+  → (∀ i, i ≤ S b → (ps_poly_nth 0 (nth_pol i pol ns) ≠ 0)%ps).
+Proof.
+intros pol ns b Hpsi Hnz.
+apply zerop_1st_n_const_coeff_false_iff.
+rewrite zerop_1st_n_const_coeff_succ.
+rewrite Hpsi, Bool.orb_false_r; simpl.
+destruct (ps_zerop R (ps_poly_nth 0 pol)); auto.
+contradiction.
+Qed.
+
+(* cf nth_in_newton_segments *)
+Theorem nth_in_newton_segments_any_r : ∀ pol₁ ns₁ c₁ poln nsn n,
+  ns₁ ∈ newton_segments pol₁
+  → c₁ = ac_root (Φq pol₁ ns₁)
+  → (∀ i, i ≤ n → (ps_poly_nth 0 (nth_pol i pol₁ ns₁) ≠ 0)%ps)
+  → poln = nth_pol n pol₁ ns₁
+  → nsn = nth_ns n pol₁ ns₁
+  → nsn ∈ newton_segments poln.
+Proof.
+intros pol₁ ns₁ c₁ poln nsn n Hns₁ Hc₁ Hpsi Hpoln Hnsn.
+subst poln nsn.
+pose proof (exists_pol_ord R pol₁) as H.
+destruct H as (m, Hm).
+revert pol₁ ns₁ c₁ m Hns₁ Hm Hc₁ Hpsi.
+induction n; intros; [ assumption | simpl ].
+rewrite <- Hc₁.
+remember (next_pol pol₁ (β ns₁) (γ ns₁) c₁) as pol₂ eqn:Hpol₂ .
+remember (List.hd phony_ns (newton_segments pol₂)) as ns₂ eqn:Hns₂ .
+assert (1 ≤ S n) as H₁ by apply le_n_S, Nat.le_0_l.
+apply Hpsi in H₁; simpl in H₁.
+rewrite <- Hc₁, <- Hpol₂ in H₁.
+remember (q_of_m m (γ ns₁)) as q₀ eqn:Hq₀ .
+assert (0 ≤ S n)%nat as H by apply Nat.le_0_l.
+eapply IHn with (m := (m * q₀)%positive); eauto .
+ eapply next_ns_in_pol; eauto .
+
+ eapply next_pol_in_K_1_mq; eauto .
+
+ intros i Hin.
+ apply Nat.succ_le_mono in Hin.
+ apply Hpsi in Hin; simpl in Hin.
+ rewrite <- Hc₁, <- Hpol₂, <- Hns₂ in Hin.
+ assumption.
+Qed.
+
+Theorem nth_pol_in_K_1_m : ∀ pol ns c αj αk poln m n r,
+  ns ∈ newton_segments pol
+  → pol_in_K_1_m pol m
+  → c = ac_root (Φq pol ns)
+  → ini_pt ns = (Qnat 0, αj)
+  → fin_pt ns = (Qnat r, αk)
+  → (0 < Qnum αj)%Z
+  → Qnum αk = 0%Z
+  → (∀ i : nat, nth_r i pol ns = r)
+  → (1 ≠ 0)%K
+  → (∀ i : nat, i ≤ n → (ps_poly_nth 0 (nth_pol i pol ns) ≠ 0)%ps)
+  → poln = nth_pol n pol ns
+  → pol_in_K_1_m poln m.
+Proof.
+intros pol ns c αj αk poln m n r.
+intros Hns HK Hc Hini Hfin Hαj Hαk Hri H₀ Hpsi Hpoln.
+clear Hri.
+bbb.
+eapply first_n_pol_in_K_1_m_any_r with (ns := ns) (n := n); eauto .
+eapply q_eq_1_any_r with (ns := ns); eauto .
+pose proof (Hri 0%nat) as H; simpl in H.
+rewrite <- Hc in H; rewrite H.
+assumption.
+Qed.
+
 (* cf root_tail_from_0 *)
 Theorem root_tail_from_0_const_r : ∀ pol ns c pol₁ ns₁ c₁ m q₀ b r,
   ns ∈ newton_segments pol
@@ -1272,7 +1368,6 @@ destruct z₁.
  destruct H as (αj₁, (αk₁, H)).
  destruct H as (Hini₁, (Hfin₁, (Hαj₁, Hαk₁))).
  assert (∀ i : nat, i ≤ b₁ → (ps_poly_nth 0 (nth_pol i pol₁ ns₁) ≠ 0)%ps).
-bbb.
   rewrite Hb₁; apply not_zero_1st_prop; auto.
 
   clear Hpsi; rename H into Hpsi.
@@ -1281,8 +1376,10 @@ bbb.
   rename H into Hns₁nz.
   remember Hns₁ as Hns₁₁; clear HeqHns₁₁.
   eapply List_hd_in in Hns₁₁; eauto .
+(*
   assert (∀ i, nth_r i pol₁ ns₁ = r) as Hri₁.
    eapply all_same_r_next with (ns := ns); eauto .
+*)
 
    remember Hns₁₁ as H; clear HeqH.
    eapply nth_in_newton_segments_any_r with (n := b₁) in H; eauto .
@@ -1290,6 +1387,7 @@ bbb.
    remember (nth_pol b₁ pol₁ ns₁) as polb₂ eqn:Hpolb₂ .
    remember (nth_ns b₁ pol₁ ns₁) as nsb₂ eqn:Hnsb₂ .
    assert (pol_in_K_1_m polb₂ m₁) as HKb₂.
+bbb.
     eapply nth_pol_in_K_1_m with (ns := ns₁) (n := b₁); eauto .
 
     pose proof (Hri (S b₁)) as Hrb; simpl in Hrb.
@@ -2766,101 +2864,6 @@ bbb.
 bbb.
 
 
-
-(* cf nth_in_newton_segments *)
-Theorem nth_in_newton_segments_any_r : ∀ pol₁ ns₁ c₁ poln nsn n r,
-  ns₁ ∈ newton_segments pol₁
-  → c₁ = ac_root (Φq pol₁ ns₁)
-  → (∀ i, i ≤ n → (ps_poly_nth 0 (nth_pol i pol₁ ns₁) ≠ 0)%ps)
-  → (∀ i, i ≤ n → nth_r i pol₁ ns₁ = r)
-  → poln = nth_pol n pol₁ ns₁
-  → nsn = nth_ns n pol₁ ns₁
-  → nsn ∈ newton_segments poln.
-Proof.
-intros pol₁ ns₁ c₁ poln nsn n r Hns₁ Hc₁ Hpsi Hri Hpoln Hnsn.
-subst poln nsn.
-pose proof (exists_pol_ord R pol₁) as H.
-destruct H as (m, Hm).
-revert pol₁ ns₁ c₁ m Hns₁ Hm Hc₁ Hpsi Hri.
-induction n; intros; [ assumption | simpl ].
-rewrite <- Hc₁.
-remember (next_pol pol₁ (β ns₁) (γ ns₁) c₁) as pol₂ eqn:Hpol₂ .
-remember (List.hd phony_ns (newton_segments pol₂)) as ns₂ eqn:Hns₂ .
-assert (1 ≤ S n) as H₁ by apply le_n_S, Nat.le_0_l.
-apply Hpsi in H₁; simpl in H₁.
-rewrite <- Hc₁, <- Hpol₂ in H₁.
-remember (q_of_m m (γ ns₁)) as q₀ eqn:Hq₀ .
-assert (0 ≤ S n)%nat as H by apply Nat.le_0_l.
-apply Hri in H; simpl in H; rename H into Hr₀.
-assert (1 ≤ S n)%nat as H by apply le_n_S, Nat.le_0_l.
-apply Hri in H; simpl in H; rename H into Hr₁.
-rewrite <- Hc₁ in Hr₀.
-rewrite <- Hc₁, <- Hpol₂, <- Hns₂ in Hr₁.
-eapply IHn with (m := (m * q₀)%positive); eauto .
- remember Hns₂ as H; clear HeqH.
- apply exists_ini_pt_nat_fst_seg in H.
- destruct H as (j₂, (αj₂, Hini₂)).
- remember Hns₂ as H; clear HeqH.
- apply exists_fin_pt_nat_fst_seg in H.
- destruct H as (k₂, (αk₂, Hfin₂)).
- eapply hd_newton_segments; eauto .
- remember Hns₁ as H; clear HeqH.
- eapply r_n_j_0_k_n in H; eauto .
- destruct H as (Hj₂, (Hk₂, (Hαj₂, Hαk₂))).
- subst j₂ k₂.
- destruct r; [ idtac | apply Nat.lt_0_succ ].
- exfalso; revert Hr₀; apply multiplicity_neq_0; auto.
-
- eapply next_pol_in_K_1_mq; eauto .
-
- intros i Hin.
- apply Nat.succ_le_mono in Hin.
- apply Hpsi in Hin; simpl in Hin.
- rewrite <- Hc₁, <- Hpol₂, <- Hns₂ in Hin.
- assumption.
-
- intros i Hin.
- apply Nat.succ_le_mono in Hin.
- apply Hri in Hin; simpl in Hin.
- rewrite <- Hc₁, <- Hpol₂, <- Hns₂ in Hin.
- assumption.
-Qed.
-
-Theorem not_zero_1st_prop : ∀ pol ns b,
-  zerop_1st_n_const_coeff b (nth_pol 1 pol ns) (nth_ns 1 pol ns) = false
-  → (ps_poly_nth 0 pol ≠ 0)%ps
-  → (∀ i, i ≤ S b → (ps_poly_nth 0 (nth_pol i pol ns) ≠ 0)%ps).
-Proof.
-intros pol ns b Hpsi Hnz.
-apply zerop_1st_n_const_coeff_false_iff.
-rewrite zerop_1st_n_const_coeff_succ.
-rewrite Hpsi, Bool.orb_false_r; simpl.
-destruct (ps_zerop R (ps_poly_nth 0 pol)); auto.
-contradiction.
-Qed.
-
-Theorem nth_pol_in_K_1_m : ∀ pol ns c αj αk poln m n r,
-  ns ∈ newton_segments pol
-  → pol_in_K_1_m pol m
-  → c = ac_root (Φq pol ns)
-  → ini_pt ns = (Qnat 0, αj)
-  → fin_pt ns = (Qnat r, αk)
-  → (0 < Qnum αj)%Z
-  → Qnum αk = 0%Z
-  → (∀ i : nat, nth_r i pol ns = r)
-  → (1 ≠ 0)%K
-  → (∀ i : nat, i ≤ n → (ps_poly_nth 0 (nth_pol i pol ns) ≠ 0)%ps)
-  → poln = nth_pol n pol ns
-  → pol_in_K_1_m poln m.
-Proof.
-intros pol ns c αj αk poln m n r.
-intros Hns HK Hc Hini Hfin Hαj Hαk Hri H₀ Hpsi Hpoln.
-eapply first_n_pol_in_K_1_m_any_r with (ns := ns) (n := n); eauto .
-eapply q_eq_1_any_r with (ns := ns); eauto .
-pose proof (Hri 0%nat) as H; simpl in H.
-rewrite <- Hc in H; rewrite H.
-assumption.
-Qed.
 
 Theorem nth_r_add : ∀ pol ns i j,
   nth_r (i + j) pol ns = nth_r i (nth_pol j pol ns) (nth_ns j pol ns).
