@@ -53,775 +53,6 @@ Definition multiplicity_decreases pol ns n :=
   let rn := root_multiplicity acf cn (Φq poln nsn) in
   (rn < r)%nat.
 
-Theorem nth_pol_succ2 : ∀ pol ns c pol₁ ns₁ n,
-  c = ac_root (Φq pol ns)
-  → pol₁ = next_pol pol (β ns) (γ ns) c
-  → ns₁ = List.hd phony_ns (newton_segments pol₁)
-  → nth_pol (S n) pol ns = nth_pol n pol₁ ns₁.
-Proof. intros; subst; reflexivity. Qed.
-
-Theorem nth_ns_succ2 : ∀ pol ns c pol₁ ns₁ n,
-  c = ac_root (Φq pol ns)
-  → pol₁ = next_pol pol (β ns) (γ ns) c
-  → ns₁ = List.hd phony_ns (newton_segments pol₁)
-  → nth_ns (S n) pol ns = nth_ns n pol₁ ns₁.
-Proof. intros; subst; reflexivity. Qed.
-
-Theorem nth_c_succ2 : ∀ pol ns c pol₁ ns₁ n,
-  c = ac_root (Φq pol ns)
-  → pol₁ = next_pol pol (β ns) (γ ns) c
-  → ns₁ = List.hd phony_ns (newton_segments pol₁)
-  → nth_c (S n) pol ns = nth_c n pol₁ ns₁.
-Proof. intros; subst; reflexivity. Qed.
-
-Theorem nth_r_succ2 : ∀ pol ns c pol₁ ns₁ n,
-  c = ac_root (Φq pol ns)
-  → pol₁ = next_pol pol (β ns) (γ ns) c
-  → ns₁ = List.hd phony_ns (newton_segments pol₁)
-  → nth_r (S n) pol ns = nth_r n pol₁ ns₁.
-Proof. intros; subst; reflexivity. Qed.
-
-Theorem all_r_le_next : ∀ pol ns c pol₁ ns₁ r,
-  c = ac_root (Φq pol ns)
-  → pol₁ = next_pol pol (β ns) (γ ns) c
-  → ns₁ = List.hd phony_ns (newton_segments pol₁)
-  → (∀ n : nat, r ≤ nth_r n pol ns)
-  → (∀ n : nat, r ≤ nth_r n pol₁ ns₁).
-Proof.
-intros pol ns c pol₁ ns₁ r Hc Hpol₁ Hns₁ Hri i.
-pose proof (Hri (S i)) as H; simpl in H.
-rewrite <- Hc, <- Hpol₁, <- Hns₁ in H.
-assumption.
-Qed.
-
-Theorem multiplicity_is_pos : ∀ pol ns c r,
-  ns ∈ newton_segments pol
-  → c = ac_root (Φq pol ns)
-  → root_multiplicity acf c (Φq pol ns) = r
-  → (0 < r)%nat.
-Proof.
-intros pol ns c r Hns Hc Hr.
-remember Hns as H; clear HeqH.
-eapply multiplicity_neq_0 in H; auto.
-apply Nat.neq_sym, neq_0_lt in H.
-rewrite <- Hc, Hr in H.
-assumption.
-Qed.
-
-Theorem next_has_ns : ∀ pol ns c pol₁,
-  ns ∈ newton_segments pol
-  → c = ac_root (Φq pol ns)
-  → pol₁ = next_pol pol (β ns) (γ ns) c
-  → (ps_poly_nth 0 pol₁ ≠ 0)%ps
-  → newton_segments pol₁ ≠ [].
-Proof.
-intros pol ns c pol₁ Hns Hc Hpol₁ Hnz₁.
-eapply next_has_root_0_or_newton_segments in Hns; eauto .
-simpl in Hns; rewrite <- Hc, <- Hpol₁ in Hns.
-destruct Hns; auto; contradiction.
-Qed.
-
-Theorem p_is_pos : ∀ ns αj αk m r,
-  ini_pt ns = (Qnat 0, αj)
-  → fin_pt ns = (Qnat r, αk)
-  → (0 < Qnum αj)%Z
-  → Qnum αk = 0%Z
-  → (0 < r)%nat
-  → (0 < p_of_m m (γ ns))%Z.
-Proof.
-intros ns αj αk m r Hini Hfin Hαj Hαk Hr.
-unfold p_of_m; simpl.
-rewrite Hini, Hfin; simpl.
-rewrite Hαk; simpl.
-rewrite Qnum_inv_Qnat_sub; auto.
-rewrite Qden_inv_Qnat_sub; auto.
-rewrite Z.add_0_r, Z.mul_1_r, Nat.sub_0_r.
-rewrite Z.gcd_comm.
-apply Z_div_gcd_r_pos.
-apply Z.mul_pos_pos; [ idtac | apply Pos2Z.is_pos ].
-apply Z.mul_pos_pos; [ auto | apply Pos2Z.is_pos ].
-Qed.
-
-Theorem next_pow_eq_p : ∀ pol ns c αj αk m r,
-  ns ∈ newton_segments pol
-  → pol_in_K_1_m pol m
-  → c = ac_root (Φq pol ns)
-  → root_multiplicity acf c (Φq pol ns) = r
-  → ini_pt ns = (Qnat 0, αj)
-  → fin_pt ns = (Qnat r, αk)
-  → (0 < Qnum αj)%Z
-  → Qnum αk = 0%Z
-  → (0 < r)%nat
-  → (1 ≠ 0)%K
-  → next_pow 0 ns m = Z.to_nat (p_of_m m (γ ns)).
-Proof.
-intros pol ns c αj αk m r Hns Hm Hc Hr Hini Hfin Hαj Hαk Hrp H₀.
-unfold next_pow; simpl.
-rewrite Hini, Hfin; simpl.
-rewrite Hαk; simpl.
-rewrite Qnum_inv_Qnat_sub; auto.
-rewrite Qden_inv_Qnat_sub; auto.
-rewrite Z.add_0_r, Z.mul_1_r, Nat.sub_0_r, Pos.mul_1_r.
-rewrite Z.mul_shuffle0, Pos_mul_shuffle0.
-rewrite Pos2Z.inj_mul.
-rewrite Z.div_mul_cancel_r; auto.
-erewrite αj_m_eq_p_r with (pol₁ := pol); eauto .
-rewrite Pos.mul_comm.
-rewrite Pos2Z.inj_mul, Zposnat2Znat; auto.
-rewrite <- Z.mul_assoc.
-rewrite Z.div_mul; auto.
-rewrite <- Zposnat2Znat; auto.
-apply Pos2Z_ne_0.
-Qed.
-
-(* more general version of r_n_j_0_k_n where r and r₁ are possibly
-   different perhaps r_n_j_0_k_n should be rewritten using this theorem *)
-Theorem j_0_k_betw_r₀_r₁ : ∀ pol ns c pol₁ ns₁ c₁ j₁ αj₁ k₁ αk₁ r r₁,
-  ns ∈ newton_segments pol
-  → c = ac_root (Φq pol ns)
-  → pol₁ = next_pol pol (β ns) (γ ns) c
-  → ns₁ = List.hd phony_ns (newton_segments pol₁)
-  → c₁ = ac_root (Φq pol₁ ns₁)
-  → (ps_poly_nth 0 pol₁ ≠ 0)%ps
-  → root_multiplicity acf c (Φq pol ns) = r
-  → root_multiplicity acf c₁ (Φq pol₁ ns₁) = r₁
-  → ini_pt ns₁ = (Qnat j₁, αj₁)
-  → fin_pt ns₁ = (Qnat k₁, αk₁)
-  → j₁ = 0%nat ∧ r₁ ≤ k₁ ∧ k₁ ≤ r ∧ αj₁ > 0 ∧ αk₁ >= 0 ∧
-    ((r₁ < r)%nat ∨ αk₁ == 0).
-Proof.
-intros pol ns c pol₁ ns₁ c₁ j₁ αj₁ k₁ αk₁ r r₁.
-intros Hns Hc Hpol₁ Hns₁ Hc₁ Hps₀ Hr Hr₁ Hini₁ Hfin₁.
-apply order_fin in Hps₀.
-remember Hns as H; clear HeqH.
-symmetry in Hr.
-eapply f₁_orders in H; try eassumption.
-destruct H as (Hnneg, (Hpos, Hz)).
-destruct r.
- symmetry in Hr.
- exfalso; revert Hr.
- apply multiplicity_neq_0; eauto .
-
- assert (0 < S r)%nat as H by apply Nat.lt_0_succ.
- apply Hpos in H; rename H into Hpos₀.
- remember Hns₁ as Hns₁v; clear HeqHns₁v.
- unfold newton_segments in Hns₁; simpl in Hns₁.
- unfold points_of_ps_polynom in Hns₁; simpl in Hns₁.
- unfold ps_poly_nth in Hnneg, Hz, Hpos.
- remember (al pol₁) as la.
- destruct la as [| a₀].
-  unfold ps_lap_nth in Hz; simpl in Hz.
-  rewrite order_0 in Hz; inversion Hz.
-
-  assert (ns₁ ∈ newton_segments pol₁) as Hns₁i.
-   eapply List_hd_in; eauto .
-   intros H.
-   apply no_newton_segments with (i := S r) in H.
-    unfold ps_poly_nth, ps_lap_nth in H; simpl in H.
-    rewrite <- Heqla in H; simpl in H.
-    rewrite H in Hz.
-    rewrite order_0 in Hz; inversion Hz.
-
-    clear H; intros H.
-    apply Hps₀.
-    apply eq_Qbar_qinf.
-    rewrite H.
-    rewrite order_0; reflexivity.
-
-    apply Nat.lt_0_succ.
-
-   remember [ini_pt ns₁ … oth_pts ns₁ ++ [fin_pt ns₁]] as pl eqn:Hpl .
-   assert (ini_pt ns₁ ∈ pl) as H by (subst pl; left; reflexivity).
-   rewrite Hini₁ in H.
-   eapply order_in_newton_segment in H; eauto .
-   rename H into Hαj₁.
-   unfold ps_lap_nth in Hnneg, Hz, Hpos₀.
-   unfold points_of_ps_lap in Hns₁.
-   unfold points_of_ps_lap_gen in Hns₁.
-   simpl in Hns₁.
-   remember (order a₀) as v₀.
-   symmetry in Heqv₀.
-   destruct v₀ as [v₀| ].
-    Focus 2.
-    unfold ps_poly_nth, ps_lap_nth in Hps₀.
-    rewrite <- Heqla in Hps₀; simpl in Hps₀.
-    contradiction.
-
-    assert (al (Φq pol₁ ns₁) ≠ [])%lap as Hnz.
-     rewrite al_Φq; simpl.
-     rewrite Nat.sub_diag; simpl.
-     intros H.
-     apply lap_eq_cons_nil_inv in H.
-     destruct H as (H₁, H₂).
-     revert H₁.
-     rewrite Hini₁; simpl.
-     rewrite nat_num_Qnat.
-     eapply ord_coeff_non_zero_in_newt_segm with (ns := ns₁); eauto .
-     left; rewrite Hini₁; reflexivity.
-
-     remember Hnz as H; clear HeqH.
-     apply multiplicity_lt_length with (acf := acf) (c := c₁) in H.
-     rewrite Hr₁ in H.
-     rewrite al_Φq in H.
-     rewrite <- Hpl in H.
-     erewrite length_char_pol with (ns := ns₁) in H; eauto .
-      Focus 2.
-      rewrite Hini₁; simpl.
-      rewrite nat_num_Qnat; reflexivity.
-
-      rewrite Hini₁ in H; simpl in H.
-      rewrite nat_num_Qnat in H.
-      unfold lower_convex_hull_points in Hns₁.
-      simpl in Hns₁.
-      remember (pair_rec (λ pow ps, (Qnat pow, ps))) as f.
-      remember (filter_finite_ord R (List.map f (power_list 1 la))) as pts.
-      symmetry in Heqpts.
-      destruct pts as [| pt].
-       rewrite Hns₁ in Hini₁, Hfin₁; simpl in Hini₁, Hfin₁.
-       injection Hini₁; intros H₁ H₂.
-       injection Hfin₁; intros H₃ H₄.
-       rewrite <- Nat2Z.inj_0 in H₂, H₄.
-       apply Nat2Z.inj in H₂.
-       apply Nat2Z.inj in H₄.
-       subst j₁ k₁.
-       rewrite Nat.sub_diag in H.
-       apply Nat.lt_1_r in H.
-       exfalso; revert H; rewrite <- Hr₁.
-       apply multiplicity_neq_0; auto.
-
-       simpl in Hns₁.
-       rewrite Hns₁ in Hini₁, Hfin₁; simpl in Hini₁, Hfin₁.
-       rewrite minimised_slope_beg_pt in Hini₁.
-       injection Hini₁; clear Hini₁; intros H₁ H₂.
-       subst v₀.
-       rewrite <- Nat2Z.inj_0 in H₂.
-       apply Nat2Z.inj in H₂.
-       subst j₁.
-       rewrite Nat.sub_0_r in H.
-       split; [ reflexivity | idtac ].
-       apply le_S_n in H.
-       split; [ assumption | idtac ].
-       unfold ps_poly_nth, ps_lap_nth in Hpos₀.
-       rewrite <- Heqla in Hpos₀; simpl in Hpos₀.
-       rewrite Heqv₀ in Hpos₀.
-       apply Qbar.qfin_lt_mono in Hpos₀.
-       rewrite and_comm, and_assoc.
-       split; [ assumption | idtac ].
-       rename H into Hrk.
-       remember Hns₁i as H; clear HeqH.
-       eapply order_in_newton_segment with (h := k₁) (αh := αk₁) in H; eauto .
-        2: rewrite Hpl, <- Hfin₁, Hns₁; simpl; right.
-        2: apply List.in_or_app; right; left; reflexivity.
-
-        rename H into Hαk₁.
-        pose proof (Hnneg k₁) as H.
-        unfold ps_poly_nth, ps_lap_nth in Hαk₁.
-        rewrite <- Heqla in Hαk₁.
-        rewrite Hαk₁ in H.
-        apply Qbar.qfin_le_mono in H.
-        rewrite and_assoc.
-        split; [ assumption | idtac ].
-        rename H into Hnnegk.
-        rewrite minimised_slope_beg_pt in Hns₁.
-        rewrite Hfin₁ in Hns₁.
-        remember (minimise_slope (Qnat 0, αj₁) pt pts) as ms.
-        remember Heqms as H; clear HeqH.
-        symmetry in H.
-        apply end_pt_in in H.
-        apply List.in_split in H.
-        destruct H as (pts₁, (pts₂, Hpts)).
-        simpl in Hz.
-        remember (order (List.nth r la 0%ps)) as v.
-        unfold Qbar.qeq in Hz.
-        destruct v as [v| ]; [ idtac | contradiction ].
-        symmetry in Heqv.
-        remember Heqpts as H; clear HeqH.
-        symmetry in H.
-        rewrite Heqf, fold_qpower_list in H.
-        eapply in_ppl_in_pts with (h := S r) (hv := v) in H; eauto .
-         2: apply le_n_S, Nat.le_0_l.
-
-         2: rewrite Nat_sub_succ_1; assumption.
-
-         rename H into Hsr.
-         remember Hns₁i as H; clear HeqH.
-         unfold newton_segments in H.
-         unfold points_of_ps_polynom in H.
-         unfold points_of_ps_lap in H.
-         remember (points_of_ps_lap_gen 0 (al pol₁)) as ptsi.
-         rename H into Hlch.
-         remember Heqptsi as H; clear HeqH.
-         apply points_of_polyn_sorted in H.
-         rewrite <- Heqla in Heqptsi.
-         unfold points_of_ps_lap_gen in Heqptsi.
-         unfold qpower_list in Heqptsi.
-         rewrite <- Heqf in Heqptsi.
-         simpl in Heqptsi.
-         remember (f (O, a₀)) as x.
-         rewrite Heqf in Heqx.
-         unfold pair_rec in Heqx; simpl in Heqx.
-         subst x.
-         rewrite Heqv₀ in Heqptsi.
-         rewrite Heqpts in Heqptsi.
-         subst ptsi.
-         rename H into Hsort.
-         rewrite Hpts in Hsr.
-         apply List.in_app_or in Hsr.
-         destruct Hsr as [Hsr| Hsr].
-          Focus 2.
-          rewrite Hpts in Hsort.
-          remember Hsort as H; clear HeqH.
-          apply Sorted_inv_1 in H.
-          simpl in Hsr.
-          destruct Hsr as [Hsr| Hsr].
-           rewrite Hfin₁ in Hsr.
-           injection Hsr; intros H₁ H₂.
-           rewrite <- positive_nat_Z in H₂.
-           apply Nat2Z.inj in H₂.
-           rewrite SuccNat2Pos.id_succ in H₂.
-           rewrite H₂; split; [ idtac | reflexivity ].
-           rewrite <- H₁ in Hz.
-           right; assumption.
-
-           apply Sorted_app in H.
-           destruct H as (_, H).
-           rewrite Hfin₁ in H.
-           revert Hrk Hsr H; clear; intros.
-           induction pts₂ as [| pt]; [ contradiction | idtac ].
-           destruct Hsr as [Hsr| Hsr].
-            subst pt.
-            apply Sorted_inv in H.
-            destruct H as (_, H).
-            apply HdRel_inv in H.
-            unfold fst_lt in H; simpl in H.
-            apply Qnat_lt in H.
-            split; [ idtac | apply Nat.lt_le_incl; auto ].
-            left; eapply Nat.le_lt_trans; eauto .
-
-            apply IHpts₂; auto.
-            eapply Sorted_minus_2nd; eauto .
-            intros x y z H₁ H₂; eapply Qlt_trans; eassumption.
-
-          destruct pts₁ as [| pt₁]; [ contradiction | idtac ].
-          simpl in Hpts.
-          injection Hpts; clear Hpts; intros Hpts H₁.
-          subst pt₁.
-          assert (k₁ ≤ S r) as H by (eapply k_le_r; eauto ).
-          split; auto.
-          destruct (eq_nat_dec r₁ (S r)) as [H₁| H₁].
-           move H₁ at top; subst r₁.
-           right.
-           apply Nat.le_antisymm in H; auto.
-           move H at top; subst k₁.
-           clear Hrk.
-           rewrite <- Hz.
-           rewrite Hfin₁ in Hpts.
-           apply Sorted_inv_1 in Hsort.
-           rewrite Hpts in Hsort.
-           rewrite List.app_comm_cons in Hsort.
-           remember [pt … pts₁] as pts₃ eqn:Hpts₃ .
-           exfalso; revert Hsort Hsr; clear; intros.
-           induction pts₃ as [| pt]; [ contradiction | idtac ].
-           simpl in Hsr.
-           destruct Hsr as [Hsr| Hsr].
-            subst pt.
-            clear IHpts₃.
-            induction pts₃ as [| pt].
-             simpl in Hsort.
-             apply Sorted_inv in Hsort.
-             destruct Hsort as (_, Hrel).
-             apply HdRel_inv in Hrel.
-             unfold fst_lt in Hrel; simpl in Hrel.
-             revert Hrel; apply Qlt_irrefl.
-
-             simpl in Hsort.
-             apply Sorted_minus_2nd in Hsort.
-              apply IHpts₃; auto.
-
-              intros x y z H₁ H₂; eapply Qlt_trans; eassumption.
-
-            apply IHpts₃; auto.
-            simpl in Hsort.
-            apply Sorted_inv_1 in Hsort; auto.
-
-           left.
-           apply le_neq_lt; auto.
-           eapply Nat.le_trans; eauto .
-Qed.
-
-Theorem next_ns_in_pol : ∀ pol ns c pol₁ ns₁,
-  ns ∈ newton_segments pol
-  → c = ac_root (Φq pol ns)
-  → pol₁ = next_pol pol (β ns) (γ ns) c
-  → ns₁ = List.hd phony_ns (newton_segments pol₁)
-  → (ps_poly_nth 0 pol₁ ≠ 0)%ps
-  → ns₁ ∈ newton_segments pol₁.
-Proof.
-intros pol ns c pol₁ ns₁ Hns Hc Hpol₁ Hns₁ Hnz₁.
-eapply next_has_ns in Hns; eauto .
-eapply List_hd_in; eauto .
-Qed.
-
-Theorem next_ns_r_non_decr : ∀ pol ns c pol₁ ns₁ c₁ r r₁,
-  ns ∈ newton_segments pol
-  → c = ac_root (Φq pol ns)
-  → pol₁ = next_pol pol (β ns) (γ ns) c
-  → ns₁ = List.hd phony_ns (newton_segments pol₁)
-  → c₁ = ac_root (Φq pol₁ ns₁)
-  → (ps_poly_nth 0 pol₁ ≠ 0)%ps
-  → root_multiplicity acf c (Φq pol ns) = r
-  → root_multiplicity acf c₁ (Φq pol₁ ns₁) = r₁
-  → r ≤ r₁
-  → r = r₁ ∧
-    ∃ αj₁ αk₁,
-    ini_pt ns₁ = (Qnat 0, αj₁) ∧
-    fin_pt ns₁ = (Qnat r, αk₁) ∧
-    (0 < Qnum αj₁)%Z ∧
-    Qnum αk₁ = 0%Z.
-Proof.
-intros pol ns c pol₁ ns₁ c₁ r r₁.
-intros Hns Hc Hpol₁ Hns₁ Hc₁ Hnz₁ Hr Hr₁ Hrle.
-remember Hns as H; clear HeqH.
-eapply next_has_ns in H; eauto .
-rename H into Hns₁nz.
-remember Hns₁ as H; clear HeqH.
-eapply List_hd_in in H; eauto .
-rename H into Hns₁i.
-remember Hns₁i as H; clear HeqH.
-apply exists_ini_pt_nat in H.
-destruct H as (j₁, (αj₁, Hini₂)).
-remember Hns₁i as H; clear HeqH.
-apply exists_fin_pt_nat in H.
-destruct H as (k₁, (αk₁, Hfin₂)).
-remember Hns as H; clear HeqH.
-eapply j_0_k_betw_r₀_r₁ with (c := c) in H; eauto .
-destruct H as (Hj₁, (Hrk₁, (Hk₁r, (Hαj₁, (Hαk₁, Hαk₁z))))).
-remember Hrle as H; clear HeqH.
-eapply Nat.le_trans in H; eauto .
-eapply Nat.le_antisymm in H; eauto .
-move H at top; subst r₁.
-apply Nat.le_antisymm in Hrle; eauto .
-move Hrle at top; subst k₁.
-split; auto.
-destruct Hαk₁z; [ exfalso; revert H; apply Nat.lt_irrefl | idtac ].
-subst j₁.
-exists αj₁, αk₁.
-split; [ assumption | idtac ].
-split; [ assumption | idtac ].
-unfold Qlt in Hαj₁; simpl in Hαj₁.
-unfold Qeq in H; simpl in H.
-rewrite Z.mul_1_r in Hαj₁, H.
-split; assumption.
-Qed.
-
-Theorem newton_segments_not_nil : ∀ pol ns αk r,
-  ns = List.hd phony_ns (newton_segments pol)
-  → fin_pt ns = (Qnat r, αk)
-  → (0 < r)%nat
-  → newton_segments pol ≠ [].
-Proof.
-intros pol ns αk r Hns Hfin Hr.
-intros H; rewrite H in Hns; subst ns.
-simpl in Hfin.
-injection Hfin; intros H₁ H₂.
-rewrite <- Nat2Z.inj_0 in H₂.
-apply Nat2Z.inj in H₂.
-rewrite H₂ in Hr.
-revert Hr; apply Nat.lt_irrefl.
-Qed.
-
-Theorem q_eq_1_r_non_decr : ∀ pol ns c pol₁ ns₁ m r,
-  ns ∈ newton_segments pol
-  → pol_in_K_1_m pol m
-  → q_of_m m (γ ns) = 1%positive
-  → c = ac_root (Φq pol ns)
-  → pol₁ = next_pol pol (β ns) (γ ns) c
-  → ns₁ = List.hd phony_ns (newton_segments pol₁)
-  → (ps_poly_nth 0 pol₁ ≠ 0)%ps
-  → root_multiplicity acf c (Φq pol ns) = r
-  → (∀ i, r ≤ nth_r i pol ns)
-  → (1 ≠ 0)%K
-  → q_of_m m (γ ns₁) = 1%positive.
-Proof.
-intros pol ns c pol₁ ns₁ m r Hns HK Hq Hc Hpol₁ Hns₁ Hnz₁ Hr₀ Hrle H₀.
-remember Hns as H; clear HeqH.
-eapply next_ns_in_pol in H; eauto .
-rename H into Hns₁i.
-pose proof (Hrle 1%nat) as H; simpl in H.
-rewrite <- Hc, <- Hpol₁, <- Hns₁ in H.
-remember (ac_root (Φq pol₁ ns₁)) as c₁ eqn:Hc₁ .
-rename H into Hrle₁.
-remember (root_multiplicity acf c₁ (Φq pol₁ ns₁)) as r₁ eqn:Hr₁ .
-remember Hns as H; clear HeqH.
-symmetry in Hr₁.
-eapply next_ns_r_non_decr in H; eauto .
-clear Hrle₁.
-destruct H as (Heq, H); move Heq at top; subst r₁.
-destruct H as (αj₁, (αk₁, H)).
-destruct H as (Hini₁, (Hfin₁, (Hαj₁, Hαk₁))).
-remember Hns₁i as H; clear HeqH.
-symmetry in Hr₁.
-eapply q_eq_1_any_r with (ns := ns₁); eauto .
-replace m with (m * 1)%positive by apply Pos.mul_1_r.
-eapply next_pol_in_K_1_mq with (ns := ns); eauto .
-Qed.
-
-(* cf first_n_pol_in_K_1_m *)
-Theorem first_n_pol_in_K_1_m_any_r : ∀ pol ns poln m c r,
-  ns ∈ newton_segments pol
-  → pol_in_K_1_m pol m
-  → c = ac_root (Φq pol ns)
-  → q_of_m m (γ ns) = 1%positive
-  → root_multiplicity acf c (Φq pol ns) = r
-  → (∀ i, r ≤ nth_r i pol ns)
-  → (1 ≠ 0)%K
-  → ∀ n,
-    (∀ i, i ≤ n → (ps_poly_nth 0 (nth_pol i pol ns) ≠ 0)%ps)
-    → poln = nth_pol n pol ns
-    → pol_in_K_1_m poln m.
-Proof.
-intros pol ns poln m c r Hns HK Hc Hq Hr Hri H₀ n Hnz Hpoln.
-revert pol ns poln m c Hns HK Hc Hq Hr Hri Hnz Hpoln.
-induction n; intros.
- simpl in Hpoln; subst poln; assumption.
-
- remember (next_pol pol (β ns) (γ ns) c) as pol₁ eqn:Hpol₁ .
- remember (List.hd phony_ns (newton_segments pol₁)) as ns₁ eqn:Hns₁ .
- remember Hns₁ as H; clear HeqH.
- apply exists_ini_pt_nat_fst_seg in H.
- destruct H as (j₁, (αj₁, Hini₁)).
- remember Hns₁ as H; clear HeqH.
- apply exists_fin_pt_nat_fst_seg in H.
- destruct H as (k₁, (αk₁, Hfin₁)).
- remember (ac_root (Φq pol₁ ns₁)) as c₁ eqn:Hc₁ .
- simpl in Hpoln.
- rewrite <- Hc, <- Hpol₁, <- Hns₁ in Hpoln.
- assert (1 ≤ S n)%nat as H by apply le_n_S, Nat.le_0_l.
- apply Hnz in H; simpl in H.
- rewrite <- Hc, <- Hpol₁ in H.
- rename H into Hnz₁.
- remember Hns as H; clear HeqH.
- eapply next_ns_in_pol in H; try eassumption.
- rename H into Hns₁i.
- remember Hns as H; clear HeqH.
- eapply q_eq_1_r_non_decr in H; try eassumption.
- rename H into Hq₁.
- remember (root_multiplicity acf c₁ (Φq pol₁ ns₁)) as r₁ eqn:Hr₁ .
- pose proof (Hri 1%nat) as H; simpl in H.
- rewrite <- Hc, <- Hpol₁, <- Hns₁, <- Hc₁ in H.
- rewrite <- Hr₁ in H.
- rename H into Hrr.
- remember Hns as H; clear HeqH.
- symmetry in Hr₁.
- eapply next_ns_r_non_decr in H; try eassumption.
- destruct H as (H, _); move H at top; subst r₁.
- clear Hrr.
- eapply IHn with (pol := pol₁); try eassumption.
-  replace m with (m * 1)%positive by apply Pos.mul_1_r.
-  symmetry in Hq.
-  eapply next_pol_in_K_1_mq with (ns := ns); try eassumption.
-
-  eapply all_r_le_next with (pol := pol); eauto .
-
-  intros i Hin.
-  apply Nat.succ_le_mono in Hin.
-  apply Hnz in Hin; simpl in Hin.
-  rewrite <- Hc, <- Hpol₁, <- Hns₁ in Hin.
-  assumption.
-Qed.
-
-Theorem find_coeff_iter_succ : ∀ pol ns c pow m i n r,
-  ns ∈ newton_segments pol
-  → pol_in_K_1_m pol m
-  → q_of_m m (γ ns) = 1%positive
-  → c = ac_root (Φq pol ns)
-  → root_multiplicity acf c (Φq pol ns) = r
-  → (∀ n, r ≤ nth_r n pol ns)
-  → (1 ≠ 0)%K
-  → (i < n)%nat
-  → (find_coeff n pow m pol ns i =
-     find_coeff (S n) pow m pol ns i)%K.
-Proof.
-intros pol ns c pow m i n r Hns Hm Hq₀ Hc Hr₀ Hrle H₀ Hin.
-revert pol ns c pow m n Hns Hm Hq₀ Hc Hr₀ Hrle Hin.
-induction i; intros.
- destruct n; [ exfalso; revert Hin; apply Nat.lt_irrefl | idtac ].
- remember (S n) as sn.
- rewrite Heqsn in |- * at 1; simpl.
- destruct (ps_zerop _ (ps_poly_nth 0 pol)) as [| H₁]; auto.
- remember (Nat.compare pow 0) as cmp₁ eqn:Hcmp₁ .
- symmetry in Hcmp₁.
- destruct cmp₁; auto.
- apply nat_compare_lt in Hcmp₁.
- exfalso; revert Hcmp₁; apply Nat.nlt_0_r.
-
- assert (0 < r)%nat as Hrp.
-  destruct r; [ idtac | apply Nat.lt_0_succ ].
-  exfalso; revert Hr₀.
-  apply multiplicity_neq_0; auto.
-
-  destruct n; [ exfalso; revert Hin; apply Nat.nlt_0_r | idtac ].
-  remember (S n) as sn.
-  rewrite Heqsn in |- * at 1; simpl.
-  destruct (ps_zerop _ (ps_poly_nth 0 pol)) as [| H₁]; auto.
-  remember (Nat.compare pow (S i)) as cmp₁ eqn:Hcmp₁ .
-  symmetry in Hcmp₁.
-  destruct cmp₁; auto.
-  rewrite <- Hc.
-  remember (next_pol pol (β ns) (γ ns) c) as pol₁ eqn:Hpol₁ .
-  remember (List.hd phony_ns (newton_segments pol₁)) as ns₁ eqn:Hns₁ .
-  destruct (ps_zerop _ (ps_poly_nth 0 pol₁)) as [H₂| H₂].
-   subst sn; simpl.
-   destruct (ps_zerop R (ps_poly_nth 0 pol₁)) as [H₃| H₃].
-    apply lt_S_n in Hin.
-    destruct n; [ exfalso; revert Hin; apply Nat.nlt_0_r | simpl ].
-    destruct (ps_zerop R (ps_poly_nth 0 pol₁)) as [H₄| H₄].
-     reflexivity.
-
-     contradiction.
-
-    contradiction.
-
-   pose proof (Hrle 1%nat) as H; simpl in H.
-   rewrite <- Hc, <- Hpol₁, <- Hns₁ in H.
-   rename H into Hrle₁.
-   remember (ac_root (Φq pol₁ ns₁)) as c₁ eqn:Hc₁ .
-   remember (root_multiplicity acf c₁ (Φq pol₁ ns₁)) as r₁ eqn:Hr₁ .
-   remember Hns as H; clear HeqH.
-   symmetry in Hr₁.
-   eapply next_ns_r_non_decr in H; eauto .
-   clear Hrle₁.
-   destruct H as (Heq, H); move Heq at top; subst r₁.
-   destruct H as (αj₁, (αk₁, H)).
-   destruct H as (Hini₁, (Hfin₁, (Hαj₁, Hαk₁))).
-   remember Hns₁ as H; clear HeqH.
-   eapply newton_segments_not_nil in H; eauto .
-   rename H into Hns₁nz.
-   remember Hns₁ as H; clear HeqH.
-   apply List_hd_in in H; auto.
-   rename H into Hns₁₁.
-   remember Hpol₁ as H; clear HeqH.
-   erewrite <- nth_pol_succ with (n := O) in H; simpl; eauto .
-   rename H into Hpol₁n.
-   assert (∀ i : nat, i ≤ 1 → (ps_poly_nth 0 (nth_pol i pol ns) ≠ 0)%ps) as H.
-    intros j Hj1.
-    destruct j; [ assumption | idtac ].
-    destruct j; [ simpl; rewrite <- Hc, <- Hpol₁; assumption | idtac ].
-    exfalso; apply le_S_n in Hj1; revert Hj1; apply Nat.nle_succ_0.
-
-    rename H into Hrle₁.
-    remember Hpol₁n as H; clear HeqH.
-    eapply first_n_pol_in_K_1_m_any_r in H; eauto .
-    rename H into HK₁.
-    remember Hini₁ as H; clear HeqH.
-    eapply p_is_pos with (m := m) in H; try eassumption.
-    rename H into Hppos.
-    remember Hppos as H; clear HeqH.
-    apply Z.lt_le_incl in H.
-    rename H into Hpnneg.
-    remember (next_pow pow ns₁ m) as pow₁ eqn:Hpow₁ .
-    symmetry in Hpow₁.
-    destruct pow₁.
-     replace pow with (0 + pow)%nat in Hpow₁ by auto.
-     rewrite next_pow_add in Hpow₁.
-     apply Nat.eq_add_0 in Hpow₁.
-     destruct Hpow₁ as (Hpow₁, Hpow).
-     erewrite next_pow_eq_p with (pol := pol₁) in Hpow₁; eauto .
-     rewrite <- Z2Nat.inj_0 in Hpow₁.
-     apply Z2Nat.inj in Hpow₁; try assumption; [ idtac | reflexivity ].
-     rewrite Hpow₁ in Hppos.
-     exfalso; revert Hppos; apply Z.lt_irrefl.
-
-     remember (S pow₁) as x.
-     rewrite <- Nat.add_1_r; subst x.
-     rewrite <- Nat.add_1_r.
-     do 2 rewrite find_coeff_add.
-     subst sn.
-     apply lt_S_n in Hin.
-     eapply IHi; try eassumption.
-      eapply q_eq_1_r_non_decr with (ns := ns); eassumption.
-
-      eapply all_r_le_next with (pol := pol); eauto .
-Qed.
-
-Theorem find_coeff_more_iter : ∀ pol ns c pow m i n n' r,
-  ns ∈ newton_segments pol
-  → pol_in_K_1_m pol m
-  → q_of_m m (γ ns) = 1%positive
-  → c = ac_root (Φq pol ns)
-  → root_multiplicity acf c (Φq pol ns) = r
-  → (∀ j, r ≤ nth_r j pol ns)
-  → (1 ≠ 0)%K
-  → (i < n)%nat
-  → n ≤ n'
-  → (find_coeff n pow m pol ns i =
-     find_coeff n' pow m pol ns i)%K.
-Proof.
-intros pol ns c pow m i n n' r Hns Hm Hq₀ Hc Hr₀ Hrle H₀ Hin Hn'.
-remember (n' - n)%nat as d eqn:Hd .
-apply Nat.add_cancel_r with (p := n) in Hd.
-rewrite Nat.sub_add in Hd; auto.
-subst n'; clear Hn'.
-revert n pow Hin.
-revert pol ns Hns Hm Hq₀ Hr₀ Hc Hrle.
-revert c.
-induction d; intros; [ reflexivity | idtac ].
-erewrite find_coeff_iter_succ; try eassumption; simpl.
-destruct (ps_zerop R (ps_poly_nth 0 pol)) as [| H₁]; auto.
-remember (Nat.compare pow i) as cmp eqn:Hcmp .
-symmetry in Hcmp.
-destruct cmp; auto.
-rewrite <- Hc.
-remember (next_pol pol (β ns) (γ ns) c) as pol₁ eqn:Hpol₁ .
-remember (List.hd phony_ns (newton_segments pol₁)) as ns₁ eqn:Hns₁ .
-remember (next_pow pow ns₁ m) as pow₁.
-destruct (ps_zerop _ (ps_poly_nth 0 pol₁)) as [H₂| H₂].
- rewrite Nat.add_comm.
- destruct n; simpl.
-  exfalso; revert Hin; apply Nat.nlt_0_r.
-
-  destruct (ps_zerop _ (ps_poly_nth 0 pol₁)) as [H₃| H₃].
-   reflexivity.
-
-   contradiction.
-
- remember Hns as H; clear HeqH.
- eapply next_has_ns in H; eauto .
- rename H into Hns₁nz.
- remember (ac_root (Φq pol₁ ns₁)) as c₁ eqn:Hc₁ .
- remember (root_multiplicity acf c₁ (Φq pol₁ ns₁)) as r₁ eqn:Hr₁ .
- symmetry in Hr₁.
- pose proof (Hrle 1%nat) as H; simpl in H.
- rewrite <- Hc, <- Hpol₁, <- Hns₁, <- Hc₁ in H; auto.
- rewrite Hr₁ in H.
- rename H into Hrr.
- remember Hns as H; clear HeqH.
- eapply next_ns_r_non_decr in H; eauto ; clear Hrr.
- destruct H as (Heq, H); move Heq at top; subst r₁.
- destruct H as (αj₁, (αk₁, H)).
- destruct H as (Hini₁, (Hfin₁, (Hαj₁, Hαk₁))).
- remember Hns₁ as H; clear HeqH.
- apply List_hd_in in H; auto.
- rename H into Hns₁i.
- remember Hns as H; clear HeqH.
- eapply first_n_pol_in_K_1_m_any_r with (n := 1%nat) in H; eauto .
-  simpl in H; rewrite <- Hc, <- Hpol₁ in H.
-  rename H into HK₁.
-  apply IHd with (c := c₁); auto.
-   symmetry in Hr₁.
-   eapply q_eq_1_any_r with (pol := pol₁); eauto .
-
-   intros j.
-   pose proof (Hrle (S j)) as H; simpl in H.
-   rewrite <- Hc, <- Hpol₁, <- Hns₁ in H; auto.
-
-  intros j Hj.
-  destruct j; auto.
-  apply le_S_n in Hj.
-  apply Nat.le_0_r in Hj; rewrite Hj; simpl.
-  rewrite <- Hc, <- Hpol₁; assumption.
-Qed.
-
 (* cf root_tail_split_1st *)
 Theorem root_tail_split_1st_any_r : ∀ pol ns c pol₁ ns₁ c₁ m q₀ r,
   ns ∈ newton_segments pol
@@ -854,14 +85,14 @@ destruct (ps_zerop _ (ps_poly_nth 0 pol₁)) as [H₁| H₁].
  rename H into Hr₁; move Hr₁ before Hc₁.
  rename H₁ into Hnz₁.
  remember Hns as HK₁; clear HeqHK₁.
- eapply next_pol_in_K_1_mq in HK₁; eauto .
+ eapply next_pol_in_K_1_mq in HK₁; try eassumption .
  rewrite <- Heqm₁ in HK₁.
  remember Hns as H; clear HeqH.
- eapply r_n_next_ns in H; eauto .
+ eapply r_n_next_ns in H; try eassumption .
  destruct H as (αj₁, (αk₁, H)).
  destruct H as (Hini₁, (Hfin₁, (Hαj₁, Hαk₁))).
  remember Hns as H; clear HeqH.
- eapply multiplicity_is_pos in H; eauto .
+ eapply multiplicity_is_pos in H; try eassumption .
  rename H into Hrpos.
  remember Hrpos as H; clear HeqH.
  apply Nat2Z.inj_lt in H; simpl in H.
@@ -871,17 +102,17 @@ destruct (ps_zerop _ (ps_poly_nth 0 pol₁)) as [H₁| H₁].
  rewrite Nat.sub_0_r in H.
  rename H into Hrpos₃.
  remember Hns as H; clear HeqH.
- eapply next_has_root_0_or_newton_segments in H; eauto .
+ eapply next_has_root_0_or_newton_segments in H; eauto.
  simpl in H; rewrite <- Hc, <- Hpol₁ in H.
  destruct H as [| H]; [ contradiction | idtac ].
  rename H into Hns₁nz; move Hns₁nz before HK₁.
  remember Hns₁ as Hns₁₁; clear HeqHns₁₁.
- eapply List_hd_in in Hns₁₁; eauto .
+ eapply List_hd_in in Hns₁₁; try eassumption .
  remember Hns₁₁ as HK₂; clear HeqHK₂.
- eapply next_pol_in_K_1_mq in HK₂; eauto .
+ eapply next_pol_in_K_1_mq in HK₂; try eassumption; try reflexivity.
  remember Hns₁₁ as H; clear HeqH.
  symmetry in Hr₁.
- eapply q_eq_1_any_r in H; eauto .
+ eapply q_eq_1_any_r in H; try eassumption; [ idtac | reflexivity ].
  rewrite H in HK₂; clear H.
  rewrite Pos.mul_1_r in HK₂.
  unfold γ_sum; simpl.
@@ -903,11 +134,12 @@ destruct (ps_zerop _ (ps_poly_nth 0 pol₁)) as [H₁| H₁].
   rewrite Pos2Z.inj_mul.
   rewrite Z.div_mul_cancel_r; auto.
   rewrite fold_series_const.
-  erewrite αj_m_eq_p_r; eauto .
+  symmetry in Hr₁.
+  erewrite αj_m_eq_p_r; try eassumption; [ idtac | reflexivity ].
   rewrite Pos2Z.inj_mul, Z.mul_shuffle0, Zposnat2Znat; auto.
   rewrite <- Z.mul_assoc.
-  rewrite <- Zposnat2Znat; simpl; eauto .
-  rewrite Z.div_mul; eauto .
+  rewrite <- Zposnat2Znat; simpl; try eassumption .
+  rewrite Z.div_mul; auto.
   remember (Pos.of_nat r) as pr.
   remember (Qden αj₁ * pr * Qden αk₁)%positive as x.
   rewrite ps_adjust_eq with (n := O) (k := x); symmetry.
@@ -938,7 +170,7 @@ destruct (ps_zerop _ (ps_poly_nth 0 pol₁)) as [H₁| H₁].
    rewrite Pos.mul_comm, Pos2Z.inj_mul, Z.mul_assoc; symmetry.
    subst pr.
    rewrite Zposnat2Znat; auto.
-   eapply αj_m_eq_p_r; eauto .
+   eapply αj_m_eq_p_r; try eassumption; reflexivity.
 
   rename H₁ into Hnz₂.
   pose proof (Hrle 2%nat) as H.
@@ -951,12 +183,12 @@ destruct (ps_zerop _ (ps_poly_nth 0 pol₁)) as [H₁| H₁].
   remember (root_multiplicity acf c₂ (Φq pol₂ ns₂)) as r₂ eqn:Hr₂ .
   symmetry in Hr₁, Hr₂.
   remember Hns₁₁ as H; clear HeqH.
-  eapply next_ns_r_non_decr in H; eauto .
+  eapply next_ns_r_non_decr in H; try eassumption .
   destruct H as (Heq, H); move Heq at top; subst r₂.
   clear Hrle₂; destruct H as (αj₂, (αk₂, H)).
   destruct H as (Hini₂, (Hfin₂, (Hαj₂, Hαk₂))).
   remember Hns as H; clear HeqH.
-  eapply next_ns_in_pol in H; eauto .
+  eapply next_ns_in_pol in H; try eassumption .
   rename H into Hns₁i; move Hns₁i before Hns₁.
   unfold root_tail_from_cγ_list; simpl.
   unfold ps_add, ps_mul; simpl.
@@ -978,7 +210,7 @@ destruct (ps_zerop _ (ps_poly_nth 0 pol₁)) as [H₁| H₁].
   rewrite Z.mul_add_distr_r.
   rewrite Z.mul_shuffle0, Z.mul_assoc; simpl.
   remember Hns₁i as H; clear HeqH.
-  eapply next_ns_in_pol in H; eauto .
+  eapply next_ns_in_pol in H; try eassumption .
   rename H into Hns₂i; move Hns₂i before Hns₂.
   remember (nd * ' dd * ' m₁)%Z as x.
   remember (Qnum αj₂ * ' m₁ / ' (Qden αj₂ * rq))%Z as y.
@@ -1005,11 +237,11 @@ destruct (ps_zerop _ (ps_poly_nth 0 pol₁)) as [H₁| H₁].
    rewrite series_shift_0.
    rewrite Z.sub_0_r.
    apply mkps_morphism.
-    erewrite αj_m_eq_p_r in Hy; eauto ; subst rq.
+    erewrite αj_m_eq_p_r in Hy; try eassumption; eauto; subst rq.
     rewrite <- Zposnat2Znat in Hy; auto; simpl in Hy.
     rewrite Pos.mul_comm, Pos2Z.inj_mul in Hy.
     rewrite <- Z.mul_assoc in Hy; simpl in Hy.
-    rewrite Z.div_mul in Hy; eauto .
+    rewrite Z.div_mul in Hy; auto.
     unfold adjust_series; simpl.
     rewrite series_shift_0.
     do 2 rewrite fold_series_const.
@@ -1018,7 +250,7 @@ destruct (ps_zerop _ (ps_poly_nth 0 pol₁)) as [H₁| H₁].
     rewrite <- series_stretch_stretch.
     rewrite <- Z.mul_assoc, <- Pos2Z.inj_mul.
     remember Hini₂ as H; clear HeqH.
-    eapply p_is_pos with (m := m₁) in H; eauto .
+    eapply p_is_pos with (m := m₁) in H; try eassumption .
     rewrite <- Hy in H.
     rename H into Hppos.
     remember Hppos as H; clear HeqH.
@@ -1043,7 +275,7 @@ destruct (ps_zerop _ (ps_poly_nth 0 pol₁)) as [H₁| H₁].
       unfold root_tail_series_from_cγ_list; simpl.
       rewrite <- Hc₁, <- Hpol₂, <- Hns₂.
       rewrite Hy in H₁.
-      erewrite <- next_pow_eq_p in H₁; eauto .
+      erewrite <- next_pow_eq_p in H₁; try eassumption .
       destruct i; [ exfalso; revert H₂; apply Nat.lt_irrefl | idtac ].
       clear H₂; simpl.
       destruct (ps_zerop R (ps_poly_nth 0 pol₁)) as [| H₂]; auto.
@@ -1077,23 +309,23 @@ destruct (ps_zerop _ (ps_poly_nth 0 pol₁)) as [H₁| H₁].
       clear H.
       symmetry in Hr₁.
       remember Hns₁i as H; clear HeqH.
-      eapply q_eq_1_any_r in H; eauto .
+      eapply q_eq_1_any_r in H; try eassumption; [ idtac | reflexivity ].
       rename H into Hq₁; move Hq₁ before Hns₁nz.
       symmetry in Hr₂.
       remember Hns₂i as H; clear HeqH.
-      eapply q_eq_1_any_r in H; eauto .
+      eapply q_eq_1_any_r in H; try eassumption; [ idtac | reflexivity ].
       rename H into Hq₂; move Hq₂ before Hnz₂.
       assert (∀ n, r ≤ nth_r n pol₁ ns₁) as Hrle₁.
-       eapply all_r_le_next with (pol := pol); eauto .
+       eapply all_r_le_next with (pol := pol); eassumption .
 
        move Hrle₁ before Hrle.
        assert (∀ n, r ≤ nth_r n pol₂ ns₂) as Hrle₂.
-        eapply all_r_le_next with (pol := pol₁); eauto .
+        eapply all_r_le_next with (pol := pol₁); eassumption .
 
         move Hrle₂ before Hrle₁.
 bbb.
-        rewrite find_coeff_iter_succ with (r := r); eauto; symmetry.
-        rewrite find_coeff_iter_succ with (r := r); eauto; symmetry.
+        rewrite find_coeff_iter_succ with (r := r); try eassumption; symmetry.
+        rewrite find_coeff_iter_succ with (r := r); try eassumption; symmetry.
         subst x; clear Hle.
         remember (S i) as si.
         remember (S (S id)) as x; simpl; subst x.
@@ -1109,7 +341,7 @@ bbb.
          subst si; remember (S i) as si.
          rewrite Hy in Heqn₂.
          symmetry in Hr₂.
-         erewrite <- next_pow_eq_p in Heqn₂; eauto .
+         erewrite <- next_pow_eq_p in Heqn₂; try eassumption .
          remember (S id) as sid.
          subst n₂; simpl.
          destruct (ps_zerop R (ps_poly_nth 0 pol₂)) as [H₃| H₃].
@@ -1138,10 +370,10 @@ bbb.
            do 2 rewrite find_coeff_add.
            subst sid.
            remember Hns₂i as H; clear HeqH.
-           eapply next_ns_in_pol in H; eauto .
+           eapply next_ns_in_pol in H; try eassumption .
            rename H into Hns₃i.
            remember Hns₂i as H; clear HeqH.
-           eapply next_pol_in_K_1_mq with (q := xH) in H; eauto .
+           eapply next_pol_in_K_1_mq with (q := xH) in H; try eassumption .
            rewrite Pos.mul_1_r in H.
            rename H into HK₃.
            pose proof (Hrle₁ 2%nat) as H.
@@ -1156,21 +388,21 @@ bbb.
            rename H into Hrr.
            remember Hns₂i as H; clear HeqH.
            symmetry in Hr₃.
-           eapply next_ns_r_non_decr in H; eauto ; clear Hrr.
+           eapply next_ns_r_non_decr in H; try eassumption ; clear Hrr.
            destruct H as (Heq, H); move Heq at top; subst r₃.
            destruct H as (αj₃, (αk₃, H)).
            destruct H as (Hini₃, (Hfin₃, (Hαj₃, Hαk₃))).
            remember Hns₃i as H; clear HeqH.
            symmetry in Hr₃.
-           eapply q_eq_1_any_r in H; eauto .
+           eapply q_eq_1_any_r in H; try eassumption .
            rename H into Hq₃.
            assert (∀ n, r ≤ nth_r n pol₃ ns₃) as Hrle₃.
-            eapply all_r_le_next with (pol := pol₂); eauto .
+            eapply all_r_le_next with (pol := pol₂); try eassumption .
 
             move Hrle₃ before Hrle₂.
             symmetry in Hr₃.
-            eapply find_coeff_more_iter; eauto .
-            erewrite next_pow_eq_p in Hpow₁; eauto .
+            eapply find_coeff_more_iter; try eassumption .
+            erewrite next_pow_eq_p in Hpow₁; try eassumption .
             rewrite <- Hy in Hpow₁.
             destruct pow₁.
              rewrite <- Z2Nat.inj_0 in Hpow₁.
@@ -1195,7 +427,7 @@ bbb.
      rewrite Heqdd, Heqnd.
      rewrite Pos_mul_shuffle0, Z.mul_shuffle0, Pos2Z.inj_mul.
      apply Z.mul_divide_mono_r.
-     erewrite αj_m_eq_p_r with (ns₁ := ns₁); eauto .
+     erewrite αj_m_eq_p_r with (ns₁ := ns₁); try eassumption .
      rewrite Pos.mul_comm, Hrq.
      rewrite Pos2Z.inj_mul, Zposnat2Znat; auto.
      exists (p_of_m m₁ (γ ns₁)).
@@ -1241,10 +473,10 @@ apply Hpsi in H₁; simpl in H₁.
 rewrite <- Hc₁, <- Hpol₂ in H₁.
 remember (q_of_m m (γ ns₁)) as q₀ eqn:Hq₀ .
 assert (0 ≤ S n)%nat as H by apply Nat.le_0_l.
-eapply IHn with (m := (m * q₀)%positive); eauto .
- eapply next_ns_in_pol; eauto .
+eapply IHn with (m := (m * q₀)%positive); try eassumption .
+ eapply next_ns_in_pol; try eassumption .
 
- eapply next_pol_in_K_1_mq; eauto .
+ eapply next_pol_in_K_1_mq; try eassumption .
 
  intros i Hin.
  apply Nat.succ_le_mono in Hin.
@@ -1271,8 +503,8 @@ intros pol ns c αj αk poln m n r.
 intros Hns HK Hc Hini Hfin Hαj Hαk Hri H₀ Hpsi Hpoln.
 clear Hri.
 bbb.
-eapply first_n_pol_in_K_1_m_any_r with (ns := ns) (n := n); eauto .
-eapply q_eq_1_any_r with (ns := ns); eauto .
+eapply first_n_pol_in_K_1_m_any_r with (ns := ns) (n := n); try eassumption .
+eapply q_eq_1_any_r with (ns := ns); try eassumption .
 pose proof (Hri 0%nat) as H; simpl in H.
 rewrite <- Hc in H; rewrite H.
 assumption.
@@ -1300,7 +532,7 @@ intros pol ns c pol₁ ns₁ c₁ m q₀ b r.
 intros Hns Hm Hq₀ Hc Hpol₁ Hns₁ Hc₁ Hri Hnle H₀.
 remember (m * q₀)%positive as m₁.
 bbb.
-destruct b; [ subst m₁; eapply root_tail_split_1st_any_r; eauto  | idtac ].
+destruct b; [ subst m₁; eapply root_tail_split_1st_any_r; try eassumption  | idtac ].
 remember (S b) as b₁ eqn:Hb₁ .
 unfold root_tail, root_head; simpl.
 rewrite Nat.add_0_r.
@@ -1317,7 +549,7 @@ destruct z₁.
  unfold summation; simpl.
  rewrite Nat.add_0_r, rng_add_0_r.
  remember Hns as HK₁; clear HeqHK₁.
- eapply next_pol_in_K_1_mq in HK₁; eauto .
+ eapply next_pol_in_K_1_mq in HK₁; try eassumption .
  rewrite <- Heqm₁ in HK₁.
  rewrite Hb₁ in Hz₁.
  rewrite zerop_1st_n_const_coeff_succ in Hz₁.
@@ -1344,9 +576,9 @@ destruct z₁.
  rewrite <- Hc, <- Hpol₁, <- Hns₁, <- Hc₁ in Hr₁.
  remember (next_pol pol₁ (β ns₁) (γ ns₁) c₁) as pol₂ eqn:Hpol₂ .
  remember (List.hd phony_ns (newton_segments pol₂)) as ns₂ eqn:Hns₂ .
- assert (0 < r)%nat as Hrpos by (eapply multiplicity_is_pos; eauto ).
+ assert (0 < r)%nat as Hrpos by (eapply multiplicity_is_pos; try eassumption ).
  remember Hns₁ as H; clear HeqH.
- eapply r_n_next_ns in H; eauto .
+ eapply r_n_next_ns in H; try eassumption .
  destruct H as (αj₁, (αk₁, H)).
  destruct H as (Hini₁, (Hfin₁, (Hαj₁, Hαk₁))).
  assert (∀ i : nat, i ≤ b₁ → (ps_poly_nth 0 (nth_pol i pol₁ ns₁) ≠ 0)%ps).
@@ -1354,28 +586,28 @@ destruct z₁.
 
   clear Hpsi; rename H into Hpsi.
   remember Hns₁ as H; clear HeqH.
-  eapply newton_segments_not_nil in H; eauto .
+  eapply newton_segments_not_nil in H; try eassumption .
   rename H into Hns₁nz.
   remember Hns₁ as Hns₁₁; clear HeqHns₁₁.
-  eapply List_hd_in in Hns₁₁; eauto .
+  eapply List_hd_in in Hns₁₁; try eassumption .
 (*
   assert (∀ i, nth_r i pol₁ ns₁ = r) as Hri₁.
-   eapply all_same_r_next with (ns := ns); eauto .
+   eapply all_same_r_next with (ns := ns); try eassumption .
 *)
 
    remember Hns₁₁ as H; clear HeqH.
-   eapply nth_in_newton_segments_any_r with (n := b₁) in H; eauto .
+   eapply nth_in_newton_segments_any_r with (n := b₁) in H; try eassumption .
    rename H into Hbns.
    remember (nth_pol b₁ pol₁ ns₁) as polb₂ eqn:Hpolb₂ .
    remember (nth_ns b₁ pol₁ ns₁) as nsb₂ eqn:Hnsb₂ .
    assert (pol_in_K_1_m polb₂ m₁) as HKb₂.
 bbb.
-    eapply nth_pol_in_K_1_m with (ns := ns₁) (n := b₁); eauto .
+    eapply nth_pol_in_K_1_m with (ns := ns₁) (n := b₁); try eassumption .
 
     pose proof (Hri (S b₁)) as Hrb; simpl in Hrb.
     rewrite <- Hc, <- Hpol₁, <- Hns₁ in Hrb.
-    erewrite nth_r_n in Hrb; eauto .
-    erewrite nth_c_n in Hrb; eauto .
+    erewrite nth_r_n in Hrb; try eassumption .
+    erewrite nth_c_n in Hrb; try eassumption .
     remember Hbns as H; clear HeqH.
     apply exists_ini_pt_nat in H.
     destruct H as (jb, (αjb₂, Hinib₂)).
@@ -1390,31 +622,31 @@ bbb.
     rewrite <- Hns₂ in Hpolb₂, Hnsb₂, Hpolb₃.
     rewrite <- Nat.add_1_r, <- Hpolb₃.
     remember Hns₁₁ as H; clear HeqH.
-    eapply nth_in_newton_segments_any_r with (n := b) in H; eauto .
+    eapply nth_in_newton_segments_any_r with (n := b) in H; try eassumption .
     remember (nth_ns b pol₁ ns₁) as nsb₁ eqn:Hnsb₁ .
     remember (nth_pol b pol₁ ns₁) as polb₁ eqn:Hpolb₁ .
     remember (ac_root (Φq polb₁ nsb₁)) as cb₁ eqn:Hcb₁ .
     pose proof (Hri (S b)) as Hrb₁; simpl in Hrb₁.
     rewrite <- Hc, <- Hpol₁, <- Hns₁ in Hrb₁.
-    erewrite nth_r_n in Hrb₁; eauto .
-    erewrite nth_c_n in Hrb₁; eauto .
+    erewrite nth_r_n in Hrb₁; try eassumption .
+    erewrite nth_c_n in Hrb₁; try eassumption .
     rewrite <- Hcb₁ in Hrb₁.
     pose proof (Hpsi (S b) (Nat.le_refl (S b))) as Hpsb₂.
     simpl in Hpsb₂.
     rewrite <- Hc₁, <- Hpol₂, <- Hns₂ in Hpsb₂.
-    erewrite nth_pol_n with (c := c₁) in Hpsb₂; eauto .
-    erewrite nth_ns_n with (c := c₁) in Hnsb₂; eauto .
+    erewrite nth_pol_n with (c := c₁) in Hpsb₂; try eassumption .
+    erewrite nth_ns_n with (c := c₁) in Hnsb₂; try eassumption .
     assert (pol_in_K_1_m polb₁ m₁) as HKb₁.
-     eapply nth_pol_in_K_1_m with (ns := ns₁) (n := b); eauto .
+     eapply nth_pol_in_K_1_m with (ns := ns₁) (n := b); try eassumption .
 
-     erewrite <- nth_pol_n with (c := c₁) in Hnsb₂; eauto .
+     erewrite <- nth_pol_n with (c := c₁) in Hnsb₂; try eassumption .
      rewrite <- Hpolb₂ in Hnsb₂.
-     erewrite nth_pol_n with (c := c₁) in Hpolb₂; eauto .
+     erewrite nth_pol_n with (c := c₁) in Hpolb₂; try eassumption .
      rewrite <- Hpolb₂ in Hpsb₂.
-     eapply r_n_j_0_k_n with (ns₁ := nsb₂) in H; eauto .
-     erewrite <- nth_ns_n with (c := c₁) in Hnsb₂; eauto .
+     eapply r_n_j_0_k_n with (ns₁ := nsb₂) in H; try eassumption .
+     erewrite <- nth_ns_n with (c := c₁) in Hnsb₂; try eassumption .
      destruct H as (Hjb, (Hkb, (Hαjb₂, Hαkb₂))).
-     erewrite <- nth_pol_n with (c := c₁) in Hpolb₂; eauto .
+     erewrite <- nth_pol_n with (c := c₁) in Hpolb₂; try eassumption .
      subst jb kb.
      unfold Qlt in Hαjb₂; simpl in Hαjb₂.
      unfold Qeq in Hαkb₂; simpl in Hαkb₂.
@@ -1442,11 +674,11 @@ bbb.
       rewrite Z.mul_shuffle0, Pos_mul_shuffle0.
       do 2 rewrite Pos2Z.inj_mul.
       rewrite Z.div_mul_cancel_r; simpl; auto.
-      erewrite αj_m_eq_p_r; eauto .
+      erewrite αj_m_eq_p_r; try eassumption .
       rewrite Pos2Z.inj_mul, Z.mul_shuffle0, Zposnat2Znat; auto.
       rewrite <- Z.mul_assoc.
-      rewrite <- Zposnat2Znat; simpl; eauto .
-      rewrite Z.div_mul; eauto .
+      rewrite <- Zposnat2Znat; simpl; try eassumption .
+      rewrite Z.div_mul; try eassumption .
       rewrite ps_adjust_eq with (n := O) (k := Qden (nth_γ b pol₂ ns₂)).
       symmetry.
       rewrite ps_adjust_eq with (n := O) (k := m₁).
@@ -1477,7 +709,7 @@ bbb.
          destruct (ps_zerop R (ps_poly_nth 0 polb₂));
           [ contradiction | idtac ].
          symmetry.
-         erewrite nth_c_n; eauto .
+         erewrite nth_c_n; try eassumption .
 
          simpl.
          rewrite <- Hcb₂.
@@ -1488,7 +720,7 @@ bbb.
           exfalso; revert H₁; apply Nat.lt_irrefl.
 
           destruct (ps_zerop R (ps_poly_nth 0 polb₂)); auto.
-          erewrite <- nth_pol_n with (c := c₂); eauto .
+          erewrite <- nth_pol_n with (c := c₂); try eassumption .
           remember (nth_pol b pol₃ ns₃) as pol₄ eqn:Hpol₄ .
           remember (List.hd phony_ns (newton_segments pol₄)) as ns₄ eqn:Hns₄ .
           simpl.
@@ -1499,7 +731,7 @@ bbb.
         rewrite Nat.mod_0_l in H₁; auto.
         exfalso; revert H₁; apply Nat.lt_irrefl.
 
-       erewrite nth_γ_n; eauto ; simpl.
+       erewrite nth_γ_n; try eassumption ; simpl.
        rewrite Hαkb₂; simpl.
        rewrite Qnum_inv_Qnat_sub; auto.
        rewrite Qden_inv_Qnat_sub; auto.
@@ -1510,14 +742,14 @@ bbb.
        symmetry.
        rewrite Z.mul_shuffle0.
        rewrite Zposnat2Znat; auto.
-       eapply αj_m_eq_p_r; eauto .
+       eapply αj_m_eq_p_r; try eassumption .
 
       assert (1 ≤ S b)%nat as H by fast_omega .
       apply Hpsi in H; simpl in H.
       rewrite <- Hc₁, <- Hpol₂ in H.
       rename H into Hps₂.
       remember Hns₂ as H; clear HeqH.
-      eapply r_n_next_ns with (pol := pol₁) in H; eauto .
+      eapply r_n_next_ns with (pol := pol₁) in H; try eassumption .
       destruct H as (αj₂, (αk₂, H)).
       destruct H as (Hini₂, (Hfin₂, (Hαj₂, Hαk₂))).
       rewrite Nat.add_1_r; simpl.
@@ -1527,13 +759,13 @@ bbb.
       rewrite <- Hpolb₃.
       remember (nth_ns b pol₃ ns₃) as nsb₃ eqn:Hnsb₃ .
       remember Hns₃ as H; clear HeqH.
-      eapply nth_ns_n with (c := c₂) in H; eauto .
+      eapply nth_ns_n with (c := c₂) in H; try eassumption .
       rewrite <- Hnsb₃ in H.
-      erewrite <- nth_pol_n with (c := c₂) in H; eauto .
+      erewrite <- nth_pol_n with (c := c₂) in H; try eassumption .
       rewrite <- Hpolb₃ in H.
       rename H into Hbns₂.
       remember Hbns₂ as H; clear HeqH.
-      erewrite nth_pol_n with (c := c₂) in Hpolb₃; eauto .
+      erewrite nth_pol_n with (c := c₂) in Hpolb₃; try eassumption .
       remember (ac_root (Φq polb₃ nsb₃)) as cb₃ eqn:Hcb₃ .
       remember (S b) as b₁.
       remember (S b₁) as b₂.
@@ -1543,19 +775,19 @@ bbb.
       rewrite <- Hc₁, <- Hpol₂, <- Hns₂ in Hrb₂.
       subst b₁; simpl in Hrb₂.
       rewrite <- Hc₂, <- Hpol₃, <- Hns₃ in Hrb₂.
-      erewrite nth_r_n in Hrb₂; eauto .
-      erewrite <- nth_pol_n with (c := c₂) in Hpolb₃; eauto .
+      erewrite nth_r_n in Hrb₂; try eassumption .
+      erewrite <- nth_pol_n with (c := c₂) in Hpolb₃; try eassumption .
       rewrite <- Hpolb₃ in Hrb₂.
-      erewrite nth_c_n in Hrb₂; eauto .
+      erewrite nth_c_n in Hrb₂; try eassumption .
       rewrite <- Hcb₃ in Hrb₂.
-      erewrite nth_pol_n with (c := c₂) in Hpolb₃; eauto .
-      eapply r_n_next_ns in H; eauto .
+      erewrite nth_pol_n with (c := c₂) in Hpolb₃; try eassumption .
+      eapply r_n_next_ns in H; try eassumption .
       destruct H as (αjb₃, (αkb₃, H)).
       destruct H as (Hinib₃, (Hfinb₃, (Hαjb₃, Hαkb₃))).
       remember Hbns₂ as Hnsb₃nz; clear HeqHnsb₃nz.
-      eapply newton_segments_not_nil in Hnsb₃nz; eauto .
+      eapply newton_segments_not_nil in Hnsb₃nz; try eassumption .
       remember Hbns₂ as Hnsb₃₁; clear HeqHnsb₃₁.
-      apply List_hd_in in Hnsb₃₁; eauto .
+      apply List_hd_in in Hnsb₃₁; try eassumption .
       unfold root_tail_from_cγ_list; simpl.
       rewrite Hinib₂, Hfinb₂, Hinib₃, Hfinb₃; simpl.
       rewrite Hαkb₂, Hαkb₃; simpl.
@@ -1570,18 +802,18 @@ bbb.
       do 2 rewrite Pos2Z.inj_mul.
       rewrite Z.div_mul_cancel_r; auto.
       remember Hns₂ as Hns₂nz; clear HeqHns₂nz.
-      eapply newton_segments_not_nil in Hns₂nz; eauto .
+      eapply newton_segments_not_nil in Hns₂nz; try eassumption .
       remember Hns₂ as Hns₂₁; clear HeqHns₂₁.
-      apply List_hd_in in Hns₂₁; eauto .
-      erewrite αj_m_eq_p_r with (ns₁ := nsb₂); eauto .
+      apply List_hd_in in Hns₂₁; try eassumption .
+      erewrite αj_m_eq_p_r with (ns₁ := nsb₂); try eassumption .
       assert (pol_in_K_1_m polb₃ m₁) as HKb₃.
-       erewrite <- nth_pol_n with (c := c₁) (n := S b) in Hpolb₃; eauto .
-        eapply nth_pol_in_K_1_m with (ns := ns₂); eauto .
+       erewrite <- nth_pol_n with (c := c₁) (n := S b) in Hpolb₃; try eassumption .
+        eapply nth_pol_in_K_1_m with (ns := ns₂); try eassumption .
          replace m₁ with (m₁ * 1)%positive by apply Pos.mul_1_r.
-         eapply next_pol_in_K_1_mq with (ns := ns₁); eauto .
+         eapply next_pol_in_K_1_mq with (ns := ns₁); try eassumption .
          symmetry.
-         eapply q_eq_1_any_r with (ns := ns₁) (αk := αk₁); eauto .
-         rewrite Hr₁; eauto .
+         eapply q_eq_1_any_r with (ns := ns₁) (αk := αk₁); try eassumption .
+         rewrite Hr₁; try eassumption .
 
          intros i.
          pose proof (Hri₁ (S i)) as H.
@@ -1597,7 +829,7 @@ bbb.
           rewrite <- Hc₂, <- Hpol₃, <- Hns₃ in Hpolb₃.
           rewrite <- Hpolb₃.
           apply order_fin.
-          erewrite order_in_newton_segment; eauto ; [ idtac | left; eauto  ].
+          erewrite order_in_newton_segment; try eassumption ; [ idtac | left; try eassumption  ].
           intros H; discriminate H.
 
           assert (S i ≤ S b) as H by fast_omega Hi H₂.
@@ -1609,9 +841,9 @@ bbb.
 
         simpl; rewrite <- Hc₁, <- Hpol₂, <- Hns₂; assumption.
 
-       erewrite αj_m_eq_p_r with (ns₁ := nsb₃) (pol₁ := polb₃); eauto .
+       erewrite αj_m_eq_p_r with (ns₁ := nsb₃) (pol₁ := polb₃); try eassumption .
        rewrite Z.mul_shuffle0, Zposnat2Znat; auto.
-       rewrite <- Zposnat2Znat; eauto .
+       rewrite <- Zposnat2Znat; try eassumption .
        rewrite <- Z.mul_assoc, Z.div_mul; simpl; auto.
        rewrite Z.mul_shuffle0.
        rewrite <- Z.mul_assoc, Z.div_mul; auto.
@@ -1621,10 +853,10 @@ bbb.
        unfold ps_terms_add; simpl.
        rewrite fold_series_const.
        unfold ps_ordnum_add; simpl.
-       erewrite nth_γ_n; eauto ; simpl.
+       erewrite nth_γ_n; try eassumption ; simpl.
        rewrite Hαkb₂; simpl.
-       erewrite Qnum_inv_Qnat_sub; eauto .
-       erewrite Qden_inv_Qnat_sub; eauto ; simpl.
+       erewrite Qnum_inv_Qnat_sub; try eassumption .
+       erewrite Qden_inv_Qnat_sub; try eassumption ; simpl.
        rewrite Nat.sub_0_r, Z.mul_1_r, Z.add_0_r.
        remember (p_of_m m₁ (γ nsb₃)) as pb₃ eqn:Hpb₃ .
        remember (Pos.of_nat r) as rq eqn:Hrq .
@@ -1704,7 +936,7 @@ bbb.
               contradiction.
 
               clear H₃; symmetry.
-              erewrite nth_c_n; eauto .
+              erewrite nth_c_n; try eassumption .
 
              contradiction.
 
@@ -1725,7 +957,7 @@ bbb.
              rewrite Z.mul_shuffle0, Pos_mul_shuffle0.
              rewrite Pos2Z.inj_mul.
              rewrite Z.div_mul_cancel_r; auto.
-             erewrite αj_m_eq_p_r with (pol₁ := polb₃); eauto .
+             erewrite αj_m_eq_p_r with (pol₁ := polb₃); try eassumption .
              rewrite Pos2Z.inj_mul.
              rewrite Z.mul_shuffle0, Zposnat2Znat; auto.
              rewrite <- Zposnat2Znat; auto.
@@ -1745,11 +977,11 @@ bbb.
              remember (i - Z.to_nat pb₃)%nat as id.
              unfold root_tail_series_from_cγ_list.
              assert (∀ j, nth_r j polb₂ nsb₂ = r) as Hrib₂.
-              eapply all_same_r_next with (ns := nsb₁); eauto .
-               erewrite <- nth_pol_n with (c := c₁); eauto .
+              eapply all_same_r_next with (ns := nsb₁); try eassumption .
+               erewrite <- nth_pol_n with (c := c₁); try eassumption .
 
-               erewrite <- nth_ns_n with (c := c₁); eauto .
-               erewrite <- nth_pol_n with (c := c₁); eauto .
+               erewrite <- nth_ns_n with (c := c₁); try eassumption .
+               erewrite <- nth_pol_n with (c := c₁); try eassumption .
 
                intros j.
                rewrite Hpolb₁, Hnsb₁.
@@ -1760,7 +992,7 @@ bbb.
               rewrite find_coeff_iter_succ with (r := r); auto.
                symmetry.
                pose proof (Hri (S (S (S b)))) as H.
-               erewrite nth_r_n in H; eauto .
+               erewrite nth_r_n in H; try eassumption .
                remember (S (S b)) as b₂; simpl in H.
                rewrite <- Hc, <- Hpol₁, <- Hns₁ in H.
                subst b₂; remember (S b) as b₁; simpl in H.
@@ -1768,24 +1000,24 @@ bbb.
                subst b₁; simpl in H.
                rewrite <- Hc₂, <- Hpol₃, <- Hns₃ in H.
                rewrite <- Hnsb₃ in H.
-               erewrite nth_c_n in H; eauto .
-               erewrite nth_pol_n with (c := c₂) in H; eauto .
+               erewrite nth_c_n in H; try eassumption .
+               erewrite nth_pol_n with (c := c₂) in H; try eassumption .
                rewrite <- Hpolb₃, <- Hcb₃ in H.
                rename H into Hrb₃.
                symmetry in Hrb₃.
                remember Hnsb₃₁ as H; clear HeqH.
-               eapply q_eq_1_any_r in H; eauto .
+               eapply q_eq_1_any_r in H; try eassumption .
                rename H into Hqb₃.
                assert (∀ j, nth_r j polb₃ nsb₃ = r) as Hrib₃.
                 intros j.
-                eapply all_same_r_next with (ns := nsb₂); eauto .
+                eapply all_same_r_next with (ns := nsb₂); try eassumption .
 
                 rewrite find_coeff_iter_succ with (r := r); auto.
                 symmetry.
                 remember (S i) as si.
                 remember (S (S id)) as ssid; simpl.
                 rewrite <- Hcb₂, <- Hpolb₃.
-                erewrite <- nth_ns_n with (ns := ns₂); eauto .
+                erewrite <- nth_ns_n with (ns := ns₂); try eassumption .
                 rewrite <- Hnsb₃.
                 destruct i;
                  [ exfalso; revert H₁; apply Nat.lt_irrefl | idtac ].
@@ -1794,7 +1026,7 @@ bbb.
                  contradiction.
 
                  clear H₁.
-                 erewrite next_pow_eq_p; eauto .
+                 erewrite next_pow_eq_p; try eassumption .
                  rewrite <- Hpb₃.
                  subst si ssid.
                  remember (S i) as si.
@@ -1820,13 +1052,13 @@ bbb.
                    as Hpolb₄pol₁.
                    rewrite Hpolb₄.
                    symmetry.
-                   eapply nth_pol_n with (c := c); eauto .
+                   eapply nth_pol_n with (c := c); try eassumption .
                     rewrite Hpolb₃.
                     remember (S (S b)) as sb; simpl.
                     rewrite <- Hc, <- Hpol₁, <- Hns₁.
                     subst sb.
                     symmetry.
-                    eapply nth_pol_n with (c := c); eauto .
+                    eapply nth_pol_n with (c := c); try eassumption .
                      rewrite Hpolb₂.
                      remember (S b) as sb; simpl.
                      rewrite <- Hc, <- Hpol₁, <- Hns₁.
@@ -1849,7 +1081,7 @@ bbb.
 
                    assert (nsb₄ = nth_ns (S (S (S b))) pol₁ ns₁) as Hnsb₄ns₁.
                     rewrite Hnsb₄; symmetry.
-                    eapply nth_ns_n with (c := c); eauto .
+                    eapply nth_ns_n with (c := c); try eassumption .
                     rewrite Hpolb₄.
                     remember (S (S b)) as sb; simpl.
                     rewrite <- Hc, <- Hpol₁, <- Hns₁.
@@ -1860,7 +1092,7 @@ bbb.
                     f_equal.
                      rewrite Hpolb₃.
                      symmetry.
-                     eapply nth_pol_n with (c := c₂); eauto .
+                     eapply nth_pol_n with (c := c₂); try eassumption .
 
                      f_equal.
                      rewrite Hnsb₃; auto.
@@ -1871,7 +1103,7 @@ bbb.
                      rewrite Hpolb₃, Hnsb₃.
                      f_equal; f_equal.
                      symmetry.
-                     eapply nth_pol_n with (c := c₂); eauto .
+                     eapply nth_pol_n with (c := c₂); try eassumption .
 
                     subst sid.
                     remember (Z.to_nat pb₃) as x.
@@ -1890,9 +1122,9 @@ bbb.
                       contradiction.
 
                      apply find_coeff_more_iter with (r := r); auto.
-                      eapply List_hd_in; eauto .
+                      eapply List_hd_in; try eassumption .
                       remember Hnsb₃₁ as H; clear HeqH.
-                      eapply next_has_root_0_or_newton_segments in H; eauto .
+                      eapply next_has_root_0_or_newton_segments in H; try eassumption .
                       simpl in H.
                       rewrite <- Hcb₃, <- Hpolb₄ in H.
                       destruct H; [ contradiction | auto ].
@@ -1900,7 +1132,7 @@ bbb.
                       eapply
                        first_n_pol_in_K_1_m_any_r
                         with (pol := polb₃) (n := 1%nat); 
-                       eauto .
+                       try eassumption .
                        intros j Hj.
                        destruct j; auto.
                        destruct j; [ simpl | exfalso; fast_omega Hj ].
@@ -1918,16 +1150,16 @@ bbb.
                        apply nth_c_n; auto.
 
                        remember Hnsb₃₁ as H; clear HeqH.
-                       eapply r_n_next_ns in H; eauto .
+                       eapply r_n_next_ns in H; try eassumption .
                        destruct H as (αjb₄, (αkb₄, H)).
                        destruct H as (Hinib₄, (Hfinb₄, (Hαjb₄, Hαkb₄))).
-                       eapply q_eq_1_any_r with (pol := polb₄); eauto .
-                        eapply List_hd_in; eauto .
-                        eapply newton_segments_not_nil; eauto .
+                       eapply q_eq_1_any_r with (pol := polb₄); try eassumption .
+                        eapply List_hd_in; try eassumption .
+                        eapply newton_segments_not_nil; try eassumption .
 
                         eapply
                          nth_pol_in_K_1_m with (ns := ns₁) (n := (3 + b)%nat);
-                         eauto .
+                         try eassumption .
                         intros j Hj.
                         destruct (le_dec j (S b)) as [H₃| H₃].
                          apply Hpsi; auto.
@@ -1939,7 +1171,7 @@ bbb.
                           rewrite <- Hc₁, <- Hpol₂, <- Hns₂.
                           subst sb; simpl.
                           rewrite <- Hc₂, <- Hpol₃, <- Hns₃.
-                          erewrite nth_pol_n with (c := c₂); eauto .
+                          erewrite nth_pol_n with (c := c₂); try eassumption .
                           rewrite <- Hpolb₃.
                           auto.
 
@@ -1955,10 +1187,10 @@ bbb.
                            remember (ac_root (Φq pol₃ ns₃)) as c₃ eqn:Hc₃ .
                            erewrite
                             nth_pol_n with (poln := polb₃) (c := c₃);
-                            eauto .
+                            try eassumption .
                             rewrite <- Hpolb₄; auto.
 
-                            erewrite nth_pol_n with (c := c₂); eauto .
+                            erewrite nth_pol_n with (c := c₂); try eassumption .
 
                         rewrite Hr₄; auto.
 
@@ -1972,7 +1204,7 @@ bbb.
                   apply Nat.nle_gt in Hcmp₁.
                   contradiction.
 
-               eapply q_eq_1_any_r with (pol := polb₂) (αk := αkb₂); eauto .
+               eapply q_eq_1_any_r with (pol := polb₂) (αk := αkb₂); try eassumption .
                pose proof (Hrib₂ O) as H; simpl in H.
                rewrite <- Hcb₂ in H.
                rewrite H; auto.
@@ -1982,7 +1214,7 @@ bbb.
            rewrite Z.opp_involutive.
            rewrite Hpb₃.
            apply Z.lt_le_incl.
-           eapply p_is_pos; eauto .
+           eapply p_is_pos; try eassumption .
 
           rewrite Pos2Z.inj_mul, Z.mul_assoc.
           apply Z.mul_cancel_r; auto.
@@ -1995,7 +1227,7 @@ bbb.
           rewrite Z.mul_assoc, Z.mul_shuffle0.
           subst rq.
           rewrite Zposnat2Znat; auto.
-          eapply αj_m_eq_p_r with (ns₁ := nsb₂); eauto .
+          eapply αj_m_eq_p_r with (ns₁ := nsb₂); try eassumption .
 
           rewrite Pos.mul_comm, Pos.mul_assoc.
           reflexivity.
@@ -2006,7 +1238,7 @@ bbb.
          apply Z.mul_nonneg_nonneg; auto.
          rewrite Hpb₃.
          apply Z.lt_le_incl.
-         eapply p_is_pos; eauto .
+         eapply p_is_pos; try eassumption .
 Qed.
 *)
 
@@ -2044,7 +1276,7 @@ induction n; intros.
 
   rewrite Nat.add_0_r, rng_add_0_r, Heqm₁.
 bbb.
-  rewrite root_tail_from_0_const_r; eauto .
+  rewrite root_tail_from_0_const_r; try eassumption .
   unfold root_head.
   rewrite Hz₁.
   unfold root_head_from_cγ_list.
@@ -2064,7 +1296,7 @@ bbb.
   symmetry in Hz.
   destruct z.
    rewrite rng_add_0_r, Nat.add_succ_r.
-   rewrite IHn; eauto .
+   rewrite IHn; try eassumption .
    apply rng_add_compat_l.
    unfold γ_sum at 2; simpl.
    rewrite summation_split_last; [ idtac | apply Nat.le_0_l ].
@@ -2077,7 +1309,7 @@ bbb.
    rewrite zerop_1st_n_const_coeff_true_if; auto.
    rewrite rng_mul_0_r; reflexivity.
 
-   rewrite IHn; eauto .
+   rewrite IHn; try eassumption .
    rewrite <- rng_add_assoc.
    apply rng_add_compat_l; simpl.
    symmetry.
@@ -2094,7 +1326,7 @@ bbb.
    symmetry.
    do 3 rewrite Nat.add_succ_r.
    rewrite Heqm₁.
-   eapply root_tail_sep_1st_monom_any_r; eauto .
+   eapply root_tail_sep_1st_monom_any_r; try eassumption .
    rewrite <- Nat.add_succ_r.
    apply zerop_1st_n_const_coeff_false_iff.
    assumption.
@@ -2135,7 +1367,7 @@ destruct r.
    exfalso; revert Hn; apply Nat.lt_irrefl.
 
    remember (List.hd phony_ns (newton_segments pol₁)) as ns₁ eqn:Hns₁ .
-   erewrite <- nth_r_n in Hrn; eauto ; subst rn.
+   erewrite <- nth_r_n in Hrn; try eassumption ; subst rn.
    apply lowest_i_such_that_ri_lt_r₀ in Hn; [ idtac | subst; auto ].
    destruct Hn as (i, (Hin, (Hir, Hri))).
    destruct Hir as [Hir| Hir].
@@ -2172,12 +1404,12 @@ destruct r.
 
           discriminate Hjnz.
 
-         eapply root_when_fin; eauto .
+         eapply root_when_fin; try eassumption .
 
-        eapply List_hd_in; eauto .
+        eapply List_hd_in; try eassumption .
         clear H.
         remember Hns as H; clear HeqH.
-        eapply next_has_root_0_or_newton_segments in H; eauto .
+        eapply next_has_root_0_or_newton_segments in H; try eassumption .
         simpl in H.
         rewrite <- Hc, <- Hpol₁ in H.
         destruct H; auto.
@@ -2196,7 +1428,7 @@ destruct r.
 
          discriminate Heq.
 
-        eapply root_when_fin; eauto .
+        eapply root_when_fin; try eassumption .
 
        eapply IHm with (pol := polsi) (ns := nssi) in Hri.
         destruct Hri as (s₁, Hs₁).
@@ -2204,17 +1436,17 @@ destruct r.
         remember (ps_monom 1%K (γ_sum 0 i pol₁ ns₁)) as mo.
         exists (rh + mo * s₁)%ps; subst rh mo.
         rewrite apply_nth_pol; auto.
-        erewrite nth_pol_n; eauto .
-        erewrite <- nth_c_n; eauto .
+        erewrite nth_pol_n; try eassumption .
+        erewrite <- nth_c_n; try eassumption .
         rewrite Hs₁, rng_mul_0_r; reflexivity.
 
         eapply List_hd_in.
          subst nssi; simpl.
-         eapply nth_ns_n; eauto .
+         eapply nth_ns_n; try eassumption .
           rewrite Hc; reflexivity.
 
           subst polsi; simpl.
-          eapply nth_pol_n; eauto .
+          eapply nth_pol_n; try eassumption .
           rewrite Hc; reflexivity.
 
          intros H; rewrite H in Hnsl; discriminate Hnsl.
@@ -2224,13 +1456,13 @@ destruct r.
         rewrite Hpolsi; simpl.
         rewrite <- Hc, <- Hpol₁, <- Hns₁; auto.
 
-        eauto .
+        try eassumption .
 
-        erewrite nth_c_n; eauto .
+        erewrite nth_c_n; try eassumption .
 
         symmetry.
-        apply nth_r_n; eauto .
-        erewrite nth_c_n; eauto .
+        apply nth_r_n; try eassumption .
+        erewrite nth_c_n; try eassumption .
 
   pose proof (exists_pol_ord R pol) as H.
   destruct H as (m, Hm).
@@ -2274,9 +1506,9 @@ destruct r.
         destruct (ps_zerop R (ps_poly_nth 0 pol₁)); [ contradiction | idtac ].
         discriminate Hz.
 
-        eapply root_when_fin; eauto .
+        eapply root_when_fin; try eassumption .
 bbb.
-     rewrite root_tail_when_r_r with (n := N) in Hofs; eauto .
+     rewrite root_tail_when_r_r with (n := N) in Hofs; try eassumption .
 
 bbb.
   pose proof (exists_pol_ord R pol) as H.
@@ -2305,7 +1537,7 @@ bbb.
      remember (Z.to_nat (2 * ' m * ' q₀ * Qnum ofs)) as N eqn:HN .
      apply eq_Qbar_eq in Hofs.
 bbb.
-     rewrite root_tail_when_r_r with (n := N) in Hofs; eauto .
+     rewrite root_tail_when_r_r with (n := N) in Hofs; try eassumption .
       rewrite Nat.add_0_l in Hofs.
       remember (zerop_1st_n_const_coeff N pol₁ ns₁) as z eqn:Hz .
       symmetry in Hz.
@@ -2329,7 +1561,7 @@ bbb.
           [ contradiction | idtac ].
          discriminate Hz.
 
-         eapply root_when_fin; eauto .
+         eapply root_when_fin; try eassumption .
 
        remember (root_tail (m * q₀) 0 pol₁ ns₁) as s eqn:Hs .
        exists s.
@@ -2350,7 +1582,7 @@ bbb.
           apply Hz.
           transitivity i; assumption.
 
-          eapply β_lower_bound_r_const with (n := i) (r := S r); eauto .
+          eapply β_lower_bound_r_const with (n := i) (r := S r); try eassumption .
            apply Nat.lt_0_succ.
 
            intros j Hji.
@@ -2358,13 +1590,13 @@ bbb.
            rewrite Hr in Hn.
            pose proof (Hn j) as H.
            apply Nat.nlt_ge in H.
-           erewrite <- nth_r_n in H; eauto .
+           erewrite <- nth_r_n in H; try eassumption .
            rename H into Hrj.
            symmetry.
-           eapply r_le_eq_incl; eauto .
+           eapply r_le_eq_incl; try eassumption .
             intros k Hki.
             rewrite zerop_1st_n_const_coeff_false_iff in Hz₁.
-            destruct k; eauto .
+            destruct k; try eassumption .
             apply Nat.succ_le_mono in Hki.
             apply Hz₁ in Hki; simpl.
             rewrite <- Hpol₁, <- Hns₁; auto.
@@ -2372,10 +1604,10 @@ bbb.
             intros k Hki.
             pose proof (Hn k) as H.
             apply Nat.nlt_ge in H.
-            erewrite nth_r_n; eauto .
+            erewrite nth_r_n; try eassumption .
 
          apply summation_all_lt in H.
-         eapply Qle_lt_trans; eauto .
+         eapply Qle_lt_trans; try eassumption .
          rewrite Hη, HN.
          rewrite <- Pos2Z.inj_mul.
          rewrite <- Pos2Z.inj_mul.
@@ -2419,20 +1651,20 @@ bbb.
          assert (List.In nsN (newton_segments polN)) as HnsNi.
           rewrite zerop_1st_n_const_coeff_false_iff in Hz.
           remember (m * q₀)%positive as m₁.
-          eapply nth_in_newton_segments_any_r with (ns₁ := ns₁); eauto .
+          eapply nth_in_newton_segments_any_r with (ns₁ := ns₁); try eassumption .
            clear H.
            remember Hns₁ as H; clear HeqH.
-           eapply r_n_next_ns in H; eauto .
+           eapply r_n_next_ns in H; try eassumption .
             destruct H as (αj₁, (αk₁, H)).
             destruct H as (Hini₁, (Hfin₁, (Hαj₁, Hαk₁))).
-            eapply List_hd_in; eauto .
+            eapply List_hd_in; try eassumption .
             intros H; rewrite H in Hns₁; subst ns₁; discriminate Hfin₁.
 
             unfold multiplicity_decreases in Hn.
             rewrite <- Hc, Hr in Hn.
             rewrite <- nth_r_n with (n := 1%nat) (pol := pol) (ns := ns).
              symmetry.
-             eapply r_le_eq_incl; eauto .
+             eapply r_le_eq_incl; try eassumption .
               simpl.
               rewrite <- Hc; auto.
 
@@ -2448,7 +1680,7 @@ bbb.
               clear H.
               pose proof (Hn i) as H.
               apply Nat.nlt_ge in H.
-              erewrite nth_r_n; eauto .
+              erewrite nth_r_n; try eassumption .
 
              simpl; rewrite <- Hc; assumption.
 
@@ -2463,10 +1695,10 @@ bbb.
            rename H into Huofs.
            intros i HiN.
            symmetry.
-           eapply r_le_eq_incl; eauto .
-            eapply List_hd_in; eauto .
+           eapply r_le_eq_incl; try eassumption .
+            eapply List_hd_in; try eassumption .
             remember Hns as H; clear HeqH.
-            eapply next_has_root_0_or_newton_segments in H; eauto .
+            eapply next_has_root_0_or_newton_segments in H; try eassumption .
             destruct H as [H| H].
              simpl in H.
              rewrite <- Hc, <- Hpol₁ in H; contradiction.
@@ -2479,7 +1711,7 @@ bbb.
             unfold multiplicity_decreases in Hn.
             rewrite <- Hc, Hr in Hn.
             pose proof (Hn (S j)) as H.
-            erewrite <- nth_r_n in H; eauto .
+            erewrite <- nth_r_n in H; try eassumption .
             apply Nat.nlt_ge in H.
             simpl in H.
             rewrite <- Hc, <- Hpol₁, <- Hns₁ in H.
@@ -2488,7 +1720,7 @@ bbb.
             rewrite <- nth_r_n with (n := 1%nat) (pol := pol) (ns := ns);
              auto.
              rewrite <- nth_r_n with (n := O) (pol := pol) (ns := ns); auto.
-             eapply r₁_le_r₀; eauto .
+             eapply r₁_le_r₀; try eassumption .
              simpl; rewrite <- Hc, <- Hpol₁.
              clear H.
              pose proof (Hz O (Nat.le_0_l N)) as H.
@@ -2506,8 +1738,8 @@ bbb.
 
           rename H into Huofs.
           remember HnsNi as H; clear HeqH.
-          eapply f₁_orders in H; eauto .
-          erewrite <- nth_pol_succ in H; eauto .
+          eapply f₁_orders in H; try eassumption .
+          erewrite <- nth_pol_succ in H; try eassumption .
            destruct H as (H, _).
            apply List_In_nth with (d := 0%ps) in Ha.
            destruct Ha as (n, Hn₁).
@@ -2515,9 +1747,9 @@ bbb.
            apply H.
 
            symmetry.
-           apply nth_c_n; eauto .
+           apply nth_c_n; try eassumption .
 
-         eapply order_root_tail_nonneg_any_r; eauto .
+         eapply order_root_tail_nonneg_any_r; try eassumption .
           intros i HiN.
           rewrite zerop_1st_n_const_coeff_false_iff in Hz.
           destruct i; auto.
@@ -2534,10 +1766,10 @@ bbb.
       unfold multiplicity_decreases in Hn.
       rewrite <- Hc, Hr in Hn.
       pose proof (Hn i) as H.
-      erewrite <- nth_r_n in H; eauto .
+      erewrite <- nth_r_n in H; try eassumption .
       apply Nat.nlt_ge in H.
       symmetry.
-      eapply r_le_eq_incl; eauto .
+      eapply r_le_eq_incl; try eassumption .
        intros j HjN.
 bbb.
 Check order_root_tail_nonneg.
@@ -2569,7 +1801,7 @@ destruct r.
    exfalso; revert Hn; apply Nat.lt_irrefl.
 
    remember (List.hd phony_ns (newton_segments pol₁)) as ns₁ eqn:Hns₁ .
-   erewrite <- nth_r_n in Hrn; eauto ; subst rn.
+   erewrite <- nth_r_n in Hrn; try eassumption ; subst rn.
    apply lowest_i_such_that_ri_lt_r₀ in Hn; [ idtac | subst; auto ].
    destruct Hn as (i, (Hin, (Hir, Hri))).
    destruct Hir as [Hir| Hir].
@@ -2606,12 +1838,12 @@ destruct r.
 
           discriminate Hjnz.
 
-         eapply root_when_fin; eauto .
+         eapply root_when_fin; try eassumption .
 
-        eapply List_hd_in; eauto .
+        eapply List_hd_in; try eassumption .
         clear H.
         remember Hns as H; clear HeqH.
-        eapply next_has_root_0_or_newton_segments in H; eauto .
+        eapply next_has_root_0_or_newton_segments in H; try eassumption .
         simpl in H.
         rewrite <- Hc, <- Hpol₁ in H.
         destruct H; auto.
@@ -2630,7 +1862,7 @@ destruct r.
 
          discriminate Heq.
 
-        eapply root_when_fin; eauto .
+        eapply root_when_fin; try eassumption .
 
        eapply IHm with (pol := polsi) (ns := nssi) in Hri.
         destruct Hri as (s₁, Hs₁).
@@ -2638,17 +1870,17 @@ destruct r.
         remember (ps_monom 1%K (γ_sum 0 i pol₁ ns₁)) as mo.
         exists (rh + mo * s₁)%ps; subst rh mo.
         rewrite apply_nth_pol; auto.
-        erewrite nth_pol_n; eauto .
-        erewrite <- nth_c_n; eauto .
+        erewrite nth_pol_n; try eassumption .
+        erewrite <- nth_c_n; try eassumption .
         rewrite Hs₁, rng_mul_0_r; reflexivity.
 
         eapply List_hd_in.
          subst nssi; simpl.
-         eapply nth_ns_n; eauto .
+         eapply nth_ns_n; try eassumption .
           rewrite Hc; reflexivity.
 
           subst polsi; simpl.
-          eapply nth_pol_n; eauto .
+          eapply nth_pol_n; try eassumption .
           rewrite Hc; reflexivity.
 
          intros H; rewrite H in Hnsl; discriminate Hnsl.
@@ -2658,13 +1890,13 @@ destruct r.
         rewrite Hpolsi; simpl.
         rewrite <- Hc, <- Hpol₁, <- Hns₁; auto.
 
-        eauto .
+        try eassumption .
 
-        erewrite nth_c_n; eauto .
+        erewrite nth_c_n; try eassumption .
 
         symmetry.
-        apply nth_r_n; eauto .
-        erewrite nth_c_n; eauto .
+        apply nth_r_n; try eassumption .
+        erewrite nth_c_n; try eassumption .
 
   pose proof (exists_pol_ord R pol) as H.
   destruct H as (m, Hm).
@@ -2690,7 +1922,7 @@ destruct r.
      remember (1 # 2 * m * q₀) as η eqn:Hη .
      remember (Z.to_nat (2 * ' m * ' q₀ * Qnum ofs)) as N eqn:HN .
      apply eq_Qbar_eq in Hofs.
-     rewrite root_tail_when_r_r with (n := N) in Hofs; eauto .
+     rewrite root_tail_when_r_r with (n := N) in Hofs; try eassumption .
       rewrite Nat.add_0_l in Hofs.
       remember (zerop_1st_n_const_coeff N pol₁ ns₁) as z eqn:Hz .
       symmetry in Hz.
@@ -2714,7 +1946,7 @@ destruct r.
           [ contradiction | idtac ].
          discriminate Hz.
 
-         eapply root_when_fin; eauto .
+         eapply root_when_fin; try eassumption .
 
        remember (root_tail (m * q₀) 0 pol₁ ns₁) as s eqn:Hs .
        exists s.
@@ -2735,7 +1967,7 @@ destruct r.
           apply Hz.
           transitivity i; assumption.
 
-          eapply β_lower_bound_r_const with (n := i) (r := S r); eauto .
+          eapply β_lower_bound_r_const with (n := i) (r := S r); try eassumption .
            apply Nat.lt_0_succ.
 
            intros j Hji.
@@ -2743,13 +1975,13 @@ destruct r.
            rewrite Hr in Hn.
            pose proof (Hn j) as H.
            apply Nat.nlt_ge in H.
-           erewrite <- nth_r_n in H; eauto .
+           erewrite <- nth_r_n in H; try eassumption .
            rename H into Hrj.
            symmetry.
-           eapply r_le_eq_incl; eauto .
+           eapply r_le_eq_incl; try eassumption .
             intros k Hki.
             rewrite zerop_1st_n_const_coeff_false_iff in Hz₁.
-            destruct k; eauto .
+            destruct k; try eassumption .
             apply Nat.succ_le_mono in Hki.
             apply Hz₁ in Hki; simpl.
             rewrite <- Hpol₁, <- Hns₁; auto.
@@ -2757,10 +1989,10 @@ destruct r.
             intros k Hki.
             pose proof (Hn k) as H.
             apply Nat.nlt_ge in H.
-            erewrite nth_r_n; eauto .
+            erewrite nth_r_n; try eassumption .
 bbb.
            Focus 1.
-           eapply yyy; eauto .
+           eapply yyy; try eassumption .
             intros k Hki.
             rewrite zerop_1st_n_const_coeff_false_iff in Hz.
             destruct k.
@@ -2782,7 +2014,7 @@ bbb.
 
            Focus 2.
            apply summation_all_lt in H.
-           eapply Qle_lt_trans; eauto .
+           eapply Qle_lt_trans; try eassumption .
            rewrite Hη, HN.
            rewrite <- Pos2Z.inj_mul.
            rewrite <- Pos2Z.inj_mul.
@@ -2858,8 +2090,8 @@ induction i; intros.
 
  rewrite Nat.add_succ_l, <- Nat.add_succ_r; simpl.
  rewrite IHi; simpl.
- f_equal; [ eapply nth_pol_n; eauto | idtac ].
- eapply nth_ns_n; eauto .
+ f_equal; [ eapply nth_pol_n; try eassumption | idtac ].
+ eapply nth_ns_n; try eassumption .
 Qed.
 
 Theorem a₀_neq_0 : ∀ pol ns αj,
@@ -2872,7 +2104,7 @@ intros H₁.
 unfold ps_poly_nth, ps_lap_nth in H₁.
 remember Hns as H; clear HeqH.
 remember (List.nth 0 (al pol) 0%ps) as jps eqn:Hjps .
-eapply ord_coeff_non_zero_in_newt_segm with (hps := jps) in H; eauto .
+eapply ord_coeff_non_zero_in_newt_segm with (hps := jps) in H; try eassumption .
  apply order_inf in H₁.
  unfold order in H₁; simpl in H₁.
  unfold order_coeff in H; simpl in H.
@@ -2882,7 +2114,7 @@ eapply ord_coeff_non_zero_in_newt_segm with (hps := jps) in H; eauto .
 
   exfalso; apply H; reflexivity.
 
- left; symmetry; eauto .
+ left; symmetry; try eassumption .
 Qed.
 
 Theorem zerop_1st_n_const_coeff_more : ∀ pol ns n,
@@ -2929,19 +2161,19 @@ destruct z₁.
  pose proof (Hri 1%nat) as Hr₁; simpl in Hr₁.
  rewrite <- Hc in Hr₀.
  rewrite <- Hc, <- Hpol₁, <- Hns₁, <- Hc₁ in Hr₁.
- assert (0 < r)%nat as Hrpos by (eapply multiplicity_is_pos; eauto ).
+ assert (0 < r)%nat as Hrpos by (eapply multiplicity_is_pos; try eassumption ).
  pose proof (Hpsi O (Nat.le_0_l n)) as H; simpl in H.
  rename H into Hnz₁.
  remember Hns₁ as H; clear HeqH.
- eapply r_n_next_ns in H; eauto .
+ eapply r_n_next_ns in H; try eassumption .
  destruct H as (αj₁, (αk₁, H)).
  destruct H as (Hini₁, (Hfin₁, (Hαj₁, Hαk₁))).
  remember Hns₁ as Hns₁i; clear HeqHns₁i.
- eapply hd_newton_segments in Hns₁i; eauto .
+ eapply hd_newton_segments in Hns₁i; try eassumption .
  remember (next_pol pol₁ (β ns₁) (γ ns₁) c₁) as pol₂ eqn:Hpol₂ .
  remember (List.hd phony_ns (newton_segments pol₂)) as ns₂ eqn:Hns₂ .
  remember Hns as H; clear HeqH.
- eapply next_pol_in_K_1_mq in H; eauto .
+ eapply next_pol_in_K_1_mq in H; try eassumption .
  rewrite <- Heqm₁ in H.
  rename H into HK₁; move HK₁ before Hns₁i.
  remember (nth_pol n pol₁ ns₁) as poln₁ eqn:Hpoln₁ .
@@ -2950,24 +2182,24 @@ destruct z₁.
  remember (nth_pol n pol₂ ns₂) as poln₂ eqn:Hpoln₂ .
  remember (nth_ns n pol₂ ns₂) as nsn₂ eqn:Hnsn₂ .
  remember Hns as H; clear HeqH.
- eapply r_n_nth_ns with (poln := poln₁) in H; eauto .
+ eapply r_n_nth_ns with (poln := poln₁) in H; try eassumption .
  destruct H as (αjn₁, (αkn₁, H)).
  destruct H as (Hinin₁, (Hfinn₁, (Hαjn₁, Hαkn₁))).
  remember Hnsn₁ as H; clear HeqH.
- erewrite nth_ns_n with (c := c) in H; eauto .
- erewrite <- nth_pol_n with (c := c) in H; eauto .
+ erewrite nth_ns_n with (c := c) in H; try eassumption .
+ erewrite <- nth_pol_n with (c := c) in H; try eassumption .
  rewrite <- Hpoln₁ in H.
  rename H into Hnsn₁h.
  remember Hnsn₁h as H; clear HeqH.
- eapply newton_segments_not_nil in H; eauto .
+ eapply newton_segments_not_nil in H; try eassumption .
  rename H into Hns₁nz.
  remember Hnsn₁h as H; clear HeqH.
  apply List_hd_in in H; auto.
  rename H into Hnsn₁i.
  pose proof (Hri (S n)) as Hrn₁; simpl in Hrn₁.
  rewrite <- Hc, <- Hpol₁, <- Hns₁ in Hrn₁.
- erewrite nth_r_n in Hrn₁; eauto .
- erewrite nth_c_n in Hrn₁; eauto .
+ erewrite nth_r_n in Hrn₁; try eassumption .
+ erewrite nth_c_n in Hrn₁; try eassumption .
  rewrite <- Hcn₁ in Hrn₁.
  assert (∀ i, nth_r i pol₁ ns₁ = r) as Hri₁.
   intros i.
@@ -2976,7 +2208,7 @@ destruct z₁.
 
   move Hri₁ before HK₁.
   remember Hns₁i as H; clear HeqH.
-  eapply nth_pol_in_K_1_m in H; eauto .
+  eapply nth_pol_in_K_1_m in H; try eassumption .
   rename H into HKn₁.
   remember (S n) as sn.
   unfold root_tail, ps_monom; simpl.
@@ -2989,7 +2221,7 @@ destruct z₁.
   rewrite <- Hc₁, <- Hpol₂, <- Hns₂.
   rewrite <- Hpoln₂, <- Hnsn₂.
   rewrite <- Hpoln₁, <- Hnsn₁.
-  erewrite nth_c_n; eauto .
+  erewrite nth_c_n; try eassumption .
   rewrite <- Hcn₁.
   destruct (ps_zerop R (ps_poly_nth 0 poln₂)) as [H₂| H₂].
    rewrite ps_mul_0_r, ps_add_0_r.
@@ -3002,7 +2234,7 @@ destruct z₁.
    rewrite Z.mul_shuffle0, Pos_mul_shuffle0.
    do 2 rewrite Pos2Z.inj_mul.
    rewrite Z.div_mul_cancel_r; simpl; auto.
-   erewrite αj_m_eq_p_r with (ns₁ := nsn₁); eauto .
+   erewrite αj_m_eq_p_r with (ns₁ := nsn₁); try eassumption .
    rewrite Pos2Z.inj_mul.
    rewrite Z.mul_shuffle0, Zposnat2Znat; auto.
    rewrite <- Zposnat2Znat; auto.
@@ -3022,17 +2254,17 @@ destruct z₁.
     unfold root_tail_series_from_cγ_list; simpl.
     destruct (ps_zerop R (ps_poly_nth 0 poln₁)) as [H₁| H₁].
      exfalso; revert H₁.
-     eapply a₀_neq_0; eauto .
+     eapply a₀_neq_0; try eassumption .
 
      rewrite <- Hcn₁.
-     erewrite <- nth_ns_n with (c := c₁); eauto .
-     erewrite <- nth_pol_n with (c := c₁); eauto .
+     erewrite <- nth_ns_n with (c := c₁); try eassumption .
+     erewrite <- nth_pol_n with (c := c₁); try eassumption .
      rewrite <- Hpoln₂, <- Hnsn₂.
-     destruct i; simpl; [ rewrite Hcn₁; eauto  | idtac ].
+     destruct i; simpl; [ rewrite Hcn₁; try eassumption  | idtac ].
      destruct (ps_zerop R (ps_poly_nth 0 poln₂)); auto; contradiction.
 
     subst d₁.
-    erewrite nth_γ_n; eauto ; simpl.
+    erewrite nth_γ_n; try eassumption ; simpl.
     rewrite Hαkn₁; simpl.
     rewrite Qnum_inv_Qnat_sub; auto.
     rewrite Qden_inv_Qnat_sub; auto.
@@ -3041,17 +2273,17 @@ destruct z₁.
     do 2 rewrite Pos2Z.inj_mul.
     rewrite Z.mul_assoc.
     apply Z.mul_cancel_r; auto.
-    erewrite αj_m_eq_p_r; eauto .
+    erewrite αj_m_eq_p_r; try eassumption .
     rewrite Zposnat2Znat; auto.
     rewrite Z.mul_assoc, Z.mul_shuffle0.
     reflexivity.
 
    rename H₂ into Hnzn₂; move Hnzn₂ before Hnsn₂.
    remember Hpoln₂ as H; clear HeqH.
-   erewrite <- nth_pol_succ2 with (c := c₁) in H; eauto .
+   erewrite <- nth_pol_succ2 with (c := c₁) in H; try eassumption .
    rename H into Hpoln₂₁; move Hpoln₂₁ before Hpoln₂.
    remember Hnsn₂ as H; clear HeqH.
-   erewrite <- nth_ns_succ2 with (c := c₁) in H; eauto .
+   erewrite <- nth_ns_succ2 with (c := c₁) in H; try eassumption .
    rename H into Hnsn₂₁; move Hnsn₂₁ before Hnsn₂.
    remember Hpsi as H; clear HeqH.
    apply zerop_1st_n_const_coeff_false_iff in H.
@@ -3061,14 +2293,14 @@ destruct z₁.
    rewrite zerop_1st_n_const_coeff_false_iff in H.
    clear Hpsi; rename H into Hpsi; move Hpsi after Hri.
    remember Hns as H; clear HeqH.
-   eapply r_n_nth_ns with (poln := poln₂) (n := S n) in H; eauto .
+   eapply r_n_nth_ns with (poln := poln₂) (n := S n) in H; try eassumption .
    destruct H as (αjn₂, (αkn₂, H)).
    destruct H as (Hinin₂, (Hfinn₂, (Hαjn₂, Hαkn₂))).
    unfold ps_add, ps_mul; simpl.
    unfold cm; simpl.
    unfold ps_terms_add, ps_ordnum_add; simpl.
    unfold root_tail_from_cγ_list; simpl.
-   erewrite nth_γ_n; eauto ; simpl.
+   erewrite nth_γ_n; try eassumption ; simpl.
    rewrite Hinin₁, Hfinn₁, Hinin₂, Hfinn₂; simpl.
    rewrite Hαkn₁, Hαkn₂; simpl.
    rewrite Qnum_inv_Qnat_sub; auto.
@@ -3097,24 +2329,24 @@ destruct z₁.
     rewrite <- Hpoln₁ in H.
     rename H into Hnzn₁; move Hnzn₁ before Hnsn₁.
     remember Hnsn₂ as H; clear HeqH.
-    erewrite nth_ns_n with (c := c₁) in H; eauto .
-    erewrite <- nth_pol_n with (c := c₁) in H; eauto .
+    erewrite nth_ns_n with (c := c₁) in H; try eassumption .
+    erewrite <- nth_pol_n with (c := c₁) in H; try eassumption .
     rewrite <- Hpoln₂ in H.
     rename H into Hnsn₂h; move Hnsn₂h before Hαkn₂.
     remember Hnsn₂h as H; clear HeqH.
-    eapply newton_segments_not_nil in H; eauto .
+    eapply newton_segments_not_nil in H; try eassumption .
     rename H into Hns₂nz; move Hns₂nz before Hnzn₂.
     remember Hnsn₂h as H; clear HeqH.
-    eapply List_hd_in in H; eauto .
+    eapply List_hd_in in H; try eassumption .
     rename H into Hnsn₂i; move Hnsn₂i before Hnsn₂h.
     remember Hpoln₂₁ as H; clear HeqH.
-    eapply nth_pol_in_K_1_m in H; eauto .
+    eapply nth_pol_in_K_1_m in H; try eassumption .
     rename H into HKn₂; move HKn₂ before Hnsn₂i.
     remember (ac_root (Φq poln₂ nsn₂)) as cn₂ eqn:Hcn₂ .
     move Hcn₂ before Hnsn₂.
     pose proof (Hri₁ (S n)) as H.
-    erewrite nth_r_n in H; eauto .
-    erewrite nth_c_n in H; eauto .
+    erewrite nth_r_n in H; try eassumption .
+    erewrite nth_c_n in H; try eassumption .
     rewrite <- Hcn₂ in H.
     rename H into Hrn₂; move Hrn₂ after Hcn₂.
     rewrite Z.min_l; auto.
@@ -3142,8 +2374,8 @@ destruct z₁.
      rewrite Z.mul_shuffle0, Pos_mul_shuffle0.
      rewrite Pos2Z.inj_mul.
      rewrite Z.div_mul_cancel_r; auto.
-     erewrite αj_m_eq_p_r with (pol₁ := poln₂); eauto .
-     rewrite <- Zposnat2Znat; eauto .
+     erewrite αj_m_eq_p_r with (pol₁ := poln₂); try eassumption .
+     rewrite <- Zposnat2Znat; try eassumption .
      rewrite Z.mul_shuffle0, <- Z.mul_assoc.
      rewrite <- Pos2Z.inj_mul.
      rewrite Z.div_mul; auto.
@@ -3160,9 +2392,9 @@ destruct z₁.
 
        exfalso; apply H₁; rewrite Hpn₂.
        rewrite <- Z2Nat.inj_0.
-       apply Z2Nat.inj_lt; [ reflexivity | idtac | eapply p_is_pos; eauto ].
+       apply Z2Nat.inj_lt; [ reflexivity | idtac | eapply p_is_pos; try eassumption ].
        apply Z.lt_le_incl.
-       eapply p_is_pos; eauto .
+       eapply p_is_pos; try eassumption .
 
       remember minus as f; simpl; subst f.
       rewrite rng_add_0_l.
@@ -3177,18 +2409,18 @@ destruct z₁.
 
         clear H₂.
         rewrite <- Hcn₁.
-        erewrite <- nth_pol_n with (c := c₁); eauto .
+        erewrite <- nth_pol_n with (c := c₁); try eassumption .
         rewrite <- Hpoln₂.
-        erewrite nth_pol_n with (c := c₁) in Hpoln₂; eauto .
-        erewrite <- nth_ns_n with (c := c₁) (n := n); eauto .
-        erewrite <- nth_pol_n with (c := c₁) in Hpoln₂; eauto .
+        erewrite nth_pol_n with (c := c₁) in Hpoln₂; try eassumption .
+        erewrite <- nth_ns_n with (c := c₁) (n := n); try eassumption .
+        erewrite <- nth_pol_n with (c := c₁) in Hpoln₂; try eassumption .
         rewrite <- Hnsn₂.
         subst si; simpl.
         destruct (ps_zerop R (ps_poly_nth 0 poln₂)) as [H₂| H₂].
          contradiction.
 
          clear H₂.
-         erewrite next_pow_eq_p; eauto .
+         erewrite next_pow_eq_p; try eassumption .
          rewrite <- Hpn₂.
          remember (Nat.compare (Z.to_nat pn₂) (S i)) as cmp₁ eqn:Hcmp₁ .
          symmetry in Hcmp₁.
@@ -3198,17 +2430,17 @@ destruct z₁.
           exfalso; revert H₁; apply Nat.lt_irrefl.
 
           apply nat_compare_lt in Hcmp₁.
-          eapply Nat.lt_trans in H₁; eauto .
+          eapply Nat.lt_trans in H₁; try eassumption .
           exfalso; revert H₁; apply Nat.lt_irrefl.
 
        apply Nat.nlt_ge in H₁.
        symmetry in Hrn₁.
        remember Hnsn₁i as H; clear HeqH.
-       eapply q_eq_1_any_r in H; eauto .
+       eapply q_eq_1_any_r in H; try eassumption .
        rename H into Hqn₁; move Hqn₁ before HKn₁.
        symmetry in Hrn₂.
        remember Hnsn₂i as H; clear HeqH.
-       eapply q_eq_1_any_r in H; eauto .
+       eapply q_eq_1_any_r in H; try eassumption .
        rename H into Hqn₂; move Hqn₂ before HKn₂.
        assert (∀ j, nth_r j poln₁ nsn₁ = r) as Hrin₁.
         intros j; rewrite Hpoln₁, Hnsn₁, <- nth_r_add; apply Hri₁.
@@ -3238,11 +2470,11 @@ destruct z₁.
 
             clear H₂; subst si.
             rewrite <- Hcn₁.
-            erewrite <- nth_pol_n with (c := c₁); eauto .
+            erewrite <- nth_pol_n with (c := c₁); try eassumption .
             rewrite <- Hpoln₂.
             remember Hpoln₂ as H; clear HeqH.
-            erewrite nth_pol_n with (c := c₁) in H; eauto .
-            erewrite <- nth_ns_n with (c := c₁) (poln := poln₁); eauto .
+            erewrite nth_pol_n with (c := c₁) in H; try eassumption .
+            erewrite <- nth_ns_n with (c := c₁) (poln := poln₁); try eassumption .
             clear H.
             subst ssi; remember (S i) as si; simpl; subst si.
             rewrite <- Hnsn₂, <- Hcn₂, <- Hpoln₃, <- Hnsn₃h.
@@ -3251,10 +2483,10 @@ destruct z₁.
 
              clear H₂.
              symmetry in Hrn₂.
-             erewrite next_pow_eq_p; eauto .
+             erewrite next_pow_eq_p; try eassumption .
              rewrite <- Hpn₂.
              apply Nat.sub_0_le in Hid.
-             eapply Nat.le_antisymm in Hid; eauto ; rewrite Hid.
+             eapply Nat.le_antisymm in Hid; try eassumption ; rewrite Hid.
              remember (Nat.compare (S i) (S i)) as cmp₁ eqn:Hcmp₁ .
              symmetry in Hcmp₁.
              destruct cmp₁; auto.
@@ -3270,11 +2502,11 @@ destruct z₁.
 
             clear H₂; subst si.
             rewrite <- Hcn₁.
-            erewrite <- nth_pol_n with (c := c₁); eauto .
+            erewrite <- nth_pol_n with (c := c₁); try eassumption .
             rewrite <- Hpoln₂.
             remember Hpoln₂ as H; clear HeqH.
-            erewrite nth_pol_n with (c := c₁) in H; eauto .
-            erewrite <- nth_ns_n with (c := c₁) (poln := poln₁); eauto .
+            erewrite nth_pol_n with (c := c₁) in H; try eassumption .
+            erewrite <- nth_ns_n with (c := c₁) (poln := poln₁); try eassumption .
             clear H.
             rewrite <- Hnsn₂.
             subst ssi; remember (S i) as si; simpl.
@@ -3284,7 +2516,7 @@ destruct z₁.
 
              clear H₂.
              symmetry in Hrn₂.
-             erewrite next_pow_eq_p; eauto .
+             erewrite next_pow_eq_p; try eassumption .
              rewrite <- Hpn₂.
              remember (Nat.compare (Z.to_nat pn₂) si) as cmp₁ eqn:Hcmp₁ .
              symmetry in Hcmp₁.
@@ -3310,7 +2542,7 @@ destruct z₁.
 
                 rename H₂ into Hnzn₃; move Hnzn₃ before Hnsn₃h.
                 remember Hnsn₂i as H; clear HeqH.
-                eapply next_has_root_0_or_newton_segments in H; eauto .
+                eapply next_has_root_0_or_newton_segments in H; try eassumption .
                 simpl in H.
                 rewrite <- Hcn₂, <- Hpoln₃ in H.
                 destruct H as [| H]; [ contradiction | idtac ].
@@ -3323,25 +2555,25 @@ destruct z₁.
                 apply zerop_1st_n_const_coeff_false_iff in H.
                 remember Hnzn₃ as HH; clear HeqHH.
                 rewrite Hpoln₃ in HH.
-                erewrite <- nth_pol_n with (c := c₁) in HH; eauto .
-                erewrite <- nth_pol_succ2 with (c := c₁) in HH; eauto .
+                erewrite <- nth_pol_n with (c := c₁) in HH; try eassumption .
+                erewrite <- nth_pol_succ2 with (c := c₁) in HH; try eassumption .
                 apply zerop_1st_n_const_coeff_more in H; auto; clear HH.
                 rewrite zerop_1st_n_const_coeff_false_iff in H.
                 clear Hpsi; rename H into Hpsi; move Hpsi before Hri.
                 remember Hns₁i as H; clear HeqH.
-                eapply nth_pol_in_K_1_m with (c := c₁) in H; eauto .
+                eapply nth_pol_in_K_1_m with (c := c₁) in H; try eassumption .
                 remember (S n) as sn in H; simpl in H.
                 rewrite <- Hc₁, <- Hpol₂, <- Hns₂ in H.
                 subst sn.
-                erewrite nth_pol_n with (c := c₁) in H; eauto .
+                erewrite nth_pol_n with (c := c₁) in H; try eassumption .
                 rewrite <- Hpoln₃ in H.
                 rename H into HKn₃; move HKn₃ before Hns₃nz.
                 remember Hns as H; clear HeqH.
-                eapply r_n_nth_ns in H; eauto .
+                eapply r_n_nth_ns in H; try eassumption .
                 remember (S n) as sn in H; simpl in H.
                 rewrite <- Hc₁, <- Hpol₂, <- Hns₂ in H.
                 subst sn.
-                erewrite nth_ns_n with (c := c₁) in H; eauto .
+                erewrite nth_ns_n with (c := c₁) in H; try eassumption .
                 rewrite <- Hnsn₃h in H.
                 destruct H as (αjn₃, (αkn₃, H)).
                 destruct H as (Hinin₃, (Hfinn₃, (Hαjn₃, Hαkn₃))).
@@ -3351,16 +2583,16 @@ destruct z₁.
                 remember (S n) as sn in H; simpl in H.
                 rewrite <- Hc₁, <- Hpol₂, <- Hns₂ in H.
                 subst sn.
-                erewrite nth_r_n in H; eauto .
-                erewrite nth_c_n in H; eauto .
-                erewrite nth_ns_succ in H; eauto .
-                erewrite nth_pol_n with (c := c₁) in H; eauto .
+                erewrite nth_r_n in H; try eassumption .
+                erewrite nth_c_n in H; try eassumption .
+                erewrite nth_ns_succ in H; try eassumption .
+                erewrite nth_pol_n with (c := c₁) in H; try eassumption .
                 rewrite <- Hpoln₃, <- Hnsn₃h, <- Hcn₃ in H.
                 rename H into Hrn₃.
                 move Hrn₃ before Hcn₃.
                 symmetry in Hrn₃.
                 remember Hnsn₃i as H; clear HeqH.
-                eapply q_eq_1_any_r in H; eauto .
+                eapply q_eq_1_any_r in H; try eassumption .
                 rename H into Hqn₃; move Hqn₃ before HKn₃.
                 apply find_coeff_more_iter with (r := r); auto.
                  intros j.
@@ -3368,7 +2600,7 @@ destruct z₁.
                  rewrite <- Hcn₂, <- Hpoln₃, <- Hnsn₃h in H; auto.
 
                  remember Hinin₂ as H; clear HeqH.
-                 eapply p_is_pos with (m := m₁) in H; eauto .
+                 eapply p_is_pos with (m := m₁) in H; try eassumption .
                  rewrite <- Hpn₂ in H.
                  apply Z2Nat.inj_lt in H; [ idtac | reflexivity | idtac ].
                   simpl in H.
@@ -3398,8 +2630,8 @@ destruct z₁.
       rewrite Pos_mul_shuffle0, Z.mul_shuffle0.
       do 2 rewrite Pos2Z.inj_mul.
       apply Z.mul_divide_cancel_r; auto.
-      erewrite αj_m_eq_p_r with (ns₁ := nsn₁); eauto .
-      rewrite <- Zposnat2Znat; eauto .
+      erewrite αj_m_eq_p_r with (ns₁ := nsn₁); try eassumption .
+      rewrite <- Zposnat2Znat; try eassumption .
       rewrite Z.mul_shuffle0, <- Z.mul_assoc.
       rewrite <- Pos2Z.inj_mul.
       apply Z.divide_factor_r.
@@ -3422,7 +2654,7 @@ Proof.
 intros pol ns pol₁ ns₁ m r η Hns Hm Hr H₀ Hpol₁ Hns₁ Hη n nsn Hnz Hri Hnsn.
 remember Hns as H; clear HeqH.
 rewrite zerop_1st_n_const_coeff_false_iff in Hnz.
-eapply r_n_nth_ns in H; eauto .
+eapply r_n_nth_ns in H; try eassumption .
 destruct H as (αjn, (αkn, H)).
 destruct H as (Hinin, (Hfinn, (Hαjn, Hαkn))).
 unfold β.
@@ -3430,7 +2662,7 @@ rewrite Hinin; simpl.
 unfold Qnat; simpl.
 rewrite rng_mul_0_l, rng_add_0_r.
 remember Hpol₁ as H; clear HeqH.
-eapply next_pol_in_K_1_mq in H; eauto .
+eapply next_pol_in_K_1_mq in H; try eassumption .
 rename H into HK₁.
 pose proof (Hnz O (Nat.le_0_l n)) as Hnz₀.
 simpl in Hnz₀.
@@ -3442,26 +2674,26 @@ apply Hri in H; simpl in H.
 rewrite <- Hpol₁, <- Hns₁ in H.
 rename H into Hr₁.
 remember Hns₁ as H; clear HeqH.
-eapply r_n_next_ns in H; eauto .
+eapply r_n_next_ns in H; try eassumption .
 destruct H as (αj₁, (αk₁, H)).
 destruct H as (Hini₁, (Hfin₁, (Hαj₁, Hαk₁))).
 remember Hns₁ as H; clear HeqH.
-eapply hd_newton_segments in H; eauto .
+eapply hd_newton_segments in H; try eassumption .
 rename H into Hns₁i.
 remember HK₁ as H; clear HeqH.
-eapply first_n_pol_in_K_1_m_any_r with (ns := ns₁) in H; eauto .
+eapply first_n_pol_in_K_1_m_any_r with (ns := ns₁) in H; try eassumption .
  rename H into HKn.
  remember (nth_pol n pol₁ ns₁) as poln eqn:Hpoln .
  remember Hns₁i as H; clear HeqH.
- eapply nth_in_newton_segments_any_r with (n := n) in H; eauto .
+ eapply nth_in_newton_segments_any_r with (n := n) in H; try eassumption .
   rename H into Hnsni.
   remember HKn as H; clear HeqH.
-  eapply pol_ord_of_ini_pt in H; eauto .
+  eapply pol_ord_of_ini_pt in H; try eassumption .
   rewrite Hη, H.
   rewrite <- Pos.mul_assoc.
   remember (m * q_of_m m (γ ns))%positive as m₁ eqn:Hm₁ .
   unfold mh_of_m.
-  erewrite <- qden_αj_is_ps_polord; eauto .
+  erewrite <- qden_αj_is_ps_polord; try eassumption .
   remember (2 * m₁)%positive as m₂.
   unfold Qlt; simpl; subst m₂.
   clear H.
@@ -3471,7 +2703,7 @@ eapply first_n_pol_in_K_1_m_any_r with (ns := ns₁) in H; eauto .
     apply Z.mul_nonneg_nonneg; auto.
     apply Z.lt_le_incl; assumption.
 
-    eapply num_m_den_is_pos with (ns := nsn); eauto .
+    eapply num_m_den_is_pos with (ns := nsn); try eassumption .
 
    rewrite Pos2Z.inj_mul, Z.mul_assoc.
    replace (' m₁)%Z with (1 * ' m₁)%Z at 1 by reflexivity.
@@ -3482,16 +2714,16 @@ eapply first_n_pol_in_K_1_m_any_r with (ns := ns₁) in H; eauto .
   apply Nat.succ_le_mono in Hin.
   apply Hri in Hin; simpl in Hin.
   rewrite <- Hpol₁, <- Hns₁ in Hin.
-  eauto .
+  try eassumption .
 
- eapply q_eq_1_any_r with (ns := ns₁); eauto .
- rewrite Hr₁; eauto .
+ eapply q_eq_1_any_r with (ns := ns₁); try eassumption .
+ rewrite Hr₁; try eassumption .
 
  intros i Hin.
  apply Nat.succ_le_mono in Hin.
  apply Hri in Hin; simpl in Hin.
  rewrite <- Hpol₁, <- Hns₁ in Hin.
- eauto .
+ try eassumption .
 Qed.
 
 Theorem k_lt_pol_length : ∀ pol ns k αk,
@@ -3508,7 +2740,7 @@ remember (filter_finite_ord R ppl) as pts.
 rename H into Hlch.
 remember Hppl as H; clear HeqH.
 remember (List.nth k (al pol) 0%ps) as kps eqn:Hkps .
-eapply in_pts_in_ppl with (h := Qnat k) (hv := αk) (def := 0%ps) in H; eauto .
+eapply in_pts_in_ppl with (h := Qnat k) (hv := αk) (def := 0%ps) in H; try eassumption .
  simpl in H.
  rewrite Nat2Z.id, Nat.sub_0_r in H.
  rewrite <- Hkps in H.
@@ -3518,9 +2750,9 @@ eapply in_pts_in_ppl with (h := Qnat k) (hv := αk) (def := 0%ps) in H; eauto .
  apply in_power_list_lt in H.
  rewrite nat_num_Qnat in H; auto.
 
- eapply in_ppl_in_pts; eauto; [ apply Nat.le_0_l | idtac ].
+ eapply in_ppl_in_pts; try eassumption; [ apply Nat.le_0_l | idtac ].
  rewrite Nat.sub_0_r.
- eapply order_in_newton_segment; eauto .
+ eapply order_in_newton_segment; try eassumption .
  right; apply List.in_or_app.
  right; left; auto.
 Qed.
@@ -3556,7 +2788,7 @@ remember Hns₁ as H; clear HeqH.
 apply exists_fin_pt_nat_fst_seg in H.
 destruct H as (k₁, (αk₁, Hfin₁)).
 remember Hns as H; clear HeqH.
-eapply j_0_k_betw_r₀_r₁ in H; eauto .
+eapply j_0_k_betw_r₀_r₁ in H; try eassumption .
 do 2 rewrite Nat.add_0_r in H.
 destruct H as (Hj₁, (Hr₁, (Hr, _))).
 transitivity k₁; auto.
@@ -3583,11 +2815,11 @@ simpl in H; simpl.
 remember (ac_root (Φq pol ns)) as c eqn:Hc .
 remember (next_pol pol (β ns) (γ ns) c) as pol₁ eqn:Hpol₁ .
 remember (List.hd phony_ns (newton_segments pol₁)) as ns₁ eqn:Hns₁ .
-eapply IHi; eauto .
- eapply List_hd_in; eauto .
+eapply IHi; try eassumption .
+ eapply List_hd_in; try eassumption .
  clear H.
  remember Hns as H; clear HeqH.
- eapply next_has_root_0_or_newton_segments in H; eauto .
+ eapply next_has_root_0_or_newton_segments in H; try eassumption .
  destruct H as [H₁| H₁].
   assert (1 ≤ S n)%nat as H by apply le_n_S, Nat.le_0_l.
   apply Hnz in H; contradiction.
@@ -3598,7 +2830,7 @@ eapply IHi; eauto .
  apply Nat.le_antisymm.
   clear H.
   remember Hns as H; clear HeqH.
-  eapply r₁_le_r₀ in H; eauto .
+  eapply r₁_le_r₀ in H; try eassumption .
    rewrite Hr₀ in H; simpl in H.
    rewrite <- Hc, <- Hpol₁, <- Hns₁ in H; auto.
 
@@ -3614,14 +2846,14 @@ eapply IHi; eauto .
  clear H.
  intros j Hji.
  apply Nat.succ_le_mono in Hji.
- eapply Nat.le_trans in Hin; eauto .
+ eapply Nat.le_trans in Hin; try eassumption .
  apply Hnz in Hin; simpl in Hin.
  rewrite <- Hc, <- Hpol₁, <- Hns₁ in Hin; auto.
 
  clear H.
  intros j Hji.
  apply Nat.succ_le_mono in Hji.
- eapply Nat.le_trans in Hin; eauto .
+ eapply Nat.le_trans in Hin; try eassumption .
  apply Hri in Hin; simpl in Hin.
  rewrite <- Hc, <- Hpol₁, <- Hns₁ in Hin; auto.
 Qed.
@@ -3661,18 +2893,18 @@ induction n; intros.
  move c₁ before ns₁.
  rename H into Hr₁; move Hr₁ before Hc₁.
  remember Hc as H; clear HeqH.
- eapply multiplicity_is_pos in H; eauto .
+ eapply multiplicity_is_pos in H; try eassumption .
  rename H into Hrpos; move Hrpos before Hnz₁.
  remember Hns₁ as H; clear HeqH.
- eapply r_n_next_ns in H; eauto .
+ eapply r_n_next_ns in H; try eassumption .
  move H before Hnz₁.
  destruct H as (αj₁, (αk₁, H)).
  destruct H as (Hini₁, (Hfin₁, (Hαj₁, Hαk₁))).
  remember Hns₁ as H; clear HeqH.
- eapply hd_newton_segments in H; eauto .
+ eapply hd_newton_segments in H; try eassumption .
  rename H into Hns₁i; move Hns₁i before Hns₁.
  remember Hns as H; clear HeqH.
- eapply next_pol_in_K_1_mq in H; eauto .
+ eapply next_pol_in_K_1_mq in H; try eassumption .
  remember (m * q₀)%positive as m₁ eqn:Hm₁.
  rename H into HK₁; move HK₁ before Hnz₁.
  move Hm₁ before Hq₀.
@@ -3690,7 +2922,7 @@ induction n; intros.
  rewrite Z.mul_shuffle0, Pos_mul_shuffle0.
  rewrite Pos2Z.inj_mul; auto.
  rewrite Z.div_mul_cancel_r; auto.
- erewrite αj_m_eq_p_r with (ns₁ := ns₁); eauto .
+ erewrite αj_m_eq_p_r with (ns₁ := ns₁); try eassumption .
  rewrite Z.mul_shuffle0.
  rewrite <- Zposnat2Znat; auto.
  rewrite <- Z.mul_assoc, <- Pos2Z.inj_mul.
@@ -3699,7 +2931,7 @@ induction n; intros.
  rewrite Z.mul_1_r.
  apply Z.add_nonneg_nonneg; [ idtac | apply Nat2Z.is_nonneg ].
  apply Z.lt_le_incl.
- eapply p_is_pos; eauto .
+ eapply p_is_pos; try eassumption .
 
  simpl in Hz₁; simpl.
  remember (ac_root (Φq pol₁ ns₁)) as c₁ eqn:Hc₁ .
@@ -3718,22 +2950,22 @@ induction n; intros.
   rewrite <- Hc, <- Hpol₁, <- Hns₁, <- Hc₁ in H.
   rename H into Hr₁; move Hr₁ before Hc₁.
   remember Hc as H; clear HeqH.
-  eapply multiplicity_is_pos in H; eauto .
+  eapply multiplicity_is_pos in H; try eassumption .
   rename H into Hrpos; move Hrpos before Hns₁.
   remember Hns₁ as H; clear HeqH.
-  eapply r_n_next_ns in H; eauto .
+  eapply r_n_next_ns in H; try eassumption .
   destruct H as (αj₁, (αk₁, H)).
   destruct H as (Hini₁, (Hfin₁, (Hαj₁, Hαk₁))).
   remember Hns₁ as H; clear HeqH.
-  eapply hd_newton_segments in H; eauto .
+  eapply hd_newton_segments in H; try eassumption .
   rename H into Hns₁i; move Hns₁i before Hns₁.
   remember Hns as H; clear HeqH.
-  eapply next_pol_in_K_1_mq in H; eauto .
+  eapply next_pol_in_K_1_mq in H; try eassumption .
   rewrite <- Hm₁ in H.
   rename H into HK₁; move HK₁ before Hns₁i.
-  eapply IHn with (ns := ns₁) (pol := pol₁); eauto .
+  eapply IHn with (ns := ns₁) (pol := pol₁); try eassumption .
    symmetry in Hr₁; symmetry.
-   eapply q_eq_1_any_r with (pol := pol₁); eauto .
+   eapply q_eq_1_any_r with (pol := pol₁); try eassumption .
 
    intros i Hin.
    apply Nat.succ_le_mono in Hin.
