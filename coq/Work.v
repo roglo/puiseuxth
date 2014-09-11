@@ -530,8 +530,10 @@ rewrite H₂ in Hr.
 revert Hr; apply Nat.lt_irrefl.
 Qed.
 
-Theorem xxx : ∀ pol ns c pol₁ ns₁ m r,
+Theorem q_eq_1_r_non_decr : ∀ pol ns c pol₁ ns₁ m r,
   ns ∈ newton_segments pol
+  → pol_in_K_1_m pol m
+  → q_of_m m (γ ns) = 1%positive
   → c = ac_root (Φq pol ns)
   → pol₁ = next_pol pol (β ns) (γ ns) c
   → ns₁ = List.hd phony_ns (newton_segments pol₁)
@@ -541,7 +543,7 @@ Theorem xxx : ∀ pol ns c pol₁ ns₁ m r,
   → (1 ≠ 0)%K
   → q_of_m m (γ ns₁) = 1%positive.
 Proof.
-intros pol ns c pol₁ ns₁ m r Hns Hc Hpol₁ Hns₁ Hnz₁ Hr₀ Hrle H₀.
+intros pol ns c pol₁ ns₁ m r Hns HK Hq Hc Hpol₁ Hns₁ Hnz₁ Hr₀ Hrle H₀.
 remember Hns as H; clear HeqH.
 eapply next_ns_in_pol in H; eauto .
 rename H into Hns₁i.
@@ -560,10 +562,9 @@ destruct H as (Hini₁, (Hfin₁, (Hαj₁, Hαk₁))).
 remember Hns₁i as H; clear HeqH.
 symmetry in Hr₁.
 eapply q_eq_1_any_r with (ns := ns₁); eauto .
-bbb.
-  ============================
-   pol_in_K_1_m pol₁ m
-*)
+replace m with (m * 1)%positive by apply Pos.mul_1_r.
+eapply next_pol_in_K_1_mq with (ns := ns); eauto .
+Qed.
 
 (* cf first_n_pol_in_K_1_m *)
 Theorem first_n_pol_in_K_1_m_any_r : ∀ pol ns poln m c r,
@@ -571,6 +572,7 @@ Theorem first_n_pol_in_K_1_m_any_r : ∀ pol ns poln m c r,
   → pol_in_K_1_m pol m
   → c = ac_root (Φq pol ns)
   → q_of_m m (γ ns) = 1%positive
+  → root_multiplicity acf c (Φq pol ns) = r
   → (∀ i, r ≤ nth_r i pol ns)
   → (1 ≠ 0)%K
   → ∀ n,
@@ -578,8 +580,8 @@ Theorem first_n_pol_in_K_1_m_any_r : ∀ pol ns poln m c r,
     → poln = nth_pol n pol ns
     → pol_in_K_1_m poln m.
 Proof.
-intros pol ns poln m c r Hns HK Hc Hq Hri H₀ n Hnz Hpoln.
-revert pol ns poln m c Hns HK Hc Hq Hri Hnz Hpoln.
+intros pol ns poln m c r Hns HK Hc Hq Hr Hri H₀ n Hnz Hpoln.
+revert pol ns poln m c Hns HK Hc Hq Hr Hri Hnz Hpoln.
 induction n; intros.
  simpl in Hpoln; subst poln; assumption.
 
@@ -599,15 +601,17 @@ induction n; intros.
  rewrite <- Hc, <- Hpol₁ in H.
  rename H into Hnz₁.
  remember Hns as H; clear HeqH.
- apply next_ns_in_pol with (c := c) (pol₁ := pol₁) (ns₁ := ns₁) in H; auto.
+ eapply next_ns_in_pol in H; try eassumption.
  rename H into Hns₁i.
- eapply IHn with (pol := pol₁); eauto .
+ remember Hns as H; clear HeqH.
+ eapply q_eq_1_r_non_decr in H; try eassumption.
+ eapply IHn with (pol := pol₁); try eassumption.
 bbb.
   ============================
    pol_in_K_1_m pol₁ m
 
 subgoal 2 is:
- q_of_m m (γ ns₁) = 1%positive
+ root_multiplicity acf c₁ (Φq pol₁ ns₁) = r
 subgoal 3 is:
  ∀ i : nat, r ≤ nth_r i pol₁ ns₁
 subgoal 4 is:
