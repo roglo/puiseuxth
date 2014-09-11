@@ -76,20 +76,76 @@ eapply q_eq_1_any_r; try eassumption.
 reflexivity.
 Qed.
 
+Theorem all_ns_in_newton_segments : ∀ pol ns b r,
+  ns ∈ newton_segments pol
+  → zerop_1st_n_const_coeff b pol ns = false
+  → nth_r 0 pol ns = r
+  → (∀ i, r ≤ nth_r i pol ns)
+  → ∀ n : nat, n ≤ b → nth_ns n pol ns ∈ newton_segments (nth_pol n pol ns).
+Proof.
+intros pol ns b r Hns Hz Hr Hri n Hnb.
+rewrite zerop_1st_n_const_coeff_false_iff in Hz.
+revert pol ns n Hns Hz Hr Hri Hnb.
+induction b; intros; [ apply Nat.le_0_r in Hnb; subst n; auto | idtac ].
+destruct n; auto.
+apply le_S_n in Hnb; simpl.
+remember (ac_root (Φq pol ns)) as c eqn:Hc .
+remember (next_pol pol (β ns) (γ ns) c) as pol₁ eqn:Hpol₁ .
+remember (List.hd phony_ns (newton_segments pol₁)) as ns₁ eqn:Hns₁ .
+apply IHb; auto.
+ eapply nth_in_newton_segments_any_r with (n := 1%nat); try eassumption.
+  intros i Hi1.
+  apply Hz.
+  transitivity 1%nat; auto; apply le_n_S, Nat.le_0_l.
+
+  simpl; rewrite <- Hc; assumption.
+
+  simpl; rewrite <- Hc, <- Hpol₁; assumption.
+
+ intros i Hib.
+ apply Nat.succ_le_mono in Hib.
+ apply Hz in Hib; simpl in Hib.
+ rewrite <- Hc, <- Hpol₁, <- Hns₁ in Hib; assumption.
+
+ simpl in Hr; rewrite <- Hc in Hr.
+ remember (ac_root (Φq pol₁ ns₁)) as c₁ eqn:Hc₁ .
+ remember (root_multiplicity acf c₁ (Φq pol₁ ns₁)) as r₁ eqn:Hr₁ .
+ remember Hns as H; clear HeqH.
+ symmetry in Hr₁.
+ eapply next_ns_r_non_decr in H; try eassumption.
+  destruct H as (H, _); move H at top; subst r₁.
+  simpl; rewrite <- Hc₁; assumption.
+
+  clear H.
+  assert (1 ≤ S b)%nat as H by apply le_n_S, Nat.le_0_l.
+  apply Hz in H; simpl in H.
+  rewrite <- Hc, <- Hpol₁ in H; assumption.
+
+  clear H.
+  pose proof (Hri 1%nat) as H; simpl in H.
+  rewrite <- Hc, <- Hpol₁, <- Hns₁, <- Hc₁, Hr₁ in H; assumption.
+
+ intros i.
+ pose proof (Hri (S i)) as H; simpl in H.
+ rewrite <- Hc, <- Hpol₁, <- Hns₁ in H; assumption.
+Qed.
+
 Theorem xxx : ∀ pol ns b r,
-  zerop_1st_n_const_coeff b pol ns = false
+  ns ∈ newton_segments pol
+  → zerop_1st_n_const_coeff b pol ns = false
   → nth_r 0 pol ns = r
   → (∀ i, r ≤ nth_r i pol ns)
   → ∀ n : nat, n ≤ b → r = nth_r n pol ns.
 Proof.
-intros pol ns b r Hz Hr Hri n Hnb.
+intros pol ns b r Hns Hz Hr Hri n Hnb.
 rewrite zerop_1st_n_const_coeff_false_iff in Hz.
-revert pol ns n Hz Hr Hri Hnb.
-induction b; intros.
- apply Nat.le_0_r in Hnb; subst n; auto.
-
- destruct n; auto.
- apply le_S_n in Hnb.
+revert pol ns n Hns Hz Hr Hri Hnb.
+induction b; intros; [ apply Nat.le_0_r in Hnb; subst n; auto | idtac ].
+destruct n; auto.
+apply le_S_n in Hnb.
+remember Hns as H; clear HeqH.
+eapply all_ns_in_newton_segments in H; try eassumption.
+ eapply next_ns_r_non_decr with (r := r) (r₁ := nth_r (S n) pol) in H; eauto .
 bbb.
 
 (* cf root_tail_from_0 *)
