@@ -61,15 +61,14 @@ Theorem nth_pol_in_K_1_m : ∀ pol ns c αj αk poln m n r,
   → fin_pt ns = (Qnat r, αk)
   → (0 < Qnum αj)%Z
   → Qnum αk = 0%Z
-  → (∀ i : nat, nth_r i pol ns = r)
+  → (∀ n, r ≤ nth_r n pol ns)
   → (1 ≠ 0)%K
   → (∀ i : nat, i ≤ n → (ps_poly_nth 0 (nth_pol i pol ns) ≠ 0)%ps)
   → poln = nth_pol n pol ns
   → pol_in_K_1_m poln m.
 Proof.
 intros pol ns c αj αk poln m n r.
-intros Hns HK Hc Hini Hfin Hαj Hαk Hri H₀ Hpsi Hpoln.
-clear Hri.
+intros Hns HK Hc Hini Hfin Hαj Hαk Hrle H₀ Hpsi Hpoln.
 bbb.
 eapply first_n_pol_in_K_1_m_any_r with (ns := ns) (n := n); try eassumption .
 eapply q_eq_1_any_r with (ns := ns); try eassumption .
