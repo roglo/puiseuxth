@@ -330,6 +330,17 @@ destruct z₁.
         exfalso; revert H₁; apply Nat.lt_irrefl.
 
        rename H₁ into Hnzb₃.
+       remember Hnsb₃ as H; clear HeqH.
+       erewrite nth_ns_n in H; eauto .
+       erewrite <- nth_pol_n in H; eauto .
+       rewrite <- Hpolb₃ in H.
+       rename H into Hnsb₃₁.
+       remember Hpolb₃ as H; clear HeqH.
+       erewrite nth_pol_n in H; eauto .
+       rename H into Hpolb₃n.
+       remember Hnsb₃₁ as H; clear HeqH.
+       eapply next_ns_in_pol with (pol := polb₂) in H; eauto .
+       rename H into Hnsb₃i.
        remember Hns₁i as H; clear HeqH.
        eapply r_n_nth_ns with (n := b₁) (r := r) in H; eauto .
         destruct H as (αjb₃, (αkb₃, H)).
@@ -352,10 +363,8 @@ destruct z₁.
          rewrite Z.div_mul; auto.
 bbb.
 subgoal 2 is:
- nsb₃ ∈ newton_segments polb₃
-subgoal 3 is:
  pol_in_K_1_m polb₃ m₁
-subgoal 4 is:
+subgoal 3 is:
  root_multiplicity acf (ac_root (Φq polb₃ nsb₃)) (Φq polb₃ nsb₃) = r
 
       apply List_hd_in in Hns₂₁; try eassumption .
