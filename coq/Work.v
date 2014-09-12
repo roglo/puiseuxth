@@ -240,14 +240,9 @@ destruct z₁.
      rename H into Hnsb₂i.
      remember Hns₁i as H; clear HeqH.
      eapply r_n_nth_ns with (n := b) (r := r) in H; eauto .
-bbb.
-
-     remember Hns₁i as H; clear HeqH.
-     eapply r_n_nth_ns with (n := b) (r := r) in H; eauto .
       erewrite <- nth_ns_succ2 in H; eauto .
       rewrite <- Hb₁ in H.
-      remember (nth_ns b₁ pol₁ ns₁) as nsb₂ eqn:Hnsb₂ .
-      remember (nth_pol b₁ pol₁ ns₁) as polb₂ eqn:Hpolb₂ .
+      rewrite <- Hnsb₂ in H.
       destruct H as (αjb₂, (αkb₂, H)).
       destruct H as (Hinib₂, (Hfinb₂, (Hαjb₂, Hαkb₂))).
       destruct (ps_zerop R (ps_poly_nth 0 (nth_pol b₁ pol₂ ns₂))) as [H₁| H₁].
@@ -265,9 +260,6 @@ bbb.
        remember Hns₁i as H; clear HeqH.
        eapply nth_pol_in_K_1_m with (poln := polb₂) in H; eauto .
        rename H into HKb₂.
-       pose proof (Hain b₁ (Nat.le_refl b₁)) as H.
-       rewrite <- Hnsb₂, <- Hpolb₂ in H.
-       rename H into Hnsb₂i.
        pose proof (Hreq b₁ (Nat.le_refl b₁)) as H.
        erewrite nth_r_n in H; eauto .
        erewrite nth_c_n in H; eauto .
