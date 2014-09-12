@@ -233,6 +233,8 @@ destruct z₁.
     assert (∀ i, r ≤ nth_r i pol₁ ns₁) as Hrle₁.
      eapply all_r_le_next with (ns := ns); try eassumption.
 
+     pose proof (Hpsi b₁ (Nat.le_refl b₁)) as H.
+     rename H into Hpsib₁.
      remember (nth_ns b₁ pol₁ ns₁) as nsb₂ eqn:Hnsb₂ .
      remember (nth_pol b₁ pol₁ ns₁) as polb₂ eqn:Hpolb₂ .
      pose proof (Hain b₁ (Nat.le_refl b₁)) as H.
@@ -304,8 +306,7 @@ destruct z₁.
          apply Nat.eq_mul_0_l in H₁; auto.
          subst d; simpl.
          destruct (ps_zerop R (ps_poly_nth 0 polb₂)) as [H₁| H₁].
-          pose proof (Hpsi b₁ (Nat.le_refl b₁)) as H.
-          rewrite <- Hpolb₂ in H; contradiction.
+          contradiction.
 
           erewrite nth_c_n; try eassumption; reflexivity.
 
@@ -392,12 +393,14 @@ destruct z₁.
         eapply p_is_pos with (m := m₁) in H; eauto .
         rewrite <- Hpb₃ in H.
         rename H into Hpb₃pos.
+        remember Hpb₃pos as H; clear HeqH.
+        apply Z.lt_le_incl in H.
+        rename H into Hpb₃nneg.
         assert (x <= x + pb₃ * ' dd * ' dd)%Z as Hle.
          apply Z.le_sub_le_add_l.
          rewrite Z.sub_diag.
          apply Z.mul_nonneg_nonneg; auto.
          apply Z.mul_nonneg_nonneg; auto.
-         apply Z.lt_le_incl; assumption.
 
          rewrite Z.min_l; auto.
          rewrite Z.min_r; auto.
@@ -431,7 +434,7 @@ destruct z₁.
          rewrite series_mul_1_l.
          rewrite <- series_stretch_stretch.
          rewrite <- Z.mul_assoc, <- Pos2Z.inj_mul.
-         rewrite Z2Nat.inj_mul; auto; [ simpl | apply Z.lt_le_incl; auto ].
+         rewrite Z2Nat.inj_mul; auto; simpl.
          rewrite <- stretch_shift_series_distr.
          rewrite <- series_stretch_const with (k := (dd * dd)%positive).
          rewrite <- series_stretch_add_distr.
@@ -443,6 +446,17 @@ destruct z₁.
            rewrite rng_add_0_r.
            unfold root_tail_series_from_cγ_list; simpl.
            destruct (ps_zerop R (ps_poly_nth 0 polb₂)) as [H₃| H₃].
+            contradiction.
+
+            clear H₃; symmetry.
+            erewrite nth_c_n; try eassumption; reflexivity.
+
+           apply Nat.nlt_ge in H₁.
+           apply Nat.le_0_r in H₁.
+           rewrite <- Z2Nat.inj_0 in H₁.
+           apply Z2Nat.inj in H₁; auto; [ idtac | reflexivity ].
+           rewrite H₁ in Hpb₃pos.
+           exfalso; revert Hpb₃pos; apply Z.lt_irrefl.
 bbb.
 
            constructor; simpl; intros i.
