@@ -253,52 +253,45 @@ destruct z₁.
        rewrite Z.mul_shuffle0, Pos_mul_shuffle0.
        rewrite Pos2Z.inj_mul.
        rewrite Z.div_mul_cancel_r; auto.
+       remember Hns₁i as H; clear HeqH.
+       eapply nth_pol_in_K_1_m with (poln := polb₂) in H; eauto .
+       rename H into HKb₂.
+       pose proof (Hain b₁ (Nat.le_refl b₁)) as H.
+       rewrite <- Hnsb₂, <- Hpolb₂ in H.
+       rename H into Hnsb₂i.
+       pose proof (Hreq b₁ (Nat.le_refl b₁)) as H.
+       erewrite nth_r_n in H; eauto .
+       erewrite nth_c_n in H; eauto .
+       rename H into Hrb₂.
        erewrite αj_m_eq_p_r with (pol₁ := polb₂); eauto .
-        2: rewrite Hpolb₂, Hnsb₂.
-        2: apply Hain; reflexivity.
-
-        3: symmetry; rewrite <- Hreq with (n := b₁); auto.
-        3: apply nth_r_n; auto.
-        3: symmetry.
-        3: apply nth_c_n; auto.
-
-        rewrite Pos2Z.inj_mul, Z.mul_shuffle0, Zposnat2Znat; auto.
-        rewrite <- Z.mul_assoc.
-        rewrite <- Zposnat2Znat; simpl; try eassumption.
-        rewrite Z.div_mul; auto.
-        remember (nth_γ b₁ pol₁ ns₁) as γb₂ eqn:Hγb₂ .
-        rewrite ps_adjust_eq with (n := O) (k := Qden γb₂); symmetry.
-        rewrite ps_adjust_eq with (n := O) (k := m₁); symmetry.
-        unfold adjust_ps; simpl.
-        rewrite Pos.mul_comm.
-        do 2 rewrite Z.sub_0_r.
-        do 2 rewrite series_shift_0.
-        rewrite fold_series_const, series_stretch_const.
-        erewrite nth_γ_n in Hγb₂; eauto .
-        subst γb₂; simpl.
-        rewrite Qden_inv_Qnat_sub; auto.
-        rewrite Nat.sub_0_r.
-        rewrite Pos_mul_shuffle0.
-        remember (Qden αjb₂ * Pos.of_nat r * Qden αkb₂)%positive as dd.
-        rewrite Z.mul_shuffle0.
-        erewrite αj_m_eq_p_r with (pol₁ := polb₂); try eassumption; eauto .
-         do 2 rewrite <- Z.mul_assoc.
-         remember (Z.of_nat r * (' Qden αjb₂ * ' Qden αkb₂))%Z as x.
-         rewrite Z.mul_comm, Z.mul_shuffle0 in Heqx.
-         rewrite <- Zposnat2Znat in Heqx; auto.
-         simpl in Heqx.
-         rewrite <- Heqdd in Heqx; subst x.
-         apply mkps_morphism; auto.
+       rewrite Pos2Z.inj_mul, Z.mul_shuffle0, Zposnat2Znat; auto.
+       rewrite <- Z.mul_assoc.
+       rewrite <- Zposnat2Znat; simpl; try eassumption.
+       rewrite Z.div_mul; auto.
+       remember (nth_γ b₁ pol₁ ns₁) as γb₂ eqn:Hγb₂ .
+       rewrite ps_adjust_eq with (n := O) (k := Qden γb₂); symmetry.
+       rewrite ps_adjust_eq with (n := O) (k := m₁); symmetry.
+       unfold adjust_ps; simpl.
+       rewrite Pos.mul_comm.
+       do 2 rewrite Z.sub_0_r.
+       do 2 rewrite series_shift_0.
+       rewrite fold_series_const, series_stretch_const.
+       erewrite nth_γ_n in Hγb₂; eauto .
+       subst γb₂; simpl.
+       rewrite Qden_inv_Qnat_sub; auto.
+       rewrite Nat.sub_0_r.
+       rewrite Pos_mul_shuffle0.
+       remember (Qden αjb₂ * Pos.of_nat r * Qden αkb₂)%positive as dd.
+       rewrite Z.mul_shuffle0.
+       erewrite αj_m_eq_p_r with (pol₁ := polb₂); try eassumption; eauto .
+       do 2 rewrite <- Z.mul_assoc.
+       remember (Z.of_nat r * (' Qden αjb₂ * ' Qden αkb₂))%Z as x.
+       rewrite Z.mul_comm, Z.mul_shuffle0 in Heqx.
+       rewrite <- Zposnat2Znat in Heqx; auto.
+       simpl in Heqx.
+       rewrite <- Heqdd in Heqx; subst x.
+       apply mkps_morphism; auto.
 bbb.
-subgoal 2 is:
- nsb₂ ∈ newton_segments polb₂
-subgoal 3 is:
- pol_in_K_1_m polb₂ m₁
-subgoal 4 is:
- root_multiplicity acf (ac_root (Φq polb₂ nsb₂)) (Φq polb₂ nsb₂) = r
-subgoal 5 is:
- pol_in_K_1_m polb₂ m₁
-subgoal 6 is:
 
         apply mkps_morphism; auto.
          unfold series_stretch.
