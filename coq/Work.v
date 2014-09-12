@@ -341,30 +341,35 @@ destruct z₁.
        remember Hnsb₃₁ as H; clear HeqH.
        eapply next_ns_in_pol with (pol := polb₂) in H; eauto .
        rename H into Hnsb₃i.
-       remember Hns₁i as H; clear HeqH.
-       eapply r_n_nth_ns with (n := b₁) (r := r) in H; eauto .
-        destruct H as (αjb₃, (αkb₃, H)).
-        destruct H as (Hinib₃, (Hfinb₃, (Hαjb₃, Hαkb₃))).
-        rewrite Hinib₃, Hfinb₃; simpl.
-        rewrite Hαkb₃; simpl.
-        rewrite Qnum_inv_Qnat_sub; auto.
-        rewrite Qden_inv_Qnat_sub; auto.
-        rewrite Nat.sub_0_r.
-        rewrite Z.add_0_r, Z.mul_1_r.
-        remember (Qden αjb₂ * Pos.of_nat r * Qden αkb₂)%positive as dd.
-        rewrite Z.mul_shuffle0, Pos_mul_shuffle0.
-        do 2 rewrite Pos2Z.inj_mul.
-        rewrite Z.div_mul_cancel_r; simpl; auto.
-        remember (Qnum αjb₂ * ' Qden αkb₂)%Z as nd.
-        erewrite αj_m_eq_p_r with (pol₁ := polb₃); try eassumption; eauto .
-         rewrite Z.mul_shuffle0.
-         rewrite <- Zposnat2Znat; auto.
-         rewrite <- Z.mul_assoc, <- Pos2Z.inj_mul.
-         rewrite Z.div_mul; auto.
+       assert (1 ≤ b₁) as H by (subst b₁; apply le_n_S, Nat.le_0_l).
+       apply Hain in H; simpl in H.
+       rewrite <- Hc₁, <- Hpol₂, <- Hns₂ in H.
+       rename H into Hns₂i.
+       remember Hnsb₂i as H; clear HeqH.
+       eapply nth_pol_in_K_1_m with (poln := polb₃) (n := b₁) in H; eauto .
+        rename H into HKb₃.
+        remember Hns₁i as H; clear HeqH.
+        eapply r_n_nth_ns with (n := b₁) (r := r) in H; eauto .
+         destruct H as (αjb₃, (αkb₃, H)).
+         destruct H as (Hinib₃, (Hfinb₃, (Hαjb₃, Hαkb₃))).
+         rewrite Hinib₃, Hfinb₃; simpl.
+         rewrite Hαkb₃; simpl.
+         rewrite Qnum_inv_Qnat_sub; auto.
+         rewrite Qden_inv_Qnat_sub; auto.
+         rewrite Nat.sub_0_r.
+         rewrite Z.add_0_r, Z.mul_1_r.
+         remember (Qden αjb₂ * Pos.of_nat r * Qden αkb₂)%positive as dd.
+         rewrite Z.mul_shuffle0, Pos_mul_shuffle0.
+         do 2 rewrite Pos2Z.inj_mul.
+         rewrite Z.div_mul_cancel_r; simpl; auto.
+         remember (Qnum αjb₂ * ' Qden αkb₂)%Z as nd.
+         erewrite αj_m_eq_p_r with (pol₁ := polb₃); try eassumption; eauto .
+          rewrite Z.mul_shuffle0.
+          rewrite <- Zposnat2Znat; auto.
+          rewrite <- Z.mul_assoc, <- Pos2Z.inj_mul.
+          rewrite Z.div_mul; auto.
 bbb.
 subgoal 2 is:
- pol_in_K_1_m polb₃ m₁
-subgoal 3 is:
  root_multiplicity acf (ac_root (Φq polb₃ nsb₃)) (Φq polb₃ nsb₃) = r
 
       apply List_hd_in in Hns₂₁; try eassumption .
