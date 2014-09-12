@@ -437,6 +437,12 @@ destruct z₁.
          rewrite <- series_stretch_add_distr.
          apply stretch_morph; [ reflexivity | idtac ].
          constructor; simpl; intros i.
+         destruct (zerop i) as [H₁| H₁].
+          subst i; simpl.
+          destruct (lt_dec 0 (Z.to_nat pb₃)) as [H₁| H₁].
+           rewrite rng_add_0_r.
+           unfold root_tail_series_from_cγ_list; simpl.
+           destruct (ps_zerop R (ps_poly_nth 0 polb₂)) as [H₃| H₃].
 bbb.
 
            constructor; simpl; intros i.
