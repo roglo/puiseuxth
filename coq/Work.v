@@ -60,16 +60,18 @@ Theorem root_tail_when_r_r : ∀ pol ns pol₁ ns₁ c m q₀ b r,
   → c = ac_root (Φq pol ns)
   → pol₁ = next_pol pol (β ns) (γ ns) c
   → ns₁ = List.hd phony_ns (newton_segments pol₁)
+  → (∀ i, i ≤ 1%nat → nth_r i pol ns = r)
+  → (∀ n, r ≤ nth_r n pol ns)
   → (1 ≠ 0)%K
   → ∀ n,
-    (∀ i, (i ≤ S n)%nat → (nth_r i pol ns = r))
-    → zerop_1st_n_const_coeff n pol₁ ns₁ = false
+    zerop_1st_n_const_coeff n pol₁ ns₁ = false
     → (root_tail (m * q₀) b pol₁ ns₁ =
        root_head b n pol₁ ns₁ +
          ps_monom 1%K (γ_sum b n pol₁ ns₁) *
          root_tail (m * q₀) (b + S n) pol₁ ns₁)%ps.
 Proof.
-intros pol ns pol₁ ns₁ c m q₀ b r Hns Hm Hq₀ Hc Hpol₁ Hns₁ H₀ n Hri Hnz.
+intros pol ns pol₁ ns₁ c m q₀ b r.
+intros Hns Hm Hq₀ Hc Hpol₁ Hns₁ Hri Hrle H₀ n Hnz.
 bbb.
 remember (m * q₀)%positive as m₁.
 revert pol ns pol₁ ns₁ Hns Hm Hq₀ Hc Hpol₁ Hns₁ Hri Hnz.
@@ -319,8 +321,37 @@ destruct r.
         discriminate Hz.
 
         eapply root_when_fin; try eassumption .
+
+      unfold multiplicity_decreases in Hn; simpl in Hn.
+      rewrite <- Hc, Hr in Hn.
+      rewrite root_tail_when_r_r with (n := N) in Hofs; try eassumption.
+       Focus 3.
+       intros j.
+       pose proof (Hn j) as H.
+       apply Nat.nlt_ge in H.
+       erewrite nth_r_n; eauto .
+
+       Focus 2.
+       apply non_decr_imp_eq; auto.
+        apply zerop_1st_n_const_coeff_false_iff.
+        intros j Hj.
+        destruct j; [ assumption | idtac ].
+        apply le_S_n in Hj.
+        apply Nat.le_0_r in Hj; subst j; simpl.
+        rewrite <- Hc, <- Hpol₁; assumption.
+
+        simpl; rewrite <- Hc; assumption.
+
+        intros j.
+        pose proof (Hn j) as H.
+        apply Nat.nlt_ge in H.
+        erewrite nth_r_n; eauto .
 bbb.
-     rewrite root_tail_when_r_r with (n := N) in Hofs; try eassumption .
+  ============================
+   ∃ s : puiseux_series α, (ps_pol_apply pol₁ s = 0)%ps
+
+subgoal 2 is:
+ ∃ s0 : puiseux_series α, (ps_pol_apply pol₁ s0 = 0)%ps
 
 bbb.
   pose proof (exists_pol_ord R pol) as H.
