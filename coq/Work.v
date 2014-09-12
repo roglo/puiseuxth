@@ -53,6 +53,22 @@ Definition multiplicity_decreases pol ns n :=
   let rn := root_multiplicity acf cn (Φq poln nsn) in
   (rn < r)%nat.
 
+Theorem nth_r_add : ∀ pol ns i j,
+  nth_r (i + j) pol ns = nth_r i (nth_pol j pol ns) (nth_ns j pol ns).
+Proof.
+intros pol ns i j.
+revert pol ns j.
+induction i; intros.
+ simpl.
+ apply nth_r_n; auto; symmetry.
+ apply nth_c_n; auto.
+
+ rewrite Nat.add_succ_l, <- Nat.add_succ_r; simpl.
+ rewrite IHi; simpl.
+ f_equal; [ eapply nth_pol_n; eauto | idtac ].
+ eapply nth_ns_n; try eassumption; eauto.
+Qed.
+
 Theorem non_decr_imp_eq : ∀ pol ns b r,
   ns ∈ newton_segments pol
   → zerop_1st_n_const_coeff b pol ns = false
@@ -371,18 +387,23 @@ destruct z₁.
        do 2 rewrite Pos2Z.inj_mul.
        rewrite Z.div_mul_cancel_r; simpl; auto.
        remember (Qnum αjb₂ * ' Qden αkb₂)%Z as nd.
-       remember Hnsb₂i as H; clear HeqH.
-       eapply nth_pol_in_K_1_m with (poln := polb₃) (n := b₁) in H; eauto .
-        rename H into HKb₃.
-        erewrite αj_m_eq_p_r with (pol₁ := polb₃); try eassumption; eauto .
-        rewrite Z.mul_shuffle0.
-        rewrite <- Zposnat2Znat; auto.
-        rewrite <- Z.mul_assoc, <- Pos2Z.inj_mul.
-        rewrite Z.div_mul; auto.
-        unfold ps_add, ps_mul; simpl.
-        unfold cm; simpl.
-        rewrite fold_series_const.
-        rewrite fold_series_const.
+       assert (∀ n, r ≤ nth_r n polb₂ nsb₂) as Hrle₂.
+        intros i.
+        pose proof (Hrle₁ (i + b₁)%nat) as H.
+        rewrite nth_r_add in H.
+        rewrite <- Hpolb₂, <- Hnsb₂ in H; assumption.
+
+        remember Hnsb₂i as H; clear HeqH.
+        eapply nth_pol_in_K_1_m with (n := 1%nat) in H; eauto .
+         rename H into HKb₃.
+         erewrite αj_m_eq_p_r with (pol₁ := polb₃); try eassumption; eauto .
+         rewrite Z.mul_shuffle0.
+         rewrite <- Zposnat2Znat; auto.
+         rewrite <- Z.mul_assoc, <- Pos2Z.inj_mul.
+         rewrite Z.div_mul; auto.
+         unfold ps_add, ps_mul; simpl.
+         unfold cm; simpl.
+         do 2 rewrite fold_series_const.
         unfold ps_terms_add; simpl.
         unfold ps_ordnum_add; simpl.
         rewrite Z.mul_add_distr_r.
@@ -480,70 +501,91 @@ destruct z₁.
             eapply Nat.lt_trans in H₂; eauto .
             exfalso; revert H₂; apply Nat.lt_irrefl.
 
-           apply Nat.nlt_ge in H₂.
-           remember (i - Z.to_nat pb₃)%nat as id.
-           unfold root_tail_series_from_cγ_list.
-           rewrite find_coeff_iter_succ with (r := r); auto.
-            symmetry.
-bbb.
+            apply Nat.nlt_ge in H₂.
+            remember (i - Z.to_nat pb₃)%nat as id.
+            unfold root_tail_series_from_cγ_list.
+            remember Hinib₂ as H; clear HeqH.
+            symmetry in Hrb₂.
+            eapply q_eq_1_any_r in H; eauto .
+            rename H into Hqb₂.
+            remember Hinib₃ as H; clear HeqH.
+            symmetry in Hrcb₃.
+            eapply q_eq_1_any_r in H; eauto .
+            rename H into Hqb₃.
+            rewrite find_coeff_iter_succ with (r := r); auto; symmetry.
+            rewrite Hcb₃ in Hrcb₃.
+            rewrite find_coeff_iter_succ with (r := r); auto.
+             symmetry.
+             remember (S i) as si.
+             remember (S (S id)) as ssid; simpl.
+             destruct i.
+              exfalso; revert H₁; apply Nat.lt_irrefl.
 
-             apply Nat.nlt_ge in H₂.
-             remember (i - Z.to_nat pb₃)%nat as id.
-             unfold root_tail_series_from_cγ_list.
-             assert (∀ j, nth_r j polb₂ nsb₂ = r) as Hrib₂.
-              eapply all_same_r_next with (ns := nsb₁); try eassumption .
-               erewrite <- nth_pol_n with (c := c₁); try eassumption .
+              clear H₁.
+              destruct (ps_zerop R (ps_poly_nth 0 polb₂)) as [H₁| H₁].
+               contradiction.
 
-               erewrite <- nth_ns_n with (c := c₁); try eassumption .
-               erewrite <- nth_pol_n with (c := c₁); try eassumption .
+               clear H₁.
+               erewrite <- nth_pol_n with (c := c₁); eauto .
+               rewrite <- Hpolb₃, <- Hnsb₃₁.
+               rewrite <- Hcb₃ in Hrcb₃.
+               symmetry in Hrcb₃.
+               erewrite next_pow_eq_p; try eassumption.
+               rewrite <- Hpb₃.
+               subst si ssid.
+               remember (S i) as si.
+               remember (S id) as sid; simpl.
+               destruct (ps_zerop R (ps_poly_nth 0 polb₃)) as [| H₁]; auto.
+               clear H₁.
+               subst si.
+               remember (Nat.compare (Z.to_nat pb₃) (S i)) as cmp₁.
+               rename Heqcmp₁ into Hcmp₁.
+               symmetry in Hcmp₁.
+               destruct cmp₁.
+                apply nat_compare_eq in Hcmp₁.
+                rewrite Hcmp₁, Nat.sub_diag in Heqid; subst id; reflexivity.
 
-               intros j.
-               rewrite Hpolb₁, Hnsb₁.
-               pose proof (Hri (S j + b)%nat) as H; simpl in H.
-               rewrite <- Hc, <- Hpol₁, <- Hns₁ in H.
-               rewrite nth_r_add in H; auto.
-
-              rewrite find_coeff_iter_succ with (r := r); auto.
-               symmetry.
-               pose proof (Hri (S (S (S b)))) as H.
-               erewrite nth_r_n in H; try eassumption .
-               remember (S (S b)) as b₂; simpl in H.
-               rewrite <- Hc, <- Hpol₁, <- Hns₁ in H.
-               subst b₂; remember (S b) as b₁; simpl in H.
-               rewrite <- Hc₁, <- Hpol₂, <- Hns₂ in H.
-               subst b₁; simpl in H.
-               rewrite <- Hc₂, <- Hpol₃, <- Hns₃ in H.
-               rewrite <- Hnsb₃ in H.
-               erewrite nth_c_n in H; try eassumption .
-               erewrite nth_pol_n with (c := c₂) in H; try eassumption .
-               rewrite <- Hpolb₃, <- Hcb₃ in H.
-               rename H into Hrb₃.
-               symmetry in Hrb₃.
-               remember Hnsb₃₁ as H; clear HeqH.
-               eapply q_eq_1_any_r in H; try eassumption .
-               rename H into Hqb₃.
-               assert (∀ j, nth_r j polb₃ nsb₃ = r) as Hrib₃.
-                intros j.
-                eapply all_same_r_next with (ns := nsb₂); try eassumption .
-
-                rewrite find_coeff_iter_succ with (r := r); auto.
-                symmetry.
-                remember (S i) as si.
-                remember (S (S id)) as ssid; simpl.
-                rewrite <- Hcb₂, <- Hpolb₃.
-                erewrite <- nth_ns_n with (ns := ns₂); try eassumption .
-                rewrite <- Hnsb₃.
-                destruct i;
-                 [ exfalso; revert H₁; apply Nat.lt_irrefl | idtac ].
-                clear H₁.
-                destruct (ps_zerop R (ps_poly_nth 0 polb₂)) as [H₁| H₁].
+                apply nat_compare_lt in Hcmp₁.
+                Focus 1.
+                destruct id.
+                 symmetry in Heqid.
+                 apply Nat.sub_gt in Heqid; try assumption.
                  contradiction.
 
-                 clear H₁.
-                 erewrite next_pow_eq_p; try eassumption .
-                 rewrite <- Hpb₃.
-                 subst si ssid.
-                 remember (S i) as si.
+                 rewrite <- Hcb₃.
+                 remember (next_pol polb₃ (β nsb₃) (γ nsb₃) cb₃) as polb₄.
+                 remember (List.hd phony_ns (newton_segments polb₄)) as nsb₄.
+                 rename Heqpolb₄ into Hpolb₄.
+                 rename Heqnsb₄ into Hnsb₄.
+                 subst sid.
+                 remember (Z.to_nat pb₃) as x.
+                 replace x with (0 + x)%nat by reflexivity.
+                 rewrite next_pow_add.
+                 replace (S i)%nat with (S i - x + x)%nat at 2
+                  by fast_omega Hcmp₁.
+                 rewrite find_coeff_add.
+                 rewrite <- Heqid.
+                 symmetry.
+                 destruct (ps_zerop R (ps_poly_nth 0 polb₄)) as [H₁| H₁].
+                  remember (S id) as sid; simpl.
+                  destruct (ps_zerop R (ps_poly_nth 0 polb₄)) as [H₃| H₃].
+                   reflexivity.
+
+                   contradiction.
+
+                  remember Hinib₂ as H; clear HeqH.
+                  eapply p_is_pos with (m := m₁) in H; eauto .
+                  rewrite <- Hpb₂ in H.
+                  rename H into Hpb₂pos.
+                  eapply find_coeff_more_iter with (r := r); eauto .
+                   Focus 6.
+                   subst x.
+                   apply Z2Nat.inj_lt in Hpb₃pos; auto;
+                    [ idtac | reflexivity ].
+                   fast_omega Hpb₃pos Heqid.
+
+                   Unfocus.
+bbb.
                  remember (S id) as sid; simpl.
                  destruct (ps_zerop R (ps_poly_nth 0 polb₃)) as [| H₁]; auto.
                  clear H₁.
@@ -1591,22 +1633,6 @@ bbb.
 bbb.
 
 
-
-Theorem nth_r_add : ∀ pol ns i j,
-  nth_r (i + j) pol ns = nth_r i (nth_pol j pol ns) (nth_ns j pol ns).
-Proof.
-intros pol ns i j.
-revert pol ns j.
-induction i; intros.
- simpl.
- apply nth_r_n; auto; symmetry.
- apply nth_c_n; auto.
-
- rewrite Nat.add_succ_l, <- Nat.add_succ_r; simpl.
- rewrite IHi; simpl.
- f_equal; [ eapply nth_pol_n; try eassumption | idtac ].
- eapply nth_ns_n; try eassumption .
-Qed.
 
 Theorem a₀_neq_0 : ∀ pol ns αj,
   ns ∈ newton_segments pol
