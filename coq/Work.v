@@ -386,32 +386,44 @@ destruct z₁.
         unfold ps_ordnum_add; simpl.
         rewrite Z.mul_add_distr_r.
         rewrite Pos2Z.inj_mul, Z.mul_assoc, Z.mul_shuffle0.
-        rewrite Z.min_l.
-         rewrite Z.min_r.
-          rewrite Z.add_simpl_l, Z.sub_diag.
-          simpl.
-          rewrite Pos.mul_assoc.
-          rewrite ps_adjust_eq with (n := O) (k := (dd * dd)%positive).
-          unfold adjust_ps; simpl.
-          rewrite series_shift_0.
-          rewrite Z.sub_0_r.
-          subst nd.
-          remember (Qnum αjb₂ * ' Qden αkb₂ * ' m₁)%Z as x.
-          rewrite Z.mul_shuffle0 in Heqx; subst x.
-          erewrite αj_m_eq_p_r with (ns₁ := nsb₂) (pol₁ := polb₂); eauto .
-          remember (p_of_m m₁ (γ nsb₂)) as pb₂ eqn:Hpb₂ .
-          remember (pb₂ * Z.of_nat r * ' Qden αjb₂ * ' Qden αkb₂)%Z as x.
-          do 2 rewrite <- Z.mul_assoc in Heqx.
-          rewrite Z.mul_comm, Z.mul_assoc in Heqx.
-          remember (Z.of_nat r * ' Qden αjb₂ * ' Qden αkb₂)%Z as y eqn:Hy .
-          rewrite Z.mul_comm in Heqx; subst x.
-          rewrite Z.mul_shuffle0, Z.mul_comm in Hy.
-          rewrite Z.mul_assoc in Hy.
-          rewrite <- Zposnat2Znat in Hy; auto.
-          simpl in Hy; rewrite <- Heqdd in Hy; subst y.
-          remember (m₁ * (dd * dd))%positive as x.
-          rewrite Pos.mul_comm in Heqx; subst x.
-          apply mkps_morphism; auto.
+        remember (nd * ' m₁ * ' dd)%Z as x.
+        remember (p_of_m m₁ (γ nsb₃)) as pb₃ eqn:Hpb₃ .
+        remember Hinib₃ as H; clear HeqH.
+        eapply p_is_pos with (m := m₁) in H; eauto .
+        rewrite <- Hpb₃ in H.
+        rename H into Hpb₃pos.
+        assert (x <= x + pb₃ * ' dd * ' dd)%Z as Hle.
+         apply Z.le_sub_le_add_l.
+         rewrite Z.sub_diag.
+         apply Z.mul_nonneg_nonneg; auto.
+         apply Z.mul_nonneg_nonneg; auto.
+         apply Z.lt_le_incl; assumption.
+
+         rewrite Z.min_l; auto.
+         rewrite Z.min_r; auto.
+         rewrite Z.add_simpl_l, Z.sub_diag; simpl.
+         rewrite Pos.mul_assoc.
+         rewrite ps_adjust_eq with (n := O) (k := (dd * dd)%positive).
+         unfold adjust_ps; simpl.
+         rewrite series_shift_0.
+         rewrite Z.sub_0_r.
+         subst nd x.
+         remember (Qnum αjb₂ * ' Qden αkb₂ * ' m₁)%Z as x.
+         rewrite Z.mul_shuffle0 in Heqx; subst x.
+         erewrite αj_m_eq_p_r with (ns₁ := nsb₂) (pol₁ := polb₂); eauto .
+         remember (p_of_m m₁ (γ nsb₂)) as pb₂ eqn:Hpb₂ .
+         remember (pb₂ * Z.of_nat r * ' Qden αjb₂ * ' Qden αkb₂)%Z as x.
+         do 2 rewrite <- Z.mul_assoc in Heqx.
+         rewrite Z.mul_comm, Z.mul_assoc in Heqx.
+         remember (Z.of_nat r * ' Qden αjb₂ * ' Qden αkb₂)%Z as y eqn:Hy .
+         rewrite Z.mul_comm in Heqx; subst x.
+         rewrite Z.mul_shuffle0, Z.mul_comm in Hy.
+         rewrite Z.mul_assoc in Hy.
+         rewrite <- Zposnat2Znat in Hy; auto.
+         simpl in Hy; rewrite <- Heqdd in Hy; subst y.
+         remember (m₁ * (dd * dd))%positive as x.
+         rewrite Pos.mul_comm in Heqx; subst x.
+         apply mkps_morphism; auto.
 bbb.
 
          apply mkps_morphism.
