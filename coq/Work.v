@@ -245,44 +245,41 @@ destruct z₁.
       rewrite <- Hnsb₂ in H.
       destruct H as (αjb₂, (αkb₂, H)).
       destruct H as (Hinib₂, (Hfinb₂, (Hαjb₂, Hαkb₂))).
-      destruct (ps_zerop R (ps_poly_nth 0 (nth_pol b₁ pol₂ ns₂))) as [H₁| H₁].
+      unfold root_tail_from_cγ_list, ps_monom; simpl.
+      rewrite <- Hc₁, <- Hpol₂, <- Hns₂.
+      erewrite nth_γ_n; eauto ; simpl.
+      remember (nth_pol b₁ pol₂ ns₂) as polb₃ eqn:Hpolb₃ .
+      remember (nth_ns b₁ pol₂ ns₂) as nsb₃ eqn:Hnsb₃ .
+      rewrite Hinib₂, Hfinb₂; simpl.
+      rewrite Hαkb₂; simpl.
+      rewrite Qnum_inv_Qnat_sub; auto.
+      rewrite Qden_inv_Qnat_sub; auto.
+      rewrite Z.add_0_r, Z.mul_1_r, Nat.sub_0_r.
+      rewrite Z.mul_shuffle0, Pos_mul_shuffle0.
+      rewrite Pos2Z.inj_mul.
+      rewrite Z.div_mul_cancel_r; auto.
+      remember Hns₁i as H; clear HeqH.
+      eapply nth_pol_in_K_1_m with (poln := polb₂) in H; eauto .
+      rename H into HKb₂.
+      pose proof (Hreq b₁ (Nat.le_refl b₁)) as H.
+      erewrite nth_r_n in H; eauto .
+      erewrite nth_c_n in H; eauto .
+      rename H into Hrb₂.
+      erewrite αj_m_eq_p_r with (pol₁ := polb₂); eauto .
+      rewrite Pos2Z.inj_mul, Z.mul_shuffle0, Zposnat2Znat; auto.
+      rewrite <- Z.mul_assoc.
+      rewrite <- Zposnat2Znat; simpl; try eassumption.
+      rewrite Z.div_mul; auto.
+      destruct (ps_zerop R (ps_poly_nth 0 polb₃)) as [H₁| H₁].
        rewrite rng_mul_0_r, rng_add_0_r.
-       unfold root_tail_from_cγ_list, ps_monom; simpl.
-       erewrite nth_γ_n; eauto ; simpl.
-       rewrite Hinib₂, Hfinb₂; simpl.
-       rewrite Hαkb₂; simpl.
-       rewrite Qnum_inv_Qnat_sub; auto.
-       rewrite Qden_inv_Qnat_sub; auto.
-       rewrite Z.add_0_r, Z.mul_1_r, Nat.sub_0_r.
-       rewrite Z.mul_shuffle0, Pos_mul_shuffle0.
-       rewrite Pos2Z.inj_mul.
-       rewrite Z.div_mul_cancel_r; auto.
-       remember Hns₁i as H; clear HeqH.
-       eapply nth_pol_in_K_1_m with (poln := polb₂) in H; eauto .
-       rename H into HKb₂.
-       pose proof (Hreq b₁ (Nat.le_refl b₁)) as H.
-       erewrite nth_r_n in H; eauto .
-       erewrite nth_c_n in H; eauto .
-       rename H into Hrb₂.
-       erewrite αj_m_eq_p_r with (pol₁ := polb₂); eauto .
-       rewrite Pos2Z.inj_mul, Z.mul_shuffle0, Zposnat2Znat; auto.
-       rewrite <- Z.mul_assoc.
-       rewrite <- Zposnat2Znat; simpl; try eassumption.
-       rewrite Z.div_mul; auto.
-       remember (nth_γ b₁ pol₁ ns₁) as γb₂ eqn:Hγb₂ .
-       rewrite ps_adjust_eq with (n := O) (k := Qden γb₂); symmetry.
+       remember (Qden αjb₂ * Pos.of_nat r * Qden αkb₂)%positive as dd.
+       rewrite ps_adjust_eq with (n := O) (k := dd); symmetry.
        rewrite ps_adjust_eq with (n := O) (k := m₁); symmetry.
        unfold adjust_ps; simpl.
        rewrite Pos.mul_comm.
        do 2 rewrite Z.sub_0_r.
        do 2 rewrite series_shift_0.
        rewrite fold_series_const, series_stretch_const.
-       erewrite nth_γ_n in Hγb₂; eauto .
-       subst γb₂; simpl.
-       rewrite Qden_inv_Qnat_sub; auto.
-       rewrite Nat.sub_0_r.
-       rewrite Pos_mul_shuffle0.
-       remember (Qden αjb₂ * Pos.of_nat r * Qden αkb₂)%positive as dd.
        rewrite Z.mul_shuffle0.
        erewrite αj_m_eq_p_r with (pol₁ := polb₂); try eassumption; eauto .
        do 2 rewrite <- Z.mul_assoc.
@@ -322,7 +319,7 @@ destruct z₁.
           erewrite <- nth_pol_n with (c := c₁); eauto .
           erewrite <- nth_ns_n with (c := c₁); eauto .
            simpl.
-           remember (nth_pol b₁ pol₂ ns₂) as polb₃ eqn:Hpolb₃₁ .
+           rewrite <- Hpolb₃.
            destruct (ps_zerop R (ps_poly_nth 0 polb₃));
             [ reflexivity | contradiction ].
 
@@ -335,35 +332,32 @@ destruct z₁.
        rename H₁ into Hnzb₃.
        remember Hns₁i as H; clear HeqH.
        eapply r_n_nth_ns with (n := b₁) (r := r) in H; eauto .
-        remember (nth_pol b₁ pol₂ ns₂) as polb₃ eqn:Hpolb₃ .
-        remember (nth_ns b₁ pol₂ ns₂) as nsb₃ eqn:Hnsb₃ .
         destruct H as (αjb₃, (αkb₃, H)).
         destruct H as (Hinib₃, (Hfinb₃, (Hαjb₃, Hαkb₃))).
-        unfold root_tail_from_cγ_list, ps_monom; simpl.
-        rewrite <- Hc₁, <- Hpol₂, <- Hns₂.
-        rewrite <- Hpolb₃, <- Hnsb₃.
-        erewrite nth_γ_n; eauto ; simpl.
-        rewrite Hinib₂, Hfinb₂, Hinib₃, Hfinb₃; simpl.
-        rewrite Hαkb₂, Hαkb₃; simpl.
+        rewrite Hinib₃, Hfinb₃; simpl.
+        rewrite Hαkb₃; simpl.
         rewrite Qnum_inv_Qnat_sub; auto.
         rewrite Qden_inv_Qnat_sub; auto.
         rewrite Nat.sub_0_r.
-        do 2 rewrite Z.add_0_r, Z.mul_1_r.
+        rewrite Z.add_0_r, Z.mul_1_r.
+        remember (Qden αjb₂ * Pos.of_nat r * Qden αkb₂)%positive as dd.
         rewrite Z.mul_shuffle0, Pos_mul_shuffle0.
         do 2 rewrite Pos2Z.inj_mul.
         rewrite Z.div_mul_cancel_r; simpl; auto.
-        remember (Qden αjb₂ * Pos.of_nat r * Qden αkb₂)%positive as x.
-        rewrite Z.mul_shuffle0, Pos_mul_shuffle0; subst x.
-        do 2 rewrite Pos2Z.inj_mul.
-        rewrite Z.div_mul_cancel_r; auto.
+        remember (Qnum αjb₂ * ' Qden αkb₂)%Z as nd.
+        erewrite αj_m_eq_p_r with (pol₁ := polb₃); try eassumption; eauto .
+         rewrite Z.mul_shuffle0.
+         rewrite <- Zposnat2Znat; auto.
+         rewrite <- Z.mul_assoc, <- Pos2Z.inj_mul.
+         rewrite Z.div_mul; auto.
 bbb.
+subgoal 2 is:
+ nsb₃ ∈ newton_segments polb₃
+subgoal 3 is:
+ pol_in_K_1_m polb₃ m₁
+subgoal 4 is:
+ root_multiplicity acf (ac_root (Φq polb₃ nsb₃)) (Φq polb₃ nsb₃) = r
 
-      rewrite Z.mul_shuffle0, Pos_mul_shuffle0.
-      do 2 rewrite Pos2Z.inj_mul.
-      rewrite Z.div_mul_cancel_r; auto.
-      remember Hns₂ as Hns₂nz; clear HeqHns₂nz.
-      eapply newton_segments_not_nil in Hns₂nz; try eassumption .
-      remember Hns₂ as Hns₂₁; clear HeqHns₂₁.
       apply List_hd_in in Hns₂₁; try eassumption .
       erewrite αj_m_eq_p_r with (ns₁ := nsb₂); try eassumption .
       assert (pol_in_K_1_m polb₃ m₁) as HKb₃.
