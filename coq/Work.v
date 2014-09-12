@@ -288,39 +288,32 @@ destruct z₁.
            subst i.
            apply Nat.eq_mul_0_l in H₁; auto.
            subst d; simpl.
-           destruct (ps_zerop R (ps_poly_nth 0 polb₂)).
-bbb.
-      do 2 rewrite series_shift_0.
-      rewrite series_stretch_const.
-      apply mkps_morphism; auto.
-       unfold series_stretch.
-       constructor; intros i; simpl.
-       remember (nth_γ b pol₂ ns₂) as γb eqn:Hγb .
-       subst polb₃.
-       rename H₁ into Hpolb₃.
-       destruct (zerop (i mod Pos.to_nat (Qden γb))) as [H₁| H₁].
-        apply Nat.mod_divides in H₁; auto.
-        destruct H₁ as (d, Hd).
-        rewrite Nat.mul_comm in Hd; rewrite Hd.
-        rewrite Nat.div_mul; auto.
-        unfold root_tail_series_from_cγ_list.
-        rewrite <- Hd.
-        destruct (zerop i) as [H₁| H₁].
-         subst i.
-         apply Nat.eq_mul_0_l in H₁; auto.
-         subst d; simpl.
-         destruct (ps_zerop R (ps_poly_nth 0 polb₂));
-          [ contradiction | idtac ].
-         symmetry.
-         erewrite nth_c_n; try eassumption .
+           destruct (ps_zerop R (ps_poly_nth 0 polb₂)) as [H₁| H₁].
+            pose proof (Hpsi b₁ (Nat.le_refl b₁)) as H.
+            rewrite <- Hpolb₂ in H; contradiction.
 
-         simpl.
-         rewrite <- Hcb₂.
-         rewrite Nat.add_comm in Hpolb₃; simpl in Hpolb₃.
-         rewrite <- Hc₂, <- Hpol₃, <- Hns₃ in Hpolb₃.
-         destruct d.
-          rewrite Hd in H₁.
+            erewrite nth_c_n; try eassumption; reflexivity.
+
+           simpl.
+           destruct (ps_zerop R (ps_poly_nth 0 polb₂)) as [| H₂]; auto.
+           destruct d.
+            rewrite Hd in H₁.
+            exfalso; revert H₁; apply Nat.lt_irrefl.
+
+            remember (ac_root (Φq polb₂ nsb₂)) as cb₂ eqn:Hcb₂ .
+            erewrite <- nth_pol_n with (c := c₁); eauto .
+            erewrite <- nth_ns_n with (c := c₁); eauto .
+             simpl.
+             remember (nth_pol b₁ pol₂ ns₂) as polb₃ eqn:Hpolb₃₁ .
+             destruct (ps_zerop R (ps_poly_nth 0 polb₃));
+              [ reflexivity | contradiction ].
+
+             eapply nth_pol_n with (c := c₁); eauto .
+
+          destruct (zerop i); [ subst i | reflexivity ].
+          rewrite Nat.mod_0_l in H₁; auto.
           exfalso; revert H₁; apply Nat.lt_irrefl.
+bbb.
 
           destruct (ps_zerop R (ps_poly_nth 0 polb₂)); auto.
           erewrite <- nth_pol_n with (c := c₂); try eassumption .
