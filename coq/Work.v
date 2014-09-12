@@ -233,6 +233,15 @@ destruct z₁.
     assert (∀ i, r ≤ nth_r i pol₁ ns₁) as Hrle₁.
      eapply all_r_le_next with (ns := ns); try eassumption.
 
+     remember (nth_ns b₁ pol₁ ns₁) as nsb₂ eqn:Hnsb₂ .
+     remember (nth_pol b₁ pol₁ ns₁) as polb₂ eqn:Hpolb₂ .
+     pose proof (Hain b₁ (Nat.le_refl b₁)) as H.
+     rewrite <- Hnsb₂, <- Hpolb₂ in H.
+     rename H into Hnsb₂i.
+     remember Hns₁i as H; clear HeqH.
+     eapply r_n_nth_ns with (n := b) (r := r) in H; eauto .
+bbb.
+
      remember Hns₁i as H; clear HeqH.
      eapply r_n_nth_ns with (n := b) (r := r) in H; eauto .
       erewrite <- nth_ns_succ2 in H; eauto .
@@ -341,6 +350,7 @@ destruct z₁.
         unfold root_tail_from_cγ_list, ps_monom; simpl.
         rewrite <- Hc₁, <- Hpol₂, <- Hns₂.
         rewrite <- Hpolb₃, <- Hnsb₃.
+        erewrite nth_γ_n; eauto ; simpl.
         rewrite Hinib₂, Hfinb₂, Hinib₃, Hfinb₃; simpl.
         rewrite Hαkb₂, Hαkb₃; simpl.
         rewrite Qnum_inv_Qnat_sub; auto.
@@ -350,7 +360,8 @@ destruct z₁.
         rewrite Z.mul_shuffle0, Pos_mul_shuffle0.
         do 2 rewrite Pos2Z.inj_mul.
         rewrite Z.div_mul_cancel_r; simpl; auto.
-        rewrite Z.mul_shuffle0, Pos_mul_shuffle0.
+        remember (Qden αjb₂ * Pos.of_nat r * Qden αkb₂)%positive as x.
+        rewrite Z.mul_shuffle0, Pos_mul_shuffle0; subst x.
         do 2 rewrite Pos2Z.inj_mul.
         rewrite Z.div_mul_cancel_r; auto.
 bbb.
