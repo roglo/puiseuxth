@@ -457,55 +457,35 @@ destruct z₁.
            apply Z2Nat.inj in H₁; auto; [ idtac | reflexivity ].
            rewrite H₁ in Hpb₃pos.
            exfalso; revert Hpb₃pos; apply Z.lt_irrefl.
+
+          rewrite rng_add_0_l.
+          destruct (lt_dec i (Z.to_nat pb₃)) as [H₂| H₂].
+           unfold root_tail_series_from_cγ_list; simpl.
+           destruct i; [ exfalso; revert H₁; apply Nat.lt_irrefl | idtac ].
+           clear H₁.
+           rewrite <- Hpolb₃n, <- Hnsb₃₁.
+           destruct (ps_zerop R (ps_poly_nth 0 polb₂)) as [| H₁]; auto; simpl.
+           destruct (ps_zerop R (ps_poly_nth 0 polb₃)) as [| H₃]; auto.
+           clear H₁ H₃.
+           erewrite next_pow_eq_p; eauto .
+           rewrite <- Hpb₃.
+           remember (Nat.compare (Z.to_nat pb₃) (S i)) as cmp eqn:Hcmp .
+           symmetry in Hcmp.
+           destruct cmp; auto.
+            apply nat_compare_eq in Hcmp.
+            rewrite Hcmp in H₂.
+            exfalso; revert H₂; apply Nat.lt_irrefl.
+
+            apply nat_compare_lt in Hcmp.
+            eapply Nat.lt_trans in H₂; eauto .
+            exfalso; revert H₂; apply Nat.lt_irrefl.
+
+           apply Nat.nlt_ge in H₂.
+           remember (i - Z.to_nat pb₃)%nat as id.
+           unfold root_tail_series_from_cγ_list.
+           rewrite find_coeff_iter_succ with (r := r); auto.
+            symmetry.
 bbb.
-
-           constructor; simpl; intros i.
-           rename H₁ into Hpsb₃.
-           destruct (zerop i) as [H₁| H₁].
-            subst i; simpl.
-            destruct (lt_dec 0 (Z.to_nat pb₃)) as [H₁| H₁].
-             rewrite rng_add_0_r.
-             unfold root_tail_series_from_cγ_list; simpl.
-             destruct (ps_zerop R (ps_poly_nth 0 polb₂)) as [H₃| H₃].
-              contradiction.
-
-              clear H₃; symmetry.
-              erewrite nth_c_n; try eassumption .
-
-             contradiction.
-
-            rewrite rng_add_0_l.
-            destruct (lt_dec i (Z.to_nat pb₃)) as [H₂| H₂].
-             unfold root_tail_series_from_cγ_list; simpl.
-             rewrite <- Hcb₂, <- Hpolb₃, <- Hbns₂.
-             destruct i; [ fast_omega H₁ | clear H₁ ].
-             destruct (ps_zerop R (ps_poly_nth 0 polb₂)) as [| H₁]; auto.
-             simpl.
-             destruct (ps_zerop R (ps_poly_nth 0 polb₃)) as [| H₃]; auto.
-             unfold next_pow at 1; simpl.
-             rewrite Hinib₃, Hfinb₃; simpl.
-             rewrite Hαkb₃; simpl.
-             rewrite Qnum_inv_Qnat_sub; auto.
-             rewrite Qden_inv_Qnat_sub; auto.
-             rewrite Z.add_0_r, Z.mul_1_r, Nat.sub_0_r, Pos.mul_1_r.
-             rewrite Z.mul_shuffle0, Pos_mul_shuffle0.
-             rewrite Pos2Z.inj_mul.
-             rewrite Z.div_mul_cancel_r; auto.
-             erewrite αj_m_eq_p_r with (pol₁ := polb₃); try eassumption .
-             rewrite Pos2Z.inj_mul.
-             rewrite Z.mul_shuffle0, Zposnat2Znat; auto.
-             rewrite <- Zposnat2Znat; auto.
-             rewrite <- Z.mul_assoc, Z.div_mul; simpl; auto.
-             remember (Nat.compare (Z.to_nat pb₃) (S i)) as cmp₁.
-             rename Heqcmp₁ into Hcmp₁.
-             symmetry in Hcmp₁.
-             destruct cmp₁; auto.
-              apply nat_compare_eq in Hcmp₁.
-              rewrite Hcmp₁ in H₂.
-              exfalso; revert H₂; apply Nat.lt_irrefl.
-
-              apply nat_compare_lt in Hcmp₁.
-              exfalso; fast_omega H₂ Hcmp₁.
 
              apply Nat.nlt_ge in H₂.
              remember (i - Z.to_nat pb₃)%nat as id.
