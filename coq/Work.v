@@ -587,26 +587,29 @@ destruct z₁.
                    remember Hnsb₃i as H; clear HeqH.
                    eapply q_eq_1_r_non_decr in H; eauto .
                     rename H into Hqb₄.
-                    remember (ac_root (Φq polb₄ nsb₄)) as cb₄ eqn:Hdb₄ .
+                    remember (ac_root (Φq polb₄ nsb₄)) as cb₄ eqn:Hcb₄ .
                     remember
                      (root_multiplicity acf cb₄ (Φq polb₄ nsb₄)) as r₁
                      eqn:Hrb₄ .
                     symmetry in Hrb₄.
-                    pose proof (Hrle₂ (S b₁)) as H.
-                    simpl in H.
+                    Focus 1.
+                    pose proof (Hrle₂ 2%nat) as H.
+                    remember (S 0) as one; simpl in H.
                     erewrite <- nth_pol_n with (c := c₁) in H; eauto .
-                    rewrite <- Hpolb₃ in H.
-                    rewrite <- Hnsb₃₁ in H.
-                    rewrite Hb₁ in H.
-                    erewrite nth_r_succ2 in H; eauto .
-                    erewrite nth_r_n in H; eauto .
+                    rewrite <- Hpolb₃, <- Hnsb₃₁ in H.
+                    subst one; simpl in H.
+                    rewrite <- Hcb₃, <- Hpolb₄, <- Hnsb₄, <- Hcb₄ in H.
+                    rewrite Hrb₄ in H.
+                    rename H into Hrr.
+                    eapply find_coeff_more_iter with (r := r); eauto .
 bbb.
+  ============================
+   root_multiplicity acf cb₄ (Φq polb₄ nsb₄) = r
 
-                  remember Hinib₂ as H; clear HeqH.
-                  eapply p_is_pos with (m := m₁) in H; eauto .
-                  rewrite <- Hpb₂ in H.
-                  rename H into Hpb₂pos.
-bbb.
+subgoal 2 is:
+ ∀ j : nat, r ≤ nth_r j polb₄ nsb₄
+subgoal 3 is:
+ S (S id) ≤ S i
                   eapply find_coeff_more_iter with (r := r); eauto .
                    Focus 6.
                    subst x.
