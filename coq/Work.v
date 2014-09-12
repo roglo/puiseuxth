@@ -70,7 +70,6 @@ Theorem root_tail_when_r_r : ∀ pol ns pol₁ ns₁ c m q₀ b r,
          root_tail (m * q₀) (b + S n) pol₁ ns₁)%ps.
 Proof.
 intros pol ns pol₁ ns₁ c m q₀ b r Hns Hm Hq₀ Hc Hpol₁ Hns₁ H₀ n Hri Hnz.
-Admitted. (*
 bbb.
 remember (m * q₀)%positive as m₁.
 revert pol ns pol₁ ns₁ Hns Hm Hq₀ Hc Hpol₁ Hns₁ Hri Hnz.
@@ -222,9 +221,8 @@ destruct r.
         eapply List_hd_in; try eassumption .
         clear H.
         remember Hns as H; clear HeqH.
-        eapply next_has_root_0_or_newton_segments in H; try eassumption .
+        eapply next_has_root_0_or_newton_segments in H; eauto.
         simpl in H.
-bbb.
         rewrite <- Hc, <- Hpol₁ in H.
         destruct H; auto.
 
@@ -250,17 +248,17 @@ bbb.
         remember (ps_monom 1%K (γ_sum 0 i pol₁ ns₁)) as mo.
         exists (rh + mo * s₁)%ps; subst rh mo.
         rewrite apply_nth_pol; auto.
-        erewrite nth_pol_n; try eassumption .
+        erewrite nth_pol_n; try eassumption; eauto.
         erewrite <- nth_c_n; try eassumption .
         rewrite Hs₁, rng_mul_0_r; reflexivity.
 
         eapply List_hd_in.
          subst nssi; simpl.
-         eapply nth_ns_n; try eassumption .
+         eapply nth_ns_n; try eassumption; eauto.
           rewrite Hc; reflexivity.
 
           subst polsi; simpl.
-          eapply nth_pol_n; try eassumption .
+          eapply nth_pol_n; try eassumption; eauto.
           rewrite Hc; reflexivity.
 
          intros H; rewrite H in Hnsl; discriminate Hnsl.
@@ -270,13 +268,13 @@ bbb.
         rewrite Hpolsi; simpl.
         rewrite <- Hc, <- Hpol₁, <- Hns₁; auto.
 
-        try eassumption .
+        eauto.
 
-        erewrite nth_c_n; try eassumption .
+        erewrite nth_c_n; try eassumption; reflexivity.
 
         symmetry.
         apply nth_r_n; try eassumption .
-        erewrite nth_c_n; try eassumption .
+        erewrite nth_c_n; try eassumption; reflexivity.
 
   pose proof (exists_pol_ord R pol) as H.
   destruct H as (m, Hm).
