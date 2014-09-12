@@ -423,20 +423,22 @@ destruct z₁.
          simpl in Hy; rewrite <- Heqdd in Hy; subst y.
          remember (m₁ * (dd * dd))%positive as x.
          rewrite Pos.mul_comm in Heqx; subst x.
+         rewrite Pos2Z.inj_mul, Z.mul_assoc.
          apply mkps_morphism; auto.
+         unfold adjust_series; simpl.
+         rewrite series_shift_0.
+         do 2 rewrite series_stretch_const.
+         rewrite series_mul_1_l.
+         rewrite <- series_stretch_stretch.
+         rewrite <- Z.mul_assoc, <- Pos2Z.inj_mul.
+         rewrite Z2Nat.inj_mul; auto; [ simpl | apply Z.lt_le_incl; auto ].
+         rewrite <- stretch_shift_series_distr.
+         rewrite <- series_stretch_const with (k := (dd * dd)%positive).
+         rewrite <- series_stretch_add_distr.
+         apply stretch_morph; [ reflexivity | idtac ].
+         constructor; simpl; intros i.
 bbb.
 
-         apply mkps_morphism.
-(**)
-          rewrite <- series_stretch_const with (k := (dd * dd)%positive).
-          rewrite <- Z.mul_opp_l.
-          do 2 rewrite Z2Nat_inj_mul_pos_r.
-          do 2 rewrite <- stretch_shift_series_distr.
-          rewrite <- series_stretch_add_distr.
-          apply stretch_morph; [ reflexivity | idtac ].
-          rewrite Z2Nat_neg_eq_0.
-           rewrite series_shift_0.
-           unfold series_add; simpl.
            constructor; simpl; intros i.
            rename H₁ into Hpsb₃.
            destruct (zerop i) as [H₁| H₁].
