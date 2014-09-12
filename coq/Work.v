@@ -546,7 +546,6 @@ destruct z₁.
                 rewrite Hcmp₁, Nat.sub_diag in Heqid; subst id; reflexivity.
 
                 apply nat_compare_lt in Hcmp₁.
-                Focus 1.
                 destruct id.
                  symmetry in Heqid.
                  apply Nat.sub_gt in Heqid; try assumption.
@@ -577,6 +576,37 @@ destruct z₁.
                   eapply p_is_pos with (m := m₁) in H; eauto .
                   rewrite <- Hpb₂ in H.
                   rename H into Hpb₂pos.
+                  remember Hnsb₃i as H; clear HeqH.
+                  eapply next_ns_in_pol in H; eauto .
+                  rename H into Hnsb₄i.
+                  remember Hnsb₃i as H; clear HeqH.
+                  eapply nth_pol_in_K_1_m with (n := 1%nat) in H; eauto .
+                   simpl in H.
+                   rewrite <- Hcb₃, <- Hpolb₄ in H.
+                   rename H into HK₄.
+                   remember Hnsb₃i as H; clear HeqH.
+                   eapply q_eq_1_r_non_decr in H; eauto .
+                    rename H into Hqb₄.
+                    remember (ac_root (Φq polb₄ nsb₄)) as cb₄ eqn:Hdb₄ .
+                    remember
+                     (root_multiplicity acf cb₄ (Φq polb₄ nsb₄)) as r₁
+                     eqn:Hrb₄ .
+                    symmetry in Hrb₄.
+                    pose proof (Hrle₂ (S b₁)) as H.
+                    simpl in H.
+                    erewrite <- nth_pol_n with (c := c₁) in H; eauto .
+                    rewrite <- Hpolb₃ in H.
+                    rewrite <- Hnsb₃₁ in H.
+                    rewrite Hb₁ in H.
+                    erewrite nth_r_succ2 in H; eauto .
+                    erewrite nth_r_n in H; eauto .
+bbb.
+
+                  remember Hinib₂ as H; clear HeqH.
+                  eapply p_is_pos with (m := m₁) in H; eauto .
+                  rewrite <- Hpb₂ in H.
+                  rename H into Hpb₂pos.
+bbb.
                   eapply find_coeff_more_iter with (r := r); eauto .
                    Focus 6.
                    subst x.
@@ -586,6 +616,47 @@ destruct z₁.
 
                    Unfocus.
 bbb.
+  ============================
+   nsb₄ ∈ newton_segments polb₄
+
+subgoal 2 is:
+ pol_in_K_1_m polb₄ m₁
+subgoal 3 is:
+ q_of_m m₁ (γ nsb₄) = 1%positive
+subgoal 4 is:
+ root_multiplicity acf (ac_root (Φq polb₄ nsb₄)) (Φq polb₄ nsb₄) = r
+subgoal 5 is:
+ ∀ j : nat, r ≤ nth_r j polb₄ nsb₄
+subgoal 6 is:
+ (0 =
+  match match id with
+        | 0 => Eq
+        | S _ => Lt
+        end with
+  | Eq => ac_root (Φq polb₃ nsb₃)
+  | Lt =>
+      find_coeff sid
+        (next_pow 0
+           (List.hd phony_ns
+              (newton_segments
+                 (next_pol polb₃ (β nsb₃) (γ nsb₃) (ac_root (Φq polb₃ nsb₃)))))
+           m₁) m₁
+        (next_pol polb₃ (β nsb₃) (γ nsb₃) (ac_root (Φq polb₃ nsb₃)))
+        (List.hd phony_ns
+           (newton_segments
+              (next_pol polb₃ (β nsb₃) (γ nsb₃) (ac_root (Φq polb₃ nsb₃)))))
+        id
+  | Gt => 0
+  end)%K
+subgoal 7 is:
+ ∀ n : nat, r ≤ nth_r n polb₃ nsb₃
+subgoal 8 is:
+ ∀ i : nat, i ≤ 1 → (ps_poly_nth 0 (nth_pol i polb₂ nsb₂) ≠ 0)%ps
+subgoal 9 is:
+ ∀ i : nat, i ≤ b → (ps_poly_nth 0 (nth_pol i pol₂ ns₂) ≠ 0)%ps
+subgoal 10 is:
+ ∀ i : nat, i ≤ S b → nth_r i pol₁ ns₁ = r
+
                  remember (S id) as sid; simpl.
                  destruct (ps_zerop R (ps_poly_nth 0 polb₃)) as [| H₁]; auto.
                  clear H₁.
