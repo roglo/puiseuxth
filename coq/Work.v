@@ -129,22 +129,17 @@ destruct z₁.
    rename H into Hpsi₁; move Hpsi₁ before Hpsi.
    remember Hns as H; clear HeqH.
    eapply r_n_nth_ns with (poln := poln₁) in H; try eassumption .
+   destruct H as (αjn₁, (αkn₁, H)).
+   destruct H as (Hinin₁, (Hfinn₁, (Hαjn₁, Hαkn₁))).
+   remember Hnsn₁ as H; clear HeqH.
+   erewrite nth_ns_n with (c := c) in H; eauto.
+   erewrite <- nth_pol_n with (c := c) in H; try eassumption; eauto.
+   rewrite <- Hpoln₁ in H.
+   rename H into Hnsn₁h.
+   remember Hnsn₁h as H; clear HeqH.
+   eapply newton_segments_not_nil in H; try eassumption .
+   rename H into Hns₁nz.
 bbb.
-
- eapply r_n_nth_ns with (poln := poln₁) in H; try eassumption .
- destruct H as (αjn₁, (αkn₁, H)).
- destruct H as (Hinin₁, (Hfinn₁, (Hαjn₁, Hαkn₁))).
- remember Hnsn₁ as H; clear HeqH.
- erewrite nth_ns_n with (c := c) in H; try eassumption .
- erewrite <- nth_pol_n with (c := c) in H; try eassumption .
- rewrite <- Hpoln₁ in H.
- rename H into Hnsn₁h.
- remember Hnsn₁h as H; clear HeqH.
- eapply newton_segments_not_nil in H; try eassumption .
- rename H into Hns₁nz.
- remember Hnsn₁h as H; clear HeqH.
- apply List_hd_in in H; auto.
- rename H into Hnsn₁i.
  pose proof (Hri (S n)) as Hrn₁; simpl in Hrn₁.
  rewrite <- Hc, <- Hpol₁, <- Hns₁ in Hrn₁.
  erewrite nth_r_n in Hrn₁; try eassumption .
