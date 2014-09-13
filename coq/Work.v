@@ -472,7 +472,6 @@ destruct z₁.
             rename H into Hrlen₂.
             move Hrlen₂ before Hrlen₁.
             rewrite find_coeff_iter_succ with (r := r); auto.
-bbb.
 
          symmetry.
          remember (S (S si)) as ssi.
@@ -506,6 +505,7 @@ bbb.
 
              clear H₂.
              symmetry in Hrn₂.
+                rewrite <- Hcn₂ in Hrn₂.
              erewrite next_pow_eq_p; try eassumption .
              rewrite <- Hpn₂.
              apply Nat.sub_0_le in Hid.
@@ -539,6 +539,7 @@ bbb.
 
              clear H₂.
              symmetry in Hrn₂.
+                 rewrite <- Hcn₂ in Hrn₂.
              erewrite next_pow_eq_p; try eassumption .
              rewrite <- Hpn₂.
              remember (Nat.compare (Z.to_nat pn₂) si) as cmp₁ eqn:Hcmp₁ .
@@ -565,7 +566,7 @@ bbb.
 
                 rename H₂ into Hnzn₃; move Hnzn₃ before Hnsn₃h.
                 remember Hnsn₂i as H; clear HeqH.
-                eapply next_has_root_0_or_newton_segments in H; try eassumption .
+                eapply next_has_root_0_or_newton_segments in H; eauto.
                 simpl in H.
                 rewrite <- Hcn₂, <- Hpoln₃ in H.
                 destruct H as [| H]; [ contradiction | idtac ].
@@ -581,10 +582,15 @@ bbb.
                 erewrite <- nth_pol_n with (c := c₁) in HH; try eassumption .
                 erewrite <- nth_pol_succ2 with (c := c₁) in HH; try eassumption .
                 apply zerop_1st_n_const_coeff_more in H; auto; clear HH.
+bbb.
+subgoal 2 is:
+ (ps_poly_nth 0 (nth_pol (S (S n)) pol ns) ≠ 0)%ps
+
                 rewrite zerop_1st_n_const_coeff_false_iff in H.
                 clear Hpsi; rename H into Hpsi; move Hpsi before Hri.
                 remember Hns₁i as H; clear HeqH.
                 eapply nth_pol_in_K_1_m with (c := c₁) in H; try eassumption .
+bbb.
                 remember (S n) as sn in H; simpl in H.
                 rewrite <- Hc₁, <- Hpol₂, <- Hns₂ in H.
                 subst sn.
