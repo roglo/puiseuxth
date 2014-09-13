@@ -592,9 +592,41 @@ destruct z₁.
                 erewrite nth_pol_n with (c := c₁) in H; try eassumption .
                 rewrite <- Hpoln₃ in H.
                 rename H into HKn₃; move HKn₃ before Hns₃nz.
+                   assert (∀ i, i ≤ S (S (S n)) → nth_r i pol ns = r) as H.
+                    apply non_decr_imp_eq; auto.
+                     rewrite zerop_1st_n_const_coeff_succ2.
+                     rewrite zerop_1st_n_const_coeff_succ2.
+                     rewrite Hz.
+                     remember (S (S n)) as sn; simpl.
+                     rewrite <- Hc, <- Hpol₁, <- Hns₁.
+                     subst sn; remember (S n) as sn; simpl.
+                     rewrite <- Hc₁, <- Hpol₂, <- Hns₂.
+                     rewrite <- Hc, <- Hpol₁, <- Hns₁.
+                     subst sn; simpl.
+                     rewrite <- Hc₁, <- Hpol₂, <- Hns₂.
+                     remember (ps_poly_nth 0 (nth_pol n pol₂ ns₂)) as x.
+                     destruct (ps_zerop R x) as [H₂| ]; auto; subst x.
+                      pose proof (Hpsi₁ (S n) (Nat.le_refl (S n))) as H;
+                       simpl in H.
+                      rewrite <- Hc₁, <- Hpol₂, <- Hns₂ in H.
+                      contradiction.
+
+                      clear n0.
+                      simpl.
+                      erewrite <- nth_pol_succ2 with (ns := ns₂);
+                       try eassumption; try reflexivity.
+                      erewrite nth_pol_succ; try eassumption; try reflexivity.
+                      erewrite nth_c_n; try eassumption.
+                      rewrite <- Hcn₂, <- Hpoln₃.
+                      remember (ps_poly_nth 0 poln₃) as x.
+                      destruct (ps_zerop R x) as [H₂| H₂]; auto; subst x.
+                      contradiction.
+
+                     simpl; rewrite <- Hc; assumption.
+
+                    clear Hri; rename H into Hri.
                 remember Hns as H; clear HeqH.
-                eapply r_n_nth_ns in H; try eassumption .
-bbb.
+                eapply r_n_nth_ns in H; try eassumption; try reflexivity.
                 remember (S n) as sn in H; simpl in H.
                 rewrite <- Hc₁, <- Hpol₂, <- Hns₂ in H.
                 subst sn.
@@ -604,20 +636,26 @@ bbb.
                 destruct H as (Hinin₃, (Hfinn₃, (Hαjn₃, Hαkn₃))).
                 remember (ac_root (Φq poln₃ nsn₃)) as cn₃ eqn:Hcn₃ .
                 move Hcn₃ before HKn₃.
-                pose proof (Hri₁ (S (S n))) as H.
-                remember (S n) as sn in H; simpl in H.
-                rewrite <- Hc₁, <- Hpol₂, <- Hns₂ in H.
-                subst sn.
-                erewrite nth_r_n in H; try eassumption .
-                erewrite nth_c_n in H; try eassumption .
-                erewrite nth_ns_succ in H; try eassumption .
-                erewrite nth_pol_n with (c := c₁) in H; try eassumption .
-                rewrite <- Hpoln₃, <- Hnsn₃h, <- Hcn₃ in H.
-                rename H into Hrn₃.
-                move Hrn₃ before Hcn₃.
-                symmetry in Hrn₃.
-                remember Hnsn₃i as H; clear HeqH.
-                eapply q_eq_1_any_r in H; try eassumption .
+                    pose proof
+                     (Hri (S (S (S n))) (Nat.le_refl (S (S (S n))))) 
+                     as H.
+                    remember (S (S n)) as sn in H; simpl in H.
+                    rewrite <- Hc, <- Hpol₁, <- Hns₁ in H.
+                    subst sn; remember (S n) as sn in H; simpl in H.
+                    rewrite <- Hc₁, <- Hpol₂, <- Hns₂ in H.
+                    subst sn.
+                    erewrite nth_r_n in H; try eassumption; eauto .
+                    erewrite nth_c_n in H; try eassumption; eauto .
+                    erewrite nth_ns_succ in H; try eassumption; eauto .
+                    erewrite nth_pol_n with (c := c₁) in H; try eassumption.
+                    rewrite <- Hpoln₃, <- Hnsn₃h, <- Hcn₃ in H.
+                    rename H into Hrn₃.
+                    move Hrn₃ before Hcn₃.
+                    symmetry in Hrn₃.
+                    remember Hnsn₃i as H; clear HeqH.
+                    eapply q_eq_1_any_r in H; try eassumption; eauto .
+                    rename H into Hqn₃; move Hqn₃ before HKn₃.
+bbb.
                 rename H into Hqn₃; move Hqn₃ before HKn₃.
                 apply find_coeff_more_iter with (r := r); auto.
                  intros j.
