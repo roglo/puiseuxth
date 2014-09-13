@@ -455,13 +455,25 @@ destruct z₁.
        rename H into Hqn₂; move Hqn₂ before HKn₂.
           symmetry in Hrn₁.
           rewrite Hcn₁ in Hrn₁.
-          rewrite find_coeff_iter_succ with (r := r); auto.
-bbb.
-subgoal 2 is:
- ∀ n0 : nat, r ≤ nth_r n0 poln₁ nsn₁
+          assert (∀ j, r ≤ nth_r j poln₁ nsn₁) as H.
+           intros j.
+           rewrite Hpoln₁, Hnsn₁.
+           rewrite <- nth_r_add.
+           apply Hrle₁.
+
+           rename H into Hrlen₁.
+           move Hrlen₁ before Hrle₁.
+           rewrite find_coeff_iter_succ with (r := r); auto.
 
          symmetry.
-         rewrite find_coeff_iter_succ with (r := r); auto; symmetry.
+         rewrite find_coeff_iter_succ with (r := r); auto.
+bbb.
+subgoal 2 is:
+ root_multiplicity acf (ac_root (Φq poln₂ nsn₂)) (Φq poln₂ nsn₂) = r
+subgoal 3 is:
+ ∀ n0 : nat, r ≤ nth_r n0 poln₂ nsn₂
+
+         symmetry.
          remember (S (S si)) as ssi.
          remember (S id) as sid; simpl.
          rewrite <- Hcn₂.
