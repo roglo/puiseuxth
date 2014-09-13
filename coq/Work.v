@@ -70,7 +70,6 @@ Theorem root_tail_sep_1st_monom_any_r : ∀ pol ns pol₁ ns₁ c m q₀ n r,
        root_tail (m * q₀) (S n) pol₁ ns₁)%ps.
 Proof.
 intros pol ns pol₁ ns₁ c m q₀ n r Hns Hm Hq₀ Hc Hpol₁ Hns₁ Hpsi Hri Hrle H₀.
-bbb.
 remember (zerop_1st_n_const_coeff n pol₁ ns₁) as z₁ eqn:Hz₁ .
 symmetry in Hz₁.
 destruct z₁.
@@ -82,11 +81,11 @@ destruct z₁.
  remember (ac_root (Φq pol₁ ns₁)) as c₁ eqn:Hc₁ .
  move Hc₁ before Hns₁.
  move c₁ before c.
- pose proof (Hri 0%nat) as Hr₀; simpl in Hr₀.
- pose proof (Hri 1%nat) as Hr₁; simpl in Hr₁.
+  pose proof (Hri 0%nat Nat.le_0_1) as Hr₀; simpl in Hr₀.
+ pose proof (Hri 1%nat (Nat.le_refl 1)) as Hr₁; simpl in Hr₁.
  rewrite <- Hc in Hr₀.
  rewrite <- Hc, <- Hpol₁, <- Hns₁, <- Hc₁ in Hr₁.
- assert (0 < r)%nat as Hrpos by (eapply multiplicity_is_pos; try eassumption ).
+ assert (0 < r)%nat as Hrpos by (eapply multiplicity_is_pos; eauto).
  pose proof (Hpsi O (Nat.le_0_l n)) as H; simpl in H.
  rename H into Hnz₁.
  remember Hns₁ as H; clear HeqH.
@@ -107,6 +106,7 @@ destruct z₁.
  remember (nth_pol n pol₂ ns₂) as poln₂ eqn:Hpoln₂ .
  remember (nth_ns n pol₂ ns₂) as nsn₂ eqn:Hnsn₂ .
  remember Hns as H; clear HeqH.
+bbb.
  eapply r_n_nth_ns with (poln := poln₁) in H; try eassumption .
  destruct H as (αjn₁, (αkn₁, H)).
  destruct H as (Hinin₁, (Hfinn₁, (Hαjn₁, Hαkn₁))).
