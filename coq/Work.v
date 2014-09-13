@@ -317,9 +317,7 @@ destruct z₁.
       remember (Qden αjn₂ * Qden αkn₂ * Pos.of_nat r)%positive as dd₂
        eqn:Hdd₂ .
       rewrite Z.mul_add_distr_r.
-bbb.
 
-   rewrite Z.mul_add_distr_r.
    rewrite Pos.mul_comm, Pos2Z.inj_mul, Z.mul_assoc.
    remember (nd₁ * ' m₁ * ' dd₁)%Z as x.
    remember (nd₂ * ' m₁ / ' dd₂ * ' dd₁ * ' dd₁)%Z as y.
@@ -333,13 +331,15 @@ bbb.
     apply Z.mul_nonneg_nonneg; auto.
     apply Z.lt_le_incl; auto.
 
-    pose proof (Hpsi n (Nat.le_succ_diag_r n)) as H.
+    pose proof (Hpsi₁ n (Nat.le_succ_diag_r n)) as H.
     rewrite <- Hpoln₁ in H.
     rename H into Hnzn₁; move Hnzn₁ before Hnsn₁.
     remember Hnsn₂ as H; clear HeqH.
     erewrite nth_ns_n with (c := c₁) in H; try eassumption .
+(*
     erewrite <- nth_pol_n with (c := c₁) in H; try eassumption .
     rewrite <- Hpoln₂ in H.
+*)
     rename H into Hnsn₂h; move Hnsn₂h before Hαkn₂.
     remember Hnsn₂h as H; clear HeqH.
     eapply newton_segments_not_nil in H; try eassumption .
@@ -352,11 +352,14 @@ bbb.
     rename H into HKn₂; move HKn₂ before Hnsn₂i.
     remember (ac_root (Φq poln₂ nsn₂)) as cn₂ eqn:Hcn₂ .
     move Hcn₂ before Hnsn₂.
-    pose proof (Hri₁ (S n)) as H.
-    erewrite nth_r_n in H; try eassumption .
-    erewrite nth_c_n in H; try eassumption .
-    rewrite <- Hcn₂ in H.
-    rename H into Hrn₂; move Hrn₂ after Hcn₂.
+
+       pose proof (Hri (S (S n)) (Nat.le_refl (S (S n)))) as H.
+       erewrite nth_r_succ2 in H; eauto .
+       erewrite nth_r_n in H; try eassumption; eauto .
+       erewrite nth_c_n in H; try eassumption; eauto .
+       rewrite <- Hcn₂ in H.
+       rename H into Hrn₂; move Hrn₂ after Hcn₂.
+
     rewrite Z.min_l; auto.
     rewrite Z.min_r; auto.
     rewrite Z.sub_diag; simpl.
@@ -382,8 +385,8 @@ bbb.
      rewrite Z.mul_shuffle0, Pos_mul_shuffle0.
      rewrite Pos2Z.inj_mul.
      rewrite Z.div_mul_cancel_r; auto.
-     erewrite αj_m_eq_p_r with (pol₁ := poln₂); try eassumption .
-     rewrite <- Zposnat2Znat; try eassumption .
+        erewrite αj_m_eq_p_r; try eassumption; eauto .
+        rewrite <- Zposnat2Znat; try eassumption.
      rewrite Z.mul_shuffle0, <- Z.mul_assoc.
      rewrite <- Pos2Z.inj_mul.
      rewrite Z.div_mul; auto.
@@ -444,21 +447,31 @@ bbb.
        apply Nat.nlt_ge in H₁.
        symmetry in Hrn₁.
        remember Hnsn₁i as H; clear HeqH.
-       eapply q_eq_1_any_r in H; try eassumption .
+       eapply q_eq_1_any_r in H; try eassumption; eauto.
        rename H into Hqn₁; move Hqn₁ before HKn₁.
        symmetry in Hrn₂.
        remember Hnsn₂i as H; clear HeqH.
-       eapply q_eq_1_any_r in H; try eassumption .
+       eapply q_eq_1_any_r in H; try eassumption; eauto.
        rename H into Hqn₂; move Hqn₂ before HKn₂.
+(*
        assert (∀ j, nth_r j poln₁ nsn₁ = r) as Hrin₁.
-        intros j; rewrite Hpoln₁, Hnsn₁, <- nth_r_add; apply Hri₁.
+        intros j; rewrite Hpoln₁, Hnsn₁, <- nth_r_add.
+        apply Hri₁.
 
         assert (∀ j, nth_r j poln₂ nsn₂ = r) as Hrin₂.
          intros j; rewrite Hpoln₂₂, Hnsn₂₁, <- nth_r_add; apply Hri₁.
 
          move Hrin₁ before Hqn₁.
          move Hrin₂ before Hqn₂.
-         rewrite find_coeff_iter_succ with (r := r); auto; symmetry.
+*)
+         rewrite find_coeff_iter_succ with (r := r); auto.
+bbb.
+subgoal 2 is:
+ root_multiplicity acf (ac_root (Φq poln₁ nsn₁)) (Φq poln₁ nsn₁) = r
+subgoal 3 is:
+ ∀ n0 : nat, r ≤ nth_r n0 poln₁ nsn₁
+
+         symmetry.
          rewrite find_coeff_iter_succ with (r := r); auto; symmetry.
          remember (S (S si)) as ssi.
          remember (S id) as sid; simpl.
