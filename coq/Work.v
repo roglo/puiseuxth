@@ -453,22 +453,11 @@ destruct z₁.
        remember Hnsn₂i as H; clear HeqH.
        eapply q_eq_1_any_r in H; try eassumption; eauto.
        rename H into Hqn₂; move Hqn₂ before HKn₂.
-(*
-       assert (∀ j, nth_r j poln₁ nsn₁ = r) as Hrin₁.
-        intros j; rewrite Hpoln₁, Hnsn₁, <- nth_r_add.
-        apply Hri₁.
-
-        assert (∀ j, nth_r j poln₂ nsn₂ = r) as Hrin₂.
-         intros j; rewrite Hpoln₂₂, Hnsn₂₁, <- nth_r_add; apply Hri₁.
-
-         move Hrin₁ before Hqn₁.
-         move Hrin₂ before Hqn₂.
-*)
-         rewrite find_coeff_iter_succ with (r := r); auto.
+          symmetry in Hrn₁.
+          rewrite Hcn₁ in Hrn₁.
+          rewrite find_coeff_iter_succ with (r := r); auto.
 bbb.
 subgoal 2 is:
- root_multiplicity acf (ac_root (Φq poln₁ nsn₁)) (Φq poln₁ nsn₁) = r
-subgoal 3 is:
  ∀ n0 : nat, r ≤ nth_r n0 poln₁ nsn₁
 
          symmetry.
