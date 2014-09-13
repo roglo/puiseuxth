@@ -655,34 +655,40 @@ destruct z₁.
                     remember Hnsn₃i as H; clear HeqH.
                     eapply q_eq_1_any_r in H; try eassumption; eauto .
                     rename H into Hqn₃; move Hqn₃ before HKn₃.
-bbb.
-                rename H into Hqn₃; move Hqn₃ before HKn₃.
-                apply find_coeff_more_iter with (r := r); auto.
-                 intros j.
-                 pose proof (Hrin₂ (S j)) as H; simpl in H.
-                 rewrite <- Hcn₂, <- Hpoln₃, <- Hnsn₃h in H; auto.
+                    symmetry in Hrn₃.
+                    rewrite Hcn₃ in Hrn₃.
+                    eapply find_coeff_more_iter with (r := r); auto.
+                     intros j.
+                     remember (S (S (S n))) as sn.
+                     rewrite Hnsn₃h, Hpoln₃.
+                     rewrite Hcn₂.
+                     erewrite <- nth_c_succ; eauto .
+                     erewrite <- nth_pol_succ; eauto .
+                     erewrite <- nth_ns_succ; eauto .
+                     rewrite <- nth_r_add.
+                     apply Hrle₁.
 
-                 remember Hinin₂ as H; clear HeqH.
-                 eapply p_is_pos with (m := m₁) in H; try eassumption .
-                 rewrite <- Hpn₂ in H.
-                 apply Z2Nat.inj_lt in H; [ idtac | reflexivity | idtac ].
-                  simpl in H.
-                  rewrite <- Hid.
-                  destruct (Z.to_nat pn₂) as [| pn].
-                   exfalso; revert H; apply Nat.lt_irrefl.
+                     remember Hinin₂ as H; clear HeqH.
+                     eapply p_is_pos with (m := m₁) in H; try eassumption.
+                     rewrite <- Hpn₂ in H.
+                     apply Z2Nat.inj_lt in H; [ idtac | reflexivity | idtac ].
+                      simpl in H.
+                      rewrite <- Hid.
+                      destruct (Z.to_nat pn₂) as [| pn].
+                       exfalso; revert H; apply Nat.lt_irrefl.
 
-                   rewrite Nat.add_succ_r, Nat.add_succ_l.
-                   do 2 apply le_n_S.
-                   apply Nat.le_add_r.
+                       rewrite Nat.add_succ_r, Nat.add_succ_l.
+                       do 2 apply le_n_S.
+                       apply Nat.le_add_r.
 
-                  apply Z.lt_le_incl; auto.
+                      apply Z.lt_le_incl; auto.
 
-               intros H; discriminate H.
+                  intros H; discriminate H.
 
-              apply nat_compare_gt in Hcmp₁.
-              apply Nat.nle_gt in Hcmp₁; contradiction.
+                 apply nat_compare_gt in Hcmp₁.
+                 apply Nat.nle_gt in Hcmp₁; contradiction.
 
-     rewrite Pos2Z.inj_mul, Z.mul_assoc.
+        rewrite Pos2Z.inj_mul, Z.mul_assoc.
      apply Z.mul_cancel_r; auto.
      rewrite Z.mul_comm.
      rewrite <- Z.divide_div_mul_exact; auto.
@@ -693,13 +699,12 @@ bbb.
       rewrite Pos_mul_shuffle0, Z.mul_shuffle0.
       do 2 rewrite Pos2Z.inj_mul.
       apply Z.mul_divide_cancel_r; auto.
-      erewrite αj_m_eq_p_r with (ns₁ := nsn₁); try eassumption .
+      erewrite αj_m_eq_p_r with (ns₁ := nsn₁); try eassumption; eauto.
       rewrite <- Zposnat2Znat; try eassumption .
       rewrite Z.mul_shuffle0, <- Z.mul_assoc.
       rewrite <- Pos2Z.inj_mul.
       apply Z.divide_factor_r.
 Qed.
-*)
 
 Theorem root_tail_when_r_r : ∀ pol ns pol₁ ns₁ c m q₀ b r,
   ns ∈ newton_segments pol
