@@ -466,11 +466,10 @@ destruct z₁.
            rewrite find_coeff_iter_succ with (r := r); auto.
 
          symmetry.
+           rewrite Hcn₂ in Hrn₂.
          rewrite find_coeff_iter_succ with (r := r); auto.
 bbb.
 subgoal 2 is:
- root_multiplicity acf (ac_root (Φq poln₂ nsn₂)) (Φq poln₂ nsn₂) = r
-subgoal 3 is:
  ∀ n0 : nat, r ≤ nth_r n0 poln₂ nsn₂
 
          symmetry.
