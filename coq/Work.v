@@ -139,11 +139,18 @@ destruct z₁.
    remember Hnsn₁h as H; clear HeqH.
    eapply newton_segments_not_nil in H; try eassumption .
    rename H into Hns₁nz.
+   clear Hri; rename Hreq into Hri.
+   pose proof (Hri (S n) (Nat.le_refl (S n))) as Hrn₁; simpl in Hrn₁.
+   rewrite <- Hc, <- Hpol₁, <- Hns₁ in Hrn₁.
+   erewrite nth_r_n in Hrn₁; try eassumption; auto.
+   erewrite nth_c_n in Hrn₁; try eassumption.
+   rewrite <- Hcn₁ in Hrn₁.
+   remember Hns₁i as H; clear HeqH.
+   eapply nth_pol_in_K_1_m in H; try eassumption.
 bbb.
- pose proof (Hri (S n)) as Hrn₁; simpl in Hrn₁.
- rewrite <- Hc, <- Hpol₁, <- Hns₁ in Hrn₁.
- erewrite nth_r_n in Hrn₁; try eassumption .
- erewrite nth_c_n in Hrn₁; try eassumption .
+subgoal 2 is:
+ ∀ n0 : nat, r ≤ nth_r n0 pol₁ ns₁
+
  rewrite <- Hcn₁ in Hrn₁.
  assert (∀ i, nth_r i pol₁ ns₁ = r) as Hri₁.
   intros i.
