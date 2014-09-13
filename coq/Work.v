@@ -575,22 +575,17 @@ destruct z₁.
                 apply List_hd_in in H; auto.
                 rename H into Hnsn₃i.
                 move Hnsn₃i before Hnsn₃h.
-                remember Hpsi as H; clear HeqH.
+                remember Hpsi₁ as H; clear HeqH.
                 apply zerop_1st_n_const_coeff_false_iff in H.
                 remember Hnzn₃ as HH; clear HeqHH.
                 rewrite Hpoln₃ in HH.
                 erewrite <- nth_pol_n with (c := c₁) in HH; try eassumption .
                 erewrite <- nth_pol_succ2 with (c := c₁) in HH; try eassumption .
                 apply zerop_1st_n_const_coeff_more in H; auto; clear HH.
-bbb.
-subgoal 2 is:
- (ps_poly_nth 0 (nth_pol (S (S n)) pol ns) ≠ 0)%ps
-
                 rewrite zerop_1st_n_const_coeff_false_iff in H.
                 clear Hpsi; rename H into Hpsi; move Hpsi before Hri.
                 remember Hns₁i as H; clear HeqH.
-                eapply nth_pol_in_K_1_m with (c := c₁) in H; try eassumption .
-bbb.
+                eapply nth_pol_in_K_1_m with (c := c₁) in H; eauto.
                 remember (S n) as sn in H; simpl in H.
                 rewrite <- Hc₁, <- Hpol₂, <- Hns₂ in H.
                 subst sn.
@@ -599,6 +594,7 @@ bbb.
                 rename H into HKn₃; move HKn₃ before Hns₃nz.
                 remember Hns as H; clear HeqH.
                 eapply r_n_nth_ns in H; try eassumption .
+bbb.
                 remember (S n) as sn in H; simpl in H.
                 rewrite <- Hc₁, <- Hpol₂, <- Hns₂ in H.
                 subst sn.
