@@ -81,7 +81,7 @@ destruct z₁.
  remember (ac_root (Φq pol₁ ns₁)) as c₁ eqn:Hc₁ .
  move Hc₁ before Hns₁.
  move c₁ before c.
-  pose proof (Hri 0%nat Nat.le_0_1) as Hr₀; simpl in Hr₀.
+ pose proof (Hri 0%nat Nat.le_0_1) as Hr₀; simpl in Hr₀.
  pose proof (Hri 1%nat (Nat.le_refl 1)) as Hr₁; simpl in Hr₁.
  rewrite <- Hc in Hr₀.
  rewrite <- Hc, <- Hpol₁, <- Hns₁, <- Hc₁ in Hr₁.
@@ -106,7 +106,31 @@ destruct z₁.
  remember (nth_pol n pol₂ ns₂) as poln₂ eqn:Hpoln₂ .
  remember (nth_ns n pol₂ ns₂) as nsn₂ eqn:Hnsn₂ .
  remember Hns as H; clear HeqH.
+ eapply all_ns_in_newton_segments with (n := S n) in H; try eassumption; auto.
+  erewrite nth_ns_succ2 in H; eauto .
+  erewrite nth_pol_succ2 in H; eauto .
+  rewrite <- Hnsn₁, <- Hpoln₁ in H.
+  rename H into Hnsn₁i; move Hnsn₁i before Hnsn₁.
+  remember Hnsn₁i as H; clear HeqH.
+  eapply next_ns_r_non_decr with (r := r) in H; eauto .
 bbb.
+subgoal 2 is:
+ (ps_poly_nth 0 (next_pol poln₁ (β nsn₁) (γ nsn₁) cn₁) ≠ 0)%ps
+subgoal 3 is:
+ root_multiplicity acf cn₁ (Φq poln₁ nsn₁) = r
+subgoal 4 is:
+ r
+ ≤ root_multiplicity acf
+     (ac_root
+        (Φq (next_pol poln₁ (β nsn₁) (γ nsn₁) cn₁)
+           (List.hd phony_ns
+              (newton_segments (next_pol poln₁ (β nsn₁) (γ nsn₁) cn₁)))))
+     (Φq (next_pol poln₁ (β nsn₁) (γ nsn₁) cn₁)
+        (List.hd phony_ns
+           (newton_segments (next_pol poln₁ (β nsn₁) (γ nsn₁) cn₁)))) + 0
+subgoal 5 is:
+ zerop_1st_n_const_coeff (S n) pol ns = false
+
  eapply r_n_nth_ns with (poln := poln₁) in H; try eassumption .
  destruct H as (αjn₁, (αkn₁, H)).
  destruct H as (Hinin₁, (Hfinn₁, (Hαjn₁, Hαkn₁))).
