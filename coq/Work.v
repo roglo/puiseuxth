@@ -464,13 +464,15 @@ destruct z₁.
            rename H into Hrlen₁.
            move Hrlen₁ before Hrle₁.
            rewrite find_coeff_iter_succ with (r := r); auto.
-
-         symmetry.
+           symmetry.
            rewrite Hcn₂ in Hrn₂.
-         rewrite find_coeff_iter_succ with (r := r); auto.
+           assert (∀ j, r ≤ nth_r j poln₂ nsn₂) as H.
+            eapply all_r_le_next with (c := cn₁); eauto .
+
+            rename H into Hrlen₂.
+            move Hrlen₂ before Hrlen₁.
+            rewrite find_coeff_iter_succ with (r := r); auto.
 bbb.
-subgoal 2 is:
- ∀ n0 : nat, r ≤ nth_r n0 poln₂ nsn₂
 
          symmetry.
          remember (S (S si)) as ssi.
