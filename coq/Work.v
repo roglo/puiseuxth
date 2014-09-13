@@ -278,9 +278,25 @@ destruct z₁.
      apply zerop_1st_n_const_coeff_more in H; auto; clear HH.
      rewrite zerop_1st_n_const_coeff_false_iff in H.
      clear Hpsi₁; rename H into Hpsi₁; move Hpsi₁ after Hri.
-     remember Hns as H; clear HeqH.
-     eapply r_n_nth_ns with (poln := poln₂) (n := S n) (r := r) in H;
-      try eassumption.
+     assert (∀ i, i ≤ S (S n) → nth_r i pol ns = r) as H.
+      apply non_decr_imp_eq; auto.
+       rewrite zerop_1st_n_const_coeff_succ2.
+       rewrite Hz.
+       remember (S n) as sn; simpl.
+       rewrite <- Hc, <- Hpol₁, <- Hns₁.
+       subst sn; simpl.
+       rewrite <- Hc₁, <- Hpol₂, <- Hns₂.
+       remember (ps_poly_nth 0 (nth_pol n pol₂ ns₂)) as x.
+       destruct (ps_zerop R x) as [H₁| ]; auto; subst x.
+       pose proof (Hpsi₁ (S n) (Nat.le_refl (S n))) as H; simpl in H.
+       rewrite <- Hc₁, <- Hpol₂, <- Hns₂ in H.
+       contradiction.
+
+       simpl; rewrite <- Hc; assumption.
+
+      clear Hri; rename H into Hri.
+      remember Hns as H; clear HeqH.
+      eapply r_n_nth_ns with (poln := poln₂) (n := S n) in H; eauto .
       destruct H as (αjn₂, (αkn₂, H)).
       destruct H as (Hinin₂, (Hfinn₂, (Hαjn₂, Hαkn₂))).
       unfold ps_add, ps_mul; simpl.
