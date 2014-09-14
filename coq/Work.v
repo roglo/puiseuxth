@@ -652,6 +652,9 @@ destruct (ps_zerop _ (ps_poly_nth 0 pol)) as [Hz| Hnz].
   remember (next_pol pol (β ns) (γ ns) c) as pol₁ eqn:Hpol₁ .
   eapply f₁_has_root with (pol₁ := pol₁) in H; eauto .
   destruct H as (s₁, Hs₁).
-bbb.
+  exists (ps_monom c (γ ns) + ps_monom 1%K (γ ns) * s₁)%ps.
+  eapply f₁_root_f_root; eauto .
+  reflexivity.
+Qed.
 
 End theorems.
