@@ -571,11 +571,96 @@ destruct r.
      assumption.
 Qed.
 
+Theorem zzz : ∀ pol,
+  degree (ps_zerop R) pol ≥ 1
+  → newton_segments pol ≠ [].
+Proof.
+intros pol Hdeg.
+intros Hnsl.
+unfold newton_segments in Hnsl.
+unfold points_of_ps_polynom in Hnsl.
+unfold points_of_ps_lap in Hnsl.
+unfold points_of_ps_lap_gen in Hnsl.
+simpl in Hnsl.
+unfold degree in Hdeg.
+remember (al pol) as la eqn:Hla .
+symmetry in Hla.
+clear pol Hla.
+induction la as [| a].
+ simpl in Hdeg.
+ apply Nat.nlt_ge in Hdeg.
+ apply Hdeg, Nat.lt_0_1.
+
+ simpl in Hdeg, Hnsl.
+bbb.
+
 Theorem f_has_root : ∀ pol,
   degree (ps_zerop R) pol ≥ 1
   → ∃ s, (ps_pol_apply pol s = 0)%ps.
 Proof.
 intros pol Hdeg.
+bbb.
+
+unfold degree in Hdeg.
+remember (al pol) as la eqn:Hla .
+symmetry in Hla.
+destruct la as [| a].
+ simpl in Hdeg.
+ apply Nat.nlt_ge in Hdeg.
+ exfalso; apply Hdeg; apply Nat.lt_0_1.
+
+ simpl in Hdeg.
+ remember (degree_plus_1_of_list (ps_zerop R) la) as d eqn:Hd .
+ symmetry in Hd.
+ destruct d.
+  destruct (ps_zerop R a) as [H₁| H₁].
+   apply Nat.nlt_ge in Hdeg.
+   exfalso; apply Hdeg; apply Nat.lt_0_1.
+
+   apply Nat.nlt_ge in Hdeg.
+   exfalso; apply Hdeg; apply Nat.lt_0_1.
+
+  clear Hdeg.
+  remember (newton_segments pol) as nsl eqn:Hnsl .
+  symmetry in Hnsl.
+  destruct nsl as [| ns].
+   unfold newton_segments in Hnsl.
+   unfold points_of_ps_polynom in Hnsl.
+   rewrite Hla in Hnsl; simpl in Hnsl.
+   unfold points_of_ps_lap in Hnsl.
+   unfold points_of_ps_lap_gen in Hnsl.
+   simpl in Hnsl.
+   destruct la as [| b]; [ discriminate Hd | simpl in Hd ].
+   remember (degree_plus_1_of_list (ps_zerop R) la) as e eqn:He .
+   symmetry in He.
+   destruct e.
+    destruct (ps_zerop R b) as [H₁| H₁]; [ discriminate Hd | idtac ].
+    apply Nat.succ_inj in Hd; subst d.
+    remember (order a) as va eqn:Hva .
+    symmetry in Hva.
+    destruct va as [va| ].
+     simpl in Hnsl.
+     remember (order b) as vb eqn:Hvb .
+     symmetry in Hvb.
+     destruct vb as [vb| ].
+      unfold lower_convex_hull_points in Hnsl.
+      simpl in Hnsl.
+      discriminate Hnsl.
+
+      exfalso; apply H₁.
+      apply order_inf; assumption.
+
+     exists 0%ps.
+     unfold ps_pol_apply, apply_poly, apply_lap; simpl.
+     rewrite Hla; simpl.
+     rewrite rng_mul_0_r, rng_add_0_l.
+     apply order_inf; assumption.
+
+    remember (order a) as va eqn:Hva .
+    symmetry in Hva.
+    destruct va as [va| ].
+     clear d Hd.
+     unfold lower_convex_hull_points in Hnsl.
 bbb.
 
 End theorems.
