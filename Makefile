@@ -1,6 +1,8 @@
 # $Id: Makefile,v 1.1 2013-03-28 13:34:22 deraugla Exp $
 
 all: cpoly puiseux proof
+	@echo
+	@echo 'available command: puiseux'
 
 clean:
 	cd cpoly; $(MAKE) clean
@@ -12,9 +14,8 @@ cpoly:
 	cd cpoly; $(MAKE)
 
 puiseux: cpoly
+	cd ocaml; $(MAKE)
 	cp ocaml/puiseux .
-	@echo
-	@echo 'available command: puiseux'
 
 proof:
 	cd coq; $(MAKE)
