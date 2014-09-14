@@ -226,7 +226,7 @@ eapply IHi; try eassumption; eauto.
  rewrite <- Hc, <- Hpol₁, <- Hns₁ in Hin; auto.
 Qed.
 
-Theorem order_root_tail_nonneg_any_r : ∀ pol ns c pol₁ ns₁ m q₀ n r,
+Theorem order_root_tail_nonneg_any_r_aux : ∀ pol ns c pol₁ ns₁ m q₀ n r,
   ns ∈ newton_segments pol
   → pol_in_K_1_m pol m
   → q₀ = q_of_m m (γ ns)
@@ -346,6 +346,45 @@ induction n; intros.
    apply Hri in Hin; simpl in Hin.
    rewrite <- Hc, <- Hpol₁, <- Hns₁ in Hin.
    assumption.
+Qed.
+
+Theorem order_root_tail_nonneg_any_r : ∀ pol ns c pol₁ ns₁ m q₀ n r,
+  ns ∈ newton_segments pol
+  → pol_in_K_1_m pol m
+  → q₀ = q_of_m m (γ ns)
+  → c = ac_root (Φq pol ns)
+  → pol₁ = next_pol pol (β ns) (γ ns) c
+  → ns₁ = List.hd phony_ns (newton_segments pol₁)
+  → zerop_1st_n_const_coeff n pol ns = false
+  → root_multiplicity acf c (Φq pol ns) = r
+  → (∀ i, r ≤ nth_r i pol ns)
+  → (1 ≠ 0)%K
+  → (0 ≤ order (root_tail (m * q₀) n pol₁ ns₁))%Qbar.
+Proof.
+intros pol ns c pol₁ ns₁ m q₀ n r.
+intros Hns HK Hq₀ Hc Hpol₁ Hns₁ Hz Hr Hrle H₀.
+rewrite zerop_1st_n_const_coeff_false_iff in Hz.
+pose proof (Hz O (Nat.le_0_l n)) as H; simpl in H.
+rename H into Hnz; move Hnz before Hc.
+apply zerop_1st_n_const_coeff_false_iff in Hz.
+remember (zerop_1st_n_const_coeff n pol₁ ns₁) as z₁ eqn:Hz₁ .
+symmetry in Hz₁.
+destruct z₁.
+ unfold root_tail.
+ rewrite Hz₁.
+ rewrite order_0; constructor.
+
+ eapply order_root_tail_nonneg_any_r_aux with (r := r); try eassumption.
+  apply not_zero_1st_prop; auto; simpl.
+  rewrite <- Hc, <- Hpol₁, <- Hns₁; assumption.
+
+  apply non_decr_imp_eq; auto.
+   rewrite zerop_1st_n_const_coeff_succ; simpl.
+   rewrite <- Hc, <- Hpol₁, <- Hns₁; rewrite Hz₁.
+   remember (ps_poly_nth 0 pol) as x.
+   destruct (ps_zerop R x); [ contradiction | reflexivity ].
+
+   simpl; rewrite <- Hc; assumption.
 Qed.
 
 Theorem zzz : ∀ pol ns c pol₁,
@@ -681,15 +720,23 @@ destruct r.
            symmetry.
            apply nth_c_n; try eassumption.
 
+         rename H into Huofs.
+         rewrite Nat.add_0_l.
          eapply order_root_tail_nonneg_any_r; try eassumption.
-          intros i HiN.
-          rewrite zerop_1st_n_const_coeff_false_iff in Hz.
-          destruct i; auto.
-          destruct i; [ simpl; rewrite <- Hc, <- Hpol₁; auto | idtac ].
-          remember (S i) as si in |- *; simpl.
-          rewrite <- Hc, <- Hpol₁, <- Hns₁.
-          subst si.
-          do 2 apply le_S_n in HiN.
+          rewrite zerop_1st_n_const_coeff_succ; simpl.
+          rewrite <- Hc, <- Hpol₁, <- Hns₁, Hz.
+          remember (ps_poly_nth 0 pol) as x.
+          destruct (ps_zerop R x); [ contradiction | reflexivity ].
+
+          intros n.
+          pose proof (Hn n) as H.
+          apply Nat.nlt_ge in H.
+          erewrite nth_r_n; eauto .
+
+       rewrite zerop_1st_n_const_coeff_succ; simpl.
+       rewrite <- Hc, <- Hpol₁, <- Hns₁, Hz.
+       remember (ps_poly_nth 0 pol) as x.
+       destruct (ps_zerop R x); [ contradiction | reflexivity ].
 bbb.
           rename H into Huofs.
            intros i HiN.
