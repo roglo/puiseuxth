@@ -20,6 +20,12 @@ This creates the executable named "puiseux".
 Also building of a library function computing float complex roots of
 any polynomial. See in directory 'cpoly' for details.
 
+LIBRARY
+
+The directory 'cpoly' contains an ocaml translation of CPOLY.F, a
+well-known Fortran function that computes the float complex roots
+of any polynomial
+
 PROOF
 
 You need coq version 8.4. Do:
