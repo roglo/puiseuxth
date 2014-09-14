@@ -571,28 +571,57 @@ destruct r.
      assumption.
 Qed.
 
-Theorem zzz : ∀ pol,
+Theorem degree_pos_imp_has_ns : ∀ pol,
   degree (ps_zerop R) pol ≥ 1
+  → (ps_poly_nth 0 pol ≠ 0)%ps
   → newton_segments pol ≠ [].
 Proof.
-intros pol Hdeg.
-intros Hnsl.
-unfold newton_segments in Hnsl.
-unfold points_of_ps_polynom in Hnsl.
-unfold points_of_ps_lap in Hnsl.
-unfold points_of_ps_lap_gen in Hnsl.
-simpl in Hnsl.
+intros pol Hdeg Hnz.
 unfold degree in Hdeg.
+unfold ps_poly_nth in Hnz.
+unfold ps_lap_nth in Hnz.
+unfold newton_segments, points_of_ps_polynom.
+unfold points_of_ps_lap, points_of_ps_lap_gen; simpl.
+intros Hnsl.
 remember (al pol) as la eqn:Hla .
-symmetry in Hla.
 clear pol Hla.
-induction la as [| a].
- simpl in Hdeg.
- apply Nat.nlt_ge in Hdeg.
- apply Hdeg, Nat.lt_0_1.
+destruct la as [| a]; [ apply Hnz; reflexivity | idtac ].
+simpl in Hdeg, Hnz, Hnsl.
+remember (degree_plus_1_of_list (ps_zerop R) la) as d eqn:Hd .
+symmetry in Hd.
+destruct d.
+ destruct (ps_zerop R a) as [H₁| H₁].
+  apply Nat.nlt_ge in Hdeg; apply Hdeg, Nat.lt_0_1.
 
- simpl in Hdeg, Hnsl.
-bbb.
+  apply Nat.nlt_ge in Hdeg; apply Hdeg, Nat.lt_0_1.
+
+ clear Hdeg.
+ apply order_fin in Hnz.
+ remember (order a) as va eqn:Hva .
+ symmetry in Hva.
+ destruct va as [va| ]; [ clear Hnz | apply Hnz; reflexivity ].
+ remember 1%nat as pow in Hnsl; clear Heqpow.
+ revert a d va pow Hd Hva Hnsl.
+ induction la as [| b]; intros; [ discriminate Hd | idtac ].
+ simpl in Hd.
+ remember (degree_plus_1_of_list (ps_zerop R) la) as e eqn:He  in Hd.
+ symmetry in He.
+ destruct e.
+  destruct (ps_zerop R b) as [H₁| H₁]; [ discriminate Hd | idtac ].
+  clear d Hd.
+  simpl in Hnsl.
+  apply order_fin in H₁.
+  remember (order b) as vb eqn:Hvb .
+  symmetry in Hvb.
+  destruct vb as [vb| ]; [ discriminate Hnsl | apply H₁; reflexivity ].
+
+  clear d Hd.
+  simpl in Hnsl.
+  remember (order b) as vb eqn:Hvb .
+  symmetry in Hvb.
+  destruct vb as [vb| ]; [ discriminate Hnsl | idtac ].
+  eapply IHla; eauto .
+Qed.
 
 Theorem f_has_root : ∀ pol,
   degree (ps_zerop R) pol ≥ 1
