@@ -1,7 +1,7 @@
 OVERVIEW
 
-* Computation of roots of polynomials of Puiseux's series
 * Formal proof of Puiseux's theorem
+* Computation of roots of polynomials of Puiseux's series
 
 Everything can be done by typing at top:
        make
