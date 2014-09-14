@@ -1,12 +1,15 @@
 OVERVIEW
 
-Computation of roots of polynomials of Puiseux's series
-and formal proof of Puiseux's theorem.
+* Computation of roots of polynomials of Puiseux's series
+* Formal proof of Puiseux's theorem.
 
 Everything can be done by typing at top:
        make
 
+Faster compilation with option -j of make. E.g. "make -j4"
+
 Compilation and proof are independent. See directories ocaml and coq.
+Or see PROGRAM and PROOF below.
 
 PROGRAM
 

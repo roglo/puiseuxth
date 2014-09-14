@@ -20,11 +20,9 @@ all: opt
 
 out: q_def_expr.cmo $(TARGET)
 	cp puiseux.out puiseux
-	cp ugly.out ugly
 
 opt: q_def_expr.cmo $(TARGET:.out=.opt)
 	cp puiseux.opt puiseux
-	cp ugly.opt ugly
 
 top: ocaml_puiseux
 
