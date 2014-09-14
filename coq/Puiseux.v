@@ -1,4 +1,4 @@
-(* Work.v *)
+(* Puiseux.v *)
 
 Require Import Utf8 QArith NPeano Sorting.
 
