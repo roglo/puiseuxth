@@ -1,6 +1,6 @@
 # $Id: Makefile,v 1.22 2013-10-11 12:27:21 deraugla Exp $
 
-TARGET=puiseux.out ugly.out
+TARGET=puiseux.out
 FILES=pnums.cmo poly_lex.cmo poly_parse.cmo poly_print.cmo poly_fun.cmo version.cmo coq.cmo poly.cmo field.cmo series.cmo puiseux_series.cmo old_puiseux_series.cmo poly_tree.cmo roots.cmo convex_hull.cmo puiseux.cmo
 UFILES=pnums.cmo poly_print.cmo poly_lex.cmo poly_parse.cmo coq.cmo poly.cmo field.cmo series.cmo puiseux_series.cmo old_puiseux_series.cmo poly_tree.cmo ugly.cmo
 FILESFORDEP=`LC_ALL=C ls *.ml *.mli`

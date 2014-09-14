@@ -1,19 +1,30 @@
 OVERVIEW
 
-Computation of roots of polynomials of Puiseux's series.
+Computation of roots of polynomials of Puiseux's series
+and formal proof of Puiseux's theorem.
 
+Everything can be done by typing at top:
+       make
+
+Compilation and proof are independent. See directories ocaml and coq.
+
+PROGRAM
+
+You need ocaml, camlp5, library mfpr (dev) to compile. Do:
+        cd ocaml; make
+
+This creates the executable named "puiseux".
 Also building of a library function computing float complex roots of
 any polynomial. See in directory 'cpoly' for details.
 
-COMPILATION
+PROOF
 
-You need ocaml, camlp5 and library mfpr (dev) to compile. Do:
-        make
+You need coq version 8.4. Do:
+        cd coq; make
 
-This creates the executable named "puiseux".
+EXAMPLES OF THE PROGRAM
+
 Warning: your terminal must be utf-8.
-
-EXAMPLES
 
 -- Robert J. Walker, "Algebraic Curves"
 ./puiseux '(-x3+x4)-2x2y-xy2+2xy4+y5'
