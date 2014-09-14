@@ -571,4 +571,11 @@ destruct r.
      assumption.
 Qed.
 
+Theorem f_has_root : ∀ pol,
+  degree (ps_zerop R) pol ≥ 1
+  → ∃ s, (ps_pol_apply pol s = 0)%ps.
+Proof.
+intros pol Hdeg.
+bbb.
+
 End theorems.
