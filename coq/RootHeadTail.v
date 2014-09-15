@@ -175,6 +175,7 @@ Theorem fold_γ_sum : ∀ b n pol ns,
   Σ (i = 0, n), nth_γ (b + i) pol ns = γ_sum b n pol ns.
 Proof. reflexivity. Qed.
 
+(*
 (* to be moved in the good file *)
 Theorem ps_inv_monom : ∀ c pow,
   (c ≠ 0)%K
@@ -289,6 +290,7 @@ assert (g ≠ 0)%Z as Hgnz.
    apply Z.mul_nonneg_nonneg; auto.
    rewrite Hg1; apply Z.le_0_1.
 Qed.
+*)
 
 (* *)
 
@@ -322,6 +324,7 @@ destruct (ps_zerop R 1%ps) as [Hzo| Hnzo].
  apply ps_zero_monom_eq.
 Qed.
 
+(*
 Theorem minimise_slope_end_2nd_pt : ∀ pt₁ pt₂ pts ms,
   Sorted fst_lt [pt₁; pt₂ … pts]
   → snd pt₂ < snd pt₁
@@ -688,6 +691,7 @@ destruct oa as [oa| ].
  unfold ps_lap_nth.
  exists (S m); split; assumption.
 Qed.
+*)
 
 Theorem exists_ini_pt_nat_fst_seg : ∀ pol ns,
   ns = List.hd phony_ns (newton_segments pol)
@@ -721,6 +725,7 @@ destruct nsl as [| ns₁].
  rewrite Hnsl; left; reflexivity.
 Qed.
 
+(*
 Theorem multiplicity_1_remains : ∀ pol ns c₁ c₂ pol₁ ns₁ m,
   ns ∈ newton_segments pol
   → pol_in_K_1_m pol m
@@ -1182,6 +1187,7 @@ unfold Qeq in Hαk₁; simpl in Hαk₁.
 rewrite Z.mul_1_r in Hαj₁, Hαk₁.
 exists αj₁, αk₁; auto.
 Qed.
+*)
 
 Theorem List_hd_in : ∀ α (l : list α) d a,
   a = List.hd d l
@@ -1215,6 +1221,7 @@ destruct nsl as [| ns₁]; simpl in Hns.
  subst ns; left; reflexivity.
 Qed.
 
+(*
 Theorem q_eq_1 : ∀ pol ns pol₁ ns₁ c₁ m q₀,
   ns ∈ newton_segments pol
   → pol_in_K_1_m pol m
@@ -1432,6 +1439,7 @@ induction n; intros.
   assert (0 ≤ S n)%nat as H by apply Nat.le_0_l.
   apply Hpsi in H; assumption.
 Qed.
+*)
 
 (* *)
 
@@ -1471,6 +1479,7 @@ remember (S n) as sn; simpl; subst sn.
 apply IHn.
 Qed.
 
+(*
 Theorem exists_ini_pt_nat_n : ∀ pol ns n nsn,
   ns ∈ newton_segments pol
   → nsn = nth_ns n pol ns
@@ -1526,6 +1535,7 @@ destruct n.
   eapply IHn; [ idtac | eassumption ].
   reflexivity.
 Qed.
+*)
 
 Theorem Qnum_inv_Qnat_sub : ∀ j k,
   (j < k)%nat
@@ -1573,6 +1583,7 @@ rewrite Qden_inv.
   apply Nat.lt_le_incl; assumption.
 Qed.
 
+(*
 Theorem ps_lap_in_0th : ∀ la, (la ≠ [])%pslap → ps_lap_in (ps_lap_nth 0 la) la.
 Proof.
 intros la Hla.
@@ -1619,6 +1630,7 @@ inversion H; subst.
  rewrite Ha in Hini₁, Hfin₁.
  apply IHl with (pow := S pow); auto.
 Qed.
+*)
 
 Theorem num_m_den_is_pos : ∀ pol ns j αj m,
   ns ∈ newton_segments pol
@@ -1651,6 +1663,7 @@ assert (' Qden αj | Qnum αj * ' m)%Z as H.
   apply Z.lt_le_incl; assumption.
 Qed.
 
+(*
 Theorem points_of_nil_ps_lap : ∀ la,
   (la = [])%pslap
   → points_of_ps_lap la = [].
@@ -1676,6 +1689,7 @@ unfold next_pow; simpl.
 rewrite Nat.add_assoc, Nat.add_shuffle0.
 reflexivity.
 Qed.
+*)
 
 Theorem next_pow_add : ∀ p q ns m,
   next_pow (p + q) ns m = (next_pow p ns m + q)%nat.
@@ -1718,6 +1732,7 @@ destruct c₁.
   exfalso; omega.
 Qed.
 
+(*
 Theorem find_coeff_step : ∀ pol ns m c pol₁ ns₁ i di p dp np,
   ns ∈ newton_segments pol
   → pol_in_K_1_m pol m
@@ -1790,6 +1805,7 @@ induction i; intros.
 
   intros H; rewrite H in Hns₁; subst ns₁; discriminate Hfin₁.
 Qed.
+*)
 
 Theorem find_coeff_add : ∀ pol ns m mx p dp i,
   (find_coeff mx (p + dp) m pol ns (i + dp) =
@@ -1881,6 +1897,7 @@ split; intros H.
    apply Nat.succ_le_mono, H in Hin; assumption.
 Qed.
 
+(*
 Theorem root_tail_succ : ∀ pol ns m n c pol₁ ns₁,
   c = ac_root (Φq pol ns)
   → pol₁ = next_pol pol (β ns) (γ ns) c
@@ -1896,6 +1913,7 @@ destruct (ps_zerop R (ps_poly_nth 0 pol)) as [H₁| ]; [ simpl | reflexivity ].
 destruct Hnz as [Hnz| Hnz]; [ contradiction | idtac ].
 rewrite Hnz; reflexivity.
 Qed.
+*)
 
 Theorem nth_c_n : ∀ pol₁ ns₁ poln nsn n,
   poln = nth_pol n pol₁ ns₁
@@ -1985,6 +2003,7 @@ induction n; intros.
  eapply IHn; eauto .
 Qed.
 
+(*
 Theorem root_tail_nth : ∀ pol ns m a b,
   (∀ i, (i < b)%nat → (ps_poly_nth 0 (nth_pol i pol ns) ≠ 0)%ps)
   → (root_tail m (a + b) pol ns =
@@ -3587,6 +3606,7 @@ destruct z₁.
            rewrite <- Hc₁, <- Hpol₂, <- Hns₂.
            assumption.
 Qed.
+*)
 
 Theorem zerop_1st_n_const_coeff_true_if : ∀ pol ns b,
   zerop_1st_n_const_coeff b pol ns = true

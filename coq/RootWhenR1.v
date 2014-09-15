@@ -40,6 +40,7 @@ Variable R : ring α.
 Variable K : field R.
 Variable acf : algeb_closed_field K.
 
+(*
 Theorem root_tail_when_r_1 : ∀ pol ns pol₁ ns₁ c m q₀ b,
   ns ∈ newton_segments pol
   → pol_in_K_1_m pol m
@@ -217,6 +218,7 @@ eapply List_hd_in in H; eauto .
  clear H.
  intros H; rewrite H in Hns₁; subst ns₁; discriminate Hfin₁.
 Qed.
+*)
 
 Theorem eq_Qbar_eq : ∀ a b, a = b → (a = b)%Qbar.
 Proof. intros a b Hab; subst a; reflexivity. Qed.
@@ -428,6 +430,7 @@ induction n.
   apply Hi; reflexivity.
 Qed.
 
+(*
 Theorem series_0_ps_0 : ∀ p,
   (∀ i, ((ps_terms p) .[i] = 0)%K)
   → (p = 0)%ps.
@@ -519,6 +522,7 @@ induction n; intros.
 
    eapply multiplicity_1_remains; eauto .
 Qed.
+*)
 
 Theorem order_pol_apply_nonneg : ∀ pol y,
   (∀ a, a ∈ al pol → (0 ≤ order a)%Qbar)
@@ -710,6 +714,7 @@ destruct n.
   rewrite rng_mul_0_r; reflexivity.
 Qed.
 
+(*
 Theorem root_after_r_eq_1 : ∀ pol ns pol₁ c,
   ns ∈ newton_segments pol
   → c = ac_root (Φq pol ns)
@@ -896,6 +901,7 @@ destruct z.
  simpl; rewrite <- Hpol₁, Hs₁.
  rewrite rng_mul_0_r; reflexivity.
 Qed.
+*)
 
 Theorem no_newton_segments : ∀ pol,
   (ps_poly_nth 0 pol ≠ 0)%ps
@@ -1177,6 +1183,7 @@ destruct Hr as [Hr| Hr].
    rewrite Hopts; left; reflexivity.
 Qed.
 
+(*
 Theorem root_when_r_eq_1 : ∀ pol ns,
   ns ∈ newton_segments pol
   → (∃ n, ∀ poln nsn cn,
@@ -1286,5 +1293,6 @@ induction n; intros.
 
        apply Nat.lt_0_succ.
 Qed.
+*)
 
 End theorems.
