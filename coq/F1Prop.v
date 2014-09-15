@@ -37,14 +37,6 @@ Theorem eq_poly_lap_add : ∀ α (R : ring α) la lb,
   (POL la + POL lb = POL (la + lb)%lap)%pol.
 Proof. reflexivity. Qed.
 
-Theorem eq_poly_lap_mul : ∀ α (R : ring α) la lb,
-  (POL la * POL lb = POL (la * lb)%lap)%pol.
-Proof. reflexivity. Qed.
-
-Theorem eq_poly_lap_pow : ∀ α (R : ring α) la n,
-  (POL la ^ n = POL (la ^ n)%lap)%pol.
-Proof. reflexivity. Qed.
-
 Theorem ps_poly_lap_summ : ∀ f g l,
   (∀ i, (f i = POL (g i))%pspol)
   → (ps_pol_summ l f = POL (ps_lap_summ l g))%pspol.
