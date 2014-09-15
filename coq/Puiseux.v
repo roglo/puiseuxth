@@ -623,14 +623,11 @@ destruct d.
   eapply IHla; eauto .
 Qed.
 
-End theorems.
-
-Theorem puiseux_series_algeb_closed :
-  ∀ (α : Type) (R : ring α) (K : field R) (acf : algeb_closed_field K) pol,
+Theorem puiseux_series_algeb_closed : ∀ (pol : polynomial (puiseux_series α)),
   degree (ps_zerop R) pol ≥ 1
   → ∃ s, (ps_pol_apply pol s = 0)%ps.
 Proof.
-intros α R K acf pol Hdeg.
+intros pol Hdeg.
 destruct (ps_zerop _ (ps_poly_nth 0 pol)) as [Hz| Hnz].
  exists 0%ps.
  unfold ps_pol_apply, apply_poly, apply_lap; simpl.
@@ -659,3 +656,5 @@ destruct (ps_zerop _ (ps_poly_nth 0 pol)) as [Hz| Hnz].
   eapply f₁_root_f_root; eauto .
   reflexivity.
 Qed.
+
+End theorems.
