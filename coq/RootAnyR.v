@@ -2652,7 +2652,7 @@ eapply next_ns_r_non_decr with (r := r) (r₁ := r₁) in H; eauto .
  rewrite <- Hr₁; apply Hri.
 Qed.
 
-Lemma zerop_1st_n_const_coeff_false_succ : ∀ pol ns n,
+Theorem zerop_1st_n_const_coeff_false_succ : ∀ pol ns n,
   (ps_poly_nth 0 pol ≠ 0)%ps
   → zerop_1st_n_const_coeff n (nth_pol 1 pol ns) (nth_ns 1 pol ns) = false
   ↔ zerop_1st_n_const_coeff (S n) pol ns = false.
