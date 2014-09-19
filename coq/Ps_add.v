@@ -287,26 +287,6 @@ constructor.
 rewrite eq_strong_ps_add_comm; reflexivity.
 Qed.
 
-(* Experimentation for commutativity of addition for ps_add₂,
-   (in order to replace one day ps_add by ps_add₂):
-   provable but a bit more complicate than ps_add version;
-   supposes to prove ps_ordnum_add_comm, ps_polord_add_comm and
-   ps_terms_add_comm; this could be a good thing, however, because
-   has something pretty
-Theorem eq_strong_ps_add₂_comm : ∀ ps₁ ps₂, (ps₁ ₊ ps₂)%ps ≐ (ps₂ ₊ ps₁)%ps.
-Proof.
-intros ps₁ ps₂.
-constructor; simpl.
-bbb.
-
-Theorem ps_add₂_comm : ∀ ps₁ ps₂, (ps₁ ₊ ps₂ = ps₂ ₊ ps₁)%ps.
-Proof.
-intros ps₁ ps₂.
-constructor.
-rewrite eq_strong_ps_add₂_comm; reflexivity.
-Qed.
-*)
-
 Theorem series_shift_add_distr : ∀ s₁ s₂ n,
   (series_shift n (s₁ + s₂) =
    series_shift n s₁ + series_shift n s₂)%ser.
