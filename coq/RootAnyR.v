@@ -938,7 +938,6 @@ rewrite Z.mul_1_r in Hαj₁, Hαk₁.
 exists αj₁, αk₁; auto.
 Qed.
 
-(* more general than r_1_nth_ns which could be simplified perhaps *)
 Theorem r_n_nth_ns : ∀ pol ns c pol₁ ns₁ c₁ m r,
   ns ∈ newton_segments pol
   → pol_in_K_1_m pol m
@@ -1135,54 +1134,6 @@ induction n; intros.
         assumption.
 
    eapply List_hd_in; eauto .
-Qed.
-
-(* don't know if it is useful *)
-Theorem q_divides_r : ∀ pol ns c pol₁ ns₁ c₁ m q₀ r q,
-  ns ∈ newton_segments pol
-  → pol_in_K_1_m pol m
-  → pol_in_K_1_m pol₁ (m * q₀)
-  → c = ac_root (Φq pol ns)
-  → pol₁ = next_pol pol (β ns) (γ ns) c
-  → ns₁ = List.hd phony_ns (newton_segments pol₁)
-  → c₁ = ac_root (Φq pol₁ ns₁)
-  → (ps_poly_nth 0 pol₁ ≠ 0)%ps
-  → root_multiplicity acf c (Φq pol ns) = r
-  → root_multiplicity acf c₁ (Φq pol₁ ns₁) = r
-  → q = Pos.to_nat (q_of_m (m * q₀) (γ ns₁))
-  → (q | r)%nat.
-Proof.
-intros pol ns c pol₁ ns₁ c₁ m q₀ r q.
-intros Hns Hm Hq₀ Hc Hpol₁ Hns₁ Hc₁ Hps₀ Hr Hr₁ Hq.
-remember Hns₁ as Hini₁; clear HeqHini₁.
-apply exists_ini_pt_nat_fst_seg in Hini₁.
-destruct Hini₁ as (j₁, (αj₁, Hini₁)).
-remember Hns₁ as Hfin₁; clear HeqHfin₁.
-apply exists_fin_pt_nat_fst_seg in Hfin₁.
-destruct Hfin₁ as (k₁, (αk₁, Hfin₁)).
-remember Hns as H; clear HeqH.
-eapply r_n_j_0_k_n in H; try eassumption.
-destruct H as (Hj₁, (Hk₁, (Hαj₁, Hαk₁))).
-subst j₁ k₁; simpl.
-unfold Qlt in Hαj₁; simpl in Hαj₁.
-unfold Qeq in Hαk₁; simpl in Hαk₁.
-rewrite Z.mul_1_r in Hαj₁, Hαk₁.
-eapply List_hd_in in Hns₁.
- Focus 2.
- intros H; rewrite H in Hns₁; subst ns₁; simpl in Hfin₁.
- injection Hfin₁; clear Hfin₁; intros H₁ H₂.
- rewrite <- Nat2Z.inj_0 in H₂.
- apply Nat2Z.inj in H₂.
- move H₂ at top; subst r.
- revert Hr.
- apply multiplicity_neq_0; auto.
-
- remember Hns₁ as Hqhj; clear HeqHqhj.
- eapply q_is_factor_of_h_minus_j in Hqhj; eauto .
-  2: apply List.in_or_app; right; left; symmetry; eauto .
-
-  rewrite Nat.sub_0_r in Hqhj.
-  assumption.
 Qed.
 
 Theorem List_seq_split_first : ∀ len start,
@@ -1674,7 +1625,6 @@ symmetry in Hq.
 eapply next_pol_in_K_1_mq with (ns := ns); eassumption.
 Qed.
 
-(* cf first_n_pol_in_K_1_m *)
 Theorem first_n_pol_in_K_1_m_any_r : ∀ pol ns poln m c r,
   ns ∈ newton_segments pol
   → pol_in_K_1_m pol m
@@ -1930,7 +1880,6 @@ destruct (ps_zerop _ (ps_poly_nth 0 pol₁)) as [H₂| H₂].
   rewrite <- Hc, <- Hpol₁; assumption.
 Qed.
 
-(* cf root_tail_split_1st *)
 Theorem root_tail_split_1st_any_r : ∀ pol ns c pol₁ ns₁ c₁ m q₀ r,
   ns ∈ newton_segments pol
   → pol_in_K_1_m pol m
@@ -2326,7 +2275,6 @@ destruct (ps_zerop R (ps_poly_nth 0 pol)); auto.
 contradiction.
 Qed.
 
-(* cf nth_in_newton_segments *)
 Theorem nth_in_newton_segments_any_r : ∀ pol₁ ns₁ c₁ poln nsn n,
   ns₁ ∈ newton_segments pol₁
   → c₁ = ac_root (Φq pol₁ ns₁)
@@ -2533,7 +2481,6 @@ split; intros H.
  contradiction.
 Qed.
 
-(* cf root_tail_from_0 *)
 Theorem root_tail_from_0_const_r : ∀ pol ns c pol₁ ns₁ c₁ m q₀ b r,
   ns ∈ newton_segments pol
   → pol_in_K_1_m pol m
