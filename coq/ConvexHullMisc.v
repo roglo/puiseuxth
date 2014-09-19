@@ -213,43 +213,6 @@ rewrite minimised_slope_beg_pt in Hnp.
 injection Hnp; intros; subst pt₂; reflexivity.
 Qed.
 
-Theorem minimise_slope_rem_length : ∀ pt₁ pt₂ pts ms n,
-  (length pts < n)%nat
-  → ms = minimise_slope pt₁ pt₂ pts
-  → (length (rem_pts ms) < n)%nat.
-Proof.
-intros pt₁ pt₂ pts ms n Hlen Hms.
-revert pt₁ pt₂ n ms Hlen Hms.
-induction pts as [| pt]; intros.
- subst ms; assumption.
-
- simpl in Hms.
- remember (minimise_slope pt₁ pt pts) as ms₁ eqn:Hms₁ .
- remember (slope_expr pt₁ pt₂ ?= slope ms₁) as c eqn:Hc .
- symmetry in Hc.
- rewrite slope_slope_expr in Hc; [ idtac | symmetry; eassumption ].
- subst ms.
- destruct c; simpl.
-  eapply IHpts; try eassumption.
-  apply lt_S_n, lt_S; assumption.
-
-  assumption.
-
-  eapply IHpts; try eassumption.
-  apply lt_S_n, lt_S; assumption.
-Qed.
-
-Theorem minimise_slope_length : ∀ pt₁ pt₂ pts ms n,
-  length [pt₁; pt₂ … pts] ≤ S n
-  → ms = minimise_slope pt₁ pt₂ pts
-  → length [end_pt ms … rem_pts ms] ≤ n.
-Proof.
-intros pt₁ pt₂ pts ms n Hlen Hms.
-simpl in Hlen; simpl.
-apply le_S_n in Hlen.
-eapply minimise_slope_rem_length; eassumption.
-Qed.
-
 Theorem minimise_slope_sorted : ∀ pt₁ pt₂ pts ms,
   Sorted fst_lt [pt₁; pt₂ … pts]
   → minimise_slope pt₁ pt₂ pts = ms
@@ -373,55 +336,6 @@ induction hsl₁ as [| hs₁]; intros.
 
    eapply minimise_slope_sorted; try eassumption.
    reflexivity.
-Qed.
-
-Theorem next_points_sorted : ∀ n pts hsl,
-  Sorted fst_lt pts
-  → next_ch_points n pts = hsl
-    → Sorted hs_x_lt hsl.
-Proof.
-intros n pts hsl Hsort Hnp.
-revert pts hsl Hsort Hnp.
-induction n; intros; [ subst hsl; constructor | idtac ].
-simpl in Hnp.
-destruct pts as [| pt₁]; [ subst hsl; constructor | idtac ].
-apply Sorted_LocallySorted_iff.
-destruct pts as [| pt₂]; [ subst hsl; constructor | idtac ].
-remember (minimise_slope pt₁ pt₂ pts) as ms₂.
-remember (next_ch_points n [end_pt ms₂ … rem_pts ms₂]) as hsl₁.
-subst hsl.
-symmetry in Heqhsl₁.
-remember Heqhsl₁ as Hch; clear HeqHch.
-apply IHn in Heqhsl₁.
- destruct hsl₁ as [| (pt₃, sg)]; [ constructor | idtac ].
- constructor.
-  apply Sorted_LocallySorted_iff; assumption.
-
-  unfold hs_x_lt; simpl.
-  symmetry in Heqms₂.
-  remember Heqms₂ as Hms; clear HeqHms.
-  apply minimise_slope_le in Heqms₂.
-   eapply Qlt_le_trans.
-    rewrite <- Hms, minimised_slope_beg_pt.
-    apply Sorted_inv_2 in Hsort; destruct Hsort; eassumption.
-
-    eapply Qle_trans; [ eassumption | idtac ].
-    apply next_ch_points_hd in Hch.
-    rewrite Hch; apply Qle_refl.
-
-   apply Sorted_inv_2 in Hsort; destruct Hsort; assumption.
-
- symmetry in Heqms₂.
- eapply minimise_slope_sorted; eassumption.
-Qed.
-
-Theorem lower_convex_hull_points_sorted : ∀ pts hsl,
-  Sorted fst_lt pts
-  → lower_convex_hull_points pts = hsl
-    → Sorted hs_x_lt hsl.
-Proof.
-intros pts hsl Hsort Hch.
-eapply next_points_sorted; eassumption.
 Qed.
 
 Theorem minimised_slope : ∀ pt₁ pt₂ pt pts ms,

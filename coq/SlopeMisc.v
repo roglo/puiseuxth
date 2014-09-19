@@ -166,14 +166,6 @@ setoid_replace (y₃ * x₂ + y₂ * x₁ + y₁ * x₃) with
 reflexivity.
 Qed.
 
-Theorem slope_cmp_norm₂₃₁₂ : ∀ x₁ y₁ x₂ y₂ x₃ y₃,
-  x₁ < x₂ < x₃
- → (slope_expr (x₂, y₂) (x₃, y₃) ?= slope_expr (x₁, y₁) (x₂, y₂)) =
-   (x₁ * y₂ + x₂ * y₃ + x₃ * y₁ ?= x₁ * y₃ + x₂ * y₁ + x₃ * y₂).
-Proof.
-intros; apply Qcmp_sym, slope_cmp_norm₁₂₂₃; assumption.
-Qed.
-
 Theorem slope_cmp_norm₁₃₂₃ : ∀ x₁ y₁ x₂ y₂ x₃ y₃,
   x₁ < x₂ < x₃
   → (slope_expr (x₁, y₁) (x₃, y₃) ?= slope_expr (x₂, y₂) (x₃, y₃)) =
@@ -292,15 +284,7 @@ rewrite slope_cmp_norm₁₂₁₃; [ idtac | split; assumption ].
 rewrite slope_cmp_norm₁₂₂₃; [ idtac | split; assumption ].
 reflexivity.
 Qed.
-Theorem slope_lt_1213_1223 : ∀ pt₁ pt₂ pt₃,
-  fst pt₁ < fst pt₂ < fst pt₃
-  → slope_expr pt₁ pt₂ < slope_expr pt₁ pt₃
-    → slope_expr pt₁ pt₂ < slope_expr pt₂ pt₃.
-Proof.
-intros (x₁, y₁) (x₂, y₂) (x₃, y₃) Hlt H.
-rewrite Qlt_alt in H |- *; rewrite <- H.
-symmetry; apply slope_cmp₄; assumption.
-Qed.
+
 Theorem slope_lt_1223_1213 : ∀ pt₁ pt₂ pt₃,
   fst pt₁ < fst pt₂ < fst pt₃
   → slope_expr pt₁ pt₂ < slope_expr pt₂ pt₃

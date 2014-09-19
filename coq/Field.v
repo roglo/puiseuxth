@@ -181,13 +181,6 @@ simpl; etransitivity; [ symmetry; apply rng_add_0_l | idtac ].
 apply rng_add_opp_r.
 Qed.
 
-Theorem rng_sub_0_r : ∀ a, (a - 0 = a)%K.
-Proof.
-intros a; simpl.
-rewrite rng_opp_0.
-apply rng_add_0_r.
-Qed.
-
 Theorem rng_add_reg_r : ∀ a b c, (a + c = b + c)%K → (a = b)%K.
 Proof.
 intros a b c Habc; simpl in Habc; simpl.
@@ -205,22 +198,6 @@ apply rng_add_reg_r with (c := c).
 rewrite rng_add_comm; symmetry.
 rewrite rng_add_comm; symmetry.
 assumption.
-Qed.
-
-Theorem rng_add_sub : ∀ a b, (a + b - b = a)%K.
-Proof.
-intros a b; simpl.
-rewrite <- rng_add_assoc.
-rewrite rng_add_opp_r, rng_add_0_r.
-reflexivity.
-Qed.
-
-Theorem rng_add_id_uniq : ∀ a b, (a + b = a)%K → (b = 0)%K.
-Proof.
-intros a b Hab; simpl in Hab; simpl.
-rewrite rng_add_comm in Hab.
-apply rng_add_reg_r with (c := a).
-rewrite rng_add_0_l; assumption.
 Qed.
 
 Theorem rng_mul_0_l : ∀ a, (0 * a = 0)%K.
@@ -285,15 +262,6 @@ rewrite rng_add_opp_l, rng_mul_0_l.
 symmetry.
 apply rng_add_move_0_r.
 rewrite rng_mul_1_l; reflexivity.
-Qed.
-
-Theorem rng_opp_add_distr : ∀ a b, (- (a + b) = - a - b)%K.
-Proof.
-intros a b.
-rewrite <- rng_mul_opp_1_l.
-rewrite rng_mul_add_distr_l.
-do 2 rewrite rng_mul_opp_1_l.
-reflexivity.
 Qed.
 
 Theorem rng_opp_inj_wd : ∀ a b, (- a = - b)%K ↔ (a = b)%K.
@@ -397,32 +365,6 @@ Proof.
 intros n m Hnm Hm; simpl in Hnm, Hm; simpl.
 rewrite <- rng_mul_0_r in Hnm.
 apply fld_mul_reg_l in Hnm; assumption.
-Qed.
-
-(* AFAIK cannot be do with 'Add Parametric Morphim: (inv fld)
-   because there is a condition 'a ≠ 0'; question: is is possible
-   to do a conditional morphism? *)
-Theorem fld_inv_compat : ∀ a b,
-  (a ≠ 0)%K
-  → (a = b)%K
-    → (¹/ a = ¹/ b)%K.
-Proof.
-intros a b Ha Heq.
-remember Heq as Hab; clear HeqHab.
-apply rng_mul_compat_l with (c := ¹/ b%K) in Heq.
-rewrite fld_mul_inv_l in Heq.
- apply rng_mul_compat_r with (c := ¹/ a%K) in Heq.
- rewrite rng_mul_1_l in Heq.
- rewrite <- rng_mul_assoc in Heq.
- rewrite fld_mul_inv_r in Heq; [ idtac | assumption ].
- rewrite rng_mul_1_r in Heq.
- symmetry; assumption.
-
- intros H.
- rewrite H in Heq at 3.
- rewrite rng_mul_0_r in Heq.
- rewrite H in Hab.
- contradiction.
 Qed.
 
 End field_theorems.

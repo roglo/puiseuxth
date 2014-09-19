@@ -8,9 +8,6 @@ Require Import Field.
 Theorem Qplus_opp_l : ∀ a, -a + a == 0.
 Proof. intros a; rewrite Qplus_comm; apply Qplus_opp_r. Qed.
 
-Theorem Qmul_inv_l : ∀ a, ¬a == 0 → /a * a == 1.
-Proof. intros a; rewrite Qmult_comm; apply Qmult_inv_r; assumption. Qed.
-
 Theorem Qplus_compat_l : ∀ a b c, a == b → c + a == c + b.
 Proof. intros a b c H; apply Qplus_inj_l; assumption. Qed.
 

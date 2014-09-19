@@ -175,19 +175,7 @@ induction la as [| a]; [ reflexivity | simpl ].
 constructor; [ apply Hgh | assumption ].
 Qed.
 
-Theorem rng_mul_nat_assoc : ∀ α (r : ring α) a m n,
-  (rng_mul_nat r m (rng_mul_nat r n a) = rng_mul_nat r (m * n) a)%K.
-Proof.
-intros α r a m n.
-revert a n.
-induction m; intros; [ reflexivity | simpl ].
-rewrite IHm; symmetry.
-rewrite Nat.mul_comm; simpl.
-rewrite rng_mul_nat_add_distr_r.
-rewrite rng_add_comm, Nat.mul_comm; reflexivity.
-Qed.
-
-Theorem rng_mul_nat_assoc2 : ∀ α (R : ring α) n a b,
+Theorem rng_mul_nat_assoc : ∀ α (R : ring α) n a b,
   (rng_mul_nat R n a * b = rng_mul_nat R n (a * b))%K.
 Proof.
 intros α R n a b.
@@ -393,93 +381,6 @@ induction n; simpl.
  rewrite rng_mul_0_r; reflexivity.
 
  rewrite IHn, rng_mul_add_distr_l; reflexivity.
-Qed.
-
-Theorem list_nth_compose2_deg_1 : ∀ α (r : ring α) la b k n,
-  n = length la
-  → (List.nth k (lap_compose2 la [b; 1 … []]) 0 =
-     Σ (i = 0, n - k),
-     rng_mul_nat r (comb (k + i) k)
-      (List.nth (k + i) la 0 * rng_pow_nat r b i))%K.
-Proof.
-intros α r la b k n Hlen.
-unfold lap_compose2; subst n.
-revert b k.
-induction la as [| a]; intros.
- simpl.
- rewrite summation_only_one.
- do 2 rewrite match_id.
- rewrite rng_mul_0_l, rng_mul_nat_0_r; reflexivity.
-
- remember (length [a … la]) as x; simpl in Heqx; subst x.
- rewrite fold_list_nth_def_0.
- rewrite fold_seq_succ.
-  unfold list_nth_def_0.
-  rewrite list_nth_add.
-  rewrite fold_list_nth_def_0.
-  rewrite fold_add_pow.
-  unfold list_nth_def_0.
-  destruct k.
-   simpl.
-   do 2 rewrite summation_only_one.
-   rewrite summation_split_first; [ idtac | apply Nat.le_0_l ].
-   rewrite rng_mul_1_r, comb_id.
-   rewrite rng_mul_nat_1_l.
-   simpl.
-   rewrite rng_mul_1_r.
-   rewrite rng_add_comm.
-   apply rng_add_compat_l.
-   rewrite IHla.
-   rewrite Nat.sub_0_r; simpl.
-   rewrite summation_succ_succ.
-   rewrite <- summation_mul_swap.
-   apply summation_compat; intros i (_, Hi).
-   do 2 rewrite comb_0_r, rng_mul_nat_1_l; simpl.
-   do 2 rewrite rng_mul_assoc.
-   apply rng_mul_compat_r, rng_mul_comm.
-
-   rewrite nth_mul_deg_1.
-   do 2 rewrite IHla; simpl.
-   rewrite match_id, rng_add_0_r.
-   rewrite <- summation_mul_swap.
-   rewrite rng_add_comm.
-   rewrite summation_split_first; [ idtac | apply Nat.le_0_l ].
-   rewrite Nat.add_0_r, comb_id; simpl.
-   rewrite rng_add_0_l, rng_mul_1_r; symmetry.
-   rewrite summation_split_first; [ idtac | apply Nat.le_0_l ].
-   rewrite Nat.add_0_r, comb_id, comb_lt; [ idtac | omega ].
-   rewrite Nat.add_0_r; simpl.
-   rewrite rng_add_0_l, rng_mul_1_r.
-   rewrite <- rng_add_assoc.
-   apply rng_add_compat_l.
-   destruct (le_dec (length la) k) as [H₁| H₁].
-    rewrite summation_lt; [ idtac | omega ].
-    rewrite summation_lt; [ idtac | omega ].
-    replace (length la - S k)%nat with O by omega.
-    rewrite summation_only_one; simpl.
-    rewrite Nat.add_0_r.
-    rewrite comb_id, comb_lt; [ idtac | omega ].
-    rewrite Nat.add_0_r; simpl.
-    rewrite List.nth_overflow; [ idtac | omega ].
-    do 2 rewrite rng_add_0_l; rewrite rng_mul_0_l, rng_mul_0_r.
-    reflexivity.
-
-    replace (length la - k)%nat with (S (length la - S k)) by omega.
-    do 2 rewrite summation_succ_succ.
-    rewrite <- summation_add_distr.
-    apply summation_compat; intros i (_, Hi); simpl.
-    rewrite <- Nat.add_succ_r.
-    do 2 rewrite <- comb_succ_succ.
-    remember (List.nth (k + S i) la 0)%K as n eqn:Hn .
-    remember (rng_pow_nat r b i) as p eqn:Hp; simpl.
-    rewrite rng_mul_nat_add_distr_r.
-    apply rng_add_compat_l.
-    rewrite Nat.add_succ_r; simpl.
-    rewrite rng_mul_assoc, rng_mul_shuffle0, rng_mul_comm.
-    rewrite rng_mul_nat_mul_swap; reflexivity.
-
-  intros t lc ld Hcd.
-  rewrite Hcd; reflexivity.
 Qed.
 
 (* *)

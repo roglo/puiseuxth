@@ -1371,9 +1371,9 @@ eapply q_mj_mk_eq_p_h_j with (h := r) (αh := αk) in H; eauto .
      apply fld_eq_mul_0_r in HH; auto.
      rewrite <- rng_mul_1_l in HH.
      rewrite rng_mul_comm in HH.
-     rewrite rng_mul_nat_assoc2 in HH.
+     rewrite rng_mul_nat_assoc in HH.
      rewrite rng_mul_comm in HH.
-     rewrite <- rng_mul_nat_assoc2 in HH.
+     rewrite <- rng_mul_nat_assoc in HH.
      apply fld_eq_mul_0_r in HH; auto.
       clear H.
       remember Hns as H; clear HeqH.
@@ -1463,13 +1463,6 @@ Theorem nth_ns_succ2 : ∀ pol ns c pol₁ ns₁ n,
   → pol₁ = next_pol pol (β ns) (γ ns) c
   → ns₁ = List.hd phony_ns (newton_segments pol₁)
   → nth_ns (S n) pol ns = nth_ns n pol₁ ns₁.
-Proof. intros; subst; reflexivity. Qed.
-
-Theorem nth_c_succ2 : ∀ pol ns c pol₁ ns₁ n,
-  c = ac_root (Φq pol ns)
-  → pol₁ = next_pol pol (β ns) (γ ns) c
-  → ns₁ = List.hd phony_ns (newton_segments pol₁)
-  → nth_c (S n) pol ns = nth_c n pol₁ ns₁.
 Proof. intros; subst; reflexivity. Qed.
 
 Theorem nth_r_succ2 : ∀ pol ns c pol₁ ns₁ n,

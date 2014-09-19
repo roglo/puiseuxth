@@ -83,27 +83,7 @@ Inductive lt : Nbar → Nbar → Prop :=
   | lt_inf : ∀ n, fin n < ∞
 where "n < m" := (lt n m) : Nbar_scope.
 
-Theorem fold_sub : ∀ x n,
-  match x with
-  | fin m => fin (m - n)
-  | ∞ => ∞
-  end = x - fin n.
-Proof. reflexivity. Qed.
-
-Theorem fold_div : ∀ x n,
-  match x with
-  | fin m => fin (m / n)
-  | ∞ => ∞
-  end = x / fin n.
-Proof. reflexivity. Qed.
-
-Theorem fold_div_sup : ∀ x y, (x + y - 1) / y = div_sup x y.
-Proof. reflexivity. Qed.
-
 Theorem fin_inj_mul : ∀ n m, fin (n * m) = fin n * fin m.
-Proof. reflexivity. Qed.
-
-Theorem fin_inj_add : ∀ n m, fin (n + m) = fin n + fin m.
 Proof. reflexivity. Qed.
 
 Theorem fin_inj_wd : ∀ n1 n2, fin n1 = fin n2 ↔ n1 = n2.
@@ -111,9 +91,6 @@ Proof.
 intros n₁ n₂.
 split; intros H; [ inversion H | subst ]; reflexivity.
 Qed.
-
-Theorem fin_inj_sub : ∀ n m, fin (n - m) = fin n - fin m.
-Proof. reflexivity. Qed.
 
 Theorem add_comm : ∀ n m, n + m = m + n.
 Proof.
@@ -330,16 +307,6 @@ destruct p as [p| ].
  subst m; assumption.
 Qed.
 
-Theorem add_lt_mono : ∀ n m p q,
-  m ≠ ∞ → p ≠ ∞ → n < m → p < q → n + p < m + q.
-Proof.
-intros n m p q Hm Hp Hnm Hpq.
-apply lt_trans with (m := m + p).
- apply add_lt_mono_r; auto.
-
- apply add_lt_mono_l; auto.
-Qed.
-
 Theorem le_0_l : ∀ n, 0 ≤ n.
 Proof.
 intros n.
@@ -357,17 +324,6 @@ split; intros Hn.
  apply Nat.le_0_r; assumption.
 
  subst n; apply le_0_l.
-Qed.
-
-Theorem lt_0_succ: ∀ n, 0 < NS n.
-Proof.
-intros n.
-destruct n; [ constructor; apply Nat.lt_0_succ | constructor ].
-Qed.
-
-Theorem lt_0_1: 0 < 1.
-Proof.
-apply lt_0_succ with (n := 0).
 Qed.
 
 Theorem  nle_gt : ∀ n m, ¬n ≤ m ↔ m < n.
@@ -492,75 +448,6 @@ rewrite Nat.sub_0_r.
 apply Nat.lt_succ_r; reflexivity.
 Qed.
 
-Theorem div_sup_div_sup : ∀ a b c,
-  b ≠ 0 → 0 < c → div_sup (div_sup a b) c = div_sup a (b * c).
-Proof.
-intros a b c Hb Hc.
-destruct a as [a| ].
- destruct b as [b| ].
-  destruct c as [c| ].
-   simpl.
-   apply fin_inj_wd.
-   rewrite <- Nat.div_div.
-    destruct a.
-     simpl.
-     rewrite Nat.div_small.
-      rewrite Nat.div_small.
-       reflexivity.
-
-       apply Nat.div_lt_upper_bound.
-        intros H₁; apply Hb; subst b; reflexivity.
-
-        destruct b; [ exfalso; apply Hb; reflexivity | idtac ].
-        destruct c; [ exfalso; revert Hc; apply lt_irrefl | idtac ].
-        simpl.
-        apply Le.le_n_S.
-        rewrite Nat.sub_0_r; reflexivity.
-
-      rewrite Nat.div_small; simpl.
-       destruct c.
-        exfalso; revert Hc; apply lt_irrefl.
-
-        rewrite Nat.sub_succ.
-        rewrite Nat.sub_0_r.
-        apply Nat.lt_succ_r; reflexivity.
-
-       destruct b; [ exfalso; apply Hb; reflexivity | simpl ].
-       rewrite Nat.sub_0_r.
-       apply Nat.lt_succ_r; reflexivity.
-
-     simpl.
-     do 2 rewrite Nat.sub_0_r.
-     rewrite Nat.mul_comm, Nat.div_add.
-      replace (a + b)%nat with (a + 1 * b)%nat .
-       rewrite Nat.div_add.
-        rewrite Nat.add_shuffle0.
-        rewrite Nat.add_sub; reflexivity.
-
-        destruct b; [ exfalso; apply Hb; reflexivity | simpl ].
-        intros H; discriminate H.
-
-       rewrite Nat.mul_1_l; reflexivity.
-
-      destruct b; [ exfalso; apply Hb; reflexivity | simpl ].
-      intros H; discriminate H.
-
-    destruct b; [ exfalso; apply Hb; reflexivity | simpl ].
-    intros H; discriminate H.
-
-    destruct c; [ exfalso; revert Hc; apply lt_irrefl | simpl ].
-    intros H; discriminate H.
-
-   reflexivity.
-
-  simpl; rewrite div_sup_0_l; reflexivity.
-
- destruct b as [b| ].
-  destruct c as [c| ]; reflexivity.
-
-  simpl; rewrite div_sup_0_l; reflexivity.
-Qed.
-
 Theorem Nat_le_mul_div_sup : ∀ a b, (b ≠ 0 → a <= Nat_div_sup a b * b)%nat.
 Proof.
 intros a b Hb.
@@ -576,111 +463,6 @@ apply Nat.add_le_mono_l.
 rewrite Hr.
 apply (Nat.mod_upper_bound (a + b - 1)) in Hb.
 fast_omega Hb.
-Qed.
-
-Theorem le_mul_div_sup : ∀ a b, b ≠ 0 → a ≤ div_sup a b * b.
-Proof.
-intros a b Hb.
-destruct b as [b| ]; [ idtac | constructor ].
-destruct a as [a| ]; [ simpl | constructor ].
-apply le_fin.
-rewrite Nat_fold_div_sup.
-apply Nat_le_mul_div_sup.
-intros H; apply Hb; subst b; reflexivity.
-Qed.
-
-Theorem div_sup_mul : ∀ a b, b ≠ 0 → b ≠ ∞ → div_sup (a * b) b = a.
-Proof.
-intros a b Hb Hbi.
-destruct b as [b| ]; [ idtac | exfalso; apply Hbi; reflexivity ].
-destruct b as [| b]; [ exfalso; apply Hb; reflexivity | simpl ].
-destruct a as [a| ]; [ simpl | reflexivity ].
-rewrite divmod_div.
-rewrite <- Nat.add_sub_assoc.
- rewrite Nat.add_comm.
- rewrite Nat.div_add.
-  rewrite Nat.div_small; [ reflexivity | simpl ].
-  rewrite Nat.sub_0_r.
-  apply Nat.lt_succ_diag_r.
-
-  intros H; discriminate H.
-
- apply Le.le_n_S, Le.le_0_n.
-Qed.
-
-Theorem lt_div_sup_lt_mul_r : ∀ n m p,
-  n < div_sup m p → n * p < m.
-Proof.
-intros n m p Hn.
-destruct n as [n| ]; [ idtac | inversion Hn ].
-destruct m as [m| ].
- destruct p as [p| ]; simpl in Hn.
-  apply fin_lt_mono in Hn.
-  apply fin_lt_mono.
-  apply Nat_lt_div_sup_lt_mul_r; assumption.
-
-  exfalso; revert Hn; apply nlt_0_r.
-
- destruct p as [p| ]; [ constructor | idtac ].
- exfalso; revert Hn; apply nlt_0_r.
-Qed.
-
-Theorem lt_mul_r_lt_div_sup : ∀ n m p, 0 < p → 
-  n * p < m → n < div_sup m p.
-Proof.
-intros n m p Hp Hn.
-destruct n as [n| ]; [ idtac | inversion Hn ].
-destruct m as [m| ].
- destruct p as [p| ]; simpl in Hn.
-  apply fin_lt_mono in Hp.
-  apply fin_lt_mono in Hn.
-  apply fin_lt_mono.
-  apply Nat_lt_mul_r_lt_div_sup; assumption.
-
-  inversion Hn.
-
- destruct p as [p| ]; [ constructor | inversion Hn ].
-Qed.
-
-Theorem lt_div_lt_mul_r : ∀ n m p, n < m / p → n * p < m.
-Proof.
-intros n m p Hn.
-destruct p as [p| ].
- destruct p as [| p].
-  destruct m as [m| ].
-   simpl in Hn.
-   destruct m as [m| ].
-    destruct n as [n| ]; [ constructor | assumption ].
-    exfalso; revert Hn; apply nlt_0_r.
-
-    exfalso; revert Hn; apply nlt_0_r.
-
-   destruct n as [n| ]; [ constructor | assumption ].
-
-  destruct m as [m| ].
-   destruct n as [n| ].
-    simpl in Hn |- *.
-    rewrite divmod_div in Hn.
-    apply fin_lt_mono in Hn.
-    apply (Nat.mul_lt_mono_pos_r (S p)) in Hn.
-     apply Nat.lt_le_trans with (p := (S p * m / S p)%nat) in Hn.
-      remember (n * S p)%nat as x; rewrite Nat.mul_comm in Hn; subst x.
-      rewrite Nat.div_mul in Hn.
-       apply fin_lt_mono; assumption.
-
-       intros H; discriminate H.
-
-      rewrite Nat.mul_comm.
-      apply Nat.div_mul_le.
-      intros H; discriminate H.
-
-     apply Nat.lt_0_succ.
-
-    inversion Hn.
-
-   destruct n as [n| ]; [ constructor | assumption ].
-
- exfalso; revert Hn; apply nlt_0_r.
 Qed.
 
 Theorem div_lt_upper_bound : ∀ a b q, b ≠ 0 → b ≠ ∞ → a < b * q → a / b < q.
@@ -716,32 +498,6 @@ destruct n as [n| ].
  negation Hn.
 Qed.
 
-Theorem lt_add_lt_sub_l : ∀ n m p, p ≤ n → n < m + p → n - p < m.
-Proof.
-intros n m p Hpn Hnm.
-destruct n as [n| ].
- destruct p as [p| ]; simpl.
-  destruct m as [m| ]; [ simpl | constructor ].
-  simpl in Hnm.
-  apply lt_fin.
-  apply fin_le_mono in Hpn.
-  apply fin_lt_mono in Hnm.
-  omega.
-
-  apply nlt_ge in Hpn.
-  exfalso; apply Hpn; constructor.
-
- destruct p as [p| ]; simpl.
-  destruct m as [m| ]; simpl.
-   apply nle_gt in Hnm.
-   exfalso; apply Hnm; constructor.
-
-   assumption.
-
-  apply nle_gt in Hnm.
-  exfalso; apply Hnm; constructor.
-Qed.
-
 Theorem sub_add_distr : ∀ n m p, n - (m + p) = n - m - p.
 Proof.
 intros n m p.
@@ -767,17 +523,6 @@ destruct n as [n| ]; simpl.
   intros H; discriminate H.
 
   inversion Hmn.
-Qed.
-
-Theorem sub_add: ∀ n m, n ≤ m → m - n + n = m.
-Proof.
-intros n m Hnm.
-destruct n as [n| ]; simpl.
- destruct m as [m| ]; [ simpl | reflexivity ].
- rewrite Nat.sub_add; [ reflexivity | idtac ].
- rewrite fin_le_mono; assumption.
-
- destruct m as [m| ]; [ inversion Hnm | reflexivity ].
 Qed.
 
 Theorem sub_diag : ∀ n, n - n = 0.
@@ -821,14 +566,6 @@ intros n m p.
 destruct n as [n| ]; [ simpl | reflexivity ].
 destruct m as [m| ]; [ simpl | reflexivity ].
 destruct p as [p| ]; [ rewrite Nat.add_assoc; reflexivity | reflexivity ].
-Qed.
-
-Theorem add_sub: ∀ n m, m ≠ ∞ → n + m - m = n.
-Proof.
-intros n m Hm.
-destruct m as [m| ]; [ idtac | exfalso; apply Hm; reflexivity ].
-destruct n as [n| ]; [ simpl | reflexivity ].
-rewrite Nat.add_sub; reflexivity.
 Qed.
 
 Theorem add_sub_assoc : ∀ n m p, p ≠ ∞ → p ≤ m → n + (m - p) = n + m - p.
@@ -932,15 +669,6 @@ destruct m as [| m]; [ simpl | reflexivity ].
 rewrite Nat.add_max_distr_r; reflexivity.
 Qed.
 
-Theorem add_max_distr_l : ∀ n m p, max (p + n) (p + m) = p + max n m.
-Proof.
-intros n m p.
-rewrite add_comm.
-replace (p + m) with (m + p) by apply add_comm.
-rewrite add_max_distr_r.
-apply add_comm.
-Qed.
-
 Theorem mul_max_distr_r : ∀ n m p, max (n * p) (m * p) = max n m * p.
 Proof.
 intros n m p.
@@ -975,41 +703,12 @@ destruct n as [n| ]; [ simpl | inversion H ].
 rewrite Nat.min_l; [ reflexivity | inversion H; assumption ].
 Qed.
 
-Theorem min_r: ∀ n m, m ≤ n → min n m = m.
-Proof.
-intros n m H.
-destruct n as [n| ]; [ idtac | destruct m; reflexivity ].
-destruct m as [m| ]; [ simpl | inversion H ].
-rewrite Nat.min_r; [ reflexivity | inversion H; assumption ].
-Qed.
-
 Theorem max_l : ∀ n m, m ≤ n → max n m = n.
 Proof.
 intros n m H.
 destruct n as [n| ]; [ simpl | destruct m; reflexivity ].
 destruct m as [m| ]; [ idtac | inversion H ].
 rewrite Nat.max_l; [ reflexivity | inversion H; assumption ].
-Qed.
-
-Theorem max_r: ∀ n m, n ≤ m → max n m = m.
-Proof.
-intros n m H.
-destruct m as [m| ]; [ idtac | destruct n; reflexivity ].
-destruct n as [n| ]; [ simpl | inversion H ].
-rewrite Nat.max_r; [ reflexivity | inversion H; assumption ].
-Qed.
-
-Theorem eq_max_0 : ∀ n m, max n m = 0 → n = 0 ∧ m = 0.
-Proof.
-intros n m Hnm.
-destruct n as [n| ]; [ idtac | discriminate Hnm ].
-destruct m as [m| ]; [ simpl in Hnm | discriminate Hnm ].
-injection Hnm; clear Hnm; intros Hnm.
-destruct (Nat.max_dec n m) as [H| H]; rewrite Hnm in H; subst.
- split; [ reflexivity | simpl in Hnm; subst; reflexivity ].
-
- rewrite Nat.max_comm in Hnm.
- split; [ simpl in Hnm; subst; reflexivity | reflexivity ].
 Qed.
 
 Theorem le_add_r : ∀ n m, n ≤ n + m.
@@ -1019,9 +718,6 @@ destruct n as [n| ]; [ idtac | constructor ].
 destruct m as [m| ]; [ simpl | constructor ].
 apply le_fin, Nat.le_add_r.
 Qed.
-
-Theorem le_add_l : ∀ n m, n ≤ m + n.
-Proof. intros n m; rewrite add_comm; apply le_add_r. Qed.
 
 Theorem le_max_l : ∀ n m, n ≤ max n m.
 Proof.

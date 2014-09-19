@@ -189,37 +189,6 @@ destruct n as [n| ].
  symmetry; apply Hn.
 Qed.
 
-(* should be moved in Power_series.v *)
-Theorem series_inv_compat : ∀ a b,
-  (a.[0] ≠ 0)%K
-  → (a = b)%ser
-    → (series_inv a = series_inv b)%ser.
-Proof.
-intros a b Ha Hab.
-remember Ha as Hb; clear HeqHb.
-rewrite Hab in Hb.
-apply series_mul_compat_l with (c := series_inv a) in Hab.
-apply series_mul_compat_r with (c := series_inv b) in Hab.
-rewrite series_mul_inv_l in Hab; auto.
-rewrite series_mul_1_l in Hab.
-rewrite <- series_mul_assoc in Hab.
-rewrite series_mul_inv_r in Hab; auto.
-rewrite series_mul_1_r in Hab.
-symmetry; assumption.
-Qed.
-
-Theorem null_coeff_range_length_series_1 :
-  (1 ≠ 0)%K
-  → null_coeff_range_length r 1%ser 0 = 0%Nbar.
-Proof.
-intros H.
-apply null_coeff_range_length_iff; simpl.
-split; [ idtac | assumption ].
-intros i Hi.
-apply Nat.nlt_ge in Hi.
-exfalso; apply Hi, Nat.lt_0_succ.
-Qed.
-
 Theorem greatest_series_x_power_series_const : ∀ s c m,
   (s = series_const c)%ser
   → greatest_series_x_power r s m = 0%nat.

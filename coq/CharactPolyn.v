@@ -121,12 +121,6 @@ Section theorems.
 Variable α : Type.
 Variable R : ring α.
 
-Theorem skipn_pad : ∀ n (z : α) l, List.skipn n (list_pad n z l) = l.
-Proof.
-intros n z l.
-induction n; [ reflexivity | apply IHn ].
-Qed.
-
 Theorem al_Φq : ∀ pol ns,
   al (Φq pol ns)
   = make_char_pol R (nat_num (fst (ini_pt ns)))
@@ -440,34 +434,6 @@ destruct c.
  intros x y z H₁ H₂; eapply Qlt_trans; eassumption.
 Qed.
 
-Theorem edge_bef_vert : ∀ pts n hs₁ hs₂ hsl hq αh kq αk,
-  Sorted fst_lt pts
-  → next_ch_points n pts = [hs₁; hs₂ … hsl]
-    → (hq, αh) ∈ oth_pts hs₁
-      → (kq, αk) = ini_pt hs₂
-        → hq < kq.
-Proof.
-intros pts n hs₁ hs₂ hsl hq αh kq αk Hsort Hnp Hh Hk.
-destruct pts as [| pt₁]; [ destruct n; discriminate Hnp | idtac ].
-destruct n; [ discriminate Hnp | simpl in Hnp ].
-destruct pts as [| pt₂]; [ discriminate Hnp | idtac ].
-injection Hnp; clear Hnp; intros Hnp H; subst hs₁.
-simpl in Hh.
-remember (minimise_slope pt₁ pt₂ pts) as ms₁.
-symmetry in Heqms₁.
-destruct n; [ discriminate Hnp | simpl in Hnp ].
-remember (end_pt ms₁) as pt₃.
-symmetry in Heqpt₃.
-remember (rem_pts ms₁) as pts₁.
-symmetry in Heqpts₁.
-destruct pts₁ as [| pt₄]; [ discriminate Hnp | idtac ].
-injection Hnp; clear Hnp; intros; subst hs₂ hsl.
-simpl in Hk.
-subst pt₃.
-rewrite minimised_slope_beg_pt in Hk.
-eapply seg_bef_end_pt; eassumption.
-Qed.
-
 Theorem hq_lt_kq : ∀ (pol : puis_ser_pol α) hq αh kq αk ns,
   ns ∈ newton_segments pol
   → (hq, αh) ∈ oth_pts ns
@@ -504,20 +470,6 @@ destruct hsl as [| hs₂].
 
   eapply IHhsl in Hnp; try eassumption.
   eapply minimise_slope_sorted; [ eassumption | reflexivity ].
-Qed.
-
-Theorem h_lt_k : ∀ (pol : puis_ser_pol α) h αh hq k αk kq ns,
-  ns ∈ newton_segments pol
-  → (hq, αh) ∈ oth_pts ns
-    → (kq, αk) = fin_pt ns
-      → hq = Qnat h
-        → kq = Qnat k
-          → (h < k)%nat.
-Proof.
-intros pol h αh hq k αk kq ns Hns Hoth Hfin Hhq Hkq.
-eapply hq_lt_kq in Hoth; try eassumption.
-rewrite Hhq, Hkq in Hoth.
-apply Qnat_lt; assumption.
 Qed.
 
 Theorem j_lt_k : ∀ (pol : puis_ser_pol α) j k ns,
@@ -588,42 +540,6 @@ Qed.
 
 (* *)
 
-(* [Walker, p. 100]: « In the first place, we note that since each
-   āi, i=0,...,n is an element of some K(x^(1/ni))', there is an
-   m such that all the āi ∈ K(x^(1/m))'. Hence we have αi = mi/m. » *)
-Theorem com_den_of_ps_list : ∀ (psl : list (puiseux_series α)) m,
-  m = ps_list_com_polord psl
-  → ∀ ps αi mi, ps ∈ psl
-    → order ps = qfin αi
-      → mi = (Qnum αi * Zpos m / Zpos (ps_polord ps))%Z
-        → αi == mi # m.
-Proof.
-intros psl m Hm ps αi mi Hps Hv Hmi.
-subst mi.
-unfold order in Hv.
-remember (null_coeff_range_length R (ps_terms ps) 0) as n eqn:Hn .
-symmetry in Hn.
-destruct n as [n| ]; [ idtac | discriminate Hv ].
-injection Hv; clear Hv; intros Hαi.
-subst αi; simpl.
-unfold Qeq; simpl.
-symmetry; rewrite Z.mul_comm.
-rewrite <- Z.divide_div_mul_exact; [ idtac | apply Pos2Z_ne_0 | idtac ].
- rewrite Z.mul_comm.
- rewrite Z.div_mul; [ reflexivity | apply Pos2Z_ne_0 ].
-
- apply Z.divide_mul_r.
- subst m.
- apply List.in_split in Hps.
- destruct Hps as (l₁, (l₂, Hpsl)).
- remember (ps_list_com_polord (l₁ ++ l₂)) as m₁.
- exists (Zpos m₁); subst m₁ psl.
- induction l₁ as [| ps₁]; [ reflexivity | simpl ].
- rewrite Pos2Z.inj_mul.
- rewrite IHl₁; simpl.
- rewrite Pos_mul_shuffle0; reflexivity.
-Qed.
-
 (* [Walker, p. 100]: « If Pj and Pk are the left and right hand ends
    of the segment L, v + γ₁ u = β₁ of the Newton polygon, then
            αj + j γ₁ = αk + k γ₁
@@ -674,23 +590,6 @@ destruct cl as [| c₁].
   transitivity (S pow); [ apply Nat.le_succ_r | assumption ].
   left; reflexivity.
 Qed.
-
-Theorem simpl_match_1 : ∀ α β (g : list α → list β) x l,
-  g [] = []
-  → match l with
-    | [] => [x]
-    | [_ … _] => [x … g l]
-    end = [x … g l].
-Proof.
-intros.
-destruct l; [ rewrite H; reflexivity | reflexivity ].
-Qed.
-
-Theorem simpl_map_qpower : ∀ α pow (c : puiseux_series α) cl,
-  List.map (pair_rec (λ pow ps, (Qnat pow, ps)))
-    [(pow, c) … power_list (S pow) cl] =
-  qpower_list pow [c … cl].
-Proof. reflexivity. Qed.
 
 Theorem in_pts_in_ppl : ∀ pow cl ppl pts h hv hps def,
   ppl = qpower_list pow cl
@@ -919,66 +818,6 @@ eapply in_ppl_in_pts; try eassumption; try reflexivity.
  apply Nat.le_0_l.
 
  rewrite Nat.sub_0_r; assumption.
-Qed.
-
-Theorem p_mq_formula : ∀ m j k mj mk g,
-  (0 < k - j)%Z
-  → g = Z.gcd (mj - mk) (k - j)
-    → ((mj # m) - (mk # m)) / ((k # 1) - (j # 1)) ==
-       (mj - mk) / g # m * Z.to_pos ((k - j) / g).
-Proof.
-intros m j k mj mk g Hkj Hg.
-do 2 rewrite <- Qnum_minus_distr_r.
-destruct (Z.eq_dec (mj - mk) 0)%Z as [Hz| Hnz].
- rewrite Hz; simpl.
- reflexivity.
-
- rewrite Qdiv_mul; [ idtac | assumption | assumption ].
- unfold Qeq.
- simpl.
- do 2 rewrite Pos2Z.inj_mul.
- rewrite Z.mul_comm; symmetry.
- rewrite Z.mul_comm; symmetry.
- do 2 rewrite <- Z.mul_assoc.
- apply Z.mul_cancel_l; [ apply Pos2Z_ne_0 | idtac ].
- rewrite Zmult_1_r.
- pose proof (Z.gcd_divide_r (mj - mk) (k - j)) as H.
- destruct H as (u, Hu).
- rewrite <- Hg in Hu.
- rewrite Hu.
- rewrite Z_div_mult_full.
-  pose proof (Z.gcd_divide_l (mj - mk) (k - j)) as H.
-  destruct H as (v, Hv).
-  rewrite <- Hg in Hv.
-  rewrite Hv.
-  rewrite Z_div_mult_full.
-   rewrite Z2Pos.id.
-    rewrite Z2Pos.id.
-     rewrite Z.mul_shuffle0, Z.mul_assoc; reflexivity.
-
-     rewrite <- Hu; assumption.
-
-    remember Hkj as H; clear HeqH.
-    rewrite Hu in H.
-    eapply Zmult_lt_0_reg_r; [ idtac | eassumption ].
-    destruct g.
-     symmetry in Hg.
-     rewrite Zmult_0_r in Hv.
-     contradiction.
-
-     apply Pos2Z.is_pos.
-
-     pose proof (Z.gcd_nonneg (mj - mk) (k - j)) as Hgp.
-     rewrite <- Hg in Hgp.
-     apply Zle_not_lt in Hgp.
-     exfalso; apply Hgp.
-     apply Zlt_neg_0.
-
-   rewrite Hg; intros H; apply Z.gcd_eq_0_l in H.
-   contradiction.
-
-  rewrite Hg; intros H; apply Z.gcd_eq_0_l in H.
-  contradiction.
 Qed.
 
 Theorem exists_ini_pt_nat : ∀ pol ns,
@@ -1742,157 +1581,7 @@ Definition is_polynomial_in_x_power_q pol q :=
 Theorem list_pad_0 : ∀ z (r : list α), list_pad 0 z r = r.
 Proof. reflexivity. Qed.
 
-Theorem list_nth_add_pad : ∀ i s (v : α) cl d,
-  List.nth (i + s) (list_pad s v cl) d = List.nth i cl d.
-Proof.
-intros i s v cl d.
-induction s; intros.
- rewrite plus_0_r; reflexivity.
-
- rewrite <- plus_n_Sm; assumption.
-Qed.
-
 Open Scope nat_scope.
-
-Theorem nth_minus_char_pol_plus_cons : ∀ i j s t tl d,
-  s ≤ i
-  → j + s ≤ power t
-    → List.nth (i - s) (make_char_pol R (j + s) [t … tl]) d =
-      List.nth i (make_char_pol R j [t … tl]) d.
-Proof.
-intros i j s t tl d Hsi Hjsk.
-revert i j t tl d Hsi Hjsk.
-induction s; intros.
- rewrite plus_0_r, Nat.sub_0_r; reflexivity.
-
- symmetry.
- rewrite <- IHs.
-  destruct i.
-   exfalso; revert Hsi; apply le_Sn_0.
-
-   apply le_S_n in Hsi.
-   rewrite Nat.sub_succ.
-   rewrite <- minus_Sn_m; [ idtac | assumption ].
-   rewrite <- plus_n_Sm.
-   simpl.
-   remember (i - s) as x.
-   rewrite <- Nat.sub_succ; subst x.
-   rewrite <- minus_Sn_m; [ reflexivity | idtac ].
-   rewrite <- plus_n_Sm in Hjsk.
-   assumption.
-
-  apply Nat.lt_le_incl; assumption.
-
-  rewrite <- plus_n_Sm in Hjsk.
-  apply Nat.lt_le_incl; assumption.
-Qed.
-
-Theorem nth_is_zero : ∀ (pol : polynomial (puiseux_series α)) q i j k sk tl,
-  0 < q
-  → 0 < sk
-    → k = (j + sk * q)
-      → Sorted fst_lt tl
-        → (∀ hq αh, (hq, αh) ∈ tl
-           → ∃ h sh, hq = Qnat h ∧ 0 < sh ∧ h = j + sh * q ∧ h ≤ k)
-          → S i mod q ≠ 0
-            → (List.nth i
-                (make_char_pol R (S j) (List.map (term_of_point pol) tl))
-                0
-               = 0)%K.
-Proof.
-intros pol q i j k sk tl Hq Hsk Hk Hsort Hsh Himq.
-destruct q; [ exfalso; revert Hq; apply lt_irrefl | clear Hq ].
-destruct sk; [ exfalso; revert Hsk; apply lt_irrefl | clear Hsk ].
-revert q i j sk k Hk Hsh Himq.
-induction tl as [| t]; intros; [ destruct i; reflexivity | idtac ].
-destruct t as (hq, αh); simpl.
-unfold nat_num; simpl.
-assert ((hq, αh) ∈ [(hq, αh) … tl]) as H by (left; reflexivity).
-apply Hsh in H.
-destruct H as (h, (sh, (Hh, (Hsh₀, (Hhq, Hhk))))).
-destruct sh; [ exfalso; revert Hsh₀; apply lt_irrefl | clear Hsh₀ ].
-rewrite Hh; simpl.
-rewrite Nat2Z.id.
-rewrite Hhq in |- * at 1; simpl.
-rewrite <- plus_Snm_nSm, minus_plus.
-remember (q + sh * S q) as s.
-destruct (lt_dec i s) as [Hlt| Hge].
- rewrite list_nth_pad_lt; [ reflexivity | assumption ].
-
- apply not_gt in Hge.
- rewrite list_nth_pad_sub; [ idtac | assumption ].
- remember (i - s) as is.
- destruct is.
-  simpl.
-  symmetry in Heqis.
-  apply Nat.sub_0_le in Heqis.
-  apply Nat.le_antisymm in Hge; [ subst i | assumption ].
-  rewrite Heqs in Himq.
-  rewrite <- plus_Sn_m in Himq.
-  rewrite Nat.mod_add in Himq; [ idtac | intros H; discriminate H ].
-  rewrite Nat.mod_same in Himq; [ idtac | intros H; discriminate H ].
-  exfalso; apply Himq; reflexivity.
-
-  simpl.
-  rewrite <- Nat.sub_succ in Heqis.
-  destruct (eq_nat_dec i s) as [Heq| Hne].
-   subst s.
-   rewrite <- Heq, minus_diag in Heqis; discriminate Heqis.
-
-   rewrite <- minus_Sn_m in Heqis.
-    apply eq_add_S in Heqis.
-    replace (S (q + sh * S q)) with (S sh * S q) by reflexivity.
-    rewrite Hhq, <- plus_Sn_m.
-    rewrite Heqs in Hge.
-    apply le_n_S in Hge.
-    rewrite <- plus_Sn_m, plus_comm, <- mult_succ_l in Hge.
-    destruct tl as [| t]; [ destruct is; reflexivity | idtac ].
-    rewrite Heqis, Heqs.
-    rewrite plus_comm, mult_comm, plus_n_Sm.
-    rewrite <- mult_succ_r, mult_comm.
-    remember (List.map (term_of_point pol) [t … tl]) as x.
-    simpl in Heqx; subst x.
-    rewrite nth_minus_char_pol_plus_cons.
-     move Hk at bottom.
-     eapply IHtl; try eapply Sorted_inv_1; try eassumption.
-     intros hq₁ αh₁ Hhαh₁.
-     destruct Hhαh₁ as [| Hhαh₁].
-      subst t.
-      eapply Hsh.
-      right; left; reflexivity.
-
-      eapply Hsh.
-      right; right; eassumption.
-
-     rewrite Heqs in Heqis.
-     rewrite plus_comm, mult_comm, plus_n_Sm in Heqis.
-     rewrite <- mult_succ_r, mult_comm in Heqis.
-     simpl in Hge; simpl.
-     rewrite <- Heqs in Hge |- *.
-     apply le_S_n in Hge.
-     apply Nat.neq_sym in Hne.
-     apply le_neq_lt; assumption.
-
-     unfold term_of_point; remember (S sh) as x; simpl; subst x.
-     rewrite <- Hhq.
-     apply Sorted_inv_2 in Hsort.
-     destruct Hsort as (Hsort, _).
-     unfold fst_lt in Hsort; simpl in Hsort.
-     rewrite Hh in Hsort; unfold nat_num.
-     destruct t as (h₁, αh₁).
-     simpl in Hsort |- *.
-     assert ((h₁, αh₁) ∈ [(hq, αh); (h₁, αh₁) … tl]) as H₁.
-      right; left; reflexivity.
-
-      apply Hsh in H₁.
-      destruct H₁ as (h₂, (sh₂, (Hh₂, (Hsh₂, (Hhj₂, Hhk₂))))).
-      rewrite Hh₂ in Hsort |- *; simpl.
-      rewrite Nat2Z.id.
-      apply Qnat_lt; assumption.
-
-    apply not_eq_sym in Hne.
-    apply le_neq_lt; assumption.
-Qed.
 
 Theorem minimise_slope_lt_seg : ∀ pt₁ pt₂ pt₃ pts ms₂,
   Sorted fst_lt [pt₁; pt₂; pt₃ … pts]
@@ -1972,148 +1661,6 @@ destruct Hhs as [Hhs| Hhs].
 
  eapply IHn; [ idtac | eassumption ].
  eapply minimise_slope_sorted; [ eassumption | reflexivity ].
-Qed.
-
-Theorem minimise_slope_edge_sorted : ∀ pt₁ pt₂ pts ms₁ hs n,
-  Sorted fst_lt [pt₁; pt₂ … pts]
-  → minimise_slope pt₁ pt₂ pts = ms₁
-    → hs ∈ next_ch_points n [end_pt ms₁ … rem_pts ms₁]
-      → Sorted fst_lt (oth_pts hs).
-Proof.
-intros pt₁ pt₂ pts ms₁ hs n Hsort Hms₁ Hhs.
-revert pt₁ pt₂ ms₁ hs n Hsort Hms₁ Hhs.
-induction pts as [| pt₃]; intros.
- subst ms₁; simpl in Hhs.
- destruct n; contradiction.
-
- simpl in Hms₁.
- remember (minimise_slope pt₁ pt₃ pts) as ms₃.
- symmetry in Heqms₃.
- remember (slope_expr pt₁ pt₂ ?= slope ms₃)%Q as c.
- destruct c.
-  subst ms₁.
-  simpl in Hhs.
-  eapply IHpts; try eassumption.
-  eapply Sorted_minus_2nd; [ idtac | eassumption ].
-  intros x y z H₁ H₂; eapply Qlt_trans; eassumption.
-
-  subst ms₁; simpl in Hhs.
-  eapply edge_pts_sorted; [ idtac | eassumption ].
-  eapply Sorted_inv_1; eassumption.
-
-  move Hms₁ at top; subst ms₃.
-  eapply IHpts; try eassumption.
-  eapply Sorted_minus_2nd; [ idtac | eassumption ].
-  intros x y z H₁ H₂; eapply Qlt_trans; eassumption.
-Qed.
-
-Theorem minimise_slope_end_lt : ∀ pt₁ pt₂ pt₃ pt₄ pts pts₁ ms₁,
-  Sorted fst_lt [pt₁; pt₂ … pts]
-  → minimise_slope pt₁ pt₂ pts = ms₁
-    → end_pt ms₁ = pt₃
-      → rem_pts ms₁ = [pt₄ … pts₁]
-        → (fst pt₃ < fst pt₄)%Q.
-Proof.
-fix IHpts 5.
-intros pt₁ pt₂ pt₃ pt₄ pts pts₁ ms₁ Hsort Hms₁ Hend₁ Hrem₁.
-destruct pts as [| pt₅].
- subst ms₁; simpl in Hrem₁; discriminate Hrem₁.
-
- simpl in Hms₁.
- remember (minimise_slope pt₁ pt₅ pts) as ms₂.
- symmetry in Heqms₂.
- remember (slope_expr pt₁ pt₂ ?= slope ms₂)%Q as c.
- symmetry in Heqc.
- destruct c.
-  subst ms₁; simpl in Hend₁, Hrem₁.
-  eapply IHpts with (pt₂ := pt₅); try eassumption.
-  eapply Sorted_minus_2nd; [ idtac | eassumption ].
-  intros x y z H₁ H₂; eapply Qlt_trans; eassumption.
-
-  subst ms₁; simpl in Hend₁, Hrem₁.
-  subst pt₂.
-  injection Hrem₁; clear Hrem₁; intros; subst pt₄ pts₁.
-  apply Sorted_inv_1 in Hsort.
-  apply Sorted_inv_2 in Hsort.
-  destruct Hsort; assumption.
-
-  subst ms₁.
-  eapply IHpts with (pt₂ := pt₅); try eassumption.
-  eapply Sorted_minus_2nd; [ idtac | eassumption ].
-  intros x y z H₁ H₂; eapply Qlt_trans; eassumption.
-Qed.
-
-Theorem minimise_slope_rem_lt : ∀ pt₁ pt₂ pt₃ pts pts₁ ms₁,
-  Sorted fst_lt [pt₁; pt₂ … pts]
-  → minimise_slope pt₁ pt₂ pts = ms₁
-    → rem_pts ms₁ = [pt₃ … pts₁]
-      → HdRel fst_lt pt₃ pts₁.
-Proof.
-intros pt₁ pt₂ pt₃ pts pts₁ ms₁ Hsort Hms₁ Hrem₁.
-revert pt₁ pt₂ pt₃ pts₁ ms₁ Hsort Hms₁ Hrem₁.
-induction pts as [| pt₄]; intros.
- subst ms₁; discriminate Hrem₁.
-
- simpl in Hms₁.
- remember (minimise_slope pt₁ pt₄ pts) as ms₂.
- symmetry in Heqms₂.
- remember (slope_expr pt₁ pt₂ ?= slope ms₂)%Q as c.
- symmetry in Heqc.
- destruct c.
-  subst ms₁; simpl in Hrem₁.
-  eapply IHpts; try eassumption.
-  eapply Sorted_minus_2nd; [ idtac | eassumption ].
-  intros x y z H₁ H₂; eapply Qlt_trans; eassumption.
-
-  subst ms₁; simpl in Hrem₁.
-  injection Hrem₁; clear Hrem₁; intros; subst pt₄ pts₁.
-  apply Sorted_inv_1 in Hsort.
-  apply Sorted_inv_1 in Hsort.
-  apply Sorted_inv in Hsort.
-  destruct Hsort; assumption.
-
-  move Hms₁ at top; subst ms₂.
-  eapply IHpts; try eassumption.
-  eapply Sorted_minus_2nd; [ idtac | eassumption ].
-  intros x y z H₁ H₂; eapply Qlt_trans; eassumption.
-Qed.
-
-Theorem minimise_slope_oth_pts_sorted : ∀ pt₁ pt₂ pts hsl ns ms₁ n,
-  Sorted fst_lt [pt₁; pt₂ … pts]
-  → minimise_slope pt₁ pt₂ pts = ms₁
-    → next_ch_points n [end_pt ms₁ … rem_pts ms₁] = hsl
-      → ns ∈ hsl
-        → Sorted fst_lt (oth_pts ns).
-Proof.
-intros pt₁ pt₂ pts hsl ns ms₁ n Hsort Hms₁ Hnp Hns.
-revert pt₁ pt₂ pts ns ms₁ n Hsort Hms₁ Hnp Hns.
-induction hsl as [| hs₁]; intros; [ contradiction | idtac ].
-simpl in Hns.
-destruct Hns as [Hns| Hns].
- subst ns; simpl.
- eapply minimise_slope_edge_sorted with (n := n); try eassumption.
- rewrite Hnp; left; reflexivity.
-
- destruct n; [ discriminate Hnp | simpl in Hnp ].
- remember (rem_pts ms₁) as pts₁.
- symmetry in Heqpts₁.
- destruct pts₁ as [| pt₃]; [ discriminate Hnp | idtac ].
- injection Hnp; clear Hnp; intros Hnp; intros; subst hs₁.
- remember (minimise_slope (end_pt ms₁) pt₃ pts₁) as ms₂.
- symmetry in Heqms₂.
- eapply IHhsl with (pt₁ := end_pt ms₁); try eassumption.
- constructor.
-  constructor.
-   apply minimise_slope_sorted in Hms₁; [ idtac | assumption ].
-   rewrite Heqpts₁ in Hms₁.
-   apply Sorted_inv_2 in Hms₁.
-   destruct Hms₁ as (_, Hms₁).
-   eapply Sorted_inv_1; eassumption.
-
-   eapply minimise_slope_rem_lt; eassumption.
-
-  constructor.
-  eapply minimise_slope_end_lt; try eassumption; reflexivity.
 Qed.
 
 Theorem ini_oth_fin_pts_sorted : ∀ pol ns,
@@ -2710,12 +2257,6 @@ destruct n; simpl.
 
  destruct cnt; simpl; rewrite IHl; reflexivity.
 Qed.
-
-Theorem make_char_pol_cons : ∀ pow t tl,
-  make_char_pol R pow [t … tl] =
-  list_pad (power t - pow) 0%K
-    [coeff t … make_char_pol R (S (power t)) tl].
-Proof. reflexivity. Qed.
 
 Theorem ord_coeff_non_zero_in_newt_segm : ∀ pol ns h αh hps,
   ns ∈ newton_segments pol

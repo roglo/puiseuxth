@@ -179,22 +179,6 @@ Add Parametric Relation α (r : ring α) : (puiseux_series α) eq_ps_strong
  transitivity proved by (eq_strong_trans (r := r))
  as eq_strong_rel.
 
-Theorem mul_lt_mono_positive_r : ∀ a b c,
-  (fin a < b)%Nbar
-  → (fin (a * Pos.to_nat c) < b * fin (Pos.to_nat c))%Nbar.
-Proof.
-intros a b c Hab.
-rewrite Nbar.fin_inj_mul.
-apply Nbar.mul_lt_mono_pos_r.
- constructor; apply Pos2Nat.is_pos.
-
- intros H; discriminate H.
-
- intros H; discriminate H.
-
- assumption.
-Qed.
-
 Add Parametric Morphism α (r : ring α) : (@mkps α)
   with signature eq_series ==> eq ==> eq ==> eq_ps_strong
   as mkps_strong_eq_morphism.
@@ -420,20 +404,6 @@ intros k.
 constructor; intros i; simpl.
 destruct (zerop (i mod Pos.to_nat k)); [ idtac | reflexivity ].
 destruct (Nbar.lt_dec (fin (i / Pos.to_nat k)) 0); reflexivity.
-Qed.
-
-Theorem series_stretch_0_if : ∀ k s,
-  (series_stretch k s = 0)%ser
-  → (s = 0)%ser.
-Proof.
-intros k s Hs.
-constructor; intros i.
-unfold series_0; simpl.
-inversion Hs; subst; simpl in H.
-pose proof (H (i * Pos.to_nat k)%nat) as Hi.
-rewrite Nat.mod_mul in Hi; [ simpl in Hi | apply Pos2Nat_ne_0 ].
-rewrite Nat.div_mul in Hi; [ simpl in Hi | apply Pos2Nat_ne_0 ].
-assumption.
 Qed.
 
 Theorem stretch_shift_series_distr : ∀ kp n s,
@@ -734,20 +704,6 @@ rewrite Nat.mul_comm.
 rewrite Nat.mod_mul; [ simpl | apply Pos2Nat_ne_0 ].
 rewrite Nat.div_mul; [ simpl | apply Pos2Nat_ne_0 ].
 reflexivity.
-Qed.
-
-Theorem series_shrink_const : ∀ c k,
-  (series_shrink k (series_const c) = series_const c)%ser.
-Proof.
-intros c k.
-unfold series_shrink; simpl.
-constructor; intros i; simpl.
-destruct (zerop (i * Pos.to_nat k)) as [H₁| H₁].
- apply Nat.eq_mul_0_l in H₁; auto.
- subst i; reflexivity.
-
- destruct (zerop i) as [H₂| ]; [ idtac | reflexivity ].
- subst i; exfalso; revert H₁; apply Nat.lt_irrefl.
 Qed.
 
 Theorem series_nth_mul_shrink : ∀ (s : power_series α) k i,
@@ -1326,34 +1282,6 @@ induction n; intros.
   rewrite Nat.mul_comm; reflexivity.
 Qed.
 
-Theorem exists_nth_null_coeff_range_length_stretch : ∀ s b k k₁,
-  (∃ n, Pos.to_nat k * nth_null_coeff_range_length r s n b mod k₁ ≠ 0)%nat
-  → (∃ n,
-     nth_null_coeff_range_length r (series_stretch k s) n
-       (b * Pos.to_nat k) mod k₁ ≠ 0)%nat.
-Proof.
-intros s b k k₁ (n, H).
-exists n.
-rewrite nth_null_coeff_range_length_stretch.
-assumption.
-Qed.
-
-(* redéfinition de Plcm: Pos_lcm... euh... pas très joli joli, ça... *)
-Definition Pos_lcm a b := Pos.of_nat (Nat.lcm (Pos.to_nat a) (Pos.to_nat b)).
-
-Theorem Pos2Nat_lcm : ∀ a b,
-  Pos.to_nat (Pos_lcm a b) = Nat.lcm (Pos.to_nat a) (Pos.to_nat b).
-Proof.
-intros a b.
-unfold Pos_lcm.
-rewrite Nat2Pos.id.
- reflexivity.
-
- intros H.
- apply Nat.lcm_eq_0 in H.
- destruct H; revert H; apply Pos2Nat_ne_0.
-Qed.
-
 Definition is_the_greatest_series_x_power₂ s b k :=
   match null_coeff_range_length r s (S b) with
   | fin _ =>
@@ -1868,13 +1796,5 @@ Definition cm (ps₁ ps₂ : puiseux_series α) :=
 Definition cm_factor α (ps₁ ps₂ : puiseux_series α) :=
   ps_polord ps₂.
 (**)
-
-Theorem eq_strong_eq : ∀ ps₁ ps₂, ps₁ ≐ ps₂ → (ps₁ = ps₂)%ps.
-Proof.
-intros ps₁ ps₂ Heq.
-constructor.
-rewrite Heq.
-reflexivity.
-Qed.
 
 End other_theorems.

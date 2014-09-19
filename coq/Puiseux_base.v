@@ -82,11 +82,6 @@ Theorem fold_qpower_list : ∀ pow (psl : list (puiseux_series α)),
   qpower_list pow psl.
 Proof. reflexivity. Qed.
 
-Theorem fold_points_of_ps_lap_gen : ∀ pow (cl : list (puiseux_series α)),
-  filter_finite_ord r (qpower_list pow cl) =
-  points_of_ps_lap_gen pow cl.
-Proof. reflexivity. Qed.
-
 Theorem order_inf : ∀ x, order x = qinf ↔ (x = 0)%ps.
 Proof.
 intros x.
@@ -128,29 +123,6 @@ destruct (Qbar.eq_dec (order a) Qbar.qinf) as [H| H].
  apply order_inf in HH.
  rewrite HH; reflexivity.
 Qed.
-
-Theorem ps_eq_dec : ∀ a b, {(a = b)%ps} + {(a ≠ b)%ps}.
-Proof.
-intros a b.
-destruct (ps_zerop (a - b)%ps) as [H| H].
- left.
- apply rng_add_compat_r with (c := b) in H.
- rewrite <- rng_add_assoc in H.
- rewrite rng_add_opp_l in H.
- rewrite rng_add_0_r, rng_add_0_l in H.
- assumption.
-
- right.
- intros HH; apply H; clear H; rename HH into H.
- rewrite H.
- apply ps_add_opp_r.
-Qed.
-
-Theorem fold_points_of_ps_polynom_gen : ∀ pow (cl : list (puiseux_series α)),
-  filter_finite_ord r
-    (List.map (pair_rec (λ pow ps, (Qnat pow, ps))) (power_list pow cl)) =
-  points_of_ps_lap_gen pow cl.
-Proof. reflexivity. Qed.
 
 Theorem points_of_polyn_sorted : ∀ deg (cl : list (puiseux_series α)) pts,
   pts = points_of_ps_lap_gen deg cl

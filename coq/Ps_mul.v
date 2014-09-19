@@ -304,14 +304,6 @@ constructor; simpl.
  reflexivity.
 Qed.
 
-Theorem series_nth_lt_shift : ∀ a i n,
-  (i < n)%nat
-  → ((series_shift n a) .[i] = 0)%K.
-Proof.
-intros a i n Hin; simpl.
-destruct (lt_dec i n); [ reflexivity | contradiction ].
-Qed.
-
 Theorem series_shift_mul : ∀ a b n,
   (series_shift n (a * b)%ser = series_shift n a * b)%ser.
 Proof.

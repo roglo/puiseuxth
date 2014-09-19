@@ -457,23 +457,6 @@ destruct n as [n| ].
  rewrite Hn; constructor.
 Qed.
 
-Theorem ps_list_in_split : ∀ (a : puiseux_series α) la,
-  a ∈ la
-  → ∃ l1 l2, (la = l1 ++ [a … l2])%pslap.
-Proof.
-intros a la Ha.
-unfold ps_lap_eq.
-induction la as [| b]; [ contradiction | idtac ].
-destruct Ha as [Ha| Ha].
- subst b.
- exists [], la; reflexivity.
-
- apply IHla in Ha.
- destruct Ha as (lb, (lc, Ha)).
- exists [b … lb], lc.
- rewrite Ha; reflexivity.
-Qed.
-
 Theorem order_mul : ∀ a b, (order (a * b)%ps = order a + order b)%Qbar.
 Proof.
 intros a b.
@@ -1233,25 +1216,6 @@ simpl in Hm; simpl.
 destruct m as [m| ]; [ exfalso | reflexivity ].
 destruct Hm as (Him, Hm).
 destruct m as [| m]; apply Hm; [ assumption | reflexivity ].
-Qed.
-
-Theorem ps_const_order : ∀ a c,
-  (c ≠ 0)%K
-  → a = ps_monom c 0
-    → (order a = 0)%Qbar.
-Proof.
-intros a c Hc Ha; subst a.
-rewrite ps_monom_order; [ reflexivity | assumption ].
-Qed.
-
-Theorem ps_monom_order_opp_r : ∀ c n,
-  (c ≠ 0)%K
-  → order (ps_monom c (- n)) = (- order (ps_monom c n))%Qbar.
-Proof.
-intros c n Hc.
-rewrite ps_monom_order; [ idtac | assumption ].
-rewrite ps_monom_order; [ idtac | assumption ].
-reflexivity.
 Qed.
 
 Theorem ps_monom_order_ge : ∀ c n, (order (ps_monom c n) ≥ qfin n)%Qbar.

@@ -140,10 +140,6 @@ Theorem fold_ps_pol_mul : ∀ α (R : ring α) a b,
   @poly_mul _ (ps_ring R) a b = ps_pol_mul a b.
 Proof. reflexivity. Qed.
 
-Theorem fold_ps_pol_pow : ∀ α (R : ring α) a b,
-  @poly_power _ (ps_ring R) a b = ps_pol_pow a b.
-Proof. reflexivity. Qed.
-
 Delimit Scope ps_pol_scope with pspol.
 Notation "a = b" := (ps_pol_eq a b) : ps_pol_scope.
 Notation "a + b" := (ps_pol_add a b) : ps_pol_scope.

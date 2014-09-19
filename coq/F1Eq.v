@@ -266,28 +266,6 @@ induction l as [| x]; intros; simpl.
  apply IHl; assumption.
 Qed.
 
-Theorem rng_power_0_l : ∀ n, n ≠ O → (0 ^ n = 0)%K.
-Proof.
-intros n Hn; simpl.
-destruct n; [ exfalso; apply Hn; reflexivity | simpl ].
-rewrite rng_mul_0_l; reflexivity.
-Qed.
-
-Theorem list_nth_pad_ne : ∀ i n,
-  i ≠ n
-  → (List.nth i (list_pad n 0 [1]) 0 = 0)%K.
-Proof.
-intros i n Hin.
-revert i Hin.
-induction n; intros; simpl.
- destruct i; [ exfalso; apply Hin; reflexivity | simpl ].
- destruct i; reflexivity.
-
- destruct i; [ reflexivity | simpl ].
- rewrite IHn; [ reflexivity | idtac ].
- intros H; apply Hin, eq_S; assumption.
-Qed.
-
 End on_fields.
 
 Section theorems.
@@ -726,31 +704,6 @@ rewrite series_shift_0, stretch_series_1.
 subst k; reflexivity.
 Qed.
 
-Theorem lap_summation_compat_r : ∀ A (r : ring A) g h la,
-  (∀ i, lap_eq (g i) (h i))
-  → lap_eq (lap_summation la g) (lap_summation la h).
-Proof.
-intros A r g h la Hi.
-induction la as [| a]; [ reflexivity | simpl ].
-rewrite IHla.
-rewrite Hi.
-reflexivity.
-Qed.
-
-Theorem match_nat_eq_false : ∀ i,
-  match i with
-  | 0%nat => false
-  | S j => Nat.eqb i j
-  end = false.
-Proof.
-intros i.
-destruct i; [ reflexivity | idtac ].
-induction i; [ reflexivity | idtac ].
-remember (S i) as j.
-rewrite Heqj in |- * at 2.
-assumption.
-Qed.
-
 Theorem fold_nothing : ∀ A j len (f : _ → _ → A) g la,
   (∀ i, j ≤ i → (i < j + len)%nat → g i = false)
   → List.fold_right (λ i accu, if g i then f i accu else accu) la
@@ -764,18 +717,6 @@ rewrite Nat.add_succ_r, <- Nat.add_succ_l in Hg.
 apply IHlen.
 intros i Hji Hij.
 apply Hg; [ omega | assumption ].
-Qed.
-
-Theorem fold_right_if_compat : ∀ A B f₁ f₂ (g h : A → bool) (la : B) li,
-  (∀ i, i ∈ li → g i = h i)
-  → List.fold_right (λ i a, if g i then f₁ i a else f₂ i a) la li =
-    List.fold_right (λ i a, if h i then f₁ i a else f₂ i a) la li.
-Proof.
-intros A B f₁ f₂ g h la li Hi.
-induction li as [| i]; [ reflexivity | simpl ].
-rewrite IHli; [ idtac | intros; apply Hi; right; assumption ].
-replace (h i) with (g i) ; [ idtac | apply Hi; left; reflexivity ].
-reflexivity.
 Qed.
 
 Theorem fold_right_eqb_or : ∀ A j k len f (g : _ → A → A) la,
@@ -1646,27 +1587,6 @@ Theorem poly_inject_inj_mul : ∀ P Q,
 Proof.
 intros P Q.
 apply lap_mul_map_ps.
-Qed.
-
-Theorem summation_lap_compose_deg_1_mul : ∀ la c d k f,
-  let _ := ps_ring R in
-  (Σ (i = 0, k),
-   (List.nth (f i) (la ∘ [c; 1 … []])%pslap 0 * d i)%ps =
-   Σ (i = 0, k),
-   (Σ (j = 0, length la - f i),
-    rng_mul_nat (ps_ring R) (comb (f i + j) (f i))
-      (List.nth (f i + j) la 0 * rng_pow_nat (ps_ring R) c j)) *
-    d i)%ps.
-Proof.
-intros la c d k f.
-apply summation_compat.
-intros i (_, Hik).
-unfold ps_lap_comp.
-rewrite fold_ps_lap_nth.
-rewrite lap_compose_compose2.
-unfold ps_lap_nth.
-rewrite list_nth_compose2_deg_1; [ idtac | reflexivity ].
-reflexivity.
 Qed.
 
 Theorem Ψ_length : ∀ pol ns j k αj αk c₁ r Ψ,

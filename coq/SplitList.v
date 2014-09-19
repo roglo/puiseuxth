@@ -28,19 +28,6 @@ induction l as [| x]; intros.
  inversion H; subst; constructor; apply IHl; assumption.
 Qed.
 
-Theorem split_list_length : ∀ α (l la lb : list α),
-  split_list l la lb → length l = (length la + length lb)%nat.
-Proof.
-intros A l la lb H.
-revert la lb H.
-induction l as [| x]; intros; [ inversion H; reflexivity | simpl ].
-inversion H; subst; simpl.
- apply eq_S, IHl; assumption.
-
- rewrite Nat.add_succ_r.
- apply eq_S, IHl; assumption.
-Qed.
-
 Theorem split_list_nil_l : ∀ α (l la : list α),
   split_list l [] la → la = l.
 Proof.
@@ -274,35 +261,6 @@ inversion H; subst; [ reflexivity | idtac ].
 apply IHlen in H4.
 eapply Nat.le_trans; [ idtac | eassumption ].
 apply Nat.le_succ_r; left; reflexivity.
-Qed.
-
-Theorem split_seq_except : ∀ start len la lb,
-  split_list (List.seq start len) la lb
-  → lb = list_seq_except start len la.
-Proof.
-intros start len la lb Hs.
-revert start la lb Hs.
-induction len; intros; simpl in Hs; simpl.
- inversion Hs; reflexivity.
-
- destruct la as [| a]; simpl.
-  apply split_list_nil_l in Hs.
-  rewrite list_seq_except_nil; assumption.
-
-  destruct (eq_nat_dec start a) as [Hsa| Hsa].
-   subst a.
-   inversion Hs; subst.
-    apply IHlen; assumption.
-
-    apply split_seq_le in H3.
-    apply Nat.nlt_ge in H3.
-    exfalso; apply H3, Nat.lt_succ_r; reflexivity.
-
-   inversion Hs; subst.
-    exfalso; apply Hsa; reflexivity.
-
-    f_equal.
-    apply IHlen; assumption.
 Qed.
 
 Theorem except_split_seq : ∀ start len la lb,
