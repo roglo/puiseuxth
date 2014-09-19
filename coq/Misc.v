@@ -462,6 +462,7 @@ rewrite <- Qmult_assoc.
 rewrite Qmult_inv_r; [ idtac | apply Qgt_0_not_0; assumption ].
 rewrite Qmult_1_r; reflexivity.
 Qed.
+
 Theorem Qlt_shift_mult_l : ∀ x y z, 0 < z → x / z < y → x < y * z.
 Proof.
 intros x y z Hc H.
@@ -481,6 +482,7 @@ rewrite <- Qmult_assoc.
 rewrite Qmult_inv_r; [ idtac | apply Qgt_0_not_0; assumption ].
 rewrite Qmult_1_r; reflexivity.
 Qed.
+
 Theorem Qlt_shift_mult_r : ∀ x y z, 0 < z → x < y / z → x * z < y.
 Proof.
 intros x y z Hc H.
@@ -511,9 +513,6 @@ intros x y z.
 do 2 rewrite (Qplus_comm z).
 apply Qplus_cmp_compat_r.
 Qed.
-
-Theorem list_cons_app {T} : ∀ x : T, ∀ l, [x … l] = [x] ++ l.
-Proof. reflexivity. Qed.
 
 Theorem list_Forall_inv : ∀ A (P : A → Prop) a l,
   List.Forall P [a … l] → P a ∧ List.Forall P l.
