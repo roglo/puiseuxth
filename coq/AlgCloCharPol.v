@@ -50,12 +50,6 @@ Fixpoint rng_mul_nat α (r : ring α) n x :=
   | S n₁ => (rng_mul_nat r n₁ x + x)%K
   end.
 
-Fixpoint rng_pow_nat α (r : ring α) a n :=
-  match n with
-  | 0%nat => 1%K
-  | S n₁ => (a * rng_pow_nat r a n₁)%K
-  end.
-
 Theorem comb_lt : ∀ n k, (n < k)%nat → comb n k = 0%nat.
 Proof.
 intros n k Hnk.
