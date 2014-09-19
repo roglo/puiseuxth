@@ -174,13 +174,6 @@ induction len; intros; simpl.
  reflexivity.
 Qed.
 
-Theorem summation_mul_swap : ∀ a g k,
-  (Σ (i = 0, k), a * g i = a * Σ (i = 0, k), g i)%K.
-Proof.
-intros a g k.
-apply summation_aux_mul_swap.
-Qed.
-
 Theorem summation_aux_summation_aux_mul_swap : ∀ g₁ g₂ g₃ b₁ b₂ len,
   (summation_aux r b₁ len
      (λ i, summation_aux r b₂ (g₁ i) (λ j, g₂ i * g₃ i j))
@@ -538,16 +531,6 @@ remember (S k - b)%nat as len; clear Heqlen.
 revert b.
 induction len; intros; [ reflexivity | simpl ].
 rewrite IHlen; reflexivity.
-Qed.
-
-Theorem summation_lt : ∀ k b g,
-  (k < b)%nat
-  → (Σ (i = b, k), g i = 0)%K.
-Proof.
-intros k b g Hkb.
-unfold summation.
-replace (S k - b)%nat with O by omega.
-reflexivity.
 Qed.
 
 End theorems_summation.

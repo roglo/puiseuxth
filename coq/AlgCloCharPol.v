@@ -150,13 +150,6 @@ induction m; intros; simpl.
  apply rng_add_shuffle0.
 Qed.
 
-Theorem rng_mul_nat_0_r : ∀ α (r : ring α) n, (rng_mul_nat r n 0 = 0)%K.
-Proof.
-intros α r n.
-induction n; [ reflexivity | simpl ].
-rewrite rng_add_0_r; assumption.
-Qed.
-
 Add Parametric Morphism α (r : ring α) : (rng_mul_nat r)
   with signature eq ==> rng_eq ==> rng_eq
   as rng_mul_nat_morph.
@@ -184,10 +177,6 @@ induction n; simpl.
 
  rewrite rng_mul_add_distr_r, IHn; reflexivity.
 Qed.
-
-Theorem comb_succ_succ : ∀ n k,
-  comb (S n) (S k) = (comb n k + comb n (S k))%nat.
-Proof. intros; reflexivity. Qed.
 
 Theorem apply_lap_add : ∀ α (r : ring α) la lb x,
   (apply_lap (lap_add la lb) x =
@@ -309,48 +298,6 @@ Theorem poly_compose_compose2 : ∀ α (r : ring α) P Q,
 Proof.
 intros α r P Q.
 apply lap_compose_compose2.
-Qed.
-
-Theorem fold_seq_succ : ∀ α (r : ring α) g s len,
-  (∀ t a b, lap_eq a b → lap_eq (g t a) (g t b))
-  → lap_eq
-      (List.fold_right g [] (List.seq s (S len)))
-      (g s (List.fold_right (λ i accu, g (S i) accu) [] (List.seq s len)))%K.
-Proof.
-intros α r g s len Hg.
-revert s Hg.
-induction len; intros; [ reflexivity | idtac ].
-remember (S len) as x; simpl; subst x.
-apply Hg.
-rewrite IHlen; [ reflexivity | apply Hg ].
-Qed.
-
-Theorem fold_add_pow : ∀ α (r : ring α) a la lb lc da,
-  lap_eq
-    (List.fold_right
-      (λ i accu,
-       lap_add accu
-         (lap_mul [List.nth (S i) [a … la] da]
-            (lap_power lb (S i))))
-      [] lc)
-    (lap_mul lb
-       (List.fold_right
-          (λ i accu,
-           lap_add accu (lap_mul [List.nth i la da] (lap_power lb i)))
-          [] lc)).
-Proof.
-intros α r a la lb lc da; simpl; clear.
-revert la lb da.
-induction lc as [| c]; intros; simpl.
- rewrite lap_mul_nil_r; reflexivity.
-
- rewrite IHlc.
- rewrite lap_mul_add_distr_l.
- apply lap_add_compat; [ reflexivity | idtac ].
- rewrite lap_mul_assoc.
- rewrite lap_mul_assoc.
- apply lap_mul_compat; [ idtac | reflexivity ].
- apply lap_mul_comm.
 Qed.
 
 Theorem nth_mul_deg_1 : ∀ α (r : ring α) a lb k,

@@ -210,13 +210,6 @@ rewrite summation_only_one_non_0 with (v := O).
  apply rng_mul_0_l.
 Qed.
 
-Theorem series_mul_1_r : ∀ s, (s * 1 = s)%ser.
-Proof.
-intros s.
-rewrite series_mul_comm.
-apply series_mul_1_l.
-Qed.
-
 Theorem series_mul_assoc : ∀ a b c,
   (a * (b * c) = (a * b) * c)%ser.
 Proof.
@@ -301,15 +294,6 @@ Qed.
 Theorem series_mul_compat_l : ∀ a b c,
   (a = b)%ser
   → (c * a = c * b)%ser.
-Proof.
-intros a b c Hab.
-rewrite Hab.
-reflexivity.
-Qed.
-
-Theorem series_mul_compat_r : ∀ a b c,
-  (a = b)%ser
-  → (a * c = b * c)%ser.
 Proof.
 intros a b c Hab.
 rewrite Hab.
@@ -478,16 +462,6 @@ destruct i; simpl.
  rewrite fld_mul_inv_r; [ reflexivity | assumption ].
 
  apply convol_mul_inv_r; [ assumption | reflexivity ].
-Qed.
-
-Theorem series_mul_inv_l : ∀ a,
-  (a.[0] ≠ 0)%K
-  → (¹/ a * a = 1)%ser.
-Proof.
-intros a Ha.
-rewrite series_mul_comm.
-apply series_mul_inv_r.
-assumption.
 Qed.
 
 End theorems_again.

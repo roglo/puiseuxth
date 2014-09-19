@@ -28,18 +28,6 @@ induction l as [| x]; intros.
  inversion H; subst; constructor; apply IHl; assumption.
 Qed.
 
-Theorem split_list_nil_l : ∀ α (l la : list α),
-  split_list l [] la → la = l.
-Proof.
-intros A l la H.
-revert la H.
-induction l as [| x]; intros.
- inversion H; reflexivity.
-
- inversion H; subst; f_equal.
- apply IHl; assumption.
-Qed.
-
 Theorem split_sorted_cons_r : ∀ l la lb b,
   split_list l la [b … lb]
   → Sorted Nat.lt [b … l]
@@ -240,28 +228,6 @@ Fixpoint list_seq_except start len except :=
           else [start … list_seq_except (S start) len' except]
       end
   end.
-
-Theorem list_seq_except_nil : ∀ start len,
-  list_seq_except start len [] = List.seq start len.
-Proof.
-intros start len.
-revert start.
-induction len; intros; [ reflexivity | simpl ].
-rewrite IHlen; reflexivity.
-Qed.
-
-Theorem split_seq_le : ∀ start len a la lb,
-  split_list (List.seq start len) [a … la] lb
-  → start ≤ a.
-Proof.
-intros start len a la lb H.
-revert start a la lb H.
-induction len; intros; simpl in H; [ inversion H | idtac ].
-inversion H; subst; [ reflexivity | idtac ].
-apply IHlen in H4.
-eapply Nat.le_trans; [ idtac | eassumption ].
-apply Nat.le_succ_r; left; reflexivity.
-Qed.
 
 Theorem except_split_seq : ∀ start len la lb,
   Sorted Nat.lt la

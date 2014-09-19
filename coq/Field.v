@@ -253,17 +253,6 @@ split; intros H.
  rewrite rng_add_opp_l; reflexivity.
 Qed.
 
-Theorem rng_mul_opp_1_l : ∀ a, (- (1) * a = - a)%K.
-Proof.
-intros a.
-apply rng_add_reg_r with (c := (1 * a)%K).
-rewrite <- rng_mul_add_distr_r.
-rewrite rng_add_opp_l, rng_mul_0_l.
-symmetry.
-apply rng_add_move_0_r.
-rewrite rng_mul_1_l; reflexivity.
-Qed.
-
 Theorem rng_opp_inj_wd : ∀ a b, (- a = - b)%K ↔ (a = b)%K.
 Proof.
 intros a b; split; intros H.

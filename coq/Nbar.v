@@ -83,9 +83,6 @@ Inductive lt : Nbar → Nbar → Prop :=
   | lt_inf : ∀ n, fin n < ∞
 where "n < m" := (lt n m) : Nbar_scope.
 
-Theorem fin_inj_mul : ∀ n m, fin (n * m) = fin n * fin m.
-Proof. reflexivity. Qed.
-
 Theorem fin_inj_wd : ∀ n1 n2, fin n1 = fin n2 ↔ n1 = n2.
 Proof.
 intros n₁ n₂.
@@ -435,34 +432,6 @@ destruct a as [a| ]; [ simpl | reflexivity ].
 rewrite divmod_div.
 rewrite Nat.div_mul; [ reflexivity | idtac ].
 intros H; discriminate H.
-Qed.
-
-Theorem div_sup_0_l : ∀ a, div_sup 0 a = 0.
-Proof.
-intros a.
-unfold div_sup.
-destruct a as [a| ]; [ simpl | reflexivity ].
-destruct a; [ reflexivity | idtac ].
-rewrite Nat.div_small; [ reflexivity | simpl ].
-rewrite Nat.sub_0_r.
-apply Nat.lt_succ_r; reflexivity.
-Qed.
-
-Theorem Nat_le_mul_div_sup : ∀ a b, (b ≠ 0 → a <= Nat_div_sup a b * b)%nat.
-Proof.
-intros a b Hb.
-unfold Nat_div_sup.
-pose proof (Nat.div_mod (a + b - 1) b Hb) as H.
-remember ((a + b - 1) / b)%nat as q eqn:Hq .
-remember ((a + b - 1) mod b) as r eqn:Hr .
-rewrite Nat.mul_comm.
-apply Nat.add_le_mono_r with (p := r).
-rewrite <- H.
-rewrite <- Nat.add_sub_assoc; [ idtac | fast_omega Hb ].
-apply Nat.add_le_mono_l.
-rewrite Hr.
-apply (Nat.mod_upper_bound (a + b - 1)) in Hb.
-fast_omega Hb.
 Qed.
 
 Theorem div_lt_upper_bound : ∀ a b q, b ≠ 0 → b ≠ ∞ → a < b * q → a / b < q.

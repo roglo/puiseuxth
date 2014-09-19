@@ -208,10 +208,6 @@ Notation "a ^ b" := (lap_power a b) : lap_scope.
 
 Definition list_nth_def_0 α {R : ring α} n l := List.nth n l 0%K.
 
-Theorem fold_list_nth_def_0 : ∀ α (R : ring α) n l,
-  List.nth n l 0%K = list_nth_def_0 n l.
-Proof. reflexivity. Qed.
-
 (* *)
 
 Add Parametric Morphism α (R : ring α) : (@list_nth_def_0 _ R)
@@ -1209,94 +1205,6 @@ rewrite Nat.sub_succ.
 apply IHs; assumption.
 Qed.
 
-Theorem lap_power_x : ∀ n,
-  lap_eq (lap_power [0; 1 … []] n)%K (list_pad n 0 [1])%K.
-Proof.
-intros n.
-apply list_nth_lap_eq; intros i.
-destruct (lt_dec i n) as [Hin| Hin].
- rewrite list_nth_pad_lt; [ idtac | assumption ].
- revert i Hin.
- induction n; intros; [ exfalso; revert Hin; apply Nat.nlt_0_r | simpl ].
- destruct i; simpl.
-  unfold summation; simpl.
-  rewrite rng_mul_0_l, rng_add_0_l; reflexivity.
-
-  apply lt_S_n in Hin.
-  rewrite length_lap_power; [ idtac | intros H; discriminate H ].
-  unfold length; rewrite Nat.mul_1_r.
-  rewrite list_nth_convol_mul.
-   rewrite all_0_summation_0; [ reflexivity | idtac ].
-   intros j (_, Hj).
-   destruct (lt_dec (1 + i - j) n) as [Hijn| Hijn].
-    rewrite IHn; [ idtac | assumption ].
-    rewrite rng_mul_0_r; reflexivity.
-
-    apply Nat.nlt_ge in Hijn.
-    destruct j; [ rewrite rng_mul_0_l; reflexivity | idtac ].
-    exfalso; fast_omega Hin Hijn.
-
-   rewrite length_lap_power; [ simpl | intros H; discriminate H ].
-   rewrite Nat.mul_1_r; reflexivity.
-
- apply Nat.nlt_ge in Hin.
- rewrite list_nth_pad_sub; [ idtac | assumption ].
- destruct (eq_nat_dec n i) as [Heq| Hne].
-  subst i; clear Hin.
-  rewrite Nat.sub_diag.
-  remember S as g; simpl; subst g.
-  induction n; [ reflexivity | simpl ].
-  rewrite length_lap_power; [ idtac | intros H; discriminate H ].
-  unfold length; rewrite Nat.mul_1_r.
-  rewrite list_nth_convol_mul.
-   rewrite summation_only_one_non_0 with (v := 1%nat).
-    rewrite Nat.add_comm, Nat.add_sub.
-    rewrite IHn; simpl.
-    rewrite rng_mul_1_r; reflexivity.
-
-    split; [ apply Nat.le_0_l | apply le_n_S, Nat.le_0_l ].
-
-    intros i (_, Hin) Hi.
-    destruct i; [ rewrite rng_mul_0_l; reflexivity | simpl ].
-    destruct i; [ exfalso; apply Hi; reflexivity | idtac ].
-    rewrite match_id, rng_mul_0_l; reflexivity.
-
-   rewrite length_lap_power; [ simpl | intros H; discriminate H ].
-   rewrite Nat.mul_1_r; reflexivity.
-
-  apply le_neq_lt in Hin; [ idtac | assumption ].
-  symmetry.
-  rewrite List.nth_overflow; [ idtac | simpl; omega ].
-  symmetry; clear Hne.
-  revert i Hin.
-  induction n; intros.
-   simpl.
-   destruct i; [ exfalso; revert Hin; apply Nat.lt_irrefl | idtac ].
-   rewrite match_id; reflexivity.
-
-   destruct i.
-    exfalso; revert Hin; apply Nat.nlt_0_r.
-
-    apply lt_S_n in Hin.
-    simpl.
-    rewrite length_lap_power; [ idtac | intros H; discriminate H ].
-    remember S as g; simpl; subst g.
-    rewrite Nat.mul_1_r.
-    rewrite list_nth_convol_mul.
-     rewrite all_0_summation_0; [ reflexivity | idtac ].
-     intros j (_, Hj).
-     destruct j; [ rewrite rng_mul_0_l; reflexivity | simpl ].
-     destruct j.
-      rewrite Nat.sub_0_r.
-      rewrite IHn; [ idtac | assumption ].
-      rewrite rng_mul_0_r; reflexivity.
-
-      rewrite match_id, rng_mul_0_l; reflexivity.
-
-     rewrite length_lap_power; [ simpl | intros H; discriminate H ].
-     rewrite Nat.mul_1_r; reflexivity.
-Qed.
-
 Theorem lap_mul_cons_l : ∀ a la lb,
   lap_eq (lap_mul [a … la] lb)
     (lap_add (lap_mul [a] lb) [0%K … lap_mul la lb]).
@@ -1655,21 +1563,6 @@ intros a b c d Hac Hbd.
 rewrite Hac, Hbd; reflexivity.
 Qed.
 
-Theorem poly_add_compat_l : ∀ a b c,
-  (a = b)%pol
-  → (c + a = c + b)%pol.
-Proof.
-intros a b c Hab.
-rewrite Hab; reflexivity.
-Qed.
-
-Theorem poly_add_comm : ∀ pol₁ pol₂, (pol₁ + pol₂ = pol₂ + pol₁)%pol.
-Proof.
-intros pol₁ pol₂.
-unfold eq_poly.
-eapply lap_add_comm; reflexivity.
-Qed.
-
 Theorem poly_add_assoc : ∀ pol₁ pol₂ pol₃,
   (pol₁ + (pol₂ + pol₃) = (pol₁ + pol₂) + pol₃)%pol.
 Proof.
@@ -1685,14 +1578,6 @@ Theorem poly_mul_compat : ∀ a b c d,
 Proof.
 intros a b c d Hac Hbd.
 rewrite Hac, Hbd; reflexivity.
-Qed.
-
-Theorem poly_mul_compat_l : ∀ a b c,
-  (a = b)%pol
-  → (c * a = c * b)%pol.
-Proof.
-intros a b c Hab.
-rewrite Hab; reflexivity.
 Qed.
 
 Theorem poly_mul_comm : ∀ a b, (a * b = b * a)%pol.
