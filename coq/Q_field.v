@@ -42,9 +42,4 @@ Definition Q_ring :=
      rng_mul_compat_l := Qmult_compat_l;
      rng_mul_add_distr_l := Qmult_plus_distr_r |}.
 
-(*
-     fld_inv := Qinv;
-     rng_mul_inv_l := Qmul_inv_l
-*)
-
 Canonical Structure Q_ring.

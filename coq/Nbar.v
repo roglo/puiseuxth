@@ -115,25 +115,6 @@ Qed.
 Theorem fin_inj_sub : ∀ n m, fin (n - m) = fin n - fin m.
 Proof. reflexivity. Qed.
 
-(*
-Theorem fin_inj_S : ∀ n, fin (Datatypes.S n) = S (fin n).
-Proof. reflexivity. Qed.
-
-Theorem not_gt : ∀ n m, ¬n > m → n ≤ m.
-Proof.
-intros n m H.
-destruct n as [n| ].
- destruct m as [m| ]; [ idtac | constructor ].
- unfold gt in H; constructor.
- apply not_gt.
- unfold Peano.gt.
- intros HH; apply H; clear H.
- constructor; assumption.
-
- exfalso; apply H; constructor.
-Qed.
-*)
-
 Theorem add_comm : ∀ n m, n + m = m + n.
 Proof.
 intros n m.
@@ -147,17 +128,6 @@ intros n m.
 destruct n; [ simpl | destruct m; reflexivity ].
 destruct m; [ rewrite Nat.mul_comm; reflexivity | reflexivity ].
 Qed.
-
-(*
-Theorem mul_add_distr_l : ∀ n m p, n * (m + p) = n * m + n * p.
-Proof.
-intros n m p.
-destruct n as [n| ]; [ simpl | reflexivity ].
-destruct m as [m| ]; [ simpl | reflexivity ].
-destruct p as [p| ]; [ simpl | reflexivity ].
-rewrite Nat.mul_add_distr_l; reflexivity.
-Qed.
-*)
 
 Theorem lt_irrefl : ∀ n, ¬(n < n).
 Proof.
@@ -734,28 +704,6 @@ destruct a as [a| ].
  exfalso; apply Hbi; reflexivity.
 Qed.
 
-(*
-Theorem le_antisymm : ∀ n m, n ≤ m → m ≤ n → n = m.
-Proof.
-intros n m Hnm Hmn.
-destruct n as [n| ]; [ idtac | inversion Hnm; reflexivity ].
-destruct m as [m| ]; [ f_equal | inversion Hmn; reflexivity ].
-apply Nat.le_antisymm; [ inversion Hnm | inversion Hmn ]; assumption.
-Qed.
-
-Theorem lt_lt_add_r : ∀ n m p, n < m → n < m + p.
-Proof.
-intros n m p H.
-destruct n as [n| ].
- destruct m as [m| ]; [ simpl | constructor ].
- destruct p as [p| ]; constructor.
- apply Nat.lt_lt_add_r.
- inversion H; assumption.
-
- destruct m as [m| ]; [ inversion H | constructor ].
-Qed.
-*)
-
 Theorem lt_sub_lt_add_r : ∀ n m p, n ≠ ∞ → n - p < m → n < m + p.
 Proof.
 intros n m p Hn H.
@@ -1002,16 +950,6 @@ destruct m as [| m]; [ simpl | reflexivity ].
 rewrite Nat.mul_max_distr_r; reflexivity.
 Qed.
 
-(*
-Theorem min_comm : ∀ n m, min n m = min m n.
-Proof.
-intros n m.
-destruct n as [n| ]; [ simpl | destruct m; reflexivity ].
-destruct m as [m| ]; [ simpl | reflexivity ].
-rewrite Nat.min_comm; reflexivity.
-Qed.
-*)
-
 Theorem max_comm : ∀ n m, max n m = max m n.
 Proof.
 intros n m.
@@ -1155,30 +1093,6 @@ Infix "-" := Nbar.sub : Nbar_scope.
 Infix "*" := Nbar.mul : Nbar_scope.
 Infix "/" := Nbar.div : Nbar_scope.
 Infix "<" := Nbar.lt : Nbar_scope.
-(*
-Infix "≤" := Nbar.le : Nbar_scope.
-
-Module Nbar2Nat.
-
-Theorem inj_add : ∀ p q : Nbar, p ≠ ∞ → q ≠ ∞ →
-  Nbar.to_nat (p + q) = (Nbar.to_nat p + Nbar.to_nat q)%nat.
-Proof.
-intros p q Hp Hq.
-destruct p as [p| ]; [ simpl | negation Hp ].
-destruct q as [q| ]; [ reflexivity | negation Hq ].
-Qed.
-
-Theorem inj_mul : ∀ p q : Nbar,
-  Nbar.to_nat (p * q) = (Nbar.to_nat p * Nbar.to_nat q)%nat.
-Proof.
-intros p q.
-destruct p as [p| ]; [ simpl | reflexivity ].
-destruct q as [q| ]; [ reflexivity | simpl ].
-rewrite Nat.mul_0_r; reflexivity.
-Qed.
-
-End Nbar2Nat.
-*)
 
 Close Scope Nbar_scope.
 
