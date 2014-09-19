@@ -1634,9 +1634,6 @@ destruct (zerop i); [ reflexivity | idtac ].
 rewrite rng_opp_0; reflexivity.
 Qed.
 
-Definition lap_compose5 {α β} {R : ring β} (f : list α → list β) la lb :=
-  @apply_lap _ (lap_ring R) (List.map f la) lb.
-
 (* [Walker, p. 101] « Since αh + h.γ₁ = β₁, the first summation reduces to
       (c₁+y₁)^j.Φ((c₁+y₁)^q) = x^β₁.y₁^r.(c₁+y₁)^j.Ψ(c₁+y₁) ».
 

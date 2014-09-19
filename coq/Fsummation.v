@@ -19,11 +19,6 @@ Fixpoint summation_aux α (r : ring α) b len g :=
 
 Definition summation α {R : ring α} b e g := summation_aux R b (S e - b) g.
 
-(* to be tested! *)
-Definition summation' α {R : ring α} b e g :=
-  List.fold_right (λ i accu, g i + accu)%K 0%K
-    (List.seq b (S e - b)).
-
 Notation "'Σ' ( i = b , e ) , g" := (summation b e (λ i, (g)))
   (at level 0, i at level 0, b at level 60, e at level 60, g at level 40).
 

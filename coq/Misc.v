@@ -498,19 +498,6 @@ revert HH; apply lt_irrefl.
 Qed.
 Hint Resolve Pos2Nat_ne_0.
 
-Open Scope Z_scope.
-
-Theorem Zpos_divides_div : ∀ a b, ('a | 'b) → 'b / 'a ≠ 0.
-Proof.
-intros a b Hab.
-destruct Hab as (c, Hab).
-rewrite Hab.
-rewrite Z.div_mul; [ idtac | apply Pos2Z_ne_0 ].
-destruct c; [ discriminate Hab | apply Pos2Z_ne_0 | discriminate Hab ].
-Qed.
-
-Close Scope Z_scope.
-
 Open Scope positive_scope.
 
 Theorem Pos_mul_shuffle0 : ∀ n m p, n * m * p = n * p * m.
@@ -679,8 +666,6 @@ Qed.
 
 Theorem Nat_sub_succ_1 : ∀ n, (S n - 1 = n)%nat.
 Proof. intros n; simpl; rewrite Nat.sub_0_r; reflexivity. Qed.
-
-Definition Nat_div_sup x y := ((x + y - 1) / y)%nat.
 
 Theorem Z_div_pos_is_nonneg : ∀ x y, (0 <= ' x / ' y)%Z.
 Proof.
@@ -1265,13 +1250,6 @@ intros n m H.
 unfold Qmin.
 destruct (Qlt_le_dec n m) as [| Hge]; [ reflexivity | idtac ].
 apply Qle_antisym; assumption.
-Qed.
-
-Theorem Q_inv_sub : ∀ x, / - x == - / x.
-Proof.
-intros x.
-unfold Qinv; simpl.
-destruct (Qnum x); reflexivity.
 Qed.
 
 Theorem Q_sub_0_r : ∀ n, (n - 0)%Q == n.

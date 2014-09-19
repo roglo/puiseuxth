@@ -1573,11 +1573,6 @@ Qed.
 
 (* *)
 
-Definition is_polynomial_in_x_power_q pol q :=
-  ∀ i c, (i mod q ≠ 0)%nat
-  → c = List.nth i (al pol) 0%K
-    → (c = 0)%K.
-
 Theorem list_pad_0 : ∀ z (r : list α), list_pad 0 z r = r.
 Proof. reflexivity. Qed.
 
@@ -2657,7 +2652,5 @@ split.
   subst l.
   eapply phi_pseudo_degree_is_k_sub_j_div_q; eassumption.
 Qed.
-
-Definition apply_K_poly := (horner 0 rng_add rng_mul)%K.
 
 End theorems.

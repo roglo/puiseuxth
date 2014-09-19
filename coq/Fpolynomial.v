@@ -1002,19 +1002,6 @@ apply lap_convol_mul_1_r; simpl.
 rewrite Nat.add_comm; reflexivity.
 Qed.
 
-Theorem length_lap_mul : ∀ la lb,
-  length (lap_mul la lb) = pred (length la + length lb).
-Proof.
-intros la lb.
-unfold lap_mul.
-remember (pred (length la + length lb)) as len.
-remember 0%nat as i.
-clear Heqlen Heqi.
-revert i.
-induction len; intros; [ reflexivity | simpl ].
-rewrite IHlen; reflexivity.
-Qed.
-
 (* to be unified perhaps with list_nth_lap_convol_mul above *)
 Theorem list_nth_convol_mul : ∀ la lb i k len,
   (i + len)%nat = pred (length la + length lb)
@@ -1157,19 +1144,6 @@ induction n; intros; simpl.
  do 2 rewrite lap_mul_assoc.
  apply lap_mul_compat; [ idtac | reflexivity ].
  apply lap_mul_comm.
-Qed.
-
-Theorem length_lap_power : ∀ la n,
-  la ≠ []
-  → length (lap_power la n) = S (n * pred (length la)).
-Proof.
-intros la n Hla.
-induction n; [ reflexivity | simpl ].
-rewrite length_lap_mul; simpl.
-rewrite IHn; simpl.
-rewrite Nat.add_succ_r; simpl.
-rewrite <- Nat.add_succ_l.
-destruct la; [ exfalso; apply Hla; reflexivity | reflexivity ].
 Qed.
 
 Theorem lap_power_1 : ∀ la, (la ^ 1 = la)%lap.
@@ -1435,17 +1409,6 @@ Definition lap_ring α (R : ring α) : ring (list α) :=
 
 Canonical Structure lap_ring.
 
-(* alternative definitions of lap_compose; could be used later, perhaps... *)
-
-Definition lap_compose3 {α} {r : ring α} la lb :=
-  let _ := lap_ring r in
-  Σ (i = 0, length la), ([List.nth i la 0%K] * lap_power lb i)%lap.
-
-Definition lap_compose4 {α} {r : ring α} la lb :=
-  let _ := lap_ring r in
-  Σ (i = 0, length la), ([List.nth i la 0] * lb ^ i)%K.
-
-
 (* polynomial type *)
 
 Record polynomial α := mkpol { al : list α }.
@@ -1504,8 +1467,6 @@ Notation "a + b" := (poly_add a b) : poly_scope.
 Notation "a * b" := (poly_mul a b) : poly_scope.
 Notation "a ^ b" := (poly_power a b) : poly_scope.
 Notation "a ∘ b" := (poly_compose a b) : poly_scope.
-
-Definition Pdivide α {R : ring α} x y := ∃ z, (y = z * x)%pol.
 
 Add Parametric Morphism α (r : ring α) : (@al α)
   with signature eq_poly ==> lap_eq
@@ -1613,12 +1574,6 @@ Qed.
 
 End poly.
 
-(* Horner's algorithm *)
-Definition horner α β γ
-    (zero_c : α) (add_v_c : α → β → α) (mul_v_x : α → γ → α)
-    (pol : polynomial β) (x : γ) :=
-  List.fold_right (λ c accu, add_v_c (mul_v_x accu x) c) zero_c (al pol).
-
 (* *)
 
 Definition apply_lap α {R : ring α} la x :=
@@ -1626,6 +1581,3 @@ Definition apply_lap α {R : ring α} la x :=
 
 Definition apply_poly α {R : ring α} pol :=
   apply_lap (al pol).
-
-Definition apply_lap2 α {R : ring α} la x :=
-  Σ (i = 0, pred (length la)), (List.nth i la 0 * x ^ i)%K.

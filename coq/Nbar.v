@@ -71,8 +71,6 @@ Infix "-" := sub : Nbar_scope.
 Infix "*" := mul : Nbar_scope.
 Infix "/" := div : Nbar_scope.
 
-Definition div_sup x y := (x + y - 1) / y.
-
 Inductive le : Nbar → Nbar → Prop :=
   | le_fin : ∀ n m, (n <= m)%nat → fin n ≤ fin m
   | le_inf : ∀ n, n ≤ ∞
@@ -186,15 +184,6 @@ destruct m as [m| ]; simpl.
   eapply Nat.mul_lt_mono_pos_r; [ inversion Hp | inversion H ]; eassumption.
 
  split; intros H; constructor.
-Qed.
-
-Theorem mul_lt_mono_pos_l : ∀ p n m, 0 < p → p ≠ ∞ → n ≠ ∞ →
-  n < m ↔ p * n < p * m.
-Proof.
-intros p n m Hp Hpi Hni.
-rewrite Nbar.mul_comm.
-replace (p * m) with (m * p) by apply mul_comm.
-apply mul_lt_mono_pos_r; assumption.
 Qed.
 
 Theorem mul_0_r : ∀ n, n ≠ inf → n * 0 = 0.
