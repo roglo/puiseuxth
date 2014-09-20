@@ -851,7 +851,9 @@ assert (j < k)%nat as Hjk.
        rewrite orb_false_r.
        apply Nat.eqb_neq.
        intros H; subst i.
-       fast_omega Hjk Hij.
+       rewrite Nat.add_sub_assoc in Hij; auto.
+       rewrite Nat.add_comm, Nat.add_sub in Hij.
+       revert Hij; apply Nat.lt_irrefl.
 
        revert Hsort Hlast Hnat; clear; intros.
        apply Sorted_inv_1 in Hsort.
@@ -907,12 +909,20 @@ assert (j < k)%nat as Hjk.
 
            intros; apply Hjh with (αi := αi); right; assumption.
 
-       rewrite list_seq_app with (dj := (h - S j)%nat); [ idtac | omega ].
+       remember Hhk as H; clear HeqH.
+       apply Nat.lt_le_incl in H.
+       apply Nat.sub_le_mono_r with (p := S j) in H.
+       apply Nat.le_le_succ_r in H.
+       rewrite <- Nat.sub_succ_l in H; auto; simpl in H.
+       rewrite list_seq_app with (dj := (h - S j)%nat); auto.
        assert (j < h)%nat as Hjh₁.
         apply Hjh with (αi := αh); left; reflexivity.
 
-        replace (S j + (h - S j))%nat with h by omega.
-        replace (k - j - (h - S j))%nat with (S (k - h)) by omega.
+        rewrite Nat.add_sub_assoc; auto; clear H.
+        rewrite Nat.add_comm, Nat.add_sub.
+        rewrite Nat_sub_sub_distr; auto; rewrite Nat.add_succ_r.
+        rewrite Nat.sub_add; [ idtac | apply Nat.lt_le_incl; auto ].
+        rewrite Nat.sub_succ_l; [ simpl | apply Nat.lt_le_incl; auto ].
         rewrite List.fold_right_app; simpl.
         rewrite Nat.eqb_refl; simpl.
         rewrite fold_nothing.
