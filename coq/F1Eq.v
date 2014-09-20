@@ -832,10 +832,16 @@ assert (j < k)%nat as Hjk.
      rewrite nat_num_Qnat.
      destruct (eq_nat_dec h k) as [H₁| H₁].
       subst h.
-      rewrite list_seq_app with (dj := (k - S j)%nat); [ idtac | fast_omega ].
+      pose proof (le_n_Sn k) as H.
+      apply Nat.sub_le_mono_r with (p := S j) in H.
+      rewrite list_seq_app with (dj := (k - S j)%nat); auto; clear H.
       rewrite List.fold_right_app; simpl.
-      replace (S (j + (k - S j)))%nat with k ; [ idtac | fast_omega Hjk ].
-      replace (k - j - (k - S j))%nat with 1%nat ; [ simpl | fast_omega Hjk ].
+      rewrite <- Nat.add_succ_r, <- Nat.sub_succ_l; auto; simpl.
+      rewrite Nat.add_sub_assoc; [ idtac | apply Nat.lt_le_incl; auto ].
+      rewrite Nat.add_comm, Nat.add_sub.
+      rewrite Nat_sub_sub_distr; auto; rewrite Nat.add_succ_r.
+      rewrite Nat.sub_add; [ idtac | apply Nat.lt_le_incl; auto ].
+      rewrite Nat_sub_succ_diag; simpl.
       rewrite Nat.eqb_refl; simpl.
       simpl in Hlast.
       destruct pts as [| pt]; [ simpl | exfalso ].

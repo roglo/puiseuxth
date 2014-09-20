@@ -2030,7 +2030,7 @@ destruct n.
    apply Hpts in H.
    rewrite <- Hh in H.
    rewrite <- H₂ in H.
-   rewrite minus_Sn_n in H.
+   rewrite Nat_sub_succ_diag in H.
    destruct H as (c, Hc).
    symmetry in Hc.
    apply Nat.mul_eq_1 in Hc.

@@ -24,7 +24,7 @@ Set Implicit Arguments.
 
 Definition Qnat i := Z.of_nat i # 1.
 
-Theorem minus_Sn_n : ∀ n, (S n - n = 1)%nat.
+Theorem Nat_sub_succ_diag : ∀ n, (S n - n = 1)%nat.
 Proof.
 intros n.
 rewrite <- minus_Sn_m; [ rewrite minus_diag; reflexivity | apply le_n ].

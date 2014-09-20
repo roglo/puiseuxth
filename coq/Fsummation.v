@@ -61,7 +61,9 @@ intros g h b k Hgh.
 apply summation_aux_compat.
 intros i (_, Hi).
 apply Hgh.
-split; [ apply Nat.le_add_r | omega ].
+split; [ apply Nat.le_add_r | idtac ].
+apply Nat.lt_add_lt_sub_r, le_S_n in Hi.
+rewrite Nat.add_comm; assumption.
 Qed.
 
 Theorem summation_mul_comm : ∀ g h b k,
@@ -80,9 +82,14 @@ Proof.
 intros g b len H.
 revert b H.
 induction len; intros; [ reflexivity | simpl ].
-rewrite H; [ idtac | omega ].
-rewrite rng_add_0_l, IHlen; [ reflexivity | idtac ].
-intros i Hi; apply H; omega.
+rewrite H; [ idtac | split; auto ].
+ rewrite rng_add_0_l, IHlen; [ reflexivity | idtac ].
+ intros i (Hbi, Hib); apply H.
+ rewrite Nat.add_succ_r, <- Nat.add_succ_l.
+ split; [ apply Nat.lt_le_incl; auto | auto ].
+
+ rewrite Nat.add_succ_r.
+ apply le_n_S, le_plus_l.
 Qed.
 
 Theorem all_0_summation_0 : ∀ g i₁ i₂,
@@ -93,7 +100,15 @@ intros g i₁ i₂ H.
 apply all_0_summation_aux_0.
 intros i (H₁, H₂).
 apply H.
-split; [ assumption | omega ].
+split; [ assumption | idtac ].
+destruct (le_dec i₁ (S i₂)) as [H₃| H₃].
+ rewrite Nat.add_sub_assoc in H₂; auto.
+ rewrite minus_plus in H₂.
+ apply le_S_n; auto.
+
+ apply not_le_minus_0 in H₃.
+ rewrite H₃, Nat.add_0_r in H₂.
+ apply Nat.nle_gt in H₂; contradiction.
 Qed.
 
 Theorem summation_aux_succ_last : ∀ g b len,

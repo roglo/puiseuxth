@@ -1286,7 +1286,7 @@ rewrite Hcpol in H.
 remember quotient_phi_x_sub_c_pow_r as f; simpl in H; subst f.
 remember (quotient_phi_x_sub_c_pow_r (Φq pol ns) c r) as Ψ.
 eapply Ψ_length in HeqΨ; eauto .
-rewrite Nat.sub_0_r, minus_Sn_n in HeqΨ.
+rewrite Nat.sub_0_r, Nat_sub_succ_diag in HeqΨ.
 rename H into Hcp.
 remember Hns as H; clear HeqH.
 eapply q_mj_mk_eq_p_h_j with (h := r) (αh := αk) in H; eauto .
@@ -2948,7 +2948,7 @@ destruct z₁.
                       apply le_n_S.
                       apply Nat.le_sub_le_add_l.
                       apply Nat.le_sub_le_add_r.
-                      rewrite minus_Sn_n.
+                      rewrite Nat_sub_succ_diag.
                       assumption.
 
                       reflexivity.
