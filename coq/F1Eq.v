@@ -712,11 +712,12 @@ Proof.
 intros A j len f g la Hg.
 revert j la Hg.
 induction len; intros; [ reflexivity | simpl ].
-rewrite Hg; [ idtac | reflexivity | fast_omega  ].
-rewrite Nat.add_succ_r, <- Nat.add_succ_l in Hg.
+unfold lt in Hg; rewrite Nat.add_succ_r in Hg.
+rewrite Hg; [ idtac | reflexivity | apply le_n_S, le_plus_l ].
 apply IHlen.
 intros i Hji Hij.
-apply Hg; [ omega | assumption ].
+apply Hg; [ idtac | assumption ].
+apply le_Sn_le; assumption.
 Qed.
 
 Theorem fold_right_eqb_or : ∀ A j k len f (g : _ → A → A) la,
@@ -831,7 +832,7 @@ assert (j < k)%nat as Hjk.
      rewrite nat_num_Qnat.
      destruct (eq_nat_dec h k) as [H₁| H₁].
       subst h.
-      rewrite list_seq_app with (dj := (k - S j)%nat); [ idtac | omega ].
+      rewrite list_seq_app with (dj := (k - S j)%nat); [ idtac | fast_omega ].
       rewrite List.fold_right_app; simpl.
       replace (S (j + (k - S j)))%nat with k ; [ idtac | fast_omega Hjk ].
       replace (k - j - (k - S j))%nat with 1%nat ; [ simpl | fast_omega Hjk ].
