@@ -75,11 +75,6 @@ Qed.
 Theorem rng_mul_nat_1_l : ∀ α (r : ring α) a, (rng_mul_nat r 1 a = a)%K.
 Proof. intros α r a; simpl; rewrite rng_add_0_l; reflexivity. Qed.
 
-Theorem fold_apply_lap : ∀ α (r : ring α) al x,
-  (List.fold_right (λ c accu : α, accu * x + c) 0 al)%K =
-  apply_lap al x.
-Proof. reflexivity. Qed.
-
 Theorem comb_0_r : ∀ i, comb i 0 = 1%nat.
 Proof. intros i; destruct i; reflexivity. Qed.
 
@@ -95,6 +90,7 @@ Add Parametric Morphism α (R : ring α) : (@apply_lap _ R)
   as apply_lap_morph.
 Proof.
 intros la lb Hab x y Hxy.
+unfold apply_lap.
 revert lb Hab x y Hxy.
 induction la as [| a]; intros; simpl.
  revert x y Hxy.
@@ -115,9 +111,7 @@ induction la as [| a]; intros; simpl.
   simpl.
   apply lap_eq_cons_inv in Hab.
   destruct Hab as (Hab, Hlab).
-  unfold apply_lap.
   rewrite Hab, Hxy.
-  do 2 rewrite fold_apply_lap.
   rewrite IHla; try eassumption.
   reflexivity.
 Qed.
@@ -154,8 +148,8 @@ rewrite IHn, Hab; reflexivity.
 Qed.
 
 Theorem lap_eq_map_ext : ∀ α (r : ring α) A g h,
-   (∀ a : A, rng_eq (g a) (h a))
-   → ∀ la, lap_eq (List.map g la) (List.map h la).
+  (∀ a : A, (g a = h a)%K)
+  → ∀ la : list A, (List.map g la = List.map h la)%lap.
 Proof.
 intros α r A g h Hgh la.
 induction la as [| a]; [ reflexivity | simpl ].
@@ -423,7 +417,7 @@ Qed.
 
 Theorem root_formula : ∀ la c,
   (apply_lap la c = 0)%K
-  → lap_eq la (lap_mul [(- c)%K; 1%K … []] (lap_div_deg_1 la c)).
+  → (la = [(- c)%K; 1%K … []] * lap_div_deg_1 la c)%lap.
 Proof.
 intros la c Hc.
 unfold lap_div_deg_1.

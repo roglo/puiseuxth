@@ -1488,15 +1488,6 @@ apply ps_add_compat_l.
 apply IHlen.
 Qed.
 
-(* to be moved to the right file... *)
-Theorem ps_monom_summation : ∀ f n,
-  (ps_monom (Σ (i = 0, n), f i) 0 =
-   @summation _ (ps_ring R) 0 n (λ i, ps_monom (f i) 0))%ps.
-Proof.
-intros f n.
-apply ps_monom_summation_aux.
-Qed.
-
 (* to be moved to Ps_mul.v *)
 Theorem ps_monom_mul_l : ∀ c d n,
   (ps_monom (c * d)%K n = ps_monom c 0 * ps_monom d n)%ps.
@@ -1569,14 +1560,13 @@ revert n la lb.
 induction len; intros; [ reflexivity | simpl ].
 constructor; [ simpl | apply IHlen ].
 clear len IHlen; simpl.
-rewrite ps_monom_summation.
+unfold summation.
+rewrite ps_monom_summation_aux.
 apply summation_compat; intros i (_, Hi); simpl.
 rewrite ps_monom_mul_l.
 rewrite rng_list_map_nth.
- rewrite rng_list_map_nth.
-  reflexivity.
-
-  rewrite ps_zero_monom_eq; reflexivity.
+ rewrite rng_list_map_nth; [ reflexivity | idtac ].
+ rewrite ps_zero_monom_eq; reflexivity.
 
  rewrite ps_zero_monom_eq; reflexivity.
 Qed.
