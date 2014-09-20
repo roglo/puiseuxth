@@ -549,27 +549,6 @@ induction la as [| a]; intros.
    assumption.
 Qed.
 
-(* test
-Load Q_field.
-Definition Qtest_comp := lap_compose Q_field.
-Eval vm_compute in Qtest_comp [5#1; -4#1; 3#1; 2#1 … []] [2#1; -4#1; 7#1; 6#1 … []].
-     = [25 # 1; -128 # 1; 464 # 1; -776 # 1; 687 # 1;
-       660 # 1; -790 # 1; 900 # 1; 1512 # 1; 432 # 1; 0; 0 …
-       []]
-     : list Q
-Eval vm_compute in Qtest_comp [2#1; -4#1; 7#1; 6#1 … []] [5#1; -4#1; 3#1; 2#1 … []].
-     = [907 # 1; -2064 # 1; 3100 # 1; -1680 # 1; 185 # 1;
-       1092 # 1; -314 # 1; 36 # 1; 216 # 1; 48 # 1; 0; 0 …
-       []]
-     : list Q
-Eval vm_compute in Qtest_comp [-2#1; 4#1; -3#1 … []] [-1#1; 4#1 … []].
-     = [-9 # 1; 40 # 1; -48 # 1 … []]
-     : list Q
-Eval vm_compute in Qtest_comp [-1#1; 4#1 … []] [-2#1; 4#1; -3#1 … []].
-     = [-9 # 1; 16 # 1; -12 # 1; 0 … []]
-     : list Q
-*)
-
 Theorem lap_add_nil_l : ∀ α (r : ring α) la,
   lap_eq (lap_add [] la) la.
 Proof. intros α r la; destruct la; reflexivity. Qed.

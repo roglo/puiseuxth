@@ -248,8 +248,6 @@ rewrite Qplus_opp_r, Qplus_0_r in H.
 assumption.
 Qed.
 
-(* to be inserted *)
-
 Theorem Qmult_div_swap : ∀ x y z, x / y * z == x * z / y.
 Proof.
 intros.

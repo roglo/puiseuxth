@@ -1488,43 +1488,6 @@ apply ps_add_compat_l.
 apply IHlen.
 Qed.
 
-(* to be moved to Ps_mul.v *)
-Theorem ps_monom_mul_l : ∀ c d n,
-  (ps_monom (c * d)%K n = ps_monom c 0 * ps_monom d n)%ps.
-Proof.
-intros c d n.
-progress unfold ps_monom; simpl.
-apply mkps_morphism; simpl; [ idtac | idtac | reflexivity ].
- constructor; intros i; simpl.
- destruct i; simpl.
-  progress unfold convol_mul; simpl.
-  rewrite summation_only_one; simpl.
-  rewrite Nat.mod_0_l; auto; simpl.
-  rewrite Nat.div_0_l; auto; simpl.
-
-  progress unfold convol_mul; simpl.
-  rewrite all_0_summation_0; [ reflexivity | idtac ].
-  intros j (_, Hj).
-  rewrite divmod_div.
-  rewrite fold_sub_succ_l.
-  rewrite Nat.div_1_r.
-  destruct (zerop (j mod Pos.to_nat (Qden n))) as [H₁| H₁].
-   apply Nat.mod_divides in H₁; auto.
-   destruct H₁ as (e, He).
-   rewrite Nat.mul_comm in He.
-   rewrite He.
-   rewrite Nat.div_mul; auto.
-   destruct (zerop e) as [H₂| H₂].
-    subst e; rewrite Nat.sub_0_r; simpl.
-    rewrite rng_mul_0_r; reflexivity.
-
-    rewrite rng_mul_0_l; reflexivity.
-
-   rewrite rng_mul_0_l; reflexivity.
-
- rewrite Z.mul_1_r; reflexivity.
-Qed.
-
 Theorem lap_add_map : ∀ α β (Rα : ring α) (Rβ : ring β) (f : α → β) la lb,
   (∀ a b, (f (a + b) = f a + f b)%K)
   → (List.map f (la + lb) = List.map f la + List.map f lb)%lap.

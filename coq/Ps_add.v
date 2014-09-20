@@ -586,34 +586,3 @@ rewrite H, H0.
 constructor; simpl; try reflexivity.
 rewrite H1, H4; reflexivity.
 Qed.
-
-(* not used, mais bon, je les garde, on sait jamais *)
-
-Add Parametric Morphism α (R : ring α) : (@adjust_series _ R)
-  with signature eq ==> eq ==> eq_series ==> eq_series
-  as adjust_series_morph.
-Proof.
-intros n k s₁ s₂ Heq.
-constructor; intros; simpl.
-induction Heq.
-destruct (lt_dec i n) as [H₁| H₁]; [ reflexivity | idtac ].
-destruct (zerop ((i - n) mod Pos.to_nat k)); [ apply H | reflexivity ].
-Qed.
-
-Add Parametric Morphism α (R : ring α) : (@ps_terms_add _ R)
-  with signature eq_ps_strong ==> eq_ps_strong ==> eq_series
-  as ps_terms_add_morph.
-Proof.
-intros ps₁ ps₃ Heq₁ ps₂ ps₄ Heq₂.
-constructor; intros i.
-inversion Heq₁; subst.
-inversion Heq₂; subst.
-unfold ps_terms_add.
-remember adjust_series as g; simpl.
-unfold cm_factor.
-rewrite H, H0, H2, H3; simpl.
-subst g.
-unfold adjust_series.
-rewrite H1, H4.
-reflexivity.
-Qed.
