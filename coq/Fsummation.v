@@ -133,7 +133,6 @@ Theorem summation_aux_rtl : ∀ g b len,
   (summation_aux r b len g =
    summation_aux r b len (λ i, g (b + len - 1 + b - i)%nat))%K.
 Proof.
-(* supprimer ce putain de omega trop lent *)
 intros g b len.
 revert g b.
 induction len; intros; [ reflexivity | idtac ].
@@ -142,34 +141,32 @@ rewrite Heqx in |- * at 1.
 simpl; subst x.
 rewrite IHlen.
 rewrite summation_aux_succ_last.
-replace (b + S len - 1 + b - (b + len)) with b by omega.
+rewrite Nat.add_succ_l, Nat_sub_succ_1.
+do 2 rewrite Nat.add_succ_r; rewrite Nat_sub_succ_1.
+rewrite Nat.add_sub_swap, Nat.sub_diag; auto.
 rewrite rng_add_comm.
-apply rng_add_compat_r.
-apply summation_aux_compat.
-intros i Hi.
-simpl.
-rewrite Nat.sub_0_r.
-replace (b + len + S b - S (b + i)) with
- (b + S len - 1 + b - (b + i)) by omega.
-reflexivity.
+apply rng_add_compat_r, summation_aux_compat.
+intros; reflexivity.
 Qed.
 
 Theorem summation_rtl : ∀ g b k,
   (Σ (i = b, k), g i = Σ (i = b, k), g (k + b - i)%nat)%K.
 Proof.
-(* supprimer ce putain de omega trop lent *)
 intros g b k.
 unfold summation.
 rewrite summation_aux_rtl.
-apply summation_aux_compat; intros i Hi.
-simpl.
+apply summation_aux_compat; intros i (Hi, Hikb).
 destruct b; simpl.
  rewrite Nat.sub_0_r; reflexivity.
 
  rewrite Nat.sub_0_r.
- replace (b + (k - b) + S b - S (b + i)) with (k + S b - S (b + i))
-  by omega.
- reflexivity.
+ simpl in Hikb.
+ eapply Nat.le_lt_trans in Hikb; eauto .
+ apply lt_O_minus_lt, Nat.lt_le_incl in Hikb.
+ remember (b + (k - b))%nat as x eqn:H .
+ rewrite Nat.add_sub_assoc in H; auto.
+ rewrite Nat.add_sub_swap in H; auto.
+ rewrite Nat.sub_diag in H; subst x; reflexivity.
 Qed.
 
 Theorem summation_aux_mul_swap : ∀ a g b len,
