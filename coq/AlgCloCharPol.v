@@ -55,9 +55,9 @@ Proof.
 intros n k Hnk.
 revert k Hnk.
 induction n; intros; simpl.
- destruct k; [ exfalso; omega | reflexivity ].
+ destruct k; [ exfalso; revert Hnk; apply Nat.nlt_0_r | auto ].
 
- destruct k; [ exfalso; omega | idtac ].
+ destruct k; [ exfalso; revert Hnk; apply Nat.nlt_0_r | auto ].
  apply Nat.succ_lt_mono in Hnk.
  rewrite IHn; [ idtac | assumption ].
  rewrite IHn; [ reflexivity | idtac ].
@@ -296,15 +296,14 @@ intros α r a lb k.
 unfold lap_mul.
 rewrite list_nth_lap_convol_mul; [ idtac | reflexivity ].
 rewrite summation_split_first; [ idtac | apply Nat.le_0_l ].
-rewrite summation_split_first; [ idtac | omega ].
-simpl.
+rewrite summation_split_first; [ simpl | apply le_n_S, Nat.le_0_l ].
 rewrite all_0_summation_0.
- rewrite rng_mul_1_l, Nat.sub_0_r, rng_add_0_r.
- reflexivity.
+ rewrite rng_mul_1_l, Nat.sub_0_r, rng_add_0_r; reflexivity.
 
  intros i (Hi, Hik).
- destruct i; [ exfalso; omega | idtac ].
- destruct i; [ exfalso; omega | idtac ].
+ destruct i; [ exfalso; revert Hi; apply Nat.nle_succ_0 | idtac ].
+ apply Nat.succ_le_mono in Hi.
+ destruct i; [ exfalso; revert Hi; apply Nat.nle_succ_0 | idtac ].
  rewrite match_id, rng_mul_0_l; reflexivity.
 Qed.
 
@@ -580,7 +579,7 @@ eapply q_is_factor_of_h_minus_j with (h := k) in Hqkj; try eassumption.
   exfalso.
   remember Hns as H; clear HeqH.
   apply j_lt_k with (j := j) (k := k) in H.
-   fast_omega Hqkj H.
+   apply Nat.sub_gt in H; contradiction.
 
    rewrite <- Hj; simpl.
    rewrite nat_num_Qnat; reflexivity.
