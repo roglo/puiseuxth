@@ -1069,90 +1069,120 @@ Theorem series_nth_0_in_interval_from_any : ∀ s i c b k,
       → i mod Pos.to_nat k ≠ O
         → (s .[b + i] = 0)%K.
 Proof.
-(* à nettoyer *)
 intros s i c b k Hic Has Hs Hm.
 remember (pred (rank_of_nonzero_after_from s c (b + i) b)) as n eqn:Hn .
 symmetry in Hn.
-destruct c; [ exfalso; omega | simpl in Hn ].
+destruct c; [ exfalso; revert Hic; apply Nat.nlt_0_r | simpl in Hn ].
 destruct i.
  rewrite Nat.mod_0_l in Hm; [ idtac | apply Pos2Nat_ne_0 ].
  exfalso; apply Hm; reflexivity.
 
  apply Nat.succ_lt_mono in Hic.
- destruct (lt_dec b (b + S i)) as [H₁| H₁]; [ idtac | exfalso; omega ].
- clear H₁.
- remember (null_coeff_range_length r s (S b)) as len eqn:Hlen .
- symmetry in Hlen.
- destruct len as [len| ].
-  simpl in Hn.
-  revert i b len n Has Hic Hlen Hn Hs Hm.
-  induction c; intros; [ exfalso; fast_omega Hic | idtac ].
-  simpl in Hn.
-  destruct (lt_dec (S (b + len)) (b + S i)) as [H₁| H₁].
-   remember (null_coeff_range_length r s (S (S (b + len)))) as len₁ eqn:Hlen₁ .
-   symmetry in Hlen₁.
-   destruct len₁ as [len₁| ].
-    destruct n; [ discriminate Hn | idtac ].
-    apply Nat.succ_inj in Hn.
-    destruct i.
-     exfalso; fast_omega H₁.
-
+ destruct (lt_dec b (b + S i)) as [H₁| H₁].
+  clear H₁.
+  remember (null_coeff_range_length r s (S b)) as len eqn:Hlen .
+  symmetry in Hlen.
+  destruct len as [len| ].
+   simpl in Hn.
+   revert i b len n Has Hic Hlen Hn Hs Hm.
+   induction c; intros; [ exfalso; revert Hic; apply Nat.nlt_0_r | idtac ].
+   simpl in Hn.
+   destruct (lt_dec (S (b + len)) (b + S i)) as [H₁| H₁].
+    rewrite Nat.add_succ_r in H₁.
+    apply Nat.succ_lt_mono in H₁.
+    apply Nat.add_lt_mono_l in H₁.
+    remember (null_coeff_range_length r s (S (S (b + len)))) as len₁.
+    rename Heqlen₁ into Hlen₁.
+    symmetry in Hlen₁.
+    destruct len₁ as [len₁| ].
+     destruct n; [ discriminate Hn | idtac ].
+     apply Nat.succ_inj in Hn.
+     destruct i; [ exfalso; revert H₁; apply Nat.nlt_0_r | idtac ].
      apply Nat.succ_lt_mono in Hic.
-     replace (b + S (S i))%nat with (S (b + len) + S (i - len))%nat by omega.
-     eapply IHc; try eassumption.
-      intros m.
-      pose proof (Has (S m)) as H.
-      simpl in H.
-      rewrite Hlen in H.
+     apply Nat.succ_le_mono in H₁.
+     replace (b + S (S i))%nat with (S (b + len) + S (i - len))%nat .
+      eapply IHc; try eassumption.
+       intros m.
+       pose proof (Has (S m)) as H; simpl in H.
+       rewrite Hlen in H; assumption.
+
+       eapply Nat.le_lt_trans; [ apply Nat.le_sub_l | auto ].
+
+       replace (S (b + len) + S (i - len))%nat with (b + S (S i))%nat .
+        simpl; apply Hn.
+
+        simpl.
+        do 3 rewrite Nat.add_succ_r.
+        do 2 apply Nat.succ_inj_wd.
+        rewrite <- Nat.add_assoc.
+        apply Nat.add_cancel_l.
+        rewrite Nat.add_comm.
+        rewrite Nat.sub_add; [ reflexivity | assumption ].
+
+       simpl in Hs.
+       rewrite Hlen in Hs; assumption.
+
+       replace (S (S i)) with (S (i - len) + S len)%nat in Hm .
+        pose proof (Has O) as H; simpl in H.
+        rewrite Hlen in H.
+        rewrite Nat.add_mod in Hm; auto.
+        destruct H as (c₁, Hc₁).
+        rewrite Hc₁ in Hm.
+        rewrite Nat.mod_mul, Nat.add_0_r in Hm; auto.
+        rewrite Nat.mod_mod in Hm; auto.
+
+        rewrite Nat.add_succ_l, Nat.add_succ_r.
+        do 2 apply Nat.succ_inj_wd.
+        rewrite Nat.sub_add; [ reflexivity | assumption ].
+
+      do 3 rewrite Nat.add_succ_r.
+      rewrite Nat.add_succ_l.
+      do 2 apply Nat.succ_inj_wd.
+      rewrite <- Nat.add_assoc.
+      apply Nat.add_cancel_l.
+      rewrite Nat.add_comm.
+      rewrite Nat.sub_add; [ reflexivity | assumption ].
+
+     apply null_coeff_range_length_iff in Hlen₁; simpl in Hlen₁.
+     pose proof (Hlen₁ (i - len - 1)%nat) as H.
+     replace (b + S i)%nat with (S (S (b + len + (i - len - 1)))) .
       assumption.
 
-      omega.
+      rewrite Nat.add_succ_r.
+      apply Nat.succ_inj_wd.
+      rewrite <- Nat.sub_add_distr, Nat.add_1_r.
+      rewrite <- Nat.add_succ_l, <- Nat.add_succ_r.
+      rewrite <- Nat.add_assoc.
+      rewrite Nat.add_sub_assoc; auto.
+      rewrite Nat.add_sub_swap; auto.
+      rewrite Nat.sub_diag; reflexivity.
 
-      replace (S (b + len) + S (i - len))%nat with (b + S (S i))%nat by omega.
-      simpl.
-      apply Hn.
+    apply Nat.nlt_ge in H₁.
+    rewrite Nat.add_succ_r in H₁.
+    apply Nat.succ_le_mono in H₁.
+    apply Nat.add_le_mono_l in H₁.
+    destruct (eq_nat_dec i len) as [H₂| H₂].
+     subst n len.
+     simpl in Hs.
+     rewrite Hlen in Hs.
+     destruct Hs as (c₁, Hc₁).
+     rewrite Hc₁ in Hm.
+     rewrite Nat.mod_mul in Hm; auto.
+     exfalso; apply Hm; reflexivity.
 
-      simpl in Hs.
-      rewrite Hlen in Hs.
-      assumption.
+     apply null_coeff_range_length_iff in Hlen; simpl in Hlen.
+     destruct Hlen as (Hz, Hnz).
+     rewrite Nat.add_succ_r.
+     apply Hz, le_neq_lt; assumption.
 
-      replace (S (S i)) with (S (i - len) + S len)%nat in Hm by omega.
-      pose proof (Has O) as H.
-      simpl in H.
-      rewrite Hlen in H.
-      rewrite Nat.add_mod in Hm; auto.
-      destruct H as (c₁, Hc₁).
-      rewrite Hc₁ in Hm.
-      rewrite Nat.mod_mul, Nat.add_0_r in Hm; auto.
-      rewrite Nat.mod_mod in Hm; auto.
+   rewrite Nat.add_succ_r.
+   apply null_coeff_range_length_iff in Hlen; simpl in Hlen.
+   apply Hlen.
 
-    apply null_coeff_range_length_iff in Hlen₁; simpl in Hlen₁.
-    pose proof (Hlen₁ (i - len - 1)%nat) as H.
-    replace (b + S i)%nat with (S (S (b + len + (i - len - 1)))) by omega.
-    assumption.
-
-   apply Nat.nlt_ge in H₁.
-   rewrite Nat.add_succ_r in H₁.
-   apply Nat.succ_le_mono in H₁.
-   apply Nat.add_le_mono_l in H₁.
-   destruct (eq_nat_dec i len) as [H₂| H₂].
-    subst n len.
-    simpl in Hs.
-    rewrite Hlen in Hs.
-    destruct Hs as (c₁, Hc₁).
-    rewrite Hc₁ in Hm.
-    rewrite Nat.mod_mul in Hm; auto.
-    exfalso; apply Hm; reflexivity.
-
-    apply null_coeff_range_length_iff in Hlen; simpl in Hlen.
-    destruct Hlen as (Hz, Hnz).
-    rewrite Nat.add_succ_r.
-    apply Hz.
-    apply le_neq_lt; assumption.
-
-  rewrite Nat.add_succ_r.
-  apply null_coeff_range_length_iff in Hlen; simpl in Hlen.
-  apply Hlen.
+  exfalso; apply H₁.
+  apply Nat.lt_sub_lt_add_l.
+  rewrite Nat.sub_diag.
+  apply Nat.lt_0_succ.
 Qed.
 
 Theorem series_nth_0_in_interval : ∀ s k,
@@ -1343,7 +1373,7 @@ split; intros H.
   apply Nat.lcm_eq_0 in Hk.
   destruct Hk as [Hk| Hk].
    subst k.
-   assert (1 < 2)%nat as H by omega.
+   pose proof Nat.lt_1_2 as H.
    apply Hnp in H.
    destruct H as (n, Hn).
    rewrite Nat.mul_0_r in Hn.
@@ -1488,11 +1518,13 @@ remember (ps_ordnum ps + Z.of_nat n)%Z as x.
 rewrite <- Z.gcd_assoc.
 remember (Z.gcd (' ps_polord ps) (Z.of_nat k))%Z as y eqn:Hy .
 pose proof (Z.gcd_nonneg x y) as Hp.
-destruct (Z_zerop (Z.gcd x y)) as [H₁| H₁]; [ idtac | omega ].
-apply Z.gcd_eq_0_r in H₁.
-rewrite Hy in H₁.
-apply Z.gcd_eq_0_l in H₁.
-exfalso; revert H₁; apply Pos2Z_ne_0.
+unfold Z.le in Hp; unfold Z.lt.
+remember (0 ?= Z.gcd x y)%Z as c eqn:Hc .
+destruct c; [ idtac | auto | exfalso; apply Hp; reflexivity ].
+symmetry in Hc; apply Z.compare_eq in Hc; symmetry in Hc.
+apply Z.gcd_eq_0_r in Hc; subst y.
+apply Z.gcd_eq_0_l in Hc.
+exfalso; revert Hc; apply Pos2Z_ne_0.
 Qed.
 
 Theorem series_null_power : ∀ s b p,
@@ -1510,18 +1542,22 @@ destruct (le_dec i b) as [H₁| H₁].
 
  apply Nat.nle_gt in H₁.
  remember (i - b)%nat as j eqn:Hj .
- replace i with (b + j)%nat in * by omega.
- clear i Hj.
- remember (Pos.of_nat (S p)) as q eqn:Hq .
- apply series_nth_0_in_interval_from_any with (c := S j) (k := q).
-  apply Nat.lt_succ_r; reflexivity.
+ symmetry in Hj.
+ apply Nat.add_sub_eq_nz in Hj.
+  subst i.
+  remember (Pos.of_nat (S p)) as q eqn:Hq .
+  apply series_nth_0_in_interval_from_any with (c := S j) (k := q).
+   apply Nat.lt_succ_r; reflexivity.
 
-  subst q; rewrite Nat2Pos.id; auto.
+   subst q; rewrite Nat2Pos.id; auto.
 
-  unfold is_a_series_in_x_power in Hxp.
-  subst q; rewrite Nat2Pos.id; auto.
+   unfold is_a_series_in_x_power in Hxp.
+   subst q; rewrite Nat2Pos.id; auto.
 
-  subst q; rewrite Nat2Pos.id; auto.
+   subst q; rewrite Nat2Pos.id; auto.
+
+  intros H; apply Hip; rewrite H; clear H.
+  apply Nat.mod_0_l; intros H; discriminate H.
 Qed.
 
 Theorem series_null_coeff_range_length_inf_iff : ∀ s,
