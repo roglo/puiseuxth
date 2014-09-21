@@ -59,8 +59,8 @@ induction n; intros.
   apply IHn in H.
   destruct H as (i, (Hin, (Hir, Hri))).
   exists i.
-  split; [ fast_omega Hin | idtac ].
-  split; assumption.
+  split; [ idtac | split; assumption ].
+  apply Nat.le_le_succ_r; assumption.
 
   apply Nat.nlt_ge in H.
   exists (S n).
@@ -89,7 +89,7 @@ intros cpol c Hnz.
 unfold root_multiplicity.
 remember (al cpol) as la; clear Heqla.
 remember (length la) as len.
-assert (length la ≤ len) as Hlen by omega.
+assert (length la ≤ len) as Hlen by (apply Nat.eq_le_incl; auto).
 clear Heqlen.
 revert la Hnz Hlen.
 induction len; intros.
@@ -159,10 +159,12 @@ assert (slope ms < slope_expr (Qnat (S r), v) (Qnat k₁, αk₁)) as H.
  unfold Qle in H; simpl in H.
  rewrite Qnum_inv_Qnat_sub in H; eauto .
  rewrite Z.mul_1_r in H.
- rewrite Qnum_inv_Qnat_sub in H; [ idtac | fast_omega Hrk ].
+ remember Hrk as Hk₁; clear HeqHk₁.
+ apply Nat.lt_trans with (n := O) in Hk₁; [ idtac | apply Nat.lt_0_succ ].
+ rewrite Qnum_inv_Qnat_sub in H; [ idtac | auto ].
  rewrite Z.mul_1_r in H.
- rewrite Qden_inv_Qnat_sub in H; [ idtac | fast_omega Hrk ].
- rewrite Qden_inv_Qnat_sub in H; [ idtac | fast_omega Hrk ].
+ rewrite Qden_inv_Qnat_sub in H; [ idtac | auto ].
+ rewrite Qden_inv_Qnat_sub in H; [ idtac | auto ].
  rewrite Nat.sub_0_r in H.
  rewrite Z.mul_opp_l in H.
  rewrite Z.add_opp_r in H.
