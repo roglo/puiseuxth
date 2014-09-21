@@ -312,7 +312,7 @@ split; intros Hn.
  subst n; apply le_0_l.
 Qed.
 
-Theorem  nle_gt : ∀ n m, ¬n ≤ m ↔ m < n.
+Theorem nle_gt : ∀ n m, ¬n ≤ m ↔ m < n.
 Proof.
 intros n m.
 split; intros H.
