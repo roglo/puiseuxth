@@ -3075,6 +3075,7 @@ destruct z₁.
     rewrite <- Hc, <- Hpol₁, <- Hns₁ in H; assumption.
 
     rename H into Hrle₁; move Hrle₁ before Hrle.
+    clear (*Hrle*) Hpsi.
     remember Hz as H; clear HeqH.
     rewrite zerop_1st_n_const_coeff_succ in H.
     apply Bool.orb_false_iff in H; simpl in H.
@@ -3093,9 +3094,7 @@ destruct z₁.
     rewrite <- Hc in Hr₀.
     rewrite <- Hc, <- Hpol₁, <- Hns₁, <- Hc₁ in Hr₁.
     assert (0 < r)%nat as Hrpos by (eapply multiplicity_is_pos; eauto ).
-    assert (1 ≤ S n)%nat as H by apply le_n_S, Nat.le_0_l.
-    apply Hpsi in H; simpl in H.
-    rewrite <- Hc, <- Hpol₁ in H.
+    pose proof (Hpsi₁ 0%nat (Nat.le_0_l n)) as H; simpl in H.
     rename H into Hnz₁.
     remember Hns₁ as H; clear HeqH.
     eapply r_n_next_ns in H; try eassumption.
@@ -3528,7 +3527,7 @@ destruct z₁.
                     try eassumption.
                    apply zerop_1st_n_const_coeff_more in H; auto; clear HH.
                    rewrite zerop_1st_n_const_coeff_false_iff in H.
-                   clear Hpsi; rename H into Hpsi; move Hpsi before Hri.
+                   rename H into Hpsi; move Hpsi before Hri.
                    remember Hns₁i as H; clear HeqH.
                    eapply nth_pol_in_K_1_m with (c := c₁) in H; eauto .
                    remember (S n) as sn in H; simpl in H.
