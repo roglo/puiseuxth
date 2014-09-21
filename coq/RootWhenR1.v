@@ -61,10 +61,9 @@ induction n; intros.
  simpl.
  unfold γ_sum; simpl.
  rewrite summation_split_first; [ idtac | apply Nat.le_0_l ].
- rewrite summation_shift; [ idtac | fast_omega  ].
+ rewrite summation_shift; [ idtac | apply le_n_S, Nat.le_0_l ].
  rewrite Nat_sub_succ_1.
- do 2 rewrite rng_add_0_r.
- simpl.
+ do 2 rewrite rng_add_0_r; simpl.
  rewrite <- Hc, <- Hpol₁, <- Hns₁.
  rewrite rng_add_comm.
  rewrite ps_monom_add_r.
@@ -83,13 +82,12 @@ induction n; intros.
   remember (List.hd phony_ns (newton_segments pol₂)) as ns₂.
   unfold γ_sum; simpl.
   rewrite summation_split_first; [ idtac | apply Nat.le_0_l ].
-  rewrite summation_shift; [ idtac | fast_omega  ].
+  rewrite summation_shift; [ idtac | apply le_n_S, Nat.le_0_l ].
   rewrite Nat_sub_succ_1.
   destruct (ps_zerop R (ps_poly_nth 0 (nth_pol i pol₂ ns₂))) as [H₂| H₂].
    do 2 rewrite rng_add_0_r.
    rewrite rng_add_comm.
-   rewrite ps_monom_add_r.
-   simpl.
+   rewrite ps_monom_add_r; simpl.
    rewrite <- Hc, <- Hpol₁, <- Hns₁.
    apply ps_mul_comm.
 
@@ -108,8 +106,7 @@ induction n; intros.
     intros i Hin.
     destruct i; [ assumption | simpl ].
     rewrite <- Hc₁, <- Hpol₂, <- Heqns₂.
-    apply Hnz.
-    fast_omega Hin.
+    apply Hnz, Nat.lt_le_incl; auto.
 Qed.
 
 Theorem apply_nth_pol : ∀ pol ns y n,
@@ -151,7 +148,7 @@ induction n; intros.
   discriminate Hnz.
 
   rewrite summation_split_first; [ idtac | apply Nat.le_0_l ].
-  rewrite summation_shift; [ idtac | fast_omega  ].
+  rewrite summation_shift; [ idtac | apply le_n_S, Nat.le_0_l ].
   rewrite Nat_sub_succ_1.
   remember (S n) as sn in |- *; simpl.
   remember (ac_root (Φq pol ns)) as c eqn:Hc .
@@ -185,7 +182,7 @@ induction n; intros.
      rewrite rng_add_0_r.
      unfold γ_sum.
      rewrite summation_split_first; [ idtac | apply Nat.le_0_l ].
-     rewrite summation_shift; [ idtac | fast_omega  ].
+     rewrite summation_shift; [ idtac | apply le_n_S, Nat.le_0_l ].
      rewrite Nat_sub_succ_1; simpl.
      rewrite <- Hc, <- Hpol₁, <- Hns₁.
      rewrite ps_monom_add_r.
@@ -244,7 +241,7 @@ induction n.
  apply Qplus_lt_le_compat.
   apply IHn.
   intros i Hin; apply Hi.
-  fast_omega Hin.
+  apply Nat.le_le_succ_r; auto.
 
   apply Qlt_le_weak.
   apply Hi; reflexivity.
@@ -319,7 +316,7 @@ induction n; intros.
    remember (next_pol pol (β ns) (γ ns) c) as pol₁ eqn:Hpol₁ .
    destruct (ps_zerop R (ps_poly_nth 0 pol₁)) as [H₂| H₂].
     exists 1%nat.
-    split; [ fast_omega  | simpl ].
+    split; [ apply le_n_S, Nat.le_0_l | simpl ].
     destruct (ps_zerop R (ps_poly_nth 0 pol)); [ contradiction | idtac ].
     split; [ right; reflexivity | idtac ].
     rewrite <- Hc, <- Hpol₁.
@@ -334,7 +331,7 @@ induction n; intros.
 
     simpl in Hji.
     exists (S (S i)).
-    split; [ fast_omega Hin | idtac ].
+    split; [ apply le_n_S; auto | idtac ].
     split.
      right; simpl.
      destruct (ps_zerop R (ps_poly_nth 0 pol)); auto.
@@ -568,13 +565,15 @@ destruct (ac_zerop (apply_lap la c * c + a)%K) as [H₁| H₁].
   simpl in Hdeg.
   assumption.
 
-  assert (degree ac_zerop cpol ≥ 1)%nat as H by fast_omega Hdeg.
-  clear Hdeg.
-  apply ac_prop_root in H.
-  rewrite <- Hc in H.
-  unfold apply_poly in H.
-  rewrite Heqla in H; simpl in H.
-  contradiction.
+  assert (degree ac_zerop cpol ≥ 1)%nat as H.
+   rewrite Hdeg; apply le_n_S, Nat.le_0_l.
+
+   clear Hdeg.
+   apply ac_prop_root in H.
+   rewrite <- Hc in H.
+   unfold apply_poly in H.
+   rewrite Heqla in H; simpl in H.
+   contradiction.
 Qed.
 
 Theorem degree_eq_0_if : ∀ cpol,
