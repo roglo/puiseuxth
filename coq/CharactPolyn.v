@@ -1771,7 +1771,9 @@ induction l; intros.
    rewrite IHl; [ idtac | assumption ].
    simpl in Hcl.
    assert (length l = length l - S k + 1 * S k)%nat as H.
-    rewrite Nat.mul_1_l; omega.
+    rewrite Nat.mul_1_l.
+    rewrite Nat.sub_add; auto.
+    apply Nat.lt_le_incl; auto.
 
     rewrite H in |- * at 2; clear H.
     rewrite Nat.div_add; [ idtac | intros H; discriminate H ].
@@ -1804,63 +1806,32 @@ Theorem length_char_pol_succ : ∀ j x l,
   → Sorted (λ a b, (power a < power b)%nat) (l ++ [x])
     → List.length (make_char_pol R (S j) (l ++ [x])) = (power x - j)%nat.
 Proof.
-(* to be simplified; add a (general) theorem about Sorted *)
 intros j x l Hjpx Hsort.
 revert j x Hjpx Hsort.
-induction l as [| a]; intros.
- simpl.
+induction l as [| a]; intros; simpl.
  rewrite list_length_pad; simpl.
  simpl in Hjpx.
- omega.
+ rewrite <- Nat.add_sub_swap; auto.
+ rewrite Nat.add_1_r; reflexivity.
 
- simpl.
  rewrite list_length_pad; simpl.
  simpl in Hjpx.
  rewrite IHl.
+  eapply Sorted_trans_app in Hsort; [ idtac | idtac | left; eauto  ].
+   rewrite <- Nat.add_sub_swap; auto.
+   rewrite <- Nat.sub_succ_l; [ idtac | apply Nat.lt_le_incl; auto ].
+   rewrite Nat.add_sub_assoc; [ idtac | apply Nat.lt_le_incl; auto ].
+   rewrite Nat.add_sub_swap; auto.
+   rewrite Nat.sub_diag; reflexivity.
+
+   clear x Hsort.
+   intros x y z H₁ H₂; eapply Nat.lt_trans; eassumption.
+
   simpl in Hsort.
-  assert (power a < power x)%nat as H; [ idtac | omega ].
-  revert Hsort; clear; intros.
-  revert a x Hsort.
-  induction l as [| b]; intros.
-   simpl in Hsort.
+  destruct l as [| b]; simpl in Hsort; simpl.
    apply Sorted_inv_2 in Hsort.
    destruct Hsort; assumption.
 
-   apply IHl.
-   constructor.
-    simpl in Hsort.
-    apply Sorted_inv in Hsort.
-    destruct Hsort as (Hsort, _).
-    apply Sorted_inv in Hsort.
-    destruct Hsort; assumption.
-
-    simpl in Hsort.
-    apply Sorted_inv in Hsort.
-    destruct Hsort as (Hsort, Hrel).
-    inversion Hrel; subst.
-    revert Hsort H0; clear; intros.
-    induction l as [| c].
-     simpl in Hsort.
-     inversion Hsort; subst.
-     simpl.
-     inversion H3; subst.
-     constructor.
-     eapply Nat.lt_trans; eassumption.
-
-     simpl.
-     constructor.
-     inversion Hsort; subst.
-     inversion H3; subst.
-     eapply Nat.lt_trans; eassumption.
-
-  simpl in Hsort.
-  destruct l as [| b].
-   simpl.
-   simpl in Hsort.
-   apply Sorted_inv_2 in Hsort.
-   destruct Hsort; assumption.
-
-   simpl in Hsort; simpl.
    apply Sorted_inv_2 in Hsort.
    destruct Hsort; assumption.
 
@@ -2051,67 +2022,70 @@ destruct n.
      rewrite <- Hh in H.
      destruct H as (c, Hc).
      rewrite <- H₄ in Hn.
-     rewrite <- Nat.sub_succ_l in Hn.
-      2: fast_omega H₁ H₂.
-
-      rewrite Nat.sub_succ in Hn.
-      rewrite Hc in Hn.
-      apply Hn.
-      apply Nat.mod_mul; auto.
+     simpl in Hsort; simpl.
+     rewrite <- Nat.sub_succ_l in Hn; auto.
+     rewrite Nat.sub_succ in Hn.
+     rewrite Hc in Hn.
+     apply Hn, Nat.mod_mul; auto.
 
      remember (n - (h - S j))%nat as nhj eqn:Hnhj .
      symmetry in Hnhj.
-     destruct nhj; [ exfalso; fast_omega H₁ H₂ H₃ H₄ Hnhj | simpl ].
-     destruct (eq_nat_dec (S nhj mod q) 0) as [H₅| H₅].
-      apply Nat.mod_divides in H₅; auto.
-      destruct H₅ as (c, Hc).
-      apply Nat.add_sub_eq_nz in Hnhj; [ idtac | intros H; discriminate H ].
-      exfalso; apply Hn.
-      rewrite <- Hnhj.
-      rewrite Hc.
-      rewrite <- Nat.add_succ_l.
-      rewrite <- Nat.sub_succ_l; auto.
-      rewrite Nat.sub_succ.
-      assert (pt₂ ∈ [pt₂ … pts]) as H by (left; auto).
-      apply Hpts in H.
-      rewrite <- Hh in H.
-      destruct H as (d, Hd).
-      rewrite Nat.mul_comm.
-      rewrite Hd, <- Nat.mul_add_distr_r.
-      apply Nat.mod_mul; auto.
+     destruct nhj.
+      apply Nat.sub_0_le in Hnhj.
+      apply le_neq_lt in H₃; auto.
+      apply Nat.nle_gt in H₃.
+      contradiction.
 
-      rewrite Hh.
-      apply IHpts; auto.
-      intros pt Hpt.
-      assert (pt ∈ [pt₂ … pts]) as H by (right; auto).
-      apply Hpts in H.
-      destruct H as (c, Hc).
-      rewrite <- Hh.
-      unfold divide.
-      assert (pt₂ ∈ [pt₂ … pts]) as H by (left; auto).
-      apply Hpts in H.
-      rewrite <- Hh in H.
-      destruct H as (d, Hd).
-      exists (c - d)%nat.
-      rewrite Nat.mul_sub_distr_r.
-      rewrite <- Hc, <- Hd.
-      rewrite Nat_sub_sub_distr; [ idtac | apply Nat.lt_le_incl; auto ].
-      rewrite Nat.sub_add; auto.
-      apply Nat.lt_le_incl.
-      eapply Nat.lt_trans; eauto .
-      revert Hsort Hh Hpt; clear; intros; subst h.
-      revert pt₂ pt Hsort Hpt.
-      induction pts as [| pt₃]; intros; [ contradiction | idtac ].
-      destruct Hpt as [Hpt| Hpt].
-       subst pt.
-       apply Sorted_inv in Hsort.
-       destruct Hsort as (_, Hrel).
-       apply HdRel_inv in Hrel.
-       assumption.
+      destruct (eq_nat_dec (S nhj mod q) 0) as [H₅| H₅].
+       apply Nat.mod_divides in H₅; auto.
+       destruct H₅ as (c, Hc).
+       apply Nat.add_sub_eq_nz in Hnhj; [ idtac | intros H; discriminate H ].
+       exfalso; apply Hn.
+       rewrite <- Hnhj.
+       rewrite Hc.
+       rewrite <- Nat.add_succ_l.
+       rewrite <- Nat.sub_succ_l; auto.
+       rewrite Nat.sub_succ.
+       assert (pt₂ ∈ [pt₂ … pts]) as H by (left; auto).
+       apply Hpts in H.
+       rewrite <- Hh in H.
+       destruct H as (d, Hd).
+       rewrite Nat.mul_comm.
+       rewrite Hd, <- Nat.mul_add_distr_r.
+       apply Nat.mod_mul; auto.
 
+       rewrite Hh.
        apply IHpts; auto.
-       eapply Sorted_minus_2nd; eauto .
-       intros x y z H₁ H₂; eapply Nat.lt_trans; eassumption.
+       intros pt Hpt.
+       assert (pt ∈ [pt₂ … pts]) as H by (right; auto).
+       apply Hpts in H.
+       destruct H as (c, Hc).
+       rewrite <- Hh.
+       unfold divide.
+       assert (pt₂ ∈ [pt₂ … pts]) as H by (left; auto).
+       apply Hpts in H.
+       rewrite <- Hh in H.
+       destruct H as (d, Hd).
+       exists (c - d)%nat.
+       rewrite Nat.mul_sub_distr_r.
+       rewrite <- Hc, <- Hd.
+       rewrite Nat_sub_sub_distr; [ idtac | apply Nat.lt_le_incl; auto ].
+       rewrite Nat.sub_add; auto.
+       apply Nat.lt_le_incl.
+       eapply Nat.lt_trans; eauto .
+       revert Hsort Hh Hpt; clear; intros; subst h.
+       revert pt₂ pt Hsort Hpt.
+       induction pts as [| pt₃]; intros; [ contradiction | idtac ].
+       destruct Hpt as [Hpt| Hpt].
+        subst pt.
+        apply Sorted_inv in Hsort.
+        destruct Hsort as (_, Hrel).
+        apply HdRel_inv in Hrel.
+        assumption.
+
+        apply IHpts; auto.
+        eapply Sorted_minus_2nd; eauto .
+        intros x y z H₁ H₂; eapply Nat.lt_trans; eassumption.
 Qed.
 
 Theorem phi_pseudo_degree_is_k_sub_j_div_q : ∀ pol ns j αj k αk q m,
@@ -2223,13 +2197,13 @@ split.
   apply lt_n_S.
   clear Hj.
   revert j.
-  induction (oth_pts ns); intros.
-   simpl.
+  induction (oth_pts ns); intros; simpl.
    rewrite list_length_pad; simpl.
    rewrite <- Hk; simpl.
-   rewrite nat_num_Qnat; omega.
+   rewrite nat_num_Qnat.
+   rewrite Nat.add_comm; simpl.
+   apply Nat.lt_0_succ.
 
-   simpl.
    rewrite list_length_pad; simpl.
    eapply lt_le_trans.
     apply IHl with (j := nat_num (fst a)).
