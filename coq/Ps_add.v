@@ -261,13 +261,6 @@ unfold ps_terms_add.
 rewrite series_add_comm; reflexivity.
 Qed.
 
-Theorem cm_comm : ∀ (ps₁ ps₂ : puiseux_series α), cm ps₁ ps₂ = cm ps₂ ps₁.
-Proof.
-intros ps₁ ps₂.
-unfold cm.
-apply Pos.mul_comm.
-Qed.
-
 Theorem eq_strong_ps_add_comm : ∀ ps₁ ps₂,
   (ps₁ + ps₂)%ps ≐ (ps₂ + ps₁)%ps.
 Proof.
@@ -275,7 +268,7 @@ intros ps₁ ps₂.
 constructor; simpl.
  apply Z.min_comm.
 
- apply cm_comm.
+ apply Pos.mul_comm.
 
  apply ps_terms_add_comm.
 Qed.
