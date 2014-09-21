@@ -905,12 +905,13 @@ destruct q as [q| ].
      destruct p as [| p].
       rewrite Nat.mul_0_r in Hq'; discriminate Hq'.
 
-      assert (p < S p)%nat as H by fast_omega .
+      assert (p < S p)%nat as H by apply Nat.lt_succ_diag_r.
       apply Hzp in H.
       rewrite Nat.add_succ_l, <- Nat.add_succ_r in H.
       rewrite H in Hnzq; apply Hnzq; reflexivity.
 
-     assert (q' < p)%nat as H by fast_omega H₁ H₂.
+     remember H₁ as H; clear HeqH.
+     apply le_S_n, le_neq_lt in H; auto.
      destruct q' as [| q'].
       rewrite Nat.mul_0_r in Hq'; discriminate Hq'.
 
@@ -1018,11 +1019,10 @@ destruct (lt_dec (S i) (Pos.to_nat k)) as [H| H].
 
  apply Nat.nlt_ge in H.
  rewrite Nat.add_succ_l, <- Nat.add_succ_r.
- replace (S i) with (Pos.to_nat k + (S i - Pos.to_nat k))%nat by omega.
- rewrite Nat.add_assoc.
- rewrite Nat.mul_comm.
- rewrite <- Nat.mul_succ_r.
- rewrite Nat.mul_comm.
+ eapply Nat.add_sub_assoc in H; symmetry in H.
+ rewrite Nat.add_comm, Nat.add_sub in H; rewrite H.
+ rewrite Nat.add_assoc, Nat.mul_comm.
+ rewrite <- Nat.mul_succ_r, Nat.mul_comm.
  apply stretch_finite_series.
  assumption.
 Qed.
