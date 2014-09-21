@@ -196,7 +196,6 @@ Proof.
 intros s c m Hs.
 rewrite Hs.
 apply greatest_series_x_power_iff; simpl.
-unfold is_the_greatest_series_x_power.
 remember (series_order r (series_const c) (S m)) as n eqn:Hn .
 symmetry in Hn.
 destruct n as [n| ]; [ idtac | reflexivity ].
@@ -232,10 +231,8 @@ destruct n as [n| ].
  rewrite series_mul_inv_r.
   rewrite stretch_series_1.
   rewrite <- Z.mul_add_distr_r.
-  rewrite Z.add_sub_assoc.
-  rewrite Z.add_opp_r.
-  rewrite Z.add_comm.
-  rewrite Z.add_simpl_r.
+  rewrite Z.add_sub_assoc, Z.add_opp_r.
+  rewrite Z.add_comm, Z.add_simpl_r.
   rewrite Z.sub_diag, Z.mul_0_l.
   constructor.
   rewrite normalise_ps_1.

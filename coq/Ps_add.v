@@ -28,9 +28,7 @@ Theorem ncrl_inf_gsxp : ∀ s n,
 Proof.
 intros s n Hn.
 apply greatest_series_x_power_iff.
-unfold is_the_greatest_series_x_power.
-rewrite Hn.
-reflexivity.
+rewrite Hn; reflexivity.
 Qed.
 
 Theorem greatest_series_x_power_stretch_inf : ∀ s b k,
@@ -42,7 +40,6 @@ remember (greatest_series_x_power r s b) as n eqn:Hn .
 symmetry in Hn.
 apply greatest_series_x_power_iff in Hn.
 apply greatest_series_x_power_iff.
-unfold is_the_greatest_series_x_power in Hn |- *.
 rewrite Hs in Hn.
 rewrite series_order_stretch_succ_inf; auto.
 Qed.

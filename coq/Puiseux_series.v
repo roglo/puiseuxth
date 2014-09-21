@@ -34,10 +34,8 @@ Definition series_order : ∀ α,
   ring α → power_series α → nat → Nbar.
 Admitted.
 
-Arguments series_order _ _ s%ser _.
-
-Axiom series_order_iff : ∀ α (r : ring α) s n v,
-  series_order r s n = v ↔
+Axiom series_order_iff : ∀ α (R : ring α) s n v,
+  series_order R s n = v ↔
   match v with
   | fin k =>
       (∀ i : nat, (i < k)%nat → (s .[n + i] = 0)%K)
@@ -46,18 +44,20 @@ Axiom series_order_iff : ∀ α (r : ring α) s n v,
       ∀ i : nat, (s .[n + i] = 0)%K
   end.
 
+Arguments series_order _ _ s%ser _.
+
 (* [greatest_series_x_power fld s n] returns the greatest nat value [k]
    such that [s], starting at index [n], is a series in [x^k]. *)
 Definition greatest_series_x_power : ∀ α,
   ring α → power_series α → nat → nat.
 Admitted.
 
-Fixpoint nth_series_order α (r : ring α) s n b :=
-  match series_order r s (S b) with
+Fixpoint nth_series_order α (R : ring α) s n b :=
+  match series_order R s (S b) with
   | fin p =>
       match n with
       | O => S p
-      | S n₁ => nth_series_order r s n₁ (S b + p)%nat
+      | S n₁ => nth_series_order R s n₁ (S b + p)%nat
       end
   | ∞ => O
   end.
@@ -65,18 +65,15 @@ Fixpoint nth_series_order α (r : ring α) s n b :=
 Definition is_a_series_in_x_power α {R : ring α} s b k :=
   ∀ n, (k | nth_series_order R s n b).
 
-Definition is_the_greatest_series_x_power α {R : ring α} s b k :=
-  match series_order R s (S b) with
+Axiom greatest_series_x_power_iff : ∀ α (R : ring α) s n k,
+  greatest_series_x_power R s n = k ↔
+  match series_order R s (S n) with
   | fin _ =>
-      is_a_series_in_x_power s b k ∧
-      (∀ k', (k < k')%nat → ∃ n, ¬(k' | nth_series_order R s n b))
+      is_a_series_in_x_power s n k ∧
+      (∀ k', (k < k')%nat → ∃ n', ¬(k' | nth_series_order R s n' n))
   | ∞ =>
       k = O
   end.
-
-Axiom greatest_series_x_power_iff : ∀ α (r : ring α) s n k,
-  greatest_series_x_power r s n = k ↔
-  is_the_greatest_series_x_power s n k.
 
 End Axioms.
 
@@ -237,7 +234,6 @@ remember (greatest_series_x_power r s₂ n) as k eqn:Hk .
 symmetry in Hk.
 apply greatest_series_x_power_iff in Hk.
 apply greatest_series_x_power_iff.
-unfold is_the_greatest_series_x_power in Hk |- *.
 remember (series_order r s₁ (S n)) as p₁ eqn:Hp₁ .
 symmetry in Hp₁.
 rewrite Heq in Hp₁.
@@ -850,7 +846,6 @@ remember (greatest_series_x_power r s b) as k eqn:Hk .
 symmetry in Hk.
 apply greatest_series_x_power_iff in Hk.
 apply greatest_series_x_power_iff.
-unfold is_the_greatest_series_x_power in Hk |- *.
 rewrite <- Nat.add_succ_l, Nat.add_comm.
 rewrite series_order_shift_add.
 remember (series_order r s (S b)) as p eqn:Hp .
@@ -1214,7 +1209,6 @@ destruct (zerop (i mod Pos.to_nat k)) as [H₁| H₁].
 
  destruct Hk as (c, Hk).
  apply greatest_series_x_power_iff in Hk.
- unfold is_the_greatest_series_x_power in Hk.
  remember (series_order r s 1) as p eqn:Hp .
  symmetry in Hp.
  destruct p as [p| ].
@@ -1309,23 +1303,24 @@ induction n; intros.
   rewrite Nat.mul_comm; reflexivity.
 Qed.
 
-Definition is_the_greatest_series_x_power₂ s b k :=
-  match series_order r s (S b) with
+Theorem is_the_greatest_series_x_power_equiv : ∀ s n k,
+  match series_order r s (S n) with
   | fin _ =>
-      is_a_series_in_x_power s b k ∧
-      (∀ u, (1 < u)%nat → ∃ n, ¬(u * k | nth_series_order r s n b))
+      is_a_series_in_x_power s n k ∧
+      (∀ k', (k < k')%nat → ∃ n', ¬(k' | nth_series_order r s n' n))
   | ∞ =>
       k = O
-  end.
-
-Theorem is_the_greatest_series_x_power_equiv : ∀ s b k,
-  is_the_greatest_series_x_power s b k
-  ↔ is_the_greatest_series_x_power₂ s b k.
+  end
+  ↔ match series_order r s (S n) with
+    | fin _ =>
+        is_a_series_in_x_power s n k ∧
+        (∀ u, (1 < u)%nat → ∃ n', ¬(u * k | nth_series_order r s n' n))
+    | ∞ =>
+        k = O
+    end.
 Proof.
 intros s b k.
 split; intros H.
- unfold is_the_greatest_series_x_power in H.
- unfold is_the_greatest_series_x_power₂.
  remember (series_order r s (S b)) as p eqn:Hp₁ .
  symmetry in Hp₁.
  destruct p as [p| ]; [ idtac | assumption ].
@@ -1350,8 +1345,6 @@ split; intros H.
   simpl; rewrite <- Nat.add_succ_l.
   apply Nat.lt_add_pos_r, Nat.lt_0_succ.
 
- unfold is_the_greatest_series_x_power₂ in H.
- unfold is_the_greatest_series_x_power.
  remember (series_order r s (S b)) as p eqn:Hp₁ .
  symmetry in Hp₁.
  destruct p as [p| ]; [ idtac | assumption ].
@@ -1433,9 +1426,7 @@ remember (greatest_series_x_power r s b) as m eqn:Hm .
 symmetry in Hm.
 apply greatest_series_x_power_iff.
 apply is_the_greatest_series_x_power_equiv.
-unfold is_the_greatest_series_x_power₂.
 apply greatest_series_x_power_iff in Hm.
-unfold is_the_greatest_series_x_power in Hm.
 remember (series_order r s (S b)) as p eqn:Hp .
 symmetry in Hp.
 destruct p as [p| ].
@@ -1638,7 +1629,6 @@ split; intros H.
 
     symmetry in Hp.
     apply greatest_series_x_power_iff in Hp.
-    unfold is_the_greatest_series_x_power in Hp.
     remember (series_order r (ps_terms ps) (S m)) as q eqn:Hq .
     symmetry in Hq.
     destruct q as [q| ].
@@ -1790,7 +1780,6 @@ remember (greatest_series_x_power r s (n + p)) as k eqn:Hk .
 symmetry in Hk.
 apply greatest_series_x_power_iff in Hk.
 apply greatest_series_x_power_iff.
-unfold is_the_greatest_series_x_power in Hk |- *.
 pose proof (nth_series_order_left_shift s n O p) as H.
 simpl in H.
 remember (series_order r s (S (n + p))) as n₁ eqn:Hn₁ .
