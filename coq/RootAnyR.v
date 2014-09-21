@@ -3061,7 +3061,7 @@ destruct z₁.
  assert (∀ i, i ≤ S n → nth_r i pol ns = r) as H.
   apply non_decr_imp_eq; auto.
 
-  rename H into Hreq; move Hreq before Hrle.
+  clear Hri; rename H into Hri; move Hri before Hrle.
   assert (∀ i, i ≤ n → (ps_poly_nth 0 (nth_pol i pol₁ ns₁) ≠ 0)%ps) as H.
    intros i Hin.
    apply Nat.succ_le_mono in Hin.
@@ -3087,8 +3087,9 @@ destruct z₁.
     remember (ac_root (Φq pol₁ ns₁)) as c₁ eqn:Hc₁ .
     move Hc₁ before Hns₁.
     move c₁ before c.
-    pose proof (Hri 0%nat Nat.le_0_1) as Hr₀; simpl in Hr₀.
-    pose proof (Hri 1%nat (Nat.le_refl 1)) as Hr₁; simpl in Hr₁.
+    pose proof (Hri 0%nat (Nat.le_0_l (S n))) as Hr₀; simpl in Hr₀.
+    assert (1 ≤ S n)%nat as Hr₁ by apply le_n_S, Nat.le_0_l.
+    apply Hri in Hr₁; simpl in Hr₁.
     rewrite <- Hc in Hr₀.
     rewrite <- Hc, <- Hpol₁, <- Hns₁, <- Hc₁ in Hr₁.
     assert (0 < r)%nat as Hrpos by (eapply multiplicity_is_pos; eauto ).
@@ -3115,7 +3116,7 @@ destruct z₁.
     remember (nth_ns n pol₂ ns₂) as nsn₂ eqn:Hnsn₂ .
     remember Hns as H; clear HeqH.
     eapply all_ns_in_newton_segments with (n := S n) in H; try eassumption;
-      eauto.
+     eauto ; [ idtac | simpl; rewrite <- Hc; auto ].
     erewrite nth_ns_succ2 in H; eauto .
     erewrite nth_pol_succ2 in H; eauto .
     rewrite <- Hnsn₁, <- Hpoln₁ in H.
@@ -3135,7 +3136,6 @@ destruct z₁.
     remember Hnsn₁h as H; clear HeqH.
     eapply newton_segments_not_nil in H; try eassumption.
     rename H into Hns₁nz.
-    clear Hri; rename Hreq into Hri.
     pose proof (Hri (S n) (Nat.le_refl (S n))) as Hrn₁; simpl in Hrn₁.
     rewrite <- Hc, <- Hpol₁, <- Hns₁ in Hrn₁.
     erewrite nth_r_n in Hrn₁; try eassumption; auto.
