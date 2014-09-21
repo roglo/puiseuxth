@@ -208,7 +208,8 @@ assert (slope ms < slope_expr (Qnat (S r), v) (Qnat k₁, αk₁)) as H.
 
      intros HH; discriminate HH.
 
-     fast_omega Hrk.
+     intros Hk; subst k₁.
+     revert Hrk; apply Nat.nlt_0_r.
 
    apply Z.mul_nonneg_nonneg; auto.
    apply Z.mul_nonneg_nonneg; auto.
@@ -221,7 +222,8 @@ assert (slope ms < slope_expr (Qnat (S r), v) (Qnat k₁, αk₁)) as H.
 
    intros HH; discriminate HH.
 
-   fast_omega Hrk.
+   intros Hk; subst k₁.
+   revert Hrk; apply Nat.nlt_0_r.
 
  rename H into Hsl.
  subst pts.
@@ -536,7 +538,7 @@ destruct r.
    symmetry in Hoa.
    destruct oa as [oa| ].
     remember 1%nat as pow.
-    assert (1 ≤ pow)%nat as Hpow by fast_omega Heqpow.
+    assert (1 ≤ pow)%nat as Hpow by (subst pow; auto).
     clear Heqpow Hr Hpos a Hoa.
     revert r pow H Hz Hpow.
     induction la as [| a]; intros.
@@ -988,16 +990,6 @@ destruct r.
   rename H into Hnz₁.
   remember Hns as H; clear HeqH.
   eapply r_n_next_ns with (ns₁ := ns₁) (r := r) in H; try eassumption.
-   Focus 2.
-   assert (0 ≤ S (S n)) as H₁ by apply Nat.le_0_l.
-   apply Hri in H₁; simpl in H₁.
-   rewrite <- Hc in H₁; assumption.
-
-   Focus 2.
-   assert (1 ≤ S (S n)) as H₁ by fast_omega .
-   apply Hri in H₁; simpl in H₁.
-   rewrite <- Hc, <- Hpol₁, <- Hns₁, <- Hc₁ in H₁; assumption.
-
    destruct H as (αj₁, (αk₁, H)).
    destruct H as (Hini₁, (Hfin₁, (Hαj₁, Hαk₁))).
    remember Hns₁ as H; clear HeqH.
@@ -1008,31 +1000,37 @@ destruct r.
     remember (next_pol pol₁ (β ns₁) (γ ns₁) c₁) as pol₂ eqn:Hpol₂ .
     remember (List.hd phony_ns (newton_segments pol₂)) as ns₂ eqn:Hns₂ .
     eapply IHn with (ns := ns₁) (ns₁ := ns₂) (m := (m * q₀)%positive); eauto .
-     Focus 2.
+     eapply next_pol_in_K_1_mq with (ns := ns); eauto .
+
      intros i Hin.
      apply le_n_S in Hin.
      apply Hri in Hin; simpl in Hin.
      rewrite <- Hc, <- Hpol₁, <- Hns₁ in Hin.
      assumption.
 
-     Focus 2.
      intros i Hin.
      apply le_n_S in Hin.
      apply Hpsi in Hin; simpl in Hin.
      rewrite <- Hc₁, <- Hpol₂, <- Hns₂ in Hin.
      assumption.
 
-     Focus 2.
-     clear H.
-     intros H; rewrite H in Hns₁; subst ns₁.
-     simpl in Hini₁, Hfin₁.
-     injection Hfin₁; intros H₁ H₂.
-     rewrite <- Nat2Z.inj_0 in H₂.
-     apply Nat2Z.inj in H₂.
-     subst r.
-     revert Hrnz; apply Nat.lt_irrefl.
+    clear H.
+    intros H; rewrite H in Hns₁; subst ns₁.
+    simpl in Hini₁, Hfin₁.
+    injection Hfin₁; intros H₁ H₂.
+    rewrite <- Nat2Z.inj_0 in H₂.
+    apply Nat2Z.inj in H₂.
+    subst r.
+    revert Hrnz; apply Nat.lt_irrefl.
 
-    eapply next_pol_in_K_1_mq with (ns := ns); eauto .
+   assert (0 ≤ S (S n)) as H₁ by apply Nat.le_0_l.
+   apply Hri in H₁; simpl in H₁.
+   rewrite <- Hc in H₁; assumption.
+
+   assert (0 ≤ S n) as H₁ by apply Nat.le_0_l.
+   apply Nat.succ_le_mono in H₁.
+   apply Hri in H₁; simpl in H₁.
+   rewrite <- Hc, <- Hpol₁, <- Hns₁, <- Hc₁ in H₁; assumption.
 Qed.
 
 Theorem nth_newton_segments_nil : ∀ pol ns n,
@@ -1118,7 +1116,7 @@ induction n; intros.
       destruct (ps_zerop R (ps_poly_nth 0 pol)); auto.
 
       exists (S (S i)).
-      split; [ fast_omega Hin | idtac ].
+      split; [ apply Nat.succ_le_mono in Hin; auto | idtac ].
       split.
        right; rewrite Nat.pred_succ.
        simpl.
@@ -1243,11 +1241,10 @@ induction n.
     remember (n - b)%nat as nb eqn:Hnb .
     symmetry in Hnb.
     destruct nb; [ simpl | reflexivity ].
-    exfalso; fast_omega H₁ H₂ Hnb.
+    apply Nat.sub_0_le in Hnb.
+    apply Nat.nle_gt in H₂; contradiction.
 
     apply Nat.nle_gt in H₂.
-    replace (n - S b)%nat with O by fast_omega H₂.
-    replace (n - b)%nat with O by fast_omega H₂; simpl.
     rewrite comb_lt; auto.
 Qed.
 
