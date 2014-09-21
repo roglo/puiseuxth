@@ -16,7 +16,7 @@ Require Import Power_series.
 Set Implicit Arguments.
 
 Definition ps_inv {α} {r : ring α} {f : field r} ps :=
-  match null_coeff_range_length r (ps_terms ps) O with
+  match series_order r (ps_terms ps) O with
   | fin n =>
       {| ps_terms := series_inv (series_left_shift n (ps_terms ps));
          ps_ordnum := - ps_ordnum ps - Z.of_nat n;
@@ -28,7 +28,7 @@ Definition ps_inv {α} {r : ring α} {f : field r} ps :=
 Notation "¹/ a" := (ps_inv a) : ps_scope.
 
 Definition ps_left_adjust α {R : ring α} ps :=
-  match null_coeff_range_length R (ps_terms ps) O with
+  match series_order R (ps_terms ps) O with
   | fin n =>
       {| ps_terms := series_left_shift n (ps_terms ps);
          ps_ordnum := ps_ordnum ps + Z.of_nat n;
@@ -43,15 +43,15 @@ Variable α : Type.
 Variable r : ring α.
 Variable f : field r.
 
-Theorem null_coeff_range_length_left_adjust : ∀ n ps,
-  null_coeff_range_length r (ps_terms ps) 0 = fin n
-  → null_coeff_range_length r (ps_terms (ps_left_adjust ps)) 0 = 0%Nbar.
+Theorem series_order_left_adjust : ∀ n ps,
+  series_order r (ps_terms ps) 0 = fin n
+  → series_order r (ps_terms (ps_left_adjust ps)) 0 = 0%Nbar.
 Proof.
 intros n ps Hn.
 unfold ps_left_adjust; simpl.
 rewrite Hn; simpl.
-apply null_coeff_range_length_iff.
-apply null_coeff_range_length_iff in Hn.
+apply series_order_iff.
+apply series_order_iff in Hn.
 simpl in Hn |- *.
 destruct Hn as (Hz, Hnz).
 split.
@@ -61,22 +61,22 @@ split.
  rewrite Nat.add_0_r; assumption.
 Qed.
 
-Theorem null_coeff_range_length_inf_left_adjust : ∀ ps,
-  null_coeff_range_length r (ps_terms ps) 0 = ∞
-  → null_coeff_range_length r (ps_terms (ps_left_adjust ps)) 0 = ∞.
+Theorem series_order_inf_left_adjust : ∀ ps,
+  series_order r (ps_terms ps) 0 = ∞
+  → series_order r (ps_terms (ps_left_adjust ps)) 0 = ∞.
 Proof.
 intros ps Hn.
-apply null_coeff_range_length_iff.
+apply series_order_iff.
 unfold ps_left_adjust; simpl.
 rewrite Hn.
-apply null_coeff_range_length_iff in Hn.
+apply series_order_iff in Hn.
 assumption.
 Qed.
 
 Theorem ps_left_adjust_eq : ∀ ps, (ps = ps_left_adjust ps)%ps.
 Proof.
 intros ps.
-remember (null_coeff_range_length r (ps_terms ps) 0) as n eqn:Hn .
+remember (series_order r (ps_terms ps) 0) as n eqn:Hn .
 symmetry in Hn.
 destruct n as [n| ].
  constructor; constructor; simpl.
@@ -89,7 +89,7 @@ destruct n as [n| ].
    rewrite greatest_series_x_power_left_shift.
    rewrite Nat.add_0_r; reflexivity.
 
-   eapply null_coeff_range_length_left_adjust; eassumption.
+   eapply series_order_left_adjust; eassumption.
 
   erewrite ps_polord_normalise; try reflexivity; try eassumption.
   erewrite ps_polord_normalise with (n := O); try reflexivity; try eassumption.
@@ -100,7 +100,7 @@ destruct n as [n| ].
    rewrite greatest_series_x_power_left_shift.
    rewrite Nat.add_0_r; reflexivity.
 
-   eapply null_coeff_range_length_left_adjust; eassumption.
+   eapply series_order_left_adjust; eassumption.
 
   erewrite ps_terms_normalise; try reflexivity; try eassumption.
   erewrite ps_terms_normalise with (n := O); try reflexivity; try eassumption.
@@ -113,22 +113,22 @@ destruct n as [n| ].
    unfold normalise_series.
    rewrite series_left_shift_0; reflexivity.
 
-   eapply null_coeff_range_length_left_adjust; eassumption.
+   eapply series_order_left_adjust; eassumption.
 
  constructor; constructor; simpl.
   unfold normalise_ps.
   rewrite Hn.
-  rewrite null_coeff_range_length_inf_left_adjust; [ reflexivity | idtac ].
+  rewrite series_order_inf_left_adjust; [ reflexivity | idtac ].
   assumption.
 
   unfold normalise_ps.
   rewrite Hn.
-  rewrite null_coeff_range_length_inf_left_adjust; [ reflexivity | idtac ].
+  rewrite series_order_inf_left_adjust; [ reflexivity | idtac ].
   assumption.
 
   unfold normalise_ps.
   rewrite Hn.
-  rewrite null_coeff_range_length_inf_left_adjust; [ reflexivity | idtac ].
+  rewrite series_order_inf_left_adjust; [ reflexivity | idtac ].
   assumption.
 Qed.
 
@@ -149,7 +149,7 @@ Qed.
 
 Theorem normalise_ps_1 : (normalise_ps 1 ≐ 1)%ps.
 Proof.
-remember (null_coeff_range_length r (ps_terms 1%ps) 0) as n eqn:Hn .
+remember (series_order r (ps_terms 1%ps) 0) as n eqn:Hn .
 symmetry in Hn.
 destruct n as [n| ].
  destruct n.
@@ -176,7 +176,7 @@ destruct n as [n| ].
    rewrite series_shrink_1.
    rewrite series_left_shift_0; reflexivity.
 
-  apply null_coeff_range_length_iff in Hn; simpl in Hn.
+  apply series_order_iff in Hn; simpl in Hn.
   destruct Hn as (_, Hn).
   exfalso; apply Hn; reflexivity.
 
@@ -184,7 +184,7 @@ destruct n as [n| ].
  rewrite Hn.
  constructor; try reflexivity.
  constructor; intros i; simpl.
- apply null_coeff_range_length_iff in Hn.
+ apply series_order_iff in Hn.
  simpl in Hn.
  symmetry; apply Hn.
 Qed.
@@ -197,11 +197,11 @@ intros s c m Hs.
 rewrite Hs.
 apply greatest_series_x_power_iff; simpl.
 unfold is_the_greatest_series_x_power.
-remember (null_coeff_range_length r (series_const c) (S m)) as n eqn:Hn .
+remember (series_order r (series_const c) (S m)) as n eqn:Hn .
 symmetry in Hn.
 destruct n as [n| ]; [ idtac | reflexivity ].
-apply null_coeff_range_length_iff in Hn.
-unfold null_coeff_range_length_prop in Hn; simpl in Hn.
+apply series_order_iff in Hn.
+unfold series_order_prop in Hn; simpl in Hn.
 destruct Hn as (Hz, Hnz).
 exfalso; apply Hnz; reflexivity.
 Qed.
@@ -218,7 +218,7 @@ Theorem ps_mul_inv_l : ∀ ps,
   → (¹/ ps * ps = 1)%ps.
 Proof.
 intros ps Hps.
-remember (null_coeff_range_length r (ps_terms ps) 0) as n eqn:Hn .
+remember (series_order r (ps_terms ps) 0) as n eqn:Hn .
 symmetry in Hn.
 destruct n as [n| ].
  assert (ps = ps_left_adjust ps)%ps as H by apply ps_left_adjust_eq.
@@ -241,7 +241,7 @@ destruct n as [n| ].
   constructor.
   rewrite normalise_ps_1.
   unfold normalise_ps; simpl.
-  remember (null_coeff_range_length r 1%ser 0) as m eqn:Hm .
+  remember (series_order r 1%ser 0) as m eqn:Hm .
   symmetry in Hm.
   destruct m as [m| ].
    destruct m; simpl.
@@ -267,24 +267,24 @@ destruct n as [n| ].
      apply Z.gcd_eq_0_l in H₁.
      exfalso; revert H₁; apply Pos2Z_ne_0.
 
-    apply null_coeff_range_length_iff in Hm.
-    unfold null_coeff_range_length_prop in Hm.
+    apply series_order_iff in Hm.
+    unfold series_order_prop in Hm.
     simpl in Hm.
     destruct Hm as (_, Hm).
     exfalso; apply Hm; reflexivity.
 
-   apply null_coeff_range_length_iff in Hm.
-   unfold null_coeff_range_length_prop in Hm.
+   apply series_order_iff in Hm.
+   unfold series_order_prop in Hm.
    simpl in Hm.
    constructor; try reflexivity.
    constructor; intros i; simpl.
    symmetry; apply Hm.
 
-  apply null_coeff_range_length_iff in Hn.
+  apply series_order_iff in Hn.
   destruct Hn as (Hz, Hnz).
   rewrite Nat.add_comm in Hnz; assumption.
 
- apply ps_null_coeff_range_length_inf_iff in Hn.
+ apply ps_series_order_inf_iff in Hn.
  contradiction.
 Qed.
 

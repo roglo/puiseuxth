@@ -3013,7 +3013,7 @@ eapply ord_coeff_non_zero_in_newt_segm with (hps := jps) in H; try eassumption .
  apply order_inf in H₁.
  unfold order in H₁; simpl in H₁.
  unfold order_coeff in H; simpl in H.
- remember (null_coeff_range_length R (ps_terms jps) 0) as v eqn:Hv .
+ remember (series_order R (ps_terms jps) 0) as v eqn:Hv .
  destruct v as [v| ].
   discriminate H₁.
 

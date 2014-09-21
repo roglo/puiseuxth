@@ -42,7 +42,7 @@ unfold normalise_ps; simpl.
 remember (series_stretch (cm_factor ps₁ ps₂) (ps_terms ps₁)) as s₁ eqn:Hs₁ .
 remember (series_stretch (cm_factor ps₂ ps₁) (ps_terms ps₂)) as s₂ eqn:Hs₂ .
 rewrite series_mul_comm.
-remember (null_coeff_range_length r (s₂ * s₁)%ser 0) as n eqn:Hn .
+remember (series_order r (s₂ * s₁)%ser 0) as n eqn:Hn .
 destruct n as [n| ]; [ idtac | reflexivity ].
 constructor; simpl.
  unfold gcd_ps; simpl.
@@ -80,7 +80,7 @@ unfold normalise_ps; simpl.
 unfold cm, cm_factor; simpl.
 rewrite stretch_series_1, series_mul_1_l.
 rewrite series_stretch_1.
-remember (null_coeff_range_length r (ps_terms ps) 0) as n eqn:Hn .
+remember (series_order r (ps_terms ps) 0) as n eqn:Hn .
 symmetry in Hn.
 destruct n as [n| ]; [ idtac | reflexivity ].
 constructor; simpl.
@@ -104,10 +104,10 @@ Qed.
 Theorem ps_mul_1_r : ∀ ps, (ps * 1 = ps)%ps.
 Proof. intros ps. rewrite ps_mul_comm. apply ps_mul_1_l. Qed.
 
-Theorem null_coeff_range_length_series_0 :
-  null_coeff_range_length r 0%ser 0 = ∞.
+Theorem series_order_series_0 :
+  series_order r 0%ser 0 = ∞.
 Proof.
-apply null_coeff_range_length_iff; intros i.
+apply series_order_iff; intros i.
 rewrite series_nth_series_0; reflexivity.
 Qed.
 
@@ -119,7 +119,7 @@ unfold normalise_ps; simpl.
 unfold cm_factor; simpl.
 rewrite series_stretch_series_0.
 rewrite series_mul_0_l.
-rewrite null_coeff_range_length_series_0.
+rewrite series_order_series_0.
 reflexivity.
 Qed.
 
@@ -209,7 +209,7 @@ remember (series_stretch c₂₃ (ps_terms ps₁)) as s₁ eqn:Hs₁ .
 remember (series_stretch c₃₁ (ps_terms ps₂)) as s₂ eqn:Hs₂ .
 remember (series_stretch c₁₂ (ps_terms ps₃)) as s₃ eqn:Hs₃ .
 remember (series_mul (series_mul s₁ s₂) s₃) as s₁₂₃ eqn:Hs₁₂₃ .
-remember (null_coeff_range_length r s₁₂₃ 0) as n eqn:Hn .
+remember (series_order r s₁₂₃ 0) as n eqn:Hn .
 symmetry in Hn.
 destruct n as [n| ]; [ idtac | reflexivity ].
 unfold gcd_ps; simpl.
@@ -392,8 +392,8 @@ remember Heq as Heqv; clear HeqHeqv.
 remember (normalise_ps ps₁) as nps₁ eqn:Hps₁  in Heq.
 remember (normalise_ps ps₂) as nps₂ eqn:Hps₂  in Heq.
 symmetry in Hps₁, Hps₂.
-remember (null_coeff_range_length r (ps_terms ps₁) 0) as m₁ eqn:Hm₁ .
-remember (null_coeff_range_length r (ps_terms ps₂) 0) as m₂ eqn:Hm₂ .
+remember (series_order r (ps_terms ps₁) 0) as m₁ eqn:Hm₁ .
+remember (series_order r (ps_terms ps₂) 0) as m₂ eqn:Hm₂ .
 symmetry in Hm₁, Hm₂.
 destruct m₁ as [m₁| ].
  apply normalised_exists_adjust in Hps₁.
@@ -412,14 +412,14 @@ destruct m₁ as [m₁| ].
     intros H; rewrite Hm₂ in H; discriminate H.
 
    symmetry in Heqv.
-   eapply null_coeff_range_length_inf_compat in Hm₂; [ idtac | eassumption ].
+   eapply series_order_inf_compat in Hm₂; [ idtac | eassumption ].
    rewrite Hm₁ in Hm₂; discriminate Hm₂.
 
   intros H; rewrite Hm₁ in H; discriminate H.
 
  clear Hm₂.
  remember Hm₁ as Hm₂; clear HeqHm₂.
- eapply null_coeff_range_length_inf_compat in Hm₂; [ idtac | eassumption ].
+ eapply series_order_inf_compat in Hm₂; [ idtac | eassumption ].
  apply eq_strong_ps_adjust_zero_neg_zero in Hm₁.
  apply eq_strong_ps_adjust_zero_neg_zero in Hm₂.
  destruct Hm₁ as (n₁, (n₂, (k₁, (k₂, Hm₁)))).
@@ -487,7 +487,7 @@ Proof.
 intros ps.
 unfold normalise_ps.
 unfold normalise_ps.
-remember (null_coeff_range_length r (ps_terms ps) 0) as n eqn:Hn .
+remember (series_order r (ps_terms ps) 0) as n eqn:Hn .
 symmetry in Hn.
 destruct n as [n| ]; constructor.
  remember (greatest_series_x_power r (ps_terms ps) n) as x.
@@ -569,12 +569,12 @@ destruct n as [n| ]; constructor.
    apply Z.lt_le_incl; assumption.
 
  unfold normalise_ps; simpl.
- rewrite null_coeff_range_length_series_0, Hn.
+ rewrite series_order_series_0, Hn.
  reflexivity.
 Qed.
 
 Theorem ps_ordnum_normalise : ∀ ps n p vn,
-  null_coeff_range_length r (ps_terms ps) 0 = fin n
+  series_order r (ps_terms ps) 0 = fin n
   → p = greatest_series_x_power r (ps_terms ps) n
     → vn = (ps_ordnum ps + Z.of_nat n)%Z
       → ps_ordnum (normalise_ps ps) =
@@ -591,7 +591,7 @@ reflexivity.
 Qed.
 
 Theorem ps_polord_normalise : ∀ ps n p vn,
-  null_coeff_range_length r (ps_terms ps) 0 = fin n
+  series_order r (ps_terms ps) 0 = fin n
   → p = greatest_series_x_power r (ps_terms ps) n
     → vn = (ps_ordnum ps + Z.of_nat n)%Z
       → ps_polord (normalise_ps ps) =
@@ -609,7 +609,7 @@ reflexivity.
 Qed.
 
 Theorem ps_terms_normalise : ∀ ps n p vn,
-  null_coeff_range_length r (ps_terms ps) 0 = fin n
+  series_order r (ps_terms ps) 0 = fin n
   → p = greatest_series_x_power r (ps_terms ps) n
     → vn = (ps_ordnum ps + Z.of_nat n)%Z
       → ps_terms (normalise_ps ps) =
@@ -628,10 +628,10 @@ reflexivity.
 Qed.
 
 Theorem null_range_length_mul_add₂_distr_l : ∀ ps₁ ps₂ ps₃,
-   null_coeff_range_length r
+   series_order r
      (ps_terms
         (adjust_ps 0 (ps_polord ps₁) (ps₁ * ps_add₂ ps₂ ps₃)%ps)) 0 =
-   null_coeff_range_length r
+   series_order r
      (ps_terms
         (adjust_ps 0 1 (ps_add₂ (ps₁ * ps₂)%ps (ps₁ * ps₃)%ps))) 0.
 Proof.
@@ -810,8 +810,8 @@ Qed.
 Theorem ps_ordnum_adjust_normalise_mul_add₂_distr_l : ∀ ps₁ ps₂ ps₃ ps₄ ps₅ n,
   ps₄ = adjust_ps 0 (ps_polord ps₁) (ps₁ * ps_add₂ ps₂ ps₃)%ps
   → ps₅ = adjust_ps 0 1 (ps_add₂ (ps₁ * ps₂)%ps (ps₁ * ps₃)%ps)
-    → null_coeff_range_length r (ps_terms ps₄) 0 = fin n
-      → null_coeff_range_length r (ps_terms ps₅) 0 = fin n
+    → series_order r (ps_terms ps₄) 0 = fin n
+      → series_order r (ps_terms ps₅) 0 = fin n
         → ps_ordnum (normalise_ps ps₄) = ps_ordnum (normalise_ps ps₅).
 Proof.
 intros ps₁ ps₂ ps₃ ps₄ ps₅ n Hps₄ Hps₅ Hn₄ Hn₅.
@@ -827,8 +827,8 @@ Qed.
 Theorem ps_polord_adjust_normalise_mul_add₂_distr_l : ∀ ps₁ ps₂ ps₃ ps₄ ps₅ n,
   ps₄ = adjust_ps 0 (ps_polord ps₁) (ps₁ * ps_add₂ ps₂ ps₃)%ps
   → ps₅ = adjust_ps 0 1 (ps_add₂ (ps₁ * ps₂)%ps (ps₁ * ps₃)%ps)
-    → null_coeff_range_length r (ps_terms ps₄) 0 = fin n
-      → null_coeff_range_length r (ps_terms ps₅) 0 = fin n
+    → series_order r (ps_terms ps₄) 0 = fin n
+      → series_order r (ps_terms ps₅) 0 = fin n
         → ps_polord (normalise_ps ps₄) = ps_polord (normalise_ps ps₅).
 Proof.
 intros ps₁ ps₂ ps₃ ps₄ ps₅ n Hps₄ Hps₅ Hn₄ Hn₅.
@@ -844,8 +844,8 @@ Qed.
 Theorem ps_terms_adjust_normalise_mul_add₂_distr_l : ∀ ps₁ ps₂ ps₃ ps₄ ps₅ n,
   ps₄ = adjust_ps 0 (ps_polord ps₁) (ps₁ * ps_add₂ ps₂ ps₃)%ps
   → ps₅ = adjust_ps 0 1 (ps_add₂ (ps₁ * ps₂)%ps (ps₁ * ps₃)%ps)
-    → null_coeff_range_length r (ps_terms ps₄) 0 = fin n
-      → null_coeff_range_length r (ps_terms ps₅) 0 = fin n
+    → series_order r (ps_terms ps₄) 0 = fin n
+      → series_order r (ps_terms ps₅) 0 = fin n
         → (ps_terms (normalise_ps ps₄) = ps_terms (normalise_ps ps₅))%ser.
 Proof.
 intros ps₁ ps₂ ps₃ ps₄ ps₅ n Hps₄ Hps₅ Hn₄ Hn₅.
@@ -879,8 +879,8 @@ rewrite ps_adjust_eq with (n := O) (k := xH); symmetry.
 remember (adjust_ps 0 (ps_polord ps₁) (ps₁ * ps_add₂ ps₂ ps₃))%ps as ps₄
  eqn:Hps₄ .
 remember (adjust_ps 0 1 (ps_add₂ (ps₁ * ps₂) (ps₁ * ps₃)))%ps as ps₅ eqn:Hps₅ .
-remember (null_coeff_range_length r (ps_terms ps₄) 0) as n₄ eqn:Hn₄ .
-remember (null_coeff_range_length r (ps_terms ps₅) 0) as n₅ eqn:Hn₅ .
+remember (series_order r (ps_terms ps₄) 0) as n₄ eqn:Hn₄ .
+remember (series_order r (ps_terms ps₅) 0) as n₅ eqn:Hn₅ .
 symmetry in Hn₄, Hn₅.
 assert (n₄ = n₅) as H by (subst; apply null_range_length_mul_add₂_distr_l).
 move H at top; subst n₅.
@@ -892,8 +892,8 @@ destruct n₄ as [n₄| ].
 
   eapply ps_terms_adjust_normalise_mul_add₂_distr_l; eassumption.
 
- rewrite ps_null_coeff_range_length_inf_iff in Hn₄.
- rewrite ps_null_coeff_range_length_inf_iff in Hn₅.
+ rewrite ps_series_order_inf_iff in Hn₄.
+ rewrite ps_series_order_inf_iff in Hn₅.
  rewrite Hn₄, Hn₅; reflexivity.
 Qed.
 

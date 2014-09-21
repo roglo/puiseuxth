@@ -84,15 +84,15 @@ progress unfold order in Hopa, Hopb.
 progress unfold order; simpl.
 remember (ps_terms pa) as sa eqn:Hsa .
 remember (ps_terms pb) as sb eqn:Hsb .
-remember (null_coeff_range_length R sa 0) as na eqn:Hna .
-remember (null_coeff_range_length R sb 0) as nb eqn:Hnb .
-remember (null_coeff_range_length R (sa + sb)%ser 0) as nc eqn:Hnc .
+remember (series_order R sa 0) as na eqn:Hna .
+remember (series_order R sb 0) as nb eqn:Hnb .
+remember (series_order R (sa + sb)%ser 0) as nc eqn:Hnc .
 symmetry in Hna, Hnb, Hnc.
 clear Hsa Hsb Ha Hb.
-apply null_coeff_range_length_iff in Hna.
-apply null_coeff_range_length_iff in Hnb.
-apply null_coeff_range_length_iff in Hnc.
-unfold null_coeff_range_length_prop in Hna, Hnb, Hnc.
+apply series_order_iff in Hna.
+apply series_order_iff in Hnb.
+apply series_order_iff in Hnc.
+unfold series_order_prop in Hna, Hnb, Hnc.
 simpl in Hna, Hnb, Hnc.
 destruct na as [na| ].
  destruct Hna as (Hina, Hna).
@@ -409,9 +409,9 @@ Qed.
 Theorem ps_monom_0_coeff_0 : ∀ c pow, (ps_monom c pow = 0)%ps → (c = 0)%K.
 Proof.
 intros c pow Hc.
-apply ps_null_coeff_range_length_inf_iff in Hc.
-apply null_coeff_range_length_iff in Hc.
-unfold null_coeff_range_length_prop in Hc.
+apply ps_series_order_inf_iff in Hc.
+apply series_order_iff in Hc.
+unfold series_order_prop in Hc.
 simpl in Hc.
 pose proof (Hc O); assumption.
 Qed.

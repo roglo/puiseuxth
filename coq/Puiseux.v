@@ -109,7 +109,7 @@ induction n; intros.
  rewrite Qden_inv_Qnat_sub; auto.
  rewrite Z.add_0_r, Z.mul_1_r.
  remember (root_tail_series_from_cγ_list m₁ pol₁ ns₁) as t.
- remember (null_coeff_range_length R {| terms := t |} 0) as v eqn:Hv .
+ remember (series_order R {| terms := t |} 0) as v eqn:Hv .
  symmetry in Hv.
  destruct v; [ idtac | constructor ].
  apply Qbar.qfin_le_mono.

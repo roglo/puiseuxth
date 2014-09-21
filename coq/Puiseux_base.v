@@ -22,7 +22,7 @@ Require Import Ps_div.
 Set Implicit Arguments.
 
 Definition order {α} {r : ring α} ps :=
-  match null_coeff_range_length r (ps_terms ps) 0 with
+  match series_order r (ps_terms ps) 0 with
   | fin v => qfin (ps_ordnum ps + Z.of_nat v # ps_polord ps)
   | ∞ => qinf
   end.
@@ -30,7 +30,7 @@ Definition order {α} {r : ring α} ps :=
 Arguments order _ _ ps%ps_scope.
 
 Definition order_coeff α {R : ring α} ps :=
-  match null_coeff_range_length R (ps_terms ps) 0 with
+  match series_order R (ps_terms ps) 0 with
   | fin v => (ps_terms ps) .[v]
   | ∞ => (0)%K
   end.
@@ -86,13 +86,13 @@ Theorem order_inf : ∀ x, order x = qinf ↔ (x = 0)%ps.
 Proof.
 intros x.
 split; intros H.
- apply ps_null_coeff_range_length_inf_iff.
+ apply ps_series_order_inf_iff.
  unfold order in H.
- remember (null_coeff_range_length r (ps_terms x) 0) as n eqn:Hn .
+ remember (series_order r (ps_terms x) 0) as n eqn:Hn .
  symmetry in Hn.
  destruct n as [n| ]; [ discriminate H | reflexivity ].
 
- apply ps_null_coeff_range_length_inf_iff in H.
+ apply ps_series_order_inf_iff in H.
  unfold order.
  rewrite H; reflexivity.
 Qed.
@@ -106,7 +106,7 @@ Qed.
 Theorem order_0 : order 0%ps = Qbar.qinf.
 Proof.
 unfold order; simpl.
-rewrite null_coeff_range_length_series_0; reflexivity.
+rewrite series_order_series_0; reflexivity.
 Qed.
 
 Theorem ps_zerop : ∀ a, {(a = 0)%ps} + {(a ≠ 0)%ps}.
@@ -266,8 +266,8 @@ intros a b Hab.
 inversion Hab; subst.
 unfold normalise_ps in H; simpl in H.
 unfold order.
-remember (null_coeff_range_length R (ps_terms a) 0) as na eqn:Hna .
-remember (null_coeff_range_length R (ps_terms b) 0) as nb eqn:Hnb .
+remember (series_order R (ps_terms a) 0) as na eqn:Hna .
+remember (series_order R (ps_terms b) 0) as nb eqn:Hnb .
 symmetry in Hna, Hnb.
 destruct na as [na| ].
  destruct nb as [nb| ].
@@ -299,15 +299,15 @@ destruct na as [na| ].
    rewrite Z.gcd_comm, Z.gcd_assoc, Hob.
    apply Z_gcd_pos_r_le.
 
-  apply ps_null_coeff_range_length_inf_iff in Hnb.
+  apply ps_series_order_inf_iff in Hnb.
   rewrite Hnb in Hab.
-  apply ps_null_coeff_range_length_inf_iff in Hab.
+  apply ps_series_order_inf_iff in Hab.
   rewrite Hab in Hna; discriminate Hna.
 
- apply ps_null_coeff_range_length_inf_iff in Hna.
+ apply ps_series_order_inf_iff in Hna.
  rewrite Hna in Hab.
  symmetry in Hab.
- apply ps_null_coeff_range_length_inf_iff in Hab.
+ apply ps_series_order_inf_iff in Hab.
  rewrite Hab in Hnb.
  subst nb; reflexivity.
 Qed.

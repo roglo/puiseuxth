@@ -1074,7 +1074,7 @@ remember Hns as H; clear HeqH.
 eapply order_in_newton_segment in H; eauto ; [ idtac | left; eauto  ].
 unfold order in H.
 remember (ps_poly_nth j pol) as ps.
-remember (null_coeff_range_length R (ps_terms ps) 0) as v eqn:Hv .
+remember (series_order R (ps_terms ps) 0) as v eqn:Hv .
 symmetry in Hv.
 destruct v; [ idtac | discriminate H ].
 injection H; clear H; intros H.
@@ -1088,7 +1088,7 @@ Theorem in_K_1_m_order_eq : ∀ ps m v,
 Proof.
 intros ps m v Hin Ho.
 unfold order in Ho.
-remember (null_coeff_range_length R (ps_terms ps) 0) as x.
+remember (series_order R (ps_terms ps) 0) as x.
 symmetry in Heqx.
 destruct x as [x| ]; [ idtac | discriminate Ho ].
 injection Ho; clear Ho; intros Ho.
@@ -1101,7 +1101,7 @@ inversion_clear H.
 clear H2.
 unfold normalise_ps in H0, H1; simpl in H0, H1.
 rewrite Heqx in H0, H1; simpl in H0, H1.
-remember (null_coeff_range_length R (ps_terms ps₁) 0) as y.
+remember (series_order R (ps_terms ps₁) 0) as y.
 symmetry in Heqy.
 destruct y as [y| ]; simpl in H0, H1.
  remember (greatest_series_x_power R (ps_terms ps₁) y) as z₁.
@@ -1286,7 +1286,7 @@ remember Hns as H; clear HeqH.
 eapply order_in_newton_segment with (h := k) (αh := αk) in H; eauto .
  unfold order in H.
  remember (ps_poly_nth k pol) as ps.
- remember (null_coeff_range_length R (ps_terms ps) 0) as v eqn:Hv .
+ remember (series_order R (ps_terms ps) 0) as v eqn:Hv .
  symmetry in Hv.
  destruct v; [ idtac | discriminate H ].
  injection H; clear H; intros H.
@@ -1344,7 +1344,7 @@ remember Hns as H; clear HeqH.
 eapply order_in_newton_segment with (h := h) (αh := αh) in H; eauto .
  unfold order in H.
  remember (ps_poly_nth h pol) as ps.
- remember (null_coeff_range_length R (ps_terms ps) 0) as v eqn:Hv .
+ remember (series_order R (ps_terms ps) 0) as v eqn:Hv .
  symmetry in Hv.
  destruct v; [ idtac | discriminate H ].
  injection H; clear H; intros H.
@@ -2235,10 +2235,10 @@ Theorem ord_coeff_non_zero_in_newt_segm : ∀ pol ns h αh hps,
 Proof.
 intros pol ns h αh hps Hns Hh Hhps.
 unfold order_coeff.
-remember (null_coeff_range_length R (ps_terms hps) 0) as n eqn:Hn .
+remember (series_order R (ps_terms hps) 0) as n eqn:Hn .
 symmetry in Hn.
 destruct n as [n| ].
- apply null_coeff_range_length_iff in Hn.
+ apply series_order_iff in Hn.
  destruct Hn; assumption.
 
  remember (points_of_ps_polynom pol) as pts eqn:Hpts .

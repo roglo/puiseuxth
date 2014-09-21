@@ -147,10 +147,10 @@ intros ps₁ ps₂ n.
 rewrite <- ps_adjust_adjusted.
 unfold normalise_ps.
 simpl.
-rewrite null_coeff_range_length_shift.
+rewrite series_order_shift.
 rewrite series_stretch_1.
 remember
- (null_coeff_range_length r (series_add (ps_terms ps₁) (ps_terms ps₂))
+ (series_order r (series_add (ps_terms ps₁) (ps_terms ps₂))
     0)%Nbar as x.
 rewrite Nbar.add_comm.
 destruct x as [x| ]; [ simpl | reflexivity ].
@@ -162,7 +162,7 @@ constructor; simpl.
  rewrite series_stretch_1.
  remember (series_add (ps_terms ps₁) (ps_terms ps₂)) as s.
  symmetry in Heqx.
- apply null_coeff_range_length_iff in Heqx.
+ apply series_order_iff in Heqx.
  simpl in Heqx.
  destruct Heqx as (Hz, Hnz).
  unfold gcd_ps.
@@ -374,13 +374,13 @@ apply normalise_ps_add_adjust.
 Qed.
 
 Theorem normalised_exists_adjust : ∀ ps ps₁,
-  null_coeff_range_length r (ps_terms ps) 0 ≠ ∞
+  series_order r (ps_terms ps) 0 ≠ ∞
   → normalise_ps ps = ps₁
     → ∃ n k, eq_ps_strong ps (adjust_ps n k ps₁).
 Proof.
 intros ps ps₁ Hnz Heq.
 unfold normalise_ps in Heq.
-remember (null_coeff_range_length r (ps_terms ps) 0) as len₁.
+remember (series_order r (ps_terms ps) 0) as len₁.
 symmetry in Heqlen₁.
 destruct len₁ as [len₁| ]; [ idtac | exfalso; apply Hnz; reflexivity ].
 subst ps₁.
@@ -469,16 +469,16 @@ Definition ps_neg_zero :=
   {| ps_terms := 0%ser; ps_ordnum := -1; ps_polord := 1 |}.
 
 Theorem eq_strong_ps_adjust_zero_neg_zero : ∀ ps,
-  null_coeff_range_length r (ps_terms ps) 0 = ∞
+  series_order r (ps_terms ps) 0 = ∞
   → ∃ n₁ n₂ k₁ k₂,
     eq_ps_strong (adjust_ps n₁ k₁ ps) (adjust_ps n₂ k₂ ps_neg_zero).
 Proof.
 intros ps Hz.
 unfold normalise_ps in Hz.
-remember (null_coeff_range_length r (ps_terms ps) 0) as n eqn:Hn .
+remember (series_order r (ps_terms ps) 0) as n eqn:Hn .
 symmetry in Hn.
 destruct n; [ discriminate Hz | clear Hz ].
-apply null_coeff_range_length_iff in Hn.
+apply series_order_iff in Hn.
 simpl in Hn.
 destruct (Z_le_dec 0 (ps_ordnum ps)) as [H₁| H₁].
  exists (Z.to_nat (ps_ordnum ps + Zpos (ps_polord ps))), O, xH, (ps_polord ps).
@@ -525,14 +525,14 @@ destruct (Z_le_dec 0 (ps_ordnum ps)) as [H₁| H₁].
    assumption.
 Qed.
 
-Theorem null_coeff_range_length_inf_compat : ∀ ps₁ ps₂,
+Theorem series_order_inf_compat : ∀ ps₁ ps₂,
   normalise_ps ps₁ ≐ normalise_ps ps₂
-  → null_coeff_range_length r (ps_terms ps₁) 0 = ∞
-    → null_coeff_range_length r (ps_terms ps₂) 0 = ∞.
+  → series_order r (ps_terms ps₁) 0 = ∞
+    → series_order r (ps_terms ps₂) 0 = ∞.
 Proof.
 intros ps₁ ps₂ Heq Hinf.
-apply ps_null_coeff_range_length_inf_iff in Hinf.
-apply ps_null_coeff_range_length_inf_iff.
+apply ps_series_order_inf_iff in Hinf.
+apply ps_series_order_inf_iff.
 inversion Hinf; constructor.
 rewrite <- Heq, H; reflexivity.
 Qed.
@@ -542,8 +542,8 @@ Theorem ps_normal_add_compat_r : ∀ ps₁ ps₂ ps₃,
   → normalise_ps (ps₁ + ps₃)%ps ≐ normalise_ps (ps₂ + ps₃)%ps.
 Proof.
 intros ps₁ ps₂ ps₃ Heq.
-remember (null_coeff_range_length r (ps_terms ps₁) 0) as m₁ eqn:Hm₁ .
-remember (null_coeff_range_length r (ps_terms ps₂) 0) as m₂ eqn:Hm₂ .
+remember (series_order r (ps_terms ps₁) 0) as m₁ eqn:Hm₁ .
+remember (series_order r (ps_terms ps₂) 0) as m₂ eqn:Hm₂ .
 symmetry in Hm₁, Hm₂.
 destruct m₁ as [m₁| ].
  destruct m₂ as [m₂| ].
@@ -567,11 +567,11 @@ destruct m₁ as [m₁| ].
    rewrite Hm₁; intros H; discriminate H.
 
   symmetry in Heq.
-  eapply null_coeff_range_length_inf_compat in Hm₂; [ idtac | eassumption ].
+  eapply series_order_inf_compat in Hm₂; [ idtac | eassumption ].
   rewrite Hm₁ in Hm₂; discriminate Hm₂.
 
  destruct m₂ as [m₂| ].
-  eapply null_coeff_range_length_inf_compat in Hm₁; [ idtac | eassumption ].
+  eapply series_order_inf_compat in Hm₁; [ idtac | eassumption ].
   rewrite Hm₁ in Hm₂; discriminate Hm₂.
 
   apply eq_strong_ps_adjust_zero_neg_zero in Hm₁.

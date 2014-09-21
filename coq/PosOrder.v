@@ -144,12 +144,12 @@ eapply order_in_newton_segment with (h := h) (αh := αh) in Hval; eauto .
  rewrite <- Hāh in Hval.
  unfold order, Qbar.gt.
  remember (āh - ah * ps_monom 1%K αh)%ps as s eqn:Hs .
- remember (null_coeff_range_length R (ps_terms s) 0) as n eqn:Hn .
+ remember (series_order R (ps_terms s) 0) as n eqn:Hn .
  symmetry in Hn.
  destruct n as [n| ]; [ idtac | constructor ].
  apply Qbar.qfin_lt_mono.
  unfold order in Hval.
- remember (null_coeff_range_length R (ps_terms āh) 0) as m eqn:Hm .
+ remember (series_order R (ps_terms āh) 0) as m eqn:Hm .
  symmetry in Hm.
  destruct m as [m| ]; [ idtac | discriminate Hval ].
  injection Hval; clear Hval; intros Hval.
@@ -174,8 +174,8 @@ eapply order_in_newton_segment with (h := h) (αh := αh) in Hval; eauto .
   rewrite <- positive_nat_Z, <- Nat2Z.inj_mul.
   apply Nat2Z.inj_lt.
   apply Nat.nle_gt; intros Hmn.
-  apply null_coeff_range_length_iff in Hn.
-  unfold null_coeff_range_length_prop in Hn.
+  apply series_order_iff in Hn.
+  unfold series_order_prop in Hn.
   simpl in Hm.
   remember ps_add as f; simpl in Hn; subst f.
   destruct Hn as (Hni, Hn).
@@ -238,8 +238,8 @@ eapply order_in_newton_segment with (h := h) (αh := αh) in Hval; eauto .
          right; apply IHpl; assumption.
 
        destruct (lt_dec n (m * Pos.to_nat (ps_polord āh))) as [Hnp| Hnp].
-        apply null_coeff_range_length_iff in Hm.
-        unfold null_coeff_range_length_prop in Hm.
+        apply series_order_iff in Hm.
+        unfold series_order_prop in Hm.
         destruct Hm as (Hmi, Hm).
         apply le_neq_lt in Hmn; [ idtac | assumption ].
         apply Hmi in Hmn.
@@ -315,7 +315,7 @@ Theorem order_āl_xlγ₁_gt_β₁ : ∀ pol ns pl tl l₁ l₂ l āl,
 Proof.
 intros pol ns pl tl l₁ l₂ l āl Hns Hpl Htl Hl₁ Hsl Hl Hāl.
 remember (āl * ps_monom 1%K (Qnat l * γ ns))%ps as s eqn:Hs .
-remember (null_coeff_range_length R (ps_terms s) 0) as n eqn:Hn .
+remember (series_order R (ps_terms s) 0) as n eqn:Hn .
 symmetry in Hn.
 destruct n as [n| ].
  remember (points_of_ps_polynom pol) as pts eqn:Hpts .
@@ -345,7 +345,7 @@ destruct n as [n| ].
    rewrite Z.add_shuffle0.
    apply Z.add_le_mono.
     unfold order in Hm.
-    remember (null_coeff_range_length R (ps_terms āl) 0) as p eqn:Hp .
+    remember (series_order R (ps_terms āl) 0) as p eqn:Hp .
     symmetry in Hp.
     destruct p as [p| ]; [ idtac | discriminate Hm ].
     injection Hm; clear Hm; intros Hm.
@@ -359,9 +359,9 @@ destruct n as [n| ].
     apply Nat2Z.inj_le.
     rewrite Hs in Hn; simpl in Hn.
     unfold cm_factor in Hn; simpl in Hn.
-    apply null_coeff_range_length_iff in Hn.
-    apply null_coeff_range_length_iff in Hp.
-    unfold null_coeff_range_length_prop in Hn, Hp.
+    apply series_order_iff in Hn.
+    apply series_order_iff in Hp.
+    unfold series_order_prop in Hn, Hp.
     simpl in Hn, Hp.
     destruct Hn as (Hni, Hn).
     destruct Hp as (Hpi, Hp).
@@ -441,10 +441,10 @@ destruct n as [n| ].
     apply Nat.lt_succ_diag_r.
 
   unfold order in Hm.
-  remember (null_coeff_range_length R (ps_terms āl) 0) as v eqn:Hv .
+  remember (series_order R (ps_terms āl) 0) as v eqn:Hv .
   symmetry in Hv.
   destruct v; [ discriminate Hm | idtac ].
-  apply ps_null_coeff_range_length_inf_iff in Hv.
+  apply ps_series_order_inf_iff in Hv.
   assert (s = 0)%ps as Hsz.
    rewrite Hs.
    rewrite Hv.
@@ -470,9 +470,9 @@ unfold cm_factor, cm; simpl.
 do 2 rewrite series_shift_0.
 remember (series_stretch (ps_polord b) (ps_terms a)) as sa eqn:Hsa .
 remember (series_stretch (ps_polord a) (ps_terms b)) as sb eqn:Hsb .
-remember (null_coeff_range_length R sa 0) as na eqn:Hna .
-remember (null_coeff_range_length R sb 0) as nb eqn:Hnb .
-remember (null_coeff_range_length R (sa * sb)%ser 0) as nc eqn:Hnc .
+remember (series_order R sa 0) as na eqn:Hna .
+remember (series_order R sb 0) as nb eqn:Hnb .
+remember (series_order R (sa * sb)%ser 0) as nc eqn:Hnc .
 symmetry in Hna, Hnb, Hnc.
 destruct na as [na| ].
  destruct nb as [nb| ].
@@ -503,12 +503,12 @@ destruct na as [na| ].
    rewrite <- Z.add_assoc.
    apply Z.add_cancel_l.
    apply Z.add_cancel_l.
-   apply null_coeff_range_length_iff in Hna.
-   apply null_coeff_range_length_iff in Hnb.
-   apply null_coeff_range_length_iff in Hnc.
-   unfold null_coeff_range_length_prop in Hna.
-   unfold null_coeff_range_length_prop in Hnb.
-   unfold null_coeff_range_length_prop in Hnc.
+   apply series_order_iff in Hna.
+   apply series_order_iff in Hnb.
+   apply series_order_iff in Hnc.
+   unfold series_order_prop in Hna.
+   unfold series_order_prop in Hnb.
+   unfold series_order_prop in Hnc.
    simpl in Hna, Hnb, Hnc.
    destruct Hna as (Hia, Hna).
    destruct Hnb as (Hib, Hnb).
@@ -554,10 +554,10 @@ destruct na as [na| ].
      apply Nat.le_antisymm; assumption.
 
    exfalso.
-   apply null_coeff_range_length_iff in Hna.
-   apply null_coeff_range_length_iff in Hnb.
-   apply null_coeff_range_length_iff in Hnc.
-   unfold null_coeff_range_length_prop in Hna, Hnb, Hnc.
+   apply series_order_iff in Hna.
+   apply series_order_iff in Hnb.
+   apply series_order_iff in Hnc.
+   unfold series_order_prop in Hna, Hnb, Hnc.
    simpl in Hna, Hnb, Hnc.
    destruct Hna as (Hia, Hna).
    destruct Hnb as (Hib, Hnb).
@@ -596,19 +596,19 @@ destruct na as [na| ].
       rewrite rng_mul_0_r; reflexivity.
 
   simpl.
-  apply series_null_coeff_range_length_inf_iff in Hnb.
+  apply series_series_order_inf_iff in Hnb.
   rewrite Hnb in Hnc.
   rewrite rng_mul_0_r in Hnc.
   simpl in Hnc.
-  rewrite null_coeff_range_length_series_0 in Hnc.
+  rewrite series_order_series_0 in Hnc.
   subst nc; constructor.
 
  simpl.
- apply series_null_coeff_range_length_inf_iff in Hna.
+ apply series_series_order_inf_iff in Hna.
  rewrite Hna in Hnc.
  rewrite rng_mul_0_l in Hnc.
  simpl in Hnc.
- rewrite null_coeff_range_length_series_0 in Hnc.
+ rewrite series_order_series_0 in Hnc.
  subst nc; constructor.
 Qed.
 
@@ -639,9 +639,9 @@ remember (adjust_ps n₁ k₂ b) as pb eqn:Hpb .
 unfold order; simpl.
 remember (ps_terms pa) as sa eqn:Hsa .
 remember (ps_terms pb) as sb eqn:Hsb .
-remember (null_coeff_range_length R sa 0) as na eqn:Hna .
-remember (null_coeff_range_length R sb 0) as nb eqn:Hnb .
-remember (null_coeff_range_length R (sa + sb)%ser 0) as nc eqn:Hnc .
+remember (series_order R sa 0) as na eqn:Hna .
+remember (series_order R sb 0) as nb eqn:Hnb .
+remember (series_order R (sa + sb)%ser 0) as nc eqn:Hnc .
 symmetry in Hna, Hnb, Hnc.
 destruct na as [na| ].
  destruct nb as [nb| ].
@@ -668,10 +668,10 @@ destruct na as [na| ].
     apply Z.add_le_mono_l.
     rewrite <- Nat2Z.inj_min.
     apply Nat2Z.inj_le.
-    apply null_coeff_range_length_iff in Hna.
-    apply null_coeff_range_length_iff in Hnb.
-    apply null_coeff_range_length_iff in Hnc.
-    unfold null_coeff_range_length_prop in Hna, Hnb, Hnc.
+    apply series_order_iff in Hna.
+    apply series_order_iff in Hnb.
+    apply series_order_iff in Hnc.
+    unfold series_order_prop in Hna, Hnb, Hnc.
     simpl in Hna, Hnb.
     remember ps_terms_add as f; simpl in Hnc; subst f.
     destruct Hna as (Hina, Hna).
@@ -703,14 +703,14 @@ destruct na as [na| ].
   apply Z.mul_le_mono_pos_r; [ apply Pos2Z.is_pos | idtac ].
   apply Z.add_le_mono_l.
   apply Nat2Z.inj_le.
-  apply series_null_coeff_range_length_inf_iff in Hnb.
+  apply series_series_order_inf_iff in Hnb.
   rewrite Hnb in Hnc.
   rewrite rng_add_0_r in Hnc.
   rewrite Hna in Hnc.
   injection Hnc; intros; subst na; reflexivity.
 
  simpl.
- apply series_null_coeff_range_length_inf_iff in Hna.
+ apply series_series_order_inf_iff in Hna.
  rewrite Hna in Hnc.
  rewrite rng_add_0_l in Hnc.
  rewrite Hnb in Hnc; subst nc.
@@ -1190,10 +1190,10 @@ Theorem ps_monom_order : ∀ c n, (c ≠ 0)%K → order (ps_monom c n) = qfin n.
 Proof.
 intros c n Hc.
 unfold order.
-remember (null_coeff_range_length R (ps_terms (ps_monom c n)) 0) as m eqn:Hm .
+remember (series_order R (ps_terms (ps_monom c n)) 0) as m eqn:Hm .
 symmetry in Hm.
-apply null_coeff_range_length_iff in Hm.
-unfold null_coeff_range_length_prop in Hm.
+apply series_order_iff in Hm.
+unfold series_order_prop in Hm.
 simpl in Hm; simpl.
 destruct m as [m| ].
  destruct Hm as (Him, Hm).
@@ -1208,10 +1208,10 @@ Theorem ps_monom_0_order : ∀ c n, (c = 0)%K → order (ps_monom c n) = qinf.
 Proof.
 intros c n Hc.
 unfold order.
-remember (null_coeff_range_length R (ps_terms (ps_monom c n)) 0) as m eqn:Hm .
+remember (series_order R (ps_terms (ps_monom c n)) 0) as m eqn:Hm .
 symmetry in Hm.
-apply null_coeff_range_length_iff in Hm.
-unfold null_coeff_range_length_prop in Hm.
+apply series_order_iff in Hm.
+unfold series_order_prop in Hm.
 simpl in Hm; simpl.
 destruct m as [m| ]; [ exfalso | reflexivity ].
 destruct Hm as (Him, Hm).
@@ -1222,13 +1222,13 @@ Theorem ps_monom_order_ge : ∀ c n, (order (ps_monom c n) ≥ qfin n)%Qbar.
 Proof.
 intros c n.
 unfold order.
-remember (null_coeff_range_length R (ps_terms (ps_monom c n)) 0) as m eqn:Hm .
+remember (series_order R (ps_terms (ps_monom c n)) 0) as m eqn:Hm .
 symmetry in Hm.
 unfold Qbar.ge.
 destruct m as [m| ]; [ idtac | constructor ].
 apply Qbar.le_qfin.
-apply null_coeff_range_length_iff in Hm.
-unfold null_coeff_range_length_prop in Hm.
+apply series_order_iff in Hm.
+unfold series_order_prop in Hm.
 simpl in Hm; simpl.
 destruct Hm as (Him, Hm).
 destruct m as [| m]; [ simpl | exfalso; apply Hm; reflexivity ].

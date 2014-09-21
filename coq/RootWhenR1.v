@@ -280,11 +280,11 @@ Proof.
 intros H a.
 apply order_inf.
 unfold order.
-remember (null_coeff_range_length R (ps_terms a) 0) as v eqn:Hv .
+remember (series_order R (ps_terms a) 0) as v eqn:Hv .
 symmetry in Hv.
 destruct v as [v| ]; auto.
-apply null_coeff_range_length_iff in Hv.
-unfold null_coeff_range_length_prop in Hv.
+apply series_order_iff in Hv.
+unfold series_order_prop in Hv.
 destruct Hv as (_, Hv).
 exfalso; apply Hv; simpl.
 apply eq_1_0_all_0; assumption.
