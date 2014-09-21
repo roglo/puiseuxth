@@ -490,6 +490,12 @@ destruct (Qlt_le_dec (a # c) (b # c)) as [Hlt| Hge]; f_equal.
  rewrite Z.min_r; [ reflexivity | assumption ].
 Qed.
 
+Theorem eq_Qbar_eq : ∀ a b, a = b → (a = b)%Qbar.
+Proof. intros a b Hab; subst a; reflexivity. Qed.
+
+Theorem eq_Qbar_qinf : ∀ a, (a = ∞)%Qbar → a = ∞%Qbar.
+Proof. intros a H; destruct a; auto; inversion H. Qed.
+
 Add Parametric Morphism : Qbar.le
   with signature Qbar.qeq ==> Qbar.qeq ==> iff
   as qbar_le_morph.

@@ -162,6 +162,22 @@ intros i j; split; intros H.
  apply Nat2Z.inj_lt in H; assumption.
 Qed.
 
+Theorem Qnat_succ : ∀ n x, x * Qnat (S n) == x * Qnat n + x.
+Proof.
+intros n x.
+unfold Qnat.
+setoid_replace x with (x * 1) at 3.
+ rewrite <- Qmult_plus_distr_r.
+ destruct (Qeq_dec x 0) as [Hz| ]; [ rewrite Hz; reflexivity | idtac ].
+ apply Qmult_inj_l; auto.
+ unfold Qeq; simpl.
+ do 2 rewrite Z.mul_1_r.
+ rewrite Pos.mul_1_r, Z.add_1_r.
+ apply Zpos_P_of_succ_nat.
+
+ rewrite Qmult_comm, Qmult_1_l; reflexivity.
+Qed.
+
 Theorem Qlt_not_0 : ∀ x y, x < y → ¬ y - x == 0.
 Proof.
 intros i j H HH.
@@ -1157,6 +1173,24 @@ Proof.
 intros n.
 unfold Qeq; simpl.
 rewrite Z.mul_1_r, Z.add_0_r, Pos.mul_1_r; reflexivity.
+Qed.
+
+Theorem List_In_nth : ∀ α a la (d : α),
+  a ∈ la
+  → ∃ n, a = List.nth n la d.
+Proof.
+intros u a la d Ha.
+revert a Ha.
+induction la as [| b]; intros; [ contradiction | idtac ].
+simpl in Ha.
+destruct Ha as [Ha| Ha].
+ subst b.
+ exists O; reflexivity.
+
+ apply IHla in Ha.
+ destruct Ha as (n, Ha).
+ exists (S n); simpl.
+ assumption.
 Qed.
 
 Hint Resolve Pos2Z.is_nonneg.

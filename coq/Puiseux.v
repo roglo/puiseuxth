@@ -30,7 +30,6 @@ Require Import F1Prop.
 Require Import InK1m.
 Require Import Q_field.
 Require Import RootHeadTail.
-Require Import RootWhenR1.
 Require Import RootAnyR.
 
 Set Implicit Arguments.
