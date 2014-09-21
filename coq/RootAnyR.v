@@ -3058,52 +3058,6 @@ destruct z₁.
  rewrite Hpsi in Hz.
  discriminate Hz.
 
- remember Hz as H; clear HeqH.
- rewrite zerop_1st_n_const_coeff_succ in H.
- apply Bool.orb_false_iff in H; simpl in H.
- rewrite <- Hc, <- Hpol₁, <- Hns₁ in H.
- destruct H as (H, Hz₁).
- remember (ps_poly_nth 0 pol) as x.
- destruct (ps_zerop R x) as [Hnz| Hnz]; [ discriminate H | subst x; clear H ].
- remember (m * q₀)%positive as m₁.
- remember (ac_root (Φq pol₁ ns₁)) as c₁ eqn:Hc₁ .
- move Hc₁ before Hns₁.
- move c₁ before c.
- pose proof (Hri 0%nat Nat.le_0_1) as Hr₀; simpl in Hr₀.
- pose proof (Hri 1%nat (Nat.le_refl 1)) as Hr₁; simpl in Hr₁.
- rewrite <- Hc in Hr₀.
- rewrite <- Hc, <- Hpol₁, <- Hns₁, <- Hc₁ in Hr₁.
- assert (0 < r)%nat as Hrpos by (eapply multiplicity_is_pos; eauto ).
- assert (1 ≤ S n)%nat as H by apply le_n_S, Nat.le_0_l.
- apply Hpsi in H; simpl in H.
- rewrite <- Hc, <- Hpol₁ in H.
- rename H into Hnz₁.
- remember Hns₁ as H; clear HeqH.
- eapply r_n_next_ns in H; try eassumption.
- destruct H as (αj₁, (αk₁, H)).
- destruct H as (Hini₁, (Hfin₁, (Hαj₁, Hαk₁))).
- remember Hns₁ as Hns₁i; clear HeqHns₁i.
- eapply hd_newton_segments in Hns₁i; try eassumption.
- remember (next_pol pol₁ (β ns₁) (γ ns₁) c₁) as pol₂ eqn:Hpol₂ .
- remember (List.hd phony_ns (newton_segments pol₂)) as ns₂ eqn:Hns₂ .
- remember Hns as H; clear HeqH.
- eapply next_pol_in_K_1_mq in H; try eassumption.
- rewrite <- Heqm₁ in H.
- rename H into HK₁; move HK₁ before Hns₁i.
- remember (nth_pol n pol₁ ns₁) as poln₁ eqn:Hpoln₁ .
- remember (nth_ns n pol₁ ns₁) as nsn₁ eqn:Hnsn₁ .
- remember (ac_root (Φq poln₁ nsn₁)) as cn₁ eqn:Hcn₁ .
- remember (nth_pol n pol₂ ns₂) as poln₂ eqn:Hpoln₂ .
- remember (nth_ns n pol₂ ns₂) as nsn₂ eqn:Hnsn₂ .
- remember Hns as H; clear HeqH.
- eapply all_ns_in_newton_segments with (n := S n) in H; try eassumption; auto.
- erewrite nth_ns_succ2 in H; eauto .
- erewrite nth_pol_succ2 in H; eauto .
- rewrite <- Hnsn₁, <- Hpoln₁ in H.
- rename H into Hnsn₁i; move Hnsn₁i before Hnsn₁.
- remember Hpoln₂ as H; clear HeqH.
- erewrite nth_pol_n with (c := c₁) in H; eauto .
- rename H into Hpoln₂₁; move Hpoln₂₁ before Hpoln₂.
  assert (∀ i, i ≤ S n → nth_r i pol ns = r) as H.
   apply non_decr_imp_eq; auto.
 
@@ -3121,6 +3075,54 @@ destruct z₁.
     rewrite <- Hc, <- Hpol₁, <- Hns₁ in H; assumption.
 
     rename H into Hrle₁; move Hrle₁ before Hrle.
+    remember Hz as H; clear HeqH.
+    rewrite zerop_1st_n_const_coeff_succ in H.
+    apply Bool.orb_false_iff in H; simpl in H.
+    rewrite <- Hc, <- Hpol₁, <- Hns₁ in H.
+    destruct H as (H, Hz₁).
+    remember (ps_poly_nth 0 pol) as x.
+    destruct (ps_zerop R x) as [Hnz| Hnz]; [ discriminate H | clear H ].
+    subst x.
+    remember (m * q₀)%positive as m₁.
+    remember (ac_root (Φq pol₁ ns₁)) as c₁ eqn:Hc₁ .
+    move Hc₁ before Hns₁.
+    move c₁ before c.
+    pose proof (Hri 0%nat Nat.le_0_1) as Hr₀; simpl in Hr₀.
+    pose proof (Hri 1%nat (Nat.le_refl 1)) as Hr₁; simpl in Hr₁.
+    rewrite <- Hc in Hr₀.
+    rewrite <- Hc, <- Hpol₁, <- Hns₁, <- Hc₁ in Hr₁.
+    assert (0 < r)%nat as Hrpos by (eapply multiplicity_is_pos; eauto ).
+    assert (1 ≤ S n)%nat as H by apply le_n_S, Nat.le_0_l.
+    apply Hpsi in H; simpl in H.
+    rewrite <- Hc, <- Hpol₁ in H.
+    rename H into Hnz₁.
+    remember Hns₁ as H; clear HeqH.
+    eapply r_n_next_ns in H; try eassumption.
+    destruct H as (αj₁, (αk₁, H)).
+    destruct H as (Hini₁, (Hfin₁, (Hαj₁, Hαk₁))).
+    remember Hns₁ as Hns₁i; clear HeqHns₁i.
+    eapply hd_newton_segments in Hns₁i; try eassumption.
+    remember (next_pol pol₁ (β ns₁) (γ ns₁) c₁) as pol₂ eqn:Hpol₂ .
+    remember (List.hd phony_ns (newton_segments pol₂)) as ns₂ eqn:Hns₂ .
+    remember Hns as H; clear HeqH.
+    eapply next_pol_in_K_1_mq in H; try eassumption.
+    rewrite <- Heqm₁ in H.
+    rename H into HK₁; move HK₁ before Hns₁i.
+    remember (nth_pol n pol₁ ns₁) as poln₁ eqn:Hpoln₁ .
+    remember (nth_ns n pol₁ ns₁) as nsn₁ eqn:Hnsn₁ .
+    remember (ac_root (Φq poln₁ nsn₁)) as cn₁ eqn:Hcn₁ .
+    remember (nth_pol n pol₂ ns₂) as poln₂ eqn:Hpoln₂ .
+    remember (nth_ns n pol₂ ns₂) as nsn₂ eqn:Hnsn₂ .
+    remember Hns as H; clear HeqH.
+    eapply all_ns_in_newton_segments with (n := S n) in H; try eassumption;
+      eauto.
+    erewrite nth_ns_succ2 in H; eauto .
+    erewrite nth_pol_succ2 in H; eauto .
+    rewrite <- Hnsn₁, <- Hpoln₁ in H.
+    rename H into Hnsn₁i; move Hnsn₁i before Hnsn₁.
+    remember Hpoln₂ as H; clear HeqH.
+    erewrite nth_pol_n with (c := c₁) in H; eauto .
+    rename H into Hpoln₂₁; move Hpoln₂₁ before Hpoln₂.
     remember Hns as H; clear HeqH.
     eapply r_n_nth_ns with (poln := poln₁) in H; try eassumption.
     destruct H as (αjn₁, (αkn₁, H)).
