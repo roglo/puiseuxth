@@ -971,7 +971,9 @@ assert (j < k)%nat as Hjk.
           apply Nat.lt_succ_r; reflexivity.
 
          intros i Hji Hij.
-         replace (S j + (h - S j))%nat with h in Hij by omega.
+         remember Hji as H; clear HeqH.
+         rewrite Nat.add_sub_assoc in Hij; auto; clear H.
+         rewrite Nat.add_sub_swap, Nat.sub_diag in Hij; auto.
          remember (Nat.eqb i h) as b eqn:Hb .
          symmetry in Hb.
          destruct b.
@@ -1089,7 +1091,8 @@ induction li as [| n]; intros; simpl.
     rewrite Nat.add_comm, Nat.add_sub; simpl.
     rewrite Nat.sub_diag; reflexivity.
 
-    fast_omega H₁.
+    rewrite <- H₁, Nat.add_sub_swap; auto.
+    rewrite Nat.sub_diag; reflexivity.
 
    rewrite list_nth_pad_sub.
     remember (i - (n - j))%nat as p eqn:Hp .
@@ -1114,19 +1117,26 @@ induction li as [| n]; intros; simpl.
 
         apply IHli; assumption.
 
-      assert (j ≤ n); [ idtac | exfalso; omega ].
-      apply Hm; left; reflexivity.
+      assert (j ≤ n); [ apply Hm; left; reflexivity | exfalso ].
+      apply H₁; symmetry.
+      rewrite Nat.add_comm.
+      apply Nat.le_antisymm; auto.
+      apply Nat.sub_0_le.
+      rewrite <- Nat_sub_sub_distr; auto.
 
-     rewrite IHli.
-      assert (j ≤ n) by (apply Hm; left; reflexivity).
-      replace (S n + p)%nat with (j + i)%nat by omega.
-      reflexivity.
-
+     apply Nat.add_sub_eq_nz in Hp; [ idtac | intros H₂; discriminate H₂ ].
+     assert (j ≤ n) by (apply Hm; left; reflexivity).
+     rewrite <- Nat.add_sub_swap in Hp; auto.
+     apply Nat.add_cancel_r with (p := j) in Hp.
+     eapply Nat.add_le_mono in H0; [ idtac | apply Nat.le_0_l ].
+     rewrite Nat.add_0_l, Nat.add_comm in H0.
+     rewrite Nat.sub_add in Hp; eauto .
+     rewrite Nat.add_succ_r, <- Nat.add_succ_l in Hp.
+     rewrite <- Nat.add_comm, <- Hp.
+     rewrite IHli; auto.
       eapply Sorted_inv; eassumption.
 
-      assert (j ≤ n) by (apply Hm; left; reflexivity).
-      replace (S n + p)%nat with (j + i)%nat by omega.
-      assumption.
+      rewrite Hp, Nat.add_comm; assumption.
 
       intros q Hq.
       apply Sorted_inv in Hs.
@@ -1147,24 +1157,27 @@ induction li as [| n]; intros; simpl.
         apply Nat.lt_le_incl.
         apply IHli; assumption.
 
-    assert (n ≤ i + j) as HH; [ idtac | omega ].
-    revert Hs H; clear; intros.
-    rewrite Nat.add_comm.
-    remember (j + i)%nat as m; clear i j Heqm.
-    revert n m Hs H.
-    induction li as [| i]; intros; [ contradiction | simpl ].
-    apply Sorted_inv in Hs.
-    destruct Hs as (Hs, Hrel).
-    destruct H as [H| H].
-     subst m.
-     apply HdRel_inv in Hrel.
-     apply Nat.lt_le_incl; assumption.
-
-     apply HdRel_inv in Hrel.
-     apply Nat.le_trans with (m := i).
+    assert (n ≤ i + j) as HH.
+     revert Hs H; clear; intros.
+     rewrite Nat.add_comm.
+     remember (j + i)%nat as m; clear i j Heqm.
+     revert n m Hs H.
+     induction li as [| i]; intros; [ contradiction | simpl ].
+     apply Sorted_inv in Hs.
+     destruct Hs as (Hs, Hrel).
+     destruct H as [H| H].
+      subst m.
+      apply HdRel_inv in Hrel.
       apply Nat.lt_le_incl; assumption.
 
-      apply IHli; assumption.
+      apply HdRel_inv in Hrel.
+      apply Nat.le_trans with (m := i).
+       apply Nat.lt_le_incl; assumption.
+
+       apply IHli; assumption.
+
+     apply Nat.sub_le_mono_r with (p := j) in HH.
+     rewrite Nat.add_sub in HH; assumption.
 Qed.
 
 Theorem nth_char_lap_eq_0 : ∀ i j li la,
