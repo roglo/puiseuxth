@@ -212,34 +212,48 @@ intros g b v k (Hbv, Hvk) Hi.
 unfold summation.
 rewrite Nat.sub_succ_l; [ idtac | etransitivity; eassumption ].
 remember (k - b) as len.
-replace k with (b + len) in * by omega.
-clear k Heqlen.
-revert b v Hbv Hvk Hi.
-induction len; intros.
- simpl.
- rewrite rng_add_0_r.
- replace b with v ; [ reflexivity | idtac ].
- rewrite Nat.add_0_r in Hvk.
- apply Nat.le_antisymm; assumption.
+replace k with (b + len) in * .
+ clear k Heqlen.
+ revert b v Hbv Hvk Hi.
+ induction len; intros.
+  simpl.
+  rewrite rng_add_0_r.
+  replace b with v ; [ reflexivity | idtac ].
+  rewrite Nat.add_0_r in Hvk.
+  apply Nat.le_antisymm; assumption.
 
- remember (S len) as x; simpl; subst x.
- destruct (eq_nat_dec b v) as [H₁| H₁].
-  subst b.
-  rewrite all_0_summation_aux_0.
-   rewrite rng_add_0_r; reflexivity.
+  remember (S len) as x; simpl; subst x.
+  destruct (eq_nat_dec b v) as [H₁| H₁].
+   subst b.
+   rewrite all_0_summation_aux_0.
+    rewrite rng_add_0_r; reflexivity.
 
-   intros j Hj.
-   apply Hi; omega.
+    intros j (Hvj, Hjv).
+    simpl in Hjv.
+    apply le_S_n in Hjv.
+    apply Hi; [ split; auto; apply Nat.lt_le_incl; auto | idtac ].
+    intros H; subst j.
+    revert Hvj; apply Nat.nle_succ_diag_l.
 
-  rewrite Hi; [ idtac | omega | assumption ].
-  rewrite rng_add_0_l.
-  apply IHlen.
-   omega.
+   rewrite Nat.add_succ_r, <- Nat.add_succ_l in Hvk.
+   rewrite Hi; auto.
+    rewrite rng_add_0_l.
+    apply IHlen; auto; [ apply le_neq_lt; auto | idtac ].
+    intros j (Hvj, Hjvl) Hjv.
+    rewrite Nat.add_succ_l, <- Nat.add_succ_r in Hjvl.
+    apply Hi; auto; split; auto.
+    apply Nat.lt_le_incl; auto.
 
-   rewrite Nat.add_succ_l, <- Nat.add_succ_r; assumption.
+    split; auto.
+    apply Nat.le_sub_le_add_l.
+    rewrite Nat.sub_diag.
+    apply Nat.le_0_l.
 
-   intros j Hjb Hj.
-   apply Hi; [ omega | assumption ].
+ subst len.
+ eapply Nat.le_trans in Hvk; eauto .
+ rewrite Nat.add_sub_assoc; auto.
+ rewrite Nat.add_comm.
+ apply Nat.add_sub.
 Qed.
 
 Theorem summation_shift : ∀ b g k,
