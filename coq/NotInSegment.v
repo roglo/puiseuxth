@@ -365,7 +365,7 @@ induction hsl₁ as [| hs₁]; intros.
   induction hsl₁; [ left; reflexivity | right; assumption ].
 Qed.
 
-Theorem not_k : ∀ n pts hsl₁ hsl j αj k αk seg,
+Theorem h_not_k : ∀ n pts hsl₁ hsl j αj k αk seg,
   Sorted fst_lt pts
   → next_ch_points n pts = hsl₁ ++ [mkns (j, αj) (k, αk) seg … hsl]
     → ∀ h αh, (h, αh) ∈ pts
@@ -508,7 +508,7 @@ destruct hsl₁ as [| h₁].
   eapply minimise_slope_sorted; eassumption.
 Qed.
 
-Theorem not_j : ∀ n pts hsl₁ j αj k αk seg hsl,
+Theorem h_not_j : ∀ n pts hsl₁ j αj k αk seg hsl,
   Sorted fst_lt pts
   → next_ch_points n pts = hsl₁ ++ [mkns (j, αj) (k, αk) seg … hsl]
     → ∀ h αh, (h, αh) ∈ pts
@@ -1450,7 +1450,7 @@ destruct (Qlt_le_dec k h) as [Hlt| Hge].
  destruct (Qeq_dec h k) as [Heq| Hne].
   eapply qeq_eq_fin in Heq; try eassumption.
   exfalso; revert Heq.
-  eapply not_k; eassumption.
+  eapply h_not_k; eassumption.
 
   destruct (Qlt_le_dec j h) as [Hlt| Hge₂].
    apply Qle_neq_lt in Hge; [ idtac | assumption ].
@@ -1460,7 +1460,7 @@ destruct (Qlt_le_dec k h) as [Hlt| Hge].
    destruct (Qeq_dec h j) as [Heq| Hne₂].
     eapply qeq_eq_ini in Heq; try eassumption.
     exfalso; revert Heq.
-    eapply not_j; simpl; eassumption.
+    eapply h_not_j; simpl; eassumption.
 
     apply Qle_neq_lt in Hge₂; [ idtac | assumption ].
     eapply lt_bef_j; simpl; try eassumption.
