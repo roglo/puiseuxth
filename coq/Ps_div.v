@@ -200,8 +200,7 @@ unfold is_the_greatest_series_x_power.
 remember (series_order r (series_const c) (S m)) as n eqn:Hn .
 symmetry in Hn.
 destruct n as [n| ]; [ idtac | reflexivity ].
-apply series_order_iff in Hn.
-unfold series_order_prop in Hn; simpl in Hn.
+apply series_order_iff in Hn; simpl in Hn.
 destruct Hn as (Hz, Hnz).
 exfalso; apply Hnz; reflexivity.
 Qed.
@@ -267,15 +266,11 @@ destruct n as [n| ].
      apply Z.gcd_eq_0_l in H₁.
      exfalso; revert H₁; apply Pos2Z_ne_0.
 
-    apply series_order_iff in Hm.
-    unfold series_order_prop in Hm.
-    simpl in Hm.
+    apply series_order_iff in Hm; simpl in Hm.
     destruct Hm as (_, Hm).
     exfalso; apply Hm; reflexivity.
 
-   apply series_order_iff in Hm.
-   unfold series_order_prop in Hm.
-   simpl in Hm.
+   apply series_order_iff in Hm; simpl in Hm.
    constructor; try reflexivity.
    constructor; intros i; simpl.
    symmetry; apply Hm.

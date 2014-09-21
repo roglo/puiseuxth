@@ -28,15 +28,16 @@ Arguments ps_polord α%type p%ps.
 
 Section Axioms.
 
-(* [series_order fld s n] returns the number of consecutive
-   null coefficients in the series [s], starting from the [n]th one. *)
+(* [series_order fld s n] returns the number of consecutive null
+   coefficients in the series [s], starting from the [n]th one. *)
 Definition series_order : ∀ α,
   ring α → power_series α → nat → Nbar.
 Admitted.
 
 Arguments series_order _ _ s%ser _.
 
-Definition series_order_prop α {R : ring α} s n v :=
+Axiom series_order_iff : ∀ α (r : ring α) s n v,
+  series_order r s n = v ↔
   match v with
   | fin k =>
       (∀ i : nat, (i < k)%nat → (s .[n + i] = 0)%K)
@@ -44,9 +45,6 @@ Definition series_order_prop α {R : ring α} s n v :=
   | ∞ =>
       ∀ i : nat, (s .[n + i] = 0)%K
   end.
-
-Axiom series_order_iff : ∀ α (r : ring α) s n v,
-  series_order r s n = v ↔ series_order_prop s n v.
 
 (* [greatest_series_x_power fld s n] returns the greatest nat value [k]
    such that [s], starting at index [n], is a series in [x^k]. *)
@@ -1007,7 +1005,6 @@ Proof.
 intros s n k Hp.
 apply series_order_iff in Hp.
 apply series_order_iff.
-unfold series_order_prop in Hp |- *.
 intros i.
 destruct (lt_dec (S i) (Pos.to_nat k)) as [H| H].
  rewrite shifted_in_stretched; [ reflexivity | simpl ].
@@ -1732,7 +1729,6 @@ remember (series_order r s (S m)) as n eqn:Hn .
 symmetry in Hn |- *.
 apply series_order_iff in Hn.
 apply series_order_iff.
-unfold series_order_prop in Hn |- *.
 destruct n as [n| ].
  destruct Hn as (Hz, Hnz).
  split.

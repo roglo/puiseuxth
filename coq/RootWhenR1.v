@@ -284,7 +284,6 @@ remember (series_order R (ps_terms a) 0) as v eqn:Hv .
 symmetry in Hv.
 destruct v as [v| ]; auto.
 apply series_order_iff in Hv.
-unfold series_order_prop in Hv.
 destruct Hv as (_, Hv).
 exfalso; apply Hv; simpl.
 apply eq_1_0_all_0; assumption.

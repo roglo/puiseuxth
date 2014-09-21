@@ -175,8 +175,6 @@ eapply order_in_newton_segment with (h := h) (αh := αh) in Hval; eauto .
   apply Nat2Z.inj_lt.
   apply Nat.nle_gt; intros Hmn.
   apply series_order_iff in Hn.
-  unfold series_order_prop in Hn.
-  simpl in Hm.
   remember ps_add as f; simpl in Hn; subst f.
   destruct Hn as (Hni, Hn).
   remember (ps_monom (coeff_of_term R h tl) 0 * ps_monom 1%K αh)%ps as v.
@@ -239,7 +237,6 @@ eapply order_in_newton_segment with (h := h) (αh := αh) in Hval; eauto .
 
        destruct (lt_dec n (m * Pos.to_nat (ps_polord āh))) as [Hnp| Hnp].
         apply series_order_iff in Hm.
-        unfold series_order_prop in Hm.
         destruct Hm as (Hmi, Hm).
         apply le_neq_lt in Hmn; [ idtac | assumption ].
         apply Hmi in Hmn.
@@ -359,10 +356,8 @@ destruct n as [n| ].
     apply Nat2Z.inj_le.
     rewrite Hs in Hn; simpl in Hn.
     unfold cm_factor in Hn; simpl in Hn.
-    apply series_order_iff in Hn.
-    apply series_order_iff in Hp.
-    unfold series_order_prop in Hn, Hp.
-    simpl in Hn, Hp.
+    apply series_order_iff in Hn; simpl in Hn.
+    apply series_order_iff in Hp; simpl in Hp.
     destruct Hn as (Hni, Hn).
     destruct Hp as (Hpi, Hp).
     unfold convol_mul in Hn.
@@ -503,13 +498,9 @@ destruct na as [na| ].
    rewrite <- Z.add_assoc.
    apply Z.add_cancel_l.
    apply Z.add_cancel_l.
-   apply series_order_iff in Hna.
-   apply series_order_iff in Hnb.
-   apply series_order_iff in Hnc.
-   unfold series_order_prop in Hna.
-   unfold series_order_prop in Hnb.
-   unfold series_order_prop in Hnc.
-   simpl in Hna, Hnb, Hnc.
+   apply series_order_iff in Hna; simpl in Hna.
+   apply series_order_iff in Hnb; simpl in Hnb.
+   apply series_order_iff in Hnc; simpl in Hnc.
    destruct Hna as (Hia, Hna).
    destruct Hnb as (Hib, Hnb).
    destruct Hnc as (Hic, Hnc).
@@ -554,11 +545,9 @@ destruct na as [na| ].
      apply Nat.le_antisymm; assumption.
 
    exfalso.
-   apply series_order_iff in Hna.
-   apply series_order_iff in Hnb.
-   apply series_order_iff in Hnc.
-   unfold series_order_prop in Hna, Hnb, Hnc.
-   simpl in Hna, Hnb, Hnc.
+   apply series_order_iff in Hna; simpl in Hna.
+   apply series_order_iff in Hnb; simpl in Hnb.
+   apply series_order_iff in Hnc; simpl in Hnc.
    destruct Hna as (Hia, Hna).
    destruct Hnb as (Hib, Hnb).
    pose proof (Hnc (na + nb)%nat) as Hnab.
@@ -668,11 +657,9 @@ destruct na as [na| ].
     apply Z.add_le_mono_l.
     rewrite <- Nat2Z.inj_min.
     apply Nat2Z.inj_le.
-    apply series_order_iff in Hna.
-    apply series_order_iff in Hnb.
-    apply series_order_iff in Hnc.
-    unfold series_order_prop in Hna, Hnb, Hnc.
-    simpl in Hna, Hnb.
+    apply series_order_iff in Hna; simpl in Hna.
+    apply series_order_iff in Hnb; simpl in Hnb.
+    apply series_order_iff in Hnc; simpl in Hnc.
     remember ps_terms_add as f; simpl in Hnc; subst f.
     destruct Hna as (Hina, Hna).
     destruct Hnb as (Hinb, Hnb).
@@ -1193,7 +1180,6 @@ unfold order.
 remember (series_order R (ps_terms (ps_monom c n)) 0) as m eqn:Hm .
 symmetry in Hm.
 apply series_order_iff in Hm.
-unfold series_order_prop in Hm.
 simpl in Hm; simpl.
 destruct m as [m| ].
  destruct Hm as (Him, Hm).
@@ -1211,7 +1197,6 @@ unfold order.
 remember (series_order R (ps_terms (ps_monom c n)) 0) as m eqn:Hm .
 symmetry in Hm.
 apply series_order_iff in Hm.
-unfold series_order_prop in Hm.
 simpl in Hm; simpl.
 destruct m as [m| ]; [ exfalso | reflexivity ].
 destruct Hm as (Him, Hm).
@@ -1228,7 +1213,6 @@ unfold Qbar.ge.
 destruct m as [m| ]; [ idtac | constructor ].
 apply Qbar.le_qfin.
 apply series_order_iff in Hm.
-unfold series_order_prop in Hm.
 simpl in Hm; simpl.
 destruct Hm as (Him, Hm).
 destruct m as [| m]; [ simpl | exfalso; apply Hm; reflexivity ].

@@ -89,11 +89,9 @@ remember (series_order R sb 0) as nb eqn:Hnb .
 remember (series_order R (sa + sb)%ser 0) as nc eqn:Hnc .
 symmetry in Hna, Hnb, Hnc.
 clear Hsa Hsb Ha Hb.
-apply series_order_iff in Hna.
-apply series_order_iff in Hnb.
-apply series_order_iff in Hnc.
-unfold series_order_prop in Hna, Hnb, Hnc.
-simpl in Hna, Hnb, Hnc.
+apply series_order_iff in Hna; simpl in Hna.
+apply series_order_iff in Hnb; simpl in Hnb.
+apply series_order_iff in Hnc; simpl in Hnc.
 destruct na as [na| ].
  destruct Hna as (Hina, Hna).
  destruct nb as [nb| ].
@@ -410,9 +408,7 @@ Theorem ps_monom_0_coeff_0 : ∀ c pow, (ps_monom c pow = 0)%ps → (c = 0)%K.
 Proof.
 intros c pow Hc.
 apply ps_series_order_inf_iff in Hc.
-apply series_order_iff in Hc.
-unfold series_order_prop in Hc.
-simpl in Hc.
+apply series_order_iff in Hc; simpl in Hc.
 pose proof (Hc O); assumption.
 Qed.
 
