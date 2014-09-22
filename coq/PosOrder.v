@@ -394,7 +394,8 @@ destruct n as [n| ].
       rewrite Nat.div_mul; auto.
       destruct c; [ idtac | reflexivity ].
       rewrite Nat.mul_0_l in Hc.
-      exfalso; fast_omega Hin Hinn Hc.
+      apply Nat.sub_0_le in Hc.
+      exfalso; apply Hinn, Nat.le_antisymm; auto.
 
       reflexivity.
 
@@ -521,8 +522,11 @@ destruct na as [na| ].
       rewrite rng_mul_0_l; reflexivity.
 
       apply Nat.nlt_ge in Hige.
-      rewrite Hib; [ idtac | fast_omega Hiab Hina Hige ].
-      rewrite rng_mul_0_r; reflexivity.
+      rewrite Hib; [ rewrite rng_mul_0_r; reflexivity | idtac ].
+      apply Nat.add_lt_mono_r with (p := i).
+      rewrite Nat.sub_add; auto.
+      rewrite Nat.add_comm.
+      apply Nat.add_lt_mono_l, le_neq_lt; auto.
 
     apply Nat.nlt_ge in Hge.
     destruct (lt_dec nc (na + nb)) as [Hclt| Hcge].
@@ -539,7 +543,13 @@ destruct na as [na| ].
         rewrite Hib; [ idtac | assumption ].
         rewrite rng_mul_0_r; reflexivity.
 
-        exfalso; fast_omega Hclt Hhc Hha Hhb.
+        exfalso; apply Hhb; clear Hhb.
+        apply Nat.add_lt_mono_r with (p := h).
+        rewrite Nat.sub_add; auto.
+        eapply Nat.lt_le_trans; eauto .
+        rewrite Nat.add_comm.
+        apply Nat.add_le_mono_l.
+        apply Nat.nlt_ge in Hha; auto.
 
      apply Nat.nlt_ge in Hcge.
      apply Nat.le_antisymm; assumption.
@@ -565,8 +575,13 @@ destruct na as [na| ].
       rewrite rng_mul_0_l; reflexivity.
 
       apply Nat.nlt_ge in Hige.
-      rewrite Hib; [ idtac | fast_omega Hiab Hina Hige ].
-      rewrite rng_mul_0_r; reflexivity.
+      rewrite Hib.
+       rewrite rng_mul_0_r; reflexivity.
+
+       apply Nat.add_lt_mono_r with (p := i).
+       rewrite Nat.sub_add; auto.
+       rewrite Nat.add_comm.
+       apply Nat.add_lt_mono_l, le_neq_lt; auto.
 
     apply Nat.nle_gt in Hab.
     rewrite summation_only_one_non_0 with (v := na) in Hnab.
@@ -581,8 +596,11 @@ destruct na as [na| ].
       rewrite rng_mul_0_l; reflexivity.
 
       apply Nat.nlt_ge in Hige.
-      rewrite Hib; [ idtac | fast_omega Hiab Hina Hige ].
-      rewrite rng_mul_0_r; reflexivity.
+      rewrite Hib; [ rewrite rng_mul_0_r; reflexivity | idtac ].
+      apply Nat.add_lt_mono_r with (p := i).
+      rewrite Nat.sub_add; auto.
+      rewrite Nat.add_comm.
+      apply Nat.add_lt_mono_l, le_neq_lt; auto.
 
   simpl.
   apply series_series_order_inf_iff in Hnb.
