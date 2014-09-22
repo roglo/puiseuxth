@@ -387,39 +387,6 @@ unfold next_pow.
 rewrite Nat.add_shuffle0; reflexivity.
 Qed.
 
-Theorem nat_compare_add : ∀ a b c,
-  Nat.compare a b = Nat.compare (a + c) (b + c).
-Proof.
-intros a b c.
-remember (Nat.compare a b) as c₁ eqn:Hc₁ .
-remember (Nat.compare (a + c) (b + c)) as c₂ eqn:Hc₂ .
-symmetry in Hc₁, Hc₂.
-destruct c₁.
- apply nat_compare_eq in Hc₁.
- destruct c₂; auto.
-  apply nat_compare_lt in Hc₂.
-  exfalso; omega.
-
-  apply nat_compare_gt in Hc₂.
-  exfalso; omega.
-
- apply nat_compare_lt in Hc₁.
- destruct c₂; auto.
-  apply nat_compare_eq in Hc₂.
-  exfalso; omega.
-
-  apply nat_compare_gt in Hc₂.
-  exfalso; omega.
-
- apply nat_compare_gt in Hc₁.
- destruct c₂; auto.
-  apply nat_compare_eq in Hc₂.
-  exfalso; omega.
-
-  apply nat_compare_lt in Hc₂.
-  exfalso; omega.
-Qed.
-
 Theorem find_coeff_add : ∀ pol ns m mx p dp i,
   (find_coeff mx (p + dp) m pol ns (i + dp) =
    find_coeff mx p m pol ns i)%K.
@@ -428,7 +395,7 @@ intros pol ns m mx p dp i.
 revert pol ns m p dp i.
 induction mx; intros; [ reflexivity | simpl ].
 destruct (ps_zerop R (ps_poly_nth 0 pol)) as [H₁| H₁]; auto.
-rewrite <- nat_compare_add.
+rewrite <- Nat_compare_add.
 remember (Nat.compare p i) as cmp eqn:Hcmp .
 symmetry in Hcmp.
 destruct cmp; auto.

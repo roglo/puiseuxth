@@ -834,6 +834,45 @@ exists (b / gcd a b)%nat.
 apply Nat.mul_comm.
 Qed.
 
+Theorem Nat_compare_add : ∀ a b c,
+  Nat.compare a b = Nat.compare (a + c) (b + c).
+Proof.
+intros a b c.
+remember (Nat.compare a b) as c₁ eqn:Hc₁ .
+remember (Nat.compare (a + c) (b + c)) as c₂ eqn:Hc₂ .
+symmetry in Hc₁, Hc₂.
+destruct c₁.
+ apply nat_compare_eq in Hc₁; subst a.
+ destruct c₂; auto.
+  apply nat_compare_lt in Hc₂.
+  exfalso; revert Hc₂; apply Nat.lt_irrefl.
+
+  apply nat_compare_gt in Hc₂.
+  exfalso; revert Hc₂; apply Nat.lt_irrefl.
+
+ apply nat_compare_lt in Hc₁.
+ destruct c₂; auto.
+  apply nat_compare_eq in Hc₂.
+  apply Nat.add_cancel_r in Hc₂; subst a.
+  exfalso; revert Hc₁; apply Nat.lt_irrefl.
+
+  apply nat_compare_gt in Hc₂.
+  apply Nat.add_lt_mono_r in Hc₂.
+  eapply Nat.lt_trans in Hc₁; eauto .
+  exfalso; revert Hc₁; apply Nat.lt_irrefl.
+
+ apply nat_compare_gt in Hc₁.
+ destruct c₂; auto.
+  apply nat_compare_eq in Hc₂.
+  apply Nat.add_cancel_r in Hc₂; subst a.
+  exfalso; revert Hc₁; apply Nat.lt_irrefl.
+
+  apply nat_compare_lt in Hc₂.
+  apply Nat.add_lt_mono_r in Hc₂.
+  eapply Nat.lt_trans in Hc₁; eauto .
+  exfalso; revert Hc₁; apply Nat.lt_irrefl.
+Qed.
+
 Theorem list_in_cons_app : ∀ A (a : A) x y l,
   List.In a [x … l ++ [y]] → List.In a [x; y … l].
 Proof.
