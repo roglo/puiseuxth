@@ -1208,17 +1208,27 @@ destruct i.
    remember (i - (n - S j))%nat as p eqn:Hp .
    symmetry in Hp.
    destruct p; simpl.
-    assert (n ≤ i + S j)%nat as Hnij; [ fast_omega H₁ | idtac ].
-    assert (S j ≤ n); [ idtac | exfalso; omega ].
-    destruct (eq_nat_dec j n) as [H| H].
-     subst n.
-     apply Sorted_inv in Hs.
-     destruct Hs as (_, Hrel).
-     apply HdRel_inv in Hrel.
-     exfalso; revert Hrel; apply Nat.lt_irrefl.
+    assert (n ≤ i + S j)%nat as Hnij by (apply Nat.le_sub_le_add_r; auto).
+    assert (S j ≤ n).
+     destruct (eq_nat_dec j n) as [H| H].
+      subst n.
+      apply Sorted_inv in Hs.
+      destruct Hs as (_, Hrel).
+      apply HdRel_inv in Hrel.
+      exfalso; revert Hrel; apply Nat.lt_irrefl.
 
-     assert (j ≤ n) as Hj; [ idtac | fast_omega H Hj ].
-     apply Hm; left; reflexivity.
+      assert (j ≤ n) as Hj; [ idtac | fast_omega H Hj ].
+      apply Hm; left; reflexivity.
+
+     exfalso; revert Hjil Hp Hnij H; clear; intros.
+     apply Decidable.not_or in Hjil.
+     destruct Hjil as (Hnji, _).
+     apply Hnji; clear Hnji.
+     apply Nat.sub_0_le in Hp.
+     rewrite Nat.add_comm, Nat.add_succ_l, <- Nat.add_succ_r.
+     apply Nat.le_antisymm; auto.
+     apply Nat.add_le_mono_r with (p := S j) in Hp.
+     rewrite Nat.sub_add in Hp; auto.
 
     apply IHli.
      simpl.
