@@ -764,22 +764,16 @@ induction hsl₁ as [| hs₁]; intros.
    eapply minimise_slope_sorted; eassumption.
 
   assert (m < k) as Hmk.
-   Focus 2.
-   eapply IHhsl₁ in Hnp.
-    5: eassumption.
+   apply next_ch_points_sorted₂ in Hnp.
+    rewrite Heqx in Hnp; assumption.
 
-    5: eassumption.
+    eapply minimise_slope_sorted; [ idtac | eassumption ].
+    rewrite <- Hend, <- Hpts₁.
+    eapply minimise_slope_sorted; eassumption.
 
-    3: assumption.
-
-    3: assumption.
-
+   eapply IHhsl₁ with (h := j) (αh := αj) (i := l) (αi := αl) in Hnp; eauto .
     remember Hpts₁ as H; clear HeqH.
-    eapply consec_slope_lt in H.
-     3: eassumption.
-
-     3: rewrite <- Hend in Hms₁; eassumption.
-
+    eapply consec_slope_lt with (ms₂ := ms₁) in H; eauto .
      unfold slope in H.
      rewrite Hend, Heqx in H.
      rewrite <- Hms, <- Hms₁ in H.
@@ -788,15 +782,8 @@ induction hsl₁ as [| hs₁]; intros.
      eapply Qlt_trans; [ eassumption | idtac ].
      apply slope_lt_1323_1213; [ split; assumption | assumption ].
 
-     assumption.
+     rewrite <- Hend in Hms₁; eassumption.
 
-    rewrite <- Hend, <- Hpts₁.
-    eapply minimise_slope_sorted; eassumption.
-
-   apply next_ch_points_sorted₂ in Hnp.
-    rewrite Heqx in Hnp; assumption.
-
-    eapply minimise_slope_sorted; [ idtac | eassumption ].
     rewrite <- Hend, <- Hpts₁.
     eapply minimise_slope_sorted; eassumption.
 Qed.
