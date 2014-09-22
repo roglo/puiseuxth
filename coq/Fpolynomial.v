@@ -484,7 +484,20 @@ destruct (le_dec (length la) j) as [H₁| H₁].
   right.
   rewrite List.nth_overflow; [ reflexivity | assumption ].
 
-  exfalso; apply H₂; fast_omega H₁.
+  exfalso; apply H₂; clear H₂.
+  rewrite <- Nat.add_pred_l.
+   apply Nat.lt_le_pred in H₁.
+   apply Nat.le_add_le_sub_l.
+   rewrite Nat.add_shuffle0, Nat.add_assoc.
+   apply Nat.add_le_mono_r.
+   rewrite Nat.add_comm, <- Nat.add_assoc.
+   eapply Nat.le_trans; eauto .
+   apply Nat.le_sub_le_add_l.
+   rewrite Nat.sub_diag.
+   apply Nat.le_0_l.
+
+   intros H; rewrite H in H₁.
+   revert H₁; apply Nat.nlt_0_r.
 Qed.
 
 Add Parametric Morphism α (R : ring α) : (@lap_mul _ R)
@@ -715,7 +728,21 @@ induction len; intros.
    rewrite List.nth_overflow; [ idtac | assumption ].
    rewrite rng_mul_0_l; reflexivity.
 
-   exfalso; fast_omega Hlen H₁ H₂.
+   exfalso; apply H₂; clear Hj H₂.
+   apply Nat.nle_gt in H₁; subst i.
+   rewrite <- Nat.add_pred_l.
+    apply Nat.lt_le_pred in H₁.
+    apply Nat.le_add_le_sub_l.
+    rewrite Nat.add_assoc.
+    apply Nat.add_le_mono_r.
+    rewrite Nat.add_comm.
+    eapply Nat.le_trans; eauto .
+    apply Nat.le_sub_le_add_l.
+    rewrite Nat.sub_diag.
+    apply Nat.le_0_l.
+
+    intros H; rewrite H in H₁.
+    revert H₁; apply Nat.nlt_0_r.
 
  simpl.
  destruct n; [ reflexivity | idtac ].
@@ -837,7 +864,7 @@ induction len; intros.
   apply lap_eq_skipn_succ.
 
   intros j (Hj, Hji).
-  destruct j; [ exfalso; omega | idtac ].
+  destruct j; [ exfalso; revert Hj; apply Nat.nle_succ_0 | idtac ].
   destruct j; rewrite rng_mul_0_l; reflexivity.
 Qed.
 
@@ -961,7 +988,7 @@ induction len; intros; simpl.
   intros j (Hj, Hji).
   rewrite Nat_sub_sub_distr; [ idtac | assumption ].
   rewrite Nat.add_comm, Nat.add_sub.
-  destruct j; [ exfalso; omega | idtac ].
+  destruct j; [ exfalso; revert Hj; apply Nat.nle_succ_0 | idtac ].
   destruct j; rewrite rng_mul_0_r; reflexivity.
 Qed.
 
@@ -996,7 +1023,7 @@ induction len; intros; simpl.
  intros j (_, Hj).
  destruct (lt_dec j (length la)) as [Hja| Hja].
   destruct (lt_dec (i + k - j) (length lb)) as [Hjb| Hjb].
-   exfalso; omega.
+   exfalso; fast_omega Hilen Hja Hjb.
 
    apply rng_mul_eq_0; right.
    apply Nat.nlt_ge in Hjb.
