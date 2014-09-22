@@ -3075,7 +3075,7 @@ destruct z₁.
     rewrite <- Hc, <- Hpol₁, <- Hns₁ in H; assumption.
 
     rename H into Hrle₁; move Hrle₁ before Hrle.
-    clear (*Hrle*) Hpsi.
+    clear Hrle Hpsi.
     remember Hz as H; clear HeqH.
     rewrite zerop_1st_n_const_coeff_succ in H.
     apply Bool.orb_false_iff in H; simpl in H.
@@ -3113,9 +3113,11 @@ destruct z₁.
     remember (ac_root (Φq poln₁ nsn₁)) as cn₁ eqn:Hcn₁ .
     remember (nth_pol n pol₂ ns₂) as poln₂ eqn:Hpoln₂ .
     remember (nth_ns n pol₂ ns₂) as nsn₂ eqn:Hnsn₂ .
+    remember Hr₀ as H; clear HeqH.
+    erewrite <- nth_r_n with (n := O) in H; simpl; eauto .
+    rename H into Hr₀₁.
     remember Hns as H; clear HeqH.
-    eapply all_ns_in_newton_segments with (n := S n) in H; try eassumption;
-     eauto ; [ idtac | simpl; rewrite <- Hc; auto ].
+    eapply all_ns_in_newton_segments with (n := S n) in H; eauto .
     erewrite nth_ns_succ2 in H; eauto .
     erewrite nth_pol_succ2 in H; eauto .
     rewrite <- Hnsn₁, <- Hpoln₁ in H.
@@ -3226,8 +3228,7 @@ destruct z₁.
      clear Hpsi₁; rename H into Hpsi₁; move Hpsi₁ after Hri.
      assert (∀ i, i ≤ S (S n) → nth_r i pol ns = r) as H.
       apply non_decr_imp_eq; auto.
-       rewrite zerop_1st_n_const_coeff_succ2.
-       rewrite Hz.
+       rewrite zerop_1st_n_const_coeff_succ2, Hz.
        remember (S n) as sn; simpl.
        rewrite <- Hc, <- Hpol₁, <- Hns₁.
        subst sn; simpl.
@@ -3238,7 +3239,10 @@ destruct z₁.
        rewrite <- Hc₁, <- Hpol₂, <- Hns₂ in H.
        contradiction.
 
-       simpl; rewrite <- Hc; assumption.
+        intros i.
+        destruct i; [ rewrite Hr₀₁; auto | simpl ].
+        rewrite <- Hc, <- Hpol₁, <- Hns₁.
+        apply Hrle₁.
 
       clear Hri; rename H into Hri.
       remember Hns as H; clear HeqH.
@@ -3566,7 +3570,10 @@ destruct z₁.
                       destruct (ps_zerop R x) as [H₂| H₂]; auto; subst x.
                       contradiction.
 
-                     simpl; rewrite <- Hc; assumption.
+                     intros j.
+                     destruct j; [ rewrite Hr₀₁; auto | simpl ].
+                     rewrite <- Hc, <- Hpol₁, <- Hns₁.
+                     apply Hrle₁.
 
                     clear Hri; rename H into Hri.
                     remember Hns as H; clear HeqH.
@@ -3648,6 +3655,11 @@ destruct z₁.
          rewrite Z.mul_shuffle0, <- Z.mul_assoc.
          rewrite <- Pos2Z.inj_mul.
          apply Z.divide_factor_r.
+
+        intros i.
+        destruct i; [ rewrite Hr₀₁; auto | simpl ].
+        rewrite <- Hc, <- Hpol₁, <- Hns₁.
+        apply Hrle₁.
 Qed.
 
 Theorem root_tail_when_r_r : ∀ pol ns pol₁ ns₁ c m q₀ b r,
