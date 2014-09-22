@@ -607,7 +607,7 @@ eapply q_is_factor_of_h_minus_j with (h := k) in Hqkj; try eassumption.
   remember (make_char_pol R (S j) tl) as cpol eqn:Hcpol .
   remember (degree_plus_1_of_list ac_zerop cpol) as d eqn:Hd .
   symmetry in Hd.
-  destruct d; [ exfalso | omega ].
+  destruct d; [ exfalso | apply le_n_S, Nat.le_0_l ].
   subst cpol.
   remember (Pos.to_nat (q_of_m m (γ ns))) as nq.
   remember (make_char_pol R (S j) tl) as cpol.
@@ -671,7 +671,8 @@ induction r; intros; simpl.
  intros Happ; apply Hla; clear Hla.
  revert la Hmult Hlen Happ.
  induction len; intros.
-  destruct la; [ reflexivity | simpl in Hlen; exfalso; omega ].
+  destruct la; [ idtac | exfalso; revert Hlen; apply Nat.nle_succ_0 ].
+  reflexivity.
 
   destruct la as [| a]; [ reflexivity | idtac ].
   simpl in Hmult.
@@ -685,7 +686,7 @@ induction r; intros; simpl.
    contradiction.
 
  destruct len.
-  destruct la; [ idtac | exfalso; simpl in Hlen; fast_omega Hlen ].
+  destruct la; [ idtac | exfalso; revert Hlen; apply Nat.nle_succ_0 ].
   exfalso; apply Hla; reflexivity.
 
   simpl in Hmult.
@@ -712,7 +713,8 @@ induction r; intros; simpl.
      rewrite rng_mul_0_l, rng_add_0_l in Hz.
      constructor; [ assumption | idtac ].
      destruct len.
-      destruct la; [ reflexivity | exfalso; simpl in Hlen; omega ].
+      destruct la; [ idtac | exfalso; revert Hlen; apply Nat.nle_succ_0 ].
+      reflexivity.
 
       simpl in Hmult.
       unfold lap_div_deg_1 in Hmult; simpl in Hmult.
@@ -748,7 +750,7 @@ induction r; intros; simpl.
     revert Hlen; clear; intros.
     revert len Hlen.
     induction la as [| a]; intros; [ apply Nat.le_0_l | simpl ].
-    destruct len; [ exfalso; simpl in Hlen; omega | simpl ].
+    destruct len; [ exfalso; revert Hlen; apply Nat.nle_succ_0 | simpl ].
     simpl in Hlen.
     apply le_S_n in Hlen.
     apply le_n_S, IHla; assumption.
