@@ -279,6 +279,13 @@ remember (S n) as sn; simpl; subst sn.
 apply IHn.
 Qed.
 
+Theorem nth_pol_succ2 : ∀ pol ns c pol₁ ns₁ n,
+  c = ac_root (Φq pol ns)
+  → pol₁ = next_pol pol (β ns) (γ ns) c
+  → ns₁ = List.hd phony_ns (newton_segments pol₁)
+  → nth_pol (S n) pol ns = nth_pol n pol₁ ns₁.
+Proof. intros; subst; reflexivity. Qed.
+
 Theorem nth_ns_succ : ∀ n pol ns pol₁,
   pol₁ = nth_pol (S n) pol ns
   → nth_ns (S n) pol ns = List.hd phony_ns (newton_segments pol₁).
@@ -289,6 +296,13 @@ induction n; intros; [ reflexivity | idtac ].
 remember (S n) as sn; simpl; subst sn.
 apply IHn.
 Qed.
+
+Theorem nth_ns_succ2 : ∀ pol ns c pol₁ ns₁ n,
+  c = ac_root (Φq pol ns)
+  → pol₁ = next_pol pol (β ns) (γ ns) c
+  → ns₁ = List.hd phony_ns (newton_segments pol₁)
+  → nth_ns (S n) pol ns = nth_ns n pol₁ ns₁.
+Proof. intros; subst; reflexivity. Qed.
 
 Theorem nth_c_succ : ∀ n pol ns pol₁ ns₁,
   pol₁ = nth_pol (S n) pol ns
@@ -301,6 +315,13 @@ induction n; intros; [ reflexivity | idtac ].
 remember (S n) as sn; simpl; subst sn.
 apply IHn.
 Qed.
+
+Theorem nth_r_succ2 : ∀ pol ns c pol₁ ns₁ n,
+  c = ac_root (Φq pol ns)
+  → pol₁ = next_pol pol (β ns) (γ ns) c
+  → ns₁ = List.hd phony_ns (newton_segments pol₁)
+  → nth_r (S n) pol ns = nth_r n pol₁ ns₁.
+Proof. intros; subst; reflexivity. Qed.
 
 Theorem Qnum_inv_Qnat_sub : ∀ j k,
   (j < k)%nat

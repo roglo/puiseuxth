@@ -903,23 +903,6 @@ induction len; intros; simpl.
  rewrite <- IHlen; reflexivity.
 Qed.
 
-Theorem lap_app_add : ∀ la lb,
-  (la ++ lb = la + list_pad (length la) 0%K lb)%lap.
-Proof.
-intros la lb.
-induction la as [| a]; [ reflexivity | simpl ].
-rewrite rng_add_0_r.
-constructor; [ reflexivity | assumption ].
-Qed.
-
-Theorem lap_add_map2 : ∀ β (f g : β → α) la,
-  (List.map f la + List.map g la = List.map (λ b, (f b + g b)%K) la)%lap.
-Proof.
-intros β f g la.
-induction la as [| b]; [ reflexivity | simpl ].
-constructor; auto.
-Qed.
-
 Definition nth_coeff (a : α) n i := rng_mul_nat R (comb n i) (a ^ (n - i))%K.
 
 Theorem binomial_expansion : ∀ (a : α) n,
@@ -1200,27 +1183,6 @@ eapply q_mj_mk_eq_p_h_j in H; eauto .
 
    eapply den_αj_divides_num_αj_m; eauto .
 Qed.
-
-Theorem nth_pol_succ2 : ∀ pol ns c pol₁ ns₁ n,
-  c = ac_root (Φq pol ns)
-  → pol₁ = next_pol pol (β ns) (γ ns) c
-  → ns₁ = List.hd phony_ns (newton_segments pol₁)
-  → nth_pol (S n) pol ns = nth_pol n pol₁ ns₁.
-Proof. intros; subst; reflexivity. Qed.
-
-Theorem nth_ns_succ2 : ∀ pol ns c pol₁ ns₁ n,
-  c = ac_root (Φq pol ns)
-  → pol₁ = next_pol pol (β ns) (γ ns) c
-  → ns₁ = List.hd phony_ns (newton_segments pol₁)
-  → nth_ns (S n) pol ns = nth_ns n pol₁ ns₁.
-Proof. intros; subst; reflexivity. Qed.
-
-Theorem nth_r_succ2 : ∀ pol ns c pol₁ ns₁ n,
-  c = ac_root (Φq pol ns)
-  → pol₁ = next_pol pol (β ns) (γ ns) c
-  → ns₁ = List.hd phony_ns (newton_segments pol₁)
-  → nth_r (S n) pol ns = nth_r n pol₁ ns₁.
-Proof. intros; subst; reflexivity. Qed.
 
 Theorem all_r_le_next : ∀ pol ns c pol₁ ns₁ r,
   c = ac_root (Φq pol ns)

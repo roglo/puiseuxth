@@ -697,6 +697,23 @@ apply lap_add_compat; [ reflexivity | simpl ].
 apply lap_add_comm.
 Qed.
 
+Theorem lap_app_add : ∀ la lb,
+  (la ++ lb = la + list_pad (length la) 0%K lb)%lap.
+Proof.
+intros la lb.
+induction la as [| a]; [ reflexivity | simpl ].
+rewrite rng_add_0_r.
+constructor; [ reflexivity | assumption ].
+Qed.
+
+Theorem lap_add_map2 : ∀ β (f g : β → α) la,
+  (List.map f la + List.map g la = List.map (λ b, (f b + g b)%K) la)%lap.
+Proof.
+intros β f g la.
+induction la as [| b]; [ reflexivity | simpl ].
+constructor; auto.
+Qed.
+
 (* multiplication theorems *)
 
 Theorem lap_mul_comm : ∀ a b, lap_eq (lap_mul a b) (lap_mul b a).
