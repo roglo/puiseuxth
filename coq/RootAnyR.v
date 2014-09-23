@@ -2215,19 +2215,9 @@ destruct z₁.
  rewrite Hz₁; simpl.
  rewrite rng_add_0_l, rng_mul_0_r; reflexivity.
 
- unfold root_tail, root_head.
- rewrite Hz₁.
- rewrite zerop_1st_n_const_coeff_succ2.
- remember (S b) as b₁ eqn:Hb₁ .
- rewrite Hz₁; simpl.
- rewrite rng_add_0_r.
- unfold γ_sum; simpl.
- unfold summation; simpl.
- rewrite Nat.add_0_r, rng_add_0_r.
  remember Hns as HK₁; clear HeqHK₁.
  eapply next_pol_in_K_1_mq in HK₁; try eassumption.
  rewrite <- Heqm₁ in HK₁.
- rewrite Hb₁ in Hz₁.
  rewrite zerop_1st_n_const_coeff_succ in Hz₁.
  apply Bool.orb_false_iff in Hz₁.
  destruct Hz₁ as (Hz₁, Hpsi).
@@ -2241,7 +2231,6 @@ destruct z₁.
  rename H into Hr₁.
  rewrite <- Hc in Hr₀.
  rewrite <- Hc, <- Hpol₁, <- Hns₁, <- Hc₁ in Hr₁.
- rewrite <- Hc₁.
  remember (next_pol pol₁ (β ns₁) (γ ns₁) c₁) as pol₂ eqn:Hpol₂ .
  remember (List.hd phony_ns (newton_segments pol₂)) as ns₂ eqn:Hns₂ .
  assert (0 < r)%nat as Hrpos by (eapply multiplicity_is_pos; try eassumption).
@@ -2250,13 +2239,13 @@ destruct z₁.
  destruct H as (αj₁, (αk₁, H)).
  destruct H as (Hini₁, (Hfin₁, (Hαj₁, Hαk₁))).
  apply zerop_1st_n_const_coeff_false_succ in Hpsi; [ idtac | assumption ].
- rewrite <- Hb₁ in Hpsi.
  remember Hns₁ as H; clear HeqH.
  eapply hd_newton_segments in H; try eassumption.
  rename H into Hns₁i.
  remember Hr₁ as H; clear HeqH.
  rewrite <- nth_r_n with (n := O) (ns := ns₁) (pol := pol₁) in H; auto.
  rename H into Hr₁n.
+ remember (S b) as b₁ eqn:Hb₁ .
  assert
   (∀ n, n ≤ b₁ → nth_ns n pol₁ ns₁ ∈ newton_segments (nth_pol n pol₁ ns₁)).
   apply all_ns_in_newton_segments with (r := r); try assumption.
@@ -2294,7 +2283,19 @@ destruct z₁.
       rewrite <- Hnsb₂ in H.
       destruct H as (αjb₂, (αkb₂, H)).
       destruct H as (Hinib₂, (Hfinb₂, (Hαjb₂, Hαkb₂))).
+      unfold root_tail, root_head.
+      apply zerop_1st_n_const_coeff_false_iff in Hpsi.
+      rewrite Hpsi.
+      rewrite zerop_1st_n_const_coeff_succ2.
+      rewrite Hpsi.
+      rewrite zerop_1st_n_const_coeff_false_iff in Hpsi.
+      simpl.
+      rewrite <- Hc₁, <- Hpol₂, <- Hns₂.
+      rewrite <- Hpolb₂, <- Hnsb₂.
+      rewrite Nat.add_0_r, rng_add_0_r.
       unfold root_tail_from_cγ_list, ps_monom; simpl.
+      rewrite Nat.add_0_r, Z.mul_1_r, Z.add_0_r.
+      rewrite Pos.mul_1_r.
       erewrite nth_γ_n; eauto ; simpl.
       remember (nth_pol b₁ pol₂ ns₂) as polb₃ eqn:Hpolb₃ .
       remember (nth_ns b₁ pol₂ ns₂) as nsb₃ eqn:Hnsb₃ .
