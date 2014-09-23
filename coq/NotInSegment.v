@@ -16,7 +16,7 @@ Require Import NotInSegMisc.
 Theorem aft_end_in_rem : ∀ pt₁ pt₂ pts ms,
   Sorted fst_lt [pt₁; pt₂ … pts]
   → minimise_slope pt₁ pt₂ pts = ms
-    → ∀ h αh, (h, αh) ∈ [pt₁; pt₂ … pts] 
+    → ∀ h αh, (h, αh) ∈ [pt₁; pt₂ … pts]
       → fst (end_pt ms) < h
         → (h, αh) ∈ rem_pts ms.
 Proof.

@@ -784,7 +784,7 @@ Theorem summation_mul_list_nth_lap_convol_mul : ∀ la lb lc k,
   (Σ (i = 0, k),
      List.nth i la 0 *
      List.nth (k - i)
-       (lap_convol_mul r lb lc 0 (pred (length lb + length lc))) 
+       (lap_convol_mul r lb lc 0 (pred (length lb + length lc)))
        0 =
    Σ (i = 0, k),
      List.nth i la 0 *
