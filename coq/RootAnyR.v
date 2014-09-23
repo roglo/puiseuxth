@@ -2200,47 +2200,41 @@ Theorem root_tail_from_0_const_r : ∀ pol ns c pol₁ ns₁ c₁ m q₀ b r,
   → (root_tail (m * q₀) b pol₁ ns₁ =
      root_head b 0 pol₁ ns₁ +
        ps_monom 1%K (γ_sum b 0 pol₁ ns₁) *
-       root_tail (m * q₀) (b + 1) pol₁ ns₁)%ps.
+       root_tail (m * q₀) (S b) pol₁ ns₁)%ps.
 Proof.
 intros pol ns c pol₁ ns₁ c₁ m q₀ b r.
 intros Hns Hm Hq₀ Hc Hpol₁ Hns₁ Hc₁ Hri Hrle H₀.
 remember (m * q₀)%positive as m₁.
 destruct b; [ subst m₁; eapply root_tail_split_1st_any_r; eauto  | idtac ].
-remember (S b) as b₁ eqn:Hb₁ .
-unfold root_tail, root_head; simpl.
-rewrite Nat.add_0_r.
-remember (zerop_1st_n_const_coeff b₁ pol₁ ns₁) as z₁ eqn:Hz₁ .
+remember (zerop_1st_n_const_coeff (S b) pol₁ ns₁) as z₁ eqn:Hz₁ .
 symmetry in Hz₁.
 destruct z₁.
- rewrite Nat.add_1_r.
+ unfold root_tail, root_head.
+ rewrite Hz₁.
  rewrite zerop_1st_n_const_coeff_succ2.
  rewrite Hz₁; simpl.
  rewrite rng_add_0_l, rng_mul_0_r; reflexivity.
 
+ unfold root_tail, root_head.
+ rewrite Hz₁.
+ rewrite zerop_1st_n_const_coeff_succ2.
+ remember (S b) as b₁ eqn:Hb₁ .
+ rewrite Hz₁; simpl.
  rewrite rng_add_0_r.
  unfold γ_sum; simpl.
  unfold summation; simpl.
  rewrite Nat.add_0_r, rng_add_0_r.
  remember Hns as HK₁; clear HeqHK₁.
- eapply next_pol_in_K_1_mq in HK₁; try eassumption .
+ eapply next_pol_in_K_1_mq in HK₁; try eassumption.
  rewrite <- Heqm₁ in HK₁.
  rewrite Hb₁ in Hz₁.
  rewrite zerop_1st_n_const_coeff_succ in Hz₁.
  apply Bool.orb_false_iff in Hz₁.
  destruct Hz₁ as (Hz₁, Hpsi).
  simpl in Hz₁.
- rewrite Nat.add_1_r.
- rewrite zerop_1st_n_const_coeff_succ.
- remember (zerop_1st_n_const_coeff 0 pol₁ ns₁) as x.
- simpl in Heqx.
  remember (ps_poly_nth 0 pol₁) as y.
  destruct (ps_zerop R y) as [| Hnz₁]; [ discriminate Hz₁ | subst y ].
- clear Hz₁; subst x.
- rewrite Bool.orb_false_l, Hb₁.
- rewrite zerop_1st_n_const_coeff_succ2, Hpsi.
- rewrite Bool.orb_false_l.
- rewrite <- Hb₁.
- remember (S b₁) as sb₁; simpl; subst sb₁.
+ clear Hz₁.
  pose proof (Hri O Nat.le_0_1) as H; simpl in H.
  rename H into Hr₀.
  pose proof (Hri 1%nat (Nat.le_refl 1)) as H; simpl in H.
@@ -2250,9 +2244,9 @@ destruct z₁.
  rewrite <- Hc₁.
  remember (next_pol pol₁ (β ns₁) (γ ns₁) c₁) as pol₂ eqn:Hpol₂ .
  remember (List.hd phony_ns (newton_segments pol₂)) as ns₂ eqn:Hns₂ .
- assert (0 < r)%nat as Hrpos by (eapply multiplicity_is_pos; try eassumption ).
+ assert (0 < r)%nat as Hrpos by (eapply multiplicity_is_pos; try eassumption).
  remember Hns₁ as H; clear HeqH.
- eapply r_n_next_ns in H; try eassumption .
+ eapply r_n_next_ns in H; try eassumption.
  destruct H as (αj₁, (αk₁, H)).
  destruct H as (Hini₁, (Hfin₁, (Hαj₁, Hαk₁))).
  apply zerop_1st_n_const_coeff_false_succ in Hpsi; [ idtac | assumption ].
@@ -2301,7 +2295,6 @@ destruct z₁.
       destruct H as (αjb₂, (αkb₂, H)).
       destruct H as (Hinib₂, (Hfinb₂, (Hαjb₂, Hαkb₂))).
       unfold root_tail_from_cγ_list, ps_monom; simpl.
-      rewrite <- Hc₁, <- Hpol₂, <- Hns₂.
       erewrite nth_γ_n; eauto ; simpl.
       remember (nth_pol b₁ pol₂ ns₂) as polb₃ eqn:Hpolb₃ .
       remember (nth_ns b₁ pol₂ ns₂) as nsb₃ eqn:Hnsb₃ .
@@ -3391,7 +3384,7 @@ destruct z₁.
     eapply root_tail_sep_1st_monom; eauto .
 Qed.
 
-Theorem root_tail_when_r_r : ∀ pol ns pol₁ ns₁ c m q₀ b r,
+Theorem root_tail_when_r_r : ∀ pol ns pol₁ ns₁ c m q₀ b r n,
   ns ∈ newton_segments pol
   → pol_in_K_1_m pol m
   → q₀ = q_of_m m (γ ns)
@@ -3401,15 +3394,14 @@ Theorem root_tail_when_r_r : ∀ pol ns pol₁ ns₁ c m q₀ b r,
   → (∀ i, i ≤ 1%nat → nth_r i pol ns = r)
   → (∀ n, r ≤ nth_r n pol ns)
   → (1 ≠ 0)%K
-  → ∀ n,
-    zerop_1st_n_const_coeff (S n) pol ns = false
-    → (root_tail (m * q₀) b pol₁ ns₁ =
-       root_head b n pol₁ ns₁ +
-         ps_monom 1%K (γ_sum b n pol₁ ns₁) *
-         root_tail (m * q₀) (b + S n) pol₁ ns₁)%ps.
+  → zerop_1st_n_const_coeff (S n) pol ns = false
+  → (root_tail (m * q₀) b pol₁ ns₁ =
+     root_head b n pol₁ ns₁ +
+       ps_monom 1%K (γ_sum b n pol₁ ns₁) *
+       root_tail (m * q₀) (b + S n) pol₁ ns₁)%ps.
 Proof.
-intros pol ns pol₁ ns₁ c m q₀ b r.
-intros Hns Hm Hq₀ Hc Hpol₁ Hns₁ Hri Hrle H₀ n Hnz.
+intros pol ns pol₁ ns₁ c m q₀ b r n.
+intros Hns Hm Hq₀ Hc Hpol₁ Hns₁ Hri Hrle H₀ Hnz.
 revert pol ns pol₁ ns₁ c m q₀ b Hns Hm Hq₀ Hc Hpol₁ Hns₁ Hri Hrle Hnz.
 induction n; intros.
  unfold root_head; simpl.
@@ -3429,7 +3421,7 @@ induction n; intros.
   rewrite Hz₁.
   unfold root_head_from_cγ_list.
   rewrite Nat.add_0_r, rng_add_0_r.
-  reflexivity.
+  rewrite Nat.add_1_r; reflexivity.
 
  remember (zerop_1st_n_const_coeff b pol₁ ns₁) as z₁ eqn:Hz₁ .
  symmetry in Hz₁.
