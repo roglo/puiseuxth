@@ -391,7 +391,8 @@ destruct r.
 
       unfold multiplicity_decreases in Hn; simpl in Hn.
       rewrite <- Hc, Hr in Hn.
-      rewrite root_tail_when_r_r with (n := N) (r := S r) in Hofs; eauto .
+      rewrite root_tail_when_r_r with (n := N) (r := S r) in Hofs;
+       try eassumption.
        remember (root_tail (m * q₀) 0 pol₁ ns₁) as s eqn:Hs .
        exists s.
        apply order_inf.
