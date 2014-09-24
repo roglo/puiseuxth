@@ -68,18 +68,6 @@ induction n; intros.
   right; rewrite Nat.pred_succ; assumption.
 Qed.
 
-Theorem nth_r_n : ∀ pol ns pol₁ ns₁ c₁ n,
-  pol₁ = nth_pol n pol ns
-  → ns₁ = nth_ns n pol ns
-  → c₁ = nth_c n pol ns
-  → nth_r n pol ns = root_multiplicity acf c₁ (Φq pol₁ ns₁).
-Proof.
-intros pol ns pol₁ ns₁ c₁ n Hpol₁ Hns₁ Hc₁.
-revert pol ns pol₁ ns₁ c₁ Hpol₁ Hns₁ Hc₁.
-induction n; intros; [ subst; reflexivity | simpl ].
-apply IHn; subst; reflexivity.
-Qed.
-
 Theorem multiplicity_lt_length : ∀ cpol c,
   (al cpol ≠ [])%lap
   → (root_multiplicity acf c cpol < length (al cpol))%nat.

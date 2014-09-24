@@ -568,6 +568,18 @@ induction n; intros.
  eapply IHn with (c := c₁); eauto .
 Qed.
 
+Theorem nth_r_n : ∀ pol ns pol₁ ns₁ c₁ n,
+  pol₁ = nth_pol n pol ns
+  → ns₁ = nth_ns n pol ns
+  → c₁ = nth_c n pol ns
+  → nth_r n pol ns = root_multiplicity acf c₁ (Φq pol₁ ns₁).
+Proof.
+intros pol ns pol₁ ns₁ c₁ n Hpol₁ Hns₁ Hc₁.
+revert pol ns pol₁ ns₁ c₁ Hpol₁ Hns₁ Hc₁.
+induction n; intros; [ subst; reflexivity | simpl ].
+apply IHn; subst; reflexivity.
+Qed.
+
 Theorem nth_γ_n : ∀ pol ns n nsn jn αjn kn αkn,
   nsn = nth_ns n pol ns
   → ini_pt nsn = (jn, αjn)
