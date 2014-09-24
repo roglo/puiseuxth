@@ -321,8 +321,9 @@ destruct n as [n| ].
  symmetry in Hm.
  destruct m as [m| ].
   eapply in_pol_in_pts in Hval; try eassumption.
-  eapply points_not_in_any_newton_segment in Hns; try eassumption.
-   2: split; [ eassumption | idtac ].
+  remember Hns as H; clear HeqH.
+  eapply points_not_in_any_newton_segment with (αh := m) (h := Qnat l) in H;
+   try eassumption.
    unfold order, Qbar.gt.
    rewrite Hn.
    apply Qbar.qfin_lt_mono.
@@ -336,9 +337,7 @@ destruct n as [n| ].
    do 2 rewrite Pos2Z.inj_mul.
    do 2 rewrite Z.mul_assoc.
    apply Z.mul_le_mono_pos_r; [ apply Pos2Z.is_pos | idtac ].
-   rewrite Z.mul_add_distr_r.
-   rewrite Z.mul_add_distr_r.
-   rewrite Z.mul_add_distr_r.
+   do 3 rewrite Z.mul_add_distr_r.
    rewrite Z.add_shuffle0.
    apply Z.add_le_mono.
     unfold order in Hm.
@@ -347,8 +346,7 @@ destruct n as [n| ].
     destruct p as [p| ]; [ idtac | discriminate Hm ].
     injection Hm; clear Hm; intros Hm.
     rewrite <- Hm; simpl.
-    rewrite Z.mul_add_distr_r.
-    rewrite Z.mul_add_distr_r.
+    do 2 rewrite Z.mul_add_distr_r.
     apply Z.add_le_mono_l.
     apply Z.mul_le_mono_pos_r; [ apply Pos2Z.is_pos | idtac ].
     rewrite <- positive_nat_Z.
@@ -367,8 +365,6 @@ destruct n as [n| ].
      rewrite Nat.div_0_l in Hn; auto; simpl in Hn.
      rewrite rng_mul_1_r in Hn.
      destruct (zerop (n mod Pos.to_nat (Qden (γns)))) as [Hng| Hng].
-      2: exfalso; apply Hn; reflexivity.
-
       apply Nat.mod_divides in Hng; auto.
       destruct Hng as (g, Hg).
       rewrite Hg, Nat.mul_comm.
@@ -377,9 +373,11 @@ destruct n as [n| ].
       rewrite Nat.mul_comm in Hn.
       rewrite Nat.div_mul in Hn; auto.
       apply Nat.nlt_ge.
-      intros H.
+      clear H; intros H.
       apply Hpi in H.
       contradiction.
+
+      exfalso; apply Hn; reflexivity.
 
      split; [ apply Nat.le_0_l | reflexivity ].
 
@@ -401,6 +399,7 @@ destruct n as [n| ].
 
     rewrite Z.mul_shuffle0; reflexivity.
 
+   split; [ eassumption | idtac ].
    intros Hlm.
    apply split_list_comm in Hsl.
    eapply sorted_split_in_not_in in Hsl; try eassumption.
@@ -1257,7 +1256,7 @@ induction n; intros.
  eapply IHn; eassumption.
 Qed.
 
-(* [Walker, p 101: « each power of y₁ in g(x,y₁) has a coefficient of
+(* [Walker, p 101 « each power of y₁ in g(x,y₁) has a coefficient of
    positive order » *)
 Theorem each_power_of_y₁_in_g_has_coeff_pos_ord : ∀ pol ns g,
   ns ∈ newton_segments pol

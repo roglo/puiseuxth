@@ -1553,9 +1553,6 @@ rewrite <- positive_nat_Z in Hgcd.
 rewrite Z.gcd_comm in Hgcd.
 rewrite Z.gcd_comm in Hgcd.
 apply Z.gauss with (p := Z.of_nat (h - j)) in Hgcd.
- 2: rewrite <- Hqjh.
- 2: apply Z.divide_factor_l.
-
  destruct Hgcd as (c, Hc).
  exists (Z.to_nat c).
  apply Nat2Z.inj.
@@ -1569,6 +1566,9 @@ apply Z.gauss with (p := Z.of_nat (h - j)) in Hgcd.
    rewrite <- Hj; simpl; rewrite nat_num_Qnat; reflexivity.
 
    rewrite Hk; simpl; rewrite nat_num_Qnat; reflexivity.
+
+ rewrite <- Hqjh.
+ apply Z.divide_factor_l.
 Qed.
 
 (* *)
@@ -1991,8 +1991,6 @@ destruct n.
  apply HdRel_inv in Hrel.
  unfold nat_fst_lt in Hrel; simpl in Hrel.
  destruct (lt_dec (nat_num (fst pt₁)) (nat_num (fst pt₂))) as [H₁| H₁].
-  2: contradiction.
-
   unfold lt in H₁.
   remember (nat_num (fst pt₁)) as j eqn:Hj .
   remember (nat_num (fst pt₂)) as h eqn:Hh .
@@ -2086,6 +2084,8 @@ destruct n.
         apply IHpts; auto.
         eapply Sorted_minus_2nd; eauto .
         intros x y z H₁ H₂; eapply Nat.lt_trans; eassumption.
+
+  contradiction.
 Qed.
 
 Theorem phi_pseudo_degree_is_k_sub_j_div_q : ∀ pol ns j αj k αk q m,
