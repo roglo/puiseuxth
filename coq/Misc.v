@@ -25,7 +25,8 @@ Set Implicit Arguments.
 Definition Qnat i := Z.of_nat i # 1.
 
 (* experimentation with Definition instead of Theorem *)
-Definition Nat_sub_succ_diag n : (S n - n = 1)%nat :=
+Definition Nat_sub_succ_diag : ∀ n, (S n - n = 1)%nat :=
+  λ n,
   eq_trans (Nat.sub_succ_l n n (le_n n)) (f_equal S (Nat.sub_diag n)).
 
 (*
@@ -36,13 +37,22 @@ etransitivity; [ apply Nat.sub_succ_l, le_n | apply f_equal, Nat.sub_diag ].
 Qed.
 *)
 
+Definition le_neq_lt : ∀ x y : nat, x ≤ y → x ≠ y → (x < y)%nat :=
+  λ x y Hxy Hnxy,
+  match le_lt_eq_dec x y Hxy with
+  | left Hle => Hle
+  | right Heq => match Hnxy Heq with end
+  end.
+
+(*
 Theorem le_neq_lt : ∀ x y : nat, x ≤ y → x ≠ y → (x < y)%nat.
 Proof.
 intros x y Hxy Hnxy.
 apply le_lt_eq_dec in Hxy.
-destruct Hxy; [ assumption | idtac ].
-exfalso; subst x; apply Hnxy; reflexivity.
+destruct Hxy as [Hle| Heq]; [ assumption | idtac ].
+exfalso; apply Hnxy; assumption.
 Qed.
+*)
 
 Theorem Qle_neq_lt : ∀ x y, x <= y → ¬ x == y → x < y.
 Proof.
