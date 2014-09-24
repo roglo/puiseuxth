@@ -2245,32 +2245,31 @@ destruct z₁.
  remember Hr₁ as H; clear HeqH.
  rewrite <- nth_r_n with (n := O) (ns := ns₁) (pol := pol₁) in H; auto.
  rename H into Hr₁n.
- remember (S b) as b₁ eqn:Hb₁ .
  assert
-  (∀ n, n ≤ b₁ → nth_ns n pol₁ ns₁ ∈ newton_segments (nth_pol n pol₁ ns₁)).
+  (∀ n, n ≤ S b → nth_ns n pol₁ ns₁ ∈ newton_segments (nth_pol n pol₁ ns₁)).
   apply all_ns_in_newton_segments with (r := r); try assumption.
   intros i.
   pose proof (Hrle (S i)) as H; simpl in H.
   rewrite <- Hc, <- Hpol₁, <- Hns₁ in H; assumption.
 
   rename H into Hain.
-  assert (∀ n, n ≤ b₁ → nth_r n pol₁ ns₁ = r) as Hreq.
+  assert (∀ n, n ≤ S b → nth_r n pol₁ ns₁ = r) as Hreq.
    apply non_decr_imp_eq; auto.
    intros i.
    pose proof (Hrle (S i)) as H; simpl in H.
    rewrite <- Hc, <- Hpol₁, <- Hns₁ in H; assumption.
 
-   assert (∀ i, i ≤ b₁ → (ps_poly_nth 0 (nth_pol i pol₁ ns₁) ≠ 0)%ps).
-    rewrite Hb₁; apply not_zero_1st_prop; auto.
-    rewrite Hb₁ in Hpsi.
+   assert (∀ i, i ≤ S b → (ps_poly_nth 0 (nth_pol i pol₁ ns₁) ≠ 0)%ps).
+    apply not_zero_1st_prop; auto.
     apply zerop_1st_n_const_coeff_false_succ; assumption.
 
     clear Hpsi; rename H into Hpsi.
     assert (∀ i, r ≤ nth_r i pol₁ ns₁) as Hrle₁.
      eapply all_r_le_next with (ns := ns); try eassumption.
 
-     pose proof (Hpsi b₁ (Nat.le_refl b₁)) as H.
+     pose proof (Hpsi (S b) (Nat.le_refl (S b))) as H.
      rename H into Hpsib₁.
+     remember (S b) as b₁ eqn:Hb₁ .
      remember (nth_ns b₁ pol₁ ns₁) as nsb₂ eqn:Hnsb₂ .
      remember (nth_pol b₁ pol₁ ns₁) as polb₂ eqn:Hpolb₂ .
      pose proof (Hain b₁ (Nat.le_refl b₁)) as H.
