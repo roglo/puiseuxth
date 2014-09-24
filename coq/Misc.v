@@ -24,18 +24,11 @@ Set Implicit Arguments.
 
 Definition Qnat i := Z.of_nat i # 1.
 
-(* experimentation with Definition instead of Theorem *)
+(* experimentations with Definition instead of Theorem *)
+
 Definition Nat_sub_succ_diag : ∀ n, (S n - n = 1)%nat :=
   λ n,
   eq_trans (Nat.sub_succ_l n n (le_n n)) (f_equal S (Nat.sub_diag n)).
-
-(*
-Theorem Nat_sub_succ_diag : ∀ n, (S n - n = 1)%nat.
-Proof.
-intros n.
-etransitivity; [ apply Nat.sub_succ_l, le_n | apply f_equal, Nat.sub_diag ].
-Qed.
-*)
 
 Definition le_neq_lt : ∀ x y : nat, x ≤ y → x ≠ y → (x < y)%nat :=
   λ x y Hxy Hnxy,
@@ -44,7 +37,21 @@ Definition le_neq_lt : ∀ x y : nat, x ≤ y → x ≠ y → (x < y)%nat :=
   | right Heq => match Hnxy Heq with end
   end.
 
+Definition Qle_neq_lt : ∀ x y, x <= y → ¬ x == y → x < y :=
+  λ x y Hxy Hnxy,
+  Qnot_le_lt y x (λ H, Hnxy (Qle_antisym x y Hxy H)).
+
+Definition Qdiv_lt_compat_r : ∀ x y z, 0 < z → x < y → x / z < y / z :=
+  λ x y z Hz Hxy,
+  Qmult_lt_compat_r x y (/ z) (Qinv_lt_0_compat z Hz) Hxy.
+
 (*
+Theorem Nat_sub_succ_diag : ∀ n, (S n - n = 1)%nat.
+Proof.
+intros n.
+etransitivity; [ apply Nat.sub_succ_l, le_n | apply f_equal, Nat.sub_diag ].
+Qed.
+
 Theorem le_neq_lt : ∀ x y : nat, x ≤ y → x ≠ y → (x < y)%nat.
 Proof.
 intros x y Hxy Hnxy.
@@ -52,7 +59,6 @@ apply le_lt_eq_dec in Hxy.
 destruct Hxy as [Hle| Heq]; [ assumption | idtac ].
 exfalso; apply Hnxy; assumption.
 Qed.
-*)
 
 Theorem Qle_neq_lt : ∀ x y, x <= y → ¬ x == y → x < y.
 Proof.
@@ -68,6 +74,7 @@ intros x y z Hc H.
 apply Qmult_lt_compat_r; [ idtac | assumption ].
 apply Qinv_lt_0_compat; assumption.
 Qed.
+*)
 
 Theorem Qdiv_minus_distr_r : ∀ x y z, (x - y) / z == x / z - y / z.
 Proof.
