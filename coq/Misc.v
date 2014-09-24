@@ -26,15 +26,15 @@ Definition Qnat i := Z.of_nat i # 1.
 
 (* experimentation with Definition instead of Theorem *)
 Definition Nat_sub_succ_diag n : (S n - n = 1)%nat :=
- eq_ind (S (n - n)) (λ m, m = 1%nat)
-   (eq_ind_r (λ m, S m = 1%nat) eq_refl (minus_diag n))
-   (S n - n)%nat (minus_Sn_m n n (le_n n)).
+ eq_ind_r (λ m, m = 1%nat)
+   (eq_ind_r (λ m, S m = 1%nat) eq_refl (Nat.sub_diag n))
+   (Nat.sub_succ_l n n (le_n n)).
 
 (*
 Theorem Nat_sub_succ_diag : ∀ n, (S n - n = 1)%nat.
 Proof.
 intros n.
-rewrite <- minus_Sn_m; [ rewrite minus_diag; reflexivity | apply le_n ].
+rewrite Nat.sub_succ_l; [ rewrite Nat.sub_diag; reflexivity | constructor ].
 Qed.
 *)
 
