@@ -2591,7 +2591,7 @@ destruct z₁.
                  replace x with (0 + x)%nat by reflexivity.
                  rewrite next_pow_add.
                  replace (S i)%nat with (S i - x + x)%nat at 2
-                  by fast_omega Hcmp₁.
+                  by (apply Nat.sub_add; assumption).
                  rewrite find_coeff_add.
                  rewrite <- Heqid.
                  symmetry.
@@ -2622,7 +2622,6 @@ destruct z₁.
                      (root_multiplicity acf cb₄ (Φq polb₄ nsb₄)) as r₁
                      eqn:Hrb₄ .
                     symmetry in Hrb₄.
-                    Focus 1.
                     pose proof (Hrle₂ 2%nat) as H.
                     remember (S 0) as one in H; simpl in H.
                     erewrite <- nth_pol_n with (c := c₁) in H; eauto .
@@ -3558,7 +3557,9 @@ eapply first_n_pol_in_K_1_m_any_r with (ns := ns₁) in H; eauto .
   rewrite Pos2Z.inj_mul, Z.mul_assoc.
   replace (' m₁)%Z with (1 * ' m₁)%Z at 1 by reflexivity.
   apply Z.mul_lt_mono_pos_r; [ apply Pos2Z.is_pos | idtac ].
-  fast_omega H.
+  rewrite Z.mul_comm.
+  apply Z.lt_1_mul_pos; auto.
+  apply Z.lt_1_2.
 
  eapply q_eq_1_any_r with (ns := ns₁); try eassumption; eauto .
 
