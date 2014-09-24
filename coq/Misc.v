@@ -100,10 +100,23 @@ destruct (Qeq_dec z 0) as [Heq| Hne].
  field; assumption.
 Qed.
 
+Definition Qeq_opp_r : ∀ x y, x == y → - x == - y :=
+  λ x y Hxy,
+  let H₁ := eq_sym (f_equal Z.opp Hxy) in
+  let H₂ := eq_trans (Z.mul_opp_l (Qnum y) (' Qden x)) H₁ in
+  let H₃ := Z.mul_opp_l (Qnum x) (' Qden y) in
+  eq_trans H₃ (eq_sym H₂).
+
+(*
 Theorem Qeq_opp_r : ∀ x y, x == y → - x == - y.
 Proof.
-intros x y H; rewrite H; reflexivity.
+intros x y Hxy.
+unfold Qeq; simpl.
+etransitivity; [ apply Z.mul_opp_l | symmetry ].
+etransitivity; [ apply Z.mul_opp_l | symmetry ].
+apply f_equal; assumption.
 Qed.
+*)
 
 Theorem Qgt_0_not_0 : ∀ x, 0 < x → ¬x == 0.
 Proof.
