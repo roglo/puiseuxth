@@ -2234,14 +2234,10 @@ destruct z₁.
  remember (next_pol pol₁ (β ns₁) (γ ns₁) c₁) as pol₂ eqn:Hpol₂ .
  remember (List.hd phony_ns (newton_segments pol₂)) as ns₂ eqn:Hns₂ .
  assert (0 < r)%nat as Hrpos by (eapply multiplicity_is_pos; try eassumption).
- remember Hns₁ as H; clear HeqH.
- eapply r_n_next_ns in H; try eassumption.
- destruct H as (αj₁, (αk₁, H)).
- destruct H as (Hini₁, (Hfin₁, (Hαj₁, Hαk₁))).
- apply zerop_1st_n_const_coeff_false_succ in Hpsi; [ idtac | assumption ].
- remember Hns₁ as H; clear HeqH.
- eapply hd_newton_segments in H; try eassumption.
+ remember Hns as H; clear HeqH.
+ eapply next_ns_in_pol in H; eauto .
  rename H into Hns₁i.
+ apply zerop_1st_n_const_coeff_false_succ in Hpsi; [ idtac | assumption ].
  remember Hr₁ as H; clear HeqH.
  rewrite <- nth_r_n with (n := O) (ns := ns₁) (pol := pol₁) in H; auto.
  rename H into Hr₁n.
@@ -2306,6 +2302,10 @@ destruct z₁.
       rewrite Z.mul_shuffle0, Pos_mul_shuffle0.
       rewrite Pos2Z.inj_mul.
       rewrite Z.div_mul_cancel_r; auto.
+      remember Hns₁ as H; clear HeqH.
+      eapply r_n_next_ns with (ns := ns) in H; try eassumption.
+      destruct H as (αj₁, (αk₁, H)).
+      destruct H as (Hini₁, (Hfin₁, (Hαj₁, Hαk₁))).
       remember Hns₁i as H; clear HeqH.
       eapply nth_pol_in_K_1_m with (poln := polb₂) in H; eauto .
       rename H into HKb₂.
