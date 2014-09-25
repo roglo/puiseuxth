@@ -45,6 +45,19 @@ Definition Qdiv_lt_compat_r : ∀ x y z, 0 < z → x < y → x / z < y / z :=
   λ x y z Hz Hxy,
   Qmult_lt_compat_r x y (/ z) (Qinv_lt_0_compat z Hz) Hxy.
 
+Definition Qinv_0 : ∀ x, x == 0 → /x == 0 :=
+  λ x Hx,
+  let H1 := eq_sym (Z.eq_trans (eq_sym (Z.mul_1_r (Qnum x))) Hx) in
+  let H2 z :=
+    Qnum
+      match z with
+      | 0%Z => 0
+      | (' p)%Z => ' Qden x # p
+      | Z.neg p => Z.neg (Qden x) # p
+      end = 0%Z
+  in
+  eq_trans (Z.mul_1_r (Qnum (/ x))) (eq_ind 0%Z H2 eq_refl (Qnum x) H1).
+
 (*
 Theorem Nat_sub_succ_diag : ∀ n, (S n - n = 1)%nat.
 Proof.
@@ -73,6 +86,22 @@ Proof.
 intros x y z Hc H.
 apply Qmult_lt_compat_r; [ idtac | assumption ].
 apply Qinv_lt_0_compat; assumption.
+Qed.
+
+Theorem Qinv_0 : ∀ x, x == 0 → /x == 0.
+Proof.
+intros x Hx.
+unfold Qeq in Hx; simpl in Hx.
+unfold Qeq; simpl.
+assert (0 = Qnum x)%Z as H1.
+ symmetry; eapply Z.eq_trans; [ symmetry | eauto  ].
+ apply Z.mul_1_r.
+
+ assert (/ x == 0) as H2; [ idtac | assumption ].
+ unfold Qeq; simpl.
+ etransitivity; [ apply Z.mul_1_r | idtac ].
+ unfold Qinv.
+ rewrite <- H1; reflexivity.
 Qed.
 *)
 
