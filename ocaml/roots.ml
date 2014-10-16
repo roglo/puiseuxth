@@ -52,12 +52,14 @@ value subst_roots_of_unity k pow (r, n) =
           let rn = Q.rnum rq in
           let rd = Q.rden rq in
           let r =
+(*
             if I.eq rd I.one then
               if I.eq rn I.one then k.one
               else if I.eq rn I.minus_one then k.ext.minus_one
 	      else if I.eq rn I.zero then k.zero
               else failwith (sprintf "<< $int:I.ts %s$ ** (1/3) >>" (I.ts rn))
             else
+*)
               let rn = I.mul rn (I.mul rd rd) in
               let n = cubic_root rn in
               let d = rd in
