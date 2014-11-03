@@ -26,16 +26,12 @@ Arguments ps_terms α%type p%ps.
 Arguments ps_ordnum α%type p%ps.
 Arguments ps_polord α%type p%ps.
 
-Section Axioms.
+Section axioms.
 
 (* [series_order fld s n] returns the number of consecutive null
    coefficients in the series [s], starting from the [n]th one. *)
-Definition series_order : ∀ α,
-  ring α → power_series α → nat → Nbar.
-Admitted.
-
-Axiom series_order_iff : ∀ α (R : ring α) s n v,
-  series_order R s n = v ↔
+Axiom series_order : ∀ α, ring α → power_series α → nat → Nbar.
+Axiom series_order_iff : ∀ α (R : ring α) s n v, series_order R s n = v ↔
   match v with
   | fin k =>
       (∀ i : nat, (i < k)%nat → (s .[n + i] = 0)%K)
@@ -43,15 +39,10 @@ Axiom series_order_iff : ∀ α (R : ring α) s n v,
   | ∞ =>
       ∀ i : nat, (s .[n + i] = 0)%K
   end.
-
-Arguments series_order _ _ s%ser _.
+Arguments series_order α%type _ s%ser n%nat.
 
 (* [greatest_series_x_power fld s n] returns the greatest nat value [k]
    such that [s], starting at index [n], is a series in [x^k]. *)
-Definition greatest_series_x_power : ∀ α,
-  ring α → power_series α → nat → nat.
-Admitted.
-
 Fixpoint nth_series_order α (R : ring α) s n b :=
   match series_order R s (S b) with
   | fin p =>
@@ -61,10 +52,10 @@ Fixpoint nth_series_order α (R : ring α) s n b :=
       end
   | ∞ => O
   end.
-
 Definition is_a_series_in_x_power α {R : ring α} s b k :=
   ∀ n, (k | nth_series_order R s n b).
 
+Axiom greatest_series_x_power : ∀ α, ring α → power_series α → nat → nat.
 Axiom greatest_series_x_power_iff : ∀ α (R : ring α) s n k,
   greatest_series_x_power R s n = k ↔
   match series_order R s (S n) with
@@ -74,8 +65,9 @@ Axiom greatest_series_x_power_iff : ∀ α (R : ring α) s n k,
   | ∞ =>
       k = O
   end.
+Arguments greatest_series_x_power α%type _ s%ser n%nat.
 
-End Axioms.
+End axioms.
 
 Definition series_stretch α {R : ring α} k s :=
   {| terms i :=

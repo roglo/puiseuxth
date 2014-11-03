@@ -289,7 +289,6 @@ EXTEND
           <:patt< $uid:"fin"$ >>
       | LIDENT "inf" →
           <:patt< $uid:"inf"$ >> ] ]
-
   ;
   cons_patt_opt:
     [ [ "…"; p = patt -> Some p
