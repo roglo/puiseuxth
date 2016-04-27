@@ -28,6 +28,19 @@ Arguments ps_polord α%type p%ps.
 
 Section axioms.
 
+Axiom LPO : ∀ f : nat → Prop, { ∀ i, ¬f i } + { ∃ i, f i }.
+
+(*
+Definition series_order : ∀ α, ring α → power_series α → nat → Nbar.
+Proof.
+intros α R s n.
+pose proof LPO (λ i, s.[n+i] ≠ 0)%K as H.
+destruct H as [H| H]; [ apply inf | ].
+destruct H.
+Toplevel input, characters 0-11:
+Error: Case analysis on sort Set is not allowed for inductive definition ex.
+*)
+
 (* [series_order fld s n] returns the number of consecutive null
    coefficients in the series [s], starting from the [n]th one. *)
 Axiom series_order : ∀ α, ring α → power_series α → nat → Nbar.
