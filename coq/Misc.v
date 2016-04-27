@@ -17,6 +17,11 @@ Notation "x ≤ y < z" := (x <= y ∧ y < z)%nat (at level 70, y at next level).
 Notation "x ∈ l" := (List.In x l) (at level 70).
 Notation "x ∉ l" := (not (List.In x l)) (at level 70).
 
+(* added from 8.4 to 8.5 *)
+Definition divide x y := exists z, (y=z*x)%nat.
+Notation "( x | y )" := (divide x y) (at level 0) : nat_scope.
+(* end added *)
+
 Ltac negation H := exfalso; apply H; reflexivity.
 Tactic Notation "fast_omega" hyp_list(Hs) := revert Hs; clear; intros; omega.
 
@@ -565,7 +570,7 @@ Definition pair_rec A B C (f : A → B → C) := λ xy, f (fst xy) (snd xy).
 
 Definition Plcm a b := Z.to_pos (Z.lcm (Zpos a) (Zpos b)).
 
-Theorem divmod_div : ∀ a b, fst (divmod a b 0 b) = (a / S b)%nat.
+Theorem divmod_div : ∀ a b, fst (Nat.divmod a b 0 b) = (a / S b)%nat.
 Proof. intros a b; reflexivity. Qed.
 
 Theorem Pos2Nat_ne_0 : ∀ a, (Pos.to_nat a ≠ 0)%nat.
@@ -822,7 +827,7 @@ pose proof (Nat.gcd_divide_l k l) as Hk'.
 pose proof (Nat.gcd_divide_r k l) as Hl'.
 destruct Hk' as (k', Hk').
 destruct Hl' as (l', Hl').
-remember (gcd k l) as g eqn:Hg .
+remember (Nat.gcd k l) as g eqn:Hg .
 subst k l.
 apply Nat.gcd_div_gcd in Hg.
  rewrite Nat.div_mul in Hg.
@@ -851,7 +856,7 @@ apply Nat.gcd_div_gcd in Hg.
 
        rewrite Nat.gcd_comm; assumption.
 
-     intros H; apply Hlp; subst g; auto.
+     intros H1; apply Hlp; subst g; auto.
 
     intros H; apply Hlp; subst g; auto.
 
@@ -895,7 +900,7 @@ Theorem Nat_divides_lcm_l : ∀ a b, (a | Nat.lcm a b)%nat.
 Proof.
 intros a b.
 unfold Nat.lcm.
-exists (b / gcd a b)%nat.
+exists (b / Nat.gcd a b)%nat.
 apply Nat.mul_comm.
 Qed.
 
