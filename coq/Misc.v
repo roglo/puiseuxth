@@ -18,6 +18,7 @@ Notation "x ∈ l" := (List.In x l) (at level 70).
 Notation "x ∉ l" := (not (List.In x l)) (at level 70).
 
 (* added from 8.4 to 8.5 *)
+Definition divmod := Nat.divmod.
 Definition divide x y := exists z, (y=z*x)%nat.
 Notation "( x | y )" := (divide x y) (at level 0) : nat_scope.
 (* end added *)
@@ -570,7 +571,7 @@ Definition pair_rec A B C (f : A → B → C) := λ xy, f (fst xy) (snd xy).
 
 Definition Plcm a b := Z.to_pos (Z.lcm (Zpos a) (Zpos b)).
 
-Theorem divmod_div : ∀ a b, fst (Nat.divmod a b 0 b) = (a / S b)%nat.
+Theorem divmod_div : ∀ a b, fst (divmod a b 0 b) = (a / S b)%nat.
 Proof. intros a b; reflexivity. Qed.
 
 Theorem Pos2Nat_ne_0 : ∀ a, (Pos.to_nat a ≠ 0)%nat.
@@ -827,7 +828,12 @@ pose proof (Nat.gcd_divide_l k l) as Hk'.
 pose proof (Nat.gcd_divide_r k l) as Hl'.
 destruct Hk' as (k', Hk').
 destruct Hl' as (l', Hl').
+(* 8.4
+remember (gcd k l) as g eqn:Hg .
+*)
+(* 8.5 *)
 remember (Nat.gcd k l) as g eqn:Hg .
+(**)
 subst k l.
 apply Nat.gcd_div_gcd in Hg.
  rewrite Nat.div_mul in Hg.
