@@ -25,7 +25,7 @@ destruct Hαh as [Hαh| Hαh].
  subst pt₁.
  apply minimise_slope_le in Hms.
   apply Sorted_inv_2 in Hsort.
-  destruct Hsort as (Hlt₁).
+  destruct Hsort as (Hlt₁, _).
   eapply Qlt_trans in Hlt₁; [ idtac | eassumption ].
   apply Qle_not_lt in Hms; contradiction.
 
@@ -617,7 +617,7 @@ induction pts as [| pt₄]; intros.
   subst ms; simpl in Hend |- *.
   subst pt₃.
   apply Sorted_inv_2 in Hsort; destruct Hsort as (_, Hsort).
-  apply Sorted_inv_2 in Hsort; destruct Hsort as (H).
+  apply Sorted_inv_2 in Hsort; destruct Hsort as (H, _).
   apply Qlt_irrefl in Hlt; contradiction.
 
   move Hms at top; subst ms₁.

@@ -653,7 +653,6 @@ remember Hns as Hini; clear HeqHini.
 apply exists_ini_pt_nat in Hini.
 destruct Hini as (j, (αj, Hini)).
 rewrite f₁_eq_term_with_Ψ_plus_g; try eassumption.
-destruct Hc₁ as (Hc₁, Hc₁nz).
 unfold ps_poly_nth; simpl.
 rewrite fold_ps_lap_add.
 rewrite ps_lap_nth_add.
@@ -697,7 +696,6 @@ remember Hns as Hini; clear HeqHini.
 apply exists_ini_pt_nat in Hini.
 destruct Hini as (j, (αj, Hini)).
 rewrite f₁_eq_term_with_Ψ_plus_g; try eassumption.
-destruct Hc₁ as (Hc₁, Hc₁nz).
 unfold ps_poly_nth; simpl.
 rewrite fold_ps_lap_add.
 rewrite ps_lap_nth_add.
