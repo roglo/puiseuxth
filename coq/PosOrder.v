@@ -1068,7 +1068,7 @@ induction la as [| a]; intros.
     apply lap_eq_cons_nil_inv in H.
     destruct H; contradiction.
 
-    revert Hlb Hn Hoa; clear; intros.
+    revert Hlb Hn Hoa; clear -K; intros.
     rewrite lap_mul_const_l in Hn.
     induction lb as [| b]; [ contradiction | idtac ].
     simpl in Hn.
@@ -1125,7 +1125,7 @@ induction la as [| a]; intros.
     apply lap_eq_cons_nil_inv in H.
     destruct H; contradiction.
 
-    revert Hlb Hn Hoa; clear; intros.
+    revert Hlb Hn Hoa; clear -K; intros.
     rewrite lap_mul_const_l in Hn.
     induction lb as [| b]; [ contradiction | idtac ].
     simpl in Hn.

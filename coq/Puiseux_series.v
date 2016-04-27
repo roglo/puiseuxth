@@ -133,7 +133,7 @@ Definition ps_monom {α} {r : ring α} (c : α) pow :=
 
 Definition ps_one {α} {r : ring α} := ps_monom rng_one 0.
 
-Notation "a ≐ b" := (eq_ps_strong a b) (at level 70, r at level 0).
+Notation "a ≐ b" := (eq_ps_strong a b) (at level 70).
 Notation "a = b" := (eq_ps a b) : ps_scope.
 Notation "a ≠ b" := (not (eq_ps a b)) : ps_scope.
 Notation "0" := ps_zero : ps_scope.
@@ -1752,7 +1752,11 @@ induction n; intros; simpl.
  rewrite series_order_succ2; symmetry.
  rewrite series_left_shift_left_shift.
  rewrite Nat.add_comm.
- remember (series_order r (series_left_shift (m + p) s) 1) as q.
+(* due to a bug in 8.5 *)
+ remember (@series_order α r (@series_left_shift α (m + p) s) (S O)) as q.
+(*
+ remember (series_order r (series_left_shift (x m p) s) 1) as q.
+*)
  symmetry in Heqq.
  destruct q as [q| ].
   symmetry.

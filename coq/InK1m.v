@@ -249,9 +249,9 @@ destruct (ps_zerop R a) as [Ha| Ha].
 
   left.
   split; [ idtac | reflexivity ].
-  intros H; apply Ha; clear Ha.
-  apply lap_eq_cons_nil_inv in H.
-  destruct H; assumption.
+  intros H1; apply Ha; clear Ha.
+  apply lap_eq_cons_nil_inv in H1.
+  destruct H1; assumption.
 Qed.
 
 Theorem in_K_1_m_lap_add_compat : ∀ m la lb c,

@@ -546,7 +546,7 @@ destruct n as [n| ]; constructor.
 
      intros H; revert Hgp; rewrite H; apply Z.lt_irrefl.
 
-    intros H; revert Hgp; rewrite H; apply Z.lt_irrefl.
+    intros H1; revert Hgp; rewrite H1; apply Z.lt_irrefl.
 
   rewrite greatest_series_x_power_left_shift, Nat.add_0_r.
   rewrite Pos2Nat_to_pos; [ idtac | assumption ].
