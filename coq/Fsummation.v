@@ -493,6 +493,16 @@ destruct k.
   rewrite summation_only_one, rng_add_comm, <- Hfg.
   symmetry.
   rewrite rng_add_comm.
+(**)
+  rewrite Nat_sub_succ_1.
+  rewrite Nat.mul_comm; simpl.
+  rewrite Nat.sub_0_r.
+  apply rng_add_compat_l.
+  apply summation_compat; intros i Hi.
+  rewrite summation_only_one_non_0 with (v := O).
+   rewrite Nat.add_0_r, Nat.mul_comm.
+   apply Hfg.
+(*
   rewrite Nat.add_sub_assoc.
    rewrite Nat.add_comm, Nat.add_sub, Nat.mul_comm.
    apply rng_add_compat_l, summation_compat; intros i Hi.
@@ -502,18 +512,22 @@ destruct k.
    rewrite summation_only_one_non_0 with (v := O).
     rewrite Nat.add_0_r, Nat.mul_comm.
     reflexivity.
+*)
 
-    split; [ reflexivity | apply Nat.le_0_l ].
+   split; [ reflexivity | apply Nat.le_0_l ].
 
-    intros j Hjn Hj.
-    rewrite Hf; [ reflexivity | idtac ].
-    rewrite Nat.add_comm.
-    rewrite Nat.mul_comm, Nat.mod_add; auto.
+   intros j Hjn Hj.
+   rewrite Hf; [ reflexivity | idtac ].
+   rewrite Nat.add_comm.
+   rewrite Nat.mul_comm; auto.
     intros H; apply Hj; clear Hj.
     apply Nat.mod_divides in H; auto.
     destruct H as (c, Hc).
     destruct c.
-     rewrite Nat.mul_0_r in Hc; assumption.
+     rewrite Nat.mul_0_r in Hc.
+     apply Nat.eq_add_0 in Hc.
+     destruct Hc; assumption.
+bbb.
 
      rewrite Hc in Hjn.
      rewrite Nat.mul_comm in Hjn.
