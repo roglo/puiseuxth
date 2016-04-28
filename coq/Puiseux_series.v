@@ -28,16 +28,57 @@ Arguments ps_polord α%type p%ps.
 
 Section axioms.
 
-Axiom LPO : ∀ f : nat → Prop, { i | f i } + ∀ i, ¬ f i.
+Axiom dec_LPO : ∀ P, { i : nat | P i } + ∀ i, ¬ P i.
 
-(**)
+Definition series_non_nul : ∀ α, ring α → power_series α → nat → Nbar :=
+  λ (α : Type) (R : ring α) (s : power_series α) (n : nat),
+  match dec_LPO (λ i : nat, (s .[ n + i] ≠ 0)%K) with
+  | inl (exist _ i _) => fin i
+  | inr _ => ∞
+  end.
+
 Definition series_order : ∀ α, ring α → power_series α → nat → Nbar.
 Proof.
 intros α R s n.
-pose proof LPO (λ i, s.[n+i] ≠ 0)%K as H.
+destruct (dec_LPO (λ i : nat, (s .[ n + i] ≠ 0)%K)) as [(i, Hi)| H].
+ assert (∃ m, ∀ j, (j < m)%nat → (s .[n + j] = 0)%K).
+  revert n Hi.
+  induction i; intros.
+   exists O; intros j Hj.
+   apply Nat.nlt_0_r in Hj; contradiction.
+
+   exists (S n); intros j Hj.
+   rewrite Nat.add_succ_r, <- Nat.add_succ_l in Hi.
+   pose proof IHi _ Hi as H.
+   destruct H as (m, Hm).
+   destruct j.
+bbb.
+(* oui, bon, ça va pas *)
+
+Theorem series_order_iff : ∀ α (R : ring α) s n v, series_order R s n = v ↔
+  match v with
+  | fin k =>
+      (∀ i : nat, (i < k)%nat → (s .[n + i] = 0)%K)
+      ∧ (s .[n + k] ≠ 0)%K
+  | ∞ =>
+      ∀ i : nat, (s .[n + i] = 0)%K
+  end.
+Proof.
+intros.
+split; intros H.
+destruct v as [m | ].
+ split.
+  intros i Him.
+
+ unfold series_order in H; simpl in H.
+
+
+bbb.
+Proof.
+intros α R s n.
+pose proof dec_LPO (λ i, s.[n+i] ≠ 0)%K as H.
 destruct H as [(i, Hi)| H]; [ apply (fin i) | apply inf ].
 Show Proof.
-bbb.
 
 (* [series_order fld s n] returns the number of consecutive null
    coefficients in the series [s], starting from the [n]th one. *)
