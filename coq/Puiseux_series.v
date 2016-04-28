@@ -41,6 +41,7 @@ Definition series_order : ∀ α, ring α → power_series α → nat → Nbar.
 Proof.
 intros α R s n.
 destruct (dec_LPO (λ i : nat, (s .[ n + i] ≠ 0)%K)) as [(i, Hi)| H].
+(* make a lemma to compute the first one *)
 bbb.
 
  assert (Hm : ∃ m, ∀ j, (j < m)%nat → (s .[n + j] = 0)%K).
