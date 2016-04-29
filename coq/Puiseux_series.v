@@ -28,77 +28,7 @@ Arguments ps_polord α%type p%ps.
 
 Section axioms.
 
-(*
 Axiom dec_LPO : ∀ P, { i : nat | P i } + ∀ i, ¬ P i.
-
-Definition series_non_nul : ∀ α, ring α → power_series α → nat → Nbar :=
-  λ (α : Type) (R : ring α) (s : power_series α) (n : nat),
-  match dec_LPO (λ i : nat, (s .[ n + i] ≠ 0)%K) with
-  | inl (exist _ i _) => fin i
-  | inr _ => ∞
-  end.
-
-Definition series_order : ∀ α, ring α → power_series α → nat → Nbar.
-Proof.
-intros α R s n.
-destruct (dec_LPO (λ i : nat, (s .[ n + i] ≠ 0)%K)) as [(i, Hi)| H].
-(* make a lemma to compute the first one *)
-bbb.
-
- assert (Hm : ∃ m, ∀ j, (j < m)%nat → (s .[n + j] = 0)%K).
-  revert i Hi.
-  induction n.
-   exists O; intros j Hj.
-   apply Nat.nlt_0_r in Hj; contradiction.
-
-   intros i Hi.
-   rewrite Nat.add_succ_l, <- Nat.add_succ_r in Hi.
-   pose proof IHn _ Hi as H.
-   destruct H as (m, Hm).
-   exists (S m); intros j Hj.
-   rewrite Nat.add_succ_l, <- Nat.add_succ_r.
-   apply Hm.
-
-   exists (S i); intros j Hj.
-
-  revert n Hi.
-  induction i; intros.
-   exists O; intros j Hj.
-   apply Nat.nlt_0_r in Hj; contradiction.
-
-   exists (S n); intros j Hj.
-   rewrite Nat.add_succ_r, <- Nat.add_succ_l in Hi.
-   pose proof IHi _ Hi as H.
-   destruct H as (m, Hm).
-   destruct j.
-bbb.
-(* oui, bon, ça va pas *)
-
-Theorem series_order_iff : ∀ α (R : ring α) s n v, series_order R s n = v ↔
-  match v with
-  | fin k =>
-      (∀ i : nat, (i < k)%nat → (s .[n + i] = 0)%K)
-      ∧ (s .[n + k] ≠ 0)%K
-  | ∞ =>
-      ∀ i : nat, (s .[n + i] = 0)%K
-  end.
-Proof.
-intros.
-split; intros H.
-destruct v as [m | ].
- split.
-  intros i Him.
-
- unfold series_order in H; simpl in H.
-
-
-bbb.
-Proof.
-intros α R s n.
-pose proof dec_LPO (λ i, s.[n+i] ≠ 0)%K as H.
-destruct H as [(i, Hi)| H]; [ apply (fin i) | apply inf ].
-Show Proof.
-*)
 
 (* [series_order fld s n] returns the number of consecutive null
    coefficients in the series [s], starting from the [n]th one. *)
