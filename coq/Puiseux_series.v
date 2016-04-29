@@ -28,6 +28,7 @@ Arguments ps_polord α%type p%ps.
 
 Section axioms.
 
+(*
 Axiom dec_LPO : ∀ P, { i : nat | P i } + ∀ i, ¬ P i.
 
 Definition series_non_nul : ∀ α, ring α → power_series α → nat → Nbar :=
@@ -97,6 +98,7 @@ intros α R s n.
 pose proof dec_LPO (λ i, s.[n+i] ≠ 0)%K as H.
 destruct H as [(i, Hi)| H]; [ apply (fin i) | apply inf ].
 Show Proof.
+*)
 
 (* [series_order fld s n] returns the number of consecutive null
    coefficients in the series [s], starting from the [n]th one. *)
