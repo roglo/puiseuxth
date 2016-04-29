@@ -30,6 +30,14 @@ Section axioms.
 
 Axiom dec_LPO : ∀ P, { i : nat | P i } + ∀ i, ¬ P i.
 
+Definition series_order : ∀ α, ring α → power_series α → nat → Nbar.
+Proof.
+intros α R s n.
+destruct (dec_LPO (λ i, s.[n+i] ≠ 0)%K) as [(i, Hi)|H]; [ | apply inf ].
+(* mmm... the ring must have a decidable equality... decidability is
+   actually used later; see AlgCloCharPol.v; something to reorder here... *)
+Abort.
+
 (* [series_order fld s n] returns the number of consecutive null
    coefficients in the series [s], starting from the [n]th one. *)
 Axiom series_order : ∀ α, ring α → power_series α → nat → Nbar.
