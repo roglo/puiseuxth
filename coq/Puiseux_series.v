@@ -29,23 +29,20 @@ Arguments ps_polord α%type p%ps.
 Section axioms.
 
 Axiom ring_LPO : ∀ α (R : ring α) (u : nat -> α),
-  (∀ i, (u i = 0)%K) + { i | (u i ≠ 0)%K }.
+  (∀ i, (u i = 0)%K) + { i | (u i ≠ 0)%K ∧ ∀ j, (j < i)%nat → (u j = 0)%K }.
 Arguments ring_LPO {α} {R} u.
+
+(* [series_order rng s n] returns the number of consecutive null
+   coefficients in the series [s], starting from the [n]th one. *)
 
 Definition series_order : ∀ α, ring α → power_series α → nat → Nbar.
 Proof.
 intros α R s n.
 pose proof (ring_LPO (λ j, s.[n+j])) as H.
-destruct H as [H| (i, Hi)]; [ apply ∞ | ].
-(* should be the first one ≠ 0, not necessarily i
-   supposes decidability... *)
-apply (fin i).
-Abort.
+destruct H as [H| (i, (Hi, Hj))]; [ apply ∞ | apply (fin i) ].
+Defined.
 
-(* [series_order fld s n] returns the number of consecutive null
-   coefficients in the series [s], starting from the [n]th one. *)
-Axiom series_order : ∀ α, ring α → power_series α → nat → Nbar.
-Axiom series_order_iff : ∀ α (R : ring α) s n v, series_order R s n = v ↔
+Theorem series_order_iff : ∀ α (R : ring α) s n v, series_order R s n = v ↔
   match v with
   | fin k =>
       (∀ i : nat, (i < k)%nat → (s .[n + i] = 0)%K)
@@ -53,6 +50,32 @@ Axiom series_order_iff : ∀ α (R : ring α) s n v, series_order R s n = v ↔
   | ∞ =>
       ∀ i : nat, (s .[n + i] = 0)%K
   end.
+Proof.
+intros.
+split; intros H.
+ subst v; unfold series_order.
+ destruct (ring_LPO (λ j : nat, s .[ n + j])) as [H1| (l, (H1, H2))].
+  assumption.
+
+  split; assumption.
+
+ unfold series_order.
+ destruct (ring_LPO (λ j : nat, s .[ n + j])) as [H1| (l, (H1, H2))].
+  destruct v as [k| ]; [ | apply eq_refl ].
+  destruct H as (H2, H3); exfalso; apply H3, H1.
+
+  destruct v as [k| ].
+   destruct H as (H3, H4).
+   destruct (lt_eq_lt_dec k l) as [[H| H]| H].
+    exfalso; apply H4, H2, H.
+
+    destruct H; apply eq_refl.
+
+    exfalso; apply H1, H3, H.
+
+   exfalso; apply H1, H.
+Qed.
+
 Arguments series_order α%type _ s%ser n%nat.
 
 (* [greatest_series_x_power fld s n] returns the greatest nat value [k]
