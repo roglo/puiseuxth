@@ -76,6 +76,14 @@ Qed.
 
 Arguments series_order α%type _ s%ser n%nat.
 
+(*
+Fixpoint greatest_series_x_power α (R : ring α) s n :=
+  match series_order R s (S n) with
+  | fin p => Nat.gcd p (greatest_series_x_power R s (S n + p)%nat)
+  | ∞ => O
+  end.
+*)
+
 (* [greatest_series_x_power fld s n] returns the greatest nat value [k]
    such that [s], starting at index [n], is a series in [x^k]. *)
 Fixpoint nth_series_order α (R : ring α) s n b :=
