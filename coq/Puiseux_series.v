@@ -77,6 +77,12 @@ Qed.
 Arguments series_order α%type _ s%ser n%nat.
 
 (*
+Fixpoint series_gcd s n accu :=
+  match n with
+  | O => accu
+  | S n' => series_gcd s n' (Nat.gcd s.[n'] accu)
+  end.
+
 Fixpoint greatest_series_x_power α (R : ring α) s n :=
   match series_order R s (S n) with
   | fin p => Nat.gcd p (greatest_series_x_power R s (S n + p)%nat)
