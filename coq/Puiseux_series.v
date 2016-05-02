@@ -28,6 +28,26 @@ Arguments ps_polord α%type p%ps.
 
 Section axioms.
 
+(*
+Axiom LPO : ∀ (u : nat → nat), { ∀ i, u i = O } + { ∃ i, u i ≠ O }.
+
+Theorem ring_LPO : ∀ α (R : ring α) (u : nat -> α),
+  (∀ i, (u i = 0)%K) + { i | (u i ≠ 0)%K ∧ ∀ j, (j < i)%nat → (u j = 0)%K }.
+Proof.
+intros.
+assert (Kdec : ∀ a, { (a = 0)%K } + { (a ≠ 0)%K }).
+Focus 2.
+pose proof (LPO (λ i, if Kdec (u i) then O else S O)) as H.
+destruct H as [H| H].
+ left; intros i.
+ pose proof H i as Hi.
+ destruct (Kdec (u i)); [ assumption | discriminate Hi ].
+
+ right.
+ destruct H as (i, Hi).
+Error: Case analysis on sort Set is not allowed for inductive definition ex.
+*)
+
 Axiom ring_LPO : ∀ α (R : ring α) (u : nat -> α),
   (∀ i, (u i = 0)%K) + { i | (u i ≠ 0)%K ∧ ∀ j, (j < i)%nat → (u j = 0)%K }.
 Arguments ring_LPO {α} {R} u.
