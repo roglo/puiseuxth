@@ -1787,11 +1787,12 @@ induction n; intros; simpl.
  rewrite series_order_succ2; symmetry.
  rewrite series_left_shift_left_shift.
  rewrite Nat.add_comm.
-(* due to a bug in 8.5 *)
+(* due to a bug in 8.5
  remember (@series_order α r (@series_left_shift α (m + p) s) (S O)) as q.
-(*
- remember (series_order r (series_left_shift (x m p) s) 1) as q.
-*)
+ *)
+(* bug in 8.5 fixed, or before 8.5 *)
+ remember (series_order r (series_left_shift (m + p) s) 1) as q.
+(**)
  symmetry in Heqq.
  destruct q as [q| ].
   symmetry.
