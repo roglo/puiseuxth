@@ -64,16 +64,14 @@ split; intros H.
   destruct v as [k| ]; [ | apply eq_refl ].
   destruct H as (H2, H3); exfalso; apply H3, H1.
 
-  destruct v as [k| ].
-   destruct H as (H3, H4).
-   destruct (lt_eq_lt_dec k l) as [[H| H]| H].
-    exfalso; apply H4, H2, H.
+  destruct v as [k| ]; [ | exfalso; apply H1, H ].
+  destruct H as (H3, H4).
+  destruct (lt_eq_lt_dec k l) as [[H| H]| H].
+   exfalso; apply H4, H2, H.
 
-    destruct H; apply eq_refl.
+   destruct H; apply eq_refl.
 
-    exfalso; apply H1, H3, H.
-
-   exfalso; apply H1, H.
+   exfalso; apply H1, H3, H.
 Qed.
 
 Arguments series_order α%type _ s%ser n%nat.
