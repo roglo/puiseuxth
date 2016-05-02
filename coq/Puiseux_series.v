@@ -28,7 +28,19 @@ Arguments ps_polord α%type p%ps.
 
 Section axioms.
 
-Axiom dec_LPO : ∀ P, { i : nat | P i } + ∀ i, ¬ P i.
+Axiom ring_LPO : ∀ α (R : ring α) (u : nat -> α),
+  (∀ i, (u i = 0)%K) + { i | (u i ≠ 0)%K }.
+Arguments ring_LPO {α} {R} u.
+
+Definition series_order : ∀ α, ring α → power_series α → nat → Nbar.
+Proof.
+intros α R s n.
+pose proof (ring_LPO (λ j, s.[n+j])) as H.
+destruct H as [H| (i, Hi)]; [ apply ∞ | ].
+(* should be the first one ≠ 0, not necessarily i
+   supposes decidability... *)
+apply (fin i).
+Abort.
 
 (* [series_order fld s n] returns the number of consecutive null
    coefficients in the series [s], starting from the [n]th one. *)
