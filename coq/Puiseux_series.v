@@ -28,8 +28,8 @@ Arguments ps_polord α%type p%ps.
 
 Section axioms.
 
-(*
-Axiom LPO : ∀ (u : nat → nat), { ∀ i, u i = O } + { ∃ i, u i ≠ O }.
+(**)
+Axiom LPO : ∀ (u : nat → nat), ( ∀ i, u i = O ) + { i : nat | u i ≠ O }.
 
 Theorem ring_LPO : ∀ α (R : ring α) (u : nat -> α),
   (∀ i, (u i = 0)%K) + { i | (u i ≠ 0)%K ∧ ∀ j, (j < i)%nat → (u j = 0)%K }.
@@ -45,8 +45,9 @@ destruct H as [H| H].
 
  right.
  destruct H as (i, Hi).
-Error: Case analysis on sort Set is not allowed for inductive definition ex.
-*)
+ exists i; split.
+ destruct (Kdec (u i)); [ exfalso; apply Hi, eq_refl | assumption ].
+Abort. (* needs decidability of equality on R *)
 
 Axiom ring_LPO : ∀ α (R : ring α) (u : nat -> α),
   (∀ i, (u i = 0)%K) + { i | (u i ≠ 0)%K ∧ ∀ j, (j < i)%nat → (u j = 0)%K }.
