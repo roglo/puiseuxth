@@ -32,7 +32,7 @@ Axiom LPO : ∀ (u : nat → nat), ( ∀ i, u i = O ) + { i : nat | u i ≠ O }.
 
 Fixpoint first_such_that (P : nat → bool) n i :=
   match n with
-  | O => O
+  | O => i
   | S n' => if P i then i else first_such_that P n' (S i)
   end.
 
@@ -49,9 +49,25 @@ destruct H as [H| H].
  right.
  destruct H as (i, Hi).
  destruct (fld_zerop (u i)); [ exfalso; apply Hi, eq_refl | clear Hi ].
- set (f j := if fld_zerop (u j) then false else true).
- set (m := first_such_that f i O).
+ set (P j := if fld_zerop (u j) then false else true).
+ set (m := first_such_that P i O).
  exists m; split.
+  unfold m; clear m.
+
+bbb.
+
+  induction i as (i, IHi) using all_lt_all.
+  destruct i; [ assumption | simpl ].
+  remember (f O) as x eqn:Hx.
+  destruct x.
+   unfold f in Hx; simpl in Hx.
+   destruct (fld_zerop (u O)); [ discriminate Hx | assumption ].
+
+   unfold f in Hx; simpl in Hx.
+   destruct (fld_zerop (u O)); [ | discriminate Hx ].
+   pose proof IHi i (Nat.lt_succ_diag_r i) as Hi.
+bbb.
+
 Abort. (* to be completed *)
 
 Axiom ring_LPO : ∀ α (R : ring α) (u : nat -> α),
