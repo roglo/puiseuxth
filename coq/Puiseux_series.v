@@ -30,6 +30,12 @@ Section axioms.
 
 Axiom LPO : ∀ (u : nat → nat), ( ∀ i, u i = O ) + { i : nat | u i ≠ O }.
 
+Fixpoint first_such_that (P : nat → bool) n i :=
+  match n with
+  | O => O
+  | S n' => if P i then i else first_such_that P n' (S i)
+  end.
+
 Theorem field_LPO : ∀ α (R : ring α) (K : field R) (u : nat -> α),
   (∀ i, (u i = 0)%K) + { i | (u i ≠ 0)%K ∧ ∀ j, (j < i)%nat → (u j = 0)%K }.
 Proof.
@@ -43,7 +49,10 @@ destruct H as [H| H].
  right.
  destruct H as (i, Hi).
  destruct (fld_zerop (u i)); [ exfalso; apply Hi, eq_refl | clear Hi ].
-Abort. (* search the first i such that u i ≠ 0 *)
+ set (f j := if fld_zerop (u j) then false else true).
+ set (m := first_such_that f i O).
+ exists m; split.
+Abort. (* to be completed *)
 
 Axiom ring_LPO : ∀ α (R : ring α) (u : nat -> α),
   (∀ i, (u i = 0)%K) + { i | (u i ≠ 0)%K ∧ ∀ j, (j < i)%nat → (u j = 0)%K }.
