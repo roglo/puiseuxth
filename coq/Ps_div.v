@@ -305,12 +305,6 @@ Definition ps_ring α (R : ring α) : ring (puiseux_series α) :=
 
 Canonical Structure ps_ring.
 
-Definition ps_field α {R : ring α} {K : field R} : field (ps_ring R) :=
-  {| fld_inv := ps_inv;
-     fld_mul_inv_l := ps_mul_inv_l K |}.
-
-Canonical Structure ps_field.
-
 Fixpoint ps_power {α} {r : ring α} la n :=
   match n with
   | O => 1%ps

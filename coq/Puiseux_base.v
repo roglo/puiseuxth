@@ -311,3 +311,10 @@ destruct na as [na| ].
  rewrite Hab in Hnb.
  subst nb; reflexivity.
 Qed.
+
+Definition ps_field α {R : ring α} {K : field R} : field (ps_ring R) :=
+  {| fld_inv := ps_inv;
+     fld_mul_inv_l := ps_mul_inv_l K;
+     fld_zerop := ps_zerop R |}.
+
+Canonical Structure ps_field.

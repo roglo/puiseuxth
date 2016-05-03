@@ -334,7 +334,7 @@ Definition degree α {R : ring α} zerop (pol : polynomial α) :=
   pred (degree_plus_1_of_list zerop (al pol)).
 
 (* actually, field which is:
-   - with decidable equality
+   - with decidable equality (should be removed rapidly because now in field)
    - with characteristic 0 or 1
    - algebraically closed *)
 Class algeb_closed_field α (ac_ring : ring α) (ac_field : field ac_ring) :=

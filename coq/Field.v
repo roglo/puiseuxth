@@ -296,9 +296,12 @@ Class field α (rng_ring : ring α) :=
   { fld_inv : α → α;
     fld_mul_inv_l : ∀ a,
       not (rng_eq a rng_zero)
-      → rng_eq (rng_mul (fld_inv a) a) rng_one }.
-
+      → rng_eq (rng_mul (fld_inv a) a) rng_one;
+    fld_zerop : ∀ a, { rng_eq a rng_zero } + { not (rng_eq a rng_zero) } }.
 Notation "¹/ a" := (fld_inv a) : field_scope.
+
+(* Decidability of equality has been added for our field (fld_zerop),
+   because it is required by the theorem. *)
 
 Section field_theorems.
 

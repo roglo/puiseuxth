@@ -28,26 +28,22 @@ Arguments ps_polord α%type p%ps.
 
 Section axioms.
 
-(**)
 Axiom LPO : ∀ (u : nat → nat), ( ∀ i, u i = O ) + { i : nat | u i ≠ O }.
 
-Theorem ring_LPO : ∀ α (R : ring α) (u : nat -> α),
+Theorem field_LPO : ∀ α (R : ring α) (K : field R) (u : nat -> α),
   (∀ i, (u i = 0)%K) + { i | (u i ≠ 0)%K ∧ ∀ j, (j < i)%nat → (u j = 0)%K }.
 Proof.
 intros.
-assert (Kdec : ∀ a, { (a = 0)%K } + { (a ≠ 0)%K }).
-Focus 2.
-pose proof (LPO (λ i, if Kdec (u i) then O else S O)) as H.
+pose proof (LPO (λ i, if fld_zerop (u i) then O else S O)) as H.
 destruct H as [H| H].
  left; intros i.
  pose proof H i as Hi.
- destruct (Kdec (u i)); [ assumption | discriminate Hi ].
+ destruct (fld_zerop (u i)); [ assumption | discriminate Hi ].
 
  right.
  destruct H as (i, Hi).
- exists i; split.
- destruct (Kdec (u i)); [ exfalso; apply Hi, eq_refl | assumption ].
-Abort. (* needs decidability of equality on R *)
+ destruct (fld_zerop (u i)); [ exfalso; apply Hi, eq_refl | clear Hi ].
+Abort. (* search the first i such that u i ≠ 0 *)
 
 Axiom ring_LPO : ∀ α (R : ring α) (u : nat -> α),
   (∀ i, (u i = 0)%K) + { i | (u i ≠ 0)%K ∧ ∀ j, (j < i)%nat → (u j = 0)%K }.
