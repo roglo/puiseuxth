@@ -29,37 +29,37 @@ Set Implicit Arguments.
 (* *)
 
 (* pol₁(x,y₁) = x^(-β₁).pol(x,x^γ₁.(c₁ + y₁)) *)
-Definition next_lap α {R : ring α} pol β₁ γ₁ (c₁ : α) :=
-  let _ := ps_ring R in
+Definition next_lap α {R : ring α} {K : field R} pol β₁ γ₁ (c₁ : α) :=
+  let _ := ps_ring K in
   ([ps_monom 1%K (- β₁)] *
    lap_compose pol [ps_monom c₁ γ₁; ps_monom 1%K γ₁ … []])%lap.
 
-Definition next_pol α {R : ring α} pol β₁ γ₁ c₁ :=
+Definition next_pol α {R : ring α} {K : field R} pol β₁ γ₁ c₁ :=
   (POL (next_lap (al pol) β₁ γ₁ c₁))%pol.
 
 (* *)
 
-Definition lap_summation α {R : ring α} (li : list nat) g :=
+Definition lap_summation α {R : ring α} {K : field R} (li : list nat) g :=
   List.fold_right (λ i accu, lap_add accu (g i)) [] li.
 
-Definition poly_summation α {R : ring α} (li : list nat) g :=
+Definition poly_summation α {R : ring α} {K : field R} (li : list nat) g :=
   (POL (lap_summation li (λ i, al (g i))))%pol.
 
-Definition lap_inject_K_in_Kx α {R : ring α} la :=
+Definition lap_inject_K_in_Kx α {R : ring α} {K : field R} la :=
   List.map (λ c, ps_monom c 0) la.
 
-Definition poly_inject_K_in_Kx α {R : ring α} pol :=
+Definition poly_inject_K_in_Kx α {R : ring α} {K : field R} pol :=
   (POL (lap_inject_K_in_Kx (al pol)))%pol.
 
-Definition ps_lap_summ α {R : ring α} ln f :=
-  @lap_summation (puiseux_series α) (ps_ring R) ln f.
+Definition ps_lap_summ α {R : ring α} {K : field R} ln f :=
+  @lap_summation (puiseux_series α) (ps_ring K) ln f.
 
-Definition ps_pol_summ α {R : ring α} ln f :=
-  @poly_summation (puiseux_series α) (ps_ring R) ln f.
+Definition ps_pol_summ α {R : ring α} {K : field R} ln f :=
+  @poly_summation (puiseux_series α) (ps_ring K) ln f.
 
 (* *)
 
-Add Parametric Morphism α (r : ring α) : ps_monom
+Add Parametric Morphism α (r : ring α) (K : field r) : ps_monom
   with signature rng_eq ==> Qeq ==> eq_ps
   as ps_monom_qeq_morph.
 Proof.
@@ -119,8 +119,9 @@ destruct (zerop (i mod Pos.to_nat (Qden p))) as [H₁| H₁].
   reflexivity.
 Qed.
 
-Add Parametric Morphism α (R : ring α) : (@lap_inject_K_in_Kx _ R)
-  with signature @lap_eq _ R ==> @lap_eq _ (ps_ring R)
+Add Parametric Morphism α (R : ring α) (K : field R) :
+    (@lap_inject_K_in_Kx _ R K)
+  with signature @lap_eq _ R ==> @lap_eq _ (ps_ring K)
   as lap_inject_k_in_Kx_morph.
 Proof.
 intros la lb Hab.
@@ -152,8 +153,9 @@ induction la as [| a]; intros; simpl.
   apply IHla; assumption.
 Qed.
 
-Add Parametric Morphism α (R : ring α) : (@poly_inject_K_in_Kx _ R)
-  with signature eq_poly ==> @eq_poly _ (ps_ring R)
+Add Parametric Morphism α (R : ring α) (K : field R) :
+    (@poly_inject_K_in_Kx _ R K)
+  with signature eq_poly ==> @eq_poly _ (ps_ring K)
   as poly_inject_k_in_Kx_morph.
 Proof.
 intros P Q HPQ.
@@ -175,6 +177,7 @@ Section on_fields.
 
 Variable α : Type.
 Variable R : ring α.
+Variable K : field R.
 
 Theorem split_summation : ∀ g l l₁ l₂,
   split_list l l₁ l₂
@@ -1502,7 +1505,7 @@ assert (∀ iq αi, (iq, αi) ∈ pl → ∃ i, iq = Qnat i) as Hnat.
          apply Hm; right; assumption.
 
         rewrite Hz; simpl.
-        set (f' := ps_ring R).
+        set (f' := ps_ring K).
         rewrite lap_eq_cons_nil; [ idtac | simpl | reflexivity ].
          rewrite lap_mul_nil_l, lap_mul_nil_r, lap_add_nil_r; reflexivity.
 
@@ -1518,7 +1521,7 @@ Qed.
 (* to be moved to the right file... *)
 Theorem ps_monom_summation_aux : ∀ f b len,
   (ps_monom (summation_aux R b len f) 0 =
-   summation_aux (ps_ring R) b len (λ i, ps_monom (f i) 0))%ps.
+   summation_aux (ps_ring K) b len (λ i, ps_monom (f i) 0))%ps.
 Proof.
 intros f b len.
 revert b.

@@ -334,25 +334,23 @@ Definition degree α {R : ring α} zerop (pol : polynomial α) :=
   pred (degree_plus_1_of_list zerop (al pol)).
 
 (* actually, field which is:
-   - with decidable equality (should be removed rapidly because now in field)
    - with characteristic 0 or 1
    - algebraically closed *)
 Class algeb_closed_field α (ac_ring : ring α) (ac_field : field ac_ring) :=
-  { ac_zerop : ∀ a, {(a = 0)%K} + {(a ≠ 0)%K};
-    ac_charac_01 : ∀ n, (rng_mul_nat ac_ring (S (S n)) 1 ≠ 0)%K;
+  { ac_charac_01 : ∀ n, (rng_mul_nat ac_ring (S (S n)) 1 ≠ 0)%K;
     ac_root : polynomial α → α;
-    ac_prop_root : ∀ pol, degree ac_zerop pol ≥ 1
+    ac_prop_root : ∀ pol, degree fld_zerop pol ≥ 1
       → (apply_poly pol (ac_root pol) = 0)%K }.
 
 Definition ac_is_zero α {R : ring α} {K : field R}
-  {acf : algeb_closed_field K} (x : α) := if ac_zerop x then True else False.
+  {acf : algeb_closed_field K} (x : α) := if fld_zerop x then True else False.
 
 Fixpoint list_root_multiplicity
     α {r : ring α} {K : field r} (acf : algeb_closed_field K) c la d :=
   match d with
   | O => O
   | S d₁ =>
-      if ac_zerop (lap_mod_deg_1 la c) then
+      if fld_zerop (lap_mod_deg_1 la c) then
         S (list_root_multiplicity acf c (lap_div_deg_1 la c) d₁)
       else O
   end.
@@ -478,7 +476,7 @@ intros la d c md n Hn Hmd.
 destruct d; [ discriminate Hn | simpl in Hn ].
 split; [ intros H; discriminate H | idtac ].
 unfold ac_is_zero.
-destruct (ac_zerop (lap_mod_deg_1 la c)) as [Hz| Hnz].
+destruct (fld_zerop (lap_mod_deg_1 la c)) as [Hz| Hnz].
  split; [ constructor | idtac ].
  apply eq_add_S; assumption.
 
@@ -504,17 +502,17 @@ assert (∀ cnt k₁, length (list_shrink_aux cnt k₁ l) ≤ length l) as H.
 Qed.
 
 Theorem degree_plus_1_is_0 : ∀ la,
-  degree_plus_1_of_list ac_zerop la = 0%nat
+  degree_plus_1_of_list fld_zerop la = 0%nat
   → lap_eq la [].
 Proof.
 intros la H.
 induction la as [| a]; [ reflexivity | idtac ].
 simpl in H.
-remember (degree_plus_1_of_list ac_zerop la) as d eqn:Hd .
+remember (degree_plus_1_of_list fld_zerop la) as d eqn:Hd .
 symmetry in Hd.
 destruct d; [ idtac | discriminate H ].
 constructor; [ idtac | apply IHla; reflexivity ].
-destruct (ac_zerop a); [ assumption | discriminate H ].
+destruct (fld_zerop a); [ assumption | discriminate H ].
 Qed.
 
 Theorem lap_eq_nil_nth : ∀ la,
@@ -553,7 +551,7 @@ Qed.
 Theorem cpol_degree_ge_1 : ∀ pol ns m,
   ns ∈ newton_segments pol
   → pol_in_K_1_m pol m
-  → degree ac_zerop (Φq pol ns) ≥ 1.
+  → degree fld_zerop (Φq pol ns) ≥ 1.
 Proof.
 intros pol ns m Hns Hm.
 remember (Pos.to_nat (q_of_m m (γ ns))) as q eqn:Hq .
@@ -605,7 +603,7 @@ eapply q_is_factor_of_h_minus_j with (h := k) in Hqkj; try eassumption.
   remember (List.map (term_of_point pol) pts) as tl eqn:Htl .
   subst la; simpl.
   remember (make_char_pol R (S j) tl) as cpol eqn:Hcpol .
-  remember (degree_plus_1_of_list ac_zerop cpol) as d eqn:Hd .
+  remember (degree_plus_1_of_list fld_zerop cpol) as d eqn:Hd .
   symmetry in Hd.
   destruct d; [ exfalso | apply le_n_S, Nat.le_0_l ].
   subst cpol.
@@ -653,7 +651,7 @@ induction r; intros; simpl.
  apply root_formula.
  apply lap_mod_deg_1_apply.
  unfold ac_is_zero in Hz.
- destruct (ac_zerop (lap_mod_deg_1 la c)) as [H| H].
+ destruct (fld_zerop (lap_mod_deg_1 la c)) as [H| H].
   rewrite H; reflexivity.
 
   contradiction.
@@ -680,7 +678,7 @@ induction r; intros; simpl.
   simpl in Hlen.
   apply le_S_n in Hlen.
   simpl in Happ.
-  destruct (ac_zerop (apply_lap la c * c + a)%K).
+  destruct (fld_zerop (apply_lap la c * c + a)%K).
    discriminate Hmult.
 
    contradiction.
@@ -690,7 +688,7 @@ induction r; intros; simpl.
   exfalso; apply Hla; reflexivity.
 
   simpl in Hmult.
-  destruct (ac_zerop (lap_mod_deg_1 la c)) as [Hz| Hnz].
+  destruct (fld_zerop (lap_mod_deg_1 la c)) as [Hz| Hnz].
    apply eq_add_S in Hmult.
    destruct la as [| a]; [ exfalso; apply Hla; reflexivity | idtac ].
    simpl in Hlen.
