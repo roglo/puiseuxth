@@ -20,11 +20,12 @@ Definition adjust_ps α {R : ring α} n k ps :=
 Section first_theorems.
 
 Variable α : Type.
-Variable r : ring α.
+Variable R : ring α.
+Variable K : field R.
 
 Theorem ncrl_inf_gsxp : ∀ s n,
-  series_order r s (S n) = ∞
-  → greatest_series_x_power r s n = O.
+  series_order s (S n) = ∞
+  → greatest_series_x_power K s n = O.
 Proof.
 intros s n Hn.
 apply greatest_series_x_power_iff.
@@ -32,11 +33,11 @@ rewrite Hn; reflexivity.
 Qed.
 
 Theorem greatest_series_x_power_stretch_inf : ∀ s b k,
-  series_order r s (S b) = ∞
-  → greatest_series_x_power r (series_stretch k s) (b * Pos.to_nat k) = O.
+  series_order s (S b) = ∞
+  → greatest_series_x_power K (series_stretch k s) (b * Pos.to_nat k) = O.
 Proof.
 intros s b k Hs.
-remember (greatest_series_x_power r s b) as n eqn:Hn .
+remember (greatest_series_x_power K s b) as n eqn:Hn .
 symmetry in Hn.
 apply greatest_series_x_power_iff in Hn.
 apply greatest_series_x_power_iff.
@@ -60,7 +61,7 @@ unfold normalise_ps; simpl.
 rewrite series_order_shift.
 rewrite series_order_stretch_0.
 rewrite Nbar.add_comm, Nbar.mul_comm.
-remember (series_order r (ps_terms ps) 0) as m eqn:Hm .
+remember (series_order (ps_terms ps) 0) as m eqn:Hm .
 symmetry in Hm.
 destruct m as [m| ]; simpl; [ idtac | reflexivity ].
 rewrite greatest_series_x_power_shift.
@@ -70,9 +71,9 @@ rewrite Z.sub_add.
 rewrite Nat2Z.inj_mul, positive_nat_Z.
 rewrite <- Z.mul_add_distr_r.
 rewrite Z.mul_comm.
-remember (series_order r (ps_terms ps) (S m)) as p eqn:Hp .
+remember (series_order (ps_terms ps) (S m)) as p eqn:Hp .
 symmetry in Hp.
-remember (greatest_series_x_power r (ps_terms ps) m) as x.
+remember (greatest_series_x_power K (ps_terms ps) m) as x.
 pose proof (gcd_ps_is_pos m x ps) as Hgp; subst x.
 destruct p as [p| ].
  erewrite greatest_series_x_power_stretch.
@@ -236,7 +237,8 @@ Notation "a - b" := (ps_add a (ps_opp b)) : ps_scope.
 Section theorems_add.
 
 Variable α : Type.
-Variable r : ring α.
+Variable R : ring α.
+Variable K : field R.
 
 Theorem series_stretch_add_distr : ∀ k s₁ s₂,
   (series_stretch k (s₁ + s₂) =
@@ -361,7 +363,7 @@ intros ps₁ ps₂ ps₃.
 unfold normalise_ps; simpl.
 rewrite ps_terms_add_assoc.
 remember (ps₂ + ps₃)%ps as x.
-remember (series_order r (ps_terms_add ps₁ x) 0) as n.
+remember (series_order (ps_terms_add ps₁ x) 0) as n.
 subst x.
 rename Heqn into Hn.
 symmetry in Hn.

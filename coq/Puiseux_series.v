@@ -88,21 +88,27 @@ destruct H as [H| H].
  split; [ apply Nat.le_0_l | assumption ].
 Qed.
 
+Arguments field_LPO {α} {R} {K} u.
+
+(*
 Axiom ring_LPO : ∀ α (R : ring α) (u : nat -> α),
   (∀ i, (u i = 0)%K) + { i | (u i ≠ 0)%K ∧ ∀ j, (j < i)%nat → (u j = 0)%K }.
 Arguments ring_LPO {α} {R} u.
+*)
 
 (* [series_order rng s n] returns the number of consecutive null
    coefficients in the series [s], starting from the [n]th one. *)
 
-Definition series_order : ∀ α, ring α → power_series α → nat → Nbar.
+Definition series_order {α} {R : ring α} {K : field R} :
+  power_series α → nat → Nbar.
 Proof.
-intros α R s n.
-pose proof (ring_LPO (λ j, s.[n+j])) as H.
+intros s n.
+pose proof (field_LPO (λ j, s.[n+j])) as H.
 destruct H as [H| (i, (Hi, Hj))]; [ apply ∞ | apply (fin i) ].
 Defined.
 
-Theorem series_order_iff : ∀ α (R : ring α) s n v, series_order R s n = v ↔
+Theorem series_order_iff {α} {R : ring α} {F : field R} :
+  ∀ s n v, series_order s n = v ↔
   match v with
   | fin k =>
       (∀ i : nat, (i < k)%nat → (s .[n + i] = 0)%K)
@@ -114,13 +120,13 @@ Proof.
 intros.
 split; intros H.
  subst v; unfold series_order.
- destruct (ring_LPO (λ j : nat, s .[ n + j])) as [H1| (l, (H1, H2))].
+ destruct (field_LPO (λ j : nat, s .[ n + j])) as [H1| (l, (H1, H2))].
   assumption.
 
   split; assumption.
 
  unfold series_order.
- destruct (ring_LPO (λ j : nat, s .[ n + j])) as [H1| (l, (H1, H2))].
+ destruct (field_LPO (λ j : nat, s .[ n + j])) as [H1| (l, (H1, H2))].
   destruct v as [k| ]; [ | apply eq_refl ].
   destruct H as (H2, H3); exfalso; apply H3, H1.
 
@@ -134,7 +140,7 @@ split; intros H.
    exfalso; apply H1, H3, H.
 Qed.
 
-Arguments series_order α%type _ s%ser n%nat.
+Arguments series_order _ _ _ s%ser n%nat.
 
 (*
 Fixpoint series_gcd s n accu :=
@@ -152,29 +158,30 @@ Fixpoint greatest_series_x_power α (R : ring α) s n :=
 
 (* [greatest_series_x_power fld s n] returns the greatest nat value [k]
    such that [s], starting at index [n], is a series in [x^k]. *)
-Fixpoint nth_series_order α (R : ring α) s n b :=
-  match series_order R s (S b) with
+Fixpoint nth_series_order α (R : ring α) (K : field R) s n b :=
+  match series_order s (S b) with
   | fin p =>
       match n with
       | O => S p
-      | S n₁ => nth_series_order R s n₁ (S b + p)%nat
+      | S n₁ => nth_series_order K s n₁ (S b + p)%nat
       end
   | ∞ => O
   end.
-Definition is_a_series_in_x_power α {R : ring α} s b k :=
-  ∀ n, (k | nth_series_order R s n b).
+Definition is_a_series_in_x_power α {R : ring α} {K : field R} s b k :=
+  ∀ n, (k | nth_series_order K s n b).
 
-Axiom greatest_series_x_power : ∀ α, ring α → power_series α → nat → nat.
-Axiom greatest_series_x_power_iff : ∀ α (R : ring α) s n k,
-  greatest_series_x_power R s n = k ↔
-  match series_order R s (S n) with
+Axiom greatest_series_x_power : ∀ α (R : ring α) (K : field R),
+  power_series α → nat → nat.
+Axiom greatest_series_x_power_iff : ∀ α (R : ring α) (K : field R) s n k,
+  greatest_series_x_power K s n = k ↔
+  match series_order s (S n) with
   | fin _ =>
       is_a_series_in_x_power s n k ∧
-      (∀ k', (k < k')%nat → ∃ n', ¬(k' | nth_series_order R s n' n))
+      (∀ k', (k < k')%nat → ∃ n', ¬(k' | nth_series_order K s n' n))
   | ∞ =>
       k = O
   end.
-Arguments greatest_series_x_power α%type _ s%ser n%nat.
+Arguments greatest_series_x_power α%type _ _ s%ser n%nat.
 
 End axioms.
 
@@ -206,10 +213,10 @@ Definition gcd_ps α n k (ps : puiseux_series α) :=
 Definition ps_zero {α} {r : ring α} :=
   {| ps_terms := 0%ser; ps_ordnum := 0; ps_polord := 1 |}.
 
-Definition normalise_ps α {R : ring α} ps :=
-  match series_order R (ps_terms ps) 0 with
+Definition normalise_ps α {R : ring α} {K : field R} ps :=
+  match series_order (ps_terms ps) 0 with
   | fin n =>
-      let k := greatest_series_x_power R (ps_terms ps) n in
+      let k := greatest_series_x_power K (ps_terms ps) n in
       let g := gcd_ps n k ps in
       {| ps_terms := normalise_series n (Z.to_pos g) (ps_terms ps);
          ps_ordnum := (ps_ordnum ps + Z.of_nat n) / g;
@@ -218,7 +225,7 @@ Definition normalise_ps α {R : ring α} ps :=
       ps_zero
   end.
 
-Arguments normalise_ps _ _ ps%ps.
+Arguments normalise_ps _ _ _ ps%ps.
 
 Inductive eq_ps_strong {α} {r : ring α} :
   puiseux_series α → puiseux_series α → Prop :=
@@ -228,12 +235,12 @@ Inductive eq_ps_strong {α} {r : ring α} :
         → eq_series (ps_terms ps₁) (ps_terms ps₂)
           → eq_ps_strong ps₁ ps₂.
 
-Inductive eq_ps {α} {r : ring α} :
+Inductive eq_ps {α} {r : ring α} {K : field r} :
   puiseux_series α → puiseux_series α → Prop :=
   | eq_ps_base : ∀ ps₁ ps₂,
       eq_ps_strong (normalise_ps ps₁) (normalise_ps ps₂)
       → eq_ps ps₁ ps₂.
-Arguments eq_ps _ _ ps₁%ps ps₂%ps.
+Arguments eq_ps _ _ _ ps₁%ps ps₂%ps.
 
 Definition ps_monom {α} {r : ring α} (c : α) pow :=
   {| ps_terms := {| terms i := if zerop i then c else 0%K |};
@@ -283,13 +290,13 @@ intros a b Hab v n.
 constructor; [ reflexivity | reflexivity | assumption ].
 Qed.
 
-Add Parametric Morphism α (r : ring α) : (series_order r)
+Add Parametric Morphism α (r : ring α) (K : field r) : series_order
   with signature eq_series ==> eq ==> eq
   as series_order_morph.
 Proof.
 intros s₁ s₂ Heq n.
-remember (series_order r s₁ n) as n₁ eqn:Hn₁ .
-remember (series_order r s₂ n) as n₂ eqn:Hn₂ .
+remember (series_order s₁ n) as n₁ eqn:Hn₁ .
+remember (series_order s₂ n) as n₂ eqn:Hn₂ .
 symmetry in Hn₁, Hn₂.
 apply series_order_iff in Hn₁.
 apply series_order_iff in Hn₂.
@@ -316,26 +323,27 @@ destruct n₁ as [n₁| ].
  exfalso; apply Hnz₂; rewrite <- Heq; apply Hn₁.
 Qed.
 
-Add Parametric Morphism α (r : ring α) : (nth_series_order r)
+Add Parametric Morphism α (r : ring α) (K : field r) : (nth_series_order K)
   with signature eq_series ==> eq ==> eq ==> eq
   as nth_series_order_morph.
 Proof.
 intros s₁ s₂ Heq c n.
 revert n.
 induction c; intros; simpl; rewrite Heq; [ reflexivity | idtac ].
-destruct (series_order r s₂ (S n)); [ apply IHc | reflexivity ].
+destruct (series_order s₂ (S n)); [ apply IHc | reflexivity ].
 Qed.
 
-Add Parametric Morphism α (r : ring α) : (greatest_series_x_power r)
+Add Parametric Morphism α (r : ring α) (K : field r) :
+  (greatest_series_x_power K)
   with signature eq_series ==> eq ==> eq
   as greatest_series_x_power_morph.
 Proof.
 intros s₁ s₂ Heq n.
-remember (greatest_series_x_power r s₂ n) as k eqn:Hk .
+remember (greatest_series_x_power K s₂ n) as k eqn:Hk .
 symmetry in Hk.
 apply greatest_series_x_power_iff in Hk.
 apply greatest_series_x_power_iff.
-remember (series_order r s₁ (S n)) as p₁ eqn:Hp₁ .
+remember (series_order s₁ (S n)) as p₁ eqn:Hp₁ .
 symmetry in Hp₁.
 rewrite Heq in Hp₁.
 rewrite Hp₁ in Hk.
@@ -401,7 +409,7 @@ unfold series_shrink, series_left_shift; simpl.
 apply H.
 Qed.
 
-Add Parametric Morphism α (R : ring α) : (@normalise_ps _ R)
+Add Parametric Morphism α (R : ring α) (K : field R) : (@normalise_ps _ R K)
   with signature eq_ps_strong ==> eq_ps_strong
   as normalise_ps_morph.
 Proof.
@@ -409,7 +417,7 @@ intros ps₁ ps₂ Heq.
 inversion Heq; subst.
 unfold normalise_ps.
 rewrite H, H0, H1.
-remember (series_order R (ps_terms ps₂) 0) as n eqn:Hn .
+remember (series_order (ps_terms ps₂) 0) as n eqn:Hn .
 symmetry in Hn.
 destruct n as [n| ]; [ idtac | reflexivity ].
 unfold gcd_ps.
@@ -417,7 +425,7 @@ rewrite H, H0.
 constructor; simpl; rewrite H1; reflexivity.
 Qed.
 
-Add Parametric Morphism α (r : ring α) : (@mkps α)
+Add Parametric Morphism α (R : ring α) (K : field R) : (@mkps α)
   with signature eq_series ==> eq ==> eq ==> eq_ps
   as mkps_morphism.
 Proof.
@@ -428,7 +436,8 @@ Qed.
 Section eq_ps_equiv_rel.
 
 Variable α : Type.
-Variable r : ring α.
+Variable R : ring α.
+Variable K : field R.
 
 Theorem eq_ps_refl : reflexive _ eq_ps.
 Proof.
@@ -578,7 +587,7 @@ destruct (lt_dec i x) as [Hlt| Hge].
 Qed.
 
 Theorem series_shift_left_shift : ∀ s n,
-  series_order r s 0 = fin n
+  series_order s 0 = fin n
   → (series_shift n (series_left_shift n s) = s)%ser.
 Proof.
 intros s n Hn.
@@ -634,16 +643,18 @@ Qed.
 
 End eq_ps_equiv_rel.
 
-Add Parametric Relation α (r : ring α) : (puiseux_series α) eq_ps
- reflexivity proved by (eq_ps_refl r)
- symmetry proved by (eq_ps_sym (r := r))
- transitivity proved by (eq_ps_trans (r := r))
+Add Parametric Relation α (R : ring α) (K : field R) :
+   (puiseux_series α) eq_ps
+ reflexivity proved by (eq_ps_refl K)
+ symmetry proved by (eq_ps_sym (K := K))
+ transitivity proved by (eq_ps_trans (K := K))
  as eq_ps_rel.
 
 Section other_theorems.
 
 Variable α : Type.
-Variable r : ring α.
+Variable R : ring α.
+Variable K : field R.
 
 Theorem ps_zero_monom_eq : (ps_monom 0%K 0 = 0)%ps.
 Proof.
@@ -681,12 +692,12 @@ Qed.
 
 Theorem series_order_shift_S : ∀ s c n,
   (c ≤ n)%nat
-  → series_order r (series_shift (S n) s) c =
-    NS (series_order r (series_shift n s) c).
+  → series_order (series_shift (S n) s) c =
+    NS (series_order (series_shift n s) c).
 Proof.
 intros s c n Hcn.
-remember (series_order r (series_shift n s) c) as u eqn:Hu .
-remember (series_order r (series_shift (S n) s) c) as v eqn:Hv .
+remember (series_order (series_shift n s) c) as u eqn:Hu .
+remember (series_order (series_shift (S n) s) c) as v eqn:Hv .
 symmetry in Hu, Hv.
 apply series_order_iff in Hu.
 apply series_order_iff in Hv.
@@ -742,8 +753,8 @@ destruct u as [u| ].
 Qed.
 
 Theorem series_order_shift : ∀ s n,
-  series_order r (series_shift n s) 0 =
-    (fin n + series_order r s 0)%Nbar.
+  series_order (series_shift n s) 0 =
+    (fin n + series_order s 0)%Nbar.
 Proof.
 intros s n.
 induction n.
@@ -751,7 +762,7 @@ induction n.
 
  rewrite series_order_shift_S; [ idtac | apply Nat.le_0_l ].
  rewrite IHn; simpl.
- destruct (series_order r s); reflexivity.
+ destruct (series_order s); reflexivity.
 Qed.
 
 Theorem shifted_in_stretched : ∀ s k i,
@@ -827,11 +838,11 @@ destruct (zerop (i mod Pos.to_nat k)) as [H₁| H₁].
 Qed.
 
 Theorem series_order_stretch : ∀ s b k,
-  series_order r (series_stretch k s) (b * Pos.to_nat k) =
-    (fin (Pos.to_nat k) * series_order r s b)%Nbar.
+  series_order (series_stretch k s) (b * Pos.to_nat k) =
+    (fin (Pos.to_nat k) * series_order s b)%Nbar.
 Proof.
 intros s b k.
-remember (series_order r s b) as n eqn:Hn .
+remember (series_order s b) as n eqn:Hn .
 symmetry in Hn.
 apply series_order_iff in Hn.
 apply series_order_iff.
@@ -864,8 +875,8 @@ destruct n as [n| ]; simpl.
 Qed.
 
 Theorem series_order_stretch_0 : ∀ s k,
-  series_order r (series_stretch k s) 0 =
-    (fin (Pos.to_nat k) * series_order r s 0)%Nbar.
+  series_order (series_stretch k s) 0 =
+    (fin (Pos.to_nat k) * series_order s 0)%Nbar.
 Proof.
 intros s k.
 rewrite <- series_order_stretch.
@@ -891,11 +902,11 @@ rewrite Nat.add_comm; reflexivity.
 Qed.
 
 Theorem series_order_shift_add : ∀ s m n,
-  series_order r (series_shift m s) (m + n) =
-  series_order r s n.
+  series_order (series_shift m s) (m + n) =
+  series_order s n.
 Proof.
 intros s m n.
-remember (series_order r s n) as v eqn:Hv .
+remember (series_order s n) as v eqn:Hv .
 symmetry in Hv.
 apply series_order_iff in Hv.
 apply series_order_iff.
@@ -918,19 +929,19 @@ destruct v as [v| ].
 Qed.
 
 Theorem nth_series_order_shift : ∀ s cnt n b,
-  nth_series_order r (series_shift n s) cnt (b + n) =
-  nth_series_order r s cnt b.
+  nth_series_order K (series_shift n s) cnt (b + n) =
+  nth_series_order K s cnt b.
 Proof.
 intros s cnt n b.
 revert b.
 induction cnt; intros; simpl.
  rewrite <- Nat.add_succ_l, Nat.add_comm.
  rewrite series_order_shift_add.
- destruct (series_order r s (S b)); reflexivity.
+ destruct (series_order s (S b)); reflexivity.
 
  rewrite <- Nat.add_succ_l, Nat.add_comm.
  rewrite series_order_shift_add.
- remember (series_order r s (S b)) as m eqn:Hm .
+ remember (series_order s (S b)) as m eqn:Hm .
  symmetry in Hm.
  destruct m as [m| ]; [ idtac | reflexivity ].
  rewrite Nat.add_shuffle0.
@@ -939,17 +950,17 @@ induction cnt; intros; simpl.
 Qed.
 
 Theorem greatest_series_x_power_shift : ∀ n s b,
-  greatest_series_x_power r (series_shift n s) (b + n) =
-  greatest_series_x_power r s b.
+  greatest_series_x_power K (series_shift n s) (b + n) =
+  greatest_series_x_power K s b.
 Proof.
 intros n s b.
-remember (greatest_series_x_power r s b) as k eqn:Hk .
+remember (greatest_series_x_power K s b) as k eqn:Hk .
 symmetry in Hk.
 apply greatest_series_x_power_iff in Hk.
 apply greatest_series_x_power_iff.
 rewrite <- Nat.add_succ_l, Nat.add_comm.
 rewrite series_order_shift_add.
-remember (series_order r s (S b)) as p eqn:Hp .
+remember (series_order s (S b)) as p eqn:Hp .
 symmetry in Hp.
 destruct p as [p| ]; [ idtac | assumption ].
 destruct Hk as (Hz, Hnz).
@@ -965,14 +976,14 @@ split.
 Qed.
 
 Theorem series_order_stretch_succ : ∀ s n p k,
-  series_order r s (S n) = fin p
-  → series_order r (series_stretch k s)
+  series_order s (S n) = fin p
+  → series_order (series_stretch k s)
       (S (n * Pos.to_nat k)) = fin (S p * Pos.to_nat k - 1).
 Proof.
 (* à nettoyer *)
 intros s n p k Hp.
 remember (series_stretch k s) as s₁ eqn:Hs₁ .
-remember (series_order r s₁ (S (n * Pos.to_nat k))) as q eqn:Hq .
+remember (series_order s₁ (S (n * Pos.to_nat k))) as q eqn:Hq .
 symmetry in Hq.
 apply series_order_iff in Hq.
 destruct q as [q| ].
@@ -1094,8 +1105,8 @@ destruct q as [q| ].
 Qed.
 
 Theorem series_order_stretch_succ_inf : ∀ s n k,
-  series_order r s (S n) = ∞
-  → series_order r (series_stretch k s) (S (n * Pos.to_nat k)) =
+  series_order s (S n) = ∞
+  → series_order (series_stretch k s) (S (n * Pos.to_nat k)) =
       ∞.
 Proof.
 intros s n k Hp.
@@ -1143,7 +1154,7 @@ Fixpoint rank_of_nonzero_after_from s n i b :=
   | O => O
   | S n₁ =>
       if lt_dec b i then
-        match series_order r s (S b) with
+        match series_order s (S b) with
         | fin m => S (rank_of_nonzero_after_from s n₁ i (S b + m)%nat)
         | ∞ => O
         end
@@ -1155,9 +1166,9 @@ Definition rank_of_nonzero_before s i :=
 
 Theorem series_nth_0_in_interval_from_any : ∀ s i c b k,
   (i < c)%nat
-  → (∀ n, (Pos.to_nat k | nth_series_order r s n b)%nat)
+  → (∀ n, (Pos.to_nat k | nth_series_order K s n b)%nat)
     → (Pos.to_nat k |
-       nth_series_order r s
+       nth_series_order K s
          (pred (rank_of_nonzero_after_from s c (b + i) b)) b)%nat
       → i mod Pos.to_nat k ≠ O
         → (s .[b + i] = 0)%K.
@@ -1173,7 +1184,7 @@ destruct i.
  apply Nat.succ_lt_mono in Hic.
  destruct (lt_dec b (b + S i)) as [H₁| H₁].
   clear H₁.
-  remember (series_order r s (S b)) as len eqn:Hlen .
+  remember (series_order s (S b)) as len eqn:Hlen .
   symmetry in Hlen.
   destruct len as [len| ].
    simpl in Hn.
@@ -1184,7 +1195,7 @@ destruct i.
     rewrite Nat.add_succ_r in H₁.
     apply Nat.succ_lt_mono in H₁.
     apply Nat.add_lt_mono_l in H₁.
-    remember (series_order r s (S (S (b + len)))) as len₁.
+    remember (series_order s (S (S (b + len)))) as len₁.
     rename Heqlen₁ into Hlen₁.
     symmetry in Hlen₁.
     destruct len₁ as [len₁| ].
@@ -1279,7 +1290,7 @@ destruct i.
 Qed.
 
 Theorem series_nth_0_in_interval : ∀ s k,
-  (∀ n, (Pos.to_nat k | nth_series_order r s n 0)%nat)
+  (∀ n, (Pos.to_nat k | nth_series_order K s n 0)%nat)
   → ∀ i,
     (i mod Pos.to_nat k ≠ 0)%nat
     → (s .[i] = 0)%K.
@@ -1298,7 +1309,7 @@ destruct i.
 Qed.
 
 Theorem series_stretch_shrink : ∀ s k,
-  (Pos.to_nat k | greatest_series_x_power r s 0)
+  (Pos.to_nat k | greatest_series_x_power K s 0)
   → (series_stretch k (series_shrink k s) = s)%ser.
 Proof.
 intros s k Hk.
@@ -1310,7 +1321,7 @@ destruct (zerop (i mod Pos.to_nat k)) as [H₁| H₁].
 
  destruct Hk as (c, Hk).
  apply greatest_series_x_power_iff in Hk.
- remember (series_order r s 1) as p eqn:Hp .
+ remember (series_order s 1) as p eqn:Hp .
  symmetry in Hp.
  destruct p as [p| ].
   destruct Hk as (Hz, Hnz).
@@ -1352,15 +1363,15 @@ destruct (zerop (i mod Pos.to_nat k)) as [H₁| H₁].
 Qed.
 
 Theorem nth_series_order_stretch : ∀ s b n k,
-  nth_series_order r (series_stretch k s) n
+  nth_series_order K (series_stretch k s) n
     (b * Pos.to_nat k) =
-  (Pos.to_nat k * nth_series_order r s n b)%nat.
+  (Pos.to_nat k * nth_series_order K s n b)%nat.
 Proof.
 intros s b n k.
 revert b.
 induction n; intros.
  simpl.
- remember (series_order r s (S b)) as len eqn:Hlen .
+ remember (series_order s (S b)) as len eqn:Hlen .
  symmetry in Hlen.
  destruct len as [len| ].
   erewrite series_order_stretch_succ; eauto .
@@ -1378,7 +1389,7 @@ induction n; intros.
   rewrite Nat.mul_comm; reflexivity.
 
  simpl.
- remember (series_order r s (S b)) as len eqn:Hlen .
+ remember (series_order s (S b)) as len eqn:Hlen .
  symmetry in Hlen.
  destruct len as [len| ].
   erewrite series_order_stretch_succ; eauto .
@@ -1405,24 +1416,24 @@ induction n; intros.
 Qed.
 
 Theorem is_the_greatest_series_x_power_equiv : ∀ s n k,
-  match series_order r s (S n) with
+  match series_order s (S n) with
   | fin _ =>
       is_a_series_in_x_power s n k ∧
-      (∀ k', (k < k')%nat → ∃ n', ¬(k' | nth_series_order r s n' n))
+      (∀ k', (k < k')%nat → ∃ n', ¬(k' | nth_series_order K s n' n))
   | ∞ =>
       k = O
   end
-  ↔ match series_order r s (S n) with
+  ↔ match series_order s (S n) with
     | fin _ =>
         is_a_series_in_x_power s n k ∧
-        (∀ u, (1 < u)%nat → ∃ n', ¬(u * k | nth_series_order r s n' n))
+        (∀ u, (1 < u)%nat → ∃ n', ¬(u * k | nth_series_order K s n' n))
     | ∞ =>
         k = O
     end.
 Proof.
 intros s b k.
 split; intros H.
- remember (series_order r s (S b)) as p eqn:Hp₁ .
+ remember (series_order s (S b)) as p eqn:Hp₁ .
  symmetry in Hp₁.
  destruct p as [p| ]; [ idtac | assumption ].
  destruct H as (Hp, Hnp).
@@ -1446,7 +1457,7 @@ split; intros H.
   simpl; rewrite <- Nat.add_succ_l.
   apply Nat.lt_add_pos_r, Nat.lt_0_succ.
 
- remember (series_order r s (S b)) as p eqn:Hp₁ .
+ remember (series_order s (S b)) as p eqn:Hp₁ .
  symmetry in Hp₁.
  destruct p as [p| ]; [ idtac | assumption ].
  destruct H as (Hp, Hnp).
@@ -1517,18 +1528,18 @@ split; intros H.
 Qed.
 
 Theorem greatest_series_x_power_stretch : ∀ s b k,
-  series_order r s (S b) ≠ ∞
-  → greatest_series_x_power r (series_stretch k s) (b * Pos.to_nat k)%nat =
-      (Pos.to_nat k * greatest_series_x_power r s b)%nat.
+  series_order s (S b) ≠ ∞
+  → greatest_series_x_power K (series_stretch k s) (b * Pos.to_nat k)%nat =
+      (Pos.to_nat k * greatest_series_x_power K s b)%nat.
 Proof.
 (* à nettoyer *)
 intros s b k Hinf.
-remember (greatest_series_x_power r s b) as m eqn:Hm .
+remember (greatest_series_x_power K s b) as m eqn:Hm .
 symmetry in Hm.
 apply greatest_series_x_power_iff.
 apply is_the_greatest_series_x_power_equiv.
 apply greatest_series_x_power_iff in Hm.
-remember (series_order r s (S b)) as p eqn:Hp .
+remember (series_order s (S b)) as p eqn:Hp .
 symmetry in Hp.
 destruct p as [p| ].
  apply series_order_stretch_succ with (k := k) in Hp.
@@ -1546,7 +1557,7 @@ destruct p as [p| ].
     clear n.
     destruct H as (n, Hn).
     exfalso; apply Hn.
-    exists (nth_series_order r s n b).
+    exists (nth_series_order K s n b).
     rewrite Nat.mul_1_r; reflexivity.
 
     apply Nat.neq_mul_0; split; auto.
@@ -1650,7 +1661,7 @@ destruct (le_dec i b) as [H₁| H₁].
 Qed.
 
 Theorem series_series_order_inf_iff : ∀ s,
-  series_order r s 0 = ∞
+  series_order s 0 = ∞
   ↔ (s = 0)%ser.
 Proof.
 intros s.
@@ -1664,7 +1675,7 @@ split; intros H.
 Qed.
 
 Theorem ps_series_order_inf_iff : ∀ ps,
-  series_order r (ps_terms ps) 0 = ∞
+  series_order (ps_terms ps) 0 = ∞
   ↔ (ps = 0)%ps.
 Proof.
 intros ps.
@@ -1672,7 +1683,7 @@ split; intros H.
  constructor.
  unfold normalise_ps; simpl.
  rewrite H.
- remember (series_order r 0%ser 0) as n eqn:Hn .
+ remember (series_order 0%ser 0) as n eqn:Hn .
  symmetry in Hn.
  destruct n as [n| ]; [ idtac | reflexivity ].
  apply series_order_iff in Hn.
@@ -1683,7 +1694,7 @@ split; intros H.
  inversion H; subst.
  apply series_order_iff; simpl; intros i.
  unfold normalise_ps in H0; simpl in H0.
- remember (series_order r 0%ser 0) as n eqn:Hn .
+ remember (series_order 0%ser 0) as n eqn:Hn .
  symmetry in Hn.
  destruct n as [n| ].
   exfalso; clear H0.
@@ -1692,12 +1703,12 @@ split; intros H.
   destruct Hn as (_, Hn).
   apply Hn; reflexivity.
 
-  remember (series_order r (ps_terms ps) 0) as m eqn:Hm .
+  remember (series_order (ps_terms ps) 0) as m eqn:Hm .
   symmetry in Hm.
   destruct m as [m| ].
    inversion_clear H0.
    simpl in H1, H2, H3.
-   remember (greatest_series_x_power r (ps_terms ps) m) as p eqn:Hp .
+   remember (greatest_series_x_power K (ps_terms ps) m) as p eqn:Hp .
    remember (gcd_ps m p ps) as g eqn:Hg .
    unfold normalise_series in H3.
    inversion_clear H3.
@@ -1730,7 +1741,7 @@ split; intros H.
 
     symmetry in Hp.
     apply greatest_series_x_power_iff in Hp.
-    remember (series_order r (ps_terms ps) (S m)) as q eqn:Hq .
+    remember (series_order (ps_terms ps) (S m)) as q eqn:Hq .
     symmetry in Hq.
     destruct q as [q| ].
      destruct Hp as (Hxp, Hnxp).
@@ -1812,11 +1823,11 @@ split; intros H.
 Qed.
 
 Theorem series_order_succ2 : ∀ s m,
-  series_order r s (S m) =
-  series_order r (series_left_shift m s) 1.
+  series_order s (S m) =
+  series_order (series_left_shift m s) 1.
 Proof.
 intros s m.
-remember (series_order r s (S m)) as n eqn:Hn .
+remember (series_order s (S m)) as n eqn:Hn .
 symmetry in Hn |- *.
 apply series_order_iff in Hn.
 apply series_order_iff.
@@ -1846,8 +1857,8 @@ rewrite Nat.add_comm, Nat.add_shuffle0; reflexivity.
 Qed.
 
 Theorem nth_series_order_left_shift : ∀ s m n p,
-  nth_series_order r (series_left_shift m s) n p =
-  nth_series_order r s n (m + p).
+  nth_series_order K (series_left_shift m s) n p =
+  nth_series_order K s n (m + p).
 Proof.
 intros s m n p.
 revert m p.
@@ -1865,7 +1876,7 @@ induction n; intros; simpl.
  remember (@series_order α r (@series_left_shift α (m + p) s) (S O)) as q.
  *)
 (* bug in 8.5 fixed, or before 8.5 *)
- remember (series_order r (series_left_shift (m + p) s) 1) as q.
+ remember (series_order (series_left_shift (m + p) s) 1) as q.
 (**)
  symmetry in Heqq.
  destruct q as [q| ].
@@ -1878,18 +1889,18 @@ induction n; intros; simpl.
 Qed.
 
 Theorem greatest_series_x_power_left_shift : ∀ s n p,
-  greatest_series_x_power r (series_left_shift n s) p =
-  greatest_series_x_power r s (n + p).
+  greatest_series_x_power K (series_left_shift n s) p =
+  greatest_series_x_power K s (n + p).
 Proof.
 intros s n p.
-remember (greatest_series_x_power r s (n + p)) as k eqn:Hk .
+remember (greatest_series_x_power K s (n + p)) as k eqn:Hk .
 symmetry in Hk.
 apply greatest_series_x_power_iff in Hk.
 apply greatest_series_x_power_iff.
 pose proof (nth_series_order_left_shift s n O p) as H.
 simpl in H.
-remember (series_order r s (S (n + p))) as n₁ eqn:Hn₁ .
-remember (series_order r (series_left_shift n s) (S p)) as n₂
+remember (series_order s (S (n + p))) as n₁ eqn:Hn₁ .
+remember (series_order (series_left_shift n s) (S p)) as n₂
  eqn:Hn₂ .
 symmetry in Hn₁, Hn₂.
 destruct n₁ as [n₁| ].
