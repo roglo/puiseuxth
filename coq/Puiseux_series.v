@@ -36,6 +36,28 @@ Fixpoint first_such_that (P : nat → bool) n i :=
   | S n' => if P i then i else first_such_that P n' (S i)
   end.
 
+Theorem first_such_that_has_prop : ∀ α (R : ring α) (K : field R) u n i k
+  (P := (λ j, if fld_zerop (u j) then false else true)),
+  (u (n + i)%nat ≠ 0)%K
+  → k = first_such_that P n i
+  → (u k ≠ 0)%K ∧ (∀ j : nat, (i ≤ j < k)%nat → (u j = 0)%K).
+Proof.
+intros α R K u n i k P Hn.
+revert i k Hn; induction n; intros.
+ split; [ subst k; assumption | simpl ].
+ simpl in H; destruct H; intros j (H1, H2).
+ apply lt_not_le in H2; exfalso; apply H2, H1.
+
+ rewrite Nat.add_succ_l, <- Nat.add_succ_r in Hn.
+ pose proof IHn (S i) k Hn.
+(*
+ split.
+  subst k; unfold P at 1; simpl.
+  destruct (fld_zerop (u i)) as [H| H]; [ | assumption ].
+  destruct IHn; assumption.
+*)
+Abort.
+
 Theorem first_such_that_has_prop : ∀ α (R : ring α) (K : field R) u n i
   (P := (λ j, if fld_zerop (u j) then false else true)),
   (u (n + i)%nat ≠ 0)%K
