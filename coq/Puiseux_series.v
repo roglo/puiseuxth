@@ -49,15 +49,21 @@ revert i k Hn; induction n; intros.
  apply lt_not_le in H2; exfalso; apply H2, H1.
 
  rewrite Nat.add_succ_l, <- Nat.add_succ_r in Hn.
- pose proof IHn (S i) k Hn.
-(*
- split.
-  subst k; unfold P at 1; simpl.
-  destruct (fld_zerop (u i)) as [H| H]; [ | assumption ].
-  destruct IHn; assumption.
-*)
-Abort.
+ simpl in H; unfold P in H.
+ destruct (fld_zerop (u i)) as [H1| H1].
+  pose proof IHn (S i) k Hn H as H2.
+  destruct H2 as (H2, H3).
+  split; [ apply H2 | intros j (H4, H5) ].
+  destruct (eq_nat_dec i j) as [H6| H6]; [ destruct H6; assumption | ].
+  apply H3; split; [ | assumption ].
+  apply le_neq_lt; assumption.
 
+  destruct H; split; [ assumption | ].
+  intros j (H2, H3).
+  apply lt_not_le in H3; exfalso; apply H3, H2.
+Qed.
+
+(*
 Theorem first_such_that_has_prop : ∀ α (R : ring α) (K : field R) u n i
   (P := (λ j, if fld_zerop (u j) then false else true)),
   (u (n + i)%nat ≠ 0)%K
@@ -70,6 +76,7 @@ destruct (fld_zerop (u i)) as [H| H]; [ | assumption ].
 rewrite Nat.add_succ_l, <- Nat.add_succ_r in Hn.
 apply IHn; assumption.
 Qed.
+*)
 
 Theorem field_LPO : ∀ α (R : ring α) (K : field R) (u : nat -> α),
   (∀ i, (u i = 0)%K) + { i | (u i ≠ 0)%K ∧ ∀ j, (j < i)%nat → (u j = 0)%K }.
@@ -83,14 +90,18 @@ destruct H as [H| H].
 
  right.
  destruct H as (i, Hi).
- destruct (fld_zerop (u i)); [ exfalso; apply Hi, eq_refl | clear Hi ].
+ destruct (fld_zerop (u i)) as [| H]; [ exfalso; apply Hi, eq_refl | ].
+ clear Hi.
  set (P j := if fld_zerop (u j) then false else true).
- set (m := first_such_that P i O).
- exists m; split.
-  unfold m; clear m.
-  apply first_such_that_has_prop.
-  rewrite Nat.add_0_r; assumption.
-Abort. (* to be completed *)
+ remember (first_such_that P i O) as m eqn:Hm.
+ exists m.
+ replace i with (i + O)%nat in H by (rewrite Nat.add_0_r; apply eq_refl).
+ pose proof @first_such_that_has_prop α R K u i 0 m H Hm as H1.
+ destruct H1 as (H1, H2).
+ split; [ assumption | intros j Hj ].
+ apply H2.
+ split; [ apply Nat.le_0_l | assumption ].
+Qed.
 
 Axiom ring_LPO : ∀ α (R : ring α) (u : nat -> α),
   (∀ i, (u i = 0)%K) + { i | (u i ≠ 0)%K ∧ ∀ j, (j < i)%nat → (u j = 0)%K }.
