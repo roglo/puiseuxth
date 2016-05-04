@@ -34,16 +34,16 @@ Fixpoint make_char_pol α (R : ring α) pow tl :=
         [coeff t₁ … make_char_pol R (S (power t₁)) tl₁]
     end.
 
-Definition lap_term_of_point α {R : ring α} la (pt : (Q * Q)) :=
+Definition lap_term_of_point α {R : ring α} {K : field R} la (pt : (Q * Q)) :=
   let h := nat_num (fst pt) in
   let ps := List.nth h la 0%ps in
   let c := order_coeff ps in
   {| coeff := c; power := h |}.
 
-Definition term_of_point α {R : ring α} pol (pt : (Q * Q)) :=
+Definition term_of_point α {R : ring α} {K : field R} pol (pt : (Q * Q)) :=
   lap_term_of_point (al pol) pt.
 
-Definition Φq α {R : ring α} pol ns :=
+Definition Φq α {R : ring α} {K : field R} pol ns :=
   let pl := [ini_pt ns … oth_pts ns ++ [fin_pt ns]] in
   let tl := List.map (term_of_point pol) pl in
   let j := nat_num (fst (ini_pt ns)) in
@@ -90,12 +90,12 @@ Definition mh_of_m α m αh (hps : puiseux_series α) :=
   (Qnum αh * ' m / ' ps_polord hps)%Z.
 
 (* express that some puiseux series ∈ K(1/m)* *)
-Inductive in_K_1_m {α} {R : ring α} ps m :=
+Inductive in_K_1_m {α} {R : ring α} {K : field R} ps m :=
   InK1m : (∃ ps₁, (ps₁ = ps)%ps ∧ ps_polord ps₁ = m) → in_K_1_m ps m.
 
-Arguments in_K_1_m _ _ ps%ps m%positive.
+Arguments in_K_1_m _ _ _ ps%ps m%positive.
 
-Inductive ps_lap_forall {α} {R : ring α} (P : _ → Prop) :
+Inductive ps_lap_forall {α} {R : ring α} {K : field R} (P : _ → Prop) :
   list (puiseux_series α) → Prop :=
   | PLForall_nil : ∀ l, (l = [])%pslap → ps_lap_forall P l
   | PLForall_cons : ∀ x l,
@@ -104,22 +104,23 @@ Inductive ps_lap_forall {α} {R : ring α} (P : _ → Prop) :
       → ps_lap_forall P l
       → ps_lap_forall P [x … l].
 
-Arguments ps_lap_forall α%type_scope _ _ l%pslap.
+Arguments ps_lap_forall α%type_scope _ _ _ l%pslap.
 
-Definition pol_in_K_1_m {α} {R : ring α} pol m :=
+Definition pol_in_K_1_m {α} {R : ring α} {K : field R} pol m :=
   ps_lap_forall (λ a, in_K_1_m a m) (al pol).
 
-Definition poly_shrinkable α (R : ring α) q pol :=
+Definition poly_shrinkable α (R : ring α) {K : field R} q pol :=
   ∀ n, n mod q ≠ O → List.nth n (al pol) 0%K = 0%K.
 
 (* usable only if poly_shrinkable q (Φq pol ns) *)
-Definition Φs α {R : ring α} q pol ns :=
+Definition Φs α {R : ring α} {K : field R} q pol ns :=
   poly_shrink q (Φq pol ns).
 
 Section theorems.
 
 Variable α : Type.
 Variable R : ring α.
+Variable K : field R.
 
 Theorem al_Φq : ∀ pol ns,
   al (Φq pol ns)
@@ -559,7 +560,7 @@ rewrite <- Hjαj, <- Hkαk; reflexivity.
 Qed.
 
 Theorem first_power_le : ∀ pow cl h hv,
-  (h, hv) ∈ filter_finite_ord R (qpower_list pow cl)
+  (h, hv) ∈ filter_finite_ord (qpower_list pow cl)
   → pow ≤ Z.to_nat (Qnum h).
 Proof.
 intros pow cl h hv Hhhv.
@@ -593,7 +594,7 @@ Qed.
 
 Theorem in_pts_in_ppl : ∀ pow cl ppl pts h hv hps def,
   ppl = qpower_list pow cl
-  → pts = filter_finite_ord R ppl
+  → pts = filter_finite_ord ppl
     → (h, hv) ∈ pts
       → hps = List.nth (Z.to_nat (Qnum h) - pow) cl def
         → (h, hps) ∈ ppl ∧ order hps = qfin hv.
@@ -655,7 +656,7 @@ induction cl as [| c]; intros.
 Qed.
 
 Theorem in_pts_in_psl : ∀ pow pts psl h hv hps def,
-  pts = filter_finite_ord R (qpower_list pow psl)
+  pts = filter_finite_ord (qpower_list pow psl)
   → (h, hv) ∈ pts
     → hps = List.nth (Z.to_nat (Qnum h) - pow) psl def
       → hps ∈ psl ∧ order hps = qfin hv.
@@ -709,7 +710,7 @@ Qed.
 
 Theorem in_ppl_in_pts : ∀ pow cl ppl pts h hv hps,
   ppl = qpower_list pow cl
-  → pts = filter_finite_ord R ppl
+  → pts = filter_finite_ord ppl
     → pow ≤ h
       → hps = List.nth (h - pow) cl 0%ps
         → order hps = qfin hv
@@ -1074,7 +1075,7 @@ remember Hns as H; clear HeqH.
 eapply order_in_newton_segment in H; eauto ; [ idtac | left; eauto  ].
 unfold order in H.
 remember (ps_poly_nth j pol) as ps.
-remember (series_order R (ps_terms ps) 0) as v eqn:Hv .
+remember (series_order (ps_terms ps) 0) as v eqn:Hv .
 symmetry in Hv.
 destruct v; [ idtac | discriminate H ].
 injection H; clear H; intros H.
@@ -1088,7 +1089,7 @@ Theorem in_K_1_m_order_eq : ∀ ps m v,
 Proof.
 intros ps m v Hin Ho.
 unfold order in Ho.
-remember (series_order R (ps_terms ps) 0) as x.
+remember (series_order (ps_terms ps) 0) as x.
 symmetry in Heqx.
 destruct x as [x| ]; [ idtac | discriminate Ho ].
 injection Ho; clear Ho; intros Ho.
@@ -1101,11 +1102,11 @@ inversion_clear H.
 clear H2.
 unfold normalise_ps in H0, H1; simpl in H0, H1.
 rewrite Heqx in H0, H1; simpl in H0, H1.
-remember (series_order R (ps_terms ps₁) 0) as y.
+remember (series_order (ps_terms ps₁) 0) as y.
 symmetry in Heqy.
 destruct y as [y| ]; simpl in H0, H1.
- remember (greatest_series_x_power R (ps_terms ps₁) y) as z₁.
- remember (greatest_series_x_power R (ps_terms ps) x) as z.
+ remember (greatest_series_x_power K (ps_terms ps₁) y) as z₁.
+ remember (greatest_series_x_power K (ps_terms ps) x) as z.
  remember (gcd_ps x z ps) as g.
  remember (gcd_ps y z₁ ps₁) as g₁.
  remember (ps_ordnum ps₁ + Z.of_nat y)%Z as p₁.
@@ -1183,7 +1184,7 @@ destruct y as [y| ]; simpl in H0, H1.
   rewrite Z.gcd_assoc.
   assumption.
 
- remember (greatest_series_x_power R (ps_terms ps) x) as z.
+ remember (greatest_series_x_power K (ps_terms ps) x) as z.
  pose proof (gcd_ps_is_pos x z ps) as Hgp.
  unfold gcd_ps in H0.
  remember (ps_ordnum ps + Z.of_nat x)%Z as p.
@@ -1286,7 +1287,7 @@ remember Hns as H; clear HeqH.
 eapply order_in_newton_segment with (h := k) (αh := αk) in H; eauto .
  unfold order in H.
  remember (ps_poly_nth k pol) as ps.
- remember (series_order R (ps_terms ps) 0) as v eqn:Hv .
+ remember (series_order (ps_terms ps) 0) as v eqn:Hv .
  symmetry in Hv.
  destruct v; [ idtac | discriminate H ].
  injection H; clear H; intros H.
@@ -1344,7 +1345,7 @@ remember Hns as H; clear HeqH.
 eapply order_in_newton_segment with (h := h) (αh := αh) in H; eauto .
  unfold order in H.
  remember (ps_poly_nth h pol) as ps.
- remember (series_order R (ps_terms ps) 0) as v eqn:Hv .
+ remember (series_order (ps_terms ps) 0) as v eqn:Hv .
  symmetry in Hv.
  destruct v; [ idtac | discriminate H ].
  injection H; clear H; intros H.
@@ -1972,7 +1973,7 @@ Theorem shrinkable_if : ∀ pol q pt₁ pts,
   Sorted nat_fst_lt [pt₁ … pts]
   → q ≠ O
   → List.Forall (λ pt, (q | nat_num (fst pt) - nat_num (fst pt₁))%nat) pts
-  → poly_shrinkable R q
+  → poly_shrinkable q
       POL (make_char_pol R (nat_num (fst pt₁))
             (List.map (term_of_point pol) [pt₁ … pts]))%pol.
 Proof.
@@ -2094,7 +2095,7 @@ Theorem phi_pseudo_degree_is_k_sub_j_div_q : ∀ pol ns j αj k αk q m,
   → (Qnat j, αj) = ini_pt ns
   → (Qnat k, αk) = fin_pt ns
   → q = Pos.to_nat (q_of_m m (γ ns))
-  → poly_shrinkable R q (Φq pol ns)
+  → poly_shrinkable q (Φq pol ns)
     ∧ pseudo_degree (Φs q pol ns) = ((k - j) / q)%nat.
 Proof.
 intros pol ns j αj k αk q m Hns Hm Hj Hk Hq.
@@ -2235,7 +2236,7 @@ Theorem ord_coeff_non_zero_in_newt_segm : ∀ pol ns h αh hps,
 Proof.
 intros pol ns h αh hps Hns Hh Hhps.
 unfold order_coeff.
-remember (series_order R (ps_terms hps) 0) as n eqn:Hn .
+remember (series_order (ps_terms hps) 0) as n eqn:Hn .
 symmetry in Hn.
 destruct n as [n| ].
  apply series_order_iff in Hn.
@@ -2463,7 +2464,7 @@ Theorem phi_degree_is_k_sub_j_div_q : ∀ pol ns j αj k αk q m,
   → (Qnat j, αj) = ini_pt ns
   → (Qnat k, αk) = fin_pt ns
   → q = Pos.to_nat (q_of_m m (γ ns))
-  → poly_shrinkable R q (Φq pol ns)
+  → poly_shrinkable q (Φq pol ns)
      ∧ has_degree (Φs q pol ns) ((k - j) / q).
 Proof.
 intros pol ns j αj k αk q m Hns Hm Hj Hk Hq.
