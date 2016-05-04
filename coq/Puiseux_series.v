@@ -36,6 +36,19 @@ Fixpoint first_such_that (P : nat → bool) n i :=
   | S n' => if P i then i else first_such_that P n' (S i)
   end.
 
+Theorem first_such_that_has_prop : ∀ α (R : ring α) (K : field R) u n i
+  (P := (λ j, if fld_zerop (u j) then false else true)),
+  (u (n + i)%nat ≠ 0)%K
+  → (u (first_such_that P n i) ≠ 0)%K.
+Proof.
+intros α R K u n i P Hn.
+revert i Hn; induction n; intros; [ assumption | simpl ].
+unfold P at 1; simpl.
+destruct (fld_zerop (u i)) as [H| H]; [ | assumption ].
+rewrite Nat.add_succ_l, <- Nat.add_succ_r in Hn.
+apply IHn; assumption.
+Qed.
+
 Theorem field_LPO : ∀ α (R : ring α) (K : field R) (u : nat -> α),
   (∀ i, (u i = 0)%K) + { i | (u i ≠ 0)%K ∧ ∀ j, (j < i)%nat → (u j = 0)%K }.
 Proof.
@@ -53,21 +66,8 @@ destruct H as [H| H].
  set (m := first_such_that P i O).
  exists m; split.
   unfold m; clear m.
-
-bbb.
-
-  induction i as (i, IHi) using all_lt_all.
-  destruct i; [ assumption | simpl ].
-  remember (f O) as x eqn:Hx.
-  destruct x.
-   unfold f in Hx; simpl in Hx.
-   destruct (fld_zerop (u O)); [ discriminate Hx | assumption ].
-
-   unfold f in Hx; simpl in Hx.
-   destruct (fld_zerop (u O)); [ | discriminate Hx ].
-   pose proof IHi i (Nat.lt_succ_diag_r i) as Hi.
-bbb.
-
+  apply first_such_that_has_prop.
+  rewrite Nat.add_0_r; assumption.
 Abort. (* to be completed *)
 
 Axiom ring_LPO : ∀ α (R : ring α) (u : nat -> α),
