@@ -15,6 +15,7 @@ Section theorem_add_compat.
 
 Variable α : Type.
 Variable r : ring α.
+Variable K : field r.
 
 Theorem series_nth_0_series_nth_shift_0 : ∀ s n,
   (∀ i, (s .[i] = 0)%K)
@@ -150,7 +151,7 @@ simpl.
 rewrite series_order_shift.
 rewrite series_stretch_1.
 remember
- (series_order r (series_add (ps_terms ps₁) (ps_terms ps₂))
+ (series_order (series_add (ps_terms ps₁) (ps_terms ps₂))
     0)%Nbar as x.
 rewrite Nbar.add_comm.
 destruct x as [x| ]; [ simpl | reflexivity ].
@@ -374,18 +375,18 @@ apply normalise_ps_add_adjust.
 Qed.
 
 Theorem normalised_exists_adjust : ∀ ps ps₁,
-  series_order r (ps_terms ps) 0 ≠ ∞
+  series_order (ps_terms ps) 0 ≠ ∞
   → normalise_ps ps = ps₁
     → ∃ n k, eq_ps_strong ps (adjust_ps n k ps₁).
 Proof.
 intros ps ps₁ Hnz Heq.
 unfold normalise_ps in Heq.
-remember (series_order r (ps_terms ps) 0) as len₁.
+remember (series_order (ps_terms ps) 0) as len₁.
 symmetry in Heqlen₁.
 destruct len₁ as [len₁| ]; [ idtac | exfalso; apply Hnz; reflexivity ].
 subst ps₁.
 unfold adjust_ps; simpl.
-remember (greatest_series_x_power r (ps_terms ps) len₁) as k₁.
+remember (greatest_series_x_power K (ps_terms ps) len₁) as k₁.
 remember (gcd_ps len₁ k₁ ps) as g.
 symmetry in Heqg.
 destruct g as [| g| g]; simpl.
@@ -441,8 +442,7 @@ destruct g as [| g| g]; simpl.
 
   unfold normalise_series.
   rewrite series_stretch_shrink.
-   rewrite series_shift_left_shift; [ reflexivity | assumption ].
-
+   rewrite series_shift_left_shift; [ reflexivity | apply Heqlen₁ ].
    rewrite greatest_series_x_power_left_shift.
    rewrite Nat.add_0_r.
    rewrite <- Heqk₁.
@@ -469,13 +469,13 @@ Definition ps_neg_zero :=
   {| ps_terms := 0%ser; ps_ordnum := -1; ps_polord := 1 |}.
 
 Theorem eq_strong_ps_adjust_zero_neg_zero : ∀ ps,
-  series_order r (ps_terms ps) 0 = ∞
+  series_order (ps_terms ps) 0 = ∞
   → ∃ n₁ n₂ k₁ k₂,
     eq_ps_strong (adjust_ps n₁ k₁ ps) (adjust_ps n₂ k₂ ps_neg_zero).
 Proof.
 intros ps Hz.
 unfold normalise_ps in Hz.
-remember (series_order r (ps_terms ps) 0) as n eqn:Hn .
+remember (series_order (ps_terms ps) 0) as n eqn:Hn .
 symmetry in Hn.
 destruct n; [ discriminate Hz | clear Hz ].
 apply series_order_iff in Hn.
@@ -527,8 +527,8 @@ Qed.
 
 Theorem series_order_inf_compat : ∀ ps₁ ps₂,
   normalise_ps ps₁ ≐ normalise_ps ps₂
-  → series_order r (ps_terms ps₁) 0 = ∞
-    → series_order r (ps_terms ps₂) 0 = ∞.
+  → series_order (ps_terms ps₁) 0 = ∞
+    → series_order (ps_terms ps₂) 0 = ∞.
 Proof.
 intros ps₁ ps₂ Heq Hinf.
 apply ps_series_order_inf_iff in Hinf.
@@ -542,8 +542,8 @@ Theorem ps_normal_add_compat_r : ∀ ps₁ ps₂ ps₃,
   → normalise_ps (ps₁ + ps₃)%ps ≐ normalise_ps (ps₂ + ps₃)%ps.
 Proof.
 intros ps₁ ps₂ ps₃ Heq.
-remember (series_order r (ps_terms ps₁) 0) as m₁ eqn:Hm₁ .
-remember (series_order r (ps_terms ps₂) 0) as m₂ eqn:Hm₂ .
+remember (series_order (ps_terms ps₁) 0) as m₁ eqn:Hm₁ .
+remember (series_order (ps_terms ps₂) 0) as m₂ eqn:Hm₂ .
 symmetry in Hm₁, Hm₂.
 destruct m₁ as [m₁| ].
  destruct m₂ as [m₂| ].
@@ -621,7 +621,7 @@ rewrite eq_strong_ps_add_compat_r; [ idtac | eassumption ].
 reflexivity.
 Qed.
 
-Add Parametric Morphism α (r : ring α) : ps_add
+Add Parametric Morphism α (r : ring α) (K : field r) : ps_add
   with signature eq_ps ==> eq_ps ==> eq_ps
   as ps_add_morph.
 Proof.
