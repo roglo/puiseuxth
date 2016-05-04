@@ -19,6 +19,7 @@ Section theorems.
 
 Variable α : Type.
 Variable r : ring α.
+Variable K : field r.
 
 Theorem points_in_any_newton_segment : ∀ pol ns,
   ns ∈ newton_segments pol
