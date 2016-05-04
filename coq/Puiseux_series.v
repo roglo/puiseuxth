@@ -63,21 +63,6 @@ revert i k Hn; induction n; intros.
   apply lt_not_le in H3; exfalso; apply H3, H2.
 Qed.
 
-(*
-Theorem first_such_that_has_prop : ∀ α (R : ring α) (K : field R) u n i
-  (P := (λ j, if fld_zerop (u j) then false else true)),
-  (u (n + i)%nat ≠ 0)%K
-  → (u (first_such_that P n i) ≠ 0)%K.
-Proof.
-intros α R K u n i P Hn.
-revert i Hn; induction n; intros; [ assumption | simpl ].
-unfold P at 1; simpl.
-destruct (fld_zerop (u i)) as [H| H]; [ | assumption ].
-rewrite Nat.add_succ_l, <- Nat.add_succ_r in Hn.
-apply IHn; assumption.
-Qed.
-*)
-
 Theorem field_LPO : ∀ α (R : ring α) (K : field R) (u : nat -> α),
   (∀ i, (u i = 0)%K) + { i | (u i ≠ 0)%K ∧ ∀ j, (j < i)%nat → (u j = 0)%K }.
 Proof.
