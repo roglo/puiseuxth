@@ -90,12 +90,6 @@ Qed.
 
 Arguments field_LPO {α} {R} {K} u.
 
-(*
-Axiom ring_LPO : ∀ α (R : ring α) (u : nat -> α),
-  (∀ i, (u i = 0)%K) + { i | (u i ≠ 0)%K ∧ ∀ j, (j < i)%nat → (u j = 0)%K }.
-Arguments ring_LPO {α} {R} u.
-*)
-
 (* [series_order rng s n] returns the number of consecutive null
    coefficients in the series [s], starting from the [n]th one. *)
 
