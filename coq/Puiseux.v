@@ -34,10 +34,6 @@ Require Import RootAnyR.
 
 Set Implicit Arguments.
 
-(*
-Axiom exists_or_not_forall : ∀ P : nat → Prop, { ∃ n, P n } + { ∀ n, ¬P n }.
-*)
-
 Section theorems.
 
 Variable α : Type.
@@ -233,12 +229,11 @@ destruct r.
  apply multiplicity_neq_0; assumption.
 
  rename H into IHm.
- set (v i := if multiplicity_decreases pol ns i then S O else O).
+ Set Printing Width 79.
+ Set Printing Width 79.
+ set (v := fun i => if multiplicity_decreases pol ns i then S O else O).
  destruct (LPO v) as [Hn| Hn].
   Focus 2.
-(*
- destruct (exists_or_not_forall (multiplicity_decreases pol ns)) as [Hn| Hn].
-*)
   destruct Hn as (n, Hn).
   unfold v in Hn; clear v.
   unfold multiplicity_decreases in Hn.
@@ -254,109 +249,111 @@ destruct r.
    rewrite <- Hc in Hrn.
    rewrite Hrn in Hr; subst rn.
    exfalso.
-   destruct (lt_dec (S r) (S r)) as [H| H]; [ | apply Hn, eq_refl ].
+   destruct (lt_dec (S r) (S r)) as [H| H]; [  | apply Hn, eq_refl ].
    revert H; apply lt_irrefl.
 
    remember (List.hd phony_ns (newton_segments pol₁)) as ns₁ eqn:Hns₁ .
    erewrite <- nth_r_n in Hrn; try eassumption; subst rn.
    destruct (lt_dec (nth_r (S n) pol ns) (S r)) as [H| H].
-   2: exfalso; apply Hn, eq_refl.
-   clear Hn; rename H into Hn.
-   apply lowest_i_such_that_ri_lt_r₀ in Hn; [ idtac | subst; auto ].
-   destruct Hn as (i, (Hin, (Hir, Hri))).
-   destruct Hir as [Hir| Hir].
-    subst i.
-    exfalso; revert Hri; rewrite <- Hr; subst.
-    apply Nat.lt_irrefl.
+    2:exfalso; apply Hn, eq_refl.
 
-    destruct i.
+    clear Hn; rename H into Hn.
+    apply lowest_i_such_that_ri_lt_r₀ in Hn; [  | subst; auto ].
+    destruct Hn as (i, (Hin, (Hir, Hri))).
+    destruct Hir as [Hir| Hir].
+     subst i.
      exfalso; revert Hri; rewrite <- Hr; subst.
      apply Nat.lt_irrefl.
 
-     remember (nth_pol i pol ns) as poli eqn:Hpoli .
-     remember (nth_ns i pol ns) as nsi eqn:Hnsi .
-     remember (nth_pol (S i) pol ns) as polsi eqn:Hpolsi .
-     remember (nth_ns (S i) pol ns) as nssi eqn:Hnssi .
-     remember (newton_segments polsi) as nsl eqn:Hnsl .
-     symmetry in Hnsl.
-     destruct nsl as [| ns₂].
-      destruct (ps_zerop K (ps_poly_nth 0 pol₁)) as [H₁| H₁].
-       apply a₀_0_root_0 in H₁.
-       exists 0%ps; assumption.
+     destruct i.
+      exfalso; revert Hri; rewrite <- Hr; subst.
+      apply Nat.lt_irrefl.
 
-       remember Hnsl as H; clear HeqH.
-       rewrite Hpolsi in H.
-       simpl in H.
-       rewrite <- Hc, <- Hpol₁, <- Hns₁ in H.
-       apply nth_newton_segments_nil in H; auto.
-        destruct H as (j, (Hjn, (Hjz, Hjnz))).
-        destruct Hjz as [Hjz| Hjz].
-         subst j.
-         simpl in Hjnz.
-         destruct (ps_zerop K (ps_poly_nth 0 pol₁)).
-          contradiction.
+      remember (nth_pol i pol ns) as poli eqn:Hpoli .
+      remember (nth_ns i pol ns) as nsi eqn:Hnsi .
+      remember (nth_pol (S i) pol ns) as polsi eqn:Hpolsi .
+      remember (nth_ns (S i) pol ns) as nssi eqn:Hnssi .
+      remember (newton_segments polsi) as nsl eqn:Hnsl .
+      symmetry in Hnsl.
+      destruct nsl as [| ns₂].
+       destruct (ps_zerop K (ps_poly_nth 0 pol₁)) as [H₁| H₁].
+        apply a₀_0_root_0 in H₁.
+        exists 0%ps; assumption.
 
-          discriminate Hjnz.
+        remember Hnsl as H; clear HeqH.
+        rewrite Hpolsi in H.
+        simpl in H.
+        rewrite <- Hc, <- Hpol₁, <- Hns₁ in H.
+        apply nth_newton_segments_nil in H; auto.
+         destruct H as (j, (Hjn, (Hjz, Hjnz))).
+         destruct Hjz as [Hjz| Hjz].
+          subst j.
+          simpl in Hjnz.
+          destruct (ps_zerop K (ps_poly_nth 0 pol₁)).
+           contradiction .
+
+           discriminate Hjnz.
+
+          eapply root_when_fin; try eassumption.
+
+         eapply List_hd_in; try eassumption.
+         clear H.
+         remember Hns as H; clear HeqH.
+         eapply next_has_root_0_or_newton_segments in H; eauto  .
+         simpl in H.
+         rewrite <- Hc, <- Hpol₁ in H.
+         destruct H; auto.
+
+       remember (zerop_1st_n_const_coeff i pol₁ ns₁) as z eqn:Hz .
+       symmetry in Hz.
+       destruct z.
+        apply lowest_zerop_1st_n_const_coeff in Hz.
+        destruct Hz as (m, (Hmi, (Hle, Heq))).
+        destruct Hle as [Hle| Hle].
+         subst m.
+         simpl in Heq.
+         destruct (ps_zerop K (ps_poly_nth 0 pol₁)) as [H₂| H₂].
+          exists 0%ps.
+          apply a₀_0_root_0; assumption.
+
+          discriminate Heq.
 
          eapply root_when_fin; try eassumption.
 
-        eapply List_hd_in; try eassumption.
-        clear H.
-        remember Hns as H; clear HeqH.
-        eapply next_has_root_0_or_newton_segments in H; eauto .
-        simpl in H.
-        rewrite <- Hc, <- Hpol₁ in H.
-        destruct H; auto.
+        eapply IHm with (pol := polsi) (ns := nssi) in Hri.
+         destruct Hri as (s₁, Hs₁).
+         remember (root_head 0 i pol₁ ns₁) as rh.
+         remember (ps_monom 1%K (γ_sum 0 i pol₁ ns₁)) as mo.
+         exists (rh + mo * s₁)%ps; subst rh mo.
+         rewrite apply_nth_pol; auto.
+         erewrite nth_pol_n; try eassumption; eauto  .
+         erewrite <- nth_c_n; try eassumption.
+         rewrite Hs₁, rng_mul_0_r; reflexivity.
 
-      remember (zerop_1st_n_const_coeff i pol₁ ns₁) as z eqn:Hz .
-      symmetry in Hz.
-      destruct z.
-       apply lowest_zerop_1st_n_const_coeff in Hz.
-       destruct Hz as (m, (Hmi, (Hle, Heq))).
-       destruct Hle as [Hle| Hle].
-        subst m.
-        simpl in Heq.
-        destruct (ps_zerop K (ps_poly_nth 0 pol₁)) as [H₂| H₂].
-         exists 0%ps.
-         apply a₀_0_root_0; assumption.
-
-         discriminate Heq.
-
-        eapply root_when_fin; try eassumption.
-
-       eapply IHm with (pol := polsi) (ns := nssi) in Hri.
-        destruct Hri as (s₁, Hs₁).
-        remember (root_head 0 i pol₁ ns₁) as rh.
-        remember (ps_monom 1%K (γ_sum 0 i pol₁ ns₁)) as mo.
-        exists (rh + mo * s₁)%ps; subst rh mo.
-        rewrite apply_nth_pol; auto.
-        erewrite nth_pol_n; try eassumption; eauto .
-        erewrite <- nth_c_n; try eassumption.
-        rewrite Hs₁, rng_mul_0_r; reflexivity.
-
-        eapply List_hd_in.
-         subst nssi; simpl.
-         eapply nth_ns_n; try eassumption; eauto .
+         eapply List_hd_in.
+          subst nssi; simpl.
+          eapply nth_ns_n; try eassumption; eauto  .
           rewrite Hc; reflexivity.
 
           subst polsi; simpl.
-          eapply nth_pol_n; try eassumption; eauto .
+          eapply nth_pol_n; try eassumption; eauto  .
           rewrite Hc; reflexivity.
 
          intros H; rewrite H in Hnsl; discriminate Hnsl.
 
-        rewrite zerop_1st_n_const_coeff_false_iff in Hz.
-        pose proof (Hz i (Nat.le_refl i)) as H.
-        rewrite Hpolsi; simpl.
-        rewrite <- Hc, <- Hpol₁, <- Hns₁; auto.
+         rewrite zerop_1st_n_const_coeff_false_iff in Hz.
+         pose proof (Hz i (Nat.le_refl i)) as H.
+         rewrite Hpolsi; simpl.
+         rewrite <- Hc, <- Hpol₁, <- Hns₁; auto.
 
-        eauto .
+         eauto  .
 
-        erewrite nth_c_n; try eassumption; reflexivity.
+         erewrite nth_c_n; try eassumption; reflexivity.
 
-        symmetry.
-        apply nth_r_n; try eassumption.
-        erewrite nth_c_n; try eassumption; reflexivity.
+         symmetry.
+
+         apply nth_r_n; try eassumption.
+         erewrite nth_c_n; try eassumption; reflexivity.
 
   pose proof (exists_pol_ord K pol) as H.
   destruct H as (m, Hm).
@@ -389,7 +386,7 @@ destruct r.
       destruct N.
        exists 0%ps.
        simpl in Hz.
-       destruct (ps_zerop K (ps_poly_nth 0 pol₁)); [ contradiction | idtac ].
+       destruct (ps_zerop K (ps_poly_nth 0 pol₁)); [ contradiction  |  ].
        discriminate Hz.
 
        apply lowest_zerop_1st_n_const_coeff in Hz.
@@ -397,17 +394,13 @@ destruct r.
        destruct Hji as [Hi| Hpi].
         subst i.
         simpl in Hz.
-        destruct (ps_zerop K (ps_poly_nth 0 pol₁)); [ contradiction | idtac ].
+        destruct (ps_zerop K (ps_poly_nth 0 pol₁)); [ contradiction  |  ].
         discriminate Hz.
 
         eapply root_when_fin; try eassumption.
 
-(*
-      unfold multiplicity_decreases in v; simpl in v.
-      unfold u in Hn; clear u.
-      rewrite <- Hc, Hr in Hn.
-*)
-      rewrite root_tail_when_r_r with (n := N) (r := S r) in Hofs;
+      Set Printing Width 79.
+      rewrite root_tail_when_r_r with (n := N) (r := (S r)) in Hofs;
        try eassumption.
        remember (root_tail (m * q₀) 0 pol₁ ns₁) as s eqn:Hs .
        exists s.
@@ -416,46 +409,48 @@ destruct r.
        rewrite order_mul in Hofs; auto.
        rewrite ps_monom_order in Hofs; auto.
        remember Σ (i = 0, N), β (nth_ns i pol₁ ns₁) as u eqn:Hu .
-       assert (ofs < u) as H.
+       assert (H : ofs < u).
         subst u.
         assert (∀ i, i ≤ N → η < β (nth_ns i pol₁ ns₁)).
          intros i Hi.
          subst c q₀.
-         assert (zerop_1st_n_const_coeff i pol₁ ns₁ = false) as Hz₁.
+         assert (Hz₁ : zerop_1st_n_const_coeff i pol₁ ns₁ = false).
           rewrite zerop_1st_n_const_coeff_false_iff in Hz.
           apply zerop_1st_n_const_coeff_false_iff.
           intros j Hj.
           apply Hz.
           transitivity i; assumption.
 
-          eapply β_lower_bound_r_const with (n := i) (r := S r); eauto .
+          eapply β_lower_bound_r_const with (n := i) (r := S r); eauto  .
            apply Nat.lt_0_succ.
 
            intros j.
+           Set Printing Width 79.
            pose proof (Hn j) as H.
-unfold v in H.
-remember (multiplicity_decreases pol ns j) as p eqn:Hp.
-destruct p; [ discriminate H | ].
-unfold multiplicity_decreases in Hp; simpl in Hp.
-destruct (
-       lt_dec
-         (root_multiplicity acf (nth_c j pol ns)
-            (Φq (nth_pol j pol ns) (nth_ns j pol ns)))
-         (root_multiplicity acf (ac_root (Φq pol ns)) (Φq pol ns))).
-contradiction.
+           unfold v in H.
+           Set Printing Width 79.
+           remember (multiplicity_decreases pol ns j) as p eqn:Hp .
+           destruct p; [ discriminate H |  ].
+           Set Printing Width 79.
+           unfold multiplicity_decreases in Hp; simpl in Hp.
+           destruct
+            (lt_dec
+               (root_multiplicity acf (nth_c j pol ns)
+                  (Φq (nth_pol j pol ns) (nth_ns j pol ns)))
+               (root_multiplicity acf (ac_root (Φq pol ns)) (Φq pol ns))).
+            Set Printing Width 79.
+            contradiction .
 
-(*
-erewrite nth_r_n; try reflexivity.
-clear Hp.
-rewrite Hr in n0.
-Check nth_r_n.
-exfalso; apply n0.
-erewrite <- nth_r_n; try reflexivity.
-*)
-clear n0 Hp.
-apply Nat.nlt_ge in n.
-rewrite Hr in n.
-erewrite <- nth_r_n in n; try eassumption; eauto .
+            Set Printing Width 79.
+            Set Printing Width 79.
+            clear n0 Hp.
+            apply Nat.nlt_ge in n.
+            Set Printing Width 79.
+            Set Printing Width 79.
+            Set Printing Width 79.
+            rewrite Hr in n.
+            Set Printing Width 79.
+            erewrite <- nth_r_n in n; try eassumption; eauto  .
 
            apply non_decr_imp_eq; try assumption.
             apply zerop_1st_n_const_coeff_false_succ; auto; simpl.
@@ -463,20 +458,22 @@ erewrite <- nth_r_n in n; try eassumption; eauto .
 
             intros j.
             pose proof (Hn j) as H.
-unfold v in H.
-remember (multiplicity_decreases pol ns j) as p eqn:Hp.
-destruct p; [ discriminate H | ].
-unfold multiplicity_decreases in Hp; simpl in Hp.
-destruct (
-       lt_dec
-         (root_multiplicity acf (nth_c j pol ns)
-            (Φq (nth_pol j pol ns) (nth_ns j pol ns)))
-         (root_multiplicity acf (ac_root (Φq pol ns)) (Φq pol ns))).
-contradiction.
-clear n0 Hp.
-rewrite Hr in n.
-            apply Nat.nlt_ge in n.
-            erewrite <- nth_r_n in n; try eassumption; eauto .
+            unfold v in H.
+            Set Printing Width 79.
+            remember (multiplicity_decreases pol ns j) as p eqn:Hp .
+            destruct p; [ discriminate H |  ].
+            unfold multiplicity_decreases in Hp; simpl in Hp.
+            destruct
+             (lt_dec
+                (root_multiplicity acf (nth_c j pol ns)
+                   (Φq (nth_pol j pol ns) (nth_ns j pol ns)))
+                (root_multiplicity acf (ac_root (Φq pol ns)) (Φq pol ns))).
+             contradiction .
+
+             clear n0 Hp.
+             rewrite Hr in n.
+             apply Nat.nlt_ge in n.
+             erewrite <- nth_r_n in n; try eassumption; eauto  .
 
          apply summation_all_lt in H.
          eapply Qle_lt_trans; try eassumption.
@@ -498,9 +495,10 @@ rewrite Hr in n.
           rewrite Z.mul_succ_l.
           rewrite positive_nat_Z.
           rewrite <- Pos2Z.inj_mul.
-          rewrite <- Z.mul_1_r in |- * at 1.
+          rewrite <- Z.mul_1_r at 1.
           eapply Z.le_trans.
            apply Z.mul_le_mono_nonneg_l with (m := (' Qden ofs)%Z); auto.
+
            rewrite Z.one_succ.
            apply Zlt_le_succ.
            apply Pos2Z.is_pos.
@@ -520,13 +518,13 @@ rewrite Hr in n.
          intros a Ha.
          remember (nth_pol N pol₁ ns₁) as polN eqn:HpolN .
          remember (nth_ns N pol₁ ns₁) as nsN eqn:HnsN .
-         assert (List.In nsN (newton_segments polN)) as HnsNi.
+         assert (HnsNi : List.In nsN (newton_segments polN)).
           rewrite zerop_1st_n_const_coeff_false_iff in Hz.
           remember (m * q₀)%positive as m₁.
-          eapply nth_in_newton_segments_any_r with (ns₁ := ns₁); eauto .
+          eapply nth_in_newton_segments_any_r with (ns₁ := ns₁); eauto  .
           clear H.
           remember Hns₁ as H; clear HeqH.
-          eapply r_n_next_ns in H; try eassumption; eauto .
+          eapply r_n_next_ns in H; try eassumption; eauto  .
            destruct H as (αj₁, (αk₁, H)).
            destruct H as (Hini₁, (Hfin₁, (Hαj₁, Hαk₁))).
            eapply List_hd_in; try eassumption.
@@ -549,21 +547,24 @@ rewrite Hr in n.
              intros i Hi.
              clear H.
              pose proof (Hn i) as H.
-unfold v in H.
-remember (multiplicity_decreases pol ns i) as p eqn:Hp.
-destruct p; [ discriminate H | ].
-unfold multiplicity_decreases in Hp; simpl in Hp.
-destruct (
-       lt_dec
-         (root_multiplicity acf (nth_c i pol ns)
-            (Φq (nth_pol i pol ns) (nth_ns i pol ns)))
-         (root_multiplicity acf (ac_root (Φq pol ns)) (Φq pol ns))).
-contradiction.
-clear n0 Hp.
-            erewrite <- nth_r_n in n; try reflexivity.
-            apply Nat.nlt_ge in n.
-rewrite <- Hc, Hr in n.
-assumption.
+             Set Printing Width 79.
+             Set Printing Width 79.
+             unfold v in H.
+             remember (multiplicity_decreases pol ns i) as p eqn:Hp .
+             destruct p; [ discriminate H |  ].
+             unfold multiplicity_decreases in Hp; simpl in Hp.
+             destruct
+              (lt_dec
+                 (root_multiplicity acf (nth_c i pol ns)
+                    (Φq (nth_pol i pol ns) (nth_ns i pol ns)))
+                 (root_multiplicity acf (ac_root (Φq pol ns)) (Φq pol ns))).
+              contradiction .
+
+              clear n0 Hp.
+              erewrite <- nth_r_n in n; try reflexivity.
+              apply Nat.nlt_ge in n.
+              rewrite <- Hc, Hr in n.
+              assumption.
 
             simpl; rewrite <- Hc; assumption.
 
@@ -577,7 +578,7 @@ assumption.
 
           rename H into Huofs.
           remember HnsNi as H; clear HeqH.
-          eapply f₁_orders in H; try eassumption; eauto .
+          eapply f₁_orders in H; try eassumption; eauto  .
           erewrite <- nth_pol_succ in H; try eassumption.
            destruct H as (H, _).
            apply List_In_nth with (d := 0%ps) in Ha.
@@ -594,18 +595,31 @@ assumption.
           rewrite zerop_1st_n_const_coeff_succ; simpl.
           rewrite <- Hc, <- Hpol₁, <- Hns₁, Hz.
           remember (ps_poly_nth 0 pol) as x.
-          destruct (ps_zerop K x); [ contradiction | reflexivity ].
+          destruct (ps_zerop K x); [ contradiction  | reflexivity ].
 
           intros n.
           pose proof (Hn n) as H.
-bbb.
-          apply Nat.nlt_ge in H.
-          erewrite nth_r_n; eauto .
+          unfold v in H.
+          remember (multiplicity_decreases pol ns n) as p eqn:Hp .
+          destruct p; [ discriminate H |  ].
+          unfold multiplicity_decreases in Hp; simpl in Hp.
+          destruct
+           (lt_dec
+              (root_multiplicity acf (nth_c n pol ns)
+                 (Φq (nth_pol n pol ns) (nth_ns n pol ns)))
+              (root_multiplicity acf (ac_root (Φq pol ns)) (Φq pol ns))).
+           contradiction .
+
+           clear n0 Hp.
+           erewrite <- nth_r_n in n1; try reflexivity.
+           apply Nat.nlt_ge in n1.
+           rewrite <- Hc, Hr in n1.
+           assumption.
 
        apply non_decr_imp_eq; auto.
         apply zerop_1st_n_const_coeff_false_iff.
         intros j Hj.
-        destruct j; [ assumption | idtac ].
+        destruct j; [ assumption |  ].
         apply le_S_n in Hj.
         apply Nat.le_0_r in Hj; subst j; simpl.
         rewrite <- Hc, <- Hpol₁; assumption.
@@ -614,18 +628,46 @@ bbb.
 
         intros j.
         pose proof (Hn j) as H.
-        apply Nat.nlt_ge in H.
-        erewrite nth_r_n; eauto .
+        unfold v in H.
+        remember (multiplicity_decreases pol ns j) as p eqn:Hp .
+        destruct p; [ discriminate H |  ].
+        unfold multiplicity_decreases in Hp; simpl in Hp.
+        destruct
+         (lt_dec
+            (root_multiplicity acf (nth_c j pol ns)
+               (Φq (nth_pol j pol ns) (nth_ns j pol ns)))
+            (root_multiplicity acf (ac_root (Φq pol ns)) (Φq pol ns))).
+         contradiction .
+
+         clear n0 Hp.
+         erewrite <- nth_r_n in n; try reflexivity.
+         apply Nat.nlt_ge in n.
+         rewrite <- Hc, Hr in n.
+         assumption.
 
        intros j.
        pose proof (Hn j) as H.
-       apply Nat.nlt_ge in H.
-       erewrite nth_r_n; eauto .
+       unfold v in H.
+       remember (multiplicity_decreases pol ns j) as p eqn:Hp .
+       destruct p; [ discriminate H |  ].
+       unfold multiplicity_decreases in Hp; simpl in Hp.
+       destruct
+        (lt_dec
+           (root_multiplicity acf (nth_c j pol ns)
+              (Φq (nth_pol j pol ns) (nth_ns j pol ns)))
+           (root_multiplicity acf (ac_root (Φq pol ns)) (Φq pol ns))).
+        contradiction .
+
+        clear n0 Hp.
+        erewrite <- nth_r_n in n; try reflexivity.
+        apply Nat.nlt_ge in n.
+        rewrite <- Hc, Hr in n.
+        assumption.
 
        rewrite zerop_1st_n_const_coeff_succ; simpl.
        rewrite <- Hc, <- Hpol₁, <- Hns₁, Hz.
        remember (ps_poly_nth 0 pol) as x.
-       destruct (ps_zerop K x); [ contradiction | reflexivity ].
+       destruct (ps_zerop K x); [ contradiction  | reflexivity ].
 
      exists s.
      apply order_inf.
