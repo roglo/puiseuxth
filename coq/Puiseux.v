@@ -34,7 +34,9 @@ Require Import RootAnyR.
 
 Set Implicit Arguments.
 
+(*
 Axiom exists_or_not_forall : ∀ P : nat → Prop, { ∃ n, P n } + { ∀ n, ¬P n }.
+*)
 
 Section theorems.
 
@@ -50,7 +52,7 @@ Definition multiplicity_decreases pol ns n :=
   let nsn := nth_ns n pol ns in
   let cn := nth_c n pol ns in
   let rn := root_multiplicity acf cn (Φq poln nsn) in
-  (rn < r)%nat.
+  lt_dec rn r.
 
 Theorem order_root_tail_nonneg_any_r_aux : ∀ pol ns c pol₁ ns₁ m q₀ n r,
   ns ∈ newton_segments pol
@@ -231,8 +233,14 @@ destruct r.
  apply multiplicity_neq_0; assumption.
 
  rename H into IHm.
+ set (u i := if multiplicity_decreases pol ns i then S O else O).
+ destruct (LPO u) as [Hn| Hn].
+  Focus 2.
+(*
  destruct (exists_or_not_forall (multiplicity_decreases pol ns)) as [Hn| Hn].
+*)
   destruct Hn as (n, Hn).
+  unfold u in Hn; clear u.
   unfold multiplicity_decreases in Hn.
   rewrite <- Hc, Hr in Hn.
   remember (nth_pol n pol ns) as poln eqn:Hpoln .
@@ -245,10 +253,15 @@ destruct r.
    subst poln nsn cn.
    rewrite <- Hc in Hrn.
    rewrite Hrn in Hr; subst rn.
-   exfalso; revert Hn; apply Nat.lt_irrefl.
+   exfalso.
+   destruct (lt_dec (S r) (S r)) as [H| H]; [ | apply Hn, eq_refl ].
+   revert H; apply lt_irrefl.
 
    remember (List.hd phony_ns (newton_segments pol₁)) as ns₁ eqn:Hns₁ .
    erewrite <- nth_r_n in Hrn; try eassumption; subst rn.
+   destruct (lt_dec (nth_r (S n) pol ns) (S r)) as [H| H].
+   2: exfalso; apply Hn, eq_refl.
+   clear Hn; rename H into Hn.
    apply lowest_i_such_that_ri_lt_r₀ in Hn; [ idtac | subst; auto ].
    destruct Hn as (i, (Hin, (Hir, Hri))).
    destruct Hir as [Hir| Hir].
@@ -389,8 +402,11 @@ destruct r.
 
         eapply root_when_fin; try eassumption.
 
+      unfold u in Hn; clear u.
       unfold multiplicity_decreases in Hn; simpl in Hn.
+(*
       rewrite <- Hc, Hr in Hn.
+*)
       rewrite root_tail_when_r_r with (n := N) (r := S r) in Hofs;
        try eassumption.
        remember (root_tail (m * q₀) 0 pol₁ ns₁) as s eqn:Hs .
