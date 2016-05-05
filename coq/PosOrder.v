@@ -1177,19 +1177,6 @@ apply ps_lap_in_add in Hm; [ assumption | idtac | idtac ].
  left; reflexivity.
 Qed.
 
-(* to be moved to the good file *)
-Theorem lap_mul_summation : ∀ α' (Kx : ring (puiseux_series α')) la l f,
-  (la * lap_summation l f = lap_summation l (λ i, la * f i))%lap.
-Proof.
-clear.
-intros α' Kx la l f.
-induction l as [| j]; intros; simpl.
- rewrite lap_mul_nil_r; reflexivity.
-
- rewrite lap_mul_add_distr_l, IHl.
- reflexivity.
-Qed.
-
 Theorem ps_monom_order : ∀ c n, (c ≠ 0)%K → order (ps_monom c n) = qfin n.
 Proof.
 intros c n Hc.
@@ -1393,7 +1380,7 @@ assert (m ≠ 0)%ps as Hmnz.
    remember (ps_poly_nth h pol) as āh.
    apply Qbar.lt_sub_lt_add_l; [ intros H; discriminate H | idtac ].
    rewrite Qbar.sub_0_l.
-   destruct (ac_zerop 1%K) as [Hoz| Honz].
+   destruct (fld_zerop 1%K) as [Hoz| Honz].
     rewrite ps_monom_0_order; [ simpl | assumption ].
     rewrite order_mul.
     rewrite ps_monom_0_order; [ simpl | assumption ].
@@ -1409,7 +1396,7 @@ assert (m ≠ 0)%ps as Hmnz.
      remember Hns as Hsort; clear HeqHsort.
      apply ini_oth_fin_pts_sorted in Hsort.
      rewrite <- Hpl in Hsort.
-     pose proof (points_in_newton_segment_have_nat_abscissa R pol ns Hns)
+     pose proof (points_in_newton_segment_have_nat_abscissa K pol ns Hns)
       as Hnat.
      rewrite <- Hpl in Hnat.
      revert Hsort Hnat; clear; intros.

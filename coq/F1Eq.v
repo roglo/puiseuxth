@@ -173,6 +173,18 @@ induction l as [| x]; intros; [ assumption | idtac ].
 apply Hcomp; assumption.
 Qed.
 
+Theorem lap_mul_summation :
+  ∀ α (Rx : ring (puiseux_series α)) (Kx : field Rx) la l f,
+  (la * lap_summation l f = lap_summation l (λ i, la * f i))%lap.
+Proof.
+intros α Rx Kx la l f.
+induction l as [| j]; intros; simpl.
+ rewrite lap_mul_nil_r; reflexivity.
+
+ rewrite lap_mul_add_distr_l, IHl.
+ reflexivity.
+Qed.
+
 Section on_fields.
 
 Variable α : Type.
