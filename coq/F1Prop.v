@@ -39,7 +39,7 @@ Proof. reflexivity. Qed.
 
 Theorem ps_poly_lap_summ : ∀ f g l,
   (∀ i, (f i = POL (g i))%pspol)
-  → (ps_pol_summ l f = POL (ps_lap_summ l g))%pspol.
+  → (ps_pol_summ ps_field l f = POL (ps_lap_summ ps_field l g))%pspol.
 Proof.
 intros f g l Hi.
 unfold ps_pol_eq, ps_pol in Hi.
@@ -62,8 +62,8 @@ set (v₁ := (ps_ordnum a * ' k₁)%Z).
 set (v₂ := (ps_ordnum b * ' k₂)%Z).
 set (n₁ := Z.to_nat (v₂ - Z.min v₁ v₂)).
 set (n₂ := Z.to_nat (v₁ - Z.min v₁ v₂)).
-pose proof (ps_adjust_eq R a n₂ k₁) as Ha.
-pose proof (ps_adjust_eq R b n₁ k₂) as Hb.
+pose proof (ps_adjust_eq K a n₂ k₁) as Ha.
+pose proof (ps_adjust_eq K b n₁ k₂) as Hb.
 symmetry.
 rewrite Hb in Hab.
 rewrite Ha in Hab.
@@ -84,9 +84,9 @@ progress unfold order in Hopa, Hopb.
 progress unfold order; simpl.
 remember (ps_terms pa) as sa eqn:Hsa .
 remember (ps_terms pb) as sb eqn:Hsb .
-remember (series_order R sa 0) as na eqn:Hna .
-remember (series_order R sb 0) as nb eqn:Hnb .
-remember (series_order R (sa + sb)%ser 0) as nc eqn:Hnc .
+remember (series_order sa 0) as na eqn:Hna .
+remember (series_order sb 0) as nb eqn:Hnb .
+remember (series_order (sa + sb)%ser 0) as nc eqn:Hnc .
 symmetry in Hna, Hnb, Hnc.
 clear Hsa Hsb Ha Hb.
 apply series_order_iff in Hna; simpl in Hna.
@@ -366,7 +366,7 @@ induction n; simpl.
   exfalso; apply Ha.
   apply order_inf; assumption.
 
- rewrite order_mul; [ idtac | assumption ].
+ rewrite order_mul.
  rewrite IHn.
  remember (order a) as v eqn:Hv .
  symmetry in Hv.
@@ -379,7 +379,7 @@ induction n; simpl.
 Qed.
 
 Theorem ps_lap_nth_0_apply_0 : ∀ la,
-  (ps_lap_nth 0 la = @apply_lap _ (ps_ring R) la 0)%ps.
+  (ps_lap_nth 0 la = @apply_lap _ (ps_ring K) la 0)%ps.
 Proof.
 intros la.
 induction la as [| a]; [ reflexivity | simpl ].
@@ -388,7 +388,7 @@ reflexivity.
 Qed.
 
 Theorem apply_lap_inject_K_in_Kx_monom : ∀ P c,
-  (@apply_lap _ (ps_ring R) (lap_inject_K_in_Kx P) (ps_monom c 0) =
+  (@apply_lap _ (ps_ring K) (lap_inject_K_in_Kx P) (ps_monom c 0) =
    ps_monom (apply_lap P c) 0)%ps.
 Proof.
 intros P c.
@@ -609,6 +609,7 @@ induction la as [| a]; intros; simpl.
   progress unfold ps_lap_mul.
   do 2 rewrite lap_mul_cons; simpl.
   constructor; [ simpl; apply ps_monom_mul | idtac ].
+Check lap_add_map_ps.
   rewrite lap_add_map_ps.
   unfold ps_lap_mul in IHla.
   unfold ps_lap_eq in IHla.
