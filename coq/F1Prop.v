@@ -609,8 +609,12 @@ induction la as [| a]; intros; simpl.
   progress unfold ps_lap_mul.
   do 2 rewrite lap_mul_cons; simpl.
   constructor; [ simpl; apply ps_monom_mul | idtac ].
-Check lap_add_map_ps.
+(**)
+  symmetry.
+  eapply ps_lap_eq_trans; [ apply lap_add_map_ps | ].
+(*
   rewrite lap_add_map_ps.
+*)
   unfold ps_lap_mul in IHla.
   unfold ps_lap_eq in IHla.
   rewrite IHla.
@@ -618,8 +622,18 @@ Check lap_add_map_ps.
   simpl.
   rewrite ps_zero_monom_eq.
   apply lap_add_compat; [ idtac | reflexivity ].
+(**)
+  eapply ps_lap_eq_trans; [ apply lap_add_map_ps | ].
+(*
   rewrite lap_add_map_ps.
+*)
+(**)
+  apply lap_add_compat.
+   eapply ps_lap_eq_trans; [ apply lap_mul_map_ps | reflexivity ].
+   eapply ps_lap_eq_trans; [ apply lap_mul_map_ps | reflexivity ].
+(*
   apply lap_add_compat; rewrite lap_mul_map_ps; reflexivity.
+*)
 Qed.
 
 Theorem lap_inject_comp : ∀ la lb,
@@ -720,7 +734,7 @@ Theorem char_pol_root_ne_0 : ∀ pol ns m c₁,
 Proof.
 intros pol ns m c₁ Hns Hm Hc₁.
 remember Hns as Happ; clear HeqHapp.
-eapply cpol_degree_ge_1 with (K := K) (acf := acf) in Happ; eauto .
+eapply cpol_degree_ge_1 with (K := K) in Happ; eauto .
 apply ac_prop_root in Happ.
 rewrite <- Hc₁ in Happ.
 remember Hns as Hini; clear HeqHini.
@@ -770,7 +784,7 @@ assert (order (ps_lap_nth r (yr * ycj * psy ∘ yc)) = 0)%Qbar as Hor.
  rewrite list_nth_lap_convol_mul; [ idtac | reflexivity ].
  unfold summation; simpl.
  rewrite ps_add_0_r.
- rewrite order_mul; [ idtac | assumption ].
+ rewrite order_mul.
  rewrite fold_ps_lap_nth.
  rewrite ps_lap_nth_0_cons_pow.
  rewrite order_pow.
