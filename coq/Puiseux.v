@@ -233,14 +233,14 @@ destruct r.
  apply multiplicity_neq_0; assumption.
 
  rename H into IHm.
- set (u i := if multiplicity_decreases pol ns i then S O else O).
- destruct (LPO u) as [Hn| Hn].
+ set (v i := if multiplicity_decreases pol ns i then S O else O).
+ destruct (LPO v) as [Hn| Hn].
   Focus 2.
 (*
  destruct (exists_or_not_forall (multiplicity_decreases pol ns)) as [Hn| Hn].
 *)
   destruct Hn as (n, Hn).
-  unfold u in Hn; clear u.
+  unfold v in Hn; clear v.
   unfold multiplicity_decreases in Hn.
   rewrite <- Hc, Hr in Hn.
   remember (nth_pol n pol ns) as poln eqn:Hpoln .
@@ -402,9 +402,9 @@ destruct r.
 
         eapply root_when_fin; try eassumption.
 
-      unfold u in Hn; clear u.
-      unfold multiplicity_decreases in Hn; simpl in Hn.
 (*
+      unfold multiplicity_decreases in v; simpl in v.
+      unfold u in Hn; clear u.
       rewrite <- Hc, Hr in Hn.
 *)
       rewrite root_tail_when_r_r with (n := N) (r := S r) in Hofs;
@@ -433,6 +433,25 @@ destruct r.
 
            intros j.
            pose proof (Hn j) as H.
+unfold v in H.
+remember (multiplicity_decreases pol ns j) as p eqn:Hp.
+destruct p; [ discriminate H | ].
+unfold multiplicity_decreases in Hp; simpl in Hp.
+destruct (
+       lt_dec
+         (root_multiplicity acf (nth_c j pol ns)
+            (Φq (nth_pol j pol ns) (nth_ns j pol ns)))
+         (root_multiplicity acf (ac_root (Φq pol ns)) (Φq pol ns))).
+contradiction.
+
+(*
+erewrite nth_r_n; try reflexivity.
+clear Hp.
+rewrite Hr in n0.
+Check nth_r_n.
+exfalso; apply n0.
+erewrite <- nth_r_n; try reflexivity.
+*)
            apply Nat.nlt_ge in H.
            erewrite <- nth_r_n in H; try eassumption; eauto .
 
