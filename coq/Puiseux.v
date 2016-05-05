@@ -108,7 +108,7 @@ induction n; intros.
  rewrite Qden_inv_Qnat_sub; auto.
  rewrite Z.add_0_r, Z.mul_1_r.
  remember (root_tail_series_from_cγ_list m₁ pol₁ ns₁) as t.
- remember (series_order R {| terms := t |} 0) as v eqn:Hv .
+ remember (series_order {| terms := t |} 0) as v eqn:Hv .
  symmetry in Hv.
  destruct v; [ idtac | constructor ].
  apply Qbar.qfin_le_mono.
@@ -131,7 +131,7 @@ induction n; intros.
  remember (ac_root (Φq pol₁ ns₁)) as c₁ eqn:Hc₁ .
  remember (next_pol pol₁ (β ns₁) (γ ns₁) c₁) as pol₂ eqn:Hpol₂ .
  remember (List.hd phony_ns (newton_segments pol₂)) as ns₂ eqn:Hns₂ .
- destruct (ps_zerop R (ps_poly_nth 0 pol₁)) as [H₁| H₁].
+ destruct (ps_zerop K (ps_poly_nth 0 pol₁)) as [H₁| H₁].
   discriminate Hz₁.
 
   remember (m * q₀)%positive as m₁ eqn:Hm₁ .
@@ -209,7 +209,7 @@ destruct z₁.
    rewrite zerop_1st_n_const_coeff_succ; simpl.
    rewrite <- Hc, <- Hpol₁, <- Hns₁; rewrite Hz₁.
    remember (ps_poly_nth 0 pol) as x.
-   destruct (ps_zerop R x); [ contradiction | reflexivity ].
+   destruct (ps_zerop K x); [ contradiction | reflexivity ].
 
    simpl; rewrite <- Hc; assumption.
 Qed.
@@ -267,7 +267,7 @@ destruct r.
      remember (newton_segments polsi) as nsl eqn:Hnsl .
      symmetry in Hnsl.
      destruct nsl as [| ns₂].
-      destruct (ps_zerop R (ps_poly_nth 0 pol₁)) as [H₁| H₁].
+      destruct (ps_zerop K (ps_poly_nth 0 pol₁)) as [H₁| H₁].
        apply a₀_0_root_0 in H₁.
        exists 0%ps; assumption.
 
@@ -280,7 +280,7 @@ destruct r.
         destruct Hjz as [Hjz| Hjz].
          subst j.
          simpl in Hjnz.
-         destruct (ps_zerop R (ps_poly_nth 0 pol₁)).
+         destruct (ps_zerop K (ps_poly_nth 0 pol₁)).
           contradiction.
 
           discriminate Hjnz.
@@ -303,7 +303,7 @@ destruct r.
        destruct Hle as [Hle| Hle].
         subst m.
         simpl in Heq.
-        destruct (ps_zerop R (ps_poly_nth 0 pol₁)) as [H₂| H₂].
+        destruct (ps_zerop K (ps_poly_nth 0 pol₁)) as [H₂| H₂].
          exists 0%ps.
          apply a₀_0_root_0; assumption.
 
@@ -345,9 +345,9 @@ destruct r.
         apply nth_r_n; try eassumption.
         erewrite nth_c_n; try eassumption; reflexivity.
 
-  pose proof (exists_pol_ord R pol) as H.
+  pose proof (exists_pol_ord K pol) as H.
   destruct H as (m, Hm).
-  destruct (ac_zerop 1%K) as [H₀| H₀].
+  destruct (fld_zerop 1%K) as [H₀| H₀].
    exists 0%ps.
    unfold ps_pol_apply, apply_poly, apply_lap; simpl.
    remember (al pol₁) as la; clear Heqla.
@@ -355,7 +355,7 @@ destruct r.
    rewrite rng_mul_0_r, rng_add_0_l.
    apply eq_1_0_ps_0; assumption.
 
-   destruct (ps_zerop R (ps_poly_nth 0 pol₁)) as [H₁| H₁].
+   destruct (ps_zerop K (ps_poly_nth 0 pol₁)) as [H₁| H₁].
     exists 0%ps.
     apply a₀_0_root_0; assumption.
 
@@ -376,7 +376,7 @@ destruct r.
       destruct N.
        exists 0%ps.
        simpl in Hz.
-       destruct (ps_zerop R (ps_poly_nth 0 pol₁)); [ contradiction | idtac ].
+       destruct (ps_zerop K (ps_poly_nth 0 pol₁)); [ contradiction | idtac ].
        discriminate Hz.
 
        apply lowest_zerop_1st_n_const_coeff in Hz.
@@ -384,7 +384,7 @@ destruct r.
        destruct Hji as [Hi| Hpi].
         subst i.
         simpl in Hz.
-        destruct (ps_zerop R (ps_poly_nth 0 pol₁)); [ contradiction | idtac ].
+        destruct (ps_zerop K (ps_poly_nth 0 pol₁)); [ contradiction | idtac ].
         discriminate Hz.
 
         eapply root_when_fin; try eassumption.
@@ -532,7 +532,7 @@ destruct r.
           rewrite zerop_1st_n_const_coeff_succ; simpl.
           rewrite <- Hc, <- Hpol₁, <- Hns₁, Hz.
           remember (ps_poly_nth 0 pol) as x.
-          destruct (ps_zerop R x); [ contradiction | reflexivity ].
+          destruct (ps_zerop K x); [ contradiction | reflexivity ].
 
           intros n.
           pose proof (Hn n) as H.
@@ -562,7 +562,7 @@ destruct r.
        rewrite zerop_1st_n_const_coeff_succ; simpl.
        rewrite <- Hc, <- Hpol₁, <- Hns₁, Hz.
        remember (ps_poly_nth 0 pol) as x.
-       destruct (ps_zerop R x); [ contradiction | reflexivity ].
+       destruct (ps_zerop K x); [ contradiction | reflexivity ].
 
      exists s.
      apply order_inf.
@@ -570,7 +570,7 @@ destruct r.
 Qed.
 
 Theorem degree_pos_imp_has_ns : ∀ pol,
-  degree (ps_zerop R) pol ≥ 1
+  degree (ps_zerop K) pol ≥ 1
   → (ps_poly_nth 0 pol ≠ 0)%ps
   → newton_segments pol ≠ [].
 Proof.
@@ -585,10 +585,10 @@ remember (al pol) as la eqn:Hla .
 clear pol Hla.
 destruct la as [| a]; [ apply Hnz; reflexivity | idtac ].
 simpl in Hdeg, Hnz, Hnsl.
-remember (degree_plus_1_of_list (ps_zerop R) la) as d eqn:Hd .
+remember (degree_plus_1_of_list (ps_zerop K) la) as d eqn:Hd .
 symmetry in Hd.
 destruct d.
- destruct (ps_zerop R a) as [H₁| H₁].
+ destruct (ps_zerop K a) as [H₁| H₁].
   apply Nat.nlt_ge in Hdeg; apply Hdeg, Nat.lt_0_1.
 
   apply Nat.nlt_ge in Hdeg; apply Hdeg, Nat.lt_0_1.
@@ -602,10 +602,10 @@ destruct d.
  revert a d va pow Hd Hva Hnsl.
  induction la as [| b]; intros; [ discriminate Hd | idtac ].
  simpl in Hd.
- remember (degree_plus_1_of_list (ps_zerop R) la) as e eqn:He  in Hd.
+ remember (degree_plus_1_of_list (ps_zerop K) la) as e eqn:He  in Hd.
  symmetry in He.
  destruct e.
-  destruct (ps_zerop R b) as [H₁| H₁]; [ discriminate Hd | idtac ].
+  destruct (ps_zerop K b) as [H₁| H₁]; [ discriminate Hd | idtac ].
   clear d Hd.
   simpl in Hnsl.
   apply order_fin in H₁.
@@ -622,7 +622,7 @@ destruct d.
 Qed.
 
 Theorem puiseux_series_algeb_closed : ∀ (pol : polynomial (puiseux_series α)),
-  degree (ps_zerop R) pol ≥ 1
+  degree (ps_zerop K) pol ≥ 1
   → ∃ s, (ps_pol_apply pol s = 0)%ps.
 Proof.
 intros pol Hdeg.
