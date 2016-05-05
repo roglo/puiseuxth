@@ -452,8 +452,10 @@ Check nth_r_n.
 exfalso; apply n0.
 erewrite <- nth_r_n; try reflexivity.
 *)
-           apply Nat.nlt_ge in H.
-           erewrite <- nth_r_n in H; try eassumption; eauto .
+clear n0 Hp.
+apply Nat.nlt_ge in n.
+rewrite Hr in n.
+erewrite <- nth_r_n in n; try eassumption; eauto .
 
            apply non_decr_imp_eq; try assumption.
             apply zerop_1st_n_const_coeff_false_succ; auto; simpl.
@@ -461,8 +463,20 @@ erewrite <- nth_r_n; try reflexivity.
 
             intros j.
             pose proof (Hn j) as H.
-            apply Nat.nlt_ge in H.
-            erewrite <- nth_r_n in H; try eassumption; eauto .
+unfold v in H.
+remember (multiplicity_decreases pol ns j) as p eqn:Hp.
+destruct p; [ discriminate H | ].
+unfold multiplicity_decreases in Hp; simpl in Hp.
+destruct (
+       lt_dec
+         (root_multiplicity acf (nth_c j pol ns)
+            (Φq (nth_pol j pol ns) (nth_ns j pol ns)))
+         (root_multiplicity acf (ac_root (Φq pol ns)) (Φq pol ns))).
+contradiction.
+clear n0 Hp.
+rewrite Hr in n.
+            apply Nat.nlt_ge in n.
+            erewrite <- nth_r_n in n; try eassumption; eauto .
 
          apply summation_all_lt in H.
          eapply Qle_lt_trans; try eassumption.
