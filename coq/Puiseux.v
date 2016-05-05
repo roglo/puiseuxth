@@ -549,8 +549,21 @@ rewrite Hr in n.
              intros i Hi.
              clear H.
              pose proof (Hn i) as H.
-             apply Nat.nlt_ge in H.
-             erewrite nth_r_n; try eassumption; eauto .
+unfold v in H.
+remember (multiplicity_decreases pol ns i) as p eqn:Hp.
+destruct p; [ discriminate H | ].
+unfold multiplicity_decreases in Hp; simpl in Hp.
+destruct (
+       lt_dec
+         (root_multiplicity acf (nth_c i pol ns)
+            (Φq (nth_pol i pol ns) (nth_ns i pol ns)))
+         (root_multiplicity acf (ac_root (Φq pol ns)) (Φq pol ns))).
+contradiction.
+clear n0 Hp.
+            erewrite <- nth_r_n in n; try reflexivity.
+            apply Nat.nlt_ge in n.
+rewrite <- Hc, Hr in n.
+assumption.
 
             simpl; rewrite <- Hc; assumption.
 
@@ -585,6 +598,7 @@ rewrite Hr in n.
 
           intros n.
           pose proof (Hn n) as H.
+bbb.
           apply Nat.nlt_ge in H.
           erewrite nth_r_n; eauto .
 
