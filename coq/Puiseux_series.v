@@ -199,6 +199,19 @@ remember (sequence_diff v) as w eqn:Hw.
 remember (sequence_all_zero_from w) as t eqn:Ht.
 destruct (LPO t) as [p| (i, Hi)].
  exfalso; clear k H.
+ assert (∀ i, w i ≠ O).
+  intros i H.
+  pose proof (p (S i)) as pi.
+  subst t.
+  unfold sequence_all_zero_from in pi.
+  destruct (LPO (λ j, w (S i + j)%nat)); [ discriminate pi | clear pi ].
+  destruct s0 as (j, Hj).
+  pose proof (p (S i + j)%nat) as pj.
+  unfold sequence_all_zero_from in pj.
+  destruct (LPO (λ k, w (S i + j + k)%nat)); [ discriminate pj | clear pj ].
+  destruct s0 as (k, Hk).
+bbb.
+
  pose proof (p O) as H.
  subst t.
  unfold sequence_all_zero_from in H; simpl in H.
