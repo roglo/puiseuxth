@@ -137,16 +137,10 @@ Qed.
 Arguments series_order _ _ _ s%ser n%nat.
 
 (*
-Fixpoint series_gcd s n accu :=
+Fixpoint series_gcd_upto n s accu :=
   match n with
   | O => accu
-  | S n' => series_gcd s n' (Nat.gcd s.[n'] accu)
-  end.
-
-Fixpoint greatest_series_x_power α (R : ring α) s n :=
-  match series_order R s (S n) with
-  | fin p => Nat.gcd p (greatest_series_x_power R s (S n + p)%nat)
-  | ∞ => O
+  | S n' => series_gcd_upto n' s (Nat.gcd s.[n'] accu)
   end.
 *)
 
@@ -163,6 +157,16 @@ Fixpoint nth_series_order α (R : ring α) (K : field R) s n b :=
   end.
 Definition is_a_series_in_x_power α {R : ring α} {K : field R} s b k :=
   ∀ n, (k | nth_series_order K s n b).
+
+(*
+Definition greatest_series_x_power : ∀ α (R : ring α) (K : field R),
+  power_series α → nat → nat.
+Proof.
+intros α R K s n.
+remember (series_order s (S n)) as ord eqn:Hord.
+symmetry in Hord.
+destruct ord as [ord| ].
+*)
 
 Axiom greatest_series_x_power : ∀ α (R : ring α) (K : field R),
   power_series α → nat → nat.
