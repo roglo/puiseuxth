@@ -169,7 +169,7 @@ Definition sequence_all_zero_from s n :=
   | inr (exist _ i _) => O
   end.
 
-(*
+(**)
 Definition greatest_series_x_power : ∀ α (R : ring α) (K : field R),
   power_series α → nat → nat.
 Proof.
@@ -199,8 +199,13 @@ remember (sequence_diff v) as w eqn:Hw.
 remember (sequence_all_zero_from w) as t eqn:Ht.
 destruct (LPO t) as [p| (i, Hi)].
  exfalso; clear k H.
- subst t.
- unfold sequence_all_zero_from in p.
+ assert (∀ i, w i = O).
+  intros i.
+  subst w.
+  unfold sequence_diff; simpl.
+  destruct i; [ apply eq_refl | ].
+  unfold sequence_all_zero_from in Ht.
+  unfold sequence_diff in Ht.
 bbb.
 *)
 
