@@ -150,7 +150,7 @@ Fixpoint nth_series_order α (R : ring α) (K : field R) s n b :=
 Definition is_a_series_in_x_power α {R : ring α} {K : field R} s b k :=
   ∀ n, (k | nth_series_order K s n b).
 
-(*
+(**)
 Fixpoint sequence_gcd_upto s accu n :=
   match n with
   | O => accu
@@ -169,6 +169,7 @@ Definition sequence_all_zero_from s n :=
   | inr (exist _ i _) => O
   end.
 
+(*
 Definition greatest_series_x_power : ∀ α (R : ring α) (K : field R),
   power_series α → nat → nat.
 Proof.
@@ -197,13 +198,9 @@ remember (sequence_gcd_upto u O) as v eqn:Hv.
 remember (sequence_diff v) as w eqn:Hw.
 remember (sequence_all_zero_from w) as t eqn:Ht.
 destruct (LPO t) as [p| (i, Hi)].
- subst k.
- remember (series_order s (S n)) as so eqn:Hso.
- symmetry in Hso.
- destruct so as [o| ].
- split.
-  intros m.
-  unfold divide.
+ exfalso; clear k H.
+ subst t.
+ unfold sequence_all_zero_from in p.
 bbb.
 *)
 
