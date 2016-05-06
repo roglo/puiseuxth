@@ -160,7 +160,7 @@ Fixpoint sequence_gcd_upto s accu n :=
 Definition sequence_diff s n :=
   match n with
   | O => O
-  | S n' => (s n - s n')%nat
+  | S n' => (s n' - s n)%nat
   end.
 
 Definition sequence_all_zero_from s n :=
@@ -199,11 +199,25 @@ remember (sequence_diff v) as w eqn:Hw.
 remember (sequence_all_zero_from w) as t eqn:Ht.
 destruct (LPO t) as [p| (i, Hi)].
  exfalso; clear k H.
- assert (∀ i, w i = O).
-  intros i.
+ pose proof (p O) as H.
+ subst t.
+ unfold sequence_all_zero_from in H; simpl in H.
+ remember (LPO (λ i, w i)) as x eqn:Hx.
+ destruct x as [| x]; [ discriminate H | clear H ].
+ destruct x as (i, Hi).
+ subst w.
+ unfold sequence_diff in Hi.
+ destruct i; [ apply Hi, eq_refl | ].
+bbb.
+
+ assert (∀ i, w i ≠ O).
+  intros i H.
+
   subst w.
-  unfold sequence_diff; simpl.
-  destruct i; [ apply eq_refl | ].
+  unfold sequence_diff in H.
+  destruct i.
+   clear H.
+
   unfold sequence_all_zero_from in Ht.
   unfold sequence_diff in Ht.
 bbb.
