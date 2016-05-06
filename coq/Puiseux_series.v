@@ -177,8 +177,34 @@ remember (nth_series_order K s n) as u eqn:Hu.
 remember (sequence_gcd_upto u O) as v eqn:Hv.
 remember (sequence_diff v) as w eqn:Hw.
 remember (sequence_all_zero_from w) as t eqn:Ht.
-destruct (LPO t) as [H| (i, Hi)].
-to be completed...
+destruct (LPO t) as [H| (i, Hi)]; [ apply O | apply i ].
+Defined.
+
+Theorem greatest_series_x_power_iff : ∀ α (R : ring α) (K : field R) s n k,
+  greatest_series_x_power K s n = k ↔
+  match series_order s (S n) with
+  | fin _ =>
+      is_a_series_in_x_power s n k ∧
+      (∀ k', (k < k')%nat → ∃ n', ¬(k' | nth_series_order K s n' n))
+  | ∞ =>
+      k = O
+  end.
+Proof.
+intros; split; intros H.
+unfold greatest_series_x_power in H.
+remember (nth_series_order K s n) as u eqn:Hu.
+remember (sequence_gcd_upto u O) as v eqn:Hv.
+remember (sequence_diff v) as w eqn:Hw.
+remember (sequence_all_zero_from w) as t eqn:Ht.
+destruct (LPO t) as [p| (i, Hi)].
+ subst k.
+ remember (series_order s (S n)) as so eqn:Hso.
+ symmetry in Hso.
+ destruct so as [o| ].
+ split.
+  intros m.
+  unfold divide.
+bbb.
 *)
 
 Axiom greatest_series_x_power : ∀ α (R : ring α) (K : field R),
