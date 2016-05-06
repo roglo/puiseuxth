@@ -136,14 +136,6 @@ Qed.
 
 Arguments series_order _ _ _ s%ser n%nat.
 
-(*
-Fixpoint series_gcd_upto n s accu :=
-  match n with
-  | O => accu
-  | S n' => series_gcd_upto n' s (Nat.gcd s.[n'] accu)
-  end.
-*)
-
 (* [greatest_series_x_power fld s n] returns the greatest nat value [k]
    such that [s], starting at index [n], is a series in [x^k]. *)
 Fixpoint nth_series_order α (R : ring α) (K : field R) s n b :=
@@ -159,13 +151,34 @@ Definition is_a_series_in_x_power α {R : ring α} {K : field R} s b k :=
   ∀ n, (k | nth_series_order K s n b).
 
 (*
+Fixpoint sequence_gcd_upto s accu n :=
+  match n with
+  | O => accu
+  | S n' => sequence_gcd_upto s (Nat.gcd (s n') accu) n'
+  end.
+
+Definition sequence_diff s n :=
+  match n with
+  | O => O
+  | S n' => (s n - s n')%nat
+  end.
+
+Definition sequence_all_zero_from s n :=
+  match LPO (λ i, s (n + i)%nat) with
+  | inl _ => S O
+  | inr (exist _ i _) => O
+  end.
+
 Definition greatest_series_x_power : ∀ α (R : ring α) (K : field R),
   power_series α → nat → nat.
 Proof.
 intros α R K s n.
-remember (series_order s (S n)) as ord eqn:Hord.
-symmetry in Hord.
-destruct ord as [ord| ].
+remember (nth_series_order K s n) as u eqn:Hu.
+remember (sequence_gcd_upto u O) as v eqn:Hv.
+remember (sequence_diff v) as w eqn:Hw.
+remember (sequence_all_zero_from w) as t eqn:Ht.
+destruct (LPO t) as [H| (i, Hi)].
+to be completed...
 *)
 
 Axiom greatest_series_x_power : ∀ α (R : ring α) (K : field R),
