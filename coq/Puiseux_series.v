@@ -151,10 +151,10 @@ Definition is_a_series_in_x_power α {R : ring α} {K : field R} s b k :=
   ∀ n, (k | nth_series_order K s n b).
 
 (**)
-Fixpoint sequence_gcd_upto s accu n :=
+Fixpoint sequence_gcd_upto s n :=
   match n with
-  | O => accu
-  | S n' => sequence_gcd_upto s (Nat.gcd (s n') accu) n'
+  | O => s O
+  | S n' => Nat.gcd (s n) (sequence_gcd_upto s n')
   end.
 
 Definition sequence_diff s n :=
@@ -175,7 +175,7 @@ Definition greatest_series_x_power : ∀ α (R : ring α) (K : field R),
 Proof.
 intros α R K s n.
 remember (nth_series_order K s n) as u eqn:Hu.
-remember (sequence_gcd_upto u O) as v eqn:Hv.
+remember (sequence_gcd_upto u) as v eqn:Hv.
 remember (sequence_diff v) as w eqn:Hw.
 remember (sequence_all_zero_from w) as t eqn:Ht.
 destruct (LPO t) as [H| (i, Hi)]; [ apply O | apply i ].
@@ -194,14 +194,13 @@ Proof.
 intros; split; intros H.
 unfold greatest_series_x_power in H.
 remember (nth_series_order K s n) as u eqn:Hu.
-remember (sequence_gcd_upto u O) as v eqn:Hv.
+remember (sequence_gcd_upto u) as v eqn:Hv.
 remember (sequence_diff v) as w eqn:Hw.
 remember (sequence_all_zero_from w) as t eqn:Ht.
 assert (Pv : ∀ i, v (S i) ≤ v i).
  intros i.
  induction i.
-  subst v; simpl.
-  rewrite Nat.gcd_0_r.
+  subst v; apply Nat_gcd_le_r.
   subst u.
 
 bbb.

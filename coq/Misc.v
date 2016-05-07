@@ -884,6 +884,13 @@ destruct c; [ contradiction | simpl ].
 apply le_plus_l.
 Qed.
 
+Theorem Nat_gcd_le_r : ∀ a b, (b ≠ 0 → Nat.gcd a b ≤ b)%nat.
+Proof.
+intros a b Hb.
+rewrite Nat.gcd_comm.
+apply Nat_gcd_le_l; assumption.
+Qed.
+
 Theorem Nat_le_lcm_l : ∀ a b, (b ≠ 0 → a ≤ Nat.lcm a b)%nat.
 Proof.
 intros a b Hb.
