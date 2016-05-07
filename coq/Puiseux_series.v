@@ -136,8 +136,6 @@ Qed.
 
 Arguments series_order _ _ _ s%ser n%nat.
 
-(* [greatest_series_x_power fld s n] returns the greatest nat value [k]
-   such that [s], starting at index [n], is a series in [x^k]. *)
 Fixpoint nth_series_order α (R : ring α) (K : field R) s n b :=
   match series_order s (S b) with
   | fin p =>
@@ -169,7 +167,8 @@ Definition sequence_all_zero_from s n :=
   | inr (exist _ i _) => O
   end.
 
-(**)
+(* [greatest_series_x_power K s n] returns the greatest nat value [k]
+   such that [s], starting at index [n], is a series in [x^k]. *)
 Definition greatest_series_x_power : ∀ α (R : ring α) (K : field R),
   power_series α → nat → nat.
 Proof.
@@ -180,6 +179,51 @@ remember (sequence_diff v) as w eqn:Hw.
 remember (sequence_all_zero_from w) as t eqn:Ht.
 destruct (LPO t) as [H| (i, Hi)]; [ apply O | apply i ].
 Defined.
+
+Theorem nth_series_order_zero α (R : ring α) (K : field R) : ∀ s n i,
+  nth_series_order K s n i = O
+  → nth_series_order K s n (S i) = O.
+Proof.
+intros.
+revert i H.
+induction n; intros.
+ simpl in H; simpl.
+ remember (series_order s (S (S i))) as s2 eqn:Hs2; symmetry in Hs2.
+ destruct s2 as [p2| ]; [ exfalso | reflexivity ].
+ apply series_order_iff in Hs2.
+ remember (series_order s (S i)) as s1 eqn:Hs1; symmetry in Hs1.
+ destruct s1 as [p1| ]; [ discriminate H | clear H ].
+ apply series_order_iff in Hs1.
+ destruct Hs2 as (_, Hs2).
+ rewrite Nat.add_succ_l, <- Nat.add_succ_r in Hs2.
+ apply Hs2, Hs1.
+
+ simpl in H; simpl.
+ remember (series_order s (S i)) as s1 eqn:Hs1; symmetry in Hs1.
+ destruct s1 as [p1| ].
+  remember (series_order s (S (S i))) as s2 eqn:Hs2; symmetry in Hs2.
+  destruct s2 as [p2| ]; [ | reflexivity ].
+bbb.
+  apply IHn in H.
+bbb.
+
+ remember (series_order s (S (S i))) as s2 eqn:Hs2; symmetry in Hs2.
+ destruct s2 as [p2| ]; [ exfalso | reflexivity ].
+(*
+ apply series_order_iff in Hs2.
+*)
+ destruct Hs2 as (Hs2, Hs3).
+ destruct s1 as [p1| ].
+  apply IHn in H.
+
+
+
+; [ discriminate H | clear H ].
+ apply series_order_iff in Hs1.
+ destruct Hs2 as (_, Hs2).
+ rewrite Nat.add_succ_l, <- Nat.add_succ_r in Hs2.
+ apply Hs2, Hs1.
+bbb.
 
 Theorem greatest_series_x_power_iff : ∀ α (R : ring α) (K : field R) s n k,
   greatest_series_x_power K s n = k ↔
@@ -204,6 +248,12 @@ assert (Pv : ∀ i, v (S i) ≤ v i).
   remember (u O) as u0 eqn:Hu0.
   rewrite Hu in Hu0.
   destruct u0; simpl in Hu0.
+bbb.
+
+symmetry in Hu0.
+apply nth_series_order_zero in Hu0.
+rewrite Hu, Hu0.
+reflexivity.
 bbb.
 
   subst v; apply Nat_gcd_le_r.
@@ -1451,8 +1501,7 @@ destruct (zerop (i mod Pos.to_nat k)) as [H₁| H₁].
 Qed.
 
 Theorem nth_series_order_stretch : ∀ s b n k,
-  nth_series_order K (series_stretch k s) n
-    (b * Pos.to_nat k) =
+  nth_series_order K (series_stretch k s) n (b * Pos.to_nat k) =
   (Pos.to_nat k * nth_series_order K s n b)%nat.
 Proof.
 intros s b n k.
