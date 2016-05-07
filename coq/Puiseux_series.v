@@ -201,6 +201,9 @@ assert (Pv : ∀ i, v (S i) ≤ v i).
  intros i.
  induction i.
   subst v; simpl.
+  remember (u O) as u0 eqn:Hu0.
+  rewrite Hu in Hu0.
+  destruct u0; simpl in Hu0.
 bbb.
 
   subst v; apply Nat_gcd_le_r.
