@@ -197,10 +197,27 @@ remember (nth_series_order K s n) as u eqn:Hu.
 remember (sequence_gcd_upto u O) as v eqn:Hv.
 remember (sequence_diff v) as w eqn:Hw.
 remember (sequence_all_zero_from w) as t eqn:Ht.
+assert (Pv : ∀ i, v (S i) ≤ v i).
+ intros i.
+ induction i.
+  subst v; simpl.
+  rewrite Nat.gcd_0_r.
+  subst u.
+
+bbb.
+
 destruct (LPO t) as [p| (i, Hi)].
  exfalso; clear k H.
- assert (∀ i, w i ≠ O).
-  intros i H.
+ assert (Pw : ∀ i, w i ≠ O).
+  intros i Hi.
+  assert (Pw : ∀ j, (i < j)%nat → w j = O).
+   intros j Hij.
+   induction j; [ exfalso; revert Hij; apply Nat.nlt_0_r | ].
+   rewrite Hw; simpl.
+   apply Nat.sub_0_le.
+
+vvv.
+
   pose proof (p (S i)) as pi.
   subst t.
   unfold sequence_all_zero_from in pi.
