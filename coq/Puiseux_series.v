@@ -200,6 +200,9 @@ remember (sequence_all_zero_from w) as t eqn:Ht.
 assert (Pv : ∀ i, v (S i) ≤ v i).
  intros i.
  induction i.
+  subst v; simpl.
+bbb.
+
   subst v; apply Nat_gcd_le_r.
   subst u.
 
