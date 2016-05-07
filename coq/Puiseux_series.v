@@ -203,6 +203,9 @@ induction n; intros.
  destruct s1 as [p1| ].
   remember (series_order s (S (i + j))) as s2 eqn:Hs2; symmetry in Hs2.
   destruct s2 as [p2| ]; [ | reflexivity ].
+  apply series_order_iff in Hs1.
+  apply series_order_iff in Hs2.
+  destruct (lt_eq_lt_dec p1 (j + p2)) as [[H1| H1]| H1].
 bbb.
 
   rewrite <- Nat.add_succ_r, <- Nat.add_assoc.
