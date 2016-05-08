@@ -242,6 +242,7 @@ rewrite Nat.add_succ_r, <- Nat.add_succ_l.
 apply IHj, nth_series_order_0_succ, H.
 Qed.
 
+(*
 Theorem greatest_series_x_power_iff : ∀ α (R : ring α) (K : field R) s n k,
   greatest_series_x_power K s n = k ↔
   match series_order s (S n) with
@@ -325,8 +326,10 @@ bbb.
 bbb.
 *)
 
+(*
 Axiom greatest_series_x_power : ∀ α (R : ring α) (K : field R),
   power_series α → nat → nat.
+*)
 Axiom greatest_series_x_power_iff : ∀ α (R : ring α) (K : field R) s n k,
   greatest_series_x_power K s n = k ↔
   match series_order s (S n) with
