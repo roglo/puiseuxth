@@ -208,25 +208,21 @@ induction n; intros.
   destruct p1.
    rewrite Nat.add_0_r in H, Hs12; clear Hs11.
    clear Hs21 Hs22.
-   induction p2.
-    rewrite Nat.add_0_r.
-    apply IHn, H.
-
-    rewrite Nat.add_succ_r.
-    apply IHn, IHp2.
+   induction p2; [ rewrite Nat.add_0_r; apply IHn, H | ].
+   rewrite Nat.add_succ_r; apply IHn, IHp2.
 
    destruct (lt_eq_lt_dec p1 p2) as [[H1| H1]| H1].
     apply Hs21 in H1.
     rewrite Nat.add_succ_l, <- Nat.add_succ_r in H1.
-    contradiction.
+    exfalso; apply Hs12, H1.
 
     destruct H1.
     rewrite Nat.add_succ_r, <- Nat.add_succ_l in H.
-    assumption.
+    apply H.
 
     apply Nat.succ_lt_mono, Hs11 in H1.
     rewrite Nat.add_succ_r, <- Nat.add_succ_l in H1.
-    contradiction.
+    exfalso; apply Hs22, H1.
 
   apply series_order_iff in Hs1; simpl in Hs1.
   apply series_order_iff in Hs2.
@@ -240,55 +236,11 @@ Theorem nth_series_order_0_add α (R : ring α) (K : field R) : ∀ s n i,
   → ∀ j, nth_series_order K s n (i + j) = O.
 Proof.
 intros.
-bbb.
-
-revert i j H.
-induction n; intros.
- simpl in H; simpl.
- remember (series_order s (S i)) as s1 eqn:Hs1; symmetry in Hs1.
- destruct s1 as [p1| ]; [ discriminate H | clear H ].
- apply series_order_iff in Hs1; simpl in Hs1.
- remember (series_order s (S (i + j))) as s2 eqn:Hs2; symmetry in Hs2.
- destruct s2 as [p2| ]; [ exfalso | reflexivity ].
- apply series_order_iff in Hs2.
- destruct Hs2 as (_, Hs2); simpl in Hs2.
- rewrite <- Nat.add_assoc in Hs2.
- apply Hs2, Hs1.
-
- simpl in H; simpl.
- remember (series_order s (S i)) as s1 eqn:Hs1; symmetry in Hs1.
- destruct s1 as [p1| ].
-  remember (series_order s (S (i + j))) as s2 eqn:Hs2; symmetry in Hs2.
-  destruct s2 as [p2| ]; [ | reflexivity ].
-  apply series_order_iff in Hs1.
-  apply series_order_iff in Hs2.
-  destruct (lt_eq_lt_dec p1 (j + p2)) as [[H1| H1]| H1].
-bbb.
-
-  rewrite <- Nat.add_succ_r, <- Nat.add_assoc.
-  apply IHn.
-
-bbb.
-  apply IHn in H.
-bbb.
-
- remember (series_order s (S (S i))) as s2 eqn:Hs2; symmetry in Hs2.
- destruct s2 as [p2| ]; [ exfalso | reflexivity ].
-(*
- apply series_order_iff in Hs2.
-*)
- destruct Hs2 as (Hs2, Hs3).
- destruct s1 as [p1| ].
-  apply IHn in H.
-
-
-
-; [ discriminate H | clear H ].
- apply series_order_iff in Hs1.
- destruct Hs2 as (_, Hs2).
- rewrite Nat.add_succ_l, <- Nat.add_succ_r in Hs2.
- apply Hs2, Hs1.
-bbb.
+revert n i H.
+induction j; intros; [ rewrite Nat.add_0_r; apply H | ].
+rewrite Nat.add_succ_r, <- Nat.add_succ_l.
+apply IHj, nth_series_order_0_succ, H.
+Qed.
 
 Theorem greatest_series_x_power_iff : ∀ α (R : ring α) (K : field R) s n k,
   greatest_series_x_power K s n = k ↔
