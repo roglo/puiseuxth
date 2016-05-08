@@ -182,6 +182,98 @@ Defined.
 
 Theorem nth_series_order_zero α (R : ring α) (K : field R) : ∀ s n i,
   nth_series_order K s n i = O
+  → nth_series_order K s n (S i) = O.
+Proof.
+intros.
+revert i H.
+induction n; intros.
+ simpl in H; simpl.
+ remember (series_order s (S i)) as s1 eqn:Hs1; symmetry in Hs1.
+ destruct s1 as [p1| ]; [ discriminate H | clear H ].
+ remember (series_order s (S (S i))) as s2 eqn:Hs2; symmetry in Hs2.
+ destruct s2 as [p2| ]; [ exfalso | reflexivity ].
+ apply series_order_iff in Hs1; simpl in Hs1.
+ apply series_order_iff in Hs2.
+ destruct Hs2 as (_, Hs2).
+ rewrite Nat.add_succ_l, <- Nat.add_succ_r in Hs2.
+ apply Hs2, Hs1.
+
+ simpl in H; simpl.
+ remember (series_order s (S (S i))) as s2 eqn:Hs2; symmetry in Hs2.
+ destruct s2 as [p2| ]; [ | reflexivity ].
+ remember (series_order s (S i)) as s1 eqn:Hs1; symmetry in Hs1.
+ destruct s1 as [p1| ].
+  Focus 2.
+  apply series_order_iff in Hs1; simpl in Hs1.
+  apply series_order_iff in Hs2.
+  destruct Hs2 as (_, Hs2).
+  rewrite Nat.add_succ_l, <- Nat.add_succ_r in Hs2.
+  exfalso; apply Hs2, Hs1.
+
+  apply series_order_iff in Hs1; destruct Hs1 as (Hs11, Hs12).
+  apply series_order_iff in Hs2; destruct Hs2 as (Hs21, Hs22).
+  destruct (lt_eq_lt_dec p1 (S p2)) as [[H1| H1]| H1].
+   destruct p1.
+    clear Hs11.
+bbb.
+
+   apply Hs21 in H1.
+*)
+ simpl in H; simpl.
+ remember (series_order s (S (S i))) as s2 eqn:Hs2; symmetry in Hs2.
+ destruct s2 as [p2| ]; [ exfalso | reflexivity ].
+ apply series_order_iff in Hs2.
+ destruct Hs2 as (Hs2, Hs3).
+ destruct s1 as [p1| ].
+  apply IHn in H.
+
+
+
+; [ discriminate H | clear H ].
+ apply series_order_iff in Hs1.
+ destruct Hs2 as (_, Hs2).
+ rewrite Nat.add_succ_l, <- Nat.add_succ_r in Hs2.
+ apply Hs2, Hs1.
+bbb.
+   
+
+ apply IHn.
+ apply series_
+
+
+
+ remember (series_order s (S i)) as s1 eqn:Hs1; symmetry in Hs1.
+ destruct s1 as [p1| ].
+  destruct (lt_eq_lt_dec p1 (j + p2)) as [[H1| H1]| H1].
+bbb.
+
+  rewrite <- Nat.add_succ_r, <- Nat.add_assoc.
+  apply IHn.
+
+bbb.
+  apply IHn in H.
+bbb.
+
+ remember (series_order s (S (S i))) as s2 eqn:Hs2; symmetry in Hs2.
+ destruct s2 as [p2| ]; [ exfalso | reflexivity ].
+(*
+ apply series_order_iff in Hs2.
+*)
+ destruct Hs2 as (Hs2, Hs3).
+ destruct s1 as [p1| ].
+  apply IHn in H.
+
+
+
+; [ discriminate H | clear H ].
+ apply series_order_iff in Hs1.
+ destruct Hs2 as (_, Hs2).
+ rewrite Nat.add_succ_l, <- Nat.add_succ_r in Hs2.
+ apply Hs2, Hs1.
+bbb.
+
+Theorem nth_series_order_zero α (R : ring α) (K : field R) : ∀ s n i,
+  nth_series_order K s n i = O
   → ∀ j, nth_series_order K s n (i + j) = O.
 Proof.
 intros.
