@@ -212,6 +212,20 @@ induction n; intros.
 
   apply series_order_iff in Hs1; destruct Hs1 as (Hs11, Hs12).
   apply series_order_iff in Hs2; destruct Hs2 as (Hs21, Hs22).
+  destruct p1.
+   rewrite Nat.add_0_r in H, Hs12; clear Hs11.
+   clear Hs21 Hs22.
+   induction p2.
+    rewrite Nat.add_0_r.
+    apply IHn, H.
+
+    rewrite Nat.add_succ_r.
+    apply IHn; assumption.
+bbb.
+
+bbb.
+  apply series_order_iff in Hs1; destruct Hs1 as (Hs11, Hs12).
+  apply series_order_iff in Hs2; destruct Hs2 as (Hs21, Hs22).
   destruct (lt_eq_lt_dec p1 (S p2)) as [[H1| H1]| H1].
    destruct p1.
     clear Hs11.
