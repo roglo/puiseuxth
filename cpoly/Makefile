@@ -7,7 +7,9 @@ FILESFORDEP=`LC_ALL=C ls *.ml *.mli`
 OCAMLLIB=`ocamlc -where`
 MPFR_DIR=
 MPFR_INCLUDE=-I$(MPFR_DIR)/usr/include
-LINKFLAGS= -cclib -L$(MPFR_DIR)/usr/lib -cclib -lmpfr -cclib -lgmp
+MPFR_LIB=$(MPFR_DIR)/usr/lib
+MPFR_LIB=/usr/lib/i386-linux-gnu
+LINKFLAGS= -cclib -L$(MPFR_LIB) -cclib -lmpfr -cclib -lgmp
 TOPNAME=ocaml_mpfr
 OTHER_OBJS=
 
