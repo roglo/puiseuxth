@@ -130,7 +130,7 @@ destruct na as [na| ].
       destruct (eq_nat_dec na nb) as [| Hab]; [ assumption | idtac ].
       exfalso; apply H; clear H.
       destruct (le_dec na nb) as [H₁| H₁].
-       apply le_neq_lt in H₁; [ idtac | assumption ].
+       apply Nat_le_neq_lt in H₁; [ idtac | assumption ].
        destruct (lt_dec na nc) as [H₂| H₂].
         apply Hinb in H₁.
         apply Hinc in H₂.
@@ -142,7 +142,7 @@ destruct na as [na| ].
          apply Nat.lt_le_incl; assumption.
 
          apply Nat.neq_sym in H₃.
-         apply le_neq_lt in H₂; [ idtac | assumption ].
+         apply Nat_le_neq_lt in H₂; [ idtac | assumption ].
          eapply Nat.lt_trans in H₁; [ idtac | eassumption ].
          apply Hina in H₂.
          apply Hinb in H₁.
@@ -162,7 +162,7 @@ destruct na as [na| ].
          apply Nat.lt_le_incl; assumption.
 
          apply Nat.neq_sym in H₃.
-         apply le_neq_lt in H₂; [ idtac | assumption ].
+         apply Nat_le_neq_lt in H₂; [ idtac | assumption ].
          eapply Nat.lt_trans in H₁; [ idtac | eassumption ].
          apply Hinb in H₂.
          apply Hina in H₁.
@@ -177,7 +177,7 @@ destruct na as [na| ].
       apply Nat2Z.inj_iff.
       destruct (eq_nat_dec na nb) as [| Hab]; [ assumption | idtac ].
       destruct (le_dec na nb) as [H₁| H₁].
-       apply le_neq_lt in H₁; [ idtac | assumption ].
+       apply Nat_le_neq_lt in H₁; [ idtac | assumption ].
        apply Hinb in H₁.
        pose proof (Hnc na) as H.
        rewrite H₁, rng_add_0_r in H.
@@ -216,7 +216,7 @@ destruct na as [na| ].
    apply Nat2Z.inj_iff.
    destruct (eq_nat_dec na nc) as [| Hac]; [ assumption | idtac ].
    destruct (le_dec na nc) as [H₁| H₁].
-    apply le_neq_lt in H₁; [ idtac | assumption ].
+    apply Nat_le_neq_lt in H₁; [ idtac | assumption ].
     apply Hinc in H₁.
     rewrite Hnb, rng_add_0_r in H₁.
     contradiction.
@@ -256,7 +256,7 @@ destruct na as [na| ].
      apply Nat2Z.is_nonneg.
 
     destruct (le_dec nb nc) as [H₁| H₁].
-     apply le_neq_lt in H₁; [ idtac | assumption ].
+     apply Nat_le_neq_lt in H₁; [ idtac | assumption ].
      apply Hinc in H₁.
      rewrite Hna, rng_add_0_l in H₁.
      contradiction.

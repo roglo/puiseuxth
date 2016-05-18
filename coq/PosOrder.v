@@ -238,14 +238,14 @@ eapply order_in_newton_segment with (h := h) (αh := αh) in Hval; eauto .
        destruct (lt_dec n (m * Pos.to_nat (ps_polord āh))) as [Hnp| Hnp].
         apply series_order_iff in Hm.
         destruct Hm as (Hmi, Hm).
-        apply le_neq_lt in Hmn; [ idtac | assumption ].
+        apply Nat_le_neq_lt in Hmn; [ idtac | assumption ].
         apply Hmi in Hmn.
         rewrite rng_add_0_r in Hn; contradiction.
 
         apply Hnp.
         rewrite Hp.
         apply Nat.mul_lt_mono_pos_r; [ apply Pos2Nat.is_pos | idtac ].
-        apply le_neq_lt; assumption.
+        apply Nat_le_neq_lt; assumption.
 
       apply Nat2Z.is_nonneg.
 
@@ -265,7 +265,7 @@ eapply order_in_newton_segment with (h := h) (αh := αh) in Hval; eauto .
         rewrite Nat.mod_mul in Hnp; auto.
         exfalso; revert Hnp; apply Nat.lt_irrefl.
 
-        apply le_neq_lt; assumption.
+        apply Nat_le_neq_lt; assumption.
 
       apply Nat2Z.is_nonneg.
 
@@ -525,7 +525,7 @@ destruct na as [na| ].
       apply Nat.add_lt_mono_r with (p := i).
       rewrite Nat.sub_add; auto.
       rewrite Nat.add_comm.
-      apply Nat.add_lt_mono_l, le_neq_lt; auto.
+      apply Nat.add_lt_mono_l, Nat_le_neq_lt; auto.
 
     apply Nat.nlt_ge in Hge.
     destruct (lt_dec nc (na + nb)) as [Hclt| Hcge].
@@ -580,7 +580,7 @@ destruct na as [na| ].
        apply Nat.add_lt_mono_r with (p := i).
        rewrite Nat.sub_add; auto.
        rewrite Nat.add_comm.
-       apply Nat.add_lt_mono_l, le_neq_lt; auto.
+       apply Nat.add_lt_mono_l, Nat_le_neq_lt; auto.
 
     apply Nat.nle_gt in Hab.
     rewrite summation_only_one_non_0 with (v := na) in Hnab.
@@ -599,7 +599,7 @@ destruct na as [na| ].
       apply Nat.add_lt_mono_r with (p := i).
       rewrite Nat.sub_add; auto.
       rewrite Nat.add_comm.
-      apply Nat.add_lt_mono_l, le_neq_lt; auto.
+      apply Nat.add_lt_mono_l, Nat_le_neq_lt; auto.
 
   simpl.
   apply series_series_order_inf_iff in Hnb.

@@ -238,7 +238,7 @@ replace k with (b + len) in * .
    rewrite Nat.add_succ_r, <- Nat.add_succ_l in Hvk.
    rewrite Hi; auto.
     rewrite rng_add_0_l.
-    apply IHlen; auto; [ apply le_neq_lt; auto | idtac ].
+    apply IHlen; auto; [ apply Nat_le_neq_lt; auto | idtac ].
     intros j (Hvj, Hjvl) Hjv.
     rewrite Nat.add_succ_l, <- Nat.add_succ_r in Hjvl.
     apply Hi; auto; split; auto.
@@ -342,7 +342,7 @@ destruct (le_dec b k) as [Hbk| Hbk].
    do 2 rewrite rng_add_0_l; rewrite rng_add_0_l.
    reflexivity.
 
-   apply le_neq_lt in Hbk; [ idtac | assumption ].
+   apply Nat_le_neq_lt in Hbk; [ idtac | assumption ].
    apply Nat.succ_le_mono in Hbk.
    rewrite IHk; [ idtac | assumption ].
    do 2 rewrite <- rng_add_assoc.

@@ -536,7 +536,7 @@ destruct r.
             apply Sorted_inv_1 in Hsort; auto.
 
            left.
-           apply le_neq_lt; auto.
+           apply Nat_le_neq_lt; auto.
            eapply Nat.le_trans; try eassumption .
 
           rewrite Hpts in Hsort.

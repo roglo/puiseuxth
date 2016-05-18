@@ -691,10 +691,10 @@ assert (pow ≤ Z.to_nat (Qnum h)) as H.
      rewrite <- Nat.sub_succ in Hhps.
      rewrite <- minus_Sn_m in Hhps; [ assumption | idtac ].
      apply not_eq_sym in Hne.
-     apply le_neq_lt; assumption.
+     apply Nat_le_neq_lt; assumption.
 
      apply not_eq_sym in Hne.
-     apply le_neq_lt; assumption.
+     apply Nat_le_neq_lt; assumption.
 Qed.
 
 Theorem in_pts_in_pol : ∀ pol pts h hv hps def,
@@ -800,11 +800,11 @@ destruct cl as [| c₁]; intros; simpl.
        rewrite Nat.sub_succ; assumption.
 
        apply Nat.neq_sym in Hhp.
-       apply le_neq_lt in Hhp; [ idtac | assumption ].
+       apply Nat_le_neq_lt in Hhp; [ idtac | assumption ].
        apply le_S_n; assumption.
 
      apply Nat.neq_sym in Hhp.
-     apply le_neq_lt in Hhp; [ idtac | assumption ].
+     apply Nat_le_neq_lt in Hhp; [ idtac | assumption ].
      assumption.
 Qed.
 
@@ -2031,7 +2031,7 @@ destruct n.
      symmetry in Hnhj.
      destruct nhj.
       apply Nat.sub_0_le in Hnhj.
-      apply le_neq_lt in H₃; auto.
+      apply Nat_le_neq_lt in H₃; auto.
       apply Nat.nle_gt in H₃.
       contradiction.
 

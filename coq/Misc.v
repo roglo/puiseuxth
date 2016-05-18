@@ -36,7 +36,7 @@ Definition Nat_sub_succ_diag : ∀ n, (S n - n = 1)%nat :=
   λ n,
   eq_trans (Nat.sub_succ_l n n (le_n n)) (f_equal S (Nat.sub_diag n)).
 
-Definition le_neq_lt : ∀ x y : nat, x ≤ y → x ≠ y → (x < y)%nat :=
+Definition Nat_le_neq_lt : ∀ x y : nat, x ≤ y → x ≠ y → (x < y)%nat :=
   λ x y Hxy Hnxy,
   match le_lt_eq_dec x y Hxy with
   | left Hle => Hle
@@ -71,7 +71,7 @@ intros n.
 etransitivity; [ apply Nat.sub_succ_l, le_n | apply f_equal, Nat.sub_diag ].
 Qed.
 
-Theorem le_neq_lt : ∀ x y : nat, x ≤ y → x ≠ y → (x < y)%nat.
+Theorem Nat_le_neq_lt : ∀ x y : nat, x ≤ y → x ≠ y → (x < y)%nat.
 Proof.
 intros x y Hxy Hnxy.
 apply le_lt_eq_dec in Hxy.
@@ -796,7 +796,7 @@ induction n; intros m Hmn.
   subst m; apply Hm; assumption.
 
   apply IHn.
-  apply le_neq_lt; [ idtac | assumption ].
+  apply Nat_le_neq_lt; [ idtac | assumption ].
   apply Nat.succ_le_mono; assumption.
 Qed.
 
