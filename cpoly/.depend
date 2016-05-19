@@ -1,4 +1,6 @@
 cpoly.cmo: cpoly.cmi mpfr.cmi
-cpoly.cmx: cpoly.cmi mpfr.cmi
+cpoly.cmx: cpoly.cmi mpfr.cmx
 main.cmo: cpoly.cmi
 main.cmx: cpoly.cmx
+mpfr.cmo: mpfr.cmi
+mpfr.cmx: mpfr.cmi

@@ -8,7 +8,7 @@ TEST_DIR=test `basename "$<"` = "$<" || { echo "File \"$<\" needs to be recompil
 LIB=nums.cma gramlib.cma
 
 MPFR_DIR=
-CPOLY_OBJS=../cpoly/ml_mpfr.o ../cpoly/cpoly.cmo
+CPOLY_OBJS=../cpoly/mpfr.cmo ../cpoly/ml_mpfr.o ../cpoly/cpoly.cmo
 LINKFLAGS= -cclib -L$(MPFR_DIR)/usr/lib -cclib -lmpfr -cclib -lgmp
 
 OCOPT=-I ../cpoly

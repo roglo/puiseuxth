@@ -1,15 +1,13 @@
 # $Id: Makefile,v 1.2 2013-05-22 03:45:46 deraugla Exp $
 
-OBJS=cpoly.cmo main.cmo
+OBJS=mpfr.cmo cpoly.cmo main.cmo
 
 MPFR_OBJS=ml_mpfr.o
 FILESFORDEP=`LC_ALL=C ls *.ml *.mli`
 OCAMLLIB=`ocamlc -where`
 MPFR_DIR=
 MPFR_INCLUDE=-I$(MPFR_DIR)/usr/include
-MPFR_LIB=$(MPFR_DIR)/usr/lib
-MPFR_LIB=/usr/lib/i386-linux-gnu
-LINKFLAGS= -cclib -L$(MPFR_LIB) -cclib -lmpfr -cclib -lgmp
+LINKFLAGS= -cclib -L$(MPFR_DIR)/usr/lib -cclib -lmpfr -cclib -lgmp
 TOPNAME=ocaml_mpfr
 OTHER_OBJS=
 
@@ -43,8 +41,8 @@ cpolyc.opt: $(OBJS:.cmo=.cmx) ml_mpfr.o
 
 top: $(TOPNAME)
 
-$(TOPNAME): cpoly.cmo ml_mpfr.o
-	ocamlmktop -custom $(MPFR_OBJS) $(OTH_OBJS) cpoly.cmo $(LINKFLAGS) -o $(TOPNAME)
+$(TOPNAME): mpfr.cmo cpoly.cmo ml_mpfr.o
+	ocamlmktop -custom $(MPFR_OBJS) $(OTH_OBJS) mpfr.cmo cpoly.cmo $(LINKFLAGS) -o $(TOPNAME)
 
 ml_mpfr.o: ml_mpfr.c
 	$(CC) -c -I$(OCAMLLIB) $(MPFR_INCLUDE) $<
