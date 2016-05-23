@@ -214,9 +214,9 @@ Definition adjusted_ps_add α {R : ring α} ps₁ ps₂ :=
      ps_ordnum := ps_ordnum ps₁;
      ps_polord := ps_polord ps₁ |}.
 
-Definition adjust_ps_from α {R : ring α} ps₁ ps₂ :=
-  let k₁ := cm_factor ps₁ ps₂ in
-  let k₂ := cm_factor ps₂ ps₁ in
+Definition adjust_ps_from α {R : ring α} (ps₁ ps₂ : puiseux_series α) :=
+  let k₁ := ps_polord ps₂ in
+  let k₂ := ps_polord ps₁ in
   let v₁ := (ps_ordnum ps₁ * Zpos k₁)%Z in
   let v₂ := (ps_ordnum ps₂ * Zpos k₂)%Z in
   adjust_ps (Z.to_nat (v₂ - Z.min v₁ v₂)) k₂ ps₂.
@@ -514,8 +514,9 @@ constructor; [ simpl | reflexivity | simpl ].
 
  unfold ps_terms_add.
  unfold adjust_series.
- remember (ps_ordnum ps₂ * Zpos (cm_factor ps₂ ps₁))%Z as vc₂₁.
- remember (ps_ordnum ps₁ * Zpos (cm_factor ps₁ ps₂))%Z as vc₁₂.
+ unfold cm_factor.
+ remember (ps_ordnum ps₂ * Zpos (ps_polord ps₁))%Z as vc₂₁.
+ remember (ps_ordnum ps₁ * Zpos (ps_polord ps₂))%Z as vc₁₂.
  remember (Z.min vc₁₂ vc₂₁) as m eqn:Hm .
  rewrite Z.min_comm, <- Hm.
  reflexivity.

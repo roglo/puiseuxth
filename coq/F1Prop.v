@@ -56,8 +56,8 @@ Theorem order_add_eq_min : ∀ a b,
   → (order (a + b) = Qbar.min (order a) (order b))%Qbar.
 Proof.
 intros a b Hab.
-set (k₁ := cm_factor a b).
-set (k₂ := cm_factor b a).
+set (k₁ := ps_polord b).
+set (k₂ := ps_polord a).
 set (v₁ := (ps_ordnum a * ' k₁)%Z).
 set (v₂ := (ps_ordnum b * ' k₂)%Z).
 set (n₁ := Z.to_nat (v₂ - Z.min v₁ v₂)).
@@ -98,9 +98,7 @@ destruct na as [na| ].
   destruct Hnb as (Hinb, Hnb).
   subst pa pb; simpl in Hopa, Hopb; simpl.
   subst k₁ k₂ n₁ n₂; simpl in Hopa, Hopb; simpl.
-  progress unfold cm_factor in Hopa, Hopb; simpl in Hopa, Hopb.
   subst v₁ v₂; simpl in Hopa, Hopb.
-  progress unfold cm_factor in Hopa, Hopb; simpl in Hopa, Hopb.
   rewrite Pos.mul_comm in Hopb.
   rewrite Z2Nat.id in Hopa.
    rewrite Z2Nat.id in Hopb.

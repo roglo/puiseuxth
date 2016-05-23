@@ -623,8 +623,8 @@ Theorem order_add : ∀ a b,
 Proof.
 intros a b.
 unfold Qbar.ge.
-set (k₁ := cm_factor a b).
-set (k₂ := cm_factor b a).
+set (k₁ := ps_polord b).
+set (k₂ := ps_polord a).
 set (v₁ := (ps_ordnum a * ' k₁)%Z).
 set (v₂ := (ps_ordnum b * ' k₂)%Z).
 set (n₁ := Z.to_nat (v₂ - Z.min v₁ v₂)).
