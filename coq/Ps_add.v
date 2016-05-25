@@ -225,6 +225,7 @@ Definition ps_add₂ {α} {r : ring α} (ps₁ ps₂ : puiseux_series α) :=
   adjusted_ps_add (adjust_ps_from ps₂ ps₁) (adjust_ps_from ps₁ ps₂).
 
 Notation "a + b" := (ps_add a b) : ps_scope.
+Notation "a ++ b" := (ps_add₂ a b) : ps_scope.
 
 Definition ps_opp {α} {r : ring α} ps :=
   {| ps_terms := (- ps_terms ps)%ser;
@@ -258,6 +259,23 @@ Proof.
 intros ps₁ ps₂.
 unfold ps_terms_add.
 rewrite series_add_comm; reflexivity.
+Qed.
+
+Theorem eq_strong_ps_add₂_comm : ∀ ps₁ ps₂,
+  (ps₁ ++ ps₂)%ps ≐ (ps₂ ++ ps₁)%ps.
+Proof.
+intros.
+constructor; simpl.
+ do 2 rewrite Z2Nat_id_max.
+ do 2 rewrite <- Z.sub_min_distr_l.
+ do 2 rewrite Z.sub_sub_distr, Z.sub_diag.
+ do 2 rewrite Z.sub_0_r, Z.add_0_l.
+ rewrite Z.min_comm, <- Z.min_assoc, Z.min_id; apply eq_sym.
+ rewrite Z.min_comm, <- Z.min_assoc, Z.min_id; apply Z.min_comm.
+
+ apply Pos.mul_comm.
+
+ apply series_add_comm.
 Qed.
 
 Theorem eq_strong_ps_add_comm : ∀ ps₁ ps₂,
