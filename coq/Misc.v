@@ -742,6 +742,14 @@ induction p; intros.
   apply IHp; assumption.
 Qed.
 
+Theorem Nat_sub_sub_comm : ∀ m n p, (m - n - p)%nat = (m - p - n)%nat.
+Proof.
+intros.
+do 2 rewrite <- Nat.sub_add_distr.
+rewrite Nat.add_comm.
+apply eq_refl.
+Qed.
+
 Theorem Z2Nat_id_max : ∀ x, Z.of_nat (Z.to_nat x) = Z.max 0 x.
 Proof.
 intros x.
