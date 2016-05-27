@@ -313,14 +313,16 @@ Qed.
 End other_theorems.
 
 Fixpoint term_inv {α} {r : ring α} {f : field r} c s n :=
-  if zerop n then ¹/ (s.[0])%K
-  else
-   match c with
-   | O => 0%K
-   | S c₁ =>
-       (- ¹/ (s.[0]) *
-        Σ (i = 1, n), s.[i] * term_inv c₁ s (n - i)%nat)%K
-   end.
+  match n with
+  | O => ¹/ (s.[0])%K
+  | S _ =>
+      match c with
+      | O => 0%K
+      | S c₁ =>
+          (- ¹/ (s.[0]) *
+           Σ (i = 1, n), s.[i] * term_inv c₁ s (n - i)%nat)%K
+      end
+  end.
 
 Definition series_inv {α} {r : ring α} {f : field r} s :=
   {| terms i := term_inv (S i) s i |}.
@@ -383,14 +385,15 @@ destruct ki.
  apply summation_compat; intros j Hj.
  apply rng_mul_compat_l.
  remember minus as g; simpl; subst g.
- destruct (zerop (S ki - j)) as [H₁| H₁].
+ remember (S ki - j)%nat as n eqn:Hn.
+ destruct n.
   reflexivity.
 
   apply rng_mul_compat_l.
   apply summation_compat; intros l Hl.
   apply rng_mul_compat_l.
-  apply term_inv_iter_enough; [ fast_omega Hl | idtac ].
-  rewrite Hki₂.
+  apply term_inv_iter_enough; [ fast_omega Hl Hn | idtac ].
+  rewrite Hn, Hki₂.
   destruct Hl as (H, _).
   apply Nat.nle_gt in H.
   destruct l; [ exfalso; apply H, Nat.le_0_l | idtac ].
@@ -415,13 +418,14 @@ apply summation_compat; intros i Hi.
 apply rng_mul_compat_l.
 rewrite Ha'.
 remember minus as g; simpl; subst g.
-destruct (zerop (S k - i)) as [H₂| H₂].
+remember (S k - i)%nat as n eqn:Hn.
+destruct n.
  reflexivity.
 
  apply rng_mul_compat_l.
  apply summation_compat; intros j Hj.
  apply rng_mul_compat_l.
- apply term_inv_iter_enough; fast_omega Hj.
+ apply term_inv_iter_enough; fast_omega Hn Hj.
 Qed.
 
 Theorem convol_mul_inv_r : ∀ k a a',
