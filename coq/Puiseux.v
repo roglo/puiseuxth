@@ -733,7 +733,7 @@ destruct (ps_zerop _ (ps_poly_nth 0 pol)) as [Hz| Hnz].
  assert (ns ∈ newton_segments pol) as Hns.
   rewrite Hnsl; left; reflexivity.
 
-  remember Hns as H; clear HeqH.
+  generalize Hns; intros H.
   remember (ac_root (Φq pol ns)) as c eqn:Hc .
   remember (next_pol pol (β ns) (γ ns) c) as pol₁ eqn:Hpol₁ .
   eapply f₁_has_root with (pol₁ := pol₁) in H; eauto .
@@ -744,3 +744,5 @@ destruct (ps_zerop _ (ps_poly_nth 0 pol)) as [Hz| Hnz].
 Qed.
 
 End theorems.
+
+Check puiseux_series_algeb_closed.
