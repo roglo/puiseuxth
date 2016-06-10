@@ -532,12 +532,11 @@ intros pol ns c pol₁ Hns Hnz₀ Hc Hpol₁.
 remember (root_multiplicity acf c (Φq pol ns)) as r eqn:Hr .
 symmetry in Hr.
 revert pol ns c pol₁ Hns Hnz₀ Hc Hpol₁ Hr.
-induction r using all_lt_all; intros.
+induction r as (r, IHr) using all_lt_all; intros.
 destruct r.
  exfalso; revert Hr.
  apply multiplicity_neq_0; assumption.
 
- rename H into IHm.
  set (v := fun i => if multiplicity_decreases pol ns i then S O else O).
  destruct (LPO v) as [Hn| Hn].
   eapply f₁_has_root_when_r_constant; try eassumption.
@@ -633,7 +632,7 @@ destruct r.
 
          eapply root_when_fin; try eassumption.
 
-        eapply IHm with (pol := polsi) (ns := nssi) in Hri.
+        eapply IHr with (pol := polsi) (ns := nssi) in Hri.
          destruct Hri as (s₁, Hs₁).
          remember (root_head 0 i pol₁ ns₁) as rh.
          remember (ps_monom 1%K (γ_sum 0 i pol₁ ns₁)) as mo.
