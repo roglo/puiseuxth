@@ -1252,16 +1252,13 @@ apply root_multiplicity_0 in Hr; eauto .
 apply degree_eq_0_if in Hr.
 destruct Hr as [Hr| Hr].
  unfold Φq in Hr; simpl in Hr.
+ rewrite Nat.sub_diag in Hr; simpl in Hr.
+ unfold eq_poly in Hr; simpl in Hr.
  remember Hns as H; clear HeqH.
  apply exists_ini_pt_nat in H.
  destruct H as (j, (αj, Hini)).
- rewrite Hini in Hr.
- simpl in Hr.
+ rewrite Hini in Hr; simpl in Hr.
  rewrite nat_num_Qnat in Hr.
- unfold eq_poly in Hr.
- simpl in Hr.
- rewrite Nat.sub_diag in Hr.
- rewrite list_pad_0 in Hr.
  apply lap_eq_cons_nil_inv in Hr.
  destruct Hr as (Hoj, Hcpol).
  exfalso; revert Hoj.
