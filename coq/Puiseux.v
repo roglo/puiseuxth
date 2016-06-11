@@ -566,8 +566,6 @@ destruct r.
    remember (List.hd phony_ns (newton_segments pol₁)) as ns₁ eqn:Hns₁ .
    erewrite <- nth_r_n in Hrn; try eassumption; subst rn.
    destruct (lt_dec (nth_r (S n) pol ns) (S r)) as [H| H].
-    2:exfalso; apply Hn, eq_refl.
-
     clear Hn; rename H into Hn.
     apply lowest_i_such_that_ri_lt_r₀ in Hn; [  | subst; auto ].
     destruct Hn as (i, (Hin, (Hir, Hri))).
@@ -657,7 +655,7 @@ destruct r.
          rewrite Hpolsi; simpl.
          rewrite <- Hc, <- Hpol₁, <- Hns₁; auto.
 
-         eauto  .
+         reflexivity.
 
          erewrite nth_c_n; try eassumption; reflexivity.
 
@@ -665,6 +663,8 @@ destruct r.
 
          apply nth_r_n; try eassumption.
          erewrite nth_c_n; try eassumption; reflexivity.
+
+    exfalso; apply Hn, eq_refl.
 Qed.
 
 Theorem degree_pos_imp_has_ns : ∀ pol,
