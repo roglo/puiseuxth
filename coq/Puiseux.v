@@ -598,10 +598,8 @@ destruct r.
          destruct Hjz as [Hjz| Hjz].
           subst j.
           simpl in Hjnz.
-          destruct (ps_zerop K (ps_poly_nth 0 pol₁)).
-           contradiction .
-
-           discriminate Hjnz.
+          destruct (ps_zerop K (ps_poly_nth 0 pol₁)); [ contradiction | ].
+          discriminate Hjnz.
 
           eapply root_when_fin; try eassumption.
 
