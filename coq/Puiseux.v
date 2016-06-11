@@ -663,7 +663,6 @@ destruct r.
          rewrite <- Hcssi; assumption.
 
          symmetry.
-
          apply nth_r_n; try eassumption.
          erewrite nth_c_n; try eassumption; reflexivity.
 
