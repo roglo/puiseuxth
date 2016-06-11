@@ -629,7 +629,10 @@ destruct r.
 
          eapply root_when_fin; try eassumption.
 
-        eapply IHr with (pol := polsi) (ns := nssi) in Hri.
+        remember (nth_c (S i) pol ns) as cssi eqn:Hcssi.
+        remember (next_pol polsi (β nssi) (γ nssi) cssi) as polssi.
+        rename Heqpolssi into Hpolssi.
+        eapply IHr with (pol := polsi) (ns := nssi) (pol₁ := polssi) in Hri.
          destruct Hri as (s₁, Hs₁).
          remember (root_head 0 i pol₁ ns₁) as rh.
          remember (ps_monom 1%K (γ_sum 0 i pol₁ ns₁)) as mo.
@@ -637,6 +640,7 @@ destruct r.
          rewrite apply_nth_pol; auto.
          erewrite nth_pol_n; try eassumption; eauto  .
          erewrite <- nth_c_n; try eassumption.
+         rewrite <- Hcssi, <- Hpolssi.
          rewrite Hs₁, rng_mul_0_r; reflexivity.
 
          eapply List_hd_in.
@@ -657,7 +661,8 @@ destruct r.
 
          reflexivity.
 
-         erewrite nth_c_n; try eassumption; reflexivity.
+         erewrite nth_c_n in Hcssi; try eassumption.
+         rewrite <- Hcssi; assumption.
 
          symmetry.
 
