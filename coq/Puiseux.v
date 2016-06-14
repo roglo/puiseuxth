@@ -212,15 +212,15 @@ destruct z₁.
    simpl; rewrite <- Hc; assumption.
 Qed.
 
-Theorem f₁_has_root_when_r_constant : ∀ pol ns c pol₁,
+Theorem f₁_has_root_when_r_constant : ∀ pol ns pol₁,
   ns ∈ newton_segments pol
   → (ps_poly_nth 0 pol ≠ 0)%ps
-  → c = ac_root (Φq pol ns)
-  → pol₁ = next_pol pol (β ns) (γ ns) c
+  → pol₁ = next_pol pol (β ns) (γ ns) (ac_root (Φq pol ns))
   → (∀ i, if multiplicity_decreases pol ns i then False else True)
   → ∃ s, (ps_pol_apply pol₁ s = 0)%ps.
 Proof.
-intros pol ns c pol₁ Hns Hnz₀ Hc Hpol₁ Hn.
+intros pol ns pol₁ Hns Hnz₀ Hpol₁ Hn.
+remember (ac_root (Φq pol ns)) as c eqn:Hc in Hpol₁.
 remember (root_multiplicity acf c (Φq pol ns)) as r eqn:Hr.
 symmetry in Hr.
 pose proof multiplicity_neq_0 acf pol ns Hns Hc as H.
@@ -524,20 +524,21 @@ destruct (fld_zerop 1%K) as [H₀| H₀].
    assumption.
 Qed.
 
-Theorem f₁_has_root : ∀ pol ns c pol₁,
+Theorem f₁_has_root : ∀ pol ns pol₁,
   ns ∈ newton_segments pol
   → (ps_poly_nth 0 pol ≠ 0)%ps
-  → c = ac_root (Φq pol ns)
-  → pol₁ = next_pol pol (β ns) (γ ns) c
+  → pol₁ = next_pol pol (β ns) (γ ns) (ac_root (Φq pol ns))
   → ∃ s, (ps_pol_apply pol₁ s = 0)%ps.
 Proof.
-intros pol ns c pol₁ Hns Hnz₀ Hc Hpol₁.
+intros pol ns pol₁ Hns Hnz₀ Hpol₁.
+remember (ac_root (Φq pol ns)) as c eqn:Hc.
 remember (root_multiplicity acf c (Φq pol ns)) as r eqn:Hr .
 symmetry in Hr.
 revert pol ns c pol₁ Hns Hnz₀ Hc Hpol₁ Hr.
 induction r as (r, IHr) using all_lt_all; intros.
 set (v := fun i => if multiplicity_decreases pol ns i then S O else O).
 destruct (LPO v) as [Hn| Hn].
+ subst c.
  eapply f₁_has_root_when_r_constant; try eassumption.
  intros i.
  pose proof Hn i as H; unfold v in H.
@@ -748,10 +749,12 @@ destruct (ps_zerop _ (ps_poly_nth 0 pol)) as [Hz| Hnz].
   remember (ac_root (Φq pol ns)) as c eqn:Hc .
   remember (next_pol pol (β ns) (γ ns) c) as pol₁ eqn:Hpol₁ .
   eapply f₁_has_root with (pol₁ := pol₁) in H; eauto .
-  destruct H as (s₁, Hs₁).
-  exists (ps_monom c (γ ns) + ps_monom 1%K (γ ns) * s₁)%ps.
-  eapply f₁_root_f_root; eauto .
-  reflexivity.
+   destruct H as (s₁, Hs₁).
+   exists (ps_monom c (γ ns) + ps_monom 1%K (γ ns) * s₁)%ps.
+   eapply f₁_root_f_root; eauto .
+   reflexivity.
+
+   subst c; assumption.
 Qed.
 
 End theorems.
