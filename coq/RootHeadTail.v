@@ -1025,10 +1025,9 @@ Qed.
 Theorem root_when_fin : ∀ pol ns n,
   zerop_1st_n_const_coeff (pred n) pol ns = false
   → zerop_1st_n_const_coeff n pol ns = true
-  → ∃ s, (ps_pol_apply pol s = 0)%ps.
+  → (ps_pol_apply pol (root_head 0 (pred n) pol ns) = 0)%ps.
 Proof.
 intros pol ns n Hnz Hz.
-exists (root_head 0 (pred n) pol ns).
 destruct n.
  rewrite Nat.pred_0 in Hnz.
  rewrite Hnz in Hz; discriminate Hz.

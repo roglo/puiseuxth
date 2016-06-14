@@ -262,7 +262,8 @@ destruct (fld_zerop 1%K) as [H₀| H₀].
     rewrite <- ps_lap_nth_0_apply_0.
     assumption.
 
-    eapply root_when_fin; eassumption.
+    exists (root_head 0 (pred i) pol₁ ns₁).
+    apply root_when_fin; assumption.
 
    rewrite root_tail_when_r_r with (n := N) (r := (S r)) in Hofs;
     try eassumption.
@@ -596,7 +597,8 @@ destruct (LPO v) as [Hn| Hn].
          destruct (ps_zerop K (ps_poly_nth 0 pol₁)); [ contradiction | ].
          discriminate Hjnz.
 
-         eapply root_when_fin; try eassumption.
+         exists (root_head 0 (pred j) pol₁ ns₁).
+         apply root_when_fin; assumption.
 
         eapply List_hd_in; try eassumption.
         clear H.
@@ -620,7 +622,8 @@ destruct (LPO v) as [Hn| Hn].
 
          discriminate Heq.
 
-        eapply root_when_fin; try eassumption.
+        exists (root_head 0 (pred m) pol₁ ns₁).
+        apply root_when_fin; assumption.
 
        remember (nth_c (S i) pol ns) as cssi eqn:Hcssi.
        remember (next_pol polsi (β nssi) (γ nssi) cssi) as polssi.
