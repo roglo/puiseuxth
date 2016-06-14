@@ -238,9 +238,12 @@ destruct (fld_zerop 1%K) as [H₀| H₀].
  remember (List.hd phony_ns (newton_segments pol₁)) as ns₁ eqn:Hns₁ .
  remember (q_of_m m (γ ns)) as q₀ eqn:Hq₀ .
  remember (root_tail (m * q₀) 0 pol₁ ns₁) as s eqn:Hs .
- remember (order (ps_pol_apply pol₁ s)) as ofs eqn:Hofs .
- symmetry in Hofs.
- destruct ofs as [ofs| ].
+ destruct (ps_zerop _ (ps_pol_apply pol₁ s)) as [| H].
+  exists s; assumption.
+
+  remember (order (ps_pol_apply pol₁ s)) as ofs eqn:Hofs .
+  symmetry in Hofs.
+  destruct ofs as [ofs| ]; [ clear H | exfalso; apply H, order_inf, Hofs ].
   subst s.
   remember (Z.to_nat (2 * ' m * ' q₀ * Qnum ofs)) as N eqn:HN .
   apply eq_Qbar_eq in Hofs.
@@ -515,10 +518,6 @@ destruct (fld_zerop 1%K) as [H₀| H₀].
     rewrite <- Hc, <- Hpol₁, <- Hns₁, Hz.
     remember (ps_poly_nth 0 pol) as x.
     destruct (ps_zerop K x); [ contradiction  | reflexivity ].
-
-   exists s.
-   apply order_inf.
-   assumption.
 Qed.
 
 Theorem f₁_has_root : ∀ pol ns pol₁,
