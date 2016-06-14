@@ -248,26 +248,18 @@ destruct (fld_zerop 1%K) as [H₀| H₀].
   symmetry in Hz.
   destruct z.
    unfold root_tail in Hofs.
-   destruct N.
-    exists 0%ps.
+   apply lowest_zerop_1st_n_const_coeff in Hz.
+   destruct Hz as (i, (Hin, (Hji, Hz))).
+   destruct Hji as [Hi| Hpi].
+    subst i.
     simpl in Hz.
     destruct (ps_zerop K (ps_poly_nth 0 pol₁)); [ | discriminate Hz ].
+    exists 0%ps.
     unfold ps_pol_apply, apply_poly.
     rewrite <- ps_lap_nth_0_apply_0.
     assumption.
 
-    apply lowest_zerop_1st_n_const_coeff in Hz.
-    destruct Hz as (i, (Hin, (Hji, Hz))).
-    destruct Hji as [Hi| Hpi].
-     subst i.
-     simpl in Hz.
-     destruct (ps_zerop K (ps_poly_nth 0 pol₁)); [ | discriminate Hz ].
-     exists 0%ps.
-     unfold ps_pol_apply, apply_poly.
-     rewrite <- ps_lap_nth_0_apply_0.
-     assumption.
-
-     eapply root_when_fin; eassumption.
+    eapply root_when_fin; eassumption.
 
    rewrite root_tail_when_r_r with (n := N) (r := (S r)) in Hofs;
     try eassumption.
