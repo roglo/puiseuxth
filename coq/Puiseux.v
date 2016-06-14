@@ -266,8 +266,7 @@ destruct (fld_zerop 1%K) as [H₀| H₀].
 
    rewrite root_tail_when_r_r with (n := N) (r := (S r)) in Hofs;
     try eassumption.
-    remember (root_tail (m * q₀) 0 pol₁ ns₁) as s eqn:Hs .
-    exists s.
+    exists (root_tail (m * q₀) 0 pol₁ ns₁).
     apply order_inf.
     rewrite apply_nth_pol in Hofs; auto.
     rewrite order_mul in Hofs; auto.
