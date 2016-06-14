@@ -264,7 +264,7 @@ destruct (fld_zerop 1%K) as [H₀| H₀].
       destruct (ps_zerop K (ps_poly_nth 0 pol₁)); [ contradiction  |  ].
       discriminate Hz.
 
-      eapply root_when_fin; try eassumption.
+      eapply root_when_fin; eassumption.
 
     rewrite root_tail_when_r_r with (n := N) (r := (S r)) in Hofs;
      try eassumption.
