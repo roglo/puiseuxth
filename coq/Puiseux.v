@@ -265,6 +265,7 @@ destruct (fld_zerop 1%K) as [H₀| H₀].
     exists (root_head 0 (pred i) pol₁ ns₁).
     apply root_when_fin; assumption.
 
+   rewrite Hc in Hpol₁.
    rewrite root_tail_when_r_r with (n := N) (r := (S r)) in Hofs;
     try eassumption.
     exists (root_tail (m * q₀) 0 pol₁ ns₁).
@@ -377,6 +378,7 @@ destruct (fld_zerop 1%K) as [H₀| H₀].
        clear H.
        remember Hns₁ as H; clear HeqH.
        pose proof Hz O (Nat.le_0_l N) as H₁.
+       rewrite <- Hc in Hpol₁.
        eapply r_n_next_ns in H; try eassumption; eauto  .
         destruct H as (αj₁, (αk₁, H)).
         destruct H as (Hini₁, (Hfin₁, (Hαj₁, Hαk₁))).
@@ -441,6 +443,7 @@ destruct (fld_zerop 1%K) as [H₀| H₀].
 
       rename H into Huofs.
       rewrite Nat.add_0_l.
+      rewrite <- Hc in Hpol₁.
       eapply order_root_tail_nonneg_any_r; try eassumption.
        rewrite zerop_1st_n_const_coeff_succ; simpl.
        rewrite <- Hc, <- Hpol₁, <- Hns₁, Hz.
@@ -465,6 +468,7 @@ destruct (fld_zerop 1%K) as [H₀| H₀].
         rewrite <- Hc, Hr in n1.
         assumption.
 
+    rewrite <- Hc in Hpol₁.
     apply non_decr_imp_eq; auto.
      apply zerop_1st_n_const_coeff_false_iff.
      intros j Hj.
@@ -515,7 +519,7 @@ destruct (fld_zerop 1%K) as [H₀| H₀].
      assumption.
 
     rewrite zerop_1st_n_const_coeff_succ; simpl.
-    rewrite <- Hc, <- Hpol₁, <- Hns₁, Hz.
+    rewrite <- Hpol₁, <- Hns₁, Hz.
     remember (ps_poly_nth 0 pol) as x.
     destruct (ps_zerop K x); [ contradiction  | reflexivity ].
 Qed.

@@ -3367,12 +3367,11 @@ destruct z₁.
     eapply root_tail_sep_1st_monom; eauto .
 Qed.
 
-Theorem root_tail_when_r_r : ∀ pol ns pol₁ ns₁ c m q₀ b r n,
+Theorem root_tail_when_r_r : ∀ pol ns pol₁ ns₁ m q₀ b r n,
   ns ∈ newton_segments pol
   → pol_in_K_1_m pol m
   → q₀ = q_of_m m (γ ns)
-  → c = ac_root (Φq pol ns)
-  → pol₁ = next_pol pol (β ns) (γ ns) c
+  → pol₁ = next_pol pol (β ns) (γ ns) (ac_root (Φq pol ns))
   → ns₁ = List.hd phony_ns (newton_segments pol₁)
   → (∀ i, i ≤ 1%nat → nth_r i pol ns = r)
   → (∀ n, r ≤ nth_r n pol ns)
@@ -3383,8 +3382,9 @@ Theorem root_tail_when_r_r : ∀ pol ns pol₁ ns₁ c m q₀ b r n,
        ps_monom 1%K (γ_sum b n pol₁ ns₁) *
        root_tail (m * q₀) (b + S n) pol₁ ns₁)%ps.
 Proof.
-intros pol ns pol₁ ns₁ c m q₀ b r n.
-intros Hns Hm Hq₀ Hc Hpol₁ Hns₁ Hri Hrle H₀ Hnz.
+intros pol ns pol₁ ns₁ m q₀ b r n.
+intros Hns Hm Hq₀ Hpol₁ Hns₁ Hri Hrle H₀ Hnz.
+remember (ac_root (Φq pol ns)) as c eqn:Hc.
 revert pol ns pol₁ ns₁ c m q₀ b Hns Hm Hq₀ Hc Hpol₁ Hns₁ Hri Hrle Hnz.
 induction n; intros.
  unfold root_head; simpl.
