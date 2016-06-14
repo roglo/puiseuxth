@@ -243,7 +243,6 @@ destruct (fld_zerop 1%K) as [H₀| H₀].
   symmetry in Hofs.
   destruct ofs as [ofs| ].
    subst s.
-   remember (1 # 2 * m * q₀) as η eqn:Hη .
    remember (Z.to_nat (2 * ' m * ' q₀ * Qnum ofs)) as N eqn:HN .
    apply eq_Qbar_eq in Hofs.
    remember (zerop_1st_n_const_coeff N pol₁ ns₁) as z eqn:Hz .
@@ -277,6 +276,7 @@ destruct (fld_zerop 1%K) as [H₀| H₀].
      remember Σ (i = 0, N), β (nth_ns i pol₁ ns₁) as u eqn:Hu .
      assert (H : ofs < u).
       subst u.
+      remember (1 # 2 * m * q₀) as η eqn:Hη .
       assert (∀ i, i ≤ N → η < β (nth_ns i pol₁ ns₁)).
        intros i Hi.
        subst c q₀.
