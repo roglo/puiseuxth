@@ -212,6 +212,17 @@ destruct z₁.
    simpl; rewrite <- Hc; assumption.
 Qed.
 
+Definition root_when_r_constant pol ns :=
+  if fld_zerop 1%K then 0%ps
+  else
+    let m := ps_list_com_polord (al pol) in
+    let q₀ := q_of_m m (γ ns) in
+    let pol₁ := next_pol pol (β ns) (γ ns) (ac_root (Φq pol ns)) in
+    let ns₁ := List.hd phony_ns (newton_segments pol₁) in
+    let s := root_tail (m * q₀) 0 pol₁ ns₁ in
+    if ps_zerop _ (ps_pol_apply pol₁ s) then s
+    else (* to be completed *) 0%ps.
+
 Theorem f₁_has_root_when_r_constant : ∀ pol ns pol₁,
   ns ∈ newton_segments pol
   → (ps_poly_nth 0 pol ≠ 0)%ps
