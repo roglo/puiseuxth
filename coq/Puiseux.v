@@ -377,7 +377,7 @@ destruct (fld_zerop 1%K) as [H₀| H₀].
     apply order_inf.
     rewrite apply_nth_pol in Hofs; auto.
     remember Σ (i = 0, N), β (nth_ns i pol₁ ns₁) as u eqn:Hu .
-    assert (H : ofs < u).
+    assert (H : ofs < u); [ | exfalso ].
      clear Hofs.
      subst u.
      remember (1 # 2 * m * q₀) as η eqn:Hη .
@@ -473,7 +473,7 @@ destruct (fld_zerop 1%K) as [H₀| H₀].
       intros a Ha.
       remember (nth_pol N pol₁ ns₁) as polN eqn:HpolN .
       remember (nth_ns N pol₁ ns₁) as nsN eqn:HnsN .
-      assert (HnsNi : List.In nsN (newton_segments polN)).
+      assert (HnsNi : nsN ∈ newton_segments polN).
        rewrite zerop_1st_n_const_coeff_false_iff in Hz.
        remember (m * q₀)%positive as m₁.
        eapply nth_in_newton_segments_any_r with (ns₁ := ns₁); eauto  .
