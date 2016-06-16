@@ -226,8 +226,10 @@ Definition root_when_r_constant pol ns :=
       | qfin ofs =>
           let N := Z.to_nat (2 * ' m * ' q₀ * Qnum ofs) in
           let i := lowest_with_zero_1st_const_coeff acf N pol₁ ns₁ in
-          if zerop i then (* to be completed *) 0%ps
-          else (* to be completed *) 0%ps
+          match i with
+          | O => (* to be completed *) 0%ps
+          | S i' => root_head 0 i' pol₁ ns₁
+          end
       | ∞%Qbar => (* to be completed *) 0%ps
       end.
 
@@ -286,8 +288,13 @@ destruct (fld_zerop 1%K) as [H₀| H₀].
     rewrite <- ps_lap_nth_0_apply_0.
     assumption.
 
-    exists (root_head 0 (pred i) pol₁ ns₁).
-    apply root_when_fin; assumption.
+    destruct i.
+     simpl in Hpi, Hz; rewrite Hz in Hpi.
+     discriminate Hpi.
+
+     exists t; subst t.
+     replace i with (pred (S i)) by reflexivity.
+     apply root_when_fin; assumption.
 
    rewrite Hc in Hpol₁.
    rewrite root_tail_when_r_r with (n := N) (r := (S r)) in Hofs;
