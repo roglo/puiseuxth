@@ -279,7 +279,12 @@ destruct (fld_zerop 1%K) as [H₀| H₀].
 
      apply root_when_fin in Hpi; [ apply Hpi | assumption ].
 
-    simpl.
+    remember (root_multiplicity acf c (Φq pol ns)) as r eqn:Hr.
+    assert (Hs2 : (s = root_tail (m * q₀) 0 pol₁ ns₁)%ps).
+     subst s; reflexivity.
+
+     rewrite root_tail_when_r_r with (n := N) (r := (S r)) in Hs2;
+      try eassumption.
 Abort.
 
 (* old version (complete) *)
