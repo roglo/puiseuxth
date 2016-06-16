@@ -285,6 +285,13 @@ destruct (fld_zerop 1%K) as [H₀| H₀].
 
      rewrite root_tail_when_r_r with (n := N) (r := (S r)) in Hs2;
       try eassumption.
+      rewrite Hs2.
+      rewrite apply_nth_pol; [ | assumption ].
+      apply order_inf, eq_Qbar_qinf.
+      rewrite order_mul.
+      rewrite ps_monom_order; [ | assumption ].
+      remember Σ (i = 0, N), β (nth_ns i pol₁ ns₁) as u eqn:Hu .
+      assert (H : ofs < u).
 Abort.
 
 (* old version (complete) *)
