@@ -919,59 +919,61 @@ exfalso; apply Hv; simpl.
 apply eq_1_0_all_0; assumption.
 Qed.
 
+Fixpoint lowest_with_zero_1st_const_coeff n pol ns :=
+  match n with
+  | O => O
+  | S n' =>
+      if ps_zerop _ (ps_poly_nth 0 pol) then O
+      else
+        let pol₁ := next_pol pol (β ns) (γ ns) (ac_root (Φq pol ns)) in
+        let ns₁ := List.hd phony_ns (newton_segments pol₁) in
+        S (lowest_with_zero_1st_const_coeff n' pol₁ ns₁)
+  end.
+
 Theorem lowest_zerop_1st_n_const_coeff : ∀ pol ns n,
   zerop_1st_n_const_coeff n pol ns = true
-  → ∃ i,
+  → ∃ i, i = lowest_with_zero_1st_const_coeff n pol ns ∧
     i ≤ n ∧
     (i = O ∨ zerop_1st_n_const_coeff (pred i) pol ns = false) ∧
     zerop_1st_n_const_coeff i pol ns = true.
 Proof.
 intros pol ns n Hz.
-revert pol ns Hz.
+remember (lowest_with_zero_1st_const_coeff n pol ns) as i eqn:Hi.
+exists i; split; [ reflexivity | ].
+revert pol ns i Hz Hi.
 induction n; intros.
- exists O.
- split; [ reflexivity | idtac ].
+ simpl in Hi; subst i.
+ split; [ reflexivity |  ].
  split; [ left; reflexivity | assumption ].
 
- simpl in Hz.
- destruct (ps_zerop K (ps_poly_nth 0 pol)) as [H₁| H₁].
-  exists O.
-  split; [ apply Nat.le_0_l | idtac ].
-  split; [ left; reflexivity | simpl ].
-  destruct (ps_zerop K (ps_poly_nth 0 pol)); auto.
+ simpl in Hi, Hz.
+ remember (ps_zerop K (ps_poly_nth 0 pol)) as t eqn:Ht .
+ destruct t as [t| t].
+  subst i.
+  split; [ apply Nat.le_0_l |  ].
+  split; [ left; reflexivity | simpl; rewrite <- Ht; reflexivity ].
 
-  apply IHn in Hz.
-  destruct Hz as (i, (Hin, (Hji, Hz))).
-  destruct Hji as [Hji| Hji].
-   subst i.
-   simpl in Hz.
-   remember (ac_root (Φq pol ns)) as c eqn:Hc .
-   remember (next_pol pol (β ns) (γ ns) c) as pol₁ eqn:Hpol₁ .
-   destruct (ps_zerop K (ps_poly_nth 0 pol₁)) as [H₂| H₂].
-    exists 1%nat.
-    split; [ apply le_n_S, Nat.le_0_l | simpl ].
-    destruct (ps_zerop K (ps_poly_nth 0 pol)); [ contradiction | idtac ].
-    split; [ right; reflexivity | idtac ].
-    rewrite <- Hc, <- Hpol₁.
-    destruct (ps_zerop K (ps_poly_nth 0 pol₁)); auto.
+  destruct i; [ discriminate Hi |  ].
+  remember (ac_root (Φq pol ns)) as c eqn:Hc .
+  remember (next_pol pol (β ns) (γ ns) c) as pol₁ eqn:Hpol₁ ; subst c.
+  remember (List.hd phony_ns (newton_segments pol₁)) as ns₁ eqn:Hns₁ .
+  apply Nat.succ_inj in Hi.
+  pose proof (IHn pol₁ ns₁ i Hz Hi) as H.
+  destruct H as (Hin, (Hip, Hii)).
+  split; [ rewrite <- Nat.succ_le_mono; assumption | simpl ].
+  destruct Hip as [Hip| Hip].
+   split; [ right; simpl |  ].
+    subst i; simpl.
+    rewrite Hip; simpl.
+    rewrite <- Ht; reflexivity.
 
-    discriminate Hz.
+    rewrite <- Ht, <- Hpol₁, <- Hns₁; assumption.
 
-   destruct i.
-    simpl in Hji, Hz.
-    rewrite Hji in Hz.
-    discriminate Hz.
+   split; [ right; simpl |  ].
+    destruct i; simpl; [ rewrite <- Ht; reflexivity |  ].
+    rewrite <- Ht, <- Hpol₁, <- Hns₁; assumption.
 
-    simpl in Hji.
-    exists (S (S i)).
-    split; [ apply le_n_S; auto | idtac ].
-    split.
-     right; simpl.
-     destruct (ps_zerop K (ps_poly_nth 0 pol)); auto.
-     contradiction.
-
-     remember (S i) as si; simpl; subst si.
-     destruct (ps_zerop K (ps_poly_nth 0 pol)); auto.
+    rewrite <- Ht, <- Hpol₁, <- Hns₁; assumption.
 Qed.
 
 Theorem first_null_coeff : ∀ pol₁ ns₁ i a₁ la₁,

@@ -263,9 +263,9 @@ destruct (fld_zerop 1%K) as [H₀| H₀].
   destruct z.
    unfold root_tail in Hofs.
    apply lowest_zerop_1st_n_const_coeff in Hz.
-   destruct Hz as (i, (Hin, (Hji, Hz))).
-   destruct Hji as [Hi| Hpi].
-    subst i.
+   destruct Hz as (i, (Hi, (Hin, (Hji, Hz)))).
+   destruct Hji as [Hi2| Hpi].
+    move Hi2 at top; subst i.
     simpl in Hz.
     destruct (ps_zerop K (ps_poly_nth 0 pol₁)); [ | discriminate Hz ].
     exists 0%ps.
@@ -627,9 +627,9 @@ destruct (LPO v) as [Hn| Hn].
       symmetry in Hz.
       destruct z.
        apply lowest_zerop_1st_n_const_coeff in Hz.
-       destruct Hz as (m, (Hmi, (Hle, Heq))).
+       destruct Hz as (m, (Hm, (Hmi, (Hle, Heq)))).
        destruct Hle as [Hle| Hle].
-        subst m.
+        move Hle at top; subst m.
         simpl in Heq.
         destruct (ps_zerop K (ps_poly_nth 0 pol₁)) as [H₂| H₂].
          exists 0%ps.
