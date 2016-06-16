@@ -275,9 +275,11 @@ destruct (fld_zerop 1%K) as [H₀| H₀].
     apply a₀_0_root_0; assumption.
 
     destruct i.
-     simpl in Hpi, Hz.
-     rewrite Hpi in Hz; discriminate Hz.
+     simpl in Hpi, Hz; rewrite Hpi in Hz; discriminate Hz.
 
+     apply root_when_fin in Hpi; [ apply Hpi | assumption ].
+
+    simpl.
 Abort.
 
 (* old version (complete) *)
