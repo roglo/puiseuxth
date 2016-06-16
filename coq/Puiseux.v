@@ -257,6 +257,14 @@ destruct (fld_zerop 1%K) as [H₀| H₀].
  rewrite rng_mul_0_r, rng_add_0_l.
  apply eq_1_0_ps_0; assumption.
 
+ destruct (ps_zerop K (ps_pol_apply pol₁ s)) as [| H₁]; [ assumption | ].
+ remember (order (ps_pol_apply pol₁ s)) as ofs eqn:Hofs .
+ destruct ofs as [ofs| ].
+  remember (Z.to_nat (2 * ' m * ' q₀ * Qnum ofs)) as N eqn:HN .
+  remember (zerop_1st_n_const_coeff N pol₁ ns₁) as z eqn:Hz .
+  symmetry in Hz.
+  destruct z.
+
 Abort.
 
 (* old version (complete) *)
