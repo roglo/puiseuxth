@@ -234,6 +234,32 @@ Definition root_when_r_constant pol ns :=
       | ∞%Qbar => 0%ps
       end.
 
+(* new version (incomplete) *)
+Theorem f₁_has_root_when_r_constant : ∀ pol ns pol₁,
+  ns ∈ newton_segments pol
+  → (ps_poly_nth 0 pol ≠ 0)%ps
+  → pol₁ = next_pol pol (β ns) (γ ns) (ac_root (Φq pol ns))
+  → (∀ i, if multiplicity_decreases pol ns i then False else True)
+  → ∃ s, (ps_pol_apply pol₁ s = 0)%ps.
+Proof.
+intros pol ns pol₁ Hns Hnz₀ Hpol₁ Hn.
+exists (root_when_r_constant pol ns).
+unfold root_when_r_constant.
+rewrite <- Hpol₁.
+remember (List.hd phony_ns (newton_segments pol₁)) as ns₁ eqn:Hns₁.
+remember (ac_root (Φq pol ns)) as c eqn:Hc in Hpol₁ |-*.
+remember (ps_list_com_polord (al pol)) as m eqn:Hm.
+remember (q_of_m m (γ ns)) as q₀ eqn:Hq₀ .
+remember (root_tail (m * q₀) 0 pol₁ ns₁) as s eqn:Hs .
+destruct (fld_zerop 1%K) as [H₀| H₀].
+ unfold ps_pol_apply, apply_poly, apply_lap; simpl.
+ destruct (al pol₁) as [| a]; [ reflexivity | simpl ].
+ rewrite rng_mul_0_r, rng_add_0_l.
+ apply eq_1_0_ps_0; assumption.
+
+Abort.
+
+(* old version (complete) *)
 Theorem f₁_has_root_when_r_constant : ∀ pol ns pol₁,
   ns ∈ newton_segments pol
   → (ps_poly_nth 0 pol ≠ 0)%ps
