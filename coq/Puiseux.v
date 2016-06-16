@@ -377,9 +377,8 @@ destruct (fld_zerop 1%K) as [H₀| H₀].
     apply order_inf.
     rewrite apply_nth_pol in Hofs; auto.
     remember Σ (i = 0, N), β (nth_ns i pol₁ ns₁) as u eqn:Hu .
-    rewrite order_mul in Hofs; auto.
-    rewrite ps_monom_order in Hofs; auto.
     assert (H : ofs < u).
+     clear Hofs.
      subst u.
      remember (1 # 2 * m * q₀) as η eqn:Hη .
      assert (∀ i, i ≤ N → η < β (nth_ns i pol₁ ns₁)).
@@ -462,6 +461,8 @@ destruct (fld_zerop 1%K) as [H₀| H₀].
 
        apply Zle_neg_pos.
 
+     rewrite order_mul in Hofs; auto.
+     rewrite ps_monom_order in Hofs; auto.
      apply Qlt_not_le in H.
      exfalso; apply H.
      apply Qbar.qfin_le_mono.
