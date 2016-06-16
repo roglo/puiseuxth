@@ -264,6 +264,19 @@ destruct (fld_zerop 1%K) as [H₀| H₀].
   remember (zerop_1st_n_const_coeff N pol₁ ns₁) as z eqn:Hz .
   symmetry in Hz.
   destruct z.
+   apply lowest_zerop_1st_n_const_coeff in Hz.
+   destruct Hz as (i, (Hi, (Hin, (Hji, Hz)))).
+   symmetry in Hi.
+   rewrite Hi.
+   destruct Hji as [Hi2| Hpi].
+    move Hi2 at top; subst i.
+    simpl in Hz.
+    destruct (ps_zerop K (ps_poly_nth 0 pol₁)); [ | discriminate Hz ].
+    apply a₀_0_root_0; assumption.
+
+    destruct i.
+     simpl in Hpi, Hz.
+     rewrite Hpi in Hz; discriminate Hz.
 
 Abort.
 
