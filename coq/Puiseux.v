@@ -376,9 +376,9 @@ destruct (fld_zerop 1%K) as [H₀| H₀].
     exists t; subst t.
     apply order_inf.
     rewrite apply_nth_pol in Hofs; auto.
+    remember Σ (i = 0, N), β (nth_ns i pol₁ ns₁) as u eqn:Hu .
     rewrite order_mul in Hofs; auto.
     rewrite ps_monom_order in Hofs; auto.
-    remember Σ (i = 0, N), β (nth_ns i pol₁ ns₁) as u eqn:Hu .
     assert (H : ofs < u).
      subst u.
      remember (1 # 2 * m * q₀) as η eqn:Hη .
