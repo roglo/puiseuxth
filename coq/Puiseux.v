@@ -232,7 +232,7 @@ Definition root_when_r_constant pol ns :=
             | S i' => root_head 0 i' pol₁ ns₁
             end
           else root_tail (m * q₀) 0 pol₁ ns₁
-      | ∞%Qbar => (* to be completed *) 0%ps
+      | ∞%Qbar => 0%ps
       end.
 
 Theorem f₁_has_root_when_r_constant : ∀ pol ns pol₁,
