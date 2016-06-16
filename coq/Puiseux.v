@@ -226,12 +226,11 @@ Definition root_when_r_constant pol ns :=
       | qfin ofs =>
           let N := Z.to_nat (2 * ' m * ' q₀ * Qnum ofs) in
           if zerop_1st_n_const_coeff N pol₁ ns₁ then
-            let i := lowest_with_zero_1st_const_coeff acf N pol₁ ns₁ in
-            match i with
+            match lowest_with_zero_1st_const_coeff acf N pol₁ ns₁ with
             | O => 0%ps
             | S i' => root_head 0 i' pol₁ ns₁
             end
-          else root_tail (m * q₀) 0 pol₁ ns₁
+          else s
       | ∞%Qbar => 0%ps
       end.
 
