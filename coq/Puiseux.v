@@ -221,7 +221,15 @@ Definition root_when_r_constant pol ns :=
     let ns₁ := List.hd phony_ns (newton_segments pol₁) in
     let s := root_tail (m * q₀) 0 pol₁ ns₁ in
     if ps_zerop _ (ps_pol_apply pol₁ s) then s
-    else (* to be completed *) 0%ps.
+    else
+      match order (ps_pol_apply pol₁ s) with
+      | qfin ofs =>
+          let N := Z.to_nat (2 * ' m * ' q₀ * Qnum ofs) in
+          let i := lowest_with_zero_1st_const_coeff acf N pol₁ ns₁ in
+          if zerop i then (* to be completed *) 0%ps
+          else (* to be completed *) 0%ps
+      | ∞%Qbar => (* to be completed *) 0%ps
+      end.
 
 Theorem f₁_has_root_when_r_constant : ∀ pol ns pol₁,
   ns ∈ newton_segments pol
@@ -268,9 +276,10 @@ destruct (fld_zerop 1%K) as [H₀| H₀].
    unfold root_tail in Hofs.
    apply lowest_zerop_1st_n_const_coeff in Hz.
    destruct Hz as (i, (Hi, (Hin, (Hji, Hz)))).
+   rewrite <- Hi in Ht.
    destruct Hji as [Hi2| Hpi].
     move Hi2 at top; subst i.
-    simpl in Hz.
+    simpl in Hz, Hofs.
     destruct (ps_zerop K (ps_poly_nth 0 pol₁)); [ | discriminate Hz ].
     exists t; subst t.
     unfold ps_pol_apply, apply_poly.
