@@ -225,11 +225,13 @@ Definition root_when_r_constant pol ns :=
       match order (ps_pol_apply pol₁ s) with
       | qfin ofs =>
           let N := Z.to_nat (2 * ' m * ' q₀ * Qnum ofs) in
-          let i := lowest_with_zero_1st_const_coeff acf N pol₁ ns₁ in
-          match i with
-          | O => (* to be completed *) 0%ps
-          | S i' => root_head 0 i' pol₁ ns₁
-          end
+          if zerop_1st_n_const_coeff N pol₁ ns₁ then
+            let i := lowest_with_zero_1st_const_coeff acf N pol₁ ns₁ in
+            match i with
+            | O => 0%ps
+            | S i' => root_head 0 i' pol₁ ns₁
+            end
+          else root_tail (m * q₀) 0 pol₁ ns₁
       | ∞%Qbar => (* to be completed *) 0%ps
       end.
 
@@ -299,7 +301,7 @@ destruct (fld_zerop 1%K) as [H₀| H₀].
    rewrite Hc in Hpol₁.
    rewrite root_tail_when_r_r with (n := N) (r := (S r)) in Hofs;
     try eassumption.
-    exists (root_tail (m * q₀) 0 pol₁ ns₁).
+    exists t; subst t.
     apply order_inf.
     rewrite apply_nth_pol in Hofs; auto.
     rewrite order_mul in Hofs; auto.
