@@ -212,6 +212,18 @@ destruct z₁.
    simpl; rewrite <- Hc; assumption.
 Qed.
 
+Theorem zerop_1st_n_const_coeff_false_before : ∀ pol ns m,
+  zerop_1st_n_const_coeff m pol ns = false
+  → ∀ i, i ≤ m →
+    zerop_1st_n_const_coeff i pol ns = false.
+Proof.
+intros pol ns m H i Hi.
+rewrite zerop_1st_n_const_coeff_false_iff in H.
+apply zerop_1st_n_const_coeff_false_iff.
+intros j Hj; apply H.
+transitivity i; assumption.
+Qed.
+
 Definition root_when_r_constant pol ns :=
   if fld_zerop 1%K then 0%ps
   else
@@ -373,15 +385,33 @@ destruct (fld_zerop 1%K) as [H₀| H₀].
      assert (∀ i, i ≤ N → η < β (nth_ns i pol₁ ns₁)).
       intros i Hi.
       subst c q₀.
-      assert (Hz₁ : zerop_1st_n_const_coeff i pol₁ ns₁ = false).
-       rewrite zerop_1st_n_const_coeff_false_iff in Hz.
-       apply zerop_1st_n_const_coeff_false_iff.
-       intros j Hj.
-       apply Hz.
-       transitivity i; assumption.
 
-       eapply β_lower_bound_r_const with (n := i) (r := S r); eauto  .
-        apply Nat.lt_0_succ.
+      eapply β_lower_bound_r_const with (n := i) (r := S r); eauto  .
+       apply Nat.lt_0_succ.
+
+       intros j.
+       pose proof (Hn j) as H.
+       remember (multiplicity_decreases pol ns j) as p eqn:Hp .
+       destruct p; [ contradiction  |  ].
+       unfold multiplicity_decreases in Hp; simpl in Hp.
+       destruct
+        (lt_dec
+           (root_multiplicity acf (nth_c j pol ns)
+              (Φq (nth_pol j pol ns) (nth_ns j pol ns)))
+           (root_multiplicity acf (ac_root (Φq pol ns)) (Φq pol ns))).
+        contradiction .
+
+        clear n0 Hp.
+        apply Nat.nlt_ge in n.
+        rewrite Hr in n.
+        erewrite <- nth_r_n in n; try eassumption; eauto  .
+
+       eapply zerop_1st_n_const_coeff_false_before; eassumption.
+
+       apply non_decr_imp_eq; try assumption.
+        apply zerop_1st_n_const_coeff_false_succ; auto; simpl.
+        rewrite <- Hpol₁, <- Hns₁.
+        eapply zerop_1st_n_const_coeff_false_before; eassumption.
 
         intros j.
         pose proof (Hn j) as H.
@@ -396,30 +426,9 @@ destruct (fld_zerop 1%K) as [H₀| H₀].
          contradiction .
 
          clear n0 Hp.
-         apply Nat.nlt_ge in n.
          rewrite Hr in n.
+         apply Nat.nlt_ge in n.
          erewrite <- nth_r_n in n; try eassumption; eauto  .
-
-        apply non_decr_imp_eq; try assumption.
-         apply zerop_1st_n_const_coeff_false_succ; auto; simpl.
-         rewrite <- Hpol₁, <- Hns₁; assumption.
-
-         intros j.
-         pose proof (Hn j) as H.
-         remember (multiplicity_decreases pol ns j) as p eqn:Hp .
-         destruct p; [ contradiction  |  ].
-         unfold multiplicity_decreases in Hp; simpl in Hp.
-         destruct
-          (lt_dec
-             (root_multiplicity acf (nth_c j pol ns)
-                (Φq (nth_pol j pol ns) (nth_ns j pol ns)))
-             (root_multiplicity acf (ac_root (Φq pol ns)) (Φq pol ns))).
-          contradiction .
-
-          clear n0 Hp.
-          rewrite Hr in n.
-          apply Nat.nlt_ge in n.
-          erewrite <- nth_r_n in n; try eassumption; eauto  .
 
       apply summation_all_lt in H.
       eapply Qle_lt_trans; try eassumption.
