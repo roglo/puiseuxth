@@ -820,30 +820,34 @@ assert (order (ps_lap_nth r (yr * ycj * psy ∘ yc)) = 0)%Qbar as Hor.
   apply nth_g_order_pos; assumption.
 Qed.
 
-Theorem exists_pol_ord : ∀ pol, ∃ m, pol_in_K_1_m pol m.
+Theorem exists_pol_ord : ∀ pol, ∃ m,
+  m = ps_list_com_polord (al pol) ∧ pol_in_K_1_m pol m.
 Proof.
 intros pol.
 unfold pol_in_K_1_m.
-exists (ps_list_com_polord (al pol)).
+remember (ps_list_com_polord (al pol)) as m eqn:Hm.
+exists m; split; [ reflexivity | ].
 apply ps_lap_forall_forall.
  intros a b Hab H.
  rewrite <- Hab; assumption.
 
  intros a Ha.
  remember (al pol) as la; clear Heqla.
- revert a Ha.
+ revert a m Ha Hm.
  induction la as [| b]; intros; [ contradiction | idtac ].
  simpl in Ha.
- destruct Ha as [(Hbla, Hba)| Ha]; simpl.
+ destruct Ha as [(Hbla, Hba)| Ha].
   constructor.
-  remember (ps_list_com_polord la) as m eqn:Hm .
-  exists (adjust_ps 0 m b).
-  split; [ idtac | rewrite Pos.mul_comm; reflexivity ].
+  simpl in Hm.
+  remember (ps_list_com_polord la) as m' eqn:Hm' .
+  exists (adjust_ps 0 m' b).
+  split; [ idtac | simpl; rewrite Pos.mul_comm; symmetry; assumption ].
   transitivity b; [ idtac | assumption ].
   symmetry; apply ps_adjust_eq.
 
+  subst m; simpl.
   apply in_K_1_m_lap_mul_r_compat.
-  apply IHla, Ha.
+  apply IHla; [ apply Ha | reflexivity ].
 Qed.
 
 (* [Walker, p 101] «
@@ -865,7 +869,7 @@ intros pol ns c₁ r f₁ Hns Hc₁ Hr Hf₁.
 split; [ eapply order_bbar_nonneg; eassumption | idtac ].
 split; [ eapply order_bbar_pos; eassumption | idtac ].
 pose proof (exists_pol_ord pol) as H.
-destruct H as (m, Hm).
+destruct H as (m, (Hm, Hp)).
 eapply order_bbar_r_is_0; eassumption.
 Qed.
 

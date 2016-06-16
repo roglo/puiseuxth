@@ -231,15 +231,19 @@ Theorem f₁_has_root_when_r_constant : ∀ pol ns pol₁,
   → ∃ s, (ps_pol_apply pol₁ s = 0)%ps.
 Proof.
 intros pol ns pol₁ Hns Hnz₀ Hpol₁ Hn.
-remember (ac_root (Φq pol ns)) as c eqn:Hc in Hpol₁.
+remember (root_when_r_constant pol ns) as t eqn:Ht.
+unfold root_when_r_constant in Ht.
+rewrite <- Hpol₁ in Ht.
+remember (ac_root (Φq pol ns)) as c eqn:Hc in Hpol₁, Ht.
 remember (root_multiplicity acf c (Φq pol ns)) as r eqn:Hr.
 symmetry in Hr.
 pose proof multiplicity_neq_0 acf pol ns Hns Hc as H.
 destruct r; [ contradiction | clear H ].
 pose proof (exists_pol_ord K pol) as H.
-destruct H as (m, Hm).
+destruct H as (m, (Hm, Hq)).
+rewrite <- Hm in Ht.
 destruct (fld_zerop 1%K) as [H₀| H₀].
- exists 0%ps.
+ exists t; subst t.
  unfold ps_pol_apply, apply_poly, apply_lap; simpl.
  remember (al pol₁) as la; clear Heqla.
  destruct la as [| a]; [ reflexivity | simpl ].
@@ -250,7 +254,7 @@ destruct (fld_zerop 1%K) as [H₀| H₀].
  remember (q_of_m m (γ ns)) as q₀ eqn:Hq₀ .
  remember (root_tail (m * q₀) 0 pol₁ ns₁) as s eqn:Hs .
  destruct (ps_zerop _ (ps_pol_apply pol₁ s)) as [| H].
-  exists s; assumption.
+  exists t; subst t; assumption.
 
   remember (order (ps_pol_apply pol₁ s)) as ofs eqn:Hofs .
   symmetry in Hofs.
@@ -268,7 +272,7 @@ destruct (fld_zerop 1%K) as [H₀| H₀].
     move Hi2 at top; subst i.
     simpl in Hz.
     destruct (ps_zerop K (ps_poly_nth 0 pol₁)); [ | discriminate Hz ].
-    exists 0%ps.
+    exists t; subst t.
     unfold ps_pol_apply, apply_poly.
     rewrite <- ps_lap_nth_0_apply_0.
     assumption.

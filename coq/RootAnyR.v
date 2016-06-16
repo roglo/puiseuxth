@@ -1975,8 +1975,8 @@ Proof.
 intros pol₁ ns₁ c₁ poln nsn n Hns₁ Hc₁ Hpsi Hpoln Hnsn.
 subst poln nsn.
 pose proof (exists_pol_ord K pol₁) as H.
-destruct H as (m, Hm).
-revert pol₁ ns₁ c₁ m Hns₁ Hm Hc₁ Hpsi.
+destruct H as (m, (Hm, Hp)); clear Hm.
+revert pol₁ ns₁ c₁ m Hns₁ Hp Hc₁ Hpsi.
 induction n; intros; [ assumption | simpl ].
 rewrite <- Hc₁.
 remember (next_pol pol₁ (β ns₁) (γ ns₁) c₁) as pol₂ eqn:Hpol₂ .
