@@ -367,11 +367,10 @@ destruct (fld_zerop 1%K) as [H₀| H₀].
    rewrite Hc in Hpol₁.
    rewrite root_tail_when_r_r with (n := N) (r := (S r)) in Hofs;
     try eassumption.
-    exists t; subst t.
-    apply order_inf.
+    exfalso.
     rewrite apply_nth_pol in Hofs; auto.
     remember Σ (i = 0, N), β (nth_ns i pol₁ ns₁) as u eqn:Hu .
-    assert (H : ofs < u); [ | exfalso ].
+    assert (H : ofs < u).
      clear Hofs.
      subst u.
      remember (1 # 2 * m * q₀) as η eqn:Hη .
