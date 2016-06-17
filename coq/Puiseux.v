@@ -241,7 +241,7 @@ Definition root_when_r_constant pol ns :=
           | S i' => root_head 0 i' pol₁ ns₁
           end
         else s
-    | ∞%Qbar => 0%ps
+    | ∞%Qbar => s
     end.
 
 (* new version (incomplete) *)
@@ -619,7 +619,7 @@ revert H₀ Hns Hnz₀ Hpol₁ Hns₁ Hn Hr Hq Hη Hz Hi; clear; intros.
     remember (ps_poly_nth 0 pol) as x.
     destruct (ps_zerop K x); [ contradiction  | reflexivity ].
 
-   exists s; subst s.
+   exists t; subst t.
    apply order_inf; assumption.
 Qed.
 
