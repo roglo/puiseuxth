@@ -224,7 +224,7 @@ intros j Hj; apply H.
 transitivity i; assumption.
 Qed.
 
-Definition root_when_r_constant pol ns :=
+Definition f₁_root_when_r_constant pol ns :=
   if fld_zerop 1%K then 0%ps
   else
     let m := ps_list_com_polord (al pol) in
@@ -253,8 +253,8 @@ Theorem f₁_has_root_when_r_constant : ∀ pol ns pol₁,
   → ∃ s, (ps_pol_apply pol₁ s = 0)%ps.
 Proof.
 intros pol ns pol₁ Hns Hnz₀ Hpol₁ Hn.
-exists (root_when_r_constant pol ns).
-unfold root_when_r_constant.
+exists (f₁_root_when_r_constant pol ns).
+unfold f₁_root_when_r_constant.
 rewrite <- Hpol₁.
 remember (List.hd phony_ns (newton_segments pol₁)) as ns₁ eqn:Hns₁.
 remember (ac_root (Φq pol ns)) as c eqn:Hc in Hpol₁ |-*.
@@ -303,8 +303,8 @@ Theorem f₁_has_root_when_r_constant : ∀ pol ns pol₁,
   → ∃ s, (ps_pol_apply pol₁ s = 0)%ps.
 Proof.
 intros pol ns pol₁ Hns Hnz₀ Hpol₁ Hn.
-remember (root_when_r_constant pol ns) as t eqn:Ht.
-unfold root_when_r_constant in Ht.
+remember (f₁_root_when_r_constant pol ns) as t eqn:Ht.
+unfold f₁_root_when_r_constant in Ht.
 rewrite <- Hpol₁ in Ht.
 remember (ac_root (Φq pol ns)) as c eqn:Hc in Hpol₁, Ht.
 remember (root_multiplicity acf c (Φq pol ns)) as r eqn:Hr.
