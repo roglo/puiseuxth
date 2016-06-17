@@ -240,7 +240,7 @@ Definition root_when_r_constant pol ns :=
           | O => 0%ps
           | S i' => root_head 0 i' pol₁ ns₁
           end
-        else s
+        else 0%ps
     | ∞%Qbar => s
     end.
 
@@ -292,15 +292,6 @@ destruct (fld_zerop 1%K) as [H₀| H₀].
     assert (Hs2 : (s = root_tail (m * q₀) 0 pol₁ ns₁)%ps).
      subst s; reflexivity.
 
-     rewrite root_tail_when_r_r with (n := N) (r := (S r)) in Hs2;
-      try eassumption.
-      rewrite Hs2.
-      rewrite apply_nth_pol; [ | assumption ].
-      apply order_inf, eq_Qbar_qinf.
-      rewrite order_mul.
-      rewrite ps_monom_order; [ | assumption ].
-      remember Σ (i = 0, N), β (nth_ns i pol₁ ns₁) as u eqn:Hu .
-      assert (H : ofs < u).
 Abort.
 
 (* old version (complete) *)
@@ -364,10 +355,10 @@ destruct (fld_zerop 1%K) as [H₀| H₀].
      replace i with (pred (S i)) by reflexivity.
      apply root_when_fin; assumption.
 
+   exfalso.
    rewrite Hc in Hpol₁.
    rewrite root_tail_when_r_r with (n := N) (r := (S r)) in Hofs;
     try eassumption.
-    exfalso.
     rewrite apply_nth_pol in Hofs; auto.
     remember Σ (i = 0, N), β (nth_ns i pol₁ ns₁) as u eqn:Hu .
     assert (H : ofs < u).
