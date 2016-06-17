@@ -232,19 +232,17 @@ Definition root_when_r_constant pol ns :=
     let pol₁ := next_pol pol (β ns) (γ ns) (ac_root (Φq pol ns)) in
     let ns₁ := List.hd phony_ns (newton_segments pol₁) in
     let s := root_tail (m * q₀) 0 pol₁ ns₁ in
-    if ps_zerop _ (ps_pol_apply pol₁ s) then s
-    else
-      match order (ps_pol_apply pol₁ s) with
-      | qfin ofs =>
-          let N := Z.to_nat (2 * ' m * ' q₀ * Qnum ofs) in
-          if zerop_1st_n_const_coeff N pol₁ ns₁ then
-            match lowest_with_zero_1st_const_coeff acf N pol₁ ns₁ with
-            | O => 0%ps
-            | S i' => root_head 0 i' pol₁ ns₁
-            end
-          else s
-      | ∞%Qbar => 0%ps
-      end.
+    match order (ps_pol_apply pol₁ s) with
+    | qfin ofs =>
+        let N := Z.to_nat (2 * ' m * ' q₀ * Qnum ofs) in
+        if zerop_1st_n_const_coeff N pol₁ ns₁ then
+          match lowest_with_zero_1st_const_coeff acf N pol₁ ns₁ with
+          | O => 0%ps
+          | S i' => root_head 0 i' pol₁ ns₁
+          end
+        else s
+    | ∞%Qbar => 0%ps
+    end.
 
 (* new version (incomplete) *)
 Theorem f₁_has_root_when_r_constant : ∀ pol ns pol₁,
@@ -269,7 +267,6 @@ destruct (fld_zerop 1%K) as [H₀| H₀].
  rewrite rng_mul_0_r, rng_add_0_l.
  apply eq_1_0_ps_0; assumption.
 
- destruct (ps_zerop K (ps_pol_apply pol₁ s)) as [| H₁]; [ assumption | ].
  remember (order (ps_pol_apply pol₁ s)) as ofs eqn:Hofs .
  destruct ofs as [ofs| ].
   remember (Z.to_nat (2 * ' m * ' q₀ * Qnum ofs)) as N eqn:HN .
@@ -337,12 +334,9 @@ destruct (fld_zerop 1%K) as [H₀| H₀].
  remember (List.hd phony_ns (newton_segments pol₁)) as ns₁ eqn:Hns₁ .
  remember (q_of_m m (γ ns)) as q₀ eqn:Hq₀ .
  remember (root_tail (m * q₀) 0 pol₁ ns₁) as s eqn:Hs .
- destruct (ps_zerop _ (ps_pol_apply pol₁ s)) as [| H].
-  exists t; subst t; assumption.
-
-  remember (order (ps_pol_apply pol₁ s)) as ofs eqn:Hofs .
-  symmetry in Hofs.
-  destruct ofs as [ofs| ]; [ clear H | exfalso; apply H, order_inf, Hofs ].
+ remember (order (ps_pol_apply pol₁ s)) as ofs eqn:Hofs .
+ symmetry in Hofs.
+ destruct ofs as [ofs| ].
   subst s.
   remember (Z.to_nat (2 * ' m * ' q₀ * Qnum ofs)) as N eqn:HN .
   apply eq_Qbar_eq in Hofs.
@@ -625,6 +619,9 @@ revert H₀ Hns Hnz₀ Hpol₁ Hns₁ Hn Hr Hq Hη Hz Hi; clear; intros.
     rewrite <- Hpol₁, <- Hns₁, Hz.
     remember (ps_poly_nth 0 pol) as x.
     destruct (ps_zerop K x); [ contradiction  | reflexivity ].
+
+   exists s; subst s.
+   apply order_inf; assumption.
 Qed.
 
 Theorem f₁_has_root : ∀ pol ns pol₁,
