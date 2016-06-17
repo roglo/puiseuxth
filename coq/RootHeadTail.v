@@ -150,7 +150,7 @@ Definition root_head α {R : ring α} {K : field R} {acf : algeb_closed_field K}
   if zerop_1st_n_const_coeff b pol ns then 0%ps
   else root_head_from_cγ_list pol ns b n 0.
 
-(* Σ _(i=n+1,∞).c_i x^Σ_(j=n+1,i) γ_j *)
+(* Σ _(i=n,∞).c_i x^Σ_(j=n,i) γ_j *)
 Definition root_tail α {R : ring α} {K : field R} {acf : algeb_closed_field K}
   m n pol ns :=
   if zerop_1st_n_const_coeff n pol ns then 0%ps
