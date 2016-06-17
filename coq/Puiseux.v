@@ -380,11 +380,11 @@ destruct (fld_zerop 1%K) as [H₀| H₀].
      apply root_when_fin; assumption.
 
    exfalso.
+   rewrite Hc in Hpol₁.
    assert (Hrle : ∀ n : nat, S r ≤ nth_r n pol ns).
-    rewrite Hc in Hpol₁, Hr.
+    rewrite Hc in Hr.
     apply multiplicity_not_decreasing; assumption.
 
-    rewrite Hc in Hpol₁.
     rewrite root_tail_when_r_r with (n := N) (r := (S r)) in Hofs;
      try eassumption.
      rewrite apply_nth_pol in Hofs; auto.
