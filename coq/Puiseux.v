@@ -224,6 +224,30 @@ intros j Hj; apply H.
 transitivity i; assumption.
 Qed.
 
+Theorem multiplicity_not_decreasing : ∀ pol ns r,
+  (∀ i : nat, if multiplicity_decreases pol ns i then False else True)
+  → root_multiplicity acf (ac_root (Φq pol ns)) (Φq pol ns) = r
+  → ∀ j, r ≤ nth_r j pol ns.
+Proof.
+intros pol ns r Hn Hr j.
+pose proof Hn j as H.
+remember (multiplicity_decreases pol ns j) as p eqn:Hp .
+destruct p as [| p]; [ contradiction  |  ].
+unfold multiplicity_decreases in Hp; simpl in Hp.
+destruct
+  (lt_dec
+     (root_multiplicity acf (nth_c j pol ns)
+                        (Φq (nth_pol j pol ns) (nth_ns j pol ns)))
+     (root_multiplicity acf (ac_root (Φq pol ns)) (Φq pol ns)))
+ as [| H₁].
+contradiction .
+
+ clear Hp.
+ apply Nat.nlt_ge in H₁.
+ rewrite Hr in H₁.
+ erewrite <- nth_r_n in H₁; try eassumption; eauto  .
+Qed.
+
 Definition f₁_root_when_r_constant pol ns :=
   if fld_zerop 1%K then 0%ps
   else
@@ -357,22 +381,8 @@ destruct (fld_zerop 1%K) as [H₀| H₀].
 
    exfalso.
    assert (Hrle : ∀ n : nat, S r ≤ nth_r n pol ns).
-    intros j.
-    pose proof (Hn j) as H.
-    remember (multiplicity_decreases pol ns j) as p eqn:Hp .
-    destruct p; [ contradiction  |  ].
-    unfold multiplicity_decreases in Hp; simpl in Hp.
-    destruct
-     (lt_dec
-        (root_multiplicity acf (nth_c j pol ns)
-           (Φq (nth_pol j pol ns) (nth_ns j pol ns)))
-        (root_multiplicity acf (ac_root (Φq pol ns)) (Φq pol ns))).
-     contradiction .
-
-     clear n0 Hp.
-     apply Nat.nlt_ge in n.
-     rewrite <- Hc, Hr in n.
-     erewrite <- nth_r_n in n; try eassumption; eauto  .
+    rewrite Hc in Hpol₁, Hr.
+    apply multiplicity_not_decreasing; assumption.
 
     rewrite Hc in Hpol₁.
     rewrite root_tail_when_r_r with (n := N) (r := (S r)) in Hofs;
