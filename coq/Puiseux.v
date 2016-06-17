@@ -384,6 +384,7 @@ destruct (fld_zerop 1%K) as [H₀| H₀].
      assert (H : ∀ i, i ≤ N → η < β (nth_ns i pol₁ ns₁)).
       intros i Hi.
       subst c q₀.
+revert H₀ Hns Hnz₀ Hpol₁ Hns₁ Hn Hr Hq Hη Hz Hi; clear; intros.
       eapply β_lower_bound_r_const with (n := i) (r := S r); eauto  .
        apply Nat.lt_0_succ.
 
