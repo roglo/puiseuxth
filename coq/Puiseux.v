@@ -441,8 +441,7 @@ destruct (fld_zerop 1%K) as [H₀| H₀].
 
       rewrite order_mul in Hofs; auto.
       rewrite ps_monom_order in Hofs; auto.
-      apply Qlt_not_le in H.
-      exfalso; apply H.
+      apply Qlt_not_le in H; apply H; clear H.
       apply Qbar.qfin_le_mono.
       rewrite <- Hofs.
       apply Qbar.le_sub_le_add_l.
@@ -455,8 +454,7 @@ destruct (fld_zerop 1%K) as [H₀| H₀].
         rewrite zerop_1st_n_const_coeff_false_iff in Hz.
         remember (m * q₀)%positive as m₁.
         eapply nth_in_newton_segments_any_r with (ns₁ := ns₁); eauto  .
-        clear H.
-        remember Hns₁ as H; clear HeqH.
+        generalize Hns₁; intros H.
         pose proof (Hz O (Nat.le_0_l N)) as H₁.
         rewrite <- Hc in Hpol₁.
         eapply r_n_next_ns in H; try eassumption; eauto  .
@@ -489,7 +487,6 @@ destruct (fld_zerop 1%K) as [H₀| H₀].
 
            simpl; rewrite <- Hc, <- Hpol₁; assumption.
 
-        rename H into Huofs.
         remember HnsNi as H; clear HeqH.
         eapply f₁_orders in H; try eassumption; eauto  .
         erewrite <- nth_pol_succ in H; try eassumption.
@@ -502,7 +499,6 @@ destruct (fld_zerop 1%K) as [H₀| H₀].
          symmetry.
          apply nth_c_n; try eassumption.
 
-       rename H into Huofs.
        rewrite Nat.add_0_l.
        rewrite <- Hc in Hpol₁.
        eapply order_root_tail_nonneg_any_r; try eassumption.
