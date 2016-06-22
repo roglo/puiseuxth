@@ -589,6 +589,8 @@ destruct (LPO v) as [Hn| Hn].
      remember (nth_pol (S i) pol ns) as polsi eqn:Hpolsi .
      remember (nth_ns (S i) pol ns) as nssi eqn:Hnssi .
      remember (newton_segments polsi) as nsl eqn:Hnsl .
+     remember (nth_c (S i) pol ns) as cssi eqn:Hcssi.
+     remember (next_pol polsi (β nssi) (γ nssi) cssi) as polssi eqn:Hpolssi.
      symmetry in Hnsl.
      destruct nsl as [| ns₂].
       destruct (ps_zerop K (ps_poly_nth 0 pol₁)) as [H₁| H₁].
@@ -635,9 +637,6 @@ destruct (LPO v) as [Hn| Hn].
         exists (root_head 0 (pred m) pol₁ ns₁).
         apply root_when_fin; assumption.
 
-       remember (nth_c (S i) pol ns) as cssi eqn:Hcssi.
-       remember (next_pol polsi (β nssi) (γ nssi) cssi) as polssi.
-       rename Heqpolssi into Hpolssi.
        eapply IHr with (pol := polsi) (ns := nssi) (pol₁ := polssi) in Hri.
         destruct Hri as (s₁, Hs₁).
         remember (root_head 0 i pol₁ ns₁) as rh.
@@ -652,13 +651,13 @@ destruct (LPO v) as [Hn| Hn].
         eapply List_hd_in.
          subst nssi; simpl.
          eapply nth_ns_n; try eassumption; eauto  .
-         rewrite Hc; reflexivity.
+          rewrite Hc; reflexivity.
 
-         subst polsi; simpl.
-         eapply nth_pol_n; try eassumption; eauto  .
-         rewrite Hc; reflexivity.
+          subst polsi; simpl.
+          eapply nth_pol_n; try eassumption; eauto  .
+          rewrite Hc; reflexivity.
 
-        intros H; rewrite H in Hnsl; discriminate Hnsl.
+         intros H; rewrite H in Hnsl; discriminate Hnsl.
 
         rewrite zerop_1st_n_const_coeff_false_iff in Hz.
         pose proof (Hz i (Nat.le_refl i)) as H.
