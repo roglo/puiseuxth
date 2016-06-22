@@ -329,15 +329,15 @@ Theorem contradiction_in_root_when_r_constant :
   → pol_in_K_1_m pol m
   → q₀ = q_of_m m (γ ns)
   → N = Z.to_nat (2 * ' m * ' q₀ * Qnum ofs)
-  → zerop_1st_n_const_coeff N pol₁ ns₁ = false
   → root_multiplicity acf c (Φq pol ns) = S r
   → (∀ i : nat, if multiplicity_decreases pol ns i then False else True)
   → (order (ps_pol_apply pol₁ (root_tail (m * q₀) 0 pol₁ ns₁)) =
           qfin ofs)%Qbar
+  → zerop_1st_n_const_coeff N pol₁ ns₁ = false
   → False.
 Proof.
 intros pol ns c pol₁ ns₁ m q₀ r N ofs.
-intros H₀ Hns Hc Hpol₁ Hns₁ Hnz₀ Hq Hq₀ HN Hz Hr Hn Hofs.
+intros H₀ Hns Hc Hpol₁ Hns₁ Hnz₀ Hq Hq₀ HN Hr Hn Hofs Hz.
 rewrite Hc in Hpol₁.
 assert (Hrle : ∀ n : nat, S r ≤ nth_r n pol ns).
  rewrite Hc in Hr.
