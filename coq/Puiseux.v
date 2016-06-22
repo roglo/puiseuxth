@@ -102,8 +102,8 @@ induction n; intros.
  move Hm₁ before Hq₀.
  rewrite Hini₁, Hfin₁; simpl.
  rewrite Hαk₁; simpl.
- rewrite Qnum_inv_Qnat_sub; auto.
- rewrite Qden_inv_Qnat_sub; auto.
+ rewrite Qnum_inv_Qnat_sub; [ | apply Hrpos ].
+ rewrite Qden_inv_Qnat_sub; [ | apply Hrpos ].
  rewrite Z.add_0_r, Z.mul_1_r.
  remember (root_tail_series_from_cγ_list m₁ pol₁ ns₁) as t.
  remember (series_order {| terms := t |} 0) as v eqn:Hv .
@@ -112,18 +112,18 @@ induction n; intros.
  apply Qbar.qfin_le_mono.
  rewrite Nat.sub_0_r.
  rewrite Z.mul_shuffle0, Pos_mul_shuffle0.
- rewrite Pos2Z.inj_mul; auto.
- rewrite Z.div_mul_cancel_r; auto.
- erewrite αj_m_eq_p_r with (ns₁ := ns₁); try eassumption; eauto.
+ rewrite Pos2Z.inj_mul.
+ rewrite Z.div_mul_cancel_r; [ | apply Pos2Z_ne_0 | apply Pos2Z_ne_0 ].
+ erewrite αj_m_eq_p_r with (ns₁ := ns₁); try eassumption; [ | reflexivity ].
  rewrite Z.mul_shuffle0.
  rewrite <- Zposnat2Znat; auto.
  rewrite <- Z.mul_assoc, <- Pos2Z.inj_mul.
- rewrite Z.div_mul; auto.
+ rewrite Z.div_mul; [ | apply Pos2Z_ne_0 ].
  unfold Qle; simpl.
  rewrite Z.mul_1_r.
  apply Z.add_nonneg_nonneg; [ idtac | apply Nat2Z.is_nonneg ].
  apply Z.lt_le_incl.
- eapply p_is_pos; try eassumption .
+ eapply p_is_pos; eassumption .
 
  simpl in Hz₁; simpl.
  remember (ac_root (Φq pol₁ ns₁)) as c₁ eqn:Hc₁ .
@@ -561,11 +561,11 @@ destruct (LPO v) as [Hn| Hn].
  remember (root_multiplicity acf cn (Φq poln nsn)) as rn eqn:Hrn .
  symmetry in Hrn.
  destruct n.
+  exfalso.
   simpl in Hpoln, Hnsn, Hcn.
   subst poln nsn cn.
   rewrite <- Hc in Hrn.
   rewrite Hrn in Hr; subst rn.
-  exfalso.
   destruct (lt_dec r r) as [H| H]; [  | apply Hn, eq_refl ].
   revert H; apply lt_irrefl.
 
