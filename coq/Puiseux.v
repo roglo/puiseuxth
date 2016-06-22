@@ -487,8 +487,7 @@ destruct (fld_zerop 1%K) as [H₀| H₀].
    pose proof (multiplicity_neq_0 acf pol ns Hns Hc) as H.
    destruct r; [ contradiction | ].
    eapply contradiction_in_root_when_r_constant; try eassumption.
-
-  rewrite Hofs, Hs; reflexivity.
+   rewrite Hofs, Hs; reflexivity.
 
   symmetry in Hofs.
   apply order_inf; assumption.
