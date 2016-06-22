@@ -597,7 +597,7 @@ destruct (LPO v) as [Hn| Hn].
        apply a₀_0_root_0 in H₁.
        exists 0%ps; assumption.
 
-       remember Hnsl as H; clear HeqH.
+       generalize Hnsl; intros H.
        rewrite Hpolsi in H.
        simpl in H.
        rewrite <- Hc, <- Hpol₁, <- Hns₁ in H.
@@ -615,10 +615,10 @@ destruct (LPO v) as [Hn| Hn].
         eapply List_hd_in; try eassumption.
         clear H.
         remember Hns as H; clear HeqH.
-        eapply next_has_root_0_or_newton_segments in H; eauto  .
+        eapply next_has_root_0_or_newton_segments in H; auto.
         simpl in H.
         rewrite <- Hc, <- Hpol₁ in H.
-        destruct H; auto.
+        destruct H; [ contradiction | assumption ].
 
       remember (zerop_1st_n_const_coeff i pol₁ ns₁) as z eqn:Hz .
       symmetry in Hz.
