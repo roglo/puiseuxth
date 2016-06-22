@@ -248,76 +248,6 @@ contradiction .
  erewrite <- nth_r_n in H₁; try eassumption; eauto  .
 Qed.
 
-Definition f₁_root_when_r_constant pol ns :=
-  if fld_zerop 1%K then 0%ps
-  else
-    let m := ps_list_com_polord (al pol) in
-    let q₀ := q_of_m m (γ ns) in
-    let pol₁ := next_pol pol (β ns) (γ ns) (ac_root (Φq pol ns)) in
-    let ns₁ := List.hd phony_ns (newton_segments pol₁) in
-    let s := root_tail (m * q₀) 0 pol₁ ns₁ in
-    match order (ps_pol_apply pol₁ s) with
-    | qfin ofs =>
-        let N := Z.to_nat (2 * ' m * ' q₀ * Qnum ofs) in
-        if zerop_1st_n_const_coeff N pol₁ ns₁ then
-          match lowest_with_zero_1st_const_coeff acf N pol₁ ns₁ with
-          | O => 0%ps
-          | S i' => root_head 0 i' pol₁ ns₁
-          end
-        else 0%ps
-    | ∞%Qbar => s
-    end.
-
-(* new version (incomplete) *)
-Theorem f₁_has_root_when_r_constant : ∀ pol ns pol₁,
-  ns ∈ newton_segments pol
-  → (ps_poly_nth 0 pol ≠ 0)%ps
-  → pol₁ = next_pol pol (β ns) (γ ns) (ac_root (Φq pol ns))
-  → (∀ i, if multiplicity_decreases pol ns i then False else True)
-  → ∃ s, (ps_pol_apply pol₁ s = 0)%ps.
-Proof.
-intros pol ns pol₁ Hns Hnz₀ Hpol₁ Hn.
-exists (f₁_root_when_r_constant pol ns).
-unfold f₁_root_when_r_constant.
-rewrite <- Hpol₁.
-remember (List.hd phony_ns (newton_segments pol₁)) as ns₁ eqn:Hns₁.
-remember (ac_root (Φq pol ns)) as c eqn:Hc in Hpol₁ |-*.
-remember (ps_list_com_polord (al pol)) as m eqn:Hm.
-remember (q_of_m m (γ ns)) as q₀ eqn:Hq₀ .
-remember (root_tail (m * q₀) 0 pol₁ ns₁) as s eqn:Hs .
-destruct (fld_zerop 1%K) as [H₀| H₀].
- unfold ps_pol_apply, apply_poly, apply_lap; simpl.
- destruct (al pol₁) as [| a]; [ reflexivity | simpl ].
- rewrite rng_mul_0_r, rng_add_0_l.
- apply eq_1_0_ps_0; assumption.
-
- remember (order (ps_pol_apply pol₁ s)) as ofs eqn:Hofs .
- destruct ofs as [ofs| ].
-  remember (Z.to_nat (2 * ' m * ' q₀ * Qnum ofs)) as N eqn:HN .
-  remember (zerop_1st_n_const_coeff N pol₁ ns₁) as z eqn:Hz .
-  symmetry in Hz.
-  destruct z.
-   apply lowest_zerop_1st_n_const_coeff in Hz.
-   destruct Hz as (i, (Hi, (Hin, (Hji, Hz)))).
-   symmetry in Hi.
-   rewrite Hi.
-   destruct Hji as [Hi2| Hpi].
-    move Hi2 at top; subst i.
-    simpl in Hz.
-    destruct (ps_zerop K (ps_poly_nth 0 pol₁)); [ | discriminate Hz ].
-    apply a₀_0_root_0; assumption.
-
-    destruct i.
-     simpl in Hpi, Hz; rewrite Hpi in Hz; discriminate Hz.
-
-     apply root_when_fin in Hpi; [ apply Hpi | assumption ].
-
-    remember (root_multiplicity acf c (Φq pol ns)) as r eqn:Hr.
-    assert (Hs2 : (s = root_tail (m * q₀) 0 pol₁ ns₁)%ps).
-     subst s; reflexivity.
-
-Abort.
-
 Theorem contradiction_in_root_when_r_constant :
     ∀ pol ns c pol₁ ns₁ m q₀ r N ofs,
   (1 ≠ 0)%K
@@ -484,6 +414,76 @@ assert (Hrle : ∀ n : nat, S r ≤ nth_r n pol ns).
   remember (ps_poly_nth 0 pol) as x.
   destruct (ps_zerop K x); [ contradiction  | reflexivity ].
 Qed.
+
+Definition f₁_root_when_r_constant pol ns :=
+  if fld_zerop 1%K then 0%ps
+  else
+    let m := ps_list_com_polord (al pol) in
+    let q₀ := q_of_m m (γ ns) in
+    let pol₁ := next_pol pol (β ns) (γ ns) (ac_root (Φq pol ns)) in
+    let ns₁ := List.hd phony_ns (newton_segments pol₁) in
+    let s := root_tail (m * q₀) 0 pol₁ ns₁ in
+    match order (ps_pol_apply pol₁ s) with
+    | qfin ofs =>
+        let N := Z.to_nat (2 * ' m * ' q₀ * Qnum ofs) in
+        if zerop_1st_n_const_coeff N pol₁ ns₁ then
+          match lowest_with_zero_1st_const_coeff acf N pol₁ ns₁ with
+          | O => 0%ps
+          | S i' => root_head 0 i' pol₁ ns₁
+          end
+        else 0%ps
+    | ∞%Qbar => s
+    end.
+
+(* new version (incomplete) *)
+Theorem f₁_has_root_when_r_constant : ∀ pol ns pol₁,
+  ns ∈ newton_segments pol
+  → (ps_poly_nth 0 pol ≠ 0)%ps
+  → pol₁ = next_pol pol (β ns) (γ ns) (ac_root (Φq pol ns))
+  → (∀ i, if multiplicity_decreases pol ns i then False else True)
+  → ∃ s, (ps_pol_apply pol₁ s = 0)%ps.
+Proof.
+intros pol ns pol₁ Hns Hnz₀ Hpol₁ Hn.
+exists (f₁_root_when_r_constant pol ns).
+unfold f₁_root_when_r_constant.
+rewrite <- Hpol₁.
+remember (List.hd phony_ns (newton_segments pol₁)) as ns₁ eqn:Hns₁.
+remember (ac_root (Φq pol ns)) as c eqn:Hc in Hpol₁ |-*.
+remember (ps_list_com_polord (al pol)) as m eqn:Hm.
+remember (q_of_m m (γ ns)) as q₀ eqn:Hq₀ .
+remember (root_tail (m * q₀) 0 pol₁ ns₁) as s eqn:Hs .
+destruct (fld_zerop 1%K) as [H₀| H₀].
+ unfold ps_pol_apply, apply_poly, apply_lap; simpl.
+ destruct (al pol₁) as [| a]; [ reflexivity | simpl ].
+ rewrite rng_mul_0_r, rng_add_0_l.
+ apply eq_1_0_ps_0; assumption.
+
+ remember (order (ps_pol_apply pol₁ s)) as ofs eqn:Hofs .
+ destruct ofs as [ofs| ].
+  remember (Z.to_nat (2 * ' m * ' q₀ * Qnum ofs)) as N eqn:HN .
+  remember (zerop_1st_n_const_coeff N pol₁ ns₁) as z eqn:Hz .
+  symmetry in Hz.
+  destruct z.
+   apply lowest_zerop_1st_n_const_coeff in Hz.
+   destruct Hz as (i, (Hi, (Hin, (Hji, Hz)))).
+   symmetry in Hi.
+   rewrite Hi.
+   destruct Hji as [Hi2| Hpi].
+    move Hi2 at top; subst i.
+    simpl in Hz.
+    destruct (ps_zerop K (ps_poly_nth 0 pol₁)); [ | discriminate Hz ].
+    apply a₀_0_root_0; assumption.
+
+    destruct i.
+     simpl in Hpi, Hz; rewrite Hpi in Hz; discriminate Hz.
+
+     apply root_when_fin in Hpi; [ apply Hpi | assumption ].
+
+    remember (root_multiplicity acf c (Φq pol ns)) as r eqn:Hr.
+    assert (Hs2 : (s = root_tail (m * q₀) 0 pol₁ ns₁)%ps).
+     subst s; reflexivity.
+
+Abort.
 
 (* old version (complete) *)
 Theorem f₁_has_root_when_r_constant : ∀ pol ns pol₁,
