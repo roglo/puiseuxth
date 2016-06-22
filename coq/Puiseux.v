@@ -175,7 +175,7 @@ Qed.
 (* todo: group order_root_tail_nonneg_any_r_aux and this theorem together *)
 Theorem order_root_tail_nonneg_any_r : ∀ pol ns c pol₁ ns₁ m q₀ n r,
   ns ∈ newton_segments pol
-  → pol_in_K_1_m pol m
+  → m = ps_list_com_polord (al pol)
   → q₀ = q_of_m m (γ ns)
   → c = ac_root (Φq pol ns)
   → pol₁ = next_pol pol (β ns) (γ ns) c
@@ -200,6 +200,11 @@ destruct z₁.
  rewrite order_0; constructor.
 
  eapply order_root_tail_nonneg_any_r_aux with (r := r); try eassumption.
+  pose proof (exists_pol_ord K pol) as H.
+  destruct H as (m', (Hm', Hp)).
+  rewrite <- HK in Hm'; subst m'.
+  apply Hp.
+
   apply not_zero_1st_prop; auto; simpl.
   rewrite <- Hc, <- Hpol₁, <- Hns₁; assumption.
 
@@ -395,11 +400,6 @@ assert (Hrle : ∀ n : nat, S r ≤ nth_r n pol ns).
     rewrite Nat.add_0_l.
     rewrite <- Hc in Hpol₁.
     eapply order_root_tail_nonneg_any_r; try eassumption.
-     pose proof (exists_pol_ord K pol) as H.
-     destruct H as (m', (Hm', Hp)).
-     rewrite <- Hm in Hm'; subst m'.
-     apply Hp.
-
      rewrite zerop_1st_n_const_coeff_succ; simpl.
      rewrite <- Hc, <- Hpol₁, <- Hns₁, Hz.
      remember (ps_poly_nth 0 pol) as x.
