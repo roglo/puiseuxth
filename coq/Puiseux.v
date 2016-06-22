@@ -256,7 +256,7 @@ Theorem contradiction_in_root_when_r_constant :
   → pol₁ = next_pol pol (β ns) (γ ns) c
   → ns₁ = List.hd phony_ns (newton_segments pol₁)
   → (ps_poly_nth 0 pol ≠ 0)%ps
-  → pol_in_K_1_m pol m
+  → m = ps_list_com_polord (al pol)
   → q₀ = q_of_m m (γ ns)
   → N = Z.to_nat (2 * ' m * ' q₀ * Qnum ofs)
   → root_multiplicity acf c (Φq pol ns) = S r
@@ -267,7 +267,7 @@ Theorem contradiction_in_root_when_r_constant :
   → False.
 Proof.
 intros pol ns c pol₁ ns₁ m q₀ r N ofs.
-intros H₀ Hns Hc Hpol₁ Hns₁ Hnz₀ Hq Hq₀ HN Hr Hn Hofs Hz.
+intros H₀ Hns Hc Hpol₁ Hns₁ Hnz₀ Hm Hq₀ HN Hr Hn Hofs Hz.
 rewrite Hc in Hpol₁.
 assert (Hrle : ∀ n : nat, S r ≤ nth_r n pol ns).
  rewrite Hc in Hr.
@@ -285,6 +285,11 @@ assert (Hrle : ∀ n : nat, S r ≤ nth_r n pol ns).
     intros i Hi.
     subst c q₀.
     eapply β_lower_bound_r_const with (n := i) (r := S r); eauto  .
+     pose proof (exists_pol_ord K pol) as H.
+     destruct H as (m', (Hm', Hp)).
+     rewrite <- Hm in Hm'; subst m'.
+     apply Hp.
+
      apply Nat.lt_0_succ.
 
      eapply zerop_1st_n_const_coeff_false_before; eassumption.
@@ -390,10 +395,20 @@ assert (Hrle : ∀ n : nat, S r ≤ nth_r n pol ns).
     rewrite Nat.add_0_l.
     rewrite <- Hc in Hpol₁.
     eapply order_root_tail_nonneg_any_r; try eassumption.
-    rewrite zerop_1st_n_const_coeff_succ; simpl.
-    rewrite <- Hc, <- Hpol₁, <- Hns₁, Hz.
-    remember (ps_poly_nth 0 pol) as x.
-    destruct (ps_zerop K x); [ contradiction  | reflexivity ].
+     pose proof (exists_pol_ord K pol) as H.
+     destruct H as (m', (Hm', Hp)).
+     rewrite <- Hm in Hm'; subst m'.
+     apply Hp.
+
+     rewrite zerop_1st_n_const_coeff_succ; simpl.
+     rewrite <- Hc, <- Hpol₁, <- Hns₁, Hz.
+     remember (ps_poly_nth 0 pol) as x.
+     destruct (ps_zerop K x); [ contradiction  | reflexivity ].
+
+  pose proof (exists_pol_ord K pol) as H.
+  destruct H as (m', (Hm', Hp)).
+  rewrite <- Hm in Hm'; subst m'.
+  apply Hp.
 
   rewrite <- Hc in Hpol₁.
   apply non_decr_imp_eq; auto.
