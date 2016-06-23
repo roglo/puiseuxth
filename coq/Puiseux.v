@@ -493,9 +493,6 @@ destruct (fld_zerop 1%K) as [H₀| H₀].
      apply root_when_fin in Hpi; [ apply Hpi | assumption ].
 
    exfalso.
-   pose proof (exists_pol_ord K pol) as H.
-   destruct H as (m', (Hm', Hp)).
-   rewrite <- Hm in Hm'; subst m'.
    remember (root_multiplicity acf c (Φq pol ns)) as r eqn:Hr .
    symmetry in Hr.
    pose proof (multiplicity_neq_0 acf pol ns Hns Hc) as H.
