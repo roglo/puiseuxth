@@ -335,12 +335,12 @@ assert (Hrle : ∀ n : nat, S r ≤ nth_r n pol ns).
       apply Pos2Z.is_pos.
 
       apply Z.le_sub_le_add_l.
-      rewrite Z.sub_diag; auto.
+      rewrite Z.sub_diag; apply Pos2Z.is_nonneg.
 
      apply Zle_neg_pos.
 
-   rewrite order_mul in Hofs; auto.
-   rewrite ps_monom_order in Hofs; auto.
+   rewrite order_mul in Hofs.
+   rewrite ps_monom_order in Hofs; [ | assumption ].
    apply Qlt_not_le in H; apply H; clear H.
    apply Qbar.qfin_le_mono.
    rewrite <- Hofs.

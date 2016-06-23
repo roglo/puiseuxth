@@ -75,9 +75,9 @@ Proof.
 intros cpol c Hnz.
 unfold root_multiplicity.
 remember (al cpol) as la; clear Heqla.
-remember (length la) as len.
-assert (length la ≤ len) as Hlen by (apply Nat.eq_le_incl; auto).
-clear Heqlen.
+remember (length la) as len eqn:H.
+assert (length la ≤ len) as Hlen by (apply Nat.eq_le_incl, Nat.eq_sym, H).
+clear H.
 revert la Hnz Hlen.
 induction len; intros.
  apply Nat.le_0_r in Hlen.
@@ -108,13 +108,13 @@ induction len; intros.
     rewrite H₂ in H₁.
     rewrite rng_mul_0_l, rng_add_0_l in H₁.
     revert H₃.
-    apply IHla with (a := b); auto.
+    apply IHla with (a := b); [ | assumption ].
     intros H.
     rewrite H in Hnz.
     apply Hnz; rewrite H₁.
     constructor; reflexivity.
 
-   rewrite length_lap_mod_div_deg_1; auto.
+   rewrite length_lap_mod_div_deg_1; assumption.
 
   apply Nat.lt_0_succ.
 Qed.
@@ -137,21 +137,21 @@ intros Hrk.
 assert (slope ms < slope_expr (Qnat (S r), v) (Qnat k₁, αk₁)) as H.
  apply Qnot_le_lt.
  intros H.
- rewrite slope_slope_expr in H; eauto .
+ rewrite slope_slope_expr in H; [ | symmetry; eassumption ].
  rewrite <- Hfin₁ in H.
  rewrite Hfin₁ in H; simpl in H.
  unfold slope_expr in H; simpl in H.
  rewrite Hz in H.
  rewrite Q_sub_0_r in H.
  unfold Qle in H; simpl in H.
- rewrite Qnum_inv_Qnat_sub in H; eauto .
+ rewrite Qnum_inv_Qnat_sub in H; [ | assumption ].
  rewrite Z.mul_1_r in H.
  remember Hrk as Hk₁; clear HeqHk₁.
  apply Nat.lt_trans with (n := O) in Hk₁; [ idtac | apply Nat.lt_0_succ ].
- rewrite Qnum_inv_Qnat_sub in H; [ idtac | auto ].
+ rewrite Qnum_inv_Qnat_sub in H; [ idtac | assumption ].
  rewrite Z.mul_1_r in H.
- rewrite Qden_inv_Qnat_sub in H; [ idtac | auto ].
- rewrite Qden_inv_Qnat_sub in H; [ idtac | auto ].
+ rewrite Qden_inv_Qnat_sub in H; [ idtac | assumption ].
+ rewrite Qden_inv_Qnat_sub in H; [ idtac | assumption ].
  rewrite Nat.sub_0_r in H.
  rewrite Z.mul_opp_l in H.
  rewrite Z.add_opp_r in H.
