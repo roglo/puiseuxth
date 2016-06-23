@@ -281,29 +281,31 @@ assert (Hrle : ∀ n : nat, S r ≤ nth_r n pol ns).
   try eassumption.
   rewrite apply_nth_pol in Hofs; auto.
   remember Σ (i = 0, N), β (nth_ns i pol₁ ns₁) as u eqn:Hu .
-  assert (H : ofs < u).
+  remember (1 # 2 * m * q₀) as η eqn:Hη .
+  assert (Hηβ : ∀ i, i ≤ N → η < β (nth_ns i pol₁ ns₁)).
    clear Hofs Hn.
    subst u.
-   remember (1 # 2 * m * q₀) as η eqn:Hη .
-   assert (H : ∀ i, i ≤ N → η < β (nth_ns i pol₁ ns₁)).
-    intros i Hi.
-    subst c q₀.
-    eapply β_lower_bound_r_const with (n := i) (r := S r); eauto  .
-     pose proof (exists_pol_ord K pol) as H.
-     destruct H as (m', (Hm', Hp)).
-     rewrite <- Hm in Hm'; subst m'.
-     apply Hp.
+   intros i Hi.
+   subst c q₀.
+   eapply β_lower_bound_r_const with (n := i) (r := S r); eauto  .
+   pose proof (exists_pol_ord K pol) as H.
+   destruct H as (m', (Hm', Hp)).
+   rewrite <- Hm in Hm'; subst m'.
+   apply Hp.
 
-     apply Nat.lt_0_succ.
+   apply Nat.lt_0_succ.
 
-     eapply zerop_1st_n_const_coeff_false_before; eassumption.
+   eapply zerop_1st_n_const_coeff_false_before; eassumption.
 
-     apply non_decr_imp_eq; try assumption.
-     apply zerop_1st_n_const_coeff_false_succ; auto; simpl.
-     rewrite <- Hpol₁, <- Hns₁.
-     eapply zerop_1st_n_const_coeff_false_before; eassumption.
+   apply non_decr_imp_eq; try assumption.
+   apply zerop_1st_n_const_coeff_false_succ; auto; simpl.
+   rewrite <- Hpol₁, <- Hns₁.
+   eapply zerop_1st_n_const_coeff_false_before; eassumption.
 
-    apply summation_all_lt in H.
+   assert (H : ofs < u).
+    clear Hofs Hn.
+    subst u.
+    apply summation_all_lt in Hηβ.
     eapply Qle_lt_trans; try eassumption.
     rewrite Hη, HN.
     rewrite <- Pos2Z.inj_mul.
