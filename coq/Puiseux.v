@@ -284,23 +284,22 @@ assert (Hrle : ∀ n : nat, S r ≤ nth_r n pol ns).
   remember (1 # 2 * m * q₀) as η eqn:Hη .
   assert (Hηβ : ∀ i, i ≤ N → η < β (nth_ns i pol₁ ns₁)).
    clear Hofs Hn.
-   subst u.
    intros i Hi.
    subst c q₀.
    eapply β_lower_bound_r_const with (n := i) (r := S r); eauto  .
-   pose proof (exists_pol_ord K pol) as H.
-   destruct H as (m', (Hm', Hp)).
-   rewrite <- Hm in Hm'; subst m'.
-   apply Hp.
+    pose proof (exists_pol_ord K pol) as H.
+    destruct H as (m', (Hm', Hp)).
+    rewrite <- Hm in Hm'; subst m'.
+    apply Hp.
 
-   apply Nat.lt_0_succ.
+    apply Nat.lt_0_succ.
 
-   eapply zerop_1st_n_const_coeff_false_before; eassumption.
+    eapply zerop_1st_n_const_coeff_false_before; eassumption.
 
-   apply non_decr_imp_eq; try assumption.
-   apply zerop_1st_n_const_coeff_false_succ; auto; simpl.
-   rewrite <- Hpol₁, <- Hns₁.
-   eapply zerop_1st_n_const_coeff_false_before; eassumption.
+    apply non_decr_imp_eq; try assumption.
+    apply zerop_1st_n_const_coeff_false_succ; auto; simpl.
+    rewrite <- Hpol₁, <- Hns₁.
+    eapply zerop_1st_n_const_coeff_false_before; eassumption.
 
    assert (H : ofs < u).
     clear Hofs Hn.
