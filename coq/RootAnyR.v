@@ -248,7 +248,7 @@ symmetry in Hr.
 destruct H as (Hnneg, (Hpos, Hz)).
 destruct r.
  exfalso; revert Hr.
- apply multiplicity_neq_0; auto.
+ apply multiplicity_neq_0; assumption.
 
  pose proof (Hpos O (Nat.lt_0_succ r)) as H₂.
  destruct (ps_zerop K (ps_poly_nth 0 pol₁)) as [H₁| H₁].
@@ -419,7 +419,7 @@ destruct r.
        rewrite Nat.sub_diag in H.
        apply Nat.lt_1_r in H.
        exfalso; revert H; rewrite <- Hr₁.
-       apply multiplicity_neq_0; auto.
+       apply multiplicity_neq_0; assumption.
 
        simpl in Hns₁.
        rewrite Hns₁ in Hini₁, Hfin₁; simpl in Hini₁, Hfin₁.
@@ -527,13 +527,13 @@ destruct r.
 
              simpl in Hsort.
              apply Sorted_minus_2nd in Hsort.
-              apply IHpts₃; auto.
+              apply IHpts₃; assumption.
 
               intros x y z H₁ H₂; eapply Qlt_trans; eassumption.
 
             apply IHpts₃; auto.
             simpl in Hsort.
-            apply Sorted_inv_1 in Hsort; auto.
+            apply Sorted_inv_1 in Hsort; assumption.
 
            left.
            apply Nat_le_neq_lt; auto.
@@ -565,7 +565,7 @@ destruct r.
             apply HdRel_inv in H.
             unfold fst_lt in H; simpl in H.
             apply Qnat_lt in H.
-            split; [ idtac | apply Nat.lt_le_incl; auto ].
+            split; [ idtac | apply Nat.lt_le_incl; assumption ].
             left; eapply Nat.le_lt_trans; try eassumption .
 
             apply IHpts₂; auto.
@@ -675,7 +675,7 @@ unfold Qlt in Haj.
 unfold Qeq in H.
 simpl in Haj, H.
 rewrite Z.mul_1_r in Haj, H.
-split; auto.
+split; assumption.
 Qed.
 
 Theorem r_n_nth_ns : ∀ pol ns c pol₁ ns₁ c₁ m r,
@@ -736,7 +736,7 @@ destruct r.
     remember (next_pol pol₁ (β ns₁) (γ ns₁) c₁) as pol₂ eqn:Hpol₂ .
     remember (List.hd phony_ns (newton_segments pol₂)) as ns₂ eqn:Hns₂ .
     eapply IHn with (ns := ns₁) (ns₁ := ns₂) (m := (m * q₀)%positive); eauto .
-     eapply next_pol_in_K_1_mq with (ns := ns); eauto .
+     eapply next_pol_in_K_1_mq with (ns := ns); eassumption .
 
      intros i Hin.
      apply le_n_S in Hin.
@@ -852,7 +852,7 @@ induction n; intros.
       destruct (ps_zerop K (ps_poly_nth 0 pol)); auto.
 
       exists (S (S i)).
-      split; [ apply Nat.succ_le_mono in Hin; auto | idtac ].
+      split; [ apply Nat.succ_le_mono in Hin; assumption | idtac ].
       split.
        right; rewrite Nat.pred_succ.
        simpl.
@@ -869,7 +869,7 @@ induction n; intros.
         rewrite <- Hc, <- Hpol₁, <- Hns₁.
         assumption.
 
-   eapply List_hd_in; eauto .
+   eapply List_hd_in; eassumption .
 Qed.
 
 Theorem List_seq_split_first : ∀ len start,
@@ -1160,12 +1160,12 @@ eapply q_mj_mk_eq_p_h_j with (h := r) (αh := αk₁) in H; eauto .
    rewrite Z.mul_comm.
    rewrite Z.div_mul; auto.
 
-   eapply den_αj_divides_num_αj_m; eauto .
+   eapply den_αj_divides_num_αj_m; eassumption .
 
   rewrite Hr₁; assumption.
 
  apply List.in_or_app.
- right; left; eauto .
+ right; left; eassumption .
 Qed.
 
 Theorem all_r_le_next : ∀ pol ns c pol₁ ns₁ r,
