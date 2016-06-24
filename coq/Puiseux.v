@@ -304,6 +304,7 @@ assert (Hrle : ∀ n : nat, S r ≤ nth_r n pol ns).
     apply eq_refl.
 
    assert (Huo : u <= ofs).
+revert H₀ Hns Hc Hpol₁ Hns₁ Hnz₀ Hm Hq₀ Hr Hofs Hz Hrle; clear; intros.
     rewrite order_mul in Hofs.
     rewrite ps_monom_order in Hofs; [  | assumption ].
     apply Qbar.qfin_le_mono.
