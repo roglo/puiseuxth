@@ -279,8 +279,7 @@ assert (Hrle : ∀ n : nat, S r ≤ nth_r n pol ns).
 
  rewrite root_tail_when_r_r with (n := N) (r := (S r)) in Hofs;
   try eassumption.
-  rewrite apply_nth_pol in Hofs; auto.
-  remember Σ (i = 0, N), β (nth_ns i pol₁ ns₁) as u eqn:Hu .
+  remember (@summation _ Q_ring O N (λ i, β (nth_ns i pol₁ ns₁))) as u eqn:Hu.
   remember (1 # 2 * m * q₀) as η eqn:Hη .
   assert (Hηβ : ∀ i, i ≤ N → η < β (nth_ns i pol₁ ns₁)).
    clear Hofs Hn.
@@ -304,6 +303,8 @@ assert (Hrle : ∀ n : nat, S r ≤ nth_r n pol ns).
     apply eq_refl.
 
    assert (Huo : u <= ofs).
+    rewrite apply_nth_pol in Hofs; auto.
+    rewrite <- Hu in Hofs.
 revert H₀ Hns Hc Hpol₁ Hns₁ Hnz₀ Hm Hq₀ Hr Hofs Hz Hrle; clear; intros.
     rewrite order_mul in Hofs.
     rewrite ps_monom_order in Hofs; [  | assumption ].
