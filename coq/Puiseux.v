@@ -116,7 +116,7 @@ induction n; intros.
  rewrite Z.div_mul_cancel_r; [ | apply Pos2Z_ne_0 | apply Pos2Z_ne_0 ].
  erewrite αj_m_eq_p_r with (ns₁ := ns₁); try eassumption; [ | reflexivity ].
  rewrite Z.mul_shuffle0.
- rewrite <- Zposnat2Znat; auto.
+ rewrite <- Zposnat2Znat; [ | assumption ].
  rewrite <- Z.mul_assoc, <- Pos2Z.inj_mul.
  rewrite Z.div_mul; [ | apply Pos2Z_ne_0 ].
  unfold Qle; simpl.
@@ -157,7 +157,7 @@ induction n; intros.
   rename H into HK₁; move HK₁ before Hns₁i.
   eapply IHn with (ns := ns₁) (pol := pol₁); try eassumption .
    symmetry in Hr₁; symmetry.
-   eapply q_eq_1_any_r with (pol := pol₁); try eassumption; auto.
+   eapply q_eq_1_any_r with (pol := pol₁); try eassumption; reflexivity.
 
    intros i Hin.
    apply Nat.succ_le_mono in Hin.
@@ -205,10 +205,10 @@ destruct z₁.
   rewrite <- HK in Hm'; subst m'.
   apply Hp.
 
-  apply not_zero_1st_prop; auto; simpl.
+  apply not_zero_1st_prop; [ simpl | assumption ].
   rewrite <- Hc, <- Hpol₁, <- Hns₁; assumption.
 
-  apply non_decr_imp_eq; auto.
+  apply non_decr_imp_eq; try assumption.
    rewrite zerop_1st_n_const_coeff_succ; simpl.
    rewrite <- Hc, <- Hpol₁, <- Hns₁; rewrite Hz₁.
    remember (ps_poly_nth 0 pol) as x.
@@ -250,7 +250,7 @@ contradiction .
  clear Hp.
  apply Nat.nlt_ge in H₁.
  rewrite Hr in H₁.
- erewrite <- nth_r_n in H₁; try eassumption; eauto  .
+ erewrite <- nth_r_n in H₁; try eassumption; reflexivity.
 Qed.
 
 Theorem contradiction_when_r_constant : ∀ pol ns c pol₁ ns₁ m q₀ r N ofs,
