@@ -293,7 +293,7 @@ assert (Hrle : ∀ n : nat, S r ≤ nth_r n pol ns).
    eapply zerop_1st_n_const_coeff_false_before; eassumption.
 
    apply non_decr_imp_eq; try assumption.
-   apply zerop_1st_n_const_coeff_false_succ; auto; simpl.
+   apply zerop_1st_n_const_coeff_false_succ; [ assumption | simpl ].
    rewrite <- Hpol₁, <- Hns₁.
    eapply zerop_1st_n_const_coeff_false_before; eassumption.
 
@@ -304,7 +304,7 @@ assert (Hrle : ∀ n : nat, S r ≤ nth_r n pol ns).
    revert H₀ Hns Hc Hpol₁ Hns₁ Hnz₀ Hm Hq₀ Hr Hofs Hz Hrle Hu; clear; intros.
    rewrite root_tail_when_r_r with (n := N) (r := (S r)) in Hofs;
     try eassumption.
-    rewrite apply_nth_pol in Hofs; auto.
+    rewrite apply_nth_pol in Hofs; [ | assumption ].
     rewrite <- Hu in Hofs.
     rewrite order_mul in Hofs.
     rewrite ps_monom_order in Hofs; [  | assumption ].
@@ -312,7 +312,7 @@ assert (Hrle : ∀ n : nat, S r ≤ nth_r n pol ns).
     rewrite <- Hofs.
     apply Qbar.le_sub_le_add_l.
     rewrite Qbar.sub_diag.
-    apply order_pol_apply_nonneg; auto.
+    apply order_pol_apply_nonneg.
      intros a Ha.
      remember (nth_pol N pol₁ ns₁) as polN eqn:HpolN .
      remember (nth_ns N pol₁ ns₁) as nsN eqn:HnsN .
@@ -323,7 +323,7 @@ assert (Hrle : ∀ n : nat, S r ≤ nth_r n pol ns).
       generalize Hns₁; intros H.
       pose proof (Hz O (Nat.le_0_l N)) as H₁.
       rewrite <- Hc in Hpol₁.
-      eapply r_n_next_ns in H; try eassumption; eauto  .
+      eapply r_n_next_ns in H; try eassumption; try apply eq_refl.
        destruct H as (αj₁, (αk₁, H)).
        destruct H as (Hini₁, (Hfin₁, (Hαj₁, Hαk₁))).
        eapply List_hd_in; try eassumption.
@@ -331,9 +331,8 @@ assert (Hrle : ∀ n : nat, S r ≤ nth_r n pol ns).
 
        rewrite <- nth_r_n with (n := 1%nat) (pol := pol) (ns := ns).
         symmetry.
-        eapply r_le_eq_incl; try eassumption; auto.
-         simpl.
-         rewrite <- Hc; auto.
+        apply r_le_eq_incl with (n := 1%nat); try assumption.
+         simpl; rewrite <- Hc; assumption.
 
          intros i Hi.
          destruct i; auto; simpl.
@@ -342,6 +341,10 @@ assert (Hrle : ∀ n : nat, S r ≤ nth_r n pol ns).
          apply Nat.succ_le_mono in Hi.
          apply Nat.le_0_r in Hi; subst i.
          apply Nat.le_0_l.
+
+         intros; apply Hrle; assumption.
+
+         apply Nat.le_refl.
 
         simpl; rewrite <- Hc; assumption.
 
