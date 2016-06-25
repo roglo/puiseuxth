@@ -788,7 +788,7 @@ induction n; intros.
 
  simpl in Hnse.
  remember Hns as H; clear HeqH.
- eapply next_has_root_0_or_newton_segments in H; eauto .
+ eapply next_has_root_0_or_newton_segments in H; try apply eq_refl.
  destruct H as [H| H].
   simpl in H.
   remember (ac_root (Φq pol ns)) as c eqn:Hc .
@@ -798,19 +798,21 @@ induction n; intros.
    exists 0%nat.
    split; [ apply Nat.le_0_l | idtac ].
    split; [ left; reflexivity | simpl ].
-   destruct (ps_zerop K (ps_poly_nth 0 pol)); auto.
+   destruct (ps_zerop K (ps_poly_nth 0 pol)); [ | contradiction ].
+   apply eq_refl.
 
    exists 1%nat.
    split; [ apply le_n_S, Nat.le_0_l | idtac ].
    split.
     right; simpl.
-    destruct (ps_zerop K (ps_poly_nth 0 pol)); auto.
-    contradiction.
+    destruct (ps_zerop K (ps_poly_nth 0 pol)); [ contradiction | ].
+    apply eq_refl.
 
     simpl.
-    destruct (ps_zerop K (ps_poly_nth 0 pol)); auto.
+    destruct (ps_zerop K (ps_poly_nth 0 pol)); [ apply eq_refl | ].
     rewrite <- Hc, <- Hpol₁.
-    destruct (ps_zerop K (ps_poly_nth 0 pol₁)); auto.
+    destruct (ps_zerop K (ps_poly_nth 0 pol₁)); [ | contradiction ].
+    apply eq_refl.
 
   simpl in H.
   remember (ac_root (Φq pol ns)) as c eqn:Hc .
@@ -818,17 +820,18 @@ induction n; intros.
   remember (List.hd phony_ns (newton_segments pol₁)) as ns₁ eqn:Hns₁ .
   rename H into Hnse₁.
   remember Hnse as H; clear HeqH.
-  apply IHn in H; eauto .
+  apply IHn in H.
    destruct H as (i, (Hin, (Hiz, Hinz))).
    destruct Hiz as [Hiz| Hiz].
     subst i.
     simpl in Hinz.
-    destruct (ps_zerop K (ps_poly_nth 0 pol₁)); eauto .
+    destruct (ps_zerop K (ps_poly_nth 0 pol₁)).
      destruct (ps_zerop K (ps_poly_nth 0 pol)) as [H₂| H₂].
       exists 0%nat.
       split; [ apply Nat.le_0_l | idtac ].
       split; [ left; reflexivity | simpl ].
-      destruct (ps_zerop K (ps_poly_nth 0 pol)); auto.
+      destruct (ps_zerop K (ps_poly_nth 0 pol)); [ | contradiction ].
+      apply eq_refl.
 
       exists 1%nat.
       split; [ apply le_n_S, Nat.le_0_l | idtac ].
@@ -877,8 +880,6 @@ induction n; intros.
 
    eapply List_hd_in; eassumption .
 Qed.
-
-(* 0m1.936s *)(**)
 
 Theorem List_seq_split_first : ∀ len start,
   List.seq start (S len) = [start … List.seq (S start) len].
@@ -961,7 +962,8 @@ induction n.
   apply rng_add_compat_l.
   destruct (eq_nat_dec n b) as [H₁| H₁].
    subst b; simpl.
-   rewrite comb_lt; auto.
+   rewrite comb_lt; [ | apply Nat.lt_succ_diag_r ].
+   reflexivity.
 
    destruct (le_dec (S b) n) as [H₂| H₂].
     rewrite Nat.sub_succ_r.
@@ -972,7 +974,7 @@ induction n.
     apply Nat.nle_gt in H₂; contradiction.
 
     apply Nat.nle_gt in H₂.
-    rewrite comb_lt; auto.
+    rewrite comb_lt; [ reflexivity | assumption ].
 Qed.
 
 Theorem q_eq_1_any_r : ∀ pol ns c αj αk m q r,
