@@ -319,7 +319,8 @@ assert (Hrle : ∀ n : nat, S r ≤ nth_r n pol ns).
      assert (HnsNi : nsN ∈ newton_segments polN).
       rewrite zerop_1st_n_const_coeff_false_iff in Hz.
       remember (m * q₀)%positive as m₁.
-      eapply nth_in_newton_segments_any_r with (ns₁ := ns₁); eauto  .
+      eapply nth_in_newton_segments_any_r with (ns₁ := ns₁); try eassumption;
+        [ | apply eq_refl ].
       generalize Hns₁; intros H.
       pose proof (Hz O (Nat.le_0_l N)) as H₁.
       rewrite <- Hc in Hpol₁.
@@ -335,7 +336,7 @@ assert (Hrle : ∀ n : nat, S r ≤ nth_r n pol ns).
          simpl; rewrite <- Hc; assumption.
 
          intros i Hi.
-         destruct i; auto; simpl.
+         destruct i; [ assumption | simpl ].
          rewrite <- Hc, <- Hpol₁, <- Hns₁.
          apply Hz.
          apply Nat.succ_le_mono in Hi.
@@ -357,7 +358,7 @@ assert (Hrle : ∀ n : nat, S r ≤ nth_r n pol ns).
          simpl; rewrite <- Hc, <- Hpol₁; assumption.
 
       remember HnsNi as H; clear HeqH.
-      eapply f₁_orders in H; try eassumption; eauto  .
+      eapply f₁_orders in H; try eassumption; try apply eq_refl.
       erewrite <- nth_pol_succ in H; try eassumption.
        destruct H as (H, _).
        apply List_In_nth with (d := 0%ps) in Ha.
