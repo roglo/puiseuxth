@@ -198,8 +198,8 @@ assert (slope ms < slope_expr (Qnat (S r), v) (Qnat k₁, αk₁)) as H.
      intros Hk; subst k₁.
      revert Hrk; apply Nat.nlt_0_r.
 
-   apply Z.mul_nonneg_nonneg; auto.
-   apply Z.mul_nonneg_nonneg; auto.
+   apply Z.mul_nonneg_nonneg; [ | apply Pos2Z.is_nonneg ].
+   apply Z.mul_nonneg_nonneg; [ | apply Pos2Z.is_nonneg ].
    unfold Qle in Hnnegk; simpl in Hnnegk.
    rewrite Z.mul_1_r in Hnnegk; assumption.
 
