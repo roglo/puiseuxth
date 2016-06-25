@@ -239,7 +239,7 @@ Theorem next_has_root_0_or_newton_segments : ∀ pol ns c pol₁,
 Proof.
 intros pol ns c pol₁ Hns Hc Hpol₁.
 remember Hns as H; clear HeqH.
-eapply f₁_orders in H; eauto ; simpl.
+eapply f₁_orders in H; try eassumption; try apply eq_refl.
 simpl in Hpol₁.
 rewrite <- Hc in Hpol₁.
 rewrite <- Hpol₁ in H.
@@ -273,7 +273,7 @@ destruct r.
    symmetry in Hoa.
    destruct oa as [oa| ].
     remember 1%nat as pow.
-    assert (1 ≤ pow)%nat as Hpow by (subst pow; auto).
+    assert (1 ≤ pow)%nat as Hpow by (subst pow; apply Nat.le_refl).
     clear Heqpow Hr Hpos a Hoa.
     revert r pow H Hz Hpow.
     induction la as [| a]; intros.
@@ -299,7 +299,7 @@ destruct r.
        unfold lower_convex_hull_points in H.
        discriminate H.
 
-       eapply IHla; eauto .
+       eapply IHla; try eassumption; apply le_n_S, Nat.le_0_l.
 
     apply H₁; reflexivity.
 Qed.
