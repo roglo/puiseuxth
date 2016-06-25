@@ -834,13 +834,14 @@ induction n; intros.
       split; [ apply le_n_S, Nat.le_0_l | idtac ].
       split.
        right; simpl.
-       destruct (ps_zerop K (ps_poly_nth 0 pol)); auto.
+       destruct (ps_zerop K (ps_poly_nth 0 pol)); [ | apply eq_refl ].
        contradiction.
 
        simpl.
-       destruct (ps_zerop K (ps_poly_nth 0 pol)); auto.
+       destruct (ps_zerop K (ps_poly_nth 0 pol)); [ apply eq_refl | ].
        rewrite <- Hc, <- Hpol₁.
-       destruct (ps_zerop K (ps_poly_nth 0 pol₁)); auto.
+       destruct (ps_zerop K (ps_poly_nth 0 pol₁)); [ | contradiction ].
+       apply eq_refl.
 
      discriminate Hinz.
 
@@ -853,7 +854,8 @@ induction n; intros.
       exists 0%nat.
       split; [ apply Nat.le_0_l | idtac ].
       split; [ left; reflexivity | simpl ].
-      destruct (ps_zerop K (ps_poly_nth 0 pol)); auto.
+      destruct (ps_zerop K (ps_poly_nth 0 pol)); [ | contradiction ].
+      apply eq_refl.
 
       exists (S (S i)).
       split; [ apply Nat.succ_le_mono in Hin; assumption | idtac ].
@@ -875,6 +877,8 @@ induction n; intros.
 
    eapply List_hd_in; eassumption .
 Qed.
+
+(* 0m1.936s *)(**)
 
 Theorem List_seq_split_first : ∀ len start,
   List.seq start (S len) = [start … List.seq (S start) len].
