@@ -218,12 +218,12 @@ assert (slope ms < slope_expr (Qnat (S r), v) (Qnat k₁, αk₁)) as H.
  symmetry in H.
  destruct Hsr as [Hsr| Hsr].
   subst pt.
-  eapply minimise_slope_expr_le in H; eauto .
+  eapply minimise_slope_expr_le in H; try eassumption.
    apply Qle_not_lt in H; contradiction.
 
    simpl; apply Qnat_lt; assumption.
 
-  eapply min_slope_le with (pt₃ := (Qnat (S r), v)) in H; eauto .
+  eapply min_slope_le with (pt₃ := (Qnat (S r), v)) in H; try eassumption.
    apply Qle_not_lt in H; contradiction.
 
    apply List.in_or_app; left; assumption.
