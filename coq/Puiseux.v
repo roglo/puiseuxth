@@ -277,7 +277,6 @@ assert (Hrle : ∀ n : nat, S r ≤ nth_r n pol ns).
  rewrite Hc in Hr.
  apply multiplicity_not_decreasing; assumption.
 
- remember (@summation _ Q_ring O N (λ i, β (nth_ns i pol₁ ns₁))) as u eqn:Hu .
  remember (1 # 2 * m * q₀) as η eqn:Hη .
  assert (Hηβ : ∀ i, i ≤ N → η < β (nth_ns i pol₁ ns₁)).
   clear Hofs Hn.
@@ -300,6 +299,7 @@ assert (Hrle : ∀ n : nat, S r ≤ nth_r n pol ns).
 
    apply eq_refl.
 
+  remember (@summation _ Q_ring O N (λ i, β (nth_ns i pol₁ ns₁))) as u eqn:Hu .
   assert (Huo : u <= ofs).
    revert H₀ Hns Hc Hpol₁ Hns₁ Hnz₀ Hm Hq₀ Hr Hofs Hz Hrle Hu; clear; intros.
    rewrite root_tail_when_r_r with (n := N) (r := (S r)) in Hofs;
