@@ -1144,7 +1144,8 @@ Proof.
 intros pol₁ ns₁ αj₁ αk₁ m p₁ c₁ r.
 intros Hns₁ Hm Hini₁ Hfin₁ Hαj₁ Hαk₁ Hc₁ Hr₁ Hp₁ H₀.
 remember Hns₁ as H; clear HeqH.
-eapply q_mj_mk_eq_p_h_j with (h := r) (αh := αk₁) in H; eauto .
+eapply q_mj_mk_eq_p_h_j with (h := r) (αh := αk₁) in H; try eassumption;
+  try reflexivity; try (symmetry; eassumption).
  rewrite Nat.sub_0_r in H.
  destruct H as (HH₂, HH₃).
  remember (q_of_m m (γ ns₁)) as q₁.
@@ -1153,28 +1154,27 @@ eapply q_mj_mk_eq_p_h_j with (h := r) (αh := αk₁) in H; eauto .
  unfold Qeq in HH₂; simpl in HH₂.
  rewrite Hαk₁ in HH₂; simpl in HH₂.
  symmetry in HH₂.
- apply Z.eq_mul_0_l in HH₂; auto.
+ apply Z.eq_mul_0_l in HH₂; [ | apply Pos2Z_ne_0 ].
  move HH₂ at top; subst mk.
  rewrite Z.sub_0_r in HH₃.
  rewrite positive_nat_Z in HH₃.
  unfold mh_of_m in Heqmj'.
  unfold mh_of_m in Heqmj'.
- erewrite <- qden_αj_is_ps_polord in Heqmj'; eauto .
+ erewrite <- qden_αj_is_ps_polord in Heqmj';
+   [ | eassumption | symmetry; eassumption ].
  remember Heqq₁ as H; clear HeqH.
- eapply q_eq_1_any_r in H; eauto .
-  rewrite H in HH₃.
-  rewrite Z.mul_1_l in HH₃.
-  rewrite <- HH₃.
-  rewrite Heqmj'.
-  symmetry.
+ eapply q_eq_1_any_r in H; try eassumption; [ | symmetry; assumption ].
+ rewrite H in HH₃.
+ rewrite Z.mul_1_l in HH₃.
+ rewrite <- HH₃.
+ rewrite Heqmj'.
+ symmetry.
+ rewrite Z.mul_comm.
+ rewrite <- Z.divide_div_mul_exact; [ | apply Pos2Z_ne_0 | ].
   rewrite Z.mul_comm.
-  rewrite <- Z.divide_div_mul_exact; auto.
-   rewrite Z.mul_comm.
-   rewrite Z.div_mul; auto.
+  rewrite Z.div_mul; [ apply eq_refl | apply Pos2Z_ne_0 ].
 
-   eapply den_αj_divides_num_αj_m; eassumption .
-
-  rewrite Hr₁; assumption.
+  eapply den_αj_divides_num_αj_m; eassumption .
 
  apply List.in_or_app.
  right; left; eassumption .
