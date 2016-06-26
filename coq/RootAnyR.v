@@ -1201,9 +1201,9 @@ Theorem multiplicity_is_pos : ∀ pol ns c r,
 Proof.
 intros pol ns c r Hns Hc Hr.
 remember Hns as H; clear HeqH.
-eapply multiplicity_neq_0 in H; auto.
+eapply multiplicity_neq_0 in H; [ | eassumption ].
 apply Nat.neq_sym, neq_0_lt in H.
-rewrite <- Hc, Hr in H.
+rewrite Hr in H.
 assumption.
 Qed.
 
@@ -1219,13 +1219,13 @@ intros ns αj αk m r Hini Hfin Hαj Hαk Hr.
 unfold p_of_m; simpl.
 rewrite Hini, Hfin; simpl.
 rewrite Hαk; simpl.
-rewrite Qnum_inv_Qnat_sub; auto.
-rewrite Qden_inv_Qnat_sub; auto.
+rewrite Qnum_inv_Qnat_sub; [ | assumption ].
+rewrite Qden_inv_Qnat_sub; [ | assumption ].
 rewrite Z.add_0_r, Z.mul_1_r, Nat.sub_0_r.
 rewrite Z.gcd_comm.
 apply Z_div_gcd_r_pos.
-apply Z.mul_pos_pos; [ idtac | apply Pos2Z.is_pos ].
-apply Z.mul_pos_pos; [ auto | apply Pos2Z.is_pos ].
+apply Z.mul_pos_pos; [ | apply Pos2Z.is_pos ].
+apply Z.mul_pos_pos; [ assumption | apply Pos2Z.is_pos ].
 Qed.
 
 Theorem next_pow_eq_p : ∀ pol ns c αj αk m r,
@@ -1259,6 +1259,8 @@ rewrite Z.div_mul; auto.
 rewrite <- Zposnat2Znat; auto.
 apply Pos2Z_ne_0.
 Qed.
+
+(* 0m2.836s *)(**)
 
 Theorem next_ns_in_pol : ∀ pol ns c pol₁ ns₁,
   ns ∈ newton_segments pol
