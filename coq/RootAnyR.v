@@ -1004,32 +1004,33 @@ subst cpol.
 rename H into Hcpol.
 unfold root_multiplicity in Hr.
 rewrite Hcpol in Hr.
-erewrite length_char_pol in Hr; eauto .
+erewrite length_char_pol in Hr; try eassumption.
 rewrite <- Hcpol in Hr.
 rewrite Nat.sub_0_r in Hr.
 remember Hrv as H; clear HeqH.
-eapply phi_zq_eq_z_sub_c₁_psy in H; eauto .
+eapply phi_zq_eq_z_sub_c₁_psy in H; [ | reflexivity ].
 unfold eq_poly in H.
 rewrite Hcpol in H.
 remember quotient_phi_x_sub_c_pow_r as f; simpl in H; subst f.
 remember (quotient_phi_x_sub_c_pow_r (Φq pol ns) c r) as Ψ.
-eapply Ψ_length in HeqΨ; eauto .
+eapply Ψ_length in HeqΨ; try eassumption.
 rewrite Nat.sub_0_r, Nat_sub_succ_diag in HeqΨ.
 rename H into Hcp.
 remember Hns as H; clear HeqH.
-eapply q_mj_mk_eq_p_h_j with (h := r) (αh := αk) in H; eauto .
+eapply q_mj_mk_eq_p_h_j with (h := r) (αh := αk) in H; try eassumption;
+ try reflexivity; [ | symmetry; eassumption | ].
  rewrite <- Hq, Nat.sub_0_r in H.
  remember (mh_of_m m αj (ps_poly_nth 0 pol)) as mj eqn:Hmj .
- eapply pol_ord_of_ini_pt in Hmj; eauto .
+ eapply pol_ord_of_ini_pt in Hmj; try eassumption; [ | symmetry; assumption ].
  remember (mh_of_m m αk (ps_poly_nth r pol)) as mk eqn:Hmk .
- eapply pol_ord_of_fin_pt in Hmk; eauto .
+ eapply pol_ord_of_fin_pt in Hmk; try eassumption; [ | symmetry; assumption ].
  destruct H as (_, Hqjr).
  unfold Qeq in Hmk.
  simpl in Hmk.
  rewrite Hαk in Hmk.
  simpl in Hmk.
  symmetry in Hmk.
- apply Z.mul_eq_0_l in Hmk; auto.
+ apply Z.mul_eq_0_l in Hmk; [ | apply Pos2Z_ne_0 ].
  subst mk.
  rewrite Z.sub_0_r in Hqjr.
  rewrite positive_nat_Z in Hqjr.
@@ -1126,8 +1127,6 @@ eapply q_mj_mk_eq_p_h_j with (h := r) (αh := αk) in H; eauto .
 
  apply List.in_or_app; right; left; assumption.
 Qed.
-
-(* 0m2.752s *)
 
 Theorem αj_m_eq_p_r : ∀ pol₁ ns₁ αj₁ αk₁ m p₁ c₁ r,
   ns₁ ∈ newton_segments pol₁
