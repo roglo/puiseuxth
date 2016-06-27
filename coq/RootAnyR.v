@@ -1686,12 +1686,10 @@ destruct (ps_zerop _ (ps_poly_nth 0 pol₁)) as [H₁| H₁].
    constructor; intros i; simpl.
    unfold root_tail_series_from_cγ_list; simpl.
    rewrite <- Hc₁, <- Hpol₂, <- Hns₂.
-   destruct (ps_zerop K (ps_poly_nth 0 pol₁)) as [H₂| H₂].
-    contradiction.
-
-    destruct i; [ reflexivity | simpl ].
-    destruct (ps_zerop K (ps_poly_nth 0 pol₂)); [ | contradiction ].
-    reflexivity.
+   destruct (ps_zerop K (ps_poly_nth 0 pol₁)); [ contradiction | ].
+   destruct i; [ reflexivity | simpl ].
+   destruct (ps_zerop K (ps_poly_nth 0 pol₂)); [ | contradiction ].
+   reflexivity.
 
    subst x.
    rewrite Z.mul_shuffle0.
@@ -2298,8 +2296,8 @@ destruct z₁.
       remember (nth_ns b₁ pol₂ ns₂) as nsb₃ eqn:Hnsb₃ .
       rewrite Hinib₂, Hfinb₂; simpl.
       rewrite Hαkb₂; simpl.
-      rewrite Qnum_inv_Qnat_sub; auto.
-      rewrite Qden_inv_Qnat_sub; auto.
+      rewrite Qnum_inv_Qnat_sub; [ | assumption ].
+      rewrite Qden_inv_Qnat_sub; [ | assumption ].
       rewrite Z.add_0_r, Z.mul_1_r, Nat.sub_0_r.
       rewrite Z.mul_shuffle0, Pos_mul_shuffle0.
       rewrite Pos2Z.inj_mul.
@@ -2410,8 +2408,8 @@ destruct z₁.
        destruct H as (Hinib₃, (Hfinb₃, (Hαjb₃, Hαkb₃))).
        rewrite Hinib₃, Hfinb₃; simpl.
        rewrite Hαkb₃; simpl.
-       rewrite Qnum_inv_Qnat_sub; auto.
-       rewrite Qden_inv_Qnat_sub; auto.
+       rewrite Qnum_inv_Qnat_sub; [ | assumption ].
+       rewrite Qden_inv_Qnat_sub; [ | assumption ].
        rewrite Nat.sub_0_r.
        rewrite Z.add_0_r, Z.mul_1_r.
        remember (Qden αjb₂ * Pos.of_nat r * Qden αkb₂)%positive as dd.
@@ -2848,8 +2846,8 @@ eapply all_ns_in_newton_segments with (n := S n) in H; eauto .
   unfold root_tail_from_cγ_list; simpl.
   rewrite Hinin₁, Hfinn₁; simpl.
   rewrite Hαkn₁; simpl.
-  rewrite Qnum_inv_Qnat_sub; auto.
-  rewrite Qden_inv_Qnat_sub; auto.
+  rewrite Qnum_inv_Qnat_sub; [ | assumption ].
+  rewrite Qden_inv_Qnat_sub; [ | assumption ].
   rewrite Z.mul_1_r, Z.add_0_r, Nat.sub_0_r.
   rewrite Z.mul_shuffle0, Pos_mul_shuffle0.
   do 2 rewrite Pos2Z.inj_mul.
@@ -2886,8 +2884,8 @@ eapply all_ns_in_newton_segments with (n := S n) in H; eauto .
    subst d₁.
    erewrite nth_γ_n; try eassumption; simpl.
    rewrite Hαkn₁; simpl.
-   rewrite Qnum_inv_Qnat_sub; auto.
-   rewrite Qden_inv_Qnat_sub; auto.
+   rewrite Qnum_inv_Qnat_sub; [ | assumption ].
+   rewrite Qden_inv_Qnat_sub; [ | assumption ].
    rewrite Z.add_0_r, Z.mul_1_r, Nat.sub_0_r.
    rewrite Z.mul_shuffle0, Pos_mul_shuffle0.
    do 2 rewrite Pos2Z.inj_mul.
@@ -2942,8 +2940,8 @@ eapply all_ns_in_newton_segments with (n := S n) in H; eauto .
    erewrite nth_γ_n; try eassumption; simpl.
    rewrite Hinin₁, Hfinn₁, Hinin₂, Hfinn₂; simpl.
    rewrite Hαkn₁, Hαkn₂; simpl.
-   rewrite Qnum_inv_Qnat_sub; auto.
-   rewrite Qden_inv_Qnat_sub; auto.
+   rewrite Qnum_inv_Qnat_sub; [ | assumption ].
+   rewrite Qden_inv_Qnat_sub; [ | assumption ].
    do 2 rewrite Z.add_0_r, Z.mul_1_r.
    rewrite Nat.sub_0_r.
    remember (Qnum αjn₁ * ' Qden αkn₁)%Z as nd₁ eqn:Hnd₁ .
