@@ -1520,17 +1520,17 @@ Proof.
 intros pol ns c pow m i n n' r Hns Hm Hq₀ Hc Hr₀ Hrle H₀ Hin Hn'.
 remember (n' - n)%nat as d eqn:Hd .
 apply Nat.add_cancel_r with (p := n) in Hd.
-rewrite Nat.sub_add in Hd; auto.
+rewrite Nat.sub_add in Hd; [ | assumption ].
 subst n'; clear Hn'.
 revert n pow Hin.
 revert pol ns Hns Hm Hq₀ Hr₀ Hc Hrle.
 revert c.
 induction d; intros; [ reflexivity | idtac ].
 erewrite find_coeff_iter_succ; try eassumption; simpl.
-destruct (ps_zerop K (ps_poly_nth 0 pol)) as [| H₁]; auto.
+destruct (ps_zerop K (ps_poly_nth 0 pol)) as [| H₁]; [ reflexivity | ].
 remember (Nat.compare pow i) as cmp eqn:Hcmp .
 symmetry in Hcmp.
-destruct cmp; auto.
+destruct cmp; [ reflexivity | | reflexivity ].
 rewrite <- Hc.
 remember (next_pol pol (β ns) (γ ns) c) as pol₁ eqn:Hpol₁ .
 remember (List.hd phony_ns (newton_segments pol₁)) as ns₁ eqn:Hns₁ .
@@ -1552,7 +1552,7 @@ destruct (ps_zerop _ (ps_poly_nth 0 pol₁)) as [H₂| H₂].
  remember (root_multiplicity acf c₁ (Φq pol₁ ns₁)) as r₁ eqn:Hr₁ .
  symmetry in Hr₁.
  pose proof (Hrle 1%nat) as H; simpl in H.
- rewrite <- Hc, <- Hpol₁, <- Hns₁, <- Hc₁ in H; auto.
+ rewrite <- Hc, <- Hpol₁, <- Hns₁, <- Hc₁ in H.
  rewrite Hr₁ in H.
  rename H into Hrr.
  remember Hns as H; clear HeqH.
@@ -1561,28 +1561,27 @@ destruct (ps_zerop _ (ps_poly_nth 0 pol₁)) as [H₂| H₂].
  destruct H as (αj₁, (αk₁, H)).
  destruct H as (Hini₁, (Hfin₁, (Hαj₁, Hαk₁))).
  remember Hns₁ as H; clear HeqH.
- apply List_hd_in in H; auto.
+ apply List_hd_in in H; [ | assumption ].
  rename H into Hns₁i.
  remember Hns as H; clear HeqH.
- eapply first_n_pol_in_K_1_m_any_r with (n := 1%nat) in H; eauto.
+ eapply first_n_pol_in_K_1_m_any_r with (n := 1%nat) in H; try eassumption;
+ try reflexivity.
   simpl in H; rewrite <- Hc, <- Hpol₁ in H.
   rename H into HK₁.
-  apply IHd with (c := c₁); auto.
+  apply IHd with (c := c₁); try assumption.
    symmetry in Hr₁.
    eapply q_eq_1_any_r with (pol := pol₁); try eassumption; reflexivity.
 
    intros j.
    pose proof (Hrle (S j)) as H; simpl in H.
-   rewrite <- Hc, <- Hpol₁, <- Hns₁ in H; auto.
+   rewrite <- Hc, <- Hpol₁, <- Hns₁ in H; assumption.
 
   intros j Hj.
-  destruct j; auto.
+  destruct j; [ assumption | ].
   apply le_S_n in Hj.
   apply Nat.le_0_r in Hj; rewrite Hj; simpl.
   rewrite <- Hc, <- Hpol₁; assumption.
 Qed.
-
-(* 0m4.044s *)(**)
 
 Theorem root_tail_split_1st_any_r : ∀ pol ns c pol₁ ns₁ c₁ m q₀ r,
   ns ∈ newton_segments pol
