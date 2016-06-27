@@ -1245,22 +1245,20 @@ intros pol ns c αj αk m r Hns Hm Hc Hr Hini Hfin Hαj Hαk Hrp H₀.
 unfold next_pow; simpl.
 rewrite Hini, Hfin; simpl.
 rewrite Hαk; simpl.
-rewrite Qnum_inv_Qnat_sub; auto.
-rewrite Qden_inv_Qnat_sub; auto.
+rewrite Qnum_inv_Qnat_sub; [ | assumption ].
+rewrite Qden_inv_Qnat_sub; [ | assumption ].
 rewrite Z.add_0_r, Z.mul_1_r, Nat.sub_0_r, Pos.mul_1_r.
 rewrite Z.mul_shuffle0, Pos_mul_shuffle0.
 rewrite Pos2Z.inj_mul.
-rewrite Z.div_mul_cancel_r; auto.
-erewrite αj_m_eq_p_r with (pol₁ := pol); try eassumption; [ idtac | eauto  ].
+rewrite Z.div_mul_cancel_r; try apply Pos2Z_ne_0.
+erewrite αj_m_eq_p_r with (pol₁ := pol); try eassumption; [ | reflexivity  ].
 rewrite Pos.mul_comm.
-rewrite Pos2Z.inj_mul, Zposnat2Znat; auto.
+rewrite Pos2Z.inj_mul, Zposnat2Znat; [ | assumption ].
 rewrite <- Z.mul_assoc.
-rewrite Z.div_mul; auto.
-rewrite <- Zposnat2Znat; auto.
+rewrite Z.div_mul; [ reflexivity | ].
+rewrite <- Zposnat2Znat; [ | assumption ].
 apply Pos2Z_ne_0.
 Qed.
-
-(* 0m2.836s *)(**)
 
 Theorem next_ns_in_pol : ∀ pol ns c pol₁ ns₁,
   ns ∈ newton_segments pol
