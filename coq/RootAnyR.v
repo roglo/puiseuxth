@@ -2047,17 +2047,17 @@ Proof.
 intros pol ns b r Hns Hz Hr Hri n Hnb.
 rewrite zerop_1st_n_const_coeff_false_iff in Hz.
 revert pol ns n Hns Hz Hr Hri Hnb.
-induction b; intros; [ apply Nat.le_0_r in Hnb; subst n; auto | idtac ].
-destruct n; auto.
+induction b; intros; [ apply Nat.le_0_r in Hnb; subst n; assumption | ].
+destruct n; [ assumption | ].
 apply le_S_n in Hnb; simpl.
 remember (ac_root (Φq pol ns)) as c eqn:Hc .
 remember (next_pol pol (β ns) (γ ns) c) as pol₁ eqn:Hpol₁ .
 remember (List.hd phony_ns (newton_segments pol₁)) as ns₁ eqn:Hns₁ .
-apply IHb; auto.
+apply IHb; try assumption.
  eapply nth_in_newton_segments_any_r with (n := 1%nat); try eassumption.
   intros i Hi1.
   apply Hz.
-  transitivity 1%nat; auto; apply le_n_S, Nat.le_0_l.
+  transitivity 1%nat; [ assumption | apply le_n_S, Nat.le_0_l ].
 
   simpl; rewrite <- Hc; assumption.
 
@@ -2098,13 +2098,13 @@ intros pol ns i j.
 revert pol ns j.
 induction i; intros.
  simpl.
- apply nth_r_n; auto; symmetry.
- apply nth_c_n; auto.
+ apply nth_r_n; [ reflexivity | reflexivity | symmetry ].
+ apply nth_c_n; reflexivity.
 
  rewrite Nat.add_succ_l, <- Nat.add_succ_r; simpl.
  rewrite IHi; simpl.
- f_equal; [ eapply nth_pol_n; eauto | idtac ].
- eapply nth_ns_n; try eassumption; eauto.
+ f_equal; [ eapply nth_pol_n; reflexivity | idtac ].
+ eapply nth_ns_n; try eassumption; reflexivity.
 Qed.
 
 Theorem non_decr_imp_eq : ∀ pol ns b r,
