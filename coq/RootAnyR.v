@@ -2116,8 +2116,8 @@ Theorem non_decr_imp_eq : ∀ pol ns b r,
 Proof.
 intros pol ns b r Hns Hz Hr Hri n Hnb.
 revert pol ns n Hns Hz Hr Hri Hnb.
-induction b; intros; [ apply Nat.le_0_r in Hnb; subst n; auto | idtac ].
-destruct n; auto.
+induction b; intros; [ apply Nat.le_0_r in Hnb; subst n; assumption | ].
+destruct n; [ assumption | ].
 apply le_S_n in Hnb.
 remember Hz as H; clear HeqH.
 rewrite zerop_1st_n_const_coeff_succ2 in H.
@@ -2143,13 +2143,13 @@ erewrite nth_c_n in H; try eassumption.
 rewrite <- Hcn, <- Hpoln₁ in H.
 rename H into Hnzn₁.
 remember Hns as H; clear HeqH.
-eapply IHb in H; eauto .
+eapply IHb in H; try eassumption.
 rename H into Hrn.
 remember Hcn as H; clear HeqH.
 erewrite <- nth_c_n in H; try eassumption.
 rename H into Hcnn.
 remember Hnsni as H; clear HeqH.
-eapply next_ns_r_non_decr with (r := r) (r₁ := r₁) in H; eauto .
+eapply next_ns_r_non_decr with (r := r) (r₁ := r₁) in H; try eassumption.
  destruct H; symmetry; assumption.
 
  erewrite <- nth_r_n; try eassumption.
@@ -2165,7 +2165,7 @@ eapply next_ns_r_non_decr with (r := r) (r₁ := r₁) in H; eauto .
  rewrite <- Hnsn₁ in H.
  symmetry in H.
  rename H into Hnsn₁₁.
- erewrite nth_r_n in Hr₁; eauto .
+ erewrite nth_r_n in Hr₁; try eassumption; [ symmetry; eassumption | ].
  erewrite nth_c_n; try eassumption.
 
  rewrite <- Hr₁; apply Hri.
