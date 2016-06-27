@@ -1976,8 +1976,8 @@ intros pol ns b Hpsi Hnz.
 apply zerop_1st_n_const_coeff_false_iff.
 rewrite zerop_1st_n_const_coeff_succ.
 rewrite Hpsi, Bool.orb_false_r; simpl.
-destruct (ps_zerop K (ps_poly_nth 0 pol)); auto.
-contradiction.
+destruct (ps_zerop K (ps_poly_nth 0 pol)); [ contradiction | ].
+reflexivity.
 Qed.
 
 Theorem nth_in_newton_segments_any_r : ∀ pol₁ ns₁ c₁ poln nsn n,
