@@ -329,15 +329,15 @@ Proof.
 intros pol ns c pol₁ ns₁ m q₀ r ofs.
 intros H₀ Hns Hc Hpol₁ Hns₁ Hnz₀ Hm Hq₀ Hr Hn Hofs N HN.
 apply not_false_iff_true; intros Hz.
-rewrite Hc in Hpol₁.
 assert (Hrle : ∀ n : nat, S r ≤ nth_r n pol ns).
  rewrite Hc in Hr.
  apply multiplicity_not_decreasing; assumption.
 
  remember (1 # 2 * m * q₀) as η eqn:Hη .
  assert (Hηβ : ∀ i, i ≤ N → η < β (nth_ns i pol₁ ns₁)).
-  clear Hofs Hn.
   intros i Hi.
+  clear HN.
+  revert H₀ Hns Hc Hpol₁ Hns₁ Hnz₀ Hm Hq₀ Hr Hrle Hη N Hi Hz; clear; intros.
   subst c q₀.
   eapply β_lower_bound_r_const with (n := i) (r := S r); try eassumption.
    pose proof (exists_pol_ord K pol) as H.
@@ -358,6 +358,7 @@ assert (Hrle : ∀ n : nat, S r ≤ nth_r n pol ns).
 
   remember (@summation _ Q_ring O N (λ i, β (nth_ns i pol₁ ns₁))) as u eqn:Hu.
   assert (Huo : u <= ofs).
+   rewrite Hc in Hpol₁.
    revert H₀ Hns Hc Hpol₁ Hns₁ Hnz₀ Hm Hq₀ Hr Hofs Hz Hrle Hu; clear; intros.
    rewrite root_tail_when_r_r with (n := N) (r := (S r)) in Hofs;
     try eassumption.
@@ -400,14 +401,13 @@ assert (Hrle : ∀ n : nat, S r ≤ nth_r n pol ns).
     rewrite <- Hm in Hm'; subst m'.
     apply Hp.
 
-    rewrite <- Hc in Hpol₁.
     apply non_decr_imp_eq; auto.
      apply zerop_1st_n_const_coeff_false_iff.
      intros j Hj.
      destruct j; [ assumption |  ].
      apply le_S_n in Hj.
      apply Nat.le_0_r in Hj; subst j; simpl.
-     rewrite <- Hc, <- Hpol₁.
+     rewrite <- Hpol₁.
      rewrite zerop_1st_n_const_coeff_false_iff in Hz.
      pose proof (Hz O (Nat.le_0_l N)) as H₁.
      assumption.
