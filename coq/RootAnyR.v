@@ -2217,7 +2217,7 @@ destruct z₁.
  rewrite Hz₁; simpl.
  rewrite rng_add_0_l, rng_mul_0_r; reflexivity.
 
- remember Hns as HK₁; clear HeqHK₁.
+ generalize Hns; intros HK₁.
  eapply next_pol_in_K_1_mq in HK₁; try eassumption.
  rewrite <- Heqm₁ in HK₁.
  rewrite zerop_1st_n_const_coeff_succ in Hz₁.
@@ -2649,7 +2649,7 @@ destruct z₁.
                      assumption.
 
                      subst x.
-                     apply Z2Nat.inj_lt in Hpb₃pos; auto.
+                     apply Z2Nat.inj_lt in Hpb₃pos; try eassumption.
                       rewrite Heqid.
                       apply le_n_S.
                       apply Nat.le_sub_le_add_l.
