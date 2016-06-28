@@ -253,6 +253,62 @@ contradiction .
  erewrite <- nth_r_n in H₁; try eassumption; reflexivity.
 Qed.
 
+Theorem in_newton_segment_when_r_constant : ∀ pol ns pol₁ ns₁ c r,
+  ns ∈ newton_segments pol
+  → c = ac_root (Φq pol ns)
+  → root_multiplicity acf c (Φq pol ns) = S r
+  → pol₁ = next_pol pol (β ns) (γ ns) (ac_root (Φq pol ns))
+  → ns₁ = List.hd phony_ns (newton_segments pol₁)
+  → (ps_poly_nth 0 pol ≠ 0)%ps
+  → (∀ n : nat, S r ≤ nth_r n pol ns)
+  → ∀ N polN nsN,
+    zerop_1st_n_const_coeff N pol₁ ns₁ = false
+    → polN = nth_pol N pol₁ ns₁
+    → nsN = nth_ns N pol₁ ns₁
+    → nsN ∈ newton_segments polN.
+Proof.
+intros pol ns pol₁ ns₁ c r.
+intros Hns Hc Hr Hpol₁ Hns₁ Hnz₀ Hrle N polN nsN Hz HpolN HnsN.
+rewrite zerop_1st_n_const_coeff_false_iff in Hz.
+eapply nth_in_newton_segments_any_r with (ns₁ := ns₁); try eassumption;
+ [ | apply eq_refl ].
+generalize Hns₁; intros H.
+pose proof (Hz O (Nat.le_0_l N)) as H₁.
+rewrite <- Hc in Hpol₁.
+eapply r_n_next_ns in H; try eassumption; try apply eq_refl.
+ destruct H as (αj₁, (αk₁, H)).
+ destruct H as (Hini₁, (Hfin₁, (Hαj₁, Hαk₁))).
+ eapply List_hd_in; try eassumption.
+ intros H; rewrite H in Hns₁; subst ns₁; discriminate Hfin₁.
+
+ rewrite <- nth_r_n with (n := 1%nat) (pol := pol) (ns := ns).
+  symmetry.
+  apply r_le_eq_incl with (n := 1%nat); try assumption.
+   simpl; rewrite <- Hc; assumption.
+
+   intros i Hi.
+   destruct i; [ assumption | simpl ].
+   rewrite <- Hc, <- Hpol₁, <- Hns₁.
+   apply Hz.
+   apply Nat.succ_le_mono in Hi.
+   apply Nat.le_0_r in Hi; subst i.
+   apply Nat.le_0_l.
+
+   intros; apply Hrle; assumption.
+
+   apply Nat.le_refl.
+
+  simpl; rewrite <- Hc; assumption.
+
+  simpl; rewrite <- Hc, <- Hpol₁; assumption.
+
+  symmetry.
+  apply nth_c_n.
+   simpl; rewrite <- Hc; assumption.
+
+   simpl; rewrite <- Hc, <- Hpol₁; assumption.
+Qed.
+
 Theorem contradiction_when_r_constant : ∀ pol ns c pol₁ ns₁ m q₀ r N ofs,
   (1 ≠ 0)%K
   → ns ∈ newton_segments pol
@@ -316,48 +372,9 @@ assert (Hrle : ∀ n : nat, S r ≤ nth_r n pol ns).
      intros a Ha.
      remember (nth_pol N pol₁ ns₁) as polN eqn:HpolN .
      remember (nth_ns N pol₁ ns₁) as nsN eqn:HnsN .
-     assert (HnsNi : nsN ∈ newton_segments polN).
-      rewrite zerop_1st_n_const_coeff_false_iff in Hz.
-      remember (m * q₀)%positive as m₁.
-      eapply nth_in_newton_segments_any_r with (ns₁ := ns₁); try eassumption;
-        [ | apply eq_refl ].
-      generalize Hns₁; intros H.
-      pose proof (Hz O (Nat.le_0_l N)) as H₁.
-      rewrite <- Hc in Hpol₁.
-      eapply r_n_next_ns in H; try eassumption; try apply eq_refl.
-       destruct H as (αj₁, (αk₁, H)).
-       destruct H as (Hini₁, (Hfin₁, (Hαj₁, Hαk₁))).
-       eapply List_hd_in; try eassumption.
-       intros H; rewrite H in Hns₁; subst ns₁; discriminate Hfin₁.
+     assert (H : nsN ∈ newton_segments polN).
+      eapply in_newton_segment_when_r_constant; eassumption.
 
-       rewrite <- nth_r_n with (n := 1%nat) (pol := pol) (ns := ns).
-        symmetry.
-        apply r_le_eq_incl with (n := 1%nat); try assumption.
-         simpl; rewrite <- Hc; assumption.
-
-         intros i Hi.
-         destruct i; [ assumption | simpl ].
-         rewrite <- Hc, <- Hpol₁, <- Hns₁.
-         apply Hz.
-         apply Nat.succ_le_mono in Hi.
-         apply Nat.le_0_r in Hi; subst i.
-         apply Nat.le_0_l.
-
-         intros; apply Hrle; assumption.
-
-         apply Nat.le_refl.
-
-        simpl; rewrite <- Hc; assumption.
-
-        simpl; rewrite <- Hc, <- Hpol₁; assumption.
-
-        symmetry.
-        apply nth_c_n.
-         simpl; rewrite <- Hc; assumption.
-
-         simpl; rewrite <- Hc, <- Hpol₁; assumption.
-
-      remember HnsNi as H; clear HeqH.
       eapply f₁_orders in H; try eassumption; try apply eq_refl.
       erewrite <- nth_pol_succ in H; try eassumption.
        destruct H as (H, _).
