@@ -309,7 +309,7 @@ eapply r_n_next_ns in H; try eassumption; try apply eq_refl.
    simpl; rewrite <- Hc, <- Hpol₁; assumption.
 Qed.
 
-Theorem contradiction_when_r_constant : ∀ pol ns c pol₁ ns₁ m q₀ r ofs,
+Theorem upper_bound_zerop_1st_when_r_constant : ∀ pol ns c pol₁ ns₁ m q₀ r ofs,
   (1 ≠ 0)%K
   → ns ∈ newton_segments pol
   → c = ac_root (Φq pol ns)
@@ -324,11 +324,11 @@ Theorem contradiction_when_r_constant : ∀ pol ns c pol₁ ns₁ m q₀ r ofs,
      qfin ofs)%Qbar
   → ∀ N,
     N = Z.to_nat (2 * ' m * ' q₀ * Qnum ofs)
-    → zerop_1st_n_const_coeff N pol₁ ns₁ = false
-    → False.
+    → zerop_1st_n_const_coeff N pol₁ ns₁ = true.
 Proof.
 intros pol ns c pol₁ ns₁ m q₀ r ofs.
-intros H₀ Hns Hc Hpol₁ Hns₁ Hnz₀ Hm Hq₀ Hr Hn Hofs N HN Hz.
+intros H₀ Hns Hc Hpol₁ Hns₁ Hnz₀ Hm Hq₀ Hr Hn Hofs N HN.
+apply not_false_iff_true; intros Hz.
 rewrite Hc in Hpol₁.
 assert (Hrle : ∀ n : nat, S r ≤ nth_r n pol ns).
  rewrite Hc in Hr.
@@ -526,7 +526,8 @@ destruct (fld_zerop 1%K) as [H₀| H₀].
    symmetry in Hr.
    pose proof (multiplicity_neq_0 acf pol ns Hns Hc) as H.
    destruct r; [ contradiction | ].
-   eapply contradiction_when_r_constant; try eassumption.
+   revert Hz; apply not_false_iff_true.
+   eapply upper_bound_zerop_1st_when_r_constant; try eassumption.
    rewrite Hofs, Hs; reflexivity.
 
   symmetry in Hofs.
