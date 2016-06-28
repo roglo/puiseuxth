@@ -309,7 +309,7 @@ eapply r_n_next_ns in H; try eassumption; try apply eq_refl.
    simpl; rewrite <- Hc, <- Hpol₁; assumption.
 Qed.
 
-Theorem contradiction_when_r_constant : ∀ pol ns c pol₁ ns₁ m q₀ r N ofs,
+Theorem contradiction_when_r_constant : ∀ pol ns c pol₁ ns₁ m q₀ r ofs,
   (1 ≠ 0)%K
   → ns ∈ newton_segments pol
   → c = ac_root (Φq pol ns)
@@ -322,12 +322,13 @@ Theorem contradiction_when_r_constant : ∀ pol ns c pol₁ ns₁ m q₀ r N ofs
   → (∀ i : nat, if multiplicity_decreases pol ns i then False else True)
   → (order (ps_pol_apply pol₁ (root_tail (m * q₀) 0 pol₁ ns₁)) =
      qfin ofs)%Qbar
-  → N = Z.to_nat (2 * ' m * ' q₀ * Qnum ofs)
-  → zerop_1st_n_const_coeff N pol₁ ns₁ = false
-  → False.
+  → ∀ N,
+    N = Z.to_nat (2 * ' m * ' q₀ * Qnum ofs)
+    → zerop_1st_n_const_coeff N pol₁ ns₁ = false
+    → False.
 Proof.
-intros pol ns c pol₁ ns₁ m q₀ r N ofs.
-intros H₀ Hns Hc Hpol₁ Hns₁ Hnz₀ Hm Hq₀ Hr Hn Hofs HN Hz.
+intros pol ns c pol₁ ns₁ m q₀ r ofs.
+intros H₀ Hns Hc Hpol₁ Hns₁ Hnz₀ Hm Hq₀ Hr Hn Hofs N HN Hz.
 rewrite Hc in Hpol₁.
 assert (Hrle : ∀ n : nat, S r ≤ nth_r n pol ns).
  rewrite Hc in Hr.
