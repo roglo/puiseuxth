@@ -783,31 +783,6 @@ destruct x as [| x| x].
  apply Hx, Pos2Z.neg_is_nonpos.
 Qed.
 
-(* Allows proof by induction with the case
-     proved for n implies proved for S n
-   changed into
-     proved for all nats before n implies proved for S n.
-
-   Then, the proof may be easier to perform.
-*)
-Theorem all_lt_all : ∀ P : nat → Prop,
-  (∀ n, (∀ m, (m < n)%nat → P m) → P n)
-  → ∀ n, P n.
-Proof.
-intros P Hm n.
-apply Hm.
-induction n; intros m Hmn.
- apply Nat.nle_gt in Hmn.
- exfalso; apply Hmn, Nat.le_0_l.
-
- destruct (eq_nat_dec m n) as [H₁| H₁].
-  subst m; apply Hm; assumption.
-
-  apply IHn.
-  apply Nat_le_neq_lt; [ idtac | assumption ].
-  apply Nat.succ_le_mono; assumption.
-Qed.
-
 Theorem Nat_divides_l : ∀ a b, (∃ c, a = (b * c)%nat) ↔ (b | a)%nat.
 Proof.
 intros a b.

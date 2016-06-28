@@ -545,7 +545,7 @@ remember (ac_root (Φq pol ns)) as c eqn:Hc.
 remember (root_multiplicity acf c (Φq pol ns)) as r eqn:Hr .
 symmetry in Hr.
 revert pol ns c pol₁ Hns Hnz₀ Hc Hpol₁ Hr.
-induction r as (r, IHr) using all_lt_all; intros.
+induction r as (r, IHr) using lt_wf_rec; intros.
 set (v := fun i => if multiplicity_decreases pol ns i then S O else O).
 destruct (LPO v) as [Hn| Hn].
  subst c.
