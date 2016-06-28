@@ -2182,9 +2182,11 @@ split; intros H.
  apply not_zero_1st_prop; assumption.
 
  simpl in H.
- destruct (ps_zerop K (ps_poly_nth 0 pol)); auto.
- contradiction.
+ destruct (ps_zerop K (ps_poly_nth 0 pol)); [ contradiction | ].
+ assumption.
 Qed.
+
+(* 0m6.652s *)(**)
 
 Theorem root_tail_from_0_const_r : ∀ pol ns c pol₁ ns₁ c₁ m q₀ b r,
   ns ∈ newton_segments pol
@@ -2672,7 +2674,7 @@ destruct z₁.
                    assumption.
 
                    intros j Hj.
-                   destruct j; auto; simpl.
+                   destruct j; [ assumption | simpl ].
                    apply le_S_n in Hj.
                    rewrite Nat.le_0_r in Hj; subst j.
                    rewrite <- Hcb₃, <- Hpolb₄, <- Hnsb₄.
@@ -2685,14 +2687,16 @@ destruct z₁.
              intros j.
              pose proof (Hrle₂ (j + 1)%nat) as H.
              rewrite nth_r_add in H; simpl in H.
-             erewrite <- nth_pol_n with (c := c₁) in H; eauto .
-             rewrite <- Hpolb₃, <- Hnsb₃₁ in H; assumption.
+             erewrite <- nth_pol_n with (c := c₁) in H; try eassumption;
+               try reflexivity.
+              rewrite <- Hpolb₃, <- Hnsb₃₁ in H; assumption.
 
          intros j Hj.
-         destruct j; auto; simpl.
+         destruct j; [ assumption | simpl ].
          apply le_S_n in Hj.
          rewrite Nat.le_0_r in Hj; subst j; simpl.
-         erewrite <- nth_pol_n with (c := c₁) (pol₁ := pol₂); eauto .
+         erewrite <- nth_pol_n with (c := c₁) (pol₁ := pol₂); try eassumption;
+           [ | reflexivity ].
          rewrite <- Hpolb₃; assumption.
 
       intros i Hib.
@@ -2703,6 +2707,8 @@ destruct z₁.
 
       rewrite <- Hb₁; assumption.
 Qed.
+
+(* 0m11.076s *)(**)
 
 Theorem a₀_neq_0 : ∀ pol ns αj,
   ns ∈ newton_segments pol
