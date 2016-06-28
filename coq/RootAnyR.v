@@ -2662,14 +2662,16 @@ destruct z₁.
                     intros j; clear H.
                     pose proof (Hrle₂ (j + 1)%nat) as H.
                     rewrite nth_r_add in H; simpl in H.
-                    erewrite <- nth_pol_n with (c := c₁) in H; eauto .
+                    erewrite <- nth_pol_n with (c := c₁) in H;
+                      try eassumption; [ | reflexivity ].
                     rewrite <- Hpolb₃, <- Hnsb₃₁ in H.
                     assumption.
 
                    intros j; clear H.
                    pose proof (Hrle₂ (j + 1)%nat) as H.
                    rewrite nth_r_add in H; simpl in H.
-                   erewrite <- nth_pol_n with (c := c₁) in H; eauto .
+                   erewrite <- nth_pol_n with (c := c₁) in H; try eassumption;
+                   try reflexivity.
                    rewrite <- Hpolb₃, <- Hnsb₃₁ in H.
                    assumption.
 
@@ -2688,8 +2690,8 @@ destruct z₁.
              pose proof (Hrle₂ (j + 1)%nat) as H.
              rewrite nth_r_add in H; simpl in H.
              erewrite <- nth_pol_n with (c := c₁) in H; try eassumption;
-               try reflexivity.
-              rewrite <- Hpolb₃, <- Hnsb₃₁ in H; assumption.
+               [ | reflexivity ].
+             rewrite <- Hpolb₃, <- Hnsb₃₁ in H; assumption.
 
          intros j Hj.
          destruct j; [ assumption | simpl ].
@@ -2708,7 +2710,7 @@ destruct z₁.
       rewrite <- Hb₁; assumption.
 Qed.
 
-(* 0m11.076s *)(**)
+(* 0m11.719s *)(**)
 
 Theorem a₀_neq_0 : ∀ pol ns αj,
   ns ∈ newton_segments pol
