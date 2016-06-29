@@ -2253,7 +2253,7 @@ destruct z₁.
 
   rename H into Hain.
   assert (∀ n, n ≤ S b → nth_r n pol₁ ns₁ = r) as Hreq.
-   apply non_decr_imp_eq; auto.
+   apply non_decr_imp_eq; try eassumption.
    intros i.
    pose proof (Hrle (S i)) as H; simpl in H.
    rewrite <- Hc, <- Hpol₁, <- Hns₁ in H; assumption.
@@ -2642,8 +2642,8 @@ destruct z₁.
                      intros j.
                      pose proof (Hrle₂ (j + 2)%nat) as H.
                      rewrite nth_r_add in H.
-                     remember (S 0) as one in H; simpl in H.
-                     erewrite <- nth_pol_n with (c := c₁) in H; eauto .
+                     remember (S 0) as one in H; simpl in H; eauto.
+                     erewrite <- nth_pol_n with (c := c₁) in H.
                      rewrite <- Hpolb₃, <- Hnsb₃₁ in H.
                      subst one; simpl in H.
                      rewrite <- Hcb₃, <- Hpolb₄, <- Hnsb₄ in H.
