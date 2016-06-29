@@ -2207,7 +2207,7 @@ Proof.
 intros pol ns c pol₁ ns₁ c₁ m q₀ b r.
 intros Hns Hm Hq₀ Hc Hpol₁ Hns₁ Hc₁ Hri Hrle H₀.
 remember (m * q₀)%positive as m₁.
-destruct b; [ subst m₁; eapply root_tail_split_1st_any_r; eauto  | idtac ].
+destruct b; [ subst m₁; eapply root_tail_split_1st_any_r; eassumption | ].
 remember (zerop_1st_n_const_coeff (S b) pol₁ ns₁) as z₁ eqn:Hz₁ .
 symmetry in Hz₁.
 destruct z₁.
@@ -2237,11 +2237,12 @@ destruct z₁.
  remember (List.hd phony_ns (newton_segments pol₂)) as ns₂ eqn:Hns₂ .
  assert (0 < r)%nat as Hrpos by (eapply multiplicity_is_pos; try eassumption).
  remember Hns as H; clear HeqH.
- eapply next_ns_in_pol in H; eauto .
+ eapply next_ns_in_pol in H; try eassumption.
  rename H into Hns₁i.
  apply zerop_1st_n_const_coeff_false_succ in Hpsi; [ idtac | assumption ].
  remember Hr₁ as H; clear HeqH.
- rewrite <- nth_r_n with (n := O) (ns := ns₁) (pol := pol₁) in H; auto.
+ rewrite <- nth_r_n with (n := O) (ns := ns₁) (pol := pol₁) in H;
+   [ | reflexivity | reflexivity | assumption ].
  rename H into Hr₁n.
  assert
   (∀ n, n ≤ S b → nth_ns n pol₁ ns₁ ∈ newton_segments (nth_pol n pol₁ ns₁)).
