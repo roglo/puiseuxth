@@ -2642,8 +2642,8 @@ destruct z₁.
                      intros j.
                      pose proof (Hrle₂ (j + 2)%nat) as H.
                      rewrite nth_r_add in H.
-                     remember (S 0) as one in H; simpl in H; eauto.
-                     erewrite <- nth_pol_n with (c := c₁) in H.
+                     remember (S 0) as one in H; simpl in H.
+                     erewrite <- nth_pol_n with (c := c₁) in H; eauto.
                      rewrite <- Hpolb₃, <- Hnsb₃₁ in H.
                      subst one; simpl in H.
                      rewrite <- Hcb₃, <- Hpolb₄, <- Hnsb₄ in H.
