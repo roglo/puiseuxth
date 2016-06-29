@@ -261,11 +261,11 @@ Theorem in_newton_segment_when_r_constant : ∀ pol ns pol₁ ns₁ c r,
   → ns₁ = List.hd phony_ns (newton_segments pol₁)
   → (ps_poly_nth 0 pol ≠ 0)%ps
   → (∀ n : nat, S r ≤ nth_r n pol ns)
-  → ∀ N polN nsN,
-    zerop_1st_n_const_coeff N pol₁ ns₁ = false
-    → polN = nth_pol N pol₁ ns₁
-    → nsN = nth_ns N pol₁ ns₁
-    → nsN ∈ newton_segments polN.
+  → ∀ n poln nsn,
+    zerop_1st_n_const_coeff n pol₁ ns₁ = false
+    → poln = nth_pol n pol₁ ns₁
+    → nsn = nth_ns n pol₁ ns₁
+    → nsn ∈ newton_segments poln.
 Proof.
 intros pol ns pol₁ ns₁ c r.
 intros Hns Hc Hr Hpol₁ Hns₁ Hnz₀ Hrle N polN nsN Hz HpolN HnsN.

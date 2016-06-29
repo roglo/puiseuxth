@@ -238,7 +238,7 @@ Theorem List_hd_in : ∀ α (l : list α) d a,
   → a ∈ l.
 Proof.
 intros α₁ l d a Ha Hl.
-destruct l; [ exfalso; apply Hl; reflexivity | left; auto ].
+destruct l; [ exfalso; apply Hl; reflexivity | left; symmetry; assumption ].
 Qed.
 
 Theorem hd_newton_segments : ∀ pol ns j k αj αk,
@@ -351,8 +351,8 @@ rewrite Qden_inv.
  symmetry.
  rewrite <- positive_nat_Z; simpl.
  rewrite Nat2Pos.id.
-  rewrite Nat2Z.inj_sub; auto.
-  apply Nat.lt_le_incl; assumption.
+  rewrite Nat2Z.inj_sub; [ | apply Nat.lt_le_incl; assumption ].
+  reflexivity.
 
   intros H.
   apply Nat.sub_0_le in H.
@@ -378,14 +378,14 @@ Theorem num_m_den_is_pos : ∀ pol ns j αj m,
 Proof.
 intros pol ns j αj m Hns Hm Hini Hn.
 assert (' Qden αj | Qnum αj * ' m)%Z as H.
- eapply den_αj_divides_num_αj_m; eauto .
+ eapply den_αj_divides_num_αj_m; eassumption.
 
  destruct H as (d, Hd).
  rewrite Hd.
- rewrite Z.div_mul; auto.
+ rewrite Z.div_mul; [ | apply Pos2Z_ne_0 ].
  destruct d as [| d| d].
   simpl in Hd.
-  apply Z.eq_mul_0_l in Hd; auto.
+  apply Z.eq_mul_0_l in Hd; [ | apply Pos2Z_ne_0 ].
   rewrite Hd in Hn.
   exfalso; revert Hn; apply Z.lt_irrefl.
 
@@ -396,7 +396,7 @@ assert (' Qden αj | Qnum αj * ' m)%Z as H.
   rewrite <- Hd in I.
   apply Z.nle_gt in I.
   exfalso; apply I.
-  apply Z.mul_nonneg_nonneg; auto.
+  apply Z.mul_nonneg_nonneg; [ | apply Pos2Z.is_nonneg].
   apply Z.lt_le_incl; assumption.
 Qed.
 
