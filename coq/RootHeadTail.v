@@ -415,11 +415,11 @@ Proof.
 intros pol ns m mx p dp i.
 revert pol ns m p dp i.
 induction mx; intros; [ reflexivity | simpl ].
-destruct (ps_zerop K (ps_poly_nth 0 pol)) as [H₁| H₁]; auto.
+destruct (ps_zerop K (ps_poly_nth 0 pol)) as [| H₁]; [ reflexivity | ].
 rewrite <- Nat_compare_add.
 remember (Nat.compare p i) as cmp eqn:Hcmp .
 symmetry in Hcmp.
-destruct cmp; auto.
+destruct cmp; [ reflexivity | | reflexivity ].
 rewrite next_pow_add.
 apply IHmx.
 Qed.
@@ -447,7 +447,8 @@ induction n; intros.
  remember (S n) as sn; simpl.
  destruct (ps_zerop K (ps_poly_nth 0 pol)) as [H₁| H₁].
   rewrite Heqsn in |- * at 1; simpl.
-  destruct (ps_zerop K (ps_poly_nth 0 pol)); [ auto | contradiction ].
+  destruct (ps_zerop K (ps_poly_nth 0 pol)); [ | contradiction ].
+  symmetry; apply Bool.orb_true_l.
 
   remember (ac_root (Φq pol ns)) as c₁ eqn:Hc₁ .
   remember (next_pol pol (β ns) (γ ns) c₁) as pol₁ eqn:Hpol₁ .
@@ -459,7 +460,8 @@ induction n; intros.
 
    do 2 rewrite Bool.orb_false_r.
    subst sn; simpl.
-   destruct (ps_zerop K (ps_poly_nth 0 pol)); [ contradiction | subst; auto ].
+   destruct (ps_zerop K (ps_poly_nth 0 pol)); [ contradiction | ];
+   subst; reflexivity.
 Qed.
 
 Theorem zerop_1st_n_const_coeff_false_iff : ∀ pol ns n,
