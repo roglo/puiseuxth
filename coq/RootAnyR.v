@@ -2209,6 +2209,35 @@ pose proof (Hri O Nat.le_0_1) as H; simpl in H.
 assumption.
 Qed.
 
+Theorem not_zerop_in_newton_segment : ∀ pol ns c pol₁ ns₁ r b,
+  ns ∈ newton_segments pol
+  → c = ac_root (Φq pol ns)
+  → pol₁ = next_pol pol (β ns) (γ ns) c
+  → ns₁ = List.hd phony_ns (newton_segments pol₁)
+  → (∀ i : nat, i ≤ 1 → nth_r i pol ns = r)
+  → (∀ n : nat, r ≤ nth_r n pol ns)
+  → zerop_1st_n_const_coeff (S b) pol₁ ns₁ = false
+  → ∀ n, n ≤ S b → nth_ns n pol₁ ns₁ ∈ newton_segments (nth_pol n pol₁ ns₁).
+Proof.
+intros pol ns c pol₁ ns₁ r b Hns Hc Hpol₁ Hns₁ Hri Hrle Hz₁.
+apply all_ns_in_newton_segments with (r := r); try assumption.
+ eapply next_ns_in_pol; try eassumption.
+ rewrite zerop_1st_n_const_coeff_succ in Hz₁.
+ apply Bool.orb_false_iff in Hz₁.
+ destruct Hz₁ as (Hz₁, Hpsi).
+ simpl in Hz₁.
+ remember (ps_poly_nth 0 pol₁) as y.
+ destruct (ps_zerop K y) as [| Hnz₁]; [ discriminate Hz₁ | subst y ].
+ assumption.
+
+ pose proof (Hri 1%nat (Nat.le_refl 1)) as H; simpl in H.
+ rewrite <- Hc, <- Hpol₁, <- Hns₁ in H; assumption.
+
+ intros i.
+ pose proof (Hrle (S i)) as H; simpl in H.
+ rewrite <- Hc, <- Hpol₁, <- Hns₁ in H; assumption.
+Qed.
+
 Theorem root_tail_from_0_const_r : ∀ pol ns c pol₁ ns₁ c₁ m q₀ b r,
   ns ∈ newton_segments pol
   → pol_in_K_1_m pol m
@@ -2238,30 +2267,20 @@ destruct z₁.
  rewrite Hz₁; simpl.
  rewrite rng_add_0_l, rng_mul_0_r; reflexivity.
 
- rewrite zerop_1st_n_const_coeff_succ in Hz₁.
- apply Bool.orb_false_iff in Hz₁.
- destruct Hz₁ as (Hz₁, Hpsi).
- simpl in Hz₁.
- remember (ps_poly_nth 0 pol₁) as y.
- destruct (ps_zerop K y) as [| Hnz₁]; [ discriminate Hz₁ | subst y ].
- clear Hz₁.
  remember (next_pol pol₁ (β ns₁) (γ ns₁) c₁) as pol₂ eqn:Hpol₂ .
  remember (List.hd phony_ns (newton_segments pol₂)) as ns₂ eqn:Hns₂ .
  assert
-  (∀ n, n ≤ S b → nth_ns n pol₁ ns₁ ∈ newton_segments (nth_pol n pol₁ ns₁)).
-  apply all_ns_in_newton_segments with (r := r); try assumption.
-   eapply next_ns_in_pol; try eassumption.
+  (Hain :
+     ∀ n, n ≤ S b → nth_ns n pol₁ ns₁ ∈ newton_segments (nth_pol n pol₁ ns₁)).
+  eapply not_zerop_in_newton_segment; eassumption.
 
-   apply zerop_1st_n_const_coeff_false_succ; assumption.
-
-   pose proof (Hri 1%nat (Nat.le_refl 1)) as H; simpl in H.
-   rewrite <- Hc, <- Hpol₁, <- Hns₁ in H; assumption.
-
-   intros i.
-   pose proof (Hrle (S i)) as H; simpl in H.
-   rewrite <- Hc, <- Hpol₁, <- Hns₁ in H; assumption.
-
-  rename H into Hain.
+  rewrite zerop_1st_n_const_coeff_succ in Hz₁.
+  apply Bool.orb_false_iff in Hz₁.
+  destruct Hz₁ as (Hz₁, Hpsi).
+  simpl in Hz₁.
+  remember (ps_poly_nth 0 pol₁) as y.
+  destruct (ps_zerop K y) as [| Hnz₁]; [ discriminate Hz₁ | subst y ].
+  clear Hz₁.
   assert (Hreq : ∀ n, n ≤ S b → nth_r n pol₁ ns₁ = r).
    apply non_decr_imp_eq; try eassumption.
     eapply next_ns_in_pol; try eassumption.
@@ -2803,7 +2822,6 @@ destruct z₁.
        rewrite <- Hc₁, <- Hpol₂, <- Hns₂ in Hib; assumption.
 
        rewrite <- Hb₁; assumption.
-
 Qed.
 
 (* 0m11.719s *)(**)
