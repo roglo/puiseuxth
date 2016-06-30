@@ -2245,14 +2245,13 @@ destruct z₁.
  remember (ps_poly_nth 0 pol₁) as y.
  destruct (ps_zerop K y) as [| Hnz₁]; [ discriminate Hz₁ | subst y ].
  clear Hz₁.
+(**)
  pose proof (Hri 1%nat (Nat.le_refl 1)) as H; simpl in H.
  rename H into Hr₁.
  rewrite <- Hc, <- Hpol₁, <- Hns₁, <- Hc₁ in Hr₁.
+(**)
  remember (next_pol pol₁ (β ns₁) (γ ns₁) c₁) as pol₂ eqn:Hpol₂ .
  remember (List.hd phony_ns (newton_segments pol₂)) as ns₂ eqn:Hns₂ .
- remember Hns as H; clear HeqH.
- eapply next_ns_in_pol in H; try eassumption.
- rename H into Hns₁i.
  apply zerop_1st_n_const_coeff_false_succ in Hpsi; [  | assumption ].
  remember Hr₁ as H; clear HeqH.
  rewrite <- nth_r_n with (n := O) (ns := ns₁) (pol := pol₁) in H;
@@ -2260,8 +2259,11 @@ destruct z₁.
  rename H into Hr₁n.
  assert
   (∀ n, n ≤ S b → nth_ns n pol₁ ns₁ ∈ newton_segments (nth_pol n pol₁ ns₁)).
+(*
   revert Hr₁n Hns₁i Hpsi Hrle Hc Hpol₁ Hns₁; clear; intros; revert n H.
+*)
   apply all_ns_in_newton_segments with (r := r); try assumption.
+  eapply next_ns_in_pol; try eassumption.
   intros i.
   pose proof (Hrle (S i)) as H; simpl in H.
   rewrite <- Hc, <- Hpol₁, <- Hns₁ in H; assumption.
@@ -2269,6 +2271,7 @@ destruct z₁.
   rename H into Hain.
   assert (Hreq : ∀ n, n ≤ S b → nth_r n pol₁ ns₁ = r).
    apply non_decr_imp_eq; try eassumption.
+  eapply next_ns_in_pol; try eassumption.
    intros i.
    pose proof (Hrle (S i)) as H; simpl in H.
    rewrite <- Hc, <- Hpol₁, <- Hns₁ in H; assumption.
@@ -2289,7 +2292,9 @@ destruct z₁.
      pose proof (Hain b₁ (Nat.le_refl b₁)) as H.
      rewrite <- Hnsb₂, <- Hpolb₂ in H.
      rename H into Hnsb₂i.
-     remember Hns₁i as H; clear HeqH.
+     assert (H : ns₁ ∈ newton_segments pol₁).
+      eapply next_ns_in_pol with (pol := pol); eassumption.
+
      eapply r_n_nth_ns with (n := b) (r := r) in H; eauto  .
       erewrite <- nth_ns_succ2 in H; eauto  .
       rewrite <- Hb₁ in H.
@@ -2324,7 +2329,8 @@ destruct z₁.
       eapply r_n_next_ns with (ns := ns) in H; try eassumption.
        destruct H as (αj₁, (αk₁, H)).
        destruct H as (Hini₁, (Hfin₁, (Hαj₁, Hαk₁))).
-       remember Hns₁i as H; clear HeqH.
+ assert (H : ns₁ ∈ newton_segments pol₁).
+  eapply next_ns_in_pol with (pol := pol); eassumption.
        eapply nth_pol_in_K_1_m with (poln := polb₂) in H; eauto  .
         rename H into HKb₂.
         pose proof (Hreq b₁ (Nat.le_refl b₁)) as H.
@@ -2774,8 +2780,6 @@ destruct z₁.
       rewrite <- Hc₁, <- Hpol₂, <- Hns₂ in Hib; assumption.
 
       rewrite <- Hb₁; assumption.
-
-
 Qed.
 
 (* 0m11.719s *)(**)
