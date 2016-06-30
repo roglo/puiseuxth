@@ -1635,7 +1635,7 @@ destruct (ps_zerop _ (ps_poly_nth 0 pol₁)) as [H₁| H₁].
    [ | eassumption | reflexivity ].
  simpl in H; rewrite <- Hc, <- Hpol₁ in H.
  destruct H as [| H]; [ contradiction | idtac ].
- rename H into Hns₁nz; move Hns₁nz before HK₁.
+ rename H into Hns₁nz.
  remember Hns₁ as Hns₁₁; clear HeqHns₁₁.
  eapply List_hd_in in Hns₁₁; try eassumption .
  remember Hns₁₁ as HK₂; clear HeqHK₂.
