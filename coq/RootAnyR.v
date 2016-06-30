@@ -2247,7 +2247,6 @@ destruct z₁.
  clear Hz₁.
  remember (next_pol pol₁ (β ns₁) (γ ns₁) c₁) as pol₂ eqn:Hpol₂ .
  remember (List.hd phony_ns (newton_segments pol₂)) as ns₂ eqn:Hns₂ .
- apply zerop_1st_n_const_coeff_false_succ in Hpsi; [  | assumption ].
  pose proof (Hri 1%nat (Nat.le_refl 1)) as H; simpl in H.
  rewrite <- Hc, <- Hpol₁, <- Hns₁, <- Hc₁ in H.
  rewrite <- nth_r_n with (n := O) (ns := ns₁) (pol := pol₁) in H;
@@ -2258,6 +2257,8 @@ destruct z₁.
   apply all_ns_in_newton_segments with (r := r); try assumption.
    eapply next_ns_in_pol; try eassumption.
 
+   apply zerop_1st_n_const_coeff_false_succ; assumption.
+
    intros i.
    pose proof (Hrle (S i)) as H; simpl in H.
    rewrite <- Hc, <- Hpol₁, <- Hns₁ in H; assumption.
@@ -2267,13 +2268,14 @@ destruct z₁.
    apply non_decr_imp_eq; try eassumption.
     eapply next_ns_in_pol; try eassumption.
 
+    apply zerop_1st_n_const_coeff_false_succ; assumption.
+
     intros i.
     pose proof (Hrle (S i)) as H; simpl in H.
     rewrite <- Hc, <- Hpol₁, <- Hns₁ in H; assumption.
 
    assert (∀ i, i ≤ S b → (ps_poly_nth 0 (nth_pol i pol₁ ns₁) ≠ 0)%ps).
     apply not_zero_1st_prop; auto.
-    apply zerop_1st_n_const_coeff_false_succ; assumption.
 
     clear Hpsi; rename H into Hpsi.
     assert (Hrle₁ : ∀ i, r ≤ nth_r i pol₁ ns₁).
