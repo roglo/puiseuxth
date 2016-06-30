@@ -2247,6 +2247,7 @@ destruct z₁.
  rename H into Hr₁n.
  assert
   (∀ n, n ≤ S b → nth_ns n pol₁ ns₁ ∈ newton_segments (nth_pol n pol₁ ns₁)).
+  revert Hr₁n Hns₁i Hpsi Hrle Hc Hpol₁ Hns₁; clear; intros; revert n H.
   apply all_ns_in_newton_segments with (r := r); try assumption.
   intros i.
   pose proof (Hrle (S i)) as H; simpl in H.
