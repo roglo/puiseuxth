@@ -2188,6 +2188,16 @@ Qed.
 
 (* 0m6.652s *)(**)
 
+Theorem pol₁_in_K_1_mq₀ : ∀ pol ns pol₁ m,
+  pol_in_K_1_m pol m
+  → ns ∈ newton_segments pol
+  → pol₁ = next_pol pol (β ns) (γ ns) (ac_root (Φq pol ns))
+  → pol_in_K_1_m pol₁ (m * q_of_m m (γ ns)).
+Proof.
+intros pol ns pol₁ m Hm Hns Hpol₁.
+eapply next_pol_in_K_1_mq in Hns; try eassumption; reflexivity.
+Qed.
+
 Theorem root_tail_from_0_const_r : ∀ pol ns c pol₁ ns₁ c₁ m q₀ b r,
   ns ∈ newton_segments pol
   → pol_in_K_1_m pol m
@@ -2217,9 +2227,6 @@ destruct z₁.
  rewrite Hz₁; simpl.
  rewrite rng_add_0_l, rng_mul_0_r; reflexivity.
 
- generalize Hns; intros HK₁.
- eapply next_pol_in_K_1_mq in HK₁; try eassumption.
- rewrite <- Heqm₁ in HK₁.
  rewrite zerop_1st_n_const_coeff_succ in Hz₁.
  apply Bool.orb_false_iff in Hz₁.
  destruct Hz₁ as (Hz₁, Hpsi).
@@ -2703,6 +2710,10 @@ destruct z₁.
          erewrite <- nth_pol_n with (c := c₁) (pol₁ := pol₂); try eassumption;
           [  | reflexivity ].
          rewrite <- Hpolb₃; assumption.
+
+      subst c m₁ q₀; eapply pol₁_in_K_1_mq₀; try eassumption.
+
+      eapply pol₁_in_K_1_mq₀; try eassumption; rewrite <- Hc; assumption.
 
       intros i Hib.
       apply le_n_S in Hib.
