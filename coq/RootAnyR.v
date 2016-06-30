@@ -2247,17 +2247,15 @@ destruct z₁.
  clear Hz₁.
  remember (next_pol pol₁ (β ns₁) (γ ns₁) c₁) as pol₂ eqn:Hpol₂ .
  remember (List.hd phony_ns (newton_segments pol₂)) as ns₂ eqn:Hns₂ .
- pose proof (Hri 1%nat (Nat.le_refl 1)) as H; simpl in H.
- rewrite <- Hc, <- Hpol₁, <- Hns₁, <- Hc₁ in H.
- rewrite <- nth_r_n with (n := O) (ns := ns₁) (pol := pol₁) in H;
-  [  | reflexivity | reflexivity | assumption ].
- rename H into Hr₁n.
  assert
   (∀ n, n ≤ S b → nth_ns n pol₁ ns₁ ∈ newton_segments (nth_pol n pol₁ ns₁)).
   apply all_ns_in_newton_segments with (r := r); try assumption.
    eapply next_ns_in_pol; try eassumption.
 
    apply zerop_1st_n_const_coeff_false_succ; assumption.
+
+   pose proof (Hri 1%nat (Nat.le_refl 1)) as H; simpl in H.
+   rewrite <- Hc, <- Hpol₁, <- Hns₁ in H; assumption.
 
    intros i.
    pose proof (Hrle (S i)) as H; simpl in H.
@@ -2269,6 +2267,9 @@ destruct z₁.
     eapply next_ns_in_pol; try eassumption.
 
     apply zerop_1st_n_const_coeff_false_succ; assumption.
+
+    pose proof (Hri 1%nat (Nat.le_refl 1)) as H; simpl in H.
+    rewrite <- Hc, <- Hpol₁, <- Hns₁ in H; assumption.
 
     intros i.
     pose proof (Hrle (S i)) as H; simpl in H.
