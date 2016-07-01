@@ -2308,7 +2308,7 @@ destruct z₁.
    subst c; eapply not_zerop_imp_nth_r_eq_r; eassumption.
 
    assert (∀ i, i ≤ S b → (ps_poly_nth 0 (nth_pol i pol₁ ns₁) ≠ 0)%ps).
-    apply not_zero_1st_prop; auto.
+    apply not_zero_1st_prop; assumption.
 
     clear Hpsi; rename H into Hpsi.
     pose proof (Hpsi (S b) (Nat.le_refl (S b))) as H.
