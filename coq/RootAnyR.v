@@ -2256,8 +2256,7 @@ Theorem root_tail_from_0_const_r : ∀ pol ns c pol₁ ns₁ c₁ m q₀ b r,
 Proof.
 intros pol ns c pol₁ ns₁ c₁ m q₀ b r.
 intros Hns Hm Hq₀ Hc Hpol₁ Hns₁ Hc₁ Hri Hrle H₀.
-remember (m * q₀)%positive as m₁.
-destruct b; [ subst m₁; eapply root_tail_split_1st_any_r; eassumption |  ].
+destruct b; [ eapply root_tail_split_1st_any_r; eassumption |  ].
 remember (zerop_1st_n_const_coeff (S b) pol₁ ns₁) as z₁ eqn:Hz₁ .
 symmetry in Hz₁.
 destruct z₁.
@@ -2339,6 +2338,7 @@ destruct z₁.
        rewrite Qnum_inv_Qnat_sub; [  | eapply multiplicity_pos; eassumption ].
        rewrite Qden_inv_Qnat_sub; [  | eapply multiplicity_pos; eassumption ].
        rewrite Z.add_0_r, Z.mul_1_r, Nat.sub_0_r.
+       remember (m * q₀)%positive as m₁.
        rewrite Z.mul_shuffle0, Pos_mul_shuffle0.
        rewrite Pos2Z.inj_mul.
        rewrite Z.div_mul_cancel_r; auto.
