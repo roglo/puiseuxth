@@ -2817,8 +2817,6 @@ destruct z₁.
      apply Hreq, Nat.succ_le_mono, Hib.
 Qed.
 
-bbb.
-
 (* 0m11.719s *)(**)
 
 Theorem a₀_neq_0 : ∀ pol ns αj,
