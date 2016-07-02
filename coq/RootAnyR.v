@@ -2262,8 +2262,7 @@ apply non_decr_imp_eq; try eassumption.
  rewrite <- Hpol₁, <- Hns₁ in H; assumption.
 Qed.
 
-(*
-Theorem pouet : ∀ k s c,
+Theorem series_stretch_when_const : ∀ k s c,
   (series_stretch k s = series_const c)%ser
   ↔ (s = series_const c)%ser.
 Proof.
@@ -2271,12 +2270,18 @@ intros k s c.
 split; intros H.
  constructor; intros i.
  inversion_clear H as (s₁, s₂, Hi).
- induction i; intros; simpl in Hi; simpl.
-  pose proof Hi O as H; simpl in H.
-  rewrite Nat.mod_0_l in H; [ simpl in H | apply Pos2Nat_ne_0 ].
-  rewrite Nat.div_0_l in H; [ assumption | apply Pos2Nat_ne_0 ].
-bbb.
-*)
+ simpl in Hi; simpl.
+ pose proof Hi (i * Pos.to_nat k)%nat as H.
+ rewrite Nat.mod_mul in H; [ simpl in H | apply Pos2Nat_ne_0 ].
+ rewrite Nat.div_mul in H; [ simpl in H | apply Pos2Nat_ne_0 ].
+ destruct (zerop i) as [H₁| H₁]; [ subst i; assumption | ].
+ destruct (zerop (i * Pos.to_nat k)) as [H₂| ]; [ | assumption ].
+ apply Nat.mul_eq_0_l in H₂; [ | apply Pos2Nat_ne_0 ].
+ exfalso; subst i; revert H₁; apply Nat.lt_irrefl.
+
+ rewrite H.
+ apply series_stretch_const.
+Qed.
 
 Theorem glop : ∀ pol ns pol₁ ns₁ n poln nsn poln₁ nsn₁ c m,
   c = ac_root (Φq pol ns)
@@ -2457,6 +2462,9 @@ destruct z₁.
             simpl in Heqx.
             rewrite <- Heqdd in Heqx; subst x.
             apply mkps_morphism; auto.
+(*
+apply series_stretch_when_const.
+*)
             eapply glop; try eassumption.
 
             eapply multiplicity_pos; eassumption.
