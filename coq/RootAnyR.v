@@ -2262,6 +2262,60 @@ apply non_decr_imp_eq; try eassumption.
  rewrite <- Hpol₁, <- Hns₁ in H; assumption.
 Qed.
 
+Theorem glop : ∀ pol₁ ns₁ pol₂ ns₂ polb₂ nsb₂ polb₃ nsb₃ c₁ b₁ m₁ dd,
+  c₁ = ac_root (Φq pol₁ ns₁)
+  → pol₂ = next_pol pol₁ (β ns₁) (γ ns₁) c₁
+  → ns₂ = List.hd phony_ns (newton_segments pol₂)
+  → polb₂ = nth_pol b₁ pol₁ ns₁
+  → nsb₂ = nth_ns b₁ pol₁ ns₁
+  → (ps_poly_nth 0 polb₂ ≠ 0)%ps
+  → polb₃ = nth_pol b₁ pol₂ ns₂
+  → nsb₃ = nth_ns b₁ pol₂ ns₂
+  → (ps_poly_nth 0 polb₃ = 0)%ps
+  → (series_stretch dd
+       {| terms := root_tail_series_from_cγ_list m₁ polb₂ nsb₂ |} =
+     series_const (nth_c b₁ pol₁ ns₁))%ser.
+Proof.
+intros pol₁ ns₁ pol₂ ns₂ polb₂ nsb₂ polb₃ nsb₃ c₁ b₁ m₁ dd.
+intros Hc₁ Hpol₂ Hns₂ Hpolb₂ Hnsb₂ Hpsib₁ Hpolb₃ Hnsb₃ H₁.
+unfold series_stretch.
+constructor; intros i; simpl.
+rename H₁ into Hzb₃.
+destruct (zerop (i mod Pos.to_nat dd)) as [H₁| H₁].
+ apply Nat.mod_divides in H₁; auto.
+ destruct H₁ as (d, Hd).
+ rewrite Nat.mul_comm in Hd; rewrite Hd.
+ rewrite Nat.div_mul; auto.
+ unfold root_tail_series_from_cγ_list.
+ rewrite <- Hd.
+ destruct (zerop i) as [H₁| H₁].
+  subst i.
+  apply Nat.eq_mul_0_l in H₁; auto.
+  subst d; simpl.
+  destruct (ps_zerop K (ps_poly_nth 0 polb₂)) as [| H₁]; [ contradiction | ].
+  erewrite nth_c_n; try eassumption; reflexivity.
+
+  simpl.
+  destruct (ps_zerop K (ps_poly_nth 0 polb₂)) as [| H₂]; auto.
+  destruct d.
+   rewrite Hd in H₁.
+   exfalso; revert H₁; apply Nat.lt_irrefl.
+
+   remember (ac_root (Φq polb₂ nsb₂)) as cb₂ eqn:Hcb₂ .
+   erewrite <- nth_pol_n with (c := c₁); eauto  .
+   erewrite <- nth_ns_n with (c := c₁); eauto  .
+    simpl.
+    rewrite <- Hpolb₃.
+    destruct (ps_zerop K (ps_poly_nth 0 polb₃)); [ | contradiction  ].
+    reflexivity.
+
+    eapply nth_pol_n with (c := c₁); eauto  .
+
+ destruct (zerop i); [ subst i | reflexivity ].
+ rewrite Nat.mod_0_l in H₁; auto.
+ exfalso; revert H₁; apply Nat.lt_irrefl.
+Qed.
+
 Theorem root_tail_from_0_const_r : ∀ pol ns c pol₁ ns₁ c₁ m q₀ b r,
   ns ∈ newton_segments pol
   → pol_in_K_1_m pol m
@@ -2386,47 +2440,7 @@ destruct z₁.
             simpl in Heqx.
             rewrite <- Heqdd in Heqx; subst x.
             apply mkps_morphism; auto.
-(**)
-Focus 1.
-revert Hc₁ Hpol₂ Hns₂ Hpolb₂ Hnsb₂ Hpsib₁ Hpolb₃ Hnsb₃ H₁; clear; intros.
-            unfold series_stretch.
-            constructor; intros i; simpl.
-            rename H₁ into Hzb₃.
-            destruct (zerop (i mod Pos.to_nat dd)) as [H₁| H₁].
-             apply Nat.mod_divides in H₁; auto.
-             destruct H₁ as (d, Hd).
-             rewrite Nat.mul_comm in Hd; rewrite Hd.
-             rewrite Nat.div_mul; auto.
-             unfold root_tail_series_from_cγ_list.
-             rewrite <- Hd.
-             destruct (zerop i) as [H₁| H₁].
-              subst i.
-              apply Nat.eq_mul_0_l in H₁; auto.
-              subst d; simpl.
-              destruct (ps_zerop K (ps_poly_nth 0 polb₂)) as [H₁| H₁].
-               contradiction .
-
-               erewrite nth_c_n; try eassumption; reflexivity.
-
-              simpl.
-              destruct (ps_zerop K (ps_poly_nth 0 polb₂)) as [| H₂]; auto.
-              destruct d.
-               rewrite Hd in H₁.
-               exfalso; revert H₁; apply Nat.lt_irrefl.
-
-               remember (ac_root (Φq polb₂ nsb₂)) as cb₂ eqn:Hcb₂ .
-               erewrite <- nth_pol_n with (c := c₁); eauto  .
-               erewrite <- nth_ns_n with (c := c₁); eauto  .
-                simpl.
-                rewrite <- Hpolb₃.
-                destruct (ps_zerop K (ps_poly_nth 0 polb₃));
-                 [ reflexivity | contradiction  ].
-
-                eapply nth_pol_n with (c := c₁); eauto  .
-
-             destruct (zerop i); [ subst i | reflexivity ].
-             rewrite Nat.mod_0_l in H₁; auto.
-             exfalso; revert H₁; apply Nat.lt_irrefl.
+            eapply glop; try eassumption.
 
             eapply multiplicity_pos; eassumption.
 
