@@ -2262,22 +2262,23 @@ apply non_decr_imp_eq; try eassumption.
  rewrite <- Hpol₁, <- Hns₁ in H; assumption.
 Qed.
 
-Theorem glop : ∀ pol₁ ns₁ pol₂ ns₂ polb₂ nsb₂ polb₃ nsb₃ c₁ b₁ m₁ dd,
-  c₁ = ac_root (Φq pol₁ ns₁)
-  → pol₂ = next_pol pol₁ (β ns₁) (γ ns₁) c₁
-  → ns₂ = List.hd phony_ns (newton_segments pol₂)
-  → polb₂ = nth_pol b₁ pol₁ ns₁
-  → nsb₂ = nth_ns b₁ pol₁ ns₁
-  → (ps_poly_nth 0 polb₂ ≠ 0)%ps
-  → polb₃ = nth_pol b₁ pol₂ ns₂
-  → nsb₃ = nth_ns b₁ pol₂ ns₂
-  → (ps_poly_nth 0 polb₃ = 0)%ps
-  → (series_stretch dd
-       {| terms := root_tail_series_from_cγ_list m₁ polb₂ nsb₂ |} =
-     series_const (nth_c b₁ pol₁ ns₁))%ser.
+Theorem glop : ∀ pol ns pol₁ ns₁ n poln nsn poln₁ nsn₁ c m,
+  c = ac_root (Φq pol ns)
+  → pol₁ = next_pol pol (β ns) (γ ns) c
+  → ns₁ = List.hd phony_ns (newton_segments pol₁)
+  → poln = nth_pol n pol ns
+  → nsn = nth_ns n pol ns
+  → (ps_poly_nth 0 poln ≠ 0)%ps
+  → poln₁ = nth_pol n pol₁ ns₁
+  → nsn₁ = nth_ns n pol₁ ns₁
+  → (ps_poly_nth 0 poln₁ = 0)%ps
+  → ∀ k,
+    (series_stretch k
+       {| terms := root_tail_series_from_cγ_list m poln nsn |} =
+     series_const (nth_c n pol ns))%ser.
 Proof.
-intros pol₁ ns₁ pol₂ ns₂ polb₂ nsb₂ polb₃ nsb₃ c₁ b₁ m₁ dd.
-intros Hc₁ Hpol₂ Hns₂ Hpolb₂ Hnsb₂ Hpsib₁ Hpolb₃ Hnsb₃ H₁.
+intros pol₁ ns₁ pol₂ ns₂ b₁ polb₂ nsb₂ polb₃ nsb₃ c₁ m₁.
+intros Hc₁ Hpol₂ Hns₂ Hpolb₂ Hnsb₂ Hpsib₁ Hpolb₃ Hnsb₃ H₁ dd.
 unfold series_stretch.
 constructor; intros i; simpl.
 rename H₁ into Hzb₃.
