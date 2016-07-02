@@ -2347,8 +2347,8 @@ destruct z₁.
      remember (m * q₀)%positive as m₁.
      rewrite Z.mul_shuffle0, Pos_mul_shuffle0.
      rewrite Pos2Z.inj_mul.
-     rewrite Z.div_mul_cancel_r; auto.
-     remember Hns₁ as H; clear HeqH.
+     rewrite Z.div_mul_cancel_r; try eassumption; try apply Pos2Z_ne_0.
+     generalize Hns₁; intros H.
      eapply r_n_next_ns with (ns := ns) in H; try eassumption.
       destruct H as (αj₁, (αk₁, H)).
       destruct H as (Hini₁, (Hfin₁, (Hαj₁, Hαk₁))).
@@ -2386,6 +2386,9 @@ destruct z₁.
             simpl in Heqx.
             rewrite <- Heqdd in Heqx; subst x.
             apply mkps_morphism; auto.
+(**)
+Focus 1.
+revert Hc₁ Hpol₂ Hns₂ Hpolb₂ Hnsb₂ Hpsib₁ Hpolb₃ Hnsb₃ H₁; clear; intros.
             unfold series_stretch.
             constructor; intros i; simpl.
             rename H₁ into Hzb₃.
