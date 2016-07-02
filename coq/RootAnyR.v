@@ -2262,6 +2262,22 @@ apply non_decr_imp_eq; try eassumption.
  rewrite <- Hpol₁, <- Hns₁ in H; assumption.
 Qed.
 
+(*
+Theorem pouet : ∀ k s c,
+  (series_stretch k s = series_const c)%ser
+  ↔ (s = series_const c)%ser.
+Proof.
+intros k s c.
+split; intros H.
+ constructor; intros i.
+ inversion_clear H as (s₁, s₂, Hi).
+ induction i; intros; simpl in Hi; simpl.
+  pose proof Hi O as H; simpl in H.
+  rewrite Nat.mod_0_l in H; [ simpl in H | apply Pos2Nat_ne_0 ].
+  rewrite Nat.div_0_l in H; [ assumption | apply Pos2Nat_ne_0 ].
+bbb.
+*)
+
 Theorem glop : ∀ pol ns pol₁ ns₁ n poln nsn poln₁ nsn₁ c m,
   c = ac_root (Φq pol ns)
   → pol₁ = next_pol pol (β ns) (γ ns) c
