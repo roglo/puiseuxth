@@ -1345,6 +1345,27 @@ destruct (zerop (i mod Pos.to_nat k)) as [H| H].
  exfalso; revert H; apply Nat.lt_irrefl.
 Qed.
 
+Theorem series_stretch_iff_const : ∀ k s c,
+  (series_stretch k s = series_const c)%ser
+  ↔ (s = series_const c)%ser.
+Proof.
+intros k s c.
+split; intros H.
+ constructor; intros i.
+ inversion_clear H as (s₁, s₂, Hi).
+ simpl in Hi; simpl.
+ pose proof Hi (i * Pos.to_nat k)%nat as H.
+ rewrite Nat.mod_mul in H; [ simpl in H | apply Pos2Nat_ne_0 ].
+ rewrite Nat.div_mul in H; [ simpl in H | apply Pos2Nat_ne_0 ].
+ destruct (zerop i) as [H₁| H₁]; [ subst i; assumption | ].
+ destruct (zerop (i * Pos.to_nat k)) as [H₂| ]; [ | assumption ].
+ apply Nat.mul_eq_0_l in H₂; [ | apply Pos2Nat_ne_0 ].
+ exfalso; subst i; revert H₁; apply Nat.lt_irrefl.
+
+ rewrite H.
+ apply series_stretch_const.
+Qed.
+
 Theorem stretch_series_1 : ∀ k, (series_stretch k 1 = 1)%ser.
 Proof.
 intros k.
