@@ -2553,6 +2553,10 @@ destruct z₁.
                     (k := (dd * dd)%positive).
                   rewrite <- series_stretch_add_distr.
                   apply stretch_morph; [ reflexivity |  ].
+(*
+Focus 1.
+clear -Hns H₀ Hri Hpolb₂ Hnsb₂ Hpsib₁ Hpb₃pos Hpb₃nneg Hpolb₃n Hnsb₃₁ Hpb₃ Hnsb₃i HKb₃ Hinib₃ Hfinb₃ Hcb₃ Hrcb₃ Hαjb₃ Hαkb₃.
+*)
                   constructor; simpl; intros i.
                   destruct (zerop i) as [H₁| H₁].
                    subst i; simpl.
@@ -2568,7 +2572,7 @@ destruct z₁.
                     apply Nat.nlt_ge in H₁.
                     apply Nat.le_0_r in H₁.
                     rewrite <- Z2Nat.inj_0 in H₁.
-                    apply Z2Nat.inj in H₁; auto; [  | reflexivity ].
+                    apply Z2Nat.inj in H₁; [ | assumption | reflexivity ].
                     rewrite H₁ in Hpb₃pos.
                     exfalso; revert Hpb₃pos; apply Z.lt_irrefl.
 
