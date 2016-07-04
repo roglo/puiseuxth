@@ -2428,6 +2428,13 @@ destruct z₁.
 
             eapply multiplicity_pos; eassumption.
 
+(*
+assert (
+  ({| terms := root_tail_series_from_cγ_list m₁ polb₂ nsb₂ |} =
+   series_const (nth_c b₁ pol₁ ns₁) +
+   series_shift (Z.to_nat (p_of_m m₁ (γ nsb₃)))
+     {| terms := root_tail_series_from_cγ_list m₁ polb₃ nsb₃ |})%ser).
+*)
            rename H₁ into Hnzb₃.
            remember Hnsb₃ as H; clear HeqH.
            erewrite nth_ns_n in H; eauto  .
