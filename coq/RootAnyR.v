@@ -2560,9 +2560,12 @@ assert (
                     (k := (dd * dd)%positive).
                   rewrite <- series_stretch_add_distr.
                   apply stretch_morph; [ reflexivity |  ].
+                  clear Hler₃ Hini₁ Hfin₁.
+                  clear αj₁ αk₁ Hαj₁ Hαk₁.
 (*
 Focus 1.
-clear -Hns H₀ Hri Hpolb₂ Hnsb₂ Hpsib₁ Hpb₃pos Hpb₃nneg Hpolb₃n Hnsb₃₁ Hpb₃ Hnsb₃i HKb₃ Hinib₃ Hfinb₃ Hcb₃ Hrcb₃ Hαjb₃ Hαkb₃.
+clear -Hns H₀ Hri Hpolb₂ Hnsb₂ Hpsib₁ Hpb₃pos Hpb₃nneg Hpolb₃n Hnsb₃₁ Hpb₃ Hnsb₃i HKb₃ Hinib₃ Hfinb₃ Hcb₃ Hrcb₃ Hαjb₃ Hαkb₃ Hinib₂ Hrb₂ Hnsb₂i HKb₂ Hrle₂ Hc₁ Hpolb₃.
+revert Hc Hpol₁ Hns₁ Hc₁ Hpol₂ Hns₂; intros.
 *)
                   constructor; simpl; intros i.
                   destruct (zerop i) as [H₁| H₁].
