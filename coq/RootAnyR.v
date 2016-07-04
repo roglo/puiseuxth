@@ -2562,8 +2562,8 @@ assert (
                   apply stretch_morph; [ reflexivity |  ].
                   clear Hrle₁ Hler₃ Hpsi Hreq Hain.
                   clear αj₁ αk₁ Hαj₁ Hαk₁ Hini₁ Hfin₁.
-                  clear Hpol₁ Hns₁ Hnz₁.
-                  clear dd Heqdd Hle.
+                  clear Hpol₁ Hns₁ Hnz₁ Hm Hq₀.
+                  clear b dd Heqdd Hle Hrle Hb₁.
 (*
 Focus 1.
 clear -Hns H₀ Hri Hpolb₂ Hnsb₂ Hpsib₁ Hpb₃pos Hpb₃nneg Hpolb₃n Hnsb₃₁ Hpb₃ Hnsb₃i HKb₃ Hinib₃ Hfinb₃ Hcb₃ Hrcb₃ Hαjb₃ Hαkb₃ Hinib₂ Hrb₂ Hnsb₂i HKb₂ Hrle₂ Hc₁ Hpolb₃.
