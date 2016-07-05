@@ -2428,6 +2428,23 @@ destruct z₁.
 
             eapply multiplicity_pos; eassumption.
 
+           do 2 rewrite fold_series_const.
+(*
+remember Hnsb₂i as H; clear HeqH.
+remember (ac_root (Φq polb₃ nsb₃)) as cb₃ eqn:Hcb₃ .
+remember (root_multiplicity acf cb₃ (Φq polb₃ nsb₃)) as rcb₃ eqn:Hrcb₃ .
+symmetry in Hrcb₃.
+(*
+            erewrite nth_r_n in Hler₃; eauto  .
+            erewrite nth_c_n in Hler₃; eauto  .
+            rewrite <- Hcb₃, Hrcb₃ in Hler₃.
+*)
+Focus 1.
+eapply next_ns_r_non_decr in H; eauto  .
+destruct H as (H₂, H); move H₂ at top; subst rcb₃.
+destruct H as (αjb₃, (αkb₃, H)).
+destruct H as (Hinib₃, (Hfinb₃, (Hαjb₃, Hαkb₃))).
+*)
 (*
 assert (
   ({| terms := root_tail_series_from_cγ_list m₁ polb₂ nsb₂ |} =
@@ -2499,7 +2516,6 @@ assert (
                rewrite Z.div_mul; auto.
                unfold ps_add, ps_mul; simpl.
                unfold cm; simpl.
-               do 2 rewrite fold_series_const.
                unfold ps_terms_add; simpl.
                unfold ps_ordnum_add; simpl.
                rewrite Z.mul_add_distr_r.
