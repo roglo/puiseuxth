@@ -2428,29 +2428,15 @@ destruct z₁.
             eapply multiplicity_pos; eassumption.
 
            do 2 rewrite fold_series_const.
+           assert (H : 1 ≤ b₁) by (subst b₁; apply le_n_S, Nat.le_0_l).
+           apply Hain in H; simpl in H.
+           rewrite <- Hc₁, <- Hpol₂, <- Hns₂ in H.
+           rename H into Hns₂i.
            clear q₀ Hq₀ Heqm₁.
            clear Hpsi Hreq.
            clear αj₁ αk₁ Hαj₁ Hαk₁ Hini₁ Hfin₁.
-           clear Hnz₁ Hm.
-revert H₀ Hns Hnsb₂i HKb₂; intros.
-(*
-remember (ac_root (Φq polb₃ nsb₃)) as cb₃ eqn:Hcb₃ .
-remember (root_multiplicity acf cb₃ (Φq polb₃ nsb₃)) as rcb₃ eqn:Hrcb₃ .
-symmetry in Hrcb₃.
-*)
-(*
-            erewrite nth_r_n in Hler₃; eauto  .
-            erewrite nth_c_n in Hler₃; eauto  .
-            rewrite <- Hcb₃, Hrcb₃ in Hler₃.
-*)
-(*
-Focus 1.
-remember Hnsb₂i as H; clear HeqH.
-eapply next_ns_r_non_decr in H; eauto  .
-destruct H as (H₂, H); move H₂ at top; subst rcb₃.
-destruct H as (αjb₃, (αkb₃, H)).
-destruct H as (Hinib₃, (Hfinb₃, (Hαjb₃, Hαkb₃))).
-*)
+           clear Hnz₁ Hm Hain.
+revert H₀ Hns Hns₂i Hnsb₂i Hpol₁ Hpol₂ Hpolb₂ Hpolb₃ Hns₁ Hns₂ Hnsb₂ Hnsb₃ Hpsib₁ H₁ Hri Hrb₂; intros.
 (*
 assert (
   ({| terms := root_tail_series_from_cγ_list m₁ polb₂ nsb₂ |} =
@@ -2470,10 +2456,12 @@ assert (
            remember Hnsb₃₁ as H; clear HeqH.
            eapply next_ns_in_pol with (pol := polb₂) in H; eauto  .
            rename H into Hnsb₃i.
+(*
            assert (H : 1 ≤ b₁) by (subst b₁; apply le_n_S, Nat.le_0_l).
            apply Hain in H; simpl in H.
            rewrite <- Hc₁, <- Hpol₂, <- Hns₂ in H.
            rename H into Hns₂i.
+*)
            assert (Hrle₁ : ∀ i, r ≤ nth_r i pol₁ ns₁).
             eapply all_r_le_next with (ns := ns); eassumption.
 
@@ -2582,8 +2570,8 @@ assert (
                     (k := (dd * dd)%positive).
                   rewrite <- series_stretch_add_distr.
                   apply stretch_morph; [ reflexivity |  ].
-                  clear Hrle₁ Hler₃ Hain.
-                  clear Hpol₁ Hns₁ (*Hnz₁ Hm Hq₀ *).
+                  clear Hrle₁ Hler₃ (* Hain *).
+                  clear Hpol₁ Hns₁.
                   clear b dd Heqdd Hle Hrle Hb₁.
                   clear Hnsb₃.
 (*
