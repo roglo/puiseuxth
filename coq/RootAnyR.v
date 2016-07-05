@@ -2430,16 +2430,18 @@ destruct z₁.
 
            do 2 rewrite fold_series_const.
 (*
-remember Hnsb₂i as H; clear HeqH.
 remember (ac_root (Φq polb₃ nsb₃)) as cb₃ eqn:Hcb₃ .
 remember (root_multiplicity acf cb₃ (Φq polb₃ nsb₃)) as rcb₃ eqn:Hrcb₃ .
 symmetry in Hrcb₃.
+*)
 (*
             erewrite nth_r_n in Hler₃; eauto  .
             erewrite nth_c_n in Hler₃; eauto  .
             rewrite <- Hcb₃, Hrcb₃ in Hler₃.
 *)
+(*
 Focus 1.
+remember Hnsb₂i as H; clear HeqH.
 eapply next_ns_r_non_decr in H; eauto  .
 destruct H as (H₂, H); move H₂ at top; subst rcb₃.
 destruct H as (αjb₃, (αkb₃, H)).
