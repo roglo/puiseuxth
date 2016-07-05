@@ -34,7 +34,6 @@ Require Import RootHeadTail.
 Set Implicit Arguments.
 
 Section theorems.
-
 Variable α : Type.
 Variable R : ring α.
 Variable K : field R.
@@ -2429,6 +2428,11 @@ destruct z₁.
             eapply multiplicity_pos; eassumption.
 
            do 2 rewrite fold_series_const.
+           clear q₀ Hq₀ Heqm₁.
+           clear Hpsi Hreq.
+           clear αj₁ αk₁ Hαj₁ Hαk₁ Hini₁ Hfin₁.
+           clear Hnz₁ Hm.
+revert H₀ Hns Hnsb₂i HKb₂; intros.
 (*
 remember (ac_root (Φq polb₃ nsb₃)) as cb₃ eqn:Hcb₃ .
 remember (root_multiplicity acf cb₃ (Φq polb₃ nsb₃)) as rcb₃ eqn:Hrcb₃ .
@@ -2578,9 +2582,8 @@ assert (
                     (k := (dd * dd)%positive).
                   rewrite <- series_stretch_add_distr.
                   apply stretch_morph; [ reflexivity |  ].
-                  clear Hrle₁ Hler₃ Hpsi Hreq Hain.
-                  clear αj₁ αk₁ Hαj₁ Hαk₁ Hini₁ Hfin₁.
-                  clear Hpol₁ Hns₁ Hnz₁ Hm Hq₀.
+                  clear Hrle₁ Hler₃ Hain.
+                  clear Hpol₁ Hns₁ (*Hnz₁ Hm Hq₀ *).
                   clear b dd Heqdd Hle Hrle Hb₁.
                   clear Hnsb₃.
 (*
