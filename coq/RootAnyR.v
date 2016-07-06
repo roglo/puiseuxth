@@ -2339,6 +2339,24 @@ intros H₀ Hns Hns₂i Hnsb₂i Hnsb₃i Hpol₂ Hpolb₂ Hpolb₃ Hpolb₃n.
 intros Hns₂ Hnsb₂ Hnsb₃₁ Hpsib₁ Hnsb₃ Hrle₂ Hri Hrb₂ Hrcb₃ HKb₂ HKb₃.
 intros Hc₁ Hcb₃ Hinib₂ Hfinb₂ Hαjb₂ Hαkb₂.
 intros Hpb₂ Hpb₃.
+(*
+clear Hpolb₃.
+assert (Hpolb₃ : polb₃ = nth_pol b₁ pol₂ ns₂).
+ rewrite Hpolb₃n.
+ symmetry.
+ destruct b₁.
+  simpl in Hpolb₂, Hnsb₂; simpl.
+  subst polb₂ nsb₂ c₁; assumption.
+
+  apply nth_pol_succ.
+   subst polb₂; simpl.
+   rewrite <- Hc₁, <- Hpol₂, <- Hns₂.
+   reflexivity.
+
+   subst nsb₂; simpl.
+   rewrite <- Hc₁, <- Hpol₂, <- Hns₂.
+   reflexivity.
+*)
 generalize Hnsb₂i; intros H.
 eapply next_ns_r_non_decr in H; eauto  .
 destruct H as (_, H).
