@@ -2568,6 +2568,19 @@ assert (
                   clear Hrle₁ Hler₃.
                   clear dd Heqdd Hle.
                   clear Hnsb₃.
+move Hnsb₃i before Hnsb₂i.
+move Hnsb₃₁ before Hnsb₂.
+move Hcb₃ before Hc₁.
+move cb₃ before c₁.
+move Hpolb₃n before Hpolb₃.
+move Hrcb₃ before Hrb₂.
+move αjb₃ before αjb₂.
+move αkb₃ before αkb₂.
+move HKb₃ before HKb₂.
+move Hrle₂ after Hri.
+move pb₃ before m₁.
+move pb₂ after pb₃.
+move Hpb₂ after Hpb₃.
 (*
 Focus 1.
 clear -Hns H₀ Hri Hpolb₂ Hnsb₂ Hpsib₁ Hpb₃pos Hpb₃nneg Hpolb₃n Hnsb₃₁ Hpb₃ Hnsb₃i HKb₃ Hinib₃ Hfinb₃ Hcb₃ Hrcb₃ Hαjb₃ Hαkb₃ Hinib₂ Hrb₂ Hnsb₂i HKb₂ Hrle₂ Hc₁ Hpolb₃.
