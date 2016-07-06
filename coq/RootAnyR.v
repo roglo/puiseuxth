@@ -2338,6 +2338,10 @@ intros H₀ Hns Hns₂i Hnsb₂i Hnsb₃i Hpol₂ Hpolb₂ Hpolb₃n.
 intros Hns₂ Hnsb₂ Hnsb₃₁ Hpsib₁ Hnsb₃ Hrle₂ Hri Hrb₂ Hrcb₃ HKb₂ HKb₃.
 intros Hc₁ Hcb₃ Hinib₂ Hfinb₂ Hαjb₂ Hαkb₂.
 intros Hpb₂ Hpb₃.
+(*
+clear pol ns Hns Hri.
+clear pol₂ ns₂ Hns₂i Hpol₂ Hns₂.
+*)
 assert (Hpolb₃ : polb₃ = nth_pol b₁ pol₂ ns₂).
  rewrite Hpolb₃n.
  symmetry.
