@@ -2581,6 +2581,11 @@ move Hrle₂ after Hri.
 move pb₃ before m₁.
 move pb₂ after pb₃.
 move Hpb₂ after Hpb₃.
+move pol₁ before pol.
+move pol₂ before pol₁.
+move ns₂ before ns₁.
+move nsb₂ before ns₂.
+move nsb₃ before nsb₂.
 (*
 Focus 1.
 clear -Hns H₀ Hri Hpolb₂ Hnsb₂ Hpsib₁ Hpb₃pos Hpb₃nneg Hpolb₃n Hnsb₃₁ Hpb₃ Hnsb₃i HKb₃ Hinib₃ Hfinb₃ Hcb₃ Hrcb₃ Hαjb₃ Hαkb₃ Hinib₂ Hrb₂ Hnsb₂i HKb₂ Hrle₂ Hc₁ Hpolb₃.
