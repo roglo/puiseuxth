@@ -2328,7 +2328,6 @@ Theorem nth_root_tail_const_plus_tail :
   → Qnum αkb₂ = 0%Z
   → pb₂ = p_of_m m₁ (γ nsb₂)
   → pb₃ = p_of_m m₁ (γ nsb₃)
-  → (0 < pb₃)%Z
   → ({| terms := root_tail_series_from_cγ_list m₁ polb₂ nsb₂ |} =
      series_const (nth_c b₁ pol₁ ns₁) +
      series_shift (Z.to_nat pb₃)
@@ -2339,12 +2338,17 @@ intros αjb₂ αkb₂ m₁ pb₂ pb₃.
 intros H₀ Hns Hns₂i Hnsb₂i Hnsb₃i Hpol₂ Hpolb₂ Hpolb₃ Hpolb₃n.
 intros Hns₂ Hnsb₂ Hnsb₃₁ Hpsib₁ Hnsb₃ Hrle₂ Hri Hrb₂ Hrcb₃ HKb₂ HKb₃.
 intros Hc₁ Hcb₃ Hinib₂ Hfinb₂ Hαjb₂ Hαkb₂.
-intros Hpb₂ Hpb₃ Hpb₃pos.
-remember Hnsb₂i as H; clear HeqH.
+intros Hpb₂ Hpb₃.
+generalize Hnsb₂i; intros H.
 eapply next_ns_r_non_decr in H; eauto  .
 destruct H as (_, H).
 destruct H as (αjb₃, (αkb₃, H)).
 destruct H as (Hinib₃, (Hfinb₃, (Hαjb₃, Hαkb₃))).
+assert (Hpb₃pos : (0 < pb₃)%Z).
+ subst pb₃.
+ eapply p_is_pos; try eassumption.
+ eapply multiplicity_is_pos; eassumption.
+
 constructor; simpl; intros i.
 destruct (zerop i) as [H₁| H₁].
  subst i; simpl.
@@ -2767,14 +2771,13 @@ destruct z₁.
                eapply p_is_pos with (m := m₁) in H; eauto  .
                 rewrite <- Hpb₃ in H.
                 rename H into Hpb₃pos.
-                remember Hpb₃pos as H; clear HeqH.
-                apply Z.lt_le_incl in H.
-                rename H into Hpb₃nneg.
                 assert (Hle : (x <= x + pb₃ * ' dd * ' dd)%Z).
                  apply Z.le_sub_le_add_l.
                  rewrite Z.sub_diag.
                  apply Z.mul_nonneg_nonneg; auto.
                  apply Z.mul_nonneg_nonneg; auto.
+
+                 apply Z.lt_le_incl; assumption.
 
                  rewrite Z.min_l; auto.
                  rewrite Z.min_r; auto.
@@ -2819,6 +2822,8 @@ destruct z₁.
                   apply stretch_morph; [ reflexivity |  ].
                   eapply nth_root_tail_const_plus_tail with
                     (ns := ns) (ns₂ := ns₂); eassumption.
+
+                  apply Z.lt_le_incl; assumption.
 
                   eapply multiplicity_pos; eassumption.
 
