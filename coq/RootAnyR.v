@@ -2299,7 +2299,7 @@ Qed.
 
 Theorem nth_root_tail_const_plus_tail :
   ∀ pol pol₁ pol₂ ns ns₁ ns₂ nsb₂ nsb₃ c₁ cb₃ b₁ r polb₂ polb₃,
-  ∀ αjb₂ αjb₃ αkb₂ αkb₃ m₁ pb₂ pb₃,
+  ∀ αjb₂ αkb₂ m₁ pb₂ pb₃,
   (1 ≠ 0)%K
   → ns ∈ newton_segments pol
   → ns₂ ∈ newton_segments pol₂
@@ -2323,13 +2323,9 @@ Theorem nth_root_tail_const_plus_tail :
   → c₁ = ac_root (Φq pol₁ ns₁)
   → cb₃ = ac_root (Φq polb₃ nsb₃)
   → ini_pt nsb₂ = (Qnat 0, αjb₂)
-  → ini_pt nsb₃ = (Qnat 0, αjb₃)
   → fin_pt nsb₂ = (Qnat r, αkb₂)
-  → fin_pt nsb₃ = (Qnat r, αkb₃)
   → (0 < Qnum αjb₂)%Z
-  → (0 < Qnum αjb₃)%Z
   → Qnum αkb₂ = 0%Z
-  → Qnum αkb₃ = 0%Z
   → pb₂ = p_of_m m₁ (γ nsb₂)
   → pb₃ = p_of_m m₁ (γ nsb₃)
   → (0 < pb₃)%Z
@@ -2339,11 +2335,16 @@ Theorem nth_root_tail_const_plus_tail :
        {| terms := root_tail_series_from_cγ_list m₁ polb₃ nsb₃ |})%ser.
 Proof.
 intros pol pol₁ pol₂ ns ns₁ ns₂ nsb₂ nsb₃ c₁ cb₃ b₁ r polb₂ polb₃.
-intros αjb₂ αjb₃ αkb₂ αkb₃ m₁ pb₂ pb₃.
+intros αjb₂ αkb₂ m₁ pb₂ pb₃.
 intros H₀ Hns Hns₂i Hnsb₂i Hnsb₃i Hpol₂ Hpolb₂ Hpolb₃ Hpolb₃n.
 intros Hns₂ Hnsb₂ Hnsb₃₁ Hpsib₁ Hnsb₃ Hrle₂ Hri Hrb₂ Hrcb₃ HKb₂ HKb₃.
-intros Hc₁ Hcb₃ Hinib₂ Hinib₃ Hfinb₂ Hfinb₃ Hαjb₂ Hαjb₃ Hαkb₂ Hαkb₃.
+intros Hc₁ Hcb₃ Hinib₂ Hfinb₂ Hαjb₂ Hαkb₂.
 intros Hpb₂ Hpb₃ Hpb₃pos.
+remember Hnsb₂i as H; clear HeqH.
+eapply next_ns_r_non_decr in H; eauto  .
+destruct H as (_, H).
+destruct H as (αjb₃, (αkb₃, H)).
+destruct H as (Hinib₃, (Hfinb₃, (Hαjb₃, Hαkb₃))).
 constructor; simpl; intros i.
 destruct (zerop i) as [H₁| H₁].
  subst i; simpl.
