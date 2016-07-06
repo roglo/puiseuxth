@@ -2359,7 +2359,9 @@ assert (Hpolb₃ : polb₃ = nth_pol b₁ pol₂ ns₂).
 
     subst nsb₂; simpl.
     rewrite <- Hc₁, <- Hpol₂, <- Hns₂; reflexivity.
-
+(*
+clear pol₂ ns₂ Hns₂i Hpol₂ Hns₂ Hpolb₃.
+*)
 generalize Hnsb₂i; intros H.
 eapply next_ns_r_non_decr in H; eauto  .
 destruct H as (_, H).
