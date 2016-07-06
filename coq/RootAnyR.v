@@ -2307,7 +2307,6 @@ Theorem nth_root_tail_const_plus_tail :
   → nsb₃ ∈ newton_segments polb₃
   → pol₂ = next_pol pol₁ (β ns₁) (γ ns₁) c₁
   → polb₂ = nth_pol b₁ pol₁ ns₁
-  → polb₃ = nth_pol b₁ pol₂ ns₂
   → polb₃ = next_pol polb₂ (β nsb₂) (γ nsb₂) (ac_root (Φq polb₂ nsb₂))
   → ns₂ = List.hd phony_ns (newton_segments pol₂)
   → nsb₂ = nth_ns b₁ pol₁ ns₁
@@ -2335,12 +2334,10 @@ Theorem nth_root_tail_const_plus_tail :
 Proof.
 intros pol pol₁ pol₂ ns ns₁ ns₂ nsb₂ nsb₃ c₁ cb₃ b₁ r polb₂ polb₃.
 intros αjb₂ αkb₂ m₁ pb₂ pb₃.
-intros H₀ Hns Hns₂i Hnsb₂i Hnsb₃i Hpol₂ Hpolb₂ Hpolb₃ Hpolb₃n.
+intros H₀ Hns Hns₂i Hnsb₂i Hnsb₃i Hpol₂ Hpolb₂ Hpolb₃n.
 intros Hns₂ Hnsb₂ Hnsb₃₁ Hpsib₁ Hnsb₃ Hrle₂ Hri Hrb₂ Hrcb₃ HKb₂ HKb₃.
 intros Hc₁ Hcb₃ Hinib₂ Hfinb₂ Hαjb₂ Hαkb₂.
 intros Hpb₂ Hpb₃.
-(*
-clear Hpolb₃.
 assert (Hpolb₃ : polb₃ = nth_pol b₁ pol₂ ns₂).
  rewrite Hpolb₃n.
  symmetry.
@@ -2350,13 +2347,19 @@ assert (Hpolb₃ : polb₃ = nth_pol b₁ pol₂ ns₂).
 
   apply nth_pol_succ.
    subst polb₂; simpl.
-   rewrite <- Hc₁, <- Hpol₂, <- Hns₂.
-   reflexivity.
+   rewrite <- Hc₁, <- Hpol₂, <- Hns₂; reflexivity.
 
    subst nsb₂; simpl.
-   rewrite <- Hc₁, <- Hpol₂, <- Hns₂.
-   reflexivity.
-*)
+   rewrite <- Hc₁, <- Hpol₂, <- Hns₂; reflexivity.
+
+   symmetry.
+   apply nth_c_n.
+    subst polb₂; simpl.
+    rewrite <- Hc₁, <- Hpol₂, <- Hns₂; reflexivity.
+
+    subst nsb₂; simpl.
+    rewrite <- Hc₁, <- Hpol₂, <- Hns₂; reflexivity.
+
 generalize Hnsb₂i; intros H.
 eapply next_ns_r_non_decr in H; eauto  .
 destruct H as (_, H).
