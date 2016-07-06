@@ -2333,7 +2333,6 @@ Theorem nth_root_tail_const_plus_tail :
   → pb₂ = p_of_m m₁ (γ nsb₂)
   → pb₃ = p_of_m m₁ (γ nsb₃)
   → (0 < pb₃)%Z
-  → (0 <= pb₃)%Z
   → ({| terms := root_tail_series_from_cγ_list m₁ polb₂ nsb₂ |} =
      series_const (nth_c b₁ pol₁ ns₁) +
      series_shift (Z.to_nat pb₃)
@@ -2344,7 +2343,7 @@ intros αjb₂ αjb₃ αkb₂ αkb₃ m₁ pb₂ pb₃.
 intros H₀ Hns Hns₂i Hnsb₂i Hnsb₃i Hpol₂ Hpolb₂ Hpolb₃ Hpolb₃n.
 intros Hns₂ Hnsb₂ Hnsb₃₁ Hpsib₁ Hnsb₃ Hrle₂ Hri Hrb₂ Hrcb₃ HKb₂ HKb₃.
 intros Hc₁ Hcb₃ Hinib₂ Hinib₃ Hfinb₂ Hfinb₃ Hαjb₂ Hαjb₃ Hαkb₂ Hαkb₃.
-intros Hpb₂ Hpb₃ Hpb₃pos Hpb₃nneg.
+intros Hpb₂ Hpb₃ Hpb₃pos.
 constructor; simpl; intros i.
 destruct (zerop i) as [H₁| H₁].
  subst i; simpl.
@@ -2360,7 +2359,7 @@ destruct (zerop i) as [H₁| H₁].
   apply Nat.nlt_ge in H₁.
   apply Nat.le_0_r in H₁.
   rewrite <- Z2Nat.inj_0 in H₁.
-  apply Z2Nat.inj in H₁; [  | assumption | reflexivity ].
+  apply Z2Nat.inj in H₁; [ | apply Z.lt_le_incl; assumption | reflexivity ].
   rewrite H₁ in Hpb₃pos.
   exfalso; revert Hpb₃pos; apply Z.lt_irrefl.
 
@@ -2512,6 +2511,8 @@ destruct (zerop i) as [H₁| H₁].
               assumption.
 
               reflexivity.
+
+            apply Z.lt_le_incl; assumption.
 
             intros j; clear H.
             pose proof (Hrle₂ (j + 1)%nat) as H.
