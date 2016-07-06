@@ -2435,8 +2435,12 @@ destruct z₁.
            clear q₀ Hq₀ Heqm₁.
            clear Hpsi Hreq.
            clear αj₁ αk₁ Hαj₁ Hαk₁ Hini₁ Hfin₁.
-           clear Hnz₁ Hm Hain.
-revert H₀ Hns Hns₂i Hnsb₂i Hpol₁ Hpol₂ Hpolb₂ Hpolb₃ Hns₁ Hns₂ Hnsb₂ Hnsb₃ Hpsib₁ H₁ Hri Hrb₂; intros.
+           clear Hnz₁ Hm Hain Hb₁ b.
+           assert (Hrle₁ : ∀ i, r ≤ nth_r i pol₁ ns₁).
+            eapply all_r_le_next with (ns := ns); eassumption.
+
+            clear Hrle Hpol₁ Hns₁ Hc.
+revert H₀ Hns Hns₂i Hnsb₂i Hpol₂ Hpolb₂ Hpolb₃ Hns₂ Hnsb₂ Hnsb₃ Hpsib₁ H₁ Hrle₁ Hri Hrb₂ HKb₂ Hc₁ Hinib₂ Hfinb₂ Hαjb₂ Hαkb₂; clear; intros.
 (*
 assert (
   ({| terms := root_tail_series_from_cγ_list m₁ polb₂ nsb₂ |} =
@@ -2456,15 +2460,6 @@ assert (
            remember Hnsb₃₁ as H; clear HeqH.
            eapply next_ns_in_pol with (pol := polb₂) in H; eauto  .
            rename H into Hnsb₃i.
-(*
-           assert (H : 1 ≤ b₁) by (subst b₁; apply le_n_S, Nat.le_0_l).
-           apply Hain in H; simpl in H.
-           rewrite <- Hc₁, <- Hpol₂, <- Hns₂ in H.
-           rename H into Hns₂i.
-*)
-           assert (Hrle₁ : ∀ i, r ≤ nth_r i pol₁ ns₁).
-            eapply all_r_le_next with (ns := ns); eassumption.
-
             pose proof (Hrle₁ (S b₁)) as H; simpl in H.
             rewrite <- Hc₁, <- Hpol₂, <- Hns₂ in H.
             rename H into Hler₃.
@@ -2570,9 +2565,8 @@ assert (
                     (k := (dd * dd)%positive).
                   rewrite <- series_stretch_add_distr.
                   apply stretch_morph; [ reflexivity |  ].
-                  clear Hrle₁ Hler₃ (* Hain *).
-                  clear Hpol₁ Hns₁.
-                  clear b dd Heqdd Hle Hrle Hb₁.
+                  clear Hrle₁ Hler₃.
+                  clear dd Heqdd Hle.
                   clear Hnsb₃.
 (*
 Focus 1.
