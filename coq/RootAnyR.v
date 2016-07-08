@@ -2185,8 +2185,6 @@ split; intros H.
  assumption.
 Qed.
 
-(* 0m6.652s *)(**)
-
 Theorem pol₁_in_K_1_mq₀ : ∀ pol ns pol₁ m,
   pol_in_K_1_m pol m
   → ns ∈ newton_segments pol
@@ -2338,10 +2336,6 @@ intros H₀ Hns Hns₂i Hnsb₂i Hnsb₃i Hpol₂ Hpolb₂ Hpolb₃n.
 intros Hns₂ Hnsb₂ Hnsb₃₁ Hpsib₁ Hnsb₃ Hrle₂ Hri Hrb₂ Hrcb₃ HKb₂ HKb₃.
 intros Hc₁ Hcb₃ Hinib₂ Hfinb₂ Hαjb₂ Hαkb₂.
 intros Hpb₂ Hpb₃.
-(*
-clear pol ns Hns Hri.
-clear pol₂ ns₂ Hns₂i Hpol₂ Hns₂.
-*)
 assert (Hpolb₃ : polb₃ = nth_pol b₁ pol₂ ns₂).
  rewrite Hpolb₃n.
  symmetry.
@@ -2363,9 +2357,6 @@ assert (Hpolb₃ : polb₃ = nth_pol b₁ pol₂ ns₂).
 
     subst nsb₂; simpl.
     rewrite <- Hc₁, <- Hpol₂, <- Hns₂; reflexivity.
-(*
-clear pol₂ ns₂ Hns₂i Hpol₂ Hns₂ Hpolb₃.
-*)
 generalize Hnsb₂i; intros H.
 eapply next_ns_r_non_decr in H; eauto  .
 destruct H as (_, H).
@@ -2895,8 +2886,6 @@ destruct z₁.
      apply Hreq, Nat.succ_le_mono, Hib.
 Qed.
 
-(* 0m11.719s *)(**)
-
 Theorem a₀_neq_0 : ∀ pol ns αj,
   ns ∈ newton_segments pol
   → ini_pt ns = (Qnat 0, αj)
@@ -2932,8 +2921,6 @@ remember (S n) as sn; simpl; subst sn.
 destruct (ps_zerop K (ps_poly_nth 0 (nth_pol (S n) pol ns))); auto.
 contradiction.
 Qed.
-
-(* 0m11.544s *)(**)
 
 Theorem root_tail_sep_1st_monom : ∀ pol ns pol₁ ns₁ c m q₀ n r,
   ns ∈ newton_segments pol
@@ -3533,8 +3520,6 @@ eapply all_ns_in_newton_segments with (n := S n) in H; eauto .
  rewrite <- Hc, <- Hpol₁, <- Hns₁.
  apply Hrle₁.
 Qed.
-
-(* 0m15.936s *)(**)
 
 Theorem root_tail_sep_1st_monom_any_r : ∀ pol ns pol₁ ns₁ c m q₀ n r,
   ns ∈ newton_segments pol
