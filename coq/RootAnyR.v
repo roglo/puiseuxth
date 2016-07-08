@@ -986,10 +986,9 @@ Theorem q_eq_1_any_r : ∀ pol ns c αj αk m q r,
   → fin_pt ns = (Qnat r, αk)
   → (0 < Qnum αj)%Z
   → Qnum αk = 0%Z
-  → (1 ≠ 0)%K
   → q = 1%positive.
 Proof.
-intros pol ns c αj αk m q r Hns Hm Hq Hc Hr Hini Hfin Hαj Hαk H₀.
+intros pol ns c αj αk m q r Hns Hm Hq Hc Hr Hini Hfin Hαj Hαk.
 remember Hr as Hrv; clear HeqHrv.
 remember (al (Φq pol ns)) as cpol eqn:Hcpol .
 remember Hcpol as H; clear HeqH.
@@ -1110,6 +1109,9 @@ eapply q_mj_mk_eq_p_h_j with (h := r) (αh := αk) in H; try eassumption;
       rewrite rng_opp_0.
       remember r as n in HH.
       clear Heqn.
+destruct (fld_zerop 1%K) as [H₀| H₀].
+ etransitivity; [ apply eq_1_0_all_0; assumption | ].
+ symmetry; apply eq_1_0_all_0; assumption.
       induction n; [ contradiction | idtac ].
       simpl in HH.
       apply fld_eq_mul_0_r in HH; [ apply IHn, HH | assumption | ].
@@ -1120,6 +1122,9 @@ eapply q_mj_mk_eq_p_h_j with (h := r) (αh := αk) in H; try eassumption;
       rewrite <- I.
       apply rng_add_move_0_r.
       apply rng_add_opp_r.
+
+destruct (fld_zerop 1%K) as [H₀| H₀].
+ exfalso; apply H₁; apply eq_1_0_all_0; assumption.
 
       destruct r; [ simpl; rewrite rng_add_0_l; assumption | idtac ].
       apply ac_charac_01.
@@ -1137,11 +1142,10 @@ Theorem αj_m_eq_p_r : ∀ pol₁ ns₁ αj₁ αk₁ m p₁ c₁ r,
   → c₁ = ac_root (Φq pol₁ ns₁)
   → root_multiplicity acf c₁ (Φq pol₁ ns₁) = r
   → p₁ = p_of_m m (γ ns₁)
-  → (1 ≠ 0)%K
   → (Qnum αj₁ * ' m = p₁ * Z.of_nat r * ' Qden αj₁)%Z.
 Proof.
 intros pol₁ ns₁ αj₁ αk₁ m p₁ c₁ r.
-intros Hns₁ Hm Hini₁ Hfin₁ Hαj₁ Hαk₁ Hc₁ Hr₁ Hp₁ H₀.
+intros Hns₁ Hm Hini₁ Hfin₁ Hαj₁ Hαk₁ Hc₁ Hr₁ Hp₁.
 remember Hns₁ as H; clear HeqH.
 eapply q_mj_mk_eq_p_h_j with (h := r) (αh := αk₁) in H; try eassumption;
   try reflexivity; try (symmetry; eassumption).
@@ -1237,10 +1241,9 @@ Theorem next_pow_eq_p : ∀ pol ns c αj αk m r,
   → (0 < Qnum αj)%Z
   → Qnum αk = 0%Z
   → (0 < r)%nat
-  → (1 ≠ 0)%K
   → next_pow 0 ns m = Z.to_nat (p_of_m m (γ ns)).
 Proof.
-intros pol ns c αj αk m r Hns Hm Hc Hr Hini Hfin Hαj Hαk Hrp H₀.
+intros pol ns c αj αk m r Hns Hm Hc Hr Hini Hfin Hαj Hαk Hrp.
 unfold next_pow; simpl.
 rewrite Hini, Hfin; simpl.
 rewrite Hαk; simpl.
@@ -1298,10 +1301,9 @@ Theorem q_eq_1_r_non_decr : ∀ pol ns c pol₁ ns₁ m r,
   → (ps_poly_nth 0 pol₁ ≠ 0)%ps
   → root_multiplicity acf c (Φq pol ns) = r
   → (∀ i, r ≤ nth_r i pol ns)
-  → (1 ≠ 0)%K
   → q_of_m m (γ ns₁) = 1%positive.
 Proof.
-intros pol ns c pol₁ ns₁ m r Hns HK Hq Hc Hpol₁ Hns₁ Hnz₁ Hr₀ Hrle H₀.
+intros pol ns c pol₁ ns₁ m r Hns HK Hq Hc Hpol₁ Hns₁ Hnz₁ Hr₀ Hrle.
 remember Hns as H; clear HeqH.
 eapply next_ns_in_pol in H; try eassumption .
 rename H into Hns₁i.
@@ -1332,13 +1334,12 @@ Theorem first_n_pol_in_K_1_m_any_r : ∀ pol ns poln m c r,
   → q_of_m m (γ ns) = 1%positive
   → root_multiplicity acf c (Φq pol ns) = r
   → (∀ i, r ≤ nth_r i pol ns)
-  → (1 ≠ 0)%K
   → ∀ n,
     (∀ i, i ≤ n → (ps_poly_nth 0 (nth_pol i pol ns) ≠ 0)%ps)
     → poln = nth_pol n pol ns
     → pol_in_K_1_m poln m.
 Proof.
-intros pol ns poln m c r Hns HK Hc Hq Hr Hri H₀ n Hnz Hpoln.
+intros pol ns poln m c r Hns HK Hc Hq Hr Hri n Hnz Hpoln.
 revert pol ns poln m c Hns HK Hc Hq Hr Hri Hnz Hpoln.
 induction n; intros.
  simpl in Hpoln; subst poln; assumption.
@@ -1395,12 +1396,15 @@ Theorem find_coeff_iter_succ : ∀ pol ns c pow m i n r,
   → c = ac_root (Φq pol ns)
   → root_multiplicity acf c (Φq pol ns) = r
   → (∀ n, r ≤ nth_r n pol ns)
-  → (1 ≠ 0)%K
   → (i < n)%nat
   → (find_coeff n pow m pol ns i =
      find_coeff (S n) pow m pol ns i)%K.
 Proof.
-intros pol ns c pow m i n r Hns Hm Hq₀ Hc Hr₀ Hrle H₀ Hin.
+intros pol ns c pow m i n r Hns Hm Hq₀ Hc Hr₀ Hrle Hin.
+destruct (fld_zerop 1%K) as [H₀| H₀].
+ etransitivity; [ apply eq_1_0_all_0; assumption | ].
+ symmetry; apply eq_1_0_all_0; assumption.
+
 revert pol ns c pow m n Hns Hm Hq₀ Hc Hr₀ Hrle Hin.
 induction i; intros.
  destruct n; [ exfalso; revert Hin; apply Nat.lt_irrefl | idtac ].
@@ -1510,13 +1514,16 @@ Theorem find_coeff_more_iter : ∀ pol ns c pow m i n n' r,
   → c = ac_root (Φq pol ns)
   → root_multiplicity acf c (Φq pol ns) = r
   → (∀ j, r ≤ nth_r j pol ns)
-  → (1 ≠ 0)%K
   → (i < n)%nat
   → n ≤ n'
   → (find_coeff n pow m pol ns i =
      find_coeff n' pow m pol ns i)%K.
 Proof.
-intros pol ns c pow m i n n' r Hns Hm Hq₀ Hc Hr₀ Hrle H₀ Hin Hn'.
+intros pol ns c pow m i n n' r Hns Hm Hq₀ Hc Hr₀ Hrle Hin Hn'.
+destruct (fld_zerop 1%K) as [H₀| H₀].
+ etransitivity; [ apply eq_1_0_all_0; assumption | ].
+ symmetry; apply eq_1_0_all_0; assumption.
+
 remember (n' - n)%nat as d eqn:Hd .
 apply Nat.add_cancel_r with (p := n) in Hd.
 rewrite Nat.sub_add in Hd; [ | assumption ].
@@ -2024,12 +2031,11 @@ Theorem nth_pol_in_K_1_m : ∀ pol ns c αj αk poln m n r,
   → root_multiplicity acf c (Φq pol ns) = r
   → (∀ n, r ≤ nth_r n pol ns)
   → (∀ i : nat, i ≤ n → (ps_poly_nth 0 (nth_pol i pol ns) ≠ 0)%ps)
-  → (1 ≠ 0)%K
   → poln = nth_pol n pol ns
   → pol_in_K_1_m poln m.
 Proof.
 intros pol ns c αj αk poln m n r.
-intros Hns HK Hc Hini Hfin Hαj Hαk Hr Hrle Hpsi H₀ Hpoln.
+intros Hns HK Hc Hini Hfin Hαj Hαk Hr Hrle Hpsi Hpoln.
 eapply first_n_pol_in_K_1_m_any_r; try eassumption.
 symmetry in Hr.
 eapply q_eq_1_any_r; try eassumption.
@@ -2297,8 +2303,7 @@ Qed.
 
 Theorem nth_root_tail_const_plus_tail :
   ∀ pol pol₁ ns ns₁ nsb₂ nsb₃ b r polb₂ polb₃ αjb₂ αkb₂ m₁ pb₂ pb₃,
-  (1 ≠ 0)%K
-  → ns₁ ∈ newton_segments pol₁
+  ns₁ ∈ newton_segments pol₁
   → nsb₂ ∈ newton_segments polb₂
   → nsb₃ ∈ newton_segments polb₃
   → pol₁ = next_pol pol (β ns) (γ ns) (ac_root (Φq pol ns))
@@ -2327,7 +2332,7 @@ Theorem nth_root_tail_const_plus_tail :
 Proof.
 intros pol pol₁ ns ns₁ nsb₂ nsb₃ b r polb₂ polb₃.
 intros αjb₂ αkb₂ m₁ pb₂ pb₃.
-intros H₀ Hns₁i Hnsb₂i Hnsb₃i Hpol₁ Hpolb₂ Hpolb₃n.
+intros Hns₁i Hnsb₂i Hnsb₃i Hpol₁ Hpolb₂ Hpolb₃n.
 intros Hns₁ Hnsb₂ Hnsb₃₁ Hpsib Hnsb₃ Hrle₂ Hrb₂ Hrcb₃ HKb₂ HKb₃.
 intros Hinib₂ Hfinb₂ Hαjb₂ Hαkb₂.
 intros Hpb₂ Hpb₃.
