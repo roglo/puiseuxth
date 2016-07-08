@@ -2296,16 +2296,16 @@ destruct (zerop i) as [H₁| H₁].
 Qed.
 
 Theorem nth_root_tail_const_plus_tail :
-  ∀ pol pol₁ ns ns₁ nsb₂ nsb₃ c₁ cb₃ b₁ r polb₂ polb₃ αjb₂ αkb₂ m₁ pb₂ pb₃,
+  ∀ pol pol₁ ns ns₁ nsb₂ nsb₃ c₁ cb₃ b r polb₂ polb₃ αjb₂ αkb₂ m₁ pb₂ pb₃,
   (1 ≠ 0)%K
   → ns₁ ∈ newton_segments pol₁
   → nsb₂ ∈ newton_segments polb₂
   → nsb₃ ∈ newton_segments polb₃
   → pol₁ = next_pol pol (β ns) (γ ns) c₁
-  → polb₂ = nth_pol b₁ pol ns
+  → polb₂ = nth_pol b pol ns
   → polb₃ = next_pol polb₂ (β nsb₂) (γ nsb₂) (ac_root (Φq polb₂ nsb₂))
   → ns₁ = List.hd phony_ns (newton_segments pol₁)
-  → nsb₂ = nth_ns b₁ pol ns
+  → nsb₂ = nth_ns b pol ns
   → nsb₃ = List.hd phony_ns (newton_segments polb₃)
   → (ps_poly_nth 0 polb₂ ≠ 0)%ps
   → (ps_poly_nth 0 polb₃ ≠ 0)%ps
@@ -2323,20 +2323,20 @@ Theorem nth_root_tail_const_plus_tail :
   → pb₂ = p_of_m m₁ (γ nsb₂)
   → pb₃ = p_of_m m₁ (γ nsb₃)
   → ({| terms := root_tail_series_from_cγ_list m₁ polb₂ nsb₂ |} =
-     series_const (nth_c b₁ pol ns) +
+     series_const (nth_c b pol ns) +
      series_shift (Z.to_nat pb₃)
        {| terms := root_tail_series_from_cγ_list m₁ polb₃ nsb₃ |})%ser.
 Proof.
-intros pol pol₁ ns ns₁ nsb₂ nsb₃ c₁ cb₃ b₁ r polb₂ polb₃.
+intros pol pol₁ ns ns₁ nsb₂ nsb₃ c₁ cb₃ b r polb₂ polb₃.
 intros αjb₂ αkb₂ m₁ pb₂ pb₃.
 intros H₀ Hns₁i Hnsb₂i Hnsb₃i Hpol₁ Hpolb₂ Hpolb₃n.
-intros Hns₁ Hnsb₂ Hnsb₃₁ Hpsib₁ Hnsb₃ Hrle₂ Hrb₂ Hrcb₃ HKb₂ HKb₃.
+intros Hns₁ Hnsb₂ Hnsb₃₁ Hpsib Hnsb₃ Hrle₂ Hrb₂ Hrcb₃ HKb₂ HKb₃.
 intros Hc₁ Hcb₃ Hinib₂ Hfinb₂ Hαjb₂ Hαkb₂.
 intros Hpb₂ Hpb₃.
-assert (Hpolb₃ : polb₃ = nth_pol b₁ pol₁ ns₁).
+assert (Hpolb₃ : polb₃ = nth_pol b pol₁ ns₁).
  rewrite Hpolb₃n.
  symmetry.
- destruct b₁.
+ destruct b.
   simpl in Hpolb₂, Hnsb₂; simpl.
   subst polb₂ nsb₂ c₁; assumption.
 
