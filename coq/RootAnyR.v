@@ -2299,7 +2299,6 @@ Theorem nth_root_tail_const_plus_tail :
   ∀ pol pol₁ pol₂ ns ns₁ ns₂ nsb₂ nsb₃ c₁ cb₃ b₁ r polb₂ polb₃,
   ∀ αjb₂ αkb₂ m₁ pb₂ pb₃,
   (1 ≠ 0)%K
-  → ns ∈ newton_segments pol
   → ns₂ ∈ newton_segments pol₂
   → nsb₂ ∈ newton_segments polb₂
   → nsb₃ ∈ newton_segments polb₃
@@ -2332,7 +2331,7 @@ Theorem nth_root_tail_const_plus_tail :
 Proof.
 intros pol pol₁ pol₂ ns ns₁ ns₂ nsb₂ nsb₃ c₁ cb₃ b₁ r polb₂ polb₃.
 intros αjb₂ αkb₂ m₁ pb₂ pb₃.
-intros H₀ Hns Hns₂i Hnsb₂i Hnsb₃i Hpol₂ Hpolb₂ Hpolb₃n.
+intros H₀ Hns₂i Hnsb₂i Hnsb₃i Hpol₂ Hpolb₂ Hpolb₃n.
 intros Hns₂ Hnsb₂ Hnsb₃₁ Hpsib₁ Hnsb₃ Hrle₂ Hri Hrb₂ Hrcb₃ HKb₂ HKb₃.
 intros Hc₁ Hcb₃ Hinib₂ Hfinb₂ Hαjb₂ Hαkb₂.
 intros Hpb₂ Hpb₃.
@@ -2408,7 +2407,7 @@ destruct (zerop i) as [H₁| H₁].
     eapply Nat.lt_trans in H₂; eauto  .
     exfalso; revert H₂; apply Nat.lt_irrefl.
 
-   eapply multiplicity_pos; eassumption.
+   eapply multiplicity_is_pos; [ apply Hnsb₂i | reflexivity | assumption ].
 
   apply Nat.nlt_ge in H₂.
   remember (i - Z.to_nat pb₃)%nat as id.
@@ -2560,13 +2559,15 @@ destruct (zerop i) as [H₁| H₁].
            rewrite <- Hcb₃, <- Hpolb₄, <- Hnsb₄.
            assumption.
 
-          eapply multiplicity_pos; eassumption.
+          eapply multiplicity_is_pos; [ apply Hnsb₂i | reflexivity | ].
+          symmetry; assumption.
 
        apply nat_compare_gt in Hcmp₁.
        apply Nat.nle_gt in Hcmp₁.
        contradiction .
 
-      eapply multiplicity_pos; eassumption.
+      eapply multiplicity_is_pos; [ apply Hnsb₂i | reflexivity | ].
+      symmetry; eassumption.
 
    intros j.
    pose proof (Hrle₂ (j + 1)%nat) as H.
