@@ -2354,84 +2354,84 @@ assert (Hpolb₃ : polb₃ = nth_pol b pol₁ ns₁).
 
     subst nsb₂; simpl.
     rewrite <- Hc₁, <- Hpol₁, <- Hns₁; reflexivity.
-generalize Hnsb₂i; intros H.
-eapply next_ns_r_non_decr in H; eauto  .
-destruct H as (_, H).
-destruct H as (αjb₃, (αkb₃, H)).
-destruct H as (Hinib₃, (Hfinb₃, (Hαjb₃, Hαkb₃))).
-assert (Hpb₃pos : (0 < pb₃)%Z).
- subst pb₃.
- eapply p_is_pos; try eassumption.
- eapply multiplicity_is_pos; eassumption.
 
-constructor; simpl; intros i.
-destruct (zerop i) as [H₁| H₁].
- subst i; simpl.
- destruct (lt_dec 0 (Z.to_nat pb₃)) as [H₁| H₁].
-  rewrite rng_add_0_r.
-  unfold root_tail_series_from_cγ_list; simpl.
-  destruct (ps_zerop K (ps_poly_nth 0 polb₂)) as [H₃| H₃].
-   contradiction .
+ generalize Hnsb₂i; intros H.
+ eapply next_ns_r_non_decr in H; eauto  .
+ destruct H as (_, H).
+ destruct H as (αjb₃, (αkb₃, H)).
+ destruct H as (Hinib₃, (Hfinb₃, (Hαjb₃, Hαkb₃))).
+ assert (Hpb₃pos : (0 < pb₃)%Z).
+  subst pb₃.
+  eapply p_is_pos; try eassumption.
+  eapply multiplicity_is_pos; eassumption.
 
-   clear H₃; symmetry.
-   erewrite nth_c_n; try eassumption; reflexivity.
-
-  apply Nat.nlt_ge in H₁.
-  apply Nat.le_0_r in H₁.
-  rewrite <- Z2Nat.inj_0 in H₁.
-  apply Z2Nat.inj in H₁; [ | apply Z.lt_le_incl; assumption | reflexivity ].
-  rewrite H₁ in Hpb₃pos.
-  exfalso; revert Hpb₃pos; apply Z.lt_irrefl.
-
- rewrite rng_add_0_l.
- destruct (lt_dec i (Z.to_nat pb₃)) as [H₂| H₂].
-  unfold root_tail_series_from_cγ_list; simpl.
-  destruct i; [ exfalso; revert H₁; apply Nat.lt_irrefl |  ].
-  clear H₁.
-  rewrite <- Hpolb₃n, <- Hnsb₃₁.
-  destruct (ps_zerop K (ps_poly_nth 0 polb₂)) as [| H₁]; auto; simpl.
-  destruct (ps_zerop K (ps_poly_nth 0 polb₃)) as [| H₃]; auto.
-  clear H₁ H₃.
-  erewrite next_pow_eq_p; eauto  .
-   rewrite <- Hpb₃.
-   remember (Nat.compare (Z.to_nat pb₃) (S i)) as cmp eqn:Hcmp .
-   symmetry in Hcmp.
-   destruct cmp; auto.
-    apply nat_compare_eq in Hcmp.
-    rewrite Hcmp in H₂.
-    exfalso; revert H₂; apply Nat.lt_irrefl.
-
-    apply nat_compare_lt in Hcmp.
-    eapply Nat.lt_trans in H₂; eauto  .
-    exfalso; revert H₂; apply Nat.lt_irrefl.
-
-   eapply multiplicity_is_pos; [ apply Hnsb₂i | reflexivity | assumption ].
-
-  apply Nat.nlt_ge in H₂.
-  remember (i - Z.to_nat pb₃)%nat as id.
-  unfold root_tail_series_from_cγ_list.
-  remember Hinib₂ as H; clear HeqH.
-  symmetry in Hrb₂.
-  eapply q_eq_1_any_r in H; eauto  .
-  rename H into Hqb₂.
-  remember Hinib₃ as H; clear HeqH.
-  symmetry in Hrcb₃.
-  eapply q_eq_1_any_r in H; eauto  .
-  rename H into Hqb₃.
-  rewrite find_coeff_iter_succ with (r := r); auto; symmetry.
-  rewrite Hcb₃ in Hrcb₃.
-  rewrite find_coeff_iter_succ with (r := r); auto.
-   symmetry.
-   remember (S i) as si.
-   remember (S (S id)) as ssid; simpl.
-   destruct i.
-    exfalso; revert H₁; apply Nat.lt_irrefl.
-
-    clear H₁.
-    destruct (ps_zerop K (ps_poly_nth 0 polb₂)) as [H₁| H₁].
+  constructor; simpl; intros i.
+  destruct (zerop i) as [H₁| H₁].
+   subst i; simpl.
+   destruct (lt_dec 0 (Z.to_nat pb₃)) as [H₁| H₁].
+    rewrite rng_add_0_r.
+    unfold root_tail_series_from_cγ_list; simpl.
+    destruct (ps_zerop K (ps_poly_nth 0 polb₂)) as [H₃| H₃].
      contradiction .
 
+     clear H₃; symmetry.
+     erewrite nth_c_n; try eassumption; reflexivity.
+
+    apply Nat.nlt_ge in H₁.
+    apply Nat.le_0_r in H₁.
+    rewrite <- Z2Nat.inj_0 in H₁.
+    apply Z2Nat.inj in H₁.
+     rewrite H₁ in Hpb₃pos.
+     exfalso; revert Hpb₃pos; apply Z.lt_irrefl.
+
+     apply Z.lt_le_incl; assumption.
+
+     reflexivity.
+
+   rewrite rng_add_0_l.
+   destruct (lt_dec i (Z.to_nat pb₃)) as [H₂| H₂].
+    unfold root_tail_series_from_cγ_list; simpl.
+    destruct i; [ exfalso; revert H₁; apply Nat.lt_irrefl |  ].
+    clear H₁.
+    rewrite <- Hpolb₃n, <- Hnsb₃₁.
+    destruct (ps_zerop K (ps_poly_nth 0 polb₂)) as [| H₁]; auto; simpl.
+    destruct (ps_zerop K (ps_poly_nth 0 polb₃)) as [| H₃]; auto.
+    clear H₁ H₃.
+    erewrite next_pow_eq_p; eauto  .
+     rewrite <- Hpb₃.
+     remember (Nat.compare (Z.to_nat pb₃) (S i)) as cmp eqn:Hcmp .
+     symmetry in Hcmp.
+     destruct cmp; auto.
+      apply nat_compare_eq in Hcmp.
+      rewrite Hcmp in H₂.
+      exfalso; revert H₂; apply Nat.lt_irrefl.
+
+      apply nat_compare_lt in Hcmp.
+      eapply Nat.lt_trans in H₂; eauto  .
+      exfalso; revert H₂; apply Nat.lt_irrefl.
+
+     eapply multiplicity_is_pos; [ apply Hnsb₂i | reflexivity | assumption ].
+
+    apply Nat.nlt_ge in H₂.
+    remember (i - Z.to_nat pb₃)%nat as id.
+    unfold root_tail_series_from_cγ_list.
+    remember Hinib₂ as H; clear HeqH.
+    symmetry in Hrb₂.
+    eapply q_eq_1_any_r in H; eauto  .
+    rename H into Hqb₂.
+    remember Hinib₃ as H; clear HeqH.
+    symmetry in Hrcb₃.
+    eapply q_eq_1_any_r in H; eauto  .
+    rename H into Hqb₃.
+    rewrite find_coeff_iter_succ with (r := r); auto; symmetry.
+    rewrite Hcb₃ in Hrcb₃.
+    rewrite find_coeff_iter_succ with (r := r); auto.
+     symmetry.
+     remember (S i) as si.
+     remember (S (S id)) as ssid; simpl.
+     destruct i; [ exfalso; revert H₁; apply Nat.lt_irrefl |  ].
      clear H₁.
+     destruct (ps_zerop K (ps_poly_nth 0 polb₂)); [ contradiction  |  ].
      erewrite <- nth_pol_n with (c := c₁); eauto  .
      rewrite <- Hpolb₃, <- Hnsb₃₁.
      rewrite <- Hcb₃ in Hrcb₃.
@@ -2532,23 +2532,24 @@ destruct (zerop i) as [H₁| H₁].
 
               reflexivity.
 
-            apply Z.lt_le_incl; assumption.
+              apply Z.lt_le_incl; assumption.
 
             intros j; clear H.
             pose proof (Hrle₂ (j + 1)%nat) as H.
             rewrite nth_r_add in H; simpl in H.
-            erewrite <- nth_pol_n with (c := c₁) in H; try eassumption;
-             [  | reflexivity ].
-            rewrite <- Hpolb₃, <- Hnsb₃₁ in H.
-            assumption.
+            erewrite <- nth_pol_n with (c := c₁) in H; try eassumption.
+             rewrite <- Hpolb₃, <- Hnsb₃₁ in H.
+             assumption.
+
+             reflexivity.
 
            intros j; clear H.
            pose proof (Hrle₂ (j + 1)%nat) as H.
            rewrite nth_r_add in H; simpl in H.
-           erewrite <- nth_pol_n with (c := c₁) in H; try eassumption;
-            try reflexivity.
-           rewrite <- Hpolb₃, <- Hnsb₃₁ in H.
-           assumption.
+           erewrite <- nth_pol_n with (c := c₁) in H; try eassumption.
+            rewrite <- Hpolb₃, <- Hnsb₃₁ in H; assumption.
+
+            reflexivity.
 
            intros j Hj.
            destruct j; [ assumption | simpl ].
@@ -2557,22 +2558,22 @@ destruct (zerop i) as [H₁| H₁].
            rewrite <- Hcb₃, <- Hpolb₄, <- Hnsb₄.
            assumption.
 
-          eapply multiplicity_is_pos; [ apply Hnsb₂i | reflexivity | ].
+          eapply multiplicity_is_pos; [ apply Hnsb₂i | reflexivity |  ].
           symmetry; assumption.
 
-       apply nat_compare_gt in Hcmp₁.
-       apply Nat.nle_gt in Hcmp₁.
+       apply nat_compare_gt, Nat.nle_gt in Hcmp₁.
        contradiction .
 
-      eapply multiplicity_is_pos; [ apply Hnsb₂i | reflexivity | ].
+      eapply multiplicity_is_pos; [ apply Hnsb₂i | reflexivity |  ].
       symmetry; eassumption.
 
-   intros j.
-   pose proof (Hrle₂ (j + 1)%nat) as H.
-   rewrite nth_r_add in H; simpl in H.
-   erewrite <- nth_pol_n with (c := c₁) in H; try eassumption;
-    [  | reflexivity ].
-   rewrite <- Hpolb₃, <- Hnsb₃₁ in H; assumption.
+     intros j.
+     pose proof (Hrle₂ (j + 1)%nat) as H.
+     rewrite nth_r_add in H; simpl in H.
+     erewrite <- nth_pol_n with (c := c₁) in H; try eassumption.
+      rewrite <- Hpolb₃, <- Hnsb₃₁ in H; assumption.
+
+      reflexivity.
 Qed.
 
 Theorem root_tail_from_0_const_r : ∀ pol ns c pol₁ ns₁ c₁ m q₀ b r,
