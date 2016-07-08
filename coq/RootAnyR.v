@@ -2296,8 +2296,7 @@ destruct (zerop i) as [H₁| H₁].
 Qed.
 
 Theorem nth_root_tail_const_plus_tail :
-  ∀ pol pol₁ pol₂ ns ns₁ ns₂ nsb₂ nsb₃ c₁ cb₃ b₁ r polb₂ polb₃,
-  ∀ αjb₂ αkb₂ m₁ pb₂ pb₃,
+  ∀ pol₁ pol₂ ns₁ ns₂ nsb₂ nsb₃ c₁ cb₃ b₁ r polb₂ polb₃ αjb₂ αkb₂ m₁ pb₂ pb₃,
   (1 ≠ 0)%K
   → ns₂ ∈ newton_segments pol₂
   → nsb₂ ∈ newton_segments polb₂
@@ -2311,7 +2310,6 @@ Theorem nth_root_tail_const_plus_tail :
   → (ps_poly_nth 0 polb₂ ≠ 0)%ps
   → (ps_poly_nth 0 polb₃ ≠ 0)%ps
   → (∀ n, r ≤ nth_r n polb₂ nsb₂)
-  → (∀ i, i ≤ 1 → nth_r i pol ns = r)
   → root_multiplicity acf (ac_root (Φq polb₂ nsb₂)) (Φq polb₂ nsb₂) = r
   → root_multiplicity acf cb₃ (Φq polb₃ nsb₃) = r
   → pol_in_K_1_m polb₂ m₁
@@ -2329,10 +2327,10 @@ Theorem nth_root_tail_const_plus_tail :
      series_shift (Z.to_nat pb₃)
        {| terms := root_tail_series_from_cγ_list m₁ polb₃ nsb₃ |})%ser.
 Proof.
-intros pol pol₁ pol₂ ns ns₁ ns₂ nsb₂ nsb₃ c₁ cb₃ b₁ r polb₂ polb₃.
+intros pol₁ pol₂ ns₁ ns₂ nsb₂ nsb₃ c₁ cb₃ b₁ r polb₂ polb₃.
 intros αjb₂ αkb₂ m₁ pb₂ pb₃.
 intros H₀ Hns₂i Hnsb₂i Hnsb₃i Hpol₂ Hpolb₂ Hpolb₃n.
-intros Hns₂ Hnsb₂ Hnsb₃₁ Hpsib₁ Hnsb₃ Hrle₂ Hri Hrb₂ Hrcb₃ HKb₂ HKb₃.
+intros Hns₂ Hnsb₂ Hnsb₃₁ Hpsib₁ Hnsb₃ Hrle₂ Hrb₂ Hrcb₃ HKb₂ HKb₃.
 intros Hc₁ Hcb₃ Hinib₂ Hfinb₂ Hαjb₂ Hαkb₂.
 intros Hpb₂ Hpb₃.
 assert (Hpolb₃ : polb₃ = nth_pol b₁ pol₂ ns₂).
@@ -2839,8 +2837,8 @@ destruct z₁.
                     (k := (dd * dd)%positive).
                   rewrite <- series_stretch_add_distr.
                   apply stretch_morph; [ reflexivity |  ].
-                  eapply nth_root_tail_const_plus_tail with
-                    (ns := ns) (ns₂ := ns₂); eassumption.
+                  eapply nth_root_tail_const_plus_tail with (ns₂ := ns₂);
+                    eassumption.
 
                   apply Z.lt_le_incl; assumption.
 
