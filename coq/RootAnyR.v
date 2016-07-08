@@ -2296,16 +2296,16 @@ destruct (zerop i) as [H₁| H₁].
 Qed.
 
 Theorem nth_root_tail_const_plus_tail :
-  ∀ pol₁ pol₂ ns₁ ns₂ nsb₂ nsb₃ c₁ cb₃ b₁ r polb₂ polb₃ αjb₂ αkb₂ m₁ pb₂ pb₃,
+  ∀ pol pol₁ ns ns₁ nsb₂ nsb₃ c₁ cb₃ b₁ r polb₂ polb₃ αjb₂ αkb₂ m₁ pb₂ pb₃,
   (1 ≠ 0)%K
-  → ns₂ ∈ newton_segments pol₂
+  → ns₁ ∈ newton_segments pol₁
   → nsb₂ ∈ newton_segments polb₂
   → nsb₃ ∈ newton_segments polb₃
-  → pol₂ = next_pol pol₁ (β ns₁) (γ ns₁) c₁
-  → polb₂ = nth_pol b₁ pol₁ ns₁
+  → pol₁ = next_pol pol (β ns) (γ ns) c₁
+  → polb₂ = nth_pol b₁ pol ns
   → polb₃ = next_pol polb₂ (β nsb₂) (γ nsb₂) (ac_root (Φq polb₂ nsb₂))
-  → ns₂ = List.hd phony_ns (newton_segments pol₂)
-  → nsb₂ = nth_ns b₁ pol₁ ns₁
+  → ns₁ = List.hd phony_ns (newton_segments pol₁)
+  → nsb₂ = nth_ns b₁ pol ns
   → nsb₃ = List.hd phony_ns (newton_segments polb₃)
   → (ps_poly_nth 0 polb₂ ≠ 0)%ps
   → (ps_poly_nth 0 polb₃ ≠ 0)%ps
@@ -2314,7 +2314,7 @@ Theorem nth_root_tail_const_plus_tail :
   → root_multiplicity acf cb₃ (Φq polb₃ nsb₃) = r
   → pol_in_K_1_m polb₂ m₁
   → pol_in_K_1_m polb₃ m₁
-  → c₁ = ac_root (Φq pol₁ ns₁)
+  → c₁ = ac_root (Φq pol ns)
   → cb₃ = ac_root (Φq polb₃ nsb₃)
   → ini_pt nsb₂ = (Qnat 0, αjb₂)
   → fin_pt nsb₂ = (Qnat r, αkb₂)
@@ -2323,17 +2323,17 @@ Theorem nth_root_tail_const_plus_tail :
   → pb₂ = p_of_m m₁ (γ nsb₂)
   → pb₃ = p_of_m m₁ (γ nsb₃)
   → ({| terms := root_tail_series_from_cγ_list m₁ polb₂ nsb₂ |} =
-     series_const (nth_c b₁ pol₁ ns₁) +
+     series_const (nth_c b₁ pol ns) +
      series_shift (Z.to_nat pb₃)
        {| terms := root_tail_series_from_cγ_list m₁ polb₃ nsb₃ |})%ser.
 Proof.
-intros pol₁ pol₂ ns₁ ns₂ nsb₂ nsb₃ c₁ cb₃ b₁ r polb₂ polb₃.
+intros pol pol₁ ns ns₁ nsb₂ nsb₃ c₁ cb₃ b₁ r polb₂ polb₃.
 intros αjb₂ αkb₂ m₁ pb₂ pb₃.
-intros H₀ Hns₂i Hnsb₂i Hnsb₃i Hpol₂ Hpolb₂ Hpolb₃n.
-intros Hns₂ Hnsb₂ Hnsb₃₁ Hpsib₁ Hnsb₃ Hrle₂ Hrb₂ Hrcb₃ HKb₂ HKb₃.
+intros H₀ Hns₁i Hnsb₂i Hnsb₃i Hpol₁ Hpolb₂ Hpolb₃n.
+intros Hns₁ Hnsb₂ Hnsb₃₁ Hpsib₁ Hnsb₃ Hrle₂ Hrb₂ Hrcb₃ HKb₂ HKb₃.
 intros Hc₁ Hcb₃ Hinib₂ Hfinb₂ Hαjb₂ Hαkb₂.
 intros Hpb₂ Hpb₃.
-assert (Hpolb₃ : polb₃ = nth_pol b₁ pol₂ ns₂).
+assert (Hpolb₃ : polb₃ = nth_pol b₁ pol₁ ns₁).
  rewrite Hpolb₃n.
  symmetry.
  destruct b₁.
@@ -2342,18 +2342,18 @@ assert (Hpolb₃ : polb₃ = nth_pol b₁ pol₂ ns₂).
 
   apply nth_pol_succ.
    subst polb₂; simpl.
-   rewrite <- Hc₁, <- Hpol₂, <- Hns₂; reflexivity.
+   rewrite <- Hc₁, <- Hpol₁, <- Hns₁; reflexivity.
 
    subst nsb₂; simpl.
-   rewrite <- Hc₁, <- Hpol₂, <- Hns₂; reflexivity.
+   rewrite <- Hc₁, <- Hpol₁, <- Hns₁; reflexivity.
 
    symmetry.
    apply nth_c_n.
     subst polb₂; simpl.
-    rewrite <- Hc₁, <- Hpol₂, <- Hns₂; reflexivity.
+    rewrite <- Hc₁, <- Hpol₁, <- Hns₁; reflexivity.
 
     subst nsb₂; simpl.
-    rewrite <- Hc₁, <- Hpol₂, <- Hns₂; reflexivity.
+    rewrite <- Hc₁, <- Hpol₁, <- Hns₁; reflexivity.
 generalize Hnsb₂i; intros H.
 eapply next_ns_r_non_decr in H; eauto  .
 destruct H as (_, H).
@@ -2837,7 +2837,7 @@ destruct z₁.
                     (k := (dd * dd)%positive).
                   rewrite <- series_stretch_add_distr.
                   apply stretch_morph; [ reflexivity |  ].
-                  eapply nth_root_tail_const_plus_tail with (ns₂ := ns₂);
+                  eapply nth_root_tail_const_plus_tail with (ns₁ := ns₂);
                     eassumption.
 
                   apply Z.lt_le_incl; assumption.
