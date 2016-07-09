@@ -2360,7 +2360,7 @@ assert (Hpolb₁ : polb₁ = nth_pol b pol₁ ns₁).
     rewrite <- Hc₁, <- Hpol₁, <- Hns₁; reflexivity.
 
  generalize Hnsbi; intros H.
- eapply next_ns_r_non_decr in H; eauto  .
+ eapply next_ns_r_non_decr in H; try eassumption; try reflexivity.
  destruct H as (_, H).
  destruct H as (αjb₃, (αkb₃, H)).
  destruct H as (Hinib₃, (Hfinb₃, (Hαjb₃, Hαkb₃))).
