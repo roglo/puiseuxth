@@ -2323,10 +2323,10 @@ Theorem nth_root_tail_const_plus_tail :
   → fin_pt nsb = (Qnat r, αkb₂)
   → (0 < Qnum αjb₂)%Z
   → Qnum αkb₂ = 0%Z
-  → ({| terms := root_tail_series_from_cγ_list m polb nsb |} =
+  → (series (root_tail_series_from_cγ_list m polb nsb) =
      series_const (nth_c b pol ns) +
      series_shift (Z.to_nat (p_of_m m (γ nsb₁)))
-       {| terms := root_tail_series_from_cγ_list m polb₁ nsb₁ |})%ser.
+       (series (root_tail_series_from_cγ_list m polb₁ nsb₁)))%ser.
 Proof.
 intros pol pol₁ ns ns₁ nsb nsb₁ b r polb polb₁ αjb αkb m.
 intros Hns₁i Hnsbi Hnsb₁i Hpol₁ Hpolb Hpolb₁n.

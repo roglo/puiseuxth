@@ -11,7 +11,7 @@ Require Import Fsummation.
 
 Set Implicit Arguments.
 
-Record power_series α := { terms : nat → α }.
+Record power_series α := series { terms : nat → α }.
 
 Notation "s .[ i ]" := (@terms _ s i) (at level 1).
 
