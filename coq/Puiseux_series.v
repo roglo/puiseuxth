@@ -1205,12 +1205,23 @@ Variable α : Type.
 Variable R : ring α.
 Variable K : field R.
 
-Theorem ps_zero_monom_eq : (ps_monom 0%K 0 = 0)%ps.
+Theorem zero_series_order : ∀ n, series_order 0%ser n = ∞.
 Proof.
+intros n.
+apply series_order_iff; reflexivity.
+Qed.
+
+Theorem ps_zero_monom_eq : ∀ q, (ps_monom 0%K q = 0)%ps.
+Proof.
+intros q.
 unfold ps_zero, ps_monom; simpl.
-apply mkps_morphism; try reflexivity.
-constructor; intros n; simpl.
-destruct (zerop n); reflexivity.
+setoid_replace (series (λ i, if zerop i then 0%K else 0%K)) with 0%ser.
+ constructor.
+ unfold normalise_ps; simpl.
+ rewrite zero_series_order; reflexivity.
+
+ constructor; intros i; simpl.
+ destruct (zerop i); reflexivity.
 Qed.
 
 Theorem series_shift_0 : ∀ s, (series_shift 0 s = s)%ser.

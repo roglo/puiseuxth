@@ -308,8 +308,7 @@ eapply r_n_next_ns in H; try eassumption; try apply eq_refl.
 Qed.
 
 Theorem upper_bound_zerop_1st_when_r_constant : ∀ pol ns c pol₁ ns₁ m q₀ r ofs,
-  (1 ≠ 0)%K
-  → ns ∈ newton_segments pol
+  ns ∈ newton_segments pol
   → c = ac_root (Φq pol ns)
   → pol₁ = next_pol pol (β ns) (γ ns) c
   → ns₁ = List.hd phony_ns (newton_segments pol₁)
@@ -325,7 +324,7 @@ Theorem upper_bound_zerop_1st_when_r_constant : ∀ pol ns c pol₁ ns₁ m q₀
     → zerop_1st_n_const_coeff N pol₁ ns₁ = true.
 Proof.
 intros pol ns c pol₁ ns₁ m q₀ r ofs.
-intros H₀ Hns Hc Hpol₁ Hns₁ Hnz₀ Hm Hq₀ Hr Hn Hofs N HN.
+intros Hns Hc Hpol₁ Hns₁ Hnz₀ Hm Hq₀ Hr Hn Hofs N HN.
 apply not_false_iff_true; intros Hz.
 assert (Hrle : ∀ n : nat, S r ≤ nth_r n pol ns).
  rewrite Hc in Hr.
@@ -354,45 +353,54 @@ assert (Hrle : ∀ n : nat, S r ≤ nth_r n pol ns).
 
    apply eq_refl.
 
-  remember (@summation _ Q_ring O N (λ i, β (nth_ns i pol₁ ns₁))) as u eqn:Hu.
+  remember (@summation _ Q_ring O N (λ i, β (nth_ns i pol₁ ns₁))) as u eqn:Hu .
   assert (Huo : u <= ofs).
    rewrite Hc in Hpol₁.
-   revert H₀ Hns Hc Hpol₁ Hns₁ Hnz₀ Hm Hq₀ Hr Hofs Hz Hrle Hu; clear; intros.
+   revert Hns Hc Hpol₁ Hns₁ Hnz₀ Hm Hq₀ Hr Hofs Hz Hrle Hu; clear; intros.
    rewrite root_tail_when_r_r with (n := N) (r := (S r)) in Hofs;
     try eassumption.
-    rewrite apply_nth_pol in Hofs; [ | assumption ].
+    rewrite apply_nth_pol in Hofs; [  | assumption ].
     rewrite <- Hu in Hofs.
-    rewrite order_mul in Hofs.
-    rewrite ps_monom_order in Hofs; [  | assumption ].
-    apply Qbar.qfin_le_mono.
-    rewrite <- Hofs.
-    apply Qbar.le_sub_le_add_l.
-    rewrite Qbar.sub_diag.
-    apply order_pol_apply_nonneg.
-     intros a Ha.
-     remember (nth_pol N pol₁ ns₁) as polN eqn:HpolN .
-     remember (nth_ns N pol₁ ns₁) as nsN eqn:HnsN .
-     assert (H : nsN ∈ newton_segments polN).
-      eapply in_newton_segment_when_r_constant; eassumption.
+    destruct (fld_zerop 1%K) as [H₀| H₀].
+     rewrite H₀ in Hofs.
+     rewrite ps_zero_monom_eq in Hofs.
+     rewrite ps_mul_0_l in Hofs.
+     rewrite order_0 in Hofs.
+     symmetry in Hofs.
+     apply eq_Qbar_qinf in Hofs.
+     discriminate Hofs.
 
-      eapply f₁_orders in H; try eassumption; try apply eq_refl.
-      erewrite <- nth_pol_succ in H; try eassumption.
-       destruct H as (H, _).
-       apply List_In_nth with (d := 0%ps) in Ha.
-       destruct Ha as (n, Hn₁).
-       rewrite Hn₁.
-       apply H.
+     rewrite order_mul in Hofs.
+     rewrite ps_monom_order in Hofs; [  | assumption ].
+     apply Qbar.qfin_le_mono.
+     rewrite <- Hofs.
+     apply Qbar.le_sub_le_add_l.
+     rewrite Qbar.sub_diag.
+     apply order_pol_apply_nonneg.
+      intros a Ha.
+      remember (nth_pol N pol₁ ns₁) as polN eqn:HpolN .
+      remember (nth_ns N pol₁ ns₁) as nsN eqn:HnsN .
+      assert (H : nsN ∈ newton_segments polN).
+       eapply in_newton_segment_when_r_constant; eassumption.
 
-       symmetry.
-       apply nth_c_n; try eassumption.
+       eapply f₁_orders in H; try eassumption; try apply eq_refl.
+       erewrite <- nth_pol_succ in H; try eassumption.
+        destruct H as (H, _).
+        apply List_In_nth with (d := 0%ps) in Ha.
+        destruct Ha as (n, Hn₁).
+        rewrite Hn₁.
+        apply H.
 
-     rewrite Nat.add_0_l.
-     rewrite <- Hc in Hpol₁.
-     eapply order_root_tail_nonneg_any_r; try eassumption.
-     rewrite zerop_1st_n_const_coeff_succ; simpl.
-     rewrite <- Hc, <- Hpol₁, <- Hns₁, Hz.
-     remember (ps_poly_nth 0 pol) as x.
-     destruct (ps_zerop K x); [ contradiction  | reflexivity ].
+        symmetry.
+        apply nth_c_n; try eassumption.
+
+      rewrite Nat.add_0_l.
+      rewrite <- Hc in Hpol₁.
+      eapply order_root_tail_nonneg_any_r; try eassumption.
+      rewrite zerop_1st_n_const_coeff_succ; simpl.
+      rewrite <- Hc, <- Hpol₁, <- Hns₁, Hz.
+      remember (ps_poly_nth 0 pol) as x.
+      destruct (ps_zerop K x); [ contradiction  | reflexivity ].
 
     pose proof (exists_pol_ord K pol) as H.
     destruct H as (m', (Hm', Hp)).
