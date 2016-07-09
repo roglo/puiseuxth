@@ -1599,14 +1599,13 @@ Theorem root_tail_split_1st_any_r : ∀ pol ns c pol₁ ns₁ c₁ m q₀ r,
   → c₁ = ac_root (Φq pol₁ ns₁)
   → (∀ i, i ≤ 1%nat → nth_r i pol ns = r)
   → (∀ n, r ≤ nth_r n pol ns)
-  → (1 ≠ 0)%K
   → (root_tail (m * q₀) 0 pol₁ ns₁ =
      root_head 0 0 pol₁ ns₁ +
        ps_monom 1%K (γ_sum 0 0 pol₁ ns₁) *
        root_tail (m * q₀) 1 pol₁ ns₁)%ps.
 Proof.
 intros pol ns c pol₁ ns₁ c₁ m q₀ r.
-intros Hns Hm Hq₀ Hc Hpol₁ Hns₁ Hc₁ Hri Hrle H₀.
+intros Hns Hm Hq₀ Hc Hpol₁ Hns₁ Hc₁ Hri Hrle.
 remember (m * q₀)%positive as m₁.
 unfold root_tail, root_head; simpl.
 destruct (ps_zerop _ (ps_poly_nth 0 pol₁)) as [H₁| H₁].
@@ -2589,14 +2588,13 @@ Theorem root_tail_from_0_const_r : ∀ pol ns c pol₁ ns₁ c₁ m q₀ b r,
   → c₁ = ac_root (Φq pol₁ ns₁)
   → (∀ i, i ≤ 1%nat → nth_r i pol ns = r)
   → (∀ n, r ≤ nth_r n pol ns)
-  → (1 ≠ 0)%K
   → (root_tail (m * q₀) b pol₁ ns₁ =
      root_head b 0 pol₁ ns₁ +
        ps_monom 1%K (γ_sum b 0 pol₁ ns₁) *
        root_tail (m * q₀) (S b) pol₁ ns₁)%ps.
 Proof.
 intros pol ns c pol₁ ns₁ c₁ m q₀ b r.
-intros Hns Hm Hq₀ Hc Hpol₁ Hns₁ Hc₁ Hri Hrle H₀.
+intros Hns Hm Hq₀ Hc Hpol₁ Hns₁ Hc₁ Hri Hrle.
 destruct b; [ eapply root_tail_split_1st_any_r; eassumption |  ].
 remember (zerop_1st_n_const_coeff (S b) pol₁ ns₁) as z₁ eqn:Hz₁ .
 symmetry in Hz₁.
@@ -2722,7 +2720,7 @@ destruct z₁.
 
             clear Hrle Hpol₁ Hns₁ Hc.
             revert
-             H₀ Hns Hns₂i Hnsbi Hpol₂ Hpolb Hpolb₁ Hns₂ Hnsb Hnsb₁ Hpsib₁
+             Hns Hns₂i Hnsbi Hpol₂ Hpolb Hpolb₁ Hns₂ Hnsb Hnsb₁ Hpsib₁
              H₁ Hrle₁ Hri Hrb₂ HKb₂ Hc₁ Hinib₂ Hfinb₂ Hαjb₂ Hαkb₂; 
              clear; intros.
             rename H₁ into Hnzb₃.
@@ -2936,14 +2934,13 @@ Theorem root_tail_sep_1st_monom : ∀ pol ns pol₁ ns₁ c m q₀ n r,
   → (∀ i : nat, i ≤ n → (ps_poly_nth 0 (nth_pol i pol₁ ns₁) ≠ 0)%ps)
   → (∀ j : nat, r ≤ nth_r j pol₁ ns₁)
   → (∀ i : nat, i ≤ S n → nth_r i pol ns = r)
-  → (1 ≠ 0)%K
   → zerop_1st_n_const_coeff (S n) pol ns = false
   → (root_tail (m * q₀) n pol₁ ns₁ =
      ps_monom (nth_c n pol₁ ns₁) (nth_γ n pol₁ ns₁) +
      ps_monom 1%K (nth_γ n pol₁ ns₁) * root_tail (m * q₀) (S n) pol₁ ns₁)%ps.
 Proof.
 intros pol ns pol₁ ns₁ c m q₀ n r.
-intros Hns Hm Hq₀ Hc Hpol₁ Hns₁ Hpsi₁ Hrle₁ Hri H₀ Hz.
+intros Hns Hm Hq₀ Hc Hpol₁ Hns₁ Hpsi₁ Hrle₁ Hri Hz.
 remember Hz as H; clear HeqH.
 rewrite zerop_1st_n_const_coeff_succ in H.
 apply Bool.orb_false_iff in H; simpl in H.
@@ -3535,13 +3532,12 @@ Theorem root_tail_sep_1st_monom_any_r : ∀ pol ns pol₁ ns₁ c m q₀ n r,
   → (∀ i, (i ≤ S n)%nat → (ps_poly_nth 0 (nth_pol i pol ns) ≠ 0)%ps)
   → (∀ i, i ≤ 1%nat → nth_r i pol ns = r)
   → (∀ i, r ≤ nth_r i pol ns)
-  → (1 ≠ 0)%K
   → (root_tail (m * q₀) n pol₁ ns₁ =
        ps_monom (nth_c n pol₁ ns₁) (nth_γ n pol₁ ns₁) +
        ps_monom 1%K (nth_γ n pol₁ ns₁) *
        root_tail (m * q₀) (S n) pol₁ ns₁)%ps.
 Proof.
-intros pol ns pol₁ ns₁ c m q₀ n r Hns Hm Hq₀ Hc Hpol₁ Hns₁ Hpsi Hri Hrle H₀.
+intros pol ns pol₁ ns₁ c m q₀ n r Hns Hm Hq₀ Hc Hpol₁ Hns₁ Hpsi Hri Hrle.
 remember (zerop_1st_n_const_coeff (S n) pol ns) as z₁ eqn:Hz .
 symmetry in Hz.
 destruct z₁.
@@ -3577,7 +3573,6 @@ Theorem root_tail_when_r_r : ∀ pol ns pol₁ ns₁ m q₀ b r n,
   → ns₁ = List.hd phony_ns (newton_segments pol₁)
   → (∀ i, i ≤ 1%nat → nth_r i pol ns = r)
   → (∀ n, r ≤ nth_r n pol ns)
-  → (1 ≠ 0)%K
   → zerop_1st_n_const_coeff (S n) pol ns = false
   → (root_tail (m * q₀) b pol₁ ns₁ =
      root_head b n pol₁ ns₁ +
@@ -3585,7 +3580,7 @@ Theorem root_tail_when_r_r : ∀ pol ns pol₁ ns₁ m q₀ b r n,
        root_tail (m * q₀) (b + S n) pol₁ ns₁)%ps.
 Proof.
 intros pol ns pol₁ ns₁ m q₀ b r n.
-intros Hns Hm Hq₀ Hpol₁ Hns₁ Hri Hrle H₀ Hnz.
+intros Hns Hm Hq₀ Hpol₁ Hns₁ Hri Hrle Hnz.
 remember (ac_root (Φq pol ns)) as c eqn:Hc.
 revert pol ns pol₁ ns₁ c m q₀ b Hns Hm Hq₀ Hc Hpol₁ Hns₁ Hri Hrle Hnz.
 induction n; intros.
@@ -3674,7 +3669,6 @@ Theorem β_lower_bound_r_const : ∀ pol ns pol₁ ns₁ m r η,
   ns ∈ newton_segments pol
   → pol_in_K_1_m pol m
   → (0 < r)%nat
-  → (1 ≠ 0)%K
   → pol₁ = next_pol pol (β ns) (γ ns) (ac_root (Φq pol ns))
   → ns₁ = List.hd phony_ns (newton_segments pol₁)
   → (∀ i, r ≤ nth_r i pol ns)
@@ -3686,7 +3680,7 @@ Theorem β_lower_bound_r_const : ∀ pol ns pol₁ ns₁ m r η,
     → η < β nsn.
 Proof.
 intros pol ns pol₁ ns₁ m r η.
-intros Hns Hm Hr H₀ Hpol₁ Hns₁ Hrle Hη n nsn Hnz Hri Hnsn.
+intros Hns Hm Hr Hpol₁ Hns₁ Hrle Hη n nsn Hnz Hri Hnsn.
 remember Hns as H; clear HeqH.
 rewrite zerop_1st_n_const_coeff_false_iff in Hnz.
 eapply r_n_nth_ns in H; try eassumption; eauto .
