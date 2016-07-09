@@ -2328,10 +2328,10 @@ Theorem nth_root_tail_const_plus_tail :
      series_shift (Z.to_nat (p_of_m m (γ nsb₁)))
        {| terms := root_tail_series_from_cγ_list m polb₁ nsb₁ |})%ser.
 Proof.
-intros pol pol₁ ns ns₁ nsb nsb₁ b r polb polb₁ αjb₂ αkb₂ m.
+intros pol pol₁ ns ns₁ nsb nsb₁ b r polb polb₁ αjb αkb m.
 intros Hns₁i Hnsbi Hnsb₁i Hpol₁ Hpolb Hpolb₁n.
-intros Hns₁ Hnsb Hnsb₁₁ Hpsib Hnsb₁ Hrle₂ Hrb₂ Hrcb₃ HKb₂ HKb₃.
-intros Hinib₂ Hfinb₂ Hαjb₂ Hαkb₂.
+intros Hns₁ Hnsb Hnsb₁₁ Hpsib Hpsib₁ Hrle Hrb Hrb₁ HKb HKb₁.
+intros Hinib Hfinb Hαjb Hαkb.
 remember (ac_root (Φq pol ns)) as c₁ eqn:Hc₁.
 remember (ac_root (Φq polb₁ nsb₁)) as cb₃ eqn:Hcb₃.
 remember (p_of_m m (γ nsb)) as pb₂ eqn:Hpb₂.
@@ -2418,16 +2418,16 @@ assert (Hpolb₁ : polb₁ = nth_pol b pol₁ ns₁).
     apply Nat.nlt_ge in H₂.
     remember (i - Z.to_nat pb₃)%nat as id.
     unfold root_tail_series_from_cγ_list.
-    remember Hinib₂ as H; clear HeqH.
-    symmetry in Hrb₂.
+    remember Hinib as H; clear HeqH.
+    symmetry in Hrb.
     eapply q_eq_1_any_r in H; eauto  .
     rename H into Hqb₂.
     remember Hinib₃ as H; clear HeqH.
-    symmetry in Hrcb₃.
+    symmetry in Hrb₁.
     eapply q_eq_1_any_r in H; eauto  .
     rename H into Hqb₃.
     rewrite find_coeff_iter_succ with (r := r); auto; symmetry.
-    rewrite Hcb₃ in Hrcb₃.
+    rewrite Hcb₃ in Hrb₁.
     rewrite find_coeff_iter_succ with (r := r); auto.
      symmetry.
      remember (S i) as si.
@@ -2437,8 +2437,8 @@ assert (Hpolb₁ : polb₁ = nth_pol b pol₁ ns₁).
      destruct (ps_zerop K (ps_poly_nth 0 polb)); [ contradiction  |  ].
      erewrite <- nth_pol_n with (c := c₁); eauto  .
      rewrite <- Hpolb₁, <- Hnsb₁₁.
-     rewrite <- Hcb₃ in Hrcb₃.
-     symmetry in Hrcb₃.
+     rewrite <- Hcb₃ in Hrb₁.
+     symmetry in Hrb₁.
      erewrite next_pow_eq_p; try eassumption.
       rewrite <- Hpb₃.
       subst si ssid.
@@ -2481,7 +2481,7 @@ assert (Hpolb₁ : polb₁ = nth_pol b pol₁ ns₁).
 
           contradiction .
 
-         remember Hinib₂ as H; clear HeqH.
+         remember Hinib as H; clear HeqH.
          eapply p_is_pos with (m := m) in H; eauto  .
           rewrite <- Hpb₂ in H.
           rename H into Hpb₂pos.
@@ -2500,7 +2500,7 @@ assert (Hpolb₁ : polb₁ = nth_pol b pol₁ ns₁).
             remember (root_multiplicity acf cb₄ (Φq polb₄ nsb₄)) as r₁
              eqn:Hrb₄ .
             symmetry in Hrb₄.
-            pose proof (Hrle₂ 2%nat) as H.
+            pose proof (Hrle 2%nat) as H.
             remember (S 0) as one in H; simpl in H.
             erewrite <- nth_pol_n with (c := c₁) in H; eauto  .
             rewrite <- Hpolb₁, <- Hnsb₁₁ in H.
@@ -2515,7 +2515,7 @@ assert (Hpolb₁ : polb₁ = nth_pol b pol₁ ns₁).
              symmetry; assumption.
 
              intros j.
-             pose proof (Hrle₂ (j + 2)%nat) as H.
+             pose proof (Hrle (j + 2)%nat) as H.
              rewrite nth_r_add in H.
              remember (S 0) as one in H; simpl in H.
              erewrite <- nth_pol_n with (c := c₁) in H; eauto  .
@@ -2538,7 +2538,7 @@ assert (Hpolb₁ : polb₁ = nth_pol b pol₁ ns₁).
               apply Z.lt_le_incl; assumption.
 
             intros j; clear H.
-            pose proof (Hrle₂ (j + 1)%nat) as H.
+            pose proof (Hrle (j + 1)%nat) as H.
             rewrite nth_r_add in H; simpl in H.
             erewrite <- nth_pol_n with (c := c₁) in H; try eassumption.
              rewrite <- Hpolb₁, <- Hnsb₁₁ in H.
@@ -2547,7 +2547,7 @@ assert (Hpolb₁ : polb₁ = nth_pol b pol₁ ns₁).
              reflexivity.
 
            intros j; clear H.
-           pose proof (Hrle₂ (j + 1)%nat) as H.
+           pose proof (Hrle (j + 1)%nat) as H.
            rewrite nth_r_add in H; simpl in H.
            erewrite <- nth_pol_n with (c := c₁) in H; try eassumption.
             rewrite <- Hpolb₁, <- Hnsb₁₁ in H; assumption.
@@ -2571,7 +2571,7 @@ assert (Hpolb₁ : polb₁ = nth_pol b pol₁ ns₁).
       symmetry; eassumption.
 
      intros j.
-     pose proof (Hrle₂ (j + 1)%nat) as H.
+     pose proof (Hrle (j + 1)%nat) as H.
      rewrite nth_r_add in H; simpl in H.
      erewrite <- nth_pol_n with (c := c₁) in H; try eassumption.
       rewrite <- Hpolb₁, <- Hnsb₁₁ in H; assumption.
