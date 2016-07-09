@@ -59,10 +59,9 @@ Theorem order_root_tail_nonneg_any_r_aux : ∀ pol ns c pol₁ ns₁ m q₀ n r,
   → ns₁ = List.hd phony_ns (newton_segments pol₁)
   → (∀ i, i ≤ S n → (ps_poly_nth 0 (nth_pol i pol ns) ≠ 0)%ps)
   → (∀ i, i ≤ S n → nth_r i pol ns = r)
-  → (1 ≠ 0)%K
   → (0 ≤ order (root_tail (m * q₀) n pol₁ ns₁))%Qbar.
 Proof.
-intros pol ns c pol₁ ns₁ m q₀ n r Hns Hm Hq₀ Hc Hpol₁ Hns₁ Hpsi Hri H₀.
+intros pol ns c pol₁ ns₁ m q₀ n r Hns Hm Hq₀ Hc Hpol₁ Hns₁ Hpsi Hri.
 unfold root_tail.
 remember (zerop_1st_n_const_coeff n pol₁ ns₁) as z₁ eqn:Hz₁ .
 symmetry in Hz₁.
@@ -183,11 +182,10 @@ Theorem order_root_tail_nonneg_any_r : ∀ pol ns c pol₁ ns₁ m q₀ n r,
   → zerop_1st_n_const_coeff n pol ns = false
   → root_multiplicity acf c (Φq pol ns) = r
   → (∀ i, r ≤ nth_r i pol ns)
-  → (1 ≠ 0)%K
   → (0 ≤ order (root_tail (m * q₀) n pol₁ ns₁))%Qbar.
 Proof.
 intros pol ns c pol₁ ns₁ m q₀ n r.
-intros Hns HK Hq₀ Hc Hpol₁ Hns₁ Hz Hr Hrle H₀.
+intros Hns HK Hq₀ Hc Hpol₁ Hns₁ Hz Hr Hrle.
 rewrite zerop_1st_n_const_coeff_false_iff in Hz.
 pose proof (Hz O (Nat.le_0_l n)) as H; simpl in H.
 rename H into Hnz; move Hnz before Hc.
@@ -337,7 +335,7 @@ assert (Hrle : ∀ n : nat, S r ≤ nth_r n pol ns).
  assert (Hηβ : ∀ i, i ≤ N → η < β (nth_ns i pol₁ ns₁)).
   intros i Hi.
   clear HN.
-  revert H₀ Hns Hc Hpol₁ Hns₁ Hnz₀ Hm Hq₀ Hr Hrle Hη N Hi Hz; clear; intros.
+  revert Hns Hc Hpol₁ Hns₁ Hnz₀ Hm Hq₀ Hr Hrle Hη N Hi Hz; clear; intros.
   subst c q₀.
   eapply β_lower_bound_r_const with (n := i) (r := S r); try eassumption.
    pose proof (exists_pol_ord K pol) as H.
