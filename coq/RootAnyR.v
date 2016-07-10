@@ -2398,14 +2398,15 @@ assert (Hpolb₁ : polb₁ = nth_pol b pol₁ ns₁).
     destruct i; [ exfalso; revert H₁; apply Nat.lt_irrefl |  ].
     clear H₁.
     rewrite <- Hpolb₁n, <- Hnsb₁₁.
-    destruct (ps_zerop K (ps_poly_nth 0 polb)) as [| H₁]; auto; simpl.
-    destruct (ps_zerop K (ps_poly_nth 0 polb₁)) as [| H₃]; auto.
+    destruct (ps_zerop K (ps_poly_nth 0 polb)) as [| H₁]; [ reflexivity | ].
+    simpl.
+    destruct (ps_zerop K (ps_poly_nth 0 polb₁)) as [| H₃]; [ reflexivity | ].
     clear H₁ H₃.
-    erewrite next_pow_eq_p; eauto  .
+    erewrite next_pow_eq_p; try eassumption.
      rewrite <- Hpb₃.
      remember (Nat.compare (Z.to_nat pb₃) (S i)) as cmp eqn:Hcmp .
      symmetry in Hcmp.
-     destruct cmp; auto.
+     destruct cmp; [ | | reflexivity ].
       apply nat_compare_eq in Hcmp.
       rewrite Hcmp in H₂.
       exfalso; revert H₂; apply Nat.lt_irrefl.
@@ -2421,11 +2422,11 @@ assert (Hpolb₁ : polb₁ = nth_pol b pol₁ ns₁).
     unfold root_tail_series_from_cγ_list.
     remember Hinib as H; clear HeqH.
     symmetry in Hrb.
-    eapply q_eq_1_any_r in H; eauto  .
+    eapply q_eq_1_any_r in H; try eassumption; try reflexivity.
     rename H into Hqb₂.
     remember Hinib₃ as H; clear HeqH.
     symmetry in Hrb₁.
-    eapply q_eq_1_any_r in H; eauto  .
+    eapply q_eq_1_any_r in H; try eassumption; try reflexivity.
     rename H into Hqb₃.
     rewrite find_coeff_iter_succ with (r := r); auto; symmetry.
     rewrite Hcb₃ in Hrb₁.
