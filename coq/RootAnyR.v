@@ -2310,7 +2310,7 @@ Theorem nth_root_tail_const_plus_tail :
   → pol₁ = next_pol pol (β ns) (γ ns) (ac_root (Φq pol ns))
   → polb = nth_pol b pol ns
   → polb₁ = next_pol polb (β nsb) (γ nsb) (ac_root (Φq polb nsb))
-  → ns₁ = List.hd phony_ns (newton_segments pol₁)
+  → ns₁ = nth_ns 1 pol ns
   → nsb = nth_ns b pol ns
   → nsb₁ = List.hd phony_ns (newton_segments polb₁)
   → (ps_poly_nth 0 polb ≠ 0)%ps
@@ -2333,6 +2333,7 @@ intros pol pol₁ ns ns₁ nsb nsb₁ b r polb polb₁ αjb αkb m.
 intros Hns₁i Hnsbi Hnsb₁i Hpol₁ Hpolb Hpolb₁n.
 intros Hns₁ Hnsb Hnsb₁₁ Hpsib Hpsib₁ Hrle Hrb Hrb₁ HKb HKb₁.
 intros Hinib Hfinb Hαjb Hαkb.
+simpl in Hns₁; rewrite <- Hpol₁ in Hns₁.
 remember (ac_root (Φq pol ns)) as c₁ eqn:Hc₁.
 remember (ac_root (Φq polb₁ nsb₁)) as cb₃ eqn:Hcb₃.
 remember (p_of_m m (γ nsb)) as pb₂ eqn:Hpb₂.
@@ -2842,9 +2843,9 @@ destruct z₁.
                     (k := (dd * dd)%positive).
                   rewrite <- series_stretch_add_distr.
                   apply stretch_morph; [ reflexivity |  ].
-                  subst c₁ cb₃ pb₃.
+                  subst c₁ cb₃ pb₃ pol₂.
                   eapply nth_root_tail_const_plus_tail with (ns₁ := ns₂);
-                    eassumption.
+                    try eassumption; reflexivity.
 
                   apply Z.lt_le_incl; assumption.
 
