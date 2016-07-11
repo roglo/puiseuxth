@@ -49,7 +49,7 @@ Definition Φq α {R : ring α} {K : field R} pol ns :=
   let j := nat_num (fst (ini_pt ns)) in
   {| al := make_char_pol R j tl |}.
 
-Definition ps_list_com_polord α (psl : list (puiseux_series α)) :=
+Definition ps_lap_com_polord α (psl : list (puiseux_series α)) :=
   List.fold_right (λ ps a, (a * ps_polord ps)%positive) 1%positive psl.
 
 (* *)
