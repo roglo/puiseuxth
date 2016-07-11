@@ -95,17 +95,6 @@ Inductive in_K_1_m {α} {R : ring α} {K : field R} ps m :=
 
 Arguments in_K_1_m _ _ _ ps%ps m%positive.
 
-Inductive ps_lap_forall {α} {R : ring α} {K : field R} (P : _ → Prop) :
-  list (puiseux_series α) → Prop :=
-  | PLForall_nil : ∀ l, (l = [])%pslap → ps_lap_forall P l
-  | PLForall_cons : ∀ x l,
-      ([x … l] ≠ [])%pslap
-      → P x
-      → ps_lap_forall P l
-      → ps_lap_forall P [x … l].
-
-Arguments ps_lap_forall α%type_scope _ _ _ l%pslap.
-
 Definition pol_in_K_1_m {α} {R : ring α} {K : field R} pol m :=
   ps_lap_forall (λ a, in_K_1_m a m) (al pol).
 

@@ -52,6 +52,17 @@ Notation "a * b" := (ps_lap_mul a b) : ps_lap_scope.
 Notation "a ^ b" := (ps_lap_pow a b) : ps_lap_scope.
 Notation "a ∘ b" := (ps_lap_comp a b) : ps_lap_scope.
 
+Inductive ps_lap_forall {α} {R : ring α} {K : field R} (P : _ → Prop) :
+  list (puiseux_series α) → Prop :=
+  | PLForall_nil : ∀ l, (l = [])%pslap → ps_lap_forall P l
+  | PLForall_cons : ∀ x l,
+      ([x … l] ≠ [])%pslap
+      → P x
+      → ps_lap_forall P l
+      → ps_lap_forall P [x … l].
+
+Arguments ps_lap_forall α%type_scope _ _ _ l%pslap.
+
 Theorem fold_ps_lap_add : ∀ α (R : ring α) (K : field R) a b,
   @lap_add _ (ps_ring K) a b = ps_lap_add a b.
 Proof. reflexivity. Qed.
