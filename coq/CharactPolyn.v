@@ -52,6 +52,9 @@ Definition Φq α {R : ring α} {K : field R} pol ns :=
 Definition ps_lap_com_polord α (psl : list (puiseux_series α)) :=
   List.fold_right (λ ps a, (a * ps_polord ps)%positive) 1%positive psl.
 
+Definition ps_pol_com_polord {α} pol := @ps_lap_com_polord α (al pol).
+Arguments ps_pol_com_polord _ pol%pol.
+
 (* *)
 
 Theorem nat_num_Qnat : ∀ i, nat_num (Qnat i) = i.

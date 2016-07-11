@@ -174,7 +174,7 @@ Qed.
 (* todo: group order_root_tail_nonneg_any_r_aux and this theorem together *)
 Theorem order_root_tail_nonneg_any_r : ∀ pol ns c pol₁ ns₁ m q₀ n r,
   ns ∈ newton_segments pol
-  → m = ps_lap_com_polord (al pol)
+  → m = ps_pol_com_polord pol
   → q₀ = q_of_m m (γ ns)
   → c = ac_root (Φq pol ns)
   → pol₁ = next_pol pol (β ns) (γ ns) c
@@ -313,7 +313,7 @@ Theorem upper_bound_zerop_1st_when_r_constant : ∀ pol ns c pol₁ ns₁ m q₀
   → pol₁ = next_pol pol (β ns) (γ ns) c
   → ns₁ = List.hd phony_ns (newton_segments pol₁)
   → (ps_poly_nth 0 pol ≠ 0)%ps
-  → m = ps_lap_com_polord (al pol)
+  → m = ps_pol_com_polord pol
   → q₀ = q_of_m m (γ ns)
   → root_multiplicity acf c (Φq pol ns) = S r
   → (∀ i : nat, if multiplicity_decreases pol ns i then False else True)
@@ -467,7 +467,7 @@ Qed.
 Definition f₁_root_when_r_constant pol ns :=
   if fld_zerop 1%K then 0%ps
   else
-    let m := ps_lap_com_polord (al pol) in
+    let m := ps_pol_com_polord pol in
     let q₀ := q_of_m m (γ ns) in
     let pol₁ := next_pol pol (β ns) (γ ns) (ac_root (Φq pol ns)) in
     let ns₁ := List.hd phony_ns (newton_segments pol₁) in
@@ -497,7 +497,7 @@ unfold f₁_root_when_r_constant.
 rewrite <- Hpol₁.
 remember (List.hd phony_ns (newton_segments pol₁)) as ns₁ eqn:Hns₁.
 remember (ac_root (Φq pol ns)) as c eqn:Hc in Hpol₁ |-*.
-remember (ps_lap_com_polord (al pol)) as m eqn:Hm.
+remember (ps_pol_com_polord pol) as m eqn:Hm.
 remember (q_of_m m (γ ns)) as q₀ eqn:Hq₀ .
 remember (root_tail (m * q₀) 0 pol₁ ns₁) as s eqn:Hs .
 destruct (fld_zerop 1%K) as [H₀| H₀].

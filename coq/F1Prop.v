@@ -821,17 +821,18 @@ assert (order (ps_lap_nth r (yr * ycj * psy ∘ yc)) = 0)%Qbar as Hor.
 Qed.
 
 Theorem exists_pol_ord : ∀ pol, ∃ m,
-  m = ps_lap_com_polord (al pol) ∧ pol_in_K_1_m pol m.
+  m = ps_pol_com_polord pol ∧ pol_in_K_1_m pol m.
 Proof.
 intros pol.
 unfold pol_in_K_1_m.
-remember (ps_lap_com_polord (al pol)) as m eqn:Hm.
+remember (ps_pol_com_polord pol) as m eqn:Hm.
 exists m; split; [ reflexivity | ].
 apply ps_lap_forall_forall.
  intros a b Hab H.
  rewrite <- Hab; assumption.
 
  intros a Ha.
+ unfold ps_pol_com_polord in Hm.
  remember (al pol) as la; clear Heqla.
  revert a m Ha Hm.
  induction la as [| b]; intros; [ contradiction | idtac ].
