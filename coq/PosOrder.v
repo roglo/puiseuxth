@@ -29,14 +29,6 @@ Require Import F1Eq.
 
 Set Implicit Arguments.
 
-Fixpoint ps_lap_in α {R : ring α} {K : field R} a l :=
-  match l with
-  | [] => False
-  | [b … m] => (l ≠ [])%pslap ∧ (b = a)%ps ∨ ps_lap_in a m
-  end.
-
-Arguments ps_lap_in _ _ _ a%ps l%pslap.
-
 Theorem ps_lap_in_compat : ∀ α (R : ring α) (K : field R) a b la lb,
   (a = b)%ps
   → (la = lb)%pslap

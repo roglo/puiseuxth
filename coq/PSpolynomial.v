@@ -63,6 +63,14 @@ Inductive ps_lap_forall {α} {R : ring α} {K : field R} (P : _ → Prop) :
 
 Arguments ps_lap_forall α%type_scope _ _ _ l%pslap.
 
+Fixpoint ps_lap_in α {R : ring α} {K : field R} a l :=
+  match l with
+  | [] => False
+  | [b … m] => (l ≠ [])%pslap ∧ (b = a)%ps ∨ ps_lap_in a m
+  end.
+
+Arguments ps_lap_in _ _ _ a%ps l%pslap.
+
 Theorem fold_ps_lap_add : ∀ α (R : ring α) (K : field R) a b,
   @lap_add _ (ps_ring K) a b = ps_lap_add a b.
 Proof. reflexivity. Qed.
