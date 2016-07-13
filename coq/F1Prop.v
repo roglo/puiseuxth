@@ -851,6 +851,16 @@ apply ps_lap_forall_forall.
   apply IHla; [ apply Ha | reflexivity ].
 Qed.
 
+Theorem ps_pol_com_polord_in_K_1_m : ∀ pol m,
+  m = ps_pol_com_polord pol
+  → pol_in_K_1_m pol m.
+Proof.
+intros; subst m.
+pose proof exists_pol_ord pol as H.
+destruct H as (m, (Hm, HK)).
+subst m; assumption.
+Qed.
+
 (* [Walker, p 101] «
      O(bi) ≥ 0,  i = 0,...,n
      O(bi) > 0,  i = 0,...,r-1
