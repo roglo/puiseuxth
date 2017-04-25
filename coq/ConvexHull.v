@@ -5,12 +5,6 @@ Import ListNotations.
 
 Require Import Slope_base.
 
-(*
-Notation "[ ]" := nil.
-Notation "[ x ; .. ; y … l ]" := (cons x .. (cons y l) ..).
-Notation "[ x ]" := (cons x nil).
-*)
-
 Record newton_segment := mkns
   { ini_pt : (Q * Q);
     fin_pt : (Q * Q);
