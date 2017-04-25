@@ -591,7 +591,7 @@ Proof.
 intros n m p.
 destruct n as [n| ]; [ simpl | reflexivity ].
 destruct p as [p| ]; [ simpl | destruct m; reflexivity ].
-destruct m as [| m]; [ simpl | reflexivity ].
+destruct m; [ simpl | reflexivity ].
 rewrite Nat.mul_add_distr_r; reflexivity.
 Qed.
 
@@ -623,7 +623,7 @@ Proof.
 intros n m p.
 destruct n as [n| ]; [ simpl | reflexivity ].
 destruct p as [p| ]; [ simpl | destruct m; reflexivity ].
-destruct m as [| m]; [ simpl | reflexivity ].
+destruct m; [ simpl | reflexivity ].
 rewrite Nat.add_max_distr_r; reflexivity.
 Qed.
 
@@ -632,7 +632,7 @@ Proof.
 intros n m p.
 destruct n as [n| ]; [ simpl | reflexivity ].
 destruct p as [p| ]; [ simpl | destruct m; reflexivity ].
-destruct m as [| m]; [ simpl | reflexivity ].
+destruct m; [ simpl | reflexivity ].
 rewrite Nat.mul_max_distr_r; reflexivity.
 Qed.
 
