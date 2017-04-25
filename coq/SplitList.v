@@ -274,9 +274,6 @@ induction len; intros; simpl in He; simpl.
       destruct Hin; assumption.
 
      apply IHla.
-      apply list_Forall_inv in Hin.
-      destruct Hin; assumption.
-
       destruct Hsort as (Hsort, Hrel).
       apply Sorted_inv in Hsort.
       split; [ destruct Hsort; assumption | idtac ].
@@ -294,6 +291,9 @@ induction len; intros; simpl in He; simpl.
        destruct Hsort as (Hsort, Hrel₂).
        apply HdRel_inv in Hrel₂.
        eapply lt_trans; eassumption.
+
+      apply list_Forall_inv in Hin.
+      destruct Hin; assumption.
 
       assumption.
 

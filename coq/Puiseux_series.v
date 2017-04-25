@@ -674,10 +674,10 @@ assert (Pv : ∀ i, v (S i) ≤ v i).
             rewrite <- IHh, Nat.add_succ_r.
              apply eq_sym, H3.
 
-             apply Nat.le_add_r.
-
              rewrite Nat.add_comm.
              apply eq_sym, Nat.add_sub.
+
+             apply Nat.le_add_r.
 
            apply Nat.nle_gt, Nat.lt_le_incl in H6.
            clear H3 H4.

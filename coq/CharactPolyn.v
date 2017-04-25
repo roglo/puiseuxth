@@ -668,11 +668,11 @@ assert (pow ≤ Z.to_nat (Qnum h)) as H.
  induction psl as [| ps]; intros.
   destruct Hhps₁ as [Hhps₁| ]; [ idtac | contradiction ].
   injection Hhps₁; clear Hhps₁; intros; subst h hps.
-  left; reflexivity.
+  now left.
 
   destruct Hhps₁ as [Hhps₁| Hhps₁].
    injection Hhps₁; clear Hhps₁; intros; subst h hps.
-   left; reflexivity.
+   now left.
 
    destruct (eq_nat_dec (Z.to_nat (Qnum h)) pow) as [Heq| Hne].
     rewrite Heq, minus_diag in Hhps.
