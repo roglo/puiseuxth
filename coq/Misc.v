@@ -17,11 +17,13 @@ Notation "x ≤ y < z" := (x <= y ∧ y < z)%nat (at level 70, y at next level).
 Notation "x ∈ l" := (List.In x l) (at level 70).
 Notation "x ∉ l" := (not (List.In x l)) (at level 70).
 
+(*
 (* added from 8.4 to 8.5 *)
 Definition divmod := Nat.divmod.
 Definition divide x y := exists z, (y=z*x)%nat.
 Notation "( x | y )" := (divide x y) (at level 0) : nat_scope.
 (* end added *)
+*)
 
 Ltac negation H := exfalso; apply H; reflexivity.
 Tactic Notation "fast_omega" hyp_list(Hs) := revert Hs; clear; intros; omega.
