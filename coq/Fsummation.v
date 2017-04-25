@@ -238,7 +238,7 @@ replace k with (b + len) in * .
    rewrite Nat.add_succ_r, <- Nat.add_succ_l in Hvk.
    rewrite Hi; auto.
     rewrite rng_add_0_l.
-    apply IHlen; auto; [ apply le_neq_lt; auto | idtac ].
+    apply IHlen; auto; [ apply Nat_le_neq_lt; auto | idtac ].
     intros j (Hvj, Hjvl) Hjv.
     rewrite Nat.add_succ_l, <- Nat.add_succ_r in Hjvl.
     apply Hi; auto; split; auto.
@@ -342,7 +342,7 @@ destruct (le_dec b k) as [Hbk| Hbk].
    do 2 rewrite rng_add_0_l; rewrite rng_add_0_l.
    reflexivity.
 
-   apply le_neq_lt in Hbk; [ idtac | assumption ].
+   apply Nat_le_neq_lt in Hbk; [ idtac | assumption ].
    apply Nat.succ_le_mono in Hbk.
    rewrite IHk; [ idtac | assumption ].
    do 2 rewrite <- rng_add_assoc.
@@ -484,50 +484,44 @@ destruct k.
  rewrite <- Hfg, Nat.mul_0_r; reflexivity.
 
  destruct n; [ exfalso; apply Hn; reflexivity | clear Hn ].
- replace (S k * S n)%nat with (S k * S n - 1 + 1)%nat .
+ replace (S k * S n)%nat with (S k * S n - 1 + 1)%nat.
   rewrite summation_ub_add.
   rewrite summation_mul_summation_summation; try apply Nat.lt_0_succ.
   rewrite Nat_sub_succ_1, Nat.add_comm, summation_only_one.
+  simpl; do 2 rewrite Nat.sub_0_r.
   symmetry.
   rewrite <- Nat.add_1_r, summation_ub_add, Nat.add_1_r.
   rewrite summation_only_one, rng_add_comm, <- Hfg.
   symmetry.
   rewrite rng_add_comm.
-  rewrite Nat.add_sub_assoc.
-   rewrite Nat.add_comm, Nat.add_sub, Nat.mul_comm.
-   apply rng_add_compat_l, summation_compat; intros i Hi.
-   rewrite Nat_sub_succ_1.
-   rewrite <- Hfg.
-   rewrite Nat.mul_comm.
-   rewrite summation_only_one_non_0 with (v := O).
-    rewrite Nat.add_0_r, Nat.mul_comm.
-    reflexivity.
+  apply rng_add_compat; [ symmetry; rewrite Nat.mul_comm; reflexivity |  ].
+  apply summation_compat; intros i Hi.
+  rewrite summation_only_one_non_0 with (v := 0).
+   rewrite Nat.add_0_r, Nat.mul_comm; apply Hfg.
 
-    split; [ reflexivity | apply Nat.le_0_l ].
+   split; [ reflexivity | apply Nat.le_0_l ].
 
-    intros j Hjn Hj.
-    rewrite Hf; [ reflexivity | idtac ].
-    rewrite Nat.add_comm.
-    rewrite Nat.mul_comm, Nat.mod_add; auto.
-    intros H; apply Hj; clear Hj.
-    apply Nat.mod_divides in H; auto.
-    destruct H as (c, Hc).
-    destruct c.
-     rewrite Nat.mul_0_r in Hc; assumption.
+   intros j Hjn Hj.
+   rewrite Hf; [ reflexivity |  ].
+   rewrite Nat.add_comm.
+   rewrite Nat.mod_add; [  | apply Nat.neq_succ_0 ].
+   intros H; apply Hj; clear Hj.
+   apply Nat.mod_divides in H; auto.
+   destruct H as (c, Hc).
+   destruct c.
+    rewrite Nat.mul_0_r in Hc; assumption.
 
-     rewrite Hc in Hjn.
-     rewrite Nat.mul_comm in Hjn.
-     simpl in Hjn.
-     destruct Hjn as (_, H).
-     apply Nat.nlt_ge in H.
-     exfalso; apply H.
-     apply le_n_S, Nat.le_add_r.
+    rewrite Hc in Hjn.
+    rewrite Nat.mul_comm in Hjn.
+    simpl in Hjn.
+    destruct Hjn as (_, H).
+    apply Nat.nlt_ge in H.
+    exfalso; apply H.
+    apply le_n_S, Nat.le_add_r.
 
-   simpl; apply le_n_S, Nat.le_0_l.
+  rewrite Nat.sub_add; [ apply eq_refl |  ].
+  simpl; apply le_n_S, Nat.le_0_l.
 
-  simpl.
-  rewrite Nat.sub_0_r.
-  rewrite Nat.add_comm; reflexivity.
 Qed.
 
 Theorem summation_add_add_sub : ∀ g b k n,

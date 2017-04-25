@@ -24,7 +24,7 @@ Require Import Qbar.
 
 Set Implicit Arguments.
 
-Add Parametric Morphism α (R : ring α) : (@in_K_1_m _ R)
+Add Parametric Morphism α (R : ring α) (K : field R) : (@in_K_1_m _ R K)
   with signature eq_ps ==> eq ==> iff
   as in_K_1_m_morph.
 Proof.
@@ -48,7 +48,8 @@ split; intros H.
  transitivity b; assumption.
 Qed.
 
-Theorem ps_lap_forall_in_K_1_m_compat {α} {R : ring α} : ∀ la lb m,
+Theorem ps_lap_forall_in_K_1_m_compat {α} {R : ring α} {K : field R} :
+  ∀ la lb m,
   (la = lb)%pslap
   → ps_lap_forall (λ a, in_K_1_m a m) la
   → ps_lap_forall (λ a, in_K_1_m a m) lb.
@@ -75,8 +76,9 @@ destruct (ps_lap_nilp _ [b … lb]) as [Hba| Hba].
   rewrite Hab, Hlab in H; contradiction.
 Qed.
 
-Add Parametric Morphism α (R : ring α) m : (ps_lap_forall (λ a, in_K_1_m a m))
-  with signature (@ps_lap_eq _ R) ==> iff
+Add Parametric Morphism α (R : ring α) (K : field R) m :
+  (ps_lap_forall (λ a, in_K_1_m a m))
+  with signature (@ps_lap_eq _ R K) ==> iff
   as ps_lap_forall_morph.
 Proof.
 intros la lb Hab.
@@ -240,7 +242,7 @@ Theorem hd_in_K_1_m : ∀ a la m,
   → in_K_1_m a m.
 Proof.
 intros a la m Hla.
-destruct (ps_zerop R a) as [Ha| Ha].
+destruct (ps_zerop K a) as [Ha| Ha].
  rewrite Ha; apply ps_zero_in_K_1_m.
 
  eapply ps_lap_forall_forall in Hla; eauto.
@@ -249,9 +251,9 @@ destruct (ps_zerop R a) as [Ha| Ha].
 
   left.
   split; [ idtac | reflexivity ].
-  intros H; apply Ha; clear Ha.
-  apply lap_eq_cons_nil_inv in H.
-  destruct H; assumption.
+  intros H1; apply Ha; clear Ha.
+  apply lap_eq_cons_nil_inv in H1.
+  destruct H1; assumption.
 Qed.
 
 Theorem in_K_1_m_lap_add_compat : ∀ m la lb c,
@@ -364,7 +366,7 @@ induction la as [| a]; intros.
        intros g h Hgh Hg.
        rewrite <- Hgh; assumption.
 
-       destruct (ps_zerop R b') as [Hb| Hb].
+       destruct (ps_zerop K b') as [Hb| Hb].
         rewrite Hb; apply ps_zero_in_K_1_m.
 
         apply Hlb; right; left.
@@ -399,13 +401,13 @@ induction la as [| a]; intros.
 
      apply IHla with (lb := lb); auto.
       intros e He.
-      destruct (ps_zerop R e) as [Hf| Hf].
+      destruct (ps_zerop K e) as [Hf| Hf].
        rewrite Hf; apply ps_zero_in_K_1_m.
 
        apply Hla; right; assumption.
 
       intros e He.
-      destruct (ps_zerop R e) as [Hf| Hf].
+      destruct (ps_zerop K e) as [Hf| Hf].
        rewrite Hf; apply ps_zero_in_K_1_m.
 
        apply Hlb; right; assumption.

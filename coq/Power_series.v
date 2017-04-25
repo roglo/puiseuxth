@@ -11,7 +11,7 @@ Require Import Fsummation.
 
 Set Implicit Arguments.
 
-Record power_series α := { terms : nat → α }.
+Record power_series α := series { terms : nat → α }.
 
 Notation "s .[ i ]" := (@terms _ s i) (at level 1).
 
@@ -313,14 +313,16 @@ Qed.
 End other_theorems.
 
 Fixpoint term_inv {α} {r : ring α} {f : field r} c s n :=
-  if zerop n then ¹/ (s.[0])%K
-  else
-   match c with
-   | O => 0%K
-   | S c₁ =>
-       (- ¹/ (s.[0]) *
-        Σ (i = 1, n), s.[i] * term_inv c₁ s (n - i)%nat)%K
-   end.
+  match n with
+  | O => ¹/ (s.[0])%K
+  | S n₁ =>
+      match c with
+      | O => 0%K
+      | S c₁ =>
+          (- ¹/ (s.[0]) *
+           Σ (i = 0, n₁), s.[S i] * term_inv c₁ s (n₁ - i)%nat)%K
+      end
+  end.
 
 Definition series_inv {α} {r : ring α} {f : field r} s :=
   {| terms i := term_inv (S i) s i |}.
@@ -354,8 +356,8 @@ induction i; intros.
    apply summation_compat; intros l (Hl, Hlj).
    apply rng_mul_compat_l.
    destruct l.
-    apply Nat.nle_gt in Hl.
-    exfalso; apply Hl; reflexivity.
+    rewrite Nat.sub_0_r.
+    apply IHi; apply Nat.succ_le_mono; assumption.
 
     apply IHi; omega.
 Qed.
@@ -380,23 +382,25 @@ destruct ki.
 
  clear H₁.
  apply rng_mul_compat_l.
+ rewrite summation_succ_succ.
  apply summation_compat; intros j Hj.
  apply rng_mul_compat_l.
  remember minus as g; simpl; subst g.
- destruct (zerop (S ki - j)) as [H₁| H₁].
+ rewrite Nat.sub_succ.
+ remember (ki - j)%nat as n eqn:Hn.
+ destruct n.
   reflexivity.
 
   apply rng_mul_compat_l.
   apply summation_compat; intros l Hl.
   apply rng_mul_compat_l.
-  apply term_inv_iter_enough; [ fast_omega Hl | idtac ].
-  rewrite Hki₂.
-  destruct Hl as (H, _).
-  apply Nat.nle_gt in H.
-  destruct l; [ exfalso; apply H, Nat.le_0_l | idtac ].
-  do 2 rewrite <- Nat.sub_add_distr.
-  do 2 rewrite Nat.add_succ_r.
-  rewrite Nat.sub_succ.
+  apply term_inv_iter_enough; [ fast_omega Hl Hn | idtac ].
+  rewrite <- Nat.sub_succ, Hki₂ in Hn.
+  rewrite <- Nat.sub_succ, Hn.
+  rewrite <- Nat.sub_add_distr.
+  rewrite Nat.add_succ_l.
+  rewrite Nat_sub_sub_comm, Nat.sub_succ.
+  rewrite <- Nat.sub_add_distr.
   apply Nat.le_sub_l.
 Qed.
 
@@ -415,13 +419,14 @@ apply summation_compat; intros i Hi.
 apply rng_mul_compat_l.
 rewrite Ha'.
 remember minus as g; simpl; subst g.
-destruct (zerop (S k - i)) as [H₂| H₂].
+remember (S k - i)%nat as n eqn:Hn.
+destruct n.
  reflexivity.
 
  apply rng_mul_compat_l.
  apply summation_compat; intros j Hj.
  apply rng_mul_compat_l.
- apply term_inv_iter_enough; fast_omega Hj.
+ apply term_inv_iter_enough; fast_omega Hn Hj.
 Qed.
 
 Theorem convol_mul_inv_r : ∀ k a a',

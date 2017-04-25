@@ -29,21 +29,13 @@ Require Import F1Eq.
 
 Set Implicit Arguments.
 
-Fixpoint ps_lap_in α {R : ring α} a l :=
-  match l with
-  | [] => False
-  | [b … m] => (l ≠ [])%pslap ∧ (b = a)%ps ∨ ps_lap_in a m
-  end.
-
-Arguments ps_lap_in _ _ a%ps l%pslap.
-
-Theorem ps_lap_in_compat : ∀ α (R : ring α) a b la lb,
+Theorem ps_lap_in_compat : ∀ α (R : ring α) (K : field R) a b la lb,
   (a = b)%ps
   → (la = lb)%pslap
     → ps_lap_in a la
       → ps_lap_in b lb.
 Proof.
-intros α R a b la lb Hab Hlab Hla.
+intros α R K a b la lb Hab Hlab Hla.
 unfold ps_lap_eq in Hlab.
 revert a b Hab lb Hlab Hla.
 induction la as [| c]; intros; [ contradiction | idtac ].
@@ -72,8 +64,8 @@ destruct Hla as [(Hcla, Hca)| Hla].
   eapply IHla; eassumption.
 Qed.
 
-Add Parametric Morphism α (R : ring α) : (@ps_lap_in α R)
-  with signature eq_ps ==> (@lap_eq _ (ps_ring R)) ==> iff
+Add Parametric Morphism α (R : ring α) (K : field R) : (@ps_lap_in α R K)
+  with signature eq_ps ==> (@lap_eq _ (ps_ring K)) ==> iff
   as list_in_eq_ps_morph.
 Proof.
 intros a b Hab la lb Hlab.
@@ -92,14 +84,14 @@ Definition g_lap_of_ns α {R : ring α} {K : field R}
   let l₁ := List.map (λ t, power t) tl in
   let l₂ := list_seq_except 0 (length (al pol)) l₁ in
   ([ps_monom 1%K (- β ns)] *
-   (ps_lap_summ l₁
+   (ps_lap_summ ps_field l₁
       (λ h,
        let āh := ps_poly_nth h pol in
        let ah := ps_monom (coeff_of_term R h tl) 0 in
        let αh := ord_of_pt h pl in
        [((āh - ah * ps_monom 1%K αh) * ps_monom 1%K (Qnat h * γ ns))%ps] *
        [ps_monom c₁ 0; 1%ps … []] ^ h) +
-    ps_lap_summ l₂
+    ps_lap_summ ps_field l₂
       (λ l,
        let āl := ps_poly_nth l pol in
        [(āl * ps_monom 1%K (Qnat l * γ ns))%ps] *
@@ -117,7 +109,7 @@ Variable acf : algeb_closed_field K.
 
 Theorem coeff_of_hl_eq_order : ∀ h la li,
   h ∈ li
-  → coeff_of_hl R la h li = order_coeff (List.nth h la 0%ps).
+  → coeff_of_hl K la h li = order_coeff (List.nth h la 0%ps).
 Proof.
 intros h la li Hh.
 induction li as [| i]; [ contradiction | simpl ].
@@ -144,12 +136,12 @@ eapply order_in_newton_segment with (h := h) (αh := αh) in Hval; eauto .
  rewrite <- Hāh in Hval.
  unfold order, Qbar.gt.
  remember (āh - ah * ps_monom 1%K αh)%ps as s eqn:Hs .
- remember (series_order R (ps_terms s) 0) as n eqn:Hn .
+ remember (series_order (ps_terms s) 0) as n eqn:Hn .
  symmetry in Hn.
  destruct n as [n| ]; [ idtac | constructor ].
  apply Qbar.qfin_lt_mono.
  unfold order in Hval.
- remember (series_order R (ps_terms āh) 0) as m eqn:Hm .
+ remember (series_order (ps_terms āh) 0) as m eqn:Hm .
  symmetry in Hm.
  destruct m as [m| ]; [ idtac | discriminate Hval ].
  injection Hval; clear Hval; intros Hval.
@@ -238,14 +230,14 @@ eapply order_in_newton_segment with (h := h) (αh := αh) in Hval; eauto .
        destruct (lt_dec n (m * Pos.to_nat (ps_polord āh))) as [Hnp| Hnp].
         apply series_order_iff in Hm.
         destruct Hm as (Hmi, Hm).
-        apply le_neq_lt in Hmn; [ idtac | assumption ].
+        apply Nat_le_neq_lt in Hmn; [ idtac | assumption ].
         apply Hmi in Hmn.
         rewrite rng_add_0_r in Hn; contradiction.
 
         apply Hnp.
         rewrite Hp.
         apply Nat.mul_lt_mono_pos_r; [ apply Pos2Nat.is_pos | idtac ].
-        apply le_neq_lt; assumption.
+        apply Nat_le_neq_lt; assumption.
 
       apply Nat2Z.is_nonneg.
 
@@ -265,7 +257,7 @@ eapply order_in_newton_segment with (h := h) (αh := αh) in Hval; eauto .
         rewrite Nat.mod_mul in Hnp; auto.
         exfalso; revert Hnp; apply Nat.lt_irrefl.
 
-        apply le_neq_lt; assumption.
+        apply Nat_le_neq_lt; assumption.
 
       apply Nat2Z.is_nonneg.
 
@@ -312,7 +304,7 @@ Theorem order_āl_xlγ₁_gt_β₁ : ∀ pol ns pl tl l₁ l₂ l āl,
 Proof.
 intros pol ns pl tl l₁ l₂ l āl Hns Hpl Htl Hl₁ Hsl Hl Hāl.
 remember (āl * ps_monom 1%K (Qnat l * γ ns))%ps as s eqn:Hs .
-remember (series_order R (ps_terms s) 0) as n eqn:Hn .
+remember (series_order (ps_terms s) 0) as n eqn:Hn .
 symmetry in Hn.
 destruct n as [n| ].
  remember (points_of_ps_polynom pol) as pts eqn:Hpts .
@@ -341,7 +333,7 @@ destruct n as [n| ].
    rewrite Z.add_shuffle0.
    apply Z.add_le_mono.
     unfold order in Hm.
-    remember (series_order R (ps_terms āl) 0) as p eqn:Hp .
+    remember (series_order (ps_terms āl) 0) as p eqn:Hp .
     symmetry in Hp.
     destruct p as [p| ]; [ idtac | discriminate Hm ].
     injection Hm; clear Hm; intros Hm.
@@ -436,7 +428,7 @@ destruct n as [n| ].
     apply Nat.lt_succ_diag_r.
 
   unfold order in Hm.
-  remember (series_order R (ps_terms āl) 0) as v eqn:Hv .
+  remember (series_order (ps_terms āl) 0) as v eqn:Hv .
   symmetry in Hv.
   destruct v; [ discriminate Hm | idtac ].
   apply ps_series_order_inf_iff in Hv.
@@ -456,8 +448,8 @@ Theorem order_mul : ∀ a b, (order (a * b)%ps = order a + order b)%Qbar.
 Proof.
 intros a b.
 symmetry.
-pose proof (ps_adjust_eq R a 0 (ps_polord b)) as Ha.
-pose proof (ps_adjust_eq R b 0 (ps_polord a)) as Hb.
+pose proof (ps_adjust_eq K a 0 (ps_polord b)) as Ha.
+pose proof (ps_adjust_eq K b 0 (ps_polord a)) as Hb.
 rewrite Hb in |- * at 1.
 rewrite Ha in |- * at 1.
 unfold order; simpl.
@@ -465,9 +457,9 @@ unfold cm_factor, cm; simpl.
 do 2 rewrite series_shift_0.
 remember (series_stretch (ps_polord b) (ps_terms a)) as sa eqn:Hsa .
 remember (series_stretch (ps_polord a) (ps_terms b)) as sb eqn:Hsb .
-remember (series_order R sa 0) as na eqn:Hna .
-remember (series_order R sb 0) as nb eqn:Hnb .
-remember (series_order R (sa * sb)%ser 0) as nc eqn:Hnc .
+remember (series_order sa 0) as na eqn:Hna .
+remember (series_order sb 0) as nb eqn:Hnb .
+remember (series_order (sa * sb)%ser 0) as nc eqn:Hnc .
 symmetry in Hna, Hnb, Hnc.
 destruct na as [na| ].
  destruct nb as [nb| ].
@@ -525,7 +517,7 @@ destruct na as [na| ].
       apply Nat.add_lt_mono_r with (p := i).
       rewrite Nat.sub_add; auto.
       rewrite Nat.add_comm.
-      apply Nat.add_lt_mono_l, le_neq_lt; auto.
+      apply Nat.add_lt_mono_l, Nat_le_neq_lt; auto.
 
     apply Nat.nlt_ge in Hge.
     destruct (lt_dec nc (na + nb)) as [Hclt| Hcge].
@@ -580,7 +572,7 @@ destruct na as [na| ].
        apply Nat.add_lt_mono_r with (p := i).
        rewrite Nat.sub_add; auto.
        rewrite Nat.add_comm.
-       apply Nat.add_lt_mono_l, le_neq_lt; auto.
+       apply Nat.add_lt_mono_l, Nat_le_neq_lt; auto.
 
     apply Nat.nle_gt in Hab.
     rewrite summation_only_one_non_0 with (v := na) in Hnab.
@@ -599,7 +591,7 @@ destruct na as [na| ].
       apply Nat.add_lt_mono_r with (p := i).
       rewrite Nat.sub_add; auto.
       rewrite Nat.add_comm.
-      apply Nat.add_lt_mono_l, le_neq_lt; auto.
+      apply Nat.add_lt_mono_l, Nat_le_neq_lt; auto.
 
   simpl.
   apply series_series_order_inf_iff in Hnb.
@@ -623,14 +615,14 @@ Theorem order_add : ∀ a b,
 Proof.
 intros a b.
 unfold Qbar.ge.
-set (k₁ := cm_factor a b).
-set (k₂ := cm_factor b a).
+set (k₁ := ps_polord b).
+set (k₂ := ps_polord a).
 set (v₁ := (ps_ordnum a * ' k₁)%Z).
 set (v₂ := (ps_ordnum b * ' k₂)%Z).
 set (n₁ := Z.to_nat (v₂ - Z.min v₁ v₂)).
 set (n₂ := Z.to_nat (v₁ - Z.min v₁ v₂)).
-pose proof (ps_adjust_eq R a n₂ k₁) as Ha.
-pose proof (ps_adjust_eq R b n₁ k₂) as Hb.
+pose proof (ps_adjust_eq K a n₂ k₁) as Ha.
+pose proof (ps_adjust_eq K b n₁ k₂) as Hb.
 rewrite Hb in |- * at 1.
 rewrite Ha in |- * at 1.
 rewrite eq_ps_add_add₂.
@@ -645,9 +637,9 @@ remember (adjust_ps n₁ k₂ b) as pb eqn:Hpb .
 unfold order; simpl.
 remember (ps_terms pa) as sa eqn:Hsa .
 remember (ps_terms pb) as sb eqn:Hsb .
-remember (series_order R sa 0) as na eqn:Hna .
-remember (series_order R sb 0) as nb eqn:Hnb .
-remember (series_order R (sa + sb)%ser 0) as nc eqn:Hnc .
+remember (series_order sa 0) as na eqn:Hna .
+remember (series_order sb 0) as nb eqn:Hnb .
+remember (series_order (sa + sb)%ser 0) as nc eqn:Hnc .
 symmetry in Hna, Hnb, Hnc.
 destruct na as [na| ].
  destruct nb as [nb| ].
@@ -765,8 +757,8 @@ destruct Hal as [Hal| Hal].
 Qed.
 
 Theorem ps_lap_nilp : ∀ la : list (puiseux_series α),
-  {@lap_eq _ (ps_ring R) la []} +
-  {not (@lap_eq _ (ps_ring R) la [])}.
+  {@lap_eq _ (ps_ring K) la []} +
+  {not (@lap_eq _ (ps_ring K) la [])}.
 Proof.
 intros la.
 induction la as [| a]; [ left; reflexivity | idtac ].
@@ -1068,7 +1060,7 @@ induction la as [| a]; intros.
     apply lap_eq_cons_nil_inv in H.
     destruct H; contradiction.
 
-    revert Hlb Hn Hoa; clear; intros.
+    revert Hlb Hn Hoa; clear -K; intros.
     rewrite lap_mul_const_l in Hn.
     induction lb as [| b]; [ contradiction | idtac ].
     simpl in Hn.
@@ -1125,7 +1117,7 @@ induction la as [| a]; intros.
     apply lap_eq_cons_nil_inv in H.
     destruct H; contradiction.
 
-    revert Hlb Hn Hoa; clear; intros.
+    revert Hlb Hn Hoa; clear -K; intros.
     rewrite lap_mul_const_l in Hn.
     induction lb as [| b]; [ contradiction | idtac ].
     simpl in Hn.
@@ -1159,7 +1151,7 @@ Qed.
 
 Theorem ps_lap_in_summation : ∀ f l,
   (∀ i, i ∈ l → ∀ m, ps_lap_in m (f i) → (order m > 0)%Qbar)
-  → (∀ m, ps_lap_in m (ps_lap_summ l f) → (order m > 0)%Qbar).
+  → (∀ m, ps_lap_in m (ps_lap_summ ps_field l f) → (order m > 0)%Qbar).
 Proof.
 intros f l Hi m Hm.
 revert m Hm.
@@ -1177,24 +1169,11 @@ apply ps_lap_in_add in Hm; [ assumption | idtac | idtac ].
  left; reflexivity.
 Qed.
 
-(* to be moved to the good file *)
-Theorem lap_mul_summation : ∀ α (Kx : ring (puiseux_series α)) la l f,
-  (la * lap_summation l f = lap_summation l (λ i, la * f i))%lap.
-Proof.
-clear.
-intros α Kx la l f.
-induction l as [| j]; intros; simpl.
- rewrite lap_mul_nil_r; reflexivity.
-
- rewrite lap_mul_add_distr_l, IHl.
- reflexivity.
-Qed.
-
 Theorem ps_monom_order : ∀ c n, (c ≠ 0)%K → order (ps_monom c n) = qfin n.
 Proof.
 intros c n Hc.
 unfold order.
-remember (series_order R (ps_terms (ps_monom c n)) 0) as m eqn:Hm .
+remember (series_order (ps_terms (ps_monom c n)) 0) as m eqn:Hm .
 symmetry in Hm.
 apply series_order_iff in Hm.
 simpl in Hm; simpl.
@@ -1211,7 +1190,7 @@ Theorem ps_monom_0_order : ∀ c n, (c = 0)%K → order (ps_monom c n) = qinf.
 Proof.
 intros c n Hc.
 unfold order.
-remember (series_order R (ps_terms (ps_monom c n)) 0) as m eqn:Hm .
+remember (series_order (ps_terms (ps_monom c n)) 0) as m eqn:Hm .
 symmetry in Hm.
 apply series_order_iff in Hm.
 simpl in Hm; simpl.
@@ -1224,7 +1203,7 @@ Theorem ps_monom_order_ge : ∀ c n, (order (ps_monom c n) ≥ qfin n)%Qbar.
 Proof.
 intros c n.
 unfold order.
-remember (series_order R (ps_terms (ps_monom c n)) 0) as m eqn:Hm .
+remember (series_order (ps_terms (ps_monom c n)) 0) as m eqn:Hm .
 symmetry in Hm.
 unfold Qbar.ge.
 destruct m as [m| ]; [ idtac | constructor ].
@@ -1393,7 +1372,7 @@ assert (m ≠ 0)%ps as Hmnz.
    remember (ps_poly_nth h pol) as āh.
    apply Qbar.lt_sub_lt_add_l; [ intros H; discriminate H | idtac ].
    rewrite Qbar.sub_0_l.
-   destruct (ac_zerop 1%K) as [Hoz| Honz].
+   destruct (fld_zerop 1%K) as [Hoz| Honz].
     rewrite ps_monom_0_order; [ simpl | assumption ].
     rewrite order_mul.
     rewrite ps_monom_0_order; [ simpl | assumption ].
@@ -1409,7 +1388,7 @@ assert (m ≠ 0)%ps as Hmnz.
      remember Hns as Hsort; clear HeqHsort.
      apply ini_oth_fin_pts_sorted in Hsort.
      rewrite <- Hpl in Hsort.
-     pose proof (points_in_newton_segment_have_nat_abscissa R pol ns Hns)
+     pose proof (points_in_newton_segment_have_nat_abscissa K pol ns Hns)
       as Hnat.
      rewrite <- Hpl in Hnat.
      revert Hsort Hnat; clear; intros.

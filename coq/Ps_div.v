@@ -16,7 +16,7 @@ Require Import Power_series.
 Set Implicit Arguments.
 
 Definition ps_inv {α} {r : ring α} {f : field r} ps :=
-  match series_order r (ps_terms ps) O with
+  match series_order (ps_terms ps) O with
   | fin n =>
       {| ps_terms := series_inv (series_left_shift n (ps_terms ps));
          ps_ordnum := - ps_ordnum ps - Z.of_nat n;
@@ -27,8 +27,8 @@ Definition ps_inv {α} {r : ring α} {f : field r} ps :=
 
 Notation "¹/ a" := (ps_inv a) : ps_scope.
 
-Definition ps_left_adjust α {R : ring α} ps :=
-  match series_order R (ps_terms ps) O with
+Definition ps_left_adjust α {R : ring α} {K : field R} ps :=
+  match series_order (ps_terms ps) O with
   | fin n =>
       {| ps_terms := series_left_shift n (ps_terms ps);
          ps_ordnum := ps_ordnum ps + Z.of_nat n;
@@ -44,8 +44,8 @@ Variable r : ring α.
 Variable f : field r.
 
 Theorem series_order_left_adjust : ∀ n ps,
-  series_order r (ps_terms ps) 0 = fin n
-  → series_order r (ps_terms (ps_left_adjust ps)) 0 = 0%Nbar.
+  series_order (ps_terms ps) 0 = fin n
+  → series_order (ps_terms (ps_left_adjust ps)) 0 = 0%Nbar.
 Proof.
 intros n ps Hn.
 unfold ps_left_adjust; simpl.
@@ -62,8 +62,8 @@ split.
 Qed.
 
 Theorem series_order_inf_left_adjust : ∀ ps,
-  series_order r (ps_terms ps) 0 = ∞
-  → series_order r (ps_terms (ps_left_adjust ps)) 0 = ∞.
+  series_order (ps_terms ps) 0 = ∞
+  → series_order (ps_terms (ps_left_adjust ps)) 0 = ∞.
 Proof.
 intros ps Hn.
 apply series_order_iff.
@@ -76,7 +76,7 @@ Qed.
 Theorem ps_left_adjust_eq : ∀ ps, (ps = ps_left_adjust ps)%ps.
 Proof.
 intros ps.
-remember (series_order r (ps_terms ps) 0) as n eqn:Hn .
+remember (series_order (ps_terms ps) 0) as n eqn:Hn .
 symmetry in Hn.
 destruct n as [n| ].
  constructor; constructor; simpl.
@@ -149,7 +149,7 @@ Qed.
 
 Theorem normalise_ps_1 : (normalise_ps 1 ≐ 1)%ps.
 Proof.
-remember (series_order r (ps_terms 1%ps) 0) as n eqn:Hn .
+remember (series_order (ps_terms 1%ps) 0) as n eqn:Hn .
 symmetry in Hn.
 destruct n as [n| ].
  destruct n.
@@ -191,12 +191,12 @@ Qed.
 
 Theorem greatest_series_x_power_series_const : ∀ s c m,
   (s = series_const c)%ser
-  → greatest_series_x_power r s m = 0%nat.
+  → greatest_series_x_power f s m = 0%nat.
 Proof.
 intros s c m Hs.
 rewrite Hs.
 apply greatest_series_x_power_iff; simpl.
-remember (series_order r (series_const c) (S m)) as n eqn:Hn .
+remember (series_order (series_const c) (S m)) as n eqn:Hn .
 symmetry in Hn.
 destruct n as [n| ]; [ idtac | reflexivity ].
 apply series_order_iff in Hn; simpl in Hn.
@@ -205,7 +205,7 @@ exfalso; apply Hnz; reflexivity.
 Qed.
 
 Theorem greatest_series_x_power_series_1 :
-  greatest_series_x_power r 1%ser 0 = O.
+  greatest_series_x_power f 1%ser 0 = O.
 Proof.
 apply greatest_series_x_power_series_const with (c := 1%K).
 reflexivity.
@@ -216,7 +216,7 @@ Theorem ps_mul_inv_l : ∀ ps,
   → (¹/ ps * ps = 1)%ps.
 Proof.
 intros ps Hps.
-remember (series_order r (ps_terms ps) 0) as n eqn:Hn .
+remember (series_order (ps_terms ps) 0) as n eqn:Hn .
 symmetry in Hn.
 destruct n as [n| ].
  assert (ps = ps_left_adjust ps)%ps as H by apply ps_left_adjust_eq.
@@ -237,7 +237,7 @@ destruct n as [n| ].
   constructor.
   rewrite normalise_ps_1.
   unfold normalise_ps; simpl.
-  remember (series_order r 1%ser 0) as m eqn:Hm .
+  remember (series_order 1%ser 0) as m eqn:Hm .
   symmetry in Hm.
   destruct m as [m| ].
    destruct m; simpl.
@@ -282,34 +282,28 @@ Qed.
 
 End theorems.
 
-Definition ps_ring α (R : ring α) : ring (puiseux_series α) :=
+Definition ps_ring α (R : ring α) (K : field R) : ring (puiseux_series α) :=
   {| rng_zero := ps_zero;
      rng_one := ps_one;
      rng_add := ps_add;
      rng_mul := ps_mul;
      rng_opp := ps_opp;
      rng_eq := eq_ps;
-     rng_eq_refl := eq_ps_refl R;
-     rng_eq_sym := eq_ps_sym (r := R);
-     rng_eq_trans := eq_ps_trans (r := R);
-     rng_add_comm := ps_add_comm R;
-     rng_add_assoc := ps_add_assoc R;
-     rng_add_0_l := ps_add_0_l R;
-     rng_add_opp_l := ps_add_opp_l R;
-     rng_add_compat_l := @ps_add_compat_l α R;
-     rng_mul_comm := ps_mul_comm R;
-     rng_mul_assoc := ps_mul_assoc R;
-     rng_mul_1_l := ps_mul_1_l R;
-     rng_mul_compat_l := @ps_mul_compat_l α R;
-     rng_mul_add_distr_l := ps_mul_add_distr_l R |}.
+     rng_eq_refl := eq_ps_refl K;
+     rng_eq_sym := eq_ps_sym (K := K);
+     rng_eq_trans := eq_ps_trans (K := K);
+     rng_add_comm := ps_add_comm K;
+     rng_add_assoc := ps_add_assoc K;
+     rng_add_0_l := ps_add_0_l K;
+     rng_add_opp_l := ps_add_opp_l K;
+     rng_add_compat_l := @ps_add_compat_l α R K;
+     rng_mul_comm := ps_mul_comm K;
+     rng_mul_assoc := ps_mul_assoc K;
+     rng_mul_1_l := ps_mul_1_l K;
+     rng_mul_compat_l := @ps_mul_compat_l α R K;
+     rng_mul_add_distr_l := ps_mul_add_distr_l K |}.
 
 Canonical Structure ps_ring.
-
-Definition ps_field α {R : ring α} {K : field R} : field (ps_ring R) :=
-  {| fld_inv := ps_inv;
-     fld_mul_inv_l := ps_mul_inv_l K |}.
-
-Canonical Structure ps_field.
 
 Fixpoint ps_power {α} {r : ring α} la n :=
   match n with

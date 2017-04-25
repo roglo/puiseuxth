@@ -28,10 +28,81 @@ Arguments ps_polord α%type p%ps.
 
 Section axioms.
 
-(* [series_order fld s n] returns the number of consecutive null
+Axiom LPO : ∀ (u : nat → nat), ( ∀ i, u i = O ) + { i : nat | u i ≠ O }.
+
+Fixpoint first_such_that (P : nat → bool) n i :=
+  match n with
+  | O => i
+  | S n' => if P i then i else first_such_that P n' (S i)
+  end.
+
+Theorem first_such_that_has_prop : ∀ α (R : ring α) (K : field R) u n i k
+  (P := (λ j, if fld_zerop (u j) then false else true)),
+  (u (n + i)%nat ≠ 0)%K
+  → k = first_such_that P n i
+  → (u k ≠ 0)%K ∧ (∀ j : nat, (i ≤ j < k)%nat → (u j = 0)%K).
+Proof.
+intros α R K u n i k P Hn Hk.
+revert i k Hn Hk; induction n; intros.
+ split; [ subst k; assumption | simpl ].
+ simpl in Hk; destruct Hk; intros j (H1, H2).
+ apply lt_not_le in H2; exfalso; apply H2, H1.
+
+ rewrite Nat.add_succ_l, <- Nat.add_succ_r in Hn.
+ simpl in Hk; unfold P in Hk.
+ destruct (fld_zerop (u i)) as [H1| H1].
+  pose proof IHn (S i) k Hn Hk as H2.
+  destruct H2 as (H2, H3).
+  split; [ apply H2 | intros j (H4, H5) ].
+  destruct (eq_nat_dec i j) as [H6| H6]; [ destruct H6; assumption | ].
+  apply H3; split; [ | assumption ].
+  apply Nat_le_neq_lt; assumption.
+
+  destruct Hk; split; [ assumption | ].
+  intros j (H2, H3).
+  apply lt_not_le in H3; exfalso; apply H3, H2.
+Qed.
+
+Theorem field_LPO : ∀ α (R : ring α) (K : field R) (u : nat -> α),
+  (∀ i, (u i = 0)%K) + { i | (u i ≠ 0)%K ∧ ∀ j, (j < i)%nat → (u j = 0)%K }.
+Proof.
+intros.
+pose proof (LPO (λ i, if fld_zerop (u i) then O else S O)) as H.
+destruct H as [H| H].
+ left; intros i.
+ pose proof H i as Hi.
+ destruct (fld_zerop (u i)); [ assumption | discriminate Hi ].
+
+ right.
+ destruct H as (i, Hi).
+ destruct (fld_zerop (u i)) as [| H]; [ exfalso; apply Hi, eq_refl | ].
+ clear Hi.
+ set (P j := if fld_zerop (u j) then false else true).
+ remember (first_such_that P i O) as m eqn:Hm.
+ exists m.
+ replace i with (i + O)%nat in H by (rewrite Nat.add_0_r; apply eq_refl).
+ pose proof @first_such_that_has_prop α R K u i 0 m H Hm as H1.
+ destruct H1 as (H1, H2).
+ split; [ assumption | intros j Hj ].
+ apply H2.
+ split; [ apply Nat.le_0_l | assumption ].
+Qed.
+
+Arguments field_LPO {α} {R} {K} u.
+
+(* [series_order rng s n] returns the number of consecutive null
    coefficients in the series [s], starting from the [n]th one. *)
-Axiom series_order : ∀ α, ring α → power_series α → nat → Nbar.
-Axiom series_order_iff : ∀ α (R : ring α) s n v, series_order R s n = v ↔
+
+Definition series_order {α} {R : ring α} {K : field R} :
+    power_series α → nat → Nbar :=
+  λ (s : power_series α) (n : nat),
+  match field_LPO (λ j, s.[n+j]) with
+  | inl _ => ∞
+  | inr (exist _ i _) => fin i
+  end.
+
+Theorem series_order_iff {α} {R : ring α} {F : field R} :
+  ∀ s n v, series_order s n = v ↔
   match v with
   | fin k =>
       (∀ i : nat, (i < k)%nat → (s .[n + i] = 0)%K)
@@ -39,33 +110,627 @@ Axiom series_order_iff : ∀ α (R : ring α) s n v, series_order R s n = v ↔
   | ∞ =>
       ∀ i : nat, (s .[n + i] = 0)%K
   end.
-Arguments series_order α%type _ s%ser n%nat.
+Proof.
+intros.
+split; intros H.
+ subst v; unfold series_order.
+ destruct (field_LPO (λ j : nat, s .[ n + j])) as [H1| (l, (H1, H2))].
+  assumption.
 
-(* [greatest_series_x_power fld s n] returns the greatest nat value [k]
-   such that [s], starting at index [n], is a series in [x^k]. *)
-Fixpoint nth_series_order α (R : ring α) s n b :=
-  match series_order R s (S b) with
+  split; assumption.
+
+ unfold series_order.
+ destruct (field_LPO (λ j : nat, s .[ n + j])) as [H1| (l, (H1, H2))].
+  destruct v as [k| ]; [ | apply eq_refl ].
+  destruct H as (H2, H3); exfalso; apply H3, H1.
+
+  destruct v as [k| ]; [ | exfalso; apply H1, H ].
+  destruct H as (H3, H4).
+  destruct (lt_eq_lt_dec k l) as [[H| H]| H].
+   exfalso; apply H4, H2, H.
+
+   destruct H; apply eq_refl.
+
+   exfalso; apply H1, H3, H.
+Qed.
+
+Arguments series_order _ _ _ s%ser n%nat.
+
+Fixpoint nth_series_order α (R : ring α) (K : field R) s b n :=
+  match series_order s (S b) with
   | fin p =>
       match n with
       | O => S p
-      | S n₁ => nth_series_order R s n₁ (S b + p)%nat
+      | S n₁ => nth_series_order K s (S b + p)%nat n₁
       end
   | ∞ => O
   end.
-Definition is_a_series_in_x_power α {R : ring α} s b k :=
-  ∀ n, (k | nth_series_order R s n b).
+Definition is_a_series_in_x_power α {R : ring α} {K : field R} s b k :=
+  ∀ n, (k | nth_series_order K s b n).
 
-Axiom greatest_series_x_power : ∀ α, ring α → power_series α → nat → nat.
-Axiom greatest_series_x_power_iff : ∀ α (R : ring α) s n k,
-  greatest_series_x_power R s n = k ↔
-  match series_order R s (S n) with
+(**)
+Fixpoint sequence_gcd_upto s n :=
+  match n with
+  | O => s O
+  | S n' => Nat.gcd (s n) (sequence_gcd_upto s n')
+  end.
+
+Definition sequence_diff s n := (s n - s (S n))%nat.
+
+Definition sequence_all_zero_from s n :=
+  match LPO (λ i, s (n + i)%nat) with
+  | inl _ => S O
+  | inr (exist _ i _) => O
+  end.
+
+(* [greatest_series_x_power K s n] returns the greatest nat value [k]
+   such that [s], starting at index [n], is a series in [x^k]. *)
+Definition greatest_series_x_power : ∀ α (R : ring α) (K : field R),
+    power_series α → nat → nat :=
+  λ (α : Type) (R : ring α) (K : field R) (s : power_series α) (n : nat),
+  let u := nth_series_order K s n in
+  let v := sequence_gcd_upto u in
+  let w := sequence_diff v in
+  let t := sequence_all_zero_from w in
+  match LPO t with
+  | inl _ => O
+  | inr (exist _ i _) => v i
+  end.
+
+Theorem nth_series_order_0_succ α (R : ring α) (K : field R) : ∀ s n i,
+  nth_series_order K s i n = O
+  → nth_series_order K s (S i) n = O.
+Proof.
+intros.
+revert i H.
+induction n; intros.
+ simpl in H; simpl.
+ remember (series_order s (S i)) as s1 eqn:Hs1; symmetry in Hs1.
+ destruct s1 as [p1| ]; [ discriminate H | clear H ].
+ remember (series_order s (S (S i))) as s2 eqn:Hs2; symmetry in Hs2.
+ destruct s2 as [p2| ]; [ exfalso | reflexivity ].
+ apply series_order_iff in Hs1; simpl in Hs1.
+ apply series_order_iff in Hs2.
+ destruct Hs2 as (_, Hs2).
+ rewrite Nat.add_succ_l, <- Nat.add_succ_r in Hs2.
+ apply Hs2, Hs1.
+
+ simpl in H; simpl.
+ remember (series_order s (S (S i))) as s2 eqn:Hs2; symmetry in Hs2.
+ destruct s2 as [p2| ]; [ | reflexivity ].
+ remember (series_order s (S i)) as s1 eqn:Hs1; symmetry in Hs1.
+ destruct s1 as [p1| ].
+  apply series_order_iff in Hs1; destruct Hs1 as (Hs11, Hs12).
+  apply series_order_iff in Hs2; destruct Hs2 as (Hs21, Hs22).
+  destruct p1.
+   rewrite Nat.add_0_r in H, Hs12; clear Hs11.
+   clear Hs21 Hs22.
+   induction p2; [ rewrite Nat.add_0_r; apply IHn, H | ].
+   rewrite Nat.add_succ_r; apply IHn, IHp2.
+
+   destruct (lt_eq_lt_dec p1 p2) as [[H1| H1]| H1].
+    apply Hs21 in H1.
+    rewrite Nat.add_succ_l, <- Nat.add_succ_r in H1.
+    exfalso; apply Hs12, H1.
+
+    destruct H1.
+    rewrite Nat.add_succ_r, <- Nat.add_succ_l in H.
+    apply H.
+
+    apply Nat.succ_lt_mono, Hs11 in H1.
+    rewrite Nat.add_succ_r, <- Nat.add_succ_l in H1.
+    exfalso; apply Hs22, H1.
+
+  apply series_order_iff in Hs1; simpl in Hs1.
+  apply series_order_iff in Hs2.
+  destruct Hs2 as (_, Hs2).
+  rewrite Nat.add_succ_l, <- Nat.add_succ_r in Hs2.
+  exfalso; apply Hs2, Hs1.
+Qed.
+
+Theorem nth_series_order_0_add α (R : ring α) (K : field R) : ∀ s n i,
+  nth_series_order K s i n = O
+  → ∀ j, nth_series_order K s (i + j) n = O.
+Proof.
+intros.
+revert n i H.
+induction j; intros; [ rewrite Nat.add_0_r; apply H | ].
+rewrite Nat.add_succ_r, <- Nat.add_succ_l.
+apply IHj, nth_series_order_0_succ, H.
+Qed.
+
+Theorem non_increasing_natural_sequence_has_limit : ∀ s,
+  (∀ n, s (S n) ≤ s n) →
+  ∃ m l, (∀ i, m ≤ i → s i = l).
+Proof.
+(* à nettoyer, peut-être *)
+intros s Hs.
+remember (s O) as i eqn:Hi ; symmetry in Hi.
+apply Nat.eq_le_incl in Hi.
+revert s Hs Hi.
+induction i; intros.
+ exists O, (s O).
+ intros i _.
+ induction i; [ apply eq_refl |  ].
+ eapply eq_trans; [  | apply IHi ].
+ apply Nat.le_antisymm; [ apply Hs |  ].
+ apply Nat.le_0_r in Hi.
+ rewrite IHi, Hi; apply Nat.le_0_l.
+
+ remember (λ j, (s j - s (S j))%nat) as t eqn:Ht .
+ destruct (LPO t) as [H1| (n, P1)]; subst t.
+  exists O, (s O).
+  intros j _.
+  induction j; [ apply eq_refl |  ].
+  eapply eq_trans; [  | apply IHj ].
+  pose proof (H1 j) as H2.
+  apply Nat.sub_0_le in H2.
+  apply Nat.le_antisymm; [ apply Hs |  ].
+  apply H2.
+
+  remember (λ j, s (S n + j)%nat) as t eqn:Ht .
+  assert (H1 : ∀ n, t (S n) ≤ t n).
+   intros j; subst t.
+   rewrite Nat.add_succ_r; apply Hs.
+
+   assert (H2 : (t O ≤ i)%nat).
+    subst t; rewrite Nat.add_0_r.
+    assert (s n ≤ S i).
+     clear P1 H1.
+     induction n; [ apply Hi | ].
+     eapply le_trans; [ apply Hs | apply IHn ].
+
+     apply Nat.succ_le_mono.
+     eapply Nat.lt_le_trans; [ | apply H ].
+     apply Nat.nle_gt.
+     intros H2; apply P1.
+     apply Nat.sub_0_le, H2.
+
+    pose proof (IHi t H1 H2).
+    destruct H as (m, (l, H3)).
+    exists (S n + m)%nat, l.
+    intros j Hjm.
+    assert (H5 : (m ≤ j - S n)%nat).
+     apply Nat.le_add_le_sub_l, Hjm.
+
+     pose proof (H3 (j - S n)%nat H5) as H6.
+     subst t.
+     rewrite Nat.add_sub_assoc in H6.
+      rewrite Nat.add_comm, Nat.add_sub in H6; apply H6.
+
+      eapply Nat.le_trans; [ | apply Hjm ].
+      apply Nat.le_sub_le_add_l.
+      rewrite Nat.sub_diag.
+      apply Nat.le_0_l.
+Qed.
+
+Theorem non_increasing_natural_sequence_first_limit : ∀ s,
+  (∀ n, s (S n) ≤ s n) →
+  ∃ m l, (∀ i, m ≤ i → s i = l) ∧ (∀ i, i < m → l < s i)%nat.
+Proof.
+intros s Hs.
+generalize Hs; intros H.
+apply non_increasing_natural_sequence_has_limit in H.
+destruct H as (m, (l, H)).
+revert s Hs H.
+induction m; intros.
+ exists O, l.
+ split; [ apply H | ].
+ intros i Hi; exfalso; revert Hi; apply Nat.nlt_0_r.
+
+ destruct (eq_nat_dec (s m) l) as [H1| H1].
+  assert (H2 : ∀ i, m ≤ i → s i = l).
+   intros j Hmj.
+   destruct (eq_nat_dec m j) as [H2| H2]; [ destruct H2; apply H1 | ].
+   apply Nat_le_neq_lt in H2; [ | apply Hmj ].
+   apply H, H2.
+
+   pose proof IHm s Hs H2 as H3.
+   destruct H3 as (m', (l', (H3, H4))).
+   pose proof H2 (max m m') (Nat.le_max_l m m') as H5.
+   pose proof H3 (max m m') (Nat.le_max_r m m') as H6.
+   rewrite H5 in H6; clear H5; subst l'.
+   exists m', l.
+   split; [ intros i Hmi; apply H3, Hmi | ].
+   intros i Him'; apply H4, Him'.
+
+  remember (λ j, s (S j)) as t eqn:Ht.
+  assert (H2 : ∀ n, t (S n) ≤ t n) by (intros n; subst t; apply Hs).
+  assert (H3 : ∀ i, m ≤ i → t i = l).
+   intros j Hmj; subst t; apply H.
+   apply Nat.succ_le_mono in Hmj; apply Hmj.
+
+   pose proof IHm t H2 H3 as (m', (l', (H4, H5))).
+   pose proof H3 (max m m') (Nat.le_max_l m m') as H7.
+   pose proof H4 (max m m') (Nat.le_max_r m m') as H8.
+   rewrite H7 in H8; subst l'; clear H7; subst t.
+   destruct (lt_eq_lt_dec m m') as [[H6| H6]| H6].
+    pose proof H5 m H6 as H7.
+    pose proof H3 m (Nat.le_refl m) as H8.
+    rewrite H8 in H7.
+    exfalso; revert H7; apply Nat.lt_irrefl.
+
+    subst m'.
+    exists (S m), l.
+    split; [ intros i Hmi; apply H, Hmi | ].
+    intros i Him.
+    destruct (eq_nat_dec i m) as [H6| H6].
+     subst i.
+     apply Nat_le_neq_lt; [ | apply Nat.neq_sym, H1 ].
+     eapply le_trans; [ | apply Hs ].
+     apply Nat.eq_le_incl, Nat.eq_sym.
+     apply H3, Nat.le_refl.
+
+     apply Nat_le_neq_lt in H6; [ | apply Nat.succ_le_mono, Him ].
+     eapply Nat.lt_le_trans; [ apply H5, H6 | apply Hs ].
+
+    exists (S m'), l.
+    split.
+     intros i Hm'i.
+     destruct i; [ exfalso; revert Hm'i; apply Nat.nle_succ_0 | ].
+     apply H4, Nat.succ_le_mono, Hm'i.
+
+     intros i Him'.
+     destruct m; [ exfalso; revert H6; apply Nat.nlt_0_r | ].
+     exfalso; apply H1, H4, Nat.succ_le_mono, H6.
+Qed.
+
+Theorem sequence_gcd_divide : ∀ s g m i,
+  (∀ j, m ≤ j → sequence_gcd_upto s j = g) → (g | s i).
+Proof.
+intros s g m i H.
+destruct (le_dec m i) as [H1| H1].
+ rewrite <- (H i H1).
+ destruct i; [ apply Nat.divide_refl | apply Nat.gcd_divide_l ].
+
+ apply Nat.nle_gt in H1.
+ rewrite <- (H m (Nat.le_refl m)).
+ remember (m - i)%nat as k eqn:Hk.
+ assert (H2 : m = (i + k)%nat).
+  rewrite Hk, Nat.add_comm.
+  rewrite Nat.sub_add; [ apply eq_refl | apply Nat.lt_le_incl, H1 ].
+
+  subst m; clear H H1 Hk.
+  revert i.
+  induction k; intros.
+   rewrite Nat.add_0_r.
+   induction i; [ apply Nat.divide_refl | apply Nat.gcd_divide_l ].
+
+   rewrite Nat.add_succ_r; simpl.
+   eapply Nat.divide_trans; [ apply Nat.gcd_divide_r | apply IHk ].
+Qed.
+
+Theorem greatest_series_x_power_iff : ∀ α (R : ring α) (K : field R) s n k,
+  greatest_series_x_power K s n = k ↔
+  match series_order s (S n) with
   | fin _ =>
       is_a_series_in_x_power s n k ∧
-      (∀ k', (k < k')%nat → ∃ n', ¬(k' | nth_series_order R s n' n))
+      (∀ k', (k < k')%nat → ∃ n', ¬(k' | nth_series_order K s n n'))
   | ∞ =>
       k = O
   end.
-Arguments greatest_series_x_power α%type _ s%ser n%nat.
+Proof.
+intros.
+unfold greatest_series_x_power.
+remember (nth_series_order K s n) as u eqn:Hu ; symmetry in Hu.
+remember (sequence_gcd_upto u) as v eqn:Hv ; symmetry in Hv.
+remember (sequence_diff v) as w eqn:Hw ; symmetry in Hw.
+remember (sequence_all_zero_from w) as t eqn:Ht ; symmetry in Ht.
+assert (Pv : ∀ i, v (S i) ≤ v i).
+ intros i.
+ induction i.
+  subst v; simpl.
+  remember (u O) as u0 eqn:Hu0 ; symmetry in Hu0.
+  remember (u 1%nat) as u1 eqn:Hu1 ; symmetry in Hu1.
+  rewrite <- Hu in Hu0, Hu1; simpl in Hu0, Hu1.
+  remember (series_order s (S n)) as x eqn:Hx ; symmetry in Hx.
+  destruct x as [p| ].
+   destruct u0; [ discriminate Hu0 |  ].
+   apply Nat_gcd_le_r; intros H1; discriminate H1.
+
+   subst u0 u1.
+   apply Nat.le_refl.
+
+  subst v; simpl; simpl in IHi.
+  remember (u (S i)) as usi eqn:Husi ; symmetry in Husi.
+  remember (u (S (S i))) as ussi eqn:Hussi ; symmetry in Hussi.
+  rewrite <- Hu in Husi, Hussi; simpl in Husi, Hussi.
+  destruct usi.
+   destruct ussi; [ apply Nat.le_refl |  ].
+   remember (sequence_gcd_upto u i) as x eqn:Hx .
+   destruct x.
+    simpl in IHi; simpl.
+    remember (series_order s (S n)) as y eqn:Hy ; symmetry in Hy.
+    destruct y as [p| ]; [  | discriminate Hussi ].
+    remember (series_order s (S (S (n + p)))) as z eqn:Hz ; symmetry in Hz.
+    destruct z; [  | discriminate Hussi ].
+    apply nth_series_order_0_add with (j := S x) in Husi.
+    rewrite Nat.add_succ_r in Husi; simpl in Husi.
+    rewrite Husi in Hussi.
+    discriminate Hussi.
+
+    apply Nat_gcd_le_r.
+    intros H1; discriminate H1.
+
+   apply Nat_gcd_le_r.
+   intros H1; apply Nat.gcd_eq_0_l in H1.
+   discriminate H1.
+
+ split; intros H.
+  symmetry in H.
+  assert (Pv2 : ∃ m g, (∀ i, m ≤ i → v i = g) ∧ (∀ i, i < m → g < v i)%nat).
+   apply non_increasing_natural_sequence_first_limit, Pv.
+
+   destruct Pv2 as (m, (g, (Pv2, Pv3))).
+   destruct (LPO t) as [H1| (i, Hi)].
+    remember (series_order s (S n)) as x eqn:Hx ; symmetry in Hx.
+    destruct x as [x| ]; [  | apply H ].
+    apply series_order_iff in Hx.
+    destruct Hx as (H2, H3).
+    pose proof (H1 m) as H4.
+    rewrite <- Ht in H4.
+    unfold sequence_all_zero_from in H4.
+    destruct (LPO (λ i : nat, w (m + i)%nat)) as [H5| (i, Hi)].
+     discriminate H4.
+
+     rewrite <- Hw in Hi.
+     unfold sequence_diff in Hi.
+     rewrite Pv2 in Hi; [  | apply Nat.le_add_r ].
+     rewrite Pv2 in Hi; [  | rewrite <- Nat.add_succ_r; apply Nat.le_add_r ].
+     rewrite Nat.sub_diag in Hi.
+     exfalso; apply Hi, eq_refl.
+
+    assert (H1 : v i = g).
+     destruct (lt_eq_lt_dec i m) as [[H1| H1]| H1].
+      subst t; unfold sequence_all_zero_from in Hi.
+      destruct (LPO (λ j, w (i + j)%nat)) as [H2| (j, Hj)].
+       subst w; unfold sequence_diff in H2.
+       exfalso.
+       destruct m; [ revert H1; apply Nat.nlt_0_r |  ].
+       pose proof (H2 (m - i)%nat) as H4.
+       rewrite Nat.add_sub_assoc in H4; [  | apply Nat.succ_le_mono, H1 ].
+       rewrite Nat.add_comm, Nat.add_sub in H4.
+       apply Nat.sub_0_le, Nat.nlt_ge in H4.
+       pose proof (Pv2 (S m) (Nat.le_refl (S m))) as H5.
+       pose proof (Pv3 m (Nat.lt_succ_diag_r m)) as H6.
+       rewrite H5 in H4; apply H4, H6.
+
+       exfalso; apply Hi, Nat.eq_refl.
+
+      apply Pv2, Nat.eq_le_incl, Nat.eq_sym, H1.
+
+      apply Pv2, Nat.lt_le_incl, H1.
+
+     rewrite H1 in H; subst k.
+     remember (series_order s (S n)) as x eqn:Hx ; symmetry in Hx.
+     destruct x as [x| ].
+      split.
+       unfold is_a_series_in_x_power.
+       rewrite Hu; intros p.
+       apply sequence_gcd_divide with (m := m).
+       rewrite Hv; apply Pv2.
+
+       intros k Hgk.
+       assert (H : ¬ (∀ i, (k | u i))).
+        intros H.
+        assert (H4 : (k | Nat.gcd (u (S i)) (v i))).
+         apply Nat.gcd_greatest; [ apply H |  ].
+         rewrite <- Hv; clear Hi H1.
+         induction i; [ apply H | simpl ].
+         apply Nat.gcd_greatest; [ apply H | apply IHi ].
+
+         pose proof (Pv2 (S i)) as H2.
+         rewrite <- Hv in H4, H2.
+         simpl in H2.
+         destruct (le_dec m (S i)) as [H3| H3].
+          apply H2 in H3.
+          rewrite H3 in H4.
+          destruct H4 as (z, Hz).
+          rewrite Hz in Hgk.
+          destruct z.
+           simpl in Hz.
+           move Hz at top; subst g.
+           apply Nat.gcd_eq_0 in H3.
+           destruct H3 as (H3, H4).
+           destruct m.
+            assert (H5 : ∀ i, u i = O).
+             intros j.
+             pose proof (Pv2 j (Nat.le_0_l j)) as H5.
+             rewrite <- Hv in H5.
+             induction j; [ apply H5 |  ].
+             simpl in H5.
+             apply Nat.gcd_eq_0_l in H5.
+             apply H5.
+
+             pose proof (H5 O) as H6.
+             rewrite <- Hu in H6.
+             simpl in H6.
+             rewrite Hx in H6.
+             discriminate H6.
+
+            pose proof (Pv3 O (Nat.lt_0_succ m)) as H5.
+            rewrite <- Hv in H5; simpl in H5.
+            clear Hi H1 H2 H3.
+            induction i.
+             simpl in H4.
+             rewrite H4 in H5.
+             revert H5; apply Nat.lt_irrefl.
+
+             simpl in H4.
+             apply Nat.gcd_eq_0_r in H4.
+             apply IHi, H4.
+
+           simpl in Hgk.
+           apply Nat.lt_add_lt_sub_l in Hgk.
+           rewrite Nat.sub_diag in Hgk.
+           revert Hgk; apply Nat.nlt_0_r.
+
+          apply Nat.nle_gt in H3.
+          pose proof (Pv3 (S i) H3) as H5.
+          rewrite <- H1 in H5.
+          apply Nat.nle_gt in H5.
+          apply H5, Pv.
+
+        destruct (LPO (λ n', u n' mod k)) as [H2| H2].
+         exfalso; apply H; intros j.
+         exists (u j / k)%nat.
+         rewrite Nat.mul_comm.
+         apply Nat.div_exact; [  | apply H2 ].
+         intros H3; subst k; revert Hgk; apply Nat.nlt_0_r.
+
+         destruct H2 as (j, Hj).
+         exists j; intros (z, Hz).
+         rewrite Hz in Hj.
+         apply Hj, Nat.mod_mul.
+         intros H3; subst k; revert Hgk; apply Nat.nlt_0_r.
+
+      assert (H2 : ∀ i, u i = O).
+       intros j; rewrite <- Hu.
+       destruct j; simpl; rewrite Hx; apply eq_refl.
+
+       rewrite <- Hv in H1; clear Hi.
+       induction i; [ rewrite <- H1; apply H2 | simpl in H1 ].
+       rewrite H2 in H1; simpl in H1.
+       apply IHi, H1.
+
+  symmetry.
+  remember (series_order s (S n)) as x eqn:Hx ; symmetry in Hx.
+  destruct (LPO t) as [H3| (i, H3)].
+   destruct x as [x| ]; [  | apply H ].
+   pose proof (non_increasing_natural_sequence_first_limit v Pv) as H1.
+   destruct H1 as (m, (l, (H1, H2))).
+   pose proof (H3 m) as H4.
+   rewrite <- Ht in H4; simpl in H4.
+   unfold sequence_all_zero_from in H4.
+   destruct (LPO (λ i, w (m + i)%nat)) as [| (i, Hi)]; [ discriminate H4 |  ].
+   clear H4; rewrite <- Hw in Hi.
+   exfalso; apply Hi; clear Hi.
+   unfold sequence_diff.
+   rewrite H1; [  | apply Nat.le_add_r ].
+   rewrite <- Nat.add_succ_r.
+   rewrite H1; [  | apply Nat.le_add_r ].
+   apply Nat.sub_diag.
+
+   destruct x as [x| ].
+    destruct H as (H1, H2).
+    rewrite <- Ht in H3.
+    unfold sequence_all_zero_from in H3.
+    destruct (LPO (λ j, w (i + j)%nat)) as [H4| (j, Hj)].
+     clear H3.
+     unfold is_a_series_in_x_power in H1.
+     rewrite Hu in H1.
+     rewrite <- Hw in H4.
+     assert (H3 : ∀ j, v (i + j)%nat = v (S (i + j))).
+      intros.
+      pose proof (Pv (i + j)%nat) as H5.
+      pose proof (H4 j) as H6.
+      unfold sequence_diff in H6.
+      apply Nat.sub_0_le in H6.
+      apply Nat.le_antisymm; [ apply H6 | apply H5 ].
+
+      assert (H5 : (k | v i)).
+       clear H3 H4.
+       induction i; [ rewrite <- Hv; apply H1 | simpl ].
+       rewrite <- Hv; simpl; rewrite Hv.
+       destruct IHi as (y, H3).
+       pose proof (H1 (S i)) as H4.
+       destruct H4 as (z, H4).
+       rewrite H3, H4, Nat.gcd_mul_mono_r.
+       apply Nat.divide_factor_r.
+
+       assert (H7 : v i ≤ k).
+        destruct (le_dec (v i) k) as [H7| H7]; [ apply H7 |  ].
+        apply Nat.nle_gt in H7.
+        apply H2 in H7.
+        destruct H7 as (n', H7).
+        exfalso; apply H7; clear H7.
+        apply sequence_gcd_divide with (m := i).
+        intros j Hij; rewrite Hv.
+        remember (j - i)%nat as h eqn:Hh .
+        assert (j = (i + h)%nat); [  | subst j; clear Hij Hh ].
+         subst h; rewrite Nat.add_sub_assoc; [  | apply Hij ].
+         apply eq_sym; rewrite Nat.add_comm.
+         apply Nat.add_sub.
+
+         induction h; [ rewrite Nat.add_0_r; apply Nat.eq_refl |  ].
+         rewrite <- IHh, Nat.add_succ_r.
+         apply eq_sym, H3.
+
+        destruct H5 as (z, H5).
+        rewrite H5; rewrite H5 in H7.
+        destruct z.
+         simpl in H5, H7; simpl.
+         destruct k; [ apply eq_refl | exfalso; clear H7 ].
+         assert (H6 : ∀ j, v j = O).
+          intros j.
+          destruct (le_dec i j) as [H6| H6].
+           remember (j - i)%nat as h eqn:Hh .
+           assert (j = (i + h)%nat); [  | subst j ].
+            subst h; rewrite Nat.add_sub_assoc; [  | apply H6 ].
+            apply eq_sym; rewrite Nat.add_comm.
+            apply Nat.add_sub.
+
+            induction h; [ rewrite Nat.add_0_r; apply H5 |  ].
+            rewrite <- IHh, Nat.add_succ_r.
+             apply eq_sym, H3.
+
+             rewrite Nat.add_comm.
+             apply eq_sym, Nat.add_sub.
+
+             apply Nat.le_add_r.
+
+           apply Nat.nle_gt, Nat.lt_le_incl in H6.
+           clear H3 H4.
+           remember (i - j)%nat as h eqn:Hh .
+           assert (i = (h + j)%nat) by omega.
+           subst i.
+           clear H6 Hh.
+           revert j H5.
+           induction h; intros; [ apply H5 |  ].
+           rewrite Nat.add_succ_l, <- Nat.add_succ_r in H5.
+           apply IHh in H5.
+           rewrite <- Hv in H5; simpl in H5; rewrite Hv in H5.
+           apply Nat.gcd_eq_0_r in H5; apply H5.
+
+          assert (H7 : ∀ j, u j = 0%nat).
+           intros j.
+           induction j.
+            pose proof (H6 O) as H7.
+            rewrite <- Hv in H7; apply H7.
+
+            pose proof (H6 (S j)) as H7.
+            rewrite <- Hv in H7; simpl in H7; rewrite Hv in H7.
+            apply Nat.gcd_eq_0_l in H7; apply H7.
+
+           pose proof (H2 (S (S k)) (Nat.lt_succ_diag_r (S k))) as H8.
+           destruct H8 as (n', H8).
+           apply H8.
+           rewrite H7.
+           exists O.
+           apply eq_refl.
+
+         simpl in H7.
+         destruct z; [ rewrite Nat.mul_1_l; apply eq_refl |  ].
+         destruct k; [ rewrite Nat.mul_0_r; apply eq_refl |  ].
+         apply Nat.le_add_le_sub_l in H7.
+         rewrite Nat.sub_diag in H7.
+         exfalso; revert H7; apply Nat.nle_succ_0.
+
+     exfalso; apply H3, eq_refl.
+
+    subst k.
+    rewrite <- Hv; apply eq_sym.
+    clear H3.
+    induction i; simpl.
+     rewrite <- Hu; simpl.
+     rewrite Hx; apply eq_refl.
+
+     rewrite IHi, Nat.gcd_comm; simpl.
+     rewrite <- Hu; simpl.
+     rewrite Hx; apply eq_refl.
+Qed.
+
+Arguments greatest_series_x_power α%type _ _ s%ser n%nat.
 
 End axioms.
 
@@ -97,10 +762,10 @@ Definition gcd_ps α n k (ps : puiseux_series α) :=
 Definition ps_zero {α} {r : ring α} :=
   {| ps_terms := 0%ser; ps_ordnum := 0; ps_polord := 1 |}.
 
-Definition normalise_ps α {R : ring α} ps :=
-  match series_order R (ps_terms ps) 0 with
+Definition normalise_ps α {R : ring α} {K : field R} ps :=
+  match series_order (ps_terms ps) 0 with
   | fin n =>
-      let k := greatest_series_x_power R (ps_terms ps) n in
+      let k := greatest_series_x_power K (ps_terms ps) n in
       let g := gcd_ps n k ps in
       {| ps_terms := normalise_series n (Z.to_pos g) (ps_terms ps);
          ps_ordnum := (ps_ordnum ps + Z.of_nat n) / g;
@@ -109,7 +774,7 @@ Definition normalise_ps α {R : ring α} ps :=
       ps_zero
   end.
 
-Arguments normalise_ps _ _ ps%ps.
+Arguments normalise_ps _ _ _ ps%ps.
 
 Inductive eq_ps_strong {α} {r : ring α} :
   puiseux_series α → puiseux_series α → Prop :=
@@ -119,12 +784,12 @@ Inductive eq_ps_strong {α} {r : ring α} :
         → eq_series (ps_terms ps₁) (ps_terms ps₂)
           → eq_ps_strong ps₁ ps₂.
 
-Inductive eq_ps {α} {r : ring α} :
+Inductive eq_ps {α} {r : ring α} {K : field r} :
   puiseux_series α → puiseux_series α → Prop :=
   | eq_ps_base : ∀ ps₁ ps₂,
       eq_ps_strong (normalise_ps ps₁) (normalise_ps ps₂)
       → eq_ps ps₁ ps₂.
-Arguments eq_ps _ _ ps₁%ps ps₂%ps.
+Arguments eq_ps _ _ _ ps₁%ps ps₂%ps.
 
 Definition ps_monom {α} {r : ring α} (c : α) pow :=
   {| ps_terms := {| terms i := if zerop i then c else 0%K |};
@@ -133,7 +798,7 @@ Definition ps_monom {α} {r : ring α} (c : α) pow :=
 
 Definition ps_one {α} {r : ring α} := ps_monom rng_one 0.
 
-Notation "a ≐ b" := (eq_ps_strong a b) (at level 70, r at level 0).
+Notation "a ≐ b" := (eq_ps_strong a b) (at level 70).
 Notation "a = b" := (eq_ps a b) : ps_scope.
 Notation "a ≠ b" := (not (eq_ps a b)) : ps_scope.
 Notation "0" := ps_zero : ps_scope.
@@ -174,13 +839,13 @@ intros a b Hab v n.
 constructor; [ reflexivity | reflexivity | assumption ].
 Qed.
 
-Add Parametric Morphism α (r : ring α) : (series_order r)
+Add Parametric Morphism α (r : ring α) (K : field r) : series_order
   with signature eq_series ==> eq ==> eq
   as series_order_morph.
 Proof.
 intros s₁ s₂ Heq n.
-remember (series_order r s₁ n) as n₁ eqn:Hn₁ .
-remember (series_order r s₂ n) as n₂ eqn:Hn₂ .
+remember (series_order s₁ n) as n₁ eqn:Hn₁ .
+remember (series_order s₂ n) as n₂ eqn:Hn₂ .
 symmetry in Hn₁, Hn₂.
 apply series_order_iff in Hn₁.
 apply series_order_iff in Hn₂.
@@ -207,26 +872,27 @@ destruct n₁ as [n₁| ].
  exfalso; apply Hnz₂; rewrite <- Heq; apply Hn₁.
 Qed.
 
-Add Parametric Morphism α (r : ring α) : (nth_series_order r)
+Add Parametric Morphism α (r : ring α) (K : field r) : (nth_series_order K)
   with signature eq_series ==> eq ==> eq ==> eq
   as nth_series_order_morph.
 Proof.
-intros s₁ s₂ Heq c n.
+intros s₁ s₂ Heq n c.
 revert n.
 induction c; intros; simpl; rewrite Heq; [ reflexivity | idtac ].
-destruct (series_order r s₂ (S n)); [ apply IHc | reflexivity ].
+destruct (series_order s₂ (S n)); [ apply IHc | reflexivity ].
 Qed.
 
-Add Parametric Morphism α (r : ring α) : (greatest_series_x_power r)
+Add Parametric Morphism α (r : ring α) (K : field r) :
+  (greatest_series_x_power K)
   with signature eq_series ==> eq ==> eq
   as greatest_series_x_power_morph.
 Proof.
 intros s₁ s₂ Heq n.
-remember (greatest_series_x_power r s₂ n) as k eqn:Hk .
+remember (greatest_series_x_power K s₂ n) as k eqn:Hk .
 symmetry in Hk.
 apply greatest_series_x_power_iff in Hk.
 apply greatest_series_x_power_iff.
-remember (series_order r s₁ (S n)) as p₁ eqn:Hp₁ .
+remember (series_order s₁ (S n)) as p₁ eqn:Hp₁ .
 symmetry in Hp₁.
 rewrite Heq in Hp₁.
 rewrite Hp₁ in Hk.
@@ -292,7 +958,7 @@ unfold series_shrink, series_left_shift; simpl.
 apply H.
 Qed.
 
-Add Parametric Morphism α (R : ring α) : (@normalise_ps _ R)
+Add Parametric Morphism α (R : ring α) (K : field R) : (@normalise_ps _ R K)
   with signature eq_ps_strong ==> eq_ps_strong
   as normalise_ps_morph.
 Proof.
@@ -300,7 +966,7 @@ intros ps₁ ps₂ Heq.
 inversion Heq; subst.
 unfold normalise_ps.
 rewrite H, H0, H1.
-remember (series_order R (ps_terms ps₂) 0) as n eqn:Hn .
+remember (series_order (ps_terms ps₂) 0) as n eqn:Hn .
 symmetry in Hn.
 destruct n as [n| ]; [ idtac | reflexivity ].
 unfold gcd_ps.
@@ -308,7 +974,7 @@ rewrite H, H0.
 constructor; simpl; rewrite H1; reflexivity.
 Qed.
 
-Add Parametric Morphism α (r : ring α) : (@mkps α)
+Add Parametric Morphism α (R : ring α) (K : field R) : (@mkps α)
   with signature eq_series ==> eq ==> eq ==> eq_ps
   as mkps_morphism.
 Proof.
@@ -319,7 +985,8 @@ Qed.
 Section eq_ps_equiv_rel.
 
 Variable α : Type.
-Variable r : ring α.
+Variable R : ring α.
+Variable K : field R.
 
 Theorem eq_ps_refl : reflexive _ eq_ps.
 Proof.
@@ -469,7 +1136,7 @@ destruct (lt_dec i x) as [Hlt| Hge].
 Qed.
 
 Theorem series_shift_left_shift : ∀ s n,
-  series_order r s 0 = fin n
+  series_order s 0 = fin n
   → (series_shift n (series_left_shift n s) = s)%ser.
 Proof.
 intros s n Hn.
@@ -525,23 +1192,36 @@ Qed.
 
 End eq_ps_equiv_rel.
 
-Add Parametric Relation α (r : ring α) : (puiseux_series α) eq_ps
- reflexivity proved by (eq_ps_refl r)
- symmetry proved by (eq_ps_sym (r := r))
- transitivity proved by (eq_ps_trans (r := r))
+Add Parametric Relation α (R : ring α) (K : field R) :
+   (puiseux_series α) eq_ps
+ reflexivity proved by (eq_ps_refl K)
+ symmetry proved by (eq_ps_sym (K := K))
+ transitivity proved by (eq_ps_trans (K := K))
  as eq_ps_rel.
 
 Section other_theorems.
 
 Variable α : Type.
-Variable r : ring α.
+Variable R : ring α.
+Variable K : field R.
 
-Theorem ps_zero_monom_eq : (ps_monom 0%K 0 = 0)%ps.
+Theorem zero_series_order : ∀ n, series_order 0%ser n = ∞.
 Proof.
+intros n.
+apply series_order_iff; reflexivity.
+Qed.
+
+Theorem ps_zero_monom_eq : ∀ q, (ps_monom 0%K q = 0)%ps.
+Proof.
+intros q.
 unfold ps_zero, ps_monom; simpl.
-apply mkps_morphism; try reflexivity.
-constructor; intros n; simpl.
-destruct (zerop n); reflexivity.
+setoid_replace (series (λ i, if zerop i then 0%K else 0%K)) with 0%ser.
+ constructor.
+ unfold normalise_ps; simpl.
+ rewrite zero_series_order; reflexivity.
+
+ constructor; intros i; simpl.
+ destruct (zerop i); reflexivity.
 Qed.
 
 Theorem series_shift_0 : ∀ s, (series_shift 0 s = s)%ser.
@@ -572,12 +1252,12 @@ Qed.
 
 Theorem series_order_shift_S : ∀ s c n,
   (c ≤ n)%nat
-  → series_order r (series_shift (S n) s) c =
-    NS (series_order r (series_shift n s) c).
+  → series_order (series_shift (S n) s) c =
+    NS (series_order (series_shift n s) c).
 Proof.
 intros s c n Hcn.
-remember (series_order r (series_shift n s) c) as u eqn:Hu .
-remember (series_order r (series_shift (S n) s) c) as v eqn:Hv .
+remember (series_order (series_shift n s) c) as u eqn:Hu .
+remember (series_order (series_shift (S n) s) c) as v eqn:Hv .
 symmetry in Hu, Hv.
 apply series_order_iff in Hu.
 apply series_order_iff in Hv.
@@ -633,8 +1313,8 @@ destruct u as [u| ].
 Qed.
 
 Theorem series_order_shift : ∀ s n,
-  series_order r (series_shift n s) 0 =
-    (fin n + series_order r s 0)%Nbar.
+  series_order (series_shift n s) 0 =
+    (fin n + series_order s 0)%Nbar.
 Proof.
 intros s n.
 induction n.
@@ -642,7 +1322,7 @@ induction n.
 
  rewrite series_order_shift_S; [ idtac | apply Nat.le_0_l ].
  rewrite IHn; simpl.
- destruct (series_order r s); reflexivity.
+ destruct (series_order s); reflexivity.
 Qed.
 
 Theorem shifted_in_stretched : ∀ s k i,
@@ -674,6 +1354,27 @@ destruct (zerop (i mod Pos.to_nat k)) as [H| H].
  destruct i; [ simpl | reflexivity ].
  rewrite Nat.mod_0_l in H; auto.
  exfalso; revert H; apply Nat.lt_irrefl.
+Qed.
+
+Theorem series_stretch_iff_const : ∀ k s c,
+  (series_stretch k s = series_const c)%ser
+  ↔ (s = series_const c)%ser.
+Proof.
+intros k s c.
+split; intros H.
+ constructor; intros i.
+ inversion_clear H as (s₁, s₂, Hi).
+ simpl in Hi; simpl.
+ pose proof Hi (i * Pos.to_nat k)%nat as H.
+ rewrite Nat.mod_mul in H; [ simpl in H | apply Pos2Nat_ne_0 ].
+ rewrite Nat.div_mul in H; [ simpl in H | apply Pos2Nat_ne_0 ].
+ destruct (zerop i) as [H₁| H₁]; [ subst i; assumption | ].
+ destruct (zerop (i * Pos.to_nat k)) as [H₂| ]; [ | assumption ].
+ apply Nat.mul_eq_0_l in H₂; [ | apply Pos2Nat_ne_0 ].
+ exfalso; subst i; revert H₁; apply Nat.lt_irrefl.
+
+ rewrite H.
+ apply series_stretch_const.
 Qed.
 
 Theorem stretch_series_1 : ∀ k, (series_stretch k 1 = 1)%ser.
@@ -718,11 +1419,11 @@ destruct (zerop (i mod Pos.to_nat k)) as [H₁| H₁].
 Qed.
 
 Theorem series_order_stretch : ∀ s b k,
-  series_order r (series_stretch k s) (b * Pos.to_nat k) =
-    (fin (Pos.to_nat k) * series_order r s b)%Nbar.
+  series_order (series_stretch k s) (b * Pos.to_nat k) =
+    (fin (Pos.to_nat k) * series_order s b)%Nbar.
 Proof.
 intros s b k.
-remember (series_order r s b) as n eqn:Hn .
+remember (series_order s b) as n eqn:Hn .
 symmetry in Hn.
 apply series_order_iff in Hn.
 apply series_order_iff.
@@ -755,8 +1456,8 @@ destruct n as [n| ]; simpl.
 Qed.
 
 Theorem series_order_stretch_0 : ∀ s k,
-  series_order r (series_stretch k s) 0 =
-    (fin (Pos.to_nat k) * series_order r s 0)%Nbar.
+  series_order (series_stretch k s) 0 =
+    (fin (Pos.to_nat k) * series_order s 0)%Nbar.
 Proof.
 intros s k.
 rewrite <- series_order_stretch.
@@ -782,11 +1483,11 @@ rewrite Nat.add_comm; reflexivity.
 Qed.
 
 Theorem series_order_shift_add : ∀ s m n,
-  series_order r (series_shift m s) (m + n) =
-  series_order r s n.
+  series_order (series_shift m s) (m + n) =
+  series_order s n.
 Proof.
 intros s m n.
-remember (series_order r s n) as v eqn:Hv .
+remember (series_order s n) as v eqn:Hv .
 symmetry in Hv.
 apply series_order_iff in Hv.
 apply series_order_iff.
@@ -809,19 +1510,19 @@ destruct v as [v| ].
 Qed.
 
 Theorem nth_series_order_shift : ∀ s cnt n b,
-  nth_series_order r (series_shift n s) cnt (b + n) =
-  nth_series_order r s cnt b.
+  nth_series_order K (series_shift n s) (b + n) cnt =
+  nth_series_order K s b cnt.
 Proof.
 intros s cnt n b.
 revert b.
 induction cnt; intros; simpl.
  rewrite <- Nat.add_succ_l, Nat.add_comm.
  rewrite series_order_shift_add.
- destruct (series_order r s (S b)); reflexivity.
+ destruct (series_order s (S b)); reflexivity.
 
  rewrite <- Nat.add_succ_l, Nat.add_comm.
  rewrite series_order_shift_add.
- remember (series_order r s (S b)) as m eqn:Hm .
+ remember (series_order s (S b)) as m eqn:Hm .
  symmetry in Hm.
  destruct m as [m| ]; [ idtac | reflexivity ].
  rewrite Nat.add_shuffle0.
@@ -830,17 +1531,17 @@ induction cnt; intros; simpl.
 Qed.
 
 Theorem greatest_series_x_power_shift : ∀ n s b,
-  greatest_series_x_power r (series_shift n s) (b + n) =
-  greatest_series_x_power r s b.
+  greatest_series_x_power K (series_shift n s) (b + n) =
+  greatest_series_x_power K s b.
 Proof.
 intros n s b.
-remember (greatest_series_x_power r s b) as k eqn:Hk .
+remember (greatest_series_x_power K s b) as k eqn:Hk .
 symmetry in Hk.
 apply greatest_series_x_power_iff in Hk.
 apply greatest_series_x_power_iff.
 rewrite <- Nat.add_succ_l, Nat.add_comm.
 rewrite series_order_shift_add.
-remember (series_order r s (S b)) as p eqn:Hp .
+remember (series_order s (S b)) as p eqn:Hp .
 symmetry in Hp.
 destruct p as [p| ]; [ idtac | assumption ].
 destruct Hk as (Hz, Hnz).
@@ -856,14 +1557,14 @@ split.
 Qed.
 
 Theorem series_order_stretch_succ : ∀ s n p k,
-  series_order r s (S n) = fin p
-  → series_order r (series_stretch k s)
+  series_order s (S n) = fin p
+  → series_order (series_stretch k s)
       (S (n * Pos.to_nat k)) = fin (S p * Pos.to_nat k - 1).
 Proof.
 (* à nettoyer *)
 intros s n p k Hp.
 remember (series_stretch k s) as s₁ eqn:Hs₁ .
-remember (series_order r s₁ (S (n * Pos.to_nat k))) as q eqn:Hq .
+remember (series_order s₁ (S (n * Pos.to_nat k))) as q eqn:Hq .
 symmetry in Hq.
 apply series_order_iff in Hq.
 destruct q as [q| ].
@@ -896,7 +1597,7 @@ destruct q as [q| ].
       rewrite H in Hnzq; apply Hnzq; reflexivity.
 
      remember H₁ as H; clear HeqH.
-     apply le_S_n, le_neq_lt in H; auto.
+     apply le_S_n, Nat_le_neq_lt in H; auto.
      destruct q' as [| q'].
       rewrite Nat.mul_0_r in Hq'; discriminate Hq'.
 
@@ -985,8 +1686,8 @@ destruct q as [q| ].
 Qed.
 
 Theorem series_order_stretch_succ_inf : ∀ s n k,
-  series_order r s (S n) = ∞
-  → series_order r (series_stretch k s) (S (n * Pos.to_nat k)) =
+  series_order s (S n) = ∞
+  → series_order (series_stretch k s) (S (n * Pos.to_nat k)) =
       ∞.
 Proof.
 intros s n k Hp.
@@ -1034,7 +1735,7 @@ Fixpoint rank_of_nonzero_after_from s n i b :=
   | O => O
   | S n₁ =>
       if lt_dec b i then
-        match series_order r s (S b) with
+        match series_order s (S b) with
         | fin m => S (rank_of_nonzero_after_from s n₁ i (S b + m)%nat)
         | ∞ => O
         end
@@ -1046,10 +1747,10 @@ Definition rank_of_nonzero_before s i :=
 
 Theorem series_nth_0_in_interval_from_any : ∀ s i c b k,
   (i < c)%nat
-  → (∀ n, (Pos.to_nat k | nth_series_order r s n b)%nat)
+  → (∀ n, (Pos.to_nat k | nth_series_order K s b n)%nat)
     → (Pos.to_nat k |
-       nth_series_order r s
-         (pred (rank_of_nonzero_after_from s c (b + i) b)) b)%nat
+       nth_series_order K s b
+         (pred (rank_of_nonzero_after_from s c (b + i) b)))%nat
       → i mod Pos.to_nat k ≠ O
         → (s .[b + i] = 0)%K.
 Proof.
@@ -1064,7 +1765,7 @@ destruct i.
  apply Nat.succ_lt_mono in Hic.
  destruct (lt_dec b (b + S i)) as [H₁| H₁].
   clear H₁.
-  remember (series_order r s (S b)) as len eqn:Hlen .
+  remember (series_order s (S b)) as len eqn:Hlen .
   symmetry in Hlen.
   destruct len as [len| ].
    simpl in Hn.
@@ -1075,7 +1776,7 @@ destruct i.
     rewrite Nat.add_succ_r in H₁.
     apply Nat.succ_lt_mono in H₁.
     apply Nat.add_lt_mono_l in H₁.
-    remember (series_order r s (S (S (b + len)))) as len₁.
+    remember (series_order s (S (S (b + len)))) as len₁.
     rename Heqlen₁ into Hlen₁.
     symmetry in Hlen₁.
     destruct len₁ as [len₁| ].
@@ -1157,7 +1858,7 @@ destruct i.
      apply series_order_iff in Hlen; simpl in Hlen.
      destruct Hlen as (Hz, Hnz).
      rewrite Nat.add_succ_r.
-     apply Hz, le_neq_lt; assumption.
+     apply Hz, Nat_le_neq_lt; assumption.
 
    rewrite Nat.add_succ_r.
    apply series_order_iff in Hlen; simpl in Hlen.
@@ -1170,7 +1871,7 @@ destruct i.
 Qed.
 
 Theorem series_nth_0_in_interval : ∀ s k,
-  (∀ n, (Pos.to_nat k | nth_series_order r s n 0)%nat)
+  (∀ n, (Pos.to_nat k | nth_series_order K s 0 n)%nat)
   → ∀ i,
     (i mod Pos.to_nat k ≠ 0)%nat
     → (s .[i] = 0)%K.
@@ -1189,7 +1890,7 @@ destruct i.
 Qed.
 
 Theorem series_stretch_shrink : ∀ s k,
-  (Pos.to_nat k | greatest_series_x_power r s 0)
+  (Pos.to_nat k | greatest_series_x_power K s 0)
   → (series_stretch k (series_shrink k s) = s)%ser.
 Proof.
 intros s k Hk.
@@ -1201,7 +1902,7 @@ destruct (zerop (i mod Pos.to_nat k)) as [H₁| H₁].
 
  destruct Hk as (c, Hk).
  apply greatest_series_x_power_iff in Hk.
- remember (series_order r s 1) as p eqn:Hp .
+ remember (series_order s 1) as p eqn:Hp .
  symmetry in Hp.
  destruct p as [p| ].
   destruct Hk as (Hz, Hnz).
@@ -1243,15 +1944,14 @@ destruct (zerop (i mod Pos.to_nat k)) as [H₁| H₁].
 Qed.
 
 Theorem nth_series_order_stretch : ∀ s b n k,
-  nth_series_order r (series_stretch k s) n
-    (b * Pos.to_nat k) =
-  (Pos.to_nat k * nth_series_order r s n b)%nat.
+  nth_series_order K (series_stretch k s) (b * Pos.to_nat k) n =
+  (Pos.to_nat k * nth_series_order K s b n)%nat.
 Proof.
 intros s b n k.
 revert b.
 induction n; intros.
  simpl.
- remember (series_order r s (S b)) as len eqn:Hlen .
+ remember (series_order s (S b)) as len eqn:Hlen .
  symmetry in Hlen.
  destruct len as [len| ].
   erewrite series_order_stretch_succ; eauto .
@@ -1269,7 +1969,7 @@ induction n; intros.
   rewrite Nat.mul_comm; reflexivity.
 
  simpl.
- remember (series_order r s (S b)) as len eqn:Hlen .
+ remember (series_order s (S b)) as len eqn:Hlen .
  symmetry in Hlen.
  destruct len as [len| ].
   erewrite series_order_stretch_succ; eauto .
@@ -1296,24 +1996,24 @@ induction n; intros.
 Qed.
 
 Theorem is_the_greatest_series_x_power_equiv : ∀ s n k,
-  match series_order r s (S n) with
+  match series_order s (S n) with
   | fin _ =>
       is_a_series_in_x_power s n k ∧
-      (∀ k', (k < k')%nat → ∃ n', ¬(k' | nth_series_order r s n' n))
+      (∀ k', (k < k')%nat → ∃ n', ¬(k' | nth_series_order K s n n'))
   | ∞ =>
       k = O
   end
-  ↔ match series_order r s (S n) with
+  ↔ match series_order s (S n) with
     | fin _ =>
         is_a_series_in_x_power s n k ∧
-        (∀ u, (1 < u)%nat → ∃ n', ¬(u * k | nth_series_order r s n' n))
+        (∀ u, (1 < u)%nat → ∃ n', ¬(u * k | nth_series_order K s n n'))
     | ∞ =>
         k = O
     end.
 Proof.
 intros s b k.
 split; intros H.
- remember (series_order r s (S b)) as p eqn:Hp₁ .
+ remember (series_order s (S b)) as p eqn:Hp₁ .
  symmetry in Hp₁.
  destruct p as [p| ]; [ idtac | assumption ].
  destruct H as (Hp, Hnp).
@@ -1337,7 +2037,7 @@ split; intros H.
   simpl; rewrite <- Nat.add_succ_l.
   apply Nat.lt_add_pos_r, Nat.lt_0_succ.
 
- remember (series_order r s (S b)) as p eqn:Hp₁ .
+ remember (series_order s (S b)) as p eqn:Hp₁ .
  symmetry in Hp₁.
  destruct p as [p| ]; [ idtac | assumption ].
  destruct H as (Hp, Hnp).
@@ -1408,18 +2108,18 @@ split; intros H.
 Qed.
 
 Theorem greatest_series_x_power_stretch : ∀ s b k,
-  series_order r s (S b) ≠ ∞
-  → greatest_series_x_power r (series_stretch k s) (b * Pos.to_nat k)%nat =
-      (Pos.to_nat k * greatest_series_x_power r s b)%nat.
+  series_order s (S b) ≠ ∞
+  → greatest_series_x_power K (series_stretch k s) (b * Pos.to_nat k)%nat =
+      (Pos.to_nat k * greatest_series_x_power K s b)%nat.
 Proof.
 (* à nettoyer *)
 intros s b k Hinf.
-remember (greatest_series_x_power r s b) as m eqn:Hm .
+remember (greatest_series_x_power K s b) as m eqn:Hm .
 symmetry in Hm.
 apply greatest_series_x_power_iff.
 apply is_the_greatest_series_x_power_equiv.
 apply greatest_series_x_power_iff in Hm.
-remember (series_order r s (S b)) as p eqn:Hp .
+remember (series_order s (S b)) as p eqn:Hp .
 symmetry in Hp.
 destruct p as [p| ].
  apply series_order_stretch_succ with (k := k) in Hp.
@@ -1437,7 +2137,7 @@ destruct p as [p| ].
     clear n.
     destruct H as (n, Hn).
     exfalso; apply Hn.
-    exists (nth_series_order r s n b).
+    exists (nth_series_order K s b n).
     rewrite Nat.mul_1_r; reflexivity.
 
     apply Nat.neq_mul_0; split; auto.
@@ -1541,7 +2241,7 @@ destruct (le_dec i b) as [H₁| H₁].
 Qed.
 
 Theorem series_series_order_inf_iff : ∀ s,
-  series_order r s 0 = ∞
+  series_order s 0 = ∞
   ↔ (s = 0)%ser.
 Proof.
 intros s.
@@ -1555,7 +2255,7 @@ split; intros H.
 Qed.
 
 Theorem ps_series_order_inf_iff : ∀ ps,
-  series_order r (ps_terms ps) 0 = ∞
+  series_order (ps_terms ps) 0 = ∞
   ↔ (ps = 0)%ps.
 Proof.
 intros ps.
@@ -1563,7 +2263,7 @@ split; intros H.
  constructor.
  unfold normalise_ps; simpl.
  rewrite H.
- remember (series_order r 0%ser 0) as n eqn:Hn .
+ remember (series_order 0%ser 0) as n eqn:Hn .
  symmetry in Hn.
  destruct n as [n| ]; [ idtac | reflexivity ].
  apply series_order_iff in Hn.
@@ -1574,7 +2274,7 @@ split; intros H.
  inversion H; subst.
  apply series_order_iff; simpl; intros i.
  unfold normalise_ps in H0; simpl in H0.
- remember (series_order r 0%ser 0) as n eqn:Hn .
+ remember (series_order 0%ser 0) as n eqn:Hn .
  symmetry in Hn.
  destruct n as [n| ].
   exfalso; clear H0.
@@ -1583,12 +2283,12 @@ split; intros H.
   destruct Hn as (_, Hn).
   apply Hn; reflexivity.
 
-  remember (series_order r (ps_terms ps) 0) as m eqn:Hm .
+  remember (series_order (ps_terms ps) 0) as m eqn:Hm .
   symmetry in Hm.
   destruct m as [m| ].
    inversion_clear H0.
    simpl in H1, H2, H3.
-   remember (greatest_series_x_power r (ps_terms ps) m) as p eqn:Hp .
+   remember (greatest_series_x_power K (ps_terms ps) m) as p eqn:Hp .
    remember (gcd_ps m p ps) as g eqn:Hg .
    unfold normalise_series in H3.
    inversion_clear H3.
@@ -1621,7 +2321,7 @@ split; intros H.
 
     symmetry in Hp.
     apply greatest_series_x_power_iff in Hp.
-    remember (series_order r (ps_terms ps) (S m)) as q eqn:Hq .
+    remember (series_order (ps_terms ps) (S m)) as q eqn:Hq .
     symmetry in Hq.
     destruct q as [q| ].
      destruct Hp as (Hxp, Hnxp).
@@ -1695,7 +2395,7 @@ split; intros H.
        assumption.
 
        apply Nat.neq_sym in H₃.
-       apply le_neq_lt; assumption.
+       apply Nat_le_neq_lt; assumption.
 
    apply series_order_iff in Hm.
    simpl in Hm.
@@ -1703,11 +2403,11 @@ split; intros H.
 Qed.
 
 Theorem series_order_succ2 : ∀ s m,
-  series_order r s (S m) =
-  series_order r (series_left_shift m s) 1.
+  series_order s (S m) =
+  series_order (series_left_shift m s) 1.
 Proof.
 intros s m.
-remember (series_order r s (S m)) as n eqn:Hn .
+remember (series_order s (S m)) as n eqn:Hn .
 symmetry in Hn |- *.
 apply series_order_iff in Hn.
 apply series_order_iff.
@@ -1737,8 +2437,8 @@ rewrite Nat.add_comm, Nat.add_shuffle0; reflexivity.
 Qed.
 
 Theorem nth_series_order_left_shift : ∀ s m n p,
-  nth_series_order r (series_left_shift m s) n p =
-  nth_series_order r s n (m + p).
+  nth_series_order K (series_left_shift m s) p n =
+  nth_series_order K s (m + p) n.
 Proof.
 intros s m n p.
 revert m p.
@@ -1752,7 +2452,12 @@ induction n; intros; simpl.
  rewrite series_order_succ2; symmetry.
  rewrite series_left_shift_left_shift.
  rewrite Nat.add_comm.
- remember (series_order r (series_left_shift (m + p) s) 1) as q.
+(* due to a bug in 8.5
+ remember (@series_order α r (@series_left_shift α (m + p) s) (S O)) as q.
+ *)
+(* bug in 8.5 fixed, or before 8.5 *)
+ remember (series_order (series_left_shift (m + p) s) 1) as q.
+(**)
  symmetry in Heqq.
  destruct q as [q| ].
   symmetry.
@@ -1764,18 +2469,18 @@ induction n; intros; simpl.
 Qed.
 
 Theorem greatest_series_x_power_left_shift : ∀ s n p,
-  greatest_series_x_power r (series_left_shift n s) p =
-  greatest_series_x_power r s (n + p).
+  greatest_series_x_power K (series_left_shift n s) p =
+  greatest_series_x_power K s (n + p).
 Proof.
 intros s n p.
-remember (greatest_series_x_power r s (n + p)) as k eqn:Hk .
+remember (greatest_series_x_power K s (n + p)) as k eqn:Hk .
 symmetry in Hk.
 apply greatest_series_x_power_iff in Hk.
 apply greatest_series_x_power_iff.
 pose proof (nth_series_order_left_shift s n O p) as H.
 simpl in H.
-remember (series_order r s (S (n + p))) as n₁ eqn:Hn₁ .
-remember (series_order r (series_left_shift n s) (S p)) as n₂
+remember (series_order s (S (n + p))) as n₁ eqn:Hn₁ .
+remember (series_order (series_left_shift n s) (S p)) as n₂
  eqn:Hn₂ .
 symmetry in Hn₁, Hn₂.
 destruct n₁ as [n₁| ].

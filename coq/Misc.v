@@ -17,6 +17,14 @@ Notation "x ≤ y < z" := (x <= y ∧ y < z)%nat (at level 70, y at next level).
 Notation "x ∈ l" := (List.In x l) (at level 70).
 Notation "x ∉ l" := (not (List.In x l)) (at level 70).
 
+(*
+(* added from 8.4 to 8.5 *)
+Definition divmod := Nat.divmod.
+Definition divide x y := exists z, (y=z*x)%nat.
+Notation "( x | y )" := (divide x y) (at level 0) : nat_scope.
+(* end added *)
+*)
+
 Ltac negation H := exfalso; apply H; reflexivity.
 Tactic Notation "fast_omega" hyp_list(Hs) := revert Hs; clear; intros; omega.
 
@@ -30,7 +38,7 @@ Definition Nat_sub_succ_diag : ∀ n, (S n - n = 1)%nat :=
   λ n,
   eq_trans (Nat.sub_succ_l n n (le_n n)) (f_equal S (Nat.sub_diag n)).
 
-Definition le_neq_lt : ∀ x y : nat, x ≤ y → x ≠ y → (x < y)%nat :=
+Definition Nat_le_neq_lt : ∀ x y : nat, x ≤ y → x ≠ y → (x < y)%nat :=
   λ x y Hxy Hnxy,
   match le_lt_eq_dec x y Hxy with
   | left Hle => Hle
@@ -65,7 +73,7 @@ intros n.
 etransitivity; [ apply Nat.sub_succ_l, le_n | apply f_equal, Nat.sub_diag ].
 Qed.
 
-Theorem le_neq_lt : ∀ x y : nat, x ≤ y → x ≠ y → (x < y)%nat.
+Theorem Nat_le_neq_lt : ∀ x y : nat, x ≤ y → x ≠ y → (x < y)%nat.
 Proof.
 intros x y Hxy Hnxy.
 apply le_lt_eq_dec in Hxy.
@@ -736,6 +744,14 @@ induction p; intros.
   apply IHp; assumption.
 Qed.
 
+Theorem Nat_sub_sub_comm : ∀ m n p, (m - n - p)%nat = (m - p - n)%nat.
+Proof.
+intros.
+do 2 rewrite <- Nat.sub_add_distr.
+rewrite Nat.add_comm.
+apply eq_refl.
+Qed.
+
 Theorem Z2Nat_id_max : ∀ x, Z.of_nat (Z.to_nat x) = Z.max 0 x.
 Proof.
 intros x.
@@ -769,31 +785,6 @@ destruct x as [| x| x].
  apply Hx, Pos2Z.neg_is_nonpos.
 Qed.
 
-(* Allows proof by induction with the case
-     proved for n implies proved for S n
-   changed into
-     proved for all nats before n implies proved for S n.
-
-   Then, the proof may be easier to perform.
-*)
-Theorem all_lt_all : ∀ P : nat → Prop,
-  (∀ n, (∀ m, (m < n)%nat → P m) → P n)
-  → ∀ n, P n.
-Proof.
-intros P Hm n.
-apply Hm.
-induction n; intros m Hmn.
- apply Nat.nle_gt in Hmn.
- exfalso; apply Hmn, Nat.le_0_l.
-
- destruct (eq_nat_dec m n) as [H₁| H₁].
-  subst m; apply Hm; assumption.
-
-  apply IHn.
-  apply le_neq_lt; [ idtac | assumption ].
-  apply Nat.succ_le_mono; assumption.
-Qed.
-
 Theorem Nat_divides_l : ∀ a b, (∃ c, a = (b * c)%nat) ↔ (b | a)%nat.
 Proof.
 intros a b.
@@ -822,7 +813,12 @@ pose proof (Nat.gcd_divide_l k l) as Hk'.
 pose proof (Nat.gcd_divide_r k l) as Hl'.
 destruct Hk' as (k', Hk').
 destruct Hl' as (l', Hl').
+(* 8.4
 remember (gcd k l) as g eqn:Hg .
+*)
+(* 8.5 *)
+remember (Nat.gcd k l) as g eqn:Hg .
+(**)
 subst k l.
 apply Nat.gcd_div_gcd in Hg.
  rewrite Nat.div_mul in Hg.
@@ -851,7 +847,7 @@ apply Nat.gcd_div_gcd in Hg.
 
        rewrite Nat.gcd_comm; assumption.
 
-     intros H; apply Hlp; subst g; auto.
+     intros H1; apply Hlp; subst g; auto.
 
     intros H; apply Hlp; subst g; auto.
 
@@ -871,6 +867,13 @@ rewrite Hg in |- * at 2.
 unfold Nat.gcd.
 destruct c; [ contradiction | simpl ].
 apply le_plus_l.
+Qed.
+
+Theorem Nat_gcd_le_r : ∀ a b, (b ≠ 0 → Nat.gcd a b ≤ b)%nat.
+Proof.
+intros a b Hb.
+rewrite Nat.gcd_comm.
+apply Nat_gcd_le_l; assumption.
 Qed.
 
 Theorem Nat_le_lcm_l : ∀ a b, (b ≠ 0 → a ≤ Nat.lcm a b)%nat.
@@ -895,7 +898,7 @@ Theorem Nat_divides_lcm_l : ∀ a b, (a | Nat.lcm a b)%nat.
 Proof.
 intros a b.
 unfold Nat.lcm.
-exists (b / gcd a b)%nat.
+exists (b / Nat.gcd a b)%nat.
 apply Nat.mul_comm.
 Qed.
 

@@ -2,6 +2,7 @@
 
 Require Import Utf8 QArith.
 
+Require Import Misc.
 Require Import Field.
 Require Import InSegment.
 Require Import ConvexHull.
@@ -9,9 +10,6 @@ Require Import Newton.
 Require Import NotInSegment.
 Require Import Puiseux_base.
 
-Notation "[ ]" := nil.
-Notation "[ x ; .. ; y … l ]" := (cons x .. (cons y l) ..).
-Notation "[ x ]" := (cons x nil).
 Notation "x ∈ l" := (List.In x l) (at level 70).
 Notation "x ∉ l" := (not (List.In x l)) (at level 70).
 
@@ -19,6 +17,7 @@ Section theorems.
 
 Variable α : Type.
 Variable r : ring α.
+Variable K : field r.
 
 Theorem points_in_any_newton_segment : ∀ pol ns,
   ns ∈ newton_segments pol

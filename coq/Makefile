@@ -7,12 +7,12 @@ FILESFORDEP=`LC_ALL=C ls *.v`
 all: $(TARGET)
 
 clean:
-	rm -f *.glob *.vo
+	rm -f *.glob *.vo .*.aux
 	rm -f *.cm[iox] *.o *.cmxs *.native
 
 depend:
 	mv .depend .depend.bak
-	coqdep -I . $(FILESFORDEP) | LC_ALL=C sort > .depend
+	coqdep -Q . . $(FILESFORDEP) | LC_ALL=C sort > .depend
 
 .SUFFIXES: .v .vo
 

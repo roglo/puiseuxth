@@ -21,16 +21,16 @@ Require Import Ps_div.
 
 Set Implicit Arguments.
 
-Definition order {α} {r : ring α} ps :=
-  match series_order r (ps_terms ps) 0 with
+Definition order {α} {r : ring α} {K : field r} ps :=
+  match series_order (ps_terms ps) 0 with
   | fin v => qfin (ps_ordnum ps + Z.of_nat v # ps_polord ps)
   | ∞ => qinf
   end.
 
-Arguments order _ _ ps%ps_scope.
+Arguments order _ _ _ ps%ps_scope.
 
-Definition order_coeff α {R : ring α} ps :=
-  match series_order R (ps_terms ps) 0 with
+Definition order_coeff α {R : ring α} {K : field R} ps :=
+  match series_order (ps_terms ps) 0 with
   | fin v => (ps_terms ps) .[v]
   | ∞ => (0)%K
   end.
@@ -44,27 +44,29 @@ Fixpoint power_list α pow (psl : list α) :=
 Definition qpower_list α pow (psl : list (puiseux_series α)) :=
   List.map (pair_rec (λ pow ps, (Qnat pow, ps))) (power_list pow psl).
 
-Fixpoint filter_finite_ord α (r : ring α) (dpl : list (Q * puiseux_series α)) :=
+Fixpoint filter_finite_ord α (r : ring α) {K : field r}
+    (dpl : list (Q * puiseux_series α)) :=
   match dpl with
   | [(pow, ps) … dpl₁] =>
       match order ps with
-      | qfin v => [(pow, v) … filter_finite_ord r dpl₁]
-      | qinf => filter_finite_ord r dpl₁
+      | qfin v => [(pow, v) … filter_finite_ord dpl₁]
+      | qinf => filter_finite_ord dpl₁
       end
   | [] =>
       []
   end.
 
-Definition points_of_ps_lap_gen α {r} pow (cl : list (puiseux_series α)) :=
-  filter_finite_ord r (qpower_list pow cl).
+Definition points_of_ps_lap_gen α {r} {K : field r} pow
+    (cl : list (puiseux_series α)) :=
+  filter_finite_ord (qpower_list pow cl).
 
-Definition points_of_ps_lap α {R : ring α} lps :=
+Definition points_of_ps_lap α {R : ring α} {K : field R} lps :=
   points_of_ps_lap_gen 0 lps.
 
-Definition points_of_ps_polynom α {R : ring α} pol :=
+Definition points_of_ps_polynom α {R : ring α} {K : field R} pol :=
   points_of_ps_lap (al pol).
 
-Definition newton_segments α {R : ring α} pol :=
+Definition newton_segments α {R : ring α} {K : field R} pol :=
   let gdpl := points_of_ps_polynom pol in
   lower_convex_hull_points gdpl.
 
@@ -76,6 +78,7 @@ Section theorems.
 
 Variable α : Type.
 Variable r : ring α.
+Variable K : field r.
 
 Theorem fold_qpower_list : ∀ pow (psl : list (puiseux_series α)),
   List.map (pair_rec (λ pow ps, (Qnat pow, ps))) (power_list pow psl) =
@@ -88,7 +91,7 @@ intros x.
 split; intros H.
  apply ps_series_order_inf_iff.
  unfold order in H.
- remember (series_order r (ps_terms x) 0) as n eqn:Hn .
+ remember (series_order (ps_terms x) 0) as n eqn:Hn .
  symmetry in Hn.
  destruct n as [n| ]; [ discriminate H | reflexivity ].
 
@@ -258,7 +261,7 @@ destruct (Z_zerop e) as [He| He].
    apply Z.gcd_divide_l.
 Qed.
 
-Add Parametric Morphism α (R : ring α) : (@order α R)
+Add Parametric Morphism α (R : ring α) (K : field R) : (@order α R K)
   with signature eq_ps ==> Qbar.qeq
   as order_morph.
 Proof.
@@ -266,8 +269,8 @@ intros a b Hab.
 inversion Hab; subst.
 unfold normalise_ps in H; simpl in H.
 unfold order.
-remember (series_order R (ps_terms a) 0) as na eqn:Hna .
-remember (series_order R (ps_terms b) 0) as nb eqn:Hnb .
+remember (series_order (ps_terms a) 0) as na eqn:Hna .
+remember (series_order (ps_terms b) 0) as nb eqn:Hnb .
 symmetry in Hna, Hnb.
 destruct na as [na| ].
  destruct nb as [nb| ].
@@ -275,8 +278,8 @@ destruct na as [na| ].
   simpl in H0, H1, H2.
   unfold Qbar.qeq, Qeq; simpl.
   unfold normalise_series in H2.
-  remember (greatest_series_x_power R (ps_terms a) na) as apn.
-  remember (greatest_series_x_power R (ps_terms b) nb) as bpn.
+  remember (greatest_series_x_power K (ps_terms a) na) as apn.
+  remember (greatest_series_x_power K (ps_terms b) nb) as bpn.
   assert (0 < gcd_ps na apn a)%Z as Hpga by apply gcd_ps_is_pos.
   assert (0 < gcd_ps nb bpn b)%Z as Hpgb by apply gcd_ps_is_pos.
   unfold gcd_ps in H0, H1, H2, Hpga, Hpgb.
@@ -311,3 +314,10 @@ destruct na as [na| ].
  rewrite Hab in Hnb.
  subst nb; reflexivity.
 Qed.
+
+Definition ps_field α {R : ring α} {K : field R} : field (ps_ring K) :=
+  {| fld_inv := ps_inv;
+     fld_mul_inv_l := ps_mul_inv_l (f := K);
+     fld_zerop := ps_zerop K |}.
+
+Canonical Structure ps_field.

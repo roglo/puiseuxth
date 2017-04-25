@@ -29,37 +29,37 @@ Set Implicit Arguments.
 (* *)
 
 (* pol₁(x,y₁) = x^(-β₁).pol(x,x^γ₁.(c₁ + y₁)) *)
-Definition next_lap α {R : ring α} pol β₁ γ₁ (c₁ : α) :=
-  let _ := ps_ring R in
+Definition next_lap α {R : ring α} {K : field R} pol β₁ γ₁ (c₁ : α) :=
+  let _ := ps_ring K in
   ([ps_monom 1%K (- β₁)] *
    lap_compose pol [ps_monom c₁ γ₁; ps_monom 1%K γ₁ … []])%lap.
 
-Definition next_pol α {R : ring α} pol β₁ γ₁ c₁ :=
+Definition next_pol α {R : ring α} {K : field R} pol β₁ γ₁ c₁ :=
   (POL (next_lap (al pol) β₁ γ₁ c₁))%pol.
 
 (* *)
 
-Definition lap_summation α {R : ring α} (li : list nat) g :=
+Definition lap_summation α {R : ring α} {K : field R} (li : list nat) g :=
   List.fold_right (λ i accu, lap_add accu (g i)) [] li.
 
-Definition poly_summation α {R : ring α} (li : list nat) g :=
+Definition poly_summation α {R : ring α} {K : field R} (li : list nat) g :=
   (POL (lap_summation li (λ i, al (g i))))%pol.
 
-Definition lap_inject_K_in_Kx α {R : ring α} la :=
+Definition lap_inject_K_in_Kx α {R : ring α} {K : field R} la :=
   List.map (λ c, ps_monom c 0) la.
 
-Definition poly_inject_K_in_Kx α {R : ring α} pol :=
+Definition poly_inject_K_in_Kx α {R : ring α} {K : field R} pol :=
   (POL (lap_inject_K_in_Kx (al pol)))%pol.
 
-Definition ps_lap_summ α {R : ring α} ln f :=
-  @lap_summation (puiseux_series α) (ps_ring R) ln f.
+Definition ps_lap_summ α {R : ring α} {K : field R} ln f :=
+  @lap_summation (puiseux_series α) (ps_ring K) ln f.
 
-Definition ps_pol_summ α {R : ring α} ln f :=
-  @poly_summation (puiseux_series α) (ps_ring R) ln f.
+Definition ps_pol_summ α {R : ring α} {K : field R} ln f :=
+  @poly_summation (puiseux_series α) (ps_ring K) ln f.
 
 (* *)
 
-Add Parametric Morphism α (r : ring α) : ps_monom
+Add Parametric Morphism α (r : ring α) (K : field r) : ps_monom
   with signature rng_eq ==> Qeq ==> eq_ps
   as ps_monom_qeq_morph.
 Proof.
@@ -119,8 +119,9 @@ destruct (zerop (i mod Pos.to_nat (Qden p))) as [H₁| H₁].
   reflexivity.
 Qed.
 
-Add Parametric Morphism α (R : ring α) : (@lap_inject_K_in_Kx _ R)
-  with signature @lap_eq _ R ==> @lap_eq _ (ps_ring R)
+Add Parametric Morphism α (R : ring α) (K : field R) :
+    (@lap_inject_K_in_Kx _ R K)
+  with signature @lap_eq _ R ==> @lap_eq _ (ps_ring K)
   as lap_inject_k_in_Kx_morph.
 Proof.
 intros la lb Hab.
@@ -152,8 +153,9 @@ induction la as [| a]; intros; simpl.
   apply IHla; assumption.
 Qed.
 
-Add Parametric Morphism α (R : ring α) : (@poly_inject_K_in_Kx _ R)
-  with signature eq_poly ==> @eq_poly _ (ps_ring R)
+Add Parametric Morphism α (R : ring α) (K : field R) :
+    (@poly_inject_K_in_Kx _ R K)
+  with signature eq_poly ==> @eq_poly _ (ps_ring K)
   as poly_inject_k_in_Kx_morph.
 Proof.
 intros P Q HPQ.
@@ -171,10 +173,23 @@ induction l as [| x]; intros; [ assumption | idtac ].
 apply Hcomp; assumption.
 Qed.
 
+Theorem lap_mul_summation :
+  ∀ α (Rx : ring (puiseux_series α)) (Kx : field Rx) la l f,
+  (la * lap_summation l f = lap_summation l (λ i, la * f i))%lap.
+Proof.
+intros α Rx Kx la l f.
+induction l as [| j]; intros; simpl.
+ rewrite lap_mul_nil_r; reflexivity.
+
+ rewrite lap_mul_add_distr_l, IHl.
+ reflexivity.
+Qed.
+
 Section on_fields.
 
 Variable α : Type.
 Variable R : ring α.
+Variable K : field R.
 
 Theorem split_summation : ∀ g l l₁ l₂,
   split_list l l₁ l₂
@@ -310,7 +325,7 @@ Qed.
 Theorem f₁_eq_x_min_β₁_summation : ∀ pol β₁ γ₁ c₁,
   (next_pol pol β₁ γ₁ c₁ =
    POL [ps_monom 1%K (- β₁)] *
-   ps_pol_summ (List.seq 0 (length (al pol)))
+   ps_pol_summ ps_field (List.seq 0 (length (al pol)))
      (λ h,
       let āh := ps_poly_nth h pol in
       POL [(āh * ps_monom 1%K (Qnat h * γ₁))%ps] *
@@ -375,12 +390,12 @@ Theorem f₁_eq_x_min_β₁_summation_split : ∀ pol β₁ γ₁ c₁ l₁ l₂
   split_list (List.seq 0 (length (al pol))) l₁ l₂
   → (next_pol pol β₁ γ₁ c₁ =
       POL [ps_monom 1%K (- β₁)] *
-      ps_pol_summ l₁
+      ps_pol_summ ps_field l₁
         (λ (h : nat) (āh:=ps_poly_nth h pol),
          POL [(āh * ps_monom 1%K (Qnat h * γ₁))%ps] *
          POL [ps_monom c₁ 0; 1%ps … []] ^ h) +
       POL [ps_monom 1%K (- β₁)] *
-      ps_pol_summ l₂
+      ps_pol_summ ps_field l₂
         (λ (l : nat) (āl:=ps_poly_nth l pol),
          POL [(āl * ps_monom 1%K (Qnat l * γ₁))%ps] *
          POL [ps_monom c₁ 0; 1%ps … []] ^ l))%pspol.
@@ -412,18 +427,18 @@ Theorem summation_split_val : ∀ pol ns γ₁ c₁ pl tl l,
   → pl = [ini_pt ns … oth_pts ns ++ [fin_pt ns]]
     → tl = List.map (term_of_point pol) pl
       → l = List.map (λ t, power t) tl
-        → (ps_pol_summ l
+        → (ps_pol_summ ps_field l
              (λ h,
               let āh := ps_poly_nth h pol in
               POL [(āh * ps_monom 1%K (Qnat h * γ₁))%ps] *
               POL [ps_monom c₁ 0; 1%ps … []] ^ h) =
-           ps_pol_summ l
+           ps_pol_summ ps_field l
              (λ h,
               let ah := ps_monom (coeff_of_term h tl) 0 in
               let αh := ord_of_pt h pl in
               POL [(ah * ps_monom 1%K (αh + Qnat h * γ₁))%ps] *
               POL [ps_monom c₁ 0; 1%ps … []] ^ h) +
-           ps_pol_summ l
+           ps_pol_summ ps_field l
              (λ h,
               let āh := ps_poly_nth h pol in
               let ah := ps_monom (coeff_of_term h tl) 0 in
@@ -465,14 +480,14 @@ Theorem f₁_eq_sum_α_hγ_to_rest : ∀ pol ns β₁ γ₁ c₁ pl tl l₁ l₂
         → split_list (List.seq 0 (length (al pol))) l₁ l₂
           → (next_pol pol β₁ γ₁ c₁ =
              POL [ps_monom 1%K (- β₁)] *
-             ps_pol_summ l₁
+             ps_pol_summ ps_field l₁
                (λ h,
                 let ah := ps_monom (coeff_of_term h tl) 0 in
                 let αh := ord_of_pt h pl in
                 POL [(ah * ps_monom 1%K (αh + Qnat h * γ₁))%ps] *
                 POL [ps_monom c₁ 0; 1%ps … []] ^ h) +
              POL [ps_monom 1%K (- β₁)] *
-             (ps_pol_summ l₁
+             (ps_pol_summ ps_field l₁
                 (λ h,
                  let āh := ps_poly_nth h pol in
                  let ah := ps_monom (coeff_of_term h tl) 0 in
@@ -480,7 +495,7 @@ Theorem f₁_eq_sum_α_hγ_to_rest : ∀ pol ns β₁ γ₁ c₁ pl tl l₁ l₂
                  POL [((āh - ah * ps_monom 1%K αh) *
                        ps_monom 1%K (Qnat h * γ₁))%ps] *
                  POL [ps_monom c₁ 0; 1%ps … []] ^ h) +
-              ps_pol_summ l₂
+              ps_pol_summ ps_field l₂
                 (λ l,
                  let āl := ps_poly_nth l pol in
                  POL [(āl * ps_monom 1%K (Qnat l * γ₁))%ps] *
@@ -585,13 +600,13 @@ Theorem subst_αh_hγ : ∀ pol ns pl tl l₁ c₁,
   → pl = [ini_pt ns … oth_pts ns ++ [fin_pt ns]]
     → tl = List.map (term_of_point pol) pl
       → l₁ = List.map (λ t, power t) tl
-        → (ps_pol_summ l₁
+        → (ps_pol_summ ps_field l₁
              (λ h,
               let ah := ps_monom (coeff_of_term h tl) 0 in
               let αh := ord_of_pt h pl in
               POL [(ah * ps_monom 1%K (αh + Qnat h * γ ns))%ps] *
               POL [ps_monom c₁ 0; 1%ps … []] ^ h) =
-           ps_pol_summ l₁
+           ps_pol_summ ps_field l₁
              (λ h,
               let ah := ps_monom (coeff_of_term h tl) 0 in
               POL [(ah * ps_monom 1%K (β ns))%ps] *
@@ -621,8 +636,8 @@ assert (∀ pt, pt ∈ pl → ∃ h αh, pt = (Qnat h, αh)) as Hnat.
 Qed.
 
 Theorem poly_summation_mul : ∀ l x g₁ g₂,
-  (ps_pol_summ l (λ h, POL [(g₁ h * x)%ps] * g₂ h) =
-   POL [x] * ps_pol_summ l (λ h, POL [g₁ h] * g₂ h))%pspol.
+  (ps_pol_summ ps_field l (λ h, POL [(g₁ h * x)%ps] * g₂ h) =
+   POL [x] * ps_pol_summ ps_field l (λ h, POL [g₁ h] * g₂ h))%pspol.
 Proof.
 intros l x g₁ g₂.
 progress unfold ps_pol_eq, eq_poly; simpl.
@@ -653,13 +668,13 @@ Theorem f₁_eq_sum_without_x_β₁_plus_sum : ∀ pol ns c₁ pl tl l₁ l₂,
       → l₁ = List.map (λ t, power t) tl
         → split_list (List.seq 0 (length (al pol))) l₁ l₂
           → (next_pol pol (β ns) (γ ns) c₁ =
-             ps_pol_summ l₁
+             ps_pol_summ ps_field l₁
                (λ h,
                 let ah := ps_monom (coeff_of_term h tl) 0 in
                 POL [ah] *
                 POL [ps_monom c₁ 0; 1%ps … []] ^ h) +
              POL [ps_monom 1%K (- β ns)] *
-             (ps_pol_summ l₁
+             (ps_pol_summ ps_field l₁
                 (λ h,
                  let āh := ps_poly_nth h pol in
                  let ah := ps_monom (coeff_of_term h tl) 0 in
@@ -667,7 +682,7 @@ Theorem f₁_eq_sum_without_x_β₁_plus_sum : ∀ pol ns c₁ pl tl l₁ l₂,
                  POL [((āh - ah * ps_monom 1%K αh) *
                        ps_monom 1%K (Qnat h * γ ns))%ps] *
                  POL [ps_monom c₁ 0; 1%ps … []] ^ h) +
-              ps_pol_summ l₂
+              ps_pol_summ ps_field l₂
                 (λ l,
                  let āl := ps_poly_nth l pol in
                  POL [(āl * ps_monom 1%K (Qnat l * γ ns))%ps] *
@@ -1306,7 +1321,7 @@ Theorem sum_ah_c₁y_h_eq : ∀ pol ns pl tl l c₁ j αj,
     → tl = List.map (term_of_point pol) pl
       → l = List.map (λ t, power t) tl
         → ini_pt ns = (Qnat j, αj)
-          → (ps_pol_summ l
+          → (ps_pol_summ ps_field l
                (λ h,
                 POL [ps_monom (coeff_of_term h tl) 0] *
                 POL [ps_monom c₁ 0; 1%ps … []] ^ h) =
@@ -1502,7 +1517,7 @@ assert (∀ iq αi, (iq, αi) ∈ pl → ∃ i, iq = Qnat i) as Hnat.
          apply Hm; right; assumption.
 
         rewrite Hz; simpl.
-        set (f' := ps_ring R).
+        set (f' := ps_ring K).
         rewrite lap_eq_cons_nil; [ idtac | simpl | reflexivity ].
          rewrite lap_mul_nil_l, lap_mul_nil_r, lap_add_nil_r; reflexivity.
 
@@ -1518,7 +1533,7 @@ Qed.
 (* to be moved to the right file... *)
 Theorem ps_monom_summation_aux : ∀ f b len,
   (ps_monom (summation_aux R b len f) 0 =
-   summation_aux (ps_ring R) b len (λ i, ps_monom (f i) 0))%ps.
+   summation_aux (ps_ring K) b len (λ i, ps_monom (f i) 0))%ps.
 Proof.
 intros f b len.
 revert b.
@@ -1708,7 +1723,7 @@ Theorem f₁_eq_term_with_Ψ_plus_sum : ∀ pol ns c₁ pl tl j αj l₁ l₂ r 
                      POL [ps_monom c₁ 0; 1%ps … []] ^ j *
                      poly_inject_K_in_Kx Ψ ∘ POL [ps_monom c₁ 0; 1%ps … []] +
                      POL [ps_monom 1%K (- β ns)] *
-                     (ps_pol_summ l₁
+                     (ps_pol_summ ps_field l₁
                         (λ h,
                          let āh := ps_poly_nth h pol in
                          let ah := ps_monom (coeff_of_term h tl) 0 in
@@ -1716,7 +1731,7 @@ Theorem f₁_eq_term_with_Ψ_plus_sum : ∀ pol ns c₁ pl tl j αj l₁ l₂ r 
                          POL [((āh - ah * ps_monom 1%K αh) *
                          ps_monom 1%K (Qnat h * γ ns))%ps] *
                          POL [ps_monom c₁ 0; 1%ps … []] ^ h) +
-                      ps_pol_summ l₂
+                      ps_pol_summ ps_field l₂
                         (λ l,
                          let āl := ps_poly_nth l pol in
                          POL [(āl * ps_monom 1%K (Qnat l * γ ns))%ps] *

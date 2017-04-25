@@ -60,7 +60,7 @@ Definition div xb yb :=
   match yb with
   | fin y =>
       match xb with
-      | fin x => fin (div x y)
+      | fin x => fin (Nat.div x y)
       | ∞ => ∞
       end
   | ∞ => 0

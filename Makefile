@@ -1,6 +1,6 @@
 # $Id: Makefile,v 1.1 2013-03-28 13:34:22 deraugla Exp $
 
-all: cpoly puiseux proof
+all: proof cpoly puiseux
 	@echo
 	@echo 'available command: puiseux'
 

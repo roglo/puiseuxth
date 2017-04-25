@@ -39,7 +39,7 @@ Proof. reflexivity. Qed.
 
 Theorem ps_poly_lap_summ : ∀ f g l,
   (∀ i, (f i = POL (g i))%pspol)
-  → (ps_pol_summ l f = POL (ps_lap_summ l g))%pspol.
+  → (ps_pol_summ ps_field l f = POL (ps_lap_summ ps_field l g))%pspol.
 Proof.
 intros f g l Hi.
 unfold ps_pol_eq, ps_pol in Hi.
@@ -56,14 +56,14 @@ Theorem order_add_eq_min : ∀ a b,
   → (order (a + b) = Qbar.min (order a) (order b))%Qbar.
 Proof.
 intros a b Hab.
-set (k₁ := cm_factor a b).
-set (k₂ := cm_factor b a).
+set (k₁ := ps_polord b).
+set (k₂ := ps_polord a).
 set (v₁ := (ps_ordnum a * ' k₁)%Z).
 set (v₂ := (ps_ordnum b * ' k₂)%Z).
 set (n₁ := Z.to_nat (v₂ - Z.min v₁ v₂)).
 set (n₂ := Z.to_nat (v₁ - Z.min v₁ v₂)).
-pose proof (ps_adjust_eq R a n₂ k₁) as Ha.
-pose proof (ps_adjust_eq R b n₁ k₂) as Hb.
+pose proof (ps_adjust_eq K a n₂ k₁) as Ha.
+pose proof (ps_adjust_eq K b n₁ k₂) as Hb.
 symmetry.
 rewrite Hb in Hab.
 rewrite Ha in Hab.
@@ -84,9 +84,9 @@ progress unfold order in Hopa, Hopb.
 progress unfold order; simpl.
 remember (ps_terms pa) as sa eqn:Hsa .
 remember (ps_terms pb) as sb eqn:Hsb .
-remember (series_order R sa 0) as na eqn:Hna .
-remember (series_order R sb 0) as nb eqn:Hnb .
-remember (series_order R (sa + sb)%ser 0) as nc eqn:Hnc .
+remember (series_order sa 0) as na eqn:Hna .
+remember (series_order sb 0) as nb eqn:Hnb .
+remember (series_order (sa + sb)%ser 0) as nc eqn:Hnc .
 symmetry in Hna, Hnb, Hnc.
 clear Hsa Hsb Ha Hb.
 apply series_order_iff in Hna; simpl in Hna.
@@ -98,9 +98,7 @@ destruct na as [na| ].
   destruct Hnb as (Hinb, Hnb).
   subst pa pb; simpl in Hopa, Hopb; simpl.
   subst k₁ k₂ n₁ n₂; simpl in Hopa, Hopb; simpl.
-  progress unfold cm_factor in Hopa, Hopb; simpl in Hopa, Hopb.
   subst v₁ v₂; simpl in Hopa, Hopb.
-  progress unfold cm_factor in Hopa, Hopb; simpl in Hopa, Hopb.
   rewrite Pos.mul_comm in Hopb.
   rewrite Z2Nat.id in Hopa.
    rewrite Z2Nat.id in Hopb.
@@ -130,7 +128,7 @@ destruct na as [na| ].
       destruct (eq_nat_dec na nb) as [| Hab]; [ assumption | idtac ].
       exfalso; apply H; clear H.
       destruct (le_dec na nb) as [H₁| H₁].
-       apply le_neq_lt in H₁; [ idtac | assumption ].
+       apply Nat_le_neq_lt in H₁; [ idtac | assumption ].
        destruct (lt_dec na nc) as [H₂| H₂].
         apply Hinb in H₁.
         apply Hinc in H₂.
@@ -142,7 +140,7 @@ destruct na as [na| ].
          apply Nat.lt_le_incl; assumption.
 
          apply Nat.neq_sym in H₃.
-         apply le_neq_lt in H₂; [ idtac | assumption ].
+         apply Nat_le_neq_lt in H₂; [ idtac | assumption ].
          eapply Nat.lt_trans in H₁; [ idtac | eassumption ].
          apply Hina in H₂.
          apply Hinb in H₁.
@@ -162,7 +160,7 @@ destruct na as [na| ].
          apply Nat.lt_le_incl; assumption.
 
          apply Nat.neq_sym in H₃.
-         apply le_neq_lt in H₂; [ idtac | assumption ].
+         apply Nat_le_neq_lt in H₂; [ idtac | assumption ].
          eapply Nat.lt_trans in H₁; [ idtac | eassumption ].
          apply Hinb in H₂.
          apply Hina in H₁.
@@ -177,7 +175,7 @@ destruct na as [na| ].
       apply Nat2Z.inj_iff.
       destruct (eq_nat_dec na nb) as [| Hab]; [ assumption | idtac ].
       destruct (le_dec na nb) as [H₁| H₁].
-       apply le_neq_lt in H₁; [ idtac | assumption ].
+       apply Nat_le_neq_lt in H₁; [ idtac | assumption ].
        apply Hinb in H₁.
        pose proof (Hnc na) as H.
        rewrite H₁, rng_add_0_r in H.
@@ -216,7 +214,7 @@ destruct na as [na| ].
    apply Nat2Z.inj_iff.
    destruct (eq_nat_dec na nc) as [| Hac]; [ assumption | idtac ].
    destruct (le_dec na nc) as [H₁| H₁].
-    apply le_neq_lt in H₁; [ idtac | assumption ].
+    apply Nat_le_neq_lt in H₁; [ idtac | assumption ].
     apply Hinc in H₁.
     rewrite Hnb, rng_add_0_r in H₁.
     contradiction.
@@ -256,7 +254,7 @@ destruct na as [na| ].
      apply Nat2Z.is_nonneg.
 
     destruct (le_dec nb nc) as [H₁| H₁].
-     apply le_neq_lt in H₁; [ idtac | assumption ].
+     apply Nat_le_neq_lt in H₁; [ idtac | assumption ].
      apply Hinc in H₁.
      rewrite Hna, rng_add_0_l in H₁.
      contradiction.
@@ -366,7 +364,7 @@ induction n; simpl.
   exfalso; apply Ha.
   apply order_inf; assumption.
 
- rewrite order_mul; [ idtac | assumption ].
+ rewrite order_mul.
  rewrite IHn.
  remember (order a) as v eqn:Hv .
  symmetry in Hv.
@@ -379,7 +377,7 @@ induction n; simpl.
 Qed.
 
 Theorem ps_lap_nth_0_apply_0 : ∀ la,
-  (ps_lap_nth 0 la = @apply_lap _ (ps_ring R) la 0)%ps.
+  (ps_lap_nth 0 la = @apply_lap _ (ps_ring K) la 0)%ps.
 Proof.
 intros la.
 induction la as [| a]; [ reflexivity | simpl ].
@@ -388,7 +386,7 @@ reflexivity.
 Qed.
 
 Theorem apply_lap_inject_K_in_Kx_monom : ∀ P c,
-  (@apply_lap _ (ps_ring R) (lap_inject_K_in_Kx P) (ps_monom c 0) =
+  (@apply_lap _ (ps_ring K) (lap_inject_K_in_Kx P) (ps_monom c 0) =
    ps_monom (apply_lap P c) 0)%ps.
 Proof.
 intros P c.
@@ -609,7 +607,12 @@ induction la as [| a]; intros; simpl.
   progress unfold ps_lap_mul.
   do 2 rewrite lap_mul_cons; simpl.
   constructor; [ simpl; apply ps_monom_mul | idtac ].
+(**)
+  symmetry.
+  eapply ps_lap_eq_trans; [ apply lap_add_map_ps | ].
+(*
   rewrite lap_add_map_ps.
+*)
   unfold ps_lap_mul in IHla.
   unfold ps_lap_eq in IHla.
   rewrite IHla.
@@ -617,8 +620,18 @@ induction la as [| a]; intros; simpl.
   simpl.
   rewrite ps_zero_monom_eq.
   apply lap_add_compat; [ idtac | reflexivity ].
+(**)
+  eapply ps_lap_eq_trans; [ apply lap_add_map_ps | ].
+(*
   rewrite lap_add_map_ps.
+*)
+(**)
+  apply lap_add_compat.
+   eapply ps_lap_eq_trans; [ apply lap_mul_map_ps | reflexivity ].
+   eapply ps_lap_eq_trans; [ apply lap_mul_map_ps | reflexivity ].
+(*
   apply lap_add_compat; rewrite lap_mul_map_ps; reflexivity.
+*)
 Qed.
 
 Theorem lap_inject_comp : ∀ la lb,
@@ -653,7 +666,6 @@ remember Hns as Hini; clear HeqHini.
 apply exists_ini_pt_nat in Hini.
 destruct Hini as (j, (αj, Hini)).
 rewrite f₁_eq_term_with_Ψ_plus_g; try eassumption.
-destruct Hc₁ as (Hc₁, Hc₁nz).
 unfold ps_poly_nth; simpl.
 rewrite fold_ps_lap_add.
 rewrite ps_lap_nth_add.
@@ -697,7 +709,6 @@ remember Hns as Hini; clear HeqHini.
 apply exists_ini_pt_nat in Hini.
 destruct Hini as (j, (αj, Hini)).
 rewrite f₁_eq_term_with_Ψ_plus_g; try eassumption.
-destruct Hc₁ as (Hc₁, Hc₁nz).
 unfold ps_poly_nth; simpl.
 rewrite fold_ps_lap_add.
 rewrite ps_lap_nth_add.
@@ -721,7 +732,7 @@ Theorem char_pol_root_ne_0 : ∀ pol ns m c₁,
 Proof.
 intros pol ns m c₁ Hns Hm Hc₁.
 remember Hns as Happ; clear HeqHapp.
-eapply cpol_degree_ge_1 with (K := K) (acf := acf) in Happ; eauto .
+eapply cpol_degree_ge_1 with (K := K) in Happ; eauto .
 apply ac_prop_root in Happ.
 rewrite <- Hc₁ in Happ.
 remember Hns as Hini; clear HeqHini.
@@ -771,7 +782,7 @@ assert (order (ps_lap_nth r (yr * ycj * psy ∘ yc)) = 0)%Qbar as Hor.
  rewrite list_nth_lap_convol_mul; [ idtac | reflexivity ].
  unfold summation; simpl.
  rewrite ps_add_0_r.
- rewrite order_mul; [ idtac | assumption ].
+ rewrite order_mul.
  rewrite fold_ps_lap_nth.
  rewrite ps_lap_nth_0_cons_pow.
  rewrite order_pow.
@@ -809,30 +820,45 @@ assert (order (ps_lap_nth r (yr * ycj * psy ∘ yc)) = 0)%Qbar as Hor.
   apply nth_g_order_pos; assumption.
 Qed.
 
-Theorem exists_pol_ord : ∀ pol, ∃ m, pol_in_K_1_m pol m.
+Theorem exists_pol_ord : ∀ pol, ∃ m,
+  m = ps_pol_com_polord pol ∧ pol_in_K_1_m pol m.
 Proof.
 intros pol.
 unfold pol_in_K_1_m.
-exists (ps_list_com_polord (al pol)).
+remember (ps_pol_com_polord pol) as m eqn:Hm.
+exists m; split; [ reflexivity | ].
 apply ps_lap_forall_forall.
  intros a b Hab H.
  rewrite <- Hab; assumption.
 
  intros a Ha.
+ unfold ps_pol_com_polord in Hm.
  remember (al pol) as la; clear Heqla.
- revert a Ha.
+ revert a m Ha Hm.
  induction la as [| b]; intros; [ contradiction | idtac ].
  simpl in Ha.
- destruct Ha as [(Hbla, Hba)| Ha]; simpl.
+ destruct Ha as [(Hbla, Hba)| Ha].
   constructor.
-  remember (ps_list_com_polord la) as m eqn:Hm .
-  exists (adjust_ps 0 m b).
-  split; [ idtac | rewrite Pos.mul_comm; reflexivity ].
+  simpl in Hm.
+  remember (ps_lap_com_polord la) as m' eqn:Hm' .
+  exists (adjust_ps 0 m' b).
+  split; [ idtac | simpl; rewrite Pos.mul_comm; symmetry; assumption ].
   transitivity b; [ idtac | assumption ].
   symmetry; apply ps_adjust_eq.
 
+  subst m; simpl.
   apply in_K_1_m_lap_mul_r_compat.
-  apply IHla, Ha.
+  apply IHla; [ apply Ha | reflexivity ].
+Qed.
+
+Theorem ps_pol_com_polord_in_K_1_m : ∀ pol m,
+  m = ps_pol_com_polord pol
+  → pol_in_K_1_m pol m.
+Proof.
+intros; subst m.
+pose proof exists_pol_ord pol as H.
+destruct H as (m, (Hm, HK)).
+subst m; assumption.
 Qed.
 
 (* [Walker, p 101] «
@@ -854,7 +880,7 @@ intros pol ns c₁ r f₁ Hns Hc₁ Hr Hf₁.
 split; [ eapply order_bbar_nonneg; eassumption | idtac ].
 split; [ eapply order_bbar_pos; eassumption | idtac ].
 pose proof (exists_pol_ord pol) as H.
-destruct H as (m, Hm).
+destruct H as (m, (Hm, Hp)).
 eapply order_bbar_r_is_0; eassumption.
 Qed.
 

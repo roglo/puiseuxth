@@ -431,7 +431,7 @@ destruct Hαh as [Hαh| Hαh].
    destruct c; subst ms₁.
     simpl in Hep₁, Hseg, Hnp.
     apply Decidable.not_or in Hseg.
-    destruct Hseg as (H); negation H.
+    destruct Hseg as (H, _); negation H.
 
     simpl in Hep₁, Hseg, Hnp.
     injection Hep₁; clear Hep₁; intros; subst h αh.
@@ -576,7 +576,7 @@ destruct Hj as [Hj| Hj].
    unfold fst_lt in Hlt; simpl in Hlt; rewrite Hjk in Hlt.
    apply Qlt_irrefl in Hlt; contradiction.
 
-   apply IHpts; [ assumption | idtac ].
+   apply IHpts; [ idtac | assumption ].
    eapply Sorted_minus_2nd; [ idtac | eassumption ].
    intros x y z H₁ H₂; eapply Qlt_trans; eassumption.
 
@@ -591,7 +591,7 @@ destruct Hj as [Hj| Hj].
    unfold fst_lt in Hlt; simpl in Hlt; rewrite Hjk in Hlt.
    apply Qlt_irrefl in Hlt; contradiction.
 
-   apply IHpts; [ assumption | idtac ].
+   apply IHpts; [ idtac | assumption ].
    eapply Sorted_minus_2nd; [ idtac | eassumption ].
    intros x y z H₁ H₂; eapply Qlt_trans; eassumption.
 
