@@ -261,23 +261,6 @@ unfold ps_terms_add.
 rewrite series_add_comm; reflexivity.
 Qed.
 
-Theorem eq_strong_ps_add₂_comm : ∀ ps₁ ps₂,
-  (ps₁ ++ ps₂)%ps ≐ (ps₂ ++ ps₁)%ps.
-Proof.
-intros.
-constructor; simpl.
- do 2 rewrite Z2Nat_id_max.
- do 2 rewrite <- Z.sub_min_distr_l.
- do 2 rewrite Z.sub_sub_distr, Z.sub_diag.
- do 2 rewrite Z.sub_0_r, Z.add_0_l.
- rewrite Z.min_comm, <- Z.min_assoc, Z.min_id; apply eq_sym.
- rewrite Z.min_comm, <- Z.min_assoc, Z.min_id; apply Z.min_comm.
-
- apply Pos.mul_comm.
-
- apply series_add_comm.
-Qed.
-
 Theorem eq_strong_ps_add_comm : ∀ ps₁ ps₂,
   (ps₁ + ps₂)%ps ≐ (ps₂ + ps₁)%ps.
 Proof.
