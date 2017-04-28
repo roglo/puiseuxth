@@ -48,47 +48,6 @@ split; intros H.
  transitivity b; assumption.
 Qed.
 
-Theorem ps_lap_forall_in_K_1_m_compat {α} {R : ring α} {K : field R} :
-  ∀ la lb m,
-  (la = lb)%pslap
-  → ps_lap_forall (λ a, in_K_1_m a m) la
-  → ps_lap_forall (λ a, in_K_1_m a m) lb.
-Proof.
-intros la lb m Hlab Hfa.
-revert la Hlab Hfa.
-induction lb as [| b]; intros; [ constructor; reflexivity | idtac ].
-destruct (ps_lap_nilp _ [b … lb]) as [Hba| Hba].
- constructor 1; assumption.
-
- constructor 2; [ assumption | idtac | idtac ].
-  destruct la as [| a]; [ symmetry in Hlab; contradiction | idtac ].
-  apply lap_eq_cons_inv in Hlab.
-  destruct Hlab as (Hab, Hlab).
-  rewrite <- Hab.
-  inversion Hfa; subst; [ idtac | assumption ].
-  rewrite Hab, Hlab in H; contradiction.
-
-  destruct la as [| a]; [ symmetry in Hlab; contradiction | idtac ].
-  apply lap_eq_cons_inv in Hlab.
-  destruct Hlab as (Hab, Hlab).
-  eapply IHlb; [ eassumption | idtac ].
-  inversion Hfa; subst; [ idtac | assumption ].
-  rewrite Hab, Hlab in H; contradiction.
-Qed.
-
-Add Parametric Morphism α (R : ring α) (K : field R) m :
-  (ps_lap_forall (λ a, in_K_1_m a m))
-  with signature (@ps_lap_eq _ R K) ==> iff
-  as ps_lap_forall_morph.
-Proof.
-intros la lb Hab.
-split; intros Hfa.
- eapply ps_lap_forall_in_K_1_m_compat; eassumption.
-
- symmetry in Hab.
- eapply ps_lap_forall_in_K_1_m_compat; eassumption.
-Qed.
-
 Section theorems.
 
 Variable α : Type.

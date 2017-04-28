@@ -1383,16 +1383,6 @@ Qed.
 
 End lap.
 
-Add Parametric Morphism α (r : ring α) : lap_compose2
-  with signature lap_eq ==> lap_eq ==> lap_eq
-  as lap_compose2_morph.
-Proof.
-intros la lb Hlab lc ld Hlcd.
-rewrite <- lap_compose_compose2.
-rewrite <- lap_compose_compose2.
-rewrite Hlab, Hlcd; reflexivity.
-Qed.
-
 Theorem lap_add_opp_l : ∀ α (r : ring α) la, (- la + la = 0)%lap.
 Proof.
 intros α r la.
