@@ -540,16 +540,78 @@ destruct (fld_zerop 1%K) as [H₀| H₀].
   apply order_inf; assumption.
 Qed.
 
+Theorem degree_pos_imp_has_ns : ∀ pol,
+  degree (ps_zerop K) pol ≥ 1
+  → (ps_poly_nth 0 pol ≠ 0)%ps
+  → newton_segments pol ≠ [].
+Proof.
+intros pol Hdeg Hnz.
+unfold degree in Hdeg.
+unfold ps_poly_nth in Hnz.
+unfold ps_lap_nth in Hnz.
+unfold newton_segments, points_of_ps_polynom.
+unfold points_of_ps_lap, points_of_ps_lap_gen; simpl.
+intros Hnsl.
+remember (al pol) as la eqn:Hla .
+clear pol Hla.
+destruct la as [| a]; [ apply Hnz; reflexivity | idtac ].
+simpl in Hdeg, Hnz, Hnsl.
+remember (degree_plus_1_of_list (ps_zerop K) la) as d eqn:Hd .
+symmetry in Hd.
+destruct d.
+ destruct (ps_zerop K a) as [H₁| H₁].
+  apply Nat.nlt_ge in Hdeg; apply Hdeg, Nat.lt_0_1.
+
+  apply Nat.nlt_ge in Hdeg; apply Hdeg, Nat.lt_0_1.
+
+ clear Hdeg.
+ apply order_fin in Hnz.
+ remember (order a) as va eqn:Hva .
+ symmetry in Hva.
+ destruct va as [va| ]; [ clear Hnz | apply Hnz; reflexivity ].
+ remember 1%nat as pow in Hnsl; clear Heqpow.
+ revert a d va pow Hd Hva Hnsl.
+ induction la as [| b]; intros; [ discriminate Hd | idtac ].
+ simpl in Hd.
+ remember (degree_plus_1_of_list (ps_zerop K) la) as e eqn:He  in Hd.
+ symmetry in He.
+ destruct e.
+  destruct (ps_zerop K b) as [H₁| H₁]; [ discriminate Hd | idtac ].
+  clear d Hd.
+  simpl in Hnsl.
+  apply order_fin in H₁.
+  remember (order b) as vb eqn:Hvb .
+  symmetry in Hvb.
+  destruct vb as [vb| ]; [ discriminate Hnsl | apply H₁; reflexivity ].
+
+  clear d Hd.
+  simpl in Hnsl.
+  remember (order b) as vb eqn:Hvb .
+  symmetry in Hvb.
+  destruct vb as [vb| ]; [ discriminate Hnsl | idtac ].
+  eapply IHla; eauto .
+Qed.
+
 Theorem f₁_has_root : ∀ pol ns pol₁,
-  ns ∈ newton_segments pol
+  degree (ps_zerop K) pol ≥ 1
+  → ns = List.hd phony_ns (newton_segments pol)
   → (ps_poly_nth 0 pol ≠ 0)%ps
   → pol₁ = next_pol pol (β ns) (γ ns) (ac_root (Φq pol ns))
   → ∃ s, (ps_pol_apply pol₁ s = 0)%ps.
 Proof.
-intros pol ns pol₁ Hns Hnz₀ Hpol₁.
+intros pol ns pol₁ Hdeg Hns Hnz₀ Hpol₁.
 remember (ac_root (Φq pol ns)) as c eqn:Hc.
 remember (root_multiplicity acf c (Φq pol ns)) as r eqn:Hr .
 symmetry in Hr.
+remember Hdeg as H; clear HeqH.
+eapply degree_pos_imp_has_ns in H; [ idtac | assumption ].
+rename H into Hnsnz.
+remember (newton_segments pol) as nsl eqn:Hnsl .
+symmetry in Hnsl.
+destruct nsl as [| ns₁]; [ exfalso; apply Hnsnz; reflexivity | idtac ].
+clear Hnsnz; simpl in Hns; subst ns₁.
+assert (ns ∈ newton_segments pol) as Hns by now rewrite Hnsl; left.
+clear nsl Hnsl Hdeg.
 revert pol ns c pol₁ Hns Hnz₀ Hc Hpol₁ Hr.
 induction r as (r, IHr) using lt_wf_rec; intros.
 set (v := fun i => if multiplicity_decreases pol ns i then S O else O).
@@ -686,58 +748,6 @@ destruct (LPO v) as [Hn| Hn].
    exfalso; apply Hn, eq_refl.
 Qed.
 
-Theorem degree_pos_imp_has_ns : ∀ pol,
-  degree (ps_zerop K) pol ≥ 1
-  → (ps_poly_nth 0 pol ≠ 0)%ps
-  → newton_segments pol ≠ [].
-Proof.
-intros pol Hdeg Hnz.
-unfold degree in Hdeg.
-unfold ps_poly_nth in Hnz.
-unfold ps_lap_nth in Hnz.
-unfold newton_segments, points_of_ps_polynom.
-unfold points_of_ps_lap, points_of_ps_lap_gen; simpl.
-intros Hnsl.
-remember (al pol) as la eqn:Hla .
-clear pol Hla.
-destruct la as [| a]; [ apply Hnz; reflexivity | idtac ].
-simpl in Hdeg, Hnz, Hnsl.
-remember (degree_plus_1_of_list (ps_zerop K) la) as d eqn:Hd .
-symmetry in Hd.
-destruct d.
- destruct (ps_zerop K a) as [H₁| H₁].
-  apply Nat.nlt_ge in Hdeg; apply Hdeg, Nat.lt_0_1.
-
-  apply Nat.nlt_ge in Hdeg; apply Hdeg, Nat.lt_0_1.
-
- clear Hdeg.
- apply order_fin in Hnz.
- remember (order a) as va eqn:Hva .
- symmetry in Hva.
- destruct va as [va| ]; [ clear Hnz | apply Hnz; reflexivity ].
- remember 1%nat as pow in Hnsl; clear Heqpow.
- revert a d va pow Hd Hva Hnsl.
- induction la as [| b]; intros; [ discriminate Hd | idtac ].
- simpl in Hd.
- remember (degree_plus_1_of_list (ps_zerop K) la) as e eqn:He  in Hd.
- symmetry in He.
- destruct e.
-  destruct (ps_zerop K b) as [H₁| H₁]; [ discriminate Hd | idtac ].
-  clear d Hd.
-  simpl in Hnsl.
-  apply order_fin in H₁.
-  remember (order b) as vb eqn:Hvb .
-  symmetry in Hvb.
-  destruct vb as [vb| ]; [ discriminate Hnsl | apply H₁; reflexivity ].
-
-  clear d Hd.
-  simpl in Hnsl.
-  remember (order b) as vb eqn:Hvb .
-  symmetry in Hvb.
-  destruct vb as [vb| ]; [ discriminate Hnsl | idtac ].
-  eapply IHla; eauto .
-Qed.
-
 Theorem puiseux_series_algeb_closed : ∀ (pol : polynomial (puiseux_series α)),
   degree (ps_zerop K) pol ≥ 1
   → ∃ s, (ps_pol_apply pol s = 0)%ps.
@@ -759,19 +769,16 @@ destruct (ps_zerop _ (ps_poly_nth 0 pol)) as [Hz| Hnz].
  symmetry in Hnsl.
  destruct nsl as [| ns]; [ exfalso; apply Hnsnz; reflexivity | idtac ].
  clear Hnsnz.
- assert (ns ∈ newton_segments pol) as Hns.
-  rewrite Hnsl; left; reflexivity.
+ generalize Hdeg; intros H.
+ remember (ac_root (Φq pol ns)) as c eqn:Hc .
+ remember (next_pol pol (β ns) (γ ns) c) as pol₁ eqn:Hpol₁ .
+ eapply f₁_has_root with (pol₁ := pol₁) in H; eauto .
+  destruct H as (s₁, Hs₁).
+  exists (ps_monom c (γ ns) + ps_monom 1%K (γ ns) * s₁)%ps.
+  eapply f₁_root_f_root; eauto .
+  reflexivity.
 
-  generalize Hns; intros H.
-  remember (ac_root (Φq pol ns)) as c eqn:Hc .
-  remember (next_pol pol (β ns) (γ ns) c) as pol₁ eqn:Hpol₁ .
-  eapply f₁_has_root with (pol₁ := pol₁) in H; eauto .
-   destruct H as (s₁, Hs₁).
-   exists (ps_monom c (γ ns) + ps_monom 1%K (γ ns) * s₁)%ps.
-   eapply f₁_root_f_root; eauto .
-   reflexivity.
-
-   subst c; assumption.
+  now subst c; rewrite Hnsl; simpl.
 Qed.
 
 End theorems.
