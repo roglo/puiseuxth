@@ -119,14 +119,6 @@ Add Parametric Relation α (R : ring α) (K : field R) :
  transitivity proved by ps_lap_eq_trans
  as ps_lap_eq_rel.
 
-Add Parametric Morphism α (R : ring α) (K : field R) : (@ps_lap_nth _ R)
-  with signature eq ==> @lap_eq _ (ps_ring K) ==> eq_ps
-  as ps_lap_nth_morph.
-Proof.
-intros n la lb Hlab.
-rewrite Hlab; reflexivity.
-Qed.
-
 Add Parametric Morphism α (R : ring α) (K : field R) : (@ps_poly_nth _ R)
   with signature eq ==> @eq_poly _ (ps_ring K) ==> eq_ps
   as ps_poly_nth_morph.

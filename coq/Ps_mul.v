@@ -288,23 +288,6 @@ constructor; simpl.
  reflexivity.
 Qed.
 
-Theorem eq_strong_ps_mul_compat_l : ∀ ps₁ ps₂ ps₃,
-  eq_ps_strong ps₁ ps₂
-  → eq_ps_strong (ps_mul ps₃ ps₁) (ps_mul ps₃ ps₂).
-Proof.
-intros ps₁ ps₂ ps₃ Heq.
-induction Heq.
-constructor; simpl.
- rewrite H, H0; reflexivity.
-
- unfold cm; simpl.
- rewrite H0; reflexivity.
-
- unfold cm_factor.
- rewrite H0, H1.
- reflexivity.
-Qed.
-
 Theorem series_shift_mul : ∀ a b n,
   (series_shift n (a * b)%ser = series_shift n a * b)%ser.
 Proof.
@@ -457,16 +440,6 @@ apply ps_mul_compat_r; assumption.
 Qed.
 
 End theorems_for_mul.
-
-Add Parametric Morphism α (r : ring α) : ps_mul
-  with signature eq_ps_strong ==> eq_ps_strong ==> eq_ps_strong
-  as ps_normal_mul_morph.
-Proof.
-intros ps₁ ps₃ Heq₁ ps₂ ps₄ Heq₂.
-rewrite eq_strong_ps_mul_compat_l; [ idtac | eassumption ].
-rewrite eq_strong_ps_mul_compat_r; [ idtac | eassumption ].
-reflexivity.
-Qed.
 
 Add Parametric Morphism α (r : ring α) (K : field r) : ps_mul
   with signature eq_ps ==> eq_ps ==> eq_ps

@@ -66,16 +66,6 @@ constructor; simpl.
  reflexivity.
 Qed.
 
-Theorem eq_strong_ps_add_compat_l : ∀ ps₁ ps₂ ps₃,
-  (ps₁ ≐ ps₂)%ps
-  → (ps₃ + ps₁ ≐ ps₃ + ps₂)%ps.
-Proof.
-intros ps₁ ps₂ ps₃ Heq.
-rewrite eq_strong_ps_add_comm; symmetry.
-rewrite eq_strong_ps_add_comm; symmetry.
-apply eq_strong_ps_add_compat_r; assumption.
-Qed.
-
 Theorem ps_adjust_adjust : ∀ ps n₁ n₂ k₁ k₂,
   eq_ps_strong (adjust_ps n₁ k₁ (adjust_ps n₂ k₂ ps))
     (adjust_ps (n₁ + n₂ * Pos.to_nat k₁) (k₁ * k₂) ps).
@@ -610,16 +600,6 @@ apply ps_add_compat_r; assumption.
 Qed.
 
 End theorem_add_compat.
-
-Add Parametric Morphism α (r : ring α) : ps_add
-  with signature eq_ps_strong ==> eq_ps_strong ==> eq_ps_strong
-  as ps_normal_add_morph.
-Proof.
-intros ps₁ ps₃ Heq₁ ps₂ ps₄ Heq₂.
-rewrite eq_strong_ps_add_compat_l; [ idtac | eassumption ].
-rewrite eq_strong_ps_add_compat_r; [ idtac | eassumption ].
-reflexivity.
-Qed.
 
 Add Parametric Morphism α (r : ring α) (K : field r) : ps_add
   with signature eq_ps ==> eq_ps ==> eq_ps
