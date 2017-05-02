@@ -190,80 +190,34 @@ destruct c; simpl in Hpt.
  right; subst ms₃; apply IHpts; assumption.
 Qed.
 
-Theorem hull_seg_edge_in_init_pts : ∀ n pts hs hsl pt,
-  next_ch_points n pts = hsl
-  → hs ∈ hsl
-    → pt ∈ oth_pts hs
-      → pt ∈ pts.
+Theorem hull_seg_edge_in_init_pts : ∀ pts hs pt,
+  lower_convex_hull_points pts = Some hs
+  → pt ∈ oth_pts hs
+  → pt ∈ pts.
 Proof.
-intros n pts hs hsl pt Hnp Hhs Hpt.
-revert n pts hs pt Hnp Hhs Hpt.
-induction hsl as [| hs₁]; [ contradiction | intros ].
-destruct Hhs as [Hhs| Hhs].
- subst hs₁.
- destruct n; [ discriminate Hnp | simpl in Hnp ].
- destruct pts as [| pt₁]; [ discriminate Hnp | idtac ].
- destruct pts as [| pt₂]; [ discriminate Hnp | idtac ].
- injection Hnp; clear Hnp; intros Hnp Hhs.
- subst hs; simpl in Hpt.
- right; eapply in_seg_in_pts; eassumption.
-
- destruct n; [ discriminate Hnp | simpl in Hnp ].
- destruct pts as [| pt₁]; [ discriminate Hnp | idtac ].
- destruct pts as [| pt₂]; [ discriminate Hnp | idtac ].
- injection Hnp; clear Hnp; intros Hnp Hs₁; subst hs₁.
- eapply IHhsl in Hhs; [ idtac | eassumption | eassumption ].
- remember (minimise_slope pt₁ pt₂ pts) as ms₁.
- symmetry in Heqms₁.
- destruct Hhs as [Hhs| Hhs].
-  rewrite <- Hhs.
-  right; eapply end_pt_in; eassumption.
-
-  right; right; eapply rem_pts_in; eassumption.
+intros pts hs pt Hnp Hpt.
+destruct pts as [| pt₁]; [ discriminate Hnp | idtac ].
+destruct pts as [| pt₂]; [ discriminate Hnp | idtac ].
+injection Hnp; clear Hnp; intros Hnp.
+subst hs; simpl in Hpt.
+right; eapply in_seg_in_pts; eassumption.
 Qed.
 
-Theorem hull_seg_vert_in_init_pts : ∀ n pts hs hsl,
-  next_ch_points n pts = hsl
-  → hs ∈ hsl
-    → ini_pt hs ∈ pts ∧ fin_pt hs ∈ pts.
+Theorem hull_seg_vert_in_init_pts : ∀ pts hs,
+  lower_convex_hull_points pts = Some hs
+  → ini_pt hs ∈ pts ∧ fin_pt hs ∈ pts.
 Proof.
-intros n pts hs hsl Hnp Hhs.
-revert n pts hs Hnp Hhs.
-induction hsl as [| hs₁]; [ contradiction | intros ].
-destruct Hhs as [Hhs| Hhs].
- subst hs₁.
- destruct n; [ discriminate Hnp | simpl in Hnp ].
- destruct pts as [| pt₁]; [ discriminate Hnp | idtac ].
- destruct pts as [| pt₂]; [ discriminate Hnp | idtac ].
- injection Hnp; clear Hnp; intros Hnp Hhs; subst hs.
- rewrite minimised_slope_beg_pt.
- split; [ left; reflexivity | idtac ].
- right; eapply end_pt_in; reflexivity.
-
- destruct n; [ discriminate Hnp | simpl in Hnp ].
- destruct pts as [| pt₁]; [ discriminate Hnp | idtac ].
- destruct pts as [| pt₂]; [ discriminate Hnp | idtac ].
- injection Hnp; clear Hnp; intros Hnp H; subst hs₁.
- eapply IHhsl in Hhs; [ idtac | eassumption ].
- remember (minimise_slope pt₁ pt₂ pts) as ms₁.
- symmetry in Heqms₁.
- destruct Hhs as (Hini, Hfin).
- split.
-  destruct Hini as [Hini| Hini].
-   rewrite <- Hini.
-   right; eapply end_pt_in; eassumption.
-
-   right; right; eapply rem_pts_in; eassumption.
-
-  destruct Hfin as [Hfin| Hfin].
-   rewrite <- Hfin.
-   right; eapply end_pt_in; eassumption.
-
-   right; right; eapply rem_pts_in; eassumption.
+intros pts hs Hnp.
+destruct pts as [| pt₁]; [ discriminate Hnp | idtac ].
+destruct pts as [| pt₂]; [ discriminate Hnp | idtac ].
+injection Hnp; clear Hnp; intros Hnp; subst hs.
+rewrite minimised_slope_beg_pt.
+split; [ left; reflexivity | idtac ].
+right; eapply end_pt_in; reflexivity.
 Qed.
 
 Theorem oth_pts_in_init_pts : ∀ pts ns pt,
-  ns ∈ lower_convex_hull_points pts
+  lower_convex_hull_points pts = Some ns
   → pt ∈ oth_pts ns
     → pt ∈ pts.
 Proof.
@@ -272,7 +226,7 @@ eapply hull_seg_edge_in_init_pts; try eassumption; reflexivity.
 Qed.
 
 Theorem ini_fin_ns_in_init_pts : ∀ pts ns,
-  ns ∈ lower_convex_hull_points pts
+  lower_convex_hull_points pts = Some ns
   → ini_pt ns ∈ pts ∧ fin_pt ns ∈ pts.
 Proof.
 intros pts ns Hns.
@@ -280,7 +234,7 @@ eapply hull_seg_vert_in_init_pts; try eassumption; reflexivity.
 Qed.
 
 Theorem ns_in_init_pts : ∀ pts ns pt,
-  ns ∈ lower_convex_hull_points pts
+  lower_convex_hull_points pts = Some ns
   → pt ∈ [ini_pt ns … oth_pts ns ++ [fin_pt ns]]
     → pt ∈ pts.
 Proof.
@@ -329,25 +283,24 @@ destruct c.
  intros x y z H₁ H₂; eapply Qlt_trans; eassumption.
 Qed.
 
-Theorem vert_bef_edge : ∀ pts n hs hsl j αj h αh,
+Theorem vert_bef_edge : ∀ pts hs j αj h αh,
   Sorted fst_lt pts
-  → next_ch_points n pts = [hs … hsl]
+  → lower_convex_hull_points pts = Some hs
     → (j, αj) = ini_pt hs
       → (h, αh) ∈ oth_pts hs
         → j < h.
 Proof.
-intros pts n hs hsl j αj h αh Hsort Hnp Hj Hh.
-destruct pts as [| pt₁]; [ destruct n; discriminate Hnp | idtac ].
-destruct n; [ discriminate Hnp | simpl in Hnp ].
+intros pts hs j αj h αh Hsort Hnp Hj Hh.
+destruct pts as [| pt₁]; [ discriminate Hnp | idtac ].
 destruct pts as [| pt₂]; [ discriminate Hnp | idtac ].
-injection Hnp; clear Hnp; intros Hhsl Hhs; subst hs.
+injection Hnp; clear Hnp; intros Hhsl; subst hs.
 simpl in Hj, Hh.
 rewrite minimised_slope_beg_pt in Hj.
 apply pt₁_bef_seg in Hh; [ subst pt₁; assumption | assumption ].
 Qed.
 
 Theorem jq_lt_hq : ∀ (pol : puis_ser_pol α) j αj h αh ns,
-  ns ∈ newton_segments pol
+  newton_segments pol = Some ns
   → (j, αj) = ini_pt ns
     → (h, αh) ∈ oth_pts ns
       → j < h.
@@ -356,28 +309,11 @@ intros pol j αj h αh ns Hns Hjαj Hhαh.
 unfold newton_segments in Hns.
 remember (points_of_ps_polynom pol) as pts.
 apply points_of_polyn_sorted in Heqpts.
-remember (lower_convex_hull_points pts) as hsl.
-unfold lower_convex_hull_points in Heqhsl.
-rename Heqhsl into Hnp.
-symmetry in Hnp.
-remember (length pts) as n; clear Heqn.
-revert pol j αj h αh ns pts n Heqpts Hnp Hns Hjαj Hhαh.
-induction hsl as [| hs₁]; intros; [ contradiction | idtac ].
-destruct Hns as [Hns| Hns].
- subst ns.
- simpl in Hjαj, Hhαh.
- eapply vert_bef_edge; eassumption.
-
- destruct n; [ discriminate Hnp | simpl in Hnp ].
- destruct pts as [| pt₁]; [ discriminate Hnp | idtac ].
- destruct pts as [| pt₂]; [ discriminate Hnp | idtac ].
- injection Hnp; clear Hnp; intros Hhsl Hhs₁; subst hs₁.
- eapply IHhsl in Hhsl; try eassumption.
- eapply minimise_slope_sorted; [ eassumption | reflexivity ].
+eapply vert_bef_edge; eassumption.
 Qed.
 
 Theorem j_lt_h : ∀ (pol : puis_ser_pol α) j αj jq h αh hq ns,
-  ns ∈ newton_segments pol
+  newton_segments pol = Some ns
   → (jq, αj) = ini_pt ns
     → (hq, αh) ∈ oth_pts ns
       → jq = Qnat j
@@ -428,7 +364,7 @@ destruct c.
 Qed.
 
 Theorem hq_lt_kq : ∀ (pol : puis_ser_pol α) hq αh kq αk ns,
-  ns ∈ newton_segments pol
+  newton_segments pol = Some ns
   → (hq, αh) ∈ oth_pts ns
     → (kq, αk) = fin_pt ns
       → hq < kq.
@@ -437,36 +373,16 @@ intros pol hq αh kq αk ns Hns Hoth Hfin.
 unfold newton_segments in Hns.
 remember (points_of_ps_polynom pol) as pts.
 apply points_of_polyn_sorted in Heqpts.
-remember (lower_convex_hull_points pts) as hsl.
-unfold lower_convex_hull_points in Heqhsl.
-rename Heqhsl into Hnp.
-symmetry in Hnp.
-remember (length pts) as n; clear Heqn.
-revert pol hq αh kq αk ns pts n Heqpts Hnp Hns Hoth Hfin.
-induction hsl as [| hs₁]; intros; [ contradiction | idtac ].
-destruct hsl as [| hs₂].
- destruct Hns as [Hns| ]; [ subst hs₁ | contradiction ].
- destruct n; [ discriminate Hnp | simpl in Hnp ].
- destruct pts as [| pt₁]; [ discriminate Hnp | idtac ].
- destruct pts as [| pt₂]; [ discriminate Hnp | idtac ].
- injection Hnp; clear Hnp; intros Hhsl Hns; subst ns.
- simpl in Hoth, Hfin.
- eapply seg_bef_end_pt; try eassumption; reflexivity.
-
- destruct n; [ discriminate Hnp | simpl in Hnp ].
- destruct pts as [| pt₁]; [ discriminate Hnp | simpl in Hnp ].
- destruct pts as [| pt₂]; [ discriminate Hnp | simpl in Hnp ].
- injection Hnp; clear Hnp; intros Hnp H; subst hs₁.
- destruct Hns as [Hns| Hns].
-  subst ns; simpl in Hoth, Hfin.
-  eapply seg_bef_end_pt; try eassumption; reflexivity.
-
-  eapply IHhsl in Hnp; try eassumption.
-  eapply minimise_slope_sorted; [ eassumption | reflexivity ].
+unfold lower_convex_hull_points in Hns.
+destruct pts as [| pt₁]; [ discriminate Hns | idtac ].
+destruct pts as [| pt₂]; [ discriminate Hns | idtac ].
+injection Hns; clear Hns; intros Hns; subst ns.
+simpl in Hoth, Hfin.
+eapply seg_bef_end_pt; try eassumption; reflexivity.
 Qed.
 
 Theorem j_lt_k : ∀ (pol : puis_ser_pol α) j k ns,
-  ns ∈ newton_segments pol
+  newton_segments pol = Some ns
   → j = nat_num (fst (ini_pt ns))
     → k = nat_num (fst (fin_pt ns))
       → (j < k)%nat.
@@ -492,7 +408,7 @@ eapply pt_absc_is_nat with (pt := ini_pt ns) in Hj₁.
 Qed.
 
 Theorem jz_lt_kz : ∀ (pol : puis_ser_pol α) jz kz ns,
-  ns ∈ newton_segments pol
+  newton_segments pol = Some ns
   → jz = Qnum (fst (ini_pt ns))
     → kz = Qnum (fst (fin_pt ns))
       → (jz < kz)%Z.
@@ -814,7 +730,7 @@ eapply in_ppl_in_pts; try eassumption; try reflexivity.
 Qed.
 
 Theorem exists_ini_pt_nat : ∀ pol ns,
-  ns ∈ newton_segments pol
+  newton_segments pol = Some ns
   → ∃ i αi, ini_pt ns = (Qnat i, αi).
 Proof.
 intros pol ns Hns.
@@ -832,7 +748,7 @@ rewrite Heqpts; reflexivity.
 Qed.
 
 Theorem exists_fin_pt_nat : ∀ pol ns,
-  ns ∈ newton_segments pol
+  newton_segments pol = Some ns
   → ∃ i αi, fin_pt ns = (Qnat i, αi).
 Proof.
 intros pol ns Hns.
@@ -850,7 +766,7 @@ rewrite Heqpts; reflexivity.
 Qed.
 
 Theorem exists_oth_pt_nat : ∀ pol ns pt,
-  ns ∈ newton_segments pol
+  newton_segments pol = Some ns
   → pt ∈ oth_pts ns
     → ∃ h αh, pt = (Qnat h, αh).
 Proof.
@@ -867,7 +783,7 @@ rewrite Heqpts; reflexivity.
 Qed.
 
 Theorem points_in_newton_segment_have_nat_abscissa : ∀ pol ns,
-  ns ∈ newton_segments pol
+  newton_segments pol = Some ns
   → ∀ pt, pt ∈ [ini_pt ns … oth_pts ns ++ [fin_pt ns]]
     → ∃ h αh, pt = (Qnat h, αh).
 Proof.
@@ -963,7 +879,7 @@ Qed.
                     h - j
    » *)
 Theorem gamma_value_jh : ∀ pol ns j αj,
-  ns ∈ newton_segments pol
+  newton_segments pol = Some ns
   → (j, αj) = ini_pt ns
     → ∀ h αh, (h, αh) ∈ oth_pts ns
       → γ ns == (αj - αh) / (h - j).
@@ -1022,7 +938,7 @@ rewrite Qden_inv in Hpq.
 Qed.
 
 Theorem order_in_newton_segment : ∀ pol ns pl h αh,
-  ns ∈ newton_segments pol
+  newton_segments pol = Some ns
   → pl = [ini_pt ns … oth_pts ns ++ [fin_pt ns]]
     → (Qnat h, αh) ∈ pl
       → order (ps_poly_nth h pol) = qfin αh.
@@ -1058,7 +974,7 @@ destruct Hαh as [Hαh| Hαh].
 Qed.
 
 Theorem qden_αj_is_ps_polord : ∀ pol ns j αj,
-  ns ∈ newton_segments pol
+  newton_segments pol = Some ns
   → (Qnat j, αj) = ini_pt ns
   → Qden αj = ps_polord (ps_poly_nth j pol).
 Proof.
@@ -1234,7 +1150,7 @@ inversion_clear HinK.
 Qed.
 
 Theorem den_αj_divides_num_αj_m : ∀ pol ns j αj m,
-  ns ∈ newton_segments pol
+  newton_segments pol = Some ns
   → ini_pt ns = (Qnat j, αj)
   → pol_in_K_1_m pol m
   → (' Qden αj | Qnum αj * ' m)%Z.
@@ -1251,7 +1167,7 @@ apply any_in_K_1_m with (h := j) (αh := αj) in HinK.
 Qed.
 
 Theorem pol_ord_of_ini_pt : ∀ pol ns m j αj mj,
-  ns ∈ newton_segments pol
+  newton_segments pol = Some ns
   → pol_in_K_1_m pol m
   → (Qnat j, αj) = ini_pt ns
   → mj = mh_of_m m αj (ps_poly_nth j pol)
@@ -1270,7 +1186,7 @@ rewrite Z_div_mul_swap.
 Qed.
 
 Theorem qden_αk_is_ps_polord : ∀ pol ns k αk,
-  ns ∈ newton_segments pol
+  newton_segments pol = Some ns
   → (Qnat k, αk) = fin_pt ns
   → Qden αk = ps_polord (ps_poly_nth k pol).
 Proof.
@@ -1292,7 +1208,7 @@ eapply order_in_newton_segment with (h := k) (αh := αk) in H; eauto .
 Qed.
 
 Theorem den_αk_divides_num_αk_m : ∀ pol ns k αk m,
-  ns ∈ newton_segments pol
+  newton_segments pol = Some ns
   → pol_in_K_1_m pol m
   → fin_pt ns = (Qnat k, αk)
   → (' Qden αk | Qnum αk * ' m)%Z.
@@ -1309,7 +1225,7 @@ apply any_in_K_1_m with (h := k) (αh := αk) in HinK.
 Qed.
 
 Theorem pol_ord_of_fin_pt : ∀ pol ns m k αk mk,
-  ns ∈ newton_segments pol
+  newton_segments pol = Some ns
   → pol_in_K_1_m pol m
   → (Qnat k, αk) = fin_pt ns
   → mk = mh_of_m m αk (ps_poly_nth k pol)
@@ -1328,7 +1244,7 @@ rewrite Z_div_mul_swap.
 Qed.
 
 Theorem qden_αh_is_ps_polord : ∀ pol ns h αh,
-  ns ∈ newton_segments pol
+  newton_segments pol = Some ns
   → (Qnat h, αh) ∈ oth_pts ns
   → Qden αh = ps_polord (ps_poly_nth h pol).
 Proof.
@@ -1349,7 +1265,7 @@ eapply order_in_newton_segment with (h := h) (αh := αh) in H; eauto .
 Qed.
 
 Theorem den_αh_divides_num_αh_m : ∀ pol ns h αh m,
-  ns ∈ newton_segments pol
+  newton_segments pol = Some ns
   → pol_in_K_1_m pol m
   → (Qnat h, αh) ∈ oth_pts ns
   → (' Qden αh | Qnum αh * ' m)%Z.
@@ -1365,7 +1281,7 @@ apply any_in_K_1_m with (h := h) (αh := αh) in HinK.
 Qed.
 
 Theorem pol_ord_of_oth_pt : ∀ pol ns m h αh mh,
-  ns ∈ newton_segments pol
+  newton_segments pol = Some ns
   → pol_in_K_1_m pol m
   → (Qnat h, αh) ∈ oth_pts ns
   → mh = mh_of_m m αh (ps_poly_nth h pol)
@@ -1388,7 +1304,7 @@ Qed.
          q (mj - mh) = p (h - j)
    » *)
 Theorem q_mj_mk_eq_p_h_j : ∀ pol ns j αj m mj p q,
-  ns ∈ newton_segments pol
+  newton_segments pol = Some ns
   → pol_in_K_1_m pol m
   → (Qnat j, αj) = ini_pt ns
   → mj = mh_of_m m αj (ps_poly_nth j pol)
@@ -1524,7 +1440,7 @@ Qed.
    and since p and q have no common factors, q is a factor
    of h - j. » *)
 Theorem q_is_factor_of_h_minus_j : ∀ pol ns j αj m q,
-  ns ∈ newton_segments pol
+  newton_segments pol = Some ns
   → pol_in_K_1_m pol m
   → (Qnat j, αj) = ini_pt ns
   → q = Pos.to_nat (q_of_m m (γ ns))
@@ -1633,26 +1549,21 @@ induction pts as [| pt₃]; intros.
   intros x y z H₁ H₂; eapply Qlt_trans; eassumption.
 Qed.
 
-Theorem edge_pts_sorted : ∀ n pts hs,
+Theorem edge_pts_sorted : ∀ pts hs,
   Sorted fst_lt pts
-  → hs ∈ next_ch_points n pts
+  → lower_convex_hull_points pts = Some hs
     → Sorted fst_lt (oth_pts hs).
 Proof.
-intros n pts hs Hsort Hhs.
-revert pts hs Hsort Hhs.
-induction n; intros; [ contradiction | simpl in Hhs ].
-destruct pts as [| pt₁]; [ contradiction | idtac ].
-destruct pts as [| pt₂]; [ contradiction | idtac ].
-destruct Hhs as [Hhs| Hhs].
- subst hs; simpl.
- eapply minimise_slope_seg_sorted; [ eassumption | reflexivity ].
-
- eapply IHn; [ idtac | eassumption ].
- eapply minimise_slope_sorted; [ eassumption | reflexivity ].
+intros pts hs Hsort Hhs.
+destruct pts as [| pt₁]; [ easy | idtac ].
+destruct pts as [| pt₂]; [ easy | idtac ].
+unfold lower_convex_hull_points in Hhs.
+injection Hhs; clear Hhs; intros Hhs; subst hs; simpl.
+eapply minimise_slope_seg_sorted; [ eassumption | reflexivity ].
 Qed.
 
 Theorem ini_oth_fin_pts_sorted : ∀ pol ns,
-  ns ∈ newton_segments pol
+  newton_segments pol = Some ns
   → Sorted fst_lt [ini_pt ns … oth_pts ns ++ [fin_pt ns]].
 Proof.
 intros pol ns Hns.
@@ -1834,7 +1745,7 @@ induction l as [| a]; intros; simpl.
 Qed.
 
 Theorem length_char_pol : ∀ pol ns pl tl j αj k αk,
-  ns ∈ newton_segments pol
+  newton_segments pol = Some ns
   → ini_pt ns = (Qnat j, αj)
     → fin_pt ns = (Qnat k, αk)
       → pl = [ini_pt ns … oth_pts ns ++ [fin_pt ns]]
@@ -2082,7 +1993,7 @@ destruct n.
 Qed.
 
 Theorem phi_pseudo_degree_is_k_sub_j_div_q : ∀ pol ns j αj k αk q m,
-  ns ∈ newton_segments pol
+  newton_segments pol = Some ns
   → pol_in_K_1_m pol m
   → (Qnat j, αj) = ini_pt ns
   → (Qnat k, αk) = fin_pt ns
@@ -2221,7 +2132,7 @@ destruct n; simpl.
 Qed.
 
 Theorem ord_coeff_non_zero_in_newt_segm : ∀ pol ns h αh hps,
-  ns ∈ newton_segments pol
+  newton_segments pol = Some ns
   → (Qnat h, αh) ∈ [ini_pt ns … oth_pts ns ++ [fin_pt ns]]
     → hps = List.nth h (al pol) 0%ps
       → (order_coeff hps ≠ 0)%K.
@@ -2411,7 +2322,7 @@ destruct tl as [| t₁].
 Qed.
 
 Theorem oth_pts_den_1 : ∀ pol ns,
-  ns ∈ newton_segments pol
+  newton_segments pol = Some ns
   → List.Forall (λ pt, Qden (fst pt) = 1%positive) (oth_pts ns).
 Proof.
 intros pol ns Hns.
@@ -2451,7 +2362,7 @@ Qed.
 (* [Walker, p. 100] « Therefore (3.4) has the form c^j Φ(c^q) = 0
    where Φ(z) is a polynomial, of degree (k - j)/q » *)
 Theorem phi_degree_is_k_sub_j_div_q : ∀ pol ns j αj k αk q m,
-  ns ∈ newton_segments pol
+  newton_segments pol = Some ns
   → pol_in_K_1_m pol m
   → (Qnat j, αj) = ini_pt ns
   → (Qnat k, αk) = fin_pt ns
