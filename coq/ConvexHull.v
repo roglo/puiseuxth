@@ -35,23 +35,14 @@ Fixpoint minimise_slope pt₁ pt₂ pts₂ :=
       end
   end.
 
-Fixpoint next_ch_points n pts :=
-  match n with
-  | O => []
-  | S n =>
-      match pts with
-      | [] => []
-      | [pt₁] => []
-      | pt₁ :: pt₂ :: pts₂ =>
-          let ms := minimise_slope pt₁ pt₂ pts₂ in
-          let hsl := next_ch_points n (end_pt ms :: rem_pts ms) in
-          {| ini_pt := beg_pt ms; fin_pt := end_pt ms; oth_pts := seg ms |}
-          :: hsl
-      end
-  end.
-
 Definition lower_convex_hull_points pts :=
-  next_ch_points (List.length pts) pts.
+  match pts with
+  | [] => None
+  | [pt₁] => None
+  | pt₁ :: pt₂ :: pts₂ =>
+      let ms := minimise_slope pt₁ pt₂ pts₂ in
+      Some {| ini_pt := beg_pt ms; fin_pt := end_pt ms; oth_pts := seg ms |}
+  end.
 
 Theorem minimised_slope_beg_pt : ∀ pt₁ pt₂ pts,
   beg_pt (minimise_slope pt₁ pt₂ pts) = pt₁.
