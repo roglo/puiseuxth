@@ -549,7 +549,7 @@ destruct cnt; simpl.
 Qed.
 
 Theorem cpol_degree_ge_1 : ∀ pol ns m,
-  ns ∈ newton_segments pol
+  newton_segments pol = Some ns
   → pol_in_K_1_m pol m
   → degree fld_zerop (Φq pol ns) ≥ 1.
 Proof.
@@ -774,7 +774,7 @@ Qed.
    we have:
       Φ(z^q) = (z - c₁)^r Ψ(z), Ψ(c₁) ≠ 0 » *)
 Theorem psy_c₁_ne_0 : ∀ pol ns c₁ r Ψ,
-  ns ∈ newton_segments pol
+  newton_segments pol = Some ns
   → r = root_multiplicity acf c₁ (Φq pol ns)
     → Ψ = quotient_phi_x_sub_c_pow_r (Φq pol ns) c₁ r
       → (apply_poly Ψ c₁ ≠ 0)%K.
