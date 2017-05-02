@@ -28,6 +28,12 @@ Set Implicit Arguments.
 Definition phony_ns :=
   {| ini_pt := (0, 0); fin_pt := (0, 0); oth_pts := [] |}.
 
+Definition option_get {A} (x : A) v :=
+  match v with
+  | Some v => v
+  | None => x
+  end.
+
 Fixpoint nth_pol α {R : ring α} {K : field R} {acf : algeb_closed_field K}
   n pol ns :=
   match n with
@@ -35,7 +41,7 @@ Fixpoint nth_pol α {R : ring α} {K : field R} {acf : algeb_closed_field K}
   | S n₁ =>
       let c₁ := ac_root (Φq pol ns) in
       let pol₁ := next_pol pol (β ns) (γ ns) c₁ in
-      let ns₁ := List.hd phony_ns (newton_segments pol₁) in
+      let ns₁ := option_get phony_ns (newton_segments pol₁) in
       nth_pol n₁ pol₁ ns₁
   end.
 
@@ -46,7 +52,7 @@ Fixpoint nth_ns α {R : ring α} {K : field R} {acf : algeb_closed_field K}
   | S n₁ =>
       let c₁ := ac_root (Φq pol ns) in
       let pol₁ := next_pol pol (β ns) (γ ns) c₁ in
-      let ns₁ := List.hd phony_ns (newton_segments pol₁) in
+      let ns₁ := option_get phony_ns (newton_segments pol₁) in
       nth_ns n₁ pol₁ ns₁
   end.
 
@@ -57,7 +63,7 @@ Fixpoint nth_c α {R : ring α} {K : field R} {acf : algeb_closed_field K}
   | S n₁ =>
       let c₁ := ac_root (Φq pol ns) in
       let pol₁ := next_pol pol (β ns) (γ ns) c₁ in
-      let ns₁ := List.hd phony_ns (newton_segments pol₁) in
+      let ns₁ := option_get phony_ns (newton_segments pol₁) in
       nth_c n₁ pol₁ ns₁
   end.
 
@@ -68,7 +74,7 @@ Fixpoint nth_γ α {R : ring α} {K : field R} {acf : algeb_closed_field K}
   | S n₁ =>
       let c₁ := ac_root (Φq pol ns) in
       let pol₁ := next_pol pol (β ns) (γ ns) c₁ in
-      let ns₁ := List.hd phony_ns (newton_segments pol₁) in
+      let ns₁ := option_get phony_ns (newton_segments pol₁) in
       nth_γ n₁ pol₁ ns₁
   end.
 
@@ -79,7 +85,7 @@ Fixpoint nth_r α {R : ring α} {K : field R} {acf : algeb_closed_field K}
   | S n₁ =>
       let c₁ := ac_root (Φq pol ns) in
       let pol₁ := next_pol pol (β ns) (γ ns) c₁ in
-      let ns₁ := List.hd phony_ns (newton_segments pol₁) in
+      let ns₁ := option_get phony_ns (newton_segments pol₁) in
       nth_r n₁ pol₁ ns₁
   end.
 
@@ -99,7 +105,7 @@ Fixpoint find_coeff α {R : ring α} {K : field R}
         | Lt =>
             let c₁ := ac_root (Φq pol ns) in
             let pol₁ := next_pol pol (β ns) (γ ns) c₁ in
-            let ns₁ := List.hd phony_ns (newton_segments pol₁) in
+            let ns₁ := option_get phony_ns (newton_segments pol₁) in
             let npow₁ := next_pow npow ns₁ m in
             find_coeff mx npow₁ m pol₁ ns₁ i
         | Gt => 0%K
@@ -140,7 +146,7 @@ Fixpoint zerop_1st_n_const_coeff α {R : ring α} {K : field R}
     | S n₁ =>
         let c₁ := ac_root (Φq pol ns) in
         let pol₁ := next_pol pol (β ns) (γ ns) c₁ in
-        let ns₁ := List.hd phony_ns (newton_segments pol₁) in
+        let ns₁ := option_get phony_ns (newton_segments pol₁) in
         zerop_1st_n_const_coeff n₁ pol₁ ns₁
     end.
 
@@ -201,35 +207,33 @@ destruct (ps_zerop K 1%ps) as [Hzo| Hnzo].
 Qed.
 
 Theorem exists_ini_pt_nat_fst_seg : ∀ pol ns,
-  ns = List.hd phony_ns (newton_segments pol)
+  ns = option_get phony_ns (newton_segments pol)
   → ∃ i αi, ini_pt ns = (Qnat i, αi).
 Proof.
 intros pol ns Hns.
 remember (newton_segments pol) as nsl eqn:Hnsl .
 symmetry in Hnsl.
-destruct nsl as [| ns₁].
+destruct nsl as [ns₁| ].
+ simpl in Hns; subst ns₁.
+ now eapply exists_ini_pt_nat with (pol := pol).
+
  subst ns; simpl.
  exists 0%nat, 0; reflexivity.
-
- simpl in Hns; subst ns₁.
- eapply exists_ini_pt_nat with (pol := pol).
- rewrite Hnsl; left; reflexivity.
 Qed.
 
 Theorem exists_fin_pt_nat_fst_seg : ∀ pol ns,
-  ns = List.hd phony_ns (newton_segments pol)
+  ns = option_get phony_ns (newton_segments pol)
   → ∃ i αi, fin_pt ns = (Qnat i, αi).
 Proof.
 intros pol ns Hns.
 remember (newton_segments pol) as nsl eqn:Hnsl .
 symmetry in Hnsl.
-destruct nsl as [| ns₁].
+destruct nsl as [ns₁| ].
+ simpl in Hns; subst ns₁.
+ now eapply exists_fin_pt_nat with (pol := pol).
+
  subst ns; simpl.
  exists 0%nat, 0; reflexivity.
-
- simpl in Hns; subst ns₁.
- eapply exists_fin_pt_nat with (pol := pol).
- rewrite Hnsl; left; reflexivity.
 Qed.
 
 Theorem List_hd_in : ∀ α (l : list α) d a,
@@ -242,16 +246,18 @@ destruct l; [ exfalso; apply Hl; reflexivity | left; symmetry; assumption ].
 Qed.
 
 Theorem hd_newton_segments : ∀ pol ns j k αj αk,
-  ns = List.hd phony_ns (newton_segments pol)
+  ns = option_get phony_ns (newton_segments pol)
  → ini_pt ns = (Qnat j, αj)
   → fin_pt ns = (Qnat k, αk)
   → (j < k)%nat
-  → ns ∈ newton_segments pol.
+  → newton_segments pol = Some ns.
 Proof.
 intros pol ns j k αj αk Hns Hini Hfin Hjk.
 remember (newton_segments pol) as nsl.
 symmetry in Heqnsl.
-destruct nsl as [| ns₁]; simpl in Hns.
+destruct nsl as [ns₁| ]; simpl in Hns.
+ subst ns; reflexivity.
+
  subst ns; simpl in Hini, Hfin.
  injection Hini; intros; subst.
  injection Hfin; intros; subst.
@@ -260,8 +266,6 @@ destruct nsl as [| ns₁]; simpl in Hns.
  apply Nat2Z.inj in H0.
  apply Nat2Z.inj in H1.
  subst j k; exfalso; revert Hjk; apply Nat.lt_irrefl.
-
- subst ns; left; reflexivity.
 Qed.
 
 (* *)
@@ -282,13 +286,13 @@ Qed.
 Theorem nth_pol_succ2 : ∀ pol ns c pol₁ ns₁ n,
   c = ac_root (Φq pol ns)
   → pol₁ = next_pol pol (β ns) (γ ns) c
-  → ns₁ = List.hd phony_ns (newton_segments pol₁)
+  → ns₁ = option_get phony_ns (newton_segments pol₁)
   → nth_pol (S n) pol ns = nth_pol n pol₁ ns₁.
 Proof. intros; subst; reflexivity. Qed.
 
 Theorem nth_ns_succ : ∀ n pol ns pol₁,
   pol₁ = nth_pol (S n) pol ns
-  → nth_ns (S n) pol ns = List.hd phony_ns (newton_segments pol₁).
+  → nth_ns (S n) pol ns = option_get phony_ns (newton_segments pol₁).
 Proof.
 intros n pol ns pol₁ Hpol₁; subst.
 revert pol ns.
@@ -300,7 +304,7 @@ Qed.
 Theorem nth_ns_succ2 : ∀ pol ns c pol₁ ns₁ n,
   c = ac_root (Φq pol ns)
   → pol₁ = next_pol pol (β ns) (γ ns) c
-  → ns₁ = List.hd phony_ns (newton_segments pol₁)
+  → ns₁ = option_get phony_ns (newton_segments pol₁)
   → nth_ns (S n) pol ns = nth_ns n pol₁ ns₁.
 Proof. intros; subst; reflexivity. Qed.
 
@@ -319,7 +323,7 @@ Qed.
 Theorem nth_r_succ2 : ∀ pol ns c pol₁ ns₁ n,
   c = ac_root (Φq pol ns)
   → pol₁ = next_pol pol (β ns) (γ ns) c
-  → ns₁ = List.hd phony_ns (newton_segments pol₁)
+  → ns₁ = option_get phony_ns (newton_segments pol₁)
   → nth_r (S n) pol ns = nth_r n pol₁ ns₁.
 Proof. intros; subst; reflexivity. Qed.
 
@@ -370,7 +374,7 @@ rewrite Qden_inv.
 Qed.
 
 Theorem num_m_den_is_pos : ∀ pol ns j αj m,
-  ns ∈ newton_segments pol
+  newton_segments pol = Some ns
   → pol_in_K_1_m pol m
   → ini_pt ns = (Qnat j, αj)
   → (0 < Qnum αj)%Z
@@ -452,7 +456,7 @@ induction n; intros.
 
   remember (ac_root (Φq pol ns)) as c₁ eqn:Hc₁ .
   remember (next_pol pol (β ns) (γ ns) c₁) as pol₁ eqn:Hpol₁ .
-  remember (List.hd phony_ns (newton_segments pol₁)) as ns₁ eqn:Hns₁ .
+  remember (option_get phony_ns (newton_segments pol₁)) as ns₁ eqn:Hns₁ .
   rewrite IHn; simpl.
   remember (nth_pol sn pol₁ ns₁) as poln eqn:Hpoln .
   destruct (ps_zerop K (ps_poly_nth 0 poln)) as [H₂| H₂].
@@ -514,14 +518,14 @@ induction n; intros.
  simpl in Hpoln, Hnsn; simpl.
  remember (ac_root (Φq pol₁ ns₁)) as c₁ eqn:Hc₁ .
  remember (next_pol pol₁ (β ns₁) (γ ns₁) c₁) as pol₂ eqn:Hpol₂ .
- remember (List.hd phony_ns (newton_segments pol₂)) as ns₂ eqn:Hns₂ .
+ remember (option_get phony_ns (newton_segments pol₂)) as ns₂ eqn:Hns₂ .
  apply IHn; assumption.
 Qed.
 
 Theorem nth_pol_n : ∀ pol ns c pol₁ ns₁ poln nsn cn n,
   c = ac_root (Φq pol ns)
   → pol₁ = next_pol pol (β ns) (γ ns) c
-  → ns₁ = List.hd phony_ns (newton_segments pol₁)
+  → ns₁ = option_get phony_ns (newton_segments pol₁)
   → poln = nth_pol n pol ns
   → nsn = nth_ns n pol ns
   → cn = ac_root (Φq poln nsn)
@@ -537,7 +541,7 @@ induction n; intros.
  simpl in Hpoln, Hnsn; simpl.
  remember (ac_root (Φq pol₂ ns₂)) as c₂ eqn:Hc₂ .
  remember (next_pol pol₂ (β ns₂) (γ ns₂) c₂) as pol₃ eqn:Hpol₃ .
- remember (List.hd phony_ns (newton_segments pol₃)) as ns₃ eqn:Hns₃ .
+ remember (option_get phony_ns (newton_segments pol₃)) as ns₃ eqn:Hns₃ .
  rewrite <- Hc₁, <- Hpol₂, <- Hns₂ in Hpoln, Hnsn.
  eapply IHn; eauto .
 Qed.
@@ -545,12 +549,12 @@ Qed.
 Theorem nth_ns_n : ∀ pol ns c pol₁ ns₁ poln nsn cn npoln n,
   c = ac_root (Φq pol ns)
   → pol₁ = next_pol pol (β ns) (γ ns) c
-  → ns₁ = List.hd phony_ns (newton_segments pol₁)
+  → ns₁ = option_get phony_ns (newton_segments pol₁)
   → poln = nth_pol n pol ns
   → nsn = nth_ns n pol ns
   → cn = ac_root (Φq poln nsn)
   → npoln = next_pol poln (β nsn) (γ nsn) cn
-  → nth_ns n pol₁ ns₁ = List.hd phony_ns (newton_segments npoln).
+  → nth_ns n pol₁ ns₁ = option_get phony_ns (newton_segments npoln).
 Proof.
 intros pol ns c pol₁ ns₁ poln nsn cn npoln n.
 intros Hc Hpol₁ Hns₁ Hpoln Hnsn Hcn Hnpoln.
@@ -565,7 +569,7 @@ induction n; intros.
  rewrite <- Hc, <- Hpol₁, <- Hns₁ in Hpoln, Hnsn.
  remember (ac_root (Φq pol₁ ns₁)) as c₁ eqn:Hc₁ .
  remember (next_pol pol₁ (β ns₁) (γ ns₁) c₁) as pol₂ eqn:Hpol₂ .
- remember (List.hd phony_ns (newton_segments pol₂)) as ns₂.
+ remember (option_get phony_ns (newton_segments pol₂)) as ns₂.
  rename Heqns₂ into Hns₂.
  eapply IHn with (c := c₁); eauto .
 Qed.
@@ -699,7 +703,7 @@ Qed.
 Theorem root_head_from_cγ_list_succ_r : ∀ pol ns pol₁ ns₁ c n i,
   c = ac_root (Φq pol ns)
   → pol₁ = next_pol pol (β ns) (γ ns) c
-  → ns₁ = List.hd phony_ns (newton_segments pol₁)
+  → ns₁ = option_get phony_ns (newton_segments pol₁)
   → zerop_1st_n_const_coeff n pol₁ ns₁ = false
   → (ps_poly_nth 0 pol₁ ≠ 0)%ps
   → (root_head_from_cγ_list pol ns 0 n (S i) =
@@ -729,7 +733,7 @@ induction n; intros.
   rewrite <- Hc, <- Hpol₁, <- Hns₁.
   remember (ac_root (Φq pol₁ ns₁)) as c₁ eqn:Hc₁ .
   remember (next_pol pol₁ (β ns₁) (γ ns₁) c₁) as pol₂ eqn:Hpol₂ .
-  remember (List.hd phony_ns (newton_segments pol₂)) as ns₂.
+  remember (option_get phony_ns (newton_segments pol₂)) as ns₂.
   unfold γ_sum; simpl.
   rewrite summation_split_first; [ idtac | apply Nat.le_0_l ].
   rewrite summation_shift; [ idtac | apply le_n_S, Nat.le_0_l ].
@@ -803,7 +807,7 @@ induction n; intros.
   remember (S n) as sn in |- *; simpl.
   remember (ac_root (Φq pol ns)) as c eqn:Hc .
   remember (next_pol pol (β ns) (γ ns) c) as pol₁ eqn:Hpol₁ .
-  remember (List.hd phony_ns (newton_segments pol₁)) as ns₁ eqn:Hns₁ .
+  remember (option_get phony_ns (newton_segments pol₁)) as ns₁ eqn:Hns₁ .
   rewrite ps_monom_add_r.
   rewrite <- rng_mul_assoc.
   subst sn; simpl.
@@ -928,7 +932,7 @@ Fixpoint lowest_with_zero_1st_const_coeff n pol ns :=
       if ps_zerop _ (ps_poly_nth 0 pol) then O
       else
         let pol₁ := next_pol pol (β ns) (γ ns) (ac_root (Φq pol ns)) in
-        let ns₁ := List.hd phony_ns (newton_segments pol₁) in
+        let ns₁ := option_get phony_ns (newton_segments pol₁) in
         S (lowest_with_zero_1st_const_coeff n' pol₁ ns₁)
   end.
 
@@ -958,7 +962,7 @@ induction n; intros.
   destruct i; [ discriminate Hi |  ].
   remember (ac_root (Φq pol ns)) as c eqn:Hc .
   remember (next_pol pol (β ns) (γ ns) c) as pol₁ eqn:Hpol₁ ; subst c.
-  remember (List.hd phony_ns (newton_segments pol₁)) as ns₁ eqn:Hns₁ .
+  remember (option_get phony_ns (newton_segments pol₁)) as ns₁ eqn:Hns₁ .
   apply Nat.succ_inj in Hi.
   pose proof (IHn pol₁ ns₁ i Hz Hi) as H.
   destruct H as (Hin, (Hip, Hii)).
@@ -993,7 +997,7 @@ induction i; intros.
 
   remember (ac_root (Φq pol₁ ns₁)) as c₁ eqn:Hc₁ .
   remember (next_pol pol₁ (β ns₁) (γ ns₁) c₁) as pol₂ eqn:Hpol₂ .
-  remember (List.hd phony_ns (newton_segments pol₂)) as ns₂ eqn:Hns₂ .
+  remember (option_get phony_ns (newton_segments pol₂)) as ns₂ eqn:Hns₂ .
   destruct (ps_zerop K (ps_poly_nth 0 pol₂)) as [H₂| H₂].
    unfold ps_poly_nth, ps_lap_nth in H₂; simpl in H₂.
    unfold next_pol in Hpol₂.
@@ -1010,7 +1014,7 @@ induction i; intros.
 
   remember (ac_root (Φq pol₁ ns₁)) as c₁ eqn:Hc₁ .
   remember (next_pol pol₁ (β ns₁) (γ ns₁) c₁) as pol₂ eqn:Hpol₂ .
-  remember (List.hd phony_ns (newton_segments pol₂)) as ns₂ eqn:Hns₂ .
+  remember (option_get phony_ns (newton_segments pol₂)) as ns₂ eqn:Hns₂ .
   eapply IHi; eauto .
 Qed.
 
@@ -1056,7 +1060,7 @@ Qed.
 
 Theorem no_newton_segments : ∀ pol,
   (ps_poly_nth 0 pol ≠ 0)%ps
-  → newton_segments pol = []
+  → newton_segments pol = None
   → (∀ i, (0 < i)%nat → (ps_poly_nth i pol = 0)%ps).
 Proof.
 (* perhaps simplifiable *)
@@ -1246,7 +1250,7 @@ destruct deg.
 Qed.
 
 Theorem multiplicity_neq_0 : ∀ pol ns c,
-  ns ∈ newton_segments pol
+  newton_segments pol = Some ns
   → c = ac_root (Φq pol ns)
   → root_multiplicity acf c (Φq pol ns) ≠ O.
 Proof.

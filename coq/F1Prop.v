@@ -453,7 +453,7 @@ assumption.
 Qed.
 
 Theorem f₁_eq_term_with_Ψ_plus_g : ∀ pol ns j αj c₁ r f₁ Ψ,
-  ns ∈ newton_segments pol
+  newton_segments pol = Some ns
   → ini_pt ns = (Qnat j, αj)
     → c₁ = ac_root (Φq pol ns)
       → r = root_multiplicity acf c₁ (Φq pol ns)
@@ -519,7 +519,7 @@ rewrite f₁_eq_term_with_Ψ_plus_sum with (l₂ := l₂); try eassumption.
 Qed.
 
 Theorem nth_g_order_pos : ∀ pol ns h,
-  ns ∈ newton_segments pol
+  newton_segments pol = Some ns
   → (order (ps_lap_nth h (g_lap_of_ns pol ns)) > 0)%Qbar.
 Proof.
 intros pol ns h Hns.
@@ -654,7 +654,7 @@ Qed.
 
 (* [Walker, p 101] « O(bi) ≥ 0,  i = 0,...,n » *)
 Theorem order_bbar_nonneg : ∀ pol ns c₁ r f₁,
-  ns ∈ newton_segments pol
+  newton_segments pol = Some ns
   → c₁ = ac_root (Φq pol ns)
     → r = root_multiplicity acf c₁ (Φq pol ns)
       → f₁ = next_pol pol (β ns) (γ ns) c₁
@@ -696,7 +696,7 @@ Qed.
 
 (* [Walker, p 101] « O(bi) > 0,  i = 0,...,r-1 » *)
 Theorem order_bbar_pos : ∀ pol ns c₁ r f₁,
-  ns ∈ newton_segments pol
+  newton_segments pol = Some ns
   → c₁ = ac_root (Φq pol ns)
     → r = root_multiplicity acf c₁ (Φq pol ns)
       → f₁ = next_pol pol (β ns) (γ ns) c₁
@@ -725,7 +725,7 @@ apply Qbar.min_glb_lt.
 Qed.
 
 Theorem char_pol_root_ne_0 : ∀ pol ns m c₁,
-  ns ∈ newton_segments pol
+  newton_segments pol = Some ns
   → pol_in_K_1_m pol m
   → c₁ = ac_root (Φq pol ns)
   → (c₁ ≠ 0)%K.
@@ -751,7 +751,7 @@ Qed.
 
 (* [Walker, p 101] « O(br) = 0 » *)
 Theorem order_bbar_r_is_0 : ∀ pol ns m c₁ r f₁,
-  ns ∈ newton_segments pol
+  newton_segments pol = Some ns
   → pol_in_K_1_m pol m
   → c₁ = ac_root (Φq pol ns)
   → r = root_multiplicity acf c₁ (Φq pol ns)
@@ -858,7 +858,7 @@ Qed.
    »
 *)
 Theorem f₁_orders : ∀ pol ns c₁ r f₁,
-  ns ∈ newton_segments pol
+  newton_segments pol = Some ns
   → c₁ = ac_root (Φq pol ns)
   → r = root_multiplicity acf c₁ (Φq pol ns)
   → f₁ = next_pol pol (β ns) (γ ns) c₁
