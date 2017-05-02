@@ -423,7 +423,7 @@ Fixpoint ord_of_pt i pl :=
 (* Σāh.x^(hγ₁).(c₁+y₁)^h =
    Σah.x^(αh+hγ₁).(c₁+y₁)^h + Σ(āh-ah.x^αh).x^(hγ₁).(c₁+y₁)^h *)
 Theorem summation_split_val : ∀ pol ns γ₁ c₁ pl tl l,
-  ns ∈ newton_segments pol
+  newton_segments pol = Some ns
   → pl = [ini_pt ns … oth_pts ns ++ [fin_pt ns]]
     → tl = List.map (term_of_point pol) pl
       → l = List.map (λ t, power t) tl
@@ -473,7 +473,7 @@ Qed.
                          Σāl.x^(l.γ₁).(c₁+y₁)^l]
    » *)
 Theorem f₁_eq_sum_α_hγ_to_rest : ∀ pol ns β₁ γ₁ c₁ pl tl l₁ l₂,
-  ns ∈ newton_segments pol
+  newton_segments pol = Some ns
   → pl = [ini_pt ns … oth_pts ns ++ [fin_pt ns]]
     → tl = List.map (term_of_point pol) pl
       → l₁ = List.map (λ t, power t) tl
@@ -596,7 +596,7 @@ Qed.
 
 (* Σah.x^(αh+h.γ).(c₁+y₁)^h = Σah.x^β.(c₁+y₁)^h *)
 Theorem subst_αh_hγ : ∀ pol ns pl tl l₁ c₁,
-  ns ∈ newton_segments pol
+  newton_segments pol = Some ns
   → pl = [ini_pt ns … oth_pts ns ++ [fin_pt ns]]
     → tl = List.map (term_of_point pol) pl
       → l₁ = List.map (λ t, power t) tl
@@ -662,7 +662,7 @@ Qed.
                          Σāl.x^(l.γ₁).(c₁+y₁)^l]
 *)
 Theorem f₁_eq_sum_without_x_β₁_plus_sum : ∀ pol ns c₁ pl tl l₁ l₂,
-  ns ∈ newton_segments pol
+  newton_segments pol = Some ns
   → pl = [ini_pt ns … oth_pts ns ++ [fin_pt ns]]
     → tl = List.map (term_of_point pol) pl
       → l₁ = List.map (λ t, power t) tl
@@ -756,7 +756,7 @@ rewrite IHlen.
 Qed.
 
 Theorem ns_nat : ∀ pol ns pts,
-  ns ∈ newton_segments pol
+  newton_segments pol = Some ns
   → pts = [ini_pt ns … oth_pts ns ++ [fin_pt ns]]
     → ∀ iq αi, (iq, αi) ∈ pts
       → ∃ i : nat, iq = Qnat i.
@@ -772,7 +772,7 @@ assert (∃ h ah, (iq, αi) = (Qnat h, ah)) as Hnat.
 Qed.
 
 Theorem fold_right_exists : ∀ pol ns pts j k αj αk f la,
-  ns ∈ newton_segments pol
+  newton_segments pol = Some ns
   → pts = [ini_pt ns … oth_pts ns ++ [fin_pt ns]]
     → ini_pt ns = (Qnat j, αj)
       → fin_pt ns = (Qnat k, αk)
@@ -1316,7 +1316,7 @@ Qed.
       Σah.(c₁+y₁)^h = (c₁+y₁)^j.Φ((c₁+y₁)^q)
  *)
 Theorem sum_ah_c₁y_h_eq : ∀ pol ns pl tl l c₁ j αj,
-  ns ∈ newton_segments pol
+  newton_segments pol = Some ns
   → pl = [ini_pt ns … oth_pts ns ++ [fin_pt ns]]
     → tl = List.map (term_of_point pol) pl
       → l = List.map (λ t, power t) tl
@@ -1598,7 +1598,7 @@ apply lap_mul_map_ps.
 Qed.
 
 Theorem Ψ_length : ∀ pol ns j k αj αk c₁ r Ψ,
-  ns ∈ newton_segments pol
+  newton_segments pol = Some ns
   → ini_pt ns = (Qnat j, αj)
     → fin_pt ns = (Qnat k, αk)
       → r = root_multiplicity acf c₁ (Φq pol ns)
@@ -1649,7 +1649,7 @@ Qed.
       (c₁+y₁)^j.Φ((c₁+y₁)^q) = y₁^r.(c₁+y₁)^j.Ψ(c₁+y₁)
  *)
 Theorem phi_c₁y₁_psy : ∀ pol ns pl tl l c₁ r Ψ j αj,
-  ns ∈ newton_segments pol
+  newton_segments pol = Some ns
   → ac_root (Φq pol ns) = c₁
     → r = root_multiplicity acf c₁ (Φq pol ns)
       → Ψ = quotient_phi_x_sub_c_pow_r (Φq pol ns) c₁ r
@@ -1709,7 +1709,7 @@ Qed.
                          Σāl.x^(l.γ₁).(c₁+y₁)^l]
 *)
 Theorem f₁_eq_term_with_Ψ_plus_sum : ∀ pol ns c₁ pl tl j αj l₁ l₂ r Ψ,
-  ns ∈ newton_segments pol
+  newton_segments pol = Some ns
   → ac_root (Φq pol ns) = c₁
     → r = root_multiplicity acf c₁ (Φq pol ns)
       → Ψ = quotient_phi_x_sub_c_pow_r (Φq pol ns) c₁ r
