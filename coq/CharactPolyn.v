@@ -1572,14 +1572,7 @@ constructor.
  unfold newton_segments in Hns.
  remember (points_of_ps_polynom pol) as pts.
  apply points_of_polyn_sorted in Heqpts.
- remember (lower_convex_hull_points pts) as hsl.
- unfold lower_convex_hull_points in Heqhsl.
- rename Heqhsl into Hnp.
- symmetry in Hnp.
- remember (length pts) as n; clear Heqn.
- induction hsl as [| hs₁]; intros; [ contradiction | idtac ].
  apply Sorted_app_at_r.
-  rewrite <- Hnp in Hns.
   eapply edge_pts_sorted; eassumption.
 
   intros (hq, αh) Hh.
