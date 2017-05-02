@@ -121,7 +121,7 @@ Qed.
 
 (* [Walker, p 101] « O(āh - ah.x^αh) > 0 » (with fixed typo) *)
 Theorem order_āh_minus_ah_xαh_gt_αh : ∀ pol ns pl tl h āh ah αh,
-  ns ∈ newton_segments pol
+  newton_segments pol = Some ns
   → pl = [ini_pt ns … oth_pts ns ++ [fin_pt ns]]
     → tl = List.map (term_of_point pol) pl
       → h ∈ List.map (λ t, power t) tl
@@ -292,7 +292,7 @@ Qed.
 
 (* [Walker, p 101] « O(āl.x^(l.γ₁)) > β₁ » *)
 Theorem order_āl_xlγ₁_gt_β₁ : ∀ pol ns pl tl l₁ l₂ l āl,
-  ns ∈ newton_segments pol
+  newton_segments pol = Some ns
   → pl = [ini_pt ns … oth_pts ns ++ [fin_pt ns]]
     → tl = List.map (term_of_point pol) pl
       → l₁ = List.map (λ t, power t) tl
@@ -1238,7 +1238,7 @@ Qed.
 (* [Walker, p 101 « each power of y₁ in g(x,y₁) has a coefficient of
    positive order » *)
 Theorem each_power_of_y₁_in_g_has_coeff_pos_ord : ∀ pol ns g,
-  ns ∈ newton_segments pol
+  newton_segments pol = Some ns
   → g = g_of_ns pol ns
     → ∀ m, m ∈ al g → (order m > 0)%Qbar.
 Proof.
@@ -1388,7 +1388,7 @@ assert (m ≠ 0)%ps as Hmnz.
      remember Hns as Hsort; clear HeqHsort.
      apply ini_oth_fin_pts_sorted in Hsort.
      rewrite <- Hpl in Hsort.
-     pose proof (points_in_newton_segment_have_nat_abscissa K pol ns Hns)
+     pose proof (points_in_newton_segment_have_nat_abscissa K pol Hns)
       as Hnat.
      rewrite <- Hpl in Hnat.
      revert Hsort Hnat; clear; intros.
