@@ -247,24 +247,23 @@ destruct Hαh as [Hαh| Hαh].
   apply Sorted_inv_2 in Hsort; destruct Hsort; assumption.
 Qed.
 
-Theorem points_after_k : ∀ n pts j αj k αk seg hsl γ β,
+Theorem points_after_k : ∀ pts j αj k αk seg γ β,
   Sorted fst_lt pts
   → j < k
     → γ = (αj - αk) / (k - j)
       → β = αj + j * γ
-        → next_ch_points n pts = [mkns (j, αj) (k, αk) seg … hsl]
+        → lower_convex_hull_points pts = Some (mkns (j, αj) (k, αk) seg)
           → ∀ h αh, k < h
             → (h, αh) ∈ pts
               → β < αh + h * γ.
 Proof.
-intros n pts j αj k αk seg hsl γ β.
+intros pts j αj k αk seg γ β.
 intros Hsort Hjk Hγ Hβ Hnp h αh Hkh Hαh.
-destruct n; [ discriminate Hnp | simpl in Hnp ].
-destruct pts as [| pt₁]; [ discriminate Hnp | idtac ].
-destruct pts as [| pt₂]; [ discriminate Hnp | idtac ].
+destruct pts as [| pt₁]; [ easy | ].
+destruct pts as [| pt₂]; [ easy | ].
+simpl in Hnp.
 rewrite minimised_slope_beg_pt in Hnp.
-injection Hnp; clear Hnp; intros Hnp Hseg Hep₁ Hp₁; subst seg pt₁.
-rewrite Hep₁ in Hnp.
+injection Hnp; clear Hnp; intros Hseg Hep₁ Hp₁; subst seg pt₁.
 remember (minimise_slope (j, αj) pt₂ pts) as ms₁.
 destruct Hαh as [Hαh| Hαh].
  injection Hαh; clear Hαh; intros; subst h αh.
@@ -387,29 +386,25 @@ induction pts as [| pt₁]; intros.
    assumption.
 Qed.
 
-Theorem points_between_j_and_k : ∀ n pts j αj k αk oth hsl γ β,
+Theorem points_between_j_and_k : ∀ pts j αj k αk oth γ β,
   Sorted fst_lt pts
   → γ = (αj - αk) / (k - j)
     → β = αj + j * γ
-      → next_ch_points n pts = [mkns (j, αj) (k, αk) oth … hsl]
+      → lower_convex_hull_points pts = Some (mkns (j, αj) (k, αk) oth)
         → ∀ h αh, j < h < k
           → (h, αh) ∈ pts
             → (h, αh) ∉ oth
               → β < αh + h * γ.
 Proof.
-intros n pts j αj k αk oth hsl γ β.
+intros pts j αj k αk oth γ β.
 intros Hsort Hγ Hβ Hnp h αh (Hjh, Hhk) Hαh Hseg.
-destruct n; [ discriminate Hnp | idtac ].
 destruct pts as [| pt₁]; [ discriminate Hnp | idtac ].
 remember Hnp as H; clear HeqH.
 apply next_ch_points_hd in H.
 subst pt₁; simpl in Hnp.
 destruct pts as [| pt₁]; [ discriminate Hnp | idtac ].
 remember (minimise_slope (j, αj) pt₁ pts) as ms₁.
-injection Hnp; clear Hnp; intros; subst oth.
-remember H as Hnp; clear HeqHnp.
-rename H1 into Hep₁.
-clear H.
+injection Hnp; clear Hnp; intros Hop₁ Hep₁ Hbp₁; subst oth.
 destruct Hαh as [Hαh| Hαh].
  injection Hαh; clear Hαh; intros; subst h αh.
  apply Qlt_irrefl in Hjh; contradiction.
@@ -420,7 +415,7 @@ destruct Hαh as [Hαh| Hαh].
   destruct pts as [| pt₁].
    simpl in Heqms₁.
    subst ms₁.
-   simpl in Hep₁, Hseg, Hnp.
+   simpl in Hep₁, Hseg, Hbp₁.
    injection Hep₁; clear Hep₁; intros; subst h αh.
    apply Qlt_irrefl in Hhk; contradiction.
 
@@ -429,11 +424,11 @@ destruct Hαh as [Hαh| Hαh].
    symmetry in Heqms₂.
    remember (slope_expr (j, αj) (h, αh) ?= slope ms₂) as c.
    destruct c; subst ms₁.
-    simpl in Hep₁, Hseg, Hnp.
+    simpl in Hep₁, Hseg, Hbp₁.
     apply Decidable.not_or in Hseg.
     destruct Hseg as (H, _); negation H.
 
-    simpl in Hep₁, Hseg, Hnp.
+    simpl in Hep₁, Hseg, Hbp₁.
     injection Hep₁; clear Hep₁; intros; subst h αh.
     apply Qlt_irrefl in Hhk; contradiction.
 
@@ -451,11 +446,11 @@ destruct Hαh as [Hαh| Hαh].
      assumption.
 
   symmetry in Heqms₁.
-  revert pt₁ ms₁ Hsort Heqms₁ Hep₁ Hseg Hnp H2.
+  revert pt₁ ms₁ Hsort Heqms₁ Hep₁ Hseg Hbp₁.
   induction pts as [| pt₂]; intros.
    simpl in Heqms₁.
    subst ms₁.
-   simpl in Hep₁, Hseg, Hnp.
+   simpl in Hep₁, Hseg, Hbp₁.
    contradiction.
 
    destruct Hαh as [Hαh| Hαh].
@@ -482,7 +477,7 @@ destruct Hαh as [Hαh| Hαh].
     remember (slope_expr (j, αj) pt₁ ?= slope ms₂) as c.
     symmetry in Heqc.
     destruct c; subst ms₁.
-     simpl in Hep₁, Hseg, Hnp.
+     simpl in Hep₁, Hseg, Hbp₁.
      apply Decidable.not_or in Hseg.
      destruct Hseg as (Hlt₁, Hseg).
      eapply IHpts; try eassumption.
@@ -491,7 +486,7 @@ destruct Hαh as [Hαh| Hαh].
 
       rewrite <- Heqms₂, minimised_slope_beg_pt; reflexivity.
 
-     simpl in Hep₁, Hseg, Hnp.
+     simpl in Hep₁, Hseg, Hbp₁.
      subst pt₁.
      apply Sorted_inv_2 in Hsort.
      destruct Hsort as (Hlt₂, Hsort).
@@ -510,47 +505,20 @@ destruct Hαh as [Hαh| Hαh].
      intros x y z H₁ H₂; eapply Qlt_trans; eassumption.
 Qed.
 
-Theorem in_ch_in_pts : ∀ n pts pt₁ pt₂ s,
-  mkns pt₁ pt₂ s ∈ next_ch_points n pts
+Theorem in_ch_in_pts : ∀ pts pt₁ pt₂ s,
+  lower_convex_hull_points pts = Some (mkns pt₁ pt₂ s)
   → pt₁ ∈ pts ∧ pt₂ ∈ pts.
 Proof.
-intros n pts pt₁ pt₂ s Hhs.
-remember (next_ch_points n pts) as hsl.
-rename Heqhsl into Hhsl.
-revert n pts pt₁ pt₂ s Hhsl Hhs.
-induction hsl as [| hs₁]; [ contradiction | intros ].
-destruct n; [ discriminate Hhsl | idtac ].
-simpl in Hhsl.
-destruct pts as [| pt₃]; [ discriminate Hhsl | idtac ].
-destruct pts as [| pt₄]; [ discriminate Hhsl | idtac ].
-injection Hhsl; clear Hhsl; intros; subst hs₁ hsl.
-destruct Hhs as [Hhs| ].
- rewrite minimised_slope_beg_pt in Hhs.
- injection Hhs; clear Hhs; intros; subst pt₃ s.
- split; [ left; reflexivity | idtac ].
- rewrite <- H0; right.
- eapply end_pt_in; reflexivity.
-
- remember (minimise_slope pt₃ pt₄ pts) as ms₁.
- symmetry in Heqms₁.
- eapply IHhsl in H; [ idtac | reflexivity ].
- destruct H as (H₁, H₂).
- split.
-  destruct H₁ as [H| H].
-   apply end_pt_in in Heqms₁.
-   subst pt₁.
-   right; assumption.
-
-   eapply rem_pts_in in H; [ idtac | eassumption ].
-   right; right; assumption.
-
-  destruct H₂ as [H| H].
-   subst pt₂.
-   apply end_pt_in in Heqms₁.
-   right; assumption.
-
-   right; right.
-   eapply rem_pts_in; eassumption.
+intros pts pt₁ pt₂ s Hhs.
+unfold lower_convex_hull_points in Hhs.
+destruct pts as [| pt₃]; [ discriminate Hhs | idtac ].
+destruct pts as [| pt₄]; [ discriminate Hhs | idtac ].
+injection Hhs; clear Hhs; intros; subst pt₁ pt₂ s.
+split; [ now rewrite minimised_slope_beg_pt; left | ].
+remember (minimise_slope pt₃ pt₄ pts) as ms₁.
+symmetry in Heqms₁.
+apply end_pt_in in Heqms₁.
+right; assumption.
 Qed.
 
 Theorem sorted_qeq_eq : ∀ pts j αj k αk,
@@ -599,36 +567,30 @@ destruct Hj as [Hj| Hj].
   apply IHpts; assumption.
 Qed.
 
-Theorem qeq_eq_ini : ∀ n pts h αh j αj ptj s hsl₁ hsl,
+Theorem qeq_eq_ini : ∀ pts h αh j αj ptj s,
   Sorted fst_lt pts
-  → next_ch_points n pts = hsl₁ ++ [mkns (j, αj) ptj s … hsl]
+  → lower_convex_hull_points pts = Some (mkns (j, αj) ptj s)
     → (h, αh) ∈ pts
       → h == j
         → h = j.
 Proof.
-intros n pts h αh j αj ptj s hsl₁ hsl Hpts Hhsl Hαh Hhk.
+intros pts h αh j αj ptj s Hpts Hhsl Hαh Hhk.
 eapply sorted_qeq_eq with (αk := αj) in Hhk; try eassumption.
  injection Hhk; intros; subst; reflexivity.
 
- apply in_ch_in_pts with (n := n) (s := s) (pt₂ := ptj).
- rewrite Hhsl.
- apply List.in_app_iff.
- right; left; reflexivity.
+ now apply in_ch_in_pts with (s := s) (pt₂ := ptj).
 Qed.
 
-Theorem qeq_eq_fin : ∀ n pts h αh k αk ptk s hsl₁ hsl,
+Theorem qeq_eq_fin : ∀ pts h αh k αk ptk s,
   Sorted fst_lt pts
-  → next_ch_points n pts = hsl₁ ++ [mkns ptk (k, αk) s … hsl]
+  → lower_convex_hull_points pts = Some (mkns ptk (k, αk) s)
     → (h, αh) ∈ pts
       → h == k
         → h = k.
 Proof.
-intros n pts h αh k αk ptk s hsl₁ hsl Hpts Hhsl Hαh Hhk.
+intros pts h αh k αk ptk s Hpts Hhsl Hαh Hhk.
 eapply sorted_qeq_eq with (αk := αk) in Hhk; try eassumption.
  injection Hhk; intros; subst; reflexivity.
 
- apply in_ch_in_pts with (n := n) (s := s) (pt₁ := ptk).
- rewrite Hhsl.
- apply List.in_app_iff.
- right; left; reflexivity.
+ now apply in_ch_in_pts with (s := s) (pt₁ := ptk).
 Qed.
