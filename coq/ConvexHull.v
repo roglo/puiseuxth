@@ -13,23 +13,21 @@ Record newton_segment := mkns
 Record min_sl :=
   { beg_pt : (Q * Q);
     end_pt : (Q * Q);
-    seg : list (Q * Q);
-    rem_pts : list (Q * Q) }.
+    seg : list (Q * Q) }.
 
 Definition slope ms := slope_expr (beg_pt ms) (end_pt ms).
 
 Fixpoint minimise_slope pt₁ pt₂ pts₂ :=
   match pts₂ with
   | [] =>
-      {| beg_pt := pt₁; end_pt := pt₂; seg := []; rem_pts := [] |}
+      {| beg_pt := pt₁; end_pt := pt₂; seg := [] |}
   | pt₃ :: pts₃ =>
       let ms := minimise_slope pt₁ pt₃ pts₃ in
       match Qcompare (slope_expr pt₁ pt₂) (slope ms) with
       | Eq =>
-          {| beg_pt := pt₁; end_pt := end_pt ms; seg := pt₂ :: seg ms;
-             rem_pts := rem_pts ms |}
+          {| beg_pt := pt₁; end_pt := end_pt ms; seg := pt₂ :: seg ms |}
       | Lt =>
-          {| beg_pt := pt₁; end_pt := pt₂; seg := []; rem_pts := pts₂ |}
+          {| beg_pt := pt₁; end_pt := pt₂; seg := [] |}
       | Gt =>
           ms
       end
