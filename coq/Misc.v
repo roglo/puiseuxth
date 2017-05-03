@@ -45,19 +45,6 @@ Definition Qdiv_lt_compat_r : ∀ x y z, 0 < z → x < y → x / z < y / z :=
   λ x y z Hz Hxy,
   Qmult_lt_compat_r x y (/ z) (Qinv_lt_0_compat z Hz) Hxy.
 
-Definition Qinv_0 : ∀ x, x == 0 → /x == 0 :=
-  λ x Hx,
-  let H1 := eq_sym (Z.eq_trans (eq_sym (Z.mul_1_r (Qnum x))) Hx) in
-  let H2 z :=
-    Qnum
-      match z with
-      | 0%Z => 0
-      | (' p)%Z => ' Qden x # p
-      | Z.neg p => Z.neg (Qden x) # p
-      end = 0%Z
-  in
-  eq_trans (Z.mul_1_r (Qnum (/ x))) (eq_ind 0%Z H2 eq_refl (Qnum x) H1).
-
 Theorem Qdiv_minus_distr_r : ∀ x y z, (x - y) / z == x / z - y / z.
 Proof.
 intros x y z.
@@ -504,8 +491,6 @@ reflexivity.
 Qed.
 
 Definition pair_rec A B C (f : A → B → C) := λ xy, f (fst xy) (snd xy).
-
-Definition Plcm a b := Z.to_pos (Z.lcm (Zpos a) (Zpos b)).
 
 Theorem divmod_div : ∀ a b, fst (divmod a b 0 b) = (a / S b)%nat.
 Proof. intros a b; reflexivity. Qed.

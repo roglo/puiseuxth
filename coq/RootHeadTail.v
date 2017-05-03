@@ -236,15 +236,6 @@ destruct nsl as [ns₁| ].
  exists 0%nat, 0; reflexivity.
 Qed.
 
-Theorem List_hd_in : ∀ α (l : list α) d a,
-  a = List.hd d l
-  → l ≠ []
-  → a ∈ l.
-Proof.
-intros α₁ l d a Ha Hl.
-destruct l; [ exfalso; apply Hl; reflexivity | left; symmetry; assumption ].
-Qed.
-
 Theorem hd_newton_segments : ∀ pol ns j k αj αk,
   ns = option_get phony_ns (newton_segments pol)
  → ini_pt ns = (Qnat j, αj)

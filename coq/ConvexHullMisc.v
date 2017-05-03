@@ -294,16 +294,6 @@ rewrite <- Hns; simpl.
 now specialize (beg_lt_end_pt pt₁ pt₂ pts ms Hsort Hms) as H.
 Qed.
 
-Theorem next_ch_points_le : ∀ pt₁ pt₂ pt₃ pts₁ sg,
-  lower_convex_hull_points [pt₁ … pts₁] = Some (mkns pt₂ pt₃ sg)
-  → fst pt₁ <= fst pt₂.
-Proof.
-intros * Hnp.
-apply next_ch_points_hd in Hnp.
-subst pt₂.
-apply Qle_refl.
-Qed.
-
 Theorem minimised_slope : ∀ pt₁ pt₂ pt pts ms,
   minimise_slope pt₁ pt pts = ms
   → pt₂ = end_pt ms
@@ -337,24 +327,4 @@ induction pts as [| pt₃]; intros.
   left; reflexivity.
 
   right; eapply IHpts; eassumption.
-Qed.
-
-Theorem rem_pts_in : ∀ pt₁ pt₂ pts₂ ms pt,
-  minimise_slope pt₁ pt₂ pts₂ = ms
-  → pt ∈ rem_pts ms
-    → pt ∈ pts₂.
-Proof.
-intros pt₁ pt₂ pts₂ ms pt Hms Hpt.
-revert pt₁ pt₂ ms Hms Hpt.
-induction pts₂ as [| pt₃]; intros; [ subst ms; contradiction | idtac ].
-simpl in Hms.
-remember (minimise_slope pt₁ pt₃ pts₂) as ms₁.
-symmetry in Heqms₁.
-remember (slope_expr pt₁ pt₂ ?= slope ms₁) as c.
-destruct c; subst ms; simpl in Hpt.
- right; eapply IHpts₂; eassumption.
-
- assumption.
-
- right; eapply IHpts₂; eassumption.
 Qed.

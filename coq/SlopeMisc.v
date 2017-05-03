@@ -212,15 +212,6 @@ intros (x₁, y₁) (x₂, y₂) (x₃, y₃) Hlt H.
 rewrite Qlt_alt in H |- *; rewrite <- H.
 symmetry; apply slope_cmp₁; assumption.
 Qed.
-Theorem slope_lt_1323_1213 : ∀ pt₁ pt₂ pt₃,
-  fst pt₁ < fst pt₂ < fst pt₃
-  → slope_expr pt₁ pt₃ < slope_expr pt₂ pt₃
-    → slope_expr pt₁ pt₂ < slope_expr pt₁ pt₃.
-Proof.
-intros (x₁, y₁) (x₂, y₂) (x₃, y₃) Hlt H.
-rewrite Qlt_alt in H |- *; rewrite <- H.
-apply slope_cmp₁; assumption.
-Qed.
 
 Theorem slope_cmp₂ : ∀ pt₁ pt₂ pt₃,
   fst pt₁ < fst pt₂ < fst pt₃
@@ -283,14 +274,4 @@ assert (x₁ < x₃) as Hlt₃ by (eapply Qlt_trans; eassumption).
 rewrite slope_cmp_norm₁₂₁₃; [ idtac | split; assumption ].
 rewrite slope_cmp_norm₁₂₂₃; [ idtac | split; assumption ].
 reflexivity.
-Qed.
-
-Theorem slope_lt_1223_1213 : ∀ pt₁ pt₂ pt₃,
-  fst pt₁ < fst pt₂ < fst pt₃
-  → slope_expr pt₁ pt₂ < slope_expr pt₂ pt₃
-    → slope_expr pt₁ pt₂ < slope_expr pt₁ pt₃.
-Proof.
-intros (x₁, y₁) (x₂, y₂) (x₃, y₃) Hlt H.
-rewrite Qlt_alt in H |- *; rewrite <- H.
-apply slope_cmp₄; assumption.
 Qed.
