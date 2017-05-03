@@ -12,87 +12,6 @@ Require Import ConvexHullMisc.
 Require Import Newton.
 Require Import NotInSegMisc.
 
-(* is there a way to group together the cases c = Eq and c = Gt? *)
-Theorem aft_end_in_rem : ∀ pt₁ pt₂ pts ms,
-  Sorted fst_lt [pt₁; pt₂ … pts]
-  → minimise_slope pt₁ pt₂ pts = ms
-    → ∀ h αh, (h, αh) ∈ [pt₁; pt₂ … pts]
-      → fst (end_pt ms) < h
-        → (h, αh) ∈ rem_pts ms.
-Proof.
-intros pt₁ pt₂ pts ms Hsort Hms h αh Hαh Hlt.
-destruct Hαh as [Hαh| Hαh].
- subst pt₁.
- apply minimise_slope_le in Hms.
-  apply Sorted_inv_2 in Hsort.
-  destruct Hsort as (Hlt₁, _).
-  eapply Qlt_trans in Hlt₁; [ idtac | eassumption ].
-  apply Qle_not_lt in Hms; contradiction.
-
-  eapply Sorted_inv_1; eassumption.
-
- destruct Hαh as [Hαh| Hαh].
-  subst pt₂.
-  apply minimise_slope_le in Hms.
-   apply Qle_not_lt in Hms; contradiction.
-
-   eapply Sorted_inv_1; eassumption.
-
-  revert pt₁ pt₂ ms Hsort Hms Hαh Hlt.
-  induction pts as [| pt₃]; [ contradiction | intros ].
-  simpl in Hms.
-  remember (minimise_slope pt₁ pt₃ pts) as ms₁.
-  symmetry in Heqms₁.
-  remember (slope_expr pt₁ pt₂ ?= slope ms₁) as c.
-  symmetry in Heqc.
-  destruct c; subst ms; simpl in Hlt |- *.
-   destruct Hαh as [Hαh| Hαh].
-    subst pt₃.
-    apply minimise_slope_le in Heqms₁.
-     apply Qle_not_lt in Heqms₁; contradiction.
-
-     do 2 apply Sorted_inv_1 in Hsort.
-     assumption.
-
-    eapply IHpts; try eassumption.
-    eapply Sorted_minus_2nd; [ idtac | eassumption ].
-    intros x y z H₁ H₂; eapply Qlt_trans; eassumption.
-
-   assumption.
-
-   destruct Hαh as [Hαh| Hαh].
-    subst pt₃.
-    apply minimise_slope_le in Heqms₁.
-     apply Qle_not_lt in Heqms₁; contradiction.
-
-     do 2 apply Sorted_inv_1 in Hsort.
-     assumption.
-
-    eapply IHpts; try eassumption.
-    eapply Sorted_minus_2nd; [ idtac | eassumption ].
-    intros x y z H₁ H₂; eapply Qlt_trans; eassumption.
-Qed.
-
-Theorem consec_end_lt : ∀ pt₁ pt₂ pt₃ pts pts₃ ms₁ ms₂,
-  Sorted fst_lt [pt₁; pt₂ … pts]
-  → minimise_slope pt₁ pt₂ pts = ms₁
-    → minimise_slope (end_pt ms₁) pt₃ pts₃ = ms₂
-      → rem_pts ms₁ = [pt₃ … pts₃]
-        → fst (end_pt ms₁) < fst (end_pt ms₂).
-Proof.
-intros pt₁ pt₂ pt₃ pts pts₃ ms₁ ms₂ Hsort Hms₁ Hms₂ Hrem₁.
-apply minimise_slope_le in Hms₂.
- eapply Qlt_le_trans; [ idtac | eassumption ].
- apply minimise_slope_sorted in Hms₁; [ idtac | assumption ].
- rewrite Hrem₁ in Hms₁.
- apply Sorted_inv_2 in Hms₁.
- destruct Hms₁; assumption.
-
- rewrite <- Hrem₁.
- apply minimise_slope_sorted in Hms₁; [ idtac | assumption ].
- eapply Sorted_inv_1; eassumption.
-Qed.
-
 Theorem min_slope_lt : ∀ pt₁ pt₂ pt₃ pts ms₁₃ ms₂₃,
   Sorted fst_lt [pt₁; pt₂; pt₃ … pts]
   → minimise_slope pt₁ pt₃ pts = ms₁₃
@@ -537,22 +456,6 @@ do 2 rewrite minimised_slope_beg_pt in Hpts₁.
 assumption.
 Qed.
 
-Theorem lt_expr_bef_j_in_ch : ∀ pts h αh i αi j αj k αk segjk ms,
-  Sorted fst_lt [(h, αh); (i, αi) … pts]
-  → h < j < k
-    → minimise_slope (h, αh) (i, αi) pts = ms
-      → lower_convex_hull_points [end_pt ms … rem_pts ms] =
-         Some (mkns (j, αj) (k, αk) segjk)
-        → slope_expr (h, αh) (j, αj) < slope_expr (j, αj) (k, αk).
-Proof.
-intros pts h αh i αi j αj k αk segjk ms.
-intros Hsort Hhjk Hms Hnp.
-apply slope_lt_1323_1223; [ assumption | idtac ].
-remember Hnp as H; clear HeqH.
-eapply next_ch_points_hd in H.
-eapply sl_lt_bef_j_in_ch; eassumption.
-Qed.
-
 Theorem sl_lt_bef_j_any : ∀ pts pt₁ pt₂ h αh j αj k αk segkx ptk ms,
   Sorted fst_lt [pt₁; pt₂ … pts]
   → (h, αh) ∈ [pt₂ … pts]
@@ -595,24 +498,6 @@ apply Qle_lt_trans with (y := slope_expr (g, αg) (j, αj)).
   eapply Qlt_le_trans; [ eassumption | idtac ].
   apply minimise_slope_le in Hms; [ idtac | assumption ].
   rewrite Hend in Hms; assumption.
-Qed.
-
-Theorem sl_lt_bef_j : ∀ pt₁ pt₂ pts h αh j αj k αk ms segjk,
-  Sorted fst_lt [pt₁; pt₂ … pts]
-  → (h, αh) ∈ [pt₂ … pts]
-    → h < j < k
-      → minimise_slope pt₁ pt₂ pts = ms
-        → fst pt₁ < h <= fst (end_pt ms)
-          → lower_convex_hull_points [end_pt ms … rem_pts ms] =
-             Some (mkns (j, αj) (k, αk) segjk)
-            → slope_expr (h, αh) (k, αk) < slope_expr (j, αj) (k, αk).
-Proof.
-intros (g, αg) pt₂ pts h αh j αj k αk ms segjk.
-intros Hsort Hh (Hhj, Hjk) Hms (H₁h, Hhe) Hnp.
-remember Hnp as H; clear HeqH.
-eapply next_ch_points_hd in H.
-eapply sl_lt_bef_j_any; try eassumption.
-split; assumption.
 Qed.
 
 Theorem lt_bef_j : ∀ pts j αj segjk k αk,

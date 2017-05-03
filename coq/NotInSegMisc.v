@@ -7,54 +7,6 @@ Require Import Slope_base.
 Require Import ConvexHull.
 Require Import ConvexHullMisc.
 
-(* 1/ two theorems very close to each other; another theorem to factorise them,
-   perhaps? the most part is normalisation *)
-(* 2/ perhaps could be proved shorter by the theorems of Slope.v? *)
-Theorem ad_hoc_lt_lt₂ : ∀ i j k x y z,
-  j < i < k
-  → (x - z) / (i - j) < (y - x) / (k - i)
-    → x + i * ((x - y) / (k - i)) < z + j * ((x - y) / (k - i)).
-Proof.
-intros i j k x y z (Hji, Hik) H.
-apply Qlt_shift_mult_r in H; [ idtac | apply Qlt_minus; assumption ].
-rewrite Qmult_comm, Qmult_div_assoc in H.
-apply Qlt_shift_mult_l in H; [ idtac | apply Qlt_minus; assumption ].
-rewrite Qmult_comm in H.
-do 2 rewrite Qmult_minus_distr_l in H.
-do 4 rewrite Qmult_minus_distr_r in H.
-do 2 rewrite Qminus_minus_assoc in H.
-rewrite <- Qplus_minus_swap in H.
-apply Qminus_lt_lt_plus_r in H.
-rewrite <- Qplus_minus_swap in H.
-apply Qminus_lt_lt_plus_r in H.
-do 2 rewrite <- Qplus_assoc in H.
-rewrite <- Qplus_minus_swap in H.
-apply Qlt_minus_plus_lt_r in H.
-rewrite <- Qplus_minus_swap in H.
-apply Qlt_minus_plus_lt_r in H.
-do 2 rewrite Qplus_assoc in H.
-do 2 rewrite Qmult_div_assoc.
-rewrite Qplus_div; [ idtac | apply Qlt_not_0; assumption ].
-rewrite Qplus_div; [ idtac | apply Qlt_not_0; assumption ].
-apply Qdiv_lt_compat_r; [ apply Qlt_minus; assumption | idtac ].
-rewrite Qmult_minus_distr_r.
-rewrite Qplus_comm, Qmult_comm; apply Qnot_le_lt.
-rewrite Qplus_comm, Qmult_comm; apply Qlt_not_le.
-do 2 rewrite Qmult_minus_distr_l.
-rewrite Qmult_minus_distr_r.
-do 2 rewrite Qplus_minus_assoc.
-apply Qlt_plus_minus_lt_r; rewrite <- Qplus_minus_swap.
-apply Qlt_plus_minus_lt_r; rewrite Qplus_minus_swap.
-do 2 rewrite <- Qplus_assoc; rewrite <- Qplus_minus_swap.
-apply Qplus_lt_lt_minus_r; rewrite <- Qplus_minus_swap.
-apply Qplus_lt_lt_minus_r; do 2 rewrite Qplus_assoc.
-setoid_replace (x * i + x * k + z * i + y * j) with
- (x * k + z * i + x * i + y * j) by ring.
-setoid_replace (x * j + z * k + x * i + y * i) with
- (y * i + x * j + z * k + x * i) by ring.
-assumption.
-Qed.
-
 Theorem ad_hoc_lt_lt : ∀ i j k x y z,
   i < j ∧ i < k
   → (y - x) / (k - i) < (z - x) / (j - i)
