@@ -730,14 +730,14 @@ destruct (LPO v) as [Hn| Hn].
          exists (root_head 0 (pred j) pol₁ ns₁).
          apply root_when_fin; assumption.
 
-bbb.
-        eapply List_hd_in; try eassumption.
         clear H.
         remember Hns as H; clear HeqH.
         eapply next_has_root_0_or_newton_segments in H; auto.
         simpl in H.
         rewrite <- Hc, <- Hpol₁ in H.
-        destruct H; [ contradiction | assumption ].
+        destruct H; [ contradiction | ].
+        rewrite Hns₁.
+        now destruct (newton_segments pol₁).
 
    exfalso; apply Hn, eq_refl.
 Qed.
@@ -761,7 +761,7 @@ destruct (ps_zerop _ (ps_poly_nth 0 pol)) as [Hz| Hnz].
  rename H into Hnsnz.
  remember (newton_segments pol) as nsl eqn:Hnsl .
  symmetry in Hnsl.
- destruct nsl as [| ns]; [ exfalso; apply Hnsnz; reflexivity | idtac ].
+ destruct nsl as [ns| ]; [ | exfalso; apply Hnsnz; reflexivity ].
  clear Hnsnz.
  generalize Hdeg; intros H.
  remember (ac_root (Φq pol ns)) as c eqn:Hc .
