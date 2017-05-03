@@ -693,27 +693,9 @@ destruct (LPO v) as [Hn| Hn].
         rewrite <- Hcssi, <- Hpolssi.
         rewrite Hs₁, rng_mul_0_r; reflexivity.
 
-(*
-        eapply hd_newton_segments; try eassumption.
-         subst nssi; simpl.
-         eapply nth_ns_n; try eassumption; eauto  .
-          rewrite Hc; reflexivity.
-
-          subst polsi; simpl.
-          eapply nth_pol_n; try eassumption; eauto  .
-          rewrite Hc; reflexivity.
-*)
-bbb.
-        eapply List_hd_in.
-         subst nssi; simpl.
-         eapply nth_ns_n; try eassumption; eauto  .
-          rewrite Hc; reflexivity.
-
-          subst polsi; simpl.
-          eapply nth_pol_n; try eassumption; eauto  .
-          rewrite Hc; reflexivity.
-
-         intros H; rewrite H in Hnsl; discriminate Hnsl.
+        subst nssi.
+        erewrite nth_ns_succ; [ | eassumption ].
+        now rewrite Hnsl.
 
         rewrite zerop_1st_n_const_coeff_false_iff in Hz.
         pose proof (Hz i (Nat.le_refl i)) as H.
@@ -737,6 +719,7 @@ bbb.
        rewrite Hpolsi in H.
        simpl in H.
        rewrite <- Hc, <- Hpol₁, <- Hns₁ in H.
+bbb.
        apply nth_newton_segments_nil in H; auto.
         destruct H as (j, (Hjn, (Hjz, Hjnz))).
         destruct Hjz as [Hjz| Hjz].
