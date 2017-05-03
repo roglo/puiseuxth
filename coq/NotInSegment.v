@@ -300,15 +300,13 @@ destruct Hαh as [Hαh| Hαh].
  apply Qlt_irrefl in Hhj; contradiction.
 Qed.
 
-Theorem lt_not_in_some_ns : ∀ pts ns,
+Theorem points_not_in_any_newton_segment₁ : ∀ pts ns,
   Sorted fst_lt pts
   → lower_convex_hull_points pts = Some ns
-    → ∀ h αh, (h, αh) ∈ pts
-      → (h, αh) ∉ [ini_pt ns; fin_pt ns … oth_pts ns]
-        → β ns < αh + h * γ ns.
+  → ∀ h αh, (h, αh) ∈ pts ∧ (h, αh) ∉ [ini_pt ns; fin_pt ns … oth_pts ns]
+  → β ns < αh + h * γ ns.
 Proof.
-intros pts ns.
-intros Hsort Hnp h αh Hh Hnh.
+intros * Hsort Hnp h αh (Hh, Hnh).
 destruct ns as ((j, αj), (k, αk), segjk).
 remember cons as f in Hnh; simpl in Hnh; subst f.
 destruct (Qlt_le_dec k h) as [Hlt| Hge].
@@ -335,26 +333,4 @@ destruct (Qlt_le_dec k h) as [Hlt| Hge].
     remember (mkns (j, αj) (k, αk) segjk) as ns.
     apply ini_lt_fin_pt with (ns := ns) in Hsort; [ | easy ].
     subst ns; assumption.
-Qed.
-
-Theorem lt_not_in_ns : ∀ pts ns,
-  Sorted fst_lt pts
-  → lower_convex_hull_points pts = Some ns
-     → ∀ h αh, (h, αh) ∈ pts
-       → (h, αh) ∉ [ini_pt ns; fin_pt ns … oth_pts ns]
-         → β ns < αh + h * γ ns.
-Proof.
-intros pts ns Hsort Hnp.
-intros h αh Hh Hnh.
-eapply lt_not_in_some_ns; eassumption.
-Qed.
-
-Theorem points_not_in_any_newton_segment₁ : ∀ pts ns,
-  Sorted fst_lt pts
-  → lower_convex_hull_points pts = Some ns
-  → ∀ h αh, (h, αh) ∈ pts ∧ (h, αh) ∉ [ini_pt ns; fin_pt ns … oth_pts ns]
-  → β ns < αh + h * (γ ns).
-Proof.
-intros pts ns Hsort Hns h αh (Hαh, Hnαh).
-eapply lt_not_in_ns; simpl; eassumption.
 Qed.
