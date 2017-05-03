@@ -119,10 +119,10 @@ induction len; intros.
 Qed.
 
 Theorem k_le_r : ∀ αj₁ αk₁ k₁ r pt pts v ms pts₁ pts₂,
-  pts = pts₁ ++ [end_pt ms … pts₂]
+  pts = pts₁ ++ [fin_pt ms … pts₂]
   → Sorted fst_lt [(Qnat 0, αj₁); pt … pts]
   → ms = minimise_slope (Qnat 0, αj₁) pt pts
-  → end_pt ms = (Qnat k₁, αk₁)
+  → fin_pt ms = (Qnat k₁, αk₁)
   → v == 0
   → 0 < αj₁
   → 0 <= αk₁

@@ -144,7 +144,7 @@ Qed.
 Theorem minimise_slope_expr_le : ∀ pt₁ pt₂ pt₃ pts ms,
   Sorted fst_lt [pt₁; pt₂ … pts]
   → minimise_slope pt₁ pt₂ pts = ms
-    → end_pt ms = pt₃
+    → fin_pt ms = pt₃
       → fst pt₂ < fst pt₃
         → slope_expr pt₂ pt₃ <= slope ms.
 Proof.
@@ -225,7 +225,7 @@ Theorem min_slope_le : ∀ pt₁ pt₂ pt₃ pt₄ pts ms,
   Sorted fst_lt [pt₁; pt₂ … pts]
   → minimise_slope pt₁ pt₂ pts = ms
     → pt₃ ∈ pts
-      → end_pt ms = pt₄
+      → fin_pt ms = pt₄
         → fst pt₃ < fst pt₄
           → slope_expr pt₃ pt₄ <= slope ms.
 Proof.

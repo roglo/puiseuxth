@@ -131,7 +131,7 @@ Qed.
 Theorem min_slope_lt_after_k : ∀ j αj k αk pt pts ms,
   Sorted fst_lt pts
   → minimise_slope (j, αj) pt pts = ms
-    → end_pt ms = (k, αk)
+    → fin_pt ms = (k, αk)
       → ∀ h αh, (h, αh) ∈ pts
         → k < h
           → slope ms < slope_expr (j, αj) (h, αh).
@@ -254,8 +254,8 @@ Theorem not_seg_min_sl_lt : ∀ j αj k αk pt pts ms h αh,
   Sorted fst_lt [(j, αj); pt; (h, αh) … pts]
   → minimise_slope (j, αj) pt [(h, αh) … pts] = ms
     → j < h < k
-      → (h, αh) ∉ seg ms
-        → end_pt ms = (k, αk)
+      → (h, αh) ∉ oth_pts ms
+        → fin_pt ms = (k, αk)
           → slope ms < slope_expr (j, αj) (h, αh).
 Proof.
 intros j αj k αk pt pts ms h αh Hsort Hms (Hjh, Hhk) Hseg Hep.

@@ -10,24 +10,19 @@ Record newton_segment := mkns
     fin_pt : (Q * Q);
     oth_pts : list (Q * Q) }.
 
-Record min_sl :=
-  { beg_pt : (Q * Q);
-    end_pt : (Q * Q);
-    seg : list (Q * Q) }.
-
-Definition slope ms := slope_expr (beg_pt ms) (end_pt ms).
+Definition slope ms := slope_expr (ini_pt ms) (fin_pt ms).
 
 Fixpoint minimise_slope pt₁ pt₂ pts₂ :=
   match pts₂ with
   | [] =>
-      {| beg_pt := pt₁; end_pt := pt₂; seg := [] |}
+      {| ini_pt := pt₁; fin_pt := pt₂; oth_pts := [] |}
   | pt₃ :: pts₃ =>
       let ms := minimise_slope pt₁ pt₃ pts₃ in
       match Qcompare (slope_expr pt₁ pt₂) (slope ms) with
       | Eq =>
-          {| beg_pt := pt₁; end_pt := end_pt ms; seg := pt₂ :: seg ms |}
+          {| ini_pt := pt₁; fin_pt := fin_pt ms; oth_pts := pt₂ :: oth_pts ms |}
       | Lt =>
-          {| beg_pt := pt₁; end_pt := pt₂; seg := [] |}
+          {| ini_pt := pt₁; fin_pt := pt₂; oth_pts := [] |}
       | Gt =>
           ms
       end
@@ -39,11 +34,11 @@ Definition lower_convex_hull_points pts :=
   | [pt₁] => None
   | pt₁ :: pt₂ :: pts₂ =>
       let ms := minimise_slope pt₁ pt₂ pts₂ in
-      Some {| ini_pt := beg_pt ms; fin_pt := end_pt ms; oth_pts := seg ms |}
+      Some {| ini_pt := ini_pt ms; fin_pt := fin_pt ms; oth_pts := oth_pts ms |}
   end.
 
 Theorem minimised_slope_beg_pt : ∀ pt₁ pt₂ pts,
-  beg_pt (minimise_slope pt₁ pt₂ pts) = pt₁.
+  ini_pt (minimise_slope pt₁ pt₂ pts) = pt₁.
 Proof.
 intros pt₁ pt₂ pts.
 revert pt₁ pt₂.
@@ -57,7 +52,7 @@ Qed.
 
 Theorem slope_slope_expr : ∀ ms pt₁ pt₂ pts,
   minimise_slope pt₁ pt₂ pts = ms
-  → slope ms == slope_expr pt₁ (end_pt ms).
+  → slope ms == slope_expr pt₁ (fin_pt ms).
 Proof.
 intros ms pt₁ pt₂ pts Hms.
 unfold slope.

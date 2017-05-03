@@ -31,12 +31,12 @@ destruct Hαh as [Hαh| Hαh].
   unfold β, γ; simpl.
   field.
   apply Qgt_0_not_0, Qlt_minus.
-  remember (beg_pt ms) as pt₄.
+  remember (ini_pt ms) as pt₄.
   remember Heqpt₄ as H; clear HeqH.
   rewrite Hms in Heqpt₄.
   rewrite minimised_slope_beg_pt in Heqpt₄.
   subst pt₄ pt₁.
-  remember (fst (end_pt ms)) as x.
+  remember (fst (fin_pt ms)) as x.
   remember Heqx as H; clear HeqH.
   rewrite Hαh in Heqx; simpl in Heqx.
   subst x h.
@@ -71,7 +71,7 @@ destruct Hαh as [Hαh| Hαh].
      apply Sorted_inv_2 in Hsort; destruct Hsort as (Hlt, Hsort).
      apply Qgt_0_not_0, Qlt_minus; assumption.
 
-     replace pt₁ with (beg_pt ms₁) .
+     replace pt₁ with (ini_pt ms₁) .
       eapply IHpts; try eassumption.
       eapply Sorted_minus_2nd; [ idtac | eassumption ].
       intros x y z H₁ H₂; eapply Qlt_trans; eassumption.

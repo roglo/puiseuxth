@@ -151,7 +151,7 @@ Qed.
 Theorem minimise_slope_le : ∀ pt₁ pt₂ pts₂ ms,
   Sorted fst_lt [pt₂ … pts₂]
   → minimise_slope pt₁ pt₂ pts₂ = ms
-    → fst pt₂ <= fst (end_pt ms).
+    → fst pt₂ <= fst (fin_pt ms).
 Proof.
 intros pt₁ pt₂ pts₂ ms Hsort Hms.
 revert pt₁ pt₂ ms Hsort Hms.
@@ -191,7 +191,7 @@ Qed.
 Theorem beg_lt_end_pt : ∀ pt₁ pt₂ pts ms,
   Sorted fst_lt [pt₁; pt₂ … pts]
   → minimise_slope pt₁ pt₂ pts = ms
-  → fst (beg_pt ms) < fst (end_pt ms).
+  → fst (ini_pt ms) < fst (fin_pt ms).
 Proof.
 intros pt₁ pt₂ pts ms Hsort Hms.
 revert pt₁ pt₂ ms Hsort Hms.
@@ -240,7 +240,7 @@ Qed.
 
 Theorem minimised_slope : ∀ pt₁ pt₂ pt pts ms,
   minimise_slope pt₁ pt pts = ms
-  → pt₂ = end_pt ms
+  → pt₂ = fin_pt ms
     → slope ms == slope_expr pt₁ pt₂.
 Proof.
 intros pt₁ pt₂ pt pts ms Hms Hkps.
@@ -250,7 +250,7 @@ Qed.
 
 Theorem end_pt_in : ∀ pt₁ pt₂ pts ms,
   minimise_slope pt₁ pt₂ pts = ms
-  → end_pt ms ∈ [pt₂ … pts].
+  → fin_pt ms ∈ [pt₂ … pts].
 Proof.
 intros pt₁ pt₂ pts ms Hms.
 revert pt₁ pt₂ ms Hms.
@@ -264,7 +264,7 @@ induction pts as [| pt₃]; intros.
  symmetry in Hms₁.
  remember (slope_expr pt₁ pt₂ ?= slope ms₁) as c.
  symmetry in Heqc.
- remember (end_pt ms) as pt.
+ remember (fin_pt ms) as pt.
  destruct c; subst ms; simpl in Heqpt; subst pt.
   right; eapply IHpts; eassumption.
 

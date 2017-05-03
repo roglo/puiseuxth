@@ -170,7 +170,7 @@ destruct cl as [| c₁].
 Qed.
 
 Theorem in_seg_in_pts : ∀ pt pt₁ pt₂ pts,
-  pt ∈ seg (minimise_slope pt₁ pt₂ pts)
+  pt ∈ oth_pts (minimise_slope pt₁ pt₂ pts)
   → pt ∈ [pt₂ … pts].
 Proof.
 intros pt pt₁ pt₂ pts Hpt.
@@ -213,6 +213,7 @@ destruct pts as [| pt₂]; [ discriminate Hnp | idtac ].
 injection Hnp; clear Hnp; intros Hnp; subst hs.
 rewrite minimised_slope_beg_pt.
 split; [ left; reflexivity | idtac ].
+remember List.In as f; simpl; subst f.
 right; eapply end_pt_in; reflexivity.
 Qed.
 
@@ -254,7 +255,7 @@ Qed.
 
 Theorem pt₁_bef_seg : ∀ pt₁ pt₂ pts pth,
   Sorted fst_lt [pt₁; pt₂ … pts]
-  → pth ∈ seg (minimise_slope pt₁ pt₂ pts)
+  → pth ∈ oth_pts (minimise_slope pt₁ pt₂ pts)
     → fst pt₁ < fst pth.
 Proof.
 intros pt₁ pt₂ pts pth Hsort Hh.
@@ -329,8 +330,8 @@ Qed.
 Theorem seg_bef_end_pt : ∀ pt₁ pt₂ pts ms₁ hq αh kq αk,
   Sorted fst_lt [pt₁; pt₂ … pts]
   → minimise_slope pt₁ pt₂ pts = ms₁
-    → (hq, αh) ∈ seg ms₁
-      → (kq, αk) = end_pt ms₁
+    → (hq, αh) ∈ oth_pts ms₁
+      → (kq, αk) = fin_pt ms₁
         → hq < kq.
 Proof.
 fix IHpts 3.
@@ -1490,7 +1491,7 @@ Open Scope nat_scope.
 Theorem minimise_slope_lt_seg : ∀ pt₁ pt₂ pt₃ pts ms₂,
   Sorted fst_lt [pt₁; pt₂; pt₃ … pts]
   → minimise_slope pt₁ pt₃ pts = ms₂
-    → HdRel fst_lt pt₂ (seg ms₂).
+    → HdRel fst_lt pt₂ (oth_pts ms₂).
 Proof.
 intros pt₁ pt₂ pt₃ pts ms₂ Hsort Hms₂.
 revert pt₁ pt₂ pt₃ ms₂ Hsort Hms₂.
@@ -1521,7 +1522,7 @@ Qed.
 Theorem minimise_slope_seg_sorted : ∀ pt₁ pt₂ pts ms₁,
   Sorted fst_lt [pt₁; pt₂ … pts]
   → minimise_slope pt₁ pt₂ pts = ms₁
-    → Sorted fst_lt (seg ms₁).
+    → Sorted fst_lt (oth_pts ms₁).
 Proof.
 intros pt₁ pt₂ pts ms₁ Hsort Hms₁.
 revert pt₁ pt₂ ms₁ Hsort Hms₁.
