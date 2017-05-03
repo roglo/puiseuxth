@@ -254,12 +254,3 @@ intros (x₁, y₁) (x₂, y₂) (x₃, y₃) Hlt H.
 rewrite Qlt_alt in H |- *; rewrite <- H.
 symmetry; apply slope_cmp₃; assumption.
 Qed.
-Theorem slope_lt_1323_1223 : ∀ pt₁ pt₂ pt₃,
-  fst pt₁ < fst pt₂ < fst pt₃
-  → slope_expr pt₁ pt₃ < slope_expr pt₂ pt₃
-    → slope_expr pt₁ pt₂ < slope_expr pt₂ pt₃.
-Proof.
-intros (x₁, y₁) (x₂, y₂) (x₃, y₃) Hlt H.
-rewrite Qlt_alt in H |- *; rewrite <- H.
-apply slope_cmp₃; assumption.
-Qed.

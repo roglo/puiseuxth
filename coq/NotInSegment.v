@@ -432,30 +432,6 @@ destruct c.
   intros x y z H₁ H₂; eapply Qlt_trans; eassumption.
 Qed.
 
-Theorem sl_lt_bef_j_in_ch : ∀ pts h αh i αi j αj k αk ptk seg ms,
-  Sorted fst_lt [(h, αh); (i, αi) … pts]
-  → h < j < k
-    → minimise_slope (h, αh) (i, αi) pts = ms
-      → end_pt ms = (j, αj)
-        → lower_convex_hull_points [end_pt ms … rem_pts ms] =
-             Some(mkns ptk (k, αk) seg)
-          → slope_expr (h, αh) (k, αk) < slope_expr (j, αj) (k, αk).
-Proof.
-intros pts h αh i αi j αj k αk ptk seg ms.
-intros Hsort (Hhj, Hjk) Hms Hend Hnp.
-simpl in Hnp.
-remember (rem_pts ms) as pts₁ eqn:Hpts₁ .
-symmetry in Hpts₁.
-destruct pts₁ as [| pt₁]; [ discriminate Hnp | idtac ].
-injection Hnp; clear Hnp; intros Hnp Hend₂ H; subst seg ptk.
-eapply consec_slope_lt in Hpts₁; try eassumption; [ idtac | reflexivity ].
-apply slope_lt_1223_1323; [ split; assumption | idtac ].
-unfold slope in Hpts₁.
-rewrite Hend₂, Hend, <- Hms in Hpts₁.
-do 2 rewrite minimised_slope_beg_pt in Hpts₁.
-assumption.
-Qed.
-
 Theorem lt_bef_j : ∀ pts j αj segjk k αk,
   Sorted fst_lt pts
   → lower_convex_hull_points pts = Some (mkns (j, αj) (k, αk) segjk)

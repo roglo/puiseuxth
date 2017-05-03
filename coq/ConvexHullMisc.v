@@ -14,28 +14,6 @@ Notation "x ++ y" := (List.app x y) (right associativity, at level 60).
 
 Definition fst_lt (x y : Q * Q) := (fst x < fst y).
 
-Theorem Sorted_in : ∀ pt₁ pt₂ pts,
-  Sorted fst_lt [pt₁ … pts]
-  → pt₂ ∈ [pt₁ … pts]
-    → fst pt₁ <= fst pt₂.
-Proof.
-intros pt₁ pt₂ pts Hsort H.
-revert pt₁ Hsort H.
-induction pts as [| pt₃]; intros.
- destruct H as [H| ]; [ idtac | contradiction ].
- subst pt₁; apply Qle_refl.
-
- destruct H as [H| H].
-  subst pt₁; apply Qle_refl.
-
-  eapply Qle_trans with (y := fst pt₃).
-   apply Qlt_le_weak.
-   apply Sorted_inv_2 in Hsort; destruct Hsort as (Hlt, _); assumption.
-
-   eapply IHpts; try eassumption.
-   eapply Sorted_inv_1; eassumption.
-Qed.
-
 Theorem Sorted_app {A} : ∀ (f : A → A → Prop) l₁ l₂,
   Sorted f (l₁ ++ l₂) → Sorted f l₁ ∧ Sorted f l₂.
 Proof.
