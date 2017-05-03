@@ -719,7 +719,6 @@ destruct (LPO v) as [Hn| Hn].
        rewrite Hpolsi in H.
        simpl in H.
        rewrite <- Hc, <- Hpol₁, <- Hns₁ in H.
-bbb.
        apply nth_newton_segments_nil in H; auto.
         destruct H as (j, (Hjn, (Hjz, Hjnz))).
         destruct Hjz as [Hjz| Hjz].
@@ -731,6 +730,7 @@ bbb.
          exists (root_head 0 (pred j) pol₁ ns₁).
          apply root_when_fin; assumption.
 
+bbb.
         eapply List_hd_in; try eassumption.
         clear H.
         remember Hns as H; clear HeqH.

@@ -770,7 +770,6 @@ destruct r.
    rewrite <- Hc, <- Hpol₁, <- Hns₁, <- Hc₁ in H₁; assumption.
 Qed.
 
-(*
 Theorem nth_newton_segments_nil : ∀ pol ns n,
   newton_segments pol = Some ns
   → newton_segments (nth_pol n pol ns) = None
@@ -782,7 +781,7 @@ Proof.
 intros pol ns n Hns Hnse.
 revert pol ns Hns Hnse.
 induction n; intros.
- simpl in Hnse; rewrite Hnse in Hns; contradiction.
+ now simpl in Hnse; rewrite Hnse in Hns.
 
  simpl in Hnse.
  remember Hns as H; clear HeqH.
@@ -876,9 +875,9 @@ induction n; intros.
         rewrite <- Hc, <- Hpol₁, <- Hns₁.
         assumption.
 
-   eapply List_hd_in; eassumption .
+   rewrite Hns₁.
+   now destruct (newton_segments pol₁).
 Qed.
-*)
 
 Theorem List_seq_split_first : ∀ len start,
   List.seq start (S len) = [start … List.seq (S start) len].
