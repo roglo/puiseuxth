@@ -149,23 +149,6 @@ Proof.
 intros; apply Qcmp_sym, slope_cmp_norm₁₂₁₃; assumption.
 Qed.
 
-Theorem slope_cmp_norm₁₂₂₃ : ∀ x₁ y₁ x₂ y₂ x₃ y₃,
-  x₁ < x₂ < x₃
-  → (slope_expr (x₁, y₁) (x₂, y₂) ?= slope_expr (x₂, y₂) (x₃, y₃)) =
-    (x₁ * y₃ + x₂ * y₁ + x₃ * y₂ ?= x₁ * y₂ + x₂ * y₃ + x₃ * y₁).
-Proof.
-intros x₁ y₁ x₂ y₂ x₃ y₃ (Hlt₁, Hlt₂).
-assert (x₁ < x₃) as Hlt₃ by (eapply Qlt_trans; eassumption).
-rewrite slope_cmp_flatten; [ idtac | assumption | assumption ].
-rewrite Qplus_comm, Qplus_assoc, Qplus_assoc.
-rewrite <- Qplus_cmp_compat_r.
-setoid_replace (y₃ * x₁ + y₂ * x₃ + y₁ * x₂) with
- (x₁ * y₃ + x₂ * y₁ + x₃ * y₂) by ring.
-setoid_replace (y₃ * x₂ + y₂ * x₁ + y₁ * x₃) with
- (x₁ * y₂ + x₂ * y₃ + x₃ * y₁) by ring.
-reflexivity.
-Qed.
-
 Theorem slope_cmp_norm₁₃₂₃ : ∀ x₁ y₁ x₂ y₂ x₃ y₃,
   x₁ < x₂ < x₃
   → (slope_expr (x₁, y₁) (x₃, y₃) ?= slope_expr (x₂, y₂) (x₃, y₃)) =
@@ -192,27 +175,6 @@ Proof.
 intros; apply Qcmp_sym, slope_cmp_norm₁₃₂₃; assumption.
 Qed.
 
-Theorem slope_cmp₁ : ∀ pt₁ pt₂ pt₃,
-  fst pt₁ < fst pt₂ < fst pt₃
-  → (slope_expr pt₁ pt₂ ?= slope_expr pt₁ pt₃) =
-    (slope_expr pt₁ pt₃ ?= slope_expr pt₂ pt₃).
-Proof.
-intros (x₁, y₁) (x₂, y₂) (x₃, y₃) (Hlt₁, Hlt₂).
-assert (x₁ < x₃) as Hlt₃ by (eapply Qlt_trans; eassumption).
-rewrite slope_cmp_norm₁₂₁₃; [ idtac | split; assumption ].
-rewrite slope_cmp_norm₁₃₂₃; [ idtac | split; assumption ].
-reflexivity.
-Qed.
-Theorem slope_lt_1213_1323 : ∀ pt₁ pt₂ pt₃,
-  fst pt₁ < fst pt₂ < fst pt₃
-  → slope_expr pt₁ pt₂ < slope_expr pt₁ pt₃
-    → slope_expr pt₁ pt₃ < slope_expr pt₂ pt₃.
-Proof.
-intros (x₁, y₁) (x₂, y₂) (x₃, y₃) Hlt H.
-rewrite Qlt_alt in H |- *; rewrite <- H.
-symmetry; apply slope_cmp₁; assumption.
-Qed.
-
 Theorem slope_cmp₂ : ∀ pt₁ pt₂ pt₃,
   fst pt₁ < fst pt₂ < fst pt₃
   → (slope_expr pt₁ pt₃ ?= slope_expr pt₁ pt₂) =
@@ -232,16 +194,4 @@ Proof.
 intros (x₁, y₁) (x₂, y₂) (x₃, y₃) Hlt H.
 rewrite Qlt_alt in H |- *; rewrite <- H.
 symmetry; apply slope_cmp₂; assumption.
-Qed.
-
-Theorem slope_cmp₃ : ∀ pt₁ pt₂ pt₃,
-  fst pt₁ < fst pt₂ < fst pt₃
-  → (slope_expr pt₁ pt₂ ?= slope_expr pt₂ pt₃) =
-    (slope_expr pt₁ pt₃ ?= slope_expr pt₂ pt₃).
-Proof.
-intros (x₁, y₁) (x₂, y₂) (x₃, y₃) (Hlt₁, Hlt₂).
-assert (x₁ < x₃) as Hlt₃ by (eapply Qlt_trans; eassumption).
-rewrite slope_cmp_norm₁₂₂₃; [ idtac | split; assumption ].
-rewrite slope_cmp_norm₁₃₂₃; [ idtac | split; assumption ].
-reflexivity.
 Qed.
