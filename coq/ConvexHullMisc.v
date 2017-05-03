@@ -210,40 +210,6 @@ specialize (minimised_slope_beg_pt pt₁ pt₄ pts) as Hm.
 now rewrite <- H3, Hm.
 Qed.
 
-Theorem minimise_slope_sorted : ∀ pt₁ pt₂ pts ms,
-  Sorted fst_lt [pt₁; pt₂ … pts]
-  → minimise_slope pt₁ pt₂ pts = ms
-    → Sorted fst_lt [end_pt ms … rem_pts ms].
-Proof.
-intros pt₁ pt₂ pts ms Hsort Hms.
-apply Sorted_LocallySorted_iff.
-revert pt₁ pt₂ ms Hsort Hms.
-induction pts as [| pt₃]; intros; [ subst ms; constructor | idtac ].
-simpl in Hms.
-remember (minimise_slope pt₁ pt₃ pts) as ms₁.
-remember (slope_expr pt₁ pt₂ ?= slope ms₁) as c.
-symmetry in Heqms₁.
-apply Sorted_inv_2 in Hsort.
-destruct Hsort as (Hlt₁, Hsort).
-apply Sorted_LocallySorted_iff.
-destruct c; subst ms; simpl; [ idtac | assumption | idtac ].
- apply Sorted_LocallySorted_iff.
- eapply IHpts; [ idtac | eassumption ].
- apply Sorted_inv_2 in Hsort.
- destruct Hsort as (Hlt₂, Hsort).
- apply Sorted_LocallySorted_iff.
- apply Sorted_LocallySorted_iff in Hsort.
- constructor; [ assumption | eapply Qlt_trans; eassumption ].
-
- apply Sorted_LocallySorted_iff.
- eapply IHpts; [ idtac | eassumption ].
- apply Sorted_inv_2 in Hsort.
- destruct Hsort as (Hlt₂, Hsort).
- apply Sorted_LocallySorted_iff.
- apply Sorted_LocallySorted_iff in Hsort.
- constructor; [ assumption | eapply Qlt_trans; eassumption ].
-Qed.
-
 Theorem beg_lt_end_pt : ∀ pt₁ pt₂ pts ms,
   Sorted fst_lt [pt₁; pt₂ … pts]
   → minimise_slope pt₁ pt₂ pts = ms
