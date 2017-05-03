@@ -17,14 +17,6 @@ Notation "x ≤ y < z" := (x <= y ∧ y < z)%nat (at level 70, y at next level).
 Notation "x ∈ l" := (List.In x l) (at level 70).
 Notation "x ∉ l" := (not (List.In x l)) (at level 70).
 
-(*
-(* added from 8.4 to 8.5 *)
-Definition divmod := Nat.divmod.
-Definition divide x y := exists z, (y=z*x)%nat.
-Notation "( x | y )" := (divide x y) (at level 0) : nat_scope.
-(* end added *)
-*)
-
 Ltac negation H := exfalso; apply H; reflexivity.
 Tactic Notation "fast_omega" hyp_list(Hs) := revert Hs; clear; intros; omega.
 
@@ -66,53 +58,6 @@ Definition Qinv_0 : ∀ x, x == 0 → /x == 0 :=
   in
   eq_trans (Z.mul_1_r (Qnum (/ x))) (eq_ind 0%Z H2 eq_refl (Qnum x) H1).
 
-(*
-Theorem Nat_sub_succ_diag : ∀ n, (S n - n = 1)%nat.
-Proof.
-intros n.
-etransitivity; [ apply Nat.sub_succ_l, le_n | apply f_equal, Nat.sub_diag ].
-Qed.
-
-Theorem Nat_le_neq_lt : ∀ x y : nat, x ≤ y → x ≠ y → (x < y)%nat.
-Proof.
-intros x y Hxy Hnxy.
-apply le_lt_eq_dec in Hxy.
-destruct Hxy as [Hle| Heq]; [ assumption | idtac ].
-exfalso; apply Hnxy; assumption.
-Qed.
-
-Theorem Qle_neq_lt : ∀ x y, x <= y → ¬ x == y → x < y.
-Proof.
-intros x y Hxy Hnxy.
-apply Qnot_le_lt.
-intros H; apply Hnxy.
-apply Qle_antisym; assumption.
-Qed.
-
-Theorem Qdiv_lt_compat_r : ∀ x y z, 0 < z → x < y → x / z < y / z.
-Proof.
-intros x y z Hc H.
-apply Qmult_lt_compat_r; [ idtac | assumption ].
-apply Qinv_lt_0_compat; assumption.
-Qed.
-
-Theorem Qinv_0 : ∀ x, x == 0 → /x == 0.
-Proof.
-intros x Hx.
-unfold Qeq in Hx; simpl in Hx.
-unfold Qeq; simpl.
-assert (0 = Qnum x)%Z as H1.
- symmetry; eapply Z.eq_trans; [ symmetry | eauto  ].
- apply Z.mul_1_r.
-
- assert (/ x == 0) as H2; [ idtac | assumption ].
- unfold Qeq; simpl.
- etransitivity; [ apply Z.mul_1_r | idtac ].
- unfold Qinv.
- rewrite <- H1; reflexivity.
-Qed.
-*)
-
 Theorem Qdiv_minus_distr_r : ∀ x y z, (x - y) / z == x / z - y / z.
 Proof.
 intros x y z.
@@ -143,17 +88,6 @@ Definition Qeq_opp_r : ∀ x y, x == y → - x == - y :=
   let H₂ := eq_trans (Z.mul_opp_l (Qnum y) (' Qden x)) H₁ in
   let H₃ := Z.mul_opp_l (Qnum x) (' Qden y) in
   eq_trans H₃ (eq_sym H₂).
-
-(*
-Theorem Qeq_opp_r : ∀ x y, x == y → - x == - y.
-Proof.
-intros x y Hxy.
-unfold Qeq; simpl.
-etransitivity; [ apply Z.mul_opp_l | symmetry ].
-etransitivity; [ apply Z.mul_opp_l | symmetry ].
-apply f_equal; assumption.
-Qed.
-*)
 
 Theorem Qgt_0_not_0 : ∀ x, 0 < x → ¬x == 0.
 Proof.
@@ -813,12 +747,7 @@ pose proof (Nat.gcd_divide_l k l) as Hk'.
 pose proof (Nat.gcd_divide_r k l) as Hl'.
 destruct Hk' as (k', Hk').
 destruct Hl' as (l', Hl').
-(* 8.4
-remember (gcd k l) as g eqn:Hg .
-*)
-(* 8.5 *)
 remember (Nat.gcd k l) as g eqn:Hg .
-(**)
 subst k l.
 apply Nat.gcd_div_gcd in Hg.
  rewrite Nat.div_mul in Hg.

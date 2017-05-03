@@ -148,7 +148,6 @@ Fixpoint nth_series_order α (R : ring α) (K : field R) s b n :=
 Definition is_a_series_in_x_power α {R : ring α} {K : field R} s b k :=
   ∀ n, (k | nth_series_order K s b n).
 
-(**)
 Fixpoint sequence_gcd_upto s n :=
   match n with
   | O => s O
@@ -2452,12 +2451,7 @@ induction n; intros; simpl.
  rewrite series_order_succ2; symmetry.
  rewrite series_left_shift_left_shift.
  rewrite Nat.add_comm.
-(* due to a bug in 8.5
- remember (@series_order α r (@series_left_shift α (m + p) s) (S O)) as q.
- *)
-(* bug in 8.5 fixed, or before 8.5 *)
  remember (series_order (series_left_shift (m + p) s) 1) as q.
-(**)
  symmetry in Heqq.
  destruct q as [q| ].
   symmetry.
@@ -2503,16 +2497,9 @@ destruct n₁ as [n₁| ].
  destruct n₂; [ discriminate H | assumption ].
 Qed.
 
-(*
-Definition cm ps₁ ps₂ := Plcm (ps_polord ps₁) (ps_polord ps₂).
-Definition cm_factor α (ps₁ ps₂ : puiseux_series α) :=
-  let l := Plcm (ps_polord ps₁) (ps_polord ps₂) in
-  Pos.of_nat (Pos.to_nat l / Pos.to_nat (ps_polord ps₁))%nat.
-*)
 Definition cm (ps₁ ps₂ : puiseux_series α) :=
   (ps_polord ps₁ * ps_polord ps₂)%positive.
 Definition cm_factor α (ps₁ ps₂ : puiseux_series α) :=
   ps_polord ps₂.
-(**)
 
 End other_theorems.

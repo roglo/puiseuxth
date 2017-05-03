@@ -607,12 +607,8 @@ induction la as [| a]; intros; simpl.
   progress unfold ps_lap_mul.
   do 2 rewrite lap_mul_cons; simpl.
   constructor; [ simpl; apply ps_monom_mul | idtac ].
-(**)
   symmetry.
   eapply ps_lap_eq_trans; [ apply lap_add_map_ps | ].
-(*
-  rewrite lap_add_map_ps.
-*)
   unfold ps_lap_mul in IHla.
   unfold ps_lap_eq in IHla.
   rewrite IHla.
@@ -620,18 +616,10 @@ induction la as [| a]; intros; simpl.
   simpl.
   rewrite ps_zero_monom_eq.
   apply lap_add_compat; [ idtac | reflexivity ].
-(**)
   eapply ps_lap_eq_trans; [ apply lap_add_map_ps | ].
-(*
-  rewrite lap_add_map_ps.
-*)
-(**)
   apply lap_add_compat.
    eapply ps_lap_eq_trans; [ apply lap_mul_map_ps | reflexivity ].
    eapply ps_lap_eq_trans; [ apply lap_mul_map_ps | reflexivity ].
-(*
-  apply lap_add_compat; rewrite lap_mul_map_ps; reflexivity.
-*)
 Qed.
 
 Theorem lap_inject_comp : ∀ la lb,
