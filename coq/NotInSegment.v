@@ -120,55 +120,6 @@ induction pts as [| pt₄]; intros.
    intros x y z H₁ H₂; eapply Qlt_trans; eassumption.
 Qed.
 
-Theorem consec_slope_lt : ∀ pt₁ pt₂ pt₃ pts pts₃ ms₁ ms₂,
-  Sorted fst_lt [pt₁; pt₂ … pts]
-  → minimise_slope pt₁ pt₂ pts = ms₁
-    → minimise_slope (end_pt ms₁) pt₃ pts₃ = ms₂
-      → rem_pts ms₁ = [pt₃ … pts₃]
-        → slope ms₁ < slope ms₂.
-Proof.
-intros pt₁ pt₂ pt₃ pts pts₃ ms₁ ms₂ Hsort Hms₁ Hms₂ Hrem₁.
-rewrite slope_slope_expr; [ idtac | eassumption ].
-rewrite slope_slope_expr; [ idtac | eassumption ].
-revert pt₁ pt₂ pt₃ pts₃ ms₁ ms₂ Hsort Hms₁ Hms₂ Hrem₁.
-induction pts as [| pt₄]; intros.
- simpl in Hms₁; subst ms₁.
- simpl in Hms₂, Hrem₁ |- *.
- discriminate Hrem₁.
-
- simpl in Hms₁.
- remember (minimise_slope pt₁ pt₄ pts) as ms₃.
- rename Heqms₃ into Hms₃; symmetry in Hms₃.
- remember (slope_expr pt₁ pt₂ ?= slope ms₃) as c.
- symmetry in Heqc.
- rewrite slope_slope_expr in Heqc; [ idtac | eassumption ].
- destruct c.
-  subst ms₁.
-  simpl in Hms₂, Hrem₁ |- *.
-  apply Qeq_alt in Heqc.
-  eapply IHpts; try eassumption.
-  eapply Sorted_minus_2nd; [ idtac | eassumption ].
-  intros x y z H₁ H₂; eapply Qlt_trans; eassumption.
-
-  subst ms₁.
-  simpl in Hms₂, Hrem₁ |- *.
-  injection Hrem₁; clear Hrem₁; intros; subst pt₄ pts₃.
-  apply Qlt_alt in Heqc.
-  eapply Qlt_trans; [ eassumption | idtac ].
-  eapply min_slope_lt in Hsort; try eassumption.
-   rewrite slope_slope_expr in Hsort; [ idtac | eassumption ].
-   rewrite slope_slope_expr in Hsort; [ idtac | eassumption ].
-   assumption.
-
-   rewrite slope_slope_expr; [ idtac | eassumption ].
-   assumption.
-
-  subst ms₁.
-  eapply IHpts; try eassumption.
-  eapply Sorted_minus_2nd; [ idtac | eassumption ].
-  intros x y z H₁ H₂; eapply Qlt_trans; eassumption.
-Qed.
-
 Theorem lt_aft_k : ∀ pts j αj k αk seg,
   Sorted fst_lt pts
   → lower_convex_hull_points pts = Some (mkns (j, αj) (k, αk) seg)

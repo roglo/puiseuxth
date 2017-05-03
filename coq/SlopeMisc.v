@@ -245,12 +245,3 @@ rewrite slope_cmp_norm₁₂₂₃; [ idtac | split; assumption ].
 rewrite slope_cmp_norm₁₃₂₃; [ idtac | split; assumption ].
 reflexivity.
 Qed.
-Theorem slope_lt_1223_1323 : ∀ pt₁ pt₂ pt₃,
-  fst pt₁ < fst pt₂ < fst pt₃
-  → slope_expr pt₁ pt₂ < slope_expr pt₂ pt₃
-    → slope_expr pt₁ pt₃ < slope_expr pt₂ pt₃.
-Proof.
-intros (x₁, y₁) (x₂, y₂) (x₃, y₃) Hlt H.
-rewrite Qlt_alt in H |- *; rewrite <- H.
-symmetry; apply slope_cmp₃; assumption.
-Qed.
