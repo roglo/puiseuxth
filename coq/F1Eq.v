@@ -536,7 +536,7 @@ destruct (Qeq_dec (Qnat h) l) as [H| H].
   reflexivity.
 
   exfalso.
-  revert Hnat Hsort Hin H; clear; intros.
+  clear - Hnat Hsort Hin H.
   revert al h Hnat Hsort Hin H.
   induction pl as [| (m, am)]; intros; [ contradiction | simpl ].
   simpl in Hin.
