@@ -1077,67 +1077,53 @@ Theorem nth_char_lap_eq_coeff : ∀ i j li la,
       → (List.nth i (make_char_lap_of_hl la j li) 0 =
          coeff_of_hl la (j + i) li)%K.
 Proof.
-(* à nettoyer *)
 intros i j li la Hjil Hs Hm.
 revert i j Hjil Hm.
-induction li as [| n]; intros; simpl.
- rewrite match_id; reflexivity.
+induction li as [| n]; intros; simpl; [ now rewrite match_id | ].
+destruct Hjil as [H| H].
+ subst n.
+ rewrite Nat.add_comm, Nat.add_sub; simpl.
+ rewrite list_nth_pad_sub, Nat.sub_diag; simpl; [ | easy ].
+ remember (i + j)%nat as n eqn:Hn .
+ destruct (eq_nat_dec n n) as [H| H]; [ reflexivity | idtac ].
+ exfalso; apply H; reflexivity.
 
- destruct Hjil as [H| H].
-  subst n.
-  rewrite Nat.add_comm, Nat.add_sub; simpl.
-  rewrite list_nth_pad_sub, Nat.sub_diag; simpl.
-   remember (i + j)%nat as n eqn:Hn .
-   destruct (eq_nat_dec n n) as [H| H]; [ reflexivity | idtac ].
-   exfalso; apply H; reflexivity.
+ destruct (eq_nat_dec (j + i) n) as [H₁| H₁].
+  rewrite list_nth_pad_sub.
+   rewrite <- H₁.
+   rewrite Nat.add_comm, Nat.add_sub; simpl.
+   rewrite Nat.sub_diag; reflexivity.
 
-   reflexivity.
+   rewrite <- H₁, Nat.add_sub_swap; auto.
+   rewrite Nat.sub_diag; reflexivity.
 
-  destruct (eq_nat_dec (j + i) n) as [H₁| H₁].
-   rewrite list_nth_pad_sub.
-    rewrite <- H₁.
-    rewrite Nat.add_comm, Nat.add_sub; simpl.
-    rewrite Nat.sub_diag; reflexivity.
+  assert (n ≤ j + i)%nat as Hnij.
+   apply Nat.lt_le_incl.
+   apply Sorted_StronglySorted in Hs.
+    specialize (StronglySorted_inv Hs) as (_, Hss).
+    rewrite List.Forall_forall in Hss.
+    now apply Hss.
 
-    rewrite <- H₁, Nat.add_sub_swap; auto.
-    rewrite Nat.sub_diag; reflexivity.
+    now intros x y z Hxy Hyz; transitivity y.
 
    rewrite list_nth_pad_sub.
     remember (i - (n - j))%nat as p eqn:Hp .
     symmetry in Hp.
     destruct p; simpl.
-     assert (n ≤ i + j)%nat as Hnij.
-      revert Hs H; clear; intros.
-      rewrite Nat.add_comm.
-      remember (j + i)%nat as m; clear i j Heqm.
-      revert n m Hs H.
-      induction li as [| i]; intros; [ contradiction | simpl ].
-      apply Sorted_inv in Hs.
-      destruct Hs as (Hs, Hrel).
-      destruct H as [H| H].
-       subst m.
-       apply HdRel_inv in Hrel.
-       apply Nat.lt_le_incl; assumption.
-
-       apply HdRel_inv in Hrel.
-       apply Nat.le_trans with (m := i).
-        apply Nat.lt_le_incl; assumption.
-
-        apply IHli; assumption.
-
-      assert (j ≤ n); [ apply Hm; left; reflexivity | exfalso ].
-      apply H₁; symmetry.
-      rewrite Nat.add_comm.
-      apply Nat.le_antisymm; auto.
-      apply Nat.sub_0_le.
-      rewrite <- Nat_sub_sub_distr; auto.
+     rewrite Nat.add_comm in Hnij.
+     assert (Hjn : j ≤ n); [ apply Hm; left; reflexivity | exfalso ].
+     apply H₁; symmetry.
+     rewrite Nat.add_comm.
+     apply Nat.le_antisymm; auto.
+     apply Nat.sub_0_le.
+     rewrite <- Nat_sub_sub_distr; auto.
 
      apply Nat.add_sub_eq_nz in Hp; [ idtac | intros H₂; discriminate H₂ ].
-     assert (j ≤ n) by (apply Hm; left; reflexivity).
+     assert (Hjn: j ≤ n) by (apply Hm; left; reflexivity).
      rewrite <- Nat.add_sub_swap in Hp; auto.
      apply Nat.add_cancel_r with (p := j) in Hp.
-     eapply Nat.add_le_mono in H0; [ idtac | apply Nat.le_0_l ].
-     rewrite Nat.add_0_l, Nat.add_comm in H0.
+     eapply Nat.add_le_mono in Hjn; [ idtac | apply Nat.le_0_l ].
+     rewrite Nat.add_0_l, Nat.add_comm in Hjn.
      rewrite Nat.sub_add in Hp; eauto .
      rewrite Nat.add_succ_r, <- Nat.add_succ_l in Hp.
      rewrite <- Nat.add_comm, <- Hp.
@@ -1147,45 +1133,15 @@ induction li as [| n]; intros; simpl.
       rewrite Hp, Nat.add_comm; assumption.
 
       intros q Hq.
-      apply Sorted_inv in Hs.
-      destruct Hs as (Hs, Hrel).
-      revert Hs Hrel Hq; clear; intros.
-      revert n q Hrel Hq.
-      induction li as [| i]; intros; [ contradiction | simpl ].
-      destruct Hq as [Hq| Hq].
-       subst i.
-       apply HdRel_inv in Hrel.
-       assumption.
+      apply Sorted_StronglySorted in Hs.
+       specialize (StronglySorted_inv Hs) as (_, Hss).
+       rewrite List.Forall_forall in Hss.
+       now apply Hss.
 
-       apply Sorted_inv in Hs.
-       destruct Hs as (Hs, Hrel2).
-       eapply le_trans with (m := i).
-        apply HdRel_inv in Hrel; assumption.
+       now intros x y z Hxy Hyz; transitivity y.
 
-        apply Nat.lt_le_incl.
-        apply IHli; assumption.
-
-    assert (n ≤ i + j) as HH.
-     revert Hs H; clear; intros.
-     rewrite Nat.add_comm.
-     remember (j + i)%nat as m; clear i j Heqm.
-     revert n m Hs H.
-     induction li as [| i]; intros; [ contradiction | simpl ].
-     apply Sorted_inv in Hs.
-     destruct Hs as (Hs, Hrel).
-     destruct H as [H| H].
-      subst m.
-      apply HdRel_inv in Hrel.
-      apply Nat.lt_le_incl; assumption.
-
-      apply HdRel_inv in Hrel.
-      apply Nat.le_trans with (m := i).
-       apply Nat.lt_le_incl; assumption.
-
-       apply IHli; assumption.
-
-     apply Nat.sub_le_mono_r with (p := j) in HH.
-     rewrite Nat.add_sub in HH; assumption.
+    apply Nat.sub_le_mono_r with (p := j) in Hnij.
+    rewrite Nat.add_comm, Nat.add_sub in Hnij; assumption.
 Qed.
 
 Theorem nth_char_lap_eq_0 : ∀ i j li la,
