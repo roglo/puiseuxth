@@ -521,7 +521,6 @@ Theorem ord_is_ord_of_pt : ∀ pl h,
     → h ∈ List.map (λ x, nat_num (fst x)) pl
       → (Qnat h, ord_of_pt h pl) ∈ pl.
 Proof.
-(* à nettoyer sérieusement *)
 intros pl h Hsort Hnat Hin.
 induction pl as [| (l, al)]; [ contradiction | simpl ].
 destruct (Qeq_dec (Qnat h) l) as [H| H].
@@ -547,21 +546,15 @@ destruct (Qeq_dec (Qnat h) l) as [H| H].
    progress unfold fst_lt in Hrel; simpl in Hrel.
    rewrite <- H in Hrel.
    progress unfold Qnat, nat_num in Hrel.
+   assert ((m, am) ∈ [(l, al); (m, am) … pl]) as Hpt
+    by (right; left; reflexivity).
+   apply Hnat in Hpt.
+   destruct Hpt as (p, (ap, Hp)).
+   injection Hp; clear Hp; intros; subst m am.
    rewrite Z2Nat.id in Hrel; simpl in Hrel.
-    assert ((m, am) ∈ [(l, al); (m, am) … pl]) as Hpt
-     by (right; left; reflexivity).
-    apply Hnat in Hpt.
-    destruct Hpt as (p, (ap, Hp)).
-    injection Hp; clear Hp; intros; subst m am.
     simpl in Hrel.
     revert Hrel; apply Z.lt_irrefl.
 
-    assert ((m, am) ∈ [(l, al); (m, am) … pl]) as Hpt
-     by (right; left; reflexivity).
-    apply Hnat in Hpt.
-    destruct Hpt as (p, (ap, Hp)).
-    injection Hp; clear Hp; intros; subst m am.
-    simpl.
     apply Nat2Z.is_nonneg.
 
    apply Sorted_minus_2nd in Hsort.
