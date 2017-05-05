@@ -763,9 +763,9 @@ destruct (ps_zerop _ (ps_poly_nth 0 pol)) as [Hz| Hnz].
  symmetry in Hnsl.
  destruct nsl as [ns| ]; [ | exfalso; apply Hnsnz; reflexivity ].
  clear Hnsnz.
- generalize Hdeg; intros H.
  remember (ac_root (Φq pol ns)) as c eqn:Hc .
  remember (next_pol pol (β ns) (γ ns) c) as pol₁ eqn:Hpol₁ .
+ generalize Hdeg; intros H.
  eapply f₁_has_root with (pol₁ := pol₁) in H; eauto .
   destruct H as (s₁, Hs₁).
   exists (ps_monom c (γ ns) + ps_monom 1%K (γ ns) * s₁)%ps.
