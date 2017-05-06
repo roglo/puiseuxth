@@ -650,23 +650,22 @@ destruct (LPO v) as [Hn| Hn].
   apply lowest_i_such_that_ri_lt_r₀ in Hn; [  | subst; auto ].
   destruct Hn as (i, (Hin, (Hir, Hri))).
   destruct Hir as [Hir| Hir].
-   subst i.
-   exfalso; revert Hri; rewrite <- Hr; subst.
-   apply Nat.lt_irrefl.
+   rewrite Hir, <- Hr, Hc in Hri.
+   now apply Nat.lt_irrefl in Hri.
 
    destruct i.
-    exfalso; revert Hri; rewrite <- Hr; subst.
-    apply Nat.lt_irrefl.
+    rewrite <- Hr, Hc in Hri.
+    now apply Nat.lt_irrefl in Hri.
 
     remember (nth_pol i pol ns) as poli eqn:Hpoli .
     remember (nth_ns i pol ns) as nsi eqn:Hnsi .
     remember (nth_pol (S i) pol ns) as polsi eqn:Hpolsi .
     remember (nth_ns (S i) pol ns) as nssi eqn:Hnssi .
-    remember (newton_segments polsi) as nsl eqn:Hnsl .
+    remember (newton_segments polsi) as nso eqn:Hnso .
     remember (nth_c (S i) pol ns) as cssi eqn:Hcssi.
     remember (next_pol polsi (β nssi) (γ nssi) cssi) as polssi eqn:Hpolssi.
-    symmetry in Hnsl.
-    destruct nsl as [ns₂| ].
+    symmetry in Hnso.
+    destruct nso as [ns₂| ].
      remember (zerop_1st_n_const_coeff i pol₁ ns₁) as z eqn:Hz .
      symmetry in Hz.
      destruct z.
@@ -697,7 +696,7 @@ destruct (LPO v) as [Hn| Hn].
 
        subst nssi.
        erewrite nth_ns_succ; [ | eassumption ].
-       now rewrite Hnsl.
+       now rewrite Hnso.
 
        rewrite zerop_1st_n_const_coeff_false_iff in Hz.
        pose proof (Hz i (Nat.le_refl i)) as H.
@@ -717,7 +716,7 @@ destruct (LPO v) as [Hn| Hn].
       apply a₀_0_root_0 in H₁.
       exists 0%ps; assumption.
 
-      generalize Hnsl; intros H.
+      generalize Hnso; intros H.
       rewrite Hpolsi in H.
       simpl in H.
       rewrite <- Hc, <- Hpol₁, <- Hns₁ in H.
