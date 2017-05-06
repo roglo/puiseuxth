@@ -609,7 +609,7 @@ Theorem f₁_has_root : ∀ pol ns pol₁,
   newton_segments pol = Some ns
   → (ps_poly_nth 0 pol ≠ 0)%ps
   → pol₁ = next_pol pol (β ns) (γ ns) (ac_root (Φq pol ns))
-  → ∃ s, (ps_pol_apply pol₁ s = 0)%ps.
+  → ∃ s₁, (ps_pol_apply pol₁ s₁ = 0)%ps.
 Proof.
 intros pol ns pol₁ Hns Hnz₀ Hpol₁.
 remember (ac_root (Φq pol ns)) as c eqn:Hc.
