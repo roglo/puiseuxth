@@ -622,9 +622,8 @@ destruct (LPO v) as [Hn| Hn].
  subst c.
  eapply f₁_has_root_when_r_constant; try eassumption.
  intros i.
- pose proof Hn i as H; unfold v in H.
- destruct (multiplicity_decreases pol ns i); [ | constructor ].
- discriminate H.
+ specialize (Hn i); unfold v in Hn.
+ now destruct (multiplicity_decreases pol ns i).
 
  destruct Hn as (n, Hn).
  unfold v in Hn; clear v.
