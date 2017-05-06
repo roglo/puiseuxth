@@ -606,19 +606,15 @@ now exists ns.
 Qed.
 
 Theorem f₁_has_root : ∀ pol ns pol₁,
-  degree (ps_zerop K) pol ≥ 1
-  → ns = option_get phony_ns (newton_segments pol)
+  newton_segments pol = Some ns
   → (ps_poly_nth 0 pol ≠ 0)%ps
   → pol₁ = next_pol pol (β ns) (γ ns) (ac_root (Φq pol ns))
   → ∃ s, (ps_pol_apply pol₁ s = 0)%ps.
 Proof.
-intros pol ns pol₁ Hdeg Hns Hnz₀ Hpol₁.
+intros pol ns pol₁ Hns Hnz₀ Hpol₁.
 remember (ac_root (Φq pol ns)) as c eqn:Hc.
 remember (root_multiplicity acf c (Φq pol ns)) as r eqn:Hr .
 symmetry in Hr.
-specialize (degree_pos_imp_has_ns _ Hdeg Hnz₀) as (ns₁, Hns₁).
-rewrite Hns₁ in Hns; simpl in Hns; subst ns₁; rename Hns₁ into Hns.
-clear Hdeg.
 revert pol ns c pol₁ Hns Hnz₀ Hc Hpol₁ Hr.
 induction r as (r, IHr) using lt_wf_rec; intros.
 set (v := fun i => if multiplicity_decreases pol ns i then S O else O).
@@ -764,17 +760,14 @@ destruct (ps_zerop _ (ps_poly_nth 0 pol)) as [Hz| Hnz].
  rewrite rng_mul_0_r, rng_add_0_l; assumption.
 
  specialize (degree_pos_imp_has_ns pol Hdeg Hnz) as (ns, Hns).
- assert (Hnsi : ns = option_get phony_ns (newton_segments pol)).
-  now rewrite Hns.
-
-  remember (ac_root (Φq pol ns)) as c eqn:Hc .
-  remember (next_pol pol (β ns) (γ ns) c) as pol₁ eqn:Hpol₁ .
-  rewrite Hc in Hpol₁.
-  specialize (f₁_has_root Hdeg Hnsi Hnz Hpol₁) as (s₁, Hs₁).
-  exists (ps_monom c (γ ns) + ps_monom 1%K (γ ns) * s₁)%ps.
-  eapply f₁_root_f_root; eauto .
-  rewrite <- Hc.
-  reflexivity.
+ remember (ac_root (Φq pol ns)) as c eqn:Hc .
+ remember (next_pol pol (β ns) (γ ns) c) as pol₁ eqn:Hpol₁ .
+ rewrite Hc in Hpol₁.
+ specialize (f₁_has_root Hns Hnz Hpol₁) as (s₁, Hs₁).
+ exists (ps_monom c (γ ns) + ps_monom 1%K (γ ns) * s₁)%ps.
+ eapply f₁_root_f_root; eauto .
+ rewrite <- Hc.
+ reflexivity.
 Qed.
 
 End theorems.
