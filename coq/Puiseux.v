@@ -540,7 +540,7 @@ destruct (fld_zerop 1%K) as [H₀| H₀].
   apply order_inf; assumption.
 Qed.
 
-Theorem degree_pos_imp_has_ns : ∀ pol,
+Theorem degree_pos_imp_ns_not_empty : ∀ pol,
   degree (ps_zerop K) pol ≥ 1
   → (ps_poly_nth 0 pol ≠ 0)%ps
   → newton_segments pol ≠ None.
@@ -592,6 +592,19 @@ destruct d.
   eapply IHla; eauto .
 Qed.
 
+Theorem degree_pos_imp_has_ns : ∀ pol,
+  degree (ps_zerop K) pol ≥ 1
+  → (ps_poly_nth 0 pol ≠ 0)%ps
+  → ∃ ns, newton_segments pol = Some ns.
+Proof.
+intros * Hdeg Hnz.
+specialize (degree_pos_imp_ns_not_empty pol Hdeg Hnz) as H.
+remember (newton_segments pol) as nsl eqn:Hnsl .
+symmetry in Hnsl.
+destruct nsl as [ns| ]; [ | now exfalso; apply H ].
+now exists ns.
+Qed.
+
 Theorem f₁_has_root : ∀ pol ns pol₁,
   degree (ps_zerop K) pol ≥ 1
   → ns = option_get phony_ns (newton_segments pol)
@@ -605,13 +618,10 @@ remember (root_multiplicity acf c (Φq pol ns)) as r eqn:Hr .
 symmetry in Hr.
 remember Hdeg as H; clear HeqH.
 eapply degree_pos_imp_has_ns in H; [ idtac | assumption ].
-rename H into Hnsnz.
-remember (newton_segments pol) as nsl eqn:Hnsl .
-symmetry in Hnsl.
-destruct nsl as [ns₁| ]; [ idtac | exfalso; apply Hnsnz; reflexivity ].
-clear Hnsnz; simpl in Hns; subst ns₁.
-assert (newton_segments pol = Some ns) as Hns by easy.
-clear Hnsl Hdeg.
+destruct H as (ns₁, Hns₁).
+rewrite Hns₁ in Hns; simpl in Hns; subst ns₁.
+rename Hns₁ into Hns.
+clear Hdeg.
 revert pol ns c pol₁ Hns Hnz₀ Hc Hpol₁ Hr.
 induction r as (r, IHr) using lt_wf_rec; intros.
 set (v := fun i => if multiplicity_decreases pol ns i then S O else O).
@@ -756,13 +766,7 @@ destruct (ps_zerop _ (ps_poly_nth 0 pol)) as [Hz| Hnz].
  destruct la as [| a]; [ reflexivity | simpl in Hz; simpl ].
  rewrite rng_mul_0_r, rng_add_0_l; assumption.
 
- remember Hdeg as H; clear HeqH.
- eapply degree_pos_imp_has_ns in H; [ idtac | assumption ].
- rename H into Hnsnz.
- remember (newton_segments pol) as nsl eqn:Hnsl .
- symmetry in Hnsl.
- destruct nsl as [ns| ]; [ | exfalso; apply Hnsnz; reflexivity ].
- clear Hnsnz.
+ specialize (degree_pos_imp_has_ns pol Hdeg Hnz) as (ns, Hns).
  remember (ac_root (Φq pol ns)) as c eqn:Hc .
  remember (next_pol pol (β ns) (γ ns) c) as pol₁ eqn:Hpol₁ .
  generalize Hdeg; intros H.
@@ -772,7 +776,7 @@ destruct (ps_zerop _ (ps_poly_nth 0 pol)) as [Hz| Hnz].
   eapply f₁_root_f_root; eauto .
   reflexivity.
 
-  now subst c; rewrite Hnsl; simpl.
+  now subst c; rewrite Hns; simpl.
 Qed.
 
 End theorems.
