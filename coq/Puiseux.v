@@ -635,19 +635,18 @@ destruct (LPO v) as [Hn| Hn].
  remember (nth_c n pol ns) as cn eqn:Hcn .
  remember (root_multiplicity acf cn (Φq poln nsn)) as rn eqn:Hrn .
  symmetry in Hrn.
- destruct n.
-  exfalso.
-  simpl in Hpoln, Hnsn, Hcn.
-  subst poln nsn cn.
-  rewrite <- Hc in Hrn.
-  rewrite Hrn in Hr; subst rn.
-  destruct (lt_dec r r) as [H| H]; [  | apply Hn, eq_refl ].
-  revert H; apply lt_irrefl.
+ destruct (lt_dec rn r) as [Hrnr| Hrnr]; [ clear Hn | now exfalso ].
+  destruct n.
+   exfalso.
+   simpl in Hpoln, Hnsn, Hcn.
+   subst poln nsn cn.
+   rewrite <- Hc in Hrn.
+   rewrite <- Hrn, Hr in Hrnr.
+   now apply lt_irrefl in Hrnr.
 
-  remember (option_get phony_ns (newton_segments pol₁)) as ns₁ eqn:Hns₁ .
-  erewrite <- nth_r_n in Hrn; try eassumption; subst rn.
-  destruct (lt_dec (nth_r (S n) pol ns) r) as [H| H].
-   clear Hn; rename H into Hn.
+   remember (option_get phony_ns (newton_segments pol₁)) as ns₁ eqn:Hns₁ .
+   erewrite <- nth_r_n in Hrn; try eassumption; subst rn.
+   rename Hrnr into Hn.
    apply lowest_i_such_that_ri_lt_r₀ in Hn; [  | subst; auto ].
    destruct Hn as (i, (Hin, (Hir, Hri))).
    destruct Hir as [Hir| Hir].
@@ -741,8 +740,6 @@ destruct (LPO v) as [Hn| Hn].
         destruct H; [ contradiction | ].
         rewrite Hns₁.
         now destruct (newton_segments pol₁).
-
-   exfalso; apply Hn, eq_refl.
 Qed.
 
 Theorem puiseux_series_algeb_closed : ∀ (pol : polynomial (puiseux_series α)),
