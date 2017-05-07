@@ -496,7 +496,7 @@ exists (f₁_root_when_r_constant pol ns).
 unfold f₁_root_when_r_constant.
 rewrite <- Hpol₁.
 remember (option_get phony_ns (newton_segments pol₁)) as ns₁ eqn:Hns₁.
-remember (ac_root (Φq pol ns)) as c eqn:Hc in Hpol₁ |-*.
+remember (ac_root (Φq pol ns)) as c eqn:Hc in Hpol₁.
 remember (ps_pol_com_polord pol) as m eqn:Hm.
 remember (q_of_m m (γ ns)) as q₀ eqn:Hq₀ .
 remember (root_tail (m * q₀) 0 pol₁ ns₁) as s eqn:Hs .
