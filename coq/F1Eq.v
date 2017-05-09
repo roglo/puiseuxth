@@ -1150,7 +1150,6 @@ Theorem nth_char_lap_eq_0 : ∀ i j li la,
     → (∀ m : nat, m ∈ li → j ≤ m)
       → List.nth i (make_char_lap_of_hl la j [j … li]) 0%K = 0%K.
 Proof.
-(* à nettoyer *)
 intros i j li la Hjil Hs Hm; simpl.
 rewrite Nat.sub_diag; simpl.
 destruct i.

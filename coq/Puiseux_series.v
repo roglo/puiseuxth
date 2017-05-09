@@ -242,7 +242,6 @@ Theorem non_increasing_natural_sequence_has_limit : ∀ s,
   (∀ n, s (S n) ≤ s n) →
   ∃ m l, (∀ i, m ≤ i → s i = l).
 Proof.
-(* à nettoyer, peut-être *)
 intros s Hs.
 remember (s O) as i eqn:Hi ; symmetry in Hi.
 apply Nat.eq_le_incl in Hi.

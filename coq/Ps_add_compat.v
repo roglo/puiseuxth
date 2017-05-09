@@ -133,7 +133,6 @@ Theorem normalise_ps_adjust : ∀ ps₁ ps₂ n,
   normalise_ps (adjusted_ps_add (adjust_ps n 1 ps₁) (adjust_ps n 1 ps₂))
   ≐ normalise_ps (adjusted_ps_add ps₁ ps₂).
 Proof.
-(* gros nettoyage à faire : factorisation, focus, etc. *)
 intros ps₁ ps₂ n.
 rewrite <- ps_adjust_adjusted.
 unfold normalise_ps.

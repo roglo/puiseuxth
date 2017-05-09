@@ -484,15 +484,14 @@ Definition f₁_root_when_r_constant pol ns :=
     | ∞%Qbar => s
     end.
 
-Theorem f₁_has_root_when_r_constant : ∀ pol ns pol₁,
+Theorem root_for_f₁_when_r_constant : ∀ pol ns pol₁,
   newton_segments pol = Some ns
   → (ps_poly_nth 0 pol ≠ 0)%ps
   → pol₁ = next_pol pol (β ns) (γ ns) (ac_root (Φq pol ns))
   → (∀ i, if multiplicity_decreases pol ns i then False else True)
-  → ∃ s, (ps_pol_apply pol₁ s = 0)%ps.
+  → (ps_pol_apply pol₁ (f₁_root_when_r_constant pol ns) = 0)%ps.
 Proof.
 intros pol ns pol₁ Hns Hnz₀ Hpol₁ Hn.
-exists (f₁_root_when_r_constant pol ns).
 unfold f₁_root_when_r_constant.
 rewrite <- Hpol₁.
 remember (option_get phony_ns (newton_segments pol₁)) as ns₁ eqn:Hns₁.
@@ -620,7 +619,8 @@ induction r as (r, IHr) using lt_wf_rec; intros.
 set (v := fun i => if multiplicity_decreases pol ns i then S O else O).
 destruct (LPO v) as [Hn| Hn].
  subst c.
- eapply f₁_has_root_when_r_constant; try eassumption.
+ exists (f₁_root_when_r_constant pol ns).
+ eapply root_for_f₁_when_r_constant; try eassumption.
  intros i.
  specialize (Hn i); unfold v in Hn.
  now destruct (multiplicity_decreases pol ns i).
