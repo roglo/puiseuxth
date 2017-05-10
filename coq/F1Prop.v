@@ -452,6 +452,13 @@ apply in_points_of_ps_lap_gen_lt in Hpt.
 assumption.
 Qed.
 
+(* [Walker, p. 101] «
+      Since O(āh-ah.x^αh) > αh, and O(āl.x^lγ₁) > β₁, we obtain
+         f₁(x,y₁) = b₁.y₁^r + b₂.y₁^(r+1) + ... + g(x,y₁) »
+
+   We prove here that
+         f₁(x,y₁) = y₁^r.(c₁+y)^j.Ψ(c₁+y) + g(x,y₁) »
+*)
 Theorem f₁_eq_term_with_Ψ_plus_g : ∀ pol ns j αj c₁ r f₁ Ψ,
   newton_segments pol = Some ns
   → ini_pt ns = (Qnat j, αj)
