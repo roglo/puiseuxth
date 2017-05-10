@@ -11,6 +11,7 @@ Require Import Field.
 Require Import Fpolynomial.
 Require Import Puiseux_series.
 Require Import Ps_add.
+Require Import Ps_mul.
 Require Import Ps_div.
 
 Set Implicit Arguments.
@@ -183,6 +184,15 @@ induction la as [| a]; intros; simpl.
   rewrite match_id, ps_add_0_r; reflexivity.
 
   destruct n; [ reflexivity | apply IHla ].
+Qed.
+
+Theorem lap_add_map_ps : ∀ la lb,
+  (List.map (λ c, ps_monom c 0) (la + lb)%lap =
+   List.map (λ c, ps_monom c 0) la + List.map (λ c, ps_monom c 0) lb)%pslap.
+Proof.
+intros la lb.
+apply lap_add_map; intros a b.
+rewrite ps_monom_add_l; reflexivity.
 Qed.
 
 End theorems.

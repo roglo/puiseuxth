@@ -1594,3 +1594,15 @@ Definition apply_lap α {R : ring α} la x :=
 
 Definition apply_poly α {R : ring α} pol :=
   apply_lap (al pol).
+
+Theorem lap_add_map : ∀ α β (Rα : ring α) (Rβ : ring β) (f : α → β) la lb,
+  (∀ a b, (f (a + b) = f a + f b)%K)
+  → (List.map f (la + lb) = List.map f la + List.map f lb)%lap.
+Proof.
+clear.
+intros α β Rα Rβ f la lb Hab.
+revert lb.
+induction la as [| a]; intros; [ reflexivity | simpl ].
+destruct lb as [| b]; [ reflexivity | simpl ].
+rewrite Hab, IHla; reflexivity.
+Qed.

@@ -1478,7 +1478,6 @@ assert (∀ iq αi, (iq, αi) ∈ pl → ∃ i, iq = Qnat i) as Hnat.
     rewrite Hab; reflexivity.
 Qed.
 
-(* to be moved to the right file... *)
 Theorem ps_monom_summation_aux : ∀ f b len,
   (ps_monom (summation_aux R b len f) 0 =
    summation_aux (ps_ring K) b len (λ i, ps_monom (f i) 0))%ps.
@@ -1489,27 +1488,6 @@ induction len; intros; [ apply ps_zero_monom_eq | simpl ].
 rewrite ps_monom_add_l.
 apply ps_add_compat_l.
 apply IHlen.
-Qed.
-
-Theorem lap_add_map : ∀ α β (Rα : ring α) (Rβ : ring β) (f : α → β) la lb,
-  (∀ a b, (f (a + b) = f a + f b)%K)
-  → (List.map f (la + lb) = List.map f la + List.map f lb)%lap.
-Proof.
-clear.
-intros α β Rα Rβ f la lb Hab.
-revert lb.
-induction la as [| a]; intros; [ reflexivity | simpl ].
-destruct lb as [| b]; [ reflexivity | simpl ].
-rewrite Hab, IHla; reflexivity.
-Qed.
-
-Theorem lap_add_map_ps : ∀ la lb,
-  (List.map (λ c, ps_monom c 0) (la + lb)%lap =
-   List.map (λ c, ps_monom c 0) la + List.map (λ c, ps_monom c 0) lb)%pslap.
-Proof.
-intros la lb.
-apply lap_add_map; intros a b.
-rewrite ps_monom_add_l; reflexivity.
 Qed.
 
 Theorem lap_mul_map_ps : ∀ la lb,
