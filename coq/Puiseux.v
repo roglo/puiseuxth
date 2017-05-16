@@ -279,7 +279,7 @@ eapply r_n_next_ns in H; try eassumption; try apply eq_refl.
  eapply hd_newton_segments; try eassumption.
  apply Nat.lt_0_succ.
 
- rewrite <- nth_r_n with (n := 1%nat) (pol := f) (ns := L).
+ rewrite <- nth_r_n with (n := 1%nat) (f := f) (L := L).
   symmetry.
   apply r_le_eq_incl with (n := 1%nat); try assumption.
    simpl; rewrite <- Hc; assumption.

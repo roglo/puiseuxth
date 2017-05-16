@@ -2865,7 +2865,7 @@ destruct z₁.
               destruct j; [ assumption | simpl ].
               apply le_S_n in Hj.
               rewrite Nat.le_0_r in Hj; subst j; simpl.
-              erewrite <- nth_pol_n with (c := c₁) (pol₁ := f₂);
+              erewrite <- nth_pol_n with (c := c₁) (f₁ := f₂);
                try eassumption; [  | reflexivity ].
               rewrite <- Hfb₁; assumption.
 
@@ -3312,7 +3312,7 @@ eapply all_L_in_newton_segments with (n := S n) in H; eauto .
             rewrite <- Hfn₂.
             remember Hfn₂ as H; clear HeqH.
             erewrite nth_pol_n with (c := c₁) in H; try eassumption.
-            erewrite <- nth_ns_n with (c := c₁) (poln := fn₁);
+            erewrite <- nth_ns_n with (c := c₁) (fn := fn₁);
              try eassumption.
             clear H.
             subst ssi; remember (S i) as si; simpl; subst si.
@@ -3346,8 +3346,7 @@ eapply all_L_in_newton_segments with (n := S n) in H; eauto .
             rewrite <- Hfn₂.
             remember Hfn₂ as H; clear HeqH.
             erewrite nth_pol_n with (c := c₁) in H; try eassumption.
-            erewrite <- nth_ns_n with (c := c₁) (poln := fn₁);
-             try eassumption.
+            erewrite <- nth_ns_n with (c := c₁) (fn := fn₁); try eassumption.
             clear H.
             rewrite <- HLn₂.
             subst ssi; remember (S i) as si; simpl.
@@ -3428,7 +3427,7 @@ eapply all_L_in_newton_segments with (n := S n) in H; eauto .
 
                    clear n0.
                    simpl.
-                   erewrite <- nth_pol_succ2 with (ns := L₂);
+                   erewrite <- nth_pol_succ2 with (L := L₂);
                     try eassumption; try reflexivity.
                    erewrite nth_pol_succ; try eassumption; try reflexivity.
                    erewrite nth_c_n; try eassumption.
@@ -3742,7 +3741,7 @@ eapply first_n_pol_in_K_1_m_any_r with (L := L₁) in H; eauto .
    apply Z.mul_nonneg_nonneg; auto.
    apply Z.lt_le_incl; assumption.
 
-   eapply num_m_den_is_pos with (ns := Ln); try eassumption.
+   eapply num_m_den_is_pos with (L := Ln); try eassumption.
 
   rewrite Pos2Z.inj_mul, Z.mul_assoc.
   replace (' m₁)%Z with (1 * ' m₁)%Z at 1 by reflexivity.
