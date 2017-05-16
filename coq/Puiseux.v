@@ -113,7 +113,7 @@ induction n; intros.
  rewrite Z.mul_shuffle0, Pos_mul_shuffle0.
  rewrite Pos2Z.inj_mul.
  rewrite Z.div_mul_cancel_r; [ | apply Pos2Z_ne_0 | apply Pos2Z_ne_0 ].
- erewrite αj_m_eq_p_r with (ns₁ := L₁); try eassumption; [ | reflexivity ].
+ erewrite αj_m_eq_p_r with (L₁ := L₁); try eassumption; [ | reflexivity ].
  rewrite Z.mul_shuffle0.
  rewrite <- Zposnat2Znat; [ | assumption ].
  rewrite <- Z.mul_assoc, <- Pos2Z.inj_mul.
@@ -156,7 +156,7 @@ induction n; intros.
   rename H into HK₁; move HK₁ before HL₁i.
   eapply IHn with (L := L₁) (f := f₁); try eassumption .
    symmetry in Hr₁; symmetry.
-   eapply q_eq_1_any_r with (pol := f₁); try eassumption; reflexivity.
+   eapply q_eq_1_any_r with (f := f₁); try eassumption; reflexivity.
 
    intros i Hin.
    apply Nat.succ_le_mono in Hin.
@@ -268,7 +268,7 @@ Proof.
 intros f L f₁ L₁ c r.
 intros HL Hc Hr Hf₁ HL₁ Hnz₀ Hrle N polN LN Hz HpolN HLN.
 rewrite zerop_1st_n_const_coeff_false_iff in Hz.
-eapply nth_in_newton_segments_any_r with (ns₁ := L₁); try eassumption;
+eapply nth_in_newton_segments_any_r with (L₁ := L₁); try eassumption;
  [ | apply eq_refl ].
 generalize HL₁; intros H.
 pose proof (Hz O (Nat.le_0_l N)) as H₁.
