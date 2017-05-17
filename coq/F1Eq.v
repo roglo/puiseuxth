@@ -28,14 +28,14 @@ Set Implicit Arguments.
 
 (* *)
 
-(* pol₁(x,y₁) = x^(-β₁).pol(x,x^γ₁.(c₁ + y₁)) *)
-Definition next_lap α {R : ring α} {K : field R} pol β₁ γ₁ (c₁ : α) :=
+(* f₁(x,y₁) = x^(-β₁).f(x,x^γ₁.(c₁ + y₁)) *)
+Definition next_lap α {R : ring α} {K : field R} f β₁ γ₁ (c₁ : α) :=
   let _ := ps_ring K in
   ([ps_monom 1%K (- β₁)] *
-   lap_compose pol [ps_monom c₁ γ₁; ps_monom 1%K γ₁ … []])%lap.
+   lap_compose f [ps_monom c₁ γ₁; ps_monom 1%K γ₁ … []])%lap.
 
-Definition next_pol α {R : ring α} {K : field R} pol β₁ γ₁ c₁ :=
-  (POL (next_lap (al pol) β₁ γ₁ c₁))%pol.
+Definition next_pol α {R : ring α} {K : field R} f β₁ γ₁ c₁ :=
+  (POL (next_lap (al f) β₁ γ₁ c₁))%pol.
 
 (* *)
 
@@ -48,8 +48,8 @@ Definition poly_summation α {R : ring α} {K : field R} (li : list nat) g :=
 Definition lap_inject_K_in_Kx α {R : ring α} {K : field R} la :=
   List.map (λ c, ps_monom c 0) la.
 
-Definition poly_inject_K_in_Kx α {R : ring α} {K : field R} pol :=
-  (POL (lap_inject_K_in_Kx (al pol)))%pol.
+Definition poly_inject_K_in_Kx α {R : ring α} {K : field R} f :=
+  (POL (lap_inject_K_in_Kx (al f)))%pol.
 
 Definition ps_lap_summ α {R : ring α} {K : field R} ln f :=
   @lap_summation (puiseux_series α) (ps_ring K) ln f.
@@ -313,25 +313,25 @@ constructor.
 Qed.
 
 (* [Walker, p. 100] « f₁(x,y₁) = x^(-β₁).f(x,x^γ₁(c₁+y₁)) » *)
-Theorem f₁_eq_x_min_β₁_comp : ∀ pol β₁ γ₁ c₁,
-  (next_pol pol β₁ γ₁ c₁ =
+Theorem f₁_eq_x_min_β₁_comp : ∀ f β₁ γ₁ c₁,
+  (next_pol f β₁ γ₁ c₁ =
    POL [ps_monom 1%K (- β₁)] *
-   pol ∘ (POL [ps_monom 1%K γ₁] * POL [ps_monom c₁ 0; 1%ps … []]))%pspol.
+   f ∘ (POL [ps_monom 1%K γ₁] * POL [ps_monom c₁ 0; 1%ps … []]))%pspol.
 Proof.
-intros pol β₁ γ₁ c₁.
+intros f β₁ γ₁ c₁.
 apply lap_f₁_eq_x_min_β₁_comp; reflexivity.
 Qed.
 
-Theorem f₁_eq_x_min_β₁_summation : ∀ pol β₁ γ₁ c₁,
-  (next_pol pol β₁ γ₁ c₁ =
+Theorem f₁_eq_x_min_β₁_summation : ∀ f β₁ γ₁ c₁,
+  (next_pol f β₁ γ₁ c₁ =
    POL [ps_monom 1%K (- β₁)] *
-   ps_pol_summ ps_field (List.seq 0 (length (al pol)))
+   ps_pol_summ ps_field (List.seq 0 (length (al f)))
      (λ h,
-      let āh := ps_poly_nth h pol in
+      let āh := ps_poly_nth h f in
       POL [(āh * ps_monom 1%K (Qnat h * γ₁))%ps] *
       POL [ps_monom c₁ 0; 1%ps … []] ^ h))%pspol.
 Proof.
-intros pol β₁ γ₁ c.
+intros f β₁ γ₁ c.
 rewrite f₁_eq_x_min_β₁_comp.
 progress unfold ps_pol_comp.
 rewrite poly_compose_compose2.
@@ -347,7 +347,7 @@ rewrite lap_power_mul.
 rewrite lap_mul_assoc.
 apply lap_mul_compat; [ idtac | reflexivity ].
 clear la lb Heq.
-remember (al pol) as la; clear pol Heqla.
+remember (al f) as la; clear f Heqla.
 revert la.
 induction i; intros; simpl.
  rewrite lap_mul_1_r.
@@ -386,21 +386,21 @@ Qed.
     f₁(x,y₁) = x^(-β₁)Σāh.x^(h.γ₁).(c₁+y₁)^h + x^(-β₁)Σāl.x^(l.γ₁).(c₁+y₁)^l
   » *)
 (* we can split the sum on 0..n into two sub lists l₁, l₂ in any way *)
-Theorem f₁_eq_x_min_β₁_summation_split : ∀ pol β₁ γ₁ c₁ l₁ l₂,
-  split_list (List.seq 0 (length (al pol))) l₁ l₂
-  → (next_pol pol β₁ γ₁ c₁ =
+Theorem f₁_eq_x_min_β₁_summation_split : ∀ f β₁ γ₁ c₁ l₁ l₂,
+  split_list (List.seq 0 (length (al f))) l₁ l₂
+  → (next_pol f β₁ γ₁ c₁ =
       POL [ps_monom 1%K (- β₁)] *
       ps_pol_summ ps_field l₁
-        (λ (h : nat) (āh:=ps_poly_nth h pol),
+        (λ (h : nat) (āh:=ps_poly_nth h f),
          POL [(āh * ps_monom 1%K (Qnat h * γ₁))%ps] *
          POL [ps_monom c₁ 0; 1%ps … []] ^ h) +
       POL [ps_monom 1%K (- β₁)] *
       ps_pol_summ ps_field l₂
-        (λ (l : nat) (āl:=ps_poly_nth l pol),
+        (λ (l : nat) (āl:=ps_poly_nth l f),
          POL [(āl * ps_monom 1%K (Qnat l * γ₁))%ps] *
          POL [ps_monom c₁ 0; 1%ps … []] ^ l))%pspol.
 Proof.
-intros pol β₁ γ₁ c₁ l₁ l₂ Hss.
+intros f β₁ γ₁ c₁ l₁ l₂ Hss.
 progress unfold ps_pol_add, ps_pol_mul, ps_pol_summ.
 rewrite <- poly_mul_add_distr_l.
 rewrite split_summation; [ idtac | eassumption ].
@@ -422,14 +422,14 @@ Fixpoint ord_of_pt i pl :=
 
 (* Σāh.x^(hγ₁).(c₁+y₁)^h =
    Σah.x^(αh+hγ₁).(c₁+y₁)^h + Σ(āh-ah.x^αh).x^(hγ₁).(c₁+y₁)^h *)
-Theorem summation_split_val : ∀ pol ns γ₁ c₁ pl tl l,
-  newton_segments pol = Some ns
-  → pl = [ini_pt ns … oth_pts ns ++ [fin_pt ns]]
-    → tl = List.map (term_of_point pol) pl
+Theorem summation_split_val : ∀ f L γ₁ c₁ pl tl l,
+  newton_segments f = Some L
+  → pl = [ini_pt L … oth_pts L ++ [fin_pt L]]
+    → tl = List.map (term_of_point f) pl
       → l = List.map (λ t, power t) tl
         → (ps_pol_summ ps_field l
              (λ h,
-              let āh := ps_poly_nth h pol in
+              let āh := ps_poly_nth h f in
               POL [(āh * ps_monom 1%K (Qnat h * γ₁))%ps] *
               POL [ps_monom c₁ 0; 1%ps … []] ^ h) =
            ps_pol_summ ps_field l
@@ -440,14 +440,14 @@ Theorem summation_split_val : ∀ pol ns γ₁ c₁ pl tl l,
               POL [ps_monom c₁ 0; 1%ps … []] ^ h) +
            ps_pol_summ ps_field l
              (λ h,
-              let āh := ps_poly_nth h pol in
+              let āh := ps_poly_nth h f in
               let ah := ps_monom (coeff_of_term h tl) 0 in
               let αh := ord_of_pt h pl in
               POL [((āh - ah * ps_monom 1%K αh) *
                     ps_monom 1%K (Qnat h * γ₁))%ps] *
               POL [ps_monom c₁ 0; 1%ps … []] ^ h))%pspol.
 Proof.
-intros pol ns γ₁ c₁ pl tl l Hns Hpl Htl Hl.
+intros f L γ₁ c₁ pl tl l HL Hpl Htl Hl.
 progress unfold ps_pol_add, ps_pol_summ.
 rewrite poly_summation_add; simpl.
 apply lap_eq_list_fold_right; intros i a b Hi Heq.
@@ -472,13 +472,13 @@ Qed.
                 x^(-β₁).[Σ(āh-ah.x^αh).x^(h.γ₁).(c₁+y₁)^h +
                          Σāl.x^(l.γ₁).(c₁+y₁)^l]
    » *)
-Theorem f₁_eq_sum_α_hγ_to_rest : ∀ pol ns β₁ γ₁ c₁ pl tl l₁ l₂,
-  newton_segments pol = Some ns
-  → pl = [ini_pt ns … oth_pts ns ++ [fin_pt ns]]
-    → tl = List.map (term_of_point pol) pl
+Theorem f₁_eq_sum_α_hγ_to_rest : ∀ f L β₁ γ₁ c₁ pl tl l₁ l₂,
+  newton_segments f = Some L
+  → pl = [ini_pt L … oth_pts L ++ [fin_pt L]]
+    → tl = List.map (term_of_point f) pl
       → l₁ = List.map (λ t, power t) tl
-        → split_list (List.seq 0 (length (al pol))) l₁ l₂
-          → (next_pol pol β₁ γ₁ c₁ =
+        → split_list (List.seq 0 (length (al f))) l₁ l₂
+          → (next_pol f β₁ γ₁ c₁ =
              POL [ps_monom 1%K (- β₁)] *
              ps_pol_summ ps_field l₁
                (λ h,
@@ -489,7 +489,7 @@ Theorem f₁_eq_sum_α_hγ_to_rest : ∀ pol ns β₁ γ₁ c₁ pl tl l₁ l₂
              POL [ps_monom 1%K (- β₁)] *
              (ps_pol_summ ps_field l₁
                 (λ h,
-                 let āh := ps_poly_nth h pol in
+                 let āh := ps_poly_nth h f in
                  let ah := ps_monom (coeff_of_term h tl) 0 in
                  let αh := ord_of_pt h pl in
                  POL [((āh - ah * ps_monom 1%K αh) *
@@ -497,11 +497,11 @@ Theorem f₁_eq_sum_α_hγ_to_rest : ∀ pol ns β₁ γ₁ c₁ pl tl l₁ l₂
                  POL [ps_monom c₁ 0; 1%ps … []] ^ h) +
               ps_pol_summ ps_field l₂
                 (λ l,
-                 let āl := ps_poly_nth l pol in
+                 let āl := ps_poly_nth l f in
                  POL [(āl * ps_monom 1%K (Qnat l * γ₁))%ps] *
                  POL [ps_monom c₁ 0; 1%ps … []] ^ l)))%pspol.
 Proof.
-intros pol ns β₁ γ₁ c₁ pl tl l₁ l₂ Hns Hpl Htl Hl Hss.
+intros f L β₁ γ₁ c₁ pl tl l₁ l₂ HL Hpl Htl Hl Hss.
 progress unfold ps_pol_add at 2.
 progress unfold ps_pol_mul at 3.
 rewrite poly_mul_add_distr_l.
@@ -588,24 +588,24 @@ destruct (Qeq_dec (Qnat h) l) as [H| H].
 Qed.
 
 (* Σah.x^(αh+h.γ).(c₁+y₁)^h = Σah.x^β.(c₁+y₁)^h *)
-Theorem subst_αh_hγ : ∀ pol ns pl tl l₁ c₁,
-  newton_segments pol = Some ns
-  → pl = [ini_pt ns … oth_pts ns ++ [fin_pt ns]]
-    → tl = List.map (term_of_point pol) pl
+Theorem subst_αh_hγ : ∀ f L pl tl l₁ c₁,
+  newton_segments f = Some L
+  → pl = [ini_pt L … oth_pts L ++ [fin_pt L]]
+    → tl = List.map (term_of_point f) pl
       → l₁ = List.map (λ t, power t) tl
         → (ps_pol_summ ps_field l₁
              (λ h,
               let ah := ps_monom (coeff_of_term h tl) 0 in
               let αh := ord_of_pt h pl in
-              POL [(ah * ps_monom 1%K (αh + Qnat h * γ ns))%ps] *
+              POL [(ah * ps_monom 1%K (αh + Qnat h * γ L))%ps] *
               POL [ps_monom c₁ 0; 1%ps … []] ^ h) =
            ps_pol_summ ps_field l₁
              (λ h,
               let ah := ps_monom (coeff_of_term h tl) 0 in
-              POL [(ah * ps_monom 1%K (β ns))%ps] *
+              POL [(ah * ps_monom 1%K (β L))%ps] *
               POL [ps_monom c₁ 0; 1%ps … []] ^ h))%pspol.
 Proof.
-intros pol ns pl tl l₁ c₁ Hns Hpl Htl Hl.
+intros f L pl tl l₁ c₁ HL Hpl Htl Hl.
 progress unfold eq_poly; simpl.
 apply lap_eq_list_fold_right.
 intros h a b Hh Heq.
@@ -615,7 +615,7 @@ constructor; [ idtac | reflexivity ].
 apply rng_mul_compat; [ reflexivity | simpl ].
 rewrite points_in_any_newton_segment; [ reflexivity | eassumption | idtac ].
 apply list_in_cons_app.
-remember Hns as Hsort; clear HeqHsort.
+remember HL as Hsort; clear HeqHsort.
 apply ini_oth_fin_pts_sorted in Hsort.
 rewrite <- Hpl in Hsort; rewrite <- Hpl.
 subst tl l₁.
@@ -649,40 +649,40 @@ induction l as [| i]; intros; simpl.
  rewrite rng_mul_comm; reflexivity.
 Qed.
 
-(* Replacing αh + h.γ₁ with β₁, and simplifying the first summation, we get:
+(* Replacing αh + h.γ₁ with β₁, and simplipolying the first summation, we get:
      f₁(x,y₁) = Σah.(c₁+y₁)^h +
                 x^(-β₁).[Σ(āh-ah.x^αh).x^(h.γ₁).(c₁+y₁)^h +
                          Σāl.x^(l.γ₁).(c₁+y₁)^l]
 *)
-Theorem f₁_eq_sum_without_x_β₁_plus_sum : ∀ pol ns c₁ pl tl l₁ l₂,
-  newton_segments pol = Some ns
-  → pl = [ini_pt ns … oth_pts ns ++ [fin_pt ns]]
-    → tl = List.map (term_of_point pol) pl
+Theorem f₁_eq_sum_without_x_β₁_plus_sum : ∀ f L c₁ pl tl l₁ l₂,
+  newton_segments f = Some L
+  → pl = [ini_pt L … oth_pts L ++ [fin_pt L]]
+    → tl = List.map (term_of_point f) pl
       → l₁ = List.map (λ t, power t) tl
-        → split_list (List.seq 0 (length (al pol))) l₁ l₂
-          → (next_pol pol (β ns) (γ ns) c₁ =
+        → split_list (List.seq 0 (length (al f))) l₁ l₂
+          → (next_pol f (β L) (γ L) c₁ =
              ps_pol_summ ps_field l₁
                (λ h,
                 let ah := ps_monom (coeff_of_term h tl) 0 in
                 POL [ah] *
                 POL [ps_monom c₁ 0; 1%ps … []] ^ h) +
-             POL [ps_monom 1%K (- β ns)] *
+             POL [ps_monom 1%K (- β L)] *
              (ps_pol_summ ps_field l₁
                 (λ h,
-                 let āh := ps_poly_nth h pol in
+                 let āh := ps_poly_nth h f in
                  let ah := ps_monom (coeff_of_term h tl) 0 in
                  let αh := ord_of_pt h pl in
                  POL [((āh - ah * ps_monom 1%K αh) *
-                       ps_monom 1%K (Qnat h * γ ns))%ps] *
+                       ps_monom 1%K (Qnat h * γ L))%ps] *
                  POL [ps_monom c₁ 0; 1%ps … []] ^ h) +
               ps_pol_summ ps_field l₂
                 (λ l,
-                 let āl := ps_poly_nth l pol in
-                 POL [(āl * ps_monom 1%K (Qnat l * γ ns))%ps] *
+                 let āl := ps_poly_nth l f in
+                 POL [(āl * ps_monom 1%K (Qnat l * γ L))%ps] *
                  POL [ps_monom c₁ 0; 1%ps … []] ^ l)))%pspol.
 Proof.
-intros pol ns c₁ pl tl l₁ l₂ Hns Hpl Htl Hl Hss.
-remember Hns as H; clear HeqH.
+intros f L c₁ pl tl l₁ l₂ HL Hpl Htl Hl Hss.
+remember HL as H; clear HeqH.
 eapply f₁_eq_sum_α_hγ_to_rest in H; try eassumption.
 rewrite H.
 apply poly_add_compat; [ idtac | reflexivity ].
@@ -705,7 +705,7 @@ progress unfold cm; simpl.
 rewrite Z.mul_opp_l.
 rewrite Z.add_opp_diag_l.
 rewrite stretch_series_1, series_mul_1_l.
-remember (Qden (β ns) * Qden (β ns))%positive as k.
+remember (Qden (β L) * Qden (β L))%positive as k.
 rewrite ps_adjust_eq with (k := k) (n := O).
 progress unfold adjust_ps; simpl.
 rewrite series_shift_0, stretch_series_1.
@@ -748,13 +748,13 @@ rewrite IHlen.
  apply Nat.lt_lt_succ_r; assumption.
 Qed.
 
-Theorem ns_nat : ∀ pol ns pts,
-  newton_segments pol = Some ns
-  → pts = [ini_pt ns … oth_pts ns ++ [fin_pt ns]]
+Theorem L_nat : ∀ f L pts,
+  newton_segments f = Some L
+  → pts = [ini_pt L … oth_pts L ++ [fin_pt L]]
     → ∀ iq αi, (iq, αi) ∈ pts
       → ∃ i : nat, iq = Qnat i.
 Proof.
-intros pol ns pts Hns Hpts iq αi Hi.
+intros f L pts HL Hpts iq αi Hi.
 assert (∃ h ah, (iq, αi) = (Qnat h, ah)) as Hnat.
  eapply points_in_newton_segment_have_nat_abscissa; [ eassumption | idtac ].
  subst pts; assumption.
@@ -764,23 +764,23 @@ assert (∃ h ah, (iq, αi) = (Qnat h, ah)) as Hnat.
  exists h; reflexivity.
 Qed.
 
-Theorem fold_right_exists : ∀ pol ns pts j k αj αk f la,
-  newton_segments pol = Some ns
-  → pts = [ini_pt ns … oth_pts ns ++ [fin_pt ns]]
-    → ini_pt ns = (Qnat j, αj)
-      → fin_pt ns = (Qnat k, αk)
-        → (∀ i a b, ps_lap_eq a b → ps_lap_eq (f i a) (f i b))
+Theorem fold_right_exists : ∀ f L pts j k αj αk g la,
+  newton_segments f = Some L
+  → pts = [ini_pt L … oth_pts L ++ [fin_pt L]]
+    → ini_pt L = (Qnat j, αj)
+      → fin_pt L = (Qnat k, αk)
+        → (∀ i a b, ps_lap_eq a b → ps_lap_eq (g i a) (g i b))
           → ps_lap_eq
-              (List.fold_right f la (List.map (λ pt, nat_num (fst pt)) pts))
+              (List.fold_right g la (List.map (λ pt, nat_num (fst pt)) pts))
               (List.fold_right
                  (λ i accu,
                   if List.existsb (λ pt, Nat.eqb i (nat_num (fst pt))) pts then
-                    f i accu
+                    g i accu
                   else accu) la
                  (List.seq j (S (k - j)))).
 Proof.
 (* sûrement nettoyable ; putain, j'en ai chié *)
-intros pol ns pts j k αj αk f la Hns Hpl Hini Hfin Hi.
+intros f L pts j k αj αk g la HL Hpl Hini Hfin Hi.
 assert (j < k)%nat as Hjk.
  eapply j_lt_k; try eassumption.
   rewrite Hini; simpl; rewrite nat_num_Qnat; reflexivity.
@@ -792,9 +792,9 @@ assert (j < k)%nat as Hjk.
  rewrite nat_num_Qnat; simpl.
  rewrite Nat.eqb_refl; simpl.
  apply Hi.
- remember Hns as Hsort; clear HeqHsort.
+ remember HL as Hsort; clear HeqHsort.
  apply ini_oth_fin_pts_sorted in Hsort.
- remember (oth_pts ns ++ [fin_pt ns]) as pts eqn:Hpts .
+ remember (oth_pts L ++ [fin_pt L]) as pts eqn:Hpts .
  assert (∀ i αi, (Qnat i, αi) ∈ pts → (j < i)%nat) as Hjh.
   intros h αh H.
   symmetry in Hini.
@@ -811,14 +811,14 @@ assert (j < k)%nat as Hjk.
 
   assert (∀ iq αi, (iq, αi) ∈ pts → ∃ i, iq = Qnat i) as Hnat.
    intros iq αi Hip.
-   eapply ns_nat; [ eassumption | reflexivity | idtac ].
+   eapply L_nat; [ eassumption | reflexivity | idtac ].
    right; subst pts; eassumption.
 
    rewrite Hini in Hsort; clear Hini.
    rewrite Hfin in Hpts; clear Hfin.
    assert (List.last pts (0, 0) = (Qnat k, αk)) as Hlast.
     subst pts; simpl.
-    clear; induction (oth_pts ns) as [| x l]; [ reflexivity | simpl ].
+    clear; induction (oth_pts L) as [| x l]; [ reflexivity | simpl ].
     destruct l as [| y]; [ reflexivity | simpl in IHl; simpl ].
     assumption.
 
@@ -1035,8 +1035,8 @@ Fixpoint make_char_lap_of_hl la pow hl :=
       list_pad (h - pow) 0%K [c … make_char_lap_of_hl la (S h) hl₁]
   end.
 
-Definition make_char_pol_of_pts pol j (pts : list (Q * Q)) :=
-  make_char_lap_of_hl (al pol) j (List.map (λ pt, nat_num (fst pt)) pts).
+Definition make_char_pol_of_pts f j (pts : list (Q * Q)) :=
+  make_char_lap_of_hl (al f) j (List.map (λ pt, nat_num (fst pt)) pts).
 
 Fixpoint coeff_of_hl la i hl :=
   match hl with
@@ -1046,24 +1046,24 @@ Fixpoint coeff_of_hl la i hl :=
       else coeff_of_hl la i hl₁
   end.
 
-Definition coeff_of_pt pol i (pts : list (Q * Q)) :=
-  coeff_of_hl (al pol) i (List.map (λ pt, nat_num (fst pt)) pts).
+Definition coeff_of_pt f i (pts : list (Q * Q)) :=
+  coeff_of_hl (al f) i (List.map (λ pt, nat_num (fst pt)) pts).
 
-Theorem make_char_pol_of_pts_eq : ∀ pol pts j,
-  make_char_pol R j (List.map (term_of_point pol) pts) =
-  make_char_pol_of_pts pol j pts.
+Theorem make_char_pol_of_pts_eq : ∀ f pts j,
+  make_char_pol R j (List.map (term_of_point f) pts) =
+  make_char_pol_of_pts f j pts.
 Proof.
-intros pol pts j.
+intros f pts j.
 revert j.
 induction pts as [| (h, ah)]; intros; [ reflexivity | simpl ].
 rewrite IHpts; reflexivity.
 Qed.
 
-Theorem coeff_of_term_pt_eq : ∀ pol pts i,
-  coeff_of_term i (List.map (term_of_point pol) pts) =
-  coeff_of_pt pol i pts.
+Theorem coeff_of_term_pt_eq : ∀ f pts i,
+  coeff_of_term i (List.map (term_of_point f) pts) =
+  coeff_of_pt f i pts.
 Proof.
-intros pol pts i.
+intros f pts i.
 progress unfold coeff_of_pt; simpl.
 revert i.
 induction pts as [| (h, ah)]; intros; [ reflexivity | simpl ].
@@ -1263,29 +1263,29 @@ Qed.
    We proof here that
       Σah.(c₁+y₁)^h = (c₁+y₁)^j.Φ((c₁+y₁)^q)
  *)
-Theorem sum_ah_c₁y_h_eq : ∀ pol ns pl tl l c₁ j αj,
-  newton_segments pol = Some ns
-  → pl = [ini_pt ns … oth_pts ns ++ [fin_pt ns]]
-    → tl = List.map (term_of_point pol) pl
+Theorem sum_ah_c₁y_h_eq : ∀ f L pl tl l c₁ j αj,
+  newton_segments f = Some L
+  → pl = [ini_pt L … oth_pts L ++ [fin_pt L]]
+    → tl = List.map (term_of_point f) pl
       → l = List.map (λ t, power t) tl
-        → ini_pt ns = (Qnat j, αj)
+        → ini_pt L = (Qnat j, αj)
           → (ps_pol_summ ps_field l
                (λ h,
                 POL [ps_monom (coeff_of_term h tl) 0] *
                 POL [ps_monom c₁ 0; 1%ps … []] ^ h) =
              POL [ps_monom c₁ 0; 1%ps … []] ^ j *
-             ps_pol_comp (poly_inject_K_in_Kx (Φq pol ns))
+             ps_pol_comp (poly_inject_K_in_Kx (Φq f L))
                (POL [ps_monom c₁ 0; 1%ps … []]))%pspol.
 Proof.
-intros pol ns pl tl l c₁ j αj Hns Hpl Htl Hl Hini.
+intros f L pl tl l c₁ j αj HL Hpl Htl Hl Hini.
 assert (∀ iq αi, (iq, αi) ∈ pl → ∃ i, iq = Qnat i) as Hnat.
  intros iq αi Hip.
- eapply ns_nat; [ eassumption | reflexivity | idtac ].
+ eapply L_nat; [ eassumption | reflexivity | idtac ].
  subst pl; eassumption.
 
  remember (List.map (λ pt, nat_num (fst pt)) pl) as li eqn:Hli .
  assert (Sorted Nat.lt li) as Hs.
-  remember Hns as Hsort; clear HeqHsort.
+  remember HL as Hsort; clear HeqHsort.
   apply ini_oth_fin_pts_sorted in Hsort.
   rewrite <- Hpl in Hsort.
   revert Hsort Hli Hnat; clear; intros.
@@ -1328,7 +1328,7 @@ assert (∀ iq αi, (iq, αi) ∈ pl → ∃ i, iq = Qnat i) as Hnat.
 
     apply Sorted_inv in Hs.
     destruct Hs as (Hs, Hrel).
-    remember (oth_pts ns ++ [fin_pt ns]) as pl1.
+    remember (oth_pts L ++ [fin_pt L]) as pl1.
     remember (List.map (λ pt : Q * Q, nat_num (fst pt)) pl1) as jl.
     revert Hs Hrel Hm; clear; intros.
     revert j m Hrel Hm.
@@ -1347,7 +1347,7 @@ assert (∀ iq αi, (iq, αi) ∈ pl → ∃ i, iq = Qnat i) as Hnat.
       destruct Hs as (Hs, Hrel').
       apply IHjl; assumption.
 
-   remember Hns as Hfin; clear HeqHfin.
+   remember HL as Hfin; clear HeqHfin.
    apply exists_fin_pt_nat in Hfin.
    destruct Hfin as (k, (αk, Hfin)).
    progress unfold poly_inject_K_in_Kx.
@@ -1393,7 +1393,7 @@ assert (∀ iq αi, (iq, αi) ∈ pl → ∃ i, iq = Qnat i) as Hnat.
       apply List.existsb_exists in Hb.
       destruct Hb as ((hq, ah), (Hh, Hjh)); simpl in Hjh.
       remember Hpl as Hpts; clear HeqHpts.
-      eapply ns_nat in Hpts; try eassumption.
+      eapply L_nat in Hpts; try eassumption.
       destruct Hpts as (h, H); subst hq.
       rewrite nat_num_Qnat in Hjh; simpl in Hjh.
       apply Nat.eqb_eq in Hjh.
@@ -1408,7 +1408,7 @@ assert (∀ iq αi, (iq, αi) ∈ pl → ∃ i, iq = Qnat i) as Hnat.
        progress unfold make_char_pol_of_pts.
        rewrite coeff_of_term_pt_eq.
        progress unfold coeff_of_pt.
-       remember Hns as Hsort; clear HeqHsort.
+       remember HL as Hsort; clear HeqHsort.
        apply ini_oth_fin_pts_sorted in Hsort.
        rewrite <- Hpl in Hsort.
        rewrite <- Hli.
@@ -1432,7 +1432,7 @@ assert (∀ iq αi, (iq, αi) ∈ pl → ∃ i, iq = Qnat i) as Hnat.
         rewrite Htl; simpl.
         rewrite make_char_pol_of_pts_eq.
         progress unfold make_char_pol_of_pts.
-        remember Hns as Hsort; clear HeqHsort.
+        remember HL as Hsort; clear HeqHsort.
         apply ini_oth_fin_pts_sorted in Hsort.
         rewrite <- Hpl in Hsort.
         rewrite <- Hli.
@@ -1457,7 +1457,7 @@ assert (∀ iq αi, (iq, αi) ∈ pl → ∃ i, iq = Qnat i) as Hnat.
          simpl in Hli.
          rewrite Hini in Hli; simpl in Hli.
          rewrite nat_num_Qnat in Hli.
-         remember (oth_pts ns ++ [fin_pt ns]) as pl'.
+         remember (oth_pts L ++ [fin_pt L]) as pl'.
          remember (List.map (λ pt, nat_num (fst pt)) pl') as li'.
          subst li; rename li' into li.
          apply nth_char_lap_eq_0; try assumption.
@@ -1523,15 +1523,15 @@ intros P Q.
 apply lap_mul_map_ps.
 Qed.
 
-Theorem Ψ_length : ∀ pol ns j k αj αk c₁ r Ψ,
-  newton_segments pol = Some ns
-  → ini_pt ns = (Qnat j, αj)
-    → fin_pt ns = (Qnat k, αk)
-      → r = root_multiplicity acf c₁ (Φq pol ns)
-        → Ψ = quotient_phi_x_sub_c_pow_r (Φq pol ns) c₁ r
+Theorem Ψ_length : ∀ f L j k αj αk c₁ r Ψ,
+  newton_segments f = Some L
+  → ini_pt L = (Qnat j, αj)
+    → fin_pt L = (Qnat k, αk)
+      → r = root_multiplicity acf c₁ (Φq f L)
+        → Ψ = quotient_phi_x_sub_c_pow_r (Φq f L) c₁ r
           → length (al Ψ) = (S (k - j) - r)%nat.
 Proof.
-intros pol ns j k αj αk c₁ r Ψ Hns Hini Hfin Hr HΨ.
+intros f L j k αj αk c₁ r Ψ HL Hini Hfin Hr HΨ.
 subst Ψ.
 remember S as s; simpl.
 rewrite Hini; simpl.
@@ -1574,25 +1574,25 @@ Qed.
    We proof here that
       (c₁+y₁)^j.Φ((c₁+y₁)^q) = y₁^r.(c₁+y₁)^j.Ψ(c₁+y₁)
  *)
-Theorem phi_c₁y₁_psy : ∀ pol ns pl tl l c₁ r Ψ j αj,
-  newton_segments pol = Some ns
-  → ac_root (Φq pol ns) = c₁
-    → r = root_multiplicity acf c₁ (Φq pol ns)
-      → Ψ = quotient_phi_x_sub_c_pow_r (Φq pol ns) c₁ r
-        → pl = [ini_pt ns … oth_pts ns ++ [fin_pt ns]]
-          → tl = List.map (term_of_point pol) pl
+Theorem phi_c₁y₁_psy : ∀ f L pl tl l c₁ r Ψ j αj,
+  newton_segments f = Some L
+  → ac_root (Φq f L) = c₁
+    → r = root_multiplicity acf c₁ (Φq f L)
+      → Ψ = quotient_phi_x_sub_c_pow_r (Φq f L) c₁ r
+        → pl = [ini_pt L … oth_pts L ++ [fin_pt L]]
+          → tl = List.map (term_of_point f) pl
             → l = List.map (λ t, power t) tl
-              → ini_pt ns = (Qnat j, αj)
+              → ini_pt L = (Qnat j, αj)
                 → (POL [ps_monom c₁ 0; 1%ps … []] ^ j *
-                   ps_pol_comp (poly_inject_K_in_Kx (Φq pol ns))
+                   ps_pol_comp (poly_inject_K_in_Kx (Φq f L))
                      (POL [ps_monom c₁ 0; 1%ps … []]) =
                    POL [0%ps; 1%ps … []] ^ r *
                    POL [ps_monom c₁ 0; 1%ps … []] ^ j *
                    ps_pol_comp (poly_inject_K_in_Kx Ψ)
                      (POL [ps_monom c₁ 0; 1%ps … []]))%pspol.
 Proof.
-intros pol ns pl tl l c₁ r Ψ j αj Hns Hc₁ Hr HΨ Hpl Htl Hl Hini.
-remember Hns as Hfin; clear HeqHfin.
+intros f L pl tl l c₁ r Ψ j αj HL Hc₁ Hr HΨ Hpl Htl Hl Hini.
+remember HL as Hfin; clear HeqHfin.
 apply exists_fin_pt_nat in Hfin.
 destruct Hfin as (k, (αk, Hk)).
 symmetry.
@@ -1634,36 +1634,36 @@ Qed.
                 x^(-β₁).[Σ(āh-ah.x^αh).x^(h.γ₁).(c₁+y₁)^h +
                          Σāl.x^(l.γ₁).(c₁+y₁)^l]
 *)
-Theorem f₁_eq_term_with_Ψ_plus_sum : ∀ pol ns c₁ pl tl j αj l₁ l₂ r Ψ,
-  newton_segments pol = Some ns
-  → ac_root (Φq pol ns) = c₁
-    → r = root_multiplicity acf c₁ (Φq pol ns)
-      → Ψ = quotient_phi_x_sub_c_pow_r (Φq pol ns) c₁ r
-        → pl = [ini_pt ns … oth_pts ns ++ [fin_pt ns]]
-          → tl = List.map (term_of_point pol) pl
+Theorem f₁_eq_term_with_Ψ_plus_sum : ∀ f L c₁ pl tl j αj l₁ l₂ r Ψ,
+  newton_segments f = Some L
+  → ac_root (Φq f L) = c₁
+    → r = root_multiplicity acf c₁ (Φq f L)
+      → Ψ = quotient_phi_x_sub_c_pow_r (Φq f L) c₁ r
+        → pl = [ini_pt L … oth_pts L ++ [fin_pt L]]
+          → tl = List.map (term_of_point f) pl
             → l₁ = List.map (λ t, power t) tl
-              → split_list (List.seq 0 (length (al pol))) l₁ l₂
-                → ini_pt ns = (Qnat j, αj)
-                  → (next_pol pol (β ns) (γ ns) c₁ =
+              → split_list (List.seq 0 (length (al f))) l₁ l₂
+                → ini_pt L = (Qnat j, αj)
+                  → (next_pol f (β L) (γ L) c₁ =
                      POL [0%ps; 1%ps … []] ^ r *
                      POL [ps_monom c₁ 0; 1%ps … []] ^ j *
                      poly_inject_K_in_Kx Ψ ∘ POL [ps_monom c₁ 0; 1%ps … []] +
-                     POL [ps_monom 1%K (- β ns)] *
+                     POL [ps_monom 1%K (- β L)] *
                      (ps_pol_summ ps_field l₁
                         (λ h,
-                         let āh := ps_poly_nth h pol in
+                         let āh := ps_poly_nth h f in
                          let ah := ps_monom (coeff_of_term h tl) 0 in
                          let αh := ord_of_pt h pl in
                          POL [((āh - ah * ps_monom 1%K αh) *
-                         ps_monom 1%K (Qnat h * γ ns))%ps] *
+                         ps_monom 1%K (Qnat h * γ L))%ps] *
                          POL [ps_monom c₁ 0; 1%ps … []] ^ h) +
                       ps_pol_summ ps_field l₂
                         (λ l,
-                         let āl := ps_poly_nth l pol in
-                         POL [(āl * ps_monom 1%K (Qnat l * γ ns))%ps] *
+                         let āl := ps_poly_nth l f in
+                         POL [(āl * ps_monom 1%K (Qnat l * γ L))%ps] *
                          POL [ps_monom c₁ 0; 1%ps … []] ^ l)))%pspol.
 Proof.
-intros pol ns c₁ pl tl j αj l₁ l₂ r Ψ Hns Hc₁ Hr HΨ Hpl Htl Hl Hss Hini.
+intros f L c₁ pl tl j αj l₁ l₂ r Ψ HL Hc₁ Hr HΨ Hpl Htl Hl Hss Hini.
 rewrite f₁_eq_sum_without_x_β₁_plus_sum; try eassumption.
 rewrite sum_ah_c₁y_h_eq; try eassumption.
 rewrite phi_c₁y₁_psy; try eassumption.
