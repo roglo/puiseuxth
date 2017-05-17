@@ -77,28 +77,28 @@ split; intros Hl.
 Qed.
 
 Definition g_lap_of_ns α {R : ring α} {K : field R}
-    {acf : algeb_closed_field K} pol ns :=
-  let c₁ := ac_root (Φq pol ns) in
-  let pl := [ini_pt ns … oth_pts ns ++ [fin_pt ns]] in
-  let tl := List.map (term_of_point pol) pl in
+    {acf : algeb_closed_field K} f L :=
+  let c₁ := ac_root (Φq f L) in
+  let pl := [ini_pt L … oth_pts L ++ [fin_pt L]] in
+  let tl := List.map (term_of_point f) pl in
   let l₁ := List.map (λ t, power t) tl in
-  let l₂ := list_seq_except 0 (length (al pol)) l₁ in
-  ([ps_monom 1%K (- β ns)] *
+  let l₂ := list_seq_except 0 (length (al f)) l₁ in
+  ([ps_monom 1%K (- β L)] *
    (ps_lap_summ ps_field l₁
       (λ h,
-       let āh := ps_poly_nth h pol in
+       let āh := ps_poly_nth h f in
        let ah := ps_monom (coeff_of_term R h tl) 0 in
        let αh := ord_of_pt h pl in
-       [((āh - ah * ps_monom 1%K αh) * ps_monom 1%K (Qnat h * γ ns))%ps] *
+       [((āh - ah * ps_monom 1%K αh) * ps_monom 1%K (Qnat h * γ L))%ps] *
        [ps_monom c₁ 0; 1%ps … []] ^ h) +
     ps_lap_summ ps_field l₂
       (λ l,
-       let āl := ps_poly_nth l pol in
-       [(āl * ps_monom 1%K (Qnat l * γ ns))%ps] *
+       let āl := ps_poly_nth l f in
+       [(āl * ps_monom 1%K (Qnat l * γ L))%ps] *
        [ps_monom c₁ 0; 1%ps … []] ^ l)))%pslap.
 
 Definition g_of_ns α {R : ring α} {K : field R}
-  {acf : algeb_closed_field K} pol ns := (POL (g_lap_of_ns pol ns))%pol.
+  {acf : algeb_closed_field K} f L := (POL (g_lap_of_ns f L))%pol.
 
 Section theorems.
 
@@ -120,18 +120,18 @@ destruct Hh as [Hh| ]; [ contradiction | assumption ].
 Qed.
 
 (* [Walker, p 101] « O(āh - ah.x^αh) > 0 » (with fixed typo) *)
-Theorem order_āh_minus_ah_xαh_gt_αh : ∀ pol ns pl tl h āh ah αh,
-  newton_segments pol = Some ns
-  → pl = [ini_pt ns … oth_pts ns ++ [fin_pt ns]]
-    → tl = List.map (term_of_point pol) pl
+Theorem order_āh_minus_ah_xαh_gt_αh : ∀ f L pl tl h āh ah αh,
+  newton_segments f = Some L
+  → pl = [ini_pt L … oth_pts L ++ [fin_pt L]]
+    → tl = List.map (term_of_point f) pl
       → h ∈ List.map (λ t, power t) tl
-        → āh = ps_poly_nth h pol
+        → āh = ps_poly_nth h f
           → ah = ps_monom (coeff_of_term R h tl) 0
             → αh = ord_of_pt h pl
               → (order (āh - ah * ps_monom 1%K αh)%ps > qfin αh)%Qbar.
 Proof.
-intros pol ns pl tl h āh ah αh Hns Hpl Htl Hh Hāh Hah Hαh.
-remember Hns as Hval; clear HeqHval.
+intros f L pl tl h āh ah αh HL Hpl Htl Hh Hāh Hah Hαh.
+remember HL as Hval; clear HeqHval.
 eapply order_in_newton_segment with (h := h) (αh := αh) in Hval; eauto .
  rewrite <- Hāh in Hval.
  unfold order, Qbar.gt.
@@ -167,7 +167,7 @@ eapply order_in_newton_segment with (h := h) (αh := αh) in Hval; eauto .
   apply Nat2Z.inj_lt.
   apply Nat.nle_gt; intros Hmn.
   apply series_order_iff in Hn.
-  remember ps_add as f; simpl in Hn; subst f.
+  remember ps_add as g; simpl in Hn; subst g.
   destruct Hn as (Hni, Hn).
   remember (ps_monom (coeff_of_term R h tl) 0 * ps_monom 1%K αh)%ps as v.
   simpl in Hn.
@@ -291,36 +291,36 @@ eapply order_in_newton_segment with (h := h) (αh := αh) in Hval; eauto .
 Qed.
 
 (* [Walker, p 101] « O(āl.x^(l.γ₁)) > β₁ » *)
-Theorem order_āl_xlγ₁_gt_β₁ : ∀ pol ns pl tl l₁ l₂ l āl,
-  newton_segments pol = Some ns
-  → pl = [ini_pt ns … oth_pts ns ++ [fin_pt ns]]
-    → tl = List.map (term_of_point pol) pl
+Theorem order_āl_xlγ₁_gt_β₁ : ∀ f L pl tl l₁ l₂ l āl,
+  newton_segments f = Some L
+  → pl = [ini_pt L … oth_pts L ++ [fin_pt L]]
+    → tl = List.map (term_of_point f) pl
       → l₁ = List.map (λ t, power t) tl
-        → split_list (List.seq 0 (length (al pol))) l₁ l₂
+        → split_list (List.seq 0 (length (al f))) l₁ l₂
           → l ∈ l₂
-            → āl = ps_poly_nth l pol
-              → (order (āl * ps_monom 1%K (Qnat l * γ ns))%ps >
-                 qfin (β ns))%Qbar.
+            → āl = ps_poly_nth l f
+              → (order (āl * ps_monom 1%K (Qnat l * γ L))%ps >
+                 qfin (β L))%Qbar.
 Proof.
-intros pol ns pl tl l₁ l₂ l āl Hns Hpl Htl Hl₁ Hsl Hl Hāl.
-remember (āl * ps_monom 1%K (Qnat l * γ ns))%ps as s eqn:Hs .
+intros f L pl tl l₁ l₂ l āl HL Hpl Htl Hl₁ Hsl Hl Hāl.
+remember (āl * ps_monom 1%K (Qnat l * γ L))%ps as s eqn:Hs .
 remember (series_order (ps_terms s) 0) as n eqn:Hn .
 symmetry in Hn.
 destruct n as [n| ].
- remember (points_of_ps_polynom pol) as pts eqn:Hpts .
+ remember (points_of_ps_polynom f) as pts eqn:Hpts .
  remember Hpts as Hval; clear HeqHval.
  remember (order āl) as m eqn:Hm .
  symmetry in Hm.
  destruct m as [m| ].
   eapply in_pol_in_pts in Hval; try eassumption.
-  remember Hns as H; clear HeqH.
+  remember HL as H; clear HeqH.
   eapply points_not_in_any_newton_segment with (αh := m) (h := Qnat l) in H;
    try eassumption.
    unfold order, Qbar.gt.
    rewrite Hn.
    apply Qbar.qfin_lt_mono.
-   remember (β ns) as βns.
-   remember (γ ns) as γns.
+   remember (β L) as βL.
+   remember (γ L) as γL.
    rewrite Hs, Hāl; simpl.
    unfold cm; simpl.
    rewrite <- Hāl.
@@ -356,7 +356,7 @@ destruct n as [n| ].
      rewrite Nat.mod_0_l in Hn; auto; simpl in Hn.
      rewrite Nat.div_0_l in Hn; auto; simpl in Hn.
      rewrite rng_mul_1_r in Hn.
-     destruct (zerop (n mod Pos.to_nat (Qden (γns)))) as [Hng| Hng].
+     destruct (zerop (n mod Pos.to_nat (Qden (γL)))) as [Hng| Hng].
       apply Nat.mod_divides in Hng; auto.
       destruct Hng as (g, Hg).
       rewrite Hg, Nat.mul_comm.
@@ -411,7 +411,7 @@ destruct n as [n| ].
 
       left.
       revert Hlm; clear; intros.
-      remember (oth_pts ns) as pts; clear Heqpts.
+      remember (oth_pts L) as pts; clear Heqpts.
       induction pts as [| (i, ai)]; [ contradiction | idtac ].
       destruct Hlm as [Hlm| Hlm].
        injection Hlm; clear Hlm; intros; subst; simpl.
@@ -419,7 +419,7 @@ destruct n as [n| ].
 
        right; apply IHpts, Hlm.
 
-    remember (length (al pol)) as len; clear.
+    remember (length (al f)) as len; clear.
     remember 0%nat as b; clear Heqb.
     revert b.
     induction len; intros; [ constructor | simpl ].
@@ -1237,20 +1237,20 @@ Qed.
 
 (* [Walker, p 101 « each power of y₁ in g(x,y₁) has a coefficient of
    positive order » *)
-Theorem each_power_of_y₁_in_g_has_coeff_pos_ord : ∀ pol ns g,
-  newton_segments pol = Some ns
-  → g = g_of_ns pol ns
+Theorem each_power_of_y₁_in_g_has_coeff_pos_ord : ∀ f L g,
+  newton_segments f = Some L
+  → g = g_of_ns f L
     → ∀ m, m ∈ al g → (order m > 0)%Qbar.
 Proof.
-intros pol ns g Hns Hg m Hm.
+intros f L g HL Hg m Hm.
 remember (al g) as la eqn:Hla .
 subst g.
 unfold g_of_ns, g_lap_of_ns in Hla.
-remember (ac_root (Φq pol ns)) as c₁ eqn:Hc₁ .
-remember [ini_pt ns … oth_pts ns ++ [fin_pt ns]] as pl eqn:Hpl .
-remember (List.map (term_of_point pol) pl) as tl eqn:Htl .
+remember (ac_root (Φq f L)) as c₁ eqn:Hc₁ .
+remember [ini_pt L … oth_pts L ++ [fin_pt L]] as pl eqn:Hpl .
+remember (List.map (term_of_point f) pl) as tl eqn:Htl .
 remember (List.map (λ t, power t) tl) as l₁ eqn:Hl₁ .
-remember (list_seq_except 0 (length (al pol)) l₁) as l₂ eqn:Hl₂ .
+remember (list_seq_except 0 (length (al f)) l₁) as l₂ eqn:Hl₂ .
 simpl in Hla.
 remember (order m) as om eqn:Hom .
 symmetry in Hom.
@@ -1279,7 +1279,7 @@ assert (m ≠ 0)%ps as Hmnz.
   apply ps_lap_in_mul in Hm; [ assumption | idtac | idtac ].
    clear m Hm.
    intros m Hm.
-   remember (ps_poly_nth h pol) as āh eqn:Hāh .
+   remember (ps_poly_nth h f) as āh eqn:Hāh .
    remember (ps_monom (coeff_of_term R h tl) 0) as ah eqn:Hah .
    remember (ord_of_pt h pl) as αh eqn:Hαh .
    rewrite lap_mul_const_l in Hm; simpl in Hm.
@@ -1287,23 +1287,23 @@ assert (m ≠ 0)%ps as Hmnz.
    rewrite <- Hm; simpl.
    rewrite order_mul.
    remember (āh - ah * ps_monom 1%K αh)%ps as aa.
-   remember (ps_monom 1%K (Qnat h * γ ns))%ps as bb.
-   remember (ps_monom 1%K (- β ns)) as cc.
+   remember (ps_monom 1%K (Qnat h * γ L))%ps as bb.
+   remember (ps_monom 1%K (- β L)) as cc.
    remember (order (aa * bb)) as oaa.
-   apply Qbar.lt_le_trans with (m := (qfin (- β ns) + oaa)%Qbar).
+   apply Qbar.lt_le_trans with (m := (qfin (- β L) + oaa)%Qbar).
     subst oaa.
     rewrite order_mul.
     rewrite Qbar.add_comm.
     rewrite Heqaa, Heqbb.
-    apply Qbar.le_lt_trans with (m := qfin (αh + Qnat h * γ ns - β ns)).
+    apply Qbar.le_lt_trans with (m := qfin (αh + Qnat h * γ L - β L)).
      apply Qbar.le_qfin.
-     apply Qplus_le_l with (z := β ns).
+     apply Qplus_le_l with (z := β L).
      rewrite <- Qminus_minus_assoc.
      rewrite Qminus_diag.
      rewrite Qplus_0_l.
      unfold Qminus, Qopp; simpl.
      rewrite Qplus_0_r.
-     remember (points_of_ps_polynom pol) as pts.
+     remember (points_of_ps_polynom f) as pts.
      eapply points_in_convex; try eassumption.
      eapply in_pol_in_pts; try eassumption.
      rewrite Hāh.
@@ -1369,7 +1369,7 @@ assert (m ≠ 0)%ps as Hmnz.
    rewrite ps_add_0_r in H₂.
    rewrite <- H₂.
    rewrite order_mul.
-   remember (ps_poly_nth h pol) as āh.
+   remember (ps_poly_nth h f) as āh.
    apply Qbar.lt_sub_lt_add_l; [ intros H; discriminate H | idtac ].
    rewrite Qbar.sub_0_l.
    destruct (fld_zerop 1%K) as [Hoz| Honz].
@@ -1385,10 +1385,10 @@ assert (m ≠ 0)%ps as Hmnz.
      subst l₁ tl.
      rewrite List.map_map; simpl.
      apply Sorted_map; simpl.
-     remember Hns as Hsort; clear HeqHsort.
+     remember HL as Hsort; clear HeqHsort.
      apply ini_oth_fin_pts_sorted in Hsort.
      rewrite <- Hpl in Hsort.
-     pose proof (points_in_newton_segment_have_nat_abscissa K pol Hns)
+     pose proof (points_in_newton_segment_have_nat_abscissa K f HL)
       as Hnat.
      rewrite <- Hpl in Hnat.
      revert Hsort Hnat; clear; intros.
@@ -1421,10 +1421,10 @@ assert (m ≠ 0)%ps as Hmnz.
      subst tl; simpl in Hi.
      rewrite List.map_map in Hi.
      simpl in Hi.
-     revert Hns Hpl Hi; clear; intros.
+     revert HL Hpl Hi; clear; intros.
      apply ord_is_ord_of_pt in Hi.
       rewrite Hpl in Hi at 2.
-      unfold newton_segments in Hns.
+      unfold newton_segments in HL.
       eapply ns_in_init_pts in Hi; [ idtac | eassumption ].
       eapply in_pts_in_pol with (def := 0%ps) in Hi; try reflexivity.
       destruct Hi as (Hi, Ho).
