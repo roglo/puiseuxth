@@ -459,30 +459,30 @@ Qed.
    We prove here that
          f₁(x,y₁) = y₁^r.(c₁+y)^j.Ψ(c₁+y) + g(x,y₁) »
 *)
-Theorem f₁_eq_term_with_Ψ_plus_g : ∀ pol ns j αj c₁ r f₁ Ψ,
-  newton_segments pol = Some ns
-  → ini_pt ns = (Qnat j, αj)
-    → c₁ = ac_root (Φq pol ns)
-      → r = root_multiplicity acf c₁ (Φq pol ns)
-        → Ψ = quotient_phi_x_sub_c_pow_r (Φq pol ns) c₁ r
-          → f₁ = next_pol pol (β ns) (γ ns) c₁
+Theorem f₁_eq_term_with_Ψ_plus_g : ∀ f L j αj c₁ r f₁ Ψ,
+  newton_segments f = Some L
+  → ini_pt L = (Qnat j, αj)
+    → c₁ = ac_root (Φq f L)
+      → r = root_multiplicity acf c₁ (Φq f L)
+        → Ψ = quotient_phi_x_sub_c_pow_r (Φq f L) c₁ r
+          → f₁ = next_pol f (β L) (γ L) c₁
             → (f₁ =
                POL [0%ps; 1%ps … []] ^ r *
                POL [ps_monom c₁ 0; 1%ps … []] ^ j *
                POL (lap_inject_K_in_Kx (al Ψ)) ∘
                POL [ps_monom c₁ 0; 1%ps … []] +
-               g_of_ns pol ns)%pspol.
+               g_of_ns f L)%pspol.
 Proof.
-intros pol ns j αj c₁ r f₁ Ψ Hns Hini Hc₁ Hr HΨ Hf₁.
+intros f L j αj c₁ r f₁ Ψ HL Hini Hc₁ Hr HΨ Hf₁.
 subst f₁.
-remember (g_lap_of_ns pol ns) as gg.
+remember (g_lap_of_ns f L) as gg.
 remember Heqgg as H; clear HeqH.
 unfold g_lap_of_ns in H; subst gg.
 rewrite <- Hc₁ in H.
-remember [ini_pt ns … oth_pts ns ++ [fin_pt ns]] as pl eqn:Hpl .
-remember (List.map (term_of_point pol) pl) as tl eqn:Htl .
+remember [ini_pt L … oth_pts L ++ [fin_pt L]] as pl eqn:Hpl .
+remember (List.map (term_of_point f) pl) as tl eqn:Htl .
 remember (List.map (λ t : term α nat, power t) tl) as l₁ eqn:Hl₁ .
-remember (list_seq_except 0 (length (al pol)) l₁) as l₂ eqn:Hl₂ .
+remember (list_seq_except 0 (length (al f)) l₁) as l₂ eqn:Hl₂ .
 symmetry in Hc₁.
 rewrite f₁_eq_term_with_Ψ_plus_sum with (l₂ := l₂); try eassumption.
  rewrite ps_poly_lap_summ; [ idtac | intros i; simpl; apply lap_eq_refl ].
@@ -499,7 +499,7 @@ rewrite f₁_eq_term_with_Ψ_plus_sum with (l₂ := l₂); try eassumption.
   do 2 apply Sorted_map; simpl.
   apply Sorted_fst_lt_nat_num_fst.
    intros a Ha.
-   remember (points_of_ps_polynom pol) as pts.
+   remember (points_of_ps_polynom f) as pts.
    symmetry in Heqpts.
    eapply pt_absc_is_nat; [ eassumption | idtac ].
    eapply ns_in_init_pts; [ idtac | eassumption ].
@@ -525,12 +525,12 @@ rewrite f₁_eq_term_with_Ψ_plus_sum with (l₂ := l₂); try eassumption.
   apply in_points_of_ps_lap_lt; assumption.
 Qed.
 
-Theorem nth_g_order_pos : ∀ pol ns h,
-  newton_segments pol = Some ns
-  → (order (ps_lap_nth h (g_lap_of_ns pol ns)) > 0)%Qbar.
+Theorem nth_g_order_pos : ∀ f L h,
+  newton_segments f = Some L
+  → (order (ps_lap_nth h (g_lap_of_ns f L)) > 0)%Qbar.
 Proof.
-intros pol ns h Hns.
-destruct (lt_dec h (length (g_lap_of_ns pol ns))) as [Hlt| Hge].
+intros f L h HL.
+destruct (lt_dec h (length (g_lap_of_ns f L))) as [Hlt| Hge].
  eapply each_power_of_y₁_in_g_has_coeff_pos_ord; try eassumption.
   reflexivity.
 
@@ -648,16 +648,16 @@ reflexivity.
 Qed.
 
 (* [Walker, p 101] « O(bi) ≥ 0,  i = 0,...,n » *)
-Theorem order_bbar_nonneg : ∀ pol ns c₁ r f₁,
-  newton_segments pol = Some ns
-  → c₁ = ac_root (Φq pol ns)
-    → r = root_multiplicity acf c₁ (Φq pol ns)
-      → f₁ = next_pol pol (β ns) (γ ns) c₁
+Theorem order_bbar_nonneg : ∀ f L c₁ r f₁,
+  newton_segments f = Some L
+  → c₁ = ac_root (Φq f L)
+    → r = root_multiplicity acf c₁ (Φq f L)
+      → f₁ = next_pol f (β L) (γ L) c₁
         → ∀ i, (order (ps_poly_nth i f₁) ≥ 0)%Qbar.
 Proof.
-intros pol ns c₁ r f₁ Hns Hc₁ Hr Hf₁ i.
-remember (quotient_phi_x_sub_c_pow_r (Φq pol ns) c₁ r) as Ψ eqn:HΨ .
-remember Hns as Hini; clear HeqHini.
+intros f L c₁ r f₁ HL Hc₁ Hr Hf₁ i.
+remember (quotient_phi_x_sub_c_pow_r (Φq f L) c₁ r) as Ψ eqn:HΨ .
+remember HL as Hini; clear HeqHini.
 apply exists_ini_pt_nat in Hini.
 destruct Hini as (j, (αj, Hini)).
 rewrite f₁_eq_term_with_Ψ_plus_g; try eassumption.
@@ -690,17 +690,17 @@ apply Qbar.min_glb.
 Qed.
 
 (* [Walker, p 101] « O(bi) > 0,  i = 0,...,r-1 » *)
-Theorem order_bbar_pos : ∀ pol ns c₁ r f₁,
-  newton_segments pol = Some ns
-  → c₁ = ac_root (Φq pol ns)
-    → r = root_multiplicity acf c₁ (Φq pol ns)
-      → f₁ = next_pol pol (β ns) (γ ns) c₁
+Theorem order_bbar_pos : ∀ f L c₁ r f₁,
+  newton_segments f = Some L
+  → c₁ = ac_root (Φq f L)
+    → r = root_multiplicity acf c₁ (Φq f L)
+      → f₁ = next_pol f (β L) (γ L) c₁
         → ∀ i, (i < r)%nat
           → (order (ps_poly_nth i f₁) > 0)%Qbar.
 Proof.
-intros pol ns c₁ r f₁ Hns Hc₁ Hr Hf₁ i Hir.
-remember (quotient_phi_x_sub_c_pow_r (Φq pol ns) c₁ r) as Ψ eqn:HΨ .
-remember Hns as Hini; clear HeqHini.
+intros f L c₁ r f₁ HL Hc₁ Hr Hf₁ i Hir.
+remember (quotient_phi_x_sub_c_pow_r (Φq f L) c₁ r) as Ψ eqn:HΨ .
+remember HL as Hini; clear HeqHini.
 apply exists_ini_pt_nat in Hini.
 destruct Hini as (j, (αj, Hini)).
 rewrite f₁_eq_term_with_Ψ_plus_g; try eassumption.
@@ -719,18 +719,18 @@ apply Qbar.min_glb_lt.
  apply nth_g_order_pos; assumption.
 Qed.
 
-Theorem char_pol_root_ne_0 : ∀ pol ns m c₁,
-  newton_segments pol = Some ns
-  → pol_in_K_1_m pol m
-  → c₁ = ac_root (Φq pol ns)
+Theorem char_pol_root_ne_0 : ∀ f L m c₁,
+  newton_segments f = Some L
+  → pol_in_K_1_m f m
+  → c₁ = ac_root (Φq f L)
   → (c₁ ≠ 0)%K.
 Proof.
-intros pol ns m c₁ Hns Hm Hc₁.
-remember Hns as Happ; clear HeqHapp.
+intros f L m c₁ HL Hm Hc₁.
+remember HL as Happ; clear HeqHapp.
 eapply cpol_degree_ge_1 with (K := K) in Happ; eauto .
 apply ac_prop_root in Happ.
 rewrite <- Hc₁ in Happ.
-remember Hns as Hini; clear HeqHini.
+remember HL as Hini; clear HeqHini.
 apply exists_ini_pt_nat in Hini.
 destruct Hini as (j, (αj, Hini)).
 intros Hc; rewrite Hc in Happ.
@@ -745,17 +745,17 @@ rewrite nat_num_Qnat; reflexivity.
 Qed.
 
 (* [Walker, p 101] « O(br) = 0 » *)
-Theorem order_bbar_r_is_0 : ∀ pol ns m c₁ r f₁,
-  newton_segments pol = Some ns
-  → pol_in_K_1_m pol m
-  → c₁ = ac_root (Φq pol ns)
-  → r = root_multiplicity acf c₁ (Φq pol ns)
-  → f₁ = next_pol pol (β ns) (γ ns) c₁
+Theorem order_bbar_r_is_0 : ∀ f L m c₁ r f₁,
+  newton_segments f = Some L
+  → pol_in_K_1_m f m
+  → c₁ = ac_root (Φq f L)
+  → r = root_multiplicity acf c₁ (Φq f L)
+  → f₁ = next_pol f (β L) (γ L) c₁
   → (order (ps_poly_nth r f₁) = 0)%Qbar.
 Proof.
-intros pol ns m c₁ r f₁ Hns Hm Hc₁ Hr Hf₁.
-remember (quotient_phi_x_sub_c_pow_r (Φq pol ns) c₁ r) as Ψ eqn:HΨ .
-remember Hns as Hini; clear HeqHini.
+intros f L m c₁ r f₁ HL Hm Hc₁ Hr Hf₁.
+remember (quotient_phi_x_sub_c_pow_r (Φq f L) c₁ r) as Ψ eqn:HΨ .
+remember HL as Hini; clear HeqHini.
 apply exists_ini_pt_nat in Hini.
 destruct Hini as (j, (αj, Hini)).
 rewrite f₁_eq_term_with_Ψ_plus_g; try eassumption.
@@ -815,12 +815,12 @@ assert (order (ps_lap_nth r (yr * ycj * psy ∘ yc)) = 0)%Qbar as Hor.
   apply nth_g_order_pos; assumption.
 Qed.
 
-Theorem exists_pol_ord : ∀ pol, ∃ m,
-  m = ps_pol_com_polord pol ∧ pol_in_K_1_m pol m.
+Theorem exists_pol_ord : ∀ f, ∃ m,
+  m = ps_pol_com_polord f ∧ pol_in_K_1_m f m.
 Proof.
-intros pol.
+intros f.
 unfold pol_in_K_1_m.
-remember (ps_pol_com_polord pol) as m eqn:Hm.
+remember (ps_pol_com_polord f) as m eqn:Hm.
 exists m; split; [ reflexivity | ].
 apply ps_lap_forall_forall.
  intros a b Hab H.
@@ -828,7 +828,7 @@ apply ps_lap_forall_forall.
 
  intros a Ha.
  unfold ps_pol_com_polord in Hm.
- remember (al pol) as la; clear Heqla.
+ remember (al f) as la; clear Heqla.
  revert a m Ha Hm.
  induction la as [| b]; intros; [ contradiction | idtac ].
  simpl in Ha.
@@ -852,19 +852,19 @@ Qed.
      O(br) = 0
    »
 *)
-Theorem f₁_orders : ∀ pol ns c₁ r f₁,
-  newton_segments pol = Some ns
-  → c₁ = ac_root (Φq pol ns)
-  → r = root_multiplicity acf c₁ (Φq pol ns)
-  → f₁ = next_pol pol (β ns) (γ ns) c₁
+Theorem f₁_orders : ∀ f L c₁ r f₁,
+  newton_segments f = Some L
+  → c₁ = ac_root (Φq f L)
+  → r = root_multiplicity acf c₁ (Φq f L)
+  → f₁ = next_pol f (β L) (γ L) c₁
   → (∀ i, (order (ps_poly_nth i f₁) ≥ 0)%Qbar)
     ∧ (∀ i, (i < r)%nat → (order (ps_poly_nth i f₁) > 0)%Qbar)
     ∧ (order (ps_poly_nth r f₁) = 0)%Qbar.
 Proof.
-intros pol ns c₁ r f₁ Hns Hc₁ Hr Hf₁.
+intros f L c₁ r f₁ HL Hc₁ Hr Hf₁.
 split; [ eapply order_bbar_nonneg; eassumption | idtac ].
 split; [ eapply order_bbar_pos; eassumption | idtac ].
-pose proof (exists_pol_ord pol) as H.
+pose proof (exists_pol_ord f) as H.
 destruct H as (m, (Hm, Hp)).
 eapply order_bbar_r_is_0; eassumption.
 Qed.
