@@ -330,8 +330,8 @@ Fixpoint degree_plus_1_of_list α {R : ring α}
       end
   end.
 
-Definition degree α {R : ring α} zerop (pol : polynomial α) :=
-  pred (degree_plus_1_of_list zerop (al pol)).
+Definition degree α {R : ring α} zerop (f : polynomial α) :=
+  pred (degree_plus_1_of_list zerop (al f)).
 
 (* actually, field which is:
    - with characteristic 0 or 1
@@ -339,8 +339,8 @@ Definition degree α {R : ring α} zerop (pol : polynomial α) :=
 Class algeb_closed_field α (ac_ring : ring α) (ac_field : field ac_ring) :=
   { ac_charac_01 : ∀ n, (rng_mul_nat ac_ring (S (S n)) 1 ≠ 0)%K;
     ac_root : polynomial α → α;
-    ac_prop_root : ∀ pol, degree fld_zerop pol ≥ 1
-      → (apply_poly pol (ac_root pol) = 0)%K }.
+    ac_prop_root : ∀ f, degree fld_zerop f ≥ 1
+      → (apply_poly f (ac_root f) = 0)%K }.
 
 Definition ac_is_zero α {R : ring α} {K : field R}
   {acf : algeb_closed_field K} (x : α) := if fld_zerop x then True else False.
@@ -357,8 +357,8 @@ Fixpoint list_root_multiplicity
 
 Definition root_multiplicity α {r : ring α} {K : field r}
   (acf : algeb_closed_field K) c
-    pol :=
-  list_root_multiplicity acf c (al pol) (List.length (al pol)).
+    f :=
+  list_root_multiplicity acf c (al f) (List.length (al f)).
 
 Fixpoint list_quotient_phi_x_sub_c_pow_r α (R : ring α) la c₁ r :=
   match r with
@@ -366,8 +366,8 @@ Fixpoint list_quotient_phi_x_sub_c_pow_r α (R : ring α) la c₁ r :=
   | S r₁ => list_quotient_phi_x_sub_c_pow_r R (lap_div_deg_1 la c₁) c₁ r₁
   end.
 
-Definition quotient_phi_x_sub_c_pow_r α {R : ring α} pol c₁ r :=
-  (POL (list_quotient_phi_x_sub_c_pow_r R (al pol) c₁ r))%pol.
+Definition quotient_phi_x_sub_c_pow_r α {R : ring α} f c₁ r :=
+  (POL (list_quotient_phi_x_sub_c_pow_r R (al f) c₁ r))%pol.
 
 Section theorems.
 
@@ -548,34 +548,34 @@ destruct cnt; simpl.
  pose proof (H (S n)); assumption.
 Qed.
 
-Theorem cpol_degree_ge_1 : ∀ pol ns m,
-  newton_segments pol = Some ns
-  → pol_in_K_1_m pol m
-  → degree fld_zerop (Φq pol ns) ≥ 1.
+Theorem cpol_degree_ge_1 : ∀ f L m,
+  newton_segments f = Some L
+  → pol_in_K_1_m f m
+  → degree fld_zerop (Φq f L) ≥ 1.
 Proof.
-intros pol ns m Hns Hm.
-remember (Pos.to_nat (q_of_m m (γ ns))) as q eqn:Hq .
-remember (ini_pt ns) as jj eqn:Hj .
+intros f L m HL Hm.
+remember (Pos.to_nat (q_of_m m (γ L))) as q eqn:Hq .
+remember (ini_pt L) as jj eqn:Hj .
 destruct jj as (jq, αj); simpl.
-remember Hns as H; clear HeqH.
+remember HL as H; clear HeqH.
 apply exists_ini_pt_nat in H.
 destruct H as (j, (x, Hx)).
 rewrite <- Hj in Hx; injection Hx; clear Hx; intros; subst jq x.
-remember Hns as Hk; clear HeqHk.
+remember HL as Hk; clear HeqHk.
 apply exists_fin_pt_nat in Hk.
 destruct Hk as (k, (αk, Hk)).
 symmetry in Hk.
-remember Hns as Hdeg; clear HeqHdeg.
+remember HL as Hdeg; clear HeqHdeg.
 eapply phi_degree_is_k_sub_j_div_q in Hdeg; try eassumption.
 unfold has_degree in Hdeg.
 destruct Hdeg as (Hshr, (Hdeg, Hcnz)).
-remember Hns as Hqkj; clear HeqHqkj.
+remember HL as Hqkj; clear HeqHqkj.
 eapply q_is_factor_of_h_minus_j with (h := k) in Hqkj; try eassumption.
  destruct Hqkj as (n, Hqkj).
  destruct n.
   simpl in Hqkj.
   exfalso.
-  remember Hns as H; clear HeqH.
+  remember HL as H; clear HeqH.
   apply j_lt_k with (j := j) (k := k) in H.
    apply Nat.sub_gt in H; contradiction.
 
@@ -590,7 +590,7 @@ eapply q_is_factor_of_h_minus_j with (h := k) in Hqkj; try eassumption.
   rewrite Nat.div_mul in Hcnz; [ idtac | subst q; apply Pos2Nat_ne_0 ].
   unfold pseudo_degree in Hdeg.
   unfold degree.
-  remember (al (Φs q pol ns)) as la eqn:Hla .
+  remember (al (Φs q f L)) as la eqn:Hla .
   unfold Φs in Hla; simpl in Hla.
   rewrite Nat.sub_diag in Hla; simpl in Hla.
   rewrite <- Hj in Hla; simpl in Hla.
@@ -598,22 +598,22 @@ eapply q_is_factor_of_h_minus_j with (h := k) in Hqkj; try eassumption.
   rewrite Nat.sub_diag, list_pad_0.
   rewrite <- Hj; unfold fst.
   rewrite nat_num_Qnat.
-  remember (order_coeff (List.nth j (al pol) 0%ps)) as v eqn:Hv .
-  remember (oth_pts ns ++ [fin_pt ns]) as pts eqn:Hpts .
-  remember (List.map (term_of_point pol) pts) as tl eqn:Htl .
+  remember (order_coeff (List.nth j (al f) 0%ps)) as v eqn:Hv .
+  remember (oth_pts L ++ [fin_pt L]) as pts eqn:Hpts .
+  remember (List.map (term_of_point f) pts) as tl eqn:Htl .
   subst la; simpl.
-  remember (make_char_pol R (S j) tl) as cpol eqn:Hcpol .
-  remember (degree_plus_1_of_list fld_zerop cpol) as d eqn:Hd .
+  remember (make_char_pol R (S j) tl) as cf eqn:Hcf .
+  remember (degree_plus_1_of_list fld_zerop cf) as d eqn:Hd .
   symmetry in Hd.
   destruct d; [ exfalso | apply le_n_S, Nat.le_0_l ].
-  subst cpol.
-  remember (Pos.to_nat (q_of_m m (γ ns))) as nq.
-  remember (make_char_pol R (S j) tl) as cpol.
-  pose proof (list_length_shrink_le nq [v … cpol]) as Hlen.
-  remember [v … cpol] as vcpol.
-  rewrite Heqvcpol in Hlen at 2.
+  subst cf.
+  remember (Pos.to_nat (q_of_m m (γ L))) as nq.
+  remember (make_char_pol R (S j) tl) as cf.
+  pose proof (list_length_shrink_le nq [v … cf]) as Hlen.
+  remember [v … cf] as vcf.
+  rewrite Heqvcf in Hlen at 2.
   simpl in Hlen.
-  subst vcpol.
+  subst vcf.
   apply degree_plus_1_is_0 in Hd.
   simpl in Hcnz.
   simpl in Hdeg.
@@ -759,12 +759,12 @@ Qed.
 (* [Walker, p. 100] « If c₁ ≠ 0 is an r-fold root, r ≥ 1, of Φ(z^q) = 0,
    we have:
       Φ(z^q) = (z - c₁)^r Ψ(z), [...] » *)
-Theorem phi_zq_eq_z_sub_c₁_psy : ∀ pol ns c₁ r Ψ,
-  r = root_multiplicity acf c₁ (Φq pol ns)
-  → Ψ = quotient_phi_x_sub_c_pow_r (Φq pol ns) c₁ r
-    → (Φq pol ns = POL [(- c₁)%K; 1%K … []] ^ r * Ψ)%pol.
+Theorem phi_zq_eq_z_sub_c₁_psy : ∀ f L c₁ r Ψ,
+  r = root_multiplicity acf c₁ (Φq f L)
+  → Ψ = quotient_phi_x_sub_c_pow_r (Φq f L) c₁ r
+    → (Φq f L = POL [(- c₁)%K; 1%K … []] ^ r * Ψ)%pol.
 Proof.
-intros pol ns c r Ψ Hr HΨ.
+intros f L c r Ψ Hr HΨ.
 subst Ψ; simpl.
 eapply list_root_mul_power_quotient.
 symmetry; eassumption.
@@ -773,14 +773,14 @@ Qed.
 (* [Walker, p. 100] « If c₁ ≠ 0 is an r-fold root, r ≥ 1, of Φ(z^q) = 0,
    we have:
       Φ(z^q) = (z - c₁)^r Ψ(z), Ψ(c₁) ≠ 0 » *)
-Theorem psy_c₁_ne_0 : ∀ pol ns c₁ r Ψ,
-  newton_segments pol = Some ns
-  → r = root_multiplicity acf c₁ (Φq pol ns)
-    → Ψ = quotient_phi_x_sub_c_pow_r (Φq pol ns) c₁ r
+Theorem psy_c₁_ne_0 : ∀ f L c₁ r Ψ,
+  newton_segments f = Some L
+  → r = root_multiplicity acf c₁ (Φq f L)
+    → Ψ = quotient_phi_x_sub_c_pow_r (Φq f L) c₁ r
       → (apply_poly Ψ c₁ ≠ 0)%K.
 Proof.
-intros pol ns c r Ψ Hns Hr HΨ.
-remember (Φq pol ns) as phi eqn:Hphi .
+intros f L c r Ψ HL Hr HΨ.
+remember (Φq f L) as phi eqn:Hphi .
 subst Ψ; simpl.
 unfold apply_poly; simpl.
 unfold root_multiplicity in Hr.
@@ -793,9 +793,9 @@ simpl in H.
 rewrite Nat.sub_diag in H; simpl in H.
 apply lap_eq_cons_nil_inv in H.
 destruct H as (H, _).
-remember (ini_pt ns) as jj eqn:Hj .
+remember (ini_pt L) as jj eqn:Hj .
 destruct jj as (jq, αj); simpl.
-remember Hns as HH; clear HeqHH.
+remember HL as HH; clear HeqHH.
 apply exists_ini_pt_nat in HH.
 destruct HH as (j, (x, Hx)).
 rewrite <- Hj in Hx; injection Hx; clear Hx; intros; subst jq x.
