@@ -215,7 +215,7 @@ remember (newton_segments f) as Ll eqn:HLl .
 symmetry in HLl.
 destruct Ll as [L₁| ].
  simpl in HL; subst L₁.
- now eapply exists_ini_pt_nat with (pol := f).
+ now eapply exists_ini_pt_nat with (f := f).
 
  subst L; simpl.
  exists 0%nat, 0; reflexivity.
@@ -230,7 +230,7 @@ remember (newton_segments f) as Ll eqn:HLl .
 symmetry in HLl.
 destruct Ll as [L₁| ].
  simpl in HL; subst L₁.
- now eapply exists_fin_pt_nat with (pol := f).
+ now eapply exists_fin_pt_nat with (f := f).
 
  subst L; simpl.
  exists 0%nat, 0; reflexivity.
