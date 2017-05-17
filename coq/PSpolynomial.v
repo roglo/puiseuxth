@@ -19,7 +19,7 @@ Set Implicit Arguments.
 Delimit Scope ps_lap_scope with pslap.
 
 Definition ps_lap_nth α {R : ring α} h la := (List.nth h la 0)%ps.
-Definition ps_poly_nth α {R : ring α} h pol := (ps_lap_nth h (al pol)).
+Definition ps_poly_nth α {R : ring α} h f := (ps_lap_nth h (al f)).
 
 Arguments ps_lap_nth _ _ h%nat la%pslap.
 
