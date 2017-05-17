@@ -759,7 +759,7 @@ Qed.
 (* [Walker, p. 100] « If c₁ ≠ 0 is an r-fold root, r ≥ 1, of Φ(z^q) = 0,
    we have:
       Φ(z^q) = (z - c₁)^r Ψ(z), [...] » *)
-Theorem phi_zq_eq_z_sub_c₁_psy : ∀ f L c₁ r Ψ,
+Theorem phi_zq_eq_z_sub_c₁_psi : ∀ f L c₁ r Ψ,
   r = root_multiplicity acf c₁ (Φq f L)
   → Ψ = quotient_phi_x_sub_c_pow_r (Φq f L) c₁ r
     → (Φq f L = POL [(- c₁)%K; 1%K … []] ^ r * Ψ)%pol.
@@ -773,7 +773,7 @@ Qed.
 (* [Walker, p. 100] « If c₁ ≠ 0 is an r-fold root, r ≥ 1, of Φ(z^q) = 0,
    we have:
       Φ(z^q) = (z - c₁)^r Ψ(z), Ψ(c₁) ≠ 0 » *)
-Theorem psy_c₁_ne_0 : ∀ f L c₁ r Ψ,
+Theorem psi_c₁_ne_0 : ∀ f L c₁ r Ψ,
   newton_segments f = Some L
   → r = root_multiplicity acf c₁ (Φq f L)
     → Ψ = quotient_phi_x_sub_c_pow_r (Φq f L) c₁ r

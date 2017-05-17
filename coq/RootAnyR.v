@@ -1005,7 +1005,7 @@ erewrite length_char_pol in Hr; try eassumption.
 rewrite <- Hcf in Hr.
 rewrite Nat.sub_0_r in Hr.
 remember Hrv as H; clear HeqH.
-eapply phi_zq_eq_z_sub_c₁_psy in H; [  | reflexivity ].
+eapply phi_zq_eq_z_sub_c₁_psi in H; [  | reflexivity ].
 unfold eq_poly in H.
 rewrite Hcf in H.
 remember quotient_phi_x_sub_c_pow_r as g; simpl in H; subst g.

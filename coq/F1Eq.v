@@ -1574,7 +1574,7 @@ Qed.
    We proof here that
       (c₁+y₁)^j.Φ((c₁+y₁)^q) = y₁^r.(c₁+y₁)^j.Ψ(c₁+y₁)
  *)
-Theorem phi_c₁y₁_psy : ∀ f L pl tl l c₁ r Ψ j αj,
+Theorem phi_c₁y₁_psi : ∀ f L pl tl l c₁ r Ψ j αj,
   newton_segments f = Some L
   → ac_root (Φq f L) = c₁
     → r = root_multiplicity acf c₁ (Φq f L)
@@ -1599,7 +1599,7 @@ symmetry.
 progress unfold ps_pol_mul.
 rewrite poly_mul_comm, poly_mul_assoc, poly_mul_comm.
 apply poly_mul_compat; [ reflexivity | idtac ].
-rewrite phi_zq_eq_z_sub_c₁_psy; try eassumption.
+rewrite phi_zq_eq_z_sub_c₁_psi; try eassumption.
 rewrite poly_inject_inj_mul.
 progress unfold eq_poly; simpl.
 rewrite <- lap_power_map_ps; simpl.
@@ -1666,7 +1666,7 @@ Proof.
 intros f L c₁ pl tl j αj l₁ l₂ r Ψ HL Hc₁ Hr HΨ Hpl Htl Hl Hss Hini.
 rewrite f₁_eq_sum_without_x_β₁_plus_sum; try eassumption.
 rewrite sum_ah_c₁y_h_eq; try eassumption.
-rewrite phi_c₁y₁_psy; try eassumption.
+rewrite phi_c₁y₁_psi; try eassumption.
 reflexivity.
 Qed.
 

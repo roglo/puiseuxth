@@ -762,10 +762,10 @@ rewrite f₁_eq_term_with_Ψ_plus_g; try eassumption.
 unfold ps_poly_nth; simpl.
 remember ([0%ps; 1%ps … []] ^ r)%pslap as yr.
 remember ([ps_monom c₁ 0; 1%ps … []] ^ j)%pslap as ycj.
-remember (lap_inject_K_in_Kx (al Ψ)) as psy.
+remember (lap_inject_K_in_Kx (al Ψ)) as psi.
 remember [ps_monom c₁ 0; 1%ps … []] as yc.
-assert (order (ps_lap_nth r (yr * ycj * psy ∘ yc)) = 0)%Qbar as Hor.
- subst yr ycj psy yc.
+assert (order (ps_lap_nth r (yr * ycj * psi ∘ yc)) = 0)%Qbar as Hor.
+ subst yr ycj psi yc.
  progress unfold ps_lap_mul.
  rewrite <- lap_mul_assoc.
  do 2 rewrite fold_ps_lap_mul.
@@ -793,7 +793,7 @@ assert (order (ps_lap_nth r (yr * ycj * psy ∘ yc)) = 0)%Qbar as Hor.
    rewrite ps_mul_0_r, ps_add_0_l.
    rewrite apply_lap_inject_K_in_Kx_monom.
    rewrite ps_monom_order; [ reflexivity | idtac ].
-   eapply psy_c₁_ne_0 in HΨ; eassumption.
+   eapply psi_c₁_ne_0 in HΨ; eassumption.
 
    eapply char_pol_root_ne_0; eassumption.
 
@@ -802,7 +802,7 @@ assert (order (ps_lap_nth r (yr * ycj * psy ∘ yc)) = 0)%Qbar as Hor.
   revert HH.
   eapply char_pol_root_ne_0; eassumption.
 
- subst yr ycj psy yc.
+ subst yr ycj psi yc.
  rewrite fold_ps_lap_add.
  rewrite ps_lap_nth_add.
  rewrite fold_ps_lap_comp.
