@@ -429,28 +429,28 @@ destruct lb as [| b].
   apply lap_eq_0.
 Qed.
 
-Theorem minus_beta_in_K_1_mq : ∀ pol ns m a c q,
-  newton_segments pol = Some ns
-  → pol_in_K_1_m pol m
-  → q = q_of_m m (γ ns)
-  → a = ps_monom c (- β ns)
+Theorem minus_beta_in_K_1_mq : ∀ f L m a c q,
+  newton_segments f = Some L
+  → pol_in_K_1_m f m
+  → q = q_of_m m (γ L)
+  → a = ps_monom c (- β L)
   → in_K_1_m a (m * q).
 Proof.
-intros pol ns m a c q Hns Hm Hq Ha.
+intros f L m a c q HL Hm Hq Ha.
 constructor; subst a.
-remember (p_of_m m (γ ns)) as p eqn:Hp .
-pose proof (any_is_p_mq (γ ns) m Hp Hq) as Hgp.
+remember (p_of_m m (γ L)) as p eqn:Hp .
+pose proof (any_is_p_mq (γ L) m Hp Hq) as Hgp.
 destruct Hgp as (Hgp, Hg).
-remember Hns as Hini; clear HeqHini.
+remember HL as Hini; clear HeqHini.
 apply exists_ini_pt_nat in Hini.
 destruct Hini as (j, (αj, Hini)).
-remember Hns as Him; clear HeqHim.
+remember HL as Him; clear HeqHim.
 symmetry in Hini.
 eapply pol_ord_of_ini_pt in Him; eauto .
-remember Hns as Hbm; clear HeqHbm.
+remember HL as Hbm; clear HeqHbm.
 apply points_in_any_newton_segment with (h := Qnat j) (αh := αj) in Hbm.
  rewrite Him, Hgp in Hbm.
- remember (mh_of_m m αj (ps_poly_nth j pol)) as mj.
+ remember (mh_of_m m αj (ps_poly_nth j f)) as mj.
  remember (mj * ' q + Z.of_nat j * p # m * q) as v.
  exists (ps_monom c (- v)); subst v; simpl.
  split; [ idtac | reflexivity ].
@@ -472,15 +472,15 @@ apply points_in_any_newton_segment with (h := Qnat j) (αh := αj) in Hbm.
  left; symmetry; eassumption.
 Qed.
 
-Theorem gamma_in_K_1_mq : ∀ ns m a c q,
-  q = q_of_m m (γ ns)
-  → (a = ps_monom c (γ ns))%ps
+Theorem gamma_in_K_1_mq : ∀ L m a c q,
+  q = q_of_m m (γ L)
+  → (a = ps_monom c (γ L))%ps
   → in_K_1_m a (m * q).
 Proof.
-intros ns m a c q Hq Ha.
+intros L m a c q Hq Ha.
 constructor.
-remember (p_of_m m (γ ns)) as p eqn:Hp .
-pose proof (any_is_p_mq (γ ns) m Hp Hq) as Hgp.
+remember (p_of_m m (γ L)) as p eqn:Hp .
+pose proof (any_is_p_mq (γ L) m Hp Hq) as Hgp.
 destruct Hgp as (Hgp, Hg).
 exists (ps_monom c (p # m * q)); simpl.
 split; [ idtac | reflexivity ].
@@ -502,16 +502,16 @@ rewrite ps_adjust_eq with (n := O) (k := n) in Hps.
 assumption.
 Qed.
 
-Theorem next_pol_in_K_1_mq : ∀ pol pol₁ ns m c q,
-  newton_segments pol = Some ns
-  → pol_in_K_1_m pol m
-  → c = ac_root (Φq pol ns)
-  → q = q_of_m m (γ ns)
-  → pol₁ = next_pol pol (β ns) (γ ns) c
-  → pol_in_K_1_m pol₁ (m * q).
+Theorem next_pol_in_K_1_mq : ∀ f f₁ L m c q,
+  newton_segments f = Some L
+  → pol_in_K_1_m f m
+  → c = ac_root (Φq f L)
+  → q = q_of_m m (γ L)
+  → f₁ = next_pol f (β L) (γ L) c
+  → pol_in_K_1_m f₁ (m * q).
 Proof.
-intros pol pol₁ ns m c q Hns Hm Hc Hq Hpol₁.
-subst pol₁.
+intros f f₁ L m c q HL Hm Hc Hq Hf₁.
+subst f₁.
 unfold next_pol, next_lap; simpl.
 apply ps_lap_forall_forall.
  intros a b Hab Hamq.

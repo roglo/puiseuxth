@@ -746,7 +746,7 @@ destruct r.
    remember (option_get phony_ns (newton_segments f₂)) as L₂ eqn:HL₂ .
    eapply IHn with (L := L₁) (L₁ := L₂) (m := (m * q₀)%positive);
     try eassumption; try reflexivity.
-    eapply next_pol_in_K_1_mq with (ns := L); eassumption .
+    eapply next_pol_in_K_1_mq with (L := L); eassumption .
 
     intros i Hin.
     apply le_n_S in Hin.
@@ -1326,7 +1326,7 @@ symmetry in Hr₁.
 eapply q_eq_1_any_r with (L := L₁); try eassumption; [ | reflexivity ].
 replace m with (m * 1)%positive by apply Pos.mul_1_r.
 symmetry in Hq.
-eapply next_pol_in_K_1_mq with (ns := L); eassumption.
+eapply next_pol_in_K_1_mq with (L := L); eassumption.
 Qed.
 
 Theorem first_n_pol_in_K_1_m_any_r : ∀ f L fn m c r,
@@ -1380,7 +1380,7 @@ induction n; intros.
  eapply IHn with (f := f₁); try eassumption.
   replace m with (m * 1)%positive by apply Pos.mul_1_r.
   symmetry in Hq.
-  eapply next_pol_in_K_1_mq with (ns := L); try eassumption.
+  eapply next_pol_in_K_1_mq with (L := L); try eassumption.
 
   eapply all_r_le_next with (f := f); try eassumption .
 
