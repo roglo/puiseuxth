@@ -15,7 +15,7 @@ Set Implicit Arguments.
 Definition adjust_ps α {R : ring α} n k ps :=
   {| ps_terms := series_shift n (series_stretch k (ps_terms ps));
      ps_ordnum := ps_ordnum ps * Zpos k - Z.of_nat n;
-     ps_polord := ps_polord ps * k |}.
+     ps_polydo := ps_polydo ps * k |}.
 
 Section first_theorems.
 
@@ -46,7 +46,7 @@ rewrite series_order_stretch_succ_inf; auto.
 Qed.
 
 Theorem gcd_ps_0_m : ∀ n (ps : puiseux_series α),
-  gcd_ps n O ps = Z.abs (Z.gcd (ps_ordnum ps + Z.of_nat n) (' ps_polord ps)).
+  gcd_ps n O ps = Z.abs (Z.gcd (ps_ordnum ps + Z.of_nat n) (' ps_polydo ps)).
 Proof.
 intros n ps.
 unfold gcd_ps.
@@ -204,7 +204,7 @@ Definition ps_ordnum_add α (ps₁ ps₂ : puiseux_series α) :=
 Definition ps_add {α} {r : ring α} (ps₁ ps₂ : puiseux_series α) :=
   {| ps_terms := ps_terms_add ps₁ ps₂;
      ps_ordnum := ps_ordnum_add ps₁ ps₂;
-     ps_polord := cm ps₁ ps₂ |}.
+     ps_polydo := cm ps₁ ps₂ |}.
 
 (* I prefer this other version for addition; proved strongly equal to
    ps_add below; could be the main and only one, perhaps ? *)
@@ -212,11 +212,11 @@ Definition ps_add {α} {r : ring α} (ps₁ ps₂ : puiseux_series α) :=
 Definition adjusted_ps_add α {R : ring α} ps₁ ps₂ :=
   {| ps_terms := series_add (ps_terms ps₁) (ps_terms ps₂);
      ps_ordnum := ps_ordnum ps₁;
-     ps_polord := ps_polord ps₁ |}.
+     ps_polydo := ps_polydo ps₁ |}.
 
 Definition adjust_ps_from α {R : ring α} (ps₁ ps₂ : puiseux_series α) :=
-  let k₁ := ps_polord ps₂ in
-  let k₂ := ps_polord ps₁ in
+  let k₁ := ps_polydo ps₂ in
+  let k₂ := ps_polydo ps₁ in
   let v₁ := (ps_ordnum ps₁ * Zpos k₁)%Z in
   let v₂ := (ps_ordnum ps₂ * Zpos k₂)%Z in
   adjust_ps (Z.to_nat (v₂ - Z.min v₁ v₂)) k₂ ps₂.
@@ -230,7 +230,7 @@ Notation "a ++ b" := (ps_add₂ a b) : ps_scope.
 Definition ps_opp {α} {r : ring α} ps :=
   {| ps_terms := (- ps_terms ps)%ser;
      ps_ordnum := ps_ordnum ps;
-     ps_polord := ps_polord ps |}.
+     ps_polydo := ps_polydo ps |}.
 
 Notation "- a" := (ps_opp a) : ps_scope.
 Notation "a - b" := (ps_add a (ps_opp b)) : ps_scope.
@@ -305,9 +305,9 @@ unfold cm_factor, cm.
 remember (ps_ordnum ps₁) as v₁ eqn:Hv₁ .
 remember (ps_ordnum ps₂) as v₂ eqn:Hv₂ .
 remember (ps_ordnum ps₃) as v₃ eqn:Hv₃ .
-remember (ps_polord ps₁) as c₁.
-remember (ps_polord ps₂) as c₂.
-remember (ps_polord ps₃) as c₃.
+remember (ps_polydo ps₁) as c₁.
+remember (ps_polydo ps₂) as c₂.
+remember (ps_polydo ps₃) as c₃.
 subst g; unfold adjust_series.
 do 2 rewrite series_stretch_add_distr.
 do 2 rewrite series_shift_add_distr.
@@ -458,7 +458,7 @@ unfold ps_ordnum_add; simpl.
 unfold cm_factor, cm; simpl.
 rewrite Z.min_id.
 symmetry.
-remember (ps_polord ps * ps_polord ps)%positive as k eqn:Hk .
+remember (ps_polydo ps * ps_polydo ps)%positive as k eqn:Hk .
 rewrite ps_normal_adjust_eq with (n := O) (k := k); subst k.
 unfold adjust_ps; simpl.
 rewrite series_shift_0.
@@ -469,7 +469,7 @@ destruct v as [| v| v].
  reflexivity.
 
  symmetry.
- remember (Z.to_nat (ps_ordnum ps * Zpos (ps_polord ps))) as n.
+ remember (Z.to_nat (ps_ordnum ps * Zpos (ps_polydo ps))) as n.
  rewrite ps_normal_adjust_eq with (n := n) (k := xH); subst n.
  unfold adjust_ps.
  remember Z.sub as g; simpl; subst g.
@@ -480,7 +480,7 @@ destruct v as [| v| v].
  rewrite Z2Nat.id; [ idtac | apply Pos2Z.is_nonneg ].
  rewrite Z.sub_diag; reflexivity.
 
- remember (Z.to_nat (Zpos v * Zpos (ps_polord ps))) as n.
+ remember (Z.to_nat (Zpos v * Zpos (ps_polydo ps))) as n.
  rewrite ps_normal_adjust_eq with (n := n) (k := xH); subst n.
  unfold adjust_ps.
  remember Z.sub as g; simpl; subst g.
@@ -516,8 +516,8 @@ constructor; [ simpl | reflexivity | simpl ].
  unfold ps_terms_add.
  unfold adjust_series.
  unfold cm_factor.
- remember (ps_ordnum ps₂ * Zpos (ps_polord ps₁))%Z as vc₂₁.
- remember (ps_ordnum ps₁ * Zpos (ps_polord ps₂))%Z as vc₁₂.
+ remember (ps_ordnum ps₂ * Zpos (ps_polydo ps₁))%Z as vc₂₁.
+ remember (ps_ordnum ps₁ * Zpos (ps_polydo ps₂))%Z as vc₁₂.
  remember (Z.min vc₁₂ vc₂₁) as m eqn:Hm .
  rewrite Z.min_comm, <- Hm.
  reflexivity.

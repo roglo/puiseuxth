@@ -1164,7 +1164,7 @@ eapply q_mj_mk_eq_p_h_j with (h := r) (αh := αk₁) in H; try eassumption;
  rewrite positive_nat_Z in HH₃.
  unfold mh_of_m in Heqmj'.
  unfold mh_of_m in Heqmj'.
- erewrite <- qden_αj_is_ps_polord in Heqmj';
+ erewrite <- qden_αj_is_ps_polydo in Heqmj';
    [ | eassumption | symmetry; eassumption ].
  remember Heqq₁ as H; clear HeqH.
  eapply q_eq_1_any_r in H; try eassumption; [ | symmetry; assumption ].
@@ -3731,7 +3731,7 @@ eapply first_n_pol_in_K_1_m_any_r with (L := L₁) in H; eauto .
  rewrite <- Pos.mul_assoc.
  remember (m * q_of_m m (γ L))%positive as m₁ eqn:Hm₁ .
  unfold mh_of_m.
- erewrite <- qden_αj_is_ps_polord; try eassumption; eauto .
+ erewrite <- qden_αj_is_ps_polydo; try eassumption; eauto .
  remember (2 * m₁)%positive as m₂.
  unfold Qlt; simpl; subst m₂.
  clear H.

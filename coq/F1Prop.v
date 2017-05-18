@@ -56,8 +56,8 @@ Theorem order_add_eq_min : ∀ a b,
   → (order (a + b) = Qbar.min (order a) (order b))%Qbar.
 Proof.
 intros a b Hab.
-set (k₁ := ps_polord b).
-set (k₂ := ps_polord a).
+set (k₁ := ps_polydo b).
+set (k₂ := ps_polydo a).
 set (v₁ := (ps_ordnum a * ' k₁)%Z).
 set (v₂ := (ps_ordnum b * ' k₂)%Z).
 set (n₁ := Z.to_nat (v₂ - Z.min v₁ v₂)).
@@ -816,18 +816,18 @@ assert (order (ps_lap_nth r (yr * ycj * psi ∘ yc)) = 0)%Qbar as Hor.
 Qed.
 
 Theorem exists_pol_ord : ∀ f, ∃ m,
-  m = ps_pol_com_polord f ∧ pol_in_K_1_m f m.
+  m = ps_pol_com_polydo f ∧ pol_in_K_1_m f m.
 Proof.
 intros f.
 unfold pol_in_K_1_m.
-remember (ps_pol_com_polord f) as m eqn:Hm.
+remember (ps_pol_com_polydo f) as m eqn:Hm.
 exists m; split; [ reflexivity | ].
 apply ps_lap_forall_forall.
  intros a b Hab H.
  rewrite <- Hab; assumption.
 
  intros a Ha.
- unfold ps_pol_com_polord in Hm.
+ unfold ps_pol_com_polydo in Hm.
  remember (al f) as la; clear Heqla.
  revert a m Ha Hm.
  induction la as [| b]; intros; [ contradiction | idtac ].
@@ -835,7 +835,7 @@ apply ps_lap_forall_forall.
  destruct Ha as [(Hbla, Hba)| Ha].
   constructor.
   simpl in Hm.
-  remember (ps_lap_com_polord la) as m' eqn:Hm' .
+  remember (ps_lap_com_polydo la) as m' eqn:Hm' .
   exists (adjust_ps 0 m' b).
   split; [ idtac | simpl; rewrite Pos.mul_comm; symmetry; assumption ].
   transitivity b; [ idtac | assumption ].

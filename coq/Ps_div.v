@@ -20,7 +20,7 @@ Definition ps_inv {α} {r : ring α} {f : field r} ps :=
   | fin n =>
       {| ps_terms := series_inv (series_left_shift n (ps_terms ps));
          ps_ordnum := - ps_ordnum ps - Z.of_nat n;
-         ps_polord := ps_polord ps |}
+         ps_polydo := ps_polydo ps |}
   | ∞ =>
       ps
   end.
@@ -32,7 +32,7 @@ Definition ps_left_adjust α {R : ring α} {K : field R} ps :=
   | fin n =>
       {| ps_terms := series_left_shift n (ps_terms ps);
          ps_ordnum := ps_ordnum ps + Z.of_nat n;
-         ps_polord := ps_polord ps |}
+         ps_polydo := ps_polydo ps |}
   | ∞ =>
       ps
   end.
@@ -91,8 +91,8 @@ destruct n as [n| ].
 
    eapply series_order_left_adjust; eassumption.
 
-  erewrite ps_polord_normalise; try reflexivity; try eassumption.
-  erewrite ps_polord_normalise with (n := O); try reflexivity; try eassumption.
+  erewrite ps_polydo_normalise; try reflexivity; try eassumption.
+  erewrite ps_polydo_normalise with (n := O); try reflexivity; try eassumption.
    rewrite Z.add_0_r.
    unfold ps_left_adjust.
    rewrite Hn.
@@ -162,7 +162,7 @@ destruct n as [n| ].
    rewrite Z.div_0_l; [ reflexivity | idtac ].
    intros H; discriminate H.
 
-   erewrite ps_polord_normalise; try reflexivity; try eassumption.
+   erewrite ps_polydo_normalise; try reflexivity; try eassumption.
    remember Z.gcd as g; simpl; subst g.
    rewrite Z.gcd_1_l.
    reflexivity.
@@ -254,7 +254,7 @@ destruct n as [n| ].
      constructor; try reflexivity; simpl.
      constructor; intros i; simpl.
      destruct i; [ reflexivity | idtac ].
-     remember (S i * Pos.to_nat (ps_polord ps * ps_polord ps))%nat as x.
+     remember (S i * Pos.to_nat (ps_polydo ps * ps_polydo ps))%nat as x.
      symmetry in Heqx; simpl.
      destruct x; [ idtac | reflexivity ].
      apply Nat.eq_mul_0_l in Heqx; auto; discriminate Heqx.

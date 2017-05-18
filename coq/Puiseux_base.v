@@ -23,7 +23,7 @@ Set Implicit Arguments.
 
 Definition order {α} {r : ring α} {K : field r} ps :=
   match series_order (ps_terms ps) 0 with
-  | fin v => qfin (ps_ordnum ps + Z.of_nat v # ps_polord ps)
+  | fin v => qfin (ps_ordnum ps + Z.of_nat v # ps_polydo ps)
   | ∞ => qinf
   end.
 
@@ -287,8 +287,8 @@ destruct na as [na| ].
   remember (ps_ordnum b + Z.of_nat nb)%Z as bo eqn:Hbo .
   remember (Z.of_nat apn) as ap eqn:Hap ; subst apn.
   remember (Z.of_nat bpn) as bp eqn:Hbp ; subst bpn.
-  remember (' ps_polord a)%Z as oa eqn:Hoa .
-  remember (' ps_polord b)%Z as ob eqn:Hob .
+  remember (' ps_polydo a)%Z as oa eqn:Hoa .
+  remember (' ps_polydo b)%Z as ob eqn:Hob .
   apply Z2Pos.inj in H1.
    eapply div_gcd_gcd_mul_compat; eassumption.
 

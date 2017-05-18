@@ -120,7 +120,7 @@ Definition root_tail_from_cγ_list α {R : ring α} {K : field R}
   {acf : algeb_closed_field K} m f L :=
   {| ps_terms := {| terms := root_tail_series_from_cγ_list m f L |};
      ps_ordnum := Qnum (γ L) * ' m / ' Qden (γ L);
-     ps_polord := m |}.
+     ps_polydo := m |}.
 
 Definition γ_sum α {R : ring α} {K : field R}
   {acf : algeb_closed_field K} b n f L :=

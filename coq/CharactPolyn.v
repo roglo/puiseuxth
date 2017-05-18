@@ -49,11 +49,11 @@ Definition Φq α {R : ring α} {K : field R} f L :=
   let j := nat_num (fst (ini_pt L)) in
   {| al := make_char_pol R j tl |}.
 
-Definition ps_lap_com_polord α (psl : list (puiseux_series α)) :=
-  List.fold_right (λ ps a, (a * ps_polord ps)%positive) 1%positive psl.
+Definition ps_lap_com_polydo α (psl : list (puiseux_series α)) :=
+  List.fold_right (λ ps a, (a * ps_polydo ps)%positive) 1%positive psl.
 
-Definition ps_pol_com_polord {α} f := @ps_lap_com_polord α (al f).
-Arguments ps_pol_com_polord _ f%pol.
+Definition ps_pol_com_polydo {α} f := @ps_lap_com_polydo α (al f).
+Arguments ps_pol_com_polydo _ f%pol.
 
 (* *)
 
@@ -90,11 +90,11 @@ Definition q_of_m m a :=
   Z.to_pos ('q / Z.gcd p ('q)).
 
 Definition mh_of_m α m αh (hps : puiseux_series α) :=
-  (Qnum αh * ' m / ' ps_polord hps)%Z.
+  (Qnum αh * ' m / ' ps_polydo hps)%Z.
 
 (* express that some puiseux series ∈ K(1/m)* *)
 Inductive in_K_1_m {α} {R : ring α} {K : field R} ps m :=
-  InK1m : (∃ ps₁, (ps₁ = ps)%ps ∧ ps_polord ps₁ = m) → in_K_1_m ps m.
+  InK1m : (∃ ps₁, (ps₁ = ps)%ps ∧ ps_polydo ps₁ = m) → in_K_1_m ps m.
 
 Arguments in_K_1_m _ _ _ ps%ps m%positive.
 
@@ -974,10 +974,10 @@ destruct Hαh as [Hαh| Hαh].
   apply ini_fin_ns_in_init_pts; assumption.
 Qed.
 
-Theorem qden_αj_is_ps_polord : ∀ f L j αj,
+Theorem qden_αj_is_ps_polydo : ∀ f L j αj,
   newton_segments f = Some L
   → (Qnat j, αj) = ini_pt L
-  → Qden αj = ps_polord (ps_poly_nth j f).
+  → Qden αj = ps_polydo (ps_poly_nth j f).
 Proof.
 intros f L j αj HL Hini.
 remember HL as H; clear HeqH.
@@ -1020,8 +1020,8 @@ destruct y as [y| ]; simpl in H0, H1.
  remember (gcd_ps y z₁ ps₁) as g₁.
  remember (ps_ordnum ps₁ + Z.of_nat y)%Z as p₁.
  remember (ps_ordnum ps + Z.of_nat x)%Z as p.
- remember (' ps_polord ps₁)%Z as o₁.
- remember (' ps_polord ps)%Z as o.
+ remember (' ps_polydo ps₁)%Z as o₁.
+ remember (' ps_polydo ps)%Z as o.
  exists p₁.
  pose proof (gcd_ps_is_pos x z ps) as Hgp.
  pose proof (gcd_ps_is_pos y z₁ ps₁) as Hgp₁.
@@ -1097,7 +1097,7 @@ destruct y as [y| ]; simpl in H0, H1.
  pose proof (gcd_ps_is_pos x z ps) as Hgp.
  unfold gcd_ps in H0.
  remember (ps_ordnum ps + Z.of_nat x)%Z as p.
- remember (' ps_polord ps)%Z as o.
+ remember (' ps_polydo ps)%Z as o.
  remember (Z.of_nat z) as t.
  pose proof (Z.gcd_divide_l p (Z.gcd o t)) as H.
  destruct H as (c, Hc).
@@ -1179,17 +1179,17 @@ subst mj; simpl.
 unfold mh_of_m; simpl.
 unfold Qeq; simpl.
 rewrite Z_div_mul_swap.
- erewrite qden_αj_is_ps_polord; eauto .
+ erewrite qden_αj_is_ps_polydo; eauto .
  rewrite Z.div_mul; eauto .
 
- erewrite <- qden_αj_is_ps_polord; eauto .
+ erewrite <- qden_αj_is_ps_polydo; eauto .
  eapply den_αj_divides_num_αj_m; eauto .
 Qed.
 
-Theorem qden_αk_is_ps_polord : ∀ f L k αk,
+Theorem qden_αk_is_ps_polydo : ∀ f L k αk,
   newton_segments f = Some L
   → (Qnat k, αk) = fin_pt L
-  → Qden αk = ps_polord (ps_poly_nth k f).
+  → Qden αk = ps_polydo (ps_poly_nth k f).
 Proof.
 intros f L k αk HL Hfin.
 remember HL as H; clear HeqH.
@@ -1237,17 +1237,17 @@ subst mk; simpl.
 unfold mh_of_m; simpl.
 unfold Qeq; simpl.
 rewrite Z_div_mul_swap.
- erewrite qden_αk_is_ps_polord; eauto .
+ erewrite qden_αk_is_ps_polydo; eauto .
  rewrite Z.div_mul; eauto .
 
- erewrite <- qden_αk_is_ps_polord; eauto .
+ erewrite <- qden_αk_is_ps_polydo; eauto .
  eapply den_αk_divides_num_αk_m; eauto .
 Qed.
 
-Theorem qden_αh_is_ps_polord : ∀ f L h αh,
+Theorem qden_αh_is_ps_polydo : ∀ f L h αh,
   newton_segments f = Some L
   → (Qnat h, αh) ∈ oth_pts L
-  → Qden αh = ps_polord (ps_poly_nth h f).
+  → Qden αh = ps_polydo (ps_poly_nth h f).
 Proof.
 intros f L h αh HL Hoth.
 remember HL as H; clear HeqH.
@@ -1293,10 +1293,10 @@ subst mh; simpl.
 unfold mh_of_m; simpl.
 unfold Qeq; simpl.
 rewrite Z_div_mul_swap.
- erewrite qden_αh_is_ps_polord; eauto .
+ erewrite qden_αh_is_ps_polydo; eauto .
  rewrite Z.div_mul; eauto .
 
- erewrite <- qden_αh_is_ps_polord; eauto .
+ erewrite <- qden_αh_is_ps_polydo; eauto .
  eapply den_αh_divides_num_αh_m; eauto .
 Qed.
 
@@ -1329,13 +1329,13 @@ split.
  unfold mh_of_m; simpl.
  subst hps.
  destruct Hh as [Hh| [Hk| ]]; [ idtac | idtac | contradiction ].
-  erewrite <- qden_αh_is_ps_polord; eauto .
+  erewrite <- qden_αh_is_ps_polydo; eauto .
   rewrite Z_div_mul_swap.
    rewrite Z.div_mul; auto.
 
    eapply den_αh_divides_num_αh_m; eauto .
 
-  erewrite <- qden_αk_is_ps_polord; eauto .
+  erewrite <- qden_αk_is_ps_polydo; eauto .
   rewrite Z_div_mul_swap.
    rewrite Z.div_mul; auto.
 

@@ -11,20 +11,20 @@ Require Import Power_series.
 
 Set Implicit Arguments.
 
-(* ps_terms: power series (in x^(1/ps_polord))
+(* ps_terms: power series (in x^(1/ps_polydo))
    ps_ordnum: order numerator
-   ps_polord: polydromy order (common denominator) *)
+   ps_polydo: polydromy order (common denominator) *)
 Record puiseux_series α := mkps
   { ps_terms : power_series α;
     ps_ordnum : Z;
-    ps_polord : positive }.
+    ps_polydo : positive }.
 
-Arguments mkps α%type ps_terms%ser ps_ordnum%Z ps_polord%positive.
+Arguments mkps α%type ps_terms%ser ps_ordnum%Z ps_polydo%positive.
 Delimit Scope ps_scope with ps.
 
 Arguments ps_terms α%type p%ps.
 Arguments ps_ordnum α%type p%ps.
-Arguments ps_polord α%type p%ps.
+Arguments ps_polydo α%type p%ps.
 
 Section axioms.
 
@@ -755,10 +755,10 @@ Definition normalise_series α n k (s : power_series α) :=
   series_shrink k (series_left_shift n s).
 
 Definition gcd_ps α n k (ps : puiseux_series α) :=
-  Z.gcd (Z.gcd (ps_ordnum ps + Z.of_nat n) (' ps_polord ps)) (Z.of_nat k).
+  Z.gcd (Z.gcd (ps_ordnum ps + Z.of_nat n) (' ps_polydo ps)) (Z.of_nat k).
 
 Definition ps_zero {α} {r : ring α} :=
-  {| ps_terms := 0%ser; ps_ordnum := 0; ps_polord := 1 |}.
+  {| ps_terms := 0%ser; ps_ordnum := 0; ps_polydo := 1 |}.
 
 Definition normalise_ps α {R : ring α} {K : field R} ps :=
   match series_order (ps_terms ps) 0 with
@@ -767,7 +767,7 @@ Definition normalise_ps α {R : ring α} {K : field R} ps :=
       let g := gcd_ps n k ps in
       {| ps_terms := normalise_series n (Z.to_pos g) (ps_terms ps);
          ps_ordnum := (ps_ordnum ps + Z.of_nat n) / g;
-         ps_polord := Z.to_pos (' ps_polord ps / g) |}
+         ps_polydo := Z.to_pos (' ps_polydo ps / g) |}
   | ∞ =>
       ps_zero
   end.
@@ -778,7 +778,7 @@ Inductive eq_ps_strong {α} {r : ring α} :
   puiseux_series α → puiseux_series α → Prop :=
   | eq_strong_base : ∀ ps₁ ps₂,
       ps_ordnum ps₁ = ps_ordnum ps₂
-      → ps_polord ps₁ = ps_polord ps₂
+      → ps_polydo ps₁ = ps_polydo ps₂
         → eq_series (ps_terms ps₁) (ps_terms ps₂)
           → eq_ps_strong ps₁ ps₂.
 
@@ -792,7 +792,7 @@ Arguments eq_ps _ _ _ ps₁%ps ps₂%ps.
 Definition ps_monom {α} {r : ring α} (c : α) pow :=
   {| ps_terms := {| terms i := if zerop i then c else 0%K |};
      ps_ordnum := Qnum pow;
-     ps_polord := Qden pow |}.
+     ps_polydo := Qden pow |}.
 
 Definition ps_one {α} {r : ring α} := ps_monom rng_one 0.
 
@@ -2194,7 +2194,7 @@ intros n k ps.
 unfold gcd_ps; simpl.
 remember (ps_ordnum ps + Z.of_nat n)%Z as x.
 rewrite <- Z.gcd_assoc.
-remember (Z.gcd (' ps_polord ps) (Z.of_nat k))%Z as y eqn:Hy .
+remember (Z.gcd (' ps_polydo ps) (Z.of_nat k))%Z as y eqn:Hy .
 pose proof (Z.gcd_nonneg x y) as Hp.
 unfold Z.le in Hp; unfold Z.lt.
 remember (0 ?= Z.gcd x y)%Z as c eqn:Hc .
@@ -2330,7 +2330,7 @@ split; intros H.
      rewrite <- Hg in Hgp.
      unfold gcd_ps in Hg.
      remember (ps_ordnum ps + Z.of_nat m)%Z as x.
-     remember (Z.gcd x (' ps_polord ps)) as z.
+     remember (Z.gcd x (' ps_polydo ps)) as z.
      pose proof (Z.gcd_divide_r z (Z.of_nat p)) as H₄.
      rewrite <- Hg in H₄.
      apply Nat.mod_divide in H₃; auto.
@@ -2497,8 +2497,8 @@ destruct n₁ as [n₁| ].
 Qed.
 
 Definition cm (ps₁ ps₂ : puiseux_series α) :=
-  (ps_polord ps₁ * ps_polord ps₂)%positive.
+  (ps_polydo ps₁ * ps_polydo ps₂)%positive.
 Definition cm_factor α (ps₁ ps₂ : puiseux_series α) :=
-  ps_polord ps₂.
+  ps_polydo ps₂.
 
 End other_theorems.

@@ -180,7 +180,7 @@ eapply order_in_newton_segment with (h := h) (αh := αh) in Hval; eauto .
    rewrite Z.sub_diag in Hn; simpl in Hn.
    rewrite Nat.sub_0_r in Hn.
    rewrite Z.min_r in Hn.
-    destruct (zerop (n mod Pos.to_nat (ps_polord āh))) as [Hnp| Hnp].
+    destruct (zerop (n mod Pos.to_nat (ps_polydo āh))) as [Hnp| Hnp].
      apply Nat.mod_divides in Hnp; auto.
      destruct Hnp as (p, Hp).
      rewrite Nat.mul_comm in Hp.
@@ -227,7 +227,7 @@ eapply order_in_newton_segment with (h := h) (αh := αh) in Hval; eauto .
          destruct Hh as [Hh| Hh]; [ left; assumption | idtac ].
          right; apply IHpl; assumption.
 
-       destruct (lt_dec n (m * Pos.to_nat (ps_polord āh))) as [Hnp| Hnp].
+       destruct (lt_dec n (m * Pos.to_nat (ps_polydo āh))) as [Hnp| Hnp].
         apply series_order_iff in Hm.
         destruct Hm as (Hmi, Hm).
         apply Nat_le_neq_lt in Hmn; [ idtac | assumption ].
@@ -248,11 +248,11 @@ eapply order_in_newton_segment with (h := h) (αh := αh) in Hval; eauto .
      rewrite Z.add_simpl_l in Hn.
      rewrite Z2Nat.inj_mul in Hn; simpl in Hn.
       rewrite Nat2Z.id in Hn.
-      destruct (lt_dec n (m * Pos.to_nat (ps_polord āh))) as [Hnm| Hnm].
+      destruct (lt_dec n (m * Pos.to_nat (ps_polydo āh))) as [Hnm| Hnm].
        apply Hn; reflexivity.
 
        apply Hnm; clear Hnm.
-       destruct (eq_nat_dec n (m * Pos.to_nat (ps_polord āh))) as [Heq| Hne].
+       destruct (eq_nat_dec n (m * Pos.to_nat (ps_polydo āh))) as [Heq| Hne].
         rewrite Heq in Hnp.
         rewrite Nat.mod_mul in Hnp; auto.
         exfalso; revert Hnp; apply Nat.lt_irrefl.
@@ -377,7 +377,7 @@ destruct n as [n| ].
      apply rng_mul_eq_0.
      right.
      unfold series_stretch; simpl.
-     destruct (zerop ((n - i) mod Pos.to_nat (ps_polord āl))) as [Hz| Hz].
+     destruct (zerop ((n - i) mod Pos.to_nat (ps_polydo āl))) as [Hz| Hz].
       apply Nat.mod_divides in Hz; auto.
       destruct Hz as (c, Hc).
       rewrite Nat.mul_comm in Hc; rewrite Hc.
@@ -448,15 +448,15 @@ Theorem order_mul : ∀ a b, (order (a * b)%ps = order a + order b)%Qbar.
 Proof.
 intros a b.
 symmetry.
-pose proof (ps_adjust_eq K a 0 (ps_polord b)) as Ha.
-pose proof (ps_adjust_eq K b 0 (ps_polord a)) as Hb.
+pose proof (ps_adjust_eq K a 0 (ps_polydo b)) as Ha.
+pose proof (ps_adjust_eq K b 0 (ps_polydo a)) as Hb.
 rewrite Hb in |- * at 1.
 rewrite Ha in |- * at 1.
 unfold order; simpl.
 unfold cm_factor, cm; simpl.
 do 2 rewrite series_shift_0.
-remember (series_stretch (ps_polord b) (ps_terms a)) as sa eqn:Hsa .
-remember (series_stretch (ps_polord a) (ps_terms b)) as sb eqn:Hsb .
+remember (series_stretch (ps_polydo b) (ps_terms a)) as sa eqn:Hsa .
+remember (series_stretch (ps_polydo a) (ps_terms b)) as sb eqn:Hsb .
 remember (series_order sa 0) as na eqn:Hna .
 remember (series_order sb 0) as nb eqn:Hnb .
 remember (series_order (sa * sb)%ser 0) as nc eqn:Hnc .
@@ -615,8 +615,8 @@ Theorem order_add : ∀ a b,
 Proof.
 intros a b.
 unfold Qbar.ge.
-set (k₁ := ps_polord b).
-set (k₂ := ps_polord a).
+set (k₁ := ps_polydo b).
+set (k₂ := ps_polydo a).
 set (v₁ := (ps_ordnum a * ' k₁)%Z).
 set (v₂ := (ps_ordnum b * ' k₂)%Z).
 set (n₁ := Z.to_nat (v₂ - Z.min v₁ v₂)).
@@ -654,8 +654,8 @@ destruct na as [na| ].
   rewrite Qmin_same_den.
   unfold Qle; simpl.
   apply Z.mul_le_mono_nonneg_r; [ apply Pos2Z.is_nonneg | idtac ].
-  remember (ps_ordnum a * ' ps_polord b)%Z as ab.
-  remember (ps_ordnum b * ' ps_polord a)%Z as ba.
+  remember (ps_ordnum a * ' ps_polydo b)%Z as ab.
+  remember (ps_ordnum b * ' ps_polydo a)%Z as ba.
   rewrite Z2Nat.id.
    rewrite Z2Nat.id.
     rewrite Z.sub_sub_distr.
