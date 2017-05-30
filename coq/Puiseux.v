@@ -591,7 +591,7 @@ destruct d.
   eapply IHla; eauto .
 Qed.
 
-Theorem degree_pos_imp_has_L : ∀ f,
+Theorem degree_pos_imp_has_ns : ∀ f,
   degree (ps_zerop K) f ≥ 1
   → (ps_poly_nth 0 f ≠ 0)%ps
   → ∃ L, newton_segments f = Some L.
@@ -754,7 +754,7 @@ destruct (ps_zerop _ (ps_poly_nth 0 f)) as [Hz| Hnz].
  destruct la as [| a]; [ reflexivity | simpl in Hz; simpl ].
  rewrite rng_mul_0_r, rng_add_0_l; assumption.
 
- specialize (degree_pos_imp_has_L f Hdeg Hnz) as (L, HL).
+ specialize (degree_pos_imp_has_ns f Hdeg Hnz) as (L, HL).
  remember (ac_root (Φq f L)) as c eqn:Hc .
  remember (next_pol f (β L) (γ L) c) as f₁ eqn:Hf₁ .
  rewrite Hc in Hf₁.
