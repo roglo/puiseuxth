@@ -35,6 +35,7 @@ Class ring α :=
       rng_eq (rng_mul a (rng_add b c))
         (rng_add (rng_mul a b) (rng_mul a c)) }.
 
+Declare Scope field_scope.
 Delimit Scope field_scope with K.
 Notation "a = b" := (rng_eq a b) : field_scope.
 Notation "a ≠ b" := (¬ rng_eq a b) : field_scope.
@@ -361,4 +362,4 @@ Qed.
 
 End field_theorems.
 
-Hint Resolve rng_eq_refl.
+Hint Resolve rng_eq_refl : Arith.

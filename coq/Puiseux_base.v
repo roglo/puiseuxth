@@ -7,10 +7,10 @@ Require Import Utf8 QArith Sorting.
 Require Import ConvexHull.
 Require Import ConvexHullMisc.
 Require Import Misc.
-Require Import Nbar.
-Require Import Qbar.
+Require Import NbarM.
+Require Import QbarM.
 Require Import Newton.
-Require Import Field.
+Require Import Field2.
 Require Import Fpolynomial.
 Require Import Power_series.
 Require Import Puiseux_series.
@@ -106,7 +106,7 @@ intros x.
 split; intros H I; apply H, order_inf; assumption.
 Qed.
 
-Theorem order_0 : order 0%ps = Qbar.qinf.
+Theorem order_0 : order 0%ps = QbarM.qinf.
 Proof.
 unfold order; simpl.
 rewrite series_order_series_0; reflexivity.
@@ -115,7 +115,7 @@ Qed.
 Theorem ps_zerop : ∀ a, {(a = 0)%ps} + {(a ≠ 0)%ps}.
 Proof.
 intros a.
-destruct (Qbar.eq_dec (order a) Qbar.qinf) as [H| H].
+destruct (Qbar.eq_dec (order a) QbarM.qinf) as [H| H].
  left.
  apply order_inf.
  unfold Qbar.qeq in H.
@@ -287,8 +287,8 @@ destruct na as [na| ].
   remember (ps_ordnum b + Z.of_nat nb)%Z as bo eqn:Hbo .
   remember (Z.of_nat apn) as ap eqn:Hap ; subst apn.
   remember (Z.of_nat bpn) as bp eqn:Hbp ; subst bpn.
-  remember (' ps_polydo a)%Z as oa eqn:Hoa .
-  remember (' ps_polydo b)%Z as ob eqn:Hob .
+  remember (Zpos (ps_polydo a))%Z as oa eqn:Hoa .
+  remember (Zpos (ps_polydo b))%Z as ob eqn:Hob .
   apply Z2Pos.inj in H1.
    eapply div_gcd_gcd_mul_compat; eassumption.
 

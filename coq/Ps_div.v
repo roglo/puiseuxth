@@ -5,8 +5,8 @@ Require Import QArith.
 Require Import NPeano.
 
 Require Import Misc.
-Require Import Nbar.
-Require Import Field.
+Require Import NbarM.
+Require Import Field2.
 Require Import Puiseux_series.
 Require Import Ps_add.
 Require Import Ps_add_compat.
@@ -257,7 +257,7 @@ destruct n as [n| ].
      remember (S i * Pos.to_nat (ps_polydo ps * ps_polydo ps))%nat as x.
      symmetry in Heqx; simpl.
      destruct x; [ idtac | reflexivity ].
-     apply Nat.eq_mul_0_l in Heqx; auto; discriminate Heqx.
+     apply Nat.eq_mul_0_l in Heqx; auto with Arith; discriminate Heqx.
 
      intros H₁.
      apply Z.gcd_eq_0_l in H₁.

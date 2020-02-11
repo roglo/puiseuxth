@@ -7,7 +7,7 @@ Require Import QArith.
 Require Import NPeano.
 
 Require Import Misc.
-Require Import Field.
+Require Import Field2.
 
 Set Implicit Arguments.
 
@@ -355,7 +355,7 @@ destruct (le_dec b k) as [Hbk| Hbk].
 
  unfold summation.
  apply Nat.nle_gt in Hbk.
- replace (S k - b) with O by omega; simpl.
+ replace (S k - b) with O by fast_omega Hbk; simpl.
  rewrite rng_add_0_r; reflexivity.
 Qed.
 
@@ -435,7 +435,7 @@ revert n; induction k; intros.
  rewrite summation_aux_succ_first.
  rewrite rng_add_shuffle0, rng_add_comm.
  symmetry.
- replace (S k) with (k + 1)%nat by omega.
+ replace (S k) with (k + 1)%nat by fast_omega.
  rewrite summation_aux_ub_add.
  rewrite <- rng_add_assoc.
  apply rng_add_compat_l.
@@ -529,10 +529,10 @@ Theorem summation_add_add_sub : ∀ g b k n,
 Proof.
 intros g b k n.
 unfold summation.
-replace (S (k + n) - (b + n))%nat with (S k - b)%nat by omega.
+replace (S (k + n) - (b + n))%nat with (S k - b)%nat by fast_omega.
 apply summation_aux_compat.
 intros i Hi.
-replace (b + n + i - n)%nat with (b + i)%nat by omega.
+replace (b + n + i - n)%nat with (b + i)%nat by fast_omega.
 reflexivity.
 Qed.
 

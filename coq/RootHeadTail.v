@@ -3,7 +3,7 @@
 Require Import Utf8 QArith NPeano Sorting.
 
 Require Import Misc.
-Require Import Field.
+Require Import Field2.
 Require Import Fpolynomial.
 Require Import Fsummation.
 Require Import Newton.
@@ -21,7 +21,7 @@ Require Import F1Eq.
 Require Import F1Prop.
 Require Import Q_field.
 Require Import PosOrder.
-Require Import Qbar.
+Require Import QbarM.
 
 Set Implicit Arguments.
 
@@ -90,8 +90,8 @@ Fixpoint nth_r α {R : ring α} {K : field R} {acf : algeb_closed_field K}
   end.
 
 Definition next_pow pow L₁ m :=
-  let n := (γ L₁ * inject_Z ('m)) in
-  (pow + Z.to_nat (Qnum n / ' Qden n))%nat.
+  let n := (γ L₁ * inject_Z (Zpos m)) in
+  (pow + Z.to_nat (Qnum n / Zpos (Qden n)))%nat.
 
 Fixpoint find_coeff α {R : ring α} {K : field R}
   {acf : algeb_closed_field K} max_iter npow m f L i :=
@@ -119,7 +119,7 @@ Definition root_tail_series_from_cγ_list α {R : ring α} {K : field R}
 Definition root_tail_from_cγ_list α {R : ring α} {K : field R}
   {acf : algeb_closed_field K} m f L :=
   {| ps_terms := {| terms := root_tail_series_from_cγ_list m f L |};
-     ps_ordnum := Qnum (γ L) * ' m / ' Qden (γ L);
+     ps_ordnum := Qnum (γ L) * Zpos m / Zpos (Qden (γ L));
      ps_polydo := m |}.
 
 Definition γ_sum α {R : ring α} {K : field R}
@@ -369,10 +369,10 @@ Theorem num_m_den_is_pos : ∀ f L j αj m,
   → pol_in_K_1_m f m
   → ini_pt L = (Qnat j, αj)
   → (0 < Qnum αj)%Z
-  → (0 < Z.to_nat (Qnum αj * ' m / ' Qden αj))%nat.
+  → (0 < Z.to_nat (Qnum αj * Zpos m / Zpos (Qden αj)))%nat.
 Proof.
 intros f L j αj m HL Hm Hini Hn.
-assert (' Qden αj | Qnum αj * ' m)%Z as H.
+assert (Zpos (Qden αj) | Qnum αj * Zpos m)%Z as H.
  eapply den_αj_divides_num_αj_m; eassumption.
 
  destruct H as (d, Hd).

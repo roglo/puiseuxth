@@ -4,9 +4,9 @@ Require Import Utf8.
 Require Import QArith.
 Require Import NPeano.
 
-Require Import Nbar.
+Require Import NbarM.
 Require Import Misc.
-Require Import Field.
+Require Import Field2.
 Require Import Power_series.
 Require Import Puiseux_series.
 
@@ -46,7 +46,7 @@ rewrite series_order_stretch_succ_inf; auto.
 Qed.
 
 Theorem gcd_ps_0_m : ∀ n (ps : puiseux_series α),
-  gcd_ps n O ps = Z.abs (Z.gcd (ps_ordnum ps + Z.of_nat n) (' ps_polydo ps)).
+  gcd_ps n O ps = Z.abs (Z.gcd (ps_ordnum ps + Z.of_nat n) (Zpos (ps_polydo ps))).
 Proof.
 intros n ps.
 unfold gcd_ps.
@@ -78,7 +78,7 @@ pose proof (gcd_ps_is_pos m x ps) as Hgp; subst x.
 destruct p as [p| ].
  erewrite greatest_series_x_power_stretch.
   unfold gcd_ps.
-  remember (' k)%Z as kp; simpl.
+  remember (Zpos k)%Z as kp; simpl.
   rewrite Nat2Z.inj_add.
   rewrite Z.sub_add_simpl_r_r.
   rewrite Nat2Z.inj_mul.

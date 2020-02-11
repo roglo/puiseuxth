@@ -7,7 +7,7 @@ Require Import QArith.
 Require Import NPeano.
 
 Require Import Misc.
-Require Import Field.
+Require Import Field2.
 Require Import Fsummation.
 
 Set Implicit Arguments.
@@ -195,6 +195,7 @@ Fixpoint list_pad α n (zero : α) rem :=
   | S n₁ => [zero … list_pad n₁ zero rem]
   end.
 
+Declare Scope lap_scope.
 Delimit Scope lap_scope with lap.
 Notation "0" := lap_zero : lap_scope.
 Notation "1" := lap_one : lap_scope.
@@ -711,7 +712,7 @@ Theorem lap_add_map2 : ∀ β (f g : β → α) la,
 Proof.
 intros β f g la.
 induction la as [| b]; [ reflexivity | simpl ].
-constructor; auto.
+constructor; auto with Arith.
 Qed.
 
 (* multiplication theorems *)
@@ -1230,7 +1231,7 @@ destruct k.
   rewrite summation_succ_succ; reflexivity.
 
   intros i (Hi, Hik); simpl.
-  destruct i; [ exfalso; omega | simpl ].
+  destruct i; [ exfalso; fast_omega Hi | simpl ].
   destruct i; rewrite rng_mul_0_l; reflexivity.
 Qed.
 
@@ -1426,6 +1427,7 @@ Canonical Structure lap_ring.
 
 Record polynomial α := mkpol { al : list α }.
 
+Declare Scope poly_scope.
 Delimit Scope poly_scope with pol.
 Notation "'POL' l" := {| al := l |} (at level 1) : poly_scope.
 

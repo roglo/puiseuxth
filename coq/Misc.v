@@ -4,6 +4,7 @@ Require Import Utf8.
 Require Import QArith.
 Require Import NPeano.
 Require Import Sorted.
+Require Import Psatz.
 
 Notation "[ ]" := nil.
 Notation "[ x ; .. ; y … l ]" := (cons x .. (cons y l) ..).
@@ -18,7 +19,7 @@ Notation "x ∈ l" := (List.In x l) (at level 70).
 Notation "x ∉ l" := (not (List.In x l)) (at level 70).
 
 Ltac negation H := exfalso; apply H; reflexivity.
-Tactic Notation "fast_omega" hyp_list(Hs) := revert Hs; clear; intros; omega.
+Tactic Notation "fast_omega" hyp_list(Hs) := revert Hs; clear; intros; lia.
 
 Set Implicit Arguments.
 
@@ -72,8 +73,8 @@ Qed.
 Definition Qeq_opp_r : ∀ x y, x == y → - x == - y :=
   λ x y Hxy,
   let H₁ := eq_sym (f_equal Z.opp Hxy) in
-  let H₂ := eq_trans (Z.mul_opp_l (Qnum y) (' Qden x)) H₁ in
-  let H₃ := Z.mul_opp_l (Qnum x) (' Qden y) in
+  let H₂ := eq_trans (Z.mul_opp_l (Qnum y) (Zpos (Qden x))) H₁ in
+  let H₃ := Z.mul_opp_l (Qnum x) (Zpos (Qden y)) in
   eq_trans H₃ (eq_sym H₂).
 
 Theorem Qgt_0_not_0 : ∀ x, 0 < x → ¬x == 0.
@@ -220,8 +221,8 @@ unfold Qlt, Qplus; simpl.
 do 2 rewrite Pos2Z.inj_mul.
 do 2 rewrite Z.mul_add_distr_r.
 do 4 rewrite Z.mul_assoc.
-remember (z₁ * ' y₂ * ' x₂ * ' z₂)%Z as t.
-remember (z₁ * ' y₂ * ' x₂)%Z as u.
+remember (z₁ * Zpos y₂ * Zpos x₂ * Zpos z₂)%Z as t.
+remember (z₁ * Zpos y₂ * Zpos x₂)%Z as u.
 rewrite Z.mul_shuffle0 in Hequ.
 subst u.
 rewrite <- Heqt.
@@ -229,7 +230,7 @@ apply Zplus_lt_compat_r.
 clear t Heqt.
 rewrite <- Zmult_assoc.
 rewrite Z.mul_shuffle1.
-remember (y₁ * ' z₂ * ' x₂ * ' z₂)%Z as t.
+remember (y₁ * Zpos z₂ * Zpos x₂ * Zpos z₂)%Z as t.
 rewrite <- Zmult_assoc in Heqt.
 rewrite Z.mul_shuffle1 in Heqt; subst t.
 apply Zmult_lt_compat_r; [ idtac | assumption ].
@@ -320,8 +321,8 @@ unfold Qcompare; simpl.
 do 2 rewrite Pos2Z.inj_mul.
 do 2 rewrite Z.mul_add_distr_r.
 do 4 rewrite Z.mul_assoc.
-remember (z₁ * ' y₂ * ' x₂ * ' z₂)%Z as t.
-remember (z₁ * ' y₂ * ' x₂)%Z as u.
+remember (z₁ * Zpos y₂ * Zpos x₂ * Zpos z₂)%Z as t.
+remember (z₁ * Zpos y₂ * Zpos x₂)%Z as u.
 rewrite Z.mul_shuffle0 in Hequ.
 subst u.
 rewrite <- Heqt.
@@ -329,7 +330,7 @@ rewrite <- Zplus_cmp_compat_r.
 clear t Heqt.
 rewrite <- Zmult_assoc.
 rewrite Z.mul_shuffle1.
-remember (y₁ * ' z₂ * ' x₂ * ' z₂)%Z as t.
+remember (y₁ * Zpos z₂ * Zpos x₂ * Zpos z₂)%Z as t.
 rewrite <- Zmult_assoc in Heqt.
 rewrite Z.mul_shuffle1 in Heqt; subst t.
 apply Zmult_cmp_compat_r.
@@ -444,7 +445,7 @@ intros A P a l H.
 inversion H; split; assumption.
 Qed.
 
-Theorem Pos2Z_ne_0 : ∀ p, (' p ≠ 0)%Z.
+Theorem Pos2Z_ne_0 : ∀ p, (Zpos p ≠ 0)%Z.
 Proof.
 intros p H.
 pose proof (Zgt_pos_0 p) as HH.
@@ -457,7 +458,7 @@ Proof.
 intros (a, b) Ha; simpl in Ha |- *.
 unfold Qinv; simpl.
 destruct a as [| a| a]; simpl.
- apply Zlt_irrefl in Ha; contradiction.
+ apply Z.lt_irrefl in Ha; contradiction.
 
  reflexivity.
 
@@ -470,7 +471,7 @@ Proof.
 intros (a, b) Ha; simpl in Ha |- *.
 unfold Qinv; simpl.
 destruct a as [| a| a]; simpl.
- apply Zlt_irrefl in Ha; contradiction.
+ apply Z.lt_irrefl in Ha; contradiction.
 
  reflexivity.
 
@@ -502,7 +503,7 @@ pose proof Pos2Nat.is_pos a as HH.
 rewrite H in HH.
 revert HH; apply lt_irrefl.
 Qed.
-Hint Resolve Pos2Nat_ne_0.
+Hint Resolve Pos2Nat_ne_0 : Arith.
 
 Open Scope positive_scope.
 
@@ -640,7 +641,7 @@ destruct (Z_le_dec (x - z) (y - z)) as [Hle₁| Hgt₁].
 Qed.
 
 Theorem Z2Nat_inj_mul_pos_r : ∀ n m,
-  Z.to_nat (n * 'm) = (Z.to_nat n * Pos.to_nat m)%nat.
+  Z.to_nat (n * Zpos m) = (Z.to_nat n * Pos.to_nat m)%nat.
 Proof.
 intros n m.
 destruct n as [| n| ]; [ reflexivity | simpl | reflexivity ].
@@ -681,13 +682,13 @@ Qed.
 Theorem Nat_sub_succ_1 : ∀ n, (S n - 1 = n)%nat.
 Proof. intros n; simpl; rewrite Nat.sub_0_r; reflexivity. Qed.
 
-Theorem Z_div_pos_is_nonneg : ∀ x y, (0 <= ' x / ' y)%Z.
+Theorem Z_div_pos_is_nonneg : ∀ x y, (0 <= Zpos x / Zpos y)%Z.
 Proof.
 intros x y.
-apply Z_div_pos.
- apply Z.lt_gt, Pos2Z.is_pos.
-
+apply Z.div_pos.
  apply Pos2Z.is_nonneg.
+
+ apply Pos2Z.is_pos.
 Qed.
 
 Theorem Pos2Nat_to_pos : ∀ x,
@@ -1002,20 +1003,20 @@ destruct (Z_zerop c) as [Hc| Hc].
  subst d; reflexivity.
 Qed.
 
-Theorem Z_gcd_pos_r_le : ∀ a b, (Z.gcd a (' b) <= ' b)%Z.
+Theorem Z_gcd_pos_r_le : ∀ a b, (Z.gcd a (Zpos b) <= Zpos b)%Z.
 Proof.
 intros a b.
-pose proof (Z.gcd_divide_r a (' b)) as Hd.
+pose proof (Z.gcd_divide_r a (Zpos b)) as Hd.
 destruct Hd as (c, Hc).
 rewrite Hc in |- * at 2.
 rewrite Z.mul_comm.
 apply Z.le_mul_diag_r.
- pose proof (Z.gcd_nonneg a (' b))%Z as H.
- assert (Z.gcd a (' b) ≠ 0)%Z as HH.
+ pose proof (Z.gcd_nonneg a (Zpos b))%Z as H.
+ assert (Z.gcd a (Zpos b) ≠ 0)%Z as HH.
   intros HH; apply Z.gcd_eq_0_r in HH.
   revert HH; apply Pos2Z_ne_0.
 
-  omega.
+  lia.
 
  rename Hc into Hd.
  destruct (Z_zerop c) as [Hc| Hc].
@@ -1029,7 +1030,7 @@ apply Z.le_mul_diag_r.
    fast_omega Hp.
 
    exfalso; clear Hc.
-   assert (' b <= 0)%Z as HH.
+   assert (Zpos b <= 0)%Z as HH.
     rewrite Hd.
     apply Z.mul_nonpos_nonneg.
      apply Pos2Z.neg_is_nonpos.
@@ -1063,9 +1064,9 @@ split; intros H.
  rewrite Pos2Z.inj_mul, Z.mul_assoc.
  rewrite Pos2Z.inj_mul, Z.mul_assoc in H.
  rewrite Z.mul_add_distr_r in H.
- remember (nn * ' md * ' pd)%Z as x.
+ remember (nn * Zpos md * Zpos pd)%Z as x.
  rewrite Z.mul_shuffle0.
- remember (mn * ' pd * ' nd)%Z as y.
+ remember (mn * Zpos pd * Zpos nd)%Z as y.
  rewrite Z.mul_shuffle0; assumption.
 Qed.
 
@@ -1092,9 +1093,9 @@ split; intros H.
  rewrite Pos2Z.inj_mul, Z.mul_assoc.
  rewrite Pos2Z.inj_mul, Z.mul_assoc in H.
  rewrite Z.mul_add_distr_r in H.
- remember (nn * ' md * ' pd)%Z as x.
+ remember (nn * Zpos md * Zpos pd)%Z as x.
  rewrite Z.mul_shuffle0.
- remember (mn * ' pd * ' nd)%Z as y.
+ remember (mn * Zpos pd * Zpos nd)%Z as y.
  rewrite Z.mul_shuffle0; assumption.
 Qed.
 
@@ -1214,6 +1215,6 @@ destruct Ha as [Ha| Ha].
  assumption.
 Qed.
 
-Hint Resolve Pos2Z.is_nonneg.
-Hint Resolve Pos2Nat.is_pos.
-Hint Resolve Pos2Z_ne_0.
+Hint Resolve Pos2Z.is_nonneg : Arith.
+Hint Resolve Pos2Nat.is_pos : Arith.
+Hint Resolve Pos2Z_ne_0 : Arith.

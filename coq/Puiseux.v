@@ -5,9 +5,9 @@ Require Import Utf8 QArith NPeano Sorting.
 Require Import Misc.
 Require Import SlopeMisc.
 Require Import Slope_base.
-Require Import Qbar.
-Require Import Nbar.
-Require Import Field.
+Require Import QbarM.
+Require Import NbarM.
+Require Import Field2.
 Require Import Fpolynomial.
 Require Import Fsummation.
 Require Import Newton.
@@ -320,7 +320,7 @@ Theorem upper_bound_zerop_1st_when_r_constant : ∀ f L c f₁ L₁ m q₀ r ofs
   → (order (ps_pol_apply f₁ (root_tail (m * q₀) 0 f₁ L₁)) =
      qfin ofs)%Qbar
   → ∀ N,
-    N = Z.to_nat (2 * ' m * ' q₀ * Qnum ofs)
+    N = Z.to_nat (2 * Zpos m * Zpos q₀ * Qnum ofs)
     → zerop_1st_n_const_coeff N f₁ L₁ = true.
 Proof.
 intros f L c f₁ L₁ m q₀ r ofs.
@@ -407,7 +407,7 @@ assert (Hrle : ∀ n : nat, S r ≤ nth_r n f L).
     rewrite <- Hm in Hm'; subst m'.
     apply Hp.
 
-    apply non_decr_imp_eq; auto.
+    apply non_decr_imp_eq; auto with Arith.
      apply zerop_1st_n_const_coeff_false_iff.
      intros j Hj.
      destruct j; [ assumption |  ].
@@ -443,14 +443,14 @@ assert (Hrle : ∀ n : nat, S r ≤ nth_r n f L).
     rewrite Nat2Z.inj_mul.
     remember (Qnum ofs) as nofs eqn:Hnofs .
     symmetry in Hnofs.
-    destruct nofs as [| nofs| nofs]; simpl; auto.
+    destruct nofs as [| nofs| nofs]; simpl; auto with Arith.
      rewrite positive_nat_Z.
      rewrite Z.mul_succ_l.
      rewrite positive_nat_Z.
      rewrite <- Pos2Z.inj_mul.
      rewrite <- Z.mul_1_r at 1.
      eapply Z.le_trans.
-      apply Z.mul_le_mono_nonneg_l with (m := (' Qden ofs)%Z); auto.
+      apply Z.mul_le_mono_nonneg_l with (m := (Zpos (Qden ofs))%Z); auto with Arith.
 
       rewrite Z.one_succ.
       apply Zlt_le_succ.
@@ -474,7 +474,7 @@ Definition f₁_root_when_r_constant f L :=
     let s := root_tail (m * q₀) 0 f₁ L₁ in
     match order (ps_pol_apply f₁ s) with
     | qfin ofs =>
-        let N := Z.to_nat (2 * ' m * ' q₀ * Qnum ofs) in
+        let N := Z.to_nat (2 * Zpos m * Zpos q₀ * Qnum ofs) in
         if zerop_1st_n_const_coeff N f₁ L₁ then
           match lowest_with_zero_1st_const_coeff acf N f₁ L₁ with
           | O => 0%ps
@@ -507,7 +507,7 @@ destruct (fld_zerop 1%K) as [H₀| H₀].
 
  remember (order (ps_pol_apply f₁ s)) as ofs eqn:Hofs .
  destruct ofs as [ofs| ].
-  remember (Z.to_nat (2 * ' m * ' q₀ * Qnum ofs)) as N eqn:HN .
+  remember (Z.to_nat (2 * Zpos m * Zpos q₀ * Qnum ofs)) as N eqn:HN .
   remember (zerop_1st_n_const_coeff N f₁ L₁) as z eqn:Hz .
   symmetry in Hz.
   destruct z.
@@ -687,7 +687,7 @@ destruct (LPO v) as [Hn| Hn].
        remember (root_head 0 i f₁ L₁) as rh.
        remember (ps_monom 1%K (γ_sum 0 i f₁ L₁)) as mo.
        exists (rh + mo * s₁)%ps; subst rh mo.
-       rewrite apply_nth_pol; auto.
+       rewrite apply_nth_pol; auto with Arith.
        erewrite nth_pol_n; try eassumption; eauto  .
        erewrite <- nth_c_n; try eassumption.
        rewrite <- Hcssi, <- Hfssi.
@@ -700,7 +700,7 @@ destruct (LPO v) as [Hn| Hn].
        rewrite zerop_1st_n_const_coeff_false_iff in Hz.
        pose proof (Hz i (Nat.le_refl i)) as H.
        rewrite Hfsi; simpl.
-       rewrite <- Hc, <- Hf₁, <- HL₁; auto.
+       rewrite <- Hc, <- Hf₁, <- HL₁; auto with Arith.
 
        reflexivity.
 
@@ -719,7 +719,7 @@ destruct (LPO v) as [Hn| Hn].
       rewrite Hfsi in H.
       simpl in H.
       rewrite <- Hc, <- Hf₁, <- HL₁ in H.
-      apply nth_newton_segments_nil in H; auto.
+      apply nth_newton_segments_nil in H; auto with Arith.
        destruct H as (j, (Hjn, (Hjz, Hjnz))).
        destruct Hjz as [Hjz| Hjz].
         subst j.
@@ -732,7 +732,7 @@ destruct (LPO v) as [Hn| Hn].
 
        clear H.
        remember HL as H; clear HeqH.
-       eapply next_has_root_0_or_newton_segments in H; auto.
+       eapply next_has_root_0_or_newton_segments in H; auto with Arith.
        simpl in H.
        rewrite <- Hc, <- Hf₁ in H.
        destruct H; [ contradiction | ].

@@ -3,7 +3,7 @@
 Require Import Utf8.
 Require Import QArith.
 
-Require Import Field.
+Require Import Field2.
 
 Theorem Qplus_opp_l : ∀ a, -a + a == 0.
 Proof. intros a; rewrite Qplus_comm; apply Qplus_opp_r. Qed.

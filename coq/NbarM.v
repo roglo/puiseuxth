@@ -14,6 +14,7 @@ Inductive Nbar : Set :=
   | fin : ∀ x : nat, Nbar
   | inf : Nbar.
 
+Declare Scope Nbar_scope.
 Delimit Scope Nbar_scope with Nbar.
 Bind Scope Nbar_scope with Nbar.
 

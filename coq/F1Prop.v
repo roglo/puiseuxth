@@ -3,9 +3,9 @@
 Require Import Utf8 QArith NPeano Sorted.
 
 Require Import Misc.
-Require Import Qbar.
+Require Import QbarM.
 Require Import SplitList.
-Require Import Field.
+Require Import Field2.
 Require Import Fpolynomial.
 Require Import Fsummation.
 Require Import Newton.
@@ -58,8 +58,8 @@ Proof.
 intros a b Hab.
 set (k₁ := ps_polydo b).
 set (k₂ := ps_polydo a).
-set (v₁ := (ps_ordnum a * ' k₁)%Z).
-set (v₂ := (ps_ordnum b * ' k₂)%Z).
+set (v₁ := (ps_ordnum a * Zpos k₁)%Z).
+set (v₂ := (ps_ordnum b * Zpos k₂)%Z).
 set (n₁ := Z.to_nat (v₂ - Z.min v₁ v₂)).
 set (n₂ := Z.to_nat (v₁ - Z.min v₁ v₂)).
 pose proof (ps_adjust_eq K a n₂ k₁) as Ha.

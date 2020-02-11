@@ -5,8 +5,8 @@ Require Import QArith.
 Require Import NPeano.
 
 Require Import Misc.
-Require Import Nbar.
-Require Import Field.
+Require Import NbarM.
+Require Import Field2.
 Require Import Fsummation.
 
 Set Implicit Arguments.
@@ -23,6 +23,7 @@ Definition series_const α {R : ring α} c :=
 Definition series_1 {α} {R : ring α} :=
   series_const (1%K).
 
+Declare Scope series_scope.
 Delimit Scope series_scope with ser.
 Notation "0" := series_0 : series_scope.
 Notation "1" := series_1 : series_scope.
@@ -359,7 +360,7 @@ induction i; intros.
     rewrite Nat.sub_0_r.
     apply IHi; apply Nat.succ_le_mono; assumption.
 
-    apply IHi; omega.
+    apply IHi; [ fast_omega Hki | fast_omega Hkj ].
 Qed.
 
 Theorem term_inv_nth_gen_formula : ∀ k a a' i,

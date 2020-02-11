@@ -4,9 +4,9 @@ Require Import Utf8.
 Require Import QArith.
 Require Import NPeano.
 
-Require Import Nbar.
+Require Import NbarM.
 Require Import Misc.
-Require Import Field.
+Require Import Field2.
 Require Import Power_series.
 Require Import Puiseux_series.
 Require Import Ps_add.
@@ -120,7 +120,7 @@ rewrite <- Z.mul_min_distr_nonneg_r; [ idtac | apply Pos2Z.is_nonneg ].
 rewrite <- Z.mul_min_distr_nonneg_r; [ idtac | apply Pos2Z.is_nonneg ].
 rewrite Pos2Z.inj_mul.
 rewrite Z.mul_assoc.
-remember (ps_ordnum ps₁ * ' ps_polydo ps₂ * ' k)%Z as x eqn:Hx .
+remember (ps_ordnum ps₁ * Zpos (ps_polydo ps₂) * Zpos k)%Z as x eqn:Hx .
 rewrite Z.mul_shuffle0 in Hx; rewrite <- Hx.
 rewrite Pos.mul_comm.
 remember (k * ps_polydo ps₁)%positive as y eqn:Hy .
@@ -281,11 +281,11 @@ rewrite <- Z2Nat.inj_add.
        rewrite Z.sub_diag, Nat.add_0_r.
        rewrite Nat.add_0_r.
        replace (Z.to_nat (nn * Zpos c₂)) with
-        (Z.to_nat (nn * Zpos c₂) + 0)%nat by omega.
+        (Z.to_nat (nn * Zpos c₂) + 0)%nat by fast_omega.
        rewrite <- Nat.add_assoc; simpl.
        rewrite normalise_ps_adjust_add.
        replace (Z.to_nat (mm * Zpos c₂)) with
-        (Z.to_nat (mm * Zpos c₂) + 0)%nat by omega.
+        (Z.to_nat (mm * Zpos c₂) + 0)%nat by fast_omega.
        rewrite <- Nat.add_assoc; simpl.
        rewrite normalise_ps_adjust_add.
        reflexivity.
@@ -317,12 +317,12 @@ rewrite <- Z2Nat.inj_add.
      rewrite <- Z2Nat.inj_sub.
       rewrite <- Z2Nat.inj_sub.
        remember (Z.to_nat (nn * Zpos c₂ - x)) as y.
-       replace y with (y + 0)%nat by omega.
+       replace y with (y + 0)%nat by fast_omega.
        rewrite <- Nat.add_assoc; simpl.
        rewrite normalise_ps_adjust_add.
        clear y Heqy.
        remember (Z.to_nat (mm * Zpos c₂ - x)) as y.
-       replace y with (y + 0)%nat by omega.
+       replace y with (y + 0)%nat by fast_omega.
        rewrite <- Nat.add_assoc; simpl.
        rewrite normalise_ps_adjust_add.
        reflexivity.
@@ -437,7 +437,7 @@ destruct g as [| g| g]; simpl.
    rewrite <- Heqk₁.
    unfold gcd_ps in Heqg.
    remember (ps_ordnum ps + Z.of_nat len₁)%Z as x.
-   remember (' ps_polydo ps)%Z as y.
+   remember (Zpos (ps_polydo ps))%Z as y.
    pose proof (Z.gcd_divide_r (Z.gcd x y) (Z.of_nat k₁)) as H.
    rewrite Heqg in H.
    destruct H as (c, Hc).
@@ -495,7 +495,7 @@ destruct (Z_le_dec 0 (ps_ordnum ps)) as [H₁| H₁].
  exists xH, (ps_polydo ps).
  constructor; simpl.
   rewrite Z.mul_1_r.
-  rewrite Z2Nat.id; [ idtac | omega ].
+  rewrite Z2Nat.id; [ idtac | fast_omega H₁ ].
   rewrite Z.opp_involutive.
   remember (ps_ordnum ps) as v.
   rewrite positive_nat_Z.

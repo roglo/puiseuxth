@@ -7,7 +7,7 @@ Require Import QArith.
 Require Import NPeano.
 
 Require Import Misc.
-Require Import Field.
+Require Import Field2.
 Require Import Fpolynomial.
 Require Import Puiseux_series.
 Require Import Ps_add.
@@ -16,6 +16,7 @@ Require Import Ps_div.
 
 Set Implicit Arguments.
 
+Declare Scope ps_lap_scope.
 Delimit Scope ps_lap_scope with pslap.
 
 Definition ps_lap_nth α {R : ring α} h la := (List.nth h la 0)%ps.
@@ -156,6 +157,7 @@ Theorem fold_ps_pol_mul : ∀ α (R : ring α) (K : field R) a b,
   @poly_mul _ (ps_ring K) a b = ps_pol_mul a b.
 Proof. reflexivity. Qed.
 
+Declare Scope ps_pol_scope.
 Delimit Scope ps_pol_scope with pspol.
 Notation "a = b" := (ps_pol_eq a b) : ps_pol_scope.
 Notation "a + b" := (ps_pol_add a b) : ps_pol_scope.

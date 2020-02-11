@@ -5,11 +5,11 @@ Require Import Utf8 QArith NPeano Sorted.
 Require Import ConvexHullMisc.
 Require Import ConvexHull.
 Require Import PolyConvexHull.
-Require Import Field.
+Require Import Field2.
 Require Import Misc.
 Require Import Newton.
-Require Import Nbar.
-Require Import Qbar.
+Require Import NbarM.
+Require Import QbarM.
 Require Import SplitList.
 Require Import Fsummation.
 Require Import Fpolynomial.
@@ -76,24 +76,24 @@ apply mkps_morphism; try reflexivity.
 progress unfold series_stretch; simpl.
 constructor; simpl; intros i.
 destruct (zerop (i mod Pos.to_nat (Qden p))) as [H₁| H₁].
- apply Nat.mod_divides in H₁; auto.
+ apply Nat.mod_divides in H₁; auto with Arith.
  destruct H₁ as (c, Hc).
  destruct (zerop (i / Pos.to_nat (Qden p))) as [H₂| H₂].
   rewrite Nat.mul_comm in Hc.
-  rewrite Hc, Nat.div_mul in H₂; auto.
+  rewrite Hc, Nat.div_mul in H₂; auto with Arith.
   subst c; simpl in Hc.
   subst i; simpl.
-  rewrite Nat.mod_0_l; auto; simpl.
-  rewrite Nat.div_0_l; auto; simpl.
+  rewrite Nat.mod_0_l; auto with Arith; simpl.
+  rewrite Nat.div_0_l; auto with Arith; simpl.
   symmetry; assumption.
 
   rewrite Nat.mul_comm in Hc.
-  rewrite Hc, Nat.div_mul in H₂; auto.
+  rewrite Hc, Nat.div_mul in H₂; auto with Arith.
   destruct (zerop (i mod Pos.to_nat (Qden q))) as [H₃| H₃].
-   apply Nat.mod_divides in H₃; auto.
+   apply Nat.mod_divides in H₃; auto with Arith.
    destruct H₃ as (d, Hd).
    rewrite Nat.mul_comm in Hd.
-   rewrite Hd, Nat.div_mul; auto.
+   rewrite Hd, Nat.div_mul; auto with Arith.
    destruct d; [ idtac | reflexivity ].
    simpl in Hd.
    subst i.
@@ -106,14 +106,14 @@ destruct (zerop (i mod Pos.to_nat (Qden p))) as [H₁| H₁].
    reflexivity.
 
  destruct (zerop (i mod Pos.to_nat (Qden q))) as [H₃| H₃].
-  apply Nat.mod_divides in H₃; auto.
+  apply Nat.mod_divides in H₃; auto with Arith.
   destruct H₃ as (d, Hd).
   rewrite Nat.mul_comm in Hd.
-  rewrite Hd, Nat.div_mul; auto.
+  rewrite Hd, Nat.div_mul; auto with Arith.
   destruct d; [ idtac | reflexivity ].
   simpl in Hd.
   subst i.
-  rewrite Nat.mod_0_l in H₁; auto.
+  rewrite Nat.mod_0_l in H₁; auto with Arith.
   exfalso; revert H₁; apply Nat.lt_irrefl.
 
   reflexivity.
@@ -842,12 +842,12 @@ assert (j < k)%nat as Hjk.
       subst h.
       pose proof (le_n_Sn k) as H.
       apply Nat.sub_le_mono_r with (p := S j) in H.
-      rewrite list_seq_app with (dj := (k - S j)%nat); auto; clear H.
+      rewrite list_seq_app with (dj := (k - S j)%nat); auto with Arith; clear H.
       rewrite List.fold_right_app; simpl.
-      rewrite <- Nat.add_succ_r, <- Nat.sub_succ_l; auto; simpl.
+      rewrite <- Nat.add_succ_r, <- Nat.sub_succ_l; auto with Arith; simpl.
       rewrite Nat.add_sub_assoc; [ idtac | apply Nat.lt_le_incl; auto ].
       rewrite Nat.add_comm, Nat.add_sub.
-      rewrite Nat_sub_sub_distr; auto; rewrite Nat.add_succ_r.
+      rewrite Nat_sub_sub_distr; auto with Arith; rewrite Nat.add_succ_r.
       rewrite Nat.sub_add; [ idtac | apply Nat.lt_le_incl; auto ].
       rewrite Nat_sub_succ_diag; simpl.
       rewrite Nat.eqb_refl; simpl.
@@ -859,7 +859,7 @@ assert (j < k)%nat as Hjk.
        rewrite orb_false_r.
        apply Nat.eqb_neq.
        intros H; subst i.
-       rewrite Nat.add_sub_assoc in Hij; auto.
+       rewrite Nat.add_sub_assoc in Hij; auto with Arith.
        rewrite Nat.add_comm, Nat.add_sub in Hij.
        revert Hij; apply Nat.lt_irrefl.
 
@@ -921,14 +921,14 @@ assert (j < k)%nat as Hjk.
        apply Nat.lt_le_incl in H.
        apply Nat.sub_le_mono_r with (p := S j) in H.
        apply Nat.le_le_succ_r in H.
-       rewrite <- Nat.sub_succ_l in H; auto; simpl in H.
-       rewrite list_seq_app with (dj := (h - S j)%nat); auto.
+       rewrite <- Nat.sub_succ_l in H; auto with Arith; simpl in H.
+       rewrite list_seq_app with (dj := (h - S j)%nat); auto with Arith.
        assert (j < h)%nat as Hjh₁.
         apply Hjh with (αi := αh); left; reflexivity.
 
-        rewrite Nat.add_sub_assoc; auto; clear H.
+        rewrite Nat.add_sub_assoc; auto with Arith; clear H.
         rewrite Nat.add_comm, Nat.add_sub.
-        rewrite Nat_sub_sub_distr; auto; rewrite Nat.add_succ_r.
+        rewrite Nat_sub_sub_distr; auto with Arith; rewrite Nat.add_succ_r.
         rewrite Nat.sub_add; [ idtac | apply Nat.lt_le_incl; auto ].
         rewrite Nat.sub_succ_l; [ simpl | apply Nat.lt_le_incl; auto ].
         rewrite List.fold_right_app; simpl.
@@ -980,8 +980,8 @@ assert (j < k)%nat as Hjk.
 
          intros i Hji Hij.
          remember Hji as H; clear HeqH.
-         rewrite Nat.add_sub_assoc in Hij; auto; clear H.
-         rewrite Nat.add_sub_swap, Nat.sub_diag in Hij; auto.
+         rewrite Nat.add_sub_assoc in Hij; auto with Arith; clear H.
+         rewrite Nat.add_sub_swap, Nat.sub_diag in Hij; auto with Arith.
          remember (Nat.eqb i h) as b eqn:Hb .
          symmetry in Hb.
          destruct b.
@@ -1094,7 +1094,7 @@ destruct Hjil as [H| H].
    rewrite Nat.add_comm, Nat.add_sub; simpl.
    rewrite Nat.sub_diag; reflexivity.
 
-   rewrite <- H₁, Nat.add_sub_swap; auto.
+   rewrite <- H₁, Nat.add_sub_swap; auto with Arith.
    rewrite Nat.sub_diag; reflexivity.
 
   assert (n ≤ j + i)%nat as Hnij.
@@ -1114,20 +1114,20 @@ destruct Hjil as [H| H].
      assert (Hjn : j ≤ n); [ apply Hm; left; reflexivity | exfalso ].
      apply H₁; symmetry.
      rewrite Nat.add_comm.
-     apply Nat.le_antisymm; auto.
+     apply Nat.le_antisymm; auto with Arith.
      apply Nat.sub_0_le.
-     rewrite <- Nat_sub_sub_distr; auto.
+     rewrite <- Nat_sub_sub_distr; auto with Arith.
 
      apply Nat.add_sub_eq_nz in Hp; [ idtac | intros H₂; discriminate H₂ ].
      assert (Hjn: j ≤ n) by (apply Hm; left; reflexivity).
-     rewrite <- Nat.add_sub_swap in Hp; auto.
+     rewrite <- Nat.add_sub_swap in Hp; auto with Arith.
      apply Nat.add_cancel_r with (p := j) in Hp.
      eapply Nat.add_le_mono in Hjn; [ idtac | apply Nat.le_0_l ].
      rewrite Nat.add_0_l, Nat.add_comm in Hjn.
      rewrite Nat.sub_add in Hp; eauto .
      rewrite Nat.add_succ_r, <- Nat.add_succ_l in Hp.
      rewrite <- Nat.add_comm, <- Hp.
-     rewrite IHli; auto.
+     rewrite IHli; auto with Arith.
       eapply Sorted_inv; eassumption.
 
       rewrite Hp, Nat.add_comm; assumption.
@@ -1189,9 +1189,9 @@ destruct i.
      apply Hnji; clear Hnji.
      apply Nat.sub_0_le in Hp.
      rewrite Nat.add_comm, Nat.add_succ_l, <- Nat.add_succ_r.
-     apply Nat.le_antisymm; auto.
+     apply Nat.le_antisymm; auto with Arith.
      apply Nat.add_le_mono_r with (p := S j) in Hp.
-     rewrite Nat.sub_add in Hp; auto.
+     rewrite Nat.sub_add in Hp; auto with Arith.
 
     apply IHli.
      simpl.
@@ -1252,7 +1252,7 @@ destruct i.
    induction i; intros; simpl.
     destruct k; [ exfalso; revert H₁; apply Nat.lt_irrefl | reflexivity ].
 
-    destruct k; [ exfalso; omega | idtac ].
+    destruct k; [ exfalso; fast_omega H₁ | idtac ].
     apply lt_S_n in H₁; simpl.
     apply IHi; assumption.
 Qed.

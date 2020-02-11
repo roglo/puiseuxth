@@ -3,7 +3,7 @@
 Require Import Utf8 QArith NPeano.
 
 Require Import Misc.
-Require Import Field.
+Require Import Field2.
 Require Import Fpolynomial.
 Require Import Newton.
 Require Import Power_series.
@@ -20,7 +20,7 @@ Require Import CharactPolyn.
 Require Import ConvexHull.
 Require Import PolyConvexHull.
 Require Import F1Eq.
-Require Import Qbar.
+Require Import QbarM.
 
 Set Implicit Arguments.
 
@@ -77,12 +77,12 @@ rewrite Hpa, Hpb in Hab.
 unfold ps_ordnum_add in Hab.
 unfold cm_factor in Hab.
 rewrite Hpa, Hpb in Hab.
-rewrite Z.mul_min_distr_nonneg_r in Hab; auto.
+rewrite Z.mul_min_distr_nonneg_r in Hab; auto with Arith.
 unfold ps_terms_add in Hab.
 unfold cm_factor in Hab.
 rewrite Hpa, Hpb in Hab.
-rewrite Z.mul_min_distr_nonneg_r in Hab; auto.
-rewrite Z.mul_min_distr_nonneg_r in Hab; auto.
+rewrite Z.mul_min_distr_nonneg_r in Hab; auto with Arith.
+rewrite Z.mul_min_distr_nonneg_r in Hab; auto with Arith.
 rewrite <- Z.mul_sub_distr_r in Hab.
 rewrite <- Z.mul_sub_distr_r in Hab.
 remember (ps_ordnum psa) as oa.
@@ -95,16 +95,16 @@ exists
  (mkps
     (adjust_series (Z.to_nat omab) 1 sa + adjust_series (Z.to_nat omba) 1 sb)
     (Z.min oa ob) m).
-split; auto.
+split; auto with Arith.
 rewrite <- Hab.
 rewrite ps_adjust_eq with (n := O) (k := m).
 unfold adjust_ps; simpl.
 rewrite Z.sub_0_r.
 rewrite series_shift_0.
-apply mkps_morphism; auto.
+apply mkps_morphism; auto with Arith.
 unfold adjust_series; simpl.
-rewrite Z2Nat.inj_mul; simpl; auto.
- rewrite Z2Nat.inj_mul; simpl; auto.
+rewrite Z2Nat.inj_mul; simpl; auto with Arith.
+ rewrite Z2Nat.inj_mul; simpl; auto with Arith.
   rewrite <- stretch_shift_series_distr.
   rewrite <- stretch_shift_series_distr.
   rewrite <- series_stretch_add_distr.
@@ -142,7 +142,7 @@ rewrite Hpa, Hpb in Hab.
 rewrite <- Z.mul_add_distr_r in Hab.
 rewrite <- series_stretch_mul in Hab.
 exists (mkps (ps_terms psa * ps_terms psb) (ps_ordnum psa + ps_ordnum psb) m).
-split; auto.
+split; auto with Arith.
 rewrite <- Hab.
 rewrite ps_adjust_eq with (n := O) (k := m).
 unfold adjust_ps; simpl.
@@ -204,7 +204,7 @@ intros a la m Hla.
 destruct (ps_zerop K a) as [Ha| Ha].
  rewrite Ha; apply ps_zero_in_K_1_m.
 
- eapply ps_lap_forall_forall in Hla; eauto.
+ eapply ps_lap_forall_forall in Hla; eauto with Arith.
   intros b c Hbc Hb.
   rewrite <- Hbc; assumption.
 
@@ -293,11 +293,11 @@ induction la as [| a]; intros.
     intros d e Hde Hd.
     rewrite <- Hde; assumption.
 
-   apply in_K_1_m_lap_add_compat with (m := m) in Hc; auto.
+   apply in_K_1_m_lap_add_compat with (m := m) in Hc; auto with Arith.
     intros d Hd.
-    apply in_K_1_m_lap_add_compat with (m := m) in Hd; auto.
+    apply in_K_1_m_lap_add_compat with (m := m) in Hd; auto with Arith.
      intros e He.
-     apply IHla with (lb := [b]); auto.
+     apply IHla with (lb := [b]); auto with Arith.
       intros f Hf.
       apply Hla; right; assumption.
 
@@ -336,7 +336,7 @@ induction la as [| a]; intros.
 
       rewrite lap_mul_nil_l in Hf.
       rewrite lap_eq_0, lap_add_nil_r in Hf.
-      apply IHlb; auto.
+      apply IHlb; auto with Arith.
       intros e He.
       apply Hlb.
       simpl in He; simpl.
@@ -358,7 +358,7 @@ induction la as [| a]; intros.
     destruct Hd as [(Hab, Hd)| Hd].
      rewrite <- Hd; apply ps_zero_in_K_1_m.
 
-     apply IHla with (lb := lb); auto.
+     apply IHla with (lb := lb); auto with Arith.
       intros e He.
       destruct (ps_zerop K e) as [Hf| Hf].
        rewrite Hf; apply ps_zero_in_K_1_m.
@@ -451,7 +451,7 @@ remember HL as Hbm; clear HeqHbm.
 apply points_in_any_newton_segment with (h := Qnat j) (αh := αj) in Hbm.
  rewrite Him, Hgp in Hbm.
  remember (mh_of_m m αj (ps_poly_nth j f)) as mj.
- remember (mj * ' q + Z.of_nat j * p # m * q) as v.
+ remember (mj * Zpos q + Z.of_nat j * p # m * q) as v.
  exists (ps_monom c (- v)); subst v; simpl.
  split; [ idtac | reflexivity ].
  rewrite Hbm.

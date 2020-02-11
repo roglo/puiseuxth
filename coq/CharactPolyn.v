@@ -5,11 +5,11 @@ Require Import Utf8 QArith Sorted NPeano.
 Require Import ConvexHull.
 Require Import ConvexHullMisc.
 Require Import Misc.
-Require Import Nbar.
-Require Import Qbar.
+Require Import NbarM.
+Require Import QbarM.
 Require Import Newton.
 Require Import PolyConvexHull.
-Require Import Field.
+Require Import Field2.
 Require Import Fpolynomial.
 Require Import PSpolynomial.
 Require Import Puiseux_base.
@@ -80,17 +80,17 @@ Definition poly_shrink α k (p : polynomial α) :=
   POL (list_shrink k (al p))%pol.
 
 Definition p_of_m m a :=
-  let p := (Qnum a * ' m)%Z in
+  let p := (Qnum a * Zpos m)%Z in
   let q := Qden a in
-  (p / Z.gcd p ('q))%Z.
+  (p / Z.gcd p (Zpos q))%Z.
 
 Definition q_of_m m a :=
-  let p := (Qnum a * ' m)%Z in
+  let p := (Qnum a * Zpos m)%Z in
   let q := Qden a in
-  Z.to_pos ('q / Z.gcd p ('q)).
+  Z.to_pos (Zpos q / Z.gcd p (Zpos q)).
 
 Definition mh_of_m α m αh (hps : puiseux_series α) :=
-  (Qnum αh * ' m / ' ps_polydo hps)%Z.
+  (Qnum αh * Zpos m / Zpos (ps_polydo hps))%Z.
 
 (* express that some puiseux series ∈ K(1/m)* *)
 Inductive in_K_1_m {α} {R : ring α} {K : field R} ps m :=
@@ -810,19 +810,19 @@ Qed.
 Theorem any_is_p_mq : ∀ a m p q,
   p = p_of_m m a
   → q = q_of_m m a
-  → a == p # (m * q) ∧ Z.gcd p ('q) = 1%Z.
+  → a == p # (m * q) ∧ Z.gcd p (Zpos q) = 1%Z.
 Proof.
 intros a m p q Hp Hq.
 unfold Qeq; simpl.
 subst p q; simpl.
 unfold p_of_m, q_of_m; simpl.
-remember (Qnum a * ' m)%Z as p.
+remember (Qnum a * Zpos m)%Z as p.
 remember (Qden a) as q.
-remember (Z.gcd p (' q)) as g.
+remember (Z.gcd p (Zpos q)) as g.
 rewrite Pos2Z.inj_mul.
 rewrite Z.mul_assoc.
 rewrite <- Heqp.
-pose proof (Z.gcd_divide_l p (' q)).
+pose proof (Z.gcd_divide_l p (Zpos q)).
 rewrite <- Heqg in H.
 destruct H as (gp, Hgp).
 rewrite Hgp.
@@ -832,7 +832,7 @@ assert (g ≠ 0)%Z as Hg0.
  apply Z.gcd_eq_0_r in H; revert H; apply Pos2Z_ne_0.
 
  rewrite Z.div_mul; auto.
- pose proof (Z.gcd_divide_r p (' q)).
+ pose proof (Z.gcd_divide_r p (Zpos q)).
  rewrite <- Heqg in H.
  destruct H as (gq, Hgq).
  rewrite Hgq.
@@ -853,7 +853,7 @@ assert (g ≠ 0)%Z as Hg0.
 
     apply Pos2Z.is_pos.
 
-    pose proof (Z.gcd_nonneg p (' q)).
+    pose proof (Z.gcd_nonneg p (Zpos q)).
     rewrite Heqg in H.
     apply Z.nlt_ge in H.
     exfalso; apply H.
@@ -868,7 +868,7 @@ Qed.
 Theorem p_and_q_have_no_common_factors : ∀ a m p q,
   p = p_of_m m a
   → q = q_of_m m a
-  → Z.gcd p (' q) = 1%Z.
+  → Z.gcd p (Zpos q) = 1%Z.
 Proof.
 intros a m p q Hp Hq.
 eapply any_is_p_mq; eauto .
@@ -908,7 +908,7 @@ Theorem pmq_qmpm : ∀ m p q j k jz kz mj mk,
   → jz = Z.of_nat j
     → kz = Z.of_nat k
       → p # m * q == (mj - mk # m) / (kz - jz # 1)
-        → ' q * (mj - mk) = p * (kz - jz).
+        → Zpos q * (mj - mk) = p * (kz - jz).
 Proof.
 intros m p q j k jz kz mj mk Hjk Hjz Hkz Hpq.
 subst jz kz.
@@ -927,7 +927,7 @@ rewrite Qden_inv in Hpq.
   apply Z.div_unique_exact in Hpq; [ idtac | apply Pos2Z_ne_0 ].
   rewrite Hpq.
   rewrite Znumtheory.Zdivide_Zdiv_eq_2.
-   rewrite Zdiv_1_r; reflexivity.
+   rewrite Z.div_1_r; reflexivity.
 
    apply Pos2Z.is_pos.
 
@@ -1020,8 +1020,8 @@ destruct y as [y| ]; simpl in H0, H1.
  remember (gcd_ps y z₁ ps₁) as g₁.
  remember (ps_ordnum ps₁ + Z.of_nat y)%Z as p₁.
  remember (ps_ordnum ps + Z.of_nat x)%Z as p.
- remember (' ps_polydo ps₁)%Z as o₁.
- remember (' ps_polydo ps)%Z as o.
+ remember (Zpos (ps_polydo ps₁))%Z as o₁.
+ remember (Zpos (ps_polydo ps))%Z as o.
  exists p₁.
  pose proof (gcd_ps_is_pos x z ps) as Hgp.
  pose proof (gcd_ps_is_pos y z₁ ps₁) as Hgp₁.
@@ -1097,7 +1097,7 @@ destruct y as [y| ]; simpl in H0, H1.
  pose proof (gcd_ps_is_pos x z ps) as Hgp.
  unfold gcd_ps in H0.
  remember (ps_ordnum ps + Z.of_nat x)%Z as p.
- remember (' ps_polydo ps)%Z as o.
+ remember (Zpos (ps_polydo ps))%Z as o.
  remember (Z.of_nat z) as t.
  pose proof (Z.gcd_divide_l p (Z.gcd o t)) as H.
  destruct H as (c, Hc).
@@ -1154,7 +1154,7 @@ Theorem den_αj_divides_num_αj_m : ∀ f L j αj m,
   newton_segments f = Some L
   → ini_pt L = (Qnat j, αj)
   → pol_in_K_1_m f m
-  → (' Qden αj | Qnum αj * ' m)%Z.
+  → (Zpos (Qden αj) | Qnum αj * Zpos m)%Z.
 Proof.
 intros f L j αj m HL Hini HinK.
 apply any_in_K_1_m with (h := j) (αh := αj) in HinK.
@@ -1179,11 +1179,11 @@ subst mj; simpl.
 unfold mh_of_m; simpl.
 unfold Qeq; simpl.
 rewrite Z_div_mul_swap.
- erewrite qden_αj_is_ps_polydo; eauto .
- rewrite Z.div_mul; eauto .
+ erewrite qden_αj_is_ps_polydo; eauto with Arith.
+ rewrite Z.div_mul; eauto with Arith.
 
- erewrite <- qden_αj_is_ps_polydo; eauto .
- eapply den_αj_divides_num_αj_m; eauto .
+ erewrite <- qden_αj_is_ps_polydo; eauto with Arith.
+ eapply den_αj_divides_num_αj_m; eauto with Arith.
 Qed.
 
 Theorem qden_αk_is_ps_polydo : ∀ f L k αk,
@@ -1212,7 +1212,7 @@ Theorem den_αk_divides_num_αk_m : ∀ f L k αk m,
   newton_segments f = Some L
   → pol_in_K_1_m f m
   → fin_pt L = (Qnat k, αk)
-  → (' Qden αk | Qnum αk * ' m)%Z.
+  → (Zpos (Qden αk) | Qnum αk * Zpos m)%Z.
 Proof.
 intros f L k αk m HL HinK Hini.
 apply any_in_K_1_m with (h := k) (αh := αk) in HinK.
@@ -1237,11 +1237,11 @@ subst mk; simpl.
 unfold mh_of_m; simpl.
 unfold Qeq; simpl.
 rewrite Z_div_mul_swap.
- erewrite qden_αk_is_ps_polydo; eauto .
- rewrite Z.div_mul; eauto .
+ erewrite qden_αk_is_ps_polydo; eauto with Arith.
+ rewrite Z.div_mul; eauto with Arith.
 
- erewrite <- qden_αk_is_ps_polydo; eauto .
- eapply den_αk_divides_num_αk_m; eauto .
+ erewrite <- qden_αk_is_ps_polydo; eauto with Arith.
+ eapply den_αk_divides_num_αk_m; eauto with Arith.
 Qed.
 
 Theorem qden_αh_is_ps_polydo : ∀ f L h αh,
@@ -1251,7 +1251,7 @@ Theorem qden_αh_is_ps_polydo : ∀ f L h αh,
 Proof.
 intros f L h αh HL Hoth.
 remember HL as H; clear HeqH.
-eapply order_in_newton_segment with (h := h) (αh := αh) in H; eauto .
+eapply order_in_newton_segment with (h := h) (αh := αh) in H; eauto with Arith.
  unfold order in H.
  remember (ps_poly_nth h f) as ps.
  remember (series_order (ps_terms ps) 0) as v eqn:Hv .
@@ -1269,7 +1269,7 @@ Theorem den_αh_divides_num_αh_m : ∀ f L h αh m,
   newton_segments f = Some L
   → pol_in_K_1_m f m
   → (Qnat h, αh) ∈ oth_pts L
-  → (' Qden αh | Qnum αh * ' m)%Z.
+  → (Zpos (Qden αh) | Qnum αh * Zpos m)%Z.
 Proof.
 intros f L h αh m HL HinK Hoth.
 apply any_in_K_1_m with (h := h) (αh := αh) in HinK.
@@ -1278,7 +1278,7 @@ apply any_in_K_1_m with (h := h) (αh := αh) in HinK.
 
  unfold newton_segments in HL.
  unfold points_of_ps_polynom in HL.
- eapply oth_pts_in_init_pts in HL; eauto .
+ eapply oth_pts_in_init_pts in HL; eauto with Arith.
 Qed.
 
 Theorem pol_ord_of_oth_pt : ∀ f L m h αh mh,
@@ -1293,11 +1293,11 @@ subst mh; simpl.
 unfold mh_of_m; simpl.
 unfold Qeq; simpl.
 rewrite Z_div_mul_swap.
- erewrite qden_αh_is_ps_polydo; eauto .
- rewrite Z.div_mul; eauto .
+ erewrite qden_αh_is_ps_polydo; eauto with Arith.
+ rewrite Z.div_mul; eauto with Arith.
 
- erewrite <- qden_αh_is_ps_polydo; eauto .
- eapply den_αh_divides_num_αh_m; eauto .
+ erewrite <- qden_αh_is_ps_polydo; eauto with Arith.
+ eapply den_αh_divides_num_αh_m; eauto with Arith.
 Qed.
 
 (* [Walker, p. 100]: « In the first place, we note that [...]
@@ -1329,17 +1329,17 @@ split.
  unfold mh_of_m; simpl.
  subst hps.
  destruct Hh as [Hh| [Hk| ]]; [ idtac | idtac | contradiction ].
-  erewrite <- qden_αh_is_ps_polydo; eauto .
+  erewrite <- qden_αh_is_ps_polydo; eauto with Arith.
   rewrite Z_div_mul_swap.
-   rewrite Z.div_mul; auto.
+   rewrite Z.div_mul; auto with Arith.
 
-   eapply den_αh_divides_num_αh_m; eauto .
+   eapply den_αh_divides_num_αh_m; eauto with Arith.
 
-  erewrite <- qden_αk_is_ps_polydo; eauto .
+  erewrite <- qden_αk_is_ps_polydo; eauto with Arith.
   rewrite Z_div_mul_swap.
-   rewrite Z.div_mul; auto.
+   rewrite Z.div_mul; auto with Arith.
 
-   eapply den_αk_divides_num_αk_m; eauto .
+   eapply den_αk_divides_num_αk_m; eauto with Arith.
 
  destruct Hh as [Hh| [Hh| ]]; [ idtac | idtac | contradiction ].
   remember HL as Hgh; clear HeqHgh.
@@ -1457,7 +1457,7 @@ apply List.in_app_or in Hh.
 remember (q_of_m m (γ L)) as pq eqn:Hpq ; subst q.
 rename pq into q; rename Hpq into Hq.
 remember Hp as Hgcd; clear HeqHgcd.
-eapply p_and_q_have_no_common_factors in Hgcd; eauto .
+eapply p_and_q_have_no_common_factors in Hgcd; eauto with Arith.
 rewrite Z.gcd_comm in Hgcd.
 rewrite <- positive_nat_Z in Hgcd.
 rewrite Z.gcd_comm in Hgcd.
@@ -1670,15 +1670,15 @@ induction l; intros.
    simpl in Hcl.
    assert (length l = length l - S k + 1 * S k)%nat as H.
     rewrite Nat.mul_1_l.
-    rewrite Nat.sub_add; auto.
-    apply Nat.lt_le_incl; auto.
+    rewrite Nat.sub_add; auto with Arith.
+    apply Nat.lt_le_incl; auto with Arith.
 
     rewrite H in |- * at 2; clear H.
     rewrite Nat.div_add; [ idtac | intros H; discriminate H ].
     rewrite Nat.add_1_r; reflexivity.
 
    rewrite <- H₁.
-   rewrite Nat.div_same; auto.
+   rewrite Nat.div_same; auto with Arith.
    rewrite list_shrink_skipn.
    apply length_shrink_skipn_eq; symmetry; assumption.
 
@@ -1709,17 +1709,17 @@ revert j x Hjpx Hsort.
 induction l as [| a]; intros; simpl.
  rewrite list_length_pad; simpl.
  simpl in Hjpx.
- rewrite <- Nat.add_sub_swap; auto.
+ rewrite <- Nat.add_sub_swap; auto with Arith.
  rewrite Nat.add_1_r; reflexivity.
 
  rewrite list_length_pad; simpl.
  simpl in Hjpx.
  rewrite IHl.
   eapply Sorted_trans_app in Hsort; [ idtac | idtac | left; eauto  ].
-   rewrite <- Nat.add_sub_swap; auto.
+   rewrite <- Nat.add_sub_swap; auto with Arith.
    rewrite <- Nat.sub_succ_l; [ idtac | apply Nat.lt_le_incl; auto ].
    rewrite Nat.add_sub_assoc; [ idtac | apply Nat.lt_le_incl; auto ].
-   rewrite Nat.add_sub_swap; auto.
+   rewrite Nat.add_sub_swap; auto with Arith.
    rewrite Nat.sub_diag; reflexivity.
 
    clear x Hsort.
@@ -1879,7 +1879,7 @@ rewrite Nat.sub_diag, list_pad_0.
 rewrite List.Forall_forall in Hpts.
 unfold poly_shrinkable; intros n Hn; simpl.
 destruct n.
- rewrite Nat.mod_0_l in Hn; auto.
+ rewrite Nat.mod_0_l in Hn; auto with Arith.
  exfalso; apply Hn; reflexivity.
 
  revert n pt₁ Hsort Hpts Hn.
@@ -1907,10 +1907,10 @@ destruct n.
    reflexivity.
 
    destruct (lt_dec n (h - S j)) as [H₃| H₃].
-    rewrite list_nth_pad_lt; auto.
+    rewrite list_nth_pad_lt; auto with Arith.
 
     apply Nat.nlt_ge in H₃.
-    rewrite list_nth_pad_sub; auto.
+    rewrite list_nth_pad_sub; auto with Arith.
     destruct (eq_nat_dec (h - S j) n) as [H₄| H₄].
      exfalso.
      assert (pt₂ ∈ [pt₂ … pts]) as H by (left; auto).
@@ -1919,28 +1919,28 @@ destruct n.
      destruct H as (c, Hc).
      rewrite <- H₄ in Hn.
      simpl in Hsort; simpl.
-     rewrite <- Nat.sub_succ_l in Hn; auto.
+     rewrite <- Nat.sub_succ_l in Hn; auto with Arith.
      rewrite Nat.sub_succ in Hn.
      rewrite Hc in Hn.
-     apply Hn, Nat.mod_mul; auto.
+     apply Hn, Nat.mod_mul; auto with Arith.
 
      remember (n - (h - S j))%nat as nhj eqn:Hnhj .
      symmetry in Hnhj.
      destruct nhj.
       apply Nat.sub_0_le in Hnhj.
-      apply Nat_le_neq_lt in H₃; auto.
+      apply Nat_le_neq_lt in H₃; auto with Arith.
       apply Nat.nle_gt in H₃.
       contradiction.
 
       destruct (eq_nat_dec (S nhj mod q) 0) as [H₅| H₅].
-       apply Nat.mod_divides in H₅; auto.
+       apply Nat.mod_divides in H₅; auto with Arith.
        destruct H₅ as (c, Hc).
        apply Nat.add_sub_eq_nz in Hnhj; [ idtac | intros H; discriminate H ].
        exfalso; apply Hn.
        rewrite <- Hnhj.
        rewrite Hc.
        rewrite <- Nat.add_succ_l.
-       rewrite <- Nat.sub_succ_l; auto.
+       rewrite <- Nat.sub_succ_l; auto with Arith.
        rewrite Nat.sub_succ.
        assert (pt₂ ∈ [pt₂ … pts]) as H by (left; auto).
        apply Hpts in H.
@@ -1948,10 +1948,10 @@ destruct n.
        destruct H as (d, Hd).
        rewrite Nat.mul_comm.
        rewrite Hd, <- Nat.mul_add_distr_r.
-       apply Nat.mod_mul; auto.
+       apply Nat.mod_mul; auto with Arith.
 
        rewrite Hh.
-       apply IHpts; auto.
+       apply IHpts; auto with Arith.
        intros pt Hpt.
        assert (pt ∈ [pt₂ … pts]) as H by (right; auto).
        apply Hpts in H.
@@ -1966,9 +1966,9 @@ destruct n.
        rewrite Nat.mul_sub_distr_r.
        rewrite <- Hc, <- Hd.
        rewrite Nat_sub_sub_distr; [ idtac | apply Nat.lt_le_incl; auto ].
-       rewrite Nat.sub_add; auto.
+       rewrite Nat.sub_add; auto with Arith.
        apply Nat.lt_le_incl.
-       eapply Nat.lt_trans; eauto .
+       eapply Nat.lt_trans; eauto with Arith.
        revert Hsort Hh Hpt; clear; intros; subst h.
        revert pt₂ pt Hsort Hpt.
        induction pts as [| pt₃]; intros; [ contradiction | idtac ].
@@ -1979,8 +1979,8 @@ destruct n.
         apply HdRel_inv in Hrel.
         assumption.
 
-        apply IHpts; auto.
-        eapply Sorted_minus_2nd; eauto .
+        apply IHpts; auto with Arith.
+        eapply Sorted_minus_2nd; eauto with Arith.
         intros x y z H₁ H₂; eapply Nat.lt_trans; eassumption.
 
   contradiction.
@@ -2000,15 +2000,15 @@ split.
  apply shrinkable_if.
   remember HL as H; clear HeqH.
   apply ini_oth_fin_pts_sorted in H.
-  apply Sorted_fst_lt_nat_num_fst in H; auto.
+  apply Sorted_fst_lt_nat_num_fst in H; auto with Arith.
   intros pt Hpt.
   unfold Qnat.
-  eapply points_in_newton_segment_have_nat_abscissa in Hpt; eauto .
+  eapply points_in_newton_segment_have_nat_abscissa in Hpt; eauto with Arith.
   destruct Hpt as (h, (ah, Hpt)).
   subst pt; simpl.
   rewrite Nat2Z.id; reflexivity.
 
-  rewrite Hq; auto.
+  rewrite Hq; auto with Arith.
 
   apply List.Forall_forall.
   intros pt Hpt.
@@ -2017,20 +2017,20 @@ split.
   apply List.in_app_or in Hpt.
   destruct Hpt as [Hpt| Hpt].
    remember Hpt as H; clear HeqH.
-   eapply exists_oth_pt_nat in H; eauto .
+   eapply exists_oth_pt_nat in H; eauto with Arith.
    destruct H as (h, (ah, Hoth)).
    subst pt; simpl.
    rewrite nat_num_Qnat.
-   eapply q_is_factor_of_h_minus_j; eauto .
-   apply List.in_or_app; left; eauto .
+   eapply q_is_factor_of_h_minus_j; eauto with Arith.
+   apply List.in_or_app; left; eauto with Arith.
 
    destruct Hpt as [Hpt| ]; [ idtac | contradiction ].
    subst pt; simpl.
    rewrite <- Hk; simpl.
    rewrite nat_num_Qnat.
-   eapply q_is_factor_of_h_minus_j; eauto .
+   eapply q_is_factor_of_h_minus_j; eauto with Arith.
    apply List.in_or_app.
-   right; left; eauto .
+   right; left; eauto with Arith.
 
  unfold pseudo_degree, Φs; simpl.
  rewrite <- Hj; simpl.
@@ -2369,15 +2369,15 @@ split.
  apply shrinkable_if.
   remember HL as H; clear HeqH.
   apply ini_oth_fin_pts_sorted in H.
-  apply Sorted_fst_lt_nat_num_fst in H; auto.
+  apply Sorted_fst_lt_nat_num_fst in H; auto with Arith.
   intros pt Hpt.
   unfold Qnat.
-  eapply points_in_newton_segment_have_nat_abscissa in Hpt; eauto .
+  eapply points_in_newton_segment_have_nat_abscissa in Hpt; eauto with Arith.
   destruct Hpt as (h, (ah, Hpt)).
   subst pt; simpl.
   rewrite Nat2Z.id; reflexivity.
 
-  rewrite Hq; auto.
+  rewrite Hq; auto with Arith.
 
   apply List.Forall_forall.
   intros pt Hpt.
@@ -2386,20 +2386,20 @@ split.
   apply List.in_app_or in Hpt.
   destruct Hpt as [Hpt| Hpt].
    remember Hpt as H; clear HeqH.
-   eapply exists_oth_pt_nat in H; eauto .
+   eapply exists_oth_pt_nat in H; eauto with Arith.
    destruct H as (h, (ah, Hoth)).
    subst pt; simpl.
    rewrite nat_num_Qnat.
-   eapply q_is_factor_of_h_minus_j; eauto .
-   apply List.in_or_app; left; eauto .
+   eapply q_is_factor_of_h_minus_j; eauto with Arith.
+   apply List.in_or_app; left; eauto with Arith.
 
    destruct Hpt as [Hpt| ]; [ idtac | contradiction ].
    subst pt; simpl.
    rewrite <- Hk; simpl.
    rewrite nat_num_Qnat.
-   eapply q_is_factor_of_h_minus_j; eauto .
+   eapply q_is_factor_of_h_minus_j; eauto with Arith.
    apply List.in_or_app.
-   right; left; eauto .
+   right; left; eauto with Arith.
 
  unfold has_degree.
  unfold pseudo_degree.
@@ -2418,9 +2418,9 @@ split.
   rewrite <- Nat.sub_succ_l; [ idtac | subst q; apply Pos2Nat.is_pos ].
   rewrite Nat_sub_succ_1.
   rewrite Nat.mul_comm.
-  rewrite <- Nat.divide_div_mul_exact; [ idtac | subst q; auto | idtac ].
+  rewrite <- Nat.divide_div_mul_exact; [ idtac | subst q; auto with Arith | idtac ].
    rewrite Nat.mul_comm.
-   rewrite Nat.div_mul; [ idtac | subst q; auto ].
+   rewrite Nat.div_mul; [ idtac | subst q; auto with Arith ].
    subst pl.
    erewrite list_nth_coeff_last; try eassumption.
     rewrite list_last_cons_app; simpl.

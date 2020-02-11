@@ -28,7 +28,7 @@ of any polynomial
 
 PROOF
 
-You need coq version 8.6. Do:
+You need coq version 8.11.0. Do:
         cd coq; make
 
 EXAMPLES OF THE PROGRAM

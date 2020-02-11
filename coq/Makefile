@@ -7,7 +7,7 @@ FILESFORDEP=`LC_ALL=C ls *.v`
 all: $(TARGET)
 
 clean:
-	rm -f *.glob *.vo .*.aux
+	rm -f *.glob *.vo .*.aux *.vok *.vos
 	rm -f *.cm[iox] *.o *.cmxs *.native
 
 depend:
