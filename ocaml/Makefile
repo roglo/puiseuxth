@@ -34,19 +34,19 @@ puiseux_series.cmx: pa_coq.cmo
 series.cmx: pa_coq.cmo
 
 puiseux.out: $(FILES)
-	$(OCAMLC) -custom -I +camlp5 $(CPOLY_OBJS) $(LIB) $(FILES) $(LINKFLAGS) -o $@
+	$(OCAMLC) -custom -I $$(camlp5 -where) $(CPOLY_OBJS) $(LIB) $(FILES) $(LINKFLAGS) -o $@
 
 puiseux.opt: $(FILES:.cmo=.cmx)
-	$(OCAMLOPT) -I +camlp5 $(CPOLY_OBJS:.cmo=.cmx) $(LIB:.cma=.cmxa) $(FILES:.cmo=.cmx) $(LINKFLAGS) -o $@
+	$(OCAMLOPT) -I $$(camlp5 -where) $(CPOLY_OBJS:.cmo=.cmx) $(LIB:.cma=.cmxa) $(FILES:.cmo=.cmx) $(LINKFLAGS) -o $@
 
 ocaml_puiseux: ../cpoly/cpoly.cmo ../cpoly/ml_mpfr.o
 	cd ../cpoly; $(MAKE) top TOPNAME=../ocaml/ocaml_puiseux OTH_OBJS=nums.cma
 
 ugly.out: $(UFILES)
-	$(OCAMLC) -custom -I +camlp5 $(CPOLY_OBJS) $(LIB) $(UFILES) $(LINKFLAGS) -o $@
+	$(OCAMLC) -custom -I $$(camlp5 -where) $(CPOLY_OBJS) $(LIB) $(UFILES) $(LINKFLAGS) -o $@
 
 ugly.opt: $(UFILES:.cmo=.cmx)
-	$(OCAMLOPT) -I +camlp5 $(CPOLY_OBJS:.cmo=.cmx) $(LIB:.cma=.cmxa) $(UFILES:.cmo=.cmx) $(LINKFLAGS) -o $@
+	$(OCAMLOPT) -I $$(camlp5 -where) $(CPOLY_OBJS:.cmo=.cmx) $(LIB:.cma=.cmxa) $(UFILES:.cmo=.cmx) $(LINKFLAGS) -o $@
 
 clean:
 	rm -f *.cm[iox] *.o *.out *.opt puiseux ugly ocaml_puiseux
@@ -64,14 +64,14 @@ depend:
 
 .mli.cmi:
 	@$(TEST_DIR)
-	$(OCAMLC) $(OCOPT) -pp camlp5r -I +camlp5 -c $<
+	$(OCAMLC) $(OCOPT) -pp camlp5r -I $$(camlp5 -where) -c $<
 
 .ml.cmo:
 	@$(TEST_DIR)
-	$(OCAMLC) $(OCOPT) -pp camlp5r -I +camlp5 -c $<
+	$(OCAMLC) $(OCOPT) -pp camlp5r -I $$(camlp5 -where) -c $<
 
 .ml.cmx:
 	@$(TEST_DIR)
-	$(OCAMLOPT) $(OCOPT) -pp camlp5r -I +camlp5 -c $<
+	$(OCAMLOPT) $(OCOPT) -pp camlp5r -I $$(camlp5 -where) -c $<
 
 include .depend
