@@ -8,13 +8,15 @@ Everything can be done by typing at top:
 
 Faster compilation with option -j of make. E.g. "make -j4"
 
-Compilation and proof are independent. See directories ocaml and coq.
-Or see PROGRAM and PROOF below.
+If this command "make" does not work, try reading the sections PROOF
+(coq proof) and PROGRAM (ocaml program) below. They are independent.
 
 PROGRAM
 
-You need ocaml, camlp5, library mfpr (dev) to compile. Do:
-        cd ocaml; make
+You need ocaml, its library num, camlp5, library mfpr (dev) to compile
+(under Debian, it is the package libmpfr-def). Do:
+        cd cpoly; make; cd ..
+        cd ocaml; make; cd ..
 
 This creates the executable named "puiseux".
 Also building of a library function computing float complex roots of
