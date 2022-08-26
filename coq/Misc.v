@@ -503,7 +503,7 @@ pose proof Pos2Nat.is_pos a as HH.
 rewrite H in HH.
 revert HH; apply lt_irrefl.
 Qed.
-Hint Resolve Pos2Nat_ne_0 : Arith.
+Global Hint Resolve Pos2Nat_ne_0 : Arith.
 
 Open Scope positive_scope.
 
@@ -1215,6 +1215,25 @@ destruct Ha as [Ha| Ha].
  assumption.
 Qed.
 
-Hint Resolve Pos2Z.is_nonneg : Arith.
-Hint Resolve Pos2Nat.is_pos : Arith.
-Hint Resolve Pos2Z_ne_0 : Arith.
+Global Hint Resolve Pos2Z.is_nonneg : Arith.
+Global Hint Resolve Pos2Nat.is_pos : Arith.
+Global Hint Resolve Pos2Z_ne_0 : Arith.
+
+(* compatibility with old version of Coq *)
+
+Definition omodulo x y := if Nat.eq_dec y 0%nat then 0%nat else x mod y.
+Notation "x 'omod' y" := (omodulo x y) (at level 40) : nat_scope.
+
+Theorem omod_0_l : ∀ a, 0 omod a = 0%nat.
+Proof.
+intros.
+destruct a; [ easy | apply Nat.sub_diag ].
+Qed.
+
+Theorem omod_divide : ∀ a b : nat, b ≠ 0%nat → a omod b = 0%nat ↔ (b | a).
+Proof.
+intros * Hbz.
+unfold omodulo.
+destruct (Nat.eq_dec b 0) as [H| H]; [ easy | ].
+now apply Nat.mod_divide.
+Qed.

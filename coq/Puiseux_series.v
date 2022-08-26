@@ -2209,14 +2209,14 @@ Qed.
 Theorem series_null_power : ∀ s b p,
   is_a_series_in_x_power s b p
   → ∀ i,
-    ((i - b) mod p)%nat ≠ O
+    ((i - b) omod p)%nat ≠ O
     → (s .[i] = 0)%K.
 Proof.
 intros s b p Hxp i Hip.
 destruct p; [ exfalso; apply Hip; reflexivity | idtac ].
 destruct (le_dec i b) as [H₁| H₁].
  apply Nat.sub_0_le in H₁.
- rewrite H₁, Nat.mod_0_l in Hip; auto with Arith.
+ rewrite H₁, omod_0_l in Hip; auto with Arith.
  exfalso; apply Hip; reflexivity.
 
  apply Nat.nle_gt in H₁.
@@ -2334,7 +2334,7 @@ split; intros H.
      remember (Z.gcd x (Zpos (ps_polydo ps))) as z.
      pose proof (Z.gcd_divide_r z (Z.of_nat p)) as H₄.
      rewrite <- Hg in H₄.
-     apply Nat.mod_divide in H₃; auto with Arith.
+     apply omod_divide in H₃; auto with Arith.
       apply Nat.mod_divide; auto with Arith.
        intros H₅.
        rewrite <- Z2Nat.inj_0 in H₅.

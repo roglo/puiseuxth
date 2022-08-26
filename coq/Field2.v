@@ -362,4 +362,4 @@ Qed.
 
 End field_theorems.
 
-Hint Resolve rng_eq_refl : Arith.
+Global Hint Resolve rng_eq_refl : Arith.
