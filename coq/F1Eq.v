@@ -304,7 +304,9 @@ apply lap_compose_compat; [ reflexivity | idtac ].
 progress unfold ps_lap_mul, lap_mul; simpl.
 progress unfold summation; simpl.
 (*
+Check 1.
 rewrite rng_mul_0_l.
+Check 1.
 do 3 rewrite rng_add_0_r.
 *)
 rewrite ps_mul_0_l.
