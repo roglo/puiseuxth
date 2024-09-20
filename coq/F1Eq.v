@@ -1,5 +1,7 @@
 (* F1Eq.v *)
 
+Set Nested Proofs Allowed.
+
 Require Import Utf8 QArith Sorted.
 
 Require Import ConvexHullMisc.
@@ -299,8 +301,6 @@ progress unfold summation; simpl.
 Check 1.
 rewrite rng_mul_0_l.
 Check 1.
-...
-rewrite rng_mul_0_l.
 do 3 rewrite rng_add_0_r.
 ...
 simpl.
