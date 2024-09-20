@@ -210,11 +210,11 @@ Definition list_nth_def_0 α {R : ring α} n l := List.nth n l 0%K.
 
 (* *)
 
-Add Parametric Morphism α (R : ring α) : (@list_nth_def_0 _ R)
-  with signature eq ==> lap_eq ==> rng_eq
-  as list_nth_rng_morph.
+Global Instance list_nth_rng_morph α (R : ring α) :
+  Proper (eq ==> lap_eq ==> rng_eq) (@list_nth_def_0 _ R).
 Proof.
-intros n la lb Hab.
+intros m n Hmn la lb Hab.
+subst m.
 unfold list_nth_def_0.
 revert n lb Hab.
 induction la as [| a]; intros; simpl.
@@ -283,9 +283,8 @@ constructor; [ rewrite Hb, rng_add_0_r; reflexivity | idtac ].
 apply IHlb; assumption.
 Qed.
 
-Add Parametric Morphism α (r : ring α) : lap_add
-  with signature lap_eq ==> lap_eq ==> lap_eq
-  as lap_add_morph.
+Global Instance lap_add_morph α (r : ring α) : 
+  Proper (lap_eq ==> lap_eq ==> lap_eq) lap_add.
 Proof.
 intros la lc Hac lb ld Hbd.
 revert lb lc ld Hac Hbd.
@@ -413,11 +412,11 @@ induction la as [| a]; intros.
   apply IHla; assumption.
 Qed.
 
-Add Parametric Morphism α (R : ring α) : (lap_convol_mul R)
-  with signature lap_eq ==> lap_eq ==> eq ==> eq ==> lap_eq
-  as lap_convol_mul_morph.
+Global Instance lap_convol_mul_morph α (R : ring α) :
+  Proper (lap_eq ==> lap_eq ==> eq ==> eq ==> lap_eq) (lap_convol_mul R).
 Proof.
-intros la lb Hlab lc ld Hlcd i len.
+intros la lb Hlab lc ld Hlcd i j Hij len len' Hlen.
+subst j len'.
 revert la lb lc ld Hlab Hlcd i.
 induction len; intros; [ reflexivity | simpl ].
 constructor; [ idtac | apply IHlen; assumption ].
@@ -500,9 +499,8 @@ destruct (le_dec (length la) j) as [H₁| H₁].
    revert H₁; apply Nat.nlt_0_r.
 Qed.
 
-Add Parametric Morphism α (R : ring α) : (@lap_mul _ R)
-  with signature lap_eq ==> lap_eq ==> lap_eq
-  as lap_mul_morph.
+Global Instance lap_mul_morph α (R : ring α) :
+  Proper (lap_eq ==> lap_eq ==> lap_eq) (@lap_mul _ R).
 Proof.
 intros a c Hac b d Hbd.
 unfold lap_mul; simpl.
@@ -512,18 +510,17 @@ rewrite Nat.add_comm.
 reflexivity.
 Qed.
 
-Add Parametric Morphism α (r : ring α) : lap_power
-  with signature lap_eq ==> eq ==> lap_eq
-  as lap_power_morph.
+Global Instance lap_power_morph α (r : ring α) :
+  Proper (lap_eq ==> eq ==> lap_eq) lap_power.
 Proof.
-intros la lb Hlab n.
+intros la lb Hlab m n Hmn.
+subst m.
 induction n; [ reflexivity | simpl ].
 rewrite IHn, Hlab; reflexivity.
 Qed.
 
-Add Parametric Morphism α (r : ring α) : (@cons α)
-  with signature rng_eq ==> lap_eq ==> lap_eq
-  as cons_lap_eq_morph.
+Global Instance cons_lap_eq_morph α (r : ring α) :
+  Proper (rng_eq ==> lap_eq ==> lap_eq) (@cons α).
 Proof.
 intros a b H la lb Hab.
 constructor; assumption.
@@ -602,9 +599,8 @@ intros α r a b c d Hac Hbd.
 rewrite Hac, Hbd; reflexivity.
 Qed.
 
-Add Parametric Morphism α (r : ring α) : lap_compose
-  with signature lap_eq ==> lap_eq ==> lap_eq
-  as lap_compose_morph.
+Global Instance lap_compose_morph α (r : ring α) :
+  Proper (lap_eq ==> lap_eq ==> lap_eq) lap_compose.
 Proof.
 intros la lb Hlab lc ld Hlcd.
 revert lb lc ld Hlab Hlcd.
@@ -1481,14 +1477,12 @@ Notation "a * b" := (poly_mul a b) : poly_scope.
 Notation "a ^ b" := (poly_power a b) : poly_scope.
 Notation "a ∘ b" := (poly_compose a b) : poly_scope.
 
-Add Parametric Morphism α (r : ring α) : (@al α)
-  with signature eq_poly ==> lap_eq
-  as al_morph.
-Proof. intros; assumption. Qed.
+Global Instance al_morph α (r : ring α) :
+  Proper (eq_poly ==> lap_eq) (@al α).
+Proof. intros; easy. Qed.
 
-Add Parametric Morphism α (r : ring α) : poly_add
-  with signature eq_poly ==> eq_poly ==> eq_poly
-  as poly_add_morph.
+Global Instance poly_add_morph α (r : ring α) :
+  Proper (eq_poly ==> eq_poly ==> eq_poly) poly_add.
 Proof.
 intros a c Hac b d Hbd.
 unfold eq_poly, poly_add; simpl.
@@ -1496,9 +1490,8 @@ unfold eq_poly in Hac, Hbd.
 rewrite Hac, Hbd; reflexivity.
 Qed.
 
-Add Parametric Morphism α (r : ring α) : poly_mul
-  with signature eq_poly ==> eq_poly ==> eq_poly
-  as poly_mul_morph.
+Global Instance poly_mul_morph α (r : ring α) :
+  Proper (eq_poly ==> eq_poly ==> eq_poly) poly_mul.
 Proof.
 intros a c Hac b d Hbd.
 unfold eq_poly, poly_mul, lap_mul; simpl.
@@ -1514,9 +1507,8 @@ rewrite Nat.add_comm.
 reflexivity.
 Qed.
 
-Add Parametric Morphism α (K : ring α) : poly_compose
-  with signature eq_poly ==> eq_poly ==> eq_poly
-  as poly_compose_morph.
+Global Instance poly_compose_morph α (K : ring α) :
+  Proper (eq_poly ==> eq_poly ==> eq_poly) poly_compose.
 Proof.
 intros A C HAC B D HBD.
 unfold eq_poly; simpl.

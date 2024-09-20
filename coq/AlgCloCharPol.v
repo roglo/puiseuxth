@@ -85,9 +85,8 @@ induction n; [ reflexivity | simpl ].
 rewrite comb_0_r, IHn; reflexivity.
 Qed.
 
-Add Parametric Morphism α (R : ring α) : (@apply_lap _ R)
-  with signature lap_eq ==> rng_eq ==> rng_eq
-  as apply_lap_morph.
+Global Instance apply_lap_morph α (R : ring α) :
+  Proper (lap_eq ==> rng_eq ==> rng_eq) (@apply_lap _ R).
 Proof.
 intros la lb Hab x y Hxy.
 unfold apply_lap.
@@ -116,9 +115,8 @@ induction la as [| a]; intros; simpl.
   reflexivity.
 Qed.
 
-Add Parametric Morphism α (R : ring α) : (@apply_poly _ R)
-  with signature eq_poly ==> rng_eq ==> rng_eq
-  as apply_poly_morph.
+Global Instance apply_poly_morph α (R : ring α) :
+  Proper (eq_poly ==> rng_eq ==> rng_eq) (@apply_poly _ R).
 Proof.
 intros p₁ p₂ Hpp v₁ v₂ Hvv.
 unfold eq_poly in Hpp.
@@ -138,11 +136,11 @@ induction m; intros; simpl.
  apply rng_add_shuffle0.
 Qed.
 
-Add Parametric Morphism α (r : ring α) : (rng_mul_nat r)
-  with signature eq ==> rng_eq ==> rng_eq
-  as rng_mul_nat_morph.
+Global Instance rng_mul_nat_morph α (r : ring α) :
+  Proper (eq ==> rng_eq ==> rng_eq) (rng_mul_nat r).
 Proof.
-intros n a b Hab.
+intros n n' Hn a b Hab.
+subst n'.
 induction n; [ reflexivity | simpl ].
 rewrite IHn, Hab; reflexivity.
 Qed.

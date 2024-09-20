@@ -401,14 +401,11 @@ Add Parametric Relation : Qbar Qbar.qeq
  transitivity proved by Qbar.eq_trans
  as qbar_qeq_rel.
 
-Add Parametric Morphism : qfin
-  with signature Qeq ==> Qbar.qeq
-  as qbar_qfin_morph.
-Proof. intros; assumption. Qed.
+Global Instance qbar_qfin_morph : Proper (Qeq ==> Qbar.qeq) qfin.
+Proof. easy. Qed.
 
-Add Parametric Morphism : Qbar.add
-  with signature Qbar.qeq ==> Qbar.qeq ==> Qbar.qeq
-  as qbar_add_morph.
+Global Instance qbar_add_morph :
+  Proper (Qbar.qeq ==> Qbar.qeq ==> Qbar.qeq) Qbar.add.
 Proof.
 intros a b Hab c d Hcd.
 destruct a as [a| ]; simpl.
@@ -494,9 +491,8 @@ Qed.
 Theorem eq_Qbar_qinf : ∀ a, (a = ∞)%Qbar → a = ∞%Qbar.
 Proof. intros a H; destruct a; auto; inversion H. Qed.
 
-Add Parametric Morphism : Qbar.le
-  with signature Qbar.qeq ==> Qbar.qeq ==> iff
-  as qbar_le_morph.
+Global Instance qbar_le_morph :
+  Proper (Qbar.qeq ==> Qbar.qeq ==> iff) Qbar.le.
 Proof.
 intros a b Hab c d Hcd.
 split; intros H.
@@ -506,17 +502,15 @@ split; intros H.
  eapply Qbar_le_compat; eassumption.
 Qed.
 
-Add Parametric Morphism : Qbar.ge
-  with signature Qbar.qeq ==> Qbar.qeq ==> iff
-  as qbar_ge_morph.
+Global Instance qbar_ge_morph :
+  Proper (Qbar.qeq ==> Qbar.qeq ==> iff) Qbar.ge.
 Proof.
 intros a b Hab c d Hcd.
 apply qbar_le_morph; assumption.
 Qed.
 
-Add Parametric Morphism : Qbar.lt
-  with signature Qbar.qeq ==> Qbar.qeq ==> iff
-  as qbar_lt_morph.
+Global Instance qbar_lt_morph :
+  Proper (Qbar.qeq ==> Qbar.qeq ==> iff) Qbar.lt.
 Proof.
 intros a b Hab c d Hcd.
 split; intros H.
@@ -526,17 +520,15 @@ split; intros H.
  eapply Qbar_lt_compat; eassumption.
 Qed.
 
-Add Parametric Morphism : Qbar.gt
-  with signature Qbar.qeq ==> Qbar.qeq ==> iff
-  as qbar_gt_morph.
+Global Instance qbar_gt_morph :
+  Proper (Qbar.qeq ==> Qbar.qeq ==> iff) Qbar.gt.
 Proof.
 intros a b Hab c d Hcd.
 apply qbar_lt_morph; assumption.
 Qed.
 
-Add Parametric Morphism : Qbar.min
-  with signature Qbar.qeq ==> Qbar.qeq ==> Qbar.qeq
-  as qbar_min_morph.
+Global Instance qbar_min_morph :
+  Proper (Qbar.qeq ==> Qbar.qeq ==> Qbar.qeq) Qbar.min.
 Proof.
 intros a b Hab c d Hcd.
 unfold Qbar.min, Qbar.binop.

@@ -1,6 +1,6 @@
 (* InK1m.v *)
 
-Require Import Utf8 QArith NPeano.
+Require Import Utf8 QArith.
 
 Require Import Misc.
 Require Import Field2.
@@ -24,9 +24,8 @@ Require Import QbarM.
 
 Set Implicit Arguments.
 
-Add Parametric Morphism α (R : ring α) (K : field R) : (@in_K_1_m _ R K)
-  with signature eq_ps ==> eq ==> iff
-  as in_K_1_m_morph.
+Global Instance in_K_1_m_morph α (R : ring α) (K : field R) :
+  Proper (eq_ps ==> eq ==> iff) (@in_K_1_m _ R K).
 Proof.
 intros a b Hab n.
 split; intros H.

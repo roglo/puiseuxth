@@ -140,9 +140,8 @@ Definition series_mul {α} {r : ring α} a b :=
 
 Notation "a * b" := (series_mul a b) : series_scope.
 
-Add Parametric Morphism α (R : ring α) : series_mul
-  with signature eq_series ==> eq_series ==> eq_series
-  as series_mul_morph.
+Global Instance series_mul_morph α (R : ring α) :
+  Proper (eq_series ==> eq_series ==> eq_series) series_mul.
 Proof.
 intros a b Hab c d Hcd.
 constructor; intros k; simpl.
@@ -257,9 +256,8 @@ Qed.
 
 End misc_theorems.
 
-Add Parametric Morphism α (R : ring α) : series_add
-  with signature eq_series ==> eq_series ==> eq_series
-  as series_add_morph.
+Global Instance series_add_morph α (R : ring α) :
+  Proper (eq_series ==> eq_series ==> eq_series) series_add.
 Proof.
 intros s₁ s₂ Heq₁ s₃ s₄ Heq₂.
 inversion Heq₁; subst.
@@ -268,11 +266,10 @@ constructor; intros i; simpl.
 rewrite H, H0; reflexivity.
 Qed.
 
-Add Parametric Morphism α (R : ring α) : (@terms α)
-  with signature eq_series ==> eq ==> rng_eq
-  as series_nth_morph.
+Global Instance series_nth_morph α (R : ring α) :
+  Proper (eq_series ==> eq ==> rng_eq) (@terms α).
 Proof.
-intros s₁ s₂ Heq i.
+intros s₁ s₂ Heq x y Hxy.
 inversion Heq; subst.
 apply H.
 Qed.

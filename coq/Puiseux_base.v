@@ -261,9 +261,8 @@ destruct (Z_zerop e) as [He| He].
    apply Z.gcd_divide_l.
 Qed.
 
-Add Parametric Morphism α (R : ring α) (K : field R) : (@order α R K)
-  with signature eq_ps ==> Qbar.qeq
-  as order_morph.
+Global Instance order_morph α (R : ring α) (K : field R) :
+  Proper (eq_ps ==> Qbar.qeq) (@order α R K).
 Proof.
 intros a b Hab.
 inversion Hab; subst.

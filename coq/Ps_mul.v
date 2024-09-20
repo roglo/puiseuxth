@@ -441,9 +441,8 @@ Qed.
 
 End theorems_for_mul.
 
-Add Parametric Morphism α (r : ring α) (K : field r) : ps_mul
-  with signature eq_ps ==> eq_ps ==> eq_ps
-  as ps_mul_morph.
+Global Instance ps_mul_morph α (r : ring α) (K : field r) :
+  Proper (eq_ps ==> eq_ps ==> eq_ps) ps_mul.
 Proof.
 intros ps₁ ps₃ Heq₁ ps₂ ps₄ Heq₂.
 rewrite ps_mul_compat_l; [ idtac | eassumption ].

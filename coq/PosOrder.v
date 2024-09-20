@@ -2,7 +2,6 @@
 
 Require Import Utf8.
 Require Import QArith.
-Require Import NPeano.
 Require Import Sorted.
 
 Require Import Misc.
@@ -64,9 +63,8 @@ destruct Hla as [(Hcla, Hca)| Hla].
   eapply IHla; eassumption.
 Qed.
 
-Add Parametric Morphism α (R : ring α) (K : field R) : (@ps_lap_in α R K)
-  with signature eq_ps ==> (@lap_eq _ (ps_ring K)) ==> iff
-  as list_in_eq_ps_morph.
+Global Instance list_in_eq_ps_morph α (R : ring α) (K : field R) :
+  Proper (eq_ps ==> (@lap_eq _ (ps_ring K)) ==> iff) (@ps_lap_in α R K).
 Proof.
 intros a b Hab la lb Hlab.
 split; intros Hl.

@@ -828,19 +828,19 @@ Add Parametric Relation α (r : ring α) : (puiseux_series α) eq_ps_strong
  transitivity proved by (eq_strong_trans (r := r))
  as eq_strong_rel.
 
-Add Parametric Morphism α (r : ring α) : (@mkps α)
-  with signature eq_series ==> eq ==> eq ==> eq_ps_strong
-  as mkps_strong_eq_morphism.
+Global Instance mkps_strong_eq_morphism α (r : ring α) :
+  Proper (eq_series ==> eq ==> eq ==> eq_ps_strong) (@mkps α).
 Proof.
-intros a b Hab v n.
+intros a b Hab v w Hvw m n Hmn.
+subst w m.
 constructor; [ reflexivity | reflexivity | assumption ].
 Qed.
 
-Add Parametric Morphism α (r : ring α) (K : field r) : series_order
-  with signature eq_series ==> eq ==> eq
-  as series_order_morph.
+Global Instance series_order_morph α (r : ring α) (K : field r) :
+  Proper (eq_series ==> eq ==> eq) series_order.
 Proof.
-intros s₁ s₂ Heq n.
+intros s₁ s₂ Heq m n Hmn.
+subst m.
 remember (series_order s₁ n) as n₁ eqn:Hn₁ .
 remember (series_order s₂ n) as n₂ eqn:Hn₂ .
 symmetry in Hn₁, Hn₂.
@@ -869,22 +869,21 @@ destruct n₁ as [n₁| ].
  exfalso; apply Hnz₂; rewrite <- Heq; apply Hn₁.
 Qed.
 
-Add Parametric Morphism α (r : ring α) (K : field r) : (nth_series_order K)
-  with signature eq_series ==> eq ==> eq ==> eq
-  as nth_series_order_morph.
+Global Instance nth_series_order_morph α (r : ring α) (K : field r) :
+  Proper (eq_series ==> eq ==> eq ==> eq) (nth_series_order K).
 Proof.
-intros s₁ s₂ Heq n c.
+intros s₁ s₂ Heq m n Hmn c d Hcd.
+subst m d.
 revert n.
 induction c; intros; simpl; rewrite Heq; [ reflexivity | idtac ].
 destruct (series_order s₂ (S n)); [ apply IHc | reflexivity ].
 Qed.
 
-Add Parametric Morphism α (r : ring α) (K : field r) :
-  (greatest_series_x_power K)
-  with signature eq_series ==> eq ==> eq
-  as greatest_series_x_power_morph.
+Global Instance greatest_series_x_power_morph α (r : ring α) (K : field r) :
+  Proper (eq_series ==> eq ==> eq) (greatest_series_x_power K).
 Proof.
-intros s₁ s₂ Heq n.
+intros s₁ s₂ Heq m n Hmn.
+subst m.
 remember (greatest_series_x_power K s₂ n) as k eqn:Hk .
 symmetry in Hk.
 apply greatest_series_x_power_iff in Hk.
@@ -905,11 +904,11 @@ split.
  exists m; rewrite Heq; assumption.
 Qed.
 
-Add Parametric Morphism α (R : ring α) : (@series_stretch _ R)
-  with signature eq ==> eq_series ==> eq_series
-  as stretch_morph.
+Global Instance stretch_morph α (R : ring α) :
+  Proper (eq ==> eq_series ==> eq_series) (@series_stretch _ R).
 Proof.
-intros kp s₁ s₂ Heq.
+intros kp kp' Hkp s₁ s₂ Heq.
+subst kp'.
 inversion Heq; subst.
 constructor; intros i; simpl.
 remember (Pos.to_nat kp) as k.
@@ -923,31 +922,31 @@ rewrite Nat.mul_comm.
 rewrite Nat.div_mul; assumption.
 Qed.
 
-Add Parametric Morphism α (r : ring α) : (@series_shrink α)
-  with signature eq ==> eq_series ==> eq_series
-  as shrink_morph.
+Global Instance shrink_morph α (r : ring α) :
+  Proper (eq ==> eq_series ==> eq_series) (@series_shrink α).
 Proof.
-intros n s₁ s₂ Heq.
+intros m n Hmn s₁ s₂ Heq.
+subst m.
 constructor; intros; simpl.
 inversion Heq; subst.
 apply H.
 Qed.
 
-Add Parametric Morphism α (R : ring α) : (@series_shift _ R)
-  with signature eq ==> eq_series ==> eq_series
-  as series_shift_morph.
+Global Instance series_shift_morph α (R : ring α) :
+  Proper (eq ==> eq_series ==> eq_series) (@series_shift _ R).
 Proof.
-intros n s₁ s₂ Heq.
+intros m n Hmn s₁ s₂ Heq.
+subst m.
 constructor; intros i.
 inversion Heq; subst; simpl.
 destruct (lt_dec i n); [ reflexivity | apply H ].
 Qed.
 
-Add Parametric Morphism α (r : ring α) : (@normalise_series α)
-  with signature eq ==> eq ==> eq_series ==> eq_series
-  as normalise_series_morph.
+Global Instance normalise_series_morph α (r : ring α) :
+  Proper (eq ==> eq ==> eq_series ==> eq_series) (@normalise_series α).
 Proof.
-intros n k ps₁ ps₂ Heq.
+intros m n Hmn k k' Hkk ps₁ ps₂ Heq.
+subst m k'.
 constructor; intros i.
 inversion Heq; subst.
 unfold normalise_series.
@@ -955,9 +954,8 @@ unfold series_shrink, series_left_shift; simpl.
 apply H.
 Qed.
 
-Add Parametric Morphism α (R : ring α) (K : field R) : (@normalise_ps _ R K)
-  with signature eq_ps_strong ==> eq_ps_strong
-  as normalise_ps_morph.
+Global Instance normalise_ps_morph α (R : ring α) (K : field R) :
+  Proper (eq_ps_strong ==> eq_ps_strong) (@normalise_ps _ R K).
 Proof.
 intros ps₁ ps₂ Heq.
 inversion Heq; subst.
@@ -971,11 +969,11 @@ rewrite H, H0.
 constructor; simpl; rewrite H1; reflexivity.
 Qed.
 
-Add Parametric Morphism α (R : ring α) (K : field R) : (@mkps α)
-  with signature eq_series ==> eq ==> eq ==> eq_ps
-  as mkps_morphism.
+Global Instance mkps_morphism α (R : ring α) (K : field R) :
+  Proper (eq_series ==> eq ==> eq ==> eq_ps) (@mkps α).
 Proof.
-intros a b Hab v n.
+intros a b Hab v v' Hv n n' Hn.
+subst v' n'.
 constructor; rewrite Hab; reflexivity.
 Qed.
 

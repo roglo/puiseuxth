@@ -59,9 +59,8 @@ Definition ps_pol_summ α {R : ring α} {K : field R} ln f :=
 
 (* *)
 
-Add Parametric Morphism α (r : ring α) (K : field r) : ps_monom
-  with signature rng_eq ==> Qeq ==> eq_ps
-  as ps_monom_qeq_morph.
+Global Instance ps_monom_qeq_morph α (r : ring α) (K : field r) :
+  Proper (rng_eq ==> Qeq ==> eq_ps) ps_monom.
 Proof.
 intros a b Hab p q Hpq.
 progress unfold ps_monom; simpl.
@@ -119,10 +118,8 @@ destruct (zerop (i mod Pos.to_nat (Qden p))) as [H₁| H₁].
   reflexivity.
 Qed.
 
-Add Parametric Morphism α (R : ring α) (K : field R) :
-    (@lap_inject_K_in_Kx _ R K)
-  with signature @lap_eq _ R ==> @lap_eq _ (ps_ring K)
-  as lap_inject_k_in_Kx_morph.
+Global Instance lap_inject_k_in_Kx_morph α (R : ring α) (K : field R) :
+  Proper (@lap_eq _ R ==> @lap_eq _ (ps_ring K)) (@lap_inject_K_in_Kx _ R K).
 Proof.
 intros la lb Hab.
 revert lb Hab.
@@ -153,10 +150,8 @@ induction la as [| a]; intros; simpl.
   apply IHla; assumption.
 Qed.
 
-Add Parametric Morphism α (R : ring α) (K : field R) :
-    (@poly_inject_K_in_Kx _ R K)
-  with signature eq_poly ==> @eq_poly _ (ps_ring K)
-  as poly_inject_k_in_Kx_morph.
+Global Instance poly_inject_k_in_Kx_morph α (R : ring α) (K : field R) :
+  Proper (eq_poly ==> @eq_poly _ (ps_ring K)) (@poly_inject_K_in_Kx _ R K).
 Proof.
 intros P Q HPQ.
 progress unfold eq_poly; simpl.

@@ -120,11 +120,11 @@ Add Parametric Relation α (R : ring α) (K : field R) :
  transitivity proved by ps_lap_eq_trans
  as ps_lap_eq_rel.
 
-Add Parametric Morphism α (R : ring α) (K : field R) : (@ps_poly_nth _ R)
-  with signature eq ==> @eq_poly _ (ps_ring K) ==> eq_ps
-  as ps_poly_nth_morph.
+Global Instance ps_poly_nth_morph α (R : ring α) (K : field R) :
+  Proper (eq ==> @eq_poly _ (ps_ring K) ==> eq_ps) (@ps_poly_nth _ R).
 Proof.
-intros n pa pb Hpab.
+intros n n' Hn pa pb Hpab.
+subst n'.
 progress unfold ps_poly_nth; rewrite Hpab; reflexivity.
 Qed.
 

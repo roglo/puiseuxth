@@ -599,9 +599,8 @@ Qed.
 
 End theorem_add_compat.
 
-Add Parametric Morphism α (r : ring α) (K : field r) : ps_add
-  with signature eq_ps ==> eq_ps ==> eq_ps
-  as ps_add_morph.
+Global Instance ps_add_morph α (r : ring α) (K : field r) :
+  Proper (eq_ps ==> eq_ps ==> eq_ps) ps_add.
 Proof.
 intros ps₁ ps₃ Heq₁ ps₂ ps₄ Heq₂.
 transitivity (ps_add ps₁ ps₄).

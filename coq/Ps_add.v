@@ -568,9 +568,9 @@ Qed.
 
 End theorems_add.
 
-Add Parametric Morphism α (R : ring α) : (@adjusted_ps_add _ R)
-  with signature eq_ps_strong ==> eq_ps_strong ==> eq_ps_strong
-  as adjusted_ps_add_morph.
+Global Instance adjusted_ps_add_morph α (R : ring α) :
+  Proper (eq_ps_strong ==> eq_ps_strong ==> eq_ps_strong)
+    (@adjusted_ps_add _ R).
 Proof.
 intros ps₁ ps₃ Heq₁ ps₂ ps₄ Heq₂.
 unfold adjusted_ps_add.
@@ -580,11 +580,12 @@ constructor; simpl; try reflexivity.
 rewrite H1, H4; reflexivity.
 Qed.
 
-Add Parametric Morphism α (R : ring α) : (@adjust_series _ R)
-  with signature eq ==> eq ==> eq_series ==> eq_series
-  as adjust_series_morph.
+Global Instance adjust_series_morph α (R : ring α) :
+  Proper (eq ==> eq ==> eq_series ==> eq_series)
+    (@adjust_series _ R).
 Proof.
-intros n k s₁ s₂ Heq.
+intros n n' Hn k k' Hk s₁ s₂ Heq.
+subst n' k'.
 constructor; intros; simpl.
 induction Heq.
 destruct (lt_dec i n) as [H₁| H₁]; [ reflexivity | idtac ].

@@ -2,6 +2,7 @@
 
 Require Import Utf8.
 Require Import Setoid.
+Require Import Morphisms.
 
 Set Implicit Arguments.
 
@@ -60,9 +61,8 @@ Add Parametric Relation α (K : ring α) : α rng_eq
  transitivity proved by rng_eq_trans
  as eq_rel.
 
-Add Parametric Morphism α (K : ring α) : rng_add
-  with signature rng_eq ==> rng_eq ==> rng_eq
-  as add_morph.
+Global Instance add_morph α (K : ring α) :
+  Proper (rng_eq ==> rng_eq ==> rng_eq) rng_add.
 Proof.
 intros a b Hab c d Hcd.
 rewrite rng_add_comm; symmetry.
@@ -73,9 +73,8 @@ rewrite rng_add_comm; symmetry.
 rewrite rng_add_compat_l; [ reflexivity | eassumption ].
 Qed.
 
-Add Parametric Morphism α (K : ring α) : rng_opp
-  with signature rng_eq ==> rng_eq
-  as opp_morph.
+Global Instance opp_morph α (K : ring α) :
+  Proper (rng_eq ==> rng_eq) rng_opp.
 Proof.
 intros a b Heq.
 apply rng_add_compat_l with (c := rng_opp b) in Heq.
@@ -91,9 +90,8 @@ rewrite rng_add_0_l in Heq.
 assumption.
 Qed.
 
-Add Parametric Morphism α (F : ring α) : rng_mul
-  with signature rng_eq ==> rng_eq ==> rng_eq
-  as mul_morph.
+Global Instance mul_morph α (F : ring α) :
+  Proper (rng_eq ==> rng_eq ==> rng_eq) rng_mul.
 Proof.
 intros a b Hab c d Hcd.
 rewrite rng_mul_comm; symmetry.
