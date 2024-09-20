@@ -27,7 +27,7 @@ Definition order {α} {r : ring α} {K : field r} ps :=
   | ∞ => qinf
   end.
 
-Arguments order _ _ _ ps%ps_scope.
+Arguments order _ _ _ ps%_ps_scope.
 
 Definition order_coeff α {R : ring α} {K : field R} ps :=
   match series_order (ps_terms ps) 0 with
