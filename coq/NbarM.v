@@ -402,15 +402,13 @@ inversion_clear H.
 revert H0; apply Nat.nlt_0_r.
 Qed.
 
-Theorem mul_div_le : ∀ a b, b ≠ 0 → b ≠ ∞ → b * (a / b) ≤ a.
+Theorem mul_div_le : ∀ a b, b ≠ ∞ → b * (a / b) ≤ a.
 Proof.
-intros a b Hb Hbi.
+intros a b Hbi.
 destruct a as [a| ]; [ idtac | constructor ].
 destruct b as [b| ]; [ simpl | exfalso; apply Hbi; reflexivity ].
 apply le_fin.
-apply Nat.mul_div_le.
-intros H; apply Hb.
-subst b; reflexivity.
+apply Nat.Div0.mul_div_le.
 Qed.
 
 Theorem div_mul : ∀ a b, b ≠ 0 → b ≠ ∞ → a * b / b = a.
@@ -424,9 +422,9 @@ rewrite Nat.div_mul; [ reflexivity | idtac ].
 intros H; discriminate H.
 Qed.
 
-Theorem div_lt_upper_bound : ∀ a b q, b ≠ 0 → b ≠ ∞ → a < b * q → a / b < q.
+Theorem div_lt_upper_bound : ∀ a b q, b ≠ ∞ → a < b * q → a / b < q.
 Proof.
-intros a b q Hb Hbi Ha.
+intros a b q Hbi Ha.
 destruct a as [a| ].
  destruct b as [b| ].
   destruct q as [q| ]; [ idtac | constructor ].
@@ -434,9 +432,7 @@ destruct a as [a| ].
   destruct b as [| b].
    exfalso; revert Ha; apply nlt_0_r.
 
-   apply Nat.div_lt_upper_bound.
-    intros H; discriminate H.
-
+   apply Nat.Div0.div_lt_upper_bound.
     apply fin_lt_mono; assumption.
 
   exfalso; apply Hbi; reflexivity.
@@ -751,4 +747,5 @@ Infix "<" := Nbar.lt : Nbar_scope.
 
 Close Scope Nbar_scope.
 
-Notation "x ≤ y" := (Nbar.le x y) (at level 70) : Nbar_scope.
+Notation "x ≤ y" := (Nbar.le x y) (at level 70, y at next level) :
+  Nbar_scope.
