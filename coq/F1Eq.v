@@ -1,6 +1,6 @@
 (* F1Eq.v *)
 
-Require Import Utf8 QArith NPeano Sorted.
+Require Import Utf8 QArith Sorted.
 
 Require Import ConvexHullMisc.
 Require Import ConvexHull.
@@ -227,6 +227,11 @@ intros c p n.
 induction n; simpl.
  rewrite rng_mul_1_r.
  progress unfold Qnat; simpl.
+Search (0 * _)%Q.
+About Qmult_0_l.
+About ps_monom.
+...
+rewrite Qmult_0_l.
  rewrite Qmult_0_l; reflexivity.
 
  rewrite ps_mul_assoc.

@@ -1,6 +1,6 @@
 (* AlgCloCharPol.v *)
 
-Require Import Utf8 QArith NPeano ArithRing.
+Require Import Utf8 QArith ArithRing.
 
 Require Import Misc.
 Require Import Field2.
