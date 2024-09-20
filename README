@@ -4,6 +4,7 @@ OVERVIEW
 * Computation of roots of polynomials of Puiseux's series
 
 You need coq version 8.20.0
+(not yet done: work in progress 2024-09-20)
 
 PROOF
 

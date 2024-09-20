@@ -2,7 +2,6 @@
 
 Require Import Utf8.
 Require Import QArith.
-Require Import NPeano.
 Require Import Sorted.
 Require Import Psatz.
 
@@ -199,7 +198,7 @@ Proof. intros x y z; ring. Qed.
 Theorem Zposnat2Znat : ∀ i, (0 < i)%nat → Zpos (Pos.of_nat i) = Z.of_nat i.
 Proof.
 intros i Hi.
-destruct i; [ apply lt_irrefl in Hi; contradiction | clear Hi ].
+destruct i; [ apply Nat.lt_irrefl in Hi; contradiction | clear Hi ].
 simpl; f_equal.
 induction i; [ reflexivity | simpl ].
 rewrite IHi; reflexivity.
@@ -493,7 +492,7 @@ Qed.
 
 Definition pair_rec A B C (f : A → B → C) := λ xy, f (fst xy) (snd xy).
 
-Theorem divmod_div : ∀ a b, fst (divmod a b 0 b) = (a / S b)%nat.
+Theorem divmod_div : ∀ a b, fst (Nat.divmod a b 0 b) = (a / S b)%nat.
 Proof. intros a b; reflexivity. Qed.
 
 Theorem Pos2Nat_ne_0 : ∀ a, (Pos.to_nat a ≠ 0)%nat.
@@ -501,7 +500,7 @@ Proof.
 intros a H.
 pose proof Pos2Nat.is_pos a as HH.
 rewrite H in HH.
-revert HH; apply lt_irrefl.
+revert HH; apply Nat.lt_irrefl.
 Qed.
 Global Hint Resolve Pos2Nat_ne_0 : Arith.
 
@@ -705,7 +704,7 @@ destruct x as [| x| x].
  apply Hx, Pos2Z.neg_is_nonpos.
 Qed.
 
-Theorem Nat_divides_l : ∀ a b, (∃ c, a = (b * c)%nat) ↔ (b | a)%nat.
+Theorem Nat_divides_l : ∀ a b, (∃ c, a = (b * c)%nat) ↔ Nat.divide b a.
 Proof.
 intros a b.
 split; intros H.
@@ -719,9 +718,9 @@ Qed.
 Theorem Nat_lcm_divides : ∀ a b c,
   (a ≠ 0
    → b ≠ 0
-     → (a | c)
-       → (b | c)
-         → (Nat.lcm a b | c))%nat.
+     → Nat.divide a c
+       → Nat.divide b c
+         → Nat.divide (Nat.lcm a b) c)%nat.
 Proof.
 intros k l c Hkp Hlp Hkm Hlm.
 apply Nat_divides_l in Hkm.
@@ -775,13 +774,11 @@ Qed.
 
 Theorem Nat_gcd_le_l : ∀ a b, (a ≠ 0 → Nat.gcd a b ≤ a)%nat.
 Proof.
-intros a b Ha.
-pose proof (Nat.gcd_divide_l a b) as Hg.
-destruct Hg as (c, Hg).
-rewrite Hg in |- * at 2.
-unfold Nat.gcd.
-destruct c; [ contradiction | simpl ].
-apply le_plus_l.
+intros * Haz.
+specialize (Nat.gcd_divide_l a b) as Hg.
+destruct Hg as (c, Hc); rewrite Hc at 2.
+destruct c; [ easy | cbn ].
+apply Nat.le_add_r.
 Qed.
 
 Theorem Nat_gcd_le_r : ∀ a b, (b ≠ 0 → Nat.gcd a b ≤ b)%nat.
@@ -808,6 +805,8 @@ eapply Nat.div_le_mono in Hab.
 
  intros H; apply Nat.gcd_eq_0_r in H; contradiction.
 Qed.
+
+...
 
 Theorem Nat_divides_lcm_l : ∀ a b, (a | Nat.lcm a b)%nat.
 Proof.
