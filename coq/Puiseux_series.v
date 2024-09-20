@@ -2,7 +2,6 @@
 
 Require Import Utf8.
 Require Import QArith.
-Require Import NPeano.
 
 Require Import Misc.
 Require Import NbarM.
@@ -47,7 +46,7 @@ intros α R K u n i k P Hn Hk.
 revert i k Hn Hk; induction n; intros.
  split; [ subst k; assumption | simpl ].
  simpl in Hk; destruct Hk; intros j (H1, H2).
- apply lt_not_le in H2; exfalso; apply H2, H1.
+ now apply Nat.nle_gt in H2.
 
  rewrite Nat.add_succ_l, <- Nat.add_succ_r in Hn.
  simpl in Hk; unfold P in Hk.
@@ -61,7 +60,7 @@ revert i k Hn Hk; induction n; intros.
 
   destruct Hk; split; [ assumption | ].
   intros j (H2, H3).
-  apply lt_not_le in H3; exfalso; apply H3, H2.
+  now apply Nat.nle_gt in H3.
 Qed.
 
 Theorem field_LPO : ∀ α (R : ring α) (K : field R) (u : nat -> α),
@@ -147,7 +146,7 @@ Fixpoint nth_series_order α (R : ring α) (K : field R) s b n :=
   | ∞ => O
   end.
 Definition is_a_series_in_x_power α {R : ring α} {K : field R} s b k :=
-  ∀ n, (k | nth_series_order K s b n).
+  ∀ n, Nat.divide k (nth_series_order K s b n).
 
 Fixpoint sequence_gcd_upto s n :=
   match n with
@@ -277,7 +276,7 @@ induction i; intros.
     assert (s n ≤ S i).
      clear P1 H1.
      induction n; [ apply Hi | ].
-     eapply le_trans; [ apply Hs | apply IHn ].
+     eapply Nat.le_trans; [ apply Hs | apply IHn ].
 
      apply Nat.succ_le_mono.
      eapply Nat.lt_le_trans; [ | apply H ].
@@ -356,7 +355,7 @@ induction m; intros.
     destruct (eq_nat_dec i m) as [H6| H6].
      subst i.
      apply Nat_le_neq_lt; [ | apply Nat.neq_sym, H1 ].
-     eapply le_trans; [ | apply Hs ].
+     eapply Nat.le_trans; [ | apply Hs ].
      apply Nat.eq_le_incl, Nat.eq_sym.
      apply H3, Nat.le_refl.
 
@@ -375,7 +374,7 @@ induction m; intros.
 Qed.
 
 Theorem sequence_gcd_divide : ∀ s g m i,
-  (∀ j, m ≤ j → sequence_gcd_upto s j = g) → (g | s i).
+  (∀ j, m ≤ j → sequence_gcd_upto s j = g) → Nat.divide g (s i).
 Proof.
 intros s g m i H.
 destruct (le_dec m i) as [H1| H1].
@@ -404,7 +403,7 @@ Theorem greatest_series_x_power_iff : ∀ α (R : ring α) (K : field R) s n k,
   match series_order s (S n) with
   | fin _ =>
       is_a_series_in_x_power s n k ∧
-      (∀ k', (k < k')%nat → ∃ n', ¬(k' | nth_series_order K s n n'))
+      (∀ k', (k < k')%nat → ∃ n', ¬ Nat.divide k' (nth_series_order K s n n'))
   | ∞ =>
       k = O
   end.
@@ -510,9 +509,9 @@ assert (Pv : ∀ i, v (S i) ≤ v i).
        rewrite Hv; apply Pv2.
 
        intros k Hgk.
-       assert (H : ¬ (∀ i, (k | u i))).
+       assert (H : ¬ (∀ i, Nat.divide k (u i))).
         intros H.
-        assert (H4 : (k | Nat.gcd (u (S i)) (v i))).
+        assert (H4 : Nat.divide k (Nat.gcd (u (S i)) (v i))).
          apply Nat.gcd_greatest; [ apply H |  ].
          rewrite <- Hv; clear Hi H1.
          induction i; [ apply H | simpl ].
@@ -627,7 +626,7 @@ assert (Pv : ∀ i, v (S i) ≤ v i).
       apply Nat.sub_0_le in H6.
       apply Nat.le_antisymm; [ apply H6 | apply H5 ].
 
-      assert (H5 : (k | v i)).
+      assert (H5 : Nat.divide k (v i)).
        clear H3 H4.
        induction i; [ rewrite <- Hv; apply H1 | simpl ].
        rewrite <- Hv; simpl; rewrite Hv.
@@ -1038,7 +1037,7 @@ destruct (zerop (i mod (a * b))) as [Hz| Hnz].
  subst c.
  rewrite Nat.mul_assoc, Nat.mul_comm in Hnz.
  rewrite Nat.mod_mul in Hnz.
-  exfalso; revert Hnz; apply lt_irrefl.
+  exfalso; revert Hnz; apply Nat.lt_irrefl.
 
   apply Nat.neq_mul_0; split; assumption.
 Qed.
@@ -1069,7 +1068,7 @@ assert (k ≠ O) as Hk by (subst k; apply Pos2Nat_ne_0).
 destruct (zerop (i mod k)) as [Hz| Hnz].
  apply Nat.mod_divides in Hz; [ idtac | assumption ].
  destruct Hz as (c, Hi); subst i.
- rewrite mult_comm.
+ rewrite Nat.mul_comm.
  rewrite <- Nat.mul_sub_distr_r.
  rewrite Nat.div_mul; [ idtac | assumption ].
  rewrite Nat.div_mul; [ idtac | assumption ].
@@ -1093,7 +1092,7 @@ destruct (zerop (i mod k)) as [Hz| Hnz].
   rewrite Nat.mul_0_r in Hc.
   apply Nat.sub_0_le in Hc.
   apply Nat.nlt_ge in H₁.
-  apply le_antisym in Hc; [ idtac | assumption ].
+  apply Nat.le_antisymm in Hc; [ idtac | assumption ].
   subst i.
   rewrite Nat.mod_mul in Hnz; [ idtac | assumption ].
   exfalso; revert Hnz; apply Nat.lt_irrefl.
@@ -1287,7 +1286,7 @@ destruct u as [u| ].
      rewrite <- series_nth_shift_S in Hv; contradiction.
 
      apply Nat.nlt_ge in Hge₂.
-     apply le_antisym; [ assumption | idtac ].
+     apply Nat.le_antisymm; [ assumption | idtac ].
      apply Nat.succ_le_mono in Hge₂; assumption.
 
   rewrite series_nth_shift_S in Hu.
@@ -1597,18 +1596,19 @@ destruct q as [q| ].
 
      remember H₁ as H; clear HeqH.
      apply le_S_n, Nat_le_neq_lt in H; auto.
-     destruct q' as [| q'].
-      rewrite Nat.mul_0_r in Hq'; discriminate Hq'.
-
-      apply lt_S_n in H₁.
-      apply Hzp in H₁.
-      rewrite Nat.add_succ_l, <- Nat.add_succ_r in H₁.
-      rewrite H₁ in Hnzq; apply Hnzq; reflexivity.
-
+     destruct q' as [| q']. {
+       rewrite Nat.mul_0_r in Hq'; discriminate Hq'.
+     } {
+       apply Nat.succ_lt_mono in H₁.
+       apply Hzp in H₁.
+       rewrite Nat.add_succ_l, <- Nat.add_succ_r in H₁.
+       rewrite H₁ in Hnzq; apply Hnzq; reflexivity.
+     }
     assumption.
 
     exfalso.
-    assert (Pos.to_nat k * S p - 1 < q)%nat as H.
+    assert (Pos.to_nat k * S p - 1 < q)%nat as H. {
+...
      apply plus_lt_reg_l with (p := 1%nat).
      simpl.
      rewrite <- Nat.sub_succ_l.

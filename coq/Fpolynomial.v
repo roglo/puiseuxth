@@ -4,7 +4,6 @@
 
 Require Import Utf8.
 Require Import QArith.
-Require Import NPeano.
 
 Require Import Misc.
 Require Import Field2.
@@ -1182,12 +1181,11 @@ Theorem list_nth_pad_lt : ∀ i s (v : α) cl d,
 Proof.
 intros i s v cl d His.
 revert i His.
-induction s; intros.
- exfalso; revert His; apply lt_n_0.
-
- simpl.
- destruct i; [ reflexivity | idtac ].
- apply IHs, lt_S_n; assumption.
+induction s; intros; [ easy | ].
+simpl.
+destruct i; [ reflexivity | idtac ].
+apply Nat.succ_lt_mono in His.
+now apply IHs.
 Qed.
 
 Theorem list_nth_pad_sub : ∀ i s (v : α) cl d,
