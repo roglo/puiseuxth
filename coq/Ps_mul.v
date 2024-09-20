@@ -22,7 +22,8 @@ Definition ps_mul {α} {r : ring α} ps₁ ps₂ :=
          (series_stretch (cm_factor ps₁ ps₂) (ps_terms ps₁))
          (series_stretch (cm_factor ps₂ ps₁) (ps_terms ps₂));
      ps_ordnum :=
-       (ps_ordnum ps₁ * Zpos (ps_polydo ps₂) + ps_ordnum ps₂ * Zpos (ps_polydo ps₁))%Z;
+       (ps_ordnum ps₁ * Zpos (ps_polydo ps₂) +
+        ps_ordnum ps₂ * Zpos (ps_polydo ps₁))%Z;
      ps_polydo :=
        cm ps₁ ps₂ |}.
 
@@ -133,7 +134,7 @@ Proof.
 intros a b k.
 constructor; intros i; simpl.
 destruct (zerop (i mod Pos.to_nat k)) as [H₂| H₂].
- apply Nat.mod_divides in H₂; auto with Arith.
+ apply Nat.Div0.mod_divides in H₂; auto with Arith.
  destruct H₂ as (c, Hc).
  rewrite Hc.
  rewrite Nat.mul_comm.
@@ -149,8 +150,8 @@ destruct (zerop (i mod Pos.to_nat k)) as [H₂| H₂].
   intros i.
   rewrite Nat.mul_comm.
   rewrite <- Nat.mul_sub_distr_r.
-  rewrite Nat.mod_mul; auto with Arith; simpl.
-  rewrite Nat.mod_mul; auto with Arith; simpl.
+  rewrite Nat.Div0.mod_mul; auto with Arith; simpl.
+  rewrite Nat.Div0.mod_mul; auto with Arith; simpl.
   rewrite Nat.div_mul; auto with Arith; simpl.
   rewrite Nat.div_mul; auto with Arith; simpl.
 
@@ -159,8 +160,8 @@ destruct (zerop (i mod Pos.to_nat k)) as [H₂| H₂].
  apply all_0_summation_0; intros j Hj.
  destruct (zerop (j mod Pos.to_nat k)) as [H₄| H₄].
   destruct (zerop ((i - j) mod Pos.to_nat k)) as [H₅| H₅].
-   apply Nat.mod_divides in H₄; auto with Arith.
-   apply Nat.mod_divides in H₅; auto with Arith.
+   apply Nat.Div0.mod_divides in H₄; auto with Arith.
+   apply Nat.Div0.mod_divides in H₅; auto with Arith.
    destruct H₄ as (c, Hc).
    destruct H₅ as (d, Hd).
    subst j.
@@ -168,7 +169,7 @@ destruct (zerop (i mod Pos.to_nat k)) as [H₂| H₂].
     subst i.
     rewrite <- Nat.mul_add_distr_l in H₂; auto with Arith.
     rewrite Nat.mul_comm in H₂.
-    rewrite Nat.mod_mul in H₂; auto with Arith.
+    rewrite Nat.Div0.mod_mul in H₂; auto with Arith.
     exfalso; revert H₂; apply Nat.lt_irrefl.
 
     intros H.
@@ -178,7 +179,7 @@ destruct (zerop (i mod Pos.to_nat k)) as [H₂| H₂].
     apply Nat.le_antisymm in Hd; auto with Arith.
     rewrite <- Hd in H₂.
     rewrite Nat.mul_comm in H₂.
-    rewrite Nat.mod_mul in H₂; auto with Arith.
+    rewrite Nat.Div0.mod_mul in H₂; auto with Arith.
     exfalso; revert H₂; apply Nat.lt_irrefl.
 
    rewrite rng_mul_comm.
@@ -912,17 +913,17 @@ constructor; intros i; simpl.
 unfold convol_mul; simpl.
 destruct i; simpl.
  unfold summation; simpl.
- rewrite Nat.mod_0_l; [ idtac | apply Pos2Nat_ne_0 ].
- rewrite Nat.mod_0_l; [ simpl | apply Pos2Nat_ne_0 ].
- rewrite Nat.div_0_l; [ idtac | apply Pos2Nat_ne_0 ].
- rewrite Nat.div_0_l; [ idtac | apply Pos2Nat_ne_0 ].
+ rewrite Nat.Div0.mod_0_l.
+ rewrite Nat.Div0.mod_0_l.
+ rewrite Nat.Div0.div_0_l.
+ rewrite Nat.Div0.div_0_l.
  rewrite rng_add_0_r; reflexivity.
 
  rewrite all_0_summation_0; [ reflexivity | idtac ].
  intros j (_, Hj).
  rewrite fold_sub_succ_l.
  destruct (zerop (j mod Pos.to_nat (Qden n))) as [H₁| H₁].
-  apply Nat.mod_divides in H₁; [ idtac | apply Pos2Nat_ne_0 ].
+  apply Nat.Div0.mod_divides in H₁.
   destruct H₁ as (c, Hc).
   rewrite Nat.mul_comm in Hc; rewrite Hc.
   rewrite Nat.div_mul; [ idtac | apply Pos2Nat_ne_0 ].
@@ -930,7 +931,7 @@ destruct i; simpl.
    subst c.
    rewrite Nat.mul_0_l, Nat.sub_0_r.
    destruct (zerop (S i mod Pos.to_nat (Qden m))) as [H₁| H₁].
-    apply Nat.mod_divides in H₁; [ idtac | apply Pos2Nat_ne_0 ].
+    apply Nat.Div0.mod_divides in H₁.
     destruct H₁ as (d, Hd).
     rewrite Nat.mul_comm in Hd; rewrite Hd.
     rewrite Nat.div_mul; [ idtac | apply Pos2Nat_ne_0 ].
@@ -954,8 +955,8 @@ apply mkps_morphism; simpl; [ idtac | idtac | reflexivity ].
  destruct i; simpl.
   progress unfold convol_mul; simpl.
   rewrite summation_only_one; simpl.
-  rewrite Nat.mod_0_l; auto with Arith; simpl.
-  rewrite Nat.div_0_l; auto with Arith; simpl.
+  rewrite Nat.Div0.mod_0_l; auto with Arith; simpl.
+  rewrite Nat.Div0.div_0_l; auto with Arith; simpl.
 
   progress unfold convol_mul; simpl.
   rewrite all_0_summation_0; [ reflexivity | idtac ].
@@ -964,7 +965,7 @@ apply mkps_morphism; simpl; [ idtac | idtac | reflexivity ].
   rewrite fold_sub_succ_l.
   rewrite Nat.div_1_r.
   destruct (zerop (j mod Pos.to_nat (Qden n))) as [H₁| H₁].
-   apply Nat.mod_divides in H₁; auto with Arith.
+   apply Nat.Div0.mod_divides in H₁; auto with Arith.
    destruct H₁ as (e, He).
    rewrite Nat.mul_comm in He.
    rewrite He.
@@ -996,19 +997,19 @@ unfold series_stretch; simpl.
 unfold convol_mul; simpl.
 destruct i; simpl.
  rewrite summation_only_one; simpl.
- rewrite Nat.mod_0_l; auto with Arith; simpl.
- rewrite Nat.mod_0_l; auto with Arith; simpl.
- rewrite Nat.div_0_l; auto with Arith; simpl.
- rewrite Nat.div_0_l; auto with Arith; simpl.
+ rewrite Nat.Div0.mod_0_l; auto with Arith; simpl.
+ rewrite Nat.Div0.mod_0_l; auto with Arith; simpl.
+ rewrite Nat.Div0.div_0_l; auto with Arith; simpl.
+ rewrite Nat.Div0.div_0_l; auto with Arith; simpl.
  rewrite rng_mul_1_r; reflexivity.
 
  rewrite all_0_summation_0; [ reflexivity | simpl ].
  intros j (_, Hj).
  destruct j; simpl.
-  rewrite Nat.mod_0_l; auto with Arith; simpl.
-  rewrite Nat.div_0_l; auto with Arith; simpl.
+  rewrite Nat.Div0.mod_0_l; auto with Arith; simpl.
+  rewrite Nat.Div0.div_0_l; auto with Arith; simpl.
   destruct (zerop (S i mod Pos.to_nat (Qden p))) as [H| H].
-   apply Nat.mod_divides in H; auto with Arith.
+   apply Nat.Div0.mod_divides in H; auto with Arith.
    destruct H as (d, Hd).
    rewrite Nat.mul_comm in Hd; rewrite Hd.
    rewrite Nat.div_mul; auto with Arith.
@@ -1018,7 +1019,7 @@ destruct i; simpl.
    rewrite rng_mul_0_r; reflexivity.
 
   destruct (zerop (S j mod Pos.to_nat (Qden q))) as [H| H].
-   apply Nat.mod_divides in H; auto with Arith.
+   apply Nat.Div0.mod_divides in H; auto with Arith.
    destruct H as (d, Hd).
    rewrite Nat.mul_comm in Hd; rewrite Hd.
    rewrite Nat.div_mul; auto with Arith.
