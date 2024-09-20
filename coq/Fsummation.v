@@ -166,12 +166,10 @@ destruct b; simpl.
  rewrite Nat.sub_0_r.
  simpl in Hikb.
  eapply Nat.le_lt_trans in Hikb; eauto .
-..
- apply lt_O_minus_lt, Nat.lt_le_incl in Hikb.
- remember (b + (k - b))%nat as x eqn:H .
- rewrite Nat.add_sub_assoc in H; auto.
- rewrite Nat.add_sub_swap in H; auto.
- rewrite Nat.sub_diag in H; subst x; reflexivity.
+ apply Nat.lt_add_lt_sub_r, Nat.lt_le_incl in Hikb.
+ rewrite Nat.add_0_l in Hikb.
+ rewrite (Nat.add_comm b).
+ now rewrite Nat.sub_add.
 Qed.
 
 Theorem summation_aux_mul_swap : ∀ a g b len,
