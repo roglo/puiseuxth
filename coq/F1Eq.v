@@ -229,10 +229,9 @@ induction n; simpl.
  progress unfold Qnat; simpl.
  now apply ps_monom_qeq_morph.
 
+ rewrite (ps_mul_comm _ (ps_monom 1%K p)).
  rewrite ps_mul_assoc.
- rewrite rng_mul_shuffle0; simpl.
  rewrite <- IHn.
-...
  assert (Qnat (S n) * p == Qnat n * p + p) as H.
   progress unfold Qnat; simpl.
   rewrite Zpos_P_of_succ_nat.
@@ -304,6 +303,7 @@ progress unfold ps_lap_mul, lap_mul; simpl.
 progress unfold summation; simpl.
 rewrite rng_mul_0_l.
 do 3 rewrite rng_add_0_r.
+...
 simpl.
 constructor.
  rewrite ps_mul_comm; simpl.
