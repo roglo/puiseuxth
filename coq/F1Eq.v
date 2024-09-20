@@ -227,10 +227,11 @@ intros c p n.
 induction n; simpl.
  rewrite rng_mul_1_r.
  progress unfold Qnat; simpl.
- rewrite Qmult_0_l; reflexivity.
+ now apply ps_monom_qeq_morph.
 
  rewrite ps_mul_assoc.
  rewrite rng_mul_shuffle0; simpl.
+...
  rewrite <- IHn.
  assert (Qnat (S n) * p == Qnat n * p + p) as H.
   progress unfold Qnat; simpl.
