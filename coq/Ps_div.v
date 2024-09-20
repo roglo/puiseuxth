@@ -2,7 +2,6 @@
 
 Require Import Utf8.
 Require Import QArith.
-Require Import NPeano.
 
 Require Import Misc.
 Require Import NbarM.

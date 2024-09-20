@@ -2,7 +2,6 @@
 
 Require Import Utf8.
 Require Import QArith.
-Require Import NPeano.
 
 Require Import Misc.
 Require Import NbarM.
@@ -300,7 +299,7 @@ destruct (lt_dec k n) as [H₂| H₂].
   rewrite rng_mul_0_l; reflexivity.
 
   exfalso; apply H₁.
-  eapply le_lt_trans; [ idtac | eassumption ].
+  eapply Nat.le_lt_trans; [ idtac | eassumption ].
   destruct Hi; assumption.
 
  apply Nat.nlt_ge in H₂.
