@@ -226,8 +226,13 @@ induction n; simpl.
  progress unfold Qnat; simpl.
  now apply ps_monom_qeq_morph.
 
+(**)
  rewrite (ps_mul_comm _ (ps_monom 1%K p)).
  rewrite ps_mul_assoc.
+(*
+ rewrite ps_mul_assoc.
+ rewrite rng_mul_shuffle0.
+*)
  rewrite <- IHn.
  assert (Qnat (S n) * p == Qnat n * p + p) as H.
   progress unfold Qnat; simpl.
@@ -298,11 +303,13 @@ apply lap_mul_compat; [ reflexivity | idtac ].
 apply lap_compose_compat; [ reflexivity | idtac ].
 progress unfold ps_lap_mul, lap_mul; simpl.
 progress unfold summation; simpl.
-Check 1.
+(*
 rewrite rng_mul_0_l.
-Check 1.
 do 3 rewrite rng_add_0_r.
-...
+*)
+rewrite ps_mul_0_l.
+do 3 rewrite ps_add_0_r.
+(**)
 simpl.
 constructor.
  rewrite ps_mul_comm; simpl.
@@ -359,7 +366,15 @@ induction i; intros; simpl.
 
  destruct la as [| a]; simpl.
   rewrite lap_mul_assoc; simpl.
+(**)
+  Check 1.
   rewrite lap_eq_0.
+  Check 1.
+(*
+  cbn.
+  do 2 rewrite ps_mul_0_l.
+  rewrite ps_add_0_l.
+*)
   rewrite lap_mul_nil_l.
   rewrite lap_mul_nil_l.
   constructor; [ idtac | reflexivity ].
