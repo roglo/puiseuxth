@@ -151,7 +151,7 @@ induction cl as [| c]; intros.
   unfold points_of_ps_lap_gen in Hpts; simpl in Hpts.
   destruct (order c).
    constructor; constructor; [ constructor | constructor | idtac ].
-   apply Qnat_lt, lt_n_Sn.
+   apply Qnat_lt, Nat.lt_succ_diag_r.
 
    constructor; constructor.
 
@@ -160,7 +160,7 @@ induction cl as [| c]; intros.
   destruct (order c) as [v₂| ].
    subst pts.
    apply Sorted_LocallySorted_iff.
-   constructor; [ idtac | apply Qnat_lt, lt_n_Sn ].
+   constructor; [ idtac | apply Qnat_lt, Nat.lt_succ_diag_r ].
    apply Sorted_LocallySorted_iff.
    eapply IHcl; reflexivity.
 
@@ -169,7 +169,7 @@ induction cl as [| c]; intros.
     unfold fst_lt.
     intros x y z; apply Qlt_trans.
 
-    constructor; [ assumption | constructor; apply Qnat_lt, lt_n_Sn ].
+    constructor; [ easy | constructor; apply Qnat_lt, Nat.lt_succ_diag_r ].
 Qed.
 
 End theorems.

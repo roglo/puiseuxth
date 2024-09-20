@@ -1,6 +1,6 @@
 (* CharactPolyn.v *)
 
-Require Import Utf8 QArith Sorted NPeano.
+Require Import Utf8 QArith Sorted.
 
 Require Import ConvexHull.
 Require Import ConvexHullMisc.
@@ -520,7 +520,7 @@ induction cl as [| c]; intros.
  destruct Hhhv as [Hhhv| ]; [ idtac | contradiction ].
  injection Hhhv; clear Hhhv; intros; subst v h.
  remember (Qnum (Qnat pow)) as x; simpl in Heqx; subst x.
- rewrite Nat2Z.id, minus_diag in Hhps.
+ rewrite Nat2Z.id, Nat.sub_diag in Hhps.
  simpl in Hhps; subst hps.
  split; [ left; reflexivity | assumption ].
 
@@ -531,20 +531,20 @@ induction cl as [| c]; intros.
   destruct Hhhv as [Hhhv| Hhhv].
    injection Hhhv; clear Hhhv; intros; subst v h.
    remember (Qnum (Qnat pow)) as x; simpl in Heqx; subst x.
-   rewrite Nat2Z.id, minus_diag in Hhps.
+   rewrite Nat2Z.id, Nat.sub_diag in Hhps.
    simpl in Hhps; subst hps.
    split; [ left; reflexivity | assumption ].
 
    destruct (le_dec (S pow) (Z.to_nat (Qnum h))) as [Hle| Hgt].
     eapply IHcl in Hhhv.
      rewrite <- Nat.sub_succ in Hhps.
-     rewrite <- minus_Sn_m in Hhps; [ idtac | assumption ].
+     rewrite Nat.sub_succ_l in Hhps; [ | easy ].
      simpl in Hhps.
      destruct Hhhv as (Hhhv, Hhv).
      split; [ right; eassumption | assumption ].
 
      rewrite <- Nat.sub_succ in Hhps.
-     rewrite <- minus_Sn_m in Hhps; [ idtac | assumption ].
+     rewrite Nat.sub_succ_l in Hhps; [ idtac | assumption ].
      simpl in Hhps; eassumption.
 
     apply first_power_le in Hhhv; contradiction.
@@ -552,13 +552,13 @@ induction cl as [| c]; intros.
   destruct (le_dec (S pow) (Z.to_nat (Qnum h))) as [Hle| Hgt].
    eapply IHcl in Hhhv.
     rewrite <- Nat.sub_succ in Hhps.
-    rewrite <- minus_Sn_m in Hhps; [ idtac | assumption ].
+    rewrite Nat.sub_succ_l in Hhps; [ idtac | assumption ].
     simpl in Hhps.
     destruct Hhhv as (Hhhv, Hhv).
     split; [ right; eassumption | assumption ].
 
     rewrite <- Nat.sub_succ in Hhps.
-    rewrite <- minus_Sn_m in Hhps; [ idtac | assumption ].
+    rewrite Nat.sub_succ_l in Hhps; [ idtac | assumption ].
     simpl in Hhps; eassumption.
 
    apply first_power_le in Hhhv; contradiction.
@@ -592,13 +592,13 @@ assert (pow ≤ Z.to_nat (Qnum h)) as H.
    now left.
 
    destruct (eq_nat_dec (Z.to_nat (Qnum h)) pow) as [Heq| Hne].
-    rewrite Heq, minus_diag in Hhps.
+    rewrite Heq, Nat.sub_diag in Hhps.
     subst hps; left; reflexivity.
 
     right.
     eapply IHpsl; try eassumption; try reflexivity.
      rewrite <- Nat.sub_succ in Hhps.
-     rewrite <- minus_Sn_m in Hhps; [ assumption | idtac ].
+     rewrite Nat.sub_succ_l in Hhps; [ assumption | idtac ].
      apply not_eq_sym in Hne.
      apply Nat_le_neq_lt; assumption.
 
@@ -690,7 +690,7 @@ destruct cl as [| c₁]; intros; simpl.
       rewrite Nat.add_comm, Nat.add_sub; assumption.
 
       rewrite <- Hhp.
-      apply le_plus_l.
+      apply Nat.le_add_r.
 
    destruct (eq_nat_dec h pow) as [Hhp| Hhp].
     subst pow.
@@ -1446,7 +1446,7 @@ Theorem q_is_factor_of_h_minus_j : ∀ f L j αj m q,
   → (Qnat j, αj) = ini_pt L
   → q = Pos.to_nat (q_of_m m (γ L))
   → ∀ h αh, (Qnat h, αh) ∈ oth_pts L ++ [fin_pt L]
-  → (q | h - j)%nat.
+  → Nat.divide q (h - j).
 Proof.
 intros f L j αj m q HL Hm Hj Hq h αh Hh.
 remember (p_of_m m (γ L)) as p eqn:Hp .
@@ -1869,7 +1869,7 @@ Definition nat_fst_lt (x y : Q * Q) :=
 Theorem shrinkable_if : ∀ f q pt₁ pts,
   Sorted nat_fst_lt [pt₁ … pts]
   → q ≠ O
-  → List.Forall (λ pt, (q | nat_num (fst pt) - nat_num (fst pt₁))%nat) pts
+  → List.Forall (λ pt, Nat.divide q (nat_num (fst pt) - nat_num (fst pt₁))) pts
   → poly_shrinkable q
       POL (make_char_pol R (nat_num (fst pt₁))
             (List.map (term_of_point f) [pt₁ … pts]))%pol.
@@ -1957,7 +1957,7 @@ destruct n.
        apply Hpts in H.
        destruct H as (c, Hc).
        rewrite <- Hh.
-       unfold divide.
+       progress unfold Nat.divide.
        assert (pt₂ ∈ [pt₂ … pts]) as H by (left; auto).
        apply Hpts in H.
        rewrite <- Hh in H.
@@ -2092,7 +2092,7 @@ split.
    rewrite <- Nat.sub_succ_l; [ apply Nat_sub_succ_1 | idtac ].
    apply Pos2Nat.is_pos.
 
-  apply lt_n_S.
+  apply -> Nat.succ_lt_mono.
   clear Hj.
   revert j.
   induction (oth_pts L); intros; simpl.
@@ -2103,11 +2103,11 @@ split.
    apply Nat.lt_0_succ.
 
    rewrite list_length_pad; simpl.
-   eapply lt_le_trans.
+   eapply Nat.lt_le_trans.
     apply IHl with (j := nat_num (fst a)).
 
     rewrite Nat.add_succ_r, <- Nat.add_succ_l.
-    apply le_plus_r.
+    apply Nat.le_add_l.
 Qed.
 
 Definition has_degree f d :=
