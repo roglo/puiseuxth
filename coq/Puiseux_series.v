@@ -1608,25 +1608,21 @@ destruct q as [q| ].
 
     exfalso.
     assert (Pos.to_nat k * S p - 1 < q)%nat as H. {
-...
-     apply plus_lt_reg_l with (p := 1%nat).
-     simpl.
-     rewrite <- Nat.sub_succ_l.
-      simpl.
-      rewrite Nat.sub_0_r.
+      apply (Nat.add_lt_mono_r _ _ 1).
+      rewrite Nat.sub_add. 2: {
+        rewrite <- (Nat.mul_1_l 1).
+        apply Nat.mul_le_mono. {
+          apply Nat.neq_0_lt_0.
+          apply Pos2Nat_ne_0.
+        }
+        apply -> Nat.succ_le_mono.
+        apply Nat.le_0_l.
+      }
+      rewrite Nat.add_1_r.
       rewrite Hq'.
-      apply mult_lt_compat_l.
-       assumption.
-
-       apply Pos2Nat.is_pos.
-
-      remember (Pos.to_nat k) as kn eqn:Hkn .
-      symmetry in Hkn.
-      destruct kn as [| kn].
-       exfalso; revert Hkn; apply Pos2Nat_ne_0.
-
-       simpl; apply le_n_S.
-       apply le_0_n.
+      apply Nat.mul_lt_mono_pos_l; [ | easy ].
+      apply Pos2Nat.is_pos.
+    }
 
      apply Hzq in H.
      rewrite Nat.add_sub_assoc in H.
@@ -1746,9 +1742,9 @@ Definition rank_of_nonzero_before s i :=
 
 Theorem series_nth_0_in_interval_from_any : ∀ s i c b k,
   (i < c)%nat
-  → (∀ n, (Pos.to_nat k | nth_series_order K s b n)%nat)
-    → (Pos.to_nat k |
-       nth_series_order K s b
+  → (∀ n, Nat.divide (Pos.to_nat k) (nth_series_order K s b n)%nat)
+    → Nat.divide (Pos.to_nat k)
+       (nth_series_order K s b
          (pred (rank_of_nonzero_after_from s c (b + i) b)))%nat
       → i mod Pos.to_nat k ≠ O
         → (s .[b + i] = 0)%K.
@@ -1870,7 +1866,7 @@ destruct i.
 Qed.
 
 Theorem series_nth_0_in_interval : ∀ s k,
-  (∀ n, (Pos.to_nat k | nth_series_order K s 0 n)%nat)
+  (∀ n, Nat.divide (Pos.to_nat k) (nth_series_order K s 0 n)%nat)
   → ∀ i,
     (i mod Pos.to_nat k ≠ 0)%nat
     → (s .[i] = 0)%K.
@@ -1889,7 +1885,7 @@ destruct i.
 Qed.
 
 Theorem series_stretch_shrink : ∀ s k,
-  (Pos.to_nat k | greatest_series_x_power K s 0)
+  Nat.divide (Pos.to_nat k) (greatest_series_x_power K s 0)
   → (series_stretch k (series_shrink k s) = s)%ser.
 Proof.
 intros s k Hk.
@@ -1998,14 +1994,15 @@ Theorem is_the_greatest_series_x_power_equiv : ∀ s n k,
   match series_order s (S n) with
   | fin _ =>
       is_a_series_in_x_power s n k ∧
-      (∀ k', (k < k')%nat → ∃ n', ¬(k' | nth_series_order K s n n'))
+      (∀ k', (k < k')%nat → ∃ n', ¬ Nat.divide k' (nth_series_order K s n n'))
   | ∞ =>
       k = O
   end
   ↔ match series_order s (S n) with
     | fin _ =>
         is_a_series_in_x_power s n k ∧
-        (∀ u, (1 < u)%nat → ∃ n', ¬(u * k | nth_series_order K s n n'))
+        (∀ u, (1 < u)%nat →
+        ∃ n', ¬ Nat.divide (u * k) (nth_series_order K s n n'))
     | ∞ =>
         k = O
     end.
@@ -2091,8 +2088,10 @@ split; intros H.
     rewrite Nat.mul_0_r in Hc.
     discriminate Hc.
 
-    assert (1 < S (S u))%nat as H₁.
-     apply lt_n_S, Nat.lt_0_succ.
+    assert (1 < S (S u))%nat as H₁. {
+      apply -> Nat.succ_lt_mono.
+      apply Nat.lt_0_succ.
+    }
 
      apply Hnp in H₁.
      destruct H₁ as (m, Hm).
@@ -2161,12 +2160,11 @@ destruct p as [p| ].
    rewrite Nat.mul_0_r in Hc.
    discriminate Hc.
 
-   assert (S m < S m * u)%nat as Hmu.
-    apply mult_lt_compat_r with (p := S m) in Hu.
+   assert (S m < S m * u)%nat as Hmu. {
+     apply (Nat.mul_lt_mono_pos_r (S m)) in Hu; [ | apply Nat.lt_0_succ ].
      rewrite Nat.mul_1_l, Nat.mul_comm in Hu.
      assumption.
-
-     apply Nat.lt_0_succ.
+   }
 
     apply Hmk in Hmu.
     destruct Hmu as (n, Hn).
