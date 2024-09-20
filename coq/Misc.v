@@ -747,14 +747,12 @@ apply Nat.gcd_div_gcd in Hg.
     apply Nat.mul_cancel_r in Hl₁.
      exists (k₁ / l')%nat.
      rewrite <- Nat.mul_assoc.
-     rewrite <- Nat.divide_div_mul_exact.
+     rewrite <- Nat.Lcm0.divide_div_mul_exact.
       replace (l' * k₁)%nat with (k₁ * l')%nat by apply Nat.mul_comm.
       rewrite Nat.div_mul.
        assumption.
 
        intros H; apply Hlp; subst l'; reflexivity.
-
-      intros H; apply Hlp; subst l'; reflexivity.
 
       apply Nat.gauss with (m := k').
        rewrite Hl₁; exists l₁; apply Nat.mul_comm.
@@ -795,14 +793,12 @@ remember Hb as Hab; clear HeqHab.
 apply Nat_gcd_le_l with (b := a) in Hab.
 rewrite Nat.gcd_comm in Hab.
 unfold Nat.lcm.
-eapply Nat.div_le_mono in Hab.
- rewrite Nat.div_same in Hab.
-  apply Nat.mul_le_mono_l with (p := a) in Hab.
-  rewrite Nat.mul_1_r in Hab; assumption.
+eapply Nat.Div0.div_le_mono in Hab.
+rewrite Nat.div_same in Hab.
+ apply Nat.mul_le_mono_l with (p := a) in Hab.
+ rewrite Nat.mul_1_r in Hab; assumption.
 
-  destruct a; [ assumption | idtac ].
-  intros H; apply Nat.gcd_eq_0_r in H; contradiction.
-
+ destruct a; [ assumption | idtac ].
  intros H; apply Nat.gcd_eq_0_r in H; contradiction.
 Qed.
 
