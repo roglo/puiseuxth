@@ -231,8 +231,8 @@ induction n; simpl.
 
  rewrite ps_mul_assoc.
  rewrite rng_mul_shuffle0; simpl.
-...
  rewrite <- IHn.
+...
  assert (Qnat (S n) * p == Qnat n * p + p) as H.
   progress unfold Qnat; simpl.
   rewrite Zpos_P_of_succ_nat.
