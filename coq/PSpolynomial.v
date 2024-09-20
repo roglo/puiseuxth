@@ -21,7 +21,7 @@ Delimit Scope ps_lap_scope with pslap.
 Definition ps_lap_nth α {R : ring α} h la := (List.nth h la 0)%ps.
 Definition ps_poly_nth α {R : ring α} h f := (ps_lap_nth h (al f)).
 
-Arguments ps_lap_nth _ _ h%nat la%pslap.
+Arguments ps_lap_nth _ _ h%_nat la%_pslap.
 
 (* *)
 
@@ -40,11 +40,11 @@ Definition ps_lap_pow α {R : ring α} {K : field R} a n :=
 Definition ps_lap_comp α {R : ring α} {K : field R} la lb :=
   @lap_compose (puiseux_series α) (ps_ring K) la lb.
 
-Arguments ps_lap_eq _ _ _ la%pslap lb%pslap.
-Arguments ps_lap_add _ _ _ la%pslap lb%pslap.
-Arguments ps_lap_mul _ _ _ la%pslap lb%pslap.
-Arguments ps_lap_pow _ _ _ a%pslap _.
-Arguments ps_lap_comp _ _ _ la%pslap lb%pslap.
+Arguments ps_lap_eq _ _ _ la%_pslap lb%_pslap.
+Arguments ps_lap_add _ _ _ la%_pslap lb%_pslap.
+Arguments ps_lap_mul _ _ _ la%_pslap lb%_pslap.
+Arguments ps_lap_pow _ _ _ a%_pslap _.
+Arguments ps_lap_comp _ _ _ la%_pslap lb%_pslap.
 
 Notation "a = b" := (ps_lap_eq a b) : ps_lap_scope.
 Notation "a ≠ b" := (not (ps_lap_eq a b)) : ps_lap_scope.
@@ -62,7 +62,7 @@ Inductive ps_lap_forall {α} {R : ring α} {K : field R} (P : _ → Prop) :
       → ps_lap_forall P l
       → ps_lap_forall P [x … l].
 
-Arguments ps_lap_forall α%type_scope _ _ _ l%pslap.
+Arguments ps_lap_forall α%_type_scope _ _ _ l%_pslap.
 
 Fixpoint ps_lap_in α {R : ring α} {K : field R} a l :=
   match l with
@@ -70,7 +70,7 @@ Fixpoint ps_lap_in α {R : ring α} {K : field R} a l :=
   | [b … m] => (l ≠ [])%pslap ∧ (b = a)%ps ∨ ps_lap_in a m
   end.
 
-Arguments ps_lap_in _ _ _ a%ps l%pslap.
+Arguments ps_lap_in _ _ _ a%_ps l%_pslap.
 
 Theorem fold_ps_lap_add : ∀ α (R : ring α) (K : field R) a b,
   @lap_add _ (ps_ring K) a b = ps_lap_add a b.
