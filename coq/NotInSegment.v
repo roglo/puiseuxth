@@ -2,7 +2,7 @@
 
 (* points not in newton segment *)
 
-Require Import Utf8 QArith Sorting NPeano.
+Require Import Utf8 QArith Sorting.
 
 Require Import Misc.
 Require Import Slope_base.

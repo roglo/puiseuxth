@@ -2,7 +2,6 @@
 
 Require Import Utf8.
 Require Import Arith.
-Require Import NPeano.
 Require Import Sorted.
 
 Require Import Misc.
@@ -285,12 +284,12 @@ induction len; intros; simpl in He; simpl.
        constructor.
        destruct Hsort as (Hsort, Hrel₂).
        apply HdRel_inv in Hrel₂.
-       eapply lt_trans; eassumption.
+       eapply Nat.lt_trans; eassumption.
 
        constructor.
        destruct Hsort as (Hsort, Hrel₂).
        apply HdRel_inv in Hrel₂.
-       eapply lt_trans; eassumption.
+       eapply Nat.lt_trans; eassumption.
 
       apply list_Forall_inv in Hin.
       destruct Hin; assumption.

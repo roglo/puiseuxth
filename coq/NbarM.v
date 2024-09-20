@@ -2,7 +2,7 @@
 
 Require Import Utf8.
 Require Import Compare_dec.
-Require Import NPeano.
+Require Import Arith.
 
 Require Import Misc.
 

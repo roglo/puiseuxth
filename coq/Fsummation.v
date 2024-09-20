@@ -4,7 +4,6 @@
 
 Require Import Utf8.
 Require Import QArith.
-Require Import NPeano.
 
 Require Import Misc.
 Require Import Field2.
@@ -49,8 +48,7 @@ rewrite IHlen.
  do 2 rewrite Nat.add_succ_l, <- Nat.add_succ_r.
  apply Hgh.
  split; [ apply Nat.le_0_l | idtac ].
- apply lt_n_S.
- destruct Hi; assumption.
+ now apply -> Nat.succ_lt_mono.
 Qed.
 
 Theorem summation_compat : ∀ g h b k,
@@ -89,7 +87,8 @@ rewrite H; [ idtac | split; auto ].
  split; [ apply Nat.lt_le_incl; auto | auto ].
 
  rewrite Nat.add_succ_r.
- apply le_n_S, le_plus_l.
+ apply Nat.lt_succ_r.
+ apply Nat.le_add_r.
 Qed.
 
 Theorem all_0_summation_0 : ∀ g i₁ i₂,
@@ -102,13 +101,18 @@ intros i (H₁, H₂).
 apply H.
 split; [ assumption | idtac ].
 destruct (le_dec i₁ (S i₂)) as [H₃| H₃].
- rewrite Nat.add_sub_assoc in H₂; auto.
- rewrite minus_plus in H₂.
- apply le_S_n; auto.
+ rewrite Nat.add_sub_assoc in H₂; [ | easy ].
+ rewrite Nat.add_sub_swap in H₂; [ | easy ].
+ rewrite Nat.sub_diag, Nat.add_0_l in H₂.
+ now apply -> Nat.lt_succ_r in H₂.
 
- apply not_le_minus_0 in H₃.
- rewrite H₃, Nat.add_0_r in H₂.
- apply Nat.nle_gt in H₂; contradiction.
+ apply Nat.nle_gt in H₃.
+ replace (S i₂ - i₁) with 0 in H₂. 2: {
+   symmetry; apply Nat.sub_0_le.
+   now apply Nat.lt_le_incl.
+ }
+ rewrite Nat.add_0_r in H₂.
+ now apply Nat.nle_gt in H₂.
 Qed.
 
 Theorem summation_aux_succ_last : ∀ g b len,
@@ -162,6 +166,7 @@ destruct b; simpl.
  rewrite Nat.sub_0_r.
  simpl in Hikb.
  eapply Nat.le_lt_trans in Hikb; eauto .
+..
  apply lt_O_minus_lt, Nat.lt_le_incl in Hikb.
  remember (b + (k - b))%nat as x eqn:H .
  rewrite Nat.add_sub_assoc in H; auto.
