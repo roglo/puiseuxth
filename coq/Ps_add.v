@@ -556,7 +556,7 @@ unfold adjust_series; simpl.
 do 2 rewrite series_shift_0.
 constructor; intros i; simpl.
 destruct (zerop (i mod Pos.to_nat (Qden n))) as [H₁| H₁].
- apply Nat.mod_divides in H₁; [ idtac | apply Pos2Nat_ne_0 ].
+ apply Nat.Div0.mod_divides in H₁.
  destruct H₁ as (c, Hc).
  rewrite Nat.mul_comm in Hc; rewrite Hc.
  rewrite Nat.div_mul; [ idtac | apply Pos2Nat_ne_0 ].
