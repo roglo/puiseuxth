@@ -806,9 +806,7 @@ eapply Nat.div_le_mono in Hab.
  intros H; apply Nat.gcd_eq_0_r in H; contradiction.
 Qed.
 
-...
-
-Theorem Nat_divides_lcm_l : ∀ a b, (a | Nat.lcm a b)%nat.
+Theorem Nat_divides_lcm_l : ∀ a b, Nat.divide a (Nat.lcm a b).
 Proof.
 intros a b.
 unfold Nat.lcm.
@@ -1229,10 +1227,11 @@ intros.
 destruct a; [ easy | apply Nat.sub_diag ].
 Qed.
 
-Theorem omod_divide : ∀ a b : nat, b ≠ 0%nat → a omod b = 0%nat ↔ (b | a).
+Theorem omod_divide :
+  ∀ a b : nat, b ≠ 0%nat → a omod b = 0%nat ↔ Nat.divide b a.
 Proof.
 intros * Hbz.
 unfold omodulo.
 destruct (Nat.eq_dec b 0) as [H| H]; [ easy | ].
-now apply Nat.mod_divide.
+apply Nat.Lcm0.mod_divide.
 Qed.
