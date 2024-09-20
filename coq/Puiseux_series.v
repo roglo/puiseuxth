@@ -18,13 +18,13 @@ Record puiseux_series α := mkps
     ps_ordnum : Z;
     ps_polydo : positive }.
 
-Arguments mkps α%type ps_terms%ser ps_ordnum%Z ps_polydo%positive.
+Arguments mkps α%_type ps_terms%_ser ps_ordnum%_Z ps_polydo%_positive.
 Declare Scope ps_scope.
 Delimit Scope ps_scope with ps.
 
-Arguments ps_terms α%type p%ps.
-Arguments ps_ordnum α%type p%ps.
-Arguments ps_polydo α%type p%ps.
+Arguments ps_terms α%_type p%_ps.
+Arguments ps_ordnum α%_type p%_ps.
+Arguments ps_polydo α%_type p%_ps.
 
 Section axioms.
 
@@ -134,7 +134,7 @@ split; intros H.
    exfalso; apply H1, H3, H.
 Qed.
 
-Arguments series_order _ _ _ s%ser n%nat.
+Arguments series_order _ _ _ s%_ser n%_nat.
 
 Fixpoint nth_series_order α (R : ring α) (K : field R) s b n :=
   match series_order s (S b) with
@@ -573,14 +573,13 @@ assert (Pv : ∀ i, v (S i) ≤ v i).
          exfalso; apply H; intros j.
          exists (u j / k)%nat.
          rewrite Nat.mul_comm.
-         apply Nat.div_exact; [  | apply H2 ].
-         intros H3; subst k; revert Hgk; apply Nat.nlt_0_r.
+         apply Nat.Div0.div_exact.
+         apply H2.
 
          destruct H2 as (j, Hj).
          exists j; intros (z, Hz).
          rewrite Hz in Hj.
-         apply Hj, Nat.mod_mul.
-         intros H3; subst k; revert Hgk; apply Nat.nlt_0_r.
+         apply Hj, Nat.Div0.mod_mul.
 
       assert (H2 : ∀ i, u i = O).
        intros j; rewrite <- Hu.
@@ -728,7 +727,7 @@ assert (Pv : ∀ i, v (S i) ≤ v i).
      rewrite Hx; apply eq_refl.
 Qed.
 
-Arguments greatest_series_x_power α%type _ _ s%ser n%nat.
+Arguments greatest_series_x_power α%_type _ _ s%_ser n%_nat.
 
 End axioms.
 
@@ -746,10 +745,10 @@ Definition series_shrink α k (s : power_series α) :=
 Definition series_left_shift α n (s : power_series α) :=
   {| terms i := s.[n + i] |}.
 
-Arguments series_stretch α%type _ k%positive s%ser.
-Arguments series_shift α%type _ n%nat s%ser.
-Arguments series_shrink α%type k%positive s%ser.
-Arguments series_left_shift α%type n%nat s%ser.
+Arguments series_stretch α%_type _ k%_positive s%_ser.
+Arguments series_shift α%_type _ n%_nat s%_ser.
+Arguments series_shrink α%_type k%_positive s%_ser.
+Arguments series_left_shift α%_type n%_nat s%_ser.
 
 Definition normalise_series α n k (s : power_series α) :=
   series_shrink k (series_left_shift n s).
@@ -772,7 +771,7 @@ Definition normalise_ps α {R : ring α} {K : field R} ps :=
       ps_zero
   end.
 
-Arguments normalise_ps _ _ _ ps%ps.
+Arguments normalise_ps _ _ _ ps%_ps.
 
 Inductive eq_ps_strong {α} {r : ring α} :
   puiseux_series α → puiseux_series α → Prop :=
@@ -787,7 +786,7 @@ Inductive eq_ps {α} {r : ring α} {K : field r} :
   | eq_ps_base : ∀ ps₁ ps₂,
       eq_ps_strong (normalise_ps ps₁) (normalise_ps ps₂)
       → eq_ps ps₁ ps₂.
-Arguments eq_ps _ _ _ ps₁%ps ps₂%ps.
+Arguments eq_ps _ _ _ ps₁%_ps ps₂%_ps.
 
 Definition ps_monom {α} {r : ring α} (c : α) pow :=
   {| ps_terms := {| terms i := if zerop i then c else 0%K |};
@@ -916,7 +915,7 @@ constructor; intros i; simpl.
 remember (Pos.to_nat kp) as k.
 assert (k ≠ O) as Hk by (subst k; apply Pos2Nat_ne_0).
 destruct (zerop (i mod k)) as [Hz| Hnz]; [ idtac | reflexivity ].
-apply Nat.mod_divides in Hz; [ idtac | assumption ].
+apply Nat.Div0.mod_divides in Hz.
 destruct Hz as (c, Hi).
 subst i.
 pose proof (H c) as Hc.
@@ -1011,35 +1010,31 @@ remember (Pos.to_nat bp) as b.
 assert (a ≠ O) as Ha by (subst a; apply Pos2Nat_ne_0).
 assert (b ≠ O) as Hb by (subst b; apply Pos2Nat_ne_0).
 destruct (zerop (i mod (a * b))) as [Hz| Hnz].
- apply Nat.mod_divides in Hz.
+ apply Nat.Div0.mod_divides in Hz.
   destruct Hz as (c, Hz).
   subst i.
   rewrite Nat.mul_comm, Nat.div_mul.
    rewrite Nat.mul_assoc, Nat.mul_shuffle0.
-   rewrite Nat.mod_mul; [ simpl | assumption ].
+   rewrite Nat.Div0.mod_mul; simpl.
    rewrite Nat.div_mul; [ simpl | assumption ].
-   rewrite Nat.mod_mul; [ simpl | assumption ].
+   rewrite Nat.Div0.mod_mul; simpl.
    rewrite Nat.div_mul; [ simpl | assumption ].
    reflexivity.
-
-   apply Nat.neq_mul_0; split; assumption.
 
   apply Nat.neq_mul_0; split; assumption.
 
  destruct (zerop (i mod a)) as [Hz| ]; [ idtac | reflexivity ].
- apply Nat.mod_divides in Hz; [ idtac | assumption ].
+ apply Nat.Div0.mod_divides in Hz.
  destruct Hz as (c, Hz).
  subst i.
  rewrite Nat.mul_comm, Nat.div_mul; [ idtac | assumption ].
  destruct (zerop (c mod b)) as [Hlt₂| ]; [ idtac | reflexivity ].
- apply Nat.mod_divides in Hlt₂; [ idtac | assumption ].
+ apply Nat.Div0.mod_divides in Hlt₂.
  destruct Hlt₂ as (c₂, Hlt₂).
  subst c.
  rewrite Nat.mul_assoc, Nat.mul_comm in Hnz.
- rewrite Nat.mod_mul in Hnz.
+ rewrite Nat.Div0.mod_mul in Hnz.
   exfalso; revert Hnz; apply Nat.lt_irrefl.
-
-  apply Nat.neq_mul_0; split; assumption.
 Qed.
 
 Theorem series_shift_series_0 : ∀ n, (series_shift n 0 = 0)%ser.
@@ -1066,13 +1061,13 @@ constructor; intros i; simpl.
 remember (Pos.to_nat kp) as k.
 assert (k ≠ O) as Hk by (subst k; apply Pos2Nat_ne_0).
 destruct (zerop (i mod k)) as [Hz| Hnz].
- apply Nat.mod_divides in Hz; [ idtac | assumption ].
+ apply Nat.Div0.mod_divides in Hz.
  destruct Hz as (c, Hi); subst i.
  rewrite Nat.mul_comm.
  rewrite <- Nat.mul_sub_distr_r.
  rewrite Nat.div_mul; [ idtac | assumption ].
  rewrite Nat.div_mul; [ idtac | assumption ].
- rewrite Nat.mod_mul; [ simpl | assumption ].
+ rewrite Nat.Div0.mod_mul; simpl.
  destruct (lt_dec c n) as [H₁| H₁].
   destruct (lt_dec (c * k) (n * k)) as [| H₂]; [ reflexivity | idtac ].
   exfalso; apply H₂.
@@ -1086,7 +1081,7 @@ destruct (zerop (i mod k)) as [Hz| Hnz].
 
  destruct (lt_dec i (n * k)) as [| H₁]; [ reflexivity | idtac ].
  destruct (zerop ((i - n * k) mod k)) as [H₂| ]; [ idtac | reflexivity ].
- apply Nat.mod_divides in H₂; [ idtac | assumption ].
+ apply Nat.Div0.mod_divides in H₂.
  destruct H₂ as (c, Hc).
  destruct c.
   rewrite Nat.mul_0_r in Hc.
@@ -1094,13 +1089,13 @@ destruct (zerop (i mod k)) as [Hz| Hnz].
   apply Nat.nlt_ge in H₁.
   apply Nat.le_antisymm in Hc; [ idtac | assumption ].
   subst i.
-  rewrite Nat.mod_mul in Hnz; [ idtac | assumption ].
+  rewrite Nat.Div0.mod_mul in Hnz.
   exfalso; revert Hnz; apply Nat.lt_irrefl.
 
   apply Nat.add_sub_eq_nz in Hc.
    rewrite Nat.mul_comm, <- Nat.mul_add_distr_l, Nat.mul_comm in Hc.
    subst i.
-   rewrite Nat.mod_mul in Hnz; [ idtac | assumption ].
+   rewrite Nat.Div0.mod_mul in Hnz.
    exfalso; revert Hnz; apply Nat.lt_irrefl.
 
    apply Nat.neq_mul_0.
@@ -1174,7 +1169,7 @@ Proof.
 intros s n k.
 constructor; intros i; simpl.
 rewrite Nat.add_comm.
-rewrite Nat.mod_add; auto with Arith.
+rewrite Nat.Div0.mod_add; auto with Arith.
 rewrite Nat.div_add; auto with Arith.
 destruct (zerop (i mod Pos.to_nat k)) as [H₂| H₂]; [ idtac | reflexivity ].
 rewrite Nat.add_comm; reflexivity.
@@ -1338,7 +1333,7 @@ Proof.
 intros k c.
 constructor; intros i; simpl.
 destruct (zerop (i mod Pos.to_nat k)) as [H| H].
- apply Nat.mod_divides in H; auto with Arith.
+ apply Nat.Div0.mod_divides in H.
  destruct H as (d, Hd); rewrite Hd.
  rewrite Nat.mul_comm.
  rewrite Nat.div_mul; auto with Arith.
@@ -1350,7 +1345,7 @@ destruct (zerop (i mod Pos.to_nat k)) as [H| H].
  apply Nat.mul_eq_0_r in Hd; auto with Arith; discriminate Hd.
 
  destruct i; [ simpl | reflexivity ].
- rewrite Nat.mod_0_l in H; auto with Arith.
+ rewrite Nat.Div0.mod_0_l in H; auto with Arith.
  exfalso; revert H; apply Nat.lt_irrefl.
 Qed.
 
@@ -1364,7 +1359,7 @@ split; intros H.
  inversion_clear H as (s₁, s₂, Hi).
  simpl in Hi; simpl.
  pose proof Hi (i * Pos.to_nat k)%nat as H.
- rewrite Nat.mod_mul in H; [ simpl in H | apply Pos2Nat_ne_0 ].
+ rewrite Nat.Div0.mod_mul in H.
  rewrite Nat.div_mul in H; [ simpl in H | apply Pos2Nat_ne_0 ].
  destruct (zerop i) as [H₁| H₁]; [ subst i; assumption | ].
  destruct (zerop (i * Pos.to_nat k)) as [H₂| ]; [ | assumption ].
@@ -1386,7 +1381,7 @@ Theorem series_nth_mul_stretch : ∀ s k i,
 Proof.
 intros s k i; simpl.
 rewrite Nat.mul_comm.
-rewrite Nat.mod_mul; [ simpl | apply Pos2Nat_ne_0 ].
+rewrite Nat.Div0.mod_mul.
 rewrite Nat.div_mul; [ simpl | apply Pos2Nat_ne_0 ].
 reflexivity.
 Qed.
@@ -1404,7 +1399,7 @@ Theorem stretch_finite_series : ∀ s b k,
 Proof.
 intros s b k Hz i.
 destruct (zerop (i mod Pos.to_nat k)) as [H₁| H₁].
- apply Nat.mod_divides in H₁; [ idtac | apply Pos2Nat_ne_0 ].
+ apply Nat.Div0.mod_divides in H₁.
  destruct H₁ as (c, H₁).
  subst i.
  rewrite Nat.mul_comm, <- Nat.mul_add_distr_l.
@@ -1413,7 +1408,7 @@ destruct (zerop (i mod Pos.to_nat k)) as [H₁| H₁].
 
  rewrite shifted_in_stretched; [ reflexivity | idtac ].
  rewrite Nat.add_comm.
- rewrite Nat.mod_add; [ assumption | apply Pos2Nat_ne_0 ].
+ now rewrite Nat.Div0.mod_add.
 Qed.
 
 Theorem series_order_stretch : ∀ s b k,
@@ -1431,10 +1426,10 @@ destruct n as [n| ]; simpl.
  split.
   intros i Hin.
   rewrite Nat.add_comm.
-  rewrite Nat.mod_add; auto with Arith.
+  rewrite Nat.Div0.mod_add; auto with Arith.
   rewrite Nat.div_add; auto with Arith.
   destruct (zerop (i mod Pos.to_nat k)) as [H₁| ]; [ idtac | reflexivity ].
-  apply Nat.mod_divides in H₁; [ idtac | apply Pos2Nat_ne_0 ].
+  apply Nat.Div0.mod_divides in H₁.
   destruct H₁ as (c, H₁).
   rewrite H₁.
   rewrite Nat.mul_comm.
@@ -1446,7 +1441,7 @@ destruct n as [n| ]; simpl.
   apply Nat.mul_lt_mono_pos_r in Hin; auto with Arith.
 
   rewrite <- Nat.mul_add_distr_r.
-  rewrite Nat.mod_mul; auto with Arith; simpl.
+  rewrite Nat.Div0.mod_mul; auto with Arith; simpl.
   rewrite Nat.div_mul; auto with Arith.
 
  intros i.
@@ -1569,7 +1564,7 @@ destruct q as [q| ].
  destruct Hq as (Hzq, Hnzq).
  rewrite Nat.add_succ_l, <- Nat.add_succ_r in Hnzq.
  destruct (zerop (S q mod Pos.to_nat k)) as [H₁| H₁].
-  apply Nat.mod_divides in H₁; [ idtac | apply Pos2Nat_ne_0 ].
+  apply Nat.Div0.mod_divides in H₁.
   destruct H₁ as (q', Hq').
   rewrite Hq' in Hnzq.
   rewrite Nat.mul_comm in Hnzq.
@@ -1651,7 +1646,7 @@ destruct q as [q| ].
 
   assert (0 < (n * Pos.to_nat k + S q) mod Pos.to_nat k)%nat as H.
    rewrite Nat.add_comm.
-   rewrite Nat.mod_add; [ idtac | apply Pos2Nat_ne_0 ].
+   rewrite Nat.Div0.mod_add.
    assumption.
 
    apply shifted_in_stretched with (s := s) in H.
@@ -1693,7 +1688,7 @@ destruct (lt_dec (S i) (Pos.to_nat k)) as [H| H].
  rewrite shifted_in_stretched; [ reflexivity | simpl ].
  rewrite Nat.add_comm.
  rewrite <- Nat.add_succ_l.
- rewrite Nat.mod_add; [ idtac | apply Pos2Nat_ne_0 ].
+ rewrite Nat.Div0.mod_add.
  rewrite Nat.mod_small; [ idtac | assumption ].
  apply Nat.lt_0_succ.
 
@@ -1721,7 +1716,7 @@ Theorem series_shrink_stretch : ∀ s k,
 Proof.
 intros s k.
 constructor; intros i; simpl.
-rewrite Nat.mod_mul; auto with Arith; simpl.
+rewrite Nat.Div0.mod_mul; auto with Arith; simpl.
 rewrite Nat.div_mul; auto with Arith; reflexivity.
 Qed.
 
@@ -1754,7 +1749,7 @@ remember (pred (rank_of_nonzero_after_from s c (b + i) b)) as n eqn:Hn .
 symmetry in Hn.
 destruct c; [ exfalso; revert Hic; apply Nat.nlt_0_r | simpl in Hn ].
 destruct i.
- rewrite Nat.mod_0_l in Hm; [ idtac | apply Pos2Nat_ne_0 ].
+ rewrite Nat.Div0.mod_0_l in Hm.
  exfalso; apply Hm; reflexivity.
 
  apply Nat.succ_lt_mono in Hic.
@@ -1805,11 +1800,11 @@ destruct i.
        replace (S (S i)) with (S (i - len) + S len)%nat in Hm .
         pose proof (Has O) as H; simpl in H.
         rewrite Hlen in H.
-        rewrite Nat.add_mod in Hm; auto with Arith.
+        rewrite Nat.Div0.add_mod in Hm; auto with Arith.
         destruct H as (c₁, Hc₁).
         rewrite Hc₁ in Hm.
-        rewrite Nat.mod_mul, Nat.add_0_r in Hm; auto with Arith.
-        rewrite Nat.mod_mod in Hm; auto with Arith.
+        rewrite Nat.Div0.mod_mul, Nat.add_0_r in Hm; auto with Arith.
+        now rewrite Nat.Div0.mod_mod in Hm.
 
         rewrite Nat.add_succ_l, Nat.add_succ_r.
         do 2 apply Nat.succ_inj_wd.
@@ -1847,7 +1842,7 @@ destruct i.
      rewrite Hlen in Hs.
      destruct Hs as (c₁, Hc₁).
      rewrite Hc₁ in Hm.
-     rewrite Nat.mod_mul in Hm; auto with Arith.
+     rewrite Nat.Div0.mod_mul in Hm; auto with Arith.
      exfalso; apply Hm; reflexivity.
 
      apply series_order_iff in Hlen; simpl in Hlen.
@@ -1877,7 +1872,7 @@ pose proof (Hs cnt) as H.
 subst cnt.
 unfold rank_of_nonzero_before in H.
 destruct i.
- rewrite Nat.mod_0_l in Hi; [ idtac | apply Pos2Nat_ne_0 ].
+ rewrite Nat.Div0.mod_0_l in Hi.
  exfalso; apply Hi; reflexivity.
 
  replace (S i) with (0 + S i)%nat in H by reflexivity.
@@ -1891,7 +1886,7 @@ Proof.
 intros s k Hk.
 constructor; intros i; simpl.
 destruct (zerop (i mod Pos.to_nat k)) as [H₁| H₁].
- apply Nat.mod_divides in H₁; auto with Arith.
+ apply Nat.Div0.mod_divides in H₁; auto with Arith.
  destruct H₁ as (c, Hc); rewrite Nat.mul_comm in Hc; subst i.
  rewrite Nat.div_mul; auto with Arith; reflexivity.
 
@@ -1914,15 +1909,12 @@ destruct (zerop (i mod Pos.to_nat k)) as [H₁| H₁].
 
    assert (i mod (S c * Pos.to_nat k) ≠ 0)%nat as H.
     intros H.
-    apply Nat.mod_divides in H.
+    apply Nat.Div0.mod_divides in H.
      destruct H as (d, Hd).
      rewrite Nat.mul_shuffle0 in Hd.
      rewrite Hd in H₁.
-     rewrite Nat.mod_mul in H₁; auto with Arith.
+     rewrite Nat.Div0.mod_mul in H₁; auto with Arith.
      revert H₁; apply Nat.lt_irrefl.
-
-     apply Nat.neq_mul_0.
-     split; auto with Arith.
 
     remember (S c) as d eqn:Hd .
     rewrite <- Nat2Pos.id in Hd; auto; subst d.
@@ -1934,7 +1926,7 @@ destruct (zerop (i mod Pos.to_nat k)) as [H₁| H₁].
   apply series_order_iff in Hp.
   simpl in Hp.
   destruct i; [ idtac | apply Hp ].
-  rewrite Nat.mod_0_l in H₁; auto with Arith.
+  rewrite Nat.Div0.mod_0_l in H₁; auto with Arith.
   exfalso; revert H₁; apply Nat.lt_irrefl.
 Qed.
 
@@ -2128,26 +2120,14 @@ destruct p as [p| ].
   unfold is_a_series_in_x_power in Hm.
   rewrite nth_series_order_stretch.
   apply Nat_divides_l.
-  apply Nat.mod_divides.
-   destruct m.
-    assert (0 < 1)%nat as H by apply Nat.lt_0_1.
-    apply Hnm in H.
-    clear n.
-    destruct H as (n, Hn).
-    exfalso; apply Hn.
-    exists (nth_series_order K s b n).
-    rewrite Nat.mul_1_r; reflexivity.
-
-    apply Nat.neq_mul_0; split; auto with Arith.
-
+  apply Nat.Div0.mod_divides.
    pose proof (Hm n) as Hn.
    destruct Hn as (c, Hc).
    rewrite Hc.
    rewrite Nat.mul_assoc, Nat.mul_shuffle0.
    destruct m; [ rewrite Nat.mul_0_r; reflexivity | idtac ].
    rewrite Nat.mul_comm.
-   rewrite Nat.mod_mul; [ reflexivity | idtac ].
-   apply Nat.neq_mul_0; split; auto with Arith.
+   now rewrite Nat.Div0.mod_mul.
 
   intros u Hu.
   rewrite Nat.mul_comm, <- Nat.mul_assoc.
@@ -2171,18 +2151,10 @@ destruct p as [p| ].
     exists n.
     intros H₁; apply Hn.
     rewrite nth_series_order_stretch in H₁.
-    apply Nat.mod_divide in H₁.
-     rewrite Nat.mul_mod_distr_l in H₁; auto with Arith.
+    apply Nat.Lcm0.mod_divide in H₁.
+     rewrite Nat.Div0.mul_mod_distr_l in H₁.
       apply Nat.mul_eq_0_r in H₁; auto with Arith.
-      apply Nat.mod_divide; auto with Arith.
-      destruct u; [ exfalso; revert Hu; apply Nat.nlt_0_r | idtac ].
-      apply Nat.neq_mul_0; auto with Arith.
-
-      destruct u; [ exfalso; revert Hu; apply Nat.nlt_0_r | idtac ].
-      apply Nat.neq_mul_0; auto with Arith.
-
-     destruct u; [ exfalso; revert Hu; apply Nat.nlt_0_r | idtac ].
-     apply Nat.neq_mul_0; simpl; auto with Arith.
+      apply Nat.Lcm0.mod_divide; auto with Arith.
 
  exfalso; apply Hinf; reflexivity.
 Qed.
@@ -2234,7 +2206,7 @@ destruct (le_dec i b) as [H₁| H₁].
    subst q; rewrite Nat2Pos.id; auto with Arith.
 
   intros H; apply Hip; rewrite H; clear H.
-  apply Nat.mod_0_l; intros H; discriminate H.
+  apply Nat.Div0.mod_0_l; intros H; discriminate H.
 Qed.
 
 Theorem series_series_order_inf_iff : ∀ s,
@@ -2294,27 +2266,19 @@ split; intros H.
    destruct Hm as (Hz, Hnz).
    destruct (lt_dec i m) as [H₁| H₁]; [ apply Hz; assumption | idtac ].
    apply Nat.nlt_ge in H₁.
-   destruct (zerop ((i - m) mod Z.to_nat g)) as [H₂| H₂].
-    apply Nat.mod_divides in H₂.
+   destruct (zerop ((i - m) mod Z.to_nat g)) as [H₂| H₂]. {
+     apply Nat.Div0.mod_divides in H₂.
      destruct H₂ as (c, Hc).
      pose proof (H0 c) as Hi.
      rewrite series_nth_series_0 in Hi.
      rewrite <- series_nth_mul_shrink in Hi.
-     rewrite Pos2Nat_to_pos in Hi.
-      rewrite <- Hc in Hi.
-      rewrite <- series_nth_add_left_shift in Hi.
-      rewrite Nat.sub_add in Hi; assumption.
-
-      rewrite Hg; apply gcd_ps_is_pos.
-
-     pose proof (gcd_ps_is_pos m p ps) as H₃.
-     rewrite <- Hg in H₃.
-     rewrite <- Z2Nat.inj_0.
-     intros H₄.
-     apply Z2Nat.inj in H₄; [ idtac | idtac | reflexivity ].
-      rewrite H₄ in H₃; revert H₃; apply Z.lt_irrefl.
-
-      apply Z.lt_le_incl; assumption.
+     rewrite Pos2Nat_to_pos in Hi. {
+       rewrite <- Hc in Hi.
+       rewrite <- series_nth_add_left_shift in Hi.
+       rewrite Nat.sub_add in Hi; assumption.
+     }
+     rewrite Hg; apply gcd_ps_is_pos.
+   }
 
     symmetry in Hp.
     apply greatest_series_x_power_iff in Hp.
@@ -2333,16 +2297,7 @@ split; intros H.
      pose proof (Z.gcd_divide_r z (Z.of_nat p)) as H₄.
      rewrite <- Hg in H₄.
      apply omod_divide in H₃; auto with Arith.
-      apply Nat.mod_divide; auto with Arith.
-       intros H₅.
-       rewrite <- Z2Nat.inj_0 in H₅.
-       apply Z2Nat.inj in H₅.
-        rewrite H₅ in Hgp; revert Hgp; apply Z.lt_irrefl.
-
-        apply Z.lt_le_incl; assumption.
-
-        reflexivity.
-
+      apply Nat.Lcm0.mod_divide.
        eapply Nat.divide_trans; [ idtac | eassumption ].
        destruct H₄ as (c, Hc).
        exists (Z.to_nat c).
@@ -2366,20 +2321,8 @@ split; intros H.
      destruct (eq_nat_dec i m) as [H₃| H₃].
       subst i.
       rewrite Nat.sub_diag in H₂; simpl in H₂.
-      rewrite Nat.mod_0_l in H₂.
+      rewrite Nat.Div0.mod_0_l in H₂.
        exfalso; revert H₂; apply Nat.lt_irrefl.
-
-       pose proof (gcd_ps_is_pos m p ps) as H₃.
-       rewrite <- Hg in H₃.
-       intros H₄.
-       rewrite <- Z2Nat.inj_0 in H₄.
-       apply Z2Nat.inj_iff in H₄.
-        rewrite H₄ in H₃.
-        exfalso; revert H₃; apply Z.lt_irrefl.
-
-        apply Z.lt_le_incl; assumption.
-
-        reflexivity.
 
       apply series_order_iff in Hq.
       simpl in Hq.

@@ -507,9 +507,9 @@ destruct k.
    intros j Hjn Hj.
    rewrite Hf; [ reflexivity |  ].
    rewrite Nat.add_comm.
-   rewrite Nat.mod_add; [  | apply Nat.neq_succ_0 ].
+   rewrite Nat.Div0.mod_add.
    intros H; apply Hj; clear Hj.
-   apply Nat.mod_divides in H; auto.
+   apply Nat.Div0.mod_divides in H.
    destruct H as (c, Hc).
    destruct c.
     rewrite Nat.mul_0_r in Hc; assumption.
