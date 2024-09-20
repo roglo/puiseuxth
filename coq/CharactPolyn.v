@@ -53,7 +53,7 @@ Definition ps_lap_com_polydo α (psl : list (puiseux_series α)) :=
   List.fold_right (λ ps a, (a * ps_polydo ps)%positive) 1%positive psl.
 
 Definition ps_pol_com_polydo {α} f := @ps_lap_com_polydo α (al f).
-Arguments ps_pol_com_polydo _ f%pol.
+Arguments ps_pol_com_polydo _ f%_pol.
 
 (* *)
 
@@ -96,7 +96,7 @@ Definition mh_of_m α m αh (hps : puiseux_series α) :=
 Inductive in_K_1_m {α} {R : ring α} {K : field R} ps m :=
   InK1m : (∃ ps₁, (ps₁ = ps)%ps ∧ ps_polydo ps₁ = m) → in_K_1_m ps m.
 
-Arguments in_K_1_m _ _ _ ps%ps m%positive.
+Arguments in_K_1_m _ _ _ ps%_ps m%_positive.
 
 Definition pol_in_K_1_m {α} {R : ring α} {K : field R} f m :=
   ps_lap_forall (λ a, in_K_1_m a m) (al f).
@@ -1879,7 +1879,7 @@ rewrite Nat.sub_diag, list_pad_0.
 rewrite List.Forall_forall in Hpts.
 unfold poly_shrinkable; intros n Hn; simpl.
 destruct n.
- rewrite Nat.mod_0_l in Hn; auto with Arith.
+ rewrite Nat.Div0.mod_0_l in Hn; auto with Arith.
  exfalso; apply Hn; reflexivity.
 
  revert n pt₁ Hsort Hpts Hn.
@@ -1922,7 +1922,7 @@ destruct n.
      rewrite <- Nat.sub_succ_l in Hn; auto with Arith.
      rewrite Nat.sub_succ in Hn.
      rewrite Hc in Hn.
-     apply Hn, Nat.mod_mul; auto with Arith.
+     apply Hn, Nat.Div0.mod_mul; auto with Arith.
 
      remember (n - (h - S j))%nat as nhj eqn:Hnhj .
      symmetry in Hnhj.
@@ -1933,7 +1933,7 @@ destruct n.
       contradiction.
 
       destruct (eq_nat_dec (S nhj mod q) 0) as [H₅| H₅].
-       apply Nat.mod_divides in H₅; auto with Arith.
+       apply Nat.Div0.mod_divides in H₅; auto with Arith.
        destruct H₅ as (c, Hc).
        apply Nat.add_sub_eq_nz in Hnhj; [ idtac | intros H; discriminate H ].
        exfalso; apply Hn.
@@ -1948,7 +1948,7 @@ destruct n.
        destruct H as (d, Hd).
        rewrite Nat.mul_comm.
        rewrite Hd, <- Nat.mul_add_distr_r.
-       apply Nat.mod_mul; auto with Arith.
+       apply Nat.Div0.mod_mul; auto with Arith.
 
        rewrite Hh.
        apply IHpts; auto with Arith.
@@ -2418,7 +2418,7 @@ split.
   rewrite <- Nat.sub_succ_l; [ idtac | subst q; apply Pos2Nat.is_pos ].
   rewrite Nat_sub_succ_1.
   rewrite Nat.mul_comm.
-  rewrite <- Nat.divide_div_mul_exact; [ idtac | subst q; auto with Arith | idtac ].
+  rewrite <- Nat.Lcm0.divide_div_mul_exact.
    rewrite Nat.mul_comm.
    rewrite Nat.div_mul; [ idtac | subst q; auto with Arith ].
    subst pl.

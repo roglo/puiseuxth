@@ -76,21 +76,21 @@ apply mkps_morphism; try reflexivity.
 progress unfold series_stretch; simpl.
 constructor; simpl; intros i.
 destruct (zerop (i mod Pos.to_nat (Qden p))) as [H₁| H₁].
- apply Nat.mod_divides in H₁; auto with Arith.
+ apply Nat.Div0.mod_divides in H₁; auto with Arith.
  destruct H₁ as (c, Hc).
  destruct (zerop (i / Pos.to_nat (Qden p))) as [H₂| H₂].
   rewrite Nat.mul_comm in Hc.
   rewrite Hc, Nat.div_mul in H₂; auto with Arith.
   subst c; simpl in Hc.
   subst i; simpl.
-  rewrite Nat.mod_0_l; auto with Arith; simpl.
-  rewrite Nat.div_0_l; auto with Arith; simpl.
+  rewrite Nat.Div0.mod_0_l; auto with Arith; simpl.
+  rewrite Nat.Div0.div_0_l; auto with Arith; simpl.
   symmetry; assumption.
 
   rewrite Nat.mul_comm in Hc.
   rewrite Hc, Nat.div_mul in H₂; auto with Arith.
   destruct (zerop (i mod Pos.to_nat (Qden q))) as [H₃| H₃].
-   apply Nat.mod_divides in H₃; auto with Arith.
+   apply Nat.Div0.mod_divides in H₃; auto with Arith.
    destruct H₃ as (d, Hd).
    rewrite Nat.mul_comm in Hd.
    rewrite Hd, Nat.div_mul; auto with Arith.
@@ -106,14 +106,14 @@ destruct (zerop (i mod Pos.to_nat (Qden p))) as [H₁| H₁].
    reflexivity.
 
  destruct (zerop (i mod Pos.to_nat (Qden q))) as [H₃| H₃].
-  apply Nat.mod_divides in H₃; auto with Arith.
+  apply Nat.Div0.mod_divides in H₃; auto with Arith.
   destruct H₃ as (d, Hd).
   rewrite Nat.mul_comm in Hd.
   rewrite Hd, Nat.div_mul; auto with Arith.
   destruct d; [ idtac | reflexivity ].
   simpl in Hd.
   subst i.
-  rewrite Nat.mod_0_l in H₁; auto with Arith.
+  rewrite Nat.Div0.mod_0_l in H₁; auto with Arith.
   exfalso; revert H₁; apply Nat.lt_irrefl.
 
   reflexivity.
@@ -227,11 +227,6 @@ intros c p n.
 induction n; simpl.
  rewrite rng_mul_1_r.
  progress unfold Qnat; simpl.
-Search (0 * _)%Q.
-About Qmult_0_l.
-About ps_monom.
-...
-rewrite Qmult_0_l.
  rewrite Qmult_0_l; reflexivity.
 
  rewrite ps_mul_assoc.
