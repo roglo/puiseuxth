@@ -93,12 +93,9 @@ Variable K : field R.
 
 Theorem glop :
   @lap_eq (puiseux_series α) (@ps_ring α R K)
-    (@lap_mul (puiseux_series α) (@ps_ring α R K)
-       (@lap_mul (puiseux_series α) (@ps_ring α R K)
-          (@cons (puiseux_series α) (@ps_zero α R) (@nil (puiseux_series α)))
-          []
-       )
-       []
+     (@lap_mul (puiseux_series α) (@ps_ring α R K)
+        (@cons (puiseux_series α) (@ps_zero α R) (@nil (puiseux_series α)))
+        []
      )
      [].
 Proof.
