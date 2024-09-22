@@ -7,7 +7,7 @@ Require Coq.QArith.QArith.
 Set Implicit Arguments.
 
 Class ring α := { rng_zero : α; }.
-Class field α (rng_ring : ring α) := { fld_inv : α -> α }.
+Class field α := { fld_inv : α -> α }.
 
 Import Coq.QArith.QArith.
 
@@ -37,13 +37,13 @@ Definition series_0 {α} {r : ring α} : nat -> α := fun i => rng_zero.
 Record puiseux_series α := mkps { ps_terms : nat -> α }.
 
 Definition ps_zero {α} {r : ring α} := {| ps_terms := series_0 |}.
-Definition ps_ring α (R : ring α) (K : field R) : ring (puiseux_series α) :=
+Definition ps_ring α (R : ring α) (K : field α) : ring (puiseux_series α) :=
   {| rng_zero := ps_zero; |}.
 
 Canonical Structure ps_ring.
 
 Theorem glop :
-  forall (α : Type) (R : ring α) (K : field R),
+  forall (α : Type) (R : ring α) (K : field α),
   @lap_eq (puiseux_series α) (@ps_ring α R K)
      (@cons (puiseux_series α) (@ps_zero α R) (@nil (puiseux_series α)))
      nil.
