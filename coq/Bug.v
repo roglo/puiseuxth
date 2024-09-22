@@ -2,14 +2,10 @@
    coqtop version 8.20.0
    Expected coqc runtime on this file: 0.352 sec *)
 
-Require Coq.QArith.QArith.
-
-Set Implicit Arguments.
+Require Import Coq.QArith.QArith.
 
 Class ring α := { rng_zero : α; }.
 Class field α := { fld_inv : α -> α }.
-
-Import Coq.QArith.QArith.
 
 Inductive lap_eq {α} {r : ring α} : list α -> list α -> Prop :=
   | lap_eq_cons : forall x₁ x₂ l₁ l₂, lap_eq (x₁ :: l₁) (x₂ :: l₂).
