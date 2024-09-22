@@ -11,7 +11,6 @@ Set Implicit Arguments.
 
 Class ring α :=
   { rng_zero : α;
-    rng_one : α;
     rng_add : α → α → α;
     rng_mul : α → α → α;
     rng_eq : α → α → Prop }.
@@ -21,7 +20,6 @@ Notation "a = b" := (rng_eq a b) : field_scope.
 Notation "a + b" := (rng_add a b) : field_scope.
 Notation "a * b" := (rng_mul a b) : field_scope.
 Notation "0" := rng_zero : field_scope.
-Notation "1" := rng_one : field_scope.
 
 Class field α (rng_ring : ring α) := { fld_inv : α → α }.
 
@@ -145,7 +143,6 @@ Definition ps_monom {α} {r : ring α} (c : α) pow :=
      ps_ordnum := Qnum pow;
      ps_polydo := Qden pow |}.
 
-Definition ps_one {α} {r : ring α} := ps_monom rng_one 0.
 Notation "a = b" := (eq_ps a b) : ps_scope.
 Notation "0" := ps_zero : ps_scope.
 
@@ -201,7 +198,6 @@ Definition ps_mul {α} {r : ring α} ps₁ ps₂ :=
 
 Definition ps_ring α (R : ring α) (K : field R) : ring (puiseux_series α).
 exact ({| rng_zero := ps_zero;
-     rng_one := ps_one;
      rng_add := ps_add;
      rng_mul := ps_mul;
      rng_eq := eq_ps |}).
@@ -217,11 +213,12 @@ Variable K : field R.
 
 Theorem glop :
   ∀ a,
-@lap_eq (puiseux_series α) (@ps_ring α R K)
+  @lap_eq (puiseux_series α) (@ps_ring α R K)
     (@lap_mul (puiseux_series α) (@ps_ring α R K)
        (@lap_mul (puiseux_series α) (@ps_ring α R K)
           (@cons (puiseux_series α) (@ps_zero α R) (@nil (puiseux_series α)))
-          (@cons (puiseux_series α) (@ps_monom α R (@rng_one α R) a) (@nil (puiseux_series α))))
+          (@cons (puiseux_series α)
+             (@ps_monom α R (@rng_zero α R) a) (@nil (puiseux_series α))))
        []
      )
      [].
