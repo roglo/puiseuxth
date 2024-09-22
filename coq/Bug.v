@@ -35,12 +35,9 @@ Admitted.
 
 Definition series_0 {α} {r : ring α} : nat -> α := fun i => rng_zero.
 
-Record puiseux_series α := mkps
-  { ps_terms : nat -> α }.
+Record puiseux_series α := mkps { ps_terms : nat -> α }.
 
-Definition ps_zero {α} {r : ring α} :=
-  {| ps_terms := series_0 |}.
-
+Definition ps_zero {α} {r : ring α} := {| ps_terms := series_0 |}.
 Definition ps_ring α (R : ring α) (K : field R) : ring (puiseux_series α) := {| rng_zero := ps_zero; |}.
 
 Canonical Structure ps_ring.
