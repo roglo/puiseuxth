@@ -18,14 +18,14 @@ Theorem Sorted_app {A} : ∀ (f : A → A → Prop) l₁ l₂,
   Sorted f (l₁ ++ l₂) → Sorted f l₁ ∧ Sorted f l₂.
 Proof.
 intros f l₁ l₂ H.
-split.
- induction l₁ as [| x]; [ constructor | simpl in H ].
- destruct l₁ as [| y]; [ constructor; constructor | idtac ].
- constructor; [ eapply IHl₁, Sorted_inv_1; eassumption | idtac ].
- constructor; apply Sorted_inv_2 in H; destruct H; assumption.
-
- induction l₁ as [| x]; [ assumption | apply IHl₁ ].
- eapply Sorted_inv_1; eassumption.
+split. {
+  induction l₁ as [| x]; [ constructor | simpl in H ].
+  destruct l₁ as [| y]; [ constructor; constructor | idtac ].
+  constructor; [ eapply IHl₁, Sorted_inv_1; eassumption | idtac ].
+  constructor; apply Sorted_inv_2 in H; destruct H; assumption.
+}
+induction l₁ as [| x]; [ assumption | apply IHl₁ ].
+eapply Sorted_inv_1; eassumption.
 Qed.
 
 Theorem Sorted_app_at_r : ∀ α f l (x : α),
@@ -37,15 +37,16 @@ clear; intros α f l x Hs Hf.
 induction l as [| z]; [ constructor; constructor | simpl ].
 apply Sorted_inv in Hs.
 destruct Hs as (Hs, Hr).
-apply IHl in Hs.
- constructor; [ assumption | idtac ].
- destruct l as [| t].
-  constructor; apply Hf; left; reflexivity.
-
-  constructor; apply HdRel_inv in Hr; assumption.
-
- intros y Hy.
- apply Hf; right; assumption.
+apply IHl in Hs. {
+  constructor; [ assumption | idtac ].
+  destruct l as [| t]. {
+    constructor; apply Hf; left; reflexivity.
+  } {
+    constructor; apply HdRel_inv in Hr; assumption.
+  }
+}
+intros y Hy.
+apply Hf; right; assumption.
 Qed.
 
 Theorem Sorted_hd : ∀ (pt₁ pt₂ : Q * Q) pts,
@@ -71,18 +72,18 @@ Theorem Sorted_not_in {A} : ∀ (f : A → A → Prop) a b l,
         → a ∉ [b … l].
 Proof.
 intros f a b l Hirr Htran Hsort Hab Hin.
-destruct Hin as [Hin| Hin].
- subst b.
- eapply Hirr; eassumption.
-
- induction l as [| c]; [ contradiction | intros ].
- destruct Hin as [Hin| Hin].
+destruct Hin as [Hin| Hin]. {
+  subst b.
+  eapply Hirr; eassumption.
+}
+induction l as [| c]; [ contradiction | intros ].
+destruct Hin as [Hin| Hin]. {
   subst c.
   apply Sorted_inv_2 in Hsort; destruct Hsort as (Hlt, _).
   eapply Htran in Hab; [ eapply Hirr, Hab | eassumption ].
-
-  apply IHl; [ idtac | assumption ].
-  eapply Sorted_minus_2nd; eassumption.
+}
+apply IHl; [ idtac | assumption ].
+eapply Sorted_minus_2nd; eassumption.
 Qed.
 
 Theorem Sorted_map : ∀ A B P (Q : A → B) (l : list A),
@@ -93,11 +94,12 @@ intros A B P Q l Hsort.
 apply Sorted_LocallySorted_iff in Hsort.
 apply Sorted_LocallySorted_iff.
 induction l as [| a]; [ constructor | simpl ].
-destruct l as [| b]; simpl; constructor.
- apply IHl.
- inversion Hsort; subst; assumption.
-
- inversion Hsort; subst; assumption.
+destruct l as [| b]; simpl; constructor. {
+  apply IHl.
+  inversion Hsort; subst; assumption.
+} {
+  inversion Hsort; subst; assumption.
+}
 Qed.
 
 Theorem Sorted_trans_app : ∀ A (g : A → A → Prop) x y l,
@@ -111,29 +113,29 @@ apply Sorted_LocallySorted_iff in Hsort.
 revert x y Hx Hsort.
 induction l as [| z]; intros; [ contradiction | idtac ].
 simpl in Hsort.
-inversion Hsort.
- symmetry in H1.
- apply List.app_eq_nil in H1.
- destruct H1 as (_, H); discriminate H.
-
- subst.
- destruct Hx as [Hx| Hx].
+inversion Hsort. {
+  symmetry in H1.
+  apply List.app_eq_nil in H1.
+  destruct H1 as (_, H); discriminate H.
+}
+subst.
+destruct Hx as [Hx| Hx]. {
   subst z.
-  destruct l as [| z].
-   simpl in H0.
-   injection H0; clear H0; intros; subst.
-   assumption.
-
-   eapply Htrans; [ eassumption | idtac ].
-   apply IHl.
+  destruct l as [| z]. {
+    simpl in H0.
+    injection H0; clear H0; intros; subst.
+    assumption.
+  }
+  eapply Htrans; [ eassumption | idtac ].
+  apply IHl. {
     simpl in H0.
     injection H0; clear H0; intros; subst.
     left; reflexivity.
-
-    rewrite <- H0; assumption.
-
-  apply IHl; [ assumption | idtac ].
+  }
   rewrite <- H0; assumption.
+}
+apply IHl; [ assumption | idtac ].
+rewrite <- H0; assumption.
 Qed.
 
 Theorem HdRel_app : ∀ A (R : A → A → Prop) a l₁ l₂,
@@ -155,26 +157,27 @@ Theorem minimise_slope_le : ∀ pt₁ pt₂ pts₂ ms,
 Proof.
 intros pt₁ pt₂ pts₂ ms Hsort Hms.
 revert pt₁ pt₂ ms Hsort Hms.
-induction pts₂ as [| pt]; intros.
- subst ms; apply Qle_refl.
-
- simpl in Hms.
- remember (minimise_slope pt₁ pt pts₂) as ms₁.
- remember (slope_expr pt₁ pt₂ ?= slope ms₁) as c.
- destruct c; subst ms; simpl; [ idtac | apply Qle_refl | idtac ].
+induction pts₂ as [| pt]; intros. {
+  subst ms; apply Qle_refl.
+}
+simpl in Hms.
+remember (minimise_slope pt₁ pt pts₂) as ms₁.
+remember (slope_expr pt₁ pt₂ ?= slope ms₁) as c.
+destruct c; subst ms; simpl; [ idtac | apply Qle_refl | idtac ]. {
   apply Qlt_le_weak.
   apply Sorted_inv_2 in Hsort.
   destruct Hsort as (Hlt, Hsort).
   eapply Qlt_le_trans; [ eassumption | idtac ].
   symmetry in Heqms₁.
   eapply IHpts₂; eassumption.
-
+} {
   apply Qlt_le_weak.
   apply Sorted_inv_2 in Hsort.
   destruct Hsort as (Hlt, Hsort).
   eapply Qlt_le_trans; [ eassumption | idtac ].
   symmetry in Heqms₁.
   eapply IHpts₂; eassumption.
+}
 Qed.
 
 Theorem next_ch_points_hd : ∀ pt₁ pt₂ pt₃ pts₁ seg,
@@ -195,31 +198,32 @@ Theorem beg_lt_end_pt : ∀ pt₁ pt₂ pts ms,
 Proof.
 intros pt₁ pt₂ pts ms Hsort Hms.
 revert pt₁ pt₂ ms Hsort Hms.
-induction pts as [| pt₃]; intros.
- subst ms; simpl.
- eapply Sorted_hd; [ eassumption | left; reflexivity ].
-
- simpl in Hms.
- remember (minimise_slope pt₁ pt₃ pts) as ms₁ eqn:Hms₁ .
- remember (slope_expr pt₁ pt₂ ?= slope ms₁) as c.
- symmetry in Heqc.
- symmetry in Hms₁.
- rewrite slope_slope_expr in Heqc; [ idtac | eassumption ].
- destruct c.
+induction pts as [| pt₃]; intros. {
+  subst ms; simpl.
+  eapply Sorted_hd; [ eassumption | left; reflexivity ].
+}
+simpl in Hms.
+remember (minimise_slope pt₁ pt₃ pts) as ms₁ eqn:Hms₁ .
+remember (slope_expr pt₁ pt₂ ?= slope ms₁) as c.
+symmetry in Heqc.
+symmetry in Hms₁.
+rewrite slope_slope_expr in Heqc; [ idtac | eassumption ].
+destruct c. {
   subst ms; simpl.
   rewrite <- minimised_slope_beg_pt in |- * at 1.
   rewrite <- Hms₁.
   eapply IHpts; [ idtac | reflexivity ].
   eapply Sorted_minus_2nd; [ idtac | eassumption ].
   intros x y z H₁ H₂; eapply Qlt_trans; eassumption.
-
+} {
   subst ms; simpl.
   eapply Sorted_hd; [ eassumption | left; reflexivity ].
-
+} {
   subst ms₁.
   eapply IHpts; [ idtac | eassumption ].
   eapply Sorted_minus_2nd; [ idtac | eassumption ].
   intros x y z H₁ H₂; eapply Qlt_trans; eassumption.
+}
 Qed.
 
 Theorem ini_lt_fin_pt : ∀ pts ns,
@@ -254,21 +258,22 @@ Theorem end_pt_in : ∀ pt₁ pt₂ pts ms,
 Proof.
 intros pt₁ pt₂ pts ms Hms.
 revert pt₁ pt₂ ms Hms.
-induction pts as [| pt₃]; intros.
- subst ms; simpl.
- left; reflexivity.
-
- simpl in Hms.
- remember (minimise_slope pt₁ pt₃ pts) as ms₁.
- rename Heqms₁ into Hms₁.
- symmetry in Hms₁.
- remember (slope_expr pt₁ pt₂ ?= slope ms₁) as c.
- symmetry in Heqc.
- remember (fin_pt ms) as pt.
- destruct c; subst ms; simpl in Heqpt; subst pt.
-  right; eapply IHpts; eassumption.
-
+induction pts as [| pt₃]; intros. {
+  subst ms; simpl.
   left; reflexivity.
-
+}
+simpl in Hms.
+remember (minimise_slope pt₁ pt₃ pts) as ms₁.
+rename Heqms₁ into Hms₁.
+symmetry in Hms₁.
+remember (slope_expr pt₁ pt₂ ?= slope ms₁) as c.
+symmetry in Heqc.
+remember (fin_pt ms) as pt.
+destruct c; subst ms; simpl in Heqpt; subst pt. {
   right; eapply IHpts; eassumption.
+} {
+  left; reflexivity.
+} {
+  right; eapply IHpts; eassumption.
+}
 Qed.
