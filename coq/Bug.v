@@ -11,12 +11,10 @@ Set Implicit Arguments.
 
 Class ring α :=
   { rng_zero : α;
-    rng_add : α → α → α;
     rng_eq : α → α → Prop }.
 
 Delimit Scope field_scope with K.
 Notation "a = b" := (rng_eq a b) : field_scope.
-Notation "a + b" := (rng_add a b) : field_scope.
 Notation "0" := rng_zero : field_scope.
 
 Class field α (rng_ring : ring α) := { fld_inv : α → α }.
@@ -30,7 +28,6 @@ Notation "[ x ]" := (cons x nil).
 Definition Qnat i := Z.of_nat i # 1.
 
 Inductive lap_eq {α} {r : ring α} : list α → list α → Prop :=
-  | lap_eq_nil : lap_eq [] []
   | lap_eq_cons : ∀ x₁ x₂ l₁ l₂,
       (x₁ = x₂)%K
       → lap_eq l₁ l₂
@@ -88,8 +85,7 @@ Inductive eq_series {α} {r : ring α} :
     (∀ i, (s₁.[i] = s₂.[i])%K)
     → eq_series s₁ s₂.
 
-Definition series_add {α} {r : ring α} s₁ s₂ :=
-  {| terms i := (s₁.[i] + s₂.[i])%K |}.
+Definition series_add {α} {r : ring α} (s₁ s₂ : power_series α) := s₁.
 
 Record puiseux_series α := mkps
   { ps_terms : power_series α;
@@ -116,28 +112,8 @@ Definition cm (ps₁ ps₂ : puiseux_series α) :=
 
 End other_theorems.
 
-Definition ps_terms_add α {R : ring α} (ps₁ ps₂ : puiseux_series α) :=
-  let s₁ := ps_terms ps₁ in
-  let s₂ := ps_terms ps₂ in
-  series_add s₁ s₂.
-
-Definition ps_ordnum_add α (ps₁ ps₂ : puiseux_series α) :=
-  let k₁ := 1%positive in
-  let k₂ := 1%positive in
-  let v₁ := (ps_ordnum ps₁ * Zpos k₁)%Z in
-  let v₂ := (ps_ordnum ps₂ * Zpos k₂)%Z in
-  Z.min v₁ v₂.
-
-Definition ps_add {α} {r : ring α} (ps₁ ps₂ : puiseux_series α) :=
-  {| ps_terms := ps_terms_add ps₁ ps₂;
-     ps_ordnum := ps_ordnum_add ps₁ ps₂;
-     ps_polydo := cm ps₁ ps₂ |}.
-
-Notation "a + b" := (ps_add a b) : ps_scope.
-
 Definition ps_ring α (R : ring α) (K : field R) : ring (puiseux_series α).
 exact ({| rng_zero := ps_zero;
-     rng_add := ps_add;
      rng_eq := eq_ps |}).
 Defined.
 
