@@ -14,7 +14,6 @@ Class ring α :=
     rng_eq : α → α → Prop }.
 
 Delimit Scope field_scope with K.
-Notation "a = b" := (rng_eq a b) : field_scope.
 Notation "0" := rng_zero : field_scope.
 
 Class field α (rng_ring : ring α) := { fld_inv : α → α }.
@@ -50,41 +49,27 @@ Global Instance lap_mul_morph α (R : ring α) :
   Proper (lap_eq ==> lap_eq ==> lap_eq) (@lap_mul _ R).
 Admitted.
 
-Section lap.
-
-Variable α : Type.
-Variable r : ring α.
-
-Theorem lap_eq_0 : lap_eq [0%K] [].
+Theorem lap_eq_0 : ∀ (α : Type) (r : ring α), lap_eq [0%K] [ ].
 Admitted.
-
-End lap.
 
 Record power_series α := series { terms : nat → α }.
 
-Notation "s .[ i ]" := (@terms _ s i) (at level 1).
-
-Definition series_0 {α} {r : ring α} :=
-  {| terms i := 0%K |}.
+Definition series_0 {α} {r : ring α} := {| terms i := 0%K |}.
 Delimit Scope series_scope with ser.
 Notation "0" := series_0 : series_scope.
 
 Inductive eq_series {α} {r : ring α} :
     power_series α → power_series α → Prop :=
-  eq_series_base : ∀ s₁ s₂,
-    (∀ i, (s₁.[i] = s₂.[i])%K)
-    → eq_series s₁ s₂.
+  eq_series_base : ∀ s₁ s₂, eq_series s₁ s₂.
 
 Definition series_add {α} {r : ring α} (s₁ s₂ : power_series α) := s₁.
 
 Record puiseux_series α := mkps
-  { ps_terms : power_series α;
-    ps_ordnum : Z;
-    ps_polydo : positive }.
+  { ps_terms : power_series α }.
 Delimit Scope ps_scope with ps.
 
 Definition ps_zero {α} {r : ring α} :=
-  {| ps_terms := 0%ser; ps_ordnum := 0; ps_polydo := 1 |}.
+  {| ps_terms := 0%ser |}.
 
 Inductive eq_ps {α} {r : ring α} {K : field r} :
   puiseux_series α → puiseux_series α → Prop :=
