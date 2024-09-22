@@ -49,31 +49,31 @@ apply List.In_dec.
 intros x y.
 destruct x as ((xan, xad), (xbn, xbd)).
 destruct y as ((yan, yad), (ybn, ybd)).
-destruct (Z.eq_dec xan yan) as [Han| Han].
- subst xan.
- destruct (Pos.eq_dec xad yad) as [Had| Had].
-  subst xad.
-  destruct (Z.eq_dec xbn ybn) as [Hbn| Hbn].
-   subst xbn.
-   destruct (Pos.eq_dec xbd ybd) as [Hbd| Hbd].
-    subst xbd.
-    left; reflexivity.
-
+destruct (Z.eq_dec xan yan) as [Han| Han]. {
+  subst xan.
+  destruct (Pos.eq_dec xad yad) as [Had| Had]. {
+    subst xad.
+    destruct (Z.eq_dec xbn ybn) as [Hbn| Hbn]. {
+      subst xbn.
+      destruct (Pos.eq_dec xbd ybd) as [Hbd| Hbd]. {
+        subst xbd.
+        left; reflexivity.
+      }
+      right; intros H.
+      injection H; clear H; intros; subst.
+      apply Hbd; reflexivity.
+    }
     right; intros H.
     injection H; clear H; intros; subst.
-    apply Hbd; reflexivity.
-
-   right; intros H.
-   injection H; clear H; intros; subst.
-   apply Hbn; reflexivity.
-
+    apply Hbn; reflexivity.
+  }
   right; intros H.
   injection H; clear H; intros; subst.
   apply Had; reflexivity.
-
- right; intros H.
- injection H; clear H; intros; subst.
- apply Han; reflexivity.
+}
+right; intros H.
+injection H; clear H; intros; subst.
+apply Han; reflexivity.
 Qed.
 
 Theorem points_in_convex : ∀ (f : puis_ser_pol α) pts L,
@@ -85,13 +85,13 @@ Proof.
 intros f pts L Hpts HL h αh Hαh.
 remember [ini_pt L; fin_pt L … oth_pts L] as spts.
 pose proof (list_Q_pair_in_dec h αh spts) as H.
-subst spts; destruct H as [H| H].
- eapply points_in_any_newton_segment in H; [ idtac | eassumption ].
- rewrite H; apply Qle_refl.
-
- apply Qlt_le_weak.
- eapply points_not_in_any_newton_segment; try eassumption.
- split; assumption.
+subst spts; destruct H as [H| H]. {
+  eapply points_in_any_newton_segment in H; [ idtac | eassumption ].
+  rewrite H; apply Qle_refl.
+}
+apply Qlt_le_weak.
+eapply points_not_in_any_newton_segment; try eassumption.
+split; assumption.
 Qed.
 
 End theorems.
