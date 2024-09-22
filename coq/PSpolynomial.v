@@ -178,13 +178,13 @@ intros n la lb.
 unfold ps_lap_add; simpl.
 unfold ps_lap_nth; simpl.
 revert n lb.
-induction la as [| a]; intros; simpl.
- rewrite match_id, ps_add_0_l; reflexivity.
-
- destruct lb as [| b]; simpl.
+induction la as [| a]; intros; simpl. {
+  rewrite match_id, ps_add_0_l; reflexivity.
+}
+destruct lb as [| b]; simpl. {
   rewrite match_id, ps_add_0_r; reflexivity.
-
-  destruct n; [ reflexivity | apply IHla ].
+}
+destruct n; [ reflexivity | apply IHla ].
 Qed.
 
 Theorem lap_add_map_ps : ∀ la lb,
