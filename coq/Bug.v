@@ -1,45 +1,25 @@
-(* coqc version 8.20.0 compiled with OCaml 4.13.1
-   coqtop version 8.20.0
-   Expected coqc runtime on this file: 0.352 sec *)
-
-Require Import Coq.QArith.QArith.
+Require Import Coq.Setoids.Setoid Coq.Classes.Morphisms.
 
 Class ring α := { rng_zero : α; }.
-Class field α := { fld_inv : α -> α }.
+Class field := { }.
 
-Inductive lap_eq {α} {r : ring α} : list α -> list α -> Prop :=
-  | lap_eq_cons : forall x₁ x₂ l₁ l₂, lap_eq (x₁ :: l₁) (x₂ :: l₂).
+Parameter lap_eq : forall {α} {r : ring α}, list α -> list α -> Prop.
 
-Theorem lap_eq_refl {α} {r : ring α} : reflexive _ lap_eq.
-Admitted.
+Declare Instance lap_eq_equiv : forall {α} {r : ring α}, Equivalence lap_eq.
 
-Theorem lap_eq_sym {α} {r : ring α} : symmetric _ lap_eq.
-Admitted.
+Axiom lap_eq_0 : forall (α : Type) (r : ring α), lap_eq (cons rng_zero nil) nil.
 
-Theorem lap_eq_trans {α} {r : ring α} : transitive _ lap_eq.
-Admitted.
+Definition puiseux_series (α : Type) := nat -> α.
 
-Add Parametric Relation α (r : ring α) : (list α) lap_eq
- reflexivity proved by lap_eq_refl
- symmetry proved by lap_eq_sym
- transitivity proved by lap_eq_trans
- as lap_eq_rel.
+Definition ps_zero {α} {r : ring α} : puiseux_series α := fun i => rng_zero.
 
-Theorem lap_eq_0 : forall (α : Type) (r : ring α), lap_eq (cons rng_zero nil) nil.
-Admitted.
-
-Definition series_0 {α} {r : ring α} : nat -> α := fun i => rng_zero.
-
-Record puiseux_series α := mkps { ps_terms : nat -> α }.
-
-Definition ps_zero {α} {r : ring α} := {| ps_terms := series_0 |}.
-Definition ps_ring α (R : ring α) (K : field α) : ring (puiseux_series α) :=
+Definition ps_ring α (R : ring α) (K : field) : ring (puiseux_series α) :=
   {| rng_zero := ps_zero; |}.
 
 Canonical Structure ps_ring.
 
-Theorem glop :
-  forall (α : Type) (R : ring α) (K : field α),
+Theorem glop : forall
+  (α : Type) (R : ring α) (K : field),
   @lap_eq (puiseux_series α) (@ps_ring α R K)
      (@cons (puiseux_series α) (@ps_zero α R) (@nil (puiseux_series α)))
      nil.
