@@ -68,12 +68,6 @@ Add Parametric Relation α (r : ring α) : (list α) lap_eq
 
 Definition lap_mul {α} {R : ring α} (la lb : list α) : list α := [].
 
-Fixpoint lap_power {α} {r : ring α} la n :=
-  match n with
-  | O => [1%K]
-  | S m => lap_mul la (lap_power la m)
-  end.
-
 Global Instance lap_mul_morph α (R : ring α) :
   Proper (lap_eq ==> lap_eq ==> lap_eq) (@lap_mul _ R).
 Admitted.
@@ -222,17 +216,15 @@ Variable R : ring α.
 Variable K : field R.
 
 Theorem glop :
-  ∀ γ₁,
+  ∀ a,
 @lap_eq (puiseux_series α) (@ps_ring α R K)
     (@lap_mul (puiseux_series α) (@ps_ring α R K)
        (@lap_mul (puiseux_series α) (@ps_ring α R K)
           (@cons (puiseux_series α) (@ps_zero α R) (@nil (puiseux_series α)))
-          (@cons (puiseux_series α) (@ps_monom α R (@rng_one α R) γ₁) (@nil (puiseux_series α))))
-       (@lap_power (puiseux_series α) (@ps_ring α R K)
-          (@cons (puiseux_series α) (@ps_monom α R (@rng_one α R) γ₁) (@nil (puiseux_series α))) 0))
-    (@cons (puiseux_series α)
-       (@ps_mul α R (@ps_zero α R) (@ps_monom α R (@rng_one α R) (Qmult (Qnat (S 0)) γ₁)))
-       (@nil (puiseux_series α))).
+          (@cons (puiseux_series α) (@ps_monom α R (@rng_one α R) a) (@nil (puiseux_series α))))
+       []
+     )
+     [].
 Proof.
 intros.
 Check 1%nat.
