@@ -28,20 +28,19 @@ Proof.
 intros a b c d H.
 remember (a ?= b) as cmp.
 symmetry in Heqcmp, H.
-destruct cmp.
- apply Qeq_alt in Heqcmp.
- apply Qeq_alt in H.
- rewrite Heqcmp, H.
- do 2 rewrite Qcmp_eq.
- reflexivity.
-
- apply Qcmp_lt_gt in Heqcmp.
- apply Qcmp_lt_gt in H.
- rewrite <- H in Heqcmp; assumption.
-
- apply Qcmp_gt_lt in Heqcmp.
- apply Qcmp_gt_lt in H.
- rewrite <- H in Heqcmp; assumption.
+destruct cmp. {
+  apply Qeq_alt in Heqcmp.
+  apply Qeq_alt in H.
+  rewrite Heqcmp, H.
+  do 2 rewrite Qcmp_eq.
+  reflexivity.
+}
+apply Qcmp_lt_gt in Heqcmp.
+apply Qcmp_lt_gt in H.
+rewrite <- H in Heqcmp; assumption.
+apply Qcmp_gt_lt in Heqcmp.
+apply Qcmp_gt_lt in H.
+rewrite <- H in Heqcmp; assumption.
 Qed.
 
 Theorem slope_cmp_flatten : ∀ x₁ y₁ x₂ y₂ x₃ y₃ x₄ y₄,
@@ -77,20 +76,20 @@ Theorem slope_eq : ∀ x₁ y₁ x₂ y₂ x₃ y₃,
 Proof.
 intros x₁ y₁ x₂ y₂ x₃ y₃ H₁₂ H₂₃ H₃₁ H.
 unfold slope_expr in H |-*.
-apply Qeq_shift_mult_l in H.
- symmetry in H.
- rewrite Qmult_div_swap in H.
- apply Qeq_shift_mult_l in H.
-  apply Qeq_shift_div_l.
-   intros HH; apply H₁₂.
-   symmetry; apply Qminus_eq; assumption.
-
-   symmetry.
-   rewrite Qmult_div_swap.
-   apply Qeq_shift_div_l.
-    intros HH; apply H₂₃.
-    symmetry; apply Qminus_eq; assumption.
-
+apply Qeq_shift_mult_l in H. {
+  symmetry in H.
+  rewrite Qmult_div_swap in H.
+  apply Qeq_shift_mult_l in H. {
+    apply Qeq_shift_div_l. {
+      intros HH; apply H₁₂.
+      symmetry; apply Qminus_eq; assumption.
+    }
+    symmetry.
+    rewrite Qmult_div_swap.
+    apply Qeq_shift_div_l. {
+      intros HH; apply H₂₃.
+      symmetry; apply Qminus_eq; assumption.
+    }
     setoid_replace ((y₃ - y₁) * (x₂ - x₁)) with
      (x₂ * y₃ - x₂ * y₁ - x₁ * y₃ + x₁ * y₁) in H by ring.
     setoid_replace ((y₂ - y₁) * (x₃ - x₁)) with
@@ -114,12 +113,12 @@ apply Qeq_shift_mult_l in H.
     setoid_replace (x₂ * y₁ + x₃ * y₂ + x₁ * y₃) with
      (x₃ * y₂ + x₁ * y₃ + x₂ * y₁) by ring.
     rewrite H; ring.
-
+  }
   intros HH; apply H₃₁.
   apply Qminus_eq; assumption.
-
- intros HH; apply H₁₂.
- symmetry; apply Qminus_eq; assumption.
+}
+intros HH; apply H₁₂.
+symmetry; apply Qminus_eq; assumption.
 Qed.
 
 Theorem slope_cmp_norm₁₂₁₃ : ∀ x₁ y₁ x₂ y₂ x₃ y₃,
@@ -186,6 +185,7 @@ rewrite slope_cmp_norm₁₃₁₂; [ idtac | split; assumption ].
 rewrite slope_cmp_norm₂₃₁₃; [ idtac | split; assumption ].
 reflexivity.
 Qed.
+
 Theorem slope_lt_1312_2313 : ∀ pt₁ pt₂ pt₃,
   fst pt₁ < fst pt₂ < fst pt₃
   → slope_expr pt₁ pt₃ < slope_expr pt₁ pt₂
