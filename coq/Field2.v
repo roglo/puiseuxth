@@ -56,10 +56,10 @@ Fixpoint rng_power {α} {R : ring α} a n :=
 Notation "a ^ b" := (rng_power a b) : field_scope.
 
 Add Parametric Relation α (K : ring α) : α rng_eq
- reflexivity proved by rng_eq_refl
- symmetry proved by rng_eq_sym
- transitivity proved by rng_eq_trans
- as eq_rel.
+  reflexivity proved by rng_eq_refl
+  symmetry proved by rng_eq_sym
+  transitivity proved by rng_eq_trans
+  as eq_rel.
 
 Global Instance add_morph α (K : ring α) :
   Proper (rng_eq ==> rng_eq ==> rng_eq) rng_add.
@@ -131,7 +131,7 @@ Qed.
 Theorem rng_add_compat : ∀ a b c d,
   (a = b)%K
   → (c = d)%K
-    → (a + c = b + d)%K.
+  → (a + c = b + d)%K.
 Proof.
 intros a b c d Hab Hcd.
 rewrite Hab, Hcd; reflexivity.
@@ -148,7 +148,7 @@ Qed.
 Theorem rng_mul_compat : ∀ a b c d,
   (a = b)%K
   → (c = d)%K
-    → (a * c = b * d)%K.
+  → (a * c = b * d)%K.
 Proof.
 intros a b c d Hab Hcd.
 rewrite Hab, Hcd; reflexivity.
@@ -161,10 +161,10 @@ intros x y z; simpl.
 rewrite rng_mul_comm.
 rewrite rng_mul_add_distr_l.
 rewrite rng_mul_comm.
-assert (rng_eq (rng_mul z y) (rng_mul y z)) as H.
- apply rng_mul_comm.
-
- rewrite H; reflexivity.
+assert (rng_eq (rng_mul z y) (rng_mul y z)) as H. {
+  apply rng_mul_comm.
+}
+rewrite H; reflexivity.
 Qed.
 
 Theorem rng_add_0_r : ∀ a, (a + 0 = a)%K.
@@ -202,16 +202,16 @@ Qed.
 Theorem rng_mul_0_l : ∀ a, (0 * a = 0)%K.
 Proof.
 intros a.
-assert ((0 * a + a = a)%K) as H.
- transitivity ((0 * a + 1 * a)%K).
-  rewrite rng_mul_1_l; reflexivity.
-
+assert ((0 * a + a = a)%K) as H. {
+  transitivity ((0 * a + 1 * a)%K). {
+    rewrite rng_mul_1_l; reflexivity.
+  }
   rewrite <- rng_mul_add_distr_r.
   rewrite rng_add_0_l, rng_mul_1_l.
   reflexivity.
-
- apply rng_add_reg_r with (c := a).
- rewrite rng_add_0_l; assumption.
+}
+apply rng_add_reg_r with (c := a).
+rewrite rng_add_0_l; assumption.
 Qed.
 
 Theorem rng_mul_0_r : ∀ a, (a * 0 = 0)%K.
@@ -242,27 +242,28 @@ Qed.
 Theorem rng_add_move_0_r : ∀ a b, (a + b = 0)%K ↔ (a = - b)%K.
 Proof.
 intros a b.
-split; intros H.
- apply rng_add_compat_r with (c := (- b)%K) in H.
- rewrite <- rng_add_assoc in H.
- rewrite rng_add_opp_r in H.
- rewrite rng_add_0_r, rng_add_0_l in H; assumption.
-
- rewrite H.
- rewrite rng_add_opp_l; reflexivity.
+split; intros H. {
+  apply rng_add_compat_r with (c := (- b)%K) in H.
+  rewrite <- rng_add_assoc in H.
+  rewrite rng_add_opp_r in H.
+  rewrite rng_add_0_r, rng_add_0_l in H; assumption.
+} {
+  rewrite H.
+  rewrite rng_add_opp_l; reflexivity.
+}
 Qed.
 
 Theorem rng_opp_inj_wd : ∀ a b, (- a = - b)%K ↔ (a = b)%K.
 Proof.
-intros a b; split; intros H.
- apply rng_add_move_0_r in H.
- rewrite rng_add_comm in H.
- apply rng_add_move_0_r in H.
- rewrite H.
- apply rng_add_move_0_r.
- apply rng_add_opp_r.
-
- rewrite H; reflexivity.
+intros a b; split; intros H. {
+  apply rng_add_move_0_r in H.
+  rewrite rng_add_comm in H.
+  apply rng_add_move_0_r in H.
+  rewrite H.
+  apply rng_add_move_0_r.
+  apply rng_add_opp_r.
+}
+rewrite H; reflexivity.
 Qed.
 
 Theorem rng_add_shuffle0 : ∀ n m p, (n + m + p = n + p + m)%K.
@@ -330,7 +331,7 @@ Qed.
 Theorem fld_mul_reg_l : ∀ a b c,
   (c ≠ 0)%K
   → (c * a = c * b)%K
-    → (a = b)%K.
+  → (a = b)%K.
 Proof.
 intros a b c Hc Habc; simpl in Hc, Habc; simpl.
 rewrite rng_mul_comm in Habc; symmetry in Habc.
@@ -341,7 +342,7 @@ Qed.
 Theorem fld_eq_mul_0_l : ∀ n m,
   (n * m = 0)%K
   → (m ≠ 0)%K
-    → (n = 0)%K.
+  → (n = 0)%K.
 Proof.
 intros n m Hnm Hm.
 rewrite <- rng_mul_0_l in Hnm.
@@ -351,7 +352,7 @@ Qed.
 Theorem fld_eq_mul_0_r : ∀ n m,
   (n * m = 0)%K
   → (n ≠ 0)%K
-    → (m = 0)%K.
+  → (m = 0)%K.
 Proof.
 intros n m Hnm Hm; simpl in Hnm, Hm; simpl.
 rewrite <- rng_mul_0_r in Hnm.
