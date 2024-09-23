@@ -59,10 +59,10 @@ etransitivity; [ apply H | apply H2 ].
 Qed.
 
 Add Parametric Relation α (r : ring α) : (power_series α) eq_series
- reflexivity proved by eq_series_refl
- symmetry proved by (eq_series_sym (r := r))
- transitivity proved by (eq_series_trans (r := r))
- as eq_series_rel.
+  reflexivity proved by eq_series_refl
+  symmetry proved by (eq_series_sym (r := r))
+  transitivity proved by (eq_series_trans (r := r))
+  as eq_series_rel.
 
 (* *)
 
@@ -337,36 +337,32 @@ Theorem term_inv_iter_enough : ∀ a i j k,
 Proof.
 intros a i j k Hki Hkj.
 revert j k Hki Hkj.
-induction i; intros.
- apply Nat.le_0_r in Hki; subst k.
- destruct j; reflexivity.
-
- simpl.
- destruct k; simpl.
+induction i; intros. {
+  apply Nat.le_0_r in Hki; subst k.
   destruct j; reflexivity.
-
-  destruct j.
-   apply Nat.nle_succ_0 in Hkj; contradiction.
-
-   simpl.
-   apply rng_mul_compat_l.
-   apply summation_compat; intros l (Hl, Hlj).
-   apply rng_mul_compat_l.
-   destruct l.
-    rewrite Nat.sub_0_r.
-    apply IHi; apply Nat.succ_le_mono; assumption.
-
-    apply IHi; [ fast_omega Hki | fast_omega Hkj ].
+}
+simpl.
+destruct k; simpl; [ destruct j; reflexivity | ].
+destruct j; [ apply Nat.nle_succ_0 in Hkj; contradiction | ].
+simpl.
+apply rng_mul_compat_l.
+apply summation_compat; intros l (Hl, Hlj).
+apply rng_mul_compat_l.
+destruct l. {
+  rewrite Nat.sub_0_r.
+  apply IHi; apply Nat.succ_le_mono; assumption.
+}
+apply IHi; [ fast_omega Hki | fast_omega Hkj ].
 Qed.
 
 Theorem term_inv_nth_gen_formula : ∀ k a a' i,
   (a.[0] ≠ 0)%K
   → a' = series_inv a
-    → (S k - i ≠ 0)%nat
-      → (a'.[S k - i] =
-         - a'.[0] *
-         Σ (j = 1, S k - i),
-         a.[j] * term_inv (S k) a (S k - i - j))%K.
+  → (S k - i ≠ 0)%nat
+  → (a'.[S k - i] =
+       - a'.[0] *
+           Σ (j = 1, S k - i),
+      a.[j] * term_inv (S k) a (S k - i - j))%K.
 Proof.
 (* à revoir... *)
 intros k a a' i Ha Ha' Hki.
@@ -374,37 +370,33 @@ rewrite Ha'.
 remember minus as g; simpl; subst g.
 destruct (zerop (S k - i)) as [| H₁]; [ contradiction | idtac ].
 remember (S k - i)%nat as ki eqn:Hki₂.
-destruct ki.
- exfalso; apply Hki; reflexivity.
-
- clear H₁.
- apply rng_mul_compat_l.
- rewrite summation_succ_succ.
- apply summation_compat; intros j Hj.
- apply rng_mul_compat_l.
- remember minus as g; simpl; subst g.
- rewrite Nat.sub_succ.
- remember (ki - j)%nat as n eqn:Hn.
- destruct n.
-  reflexivity.
-
-  apply rng_mul_compat_l.
-  apply summation_compat; intros l Hl.
-  apply rng_mul_compat_l.
-  apply term_inv_iter_enough; [ fast_omega Hl Hn | idtac ].
-  rewrite <- Nat.sub_succ, Hki₂ in Hn.
-  rewrite <- Nat.sub_succ, Hn.
-  rewrite <- Nat.sub_add_distr.
-  rewrite Nat.add_succ_l.
-  rewrite Nat_sub_sub_comm, Nat.sub_succ.
-  rewrite <- Nat.sub_add_distr.
-  apply Nat.le_sub_l.
+destruct ki; [ exfalso; apply Hki; reflexivity | ].
+clear H₁.
+apply rng_mul_compat_l.
+rewrite summation_succ_succ.
+apply summation_compat; intros j Hj.
+apply rng_mul_compat_l.
+remember minus as g; simpl; subst g.
+rewrite Nat.sub_succ.
+remember (ki - j)%nat as n eqn:Hn.
+destruct n; [ reflexivity | ].
+apply rng_mul_compat_l.
+apply summation_compat; intros l Hl.
+apply rng_mul_compat_l.
+apply term_inv_iter_enough; [ fast_omega Hl Hn | idtac ].
+rewrite <- Nat.sub_succ, Hki₂ in Hn.
+rewrite <- Nat.sub_succ, Hn.
+rewrite <- Nat.sub_add_distr.
+rewrite Nat.add_succ_l.
+rewrite Nat_sub_sub_comm, Nat.sub_succ.
+rewrite <- Nat.sub_add_distr.
+apply Nat.le_sub_l.
 Qed.
 
 Theorem term_inv_nth_formula : ∀ k a a',
   (a.[0] ≠ 0)%K
   → a' = series_inv a
-    → (a'.[S k] =
+  → (a'.[S k] =
        - a'.[0] * Σ (i = 1, S k), a.[i] * a'.[S k - i])%K.
 Proof.
 intros k a a' Ha Ha'.
@@ -417,19 +409,17 @@ apply rng_mul_compat_l.
 rewrite Ha'.
 remember minus as g; simpl; subst g.
 remember (S k - i)%nat as n eqn:Hn.
-destruct n.
- reflexivity.
-
- apply rng_mul_compat_l.
- apply summation_compat; intros j Hj.
- apply rng_mul_compat_l.
- apply term_inv_iter_enough; fast_omega Hn Hj.
+destruct n; [ reflexivity | ].
+apply rng_mul_compat_l.
+apply summation_compat; intros j Hj.
+apply rng_mul_compat_l.
+apply term_inv_iter_enough; fast_omega Hn Hj.
 Qed.
 
 Theorem convol_mul_inv_r : ∀ k a a',
   (a.[0] ≠ 0)%K
   → a' = series_inv a
-    → (convol_mul a a' (S k) = 0)%K.
+  → (convol_mul a a' (S k) = 0)%K.
 Proof.
 intros k a a' Ha Ha'.
 unfold convol_mul.
@@ -439,17 +429,17 @@ symmetry in Hi.
 rewrite rng_mul_assoc in Hi.
 rewrite rng_mul_opp_r in Hi.
 rewrite Ha' in Hi.
-assert (a.[0] * (¹/ a%ser) .[ 0] = 1)%K as H.
- simpl; rewrite fld_mul_inv_r; [ reflexivity | auto ].
-
- rewrite H in Hi; clear H.
- rewrite rng_mul_opp_l, rng_mul_1_l in Hi.
- rewrite <- Ha' in Hi.
- eapply rng_add_compat_r in Hi.
- rewrite rng_add_opp_l in Hi.
- symmetry in Hi.
- rewrite summation_split_first; [ idtac | apply Nat.le_0_l ].
- rewrite Nat.sub_0_r; auto.
+assert (a.[0] * (¹/ a%ser) .[ 0] = 1)%K as H. {
+  simpl; rewrite fld_mul_inv_r; [ reflexivity | auto ].
+}
+rewrite H in Hi; clear H.
+rewrite rng_mul_opp_l, rng_mul_1_l in Hi.
+rewrite <- Ha' in Hi.
+eapply rng_add_compat_r in Hi.
+rewrite rng_add_opp_l in Hi.
+symmetry in Hi.
+rewrite summation_split_first; [ idtac | apply Nat.le_0_l ].
+rewrite Nat.sub_0_r; auto.
 Qed.
 
 Theorem series_mul_inv_r : ∀ a,
@@ -458,12 +448,12 @@ Theorem series_mul_inv_r : ∀ a,
 Proof.
 intros a Ha.
 constructor; intros i; simpl.
-destruct i; simpl.
- unfold convol_mul; simpl.
- rewrite summation_only_one; simpl.
- rewrite fld_mul_inv_r; [ reflexivity | assumption ].
-
- apply convol_mul_inv_r; [ assumption | reflexivity ].
+destruct i; simpl. {
+  unfold convol_mul; simpl.
+  rewrite summation_only_one; simpl.
+  rewrite fld_mul_inv_r; [ reflexivity | assumption ].
+}
+apply convol_mul_inv_r; [ assumption | reflexivity ].
 Qed.
 
 End theorems_again.
