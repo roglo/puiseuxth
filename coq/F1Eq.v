@@ -331,6 +331,16 @@ intros f β₁ γ₁ c₁.
 apply lap_f₁_eq_x_min_β₁_comp; reflexivity.
 Qed.
 
+Theorem length_monom_puiseux_series_pow :
+  let r := @ps_ring α R K in
+  ∀ (p : puiseux_series α) i,
+  length ([p] ^ i)%lap = 1%nat.
+Proof.
+intros.
+induction i; [ easy | cbn ].
+now rewrite IHi.
+Qed.
+
 Theorem f₁_eq_x_min_β₁_summation : ∀ f β₁ γ₁ c₁,
   (next_pol f β₁ γ₁ c₁ =
    POL [ps_monom 1%K (- β₁)] *
@@ -368,20 +378,23 @@ induction i; intros; simpl.
 
  destruct la as [| a]; simpl.
   rewrite lap_mul_assoc; simpl.
-(**)
-  Check 1.
-  rewrite lap_eq_0.
-  Check 1.
 (*
-  cbn.
-  do 2 rewrite ps_mul_0_l.
-  rewrite ps_add_0_l.
-*)
+  rewrite lap_eq_0.
+... coq bug here
   rewrite lap_mul_nil_l.
   rewrite lap_mul_nil_l.
   constructor; [ idtac | reflexivity ].
   simpl.
   rewrite ps_mul_0_l; reflexivity.
+*)
+  (* turning around coq bug *)
+  rewrite ps_mul_0_l; cbn.
+  rewrite ps_mul_0_l; cbn.
+  rewrite ps_add_0_l.
+  rewrite length_monom_puiseux_series_pow; cbn.
+  rewrite ps_mul_0_l.
+  now rewrite ps_add_0_l.
+(**)
 
   rewrite lap_mul_assoc.
   rewrite lap_mul_shuffle0.
@@ -394,7 +407,10 @@ induction i; intros; simpl.
   apply ps_mul_compat_l.
   rewrite ps_monom_mul_r_pow; symmetry.
   rewrite ps_monom_mul_r_pow; symmetry.
+Check 1.
   rewrite rng_mul_shuffle0; simpl.
+Check 1.
+...
   rewrite rng_mul_assoc; simpl.
   reflexivity.
 Qed.
@@ -1688,3 +1704,4 @@ reflexivity.
 Qed.
 
 End theorems.
+6
