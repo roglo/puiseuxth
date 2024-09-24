@@ -410,13 +410,15 @@ apply ps_mul_compat_l.
 rewrite ps_monom_mul_r_pow; symmetry.
 rewrite ps_monom_mul_r_pow; symmetry.
 (* getting around a bug of Coq 8.20.0 *)
-...
+do 2 rewrite ps_mul_1_l.
+apply ps_mul_comm.
+(*
 Check 1%nat.
 rewrite rng_mul_shuffle0; simpl.
 Check 1%nat.
-...
-  rewrite rng_mul_assoc; simpl.
-  reflexivity.
+rewrite rng_mul_assoc; simpl.
+reflexivity.
+*)
 Qed.
 
 (* [Walker, p. 100] «
@@ -493,7 +495,9 @@ rewrite <- lap_mul_add_distr_r; simpl.
 apply lap_mul_compat; [ idtac | reflexivity ].
 constructor; [ simpl | reflexivity ].
 rewrite ps_monom_add_r.
+Check 1%nat.
 rewrite rng_mul_assoc.
+Check 1%nat.
 rewrite rng_mul_add_distr_r.
 simpl.
 rewrite rng_mul_opp_l; simpl.
