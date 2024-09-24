@@ -495,12 +495,34 @@ rewrite <- lap_mul_add_distr_r; simpl.
 apply lap_mul_compat; [ idtac | reflexivity ].
 constructor; [ simpl | reflexivity ].
 rewrite ps_monom_add_r.
+(* getting around a bug of Coq 8.20.0 *)
+rewrite ps_mul_assoc.
+(*
 Check 1%nat.
 rewrite rng_mul_assoc.
 Check 1%nat.
+*)
+(* trying to get around a bug of Coq 8.20.0 *)
+rewrite (ps_mul_comm _ (_ - _))%ps.
+rewrite ps_mul_add_distr_l.
+rewrite (ps_mul_comm _ _ (ps_poly_nth i f)).
+rewrite (ps_mul_comm _ _ (- _))%ps.
+rewrite ps_add_assoc.
+rewrite ps_add_comm.
+rewrite ps_add_assoc.
+rewrite <- ps_add_0_l at 1.
+apply ps_add_compat_r.
+symmetry.
+do 2 rewrite (ps_mul_comm _ _ (ps_monom _ (_ * _)))%ps.
+rewrite <- ps_mul_add_distr_l.
+...
+(*
+Check 1%nat.
 rewrite rng_mul_add_distr_r.
+Check 1%nat.
 simpl.
 rewrite rng_mul_opp_l; simpl.
+*)
 rewrite rng_add_assoc; simpl.
 rewrite rng_add_comm; simpl.
 rewrite rng_add_assoc; simpl.
