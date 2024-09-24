@@ -76,37 +76,37 @@ rewrite Hpq, Pos.mul_comm.
 apply mkps_morphism; try reflexivity.
 progress unfold series_stretch; simpl.
 constructor; simpl; intros i.
-destruct (zerop (i mod Pos.to_nat (Qden p))) as [H₁| H₁].
- apply Nat.Div0.mod_divides in H₁; auto with Arith.
- destruct H₁ as (c, Hc).
- destruct (zerop (i / Pos.to_nat (Qden p))) as [H₂| H₂].
+destruct (zerop (i mod Pos.to_nat (Qden p))) as [H₁| H₁]. {
+  apply Nat.Div0.mod_divides in H₁; auto with Arith.
+  destruct H₁ as (c, Hc).
+  destruct (zerop (i / Pos.to_nat (Qden p))) as [H₂| H₂]. {
+    rewrite Nat.mul_comm in Hc.
+    rewrite Hc, Nat.div_mul in H₂; auto with Arith.
+    subst c; simpl in Hc.
+    subst i; simpl.
+    rewrite Nat.Div0.mod_0_l; auto with Arith; simpl.
+    rewrite Nat.Div0.div_0_l; auto with Arith; simpl.
+    symmetry; assumption.
+  }
   rewrite Nat.mul_comm in Hc.
   rewrite Hc, Nat.div_mul in H₂; auto with Arith.
-  subst c; simpl in Hc.
-  subst i; simpl.
-  rewrite Nat.Div0.mod_0_l; auto with Arith; simpl.
-  rewrite Nat.Div0.div_0_l; auto with Arith; simpl.
-  symmetry; assumption.
-
-  rewrite Nat.mul_comm in Hc.
-  rewrite Hc, Nat.div_mul in H₂; auto with Arith.
-  destruct (zerop (i mod Pos.to_nat (Qden q))) as [H₃| H₃].
-   apply Nat.Div0.mod_divides in H₃; auto with Arith.
-   destruct H₃ as (d, Hd).
-   rewrite Nat.mul_comm in Hd.
-   rewrite Hd, Nat.div_mul; auto with Arith.
-   destruct d; [ idtac | reflexivity ].
-   simpl in Hd.
-   subst i.
-   apply Nat.mul_eq_0 in Hd.
-   destruct Hd as [Hd| Hd].
-    subst c; exfalso; revert H₂; apply Nat.lt_irrefl.
-
+  destruct (zerop (i mod Pos.to_nat (Qden q))) as [H₃| H₃]. {
+    apply Nat.Div0.mod_divides in H₃; auto with Arith.
+    destruct H₃ as (d, Hd).
+    rewrite Nat.mul_comm in Hd.
+    rewrite Hd, Nat.div_mul; auto with Arith.
+    destruct d; [ idtac | reflexivity ].
+    simpl in Hd.
+    subst i.
+    apply Nat.mul_eq_0 in Hd.
+    destruct Hd as [Hd| Hd]. {
+      subst c; exfalso; revert H₂; apply Nat.lt_irrefl.
+    }
     exfalso; revert Hd; apply Pos2Nat_ne_0.
-
-   reflexivity.
-
- destruct (zerop (i mod Pos.to_nat (Qden q))) as [H₃| H₃].
+  }
+  reflexivity.
+}
+destruct (zerop (i mod Pos.to_nat (Qden q))) as [H₃| H₃]. {
   apply Nat.Div0.mod_divides in H₃; auto with Arith.
   destruct H₃ as (d, Hd).
   rewrite Nat.mul_comm in Hd.
@@ -116,8 +116,8 @@ destruct (zerop (i mod Pos.to_nat (Qden p))) as [H₁| H₁].
   subst i.
   rewrite Nat.Div0.mod_0_l in H₁; auto with Arith.
   exfalso; revert H₁; apply Nat.lt_irrefl.
-
-  reflexivity.
+}
+reflexivity.
 Qed.
 
 Global Instance lap_inject_k_in_Kx_morph α (R : ring α) (K : field R) :
@@ -125,31 +125,31 @@ Global Instance lap_inject_k_in_Kx_morph α (R : ring α) (K : field R) :
 Proof.
 intros la lb Hab.
 revert lb Hab.
-induction la as [| a]; intros; simpl.
- induction lb as [| b]; [ reflexivity | simpl ].
- apply lap_eq_nil_cons_inv in Hab.
- destruct Hab as (Hb, Hlb).
- constructor.
-  rewrite Hb; simpl.
-  apply ps_zero_monom_eq.
-
+induction la as [| a]; intros; simpl. {
+  induction lb as [| b]; [ reflexivity | simpl ].
+  apply lap_eq_nil_cons_inv in Hab.
+  destruct Hab as (Hb, Hlb).
+  constructor. {
+    rewrite Hb; simpl.
+    apply ps_zero_monom_eq.
+  }
   apply IHlb; assumption.
-
- destruct lb as [| b]; simpl.
+}
+destruct lb as [| b]; simpl. {
   apply lap_eq_cons_nil_inv in Hab.
   destruct Hab as (Ha, Hla).
-  constructor.
-   rewrite Ha; simpl.
-   apply ps_zero_monom_eq.
-
-   rewrite IHla; [ idtac | eassumption ].
-   reflexivity.
-
-  apply lap_eq_cons_inv in Hab.
-  destruct Hab as (Hab, Hlab).
-  rewrite Hab.
-  constructor; [ reflexivity | idtac ].
-  apply IHla; assumption.
+  constructor. {
+    rewrite Ha; simpl.
+    apply ps_zero_monom_eq.
+  }
+  rewrite IHla; [ idtac | eassumption ].
+  reflexivity.
+}
+apply lap_eq_cons_inv in Hab.
+destruct Hab as (Hab, Hlab).
+rewrite Hab.
+constructor; [ reflexivity | idtac ].
+apply IHla; assumption.
 Qed.
 
 Global Instance poly_inject_k_in_Kx_morph α (R : ring α) (K : field R) :
@@ -175,11 +175,11 @@ Theorem lap_mul_summation :
   (la * lap_summation l f = lap_summation l (λ i, la * f i))%lap.
 Proof.
 intros α Rx Kx la l f.
-induction l as [| j]; intros; simpl.
- rewrite lap_mul_nil_r; reflexivity.
-
- rewrite lap_mul_add_distr_l, IHl.
- reflexivity.
+induction l as [| j]; intros; simpl. {
+  rewrite lap_mul_nil_r; reflexivity.
+}
+rewrite lap_mul_add_distr_l, IHl.
+reflexivity.
 Qed.
 
 Section on_fields.
@@ -197,15 +197,16 @@ intros g l l₁ l₂ Hss.
 progress unfold poly_summation; simpl.
 progress unfold eq_poly; simpl.
 revert l₁ l₂ Hss.
-induction l as [| n]; intros; simpl.
- inversion Hss; subst; reflexivity.
-
- inversion Hss; subst; simpl.
+induction l as [| n]; intros; simpl. {
+  inversion Hss; subst; reflexivity.
+}
+inversion Hss; subst; simpl. {
   rewrite lap_add_shuffle0.
   rewrite IHl; [ reflexivity | assumption ].
-
+} {
   rewrite lap_add_assoc.
   rewrite IHl; [ reflexivity | assumption ].
+}
 Qed.
 
 Theorem ps_monom_split_mul : ∀ c pow,
@@ -221,20 +222,22 @@ Theorem ps_monom_mul_r_pow : ∀ c p n,
    ps_monom c 0 * ps_monom 1%K p ^ n)%ps.
 Proof.
 intros c p n.
-induction n; simpl.
- rewrite rng_mul_1_r.
- progress unfold Qnat; simpl.
- now apply ps_monom_qeq_morph.
-
-(**)
- rewrite (ps_mul_comm _ (ps_monom 1%K p)).
- rewrite ps_mul_assoc.
+induction n; simpl. {
+  rewrite rng_mul_1_r.
+  progress unfold Qnat; simpl.
+  now apply ps_monom_qeq_morph.
+}
+(* turning around a bug of Coq 8.20.0 *)
+rewrite (ps_mul_comm _ (ps_monom 1%K p)).
+rewrite ps_mul_assoc.
 (*
- rewrite ps_mul_assoc.
- rewrite rng_mul_shuffle0.
+rewrite ps_mul_assoc.
+Check 1%nat.
+rewrite rng_mul_shuffle0.
+Check 1%nat.
 *)
- rewrite <- IHn.
- assert (Qnat (S n) * p == Qnat n * p + p) as H.
+rewrite <- IHn.
+assert (Qnat (S n) * p == Qnat n * p + p) as H. {
   progress unfold Qnat; simpl.
   rewrite Zpos_P_of_succ_nat.
   progress unfold Qmult, Qplus; simpl.
@@ -244,17 +247,17 @@ induction n; simpl.
   rewrite Pos2Z.inj_mul.
   symmetry.
   rewrite <- Z.mul_assoc.
-  apply Z.mul_cancel_r.
-   simpl.
-   apply Pos2Z_ne_0.
-
-   progress unfold Z.succ; simpl.
-   rewrite Z.mul_add_distr_r.
-   rewrite Z.mul_1_l; reflexivity.
-
-  rewrite H.
-  rewrite ps_monom_add_r.
-  reflexivity.
+  apply Z.mul_cancel_r. {
+    simpl.
+    apply Pos2Z_ne_0.
+  }
+  progress unfold Z.succ; simpl.
+  rewrite Z.mul_add_distr_r.
+  rewrite Z.mul_1_l; reflexivity.
+}
+rewrite H.
+rewrite ps_monom_add_r.
+reflexivity.
 Qed.
 
 Theorem poly_summation_add : ∀ g h l,
@@ -276,11 +279,11 @@ Theorem rng_list_map_nth : ∀ A n f l (d : A) fd,
 Proof.
 intros A n f l d fd Hfd.
 revert n d fd Hfd.
-induction l as [| x]; intros; simpl.
- destruct n; assumption.
-
- destruct n; [ reflexivity | idtac ].
- apply IHl; assumption.
+induction l as [| x]; intros; simpl. {
+  destruct n; assumption.
+}
+destruct n; [ reflexivity | idtac ].
+apply IHl; assumption.
 Qed.
 
 End on_fields.
@@ -303,22 +306,21 @@ apply lap_mul_compat; [ reflexivity | idtac ].
 apply lap_compose_compat; [ reflexivity | idtac ].
 progress unfold ps_lap_mul, lap_mul; simpl.
 progress unfold summation; simpl.
+(* turning around a bug of Coq 8.20.0 *)
+rewrite ps_mul_0_l.
 (*
 Check 1.
 rewrite rng_mul_0_l.
 Check 1.
-do 3 rewrite rng_add_0_r.
 *)
-rewrite ps_mul_0_l.
 do 3 rewrite ps_add_0_r.
-(**)
 simpl.
-constructor.
- rewrite ps_mul_comm; simpl.
- apply ps_monom_split_mul.
-
- constructor; [ idtac | reflexivity ].
- rewrite rng_mul_1_r; reflexivity.
+constructor. {
+  rewrite ps_mul_comm; simpl.
+  apply ps_monom_split_mul.
+}
+constructor; [ idtac | reflexivity ].
+rewrite rng_mul_1_r; reflexivity.
 Qed.
 
 (* [Walker, p. 100] « f₁(x,y₁) = x^(-β₁).f(x,x^γ₁(c₁+y₁)) » *)
@@ -368,48 +370,48 @@ apply lap_mul_compat; [ idtac | reflexivity ].
 clear la lb Heq.
 remember (al f) as la; clear f Heqla.
 revert la.
-induction i; intros; simpl.
- rewrite lap_mul_1_r.
- constructor; [ idtac | reflexivity ].
- progress unfold Qnat; simpl.
- rewrite <- ps_mul_1_r in |- * at 1.
- apply ps_mul_compat_l.
- rewrite Qmult_0_l; reflexivity.
-
- destruct la as [| a]; simpl.
-  rewrite lap_mul_assoc; simpl.
-(*
-  rewrite lap_eq_0.
-... coq bug here
-  rewrite lap_mul_nil_l.
-  rewrite lap_mul_nil_l.
+induction i; intros; simpl. {
+  rewrite lap_mul_1_r.
   constructor; [ idtac | reflexivity ].
-  simpl.
-  rewrite ps_mul_0_l; reflexivity.
-*)
-  (* turning around coq bug *)
+  progress unfold Qnat; simpl.
+  rewrite <- ps_mul_1_r in |- * at 1.
+  apply ps_mul_compat_l.
+  rewrite Qmult_0_l; reflexivity.
+}
+destruct la as [| a]; simpl. {
+  rewrite lap_mul_assoc; simpl.
+  (* turning around a bug of Coq 8.20.0 *)
   rewrite ps_mul_0_l; cbn.
   rewrite ps_mul_0_l; cbn.
   rewrite ps_add_0_l.
   rewrite length_monom_puiseux_series_pow; cbn.
   rewrite ps_mul_0_l.
   now rewrite ps_add_0_l.
-(**)
-
-  rewrite lap_mul_assoc.
-  rewrite lap_mul_shuffle0.
-  rewrite IHi.
-  progress unfold lap_mul; simpl.
-  rewrite summation_only_one; simpl.
+  (*
+  Check 1%nat.
+  rewrite lap_eq_0.
+  Check 1%nat.
+  rewrite lap_mul_nil_l.
+  rewrite lap_mul_nil_l.
   constructor; [ idtac | reflexivity ].
   simpl.
-  rewrite <- ps_mul_assoc.
-  apply ps_mul_compat_l.
-  rewrite ps_monom_mul_r_pow; symmetry.
-  rewrite ps_monom_mul_r_pow; symmetry.
-Check 1.
-  rewrite rng_mul_shuffle0; simpl.
-Check 1.
+  rewrite ps_mul_0_l; reflexivity.
+  *)
+}
+rewrite lap_mul_assoc.
+rewrite lap_mul_shuffle0.
+rewrite IHi.
+progress unfold lap_mul; simpl.
+rewrite summation_only_one; simpl.
+constructor; [ idtac | reflexivity ].
+simpl.
+rewrite <- ps_mul_assoc.
+apply ps_mul_compat_l.
+rewrite ps_monom_mul_r_pow; symmetry.
+rewrite ps_monom_mul_r_pow; symmetry.
+Check 1%nat.
+rewrite rng_mul_shuffle0; simpl.
+Check 1%nat.
 ...
   rewrite rng_mul_assoc; simpl.
   reflexivity.
