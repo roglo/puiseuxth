@@ -1666,23 +1666,29 @@ rewrite lap_mul_comm.
 apply lap_mul_compat_l.
 clear Hr HΨ.
 induction r. {
-  simpl; progress unfold summation; simpl.
+  simpl.
+  progress unfold summation; simpl.
+  (* getting around a bug of Coq 8.20.0 *)
+  rewrite ps_mul_0_l.
+  do 2 rewrite ps_add_0_l.
+  (*
   Check 1%nat.
   rewrite rng_mul_0_l.
   Check 1%nat.
-...
   rewrite rng_add_0_l, rng_add_0_l.
+  *)
   reflexivity.
-
- rewrite <- Nat.add_1_r.
- unfold ps_lap_pow.
- do 2 rewrite lap_power_add.
- do 2 rewrite lap_power_1.
- rewrite lap_compose_mul.
- rewrite IHr.
- apply lap_mul_compat_l; simpl.
- progress unfold summation; simpl.
- rewrite rng_mul_0_l, rng_add_0_l, rng_add_0_l.
+}
+rewrite <- Nat.add_1_r.
+unfold ps_lap_pow.
+do 2 rewrite lap_power_add.
+do 2 rewrite lap_power_1.
+rewrite lap_compose_mul.
+rewrite IHr.
+apply lap_mul_compat_l; simpl.
+progress unfold summation; simpl.
+rewrite rng_mul_0_l, rng_add_0_l, rng_add_0_l.
+...
  rewrite rng_add_0_r, rng_add_0_r, rng_mul_1_r.
  constructor; [ idtac | reflexivity ].
  rewrite ps_mul_1_l, ps_monom_opp, ps_add_opp_r.
