@@ -227,7 +227,7 @@ induction n; simpl. {
   progress unfold Qnat; simpl.
   now apply ps_monom_qeq_morph.
 }
-(* turning around a bug of Coq 8.20.0 *)
+(* getting around a bug of Coq 8.20.0 *)
 rewrite (ps_mul_comm _ (ps_monom 1%K p)).
 rewrite ps_mul_assoc.
 (*
@@ -306,12 +306,12 @@ apply lap_mul_compat; [ reflexivity | idtac ].
 apply lap_compose_compat; [ reflexivity | idtac ].
 progress unfold ps_lap_mul, lap_mul; simpl.
 progress unfold summation; simpl.
-(* turning around a bug of Coq 8.20.0 *)
+(* getting around a bug of Coq 8.20.0 *)
 rewrite ps_mul_0_l.
 (*
-Check 1.
+Check 1%nat.
 rewrite rng_mul_0_l.
-Check 1.
+Check 1%nat.
 *)
 do 3 rewrite ps_add_0_r.
 simpl.
@@ -380,7 +380,7 @@ induction i; intros; simpl. {
 }
 destruct la as [| a]; simpl. {
   rewrite lap_mul_assoc; simpl.
-  (* turning around a bug of Coq 8.20.0 *)
+  (* getting around a bug of Coq 8.20.0 *)
   rewrite ps_mul_0_l; cbn.
   rewrite ps_mul_0_l; cbn.
   rewrite ps_add_0_l.
@@ -409,6 +409,8 @@ rewrite <- ps_mul_assoc.
 apply ps_mul_compat_l.
 rewrite ps_monom_mul_r_pow; symmetry.
 rewrite ps_monom_mul_r_pow; symmetry.
+(* getting around a bug of Coq 8.20.0 *)
+...
 Check 1%nat.
 rewrite rng_mul_shuffle0; simpl.
 Check 1%nat.
