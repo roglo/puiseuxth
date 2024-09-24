@@ -1340,200 +1340,199 @@ assert (∀ iq αi, (iq, αi) ∈ pl → ∃ i, iq = Qnat i) as Hnat. {
   intros iq αi Hip.
   eapply L_nat; [ eassumption | reflexivity | idtac ].
   subst pl; eassumption.
-...
- remember (List.map (λ pt, nat_num (fst pt)) pl) as li eqn:Hli .
- assert (Sorted Nat.lt li) as Hs.
+}
+remember (List.map (λ pt, nat_num (fst pt)) pl) as li eqn:Hli .
+assert (Sorted Nat.lt li) as Hs. {
   remember HL as Hsort; clear HeqHsort.
   apply ini_oth_fin_pts_sorted in Hsort.
   rewrite <- Hpl in Hsort.
   revert Hsort Hli Hnat; clear; intros.
   subst li.
-  induction pl as [| (i, ai)]; simpl; constructor.
-   apply Sorted_inv_1 in Hsort.
-   apply IHpl; [ assumption | idtac ].
-   intros iq αi H.
-   eapply Hnat.
-   right; eassumption.
-
-   apply Sorted_inv in Hsort.
-   destruct Hsort as (_, Hrel).
-   revert Hrel Hnat; clear; intros.
-   revert i ai Hrel Hnat.
-   induction pl as [| (j, aj)]; intros; simpl; constructor.
-   apply HdRel_inv in Hrel.
-   progress unfold fst_lt in Hrel; simpl in Hrel.
-   progress unfold Nat.lt; simpl.
-   assert (∃ im : nat, i = Qnat im) as H.
+  induction pl as [| (i, ai)]; simpl; constructor. {
+    apply Sorted_inv_1 in Hsort.
+    apply IHpl; [ assumption | idtac ].
+    intros iq αi H.
+    eapply Hnat.
+    right; eassumption.
+  }
+  apply Sorted_inv in Hsort.
+  destruct Hsort as (_, Hrel).
+  revert Hrel Hnat; clear; intros.
+  revert i ai Hrel Hnat.
+  induction pl as [| (j, aj)]; intros; simpl; constructor.
+  apply HdRel_inv in Hrel.
+  progress unfold fst_lt in Hrel; simpl in Hrel.
+  progress unfold Nat.lt; simpl.
+  assert (∃ im : nat, i = Qnat im) as H. {
     eapply Hnat; left; reflexivity.
-
-    destruct H as (im, H); subst i; rename im into i.
-    assert (∃ jm : nat, j = Qnat jm) as H.
-     eapply Hnat; right; left; reflexivity.
-
-     destruct H as (jm, H); subst j; rename jm into j.
-     do 2 rewrite nat_num_Qnat.
-     apply Qnat_lt; assumption.
-
-  assert (∀ m, m ∈ li → (j ≤ m)%nat) as Hm.
-   intros m Hm.
-   rewrite Hpl in Hli.
-   simpl in Hli.
-   rewrite Hini in Hli; simpl in Hli.
-   rewrite nat_num_Qnat in Hli; simpl in Hli.
-   rewrite Hli in Hs, Hm.
-   destruct Hm as [Hm| Hm].
+  }
+  destruct H as (im, H); subst i; rename im into i.
+  assert (∃ jm : nat, j = Qnat jm) as H. {
+    eapply Hnat; right; left; reflexivity.
+  }
+  destruct H as (jm, H); subst j; rename jm into j.
+  do 2 rewrite nat_num_Qnat.
+  apply Qnat_lt; assumption.
+}
+assert (∀ m, m ∈ li → (j ≤ m)%nat) as Hm. {
+  intros m Hm.
+  rewrite Hpl in Hli.
+  simpl in Hli.
+  rewrite Hini in Hli; simpl in Hli.
+  rewrite nat_num_Qnat in Hli; simpl in Hli.
+  rewrite Hli in Hs, Hm.
+  destruct Hm as [Hm| Hm]. {
     rewrite Hm; reflexivity.
-
-    apply Sorted_inv in Hs.
-    destruct Hs as (Hs, Hrel).
-    remember (oth_pts L ++ [fin_pt L]) as pl1.
-    remember (List.map (λ pt : Q * Q, nat_num (fst pt)) pl1) as jl.
-    revert Hs Hrel Hm; clear; intros.
-    revert j m Hrel Hm.
-    induction jl as [| i]; intros; [ contradiction | simpl ].
-    destruct Hm as [H| H].
-     subst i.
-     apply HdRel_inv in Hrel.
-     progress unfold Nat.lt in Hrel.
-     apply Nat.lt_le_incl; assumption.
-
-     apply Nat.le_trans with (m := i).
-      apply HdRel_inv in Hrel.
-      apply Nat.lt_le_incl; assumption.
-
-      apply Sorted_inv in Hs.
-      destruct Hs as (Hs, Hrel').
-      apply IHjl; assumption.
-
-   remember HL as Hfin; clear HeqHfin.
-   apply exists_fin_pt_nat in Hfin.
-   destruct Hfin as (k, (αk, Hfin)).
-   progress unfold poly_inject_K_in_Kx.
-   progress unfold lap_inject_K_in_Kx.
-   remember List.map as lm; simpl.
-   rewrite Hini; simpl.
-   rewrite nat_num_Qnat; simpl.
-   rewrite Nat.sub_diag; simpl.
-   progress unfold ps_pol_eq, eq_poly; simpl.
-   rewrite fold_char_pol with (αj := αj); rewrite <- Hini, <- Hpl.
-   subst lm; simpl.
-   rewrite <- Htl.
-   remember [ps_monom c₁ 0; 1%ps … []] as la eqn:Hla .
-   rewrite lap_compose_compose2.
-   progress unfold lap_compose2.
-   progress unfold lap_summation.
-   rewrite lap_mul_fold_add_distr; simpl.
-   rewrite List.map_length.
-   subst l.
-   erewrite length_char_pol; try eassumption.
-   rewrite Htl, List.map_map.
-   symmetry.
-   rewrite lap_fold_compat_l; [ idtac | rewrite lap_mul_nil_r; reflexivity ].
-   rewrite List.map_ext with (g := λ x, nat_num (fst x));
-    [ idtac | reflexivity ].
-   rewrite fold_right_exists; try eassumption.
-    rewrite list_fold_right_seq with (t := j); try reflexivity.
-     intros i a b Hab.
-     rewrite Hab; reflexivity.
-
-     intros i accu; simpl.
-     remember (List.existsb (λ pt, Nat.eqb (j + i) (nat_num (fst pt))) pl) as b.
-     rename Heqb into Hb.
-     symmetry in Hb.
-     destruct b.
-      apply lap_add_compat; [ reflexivity | idtac ].
-      symmetry; rewrite lap_mul_comm; symmetry.
-      rewrite lap_power_add, <- lap_mul_assoc.
-      apply lap_mul_compat; [ reflexivity | idtac ].
-      rewrite lap_mul_comm.
-      apply lap_mul_compat; [ reflexivity | idtac ].
-      constructor; [ idtac | reflexivity ].
-      apply List.existsb_exists in Hb.
-      destruct Hb as ((hq, ah), (Hh, Hjh)); simpl in Hjh.
-      remember Hpl as Hpts; clear HeqHpts.
-      eapply L_nat in Hpts; try eassumption.
-      destruct Hpts as (h, H); subst hq.
-      rewrite nat_num_Qnat in Hjh; simpl in Hjh.
-      apply Nat.eqb_eq in Hjh.
-      rewrite Hjh.
-      rewrite rng_list_map_nth with (A := α) (d := 0%K).
-       progress unfold ps_monom, ps_monom; simpl.
-       apply mkps_morphism; try reflexivity.
-       constructor; intros l; simpl.
-       destruct l; [ simpl | reflexivity ].
-       rewrite <- Hjh.
-       rewrite make_char_pol_of_pts_eq.
-       progress unfold make_char_pol_of_pts.
-       rewrite coeff_of_term_pt_eq.
-       progress unfold coeff_of_pt.
-       remember HL as Hsort; clear HeqHsort.
-       apply ini_oth_fin_pts_sorted in Hsort.
-       rewrite <- Hpl in Hsort.
-       rewrite <- Hli.
-       assert ((j + i)%nat ∈ li) as Hjil.
+  }
+  apply Sorted_inv in Hs.
+  destruct Hs as (Hs, Hrel).
+  remember (oth_pts L ++ [fin_pt L]) as pl1.
+  remember (List.map (λ pt : Q * Q, nat_num (fst pt)) pl1) as jl.
+  revert Hs Hrel Hm; clear; intros.
+  revert j m Hrel Hm.
+  induction jl as [| i]; intros; [ contradiction | simpl ].
+  destruct Hm as [H| H]. {
+    subst i.
+    apply HdRel_inv in Hrel.
+    progress unfold Nat.lt in Hrel.
+    apply Nat.lt_le_incl; assumption.
+  }
+  apply Nat.le_trans with (m := i). {
+    apply HdRel_inv in Hrel.
+    apply Nat.lt_le_incl; assumption.
+  }
+  apply Sorted_inv in Hs.
+  destruct Hs as (Hs, Hrel').
+  apply IHjl; assumption.
+}
+remember HL as Hfin; clear HeqHfin.
+apply exists_fin_pt_nat in Hfin.
+destruct Hfin as (k, (αk, Hfin)).
+progress unfold poly_inject_K_in_Kx.
+progress unfold lap_inject_K_in_Kx.
+remember List.map as lm; simpl.
+rewrite Hini; simpl.
+rewrite nat_num_Qnat; simpl.
+rewrite Nat.sub_diag; simpl.
+progress unfold ps_pol_eq, eq_poly; simpl.
+rewrite fold_char_pol with (αj := αj); rewrite <- Hini, <- Hpl.
+subst lm; simpl.
+rewrite <- Htl.
+remember [ps_monom c₁ 0; 1%ps … []] as la eqn:Hla .
+rewrite lap_compose_compose2.
+progress unfold lap_compose2.
+progress unfold lap_summation.
+rewrite lap_mul_fold_add_distr; simpl.
+rewrite List.length_map.
+subst l.
+erewrite length_char_pol; try eassumption.
+rewrite Htl, List.map_map.
+symmetry.
+rewrite lap_fold_compat_l; [ idtac | rewrite lap_mul_nil_r; reflexivity ].
+rewrite List.map_ext with (g := λ x, nat_num (fst x)); [ | easy ].
+rewrite fold_right_exists; try eassumption. {
+  rewrite list_fold_right_seq with (t := j); try reflexivity. {
+    intros i a b Hab.
+    rewrite Hab; reflexivity.
+  }
+  intros i accu; simpl.
+  remember (List.existsb (λ pt, Nat.eqb (j + i) (nat_num (fst pt))) pl) as b.
+  rename Heqb into Hb.
+  symmetry in Hb.
+  destruct b. {
+    apply lap_add_compat; [ reflexivity | idtac ].
+    symmetry; rewrite lap_mul_comm; symmetry.
+    rewrite lap_power_add, <- lap_mul_assoc.
+    apply lap_mul_compat; [ reflexivity | idtac ].
+    rewrite lap_mul_comm.
+    apply lap_mul_compat; [ reflexivity | idtac ].
+    constructor; [ idtac | reflexivity ].
+    apply List.existsb_exists in Hb.
+    destruct Hb as ((hq, ah), (Hh, Hjh)); simpl in Hjh.
+    remember Hpl as Hpts; clear HeqHpts.
+    eapply L_nat in Hpts; try eassumption.
+    destruct Hpts as (h, H); subst hq.
+    rewrite nat_num_Qnat in Hjh; simpl in Hjh.
+    apply Nat.eqb_eq in Hjh.
+    rewrite Hjh.
+    rewrite rng_list_map_nth with (A := α) (d := 0%K). {
+      progress unfold ps_monom, ps_monom; simpl.
+      apply mkps_morphism; try reflexivity.
+      constructor; intros l; simpl.
+      destruct l; [ simpl | reflexivity ].
+      rewrite <- Hjh.
+      rewrite make_char_pol_of_pts_eq.
+      progress unfold make_char_pol_of_pts.
+      rewrite coeff_of_term_pt_eq.
+      progress unfold coeff_of_pt.
+      remember HL as Hsort; clear HeqHsort.
+      apply ini_oth_fin_pts_sorted in Hsort.
+      rewrite <- Hpl in Hsort.
+      rewrite <- Hli.
+      assert ((j + i)%nat ∈ li) as Hjil. {
         subst li; rewrite Hjh; simpl.
         revert Hh; clear; intros.
         induction pl as [| (m, am)]; [ contradiction | simpl ].
-        destruct Hh as [Hh| Hh].
-         injection Hh; clear Hh; intros; subst m am.
-         rewrite nat_num_Qnat; left; reflexivity.
-
-         right; apply IHpl; assumption.
-
-        apply nth_char_lap_eq_coeff; assumption.
-
-       rewrite ps_zero_monom_eq; reflexivity.
-
-      rewrite rng_list_map_nth with (A := α) (d := 0%K).
-       rewrite <- Htl.
-       assert (List.nth i (make_char_pol R j tl) 0%K = 0%K) as Hz.
-        rewrite Htl; simpl.
-        rewrite make_char_pol_of_pts_eq.
-        progress unfold make_char_pol_of_pts.
-        remember HL as Hsort; clear HeqHsort.
-        apply ini_oth_fin_pts_sorted in Hsort.
-        rewrite <- Hpl in Hsort.
-        rewrite <- Hli.
-        assert ((j + i)%nat ∉ li) as Hjil.
-         subst li.
-         revert Hb; clear; intros.
-         intros H; revert Hb.
-         apply eq_true_false_abs.
-         apply List.existsb_exists.
-         revert i j H.
-         induction pl as [| (m, am)]; intros; [ contradiction | simpl ].
-         simpl in H.
-         destruct H as [H| H].
+        destruct Hh as [Hh| Hh]. {
+          injection Hh; clear Hh; intros; subst m am.
+          rewrite nat_num_Qnat; left; reflexivity.
+        }
+        right; apply IHpl; assumption.
+      }
+      apply nth_char_lap_eq_coeff; assumption.
+    }
+    rewrite ps_zero_monom_eq; reflexivity.
+  }
+  rewrite rng_list_map_nth with (A := α) (d := 0%K). {
+    rewrite <- Htl.
+    assert (List.nth i (make_char_pol R j tl) 0%K = 0%K) as Hz. {
+      rewrite Htl; simpl.
+      rewrite make_char_pol_of_pts_eq.
+      progress unfold make_char_pol_of_pts.
+      remember HL as Hsort; clear HeqHsort.
+      apply ini_oth_fin_pts_sorted in Hsort.
+      rewrite <- Hpl in Hsort.
+      rewrite <- Hli.
+      assert ((j + i)%nat ∉ li) as Hjil. {
+        subst li.
+        revert Hb; clear; intros.
+        intros H; revert Hb.
+        apply eq_true_false_abs.
+        apply List.existsb_exists.
+        revert i j H.
+        induction pl as [| (m, am)]; intros; [ contradiction | simpl ].
+        simpl in H.
+        destruct H as [H| H]. {
           exists (m, am); split; [ left; reflexivity | simpl ].
           rewrite H, Nat.eqb_eq; reflexivity.
-
-          apply IHpl in H.
-          destruct H as (x, (Hpl, H)).
-          exists x; split; [ right; assumption | assumption ].
-
-         rewrite Hpl in Hli.
-         simpl in Hli.
-         rewrite Hini in Hli; simpl in Hli.
-         rewrite nat_num_Qnat in Hli.
-         remember (oth_pts L ++ [fin_pt L]) as pl'.
-         remember (List.map (λ pt, nat_num (fst pt)) pl') as li'.
-         subst li; rename li' into li.
-         apply nth_char_lap_eq_0; try assumption.
-         intros m Hm2.
-         apply Hm; right; assumption.
-
-        rewrite Hz; simpl.
-        set (f' := ps_ring K).
-        rewrite lap_eq_cons_nil; [ idtac | simpl | reflexivity ].
-         rewrite lap_mul_nil_l, lap_mul_nil_r, lap_add_nil_r; reflexivity.
-
-         apply ps_zero_monom_eq.
-
-       rewrite ps_zero_monom_eq; reflexivity.
-
-    intros i a b Hab.
-    unfold ps_lap_eq in Hab; unfold ps_lap_eq.
-    rewrite Hab; reflexivity.
+        }
+        apply IHpl in H.
+        destruct H as (x, (Hpl, H)).
+        exists x; split; [ right; assumption | assumption ].
+      }
+      rewrite Hpl in Hli.
+      simpl in Hli.
+      rewrite Hini in Hli; simpl in Hli.
+      rewrite nat_num_Qnat in Hli.
+      remember (oth_pts L ++ [fin_pt L]) as pl'.
+      remember (List.map (λ pt, nat_num (fst pt)) pl') as li'.
+      subst li; rename li' into li.
+      apply nth_char_lap_eq_0; try assumption.
+      intros m Hm2.
+      apply Hm; right; assumption.
+    }
+    rewrite Hz; simpl.
+    set (f' := ps_ring K).
+    rewrite lap_eq_cons_nil; [ idtac | simpl | reflexivity ]. {
+      rewrite lap_mul_nil_l, lap_mul_nil_r, lap_add_nil_r; reflexivity.
+    }
+    apply ps_zero_monom_eq.
+  }
+  rewrite ps_zero_monom_eq; reflexivity.
+}
+intros i a b Hab.
+unfold ps_lap_eq in Hab; unfold ps_lap_eq.
+rewrite Hab; reflexivity.
 Qed.
 
 Theorem ps_monom_summation_aux : ∀ f b len,
@@ -1554,7 +1553,7 @@ Theorem lap_mul_map_ps : ∀ la lb,
 Proof.
 intros la lb.
 progress unfold ps_lap_eq, ps_lap_mul, lap_mul; simpl.
-do 2 rewrite List.map_length.
+do 2 rewrite List.length_map.
 remember (pred (length la + length lb)) as len.
 clear Heqlen.
 remember 0%nat as n; clear Heqn.
@@ -1566,11 +1565,11 @@ unfold summation.
 rewrite ps_monom_summation_aux.
 apply summation_compat; intros i (_, Hi); simpl.
 rewrite ps_monom_mul_l.
-rewrite rng_list_map_nth.
- rewrite rng_list_map_nth; [ reflexivity | idtac ].
- rewrite ps_zero_monom_eq; reflexivity.
-
- rewrite ps_zero_monom_eq; reflexivity.
+rewrite rng_list_map_nth. {
+  rewrite rng_list_map_nth; [ reflexivity | idtac ].
+  rewrite ps_zero_monom_eq; reflexivity.
+}
+rewrite ps_zero_monom_eq; reflexivity.
 Qed.
 
 Theorem poly_inject_inj_mul : ∀ P Q,
@@ -1584,10 +1583,10 @@ Qed.
 Theorem Ψ_length : ∀ f L j k αj αk c₁ r Ψ,
   newton_segments f = Some L
   → ini_pt L = (Qnat j, αj)
-    → fin_pt L = (Qnat k, αk)
-      → r = root_multiplicity acf c₁ (Φq f L)
-        → Ψ = quotient_phi_x_sub_c_pow_r (Φq f L) c₁ r
-          → length (al Ψ) = (S (k - j) - r)%nat.
+  → fin_pt L = (Qnat k, αk)
+  → r = root_multiplicity acf c₁ (Φq f L)
+  → Ψ = quotient_phi_x_sub_c_pow_r (Φq f L) c₁ r
+  → length (al Ψ) = (S (k - j) - r)%nat.
 Proof.
 intros f L j k αj αk c₁ r Ψ HL Hini Hfin Hr HΨ.
 subst Ψ.
@@ -1635,19 +1634,19 @@ Qed.
 Theorem phi_c₁y₁_psi : ∀ f L pl tl l c₁ r Ψ j αj,
   newton_segments f = Some L
   → ac_root (Φq f L) = c₁
-    → r = root_multiplicity acf c₁ (Φq f L)
-      → Ψ = quotient_phi_x_sub_c_pow_r (Φq f L) c₁ r
-        → pl = [ini_pt L … oth_pts L ++ [fin_pt L]]
-          → tl = List.map (term_of_point f) pl
-            → l = List.map (λ t, power t) tl
-              → ini_pt L = (Qnat j, αj)
-                → (POL [ps_monom c₁ 0; 1%ps … []] ^ j *
-                   ps_pol_comp (poly_inject_K_in_Kx (Φq f L))
-                     (POL [ps_monom c₁ 0; 1%ps … []]) =
-                   POL [0%ps; 1%ps … []] ^ r *
-                   POL [ps_monom c₁ 0; 1%ps … []] ^ j *
-                   ps_pol_comp (poly_inject_K_in_Kx Ψ)
-                     (POL [ps_monom c₁ 0; 1%ps … []]))%pspol.
+  → r = root_multiplicity acf c₁ (Φq f L)
+  → Ψ = quotient_phi_x_sub_c_pow_r (Φq f L) c₁ r
+  → pl = [ini_pt L … oth_pts L ++ [fin_pt L]]
+  → tl = List.map (term_of_point f) pl
+  → l = List.map (λ t, power t) tl
+  → ini_pt L = (Qnat j, αj)
+  → (POL [ps_monom c₁ 0; 1%ps … []] ^ j *
+      ps_pol_comp (poly_inject_K_in_Kx (Φq f L))
+        (POL [ps_monom c₁ 0; 1%ps … []]) =
+       POL [0%ps; 1%ps … []] ^ r *
+       POL [ps_monom c₁ 0; 1%ps … []] ^ j *
+       ps_pol_comp (poly_inject_K_in_Kx Ψ)
+         (POL [ps_monom c₁ 0; 1%ps … []]))%pspol.
 Proof.
 intros f L pl tl l c₁ r Ψ j αj HL Hc₁ Hr HΨ Hpl Htl Hl Hini.
 remember HL as Hfin; clear HeqHfin.
@@ -1666,9 +1665,10 @@ symmetry.
 rewrite lap_mul_comm.
 apply lap_mul_compat_l.
 clear Hr HΨ.
-induction r.
- simpl; progress unfold summation; simpl.
- rewrite rng_mul_0_l, rng_add_0_l, rng_add_0_l.
+induction r. {
+  simpl; progress unfold summation; simpl.
+  rewrite rng_mul_0_l, rng_add_0_l, rng_add_0_l.
+...
  reflexivity.
 
  rewrite <- Nat.add_1_r.
