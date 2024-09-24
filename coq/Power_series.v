@@ -198,15 +198,15 @@ Proof.
 intros s.
 constructor; intros k; simpl.
 unfold convol_mul; simpl.
-rewrite summation_only_one_non_0 with (v := O).
- rewrite Nat.sub_0_r; simpl.
- apply rng_mul_1_l.
-
- split; [ reflexivity | apply Nat.le_0_l ].
-
- intros i Hik Hi.
- destruct i; [ exfalso; apply Hi; reflexivity | simpl ].
- apply rng_mul_0_l.
+rewrite summation_only_one_non_0 with (v := O). {
+  rewrite Nat.sub_0_r; simpl.
+  apply rng_mul_1_l.
+} {
+  split; [ reflexivity | apply Nat.le_0_l ].
+}
+intros i Hik Hi.
+destruct i; [ exfalso; apply Hi; reflexivity | simpl ].
+apply rng_mul_0_l.
 Qed.
 
 Theorem series_mul_assoc : ∀ a b c,
