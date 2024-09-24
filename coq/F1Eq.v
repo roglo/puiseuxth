@@ -1687,12 +1687,16 @@ rewrite lap_compose_mul.
 rewrite IHr.
 apply lap_mul_compat_l; simpl.
 progress unfold summation; simpl.
+(* getting around a bug of Coq 8.20.0 *)
+rewrite ps_mul_0_l, ps_add_0_l, ps_add_0_l.
+rewrite ps_add_0_r, ps_add_0_r, ps_mul_1_r.
+(*
 rewrite rng_mul_0_l, rng_add_0_l, rng_add_0_l.
-...
- rewrite rng_add_0_r, rng_add_0_r, rng_mul_1_r.
- constructor; [ idtac | reflexivity ].
- rewrite ps_mul_1_l, ps_monom_opp, ps_add_opp_r.
- reflexivity.
+rewrite rng_add_0_r, rng_add_0_r, rng_mul_1_r.
+*)
+constructor; [ idtac | reflexivity ].
+rewrite ps_mul_1_l, ps_monom_opp, ps_add_opp_r.
+reflexivity.
 Qed.
 
 (*
@@ -1704,31 +1708,31 @@ Qed.
 Theorem f₁_eq_term_with_Ψ_plus_sum : ∀ f L c₁ pl tl j αj l₁ l₂ r Ψ,
   newton_segments f = Some L
   → ac_root (Φq f L) = c₁
-    → r = root_multiplicity acf c₁ (Φq f L)
-      → Ψ = quotient_phi_x_sub_c_pow_r (Φq f L) c₁ r
-        → pl = [ini_pt L … oth_pts L ++ [fin_pt L]]
-          → tl = List.map (term_of_point f) pl
-            → l₁ = List.map (λ t, power t) tl
-              → split_list (List.seq 0 (length (al f))) l₁ l₂
-                → ini_pt L = (Qnat j, αj)
-                  → (next_pol f (β L) (γ L) c₁ =
-                     POL [0%ps; 1%ps … []] ^ r *
-                     POL [ps_monom c₁ 0; 1%ps … []] ^ j *
-                     poly_inject_K_in_Kx Ψ ∘ POL [ps_monom c₁ 0; 1%ps … []] +
-                     POL [ps_monom 1%K (- β L)] *
-                     (ps_pol_summ ps_field l₁
-                        (λ h,
-                         let āh := ps_poly_nth h f in
-                         let ah := ps_monom (coeff_of_term h tl) 0 in
-                         let αh := ord_of_pt h pl in
-                         POL [((āh - ah * ps_monom 1%K αh) *
-                         ps_monom 1%K (Qnat h * γ L))%ps] *
-                         POL [ps_monom c₁ 0; 1%ps … []] ^ h) +
-                      ps_pol_summ ps_field l₂
-                        (λ l,
-                         let āl := ps_poly_nth l f in
-                         POL [(āl * ps_monom 1%K (Qnat l * γ L))%ps] *
-                         POL [ps_monom c₁ 0; 1%ps … []] ^ l)))%pspol.
+  → r = root_multiplicity acf c₁ (Φq f L)
+  → Ψ = quotient_phi_x_sub_c_pow_r (Φq f L) c₁ r
+  → pl = [ini_pt L … oth_pts L ++ [fin_pt L]]
+  → tl = List.map (term_of_point f) pl
+  → l₁ = List.map (λ t, power t) tl
+  → split_list (List.seq 0 (length (al f))) l₁ l₂
+  → ini_pt L = (Qnat j, αj)
+  → (next_pol f (β L) (γ L) c₁ =
+       POL [0%ps; 1%ps … []] ^ r *
+       POL [ps_monom c₁ 0; 1%ps … []] ^ j *
+       poly_inject_K_in_Kx Ψ ∘ POL [ps_monom c₁ 0; 1%ps … []] +
+         POL [ps_monom 1%K (- β L)] *
+           (ps_pol_summ ps_field l₁
+              (λ h,
+                let āh := ps_poly_nth h f in
+                let ah := ps_monom (coeff_of_term h tl) 0 in
+                let αh := ord_of_pt h pl in
+                POL [((āh - ah * ps_monom 1%K αh) *
+                ps_monom 1%K (Qnat h * γ L))%ps] *
+                POL [ps_monom c₁ 0; 1%ps … []] ^ h) +
+              ps_pol_summ ps_field l₂
+                (λ l,
+                  let āl := ps_poly_nth l f in
+                  POL [(āl * ps_monom 1%K (Qnat l * γ L))%ps] *
+                    POL [ps_monom c₁ 0; 1%ps … []] ^ l)))%pspol.
 Proof.
 intros f L c₁ pl tl j αj l₁ l₂ r Ψ HL Hc₁ Hr HΨ Hpl Htl Hl Hss Hini.
 rewrite f₁_eq_sum_without_x_β₁_plus_sum; try eassumption.
