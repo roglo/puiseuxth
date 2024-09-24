@@ -506,7 +506,7 @@ Global Hint Resolve Pos2Nat_ne_0 : Arith.
 
 Open Scope positive_scope.
 
-Theorem Pos_mul_shuffle0 : ∀ n m p, n * m * p = n * p * m.
+Theorem Pos_mul_mul_swap : ∀ n m p, n * m * p = n * p * m.
 Proof.
 intros n m p.
 rewrite <- Pos.mul_assoc.

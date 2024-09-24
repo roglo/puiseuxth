@@ -79,7 +79,7 @@ constructor; simpl.
  rewrite Nat2Z.inj_mul, positive_nat_Z.
  reflexivity.
 
- rewrite Pos.mul_assoc, Pos_mul_shuffle0.
+ rewrite Pos.mul_assoc, Pos_mul_mul_swap.
  reflexivity.
 
  rewrite stretch_shift_series_distr.
@@ -124,7 +124,7 @@ rewrite Z.mul_shuffle0 in Hx; rewrite <- Hx.
 rewrite Pos.mul_comm.
 remember (k * ps_polydo ps₁)%positive as y eqn:Hy .
 rewrite Pos.mul_comm in Hy; rewrite <- Hy.
-rewrite Pos_mul_shuffle0, <- Hy.
+rewrite Pos_mul_mul_swap, <- Hy.
 reflexivity.
 Qed.
 

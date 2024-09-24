@@ -133,7 +133,7 @@ induction m; intros; simpl.
  rewrite rng_add_0_l; reflexivity.
 
  rewrite IHm.
- apply rng_add_shuffle0.
+ apply rng_add_add_swap.
 Qed.
 
 Global Instance rng_mul_nat_morph α (r : ring α) :
@@ -179,7 +179,7 @@ induction la as [| a]; intros; simpl.
   rewrite IHla.
   do 2 rewrite rng_add_assoc.
   apply rng_add_compat_r.
-  rewrite rng_add_shuffle0.
+  rewrite rng_add_add_swap.
   rewrite rng_mul_add_distr_r; reflexivity.
 Qed.
 
@@ -224,10 +224,10 @@ induction la as [| a]; intros; simpl.
   do 2 rewrite <- rng_add_assoc.
   apply rng_add_compat.
    apply rng_mul_compat_r.
-   apply rng_mul_shuffle0.
+   apply rng_mul_mul_swap.
 
    apply rng_add_compat.
-    apply rng_mul_shuffle0.
+    apply rng_mul_mul_swap.
 
     apply rng_mul_compat_r.
     apply apply_lap_single.

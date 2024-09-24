@@ -436,7 +436,7 @@ revert n; induction k; intros.
  symmetry; rewrite rng_add_comm.
  symmetry.
  rewrite summation_aux_succ_first.
- rewrite rng_add_shuffle0, rng_add_comm.
+ rewrite rng_add_add_swap, rng_add_comm.
  symmetry.
  replace (S k) with (k + 1)%nat by fast_omega.
  rewrite summation_aux_ub_add.

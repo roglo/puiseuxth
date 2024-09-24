@@ -506,7 +506,7 @@ destruct n as [n| ]; simpl.
  split; intros H; [ discriminate H | destruct H; assumption ].
 Qed.
 
-Theorem add_shuffle0 : ∀ n m p, n + m + p = n + p + m.
+Theorem add_add_swap : ∀ n m p, n + m + p = n + p + m.
 Proof.
 intros n m p.
 destruct n as [n| ]; [ simpl | reflexivity ].
@@ -559,7 +559,7 @@ apply Nat.mul_eq_0_l in Hnm; [ subst n; reflexivity | idtac ].
 intros H; apply Hm; subst m; reflexivity.
 Qed.
 
-Theorem mul_shuffle0 : ∀ n m p, n * m * p = n * p * m.
+Theorem mul_mul_swap : ∀ n m p, n * m * p = n * p * m.
 Proof.
 intros n m p.
 destruct n as [n| ]; [ simpl | reflexivity ].

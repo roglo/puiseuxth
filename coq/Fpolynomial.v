@@ -683,7 +683,7 @@ induction al₁; intros.
    constructor; [ apply rng_add_assoc | apply IHal₁ ].
 Qed.
 
-Theorem lap_add_shuffle0 : ∀ la lb lc,
+Theorem lap_add_add_swap : ∀ la lb lc,
   lap_eq (lap_add (lap_add la lb) lc)
      (lap_add (lap_add la lc) lb).
 Proof.
@@ -838,7 +838,7 @@ rewrite Nat.add_comm, Nat.sub_add_distr.
 reflexivity.
 Qed.
 
-Theorem lap_mul_shuffle0 : ∀ la lb lc,
+Theorem lap_mul_mul_swap : ∀ la lb lc,
   lap_eq (lap_mul (lap_mul la lb) lc) (lap_mul (lap_mul la lc) lb).
 Proof.
 intros la lb lc.
@@ -1360,11 +1360,11 @@ induction la as [| a]; intros; simpl.
    rewrite <- lap_add_assoc.
    apply lap_add_compat.
     apply lap_mul_compat; [ idtac | reflexivity ].
-    rewrite lap_mul_shuffle0; reflexivity.
+    rewrite lap_mul_mul_swap; reflexivity.
 
     symmetry; rewrite lap_add_comm.
     apply lap_add_compat.
-     rewrite lap_mul_shuffle0; reflexivity.
+     rewrite lap_mul_mul_swap; reflexivity.
 
      apply lap_mul_compat; [ idtac | reflexivity ].
      symmetry.

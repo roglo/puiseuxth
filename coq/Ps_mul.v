@@ -357,7 +357,7 @@ rewrite <- Z.mul_add_distr_r.
 rewrite Nat.mul_comm.
 rewrite Nat2Z.inj_mul.
 rewrite positive_nat_Z.
-rewrite Pos_mul_shuffle0.
+rewrite Pos_mul_mul_swap.
 rewrite series_stretch_mul.
 rewrite stretch_shift_series_distr.
 do 3 rewrite <- series_stretch_stretch.
@@ -632,7 +632,7 @@ rewrite series_mul_comm.
 rewrite series_shift_mul.
 rewrite series_add_comm.
 replace (c₁ * c₃ * c₂)%positive with (c₁ * c₂ * c₃)%positive
- by apply Pos_mul_shuffle0.
+ by apply Pos_mul_mul_swap.
 rewrite <- series_mul_add_distr_r.
 rewrite series_mul_comm.
 do 2 rewrite Pos2Z.inj_mul, Z.mul_assoc.
@@ -652,12 +652,12 @@ rewrite <- Z.mul_min_distr_nonneg_r; [ idtac | apply Pos2Z.is_nonneg ].
 rewrite Pos.mul_assoc.
 do 2 f_equal.
 f_equal.
- rewrite Pos_mul_shuffle0.
+ rewrite Pos_mul_mul_swap.
  do 2 f_equal.
  f_equal; [ ring | idtac ].
  f_equal; ring.
 
- rewrite Pos_mul_shuffle0.
+ rewrite Pos_mul_mul_swap.
  do 2 f_equal.
  f_equal; [ ring | idtac ].
  f_equal; ring.
@@ -716,7 +716,7 @@ unfold cm; simpl.
 unfold cm_factor.
 rewrite Pos.mul_1_r.
 do 2 rewrite Pos.mul_assoc.
-rewrite Pos_mul_shuffle0.
+rewrite Pos_mul_mul_swap.
 reflexivity.
 Qed.
 
@@ -765,7 +765,7 @@ rewrite <- Z.mul_min_distr_nonneg_r; [ idtac | apply Pos2Z.is_nonneg ].
 rewrite series_add_comm.
 do 2 rewrite <- series_stretch_stretch.
 rewrite Pos.mul_assoc.
-rewrite Pos_mul_shuffle0.
+rewrite Pos_mul_mul_swap.
 remember (v₂ * Zpos c₁ * Zpos c₁ * Zpos c₃)%Z as x.
 replace (v₂ * Zpos c₃ * Zpos c₁ * Zpos c₁)%Z with x by (subst; ring).
 subst x.
@@ -773,10 +773,10 @@ remember (v₃ * Zpos c₁ * Zpos c₁ * Zpos c₂)%Z as x.
 replace (v₃ * Zpos c₂ * Zpos c₁ * Zpos c₁)%Z with x by (subst; ring).
 subst x.
 remember (c₁ * c₃ * c₁)%positive as x.
-rewrite Pos_mul_shuffle0 in Heqx.
+rewrite Pos_mul_mul_swap in Heqx.
 subst x.
 remember (c₁ * c₂ * c₁)%positive as x.
-rewrite Pos_mul_shuffle0 in Heqx.
+rewrite Pos_mul_mul_swap in Heqx.
 subst x.
 reflexivity.
 Qed.

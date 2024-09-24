@@ -201,7 +201,7 @@ induction l as [| n]; intros; simpl. {
   inversion Hss; subst; reflexivity.
 }
 inversion Hss; subst; simpl. {
-  rewrite lap_add_shuffle0.
+  rewrite lap_add_add_swap.
   rewrite IHl; [ reflexivity | assumption ].
 } {
   rewrite lap_add_assoc.
@@ -233,7 +233,7 @@ rewrite ps_mul_assoc.
 (*
 rewrite ps_mul_assoc.
 Check 1%nat.
-rewrite rng_mul_shuffle0.
+rewrite rng_mul_mul_swap.
 Check 1%nat.
 *)
 rewrite <- IHn.
@@ -269,7 +269,7 @@ progress unfold poly_summation, eq_poly; simpl.
 induction l as [| i]; intros; [ reflexivity | simpl ].
 do 2 rewrite lap_add_assoc.
 apply lap_add_compat; [ idtac | reflexivity ].
-rewrite lap_add_shuffle0.
+rewrite lap_add_add_swap.
 apply lap_add_compat; [ assumption | reflexivity ].
 Qed.
 
@@ -399,7 +399,7 @@ destruct la as [| a]; simpl. {
   *)
 }
 rewrite lap_mul_assoc.
-rewrite lap_mul_shuffle0.
+rewrite lap_mul_mul_swap.
 rewrite IHi.
 progress unfold lap_mul; simpl.
 rewrite summation_only_one; simpl.
@@ -414,7 +414,7 @@ do 2 rewrite ps_mul_1_l.
 apply ps_mul_comm.
 (*
 Check 1%nat.
-rewrite rng_mul_shuffle0; simpl.
+rewrite rng_mul_mul_swap; simpl.
 Check 1%nat.
 rewrite rng_mul_assoc; simpl.
 reflexivity.
@@ -1734,4 +1734,3 @@ reflexivity.
 Qed.
 
 End theorems.
-6
