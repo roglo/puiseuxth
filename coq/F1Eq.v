@@ -1667,9 +1667,12 @@ apply lap_mul_compat_l.
 clear Hr HΨ.
 induction r. {
   simpl; progress unfold summation; simpl.
-  rewrite rng_mul_0_l, rng_add_0_l, rng_add_0_l.
+  Check 1%nat.
+  rewrite rng_mul_0_l.
+  Check 1%nat.
 ...
- reflexivity.
+  rewrite rng_add_0_l, rng_add_0_l.
+  reflexivity.
 
  rewrite <- Nat.add_1_r.
  unfold ps_lap_pow.
