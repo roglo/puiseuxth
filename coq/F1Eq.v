@@ -1216,103 +1216,103 @@ destruct i. {
   destruct Hjil as (Hjji, Hjil).
   rewrite Nat.add_0_r in Hjji.
   exfalso; apply Hjji; reflexivity.
-
- revert i j Hjil Hs Hm.
- induction li as [| n]; intros; simpl.
+}
+revert i j Hjil Hs Hm.
+induction li as [| n]; intros; simpl. {
   rewrite match_id; reflexivity.
-
-  destruct (le_dec (n - S j) i) as [H₁| H₁].
-   rewrite list_nth_pad_sub; [ idtac | assumption ].
-   simpl in Hjil.
-   apply Decidable.not_or in Hjil.
-   destruct Hjil as (Hjji, Hjil).
-   remember (i - (n - S j))%nat as p eqn:Hp .
-   symmetry in Hp.
-   destruct p; simpl.
+}
+destruct (le_dec (n - S j) i) as [H₁| H₁]. {
+  rewrite list_nth_pad_sub; [ idtac | assumption ].
+  simpl in Hjil.
+  apply Decidable.not_or in Hjil.
+  destruct Hjil as (Hjji, Hjil).
+  remember (i - (n - S j))%nat as p eqn:Hp .
+  symmetry in Hp.
+  destruct p; simpl. {
     assert (n ≤ i + S j)%nat as Hnij by (apply Nat.le_sub_le_add_r; auto).
-    assert (S j ≤ n).
-     destruct (eq_nat_dec j n) as [H| H].
-      subst n.
-      apply Sorted_inv in Hs.
-      destruct Hs as (_, Hrel).
-      apply HdRel_inv in Hrel.
-      exfalso; revert Hrel; apply Nat.lt_irrefl.
-
-      assert (j ≤ n) as Hj; [ idtac | fast_omega H Hj ].
-      apply Hm; left; reflexivity.
-
-     exfalso; revert Hjil Hp Hnij H; clear; intros.
-     apply Decidable.not_or in Hjil.
-     destruct Hjil as (Hnji, _).
-     apply Hnji; clear Hnji.
-     apply Nat.sub_0_le in Hp.
-     rewrite Nat.add_comm, Nat.add_succ_l, <- Nat.add_succ_r.
-     apply Nat.le_antisymm; auto with Arith.
-     apply Nat.add_le_mono_r with (p := S j) in Hp.
-     rewrite Nat.sub_add in Hp; auto with Arith.
-
-    apply IHli.
-     simpl.
-     intros H.
-     destruct H as [H| H]; [ fast_omega H | idtac ].
-     apply Decidable.not_or in Hjil.
-     destruct Hjil as (Hnji, Hjil).
-     replace (n + S p)%nat with (j + S i)%nat in H .
-      apply Hjil; assumption.
-
-      rewrite <- Hp.
-      rewrite Nat.add_sub_assoc; [ idtac | assumption ].
-      rewrite Nat_sub_sub_distr.
-       symmetry.
-       rewrite <- Nat.add_assoc, Nat.add_comm.
-       rewrite Nat.add_sub.
-       do 2 rewrite Nat.add_succ_r.
-       rewrite Nat.add_comm; reflexivity.
-
-       rename H into H₂.
-       destruct (eq_nat_dec j n) as [H| H].
+    assert (S j ≤ n). {
+      destruct (eq_nat_dec j n) as [H| H]. {
         subst n.
         apply Sorted_inv in Hs.
         destruct Hs as (_, Hrel).
         apply HdRel_inv in Hrel.
         exfalso; revert Hrel; apply Nat.lt_irrefl.
-
-        assert (j ≤ n) as Hj; [ apply Hm; left; reflexivity | idtac ].
-        fast_omega H Hj.
-
-     eapply Sorted_inv; eassumption.
-
-     intros m Hml.
-     apply Sorted_inv_1 in Hs.
-     revert Hs Hml; clear; intros.
-     revert n m Hs Hml.
-     induction li as [| p]; intros; [ contradiction | simpl ].
-     destruct Hml as [Hml| Hml].
-      subst p.
+      }
+      assert (j ≤ n) as Hj; [ idtac | fast_omega H Hj ].
+      apply Hm; left; reflexivity.
+    }
+    exfalso; revert Hjil Hp Hnij H; clear; intros.
+    apply Decidable.not_or in Hjil.
+    destruct Hjil as (Hnji, _).
+    apply Hnji; clear Hnji.
+    apply Nat.sub_0_le in Hp.
+    rewrite Nat.add_comm, Nat.add_succ_l, <- Nat.add_succ_r.
+    apply Nat.le_antisymm; auto with Arith.
+    apply Nat.add_le_mono_r with (p := S j) in Hp.
+    rewrite Nat.sub_add in Hp; auto with Arith.
+  }
+  apply IHli. {
+    simpl.
+    intros H.
+    destruct H as [H| H]; [ fast_omega H | idtac ].
+    apply Decidable.not_or in Hjil.
+    destruct Hjil as (Hnji, Hjil).
+    replace (n + S p)%nat with (j + S i)%nat in H. {
+      apply Hjil; assumption.
+    }
+    rewrite <- Hp.
+    rewrite Nat.add_sub_assoc; [ idtac | assumption ].
+    rewrite Nat_sub_sub_distr. {
+      symmetry.
+      rewrite <- Nat.add_assoc, Nat.add_comm.
+      rewrite Nat.add_sub.
+      do 2 rewrite Nat.add_succ_r.
+      rewrite Nat.add_comm; reflexivity.
+    }
+    rename H into H₂.
+    destruct (eq_nat_dec j n) as [H| H]. {
+      subst n.
       apply Sorted_inv in Hs.
       destruct Hs as (_, Hrel).
       apply HdRel_inv in Hrel.
-      apply Nat.lt_le_incl; assumption.
-
-      apply IHli; [ idtac | assumption ].
-      eapply Sorted_minus_2nd; [ idtac | eassumption ].
-      intros x y z H₁ H₂; eapply Nat.lt_trans; eassumption.
-
-   apply Nat.nle_gt in H₁.
-   revert H₁; clear; intros.
-   remember (order_coeff (List.nth n la 0%ps)) as v.
-   remember (make_char_lap_of_hl la (S n) li) as l.
-   remember [v … l] as vl.
-   revert H₁; clear; intros.
-   remember (n - S j)%nat as k.
-   revert H₁; clear; intros.
-   revert k vl H₁.
-   induction i; intros; simpl.
-    destruct k; [ exfalso; revert H₁; apply Nat.lt_irrefl | reflexivity ].
-
-    destruct k; [ exfalso; fast_omega H₁ | idtac ].
-    apply lt_S_n in H₁; simpl.
-    apply IHi; assumption.
+      exfalso; revert Hrel; apply Nat.lt_irrefl.
+    }
+    assert (j ≤ n) as Hj; [ apply Hm; left; reflexivity | idtac ].
+    fast_omega H Hj.
+  } {
+    eapply Sorted_inv; eassumption.
+  }
+  intros m Hml.
+  apply Sorted_inv_1 in Hs.
+  revert Hs Hml; clear; intros.
+  revert n m Hs Hml.
+  induction li as [| p]; intros; [ contradiction | simpl ].
+  destruct Hml as [Hml| Hml]. {
+    subst p.
+    apply Sorted_inv in Hs.
+    destruct Hs as (_, Hrel).
+    apply HdRel_inv in Hrel.
+    apply Nat.lt_le_incl; assumption.
+  }
+  apply IHli; [ idtac | assumption ].
+  eapply Sorted_minus_2nd; [ idtac | eassumption ].
+  intros x y z H₁ H₂; eapply Nat.lt_trans; eassumption.
+}
+apply Nat.nle_gt in H₁.
+revert H₁; clear; intros.
+remember (order_coeff (List.nth n la 0%ps)) as v.
+remember (make_char_lap_of_hl la (S n) li) as l.
+remember [v … l] as vl.
+revert H₁; clear; intros.
+remember (n - S j)%nat as k.
+revert H₁; clear; intros.
+revert k vl H₁.
+induction i; intros; simpl. {
+  destruct k; [ exfalso; revert H₁; apply Nat.lt_irrefl | reflexivity ].
+}
+destruct k; [ exfalso; fast_omega H₁ | idtac ].
+apply Nat.succ_lt_mono in H₁; simpl.
+apply IHi; assumption.
 Qed.
 
 (* [Walker, p. 101] « Since αh + h.γ₁ = β₁, the first summation reduces to
@@ -1324,23 +1324,23 @@ Qed.
 Theorem sum_ah_c₁y_h_eq : ∀ f L pl tl l c₁ j αj,
   newton_segments f = Some L
   → pl = [ini_pt L … oth_pts L ++ [fin_pt L]]
-    → tl = List.map (term_of_point f) pl
-      → l = List.map (λ t, power t) tl
-        → ini_pt L = (Qnat j, αj)
-          → (ps_pol_summ ps_field l
-               (λ h,
-                POL [ps_monom (coeff_of_term h tl) 0] *
-                POL [ps_monom c₁ 0; 1%ps … []] ^ h) =
-             POL [ps_monom c₁ 0; 1%ps … []] ^ j *
-             ps_pol_comp (poly_inject_K_in_Kx (Φq f L))
-               (POL [ps_monom c₁ 0; 1%ps … []]))%pspol.
+  → tl = List.map (term_of_point f) pl
+  → l = List.map (λ t, power t) tl
+  → ini_pt L = (Qnat j, αj)
+  → (ps_pol_summ ps_field l
+       (λ h,
+         POL [ps_monom (coeff_of_term h tl) 0] *
+           POL [ps_monom c₁ 0; 1%ps … []] ^ h) =
+       POL [ps_monom c₁ 0; 1%ps … []] ^ j *
+       ps_pol_comp (poly_inject_K_in_Kx (Φq f L))
+         (POL [ps_monom c₁ 0; 1%ps … []]))%pspol.
 Proof.
 intros f L pl tl l c₁ j αj HL Hpl Htl Hl Hini.
-assert (∀ iq αi, (iq, αi) ∈ pl → ∃ i, iq = Qnat i) as Hnat.
- intros iq αi Hip.
- eapply L_nat; [ eassumption | reflexivity | idtac ].
- subst pl; eassumption.
-
+assert (∀ iq αi, (iq, αi) ∈ pl → ∃ i, iq = Qnat i) as Hnat. {
+  intros iq αi Hip.
+  eapply L_nat; [ eassumption | reflexivity | idtac ].
+  subst pl; eassumption.
+...
  remember (List.map (λ pt, nat_num (fst pt)) pl) as li eqn:Hli .
  assert (Sorted Nat.lt li) as Hs.
   remember HL as Hsort; clear HeqHsort.
