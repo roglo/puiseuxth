@@ -53,11 +53,11 @@ apply series_order_iff.
 apply series_order_iff in Hn.
 simpl in Hn |- *.
 destruct Hn as (Hz, Hnz).
-split.
- intros i Hi.
- exfalso; revert Hi; apply Nat.nlt_0_r.
-
- rewrite Nat.add_0_r; assumption.
+split. {
+  intros i Hi.
+  exfalso; revert Hi; apply Nat.nlt_0_r.
+}
+rewrite Nat.add_0_r; assumption.
 Qed.
 
 Theorem series_order_inf_left_adjust : ∀ ps,
