@@ -417,7 +417,6 @@ Theorem jz_lt_kz : ∀ (f : puis_ser_pol α) jz kz L,
   → jz = Qnum (fst (ini_pt L))
   → kz = Qnum (fst (fin_pt L))
   → (jz < kz)%Z.
-(**)
 Proof.
 intros f jz kz L HL Hjz Hkz.
 remember HL as H; clear HeqH.
@@ -429,28 +428,29 @@ destruct kak as (k, ak).
 simpl in Hjz, Hkz, H.
 subst jz kz.
 unfold nat_num in HL.
-apply Z2Nat.inj_lt; [ idtac | idtac | assumption ].
- unfold newton_segments in HL.
- remember (points_of_ps_polynom f) as pts.
- symmetry in Heqpts.
- remember Heqpts as Hpts; clear HeqHpts.
- apply pt_absc_is_nat with (pt := (j, aj)) in Hpts.
-  simpl in Hpts; rewrite Hpts.
-  apply Zle_0_nat.
-
+apply Z2Nat.inj_lt; [ idtac | idtac | assumption ]. {
+  unfold newton_segments in HL.
+  remember (points_of_ps_polynom f) as pts.
+  symmetry in Heqpts.
+  remember Heqpts as Hpts; clear HeqHpts.
+  apply pt_absc_is_nat with (pt := (j, aj)) in Hpts. {
+    simpl in Hpts; rewrite Hpts.
+    apply Zle_0_nat.
+  }
   rewrite Heqjaj.
   apply ini_fin_ns_in_init_pts; assumption.
-
- unfold newton_segments in HL.
- remember (points_of_ps_polynom f) as pts.
- symmetry in Heqpts.
- remember Heqpts as Hpts; clear HeqHpts.
- apply pt_absc_is_nat with (pt := (k, ak)) in Hpts.
+}
+unfold newton_segments in HL.
+remember (points_of_ps_polynom f) as pts.
+symmetry in Heqpts.
+remember Heqpts as Hpts; clear HeqHpts.
+apply pt_absc_is_nat with (pt := (k, ak)) in Hpts. {
   simpl in Hpts; rewrite Hpts.
   apply Zle_0_nat.
-
+} {
   rewrite Heqkak.
   apply ini_fin_ns_in_init_pts; assumption.
+}
 Qed.
 
 (* *)
@@ -482,140 +482,142 @@ unfold qpower_list in Hhhv.
 revert pow Hhhv.
 induction cl as [| c]; intros; [ contradiction | idtac ].
 simpl in Hhhv.
-destruct cl as [| c₁].
+destruct cl as [| c₁]. {
  simpl in Hhhv.
  destruct (order c); [ idtac | contradiction ].
  destruct Hhhv as [Hhhv| ]; [ idtac | contradiction ].
  injection Hhhv; clear Hhhv; intros; subst h hv.
  simpl.
  rewrite Nat2Z.id; reflexivity.
-
- simpl in Hhhv.
- simpl in IHcl.
- destruct (order c).
-  destruct Hhhv as [Hhhv| Hhhv].
-   injection Hhhv; clear Hhhv; intros; subst h hv.
-   simpl; rewrite Nat2Z.id; reflexivity.
-
-   apply IHcl in Hhhv.
-   transitivity (S pow); [ apply Nat.le_succ_r | assumption ].
-   left; reflexivity.
-
+}
+simpl in Hhhv.
+simpl in IHcl.
+destruct (order c). {
+  destruct Hhhv as [Hhhv| Hhhv]. {
+    injection Hhhv; clear Hhhv; intros; subst h hv.
+    simpl; rewrite Nat2Z.id; reflexivity.
+  }
   apply IHcl in Hhhv.
   transitivity (S pow); [ apply Nat.le_succ_r | assumption ].
   left; reflexivity.
+} {
+  apply IHcl in Hhhv.
+  transitivity (S pow); [ apply Nat.le_succ_r | assumption ].
+  left; reflexivity.
+}
 Qed.
 
 Theorem in_pts_in_ppl : ∀ pow cl ppl pts h hv hps def,
   ppl = qpower_list pow cl
   → pts = filter_finite_ord ppl
-    → (h, hv) ∈ pts
-      → hps = List.nth (Z.to_nat (Qnum h) - pow) cl def
-        → (h, hps) ∈ ppl ∧ order hps = qfin hv.
+  → (h, hv) ∈ pts
+  → hps = List.nth (Z.to_nat (Qnum h) - pow) cl def
+  → (h, hps) ∈ ppl ∧ order hps = qfin hv.
 Proof.
 intros pow cl ppl pts h hv hps def Hppl Hpts Hhhv Hhps.
 subst ppl pts.
 destruct cl as [| c₁]; intros; [ contradiction | idtac ].
 revert pow c₁ h hv hps Hhps Hhhv.
-induction cl as [| c]; intros.
- simpl in Hhhv.
- remember (order c₁) as v.
- symmetry in Heqv.
- destruct v as [v| ]; [ idtac | contradiction ].
- destruct Hhhv as [Hhhv| ]; [ idtac | contradiction ].
- injection Hhhv; clear Hhhv; intros; subst v h.
- remember (Qnum (Qnat pow)) as x; simpl in Heqx; subst x.
- rewrite Nat2Z.id, Nat.sub_diag in Hhps.
- simpl in Hhps; subst hps.
- split; [ left; reflexivity | assumption ].
-
- remember [c … cl] as ccl; simpl in Hhhv; subst ccl.
- remember (order c₁) as v.
- symmetry in Heqv.
- destruct v as [v| ].
-  destruct Hhhv as [Hhhv| Hhhv].
-   injection Hhhv; clear Hhhv; intros; subst v h.
-   remember (Qnum (Qnat pow)) as x; simpl in Heqx; subst x.
-   rewrite Nat2Z.id, Nat.sub_diag in Hhps.
-   simpl in Hhps; subst hps.
-   split; [ left; reflexivity | assumption ].
-
-   destruct (le_dec (S pow) (Z.to_nat (Qnum h))) as [Hle| Hgt].
-    eapply IHcl in Hhhv.
-     rewrite <- Nat.sub_succ in Hhps.
-     rewrite Nat.sub_succ_l in Hhps; [ | easy ].
-     simpl in Hhps.
-     destruct Hhhv as (Hhhv, Hhv).
-     split; [ right; eassumption | assumption ].
-
-     rewrite <- Nat.sub_succ in Hhps.
-     rewrite Nat.sub_succ_l in Hhps; [ idtac | assumption ].
-     simpl in Hhps; eassumption.
-
+induction cl as [| c]; intros. {
+  simpl in Hhhv.
+  remember (order c₁) as v.
+  symmetry in Heqv.
+  destruct v as [v| ]; [ idtac | contradiction ].
+  destruct Hhhv as [Hhhv| ]; [ idtac | contradiction ].
+  injection Hhhv; clear Hhhv; intros; subst v h.
+  remember (Qnum (Qnat pow)) as x; simpl in Heqx; subst x.
+  rewrite Nat2Z.id, Nat.sub_diag in Hhps.
+  simpl in Hhps; subst hps.
+  split; [ left; reflexivity | assumption ].
+} {
+  remember [c … cl] as ccl; simpl in Hhhv; subst ccl.
+  remember (order c₁) as v.
+  symmetry in Heqv.
+  destruct v as [v| ]. {
+    destruct Hhhv as [Hhhv| Hhhv]. {
+      injection Hhhv; clear Hhhv; intros; subst v h.
+      remember (Qnum (Qnat pow)) as x; simpl in Heqx; subst x.
+      rewrite Nat2Z.id, Nat.sub_diag in Hhps.
+      simpl in Hhps; subst hps.
+      split; [ left; reflexivity | assumption ].
+    }
+    destruct (le_dec (S pow) (Z.to_nat (Qnum h))) as [Hle| Hgt]. {
+      eapply IHcl in Hhhv. {
+        rewrite <- Nat.sub_succ in Hhps.
+        rewrite Nat.sub_succ_l in Hhps; [ | easy ].
+        simpl in Hhps.
+        destruct Hhhv as (Hhhv, Hhv).
+        split; [ right; eassumption | assumption ].
+      }
+      rewrite <- Nat.sub_succ in Hhps.
+      rewrite Nat.sub_succ_l in Hhps; [ idtac | assumption ].
+      simpl in Hhps; eassumption.
+    }
     apply first_power_le in Hhhv; contradiction.
-
-  destruct (le_dec (S pow) (Z.to_nat (Qnum h))) as [Hle| Hgt].
-   eapply IHcl in Hhhv.
-    rewrite <- Nat.sub_succ in Hhps.
-    rewrite Nat.sub_succ_l in Hhps; [ idtac | assumption ].
-    simpl in Hhps.
-    destruct Hhhv as (Hhhv, Hhv).
-    split; [ right; eassumption | assumption ].
-
+  }
+  destruct (le_dec (S pow) (Z.to_nat (Qnum h))) as [Hle| Hgt]. {
+    eapply IHcl in Hhhv. {
+      rewrite <- Nat.sub_succ in Hhps.
+      rewrite Nat.sub_succ_l in Hhps; [ idtac | assumption ].
+      simpl in Hhps.
+      destruct Hhhv as (Hhhv, Hhv).
+      split; [ right; eassumption | assumption ].
+    }
     rewrite <- Nat.sub_succ in Hhps.
     rewrite Nat.sub_succ_l in Hhps; [ idtac | assumption ].
     simpl in Hhps; eassumption.
-
-   apply first_power_le in Hhhv; contradiction.
+  }
+  apply first_power_le in Hhhv; contradiction.
+}
 Qed.
 
 Theorem in_pts_in_psl : ∀ pow pts psl h hv hps def,
   pts = filter_finite_ord (qpower_list pow psl)
   → (h, hv) ∈ pts
-    → hps = List.nth (Z.to_nat (Qnum h) - pow) psl def
-      → hps ∈ psl ∧ order hps = qfin hv.
+  → hps = List.nth (Z.to_nat (Qnum h) - pow) psl def
+  → hps ∈ psl ∧ order hps = qfin hv.
 Proof.
 intros pow pts psl h hv hps def Hpts Hhv Hhps.
 remember (power_list pow psl) as ppl.
-assert (pow ≤ Z.to_nat (Qnum h)) as H.
- subst pts ppl.
- eapply first_power_le; eassumption.
-
- eapply in_pts_in_ppl in Hhv; try eassumption; [ idtac | reflexivity ].
- destruct Hhv as (Hhps₁, Hv).
- split; [ idtac | assumption ].
- subst ppl.
- destruct psl as [| ps₁]; [ contradiction | idtac ].
- revert pow pts ps₁ h hv hps Hhps Hv Hhps₁ Hpts H.
- induction psl as [| ps]; intros.
+assert (pow ≤ Z.to_nat (Qnum h)) as H. {
+  subst pts ppl.
+  eapply first_power_le; eassumption.
+}
+eapply in_pts_in_ppl in Hhv; try eassumption; [ idtac | reflexivity ].
+destruct Hhv as (Hhps₁, Hv).
+split; [ idtac | assumption ].
+subst ppl.
+destruct psl as [| ps₁]; [ contradiction | idtac ].
+revert pow pts ps₁ h hv hps Hhps Hv Hhps₁ Hpts H.
+induction psl as [| ps]; intros. {
   destruct Hhps₁ as [Hhps₁| ]; [ idtac | contradiction ].
   injection Hhps₁; clear Hhps₁; intros; subst h hps.
   now left.
-
-  destruct Hhps₁ as [Hhps₁| Hhps₁].
-   injection Hhps₁; clear Hhps₁; intros; subst h hps.
-   now left.
-
-   destruct (eq_nat_dec (Z.to_nat (Qnum h)) pow) as [Heq| Hne].
-    rewrite Heq, Nat.sub_diag in Hhps.
-    subst hps; left; reflexivity.
-
-    right.
-    eapply IHpsl; try eassumption; try reflexivity.
-     rewrite <- Nat.sub_succ in Hhps.
-     rewrite Nat.sub_succ_l in Hhps; [ assumption | idtac ].
-     apply not_eq_sym in Hne.
-     apply Nat_le_neq_lt; assumption.
-
-     apply not_eq_sym in Hne.
-     apply Nat_le_neq_lt; assumption.
+}
+destruct Hhps₁ as [Hhps₁| Hhps₁]. {
+  injection Hhps₁; clear Hhps₁; intros; subst h hps.
+  now left.
+}
+destruct (eq_nat_dec (Z.to_nat (Qnum h)) pow) as [Heq| Hne]. {
+  rewrite Heq, Nat.sub_diag in Hhps.
+  subst hps; left; reflexivity.
+}
+right.
+eapply IHpsl; try eassumption; try reflexivity. {
+  rewrite <- Nat.sub_succ in Hhps.
+  rewrite Nat.sub_succ_l in Hhps; [ assumption | idtac ].
+  apply not_eq_sym in Hne.
+  apply Nat_le_neq_lt; assumption.
+}
+apply not_eq_sym in Hne.
+apply Nat_le_neq_lt; assumption.
 Qed.
 
 Theorem in_pts_in_pol : ∀ f pts h hv hps def,
   pts = points_of_ps_polynom f
   → (Qnat h, hv) ∈ pts
-    → hps = List.nth h (al f) def
-      → hps ∈ al f ∧ order hps = qfin hv.
+  → hps = List.nth h (al f) def
+  → hps ∈ al f ∧ order hps = qfin hv.
 Proof.
 intros f pts h hv hps def Hpts Hhhv Hhps.
 eapply in_pts_in_psl; try eassumption.
@@ -625,114 +627,113 @@ Qed.
 Theorem in_ppl_in_pts : ∀ pow cl ppl pts h hv hps,
   ppl = qpower_list pow cl
   → pts = filter_finite_ord ppl
-    → pow ≤ h
-      → hps = List.nth (h - pow) cl 0%ps
-        → order hps = qfin hv
-          → (Qnat h, hv) ∈ pts.
+  → pow ≤ h
+  → hps = List.nth (h - pow) cl 0%ps
+  → order hps = qfin hv
+  → (Qnat h, hv) ∈ pts.
 Proof.
 (* peut-être améliorable, simplifiable ; voir pourquoi cas cl=[] est à part ;
    et voir les deux cas de h - pow plus bas *)
 intros pow cl ppl pts h hv hps Hppl Hpts Hph Hhhv Hhps.
 subst ppl pts.
-destruct cl as [| c₁]; intros; simpl.
- rewrite list_nth_nil in Hhhv.
- assert (order hps = qinf) as H.
-  apply order_inf.
-  subst hps; reflexivity.
-
+destruct cl as [| c₁]; intros; simpl. {
+  rewrite list_nth_nil in Hhhv.
+  assert (order hps = qinf) as H. {
+    apply order_inf.
+    subst hps; reflexivity.
+  }
   rewrite Hhps in H; discriminate H.
-
- unfold qpower_list.
- revert pow c₁ h hv hps Hhps Hhhv Hph.
- induction cl as [| c]; intros.
+}
+unfold qpower_list.
+revert pow c₁ h hv hps Hhps Hhhv Hph.
+induction cl as [| c]; intros. {
   simpl in Hhhv.
   remember (h - pow)%nat as hp eqn:Hhp .
   symmetry in Hhp.
-  destruct hp.
-   subst c₁; simpl.
-   rewrite Hhps.
-   apply Nat.sub_0_le in Hhp.
-   apply Nat.le_antisymm in Hhp; [ idtac | assumption ].
-   subst pow; left; reflexivity.
-
-   rewrite match_id in Hhhv.
-   assert (order hps = qinf) as H.
+  destruct hp. {
+    subst c₁; simpl.
+    rewrite Hhps.
+    apply Nat.sub_0_le in Hhp.
+    apply Nat.le_antisymm in Hhp; [ idtac | assumption ].
+    subst pow; left; reflexivity.
+  }
+  rewrite match_id in Hhhv.
+  assert (order hps = qinf) as H. {
     apply order_inf.
     subst hps; reflexivity.
-
-    rewrite Hhps in H; discriminate H.
-
-  remember [c … cl] as x; simpl; subst x.
-  remember [c … cl] as x; simpl; subst x.
-  remember (order c₁) as n eqn:Hn .
-  symmetry in Hn.
-  destruct n as [n| ].
-   simpl in Hhhv.
-   remember (h - pow)%nat as hp eqn:Hhp .
-   symmetry in Hhp.
-   destruct hp.
+  }
+  rewrite Hhps in H; discriminate H.
+}
+remember [c … cl] as x; simpl; subst x.
+remember [c … cl] as x; simpl; subst x.
+remember (order c₁) as n eqn:Hn.
+symmetry in Hn.
+destruct n as [n| ]. {
+  simpl in Hhhv.
+  remember (h - pow)%nat as hp eqn:Hhp .
+  symmetry in Hhp.
+  destruct hp. {
     subst c₁.
     apply Nat.sub_0_le in Hhp.
     apply Nat.le_antisymm in Hph; [ idtac | assumption ].
     subst pow.
     rewrite Hhps in Hn; injection Hn; intros; subst n.
     left; reflexivity.
-
-    right.
-    destruct hp.
-     subst hps.
-     apply Nat.add_sub_eq_nz in Hhp; [ idtac | intros H; discriminate H ].
-     rewrite Nat.add_1_r in Hhp.
-     eapply IHcl; try eassumption.
+  }
+  right.
+  destruct hp. {
+    subst hps.
+    apply Nat.add_sub_eq_nz in Hhp; [ idtac | intros H; discriminate H ].
+    rewrite Nat.add_1_r in Hhp.
+    eapply IHcl; try eassumption. {
       rewrite Hhp, Nat.sub_diag; reflexivity.
-
-      rewrite Hhp; reflexivity.
-
-     apply Nat.add_sub_eq_nz in Hhp; [ idtac | intros H; discriminate H ].
-     rewrite Nat.add_succ_r, <- Nat.add_succ_l in Hhp.
-     eapply IHcl; try eassumption.
-      erewrite <- Hhp.
-      rewrite Nat.add_comm, Nat.add_sub; assumption.
-
-      rewrite <- Hhp.
-      apply Nat.le_add_r.
-
-   destruct (eq_nat_dec h pow) as [Hhp| Hhp].
-    subst pow.
-    rewrite Nat.sub_diag in Hhhv.
-    simpl in Hhhv.
-    subst c₁.
+    }
+    rewrite Hhp; reflexivity.
+  }
+  apply Nat.add_sub_eq_nz in Hhp; [ idtac | intros H; discriminate H ].
+  rewrite Nat.add_succ_r, <- Nat.add_succ_l in Hhp.
+  eapply IHcl; try eassumption. {
+    erewrite <- Hhp.
+    rewrite Nat.add_comm, Nat.add_sub; assumption.
+  }
+  rewrite <- Hhp.
+  apply Nat.le_add_r.
+}
+destruct (eq_nat_dec h pow) as [Hhp| Hhp]. {
+  subst pow.
+  rewrite Nat.sub_diag in Hhhv.
+  simpl in Hhhv.
+  subst c₁.
+  rewrite Hhps in Hn; discriminate Hn.
+}
+eapply IHcl; try eassumption. {
+  destruct h. {
+    simpl in Hhhv; simpl.
+    subst hps.
     rewrite Hhps in Hn; discriminate Hn.
-
-    eapply IHcl; try eassumption.
-     destruct h.
-      simpl in Hhhv; simpl.
-      subst hps.
-      rewrite Hhps in Hn; discriminate Hn.
-
-      rewrite Nat.sub_succ_l in Hhhv.
-       rewrite Nat.sub_succ; assumption.
-
-       apply Nat.neq_sym in Hhp.
-       apply Nat_le_neq_lt in Hhp; [ idtac | assumption ].
-       apply le_S_n; assumption.
-
-     apply Nat.neq_sym in Hhp.
-     apply Nat_le_neq_lt in Hhp; [ idtac | assumption ].
-     assumption.
+  }
+  rewrite Nat.sub_succ_l in Hhhv.
+  rewrite Nat.sub_succ; assumption.
+  apply Nat.neq_sym in Hhp.
+  apply Nat_le_neq_lt in Hhp; [ idtac | assumption ].
+  apply le_S_n; assumption.
+}
+apply Nat.neq_sym in Hhp.
+apply Nat_le_neq_lt in Hhp; [ idtac | assumption ].
+assumption.
 Qed.
 
 Theorem in_pol_in_pts : ∀ f pts h hv hps,
   pts = points_of_ps_polynom f
   → hps = List.nth h (al f) 0%ps
-    → order hps = qfin hv
-      → (Qnat h, hv) ∈ pts.
+  → order hps = qfin hv
+  → (Qnat h, hv) ∈ pts.
 Proof.
 intros f pts h hv hps Hpts Hhps Hv.
-eapply in_ppl_in_pts; try eassumption; try reflexivity.
- apply Nat.le_0_l.
-
- rewrite Nat.sub_0_r; assumption.
+eapply in_ppl_in_pts; try eassumption; try reflexivity. {
+  apply Nat.le_0_l.
+}
+rewrite Nat.sub_0_r; assumption.
 Qed.
 
 Theorem exists_ini_pt_nat : ∀ f L,
@@ -791,20 +792,20 @@ Qed.
 Theorem points_in_newton_segment_have_nat_abscissa : ∀ f L,
   newton_segments f = Some L
   → ∀ pt, pt ∈ [ini_pt L … oth_pts L ++ [fin_pt L]]
-    → ∃ h αh, pt = (Qnat h, αh).
+  → ∃ h αh, pt = (Qnat h, αh).
 Proof.
 intros f L HL pt Hpt.
-destruct Hpt as [H| H].
- rewrite <- H.
- eapply exists_ini_pt_nat; eassumption.
-
- apply List.in_app_or in H.
- destruct H as [H| H].
-  eapply exists_oth_pt_nat; eassumption.
-
-  destruct H as [H| ]; [ idtac | contradiction ].
+destruct Hpt as [H| H]. {
   rewrite <- H.
-  eapply exists_fin_pt_nat; eassumption.
+  eapply exists_ini_pt_nat; eassumption.
+}
+apply List.in_app_or in H.
+destruct H as [H| H]. {
+  eapply exists_oth_pt_nat; eassumption.
+}
+destruct H as [H| ]; [ idtac | contradiction ].
+rewrite <- H.
+eapply exists_fin_pt_nat; eassumption.
 Qed.
 
 (* [Walker, p. 100]: «
@@ -831,41 +832,42 @@ pose proof (Z.gcd_divide_l p (Zpos q)).
 rewrite <- Heqg in H.
 destruct H as (gp, Hgp).
 rewrite Hgp.
-assert (g ≠ 0)%Z as Hg0.
- intros H.
- rewrite Heqg in H.
- apply Z.gcd_eq_0_r in H; revert H; apply Pos2Z_ne_0.
-
- rewrite Z.div_mul; auto.
- pose proof (Z.gcd_divide_r p (Zpos q)).
- rewrite <- Heqg in H.
- destruct H as (gq, Hgq).
- rewrite Hgq.
- rewrite Z.div_mul; auto.
- rewrite Z.mul_shuffle0, Z.mul_assoc.
- rewrite Z2Pos.id.
+assert (g ≠ 0)%Z as Hg0. {
+  intros H.
+  rewrite Heqg in H.
+  apply Z.gcd_eq_0_r in H; revert H; apply Pos2Z_ne_0.
+}
+rewrite Z.div_mul; auto.
+pose proof (Z.gcd_divide_r p (Zpos q)).
+rewrite <- Heqg in H.
+destruct H as (gq, Hgq).
+rewrite Hgq.
+rewrite Z.div_mul; auto.
+rewrite Z.mul_shuffle0, Z.mul_assoc.
+rewrite Z2Pos.id. {
   split; [ reflexivity | idtac ].
   apply Z.gcd_div_gcd in Heqg; auto.
   rewrite Hgp, Hgq in Heqg.
   rewrite Z.div_mul in Heqg; auto.
   rewrite Z.div_mul in Heqg; auto.
-
-  apply Z.mul_lt_mono_pos_r with (p := g).
-   symmetry in Heqg.
-   destruct g as [| g| g].
+}
+apply Z.mul_lt_mono_pos_r with (p := g). {
+  symmetry in Heqg.
+  destruct g as [| g| g]. {
     rewrite Z.mul_0_r in Hgq.
     exfalso; revert Hgq; apply Pos2Z_ne_0.
-
+  } {
     apply Pos2Z.is_pos.
-
+  } {
     pose proof (Z.gcd_nonneg p (Zpos q)).
     rewrite Heqg in H.
     apply Z.nlt_ge in H.
     exfalso; apply H.
     apply Pos2Z.neg_is_neg.
-
-   simpl.
-   rewrite <- Hgq; apply Pos2Z.is_pos.
+  }
+}
+simpl.
+rewrite <- Hgq; apply Pos2Z.is_pos.
 Qed.
 
 (* [Walker, p. 100]: « [...] where q > 0 and p and q are integers having
@@ -887,27 +889,28 @@ Qed.
 Theorem gamma_value_jh : ∀ f L j αj,
   newton_segments f = Some L
   → (j, αj) = ini_pt L
-    → ∀ h αh, (h, αh) ∈ oth_pts L
-      → γ L == (αj - αh) / (h - j).
+  → ∀ h αh, (h, αh) ∈ oth_pts L
+  → γ L == (αj - αh) / (h - j).
 Proof.
 intros f L j αj HL Hjαj h αh Hhαh.
 remember HL as Hh; clear HeqHh.
-apply points_in_any_newton_segment with (h := h) (αh := αh) in Hh.
- apply Qeq_plus_minus_eq_r in Hh.
- remember HL as Haj; clear HeqHaj.
- apply points_in_any_newton_segment with (h := j) (αh := αj) in Haj.
-  rewrite <- Hh, Haj.
-  field.
-  apply Qlt_not_0.
-  eapply jq_lt_hq; try eassumption.
-
+apply points_in_any_newton_segment with (h := h) (αh := αh) in Hh. {
+  apply Qeq_plus_minus_eq_r in Hh.
+  remember HL as Haj; clear HeqHaj.
+  apply points_in_any_newton_segment with (h := j) (αh := αj) in Haj. {
+    rewrite <- Hh, Haj.
+    field.
+    apply Qlt_not_0.
+    eapply jq_lt_hq; try eassumption.
+  }
   left; rewrite Hjαj; reflexivity.
-
- right; right; assumption.
+}
+right; right; assumption.
 Qed.
 
 Open Scope Z_scope.
 
+(**)
 Theorem pmq_qmpm : ∀ m p q j k jz kz mj mk,
   (j < k)%nat
   → jz = Z.of_nat j
