@@ -1049,13 +1049,13 @@ eapply ps_lap_in_add; [ idtac | idtac | eassumption ]. {
   intros n Hn.
   destruct (ps_zerop _ a) as [Ha| Ha]. {
     rewrite Ha in Hn.
-(* trying to get around a bug in coq 8.20.0 *)
+(* trying to get around a bug in coq 8.20.0
 ...
-(*
+*)
 Check 1%nat.
    rewrite lap_eq_0 in Hn.
 Check 1%nat.
-*)
+(**)
    rewrite lap_mul_nil_l in Hn; contradiction.
 
    assert (order a > 0)%Qbar as Hoa.
