@@ -148,25 +148,26 @@ unfold qpower_list in Hpts.
 revert n pts Hpts Hαh.
 induction cl as [| c]; intros; [ subst pts; contradiction | idtac ].
 simpl in Hpts.
-destruct cl as [| c₁].
- simpl in Hpts.
- destruct (order c); subst pts; [ idtac | contradiction ].
- simpl in Hαh.
- destruct Hαh as [Hαh| ]; [ idtac | contradiction ].
- subst pt; simpl.
- rewrite Nat2Z.id; reflexivity.
-
- simpl in Hpts.
- simpl in IHcl.
- destruct (order c).
-  subst pts.
-  destruct Hαh as [Hαh| Hαh].
-   subst pt; simpl.
-   rewrite Nat2Z.id; reflexivity.
-
-   eapply IHcl; [ reflexivity | eassumption ].
-
+destruct cl as [| c₁]. {
+  simpl in Hpts.
+  destruct (order c); subst pts; [ idtac | contradiction ].
+  simpl in Hαh.
+  destruct Hαh as [Hαh| ]; [ idtac | contradiction ].
+  subst pt; simpl.
+  rewrite Nat2Z.id; reflexivity.
+} {
+  simpl in Hpts.
+  simpl in IHcl.
+  destruct (order c). {
+    subst pts.
+    destruct Hαh as [Hαh| Hαh]. {
+      subst pt; simpl.
+      rewrite Nat2Z.id; reflexivity.
+    }
+    eapply IHcl; [ reflexivity | eassumption ].
+  }
   eapply IHcl; eassumption.
+}
 Qed.
 
 Theorem in_seg_in_pts : ∀ pt pt₁ pt₂ pts,
@@ -179,15 +180,16 @@ induction pts as [| pt₃]; intros; [ contradiction | idtac ].
 simpl in Hpt.
 remember (minimise_slope pt₁ pt₃ pts) as ms₃.
 remember (slope_expr pt₁ pt₂ ?= slope ms₃) as c.
-destruct c; simpl in Hpt.
- destruct Hpt as [Hpt| Hpt].
-  subst pt; left; reflexivity.
-
+destruct c; simpl in Hpt. {
+  destruct Hpt as [Hpt| Hpt]. {
+    subst pt; left; reflexivity.
+  }
   right; subst ms₃; apply IHpts; assumption.
-
- contradiction.
-
- right; subst ms₃; apply IHpts; assumption.
+} {
+  contradiction.
+} {
+  right; subst ms₃; apply IHpts; assumption.
+}
 Qed.
 
 Theorem hull_seg_edge_in_init_pts : ∀ pts hs pt,
@@ -240,23 +242,23 @@ Theorem ns_in_init_pts : ∀ pts L pt,
     → pt ∈ pts.
 Proof.
 intros pts L pt HL Hpt.
-destruct Hpt as [Hpt| Hpt].
+destruct Hpt as [Hpt| Hpt]. {
  subst pt.
  apply ini_fin_ns_in_init_pts; assumption.
-
- apply List.in_app_or in Hpt.
- destruct Hpt as [Hpt| Hpt].
+}
+apply List.in_app_or in Hpt.
+destruct Hpt as [Hpt| Hpt]. {
   eapply oth_pts_in_init_pts; eassumption.
-
-  destruct Hpt as [Hpt| ]; [ idtac | contradiction ].
-  subst pt.
-  apply ini_fin_ns_in_init_pts; assumption.
+}
+destruct Hpt as [Hpt| ]; [ idtac | contradiction ].
+subst pt.
+apply ini_fin_ns_in_init_pts; assumption.
 Qed.
 
 Theorem pt₁_bef_seg : ∀ pt₁ pt₂ pts pth,
   Sorted fst_lt [pt₁; pt₂ … pts]
   → pth ∈ oth_pts (minimise_slope pt₁ pt₂ pts)
-    → fst pt₁ < fst pth.
+  → fst pt₁ < fst pth.
 Proof.
 intros pt₁ pt₂ pts pth Hsort Hh.
 revert pt₁ pt₂ pth Hsort Hh.
@@ -265,31 +267,32 @@ simpl in Hh.
 remember (minimise_slope pt₁ pt₃ pts) as ms₃.
 remember (slope_expr pt₁ pt₂ ?= slope ms₃) as c.
 symmetry in Heqc.
-destruct c.
- simpl in Hh.
- destruct Hh as [Hh| Hh].
-  subst pth.
-  eapply Sorted_hd; [ eassumption | left; reflexivity ].
-
+destruct c. {
+  simpl in Hh.
+  destruct Hh as [Hh| Hh]. {
+    subst pth.
+    eapply Sorted_hd; [ eassumption | left; reflexivity ].
+  }
   subst ms₃.
   eapply IHpts; [ idtac | eassumption ].
   eapply Sorted_minus_2nd; [ idtac | eassumption ].
   intros x y z H₁ H₂; eapply Qlt_trans; eassumption.
-
- contradiction.
-
- subst ms₃.
- eapply IHpts; [ idtac | eassumption ].
- eapply Sorted_minus_2nd; [ idtac | eassumption ].
- intros x y z H₁ H₂; eapply Qlt_trans; eassumption.
+} {
+  contradiction.
+} {
+  subst ms₃.
+  eapply IHpts; [ idtac | eassumption ].
+  eapply Sorted_minus_2nd; [ idtac | eassumption ].
+  intros x y z H₁ H₂; eapply Qlt_trans; eassumption.
+}
 Qed.
 
 Theorem vert_bef_edge : ∀ pts hs j αj h αh,
   Sorted fst_lt pts
   → lower_convex_hull_points pts = Some hs
-    → (j, αj) = ini_pt hs
-      → (h, αh) ∈ oth_pts hs
-        → j < h.
+  → (j, αj) = ini_pt hs
+  → (h, αh) ∈ oth_pts hs
+  → j < h.
 Proof.
 intros pts hs j αj h αh Hsort Hnp Hj Hh.
 destruct pts as [| pt₁]; [ discriminate Hnp | idtac ].
@@ -303,8 +306,8 @@ Qed.
 Theorem jq_lt_hq : ∀ (f : puis_ser_pol α) j αj h αh L,
   newton_segments f = Some L
   → (j, αj) = ini_pt L
-    → (h, αh) ∈ oth_pts L
-      → j < h.
+  → (h, αh) ∈ oth_pts L
+  → j < h.
 Proof.
 intros f j αj h αh L HL Hjαj Hhαh.
 unfold newton_segments in HL.
@@ -316,10 +319,10 @@ Qed.
 Theorem j_lt_h : ∀ (f : puis_ser_pol α) j αj jq h αh hq L,
   newton_segments f = Some L
   → (jq, αj) = ini_pt L
-    → (hq, αh) ∈ oth_pts L
-      → jq = Qnat j
-        → hq = Qnat h
-          → (j < h)%nat.
+  → (hq, αh) ∈ oth_pts L
+  → jq = Qnat j
+  → hq = Qnat h
+  → (j < h)%nat.
 Proof.
 intros f j αj jq h αh hq L HL Hj Hh Hjq Hhq.
 eapply jq_lt_hq in Hh; try eassumption.
@@ -330,9 +333,9 @@ Qed.
 Theorem seg_bef_end_pt : ∀ pt₁ pt₂ pts ms₁ hq αh kq αk,
   Sorted fst_lt [pt₁; pt₂ … pts]
   → minimise_slope pt₁ pt₂ pts = ms₁
-    → (hq, αh) ∈ oth_pts ms₁
-      → (kq, αk) = fin_pt ms₁
-        → hq < kq.
+  → (hq, αh) ∈ oth_pts ms₁
+  → (kq, αk) = fin_pt ms₁
+  → hq < kq.
 Proof.
 fix IHpts 3.
 intros pt₁ pt₂ pts ms₁ hq αh kq αk Hsort Hms₁ Hseg Hend.
@@ -342,33 +345,34 @@ remember (minimise_slope pt₁ pt₃ pts) as ms₂.
 symmetry in Heqms₂.
 remember (slope_expr pt₁ pt₂ ?= slope ms₂) as c.
 symmetry in Heqc.
-destruct c.
- subst ms₁; simpl in Hseg, Hend.
- destruct Hseg as [Hseg| Hseg].
-  apply Sorted_inv_1 in Hsort.
-  apply Sorted_hd with (pt₂ := (kq, αk)) in Hsort.
-   subst pt₂; assumption.
-
-   rewrite Hend.
-   eapply end_pt_in; eassumption.
-
+destruct c. {
+  subst ms₁; simpl in Hseg, Hend.
+  destruct Hseg as [Hseg| Hseg]. {
+    apply Sorted_inv_1 in Hsort.
+    apply Sorted_hd with (pt₂ := (kq, αk)) in Hsort. {
+      subst pt₂; assumption.
+    }
+    rewrite Hend.
+    eapply end_pt_in; eassumption.
+  }
   eapply IHpts with (pts := pts); try eassumption.
   eapply Sorted_minus_2nd; [ idtac | eassumption ].
   intros x y z H₁ H₂; eapply Qlt_trans; eassumption.
-
- subst ms₁; simpl in Hseg, Hend; contradiction.
-
- subst ms₁; simpl in Hseg, Hend.
- eapply IHpts with (pts := pts); try eassumption.
- eapply Sorted_minus_2nd; [ idtac | eassumption ].
- intros x y z H₁ H₂; eapply Qlt_trans; eassumption.
+} {
+  subst ms₁; simpl in Hseg, Hend; contradiction.
+} {
+  subst ms₁; simpl in Hseg, Hend.
+  eapply IHpts with (pts := pts); try eassumption.
+  eapply Sorted_minus_2nd; [ idtac | eassumption ].
+  intros x y z H₁ H₂; eapply Qlt_trans; eassumption.
+}
 Qed.
 
 Theorem hq_lt_kq : ∀ (f : puis_ser_pol α) hq αh kq αk L,
   newton_segments f = Some L
   → (hq, αh) ∈ oth_pts L
-    → (kq, αk) = fin_pt L
-      → hq < kq.
+  → (kq, αk) = fin_pt L
+  → hq < kq.
 Proof.
 intros f hq αh kq αk L HL Hoth Hfin.
 unfold newton_segments in HL.
@@ -385,34 +389,35 @@ Qed.
 Theorem j_lt_k : ∀ (f : puis_ser_pol α) j k L,
   newton_segments f = Some L
   → j = nat_num (fst (ini_pt L))
-    → k = nat_num (fst (fin_pt L))
-      → (j < k)%nat.
+  → k = nat_num (fst (fin_pt L))
+  → (j < k)%nat.
 Proof.
 intros f j k L HL Hj Hk.
 unfold newton_segments in HL.
 remember (points_of_ps_polynom f) as pts.
 remember Heqpts as Hj₁; clear HeqHj₁; symmetry in Hj₁.
-eapply pt_absc_is_nat with (pt := ini_pt L) in Hj₁.
- remember Heqpts as Hk₁; clear HeqHk₁; symmetry in Hk₁.
- eapply pt_absc_is_nat with (pt := fin_pt L) in Hk₁.
-  apply points_of_polyn_sorted in Heqpts.
-  assert (fst (ini_pt L) < fst (fin_pt L)).
-   eapply ini_lt_fin_pt; eassumption.
-
-   rewrite Hj₁, Hk₁ in H.
-   apply Qnat_lt in H.
-   subst j k; assumption.
-
+eapply pt_absc_is_nat with (pt := ini_pt L) in Hj₁. {
+  remember Heqpts as Hk₁; clear HeqHk₁; symmetry in Hk₁.
+  eapply pt_absc_is_nat with (pt := fin_pt L) in Hk₁. {
+    apply points_of_polyn_sorted in Heqpts.
+    assert (fst (ini_pt L) < fst (fin_pt L)). {
+      eapply ini_lt_fin_pt; eassumption.
+    }
+    rewrite Hj₁, Hk₁ in H.
+    apply Qnat_lt in H.
+    subst j k; assumption.
+  }
   apply ini_fin_ns_in_init_pts; assumption.
-
- apply ini_fin_ns_in_init_pts; assumption.
+}
+apply ini_fin_ns_in_init_pts; assumption.
 Qed.
 
 Theorem jz_lt_kz : ∀ (f : puis_ser_pol α) jz kz L,
   newton_segments f = Some L
   → jz = Qnum (fst (ini_pt L))
-    → kz = Qnum (fst (fin_pt L))
-      → (jz < kz)%Z.
+  → kz = Qnum (fst (fin_pt L))
+  → (jz < kz)%Z.
+(**)
 Proof.
 intros f jz kz L HL Hjz Hkz.
 remember HL as H; clear HeqH.
