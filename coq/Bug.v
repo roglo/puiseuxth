@@ -7,7 +7,8 @@ Parameter lap_eq : forall {α} {r : ring α}, list α -> list α -> Prop.
 
 Declare Instance lap_eq_equiv : forall {α} {r : ring α}, Equivalence lap_eq.
 
-Axiom lap_eq_0 : forall (α : Type) (r : ring α), lap_eq (cons rng_zero nil) nil.
+Axiom lap_eq_0 :
+  forall (α : Type) (r : ring α), lap_eq (cons rng_zero nil) nil.
 
 Definition puiseux_series (α : Type) := nat -> α.
 

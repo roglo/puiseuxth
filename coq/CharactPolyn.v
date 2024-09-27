@@ -1251,7 +1251,7 @@ Theorem qden_αh_is_ps_polydo : ∀ f L h αh,
 Proof.
 intros f L h αh HL Hoth.
 remember HL as H; clear HeqH.
-eapply order_in_newton_segment with (h := h) (αh := αh) in H; eauto with Arith.
+eapply order_in_newton_segment with (h := h) (αh := αh) in H; [ | easy | ].
  unfold order in H.
  remember (ps_poly_nth h f) as ps.
  remember (series_order (ps_terms ps) 0) as v eqn:Hv .
