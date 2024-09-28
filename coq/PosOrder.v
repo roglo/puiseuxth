@@ -184,7 +184,7 @@ eapply order_in_newton_segment with (h := h) (αh := αh) in Hval; eauto. {
           destruct Hnp as (p, Hp).
           rewrite Nat.mul_comm in Hp.
           rewrite Hp in Hmn.
-          apply Nat.mul_le_mono_pos_r in Hmn; [ idtac | apply Pos2Nat.is_pos ].
+          apply Nat.mul_le_mono_pos_r in Hmn; [ | apply Pos2Nat.is_pos ].
           rewrite Hp in Hn.
           rewrite Nat.div_mul in Hn; auto with Arith; simpl in Hn.
           rewrite Z.mul_add_distr_r in Hn.

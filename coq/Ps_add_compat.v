@@ -469,7 +469,8 @@ destruct n; [ discriminate Hz | clear Hz ].
 apply series_order_iff in Hn.
 simpl in Hn.
 destruct (Z_le_dec 0 (ps_ordnum ps)) as [H₁| H₁].
- exists (Z.to_nat (ps_ordnum ps + Zpos (ps_polydo ps))), O, xH, (ps_polydo ps).
+ exists
+   (Z.to_nat (ps_ordnum ps + Zpos (ps_polydo ps))), O, xH, (ps_polydo ps).
  constructor; simpl.
   rewrite Z2Nat.id.
    rewrite Z.mul_1_r.

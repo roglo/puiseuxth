@@ -45,7 +45,8 @@ rewrite series_order_stretch_succ_inf; auto.
 Qed.
 
 Theorem gcd_ps_0_m : ∀ n (ps : puiseux_series α),
-  gcd_ps n O ps = Z.abs (Z.gcd (ps_ordnum ps + Z.of_nat n) (Zpos (ps_polydo ps))).
+  gcd_ps n O ps =
+    Z.abs (Z.gcd (ps_ordnum ps + Z.of_nat n) (Zpos (ps_polydo ps))).
 Proof.
 intros n ps.
 unfold gcd_ps.
