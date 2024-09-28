@@ -1874,7 +1874,8 @@ Definition nat_fst_lt (x y : Q * Q) :=
 Theorem shrinkable_if : ∀ f q pt₁ pts,
   Sorted nat_fst_lt [pt₁ … pts]
   → q ≠ O
-  → List.Forall (λ pt, Nat.divide q (nat_num (fst pt) - nat_num (fst pt₁))) pts
+  → List.Forall (λ pt, Nat.divide q (nat_num (fst pt) - nat_num (fst pt₁)))
+       pts
   → poly_shrinkable q
       POL (make_char_pol R (nat_num (fst pt₁))
             (List.map (term_of_point f) [pt₁ … pts]))%pol.
@@ -2386,7 +2387,7 @@ split. {
     apply Sorted_fst_lt_nat_num_fst in H; auto with Arith.
     intros pt Hpt.
     progress unfold Qnat.
-    eapply points_in_newton_segment_have_nat_abscissa in Hpt; eauto with Arith.
+    eapply points_in_newton_segment_have_nat_abscissa in Hpt; [ | apply HL ].
     destruct Hpt as (h, (ah, Hpt)).
     subst pt; simpl.
     rewrite Nat2Z.id; reflexivity.
@@ -2440,7 +2441,7 @@ apply imp_or_tauto. {
       rewrite list_last_cons_app; simpl.
       rewrite <- Hk; simpl.
       rewrite nat_num_Qnat; simpl.
-      eapply ord_coeff_non_zero_in_newt_segm; try eassumption; try reflexivity.
+      eapply ord_coeff_non_zero_in_newt_segm; [ apply HL | | easy ].
       rewrite <- Hk; right.
       apply List.in_or_app; right; left; reflexivity.
     } {
