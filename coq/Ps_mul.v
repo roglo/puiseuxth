@@ -492,7 +492,8 @@ destruct n as [n| ]; constructor.
     rewrite <- Hxk, Hx, Z.add_simpl_r.
     rewrite Hy, Z.gcd_comm, <- Z.gcd_assoc in Hg.
     remember (greatest_series_x_power K (ps_terms ps) n) as z.
-    pose proof (Z.gcd_divide_l (Zpos (ps_polydo ps)) (Z.gcd (Z.of_nat z) x)) as Hgc.
+    pose proof (Z.gcd_divide_l (Zpos (ps_polydo ps)) (Z.gcd (Z.of_nat z) x))
+      as Hgc.
     rewrite <- Hg in Hgc.
     destruct Hgc as (c, Hc).
     rewrite Hc.
@@ -570,7 +571,8 @@ Theorem ps_polydo_normalise : ∀ ps n p vn,
     → vn = (ps_ordnum ps + Z.of_nat n)%Z
       → ps_polydo (normalise_ps ps) =
         Z.to_pos
-          (Zpos (ps_polydo ps) / Z.gcd (Zpos (ps_polydo ps)) (Z.gcd (Z.of_nat p) vn)).
+          (Zpos (ps_polydo ps) /
+             Z.gcd (Zpos (ps_polydo ps)) (Z.gcd (Z.of_nat p) vn)).
 Proof.
 intros ps n p vn Hn Hp Hvn.
 unfold normalise_ps; simpl.
@@ -842,17 +844,21 @@ rewrite <- (normalise_ps_eq ips₃).
 remember (normalise_ps ips₁) as ps₁ eqn:Hps₁ .
 remember (normalise_ps ips₂) as ps₂ eqn:Hps₂ .
 remember (normalise_ps ips₃) as ps₃ eqn:Hps₃ .
-remember (ps_ordnum ps₁ * Zpos (ps_polydo ps₂) * Zpos (ps_polydo ps₃))%Z as vcc.
-remember (Zpos (ps_polydo ps₁) * ps_ordnum ps₂ * Zpos (ps_polydo ps₃))%Z as cvc.
-remember (Zpos (ps_polydo ps₁) * Zpos (ps_polydo ps₂) * ps_ordnum ps₃)%Z as ccv.
+remember (ps_ordnum ps₁ * Zpos (ps_polydo ps₂) * Zpos (ps_polydo ps₃))%Z
+  as vcc.
+remember (Zpos (ps_polydo ps₁) * ps_ordnum ps₂ * Zpos (ps_polydo ps₃))%Z
+  as cvc.
+remember (Zpos (ps_polydo ps₁) * Zpos (ps_polydo ps₂) * ps_ordnum ps₃)%Z
+  as ccv.
 remember ((vcc + Z.min cvc ccv) * Zpos (ps_polydo ps₁))%Z as n₁.
 remember ((vcc + Z.min cvc ccv) * Zpos (ps_polydo ps₁))%Z as n₂.
 do 2 rewrite eq_ps_add_add₂.
 rewrite ps_adjust_eq with (n := O) (k := ps_polydo ps₁); symmetry.
 rewrite ps_adjust_eq with (n := O) (k := xH); symmetry.
 remember (adjust_ps 0 (ps_polydo ps₁) (ps₁ * ps_add₂ ps₂ ps₃))%ps as ps₄
- eqn:Hps₄ .
-remember (adjust_ps 0 1 (ps_add₂ (ps₁ * ps₂) (ps₁ * ps₃)))%ps as ps₅ eqn:Hps₅ .
+  eqn:Hps₄ .
+remember (adjust_ps 0 1 (ps_add₂ (ps₁ * ps₂) (ps₁ * ps₃)))%ps as ps₅
+  eqn:Hps₅ .
 remember (series_order (ps_terms ps₄) 0) as n₄ eqn:Hn₄ .
 remember (series_order (ps_terms ps₅) 0) as n₅ eqn:Hn₅ .
 symmetry in Hn₄, Hn₅.

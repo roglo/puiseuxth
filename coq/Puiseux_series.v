@@ -754,7 +754,9 @@ Definition normalise_series α n k (s : power_series α) :=
   series_shrink k (series_left_shift n s).
 
 Definition gcd_ps α n k (ps : puiseux_series α) :=
-  Z.gcd (Z.gcd (ps_ordnum ps + Z.of_nat n) (Zpos (ps_polydo ps))) (Z.of_nat k).
+  Z.gcd
+    (Z.gcd (ps_ordnum ps + Z.of_nat n) (Zpos (ps_polydo ps)))
+    (Z.of_nat k).
 
 Definition ps_zero {α} {r : ring α} :=
   {| ps_terms := 0%ser; ps_ordnum := 0; ps_polydo := 1 |}.

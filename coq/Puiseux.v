@@ -1,6 +1,6 @@
 (* Puiseux.v *)
 
-Require Import Utf8 QArith NPeano Sorting.
+Require Import Utf8 QArith Sorting.
 
 Require Import Misc.
 Require Import SlopeMisc.
@@ -67,7 +67,7 @@ remember (zerop_1st_n_const_coeff n f₁ L₁) as z₁ eqn:Hz₁ .
 symmetry in Hz₁.
 destruct z₁; [ rewrite order_0; constructor | idtac ].
 revert m q₀ c f L f₁ L₁ HL Hc Hm Hq₀ Hf₁ HL₁ Hz₁ Hpsi Hri.
-induction n; intros.
+induction n; intros. {
  simpl.
  unfold order; simpl.
  pose proof (Hpsi 1%nat (Nat.le_refl 1)) as H; simpl in H.
@@ -450,7 +450,8 @@ assert (Hrle : ∀ n : nat, S r ≤ nth_r n f L).
      rewrite <- Pos2Z.inj_mul.
      rewrite <- Z.mul_1_r at 1.
      eapply Z.le_trans.
-      apply Z.mul_le_mono_nonneg_l with (m := (Zpos (Qden ofs))%Z); auto with Arith.
+      apply Z.mul_le_mono_nonneg_l with (m := (Zpos (Qden ofs))%Z);
+        auto with Arith.
 
       rewrite Z.one_succ.
       apply Zlt_le_succ.
