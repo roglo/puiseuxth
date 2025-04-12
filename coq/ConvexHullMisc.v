@@ -1,8 +1,8 @@
 (* ConvexHullMisc.v *)
 
-Require Import Utf8.
-Require Import QArith.
-Require Import Sorting.
+From Stdlib Require Import Utf8.
+From Stdlib Require Import QArith.
+From Stdlib Require Import Sorting.
 
 Require Import Misc.
 Require Import ConvexHull.

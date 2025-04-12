@@ -1,6 +1,6 @@
 (* CharactPolyn.v *)
 
-Require Import Utf8 QArith Sorted.
+From Stdlib Require Import Utf8 QArith Sorted ZArith.
 
 Require Import ConvexHull.
 Require Import ConvexHullMisc.

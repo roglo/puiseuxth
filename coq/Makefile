@@ -1,6 +1,9 @@
 # $Id: Makefile,v 2.1 2013-12-19 19:25:10 deraugla Exp $
 
 TARGET=Puiseux.vo
+ROCQ=rocq compile
+ROCQ_OPTS=-w +notation-overridden,+parsing,+deprecated,+missing-syntax
+ROCQ_OPTS=
 
 FILESFORDEP=`LC_ALL=C ls *.v`
 
@@ -16,7 +19,7 @@ depend:
 
 .SUFFIXES: .v .vo
 
-.v.vo:
-	coqc $<
+%.vo: %.v
+	$(ROCQ) $(ROCQ_OPTS) $<
 
 include .depend

@@ -1,7 +1,7 @@
 (* Ps_div.v *)
 
-Require Import Utf8.
-Require Import QArith.
+From Stdlib Require Import Utf8 Arith.
+From Stdlib Require Import QArith.
 
 Require Import Misc.
 Require Import NbarM.

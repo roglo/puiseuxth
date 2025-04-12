@@ -2,8 +2,8 @@
 
 (* polynomials on a ring *)
 
-Require Import Utf8.
-Require Import QArith.
+From Stdlib Require Import Utf8 Arith.
+From Stdlib Require Import QArith.
 
 Require Import Misc.
 Require Import Field2.

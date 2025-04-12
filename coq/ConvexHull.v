@@ -1,6 +1,6 @@
 (* ConvexHull.v *)
 
-Require Import Utf8 QArith List.
+From Stdlib Require Import Utf8 QArith List.
 Import ListNotations.
 
 Require Import Slope_base.

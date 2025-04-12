@@ -1,8 +1,8 @@
 (* SplitList.v *)
 
-Require Import Utf8.
-Require Import Arith.
-Require Import Sorted.
+From Stdlib Require Import Utf8.
+From Stdlib Require Import Arith.
+From Stdlib Require Import Sorted.
 
 Require Import Misc.
 

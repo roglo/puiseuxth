@@ -1,8 +1,8 @@
 (* Nbar.v *)
 
-Require Import Utf8.
-Require Import Compare_dec.
-Require Import Arith.
+From Stdlib Require Import Utf8.
+From Stdlib Require Import Compare_dec.
+From Stdlib Require Import Arith.
 
 Require Import Misc.
 
