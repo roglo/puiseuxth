@@ -1051,51 +1051,44 @@ eapply ps_lap_in_add; [ idtac | idtac | eassumption ]. {
   intros n Hn.
   destruct (ps_zerop _ a) as [Ha| Ha]. {
     rewrite Ha in Hn.
-(* trying to get around a bug in coq 8.20.0
-...
-*)
-Check 1%nat.
-   rewrite lap_eq_0 in Hn.
-Check 1%nat.
-(**)
-   rewrite lap_mul_nil_l in Hn; contradiction.
-
-   assert (order a > 0)%Qbar as Hoa.
+    rewrite lap_eq_0 in Hn.
+    rewrite lap_mul_nil_l in Hn; contradiction.
+  }
+  assert (order a > 0)%Qbar as Hoa. {
     apply Hla; left; split; [ idtac | reflexivity ].
     intros H.
     apply lap_eq_cons_nil_inv in H.
     destruct H; contradiction.
-
-    revert Hlb Hn Hoa; clear -K; intros.
-    rewrite lap_mul_const_l in Hn.
-    induction lb as [| b]; [ contradiction | idtac ].
-    simpl in Hn.
-    destruct Hn as [(Hab, Hn)| Hn].
-     rewrite <- Hn, order_mul.
-     eapply Qbar.lt_le_trans; [ eassumption | idtac ].
-     apply Qbar.le_sub_le_add_l.
-     rewrite Qbar.sub_diag.
-     destruct (ps_zerop _ b) as [Hb| Hb].
-      rewrite Hb, order_0; constructor.
-
-      apply Hlb; left; split; [ idtac | reflexivity ].
-      intros H; apply Hb.
-      apply lap_eq_cons_nil_inv in H.
-      destruct H; assumption.
-
-     apply IHlb; [ idtac | assumption ].
-     intros p Hp.
-     apply Hlb; right; assumption.
-
-  intros n Hn.
+  }
+  revert Hlb Hn Hoa; clear -K; intros.
+  rewrite lap_mul_const_l in Hn.
+  induction lb as [| b]; [ contradiction | idtac ].
   simpl in Hn.
-  destruct Hn as [(Hab, Hn)| Hn].
-   symmetry in Hn.
-   rewrite Hn, order_0; constructor.
-
-   eapply IHla; try eassumption.
-   intros p Hp.
-   apply Hla; right; assumption.
+  destruct Hn as [(Hab, Hn)| Hn]. {
+    rewrite <- Hn, order_mul.
+    eapply Qbar.lt_le_trans; [ eassumption | idtac ].
+    apply Qbar.le_sub_le_add_l.
+    rewrite Qbar.sub_diag.
+    destruct (ps_zerop _ b) as [Hb| Hb]. {
+      rewrite Hb, order_0; constructor.
+    }
+    apply Hlb; left; split; [ idtac | reflexivity ].
+    intros H; apply Hb.
+    apply lap_eq_cons_nil_inv in H.
+    destruct H; assumption.
+  }
+  apply IHlb; [ idtac | assumption ].
+  intros p Hp.
+  apply Hlb; right; assumption.
+}
+intros n Hn.
+simpl in Hn.
+destruct Hn as [(Hab, Hn)| Hn].
+symmetry in Hn.
+rewrite Hn, order_0; constructor.
+eapply IHla; try eassumption.
+intros p Hp.
+apply Hla; right; assumption.
 Qed.
 
 Theorem ps_lap_in_mul_ge : ∀ la lb,

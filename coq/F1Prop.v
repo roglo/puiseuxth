@@ -1,6 +1,6 @@
 (* F1Prop.v *)
 
-Require Import Utf8 QArith NPeano Sorted.
+From Stdlib Require Import Utf8 QArith Arith ZArith Sorted.
 
 Require Import Misc.
 Require Import QbarM.
@@ -312,6 +312,7 @@ induction n; intros.
  rewrite lap_mul_cons_l.
  rewrite lap_eq_0, lap_mul_nil_l, lap_add_nil_l, lap_mul_1_l.
  destruct m; [ reflexivity | idtac ].
+ ...
  apply lt_S_n in Hmn.
  unfold ps_lap_nth; simpl.
  apply IHn; assumption.

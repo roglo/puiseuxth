@@ -1,6 +1,6 @@
 (* InK1m.v *)
 
-Require Import Utf8 QArith.
+From Stdlib Require Import Utf8 QArith ZArith.
 
 Require Import Misc.
 Require Import Field2.
@@ -27,24 +27,26 @@ Set Implicit Arguments.
 Global Instance in_K_1_m_morph α (R : ring α) (K : field R) :
   Proper (eq_ps ==> eq ==> iff) (@in_K_1_m _ R K).
 Proof.
-intros a b Hab n.
-split; intros H.
- inversion_clear H.
- destruct H0 as (ps₁, H).
- constructor.
- exists ps₁.
- destruct H as (H, Hpo).
- split; [ idtac | assumption ].
- transitivity a; assumption.
-
- inversion_clear H.
- destruct H0 as (ps₁, H).
- constructor.
- exists ps₁.
- destruct H as (H, Hpo).
- split; [ idtac | assumption ].
- symmetry in Hab.
- transitivity b; assumption.
+intros a b Hab n c Hc.
+subst c.
+split; intros H. {
+  inversion_clear H.
+  destruct H0 as (ps₁, H).
+  constructor.
+  exists ps₁.
+  destruct H as (H, Hpo).
+  split; [ idtac | assumption ].
+  transitivity a; assumption.
+} {
+  inversion_clear H.
+  destruct H0 as (ps₁, H).
+  constructor.
+  exists ps₁.
+  destruct H as (H, Hpo).
+  split; [ idtac | assumption ].
+  symmetry in Hab.
+  transitivity b; assumption.
+}
 Qed.
 
 Section theorems.
