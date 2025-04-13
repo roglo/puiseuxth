@@ -44,7 +44,7 @@ static struct custom_operations custom_mpfr_ops = {
 
 static value caml_alloc_mpfr(mpfr_t *x)
 {
-  value v = alloc_custom(&custom_mpfr_ops, sizeof(mpfr_t *), 0, 1);
+  value v = caml_alloc_custom(&custom_mpfr_ops, sizeof(mpfr_t *), 0, 1);
   Mpfr_val(v) = x;
   return v;
 }
