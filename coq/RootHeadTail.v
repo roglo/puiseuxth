@@ -1,6 +1,6 @@
 (* RootHeadTail.v *)
 
-Require Import Utf8 QArith NPeano Sorting.
+From Stdlib Require Import Utf8 QArith ZArith Sorting.
 
 Require Import Misc.
 Require Import Field2.

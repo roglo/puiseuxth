@@ -304,18 +304,17 @@ Theorem ps_lap_nth_x_gt_pow_mul : ∀ la m n,
 Proof.
 intros la m n Hmn.
 revert m Hmn.
-induction n; intros.
- exfalso; revert Hmn; apply Nat.nlt_0_r.
-
- unfold ps_lap_mul, ps_lap_pow; simpl.
- rewrite <- lap_mul_assoc.
- rewrite lap_mul_cons_l.
- rewrite lap_eq_0, lap_mul_nil_l, lap_add_nil_l, lap_mul_1_l.
- destruct m; [ reflexivity | idtac ].
- ...
- apply lt_S_n in Hmn.
- unfold ps_lap_nth; simpl.
- apply IHn; assumption.
+induction n; intros. {
+  exfalso; revert Hmn; apply Nat.nlt_0_r.
+}
+unfold ps_lap_mul, ps_lap_pow; simpl.
+rewrite <- lap_mul_assoc.
+rewrite lap_mul_cons_l.
+rewrite lap_eq_0, lap_mul_nil_l, lap_add_nil_l, lap_mul_1_l.
+destruct m; [ reflexivity | idtac ].
+apply Nat.succ_lt_mono in Hmn.
+unfold ps_lap_nth; simpl.
+apply IHn; assumption.
 Qed.
 
 Theorem ps_lap_nth_0_cons_pow : ∀ a la n,
