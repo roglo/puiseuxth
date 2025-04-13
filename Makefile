@@ -5,9 +5,9 @@ all: proof cpoly puiseux
 	@echo 'available command: puiseux'
 
 clean:
+	cd coq; $(MAKE) clean
 	cd cpoly; $(MAKE) clean
 	cd ocaml; $(MAKE) clean
-	cd coq; $(MAKE) clean
 	rm -f puiseux ugly
 
 cpoly:
