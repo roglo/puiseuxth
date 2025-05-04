@@ -913,7 +913,7 @@ intros a b m n.
 progress unfold ps_mul; simpl.
 unfold cm; simpl.
 unfold ps_monom; simpl.
-apply mkps_morphism; try reflexivity.
+apply mkps_morphism; [ | easy | easy ].
 constructor; intros i; simpl.
 unfold convol_mul; simpl.
 destruct i; simpl.
