@@ -1,8 +1,9 @@
 (* Ps_add.v *)
 
 From Stdlib Require Import Utf8 Arith ZArith.
-From Stdlib Require Import QArith.
+Require Import Morphisms.
 
+Require Import QG.
 Require Import NbarM.
 Require Import Misc.
 Require Import Field2.
@@ -547,7 +548,7 @@ unfold ps_add; simpl.
 unfold cm; simpl.
 unfold ps_ordnum_add; simpl.
 unfold ps_terms_add; simpl.
-rewrite ps_adjust_eq with (n := O) (k := Qden n).
+rewrite ps_adjust_eq with (n := O) (k := QG_den n).
 unfold adjust_ps; simpl.
 rewrite Z.sub_0_r.
 rewrite Z.min_id.
@@ -557,7 +558,7 @@ rewrite Z.sub_diag; simpl.
 unfold adjust_series; simpl.
 do 2 rewrite series_shift_0.
 constructor; intros i; simpl.
-destruct (zerop (i mod Pos.to_nat (Qden n))) as [H₁| H₁]. {
+destruct (zerop (i mod Pos.to_nat (QG_den n))) as [H₁| H₁]. {
   apply Nat.Div0.mod_divides in H₁.
   destruct H₁ as (c, Hc).
   rewrite Nat.mul_comm in Hc; rewrite Hc.

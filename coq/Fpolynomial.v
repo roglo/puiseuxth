@@ -3,8 +3,10 @@
 (* polynomials on a ring *)
 
 From Stdlib Require Import Utf8 Arith.
-From Stdlib Require Import QArith.
+Require Import Relation_Definitions.
+Require Import Morphisms.
 
+Require Import QG.
 Require Import Misc.
 Require Import Field2.
 Require Import Fsummation.

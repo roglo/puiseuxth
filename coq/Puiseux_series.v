@@ -1,12 +1,13 @@
 (* Puiseux_series.v *)
 
 From Stdlib Require Import Utf8 Arith ZArith.
-From Stdlib Require Import QArith.
+From Stdlib Require Import Relations Morphisms Setoid.
 
+Require Import QG.
+Require Import Power_series.
 Require Import Misc.
 Require Import NbarM.
 Require Import Field2.
-Require Import Power_series.
 
 Set Implicit Arguments.
 
@@ -792,8 +793,8 @@ Arguments eq_ps _ _ _ ps₁%_ps ps₂%_ps.
 
 Definition ps_monom {α} {r : ring α} (c : α) pow :=
   {| ps_terms := {| terms i := if zerop i then c else 0%K |};
-     ps_ordnum := Qnum pow;
-     ps_polydo := Qden pow |}.
+     ps_ordnum := QG_num pow;
+     ps_polydo := QG_den pow |}.
 
 Definition ps_one {α} {r : ring α} := ps_monom rng_one 0.
 

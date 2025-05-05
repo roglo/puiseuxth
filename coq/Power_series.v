@@ -1,12 +1,12 @@
 (* Power_series.v *)
 
 From Stdlib Require Import Utf8 Arith.
-From Stdlib Require Import QArith.
+From Stdlib Require Import Relations Morphisms.
 
+Require Import Fsummation.
 Require Import Misc.
 Require Import NbarM.
 Require Import Field2.
-Require Import Fsummation.
 
 Set Implicit Arguments.
 

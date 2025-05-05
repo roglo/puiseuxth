@@ -1,12 +1,13 @@
 (* Ps_mul.v *)
 
 From Stdlib Require Import Utf8 Arith ZArith.
-From Stdlib Require Import QArith.
+Require Import Morphisms.
 
+Require Import QG.
+Require Import Fsummation.
 Require Import Misc.
 Require Import NbarM.
 Require Import Field2.
-Require Import Fsummation.
 Require Import Power_series.
 Require Import Puiseux_series.
 Require Import Ps_add.
@@ -882,7 +883,7 @@ Theorem ps_monom_add_l : ∀ c d n,
 Proof.
 intros c d n.
 unfold ps_monom; simpl.
-rewrite ps_adjust_eq with (n := 0%nat) (k := Qden n).
+rewrite ps_adjust_eq with (n := 0%nat) (k := QG_den n).
 unfold adjust_ps; simpl.
 rewrite series_shift_0.
 rewrite Z.sub_0_r.
@@ -891,8 +892,8 @@ apply mkps_morphism; simpl.
  rewrite Z.min_id; simpl.
  rewrite Z.sub_diag; simpl.
  rewrite Nat.sub_0_r.
- destruct (zerop (i mod Pos.to_nat (Qden n))) as [H| H].
-  destruct (zerop (i / Pos.to_nat (Qden n))) as [H₁| H₁].
+ destruct (zerop (i mod Pos.to_nat (QG_den n))) as [H| H].
+  destruct (zerop (i / Pos.to_nat (QG_den n))) as [H₁| H₁].
    reflexivity.
 
    rewrite rng_add_0_l; reflexivity.
@@ -906,6 +907,10 @@ apply mkps_morphism; simpl.
  reflexivity.
 Qed.
 
+Print eq_ps.
+Print normalise_ps.
+...
+
 Theorem ps_monom_mul : ∀ a b m n,
   (ps_monom a m * ps_monom b n = ps_monom (a * b)%K (m + n))%ps.
 Proof.
@@ -913,7 +918,70 @@ intros a b m n.
 progress unfold ps_mul; simpl.
 unfold cm; simpl.
 unfold ps_monom; simpl.
-apply mkps_morphism; [ | easy | easy ].
+apply mkps_morphism. 3: {
+...
+apply mkps_morphism. 2: {
+destruct m as ((mn & md), mp).
+destruct n as ((nn & nd), np).
+cbn.
+cbn in mp, np.
+move nn before mn.
+move nd before md.
+rewrite Z_pos_pos_gcd.
+Search (Z.gcd (_ + _)).
+Check Z.gauss.
+...
+specialize (QG_of_Q_prop (qg_q (m + n))) as H1.
+remember (m + n)%QG as mn.
+cbn in H1.
+subst mn.
+rewrite fold_QG_num in H1.
+rewrite fold_QG_den in H1.
+rewrite Z_pos_pos_gcd in H1.
+remember (QG_num (m + n)) as x.
+remember (Z.pos (QG_den (m + n))) as y.
+...
+cbn.
+do 2 rewrite fold_QG_num.
+do 2 rewrite fold_QG_den.
+cbn in H1.
+do 2 rewrite fold_QG_num in H1.
+do 2 rewrite fold_QG_den in H1.
+remember (_ + _)%Z as x.
+rewrite Z2Pos.id in H1.
+remember (Z.pos (Z_pos_gcd _ _)) as y eqn:Hy.
+...
+Search (Z.to_pos (_ / _)).
+...
+Search (Z.pos (Z.to_pos _)).
+Search (Z.to_pos (Z.pos _)).
+rewrite Pos2Z.id in H1.
+...
+Print QG_num.
+...
+...
+Require Import QArith.
+specialize QG_of_Q_prop as H1.
+specialize (H1 (qg_q (m + n))).
+remember (m + n)%QG as mn.
+cbn in H1.
+progress unfold QG_num.
+cbn.
+Check QG_of_Q_prop.
+...
+Search QG_of_Q_prop.
+  rewrite Z_pos_pos_gcd.
+...
+progress unfold QG_den.
+Require Import QArith.
+  progress unfold QG_num.
+  progress unfold QG_den.
+  cbn.
+  rewrite Z_pos_pos_gcd.
+Search (Z.gcd (_ + _)).
+remember (_ + _)%Z as x.
+Search (_ / Z.gcd _ _)%Z.
+...
 constructor; intros i; simpl.
 unfold convol_mul; simpl.
 destruct i; simpl.
@@ -927,7 +995,7 @@ destruct i; simpl.
  rewrite all_0_summation_0; [ reflexivity | idtac ].
  intros j (_, Hj).
  rewrite fold_sub_succ_l.
- destruct (zerop (j mod Pos.to_nat (Qden n))) as [H₁| H₁].
+ destruct (zerop (j mod Pos.to_nat (QG_den n))) as [H₁| H₁].
   apply Nat.Div0.mod_divides in H₁.
   destruct H₁ as (c, Hc).
   rewrite Nat.mul_comm in Hc; rewrite Hc.
@@ -935,7 +1003,7 @@ destruct i; simpl.
   destruct (zerop c) as [H₁| H₁].
    subst c.
    rewrite Nat.mul_0_l, Nat.sub_0_r.
-   destruct (zerop (S i mod Pos.to_nat (Qden m))) as [H₁| H₁].
+   destruct (zerop (S i mod Pos.to_nat (QG_den m))) as [H₁| H₁].
     apply Nat.Div0.mod_divides in H₁.
     destruct H₁ as (d, Hd).
     rewrite Nat.mul_comm in Hd; rewrite Hd.

@@ -1,14 +1,16 @@
 (* ConvexHull.v *)
 
-From Stdlib Require Import Utf8 QArith List.
+From Stdlib Require Import Utf8 List.
 Import ListNotations.
 
+Require Import QG.
 Require Import Slope_base.
+Open Scope QG.
 
 Record newton_segment := mkns
-  { ini_pt : (Q * Q);
-    fin_pt : (Q * Q);
-    oth_pts : list (Q * Q) }.
+  { ini_pt : (QG * QG);
+    fin_pt : (QG * QG);
+    oth_pts : list (QG * QG) }.
 
 Definition slope ms := slope_expr (ini_pt ms) (fin_pt ms).
 
@@ -18,7 +20,7 @@ Fixpoint minimise_slope pt₁ pt₂ pts₂ :=
       {| ini_pt := pt₁; fin_pt := pt₂; oth_pts := [] |}
   | pt₃ :: pts₃ =>
       let ms := minimise_slope pt₁ pt₃ pts₃ in
-      match Qcompare (slope_expr pt₁ pt₂) (slope ms) with
+      match QG_compare (slope_expr pt₁ pt₂) (slope ms) with
       | Eq =>
           {| ini_pt := pt₁; fin_pt := fin_pt ms;
              oth_pts := pt₂ :: oth_pts ms |}
@@ -54,7 +56,7 @@ Qed.
 
 Theorem slope_slope_expr : ∀ ms pt₁ pt₂ pts,
   minimise_slope pt₁ pt₂ pts = ms
-  → slope ms == slope_expr pt₁ (fin_pt ms).
+  → slope ms = slope_expr pt₁ (fin_pt ms).
 Proof.
 intros ms pt₁ pt₂ pts Hms.
 unfold slope.

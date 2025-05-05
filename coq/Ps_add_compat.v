@@ -1,12 +1,12 @@
 (* Ps_add_compat.v *)
 
 From Stdlib Require Import Utf8 Arith ZArith.
-From Stdlib Require Import QArith.
+Require Import Morphisms.
 
-Require Import NbarM.
-Require Import Misc.
-Require Import Field2.
 Require Import Power_series.
+Require Import NbarM.
+Require Import Field2.
+Require Import Misc.
 Require Import Puiseux_series.
 Require Import Ps_add.
 
