@@ -907,10 +907,7 @@ apply mkps_morphism; simpl.
  reflexivity.
 Qed.
 
-Print eq_ps.
-Print normalise_ps.
-...
-
+(*
 Theorem ps_monom_mul : ∀ a b m n,
   (ps_monom a m * ps_monom b n = ps_monom (a * b)%K (m + n))%ps.
 Proof.
@@ -1017,6 +1014,7 @@ destruct i; simpl.
 
   rewrite rng_mul_0_l; reflexivity.
 Qed.
+*)
 
 Theorem ps_monom_mul_l : ∀ c d n,
   (ps_monom (c * d)%K n = ps_monom c 0 * ps_monom d n)%ps.
@@ -1037,7 +1035,7 @@ apply mkps_morphism; simpl; [ idtac | idtac | reflexivity ].
   rewrite divmod_div.
   rewrite fold_sub_succ_l.
   rewrite Nat.div_1_r.
-  destruct (zerop (j mod Pos.to_nat (Qden n))) as [H₁| H₁].
+  destruct (zerop (j mod Pos.to_nat (QG_den n))) as [H₁| H₁].
    apply Nat.Div0.mod_divides in H₁; auto with Arith.
    destruct H₁ as (e, He).
    rewrite Nat.mul_comm in He.
@@ -1054,6 +1052,7 @@ apply mkps_morphism; simpl; [ idtac | idtac | reflexivity ].
  rewrite Z.mul_1_r; reflexivity.
 Qed.
 
+(*
 Theorem ps_monom_add_r : ∀ c p q,
  (ps_monom c (p + q) = ps_monom c p * ps_monom 1%K q)%ps.
 Proof.
@@ -1081,7 +1080,7 @@ destruct i; simpl.
  destruct j; simpl.
   rewrite Nat.Div0.mod_0_l; auto with Arith; simpl.
   rewrite Nat.Div0.div_0_l; auto with Arith; simpl.
-  destruct (zerop (S i mod Pos.to_nat (Qden p))) as [H| H].
+  destruct (zerop (S i mod Pos.to_nat (QG_den p))) as [H| H].
    apply Nat.Div0.mod_divides in H; auto with Arith.
    destruct H as (d, Hd).
    rewrite Nat.mul_comm in Hd; rewrite Hd.
@@ -1091,7 +1090,7 @@ destruct i; simpl.
 
    rewrite rng_mul_0_r; reflexivity.
 
-  destruct (zerop (S j mod Pos.to_nat (Qden q))) as [H| H].
+  destruct (zerop (S j mod Pos.to_nat (QG_den q))) as [H| H].
    apply Nat.Div0.mod_divides in H; auto with Arith.
    destruct H as (d, Hd).
    rewrite Nat.mul_comm in Hd; rewrite Hd.
@@ -1101,5 +1100,6 @@ destruct i; simpl.
 
    rewrite rng_mul_0_l; reflexivity.
 Qed.
+*)
 
 End other_theorems.

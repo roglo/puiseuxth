@@ -1,8 +1,8 @@
 (* Ps_div.v *)
 
-From Stdlib Require Import Utf8 Arith.
-From Stdlib Require Import QArith.
+From Stdlib Require Import Utf8 ZArith Arith.
 
+Require Import QG.
 Require Import Misc.
 Require Import NbarM.
 Require Import Field2.
@@ -11,6 +11,7 @@ Require Import Ps_add.
 Require Import Ps_add_compat.
 Require Import Ps_mul.
 Require Import Power_series.
+Open Scope QG_scope.
 
 Set Implicit Arguments.
 
