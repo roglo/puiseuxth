@@ -3,6 +3,7 @@
 (* points in newton segment *)
 
 From Stdlib Require Import Utf8 Sorting.
+From Stdlib Require Import Field.
 
 Require Import QG.
 Require Import Slope_base.
@@ -30,9 +31,8 @@ destruct Hαh as [Hαh| Hαh]. {
   subst ns; simpl in Hαh; simpl.
   rewrite Hαh; simpl.
   unfold β, γ; simpl.
-From Stdlib Require Import Field.
-...
   field.
+...
   apply Qgt_0_not_0, Qlt_minus.
   remember (ini_pt ms) as pt₄.
   remember Heqpt₄ as H; clear HeqH.

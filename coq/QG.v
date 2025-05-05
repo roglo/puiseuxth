@@ -1945,3 +1945,25 @@ Definition QG_ring_theory :=
      Ropp_def := QG_add_opp_diag_r |}.
 
 Add Ring QG_ring : QG_ring_theory.
+
+From Stdlib Require Import Field.
+
+Theorem QG_1_neq_0 : (1 ≠ 0)%QG.
+Proof. easy. Qed.
+
+Theorem QG_Fdiv_def : ∀ p q : QG, (p / q = p * q⁻¹)%QG.
+Proof. easy. Qed.
+
+Theorem QG_Finv_l : ∀ p : QG, p ≠ 0%QG → (p⁻¹ * p)%QG = 1%QG.
+Proof.
+intros * Hpz.
+now apply QG_mul_inv_diag_l.
+Qed.
+
+Definition QG_field_theory :=
+  {| F_R := QG_ring_theory;
+     F_1_neq_0 := QG_1_neq_0;
+     Fdiv_def := QG_Fdiv_def;
+     Finv_l := QG_Finv_l |}.
+
+Add Field QG_field : QG_field_theory.
