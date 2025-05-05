@@ -3,8 +3,9 @@
 (* polynomials of Puiseux series *)
 
 From Stdlib Require Import Utf8.
-From Stdlib Require Import QArith.
+From Stdlib Require Import Relations Morphisms.
 
+Require Import QG.
 Require Import Misc.
 Require Import Field2.
 Require Import Fpolynomial.
