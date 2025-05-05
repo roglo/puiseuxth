@@ -30,6 +30,7 @@ destruct Hαh as [Hαh| Hαh]. {
   subst ns; simpl in Hαh; simpl.
   rewrite Hαh; simpl.
   unfold β, γ; simpl.
+From Stdlib Require Import Field.
 ...
   field.
   apply Qgt_0_not_0, Qlt_minus.

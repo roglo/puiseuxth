@@ -1927,3 +1927,21 @@ Proof. easy. Qed.
 
 Theorem fold_QG_den : ∀ q, Qden (qg_q q) = QG_den q.
 Proof. easy. Qed.
+
+From Stdlib Require Import Ring.
+
+Theorem QG_sub_def : ∀ x y : QG, (x - y = x + (- y))%QG.
+Proof. easy. Qed.
+
+Definition QG_ring_theory :=
+  {| Radd_0_l := QG_add_0_l;
+     Radd_comm := QG_add_comm;
+     Radd_assoc := QG_add_assoc;
+     Rmul_1_l := QG_mul_1_l;
+     Rmul_comm := QG_mul_comm;
+     Rmul_assoc := QG_mul_assoc;
+     Rdistr_l := QG_mul_add_distr_r;
+     Rsub_def := QG_sub_def;
+     Ropp_def := QG_add_opp_diag_r |}.
+
+Add Ring QG_ring : QG_ring_theory.
