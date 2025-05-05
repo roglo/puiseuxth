@@ -2,10 +2,11 @@
 
 (* points in newton segment *)
 
-From Stdlib Require Import Utf8 QArith Sorting.
+From Stdlib Require Import Utf8 Sorting.
 
-Require Import Misc.
+Require Import QG.
 Require Import Slope_base.
+Require Import Misc.
 Require Import ConvexHull.
 Require Import ConvexHullMisc.
 Require Import Newton.
@@ -14,7 +15,7 @@ Theorem points_in_any_newton_segment₁ : ∀ ns pts,
   Sorted fst_lt pts
   → lower_convex_hull_points pts = Some ns
     → ∀ h αh, (h, αh) ∈ [ini_pt ns; fin_pt ns … oth_pts ns]
-      → β ns == αh + h * γ ns.
+      → β ns = αh + h * γ ns.
 Proof.
 intros ns pts Hsort Hns h αh Hαh.
 unfold lower_convex_hull_points in Hns.
@@ -29,6 +30,7 @@ destruct Hαh as [Hαh| Hαh]. {
   subst ns; simpl in Hαh; simpl.
   rewrite Hαh; simpl.
   unfold β, γ; simpl.
+...
   field.
   apply Qgt_0_not_0, Qlt_minus.
   remember (ini_pt ms) as pt₄.
