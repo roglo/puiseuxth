@@ -10,7 +10,7 @@ Fpolynomial.vo Fpolynomial.glob Fpolynomial.v.beautified Fpolynomial.required_vo
 Fsummation.vo Fsummation.glob Fsummation.v.beautified Fsummation.required_vo: Fsummation.v Field2.vo Misc.vo QGArith.vo
 InK1m.vo InK1m.glob InK1m.v.beautified InK1m.required_vo: InK1m.v AlgCloCharPol.vo CharactPolyn.vo ConvexHull.vo F1Eq.vo Field2.vo Fpolynomial.vo Misc.vo Newton.vo PSpolynomial.vo PolyConvexHull.vo PosOrder.vo Power_series.vo Ps_add.vo Ps_add_compat.vo Ps_div.vo Ps_mul.vo Puiseux_base.vo Puiseux_series.vo QbarM.vo
 InSegment.vo InSegment.glob InSegment.v.beautified InSegment.required_vo: InSegment.v ConvexHull.vo ConvexHullMisc.vo Misc.vo Newton.vo QGArith.vo Slope_base.vo
-Misc.vo Misc.glob Misc.v.beautified Misc.required_vo: Misc.v
+Misc.vo Misc.glob Misc.v.beautified Misc.required_vo: Misc.v QGArith.vo
 NbarM.vo NbarM.glob NbarM.v.beautified NbarM.required_vo: NbarM.v Misc.vo
 Newton.vo Newton.glob Newton.v.beautified Newton.required_vo: Newton.v ConvexHull.vo QGArith.vo
 NotInSegMisc.vo NotInSegMisc.glob NotInSegMisc.v.beautified NotInSegMisc.required_vo: NotInSegMisc.v ConvexHull.vo ConvexHullMisc.vo Misc.vo Slope_base.vo

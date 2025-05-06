@@ -1329,6 +1329,12 @@ do 3 rewrite (QG_mul_comm _ c).
 apply QG_mul_sub_distr_l.
 Qed.
 
+Theorem QG_div_sub_distr_r : ∀ a b c : QG, ((a - b) / c = a / c - b / c)%QG.
+Proof.
+intros.
+apply QG_mul_sub_distr_r.
+Qed.
+
 Theorem QG_mul_nonneg_nonneg : ∀ a b : QG, (0 ≤ a → 0 ≤ b → 0 ≤ a * b)%QG.
 Proof.
 intros * Ha Hb.

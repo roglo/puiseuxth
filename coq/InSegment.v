@@ -65,6 +65,11 @@ destruct Hαh as [Hαh| Hαh]. {
     destruct Hαh as [Hαh| Hαh]. {
       subst pt₂.
       simpl in Heqc; simpl.
+Search ((_ - _) / _)%QG.
+Search ((_ - _) * _)%QG.
+progress unfold QG_div.
+Require Import QArith.
+Theorem Qdiv_minus_distr_r : ∀ x y z, (x - y) / z == x / z - y / z.
 ...
       do 2 rewrite Qdiv_minus_distr_r in Heqc.
       rewrite Qdiv_minus_distr_r.
