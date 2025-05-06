@@ -1990,6 +1990,45 @@ split; intros Hxy. {
 }
 Qed.
 
+Theorem QG_add_move_l : ∀ a b c, (a + b)%QG = c ↔ b = (c - a)%QG.
+Proof.
+intros.
+split; intros Hab; subst; rewrite QG_add_comm. {
+  symmetry; apply QG_add_sub.
+} {
+  apply QG_sub_add.
+}
+Qed.
+
+Theorem QG_sub_sub_swap : ∀ a b c, (a - b - c = a - c - b)%QG.
+Proof.
+intros.
+progress unfold QG_sub.
+do 2 rewrite <- QG_add_assoc.
+progress f_equal.
+apply QG_add_comm.
+Qed.
+
+Theorem QG_sub_opp_r : ∀ a b, (a - - b)%QG = (a + b)%QG.
+Proof.
+intros.
+symmetry.
+apply QG_add_move_l.
+rewrite QG_sub_sub_swap.
+rewrite QG_sub_diag.
+progress unfold QG_sub.
+rewrite QG_add_0_l.
+symmetry; apply QG_opp_involutive.
+Qed.
+
+Theorem QG_opp_sub_distr : ∀ a b, (- (a - b))%QG = (- a + b)%QG.
+Proof.
+intros.
+progress unfold QG_sub.
+rewrite QG_opp_add_distr.
+apply QG_sub_opp_r.
+Qed.
+
 (* *)
 
 From Stdlib Require Import Ring.

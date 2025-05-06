@@ -67,12 +67,15 @@ destruct Hαh as [Hαh| Hαh]. {
       simpl in Heqc; simpl.
       do 2 rewrite QG_div_sub_distr_r in Heqc.
       rewrite QG_div_sub_distr_r.
-...
-      apply Qeq_opp_r in Heqc.
-      do 2 rewrite Qopp_minus in Heqc.
+      apply (f_equal QG_opp) in Heqc.
+      do 2 rewrite QG_opp_sub_distr in Heqc.
+      rewrite QG_add_comm in Heqc.
+      rewrite (QG_add_comm (- _)) in Heqc.
+      do 2 rewrite fold_QG_sub in Heqc.
       rewrite <- Heqc.
       field.
       apply Sorted_inv_2 in Hsort; destruct Hsort as (Hlt, Hsort).
+...
       apply Qgt_0_not_0, Qlt_minus; assumption.
     }
     replace pt₁ with (ini_pt ms₁) .
