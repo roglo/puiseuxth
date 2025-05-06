@@ -15,8 +15,6 @@ Notation "x ≤ y" := (Qle x y) : Q_scope.
 Notation "x ≤ y" := (le x y) : nat_scope.
 Notation "x ≤ y" := (Pos.le x y) : positive_scope.
 
-Require Import RingLike.Misc.
-
 Definition Z_pos_gcd z p :=
   match z with
   | Z0 => p
