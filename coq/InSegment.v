@@ -34,7 +34,6 @@ destruct Hαh as [Hαh| Hαh]. {
   unfold β, γ; simpl.
   field.
   apply QG_lt_0_neq_0, QG_lt_0_sub.
-...
   remember (ini_pt ms) as pt₄.
   remember Heqpt₄ as H; clear HeqH.
   rewrite Hms in Heqpt₄.
@@ -57,10 +56,21 @@ destruct Hαh as [Hαh| Hαh]. {
   remember (minimise_slope pt₁ pt₃ pts) as ms₁ eqn:Hms₁ .
   remember (slope_expr pt₁ pt₂ ?= slope ms₁) as c.
   symmetry in Heqc.
-  rewrite slope_slope_expr in Heqc; [ idtac | symmetry; eassumption ].
+  erewrite slope_slope_expr in Heqc; [ | symmetry; apply Hms₁ ].
   destruct c. {
     subst ms.
     simpl in Hαh; simpl.
+Theorem QG_compare_eq_iff : ∀ a b, QG_compare a b = Eq ↔ a = b.
+Proof.
+intros.
+split; intros Hab. {
+Search (QG_compare).
+...
+split; intros Hab; [ | subst b; apply compare_eq_refl ].
+...
+Check Q_compare_eq_iff.
+C
+...
     apply Qeq_alt in Heqc.
     unfold slope_expr in Heqc.
     destruct Hαh as [Hαh| Hαh]. {

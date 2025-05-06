@@ -1912,13 +1912,6 @@ Definition QG_ring_like_prop (ro := QG_ring_like_op) : ring_like_prop QG :=
 
 (* *)
 
-Definition QG_compare a b :=
-  let qa := qg_q a in
-  let qb := qg_q b in
-  (Qnum qa * QDen qb ?= Qnum qb * QDen qa)%Z.
-
-Notation "a ?= b" := (QG_compare a b) : QG_scope.
-
 Definition QG_num q := Qnum (qg_q q).
 Definition QG_den q := Qden (qg_q q).
 
@@ -1927,6 +1920,38 @@ Proof. easy. Qed.
 
 Theorem fold_QG_den : ∀ q, Qden (qg_q q) = QG_den q.
 Proof. easy. Qed.
+
+(* *)
+
+Definition QG_compare a b :=
+  let qa := qg_q a in
+  let qb := qg_q b in
+  (Qnum qa * QDen qb ?= Qnum qb * QDen qa)%Z.
+
+Notation "a ?= b" := (QG_compare a b) : QG_scope.
+
+Theorem QG_compare_refl : ∀ a, (a ?= a)%QG = Eq.
+Proof.
+intros.
+apply Z.compare_refl.
+Qed.
+
+Theorem QG_compare_eq_iff : ∀ a b, (a ?= b)%QG = Eq ↔ a = b.
+Proof.
+intros.
+split; intros Hab; [ | subst b; apply QG_compare_refl ].
+progress unfold QG_compare in Hab.
+apply Z.compare_eq_iff in Hab.
+destruct a as (qa, Ha).
+destruct b as (qb, Hb).
+cbn in Hab.
+move qb before qa.
+...
+cbn.
+Search (QG_compare).
+...
+
+(* *)
 
 Theorem QG_lt_0_neq_0 : ∀ a, (0 < a → a ≠ 0)%QG.
 Proof.
