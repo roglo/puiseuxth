@@ -6,7 +6,7 @@ From Stdlib Require Import Utf8 Arith.
 Require Import Relation_Definitions.
 Require Import Morphisms.
 
-Require Import QG.
+Require Import QGArith.
 Require Import Misc.
 Require Import Field2.
 Require Import Fsummation.

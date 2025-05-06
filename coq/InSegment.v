@@ -6,7 +6,7 @@ Set Nested Proofs Allowed.
 From Stdlib Require Import Utf8 Sorting.
 From Stdlib Require Import Field.
 
-Require Import QG.
+Require Import QGArith.
 Require Import Slope_base.
 Require Import Misc.
 Require Import ConvexHull.

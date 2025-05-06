@@ -3,7 +3,7 @@
 From Stdlib Require Import Utf8 Arith ZArith.
 From Stdlib Require Import Relations Morphisms Setoid.
 
-Require Import QG.
+Require Import QGArith.
 Require Import Power_series.
 Require Import Misc.
 Require Import NbarM.

@@ -5,7 +5,7 @@
 From Stdlib Require Import Utf8.
 From Stdlib Require Import Relations Morphisms.
 
-Require Import QG.
+Require Import QGArith.
 Require Import Misc.
 Require Import Field2.
 Require Import Fpolynomial.

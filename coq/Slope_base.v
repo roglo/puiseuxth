@@ -1,7 +1,7 @@
 (* Slope_base.v *)
 
 From Stdlib Require Import Utf8.
-Require Import QG.
+Require Import QGArith.
 Open Scope QG.
 
 Definition slope_expr pt₁ pt₂ :=

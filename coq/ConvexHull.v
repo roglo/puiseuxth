@@ -3,7 +3,7 @@
 From Stdlib Require Import Utf8 List.
 Import ListNotations.
 
-Require Import QG.
+Require Import QGArith.
 Require Import Slope_base.
 Open Scope QG.
 

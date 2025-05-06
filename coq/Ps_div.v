@@ -2,7 +2,7 @@
 
 From Stdlib Require Import Utf8 ZArith Arith.
 
-Require Import QG.
+Require Import QGArith.
 Require Import Misc.
 Require Import NbarM.
 Require Import Field2.

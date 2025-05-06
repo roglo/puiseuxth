@@ -3,7 +3,7 @@
 From Stdlib Require Import Utf8.
 From Stdlib Require Import Sorting.
 
-Require Import QG.
+Require Import QGArith.
 Require Import Misc.
 Require Import ConvexHull.
 Require Import Slope_base.

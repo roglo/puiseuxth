@@ -3,7 +3,7 @@
 From Stdlib Require Import Utf8 Arith ZArith.
 Require Import Morphisms.
 
-Require Import QG.
+Require Import QGArith.
 Require Import NbarM.
 Require Import Misc.
 Require Import Field2.
