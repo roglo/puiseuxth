@@ -1,9 +1,10 @@
 (* Misc.v *)
 
 From Stdlib Require Import Utf8 Arith ZArith.
-From Stdlib Require Import QArith.
 From Stdlib Require Import Sorted.
 From Stdlib Require Import Psatz.
+
+Require Import QGArith.
 
 Notation "[ ]" := nil.
 Notation "[ x ; .. ; y … l ]" := (cons x .. (cons y l) ..).
@@ -22,7 +23,9 @@ Tactic Notation "fast_omega" hyp_list(Hs) := revert Hs; clear; intros; lia.
 
 Set Implicit Arguments.
 
+(*
 Definition Qnat i := Z.of_nat i # 1.
+*)
 
 (* experimentations with Definition instead of Theorem *)
 
@@ -37,6 +40,7 @@ Definition Nat_le_neq_lt : ∀ x y : nat, x ≤ y → x ≠ y → (x < y)%nat :=
   | right Heq => match Hnxy Heq with end
   end.
 
+(*
 Definition Qle_neq_lt : ∀ x y, x <= y → ¬ x == y → x < y :=
   λ x y Hxy Hnxy,
   Qnot_le_lt y x (λ H, Hnxy (Qle_antisym x y Hxy H)).
@@ -194,6 +198,7 @@ Proof. intros x y z; ring. Qed.
 
 Theorem Qplus_minus_assoc : ∀ x y z, x + (y - z) == (x + y) - z.
 Proof. intros x y z; ring. Qed.
+*)
 
 Theorem Zposnat2Znat : ∀ i, (0 < i)%nat → Zpos (Pos.of_nat i) = Z.of_nat i.
 Proof.
@@ -206,6 +211,7 @@ Qed.
 
 (* *)
 
+(*
 Theorem Qplus_plus_swap : ∀ x y z, x + y + z == x + z + y.
 Proof. intros; ring. Qed.
 
@@ -291,6 +297,7 @@ rewrite <- Qplus_minus_swap, <- Qplus_minus_assoc.
 rewrite Qminus_diag, Qplus_0_r.
 reflexivity.
 Qed.
+*)
 
 (* TODO: transform the above with ?= like below. *)
 
@@ -312,6 +319,7 @@ apply Zmult_compare_compat_r.
 apply Z.lt_gt; assumption.
 Qed.
 
+(*
 Theorem Qplus_cmp_compat_r : ∀ x y z,
   (x ?= y) = (x + z ?= y + z).
 Proof.
@@ -436,6 +444,7 @@ intros x y z.
 do 2 rewrite (Qplus_comm z).
 apply Qplus_cmp_compat_r.
 Qed.
+*)
 
 Theorem list_Forall_inv : ∀ A (P : A → Prop) a l,
   List.Forall P [a … l] → P a ∧ List.Forall P l.
@@ -452,6 +461,7 @@ rewrite H in HH.
 apply Zgt_irrefl in HH; assumption.
 Qed.
 
+(*
 Theorem Qnum_inv : ∀ a, (0 < Qnum a)%Z → Qnum (/ a) = Zpos (Qden a).
 Proof.
 intros (a, b) Ha; simpl in Ha |- *.
@@ -489,6 +499,7 @@ do 2 rewrite Zmult_assoc.
 do 2 rewrite Z.mul_opp_l.
 reflexivity.
 Qed.
+*)
 
 Definition pair_rec A B C (f : A → B → C) := λ xy, f (fst xy) (snd xy).
 
@@ -1034,6 +1045,7 @@ apply Z.le_mul_diag_r.
     apply HH, Pos2Z.is_pos.
 Qed.
 
+(*
 Theorem Qlt_sub_lt_add_l : ∀ n m p, (n - m < p)%Q ↔ (n < m + p)%Q.
 Proof.
 intros n m p.
@@ -1091,6 +1103,7 @@ split; intros H.
  remember (mn * Zpos pd * Zpos nd)%Z as y.
  rewrite Z.mul_shuffle0; assumption.
 Qed.
+*)
 
 Theorem list_nth_in : ∀ A l n (d : A),
   (n < length l)%nat
@@ -1153,6 +1166,7 @@ rewrite Z.divide_div_mul_exact.
  rewrite Z.mul_1_l; reflexivity.
 Qed.
 
+(*
 Definition Qmin x y := if Qlt_le_dec x y then x else y.
 
 Theorem Qmin_dec : ∀ n m, {Qmin n m = n} + {Qmin n m = m}.
@@ -1189,6 +1203,7 @@ intros n.
 unfold Qeq; simpl.
 rewrite Z.mul_1_r, Z.add_0_r, Pos.mul_1_r; reflexivity.
 Qed.
+*)
 
 Theorem List_In_nth : ∀ α a la (d : α),
   a ∈ la
