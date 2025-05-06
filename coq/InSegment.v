@@ -2,6 +2,7 @@
 
 (* points in newton segment *)
 
+Set Nested Proofs Allowed.
 From Stdlib Require Import Utf8 Sorting.
 From Stdlib Require Import Field.
 
@@ -32,8 +33,8 @@ destruct Hαh as [Hαh| Hαh]. {
   rewrite Hαh; simpl.
   unfold β, γ; simpl.
   field.
+  apply QG_lt_0_neq_0, QG_lt_0_sub.
 ...
-  apply Qgt_0_not_0, Qlt_minus.
   remember (ini_pt ms) as pt₄.
   remember Heqpt₄ as H; clear HeqH.
   rewrite Hms in Heqpt₄.

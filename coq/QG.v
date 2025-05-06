@@ -1928,6 +1928,55 @@ Proof. easy. Qed.
 Theorem fold_QG_den : ∀ q, Qden (qg_q q) = QG_den q.
 Proof. easy. Qed.
 
+Theorem QG_lt_0_neq_0 : ∀ a, (0 < a → a ≠ 0)%QG.
+Proof.
+intros a Ha H; subst a.
+now apply QG_lt_irrefl in Ha.
+Qed.
+
+Theorem QG_sub_diag : ∀ a, (a - a = 0)%QG.
+Proof. apply QG_add_opp_diag_r. Qed.
+
+Theorem QG_sub_move_0_r : ∀ a b, (a - b = 0)%QG ↔ a = b.
+Proof.
+intros.
+split; intros Hab. {
+  apply (f_equal (QG_add b)) in Hab.
+  rewrite QG_add_comm, QG_sub_add in Hab.
+  now rewrite QG_add_0_r in Hab.
+} {
+  subst b.
+  apply QG_sub_diag.
+}
+Qed.
+
+Theorem QG_lt_0_sub : ∀ x y : QG, (0 < y - x)%QG ↔ (x < y)%QG.
+Proof.
+intros.
+split; intros Hxy. {
+  apply QG_lt_iff.
+  split. {
+    apply QG_lt_le_incl in Hxy.
+    now apply QG_le_0_sub.
+  }
+  intros H; subst y.
+  rewrite QG_sub_diag in Hxy.
+  now apply QG_lt_irrefl in Hxy.
+} {
+  apply QG_lt_iff.
+  split. {
+    apply QG_lt_le_incl in Hxy.
+    now apply QG_le_0_sub.
+  }
+  intros H; symmetry in H.
+  apply -> QG_sub_move_0_r in H.
+  subst y.
+  now apply QG_lt_irrefl in Hxy.
+}
+Qed.
+
+(* *)
+
 From Stdlib Require Import Ring.
 
 Theorem QG_sub_def : ∀ x y : QG, (x - y = x + (- y))%QG.
