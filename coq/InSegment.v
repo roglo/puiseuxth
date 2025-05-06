@@ -75,13 +75,12 @@ destruct Hαh as [Hαh| Hαh]. {
       rewrite <- Heqc.
       field.
       apply Sorted_inv_2 in Hsort; destruct Hsort as (Hlt, Hsort).
-...
-      apply Qgt_0_not_0, Qlt_minus; assumption.
+      now apply QG_lt_0_neq_0, QG_lt_0_sub.
     }
     replace pt₁ with (ini_pt ms₁) .
     eapply IHpts; try eassumption.
     eapply Sorted_minus_2nd; [ idtac | eassumption ].
-    intros x y z H₁ H₂; eapply Qlt_trans; eassumption.
+    intros x y z H₁ H₂; eapply QG_lt_trans; eassumption.
     rewrite Hms₁, minimised_slope_beg_pt; reflexivity.
   } {
     subst ms; contradiction.
@@ -89,7 +88,7 @@ destruct Hαh as [Hαh| Hαh]. {
     subst ms.
     eapply IHpts; try eassumption.
     eapply Sorted_minus_2nd; [ idtac | eassumption ].
-    intros x y z H₁ H₂; eapply Qlt_trans; eassumption.
+    intros x y z H₁ H₂; eapply QG_lt_trans; eassumption.
   }
 }
 Qed.
