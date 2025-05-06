@@ -1946,10 +1946,60 @@ destruct a as (qa, Ha).
 destruct b as (qb, Hb).
 cbn in Hab.
 move qb before qa.
-...
-cbn.
-Search (QG_compare).
-...
+apply eq_QG_eq; cbn.
+rewrite Z_pos_gcd_Z_gcd in Ha, Hb.
+rewrite <- Z2Pos.inj_1 in Ha, Hb.
+destruct (Z.eq_dec (Qnum qa) 0) as [Haz| Haz]. {
+  rewrite Haz in Ha, Hab.
+  cbn in Ha, Hab.
+  symmetry in Hab.
+  apply (Z.eq_mul_0_l) in Hab; [ | easy ].
+  rewrite Hab in Hb; cbn in Hb.
+  destruct qa, qb; cbn in *.
+  congruence.
+}
+destruct (Z.eq_dec (Qnum qb) 0) as [Hbz| Hbz]. {
+  rewrite Hbz in Hb, Hab.
+  cbn in Hb, Hab.
+  now apply (Z.eq_mul_0_l) in Hab.
+}
+apply Z2Pos.inj in Ha; [ | | easy ]. 2: {
+  apply Z.le_neq.
+  split; [ apply Z.gcd_nonneg | ].
+  intros H; symmetry in H.
+  now apply Z.gcd_eq_0_r in H.
+}
+apply Z2Pos.inj in Hb; [ | | easy ]. 2: {
+  apply Z.le_neq.
+  split; [ apply Z.gcd_nonneg | ].
+  intros H; symmetry in H.
+  now apply Z.gcd_eq_0_r in H.
+}
+generalize Ha; intros Hab1.
+apply (Z.gauss _ _ (Qnum qb)) in Hab1. 2: {
+  rewrite Z.mul_comm, <- Hab.
+  apply Z.divide_factor_l.
+}
+generalize Hb; intros Hba1.
+apply (Z.gauss _ _ (Qnum qa)) in Hba1. 2: {
+  rewrite Z.mul_comm, Hab.
+  apply Z.divide_factor_l.
+}
+apply Z.divide_antisym_abs in Hab1; [ | easy ].
+clear Hba1.
+apply Z.abs_eq_cases in Hab1.
+destruct Hab1 as [Hab1| Hab1]. {
+  rewrite Hab1 in Hab.
+  apply Z.mul_reg_l in Hab; [ | easy ].
+  destruct qa, qb.
+  cbn in *.
+  congruence.
+}
+rewrite Hab1 in Hab.
+rewrite Z.mul_opp_l in Hab.
+rewrite <- Z.mul_opp_r in Hab.
+now apply Z.mul_reg_l in Hab.
+Qed.
 
 (* *)
 

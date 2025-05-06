@@ -60,22 +60,12 @@ destruct Hαh as [Hαh| Hαh]. {
   destruct c. {
     subst ms.
     simpl in Hαh; simpl.
-Theorem QG_compare_eq_iff : ∀ a b, QG_compare a b = Eq ↔ a = b.
-Proof.
-intros.
-split; intros Hab. {
-Search (QG_compare).
-...
-split; intros Hab; [ | subst b; apply compare_eq_refl ].
-...
-Check Q_compare_eq_iff.
-C
-...
-    apply Qeq_alt in Heqc.
+    apply QG_compare_eq_iff in Heqc.
     unfold slope_expr in Heqc.
     destruct Hαh as [Hαh| Hαh]. {
       subst pt₂.
       simpl in Heqc; simpl.
+...
       do 2 rewrite Qdiv_minus_distr_r in Heqc.
       rewrite Qdiv_minus_distr_r.
       apply Qeq_opp_r in Heqc.
