@@ -1124,163 +1124,10 @@ now destruct a.
 Qed.
 
 Theorem qg_q_add : ∀ a b, qg_q (a + b) == qg_q a + qg_q b.
-Proof.
-intros.
-destruct a as (a, Ha).
-destruct b as (b, Hb).
-move b before a.
-progress unfold "==".
-cbn.
-assert (Han : ∀ an ad bn bd,
-  ((Z.pos an * Z.pos bd + bn * Z.pos ad) /
-   Z.pos (Z_pos_gcd (Z.pos an * Z.pos bd + bn * Z.pos ad) (ad * bd)) *
-   Z.pos (ad * bd))%Z =
-  ((Z.pos an * Z.pos bd + bn * Z.pos ad) *
-   Z.pos
-     (Z.to_pos
-        (Z.pos (ad * bd) /
-         Z.pos
-           (Z_pos_gcd (Z.pos an * Z.pos bd + bn * Z.pos ad)
-              (ad * bd)))))%Z). {
-  clear.
-  intros.
-  rewrite Z2Pos.id. 2: {
-    apply Z.div_str_pos.
-    split; [ easy | ].
-    apply Pos2Z.pos_le_pos.
-    progress unfold Z_pos_gcd.
-    remember (_ + _)%Z as x.
-    destruct x as [| x| x]; [ apply Pos.le_refl | | ]. {
-      apply Pos_gcd_le_r.
-    } {
-      apply Pos_gcd_le_r.
-    }
-  }
-  remember (_ + _)%Z as x.
-  rewrite Z_pos_pos_gcd.
-  rewrite Z.lcm_equiv2; [ | now rewrite <- Z_pos_pos_gcd ].
-  rewrite Z.lcm_equiv1; [ easy | ].
-  now rewrite <- Z_pos_pos_gcd.
-}
-destruct a as (an, ad).
-destruct b as (bn, bd); cbn in Ha, Hb |-*.
-destruct an as [| an| an]; [ | | ]. {
-  cbn in Ha; subst ad.
-  rewrite Z.mul_0_l, Z.mul_1_r.
-  rewrite Z.add_0_l, Pos.mul_1_l.
-...
-  rewrite Hb.
-  do 2 rewrite Z.div_1_r.
-  now rewrite Pos2Z.id.
-} {
-  apply Han.
-} {
-  rewrite <- Pos2Z.opp_pos.
-  rewrite <- (Z.opp_involutive bn).
-  remember (- bn)%Z as bn'.
-  do 2 rewrite Z.mul_opp_l.
-  rewrite <- Z.opp_add_distr.
-  rewrite Z_pos_gcd_opp_l.
-  rewrite Z.div_opp_l_z; [ | easy | ]. 2: {
-    apply Z.mod_divide; [ easy | ].
-    progress unfold Z_pos_gcd.
-    remember (_ + _)%Z as x.
-    destruct x as [| x| x]; [ apply Z.divide_0_r | | ]. {
-      rewrite Pos2Z.inj_gcd.
-      apply Z.gcd_divide_l.
-    } {
-      rewrite Pos2Z.inj_gcd.
-      apply Z.divide_opp_r.
-      rewrite Pos2Z.opp_neg.
-      apply Z.gcd_divide_l.
-    }
-  }
-  do 2 rewrite Z.mul_opp_l.
-  f_equal.
-  apply Han.
-}
-Qed.
+Proof. intros; apply Qred_correct. Qed.
 
 Theorem qg_q_mul : ∀ a b, qg_q (a * b) == qg_q a * qg_q b.
-Proof.
-intros.
-destruct a as (a, Ha).
-destruct b as (b, Hb).
-move b before a.
-progress unfold "==".
-cbn.
-clear Ha Hb.
-destruct a as (an, ad).
-destruct b as (bn, bd); cbn.
-assert (Han : ∀ an,
-  (Z.pos an * bn / Z.pos (Z_pos_gcd (Z.pos an * bn) (ad * bd)) *
-     Z.pos (ad * bd))%Z =
-  (Z.pos an * bn *
-     Z.pos
-       (Z.to_pos
-          (Z.pos (ad * bd) /
-           Z.pos (Z_pos_gcd (Z.pos an * bn) (ad * bd)))))%Z). {
-  clear an; intros.
-  assert (Hbn : ∀ bn,
-    (Z.pos (an * bn) / Z.pos (Pos.gcd (an * bn) (ad * bd)) *
-       Z.pos (ad * bd))%Z =
-    Z.pos
-      (an * bn *
-       Z.to_pos
-         (Z.pos (ad * bd) / Z.pos (Pos.gcd (an * bn) (ad * bd))))). {
-    clear bn; intros.
-    rewrite Pos2Z.inj_gcd.
-    rewrite Z.gcd_div_swap.
-    rewrite Z.lcm_equiv1; [ | now rewrite <- Pos2Z.inj_gcd ].
-    remember (an * bn)%positive as abn.
-    remember (ad * bd)%positive as abd.
-    rewrite Pos2Z.inj_mul.
-    subst abn abd.
-    rewrite Z2Pos.id. 2: {
-      apply Z.div_str_pos.
-      rewrite <- Pos2Z.inj_gcd.
-      split; [ easy | ].
-      apply Pos2Z.pos_le_pos.
-      apply Pos_gcd_le_r.
-    }
-    apply Z.divide_div_mul_exact; [ | apply Z.gcd_divide_r ].
-    now intros H; apply Z.gcd_eq_0_l in H.
-  }
-  destruct bn as [| bn| bn]; [ easy | apply Hbn | ].
-  cbn.
-  do 2 rewrite <- Pos2Z.opp_pos.
-  rewrite Z.div_opp_l_z; [ | easy | ]. 2: {
-    rewrite Pos2Z.inj_gcd.
-    apply Z.mod_divide; [ now intros H; apply Z.gcd_eq_0_l in H | ].
-    apply Z.gcd_divide_l.
-  }
-  rewrite Z.mul_opp_l.
-  f_equal.
-  apply Hbn.
-}
-destruct an as [| an| an]; [ easy | apply Han | ].
-rewrite <- Pos2Z.opp_pos.
-rewrite Z.mul_opp_l.
-rewrite Z_pos_gcd_opp_l.
-rewrite Z.div_opp_l_z; [ | easy | ]. 2: {
-  remember (Z.pos an * bn)%Z as x.
-  progress unfold Z_pos_gcd.
-  destruct x as [| x| x]; [ easy | | ]. {
-    rewrite Pos2Z.inj_gcd.
-    apply Z.mod_divide; [ now intros H; apply Z.gcd_eq_0_l in H | ].
-    apply Z.gcd_divide_l.
-  } {
-    rewrite <- Pos2Z.opp_pos.
-    apply Z.mod_opp_l_z; [ easy | ].
-    rewrite Pos2Z.inj_gcd.
-    apply Z.mod_divide; [ now intros H; apply Z.gcd_eq_0_l in H | ].
-    apply Z.gcd_divide_l.
-  }
-}
-do 2 rewrite Z.mul_opp_l.
-f_equal.
-apply Han.
-Qed.
+Proof. intros. apply Qred_correct. Qed.
 
 Theorem QG_of_Q_qg_q_mul :
   ∀ a b : QG, QG_of_Q (qg_q a * qg_q b) = (a * b)%QG.
@@ -1536,16 +1383,42 @@ rewrite <- qg_q_add.
 now rewrite QG_of_Q_qg_q.
 Qed.
 
+Theorem Pos_ggcd_1_r : ∀ a , Pos.ggcd a 1 = (1, (a, 1))%positive.
+Proof.
+intros.
+progress unfold Pos.ggcd.
+cbn.
+rewrite Nat.add_comm.
+cbn.
+now destruct a.
+Qed.
+
+Theorem Z_ggcd_1_r : ∀ a , Z.ggcd a 1 = (1%Z, (a, 1%Z)).
+Proof.
+intros.
+destruct a as [| a| a]; [ easy | | ]. {
+  now cbn; rewrite Pos_ggcd_1_r.
+} {
+  now cbn; rewrite Pos_ggcd_1_r.
+}
+Qed.
+
+Theorem Qred_1_r : ∀ a, Qred (a # 1) = a # 1.
+Proof.
+intros.
+now cbn; rewrite Z_ggcd_1_r.
+Qed.
+
 Theorem QG_of_Z_add :
   ∀ a b, QG_of_Z (a + b) = (QG_of_Z a + QG_of_Z b)%QG.
 Proof.
 intros.
 progress unfold QG_of_Z.
-apply eq_QG_eq; cbn.
-do 4 rewrite Z_pos_pos_gcd.
-do 4 rewrite Z.gcd_1_r; cbn.
-do 4 rewrite Z.div_1_r.
-now do 2 rewrite Z.mul_1_r.
+apply eq_QG_eq; cbn - [ Qred ].
+do 3 rewrite Qred_1_r.
+cbn.
+do 2 rewrite Z.mul_1_r.
+now rewrite Z_ggcd_1_r.
 Qed.
 
 Theorem QG_nle_gt : ∀ a b : QG, ¬ (a ≤ b)%QG ↔ (b < a)%QG.
@@ -1578,10 +1451,11 @@ cbn in Hap.
 split. {
   apply Qle_bool_iff; cbn.
   progress unfold Z_of_QG; cbn.
-  rewrite Z_pos_pos_gcd.
-  rewrite Z.gcd_1_r; cbn.
-  rewrite Z.div_1_r.
-  progress unfold Qle; cbn.
+  rewrite Z_ggcd_1_r.
+  cbn.
+  apply Z_pos_gcd_eq_1 in Hap.
+  progress unfold Qle.
+  cbn.
   rewrite Z.mul_1_r.
   rewrite Z.mul_comm.
   now apply Z.mul_div_le.
@@ -1590,11 +1464,11 @@ apply QG_lt_iff.
 split. {
   apply Qle_bool_iff; cbn.
   progress unfold Z_of_QG; cbn.
-  do 2 rewrite Z_pos_pos_gcd.
-  do 2 rewrite Z.gcd_1_r; cbn.
-  do 2 rewrite Z.div_1_r.
+  do 2 rewrite Z_ggcd_1_r.
+  cbn.
   rewrite Z.mul_1_r.
-  progress unfold Qle; cbn.
+  progress unfold Qle.
+  cbn.
   rewrite Z.mul_1_r.
   rewrite Z.mul_add_distr_r.
   rewrite Z.mul_1_l.
@@ -1608,9 +1482,7 @@ apply neq_QG_neq.
 progress unfold qg_q at 1.
 progress unfold Z_of_QG.
 cbn.
-do 2 rewrite Z_pos_pos_gcd.
-do 2 rewrite Z.gcd_1_r.
-do 4 rewrite Z.div_1_r.
+do 2 rewrite Z_ggcd_1_r.
 cbn.
 rewrite Z.mul_1_r.
 intros H1.
@@ -1721,6 +1593,7 @@ destruct (Qlt_le_dec 0 (qg_q b)) as [Hbz| Hbz]. 2: {
     apply Qle_bool_iff; cbn.
     progress unfold Qle; cbn.
     rewrite Pos.mul_1_r, Z.mul_1_r.
+...
     apply Z.div_pos; [ | easy ].
     apply Z.mul_nonneg_nonneg. {
       apply QG_lt_iff in Ha.
