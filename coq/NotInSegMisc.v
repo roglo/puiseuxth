@@ -16,26 +16,22 @@ Theorem ad_hoc_lt_lt : ∀ i j k x y z,
 Proof.
 intros i j k x y z (Hij, Hjk) H.
 
+From Stdlib Require Import QArith.
 Theorem QG_mult_cmp_compat_r : ∀ x y z,
-  0 < z
-  → (x ?= y) = (x * z ?= y * z).
+  (0 < z)%QG
+  → (x ?= y)%QG = (x * z ?= y * z)%QG.
 Proof.
-intros (a₁, a₂) (b₁, b₂) (c₁, c₂) H.
+intros (a₁, a₂) (b₁, b₂) (c₁, c₂) Hc.
 move b₁ before a₁; move c₁ before b₁.
-Require Import QArith.
 progress unfold QG_compare; cbn.
 progress unfold Qcompare.
 cbn.
-...
-progress unfold QG_lt in H.
-Search (0 < _)%QG.
-...
+apply qlt_QG_lt in Hc.
+cbn in Hc.
 apply (f_equal Z.pos) in a₂.
 apply (f_equal Z.pos) in b₂.
 apply (f_equal Z.pos) in c₂.
-Search (Z.pos (Z_pos_gcd _ _)).
-rewrite Z_pos_pos_gcd in a₂.
-...
+rewrite Z_pos_pos_gcd in a₂, b₂, c₂.
 rewrite Z2Pos.id. 2: {
   apply Z.div_str_pos.
   split; [ easy | ].
@@ -52,17 +48,77 @@ do 2 rewrite Z_pos_pos_gcd.
 do 2 rewrite Pos2Z.inj_mul.
 remember (Qnum a₁ * Qnum c₁)%Z as acn.
 remember (QDen a₁ * QDen c₁)%Z as acd.
-
+remember (Qnum b₁ * Qnum c₁)%Z as bcn.
+remember (QDen b₁ * QDen c₁)%Z as bcd.
+(*
+remember (Z.gcd (_ * _) _) as x.
+symmetry in Heqx.
+Search (Z.gcd _ _ = 1%Z).
+Search (Z.gcd (_ * _)).
+...
+Search (Z.gcd _ _ = 1)%Z.
+...
+Check Z.gauss.
+specialize (Z.gauss (Qnum a₁) (QDen a₁) (QDen c₁)) as H.
+...
+remember (Qnum a₁ * Qnum c₁)%Z as acn.
+remember (QDen a₁ * QDen c₁)%Z as acd.
 ...
 remember (QDen b₁ * QDen c₁)%Z as bcn.
-
+*)
 rewrite Z_div_mul_swap; [ | apply Z.gcd_divide_l ].
 rewrite Z_div_mul_swap; [ | apply Z.gcd_divide_l ].
-rewrite Z.divide_div_mul_exact.
-Search (_ * (_ / _))%Z.
+rewrite (Z.mul_comm acn).
+rewrite Z_div_mul_swap; [ | apply Z.gcd_divide_r ].
+assert (Hgaz : Z.gcd acn acd ≠ 0%Z). {
+  intros H.
+  apply Z.gcd_eq_0_r in H.
+  subst acd.
+  now apply Z.eq_mul_0_l in H.
+}
+assert (Hgbz : Z.gcd bcn bcd ≠ 0%Z). {
+  intros H.
+  apply Z.gcd_eq_0_r in H.
+  subst bcd.
+  now apply Z.eq_mul_0_l in H.
+}
+rewrite Z.div_div; [ | easy | ]. 2: {
+  apply Z.le_neq.
+  split; [ apply Z.gcd_nonneg | easy ].
+}
+rewrite (Z.mul_comm bcn).
+rewrite Z_div_mul_swap; [ | apply Z.gcd_divide_r ].
+rewrite Z.div_div; [ | easy | ]. 2: {
+  apply Z.le_neq.
+  split; [ apply Z.gcd_nonneg | easy ].
+}
+rewrite (Z.mul_comm (Z.gcd bcn _)).
+remember (Z.gcd _ _ * _)%Z as x.
+rewrite (@Zmult_cmp_compat_r (_ / _) _ x). 2: {
+  subst x.
+  apply Z.le_neq.
+  split. {
+    apply Z.mul_nonneg_cancel_l; [ | apply Z.gcd_nonneg ].
+    apply Z.le_neq.
+    split; [ apply Z.gcd_nonneg | easy ].
+  }
+  symmetry.
+  now apply Z.neq_mul_0.
+}
+rewrite Z_div_mul_swap.
+rewrite Z.div_mul.
+(* chais même pas si ça va marcher, ça mais bon, je continue *)
+...
+Search ((_ / _) ?= (_ / _))%Z.
 Search (_ / _ / _)%Z.
+Search (_ * _ / _)%Z.
+...
+rewrite Z.divide_div_mul_exact.
 rewrite Z.div_div.
 Search (Z.gcd _ _ * Z.gcd _ _)%Z.
+Search (_ * (_ / _))%Z.
+rewrite <- Z.divide_div_mul_exact.
+Search ((_ / _) ?= (_ / _))%Z.
 ...
 rewrite (Z.mul_comm (Z.gcd _ _)).
 rewrite <- Z.div_div.

@@ -439,6 +439,30 @@ apply Z2Pos.inj in Hq2; [ | | easy ]. 2: {
 now apply qeq_eq.
 Qed.
 
+Theorem qlt_QG_lt: ∀ q1 q2 : QG, (q1 < q2)%QG ↔ (qg_q q1 < qg_q q2)%Q.
+Proof.
+intros.
+destruct q1 as (q1, Hq1).
+destruct q2 as (q2, Hq2).
+cbn.
+progress unfold QG_lt.
+progress unfold QG_leb.
+cbn.
+split; intros Hqq. {
+  apply Qnot_le_lt.
+  intros H.
+  apply Bool.not_true_iff_false in Hqq.
+  apply Hqq; clear Hqq.
+  now apply Qle_bool_iff.
+} {
+  apply Bool.not_true_iff_false.
+  intros H.
+  apply Qlt_not_le in Hqq.
+  apply Hqq; clear Hqq.
+  now apply Qle_bool_iff.
+}
+Qed.
+
 Theorem Z_le_0_div_nonneg_r :
   ∀ x y, (0 < y → 0 ≤ x / y ↔ 0 ≤ x)%Z.
 Proof.
