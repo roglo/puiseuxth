@@ -1590,84 +1590,36 @@ destruct (Qlt_le_dec 0 (qg_q b)) as [Hbz| Hbz]. 2: {
   remember (Z.to_nat _) as x.
   apply QG_lt_iff.
   split. {
-    apply Qle_bool_iff; cbn.
-    progress unfold Qle; cbn.
-    rewrite Pos.mul_1_r, Z.mul_1_r.
-...
-    apply Z.div_pos; [ | easy ].
-    apply Z.mul_nonneg_nonneg. {
-      apply QG_lt_iff in Ha.
-      destruct Ha as (Ha, Haz).
-      apply Qle_bool_iff in Ha; cbn in Ha.
-      progress unfold Qle in Ha.
-      cbn in Ha.
-      now rewrite Z.mul_1_r in Ha.
-    } {
-      apply Z.le_trans with (m := 1%Z); [ easy | ].
-      apply Z.le_sub_le_add_r.
-      rewrite Z.sub_diag.
-      apply Nat2Z.is_nonneg.
-    }
+    apply Qle_bool_iff.
+    cbn - [ Qred ].
+    apply Qred_le.
+    apply Z.mul_nonneg_nonneg; [ cbn | easy ].
+    apply QG_lt_iff in Ha.
+    destruct Ha as (Ha, Haz).
+    apply Qle_bool_iff in Ha; cbn in Ha.
+    progress unfold Qle in Ha.
+    cbn in Ha.
+    rewrite Z.mul_1_r in Ha.
+    apply Z.mul_nonneg_nonneg; [ easy | ].
+    apply Z.add_nonneg_nonneg; [ | easy ].
+    apply Nat2Z.is_nonneg.
   } {
     intros H1; symmetry in H1.
-    apply eq_QG_eq in H1; cbn in H1.
-    remember (Qnum (qg_q a) * (Z.of_nat x + 1))%Z as y.
-    rewrite Pos.mul_1_r in H1.
-    injection H1; clear H1; intros H1 H2.
-    apply -> Z.div_small_iff in H2; [ | easy ].
-    rewrite Z_pos_pos_gcd in H2.
-    destruct H2 as [H2| H2]. 2: {
-      destruct H2 as (H2, H3).
-      apply Z.nlt_ge in H3; apply H3; clear H3.
-      rewrite Heqy.
-      apply Z.mul_pos_pos. {
-        destruct a as ((an, ad), Hap).
-        cbn in Ha |-*.
-        apply QG_lt_iff in Ha.
-        destruct Ha as (Ha1, Ha2).
-        apply Qle_bool_iff in Ha1.
-        cbn in Ha1.
-        assert (H : ¬ an # ad == 0). {
-          intros H.
-          apply Ha2.
-          now apply qeq_QG_eq.
-        }
-        move H before Ha2; clear Ha2; rename H into Ha2.
-        cbn in Ha2.
-        progress unfold Qle in Ha1.
-        cbn in Ha1.
-        rewrite Z.mul_1_r in Ha1.
-        apply Z.nle_gt; intros Ha3.
-        apply Z.le_antisymm in Ha3; [ | easy ].
-        subst an.
-        now apply Ha2; clear Ha2.
-      }
-      apply (Z.lt_le_trans _ 1%Z); [ easy | ].
-      apply Z.le_sub_le_add_r.
-      rewrite Z.sub_diag.
-      apply Nat2Z.is_nonneg.
+    apply eq_QG_eq in H1; cbn - [ Qred ] in H1.
+    apply Qred_eq_iff in H1.
+    apply Qmult_integral_l in H1. {
+      apply Qden_cancel in H1.
+      apply Z.add_move_0_r in H1.
+      cbn in H1.
+      specialize (Nat2Z.is_nonneg x) as H2.
+      now rewrite H1 in H2.
     }
-    destruct H2 as (H2, H3).
-    apply Z.nle_gt in H3; apply H3; clear H3.
-    apply Z.divide_pos_le. {
-      apply Z.nle_gt; intros H3.
-      apply Z.le_antisymm in H3; [ | easy ].
-      rewrite Heqy in H3.
-      symmetry in H3.
-      apply Z.eq_mul_0 in H3.
-      destruct H3 as [H3| H3]. {
-        apply QG_lt_iff in Ha.
-        destruct a as ((an, ad), Hap).
-        cbn in H3; subst an.
-        destruct Ha as (Ha1, Ha2).
-        apply Ha2; symmetry.
-        now apply qeq_QG_eq.
-      }
-      apply Z.add_move_0_r in H3.
-      specialize (Nat2Z.is_nonneg x) as H4.
-      now rewrite H3 in H4.
-    }
-    apply Z.gcd_divide_l.
+    intros H.
+    progress unfold QG_lt in Ha.
+    apply Bool.not_true_iff_false in Ha.
+    apply Ha; clear Ha.
+    progress unfold QG_leb.
+    now rewrite H.
   }
 }
 assert (Hb : (0 < b)%QG). {
@@ -1687,6 +1639,7 @@ rename Hbz into Hzb.
 rewrite Z2Nat.id. 2: {
   apply Z.div_pos; [ | easy ].
   cbn.
+...
   remember (Z_pos_gcd (Qnum (/ qg_q a)) _) as ga eqn:Hga.
   remember (Z_pos_gcd _ _) as gb eqn:Hgb in |-*.
   apply Z.div_pos; [ | easy ].
