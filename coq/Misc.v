@@ -81,6 +81,7 @@ Definition Qeq_opp_r : ∀ x y, x == y → - x == - y :=
   let H₂ := eq_trans (Z.mul_opp_l (Qnum y) (Zpos (Qden x))) H₁ in
   let H₃ := Z.mul_opp_l (Qnum x) (Zpos (Qden y)) in
   eq_trans H₃ (eq_sym H₂).
+*)
 
 Theorem Qgt_0_not_0 : ∀ x, 0 < x → ¬x == 0.
 Proof.
@@ -90,6 +91,7 @@ rewrite H in Ha.
 apply Qlt_irrefl in Ha; assumption.
 Qed.
 
+(*
 Theorem Qlt_minus : ∀ x y, x < y → 0 < y - x.
 Proof.
 intros x y H.
@@ -106,10 +108,12 @@ apply Qplus_inj_r with (z := - y).
 rewrite Qplus_opp_r.
 assumption.
 Qed.
+*)
 
 Theorem Qmult_div_assoc : ∀ x y z, x * (y / z) == (x * y) / z.
 Proof. intros x y z; unfold Qdiv; apply Qmult_assoc. Qed.
 
+(*
 Theorem Qmult_opp_l : ∀ x y, (- x) * y == - (x * y).
 Proof.
 intros x y.
@@ -265,6 +269,7 @@ unfold Qminus in H.
 rewrite Qplus_opp_r, Qplus_0_r in H.
 assumption.
 Qed.
+*)
 
 Theorem Qmult_div_swap : ∀ x y z, x / y * z == x * z / y.
 Proof.
@@ -273,6 +278,7 @@ rewrite Qmult_comm, Qmult_div_assoc, Qmult_comm.
 reflexivity.
 Qed.
 
+(*
 Theorem Qeq_shift_mult_l : ∀ x y z, ¬z == 0 → x / z == y → x == y * z.
 Proof.
 intros x y z Hc H.
