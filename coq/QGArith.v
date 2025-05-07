@@ -163,6 +163,60 @@ destruct qn as [| qn| qn]. {
 }
 Qed.
 
+Theorem QG_of_Q_prop' :
+  ∀ q, Z_pos_gcd (Qnum (Qred q)) (Qden (Qred q)) = 1%positive.
+Proof.
+intros.
+destruct q as (n, d); cbn.
+remember (Z.ggcd n (Z.pos d)) as g eqn:Hg.
+symmetry in Hg.
+destruct g as (g, (r1, r2)).
+cbn.
+specialize (Z.ggcd_correct_divisors n (Z.pos d)) as H1.
+rewrite Hg in H1.
+destruct H1 as (H1, H2).
+generalize Hg; intros H3.
+apply (f_equal fst) in H3.
+rewrite Z.ggcd_gcd in H3.
+cbn in H3.
+rewrite H1, H2 in H3.
+generalize H3; intros H4.
+rewrite Z.gcd_mul_mono_l_nonneg in H4. 2: {
+  rewrite <- H4.
+  apply Z.gcd_nonneg.
+}
+rewrite Z_pos_gcd_Z_gcd.
+(* quel bordel *)
+...
+Check Z.ggcd_gcd.
+Search Z.ggcd.
+...
+specialize (Z.ggcd_correct_divisors n (Z.pos d)) as H1.
+rewrite Hg in H1.
+destruct H1 as (H1, H2).
+rewrite H1, H2 in Hg.
+generalize Hg; intros H3.
+apply (f_equal fst) in H3.
+cbn in H3.
+rewrite Z.ggcd_gcd in H3.
+rewrite Z.gcd_mul_mono_l in H3.
+rewrite Z_pos_gcd_Z_gcd.
+rewrite <- Z2Pos.inj_1.
+rewrite Z2Pos.id. 2: {
+...
+Search (_ = 1%positive).
+rewrite <- Nat2Pos.inj_0.
+rewrite <- Z.to_pos_1.
+...
+
+progress unfold Qred.
+
+...
+
+Definition QG_of_Q (q : Q) :=
+  mk_qg (Qred q) True.
+...
+
 Definition QG_of_Q (q : Q) :=
   let g := Z_pos_gcd (Qnum q) (Qden q) in
   mk_qg (Qmake (Qnum q / Zpos g) (Z.to_pos (Zpos (Qden q) / Zpos g)%Z))

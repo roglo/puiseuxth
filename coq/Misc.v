@@ -1,10 +1,12 @@
 (* Misc.v *)
 
-From Stdlib Require Import Utf8 Arith ZArith.
+From Stdlib Require Import Utf8 Arith ZArith QArith.
 From Stdlib Require Import Sorted.
 From Stdlib Require Import Psatz.
 
+(*
 Require Import QGArith.
+*)
 
 Notation "[ ]" := nil.
 Notation "[ x ; .. ; y … l ]" := (cons x .. (cons y l) ..).
@@ -366,6 +368,7 @@ intros.
 apply Qlt_alt in H; apply Qlt_alt.
 rewrite <- H; symmetry; apply Qcmp_plus_minus_cmp_r.
 Qed.
+*)
 
 Theorem Qmult_cmp_compat_r : ∀ x y z,
   0 < z
@@ -381,6 +384,7 @@ unfold Qlt in H; simpl in H.
 rewrite Zmult_1_r in H; assumption.
 Qed.
 
+(*
 Theorem Qcmp_shift_mult_l : ∀ x y z,
   0 < z
   → (x / z ?= y) = (x ?= y * z).

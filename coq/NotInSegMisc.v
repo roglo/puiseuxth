@@ -21,13 +21,27 @@ Theorem QG_mult_cmp_compat_r : ∀ x y z,
   (0 < z)%QG
   → (x ?= y)%QG = (x * z ?= y * z)%QG.
 Proof.
+intros * Hz.
+apply qlt_QG_lt in Hz.
+cbn in Hz.
+specialize (Qmult_cmp_compat_r (qg_q x) (qg_q y) Hz) as H.
+Theorem QG_compare_Q_compare : ∀ x y, (x ?= y)%QG = (qg_q x ?= qg_q y)%Q.
+Proof. easy. Qed.
+do 2 rewrite QG_compare_Q_compare.
+rewrite H.
+rewrite Qred_compare.
+rewrite (Qred_compare (qg_q _)).
+Print Qred.
+Compute (Qred (18 # 12)).
+Search Qred.
+...
 intros (a₁, a₂) (b₁, b₂) (c₁, c₂) Hc.
 move b₁ before a₁; move c₁ before b₁.
+apply qlt_QG_lt in Hc.
+cbn in Hc.
 progress unfold QG_compare; cbn.
 progress unfold Qcompare.
 cbn.
-apply qlt_QG_lt in Hc.
-cbn in Hc.
 apply (f_equal Z.pos) in a₂.
 apply (f_equal Z.pos) in b₂.
 apply (f_equal Z.pos) in c₂.
