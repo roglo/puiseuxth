@@ -1572,6 +1572,16 @@ apply QG_mul_nonneg_nonneg; [ now apply QG_lt_le_incl | ].
 now apply QG_le_0_sub.
 Qed.
 
+Theorem Qred_mul_idemp_r :
+  ∀ a b, Qred (a * Qred b) = Qred (a * b).
+Proof.
+intros.
+apply Qred_complete.
+destruct (Qeq_dec a 0) as [Haz| Haz]; [ now rewrite Haz | ].
+apply Qmult_inj_l; [ easy | ].
+apply Qred_correct.
+Qed.
+
 Theorem QG_archimedean :
   ∀ a b : QG, (0 < a)%QG →
   ∃ n : nat,
@@ -1638,7 +1648,36 @@ assert (Hb : (0 < b)%QG). {
 rename Hbz into Hzb.
 rewrite Z2Nat.id. 2: {
   apply Z.div_pos; [ | easy ].
+  cbn - [ Qred ].
+  rewrite Qred_mul_idemp_r.
+  replace (_ * / _) with (qg_q b / qg_q a) by easy.
+  destruct a as (a, Hap).
+  destruct b as (b, Hbp).
+  move b before a.
+  cbn - [ Qred ].
+  apply qlt_QG_lt in Ha, Hb.
+  cbn in Ha, Hb.
+  clear Hzb.
+  apply Z_pos_gcd_eq_1 in Hap, Hbp.
+...
+  cbn in Ha, Hb, Hzb.
   cbn.
+Search (_ * / _)%Q.
+rewrite
+Search (Qnum (Qred _)).
+Search (Qred (_ * Qred _)).
+...
+    apply Qred_le.
+    apply Z.mul_nonneg_nonneg; [ cbn | easy ].
+    apply QG_lt_iff in Ha.
+    destruct Ha as (Ha, Haz).
+    apply Qle_bool_iff in Ha; cbn in Ha.
+    progress unfold Qle in Ha.
+    cbn in Ha.
+    rewrite Z.mul_1_r in Ha.
+    apply Z.mul_nonneg_nonneg; [ easy | ].
+    apply Z.add_nonneg_nonneg; [ | easy ].
+    apply Nat2Z.is_nonneg.
 ...
   remember (Z_pos_gcd (Qnum (/ qg_q a)) _) as ga eqn:Hga.
   remember (Z_pos_gcd _ _) as gb eqn:Hgb in |-*.
