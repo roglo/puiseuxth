@@ -69,102 +69,6 @@ rewrite Pos_gcd_comm.
 apply Pos_gcd_le_l.
 Qed.
 
-(*
-Theorem QG_of_Q_prop : ∀ q,
-  let g := Z_pos_gcd (Qnum q) (Qden q) in
-  Z_pos_gcd (Qnum (Qnum q / Z.pos g # Z.to_pos (QDen q / Z.pos g)))
-    (Qden (Qnum q / Z.pos g # Z.to_pos (QDen q / Z.pos g))) = 1%positive.
-Proof.
-intros; cbn.
-subst g; cbn.
-progress unfold Z_pos_gcd.
-remember (Qnum q) as qn eqn:Hqn; symmetry in Hqn.
-destruct qn as [| qn| qn]. {
-  now cbn; rewrite Z.div_same.
-} {
-  remember (Z.pos qn / _)%Z as z eqn:Hz; symmetry in Hz.
-  destruct z as [| z| z]. {
-    apply Z.div_small_iff in Hz; [ | easy ].
-    destruct Hz as [(Hz1, Hz2)| Hz]; [ | easy ].
-    exfalso.
-    apply Z.nle_gt in Hz2; apply Hz2; clear Hz2.
-    apply Pos2Z.pos_le_pos.
-    apply Pos_gcd_le_l.
-  } {
-    apply Pos2Z.inj; cbn.
-    rewrite Pos2Z.inj_gcd.
-    rewrite <- Hz.
-    rewrite Z2Pos.id. 2: {
-      apply Z.div_str_pos.
-      split; [ easy | ].
-      apply Pos2Z.pos_le_pos.
-      apply Pos_gcd_le_r.
-    }
-    now apply Z.gcd_div_gcd.
-  } {
-    specialize (Zdiv.Z_div_nonneg_nonneg) as H1.
-    remember (Z.pos _) as x eqn:Hx in Hz.
-    remember (Z.pos _) as y eqn:Hy in Hz.
-    specialize (H1 x y).
-    assert (H : (0 <= x)%Z) by now subst x.
-    specialize (H1 H); clear H.
-    assert (H : (0 <= y)%Z) by now subst y.
-    specialize (H1 H); clear H.
-    now rewrite Hz in H1.
-  }
-} {
-  remember (Z.neg qn / _)%Z as z eqn:Hz; symmetry in Hz.
-  destruct z as [| z| z]. {
-    apply Z.div_small_iff in Hz; [ | easy ].
-    now destruct Hz.
-  } {
-    apply Pos2Z.inj; cbn.
-    rewrite Pos2Z.inj_gcd.
-    rewrite <- Hz.
-    rewrite Z2Pos.id. 2: {
-      apply Z.div_str_pos.
-      split; [ easy | ].
-      apply Pos2Z.pos_le_pos.
-      apply Pos_gcd_le_r.
-    }
-    now apply Z.gcd_div_gcd.
-  } {
-    apply (f_equal Z.opp) in Hz.
-    cbn in Hz.
-    rewrite <- Zdiv.Z_div_zero_opp_full in Hz. 2: {
-      rewrite Pos2Z.inj_gcd.
-      rewrite <- Z.gcd_opp_l.
-      rewrite Pos2Z.opp_pos.
-      apply Znumtheory.Zdivide_mod.
-      apply Z.gcd_divide_l.
-    }
-    cbn in Hz.
-    apply (f_equal Z.to_pos) in Hz.
-    cbn in Hz.
-    rewrite <- Hz.
-    rewrite Pos2Z.inj_gcd.
-    rewrite <- Z2Pos.inj_gcd; cycle 1. {
-      apply Z.div_str_pos.
-      split; [ easy | ].
-      apply Znumtheory.Zdivide_le; [ easy | easy | ].
-      apply Z.gcd_divide_l.
-    } {
-      apply Z.div_str_pos.
-      split; [ easy | ].
-      apply Znumtheory.Zdivide_le; [ easy | easy | ].
-      apply Z.gcd_divide_r.
-    }
-    rewrite Z.gcd_div_factor; [ | easy | | ]; cycle 1. {
-      apply Z.gcd_divide_l.
-    } {
-      apply Z.gcd_divide_r.
-    }
-    now rewrite Z.div_same.
-  }
-}
-Qed.
-*)
-
 Theorem Z_ggcd_split :
   ∀ n d g n1 d1,
   Z.ggcd n d = (g, (n1, d1))
@@ -238,15 +142,7 @@ rewrite Z.mul_0_r.
 now rewrite <- Hd.
 Qed.
 
-Definition QG_of_Q (q : Q) :=
-  mk_qg (Qred q) (QG_of_Q_prop q).
-
-(*
-Definition QG_of_Q (q : Q) :=
-  let g := Z_pos_gcd (Qnum q) (Qden q) in
-  mk_qg (Qmake (Qnum q / Zpos g) (Z.to_pos (Zpos (Qden q) / Zpos g)%Z))
-    (QG_of_Q_prop q).
-*)
+Definition QG_of_Q (q : Q) := mk_qg (Qred q) (QG_of_Q_prop q).
 
 Definition QG_of_Z a := QG_of_Q (a # 1).
 Definition Z_of_QG a := (Qnum (qg_q a) / QDen (qg_q a))%Z.
@@ -1593,6 +1489,25 @@ apply Qmult_inj_l; [ easy | ].
 apply Qred_correct.
 Qed.
 
+Theorem Qnum_Qred_nonneg : ∀ a, (0 ≤ Qnum a → 0 ≤ Qnum (Qred a))%Z.
+Proof.
+intros * Hza.
+destruct a as (an, ad).
+cbn in Hza |-*.
+remember (Z.ggcd an (Z.pos ad)) as g eqn:Hg.
+symmetry in Hg.
+destruct g as (g, (n, d)).
+apply Z_ggcd_split in Hg.
+destruct Hg as (Hn & Hd & Hg & Hg1).
+cbn.
+apply (Z.mul_le_mono_pos_l _ _ g). {
+  apply Z.le_neq.
+  split; [ rewrite <- Hg; apply Z.gcd_nonneg | ].
+  now intros H; move H at top; subst g.
+}
+now rewrite Z.mul_0_r, <- Hn.
+Qed.
+
 Theorem QG_archimedean :
   ∀ a b : QG, (0 < a)%QG →
   ∃ n : nat,
@@ -1662,20 +1577,7 @@ rewrite Z2Nat.id. 2: {
   cbn - [ Qred ].
   rewrite Qred_mul_idemp_r.
   replace (_ * / _) with (qg_q b / qg_q a) by easy.
-Theorem Qnum_Qred_nonneg : ∀ a, (0 ≤ Qnum a → 0 ≤ Qnum (Qred a))%Z.
-Proof.
-intros * Hza.
-destruct a as (an, ad).
-cbn in Hza |-*.
-remember (Z.ggcd an (Z.pos ad)) as g eqn:Hg.
-symmetry in Hg.
-destruct g as (g, (n, d)).
-apply Z_ggcd_split in Hg.
-destruct Hg as (Hn & Hd & Hg & Hg1).
-cbn.
-...
-apply Qnum_Qred_nonneg.
-...
+  apply Qnum_Qred_nonneg.
   destruct a as (a, Hap).
   destruct b as (b, Hbp).
   move b before a.
@@ -1687,65 +1589,12 @@ apply Qnum_Qred_nonneg.
   destruct a as (an, ad).
   destruct b as (bn, bd).
   cbn in Hap, Hbp.
-  progress unfold Qdiv.
-  progress unfold Qmult.
-  cbn - [ Qred ].
+  cbn.
   progress unfold Qinv.
-  cbn - [ Qred ].
-  progress unfold Qlt in Ha.
-  progress unfold Qlt in Hb.
-  cbn in Ha, Hb.
-  rewrite Z.mul_1_r in Ha, Hb.
+  cbn.
   destruct an as [| an| an]; [ easy | | easy ].
   destruct bn as [| bn| bn]; [ easy | | easy ].
-  cbn - [ Qred ].
-  rewrite Pos2Z.inj_mul.
-
-...
-  cbn in Ha, Hb, Hzb.
-  cbn.
-Search (_ * / _)%Q.
-rewrite
-Search (Qnum (Qred _)).
-Search (Qred (_ * Qred _)).
-...
-    apply Qred_le.
-    apply Z.mul_nonneg_nonneg; [ cbn | easy ].
-    apply QG_lt_iff in Ha.
-    destruct Ha as (Ha, Haz).
-    apply Qle_bool_iff in Ha; cbn in Ha.
-    progress unfold Qle in Ha.
-    cbn in Ha.
-    rewrite Z.mul_1_r in Ha.
-    apply Z.mul_nonneg_nonneg; [ easy | ].
-    apply Z.add_nonneg_nonneg; [ | easy ].
-    apply Nat2Z.is_nonneg.
-...
-  remember (Z_pos_gcd (Qnum (/ qg_q a)) _) as ga eqn:Hga.
-  remember (Z_pos_gcd _ _) as gb eqn:Hgb in |-*.
-  apply Z.div_pos; [ | easy ].
-  apply Z.mul_nonneg_nonneg. {
-    apply QG_lt_iff in Hb.
-    destruct Hb as (Hb, Hbz).
-    apply Qle_bool_iff in Hb; cbn in Hb.
-    progress unfold Qle in Hb.
-    now rewrite Z.mul_1_r in Hb.
-  } {
-    apply Z.div_pos; [ | easy ].
-    progress unfold Qinv.
-    remember (Qnum (qg_q a)) as x eqn:Hx; symmetry in Hx.
-    destruct x as [| x| x]; [ easy | easy | ].
-    exfalso.
-    destruct a as ((an, ap), Hap).
-    cbn in Ha, Hx.
-    subst an.
-    apply QG_lt_iff in Ha.
-    destruct Ha as (Ha, Ha').
-    apply Qle_bool_iff in Ha.
-    cbn in Ha.
-    apply Qle_not_lt in Ha.
-    now apply Ha.
-  }
+  easy.
 }
 rewrite <- QG_of_Q_mul_idemp_r.
 rewrite QG_of_Q_qg_q_mul.
