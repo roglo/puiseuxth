@@ -698,13 +698,14 @@ rewrite (Qmult_comm a).
 apply QG_of_Q_mul_idemp_l.
 Qed.
 
-Theorem QG_of_Q_qg_q : ∀ a, QG_of_Q (qg_q a) = a.
+Theorem Z_gcd_eq_1_Qred :
+  ∀ q,
+  Z.gcd (Qnum q) (Z.pos (Qden q)) = 1%Z
+  → Qred q = q.
 Proof.
-intros.
-apply eq_QG_eq.
-destruct a as ((n, d), ap); cbn - [ Qred ].
-apply Z_pos_gcd_eq_1 in ap.
-cbn in ap.
+intros * Hq.
+destruct q as (n, d).
+cbn in Hq.
 specialize (Z.ggcd_correct_divisors n (Z.pos d)) as H1.
 cbn.
 remember (Z.ggcd n (Z.pos d)) as g eqn:Hg; symmetry in Hg.
@@ -715,10 +716,19 @@ apply (f_equal fst) in H3.
 rewrite Z.ggcd_gcd in H3.
 cbn in H3.
 cbn.
-rewrite H3 in ap.
+rewrite H3 in Hq.
 subst g.
 rewrite Z.mul_1_l in H1, H2.
 now subst r1 r2.
+Qed.
+
+Theorem QG_of_Q_qg_q : ∀ a, QG_of_Q (qg_q a) = a.
+Proof.
+intros.
+apply eq_QG_eq.
+destruct a as ((n, d), ap); cbn - [ Qred ].
+apply Z_pos_gcd_eq_1 in ap.
+now apply Z_gcd_eq_1_Qred.
 Qed.
 
 (* *)
@@ -984,11 +994,11 @@ split; intros Hxy. {
   rewrite Z.mul_1_r in Hx |-*.
   destruct x as (xn, xd).
   cbn - [ Qred ] in Hx |-*.
-...
-  remember (Z_pos_gcd _ _) as y eqn:Hy.
-  clear Hy xd.
-  rename xn into x; rename y into p.
-  now apply Z_le_0_div_nonneg_r in Hx.
+  destruct xn as [| xn| xn]; [ easy | easy | ].
+  cbn in Hx.
+  remember (Pos.ggcd xn xd) as g eqn:Hg.
+  symmetry in Hg.
+  now destruct g as (g, (r1, r2)).
 } {
   destruct x as (x, xp).
   destruct y as (y, yp).
@@ -1010,21 +1020,23 @@ split; intros Hxy. {
   cbn in Hx |-*.
   rewrite Z.mul_1_r in Hx |-*.
   destruct x as (xn, xd).
-  cbn in Hx |-*.
-  remember (Z_pos_gcd _ _) as y eqn:Hy.
-  clear Hy xd.
-  rename xn into x; rename y into p.
-  now apply Z_le_0_div_nonneg_r.
+  destruct xn as [| xn| xn]; [ easy | | easy ].
+  cbn.
+  remember (Pos.ggcd xn xd) as g eqn:Hg.
+  symmetry in Hg.
+  now destruct g as (g, (r1, r2)).
 }
 Qed.
 
 Theorem qg_q_opp : ∀ a, qg_q (- a)%QG = - qg_q a.
 Proof.
 intros.
-destruct a as (a, Hap); cbn.
-rewrite Z_pos_gcd_opp_l.
-rewrite Hap.
-now do 2 rewrite Z.div_1_r.
+destruct a as (a, Hap).
+cbn - [ Qred ].
+rewrite Qred_opp.
+progress f_equal.
+apply Z_pos_gcd_eq_1 in Hap.
+now apply Z_gcd_eq_1_Qred.
 Qed.
 
 Theorem QG_opp_add_distr : ∀ a b, (- (a + b) = - a - b)%QG.
@@ -1156,6 +1168,7 @@ destruct an as [| an| an]; [ | | ]. {
   cbn in Ha; subst ad.
   rewrite Z.mul_0_l, Z.mul_1_r.
   rewrite Z.add_0_l, Pos.mul_1_l.
+...
   rewrite Hb.
   do 2 rewrite Z.div_1_r.
   now rewrite Pos2Z.id.
