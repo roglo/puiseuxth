@@ -1,7 +1,9 @@
 (* NotInSegMisc.v *)
 
-From Stdlib Require Import Utf8 QArith Sorting.
+Set Nested Proofs Allowed.
+From Stdlib Require Import Utf8 Sorting.
 
+Require Import QGArith.
 Require Import Misc.
 Require Import Slope_base.
 Require Import ConvexHull.
@@ -13,6 +15,46 @@ Theorem ad_hoc_lt_lt : ∀ i j k x y z,
     → x + i * ((x - y) / (k - i)) < z + j * ((x - y) / (k - i)).
 Proof.
 intros i j k x y z (Hij, Hjk) H.
+...
+apply QG_compare_lt_iff in H.
+apply QG_compare_lt_iff.
+rewrite <- H; clear H.
+symmetry.
+...
+Theorem Qmult_cmp_compat_r : ∀ x y z,
+  0 < z
+  → (x ?= y) = (x * z ?= y * z).
+Proof.
+intros (a₁, a₂) (b₁, b₂) (c₁, c₂) H.
+unfold Qcompare; simpl.
+do 2 rewrite Pos2Z.inj_mul.
+rewrite Z.mul_shuffle1, (Z.mul_shuffle1 b₁).
+rewrite <- Zmult_cmp_compat_r; [ reflexivity | idtac ].
+apply Z.mul_pos_pos; [ idtac | reflexivity ].
+unfold Qlt in H; simpl in H.
+rewrite Zmult_1_r in H; assumption.
+Qed.
+
+Theorem Qcmp_shift_mult_r : ∀ x y z,
+  0 < z
+  → (x ?= y / z) = (x * z ?= y).
+Proof.
+intros x y z Hz.
+erewrite Qmult_cmp_compat_r; [ idtac | eassumption ].
+rewrite Qmult_div_swap.
+unfold Qdiv.
+rewrite <- Qmult_assoc.
+rewrite Qmult_inv_r; [ idtac | apply Qgt_0_not_0; assumption ].
+rewrite Qmult_1_r; reflexivity.
+Qed.
+
+Theorem Qlt_shift_mult_r : ∀ x y z, 0 < z → x < y / z → x * z < y.
+Proof.
+intros x y z Hc H.
+rewrite Qlt_alt in H |- *.
+rewrite <- H; symmetry; apply Qcmp_shift_mult_r; assumption.
+Qed.
+...
 apply Qlt_shift_mult_r in H; [ idtac | apply Qlt_minus; assumption ].
 rewrite Qmult_comm, Qmult_div_assoc in H.
 apply Qlt_shift_mult_l in H; [ idtac | apply Qlt_minus; assumption ].
