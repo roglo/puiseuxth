@@ -452,7 +452,24 @@ apply Z.mul_reg_l in Hq; [ | easy ].
 now apply Pos2Z.inj in Hq.
 Qed.
 
-(* I don't understand why the proof of that too is so complicated *)
+Theorem Z_pos_gcd_eq_1 :
+  ∀ n d,
+  Z_pos_gcd n d = 1%positive
+  → Z.gcd n (Z.pos d) = 1%Z.
+Proof.
+intros * Hnd.
+rewrite Z_pos_gcd_Z_gcd in Hnd.
+rewrite <- Z2Pos.inj_1 in Hnd.
+apply Z2Pos.inj in Hnd; [ easy | | easy ].
+destruct (Z.eq_dec (Z.gcd n (Z.pos d)) 0) as [H1| H1]. {
+  now apply Z.gcd_eq_0 in H1.
+}
+specialize (Z.gcd_nonneg n (Z.pos d)) as H2.
+apply Z.nle_gt.
+intros H3; apply H1.
+now apply Z.le_antisymm.
+Qed.
+
 Theorem qeq_QG_eq : ∀ q1 q2 : QG, q1 = q2 ↔ qg_q q1 == qg_q q2.
 Proof.
 intros.
@@ -462,26 +479,7 @@ destruct q2 as (q2, Hq2).
 cbn in Hq.
 move q2 before q1.
 apply eq_QG_eq; cbn.
-rewrite Z_pos_gcd_Z_gcd in Hq1, Hq2.
-rewrite <- Z2Pos.inj_1 in Hq1, Hq2.
-apply Z2Pos.inj in Hq1; [ | | easy ]. 2: {
-  destruct (Z.eq_dec (Z.gcd (Qnum q1) (QDen q1)) 0) as [H1| H1]. {
-    now apply Z.gcd_eq_0 in H1.
-  }
-  specialize (Z.gcd_nonneg (Qnum q1) (QDen q1)) as H2.
-  apply Z.nle_gt.
-  intros H3; apply H1.
-  now apply Z.le_antisymm.
-}
-apply Z2Pos.inj in Hq2; [ | | easy ]. 2: {
-  destruct (Z.eq_dec (Z.gcd (Qnum q2) (QDen q2)) 0) as [H1| H1]. {
-    now apply Z.gcd_eq_0 in H1.
-  }
-  specialize (Z.gcd_nonneg (Qnum q2) (QDen q2)) as H2.
-  apply Z.nle_gt.
-  intros H3; apply H1.
-  now apply Z.le_antisymm.
-}
+apply Z_pos_gcd_eq_1 in Hq1, Hq2.
 now apply qeq_eq.
 Qed.
 
@@ -704,43 +702,23 @@ Theorem QG_of_Q_qg_q : ∀ a, QG_of_Q (qg_q a) = a.
 Proof.
 intros.
 apply eq_QG_eq.
-destruct a as ((n, d), ap); cbn.
+destruct a as ((n, d), ap); cbn - [ Qred ].
+apply Z_pos_gcd_eq_1 in ap.
 cbn in ap.
-rewrite Z_pos_gcd_Z_gcd in ap.
-rewrite <- Z2Pos.inj_1 in ap.
-...
-apply Z2Pos.inj in ap; [ | | easy ]. 2: {
-  destruct (Z.eq_dec (Z.gcd (Qnum q1) (QDen q1)) 0) as [H1| H1]. {
-    now apply Z.gcd_eq_0 in H1.
-  }
-  specialize (Z.gcd_nonneg (Qnum q1) (QDen q1)) as H2.
-  apply Z.nle_gt.
-  intros H3; apply H1.
-  now apply Z.le_antisymm.
-}
-...
 specialize (Z.ggcd_correct_divisors n (Z.pos d)) as H1.
+cbn.
 remember (Z.ggcd n (Z.pos d)) as g eqn:Hg; symmetry in Hg.
 destruct g as (g, (r1, r2)).
 destruct H1 as (H1, H2).
-cbn.
 generalize Hg; intros H3.
 apply (f_equal fst) in H3.
 rewrite Z.ggcd_gcd in H3.
 cbn in H3.
-rewrite H1, H2 in H3.
-generalize H3; intros H4.
-rewrite Z.gcd_mul_mono_l_nonneg in H4. 2: {
-  rewrite <- H4.
-  apply Z.gcd_nonneg.
-}
-...
-intros.
-apply eq_QG_eq.
-destruct a as (a, ap); cbn.
-rewrite ap.
-do 2 rewrite Z.div_1_r.
-now destruct a.
+cbn.
+rewrite H3 in ap.
+subst g.
+rewrite Z.mul_1_l in H1, H2.
+now subst r1 r2.
 Qed.
 
 (* *)
@@ -1005,7 +983,8 @@ split; intros Hxy. {
   cbn in Hx |-*.
   rewrite Z.mul_1_r in Hx |-*.
   destruct x as (xn, xd).
-  cbn in Hx |-*.
+  cbn - [ Qred ] in Hx |-*.
+...
   remember (Z_pos_gcd _ _) as y eqn:Hy.
   clear Hy xd.
   rename xn into x; rename y into p.
