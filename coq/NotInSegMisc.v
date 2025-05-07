@@ -15,6 +15,113 @@ Theorem ad_hoc_lt_lt : ∀ i j k x y z,
     → x + i * ((x - y) / (k - i)) < z + j * ((x - y) / (k - i)).
 Proof.
 intros i j k x y z (Hij, Hjk) H.
+
+Theorem QG_mult_cmp_compat_r : ∀ x y z,
+  0 < z
+  → (x ?= y) = (x * z ?= y * z).
+Proof.
+intros (a₁, a₂) (b₁, b₂) (c₁, c₂) H.
+move b₁ before a₁; move c₁ before b₁.
+Require Import QArith.
+progress unfold QG_compare; cbn.
+progress unfold Qcompare.
+cbn.
+...
+progress unfold QG_lt in H.
+Search (0 < _)%QG.
+...
+apply (f_equal Z.pos) in a₂.
+apply (f_equal Z.pos) in b₂.
+apply (f_equal Z.pos) in c₂.
+Search (Z.pos (Z_pos_gcd _ _)).
+rewrite Z_pos_pos_gcd in a₂.
+...
+rewrite Z2Pos.id. 2: {
+  apply Z.div_str_pos.
+  split; [ easy | ].
+  rewrite Z_pos_pos_gcd.
+  apply Z_gcd_pos_r_le.
+}
+rewrite Z2Pos.id. 2: {
+  apply Z.div_str_pos.
+  split; [ easy | ].
+  rewrite Z_pos_pos_gcd.
+  apply Z_gcd_pos_r_le.
+}
+do 2 rewrite Z_pos_pos_gcd.
+do 2 rewrite Pos2Z.inj_mul.
+remember (Qnum a₁ * Qnum c₁)%Z as acn.
+remember (QDen a₁ * QDen c₁)%Z as acd.
+
+...
+remember (QDen b₁ * QDen c₁)%Z as bcn.
+
+rewrite Z_div_mul_swap; [ | apply Z.gcd_divide_l ].
+rewrite Z_div_mul_swap; [ | apply Z.gcd_divide_l ].
+rewrite Z.divide_div_mul_exact.
+Search (_ * (_ / _))%Z.
+Search (_ / _ / _)%Z.
+rewrite Z.div_div.
+Search (Z.gcd _ _ * Z.gcd _ _)%Z.
+...
+rewrite (Z.mul_comm (Z.gcd _ _)).
+rewrite <- Z.div_div.
+Z.divide_div_mul_exact: ∀ a b c : Z, b ≠ 0%Z → (b | a)%Z → (c * a / b)%Z = (c * (a / b))%Z
+Search (_ * (_ / _))%Z.
+Search (_ * (_ / Z.gcd _ _))%Z.
+Search (_ * _ / Z.gcd _ _)%Z.
+...
+Search (_ / _ * _)%Z.
+Search (Z.pos (_ * _)).
+do 2 rewrite Pos2Z.inj_mul.
+...
+...
+remember (Z.gcd _ _) as x.
+remember (Z.gcd (_ * _) _) as y in |-*.
+Search (_ / Z.gcd _ _)%Z.
+...
+Q_num_den_div_gcd:
+  ∀ (x : Z) (y : positive), x / Z.gcd x (Z.pos y) # Z.to_pos (Z.pos y / Z.gcd x (Z.pos y)) == x # y
+...
+rewrite Z_div_mul_swap; [ | apply Z.gcd_divide_l ].
+rewrite Z_div_mul_swap; [ | apply Z.gcd_divide_l ].
+Search ((_ * _) / _)%Z.
+Search (_ / _ / _)%Z.
+Search (_ * _ / _)%Z.
+...
+Check Z_div_mul_swap.
+rewrite Z.mul_shuffle1.
+...
+rewrite Z.mul_shuffle1, (Z.mul_shuffle1 b₁).
+rewrite <- Zmult_cmp_compat_r; [ reflexivity | idtac ].
+apply Z.mul_pos_pos; [ idtac | reflexivity ].
+unfold Qlt in H; simpl in H.
+rewrite Zmult_1_r in H; assumption.
+Qed.
+
+Theorem QG_cmp_shift_mult_r : ∀ x y z,
+  0 < z
+  → (x ?= y / z) = (x * z ?= y).
+Proof.
+intros x y z Hz.
+erewrite Qmult_cmp_compat_r; [ idtac | eassumption ].
+rewrite Qmult_div_swap.
+unfold Qdiv.
+rewrite <- Qmult_assoc.
+rewrite Qmult_inv_r; [ idtac | apply Qgt_0_not_0; assumption ].
+rewrite Qmult_1_r; reflexivity.
+Qed.
+...
+
+Theorem QG_lt_shift_mult_r : ∀ x y z, 0 < z → x < y / z → x * z < y.
+Proof.
+intros x y z Hc H.
+apply QG_compare_lt_iff in H.
+apply QG_compare_lt_iff.
+rewrite <- H; symmetry.
+...
+rewrite <- H; symmetry; apply Qcmp_shift_mult_r; assumption.
+Qed.
 ...
 apply QG_compare_lt_iff in H.
 apply QG_compare_lt_iff.
