@@ -81,6 +81,22 @@ apply QG_compare_lt_iff.
 now rewrite <- H; symmetry; apply QG_cmp_shift_mul_r.
 Qed.
 
+Theorem QG_add_sub_assoc: ∀ a b c, a + (b - c) = a + b - c.
+Proof.
+intros.
+progress unfold QG_sub.
+apply QG_add_assoc.
+Qed.
+
+Theorem QG_sub_sub_distr : ∀ x y z, x - (y - z) = (x - y) + z.
+Proof.
+intros x y z.
+progress unfold QG_sub.
+rewrite QG_opp_add_distr.
+rewrite QG_add_sub_assoc.
+apply QG_sub_opp_r.
+Qed.
+
 Theorem ad_hoc_lt_lt : ∀ i j k x y z,
   i < j ∧ i < k
   → (y - x) / (k - i) < (z - x) / (j - i)
@@ -91,11 +107,10 @@ apply QG_lt_shift_mul_r in H; [ | now apply QG_lt_0_sub ].
 rewrite QG_mul_comm, QG_mul_div_assoc in H.
 apply QG_lt_shift_mul_l in H; [ | now apply QG_lt_0_sub ].
 rewrite QG_mul_comm in H.
+do 2 rewrite QG_mul_sub_distr_l in H.
+do 4 rewrite QG_mul_sub_distr_r in H.
+do 2 rewrite QG_sub_sub_distr in H.
 ...
-rewrite Qmult_comm in H.
-do 2 rewrite Qmult_minus_distr_l in H.
-do 4 rewrite Qmult_minus_distr_r in H.
-do 2 rewrite Qminus_minus_assoc in H.
 rewrite <- Qplus_minus_swap in H.
 apply Qminus_lt_lt_plus_r in H.
 rewrite <- Qplus_minus_swap in H.
