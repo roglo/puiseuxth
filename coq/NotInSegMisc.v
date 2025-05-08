@@ -10,13 +10,6 @@ Require Import Slope_base.
 Require Import ConvexHull.
 Require Import ConvexHullMisc.
 
-Theorem ad_hoc_lt_lt : ∀ i j k x y z,
-  i < j ∧ i < k
-  → (y - x) / (k - i) < (z - x) / (j - i)
-    → x + i * ((x - y) / (k - i)) < z + j * ((x - y) / (k - i)).
-Proof.
-intros i j k x y z (Hij, Hjk) H.
-
 Theorem QG_compare_Q_compare : ∀ x y, (x ?= y)%QG = (qg_q x ?= qg_q y)%Q.
 Proof. easy. Qed.
 
@@ -46,6 +39,19 @@ intros.
 now rewrite QG_mul_comm, QG_mul_div_assoc, QG_mul_comm.
 Qed.
 
+Theorem QG_cmp_shift_mul_l : ∀ x y z,
+  0 < z
+  → (x / z ?= y) = (x ?= y * z).
+Proof.
+intros x y z Hz.
+erewrite QG_mul_cmp_compat_r; [ | apply Hz ].
+rewrite QG_mul_div_swap.
+progress unfold QG_div.
+rewrite <- QG_mul_assoc.
+rewrite QG_mul_inv_diag_r; [ | now apply QG_lt_0_neq_0 ].
+now rewrite QG_mul_1_r.
+Qed.
+
 Theorem QG_cmp_shift_mul_r : ∀ x y z,
   0 < z
   → (x ?= y / z) = (x * z ?= y).
@@ -59,6 +65,14 @@ rewrite QG_mul_inv_diag_r; [ | now apply QG_lt_0_neq_0 ].
 now rewrite QG_mul_1_r.
 Qed.
 
+Theorem QG_lt_shift_mul_l : ∀ x y z, 0 < z → x / z < y → x < y * z.
+Proof.
+intros x y z Hc H.
+apply QG_compare_lt_iff in H.
+apply QG_compare_lt_iff.
+now rewrite <- H; symmetry; apply QG_cmp_shift_mul_l.
+Qed.
+
 Theorem QG_lt_shift_mul_r : ∀ x y z, 0 < z → x < y / z → x * z < y.
 Proof.
 intros x y z Hc H.
@@ -67,30 +81,17 @@ apply QG_compare_lt_iff.
 now rewrite <- H; symmetry; apply QG_cmp_shift_mul_r.
 Qed.
 
-Theorem QG_cmp_shift_mult_r : ∀ x y z,
-  0 < z
-  → (x ?= y / z) = (x * z ?= y).
+Theorem ad_hoc_lt_lt : ∀ i j k x y z,
+  i < j ∧ i < k
+  → (y - x) / (k - i) < (z - x) / (j - i)
+    → x + i * ((x - y) / (k - i)) < z + j * ((x - y) / (k - i)).
 Proof.
-intros x y z Hz.
+intros i j k x y z (Hij, Hjk) H.
+apply QG_lt_shift_mul_r in H; [ | now apply QG_lt_0_sub ].
+rewrite QG_mul_comm, QG_mul_div_assoc in H.
+apply QG_lt_shift_mul_l in H; [ | now apply QG_lt_0_sub ].
+rewrite QG_mul_comm in H.
 ...
-erewrite Qmult_cmp_compat_r; [ idtac | eassumption ].
-rewrite Qmult_div_swap.
-unfold Qdiv.
-rewrite <- Qmult_assoc.
-rewrite Qmult_inv_r; [ idtac | apply Qgt_0_not_0; assumption ].
-rewrite Qmult_1_r; reflexivity.
-Qed.
-
-Theorem Qlt_shift_mult_r : ∀ x y z, 0 < z → x < y / z → x * z < y.
-Proof.
-intros x y z Hc H.
-rewrite Qlt_alt in H |- *.
-rewrite <- H; symmetry; apply Qcmp_shift_mult_r; assumption.
-Qed.
-...
-apply Qlt_shift_mult_r in H; [ idtac | apply Qlt_minus; assumption ].
-rewrite Qmult_comm, Qmult_div_assoc in H.
-apply Qlt_shift_mult_l in H; [ idtac | apply Qlt_minus; assumption ].
 rewrite Qmult_comm in H.
 do 2 rewrite Qmult_minus_distr_l in H.
 do 4 rewrite Qmult_minus_distr_r in H.
