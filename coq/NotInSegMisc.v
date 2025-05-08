@@ -248,6 +248,7 @@ rewrite QG_add_comm, QG_mul_comm; apply QG_nle_gt.
 do 2 rewrite QG_mul_sub_distr_r.
 rewrite QG_mul_sub_distr_l.
 do 2 rewrite QG_add_sub_assoc.
+...
 apply <- QG_lt_sub_lt_add_r; rewrite <- QG_add_sub_swap.
 apply <- QG_lt_sub_lt_add_r; rewrite QG_add_sub_swap.
 do 2 rewrite <- QG_add_assoc; rewrite <- QG_add_sub_swap.
