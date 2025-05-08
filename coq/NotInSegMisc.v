@@ -325,14 +325,13 @@ remember (slope_expr (j, αj) pt ?= slope ms₁) as c.
 symmetry in Heqc.
 destruct c; subst ms. {
   progress unfold slope; simpl.
-...
-  rewrite <- minimised_slope; [ idtac | eassumption | reflexivity ].
-  eapply IHpts; eassumption.
+  erewrite <- minimised_slope; [ | apply Heqms₁ | easy ].
+  eapply IHpts; [ eassumption | easy ].
 } {
   simpl.
-  apply Qlt_alt in Heqc.
-  apply Qlt_le_weak.
-  eapply Qlt_le_trans; [ eassumption | idtac ].
+  apply QG_compare_lt_iff in Heqc.
+  apply QG_lt_le_incl.
+  eapply QG_lt_le_trans; [ eassumption | ].
   eapply IHpts; eassumption.
 } {
   eapply IHpts; eassumption.
@@ -365,28 +364,27 @@ destruct Hαh as [Hαh| Hαh]. {
       simpl in Hep |- *.
       apply minimise_slope_le in Heqms₁; [ idtac | assumption ].
       rewrite Hep in Heqms₁.
-      apply Qle_not_lt in Heqms₁; contradiction.
+      now apply QG_nlt_ge in Heqms₁.
     } {
       simpl in Hep |- *; clear Hep.
-      symmetry in Heqc; apply Qlt_alt in Heqc.
-      eapply Qlt_le_trans; [ eassumption | idtac ].
+      symmetry in Heqc; apply QG_compare_lt_iff in Heqc.
+      eapply QG_lt_le_trans; [ eassumption | ].
       eapply minimised_slope_le; eassumption.
     } {
-      symmetry in Heqc; apply Qgt_alt in Heqc.
-      apply minimise_slope_le in Heqms₁; [ idtac | assumption ].
+      symmetry in Heqc; apply QG_compare_gt_iff in Heqc.
+      apply minimise_slope_le in Heqms₁; [ | easy ].
       rewrite Hep in Heqms₁; simpl in Heqms₁.
-      apply Qle_not_lt in Heqms₁.
-      contradiction.
+      now apply QG_nlt_ge in Heqms₁.
     }
   }
   destruct Hms as [Hms| Hms]. {
     injection Hms; clear Hms; intros; subst h αh.
-    apply Qlt_irrefl in Hkh; contradiction.
+    apply QG_lt_irrefl in Hkh; contradiction.
   }
   eapply Sorted_hd in Hsort; [ idtac | eassumption ].
   simpl in Hsort.
-  eapply Qlt_trans in Hsort; [ idtac | eassumption ].
-  apply Qlt_irrefl in Hsort; contradiction.
+  eapply QG_lt_trans in Hsort; [ idtac | eassumption ].
+  apply QG_lt_irrefl in Hsort; contradiction.
 }
 simpl in Hms.
 remember (minimise_slope (j, αj) pt₁ pts) as ms₁.
@@ -395,6 +393,7 @@ remember (slope_expr (j, αj) pt ?= slope ms₁) as c.
 destruct c; subst ms. {
   simpl in Hep |- *.
   progress unfold slope; simpl.
+...
   rewrite <- minimised_slope; [ idtac | eassumption | reflexivity ].
   eapply IHpts; try eassumption.
   destruct pts as [| pts₁]; [ constructor | idtac ].

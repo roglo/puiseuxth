@@ -1331,19 +1331,13 @@ Qed.
 Theorem QG_nle_gt : ∀ a b : QG, ¬ (a ≤ b)%QG ↔ (b < a)%QG.
 Proof.
 intros.
-split. {
-  intros Hab.
-  apply QG_lt_iff.
-  apply QG_not_le in Hab.
-  split; [ easy | ].
-  now apply not_eq_sym.
-} {
-  intros Hba Hab.
-  apply QG_lt_iff in Hba.
-  destruct Hba as (Hba, H).
-  apply H; clear H.
-  now apply QG_le_antisymm.
-}
+now split; intros; apply Bool.not_true_iff_false.
+Qed.
+
+Theorem QG_nlt_ge : ∀ a b : QG, ¬ (a < b)%QG ↔ (b ≤ a)%QG.
+Proof.
+intros.
+now split; intros; apply Bool.not_false_iff_true.
 Qed.
 
 Theorem QG_of_Z_QG_of_Q : ∀ a, QG_of_Z a = QG_of_Q (a # 1).
