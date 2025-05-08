@@ -186,6 +186,27 @@ rewrite QG_div_add_distr_r.
 now rewrite QG_mul_div.
 Qed.
 
+Theorem QG_mul_0_l : ∀ a, 0 * a = 0.
+Proof. now intros; now apply eq_QG_eq. Qed.
+
+Theorem QG_0_lt_inv_compat : ∀ a, 0 < a → 0 < a⁻¹.
+Proof.
+intros * Hza.
+apply (QG_mul_lt_mono_pos_r _ _ Hza).
+rewrite QG_mul_inv_diag_l. 2: {
+  now intros H; subst a; apply QG_lt_irrefl in Hza.
+}
+now rewrite QG_mul_0_l.
+Qed.
+
+Theorem QG_div_lt_mono_pos_r : ∀ a b c, 0 < a → b < c ↔ b / a < c / a.
+Proof.
+intros * Hza.
+progress unfold QG_div.
+apply QG_mul_lt_mono_pos_r.
+now apply QG_0_lt_inv_compat.
+Qed.
+
 Theorem ad_hoc_lt_lt : ∀ i j k x y z,
   i < j ∧ i < k
   → (y - x) / (k - i) < (z - x) / (j - i)
@@ -220,8 +241,8 @@ rewrite QG_add_div. 2: {
   subst k.
   now apply QG_lt_irrefl in Hjk.
 }
+apply QG_div_lt_mono_pos_r; [ now apply QG_lt_0_sub | ].
 ...
-apply Qdiv_lt_compat_r; [ apply Qlt_minus; assumption | idtac ].
 rewrite Qmult_minus_distr_r.
 rewrite Qplus_comm, Qmult_comm; apply Qnot_le_lt.
 rewrite Qplus_comm, Qmult_comm; apply Qlt_not_le.

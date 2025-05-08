@@ -1479,6 +1479,14 @@ apply QG_mul_nonneg_nonneg; [ now apply QG_lt_le_incl | ].
 now apply QG_le_0_sub.
 Qed.
 
+Theorem QG_mul_lt_mono_pos_r :
+  ∀ a b c : QG, (0 < c)%QG → (a < b)%QG ↔ (a * c < b * c)%QG.
+Proof.
+intros * Hc.
+do 2 rewrite (QG_mul_comm _ c).
+now apply QG_mul_lt_mono_pos_l.
+Qed.
+
 Theorem Qred_add_idemp_l :
   ∀ a b, Qred (Qred a + b) = Qred (a + b).
 Proof.
