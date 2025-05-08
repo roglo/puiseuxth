@@ -220,19 +220,12 @@ rewrite QG_mul_comm in H.
 do 2 rewrite QG_mul_sub_distr_l in H.
 do 4 rewrite QG_mul_sub_distr_r in H.
 do 2 rewrite QG_sub_sub_distr in H.
-(**)
 apply QG_add_lt_mono_r in H.
-...
-rewrite <- QG_add_sub_swap in H.
-apply -> QG_lt_sub_lt_add_r in H.
-rewrite <- QG_add_sub_swap in H.
-apply -> QG_lt_sub_lt_add_r in H.
-do 2 rewrite <- QG_add_assoc in H.
-rewrite <- QG_add_sub_swap in H.
+do 2 apply -> QG_lt_sub_lt_add_r in H.
+do 2 rewrite <- QG_add_sub_swap in H.
 apply QG_lt_add_lt_sub_r in H.
-rewrite <- QG_add_sub_swap in H.
+do 2 rewrite <- QG_add_sub_swap in H.
 apply QG_lt_add_lt_sub_r in H.
-do 2 rewrite QG_add_assoc in H.
 do 2 rewrite QG_mul_div_assoc.
 rewrite QG_add_div. 2: {
   intros H1.
@@ -247,62 +240,58 @@ rewrite QG_add_div. 2: {
   now apply QG_lt_irrefl in Hjk.
 }
 apply QG_div_lt_mono_pos_r; [ now apply QG_lt_0_sub | ].
-rewrite QG_mul_sub_distr_l.
-rewrite QG_add_comm, QG_mul_comm; apply QG_nle_gt.
-rewrite QG_add_comm, QG_mul_comm; apply QG_nle_gt.
-do 2 rewrite QG_mul_sub_distr_r.
-rewrite QG_mul_sub_distr_l.
-...
+do 4 rewrite QG_mul_sub_distr_l.
 do 2 rewrite QG_add_sub_assoc.
-apply <- QG_lt_sub_lt_add_r; rewrite <- QG_add_sub_swap.
-apply <- QG_lt_sub_lt_add_r; rewrite QG_add_sub_swap.
-do 2 rewrite <- QG_add_assoc; rewrite <- QG_add_sub_swap.
-apply QG_lt_add_lt_sub_r; rewrite <- QG_add_sub_swap.
-apply QG_lt_add_lt_sub_r; do 2 rewrite QG_add_assoc.
-(**)
-rewrite QG_add_comm.
-(* bon, ça marche pas, faut réfléchir *)
-...
-rewrite Qplus_comm, Qplus_assoc, Qplus_assoc; apply Qnot_le_lt.
-rewrite <- Qplus_assoc, <- Qplus_assoc, Qplus_comm, Qplus_assoc.
-rewrite Qplus_plus_swap; apply Qlt_not_le.
-assumption.
+rewrite (QG_mul_comm x i).
+rewrite QG_sub_add.
+apply QG_lt_sub_lt_add_r.
+rewrite <- QG_add_sub_swap.
+apply QG_lt_add_lt_sub_r.
+do 2 rewrite <- QG_add_sub_swap.
+apply -> QG_lt_add_lt_sub_r.
+rewrite <- QG_add_assoc, QG_add_comm.
+rewrite (QG_mul_comm j y).
+rewrite <- (QG_add_assoc (z * k)).
+rewrite (QG_add_comm (j * x)).
+rewrite QG_add_assoc.
+rewrite (QG_mul_comm i y).
+rewrite (QG_mul_comm j x).
+easy.
 Qed.
 
 Theorem minimised_slope_le : ∀ pt₁ pt₂ pts ms,
   minimise_slope pt₁ pt₂ pts = ms
-  → slope ms <= slope_expr pt₁ pt₂.
+  → slope ms ≤ slope_expr pt₁ pt₂.
 Proof.
 intros pt₁ pt₂ pts ms Hms.
 revert ms Hms.
 induction pts as [| pt]; intros. {
   simpl in Hms.
   subst ms; simpl.
-  apply Qle_refl.
+  apply QG_le_refl.
 }
 simpl in Hms.
 remember (minimise_slope pt₁ pt pts) as ms₁.
 remember (slope_expr pt₁ pt₂ ?= slope ms₁) as c.
 destruct c; subst ms. {
-  simpl.
-  symmetry in Heqc; apply Qeq_alt in Heqc.
+  symmetry in Heqc; apply QG_compare_eq_iff in Heqc.
   rewrite Heqc.
   progress unfold slope at 1; simpl.
-  rewrite slope_slope_expr; [ idtac | symmetry; eassumption ].
-  apply Qle_refl.
+  rewrite (slope_slope_expr _ pt₁ pt pts); [ | easy ].
+  apply QG_le_refl.
 } {
   simpl.
-  apply Qle_refl.
+  apply QG_le_refl.
 } {
-  symmetry in Heqc; apply Qgt_alt in Heqc.
-  apply Qlt_le_weak; eassumption.
+  symmetry in Heqc; apply QG_compare_gt_iff in Heqc.
+  now apply QG_lt_le_incl.
 }
 Qed.
 
 Theorem minimise_slope_pts_le : ∀ j αj pt pts ms,
   minimise_slope (j, αj) pt pts = ms
   → ∀ h αh, (h, αh) ∈ pts
-  → slope ms <= slope_expr (j, αj) (h, αh).
+  → slope ms ≤ slope_expr (j, αj) (h, αh).
 Proof.
 intros j αj pt pts ms Hms h αh Hαh.
 revert pt ms Hms h αh Hαh.
@@ -315,17 +304,18 @@ destruct Hαh as [Hαh| Hαh]. {
   remember (slope_expr (j, αj) pt ?= slope ms₁) as c.
   destruct c; subst ms. {
     progress unfold slope; simpl.
-    rewrite <- minimised_slope; [ idtac | eassumption | reflexivity ].
-    eapply minimised_slope_le; eassumption.
+    rewrite <- (minimised_slope _ _ (h, αh) pts ms₁); [ | easy | easy ].
+    eapply minimised_slope_le.
+    apply Heqms₁.
   } {
     simpl.
     eapply minimised_slope_le in Heqms₁.
     symmetry in Heqc; apply Qlt_alt in Heqc.
-    apply Qlt_le_weak.
-    eapply Qlt_le_trans; eassumption.
+    apply QG_lt_le_incl.
+    eapply QG_lt_le_trans; [ | apply Heqms₁ ].
+    now apply qlt_QG_lt.
   } {
-    eapply minimised_slope_le in Heqms₁.
-    assumption.
+    now eapply minimised_slope_le in Heqms₁.
   }
 }
 simpl in Hms.
@@ -335,6 +325,7 @@ remember (slope_expr (j, αj) pt ?= slope ms₁) as c.
 symmetry in Heqc.
 destruct c; subst ms. {
   progress unfold slope; simpl.
+...
   rewrite <- minimised_slope; [ idtac | eassumption | reflexivity ].
   eapply IHpts; eassumption.
 } {

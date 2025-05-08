@@ -1703,6 +1703,18 @@ intros.
 now split; intros Hab; apply Z.leb_gt.
 Qed.
 
+Theorem QG_compare_gt_iff : ∀ a b, (a ?= b)%QG = Gt ↔ (b < a)%QG.
+Proof.
+intros.
+split; intros Hab. {
+  apply Qgt_alt in Hab.
+  now apply qlt_QG_lt.
+} {
+  apply qlt_QG_lt in Hab.
+  now apply Qgt_alt.
+}
+Qed.
+
 (* *)
 
 Theorem QG_lt_0_neq_0 : ∀ a, (0 < a → a ≠ 0)%QG.
