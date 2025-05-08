@@ -157,6 +157,35 @@ split; intros Hab. {
 }
 Qed.
 
+Theorem QG_div_add_distr_r : ∀ a b c, (a + b) / c = a / c + b / c.
+Proof.
+intros.
+apply eq_QG_eq.
+cbn - [ Qred ].
+rewrite Qred_mul_idemp_l.
+do 3 rewrite Qred_mul_idemp_r.
+rewrite Qred_add_idemp_l.
+rewrite Qred_add_idemp_r.
+apply Qred_complete.
+apply Qmult_plus_distr_l.
+Qed.
+
+Theorem QG_mul_div : ∀ a b, b ≠ 0 → a * b / b = a.
+Proof.
+intros * Hbz.
+rewrite <- QG_mul_div_assoc.
+progress unfold QG_div.
+rewrite QG_mul_inv_diag_r; [ | easy ].
+apply QG_mul_1_r.
+Qed.
+
+Theorem QG_add_div : ∀ a b c, c ≠ 0 → a + b / c = (a * c + b) / c.
+Proof.
+intros.
+rewrite QG_div_add_distr_r.
+now rewrite QG_mul_div.
+Qed.
+
 Theorem ad_hoc_lt_lt : ∀ i j k x y z,
   i < j ∧ i < k
   → (y - x) / (k - i) < (z - x) / (j - i)
@@ -179,9 +208,19 @@ rewrite <- QG_add_sub_swap in H.
 apply QG_lt_add_lt_sub_r in H.
 do 2 rewrite QG_add_assoc in H.
 do 2 rewrite QG_mul_div_assoc.
+rewrite QG_add_div. 2: {
+  intros H1.
+  apply -> QG_sub_move_0_r in H1.
+  subst k.
+  now apply QG_lt_irrefl in Hjk.
+}
+rewrite QG_add_div. 2: {
+  intros H1.
+  apply -> QG_sub_move_0_r in H1.
+  subst k.
+  now apply QG_lt_irrefl in Hjk.
+}
 ...
-rewrite Qplus_div; [ idtac | apply Qlt_not_0; assumption ].
-rewrite Qplus_div; [ idtac | apply Qlt_not_0; assumption ].
 apply Qdiv_lt_compat_r; [ apply Qlt_minus; assumption | idtac ].
 rewrite Qmult_minus_distr_r.
 rewrite Qplus_comm, Qmult_comm; apply Qnot_le_lt.

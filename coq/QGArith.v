@@ -1479,6 +1479,36 @@ apply QG_mul_nonneg_nonneg; [ now apply QG_lt_le_incl | ].
 now apply QG_le_0_sub.
 Qed.
 
+Theorem Qred_add_idemp_l :
+  ∀ a b, Qred (Qred a + b) = Qred (a + b).
+Proof.
+intros.
+apply Qred_complete.
+apply Qplus_inj_r.
+apply Qred_correct.
+Qed.
+
+Theorem Qred_add_idemp_r :
+  ∀ a b, Qred (a + Qred b) = Qred (a + b).
+Proof.
+intros.
+apply Qred_complete.
+apply Qplus_inj_l.
+apply Qred_correct.
+Qed.
+
+Theorem Qred_mul_idemp_l :
+  ∀ a b, Qred (Qred a * b) = Qred (a * b).
+Proof.
+intros.
+apply Qred_complete.
+destruct (Qeq_dec b 0) as [Hbz| Hbz]. {
+  now rewrite Hbz; do 2 rewrite Qmult_0_r.
+}
+apply Qmult_inj_r; [ easy | ].
+apply Qred_correct.
+Qed.
+
 Theorem Qred_mul_idemp_r :
   ∀ a b, Qred (a * Qred b) = Qred (a * b).
 Proof.
