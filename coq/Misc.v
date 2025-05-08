@@ -223,6 +223,7 @@ Proof. intros; ring. Qed.
 
 Theorem Qplus_minus_swap : ∀ x y z, x + y - z == x - z + y.
 Proof. intros; ring. Qed.
+*)
 
 Theorem Qplus_lt_compat_r : ∀ x y z, x < y → x + z < y + z.
 Proof.
@@ -249,6 +250,7 @@ rewrite <- Pos2Z.inj_mul.
 apply Pos2Z.is_pos.
 Qed.
 
+(*
 Theorem Qminus_lt_lt_plus_r : ∀ x y z, x - y < z → x < z + y.
 Proof.
 intros x y z H.
