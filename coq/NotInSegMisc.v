@@ -220,11 +220,16 @@ rewrite QG_mul_comm in H.
 do 2 rewrite QG_mul_sub_distr_l in H.
 do 4 rewrite QG_mul_sub_distr_r in H.
 do 2 rewrite QG_sub_sub_distr in H.
+(**)
+apply QG_add_lt_mono_r in H.
+...
 rewrite <- QG_add_sub_swap in H.
 apply -> QG_lt_sub_lt_add_r in H.
 rewrite <- QG_add_sub_swap in H.
 apply -> QG_lt_sub_lt_add_r in H.
 do 2 rewrite <- QG_add_assoc in H.
+rewrite <- QG_add_sub_swap in H.
+apply QG_lt_add_lt_sub_r in H.
 rewrite <- QG_add_sub_swap in H.
 apply QG_lt_add_lt_sub_r in H.
 do 2 rewrite QG_add_assoc in H.
@@ -247,8 +252,8 @@ rewrite QG_add_comm, QG_mul_comm; apply QG_nle_gt.
 rewrite QG_add_comm, QG_mul_comm; apply QG_nle_gt.
 do 2 rewrite QG_mul_sub_distr_r.
 rewrite QG_mul_sub_distr_l.
-do 2 rewrite QG_add_sub_assoc.
 ...
+do 2 rewrite QG_add_sub_assoc.
 apply <- QG_lt_sub_lt_add_r; rewrite <- QG_add_sub_swap.
 apply <- QG_lt_sub_lt_add_r; rewrite QG_add_sub_swap.
 do 2 rewrite <- QG_add_assoc; rewrite <- QG_add_sub_swap.
