@@ -106,9 +106,6 @@ progress f_equal.
 apply QG_add_comm.
 Qed.
 
-Theorem QG_lt_sub_lt_add_r : ∀ x y z, x - y < z → x < z + y.
-Proof.
-intros x y z H.
 Theorem QG_add_lt_mono_r : ∀ a b c, a < b ↔ a + c < b + c.
 Proof.
 intros.
@@ -130,15 +127,35 @@ split; intros Hab. {
   cbn - [ Qred ] in Hab |-*.
   apply Z_pos_gcd_eq_1 in Ha, Hb.
   apply -> Qred_lt in Hab.
-...
-apply Qplus_lt_compat_r with (z := y) in H.
-rewrite <- Qplus_minus_swap, <- Qplus_minus_assoc in H.
-unfold Qminus in H.
-rewrite Qplus_opp_r, Qplus_0_r in H.
-assumption.
+  now apply Qplus_lt_l in Hab.
+}
 Qed.
 
-...
+Theorem QG_lt_sub_lt_add_r : ∀ a b c, a - b < c ↔ a < c + b.
+Proof.
+intros.
+split; intros Hab. {
+  apply (QG_add_lt_mono_r _ _ b) in Hab.
+  now rewrite QG_sub_add in Hab.
+} {
+  apply (QG_add_lt_mono_r _ _ (- b)) in Hab.
+  do 2 rewrite fold_QG_sub in Hab.
+  now rewrite QG_add_sub in Hab.
+}
+Qed.
+
+Theorem QG_lt_add_lt_sub_r : ∀ a b c, a + b < c ↔ (a < c - b).
+Proof.
+intros.
+split; intros Hab. {
+  apply (QG_add_lt_mono_r _ _ (- b)) in Hab.
+  do 2 rewrite fold_QG_sub in Hab.
+  now rewrite QG_add_sub in Hab.
+} {
+  apply (QG_add_lt_mono_r _ _ b) in Hab.
+  now rewrite QG_sub_add in Hab.
+}
+Qed.
 
 Theorem ad_hoc_lt_lt : ∀ i j k x y z,
   i < j ∧ i < k
@@ -154,14 +171,13 @@ do 2 rewrite QG_mul_sub_distr_l in H.
 do 4 rewrite QG_mul_sub_distr_r in H.
 do 2 rewrite QG_sub_sub_distr in H.
 rewrite <- QG_add_sub_swap in H.
-Check Qminus_lt_lt_plus_r.
+apply -> QG_lt_sub_lt_add_r in H.
+rewrite <- QG_add_sub_swap in H.
+apply -> QG_lt_sub_lt_add_r in H.
+do 2 rewrite <- QG_add_assoc in H.
+rewrite <- QG_add_sub_swap in H.
+apply QG_lt_add_lt_sub_r in H.
 ...
-apply Qminus_lt_lt_plus_r in H.
-rewrite <- Qplus_minus_swap in H.
-apply Qminus_lt_lt_plus_r in H.
-do 2 rewrite <- Qplus_assoc in H.
-rewrite <- Qplus_minus_swap in H.
-apply Qlt_minus_plus_lt_r in H.
 rewrite <- Qplus_minus_swap in H.
 apply Qlt_minus_plus_lt_r in H.
 do 2 rewrite Qplus_assoc in H.
