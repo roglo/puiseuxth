@@ -177,11 +177,9 @@ apply -> QG_lt_sub_lt_add_r in H.
 do 2 rewrite <- QG_add_assoc in H.
 rewrite <- QG_add_sub_swap in H.
 apply QG_lt_add_lt_sub_r in H.
+do 2 rewrite QG_add_assoc in H.
+do 2 rewrite QG_mul_div_assoc.
 ...
-rewrite <- Qplus_minus_swap in H.
-apply Qlt_minus_plus_lt_r in H.
-do 2 rewrite Qplus_assoc in H.
-do 2 rewrite Qmult_div_assoc.
 rewrite Qplus_div; [ idtac | apply Qlt_not_0; assumption ].
 rewrite Qplus_div; [ idtac | apply Qlt_not_0; assumption ].
 apply Qdiv_lt_compat_r; [ apply Qlt_minus; assumption | idtac ].
