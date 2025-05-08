@@ -97,6 +97,15 @@ rewrite QG_add_sub_assoc.
 apply QG_sub_opp_r.
 Qed.
 
+Theorem QG_add_sub_swap : ∀ x y z, x + y - z = x - z + y.
+Proof.
+intros.
+progress unfold QG_sub.
+do 2 rewrite <- QG_add_assoc.
+progress f_equal.
+apply QG_add_comm.
+Qed.
+
 Theorem ad_hoc_lt_lt : ∀ i j k x y z,
   i < j ∧ i < k
   → (y - x) / (k - i) < (z - x) / (j - i)
@@ -110,8 +119,8 @@ rewrite QG_mul_comm in H.
 do 2 rewrite QG_mul_sub_distr_l in H.
 do 4 rewrite QG_mul_sub_distr_r in H.
 do 2 rewrite QG_sub_sub_distr in H.
+rewrite <- QG_add_sub_swap in H.
 ...
-rewrite <- Qplus_minus_swap in H.
 apply Qminus_lt_lt_plus_r in H.
 rewrite <- Qplus_minus_swap in H.
 apply Qminus_lt_lt_plus_r in H.
