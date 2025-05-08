@@ -242,18 +242,21 @@ rewrite QG_add_div. 2: {
   now apply QG_lt_irrefl in Hjk.
 }
 apply QG_div_lt_mono_pos_r; [ now apply QG_lt_0_sub | ].
+rewrite QG_mul_sub_distr_l.
+rewrite QG_add_comm, QG_mul_comm; apply QG_nle_gt.
+rewrite QG_add_comm, QG_mul_comm; apply QG_nle_gt.
+do 2 rewrite QG_mul_sub_distr_r.
+rewrite QG_mul_sub_distr_l.
+do 2 rewrite QG_add_sub_assoc.
+apply <- QG_lt_sub_lt_add_r; rewrite <- QG_add_sub_swap.
+apply <- QG_lt_sub_lt_add_r; rewrite QG_add_sub_swap.
+do 2 rewrite <- QG_add_assoc; rewrite <- QG_add_sub_swap.
+apply QG_lt_add_lt_sub_r; rewrite <- QG_add_sub_swap.
+apply QG_lt_add_lt_sub_r; do 2 rewrite QG_add_assoc.
+(**)
+rewrite QG_add_comm.
+(* bon, ça marche pas, faut réfléchir *)
 ...
-rewrite Qmult_minus_distr_r.
-rewrite Qplus_comm, Qmult_comm; apply Qnot_le_lt.
-rewrite Qplus_comm, Qmult_comm; apply Qlt_not_le.
-do 2 rewrite Qmult_minus_distr_l.
-rewrite Qmult_minus_distr_r.
-do 2 rewrite Qplus_minus_assoc.
-apply Qlt_plus_minus_lt_r; rewrite <- Qplus_minus_swap.
-apply Qlt_plus_minus_lt_r; rewrite Qplus_minus_swap.
-do 2 rewrite <- Qplus_assoc; rewrite <- Qplus_minus_swap.
-apply Qplus_lt_lt_minus_r; rewrite <- Qplus_minus_swap.
-apply Qplus_lt_lt_minus_r; do 2 rewrite Qplus_assoc.
 rewrite Qplus_comm, Qplus_assoc, Qplus_assoc; apply Qnot_le_lt.
 rewrite <- Qplus_assoc, <- Qplus_assoc, Qplus_comm, Qplus_assoc.
 rewrite Qplus_plus_swap; apply Qlt_not_le.
