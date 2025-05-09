@@ -1918,13 +1918,38 @@ symmetry in Hzn.
 now destruct zn, n.
 Qed.
 
-(*
-Theorem Qinv_num_den : ∀ n d, (0 < n)%Z → / (n # d) = Z.pos d # Z.to_pos n.
+Theorem Qred_num_den : ∀ n d,
+  Qred (n # d) =
+    (n / Z.gcd n (Z.pos d)) # (Z.to_pos (Z.pos d / Z.gcd n (Z.pos d))).
 Proof.
-intros * Hzn.
-now destruct n.
+intros.
+cbn.
+remember (Z.ggcd n (Z.pos d)) as g eqn:Hg.
+symmetry in Hg.
+destruct g as (g & n' & d').
+cbn.
+apply Z_ggcd_split in Hg.
+destruct Hg as (Hn & Hd & Hg & Hgg).
+subst n.
+rewrite Hd.
+rewrite Z.gcd_mul_mono_l.
+destruct Hgg as [Hgg| Hgg]; [ now subst g | ].
+rewrite Hgg.
+rewrite Z.mul_1_r.
+rewrite Z.abs_eq. 2: {
+  rewrite <- Hg.
+  apply Z.gcd_nonneg.
+}
+rewrite Z.mul_comm.
+rewrite Z.div_mul. 2: {
+  now intros H; move H at top; subst g.
+}
+rewrite Z.mul_comm.
+rewrite Z.div_mul. 2: {
+  now intros H; move H at top; subst g.
+}
+easy.
 Qed.
-*)
 
 Theorem QG_div_move_l : ∀ a b c, (a ≠ 0 → a / b = c ↔ b = a / c)%QG.
 Proof.
@@ -1951,6 +1976,58 @@ Theorem Qred_inv : ∀ a, Qred (/ a) = / Qred a.
 Proof.
 intros.
 destruct a as (an, ad).
+rewrite Qred_num_den.
+do 2 rewrite Qinv_num_den.
+remember (0 ?= an)%Z as zn eqn:Hzn.
+remember (0 ?= an / Z.gcd an (Z.pos ad))%Z as zgn eqn:Hzgn.
+symmetry in Hzn, Hzgn.
+destruct zn. {
+  subst zgn.
+  now apply Z.compare_eq in Hzn; subst an.
+} {
+  apply -> Z.compare_lt_iff in Hzn.
+  destruct zgn. {
+    apply Z.compare_eq in Hzgn.
+    symmetry in Hzgn.
+    apply Z.div_small_iff in Hzgn. 2: {
+      intros H1.
+      now apply Z.gcd_eq_0 in H1.
+    }
+    exfalso.
+    destruct Hzgn as [Hzgn| Hzgn]. {
+      destruct Hzgn as (H1, H2).
+      apply Z.nle_gt in H2.
+      apply H2; clear H2.
+      apply Z.divide_pos_le; [ easy | ].
+      apply Z.gcd_divide_l.
+    } {
+      destruct Hzgn as (H1, H2).
+      now apply Z.nlt_ge in H2.
+    }
+  } {
+    rewrite Z2Pos.id.
+...
+Search ((_ | _) → _)%Z.
+Search (Nat.gcd _ _ ≤ _)%nat.
+Require Import RingLike.RingLike.
+
+Search (Z.gcd _ _ ≤ _)%Z.
+Search (Z.gcd).
+...
+  apply -> Z.compare_lt_iff in Hzn.
+  cbn.
+  remember (Pos.ggcd _ _) as g eqn:Hg.
+  symmetry in Hg.
+  destruct g as (g & n & d).
+  cbn.
+  remember (Z.ggcd _ _) as h eqn:Hh.
+  symmetry in Hh.
+  destruct h as (h & n' & d').
+  cbn.
+  rewrite Qinv_num_den.
+...
+intros.
+destruct a as (an, ad).
 rewrite Qinv_num_den.
 remember (0 ?= an)%Z as zn eqn:Hzn.
 symmetry in Hzn.
@@ -1968,7 +2045,12 @@ destruct zn. {
   destruct h as (h & n' & d').
   cbn.
   rewrite Qinv_num_den.
+Inspect 1.
 (* quel bordel *)
+Locate "/".
+
+Search (snd (Z.ggcd _ _)).
+Search Z.gcd.
 ...
 progress unfold Qinv.
 cbn.
