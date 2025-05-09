@@ -1,24 +1,24 @@
 (* SlopeMisc.v *)
 
 From Stdlib Require Import Utf8.
-From Stdlib Require Import QArith.
 
+Require Import QGArith.
 Require Import Slope_base.
 Require Import Misc.
 
-Theorem Qcmp_eq : ∀ a, (a ?= a) = Eq.
+Theorem QG_cmp_eq : ∀ a, (a ?= a) = Eq.
 Proof.
-intros a; apply Qeq_alt; reflexivity.
+intros a; apply QG_compare_eq_iff; reflexivity.
 Qed.
 
-Theorem Qcmp_lt_gt : ∀ a b, (a ?= b) = Lt → (b ?= a) = Gt.
+Theorem QG_cmp_lt_gt : ∀ a b, (a ?= b) = Lt → (b ?= a) = Gt.
 Proof.
-intros a b H; apply Qlt_alt in H; apply Qgt_alt; assumption.
+now intros a b H; apply QG_compare_lt_iff in H; apply QG_compare_gt_iff.
 Qed.
 
-Theorem Qcmp_gt_lt : ∀ a b, (a ?= b) = Gt → (b ?= a) = Lt.
+Theorem QG_cmp_gt_lt : ∀ a b, (a ?= b) = Gt → (b ?= a) = Lt.
 Proof.
-intros a b H; apply Qgt_alt in H; apply Qlt_alt; assumption.
+now intros a b H; apply QG_compare_gt_iff in H; apply QG_compare_lt_iff.
 Qed.
 
 Theorem Qcmp_sym : ∀ a b c d,
@@ -29,17 +29,17 @@ intros a b c d H.
 remember (a ?= b) as cmp.
 symmetry in Heqcmp, H.
 destruct cmp. {
-  apply Qeq_alt in Heqcmp.
-  apply Qeq_alt in H.
+  apply QG_compare_eq_iff in Heqcmp.
+  apply QG_compare_eq_iff in H.
   rewrite Heqcmp, H.
-  do 2 rewrite Qcmp_eq.
+  do 2 rewrite QG_cmp_eq.
   reflexivity.
 }
-apply Qcmp_lt_gt in Heqcmp.
-apply Qcmp_lt_gt in H.
+apply QG_cmp_lt_gt in Heqcmp.
+apply QG_cmp_lt_gt in H.
 rewrite <- H in Heqcmp; assumption.
-apply Qcmp_gt_lt in Heqcmp.
-apply Qcmp_gt_lt in H.
+apply QG_cmp_gt_lt in Heqcmp.
+apply QG_cmp_gt_lt in H.
 rewrite <- H in Heqcmp; assumption.
 Qed.
 
@@ -52,6 +52,11 @@ Theorem slope_cmp_flatten : ∀ x₁ y₁ x₂ y₂ x₃ y₃ x₄ y₄,
 Proof.
 intros x₁ y₁ x₂ y₂ x₃ y₃ x₄ y₄ Hlt₁₂ Hlt₃₄.
 unfold slope_expr; simpl.
+...
+Theorem Qcmp_shift_mult_r : ∀ x y z,
+  0 < z
+  → (x ?= y / z) = (x * z ?= y).
+...
 rewrite Qcmp_shift_mult_r; [ idtac | apply Qlt_minus; assumption ].
 rewrite Qmult_div_swap.
 rewrite Qcmp_shift_mult_l; [ idtac | apply Qlt_minus; assumption ].
