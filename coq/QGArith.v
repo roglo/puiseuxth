@@ -1954,39 +1954,20 @@ rewrite Z.div_mul. 2: {
 easy.
 Qed.
 
-Theorem QG_div_move_l : ∀ a b c, (a ≠ 0 → a / b = c ↔ b = a / c)%QG.
+Theorem Z_gcd_le_l : ∀ a b, (0 < a → Z.gcd a b ≤ a)%Z.
 Proof.
-intros * Haz.
-split; intros; subst. {
-  symmetry.
-  apply eq_QG_eq.
-  progress unfold QG_div.
-  rewrite qg_q_mul'.
-  cbn - [ Qred ].
-  do 2 rewrite Qred_mul_idemp_r.
-  Search (Qred (_ * _)).
-...
-  rewrite <- qg_q_mul'.
-...
-intros * Haz.
-split; intros; subst. {
-Search (_ / (_ / _))%QG.
-Search (_ / _ / _)%QG.
-Theorem QG_div_div_r : ∀ a b c, (b ≠ 0 → c ≠ 0 → a / (b / c) = a * c / b)%QG.
+intros * Hza.
+apply Z.divide_pos_le; [ easy | ].
+apply Z.gcd_divide_l.
+Qed.
+
+Theorem Z_gcd_le_r : ∀ a b, (0 < b → Z.gcd a b ≤ b)%Z.
 Proof.
-intros * Hbz Hcz.
-progress unfold QG_div.
-Require Import RingLike.RingLike.
-Search ((_ * _)⁻¹)%L.
-Theorem QG_inv_mul_distr: ∀ a b, (a ≠ 0 → b ≠ 0 → (a * b)⁻¹ = b⁻¹ * a⁻¹)%QG.
-Proof.
-intros * Haz Hbz.
-apply eq_QG_eq.
-progress unfold QG_inv.
-cbn - [ Qred ].
-rewrite Qred_mul_idemp_l.
-rewrite Qred_mul_idemp_r.
-Search (Qred (/ _)).
+intros * Hzb.
+apply Z.divide_pos_le; [ easy | ].
+apply Z.gcd_divide_r.
+Qed.
+
 Theorem Qred_inv : ∀ a, Qred (/ a) = / Qred a.
 Proof.
 intros.
@@ -2013,14 +1994,118 @@ destruct zn. {
       destruct Hzgn as (H1, H2).
       apply Z.nle_gt in H2.
       apply H2; clear H2.
-      apply Z.divide_pos_le; [ easy | ].
-      apply Z.gcd_divide_l.
+      now apply Z_gcd_le_l.
     } {
       destruct Hzgn as (H1, H2).
       now apply Z.nlt_ge in H2.
     }
   } {
-    rewrite Z2Pos.id.
+    apply -> Z.compare_lt_iff in Hzgn.
+    rewrite Qred_num_den.
+    rewrite Z2Pos.id; [ | easy ].
+    rewrite Z2Pos.id. 2: {
+      apply Z.div_str_pos.
+      split. {
+        apply Z.le_neq.
+        split; [ apply Z.gcd_nonneg | ].
+        intros H; symmetry in H.
+        now apply Z.gcd_eq_0 in H.
+      }
+      now apply Z_gcd_le_r.
+    }
+    now rewrite (Z.gcd_comm an).
+  } {
+    exfalso.
+    apply -> Z.compare_gt_iff in Hzgn.
+    apply Z.nle_gt in Hzgn.
+    apply Hzgn; clear Hzgn.
+    apply Z_div_nonneg_nonneg; [ now apply Z.lt_le_incl | ].
+    apply Z.gcd_nonneg.
+  }
+} {
+  apply -> Z.compare_gt_iff in Hzn.
+  destruct zgn. {
+    apply Z.compare_eq in Hzgn.
+    symmetry in Hzgn.
+    apply Z.div_small_iff in Hzgn. 2: {
+      intros H1.
+      now apply Z.gcd_eq_0 in H1.
+    }
+    exfalso.
+    destruct Hzgn as [Hzgn| Hzgn]. {
+      now apply Z.nle_gt in Hzn.
+    } {
+      destruct Hzgn as (H1, H2).
+      apply Z.nle_gt in H1.
+      apply H1; clear H1.
+      apply (Z.le_trans _ 0); [ easy | ].
+      apply Z.gcd_nonneg.
+    }
+  } {
+    apply -> Z.compare_lt_iff in Hzgn.
+    rewrite Qred_num_den.
+    rewrite Z2Pos.id; [ | now apply Z.opp_pos_neg ].
+    rewrite Z2Pos.id. 2: {
+      apply Z.div_str_pos.
+      split. {
+        apply Z.le_neq.
+        split; [ apply Z.gcd_nonneg | ].
+        intros H; symmetry in H.
+        now apply Z.gcd_eq_0 in H.
+      }
+      now apply Z_gcd_le_r.
+    }
+    progress f_equal. {
+      cbn.
+...
+    now rewrite (Z.gcd_comm an).
+  } {
+    exfalso.
+    apply -> Z.compare_gt_iff in Hzgn.
+    apply Z.nle_gt in Hzgn.
+    apply Hzgn; clear Hzgn.
+    apply Z_div_nonneg_nonneg; [ now apply Z.lt_le_incl | ].
+    apply Z.gcd_nonneg.
+  }
+...
+
+Theorem QG_div_move_l : ∀ a b c, (a ≠ 0 → a / b = c ↔ b = a / c)%QG.
+Proof.
+intros * Haz.
+split; intros; subst. {
+  symmetry.
+  apply eq_QG_eq.
+  progress unfold QG_div.
+  rewrite qg_q_mul'.
+  cbn - [ Qred ].
+  do 2 rewrite Qred_mul_idemp_r.
+Search (/ Qred _).
+...
+  Search (Qred (_ * _)).
+  Search (Qred (_ / _)).
+  rewrite <- qg_q_mul'.
+...
+  rewrite <- qg_q_mul'.
+...
+intros * Haz.
+split; intros; subst. {
+Search (_ / (_ / _))%QG.
+Search (_ / _ / _)%QG.
+Theorem QG_div_div_r : ∀ a b c, (b ≠ 0 → c ≠ 0 → a / (b / c) = a * c / b)%QG.
+Proof.
+intros * Hbz Hcz.
+progress unfold QG_div.
+Require Import RingLike.RingLike.
+Search ((_ * _)⁻¹)%L.
+Theorem QG_inv_mul_distr: ∀ a b, (a ≠ 0 → b ≠ 0 → (a * b)⁻¹ = b⁻¹ * a⁻¹)%QG.
+Proof.
+intros * Haz Hbz.
+apply eq_QG_eq.
+progress unfold QG_inv.
+cbn - [ Qred ].
+rewrite Qred_mul_idemp_l.
+rewrite Qred_mul_idemp_r.
+Search (Qred (/ _)).
 ...
 Search ((_ | _) → _)%Z.
 Search (Nat.gcd _ _ ≤ _)%nat.
