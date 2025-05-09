@@ -1,5 +1,6 @@
 (* SlopeMisc.v *)
 
+Set Nested Proofs Allowed.
 From Stdlib Require Import Utf8.
 
 Require Import QGArith.
@@ -52,23 +53,22 @@ Theorem slope_cmp_flatten : ∀ x₁ y₁ x₂ y₂ x₃ y₃ x₄ y₄,
 Proof.
 intros x₁ y₁ x₂ y₂ x₃ y₃ x₄ y₄ Hlt₁₂ Hlt₃₄.
 unfold slope_expr; simpl.
-...
-Theorem Qcmp_shift_mult_r : ∀ x y z,
-  0 < z
-  → (x ?= y / z) = (x * z ?= y).
-...
-rewrite Qcmp_shift_mult_r; [ idtac | apply Qlt_minus; assumption ].
-rewrite Qmult_div_swap.
-rewrite Qcmp_shift_mult_l; [ idtac | apply Qlt_minus; assumption ].
-repeat rewrite Qmult_minus_distr_l.
-repeat rewrite Qmult_minus_distr_r.
-repeat rewrite Qminus_minus_assoc.
-repeat rewrite <- Qplus_minus_swap.
-repeat rewrite <- Qcmp_plus_minus_cmp_r.
-repeat rewrite <- Qplus_minus_swap.
-repeat rewrite <- Qplus_cmp_cmp_minus_r.
-reflexivity.
+rewrite QG_cmp_shift_mul_r; [ | now apply QG_lt_0_sub ].
+rewrite QG_mul_div_swap.
+rewrite QG_cmp_shift_mul_l; [ | now apply QG_lt_0_sub ].
+repeat rewrite QG_mul_sub_distr_l.
+repeat rewrite QG_mul_sub_distr_r.
+repeat rewrite QG_sub_sub_distr.
+repeat rewrite <- QG_add_sub_swap.
+repeat rewrite QG_cmp_shift_add_l.
+repeat rewrite <- QG_add_sub_swap.
+repeat rewrite QG_cmp_shift_add_r.
+rewrite QG_add_add_swap.
+rewrite (QG_add_add_swap (y₄ * x₂ + _)).
+easy.
 Qed.
+
+...
 
 (* should use 'slope_cmp_flatten' like the other theorems, but pb with
    conditions... *)

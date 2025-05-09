@@ -1768,6 +1768,23 @@ split; intros Hab; subst; rewrite QG_add_comm. {
 }
 Qed.
 
+Theorem QG_add_add_swap : ∀ a b c, (a + b + c = a + c + b)%QG.
+Proof.
+intros.
+do 2 rewrite <- QG_add_assoc.
+progress f_equal.
+apply QG_add_comm.
+Qed.
+
+Theorem QG_add_sub_swap : ∀ x y z, (x + y - z = x - z + y)%QG.
+Proof.
+intros.
+progress unfold QG_sub.
+do 2 rewrite <- QG_add_assoc.
+progress f_equal.
+apply QG_add_comm.
+Qed.
+
 Theorem QG_sub_sub_swap : ∀ a b c, (a - b - c = a - c - b)%QG.
 Proof.
 intros.

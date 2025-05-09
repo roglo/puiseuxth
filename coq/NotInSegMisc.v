@@ -10,61 +10,6 @@ Require Import Slope_base.
 Require Import ConvexHull.
 Require Import ConvexHullMisc.
 
-Theorem QG_compare_Q_compare : ∀ x y, (x ?= y)%QG = (qg_q x ?= qg_q y)%Q.
-Proof. easy. Qed.
-
-Theorem QG_mul_cmp_compat_r :
-  ∀ x y z,
-  0 < z
-  → (x ?= y) = (x * z ?= y * z).
-Proof.
-intros * Hz.
-apply qlt_QG_lt in Hz.
-cbn in Hz.
-specialize (Qmult_cmp_compat_r (qg_q x) (qg_q y) Hz) as H.
-do 2 rewrite QG_compare_Q_compare.
-rewrite H.
-rewrite Qred_compare.
-rewrite (Qred_compare (qg_q _)).
-cbn - [ Qred ].
-now do 2 rewrite Qred_idemp.
-Qed.
-
-Theorem QG_mul_div_assoc : ∀ x y z, x * (y / z) = (x * y) / z.
-Proof. intros. apply QG_mul_assoc. Qed.
-
-Theorem QG_mul_div_swap : ∀ x y z, x / y * z = x * z / y.
-Proof.
-intros.
-now rewrite QG_mul_comm, QG_mul_div_assoc, QG_mul_comm.
-Qed.
-
-Theorem QG_cmp_shift_mul_l : ∀ x y z,
-  0 < z
-  → (x / z ?= y) = (x ?= y * z).
-Proof.
-intros x y z Hz.
-erewrite QG_mul_cmp_compat_r; [ | apply Hz ].
-rewrite QG_mul_div_swap.
-progress unfold QG_div.
-rewrite <- QG_mul_assoc.
-rewrite QG_mul_inv_diag_r; [ | now apply QG_lt_0_neq_0 ].
-now rewrite QG_mul_1_r.
-Qed.
-
-Theorem QG_cmp_shift_mul_r : ∀ x y z,
-  0 < z
-  → (x ?= y / z) = (x * z ?= y).
-Proof.
-intros x y z Hz.
-erewrite QG_mul_cmp_compat_r; [ | apply Hz ].
-rewrite QG_mul_div_swap.
-rewrite <- QG_mul_div_assoc.
-progress unfold QG_div.
-rewrite QG_mul_inv_diag_r; [ | now apply QG_lt_0_neq_0 ].
-now rewrite QG_mul_1_r.
-Qed.
-
 Theorem QG_lt_shift_mul_l : ∀ x y z, 0 < z → x / z < y → x < y * z.
 Proof.
 intros x y z Hc H.
@@ -79,31 +24,6 @@ intros x y z Hc H.
 apply QG_compare_lt_iff in H.
 apply QG_compare_lt_iff.
 now rewrite <- H; symmetry; apply QG_cmp_shift_mul_r.
-Qed.
-
-Theorem QG_add_sub_assoc: ∀ a b c, a + (b - c) = a + b - c.
-Proof.
-intros.
-progress unfold QG_sub.
-apply QG_add_assoc.
-Qed.
-
-Theorem QG_sub_sub_distr : ∀ x y z, x - (y - z) = (x - y) + z.
-Proof.
-intros x y z.
-progress unfold QG_sub.
-rewrite QG_opp_add_distr.
-rewrite QG_add_sub_assoc.
-apply QG_sub_opp_r.
-Qed.
-
-Theorem QG_add_sub_swap : ∀ x y z, x + y - z = x - z + y.
-Proof.
-intros.
-progress unfold QG_sub.
-do 2 rewrite <- QG_add_assoc.
-progress f_equal.
-apply QG_add_comm.
 Qed.
 
 Theorem QG_add_lt_mono_r : ∀ a b c, a < b ↔ a + c < b + c.

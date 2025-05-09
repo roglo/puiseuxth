@@ -4,10 +4,6 @@ From Stdlib Require Import Utf8 Arith ZArith QArith.
 From Stdlib Require Import Sorted.
 From Stdlib Require Import Psatz.
 
-(*
-Require Import QGArith.
-*)
-
 Notation "[ ]" := nil.
 Notation "[ x ; .. ; y … l ]" := (cons x .. (cons y l) ..).
 Notation "[ x ]" := (cons x nil).
@@ -329,7 +325,6 @@ apply Zmult_compare_compat_r.
 apply Z.lt_gt; assumption.
 Qed.
 
-(*
 Theorem Qplus_cmp_compat_r : ∀ x y z,
   (x ?= y) = (x + z ?= y + z).
 Proof.
@@ -355,6 +350,7 @@ rewrite <- Pos2Z.inj_mul.
 apply Pos2Z.is_pos.
 Qed.
 
+(*
 Theorem Qcmp_plus_minus_cmp_r : ∀ x y z,
   (x ?= y + z) = (x - z ?= y).
 Proof.
@@ -364,12 +360,14 @@ rewrite <- Qplus_assoc.
 rewrite Qplus_opp_r, Qplus_0_r.
 reflexivity.
 Qed.
+
 Theorem Qeq_plus_minus_eq_r : ∀ x y z, x == y + z → x - z == y.
 Proof.
 intros.
 apply Qeq_alt in H; apply Qeq_alt.
 rewrite <- H; symmetry; apply Qcmp_plus_minus_cmp_r.
 Qed.
+
 Theorem Qlt_plus_minus_lt_r : ∀ x y z, x < y + z → x - z < y.
 Proof.
 intros.
@@ -1216,6 +1214,111 @@ unfold Qeq; simpl.
 rewrite Z.mul_1_r, Z.add_0_r, Pos.mul_1_r; reflexivity.
 Qed.
 *)
+
+(* QG_arith version *)
+
+Require Import QGArith.
+
+Theorem QG_compare_Q_compare : ∀ x y, (x ?= y)%QG = (qg_q x ?= qg_q y)%Q.
+Proof. easy. Qed.
+
+Theorem QG_mul_div_assoc : ∀ x y z, (x * (y / z) = (x * y) / z)%QG.
+Proof. intros. apply QG_mul_assoc. Qed.
+
+Theorem QG_mul_div_swap : ∀ x y z, (x / y * z = x * z / y)%QG.
+Proof.
+intros.
+now rewrite QG_mul_comm, QG_mul_div_assoc, QG_mul_comm.
+Qed.
+
+Theorem QG_add_cmp_compat_r :
+  ∀ x y z,
+  (x ?= y)%QG = (x + z ?= y + z)%QG.
+Proof.
+intros.
+specialize (Qplus_cmp_compat_r (qg_q x) (qg_q y) (qg_q z)) as H.
+do 2 rewrite QG_compare_Q_compare.
+rewrite H.
+rewrite Qred_compare.
+rewrite (Qred_compare (qg_q _)).
+cbn - [ Qred ].
+now do 2 rewrite Qred_idemp.
+Qed.
+
+Theorem QG_mul_cmp_compat_r :
+  ∀ x y z,
+  (0 < z)%QG
+  → (x ?= y)%QG = (x * z ?= y * z)%QG.
+Proof.
+intros * Hz.
+apply qlt_QG_lt in Hz.
+cbn in Hz.
+specialize (Qmult_cmp_compat_r (qg_q x) (qg_q y) Hz) as H.
+do 2 rewrite QG_compare_Q_compare.
+rewrite H.
+rewrite Qred_compare.
+rewrite (Qred_compare (qg_q _)).
+cbn - [ Qred ].
+now do 2 rewrite Qred_idemp.
+Qed.
+
+Theorem QG_cmp_shift_add_l : ∀ x y z,
+  ((x - z ?= y) = (x ?= y + z))%QG.
+Proof.
+intros x y z.
+rewrite (QG_add_cmp_compat_r _ _ z).
+now rewrite QG_sub_add.
+Qed.
+
+Theorem QG_cmp_shift_add_r : ∀ x y z,
+  ((x ?= y - z) = (x + z ?= y))%QG.
+Proof.
+intros.
+rewrite (QG_add_cmp_compat_r _ _ z).
+now rewrite QG_sub_add.
+Qed.
+
+Theorem QG_cmp_shift_mul_l : ∀ x y z,
+  (0 < z → (x / z ?= y) = (x ?= y * z))%QG.
+Proof.
+intros x y z Hz.
+erewrite QG_mul_cmp_compat_r; [ | apply Hz ].
+rewrite QG_mul_div_swap.
+progress unfold QG_div.
+rewrite <- QG_mul_assoc.
+rewrite QG_mul_inv_diag_r; [ | now apply QG_lt_0_neq_0 ].
+now rewrite QG_mul_1_r.
+Qed.
+
+Theorem QG_cmp_shift_mul_r : ∀ x y z,
+  (0 < z → (x ?= y / z) = (x * z ?= y))%QG.
+Proof.
+intros x y z Hz.
+erewrite QG_mul_cmp_compat_r; [ | apply Hz ].
+rewrite QG_mul_div_swap.
+rewrite <- QG_mul_div_assoc.
+progress unfold QG_div.
+rewrite QG_mul_inv_diag_r; [ | now apply QG_lt_0_neq_0 ].
+now rewrite QG_mul_1_r.
+Qed.
+
+Theorem QG_add_sub_assoc: ∀ a b c, (a + (b - c) = a + b - c)%QG.
+Proof.
+intros.
+progress unfold QG_sub.
+apply QG_add_assoc.
+Qed.
+
+Theorem QG_sub_sub_distr : ∀ x y z, (x - (y - z) = (x - y) + z)%QG.
+Proof.
+intros x y z.
+progress unfold QG_sub.
+rewrite QG_opp_add_distr.
+rewrite QG_add_sub_assoc.
+apply QG_sub_opp_r.
+Qed.
+
+(* end QG_arith version *)
 
 Theorem List_In_nth : ∀ α a la (d : α),
   a ∈ la
