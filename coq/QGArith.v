@@ -1967,7 +1967,19 @@ Theorem Pos_ggcd_refl : ∀ a, Pos.ggcd a a = (a, (1, 1))%positive.
 Proof.
 intros.
 progress unfold Pos.ggcd.
-Search (Pos.ggcdn).
+remember (_ + _)%nat as s.
+specialize (Pos.ggcdn_correct_divisors s a a) as Hcd.
+remember (Pos.ggcdn s a a) as g eqn:Hg.
+symmetry in Hg.
+destruct g as (g & n & d).
+destruct Hcd as (H1, Hs).
+subst a.
+apply Pos.mul_reg_l in Hs; subst d.
+destruct s. {
+  cbn in Hg.
+  injection Hg; clear Hg; intros; subst.
+  now destruct n.
+}
 ...
 intros.
 induction a as [| a| a]. {
