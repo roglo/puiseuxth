@@ -1904,6 +1904,28 @@ split; intros; subst. {
 }
 Qed.
 
+Theorem Qinv_num_den : ∀ n d,
+  / (n # d) =
+    match Z.compare 0 n with
+    | Eq => 0 # 1
+    | Lt => Z.pos d # Z.to_pos n
+    | Gt => - Z.pos d # Z.to_pos (- n)
+    end.
+Proof.
+intros.
+remember (0 ?= n)%Z as zn eqn:Hzn.
+symmetry in Hzn.
+now destruct zn, n.
+Qed.
+
+(*
+Theorem Qinv_num_den : ∀ n d, (0 < n)%Z → / (n # d) = Z.pos d # Z.to_pos n.
+Proof.
+intros * Hzn.
+now destruct n.
+Qed.
+*)
+
 Theorem QG_div_move_l : ∀ a b c, (a ≠ 0 → a / b = c ↔ b = a / c)%QG.
 Proof.
 intros * Haz.
@@ -1929,6 +1951,25 @@ Theorem Qred_inv : ∀ a, Qred (/ a) = / Qred a.
 Proof.
 intros.
 destruct a as (an, ad).
+rewrite Qinv_num_den.
+remember (0 ?= an)%Z as zn eqn:Hzn.
+symmetry in Hzn.
+destruct zn. {
+  now apply Z.compare_eq in Hzn; subst an.
+} {
+  apply -> Z.compare_lt_iff in Hzn.
+  cbn.
+  remember (Pos.ggcd _ _) as g eqn:Hg.
+  symmetry in Hg.
+  destruct g as (g & n & d).
+  cbn.
+  remember (Z.ggcd _ _) as h eqn:Hh.
+  symmetry in Hh.
+  destruct h as (h & n' & d').
+  cbn.
+  rewrite Qinv_num_den.
+(* quel bordel *)
+...
 progress unfold Qinv.
 cbn.
 remember (Z.ggcd an (Z.pos ad)) as g eqn:Hg.
