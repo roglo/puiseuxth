@@ -2055,13 +2055,52 @@ destruct zn. {
       }
       now apply Z_gcd_le_r.
     }
-    progress f_equal. {
-      cbn.
-...
-    now rewrite (Z.gcd_comm an).
-  } {
+    destruct an as [| an| an]; [ easy | easy | ].
     exfalso.
+    apply Z.nle_gt in Hzgn.
+    apply Hzgn; clear Hzgn.
+    apply Z.div_le_upper_bound; [ easy | ].
+    now rewrite Z.mul_0_r.
+  } {
     apply -> Z.compare_gt_iff in Hzgn.
+    cbn - [ Qred ].
+    rewrite Qred_num_den.
+    cbn.
+    rewrite Pos2Z.inj_gcd.
+    rewrite Z2Pos.id; [ | now apply Z.opp_pos_neg ].
+    rewrite Z.gcd_opp_r.
+    rewrite (Z.gcd_comm an).
+    rewrite Z.div_opp_l_z; cycle 1. {
+      intros H.
+      now apply Z.gcd_eq_0 in H.
+    } {
+      apply Z.mod_divide; [ | apply Z.gcd_divide_r ].
+      intros H.
+      now apply Z.gcd_eq_0 in H.
+    }
+    progress f_equal.
+Search (Z.to_pos (_ / _)).
+Search (Z.neg _ / _)%Z.
+Search (Z.neg (Z.to_pos _)).
+...
+    rewrite Z.div_opp_l_z.
+Search (Z.neg (Z.to_pos _)).
+Search (Z.to_pos (- _)).
+    progress f_equal. {
+Search (Z.gcd _ (- _)).
+...
+    rewrite Z2Pos.id. 2: {
+      apply Z.div_str_pos.
+      split. {
+        apply Z.le_neq.
+        split; [ apply Z.gcd_nonneg | ].
+        intros H; symmetry in H.
+        now apply Z.gcd_eq_0 in H.
+      }
+      now apply Z_gcd_le_r.
+    }
+    rewrite Z2Pos.id. 2: {
+...
     apply Z.nle_gt in Hzgn.
     apply Hzgn; clear Hzgn.
     apply Z_div_nonneg_nonneg; [ now apply Z.lt_le_incl | ].
