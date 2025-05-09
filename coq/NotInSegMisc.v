@@ -90,15 +90,6 @@ apply Qred_complete.
 apply Qmult_plus_distr_l.
 Qed.
 
-Theorem QG_mul_div : ∀ a b, b ≠ 0 → a * b / b = a.
-Proof.
-intros * Hbz.
-rewrite <- QG_mul_div_assoc.
-progress unfold QG_div.
-rewrite QG_mul_inv_diag_r; [ | easy ].
-apply QG_mul_1_r.
-Qed.
-
 Theorem QG_add_div : ∀ a b c, c ≠ 0 → a + b / c = (a * c + b) / c.
 Proof.
 intros.

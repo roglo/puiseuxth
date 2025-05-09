@@ -1222,9 +1222,6 @@ Require Import QGArith.
 Theorem QG_compare_Q_compare : ∀ x y, (x ?= y)%QG = (qg_q x ?= qg_q y)%Q.
 Proof. easy. Qed.
 
-Theorem QG_mul_div_assoc : ∀ x y z, (x * (y / z) = (x * y) / z)%QG.
-Proof. intros. apply QG_mul_assoc. Qed.
-
 Theorem QG_mul_div_swap : ∀ x y z, (x / y * z = x * z / y)%QG.
 Proof.
 intros.
@@ -1300,22 +1297,6 @@ rewrite <- QG_mul_div_assoc.
 progress unfold QG_div.
 rewrite QG_mul_inv_diag_r; [ | now apply QG_lt_0_neq_0 ].
 now rewrite QG_mul_1_r.
-Qed.
-
-Theorem QG_add_sub_assoc: ∀ a b c, (a + (b - c) = a + b - c)%QG.
-Proof.
-intros.
-progress unfold QG_sub.
-apply QG_add_assoc.
-Qed.
-
-Theorem QG_sub_sub_distr : ∀ x y z, (x - (y - z) = (x - y) + z)%QG.
-Proof.
-intros x y z.
-progress unfold QG_sub.
-rewrite QG_opp_add_distr.
-rewrite QG_add_sub_assoc.
-apply QG_sub_opp_r.
 Qed.
 
 (* end QG_arith version *)

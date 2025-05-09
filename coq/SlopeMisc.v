@@ -68,19 +68,34 @@ rewrite (QG_add_add_swap (y₄ * x₂ + _)).
 easy.
 Qed.
 
-...
-
 (* should use 'slope_cmp_flatten' like the other theorems, but pb with
    conditions... *)
 Theorem slope_eq : ∀ x₁ y₁ x₂ y₂ x₃ y₃,
-  ¬x₁ == x₂
-  → ¬x₂ == x₃
-    → ¬x₃ == x₁
-      → slope_expr (x₁, y₁) (x₂, y₂) == slope_expr (x₁, y₁) (x₃, y₃)
-        → slope_expr (x₁, y₁) (x₂, y₂) == slope_expr (x₂, y₂) (x₃, y₃).
+  x₁ ≠ x₂
+  → x₂ ≠ x₃
+  → x₃ ≠ x₁
+  → slope_expr (x₁, y₁) (x₂, y₂) = slope_expr (x₁, y₁) (x₃, y₃)
+  → slope_expr (x₁, y₁) (x₂, y₂) = slope_expr (x₂, y₂) (x₃, y₃).
 Proof.
 intros x₁ y₁ x₂ y₂ x₃ y₃ H₁₂ H₂₃ H₃₁ H.
 unfold slope_expr in H |-*.
+cbn in H |-*.
+Search (_ / _ = _ → _ = _ * _).
+Search (_ / _ = _ ↔ _ = _ * _).
+Check QG_mul_move_r.
+...
+Search (_ = _ * _ ↔ _ / _ = _).
+Search (_ / _ = _).
+...
+Theorem Qeq_shift_mult_l : ∀ x y z, ¬z == 0 → x / z == y → x == y * z.
+Proof.
+intros x y z Hc H.
+rewrite <- H.
+rewrite Qmult_div_swap.
+rewrite Qdiv_mult_l; [ reflexivity | assumption ].
+Qed.
+Check Qeq_shift_mult_l.
+...
 apply Qeq_shift_mult_l in H. {
   symmetry in H.
   rewrite Qmult_div_swap in H.
