@@ -1913,6 +1913,127 @@ Search (_ / _ / _)%QG.
 Theorem QG_div_div_r : ∀ a b c, (b ≠ 0 → c ≠ 0 → a / (b / c) = a * c / b)%QG.
 Proof.
 intros * Hbz Hcz.
+progress unfold QG_div.
+Require Import RingLike.RingLike.
+Search ((_ * _)⁻¹)%L.
+Theorem QG_inv_mul_distr: ∀ a b, (a ≠ 0 → b ≠ 0 → (a * b)⁻¹ = b⁻¹ * a⁻¹)%QG.
+Proof.
+intros * Haz Hbz.
+apply eq_QG_eq.
+progress unfold QG_inv.
+cbn - [ Qred ].
+rewrite Qred_mul_idemp_l.
+rewrite Qred_mul_idemp_r.
+Search (Qred (/ _)).
+Theorem Qred_inv : ∀ a, Qred (/ a) = / Qred a.
+Proof.
+intros.
+destruct a as (an, ad).
+progress unfold Qinv.
+cbn.
+remember (Z.ggcd an (Z.pos ad)) as g eqn:Hg.
+symmetry in Hg.
+generalize Hg; intros Hg'.
+destruct g as (g, (n, d)).
+apply Z_ggcd_split in Hg.
+destruct Hg as (Han & Had & Hg & Hgg).
+cbn.
+destruct n as [| n| n]. {
+  now rewrite Z.mul_0_r in Han; subst an.
+} {
+  destruct an as [| an| an]. {
+    symmetry in Han.
+    apply Z.eq_mul_0_l in Han; [ | easy ].
+    now subst g.
+  } {
+    cbn - [ Z.ggcd ].
+Check Z.ggcd.
+Theorem Pos_ggcd_comm :
+  ∀ a b,
+  Pos.ggcd a b =
+    (fst (Pos.ggcd b a), (snd (snd (Pos.ggcd b a)), fst (snd (Pos.ggcd b a)))).
+Proof.
+intros.
+rewrite Pos.ggcd_gcd.
+destruct a as [| a| a]; intros. {
+  destruct b as [| b| b]. {
+    cbn - [ Pos.ggcdn ].
+    remember (b ?= a)%positive as ba eqn:Hba.
+    symmetry in Hba.
+    destruct ba. {
+      apply Pos.compare_eq_iff in Hba; subst b.
+Search (Pos.ggcd _ _ = _).
+Theorem Pos_ggcd_refl : ∀ a, Pos.ggcd a a = (a, (1, 1))%positive.
+Proof.
+intros.
+progress unfold Pos.ggcd.
+Search (Pos.ggcdn).
+...
+intros.
+induction a as [| a| a]. {
+  now cbn; rewrite Pos.compare_refl.
+} {
+Print Pos.ggcd.
+  cbn.
+  remember (Pos.ggcdn _ _ _) as g eqn:Hg.
+  symmetry in Hg.
+  destruct g as (g, (n, d)).
+  destruct a as [| a| a]. {
+    cbn in Hg.
+    rewrite Pos.compare_refl in Hg.
+    now injection Hg; clear Hg; intros; subst.
+  } {
+...
+  rewrite Nat.add_comm in Hg.
+  cbn in Hg.
+...
+Search ((_ ?= _)%positive = true).
+Theorem Pos_eqb_refl : ∀ a, (a ?= a)%positive = Eq.
+Proof.
+intros.
+progress unfold Pos.compare.
+Search Pos.compare.
+...
+  rewrite Pos.eq_refl.
+...
+
+Search Pos.ggcdn.
+...
+    cbn.
+...
+Theorem Z_ggcd_comm :
+  ∀ a b,
+  Z.ggcd a b =
+    (fst (Z.ggcd b a), (snd (snd (Z.ggcd b a)), fst (snd (Z.ggcd b a)))).
+Proof.
+intros.
+rewrite Z.ggcd_gcd.
+destruct a as [| a| a]; [ now destruct b | | ]. {
+  destruct b as [| b| b]; [ easy | | ]. {
+    cbn.
+Check Pos.ggcd.
+Search Pos.ggcd.
+Search Pos.ggcd.
+...
+Search Z.ggcd.
+    rewrite Z.ggcd_comm in Hg'.
+...
+    rewrite Hg'.
+
+Search Pos.ggcd.
+...
+progress unfold QG_of_Q.
+Search (/ Qred _)%Q.
+Search (QG_of_Q _ * _)%QG.
+Search (QG_of_Q (/ _)).
+rewrite QG_of_Q_mul_idemp_r.
+rewrite Qmult_inv_r; [ easy | ].
+intros H1.
+apply Haz; clear Haz.
+rewrite <- (QG_of_Q_qg_q a).
+rewrite <- QG_of_Q_qg_q.
+now rewrite H1.
+
 ...
 split; intros Hab; subst. {
   rewrite QG_mul_comm; symmetry.
