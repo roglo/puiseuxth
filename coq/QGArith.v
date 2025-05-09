@@ -1036,6 +1036,9 @@ Proof. intros; apply Qred_correct. Qed.
 Theorem qg_q_mul : ∀ a b, qg_q (a * b) == qg_q a * qg_q b.
 Proof. intros. apply Qred_correct. Qed.
 
+Theorem qg_q_mul' : ∀ a b, qg_q (a * b) = Qred (qg_q a * qg_q b).
+Proof. easy. Qed.
+
 Theorem QG_of_Q_qg_q_mul :
   ∀ a b : QG, QG_of_Q (qg_q a * qg_q b) = (a * b)%QG.
 Proof.
@@ -1953,6 +1956,18 @@ Qed.
 
 Theorem QG_div_move_l : ∀ a b c, (a ≠ 0 → a / b = c ↔ b = a / c)%QG.
 Proof.
+intros * Haz.
+split; intros; subst. {
+  symmetry.
+  apply eq_QG_eq.
+  progress unfold QG_div.
+  rewrite qg_q_mul'.
+  cbn - [ Qred ].
+  do 2 rewrite Qred_mul_idemp_r.
+  Search (Qred (_ * _)).
+...
+  rewrite <- qg_q_mul'.
+...
 intros * Haz.
 split; intros; subst. {
 Search (_ / (_ / _))%QG.
