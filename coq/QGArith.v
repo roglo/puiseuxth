@@ -855,6 +855,12 @@ split. {
 }
 Qed.
 
+Theorem QG_le_neq_lt : ∀ a b, (a ≤ b → a ≠ b → a < b)%QG.
+Proof.
+intros * Hab Hnab.
+now apply QG_lt_iff.
+Qed.
+
 Theorem QG_lt_trans : ∀ x y z : QG, (x < y → y < z → x < z)%QG.
 Proof.
 intros * Hxy Hyz.

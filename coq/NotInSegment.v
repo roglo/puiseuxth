@@ -329,14 +329,11 @@ destruct (QG_eq_dec h k) as [Heq| Hne]. {
   eapply h_not_k; eassumption.
 }
 destruct (QG_lt_le_dec j h) as [Hlt| Hge₂]. {
-...
-Definition Qle_neq_lt : ∀ x y, x <= y → ¬ x == y → x < y :=
-Check Qle_neq_lt.
-...
-  apply Qle_neq_lt in Hge; [ idtac | assumption ].
+  apply QG_le_neq_lt in Hge; [ | easy ].
   eapply conj in Hge; [ idtac | eassumption ].
   eapply lt_bet_j_and_k; eassumption.
 }
+...
 destruct (Qeq_dec h j) as [Heq| Hne₂]. {
   eapply qeq_eq_ini in Heq; try eassumption.
   exfalso; revert Heq.
