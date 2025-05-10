@@ -23,7 +23,7 @@ Proof.
 now intros a b H; apply QG_compare_gt_iff in H; apply QG_compare_lt_iff.
 Qed.
 
-Theorem Qcmp_sym : ∀ a b c d,
+Theorem QG_cmp_sym : ∀ a b c d,
   (a ?= b) = (c ?= d)
   → (b ?= a) = (d ?= c).
 Proof.
@@ -136,32 +136,32 @@ rewrite slope_cmp_flatten; [ idtac | assumption | assumption ].
 rewrite <- QG_add_assoc, QG_add_comm, QG_add_assoc.
 remember (y₁ * x₂ + y₃ * x₁ + y₂ * x₃ + y₁ * x₁) as t.
 rewrite <- QG_add_assoc, QG_add_comm, QG_add_assoc; subst t.
-...
-rewrite <- Qplus_cmp_compat_r.
-setoid_replace (y₁ * x₂ + y₃ * x₁ + y₂ * x₃) with
- (x₁ * y₃ + x₂ * y₁ + x₃ * y₂) by ring.
-setoid_replace (y₁ * x₃ + y₂ * x₁ + y₃ * x₂) with
- (x₁ * y₂ + x₂ * y₃ + x₃ * y₁) by ring.
-reflexivity.
+rewrite <- QG_add_cmp_compat_r.
+progress setoid_replace (y₁ * x₂ + y₃ * x₁ + y₂ * x₃) with
+  (x₁ * y₃ + x₂ * y₁ + x₃ * y₂) by ring.
+progress setoid_replace (y₁ * x₃ + y₂ * x₁ + y₃ * x₂) with
+  (x₁ * y₂ + x₂ * y₃ + x₃ * y₁) by ring.
+easy.
 Qed.
 
 Theorem slope_cmp_norm₁₃₁₂ : ∀ x₁ y₁ x₂ y₂ x₃ y₃,
-  x₁ < x₂ < x₃
+  (x₁ < x₂ < x₃)%QG
   → (slope_expr (x₁, y₁) (x₃, y₃) ?= slope_expr (x₁, y₁) (x₂, y₂)) =
     (x₁ * y₂ + x₂ * y₃ + x₃ * y₁ ?= x₁ * y₃ + x₂ * y₁ + x₃ * y₂).
 Proof.
-intros; apply Qcmp_sym, slope_cmp_norm₁₂₁₃; assumption.
+intros; apply QG_cmp_sym, slope_cmp_norm₁₂₁₃; assumption.
 Qed.
 
 Theorem slope_cmp_norm₁₃₂₃ : ∀ x₁ y₁ x₂ y₂ x₃ y₃,
-  x₁ < x₂ < x₃
+  (x₁ < x₂ < x₃)%QG
   → (slope_expr (x₁, y₁) (x₃, y₃) ?= slope_expr (x₂, y₂) (x₃, y₃)) =
     (x₁ * y₃ + x₂ * y₁ + x₃ * y₂ ?= x₁ * y₂ + x₂ * y₃ + x₃ * y₁).
 Proof.
 intros x₁ y₁ x₂ y₂ x₃ y₃ (Hlt₁, Hlt₂).
-assert (x₁ < x₃) as Hlt₃ by (eapply Qlt_trans; eassumption).
+assert (x₁ < x₃) as Hlt₃ by (eapply QG_lt_trans; eassumption).
 rewrite slope_cmp_flatten; [ idtac | assumption | assumption ].
-repeat rewrite <- Qplus_assoc.
+repeat rewrite <- QG_add_assoc.
+...
 rewrite <- Qplus_cmp_compat_l.
 repeat rewrite Qplus_assoc.
 setoid_replace (y₁ * x₂ + y₂ * x₃ + y₃ * x₁) with
