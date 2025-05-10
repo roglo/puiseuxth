@@ -1907,6 +1907,16 @@ split; intros; subst. {
 }
 Qed.
 
+Theorem QG_div_move_r : ∀ a b c, (b ≠ 0 → a / b = c ↔ a = c * b)%QG.
+Proof.
+intros * Hbz.
+split; intros; subst. {
+  now symmetry; apply QG_div_mul.
+} {
+  now apply QG_mul_div.
+}
+Qed.
+
 Theorem Qinv_num_den : ∀ n d,
   / (n # d) =
     match Z.compare 0 n with

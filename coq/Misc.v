@@ -277,6 +277,7 @@ reflexivity.
 Qed.
 
 (*
+(* QG_div_move_r *)
 Theorem Qeq_shift_mult_l : ∀ x y z, ¬z == 0 → x / z == y → x == y * z.
 Proof.
 intros x y z Hc H.
@@ -285,6 +286,7 @@ rewrite Qmult_div_swap.
 rewrite Qdiv_mult_l; [ reflexivity | assumption ].
 Qed.
 
+(* QG_div_move_r *)
 Theorem Qeq_shift_div_l : ∀ x y z, ¬z == 0 → x == y * z → x / z == y.
 Proof.
 intros x y z Hz H.

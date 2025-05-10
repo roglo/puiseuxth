@@ -2,6 +2,7 @@
 
 Set Nested Proofs Allowed.
 From Stdlib Require Import Utf8.
+From Stdlib Require Import Setoid Ring.
 
 Require Import QGArith.
 Require Import Slope_base.
@@ -84,25 +85,22 @@ apply QG_mul_move_r in H. 2: {
   intros HH; apply H₁₂.
   now apply -> QG_sub_move_0_r in HH.
 }
-symmetry in H.
+rewrite QG_mul_div_swap in H.
+rewrite QG_div_move_r in H. 2: {
+  intros HH; apply H₁₂.
+  now apply -> QG_sub_move_0_r in HH.
+}
+symmetry.
+apply QG_div_move_r. {
+  intros HH; apply H₂₃.
+  now symmetry; apply -> QG_sub_move_0_r in HH.
+}
+setoid_replace ((y₃ - y₁) * (x₂ - x₁)) with
+  (x₂ * y₃ - x₂ * y₁ - x₁ * y₃ + x₁ * y₁) in H by ring.
+setoid_replace ((y₂ - y₁) * (x₃ - x₁)) with
+  (x₃ * y₂ - x₃ * y₁ - x₁ * y₂ + x₁ * y₁) in H by ring.
 ...
-rewrite Qmult_div_swap in H.
-  apply Qeq_shift_mult_l in H. {
-    apply Qeq_shift_div_l. {
-      intros HH; apply H₁₂.
-      symmetry; apply Qminus_eq; assumption.
-    }
-    symmetry.
-    rewrite Qmult_div_swap.
-    apply Qeq_shift_div_l. {
-      intros HH; apply H₂₃.
-      symmetry; apply Qminus_eq; assumption.
-    }
-    setoid_replace ((y₃ - y₁) * (x₂ - x₁)) with
-     (x₂ * y₃ - x₂ * y₁ - x₁ * y₃ + x₁ * y₁) in H by ring.
-    setoid_replace ((y₂ - y₁) * (x₃ - x₁)) with
-     (x₃ * y₂ - x₃ * y₁ - x₁ * y₂ + x₁ * y₁) in H by ring.
-    apply Qplus_inj_r in H.
+apply Qplus_inj_r in H.
     setoid_replace ((y₃ - y₂) * (x₂ - x₁)) with
      (x₁ * y₂ + x₂ * y₃ - x₁ * y₃ - x₂ * y₂) by ring.
     setoid_replace ((y₂ - y₁) * (x₃ - x₂)) with
