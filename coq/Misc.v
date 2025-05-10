@@ -352,6 +352,14 @@ rewrite <- Pos2Z.inj_mul.
 apply Pos2Z.is_pos.
 Qed.
 
+Theorem Qplus_cmp_compat_l : ∀ x y z,
+  (x ?= y) = (z + x ?= z + y).
+Proof.
+intros x y z.
+do 2 rewrite (Qplus_comm z).
+apply Qplus_cmp_compat_r.
+Qed.
+
 (*
 Theorem Qcmp_plus_minus_cmp_r : ∀ x y z,
   (x ?= y + z) = (x - z ?= y).
@@ -447,14 +455,6 @@ Proof.
 intros x y z H.
 rewrite Qlt_alt in H |- *.
 rewrite <- H; symmetry; apply Qplus_cmp_cmp_minus_r.
-Qed.
-
-Theorem Qplus_cmp_compat_l : ∀ x y z,
-  (x ?= y) = (z + x ?= z + y).
-Proof.
-intros x y z.
-do 2 rewrite (Qplus_comm z).
-apply Qplus_cmp_compat_r.
 Qed.
 *)
 
@@ -1228,6 +1228,20 @@ Theorem QG_mul_div_swap : ∀ x y z, (x / y * z = x * z / y)%QG.
 Proof.
 intros.
 now rewrite QG_mul_comm, QG_mul_div_assoc, QG_mul_comm.
+Qed.
+
+Theorem QG_add_cmp_compat_l :
+  ∀ a b c,
+  (b ?= c)%QG = (a + b ?= a + c)%QG.
+Proof.
+intros.
+specialize (Qplus_cmp_compat_l (qg_q b) (qg_q c) (qg_q a)) as H.
+do 2 rewrite QG_compare_Q_compare.
+rewrite H.
+rewrite Qred_compare.
+rewrite (Qred_compare (qg_q _)).
+cbn - [ Qred ].
+now do 2 rewrite Qred_idemp.
 Qed.
 
 Theorem QG_add_cmp_compat_r :

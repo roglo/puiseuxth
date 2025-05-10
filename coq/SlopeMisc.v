@@ -161,42 +161,43 @@ intros x₁ y₁ x₂ y₂ x₃ y₃ (Hlt₁, Hlt₂).
 assert (x₁ < x₃) as Hlt₃ by (eapply QG_lt_trans; eassumption).
 rewrite slope_cmp_flatten; [ idtac | assumption | assumption ].
 repeat rewrite <- QG_add_assoc.
-...
-rewrite <- Qplus_cmp_compat_l.
-repeat rewrite Qplus_assoc.
-setoid_replace (y₁ * x₂ + y₂ * x₃ + y₃ * x₁) with
- (x₁ * y₃ + x₂ * y₁ + x₃ * y₂) by ring.
-setoid_replace (y₂ * x₁ + y₁ * x₃ + y₃ * x₂) with
- (x₁ * y₂ + x₂ * y₃ + x₃ * y₁) by ring.
-reflexivity.
+rewrite <- QG_add_cmp_compat_l.
+repeat rewrite QG_add_assoc.
+progress setoid_replace (y₁ * x₂ + y₂ * x₃ + y₃ * x₁) with
+  (x₁ * y₃ + x₂ * y₁ + x₃ * y₂) by ring.
+progress setoid_replace (y₂ * x₁ + y₁ * x₃ + y₃ * x₂) with
+  (x₁ * y₂ + x₂ * y₃ + x₃ * y₁) by ring.
+easy.
 Qed.
 
 Theorem slope_cmp_norm₂₃₁₃ : ∀ x₁ y₁ x₂ y₂ x₃ y₃,
-  x₁ < x₂ < x₃
+  (x₁ < x₂ < x₃)%QG
   → (slope_expr (x₂, y₂) (x₃, y₃) ?= slope_expr (x₁, y₁) (x₃, y₃)) =
     (x₁ * y₂ + x₂ * y₃ + x₃ * y₁ ?= x₁ * y₃ + x₂ * y₁ + x₃ * y₂).
 Proof.
-intros; apply Qcmp_sym, slope_cmp_norm₁₃₂₃; assumption.
+intros; apply QG_cmp_sym, slope_cmp_norm₁₃₂₃; assumption.
 Qed.
 
 Theorem slope_cmp₂ : ∀ pt₁ pt₂ pt₃,
-  fst pt₁ < fst pt₂ < fst pt₃
+  (fst pt₁ < fst pt₂ < fst pt₃)%QG
   → (slope_expr pt₁ pt₃ ?= slope_expr pt₁ pt₂) =
     (slope_expr pt₂ pt₃ ?= slope_expr pt₁ pt₃).
 Proof.
 intros (x₁, y₁) (x₂, y₂) (x₃, y₃) (Hlt₁, Hlt₂).
-assert (x₁ < x₃) as Hlt₃ by (eapply Qlt_trans; eassumption).
+assert (x₁ < x₃) as Hlt₃ by (eapply QG_lt_trans; eassumption).
 rewrite slope_cmp_norm₁₃₁₂; [ idtac | split; assumption ].
 rewrite slope_cmp_norm₂₃₁₃; [ idtac | split; assumption ].
 reflexivity.
 Qed.
 
 Theorem slope_lt_1312_2313 : ∀ pt₁ pt₂ pt₃,
-  fst pt₁ < fst pt₂ < fst pt₃
+  (fst pt₁ < fst pt₂ < fst pt₃)%QG
   → slope_expr pt₁ pt₃ < slope_expr pt₁ pt₂
-    → slope_expr pt₂ pt₃ < slope_expr pt₁ pt₃.
+  → slope_expr pt₂ pt₃ < slope_expr pt₁ pt₃.
 Proof.
 intros (x₁, y₁) (x₂, y₂) (x₃, y₃) Hlt H.
-rewrite Qlt_alt in H |- *; rewrite <- H.
+apply QG_compare_lt_iff in H.
+apply QG_compare_lt_iff.
+rewrite <- H.
 symmetry; apply slope_cmp₂; assumption.
 Qed.
