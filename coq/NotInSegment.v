@@ -2,8 +2,9 @@
 
 (* points not in newton segment *)
 
-From Stdlib Require Import Utf8 QArith Sorting.
+From Stdlib Require Import Utf8 Sorting.
 
+Require Import QGArith.
 Require Import Misc.
 Require Import Slope_base.
 Require Import SlopeMisc.
@@ -89,24 +90,24 @@ eapply sorted_qeq_eq with (k := j) (αk := αj) in Hαh; try eassumption. {
   negation Hnαh.
 } {
   eapply in_ch_in_pts with (pt₂ := (k, αk)); eassumption.
-} {
-  subst h; reflexivity.
 }
 Qed.
 
 Theorem slope_expr_eq : ∀ pt₁ pt₂ pt₃ pts,
   Sorted fst_lt [pt₁; pt₂ … pts]
   → pt₃ ∈ pts
-  → slope_expr pt₁ pt₂ == slope_expr pt₁ pt₃
-  → slope_expr pt₁ pt₂ == slope_expr pt₂ pt₃.
+  → slope_expr pt₁ pt₂ = slope_expr pt₁ pt₃
+  → slope_expr pt₁ pt₂ = slope_expr pt₂ pt₃.
 Proof.
 intros pt₁ pt₂ pt₃ pts Hsort Hin H.
 apply slope_eq; [ idtac | idtac | idtac | assumption ]. {
   intros HH.
   apply Sorted_inv_2 in Hsort; destruct Hsort as (Hlt, _).
   unfold fst_lt in Hlt.
+  destruct pt₁ as (pt₁, H1).
+  destruct pt₂ as (pt₂, H2).
   rewrite HH in Hlt.
-  apply Qlt_irrefl in Hlt; contradiction.
+  apply QG_lt_irrefl in Hlt; contradiction.
 } {
   intros HH.
   clear H.
@@ -117,12 +118,14 @@ apply slope_eq; [ idtac | idtac | idtac | assumption ]. {
     apply Sorted_inv_2 in Hsort; destruct Hsort as (Hlt₁, Hsort).
     apply Sorted_inv_2 in Hsort; destruct Hsort as (Hlt₂, Hsort).
     unfold fst_lt in Hlt₂.
+    destruct pt₁ as (pt₁, H1).
+    destruct pt₂ as (pt₂, H2).
     rewrite HH in Hlt₂.
-    apply Qlt_irrefl in Hlt₂; contradiction.
+    apply QG_lt_irrefl in Hlt₂; contradiction.
   }
   apply IHpts; [ idtac | assumption ].
   eapply Sorted_minus_3rd; [ idtac | eassumption ].
-  intros x y z H₁ H₂; eapply Qlt_trans; eassumption.
+  intros x y z H₁ H₂; eapply QG_lt_trans; eassumption.
 } {
   intros HH.
   clear H.
@@ -133,13 +136,15 @@ apply slope_eq; [ idtac | idtac | idtac | assumption ]. {
     apply Sorted_inv_2 in Hsort; destruct Hsort as (Hlt₁, Hsort).
     apply Sorted_inv_2 in Hsort; destruct Hsort as (Hlt₂, Hsort).
     unfold fst_lt in Hlt₂.
+    destruct pt₁ as (pt₁, H1).
+    destruct pt₃ as (pt₃, H2).
     rewrite HH in Hlt₂.
-    eapply Qlt_trans in Hlt₂; [ idtac | eassumption ].
-    apply Qlt_irrefl in Hlt₂; contradiction.
+    eapply QG_lt_trans in Hlt₂; [ idtac | eassumption ].
+    apply QG_lt_irrefl in Hlt₂; contradiction.
   }
   apply IHpts; [ idtac | assumption ].
   eapply Sorted_minus_3rd; [ idtac | eassumption ].
-  intros x y z H₁ H₂; eapply Qlt_trans; eassumption.
+  intros x y z H₁ H₂; eapply QG_lt_trans; eassumption.
 }
 Qed.
 
@@ -149,9 +154,10 @@ Theorem minimise_slope_expr_le : ∀ pt₁ pt₂ pt₃ pts ms,
   → minimise_slope pt₁ pt₂ pts = ms
   → fin_pt ms = pt₃
   → fst pt₂ < fst pt₃
-  → slope_expr pt₂ pt₃ <= slope ms.
+  → slope_expr pt₂ pt₃ ≤ slope ms.
 Proof.
 intros pt₁ pt₂ pt₃ pts ms Hsort Hms Hend Hlt.
+...
 rewrite slope_slope_expr; [ idtac | eassumption ].
 revert pt₁ pt₂ pt₃ ms Hsort Hms Hend Hlt.
 induction pts as [| pt₄]; intros. {
