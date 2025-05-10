@@ -2,6 +2,7 @@
 
 (* points not in newton segment *)
 
+Set Nested Proofs Allowed.
 From Stdlib Require Import Utf8 Sorting.
 
 Require Import QGArith.
@@ -259,31 +260,30 @@ destruct c. {
   }
   eapply IHpts; try eassumption.
   eapply Sorted_minus_2nd; [ idtac | eassumption ].
-...
-  intros x y z H₁ H₂; eapply Qlt_trans; eassumption.
+  intros x y z H₁ H₂; eapply QG_lt_trans; eassumption.
 } {
   subst ms; simpl in Hend |- *; subst pt₄.
   apply Sorted_inv_2 in Hsort; destruct Hsort as (Hlt₁, Hsort).
   apply Sorted_inv_2 in Hsort; destruct Hsort as (Hlt₂, Hsort).
-  eapply Qlt_trans in Hlt₂; [ idtac | eassumption ].
+  eapply QG_lt_trans in Hlt₂; [ idtac | eassumption ].
   exfalso; revert Hpt.
   eapply Sorted_not_in; [ idtac | idtac | eassumption | eassumption ]. {
-    intros x H; apply Qlt_irrefl in H; contradiction.
+    intros x H; apply QG_lt_irrefl in H; contradiction.
   } {
-    intros x y z H₁ H₂; eapply Qlt_trans; eassumption.
+    intros x y z H₁ H₂; eapply QG_lt_trans; eassumption.
   }
 }
 move Hms at top; subst ms₁.
 destruct Hpt as [Hpt| Hpt]. {
   subst pt₅.
-  rewrite <- slope_slope_expr; [ idtac | eassumption ].
+  erewrite <- slope_slope_expr; [ idtac | eassumption ].
   eapply minimise_slope_expr_le; try eassumption.
   eapply Sorted_minus_2nd; [ idtac | eassumption ].
-  intros x y z H₁ H₂; eapply Qlt_trans; eassumption.
+  intros x y z H₁ H₂; eapply QG_lt_trans; eassumption.
 }
 eapply IHpts; try eassumption.
 eapply Sorted_minus_2nd; [ idtac | eassumption ].
-intros x y z H₁ H₂; eapply Qlt_trans; eassumption.
+intros x y z H₁ H₂; eapply QG_lt_trans; eassumption.
 Qed.
 
 Theorem lt_bef_j : ∀ pts j αj segjk k αk,
@@ -304,11 +304,11 @@ rename H into Hnp.
 rename H0 into Hseg.
 destruct Hαh as [Hαh| Hαh]. {
   injection Hαh; clear Hαh; intros; subst h αh.
-  apply Qlt_irrefl in Hhj; contradiction.
+  apply QG_lt_irrefl in Hhj; contradiction.
 } {
   eapply Sorted_hd in Hsort; [ idtac | eassumption ].
-  eapply Qlt_trans in Hhj; [ idtac | eassumption ].
-  apply Qlt_irrefl in Hhj; contradiction.
+  eapply QG_lt_trans in Hhj; [ idtac | eassumption ].
+  apply QG_lt_irrefl in Hhj; contradiction.
 }
 Qed.
 
@@ -321,15 +321,18 @@ Proof.
 intros * Hsort Hnp h αh (Hh, Hnh).
 destruct ns as ((j, αj), (k, αk), segjk).
 remember cons as f in Hnh; simpl in Hnh; subst f.
-destruct (Qlt_le_dec k h) as [Hlt| Hge]. {
+destruct (QG_lt_le_dec k h) as [Hlt| Hge]. {
   eapply lt_aft_k; simpl; eassumption.
 }
-destruct (Qeq_dec h k) as [Heq| Hne]. {
-  eapply qeq_eq_fin in Heq; try eassumption.
+destruct (QG_eq_dec h k) as [Heq| Hne]. {
   exfalso; revert Heq.
   eapply h_not_k; eassumption.
 }
-destruct (Qlt_le_dec j h) as [Hlt| Hge₂]. {
+destruct (QG_lt_le_dec j h) as [Hlt| Hge₂]. {
+...
+Definition Qle_neq_lt : ∀ x y, x <= y → ¬ x == y → x < y :=
+Check Qle_neq_lt.
+...
   apply Qle_neq_lt in Hge; [ idtac | assumption ].
   eapply conj in Hge; [ idtac | eassumption ].
   eapply lt_bet_j_and_k; eassumption.

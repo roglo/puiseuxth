@@ -775,8 +775,24 @@ Qed.
 Theorem QG_le_dec : ∀ a b : QG, {(a ≤ b)%QG} + {¬ (a ≤ b)%QG}.
 Proof.
 intros.
-unfold QG_le.
+progress unfold QG_le.
 apply Bool.bool_dec.
+Qed.
+
+Theorem QG_lt_dec : ∀ a b : QG, {(a < b)%QG} + {¬ (a < b)%QG}.
+Proof.
+intros.
+progress unfold QG_lt.
+apply Bool.bool_dec.
+Qed.
+
+Theorem QG_lt_le_dec : ∀ a b, ({a < b} + {b ≤ a})%QG.
+Proof.
+intros.
+progress unfold QG_lt.
+progress unfold QG_le.
+apply sumbool_not.
+apply sumbool_of_bool.
 Qed.
 
 Theorem QG_le_refl : ∀ a : QG, (a ≤ a)%QG.
