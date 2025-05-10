@@ -80,25 +80,13 @@ Proof.
 intros x₁ y₁ x₂ y₂ x₃ y₃ H₁₂ H₂₃ H₃₁ H.
 unfold slope_expr in H |-*.
 cbn in H |-*.
-Search (_ / _ = _ → _ = _ * _).
-Search (_ / _ = _ ↔ _ = _ * _).
-Check QG_mul_move_r.
+apply QG_mul_move_r in H. 2: {
+  intros HH; apply H₁₂.
+  now apply -> QG_sub_move_0_r in HH.
+}
+symmetry in H.
 ...
-Search (_ = _ * _ ↔ _ / _ = _).
-Search (_ / _ = _).
-...
-Theorem Qeq_shift_mult_l : ∀ x y z, ¬z == 0 → x / z == y → x == y * z.
-Proof.
-intros x y z Hc H.
-rewrite <- H.
-rewrite Qmult_div_swap.
-rewrite Qdiv_mult_l; [ reflexivity | assumption ].
-Qed.
-Check Qeq_shift_mult_l.
-...
-apply Qeq_shift_mult_l in H. {
-  symmetry in H.
-  rewrite Qmult_div_swap in H.
+rewrite Qmult_div_swap in H.
   apply Qeq_shift_mult_l in H. {
     apply Qeq_shift_div_l. {
       intros HH; apply H₁₂.
@@ -136,9 +124,7 @@ apply Qeq_shift_mult_l in H. {
   }
   intros HH; apply H₃₁.
   apply Qminus_eq; assumption.
-}
-intros HH; apply H₁₂.
-symmetry; apply Qminus_eq; assumption.
+...
 Qed.
 
 Theorem slope_cmp_norm₁₂₁₃ : ∀ x₁ y₁ x₂ y₂ x₃ y₃,
