@@ -157,28 +157,27 @@ Theorem minimise_slope_expr_le : ∀ pt₁ pt₂ pt₃ pts ms,
   → slope_expr pt₂ pt₃ ≤ slope ms.
 Proof.
 intros pt₁ pt₂ pt₃ pts ms Hsort Hms Hend Hlt.
-...
-rewrite slope_slope_expr; [ idtac | eassumption ].
+erewrite slope_slope_expr; [ | eassumption ].
 revert pt₁ pt₂ pt₃ ms Hsort Hms Hend Hlt.
 induction pts as [| pt₄]; intros. {
-  subst pt₃ ms; apply Qlt_irrefl in Hlt; contradiction.
+  subst pt₃ ms; apply QG_lt_irrefl in Hlt; contradiction.
 }
 simpl in Hms.
 remember (minimise_slope pt₁ pt₄ pts) as ms₁.
 symmetry in Heqms₁.
 remember (slope_expr pt₁ pt₂ ?= slope ms₁) as c.
 symmetry in Heqc.
-rewrite slope_slope_expr in Heqc; [ idtac | eassumption ].
+erewrite slope_slope_expr in Heqc; [ idtac | eassumption ].
 destruct c. {
   subst ms; simpl in Hend |- *.
-  apply Qeq_alt in Heqc.
+  apply QG_compare_eq_iff in Heqc.
   symmetry in Hend.
   remember Heqms₁ as H; clear HeqH.
   eapply minimised_slope in Heqms₁; [ idtac | eassumption ].
-  rewrite slope_slope_expr in Heqms₁; [ idtac | eassumption ].
+  erewrite slope_slope_expr in Heqms₁; [ idtac | eassumption ].
   rewrite <- Heqc in Heqms₁ |- *.
   eapply slope_expr_eq in Heqms₁; try eassumption. {
-    rewrite Heqms₁; apply Qle_refl.
+    rewrite Heqms₁; apply QG_le_refl.
   }
   rewrite Hend.
   eapply end_pt_in; eassumption.
@@ -187,10 +186,10 @@ destruct c. {
   subst pt₃.
   apply Sorted_inv_2 in Hsort; destruct Hsort as (_, Hsort).
   apply Sorted_inv_2 in Hsort; destruct Hsort as (H, _).
-  apply Qlt_irrefl in Hlt; contradiction.
+  apply QG_lt_irrefl in Hlt; contradiction.
 }
 move Hms at top; subst ms₁.
-apply Qgt_alt in Heqc.
+apply QG_compare_gt_iff in Heqc.
 clear IHpts.
 revert pt₁ pt₂ pt₃ pt₄ ms Hsort Hend Hlt Heqms₁ Heqc.
 induction pts as [| pt₅]; intros. {
@@ -198,7 +197,7 @@ induction pts as [| pt₅]; intros. {
   subst ms; simpl.
   simpl in Hend, Heqc.
   subst pt₄.
-  apply Qlt_le_weak.
+  apply QG_lt_le_incl.
   apply slope_lt_1312_2313; [ idtac | assumption ].
   apply Sorted_inv_2 in Hsort; destruct Hsort as (Hlt₁, Hsort).
   apply Sorted_inv_2 in Hsort; destruct Hsort as (Hlt₂, Hsort).
@@ -213,11 +212,11 @@ destruct c₁. {
   subst ms; simpl in Hend, Heqc |- *.
   eapply IHpts; try eassumption.
   eapply Sorted_minus_3rd; [ idtac | eassumption ].
-  intros x y z H₁ H₂; eapply Qlt_trans; eassumption.
+  intros x y z H₁ H₂; eapply QG_lt_trans; eassumption.
 } {
   subst ms; simpl in Hend, Heqc |- *.
   subst pt₄.
-  apply Qlt_le_weak.
+  apply QG_lt_le_incl.
   apply slope_lt_1312_2313; [ idtac | assumption ].
   apply Sorted_inv_2 in Hsort; destruct Hsort as (Hlt₁, Hsort).
   apply Sorted_inv_2 in Hsort; destruct Hsort as (Hlt₂, Hsort).
@@ -226,7 +225,7 @@ destruct c₁. {
   subst ms; simpl in Hend |- *.
   eapply IHpts; try eassumption.
   eapply Sorted_minus_3rd; [ idtac | eassumption ].
-  intros x y z H₁ H₂; eapply Qlt_trans; eassumption.
+  intros x y z H₁ H₂; eapply QG_lt_trans; eassumption.
 }
 Qed.
 
@@ -237,10 +236,10 @@ Theorem min_slope_le : ∀ pt₁ pt₂ pt₃ pt₄ pts ms,
   → pt₃ ∈ pts
   → fin_pt ms = pt₄
   → fst pt₃ < fst pt₄
-  → slope_expr pt₃ pt₄ <= slope ms.
+  → slope_expr pt₃ pt₄ ≤ slope ms.
 Proof.
 intros pt₁ pt₂ pt₃ pt₄ pts ms Hsort Hms Hpt Hend Hlt.
-rewrite slope_slope_expr; [ idtac | eassumption ].
+erewrite slope_slope_expr; [ idtac | eassumption ].
 revert pt₁ pt₂ pt₃ pt₄ ms Hsort Hms Hpt Hend Hlt.
 induction pts as [| pt₅]; [ contradiction | intros ].
 simpl in Hms.
@@ -248,18 +247,19 @@ remember (minimise_slope pt₁ pt₅ pts) as ms₁.
 symmetry in Heqms₁.
 remember (slope_expr pt₁ pt₂ ?= slope ms₁) as c.
 symmetry in Heqc.
-rewrite slope_slope_expr in Heqc; [ idtac | eassumption ].
+erewrite slope_slope_expr in Heqc; [ idtac | eassumption ].
 destruct c. {
   subst ms; simpl in Hend |- *.
   destruct Hpt as [Hpt| Hpt]. {
     subst pt₅.
-    rewrite <- slope_slope_expr; [ idtac | eassumption ].
+    erewrite <- slope_slope_expr; [ idtac | eassumption ].
     eapply minimise_slope_expr_le; try eassumption.
     eapply Sorted_minus_2nd; [ idtac | eassumption ].
-    intros x y z H₁ H₂; eapply Qlt_trans; eassumption.
+    intros x y z H₁ H₂; eapply QG_lt_trans; eassumption.
   }
   eapply IHpts; try eassumption.
   eapply Sorted_minus_2nd; [ idtac | eassumption ].
+...
   intros x y z H₁ H₂; eapply Qlt_trans; eassumption.
 } {
   subst ms; simpl in Hend |- *; subst pt₄.
