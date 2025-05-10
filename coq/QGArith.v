@@ -2079,6 +2079,33 @@ destruct zn. {
       now apply Z.gcd_eq_0 in H.
     }
     progress f_equal.
+    destruct an as [| an| an]; [ easy | easy | ].
+    remember (Z.gcd (Z.pos ad) (Z.neg an)) as g.
+    destruct g as [| g| g]; [ easy | | easy ].
+    progress unfold Z.div.
+    remember (Z.div_eucl (Z.neg ad) (Z.pos g)) as d eqn:Hd.
+    symmetry in Hd.
+    destruct d as (q, r).
+    cbn.
+    remember (Z.pos_div_eucl ad (Z.pos g)) as q' eqn:Hq.
+    symmetry in Hq.
+    destruct q' as (q', r').
+    specialize (Z_div_mod (Z.neg ad) (Z.pos g)) as H.
+    rewrite Hd in H.
+    assert (H1 : (Z.pos g > 0)%Z) by easy.
+    specialize (H H1); clear H1.
+    destruct H as (Hq', Hr).
+    specialize (Z_div_mod_POS (Z.pos g)) as H1.
+    assert (H2 : (Z.pos g > 0)%Z) by easy.
+    specialize (H1 H2); clear H2.
+    specialize (H1 ad).
+    rewrite Hq in H1.
+    destruct H1 as (H1, H2).
+Search Z.pos_div_eucl.
+Print Z.div_eucl.
+...
+easy.
+easy.
 Search (Z.to_pos (_ / _)).
 Search (Z.neg _ / _)%Z.
 Search (Z.neg (Z.to_pos _)).
