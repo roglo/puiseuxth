@@ -2082,280 +2082,79 @@ destruct zn. {
     destruct an as [| an| an]; [ easy | easy | ].
     remember (Z.gcd (Z.pos ad) (Z.neg an)) as g.
     destruct g as [| g| g]; [ easy | | easy ].
-    progress unfold Z.div.
-    remember (Z.div_eucl (Z.neg ad) (Z.pos g)) as d eqn:Hd.
-    symmetry in Hd.
-    destruct d as (q, r).
-    cbn.
-    remember (Z.pos_div_eucl ad (Z.pos g)) as q' eqn:Hq.
-    symmetry in Hq.
-    destruct q' as (q', r').
-    specialize (Z_div_mod (Z.neg ad) (Z.pos g)) as H.
-    rewrite Hd in H.
-    assert (H1 : (Z.pos g > 0)%Z) by easy.
-    specialize (H H1); clear H1.
-    destruct H as (Hq', Hr).
-    specialize (Z_div_mod_POS (Z.pos g)) as H1.
-    assert (H2 : (Z.pos g > 0)%Z) by easy.
-    specialize (H1 H2); clear H2.
-    specialize (H1 ad).
-    rewrite Hq in H1.
-    destruct H1 as (H1, H2).
-Search Z.pos_div_eucl.
-Print Z.div_eucl.
-...
-easy.
-easy.
-Search (Z.to_pos (_ / _)).
-Search (Z.neg _ / _)%Z.
-Search (Z.neg (Z.to_pos _)).
-...
-    rewrite Z.div_opp_l_z.
-Search (Z.neg (Z.to_pos _)).
-Search (Z.to_pos (- _)).
-    progress f_equal. {
-Search (Z.gcd _ (- _)).
-...
+    do 2 rewrite <- Pos2Z.opp_pos.
     rewrite Z2Pos.id. 2: {
       apply Z.div_str_pos.
-      split. {
-        apply Z.le_neq.
-        split; [ apply Z.gcd_nonneg | ].
-        intros H; symmetry in H.
-        now apply Z.gcd_eq_0 in H.
-      }
-      now apply Z_gcd_le_r.
+      split; [ easy | ].
+      rewrite Heqg.
+      now apply Z_gcd_le_l.
     }
-    rewrite Z2Pos.id. 2: {
-...
-    apply Z.nle_gt in Hzgn.
-    apply Hzgn; clear Hzgn.
-    apply Z_div_nonneg_nonneg; [ now apply Z.lt_le_incl | ].
-    apply Z.gcd_nonneg.
+    apply Z.div_opp_l_z; [ easy | ].
+    rewrite Heqg.
+    apply Z_div_exact_full_1.
+    symmetry.
+    rewrite <- Z.divide_div_mul_exact; cycle 1. {
+      now intros H; rewrite H in Heqg.
+    } {
+      apply Z.gcd_divide_l.
+    }
+    rewrite Z.mul_comm.
+    apply Z.div_mul.
+    now intros H; rewrite H in Heqg.
   }
-...
+}
+Qed.
+
+Theorem Qred_qg_q : ∀ a, Qred (qg_q a) = qg_q a.
+Proof.
+intros.
+apply Z_gcd_eq_1_Qred.
+destruct a as (a, Ha).
+cbn.
+now apply Z_pos_gcd_eq_1 in Ha.
+Qed.
+
+Theorem QG_div_div_diag_l : ∀ a b, (a ≠ 0 → a / (a / b) = b)%QG.
+Proof.
+intros * Haz.
+apply eq_QG_eq.
+progress unfold QG_div.
+rewrite qg_q_mul'.
+cbn - [ Qred ].
+do 2 rewrite Qred_mul_idemp_r.
+rewrite <- Qred_inv.
+rewrite Qred_mul_idemp_r.
+rewrite <- (Qred_qg_q b) at 2.
+apply Qred_complete.
+rewrite Qinv_mult_distr.
+rewrite Qmult_assoc.
+rewrite Qmult_inv_r. 2: {
+  intros H.
+  progress unfold "==" in H.
+  cbn in H.
+  rewrite Z.mul_1_r in H.
+  destruct a as ((an, ad), Ha).
+  cbn in Ha, H.
+  subst an.
+  cbn in Ha.
+  subst ad.
+  apply Haz; clear Haz.
+  now apply eq_QG_eq.
+}
+rewrite Qmult_1_l.
+apply Qinv_involutive.
+Qed.
 
 Theorem QG_div_move_l : ∀ a b c, (a ≠ 0 → a / b = c ↔ b = a / c)%QG.
 Proof.
 intros * Haz.
 split; intros; subst. {
   symmetry.
-  apply eq_QG_eq.
-  progress unfold QG_div.
-  rewrite qg_q_mul'.
-  cbn - [ Qred ].
-  do 2 rewrite Qred_mul_idemp_r.
-Search (/ Qred _).
-...
-  Search (Qred (_ * _)).
-  Search (Qred (_ / _)).
-  rewrite <- qg_q_mul'.
-...
-  rewrite <- qg_q_mul'.
-...
-intros * Haz.
-split; intros; subst. {
-Search (_ / (_ / _))%QG.
-Search (_ / _ / _)%QG.
-Theorem QG_div_div_r : ∀ a b c, (b ≠ 0 → c ≠ 0 → a / (b / c) = a * c / b)%QG.
-Proof.
-intros * Hbz Hcz.
-progress unfold QG_div.
-Require Import RingLike.RingLike.
-Search ((_ * _)⁻¹)%L.
-Theorem QG_inv_mul_distr: ∀ a b, (a ≠ 0 → b ≠ 0 → (a * b)⁻¹ = b⁻¹ * a⁻¹)%QG.
-Proof.
-intros * Haz Hbz.
-apply eq_QG_eq.
-progress unfold QG_inv.
-cbn - [ Qred ].
-rewrite Qred_mul_idemp_l.
-rewrite Qred_mul_idemp_r.
-Search (Qred (/ _)).
-...
-Search ((_ | _) → _)%Z.
-Search (Nat.gcd _ _ ≤ _)%nat.
-Require Import RingLike.RingLike.
-
-Search (Z.gcd _ _ ≤ _)%Z.
-Search (Z.gcd).
-...
-  apply -> Z.compare_lt_iff in Hzn.
-  cbn.
-  remember (Pos.ggcd _ _) as g eqn:Hg.
-  symmetry in Hg.
-  destruct g as (g & n & d).
-  cbn.
-  remember (Z.ggcd _ _) as h eqn:Hh.
-  symmetry in Hh.
-  destruct h as (h & n' & d').
-  cbn.
-  rewrite Qinv_num_den.
-...
-intros.
-destruct a as (an, ad).
-rewrite Qinv_num_den.
-remember (0 ?= an)%Z as zn eqn:Hzn.
-symmetry in Hzn.
-destruct zn. {
-  now apply Z.compare_eq in Hzn; subst an.
+  now apply QG_div_div_diag_l.
 } {
-  apply -> Z.compare_lt_iff in Hzn.
-  cbn.
-  remember (Pos.ggcd _ _) as g eqn:Hg.
-  symmetry in Hg.
-  destruct g as (g & n & d).
-  cbn.
-  remember (Z.ggcd _ _) as h eqn:Hh.
-  symmetry in Hh.
-  destruct h as (h & n' & d').
-  cbn.
-  rewrite Qinv_num_den.
-Inspect 1.
-(* quel bordel *)
-Locate "/".
-
-Search (snd (Z.ggcd _ _)).
-Search Z.gcd.
-...
-progress unfold Qinv.
-cbn.
-remember (Z.ggcd an (Z.pos ad)) as g eqn:Hg.
-symmetry in Hg.
-generalize Hg; intros Hg'.
-destruct g as (g, (n, d)).
-apply Z_ggcd_split in Hg.
-destruct Hg as (Han & Had & Hg & Hgg).
-cbn.
-destruct n as [| n| n]. {
-  now rewrite Z.mul_0_r in Han; subst an.
-} {
-  destruct an as [| an| an]. {
-    symmetry in Han.
-    apply Z.eq_mul_0_l in Han; [ | easy ].
-    now subst g.
-  } {
-    cbn - [ Z.ggcd ].
-Check Z.ggcd.
-Theorem Pos_ggcd_comm :
-  ∀ a b,
-  Pos.ggcd a b =
-    (fst (Pos.ggcd b a), (snd (snd (Pos.ggcd b a)), fst (snd (Pos.ggcd b a)))).
-Proof.
-intros.
-rewrite Pos.ggcd_gcd.
-destruct a as [| a| a]; intros. {
-  destruct b as [| b| b]. {
-    cbn - [ Pos.ggcdn ].
-    remember (b ?= a)%positive as ba eqn:Hba.
-    symmetry in Hba.
-    destruct ba. {
-      apply Pos.compare_eq_iff in Hba; subst b.
-Search (Pos.ggcd _ _ = _).
-Theorem Pos_ggcd_refl : ∀ a, Pos.ggcd a a = (a, (1, 1))%positive.
-Proof.
-intros.
-progress unfold Pos.ggcd.
-remember (_ + _)%nat as s.
-specialize (Pos.ggcdn_correct_divisors s a a) as Hcd.
-remember (Pos.ggcdn s a a) as g eqn:Hg.
-symmetry in Hg.
-destruct g as (g & n & d).
-destruct Hcd as (H1, Hs).
-subst a.
-apply Pos.mul_reg_l in Hs; subst d.
-destruct s. {
-  cbn in Hg.
-  injection Hg; clear Hg; intros; subst.
-  now destruct n.
-}
-...
-intros.
-induction a as [| a| a]. {
-  now cbn; rewrite Pos.compare_refl.
-} {
-Print Pos.ggcd.
-  cbn.
-  remember (Pos.ggcdn _ _ _) as g eqn:Hg.
-  symmetry in Hg.
-  destruct g as (g, (n, d)).
-  destruct a as [| a| a]. {
-    cbn in Hg.
-    rewrite Pos.compare_refl in Hg.
-    now injection Hg; clear Hg; intros; subst.
-  } {
-...
-  rewrite Nat.add_comm in Hg.
-  cbn in Hg.
-...
-Search ((_ ?= _)%positive = true).
-Theorem Pos_eqb_refl : ∀ a, (a ?= a)%positive = Eq.
-Proof.
-intros.
-progress unfold Pos.compare.
-Search Pos.compare.
-...
-  rewrite Pos.eq_refl.
-...
-
-Search Pos.ggcdn.
-...
-    cbn.
-...
-Theorem Z_ggcd_comm :
-  ∀ a b,
-  Z.ggcd a b =
-    (fst (Z.ggcd b a), (snd (snd (Z.ggcd b a)), fst (snd (Z.ggcd b a)))).
-Proof.
-intros.
-rewrite Z.ggcd_gcd.
-destruct a as [| a| a]; [ now destruct b | | ]. {
-  destruct b as [| b| b]; [ easy | | ]. {
-    cbn.
-Check Pos.ggcd.
-Search Pos.ggcd.
-Search Pos.ggcd.
-...
-Search Z.ggcd.
-    rewrite Z.ggcd_comm in Hg'.
-...
-    rewrite Hg'.
-
-Search Pos.ggcd.
-...
-progress unfold QG_of_Q.
-Search (/ Qred _)%Q.
-Search (QG_of_Q _ * _)%QG.
-Search (QG_of_Q (/ _)).
-rewrite QG_of_Q_mul_idemp_r.
-rewrite Qmult_inv_r; [ easy | ].
-intros H1.
-apply Haz; clear Haz.
-rewrite <- (QG_of_Q_qg_q a).
-rewrite <- QG_of_Q_qg_q.
-now rewrite H1.
-
-...
-split; intros Hab; subst. {
-  rewrite QG_mul_comm; symmetry.
-  now apply QG_mul_div.
-} {
-  rewrite QG_mul_comm.
-  now apply QG_div_mul.
+  now apply QG_div_div_diag_l.
 }
 Qed.
-
-Theorem QG_mul_move_r : ∀ a b c, (b ≠ 0 → a * b = c ↔ a = c / b)%QG.
-Proof.
-intros * Hbz.
-split; intros; subst. {
-  now symmetry; apply QG_mul_div.
-} {
-  now apply QG_div_mul.
-}
-Qed.
-
-...
 
 (* *)
 
