@@ -1419,6 +1419,14 @@ revert H1.
 apply QG_lt_irrefl.
 Qed.
 
+Theorem QG_add_cancel_r : ∀ a b c, (a + c = b + c ↔ a = b)%QG.
+Proof.
+intros.
+split; intros H; [ | now subst ].
+apply (f_equal (λ a, (a - c)%QG)) in H.
+now do 2 rewrite QG_add_sub in H.
+Qed.
+
 Theorem QG_mul_cancel_l :
   ∀ a b c : QG, a ≠ 0%QG → (a * b)%QG = (a * c)%QG ↔ b = c.
 Proof.

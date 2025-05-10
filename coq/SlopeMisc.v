@@ -92,50 +92,51 @@ rewrite QG_div_move_r in H. 2: {
 }
 symmetry.
 apply QG_div_move_r. {
-  intros HH; apply H₂₃.
-  now symmetry; apply -> QG_sub_move_0_r in HH.
+  intros HH.
+  now apply -> QG_sub_move_0_r in HH; symmetry in HH.
 }
-setoid_replace ((y₃ - y₁) * (x₂ - x₁)) with
-  (x₂ * y₃ - x₂ * y₁ - x₁ * y₃ + x₁ * y₁) in H by ring.
-setoid_replace ((y₂ - y₁) * (x₃ - x₁)) with
-  (x₃ * y₂ - x₃ * y₁ - x₁ * y₂ + x₁ * y₁) in H by ring.
-...
-apply Qplus_inj_r in H.
-    setoid_replace ((y₃ - y₂) * (x₂ - x₁)) with
-     (x₁ * y₂ + x₂ * y₃ - x₁ * y₃ - x₂ * y₂) by ring.
-    setoid_replace ((y₂ - y₁) * (x₃ - x₂)) with
-     (x₂ * y₁ + x₃ * y₂ - x₃ * y₁ - x₂ * y₂) by ring.
-    unfold Qminus at 1.
-    unfold Qminus at 2.
-    apply Qplus_inj_r.
-    do 2 apply Qminus_eq_eq_plus_r in H.
-    do 4 rewrite <- Qplus_minus_swap in H.
-    symmetry in H.
-    do 2 apply Qminus_eq_eq_plus_r in H.
-    apply Qeq_plus_minus_eq_r.
-    rewrite <- Qplus_minus_swap.
-    symmetry.
-    apply Qeq_plus_minus_eq_r.
-    setoid_replace (x₂ * y₁ + x₃ * y₂ + x₁ * y₃) with
-     (x₃ * y₂ + x₁ * y₃ + x₂ * y₁) by ring.
-    rewrite H; ring.
-  }
-  intros HH; apply H₃₁.
-  apply Qminus_eq; assumption.
-...
+rewrite QG_mul_div_swap.
+symmetry.
+apply QG_div_move_r. {
+  intros HH.
+  now apply -> QG_sub_move_0_r in HH; symmetry in HH.
+}
+do 2 rewrite QG_mul_sub_distr_l in H.
+do 4 rewrite QG_mul_sub_distr_r in H.
+do 2 rewrite QG_sub_sub_distr in H.
+apply QG_add_cancel_r in H.
+do 2 rewrite QG_mul_sub_distr_l.
+do 4 rewrite QG_mul_sub_distr_r.
+do 2 rewrite QG_sub_sub_distr.
+do 4 rewrite <- QG_add_sub_swap.
+rewrite (QG_sub_sub_swap _ (y₂ * x₂)).
+progress f_equal.
+do 2 apply -> QG_sub_move_r in H.
+do 4 rewrite <- QG_add_sub_swap in H.
+do 2 apply QG_add_move_l in H.
+rewrite QG_add_assoc in H.
+apply QG_sub_move_r.
+rewrite <- QG_add_sub_swap.
+symmetry.
+apply QG_sub_move_r.
+symmetry.
+rewrite (QG_add_comm (y₂ * x₃)).
+rewrite QG_add_add_swap.
+easy.
 Qed.
 
 Theorem slope_cmp_norm₁₂₁₃ : ∀ x₁ y₁ x₂ y₂ x₃ y₃,
-  x₁ < x₂ < x₃
+  (x₁ < x₂ < x₃)%QG
   → (slope_expr (x₁, y₁) (x₂, y₂) ?= slope_expr (x₁, y₁) (x₃, y₃)) =
     (x₁ * y₃ + x₂ * y₁ + x₃ * y₂ ?= x₁ * y₂ + x₂ * y₃ + x₃ * y₁).
 Proof.
 intros x₁ y₁ x₂ y₂ x₃ y₃ (Hlt₁, Hlt₂).
-assert (x₁ < x₃) as Hlt₃ by (eapply Qlt_trans; eassumption).
+assert (x₁ < x₃) as Hlt₃ by (eapply QG_lt_trans; eassumption).
 rewrite slope_cmp_flatten; [ idtac | assumption | assumption ].
-rewrite <- Qplus_assoc, Qplus_comm, Qplus_assoc.
+rewrite <- QG_add_assoc, QG_add_comm, QG_add_assoc.
 remember (y₁ * x₂ + y₃ * x₁ + y₂ * x₃ + y₁ * x₁) as t.
-rewrite <- Qplus_assoc, Qplus_comm, Qplus_assoc; subst t.
+rewrite <- QG_add_assoc, QG_add_comm, QG_add_assoc; subst t.
+...
 rewrite <- Qplus_cmp_compat_r.
 setoid_replace (y₁ * x₂ + y₃ * x₁ + y₂ * x₃) with
  (x₁ * y₃ + x₂ * y₁ + x₃ * y₂) by ring.
