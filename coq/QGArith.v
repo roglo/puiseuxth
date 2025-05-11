@@ -968,6 +968,25 @@ unfold QG_min.
 destruct (n ≤? m)%QG; [ left | right ]; reflexivity.
 Qed.
 
+Theorem Qmin_comm : ∀ n m, QG_min n m = QG_min m n.
+Proof.
+intros n m.
+unfold QG_min.
+remember (n ≤? m)%QG as nm eqn:Hnm.
+remember (m ≤? n)%QG as mn eqn:Hmn.
+symmetry in Hnm, Hmn.
+destruct nm. {
+  destruct mn; [ idtac | reflexivity ].
+...
+Search ((_ ≤? _)%QG = true).
+  apply QG_leb_le in Hnm.
+  apply QG_lt_le_incl, QG_le_not_lt in Hnm.
+ contradiction.
+
+ destruct (Qlt_le_dec m n) as [H₂| H₂]; [ reflexivity | idtac ].
+ apply Qle_antisym; assumption.
+Qed.
+
 Theorem qg_q_opp : ∀ a, qg_q (- a)%QG = - qg_q a.
 Proof.
 intros.

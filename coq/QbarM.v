@@ -139,7 +139,7 @@ Proof.
 intros n m.
 destruct n as [n| ]; [ simpl | destruct m; reflexivity ].
 destruct m as [m| ]; [ simpl | reflexivity ].
-rewrite QGmin_comm; reflexivity.
+rewrite QG_min_comm; reflexivity.
 ...
 rewrite Qmin_comm; reflexivity.
 Qed.
