@@ -275,8 +275,7 @@ destruct m as [m| ]; simpl. {
     destruct p as [p| ]; [ idtac | inversion Hpq ].
     apply qfin_le_mono in Hpq.
     apply qfin_lt_mono.
-...
-    apply Qplus_lt_le_compat; assumption.
+    now apply QG_add_lt_le_mono.
   }
   destruct p as [p| ]; [ constructor | idtac ].
   exfalso; apply Hp; reflexivity.
@@ -293,6 +292,7 @@ split; intros H. {
   destruct n as [n| ]. {
     destruct m as [m| ]. {
       destruct p as [p| ]. {
+...
         constructor; apply Qplus_le_l; inversion H; assumption.
       }
       exfalso; apply Hp; reflexivity.
