@@ -292,8 +292,7 @@ split; intros H. {
   destruct n as [n| ]. {
     destruct m as [m| ]. {
       destruct p as [p| ]. {
-...
-        constructor; apply Qplus_le_l; inversion H; assumption.
+        constructor; apply QG_add_le_mono_r; inversion H; assumption.
       }
       exfalso; apply Hp; reflexivity.
     }
@@ -305,7 +304,7 @@ destruct n as [n| ]. {
   destruct m as [m| ]; [ idtac | constructor ].
   destruct p as [p| ]; [ idtac | exfalso; apply Hp; reflexivity ].
   constructor; inversion H.
-  apply Qplus_le_l in H2; assumption.
+  now apply QG_add_le_mono_r in H2.
 } {
   destruct m as [m| ]; [ idtac | constructor ].
   destruct p as [p| ]; [ idtac | exfalso; apply Hp; reflexivity ].
@@ -321,7 +320,7 @@ destruct m as [m| ]. {
     destruct n as [n| ]; [ simpl in H; simpl | inversion H ].
     apply lt_qfin.
     apply qfin_lt_mono in H.
-    apply Qlt_sub_lt_add_l; assumption.
+    now apply QG_lt_sub_lt_add_l.
   }
   destruct n as [n| ]; [ constructor | inversion H ].
 }
@@ -337,7 +336,7 @@ destruct p as [p| ]; [ idtac | rewrite add_comm; constructor ].
 destruct n as [n| ]; [ simpl in H; simpl | inversion H ].
 apply le_qfin.
 apply qfin_le_mono in H.
-apply Qle_sub_le_add_l; assumption.
+apply QG_le_sub_le_add_l; assumption.
 Qed.
 
 Theorem lt_le_incl : ∀ n m, n < m → n ≤ m.
@@ -345,23 +344,21 @@ Proof.
 intros n m H.
 destruct n as [n| ]; [ idtac | inversion H ].
 destruct m as [m| ]; [ idtac | constructor ].
-constructor; apply Qlt_le_weak; inversion H; assumption.
+constructor; apply QG_lt_le_incl; inversion H; assumption.
 Qed.
 
 Theorem sub_diag : ∀ n, qeq (n - n) 0.
 Proof.
 intros n.
 destruct n as [n| ]; [ simpl | reflexivity ].
-unfold Qeq; simpl.
-rewrite Z.mul_1_r.
-rewrite Z.mul_opp_l, Z.add_opp_r.
-apply Z.sub_diag.
+apply QG_sub_diag.
 Qed.
 
 Theorem sub_0_l : ∀ n, qeq (0 - n) (-n).
 Proof.
 intros n.
 destruct n as [n| ]; [ simpl | reflexivity ].
+...
 unfold Qeq; simpl.
 rewrite Z.mul_1_r; reflexivity.
 Qed.

@@ -51,32 +51,6 @@ split; intros Hab. {
 }
 Qed.
 
-Theorem QG_lt_sub_lt_add_r : ∀ a b c, a - b < c ↔ a < c + b.
-Proof.
-intros.
-split; intros Hab. {
-  apply (QG_add_lt_mono_r _ _ b) in Hab.
-  now rewrite QG_sub_add in Hab.
-} {
-  apply (QG_add_lt_mono_r _ _ (- b)) in Hab.
-  do 2 rewrite fold_QG_sub in Hab.
-  now rewrite QG_add_sub in Hab.
-}
-Qed.
-
-Theorem QG_lt_add_lt_sub_r : ∀ a b c, a + b < c ↔ (a < c - b).
-Proof.
-intros.
-split; intros Hab. {
-  apply (QG_add_lt_mono_r _ _ (- b)) in Hab.
-  do 2 rewrite fold_QG_sub in Hab.
-  now rewrite QG_add_sub in Hab.
-} {
-  apply (QG_add_lt_mono_r _ _ b) in Hab.
-  now rewrite QG_sub_add in Hab.
-}
-Qed.
-
 Theorem QG_div_add_distr_r : ∀ a b c, (a + b) / c = a / c + b / c.
 Proof.
 intros.

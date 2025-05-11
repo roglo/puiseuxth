@@ -1617,6 +1617,84 @@ do 2 rewrite (QG_mul_comm _ c).
 now apply QG_mul_lt_mono_pos_l.
 Qed.
 
+Theorem QG_le_sub_le_add_l : ∀ a b c, (a - b ≤ c ↔ a ≤ b + c)%QG.
+Proof.
+intros.
+split; intros Hab. {
+  apply (QG_add_le_mono_r _ _ b) in Hab.
+  now rewrite QG_sub_add, QG_add_comm in Hab.
+} {
+  apply (QG_add_le_mono_r _ _ (- b)) in Hab.
+  do 2 rewrite fold_QG_sub in Hab.
+  now rewrite QG_add_comm, QG_add_sub in Hab.
+}
+Qed.
+
+Theorem QG_le_sub_le_add_r : ∀ a b c, (a - b ≤ c ↔ a ≤ c + b)%QG.
+Proof.
+intros.
+split; intros Hab. {
+  apply (QG_add_le_mono_r _ _ b) in Hab.
+  now rewrite QG_sub_add in Hab.
+} {
+  apply (QG_add_le_mono_r _ _ (- b)) in Hab.
+  do 2 rewrite fold_QG_sub in Hab.
+  now rewrite QG_add_sub in Hab.
+}
+Qed.
+
+Theorem QG_le_add_le_sub_r : ∀ a b c, (a + b ≤ c ↔ (a ≤ c - b))%QG.
+Proof.
+intros.
+split; intros Hab. {
+  apply (QG_add_le_mono_r _ _ (- b)) in Hab.
+  do 2 rewrite fold_QG_sub in Hab.
+  now rewrite QG_add_sub in Hab.
+} {
+  apply (QG_add_le_mono_r _ _ b) in Hab.
+  now rewrite QG_sub_add in Hab.
+}
+Qed.
+
+Theorem QG_lt_sub_lt_add_l : ∀ a b c, (a - b < c ↔ a < b + c)%QG.
+Proof.
+intros.
+split; intros Hab. {
+  apply (QG_add_lt_mono_r _ _ b) in Hab.
+  now rewrite QG_sub_add, QG_add_comm in Hab.
+} {
+  apply (QG_add_lt_mono_r _ _ (- b)) in Hab.
+  do 2 rewrite fold_QG_sub in Hab.
+  now rewrite QG_add_comm, QG_add_sub in Hab.
+}
+Qed.
+
+Theorem QG_lt_sub_lt_add_r : ∀ a b c, (a - b < c ↔ a < c + b)%QG.
+Proof.
+intros.
+split; intros Hab. {
+  apply (QG_add_lt_mono_r _ _ b) in Hab.
+  now rewrite QG_sub_add in Hab.
+} {
+  apply (QG_add_lt_mono_r _ _ (- b)) in Hab.
+  do 2 rewrite fold_QG_sub in Hab.
+  now rewrite QG_add_sub in Hab.
+}
+Qed.
+
+Theorem QG_lt_add_lt_sub_r : ∀ a b c, (a + b < c ↔ (a < c - b))%QG.
+Proof.
+intros.
+split; intros Hab. {
+  apply (QG_add_lt_mono_r _ _ (- b)) in Hab.
+  do 2 rewrite fold_QG_sub in Hab.
+  now rewrite QG_add_sub in Hab.
+} {
+  apply (QG_add_lt_mono_r _ _ b) in Hab.
+  now rewrite QG_sub_add in Hab.
+}
+Qed.
+
 Theorem Qred_add_idemp_l :
   ∀ a b, Qred (Qred a + b) = Qred (a + b).
 Proof.
