@@ -71,9 +71,6 @@ rewrite QG_div_add_distr_r.
 now rewrite QG_mul_div.
 Qed.
 
-Theorem QG_mul_0_l : ∀ a, 0 * a = 0.
-Proof. now intros; now apply eq_QG_eq. Qed.
-
 Theorem QG_0_lt_inv_compat : ∀ a, 0 < a → 0 < a⁻¹.
 Proof.
 intros * Hza.

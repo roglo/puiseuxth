@@ -2,6 +2,7 @@
 
 Set Nested Proofs Allowed.
 From Stdlib Require Import Utf8 ZArith.
+Require Import Morphisms Setoid.
 
 Require Import QGArith.
 Require Import Misc.
@@ -358,16 +359,14 @@ Theorem sub_0_l : ∀ n, qeq (0 - n) (-n).
 Proof.
 intros n.
 destruct n as [n| ]; [ simpl | reflexivity ].
-...
-unfold Qeq; simpl.
-rewrite Z.mul_1_r; reflexivity.
+apply QG_add_0_l.
 Qed.
 
 Theorem mul_0_r : ∀ a, a ≠ ∞ → qeq (a * 0) 0.
 Proof.
 intros a Ha.
 destruct a as [a| ]; simpl; [ idtac | apply Ha; reflexivity ].
-rewrite Qmult_0_r; reflexivity.
+now apply QG_mul_0_r.
 Qed.
 
 Theorem eq_refl : reflexive _ qeq.
@@ -399,6 +398,8 @@ Add Parametric Relation : Qbar Qbar.qeq
   symmetry proved by Qbar.eq_sym
   transitivity proved by Qbar.eq_trans
   as qbar_qeq_rel.
+
+...
 
 Global Instance qbar_qfin_morph : Proper (Qeq ==> Qbar.qeq) qfin.
 Proof. easy. Qed.

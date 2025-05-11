@@ -707,6 +707,12 @@ rewrite QG_of_Q_mul_idemp_l.
 now rewrite Qmult_assoc.
 Qed.
 
+Theorem QG_mul_0_l : ∀ a, (0 * a = 0)%QG.
+Proof. now intros; apply eq_QG_eq. Qed.
+
+Theorem QG_mul_0_r : ∀ a, (a * 0 = 0)%QG.
+Proof. now intros; rewrite QG_mul_comm; apply eq_QG_eq. Qed.
+
 Theorem QG_mul_1_l : ∀ a : QG, (1 * a)%QG = a.
 Proof.
 intros.
