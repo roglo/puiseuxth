@@ -2,8 +2,9 @@
 
 (* Most of notations are Robert Walker's ones *)
 
-From Stdlib Require Import Utf8 QArith Sorting Arith ZArith.
+From Stdlib Require Import Utf8 Sorting Arith ZArith.
 
+Require Import QGArith.
 Require Import ConvexHull.
 Require Import ConvexHullMisc.
 Require Import Misc.
@@ -20,6 +21,14 @@ Require Import Ps_mul.
 Require Import Ps_div.
 
 Set Implicit Arguments.
+
+Print qfin.
+...
+Definition order {α} {r : ring α} {K : field r} ps :=
+  match series_order (ps_terms ps) 0 with
+  | fin v => qfin (ps_ordnum ps + Z.of_nat v, ps_polydo ps)
+  | ∞ => qinf
+  end.
 
 Definition order {α} {r : ring α} {K : field r} ps :=
   match series_order (ps_terms ps) 0 with
