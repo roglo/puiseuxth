@@ -333,13 +333,11 @@ destruct (QG_lt_le_dec j h) as [Hlt| Hge₂]. {
   eapply conj in Hge; [ idtac | eassumption ].
   eapply lt_bet_j_and_k; eassumption.
 }
-...
-destruct (Qeq_dec h j) as [Heq| Hne₂]. {
-  eapply qeq_eq_ini in Heq; try eassumption.
+destruct (QG_eq_dec h j) as [Heq| Hne₂]. {
   exfalso; revert Heq.
-  eapply h_not_j; simpl; eassumption.
+  eapply h_not_j; eassumption.
 }
-apply Qle_neq_lt in Hge₂; [ idtac | assumption ].
+apply QG_le_neq_lt in Hge₂; [ idtac | assumption ].
 eapply lt_bef_j; simpl; try eassumption.
 split; [ assumption | idtac ].
 remember (mkns (j, αj) (k, αk) segjk) as ns.
