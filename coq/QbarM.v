@@ -399,10 +399,10 @@ Add Parametric Relation : Qbar Qbar.qeq
   transitivity proved by Qbar.eq_trans
   as qbar_qeq_rel.
 
-...
-
-Global Instance qbar_qfin_morph : Proper (Qeq ==> Qbar.qeq) qfin.
+(*
+Global Instance qbar_qfin_morph : Proper (eq ==> Qbar.qeq) qfin.
 Proof. easy. Qed.
+*)
 
 Global Instance qbar_add_morph :
   Proper (Qbar.qeq ==> Qbar.qeq ==> Qbar.qeq) Qbar.add.
@@ -473,6 +473,8 @@ unfold Qbar.qeq in Hcd.
 rewrite <- Hab, <- Hcd.
 inversion Hac; assumption.
 Qed.
+
+...
 
 Theorem Qmin_same_den : ∀ a b c, Qmin (a # c) (b # c) = Z.min a b # c.
 Proof.
