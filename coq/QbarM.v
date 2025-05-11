@@ -474,9 +474,8 @@ rewrite <- Hab, <- Hcd.
 inversion Hac; assumption.
 Qed.
 
-...
-
-Theorem Qmin_same_den : ∀ a b c, Qmin (a # c) (b # c) = Z.min a b # c.
+(*
+Theorem QG_min_same_den : ∀ a b c, QG_min (a # c) (b # c) = Z.min a b # c.
 Proof.
 intros a b c.
 unfold Qmin; simpl.
@@ -490,6 +489,7 @@ destruct (Qlt_le_dec (a # c) (b # c)) as [Hlt| Hge]; f_equal. {
   rewrite Z.min_r; [ reflexivity | assumption ].
 }
 Qed.
+*)
 
 Theorem eq_Qbar_qinf : ∀ a, (a = ∞)%Qbar → a = ∞%Qbar.
 Proof. intros a H; destruct a; auto; inversion H. Qed.
@@ -541,17 +541,15 @@ destruct a as [a| ]. {
   destruct c as [c| ]. {
     destruct d as [d| ]; [ idtac | inversion Hcd ].
     apply Qbar.qfin_inj in Hcd.
-    unfold Qmin; simpl.
-    destruct (Qlt_le_dec a c) as [Hlt| Hge]; [ idtac | inversion Hcd ]. {
-      destruct (Qlt_le_dec b d) as [Hlt'| Hge]; [ assumption | idtac ].
-      rewrite Hab, Hcd in Hlt.
-      apply Qle_not_lt in Hge.
-      contradiction.
+    progress unfold QG_min.
+    simpl.
+    remember (a ≤? c)%QG as ac eqn:Hac.
+    remember (b ≤? d)%QG as bd eqn:Hbd.
+    symmetry in Hac, Hbd.
+    destruct ac; [ | inversion Hcd ]. {
+      destruct bd; [ assumption | congruence ].
     }
-    destruct (Qlt_le_dec b d) as [Hlt| Hge']; [ idtac | assumption ].
-    rewrite Hab, Hcd in Hge.
-    apply Qle_not_lt in Hge.
-    contradiction.
+    destruct bd; subst; congruence.
   }
   destruct d as [d| ]; [ inversion Hcd | assumption ].
 }
