@@ -191,6 +191,10 @@ Notation "a < b ≤ c" := (QG_lt a b ∧ QG_le b c)
 Notation "a < b < c" := (QG_lt a b ∧ QG_lt b c)
   (at level 70, b at next level) : QG_scope.
 
+Definition QG_abs a := if (a ≤? 0)%QG then (- a)%QG else a.
+Definition QG_min a b := if (a ≤? b)%QG then a else b.
+Definition QG_max a b := if (a ≤? b)%QG then b else a.
+
 Theorem fold_QG_of_Z : ∀ a, QG_of_Q (a # 1) = QG_of_Z a.
 Proof. easy. Qed.
 
@@ -955,6 +959,13 @@ split; intros Hxy. {
   symmetry in Hg.
   now destruct g as (g, (r1, r2)).
 }
+Qed.
+
+Theorem QG_min_dec : ∀ n m, {QG_min n m = n} + {QG_min n m = m}.
+Proof.
+intros n m.
+unfold QG_min.
+destruct (n ≤? m)%QG; [ left | right ]; reflexivity.
 Qed.
 
 Theorem qg_q_opp : ∀ a, qg_q (- a)%QG = - qg_q a.

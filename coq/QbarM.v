@@ -1,13 +1,14 @@
 (* Qbar.v *)
 
-From Stdlib Require Import Utf8 ZArith QArith.
+From Stdlib Require Import Utf8 ZArith.
 
+Require Import QGArith.
 Require Import Misc.
 
 Set Implicit Arguments.
 
 Inductive Qbar : Set :=
-  | qfin : ∀ x : Q, Qbar
+  | qfin : ∀ x : QG, Qbar
   | qinf : Qbar.
 
 Declare Scope Qbar_scope.
@@ -30,15 +31,15 @@ Definition binop f dx dy xb yb :=
   | ∞ => dy
   end.
 
-Definition add := binop Qplus ∞ ∞.
-Definition mul := binop Qmult ∞ ∞.
-Definition min x y := binop Qmin x y x y.
+Definition add := binop QG_add ∞ ∞.
+Definition mul := binop QG_mul ∞ ∞.
+Definition min x y := binop QG_min x y x y.
 
 Definition sub xb yb :=
   match yb with
   | qfin y =>
       match xb with
-      | qfin x => qfin (Qminus x y)
+      | qfin x => qfin (QG_sub x y)
       | ∞ => ∞
       end
   | ∞ => 0
@@ -54,7 +55,7 @@ Definition qeq a b :=
   match a with
   | qfin x =>
       match b with
-      | qfin y => x == y
+      | qfin y => x = y
       | ∞ => False
       end
   | ∞ =>
@@ -70,39 +71,39 @@ Infix "*" := mul : Qbar_scope.
 Notation "- a" := (opp a) : Qbar_scope.
 
 Inductive le : Qbar → Qbar → Prop :=
-  | le_qfin : ∀ q r, (q <= r)%Q → qfin q ≤ qfin r
+  | le_qfin : ∀ q r, (q ≤ r)%QG → qfin q ≤ qfin r
   | le_qinf : ∀ q, q ≤ ∞
 where "q ≤ r" := (le q r) : Qbar_scope.
 
 Inductive lt : Qbar → Qbar → Prop :=
-  | lt_qfin : ∀ q r, (q < r)%Q → qfin q < qfin r
+  | lt_qfin : ∀ q r, (q < r)%QG → qfin q < qfin r
   | lt_qinf : ∀ q, qfin q < ∞
 where "q < r" := (lt q r) : Qbar_scope.
 
 Definition gt q r := lt r q.
 Definition ge q r := le r q.
 
-Theorem qfin_lt_mono : ∀ n m, (n < m)%Q ↔ qfin n < qfin m.
+Theorem qfin_lt_mono : ∀ n m, (n < m)%QG ↔ qfin n < qfin m.
 Proof.
 intros n m.
 split; intros H; [ constructor; assumption | idtac ].
 inversion H; assumption.
 Qed.
 
-Theorem qfin_le_mono : ∀ n m, (n <= m)%Q ↔ qfin n ≤ qfin m.
+Theorem qfin_le_mono : ∀ n m, (n ≤ m)%QG ↔ qfin n ≤ qfin m.
 Proof.
 intros n m.
 split; intros H; [ constructor; assumption | idtac ].
 inversion H; assumption.
 Qed.
 
-Theorem qfin_inj : ∀ a b, qeq (qfin a) (qfin b) → a == b.
+Theorem qfin_inj : ∀ a b, qeq (qfin a) (qfin b) → a = b.
 Proof. intros a b Hab; assumption. Qed.
 
 Theorem qfin_inj_add : ∀ n m, qfin (n + m) = qfin n + qfin m.
 Proof. reflexivity. Qed.
 
-Theorem qfin_inj_wd : ∀ a b, qeq (qfin a) (qfin b) ↔ a == b.
+Theorem qfin_inj_wd : ∀ a b, qeq (qfin a) (qfin b) ↔ a = b.
 Proof. intros a b; split; intros H; assumption. Qed.
 
 Theorem eq_dec : ∀ a b, {qeq a b} + {not (qeq a b)}.
@@ -110,7 +111,7 @@ Proof.
 intros a b.
 destruct a as [a| ]; simpl. {
   destruct b as [b| ]; simpl. {
-    apply Qeq_dec.
+    apply QG_eq_dec.
   }
   right; intros H; assumption.
 }
@@ -126,7 +127,7 @@ Proof.
 intros n m.
 destruct n as [n| ]; [ idtac | destruct m; right; reflexivity ].
 destruct m as [m| ]; [ idtac | left; reflexivity ].
-destruct (Qmin_dec n m) as [H| H]; simpl; rewrite H. {
+destruct (QG_min_dec n m) as [H| H]; simpl; rewrite H. {
   left; reflexivity.
 } {
   right; reflexivity.
@@ -138,6 +139,8 @@ Proof.
 intros n m.
 destruct n as [n| ]; [ simpl | destruct m; reflexivity ].
 destruct m as [m| ]; [ simpl | reflexivity ].
+rewrite QGmin_comm; reflexivity.
+...
 rewrite Qmin_comm; reflexivity.
 Qed.
 
