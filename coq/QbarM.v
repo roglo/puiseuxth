@@ -236,8 +236,7 @@ Theorem add_0_l : ∀ a, qeq (0 + a) a.
 Proof.
 intros a.
 destruct a as [a| ]; [ simpl | constructor ].
-...
-rewrite Qplus_0_l; reflexivity.
+apply QG_add_0_l.
 Qed.
 
 Theorem add_lt_mono_r : ∀ n m p, p ≠ ∞ → n < m ↔ n + p < m + p.
@@ -247,7 +246,7 @@ split; intros H. {
   destruct n as [n| ]. {
     destruct m as [m| ]. {
       destruct p as [p| ]. {
-        constructor; apply Qplus_lt_l; inversion H; assumption.
+        now constructor; apply QG_add_lt_mono_r; inversion H.
       }
       exfalso; apply Hp; reflexivity.
     }
@@ -259,7 +258,7 @@ destruct n as [n| ]; [ idtac | inversion H ].
 destruct m as [m| ]; [ idtac | constructor ].
 destruct p as [p| ]; [ idtac | inversion H ].
 constructor; inversion H.
-apply Qplus_lt_l in H2; assumption.
+now apply QG_add_lt_mono_r in H2.
 Qed.
 
 Theorem add_lt_le_mono : ∀ n m p q,
@@ -276,6 +275,7 @@ destruct m as [m| ]; simpl. {
     destruct p as [p| ]; [ idtac | inversion Hpq ].
     apply qfin_le_mono in Hpq.
     apply qfin_lt_mono.
+...
     apply Qplus_lt_le_compat; assumption.
   }
   destruct p as [p| ]; [ constructor | idtac ].

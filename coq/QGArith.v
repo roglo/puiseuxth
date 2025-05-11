@@ -1497,6 +1497,14 @@ revert H1.
 apply QG_lt_irrefl.
 Qed.
 
+Theorem QG_add_cancel_l : ∀ a b c, (a + b = a + c ↔ b = c)%QG.
+Proof.
+intros.
+split; intros H; [ | now subst ].
+apply (f_equal (λ x, (x - a)%QG)) in H.
+now do 2 rewrite QG_add_comm, QG_add_sub in H.
+Qed.
+
 Theorem QG_add_cancel_r : ∀ a b c, (a + c = b + c ↔ a = b)%QG.
 Proof.
 intros.
@@ -1560,6 +1568,45 @@ apply QG_le_0_sub.
 rewrite <- QG_mul_sub_distr_l.
 apply QG_mul_nonneg_nonneg; [ now apply QG_lt_le_incl | ].
 now apply QG_le_0_sub.
+Qed.
+
+Theorem QG_add_lt_mono_l : ∀ a b c : QG, (b < c)%QG ↔ (a + b < a + c)%QG.
+Proof.
+intros.
+split; intros Hbc. {
+  apply QG_lt_iff.
+  split; [ now apply QG_add_le_mono_l, QG_lt_le_incl | ].
+  intros H.
+  apply QG_add_cancel_l in H.
+  subst.
+  now apply QG_lt_irrefl in Hbc.
+} {
+  apply QG_lt_iff.
+  split; [ now apply QG_lt_le_incl, QG_add_le_mono_l in Hbc | ].
+  intros H; subst.
+  now apply QG_lt_irrefl in Hbc.
+}
+Qed.
+
+Theorem QG_add_lt_mono_r : ∀ a b c : QG, (a < b)%QG ↔ (a + c < b + c)%QG.
+Proof.
+intros.
+do 2 rewrite (QG_add_comm _ c).
+apply QG_add_lt_mono_l.
+Qed.
+
+Theorem QG_add_le_lt_mono : ∀ a b c d, (a ≤ b → c < d → a + c < b + d)%QG.
+Proof.
+intros * Hab Hcd.
+eapply QG_lt_le_trans; [ apply QG_add_lt_mono_l, Hcd | ].
+now apply QG_add_le_mono_r.
+Qed.
+
+Theorem QG_add_lt_le_mono : ∀ a b c d, (a < b → c ≤ d → a + c < b + d)%QG.
+Proof.
+intros * Hab Hcd.
+eapply QG_le_lt_trans; [ apply QG_add_le_mono_l, Hcd | ].
+now apply QG_add_lt_mono_r.
 Qed.
 
 Theorem QG_mul_lt_mono_pos_r :
