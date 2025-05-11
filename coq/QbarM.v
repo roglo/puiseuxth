@@ -1,5 +1,6 @@
 (* Qbar.v *)
 
+Set Nested Proofs Allowed.
 From Stdlib Require Import Utf8 ZArith.
 
 Require Import QGArith.
@@ -140,8 +141,6 @@ intros n m.
 destruct n as [n| ]; [ simpl | destruct m; reflexivity ].
 destruct m as [m| ]; [ simpl | reflexivity ].
 rewrite QG_min_comm; reflexivity.
-...
-rewrite Qmin_comm; reflexivity.
 Qed.
 
 Theorem min_l : ∀ n m, n ≤ m → qeq (min n m) n.
@@ -149,7 +148,7 @@ Proof.
 intros n m H.
 destruct m as [m| ]; [ idtac | destruct n; reflexivity ].
 destruct n as [n| ]; [ simpl | inversion H ].
-rewrite Qmin_l; [ reflexivity | inversion H; assumption ].
+now apply QG_min_l_iff; inversion H.
 Qed.
 
 Theorem min_glb : ∀ n m p, p ≤ n → p ≤ m → p ≤ min n m.
@@ -169,7 +168,7 @@ Proof.
 intros x H.
 destruct x as [x| ]; [ idtac | inversion H ].
 apply qfin_lt_mono in H.
-revert H; apply Qlt_irrefl.
+revert H; apply QG_lt_irrefl.
 Qed.
 
 Theorem lt_neq : ∀ n m, n < m → not (qeq n m).
@@ -181,7 +180,7 @@ destruct n as [n| ]. {
   apply qfin_lt_mono in Hlt.
   apply qfin_inj in H.
   rewrite H in Hlt.
-  revert Hlt; apply Qlt_irrefl.
+  revert Hlt; apply QG_lt_irrefl.
 }
 destruct m as [m| ]; [ inversion H | inversion Hlt ].
 Qed.
@@ -193,7 +192,7 @@ destruct p as [p| ]. {
   destruct m as [m| ]; [ simpl | inversion Hmp ].
   destruct n as [n| ]; [ simpl | inversion Hnm ].
   inversion Hnm; inversion Hmp; constructor.
-  eapply Qle_trans; eassumption.
+  eapply QG_le_trans; eassumption.
 }
 destruct n as [n| ]; [ constructor | idtac ].
 inversion Hnm; subst; assumption.
@@ -206,7 +205,7 @@ destruct p as [p| ]. {
   destruct m as [m| ]; [ simpl | inversion Hmp ].
   destruct n as [n| ]; [ simpl | inversion Hnm ].
   inversion Hnm; inversion Hmp; constructor.
-  eapply Qlt_le_trans; eassumption.
+  eapply QG_lt_le_trans; eassumption.
 }
 destruct n as [n| ]; [ constructor | inversion Hnm ].
 Qed.
@@ -218,7 +217,7 @@ destruct p as [p| ]. {
   destruct m as [m| ]; [ simpl | inversion Hmp ].
   destruct n as [n| ]; [ simpl | inversion Hnm ].
   inversion Hnm; inversion Hmp; constructor.
-  eapply Qle_lt_trans; eassumption.
+  eapply QG_le_lt_trans; eassumption.
 }
 destruct n as [n| ]; [ constructor | idtac ].
 inversion Hnm; subst; assumption.
@@ -229,19 +228,15 @@ Proof.
 intros n m.
 destruct n; [ simpl | destruct m; reflexivity ].
 destruct m as [m| ]; [ simpl | reflexivity ].
-f_equal.
-unfold Qplus; simpl.
-f_equal. {
-  rewrite Z.add_comm; reflexivity.
-} {
-  rewrite Pos.mul_comm; reflexivity.
-}
+progress f_equal.
+apply QG_add_comm.
 Qed.
 
 Theorem add_0_l : ∀ a, qeq (0 + a) a.
 Proof.
 intros a.
 destruct a as [a| ]; [ simpl | constructor ].
+...
 rewrite Qplus_0_l; reflexivity.
 Qed.
 

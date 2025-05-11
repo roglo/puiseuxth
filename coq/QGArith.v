@@ -968,23 +968,18 @@ unfold QG_min.
 destruct (n ≤? m)%QG; [ left | right ]; reflexivity.
 Qed.
 
-Theorem Qmin_comm : ∀ n m, QG_min n m = QG_min m n.
+Theorem QG_min_l_iff : ∀ a b, QG_min a b = a ↔ (a ≤ b)%QG.
 Proof.
-intros n m.
-unfold QG_min.
-remember (n ≤? m)%QG as nm eqn:Hnm.
-remember (m ≤? n)%QG as mn eqn:Hmn.
-symmetry in Hnm, Hmn.
-destruct nm. {
-  destruct mn; [ idtac | reflexivity ].
-...
-Search ((_ ≤? _)%QG = true).
-  apply QG_leb_le in Hnm.
-  apply QG_lt_le_incl, QG_le_not_lt in Hnm.
- contradiction.
-
- destruct (Qlt_le_dec m n) as [H₂| H₂]; [ reflexivity | idtac ].
- apply Qle_antisym; assumption.
+intros.
+progress unfold QG_min.
+progress unfold QG_le.
+remember (a ≤? b)%QG as ab eqn:H.
+symmetry in H.
+split; intros Hab. {
+  destruct ab; [ easy | now subst b; rewrite QG_le_refl in H ].
+} {
+  now destruct ab.
+}
 Qed.
 
 Theorem qg_q_opp : ∀ a, qg_q (- a)%QG = - qg_q a.
@@ -1393,6 +1388,37 @@ Theorem QG_nlt_ge : ∀ a b : QG, ¬ (a < b)%QG ↔ (b ≤ a)%QG.
 Proof.
 intros.
 now split; intros; apply Bool.not_false_iff_true.
+Qed.
+
+Theorem QG_leb_le : ∀ a b, (a ≤? b)%QG = true ↔ (a ≤ b)%QG.
+Proof. easy. Qed.
+
+Theorem QG_leb_gt: ∀ a b, (a ≤? b)%QG = false ↔ (b < a)%QG.
+Proof. easy. Qed.
+
+Theorem QG_lt_asymm : ∀ a b, (a < b)%QG → ¬ (b < a)%QG.
+Proof.
+intros * Hab Hba.
+apply QG_lt_le_incl in Hab.
+now apply QG_nlt_ge in Hab.
+Qed.
+
+Theorem QG_min_comm : ∀ a b, QG_min a b = QG_min b a.
+Proof.
+intros.
+progress unfold QG_min.
+remember (a ≤? b)%QG as ab eqn:Hab.
+remember (b ≤? a)%QG as ba eqn:Hba.
+symmetry in Hab, Hba.
+destruct ab. {
+  destruct ba; [ | easy ].
+  now apply QG_le_antisymm.
+} {
+  destruct ba; [ easy | ].
+  apply -> QG_leb_gt in Hab.
+  apply -> QG_leb_gt in Hba.
+  now apply QG_lt_asymm in Hab.
+}
 Qed.
 
 Theorem QG_of_Z_QG_of_Q : ∀ a, QG_of_Z a = QG_of_Q (a # 1).
