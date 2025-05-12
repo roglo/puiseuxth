@@ -2208,6 +2208,131 @@ rewrite Z.div_mul. 2: {
 easy.
 Qed.
 
+Theorem Z_gcd_pos_r_le : ∀ a b, (Z.gcd a (Zpos b) <= Zpos b)%Z.
+Proof.
+intros a b.
+pose proof (Z.gcd_divide_r a (Zpos b)) as Hd.
+destruct Hd as (c, Hc).
+rewrite Hc in |- * at 2.
+rewrite Z.mul_comm.
+apply Z.le_mul_diag_r. {
+  specialize (Z.gcd_nonneg a (Zpos b))%Z as H.
+  assert (Z.gcd a (Zpos b) ≠ 0)%Z as HH. {
+    now intros HH; apply Z.gcd_eq_0_r in HH.
+  }
+  lia.
+}
+rename Hc into Hd.
+destruct (Z_zerop c) as [Hc| Hc]; [ now subst | ].
+destruct c as [| c| c]; [ now exfalso; apply Hc | lia | ].
+exfalso; clear Hc.
+assert (Zpos b <= 0)%Z as HH.
+rewrite Hd.
+apply Z.mul_nonpos_nonneg. {
+  apply Pos2Z.neg_is_nonpos.
+} {
+  apply Z.gcd_nonneg.
+} {
+  apply Z.nlt_ge in HH.
+  now apply HH.
+}
+Qed.
+
+Theorem Z_div_mul_swap : ∀ a b c, (b | a)%Z → (a / b * c = a * c / b)%Z.
+Proof.
+intros a b c H.
+destruct H as (d, H).
+subst a.
+destruct (Z_zerop b) as [Hb| Hb].
+ subst b; rewrite Z.mul_0_r.
+ reflexivity.
+
+ rewrite Z.div_mul; [ idtac | assumption ].
+ rewrite Z.mul_shuffle0.
+ rewrite Z.div_mul; [ idtac | assumption ].
+ reflexivity.
+Qed.
+
+Theorem Z_div_reg_r : ∀ a b c,
+  (c | a)%Z → (c | b)%Z → (a / c = b / c)%Z → a = b.
+Proof.
+intros a b c Ha Hb Hab.
+destruct Ha as (d, Ha).
+destruct Hb as (e, Hb).
+subst a b.
+destruct (Z_zerop c) as [Hc| Hc].
+ subst c.
+ do 2 rewrite Z.mul_0_r; reflexivity.
+
+ rewrite Z.div_mul in Hab; [ idtac | assumption ].
+ rewrite Z.div_mul in Hab; [ idtac | assumption ].
+ subst d; reflexivity.
+Qed.
+
+Theorem QG_of_Z_pair_eq :
+  ∀ an bn ad bd,
+  QG_of_Z_pair an ad = QG_of_Z_pair bn bd ↔ (an * Zpos bd = bn * Zpos ad)%Z.
+Proof.
+intros.
+progress unfold QG_of_Z_pair.
+progress unfold QG_of_Q.
+split; intros Hab. {
+  apply qeq_QG_eq in Hab.
+  cbn - [ Qred ] in Hab.
+  do 2 rewrite Qred_num_den in Hab.
+  progress unfold Qeq in Hab.
+  cbn in Hab.
+  assert (Hzga : (0 < Z.gcd an (Z.pos ad))%Z). {
+    apply Z.le_neq.
+    split; [ apply Z.gcd_nonneg | ].
+    intros H; symmetry in H.
+    now apply Z.gcd_eq_0_r in H.
+  }
+  assert (Hzgb : (0 < Z.gcd bn (Z.pos bd))%Z). {
+    apply Z.le_neq.
+    split; [ apply Z.gcd_nonneg | ].
+    intros H; symmetry in H.
+    now apply Z.gcd_eq_0_r in H.
+  }
+  rewrite Z2Pos.id in Hab. 2: {
+    apply Z.div_str_pos.
+    split; [ easy | apply Z_gcd_pos_r_le ].
+  }
+  rewrite Z2Pos.id in Hab. 2: {
+    apply Z.div_str_pos.
+    split; [ easy | apply Z_gcd_pos_r_le ].
+  }
+  rewrite Z_div_mul_swap in Hab; [ | apply Z.gcd_divide_l ].
+  rewrite Z_div_mul_swap in Hab; [ | apply Z.gcd_divide_l ].
+  rewrite <- Z.divide_div_mul_exact in Hab; cycle 1. {
+    now intros H; apply Z.gcd_eq_0_r in H.
+  } {
+    apply Z.gcd_divide_r.
+  }
+  rewrite <- Z.divide_div_mul_exact in Hab; cycle 1. {
+    now intros H; apply Z.gcd_eq_0_r in H.
+  } {
+    apply Z.gcd_divide_r.
+  }
+  rewrite Z.div_div in Hab; [ | | easy ]. 2: {
+    now intros H; apply Z.gcd_eq_0_r in H.
+  }
+  rewrite Z.div_div in Hab; [ | | easy ]. 2: {
+    now intros H; apply Z.gcd_eq_0_r in H.
+  }
+  rewrite (Z.mul_comm (Z.gcd _ _)) in Hab.
+  apply Z_div_reg_r in Hab; [ easy | | ]. {
+    apply Z_mul_divide_mono; [ apply Z.gcd_divide_l | apply Z.gcd_divide_r ].
+  } {
+    rewrite Z.mul_comm.
+    apply Z_mul_divide_mono; [ apply Z.gcd_divide_l | apply Z.gcd_divide_r ].
+  }
+}
+apply qeq_QG_eq.
+cbn - [ Qred ].
+now apply Qred_comp.
+Qed.
+
 Theorem Z_gcd_le_l : ∀ a b, (0 < a → Z.gcd a b ≤ a)%Z.
 Proof.
 intros * Hza.

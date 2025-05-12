@@ -295,43 +295,7 @@ destruct na as [na| ]. {
     remember (Zpos (ps_polydo a))%Z as oa eqn:Hoa .
     remember (Zpos (ps_polydo b))%Z as ob eqn:Hob .
     apply Z2Pos.inj in H1. {
-Theorem QG_of_Z_pair_eq :
-  ∀ an bn ad bd,
-  QG_of_Z_pair an ad = QG_of_Z_pair bn bd ↔ (an * Zpos bd = bn * Zpos ad)%Z.
-Proof.
-intros.
-split; intros Hab. {
-  progress unfold QG_of_Z_pair in Hab.
-  progress unfold QG_of_Q in Hab.
-  apply qeq_QG_eq in Hab.
-Require Import QArith.
-  cbn - [ Qred ] in Hab.
-  do 2 rewrite Qred_num_den in Hab.
-  progress unfold Qeq in Hab.
-  cbn in Hab.
-  rewrite Z2Pos.id in Hab. 2: {
-    apply Z.div_str_pos.
-    split. {
-...
-Search (_ < _ ↔ _ ∨ _)%Z.
-Search (_ ∨ _ → _ < _)%Z.
-Search (_ → _ ≠ _ → _ < _)%Z.
-      apply Z.lt_iff.
-    apply Z.lt_0_div.
-...
-  rewrite Z2Pos.id in Hab.
-  rewrite Z_div_mul_swap in Hab.
-  rewrite Z_div_mul_swap in Hab.
-  rewrite <- Z.divide_div_mul_exact in Hab.
-  rewrite <- Z.divide_div_mul_exact in Hab.
-Search (_ / _ / _)%Z.
-  rewrite Z.div_div in Hab.
-  rewrite Z.div_div in Hab.
-  rewrite (Z.mul_comm (Z.gcd _ _)) in Hab.
-Search (_ / _ = _ / _)%Z.
-  apply Z_div_reg_r in Hab.
-  easy.
-  apply Z_mul_divide_mono.
+Check QG_of_Z_pair_eq.
 ...
 Search (_ | _ * _)%Z.
 progress unfold Z.divide.
