@@ -797,12 +797,10 @@ simpl in Heqpts.
 rewrite Heqpts; reflexivity.
 Qed.
 
-...
-
 Theorem points_in_newton_segment_have_nat_abscissa : ∀ f L,
   newton_segments f = Some L
   → ∀ pt, pt ∈ [ini_pt L … oth_pts L ++ [fin_pt L]]
-  → ∃ h αh, pt = (Qnat h, αh).
+  → ∃ h αh, pt = (QG_of_nat h, αh).
 Proof.
 intros f L HL pt Hpt.
 destruct Hpt as [H| H]. {
@@ -826,15 +824,20 @@ Qed.
 Theorem any_is_p_mq : ∀ a m p q,
   p = p_of_m m a
   → q = q_of_m m a
-  → a == p # (m * q) ∧ Z.gcd p (Zpos q) = 1%Z.
+  → a = QG_of_Z_pair p (m * q) ∧ Z.gcd p (Zpos q) = 1%Z.
 Proof.
 intros a m p q Hp Hq.
-progress unfold Qeq; simpl.
 subst p q; simpl.
 progress unfold p_of_m, q_of_m; simpl.
-remember (Qnum a * Zpos m)%Z as p.
-remember (Qden a) as q.
+remember (QG_num a * Zpos m)%Z as p.
+remember (QG_den a) as q.
 remember (Z.gcd p (Zpos q)) as g.
+(**)
+rewrite Z2Pos.id. 2: {
+  rewrite Heqg.
+  now apply Z_div_gcd_r_pos.
+}
+...
 rewrite Pos2Z.inj_mul.
 rewrite Z.mul_assoc.
 rewrite <- Heqp.
@@ -953,7 +956,7 @@ Qed.
 Theorem order_in_newton_segment : ∀ f L pl h αh,
   newton_segments f = Some L
   → pl = [ini_pt L … oth_pts L ++ [fin_pt L]]
-  → (Qnat h, αh) ∈ pl
+  → (QG_of_nat h, αh) ∈ pl
   → order (ps_poly_nth h f) = qfin αh.
 Proof.
 intros f L pl h αh HL Hpl Hαh.
@@ -988,7 +991,7 @@ Qed.
 
 Theorem qden_αj_is_ps_polydo : ∀ f L j αj,
   newton_segments f = Some L
-  → (Qnat j, αj) = ini_pt L
+  → (QG_of_nat j, αj) = ini_pt L
   → Qden αj = ps_polydo (ps_poly_nth j f).
 Proof.
 intros f L j αj HL Hini.
@@ -1131,7 +1134,7 @@ Qed.
 
 Theorem any_in_K_1_m : ∀ la m h αh,
   ps_lap_forall (λ a, in_K_1_m a m) la
-  → (Qnat h, αh) ∈ points_of_ps_lap la
+  → (QG_of_nat h, αh) ∈ points_of_ps_lap la
   → ∃ mh, αh == mh # m.
 Proof.
 intros la m h αh HinK Hin.
@@ -1165,7 +1168,7 @@ Qed.
 
 Theorem den_αj_divides_num_αj_m : ∀ f L j αj m,
   newton_segments f = Some L
-  → ini_pt L = (Qnat j, αj)
+  → ini_pt L = (QG_of_nat j, αj)
   → pol_in_K_1_m f m
   → (Zpos (Qden αj) | Qnum αj * Zpos m)%Z.
 Proof.
@@ -1183,7 +1186,7 @@ Qed.
 Theorem pol_ord_of_ini_pt : ∀ f L m j αj mj,
   newton_segments f = Some L
   → pol_in_K_1_m f m
-  → (Qnat j, αj) = ini_pt L
+  → (QG_of_nat j, αj) = ini_pt L
   → mj = mh_of_m m αj (ps_poly_nth j f)
   → αj == mj # m.
 Proof.
@@ -1202,7 +1205,7 @@ Qed.
 
 Theorem qden_αk_is_ps_polydo : ∀ f L k αk,
   newton_segments f = Some L
-  → (Qnat k, αk) = fin_pt L
+  → (QG_of_nat k, αk) = fin_pt L
   → Qden αk = ps_polydo (ps_poly_nth k f).
 Proof.
 intros f L k αk HL Hfin.
@@ -1225,7 +1228,7 @@ Qed.
 Theorem den_αk_divides_num_αk_m : ∀ f L k αk m,
   newton_segments f = Some L
   → pol_in_K_1_m f m
-  → fin_pt L = (Qnat k, αk)
+  → fin_pt L = (QG_of_nat k, αk)
   → (Zpos (Qden αk) | Qnum αk * Zpos m)%Z.
 Proof.
 intros f L k αk m HL HinK Hini.
@@ -1242,7 +1245,7 @@ Qed.
 Theorem pol_ord_of_fin_pt : ∀ f L m k αk mk,
   newton_segments f = Some L
   → pol_in_K_1_m f m
-  → (Qnat k, αk) = fin_pt L
+  → (QG_of_nat k, αk) = fin_pt L
   → mk = mh_of_m m αk (ps_poly_nth k f)
   → αk == mk # m.
 Proof.
@@ -1261,7 +1264,7 @@ Qed.
 
 Theorem qden_αh_is_ps_polydo : ∀ f L h αh,
   newton_segments f = Some L
-  → (Qnat h, αh) ∈ oth_pts L
+  → (QG_of_nat h, αh) ∈ oth_pts L
   → Qden αh = ps_polydo (ps_poly_nth h f).
 Proof.
 intros f L h αh HL Hoth.
@@ -1283,7 +1286,7 @@ Qed.
 Theorem den_αh_divides_num_αh_m : ∀ f L h αh m,
   newton_segments f = Some L
   → pol_in_K_1_m f m
-  → (Qnat h, αh) ∈ oth_pts L
+  → (QG_of_nat h, αh) ∈ oth_pts L
   → (Zpos (Qden αh) | Qnum αh * Zpos m)%Z.
 Proof.
 intros f L h αh m HL HinK Hoth.
@@ -1300,7 +1303,7 @@ Qed.
 Theorem pol_ord_of_oth_pt : ∀ f L m h αh mh,
   newton_segments f = Some L
   → pol_in_K_1_m f m
-  → (Qnat h, αh) ∈ oth_pts L
+  → (QG_of_nat h, αh) ∈ oth_pts L
   → mh = mh_of_m m αh (ps_poly_nth h f)
   → αh == mh # m.
 Proof.
@@ -1324,11 +1327,11 @@ Qed.
 Theorem q_mj_mk_eq_p_h_j : ∀ f L j αj m mj p q,
   newton_segments f = Some L
   → pol_in_K_1_m f m
-  → (Qnat j, αj) = ini_pt L
+  → (QG_of_nat j, αj) = ini_pt L
   → mj = mh_of_m m αj (ps_poly_nth j f)
   → p = p_of_m m (γ L)
   → q = Pos.to_nat (q_of_m m (γ L))
-  → ∀ h αh mh, (Qnat h, αh) ∈ oth_pts L ++ [fin_pt L]
+  → ∀ h αh mh, (QG_of_nat h, αh) ∈ oth_pts L ++ [fin_pt L]
   → mh = mh_of_m m αh (ps_poly_nth h f)
   → αh == mh # m
     ∧ (Z.of_nat q * (mj - mh) = p * Z.of_nat (h - j))%Z.
@@ -1365,7 +1368,7 @@ destruct Hh as [Hh| [Hh| ]]; [ idtac | idtac | contradiction ]. {
   pose proof (any_is_p_mq (γ L) m Hp Hpq) as H.
   destruct H as (Hgamma, Hg).
   rewrite Hgamma in Hgh.
-  progress unfold Qnat in Hgh.
+  progress unfold QG_of_nat in Hgh.
   rewrite <- Qnum_minus_distr_r in Hgh.
   rewrite Nat2Z.inj_sub. {
     rewrite Hq.
@@ -1398,16 +1401,16 @@ remember (q_of_m m (γ L)) as pq eqn:Hpq .
 pose proof (any_is_p_mq (γ L) m Hp Hpq) as H.
 destruct H as (Hgamma, Hg).
 rewrite Hgh in Hgamma.
-progress unfold Qnat in Hgamma.
+progress unfold QG_of_nat in Hgamma.
 rewrite <- Qnum_minus_distr_r in Hgamma.
 rewrite Nat2Z.inj_sub. {
   rewrite Hq.
   rewrite positive_nat_Z.
   eapply pmq_qmpm; try reflexivity. {
     eapply j_lt_k; try eassumption. {
-      rewrite <- Hj; simpl; rewrite nat_num_Qnat; reflexivity.
+      rewrite <- Hj; simpl; rewrite nat_num_QG_of_nat; reflexivity.
     }
-    rewrite <- Hh; simpl; rewrite nat_num_Qnat; reflexivity.
+    rewrite <- Hh; simpl; rewrite nat_num_QG_of_nat; reflexivity.
   }
   rewrite <- Hgamma.
   remember Heqhps as Hhps; clear HeqHhps.
@@ -1427,9 +1430,9 @@ rewrite Nat2Z.inj_sub. {
 }
 apply Nat.lt_le_incl.
 eapply j_lt_k; try eassumption. {
-  rewrite <- Hj; simpl; rewrite nat_num_Qnat; reflexivity.
+  rewrite <- Hj; simpl; rewrite nat_num_QG_of_nat; reflexivity.
 } {
-  rewrite <- Hh; simpl; rewrite nat_num_Qnat; reflexivity.
+  rewrite <- Hh; simpl; rewrite nat_num_QG_of_nat; reflexivity.
 }
 Qed.
 
@@ -1459,9 +1462,9 @@ Qed.
 Theorem q_is_factor_of_h_minus_j : ∀ f L j αj m q,
   newton_segments f = Some L
   → pol_in_K_1_m f m
-  → (Qnat j, αj) = ini_pt L
+  → (QG_of_nat j, αj) = ini_pt L
   → q = Pos.to_nat (q_of_m m (γ L))
-  → ∀ h αh, (Qnat h, αh) ∈ oth_pts L ++ [fin_pt L]
+  → ∀ h αh, (QG_of_nat h, αh) ∈ oth_pts L ++ [fin_pt L]
   → Nat.divide q (h - j).
 Proof.
 intros f L j αj m q HL Hm Hj Hq h αh Hh.
@@ -1489,9 +1492,9 @@ apply Z.gauss with (p := Z.of_nat (h - j)) in Hgcd. {
     eapply j_lt_h; try eassumption; reflexivity.
   }
   eapply j_lt_k; try eassumption. {
-    rewrite <- Hj; simpl; rewrite nat_num_Qnat; reflexivity.
+    rewrite <- Hj; simpl; rewrite nat_num_QG_of_nat; reflexivity.
   } {
-    rewrite Hk; simpl; rewrite nat_num_Qnat; reflexivity.
+    rewrite Hk; simpl; rewrite nat_num_QG_of_nat; reflexivity.
   }
 }
 rewrite <- Hqjh.
@@ -1756,19 +1759,19 @@ Qed.
 
 Theorem length_char_pol : ∀ f L pl tl j αj k αk,
   newton_segments f = Some L
-  → ini_pt L = (Qnat j, αj)
-  → fin_pt L = (Qnat k, αk)
+  → ini_pt L = (QG_of_nat j, αj)
+  → fin_pt L = (QG_of_nat k, αk)
   → pl = [ini_pt L … oth_pts L ++ [fin_pt L]]
   → tl = List.map (term_of_point f) pl
   → length (make_char_pol R j tl) = S (k - j).
 Proof.
 intros f L pl tl j αj k αk HL Hini Hfin Hpl Htl.
 rewrite Htl, Hpl, Hini; simpl.
-rewrite nat_num_Qnat, Nat.sub_diag; simpl.
+rewrite nat_num_QG_of_nat, Nat.sub_diag; simpl.
 rewrite List.map_app; simpl.
 rewrite length_char_pol_succ; simpl. {
   rewrite Hfin; simpl.
-  rewrite nat_num_Qnat.
+  rewrite nat_num_QG_of_nat.
   reflexivity.
 } {
   remember (List.map (term_of_point f) (oth_pts L)) as tl₂ eqn:Htl₂ .
@@ -1781,11 +1784,11 @@ rewrite length_char_pol_succ; simpl. {
   symmetry in Hpts.
   destruct pts as [| (h, αh)]. {
     subst tl₂; simpl.
-    rewrite Hfin; simpl; rewrite nat_num_Qnat;
+    rewrite Hfin; simpl; rewrite nat_num_QG_of_nat;
       eapply j_lt_k; try eassumption. {
-      rewrite Hini; simpl; rewrite nat_num_Qnat; reflexivity.
+      rewrite Hini; simpl; rewrite nat_num_QG_of_nat; reflexivity.
     } {
-      rewrite Hfin; simpl; rewrite nat_num_Qnat; reflexivity.
+      rewrite Hfin; simpl; rewrite nat_num_QG_of_nat; reflexivity.
     }
   }
   subst tl₂; simpl.
@@ -1794,7 +1797,7 @@ rewrite length_char_pol_succ; simpl. {
   eapply exists_oth_pt_nat in H; [ idtac | eassumption ].
   destruct H as (i, (ai, Hi)).
   injection Hi; clear Hi; intros; subst h ai; rename i into h.
-  rewrite nat_num_Qnat.
+  rewrite nat_num_QG_of_nat.
   symmetry in Hini.
   eapply j_lt_h; try eassumption; reflexivity.
 }
@@ -1807,7 +1810,7 @@ remember Hli as H; clear HeqH.
 rewrite Hpts in Hli.
 rewrite List.map_app in Hli; simpl in Hli.
 rewrite <- Hli, H.
-assert (Hnat : ∀ pt, pt ∈ pts → ∃ (h : nat) (αh : Q), pt = (Qnat h, αh)). {
+assert (Hnat : ∀ pt, pt ∈ pts → ∃ (h : nat) (αh : Q), pt = (QG_of_nat h, αh)). {
   intros pt Hpt.
   eapply points_in_newton_segment_have_nat_abscissa; try eassumption.
   right; rewrite <- Hpts; assumption.
@@ -1835,12 +1838,12 @@ apply Hnat in H₂.
 destruct H₁ as (h₁, (ah₁, Hh₁)).
 destruct H₂ as (h₂, (ah₂, Hh₂)).
 subst pt pt₁; simpl in Hrel; simpl.
-do 2 rewrite nat_num_Qnat.
-apply Qnat_lt; assumption.
+do 2 rewrite nat_num_QG_of_nat.
+apply QG_of_nat_lt; assumption.
 Qed.
 
 Theorem Sorted_fst_lt_nat_num_fst : ∀ l,
-  (∀ a, a ∈ l → fst a = Qnat (Z.to_nat (Qnum (fst a))))
+  (∀ a, a ∈ l → fst a = QG_of_nat (Z.to_nat (Qnum (fst a))))
   → Sorted fst_lt l
     → Sorted (λ x y, (nat_num (fst x) < nat_num (fst y))%nat) l.
 Proof.
@@ -1860,23 +1863,23 @@ rewrite Hnat; [ idtac | left; reflexivity ].
 apply Nat.nle_gt.
 rewrite Hnat; [ idtac | right; left; reflexivity ].
 apply Nat.nle_gt.
-do 2 rewrite nat_num_Qnat.
+do 2 rewrite nat_num_QG_of_nat.
 progress unfold fst_lt in H3.
 rewrite Hnat in H3; [ idtac | left; reflexivity ].
 apply Qlt_not_le in H3.
 rewrite Hnat in H3; [ idtac | right; left; reflexivity ].
 apply Qnot_le_lt in H3.
-apply Qnat_lt; assumption.
+apply QG_of_nat_lt; assumption.
 Qed.
 
 Theorem fold_char_pol : ∀ f j αj tl,
   [order_coeff (List.nth j (al f) 0%ps)
    … make_char_pol R (S j) (List.map (term_of_point f) tl)] =
   make_char_pol R j
-    (List.map (term_of_point f) [(Qnat j, αj) … tl]).
+    (List.map (term_of_point f) [(QG_of_nat j, αj) … tl]).
 Proof.
 intros f j αj tl; simpl.
-rewrite nat_num_Qnat, Nat.sub_diag; simpl.
+rewrite nat_num_QG_of_nat, Nat.sub_diag; simpl.
 reflexivity.
 Qed.
 
@@ -2007,8 +2010,8 @@ Qed.
 Theorem phi_pseudo_degree_is_k_sub_j_div_q : ∀ f L j αj k αk q m,
   newton_segments f = Some L
   → pol_in_K_1_m f m
-  → (Qnat j, αj) = ini_pt L
-  → (Qnat k, αk) = fin_pt L
+  → (QG_of_nat j, αj) = ini_pt L
+  → (QG_of_nat k, αk) = fin_pt L
   → q = Pos.to_nat (q_of_m m (γ L))
   → poly_shrinkable q (Φq f L)
     ∧ pseudo_degree (Φs q f L) = ((k - j) / q)%nat.
@@ -2020,7 +2023,7 @@ split. {
     apply ini_oth_fin_pts_sorted in H.
     apply Sorted_fst_lt_nat_num_fst in H; auto with Arith.
     intros pt Hpt.
-    progress unfold Qnat.
+    progress unfold QG_of_nat.
     eapply points_in_newton_segment_have_nat_abscissa in Hpt. {
       destruct Hpt as (h, (ah, Hpt)).
       subst pt; simpl.
@@ -2033,21 +2036,21 @@ split. {
     apply List.Forall_forall.
     intros pt Hpt.
     rewrite <- Hj; simpl.
-    rewrite nat_num_Qnat.
+    rewrite nat_num_QG_of_nat.
     apply List.in_app_or in Hpt.
     destruct Hpt as [Hpt| Hpt]. {
       remember Hpt as H; clear HeqH.
       eapply exists_oth_pt_nat in H; eauto with Arith.
       destruct H as (h, (ah, Hoth)).
       subst pt; simpl.
-      rewrite nat_num_Qnat.
+      rewrite nat_num_QG_of_nat.
       eapply q_is_factor_of_h_minus_j; eauto with Arith.
       apply List.in_or_app; left; eauto with Arith.
     }
     destruct Hpt as [Hpt| ]; [ idtac | contradiction ].
     subst pt; simpl.
     rewrite <- Hk; simpl.
-    rewrite nat_num_Qnat.
+    rewrite nat_num_QG_of_nat.
     eapply q_is_factor_of_h_minus_j; eauto with Arith.
     apply List.in_or_app.
     right; left; eauto with Arith.
@@ -2056,7 +2059,7 @@ split. {
 progress unfold pseudo_degree, Φs; simpl.
 rewrite <- Hj; simpl.
 rewrite Nat.sub_diag, list_pad_0.
-rewrite nat_num_Qnat.
+rewrite nat_num_QG_of_nat.
 progress unfold list_shrink.
 rewrite list_length_shrink; simpl. {
   rewrite divmod_div.
@@ -2065,20 +2068,20 @@ rewrite list_length_shrink; simpl. {
     rewrite List.map_app; simpl.
     rewrite length_char_pol_succ. {
       rewrite <- Hk; simpl.
-      rewrite nat_num_Qnat; reflexivity.
+      rewrite nat_num_QG_of_nat; reflexivity.
     } {
       remember (oth_pts L) as opts eqn:Hopts .
       symmetry in Hopts.
       destruct opts as [| (h, αh)]. {
         simpl.
         rewrite <- Hk; simpl.
-        rewrite nat_num_Qnat.
+        rewrite nat_num_QG_of_nat.
         eapply j_lt_k; try eassumption. {
           rewrite <- Hj; simpl.
-          rewrite nat_num_Qnat; reflexivity.
+          rewrite nat_num_QG_of_nat; reflexivity.
         } {
           rewrite <- Hk; simpl.
-          rewrite nat_num_Qnat; reflexivity.
+          rewrite nat_num_QG_of_nat; reflexivity.
         }
       }
       simpl.
@@ -2120,7 +2123,7 @@ revert j.
 induction (oth_pts L); intros; simpl. {
   rewrite list_length_pad; simpl.
   rewrite <- Hk; simpl.
-  rewrite nat_num_Qnat.
+  rewrite nat_num_QG_of_nat.
   rewrite Nat.add_comm; simpl.
   apply Nat.lt_0_succ.
 } {
@@ -2151,7 +2154,7 @@ Qed.
 
 Theorem ord_coeff_non_zero_in_newt_segm : ∀ f L h αh hps,
   newton_segments f = Some L
-  → (Qnat h, αh) ∈ [ini_pt L … oth_pts L ++ [fin_pt L]]
+  → (QG_of_nat h, αh) ∈ [ini_pt L … oth_pts L ++ [fin_pt L]]
   → hps = List.nth h (al f) 0%ps
   → (order_coeff hps ≠ 0)%K.
 Proof.
@@ -2188,8 +2191,8 @@ Qed.
 
 Theorem Sorted_fst_2nd_lt_last : ∀ j αj k αk t₁ t₂ t₃ tl,
   Sorted (λ pt₁ pt₂, Qnum (fst pt₁) < Qnum (fst pt₂)) [t₁; t₂; t₃ … tl]
-  → (Qnat j, αj) = t₁
-  → (Qnat (S k), αk) = List.last [t₃ … tl] (0, 0)%Q
+  → (QG_of_nat j, αj) = t₁
+  → (QG_of_nat (S k), αk) = List.last [t₃ … tl] (0, 0)%Q
   → (nat_num (fst t₂) < S k)%nat.
 Proof.
 intros j αj k αk t₁ t₂ t₃ tl Hsort Hj Hk.
@@ -2222,8 +2225,8 @@ intros x y z H₁ H₂; eapply Z.lt_trans; eassumption.
 Qed.
 
 Theorem list_nth_coeff_last : ∀ f j αj k αk tl,
-  (Qnat j, αj) = List.hd (0, 0)%Q tl
-  → (Qnat k, αk) = List.last tl (0, 0)%Q
+  (QG_of_nat j, αj) = List.hd (0, 0)%Q tl
+  → (QG_of_nat k, αk) = List.last tl (0, 0)%Q
   → (j < k)%nat
   → Sorted (λ pt₁ pt₂, Qnum (fst pt₁) < Qnum (fst pt₂)) tl
   → List.Forall (λ pt, Qden (fst pt) = xH) tl
@@ -2245,7 +2248,7 @@ destruct tl as [| t₁]. {
   exfalso; revert Hjk; apply Nat.lt_irrefl.
 }
 simpl in Hj; rewrite <- Hk, <- Hj; simpl.
-rewrite nat_num_Qnat, Nat.sub_diag, list_pad_0.
+rewrite nat_num_QG_of_nat, Nat.sub_diag, list_pad_0.
 destruct tl as [| t₂]. {
   simpl in Hk; subst t₁.
   injection Hk; clear Hk; intros.
@@ -2262,7 +2265,7 @@ apply eq_add_S in Hkj; subst kj.
 revert j αj k αk t₁ t₂ Hj Hk Hjk Hsort Hden.
 induction tl as [| t₃]; intros. {
   simpl in Hk; subst t₂; simpl.
-  rewrite nat_num_Qnat.
+  rewrite nat_num_QG_of_nat.
   remember (S k) as x; simpl; subst x.
   rewrite Nat.sub_succ.
   rewrite list_nth_pad_sub; [ rewrite Nat.sub_diag | idtac ]; reflexivity.
@@ -2278,7 +2281,7 @@ rewrite list_nth_pad_sub. {
       eapply IHtl with (αj := αh₁); try eassumption; try reflexivity. {
         eapply Sorted_fst_2nd_lt_last; eassumption.
       } {
-        progress unfold Qnat, nat_num; simpl.
+        progress unfold QG_of_nat, nat_num; simpl.
         rewrite Z2Nat.id. {
           apply Sorted_inv in Hsort.
           destruct Hsort as (Hsort, Hrel).
@@ -2295,11 +2298,11 @@ rewrite list_nth_pad_sub. {
         apply Sorted_inv in Hsort.
         destruct Hsort as (_, H).
         apply HdRel_inv in H.
-        progress unfold Qnat in H; simpl in H.
+        progress unfold QG_of_nat in H; simpl in H.
         apply Z.lt_le_incl.
         eapply Z.le_lt_trans; [ apply Nat2Z.is_nonneg | eassumption ].
       }
-      progress unfold Qnat, nat_num; simpl.
+      progress unfold QG_of_nat, nat_num; simpl.
       rewrite Z2Nat.id. {
         constructor; [ reflexivity | idtac ].
         apply list_Forall_inv in Hden.
@@ -2311,7 +2314,7 @@ rewrite list_nth_pad_sub. {
       apply Sorted_inv in Hsort.
       destruct Hsort as (_, H).
       apply HdRel_inv in H.
-      progress unfold Qnat in H; simpl in H.
+      progress unfold QG_of_nat in H; simpl in H.
       apply Z.lt_le_incl.
       eapply Z.le_lt_trans; [ apply Nat2Z.is_nonneg | eassumption ].
     }
@@ -2354,7 +2357,7 @@ destruct Hpt as (h, (αh, Hpt)).
 subst pt; reflexivity.
 Qed.
 
-Theorem Sorted_Qnat_Sorted_Qnum : ∀ pts,
+Theorem Sorted_QG_of_nat_Sorted_Qnum : ∀ pts,
   Sorted fst_lt pts
   → List.Forall (λ pt, Qden (fst pt) = 1%positive) pts
   → Sorted (λ pt₁ pt₂, Qnum (fst pt₁) < Qnum (fst pt₂)) pts.
@@ -2385,8 +2388,8 @@ Qed.
 Theorem phi_degree_is_k_sub_j_div_q : ∀ f L j αj k αk q m,
   newton_segments f = Some L
   → pol_in_K_1_m f m
-  → (Qnat j, αj) = ini_pt L
-  → (Qnat k, αk) = fin_pt L
+  → (QG_of_nat j, αj) = ini_pt L
+  → (QG_of_nat k, αk) = fin_pt L
   → q = Pos.to_nat (q_of_m m (γ L))
   → poly_shrinkable q (Φq f L)
      ∧ has_degree (Φs q f L) ((k - j) / q).
@@ -2398,7 +2401,7 @@ split. {
     apply ini_oth_fin_pts_sorted in H.
     apply Sorted_fst_lt_nat_num_fst in H; auto with Arith.
     intros pt Hpt.
-    progress unfold Qnat.
+    progress unfold QG_of_nat.
     eapply points_in_newton_segment_have_nat_abscissa in Hpt; [ | apply HL ].
     destruct Hpt as (h, (ah, Hpt)).
     subst pt; simpl.
@@ -2409,21 +2412,21 @@ split. {
   apply List.Forall_forall.
   intros pt Hpt.
   rewrite <- Hj; simpl.
-  rewrite nat_num_Qnat.
+  rewrite nat_num_QG_of_nat.
   apply List.in_app_or in Hpt.
   destruct Hpt as [Hpt| Hpt]. {
     remember Hpt as H; clear HeqH.
     eapply exists_oth_pt_nat in H; eauto with Arith.
     destruct H as (h, (ah, Hoth)).
     subst pt; simpl.
-    rewrite nat_num_Qnat.
+    rewrite nat_num_QG_of_nat.
     eapply q_is_factor_of_h_minus_j; eauto with Arith.
     apply List.in_or_app; left; eauto with Arith.
   }
   destruct Hpt as [Hpt| ]; [ idtac | contradiction ].
   subst pt; simpl.
   rewrite <- Hk; simpl.
-  rewrite nat_num_Qnat.
+  rewrite nat_num_QG_of_nat.
   eapply q_is_factor_of_h_minus_j; eauto with Arith.
   apply List.in_or_app.
   right; left; eauto with Arith.
@@ -2437,7 +2440,7 @@ apply imp_or_tauto. {
   rewrite Φq_f in Heql.
   remember [ini_pt L … oth_pts L ++ [fin_pt L]] as pl.
   rewrite <- Hj in Heql; simpl in Heql.
-  rewrite nat_num_Qnat in Heql.
+  rewrite nat_num_QG_of_nat in Heql.
   subst l.
   progress unfold list_shrink.
   rewrite list_nth_shrink.
@@ -2452,7 +2455,7 @@ apply imp_or_tauto. {
     erewrite list_nth_coeff_last; try eassumption. {
       rewrite list_last_cons_app; simpl.
       rewrite <- Hk; simpl.
-      rewrite nat_num_Qnat; simpl.
+      rewrite nat_num_QG_of_nat; simpl.
       eapply ord_coeff_non_zero_in_newt_segm; [ apply HL | | easy ].
       rewrite <- Hk; right.
       apply List.in_or_app; right; left; reflexivity.
@@ -2460,9 +2463,9 @@ apply imp_or_tauto. {
       rewrite list_last_cons_app; eassumption.
     } {
       eapply j_lt_k; try eassumption. {
-        rewrite <- Hj; simpl; rewrite nat_num_Qnat; reflexivity.
+        rewrite <- Hj; simpl; rewrite nat_num_QG_of_nat; reflexivity.
       }
-      rewrite <- Hk; simpl; rewrite nat_num_Qnat; reflexivity.
+      rewrite <- Hk; simpl; rewrite nat_num_QG_of_nat; reflexivity.
     } {
       constructor. {
         apply Sorted_app_at_r. {
@@ -2471,7 +2474,7 @@ apply imp_or_tauto. {
           apply Sorted_inv_1 in Hsort.
           apply Sorted_app in Hsort.
           destruct Hsort as (Hsort, _).
-          apply Sorted_Qnat_Sorted_Qnum. {
+          apply Sorted_QG_of_nat_Sorted_Qnum. {
             apply ini_oth_fin_pts_sorted in HL.
             apply Sorted_inv_1 in HL.
             apply Sorted_app in HL.
@@ -2483,7 +2486,7 @@ apply imp_or_tauto. {
         remember HL as Hsort; clear HeqHsort.
         apply ini_oth_fin_pts_sorted in Hsort.
         apply Sorted_inv_1 in Hsort.
-        apply Sorted_Qnat_Sorted_Qnum in Hsort. {
+        apply Sorted_QG_of_nat_Sorted_Qnum in Hsort. {
           eapply Sorted_trans_app in Hsort; try eassumption.
           intros x y z H₁ H₂; eapply Z.lt_trans; eassumption.
         }
@@ -2516,12 +2519,12 @@ apply imp_or_tauto. {
         destruct pt as (h, αh); simpl.
         eapply j_lt_h; try eassumption; try reflexivity.
         rewrite Hpts; left.
-        progress unfold Qnat; simpl.
+        progress unfold QG_of_nat; simpl.
         remember HL as Hpt; clear HeqHpt.
         apply oth_pts_in_init_pts with (pt := (h, αh)) in Hpt. {
           eapply pt_absc_is_nat in Hpt; [ idtac | reflexivity ].
           simpl in Hpt; rewrite Hpt.
-          progress unfold Qnat; simpl.
+          progress unfold QG_of_nat; simpl.
           rewrite Nat2Z.id; reflexivity.
         }
         rewrite Hpts; left; reflexivity.
