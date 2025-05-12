@@ -323,6 +323,36 @@ destruct na as [na| ]. {
     }
     apply QG_of_Z_pair_eq.
     rewrite <- Hoa, <- Hob.
+    apply Z_div_reg_r with (c := Z.gcd (Z.gcd ao oa) ap). {
+      apply Z.divide_mul_l.
+      eapply Z.divide_trans; [ apply Z.gcd_divide_l | ].
+      apply Z.gcd_divide_l.
+    } {
+      apply Z.divide_mul_r.
+      eapply Z.divide_trans; [ apply Z.gcd_divide_l | ].
+      apply Z.gcd_divide_r.
+    }
+    rewrite <- Z_div_mul_swap. 2: {
+      eapply Z.divide_trans; [ apply Z.gcd_divide_l | ].
+      apply Z.gcd_divide_l.
+    }
+    rewrite H0.
+    rewrite Z_div_mul_swap. 2: {
+      eapply Z.divide_trans; [ apply Z.gcd_divide_l | ].
+      apply Z.gcd_divide_l.
+    }
+    rewrite (Z.mul_comm _ oa).
+    rewrite <- (Z_div_mul_swap bo). 2: {
+      eapply Z.divide_trans; [ apply Z.gcd_divide_l | ].
+      apply Z.gcd_divide_r.
+    }
+    rewrite Z.mul_comm.
+    rewrite <- (Z_div_mul_swap). 2: {
+      eapply Z.divide_trans; [ apply Z.gcd_divide_l | ].
+      apply Z.gcd_divide_r.
+    }
+    now f_equal.
+  }
 ...
 rewrite Z.mul_assoc.
 rewrite Z_div_mul_swap.
