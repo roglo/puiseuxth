@@ -295,7 +295,8 @@ destruct na as [na| ]. {
     remember (Zpos (ps_polydo a))%Z as oa eqn:Hoa .
     remember (Zpos (ps_polydo b))%Z as ob eqn:Hob .
     apply Z2Pos.inj in H1. {
-Check QG_of_Z_pair_eq.
+      apply QG_of_Z_pair_eq.
+      rewrite <- Hoa, <- Hob.
 ...
 Search (_ | _ * _)%Z.
 progress unfold Z.divide.
