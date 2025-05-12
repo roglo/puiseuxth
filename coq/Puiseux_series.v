@@ -766,8 +766,6 @@ Definition gcd_ps α n k (ps : puiseux_series α) :=
 Definition ps_zero {α} {r : ring α} :=
   {| ps_terms := 0%ser; ps_ordnum_polydo := 0 |}.
 
-Search QG.
-
 Definition normalise_ps α {R : ring α} {K : field R} ps :=
   match series_order (ps_terms ps) 0 with
   | fin n =>
@@ -838,14 +836,11 @@ Add Parametric Relation α (r : ring α) : (puiseux_series α) eq_ps_strong
  transitivity proved by (eq_strong_trans (r := r))
  as eq_strong_rel.
 
-...
-
 Global Instance mkps_strong_eq_morphism α (r : ring α) :
-  Proper (eq_series ==> eq ==> eq ==> eq_ps_strong) (@mkps α).
+  Proper (eq_series ==> eq ==> eq_ps_strong) (@mkps α).
 Proof.
-intros a b Hab v w Hvw m n Hmn.
-subst w m.
-constructor; [ reflexivity | reflexivity | assumption ].
+intros a b Hab v w Hvw.
+now subst.
 Qed.
 
 Global Instance series_order_morph α (r : ring α) (K : field r) :
@@ -978,14 +973,22 @@ symmetry in Hn.
 destruct n as [n| ]; [ idtac | reflexivity ].
 unfold gcd_ps.
 rewrite H, H0.
-constructor; simpl; rewrite H1; reflexivity.
+constructor. {
+  progress unfold ps_ordnum.
+  now cbn; rewrite H1.
+} {
+  progress unfold ps_polydo.
+  now cbn; rewrite H1.
+} {
+  now cbn; rewrite H1.
+}
 Qed.
 
 Global Instance mkps_morphism α (R : ring α) (K : field R) :
-  Proper (eq_series ==> eq ==> eq ==> eq_ps) (@mkps α).
+  Proper (eq_series ==> eq ==> eq_ps) (@mkps α).
 Proof.
-intros a b Hab v v' Hv n n' Hn.
-subst v' n'.
+intros a b Hab v v' Hv.
+subst.
 constructor; rewrite Hab; reflexivity.
 Qed.
 
