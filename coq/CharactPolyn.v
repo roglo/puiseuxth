@@ -826,6 +826,24 @@ Theorem any_is_p_mq : ∀ a m p q,
   → q = q_of_m m a
   → a = QG_of_Z_pair p (m * q) ∧ Z.gcd p (Zpos q) = 1%Z.
 Proof.
+(**)
+intros a m p q Hp Hq.
+assert (Hgpq : Z.gcd p (Zpos q) = 1%Z). {
+  subst p q.
+  progress unfold p_of_m.
+  progress unfold q_of_m.
+  rewrite Z2Pos.id; [ | now apply Z_div_gcd_r_pos ].
+  apply Z.gcd_div_gcd; [ | easy ].
+  intros H.
+  now apply Z.gcd_eq_0_r in H.
+}
+split; [ | easy ].
+apply eq_QG_eq.
+progress unfold QG_of_Z_pair.
+progress unfold QG_of_Q.
+cbn - [ Qreduction.Qred ].
+Print p_of_m.
+...
 intros a m p q Hp Hq.
 subst p q; simpl.
 progress unfold p_of_m, q_of_m; simpl.
@@ -837,6 +855,26 @@ rewrite Z2Pos.id. 2: {
   rewrite Heqg.
   now apply Z_div_gcd_r_pos.
 }
+split. 2: {
+  rewrite Heqg.
+  apply Z.gcd_div_gcd; [ | easy ].
+  intros H.
+  now apply Z.gcd_eq_0_r in H.
+}
+subst p q.
+Search (Z.to_pos (_ / _)).
+...
+apply eq_QG_eq.
+progress unfold QG_of_Z_pair.
+progress unfold QG_of_Q.
+cbn - [ Qreduction.Qred ].
+subst.
+(*
+rewrite <- Qred_qg_q.
+Search (Qreduction.Qred _ = Qreduction.Qred _).
+apply Qreduction.Qred_complete.
+Check Pos2Z.inj_mul.
+*)
 ...
 rewrite Pos2Z.inj_mul.
 rewrite Z.mul_assoc.
