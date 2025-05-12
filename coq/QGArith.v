@@ -2333,6 +2333,14 @@ cbn - [ Qred ].
 now apply Qred_comp.
 Qed.
 
+Theorem QG_num_of_nat : ∀ i, QG_num (QG_of_nat i) = Z.of_nat i.
+Proof.
+intros.
+progress unfold QG_num.
+cbn - [ Qred ].
+now rewrite Qred_1_r.
+Qed.
+
 Theorem Z_gcd_le_l : ∀ a b, (0 < a → Z.gcd a b ≤ a)%Z.
 Proof.
 intros * Hza.

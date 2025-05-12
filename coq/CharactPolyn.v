@@ -1,7 +1,9 @@
 (* CharactPolyn.v *)
 
-From Stdlib Require Import Utf8 QArith Sorted ZArith.
+Set Nested Proofs Allowed.
+From Stdlib Require Import Utf8 Sorted ZArith.
 
+Require Import QGArith.
 Require Import ConvexHull.
 Require Import ConvexHullMisc.
 Require Import Misc.
@@ -24,7 +26,7 @@ Record term α β := { coeff : α; power : β }.
 
 (* *)
 
-Definition nat_num q := Z.to_nat (Qnum q).
+Definition nat_num q := Z.to_nat (QG_num q).
 
 Fixpoint make_char_pol α (R : ring α) pow tl :=
   match tl with
@@ -34,13 +36,13 @@ Fixpoint make_char_pol α (R : ring α) pow tl :=
         [coeff t₁ … make_char_pol R (S (power t₁)) tl₁]
     end.
 
-Definition lap_term_of_point α {R : ring α} {K : field R} la (pt : (Q * Q)) :=
+Definition lap_term_of_point α {R : ring α} {K : field R} la (pt : QG * QG) :=
   let h := nat_num (fst pt) in
   let ps := List.nth h la 0%ps in
   let c := order_coeff ps in
   {| coeff := c; power := h |}.
 
-Definition term_of_point α {R : ring α} {K : field R} f (pt : (Q * Q)) :=
+Definition term_of_point α {R : ring α} {K : field R} f (pt : QG * QG) :=
   lap_term_of_point (al f) pt.
 
 Definition Φq α {R : ring α} {K : field R} f L :=
@@ -57,11 +59,12 @@ Arguments ps_pol_com_polydo _ f%_pol.
 
 (* *)
 
-Theorem nat_num_Qnat : ∀ i, nat_num (Qnat i) = i.
+Theorem nat_num_Qnat : ∀ i, nat_num (QG_of_nat i) = i.
 Proof.
 intros i.
-progress unfold nat_num, Qnat; simpl.
-rewrite Nat2Z.id; reflexivity.
+progress unfold nat_num.
+rewrite QG_num_of_nat.
+apply Nat2Z.id.
 Qed.
 
 Fixpoint list_shrink_aux α cnt k₁ (l : list α) :=
@@ -80,17 +83,17 @@ Definition poly_shrink α k (p : polynomial α) :=
   POL (list_shrink k (al p))%pol.
 
 Definition p_of_m m a :=
-  let p := (Qnum a * Zpos m)%Z in
-  let q := Qden a in
+  let p := (QG_num a * Zpos m)%Z in
+  let q := QG_den a in
   (p / Z.gcd p (Zpos q))%Z.
 
 Definition q_of_m m a :=
-  let p := (Qnum a * Zpos m)%Z in
-  let q := Qden a in
+  let p := (QG_num a * Zpos m)%Z in
+  let q := QG_den a in
   Z.to_pos (Zpos q / Z.gcd p (Zpos q)).
 
 Definition mh_of_m α m αh (hps : puiseux_series α) :=
-  (Qnum αh * Zpos m / Zpos (ps_polydo hps))%Z.
+  (QG_num αh * Zpos m / Zpos (ps_polydo hps))%Z.
 
 (* express that some puiseux series ∈ K(1/m)* *)
 Inductive in_K_1_m {α} {R : ring α} {K : field R} ps m :=
@@ -137,7 +140,7 @@ Qed.
 Theorem pt_absc_is_nat : ∀ f pts pt,
   points_of_ps_polynom f = pts
   → pt ∈ pts
-    → fst pt = Qnat (Z.to_nat (Qnum (fst pt))).
+    → fst pt = QG_of_nat (Z.to_nat (QG_num (fst pt))).
 Proof.
 intros f pts pt Hpts Hαh.
 progress unfold points_of_ps_polynom, points_of_ps_lap in Hpts.
@@ -154,7 +157,8 @@ destruct cl as [| c₁]. {
   simpl in Hαh.
   destruct Hαh as [Hαh| ]; [ idtac | contradiction ].
   subst pt; simpl.
-  rewrite Nat2Z.id; reflexivity.
+  rewrite QG_num_of_nat; f_equal.
+  symmetry; apply Nat2Z.id.
 } {
   simpl in Hpts.
   simpl in IHcl.
@@ -162,7 +166,8 @@ destruct cl as [| c₁]. {
     subst pts.
     destruct Hαh as [Hαh| Hαh]. {
       subst pt; simpl.
-      rewrite Nat2Z.id; reflexivity.
+      rewrite QG_num_of_nat; f_equal.
+      symmetry; apply Nat2Z.id.
     }
     eapply IHcl; [ reflexivity | eassumption ].
   }
@@ -276,14 +281,14 @@ destruct c. {
   subst ms₃.
   eapply IHpts; [ idtac | eassumption ].
   eapply Sorted_minus_2nd; [ idtac | eassumption ].
-  intros x y z H₁ H₂; eapply Qlt_trans; eassumption.
+  intros x y z H₁ H₂; eapply QG_lt_trans; eassumption.
 } {
   contradiction.
 } {
   subst ms₃.
   eapply IHpts; [ idtac | eassumption ].
   eapply Sorted_minus_2nd; [ idtac | eassumption ].
-  intros x y z H₁ H₂; eapply Qlt_trans; eassumption.
+  intros x y z H₁ H₂; eapply QG_lt_trans; eassumption.
 }
 Qed.
 
@@ -315,6 +320,8 @@ remember (points_of_ps_polynom f) as pts.
 apply points_of_polyn_sorted in Heqpts.
 eapply vert_bef_edge; eassumption.
 Qed.
+
+...
 
 Theorem j_lt_h : ∀ (f : puis_ser_pol α) j αj jq h αh hq L,
   newton_segments f = Some L
