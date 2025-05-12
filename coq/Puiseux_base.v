@@ -294,14 +294,36 @@ destruct na as [na| ]. {
     remember (Z.of_nat bpn) as bp eqn:Hbp ; subst bpn.
     remember (Zpos (ps_polydo a))%Z as oa eqn:Hoa .
     remember (Zpos (ps_polydo b))%Z as ob eqn:Hob .
-    apply Z2Pos.inj in H1. {
-      apply QG_of_Z_pair_eq.
-      rewrite <- Hoa, <- Hob.
+    apply Z2Pos.inj in H1; cycle 1. {
+      apply Z.div_str_pos.
+      split; [ easy | ].
+      eapply Z.le_trans. 2: {
+        apply Z_gcd_le_r.
+        now rewrite Hoa.
+      }
+      apply Z_gcd_le_l.
+      apply Z.le_neq.
+      split; [ apply Z.gcd_nonneg | ].
+      intros H; symmetry in H.
+      apply Z.gcd_eq_0_r in H.
+      now rewrite Hoa in H.
+    } {
+      apply Z.div_str_pos.
+      split; [ easy | ].
+      eapply Z.le_trans. 2: {
+        apply Z_gcd_le_r.
+        now rewrite Hob.
+      }
+      apply Z_gcd_le_l.
+      apply Z.le_neq.
+      split; [ apply Z.gcd_nonneg | ].
+      intros H; symmetry in H.
+      apply Z.gcd_eq_0_r in H.
+      now rewrite Hob in H.
+    }
+    apply QG_of_Z_pair_eq.
+    rewrite <- Hoa, <- Hob.
 ...
-Search (_ | _ * _)%Z.
-progress unfold Z.divide.
-exists ((an / Z.gcd an (Z.pos ad)) * (bn / Z.gcd bn (Z.pos bd)))%Z.
-rewrite Z.mul_shuffle0.
 rewrite Z.mul_assoc.
 rewrite Z_div_mul_swap.
 rewrite Z.div_mul.
