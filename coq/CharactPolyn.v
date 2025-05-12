@@ -321,20 +321,18 @@ apply points_of_polyn_sorted in Heqpts.
 eapply vert_bef_edge; eassumption.
 Qed.
 
-...
-
 Theorem j_lt_h : ∀ (f : puis_ser_pol α) j αj jq h αh hq L,
   newton_segments f = Some L
   → (jq, αj) = ini_pt L
   → (hq, αh) ∈ oth_pts L
-  → jq = Qnat j
-  → hq = Qnat h
+  → jq = QG_of_nat j
+  → hq = QG_of_nat h
   → (j < h)%nat.
 Proof.
 intros f j αj jq h αh hq L HL Hj Hh Hjq Hhq.
 eapply jq_lt_hq in Hh; try eassumption.
 rewrite Hjq, Hhq in Hh.
-apply Qnat_lt; assumption.
+apply QG_of_nat_lt; assumption.
 Qed.
 
 Theorem seg_bef_end_pt : ∀ pt₁ pt₂ pts ms₁ hq αh kq αk,
@@ -364,14 +362,14 @@ destruct c. {
   }
   eapply IHpts with (pts := pts); try eassumption.
   eapply Sorted_minus_2nd; [ idtac | eassumption ].
-  intros x y z H₁ H₂; eapply Qlt_trans; eassumption.
+  intros x y z H₁ H₂; eapply QG_lt_trans; eassumption.
 } {
   subst ms₁; simpl in Hseg, Hend; contradiction.
 } {
   subst ms₁; simpl in Hseg, Hend.
   eapply IHpts with (pts := pts); try eassumption.
   eapply Sorted_minus_2nd; [ idtac | eassumption ].
-  intros x y z H₁ H₂; eapply Qlt_trans; eassumption.
+  intros x y z H₁ H₂; eapply QG_lt_trans; eassumption.
 }
 Qed.
 
@@ -411,7 +409,7 @@ eapply pt_absc_is_nat with (pt := ini_pt L) in Hj₁. {
       eapply ini_lt_fin_pt; eassumption.
     }
     rewrite Hj₁, Hk₁ in H.
-    apply Qnat_lt in H.
+    apply QG_of_nat_lt in H.
     subst j k; assumption.
   }
   apply ini_fin_ns_in_init_pts; assumption.
@@ -421,8 +419,8 @@ Qed.
 
 Theorem jz_lt_kz : ∀ (f : puis_ser_pol α) jz kz L,
   newton_segments f = Some L
-  → jz = Qnum (fst (ini_pt L))
-  → kz = Qnum (fst (fin_pt L))
+  → jz = QG_num (fst (ini_pt L))
+  → kz = QG_num (fst (fin_pt L))
   → (jz < kz)%Z.
 Proof.
 intros f jz kz L HL Hjz Hkz.
@@ -441,6 +439,7 @@ apply Z2Nat.inj_lt; [ idtac | idtac | assumption ]. {
   remember Heqpts as Hpts; clear HeqHpts.
   apply pt_absc_is_nat with (pt := (j, aj)) in Hpts. {
     simpl in Hpts; rewrite Hpts.
+    rewrite QG_num_of_nat.
     apply Zle_0_nat.
   }
   rewrite Heqjaj.
@@ -452,6 +451,7 @@ symmetry in Heqpts.
 remember Heqpts as Hpts; clear HeqHpts.
 apply pt_absc_is_nat with (pt := (k, ak)) in Hpts. {
   simpl in Hpts; rewrite Hpts.
+  rewrite QG_num_of_nat.
   apply Zle_0_nat.
 } {
   rewrite Heqkak.
@@ -481,7 +481,7 @@ Qed.
 
 Theorem first_power_le : ∀ pow cl h hv,
   (h, hv) ∈ filter_finite_ord (qpower_list pow cl)
-  → pow ≤ Z.to_nat (Qnum h).
+  → (pow ≤ Z.to_nat (QG_num h))%nat.
 Proof.
 intros pow cl h hv Hhhv.
 progress unfold qpower_list in Hhhv.
@@ -494,6 +494,7 @@ destruct cl as [| c₁]. {
  destruct Hhhv as [Hhhv| ]; [ idtac | contradiction ].
  injection Hhhv; clear Hhhv; intros; subst h hv.
  simpl.
+ rewrite QG_num_of_nat.
  rewrite Nat2Z.id; reflexivity.
 }
 simpl in Hhhv.
@@ -501,6 +502,7 @@ simpl in IHcl.
 destruct (order c). {
   destruct Hhhv as [Hhhv| Hhhv]. {
     injection Hhhv; clear Hhhv; intros; subst h hv.
+    rewrite QG_num_of_nat.
     simpl; rewrite Nat2Z.id; reflexivity.
   }
   apply IHcl in Hhhv.
@@ -517,7 +519,7 @@ Theorem in_pts_in_ppl : ∀ pow cl ppl pts h hv hps def,
   ppl = qpower_list pow cl
   → pts = filter_finite_ord ppl
   → (h, hv) ∈ pts
-  → hps = List.nth (Z.to_nat (Qnum h) - pow) cl def
+  → hps = List.nth (Z.to_nat (QG_num h) - pow) cl def
   → (h, hps) ∈ ppl ∧ order hps = qfin hv.
 Proof.
 intros pow cl ppl pts h hv hps def Hppl Hpts Hhhv Hhps.
@@ -531,7 +533,7 @@ induction cl as [| c]; intros. {
   destruct v as [v| ]; [ idtac | contradiction ].
   destruct Hhhv as [Hhhv| ]; [ idtac | contradiction ].
   injection Hhhv; clear Hhhv; intros; subst v h.
-  remember (Qnum (Qnat pow)) as x; simpl in Heqx; subst x.
+  rewrite QG_num_of_nat in Hhps.
   rewrite Nat2Z.id, Nat.sub_diag in Hhps.
   simpl in Hhps; subst hps.
   split; [ left; reflexivity | assumption ].
@@ -542,11 +544,12 @@ induction cl as [| c]; intros. {
   destruct v as [v| ]. {
     destruct Hhhv as [Hhhv| Hhhv]. {
       injection Hhhv; clear Hhhv; intros; subst v h.
-      remember (Qnum (Qnat pow)) as x; simpl in Heqx; subst x.
+      rewrite QG_num_of_nat in Hhps.
       rewrite Nat2Z.id, Nat.sub_diag in Hhps.
       simpl in Hhps; subst hps.
       split; [ left; reflexivity | assumption ].
     }
+...
     destruct (le_dec (S pow) (Z.to_nat (Qnum h))) as [Hle| Hgt]. {
       eapply IHcl in Hhhv. {
         rewrite <- Nat.sub_succ in Hhps.
