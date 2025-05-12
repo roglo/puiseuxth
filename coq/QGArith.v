@@ -334,6 +334,15 @@ rewrite Z.mul_comm, Hadbc.
 apply Z.mul_comm.
 Qed.
 
+Theorem Z_mul_divide_mono :
+  ∀ a b c d, (a | c)%Z → (b | d)%Z → (a * b | c * d)%Z.
+Proof.
+intros * (ca, Hac) (db, Hbd).
+subst c d.
+exists (ca * db)%Z.
+ring.
+Qed.
+
 From Stdlib Require Import Psatz.
 
 (* I don't understand why the proof of that is so complicated *)
@@ -1371,6 +1380,23 @@ Theorem Qred_1_r : ∀ a, Qred (a # 1) = a # 1.
 Proof.
 intros.
 now cbn; rewrite Z_ggcd_1_r.
+Qed.
+
+Theorem QG_of_nat_lt : ∀ i j, (i < j)%nat ↔ (QG_of_nat i < QG_of_nat j)%QG.
+Proof.
+intros i j; split; intros H. {
+  apply qlt_QG_lt, Qred_lt.
+  progress unfold Qlt.
+  do 2 rewrite Zmult_1_r.
+  now apply Nat2Z.inj_lt.
+} {
+  apply qlt_QG_lt, Qred_lt in H.
+  progress unfold Qlt in H.
+  cbn - [ Qred ] in H.
+  do 4 rewrite Qred_1_r in H.
+  do 2 rewrite Zmult_1_r in H.
+  now apply Nat2Z.inj_lt in H.
+}
 Qed.
 
 Theorem QG_of_Z_add :

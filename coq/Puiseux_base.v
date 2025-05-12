@@ -2,7 +2,9 @@
 
 (* Most of notations are Robert Walker's ones *)
 
+Set Nested Proofs Allowed.
 From Stdlib Require Import Utf8 Sorting Arith ZArith.
+Require Import Morphisms.
 
 Require Import QGArith.
 Require Import ConvexHull.
@@ -154,8 +156,7 @@ induction cl as [| c₂]; intros. {
   unfold points_of_ps_lap_gen in Hpts; simpl in Hpts.
   destruct (order c). {
     constructor; constructor; [ constructor | constructor | idtac ].
-...
-    apply Qnat_lt, Nat.lt_succ_diag_r.
+    apply QG_of_nat_lt, Nat.lt_succ_diag_r.
   }
   constructor; constructor.
 }
@@ -164,16 +165,16 @@ remember [c₂ … cl] as ccl; simpl in Hpts; simpl; subst ccl.
 destruct (order c) as [v₂| ]. {
   subst pts.
   apply Sorted_LocallySorted_iff.
-  constructor; [ idtac | apply Qnat_lt, Nat.lt_succ_diag_r ].
+  constructor; [ idtac | apply QG_of_nat_lt, Nat.lt_succ_diag_r ].
   apply Sorted_LocallySorted_iff.
   eapply IHcl; reflexivity.
 }
 eapply IHcl with (q := q) in Hpts.
-apply Sorted_minus_2nd with (x₂ := (Qnat (S deg), q)). {
+apply Sorted_minus_2nd with (x₂ := (QG_of_nat (S deg), q)). {
   unfold fst_lt.
-  intros x y z; apply Qlt_trans.
+  intros x y z; apply QG_lt_trans.
 }
-constructor; [ easy | constructor; apply Qnat_lt, Nat.lt_succ_diag_r ].
+constructor; [ easy | constructor; apply QG_of_nat_lt, Nat.lt_succ_diag_r ].
 Qed.
 
 End theorems.
@@ -280,7 +281,7 @@ destruct na as [na| ]. {
   destruct nb as [nb| ]. {
     inversion_clear H.
     simpl in H0, H1, H2.
-    unfold Qbar.qeq, Qeq; simpl.
+    unfold Qbar.qeq(*, Qeq*); simpl.
     unfold normalise_series in H2.
     remember (greatest_series_x_power K (ps_terms a) na) as apn.
     remember (greatest_series_x_power K (ps_terms b) nb) as bpn.
@@ -294,6 +295,81 @@ destruct na as [na| ]. {
     remember (Zpos (ps_polydo a))%Z as oa eqn:Hoa .
     remember (Zpos (ps_polydo b))%Z as ob eqn:Hob .
     apply Z2Pos.inj in H1. {
+Theorem QG_of_Z_pair_eq :
+  ∀ an bn ad bd,
+  QG_of_Z_pair an ad = QG_of_Z_pair bn bd ↔ (an * Zpos bd = bn * Zpos ad)%Z.
+Proof.
+intros.
+split; intros Hab. {
+  progress unfold QG_of_Z_pair in Hab.
+  progress unfold QG_of_Q in Hab.
+  apply qeq_QG_eq in Hab.
+Require Import QArith.
+  cbn - [ Qred ] in Hab.
+  do 2 rewrite Qred_num_den in Hab.
+  progress unfold Qeq in Hab.
+  cbn in Hab.
+  rewrite Z2Pos.id in Hab. 2: {
+    apply Z.div_str_pos.
+    split. {
+...
+Search (_ < _ ↔ _ ∨ _)%Z.
+Search (_ ∨ _ → _ < _)%Z.
+Search (_ → _ ≠ _ → _ < _)%Z.
+      apply Z.lt_iff.
+    apply Z.lt_0_div.
+...
+  rewrite Z2Pos.id in Hab.
+  rewrite Z_div_mul_swap in Hab.
+  rewrite Z_div_mul_swap in Hab.
+  rewrite <- Z.divide_div_mul_exact in Hab.
+  rewrite <- Z.divide_div_mul_exact in Hab.
+Search (_ / _ / _)%Z.
+  rewrite Z.div_div in Hab.
+  rewrite Z.div_div in Hab.
+  rewrite (Z.mul_comm (Z.gcd _ _)) in Hab.
+Search (_ / _ = _ / _)%Z.
+  apply Z_div_reg_r in Hab.
+  easy.
+  apply Z_mul_divide_mono.
+...
+Search (_ | _ * _)%Z.
+progress unfold Z.divide.
+exists ((an / Z.gcd an (Z.pos ad)) * (bn / Z.gcd bn (Z.pos bd)))%Z.
+rewrite Z.mul_shuffle0.
+rewrite Z.mul_assoc.
+rewrite Z_div_mul_swap.
+rewrite Z.div_mul.
+(* d'accord *)
+...
+eapply Z.divide_trans.
+2: {
+apply Z.divide_factor_r.
+}
+Search (_ * _ | _)%Z.
+...
+apply Z.divide_factor_l.
+...
+...
+Search (_ * _ | _ * _)%Z.
+Search (_ / _ / _ = _ / _ / _)%Z.
+  rewrite Z_div_div_swap in Hab.
+...
+Search (Qred _ == Qred _)%Q.
+  apply Qred_comp in Hab.
+  progress unfold Qeq in Hab.
+  do 2 rewrite Qred_idemp in Hab.
+...
+Search (Qnum (Qred _)).
+  apply Qred_complete in Hab.
+progress unfold Qeq.
+cbn.
+congruence.
+apply Qred_complete.
+progress unfold QArith_base.Qeq.
+cbn - [ Qreduction.Qred ].
+cbn.
+...
       eapply div_gcd_gcd_mul_compat; eassumption.
     } {
       apply Z.div_str_pos.
