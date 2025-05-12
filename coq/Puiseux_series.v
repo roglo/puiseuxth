@@ -16,20 +16,16 @@ Set Implicit Arguments.
    ps_polydo: polydromy order (common denominator) *)
 Record puiseux_series α := mkps
   { ps_terms : power_series α;
-    ps_ordnum_polydo : QG }.
+    ps_ordnum : Z;
+    ps_polydo : positive }.
 
-Definition ps_ordnum α (ps : puiseux_series α) :=
-  QG_num (ps_ordnum_polydo ps).
-Definition ps_polydo α (ps : puiseux_series α) :=
-  QG_den (ps_ordnum_polydo ps).
-
-Arguments mkps α%_type ps_terms%_ser ps_ordnum_polydo%_QG.
+Arguments mkps α%_type ps_terms%_ser ps_ordnum%_Z ps_polydo%_positive.
 Declare Scope ps_scope.
 Delimit Scope ps_scope with ps.
 
 Arguments ps_terms α%_type p%_ps.
-Arguments ps_ordnum [α] ps%_ps.
-Arguments ps_polydo [α] ps%_ps.
+Arguments ps_ordnum α%_type p%_ps.
+Arguments ps_polydo α%_type p%_ps.
 
 Section axioms.
 
@@ -764,7 +760,7 @@ Definition gcd_ps α n k (ps : puiseux_series α) :=
     (Z.of_nat k).
 
 Definition ps_zero {α} {r : ring α} :=
-  {| ps_terms := 0%ser; ps_ordnum_polydo := 0 |}.
+  {| ps_terms := 0%ser; ps_ordnum := 0; ps_polydo := 1 |}.
 
 Definition normalise_ps α {R : ring α} {K : field R} ps :=
   match series_order (ps_terms ps) 0 with
@@ -772,10 +768,8 @@ Definition normalise_ps α {R : ring α} {K : field R} ps :=
       let k := greatest_series_x_power K (ps_terms ps) n in
       let g := gcd_ps n k ps in
       {| ps_terms := normalise_series n (Z.to_pos g) (ps_terms ps);
-         ps_ordnum_polydo :=
-           QG_of_Z_pair
-             ((ps_ordnum ps + Z.of_nat n) / g)
-             (Z.to_pos (Zpos (ps_polydo ps) / g)) |}
+         ps_ordnum := (ps_ordnum ps + Z.of_nat n) / g;
+         ps_polydo := Z.to_pos (Zpos (ps_polydo ps) / g) |}
   | ∞ =>
       ps_zero
   end.
@@ -799,7 +793,8 @@ Arguments eq_ps _ _ _ ps₁%_ps ps₂%_ps.
 
 Definition ps_monom {α} {r : ring α} (c : α) pow :=
   {| ps_terms := {| terms i := if zerop i then c else 0%K |};
-     ps_ordnum_polydo := pow |}.
+     ps_ordnum := QG_num pow;
+     ps_polydo := QG_den pow |}.
 
 Definition ps_one {α} {r : ring α} := ps_monom rng_one 0.
 
@@ -837,10 +832,11 @@ Add Parametric Relation α (r : ring α) : (puiseux_series α) eq_ps_strong
  as eq_strong_rel.
 
 Global Instance mkps_strong_eq_morphism α (r : ring α) :
-  Proper (eq_series ==> eq ==> eq_ps_strong) (@mkps α).
+  Proper (eq_series ==> eq ==> eq ==> eq_ps_strong) (@mkps α).
 Proof.
-intros a b Hab v w Hvw.
-now subst.
+intros a b Hab v w Hvw m n Hmn.
+subst w m.
+constructor; [ reflexivity | reflexivity | assumption ].
 Qed.
 
 Global Instance series_order_morph α (r : ring α) (K : field r) :
@@ -973,22 +969,14 @@ symmetry in Hn.
 destruct n as [n| ]; [ idtac | reflexivity ].
 unfold gcd_ps.
 rewrite H, H0.
-constructor. {
-  progress unfold ps_ordnum.
-  now cbn; rewrite H1.
-} {
-  progress unfold ps_polydo.
-  now cbn; rewrite H1.
-} {
-  now cbn; rewrite H1.
-}
+constructor; simpl; rewrite H1; reflexivity.
 Qed.
 
 Global Instance mkps_morphism α (R : ring α) (K : field R) :
-  Proper (eq_series ==> eq ==> eq_ps) (@mkps α).
+  Proper (eq_series ==> eq ==> eq ==> eq_ps) (@mkps α).
 Proof.
-intros a b Hab v v' Hv.
-subst.
+intros a b Hab v v' Hv n n' Hn.
+subst v' n'.
 constructor; rewrite Hab; reflexivity.
 Qed.
 

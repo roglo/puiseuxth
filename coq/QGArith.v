@@ -147,6 +147,7 @@ Definition QG_of_Q (q : Q) := mk_qg (Qred q) (QG_of_Q_prop q).
 Definition QG_of_Z a := QG_of_Q (a # 1).
 Definition Z_of_QG a := (Qnum (qg_q a) / QDen (qg_q a))%Z.
 Definition QG_of_Z_pair n d := QG_of_Q (n # d).
+Definition QG_of_nat a := QG_of_Q (Z.of_nat a # 1).
 Definition QG_of_nat_pair n d := QG_of_Q (Z.of_nat n # Pos.of_nat d).
 
 Definition QG_0 := QG_of_Q 0.

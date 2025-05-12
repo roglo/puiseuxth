@@ -22,17 +22,9 @@ Require Import Ps_div.
 
 Set Implicit Arguments.
 
-Print qfin.
-...
 Definition order {α} {r : ring α} {K : field r} ps :=
   match series_order (ps_terms ps) 0 with
-  | fin v => qfin (ps_ordnum ps + Z.of_nat v, ps_polydo ps)
-  | ∞ => qinf
-  end.
-
-Definition order {α} {r : ring α} {K : field r} ps :=
-  match series_order (ps_terms ps) 0 with
-  | fin v => qfin (ps_ordnum ps + Z.of_nat v # ps_polydo ps)
+  | fin v => qfin (QG_of_Z_pair (ps_ordnum ps + Z.of_nat v) (ps_polydo ps))
   | ∞ => qinf
   end.
 
@@ -51,10 +43,10 @@ Fixpoint power_list α pow (psl : list α) :=
   end.
 
 Definition qpower_list α pow (psl : list (puiseux_series α)) :=
-  List.map (pair_rec (λ pow ps, (Qnat pow, ps))) (power_list pow psl).
+  List.map (pair_rec (λ pow ps, (QG_of_nat pow, ps))) (power_list pow psl).
 
 Fixpoint filter_finite_ord α (r : ring α) {K : field r}
-    (dpl : list (Q * puiseux_series α)) :=
+    (dpl : list (QG * puiseux_series α)) :=
   match dpl with
   | [(pow, ps) … dpl₁] =>
       match order ps with
@@ -90,7 +82,7 @@ Variable r : ring α.
 Variable K : field r.
 
 Theorem fold_qpower_list : ∀ pow (psl : list (puiseux_series α)),
-  List.map (pair_rec (λ pow ps, (Qnat pow, ps))) (power_list pow psl) =
+  List.map (pair_rec (λ pow ps, (QG_of_nat pow, ps))) (power_list pow psl) =
   qpower_list pow psl.
 Proof. reflexivity. Qed.
 
@@ -162,6 +154,7 @@ induction cl as [| c₂]; intros. {
   unfold points_of_ps_lap_gen in Hpts; simpl in Hpts.
   destruct (order c). {
     constructor; constructor; [ constructor | constructor | idtac ].
+...
     apply Qnat_lt, Nat.lt_succ_diag_r.
   }
   constructor; constructor.
