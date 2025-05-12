@@ -353,57 +353,10 @@ destruct na as [na| ]. {
     }
     now f_equal.
   }
-...
-rewrite Z.mul_assoc.
-rewrite Z_div_mul_swap.
-rewrite Z.div_mul.
-(* d'accord *)
-...
-eapply Z.divide_trans.
-2: {
-apply Z.divide_factor_r.
-}
-Search (_ * _ | _)%Z.
-...
-apply Z.divide_factor_l.
-...
-...
-Search (_ * _ | _ * _)%Z.
-Search (_ / _ / _ = _ / _ / _)%Z.
-  rewrite Z_div_div_swap in Hab.
-...
-Search (Qred _ == Qred _)%Q.
-  apply Qred_comp in Hab.
-  progress unfold Qeq in Hab.
-  do 2 rewrite Qred_idemp in Hab.
-...
-Search (Qnum (Qred _)).
-  apply Qred_complete in Hab.
-progress unfold Qeq.
-cbn.
-congruence.
-apply Qred_complete.
-progress unfold QArith_base.Qeq.
-cbn - [ Qreduction.Qred ].
-cbn.
-...
-      eapply div_gcd_gcd_mul_compat; eassumption.
-    } {
-      apply Z.div_str_pos.
-      split; [ assumption | idtac ].
-      rewrite Z.gcd_comm, Z.gcd_assoc, Hoa.
-      apply Z_gcd_pos_r_le.
-    } {
-      apply Z.div_str_pos.
-      split; [ assumption | idtac ].
-      rewrite Z.gcd_comm, Z.gcd_assoc, Hob.
-      apply Z_gcd_pos_r_le.
-    }
-  }
   apply ps_series_order_inf_iff in Hnb.
   rewrite Hnb in Hab.
   apply ps_series_order_inf_iff in Hab.
-  rewrite Hab in Hna; discriminate Hna.
+  congruence.
 }
 apply ps_series_order_inf_iff in Hna.
 rewrite Hna in Hab.
