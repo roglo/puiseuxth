@@ -549,8 +549,7 @@ induction cl as [| c]; intros. {
       simpl in Hhps; subst hps.
       split; [ left; reflexivity | assumption ].
     }
-...
-    destruct (le_dec (S pow) (Z.to_nat (Qnum h))) as [Hle| Hgt]. {
+    destruct (le_dec (S pow) (Z.to_nat (QG_num h))) as [Hle| Hgt]. {
       eapply IHcl in Hhhv. {
         rewrite <- Nat.sub_succ in Hhps.
         rewrite Nat.sub_succ_l in Hhps; [ | easy ].
@@ -564,7 +563,7 @@ induction cl as [| c]; intros. {
     }
     apply first_power_le in Hhhv; contradiction.
   }
-  destruct (le_dec (S pow) (Z.to_nat (Qnum h))) as [Hle| Hgt]. {
+  destruct (le_dec (S pow) (Z.to_nat (QG_num h))) as [Hle| Hgt]. {
     eapply IHcl in Hhhv. {
       rewrite <- Nat.sub_succ in Hhps.
       rewrite Nat.sub_succ_l in Hhps; [ idtac | assumption ].
@@ -583,12 +582,12 @@ Qed.
 Theorem in_pts_in_psl : ∀ pow pts psl h hv hps def,
   pts = filter_finite_ord (qpower_list pow psl)
   → (h, hv) ∈ pts
-  → hps = List.nth (Z.to_nat (Qnum h) - pow) psl def
+  → hps = List.nth (Z.to_nat (QG_num h) - pow) psl def
   → hps ∈ psl ∧ order hps = qfin hv.
 Proof.
 intros pow pts psl h hv hps def Hpts Hhv Hhps.
 remember (power_list pow psl) as ppl.
-assert (pow ≤ Z.to_nat (Qnum h)) as H. {
+assert (H : (pow ≤ Z.to_nat (QG_num h))%nat). {
   subst pts ppl.
   eapply first_power_le; eassumption.
 }
@@ -607,7 +606,7 @@ destruct Hhps₁ as [Hhps₁| Hhps₁]. {
   injection Hhps₁; clear Hhps₁; intros; subst h hps.
   now left.
 }
-destruct (eq_nat_dec (Z.to_nat (Qnum h)) pow) as [Heq| Hne]. {
+destruct (eq_nat_dec (Z.to_nat (QG_num h)) pow) as [Heq| Hne]. {
   rewrite Heq, Nat.sub_diag in Hhps.
   subst hps; left; reflexivity.
 }
@@ -624,22 +623,23 @@ Qed.
 
 Theorem in_pts_in_pol : ∀ f pts h hv hps def,
   pts = points_of_ps_polynom f
-  → (Qnat h, hv) ∈ pts
+  → (QG_of_nat h, hv) ∈ pts
   → hps = List.nth h (al f) def
   → hps ∈ al f ∧ order hps = qfin hv.
 Proof.
 intros f pts h hv hps def Hpts Hhhv Hhps.
 eapply in_pts_in_psl; try eassumption.
+rewrite QG_num_of_nat.
 simpl; rewrite Nat.sub_0_r, Nat2Z.id; eassumption.
 Qed.
 
 Theorem in_ppl_in_pts : ∀ pow cl ppl pts h hv hps,
   ppl = qpower_list pow cl
   → pts = filter_finite_ord ppl
-  → pow ≤ h
+  → (pow ≤ h)%nat
   → hps = List.nth (h - pow) cl 0%ps
   → order hps = qfin hv
-  → (Qnat h, hv) ∈ pts.
+  → (QG_of_nat h, hv) ∈ pts.
 Proof.
 (* peut-être améliorable, simplifiable ; voir pourquoi cas cl=[] est à part ;
    et voir les deux cas de h - pow plus bas *)
@@ -735,7 +735,7 @@ Theorem in_pol_in_pts : ∀ f pts h hv hps,
   pts = points_of_ps_polynom f
   → hps = List.nth h (al f) 0%ps
   → order hps = qfin hv
-  → (Qnat h, hv) ∈ pts.
+  → (QG_of_nat h, hv) ∈ pts.
 Proof.
 intros f pts h hv hps Hpts Hhps Hv.
 eapply in_ppl_in_pts; try eassumption; try reflexivity. {
@@ -746,11 +746,11 @@ Qed.
 
 Theorem exists_ini_pt_nat : ∀ f L,
   newton_segments f = Some L
-  → ∃ i αi, ini_pt L = (Qnat i, αi).
+  → ∃ i αi, ini_pt L = (QG_of_nat i, αi).
 Proof.
 intros f L HL.
 remember (ini_pt L) as ii.
-destruct ii as ((inum, iden), αi).
+destruct ii as (((inum, iden), Hi), αi).
 exists (Z.to_nat inum), αi.
 progress unfold newton_segments in HL.
 remember (points_of_ps_polynom f) as pts.
@@ -764,11 +764,11 @@ Qed.
 
 Theorem exists_fin_pt_nat : ∀ f L,
   newton_segments f = Some L
-  → ∃ i αi, fin_pt L = (Qnat i, αi).
+  → ∃ i αi, fin_pt L = (QG_of_nat i, αi).
 Proof.
 intros f L HL.
 remember (fin_pt L) as ii.
-destruct ii as ((inum, iden), αi).
+destruct ii as (((inum, iden), Hi), αi).
 exists (Z.to_nat inum), αi.
 progress unfold newton_segments in HL.
 remember (points_of_ps_polynom f) as pts.
@@ -783,10 +783,10 @@ Qed.
 Theorem exists_oth_pt_nat : ∀ f L pt,
   newton_segments f = Some L
   → pt ∈ oth_pts L
-    → ∃ h αh, pt = (Qnat h, αh).
+    → ∃ h αh, pt = (QG_of_nat h, αh).
 Proof.
 intros f L pt HL Hpt.
-destruct pt as ((inum, iden), αi).
+destruct pt as (((inum, iden), Hi), αi).
 exists (Z.to_nat inum), αi.
 progress unfold newton_segments in HL.
 remember (points_of_ps_polynom f) as pts.
@@ -796,6 +796,8 @@ eapply pt_absc_is_nat in Heqpts; [ idtac | eassumption ].
 simpl in Heqpts.
 rewrite Heqpts; reflexivity.
 Qed.
+
+...
 
 Theorem points_in_newton_segment_have_nat_abscissa : ∀ f L,
   newton_segments f = Some L
