@@ -927,6 +927,29 @@ remember (Z.gcd p (Zpos q)) as g.
 move q before m.
 move p before q.
 move g before p.
+rewrite Z_gcd_eq_1_Qred. 2: {
+  cbn.
+  rewrite Pos2Z.inj_mul.
+  rewrite Z2Pos.id.
+  rewrite <- Z.divide_div_mul_exact.
+  rewrite Z.gcd_div_factor.
+rewrite Heqp, Z.mul_comm.
+Search (Z.gcd (_ * _) (_ * _)).
+rewrite Z.gcd_mul_mono_l.
+...
+progress unfold p_of_m in Hgpq.
+progress unfold q_of_m in Hgpq.
+rewrite <- Heqp in Hgpq.
+rewrite Z2Pos.id in Hgpq.
+Search (Z.gcd (_ / _)).
+rewrite Z.gcd_div_factor in Hgpq.
+rewrite <- Heqq in Hgpq.
+rewrite <- Heqg in Hgpq.
+  Search (Z.gcd (_ / _)).
+Search (_ * (_ / _) = _)%Z.
+Search (_ = _ * (_ / _))%Z.
+About Z.gcd_div_swap.
+  rewrite <- Z.mul_div_swap.
 ...
 de l'autre :
   Heqp : p = (Qnum a * Z.pos m)%Z
