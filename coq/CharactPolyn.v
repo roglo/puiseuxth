@@ -924,6 +924,9 @@ progress unfold p_of_m, q_of_m; cbn - [ Qred ].
 remember (QG_num a * Zpos m)%Z as p.
 remember (QG_den a) as q.
 remember (Z.gcd p (Zpos q)) as g.
+move q before m.
+move p before q.
+move g before p.
 ...
 Check Z_gcd_eq_1_Qred.
 rewrite Z_gcd_eq_1_Qred. 2: {
