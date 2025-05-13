@@ -899,10 +899,11 @@ f_equal. 2: {
   rewrite Z2Pos.id.
 ...
 intros a m p q Hp Hq.
+progress unfold Qeq; simpl.
 subst p q; simpl.
 progress unfold p_of_m, q_of_m; simpl.
-remember (QG_num a * Zpos m)%Z as p.
-remember (QG_den a) as q.
+remember (Qnum a * Zpos m)%Z as p.
+remember (Qden a) as q.
 remember (Z.gcd p (Zpos q)) as g.
 rewrite Pos2Z.inj_mul.
 rewrite Z.mul_assoc.
