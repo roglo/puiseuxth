@@ -928,6 +928,14 @@ move q before m.
 move p before q.
 move g before p.
 ...
+de l'autre :
+  Heqp : p = (Qnum a * Z.pos m)%Z
+  Heqq : q = Qden a
+  Heqg : g = Z.gcd p (Z.pos q)
+  ============================
+  (Qnum a * Z.pos (m * Z.to_pos (Z.pos q / g)))%Z = (p / g * Z.pos q)%Z
+  ∧ Z.gcd (p / g) (Z.pos (Z.to_pos (Z.pos q / g))) = 1%Z
+...
 rewrite Pos2Z.inj_mul.
 rewrite Z.mul_assoc.
 rewrite <- Heqp.
