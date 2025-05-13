@@ -898,11 +898,19 @@ f_equal. 2: {
   rewrite Z2Pos.id.
 *)
 intros a m p q Hp Hq.
+assert (Hgpq : Z.gcd p (Zpos q) = 1%Z). {
+  subst p q.
+  progress unfold p_of_m.
+  progress unfold q_of_m.
+  rewrite Z2Pos.id; [ | now apply Z_div_gcd_r_pos ].
+  apply Z.gcd_div_gcd; [ | easy ].
+  intros H.
+  now apply Z.gcd_eq_0_r in H.
+}
+split; [ | easy ].
 Require Import QArith.
-enough (H : qg_q a == qg_q (QG_of_Z_pair p (m * q)) ∧ Z.gcd p (Z.pos q) = 1%Z). {
-  split; [ | easy ].
-  destruct H as (H1, H2).
-  apply Qred_complete in H1.
+enough (H : qg_q a == qg_q (QG_of_Z_pair p (m * q))). {
+  apply Qred_complete in H.
   apply eq_QG_eq.
   rewrite <- Qred_qg_q; symmetry.
   rewrite <- Qred_qg_q; symmetry.
@@ -916,6 +924,9 @@ progress unfold p_of_m, q_of_m; cbn - [ Qred ].
 remember (QG_num a * Zpos m)%Z as p.
 remember (QG_den a) as q.
 remember (Z.gcd p (Zpos q)) as g.
+move q before m.
+move p before q.
+move g before p.
 ...
 rewrite Pos2Z.inj_mul.
 rewrite Z.mul_assoc.
