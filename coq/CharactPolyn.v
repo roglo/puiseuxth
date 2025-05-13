@@ -943,7 +943,18 @@ cbn in Ha.
 clear Hgpq.
 apply Z_pos_gcd_eq_1 in Ha.
 rewrite Ha, Z.mul_1_r.
-Search (Z.gcd (_ * _)).
+remember (Z.gcd _ _) as g eqn:Hg in |-*.
+apply Z.diveq.
+rewrite Z.mul_1_l.
+right.
+left.
+split. {
+  rewrite Hg.
+...
+Search (Z.gcd _ _ ≤ _)%Z.
+  apply Z_gcd_le_r.
+  apply Z.gcd_le_r.
+...
 enough (Z.gcd (an * Z.pos m) (Z.pos ad) = Z.pos m). {
   rewrite H.
   now apply Z.div_same.
