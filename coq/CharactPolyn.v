@@ -842,7 +842,16 @@ apply eq_QG_eq.
 progress unfold QG_of_Z_pair.
 progress unfold QG_of_Q.
 cbn - [ Qreduction.Qred ].
-Print p_of_m.
+progress unfold p_of_m in Hp.
+progress unfold q_of_m in Hq.
+cbn.
+remember (Z.ggcd p (Z.pos (m * q))) as g eqn:Hg.
+symmetry in Hg.
+destruct g as (g & n & d).
+cbn.
+apply Z_ggcd_split in Hg.
+destruct Hg as (Hpg & Hqg & Hg & Hgg).
+rewrite Pos2Z.inj_mul in Hqg, Hg.
 ...
 intros a m p q Hp Hq.
 subst p q; simpl.
