@@ -934,22 +934,49 @@ rewrite Z_gcd_eq_1_Qred. 2: {
   rewrite <- Z.divide_div_mul_exact.
   rewrite Z.gcd_div_factor.
 rewrite Heqp, Z.mul_comm.
-Search (Z.gcd (_ * _) (_ * _)).
 rewrite Z.gcd_mul_mono_l.
+progress unfold Z.abs.
+subst.
+destruct a as ((an, ad), Ha).
+cbn - [ Z.mul ].
+cbn in Ha.
+clear Hgpq.
+apply Z_pos_gcd_eq_1 in Ha.
+rewrite Ha, Z.mul_1_r.
+enough (Z.gcd (an * Z.pos m) (Z.pos ad) = Z.pos m). {
+  rewrite H.
+  now apply Z.div_same.
+}
+...
+apply Z.gcd_unique_alt.
+easy.
+intros q.
+split; intros Hq. {
+  destruct Hq as (k, Hk).
+  rewrite Hk.
+  split. {
+    rewrite Z.mul_assoc.
+    apply Z.divide_factor_r.
+  }
+...
+  eapply Z.gauss.
+  specialize Z.gauss as H1.
+  apply Z.mul_divide_cancel_l with (p := k). {
+    now intros H; subst k.
+  }
+  rewrite <- Hk.
+  eapply H1.
+
+specialize (H1 (an * Z.pos m) (Z.pos ad))%Z.
+...
+specialize (H1 an (Z.pos ad)).
+Search (_ / _ = 1)%Z.
+specialize (H1 (Z.pos m)).
 ...
 progress unfold p_of_m in Hgpq.
 progress unfold q_of_m in Hgpq.
-rewrite <- Heqp in Hgpq.
 rewrite Z2Pos.id in Hgpq.
-Search (Z.gcd (_ / _)).
 rewrite Z.gcd_div_factor in Hgpq.
-rewrite <- Heqq in Hgpq.
-rewrite <- Heqg in Hgpq.
-  Search (Z.gcd (_ / _)).
-Search (_ * (_ / _) = _)%Z.
-Search (_ = _ * (_ / _))%Z.
-About Z.gcd_div_swap.
-  rewrite <- Z.mul_div_swap.
 ...
 de l'autre :
   Heqp : p = (Qnum a * Z.pos m)%Z
