@@ -825,7 +825,62 @@ Theorem any_is_p_mq : ∀ a m p q,
   p = p_of_m m a
   → q = q_of_m m a
   → a = QG_of_Z_pair p (m * q) ∧ Z.gcd p (Zpos q) = 1%Z.
+(*
+  → a == p # (m * q) ∧ Z.gcd p (Zpos q) = 1%Z.
+*)
 Proof.
+intros a m p q Hp Hq.
+assert (Hgpq : Z.gcd p (Zpos q) = 1%Z). {
+  subst p q.
+  progress unfold p_of_m.
+  progress unfold q_of_m.
+  rewrite Z2Pos.id; [ | now apply Z_div_gcd_r_pos ].
+  apply Z.gcd_div_gcd; [ | easy ].
+  intros H.
+  now apply Z.gcd_eq_0_r in H.
+}
+split; [ | easy ].
+apply eq_QG_eq.
+Require Import QArith.
+subst p q; cbn - [ Qred ].
+progress unfold p_of_m, q_of_m; cbn - [ Qred ].
+remember (QG_num a * Zpos m)%Z as p.
+remember (QG_den a) as q.
+remember (Z.gcd p (Zpos q)) as g.
+move q before m.
+move p before q.
+move g before p.
+cbn.
+rewrite Pos2Z.inj_mul.
+rewrite Z2Pos.id.
+remember (Z.ggcd _ _) as g' eqn:Hg'.
+symmetry in Hg'.
+destruct g' as (g', (gn, gd)).
+cbn.
+apply Z_ggcd_split in Hg'.
+destruct Hg' as (Hp & Hq & Hg' & Hgg).
+...
+avant :
+  Heqp : p = (Qnum a * Z.pos m)%Z
+  Heqq : q = Qden a
+  Heqg : g = Z.gcd p (Z.pos q)
+  ============================
+  (Qnum a * Z.pos (m * Z.to_pos (Z.pos q / g)))%Z = (p / g * Z.pos q)%Z
+  ∧ Z.gcd (p / g) (Z.pos (Z.to_pos (Z.pos q / g))) = 1%Z
+...
+destruct a as ((an, ap), Ha).
+cbn in *.
+cbn.
+enough (an = 2%Z).
+enough (ap = 3%positive).
+enough (m = 2%positive).
+subst.
+cbn in *.
+...
+replace an with 2%Z in *.
+cbn in *.
+replace ap with 3%positive in *.
+...
 (*
 intros a m p q Hp Hq.
 assert (Hgpq : Z.gcd p (Zpos q) = 1%Z). {
@@ -927,6 +982,14 @@ remember (Z.gcd p (Zpos q)) as g.
 move q before m.
 move p before q.
 move g before p.
+...
+avant :
+  Heqp : p = (Qnum a * Z.pos m)%Z
+  Heqq : q = Qden a
+  Heqg : g = Z.gcd p (Z.pos q)
+  ============================
+  (Qnum a * Z.pos (m * Z.to_pos (Z.pos q / g)))%Z = (p / g * Z.pos q)%Z
+  ∧ Z.gcd (p / g) (Z.pos (Z.to_pos (Z.pos q / g))) = 1%Z
 ...
 Check Z_gcd_eq_1_Qred.
 rewrite Z_gcd_eq_1_Qred. 2: {
