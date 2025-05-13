@@ -943,10 +943,31 @@ cbn in Ha.
 clear Hgpq.
 apply Z_pos_gcd_eq_1 in Ha.
 rewrite Ha, Z.mul_1_r.
+Search (Z.gcd (_ * _)).
 enough (Z.gcd (an * Z.pos m) (Z.pos ad) = Z.pos m). {
   rewrite H.
   now apply Z.div_same.
 }
+apply (f_equal (Z.mul (Z.abs (Z.pos m)))) in Ha.
+rewrite Z.mul_1_r in Ha.
+rewrite <- Z.gcd_mul_mono_l in Ha.
+rewrite Z.mul_comm in Ha.
+progress unfold Z.abs in Ha.
+Search (Z.gcd _ _ = Z.gcd _ _).
+...
+
+(*
+gcd (2 * 3) 15 = 3
+*)
+...
+specialize Z.gauss as H.
+specialize (H an (Z.pos ad)).
+rewrite Ha in H.
+...
+specialize (Z.gcd_bezout) as H.
+specialize (H (an * Z.pos m)%Z (Z.pos ad) _ eq_refl).
+destruct H as (a & b & Hab).
+rewrite <- Hab.
 ...
 apply Z.gcd_unique_alt.
 easy.
