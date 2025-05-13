@@ -852,6 +852,51 @@ cbn.
 apply Z_ggcd_split in Hg.
 destruct Hg as (Hpg & Hqg & Hg & Hgg).
 rewrite Pos2Z.inj_mul in Hqg, Hg.
+destruct Hgg as [Hgg| Hgg]. {
+  now move Hgg at top; subst g.
+}
+(****)
+destruct a as ((an, ad), Ha).
+cbn in Ha, Hp, Hq |-*.
+remember (Z.gcd (an * Zpos m) (Zpos ad)) as g' eqn:Hg'.
+pose proof (Z.gcd_divide_l (an * Zpos m) (Zpos ad)).
+rewrite <- Hg' in H.
+destruct H as (gp, Hgp).
+rewrite Hgp in Hp.
+assert (g' ≠ 0)%Z as Hg0. {
+  intros H.
+  rewrite Hg' in H.
+  apply Z.gcd_eq_0_r in H; revert H; apply Pos2Z_ne_0.
+}
+rewrite Z.div_mul in Hp; [ | easy ].
+subst p.
+pose proof (Z.gcd_divide_r (an * Zpos m) (Zpos ad)).
+rewrite <- Hg' in H.
+destruct H as (gq, Hgq).
+rewrite Hgq in Hq.
+rewrite Z.div_mul in Hq; [ | easy ].
+subst q.
+assert (Hzq : (0 < gq)%Z). {
+  apply (Z.mul_lt_mono_pos_r g'). {
+    rewrite Hg'.
+    apply Z.le_neq.
+    split; [ apply Z.gcd_nonneg | ].
+    intros H; symmetry in H.
+    now apply Z.gcd_eq_0_r in H.
+  }
+  now rewrite Z.mul_0_l, <- Hgq.
+}
+rewrite Z2Pos.id in Hgpq; [ | easy ].
+rewrite Z2Pos.id in Hg; [ | easy ].
+rewrite Z2Pos.id in Hqg; [ | easy ].
+subst gp.
+move Ha at bottom.
+move Hgg at bottom.
+...
+f_equal. 2: {
+  apply Pos2Z.inj.
+  rewrite Hgq.
+  rewrite Z2Pos.id.
 ...
 intros a m p q Hp Hq.
 subst p q; simpl.
@@ -859,32 +904,6 @@ progress unfold p_of_m, q_of_m; simpl.
 remember (QG_num a * Zpos m)%Z as p.
 remember (QG_den a) as q.
 remember (Z.gcd p (Zpos q)) as g.
-(**)
-rewrite Z2Pos.id. 2: {
-  rewrite Heqg.
-  now apply Z_div_gcd_r_pos.
-}
-split. 2: {
-  rewrite Heqg.
-  apply Z.gcd_div_gcd; [ | easy ].
-  intros H.
-  now apply Z.gcd_eq_0_r in H.
-}
-subst p q.
-Search (Z.to_pos (_ / _)).
-...
-apply eq_QG_eq.
-progress unfold QG_of_Z_pair.
-progress unfold QG_of_Q.
-cbn - [ Qreduction.Qred ].
-subst.
-(*
-rewrite <- Qred_qg_q.
-Search (Qreduction.Qred _ = Qreduction.Qred _).
-apply Qreduction.Qred_complete.
-Check Pos2Z.inj_mul.
-*)
-...
 rewrite Pos2Z.inj_mul.
 rewrite Z.mul_assoc.
 rewrite <- Heqp.
