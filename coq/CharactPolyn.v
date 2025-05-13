@@ -826,7 +826,7 @@ Theorem any_is_p_mq : ∀ a m p q,
   → q = q_of_m m a
   → a = QG_of_Z_pair p (m * q) ∧ Z.gcd p (Zpos q) = 1%Z.
 Proof.
-(**)
+(*
 intros a m p q Hp Hq.
 assert (Hgpq : Z.gcd p (Zpos q) = 1%Z). {
   subst p q.
@@ -855,7 +855,6 @@ rewrite Pos2Z.inj_mul in Hqg, Hg.
 destruct Hgg as [Hgg| Hgg]. {
   now move Hgg at top; subst g.
 }
-(****)
 destruct a as ((an, ad), Ha).
 cbn in Ha, Hp, Hq |-*.
 remember (Z.gcd (an * Zpos m) (Zpos ad)) as g' eqn:Hg'.
@@ -897,6 +896,70 @@ f_equal. 2: {
   apply Pos2Z.inj.
   rewrite Hgq.
   rewrite Z2Pos.id.
+*)
+intros a m p q Hp Hq.
+Require Import QArith.
+enough (H : qg_q a == qg_q (QG_of_Z_pair p (m * q)) ∧ Z.gcd p (Z.pos q) = 1%Z). {
+  split; [ | easy ].
+  destruct H as (H1, H2).
+  apply Qred_complete in H1.
+  apply eq_QG_eq.
+  rewrite <- Qred_qg_q; symmetry.
+  rewrite <- Qred_qg_q; symmetry.
+  easy.
+}
+progress unfold Qeq; cbn - [ Qred ].
+subst p q; cbn - [ Qred ].
+rewrite fold_QG_num.
+rewrite fold_QG_den.
+progress unfold p_of_m, q_of_m; cbn - [ Qred ].
+remember (QG_num a * Zpos m)%Z as p.
+remember (QG_den a) as q.
+remember (Z.gcd p (Zpos q)) as g.
+...
+rewrite Pos2Z.inj_mul.
+rewrite Z.mul_assoc.
+rewrite <- Heqp.
+pose proof (Z.gcd_divide_l p (Zpos q)).
+rewrite <- Heqg in H.
+destruct H as (gp, Hgp).
+rewrite Hgp.
+assert (g ≠ 0)%Z as Hg0. {
+  intros H.
+  rewrite Heqg in H.
+  apply Z.gcd_eq_0_r in H; revert H; apply Pos2Z_ne_0.
+}
+rewrite Z.div_mul; auto.
+pose proof (Z.gcd_divide_r p (Zpos q)).
+rewrite <- Heqg in H.
+destruct H as (gq, Hgq).
+rewrite Hgq.
+rewrite Z.div_mul; auto.
+rewrite Z.mul_shuffle0, Z.mul_assoc.
+rewrite Z2Pos.id. {
+  split; [ reflexivity | idtac ].
+  apply Z.gcd_div_gcd in Heqg; auto.
+  rewrite Hgp, Hgq in Heqg.
+  rewrite Z.div_mul in Heqg; auto.
+  rewrite Z.div_mul in Heqg; auto.
+}
+apply Z.mul_lt_mono_pos_r with (p := g). {
+  symmetry in Heqg.
+  destruct g as [| g| g]. {
+    rewrite Z.mul_0_r in Hgq.
+    exfalso; revert Hgq; apply Pos2Z_ne_0.
+  } {
+    apply Pos2Z.is_pos.
+  } {
+    pose proof (Z.gcd_nonneg p (Zpos q)).
+    rewrite Heqg in H.
+    apply Z.nlt_ge in H.
+    exfalso; apply H.
+    apply Pos2Z.neg_is_neg.
+  }
+}
+simpl.
+rewrite <- Hgq; apply Pos2Z.is_pos.
 ...
 intros a m p q Hp Hq.
 progress unfold Qeq; simpl.
