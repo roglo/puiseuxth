@@ -943,6 +943,12 @@ cbn in Ha.
 clear Hgpq.
 apply Z_pos_gcd_eq_1 in Ha.
 rewrite Ha, Z.mul_1_r.
+Theorem glop :
+  ∀ a b c, (Z.gcd a b = 1 → c / Z.gcd (c * a) b = 1)%Z.
+Proof.
+intros * Hab.
+(* est-ce que c'est vrai, ça ? *)
+...
 remember (Z.gcd _ _) as g eqn:Hg in |-*.
 apply Z.diveq.
 rewrite Z.mul_1_l.
