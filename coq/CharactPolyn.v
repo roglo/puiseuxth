@@ -924,10 +924,21 @@ progress unfold p_of_m, q_of_m; cbn - [ Qred ].
 remember (QG_num a * Zpos m)%Z as p.
 remember (QG_den a) as q.
 remember (Z.gcd p (Zpos q)) as g.
-move q before m.
-move p before q.
-move g before p.
+...
+Check Z_gcd_eq_1_Qred.
 rewrite Z_gcd_eq_1_Qred. 2: {
+  subst.
+progress unfold p_of_m in Hgpq.
+progress unfold q_of_m in Hgpq.
+destruct a as ((an, ad), Ha).
+cbn in *.
+replace an with 2%Z in *.
+replace ad with 3%positive in *.
+replace m with 2%positive in *.
+subst.
+cbn in *.
+(* faux *)
+...
   cbn.
   rewrite Pos2Z.inj_mul.
   rewrite Z2Pos.id.
@@ -940,14 +951,18 @@ subst.
 destruct a as ((an, ad), Ha).
 cbn - [ Z.mul ].
 cbn in Ha.
-clear Hgpq.
+progress unfold p_of_m in Hgpq.
+progress unfold q_of_m in Hgpq.
+cbn in Hgpq.
 apply Z_pos_gcd_eq_1 in Ha.
 rewrite Ha, Z.mul_1_r.
+...
 Theorem glop :
   ∀ a b c, (Z.gcd a b = 1 → c / Z.gcd (c * a) b = 1)%Z.
 Proof.
 intros * Hab.
 (* est-ce que c'est vrai, ça ? *)
+a = 2, b = 3, c = 2
 ...
 remember (Z.gcd _ _) as g eqn:Hg in |-*.
 apply Z.diveq.
