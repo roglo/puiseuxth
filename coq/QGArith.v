@@ -1376,6 +1376,9 @@ destruct a as [| a| a]; [ easy | | ]. {
 }
 Qed.
 
+Theorem Qred_1_l : ∀ a, Qred (1 # a) = 1 # a.
+Proof. easy. Qed.
+
 Theorem Qred_1_r : ∀ a, Qred (a # 1) = a # 1.
 Proof.
 intros.

@@ -939,6 +939,11 @@ subst jz kz.
 (**)
 Require Import QArith.
 apply (f_equal qg_q) in Hpq.
+(*
+rewrite <- Nat2Z.inj_sub in Hpq; [ | now apply Nat.lt_le_incl ].
+rewrite <- Nat2Z.inj_sub; [ | now apply Nat.lt_le_incl ].
+remember (Z.of_nat (k - j)) as kj.
+*)
 progress unfold QG_of_Z_pair in Hpq.
 progress unfold QG_of_Q in Hpq.
 cbn - [ Qreduction.Qred ] in Hpq.
@@ -947,27 +952,30 @@ rewrite Qred_mul_idemp_r in Hpq.
 apply Qreduction.Qred_eq_iff in Hpq.
 progress unfold QArith_base.Qeq in Hpq.
 cbn - [ Qreduction.Qred ] in Hpq.
-...
-progress unfold Qeq in Hpq; simpl in Hpq.
 do 2 rewrite Pos2Z.inj_mul in Hpq.
 rewrite Zmult_comm in Hpq; symmetry in Hpq.
 rewrite Zmult_comm in Hpq; symmetry in Hpq.
 do 2 rewrite <- Zmult_assoc in Hpq.
 apply Z.mul_cancel_l in Hpq; [ idtac | apply Pos2Z_ne_0 ].
 rewrite Zmult_assoc, Zmult_comm in Hpq.
-rewrite Qden_inv in Hpq; [ | now apply Z.lt_0_sub, inj_lt ].
-rewrite Qnum_inv in Hpq; [ | now apply Z.lt_0_sub, inj_lt].
-symmetry in Hpq.
-rewrite Zmult_comm in Hpq.
-symmetry in Hpq.
-apply Z.div_unique_exact in Hpq; [ | apply Pos2Z_ne_0 ].
-rewrite Hpq.
-rewrite Znumtheory.Zdivide_Zdiv_eq_2; [ | apply Pos2Z.is_pos | ]. {
-  now rewrite Z.div_1_r.
-} {
-  apply Z.divide_1_l.
+rewrite <- Qred_inv in Hpq.
+rewrite <- Nat2Z.inj_sub in Hpq; [ | now apply Nat.lt_le_incl ].
+cbn - [ Z.mul ] in Hpq.
+rewrite Qinv_nat in Hpq. 2: {
+  intros H.
+  apply Nat.sub_0_le in H.
+  now apply Nat.nlt_ge in H.
 }
+rewrite Qred_1_l in Hpq.
+cbn - [ Z.mul ] in Hpq.
+rewrite Z.mul_1_r in Hpq.
+rewrite Zposnat2Znat in Hpq; [ | now apply Nat.lt_add_lt_sub_r ].
+rewrite <- Hpq.
+f_equal.
+now apply Nat2Z.inj_sub, Nat.lt_le_incl.
 Qed.
+
+...
 
 Theorem order_in_newton_segment : ∀ f L pl h αh,
   newton_segments f = Some L

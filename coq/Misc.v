@@ -1148,6 +1148,27 @@ rewrite Z.mul_1_r, Z.add_0_r, Pos.mul_1_r; reflexivity.
 Qed.
 *)
 
+Theorem Qinv_nat : ∀ a, a ≠ 0%nat → / (Z.of_nat a # 1) = 1 # Pos.of_nat a.
+Proof.
+intros * Haz.
+progress unfold Qinv.
+cbn.
+remember (Z.of_nat a) as za eqn:Hza.
+symmetry in Hza.
+destruct za as [| za| za]. {
+  rewrite <- Nat2Z.inj_0 in Hza.
+  now apply Nat2Z.inj in Hza.
+} {
+  rewrite <- positive_nat_Z in Hza.
+  apply Nat2Z.inj in Hza.
+  rewrite Hza.
+  now rewrite Pos2Nat.id.
+} {
+  specialize (Nat2Z.is_nonneg a) as H1.
+  now rewrite Hza in H1.
+}
+Qed.
+
 (* QG_arith version *)
 
 Require Import QGArith.
