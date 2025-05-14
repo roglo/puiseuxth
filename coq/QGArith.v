@@ -2543,6 +2543,40 @@ split; intros; subst. {
 }
 Qed.
 
+Theorem QG_num_den_qg_q :
+  ∀ a g m,
+  (QG_num a * Z.pos (m * Z.to_pos (Z.pos (QG_den a) / g)))%Z =
+  (QG_num a * Z.pos m / g * Z.pos (QG_den a))%Z
+  → qg_q a =
+    qg_q
+      (QG_of_Z_pair
+         (QG_num a * Z.pos m / g)
+         (m * Z.to_pos (Z.pos (QG_den a) / g))).
+Proof.
+intros * Haa.
+cbn - [ Qred ].
+remember (QG_num a * Zpos m)%Z as p.
+remember (QG_den a) as q.
+move q before m.
+move p before q.
+move g before p.
+destruct a as (a, Ha).
+progress unfold QG_num in Heqp.
+cbn in Heqp.
+progress unfold QG_den in Heqq.
+cbn in Heqq.
+cbn - [ Qred ].
+progress unfold QG_num in Haa.
+cbn in Haa.
+apply Z_pos_gcd_eq_1 in Ha.
+rewrite <- (Z_gcd_eq_1_Qred a); [ | easy ].
+apply Qred_complete.
+progress unfold Qeq.
+cbn.
+rewrite <- Heqq.
+easy.
+Qed.
+
 (* *)
 
 From Stdlib Require Import Ring.
