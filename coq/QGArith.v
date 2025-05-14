@@ -630,9 +630,7 @@ Theorem Z_gcd_eq_1_Qred :
 Proof.
 intros * Hq.
 destruct q as (n, d).
-cbn in Hq.
-(**)
-cbn.
+cbn in Hq |-*.
 remember (Z.ggcd n (Z.pos d)) as g eqn:Hg; symmetry in Hg.
 destruct g as (g, (r1, r2)); cbn.
 apply Z_ggcd_split in Hg.
@@ -2546,6 +2544,26 @@ split; intros; subst. {
 }
 Qed.
 
+Theorem Qnum_den_red :
+  ∀ a g m,
+  Z.gcd (Qnum a) (Z.pos (Qden a)) = 1%Z
+  → (Qnum a * Z.pos (m * Z.to_pos (Z.pos (Qden a) / g)))%Z =
+    (Qnum a * Z.pos m / g * Z.pos (Qden a))%Z
+  → a = Qred (Qnum a * Z.pos m / g # m * Z.to_pos (Z.pos (Qden a) / g)).
+Proof.
+intros * Ha Haa.
+remember (Qnum a * Z.pos m)%Z as p.
+remember (Qden a) as q.
+move q before m.
+move p before q.
+move g before p.
+rewrite <- (Z_gcd_eq_1_Qred a); [ | now rewrite <- Heqq ].
+apply Qred_complete.
+progress unfold Qeq.
+cbn.
+now rewrite <- Heqq.
+Qed.
+
 Theorem QG_num_den_qg_q :
   ∀ a g m,
   (QG_num a * Z.pos (m * Z.to_pos (Z.pos (QG_den a) / g)))%Z =
@@ -2557,24 +2575,12 @@ Theorem QG_num_den_qg_q :
          (m * Z.to_pos (Z.pos (QG_den a) / g))).
 Proof.
 intros * Haa.
-cbn - [ Qred ].
-remember (QG_num a * Zpos m)%Z as p.
-remember (QG_den a) as q.
-move q before m.
-move p before q.
-move g before p.
 destruct a as (a, Ha).
-progress unfold QG_num in Heqp.
-progress unfold QG_den in Heqq.
-progress unfold QG_num in Haa.
-cbn in Heqp, Heqq, Haa.
-cbn - [ Qred ].
+unfold QG_num, QG_den in Haa |-*.
+progress unfold qg_q in Haa |-*.
+cbn - [ Qred ] in Haa |-*.
 apply Z_pos_gcd_eq_1 in Ha.
-rewrite <- (Z_gcd_eq_1_Qred a); [ | easy ].
-apply Qred_complete.
-progress unfold Qeq.
-cbn.
-now rewrite <- Heqq.
+now apply Qnum_den_red.
 Qed.
 
 (* *)
