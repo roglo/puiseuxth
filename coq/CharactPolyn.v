@@ -937,10 +937,13 @@ Proof.
 intros m p q j k jz kz mj mk Hjk Hjz Hkz Hpq.
 subst jz kz.
 (**)
+Require Import QArith.
 apply (f_equal qg_q) in Hpq.
 progress unfold QG_of_Z_pair in Hpq.
 progress unfold QG_of_Q in Hpq.
 cbn - [ Qreduction.Qred ] in Hpq.
+rewrite Qred_mul_idemp_l in Hpq.
+rewrite Qred_mul_idemp_r in Hpq.
 apply Qreduction.Qred_eq_iff in Hpq.
 progress unfold QArith_base.Qeq in Hpq.
 cbn - [ Qreduction.Qred ] in Hpq.
