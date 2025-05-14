@@ -2,6 +2,7 @@
 
 Set Nested Proofs Allowed.
 From Stdlib Require Import Utf8 Sorted ZArith.
+From Stdlib Require Import Field.
 
 Require Import QGArith.
 Require Import ConvexHull.
@@ -902,21 +903,19 @@ Theorem gamma_value_jh : ∀ f L j αj,
   → (j, αj) = ini_pt L
   → ∀ h αh, (h, αh) ∈ oth_pts L
   → γ L = (αj - αh) / (h - j).
-(*
-  → γ L == (αj - αh) / (h - j).
-*)
 Proof.
 intros f L j αj HL Hjαj h αh Hhαh.
 remember HL as Hh; clear HeqHh.
 apply points_in_any_newton_segment with (h := h) (αh := αh) in Hh. {
-...
-  apply Qeq_plus_minus_eq_r in Hh.
+  apply QG_sub_move_r in Hh.
   remember HL as Haj; clear HeqHaj.
   apply points_in_any_newton_segment with (h := j) (αh := αj) in Haj. {
     rewrite <- Hh, Haj.
     field.
-    apply Qlt_not_0.
-    eapply jq_lt_hq; try eassumption.
+    intros H.
+    apply -> QG_sub_move_0_r in H; subst j.
+    specialize (jq_lt_hq _ _ _ HL Hjαj Hhαh) as H1.
+    now apply QG_lt_irrefl in H1.
   }
   left; rewrite Hjαj; reflexivity.
 }
@@ -924,6 +923,8 @@ right; right; assumption.
 Qed.
 
 Open Scope Z_scope.
+
+...
 
 Theorem pmq_qmpm : ∀ m p q j k jz kz mj mk,
   (j < k)%nat
