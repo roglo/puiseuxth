@@ -841,9 +841,29 @@ assert (Hgpq : Z.gcd p (Zpos q) = 1%Z). {
 }
 split; [ | easy ].
 apply eq_QG_eq.
+(*
+  Hp : p = p_of_m m a
+  Hq : q = q_of_m m a
+  ============================
+  qg_q a = qg_q (QG_of_Z_pair p (m * q))
+*)
+subst p q.
+(*
+  ============================
+  qg_q a = qg_q (QG_of_Z_pair (p_of_m m a) (m * q_of_m m a))
+*)
+progress unfold p_of_m.
+progress unfold q_of_m.
+(*
+  ============================
+  qg_q a =
+  qg_q
+    (QG_of_Z_pair (QG_num a * Z.pos m / Z.gcd (QG_num a * Z.pos m) (Z.pos (QG_den a)))
+       (m * Z.to_pos (Z.pos (QG_den a) / Z.gcd (QG_num a * Z.pos m) (Z.pos (QG_den a)))))
+*)
 Require Import QArith.
-subst p q; cbn - [ Qred ].
-progress unfold p_of_m, q_of_m; cbn - [ Qred ].
+(**)
+cbn - [ Qred ].
 remember (QG_num a * Zpos m)%Z as p.
 remember (QG_den a) as q.
 remember (Z.gcd p (Zpos q)) as g.
@@ -867,6 +887,17 @@ apply Qred_complete.
 progress unfold Qeq.
 cbn.
 rewrite <- Heqq.
+(* le reste marche mais je voudrais faire disparaître le
+   Require Import QArith plus haut, qu'il soit dans un
+   autre fichier, que ce fichier-ci n'en dépende pas *)
+...
+(*
+subst p q g.
+  ============================
+  (Qnum a * Z.pos (m * Z.to_pos (QDen a / Z.gcd (Qnum a * Z.pos m) (QDen a))))%Z =
+  (Qnum a * Z.pos m / Z.gcd (Qnum a * Z.pos m) (QDen a) * QDen a)%Z
+...
+*)
 rewrite Pos2Z.inj_mul.
 rewrite Z.mul_assoc.
 rewrite <- Heqp.
