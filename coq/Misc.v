@@ -4,6 +4,8 @@ From Stdlib Require Import Utf8 Arith ZArith QArith.
 From Stdlib Require Import Sorted.
 From Stdlib Require Import Psatz.
 
+Require Import QGArith.
+
 Notation "[ ]" := nil.
 Notation "[ x ; .. ; y … l ]" := (cons x .. (cons y l) ..).
 Notation "[ x ]" := (cons x nil).
@@ -31,7 +33,7 @@ Definition Nat_sub_succ_diag : ∀ n, (S n - n = 1)%nat :=
   λ n,
   eq_trans (Nat.sub_succ_l n n (le_n n)) (f_equal S (Nat.sub_diag n)).
 
-Definition Nat_le_neq_lt : ∀ x y : nat, x ≤ y → x ≠ y → (x < y)%nat :=
+Definition Nat_le_neq_lt : ∀ x y : nat, (x ≤ y → x ≠ y → x < y)%nat :=
   λ x y Hxy Hnxy,
   match le_lt_eq_dec x y Hxy with
   | left Hle => Hle
@@ -916,7 +918,7 @@ Theorem list_skipn_nil : ∀ A n, List.skipn n [] = ([] : list A).
 Proof. intros A n; destruct n; reflexivity. Qed.
 
 Theorem list_skipn_overflow : ∀ A n (cl : list A),
-  length cl ≤ n → List.skipn n cl = [].
+  (length cl ≤ n)%nat → List.skipn n cl = [].
 Proof.
 intros A n cl H.
 revert n H.
@@ -1173,6 +1175,45 @@ destruct za as [| za| za]. {
   specialize (Nat2Z.is_nonneg a) as H1.
   now rewrite Hza in H1.
 }
+Qed.
+
+Theorem Qnum_den_red :
+  ∀ a g m,
+  Z.gcd (Qnum a) (Z.pos (Qden a)) = 1%Z
+  → (Qnum a * Z.pos (m * Z.to_pos (Z.pos (Qden a) / g)))%Z =
+    (Qnum a * Z.pos m / g * Z.pos (Qden a))%Z
+  → a = Qred (Qnum a * Z.pos m / g # m * Z.to_pos (Z.pos (Qden a) / g)).
+Proof.
+intros * Ha Haa.
+remember (Qnum a * Z.pos m)%Z as p.
+remember (Qden a) as q.
+move q before m.
+move p before q.
+move g before p.
+rewrite <- (Z_gcd_eq_1_Qred a); [ | now rewrite <- Heqq ].
+apply Qred_complete.
+progress unfold Qeq.
+cbn.
+now rewrite <- Heqq.
+Qed.
+
+Theorem QG_num_den_qg_q :
+  ∀ a g m,
+  (QG_num a * Z.pos (m * Z.to_pos (Z.pos (QG_den a) / g)))%Z =
+  (QG_num a * Z.pos m / g * Z.pos (QG_den a))%Z
+  → qg_q a =
+    qg_q
+      (QG_of_Z_pair
+         (QG_num a * Z.pos m / g)
+         (m * Z.to_pos (Z.pos (QG_den a) / g))).
+Proof.
+intros * Haa.
+destruct a as (a, Ha).
+unfold QG_num, QG_den in Haa |-*.
+progress unfold qg_q in Haa |-*.
+cbn - [ Qred ] in Haa |-*.
+apply Z_pos_gcd_eq_1 in Ha.
+now apply Qnum_den_red.
 Qed.
 
 (* QG_arith version *)

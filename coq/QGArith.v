@@ -2544,45 +2544,6 @@ split; intros; subst. {
 }
 Qed.
 
-Theorem Qnum_den_red :
-  ∀ a g m,
-  Z.gcd (Qnum a) (Z.pos (Qden a)) = 1%Z
-  → (Qnum a * Z.pos (m * Z.to_pos (Z.pos (Qden a) / g)))%Z =
-    (Qnum a * Z.pos m / g * Z.pos (Qden a))%Z
-  → a = Qred (Qnum a * Z.pos m / g # m * Z.to_pos (Z.pos (Qden a) / g)).
-Proof.
-intros * Ha Haa.
-remember (Qnum a * Z.pos m)%Z as p.
-remember (Qden a) as q.
-move q before m.
-move p before q.
-move g before p.
-rewrite <- (Z_gcd_eq_1_Qred a); [ | now rewrite <- Heqq ].
-apply Qred_complete.
-progress unfold Qeq.
-cbn.
-now rewrite <- Heqq.
-Qed.
-
-Theorem QG_num_den_qg_q :
-  ∀ a g m,
-  (QG_num a * Z.pos (m * Z.to_pos (Z.pos (QG_den a) / g)))%Z =
-  (QG_num a * Z.pos m / g * Z.pos (QG_den a))%Z
-  → qg_q a =
-    qg_q
-      (QG_of_Z_pair
-         (QG_num a * Z.pos m / g)
-         (m * Z.to_pos (Z.pos (QG_den a) / g))).
-Proof.
-intros * Haa.
-destruct a as (a, Ha).
-unfold QG_num, QG_den in Haa |-*.
-progress unfold qg_q in Haa |-*.
-cbn - [ Qred ] in Haa |-*.
-apply Z_pos_gcd_eq_1 in Ha.
-now apply Qnum_den_red.
-Qed.
-
 (* *)
 
 From Stdlib Require Import Ring.
