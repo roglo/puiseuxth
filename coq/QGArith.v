@@ -2562,19 +2562,16 @@ move p before q.
 move g before p.
 destruct a as (a, Ha).
 progress unfold QG_num in Heqp.
-cbn in Heqp.
 progress unfold QG_den in Heqq.
-cbn in Heqq.
-cbn - [ Qred ].
 progress unfold QG_num in Haa.
-cbn in Haa.
+cbn in Heqp, Heqq, Haa.
+cbn - [ Qred ].
 apply Z_pos_gcd_eq_1 in Ha.
 rewrite <- (Z_gcd_eq_1_Qred a); [ | easy ].
 apply Qred_complete.
 progress unfold Qeq.
 cbn.
-rewrite <- Heqq.
-easy.
+now rewrite <- Heqq.
 Qed.
 
 (* *)

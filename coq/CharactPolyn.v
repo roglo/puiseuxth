@@ -881,8 +881,6 @@ simpl.
 rewrite <- Hgq; apply Pos2Z.is_pos.
 Qed.
 
-...
-
 (* [Walker, p. 100]: « [...] where q > 0 and p and q are integers having
    no common factor. » *)
 Theorem p_and_q_have_no_common_factors : ∀ a m p q,
@@ -903,11 +901,15 @@ Theorem gamma_value_jh : ∀ f L j αj,
   newton_segments f = Some L
   → (j, αj) = ini_pt L
   → ∀ h αh, (h, αh) ∈ oth_pts L
+  → γ L = (αj - αh) / (h - j).
+(*
   → γ L == (αj - αh) / (h - j).
+*)
 Proof.
 intros f L j αj HL Hjαj h αh Hhαh.
 remember HL as Hh; clear HeqHh.
 apply points_in_any_newton_segment with (h := h) (αh := αh) in Hh. {
+...
   apply Qeq_plus_minus_eq_r in Hh.
   remember HL as Haj; clear HeqHaj.
   apply points_in_any_newton_segment with (h := j) (αh := αj) in Haj. {
