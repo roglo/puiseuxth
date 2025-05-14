@@ -839,7 +839,6 @@ assert (Hgpq : Z.gcd p (Zpos q) = 1%Z). {
 }
 split; [ | easy ].
 apply eq_QG_eq.
-(**)
 subst p q.
 apply QG_num_den_qg_q.
 rewrite Pos2Z.inj_mul.
@@ -924,17 +923,28 @@ Qed.
 
 Open Scope Z_scope.
 
-...
-
 Theorem pmq_qmpm : ∀ m p q j k jz kz mj mk,
   (j < k)%nat
   → jz = Z.of_nat j
   → kz = Z.of_nat k
+  → QG_of_Z_pair p (m * q) =
+      (QG_of_Z_pair (mj - mk) m / QG_of_Z (kz - jz))%QG
+(*
   → p # m * q == (mj - mk # m) / (kz - jz # 1)
+*)
   → Zpos q * (mj - mk) = p * (kz - jz).
 Proof.
 intros m p q j k jz kz mj mk Hjk Hjz Hkz Hpq.
 subst jz kz.
+(**)
+apply (f_equal qg_q) in Hpq.
+progress unfold QG_of_Z_pair in Hpq.
+progress unfold QG_of_Q in Hpq.
+cbn - [ Qreduction.Qred ] in Hpq.
+apply Qreduction.Qred_eq_iff in Hpq.
+progress unfold QArith_base.Qeq in Hpq.
+cbn - [ Qreduction.Qred ] in Hpq.
+...
 progress unfold Qeq in Hpq; simpl in Hpq.
 do 2 rewrite Pos2Z.inj_mul in Hpq.
 rewrite Zmult_comm in Hpq; symmetry in Hpq.
