@@ -1148,6 +1148,12 @@ rewrite Z.mul_1_r, Z.add_0_r, Pos.mul_1_r; reflexivity.
 Qed.
 *)
 
+Theorem Qinv_Z : ∀ a, (0 < a)%Z → / (a # 1) = 1 # Z.to_pos a.
+Proof.
+intros * Hza.
+destruct a as [| a| a]; [ easy | now rewrite Pos2Z.id | easy ].
+Qed.
+
 Theorem Qinv_nat : ∀ a, a ≠ 0%nat → / (Z.of_nat a # 1) = 1 # Pos.of_nat a.
 Proof.
 intros * Haz.

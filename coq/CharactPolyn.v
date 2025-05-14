@@ -929,21 +929,31 @@ Theorem pmq_qmpm : ∀ m p q j k jz kz mj mk,
   → kz = Z.of_nat k
   → QG_of_Z_pair p (m * q) =
       (QG_of_Z_pair (mj - mk) m / QG_of_Z (kz - jz))%QG
-(*
-  → p # m * q == (mj - mk # m) / (kz - jz # 1)
-*)
   → Zpos q * (mj - mk) = p * (kz - jz).
 Proof.
 intros m p q j k jz kz mj mk Hjk Hjz Hkz Hpq.
 subst jz kz.
+remember (mj - mk)%Z as n.
+clear mj mk Heqn.
+rename m into d.
+rewrite <- Nat2Z.inj_sub in Hpq; [ | now apply Nat.lt_le_incl ].
+rewrite <- Nat2Z.inj_sub; [ | now apply Nat.lt_le_incl ].
+remember (Z.of_nat (k - j)%nat) as z.
+assert (Hzz : (0 < z)%Z). {
+  rewrite Heqz.
+  apply Z.le_neq.
+  split; [ apply Nat2Z.is_nonneg | ].
+  intros H.
+  symmetry in H.
+  rewrite <- Nat2Z.inj_0 in H.
+  apply Nat2Z.inj in H.
+  exfalso; revert H.
+  now apply Nat.sub_gt.
+}
+clear j k Hjk Heqz.
 (**)
 Require Import QArith.
 apply (f_equal qg_q) in Hpq.
-(*
-rewrite <- Nat2Z.inj_sub in Hpq; [ | now apply Nat.lt_le_incl ].
-rewrite <- Nat2Z.inj_sub; [ | now apply Nat.lt_le_incl ].
-remember (Z.of_nat (k - j)) as kj.
-*)
 progress unfold QG_of_Z_pair in Hpq.
 progress unfold QG_of_Q in Hpq.
 cbn - [ Qreduction.Qred ] in Hpq.
@@ -959,20 +969,11 @@ do 2 rewrite <- Zmult_assoc in Hpq.
 apply Z.mul_cancel_l in Hpq; [ idtac | apply Pos2Z_ne_0 ].
 rewrite Zmult_assoc, Zmult_comm in Hpq.
 rewrite <- Qred_inv in Hpq.
-rewrite <- Nat2Z.inj_sub in Hpq; [ | now apply Nat.lt_le_incl ].
-cbn - [ Z.mul ] in Hpq.
-rewrite Qinv_nat in Hpq. 2: {
-  intros H.
-  apply Nat.sub_0_le in H.
-  now apply Nat.nlt_ge in H.
-}
+rewrite Qinv_Z in Hpq; [ | easy ].
 rewrite Qred_1_l in Hpq.
 cbn - [ Z.mul ] in Hpq.
 rewrite Z.mul_1_r in Hpq.
-rewrite Zposnat2Znat in Hpq; [ | now apply Nat.lt_add_lt_sub_r ].
-rewrite <- Hpq.
-f_equal.
-now apply Nat2Z.inj_sub, Nat.lt_le_incl.
+now rewrite Z2Pos.id in Hpq.
 Qed.
 
 ...
