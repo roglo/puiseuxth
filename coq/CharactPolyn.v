@@ -852,13 +852,68 @@ move p before q.
 move g before p.
 cbn.
 rewrite Pos2Z.inj_mul.
-rewrite Z2Pos.id.
+rewrite Z2Pos.id; [ | now rewrite Heqg; apply Z_div_gcd_r_pos ].
 remember (Z.ggcd _ _) as g' eqn:Hg'.
 symmetry in Hg'.
+rewrite <- Z.divide_div_mul_exact in Hg'; cycle 1. {
+  intros H; subst g.
+  now apply Z.gcd_eq_0_r in H.
+} {
+  rewrite Heqg; apply Z.gcd_divide_r.
+}
 destruct g' as (g', (gn, gd)).
 cbn.
 apply Z_ggcd_split in Hg'.
 destruct Hg' as (Hp & Hq & Hg' & Hgg).
+destruct Hgg as [Hgg| Hgg]. {
+  move Hgg at top; subst g'.
+  cbn in Hp, Hq.
+  apply Z.div_small_iff in Hp. 2: {
+    intros H1; subst g.
+    now apply Z.gcd_eq_0_r in H1.
+  }
+  destruct Hp as [Hp| Hp]. {
+    exfalso.
+    destruct Hp as (H1, H2).
+    apply Z.nle_gt in H2.
+    apply H2; clear H2.
+    rewrite Heqg.
+    apply Z_gcd_le_l, Z.le_neq.
+    split; [ easy | ].
+    intros H; subst p.
+    symmetry in H.
+    apply Z.eq_mul_0 in H.
+    destruct H as [H| H]; [ | easy ].
+    destruct a as ((an, ap), Ha).
+    cbn in H; subst an.
+    cbn in *.
+    progress unfold q_of_m in Hgpq.
+    cbn in Hgpq.
+    subst.
+    now rewrite Z.div_1_r in Hq.
+  }
+  destruct Hp as (H1, H2).
+  destruct a as ((an, ap), Ha).
+  cbn in *.
+  progress unfold p_of_m in Hgpq.
+  progress unfold q_of_m in Hgpq.
+  cbn in Hgpq.
+  subst.
+...
+  rewrite <- Hg' in Hgg.
+  apply Z.gcd_eq_0_r in Hgg.
+...
+rewrite Z.gcd_div_factor in Hg'; cycle 1. {
+  rewrite Heqg.
+  apply Z.le_neq.
+  split; [ apply Z.gcd_nonneg | ].
+  intros H; symmetry in H.
+  now apply Z.gcd_eq_0_r in H.
+} {
+  rewrite Heqg.
+  apply Z.gcd_divide_l.
+} {
+(* ah non *)
 ...
 avant :
   Heqp : p = (Qnum a * Z.pos m)%Z
