@@ -858,15 +858,26 @@ progress unfold q_of_m.
   ============================
   qg_q a =
   qg_q
-    (QG_of_Z_pair (QG_num a * Z.pos m / Z.gcd (QG_num a * Z.pos m) (Z.pos (QG_den a)))
-       (m * Z.to_pos (Z.pos (QG_den a) / Z.gcd (QG_num a * Z.pos m) (Z.pos (QG_den a)))))
+    (QG_of_Z_pair
+       (QG_num a * Z.pos m / Z.gcd (QG_num a * Z.pos m) (Z.pos (QG_den a)))
+       (m *
+        Z.to_pos
+          (Z.pos (QG_den a) / Z.gcd (QG_num a * Z.pos m) (Z.pos (QG_den a)))))
+*)
+remember (Z.gcd (_ * _) _) as g eqn:Hg.
+(*
+  Hg : g = Z.gcd (QG_num a * Z.pos m) (Z.pos (QG_den a))
+  ============================
+  qg_q a =
+  qg_q
+    (QG_of_Z_pair (QG_num a * Z.pos m / g)
+       (m * Z.to_pos (Z.pos (QG_den a) / g)))
 *)
 Require Import QArith.
 (**)
 cbn - [ Qred ].
 remember (QG_num a * Zpos m)%Z as p.
 remember (QG_den a) as q.
-remember (Z.gcd p (Zpos q)) as g.
 move q before m.
 move p before q.
 move g before p.
@@ -890,8 +901,12 @@ rewrite <- Heqq.
 (* le reste marche mais je voudrais faire disparaître le
    Require Import QArith plus haut, qu'il soit dans un
    autre fichier, que ce fichier-ci n'en dépende pas *)
-...
 (*
+subst p q.
+  ============================
+  (Qnum a * Z.pos (m * Z.to_pos (QDen a / g)))%Z =
+  (Qnum a * Z.pos m / g * QDen a)%Z
+
 subst p q g.
   ============================
   (Qnum a * Z.pos (m * Z.to_pos (QDen a / Z.gcd (Qnum a * Z.pos m) (QDen a))))%Z =
@@ -902,24 +917,24 @@ rewrite Pos2Z.inj_mul.
 rewrite Z.mul_assoc.
 rewrite <- Heqp.
 pose proof (Z.gcd_divide_l p (Zpos q)).
-rewrite <- Heqg in H.
+rewrite <- Hg in H.
 destruct H as (gp, Hgp).
 rewrite Hgp.
 assert (g ≠ 0)%Z as Hg0. {
   intros H.
-  rewrite Heqg in H.
+  rewrite Hg in H.
   apply Z.gcd_eq_0_r in H; revert H; apply Pos2Z_ne_0.
 }
 rewrite Z.div_mul; auto.
 pose proof (Z.gcd_divide_r p (Zpos q)).
-rewrite <- Heqg in H.
+rewrite <- Hg in H.
 destruct H as (gq, Hgq).
 rewrite Hgq.
 rewrite Z.div_mul; auto.
 rewrite Z.mul_shuffle0, Z.mul_assoc.
 rewrite Z2Pos.id; [ easy | ].
 apply Z.mul_lt_mono_pos_r with (p := g). {
-  symmetry in Heqg.
+  symmetry in Hg.
   destruct g as [| g| g]. {
     rewrite Z.mul_0_r in Hgq.
     exfalso; revert Hgq; apply Pos2Z_ne_0.
@@ -927,7 +942,7 @@ apply Z.mul_lt_mono_pos_r with (p := g). {
     apply Pos2Z.is_pos.
   } {
     pose proof (Z.gcd_nonneg p (Zpos q)).
-    rewrite Heqg in H.
+    rewrite Hg in H.
     apply Z.nlt_ge in H.
     exfalso; apply H.
     apply Pos2Z.neg_is_neg.
