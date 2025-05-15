@@ -1197,25 +1197,6 @@ cbn.
 now rewrite <- Heqq.
 Qed.
 
-Theorem QG_num_den_qg_q :
-  ∀ a g m,
-  (QG_num a * Z.pos (m * Z.to_pos (Z.pos (QG_den a) / g)))%Z =
-  (QG_num a * Z.pos m / g * Z.pos (QG_den a))%Z
-  → qg_q a =
-    qg_q
-      (QG_of_Z_pair
-         (QG_num a * Z.pos m / g)
-         (m * Z.to_pos (Z.pos (QG_den a) / g))).
-Proof.
-intros * Haa.
-destruct a as (a, Ha).
-unfold QG_num, QG_den in Haa |-*.
-progress unfold qg_q in Haa |-*.
-cbn - [ Qred ] in Haa |-*.
-apply Z_pos_gcd_eq_1 in Ha.
-now apply Qnum_den_red.
-Qed.
-
 Theorem QG_of_Z_pair_mul_r :
   ∀ n d p q z,
   QG_of_Z_pair p (d * q) = (QG_of_Z_pair n d / QG_of_Z z)%QG
