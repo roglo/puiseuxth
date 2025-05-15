@@ -4,8 +4,6 @@ From Stdlib Require Import Utf8 Arith ZArith QArith.
 From Stdlib Require Import Sorted.
 From Stdlib Require Import Psatz.
 
-Require Import QGArith.
-
 Notation "[ ]" := nil.
 Notation "[ x ; .. ; y … l ]" := (cons x .. (cons y l) ..).
 Notation "[ x ]" := (cons x nil).
@@ -1177,53 +1175,6 @@ destruct za as [| za| za]. {
 }
 Qed.
 
-Theorem Qnum_den_red :
-  ∀ a g m,
-  Z.gcd (Qnum a) (Z.pos (Qden a)) = 1%Z
-  → (Qnum a * Z.pos (m * Z.to_pos (Z.pos (Qden a) / g)))%Z =
-    (Qnum a * Z.pos m / g * Z.pos (Qden a))%Z
-  → a = Qred (Qnum a * Z.pos m / g # m * Z.to_pos (Z.pos (Qden a) / g)).
-Proof.
-intros * Ha Haa.
-remember (Qnum a * Z.pos m)%Z as p.
-remember (Qden a) as q.
-rewrite <- (Z_gcd_eq_1_Qred a); [ | now rewrite <- Heqq ].
-apply Qred_complete.
-progress unfold Qeq.
-cbn.
-now rewrite <- Heqq.
-Qed.
-
-Theorem QG_of_Z_pair_mul_r :
-  ∀ n d p q z,
-  QG_of_Z_pair p (d * q) = (QG_of_Z_pair n d / QG_of_Z z)%QG
-  → (0 < z)%Z
-  → (Z.pos q * n = p * z)%Z.
-Proof.
-intros * Hpq Hzz.
-apply (f_equal qg_q) in Hpq.
-progress unfold QG_of_Z_pair in Hpq.
-progress unfold QG_of_Q in Hpq.
-cbn - [ Qreduction.Qred ] in Hpq.
-rewrite Qred_mul_idemp_l in Hpq.
-rewrite Qred_mul_idemp_r in Hpq.
-apply Qreduction.Qred_eq_iff in Hpq.
-progress unfold QArith_base.Qeq in Hpq.
-cbn - [ Qreduction.Qred ] in Hpq.
-do 2 rewrite Pos2Z.inj_mul in Hpq.
-rewrite Zmult_comm in Hpq; symmetry in Hpq.
-rewrite Zmult_comm in Hpq; symmetry in Hpq.
-do 2 rewrite <- Zmult_assoc in Hpq.
-apply Z.mul_cancel_l in Hpq; [ idtac | apply Pos2Z_ne_0 ].
-rewrite Zmult_assoc, Zmult_comm in Hpq.
-rewrite <- Qred_inv in Hpq.
-rewrite Qinv_Z in Hpq; [ | easy ].
-rewrite Qred_1_l in Hpq.
-cbn - [ Z.mul ] in Hpq.
-rewrite Z.mul_1_r in Hpq.
-now rewrite Z2Pos.id in Hpq.
-Qed.
-
 (* QG_arith version *)
 
 Require Import QGArith.
@@ -1364,4 +1315,50 @@ intros * Hbz.
 unfold omodulo.
 destruct (Nat.eq_dec b 0) as [H| H]; [ easy | ].
 apply Nat.Lcm0.mod_divide.
+Qed.
+
+(* *)
+
+Theorem Qnum_den_red :
+  ∀ a g m,
+  Z.gcd (Qnum a) (Z.pos (Qden a)) = 1%Z
+  → (Qnum a * Z.pos (m * Z.to_pos (Z.pos (Qden a) / g)))%Z =
+    (Qnum a * Z.pos m / g * Z.pos (Qden a))%Z
+  → a = Qred (Qnum a * Z.pos m / g # m * Z.to_pos (Z.pos (Qden a) / g)).
+Proof.
+intros * Ha Haa.
+rewrite <- (Z_gcd_eq_1_Qred a) at 1; [ | easy ].
+now apply Qred_complete.
+Qed.
+
+Require Import QGArith.
+
+Theorem QG_of_Z_pair_mul_r :
+  ∀ n d p q z,
+  QG_of_Z_pair p (d * q) = (QG_of_Z_pair n d / QG_of_Z z)%QG
+  → (0 < z)%Z
+  → (Z.pos q * n = p * z)%Z.
+Proof.
+intros * Hpq Hzz.
+apply (f_equal qg_q) in Hpq.
+progress unfold QG_of_Z_pair in Hpq.
+progress unfold QG_of_Q in Hpq.
+cbn - [ Qreduction.Qred ] in Hpq.
+rewrite Qred_mul_idemp_l in Hpq.
+rewrite Qred_mul_idemp_r in Hpq.
+apply Qreduction.Qred_eq_iff in Hpq.
+progress unfold QArith_base.Qeq in Hpq.
+cbn - [ Qreduction.Qred ] in Hpq.
+do 2 rewrite Pos2Z.inj_mul in Hpq.
+rewrite Zmult_comm in Hpq; symmetry in Hpq.
+rewrite Zmult_comm in Hpq; symmetry in Hpq.
+do 2 rewrite <- Zmult_assoc in Hpq.
+apply Z.mul_cancel_l in Hpq; [ idtac | apply Pos2Z_ne_0 ].
+rewrite Zmult_assoc, Zmult_comm in Hpq.
+rewrite <- Qred_inv in Hpq.
+rewrite Qinv_Z in Hpq; [ | easy ].
+rewrite Qred_1_l in Hpq.
+cbn - [ Z.mul ] in Hpq.
+rewrite Z.mul_1_r in Hpq.
+now rewrite Z2Pos.id in Hpq.
 Qed.
