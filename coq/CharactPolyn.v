@@ -986,9 +986,9 @@ subst pl.
 simpl in Hαh.
 destruct Hαh as [Hαh| Hαh]. {
   rewrite Hini in Hαh.
-  injection Hαh; clear Hαh; intros HH H; subst αh.
-...
-  apply Nat2Z.inj in H; subst h.
+  remember QG_of_nat as x.
+  injection Hαh; clear Hαh; intros HH H; subst αh x.
+  apply QG_of_nat_inj in H; subst h.
   rewrite <- Hini.
   apply ini_fin_ns_in_init_pts; assumption.
 }
@@ -998,8 +998,9 @@ destruct Hαh as [Hαh| Hαh]. {
 }
 destruct Hαh as [Hαh| Hαh]; [ idtac | contradiction ].
 rewrite Hfin in Hαh.
-injection Hαh; clear Hαh; intros HH H; subst αh.
-apply Nat2Z.inj in H; subst h.
+remember QG_of_nat as x.
+injection Hαh; clear Hαh; intros HH H; subst αh x.
+apply QG_of_nat_inj in H; subst h.
 rewrite <- Hfin.
 apply ini_fin_ns_in_init_pts; assumption.
 Qed.
@@ -1007,7 +1008,7 @@ Qed.
 Theorem qden_αj_is_ps_polydo : ∀ f L j αj,
   newton_segments f = Some L
   → (QG_of_nat j, αj) = ini_pt L
-  → Qden αj = ps_polydo (ps_poly_nth j f).
+  → QG_den αj = ps_polydo (ps_poly_nth j f).
 Proof.
 intros f L j αj HL Hini.
 remember HL as H; clear HeqH.
@@ -1018,6 +1019,9 @@ remember (series_order (ps_terms ps) 0) as v eqn:Hv .
 symmetry in Hv.
 destruct v; [ idtac | discriminate H ].
 injection H; clear H; intros H.
+rewrite <- H.
+Search (QG_den (QG_of_Z_pair _ _)).
+...
 rewrite <- H; reflexivity.
 Qed.
 

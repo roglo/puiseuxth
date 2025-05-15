@@ -2342,6 +2342,14 @@ cbn - [ Qred ].
 now rewrite Qred_1_r.
 Qed.
 
+Theorem QG_of_nat_inj : ∀ a b, QG_of_nat a = QG_of_nat b → a = b.
+Proof.
+intros * Hab.
+apply (f_equal QG_num) in Hab.
+do 2 rewrite QG_num_of_nat in Hab.
+now apply Nat2Z.inj in Hab.
+Qed.
+
 Theorem Z_gcd_le_l : ∀ a b, (0 < a → Z.gcd a b ≤ a)%Z.
 Proof.
 intros * Hza.

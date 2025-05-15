@@ -478,7 +478,7 @@ Qed.
 Theorem QG_min_same_den : ∀ a b c, QG_min (a # c) (b # c) = Z.min a b # c.
 Proof.
 intros a b c.
-unfold Qmin; simpl.
+unfold Qmin; simpl.k
 destruct (Qlt_le_dec (a # c) (b # c)) as [Hlt| Hge]; f_equal. {
   unfold Qlt in Hlt; simpl in Hlt.
   apply Zmult_lt_reg_r in Hlt; [ idtac | apply Pos2Z.is_pos ].
