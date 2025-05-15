@@ -1187,9 +1187,6 @@ Proof.
 intros * Ha Haa.
 remember (Qnum a * Z.pos m)%Z as p.
 remember (Qden a) as q.
-move q before m.
-move p before q.
-move g before p.
 rewrite <- (Z_gcd_eq_1_Qred a); [ | now rewrite <- Heqq ].
 apply Qred_complete.
 progress unfold Qeq.
