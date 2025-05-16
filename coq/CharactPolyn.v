@@ -1020,6 +1020,17 @@ symmetry in Hv.
 destruct v; [ idtac | discriminate H ].
 injection H; clear H; intros H.
 rewrite <- H.
+Check ps_polydo.
+Theorem QG_den_of_Z_pair :
+  ∀ a b, Z.gcd a (Z.pos b) = 1%Z → QG_den (QG_of_Z_pair a b) = b.
+Proof.
+intros * Hab.
+progress unfold QG_den.
+... ...
+apply QG_den_of_Z_pair.
+...
+progress unfold ps_polydo.
+cbn.
 Search (QG_den (QG_of_Z_pair _ _)).
 ...
 rewrite <- H; reflexivity.
