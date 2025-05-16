@@ -1023,6 +1023,23 @@ rewrite <- H.
 apply QG_den_of_Z_pair.
 rewrite (QG_QG_of_Z_pair αj) in H.
 apply QG_of_Z_pair_eq in H.
+apply (Z.mul_cancel_r _ _ (Z.abs (Z.pos (QG_den αj)))); [ easy  | ].
+rewrite Z.mul_1_l.
+rewrite <- Z.gcd_mul_mono_r.
+rewrite H.
+rewrite Z.mul_comm.
+rewrite Z.gcd_mul_mono_l.
+specialize (qg_gcd αj) as H1.
+apply Z_pos_gcd_eq_1 in H1.
+rewrite fold_QG_num in H1.
+rewrite fold_QG_den in H1.
+rewrite H1, Z.mul_1_r.
+f_equal.
+...
+Z.gcd_mul_mono_r: ∀ n m p : Z, Z.gcd (n * p) (m * p) = Z.gcd n m * Z.abs p
+Z.gcd_mul_mono_l: ∀ n m p : Z, Z.gcd (p * n) (p * m) = Z.abs p * Z.gcd n m
+Z.gcd_mul_mono_l_nonneg: ∀ n m p : Z, 0 ≤ p → Z.gcd (p * n) (p * m) = p * Z.gcd n m
+Z.gcd_mul_mono_r_nonneg: ∀ n m p : Z, 0 ≤ p → Z.gcd (n * p) (m * p) = Z.gcd n m * p
 ...
 QG_of_Z_pair_eq:
   ∀ (an bn : Z) (ad bd : positive),
