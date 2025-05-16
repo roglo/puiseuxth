@@ -2334,6 +2334,56 @@ cbn - [ Qred ].
 now apply Qred_comp.
 Qed.
 
+Theorem QG_den_of_Z_pair :
+  ∀ a b, Z.gcd a (Z.pos b) = 1%Z → QG_den (QG_of_Z_pair a b) = b.
+Proof.
+intros * Hab.
+progress unfold QG_of_Z_pair.
+progress unfold QG_of_Q.
+progress unfold QG_den.
+cbn.
+remember (Z.ggcd a (Z.pos b)) as g eqn:Hg.
+symmetry in Hg.
+destruct g as (g & n & d).
+cbn.
+apply Z_ggcd_split in Hg.
+destruct Hg as (Ha & Hb & Hg & Hgg).
+rewrite Hab in Hg; subst g.
+destruct Hgg as [Hgg| Hgg]; [ easy | ].
+rewrite Z.mul_1_l in Ha, Hb.
+subst a d.
+apply Pos2Z.id.
+Qed.
+
+Theorem QG_QG_of_Z_pair : ∀ a, a = QG_of_Z_pair (QG_num a) (QG_den a).
+Proof.
+intros.
+apply eq_QG_eq.
+destruct a as ((n, d), Ha).
+cbn in Ha.
+cbn.
+apply Z_pos_gcd_eq_1 in Ha.
+remember (Z.ggcd n (Z.pos d)) as g eqn:Hg.
+symmetry in Hg.
+destruct g as (g, (n', d')).
+cbn.
+apply Z_ggcd_split in Hg.
+destruct Hg as (Hn & Hd & Hg & Hgg).
+subst n; rewrite Hd in Ha.
+rewrite Z.gcd_mul_mono_l in Ha.
+destruct Hgg as [Hgg| Hgg]; [ now subst g | ].
+rewrite Hgg in Ha.
+rewrite Z.mul_1_r in Ha.
+rewrite Z.abs_eq in Ha. 2: {
+  rewrite <- Hg.
+  apply Z.gcd_nonneg.
+}
+subst g.
+rewrite Z.mul_1_l in Hd |-*.
+rewrite <- Hd.
+now rewrite Pos2Z.id.
+Qed.
+
 Theorem QG_num_of_nat : ∀ i, QG_num (QG_of_nat i) = Z.of_nat i.
 Proof.
 intros.

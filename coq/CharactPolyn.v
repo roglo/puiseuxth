@@ -1020,14 +1020,24 @@ symmetry in Hv.
 destruct v; [ idtac | discriminate H ].
 injection H; clear H; intros H.
 rewrite <- H.
-Check ps_polydo.
-Theorem QG_den_of_Z_pair :
-  ∀ a b, Z.gcd a (Z.pos b) = 1%Z → QG_den (QG_of_Z_pair a b) = b.
-Proof.
-intros * Hab.
-progress unfold QG_den.
-... ...
 apply QG_den_of_Z_pair.
+rewrite (QG_QG_of_Z_pair αj) in H.
+apply QG_of_Z_pair_eq in H.
+...
+QG_of_Z_pair_eq:
+  ∀ (an bn : Z) (ad bd : positive),
+    QG_of_Z_pair an ad = QG_of_Z_pair bn bd ↔ an * Z.pos bd = bn * Z.pos ad
+...
+destruct αj as (g, Hg).
+Require Import QArith.
+generalize H; intros H1.
+apply (f_equal qg_q) in H.
+cbn - [ Qred ] in H.
+apply (f_equal qg_gcd) in H1.
+...
+apply (f_equal qg_q)
+progress unfold QG_of_Z_pair in H.
+progress unfold QG_of_Q in H.
 ...
 progress unfold ps_polydo.
 cbn.
