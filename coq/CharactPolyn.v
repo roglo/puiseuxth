@@ -1009,7 +1009,15 @@ Qed.
 Theorem qden_αj_is_ps_polydo : ∀ f L j αj,
   newton_segments f = Some L
   → (QG_of_nat j, αj) = ini_pt L
+(*
+  → QG_den αj =
+      QG_den
+        (QG_of_Z_pair
+           (ps_ordnum (ps_poly_nth j f))
+           (ps_polydo (ps_poly_nth j f))).
+*)
   → QG_den αj = ps_polydo (ps_poly_nth j f).
+(**)
 Proof.
 intros f L j αj HL Hini.
 remember HL as H; clear HeqH.
@@ -1020,24 +1028,17 @@ remember (series_order (ps_terms ps) 0) as v eqn:Hv .
 symmetry in Hv.
 destruct v; [ idtac | discriminate H ].
 injection H; clear H; intros H.
-rewrite <- H.
+Print puiseux_series.
+(* problem: in puiseux series, ps_ordum/ps_polydo does not
+   constitutes a normalized rational *)
 ...
+rewrite <- H.
 apply QG_den_of_Z_pair.
 rewrite (QG_QG_of_Z_pair αj) in H.
 apply QG_of_Z_pair_eq in H.
 apply (Z.mul_cancel_r _ _ (Z.abs (Z.pos (QG_den αj)))); [ easy  | ].
 rewrite Z.mul_1_l.
 rewrite <- Z.gcd_mul_mono_r.
-rewrite H.
-rewrite Z.mul_comm.
-rewrite Z.gcd_mul_mono_l.
-specialize (qg_gcd αj) as H1.
-apply Z_pos_gcd_eq_1 in H1.
-rewrite fold_QG_num in H1.
-rewrite fold_QG_den in H1.
-rewrite H1, Z.mul_1_r.
-f_equal.
-(* ça tourne en rond *)
 ...
 intros f L j αj HL Hini.
 remember HL as H; clear HeqH.
@@ -1224,11 +1225,9 @@ Proof.
 intros f L j αj m HL Hini HinK.
 apply any_in_K_1_m with (h := j) (αh := αj) in HinK. {
   destruct HinK as (mh, Hmh).
-(**)
   exists mh.
   apply QG_of_Z_pair_eq.
-...
-  exists mh; assumption.
+  now rewrite <- QG_QG_of_Z_pair.
 }
 progress unfold newton_segments in HL.
 progress unfold points_of_ps_polynom in HL.
@@ -1241,12 +1240,18 @@ Theorem pol_ord_of_ini_pt : ∀ f L m j αj mj,
   → pol_in_K_1_m f m
   → (QG_of_nat j, αj) = ini_pt L
   → mj = mh_of_m m αj (ps_poly_nth j f)
+(**)
+  → αj = QG_of_Z_pair mj m.
+(*
   → αj == mj # m.
+*)
 Proof.
 intros f L m j αj mj HL Hm Hini Hmj.
 subst mj; simpl.
 progress unfold mh_of_m; simpl.
-progress unfold Qeq; simpl.
+(**)
+Check qden_αj_is_ps_polydo.
+...
 rewrite Z_div_mul_swap. {
   erewrite qden_αj_is_ps_polydo; eauto with Arith.
   rewrite Z.div_mul; eauto with Arith.
