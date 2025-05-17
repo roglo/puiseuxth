@@ -1005,6 +1005,7 @@ rewrite <- Hfin.
 apply ini_fin_ns_in_init_pts; assumption.
 Qed.
 
+(*
 Theorem qden_αj_is_ps_polydo : ∀ f L j αj,
   newton_segments f = Some L
   → (QG_of_nat j, αj) = ini_pt L
@@ -1020,6 +1021,7 @@ symmetry in Hv.
 destruct v; [ idtac | discriminate H ].
 injection H; clear H; intros H.
 rewrite <- H.
+...
 apply QG_den_of_Z_pair.
 rewrite (QG_QG_of_Z_pair αj) in H.
 apply QG_of_Z_pair_eq in H.
@@ -1035,38 +1037,25 @@ rewrite fold_QG_num in H1.
 rewrite fold_QG_den in H1.
 rewrite H1, Z.mul_1_r.
 f_equal.
+(* ça tourne en rond *)
 ...
-Z.gcd_mul_mono_r: ∀ n m p : Z, Z.gcd (n * p) (m * p) = Z.gcd n m * Z.abs p
-Z.gcd_mul_mono_l: ∀ n m p : Z, Z.gcd (p * n) (p * m) = Z.abs p * Z.gcd n m
-Z.gcd_mul_mono_l_nonneg: ∀ n m p : Z, 0 ≤ p → Z.gcd (p * n) (p * m) = p * Z.gcd n m
-Z.gcd_mul_mono_r_nonneg: ∀ n m p : Z, 0 ≤ p → Z.gcd (n * p) (m * p) = Z.gcd n m * p
-...
-QG_of_Z_pair_eq:
-  ∀ (an bn : Z) (ad bd : positive),
-    QG_of_Z_pair an ad = QG_of_Z_pair bn bd ↔ an * Z.pos bd = bn * Z.pos ad
-...
-destruct αj as (g, Hg).
-Require Import QArith.
-generalize H; intros H1.
-apply (f_equal qg_q) in H.
-cbn - [ Qred ] in H.
-apply (f_equal qg_gcd) in H1.
-...
-apply (f_equal qg_q)
-progress unfold QG_of_Z_pair in H.
-progress unfold QG_of_Q in H.
-...
-progress unfold ps_polydo.
-cbn.
-Search (QG_den (QG_of_Z_pair _ _)).
-...
+intros f L j αj HL Hini.
+remember HL as H; clear HeqH.
+eapply order_in_newton_segment in H; eauto ; [ idtac | left; eauto  ].
+progress unfold order in H.
+remember (ps_poly_nth j f) as ps.
+remember (series_order (ps_terms ps) 0) as v eqn:Hv .
+symmetry in Hv.
+destruct v; [ idtac | discriminate H ].
+injection H; clear H; intros H.
 rewrite <- H; reflexivity.
 Qed.
+*)
 
 Theorem in_K_1_m_order_eq : ∀ ps m v,
   in_K_1_m ps m
   → order ps = qfin v
-  → ∃ n, v == n # m.
+  → ∃ n, v = QG_of_Z_pair n m.
 Proof.
 intros ps m v Hin Ho.
 progress unfold order in Ho.
@@ -1077,7 +1066,6 @@ injection Ho; clear Ho; intros Ho.
 inversion_clear Hin.
 destruct H as (ps₁, (Hps, Hm)).
 subst v m.
-progress unfold Qeq; simpl.
 inversion_clear Hps.
 inversion_clear H.
 clear H2.
@@ -1150,7 +1138,10 @@ destruct y as [y| ]; simpl in H0, H1. {
     rewrite <- Z.gcd_assoc, Z.gcd_comm, <- Z.gcd_assoc in Hd₁.
     remember (Z.gcd p (Z.gcd o t)) as g.
     remember (Z.gcd p₁ (Z.gcd o₁ t₁)) as g₁.
-    rewrite Hc, Hc₁, Hd, Hd₁.
+    rewrite Hc, Hc₁.
+    apply QG_of_Z_pair_eq.
+    rewrite <- Heqo₁, <- Heqo.
+    rewrite Hd, Hd₁.
     ring.
   } {
     apply Zmult_gt_0_lt_0_reg_r with (n := Z.gcd (Z.gcd t₁ p₁) o₁). {
@@ -1179,7 +1170,8 @@ rewrite Hc in H0 at 1.
 rewrite Z.div_mul in H0. {
   subst c; simpl in Hc.
   move Hc at top; subst p.
-  exists 0%Z; reflexivity.
+  exists 0%Z.
+  now apply QG_of_Z_pair_eq.
 }
 progress unfold gcd_ps in Hgp.
 rewrite <- Heqp, <- Heqo, <- Heqt in Hgp.
@@ -1192,7 +1184,7 @@ Qed.
 Theorem any_in_K_1_m : ∀ la m h αh,
   ps_lap_forall (λ a, in_K_1_m a m) la
   → (QG_of_nat h, αh) ∈ points_of_ps_lap la
-  → ∃ mh, αh == mh # m.
+  → ∃ mh, αh = QG_of_Z_pair mh m.
 Proof.
 intros la m h αh HinK Hin.
 progress unfold points_of_ps_lap in Hin.
@@ -1227,11 +1219,15 @@ Theorem den_αj_divides_num_αj_m : ∀ f L j αj m,
   newton_segments f = Some L
   → ini_pt L = (QG_of_nat j, αj)
   → pol_in_K_1_m f m
-  → (Zpos (Qden αj) | Qnum αj * Zpos m)%Z.
+  → (Zpos (QG_den αj) | QG_num αj * Zpos m)%Z.
 Proof.
 intros f L j αj m HL Hini HinK.
 apply any_in_K_1_m with (h := j) (αh := αj) in HinK. {
   destruct HinK as (mh, Hmh).
+(**)
+  exists mh.
+  apply QG_of_Z_pair_eq.
+...
   exists mh; assumption.
 }
 progress unfold newton_segments in HL.
