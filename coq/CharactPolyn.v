@@ -1006,6 +1006,15 @@ apply ini_fin_ns_in_init_pts; assumption.
 Qed.
 
 (*
+(* problem: in puiseux series, ps_ordum/ps_polydo does not
+   constitutes a normalized rational QG *)
+Print newton_segments.
+Print points_of_ps_polynom.
+Print points_of_ps_lap.
+Print points_of_ps_lap_gen.
+Print filter_finite_ord.
+Print qpower_list.
+...
 Theorem qden_αj_is_ps_polydo : ∀ f L j αj,
   newton_segments f = Some L
   → (QG_of_nat j, αj) = ini_pt L
@@ -1029,8 +1038,6 @@ symmetry in Hv.
 destruct v; [ idtac | discriminate H ].
 injection H; clear H; intros H.
 Print puiseux_series.
-(* problem: in puiseux series, ps_ordum/ps_polydo does not
-   constitutes a normalized rational *)
 ...
 rewrite <- H.
 apply QG_den_of_Z_pair.
