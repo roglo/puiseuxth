@@ -1005,9 +1005,13 @@ rewrite <- Hfin.
 apply ini_fin_ns_in_init_pts; assumption.
 Qed.
 
-(*
+Definition ps_red {A} (ps : puiseux_series A) :=
+  let q := QG_of_Z_pair (ps_ordnum ps) (ps_polydo ps) in
+  mkps (ps_terms ps) (QG_num q) (QG_den q).
+
+(**)
 (* problem: in puiseux series, ps_ordum/ps_polydo does not
-   constitutes a normalized rational QG *)
+   constitutes a normalized rational QG
 Print newton_segments.
 Print points_of_ps_polynom.
 Print points_of_ps_lap.
@@ -1015,6 +1019,8 @@ Print points_of_ps_lap_gen.
 Print filter_finite_ord.
 Print qpower_list.
 ...
+*)
+
 Theorem qden_αj_is_ps_polydo : ∀ f L j αj,
   newton_segments f = Some L
   → (QG_of_nat j, αj) = ini_pt L
@@ -1025,8 +1031,10 @@ Theorem qden_αj_is_ps_polydo : ∀ f L j αj,
            (ps_ordnum (ps_poly_nth j f))
            (ps_polydo (ps_poly_nth j f))).
 *)
+  → QG_den αj = ps_polydo (ps_red (ps_poly_nth j f)).
+(*
   → QG_den αj = ps_polydo (ps_poly_nth j f).
-(**)
+*)
 Proof.
 intros f L j αj HL Hini.
 remember HL as H; clear HeqH.
@@ -1037,7 +1045,11 @@ remember (series_order (ps_terms ps) 0) as v eqn:Hv .
 symmetry in Hv.
 destruct v; [ idtac | discriminate H ].
 injection H; clear H; intros H.
-Print puiseux_series.
+(**)
+progress unfold ps_red.
+cbn.
+rewrite <- H.
+(* merde, non, c'est pas bon *)
 ...
 rewrite <- H.
 apply QG_den_of_Z_pair.
