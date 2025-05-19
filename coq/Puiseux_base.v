@@ -44,11 +44,13 @@ Fixpoint power_list α pow (psl : list α) :=
   | [ps₁ … psl₁] => [(pow, ps₁) … power_list (S pow) psl₁]
   end.
 
+(*
 Definition qpower_list α pow (psl : list (puiseux_series α)) :=
   List.map (pair_rec (λ pow ps, (QG_of_nat pow, ps))) (power_list pow psl).
+*)
 
 Fixpoint filter_finite_ord α (r : ring α) {K : field r}
-    (dpl : list (QG * puiseux_series α)) :=
+    (dpl : list (nat * puiseux_series α)) :=
   match dpl with
   | [(pow, ps) … dpl₁] =>
       match order ps with
@@ -61,7 +63,7 @@ Fixpoint filter_finite_ord α (r : ring α) {K : field r}
 
 Definition points_of_ps_lap_gen α {r} {K : field r} pow
     (cl : list (puiseux_series α)) :=
-  filter_finite_ord (qpower_list pow cl).
+  filter_finite_ord (power_list pow cl).
 
 Definition points_of_ps_lap α {R : ring α} {K : field R} lps :=
   points_of_ps_lap_gen 0 lps.
@@ -83,10 +85,12 @@ Variable α : Type.
 Variable r : ring α.
 Variable K : field r.
 
+(*
 Theorem fold_qpower_list : ∀ pow (psl : list (puiseux_series α)),
   List.map (pair_rec (λ pow ps, (QG_of_nat pow, ps))) (power_list pow psl) =
   qpower_list pow psl.
 Proof. reflexivity. Qed.
+*)
 
 Theorem order_inf : ∀ x, order x = qinf ↔ (x = 0)%ps.
 Proof.
@@ -156,7 +160,7 @@ induction cl as [| c₂]; intros. {
   unfold points_of_ps_lap_gen in Hpts; simpl in Hpts.
   destruct (order c). {
     constructor; constructor; [ constructor | constructor | idtac ].
-    apply QG_of_nat_lt, Nat.lt_succ_diag_r.
+    apply Nat.lt_succ_diag_r.
   }
   constructor; constructor.
 }
@@ -165,16 +169,16 @@ remember [c₂ … cl] as ccl; simpl in Hpts; simpl; subst ccl.
 destruct (order c) as [v₂| ]. {
   subst pts.
   apply Sorted_LocallySorted_iff.
-  constructor; [ idtac | apply QG_of_nat_lt, Nat.lt_succ_diag_r ].
+  constructor; [ idtac | apply Nat.lt_succ_diag_r ].
   apply Sorted_LocallySorted_iff.
   eapply IHcl; reflexivity.
 }
 eapply IHcl with (q := q) in Hpts.
-apply Sorted_minus_2nd with (x₂ := (QG_of_nat (S deg), q)). {
+apply Sorted_minus_2nd with (x₂ := (S deg, q)). {
   unfold fst_lt.
-  intros x y z; apply QG_lt_trans.
+  intros x y z; apply Nat.lt_trans.
 }
-constructor; [ easy | constructor; apply QG_of_nat_lt, Nat.lt_succ_diag_r ].
+constructor; [ easy | constructor; apply Nat.lt_succ_diag_r ].
 Qed.
 
 End theorems.

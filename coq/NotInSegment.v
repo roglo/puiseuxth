@@ -3,7 +3,7 @@
 (* points not in newton segment *)
 
 Set Nested Proofs Allowed.
-From Stdlib Require Import Utf8 Sorting.
+From Stdlib Require Import Utf8 Arith Sorting.
 
 Require Import QGArith.
 Require Import Misc.
@@ -18,8 +18,9 @@ Theorem lt_aft_k : ∀ pts j αj k αk seg,
   Sorted fst_lt pts
   → lower_convex_hull_points pts = Some (mkns (j, αj) (k, αk) seg)
   → ∀ h αh, (h, αh) ∈ pts
-  → k < h
-  → αj + j * ((αj - αk) / (k - j)) < αh + h * ((αj - αk) / (k - j)).
+  → (k < h)%nat
+  → αj + QG_of_nat j * ((αj - αk) / (QG_of_nat k - QG_of_nat j)) <
+    αh + QG_of_nat h * ((αj - αk) / (QG_of_nat k - QG_of_nat j)).
 Proof.
 intros pts j αj k αk seg Hsort Hnp h αh Hαh Hkh.
 eapply points_after_k; try reflexivity; try eassumption.
@@ -61,8 +62,9 @@ Theorem lt_bet_j_and_k : ∀ pts j αj k αk seg,
   → lower_convex_hull_points pts = Some (mkns (j, αj) (k, αk) seg)
   → ∀ h αh, (h, αh) ∈ pts
   → (h, αh) ∉ [(j, αj); (k, αk) … seg]
-  → j < h < k
-  → αj + j * ((αj - αk) / (k - j)) < αh + h * ((αj - αk) / (k - j)).
+  → (j < h < k)%nat
+  → αj + QG_of_nat j * ((αj - αk) / (QG_of_nat k - QG_of_nat j)) <
+    αh + QG_of_nat h * ((αj - αk) / (QG_of_nat k - QG_of_nat j)).
 Proof.
 intros pts j αj k αk seg Hsort Hnp.
 intros h αh Hαh Hnαh Hjhk.
@@ -108,7 +110,7 @@ apply slope_eq; [ idtac | idtac | idtac | assumption ]. {
   destruct pt₁ as (pt₁, H1).
   destruct pt₂ as (pt₂, H2).
   rewrite HH in Hlt.
-  apply QG_lt_irrefl in Hlt; contradiction.
+  apply Nat.lt_irrefl in Hlt; contradiction.
 } {
   intros HH.
   clear H.
@@ -122,11 +124,11 @@ apply slope_eq; [ idtac | idtac | idtac | assumption ]. {
     destruct pt₁ as (pt₁, H1).
     destruct pt₂ as (pt₂, H2).
     rewrite HH in Hlt₂.
-    apply QG_lt_irrefl in Hlt₂; contradiction.
+    apply Nat.lt_irrefl in Hlt₂; contradiction.
   }
   apply IHpts; [ idtac | assumption ].
   eapply Sorted_minus_3rd; [ idtac | eassumption ].
-  intros x y z H₁ H₂; eapply QG_lt_trans; eassumption.
+  intros x y z H₁ H₂; eapply Nat.lt_trans; eassumption.
 } {
   intros HH.
   clear H.
@@ -140,12 +142,12 @@ apply slope_eq; [ idtac | idtac | idtac | assumption ]. {
     destruct pt₁ as (pt₁, H1).
     destruct pt₃ as (pt₃, H2).
     rewrite HH in Hlt₂.
-    eapply QG_lt_trans in Hlt₂; [ idtac | eassumption ].
-    apply QG_lt_irrefl in Hlt₂; contradiction.
+    eapply Nat.lt_trans in Hlt₂; [ idtac | eassumption ].
+    apply Nat.lt_irrefl in Hlt₂; contradiction.
   }
   apply IHpts; [ idtac | assumption ].
   eapply Sorted_minus_3rd; [ idtac | eassumption ].
-  intros x y z H₁ H₂; eapply QG_lt_trans; eassumption.
+  intros x y z H₁ H₂; eapply Nat.lt_trans; eassumption.
 }
 Qed.
 
@@ -154,14 +156,14 @@ Theorem minimise_slope_expr_le : ∀ pt₁ pt₂ pt₃ pts ms,
   Sorted fst_lt [pt₁; pt₂ … pts]
   → minimise_slope pt₁ pt₂ pts = ms
   → fin_pt ms = pt₃
-  → fst pt₂ < fst pt₃
+  → (fst pt₂ < fst pt₃)%nat
   → slope_expr pt₂ pt₃ ≤ slope ms.
 Proof.
 intros pt₁ pt₂ pt₃ pts ms Hsort Hms Hend Hlt.
 erewrite slope_slope_expr; [ | eassumption ].
 revert pt₁ pt₂ pt₃ ms Hsort Hms Hend Hlt.
 induction pts as [| pt₄]; intros. {
-  subst pt₃ ms; apply QG_lt_irrefl in Hlt; contradiction.
+  subst pt₃ ms; apply Nat.lt_irrefl in Hlt; contradiction.
 }
 simpl in Hms.
 remember (minimise_slope pt₁ pt₄ pts) as ms₁.
@@ -187,7 +189,7 @@ destruct c. {
   subst pt₃.
   apply Sorted_inv_2 in Hsort; destruct Hsort as (_, Hsort).
   apply Sorted_inv_2 in Hsort; destruct Hsort as (H, _).
-  apply QG_lt_irrefl in Hlt; contradiction.
+  apply Nat.lt_irrefl in Hlt; contradiction.
 }
 move Hms at top; subst ms₁.
 apply QG_compare_gt_iff in Heqc.
@@ -213,7 +215,7 @@ destruct c₁. {
   subst ms; simpl in Hend, Heqc |- *.
   eapply IHpts; try eassumption.
   eapply Sorted_minus_3rd; [ idtac | eassumption ].
-  intros x y z H₁ H₂; eapply QG_lt_trans; eassumption.
+  intros x y z H₁ H₂; eapply Nat.lt_trans; eassumption.
 } {
   subst ms; simpl in Hend, Heqc |- *.
   subst pt₄.
@@ -226,7 +228,7 @@ destruct c₁. {
   subst ms; simpl in Hend |- *.
   eapply IHpts; try eassumption.
   eapply Sorted_minus_3rd; [ idtac | eassumption ].
-  intros x y z H₁ H₂; eapply QG_lt_trans; eassumption.
+  intros x y z H₁ H₂; eapply Nat.lt_trans; eassumption.
 }
 Qed.
 
@@ -236,7 +238,7 @@ Theorem min_slope_le : ∀ pt₁ pt₂ pt₃ pt₄ pts ms,
   → minimise_slope pt₁ pt₂ pts = ms
   → pt₃ ∈ pts
   → fin_pt ms = pt₄
-  → fst pt₃ < fst pt₄
+  → (fst pt₃ < fst pt₄)%nat
   → slope_expr pt₃ pt₄ ≤ slope ms.
 Proof.
 intros pt₁ pt₂ pt₃ pt₄ pts ms Hsort Hms Hpt Hend Hlt.
@@ -256,21 +258,21 @@ destruct c. {
     erewrite <- slope_slope_expr; [ idtac | eassumption ].
     eapply minimise_slope_expr_le; try eassumption.
     eapply Sorted_minus_2nd; [ idtac | eassumption ].
-    intros x y z H₁ H₂; eapply QG_lt_trans; eassumption.
+    intros x y z H₁ H₂; eapply Nat.lt_trans; eassumption.
   }
   eapply IHpts; try eassumption.
   eapply Sorted_minus_2nd; [ idtac | eassumption ].
-  intros x y z H₁ H₂; eapply QG_lt_trans; eassumption.
+  intros x y z H₁ H₂; eapply Nat.lt_trans; eassumption.
 } {
   subst ms; simpl in Hend |- *; subst pt₄.
   apply Sorted_inv_2 in Hsort; destruct Hsort as (Hlt₁, Hsort).
   apply Sorted_inv_2 in Hsort; destruct Hsort as (Hlt₂, Hsort).
-  eapply QG_lt_trans in Hlt₂; [ idtac | eassumption ].
+  eapply Nat.lt_trans in Hlt₂; [ idtac | eassumption ].
   exfalso; revert Hpt.
   eapply Sorted_not_in; [ idtac | idtac | eassumption | eassumption ]. {
-    intros x H; apply QG_lt_irrefl in H; contradiction.
+    intros x H; apply Nat.lt_irrefl in H; contradiction.
   } {
-    intros x y z H₁ H₂; eapply QG_lt_trans; eassumption.
+    intros x y z H₁ H₂; eapply Nat.lt_trans; eassumption.
   }
 }
 move Hms at top; subst ms₁.
@@ -279,19 +281,20 @@ destruct Hpt as [Hpt| Hpt]. {
   erewrite <- slope_slope_expr; [ idtac | eassumption ].
   eapply minimise_slope_expr_le; try eassumption.
   eapply Sorted_minus_2nd; [ idtac | eassumption ].
-  intros x y z H₁ H₂; eapply QG_lt_trans; eassumption.
+  intros x y z H₁ H₂; eapply Nat.lt_trans; eassumption.
 }
 eapply IHpts; try eassumption.
 eapply Sorted_minus_2nd; [ idtac | eassumption ].
-intros x y z H₁ H₂; eapply QG_lt_trans; eassumption.
+intros x y z H₁ H₂; eapply Nat.lt_trans; eassumption.
 Qed.
 
 Theorem lt_bef_j : ∀ pts j αj segjk k αk,
   Sorted fst_lt pts
   → lower_convex_hull_points pts = Some (mkns (j, αj) (k, αk) segjk)
   → ∀ h αh, (h, αh) ∈ pts
-  → h < j < k
-  → αj + j * ((αj - αk) / (k - j)) < αh + h * ((αj - αk) / (k - j)).
+  → (h < j < k)%nat
+  → αj + QG_of_nat j * ((αj - αk) / (QG_of_nat k - QG_of_nat j)) <
+    αh + QG_of_nat h * ((αj - αk) / (QG_of_nat k - QG_of_nat j)).
 Proof.
 intros pts j αj segjk k αk.
 intros Hsort Hnp h αh Hαh (Hhj, Hjk).
@@ -304,11 +307,11 @@ rename H into Hnp.
 rename H0 into Hseg.
 destruct Hαh as [Hαh| Hαh]. {
   injection Hαh; clear Hαh; intros; subst h αh.
-  apply QG_lt_irrefl in Hhj; contradiction.
+  apply Nat.lt_irrefl in Hhj; contradiction.
 } {
   eapply Sorted_hd in Hsort; [ idtac | eassumption ].
-  eapply QG_lt_trans in Hhj; [ idtac | eassumption ].
-  apply QG_lt_irrefl in Hhj; contradiction.
+  eapply Nat.lt_trans in Hhj; [ idtac | eassumption ].
+  apply Nat.lt_irrefl in Hhj; contradiction.
 }
 Qed.
 
@@ -316,30 +319,29 @@ Theorem points_not_in_any_newton_segment₁ : ∀ pts ns,
   Sorted fst_lt pts
   → lower_convex_hull_points pts = Some ns
   → ∀ h αh, (h, αh) ∈ pts ∧ (h, αh) ∉ [ini_pt ns; fin_pt ns … oth_pts ns]
-  → β ns < αh + h * γ ns.
+  → β ns < αh + QG_of_nat h * γ ns.
 Proof.
 intros * Hsort Hnp h αh (Hh, Hnh).
 destruct ns as ((j, αj), (k, αk), segjk).
 remember cons as f in Hnh; simpl in Hnh; subst f.
-destruct (QG_lt_le_dec k h) as [Hlt| Hge]. {
+destruct (le_lt_dec h k) as [Hge| Hlt]. 2: {
   eapply lt_aft_k; simpl; eassumption.
 }
-destruct (QG_eq_dec h k) as [Heq| Hne]. {
+destruct (Nat.eq_dec h k) as [Heq| Hne]. {
   exfalso; revert Heq.
   eapply h_not_k; eassumption.
 }
-destruct (QG_lt_le_dec j h) as [Hlt| Hge₂]. {
-  apply QG_le_neq_lt in Hge; [ | easy ].
-  eapply conj in Hge; [ idtac | eassumption ].
-  eapply lt_bet_j_and_k; eassumption.
+destruct (le_lt_dec h j) as [Hge₂| Hlt]. 2: {
+  eapply lt_bet_j_and_k; cbn; try eassumption.
+  split; [ easy | ].
+  now apply Nat_le_neq_lt.
 }
-destruct (QG_eq_dec h j) as [Heq| Hne₂]. {
+destruct (Nat.eq_dec h j) as [Heq| Hne₂]. {
   exfalso; revert Heq.
   eapply h_not_j; eassumption.
 }
-apply QG_le_neq_lt in Hge₂; [ idtac | assumption ].
 eapply lt_bef_j; simpl; try eassumption.
-split; [ assumption | idtac ].
+split; [ now apply Nat_le_neq_lt | ].
 remember (mkns (j, αj) (k, αk) segjk) as ns.
 apply ini_lt_fin_pt with (ns := ns) in Hsort; [ | easy ].
 subst ns; assumption.

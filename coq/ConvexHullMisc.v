@@ -1,6 +1,6 @@
 (* ConvexHullMisc.v *)
 
-From Stdlib Require Import Utf8.
+From Stdlib Require Import Utf8 Arith.
 From Stdlib Require Import Sorting.
 
 Require Import QGArith.
@@ -13,7 +13,7 @@ Notation "x ∈ l" := (List.In x l) (at level 70).
 Notation "x ∉ l" := (not (List.In x l)) (at level 70).
 Notation "x ++ y" := (List.app x y) (right associativity, at level 60).
 
-Definition fst_lt (x y : QG * QG) := (fst x < fst y).
+Definition fst_lt (x y : nat * QG) := (fst x < fst y)%nat.
 
 Theorem Sorted_app {A} : ∀ (f : A → A → Prop) l₁ l₂,
   Sorted f (l₁ ++ l₂) → Sorted f l₁ ∧ Sorted f l₂.
@@ -50,10 +50,10 @@ intros y Hy.
 apply Hf; right; assumption.
 Qed.
 
-Theorem Sorted_hd : ∀ (pt₁ pt₂ : QG * QG) pts,
+Theorem Sorted_hd : ∀ (pt₁ pt₂ : nat * QG) pts,
   Sorted fst_lt [pt₁ … pts]
   → pt₂ ∈ pts
-    → fst pt₁ < fst pt₂.
+    → (fst pt₁ < fst pt₂)%nat.
 Proof.
 intros pt₁ pt₂ pts Hsort Hpt.
 revert pt₁ pt₂ Hsort Hpt.
@@ -61,7 +61,7 @@ induction pts as [| pt]; intros; [ contradiction | idtac ].
 apply Sorted_inv_2 in Hsort.
 destruct Hsort as (Hlt, Hsort).
 destruct Hpt as [Hpt| Hpt]; [ subst pt; assumption | idtac ].
-eapply QG_lt_trans; [ eassumption | idtac ].
+eapply Nat.lt_trans; [ eassumption | idtac ].
 apply IHpts; assumption.
 Qed.
 
@@ -154,28 +154,28 @@ Qed.
 Theorem minimise_slope_le : ∀ pt₁ pt₂ pts₂ ms,
   Sorted fst_lt [pt₂ … pts₂]
   → minimise_slope pt₁ pt₂ pts₂ = ms
-    → fst pt₂ ≤ fst (fin_pt ms).
+    → (fst pt₂ ≤ fst (fin_pt ms))%nat.
 Proof.
 intros pt₁ pt₂ pts₂ ms Hsort Hms.
 revert pt₁ pt₂ ms Hsort Hms.
 induction pts₂ as [| pt]; intros. {
-  subst ms; apply QG_le_refl.
+  subst ms; apply Nat.le_refl.
 }
 simpl in Hms.
 remember (minimise_slope pt₁ pt pts₂) as ms₁.
 remember (slope_expr pt₁ pt₂ ?= slope ms₁) as c.
-destruct c; subst ms; simpl; [ idtac | apply QG_le_refl | idtac ]. {
-  apply QG_lt_le_incl.
+destruct c; subst ms; simpl; [ idtac | apply Nat.le_refl | idtac ]. {
+  apply Nat.lt_le_incl.
   apply Sorted_inv_2 in Hsort.
   destruct Hsort as (Hlt, Hsort).
-  eapply QG_lt_le_trans; [ eassumption | idtac ].
+  eapply Nat.lt_le_trans; [ eassumption | idtac ].
   symmetry in Heqms₁.
   eapply IHpts₂; eassumption.
 } {
-  apply QG_lt_le_incl.
+  apply Nat.lt_le_incl.
   apply Sorted_inv_2 in Hsort.
   destruct Hsort as (Hlt, Hsort).
-  eapply QG_lt_le_trans; [ eassumption | idtac ].
+  eapply Nat.lt_le_trans; [ eassumption | idtac ].
   symmetry in Heqms₁.
   eapply IHpts₂; eassumption.
 }
@@ -195,7 +195,7 @@ Qed.
 Theorem beg_lt_end_pt : ∀ pt₁ pt₂ pts ms,
   Sorted fst_lt [pt₁; pt₂ … pts]
   → minimise_slope pt₁ pt₂ pts = ms
-  → fst (ini_pt ms) < fst (fin_pt ms).
+  → (fst (ini_pt ms) < fst (fin_pt ms))%nat.
 Proof.
 intros pt₁ pt₂ pts ms Hsort Hms.
 revert pt₁ pt₂ ms Hsort Hms.
@@ -215,7 +215,7 @@ destruct c. {
   rewrite <- Hms₁.
   eapply IHpts; [ idtac | reflexivity ].
   eapply Sorted_minus_2nd; [ idtac | eassumption ].
-  intros x y z H₁ H₂; eapply QG_lt_trans; eassumption.
+  intros x y z H₁ H₂; eapply Nat.lt_trans; eassumption.
 } {
   subst ms; simpl.
   eapply Sorted_hd; [ eassumption | left; reflexivity ].
@@ -223,14 +223,14 @@ destruct c. {
   subst ms₁.
   eapply IHpts; [ idtac | eassumption ].
   eapply Sorted_minus_2nd; [ idtac | eassumption ].
-  intros x y z H₁ H₂; eapply QG_lt_trans; eassumption.
+  intros x y z H₁ H₂; eapply Nat.lt_trans; eassumption.
 }
 Qed.
 
 Theorem ini_lt_fin_pt : ∀ pts ns,
   Sorted fst_lt pts
   → lower_convex_hull_points pts = Some ns
-  → fst (ini_pt ns) < fst (fin_pt ns).
+  → (fst (ini_pt ns) < fst (fin_pt ns))%nat.
 Proof.
 intros pts ns Hsort Hns.
 unfold lower_convex_hull_points in Hns.

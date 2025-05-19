@@ -8,9 +8,9 @@ Require Import Slope_base.
 Open Scope QG.
 
 Record newton_segment := mkns
-  { ini_pt : (QG * QG);
-    fin_pt : (QG * QG);
-    oth_pts : list (QG * QG) }.
+  { ini_pt : (nat * QG);
+    fin_pt : (nat * QG);
+    oth_pts : list (nat * QG) }.
 
 Definition slope ms := slope_expr (ini_pt ms) (fin_pt ms).
 

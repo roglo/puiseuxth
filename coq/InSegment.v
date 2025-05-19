@@ -3,7 +3,7 @@
 (* points in newton segment *)
 
 Set Nested Proofs Allowed.
-From Stdlib Require Import Utf8 Sorting.
+From Stdlib Require Import Utf8 Arith Sorting.
 From Stdlib Require Import Field.
 
 Require Import QGArith.
@@ -17,7 +17,7 @@ Theorem points_in_any_newton_segment₁ : ∀ ns pts,
   Sorted fst_lt pts
   → lower_convex_hull_points pts = Some ns
     → ∀ h αh, (h, αh) ∈ [ini_pt ns; fin_pt ns … oth_pts ns]
-      → β ns = αh + h * γ ns.
+      → β ns = αh + QG_of_nat h * γ ns.
 Proof.
 intros ns pts Hsort Hns h αh Hαh.
 unfold lower_convex_hull_points in Hns.
@@ -43,6 +43,7 @@ destruct Hαh as [Hαh| Hαh]. {
   remember Heqx as H; clear HeqH.
   rewrite Hαh in Heqx; simpl in Heqx.
   subst x h.
+  apply QG_of_nat_lt.
   eapply beg_lt_end_pt; [ eassumption | symmetry; eassumption ].
 } {
   subst ns; simpl in Hαh.
@@ -75,12 +76,13 @@ destruct Hαh as [Hαh| Hαh]. {
       rewrite <- Heqc.
       field.
       apply Sorted_inv_2 in Hsort; destruct Hsort as (Hlt, Hsort).
-      now apply QG_lt_0_neq_0, QG_lt_0_sub.
+      apply QG_lt_0_neq_0, QG_lt_0_sub.
+      now apply QG_of_nat_lt.
     }
     replace pt₁ with (ini_pt ms₁) .
     eapply IHpts; try eassumption.
     eapply Sorted_minus_2nd; [ idtac | eassumption ].
-    intros x y z H₁ H₂; eapply QG_lt_trans; eassumption.
+    intros x y z H₁ H₂; eapply Nat.lt_trans; eassumption.
     rewrite Hms₁, minimised_slope_beg_pt; reflexivity.
   } {
     subst ms; contradiction.
@@ -88,7 +90,7 @@ destruct Hαh as [Hαh| Hαh]. {
     subst ms.
     eapply IHpts; try eassumption.
     eapply Sorted_minus_2nd; [ idtac | eassumption ].
-    intros x y z H₁ H₂; eapply QG_lt_trans; eassumption.
+    intros x y z H₁ H₂; eapply Nat.lt_trans; eassumption.
   }
 }
 Qed.

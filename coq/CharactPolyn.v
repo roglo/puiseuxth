@@ -27,8 +27,6 @@ Record term α β := { coeff : α; power : β }.
 
 (* *)
 
-Definition nat_num q := Z.to_nat (QG_num q).
-
 Fixpoint make_char_pol α (R : ring α) pow tl :=
   match tl with
   | [] => []
@@ -37,19 +35,19 @@ Fixpoint make_char_pol α (R : ring α) pow tl :=
         [coeff t₁ … make_char_pol R (S (power t₁)) tl₁]
     end.
 
-Definition lap_term_of_point α {R : ring α} {K : field R} la (pt : QG * QG) :=
-  let h := nat_num (fst pt) in
+Definition lap_term_of_point α {R : ring α} {K : field R} la (pt : nat * QG) :=
+  let h := fst pt in
   let ps := List.nth h la 0%ps in
   let c := order_coeff ps in
   {| coeff := c; power := h |}.
 
-Definition term_of_point α {R : ring α} {K : field R} f (pt : QG * QG) :=
+Definition term_of_point α {R : ring α} {K : field R} f (pt : nat * QG) :=
   lap_term_of_point (al f) pt.
 
 Definition Φq α {R : ring α} {K : field R} f L :=
   let pl := [ini_pt L … oth_pts L ++ [fin_pt L]] in
   let tl := List.map (term_of_point f) pl in
-  let j := nat_num (fst (ini_pt L)) in
+  let j := fst (ini_pt L) in
   {| al := make_char_pol R j tl |}.
 
 Definition ps_lap_com_polydo α (psl : list (puiseux_series α)) :=
@@ -59,14 +57,6 @@ Definition ps_pol_com_polydo {α} f := @ps_lap_com_polydo α (al f).
 Arguments ps_pol_com_polydo _ f%_pol.
 
 (* *)
-
-Theorem nat_num_Qnat : ∀ i, nat_num (QG_of_nat i) = i.
-Proof.
-intros i.
-progress unfold nat_num.
-rewrite QG_num_of_nat.
-apply Nat2Z.id.
-Qed.
 
 Fixpoint list_shrink_aux α cnt k₁ (l : list α) :=
   match l with
@@ -120,7 +110,7 @@ Variable K : field R.
 
 Theorem al_Φq : ∀ f L,
   al (Φq f L)
-  = make_char_pol R (nat_num (fst (ini_pt L)))
+  = make_char_pol R (fst (ini_pt L))
       (List.map (term_of_point f) [ini_pt L … oth_pts L ++ [fin_pt L]]).
 Proof.
 intros f L; reflexivity.
@@ -129,51 +119,13 @@ Qed.
 Theorem Φq_f : ∀ f L,
   Φq f L
   = POL
-      (make_char_pol R (nat_num (fst (ini_pt L)))
+      (make_char_pol R (fst (ini_pt L))
          (List.map (term_of_point f)
             [ini_pt L … oth_pts L ++ [fin_pt L]]))%pol.
 Proof.
 intros f L.
 progress unfold Φq; simpl.
 reflexivity.
-Qed.
-
-Theorem pt_absc_is_nat : ∀ f pts pt,
-  points_of_ps_polynom f = pts
-  → pt ∈ pts
-    → fst pt = QG_of_nat (Z.to_nat (QG_num (fst pt))).
-Proof.
-intros f pts pt Hpts Hαh.
-progress unfold points_of_ps_polynom, points_of_ps_lap in Hpts.
-remember (al f) as cl; clear Heqcl.
-remember 0%nat as n in Hpts; clear Heqn.
-progress unfold points_of_ps_lap_gen in Hpts.
-progress unfold qpower_list in Hpts.
-revert n pts Hpts Hαh.
-induction cl as [| c]; intros; [ subst pts; contradiction | idtac ].
-simpl in Hpts.
-destruct cl as [| c₁]. {
-  simpl in Hpts.
-  destruct (order c); subst pts; [ idtac | contradiction ].
-  simpl in Hαh.
-  destruct Hαh as [Hαh| ]; [ idtac | contradiction ].
-  subst pt; simpl.
-  rewrite QG_num_of_nat; f_equal.
-  symmetry; apply Nat2Z.id.
-} {
-  simpl in Hpts.
-  simpl in IHcl.
-  destruct (order c). {
-    subst pts.
-    destruct Hαh as [Hαh| Hαh]. {
-      subst pt; simpl.
-      rewrite QG_num_of_nat; f_equal.
-      symmetry; apply Nat2Z.id.
-    }
-    eapply IHcl; [ reflexivity | eassumption ].
-  }
-  eapply IHcl; eassumption.
-}
 Qed.
 
 Theorem in_seg_in_pts : ∀ pt pt₁ pt₂ pts,
@@ -264,7 +216,7 @@ Qed.
 Theorem pt₁_bef_seg : ∀ pt₁ pt₂ pts pth,
   Sorted fst_lt [pt₁; pt₂ … pts]
   → pth ∈ oth_pts (minimise_slope pt₁ pt₂ pts)
-  → fst pt₁ < fst pth.
+  → (fst pt₁ < fst pth)%nat.
 Proof.
 intros pt₁ pt₂ pts pth Hsort Hh.
 revert pt₁ pt₂ pth Hsort Hh.
@@ -282,14 +234,14 @@ destruct c. {
   subst ms₃.
   eapply IHpts; [ idtac | eassumption ].
   eapply Sorted_minus_2nd; [ idtac | eassumption ].
-  intros x y z H₁ H₂; eapply QG_lt_trans; eassumption.
+  intros x y z H₁ H₂; eapply Nat.lt_trans; eassumption.
 } {
   contradiction.
 } {
   subst ms₃.
   eapply IHpts; [ idtac | eassumption ].
   eapply Sorted_minus_2nd; [ idtac | eassumption ].
-  intros x y z H₁ H₂; eapply QG_lt_trans; eassumption.
+  intros x y z H₁ H₂; eapply Nat.lt_trans; eassumption.
 }
 Qed.
 
@@ -298,7 +250,7 @@ Theorem vert_bef_edge : ∀ pts hs j αj h αh,
   → lower_convex_hull_points pts = Some hs
   → (j, αj) = ini_pt hs
   → (h, αh) ∈ oth_pts hs
-  → j < h.
+  → (j < h)%nat.
 Proof.
 intros pts hs j αj h αh Hsort Hnp Hj Hh.
 destruct pts as [| pt₁]; [ discriminate Hnp | idtac ].
@@ -313,7 +265,7 @@ Theorem jq_lt_hq : ∀ (f : puis_ser_pol α) j αj h αh L,
   newton_segments f = Some L
   → (j, αj) = ini_pt L
   → (h, αh) ∈ oth_pts L
-  → j < h.
+  → (j < h)%nat.
 Proof.
 intros f j αj h αh L HL Hjαj Hhαh.
 progress unfold newton_segments in HL.
@@ -322,18 +274,14 @@ apply points_of_polyn_sorted in Heqpts.
 eapply vert_bef_edge; eassumption.
 Qed.
 
-Theorem j_lt_h : ∀ (f : puis_ser_pol α) j αj jq h αh hq L,
+Theorem j_lt_h : ∀ (f : puis_ser_pol α) j αj h αh L,
   newton_segments f = Some L
-  → (jq, αj) = ini_pt L
-  → (hq, αh) ∈ oth_pts L
-  → jq = QG_of_nat j
-  → hq = QG_of_nat h
+  → (j, αj) = ini_pt L
+  → (h, αh) ∈ oth_pts L
   → (j < h)%nat.
 Proof.
-intros f j αj jq h αh hq L HL Hj Hh Hjq Hhq.
+intros * HL Hj Hh.
 eapply jq_lt_hq in Hh; try eassumption.
-rewrite Hjq, Hhq in Hh.
-apply QG_of_nat_lt; assumption.
 Qed.
 
 Theorem seg_bef_end_pt : ∀ pt₁ pt₂ pts ms₁ hq αh kq αk,
@@ -341,7 +289,7 @@ Theorem seg_bef_end_pt : ∀ pt₁ pt₂ pts ms₁ hq αh kq αk,
   → minimise_slope pt₁ pt₂ pts = ms₁
   → (hq, αh) ∈ oth_pts ms₁
   → (kq, αk) = fin_pt ms₁
-  → hq < kq.
+  → (hq < kq)%nat.
 Proof.
 fix IHpts 3.
 intros pt₁ pt₂ pts ms₁ hq αh kq αk Hsort Hms₁ Hseg Hend.
@@ -363,14 +311,14 @@ destruct c. {
   }
   eapply IHpts with (pts := pts); try eassumption.
   eapply Sorted_minus_2nd; [ idtac | eassumption ].
-  intros x y z H₁ H₂; eapply QG_lt_trans; eassumption.
+  intros x y z H₁ H₂; eapply Nat.lt_trans; eassumption.
 } {
   subst ms₁; simpl in Hseg, Hend; contradiction.
 } {
   subst ms₁; simpl in Hseg, Hend.
   eapply IHpts with (pts := pts); try eassumption.
   eapply Sorted_minus_2nd; [ idtac | eassumption ].
-  intros x y z H₁ H₂; eapply QG_lt_trans; eassumption.
+  intros x y z H₁ H₂; eapply Nat.lt_trans; eassumption.
 }
 Qed.
 
@@ -378,7 +326,7 @@ Theorem hq_lt_kq : ∀ (f : puis_ser_pol α) hq αh kq αk L,
   newton_segments f = Some L
   → (hq, αh) ∈ oth_pts L
   → (kq, αk) = fin_pt L
-  → hq < kq.
+  → (hq < kq)%nat.
 Proof.
 intros f hq αh kq αk L HL Hoth Hfin.
 progress unfold newton_segments in HL.
@@ -394,35 +342,27 @@ Qed.
 
 Theorem j_lt_k : ∀ (f : puis_ser_pol α) j k L,
   newton_segments f = Some L
-  → j = nat_num (fst (ini_pt L))
-  → k = nat_num (fst (fin_pt L))
+  → j = fst (ini_pt L)
+  → k = fst (fin_pt L)
   → (j < k)%nat.
 Proof.
 intros f j k L HL Hj Hk.
 progress unfold newton_segments in HL.
 remember (points_of_ps_polynom f) as pts.
 remember Heqpts as Hj₁; clear HeqHj₁; symmetry in Hj₁.
-eapply pt_absc_is_nat with (pt := ini_pt L) in Hj₁. {
-  remember Heqpts as Hk₁; clear HeqHk₁; symmetry in Hk₁.
-  eapply pt_absc_is_nat with (pt := fin_pt L) in Hk₁. {
-    apply points_of_polyn_sorted in Heqpts.
-    assert (fst (ini_pt L) < fst (fin_pt L)). {
-      eapply ini_lt_fin_pt; eassumption.
-    }
-    rewrite Hj₁, Hk₁ in H.
-    apply QG_of_nat_lt in H.
-    subst j k; assumption.
-  }
-  apply ini_fin_ns_in_init_pts; assumption.
+remember Heqpts as Hk₁; clear HeqHk₁; symmetry in Hk₁.
+apply points_of_polyn_sorted in Heqpts.
+assert (fst (ini_pt L) < fst (fin_pt L))%nat. {
+  eapply ini_lt_fin_pt; eassumption.
 }
-apply ini_fin_ns_in_init_pts; assumption.
+congruence.
 Qed.
 
 Theorem jz_lt_kz : ∀ (f : puis_ser_pol α) jz kz L,
   newton_segments f = Some L
-  → jz = QG_num (fst (ini_pt L))
-  → kz = QG_num (fst (fin_pt L))
-  → (jz < kz)%Z.
+  → jz = fst (ini_pt L)
+  → kz = fst (fin_pt L)
+  → (jz < kz)%nat.
 Proof.
 intros f jz kz L HL Hjz Hkz.
 remember HL as H; clear HeqH.
@@ -433,6 +373,7 @@ remember (fin_pt L) as kak.
 destruct kak as (k, ak).
 simpl in Hjz, Hkz, H.
 subst jz kz.
+...
 apply Z2Nat.inj_lt; [ idtac | idtac | assumption ]. {
   progress unfold newton_segments in HL.
   remember (points_of_ps_polynom f) as pts.
