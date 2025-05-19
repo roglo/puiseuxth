@@ -852,6 +852,7 @@ symmetry in Hv.
 destruct v; [ idtac | discriminate H ].
 injection H; clear H; intros H.
 rewrite <- H.
+Print series_order.
 ...
 reflexivity.
 apply QG_den_of_Z_pair.
