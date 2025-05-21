@@ -2057,43 +2057,19 @@ subst h₁.
 eapply Sorted_fst_2nd_lt_last; eassumption.
 Qed.
 
-Theorem oth_pts_den_1 : ∀ f L,
-  newton_segments f = Some L
-  → List.Forall (λ pt, Pos.of_nat (fst pt) = 1%positive) (oth_pts L).
-Proof.
-intros f L HL.
-apply List.Forall_forall.
-intros pt Hpt.
-...
-eapply exists_oth_pt_nat in Hpt; [ idtac | eassumption ].
-destruct Hpt as (h, (αh, Hpt)).
-subst pt; reflexivity.
-Qed.
-
 Theorem Sorted_Qnat_Sorted_Qnum : ∀ pts,
   Sorted fst_lt pts
-  → List.Forall (λ pt, Qden (fst pt) = 1%positive) pts
-  → Sorted (λ pt₁ pt₂, Qnum (fst pt₁) < Qnum (fst pt₂)) pts.
+  → Sorted (λ pt₁ pt₂, (fst pt₁ < fst pt₂)%nat) pts.
 Proof.
-intros pts Hsort Hden1.
+intros pts Hsort.
 apply Sorted_LocallySorted_iff in Hsort.
 apply Sorted_LocallySorted_iff.
 induction pts as [| pt]; [ constructor | idtac ].
 destruct pts as [| pt₂]; constructor. {
-  apply IHpts. {
-    inversion Hsort; assumption.
-  }
-  eapply list_Forall_inv; eassumption.
+  apply IHpts.
+  inversion Hsort; assumption.
 }
-inversion Hsort; subst.
-apply list_Forall_inv in Hden1.
-destruct Hden1 as (Hden1, H).
-apply list_Forall_inv in H.
-destruct H as (Hden₂, _).
-progress unfold fst_lt in H3.
-progress unfold Qlt in H3.
-rewrite Hden1, Hden₂ in H3.
-do 2 rewrite Z.mul_1_r in H3; assumption.
+now inversion Hsort.
 Qed.
 
 (* [Walker, p. 100] « Therefore (3.4) has the form c^j Φ(c^q) = 0
@@ -2101,8 +2077,8 @@ Qed.
 Theorem phi_degree_is_k_sub_j_div_q : ∀ f L j αj k αk q m,
   newton_segments f = Some L
   → pol_in_K_1_m f m
-  → (Qnat j, αj) = ini_pt L
-  → (Qnat k, αk) = fin_pt L
+  → (j, αj) = ini_pt L
+  → (k, αk) = fin_pt L
   → q = Pos.to_nat (q_of_m m (γ L))
   → poly_shrinkable q (Φq f L)
      ∧ has_degree (Φs q f L) ((k - j) / q).
@@ -2113,22 +2089,16 @@ split. {
     remember HL as H; clear HeqH.
     apply ini_oth_fin_pts_sorted in H.
     apply Sorted_fst_lt_nat_num_fst in H; auto with Arith.
-    intros pt Hpt.
-    progress unfold Qnat.
-    eapply points_in_newton_segment_have_nat_abscissa in Hpt; [ | apply HL ].
-    destruct Hpt as (h, (ah, Hpt)).
-    subst pt; simpl.
-    rewrite Nat2Z.id; reflexivity.
   } {
     rewrite Hq; auto with Arith.
   }
   apply List.Forall_forall.
   intros pt Hpt.
   rewrite <- Hj; simpl.
-  rewrite nat_num_Qnat.
   apply List.in_app_or in Hpt.
   destruct Hpt as [Hpt| Hpt]. {
     remember Hpt as H; clear HeqH.
+...
     eapply exists_oth_pt_nat in H; eauto with Arith.
     destruct H as (h, (ah, Hoth)).
     subst pt; simpl.
