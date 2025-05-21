@@ -875,7 +875,8 @@ assert (h < k)%nat as Hhk. {
   apply Sorted_inv_1 in Hsort.
   clear Hjk.
   clear IHpts.
-  revert h k αh αk Hsort Hlast Hjh H₁.
+  clear j Hjh.
+  revert h k αh αk Hsort Hlast H₁.
   induction pts as [| (l, al)]; intros. {
     now injection Hlast; clear Hlast; intros HH H.
   }
@@ -889,13 +890,7 @@ assert (h < k)%nat as Hhk. {
   apply Sorted_inv_1 in Hsort.
   remember [(l, al) … pts] as p; simpl in Hlast; subst p.
   apply Nat.lt_le_incl.
-  eapply IHpts; try eassumption. {
-    intros.
-...
-    intros; apply Hnat with (αi := αi); right; assumption.
-  } {
-    intros; apply Hjh with (αi := αi); right; assumption.
-  }
+  eapply IHpts; eassumption.
 }
 remember Hhk as H; clear HeqH.
 apply Nat.lt_le_incl in H.
@@ -918,13 +913,9 @@ apply Hi. {
   rewrite fold_right_eqb_or. {
     simpl in Hlast.
     destruct pts as [| (l, al)]. {
-      injection Hlast; clear Hlast; intros HH H; subst αh.
-      apply Nat2Z.inj in H; subst h.
-      exfalso; apply H₁; reflexivity.
+      now injection Hlast; clear Hlast; intros HH H; subst αh.
     }
     eapply IHpts with (αj := αh); try eassumption. {
-      intros; apply Hnat with (αi := αi); right; assumption.
-    } {
       intros i αi Hpti.
       apply Sorted_inv_1 in Hsort.
       simpl in Hpti.
@@ -932,9 +923,7 @@ apply Hi. {
         injection H; clear H; intros; subst l al.
         apply Sorted_inv in Hsort.
         destruct Hsort as (_, Hrel).
-        apply HdRel_inv in Hrel.
-        progress unfold fst_lt in Hrel; simpl in Hrel.
-        apply Qnat_lt; assumption.
+        now apply HdRel_inv in Hrel.
       }
       apply Sorted_minus_2nd in Hsort. {
         revert Hsort H; clear; intros.
@@ -944,15 +933,13 @@ apply Hi. {
           injection H; clear H; intros; subst l al.
           apply Sorted_inv in Hsort.
           destruct Hsort as (_, Hrel).
-          apply HdRel_inv in Hrel.
-          progress unfold fst_lt in Hrel; simpl in Hrel.
-          apply Qnat_lt; assumption.
+          now apply HdRel_inv in Hrel.
         }
         eapply IHpts; [ idtac | eassumption ].
         eapply Sorted_minus_2nd; [ idtac | eassumption ].
-        intros x y z H₁ H₂; eapply Qlt_trans; eassumption.
+        intros x y z H₁ H₂; eapply Nat.lt_trans; eassumption.
       }
-      intros; eapply Qlt_trans; eassumption.
+      intros; eapply Nat.lt_trans; eassumption.
     }
     eapply Sorted_inv_1; eassumption.
   }
@@ -971,10 +958,11 @@ destruct b. {
 }
 simpl.
 apply Sorted_inv_1 in Hsort.
-revert Hnat Hsort Hij; clear; intros.
-revert h i Hnat Hsort Hij.
+revert Hsort Hij; clear; intros.
+revert h i Hsort Hij.
 induction pts as [| (l, al)]; intros; [ reflexivity | simpl ].
-assert ((l, al) ∈ [(Qnat h, αh); (l, al) … pts]) as H by now right; left.
+assert ((l, al) ∈ [(h, αh); (l, al) … pts]) as H by now right; left.
+...
 apply Hnat in H.
 destruct H as (m, Hm); subst l; rename m into l.
 rewrite nat_num_Qnat.
