@@ -6,9 +6,9 @@ Import ListNotations.
 Require Import Slope_base.
 
 Record newton_segment := mkns
-  { ini_pt : (Q * Q);
-    fin_pt : (Q * Q);
-    oth_pts : list (Q * Q) }.
+  { ini_pt : (nat * Q);
+    fin_pt : (nat * Q);
+    oth_pts : list (nat * Q) }.
 
 Definition slope ms := slope_expr (ini_pt ms) (fin_pt ms).
 

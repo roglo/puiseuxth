@@ -2,7 +2,7 @@
 
 (* points in newton segment *)
 
-From Stdlib Require Import Utf8 QArith Sorting.
+From Stdlib Require Import Utf8 Arith QArith Sorting.
 
 Require Import Misc.
 Require Import Slope_base.
@@ -14,7 +14,7 @@ Theorem points_in_any_newton_segment₁ : ∀ ns pts,
   Sorted fst_lt pts
   → lower_convex_hull_points pts = Some ns
     → ∀ h αh, (h, αh) ∈ [ini_pt ns; fin_pt ns … oth_pts ns]
-      → β ns == αh + h * γ ns.
+      → β ns == αh + Qnat h * γ ns.
 Proof.
 intros ns pts Hsort Hns h αh Hαh.
 unfold lower_convex_hull_points in Hns.
@@ -40,6 +40,7 @@ destruct Hαh as [Hαh| Hαh]. {
   remember Heqx as H; clear HeqH.
   rewrite Hαh in Heqx; simpl in Heqx.
   subst x h.
+  apply Qnat_lt.
   eapply beg_lt_end_pt; [ eassumption | symmetry; eassumption ].
 } {
   subst ns; simpl in Hαh.
@@ -67,14 +68,18 @@ destruct Hαh as [Hαh| Hαh]. {
       apply Qeq_opp_r in Heqc.
       do 2 rewrite Qopp_minus in Heqc.
       rewrite <- Heqc.
+      progress unfold Qnat.
       field.
       apply Sorted_inv_2 in Hsort; destruct Hsort as (Hlt, Hsort).
-      apply Qgt_0_not_0, Qlt_minus; assumption.
+      apply Qgt_0_not_0, Qlt_minus.
+      progress unfold Qlt.
+      do 2 rewrite Z.mul_1_r.
+      now apply Znat.inj_lt.
     }
     replace pt₁ with (ini_pt ms₁) .
     eapply IHpts; try eassumption.
     eapply Sorted_minus_2nd; [ idtac | eassumption ].
-    intros x y z H₁ H₂; eapply Qlt_trans; eassumption.
+    intros x y z H₁ H₂; eapply Nat.lt_trans; eassumption.
     rewrite Hms₁, minimised_slope_beg_pt; reflexivity.
   } {
     subst ms; contradiction.
@@ -82,7 +87,7 @@ destruct Hαh as [Hαh| Hαh]. {
     subst ms.
     eapply IHpts; try eassumption.
     eapply Sorted_minus_2nd; [ idtac | eassumption ].
-    intros x y z H₁ H₂; eapply Qlt_trans; eassumption.
+    intros x y z H₁ H₂; eapply Nat.lt_trans; eassumption.
   }
 }
 Qed.
