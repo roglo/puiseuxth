@@ -556,6 +556,7 @@ remember (Pos.to_nat (q_of_m m (γ L))) as q eqn:Hq .
 remember (ini_pt L) as jj eqn:Hj .
 destruct jj as (jq, αj); simpl.
 remember HL as H; clear HeqH.
+...
 apply exists_ini_pt_nat in H.
 destruct H as (j, (x, Hx)).
 rewrite <- Hj in Hx; injection Hx; clear Hx; intros; subst jq x.

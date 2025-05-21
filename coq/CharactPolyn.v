@@ -1981,13 +1981,12 @@ Theorem list_nth_coeff_last : ∀ f j αj k αk tl,
   → (k, αk) = List.last tl (0%nat, 0%Q)
   → (j < k)%nat
   → Sorted (λ pt₁ pt₂, (fst pt₁ < fst pt₂)%nat) tl
-  → List.Forall (λ pt, Pos.of_nat (fst pt) = xH) tl
   → List.nth (k - j)
       (make_char_pol R j
          (List.map (term_of_point f) tl)) 0%K =
       coeff (term_of_point f (List.last tl (0%nat, 0%Q))).
 Proof.
-intros f j αj k αk tl Hj Hk Hjk Hsort Hden; simpl.
+intros f j αj k αk tl Hj Hk Hjk Hsort; simpl.
 destruct tl as [| t₁]. {
   simpl in Hj, Hk.
   injection Hj; clear Hj; intros; subst αj.
@@ -2009,7 +2008,7 @@ destruct kj; [ exfalso; fast_omega Hjk Hkj | idtac ].
 destruct k; [ discriminate Hkj | idtac ].
 rewrite Nat.sub_succ_l in Hkj; [ idtac | fast_omega Hjk ].
 apply eq_add_S in Hkj; subst kj.
-revert j αj k αk t₁ t₂ Hj Hk Hjk Hsort Hden.
+revert j αj k αk t₁ t₂ Hj Hk Hjk Hsort.
 induction tl as [| t₃]; intros. {
   simpl in Hk; subst t₂; simpl.
   remember (S k) as x; simpl; subst x.
@@ -2028,16 +2027,6 @@ rewrite list_nth_pad_sub. {
       } {
         now apply Sorted_inv in Hsort.
       }
-      simpl.
-      constructor. {
-        cbn.
-        apply list_Forall_inv in Hden.
-        destruct Hden as (_, H).
-        now apply list_Forall_inv in H.
-      }
-      apply list_Forall_inv in Hden.
-      destruct Hden as (_, H).
-      now apply list_Forall_inv in H.
     }
     apply Nat.lt_succ_r.
     eapply Sorted_fst_2nd_lt_last; eassumption.
@@ -2097,19 +2086,13 @@ split. {
   rewrite <- Hj; simpl.
   apply List.in_app_or in Hpt.
   destruct Hpt as [Hpt| Hpt]. {
-    remember Hpt as H; clear HeqH.
-...
-    eapply exists_oth_pt_nat in H; eauto with Arith.
-    destruct H as (h, (ah, Hoth)).
-    subst pt; simpl.
-    rewrite nat_num_Qnat.
+    destruct pt as (h, αh); cbn.
     eapply q_is_factor_of_h_minus_j; eauto with Arith.
     apply List.in_or_app; left; eauto with Arith.
   }
   destruct Hpt as [Hpt| ]; [ idtac | contradiction ].
   subst pt; simpl.
   rewrite <- Hk; simpl.
-  rewrite nat_num_Qnat.
   eapply q_is_factor_of_h_minus_j; eauto with Arith.
   apply List.in_or_app.
   right; left; eauto with Arith.
@@ -2123,7 +2106,6 @@ apply imp_or_tauto. {
   rewrite Φq_f in Heql.
   remember [ini_pt L … oth_pts L ++ [fin_pt L]] as pl.
   rewrite <- Hj in Heql; simpl in Heql.
-  rewrite nat_num_Qnat in Heql.
   subst l.
   progress unfold list_shrink.
   rewrite list_nth_shrink.
@@ -2138,17 +2120,14 @@ apply imp_or_tauto. {
     erewrite list_nth_coeff_last; try eassumption. {
       rewrite list_last_cons_app; simpl.
       rewrite <- Hk; simpl.
-      rewrite nat_num_Qnat; simpl.
       eapply ord_coeff_non_zero_in_newt_segm; [ apply HL | | easy ].
       rewrite <- Hk; right.
       apply List.in_or_app; right; left; reflexivity.
     } {
       rewrite list_last_cons_app; eassumption.
     } {
-      eapply j_lt_k; try eassumption. {
-        rewrite <- Hj; simpl; rewrite nat_num_Qnat; reflexivity.
-      }
-      rewrite <- Hk; simpl; rewrite nat_num_Qnat; reflexivity.
+      eapply j_lt_k; try eassumption; [ now rewrite <- Hj | ].
+      now rewrite <- Hk.
     } {
       constructor. {
         apply Sorted_app_at_r. {
@@ -2157,60 +2136,27 @@ apply imp_or_tauto. {
           apply Sorted_inv_1 in Hsort.
           apply Sorted_app in Hsort.
           destruct Hsort as (Hsort, _).
-          apply Sorted_Qnat_Sorted_Qnum. {
-            apply ini_oth_fin_pts_sorted in HL.
-            apply Sorted_inv_1 in HL.
-            apply Sorted_app in HL.
-            destruct HL; assumption.
-          }
-          eapply oth_pts_den_1; eassumption.
+          apply Sorted_Qnat_Sorted_Qnum.
+          apply ini_oth_fin_pts_sorted in HL.
+          apply Sorted_inv_1 in HL.
+          now apply Sorted_app in HL.
         }
         intros pt Hpt.
         remember HL as Hsort; clear HeqHsort.
         apply ini_oth_fin_pts_sorted in Hsort.
         apply Sorted_inv_1 in Hsort.
-        apply Sorted_Qnat_Sorted_Qnum in Hsort. {
-          eapply Sorted_trans_app in Hsort; try eassumption.
-          intros x y z H₁ H₂; eapply Z.lt_trans; eassumption.
-        }
-        apply List.Forall_forall; intros x Hx.
-        apply List.in_app_or in Hx.
-        destruct Hx as [Hx| Hx]. {
-          revert x Hx.
-          apply List.Forall_forall.
-          eapply oth_pts_den_1; eassumption.
-        }
-        destruct Hx as [Hx| ]; [ idtac | contradiction ].
-        rewrite <- Hx, <- Hk; reflexivity.
+        apply Sorted_Qnat_Sorted_Qnum in Hsort.
+        eapply Sorted_trans_app in Hsort; try eassumption.
+        intros x y z H₁ H₂; eapply Nat.lt_trans; eassumption.
       }
       apply HdRel_app; [ idtac | constructor ]. {
         remember (oth_pts L) as pts eqn:Hpts .
         symmetry in Hpts.
         destruct pts as [| pt]; constructor.
         rewrite <- Hj; simpl.
-        apply Z2Nat.inj_lt. {
-          apply Nat2Z.is_nonneg.
-        } {
-          apply oth_pts_in_init_pts with (pt := pt) in HL. {
-            eapply pt_absc_is_nat in HL; [ idtac | reflexivity ].
-            rewrite HL; simpl.
-            apply Nat2Z.is_nonneg.
-          }
-          rewrite Hpts; left; reflexivity.
-        }
-        rewrite Nat2Z.id.
         destruct pt as (h, αh); simpl.
         eapply j_lt_h; try eassumption; try reflexivity.
-        rewrite Hpts; left.
-        progress unfold Qnat; simpl.
-        remember HL as Hpt; clear HeqHpt.
-        apply oth_pts_in_init_pts with (pt := (h, αh)) in Hpt. {
-          eapply pt_absc_is_nat in Hpt; [ idtac | reflexivity ].
-          simpl in Hpt; rewrite Hpt.
-          progress unfold Qnat; simpl.
-          rewrite Nat2Z.id; reflexivity.
-        }
-        rewrite Hpts; left; reflexivity.
+        now rewrite Hpts; left.
       }
       rewrite <- Hj, <- Hk; simpl.
       eapply jz_lt_kz; try eassumption. {
@@ -2219,16 +2165,6 @@ apply imp_or_tauto. {
         rewrite <- Hk; reflexivity.
       }
     }
-    constructor; [ now rewrite <- Hj | ].
-    apply List.Forall_forall; intros pt Hpt.
-    apply List.in_app_or in Hpt.
-    destruct Hpt as [Hpt| Hpt]. {
-      revert pt Hpt.
-      apply List.Forall_forall.
-      eapply oth_pts_den_1; eassumption.
-    }
-    destruct Hpt as [Hpt| ]; [ idtac | contradiction ].
-    rewrite <- Hpt, <- Hk; reflexivity.
   }
   eapply q_is_factor_of_h_minus_j; try eassumption.
   apply List.in_or_app; right; left; symmetry; eassumption.
