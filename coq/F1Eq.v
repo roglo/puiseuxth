@@ -592,24 +592,20 @@ destruct (Nat.eq_dec h l) as [H| H]. {
   induction pl as [| (m, am)]; intros; [ contradiction | simpl ].
   simpl in Hin.
   destruct Hin as [Hin| Hin]. {
-    subst h.
+    subst h l.
     apply Sorted_inv_2 in Hsort.
     destruct Hsort as (Hrel, Hsort).
     progress unfold fst_lt in Hrel; simpl in Hrel.
-    rewrite <- H in Hrel.
     now apply Nat.lt_irrefl in Hrel.
   }
-  apply Sorted_minus_2nd in Hsort. {
-    eapply IHpl; try eassumption.
-  }
+  apply Sorted_minus_2nd in Hsort; [ eapply IHpl; eassumption | ].
   intros x y z H₁ H₂; eapply Nat.lt_trans; eassumption.
 }
 right.
-apply IHpl. {
-  eapply Sorted_inv_1; eassumption.
-}
+apply IHpl; [ eapply Sorted_inv_1; eassumption | ].
 destruct Hin as [Hin| Hin]; [ idtac | assumption ].
-now symmetry in Hin.
+simpl in Hin.
+now subst h.
 Qed.
 
 (* Σah.x^(αh+h.γ).(c₁+y₁)^h = Σah.x^β.(c₁+y₁)^h *)

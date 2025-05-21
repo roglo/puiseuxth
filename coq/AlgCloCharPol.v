@@ -787,11 +787,9 @@ remember (ini_pt L) as jj eqn:Hj .
 destruct jj as (j, αj); simpl.
 simpl in H.
 revert H.
-eapply ord_coeff_non_zero_in_newt_segm; [ eassumption | idtac | idtac ]. {
-  symmetry in Hj.
-  left; eassumption.
-}
-easy.
+eapply ord_coeff_non_zero_in_newt_segm; [ eassumption | idtac | easy ].
+symmetry in Hj.
+left; eassumption.
 Qed.
 
 End theorems.
