@@ -474,6 +474,7 @@ Theorem summation_split_val : ∀ f L γ₁ c₁ pl tl l,
            ps_pol_summ ps_field l
              (λ h,
               let ah := ps_monom (coeff_of_term h tl) 0 in
+...
               let αh := ord_of_pt h pl in
               POL [(ah * ps_monom 1%K (αh + Qnat h * γ₁))%ps] *
               POL [ps_monom c₁ 0; 1%ps … []] ^ h) +
