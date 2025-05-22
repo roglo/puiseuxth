@@ -1509,10 +1509,9 @@ Theorem phi_c₁y₁_psi : ∀ f L pl tl l c₁ r Ψ j αj,
          (POL [ps_monom c₁ 0; 1%ps … []]))%pspol.
 Proof.
 intros f L pl tl l c₁ r Ψ j αj HL Hc₁ Hr HΨ Hpl Htl Hl Hini.
-...
-remember HL as Hfin; clear HeqHfin.
-apply exists_fin_pt_nat in Hfin.
-destruct Hfin as (k, (αk, Hk)).
+remember (fin_pt L) as k eqn:Hfin.
+symmetry in Hfin.
+destruct k as (k, αk).
 symmetry.
 progress unfold ps_pol_mul.
 rewrite poly_mul_comm, poly_mul_assoc, poly_mul_comm.
@@ -1575,7 +1574,7 @@ Theorem f₁_eq_term_with_Ψ_plus_sum : ∀ f L c₁ pl tl j αj l₁ l₂ r Ψ,
   → tl = List.map (term_of_point f) pl
   → l₁ = List.map (λ t, power t) tl
   → split_list (List.seq 0 (length (al f))) l₁ l₂
-  → ini_pt L = (Qnat j, αj)
+  → ini_pt L = (j, αj)
   → (next_pol f (β L) (γ L) c₁ =
        POL [0%ps; 1%ps … []] ^ r *
        POL [ps_monom c₁ 0; 1%ps … []] ^ j *

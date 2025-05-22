@@ -282,6 +282,7 @@ rewrite Hαh.
 rewrite Htl in Hh; simpl in Hh.
 rewrite List.map_map in Hh.
 simpl in Hh.
+...
 apply ord_is_ord_of_pt; [ idtac | idtac | assumption ]. {
   rewrite Hpl.
   eapply ini_oth_fin_pts_sorted; eassumption.
