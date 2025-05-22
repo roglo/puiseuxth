@@ -282,14 +282,9 @@ rewrite Hαh.
 rewrite Htl in Hh; simpl in Hh.
 rewrite List.map_map in Hh.
 simpl in Hh.
-...
-apply ord_is_ord_of_pt; [ idtac | idtac | assumption ]. {
-  rewrite Hpl.
-  eapply ini_oth_fin_pts_sorted; eassumption.
-}
-intros pt Hpt.
-eapply points_in_newton_segment_have_nat_abscissa; [ eassumption | idtac ].
-subst pl; assumption.
+apply ord_is_ord_of_pt; [ idtac | assumption ].
+rewrite Hpl.
+eapply ini_oth_fin_pts_sorted; eassumption.
 Qed.
 
 (* [Walker, p 101] « O(āl.x^(l.γ₁)) > β₁ » *)
@@ -316,7 +311,8 @@ destruct n as [n| ]. {
   destruct m as [m| ]. {
     eapply in_pol_in_pts in Hval; try eassumption.
     remember HL as H; clear HeqH.
-    eapply points_not_in_any_newton_segment with (αh := m) (h := Qnat l) in H;
+(**)
+    eapply points_not_in_any_newton_segment with (αh := m) (h := l) in H;
     try eassumption. {
       progress unfold order, Qbar.gt.
       rewrite Hn.
@@ -400,24 +396,17 @@ destruct n as [n| ]. {
       apply Hsl; clear Hsl.
       subst l₁ tl pl.
       rewrite List.map_map; simpl.
-      destruct Hlm as [Hlm| Hlm]. {
-        left; rewrite Hlm; simpl.
-        rewrite nat_num_Qnat; reflexivity.
-      }
+      destruct Hlm as [Hlm| Hlm]; [ now left; rewrite Hlm | ].
       right.
       rewrite List.map_app; simpl.
       apply List.in_or_app.
-      destruct Hlm as [Hlm| Hlm]. {
-        right; rewrite Hlm.
-        left; simpl; rewrite nat_num_Qnat; reflexivity.
-      }
+      destruct Hlm as [Hlm| Hlm]; [ now right; rewrite Hlm; left | ].
       left.
       revert Hlm; clear; intros.
       remember (oth_pts L) as pts; clear Heqpts.
       induction pts as [| (i, ai)]; [ contradiction | idtac ].
       destruct Hlm as [Hlm| Hlm]. {
-        injection Hlm; clear Hlm; intros; subst; simpl.
-        left; rewrite nat_num_Qnat; reflexivity.
+        now injection Hlm; clear Hlm; intros; subst; left.
       }
       right; apply IHpts, Hlm.
     }
@@ -1255,18 +1244,18 @@ simpl in Hla.
 remember (order m) as om eqn:Hom .
 symmetry in Hom.
 destruct om as [om| ]; [ idtac | constructor ].
-assert (m ≠ 0)%ps as Hmnz.
- intros H.
- apply order_inf in H.
- rewrite H in Hom; discriminate Hom.
-
- subst la.
- apply list_in_ps_lap_in in Hm; [ idtac | assumption ].
- progress progress unfold ps_lap_add in Hm.
- progress progress unfold ps_lap_mul in Hm.
- rewrite lap_mul_add_distr_l in Hm.
- rewrite <- Hom.
- apply ps_lap_in_add in Hm; [ assumption | idtac | idtac ].
+assert (m ≠ 0)%ps as Hmnz. {
+  intros H.
+  apply order_inf in H.
+  rewrite H in Hom; discriminate Hom.
+}
+subst la.
+apply list_in_ps_lap_in in Hm; [ idtac | assumption ].
+progress progress unfold ps_lap_add in Hm.
+progress progress unfold ps_lap_mul in Hm.
+rewrite lap_mul_add_distr_l in Hm.
+rewrite <- Hom.
+apply ps_lap_in_add in Hm; [ assumption | idtac | idtac ]. {
   clear m om Hom Hmnz Hm.
   intros m Hm.
   progress progress unfold ps_lap_summ in Hm.
@@ -1276,184 +1265,181 @@ assert (m ≠ 0)%ps as Hmnz.
   intros h Hh m Hm.
   simpl in Hm.
   rewrite lap_mul_assoc in Hm.
-  apply ps_lap_in_mul in Hm; [ assumption | idtac | idtac ].
-   clear m Hm.
-   intros m Hm.
-   remember (ps_poly_nth h f) as āh eqn:Hāh .
-   remember (ps_monom (coeff_of_term R h tl) 0) as ah eqn:Hah .
-   remember (ord_of_pt h pl) as αh eqn:Hαh .
-   rewrite lap_mul_const_l in Hm; simpl in Hm.
-   destruct Hm as [(Hmnz, Hm)| ]; [ idtac | contradiction ].
-   rewrite <- Hm; simpl.
-   rewrite order_mul.
-   remember (āh - ah * ps_monom 1%K αh)%ps as aa.
-   remember (ps_monom 1%K (Qnat h * γ L))%ps as bb.
-   remember (ps_monom 1%K (- β L)) as cc.
-   remember (order (aa * bb)) as oaa.
-   apply Qbar.lt_le_trans with (m := (qfin (- β L) + oaa)%Qbar).
-    subst oaa.
+  apply ps_lap_in_mul in Hm; [ assumption | idtac | idtac ]. {
+    clear m Hm.
+    intros m Hm.
+    remember (ps_poly_nth h f) as āh eqn:Hāh .
+    remember (ps_monom (coeff_of_term R h tl) 0) as ah eqn:Hah .
+    remember (ord_of_pt h pl) as αh eqn:Hαh .
+    rewrite lap_mul_const_l in Hm; simpl in Hm.
+    destruct Hm as [(Hmnz, Hm)| ]; [ idtac | contradiction ].
+    rewrite <- Hm; simpl.
     rewrite order_mul.
-    rewrite Qbar.add_comm.
-    rewrite Heqaa, Heqbb.
-    apply Qbar.le_lt_trans with (m := qfin (αh + Qnat h * γ L - β L)).
-     apply Qbar.le_qfin.
-     apply Qplus_le_l with (z := β L).
-     rewrite <- Qminus_minus_assoc.
-     rewrite Qminus_diag.
-     rewrite Qplus_0_l.
-     progress unfold Qminus, Qopp; simpl.
-     rewrite Qplus_0_r.
-     remember (points_of_ps_polynom f) as pts.
-     eapply points_in_convex; try eassumption.
-     eapply in_pol_in_pts; try eassumption.
-     rewrite Hāh.
-     eapply order_in_newton_segment; try eassumption.
-     rewrite Hαh.
-     apply ord_is_ord_of_pt.
-      rewrite Hpl.
-      eapply ini_oth_fin_pts_sorted; eassumption.
-
-      intros pt Hpt.
-      rewrite Hpl in Hpt.
-      eapply points_in_newton_segment_have_nat_abscissa; eassumption.
-
-      rewrite Hl₁, Htl in Hh.
-      rewrite List.map_map in Hh; assumption.
-
-     progress unfold Qminus.
-     rewrite Qbar.qfin_inj_add.
-     apply Qbar.add_lt_mono_r; [ intros H; discriminate H | idtac ].
-     rewrite Qbar.qfin_inj_add.
-     apply Qbar.add_lt_le_mono; [ intros H; discriminate H | idtac | idtac ].
-      rewrite Hl₁ in Hh.
-      eapply order_āh_minus_ah_xαh_gt_αh; eassumption.
-
+    remember (āh - ah * ps_monom 1%K αh)%ps as aa.
+    remember (ps_monom 1%K (Qnat h * γ L))%ps as bb.
+    remember (ps_monom 1%K (- β L)) as cc.
+    remember (order (aa * bb)) as oaa.
+    apply Qbar.lt_le_trans with (m := (qfin (- β L) + oaa)%Qbar). {
+      subst oaa.
+      rewrite order_mul.
+      rewrite Qbar.add_comm.
+      rewrite Heqaa, Heqbb.
+      apply Qbar.le_lt_trans with (m := qfin (αh + Qnat h * γ L - β L)). {
+        apply Qbar.le_qfin.
+        apply Qplus_le_l with (z := β L).
+        rewrite <- Qminus_minus_assoc.
+        rewrite Qminus_diag.
+        rewrite Qplus_0_l.
+        progress unfold Qminus, Qopp; simpl.
+        rewrite Qplus_0_r.
+        remember (points_of_ps_polynom f) as pts.
+        eapply points_in_convex; try eassumption.
+        eapply in_pol_in_pts; try eassumption.
+        rewrite Hāh.
+        eapply order_in_newton_segment; try eassumption.
+        rewrite Hαh.
+        apply ord_is_ord_of_pt. {
+          rewrite Hpl.
+          eapply ini_oth_fin_pts_sorted; eassumption.
+        }
+        rewrite Hl₁, Htl in Hh.
+        rewrite List.map_map in Hh; assumption.
+      }
+      progress unfold Qminus.
+      rewrite Qbar.qfin_inj_add.
+      apply Qbar.add_lt_mono_r; [ intros H; discriminate H | idtac ].
+      rewrite Qbar.qfin_inj_add.
+      apply Qbar.add_lt_le_mono; [ intros H; discriminate H | | ]. {
+        rewrite Hl₁ in Hh.
+        eapply order_āh_minus_ah_xαh_gt_αh; eassumption.
+      }
       apply ps_monom_order_ge.
-
-    destruct oaa as [oaa| ].
-     apply Qbar.add_le_mono_r; [ intros H; discriminate H | idtac ].
-     subst cc; apply ps_monom_order_ge.
-
-     simpl.
-     rewrite Qbar.add_comm; constructor.
-
-   clear m Hm.
-   intros m Hm.
-   eapply ps_lap_in_power; [ idtac | eassumption ].
-   clear m Hm.
-   intros m Hm.
-   simpl in Hm.
-   destruct Hm as [(Hn, Hm)| Hm].
-    rewrite <- Hm.
-    apply ps_monom_order_ge.
-
-    destruct Hm as [(Hn, Hm)| ]; [ idtac | contradiction ].
-    rewrite <- Hm.
-    apply ps_monom_order_ge.
-
-  clear m om Hom Hmnz Hm.
-  intros m Hm.
-  progress progress unfold ps_lap_summ in Hm.
-  rewrite lap_mul_summation in Hm.
-  eapply ps_lap_in_summation; [ idtac | eassumption ].
+    }
+    destruct oaa as [oaa| ]. {
+      apply Qbar.add_le_mono_r; [ intros H; discriminate H | idtac ].
+      subst cc; apply ps_monom_order_ge.
+    }
+    simpl.
+    rewrite Qbar.add_comm; constructor.
+  }
   clear m Hm.
-  intros h Hh m Hm.
+  intros m Hm.
+  eapply ps_lap_in_power; [ idtac | eassumption ].
+  clear m Hm.
+  intros m Hm.
   simpl in Hm.
-  rewrite lap_mul_assoc in Hm.
-  apply ps_lap_in_mul in Hm; [ assumption | idtac | idtac ].
-   clear m Hm.
-   intros m Hm.
-   simpl in Hm.
-   destruct Hm as [(H₁, H₂)| Hm]; [ idtac | contradiction ].
-   progress unfold summation in H₁, H₂; simpl in H₁, H₂.
-   rewrite ps_add_0_r in H₂.
-   rewrite <- H₂.
-   rewrite order_mul.
-   remember (ps_poly_nth h f) as āh.
-   apply Qbar.lt_sub_lt_add_l; [ intros H; discriminate H | idtac ].
-   rewrite Qbar.sub_0_l.
-   destruct (fld_zerop 1%K) as [Hoz| Honz].
+  destruct Hm as [(Hn, Hm)| Hm]. {
+    rewrite <- Hm.
+    apply ps_monom_order_ge.
+  }
+  destruct Hm as [(Hn, Hm)| ]; [ idtac | contradiction ].
+  rewrite <- Hm.
+  apply ps_monom_order_ge.
+}
+clear m om Hom Hmnz Hm.
+intros m Hm.
+progress progress unfold ps_lap_summ in Hm.
+rewrite lap_mul_summation in Hm.
+eapply ps_lap_in_summation; [ idtac | eassumption ].
+clear m Hm.
+intros h Hh m Hm.
+simpl in Hm.
+rewrite lap_mul_assoc in Hm.
+apply ps_lap_in_mul in Hm; [ assumption | idtac | idtac ]. {
+  clear m Hm.
+  intros m Hm.
+  simpl in Hm.
+  destruct Hm as [(H₁, H₂)| Hm]; [ idtac | contradiction ].
+  progress unfold summation in H₁, H₂; simpl in H₁, H₂.
+  rewrite ps_add_0_r in H₂.
+  rewrite <- H₂.
+  rewrite order_mul.
+  remember (ps_poly_nth h f) as āh.
+  apply Qbar.lt_sub_lt_add_l; [ intros H; discriminate H | idtac ].
+  rewrite Qbar.sub_0_l.
+  destruct (fld_zerop 1%K) as [Hoz| Honz]. {
     rewrite ps_monom_0_order; [ simpl | assumption ].
     rewrite order_mul.
     rewrite ps_monom_0_order; [ simpl | assumption ].
     rewrite Qbar.add_comm; constructor.
+  }
+  rewrite ps_monom_order; [ simpl | assumption ].
+  rewrite Qopp_opp.
+  eapply order_āl_xlγ₁_gt_β₁; try eassumption.
+  apply except_split_seq; [ idtac | idtac | assumption ]. {
+    subst l₁ tl.
+    rewrite List.map_map; simpl.
+    apply Sorted_map; simpl.
+    remember HL as Hsort; clear HeqHsort.
+    apply ini_oth_fin_pts_sorted in Hsort.
+    rewrite <- Hpl in Hsort.
+...
+    pose proof (points_in_newton_segment_have_nat_abscissa K f HL)
+    as Hnat.
+  rewrite <- Hpl in Hnat.
+  revert Hsort Hnat; clear; intros.
+  induction pl as [| p]; [ constructor | idtac ].
+  apply Sorted_inv in Hsort.
+  destruct Hsort as (Hsort, Hrel).
+  constructor.
+  apply IHpl; [ assumption | idtac ].
+  intros pt Hpt.
+  apply Hnat; right; assumption.
 
-    rewrite ps_monom_order; [ simpl | assumption ].
-    rewrite Qopp_opp.
-    eapply order_āl_xlγ₁_gt_β₁; try eassumption.
-    apply except_split_seq; [ idtac | idtac | assumption ].
-     subst l₁ tl.
-     rewrite List.map_map; simpl.
-     apply Sorted_map; simpl.
-     remember HL as Hsort; clear HeqHsort.
-     apply ini_oth_fin_pts_sorted in Hsort.
-     rewrite <- Hpl in Hsort.
-     pose proof (points_in_newton_segment_have_nat_abscissa K f HL)
-      as Hnat.
-     rewrite <- Hpl in Hnat.
-     revert Hsort Hnat; clear; intros.
-     induction pl as [| p]; [ constructor | idtac ].
-     apply Sorted_inv in Hsort.
-     destruct Hsort as (Hsort, Hrel).
-     constructor.
-      apply IHpl; [ assumption | idtac ].
-      intros pt Hpt.
-      apply Hnat; right; assumption.
+  revert Hrel Hnat; clear; intros.
+  induction pl as [| q]; constructor.
+  apply HdRel_inv in Hrel.
+  progress unfold fst_lt in Hrel; simpl.
+  progress unfold nat_num; simpl.
+  assert (p ∈ [p; q … pl]) as Hp by (left; reflexivity).
+  assert (q ∈ [p; q … pl]) as Hq by (right; left; reflexivity).
+  apply Hnat in Hp.
+  apply Hnat in Hq.
+  destruct Hp as (h, (αh, Hp)).
+  destruct Hq as (i, (αi, Hq)).
+  subst p q; simpl in Hrel; simpl.
+  do 2 rewrite Nat2Z.id.
+  apply Qnat_lt; assumption.
 
-      revert Hrel Hnat; clear; intros.
-      induction pl as [| q]; constructor.
-      apply HdRel_inv in Hrel.
-      progress unfold fst_lt in Hrel; simpl.
-      progress unfold nat_num; simpl.
-      assert (p ∈ [p; q … pl]) as Hp by (left; reflexivity).
-      assert (q ∈ [p; q … pl]) as Hq by (right; left; reflexivity).
-      apply Hnat in Hp.
-      apply Hnat in Hq.
-      destruct Hp as (h, (αh, Hp)).
-      destruct Hq as (i, (αi, Hq)).
-      subst p q; simpl in Hrel; simpl.
-      do 2 rewrite Nat2Z.id.
-      apply Qnat_lt; assumption.
+  subst l₁; simpl.
+  apply List.Forall_forall; intros i Hi.
+  split; [ apply Nat.le_0_l | idtac ].
+  subst tl; simpl in Hi.
+  rewrite List.map_map in Hi.
+  simpl in Hi.
+  revert HL Hpl Hi; clear; intros.
+  apply ord_is_ord_of_pt in Hi.
+  rewrite Hpl in Hi at 2.
+  progress unfold newton_segments in HL.
+  eapply ns_in_init_pts in Hi; [ idtac | eassumption ].
+  eapply in_pts_in_pol with (def := 0%ps) in Hi; try reflexivity.
+  destruct Hi as (Hi, Ho).
+  apply Nat.nle_gt.
+  intros H.
+  apply List.nth_overflow with (d := 0%ps) in H.
+  rewrite H in Ho.
+  rewrite order_0 in Ho.
+  discriminate Ho.
 
-     subst l₁; simpl.
-     apply List.Forall_forall; intros i Hi.
-     split; [ apply Nat.le_0_l | idtac ].
-     subst tl; simpl in Hi.
-     rewrite List.map_map in Hi.
-     simpl in Hi.
-     revert HL Hpl Hi; clear; intros.
-     apply ord_is_ord_of_pt in Hi.
-      rewrite Hpl in Hi at 2.
-      progress unfold newton_segments in HL.
-      eapply ns_in_init_pts in Hi; [ idtac | eassumption ].
-      eapply in_pts_in_pol with (def := 0%ps) in Hi; try reflexivity.
-      destruct Hi as (Hi, Ho).
-      apply Nat.nle_gt.
-      intros H.
-      apply List.nth_overflow with (d := 0%ps) in H.
-      rewrite H in Ho.
-      rewrite order_0 in Ho.
-      discriminate Ho.
+  rewrite Hpl.
+  eapply ini_oth_fin_pts_sorted; eassumption.
 
-      rewrite Hpl.
-      eapply ini_oth_fin_pts_sorted; eassumption.
+  intros pt Hpt.
+  subst pl.
+  eapply points_in_newton_segment_have_nat_abscissa; eassumption.
 
-      intros pt Hpt.
-      subst pl.
-      eapply points_in_newton_segment_have_nat_abscissa; eassumption.
+  clear m Hm.
+  intros m Hm.
+  eapply ps_lap_in_power; [ idtac | eassumption ].
+  intros a Ha.
+  simpl in Ha.
+  destruct Ha as [(Hn, Ha)| Ha].
+  rewrite <- Ha.
+  apply ps_monom_order_ge.
 
-   clear m Hm.
-   intros m Hm.
-   eapply ps_lap_in_power; [ idtac | eassumption ].
-   intros a Ha.
-   simpl in Ha.
-   destruct Ha as [(Hn, Ha)| Ha].
-    rewrite <- Ha.
-    apply ps_monom_order_ge.
-
-    destruct Ha as [(_, Ha)| Ha]; [ idtac | contradiction ].
-    rewrite <- Ha; simpl.
-    apply ps_monom_order_ge.
+  destruct Ha as [(_, Ha)| Ha]; [ idtac | contradiction ].
+  rewrite <- Ha; simpl.
+  apply ps_monom_order_ge.
 Qed.
 
 End theorems.
