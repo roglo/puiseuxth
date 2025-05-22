@@ -26,7 +26,7 @@ Require Import QbarM.
 Set Implicit Arguments.
 
 Definition phony_ns :=
-  {| ini_pt := (0, 0); fin_pt := (0, 0); oth_pts := [] |}.
+  {| ini_pt := (0%nat, 0); fin_pt := (0%nat, 0); oth_pts := [] |}.
 
 Definition option_get {A} (x : A) v :=
   match v with
@@ -208,55 +208,55 @@ Qed.
 
 Theorem exists_ini_pt_nat_fst_seg : ∀ f L,
   L = option_get phony_ns (newton_segments f)
-  → ∃ i αi, ini_pt L = (Qnat i, αi).
+  → ∃ i αi, ini_pt L = (i, αi).
 Proof.
 intros f L HL.
 remember (newton_segments f) as Ll eqn:HLl .
 symmetry in HLl.
-destruct Ll as [L₁| ].
- simpl in HL; subst L₁.
- now eapply exists_ini_pt_nat with (f := f).
-
- subst L; simpl.
- exists 0%nat, 0; reflexivity.
+destruct Ll as [L₁| ]. {
+  remember (ini_pt L) as j eqn:Hini.
+  destruct j as (j, αj).
+  symmetry in Hini.
+  now exists j, αj.
+}
+subst L; simpl.
+exists 0%nat, 0; reflexivity.
 Qed.
 
 Theorem exists_fin_pt_nat_fst_seg : ∀ f L,
   L = option_get phony_ns (newton_segments f)
-  → ∃ i αi, fin_pt L = (Qnat i, αi).
+  → ∃ i αi, fin_pt L = (i, αi).
 Proof.
 intros f L HL.
 remember (newton_segments f) as Ll eqn:HLl .
 symmetry in HLl.
-destruct Ll as [L₁| ].
- simpl in HL; subst L₁.
- now eapply exists_fin_pt_nat with (f := f).
-
- subst L; simpl.
- exists 0%nat, 0; reflexivity.
+destruct Ll as [L₁| ]. {
+  remember (fin_pt L) as j eqn:Hini.
+  destruct j as (j, αj).
+  symmetry in Hini.
+  now exists j, αj.
+}
+subst L; simpl.
+exists 0%nat, 0; reflexivity.
 Qed.
 
 Theorem hd_newton_segments : ∀ f L j k αj αk,
   L = option_get phony_ns (newton_segments f)
- → ini_pt L = (Qnat j, αj)
-  → fin_pt L = (Qnat k, αk)
+ → ini_pt L = (j, αj)
+  → fin_pt L = (k, αk)
   → (j < k)%nat
   → newton_segments f = Some L.
 Proof.
 intros f L j k αj αk HL Hini Hfin Hjk.
 remember (newton_segments f) as Ll.
 symmetry in HeqLl.
-destruct Ll as [L₁| ]; simpl in HL.
- subst L; reflexivity.
-
- subst L; simpl in Hini, Hfin.
- injection Hini; intros; subst.
- injection Hfin; intros; subst.
- rewrite <- Nat2Z.inj_0 in H0.
- rewrite <- Nat2Z.inj_0 in H1.
- apply Nat2Z.inj in H0.
- apply Nat2Z.inj in H1.
- subst j k; exfalso; revert Hjk; apply Nat.lt_irrefl.
+destruct Ll as [L₁| ]; simpl in HL. {
+  subst L; reflexivity.
+}
+subst L; simpl in Hini, Hfin.
+injection Hini; intros; subst.
+injection Hfin; intros; subst.
+now apply Nat.lt_irrefl in Hjk.
 Qed.
 
 (* *)
@@ -367,7 +367,7 @@ Qed.
 Theorem num_m_den_is_pos : ∀ f L j αj m,
   newton_segments f = Some L
   → pol_in_K_1_m f m
-  → ini_pt L = (Qnat j, αj)
+  → ini_pt L = (j, αj)
   → (0 < Qnum αj)%Z
   → (0 < Z.to_nat (Qnum αj * Zpos m / Zpos (Qden αj)))%nat.
 Proof.
@@ -581,7 +581,7 @@ Theorem nth_γ_n : ∀ f L n Ln jn αjn kn αkn,
   Ln = nth_ns n f L
   → ini_pt Ln = (jn, αjn)
   → fin_pt Ln = (kn, αkn)
-  → nth_γ n f L = (αjn - αkn) / (kn - jn).
+  → nth_γ n f L = (αjn - αkn) / (Qnat kn - Qnat jn).
 Proof.
 intros f L n Ln jm αjn kn αkn HLn Hini Hfin.
 revert f L Ln jm αjn kn αkn HLn Hini Hfin.
@@ -1069,6 +1069,7 @@ unfold ps_poly_nth in Hnz.
 rewrite Hla in Hnz; rewrite Hla.
 clear f Hla.
 unfold points_of_ps_lap_gen in HL.
+...
 unfold qpower_list in HL.
 remember (pair_rec (λ pow ps, (Qnat pow, ps))) as f.
 unfold ps_lap_nth in Hnz.
