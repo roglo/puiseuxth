@@ -120,29 +120,30 @@ Qed.
 
 Theorem k_le_r : ∀ αj₁ αk₁ k₁ r pt pts v ms pts₁ pts₂,
   pts = pts₁ ++ [fin_pt ms … pts₂]
-  → Sorted fst_lt [(Qnat 0, αj₁); pt … pts]
-  → ms = minimise_slope (Qnat 0, αj₁) pt pts
-  → fin_pt ms = (Qnat k₁, αk₁)
+  → Sorted fst_lt [(0%nat, αj₁); pt … pts]
+  → ms = minimise_slope (0%nat, αj₁) pt pts
+  → fin_pt ms = (k₁, αk₁)
   → v == 0
   → 0 < αj₁
   → 0 <= αk₁
-  → (Qnat (S r), v) ∈ [pt … pts₁]
+  → (S r, v) ∈ [pt … pts₁]
   → k₁ ≤ S r.
 Proof.
 intros αj₁ αk₁ k₁ r pt pts v ms pts₁ pts₂.
 intros Hpts Hsort Heqms Hfin₁ Hz Hpos₀ Hnnegk Hsr.
 apply Nat.nlt_ge.
 intros Hrk.
-assert (slope ms < slope_expr (Qnat (S r), v) (Qnat k₁, αk₁)) as H.
- apply Qnot_le_lt.
- intros H.
- rewrite slope_slope_expr in H; [ | symmetry; eassumption ].
- rewrite <- Hfin₁ in H.
- rewrite Hfin₁ in H; simpl in H.
- unfold slope_expr in H; simpl in H.
- rewrite Hz in H.
- rewrite Q_sub_0_r in H.
- unfold Qle in H; simpl in H.
+assert (slope ms < slope_expr (S r, v) (k₁, αk₁)) as H. {
+  apply Qnot_le_lt.
+  intros H.
+  rewrite slope_slope_expr in H; [ | symmetry; eassumption ].
+  rewrite <- Hfin₁ in H.
+  rewrite Hfin₁ in H; simpl in H.
+  unfold slope_expr in H; simpl in H.
+  rewrite Hz in H.
+  rewrite Q_sub_0_r in H.
+  unfold Qle in H; simpl in H.
+...
  rewrite Qnum_inv_Qnat_sub in H; [ | assumption ].
  rewrite Z.mul_1_r in H.
  remember Hrk as Hk₁; clear HeqHk₁.
