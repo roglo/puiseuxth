@@ -1068,17 +1068,18 @@ unfold ps_poly_nth.
 unfold ps_poly_nth in Hnz.
 rewrite Hla in Hnz; rewrite Hla.
 clear f Hla.
-unfold points_of_ps_lap_gen in HL.
-...
-unfold qpower_list in HL.
-remember (pair_rec (λ pow ps, (Qnat pow, ps))) as f.
-unfold ps_lap_nth in Hnz.
-unfold ps_lap_nth.
+progress unfold points_of_ps_lap_gen in HL.
+(*
+unfold power_list in HL.
+*)
+remember (pair_rec (λ (pow : nat) (ps : puiseux_series α), (pow, ps))) as f.
+progress unfold ps_lap_nth in Hnz.
+progress unfold ps_lap_nth.
 revert la Hnz HL.
-induction i; intros.
- destruct la as [| a].
-  exfalso; apply Hnz; reflexivity.
-
+induction i; intros. {
+  destruct la as [| a]. {
+    exfalso; apply Hnz; reflexivity.
+  }
   simpl in Hnz; simpl.
   simpl in HL.
   remember (f (O, a)) as fa.
@@ -1091,7 +1092,7 @@ induction i; intros.
   symmetry in Heqoa.
   destruct oa as [oa| ]; [ idtac | exfalso; apply Hnz; reflexivity ].
   simpl in HL.
-  remember (filter_finite_ord (List.map f (power_list 1 la))) as pts.
+  remember (filter_finite_ord (power_list 1 la)) as pts.
   symmetry in Heqpts.
   destruct pts; [ idtac | discriminate HL ].
   clear HL Hnz.
@@ -1104,43 +1105,41 @@ induction i; intros.
   subst fb; simpl in Heqpts.
   remember (order b) as ob.
   symmetry in Heqob.
-  destruct ob as [ob| ]; auto.
-   discriminate Heqpts.
-
-   apply order_inf; assumption.
-
- destruct la as [| a]; [ reflexivity | simpl ].
- simpl in Hnz.
- simpl in HL.
- remember (f (O, a)) as fa.
- rewrite Heqf in Heqfa.
- simpl in Heqfa.
- unfold pair_rec in Heqfa; simpl in Heqfa.
- subst fa; simpl in HL.
- apply order_fin in Hnz.
- remember (order a) as oa.
- symmetry in Heqoa.
- destruct oa as [oa| ]; [ idtac | exfalso; apply Hnz; reflexivity ].
- simpl in HL.
- remember (filter_finite_ord (List.map f (power_list 1 la))) as pts.
- symmetry in Heqpts.
- destruct pts; [ idtac | discriminate HL ].
- clear HL.
- clear Hnz.
- revert Heqf Heqpts; clear; intros.
- remember 1%nat as pow; clear Heqpow.
- revert i pow Heqpts.
- induction la as [| a]; intros; [ reflexivity | idtac ].
- simpl in Heqpts.
- remember (f (pow, a)) as fa.
- rewrite Heqf in Heqfa.
- unfold pair_rec in Heqfa.
- simpl in Heqfa.
- subst fa; simpl in Heqpts.
- remember (order a) as oa.
- symmetry in Heqoa.
- destruct oa as [oa| ]; [ discriminate Heqpts | simpl ].
- destruct i.
+  destruct ob as [ob| ]; [ discriminate Heqpts | ].
+  apply order_inf; assumption.
+}
+destruct la as [| a]; [ reflexivity | simpl ].
+simpl in Hnz.
+simpl in HL.
+remember (f (O, a)) as fa.
+rewrite Heqf in Heqfa.
+simpl in Heqfa.
+progress unfold pair_rec in Heqfa; simpl in Heqfa.
+subst fa; simpl in HL.
+apply order_fin in Hnz.
+remember (order a) as oa.
+symmetry in Heqoa.
+destruct oa as [oa| ]; [ idtac | exfalso; apply Hnz; reflexivity ].
+simpl in HL.
+remember (filter_finite_ord (power_list 1 la)) as pts.
+symmetry in Heqpts.
+destruct pts; [ idtac | discriminate HL ].
+clear HL.
+clear Hnz.
+revert Heqf Heqpts; clear; intros.
+remember 1%nat as pow; clear Heqpow.
+revert i pow Heqpts.
+induction la as [| a]; intros; [ reflexivity | cbn ].
+simpl in Heqpts.
+remember (f (pow, a)) as fa.
+rewrite Heqf in Heqfa.
+unfold pair_rec in Heqfa.
+simpl in Heqfa.
+subst fa; simpl in Heqpts.
+remember (order a) as oa.
+symmetry in Heqoa.
+destruct oa as [oa| ]; [ discriminate Heqpts | simpl ].
+destruct i. {
   destruct la as [| b]; [ reflexivity | simpl ].
   simpl in Heqpts.
   remember (f (S pow, b)) as fb.
@@ -1151,8 +1150,8 @@ induction i; intros.
   remember (order b) as ob.
   symmetry in Heqob.
   destruct ob as [ob| ]; [ discriminate Heqpts | reflexivity ].
-
-  eapply IHla; eauto .
+}
+eapply IHla; eauto .
 Qed.
 
 Theorem root_multiplicity_0 : ∀ c cf,
@@ -1249,11 +1248,12 @@ Proof.
 intros f L c HL Hc Hr.
 apply root_multiplicity_0 in Hr; eauto .
 apply degree_eq_0_if in Hr.
-destruct Hr as [Hr| Hr].
- unfold Φq in Hr; simpl in Hr.
- rewrite Nat.sub_diag in Hr; simpl in Hr.
- unfold eq_poly in Hr; simpl in Hr.
- remember HL as H; clear HeqH.
+destruct Hr as [Hr| Hr]. {
+  unfold Φq in Hr; simpl in Hr.
+  rewrite Nat.sub_diag in Hr; simpl in Hr.
+  unfold eq_poly in Hr; simpl in Hr.
+  remember HL as H; clear HeqH.
+...
  apply exists_ini_pt_nat in H.
  destruct H as (j, (αj, Hini)).
  rewrite Hini in Hr; simpl in Hr.
