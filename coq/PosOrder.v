@@ -1373,34 +1373,16 @@ apply ps_lap_in_mul in Hm; [ assumption | idtac | idtac ]. {
     remember HL as Hsort; clear HeqHsort.
     apply ini_oth_fin_pts_sorted in Hsort.
     rewrite <- Hpl in Hsort.
-...
-    pose proof (points_in_newton_segment_have_nat_abscissa K f HL)
-    as Hnat.
-  rewrite <- Hpl in Hnat.
-  revert Hsort Hnat; clear; intros.
-  induction pl as [| p]; [ constructor | idtac ].
-  apply Sorted_inv in Hsort.
-  destruct Hsort as (Hsort, Hrel).
-  constructor.
-  apply IHpl; [ assumption | idtac ].
-  intros pt Hpt.
-  apply Hnat; right; assumption.
-
-  revert Hrel Hnat; clear; intros.
-  induction pl as [| q]; constructor.
-  apply HdRel_inv in Hrel.
-  progress unfold fst_lt in Hrel; simpl.
-  progress unfold nat_num; simpl.
-  assert (p ∈ [p; q … pl]) as Hp by (left; reflexivity).
-  assert (q ∈ [p; q … pl]) as Hq by (right; left; reflexivity).
-  apply Hnat in Hp.
-  apply Hnat in Hq.
-  destruct Hp as (h, (αh, Hp)).
-  destruct Hq as (i, (αi, Hq)).
-  subst p q; simpl in Hrel; simpl.
-  do 2 rewrite Nat2Z.id.
-  apply Qnat_lt; assumption.
-
+    revert Hsort; clear; intros.
+    induction pl as [| p]; [ constructor | idtac ].
+    apply Sorted_inv in Hsort.
+    destruct Hsort as (Hsort, Hrel).
+    constructor; [ now apply IHpl | ].
+    revert Hrel; clear; intros.
+    induction pl as [| q]; constructor.
+    apply HdRel_inv in Hrel.
+    easy.
+  }
   subst l₁; simpl.
   apply List.Forall_forall; intros i Hi.
   split; [ apply Nat.le_0_l | idtac ].
@@ -1408,38 +1390,33 @@ apply ps_lap_in_mul in Hm; [ assumption | idtac | idtac ]. {
   rewrite List.map_map in Hi.
   simpl in Hi.
   revert HL Hpl Hi; clear; intros.
-  apply ord_is_ord_of_pt in Hi.
-  rewrite Hpl in Hi at 2.
-  progress unfold newton_segments in HL.
-  eapply ns_in_init_pts in Hi; [ idtac | eassumption ].
-  eapply in_pts_in_pol with (def := 0%ps) in Hi; try reflexivity.
-  destruct Hi as (Hi, Ho).
-  apply Nat.nle_gt.
-  intros H.
-  apply List.nth_overflow with (d := 0%ps) in H.
-  rewrite H in Ho.
-  rewrite order_0 in Ho.
-  discriminate Ho.
-
+  apply ord_is_ord_of_pt in Hi. {
+    rewrite Hpl in Hi at 2.
+    progress unfold newton_segments in HL.
+    eapply ns_in_init_pts in Hi; [ idtac | eassumption ].
+    eapply in_pts_in_pol with (def := 0%ps) in Hi; try reflexivity.
+    destruct Hi as (Hi, Ho).
+    apply Nat.nle_gt.
+    intros H.
+    apply List.nth_overflow with (d := 0%ps) in H.
+    rewrite H in Ho.
+    rewrite order_0 in Ho.
+    discriminate Ho.
+  }
   rewrite Hpl.
   eapply ini_oth_fin_pts_sorted; eassumption.
-
-  intros pt Hpt.
-  subst pl.
-  eapply points_in_newton_segment_have_nat_abscissa; eassumption.
-
-  clear m Hm.
-  intros m Hm.
-  eapply ps_lap_in_power; [ idtac | eassumption ].
-  intros a Ha.
-  simpl in Ha.
-  destruct Ha as [(Hn, Ha)| Ha].
-  rewrite <- Ha.
-  apply ps_monom_order_ge.
-
-  destruct Ha as [(_, Ha)| Ha]; [ idtac | contradiction ].
-  rewrite <- Ha; simpl.
-  apply ps_monom_order_ge.
+}
+intros pt Hpt.
+subst pl.
+eapply ps_lap_in_power; [ idtac | eassumption ].
+intros a Ha.
+simpl in Ha.
+destruct Ha as [(Hn, Ha)| Ha].
+rewrite <- Ha.
+apply ps_monom_order_ge.
+destruct Ha as [(_, Ha)| Ha]; [ idtac | contradiction ].
+rewrite <- Ha; simpl.
+apply ps_monom_order_ge.
 Qed.
 
 End theorems.
