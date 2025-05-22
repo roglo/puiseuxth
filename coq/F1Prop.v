@@ -411,29 +411,27 @@ pose proof (Hc O); assumption.
 Qed.
 
 Theorem in_power_list_lt : ∀ A la h (hv : puiseux_series A) pow,
-  (h, hv) ∈ qpower_list pow la
-  → (nat_num h < pow + length la)%nat.
+  (h, hv) ∈ power_list pow la
+  → (h < pow + length la)%nat.
 Proof.
 intros A la h hv pow Hh.
-unfold qpower_list in Hh.
 unfold pair_rec in Hh; simpl in Hh.
 revert pow Hh.
 induction la as [| a]; intros; [ contradiction | simpl ].
 simpl in Hh.
-destruct Hh as [Hh| Hh].
- injection Hh; clear Hh; intros; subst h hv.
- rewrite nat_num_Qnat.
- apply Nat.lt_sub_lt_add_l.
- rewrite Nat.sub_diag.
- apply Nat.lt_0_succ.
-
- rewrite Nat.add_succ_r, <- Nat.add_succ_l.
- apply IHla; assumption.
+destruct Hh as [Hh| Hh]. {
+  injection Hh; clear Hh; intros; subst h hv.
+  apply Nat.lt_sub_lt_add_l.
+  rewrite Nat.sub_diag.
+  apply Nat.lt_0_succ.
+}
+rewrite Nat.add_succ_r, <- Nat.add_succ_l.
+apply IHla; assumption.
 Qed.
 
 Theorem in_points_of_ps_lap_gen_lt : ∀ la pow pt,
   pt ∈ points_of_ps_lap_gen pow la
-  → (nat_num (fst pt) < pow + length la)%nat.
+  → (fst pt < pow + length la)%nat.
 Proof.
 intros la pow pt Hpt.
 unfold points_of_ps_lap_gen in Hpt.
@@ -442,6 +440,8 @@ eapply in_pts_in_ppl with (def := 0%ps) in Hpt; try reflexivity.
 destruct Hpt as (Hpt, Hord).
 eapply in_power_list_lt; eassumption.
 Qed.
+
+...
 
 Theorem in_points_of_ps_lap_lt : ∀ la pt,
   pt ∈ points_of_ps_lap la
