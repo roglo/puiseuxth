@@ -821,12 +821,6 @@ induction pts as [| (h, αh)]; intros. {
   now injection Hlast; clear; intros; subst.
 }
 simpl.
-(*
-assert ((h, αh) ∈ [(h, αh) … pts]) as Hh by now left.
-destruct Hh as (i, Hh).
-subst h; rename i into h.
-rewrite nat_num_Qnat.
-*)
 destruct (eq_nat_dec h k) as [H₁| H₁]. {
   subst h.
   pose proof (Nat.le_succ_diag_r k) as H.
@@ -961,11 +955,6 @@ apply Sorted_inv_1 in Hsort.
 revert Hsort Hij; clear; intros.
 revert h i Hsort Hij.
 induction pts as [| (l, al)]; intros; [ reflexivity | simpl ].
-assert ((l, al) ∈ [(h, αh); (l, al) … pts]) as H by now right; left.
-...
-apply Hnat in H.
-destruct H as (m, Hm); subst l; rename m into l.
-rewrite nat_num_Qnat.
 remember (Nat.eqb i l) as b eqn:Hb .
 symmetry in Hb.
 destruct b; simpl. {
@@ -974,22 +963,12 @@ destruct b; simpl. {
   destruct Hsort as (_, Hrel).
   apply HdRel_inv in Hrel.
   progress unfold fst_lt in Hrel; simpl in Hrel.
-  apply Qnat_lt in Hrel.
   apply Nat.nle_gt in Hrel.
   exfalso; apply Hrel, Nat.lt_le_incl; assumption.
 }
-eapply IHpts; try eassumption. {
-  intros iq αi Hpti.
-  apply Hnat with (αi := αi).
-  simpl in Hpti.
-  destruct Hpti as [H| H]. {
-    injection H; intros; subst.
-    left; reflexivity.
-  }
-  right; right; assumption.
-}
+eapply IHpts; try eassumption.
 eapply Sorted_minus_2nd; [ idtac | eassumption ].
-intros x y z H₁ H₂; eapply Qlt_trans; eassumption.
+intros x y z H₁ H₂; eapply Nat.lt_trans; eassumption.
 Qed.
 
 Fixpoint make_char_lap_of_hl la pow hl :=
@@ -1001,8 +980,8 @@ Fixpoint make_char_lap_of_hl la pow hl :=
       list_pad (h - pow) 0%K [c … make_char_lap_of_hl la (S h) hl₁]
   end.
 
-Definition make_char_pol_of_pts f j (pts : list (Q * Q)) :=
-  make_char_lap_of_hl (al f) j (List.map (λ pt, nat_num (fst pt)) pts).
+Definition make_char_pol_of_pts f j (pts : list (nat * Q)) :=
+  make_char_lap_of_hl (al f) j (List.map fst pts).
 
 Fixpoint coeff_of_hl la i hl :=
   match hl with
@@ -1012,8 +991,8 @@ Fixpoint coeff_of_hl la i hl :=
       else coeff_of_hl la i hl₁
   end.
 
-Definition coeff_of_pt f i (pts : list (Q * Q)) :=
-  coeff_of_hl (al f) i (List.map (λ pt, nat_num (fst pt)) pts).
+Definition coeff_of_pt f i (pts : list (nat * Q)) :=
+  coeff_of_hl (al f) i (List.map fst pts).
 
 Theorem make_char_pol_of_pts_eq : ∀ f pts j,
   make_char_pol R j (List.map (term_of_point f) pts) =
@@ -1234,7 +1213,7 @@ Theorem sum_ah_c₁y_h_eq : ∀ f L pl tl l c₁ j αj,
   → pl = [ini_pt L … oth_pts L ++ [fin_pt L]]
   → tl = List.map (term_of_point f) pl
   → l = List.map (λ t, power t) tl
-  → ini_pt L = (Qnat j, αj)
+  → ini_pt L = (j, αj)
   → (ps_pol_summ ps_field l
        (λ h,
          POL [ps_monom (coeff_of_term h tl) 0] *
@@ -1244,12 +1223,8 @@ Theorem sum_ah_c₁y_h_eq : ∀ f L pl tl l c₁ j αj,
          (POL [ps_monom c₁ 0; 1%ps … []]))%pspol.
 Proof.
 intros f L pl tl l c₁ j αj HL Hpl Htl Hl Hini.
-assert (∀ iq αi, (iq, αi) ∈ pl → ∃ i, iq = Qnat i) as Hnat. {
-  intros iq αi Hip.
-  eapply L_nat; [ eassumption | reflexivity | idtac ].
-  subst pl; eassumption.
-}
-remember (List.map (λ pt, nat_num (fst pt)) pl) as li eqn:Hli .
+remember (List.map fst pl) as li eqn:Hli .
+...
 assert (Sorted Nat.lt li) as Hs. {
   remember HL as Hsort; clear HeqHsort.
   apply ini_oth_fin_pts_sorted in Hsort.
