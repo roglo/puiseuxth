@@ -443,6 +443,7 @@ remember (p_of_m m (γ L)) as p eqn:Hp .
 pose proof (any_is_p_mq (γ L) m Hp Hq) as Hgp.
 destruct Hgp as (Hgp, Hg).
 remember HL as Hini; clear HeqHini.
+...
 apply exists_ini_pt_nat in Hini.
 destruct Hini as (j, (αj, Hini)).
 remember HL as Him; clear HeqHim.
