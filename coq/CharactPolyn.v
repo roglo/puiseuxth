@@ -836,6 +836,7 @@ rewrite <- Hfin.
 apply ini_fin_ns_in_init_pts; assumption.
 Qed.
 
+(*
 Theorem qden_αj_is_ps_polydo : ∀ f L j αj,
   newton_segments f = Some L
   → (j, αj) = ini_pt L
@@ -849,6 +850,10 @@ Theorem qden_αj_is_ps_polydo : ∀ f L j αj,
 (**)
 Proof.
 intros f L j αj HL Hini Hoz.
+(*
+  αj = QG_of_Z_pair (QG_num αj * Z.pos m / Z.pos (ps_polydo (ps_poly_nth j f))) m
+*)
+...
 remember HL as H; clear HeqH.
 eapply order_in_newton_segment in H; eauto ; [ idtac | left; eauto  ].
 remember (ps_poly_nth j f) as ps.
@@ -858,6 +863,7 @@ symmetry in Hv.
 destruct v; [ idtac | discriminate H ].
 injection H; clear H; intros H.
 apply (Z.mul_cancel_r _ _ (ps_ordnum ps)); [ easy | ].
+...
 rewrite Z_div_mul_swap. 2: {
 (* bon, c'est nul *)
 ...
@@ -1091,6 +1097,20 @@ intros f L m j αj mj HL Hm Hini Hmj.
 subst mj; simpl.
 progress unfold mh_of_m; simpl.
 (**)
+rewrite (QG_QG_of_Z_pair αj) at 1.
+apply QG_of_Z_pair_eq.
+...
+rewrite (Z.mul_comm _ (Z.pos (QG_den _))).
+rewrite Z.mul_assoc.
+...
+goal 2 (ID 879) is:
+ (Z.pos (ps_polydo (ps_poly_nth j f)) | QG_num αj * Z.pos m)
+*)
+rewrite Z.mul_comm.
+rewrite Z_div_mul_swap.
+goal 2 (ID 880) is:
+ (Z.pos (ps_polydo (ps_poly_nth j f)) | Z.pos m * QG_num αj)
+...
 Check qden_αj_is_ps_polydo.
 ...
 rewrite Z_div_mul_swap. {
