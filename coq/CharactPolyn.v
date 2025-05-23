@@ -842,40 +842,29 @@ Theorem qden_αj_is_ps_polydo : ∀ f L j αj,
 (*
   → QG_den αj = ps_polydo (ps_poly_nth j f).
 *)
+  → ps_ordnum (ps_poly_nth j f) ≠ 0%Z
   → Z.pos (QG_den αj) =
       Z.pos (ps_polydo (ps_poly_nth j f)) * QG_num αj /
         ps_ordnum (ps_poly_nth j f).
 (**)
 Proof.
-intros f L j αj HL Hini.
+intros f L j αj HL Hini Hoz.
 remember HL as H; clear HeqH.
 eapply order_in_newton_segment in H; eauto ; [ idtac | left; eauto  ].
 remember (ps_poly_nth j f) as ps.
-destruct (Z.eq_dec (ps_ordnum ps) 0) as [Hoz| Hoz]. {
-  rewrite Heqps in H.
-...
 progress unfold order in H.
 remember (series_order (ps_terms ps) 0) as v eqn:Hv .
 symmetry in Hv.
 destruct v; [ idtac | discriminate H ].
 injection H; clear H; intros H.
-destruct (Z.eq_dec (ps_ordnum ps) 0) as [Hoz| Hoz]. {
-  rewrite Heqps in Hoz.
-Print order.
-  progress unfold ps_poly_nth in Hoz.
-  progress unfold ps_lap_nth in Hoz.
+apply (Z.mul_cancel_r _ _ (ps_ordnum ps)); [ easy | ].
+rewrite Z_div_mul_swap. 2: {
+(* bon, c'est nul *)
 ...
-order_in_newton_segment:
-  ∀ (f : polynomial (puiseux_series α)) [L : newton_segment]
-    [pl : list (nat * QG)] (h : nat) (αh : QG),
-    newton_segments f = Some L
-    → pl = [ini_pt L … oth_pts L ++ [fin_pt L]]
-      → (h, αh) ∈ pl → order (ps_poly_nth h f) = qfin αh
+rewrite (Z.mul_comm _ (_ / _)).
+rewrite Z_div_mul_swap. 2: {
+  rewrite <- H.
 ...
-rewrite <- H.
-Search (_ * _ = _ * _)%Z.
-
-apply (Z.mul_cancel_l _ _ (ps_ordnum ps)).
 progress unfold QG_of_Z_pair.
 progress unfold QG_of_Q.
 Require Import QArith.
