@@ -45,8 +45,6 @@ apply QG_cmp_gt_lt in H.
 rewrite <- H in Heqcmp; assumption.
 Qed.
 
-Print slope_expr.
-
 Theorem slope_cmp_flatten : ∀ x₁ y₁ x₂ y₂ x₃ y₃ x₄ y₄,
   (x₁ < x₂)%nat
   → (x₃ < x₄)%nat
