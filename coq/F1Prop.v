@@ -411,29 +411,27 @@ pose proof (Hc O); assumption.
 Qed.
 
 Theorem in_power_list_lt : ∀ A la h (hv : puiseux_series A) pow,
-  (h, hv) ∈ qpower_list pow la
-  → (nat_num h < pow + length la)%nat.
+  (h, hv) ∈ power_list pow la
+  → (h < pow + length la)%nat.
 Proof.
 intros A la h hv pow Hh.
-unfold qpower_list in Hh.
 unfold pair_rec in Hh; simpl in Hh.
 revert pow Hh.
 induction la as [| a]; intros; [ contradiction | simpl ].
 simpl in Hh.
-destruct Hh as [Hh| Hh].
- injection Hh; clear Hh; intros; subst h hv.
- rewrite nat_num_Qnat.
- apply Nat.lt_sub_lt_add_l.
- rewrite Nat.sub_diag.
- apply Nat.lt_0_succ.
-
- rewrite Nat.add_succ_r, <- Nat.add_succ_l.
- apply IHla; assumption.
+destruct Hh as [Hh| Hh]. {
+  injection Hh; clear Hh; intros; subst h hv.
+  apply Nat.lt_sub_lt_add_l.
+  rewrite Nat.sub_diag.
+  apply Nat.lt_0_succ.
+}
+rewrite Nat.add_succ_r, <- Nat.add_succ_l.
+apply IHla; assumption.
 Qed.
 
 Theorem in_points_of_ps_lap_gen_lt : ∀ la pow pt,
   pt ∈ points_of_ps_lap_gen pow la
-  → (nat_num (fst pt) < pow + length la)%nat.
+  → (fst pt < pow + length la)%nat.
 Proof.
 intros la pow pt Hpt.
 unfold points_of_ps_lap_gen in Hpt.
@@ -445,7 +443,7 @@ Qed.
 
 Theorem in_points_of_ps_lap_lt : ∀ la pt,
   pt ∈ points_of_ps_lap la
-  → (nat_num (fst pt) < length la)%nat.
+  → (fst pt < length la)%nat.
 Proof.
 intros la pt Hpt.
 apply in_points_of_ps_lap_gen_lt in Hpt.
@@ -461,7 +459,7 @@ Qed.
 *)
 Theorem f₁_eq_term_with_Ψ_plus_g : ∀ f L j αj c₁ r f₁ Ψ,
   newton_segments f = Some L
-  → ini_pt L = (Qnat j, αj)
+  → ini_pt L = (j, αj)
     → c₁ = ac_root (Φq f L)
       → r = root_multiplicity acf c₁ (Φq f L)
         → Ψ = quotient_phi_x_sub_c_pow_r (Φq f L) c₁ r
@@ -497,16 +495,9 @@ rewrite f₁_eq_term_with_Ψ_plus_sum with (l₂ := l₂); try eassumption.
  apply except_split_seq; [ idtac | idtac | assumption ].
   rewrite Hl₁, Htl, Hpl.
   do 2 apply Sorted_map; simpl.
-  apply Sorted_fst_lt_nat_num_fst.
-   intros a Ha.
-   remember (points_of_ps_polynom f) as pts.
-   symmetry in Heqpts.
-   eapply pt_absc_is_nat; [ eassumption | idtac ].
-   eapply ns_in_init_pts; [ idtac | eassumption ].
-   rewrite <- Heqpts; assumption.
-
-   eapply ini_oth_fin_pts_sorted; eassumption.
-
+  apply Sorted_fst_lt_nat_num_fst. {
+    eapply ini_oth_fin_pts_sorted; eassumption.
+  }
   simpl.
   rewrite Hl₁.
   apply List.Forall_forall; intros i Hi.
@@ -657,36 +648,36 @@ Theorem order_bbar_nonneg : ∀ f L c₁ r f₁,
 Proof.
 intros f L c₁ r f₁ HL Hc₁ Hr Hf₁ i.
 remember (quotient_phi_x_sub_c_pow_r (Φq f L) c₁ r) as Ψ eqn:HΨ .
-remember HL as Hini; clear HeqHini.
-apply exists_ini_pt_nat in Hini.
-destruct Hini as (j, (αj, Hini)).
+remember (ini_pt L) as j eqn:Hini.
+destruct j as (j, αj).
+symmetry in Hini.
 rewrite f₁_eq_term_with_Ψ_plus_g; try eassumption.
 unfold ps_poly_nth; simpl.
 rewrite fold_ps_lap_add.
 rewrite ps_lap_nth_add.
 rewrite fold_ps_lap_comp.
 eapply Qbar.le_trans; [ idtac | apply order_add ].
-apply Qbar.min_glb.
- rewrite <- lap_mul_assoc.
- rewrite fold_ps_lap_mul, fold_ps_lap_pow.
- destruct (le_dec r i) as [Hle| Hgt].
-  rewrite ps_lap_nth_x_le_pow_mul; [ idtac | assumption ].
-  progress unfold ps_lap_comp.
-  rewrite monom_y_plus_c_is_inject_K.
-  rewrite fold_ps_lap_pow.
-  rewrite lap_power_map_ps.
-  rewrite fold_ps_lap_comp.
-  rewrite lap_inject_comp.
-  rewrite fold_ps_lap_mul.
-  rewrite lap_inject_mul.
-  apply order_nth_inject_K.
-
+apply Qbar.min_glb. {
+  rewrite <- lap_mul_assoc.
+  rewrite fold_ps_lap_mul, fold_ps_lap_pow.
+  destruct (le_dec r i) as [Hle| Hgt]. {
+    rewrite ps_lap_nth_x_le_pow_mul; [ idtac | assumption ].
+    progress unfold ps_lap_comp.
+    rewrite monom_y_plus_c_is_inject_K.
+    rewrite fold_ps_lap_pow.
+    rewrite lap_power_map_ps.
+    rewrite fold_ps_lap_comp.
+    rewrite lap_inject_comp.
+    rewrite fold_ps_lap_mul.
+    rewrite lap_inject_mul.
+    apply order_nth_inject_K.
+  }
   apply Nat.nle_gt in Hgt.
   rewrite ps_lap_nth_x_gt_pow_mul; [ idtac | assumption ].
   rewrite order_0; constructor.
-
- apply Qbar.lt_le_incl.
- apply nth_g_order_pos; assumption.
+}
+apply Qbar.lt_le_incl.
+apply nth_g_order_pos; assumption.
 Qed.
 
 (* [Walker, p 101] « O(bi) > 0,  i = 0,...,r-1 » *)
@@ -700,23 +691,23 @@ Theorem order_bbar_pos : ∀ f L c₁ r f₁,
 Proof.
 intros f L c₁ r f₁ HL Hc₁ Hr Hf₁ i Hir.
 remember (quotient_phi_x_sub_c_pow_r (Φq f L) c₁ r) as Ψ eqn:HΨ .
-remember HL as Hini; clear HeqHini.
-apply exists_ini_pt_nat in Hini.
-destruct Hini as (j, (αj, Hini)).
+remember (ini_pt L) as j eqn:Hini.
+destruct j as (j, αj).
+symmetry in Hini.
 rewrite f₁_eq_term_with_Ψ_plus_g; try eassumption.
 unfold ps_poly_nth; simpl.
 rewrite fold_ps_lap_add.
 rewrite ps_lap_nth_add.
 rewrite fold_ps_lap_comp.
 eapply Qbar.lt_le_trans; [ idtac | apply order_add ].
-apply Qbar.min_glb_lt.
- rewrite <- lap_mul_assoc.
- rewrite fold_ps_lap_mul.
- rewrite fold_ps_lap_pow.
- rewrite ps_lap_nth_x_gt_pow_mul; [ idtac | assumption ].
- rewrite order_0; constructor.
-
- apply nth_g_order_pos; assumption.
+apply Qbar.min_glb_lt. {
+  rewrite <- lap_mul_assoc.
+  rewrite fold_ps_lap_mul.
+  rewrite fold_ps_lap_pow.
+  rewrite ps_lap_nth_x_gt_pow_mul; [ idtac | assumption ].
+  rewrite order_0; constructor.
+}
+apply nth_g_order_pos; assumption.
 Qed.
 
 Theorem char_pol_root_ne_0 : ∀ f L m c₁,
@@ -730,9 +721,9 @@ remember HL as Happ; clear HeqHapp.
 eapply cpol_degree_ge_1 with (K := K) in Happ; eauto .
 apply ac_prop_root in Happ.
 rewrite <- Hc₁ in Happ.
-remember HL as Hini; clear HeqHini.
-apply exists_ini_pt_nat in Hini.
-destruct Hini as (j, (αj, Hini)).
+remember (ini_pt L) as j eqn:Hini.
+destruct j as (j, αj).
+symmetry in Hini.
 intros Hc; rewrite Hc in Happ.
 unfold apply_poly in Happ; simpl in Happ.
 rewrite Nat.sub_diag, list_pad_0 in Happ.
@@ -740,8 +731,7 @@ simpl in Happ.
 rewrite rng_mul_0_r, rng_add_0_l in Happ.
 revert Happ.
 eapply ord_coeff_non_zero_in_newt_segm; eauto .
-rewrite Hini; left; simpl.
-rewrite nat_num_Qnat; reflexivity.
+now rewrite Hini; left; simpl.
 Qed.
 
 (* [Walker, p 101] « O(br) = 0 » *)
@@ -755,9 +745,9 @@ Theorem order_bbar_r_is_0 : ∀ f L m c₁ r f₁,
 Proof.
 intros f L m c₁ r f₁ HL Hm Hc₁ Hr Hf₁.
 remember (quotient_phi_x_sub_c_pow_r (Φq f L) c₁ r) as Ψ eqn:HΨ .
-remember HL as Hini; clear HeqHini.
-apply exists_ini_pt_nat in Hini.
-destruct Hini as (j, (αj, Hini)).
+remember (ini_pt L) as j eqn:Hini.
+destruct j as (j, αj).
+symmetry in Hini.
 rewrite f₁_eq_term_with_Ψ_plus_g; try eassumption.
 unfold ps_poly_nth; simpl.
 remember ([0%ps; 1%ps … []] ^ r)%pslap as yr.

@@ -553,36 +553,29 @@ Theorem cpol_degree_ge_1 : ∀ f L m,
 Proof.
 intros f L m HL Hm.
 remember (Pos.to_nat (q_of_m m (γ L))) as q eqn:Hq .
-remember (ini_pt L) as jj eqn:Hj .
-destruct jj as (jq, αj); simpl.
-remember HL as H; clear HeqH.
-apply exists_ini_pt_nat in H.
-destruct H as (j, (x, Hx)).
-rewrite <- Hj in Hx; injection Hx; clear Hx; intros; subst jq x.
-remember HL as Hk; clear HeqHk.
-apply exists_fin_pt_nat in Hk.
-destruct Hk as (k, (αk, Hk)).
-symmetry in Hk.
+remember (ini_pt L) as jj eqn:Hj.
+destruct jj as (j, αj).
+remember (fin_pt L) as kk eqn:Hk.
+destruct kk as (k, αk).
 remember HL as Hdeg; clear HeqHdeg.
 eapply phi_degree_is_k_sub_j_div_q in Hdeg; try eassumption.
 unfold has_degree in Hdeg.
 destruct Hdeg as (Hshr, (Hdeg, Hcnz)).
 remember HL as Hqkj; clear HeqHqkj.
-eapply q_is_factor_of_h_minus_j with (h := k) in Hqkj; try eassumption.
- destruct Hqkj as (n, Hqkj).
- destruct n.
-  simpl in Hqkj.
-  exfalso.
-  remember HL as H; clear HeqH.
-  apply j_lt_k with (j := j) (k := k) in H.
-   apply Nat.sub_gt in H; contradiction.
-
-   rewrite <- Hj; simpl.
-   rewrite nat_num_Qnat; reflexivity.
-
-   rewrite <- Hk; simpl.
-   rewrite nat_num_Qnat; reflexivity.
-
+eapply q_is_factor_of_h_minus_j with (h := k) in Hqkj; try eassumption. {
+  destruct Hqkj as (n, Hqkj).
+  destruct n. {
+    simpl in Hqkj.
+    exfalso.
+    remember HL as H; clear HeqH.
+    apply j_lt_k with (j := j) (k := k) in H. {
+      apply Nat.sub_gt in H; contradiction.
+    } {
+      now rewrite <- Hj.
+    } {
+      now rewrite <- Hk.
+    }
+  }
   rewrite Hqkj in Hdeg, Hcnz.
   rewrite Nat.div_mul in Hdeg; [ idtac | subst q; apply Pos2Nat_ne_0 ].
   rewrite Nat.div_mul in Hcnz; [ idtac | subst q; apply Pos2Nat_ne_0 ].
@@ -592,10 +585,9 @@ eapply q_is_factor_of_h_minus_j with (h := k) in Hqkj; try eassumption.
   unfold Φs in Hla; simpl in Hla.
   rewrite Nat.sub_diag in Hla; simpl in Hla.
   rewrite <- Hj in Hla; simpl in Hla.
-  rewrite nat_num_Qnat in Hla; simpl.
+  cbn.
   rewrite Nat.sub_diag, list_pad_0.
   rewrite <- Hj; unfold fst.
-  rewrite nat_num_Qnat.
   remember (order_coeff (List.nth j (al f) 0%ps)) as v eqn:Hv .
   remember (oth_pts L ++ [fin_pt L]) as pts eqn:Hpts .
   remember (List.map (term_of_point f) pts) as tl eqn:Htl .
@@ -620,8 +612,8 @@ eapply q_is_factor_of_h_minus_j with (h := k) in Hqkj; try eassumption.
   apply Hcnz.
   apply all_0_shrink_0; intros p.
   apply lap_eq_nil_nth; assumption.
-
- apply List.in_or_app; right; left; symmetry; eassumption.
+}
+apply List.in_or_app; right; left; symmetry; eassumption.
 Qed.
 
 Theorem lap_mod_deg_1_apply : ∀ la c,
@@ -792,18 +784,12 @@ rewrite Nat.sub_diag in H; simpl in H.
 apply lap_eq_cons_nil_inv in H.
 destruct H as (H, _).
 remember (ini_pt L) as jj eqn:Hj .
-destruct jj as (jq, αj); simpl.
-remember HL as HH; clear HeqHH.
-apply exists_ini_pt_nat in HH.
-destruct HH as (j, (x, Hx)).
-rewrite <- Hj in Hx; injection Hx; clear Hx; intros; subst jq x.
+destruct jj as (j, αj); simpl.
 simpl in H.
 revert H.
-eapply ord_coeff_non_zero_in_newt_segm; [ eassumption | idtac | idtac ].
- symmetry in Hj.
- left; eassumption.
-
- rewrite nat_num_Qnat; reflexivity.
+eapply ord_coeff_non_zero_in_newt_segm; [ eassumption | idtac | easy ].
+symmetry in Hj.
+left; eassumption.
 Qed.
 
 End theorems.

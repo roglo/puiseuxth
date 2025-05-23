@@ -26,7 +26,7 @@ Require Import QbarM.
 Set Implicit Arguments.
 
 Definition phony_ns :=
-  {| ini_pt := (0, 0); fin_pt := (0, 0); oth_pts := [] |}.
+  {| ini_pt := (0%nat, 0); fin_pt := (0%nat, 0); oth_pts := [] |}.
 
 Definition option_get {A} (x : A) v :=
   match v with
@@ -208,55 +208,55 @@ Qed.
 
 Theorem exists_ini_pt_nat_fst_seg : ∀ f L,
   L = option_get phony_ns (newton_segments f)
-  → ∃ i αi, ini_pt L = (Qnat i, αi).
+  → ∃ i αi, ini_pt L = (i, αi).
 Proof.
 intros f L HL.
 remember (newton_segments f) as Ll eqn:HLl .
 symmetry in HLl.
-destruct Ll as [L₁| ].
- simpl in HL; subst L₁.
- now eapply exists_ini_pt_nat with (f := f).
-
- subst L; simpl.
- exists 0%nat, 0; reflexivity.
+destruct Ll as [L₁| ]. {
+  remember (ini_pt L) as j eqn:Hini.
+  destruct j as (j, αj).
+  symmetry in Hini.
+  now exists j, αj.
+}
+subst L; simpl.
+exists 0%nat, 0; reflexivity.
 Qed.
 
 Theorem exists_fin_pt_nat_fst_seg : ∀ f L,
   L = option_get phony_ns (newton_segments f)
-  → ∃ i αi, fin_pt L = (Qnat i, αi).
+  → ∃ i αi, fin_pt L = (i, αi).
 Proof.
 intros f L HL.
 remember (newton_segments f) as Ll eqn:HLl .
 symmetry in HLl.
-destruct Ll as [L₁| ].
- simpl in HL; subst L₁.
- now eapply exists_fin_pt_nat with (f := f).
-
- subst L; simpl.
- exists 0%nat, 0; reflexivity.
+destruct Ll as [L₁| ]. {
+  remember (fin_pt L) as j eqn:Hini.
+  destruct j as (j, αj).
+  symmetry in Hini.
+  now exists j, αj.
+}
+subst L; simpl.
+exists 0%nat, 0; reflexivity.
 Qed.
 
 Theorem hd_newton_segments : ∀ f L j k αj αk,
   L = option_get phony_ns (newton_segments f)
- → ini_pt L = (Qnat j, αj)
-  → fin_pt L = (Qnat k, αk)
+ → ini_pt L = (j, αj)
+  → fin_pt L = (k, αk)
   → (j < k)%nat
   → newton_segments f = Some L.
 Proof.
 intros f L j k αj αk HL Hini Hfin Hjk.
 remember (newton_segments f) as Ll.
 symmetry in HeqLl.
-destruct Ll as [L₁| ]; simpl in HL.
- subst L; reflexivity.
-
- subst L; simpl in Hini, Hfin.
- injection Hini; intros; subst.
- injection Hfin; intros; subst.
- rewrite <- Nat2Z.inj_0 in H0.
- rewrite <- Nat2Z.inj_0 in H1.
- apply Nat2Z.inj in H0.
- apply Nat2Z.inj in H1.
- subst j k; exfalso; revert Hjk; apply Nat.lt_irrefl.
+destruct Ll as [L₁| ]; simpl in HL. {
+  subst L; reflexivity.
+}
+subst L; simpl in Hini, Hfin.
+injection Hini; intros; subst.
+injection Hfin; intros; subst.
+now apply Nat.lt_irrefl in Hjk.
 Qed.
 
 (* *)
@@ -367,7 +367,7 @@ Qed.
 Theorem num_m_den_is_pos : ∀ f L j αj m,
   newton_segments f = Some L
   → pol_in_K_1_m f m
-  → ini_pt L = (Qnat j, αj)
+  → ini_pt L = (j, αj)
   → (0 < Qnum αj)%Z
   → (0 < Z.to_nat (Qnum αj * Zpos m / Zpos (Qden αj)))%nat.
 Proof.
@@ -581,7 +581,7 @@ Theorem nth_γ_n : ∀ f L n Ln jn αjn kn αkn,
   Ln = nth_ns n f L
   → ini_pt Ln = (jn, αjn)
   → fin_pt Ln = (kn, αkn)
-  → nth_γ n f L = (αjn - αkn) / (kn - jn).
+  → nth_γ n f L = (αjn - αkn) / (Qnat kn - Qnat jn).
 Proof.
 intros f L n Ln jm αjn kn αkn HLn Hini Hfin.
 revert f L Ln jm αjn kn αkn HLn Hini Hfin.
@@ -1068,16 +1068,18 @@ unfold ps_poly_nth.
 unfold ps_poly_nth in Hnz.
 rewrite Hla in Hnz; rewrite Hla.
 clear f Hla.
-unfold points_of_ps_lap_gen in HL.
-unfold qpower_list in HL.
-remember (pair_rec (λ pow ps, (Qnat pow, ps))) as f.
-unfold ps_lap_nth in Hnz.
-unfold ps_lap_nth.
+progress unfold points_of_ps_lap_gen in HL.
+(*
+unfold power_list in HL.
+*)
+remember (pair_rec (λ (pow : nat) (ps : puiseux_series α), (pow, ps))) as f.
+progress unfold ps_lap_nth in Hnz.
+progress unfold ps_lap_nth.
 revert la Hnz HL.
-induction i; intros.
- destruct la as [| a].
-  exfalso; apply Hnz; reflexivity.
-
+induction i; intros. {
+  destruct la as [| a]. {
+    exfalso; apply Hnz; reflexivity.
+  }
   simpl in Hnz; simpl.
   simpl in HL.
   remember (f (O, a)) as fa.
@@ -1090,7 +1092,7 @@ induction i; intros.
   symmetry in Heqoa.
   destruct oa as [oa| ]; [ idtac | exfalso; apply Hnz; reflexivity ].
   simpl in HL.
-  remember (filter_finite_ord (List.map f (power_list 1 la))) as pts.
+  remember (filter_finite_ord (power_list 1 la)) as pts.
   symmetry in Heqpts.
   destruct pts; [ idtac | discriminate HL ].
   clear HL Hnz.
@@ -1103,43 +1105,41 @@ induction i; intros.
   subst fb; simpl in Heqpts.
   remember (order b) as ob.
   symmetry in Heqob.
-  destruct ob as [ob| ]; auto.
-   discriminate Heqpts.
-
-   apply order_inf; assumption.
-
- destruct la as [| a]; [ reflexivity | simpl ].
- simpl in Hnz.
- simpl in HL.
- remember (f (O, a)) as fa.
- rewrite Heqf in Heqfa.
- simpl in Heqfa.
- unfold pair_rec in Heqfa; simpl in Heqfa.
- subst fa; simpl in HL.
- apply order_fin in Hnz.
- remember (order a) as oa.
- symmetry in Heqoa.
- destruct oa as [oa| ]; [ idtac | exfalso; apply Hnz; reflexivity ].
- simpl in HL.
- remember (filter_finite_ord (List.map f (power_list 1 la))) as pts.
- symmetry in Heqpts.
- destruct pts; [ idtac | discriminate HL ].
- clear HL.
- clear Hnz.
- revert Heqf Heqpts; clear; intros.
- remember 1%nat as pow; clear Heqpow.
- revert i pow Heqpts.
- induction la as [| a]; intros; [ reflexivity | idtac ].
- simpl in Heqpts.
- remember (f (pow, a)) as fa.
- rewrite Heqf in Heqfa.
- unfold pair_rec in Heqfa.
- simpl in Heqfa.
- subst fa; simpl in Heqpts.
- remember (order a) as oa.
- symmetry in Heqoa.
- destruct oa as [oa| ]; [ discriminate Heqpts | simpl ].
- destruct i.
+  destruct ob as [ob| ]; [ discriminate Heqpts | ].
+  apply order_inf; assumption.
+}
+destruct la as [| a]; [ reflexivity | simpl ].
+simpl in Hnz.
+simpl in HL.
+remember (f (O, a)) as fa.
+rewrite Heqf in Heqfa.
+simpl in Heqfa.
+progress unfold pair_rec in Heqfa; simpl in Heqfa.
+subst fa; simpl in HL.
+apply order_fin in Hnz.
+remember (order a) as oa.
+symmetry in Heqoa.
+destruct oa as [oa| ]; [ idtac | exfalso; apply Hnz; reflexivity ].
+simpl in HL.
+remember (filter_finite_ord (power_list 1 la)) as pts.
+symmetry in Heqpts.
+destruct pts; [ idtac | discriminate HL ].
+clear HL.
+clear Hnz.
+revert Heqf Heqpts; clear; intros.
+remember 1%nat as pow; clear Heqpow.
+revert i pow Heqpts.
+induction la as [| a]; intros; [ reflexivity | cbn ].
+simpl in Heqpts.
+remember (f (pow, a)) as fa.
+rewrite Heqf in Heqfa.
+unfold pair_rec in Heqfa.
+simpl in Heqfa.
+subst fa; simpl in Heqpts.
+remember (order a) as oa.
+symmetry in Heqoa.
+destruct oa as [oa| ]; [ discriminate Heqpts | simpl ].
+destruct i. {
   destruct la as [| b]; [ reflexivity | simpl ].
   simpl in Heqpts.
   remember (f (S pow, b)) as fb.
@@ -1150,8 +1150,8 @@ induction i; intros.
   remember (order b) as ob.
   symmetry in Heqob.
   destruct ob as [ob| ]; [ discriminate Heqpts | reflexivity ].
-
-  eapply IHla; eauto .
+}
+eapply IHla; eauto .
 Qed.
 
 Theorem root_multiplicity_0 : ∀ c cf,
@@ -1248,84 +1248,75 @@ Proof.
 intros f L c HL Hc Hr.
 apply root_multiplicity_0 in Hr; eauto .
 apply degree_eq_0_if in Hr.
-destruct Hr as [Hr| Hr].
- unfold Φq in Hr; simpl in Hr.
- rewrite Nat.sub_diag in Hr; simpl in Hr.
- unfold eq_poly in Hr; simpl in Hr.
- remember HL as H; clear HeqH.
- apply exists_ini_pt_nat in H.
- destruct H as (j, (αj, Hini)).
- rewrite Hini in Hr; simpl in Hr.
- rewrite nat_num_Qnat in Hr.
- apply lap_eq_cons_nil_inv in Hr.
- destruct Hr as (Hoj, Hcf).
- exfalso; revert Hoj.
- eapply ord_coeff_non_zero_in_newt_segm; eauto .
- left; eassumption.
-
- destruct Hr as (a, (Ha, Hcf)).
- unfold Φq in Hcf; simpl in Hcf.
- remember HL as H; clear HeqH.
- apply exists_ini_pt_nat in H.
- destruct H as (j, (αj, Hini)).
- rewrite Hini in Hcf; simpl in Hcf.
- rewrite nat_num_Qnat in Hcf.
- rewrite Nat.sub_diag in Hcf.
- simpl in Hcf.
- unfold eq_poly in Hcf; simpl in Hcf.
- apply lap_eq_cons_inv in Hcf.
- destruct Hcf as (Hoa, Hcf).
- remember (oth_pts L) as opts eqn:Hopts .
- symmetry in Hopts.
- destruct opts as [| pt].
+destruct Hr as [Hr| Hr]. {
+  unfold Φq in Hr; simpl in Hr.
+  rewrite Nat.sub_diag in Hr; simpl in Hr.
+  unfold eq_poly in Hr; simpl in Hr.
+  remember (ini_pt L) as j eqn:Hini.
+  destruct j as (j, αj).
+  symmetry in Hini.
+  cbn in Hr.
+  apply lap_eq_cons_nil_inv in Hr.
+  destruct Hr as (Hoj, Hcf).
+  exfalso; revert Hoj.
+  eapply ord_coeff_non_zero_in_newt_segm; eauto .
+  left; eassumption.
+}
+destruct Hr as (a, (Ha, Hcf)).
+unfold Φq in Hcf; simpl in Hcf.
+remember (ini_pt L) as j eqn:Hini.
+destruct j as (j, αj).
+symmetry in Hini.
+simpl in Hcf.
+rewrite Nat.sub_diag in Hcf.
+simpl in Hcf.
+unfold eq_poly in Hcf; simpl in Hcf.
+apply lap_eq_cons_inv in Hcf.
+destruct Hcf as (Hoa, Hcf).
+remember (oth_pts L) as opts eqn:Hopts .
+symmetry in Hopts.
+destruct opts as [| pt]. {
   simpl in Hcf.
-  remember HL as H; clear HeqH.
-  apply exists_fin_pt_nat in H.
-  destruct H as (k, (αk, Hfin)).
-  rewrite Hfin in Hcf.
+  remember (fin_pt L) as k eqn:Hfin.
+  destruct k as (k, αk).
+  symmetry in Hfin.
   simpl in Hcf.
-  rewrite nat_num_Qnat in Hcf; simpl in Hcf.
   remember (k - S j)%nat as kj.
   clear Heqkj.
-  induction kj.
-   simpl in Hcf.
-   apply lap_eq_cons_nil_inv in Hcf.
-   destruct Hcf as (Hoc, _).
-   exfalso; revert Hoc.
-   eapply ord_coeff_non_zero_in_newt_segm; eauto .
-   rewrite Hopts; simpl.
-   right; left; eassumption.
-
-   simpl in Hcf.
-   apply lap_eq_cons_nil_inv in Hcf.
-   destruct Hcf as (_, Hcf).
-   apply IHkj in Hcf.
-   assumption.
-
-  simpl in Hcf.
-  remember HL as H; clear HeqH.
-  eapply exists_oth_pt_nat with (pt := pt) in H.
-   destruct H as (h, (αh, Hoth)).
-   rewrite Hoth in Hcf; simpl in Hcf.
-   rewrite nat_num_Qnat in Hcf.
-   remember (h - S j)%nat as hj.
-   clear Heqhj.
-   induction hj.
+  induction kj. {
     simpl in Hcf.
     apply lap_eq_cons_nil_inv in Hcf.
     destruct Hcf as (Hoc, _).
     exfalso; revert Hoc.
     eapply ord_coeff_non_zero_in_newt_segm; eauto .
-    right; apply List.in_or_app; left.
-    rewrite Hopts; left; eassumption.
-
-    simpl in Hcf.
-    apply lap_eq_cons_nil_inv in Hcf.
-    destruct Hcf as (_, Hcf).
-    apply IHhj in Hcf.
-    assumption.
-
-   rewrite Hopts; left; reflexivity.
+    rewrite Hopts; simpl.
+    right; left; eassumption.
+  }
+  simpl in Hcf.
+  apply lap_eq_cons_nil_inv in Hcf.
+  destruct Hcf as (_, Hcf).
+  apply IHkj in Hcf.
+  assumption.
+}
+simpl in Hcf.
+destruct pt as (h, αh).
+simpl in Hcf.
+remember (h - S j)%nat as hj.
+clear Heqhj.
+induction hj. {
+  simpl in Hcf.
+  apply lap_eq_cons_nil_inv in Hcf.
+  destruct Hcf as (Hoc, _).
+  exfalso; revert Hoc.
+  eapply ord_coeff_non_zero_in_newt_segm; eauto .
+  right; apply List.in_or_app; left.
+  now rewrite Hopts; left.
+}
+simpl in Hcf.
+apply lap_eq_cons_nil_inv in Hcf.
+destruct Hcf as (_, Hcf).
+apply IHhj in Hcf.
+assumption.
 Qed.
 
 End theorems.

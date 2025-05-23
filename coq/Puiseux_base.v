@@ -44,11 +44,6 @@ Fixpoint power_list α pow (psl : list α) :=
   | [ps₁ … psl₁] => [(pow, ps₁) … power_list (S pow) psl₁]
   end.
 
-(*
-Definition qpower_list α pow (psl : list (puiseux_series α)) :=
-  List.map (pair_rec (λ pow ps, (QG_of_nat pow, ps))) (power_list pow psl).
-*)
-
 Fixpoint filter_finite_ord α (r : ring α) {K : field r}
     (dpl : list (nat * puiseux_series α)) :=
   match dpl with
@@ -84,13 +79,6 @@ Section theorems.
 Variable α : Type.
 Variable r : ring α.
 Variable K : field r.
-
-(*
-Theorem fold_qpower_list : ∀ pow (psl : list (puiseux_series α)),
-  List.map (pair_rec (λ pow ps, (QG_of_nat pow, ps))) (power_list pow psl) =
-  qpower_list pow psl.
-Proof. reflexivity. Qed.
-*)
 
 Theorem order_inf : ∀ x, order x = qinf ↔ (x = 0)%ps.
 Proof.

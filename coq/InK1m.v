@@ -442,35 +442,34 @@ constructor; subst a.
 remember (p_of_m m (γ L)) as p eqn:Hp .
 pose proof (any_is_p_mq (γ L) m Hp Hq) as Hgp.
 destruct Hgp as (Hgp, Hg).
-remember HL as Hini; clear HeqHini.
-apply exists_ini_pt_nat in Hini.
-destruct Hini as (j, (αj, Hini)).
-remember HL as Him; clear HeqHim.
-symmetry in Hini.
+remember (ini_pt L) as j eqn:Hini.
+destruct j as (j, αj).
+generalize Hini; intros Him.
 eapply pol_ord_of_ini_pt in Him; eauto .
+symmetry in Hini.
 remember HL as Hbm; clear HeqHbm.
-apply points_in_any_newton_segment with (h := Qnat j) (αh := αj) in Hbm.
- rewrite Him, Hgp in Hbm.
- remember (mh_of_m m αj (ps_poly_nth j f)) as mj.
- remember (mj * Zpos q + Z.of_nat j * p # m * q) as v.
- exists (ps_monom c (- v)); subst v; simpl.
- split; [ idtac | reflexivity ].
- rewrite Hbm.
- unfold ps_monom; simpl.
- rewrite ps_adjust_eq with (n := O) (k := m).
- unfold adjust_ps; simpl.
- rewrite Z.sub_0_r.
- rewrite fold_series_const.
- rewrite series_stretch_const, series_shift_0.
- apply mkps_morphism; try reflexivity.
-  rewrite Z.mul_opp_l; f_equal.
-  rewrite Z.mul_add_distr_r; f_equal.
-  rewrite <- Z.mul_assoc; f_equal.
-  apply Z.mul_comm.
-
+apply points_in_any_newton_segment with (h := j) (αh := αj) in Hbm. {
+  rewrite Him, Hgp in Hbm.
+  remember (mh_of_m m αj (ps_poly_nth j f)) as mj.
+  remember (mj * Zpos q + Z.of_nat j * p # m * q) as v.
+  exists (ps_monom c (- v)); subst v; simpl.
+  split; [ idtac | reflexivity ].
+  rewrite Hbm.
+  unfold ps_monom; simpl.
+  rewrite ps_adjust_eq with (n := O) (k := m).
+  unfold adjust_ps; simpl.
+  rewrite Z.sub_0_r.
+  rewrite fold_series_const.
+  rewrite series_stretch_const, series_shift_0.
+  apply mkps_morphism; try reflexivity. {
+    rewrite Z.mul_opp_l; f_equal.
+    rewrite Z.mul_add_distr_r; f_equal.
+    rewrite <- Z.mul_assoc; f_equal.
+    apply Z.mul_comm.
+  }
   apply Pos.mul_comm.
-
- left; symmetry; eassumption.
+}
+left; eassumption.
 Qed.
 
 Theorem gamma_in_K_1_mq : ∀ L m a c q,

@@ -1,8 +1,7 @@
 (* NotInSegMisc.v *)
 
 Set Nested Proofs Allowed.
-From Stdlib Require Import Utf8 Arith Sorting.
-From Stdlib Require Import QArith.
+From Stdlib Require Import Utf8 Arith QArith Sorting.
 
 Require Import QGArith.
 Require Import Misc.
@@ -623,33 +622,3 @@ destruct Hk as [Hk| Hk]. {
 apply Sorted_inv_1 in Hsort.
 apply IHpts; assumption.
 Qed.
-
-(*
-Theorem qeq_eq_ini : ∀ pts h αh j αj ptj s,
-  Sorted fst_lt pts
-  → lower_convex_hull_points pts = Some (mkns (j, αj) ptj s)
-  → (h, αh) ∈ pts
-  → h == j
-  → h = j.
-Proof.
-intros pts h αh j αj ptj s Hpts Hhsl Hαh Hhk.
-eapply sorted_qeq_eq with (αk := αj) in Hhk; try eassumption. {
-  injection Hhk; intros; subst; reflexivity.
-}
-now apply in_ch_in_pts with (s := s) (pt₂ := ptj).
-Qed.
-
-Theorem qeq_eq_fin : ∀ pts h αh k αk ptk s,
-  Sorted fst_lt pts
-  → lower_convex_hull_points pts = Some (mkns ptk (k, αk) s)
-  → (h, αh) ∈ pts
-  → h == k
-  → h = k.
-Proof.
-intros pts h αh k αk ptk s Hpts Hhsl Hαh Hhk.
-eapply sorted_qeq_eq with (αk := αk) in Hhk; try eassumption. {
-  injection Hhk; intros; subst; reflexivity.
-}
-now apply in_ch_in_pts with (s := s) (pt₁ := ptk).
-Qed.
-*)
