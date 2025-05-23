@@ -617,34 +617,33 @@ remember (newton_segments f₁) as Lo eqn:HLo.
 symmetry in HLo.
 destruct Lo as [L'₁| ]; [ | easy ].
 simpl in HL₁; subst L'₁.
-generalize HLo; intro H.
-...
-apply exists_ini_pt_nat in H.
-destruct H as (j₁, (αj₁, Hini₂)).
-remember HLo as H; clear HeqH.
-apply exists_fin_pt_nat in H.
-destruct H as (k₁, (αk₁, Hfin₂)).
+remember (ini_pt L₁) as j₁ eqn:Hini₂.
+destruct j₁ as (j₁, αj₁).
+symmetry in Hini₂.
+remember (fin_pt L₁) as k₁ eqn:Hfin₂.
+destruct k₁ as (k₁, αk₁).
+symmetry in Hfin₂.
 remember HL as H; clear HeqH.
-eapply j_0_k_betw_r₀_r₁ with (c := c) in H; try eassumption .
- destruct H as (Hj₁, (Hrk₁, (Hk₁r, (Hαj₁, (Hαk₁, Hαk₁z))))).
- remember Hrle as H; clear HeqH.
- eapply Nat.le_trans in H; try eassumption .
- eapply Nat.le_antisymm in H; try eassumption .
- move H at top; subst r₁.
- apply Nat.le_antisymm in Hrle; try eassumption .
- move Hrle at top; subst k₁.
- split; [ apply eq_refl | ].
- destruct Hαk₁z; [ exfalso; revert H; apply Nat.lt_irrefl | idtac ].
- subst j₁.
- exists αj₁, αk₁.
- split; [ assumption | idtac ].
- split; [ assumption | idtac ].
- unfold Qlt in Hαj₁; simpl in Hαj₁.
- unfold Qeq in H; simpl in H.
- rewrite Z.mul_1_r in Hαj₁, H.
- split; assumption.
-
- now rewrite HLo.
+eapply j_0_k_betw_r₀_r₁ with (c := c) in H; try eassumption. {
+  destruct H as (Hj₁, (Hrk₁, (Hk₁r, (Hαj₁, (Hαk₁, Hαk₁z))))).
+  remember Hrle as H; clear HeqH.
+  eapply Nat.le_trans in H; try eassumption.
+  eapply Nat.le_antisymm in H; try eassumption.
+  move H at top; subst r₁.
+  apply Nat.le_antisymm in Hrle; try eassumption.
+  move Hrle at top; subst k₁.
+  split; [ apply eq_refl | ].
+  destruct Hαk₁z; [ exfalso; revert H; apply Nat.lt_irrefl | idtac ].
+  subst j₁.
+  exists αj₁, αk₁.
+  split; [ easy | idtac ].
+  split; [ easy | idtac ].
+  unfold Qlt in Hαj₁; simpl in Hαj₁.
+  unfold Qeq in H; simpl in H.
+  rewrite Z.mul_1_r in Hαj₁, H.
+  split; assumption.
+}
+now rewrite HLo.
 Qed.
 
 Theorem r_n_next_ns : ∀ f L c f₁ L₁ c₁ r,
@@ -657,8 +656,8 @@ Theorem r_n_next_ns : ∀ f L c f₁ L₁ c₁ r,
   → root_multiplicity acf c (Φq f L) = r
   → root_multiplicity acf c₁ (Φq f₁ L₁) = r
   → ∃ αj αk,
-    ini_pt L₁ = (Qnat 0, αj) ∧
-    fin_pt L₁ = (Qnat r, αk) ∧
+    ini_pt L₁ = (0%nat, αj) ∧
+    fin_pt L₁ = (r, αk) ∧
     (0 < Qnum αj)%Z ∧
     Qnum αk = 0%Z.
 Proof.
@@ -699,8 +698,8 @@ Theorem r_n_nth_ns : ∀ f L c f₁ L₁ c₁ m r,
     → fn = nth_pol n f₁ L₁
     → Ln = nth_ns n f₁ L₁
     → ∃ αj αk,
-      ini_pt Ln = (Qnat 0, αj) ∧
-      fin_pt Ln = (Qnat r, αk) ∧
+      ini_pt Ln = (0%nat, αj) ∧
+      fin_pt Ln = (r, αk) ∧
       (0 < Qnum αj)%Z ∧
       Qnum αk = 0%Z.
 Proof.
@@ -980,8 +979,8 @@ Theorem q_eq_1_any_r : ∀ f L c αj αk m q r,
   → q = q_of_m m (γ L)
   → c = ac_root (Φq f L)
   → r = root_multiplicity acf c (Φq f L)
-  → ini_pt L = (Qnat 0, αj)
-  → fin_pt L = (Qnat r, αk)
+  → ini_pt L = (0%nat, αj)
+  → fin_pt L = (r, αk)
   → (0 < Qnum αj)%Z
   → Qnum αk = 0%Z
   → q = 1%positive.
@@ -995,6 +994,7 @@ remember [ini_pt L … oth_pts L ++ [fin_pt L]] as pl eqn:Hpl .
 remember (List.map (term_of_point f) pl) as tl eqn:Htl .
 rewrite Hini in H.
 simpl in H.
+...
 rewrite nat_num_Qnat in H; simpl in H.
 subst cf.
 rename H into Hcf.
