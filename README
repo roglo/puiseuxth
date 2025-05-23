@@ -3,8 +3,7 @@ OVERVIEW
 * Formal proof of Puiseux's theorem
 * Computation of roots of polynomials of Puiseux's series
 
-You need coq version 8.20.0
-(not yet done: work in progress 2024-09-20)
+You need Rocq version 9.0.0
 
 PROOF
 
