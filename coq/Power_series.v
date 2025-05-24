@@ -14,7 +14,7 @@ Set Implicit Arguments.
 
 Record power_series α := series { terms : nat → α }.
 
-Notation "s .[ i ]" := (@terms _ s i) (at level 1).
+Notation "s .[[ i ]]" := (@terms _ s i) (at level 1).
 
 Definition series_0 {α} {r : ring_like_op α} :=
   {| terms i := 0%L |}.
@@ -32,7 +32,7 @@ Notation "1" := series_1 : series_scope.
 Inductive eq_series {α} {r : ring_like_op α} :
     power_series α → power_series α → Prop :=
   eq_series_base : ∀ s₁ s₂,
-    (∀ i, (s₁.[i] = s₂.[i])%L)
+    (∀ i, (s₁.[[i]] = s₂.[[i]])%L)
     → eq_series s₁ s₂.
 
 Notation "a = b" := (eq_series a b) : series_scope.
@@ -76,10 +76,10 @@ Proof. reflexivity. Qed.
 (* series_add *)
 
 Definition series_add {α} {r : ring_like_op α} s₁ s₂ :=
-  {| terms i := (s₁.[i] + s₂.[i])%L |}.
+  {| terms i := (s₁.[[i]] + s₂.[[i]])%L |}.
 
 Definition series_opp {α} {r : ring_like_op α} s :=
-  {| terms i := (- s.[i])%L |}.
+  {| terms i := (- s.[[i]])%L |}.
 
 Notation "a + b" := (series_add a b) : series_scope.
 Notation "a - b" := (series_add a (series_opp b)) : series_scope.
@@ -108,7 +108,7 @@ constructor; intros i; simpl.
 rewrite rngl_add_assoc; reflexivity.
 Qed.
 
-Theorem series_nth_series_0 : ∀ i, (0%ser .[i])%L = 0%L.
+Theorem series_nth_series_0 : ∀ i, (0%ser .[[i]])%L = 0%L.
 Proof. reflexivity. Qed.
 
 Theorem series_add_0_l : ∀ s, (0 + s = s)%ser.
@@ -139,7 +139,7 @@ End theorems_add.
 (* series_mul *)
 
 Definition convol_mul {α} {r : ring_like_op α} a b k :=
-  ∑ (i = 0, k), (a.[i] * b.[k-i])%L.
+  ∑ (i = 0, k), (a.[[i]] * b.[[k-i]])%L.
 
 Definition series_mul {α} {r : ring_like_op α} a b :=
   {| terms k := convol_mul a b k |}.
@@ -259,7 +259,7 @@ apply Nat.sub_add_distr.
 Qed.
 
 Theorem series_nth_add : ∀ a b i,
-  (((a + b)%ser) .[i] = a.[i] + b.[i])%L.
+  (((a + b)%ser) .[[i]] = a.[[i]] + b.[[i]])%L.
 Proof. reflexivity. Qed.
 
 Theorem convol_mul_add_distr_l : ∀ a b c i,
@@ -345,13 +345,13 @@ End other_theorems.
 
 Fixpoint term_inv {α} {r : ring_like_op α} c s n :=
   match n with
-  | O => (s.[0]⁻¹)%L
+  | O => (s.[[0]]⁻¹)%L
   | S n₁ =>
       match c with
       | O => 0%L
       | S c₁ =>
-          (- (s.[0])⁻¹ *
-           ∑ (i = 0, n₁), s.[S i] * term_inv c₁ s (n₁ - i)%nat)%L
+          (- (s.[[0]])⁻¹ *
+           ∑ (i = 0, n₁), s.[[S i]] * term_inv c₁ s (n₁ - i)%nat)%L
       end
   end.
 
@@ -378,25 +378,21 @@ simpl.
 destruct k; simpl; [ destruct j; reflexivity | ].
 destruct j; [ apply Nat.nle_succ_0 in Hkj; contradiction | ].
 simpl.
-...
-apply rngl_mul_compat_l.
-apply rngl_summation_compat; intros l (Hl, Hlj).
-apply rngl_mul_compat_l.
-destruct l. {
-  rewrite Nat.sub_0_r.
-  apply IHi; apply Nat.succ_le_mono; assumption.
-}
-apply IHi; [ fast_omega Hki | fast_omega Hkj ].
+progress f_equal.
+apply rngl_summation_eq_compat.
+intros l Hl.
+progress f_equal.
+apply IHi; apply Nat.succ_le_mono; [ fast_omega Hki | fast_omega Hkj ].
 Qed.
 
 Theorem term_inv_nth_gen_formula : ∀ k a a' i,
-  (a.[0] ≠ 0)%L
+  (a.[[0]] ≠ 0)%L
   → a' = series_inv a
   → (S k - i ≠ 0)%nat
-  → (a'.[S k - i] =
-       - a'.[0] *
+  → (a'.[[S k - i]] =
+       - a'.[[0]] *
            ∑ (j = 1, S k - i),
-      a.[j] * term_inv (S k) a (S k - i - j))%L.
+      a.[[j]] * term_inv (S k) a (S k - i - j))%L.
 Proof.
 (* à revoir... *)
 intros k a a' i Ha Ha' Hki.
@@ -405,7 +401,9 @@ remember minus as g; simpl; subst g.
 destruct (zerop (S k - i)) as [| H₁]; [ contradiction | idtac ].
 remember (S k - i)%nat as ki eqn:Hki₂.
 destruct ki; [ exfalso; apply Hki; reflexivity | ].
+progress f_equal.
 clear H₁.
+...
 apply rngl_mul_compat_l.
 rewrite rngl_summation_succ_succ.
 apply rngl_summation_compat; intros j Hj.
@@ -428,10 +426,10 @@ apply Nat.le_sub_l.
 Qed.
 
 Theorem term_inv_nth_formula : ∀ k a a',
-  (a.[0] ≠ 0)%L
+  (a.[[0] ≠ 0)%L
   → a' = series_inv a
-  → (a'.[S k] =
-       - a'.[0] * ∑ (i = 1, S k), a.[i] * a'.[S k - i])%L.
+  → (a'.[[S k] =
+       - a'.[[0] * ∑ (i = 1, S k), a.[[i] * a'.[[S k - i])%L.
 Proof.
 intros k a a' Ha Ha'.
 pose proof (term_inv_nth_gen_formula k O Ha Ha') as H.
@@ -451,19 +449,19 @@ apply term_inv_iter_enough; fast_omega Hn Hj.
 Qed.
 
 Theorem convol_mul_inv_r : ∀ k a a',
-  (a.[0] ≠ 0)%L
+  (a.[[0] ≠ 0)%L
   → a' = series_inv a
   → (convol_mul a a' (S k) = 0)%L.
 Proof.
 intros k a a' Ha Ha'.
 unfold convol_mul.
 pose proof (term_inv_nth_formula k Ha Ha') as Hi.
-apply rngl_mul_compat_l with (c := a.[0]%L) in Hi.
+apply rngl_mul_compat_l with (c := a.[[0]%L) in Hi.
 symmetry in Hi.
 rewrite rngl_mul_assoc in Hi.
 rewrite rngl_mul_opp_r in Hi.
 rewrite Ha' in Hi.
-assert (a.[0] * (¹/ a%ser) .[ 0] = 1)%L as H. {
+assert (a.[[0] * (¹/ a%ser) .[[ 0] = 1)%L as H. {
   simpl; rewrite fld_mul_inv_r; [ reflexivity | auto ].
 }
 rewrite H in Hi; clear H.
@@ -477,7 +475,7 @@ rewrite Nat.sub_0_r; auto.
 Qed.
 
 Theorem series_mul_inv_r : ∀ a,
-  (a.[0] ≠ 0)%L
+  (a.[[0] ≠ 0)%L
   → (a * ¹/ a = 1)%ser.
 Proof.
 intros a Ha.
