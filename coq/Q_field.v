@@ -1,5 +1,6 @@
 (* Q_field.v *)
 
+(*
 From Stdlib Require Import Utf8.
 From Stdlib Require Import QArith.
 
@@ -40,3 +41,4 @@ Definition Q_ring :=
      rng_mul_add_distr_l := Qmult_plus_distr_r |}.
 
 Canonical Structure Q_ring.
+*)
