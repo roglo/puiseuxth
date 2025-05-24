@@ -181,15 +181,15 @@ destruct c; subst ms; simpl; [ idtac | apply Nat.le_refl | idtac ]. {
 }
 Qed.
 
-Theorem next_ch_points_hd : ∀ pt₁ pt₂ pt₃ pts₁ seg,
-  lower_convex_hull_points [pt₁ … pts₁] = Some (mkns pt₂ pt₃ seg)
+Theorem next_ch_points_hd : ∀ pt₁ pt₂ pt₃ pts₁ seg cod,
+  lower_convex_hull_points [pt₁ … pts₁] = Some (mkns pt₂ pt₃ seg cod)
   → pt₁ = pt₂.
 Proof.
 intros * Hnp; simpl in Hnp.
 destruct pts₁ as [| pt₄ pts]; [ easy | ].
-injection Hnp; clear Hnp; intros H1 H2 H3.
+injection Hnp; clear Hnp; intros H1 H2 H3 H4.
 specialize (minimised_slope_beg_pt pt₁ pt₄ pts) as Hm.
-now rewrite <- H3, Hm.
+now rewrite <- H4, Hm.
 Qed.
 
 Theorem beg_lt_end_pt : ∀ pt₁ pt₂ pts ms,

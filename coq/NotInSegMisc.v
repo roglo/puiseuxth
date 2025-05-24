@@ -291,12 +291,12 @@ destruct c; subst ms. {
 }
 Qed.
 
-Theorem points_after_k : ∀ pts j αj k αk seg γ β,
+Theorem points_after_k : ∀ pts j αj k αk seg cod γ β,
   Sorted fst_lt pts
   → (j < k)%nat
   → γ = (αj - αk) / (QG_of_nat k - QG_of_nat j)
   → β = αj + QG_of_nat j * γ
-  → lower_convex_hull_points pts = Some (mkns (j, αj) (k, αk) seg)
+  → lower_convex_hull_points pts = Some (mkns (j, αj) (k, αk) seg cod)
   → ∀ h αh, (k < h)%nat
   → (h, αh) ∈ pts
   → β < αh + QG_of_nat h * γ.
@@ -306,6 +306,7 @@ intros Hsort Hjk Hγ Hβ Hnp h αh Hkh Hαh.
 destruct pts as [| pt₁]; [ easy | ].
 destruct pts as [| pt₂]; [ easy | ].
 simpl in Hnp.
+...
 rewrite minimised_slope_beg_pt in Hnp.
 injection Hnp; clear Hnp; intros Hseg Hep₁ Hp₁; subst seg pt₁.
 remember (minimise_slope (j, αj) pt₂ pts) as ms₁.
