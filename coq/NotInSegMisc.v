@@ -301,14 +301,12 @@ Theorem points_after_k : ∀ pts j αj k αk seg cod γ β,
   → (h, αh) ∈ pts
   → β < αh + QG_of_nat h * γ.
 Proof.
-intros pts j αj k αk seg γ β.
-intros Hsort Hjk Hγ Hβ Hnp h αh Hkh Hαh.
+intros * Hsort Hjk Hγ Hβ Hnp h αh Hkh Hαh.
 destruct pts as [| pt₁]; [ easy | ].
 destruct pts as [| pt₂]; [ easy | ].
 simpl in Hnp.
-...
 rewrite minimised_slope_beg_pt in Hnp.
-injection Hnp; clear Hnp; intros Hseg Hep₁ Hp₁; subst seg pt₁.
+injection Hnp; clear Hnp; intros Hcod Hseg Hep₁ Hp₁; subst seg pt₁.
 remember (minimise_slope (j, αj) pt₂ pts) as ms₁.
 destruct Hαh as [Hαh| Hαh]. {
   injection Hαh; clear Hαh; intros; subst h αh.
@@ -436,25 +434,24 @@ destruct c₁; subst ms; simpl. {
 }
 Qed.
 
-Theorem points_between_j_and_k : ∀ pts j αj k αk oth γ β,
+Theorem points_between_j_and_k : ∀ pts j αj k αk oth cod γ β,
   Sorted fst_lt pts
   → γ = (αj - αk) / (QG_of_nat k - QG_of_nat j)
   → β = αj + QG_of_nat j * γ
-  → lower_convex_hull_points pts = Some (mkns (j, αj) (k, αk) oth)
+  → lower_convex_hull_points pts = Some (mkns (j, αj) (k, αk) oth cod)
   → ∀ h αh, (j < h < k)%nat
   → (h, αh) ∈ pts
   → (h, αh) ∉ oth
   → β < αh + QG_of_nat h * γ.
 Proof.
-intros pts j αj k αk oth γ β.
-intros Hsort Hγ Hβ Hnp h αh (Hjh, Hhk) Hαh Hseg.
+intros * Hsort Hγ Hβ Hnp h αh (Hjh, Hhk) Hαh Hseg.
 destruct pts as [| pt₁]; [ discriminate Hnp | idtac ].
 remember Hnp as H; clear HeqH.
 apply next_ch_points_hd in H.
 subst pt₁; simpl in Hnp.
 destruct pts as [| pt₁]; [ discriminate Hnp | idtac ].
 remember (minimise_slope (j, αj) pt₁ pts) as ms₁.
-injection Hnp; clear Hnp; intros Hop₁ Hep₁ Hbp₁; subst oth.
+injection Hnp; clear Hnp; intros Hcod Hop₁ Hep₁ Hbp₁; subst oth.
 destruct Hαh as [Hαh| Hαh]. {
   injection Hαh; clear Hαh; intros; subst h αh.
   apply Nat.lt_irrefl in Hjh; contradiction.
@@ -499,7 +496,7 @@ destruct Hαh as [Hαh| Hαh]. {
   }
 }
 symmetry in Heqms₁.
-revert pt₁ ms₁ Hsort Heqms₁ Hep₁ Hseg Hbp₁.
+revert pt₁ ms₁ Hsort Heqms₁ Hep₁ Hcod Hseg Hbp₁.
 induction pts as [| pt₂]; intros. {
   simpl in Heqms₁.
   subst ms₁.
@@ -537,7 +534,14 @@ destruct c; subst ms₁. {
   eapply IHpts; try eassumption. {
     eapply Sorted_minus_2nd; [ idtac | eassumption ].
     intros x y z H₁ H₂; eapply Nat.lt_trans; eassumption.
-  }
+  } {
+    rewrite <- Hcod; cbn.
+    apply QG_compare_eq_iff in Heqc.
+progress unfold slope in Heqc.
+rewrite Hep₁ in Heqc.
+    progress unfold slope_expr in Heqc.
+cbn in Heqc.
+...
   rewrite <- Heqms₂, minimised_slope_beg_pt; reflexivity.
 } {
   simpl in Hep₁, Hseg, Hbp₁.
