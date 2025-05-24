@@ -14,6 +14,8 @@ Require Import ConvexHullMisc.
 Require Import Newton.
 Require Import NotInSegMisc.
 
+...
+
 Theorem lt_aft_k : ∀ pts j αj k αk seg,
   Sorted fst_lt pts
   → lower_convex_hull_points pts = Some (mkns (j, αj) (k, αk) seg)

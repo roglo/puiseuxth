@@ -496,7 +496,7 @@ destruct Hαh as [Hαh| Hαh]. {
   }
 }
 symmetry in Heqms₁.
-revert pt₁ ms₁ Hsort Heqms₁ Hep₁ Hcod Hseg Hbp₁.
+revert pt₁ ms₁ cod Hsort Heqms₁ Hep₁ Hcod Hseg Hbp₁.
 induction pts as [| pt₂]; intros. {
   simpl in Heqms₁.
   subst ms₁.
@@ -535,24 +535,20 @@ destruct c; subst ms₁. {
     eapply Sorted_minus_2nd; [ idtac | eassumption ].
     intros x y z H₁ H₂; eapply Nat.lt_trans; eassumption.
   } {
-    rewrite <- Hcod; cbn.
-    clear Hbp₁.
-    rewrite <- Heqms₂.
-    destruct pts as [| pt₃]; [ easy | ].
-cbn.
-... ...
+    easy.
+  }
   rewrite <- Heqms₂, minimised_slope_beg_pt; reflexivity.
 } {
-  simpl in Hep₁, Hseg, Hbp₁.
+  clear Hseg Hbp₁.
+  simpl in Hep₁, Hcod.
   subst pt₁.
   apply Sorted_inv_2 in Hsort.
-  destruct Hsort as (Hlt₂, Hsort).
+  destruct Hsort as (_, Hsort).
   apply Sorted_inv_2 in Hsort.
   destruct Hsort as (Hlt₃, Hsort).
   eapply Sorted_hd in Hsort; [ idtac | eassumption ].
   progress unfold fst_lt in Hlt₃.
   simpl in Hlt₃, Hsort.
-  clear Hlt₂.
   eapply Nat.lt_trans in Hlt₃; [ idtac | eassumption ].
   eapply Nat.lt_trans in Hlt₃; [ idtac | eassumption ].
   apply Nat.lt_irrefl in Hlt₃; contradiction.
@@ -563,11 +559,11 @@ cbn.
 }
 Qed.
 
-Theorem in_ch_in_pts : ∀ pts pt₁ pt₂ s,
-  lower_convex_hull_points pts = Some (mkns pt₁ pt₂ s)
+Theorem in_ch_in_pts : ∀ pts pt₁ pt₂ s cod,
+  lower_convex_hull_points pts = Some (mkns pt₁ pt₂ s cod)
   → pt₁ ∈ pts ∧ pt₂ ∈ pts.
 Proof.
-intros pts pt₁ pt₂ s Hhs.
+intros * Hhs.
 progress unfold lower_convex_hull_points in Hhs.
 destruct pts as [| pt₃]; [ discriminate Hhs | idtac ].
 destruct pts as [| pt₄]; [ discriminate Hhs | idtac ].

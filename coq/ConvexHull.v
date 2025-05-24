@@ -23,24 +23,23 @@ Definition Pos_lcm (a b : positive) : positive :=
   | Npos p => p
   end.
 
-Definition pt_comm_den (a b : nat * QG) :=
-  Pos_lcm (QG_den (snd a)) (QG_den (snd b)).
+Definition pt_comm_den (a b : QG) := Pos_lcm (QG_den a) (QG_den b).
 
 Fixpoint minimise_slope pt₁ pt₂ pts₂ :=
   match pts₂ with
   | [] =>
       {| ini_pt := pt₁; fin_pt := pt₂; oth_pts := [];
-         pts_comm_den := pt_comm_den pt₁ pt₂ |}
+         pts_comm_den := pt_comm_den (snd pt₁) (snd pt₂) |}
   | pt₃ :: pts₃ =>
       let ms := minimise_slope pt₁ pt₃ pts₃ in
       match QG_compare (slope_expr pt₁ pt₂) (slope ms) with
       | Eq =>
           {| ini_pt := pt₁; fin_pt := fin_pt ms;
              oth_pts := pt₂ :: oth_pts ms;
-             pts_comm_den := pt_comm_den pt₁ pt₂ |}
+             pts_comm_den := Pos_lcm (pts_comm_den ms) (QG_den (snd pt₂)) |}
       | Lt =>
           {| ini_pt := pt₁; fin_pt := pt₂; oth_pts := [];
-             pts_comm_den := pt_comm_den pt₁ pt₂ |}
+             pts_comm_den := pt_comm_den (snd pt₁) (snd pt₂) |}
       | Gt =>
           ms
       end
