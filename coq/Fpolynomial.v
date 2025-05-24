@@ -1,5 +1,6 @@
 (* Fpolynomial.v *)
 
+(*
 (* polynomials on a ring *)
 
 From Stdlib Require Import Utf8 Arith.
@@ -1598,3 +1599,4 @@ induction la as [| a]; intros; [ reflexivity | simpl ].
 destruct lb as [| b]; [ reflexivity | simpl ].
 rewrite Hab, IHla; reflexivity.
 Qed.
+*)

@@ -1,5 +1,6 @@
 (* Field.v *)
 
+(*
 From Stdlib Require Import Utf8.
 Require Import Setoid.
 Require Import Morphisms.
@@ -362,3 +363,4 @@ Qed.
 End field_theorems.
 
 Global Hint Resolve rng_eq_refl : Arith.
+*)

@@ -1,5 +1,6 @@
 (* Fsummation.v *)
 
+(*
 (* summations on a field *)
 
 From Stdlib Require Import Utf8 Arith.
@@ -552,3 +553,4 @@ rewrite IHlen; reflexivity.
 Qed.
 
 End theorems_summation.
+*)
