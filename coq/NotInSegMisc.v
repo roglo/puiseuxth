@@ -536,12 +536,11 @@ destruct c; subst ms₁. {
     intros x y z H₁ H₂; eapply Nat.lt_trans; eassumption.
   } {
     rewrite <- Hcod; cbn.
-    apply QG_compare_eq_iff in Heqc.
-progress unfold slope in Heqc.
-rewrite Hep₁ in Heqc.
-    progress unfold slope_expr in Heqc.
-cbn in Heqc.
-...
+    clear Hbp₁.
+    rewrite <- Heqms₂.
+    destruct pts as [| pt₃]; [ easy | ].
+cbn.
+... ...
   rewrite <- Heqms₂, minimised_slope_beg_pt; reflexivity.
 } {
   simpl in Hep₁, Hseg, Hbp₁.
