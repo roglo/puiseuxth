@@ -1190,6 +1190,8 @@ Check qden_αj_is_ps_polydo.
 *)
 rewrite Z_div_mul_swap. {
   erewrite <- qden_αj_is_ps_polydo; eauto with Arith.
+  rewrite Pos2Z.inj_mul.
+  rewrite (Z.mul_comm (Z.pos _)), Z.div_mul_cancel_r; [ | easy | easy ].
 ...
   erewrite qden_αj_is_ps_polydo; eauto with Arith.
   rewrite Z.div_mul; eauto with Arith.
