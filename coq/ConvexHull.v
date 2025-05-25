@@ -15,6 +15,12 @@ Record newton_segment := mkns
 
 Definition slope ms := slope_expr (ini_pt ms) (fin_pt ms).
 
+Definition Pos_div (a b : positive) : positive :=
+  match (Npos a / Npos b)%N with
+  | 0%N => 1%positive
+  | Npos p => p
+  end.
+
 Definition Pos_lcm (a b : positive) : positive :=
   let na := Npos a in
   let nb := Npos b in

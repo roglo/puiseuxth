@@ -836,13 +836,81 @@ rewrite <- Hfin.
 apply ini_fin_ns_in_init_pts; assumption.
 Qed.
 
+Theorem QG_den_of_Z_pair_mul_gcd :
+  ∀ n d,
+  (QG_den (QG_of_Z_pair n d) * Z.to_pos (Z.gcd n (Z.pos d)))%positive = d.
+Proof.
+intros.
+progress unfold QG_of_Z_pair.
+progress unfold QG_den.
+cbn.
+remember (Z.ggcd n (Z.pos d)) as g eqn:Hg.
+symmetry in Hg.
+destruct g as (g, (n', d')); cbn.
+apply Z_ggcd_split in Hg.
+destruct Hg as (Hn & Hd & Hg & Hgg).
+rewrite Hg.
+destruct Hgg as [Hgg| Hgg]. {
+  subst g.
+  now apply Z.gcd_eq_0 in Hgg.
+}
+rewrite <- Z2Pos.inj_mul. {
+  rewrite Z.mul_comm, <- Hd; symmetry.
+  apply Pos2Z.id.
+} {
+  apply Z.nle_gt.
+  intros Hdz.
+  rewrite Z.mul_comm in Hd.
+  destruct d' as [| d'| d']; [ easy | easy | ].
+  cbn in Hd.
+  destruct g as [| g| g]; [ easy | easy | ].
+  specialize (Z.gcd_nonneg n (Z.pos d)) as H.
+  now rewrite Hg in H.
+} {
+  rewrite <- Hg.
+  apply Z.le_neq.
+  split; [ apply Z.gcd_nonneg | ].
+  intros H; symmetry in H.
+  now apply Z.gcd_eq_0 in H.
+}
+Qed.
+
+Definition un_fin n :=
+  match n with
+  | fin n => n
+  | ∞ => 0%nat
+  end.
+
+Theorem glop :
+  ∀ f L j αj,
+  newton_segments f = Some L
+  → (j, αj) = ini_pt L
+  → (QG_den αj | ps_polydo (ps_poly_nth j f))%positive.
+Proof.
+intros * HL Hini.
+remember HL as H; clear HeqH.
+eapply order_in_newton_segment in H; eauto ; [ idtac | left; eauto  ].
+remember (ps_poly_nth j f) as ps.
+progress unfold order in H.
+remember (series_order (ps_terms ps) 0) as v eqn:Hv.
+exists (Z.to_pos (Z.gcd (ps_ordnum ps + Z.of_nat (un_fin v)) (Z.pos (ps_polydo ps)))).
+symmetry in Hv.
+destruct v as [v| ]; [ cbn | discriminate H ].
+injection H; clear H; intros H.
+rewrite <- H.
+symmetry.
+rewrite Pos.mul_comm.
+apply QG_den_of_Z_pair_mul_gcd.
+...
+
 Theorem qden_αj_is_ps_polydo : ∀ f L j αj,
   newton_segments f = Some L
   → (j, αj) = ini_pt L
-(*
+(**)
   → pts_comm_den L = ps_polydo (ps_poly_nth j f).
-*)
+(*
   → QG_den αj = ps_polydo (ps_poly_nth j f).
+*)
 (*
   → ps_ordnum (ps_poly_nth j f) ≠ 0%Z
   → Z.pos (QG_den αj) =
@@ -859,6 +927,7 @@ remember (series_order (ps_terms ps) 0) as v eqn:Hv .
 symmetry in Hv.
 destruct v; [ idtac | discriminate H ].
 injection H; clear H; intros H.
+...
 rewrite <- H.
 ...
 apply (Z.mul_cancel_r _ _ (ps_ordnum ps)); [ easy | ].
