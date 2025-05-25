@@ -1192,6 +1192,32 @@ rewrite Z_div_mul_swap. {
   erewrite <- qden_αj_is_ps_polydo; eauto with Arith.
   rewrite Pos2Z.inj_mul.
   rewrite (Z.mul_comm (Z.pos _)), Z.div_mul_cancel_r; [ | easy | easy ].
+Search (_ * _ / _)%Z.
+rewrite <- Z_div_mul_swap.
+Theorem Z_pos_pos_div :
+  ∀ a b,
+  Z.pos a / Z.pos b ≠ 0
+  → Z.pos (Pos_div a b) = Z.pos a / Z.pos b.
+Proof.
+intros * Habz.
+progress unfold Pos_div.
+do 2 rewrite <- Z2N.inj_pos.
+rewrite <- Z2N.inj_div; [ | easy | easy ].
+remember (Z.pos a / Z.pos b) as ab eqn:Hab.
+symmetry in Hab.
+destruct ab; [ | easy | ]. {
+...
+rewrite Z_pos_pos_div. 2: {
+  progress unfold pouet.
+...
+specialize (N.div_mod' (N.pos a) (N.pos b)) as Hab.
+rewrite Hab.
+...
+Search (N.pos _ / N.pos _)%N.
+Check N.div_mod.
+Check N.div_mod'.
+...
+rewrite Z_pos_pos_div.
 ...
   erewrite qden_αj_is_ps_polydo; eauto with Arith.
   rewrite Z.div_mul; eauto with Arith.
