@@ -875,31 +875,35 @@ rewrite <- Z2Pos.inj_mul. {
 }
 Qed.
 
-Definition un_fin n :=
-  match n with
-  | fin n => n
-  | ∞ => 0%nat
-  end.
+Definition pouet j f :=
+  let ps := ps_poly_nth j f in
+  let n :=
+    match series_order (ps_terms ps) 0 with
+    | fin n => n
+    | ∞ => 0%nat
+    end
+  in
+  Z.to_pos (Z.gcd (ps_ordnum ps + Z.of_nat n) (Z.pos (ps_polydo ps))).
 
 Theorem glop :
   ∀ f L j αj,
   newton_segments f = Some L
   → (j, αj) = ini_pt L
-  → (QG_den αj | ps_polydo (ps_poly_nth j f))%positive.
+  → (QG_den αj * pouet j f)%positive = ps_polydo (ps_poly_nth j f).
 Proof.
 intros * HL Hini.
+progress unfold pouet.
+symmetry.
 remember HL as H; clear HeqH.
 eapply order_in_newton_segment in H; eauto ; [ idtac | left; eauto  ].
 remember (ps_poly_nth j f) as ps.
 progress unfold order in H.
 remember (series_order (ps_terms ps) 0) as v eqn:Hv.
-exists (Z.to_pos (Z.gcd (ps_ordnum ps + Z.of_nat (un_fin v)) (Z.pos (ps_polydo ps)))).
 symmetry in Hv.
 destruct v as [v| ]; [ cbn | discriminate H ].
 injection H; clear H; intros H.
 rewrite <- H.
 symmetry.
-rewrite Pos.mul_comm.
 apply QG_den_of_Z_pair_mul_gcd.
 ...
 
