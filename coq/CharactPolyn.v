@@ -839,7 +839,9 @@ Qed.
 Theorem qden_αj_is_ps_polydo : ∀ f L j αj,
   newton_segments f = Some L
   → (j, αj) = ini_pt L
-(**)
+(*
+  → pts_comm_den L = ps_polydo (ps_poly_nth j f).
+*)
   → QG_den αj = ps_polydo (ps_poly_nth j f).
 (*
   → ps_ordnum (ps_poly_nth j f) ≠ 0%Z
