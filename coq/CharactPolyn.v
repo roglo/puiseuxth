@@ -895,7 +895,7 @@ intros * HL Hini.
 progress unfold pouet.
 symmetry.
 remember HL as H; clear HeqH.
-eapply order_in_newton_segment in H; eauto ; [ idtac | left; eauto  ].
+eapply order_in_newton_segment in H; eauto; [ idtac | left; eauto  ].
 remember (ps_poly_nth j f) as ps.
 progress unfold order in H.
 remember (series_order (ps_terms ps) 0) as v eqn:Hv.
@@ -925,7 +925,7 @@ Theorem qden_αj_is_ps_polydo : ∀ f L j αj,
 Proof.
 intros f L j αj HL Hini (*Hoz*).
 remember HL as H; clear HeqH.
-eapply order_in_newton_segment in H; eauto ; [ idtac | left; eauto  ].
+eapply order_in_newton_segment in H; eauto; [ idtac | left; eauto  ].
 remember (ps_poly_nth j f) as ps.
 progress unfold order in H.
 remember (series_order (ps_terms ps) 0) as v eqn:Hv .
@@ -1209,7 +1209,15 @@ rewrite Z_div_mul_swap. {
   erewrite <- qden_αj_is_ps_polydo; eauto with Arith.
   rewrite Pos2Z.inj_mul.
   rewrite (Z.mul_comm (Z.pos _)), Z.div_mul_cancel_r; [ | easy | easy ].
-  rewrite <- Z_div_mul_swap.
+  rewrite <- Z_div_mul_swap. 2: {
+    progress unfold pouet.
+    rewrite Z2Pos.id. 2: {
+      apply Z.le_neq.
+      split; [ apply Z.gcd_nonneg | ].
+      intros H; symmetry in H.
+      now apply Z.gcd_eq_0 in H.
+    }
+...
   rewrite Z_pos_pos_div; cycle 2. {
     symmetry.
     rewrite Z.mul_comm.
