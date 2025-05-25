@@ -14,35 +14,31 @@ Require Import ConvexHullMisc.
 Require Import Newton.
 Require Import NotInSegMisc.
 
-...
-
-Theorem lt_aft_k : ∀ pts j αj k αk seg,
+Theorem lt_aft_k : ∀ pts j αj k αk seg cod,
   Sorted fst_lt pts
-  → lower_convex_hull_points pts = Some (mkns (j, αj) (k, αk) seg)
+  → lower_convex_hull_points pts = Some (mkns (j, αj) (k, αk) seg cod)
   → ∀ h αh, (h, αh) ∈ pts
   → (k < h)%nat
   → αj + QG_of_nat j * ((αj - αk) / (QG_of_nat k - QG_of_nat j)) <
     αh + QG_of_nat h * ((αj - αk) / (QG_of_nat k - QG_of_nat j)).
 Proof.
-intros pts j αj k αk seg Hsort Hnp h αh Hαh Hkh.
+intros * Hsort Hnp h αh Hαh Hkh.
 eapply points_after_k; try reflexivity; try eassumption.
 destruct pts as [| pt₁]; [ discriminate Hnp | idtac ].
 destruct pts as [| pt₂]; [ discriminate Hnp | idtac ].
-injection Hnp; clear Hnp; intros; subst.
+injection Hnp; clear Hnp; intros H1 H2 H3 H4; subst.
 eapply beg_lt_end_pt in Hsort; [ idtac | reflexivity ].
-rewrite H0, H1 in Hsort.
-assumption.
+now rewrite H3, H4 in Hsort.
 Qed.
 
-Theorem h_not_k : ∀ pts j αj k αk seg,
+Theorem h_not_k : ∀ pts j αj k αk seg cod,
   Sorted fst_lt pts
-  → lower_convex_hull_points pts = Some (mkns (j, αj) (k, αk) seg)
+  → lower_convex_hull_points pts = Some (mkns (j, αj) (k, αk) seg cod)
   → ∀ h αh, (h, αh) ∈ pts
   → (h, αh) ∉ [(j, αj); (k, αk) … seg]
   → h ≠ k.
 Proof.
-intros pts j αj k αk seg.
-intros Hpts Hnp h αh Hαh Hnαh Hhk.
+intros * Hpts Hnp h αh Hαh Hnαh Hhk.
 eapply sorted_qeq_eq with (k := k) (αk := αk) in Hαh. {
   rewrite Hαh in Hnαh; simpl in Hnαh.
   apply Decidable.not_or in Hnαh.
@@ -59,17 +55,16 @@ eapply sorted_qeq_eq with (k := k) (αk := αk) in Hαh. {
 }
 Qed.
 
-Theorem lt_bet_j_and_k : ∀ pts j αj k αk seg,
+Theorem lt_bet_j_and_k : ∀ pts j αj k αk seg cod,
   Sorted fst_lt pts
-  → lower_convex_hull_points pts = Some (mkns (j, αj) (k, αk) seg)
+  → lower_convex_hull_points pts = Some (mkns (j, αj) (k, αk) seg cod)
   → ∀ h αh, (h, αh) ∈ pts
   → (h, αh) ∉ [(j, αj); (k, αk) … seg]
   → (j < h < k)%nat
   → αj + QG_of_nat j * ((αj - αk) / (QG_of_nat k - QG_of_nat j)) <
     αh + QG_of_nat h * ((αj - αk) / (QG_of_nat k - QG_of_nat j)).
 Proof.
-intros pts j αj k αk seg Hsort Hnp.
-intros h αh Hαh Hnαh Hjhk.
+intros * Hsort Hnp * Hαh Hnαh Hjhk.
 simpl in Hnαh.
 apply Decidable.not_or in Hnαh.
 destruct Hnαh as (_, Hnαh).
@@ -78,15 +73,14 @@ destruct Hnαh as (_, Hnαh).
 eapply points_between_j_and_k; try eassumption; reflexivity.
 Qed.
 
-Theorem h_not_j : ∀ pts j αj k αk seg,
+Theorem h_not_j : ∀ pts j αj k αk seg cod,
   Sorted fst_lt pts
-  → lower_convex_hull_points pts = Some (mkns (j, αj) (k, αk) seg)
+  → lower_convex_hull_points pts = Some (mkns (j, αj) (k, αk) seg cod)
   → ∀ h αh, (h, αh) ∈ pts
   → (h, αh) ∉ [(j, αj); (k, αk) … seg]
   → h ≠ j.
 Proof.
-intros pts j αj k αk seg.
-intros Hpts Hnp h αh Hαh Hnαh Hne.
+intros * Hpts Hnp * Hαh Hnαh Hne.
 eapply sorted_qeq_eq with (k := j) (αk := αj) in Hαh; try eassumption. {
   rewrite Hαh in Hnαh.
   simpl in Hnαh.
@@ -290,16 +284,15 @@ eapply Sorted_minus_2nd; [ idtac | eassumption ].
 intros x y z H₁ H₂; eapply Nat.lt_trans; eassumption.
 Qed.
 
-Theorem lt_bef_j : ∀ pts j αj segjk k αk,
+Theorem lt_bef_j : ∀ pts j αj segjk cod k αk,
   Sorted fst_lt pts
-  → lower_convex_hull_points pts = Some (mkns (j, αj) (k, αk) segjk)
+  → lower_convex_hull_points pts = Some (mkns (j, αj) (k, αk) segjk cod)
   → ∀ h αh, (h, αh) ∈ pts
   → (h < j < k)%nat
   → αj + QG_of_nat j * ((αj - αk) / (QG_of_nat k - QG_of_nat j)) <
     αh + QG_of_nat h * ((αj - αk) / (QG_of_nat k - QG_of_nat j)).
 Proof.
-intros pts j αj segjk k αk.
-intros Hsort Hnp h αh Hαh (Hhj, Hjk).
+intros * Hsort Hnp * Hαh (Hhj, Hjk).
 destruct pts as [| pt₁]; [ discriminate Hnp | idtac ].
 destruct pts as [| pt₂]; [ discriminate Hnp | idtac ].
 simpl in Hnp.
@@ -324,7 +317,7 @@ Theorem points_not_in_any_newton_segment₁ : ∀ pts ns,
   → β ns < αh + QG_of_nat h * γ ns.
 Proof.
 intros * Hsort Hnp h αh (Hh, Hnh).
-destruct ns as ((j, αj), (k, αk), segjk).
+destruct ns as ((j, αj), (k, αk), segjk, cod).
 remember cons as f in Hnh; simpl in Hnh; subst f.
 destruct (le_lt_dec h k) as [Hge| Hlt]. 2: {
   eapply lt_aft_k; simpl; eassumption.
@@ -344,7 +337,7 @@ destruct (Nat.eq_dec h j) as [Heq| Hne₂]. {
 }
 eapply lt_bef_j; simpl; try eassumption.
 split; [ now apply Nat_le_neq_lt | ].
-remember (mkns (j, αj) (k, αk) segjk) as ns.
+remember (mkns (j, αj) (k, αk) segjk cod) as ns.
 apply ini_lt_fin_pt with (ns := ns) in Hsort; [ | easy ].
 subst ns; assumption.
 Qed.
