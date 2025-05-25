@@ -877,13 +877,13 @@ Qed.
 
 Definition pouet j f :=
   let ps := ps_poly_nth j f in
-  let n :=
+  let z :=
     match series_order (ps_terms ps) 0 with
-    | fin n => n
-    | ∞ => 0%nat
+    | fin n => Z.of_nat n
+    | ∞ => 0
     end
   in
-  Z.to_pos (Z.gcd (ps_ordnum ps + Z.of_nat n) (Z.pos (ps_polydo ps))).
+  Z.to_pos (Z.gcd (ps_ordnum ps + z) (Z.pos (ps_polydo ps))).
 
 Theorem glop :
   ∀ f L j αj,
