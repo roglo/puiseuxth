@@ -885,7 +885,7 @@ Definition pouet j f :=
   in
   Z.to_pos (Z.gcd (ps_ordnum ps + z) (Z.pos (ps_polydo ps))).
 
-Theorem glop :
+Theorem qden_αj_is_ps_polydo :
   ∀ f L j αj,
   newton_segments f = Some L
   → (j, αj) = ini_pt L
@@ -905,8 +905,9 @@ injection H; clear H; intros H.
 rewrite <- H.
 symmetry.
 apply QG_den_of_Z_pair_mul_gcd.
-...
+Qed.
 
+(*
 Theorem qden_αj_is_ps_polydo : ∀ f L j αj,
   newton_segments f = Some L
   → (j, αj) = ini_pt L
@@ -1160,7 +1161,7 @@ Theorem pol_ord_of_ini_pt : ∀ f L m j αj mj,
   → (j, αj) = ini_pt L
   → mj = mh_of_m m αj (ps_poly_nth j f)
 (**)
-  → αj = QG_of_Z_pair mj m.
+  → αj = QG_of_Z_pair mj (Pos_div m (pouet j f)).
 (*
   → αj == mj # m.
 *)
@@ -1171,13 +1172,14 @@ progress unfold mh_of_m; simpl.
 (**)
 rewrite (QG_QG_of_Z_pair αj) at 1.
 apply QG_of_Z_pair_eq.
+(*
 ...
 rewrite (Z.mul_comm _ (Z.pos (QG_den _))).
 rewrite Z.mul_assoc.
 ...
 goal 2 (ID 879) is:
  (Z.pos (ps_polydo (ps_poly_nth j f)) | QG_num αj * Z.pos m)
-*)
+...
 rewrite Z.mul_comm.
 rewrite Z_div_mul_swap.
 goal 2 (ID 880) is:
@@ -1185,7 +1187,10 @@ goal 2 (ID 880) is:
 ...
 Check qden_αj_is_ps_polydo.
 ...
+*)
 rewrite Z_div_mul_swap. {
+  erewrite <- qden_αj_is_ps_polydo; eauto with Arith.
+...
   erewrite qden_αj_is_ps_polydo; eauto with Arith.
   rewrite Z.div_mul; eauto with Arith.
 } {
