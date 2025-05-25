@@ -1155,6 +1155,23 @@ apply ini_fin_ns_in_init_pts in HL.
 destruct HL; rewrite <- Hini; assumption.
 Qed.
 
+Theorem Z_pos_pos_div :
+  ∀ a b,
+  Z.pos a / Z.pos b ≠ 0
+  → Z.pos (Pos_div a b) = Z.pos a / Z.pos b.
+Proof.
+intros * Habz.
+progress unfold Pos_div.
+do 2 rewrite <- Z2N.inj_pos.
+rewrite <- Z2N.inj_div; [ | easy | easy ].
+remember (Z.pos a / Z.pos b) as ab eqn:Hab.
+symmetry in Hab.
+destruct ab; [ easy | easy | ].
+exfalso; clear Habz.
+specialize (Z_div_pos_is_nonneg a b) as H.
+now rewrite Hab in H.
+Qed.
+
 Theorem pol_ord_of_ini_pt : ∀ f L m j αj mj,
   newton_segments f = Some L
   → pol_in_K_1_m f m
@@ -1192,23 +1209,16 @@ rewrite Z_div_mul_swap. {
   erewrite <- qden_αj_is_ps_polydo; eauto with Arith.
   rewrite Pos2Z.inj_mul.
   rewrite (Z.mul_comm (Z.pos _)), Z.div_mul_cancel_r; [ | easy | easy ].
-Search (_ * _ / _)%Z.
-rewrite <- Z_div_mul_swap.
-Theorem Z_pos_pos_div :
-  ∀ a b,
-  Z.pos a / Z.pos b ≠ 0
-  → Z.pos (Pos_div a b) = Z.pos a / Z.pos b.
-Proof.
-intros * Habz.
-progress unfold Pos_div.
-do 2 rewrite <- Z2N.inj_pos.
-rewrite <- Z2N.inj_div; [ | easy | easy ].
-remember (Z.pos a / Z.pos b) as ab eqn:Hab.
-symmetry in Hab.
-destruct ab; [ | easy | ]. {
+  rewrite <- Z_div_mul_swap.
+  rewrite Z_pos_pos_div; cycle 2. {
+    symmetry.
+    rewrite Z.mul_comm.
+    rewrite Z.div_mul.
+Check den_αj_divides_num_αj_m.
 ...
-rewrite Z_pos_pos_div. 2: {
-  progress unfold pouet.
+    progress unfold pouet.
+    progress unfold pol_in_K_1_m in Hm.
+Print in_K_1_m.
 ...
 specialize (N.div_mod' (N.pos a) (N.pos b)) as Hab.
 rewrite Hab.
