@@ -3,39 +3,43 @@
 From Stdlib Require Import Utf8 ZArith List.
 Import ListNotations.
 
-Require Import QGArith.
 Require Import Slope_base.
-Open Scope QG.
 
 Record newton_segment := mkns
-  { ini_pt : (nat * QG);
-    fin_pt : (nat * QG);
-    oth_pts : list (nat * QG) }.
+  { ini_pt : (nat * Z);
+    fin_pt : (nat * Z);
+    oth_pts : list (nat * Z);
+    pts_comm_den : positive }.
 
-Definition slope ms := slope_expr (ini_pt ms) (fin_pt ms).
+Definition slope ms := slope_expr (ini_pt ms) (fin_pt ms) (pts_comm_den ms).
 
-Definition Pos_div (a b : positive) : positive :=
-  match (Npos a / Npos b)%N with
-  | 0%N => 1%positive
-  | Npos p => p
+Fixpoint minimise_slope pt₁ pt₂ pts₂ den :=
+  match pts₂ with
+  | [] =>
+      {| ini_pt := pt₁; fin_pt := pt₂; oth_pts := []; pts_comm_den := den |}
+  | pt₃ :: pts₃ =>
+      let ms := minimise_slope pt₁ pt₃ pts₃ den in
+...
+      match Qcompare (slope_expr pt₁ pt₂) (slope ms) with
+      | Eq =>
+          {| ini_pt := pt₁; fin_pt := fin_pt ms;
+             oth_pts := pt₂ :: oth_pts ms |}
+      | Lt =>
+          {| ini_pt := pt₁; fin_pt := pt₂; oth_pts := [] |}
+      | Gt =>
+          ms
+      end
   end.
 
-Definition Pos_lcm (a b : positive) : positive :=
-  let na := Npos a in
-  let nb := Npos b in
-  match ((na * nb) / N.gcd na nb)%N with
-  | N0 => 1%positive (* fallback; shouldn't happen since a,b > 0 *)
-  | Npos p => p
-  end.
-
-Definition pt_comm_den (a b : QG) := Pos_lcm (QG_den a) (QG_den b).
+...
 
 Fixpoint minimise_slope pt₁ pt₂ pts₂ :=
   match pts₂ with
-  | [] => {| ini_pt := pt₁; fin_pt := pt₂; oth_pts := [] |}
+  | [] =>
+      {| ini_pt := pt₁; fin_pt := pt₂; oth_pts := [] |}
   | pt₃ :: pts₃ =>
       let ms := minimise_slope pt₁ pt₃ pts₃ in
-      match QG_compare (slope_expr pt₁ pt₂) (slope ms) with
+      match Qcompare (slope_expr pt₁ pt₂) (slope ms) with
       | Eq =>
           {| ini_pt := pt₁; fin_pt := fin_pt ms;
              oth_pts := pt₂ :: oth_pts ms |}
@@ -71,7 +75,7 @@ Qed.
 
 Theorem slope_slope_expr : ∀ ms pt₁ pt₂ pts,
   minimise_slope pt₁ pt₂ pts = ms
-  → slope ms = slope_expr pt₁ (fin_pt ms).
+  → slope ms == slope_expr pt₁ (fin_pt ms).
 Proof.
 intros ms pt₁ pt₂ pts Hms.
 unfold slope.
