@@ -113,6 +113,27 @@ rewrite Q_mul_comm.
 apply Q_mul_1_l.
 Qed.
 
+Definition Q1 x := QDen x # Qden x.
+
+Theorem Q_mul_add_distr_l : ∀ x y z, x * (y + z) * Q1 x = x * y + x * z.
+Proof.
+intros.
+progress unfold Qplus.
+progress unfold Qmult.
+cbn.
+rewrite Z.mul_add_distr_l.
+rewrite Z.mul_add_distr_r.
+do 2 rewrite Pos2Z.inj_mul.
+do 4 rewrite Z.mul_assoc.
+do 2 rewrite Pos.mul_assoc.
+do 2 rewrite (Z.mul_shuffle0 _ (QDen x)).
+rewrite <- Z.mul_add_distr_r.
+do 2 rewrite <- (Pos.mul_assoc (_ * _)).
+rewrite (Pos.mul_comm (Qden x) (Qden z)).
+rewrite Pos.mul_assoc.
+easy.
+Qed.
+
 (* *)
 
 Theorem Qdiv_minus_distr_r : ∀ x y z, (x - y) / z == x / z - y / z.
