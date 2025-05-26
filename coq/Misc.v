@@ -45,7 +45,7 @@ Definition Qdiv_lt_compat_r : ∀ x y z, 0 < z → x < y → x / z < y / z :=
   λ x y z Hz Hxy,
   Qmult_lt_compat_r x y (/ z) (Qinv_lt_0_compat z Hz) Hxy.
 
-(* *)
+(* Some theorems working with syntactic equality *)
 
 Theorem Q_add_comm : ∀ a b, a + b = b + a.
 Proof.
@@ -54,6 +54,17 @@ progress unfold Qplus.
 rewrite Z.add_comm.
 rewrite (Pos.mul_comm (Qden a)).
 easy.
+Qed.
+
+Theorem Q_add_assoc : ∀ a b c, a + (b + c) = (a + b) + c.
+Proof.
+intros.
+progress unfold Qplus.
+cbn.
+rewrite Pos.mul_assoc.
+progress f_equal.
+do 2 rewrite Pos2Z.inj_mul.
+ring.
 Qed.
 
 Theorem Q_mul_comm : ∀ a b, a * b = b * a.
@@ -362,7 +373,7 @@ Theorem Qcmp_plus_minus_cmp_r : ∀ x y z,
 Proof.
 intros x y z.
 rewrite Qplus_cmp_compat_r with (z := - z).
-rewrite <- Qplus_assoc.
+rewrite <- Q_add_assoc.
 rewrite Qplus_opp_r, Qplus_0_r.
 reflexivity.
 Qed.
@@ -438,7 +449,7 @@ Theorem Qplus_cmp_cmp_minus_r : ∀ x y z,
 Proof.
 intros x y z.
 rewrite Qplus_cmp_compat_r with (z := - y).
-rewrite <- Qplus_assoc.
+rewrite <- Q_add_assoc.
 rewrite Qplus_opp_r, Qplus_0_r.
 reflexivity.
 Qed.
