@@ -291,12 +291,12 @@ destruct c; subst ms. {
 }
 Qed.
 
-Theorem points_after_k : ∀ pts j αj k αk seg cod γ β,
+Theorem points_after_k : ∀ pts j αj k αk seg γ β,
   Sorted fst_lt pts
   → (j < k)%nat
   → γ = (αj - αk) / (QG_of_nat k - QG_of_nat j)
   → β = αj + QG_of_nat j * γ
-  → lower_convex_hull_points pts = Some (mkns (j, αj) (k, αk) seg cod)
+  → lower_convex_hull_points pts = Some (mkns (j, αj) (k, αk) seg)
   → ∀ h αh, (k < h)%nat
   → (h, αh) ∈ pts
   → β < αh + QG_of_nat h * γ.
@@ -306,7 +306,7 @@ destruct pts as [| pt₁]; [ easy | ].
 destruct pts as [| pt₂]; [ easy | ].
 simpl in Hnp.
 rewrite minimised_slope_beg_pt in Hnp.
-injection Hnp; clear Hnp; intros Hcod Hseg Hep₁ Hp₁; subst seg pt₁.
+injection Hnp; clear Hnp; intros Hseg Hep₁ Hp₁; subst seg pt₁.
 remember (minimise_slope (j, αj) pt₂ pts) as ms₁.
 destruct Hαh as [Hαh| Hαh]. {
   injection Hαh; clear Hαh; intros; subst h αh.
@@ -434,11 +434,11 @@ destruct c₁; subst ms; simpl. {
 }
 Qed.
 
-Theorem points_between_j_and_k : ∀ pts j αj k αk oth cod γ β,
+Theorem points_between_j_and_k : ∀ pts j αj k αk oth γ β,
   Sorted fst_lt pts
   → γ = (αj - αk) / (QG_of_nat k - QG_of_nat j)
   → β = αj + QG_of_nat j * γ
-  → lower_convex_hull_points pts = Some (mkns (j, αj) (k, αk) oth cod)
+  → lower_convex_hull_points pts = Some (mkns (j, αj) (k, αk) oth)
   → ∀ h αh, (j < h < k)%nat
   → (h, αh) ∈ pts
   → (h, αh) ∉ oth
@@ -451,7 +451,7 @@ apply next_ch_points_hd in H.
 subst pt₁; simpl in Hnp.
 destruct pts as [| pt₁]; [ discriminate Hnp | idtac ].
 remember (minimise_slope (j, αj) pt₁ pts) as ms₁.
-injection Hnp; clear Hnp; intros Hcod Hop₁ Hep₁ Hbp₁; subst oth.
+injection Hnp; clear Hnp; intros Hop₁ Hep₁ Hbp₁; subst oth.
 destruct Hαh as [Hαh| Hαh]. {
   injection Hαh; clear Hαh; intros; subst h αh.
   apply Nat.lt_irrefl in Hjh; contradiction.
@@ -496,7 +496,7 @@ destruct Hαh as [Hαh| Hαh]. {
   }
 }
 symmetry in Heqms₁.
-revert pt₁ ms₁ cod Hsort Heqms₁ Hep₁ Hcod Hseg Hbp₁.
+revert pt₁ ms₁ Hsort Heqms₁ Hep₁ Hseg Hbp₁.
 induction pts as [| pt₂]; intros. {
   simpl in Heqms₁.
   subst ms₁.
@@ -534,13 +534,11 @@ destruct c; subst ms₁. {
   eapply IHpts; try eassumption. {
     eapply Sorted_minus_2nd; [ idtac | eassumption ].
     intros x y z H₁ H₂; eapply Nat.lt_trans; eassumption.
-  } {
-    easy.
   }
   rewrite <- Heqms₂, minimised_slope_beg_pt; reflexivity.
 } {
   clear Hseg Hbp₁.
-  simpl in Hep₁, Hcod.
+  simpl in Hep₁.
   subst pt₁.
   apply Sorted_inv_2 in Hsort.
   destruct Hsort as (_, Hsort).
@@ -559,8 +557,8 @@ destruct c; subst ms₁. {
 }
 Qed.
 
-Theorem in_ch_in_pts : ∀ pts pt₁ pt₂ s cod,
-  lower_convex_hull_points pts = Some (mkns pt₁ pt₂ s cod)
+Theorem in_ch_in_pts : ∀ pts pt₁ pt₂ s,
+  lower_convex_hull_points pts = Some (mkns pt₁ pt₂ s)
   → pt₁ ∈ pts ∧ pt₂ ∈ pts.
 Proof.
 intros * Hhs.

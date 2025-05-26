@@ -10,8 +10,7 @@ Open Scope QG.
 Record newton_segment := mkns
   { ini_pt : (nat * QG);
     fin_pt : (nat * QG);
-    oth_pts : list (nat * QG);
-    pts_comm_den : positive }.
+    oth_pts : list (nat * QG) }.
 
 Definition slope ms := slope_expr (ini_pt ms) (fin_pt ms).
 
@@ -33,19 +32,15 @@ Definition pt_comm_den (a b : QG) := Pos_lcm (QG_den a) (QG_den b).
 
 Fixpoint minimise_slope pt₁ pt₂ pts₂ :=
   match pts₂ with
-  | [] =>
-      {| ini_pt := pt₁; fin_pt := pt₂; oth_pts := [];
-         pts_comm_den := pt_comm_den (snd pt₁) (snd pt₂) |}
+  | [] => {| ini_pt := pt₁; fin_pt := pt₂; oth_pts := [] |}
   | pt₃ :: pts₃ =>
       let ms := minimise_slope pt₁ pt₃ pts₃ in
       match QG_compare (slope_expr pt₁ pt₂) (slope ms) with
       | Eq =>
           {| ini_pt := pt₁; fin_pt := fin_pt ms;
-             oth_pts := pt₂ :: oth_pts ms;
-             pts_comm_den := Pos_lcm (pts_comm_den ms) (QG_den (snd pt₂)) |}
+             oth_pts := pt₂ :: oth_pts ms |}
       | Lt =>
-          {| ini_pt := pt₁; fin_pt := pt₂; oth_pts := [];
-             pts_comm_den := pt_comm_den (snd pt₁) (snd pt₂) |}
+          {| ini_pt := pt₁; fin_pt := pt₂; oth_pts := [] |}
       | Gt =>
           ms
       end
@@ -58,8 +53,7 @@ Definition lower_convex_hull_points pts :=
   | pt₁ :: pt₂ :: pts₂ =>
       let ms := minimise_slope pt₁ pt₂ pts₂ in
       Some
-        {| ini_pt := ini_pt ms; fin_pt := fin_pt ms; oth_pts := oth_pts ms;
-           pts_comm_den := pts_comm_den ms |}
+        {| ini_pt := ini_pt ms; fin_pt := fin_pt ms; oth_pts := oth_pts ms |}
   end.
 
 Theorem minimised_slope_beg_pt : ∀ pt₁ pt₂ pts,
