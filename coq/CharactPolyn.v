@@ -1172,6 +1172,7 @@ specialize (Z_div_pos_is_nonneg a b) as H.
 now rewrite Hab in H.
 Qed.
 
+(*
 Theorem pol_ord_of_ini_pt : ∀ f L m j αj mj,
   newton_segments f = Some L
   → pol_in_K_1_m f m
@@ -1244,11 +1245,13 @@ rewrite Z_pos_pos_div.
   eapply den_αj_divides_num_αj_m; eauto with Arith.
 }
 Qed.
+*)
 
+(*
 Theorem qden_αk_is_ps_polydo : ∀ f L k αk,
   newton_segments f = Some L
   → (k, αk) = fin_pt L
-  → Qden αk = ps_polydo (ps_poly_nth k f).
+  → QG_den αk = ps_polydo (ps_poly_nth k f).
 Proof.
 intros f L k αk HL Hfin.
 remember HL as H; clear HeqH.
@@ -1266,17 +1269,20 @@ rewrite List.app_comm_cons.
 apply List.in_or_app.
 right; left; reflexivity.
 Qed.
+*)
 
 Theorem den_αk_divides_num_αk_m : ∀ f L k αk m,
   newton_segments f = Some L
   → pol_in_K_1_m f m
   → fin_pt L = (k, αk)
-  → (Zpos (Qden αk) | Qnum αk * Zpos m)%Z.
+  → (Zpos (QG_den αk) | QG_num αk * Zpos m)%Z.
 Proof.
 intros f L k αk m HL HinK Hini.
 apply any_in_K_1_m with (h := k) (αh := αk) in HinK. {
   destruct HinK as (mh, Hmh).
-  exists mh; assumption.
+  exists mh.
+  apply QG_of_Z_pair_eq.
+  now rewrite <- QG_QG_of_Z_pair.
 }
 progress unfold newton_segments in HL.
 progress unfold points_of_ps_polynom in HL.
@@ -1284,16 +1290,18 @@ apply ini_fin_ns_in_init_pts in HL.
 destruct HL; rewrite <- Hini; assumption.
 Qed.
 
+(*
 Theorem pol_ord_of_fin_pt : ∀ f L m k αk mk,
   newton_segments f = Some L
   → pol_in_K_1_m f m
   → (k, αk) = fin_pt L
   → mk = mh_of_m m αk (ps_poly_nth k f)
-  → αk == mk # m.
+  → αk = QG_of_Z_pair mk m.
 Proof.
 intros f L m k αk mk HL Hm Hini Hmk.
 subst mk; simpl.
 progress unfold mh_of_m; simpl.
+...
 progress unfold Qeq; simpl.
 rewrite Z_div_mul_swap. {
   erewrite qden_αk_is_ps_polydo; eauto with Arith.
@@ -1303,11 +1311,14 @@ rewrite Z_div_mul_swap. {
   eapply den_αk_divides_num_αk_m; eauto with Arith.
 }
 Qed.
+*)
 
+(*
+(* cf qden_αj_is_ps_polydo *)
 Theorem qden_αh_is_ps_polydo : ∀ f L h αh,
   newton_segments f = Some L
   → (h, αh) ∈ oth_pts L
-  → Qden αh = ps_polydo (ps_poly_nth h f).
+  → QG_den αh = ps_polydo (ps_poly_nth h f).
 Proof.
 intros f L h αh HL Hoth.
 remember HL as H; clear HeqH.
@@ -1318,23 +1329,27 @@ eapply order_in_newton_segment with (h := h) (αh := αh) in H; [ | easy | ]. {
   symmetry in Hv.
   destruct v; [ idtac | discriminate H ].
   injection H; clear H; intros H.
+...
   rewrite <- H; reflexivity.
 }
 right.
 apply List.in_or_app.
 left; assumption.
 Qed.
+*)
 
 Theorem den_αh_divides_num_αh_m : ∀ f L h αh m,
   newton_segments f = Some L
   → pol_in_K_1_m f m
   → (h, αh) ∈ oth_pts L
-  → (Zpos (Qden αh) | Qnum αh * Zpos m)%Z.
+  → (Zpos (QG_den αh) | QG_num αh * Zpos m)%Z.
 Proof.
 intros f L h αh m HL HinK Hoth.
 apply any_in_K_1_m with (h := h) (αh := αh) in HinK. {
   destruct HinK as (mh, Hmh).
-  exists mh; assumption.
+  exists mh.
+  apply QG_of_Z_pair_eq.
+  now rewrite <- QG_QG_of_Z_pair.
 } {
   progress unfold newton_segments in HL.
   progress unfold points_of_ps_polynom in HL.
@@ -1342,16 +1357,18 @@ apply any_in_K_1_m with (h := h) (αh := αh) in HinK. {
 }
 Qed.
 
+(*
 Theorem pol_ord_of_oth_pt : ∀ f L m h αh mh,
   newton_segments f = Some L
   → pol_in_K_1_m f m
   → (h, αh) ∈ oth_pts L
   → mh = mh_of_m m αh (ps_poly_nth h f)
-  → αh == mh # m.
+  → αh = QG_of_Z_pair mh m.
 Proof.
 intros f L m h αh mh HL Hm Hfin Hmh.
 subst mh; simpl.
 progress unfold mh_of_m; simpl.
+...
 progress unfold Qeq; simpl.
 rewrite Z_div_mul_swap. {
   erewrite qden_αh_is_ps_polydo; eauto with Arith.
@@ -1361,7 +1378,9 @@ rewrite Z_div_mul_swap. {
   eapply den_αh_divides_num_αh_m; eauto with Arith.
 }
 Qed.
+*)
 
+(*
 (* [Walker, p. 100]: « In the first place, we note that [...]
 
          q (mj - mh) = p (h - j)
@@ -1375,7 +1394,7 @@ Theorem q_mj_mk_eq_p_h_j : ∀ f L j αj m mj p q,
   → q = Pos.to_nat (q_of_m m (γ L))
   → ∀ h αh mh, (h, αh) ∈ oth_pts L ++ [fin_pt L]
   → mh = mh_of_m m αh (ps_poly_nth h f)
-  → αh == mh # m
+  → αh = QG_of_Z_pair mh m
     ∧ (Z.of_nat q * (mj - mh) = p * Z.of_nat (h - j))%Z.
 Proof.
 intros f L j αj m mj p q HL Hm Hj Hmj Hp Hq h αh mh Hh Hmh.
@@ -1386,6 +1405,7 @@ remember (fin_pt L) as x eqn:Hfin.
 destruct x as (k, αk).
 split. {
   rewrite Hmh; simpl.
+...
   progress unfold Qeq; simpl.
   progress unfold mh_of_m; simpl.
   subst hps.
@@ -1494,6 +1514,7 @@ eapply j_lt_k; try eassumption. {
 >>>>>>> master
 }
 Qed.
+*)
 
 Theorem mul_pos_nonneg : ∀ j k c d,
   (j < k)%nat
@@ -1521,20 +1542,15 @@ Qed.
 Theorem q_is_factor_of_h_minus_j : ∀ f L j αj m q,
   newton_segments f = Some L
   → pol_in_K_1_m f m
-<<<<<<< HEAD
-  → (QG_of_nat j, αj) = ini_pt L
-  → q = Pos.to_nat (q_of_m m (γ L))
-  → ∀ h αh, (QG_of_nat h, αh) ∈ oth_pts L ++ [fin_pt L]
-=======
   → (j, αj) = ini_pt L
   → q = Pos.to_nat (q_of_m m (γ L))
   → ∀ h αh, (h, αh) ∈ oth_pts L ++ [fin_pt L]
->>>>>>> master
   → Nat.divide q (h - j).
 Proof.
 intros f L j αj m q HL Hm Hj Hq h αh Hh.
 remember (p_of_m m (γ L)) as p eqn:Hp .
 remember HL as H; clear HeqH.
+...
 eapply q_mj_mk_eq_p_h_j in H; try eassumption; try reflexivity.
 destruct H as (Hαh, Hqjh).
 apply List.in_app_or in Hh.
