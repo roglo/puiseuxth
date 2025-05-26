@@ -35,8 +35,8 @@ rewrite Qplus_div; [ idtac | apply Qlt_not_0; assumption ].
 rewrite Qplus_div; [ idtac | apply Qlt_not_0; assumption ].
 apply Qdiv_lt_compat_r; [ apply Qlt_minus; assumption | idtac ].
 rewrite Qmult_minus_distr_r.
-rewrite Qplus_comm, Qmult_comm; apply Qnot_le_lt.
-rewrite Qplus_comm, Qmult_comm; apply Qlt_not_le.
+rewrite Q_add_comm, Qmult_comm; apply Qnot_le_lt.
+rewrite Q_add_comm, Qmult_comm; apply Qlt_not_le.
 do 2 rewrite Qmult_minus_distr_l.
 rewrite Qmult_minus_distr_r.
 do 2 rewrite Qplus_minus_assoc.
@@ -45,8 +45,8 @@ apply Qlt_plus_minus_lt_r; rewrite Qplus_minus_swap.
 do 2 rewrite <- Qplus_assoc; rewrite <- Qplus_minus_swap.
 apply Qplus_lt_lt_minus_r; rewrite <- Qplus_minus_swap.
 apply Qplus_lt_lt_minus_r; do 2 rewrite Qplus_assoc.
-rewrite Qplus_comm, Qplus_assoc, Qplus_assoc; apply Qnot_le_lt.
-rewrite <- Qplus_assoc, <- Qplus_assoc, Qplus_comm, Qplus_assoc.
+rewrite Q_add_comm, Qplus_assoc, Qplus_assoc; apply Qnot_le_lt.
+rewrite <- Qplus_assoc, <- Qplus_assoc, Q_add_comm, Qplus_assoc.
 rewrite Qplus_plus_swap; apply Qlt_not_le.
 assumption.
 Qed.

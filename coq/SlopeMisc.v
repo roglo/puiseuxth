@@ -133,9 +133,9 @@ Proof.
 intros x₁ y₁ x₂ y₂ x₃ y₃ (Hlt₁, Hlt₂).
 assert (x₁ < x₃)%nat as Hlt₃ by (eapply Nat.lt_trans; eassumption).
 rewrite slope_cmp_flatten; [ idtac | assumption | assumption ].
-rewrite <- Qplus_assoc, Qplus_comm, Qplus_assoc.
+rewrite <- Qplus_assoc, Q_add_comm, Qplus_assoc.
 remember (y₁ * Qnat x₂ + y₃ * Qnat x₁ + y₂ * Qnat x₃ + y₁ * Qnat x₁) as t.
-rewrite <- Qplus_assoc, Qplus_comm, Qplus_assoc; subst t.
+rewrite <- Qplus_assoc, Q_add_comm, Qplus_assoc; subst t.
 rewrite <- Qplus_cmp_compat_r.
 setoid_replace (y₁ * Qnat x₂ + y₃ * Qnat x₁ + y₂ * Qnat x₃) with
  (Qnat x₁ * y₃ + Qnat x₂ * y₁ + Qnat x₃ * y₂) by ring.

@@ -45,6 +45,19 @@ Definition Qdiv_lt_compat_r : ∀ x y z, 0 < z → x < y → x / z < y / z :=
   λ x y z Hz Hxy,
   Qmult_lt_compat_r x y (/ z) (Qinv_lt_0_compat z Hz) Hxy.
 
+(* *)
+
+Theorem Q_add_comm : ∀ a b, a + b = b + a.
+Proof.
+intros.
+progress unfold Qplus.
+rewrite Z.add_comm.
+rewrite (Pos.mul_comm (Qden a)).
+easy.
+Qed.
+
+(* *)
+
 Theorem Qdiv_minus_distr_r : ∀ x y z, (x - y) / z == x / z - y / z.
 Proof.
 intros x y z.
@@ -422,6 +435,7 @@ rewrite <- Qplus_assoc.
 rewrite Qplus_opp_r, Qplus_0_r.
 reflexivity.
 Qed.
+
 Theorem Qplus_lt_lt_minus_r : ∀ x y z, x + y < z → x < z - y.
 Proof.
 intros x y z H.
@@ -433,7 +447,7 @@ Theorem Qplus_cmp_compat_l : ∀ x y z,
   (x ?= y) = (z + x ?= z + y).
 Proof.
 intros x y z.
-do 2 rewrite (Qplus_comm z).
+do 2 rewrite (Q_add_comm z).
 apply Qplus_cmp_compat_r.
 Qed.
 
