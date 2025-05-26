@@ -74,6 +74,14 @@ progress unfold Qmult.
 now rewrite Z.mul_comm, Pos.mul_comm.
 Qed.
 
+Theorem Q_mul_assoc : ∀ a b c, a * (b * c) = (a * b) * c.
+Proof.
+intros.
+progress unfold Qmult.
+cbn.
+now rewrite Z.mul_assoc, Pos.mul_assoc.
+Qed.
+
 (* *)
 
 Theorem Qdiv_minus_distr_r : ∀ x y z, (x - y) / z == x / z - y / z.
@@ -133,7 +141,7 @@ assumption.
 Qed.
 
 Theorem Qmult_div_assoc : ∀ x y z, x * (y / z) == (x * y) / z.
-Proof. intros x y z; unfold Qdiv; apply Qmult_assoc. Qed.
+Proof. intros x y z; unfold Qdiv; now rewrite Q_mul_assoc. Qed.
 
 Theorem Qmult_opp_l : ∀ x y, (- x) * y == - (x * y).
 Proof.
@@ -412,7 +420,7 @@ intros x y z Hz.
 erewrite Qmult_cmp_compat_r; [ idtac | eassumption ].
 rewrite Qmult_div_swap.
 unfold Qdiv.
-rewrite <- Qmult_assoc.
+rewrite <- Q_mul_assoc.
 rewrite Qmult_inv_r; [ idtac | apply Qgt_0_not_0; assumption ].
 rewrite Qmult_1_r; reflexivity.
 Qed.
@@ -432,7 +440,7 @@ intros x y z Hz.
 erewrite Qmult_cmp_compat_r; [ idtac | eassumption ].
 rewrite Qmult_div_swap.
 unfold Qdiv.
-rewrite <- Qmult_assoc.
+rewrite <- Q_mul_assoc.
 rewrite Qmult_inv_r; [ idtac | apply Qgt_0_not_0; assumption ].
 rewrite Qmult_1_r; reflexivity.
 Qed.
