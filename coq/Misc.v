@@ -98,6 +98,21 @@ cbn.
 now rewrite Z.mul_assoc, Pos.mul_assoc.
 Qed.
 
+Theorem Q_mul_1_l : ∀ a, 1 * a = a.
+Proof.
+intros.
+progress unfold Qmult.
+rewrite Z.mul_1_l, Pos.mul_1_l.
+now destruct a.
+Qed.
+
+Theorem Q_mul_1_r : ∀ a, a * 1 = a.
+Proof.
+intros.
+rewrite Q_mul_comm.
+apply Q_mul_1_l.
+Qed.
+
 (* *)
 
 Theorem Qdiv_minus_distr_r : ∀ x y z, (x - y) / z == x / z - y / z.
@@ -224,7 +239,7 @@ setoid_replace x with (x * 1) at 3.
  rewrite Pos.mul_1_r, Z.add_1_r.
  apply Zpos_P_of_succ_nat.
 
- rewrite Q_mul_comm, Qmult_1_l; reflexivity.
+ rewrite Q_mul_comm, Q_mul_1_l; reflexivity.
 Qed.
 
 Theorem Qlt_not_0 : ∀ x y, x < y → ¬ y - x == 0.
@@ -438,7 +453,7 @@ rewrite Qmult_div_swap.
 unfold Qdiv.
 rewrite <- Q_mul_assoc.
 rewrite Qmult_inv_r; [ idtac | apply Qgt_0_not_0; assumption ].
-rewrite Qmult_1_r; reflexivity.
+rewrite Q_mul_1_r; reflexivity.
 Qed.
 
 Theorem Qlt_shift_mult_l : ∀ x y z, 0 < z → x / z < y → x < y * z.
@@ -458,7 +473,7 @@ rewrite Qmult_div_swap.
 unfold Qdiv.
 rewrite <- Q_mul_assoc.
 rewrite Qmult_inv_r; [ idtac | apply Qgt_0_not_0; assumption ].
-rewrite Qmult_1_r; reflexivity.
+rewrite Q_mul_1_r; reflexivity.
 Qed.
 
 Theorem Qlt_shift_mult_r : ∀ x y z, 0 < z → x < y / z → x * z < y.

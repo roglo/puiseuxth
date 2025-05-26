@@ -373,7 +373,7 @@ induction n; simpl.
  unfold Qnat.
  rewrite Nat2Z.inj_add, QZ_plus.
  rewrite Qmult_plus_distr_l; simpl.
- rewrite Qmult_1_l; reflexivity.
+ rewrite Q_mul_1_l; reflexivity.
 Qed.
 
 Theorem ps_lap_nth_0_apply_0 : ∀ la,
