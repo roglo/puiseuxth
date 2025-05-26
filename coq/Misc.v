@@ -56,6 +56,13 @@ rewrite (Pos.mul_comm (Qden a)).
 easy.
 Qed.
 
+Theorem Q_mul_comm : ∀ a b, a * b = b * a.
+Proof.
+intros.
+progress unfold Qmult.
+now rewrite Z.mul_comm, Pos.mul_comm.
+Qed.
+
 (* *)
 
 Theorem Qdiv_minus_distr_r : ∀ x y z, (x - y) / z == x / z - y / z.
@@ -182,7 +189,7 @@ setoid_replace x with (x * 1) at 3.
  rewrite Pos.mul_1_r, Z.add_1_r.
  apply Zpos_P_of_succ_nat.
 
- rewrite Qmult_comm, Qmult_1_l; reflexivity.
+ rewrite Q_mul_comm, Qmult_1_l; reflexivity.
 Qed.
 
 Theorem Qlt_not_0 : ∀ x y, x < y → ¬ y - x == 0.
@@ -274,7 +281,7 @@ Qed.
 Theorem Qmult_div_swap : ∀ x y z, x / y * z == x * z / y.
 Proof.
 intros.
-rewrite Qmult_comm, Qmult_div_assoc, Qmult_comm.
+rewrite Q_mul_comm, Qmult_div_assoc, Qmult_comm.
 reflexivity.
 Qed.
 
