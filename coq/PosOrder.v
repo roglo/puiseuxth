@@ -1289,9 +1289,9 @@ apply ps_lap_in_add in Hm; [ assumption | idtac | idtac ]. {
         apply Qplus_le_l with (z := β L).
         rewrite <- Qminus_minus_assoc.
         rewrite Qminus_diag.
-        rewrite Qplus_0_l.
+        rewrite Q_add_0_l.
         progress unfold Qminus, Qopp; simpl.
-        rewrite Qplus_0_r.
+        rewrite Q_add_0_r.
         remember (points_of_ps_polynom f) as pts.
         eapply points_in_convex; try eassumption.
         eapply in_pol_in_pts; try eassumption.

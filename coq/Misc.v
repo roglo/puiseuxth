@@ -67,6 +67,22 @@ do 2 rewrite Pos2Z.inj_mul.
 ring.
 Qed.
 
+Theorem Q_add_0_l : ∀ a, 0 + a = a.
+Proof.
+intros.
+progress unfold Qplus.
+cbn.
+rewrite Z.mul_1_r.
+now destruct a.
+Qed.
+
+Theorem Q_add_0_r : ∀ a, a + 0 = a.
+Proof.
+intros.
+rewrite Q_add_comm.
+apply Q_add_0_l.
+Qed.
+
 Theorem Q_mul_comm : ∀ a b, a * b = b * a.
 Proof.
 intros.
@@ -282,7 +298,7 @@ intros x y z H.
 apply Qplus_lt_compat_r with (z := y) in H.
 rewrite <- Qplus_minus_swap, <- Qplus_minus_assoc in H.
 unfold Qminus in H.
-rewrite Qplus_opp_r, Qplus_0_r in H.
+rewrite Qplus_opp_r, Q_add_0_r in H.
 assumption.
 Qed.
 
@@ -293,7 +309,7 @@ apply Qplus_lt_compat_r with (z := z) in H.
 rewrite <- Qplus_minus_swap in H.
 rewrite <- Qplus_minus_assoc in H.
 unfold Qminus in H.
-rewrite Qplus_opp_r, Qplus_0_r in H.
+rewrite Qplus_opp_r, Q_add_0_r in H.
 assumption.
 Qed.
 
@@ -327,7 +343,7 @@ Proof.
 intros.
 rewrite <- H.
 rewrite <- Qplus_minus_swap, <- Qplus_minus_assoc.
-rewrite Qminus_diag, Qplus_0_r.
+rewrite Qminus_diag, Q_add_0_r.
 reflexivity.
 Qed.
 
@@ -382,7 +398,7 @@ Proof.
 intros x y z.
 rewrite Qplus_cmp_compat_r with (z := - z).
 rewrite <- Q_add_assoc.
-rewrite Qplus_opp_r, Qplus_0_r.
+rewrite Qplus_opp_r, Q_add_0_r.
 reflexivity.
 Qed.
 Theorem Qeq_plus_minus_eq_r : ∀ x y z, x == y + z → x - z == y.
@@ -458,7 +474,7 @@ Proof.
 intros x y z.
 rewrite Qplus_cmp_compat_r with (z := - y).
 rewrite <- Q_add_assoc.
-rewrite Qplus_opp_r, Qplus_0_r.
+rewrite Qplus_opp_r, Q_add_0_r.
 reflexivity.
 Qed.
 

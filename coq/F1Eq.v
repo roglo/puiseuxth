@@ -214,7 +214,7 @@ Theorem ps_monom_split_mul : ∀ c pow,
 Proof.
 intros c pow.
 rewrite <- ps_monom_add_r.
-rewrite Qplus_0_l; reflexivity.
+rewrite Q_add_0_l; reflexivity.
 Qed.
 
 Theorem ps_monom_mul_r_pow : ∀ c p n,

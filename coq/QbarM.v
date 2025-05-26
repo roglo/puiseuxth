@@ -239,7 +239,7 @@ Theorem add_0_l : ∀ a, qeq (0 + a) a.
 Proof.
 intros a.
 destruct a as [a| ]; [ simpl | constructor ].
-rewrite Qplus_0_l; reflexivity.
+rewrite Q_add_0_l; reflexivity.
 Qed.
 
 Theorem add_lt_mono_r : ∀ n m p, p ≠ ∞ → n < m ↔ n + p < m + p.
