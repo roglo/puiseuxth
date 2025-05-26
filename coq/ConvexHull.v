@@ -11,23 +11,29 @@ Record newton_segment := mkns
     oth_pts : list (nat * Z);
     pts_comm_den : positive }.
 
-Definition slope ms := slope_expr (ini_pt ms) (fin_pt ms) (pts_comm_den ms).
+Definition slope ns := slope_expr (ini_pt ns) (fin_pt ns) (pts_comm_den ns).
+
+Definition ZPcompare (zp1 zp2 : Z * positive) :=
+  let (n1, d1) := zp1 in
+  let (n2, d2) := zp2 in
+  (n1 * Z.pos d2 ?= n2 * Z.pos d1)%Z.
 
 Fixpoint minimise_slope pt₁ pt₂ pts₂ den :=
   match pts₂ with
   | [] =>
       {| ini_pt := pt₁; fin_pt := pt₂; oth_pts := []; pts_comm_den := den |}
   | pt₃ :: pts₃ =>
-      let ms := minimise_slope pt₁ pt₃ pts₃ den in
-...
-      match Qcompare (slope_expr pt₁ pt₂) (slope ms) with
+      let ns := minimise_slope pt₁ pt₃ pts₃ den in
+      match ZPcompare (slope_expr pt₁ pt₂ den) (slope ns) with
       | Eq =>
-          {| ini_pt := pt₁; fin_pt := fin_pt ms;
-             oth_pts := pt₂ :: oth_pts ms |}
+          {| ini_pt := pt₁; fin_pt := fin_pt ns;
+             oth_pts := pt₂ :: oth_pts ns;
+             pts_comm_den := den |}
       | Lt =>
-          {| ini_pt := pt₁; fin_pt := pt₂; oth_pts := [] |}
+          {| ini_pt := pt₁; fin_pt := pt₂; oth_pts := [];
+             pts_comm_den := den |}
       | Gt =>
-          ms
+          ns
       end
   end.
 
