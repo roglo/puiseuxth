@@ -37,43 +37,27 @@ Fixpoint minimise_slope pt₁ pt₂ pts₂ den :=
       end
   end.
 
-...
-
-Fixpoint minimise_slope pt₁ pt₂ pts₂ :=
-  match pts₂ with
-  | [] =>
-      {| ini_pt := pt₁; fin_pt := pt₂; oth_pts := [] |}
-  | pt₃ :: pts₃ =>
-      let ms := minimise_slope pt₁ pt₃ pts₃ in
-      match Qcompare (slope_expr pt₁ pt₂) (slope ms) with
-      | Eq =>
-          {| ini_pt := pt₁; fin_pt := fin_pt ms;
-             oth_pts := pt₂ :: oth_pts ms |}
-      | Lt =>
-          {| ini_pt := pt₁; fin_pt := pt₂; oth_pts := [] |}
-      | Gt =>
-          ms
-      end
-  end.
-
-Definition lower_convex_hull_points pts :=
+Definition lower_convex_hull_points pts den :=
   match pts with
   | [] => None
   | [pt₁] => None
   | pt₁ :: pt₂ :: pts₂ =>
-      let ms := minimise_slope pt₁ pt₂ pts₂ in
+      let ms := minimise_slope pt₁ pt₂ pts₂ den in
       Some
-        {| ini_pt := ini_pt ms; fin_pt := fin_pt ms; oth_pts := oth_pts ms |}
+        {| ini_pt := ini_pt ms; fin_pt := fin_pt ms;
+           oth_pts := oth_pts ms; pts_comm_den := den |}
   end.
 
-Theorem minimised_slope_beg_pt : ∀ pt₁ pt₂ pts,
-  ini_pt (minimise_slope pt₁ pt₂ pts) = pt₁.
+...
+
+Theorem minimised_slope_beg_pt : ∀ pt₁ pt₂ pts den,
+  ini_pt (minimise_slope pt₁ pt₂ pts den) = pt₁.
 Proof.
 intros pt₁ pt₂ pts.
 revert pt₁ pt₂.
 induction pts as [| pt]; intros; [ reflexivity | simpl ].
-remember (minimise_slope pt₁ pt pts) as ms.
-remember (slope_expr pt₁ pt₂ ?= slope ms) as c.
+remember (minimise_slope pt₁ pt pts den) as ms.
+remember (slope_expr pt₁ pt₂ den ?= slope ms)%Z as c.
 symmetry in Heqc.
 destruct c; simpl; [ reflexivity | reflexivity | idtac ].
 subst ms; apply IHpts.
