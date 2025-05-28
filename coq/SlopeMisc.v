@@ -58,9 +58,9 @@ rewrite Qcmp_shift_mult_l; [ idtac | apply Qlt_minus, Qnat_lt; assumption ].
 repeat rewrite Qmult_minus_distr_l.
 repeat rewrite Qmult_minus_distr_r.
 repeat rewrite Q_sub_sub_distr.
-repeat rewrite <- Qplus_minus_swap.
+repeat rewrite <- Q_add_sub_swap.
 repeat rewrite <- Qcmp_plus_minus_cmp_r.
-repeat rewrite <- Qplus_minus_swap.
+repeat rewrite <- Q_add_sub_swap.
 repeat rewrite <- Qplus_cmp_cmp_minus_r.
 reflexivity.
 Qed.
@@ -105,11 +105,11 @@ apply Qeq_shift_mult_l in H. {
     unfold Qminus at 2.
     apply Qplus_inj_r.
     do 2 apply Qminus_eq_eq_plus_r in H.
-    do 4 rewrite <- Qplus_minus_swap in H.
+    do 4 rewrite <- Q_add_sub_swap in H.
     symmetry in H.
     do 2 apply Qminus_eq_eq_plus_r in H.
     apply Qeq_plus_minus_eq_r.
-    rewrite <- Qplus_minus_swap.
+    rewrite <- Q_add_sub_swap.
     symmetry.
     apply Qeq_plus_minus_eq_r.
     setoid_replace (Qnat x₂ * y₁ + Qnat x₃ * y₂ + Qnat x₁ * y₃) with

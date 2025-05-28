@@ -20,14 +20,14 @@ rewrite Q_mul_comm in H.
 do 2 rewrite Qmult_minus_distr_l in H.
 do 4 rewrite Qmult_minus_distr_r in H.
 do 2 rewrite Q_sub_sub_distr in H.
-rewrite <- Qplus_minus_swap in H.
+rewrite <- Q_add_sub_swap in H.
 apply Qminus_lt_lt_plus_r in H.
-rewrite <- Qplus_minus_swap in H.
+rewrite <- Q_add_sub_swap in H.
 apply Qminus_lt_lt_plus_r in H.
 do 2 rewrite <- Q_add_assoc in H.
-rewrite <- Qplus_minus_swap in H.
+rewrite <- Q_add_sub_swap in H.
 apply Qlt_minus_plus_lt_r in H.
-rewrite <- Qplus_minus_swap in H.
+rewrite <- Q_add_sub_swap in H.
 apply Qlt_minus_plus_lt_r in H.
 do 2 rewrite Q_add_assoc in H.
 do 2 rewrite Qmult_div_assoc.
@@ -40,14 +40,14 @@ rewrite Q_add_comm, Q_mul_comm; apply Qlt_not_le.
 do 2 rewrite Qmult_minus_distr_l.
 rewrite Qmult_minus_distr_r.
 do 2 rewrite Q_add_sub_assoc.
-apply Qlt_plus_minus_lt_r; rewrite <- Qplus_minus_swap.
-apply Qlt_plus_minus_lt_r; rewrite Qplus_minus_swap.
-do 2 rewrite <- Q_add_assoc; rewrite <- Qplus_minus_swap.
-apply Qplus_lt_lt_minus_r; rewrite <- Qplus_minus_swap.
+apply Qlt_plus_minus_lt_r; rewrite <- Q_add_sub_swap.
+apply Qlt_plus_minus_lt_r; rewrite Q_add_sub_swap.
+do 2 rewrite <- Q_add_assoc; rewrite <- Q_add_sub_swap.
+apply Qplus_lt_lt_minus_r; rewrite <- Q_add_sub_swap.
 apply Qplus_lt_lt_minus_r; do 2 rewrite Q_add_assoc.
 rewrite Q_add_comm, Q_add_assoc, Q_add_assoc; apply Qnot_le_lt.
 rewrite <- Q_add_assoc, <- Q_add_assoc, Q_add_comm, Q_add_assoc.
-rewrite Qplus_plus_swap; apply Qlt_not_le.
+rewrite Q_add_add_swap; apply Qlt_not_le.
 assumption.
 Qed.
 
