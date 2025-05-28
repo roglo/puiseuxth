@@ -149,7 +149,7 @@ intros Hrk.
 assert (slope ms < slope_expr (S r, v) (k₁, αk₁)) as H. {
   apply Qnot_le_lt.
   intros H.
-  rewrite slope_slope_expr in H; [ | symmetry; eassumption ].
+  erewrite slope_slope_expr in H; [ | symmetry; eassumption ].
   rewrite <- Hfin₁ in H.
   rewrite Hfin₁ in H; simpl in H.
   unfold slope_expr in H; simpl in H.

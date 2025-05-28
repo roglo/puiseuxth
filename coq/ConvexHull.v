@@ -54,7 +54,7 @@ Qed.
 
 Theorem slope_slope_expr : ∀ ms pt₁ pt₂ pts,
   minimise_slope pt₁ pt₂ pts = ms
-  → slope ms == slope_expr pt₁ (fin_pt ms).
+  → slope ms = slope_expr pt₁ (fin_pt ms).
 Proof.
 intros ms pt₁ pt₂ pts Hms.
 unfold slope.

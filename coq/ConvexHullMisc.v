@@ -207,7 +207,7 @@ remember (minimise_slope pt₁ pt₃ pts) as ms₁ eqn:Hms₁ .
 remember (slope_expr pt₁ pt₂ ?= slope ms₁) as c.
 symmetry in Heqc.
 symmetry in Hms₁.
-rewrite slope_slope_expr in Heqc; [ idtac | eassumption ].
+erewrite slope_slope_expr in Heqc; [ idtac | eassumption ].
 destruct c. {
   subst ms; simpl.
   rewrite <- minimised_slope_beg_pt in |- * at 1.

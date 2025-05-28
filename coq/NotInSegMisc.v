@@ -70,7 +70,7 @@ destruct c; subst ms. {
   symmetry in Heqc; apply Qeq_alt in Heqc.
   rewrite Heqc.
   progress unfold slope at 1; simpl.
-  rewrite slope_slope_expr; [ idtac | symmetry; eassumption ].
+  erewrite slope_slope_expr; [ idtac | symmetry; eassumption ].
   apply Qle_refl.
 } {
   simpl.
@@ -264,7 +264,7 @@ Theorem not_seg_min_sl_lt : ∀ j αj k αk pt pts ms h αh,
   → slope ms < slope_expr (j, αj) (h, αh).
 Proof.
 intros j αj k αk pt pts ms h αh Hsort Hms (Hjh, Hhk) Hseg Hep.
-rewrite slope_slope_expr; [ idtac | eassumption ].
+erewrite slope_slope_expr; [ idtac | eassumption ].
 revert ms Hms Hseg Hep.
 induction pts as [| pt₁]; intros. {
   simpl in Hms.
@@ -313,7 +313,7 @@ destruct c₁; subst ms; simpl. {
     apply Nat.lt_irrefl in Hhk; contradiction.
   } {
     apply Qgt_alt in Heqc.
-    rewrite slope_slope_expr in Heqc; [ idtac | eassumption ].
+    erewrite slope_slope_expr in Heqc; [ idtac | eassumption ].
     assumption.
   }
 } {
@@ -341,7 +341,7 @@ destruct c₁; subst ms; simpl. {
     apply Nat.lt_irrefl in Hhk; contradiction.
   } {
     apply Qgt_alt in Heqc.
-    rewrite slope_slope_expr in Heqc; [ idtac | eassumption ].
+    erewrite slope_slope_expr in Heqc; [ idtac | eassumption ].
     assumption.
   }
 }

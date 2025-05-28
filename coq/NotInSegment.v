@@ -159,7 +159,7 @@ Theorem minimise_slope_expr_le : ∀ pt₁ pt₂ pt₃ pts ms,
   → slope_expr pt₂ pt₃ <= slope ms.
 Proof.
 intros pt₁ pt₂ pt₃ pts ms Hsort Hms Hend Hlt.
-rewrite slope_slope_expr; [ idtac | eassumption ].
+erewrite slope_slope_expr; [ idtac | eassumption ].
 revert pt₁ pt₂ pt₃ ms Hsort Hms Hend Hlt.
 induction pts as [| pt₄]; intros. {
   subst pt₃ ms; apply Nat.lt_irrefl in Hlt; contradiction.
@@ -169,14 +169,14 @@ remember (minimise_slope pt₁ pt₄ pts) as ms₁.
 symmetry in Heqms₁.
 remember (slope_expr pt₁ pt₂ ?= slope ms₁) as c.
 symmetry in Heqc.
-rewrite slope_slope_expr in Heqc; [ idtac | eassumption ].
+erewrite slope_slope_expr in Heqc; [ idtac | eassumption ].
 destruct c. {
   subst ms; simpl in Hend |- *.
   apply Qeq_alt in Heqc.
   symmetry in Hend.
   remember Heqms₁ as H; clear HeqH.
   eapply minimised_slope in Heqms₁; [ idtac | eassumption ].
-  rewrite slope_slope_expr in Heqms₁; [ idtac | eassumption ].
+  erewrite slope_slope_expr in Heqms₁; [ idtac | eassumption ].
   rewrite <- Heqc in Heqms₁ |- *.
   eapply slope_expr_eq in Heqms₁; try eassumption. {
     rewrite Heqms₁; apply Qle_refl.
@@ -241,7 +241,7 @@ Theorem min_slope_le : ∀ pt₁ pt₂ pt₃ pt₄ pts ms,
   → slope_expr pt₃ pt₄ <= slope ms.
 Proof.
 intros pt₁ pt₂ pt₃ pt₄ pts ms Hsort Hms Hpt Hend Hlt.
-rewrite slope_slope_expr; [ idtac | eassumption ].
+erewrite slope_slope_expr; [ idtac | eassumption ].
 revert pt₁ pt₂ pt₃ pt₄ ms Hsort Hms Hpt Hend Hlt.
 induction pts as [| pt₅]; [ contradiction | intros ].
 simpl in Hms.
@@ -249,12 +249,12 @@ remember (minimise_slope pt₁ pt₅ pts) as ms₁.
 symmetry in Heqms₁.
 remember (slope_expr pt₁ pt₂ ?= slope ms₁) as c.
 symmetry in Heqc.
-rewrite slope_slope_expr in Heqc; [ idtac | eassumption ].
+erewrite slope_slope_expr in Heqc; [ idtac | eassumption ].
 destruct c. {
   subst ms; simpl in Hend |- *.
   destruct Hpt as [Hpt| Hpt]. {
     subst pt₅.
-    rewrite <- slope_slope_expr; [ idtac | eassumption ].
+    erewrite <- slope_slope_expr; [ idtac | eassumption ].
     eapply minimise_slope_expr_le; try eassumption.
     eapply Sorted_minus_2nd; [ idtac | eassumption ].
     intros x y z H₁ H₂; eapply Nat.lt_trans; eassumption.
@@ -277,7 +277,7 @@ destruct c. {
 move Hms at top; subst ms₁.
 destruct Hpt as [Hpt| Hpt]. {
   subst pt₅.
-  rewrite <- slope_slope_expr; [ idtac | eassumption ].
+  erewrite <- slope_slope_expr; [ idtac | eassumption ].
   eapply minimise_slope_expr_le; try eassumption.
   eapply Sorted_minus_2nd; [ idtac | eassumption ].
   intros x y z H₁ H₂; eapply Nat.lt_trans; eassumption.

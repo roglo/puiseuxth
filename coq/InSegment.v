@@ -54,7 +54,7 @@ destruct Hαh as [Hαh| Hαh]. {
   remember (minimise_slope pt₁ pt₃ pts) as ms₁ eqn:Hms₁ .
   remember (slope_expr pt₁ pt₂ ?= slope ms₁) as c.
   symmetry in Heqc.
-  rewrite slope_slope_expr in Heqc; [ idtac | symmetry; eassumption ].
+  erewrite slope_slope_expr in Heqc; [ idtac | symmetry; eassumption ].
   destruct c. {
     subst ms.
     simpl in Hαh; simpl.
