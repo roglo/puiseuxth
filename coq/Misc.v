@@ -297,8 +297,6 @@ rewrite Qplus_opp_r.
 assumption.
 Qed.
 
-(* == *)
-
 Theorem Qmult_minus_distr_l : ∀ x y z, (x - y) * z == x * z - y * z.
 Proof.
 intros x y z.
