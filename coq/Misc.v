@@ -22,29 +22,6 @@ Tactic Notation "fast_omega" hyp_list(Hs) := revert Hs; clear; intros; lia.
 
 Set Implicit Arguments.
 
-Definition Qnat i := Z.of_nat i # 1.
-
-(* experimentations with Definition instead of Theorem *)
-
-Definition Nat_sub_succ_diag : ∀ n, (S n - n = 1)%nat :=
-  λ n,
-  eq_trans (Nat.sub_succ_l n n (le_n n)) (f_equal S (Nat.sub_diag n)).
-
-Definition Nat_le_neq_lt : ∀ x y : nat, x ≤ y → x ≠ y → (x < y)%nat :=
-  λ x y Hxy Hnxy,
-  match le_lt_eq_dec x y Hxy with
-  | left Hle => Hle
-  | right Heq => match Hnxy Heq with end
-  end.
-
-Definition Qle_neq_lt : ∀ x y, x <= y → ¬ x == y → x < y :=
-  λ x y Hxy Hnxy,
-  Qnot_le_lt y x (λ H, Hnxy (Qle_antisym x y Hxy H)).
-
-Definition Qdiv_lt_compat_r : ∀ x y z, 0 < z → x < y → x / z < y / z :=
-  λ x y z Hz Hxy,
-  Qmult_lt_compat_r x y (/ z) (Qinv_lt_0_compat z Hz) Hxy.
-
 (* Some theorems working with syntactic equality *)
 
 Theorem Q_add_comm : ∀ a b, a + b = b + a.
@@ -113,6 +90,17 @@ rewrite Q_mul_comm.
 apply Q_mul_1_l.
 Qed.
 
+Theorem Q_opp_involutive : ∀ a, - - a = a.
+Proof.
+intros.
+progress unfold Qopp.
+cbn.
+rewrite Z.opp_involutive.
+now destruct a.
+Qed.
+
+(* doesn't work, works with a small modification *)
+
 Definition Q1 x := QDen x # Qden x.
 
 Theorem Q_mul_add_distr_l : ∀ x y z, x * (y + z) * Q1 x = x * y + x * z.
@@ -135,6 +123,37 @@ easy.
 Qed.
 
 (* *)
+
+Definition Qnat i := Z.of_nat i # 1.
+
+Theorem Nat_sub_succ_diag : ∀ n, (S n - n = 1)%nat.
+Proof.
+intros.
+rewrite Nat.sub_succ_l; [ | easy ].
+now rewrite Nat.sub_diag.
+Qed.
+
+Theorem Nat_le_neq_lt : ∀ x y : nat, x ≤ y → x ≠ y → (x < y)%nat.
+Proof.
+intros * Hxy Hnxy.
+now destruct (le_lt_eq_dec x y Hxy).
+Qed.
+
+Theorem Qle_neq_lt : ∀ x y, x <= y → ¬ x == y → x < y.
+Proof.
+intros * Hxy Hnxy.
+apply Qnot_le_lt.
+intros H.
+apply Qle_antisym in Hxy; [ | easy ].
+now apply Hnxy.
+Qed.
+
+Theorem Qdiv_lt_compat_r : ∀ x y z, 0 < z → x < y → x / z < y / z.
+Proof.
+intros * Hz Hxy.
+apply Qmult_lt_compat_r; [ | easy ].
+now apply Qinv_lt_0_compat.
+Qed.
 
 Theorem Qdiv_minus_distr_r : ∀ x y z, (x - y) / z == x / z - y / z.
 Proof.
