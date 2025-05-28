@@ -39,7 +39,7 @@ rewrite Q_add_comm, Q_mul_comm; apply Qnot_le_lt.
 rewrite Q_add_comm, Q_mul_comm; apply Qlt_not_le.
 do 2 rewrite Qmult_minus_distr_l.
 rewrite Qmult_minus_distr_r.
-do 2 rewrite Qplus_minus_assoc.
+do 2 rewrite Q_add_sub_assoc.
 apply Qlt_plus_minus_lt_r; rewrite <- Qplus_minus_swap.
 apply Qlt_plus_minus_lt_r; rewrite Qplus_minus_swap.
 do 2 rewrite <- Q_add_assoc; rewrite <- Qplus_minus_swap.

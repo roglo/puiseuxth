@@ -140,6 +140,12 @@ f_equal.
 apply Q_add_comm.
 Qed.
 
+Theorem Q_add_sub_assoc : ∀ x y z, x + (y - z) = (x + y) - z.
+Proof.
+intros.
+apply Q_add_assoc.
+Qed.
+
 (* doesn't work, works with a small modification *)
 
 Definition Q1 x := QDen x # Qden x.
@@ -323,9 +329,6 @@ Qed.
 
 (* == *)
 
-Theorem Qplus_minus_assoc : ∀ x y z, x + (y - z) == (x + y) - z.
-Proof. intros x y z; ring. Qed.
-
 Theorem Zposnat2Znat : ∀ i, (0 < i)%nat → Zpos (Pos.of_nat i) = Z.of_nat i.
 Proof.
 intros i Hi.
@@ -372,7 +375,7 @@ Theorem Qminus_lt_lt_plus_r : ∀ x y z, x - y < z → x < z + y.
 Proof.
 intros x y z H.
 apply Qplus_lt_compat_r with (z := y) in H.
-rewrite <- Qplus_minus_swap, <- Qplus_minus_assoc in H.
+rewrite <- Qplus_minus_swap, <- Q_add_sub_assoc in H.
 unfold Qminus in H.
 rewrite Qplus_opp_r, Q_add_0_r in H.
 assumption.
@@ -383,7 +386,7 @@ Proof.
 intros x y z H.
 apply Qplus_lt_compat_r with (z := z) in H.
 rewrite <- Qplus_minus_swap in H.
-rewrite <- Qplus_minus_assoc in H.
+rewrite <- Q_add_sub_assoc in H.
 unfold Qminus in H.
 rewrite Qplus_opp_r, Q_add_0_r in H.
 assumption.
@@ -418,7 +421,7 @@ Theorem Qminus_eq_eq_plus_r : ∀ x y z, x - y == z → x == z + y.
 Proof.
 intros.
 rewrite <- H.
-rewrite <- Qplus_minus_swap, <- Qplus_minus_assoc.
+rewrite <- Qplus_minus_swap, <- Q_add_sub_assoc.
 rewrite Qminus_diag, Q_add_0_r.
 reflexivity.
 Qed.
