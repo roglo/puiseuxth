@@ -1364,7 +1364,7 @@ apply ps_lap_in_mul in Hm; [ assumption | idtac | idtac ]. {
     rewrite Qbar.add_comm; constructor.
   }
   rewrite ps_monom_order; [ simpl | assumption ].
-  rewrite Qopp_opp.
+  rewrite Q_opp_involutive.
   eapply order_āl_xlγ₁_gt_β₁; try eassumption.
   apply except_split_seq; [ idtac | idtac | assumption ]. {
     subst l₁ tl.
