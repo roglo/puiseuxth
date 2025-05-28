@@ -99,6 +99,24 @@ rewrite Z.opp_involutive.
 now destruct a.
 Qed.
 
+Theorem Q_mul_opp_l : ∀ x y, (- x) * y = - (x * y).
+Proof.
+intros.
+progress unfold Qmult.
+progress unfold Qopp.
+cbn.
+now rewrite Z.mul_opp_l.
+Qed.
+
+Theorem Q_mul_opp_r : ∀ x y, x * - y = - (x * y).
+Proof.
+intros.
+progress unfold Qmult.
+progress unfold Qopp.
+cbn.
+now rewrite Z.mul_opp_r.
+Qed.
+
 (* doesn't work, works with a small modification *)
 
 Definition Q1 x := QDen x # Qden x.
@@ -214,28 +232,12 @@ Qed.
 Theorem Qmult_div_assoc : ∀ x y z, x * (y / z) == (x * y) / z.
 Proof. intros x y z; unfold Qdiv; now rewrite Q_mul_assoc. Qed.
 
-Theorem Qmult_opp_l : ∀ x y, (- x) * y == - (x * y).
-Proof.
-intros x y.
-unfold Qeq, Qmult, Qopp; simpl.
-rewrite Z.mul_opp_l.
-reflexivity.
-Qed.
-
-Theorem Qmult_opp_r : ∀ x y, x * - y == - (x * y).
-Proof.
-intros x y.
-unfold Qeq, Qmult, Qopp; simpl.
-rewrite Z.mul_opp_r.
-reflexivity.
-Qed.
-
 Theorem Qmult_minus_distr_l : ∀ x y z, (x - y) * z == x * z - y * z.
 Proof.
 intros x y z.
 unfold Qminus.
 rewrite Qmult_plus_distr_l.
-rewrite Qmult_opp_l; reflexivity.
+rewrite Q_mul_opp_l; reflexivity.
 Qed.
 
 Theorem Qmult_minus_distr_r : ∀ x y z, x * (y - z) == x * y - x * z.
@@ -243,7 +245,7 @@ Proof.
 intros x y z.
 unfold Qminus.
 rewrite Qmult_plus_distr_r.
-rewrite Qmult_opp_r; reflexivity.
+rewrite Q_mul_opp_r; reflexivity.
 Qed.
 
 Theorem QZ_plus : ∀ x y z, x + y # z == (x # z) + (y # z).
