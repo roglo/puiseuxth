@@ -162,6 +162,15 @@ rewrite <- Q_add_sub_assoc.
 apply Q_add_comm.
 Qed.
 
+Theorem Q_mul_div_swap : ∀ x y z, x / y * z = x * z / y.
+Proof.
+intros.
+progress unfold Qdiv.
+do 2 rewrite <- Q_mul_assoc.
+progress f_equal.
+apply Q_mul_comm.
+Qed.
+
 (* doesn't work, works with a small modification *)
 
 Definition Q1 x := QDen x # Qden x.
@@ -354,8 +363,6 @@ Qed.
 
 (* *)
 
-(* == *)
-
 Theorem Qplus_lt_compat_r : ∀ x y z, x < y → x + z < y + z.
 Proof.
 intros (x₁, x₂) (y₁, y₂) (z₁, z₂) H.
@@ -402,18 +409,13 @@ rewrite Qplus_opp_r, Q_add_0_r in H.
 assumption.
 Qed.
 
-Theorem Qmult_div_swap : ∀ x y z, x / y * z == x * z / y.
-Proof.
-intros.
-rewrite Q_mul_comm, Qmult_div_assoc, Qmult_comm.
-reflexivity.
-Qed.
+(* == *)
 
 Theorem Qeq_shift_mult_l : ∀ x y z, ¬z == 0 → x / z == y → x == y * z.
 Proof.
 intros x y z Hc H.
 rewrite <- H.
-rewrite Qmult_div_swap.
+rewrite Q_mul_div_swap.
 rewrite Qdiv_mult_l; [ reflexivity | assumption ].
 Qed.
 
@@ -523,7 +525,7 @@ Theorem Qcmp_shift_mult_l : ∀ x y z,
 Proof.
 intros x y z Hz.
 erewrite Qmult_cmp_compat_r; [ idtac | eassumption ].
-rewrite Qmult_div_swap.
+rewrite Q_mul_div_swap.
 unfold Qdiv.
 rewrite <- Q_mul_assoc.
 rewrite Qmult_inv_r; [ idtac | apply Qgt_0_not_0; assumption ].
@@ -543,7 +545,7 @@ Theorem Qcmp_shift_mult_r : ∀ x y z,
 Proof.
 intros x y z Hz.
 erewrite Qmult_cmp_compat_r; [ idtac | eassumption ].
-rewrite Qmult_div_swap.
+rewrite Q_mul_div_swap.
 unfold Qdiv.
 rewrite <- Q_mul_assoc.
 rewrite Qmult_inv_r; [ idtac | apply Qgt_0_not_0; assumption ].

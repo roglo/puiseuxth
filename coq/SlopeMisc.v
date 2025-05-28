@@ -53,7 +53,7 @@ Proof.
 intros x₁ y₁ x₂ y₂ x₃ y₃ x₄ y₄ Hlt₁₂ Hlt₃₄.
 unfold slope_expr; simpl.
 rewrite Qcmp_shift_mult_r; [ idtac | apply Qlt_minus, Qnat_lt; assumption ].
-rewrite Qmult_div_swap.
+rewrite Q_mul_div_swap.
 rewrite Qcmp_shift_mult_l; [ idtac | apply Qlt_minus, Qnat_lt; assumption ].
 repeat rewrite Qmult_minus_distr_l.
 repeat rewrite Qmult_minus_distr_r.
@@ -78,7 +78,7 @@ intros x₁ y₁ x₂ y₂ x₃ y₃ H₁₂ H₂₃ H₃₁ H.
 unfold slope_expr in H |-*.
 apply Qeq_shift_mult_l in H. {
   symmetry in H.
-  rewrite Qmult_div_swap in H.
+  rewrite Q_mul_div_swap in H.
   apply Qeq_shift_mult_l in H. {
     apply Qeq_shift_div_l. {
       intros HH; apply H₁₂.
@@ -86,7 +86,7 @@ apply Qeq_shift_mult_l in H. {
       now apply Nat2Z.inj in HH.
     }
     symmetry.
-    rewrite Qmult_div_swap.
+    rewrite Q_mul_div_swap.
     apply Qeq_shift_div_l. {
       intros HH; apply H₂₃.
       apply Qminus_eq, Qden_cancel in HH.
