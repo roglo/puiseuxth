@@ -66,7 +66,7 @@ destruct Hαh as [Hαh| Hαh]. {
       do 2 rewrite Qdiv_minus_distr_r in Heqc.
       rewrite Qdiv_minus_distr_r.
       apply Qeq_opp_r in Heqc.
-      do 2 rewrite Qopp_minus in Heqc.
+      do 2 rewrite Q_opp_sub_distr in Heqc.
       rewrite <- Heqc.
       progress unfold Qnat.
       field.

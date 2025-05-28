@@ -117,6 +117,18 @@ cbn.
 now rewrite Z.mul_opp_r.
 Qed.
 
+Theorem Q_opp_sub_distr : ∀ x y, - (x - y) = y - x.
+Proof.
+intros.
+progress unfold Qminus.
+progress unfold Qplus.
+progress unfold Qopp.
+cbn.
+rewrite (Pos.mul_comm (Qden y)).
+progress f_equal.
+ring.
+Qed.
+
 (* doesn't work, works with a small modification *)
 
 Definition Q1 x := QDen x # Qden x.
@@ -291,8 +303,7 @@ apply Qminus_eq in HH.
 rewrite HH in H; apply Qlt_irrefl in H; contradiction.
 Qed.
 
-Theorem Qopp_minus : ∀ x y, - (x - y) == y - x.
-Proof. intros; field. Qed.
+(* == *)
 
 Theorem Qplus_div : ∀ x y z, ¬(z == 0) → x + y / z == (x * z + y) / z.
 Proof.
