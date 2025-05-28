@@ -14,7 +14,7 @@ Theorem ad_hoc_lt_lt : ∀ i j k x y z,
 Proof.
 intros i j k x y z (Hij, Hjk) H.
 apply Qlt_shift_mult_r in H; [ idtac | apply Qlt_minus; assumption ].
-rewrite Q_mul_comm, Qmult_div_assoc in H.
+rewrite Q_mul_comm, Q_mul_div_assoc in H.
 apply Qlt_shift_mult_l in H; [ idtac | apply Qlt_minus; assumption ].
 rewrite Q_mul_comm in H.
 do 2 rewrite Qmult_minus_distr_l in H.
@@ -30,7 +30,7 @@ apply Qlt_minus_plus_lt_r in H.
 rewrite <- Q_add_sub_swap in H.
 apply Qlt_minus_plus_lt_r in H.
 do 2 rewrite Q_add_assoc in H.
-do 2 rewrite Qmult_div_assoc.
+do 2 rewrite Q_mul_div_assoc.
 rewrite Qplus_div; [ idtac | apply Qlt_not_0; assumption ].
 rewrite Qplus_div; [ idtac | apply Qlt_not_0; assumption ].
 apply Qdiv_lt_compat_r; [ apply Qlt_minus; assumption | idtac ].

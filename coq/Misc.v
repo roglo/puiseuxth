@@ -162,6 +162,9 @@ rewrite <- Q_add_sub_assoc.
 apply Q_add_comm.
 Qed.
 
+Theorem Q_mul_div_assoc : ∀ x y z, x * (y / z) = (x * y) / z.
+Proof. intros; apply Q_mul_assoc. Qed.
+
 Theorem Q_mul_div_swap : ∀ x y z, x / y * z = x * z / y.
 Proof.
 intros.
@@ -294,8 +297,7 @@ rewrite Qplus_opp_r.
 assumption.
 Qed.
 
-Theorem Qmult_div_assoc : ∀ x y z, x * (y / z) == (x * y) / z.
-Proof. intros x y z; unfold Qdiv; now rewrite Q_mul_assoc. Qed.
+(* == *)
 
 Theorem Qmult_minus_distr_l : ∀ x y z, (x - y) * z == x * z - y * z.
 Proof.
