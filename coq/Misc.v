@@ -129,6 +129,17 @@ progress f_equal.
 ring.
 Qed.
 
+Theorem Q_sub_sub_distr : ∀ x y z, x - (y - z) = (x - y) + z.
+Proof.
+intros.
+progress unfold Qminus at 1.
+rewrite Q_opp_sub_distr.
+progress unfold Qminus.
+rewrite <- Q_add_assoc.
+f_equal.
+apply Q_add_comm.
+Qed.
+
 (* doesn't work, works with a small modification *)
 
 Definition Q1 x := QDen x # Qden x.
@@ -303,8 +314,6 @@ apply Qminus_eq in HH.
 rewrite HH in H; apply Qlt_irrefl in H; contradiction.
 Qed.
 
-(* == *)
-
 Theorem Qplus_div : ∀ x y z, ¬(z == 0) → x + y / z == (x * z + y) / z.
 Proof.
 intros x y z Hc.
@@ -312,8 +321,7 @@ rewrite Qdiv_plus_distr_r.
 rewrite Qdiv_mult_l; [ reflexivity | assumption ].
 Qed.
 
-Theorem Qminus_minus_assoc : ∀ x y z, x - (y - z) == (x - y) + z.
-Proof. intros x y z; ring. Qed.
+(* == *)
 
 Theorem Qplus_minus_assoc : ∀ x y z, x + (y - z) == (x + y) - z.
 Proof. intros x y z; ring. Qed.

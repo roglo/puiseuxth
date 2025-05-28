@@ -19,7 +19,7 @@ apply Qlt_shift_mult_l in H; [ idtac | apply Qlt_minus; assumption ].
 rewrite Q_mul_comm in H.
 do 2 rewrite Qmult_minus_distr_l in H.
 do 4 rewrite Qmult_minus_distr_r in H.
-do 2 rewrite Qminus_minus_assoc in H.
+do 2 rewrite Q_sub_sub_distr in H.
 rewrite <- Qplus_minus_swap in H.
 apply Qminus_lt_lt_plus_r in H.
 rewrite <- Qplus_minus_swap in H.

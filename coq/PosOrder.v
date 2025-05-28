@@ -1287,7 +1287,7 @@ apply ps_lap_in_add in Hm; [ assumption | idtac | idtac ]. {
       apply Qbar.le_lt_trans with (m := qfin (αh + Qnat h * γ L - β L)). {
         apply Qbar.le_qfin.
         apply Qplus_le_l with (z := β L).
-        rewrite <- Qminus_minus_assoc.
+        rewrite <- Q_sub_sub_distr.
         rewrite Qminus_diag.
         rewrite Q_add_0_l.
         progress unfold Qminus, Qopp; simpl.

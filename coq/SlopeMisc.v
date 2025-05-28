@@ -57,7 +57,7 @@ rewrite Qmult_div_swap.
 rewrite Qcmp_shift_mult_l; [ idtac | apply Qlt_minus, Qnat_lt; assumption ].
 repeat rewrite Qmult_minus_distr_l.
 repeat rewrite Qmult_minus_distr_r.
-repeat rewrite Qminus_minus_assoc.
+repeat rewrite Q_sub_sub_distr.
 repeat rewrite <- Qplus_minus_swap.
 repeat rewrite <- Qcmp_plus_minus_cmp_r.
 repeat rewrite <- Qplus_minus_swap.
