@@ -171,6 +171,17 @@ progress f_equal.
 apply Q_mul_comm.
 Qed.
 
+Theorem Q_opp_0 : - 0 = 0.
+Proof. easy. Qed.
+
+Theorem Q_sub_0_r : ∀ n, n - 0 = n.
+Proof.
+intros n.
+progress unfold Qminus.
+rewrite Q_opp_0.
+apply Q_add_0_r.
+Qed.
+
 (* doesn't work, works with a small modification *)
 
 Definition Q1 x := QDen x # Qden x.
@@ -409,8 +420,6 @@ rewrite Qplus_opp_r, Q_add_0_r in H.
 assumption.
 Qed.
 
-(* == *)
-
 Theorem Qeq_shift_mult_l : ∀ x y z, ¬z == 0 → x / z == y → x == y * z.
 Proof.
 intros x y z Hc H.
@@ -492,12 +501,14 @@ rewrite <- Q_add_assoc.
 rewrite Qplus_opp_r, Q_add_0_r.
 reflexivity.
 Qed.
+
 Theorem Qeq_plus_minus_eq_r : ∀ x y z, x == y + z → x - z == y.
 Proof.
 intros.
 apply Qeq_alt in H; apply Qeq_alt.
 rewrite <- H; symmetry; apply Qcmp_plus_minus_cmp_r.
 Qed.
+
 Theorem Qlt_plus_minus_lt_r : ∀ x y z, x < y + z → x - z < y.
 Proof.
 intros.
@@ -1330,12 +1341,7 @@ destruct (Qlt_le_dec n m) as [| Hge]; [ reflexivity | idtac ].
 apply Qle_antisym; assumption.
 Qed.
 
-Theorem Q_sub_0_r : ∀ n, (n - 0)%Q == n.
-Proof.
-intros n.
-unfold Qeq; simpl.
-rewrite Z.mul_1_r, Z.add_0_r, Pos.mul_1_r; reflexivity.
-Qed.
+(* == *)
 
 Theorem List_In_nth : ∀ α a la (d : α),
   a ∈ la
