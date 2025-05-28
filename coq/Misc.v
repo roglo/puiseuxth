@@ -117,6 +117,12 @@ cbn.
 now rewrite Z.mul_opp_r.
 Qed.
 
+Theorem Q_add_sub_assoc : ∀ x y z, x + (y - z) = (x + y) - z.
+Proof.
+intros.
+apply Q_add_assoc.
+Qed.
+
 Theorem Q_opp_sub_distr : ∀ x y, - (x - y) = y - x.
 Proof.
 intros.
@@ -138,12 +144,6 @@ progress unfold Qminus.
 rewrite <- Q_add_assoc.
 f_equal.
 apply Q_add_comm.
-Qed.
-
-Theorem Q_add_sub_assoc : ∀ x y z, x + (y - z) = (x + y) - z.
-Proof.
-intros.
-apply Q_add_assoc.
 Qed.
 
 Theorem Q_add_add_swap : ∀ x y z, x + y + z = x + z + y.
@@ -1340,8 +1340,6 @@ unfold Qmin.
 destruct (Qlt_le_dec n m) as [| Hge]; [ reflexivity | idtac ].
 apply Qle_antisym; assumption.
 Qed.
-
-(* == *)
 
 Theorem List_In_nth : ∀ α a la (d : α),
   a ∈ la
