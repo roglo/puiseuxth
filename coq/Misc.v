@@ -196,17 +196,39 @@ intros.
 progress unfold Qplus.
 progress unfold Qmult.
 cbn.
-rewrite Z.mul_add_distr_l.
-rewrite Z.mul_add_distr_r.
-do 2 rewrite Pos2Z.inj_mul.
-do 4 rewrite Z.mul_assoc.
-do 2 rewrite Pos.mul_assoc.
-do 2 rewrite (Z.mul_shuffle0 _ (QDen x)).
-rewrite <- Z.mul_add_distr_r.
-do 2 rewrite <- (Pos.mul_assoc (_ * _)).
-rewrite (Pos.mul_comm (Qden x) (Qden z)).
-rewrite Pos.mul_assoc.
-easy.
+progress f_equal. {
+  rewrite Z.mul_add_distr_l.
+  rewrite Z.mul_add_distr_r.
+  do 2 rewrite Pos2Z.inj_mul.
+  do 4 rewrite Z.mul_assoc.
+  do 2 rewrite (Z.mul_shuffle0 _ (QDen x)).
+  easy.
+} {
+  do 3 rewrite <- Pos.mul_assoc.
+  progress f_equal.
+  progress f_equal.
+  apply Pos.mul_comm.
+}
+Qed.
+
+Theorem Q_mul_add_distr_r : ∀ x y z, (x + y) * z * Q1 z = x * z + y * z.
+Proof.
+intros.
+rewrite (Q_mul_comm (_ + _)).
+rewrite Q_mul_add_distr_l.
+now do 2 rewrite (Q_mul_comm z).
+Qed.
+
+Theorem Q_mul_Q1_r : ∀ x y, x * Q1 y == x.
+Proof.
+intros.
+progress unfold Qeq.
+cbn.
+rewrite <- Z.mul_assoc.
+progress f_equal.
+rewrite Z.mul_comm.
+symmetry.
+apply Pos2Z.inj_mul.
 Qed.
 
 (* *)
@@ -302,16 +324,20 @@ Theorem Qmult_minus_distr_l : ∀ x y z, (x - y) * z == x * z - y * z.
 Proof.
 intros x y z.
 unfold Qminus.
-rewrite Qmult_plus_distr_l.
-rewrite Q_mul_opp_l; reflexivity.
+rewrite <- Q_mul_opp_l.
+rewrite <- Q_mul_add_distr_r.
+symmetry.
+apply Q_mul_Q1_r.
 Qed.
 
 Theorem Qmult_minus_distr_r : ∀ x y z, x * (y - z) == x * y - x * z.
 Proof.
 intros x y z.
 unfold Qminus.
-rewrite Qmult_plus_distr_r.
-rewrite Q_mul_opp_r; reflexivity.
+rewrite <- Q_mul_opp_r.
+rewrite <- Q_mul_add_distr_l.
+symmetry.
+apply Q_mul_Q1_r.
 Qed.
 
 Theorem QZ_plus : ∀ x y z, x + y # z == (x # z) + (y # z).
@@ -338,16 +364,12 @@ Theorem Qnat_succ : ∀ n x, x * Qnat (S n) == x * Qnat n + x.
 Proof.
 intros n x.
 unfold Qnat.
-setoid_replace x with (x * 1) at 3.
- rewrite <- Qmult_plus_distr_r.
- destruct (Qeq_dec x 0) as [Hz| ]; [ rewrite Hz; reflexivity | idtac ].
- apply Qmult_inj_l; auto.
- unfold Qeq; simpl.
- do 2 rewrite Z.mul_1_r.
- rewrite Pos.mul_1_r, Z.add_1_r.
- apply Zpos_P_of_succ_nat.
-
- rewrite Q_mul_comm, Q_mul_1_l; reflexivity.
+setoid_replace x with (x * 1) at 3 by now rewrite Q_mul_1_r.
+rewrite <- Q_mul_add_distr_l.
+rewrite Q_mul_Q1_r.
+rewrite Nat2Z.inj_succ.
+rewrite <- Z.add_1_r.
+now rewrite QZ_plus.
 Qed.
 
 Theorem Qlt_not_0 : ∀ x y, x < y → ¬ y - x == 0.
