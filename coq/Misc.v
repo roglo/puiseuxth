@@ -211,6 +211,41 @@ progress f_equal. {
 }
 Qed.
 
+Definition Pos_div (a b : positive) : positive :=
+  match (Z.pos a / Z.pos b)%Z with
+  | Z.pos p => p
+  | _ => 1%positive
+  end.
+
+Definition QQ (x y : Q) := (Qnum x / QDen y) # Pos_div (Qden x) (Qden y).
+
+Theorem Q_mul_add_distr_l' : ∀ x y z, x * (y + z) = QQ (x * y + x * z) x.
+Proof.
+intros.
+progress unfold QQ.
+progress unfold Qplus.
+progress unfold Qmult.
+cbn.
+progress f_equal. {
+  do 2 rewrite Pos2Z.inj_mul.
+  do 2 rewrite (Z.mul_comm (QDen x)).
+  do 2 rewrite Z.mul_assoc.
+  rewrite <- Z.mul_add_distr_r.
+  rewrite Z.div_mul; [ | easy ].
+  do 2 rewrite <- Z.mul_assoc.
+  apply Z.mul_add_distr_l.
+} {
+  progress unfold Pos_div.
+  do 3 rewrite Pos2Z.inj_mul.
+  rewrite <- Z.mul_assoc.
+  rewrite (Z.mul_comm (QDen x)).
+  rewrite Z.div_mul; [ | easy ].
+  rewrite Z.mul_comm.
+  rewrite <- Z.mul_assoc.
+  now rewrite (Z.mul_comm (QDen z)).
+}
+Qed.
+
 Theorem Q_mul_add_distr_r : ∀ x y z, (x + y) * z * Q1 z = x * z + y * z.
 Proof.
 intros.
