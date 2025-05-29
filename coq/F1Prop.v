@@ -347,42 +347,34 @@ Theorem order_pow : ∀ a n,
   → (order (a ^ n) = qfin (Qnat n) * order a)%Qbar.
 Proof.
 intros a n Ha.
-induction n; simpl.
- remember (order a) as v eqn:Hv .
- symmetry in Hv.
- destruct v as [v| ].
-  unfold Qnat; simpl.
-  rewrite Qmult_0_l.
-  unfold ps_one.
-  rewrite ps_monom_order; [ reflexivity | idtac ].
-  intros H; apply Ha.
-  rewrite <- ps_mul_1_l.
-  unfold ps_one.
-  rewrite H, ps_zero_monom_eq.
-  rewrite ps_mul_0_l.
-  reflexivity.
-
+induction n; simpl. {
+  remember (order a) as v eqn:Hv .
+  symmetry in Hv.
+  destruct v as [v| ]. {
+    unfold Qnat; simpl.
+    rewrite Qmult_0_l.
+    unfold ps_one.
+    rewrite ps_monom_order; [ reflexivity | idtac ].
+    intros H; apply Ha.
+    rewrite <- ps_mul_1_l.
+    unfold ps_one.
+    rewrite H, ps_zero_monom_eq.
+    rewrite ps_mul_0_l.
+    reflexivity.
+  }
   exfalso; apply Ha.
   apply order_inf; assumption.
-
- rewrite order_mul.
- rewrite IHn.
- remember (order a) as v eqn:Hv .
- symmetry in Hv.
- destruct v as [v| ]; [ simpl | reflexivity ].
- rewrite <- Nat.add_1_l.
- unfold Qnat.
- rewrite Nat2Z.inj_add, QZ_plus.
-(*
- rewrite Q_mul_add_distr_r'.
-Theorem QQ_add_distr : ∀ a b c, QQ (a * c + b * c) c == (a + b) * c.
-Proof.
-... ...
- rewrite QQ_add_distr.
-...
-*)
- rewrite Qmult_plus_distr_l; simpl.
- rewrite Q_mul_1_l; reflexivity.
+}
+rewrite order_mul.
+rewrite IHn.
+remember (order a) as v eqn:Hv .
+symmetry in Hv.
+destruct v as [v| ]; [ simpl | reflexivity ].
+rewrite <- Nat.add_1_l.
+unfold Qnat.
+rewrite Nat2Z.inj_add, QZ_plus.
+rewrite Qmult_plus_distr_l; simpl.
+rewrite Q_mul_1_l; reflexivity.
 Qed.
 
 Theorem ps_lap_nth_0_apply_0 : ∀ la,
