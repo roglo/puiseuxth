@@ -254,6 +254,14 @@ rewrite Q_mul_add_distr_l.
 now do 2 rewrite (Q_mul_comm z).
 Qed.
 
+Theorem Q_mul_add_distr_r' : ∀ x y z, (x + y) * z = QQ (x * z + y * z) z.
+Proof.
+intros.
+rewrite (Q_mul_comm (_ + _)).
+rewrite Q_mul_add_distr_l'.
+now do 2 rewrite (Q_mul_comm z).
+Qed.
+
 Theorem Q_mul_Q1_r : ∀ x y, x * Q1 y == x.
 Proof.
 intros.

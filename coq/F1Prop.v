@@ -1,5 +1,6 @@
 (* F1Prop.v *)
 
+Set Nested Proofs Allowed.
 From Stdlib Require Import Utf8 QArith Arith ZArith Sorted.
 
 Require Import Misc.
@@ -372,6 +373,14 @@ induction n; simpl.
  rewrite <- Nat.add_1_l.
  unfold Qnat.
  rewrite Nat2Z.inj_add, QZ_plus.
+(*
+ rewrite Q_mul_add_distr_r'.
+Theorem QQ_add_distr : ∀ a b c, QQ (a * c + b * c) c == (a + b) * c.
+Proof.
+... ...
+ rewrite QQ_add_distr.
+...
+*)
  rewrite Qmult_plus_distr_l; simpl.
  rewrite Q_mul_1_l; reflexivity.
 Qed.
