@@ -13,8 +13,8 @@ Require Import Newton.
 Theorem points_in_any_newton_segment₁ : ∀ ns pts,
   Sorted fst_lt pts
   → lower_convex_hull_points pts = Some ns
-    → ∀ h αh, (h, αh) ∈ [ini_pt ns; fin_pt ns … oth_pts ns]
-      → β ns == αh + Qnat h * γ ns.
+  → ∀ h αh, (h, αh) ∈ [ini_pt ns; fin_pt ns … oth_pts ns]
+  → β ns == αh + Qnat h * γ ns.
 Proof.
 intros ns pts Hsort Hns h αh Hαh.
 unfold lower_convex_hull_points in Hns.

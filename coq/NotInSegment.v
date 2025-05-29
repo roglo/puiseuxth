@@ -94,6 +94,8 @@ eapply sorted_qeq_eq with (k := j) (αk := αj) in Hαh; try eassumption. {
 }
 Qed.
 
+(* == *)
+
 Theorem slope_expr_eq : ∀ pt₁ pt₂ pt₃ pts,
   Sorted fst_lt [pt₁; pt₂ … pts]
   → pt₃ ∈ pts
