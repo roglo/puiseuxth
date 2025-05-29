@@ -177,9 +177,12 @@ destruct c. {
   remember Heqms₁ as H; clear HeqH.
   eapply minimised_slope in Heqms₁; [ idtac | eassumption ].
   erewrite slope_slope_expr in Heqms₁; [ idtac | eassumption ].
-  rewrite <- Heqc in Heqms₁ |- *.
-  eapply slope_expr_eq in Heqms₁; try eassumption. {
-    rewrite Heqms₁; apply Qle_refl.
+  assert (HH : slope_expr pt₁ (fin_pt ms₁) == slope_expr pt₁ pt₃). {
+    rewrite Heqms₁; apply Qeq_refl.
+  }
+  erewrite <- Heqc in HH |- *.
+  eapply slope_expr_eq in HH; try eassumption. {
+    rewrite HH; apply Qle_refl.
   }
   rewrite Hend.
   eapply end_pt_in; eassumption.

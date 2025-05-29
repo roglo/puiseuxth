@@ -97,7 +97,7 @@ destruct Hαh as [Hαh| Hαh]. {
   remember (slope_expr (j, αj) pt ?= slope ms₁) as c.
   destruct c; subst ms. {
     progress unfold slope; simpl.
-    rewrite <- minimised_slope; [ idtac | eassumption | reflexivity ].
+    erewrite <- minimised_slope; [ idtac | eassumption | reflexivity ].
     eapply minimised_slope_le; eassumption.
   } {
     simpl.
@@ -117,7 +117,7 @@ remember (slope_expr (j, αj) pt ?= slope ms₁) as c.
 symmetry in Heqc.
 destruct c; subst ms. {
   progress unfold slope; simpl.
-  rewrite <- minimised_slope; [ idtac | eassumption | reflexivity ].
+  erewrite <- minimised_slope; [ idtac | eassumption | reflexivity ].
   eapply IHpts; eassumption.
 } {
   simpl.
@@ -186,7 +186,7 @@ remember (slope_expr (j, αj) pt ?= slope ms₁) as c.
 destruct c; subst ms. {
   simpl in Hep |- *.
   progress unfold slope; simpl.
-  rewrite <- minimised_slope; [ idtac | eassumption | reflexivity ].
+  erewrite <- minimised_slope; [ idtac | eassumption | reflexivity ].
   eapply IHpts; try eassumption.
   destruct pts as [| pts₁]; [ constructor | idtac ].
   apply Sorted_inv_2 in Hsort; destruct Hsort; assumption.

@@ -242,10 +242,12 @@ rewrite <- Hns; simpl.
 now specialize (beg_lt_end_pt pt₁ pt₂ pts ms Hsort Hms) as H.
 Qed.
 
+(* == *)
+
 Theorem minimised_slope : ∀ pt₁ pt₂ pt pts ms,
   minimise_slope pt₁ pt pts = ms
   → pt₂ = fin_pt ms
-    → slope ms == slope_expr pt₁ pt₂.
+    → slope ms = slope_expr pt₁ pt₂.
 Proof.
 intros pt₁ pt₂ pt pts ms Hms Hkps.
 unfold slope; subst.
