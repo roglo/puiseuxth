@@ -54,21 +54,27 @@ Module Z.
 
 Definition of_nat := mk_z true.
 
+Definition abs_nat a :=
+  match z_sign a with
+  | true => z_val a
+  | false => z_val a + 1
+  end.
+
 Definition add a b :=
   match z_sign a with
   | true =>
       match z_sign b with
-     | true => mk_z true (z_val a + z_val b)
-     | false =>
-         if z_val a <? z_val b then mk_z false (z_val b - z_val a - 1)
-         else mk_z true (z_val a - z_val b)
-      end
+      | true => mk_z true (z_val a + z_val b)
+      | false =>
+          if z_val b <? z_val a then mk_z true (z_val a - z_val b - 1)
+          else mk_z false (z_val b - z_val a)
+       end
   | false =>
       match z_sign b with
-     | true =>
-         if z_val a <? z_val b then mk_z true (z_val b - z_val a - 1)
-         else mk_z false (z_val a - z_val b)
-     | false => mk_z false (z_val a + z_val b + 1)
+      | true =>
+          if z_val a <? z_val b then mk_z true (z_val b - z_val a - 1)
+          else mk_z false (z_val a - z_val b)
+      | false => mk_z false (z_val a + z_val b + 1)
       end
   end.
 
@@ -76,12 +82,6 @@ Definition opp a :=
   match z_sign a with
   | true => if z_val a =? 0 then a else mk_z false (z_val a - 1)
   | false => mk_z true (z_val a + 1)
-  end.
-
-Definition abs_nat a :=
-  match z_sign a with
-  | true => z_val a
-  | false => z_val a + 1
   end.
 
 Definition mul a b :=
@@ -99,6 +99,7 @@ Definition compare a b :=
   else
     if z_sign b then Lt else z_val b ?= z_val a.
 
+(*
 Theorem add_comm : ∀ a b, add a b = add b a.
 Proof.
 intros.
