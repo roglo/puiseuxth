@@ -27,6 +27,9 @@ Definition inv a :=
 
 Definition div a b := mul a (inv b).
 
+Definition compare a b :=
+  q_num a * Z.of_nat (q_den b) ?= q_num b * Z.of_nat (q_den a).
+
 End Q.
 
 Notation "a == b" := (Q.eq a b) (at level 70) : Q_scope.
@@ -34,6 +37,7 @@ Notation "a + b" := (Q.add a b) : Q_scope.
 Notation "a - b" := (Q.sub a b) : Q_scope.
 Notation "a / b" := (Q.div a b) : Q_scope.
 Notation "- a" := (Q.opp a) : Q_scope.
+Notation "a ?= b" := (Q.compare a b) : Q_scope.
 Notation "a # b" := (mk_q a b) (at level 55) : Q_scope.
 
 Close Scope Z_scope.

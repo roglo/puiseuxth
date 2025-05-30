@@ -18,7 +18,7 @@ Fixpoint minimise_slope pt₁ pt₂ pts₂ :=
       {| ini_pt := pt₁; fin_pt := pt₂; oth_pts := [] |}
   | pt₃ :: pts₃ =>
       let ms := minimise_slope pt₁ pt₃ pts₃ in
-      match Qcompare (slope_expr pt₁ pt₂) (slope ms) with
+      match Q.compare (slope_expr pt₁ pt₂) (slope ms) with
       | Eq =>
           {| ini_pt := pt₁; fin_pt := fin_pt ms;
              oth_pts := pt₂ :: oth_pts ms |}

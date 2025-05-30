@@ -1,11 +1,11 @@
 (* Misc.v *)
 
 Set Nested Proofs Allowed.
-From Stdlib Require Import Utf8 Arith ZArith.
+From Stdlib Require Import Utf8 Arith.
 From Stdlib Require Import Sorted.
 From Stdlib Require Import Psatz.
 
-Require Import MyQArith.
+Require Import MyZArith MyQArith.
 
 Notation "[ ]" := nil.
 Notation "[ x ; .. ; y … l ]" := (cons x .. (cons y l) ..).
@@ -29,7 +29,9 @@ Set Implicit Arguments.
 Theorem Q_add_comm : ∀ a b, a + b = b + a.
 Proof.
 intros.
-progress unfold Qplus.
+progress unfold Q.add.
+(* this theorem is to be moved to MyQArith anyway *)
+...
 rewrite Z.add_comm.
 rewrite (Pos.mul_comm (Qden a)).
 easy.
