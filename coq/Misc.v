@@ -2,9 +2,10 @@
 
 Set Nested Proofs Allowed.
 From Stdlib Require Import Utf8 Arith ZArith.
-From Stdlib Require Import MyQArith.
 From Stdlib Require Import Sorted.
 From Stdlib Require Import Psatz.
+
+Require Import MyQArith.
 
 Notation "[ ]" := nil.
 Notation "[ x ; .. ; y … l ]" := (cons x .. (cons y l) ..).

@@ -33,4 +33,22 @@ Notation "a + b" := (Z_add a b) : Z_scope.
 Notation "- a" := (Z_opp a) : Z_scope.
 Notation "a * b" := (Z_mul a b) : Z_scope.
 
+Definition Z_of_number (n : Number.int) : option Z :=
+  match n with
+  | Number.IntDecimal n =>
+      match n with
+      | Decimal.Pos n => Some (mk_z true (Nat.of_uint n))
+      | Decimal.Neg n => Some (mk_z false (Nat.of_uint n))
+      end
+  | Number.IntHexadecimal n => None
+  end.
+
+Definition Z_to_number (n : Z) : option Number.int :=
+  if z_sign n then
+    Some (Number.IntDecimal (Decimal.Pos (Nat.to_uint (z_val n))))
+  else
+    Some (Number.IntDecimal (Decimal.Neg (Nat.to_uint (z_val n)))).
+
+Number Notation Z Z_of_number Z_to_number : Z_scope.
+
 Open Scope Z_scope.
