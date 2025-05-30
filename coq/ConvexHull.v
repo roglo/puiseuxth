@@ -1,9 +1,9 @@
 (* ConvexHull.v *)
 
-From Stdlib Require Import Utf8 MyQArith List.
+From Stdlib Require Import Utf8 List.
 Import ListNotations.
 
-Require Import Slope_base.
+Require Import MyQArith Slope_base.
 
 Record newton_segment := mkns
   { ini_pt : (nat * Q);

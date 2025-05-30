@@ -6,9 +6,11 @@ Declare Scope Z_scope.
 Delimit Scope Z_scope with Z.
 Bind Scope Z_scope with Z.
 
-Definition Z_of_nat := mk_z true.
+Module Z.
 
-Definition Z_add a b :=
+Definition of_nat := mk_z true.
+
+Definition add a b :=
   match z_sign a with
   | true =>
       match z_sign b with
@@ -26,14 +28,10 @@ Definition Z_add a b :=
       end
   end.
 
-Definition Z_opp a := mk_z (negb (z_sign a)) (z_val a).
-Definition Z_mul a b := mk_z (xorb (z_sign a) (z_sign b)) (z_val a * z_val b).
+Definition opp a := mk_z (negb (z_sign a)) (z_val a).
+Definition mul a b := mk_z (xorb (z_sign a) (z_sign b)) (z_val a * z_val b).
 
-Notation "a + b" := (Z_add a b) : Z_scope.
-Notation "- a" := (Z_opp a) : Z_scope.
-Notation "a * b" := (Z_mul a b) : Z_scope.
-
-Definition Z_of_number (n : Number.int) : option Z :=
+Definition of_number (n : Number.int) : option Z :=
   match n with
   | Number.IntDecimal n =>
       match n with
@@ -43,12 +41,18 @@ Definition Z_of_number (n : Number.int) : option Z :=
   | Number.IntHexadecimal n => None
   end.
 
-Definition Z_to_number (n : Z) : option Number.int :=
+Definition to_number (n : Z) : option Number.int :=
   if z_sign n then
     Some (Number.IntDecimal (Decimal.Pos (Nat.to_uint (z_val n))))
   else
     Some (Number.IntDecimal (Decimal.Neg (Nat.to_uint (z_val n)))).
 
-Number Notation Z Z_of_number Z_to_number : Z_scope.
+Number Notation Z of_number to_number : Z_scope.
+
+End Z.
+
+Notation "a + b" := (Z.add a b) : Z_scope.
+Notation "- a" := (Z.opp a) : Z_scope.
+Notation "a * b" := (Z.mul a b) : Z_scope.
 
 Open Scope Z_scope.
