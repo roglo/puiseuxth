@@ -1,7 +1,7 @@
 (* SlopeMisc.v *)
 
 From Stdlib Require Import Utf8.
-From Stdlib Require Import ZArith QArith.
+From Stdlib Require Import ZArith MyQArith.
 
 Require Import Slope_base.
 Require Import Misc.

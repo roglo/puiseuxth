@@ -1,6 +1,6 @@
 (* NotInSegMisc.v *)
 
-From Stdlib Require Import Utf8 Arith QArith Sorting.
+From Stdlib Require Import Utf8 Arith MyQArith Sorting.
 
 Require Import Misc.
 Require Import Slope_base.

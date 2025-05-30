@@ -1,7 +1,7 @@
 (* Ps_add_compat.v *)
 
 From Stdlib Require Import Utf8 Arith ZArith.
-From Stdlib Require Import QArith.
+From Stdlib Require Import MyQArith.
 
 Require Import NbarM.
 Require Import Misc.

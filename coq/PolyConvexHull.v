@@ -1,6 +1,6 @@
 (* PolyConvexHull.v *)
 
-From Stdlib Require Import Utf8 Arith QArith.
+From Stdlib Require Import Utf8 Arith MyQArith.
 
 Require Import Misc.
 Require Import Field2.

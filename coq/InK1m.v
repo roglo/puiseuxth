@@ -1,6 +1,6 @@
 (* InK1m.v *)
 
-From Stdlib Require Import Utf8 QArith ZArith.
+From Stdlib Require Import Utf8 MyQArith ZArith.
 
 Require Import Misc.
 Require Import Field2.

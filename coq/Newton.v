@@ -1,7 +1,7 @@
 (* Newton.v *)
 
 From Stdlib Require Import Utf8.
-From Stdlib Require Import QArith.
+From Stdlib Require Import MyQArith.
 
 Require Import Misc ConvexHull.
 

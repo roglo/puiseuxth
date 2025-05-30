@@ -2,7 +2,7 @@
 
 (* Most of notations are Robert Walker's ones *)
 
-From Stdlib Require Import Utf8 QArith Sorting Arith ZArith.
+From Stdlib Require Import Utf8 MyQArith Sorting Arith ZArith.
 
 Require Import ConvexHull.
 Require Import ConvexHullMisc.

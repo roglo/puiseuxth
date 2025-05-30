@@ -3,7 +3,7 @@
 (* polynomials of Puiseux series *)
 
 From Stdlib Require Import Utf8.
-From Stdlib Require Import QArith.
+From Stdlib Require Import MyQArith.
 
 Require Import Misc.
 Require Import Field2.

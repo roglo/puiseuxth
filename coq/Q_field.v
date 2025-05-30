@@ -1,8 +1,8 @@
 (* Q_field.v *)
 
 From Stdlib Require Import Utf8.
-From Stdlib Require Import QArith.
 
+Require Import MyQArith.
 Require Import Field2.
 
 Theorem Qplus_opp_l : ∀ a, -a + a == 0.
