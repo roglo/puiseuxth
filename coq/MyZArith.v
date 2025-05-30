@@ -48,6 +48,15 @@ destruct (le_dec i j) as [H1| H1]. {
 now apply Nat.leb_nle in H1; rewrite H1.
 Qed.
 
+(* to be removed if RingLike included *)
+Theorem Nat_sub_sub_swap : ∀ a b c, a - b - c = a - c - b.
+Proof.
+intros.
+rewrite <- Nat.sub_add_distr.
+rewrite Nat.add_comm.
+now rewrite Nat.sub_add_distr.
+Qed.
+
 (* end misc theorems *)
 
 Module Z.
@@ -119,6 +128,7 @@ rewrite Bool_eqb_comm.
 rewrite Nat.mul_comm.
 easy.
 Qed.
+*)
 
 Theorem mul_add_distr_l : ∀ a b c, mul a (add b c) = add (mul a b) (mul a c).
 Proof.
@@ -128,23 +138,74 @@ destruct b as (sb, vb).
 destruct c as (sc, vc).
 progress unfold add.
 progress unfold mul.
-do 2 rewrite if_ltb_lt_dec.
-do 2 rewrite if_leb_le_dec.
+do 4 rewrite if_ltb_lt_dec.
 cbn.
-destruct sa; cbn. {
-  destruct sb; cbn. {
-    destruct sc; cbn. {
-      now rewrite Nat.mul_add_distr_l.
+destruct sa; cbn - [ Nat.eq_dec Bool.bool_dec ]. {
+  destruct sb; cbn - [ Nat.eq_dec Bool.bool_dec ]. {
+    destruct sc; cbn - [ Nat.eq_dec Bool.bool_dec ]. {
+      cbn.
+      rewrite Nat.mul_add_distr_l.
+      destruct (Nat.eq_dec (va * vb + va * vc) 0) as [Hvvz| Hvvz]. {
+        apply Nat.eq_add_0 in Hvvz.
+        destruct Hvvz as (H1, H2).
+        now rewrite H1, H2.
+      }
+      destruct (Nat.eq_dec (va * vb) 0) as [Habz| Habz]. {
+        rewrite Habz; cbn.
+        destruct (Nat.eq_dec (va * vc) 0) as [Hacz| Hacz]; [ | easy ].
+        now rewrite Hacz.
+      }
+      destruct (Nat.eq_dec (va * vc) 0) as [Hacz| Hacz]; [ | easy ].
+      now rewrite Hacz.
     }
-    do 2 rewrite <- Nat.mul_sub_distr_l.
-    destruct (lt_dec vb vc) as [Hbc| Hbc]. {
-      destruct (lt_dec (va * vb) (va * vc)) as [Hv| Hv]; [ easy | cbn ].
-...
-      exfalso.
-    apply Hv; clear Hv.
-    apply Nat.mul_lt_mono_pos_l; [ | easy ].
+    destruct (lt_dec vc vb) as [Hcb| Hcb]. {
+      cbn.
+      destruct (Nat.eq_dec (va * (vb - vc - 1)) 0) as [Hvvz| Hvvz]. {
+        apply Nat.eq_mul_0 in Hvvz.
+        destruct Hvvz as [Hvvz| Hvvz]; [ now subst va | cbn ].
+        apply Nat.sub_0_le in Hvvz.
+        apply Nat.le_sub_le_add_r in Hvvz.
+        apply Nat.le_antisymm in Hvvz; [ | easy ].
+        rewrite Nat.add_comm in Hvvz.
+        rewrite Hvvz.
+        destruct (Nat.eq_dec (va * vb) 0) as [Habz| Habz]; [ easy | cbn ].
+        rewrite Nat_sub_sub_swap, Nat.sub_diag.
+        rewrite Nat_sub_sub_swap, Nat.sub_diag.
+        destruct (lt_dec (va * vb - 1) (va * vb)) as [Hab| Hab]; [ easy | ].
+        exfalso; apply Hab; clear Hab.
+        apply Nat.sub_lt; [ | apply Nat.lt_0_1 ].
+        now apply Nat.neq_0_lt_0.
+      }
+      cbn.
+      destruct (Nat.eq_dec (va * vb) 0) as [Habz| Habz]. {
+        apply Nat.eq_mul_0 in Habz.
+        destruct Habz; [ now subst va | now subst vb ].
+      }
+      cbn.
+      destruct (Nat.eq_dec (va * (vc + 1)) 0) as [Hac| Hac]. {
+        cbn.
+        apply Nat.eq_mul_0 in Hac.
+        rewrite Nat.add_comm in Hac.
+        destruct Hac; [ now subst va | easy ].
+      }
+      cbn.
+      destruct (lt_dec (va * (vc + 1) - 1) (va * vb)) as [Hv| Hv]. {
+        progress f_equal.
+        rewrite Nat.mul_sub_distr_l.
+        rewrite Nat.sub_sub_distr; cycle 1. {
+          now apply Nat.neq_0_lt_0.
+        } {
+          apply Nat.lt_sub_lt_add_l in Hv.
+          now apply Nat.succ_le_mono in Hv.
+        }
+        rewrite Nat.add_sub.
+        rewrite Nat.mul_sub_distr_l.
+        rewrite Nat.mul_add_distr_l.
+        now rewrite Nat.sub_add_distr.
+      }
 ...
 
+... ...
 Theorem mul_add_distr_r : ∀ a b c, mul (add a b) c = add (mul a c) (mul b c).
 ...
 *)
