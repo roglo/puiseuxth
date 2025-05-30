@@ -99,32 +99,15 @@ Definition compare a b :=
   else
     if z_sign b then Lt else z_val b ?= z_val a.
 
-(*
 Theorem add_comm : ∀ a b, add a b = add b a.
 Proof.
 intros.
-destruct a as (sa, va).
-destruct b as (sb, vb).
 progress unfold add.
-cbn - [ Nat.ltb ].
-rewrite (Nat.add_comm vb).
-do 4 rewrite if_ltb_lt_dec.
-destruct sa. {
-  destruct sb; [ easy | ].
-  destruct (lt_dec va vb) as [Hab| Hab]. {
-    destruct (lt_dec vb va) as [Hba| Hba]. {
-      now apply Nat.lt_asymm in Hba.
-    }
-    apply Nat.nlt_ge in Hba.
-(* donc ma définition de l'addition est fausse *)
-...
-  now destruct (va <? vb).
-} {
-  destruct sb; [ | easy ].
-  now destruct (vb <? va).
-}
+rewrite (Nat.add_comm (z_val b)).
+destruct (z_sign a); [ now destruct (z_sign b) | easy ].
 Qed.
 
+(*
 Theorem mul_comm : ∀ a b, mul a b = mul b a.
 Proof.
 intros.
