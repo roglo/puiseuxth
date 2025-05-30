@@ -26,28 +26,6 @@ Set Implicit Arguments.
 
 (* Some theorems working with syntactic equality *)
 
-Theorem Q_add_comm : ∀ a b, a + b = b + a.
-Proof.
-intros.
-progress unfold Q.add.
-(* this theorem is to be moved to MyQArith anyway *)
-...
-rewrite Z.add_comm.
-rewrite (Pos.mul_comm (Qden a)).
-easy.
-Qed.
-
-Theorem Q_add_assoc : ∀ a b c, a + (b + c) = (a + b) + c.
-Proof.
-intros.
-progress unfold Qplus.
-cbn.
-rewrite Pos.mul_assoc.
-progress f_equal.
-do 2 rewrite Pos2Z.inj_mul.
-ring.
-Qed.
-
 Theorem Q_add_0_l : ∀ a, 0 + a = a.
 Proof.
 intros.

@@ -1,3 +1,4 @@
+From Stdlib Require Import Utf8 Arith.
 Require Import MyZArith.
 
 Record Q := mk_q
@@ -29,6 +30,33 @@ Definition div a b := mul a (inv b).
 
 Definition compare a b :=
   q_num a * Z.of_nat (q_den b) ?= q_num b * Z.of_nat (q_den a).
+
+Theorem add_comm : ∀ a b, add a b = add b a.
+Proof.
+intros.
+progress unfold add.
+rewrite Z.add_comm.
+rewrite (Nat.mul_comm (q_den b)).
+easy.
+Qed.
+
+Theorem add_assoc : ∀ a b c, add a (add b c) = add (add a b) c.
+Proof.
+intros.
+progress unfold add.
+cbn.
+f_equal; [ | now rewrite Nat.mul_assoc ].
+do 2 rewrite Nat2Z.inj_mul.
+...
+rewrite Z.mul_add_distr_r.
+...
+progress unfold Qplus.
+cbn.
+rewrite Pos.mul_assoc.
+progress f_equal.
+do 2 rewrite Pos2Z.inj_mul.
+ring.
+Qed.
 
 End Q.
 
