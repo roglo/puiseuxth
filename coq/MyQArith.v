@@ -55,8 +55,10 @@ progress unfold add.
 cbn.
 f_equal; [ | now rewrite Nat.mul_assoc ].
 do 2 rewrite Nat2Z.inj_mul.
-... ...
-rewrite Z.mul_add_distr_r.
+do 2 rewrite Z.mul_add_distr_r.
+...
+rewrite Z.add_assoc.
+Check q_num.
 ...
 progress unfold Qplus.
 cbn.
