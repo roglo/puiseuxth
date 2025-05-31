@@ -203,6 +203,9 @@ destruct sa; cbn - [ Nat.eq_dec Bool.bool_dec ]. {
         rewrite Nat.mul_add_distr_l.
         now rewrite Nat.sub_add_distr.
       }
+      exfalso.
+      apply Hv; clear Hv.
+Search (_ - _ < _).
 ...
 
 ... ...
