@@ -24,7 +24,15 @@ Definition sub a b := add a (opp b).
 Definition mul a b := mk_q (q_num a * q_num b) (q_den a * q_den b).
 
 Definition inv a :=
+  match q_num a with
+  | z_zero => mk_q 0 0
+  | z_val s v => mk_q (z_val s (q_den a)) v
+  end.
+
+(*
+Definition inv a :=
   mk_q (mk_z (z_sign (q_num a)) (q_den a)) (z_val (q_num a)).
+*)
 
 Definition div a b := mul a (inv b).
 
@@ -35,6 +43,7 @@ Theorem add_comm : ∀ a b, add a b = add b a.
 Proof.
 intros.
 progress unfold add.
+...
 rewrite Z.add_comm.
 rewrite (Nat.mul_comm (q_den b)).
 easy.

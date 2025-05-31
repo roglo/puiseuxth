@@ -1,6 +1,386 @@
 Set Nested Proofs Allowed.
 From Stdlib Require Import Utf8 Arith Psatz.
 
+Inductive Z :=
+  | z_zero : Z
+  | z_val : bool → nat → Z.
+
+Declare Scope Z_scope.
+Delimit Scope Z_scope with Z.
+Bind Scope Z_scope with Z.
+
+(* misc theorems *)
+
+Theorem Bool_eqb_comm : ∀ a b, Bool.eqb a b = Bool.eqb b a.
+Proof.
+intros.
+progress unfold Bool.eqb.
+now destruct a, b.
+Qed.
+
+(* to be removed if RingLike included *)
+(* "fast" lia, to improve compilation speed *)
+Tactic Notation "flia" hyp_list(Hs) := clear - Hs; lia.
+
+Theorem if_eqb_bool_dec : ∀ A i j (a b : A),
+  (if Bool.eqb i j then a else b) = (if Bool.bool_dec i j then a else b).
+Proof. now intros; destruct i, j. Qed.
+
+(* to be removed if RingLike included *)
+Theorem if_ltb_lt_dec : ∀ A i j (a b : A),
+  (if i <? j then a else b) = (if lt_dec i j then a else b).
+Proof.
+intros.
+destruct (lt_dec i j) as [H1| H1]. {
+  now apply Nat.ltb_lt in H1; rewrite H1.
+}
+now apply Nat.ltb_nlt in H1; rewrite H1.
+Qed.
+
+(* to be removed if RingLike included *)
+Theorem if_leb_le_dec : ∀ A i j (a b : A),
+  (if i <=? j then a else b) = (if le_dec i j then a else b).
+Proof.
+intros.
+destruct (le_dec i j) as [H1| H1]. {
+  now apply Nat.leb_le in H1; rewrite H1.
+}
+now apply Nat.leb_nle in H1; rewrite H1.
+Qed.
+
+(* to be removed if RingLike included *)
+Theorem Nat_sub_sub_swap : ∀ a b c, a - b - c = a - c - b.
+Proof.
+intros.
+rewrite <- Nat.sub_add_distr.
+rewrite Nat.add_comm.
+now rewrite Nat.sub_add_distr.
+Qed.
+
+(* end misc theorems *)
+
+Module Z.
+
+Definition of_nat n :=
+  match n with
+  | 0 => z_zero
+  | S n' => z_val true n'
+  end.
+
+Definition abs_nat a :=
+  match a with
+  | z_zero => 0
+  | z_val _ n => S n
+  end.
+
+Definition add a b :=
+  match a with
+  | z_zero => b
+  | z_val sa va =>
+      match b with
+      | z_zero => a
+      | z_val sb vb =>
+          if Bool.eqb sa sb then z_val sa (va + vb + 1)
+          else if va <? vb then z_val sb (vb - va - 1)
+          else if vb <? va then z_val sa (va - vb - 1)
+          else z_zero
+      end
+  end.
+
+Definition opp a :=
+  match a with
+  | z_zero => z_zero
+  | z_val s v => z_val (negb s) v
+  end.
+
+Definition mul a b :=
+  match a with
+  | z_zero => z_zero
+  | z_val sa va =>
+      match b with
+      | z_zero => z_zero
+      | z_val sb vb => z_val (Bool.eqb sa sb) ((va + 1) * (vb + 1) - 1)
+      end
+  end.
+
+Definition compare a b :=
+  match a with
+  | z_zero =>
+      match b with
+      | z_zero => Eq
+      | z_val sb _ => if sb then Lt else Gt
+      end
+  | z_val sa va =>
+      match b with
+      | z_zero => if sa then Gt else Lt
+      | z_val sb vb =>
+          match sa with
+          | true =>
+              match sb with
+              | true => va ?= vb
+              | false => Gt
+              end
+          | false =>
+              match sb with
+              | true => Lt
+              | false => vb ?= va
+              end
+          end
+      end
+  end.
+
+Theorem add_comm : ∀ a b, add a b = add b a.
+Proof.
+intros.
+progress unfold add.
+destruct a as [| sa va]; [ now destruct b | ].
+destruct b as [| sb vb]; [ easy | ].
+move sb before sa.
+rewrite (Nat.add_comm vb).
+do 4 rewrite if_ltb_lt_dec.
+rewrite (Bool_eqb_comm sb).
+do 2 rewrite if_eqb_bool_dec.
+destruct (Bool.bool_dec sa sb) as [Hab| Hab]; [ now subst sb | ].
+destruct (lt_dec va vb) as [Hvab| Hvab]. {
+  destruct (lt_dec vb va) as [Hvba| Hvba]. {
+...
+destruct (z_sign a); [ now destruct (z_sign b) | easy ].
+Qed.
+
+...
+
+(*
+Theorem mul_comm : ∀ a b, mul a b = mul b a.
+Proof.
+intros.
+destruct a as (sa, va).
+destruct b as (sb, vb).
+progress unfold mul.
+cbn.
+rewrite Bool_eqb_comm.
+rewrite Nat.mul_comm.
+easy.
+Qed.
+
+Theorem mul_add_distr_l : ∀ a b c, mul a (add b c) = add (mul a b) (mul a c).
+Proof.
+intros.
+destruct a as (sa, va).
+destruct b as (sb, vb).
+destruct c as (sc, vc).
+move sb before sa; move sc before sb.
+progress unfold add.
+progress unfold mul.
+do 4 rewrite if_ltb_lt_dec.
+cbn.
+destruct sa; cbn - [ Nat.eq_dec Bool.bool_dec ]. {
+  destruct sb; cbn - [ Nat.eq_dec Bool.bool_dec ]. {
+    destruct sc; cbn - [ Nat.eq_dec Bool.bool_dec ]. {
+      cbn.
+      rewrite Nat.mul_add_distr_l.
+      destruct (Nat.eq_dec (va * vb + va * vc) 0) as [Hvvz| Hvvz]. {
+        apply Nat.eq_add_0 in Hvvz.
+        destruct Hvvz as (H1, H2).
+        now rewrite H1, H2.
+      }
+      destruct (Nat.eq_dec (va * vb) 0) as [Habz| Habz]. {
+        rewrite Habz; cbn.
+        destruct (Nat.eq_dec (va * vc) 0) as [Hacz| Hacz]; [ | easy ].
+        now rewrite Hacz.
+      }
+      destruct (Nat.eq_dec (va * vc) 0) as [Hacz| Hacz]; [ | easy ].
+      now rewrite Hacz.
+    }
+    destruct (lt_dec vc vb) as [Hcb| Hcb]. {
+      cbn.
+      destruct (Nat.eq_dec (va * (vb - vc - 1)) 0) as [Hvvz| Hvvz]. {
+        apply Nat.eq_mul_0 in Hvvz.
+        destruct Hvvz as [Hvvz| Hvvz]; [ now subst va | cbn ].
+        replace (vc + 1) with vb by flia Hcb Hvvz.
+        destruct (Nat.eq_dec (va * vb) 0) as [Habz| Habz]; [ easy | cbn ].
+        rewrite Nat_sub_sub_swap, Nat.sub_diag.
+        rewrite Nat_sub_sub_swap, Nat.sub_diag.
+        destruct (lt_dec (va * vb - 1) (va * vb)) as [Hab| Hab]; [ easy | ].
+        exfalso; flia Habz Hab.
+      }
+      destruct (Nat.eq_dec (va * vb) 0) as [Habz| Habz]. {
+        apply Nat.eq_mul_0 in Habz.
+        destruct Habz; [ now subst va | now subst vb ].
+      }
+      cbn.
+      destruct (Nat.eq_dec (va * (vc + 1)) 0) as [Hac| Hac]. {
+        cbn.
+        apply Nat.eq_mul_0 in Hac.
+        rewrite Nat.add_comm in Hac.
+        destruct Hac; [ now subst va | easy ].
+      }
+      cbn.
+      destruct (lt_dec (va * (vc + 1) - 1) (va * vb)) as [Hv| Hv]. {
+        progress f_equal.
+        flia Hvvz Hac Hv.
+      }
+      rewrite <- Nat.sub_add_distr in Hvvz.
+      exfalso; flia Hvvz Hv.
+    }
+    cbn.
+    apply Nat.nlt_ge in Hcb.
+    destruct (Nat.eq_dec (va * (vc - vb + 1)) 0) as [Hvvz| Hvvz]. {
+      cbn.
+      apply Nat.eq_mul_0 in Hvvz.
+      destruct Hvvz as [Hvvz| Hvvz]; [ now subst va | cbn ].
+      flia Hcb Hvvz.
+    }
+    destruct (Nat.eq_dec (va * vb) 0) as [Habz| Habz]. {
+      cbn.
+      apply Nat.eq_mul_0 in Habz.
+      destruct Habz; [ now subst va | subst vb ].
+      rewrite Nat.sub_0_r in Hvvz |-*.
+      destruct (Nat.eq_dec (va * (vc + 1)) 0) as [Hacz| Hacz]; [ easy | ].
+      now rewrite Nat.sub_0_r.
+    }
+    cbn.
+    destruct (Nat.eq_dec (va * (vc + 1)) 0) as [Hacz| Hacz]. {
+      exfalso; flia Hvvz Hacz.
+    }
+    cbn.
+    rewrite <- Nat.add_sub_swap in Hvvz; [ | easy ].
+    destruct (lt_dec (va * (vc + 1) - 1) (va * vb)) as [Hac| Hac]. {
+      exfalso; flia Hvvz Hac.
+    }
+    f_equal.
+    rewrite <- Nat.add_sub_swap; [ flia Hvvz | easy ].
+  }
+  destruct sc; cbn - [ Nat.eq_dec Bool.bool_dec ]. {
+    cbn.
+    destruct (lt_dec vb vc) as [Hbc| Hbc]. {
+      cbn.
+      destruct (Nat.eq_dec (va * (vc - vb - 1)) 0) as [Hvvz| Hvvz]. {
+        cbn.
+        apply Nat.eq_mul_0 in Hvvz.
+        destruct Hvvz as [Hvvz| Hvvz]; [ now subst va | cbn ].
+        replace (vb + 1) with vc by flia Hbc Hvvz.
+        destruct (Nat.eq_dec (va * vc) 0) as [Hacz| Hacz]; [ easy | cbn ].
+        rewrite Nat_sub_sub_swap, Nat.sub_diag.
+        rewrite Nat_sub_sub_swap, Nat.sub_diag.
+        destruct (lt_dec (va * vc - 1) (va * vc)) as [Hac| Hac]; [ easy | ].
+        exfalso; flia Hacz Hac.
+      }
+      destruct (Nat.eq_dec (va * (vb + 1)) 0) as [Hab| Hab]. {
+        progress cbn.
+        apply Nat.eq_mul_0 in Hab.
+        rewrite Nat.add_comm in Hab.
+        destruct Hab; [ now subst va | easy ].
+      }
+      cbn.
+      rewrite <- Nat.sub_add_distr in Hvvz.
+      destruct (Nat.eq_dec (va * vc) 0) as [Hacz| Hacz]. {
+        exfalso; flia Hvvz Hacz.
+      }
+      cbn.
+      destruct (lt_dec (va * (vb + 1) - 1) (va * vc)) as [Hv| Hv]. {
+        progress f_equal.
+        flia Hvvz Hab Hv.
+      }
+      exfalso; flia Hvvz Hv.
+    }
+    apply Nat.nlt_ge in Hbc.
+    cbn.
+    destruct (Nat.eq_dec (va * (vb - vc + 1)) 0) as [Hvvz| Hvvz]. {
+      apply Nat.eq_mul_0 in Hvvz.
+      destruct Hvvz as [Hvvz| Hvvz]; [ now subst va | cbn ].
+      flia Hbc Hvvz.
+    }
+...
+
+... ...
+Theorem mul_add_distr_r : ∀ a b c, mul (add a b) c = add (mul a c) (mul b c).
+...
+*)
+
+End Z.
+
+Definition of_number (n : Number.int) : option Z :=
+  match n with
+  | Number.IntDecimal n =>
+      match n with
+      | Decimal.Pos (Decimal.D0 Decimal.Nil) => Some z_zero
+      | Decimal.Pos n => Some (z_val true (Nat.of_uint n - 1))
+      | Decimal.Neg n => Some (z_val false (Nat.of_uint n - 1))
+      end
+  | Number.IntHexadecimal n => None
+  end.
+
+Definition to_number (a : Z) : Number.int :=
+  match a with
+  | z_zero => Number.IntDecimal (Decimal.Pos (Nat.to_uint 0))
+  | z_val true v => Number.IntDecimal (Decimal.Pos (Nat.to_uint (v + 1)))
+  | z_val false v => Number.IntDecimal (Decimal.Neg (Nat.to_uint (v + 1)))
+  end.
+
+Definition to_number' (a : Z) : option (Number.int) := None.
+
+Number Notation Z of_number to_number : Z_scope.
+
+Notation "a + b" := (Z.add a b) : Z_scope.
+Notation "- a" := (Z.opp a) : Z_scope.
+Notation "a * b" := (Z.mul a b) : Z_scope.
+Notation "a ?= b" := (Z.compare a b) : Z_scope.
+
+Open Scope Z_scope.
+
+(*
+Module Nat2Z.
+
+Theorem inj_mul: ∀ a b : nat, Z.of_nat (a * b) = Z.of_nat a * Z.of_nat b.
+Proof.
+intros.
+progress unfold Z.mul.
+progress unfold Z.of_nat.
+cbn - [ Nat.eq_dec ].
+destruct (Nat.eq_dec (a * b) 0) as [Habz| Habz]; [ | easy ].
+now rewrite Habz.
+Qed.
+
+End Nat2Z.
+*)
+
+(*
+Compute (5 ?= 3).
+Compute (5 ?= 4).
+Compute (5 ?= 5).
+Compute (5 ?= 6).
+Compute (5 ?= 7).
+
+Compute (5 ?= -3).
+Compute (5 ?= -4).
+Compute (5 ?= -5).
+Compute (5 ?= -6).
+Compute (5 ?= -7).
+
+Compute (-5 ?= -3).
+Compute (-5 ?= -4).
+Compute (-5 ?= -5).
+Compute (-5 ?= -6).
+Compute (-5 ?= -7).
+
+Compute (-5 ?= 3).
+Compute (-5 ?= 4).
+Compute (-5 ?= 5).
+Compute (-5 ?= 6).
+Compute (-5 ?= 7).
+
+Compute (0 ?= 5).
+Compute (5 ?= 0).
+Compute (0 ?= -5).
+Compute (-5 ?= 0).
+Compute (0 ?= 0).
+*)
+
+(*
+........................
+previous version
+........................
+
 (*
   3  is represented by mk_z true 3
   0  is represented by mk_z true 0
@@ -267,7 +647,6 @@ destruct sa; cbn - [ Nat.eq_dec Bool.bool_dec ]. {
 ... ...
 Theorem mul_add_distr_r : ∀ a b c, mul (add a b) c = add (mul a c) (mul b c).
 ...
-*)
 
 End Z.
 
@@ -309,3 +688,4 @@ now rewrite Habz.
 Qed.
 
 End Nat2Z.
+*)
