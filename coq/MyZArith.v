@@ -1,5 +1,5 @@
 Set Nested Proofs Allowed.
-From Stdlib Require Import Utf8 Arith.
+From Stdlib Require Import Utf8 Arith Psatz.
 
 (*
   3  is represented by mk_z true 3
@@ -25,6 +25,10 @@ intros.
 progress unfold Bool.eqb.
 now destruct a, b.
 Qed.
+
+(* to be removed if RingLike included *)
+(* "fast" lia, to improve compilation speed *)
+Tactic Notation "flia" hyp_list(Hs) := clear - Hs; lia.
 
 (* to be removed if RingLike included *)
 Theorem if_ltb_lt_dec : ∀ A i j (a b : A),
@@ -136,6 +140,7 @@ intros.
 destruct a as (sa, va).
 destruct b as (sb, vb).
 destruct c as (sc, vc).
+move sb before sa; move sc before sb.
 progress unfold add.
 progress unfold mul.
 do 4 rewrite if_ltb_lt_dec.
@@ -163,20 +168,13 @@ destruct sa; cbn - [ Nat.eq_dec Bool.bool_dec ]. {
       destruct (Nat.eq_dec (va * (vb - vc - 1)) 0) as [Hvvz| Hvvz]. {
         apply Nat.eq_mul_0 in Hvvz.
         destruct Hvvz as [Hvvz| Hvvz]; [ now subst va | cbn ].
-        apply Nat.sub_0_le in Hvvz.
-        apply Nat.le_sub_le_add_r in Hvvz.
-        apply Nat.le_antisymm in Hvvz; [ | easy ].
-        rewrite Nat.add_comm in Hvvz.
-        rewrite Hvvz.
+        replace (vc + 1) with vb by flia Hcb Hvvz.
         destruct (Nat.eq_dec (va * vb) 0) as [Habz| Habz]; [ easy | cbn ].
         rewrite Nat_sub_sub_swap, Nat.sub_diag.
         rewrite Nat_sub_sub_swap, Nat.sub_diag.
         destruct (lt_dec (va * vb - 1) (va * vb)) as [Hab| Hab]; [ easy | ].
-        exfalso; apply Hab; clear Hab.
-        apply Nat.sub_lt; [ | apply Nat.lt_0_1 ].
-        now apply Nat.neq_0_lt_0.
+        exfalso; flia Habz Hab.
       }
-      cbn.
       destruct (Nat.eq_dec (va * vb) 0) as [Habz| Habz]. {
         apply Nat.eq_mul_0 in Habz.
         destruct Habz; [ now subst va | now subst vb ].
@@ -191,21 +189,79 @@ destruct sa; cbn - [ Nat.eq_dec Bool.bool_dec ]. {
       cbn.
       destruct (lt_dec (va * (vc + 1) - 1) (va * vb)) as [Hv| Hv]. {
         progress f_equal.
-        rewrite Nat.mul_sub_distr_l.
-        rewrite Nat.sub_sub_distr; cycle 1. {
-          now apply Nat.neq_0_lt_0.
-        } {
-          apply Nat.lt_sub_lt_add_l in Hv.
-          now apply Nat.succ_le_mono in Hv.
-        }
-        rewrite Nat.add_sub.
-        rewrite Nat.mul_sub_distr_l.
-        rewrite Nat.mul_add_distr_l.
-        now rewrite Nat.sub_add_distr.
+        flia Hvvz Hac Hv.
       }
-      exfalso.
-      apply Hv; clear Hv.
-Search (_ - _ < _).
+      rewrite <- Nat.sub_add_distr in Hvvz.
+      exfalso; flia Hvvz Hv.
+    }
+    cbn.
+    apply Nat.nlt_ge in Hcb.
+    destruct (Nat.eq_dec (va * (vc - vb + 1)) 0) as [Hvvz| Hvvz]. {
+      cbn.
+      apply Nat.eq_mul_0 in Hvvz.
+      destruct Hvvz as [Hvvz| Hvvz]; [ now subst va | cbn ].
+      flia Hcb Hvvz.
+    }
+    destruct (Nat.eq_dec (va * vb) 0) as [Habz| Habz]. {
+      cbn.
+      apply Nat.eq_mul_0 in Habz.
+      destruct Habz; [ now subst va | subst vb ].
+      rewrite Nat.sub_0_r in Hvvz |-*.
+      destruct (Nat.eq_dec (va * (vc + 1)) 0) as [Hacz| Hacz]; [ easy | ].
+      now rewrite Nat.sub_0_r.
+    }
+    cbn.
+    destruct (Nat.eq_dec (va * (vc + 1)) 0) as [Hacz| Hacz]. {
+      exfalso; flia Hvvz Hacz.
+    }
+    cbn.
+    rewrite <- Nat.add_sub_swap in Hvvz; [ | easy ].
+    destruct (lt_dec (va * (vc + 1) - 1) (va * vb)) as [Hac| Hac]. {
+      exfalso; flia Hvvz Hac.
+    }
+    f_equal.
+    rewrite <- Nat.add_sub_swap; [ flia Hvvz | easy ].
+  }
+  destruct sc; cbn - [ Nat.eq_dec Bool.bool_dec ]. {
+    cbn.
+    destruct (lt_dec vb vc) as [Hbc| Hbc]. {
+      cbn.
+      destruct (Nat.eq_dec (va * (vc - vb - 1)) 0) as [Hvvz| Hvvz]. {
+        cbn.
+        apply Nat.eq_mul_0 in Hvvz.
+        destruct Hvvz as [Hvvz| Hvvz]; [ now subst va | cbn ].
+        replace (vb + 1) with vc by flia Hbc Hvvz.
+        destruct (Nat.eq_dec (va * vc) 0) as [Hacz| Hacz]; [ easy | cbn ].
+        rewrite Nat_sub_sub_swap, Nat.sub_diag.
+        rewrite Nat_sub_sub_swap, Nat.sub_diag.
+        destruct (lt_dec (va * vc - 1) (va * vc)) as [Hac| Hac]; [ easy | ].
+        exfalso; flia Hacz Hac.
+      }
+      destruct (Nat.eq_dec (va * (vb + 1)) 0) as [Hab| Hab]. {
+        progress cbn.
+        apply Nat.eq_mul_0 in Hab.
+        rewrite Nat.add_comm in Hab.
+        destruct Hab; [ now subst va | easy ].
+      }
+      cbn.
+      rewrite <- Nat.sub_add_distr in Hvvz.
+      destruct (Nat.eq_dec (va * vc) 0) as [Hacz| Hacz]. {
+        exfalso; flia Hvvz Hacz.
+      }
+      cbn.
+      destruct (lt_dec (va * (vb + 1) - 1) (va * vc)) as [Hv| Hv]. {
+        progress f_equal.
+        flia Hvvz Hab Hv.
+      }
+      exfalso; flia Hvvz Hv.
+    }
+    apply Nat.nlt_ge in Hbc.
+    cbn.
+    destruct (Nat.eq_dec (va * (vb - vc + 1)) 0) as [Hvvz| Hvvz]. {
+      apply Nat.eq_mul_0 in Hvvz.
+      destruct Hvvz as [Hvvz| Hvvz]; [ now subst va | cbn ].
+      flia Hbc Hvvz.
+    }
 ...
 
 ... ...
