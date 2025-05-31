@@ -146,14 +146,15 @@ destruct (lt_dec vb va) as [Hvba| Hvba]; [ | easy ].
 now apply Nat.lt_asymm in Hvba.
 Qed.
 
+(*
 Theorem add_add_swap : ∀ a b c, add (add a b) c = add (add a c) b.
 Proof.
 intros.
-progress unfold add.
 destruct a as [| sa va]. {
   destruct b as [| sb vb]; [ now destruct c | ].
   destruct c as [| sc vc]; [ easy | ].
   move sc before sb.
+  progress unfold add.
   rewrite (Bool_eqb_comm sc).
   rewrite (Nat.add_comm vc).
   do 2 rewrite if_eqb_bool_dec.
@@ -165,6 +166,7 @@ destruct a as [| sa va]. {
 }
 destruct b as [| sb vb]. {
   destruct c as [| sc vc]; [ easy | ].
+  progress unfold add.
   rewrite if_eqb_bool_dec.
   destruct (Bool.bool_dec sa sc) as [Hac| Hac]; [ easy | ].
   do 2 rewrite if_ltb_lt_dec.
@@ -173,6 +175,7 @@ destruct b as [| sb vb]. {
 }
 move sb before sa.
 destruct c as [| sc vc]. {
+  progress unfold add.
   rewrite if_eqb_bool_dec.
   destruct (Bool.bool_dec sa sb) as [Hab| Hab]; [ easy | ].
   do 2 rewrite if_ltb_lt_dec.
@@ -180,16 +183,20 @@ destruct c as [| sc vc]. {
   now destruct (lt_dec vb va).
 }
 move sc before sb.
+cbn.
 do 2 rewrite if_eqb_bool_dec.
 destruct (Bool.bool_dec sa sb) as [Hsab| Hsab]. {
   subst sb.
-  rewrite if_eqb_bool_dec.
   destruct (Bool.bool_dec sa sc) as [Hsac| Hsac]. {
+    cbn; subst sc.
     rewrite Bool.eqb_reflx.
     f_equal; flia.
   }
-  apply not_eq_sym in Hsac.
   apply Bool.eqb_false_iff in Hsac.
+  cbn.
+  rewrite Hsac.
+  cbn.
+...
   do 4 rewrite if_ltb_lt_dec.
   destruct (lt_dec (va + vb + 1) vc) as [Hvabc| Hvabc]. {
     destruct (lt_dec va vc) as [Hvac| Hvac]; [ | flia Hvabc Hvac ].
@@ -270,15 +277,29 @@ destruct (lt_dec va vb) as [Hvab| Hvab]. {
 ...
       rewrite if_eqb_bool_dec.
 ...
+*)
+
+Theorem add_0_r : ∀ a, add a z_zero = a.
+Proof. now intros; destruct a. Qed.
 
 Theorem add_assoc : ∀ a b c, add a (add b c) = add (add a b) c.
 Proof.
 intros.
-progress unfold add.
 destruct a as [| sa va]; [ easy | ].
 destruct b as [| sb vb]; [ easy | ].
-destruct c as [| sc vc]. {
-  cbn.
+destruct c as [| sc vc]; [ now do 2 rewrite add_0_r | ].
+move sb before sa; move sc before sb.
+progress unfold add.
+do 2 rewrite if_eqb_bool_dec.
+destruct (Bool.bool_dec sb sc) as [Hsbc| Hsbc]. {
+  subst sc.
+  destruct (Bool.bool_dec sa sb) as [Hsab| Hsab]. {
+    subst sb.
+    rewrite Bool.eqb_reflx.
+    f_equal; flia.
+  }
+  apply Bool.eqb_false_iff in Hsab.
+  rewrite Hsab.
 ...
 move sb before sa.
 rewrite (Nat.add_comm vb).
