@@ -167,6 +167,19 @@ destruct a as [| sa va]; [ easy | ].
 destruct b as [| sb vb]; [ easy | ].
 destruct c as [| sc vc]; [ easy | ].
 move sb before sa; move sc before sb.
+cbn.
+(**)
+rewrite if_eqb_bool_dec.
+destruct (Bool.bool_dec sb sc) as [Hsbc| Hsbc]. {
+  subst sc.
+  rewrite Bool.eqb_reflx.
+  f_equal; flia.
+}
+rewrite if_eqb_bool_dec.
+destruct (Bool.bool_dec _ _) as [Hsaa| Hsaa]. {
+  now destruct sa, sb, sc.
+}
+...
 destruct sa, sb, sc. {
   cbn; f_equal; flia.
 } {
