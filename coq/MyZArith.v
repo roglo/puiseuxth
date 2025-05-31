@@ -141,13 +141,10 @@ do 4 rewrite if_ltb_lt_dec.
 rewrite (Bool_eqb_comm sb).
 do 2 rewrite if_eqb_bool_dec.
 destruct (Bool.bool_dec sa sb) as [Hab| Hab]; [ now subst sb | ].
-destruct (lt_dec va vb) as [Hvab| Hvab]. {
-  destruct (lt_dec vb va) as [Hvba| Hvba]. {
-...
-destruct (z_sign a); [ now destruct (z_sign b) | easy ].
+destruct (lt_dec va vb) as [Hvab| Hvab]; [ | easy ].
+destruct (lt_dec vb va) as [Hvba| Hvba]; [ | easy ].
+now apply Nat.lt_asymm in Hvba.
 Qed.
-
-...
 
 (*
 Theorem mul_comm : ∀ a b, mul a b = mul b a.
@@ -161,10 +158,53 @@ rewrite Bool_eqb_comm.
 rewrite Nat.mul_comm.
 easy.
 Qed.
+*)
 
 Theorem mul_add_distr_l : ∀ a b c, mul a (add b c) = add (mul a b) (mul a c).
 Proof.
 intros.
+destruct a as [| sa va]; [ easy | ].
+destruct b as [| sb vb]; [ easy | ].
+destruct c as [| sc vc]; [ easy | ].
+move sb before sa; move sc before sb.
+destruct sa, sb, sc. {
+  cbn; f_equal; flia.
+} {
+  cbn.
+  do 3 rewrite Nat.add_1_r.
+  cbn.
+  do 2 rewrite Nat.sub_0_r.
+  destruct vc. {
+    rewrite Nat.sub_0_r, Nat.add_0_l, Nat.mul_1_r; cbn.
+    destruct vb. {
+      rewrite Nat.add_0_l, Nat.mul_1_r.
+      destruct va; [ easy | ].
+      do 2 rewrite if_leb_le_dec.
+      destruct (le_dec _ _) as [H| H]; [ flia H | easy ].
+    }
+    rewrite Nat.sub_add; [ | flia ].
+...
+  destruct va, vb, vc; cbn; try (f_equal; flia); try easy. {
+    do 2 rewrite Nat.add_0_r.
+    destruct vc; cbn. {
+      rewrite Nat.sub_0_r.
+      destruct vb; [ easy | cbn ].
+      f_equal; flia.
+    }
+    rewrite if_leb_le_dec.
+    destruct (le_dec vb vc) as [Hbc| Hbc]; [ f_equal; flia | ].
+...
+    destruct vb; [ easy | cbn ].
+    destruct vb; [ easy | cbn ].
+...
+    now rewrite Nat.add_1_r.
+  } {
+    do 2 rewrite Nat.add_sub.
+    do 2 rewrite Nat.add_1_r.
+    cbn.
+    destruct vc; cbn. {
+      rewrite Nat.sub_0_r.
+...
 destruct a as (sa, va).
 destruct b as (sb, vb).
 destruct c as (sc, vc).
@@ -328,7 +368,6 @@ Notation "a ?= b" := (Z.compare a b) : Z_scope.
 
 Open Scope Z_scope.
 
-(*
 Module Nat2Z.
 
 Theorem inj_mul: ∀ a b : nat, Z.of_nat (a * b) = Z.of_nat a * Z.of_nat b.
@@ -336,13 +375,13 @@ Proof.
 intros.
 progress unfold Z.mul.
 progress unfold Z.of_nat.
-cbn - [ Nat.eq_dec ].
-destruct (Nat.eq_dec (a * b) 0) as [Habz| Habz]; [ | easy ].
-now rewrite Habz.
+destruct a; [ easy | ].
+rewrite Nat.mul_comm.
+destruct b; [ easy | cbn ].
+f_equal; flia.
 Qed.
 
 End Nat2Z.
-*)
 
 (*
 Compute (5 ?= 3).

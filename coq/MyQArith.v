@@ -43,7 +43,6 @@ Theorem add_comm : ∀ a b, add a b = add b a.
 Proof.
 intros.
 progress unfold add.
-...
 rewrite Z.add_comm.
 rewrite (Nat.mul_comm (q_den b)).
 easy.
