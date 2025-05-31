@@ -146,6 +146,153 @@ destruct (lt_dec vb va) as [Hvba| Hvba]; [ | easy ].
 now apply Nat.lt_asymm in Hvba.
 Qed.
 
+Theorem add_add_swap : ∀ a b c, add (add a b) c = add (add a c) b.
+Proof.
+intros.
+progress unfold add.
+destruct a as [| sa va]. {
+  destruct b as [| sb vb]; [ now destruct c | ].
+  destruct c as [| sc vc]; [ easy | ].
+  move sc before sb.
+  rewrite (Bool_eqb_comm sc).
+  rewrite (Nat.add_comm vc).
+  do 2 rewrite if_eqb_bool_dec.
+  destruct (Bool.bool_dec sb sc) as [Hbc| Hbc]; [ now subst sc | ].
+  do 4 rewrite if_ltb_lt_dec.
+  destruct (lt_dec vb vc) as [Hvbc| Hvbc]; [ | easy ].
+  destruct (lt_dec vc vb) as [Hvcb| Hvcb]; [ | easy ].
+  now apply Nat.lt_asymm in Hvcb.
+}
+destruct b as [| sb vb]. {
+  destruct c as [| sc vc]; [ easy | ].
+  rewrite if_eqb_bool_dec.
+  destruct (Bool.bool_dec sa sc) as [Hac| Hac]; [ easy | ].
+  do 2 rewrite if_ltb_lt_dec.
+  destruct (lt_dec va vc) as [Hvac| Hvac]; [ easy | ].
+  now destruct (lt_dec vc va).
+}
+move sb before sa.
+destruct c as [| sc vc]. {
+  rewrite if_eqb_bool_dec.
+  destruct (Bool.bool_dec sa sb) as [Hab| Hab]; [ easy | ].
+  do 2 rewrite if_ltb_lt_dec.
+  destruct (lt_dec va vb) as [Hvab| Hvab]; [ easy | ].
+  now destruct (lt_dec vb va).
+}
+move sc before sb.
+do 2 rewrite if_eqb_bool_dec.
+destruct (Bool.bool_dec sa sb) as [Hsab| Hsab]. {
+  subst sb.
+  rewrite if_eqb_bool_dec.
+  destruct (Bool.bool_dec sa sc) as [Hsac| Hsac]. {
+    rewrite Bool.eqb_reflx.
+    f_equal; flia.
+  }
+  apply not_eq_sym in Hsac.
+  apply Bool.eqb_false_iff in Hsac.
+  do 4 rewrite if_ltb_lt_dec.
+  destruct (lt_dec (va + vb + 1) vc) as [Hvabc| Hvabc]. {
+    destruct (lt_dec va vc) as [Hvac| Hvac]; [ | flia Hvabc Hvac ].
+    rewrite Hsac.
+    do 2 rewrite if_ltb_lt_dec.
+    destruct (lt_dec (vc - va - 1) vb) as [Hvcab| Hbcab]. {
+      flia Hvabc Hvcab.
+    }
+    apply Nat.nlt_ge in Hbcab.
+    destruct (lt_dec vb (vc - va - 1)) as [Hvbca| Hvbca]. {
+      f_equal; flia.
+    }
+    exfalso.
+    apply Nat.nlt_ge in Hvbca.
+    flia Hvabc Hvbca.
+  }
+  apply Nat.nlt_ge in Hvabc.
+  destruct (lt_dec vc (va + vb + 1)) as [Hvcab| Hvcab]. {
+    rewrite Nat_sub_sub_swap, Nat.add_sub.
+    destruct (lt_dec va vc) as [Hvac| Hvac]. {
+      rewrite Hsac.
+      do 2 rewrite if_ltb_lt_dec.
+      destruct (lt_dec (vc - va - 1) vb) as [Hv| Hv]. {
+        f_equal; flia Hvac.
+      }
+      exfalso.
+      flia Hvcab Hvac Hv.
+    }
+    apply Nat.nlt_ge in Hvac.
+    destruct (lt_dec vc va) as [Hvca| Hvca]. {
+      rewrite Bool.eqb_reflx.
+      f_equal; flia Hvca.
+    }
+    f_equal.
+    flia Hvac Hvca.
+  }
+  apply Nat.nlt_ge in Hvcab.
+  apply Nat.le_antisymm in Hvcab; [ | easy ].
+  clear Hvabc.
+  destruct (lt_dec va vc) as [Hvac| Hvac]; [ | flia Hvcab Hvac ].
+  rewrite Hsac.
+  subst vc.
+  rewrite Nat_sub_sub_swap, Nat.add_sub.
+  rewrite Nat.add_comm, Nat.add_sub.
+  now rewrite Nat.ltb_irrefl.
+}
+apply not_eq_sym in Hsab.
+apply Bool.eqb_false_iff in Hsab.
+do 4 rewrite if_ltb_lt_dec.
+destruct (lt_dec va vb) as [Hvab| Hvab]. {
+  rewrite if_eqb_bool_dec.
+  destruct (Bool.bool_dec sb sc) as [Hsbc| Hsbc]. {
+    subst sc.
+    rewrite <- if_eqb_bool_dec.
+    rewrite Bool_eqb_comm in Hsab.
+    rewrite Hsab.
+    destruct (lt_dec va vc) as [Hvac| Hvac]. {
+      rewrite Bool.eqb_reflx.
+      f_equal; flia Hvab Hvac.
+    }
+    apply Nat.nlt_ge in Hvac.
+    destruct (lt_dec vc va) as [Hvca| Hvca]. {
+      rewrite Hsab.
+      do 2 rewrite if_ltb_lt_dec.
+      destruct (lt_dec (va - vc - 1) vb) as [Hvacb| Hvacb]. {
+        f_equal; flia Hvab Hvca.
+      }
+      exfalso; flia Hvab Hvacb.
+    }
+    f_equal; flia Hvab Hvac Hvca.
+  }
+  apply not_eq_sym in Hsbc.
+  apply Bool.eqb_false_iff in Hsbc.
+  move Hsbc before Hsab.
+(* bon, c'est un peu l'enfer, là ; c'était censé être plus facile
+   en commençant par add_add_swap mais bon, je vais voir si add_assoc
+   marche mieux *)
+...
+      rewrite if_eqb_bool_dec.
+...
+
+Theorem add_assoc : ∀ a b c, add a (add b c) = add (add a b) c.
+Proof.
+intros.
+progress unfold add.
+destruct a as [| sa va]; [ easy | ].
+destruct b as [| sb vb]; [ easy | ].
+destruct c as [| sc vc]. {
+  cbn.
+...
+move sb before sa.
+rewrite (Nat.add_comm vb).
+do 4 rewrite if_ltb_lt_dec.
+rewrite (Bool_eqb_comm sb).
+do 2 rewrite if_eqb_bool_dec.
+destruct (Bool.bool_dec sa sb) as [Hab| Hab]; [ now subst sb | ].
+destruct (lt_dec va vb) as [Hvab| Hvab]; [ | easy ].
+destruct (lt_dec vb va) as [Hvba| Hvba]; [ | easy ].
+now apply Nat.lt_asymm in Hvba.
+Qed.
+
+...
+
 Theorem mul_comm : ∀ a b, mul a b = mul b a.
 Proof.
 intros.
