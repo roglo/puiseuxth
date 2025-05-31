@@ -160,6 +160,32 @@ easy.
 Qed.
 *)
 
+Theorem add_move_0_r : ∀ a b, add a b = z_zero ↔ a = opp b.
+Proof.
+intros.
+split; intros Hab. {
+  progress unfold add in Hab.
+  progress unfold opp.
+  destruct a as [| sa va]; [ now subst b | ].
+  destruct b as [| sb vb]; [ easy | ].
+  rewrite if_eqb_bool_dec in Hab.
+  destruct (Bool.bool_dec sa sb) as [Hsab| Hsab]; [ easy | ].
+  do 2 rewrite if_ltb_lt_dec in Hab.
+  destruct (lt_dec va vb) as [Hvab| Hvab]; [ easy | ].
+  destruct (lt_dec vb va) as [Hvba| Hvba]; [ easy | ].
+  apply Nat.nlt_ge in Hvab, Hvba.
+  replace vb with va by flia Hvab Hvba.
+  f_equal.
+  now destruct sa, sb.
+}
+subst a.
+progress unfold add.
+progress unfold opp.
+destruct b as [| sb vb]; [ easy | ].
+rewrite Bool.eqb_negb1.
+now rewrite Nat.ltb_irrefl.
+Qed.
+
 Theorem mul_add_distr_l : ∀ a b c, mul a (add b c) = add (mul a b) (mul a c).
 Proof.
 intros.
@@ -167,19 +193,101 @@ destruct a as [| sa va]; [ easy | ].
 destruct b as [| sb vb]; [ easy | ].
 destruct c as [| sc vc]; [ easy | ].
 move sb before sa; move sc before sb.
-cbn.
 (**)
-rewrite if_eqb_bool_dec.
 destruct (Bool.bool_dec sb sc) as [Hsbc| Hsbc]. {
-  subst sc.
-  rewrite Bool.eqb_reflx.
+  subst sc; cbn.
+  do 2 rewrite Bool.eqb_reflx.
   f_equal; flia.
 }
+cbn - [ mul "<?" ].
 rewrite if_eqb_bool_dec.
-destruct (Bool.bool_dec _ _) as [Hsaa| Hsaa]. {
-  now destruct sa, sb, sc.
+destruct (Bool.bool_dec _ _) as [Hsaa| Hsaa]; [ now destruct sa, sb, sc | ].
+clear Hsaa.
+do 2 rewrite if_ltb_lt_dec.
+destruct (lt_dec vb vc) as [Hbc| Hbc]. 2: {
+  apply Nat.nlt_ge in Hbc.
+  destruct (lt_dec vc vb) as [Hcb| Hcb]. 2: {
+    apply Nat.nlt_ge in Hcb.
+    apply Nat.le_antisymm in Hcb; [ subst vc | easy ].
+    clear Hbc.
+    progress unfold mul at 1.
+    symmetry.
+    cbn - [ add ].
+    apply add_move_0_r.
+    remember (_ - 1) as x.
+    cbn.
+    progress f_equal.
+    now destruct sa, sb, sc.
+  }
+  clear Hbc.
+  cbn - [ "<?" ].
+  rewrite if_eqb_bool_dec.
+  destruct (Bool.bool_dec _ _) as [Hsaa| Hsaa]; [ now destruct sa, sb, sc | ].
+  clear Hsaa.
+  rewrite Nat.sub_add; [ | flia Hcb ].
+  rewrite if_ltb_lt_dec.
+  destruct (lt_dec _ _) as [Hsaa| Hsaa]. {
+    exfalso.
+    apply Nat.nle_gt in Hsaa.
+    apply Hsaa; clear Hsaa.
+    apply Nat.sub_le_mono_r.
+    apply Nat.mul_le_mono_l.
+    apply Nat.add_le_mono_r.
+    now apply Nat.lt_le_incl.
+  }
+  rewrite if_ltb_lt_dec.
+  destruct (lt_dec _ _) as [Habc| Habc]. {
+    progress f_equal.
+    rewrite Nat.mul_sub_distr_l.
+    flia.
+  }
+  exfalso.
+  apply Nat.nlt_ge in Hsaa, Habc.
+  apply Nat.le_sub_le_add_r in Hsaa, Habc.
+  rewrite Nat.sub_add in Hsaa; [ | flia ].
+  rewrite Nat.sub_add in Habc; [ | flia ].
+  apply Nat.mul_le_mono_pos_l in Hsaa; [ | flia ].
+  apply Nat.mul_le_mono_pos_l in Habc; [ | flia ].
+  flia Hcb Hsaa Habc.
 }
 ...
+replace ((va + 1) * (vc + 1) - 1) with (vc + vc * va + va) by flia.
+replace ((va + 1) * (vb + 1) - 1) with (vb + vb * va + va) by flia.
+destruct vc. {
+  cbn.
+  destruct vb. {
+    cbn.
+    rewrite Nat.sub_diag, Nat.sub_0_l.
+    destruct va; [ easy | ].
+    do 2 rewrite if_leb_le_dec.
+    destruct (le_dec _ _) as [H| H]; [ flia H | easy ].
+  }
+  rewrite Nat.sub_0_r.
+  rewrite Nat.sub_add; [ | flia ].
+  rewrite Nat.add_sub.
+  replace (va - _ - 1) with 0 by flia.
+  replace (match va with 0 => _ | S _ => _ end) with false. 2: {
+    destruct va; [ easy | symmetry ].
+    apply Nat.leb_gt; flia.
+  }
+  rewrite Nat.add_1_r.
+  cbn.
+  rewrite if_leb_le_dec.
+  destruct (le_dec _ _) as [H| H]; [ clear H | flia H ].
+  progress f_equal.
+  flia.
+}
+cbn.
+destruct vb. {
+  cbn.
+  rewrite if_leb_le_dec.
+  destruct (le_dec _ _) as [H| H]; [ clear H | flia H ].
+  progress f_equal.
+  destruct va; flia.
+}
+cbn.
+...
+cbn.
 destruct sa, sb, sc. {
   cbn; f_equal; flia.
 } {
