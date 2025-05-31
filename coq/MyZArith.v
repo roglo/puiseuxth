@@ -289,17 +289,58 @@ destruct a as [| sa va]; [ easy | ].
 destruct b as [| sb vb]; [ easy | ].
 destruct c as [| sc vc]; [ now do 2 rewrite add_0_r | ].
 move sb before sa; move sc before sb.
-progress unfold add.
-do 2 rewrite if_eqb_bool_dec.
 destruct (Bool.bool_dec sb sc) as [Hsbc| Hsbc]. {
   subst sc.
+  progress unfold add.
+  rewrite Bool.eqb_reflx.
+  do 2 rewrite if_eqb_bool_dec.
   destruct (Bool.bool_dec sa sb) as [Hsab| Hsab]. {
     subst sb.
     rewrite Bool.eqb_reflx.
     f_equal; flia.
   }
   apply Bool.eqb_false_iff in Hsab.
-  rewrite Hsab.
+  do 4 rewrite if_ltb_lt_dec.
+  destruct (lt_dec va (vb + vc + 1)) as [Hvabc| Hvabc]. {
+    destruct (lt_dec va vb) as [Hvab| Hvab]. {
+      rewrite Bool.eqb_reflx.
+      f_equal; flia Hvab.
+    }
+    destruct (lt_dec vb va) as [Hvba| Hvba]. {
+      rewrite Hsab.
+      rewrite Nat_sub_sub_swap, Nat.add_sub.
+      rewrite if_ltb_lt_dec.
+      destruct (lt_dec (va - vb - 1) vc) as [Hv| Hv]. {
+        f_equal; flia Hvba.
+      }
+      exfalso; flia Hvabc Hvba Hv.
+    }
+    f_equal; flia Hvab Hvba.
+  }
+  destruct (lt_dec va vb) as [Hvab| Hvab]; [ flia Hvabc Hvab | ].
+  destruct (lt_dec vb va) as [Hvba| Hvba]. {
+    rewrite Hsab.
+    destruct (lt_dec (vb + vc + 1) va) as [Hvbca| Hvbca]. {
+      rewrite if_ltb_lt_dec.
+      destruct (lt_dec (va - vb - 1) vc) as [Hv| Hv]. {
+        exfalso; flia Hvbca Hv.
+      }
+      rewrite if_ltb_lt_dec.
+      destruct (lt_dec vc (va - vb - 1)) as [Hvcab| Hvcab]. {
+        f_equal; flia Hvcab.
+      }
+      exfalso; flia Hvbca Hvcab.
+    }
+    rewrite if_ltb_lt_dec.
+    destruct (lt_dec (va - vb - 1) vc) as [Hv| Hv]. {
+      exfalso; flia Hvabc Hv.
+    }
+    rewrite if_ltb_lt_dec.
+    destruct (lt_dec vc (va - vb - 1)) as [Hvcab| ]; [ | easy ].
+    exfalso; flia Hvbca Hvcab.
+  }
+  flia Hvabc Hvba.
+}
 ...
 move sb before sa.
 rewrite (Nat.add_comm vb).
