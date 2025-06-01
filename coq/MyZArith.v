@@ -52,6 +52,31 @@ rewrite Nat.add_comm.
 now apply Nat_compare_sub_add_l.
 Qed.
 
+Theorem Nat_compare_mul_cancel_l :
+  ∀ a b c, a ≠ 0 → (a * b ?= a * c) = (b ?= c).
+Proof.
+intros * Haz.
+do 2 rewrite nat_compare_equiv.
+progress unfold nat_compare_alt.
+destruct (lt_eq_lt_dec (a * b) (a * c)) as [[H1| H1]| H1]. {
+  destruct (lt_eq_lt_dec b c) as [[H2| H2]| H2].
+  easy.
+  flia H1 H2.
+  apply Nat.mul_lt_mono_pos_l in H1; [ | flia Haz ].
+  now apply Nat.lt_asymm in H1.
+} {
+  destruct (lt_eq_lt_dec b c) as [[H2| H2]| H2].
+  apply Nat.mul_cancel_l in H1; [ flia H1 H2 | easy ].
+  easy.
+  apply Nat.mul_cancel_l in H1; [ flia H1 H2 | easy ].
+} {
+  destruct (lt_eq_lt_dec b c) as [[H2| H2]| H2].
+  apply Nat.mul_lt_mono_pos_l in H1; [ flia H1 H2 | flia Haz ].
+  now subst c; apply Nat.lt_irrefl in H1.
+  easy.
+}
+Qed.
+
 Theorem if_eqb_bool_dec : ∀ A i j (a b : A),
   (if Bool.eqb i j then a else b) = (if Bool.bool_dec i j then a else b).
 Proof. now intros; destruct i, j. Qed.
@@ -403,70 +428,45 @@ cbn - [ mul "<?" ].
 rewrite if_eqb_bool_dec.
 destruct (Bool.bool_dec _ _) as [Hsaa| Hsaa]; [ now destruct sb, sc | ].
 clear Hsaa.
-...
-do 2 rewrite if_ltb_lt_dec.
-destruct (lt_dec vb vc) as [Hbc| Hbc]. 2: {
-  apply Nat.nlt_ge in Hbc.
-  destruct (lt_dec vc vb) as [Hcb| Hcb]. 2: {
-    apply Nat.nlt_ge in Hcb.
-    apply Nat.le_antisymm in Hcb; [ subst vc | easy ].
-    clear Hbc.
-    progress unfold mul at 1.
-    symmetry.
-    cbn - [ add ].
-    apply add_move_0_r.
-    remember (_ - 1) as x.
-    cbn.
-    progress f_equal.
-    now destruct sa, sb, sc.
-  }
-  clear Hbc.
-  cbn - [ "<?" ].
+rewrite nat_compare_equiv.
+progress unfold nat_compare_alt.
+destruct (lt_eq_lt_dec vb vc) as [[Hbc| Hbc]| Hbc]. {
+  cbn.
   rewrite if_eqb_bool_dec.
   destruct (Bool.bool_dec _ _) as [Hsaa| Hsaa]; [ now destruct sa, sb, sc | ].
   clear Hsaa.
-  rewrite Nat.sub_add; [ | flia Hcb ].
-  rewrite if_ltb_lt_dec.
-  destruct (lt_dec _ _) as [Hsaa| Hsaa]. {
-    exfalso.
-    apply Nat.nle_gt in Hsaa.
-    apply Hsaa; clear Hsaa.
-    apply Nat.sub_le_mono_r.
-    apply Nat.mul_le_mono_l.
-    apply Nat.add_le_mono_r.
-    now apply Nat.lt_le_incl.
-  }
-  rewrite if_ltb_lt_dec.
-  destruct (lt_dec _ _) as [Habc| Habc]. {
-    progress f_equal.
-    rewrite Nat.mul_sub_distr_l.
-    flia.
-  }
-  exfalso.
-  apply Nat.nlt_ge in Hsaa, Habc.
-  apply Nat.le_sub_le_add_r in Hsaa, Habc.
-  rewrite Nat.sub_add in Hsaa; [ | flia ].
-  rewrite Nat.sub_add in Habc; [ | flia ].
-  apply Nat.mul_le_mono_pos_l in Hsaa; [ | flia ].
-  apply Nat.mul_le_mono_pos_l in Habc; [ | flia ].
-  flia Hcb Hsaa Habc.
+  rewrite Nat.sub_add; [ | flia Hbc ].
+  rewrite Nat_compare_sub_add_r; [ | flia ].
+  rewrite Nat.sub_add; [ | flia ].
+  rewrite Nat_compare_mul_cancel_l; [ | now rewrite Nat.add_comm ].
+  (* lemma to do *)
+  rewrite <- Nat_compare_sub_add_r; [ | flia ].
+  rewrite Nat.add_sub.
+  apply Nat.compare_lt_iff in Hbc; rewrite Hbc.
+  apply Nat.compare_lt_iff in Hbc.
+  progress f_equal.
+  flia Hbc.
+} {
+  cbn - [ "<?" ]; subst vc.
+  rewrite if_eqb_bool_dec.
+  destruct (Bool.bool_dec _ _) as [Hsaa| Hsaa]; [ now destruct sa, sb, sc | ].
+  now rewrite Nat.compare_refl.
 } {
   cbn - [ "<?" ].
   rewrite if_eqb_bool_dec.
   destruct (Bool.bool_dec _ _) as [Hsaa| Hsaa]; [ now destruct sa, sb, sc | ].
   clear Hsaa.
   rewrite Nat.sub_add; [ | flia Hbc ].
-  rewrite if_ltb_lt_dec.
-  destruct (lt_dec _ _) as [Hsaa| Hsaa]. {
-    progress f_equal.
-    flia Hbc Hsaa.
-  }
-  exfalso.
-  apply Nat.nlt_ge in Hsaa.
-  apply Nat.le_sub_le_add_r in Hsaa.
-  rewrite Nat.sub_add in Hsaa; [ | flia ].
-  apply Nat.mul_le_mono_pos_l in Hsaa; [ | flia ].
-  flia Hbc Hsaa.
+  rewrite Nat_compare_sub_add_r; [ | flia ].
+  rewrite Nat.sub_add; [ | flia ].
+  rewrite Nat_compare_mul_cancel_l; [ | now rewrite Nat.add_comm ].
+  (* lemma to do *)
+  rewrite <- Nat_compare_sub_add_r; [ | flia ].
+  rewrite Nat.add_sub.
+  apply Nat.compare_gt_iff in Hbc; rewrite Hbc.
+  apply Nat.compare_gt_iff in Hbc.
+  progress f_equal.
+  flia Hbc.
 }
 Qed.
 

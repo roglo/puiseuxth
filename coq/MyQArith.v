@@ -56,9 +56,9 @@ cbn.
 f_equal; [ | now rewrite Nat.mul_assoc ].
 do 2 rewrite Nat2Z.inj_mul.
 do 2 rewrite Z.mul_add_distr_r.
-...
 rewrite Z.add_assoc.
-Check q_num.
+... ...
+rewrite Z.mul_assoc.
 ...
 progress unfold Qplus.
 cbn.
