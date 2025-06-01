@@ -34,85 +34,6 @@ Definition div a b := mul a (inv b).
 Definition compare a b :=
   q_num a * Z.of_nat (q_den b) ?= q_num b * Z.of_nat (q_den a).
 
-Theorem add_comm : ∀ a b, add a b = add b a.
-Proof.
-intros.
-progress unfold add.
-rewrite Z.add_comm.
-rewrite (Nat.mul_comm (q_den b)).
-easy.
-Qed.
-
-Theorem add_assoc : ∀ a b c, add a (add b c) = add (add a b) c.
-Proof.
-intros.
-progress unfold add; cbn.
-f_equal; [ | now rewrite Nat.mul_assoc ].
-do 2 rewrite Nat2Z.inj_mul.
-do 2 rewrite Z.mul_add_distr_r.
-rewrite <- Z.add_assoc.
-f_equal; [ apply Z.mul_assoc | ].
-f_equal; [ apply Z.mul_mul_swap | ].
-rewrite <- Z.mul_assoc.
-f_equal; apply Z.mul_comm.
-Qed.
-
-Theorem add_0_l : ∀ a, add (mk_q 0 1) a = a.
-Proof.
-intros.
-progress unfold add; cbn.
-rewrite Z.mul_1_r, Nat.add_0_r.
-now destruct a.
-Qed.
-
-Theorem add_0_r : ∀ a, add a (mk_q 0 1) = a.
-Proof.
-intros.
-rewrite add_comm.
-apply add_0_l.
-Qed.
-
-Theorem mul_comm : ∀ a b, mul a b = mul b a.
-Proof.
-intros.
-progress unfold mul.
-now rewrite Z.mul_comm, Nat.mul_comm.
-Qed.
-
-Theorem mul_assoc : ∀ a b c, mul a (mul b c) = mul (mul a b) c.
-Proof.
-intros.
-progress unfold mul; cbn.
-now rewrite Z.mul_assoc, Nat.mul_assoc.
-Qed.
-
-Theorem mul_1_l : ∀ a, mul (mk_q 1 1) a = a.
-Proof.
-intros.
-progress unfold mul; cbn.
-destruct a as (na, da); cbn.
-rewrite Nat.add_0_r.
-progress f_equal.
-destruct na as [| sa va]; [ easy | ].
-rewrite Nat.add_0_r, Nat.add_sub.
-now destruct sa.
-Qed.
-
-Theorem mul_1_r : ∀ a, mul a (mk_q 1 1) = a.
-Proof.
-intros.
-rewrite mul_comm.
-apply mul_1_l.
-Qed.
-
-Theorem opp_involutive : ∀ a, opp (opp a) = a.
-Proof.
-intros.
-progress unfold opp; cbn.
-...
-rewrite Z.opp_involutive.
-...
-
 Definition of_number (n : Number.int) : option Q :=
   match n with
   | Number.IntDecimal n =>
@@ -128,6 +49,91 @@ Definition to_number (a : Q) : option Number.int :=
   | 1%nat => Some (Z.to_number (q_num a))
   | _ => None
   end.
+
+Number Notation Q of_number to_number : Q_scope.
+
+Notation "a + b" := (add a b) : Q_scope.
+Notation "a * b" := (mul a b) : Q_scope.
+Notation "- a" := (opp a) : Q_scope.
+
+Theorem add_comm : ∀ a b, (a + b)%Q = (b + a)%Q.
+Proof.
+intros.
+progress unfold add.
+rewrite Z.add_comm.
+rewrite (Nat.mul_comm (q_den b)).
+easy.
+Qed.
+
+Theorem add_assoc : ∀ a b c, (a + (b + c))%Q = ((a + b) + c)%Q.
+Proof.
+intros.
+progress unfold add; cbn.
+f_equal; [ | now rewrite Nat.mul_assoc ].
+do 2 rewrite Nat2Z.inj_mul.
+do 2 rewrite Z.mul_add_distr_r.
+rewrite <- Z.add_assoc.
+f_equal; [ apply Z.mul_assoc | ].
+f_equal; [ apply Z.mul_mul_swap | ].
+rewrite <- Z.mul_assoc.
+f_equal; apply Z.mul_comm.
+Qed.
+
+Theorem add_0_l : ∀ a, (0 + a)%Q = a.
+Proof.
+intros.
+progress unfold add; cbn.
+rewrite Z.mul_1_r, Nat.add_0_r.
+now destruct a.
+Qed.
+
+Theorem add_0_r : ∀ a, (a + 0)%Q = a.
+Proof.
+intros.
+rewrite add_comm.
+apply add_0_l.
+Qed.
+
+Theorem mul_comm : ∀ a b, (a * b)%Q = (b * a)%Q.
+Proof.
+intros.
+progress unfold mul.
+now rewrite Z.mul_comm, Nat.mul_comm.
+Qed.
+
+Theorem mul_assoc : ∀ a b c, (a * (b * c))%Q = ((a * b) * c)%Q.
+Proof.
+intros.
+progress unfold mul; cbn.
+now rewrite Z.mul_assoc, Nat.mul_assoc.
+Qed.
+
+Theorem mul_1_l : ∀ a, (1 * a)%Q = a.
+Proof.
+intros.
+progress unfold mul; cbn.
+destruct a as (na, da); cbn.
+rewrite Nat.add_0_r.
+progress f_equal.
+destruct na as [| sa va]; [ easy | ].
+rewrite Nat.add_0_r, Nat.add_sub.
+now destruct sa.
+Qed.
+
+Theorem mul_1_r : ∀ a, (a * 1)%Q = a.
+Proof.
+intros.
+rewrite mul_comm.
+apply mul_1_l.
+Qed.
+
+Theorem opp_involutive : ∀ a, (- - a)%Q = a.
+Proof.
+intros.
+progress unfold opp; cbn.
+rewrite Z.opp_involutive.
+now destruct a.
+Qed.
 
 End Q.
 

@@ -205,7 +205,7 @@ Definition to_number (a : Z) : Number.int :=
   | z_val false v => Number.IntDecimal (Decimal.Neg (Nat.to_uint (v + 1)))
   end.
 
-Number Notation Z Z.of_number Z.to_number : Z_scope.
+Number Notation Z of_number to_number : Z_scope.
 
 Notation "a + b" := (add a b) : Z_scope.
 Notation "a * b" := (mul a b) : Z_scope.

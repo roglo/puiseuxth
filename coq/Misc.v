@@ -26,20 +26,7 @@ Set Implicit Arguments.
 
 (* Some theorems working with syntactic equality *)
 
-Search (- - _)%Q.
-Search (- _)%Q.
-Check Q.opp_involutive.
-
 ...
-
-Theorem Q_opp_involutive : ∀ a, - - a = a.
-Proof.
-intros.
-progress unfold Qopp.
-cbn.
-rewrite Z.opp_involutive.
-now destruct a.
-Qed.
 
 Theorem Q_mul_opp_l : ∀ x y, (- x) * y = - (x * y).
 Proof.
