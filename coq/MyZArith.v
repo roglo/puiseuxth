@@ -191,6 +191,7 @@ intros.
 destruct a as [| sa va]; [ do 2 rewrite add_0_l; apply add_comm | ].
 destruct b as [| sb vb]; [ now do 2 rewrite add_0_r | ].
 destruct c as [| sc vc]; [ now do 2 rewrite add_0_r | ].
+move sb before sa; move sc before sb.
 destruct (Bool.bool_dec sa sb) as [H1| H1]. {
   subst sb; cbn.
   rewrite Bool.eqb_reflx; cbn.
@@ -231,9 +232,61 @@ destruct (Bool.bool_dec sa sb) as [H1| H1]. {
     cbn; f_equal; flia H1.
   }
 }
-...
+destruct (Bool.bool_dec sa sc) as [H2| H2]. {
+  subst sc; cbn.
+  rename H1 into H2.
+  rewrite Bool.eqb_reflx; cbn.
+  apply Bool.eqb_false_iff in H2.
+  rewrite H2, nat_compare_equiv.
+  progress unfold nat_compare_alt.
+  destruct (lt_eq_lt_dec va vb) as [[H1| H1]| H1]. {
+    cbn.
+    rewrite (Bool_eqb_comm sb), H2.
+    rewrite Nat_compare_sub_add_r; [ | flia H1 ].
+    rewrite Nat_compare_sub_add_l; [ | flia H1 ].
+    rewrite Nat.add_assoc.
+    rewrite Nat.compare_antisym.
     rewrite nat_compare_equiv.
-Search ((_ ?= _) = _ (_ ?= _)).
+    progress unfold nat_compare_alt.
+    destruct (lt_eq_lt_dec (va + vc + 1) vb) as [[H3| H3]| H3].
+    cbn; f_equal; flia.
+    easy.
+    cbn; f_equal; flia H1.
+  } {
+    cbn.
+    rewrite nat_compare_equiv.
+    progress unfold nat_compare_alt.
+    destruct (lt_eq_lt_dec (va + vc + 1) vb) as [[H3| H3]| H3].
+    flia H1 H3.
+    flia H1 H3.
+    cbn; f_equal; flia H1.
+  } {
+    cbn.
+    rewrite Bool.eqb_reflx.
+    rewrite nat_compare_equiv.
+    progress unfold nat_compare_alt.
+    destruct (lt_eq_lt_dec (va + vc + 1) vb) as [[H3| H3]| H3].
+    flia H1 H3.
+    flia H1 H3.
+    cbn; f_equal; flia H1.
+  }
+}
+assert (sb = sc) by now destruct sa, sb, sc.
+subst sc; clear H2.
+cbn.
+apply Bool.eqb_false_iff in H1.
+rewrite H1.
+do 2 rewrite nat_compare_equiv.
+progress unfold nat_compare_alt.
+destruct (lt_eq_lt_dec va vb) as [[H2| H2]| H2]. {
+  cbn; rewrite Bool.eqb_reflx.
+  destruct (lt_eq_lt_dec va vc) as [[H3| H3]| H3]. {
+    cbn; rewrite Bool.eqb_reflx.
+    f_equal; flia H2 H3.
+  } {
+    cbn; f_equal; flia H2 H3.
+  } {
+    cbn; rewrite H1.
 ...
       rewrite (proj2 (Nat.compare_lt_iff _ _) Hvabc).
       f_equal; flia Hvab.
