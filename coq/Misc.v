@@ -52,20 +52,21 @@ Qed.
 Theorem Q_opp_sub_distr : ∀ x y, - (x - y) = y - x.
 Proof.
 intros.
-...
-intros.
-progress unfold Qminus.
-progress unfold Qplus.
-progress unfold Qopp.
-cbn.
-rewrite (Pos.mul_comm (Qden y)).
+progress unfold Q.sub.
+progress unfold Q.add.
+progress unfold Q.opp; cbn.
+rewrite (Nat.mul_comm (q_den y)).
 progress f_equal.
-ring.
+do 2 rewrite Z.mul_opp_l.
+rewrite Z.add_comm.
+rewrite Z.opp_add_distr.
+now rewrite Z.opp_involutive.
 Qed.
 
 Theorem Q_sub_sub_distr : ∀ x y z, x - (y - z) = (x - y) + z.
 Proof.
 intros.
+...
 progress unfold Qminus at 1.
 rewrite Q_opp_sub_distr.
 progress unfold Qminus.
