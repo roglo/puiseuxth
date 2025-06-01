@@ -187,7 +187,31 @@ Definition compare a b :=
       end
   end.
 
-Theorem add_comm : ∀ a b, add a b = add b a.
+Definition of_number (n : Number.int) : option Z :=
+  match n with
+  | Number.IntDecimal n =>
+      match n with
+      | Decimal.Pos (Decimal.D0 Decimal.Nil) => Some z_zero
+      | Decimal.Pos n => Some (z_val true (Nat.of_uint n - 1))
+      | Decimal.Neg n => Some (z_val false (Nat.of_uint n - 1))
+      end
+  | Number.IntHexadecimal n => None
+  end.
+
+Definition to_number (a : Z) : Number.int :=
+  match a with
+  | z_zero => Number.IntDecimal (Decimal.Pos (Nat.to_uint 0))
+  | z_val true v => Number.IntDecimal (Decimal.Pos (Nat.to_uint (v + 1)))
+  | z_val false v => Number.IntDecimal (Decimal.Neg (Nat.to_uint (v + 1)))
+  end.
+
+Number Notation Z Z.of_number Z.to_number : Z_scope.
+
+Notation "a + b" := (add a b) : Z_scope.
+Notation "a * b" := (mul a b) : Z_scope.
+Notation "- a" := (opp a) : Z_scope.
+
+Theorem add_comm : ∀ a b, (a + b)%Z = (b + a)%Z.
 Proof.
 intros.
 progress unfold add.
@@ -202,16 +226,13 @@ rewrite (Nat.compare_antisym va).
 now destruct (va ?= vb).
 Qed.
 
-Theorem add_0_l : ∀ a, add z_zero a = a.
+Theorem add_0_l : ∀ a, (0 + a)%Z = a.
 Proof. now intros; destruct a. Qed.
 
-Theorem add_0_r : ∀ a, add a z_zero = a.
+Theorem add_0_r : ∀ a, (a + 0)%Z = a.
 Proof. now intros; destruct a. Qed.
 
-Notation "a + b" := (add a b) : Z_scope.
-Notation "a * b" := (mul a b) : Z_scope.
-
-Theorem add_add_swap : ∀ a b c, add (add a b) c = add (add a c) b.
+Theorem add_add_swap : ∀ a b c, (a + b + c)%Z = (a + c + b)%Z.
 Proof.
 intros.
 destruct a as [| sa va]; [ do 2 rewrite add_0_l; apply add_comm | ].
@@ -369,7 +390,7 @@ easy.
 cbn; f_equal; flia.
 Qed.
 
-Theorem add_assoc : ∀ a b c, add a (add b c) = add (add a b) c.
+Theorem add_assoc : ∀ a b c, (a + (b + c))%Z = ((a + b) + c)%Z.
 Proof.
 intros.
 rewrite add_comm.
@@ -378,7 +399,7 @@ progress f_equal.
 apply add_comm.
 Qed.
 
-Theorem mul_comm : ∀ a b, mul a b = mul b a.
+Theorem mul_comm : ∀ a b, (a * b)%Z = (b * a)%Z.
 Proof.
 intros.
 destruct a as [| sa va]; [ now destruct b | ].
@@ -389,7 +410,7 @@ f_equal.
 now destruct sa, sb.
 Qed.
 
-Theorem add_move_0_r : ∀ a b, add a b = z_zero ↔ a = opp b.
+Theorem add_move_0_r : ∀ a b, (a + b)%Z = 0%Z ↔ a = (- b)%Z.
 Proof.
 intros.
 split; intros Hab. {
@@ -412,13 +433,13 @@ rewrite Bool.eqb_negb1.
 now rewrite Nat.compare_refl.
 Qed.
 
-Theorem mul_0_l : ∀ a, mul z_zero a = z_zero.
+Theorem mul_0_l : ∀ a, (0 * a)%Z = 0%Z.
 Proof. easy. Qed.
 
-Theorem mul_0_r : ∀ a, mul a z_zero = z_zero.
+Theorem mul_0_r : ∀ a, (a * 0)%Z = 0%Z.
 Proof. now intros; rewrite mul_comm. Qed.
 
-Theorem mul_1_l : ∀ a, mul (z_val true 0) a = a.
+Theorem mul_1_l : ∀ a, (1 * a)%Z = a.
 Proof.
 intros.
 cbn.
@@ -427,10 +448,10 @@ rewrite Nat.add_0_r, Nat.add_sub.
 now f_equal; destruct sa.
 Qed.
 
-Theorem mul_1_r : ∀ a, mul a (z_val true 0) = a.
+Theorem mul_1_r : ∀ a, (a * 1)%Z = a.
 Proof. intros; rewrite mul_comm; apply mul_1_l. Qed.
 
-Theorem mul_mul_swap : ∀ a b c, mul (mul a b) c = mul (mul a c) b.
+Theorem mul_mul_swap : ∀ a b c, (a * b * c)%Z = (a * c * b)%Z.
 Proof.
 intros.
 destruct a as [| sa va]; [ easy | ].
@@ -444,7 +465,7 @@ rewrite Nat.sub_add; [ | flia ].
 flia.
 Qed.
 
-Theorem mul_assoc : ∀ a b c, mul a (mul b c) = mul (mul a b) c.
+Theorem mul_assoc : ∀ a b c, (a * (b * c))%Z = ((a * b) * c)%Z.
 Proof.
 intros.
 rewrite mul_comm.
@@ -453,7 +474,7 @@ progress f_equal.
 apply mul_comm.
 Qed.
 
-Theorem mul_add_distr_l : ∀ a b c, mul a (add b c) = add (mul a b) (mul a c).
+Theorem mul_add_distr_l : ∀ a b c, (a * (b + c))%Z = (a * b + a * c)%Z.
 Proof.
 intros.
 destruct a as [| sa va]; [ easy | ].
@@ -511,7 +532,7 @@ destruct (lt_eq_lt_dec vb vc) as [[Hbc| Hbc]| Hbc]. {
 }
 Qed.
 
-Theorem mul_add_distr_r : ∀ a b c, mul (add a b) c = add (mul a c) (mul b c).
+Theorem mul_add_distr_r : ∀ a b c, ((a + b) * c)%Z = (a * c + b * c)%Z.
 Proof.
 intros.
 rewrite mul_comm.
@@ -519,23 +540,12 @@ do 2 rewrite (mul_comm _ c).
 apply mul_add_distr_l.
 Qed.
 
-Definition of_number (n : Number.int) : option Z :=
-  match n with
-  | Number.IntDecimal n =>
-      match n with
-      | Decimal.Pos (Decimal.D0 Decimal.Nil) => Some z_zero
-      | Decimal.Pos n => Some (z_val true (Nat.of_uint n - 1))
-      | Decimal.Neg n => Some (z_val false (Nat.of_uint n - 1))
-      end
-  | Number.IntHexadecimal n => None
-  end.
-
-Definition to_number (a : Z) : Number.int :=
-  match a with
-  | z_zero => Number.IntDecimal (Decimal.Pos (Nat.to_uint 0))
-  | z_val true v => Number.IntDecimal (Decimal.Pos (Nat.to_uint (v + 1)))
-  | z_val false v => Number.IntDecimal (Decimal.Neg (Nat.to_uint (v + 1)))
-  end.
+Theorem opp_involutive : ∀ a, (- - a)%Z = a.
+Proof.
+intros.
+destruct a as [| s v]; [ easy | cbn ].
+now rewrite Bool.negb_involutive.
+Qed.
 
 End Z.
 

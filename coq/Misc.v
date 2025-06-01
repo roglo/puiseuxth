@@ -26,24 +26,11 @@ Set Implicit Arguments.
 
 (* Some theorems working with syntactic equality *)
 
-Check Q.mul_1_l.
+Search (- - _)%Q.
+Search (- _)%Q.
+Check Q.opp_involutive.
 
 ...
-
-Theorem Q_mul_1_l : ∀ a, 1 * a = a.
-Proof.
-intros.
-progress unfold Qmult.
-rewrite Z.mul_1_l, Pos.mul_1_l.
-now destruct a.
-Qed.
-
-Theorem Q_mul_1_r : ∀ a, a * 1 = a.
-Proof.
-intros.
-rewrite Q_mul_comm.
-apply Q_mul_1_l.
-Qed.
 
 Theorem Q_opp_involutive : ∀ a, - - a = a.
 Proof.

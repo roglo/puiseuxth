@@ -86,6 +86,33 @@ progress unfold mul; cbn.
 now rewrite Z.mul_assoc, Nat.mul_assoc.
 Qed.
 
+Theorem mul_1_l : ∀ a, mul (mk_q 1 1) a = a.
+Proof.
+intros.
+progress unfold mul; cbn.
+destruct a as (na, da); cbn.
+rewrite Nat.add_0_r.
+progress f_equal.
+destruct na as [| sa va]; [ easy | ].
+rewrite Nat.add_0_r, Nat.add_sub.
+now destruct sa.
+Qed.
+
+Theorem mul_1_r : ∀ a, mul a (mk_q 1 1) = a.
+Proof.
+intros.
+rewrite mul_comm.
+apply mul_1_l.
+Qed.
+
+Theorem opp_involutive : ∀ a, opp (opp a) = a.
+Proof.
+intros.
+progress unfold opp; cbn.
+...
+rewrite Z.opp_involutive.
+...
+
 Definition of_number (n : Number.int) : option Q :=
   match n with
   | Number.IntDecimal n =>
