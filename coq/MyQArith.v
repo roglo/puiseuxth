@@ -29,11 +29,6 @@ Definition inv a :=
   | z_val s v => mk_q (z_val s (q_den a)) v
   end.
 
-(*
-Definition inv a :=
-  mk_q (mk_z (z_sign (q_num a)) (q_den a)) (z_val (q_num a)).
-*)
-
 Definition div a b := mul a (inv b).
 
 Definition compare a b :=
@@ -51,28 +46,70 @@ Qed.
 Theorem add_assoc : ∀ a b c, add a (add b c) = add (add a b) c.
 Proof.
 intros.
-progress unfold add.
-cbn.
+progress unfold add; cbn.
 f_equal; [ | now rewrite Nat.mul_assoc ].
 do 2 rewrite Nat2Z.inj_mul.
 do 2 rewrite Z.mul_add_distr_r.
-rewrite Z.add_assoc.
-... ...
-rewrite Z.mul_assoc.
-...
-progress unfold Qplus.
-cbn.
-rewrite Pos.mul_assoc.
-progress f_equal.
-do 2 rewrite Pos2Z.inj_mul.
-ring.
+rewrite <- Z.add_assoc.
+f_equal; [ apply Z.mul_assoc | ].
+f_equal; [ apply Z.mul_mul_swap | ].
+rewrite <- Z.mul_assoc.
+f_equal; apply Z.mul_comm.
 Qed.
 
+Theorem add_0_l : ∀ a, add (mk_q 0 1) a = a.
+Proof.
+intros.
+progress unfold add; cbn.
+rewrite Z.mul_1_r, Nat.add_0_r.
+now destruct a.
+Qed.
+
+Theorem add_0_r : ∀ a, add a (mk_q 0 1) = a.
+Proof.
+intros.
+rewrite add_comm.
+apply add_0_l.
+Qed.
+
+Theorem mul_comm : ∀ a b, mul a b = mul b a.
+Proof.
+intros.
+progress unfold mul.
+now rewrite Z.mul_comm, Nat.mul_comm.
+Qed.
+
+Theorem mul_assoc : ∀ a b c, mul a (mul b c) = mul (mul a b) c.
+Proof.
+intros.
+progress unfold mul; cbn.
+now rewrite Z.mul_assoc, Nat.mul_assoc.
+Qed.
+
+Definition of_number (n : Number.int) : option Q :=
+  match n with
+  | Number.IntDecimal n =>
+      match n with
+      | Decimal.Pos n => Some (mk_q (Z.of_nat (Nat.of_uint n)) 1)
+      | Decimal.Neg n => Some (mk_q (- Z.of_nat (Nat.of_uint n)) 1)
+      end
+  | Number.IntHexadecimal n => None
+  end.
+
+Definition to_number (a : Q) : option Number.int :=
+  match q_den a with
+  | 1%nat => Some (Z.to_number (q_num a))
+  | _ => None
+  end.
+
 End Q.
+
+Number Notation Q Q.of_number Q.to_number : Q_scope.
 
 Notation "a == b" := (Q.eq a b) (at level 70) : Q_scope.
 Notation "a + b" := (Q.add a b) : Q_scope.
 Notation "a - b" := (Q.sub a b) : Q_scope.
+Notation "a * b" := (Q.mul a b) : Q_scope.
 Notation "a / b" := (Q.div a b) : Q_scope.
 Notation "- a" := (Q.opp a) : Q_scope.
 Notation "a ?= b" := (Q.compare a b) : Q_scope.

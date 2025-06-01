@@ -412,6 +412,47 @@ rewrite Bool.eqb_negb1.
 now rewrite Nat.compare_refl.
 Qed.
 
+Theorem mul_0_l : ∀ a, mul z_zero a = z_zero.
+Proof. easy. Qed.
+
+Theorem mul_0_r : ∀ a, mul a z_zero = z_zero.
+Proof. now intros; rewrite mul_comm. Qed.
+
+Theorem mul_1_l : ∀ a, mul (z_val true 0) a = a.
+Proof.
+intros.
+cbn.
+destruct a as [| sa va]; [ easy | ].
+rewrite Nat.add_0_r, Nat.add_sub.
+now f_equal; destruct sa.
+Qed.
+
+Theorem mul_1_r : ∀ a, mul a (z_val true 0) = a.
+Proof. intros; rewrite mul_comm; apply mul_1_l. Qed.
+
+Theorem mul_mul_swap : ∀ a b c, mul (mul a b) c = mul (mul a c) b.
+Proof.
+intros.
+destruct a as [| sa va]; [ easy | ].
+destruct b as [| sb vb]; [ now do 2 rewrite mul_0_r | ].
+destruct c as [| sc vc]; [ now do 2 rewrite mul_0_r | ].
+move sb before sa; move sc before sb.
+cbn.
+f_equal; [ now destruct sa, sb, sc | ].
+rewrite Nat.sub_add; [ | flia ].
+rewrite Nat.sub_add; [ | flia ].
+flia.
+Qed.
+
+Theorem mul_assoc : ∀ a b c, mul a (mul b c) = mul (mul a b) c.
+Proof.
+intros.
+rewrite mul_comm.
+rewrite mul_mul_swap.
+progress f_equal.
+apply mul_comm.
+Qed.
+
 Theorem mul_add_distr_l : ∀ a b c, mul a (add b c) = add (mul a b) (mul a c).
 Proof.
 intros.
@@ -478,8 +519,6 @@ do 2 rewrite (mul_comm _ c).
 apply mul_add_distr_l.
 Qed.
 
-End Z.
-
 Definition of_number (n : Number.int) : option Z :=
   match n with
   | Number.IntDecimal n =>
@@ -498,9 +537,9 @@ Definition to_number (a : Z) : Number.int :=
   | z_val false v => Number.IntDecimal (Decimal.Neg (Nat.to_uint (v + 1)))
   end.
 
-Definition to_number' (a : Z) : option (Number.int) := None.
+End Z.
 
-Number Notation Z of_number to_number : Z_scope.
+Number Notation Z Z.of_number Z.to_number : Z_scope.
 
 Notation "a + b" := (Z.add a b) : Z_scope.
 Notation "- a" := (Z.opp a) : Z_scope.

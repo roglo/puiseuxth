@@ -26,36 +26,9 @@ Set Implicit Arguments.
 
 (* Some theorems working with syntactic equality *)
 
-Theorem Q_add_0_l : ∀ a, 0 + a = a.
-Proof.
-intros.
-progress unfold Qplus.
-cbn.
-rewrite Z.mul_1_r.
-now destruct a.
-Qed.
+Check Q.mul_1_l.
 
-Theorem Q_add_0_r : ∀ a, a + 0 = a.
-Proof.
-intros.
-rewrite Q_add_comm.
-apply Q_add_0_l.
-Qed.
-
-Theorem Q_mul_comm : ∀ a b, a * b = b * a.
-Proof.
-intros.
-progress unfold Qmult.
-now rewrite Z.mul_comm, Pos.mul_comm.
-Qed.
-
-Theorem Q_mul_assoc : ∀ a b c, a * (b * c) = (a * b) * c.
-Proof.
-intros.
-progress unfold Qmult.
-cbn.
-now rewrite Z.mul_assoc, Pos.mul_assoc.
-Qed.
+...
 
 Theorem Q_mul_1_l : ∀ a, 1 * a = a.
 Proof.
