@@ -24,7 +24,8 @@ Tactic Notation "fast_omega" hyp_list(Hs) := revert Hs; clear; intros; lia.
 
 Set Implicit Arguments.
 
-(* Some theorems working with syntactic equality *)
+(* Some theorems working with syntactic equality
+   and not only with equivalence relation in Q *)
 
 Theorem Q_mul_opp_l : ∀ x y, (- x) * y = - (x * y).
 Proof.
@@ -32,34 +33,26 @@ intros.
 progress unfold "*"%Q.
 progress unfold Q.opp.
 progress f_equal.
-cbn.
-...
 apply Z.mul_opp_l.
-...
-intros.
-progress unfold Qmult.
-progress unfold Qopp.
-cbn.
-now rewrite Z.mul_opp_l.
 Qed.
 
 Theorem Q_mul_opp_r : ∀ x y, x * - y = - (x * y).
 Proof.
 intros.
-progress unfold Qmult.
-progress unfold Qopp.
-cbn.
-now rewrite Z.mul_opp_r.
+do 2 rewrite (Q.mul_comm x).
+apply Q_mul_opp_l.
 Qed.
 
 Theorem Q_add_sub_assoc : ∀ x y z, x + (y - z) = (x + y) - z.
 Proof.
 intros.
-apply Q_add_assoc.
+apply Q.add_assoc.
 Qed.
 
 Theorem Q_opp_sub_distr : ∀ x y, - (x - y) = y - x.
 Proof.
+intros.
+...
 intros.
 progress unfold Qminus.
 progress unfold Qplus.

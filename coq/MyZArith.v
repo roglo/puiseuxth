@@ -547,6 +547,14 @@ destruct a as [| s v]; [ easy | cbn ].
 now rewrite Bool.negb_involutive.
 Qed.
 
+Theorem mul_opp_l : ∀ a b, (- a * b)%Z = (- (a * b))%Z.
+Proof.
+intros.
+destruct a as [| sa va]; [ easy | ].
+destruct b as [| sb vb]; [ easy | cbn ].
+now destruct sa, sb.
+Qed.
+
 End Z.
 
 Number Notation Z Z.of_number Z.to_number : Z_scope.
