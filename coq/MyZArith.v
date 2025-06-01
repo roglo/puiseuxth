@@ -307,12 +307,26 @@ destruct (lt_eq_lt_dec va vb) as [[H2| H2]| H2]. {
   cbn; rewrite Bool.eqb_reflx.
   destruct (lt_eq_lt_dec va vc) as [[H3| H3]| H3]. {
     cbn; rewrite Bool.eqb_reflx.
-...
+    progress f_equal.
+    progress unfold pos_add, pos_sub.
     f_equal; flia H2 H3.
   } {
+    progress unfold pos_add, pos_sub.
     cbn; f_equal; flia H2 H3.
   } {
     cbn; rewrite H1.
+    progress unfold pos_add, pos_sub.
+    rewrite Nat_compare_sub_add_r; [ | flia H3 ].
+    rewrite Nat_compare_sub_add_l; [ | flia H3 ].
+    rewrite Nat.add_assoc.
+...
+    rewrite Nat.compare_antisym.
+    rewrite nat_compare_equiv.
+    progress unfold nat_compare_alt.
+    destruct (lt_eq_lt_dec (va + vb + 1) vc) as [[H3| H3]| H3].
+    cbn; f_equal; flia.
+    easy.
+    cbn; f_equal; flia H1.
 ...
       rewrite (proj2 (Nat.compare_lt_iff _ _) Hvabc).
       f_equal; flia Hvab.
