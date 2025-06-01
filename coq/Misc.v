@@ -26,10 +26,16 @@ Set Implicit Arguments.
 
 (* Some theorems working with syntactic equality *)
 
-...
-
 Theorem Q_mul_opp_l : ∀ x y, (- x) * y = - (x * y).
 Proof.
+intros.
+progress unfold "*"%Q.
+progress unfold Q.opp.
+progress f_equal.
+cbn.
+...
+apply Z.mul_opp_l.
+...
 intros.
 progress unfold Qmult.
 progress unfold Qopp.
