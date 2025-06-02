@@ -727,6 +727,19 @@ destruct ab; [ | easy | easy ].
 now apply compare_eq_iff.
 Qed.
 
+Theorem lt_irrefl : ∀ a, ¬ (a < a)%Z.
+Proof.
+intros a Ha.
+destruct a as [| sa va]; [ easy | ].
+destruct sa. {
+  apply Nat.compare_lt_iff in Ha.
+  now apply Nat.lt_irrefl in Ha.
+} {
+  apply Nat.compare_lt_iff in Ha.
+  now apply Nat.lt_irrefl in Ha.
+}
+Qed.
+
 End Z.
 
 Number Notation Z Z.of_number Z.to_number : Z_scope.
