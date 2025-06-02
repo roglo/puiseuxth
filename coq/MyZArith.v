@@ -157,6 +157,42 @@ Definition mul a b :=
       end
   end.
 
+Definition z_pos_div_eucl a b :=
+  let a' := (a + 1)%nat in
+  let b' := (b + 1)%nat in
+  (Z.of_nat (a' / b'), Z.of_nat (a' mod b')).
+
+Definition div_eucl (a b : Z) :=
+  match a with
+  | z_zero => (z_zero, z_zero)
+  | z_val sa a' =>
+      match b with
+      | z_zero => (z_zero, a)
+      | z_val sb b' =>
+          let (q', r') := z_pos_div_eucl a' b' in
+          let q :=
+            if Bool.eqb sa sb then q'
+            else
+              match r' with
+              | z_zero => opp q'
+              | _ => opp (add q' (z_val true 0))
+              end
+          in
+          let r :=
+            let r1 := if sa then r' else opp r' in
+            if Bool.eqb sa sb then r1
+            else
+              match r1 with
+              | z_zero => z_zero
+              | _ => add b r1
+              end
+          in
+          (q, r)
+      end
+  end.
+
+Definition div a b := fst (div_eucl a b).
+
 Definition compare a b :=
   match a with
   | z_zero =>
@@ -206,6 +242,7 @@ Number Notation Z of_number to_number : Z_scope.
 Notation "a + b" := (add a b) : Z_scope.
 Notation "a - b" := (sub a b) : Z_scope.
 Notation "a * b" := (mul a b) : Z_scope.
+Notation "a / b" := (div a b) : Z_scope.
 Notation "- a" := (opp a) : Z_scope.
 
 Theorem add_comm : ∀ a b, (a + b)%Z = (b + a)%Z.
@@ -573,6 +610,7 @@ Notation "a + b" := (Z.add a b) : Z_scope.
 Notation "a - b" := (Z.sub a b) : Z_scope.
 Notation "- a" := (Z.opp a) : Z_scope.
 Notation "a * b" := (Z.mul a b) : Z_scope.
+Notation "a / b" := (Z.div a b) : Z_scope.
 Notation "a ?= b" := (Z.compare a b) : Z_scope.
 
 Open Scope Z_scope.
@@ -591,35 +629,3 @@ f_equal; flia.
 Qed.
 
 End Nat2Z.
-
-(*
-Compute (5 ?= 3).
-Compute (5 ?= 4).
-Compute (5 ?= 5).
-Compute (5 ?= 6).
-Compute (5 ?= 7).
-
-Compute (5 ?= -3).
-Compute (5 ?= -4).
-Compute (5 ?= -5).
-Compute (5 ?= -6).
-Compute (5 ?= -7).
-
-Compute (-5 ?= -3).
-Compute (-5 ?= -4).
-Compute (-5 ?= -5).
-Compute (-5 ?= -6).
-Compute (-5 ?= -7).
-
-Compute (-5 ?= 3).
-Compute (-5 ?= 4).
-Compute (-5 ?= 5).
-Compute (-5 ?= 6).
-Compute (-5 ?= 7).
-
-Compute (0 ?= 5).
-Compute (5 ?= 0).
-Compute (0 ?= -5).
-Compute (-5 ?= 0).
-Compute (0 ?= 0).
-*)

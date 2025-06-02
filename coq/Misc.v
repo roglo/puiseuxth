@@ -138,31 +138,26 @@ progress f_equal. {
 }
 Qed.
 
-...
-Require Import ZArith.
-Print Z.div_eucl.
-
-...
-Definition Z_div a b := fst (Z.div_eucl a b).
-
-Definition QQ (x y : Q) := (q_num x / q_den y) # (q_den x / q_den y).
-
-...
-
-Definition QQ (x y : Q) := (Qnum x / QDen y) # Pos_div (Qden x) (Qden y).
+Definition QQ x y := q_num x / Z.of_nat (q_den y) # q_den x / q_den y.
 
 Theorem Q_mul_add_distr_l' : ∀ x y z, x * (y + z) = QQ (x * y + x * z) x.
 Proof.
 intros.
 progress unfold QQ.
-progress unfold Qplus.
-progress unfold Qmult.
+progress unfold Q.add.
+progress unfold Q.mul.
 cbn.
 progress f_equal. {
-  do 2 rewrite Pos2Z.inj_mul.
-  do 2 rewrite (Z.mul_comm (QDen x)).
+  do 2 rewrite Nat2Z.inj_mul.
+  do 2 rewrite (Z.mul_comm (Z.of_nat (q_den x))).
   do 2 rewrite Z.mul_assoc.
   rewrite <- Z.mul_add_distr_r.
+...
+Require Import ZArith.
+Check Z.div_mul.
+Z.div_mul
+     : ∀ a b : Z, b ≠ 0%Z → (a * b / b)%Z = a
+...
   rewrite Z.div_mul; [ | easy ].
   do 2 rewrite <- Z.mul_assoc.
   apply Z.mul_add_distr_l.
