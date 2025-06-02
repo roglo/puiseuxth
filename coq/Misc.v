@@ -138,8 +138,47 @@ progress f_equal. {
 }
 Qed.
 
+(*
+From Stdlib Require Import ZArith QArith.
+
+Definition Pos_div (a b : positive) : positive :=
+  match (Z.pos a / Z.pos b)%Z with
+  | Z.pos p => p
+  | _ => 1%positive
+  end.
+
+Definition QQ (x y : Q) := (Qnum x / QDen y) # Pos_div (Qden x) (Qden y).
+
+Compute (QQ (-7) 0).
+Compute (3 / 0)%Z.
+Compute (0 / 0)%Z.
+     = -7
+     : Q
+     = 0%Z
+     : Z
+     = 0%Z
+     : Z
+*)
+
+(*
 Definition QQ x y :=
-  (if q_den y =? 0 then 0 else q_num x / Z.of_nat (q_den y)) # q_den x / q_den y.
+  if q_den y =? 0 then x
+  else (q_num x / Z.of_nat (q_den y) # q_den x / q_den y).
+
+Definition QQ x y :=
+  if q_den y =? 0 then (q_num x / 0 # 0)
+  else (q_num x / Z.of_nat (q_den y) # q_den x / q_den y).
+*)
+Definition QQ x y :=
+(*
+  if (q_num y =? 0)%Z then
+    (0 # (q_den x / q_den y))
+  else
+*)
+  if (q_den y =? 0)%nat then
+    (q_num y * q_num x # 0)
+  else
+    (q_num x / Z.of_nat (q_den y) # q_den x / q_den y).
 
 Theorem Q_mul_add_distr_l' : ∀ x y z, x * (y + z) = QQ (x * y + x * z) x.
 Proof.
@@ -148,17 +187,33 @@ progress unfold QQ.
 progress unfold Q.add.
 progress unfold Q.mul; cbn.
 (**)
-remember (q_den x =? 0) as xz eqn:Hxz.
+remember (q_den x =? 0)%nat as xz eqn:Hxz.
 symmetry in Hxz.
 destruct xz. {
   apply Nat.eqb_eq in Hxz.
   rewrite Hxz.
+  f_equal.
   cbn.
+(* ça bloque *)
+...
+}
+(*
+...
+  rewrite Hxz.
+  cbn.
+  f_equal.
+...
+Compute (5 / 0)%Z.
+Compute (mk_q 0 0).
+...
   progress f_equal.
+Require Import ZArith.
+Compute (1 / 0)%positive.
 (* bon, c'est pas ça *)
 ...
 }
 apply Nat.eqb_neq in Hxz.
+...
 progress f_equal. {
   do 2 rewrite Nat2Z.inj_mul.
   do 2 rewrite (Z.mul_comm (Z.of_nat (q_den x))).
@@ -174,6 +229,8 @@ progress f_equal. {
   do 2 rewrite (Z.mul_comm (Z.of_nat (q_den x))).
   do 2 rewrite Z.mul_assoc.
   rewrite <- Z.mul_add_distr_r.
+  (* il faut que q_den x ≠ 0 *)
+...
 (**)
   destruct (Nat.eq_dec (q_den x) 0) as [Hxz| Hxz]. {
     rewrite Hxz.
