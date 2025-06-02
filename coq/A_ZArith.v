@@ -236,6 +236,7 @@ Definition eqb a b :=
   end.
 
 Definition le a b := compare a b ≠ Gt.
+Definition lt a b := compare a b = Lt.
 
 Definition of_number (n : Number.int) : option Z :=
   match n with
@@ -676,6 +677,7 @@ Notation "- a" := (Z.opp a) : Z_scope.
 Notation "a * b" := (Z.mul a b) : Z_scope.
 Notation "a / b" := (Z.div a b) : Z_scope.
 Notation "a ≤ b" := (Z.le a b) : Z_scope.
+Notation "a < b" := (Z.lt a b) : Z_scope.
 Notation "a ?= b" := (Z.compare a b) : Z_scope.
 Notation "a =? b" := (Z.eqb a b) : Z_scope.
 

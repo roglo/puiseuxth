@@ -11,7 +11,9 @@ Notation "[ ]" := nil.
 Notation "[ x ; .. ; y … l ]" := (cons x .. (cons y l) ..).
 Notation "[ x ]" := (cons x nil).
 Notation "x ++ y" := (List.app x y) (right associativity, at level 60).
+(*
 Notation "x < y <= z" := (x < y ∧ y <= z) (at level 70, y at next level).
+*)
 Notation "x < y < z" := (x < y ∧ y < z) (at level 70, y at next level).
 Notation "x < y ≤ z" := (x < y ∧ y <= z)%nat (at level 70, y at next level).
 Notation "x ≤ y ≤ z" := (x <= y ∧ y <= z)%nat (at level 70, y at next level).
@@ -163,6 +165,8 @@ Qed.
 
 (* *)
 
+Open Scope Q_scope.
+
 Definition Qnat i := Z.of_nat i # 1.
 
 Theorem Nat_sub_succ_diag : ∀ n, (S n - n = 1)%nat.
@@ -172,17 +176,16 @@ rewrite Nat.sub_succ_l; [ | easy ].
 now rewrite Nat.sub_diag.
 Qed.
 
-Theorem Nat_le_neq_lt : ∀ x y : nat, x ≤ y → x ≠ y → x < y.
+Theorem Nat_le_neq_lt : ∀ x y : nat, x <= y → x ≠ y → (x < y)%nat.
 Proof.
 intros * Hxy Hnxy.
 now destruct (le_lt_eq_dec x y Hxy).
 Qed.
 
-...
-
 Theorem Qle_neq_lt : ∀ x y : Q, x ≤ y → ¬ x == y → x < y.
 Proof.
 intros * Hxy Hnxy.
+...
 apply Qnot_le_lt.
 intros H.
 apply Qle_antisym in Hxy; [ | easy ].

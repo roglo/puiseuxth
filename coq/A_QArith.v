@@ -39,6 +39,7 @@ Definition compare a b :=
 
 
 Definition le x y := (q_num x * q_Den y ≤ q_num y * q_Den x)%Z.
+Definition lt x y := (q_num x * q_Den y < q_num y * q_Den x)%Z.
 
 Definition of_number (n : Number.int) : option Q :=
   match n with
@@ -150,9 +151,9 @@ Notation "a + b" := (Q.add a b) : Q_scope.
 Notation "a - b" := (Q.sub a b) : Q_scope.
 Notation "a * b" := (Q.mul a b) : Q_scope.
 Notation "a / b" := (Q.div a b) : Q_scope.
+Notation "a <= b" := (Q.le a b) : Q_scope.
 Notation "a ≤ b" := (Q.le a b) : Q_scope.
+Notation "a < b" := (Q.lt a b) : Q_scope.
 Notation "- a" := (Q.opp a) : Q_scope.
 Notation "a ?= b" := (Q.compare a b) : Q_scope.
 Notation "a # b" := (mk_q a b) (at level 55) : Q_scope.
-
-Close Scope Z_scope.
