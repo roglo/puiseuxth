@@ -66,41 +66,40 @@ Qed.
 Theorem Q_sub_sub_distr : ∀ x y z, x - (y - z) = (x - y) + z.
 Proof.
 intros.
-...
-progress unfold Qminus at 1.
+progress unfold Q.sub at 1.
 rewrite Q_opp_sub_distr.
-progress unfold Qminus.
-rewrite <- Q_add_assoc.
-f_equal.
-apply Q_add_comm.
+progress unfold Q.sub.
+rewrite <- Q.add_assoc.
+progress f_equal.
+apply Q.add_comm.
 Qed.
 
 Theorem Q_add_add_swap : ∀ x y z, x + y + z = x + z + y.
 Proof.
 intros.
-do 2 rewrite <- Q_add_assoc.
+do 2 rewrite <- Q.add_assoc.
 progress f_equal.
-apply Q_add_comm.
+apply Q.add_comm.
 Qed.
 
 Theorem Q_add_sub_swap : ∀ x y z, x + y - z = x - z + y.
 Proof.
 intros.
-rewrite Q_add_comm.
+rewrite Q.add_comm.
 rewrite <- Q_add_sub_assoc.
-apply Q_add_comm.
+apply Q.add_comm.
 Qed.
 
 Theorem Q_mul_div_assoc : ∀ x y z, x * (y / z) = (x * y) / z.
-Proof. intros; apply Q_mul_assoc. Qed.
+Proof. intros; apply Q.mul_assoc. Qed.
 
 Theorem Q_mul_div_swap : ∀ x y z, x / y * z = x * z / y.
 Proof.
 intros.
-progress unfold Qdiv.
-do 2 rewrite <- Q_mul_assoc.
+progress unfold Q.div.
+do 2 rewrite <- Q.mul_assoc.
 progress f_equal.
-apply Q_mul_comm.
+apply Q.mul_comm.
 Qed.
 
 Theorem Q_opp_0 : - 0 = 0.
@@ -108,42 +107,47 @@ Proof. easy. Qed.
 
 Theorem Q_sub_0_r : ∀ n, n - 0 = n.
 Proof.
-intros n.
-progress unfold Qminus.
+intros.
+progress unfold Q.sub.
 rewrite Q_opp_0.
-apply Q_add_0_r.
+apply Q.add_0_r.
 Qed.
 
 (* doesn't work, works with a small modification *)
 
-Definition Q1 x := QDen x # Qden x.
+Definition Q1 x := Z.of_nat (q_den x) # q_den x.
 
 Theorem Q_mul_add_distr_l : ∀ x y z, x * (y + z) * Q1 x = x * y + x * z.
 Proof.
 intros.
-progress unfold Qplus.
-progress unfold Qmult.
+progress unfold Q.add.
+progress unfold Q.mul.
 cbn.
 progress f_equal. {
   rewrite Z.mul_add_distr_l.
   rewrite Z.mul_add_distr_r.
-  do 2 rewrite Pos2Z.inj_mul.
+  do 2 rewrite Nat2Z.inj_mul.
   do 4 rewrite Z.mul_assoc.
-  do 2 rewrite (Z.mul_shuffle0 _ (QDen x)).
+  do 2 rewrite (Z.mul_mul_swap _ (Z.of_nat (q_den x))).
   easy.
 } {
-  do 3 rewrite <- Pos.mul_assoc.
+  do 3 rewrite <- Nat.mul_assoc.
   progress f_equal.
   progress f_equal.
-  apply Pos.mul_comm.
+  apply Nat.mul_comm.
 }
 Qed.
 
-Definition Pos_div (a b : positive) : positive :=
-  match (Z.pos a / Z.pos b)%Z with
-  | Z.pos p => p
-  | _ => 1%positive
-  end.
+...
+Require Import ZArith.
+Print Z.div_eucl.
+
+...
+Definition Z_div a b := fst (Z.div_eucl a b).
+
+Definition QQ (x y : Q) := (q_num x / q_den y) # (q_den x / q_den y).
+
+...
 
 Definition QQ (x y : Q) := (Qnum x / QDen y) # Pos_div (Qden x) (Qden y).
 
