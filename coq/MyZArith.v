@@ -122,12 +122,6 @@ Definition of_nat n :=
   | S n' => z_val true n'
   end.
 
-Definition abs_nat a :=
-  match a with
-  | z_zero => 0
-  | z_val _ n => S n
-  end.
-
 Definition add a b :=
   match a with
   | z_zero => b
