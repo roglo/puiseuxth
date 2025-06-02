@@ -1,6 +1,6 @@
 (* RootHeadTail.v *)
 
-From Stdlib Require Import Utf8 MyQArith ZArith Sorting.
+From Stdlib Require Import Utf8 ZArith Sorting.
 
 Require Import Misc.
 Require Import Field2.

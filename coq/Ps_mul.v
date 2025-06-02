@@ -1,7 +1,6 @@
 (* Ps_mul.v *)
 
 From Stdlib Require Import Utf8 Arith ZArith.
-From Stdlib Require Import MyQArith.
 
 Require Import Misc.
 Require Import NbarM.

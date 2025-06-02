@@ -1,7 +1,7 @@
 (* RootAnyR.v *)
 
 Set Nested Proofs Allowed.
-From Stdlib Require Import Utf8 MyQArith Arith ZArith Sorting.
+From Stdlib Require Import Utf8 Arith ZArith Sorting.
 
 Require Import Misc.
 Require Import SlopeMisc.

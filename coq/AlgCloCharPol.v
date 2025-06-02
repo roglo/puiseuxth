@@ -1,6 +1,6 @@
 (* AlgCloCharPol.v *)
 
-From Stdlib Require Import Utf8 MyQArith ArithRing Arith.
+From Stdlib Require Import Utf8 ArithRing Arith.
 
 Require Import Misc.
 Require Import Field2.

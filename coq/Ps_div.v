@@ -1,7 +1,6 @@
 (* Ps_div.v *)
 
 From Stdlib Require Import Utf8 Arith.
-From Stdlib Require Import MyQArith.
 
 Require Import Misc.
 Require Import NbarM.

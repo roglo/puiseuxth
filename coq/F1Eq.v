@@ -2,7 +2,7 @@
 
 Set Nested Proofs Allowed.
 
-From Stdlib Require Import Utf8 MyQArith Sorted Arith ZArith.
+From Stdlib Require Import Utf8 Sorted Arith ZArith.
 
 Require Import ConvexHullMisc.
 Require Import ConvexHull.

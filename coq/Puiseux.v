@@ -1,6 +1,6 @@
 (* Puiseux.v *)
 
-From Stdlib Require Import Utf8 Arith ZArith MyQArith Sorting.
+From Stdlib Require Import Utf8 Arith ZArith Sorting.
 
 Require Import Misc.
 Require Import SlopeMisc.

@@ -2,7 +2,7 @@
 
 (* points in newton segment *)
 
-From Stdlib Require Import Utf8 Arith MyQArith Sorting.
+From Stdlib Require Import Utf8 Arith Sorting.
 
 Require Import Misc.
 Require Import Slope_base.

@@ -1,5 +1,7 @@
+(** * A ℚ arithmetics *)
+
 From Stdlib Require Import Utf8 Arith.
-Require Import MyZArith.
+Require Import A_ZArith.
 
 Record Q := mk_q
   { q_num : Z;

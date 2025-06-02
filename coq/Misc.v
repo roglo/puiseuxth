@@ -5,7 +5,7 @@ From Stdlib Require Import Utf8 Arith.
 From Stdlib Require Import Sorted.
 From Stdlib Require Import Psatz.
 
-Require Import MyZArith MyQArith.
+Require Import A_ZArith A_QArith.
 
 Notation "[ ]" := nil.
 Notation "[ x ; .. ; y … l ]" := (cons x .. (cons y l) ..).

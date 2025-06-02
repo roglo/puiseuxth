@@ -1,7 +1,7 @@
 (* F1Prop.v *)
 
 Set Nested Proofs Allowed.
-From Stdlib Require Import Utf8 MyQArith Arith ZArith Sorted.
+From Stdlib Require Import Utf8 Arith ZArith Sorted.
 
 Require Import Misc.
 Require Import QbarM.

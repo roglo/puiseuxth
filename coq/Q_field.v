@@ -2,7 +2,7 @@
 
 From Stdlib Require Import Utf8.
 
-Require Import MyQArith.
+Require Import A_QArith.
 Require Import Field2.
 
 Theorem Qplus_opp_l : ∀ a, -a + a == 0.

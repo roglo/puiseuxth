@@ -1,6 +1,6 @@
 (* Qbar.v *)
 
-From Stdlib Require Import Utf8 ZArith MyQArith.
+From Stdlib Require Import Utf8 ZArith.
 
 Require Import Misc.
 

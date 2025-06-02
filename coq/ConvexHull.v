@@ -3,7 +3,7 @@
 From Stdlib Require Import Utf8 List.
 Import ListNotations.
 
-Require Import MyQArith Slope_base.
+Require Import A_QArith Slope_base.
 
 Record newton_segment := mkns
   { ini_pt : (nat * Q);

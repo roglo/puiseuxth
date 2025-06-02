@@ -1,3 +1,5 @@
+(** * A ℤ arithmetics *)
+
 Set Nested Proofs Allowed.
 From Stdlib Require Import Utf8 Arith Psatz.
 

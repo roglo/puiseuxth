@@ -3,7 +3,6 @@
 Set Nested Proofs Allowed.
 
 From Stdlib Require Import Utf8 Arith ZArith.
-From Stdlib Require Import MyQArith.
 From Stdlib Require Import Sorted.
 
 Require Import Misc.
