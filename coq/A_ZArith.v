@@ -235,6 +235,8 @@ Definition eqb a b :=
       end
   end.
 
+Definition le a b := compare a b ≠ Gt.
+
 Definition of_number (n : Number.int) : option Z :=
   match n with
   | Number.IntDecimal n =>
@@ -260,6 +262,7 @@ Notation "a - b" := (sub a b) : Z_scope.
 Notation "a * b" := (mul a b) : Z_scope.
 Notation "a / b" := (div a b) : Z_scope.
 Notation "- a" := (opp a) : Z_scope.
+Notation "a ?= b" := (compare a b) : Z_scope.
 Notation "a =? b" := (eqb a b) : Z_scope.
 
 Theorem add_comm : ∀ a b, (a + b)%Z = (b + a)%Z.
@@ -672,6 +675,7 @@ Notation "a - b" := (Z.sub a b) : Z_scope.
 Notation "- a" := (Z.opp a) : Z_scope.
 Notation "a * b" := (Z.mul a b) : Z_scope.
 Notation "a / b" := (Z.div a b) : Z_scope.
+Notation "a ≤ b" := (Z.le a b) : Z_scope.
 Notation "a ?= b" := (Z.compare a b) : Z_scope.
 Notation "a =? b" := (Z.eqb a b) : Z_scope.
 

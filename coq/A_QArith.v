@@ -11,10 +11,11 @@ Declare Scope Q_scope.
 Delimit Scope Q_scope with Q.
 Bind Scope Q_scope with Q.
 
+Definition q_Den a := Z.of_nat (q_den a).
+
 Module Q.
 
-Definition eq a b :=
-  q_num a * Z.of_nat (q_den b) = q_num b * Z.of_nat (q_den a).
+Definition eq a b := q_num a * q_Den b = q_num b * q_Den a.
 
 Definition add a b :=
   mk_q (q_num a * Z.of_nat (q_den b) + q_num b * Z.of_nat (q_den a))
@@ -35,6 +36,9 @@ Definition div a b := mul a (inv b).
 
 Definition compare a b :=
   q_num a * Z.of_nat (q_den b) ?= q_num b * Z.of_nat (q_den a).
+
+
+Definition le x y := (q_num x * q_Den y ≤ q_num y * q_Den x)%Z.
 
 Definition of_number (n : Number.int) : option Q :=
   match n with
@@ -146,9 +150,9 @@ Notation "a + b" := (Q.add a b) : Q_scope.
 Notation "a - b" := (Q.sub a b) : Q_scope.
 Notation "a * b" := (Q.mul a b) : Q_scope.
 Notation "a / b" := (Q.div a b) : Q_scope.
+Notation "a ≤ b" := (Q.le a b) : Q_scope.
 Notation "- a" := (Q.opp a) : Q_scope.
 Notation "a ?= b" := (Q.compare a b) : Q_scope.
 Notation "a # b" := (mk_q a b) (at level 55) : Q_scope.
 
 Close Scope Z_scope.
-Open Scope Q_scope.

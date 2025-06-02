@@ -27,6 +27,9 @@ Set Implicit Arguments.
 (* Some theorems working with syntactic equality
    and not only with equivalence relation in Q *)
 
+Open Scope Q_scope.
+From Stdlib Require Import Utf8.
+
 Theorem Q_mul_opp_l : ∀ x y, (- x) * y = - (x * y).
 Proof.
 intros.
@@ -138,155 +141,24 @@ progress f_equal. {
 }
 Qed.
 
-(*
-From Stdlib Require Import ZArith QArith.
-
-Definition Pos_div (a b : positive) : positive :=
-  match (Z.pos a / Z.pos b)%Z with
-  | Z.pos p => p
-  | _ => 1%positive
-  end.
-
-Definition QQ (x y : Q) := (Qnum x / QDen y) # Pos_div (Qden x) (Qden y).
-
-Compute (QQ (-7) 0).
-Compute (3 / 0)%Z.
-Compute (0 / 0)%Z.
-     = -7
-     : Q
-     = 0%Z
-     : Z
-     = 0%Z
-     : Z
-*)
-
-(*
-Definition QQ x y :=
-  if q_den y =? 0 then x
-  else (q_num x / Z.of_nat (q_den y) # q_den x / q_den y).
-
-Definition QQ x y :=
-  if q_den y =? 0 then (q_num x / 0 # 0)
-  else (q_num x / Z.of_nat (q_den y) # q_den x / q_den y).
-*)
-Definition QQ x y :=
-(*
-  if (q_num y =? 0)%Z then
-    (0 # (q_den x / q_den y))
-  else
-*)
-  if (q_den y =? 0)%nat then
-    (q_num y * q_num x # 0)
-  else
-    (q_num x / Z.of_nat (q_den y) # q_den x / q_den y).
-
-Theorem Q_mul_add_distr_l' : ∀ x y z, x * (y + z) = QQ (x * y + x * z) x.
-Proof.
-intros.
-progress unfold QQ.
-progress unfold Q.add.
-progress unfold Q.mul; cbn.
-(**)
-remember (q_den x =? 0)%nat as xz eqn:Hxz.
-symmetry in Hxz.
-destruct xz. {
-  apply Nat.eqb_eq in Hxz.
-  rewrite Hxz.
-  f_equal.
-  cbn.
-(* ça bloque *)
-...
-}
-(*
-...
-  rewrite Hxz.
-  cbn.
-  f_equal.
-...
-Compute (5 / 0)%Z.
-Compute (mk_q 0 0).
-...
-  progress f_equal.
-Require Import ZArith.
-Compute (1 / 0)%positive.
-(* bon, c'est pas ça *)
-...
-}
-apply Nat.eqb_neq in Hxz.
-...
-progress f_equal. {
-  do 2 rewrite Nat2Z.inj_mul.
-  do 2 rewrite (Z.mul_comm (Z.of_nat (q_den x))).
-  do 2 rewrite Z.mul_assoc.
-  rewrite <- Z.mul_add_distr_r.
-  rewrite Z.div_mul; [ | cbn ].
-...
-...
-Search (if _ then _ else _).
-rewrite if_eqb_bool_dec.
-progress f_equal. {
-  do 2 rewrite Nat2Z.inj_mul.
-  do 2 rewrite (Z.mul_comm (Z.of_nat (q_den x))).
-  do 2 rewrite Z.mul_assoc.
-  rewrite <- Z.mul_add_distr_r.
-  (* il faut que q_den x ≠ 0 *)
-...
-(**)
-  destruct (Nat.eq_dec (q_den x) 0) as [Hxz| Hxz]. {
-    rewrite Hxz.
-    cbn.
-Check Q_mul_add_distr_l.
-Require Import ZArith.
-Check Z.div_mul.
-Compute (0 / 0)%Z.
-...
-  rewrite Z.div_mul. 2: {
-    cbn.
-    progress unfold Z.of_nat.
-    destruct x as (xn, xd); cbn.
-    destruct xd.
-...
-  rewrite Z.div_mul; [ | easy ].
-  do 2 rewrite <- Z.mul_assoc.
-  apply Z.mul_add_distr_l.
-} {
-  progress unfold Pos_div.
-  do 3 rewrite Pos2Z.inj_mul.
-  rewrite <- Z.mul_assoc.
-  rewrite (Z.mul_comm (QDen x)).
-  rewrite Z.div_mul; [ | easy ].
-  rewrite Z.mul_comm.
-  rewrite <- Z.mul_assoc.
-  now rewrite (Z.mul_comm (QDen z)).
-}
-Qed.
-
 Theorem Q_mul_add_distr_r : ∀ x y z, (x + y) * z * Q1 z = x * z + y * z.
 Proof.
 intros.
-rewrite (Q_mul_comm (_ + _)).
+rewrite (Q.mul_comm (_ + _)).
 rewrite Q_mul_add_distr_l.
-now do 2 rewrite (Q_mul_comm z).
-Qed.
-
-Theorem Q_mul_add_distr_r' : ∀ x y z, (x + y) * z = QQ (x * z + y * z) z.
-Proof.
-intros.
-rewrite (Q_mul_comm (_ + _)).
-rewrite Q_mul_add_distr_l'.
-now do 2 rewrite (Q_mul_comm z).
+now do 2 rewrite (Q.mul_comm z).
 Qed.
 
 Theorem Q_mul_Q1_r : ∀ x y, x * Q1 y == x.
 Proof.
 intros.
-progress unfold Qeq.
+progress unfold Q.eq.
 cbn.
 rewrite <- Z.mul_assoc.
 progress f_equal.
 rewrite Z.mul_comm.
 symmetry.
-apply Pos2Z.inj_mul.
+apply Nat2Z.inj_mul.
 Qed.
 
 (* *)
@@ -300,13 +172,15 @@ rewrite Nat.sub_succ_l; [ | easy ].
 now rewrite Nat.sub_diag.
 Qed.
 
-Theorem Nat_le_neq_lt : ∀ x y : nat, x ≤ y → x ≠ y → (x < y)%nat.
+Theorem Nat_le_neq_lt : ∀ x y : nat, x ≤ y → x ≠ y → x < y.
 Proof.
 intros * Hxy Hnxy.
 now destruct (le_lt_eq_dec x y Hxy).
 Qed.
 
-Theorem Qle_neq_lt : ∀ x y, x <= y → ¬ x == y → x < y.
+...
+
+Theorem Qle_neq_lt : ∀ x y : Q, x ≤ y → ¬ x == y → x < y.
 Proof.
 intros * Hxy Hnxy.
 apply Qnot_le_lt.
