@@ -201,6 +201,19 @@ split; intros Hbc. {
   do 2 rewrite Nat2Z.inj_mul.
   do 2 rewrite <- Z.mul_assoc.
   apply Z.mul_lt_mono_pos_l; [ easy | ].
+  do 2 rewrite (Z.mul_comm (q_num _)).
+  do 2 rewrite <- Z.mul_assoc.
+  apply Z.mul_lt_mono_pos_l. {
+    apply Z.lt_iff.
+    split. {
+Search (0 ≤ Z.of_nat _)%Z.
+...
+Require Import RingLike.Core.
+Search (_ < _ ↔ _ ≤ _ ∧ _ ≠ _)%L.
+Z.le_neq: ∀ n m : Z, (n < m)%Z ↔ (n <= m)%Z ∧ n ≠ m
+
+Search (_ <= _ ∧ _ ≠ _ ↔ _ < _)%Z.
+Search (_ <= _ → _ ≠ _ → _ < _)%Z.
 ...
 
 ... ...

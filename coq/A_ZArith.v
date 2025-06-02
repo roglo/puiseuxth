@@ -790,6 +790,24 @@ split; intros Hbc. {
 }
 Qed.
 
+Theorem lt_le_incl : ∀ a b, (a < b)%Z → (a ≤ b)%Z.
+Proof. intros * Hab; congruence. Qed.
+
+Theorem lt_iff : ∀ a b, (a < b)%Z ↔ (a ≤ b)%Z ∧ a ≠ b.
+Proof.
+intros.
+split. {
+  intros Hab.
+  split; [ now apply lt_le_incl | ].
+  intros H; subst b.
+  now apply lt_irrefl in Hab.
+}
+intros (H1, H2).
+apply nle_gt.
+intros H3; apply H2.
+now apply le_antisymm.
+Qed.
+
 End Z.
 
 Number Notation Z Z.of_number Z.to_number : Z_scope.
