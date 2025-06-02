@@ -7,17 +7,45 @@ From Stdlib Require Import Psatz.
 
 Require Import A_ZArith A_QArith.
 
+(*
+Locate "≤".
+Notation "x ≤ y" := (le x y) (default interpretation)
+Notation "a ≤ b" := (Q.le a b) : Q_scope
+Notation "a ≤ b" := (Z.le a b) : Z_scope
+*)
+(*
+Locate "<=".
+Notation "x <= y <= z" := (and (le x y) (le y z)) : nat_scope (default interpretation)
+Notation "x <= y < z" := (and (le x y) (lt y z)) : nat_scope (default interpretation)
+Notation "n <= m" := (le n m) : nat_scope (default interpretation)
+Notation "x < y <= z" := (and (lt x y) (le y z)) : nat_scope (default interpretation)
+*)
+Open Scope Q_scope.
+(*
+Locate "≤".
+Notation "x ≤ y" := (le x y)
+Notation "a ≤ b" := (Q.le a b) : Q_scope (default interpretation)
+Notation "a ≤ b" := (Z.le a b) : Z_scope
+*)
+(*
+Locate "<=".
+Notation "x <= y <= z" := (and (le x y) (le y z)) : nat_scope (default interpretation)
+Notation "x <= y < z" := (and (le x y) (lt y z)) : nat_scope (default interpretation)
+Notation "n <= m" := (le n m) : nat_scope (default interpretation)
+Notation "x < y <= z" := (and (lt x y) (le y z)) : nat_scope (default interpretation)
+*)
+
 Notation "[ ]" := nil.
 Notation "[ x ; .. ; y … l ]" := (cons x .. (cons y l) ..).
 Notation "[ x ]" := (cons x nil).
 Notation "x ++ y" := (List.app x y) (right associativity, at level 60).
 (*
 Notation "x < y <= z" := (x < y ∧ y <= z) (at level 70, y at next level).
-*)
 Notation "x < y < z" := (x < y ∧ y < z) (at level 70, y at next level).
 Notation "x < y ≤ z" := (x < y ∧ y <= z)%nat (at level 70, y at next level).
 Notation "x ≤ y ≤ z" := (x <= y ∧ y <= z)%nat (at level 70, y at next level).
 Notation "x ≤ y < z" := (x <= y ∧ y < z)%nat (at level 70, y at next level).
+*)
 Notation "x ∈ l" := (List.In x l) (at level 70).
 Notation "x ∉ l" := (not (List.In x l)) (at level 70).
 
@@ -28,9 +56,6 @@ Set Implicit Arguments.
 
 (* Some theorems working with syntactic equality
    and not only with equivalence relation in Q *)
-
-Open Scope Q_scope.
-From Stdlib Require Import Utf8.
 
 Theorem Q_mul_opp_l : ∀ x y, (- x) * y = - (x * y).
 Proof.
@@ -165,8 +190,6 @@ Qed.
 
 (* *)
 
-Open Scope Q_scope.
-
 Definition Qnat i := Z.of_nat i # 1.
 
 Theorem Nat_sub_succ_diag : ∀ n, (S n - n = 1)%nat.
@@ -176,7 +199,7 @@ rewrite Nat.sub_succ_l; [ | easy ].
 now rewrite Nat.sub_diag.
 Qed.
 
-Theorem Nat_le_neq_lt : ∀ x y : nat, x <= y → x ≠ y → (x < y)%nat.
+Theorem Nat_le_neq_lt : ∀ x y : nat, (x <= y)%nat → x ≠ y → (x < y)%nat.
 Proof.
 intros * Hxy Hnxy.
 now destruct (le_lt_eq_dec x y Hxy).

@@ -46,7 +46,7 @@ intros pt₁ pt₂ pts.
 revert pt₁ pt₂.
 induction pts as [| pt]; intros; [ reflexivity | simpl ].
 remember (minimise_slope pt₁ pt pts) as ms.
-remember (slope_expr pt₁ pt₂ ?= slope ms) as c.
+remember (slope_expr pt₁ pt₂ ?= slope ms)%Q as c.
 symmetry in Heqc.
 destruct c; simpl; [ reflexivity | reflexivity | idtac ].
 subst ms; apply IHpts.

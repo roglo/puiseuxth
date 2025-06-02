@@ -676,14 +676,15 @@ Notation "a - b" := (Z.sub a b) : Z_scope.
 Notation "- a" := (Z.opp a) : Z_scope.
 Notation "a * b" := (Z.mul a b) : Z_scope.
 Notation "a / b" := (Z.div a b) : Z_scope.
+Notation "a <= b" := (Z.le a b) : Z_scope.
 Notation "a ≤ b" := (Z.le a b) : Z_scope.
 Notation "a < b" := (Z.lt a b) : Z_scope.
 Notation "a ?= b" := (Z.compare a b) : Z_scope.
 Notation "a =? b" := (Z.eqb a b) : Z_scope.
 
-Open Scope Z_scope.
-
 Module Nat2Z.
+
+Open Scope Z_scope.
 
 Theorem inj_mul: ∀ a b : nat, Z.of_nat (a * b) = Z.of_nat a * Z.of_nat b.
 Proof.

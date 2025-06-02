@@ -15,6 +15,8 @@ Definition q_Den a := Z.of_nat (q_den a).
 
 Module Q.
 
+Open Scope Z_scope.
+
 Definition eq a b := q_num a * q_Den b = q_num b * q_Den a.
 
 Definition add a b :=
