@@ -263,6 +263,8 @@ Notation "a - b" := (sub a b) : Z_scope.
 Notation "a * b" := (mul a b) : Z_scope.
 Notation "a / b" := (div a b) : Z_scope.
 Notation "- a" := (opp a) : Z_scope.
+Notation "a ≤ b" := (le a b) : Z_scope.
+Notation "a < b" := (lt a b) : Z_scope.
 Notation "a ?= b" := (compare a b) : Z_scope.
 Notation "a =? b" := (eqb a b) : Z_scope.
 
@@ -665,6 +667,64 @@ apply Bool.andb_true_iff in Hab.
 destruct Hab as (H1, H2).
 apply Nat.eqb_eq in H2; subst vb.
 now destruct sa, sb.
+Qed.
+
+Theorem compare_eq_iff : ∀ a b, (a ?= b)%Z = Eq ↔ a = b.
+Proof.
+intros.
+destruct a as [| sa va]; cbn. {
+  destruct b as [| sb vb]; [ easy | now destruct sb ].
+}
+destruct b as [| sb vb]; [ now destruct sa | ].
+destruct sa, sb; [ | easy | easy | ]. {
+  rewrite Nat.compare_eq_iff.
+  split; intros H; [ now subst vb | ].
+  now injection H.
+} {
+  rewrite Nat.compare_eq_iff.
+  split; intros H; [ now subst vb | ].
+  now injection H.
+}
+Qed.
+
+Theorem compare_antisymm : ∀ a b, CompOpp (a ?= b)%Z = (b ?= a)%Z.
+Proof.
+intros.
+destruct a as [| sa va]. {
+  destruct b as [| sb vb]; [ easy | now destruct sb ].
+}
+destruct b as [| sb vb]; [ now destruct sa | cbn ].
+destruct sa. {
+  destruct sb; [ | easy ].
+  symmetry; apply Nat.compare_antisym.
+}
+destruct sb; [ easy | ].
+symmetry; apply Nat.compare_antisym.
+Qed.
+
+Theorem nle_gt : ∀ a b, ¬ (a ≤ b)%Z ↔ (b < a)%Z.
+Proof.
+intros.
+progress unfold le.
+progress unfold lt.
+rewrite <- compare_antisymm.
+progress unfold CompOpp.
+split; [ | now destruct (b ?= a)%Z ].
+destruct (b ?= a)%Z; [ | easy | ].
+now intros H; exfalso; apply H.
+now intros H; exfalso; apply H.
+Qed.
+
+Theorem le_antisymm : ∀ a b, (a ≤ b)%Z → (b ≤ a)%Z → (a = b)%Z.
+Proof.
+intros * Hab Hba.
+progress unfold le in Hab, Hba.
+rewrite <- compare_antisymm in Hba.
+progress unfold CompOpp in Hba.
+remember (a ?= b)%Z as ab eqn:H1.
+symmetry in H1.
+destruct ab; [ | easy | easy ].
+now apply compare_eq_iff.
 Qed.
 
 End Z.

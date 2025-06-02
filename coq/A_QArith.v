@@ -39,7 +39,6 @@ Definition div a b := mul a (inv b).
 Definition compare a b :=
   q_num a * Z.of_nat (q_den b) ?= q_num b * Z.of_nat (q_den a).
 
-
 Definition le x y := (q_num x * q_Den y ≤ q_num y * q_Den x)%Z.
 Definition lt x y := (q_num x * q_Den y < q_num y * q_Den x)%Z.
 
@@ -61,9 +60,12 @@ Definition to_number (a : Q) : option Number.int :=
 
 Number Notation Q of_number to_number : Q_scope.
 
+Notation "a == b" := (eq a b) (at level 70) : Q_scope.
 Notation "a + b" := (add a b) : Q_scope.
 Notation "a * b" := (mul a b) : Q_scope.
 Notation "- a" := (opp a) : Q_scope.
+Notation "a ≤ b" := (le a b) : Q_scope.
+Notation "a < b" := (lt a b) : Q_scope.
 
 Theorem add_comm : ∀ a b, (a + b)%Q = (b + a)%Q.
 Proof.
@@ -142,6 +144,17 @@ intros.
 progress unfold opp; cbn.
 rewrite Z.opp_involutive.
 now destruct a.
+Qed.
+
+Theorem nle_gt : ∀ a b, ¬ (a ≤ b)%Q ↔ (b < a)%Q.
+Proof. intros; apply Z.nle_gt. Qed.
+
+Theorem le_antisymm : ∀ a b, (a ≤ b)%Q → (b ≤ a)%Q → (a == b)%Q.
+Proof.
+intros * Hab Hba.
+progress unfold le in Hab, Hba.
+progress unfold eq.
+now apply Z.le_antisymm.
 Qed.
 
 End Q.

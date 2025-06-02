@@ -179,16 +179,16 @@ Qed.
 Theorem Qle_neq_lt : ∀ x y : Q, x ≤ y → ¬ x == y → x < y.
 Proof.
 intros * Hxy Hnxy.
-...
-apply Qnot_le_lt.
+apply Q.nle_gt.
 intros H.
-apply Qle_antisym in Hxy; [ | easy ].
+apply Q.le_antisymm in Hxy; [ | easy ].
 now apply Hnxy.
 Qed.
 
 Theorem Qdiv_lt_compat_r : ∀ x y z, 0 < z → x < y → x / z < y / z.
 Proof.
 intros * Hz Hxy.
+...
 apply Qmult_lt_compat_r; [ | easy ].
 now apply Qinv_lt_0_compat.
 Qed.
