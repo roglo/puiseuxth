@@ -200,47 +200,7 @@ split; intros Hbc. {
   progress unfold q_Den in Hbc |-*; cbn.
   do 2 rewrite Nat2Z.inj_mul.
   do 2 rewrite <- Z.mul_assoc.
-
-Theorem Z_mul_lt_mono_pos_l :
-  ∀ a b c, (0 < a)%Z → (b < c)%Z ↔ (a * b < a * c)%Z.
-Proof.
-intros * Hza.
-split; intros Hbc. {
-  destruct a as [| sa va]; [ now apply Z.lt_irrefl in Hza | cbn ].
-  destruct b as [| sb vb]. {
-    destruct c as [| sc vc]; [ easy | ].
-    now destruct sa, sc.
-  }
-  destruct sa; [ | easy ].
-  destruct c as [| sc vc]; [ now destruct sb | cbn ].
-  destruct sb, sc; [ | easy | easy | ]. {
-...
-    destruct sb; [ easy | ].
-    easy.
-cbn.
-  destruct sb. {
-
-cbn in Hza.
-...
-
-apply Z_compare_lt_iff in Ha.
-destruct sa; cbn in Ha.
-
-progress unfold Z.lt in Ha.
-cbn in Ha.
-
-...
-cbn in Ha.
-cbn in Ha.
-  cbn in Ha.
-
-...
-    apply Z_lt_irrefl in Hza.
-...
-  progress unfold Z.lt in Hza, Hbc |-*.
-  progress unfold Z.compare in Hza, Hbc |-*.
-  progress unfold Z.mul.
-  cbn.
+  apply Z.mul_lt_mono_pos_l; [ easy | ].
 ...
 
 ... ...

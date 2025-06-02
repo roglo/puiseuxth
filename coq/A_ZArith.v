@@ -740,6 +740,56 @@ destruct sa. {
 }
 Qed.
 
+Theorem mul_lt_mono_pos_l :
+  ∀ a b c, (0 < a)%Z → (b < c)%Z ↔ (a * b < a * c)%Z.
+Proof.
+intros * Hza.
+destruct a as [| sa va]; [ now apply lt_irrefl in Hza | cbn ].
+destruct sa; [ clear Hza | easy ].
+destruct b as [| sb vb]. {
+  destruct c as [| sc vc]; [ easy | ].
+  now destruct sc.
+}
+destruct c as [| sc vc]; [ now destruct sb | cbn ].
+split; intros Hbc. {
+  destruct sb, sc; [ | easy | easy | ]. {
+    apply Nat.compare_lt_iff in Hbc.
+    apply Nat.compare_lt_iff.
+    (* lemma *)
+    apply Nat.lt_add_lt_sub_r.
+    rewrite Nat.sub_add; [ | flia ].
+    apply Nat.mul_lt_mono_pos_l; [ flia | ].
+    now apply Nat.add_lt_mono_r.
+  } {
+    apply Nat.compare_lt_iff in Hbc.
+    apply Nat.compare_lt_iff.
+    (* lemma *)
+    apply Nat.lt_add_lt_sub_r.
+    rewrite Nat.sub_add; [ | flia ].
+    apply Nat.mul_lt_mono_pos_l; [ flia | ].
+    now apply Nat.add_lt_mono_r.
+  }
+} {
+  destruct sb, sc; [ | easy | easy | ]. {
+    apply Nat.compare_lt_iff in Hbc.
+    apply Nat.compare_lt_iff.
+    (* lemma *)
+    apply Nat.lt_add_lt_sub_r in Hbc.
+    rewrite Nat.sub_add in Hbc; [ | flia ].
+    apply Nat.mul_lt_mono_pos_l in Hbc; [ | flia ].
+    now apply Nat.add_lt_mono_r in Hbc.
+  } {
+    apply Nat.compare_lt_iff in Hbc.
+    apply Nat.compare_lt_iff.
+    (* lemma *)
+    apply Nat.lt_add_lt_sub_r in Hbc.
+    rewrite Nat.sub_add in Hbc; [ | flia ].
+    apply Nat.mul_lt_mono_pos_l in Hbc; [ | flia ].
+    now apply Nat.add_lt_mono_r in Hbc.
+  }
+}
+Qed.
+
 End Z.
 
 Number Notation Z Z.of_number Z.to_number : Z_scope.
