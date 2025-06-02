@@ -219,6 +219,20 @@ Definition compare a b :=
       end
   end.
 
+Definition eqb a b :=
+  match a with
+  | z_zero =>
+      match b with
+      | z_zero => true
+      | _ => false
+      end
+  | z_val sa va =>
+      match b with
+      | z_val sb vb => (Bool.eqb sa sb && (va =? vb))%bool
+      | _ => false
+      end
+  end.
+
 Definition of_number (n : Number.int) : option Z :=
   match n with
   | Number.IntDecimal n =>
@@ -244,6 +258,7 @@ Notation "a - b" := (sub a b) : Z_scope.
 Notation "a * b" := (mul a b) : Z_scope.
 Notation "a / b" := (div a b) : Z_scope.
 Notation "- a" := (opp a) : Z_scope.
+Notation "a =? b" := (eqb a b) : Z_scope.
 
 Theorem add_comm : ∀ a b, (a + b)%Z = (b + a)%Z.
 Proof.
@@ -602,6 +617,50 @@ destruct b as [| sb vb]; [ easy | cbn ].
 now destruct sa, sb.
 Qed.
 
+Theorem div_mul : ∀ a b, b ≠ 0%Z → (a * b / b)%Z = a.
+Proof.
+intros * Hbz.
+progress unfold mul.
+progress unfold div.
+destruct a as [| sa va]; [ easy | ].
+destruct b as [| sb vb]; [ easy | cbn ].
+rewrite Nat.sub_add; [ | flia ].
+rewrite if_eqb_bool_dec.
+rewrite Nat.div_mul; [ | now rewrite Nat.add_comm ].
+destruct (Bool.bool_dec (Bool.eqb sa sb) sb) as [H1| H1]. {
+  rewrite Nat.add_comm; cbn.
+  destruct sa; [ easy | ].
+  now exfalso; destruct sb.
+} {
+  rewrite Nat.Div0.mod_mul; cbn.
+  rewrite Nat.add_comm; cbn.
+  destruct sa; [ | easy ].
+  now exfalso; destruct sb.
+}
+Qed.
+
+Theorem eqb_refl : ∀ a, (a =? a)%Z = true.
+Proof.
+intros.
+destruct a as [| sa va]; [ easy | cbn ].
+rewrite Bool.eqb_reflx.
+rewrite Nat.eqb_refl.
+easy.
+Qed.
+
+Theorem eqb_eq : ∀ a b, (a =? b)%Z = true ↔ a = b.
+Proof.
+intros.
+split; intros Hab; [ | subst b; apply eqb_refl ].
+destruct a as [| sa va]; [ now destruct b | ].
+destruct b as [| sb vb]; [ easy | ].
+cbn in Hab.
+apply Bool.andb_true_iff in Hab.
+destruct Hab as (H1, H2).
+apply Nat.eqb_eq in H2; subst vb.
+now destruct sa, sb.
+Qed.
+
 End Z.
 
 Number Notation Z Z.of_number Z.to_number : Z_scope.
@@ -612,6 +671,7 @@ Notation "- a" := (Z.opp a) : Z_scope.
 Notation "a * b" := (Z.mul a b) : Z_scope.
 Notation "a / b" := (Z.div a b) : Z_scope.
 Notation "a ?= b" := (Z.compare a b) : Z_scope.
+Notation "a =? b" := (Z.eqb a b) : Z_scope.
 
 Open Scope Z_scope.
 

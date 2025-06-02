@@ -138,25 +138,56 @@ progress f_equal. {
 }
 Qed.
 
-Definition QQ x y := q_num x / Z.of_nat (q_den y) # q_den x / q_den y.
+Definition QQ x y :=
+  (if q_den y =? 0 then 0 else q_num x / Z.of_nat (q_den y)) # q_den x / q_den y.
 
 Theorem Q_mul_add_distr_l' : ∀ x y z, x * (y + z) = QQ (x * y + x * z) x.
 Proof.
 intros.
 progress unfold QQ.
 progress unfold Q.add.
-progress unfold Q.mul.
-cbn.
+progress unfold Q.mul; cbn.
+(**)
+remember (q_den x =? 0) as xz eqn:Hxz.
+symmetry in Hxz.
+destruct xz. {
+  apply Nat.eqb_eq in Hxz.
+  rewrite Hxz.
+  cbn.
+  progress f_equal.
+(* bon, c'est pas ça *)
+...
+}
+apply Nat.eqb_neq in Hxz.
 progress f_equal. {
   do 2 rewrite Nat2Z.inj_mul.
   do 2 rewrite (Z.mul_comm (Z.of_nat (q_den x))).
   do 2 rewrite Z.mul_assoc.
   rewrite <- Z.mul_add_distr_r.
+  rewrite Z.div_mul; [ | cbn ].
 ...
+...
+Search (if _ then _ else _).
+rewrite if_eqb_bool_dec.
+progress f_equal. {
+  do 2 rewrite Nat2Z.inj_mul.
+  do 2 rewrite (Z.mul_comm (Z.of_nat (q_den x))).
+  do 2 rewrite Z.mul_assoc.
+  rewrite <- Z.mul_add_distr_r.
+(**)
+  destruct (Nat.eq_dec (q_den x) 0) as [Hxz| Hxz]. {
+    rewrite Hxz.
+    cbn.
+Check Q_mul_add_distr_l.
 Require Import ZArith.
 Check Z.div_mul.
-Z.div_mul
-     : ∀ a b : Z, b ≠ 0%Z → (a * b / b)%Z = a
+Compute (0 / 0)%Z.
+...
+  rewrite Z.div_mul. 2: {
+    cbn.
+    progress unfold Z.of_nat.
+    destruct x as (xn, xd); cbn.
+    destruct xd.
 ...
   rewrite Z.div_mul; [ | easy ].
   do 2 rewrite <- Z.mul_assoc.
