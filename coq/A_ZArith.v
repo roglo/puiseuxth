@@ -827,6 +827,12 @@ Module Nat2Z.
 
 Open Scope Z_scope.
 
+Theorem is_nonneg : ∀ a, (0 ≤ Z.of_nat a)%Z.
+Proof. now intros; destruct a. Qed.
+
+Theorem eq_0 : ∀ a, Z.of_nat a = 0%Z → a = 0%nat.
+Proof. now intros; destruct a. Qed.
+
 Theorem inj_mul: ∀ a b : nat, Z.of_nat (a * b) = Z.of_nat a * Z.of_nat b.
 Proof.
 intros.
