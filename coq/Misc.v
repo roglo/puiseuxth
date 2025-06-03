@@ -55,8 +55,9 @@ Proof.
 intros.
 progress unfold Q.sub.
 progress unfold Q.add.
-progress unfold Q.opp; cbn.
-rewrite (Nat.mul_comm (q_den y)).
+progress unfold Q.opp.
+progress unfold pos_mul; cbn.
+rewrite (Nat.mul_comm (q_den y + 1)).
 progress f_equal.
 do 2 rewrite Z.mul_opp_l.
 rewrite Z.add_comm.
@@ -114,26 +115,33 @@ rewrite Q_opp_0.
 apply Q.add_0_r.
 Qed.
 
-(* doesn't work, works with a small modification *)
+(* doesn't work, works with this small modification *)
 
-Definition Q1 x := Z.of_nat (q_den x) # q_den x.
+Definition Q1 x := q_Den x # q_den x.
 
 Theorem Q_mul_add_distr_l : ∀ x y z, x * (y + z) * Q1 x = x * y + x * z.
 Proof.
 intros.
 progress unfold Q.add.
 progress unfold Q.mul.
-cbn.
+progress unfold pos_mul; cbn.
+rewrite Nat.sub_add; [ | flia ].
+rewrite Nat.sub_add; [ | flia ].
+rewrite Nat.sub_add; [ | flia ].
+rewrite Nat.sub_add; [ | flia ].
 progress f_equal. {
   rewrite Z.mul_add_distr_l.
   rewrite Z.mul_add_distr_r.
   progress unfold q_Den; cbn.
+  rewrite Nat.sub_add; [ | flia ].
+  rewrite Nat.sub_add; [ | flia ].
   do 2 rewrite Nat2Z.inj_mul.
   do 4 rewrite Z.mul_assoc.
-  do 2 rewrite (Z.mul_mul_swap _ (Z.of_nat (q_den x))).
+  do 2 rewrite (Z.mul_mul_swap _ (Z.of_nat (q_den x + 1))).
   easy.
 } {
   do 3 rewrite <- Nat.mul_assoc.
+  progress f_equal.
   progress f_equal.
   progress f_equal.
   apply Nat.mul_comm.
@@ -157,6 +165,9 @@ rewrite <- Z.mul_assoc.
 progress f_equal.
 rewrite Z.mul_comm.
 symmetry.
+progress unfold q_Den; cbn.
+progress unfold pos_mul.
+rewrite Nat.sub_add; [ | flia ].
 apply Nat2Z.inj_mul.
 Qed.
 
@@ -199,18 +210,15 @@ split; intros Hbc. {
   cbn in Hza.
   rewrite Z.mul_1_r in Hza.
   progress unfold q_Den in Hbc |-*; cbn.
+  progress unfold pos_mul.
+  rewrite Nat.sub_add; [ | flia ].
+  rewrite Nat.sub_add; [ | flia ].
   do 2 rewrite Nat2Z.inj_mul.
   do 2 rewrite <- Z.mul_assoc.
   apply Z.mul_lt_mono_pos_l; [ easy | ].
   do 2 rewrite (Z.mul_comm (q_num _)).
   do 2 rewrite <- Z.mul_assoc.
-  apply Z.mul_lt_mono_pos_l. {
-    apply Z.lt_iff.
-    split; [ apply Nat2Z.is_nonneg | ].
-    intros H; symmetry in H.
-    apply Nat2Z.eq_0 in H.
-Print Q.lt.
-(* marche pas, faut effectivement que q_den ne soit pas 0 *)
+  apply Z.mul_lt_mono_pos_l; [ now rewrite Nat.add_comm | ].
 ...
     destruct a as (na, da).
     cbn in Hza, H.

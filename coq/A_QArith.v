@@ -1,4 +1,7 @@
-(** * A ℚ arithmetics *)
+(** * A ℚ arithmetics
+
+  [mk_q d n] represents the rationnal d/(n+1)
+*)
 
 From Stdlib Require Import Utf8 Arith.
 Require Import A_ZArith.
@@ -11,7 +14,8 @@ Declare Scope Q_scope.
 Delimit Scope Q_scope with Q.
 Bind Scope Q_scope with Q.
 
-Definition q_Den a := Z.of_nat (q_den a).
+Definition q_Den a := Z.of_nat (q_den a + 1).
+Definition pos_mul a b := (a + 1) * (b + 1) - 1.
 
 Module Q.
 
@@ -20,17 +24,20 @@ Open Scope Z_scope.
 Definition eq a b := q_num a * q_Den b = q_num b * q_Den a.
 
 Definition add a b :=
-  mk_q (q_num a * q_Den b + q_num b * q_Den a) (q_den a * q_den b).
+  mk_q
+    (q_num a * q_Den b + q_num b * q_Den a)
+    (pos_mul (q_den a) (q_den b)).
 
 Definition opp a := mk_q (- q_num a) (q_den a).
 Definition sub a b := add a (opp b).
 
-Definition mul a b := mk_q (q_num a * q_num b) (q_den a * q_den b).
+Definition mul a b :=
+  mk_q (q_num a * q_num b) (pos_mul (q_den a) (q_den b)).
 
 Definition inv a :=
   match q_num a with
   | z_zero => mk_q 0 0
-  | z_val s v => mk_q (z_val s (q_den a)) v
+  | z_val s v => mk_q (q_Den a) v
   end.
 
 Definition div a b := mul a (inv b).
@@ -45,15 +52,15 @@ Definition of_number (n : Number.int) : option Q :=
   match n with
   | Number.IntDecimal n =>
       match n with
-      | Decimal.Pos n => Some (mk_q (Z.of_nat (Nat.of_uint n)) 1)
-      | Decimal.Neg n => Some (mk_q (- Z.of_nat (Nat.of_uint n)) 1)
+      | Decimal.Pos n => Some (mk_q (Z.of_nat (Nat.of_uint n)) 0)
+      | Decimal.Neg n => Some (mk_q (- Z.of_nat (Nat.of_uint n)) 0)
       end
   | Number.IntHexadecimal n => None
   end.
 
 Definition to_number (a : Q) : option Number.int :=
   match q_den a with
-  | 1%nat => Some (Z.to_number (q_num a))
+  | 0%nat => Some (Z.to_number (q_num a))
   | _ => None
   end.
 
@@ -61,7 +68,9 @@ Number Notation Q of_number to_number : Q_scope.
 
 Notation "a == b" := (eq a b) (at level 70) : Q_scope.
 Notation "a + b" := (add a b) : Q_scope.
+Notation "a - b" := (sub a b) : Q_scope.
 Notation "a * b" := (mul a b) : Q_scope.
+Notation "a / b" := (div a b) : Q_scope.
 Notation "- a" := (opp a) : Q_scope.
 Notation "a ≤ b" := (le a b) : Q_scope.
 Notation "a < b" := (lt a b) : Q_scope.
@@ -71,16 +80,22 @@ Proof.
 intros.
 progress unfold add.
 rewrite Z.add_comm.
-rewrite (Nat.mul_comm (q_den b)).
+progress unfold pos_mul.
+rewrite (Nat.mul_comm (q_den b + 1)).
 easy.
 Qed.
 
 Theorem add_assoc : ∀ a b c, (a + (b + c))%Q = ((a + b) + c)%Q.
 Proof.
 intros.
-progress unfold add; cbn.
+progress unfold add.
+progress unfold pos_mul; cbn.
+rewrite Nat.sub_add; [ | flia ].
+rewrite Nat.sub_add; [ | flia ].
 f_equal; [ | now rewrite Nat.mul_assoc ].
 progress unfold q_Den; cbn.
+rewrite Nat.sub_add; [ | flia ].
+rewrite Nat.sub_add; [ | flia ].
 do 2 rewrite Nat2Z.inj_mul.
 do 2 rewrite Z.mul_add_distr_r.
 rewrite <- Z.add_assoc.
@@ -95,6 +110,7 @@ Proof.
 intros.
 progress unfold add; cbn.
 rewrite Z.mul_1_r, Nat.add_0_r.
+rewrite Nat.add_sub.
 now destruct a.
 Qed.
 
@@ -109,13 +125,17 @@ Theorem mul_comm : ∀ a b, (a * b)%Q = (b * a)%Q.
 Proof.
 intros.
 progress unfold mul.
+progress unfold pos_mul.
 now rewrite Z.mul_comm, Nat.mul_comm.
 Qed.
 
 Theorem mul_assoc : ∀ a b c, (a * (b * c))%Q = ((a * b) * c)%Q.
 Proof.
 intros.
-progress unfold mul; cbn.
+progress unfold mul.
+progress unfold pos_mul; cbn.
+rewrite Nat.sub_add; [ | flia ].
+rewrite Nat.sub_add; [ | flia ].
 now rewrite Z.mul_assoc, Nat.mul_assoc.
 Qed.
 
@@ -124,7 +144,7 @@ Proof.
 intros.
 progress unfold mul; cbn.
 destruct a as (na, da); cbn.
-rewrite Nat.add_0_r.
+rewrite Nat.add_0_r, Nat.add_sub.
 progress f_equal.
 destruct na as [| sa va]; [ easy | ].
 rewrite Nat.add_0_r, Nat.add_sub.
