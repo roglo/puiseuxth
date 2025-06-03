@@ -560,10 +560,59 @@ Qed.
 Theorem mul_add_distr_r : ∀ a b c, ((a + b) * c)%Z = (a * c + b * c)%Z.
 Proof.
 intros.
-rewrite mul_comm.
-do 2 rewrite (mul_comm _ c).
-apply mul_add_distr_l.
+rewrite Z.mul_comm.
+do 2 rewrite (Z.mul_comm _ c).
+apply Z.mul_add_distr_l.
 Qed.
+
+Theorem add_opp_diag_l : ∀ a : Z, (- a + a)%Z = 0%Z.
+Proof.
+intros.
+destruct a as [| sa va]; [ easy | cbn ].
+now destruct sa; rewrite Nat.compare_refl.
+Qed.
+
+Theorem mul_div : ∀ a b, b ≠ 0%Z → (a * b / b)%Z = a.
+Proof.
+intros * Hbz.
+progress unfold mul.
+progress unfold div.
+destruct a as [| sa va]; [ easy | ].
+destruct b as [| sb vb]; [ easy | cbn ].
+rewrite Nat.sub_add; [ | flia ].
+rewrite if_eqb_bool_dec.
+rewrite Nat.div_mul; [ | now rewrite Nat.add_comm ].
+destruct (Bool.bool_dec (Bool.eqb sa sb) sb) as [H1| H1]. {
+  rewrite Nat.add_comm; cbn.
+  destruct sa; [ easy | ].
+  now exfalso; destruct sb.
+} {
+  rewrite Nat.Div0.mod_mul; cbn.
+  rewrite Nat.add_comm; cbn.
+  destruct sa; [ | easy ].
+  now exfalso; destruct sb.
+}
+Qed.
+
+Theorem integral :
+  ∀ a b : Z,
+  (a * b)%Z = 0%Z
+  → a = 0%Z ∨ b = 0%L ∨ rngl_is_zero_divisor a ∨ rngl_is_zero_divisor b.
+Proof.
+intros * Hab; cbn.
+destruct a as [| sa va]; [ now left | ].
+destruct b as [| sb vb]; [ now right; left | ].
+easy.
+Qed.
+
+Theorem characteristic_prop : ∀ i : nat, rngl_of_nat (S i) ≠ 0%Z.
+Proof.
+intros.
+rewrite rngl_of_nat_succ.
+induction i; [ easy | ].
+rewrite rngl_of_nat_succ.
+(* ah... ça ne marche pas aussi bien que prévu, tiens *)
+...
 
 Instance Z_ring_like_prop : ring_like_prop Z :=
   {| rngl_mul_is_comm := true;
@@ -579,17 +628,17 @@ Instance Z_ring_like_prop : ring_like_prop Z :=
      rngl_opt_mul_comm := Z.mul_comm;
      rngl_opt_mul_1_r := NA;
      rngl_opt_mul_add_distr_r := NA;
-     rngl_opt_add_opp_diag_l := ?rngl_opt_add_opp_diag_l;
-     rngl_opt_add_sub := ?rngl_opt_add_sub;
-     rngl_opt_sub_add_distr := ?rngl_opt_sub_add_distr;
-     rngl_opt_sub_0_l := ?rngl_opt_sub_0_l;
-     rngl_opt_mul_inv_diag_l := ?rngl_opt_mul_inv_diag_l;
-     rngl_opt_mul_inv_diag_r := ?rngl_opt_mul_inv_diag_r;
-     rngl_opt_mul_div := ?rngl_opt_mul_div;
-     rngl_opt_mul_quot_r := ?rngl_opt_mul_quot_r;
-     rngl_opt_integral := ?rngl_opt_integral;
-     rngl_opt_alg_closed := ?rngl_opt_alg_closed;
-     rngl_opt_characteristic_prop := ?rngl_opt_characteristic_prop;
+     rngl_opt_add_opp_diag_l := Z.add_opp_diag_l;
+     rngl_opt_add_sub := NA;
+     rngl_opt_sub_add_distr := NA;
+     rngl_opt_sub_0_l := NA;
+     rngl_opt_mul_inv_diag_l := NA;
+     rngl_opt_mul_inv_diag_r := NA;
+     rngl_opt_mul_div := Z.mul_div;
+     rngl_opt_mul_quot_r := NA;
+     rngl_opt_integral := Z.integral;
+     rngl_opt_alg_closed := NA;
+     rngl_opt_characteristic_prop := Z.characteristic_prop;
      rngl_opt_ord := ?rngl_opt_ord;
      rngl_opt_archimedean := ?rngl_opt_archimedean |}.
 
@@ -706,28 +755,6 @@ intros.
 destruct a as [| sa va]; [ easy | ].
 destruct b as [| sb vb]; [ easy | cbn ].
 now destruct sa, sb.
-Qed.
-
-Theorem div_mul : ∀ a b, b ≠ 0%Z → (a * b / b)%Z = a.
-Proof.
-intros * Hbz.
-progress unfold mul.
-progress unfold div.
-destruct a as [| sa va]; [ easy | ].
-destruct b as [| sb vb]; [ easy | cbn ].
-rewrite Nat.sub_add; [ | flia ].
-rewrite if_eqb_bool_dec.
-rewrite Nat.div_mul; [ | now rewrite Nat.add_comm ].
-destruct (Bool.bool_dec (Bool.eqb sa sb) sb) as [H1| H1]. {
-  rewrite Nat.add_comm; cbn.
-  destruct sa; [ easy | ].
-  now exfalso; destruct sb.
-} {
-  rewrite Nat.Div0.mod_mul; cbn.
-  rewrite Nat.add_comm; cbn.
-  destruct sa; [ | easy ].
-  now exfalso; destruct sb.
-}
 Qed.
 
 Theorem eqb_refl : ∀ a, (a =? a)%Z = true.
