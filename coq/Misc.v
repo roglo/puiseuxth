@@ -206,6 +206,108 @@ Theorem Q_mul_lt_mono_pos_l :
 Proof.
 intros * Hza.
 split; intros Hbc. {
+Theorem Q_lt_le_incl : ∀ a b, (a < b)%Q → (a ≤ b)%Q.
+Proof. intros * Hab; congruence. Qed.
+
+Theorem Q_lt_0_sub : ∀ a b, (0 < b - a ↔ a < b)%Q.
+Proof.
+intros.
+split; intros Hab. {
+Theorem Q_lt_iff : ∀ a b, (a < b)%Q ↔ (a ≤ b)%Q ∧ ¬ (a == b)%Q.
+Proof.
+intros.
+(*
+progress unfold Q.lt.
+progress unfold Q.le.
+specialize Q.le_antisymm as H2.
+progress unfold Q.le in H2.
+*)
+split. {
+  intros Hab.
+  split; [ now apply Q_lt_le_incl | ].
+  intros H.
+  apply Q.nle_gt in Hab.
+  apply Hab; clear Hab.
+Require Import Morphisms.
+Global Instance Q_le_morph : Proper (Q.eq ==> Q.eq ==> iff) Q.le.
+Admitted.
+
+Theorem Q_eq_refl : ∀ a, a == a.
+Proof. easy. Qed.
+
+Add Parametric Relation : Q Q.eq
+  reflexivity proved by Q_eq_refl
+  symmetry proved by true
+  transitivity proved by true
+  as Q_eq_rel.
+About Q.le.
+
+Error:
+...
+rewrite H.
+
+specialize Q_le_morph as H1.
+specialize (H1 _ _ H).
+progress unfold "==>" in H1.
+specialize (H1 b a).
+apply -> H1.
+...
+  rewrite H in Hab.
+...
+  specialize (Q.le_antisymm b a) as H2.
+  apply Q.nle_gt in Hab.
+  specialize (H1 b a) as H3.
+  rewrite Hab in H3.
+  assert (H : false ≠ true) by easy.
+  specialize (H3 H); clear H.
+  split; [ easy | ].
+  destruct H3; congruence.
+} {
+  intros (H3, H4).
+  remember (rngl_leb b a) as x eqn:Hx; symmetry in Hx.
+  destruct x; [ | easy ].
+  now specialize (H2 _ _ H3 Hx).
+}
+Qed.
+...
+  apply Q_lt_iff.
+  apply (rngl_lt_iff Hor) in Hab.
+  apply (rngl_lt_iff Hor).
+  destruct Hab as (Hab, Habz).
+  split; [ now apply (rngl_le_0_sub Hop Hor) | ].
+  intros H; subst b.
+  now rewrite (rngl_sub_diag Hos) in Habz.
+} {
+  apply (rngl_lt_iff Hor) in Hab.
+  apply (rngl_lt_iff Hor).
+  destruct Hab as (Hab, Habz).
+  split; [ now apply (rngl_le_0_sub Hop Hor) | ].
+  apply not_eq_sym.
+  intros H1.
+  apply Habz; symmetry.
+  now apply (rngl_sub_move_0_r Hop).
+}
+Qed.
+...
+Require Import RingLike.Core.
+About rngl_lt_0_sub.
+Theorem Q_lt_0_sub : ∀ a b, (0 < b - a)%Q ↔ (a < b)%Q.
+Proof.
+intros.
+...
+  apply (rngl_lt_0_sub Hop Hor).
+  rewrite <- (rngl_mul_sub_distr_l Hop).
+  apply (rngl_mul_pos_pos Hos Hor Hii); [ easy | ].
+  now apply (rngl_lt_0_sub Hop Hor).
+} {
+  apply (rngl_lt_0_sub Hop Hor) in Hbc.
+  rewrite <- (rngl_mul_sub_distr_l Hop) in Hbc.
+  apply (rngl_mul_pos_cancel_l Hop Hor Hii) in Hbc; [ | easy ].
+  now apply (rngl_lt_0_sub Hop Hor).
+}
+...
+intros * Hza.
+split; intros Hbc. {
   progress unfold Q.lt in Hza, Hbc |-*.
   cbn in Hza.
   rewrite Z.mul_1_r in Hza.
@@ -219,20 +321,10 @@ split; intros Hbc. {
   do 2 rewrite (Z.mul_comm (q_num _)).
   do 2 rewrite <- Z.mul_assoc.
   apply Z.mul_lt_mono_pos_l; [ now rewrite Nat.add_comm | ].
-...
-    destruct a as (na, da).
-    cbn in Hza, H.
-    clear da H.
-Search (Z.of_nat _ = _ -> _)%Z.
-Search (Z.of_nat _ = 0)%Z.
-...
+  now do 2 rewrite (Z.mul_comm _ (q_num _)).
+}
 Require Import RingLike.Core.
-Search (_ < _ ↔ _ ≤ _ ∧ _ ≠ _)%L.
-Z.le_neq: ∀ n m : Z, (n < m)%Z ↔ (n <= m)%Z ∧ n ≠ m
-
-Search (_ <= _ ∧ _ ≠ _ ↔ _ < _)%Z.
-Search (_ <= _ → _ ≠ _ → _ < _)%Z.
-...
+About rngl_mul_lt_mono_pos_l.
 
 ... ...
 apply Z_mul_lt_mono_pos_l; [ easy | ].
