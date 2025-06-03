@@ -203,15 +203,14 @@ split; intros Hbc. {
   apply Z.mul_lt_mono_pos_l; [ easy | ].
   do 2 rewrite (Z.mul_comm (q_num _)).
   do 2 rewrite <- Z.mul_assoc.
-Print Q.lt.
-(* marche pas, faut effectivement que q_den ne soit pas 0 *)
-...
   apply Z.mul_lt_mono_pos_l. {
-...
     apply Z.lt_iff.
     split; [ apply Nat2Z.is_nonneg | ].
     intros H; symmetry in H.
     apply Nat2Z.eq_0 in H.
+Print Q.lt.
+(* marche pas, faut effectivement que q_den ne soit pas 0 *)
+...
     destruct a as (na, da).
     cbn in Hza, H.
     clear da H.
