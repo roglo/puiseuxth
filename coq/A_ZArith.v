@@ -25,6 +25,31 @@ Theorem if_eqb_bool_dec : ∀ A i j (a b : A),
   (if Bool.eqb i j then a else b) = (if Bool.bool_dec i j then a else b).
 Proof. now intros; destruct i, j. Qed.
 
+Theorem Nat_compare_mul_cancel_l :
+  ∀ a b c, a ≠ 0 → (a * b ?= a * c) = (b ?= c).
+Proof.
+intros * Haz.
+do 2 rewrite nat_compare_equiv.
+progress unfold nat_compare_alt.
+destruct (lt_eq_lt_dec (a * b) (a * c)) as [[H1| H1]| H1]. {
+  destruct (lt_eq_lt_dec b c) as [[H2| H2]| H2].
+  easy.
+  flia H1 H2.
+  apply Nat.mul_lt_mono_pos_l in H1; [ | flia Haz ].
+  now apply Nat.lt_asymm in H1.
+} {
+  destruct (lt_eq_lt_dec b c) as [[H2| H2]| H2].
+  apply Nat.mul_cancel_l in H1; [ flia H1 H2 | easy ].
+  easy.
+  apply Nat.mul_cancel_l in H1; [ flia H1 H2 | easy ].
+} {
+  destruct (lt_eq_lt_dec b c) as [[H2| H2]| H2].
+  apply Nat.mul_lt_mono_pos_l in H1; [ flia H1 H2 | flia Haz ].
+  now subst c; apply Nat.lt_irrefl in H1.
+  easy.
+}
+Qed.
+
 Theorem Nat_compare_sub_add_l : ∀ a b c, b ≤ a → (a - b ?= c) = (a ?= b + c).
 Proof.
 intros * Hba.
@@ -462,6 +487,84 @@ progress f_equal.
 apply Z.mul_comm.
 Qed.
 
+Theorem mul_1_l : ∀ a, (1 * a)%Z = a.
+Proof.
+intros.
+cbn.
+destruct a as [| sa va]; [ easy | ].
+rewrite Nat.add_0_r, Nat.add_sub.
+now f_equal; destruct sa.
+Qed.
+
+Theorem mul_1_r : ∀ a, (a * 1)%Z = a.
+Proof. intros; rewrite Z.mul_comm; apply Z.mul_1_l. Qed.
+
+Theorem mul_add_distr_l : ∀ a b c, (a * (b + c))%Z = (a * b + a * c)%Z.
+Proof.
+intros.
+destruct a as [| sa va]; [ easy | ].
+destruct b as [| sb vb]; [ easy | ].
+destruct c as [| sc vc]; [ easy | ].
+move sb before sa; move sc before sb.
+destruct (Bool.bool_dec sb sc) as [Hsbc| Hsbc]. {
+  subst sc; cbn.
+  do 2 rewrite Bool.eqb_reflx.
+  f_equal; flia.
+}
+cbn - [ mul "<?" ].
+rewrite if_eqb_bool_dec.
+destruct (Bool.bool_dec _ _) as [Hsaa| Hsaa]; [ now destruct sb, sc | ].
+clear Hsaa.
+rewrite nat_compare_equiv.
+progress unfold nat_compare_alt.
+destruct (lt_eq_lt_dec vb vc) as [[Hbc| Hbc]| Hbc]. {
+  cbn.
+  rewrite if_eqb_bool_dec.
+  destruct (Bool.bool_dec _ _) as [Hsaa| Hsaa]; [ now destruct sa, sb, sc | ].
+  clear Hsaa.
+  rewrite Nat.sub_add; [ | flia Hbc ].
+  rewrite Nat_compare_sub_add_r; [ | flia ].
+  rewrite Nat.sub_add; [ | flia ].
+  rewrite Nat_compare_mul_cancel_l; [ | now rewrite Nat.add_comm ].
+  (* lemma to do *)
+  rewrite <- Nat_compare_sub_add_r; [ | flia ].
+  rewrite Nat.add_sub.
+  apply Nat.compare_lt_iff in Hbc; rewrite Hbc.
+  apply Nat.compare_lt_iff in Hbc.
+  progress f_equal.
+  flia Hbc.
+} {
+  cbn - [ "<?" ]; subst vc.
+  rewrite if_eqb_bool_dec.
+  destruct (Bool.bool_dec _ _) as [Hsaa| Hsaa]; [ now destruct sa, sb, sc | ].
+  now rewrite Nat.compare_refl.
+} {
+  cbn - [ "<?" ].
+  rewrite if_eqb_bool_dec.
+  destruct (Bool.bool_dec _ _) as [Hsaa| Hsaa]; [ now destruct sa, sb, sc | ].
+  clear Hsaa.
+  rewrite Nat.sub_add; [ | flia Hbc ].
+  rewrite Nat_compare_sub_add_r; [ | flia ].
+  rewrite Nat.sub_add; [ | flia ].
+  rewrite Nat_compare_mul_cancel_l; [ | now rewrite Nat.add_comm ].
+  (* lemma to do *)
+  rewrite <- Nat_compare_sub_add_r; [ | flia ].
+  rewrite Nat.add_sub.
+  apply Nat.compare_gt_iff in Hbc; rewrite Hbc.
+  apply Nat.compare_gt_iff in Hbc.
+  progress f_equal.
+  flia Hbc.
+}
+Qed.
+
+Theorem mul_add_distr_r : ∀ a b c, ((a + b) * c)%Z = (a * c + b * c)%Z.
+Proof.
+intros.
+rewrite mul_comm.
+do 2 rewrite (mul_comm _ c).
+apply mul_add_distr_l.
+Qed.
+
 Instance Z_ring_like_prop : ring_like_prop Z :=
   {| rngl_mul_is_comm := true;
      rngl_is_archimedean := true;
@@ -471,11 +574,11 @@ Instance Z_ring_like_prop : ring_like_prop Z :=
      rngl_add_assoc := Z.add_assoc;
      rngl_add_0_l := Z.add_0_l;
      rngl_mul_assoc := Z.mul_assoc;
-     rngl_opt_mul_1_l := ?rngl_opt_mul_1_l;
-     rngl_mul_add_distr_l := ?rngl_mul_add_distr_l;
-     rngl_opt_mul_comm := ?rngl_opt_mul_comm;
-     rngl_opt_mul_1_r := ?rngl_opt_mul_1_r;
-     rngl_opt_mul_add_distr_r := ?rngl_opt_mul_add_distr_r;
+     rngl_opt_mul_1_l := Z.mul_1_l;
+     rngl_mul_add_distr_l := Z.mul_add_distr_l;
+     rngl_opt_mul_comm := Z.mul_comm;
+     rngl_opt_mul_1_r := NA;
+     rngl_opt_mul_add_distr_r := NA;
      rngl_opt_add_opp_diag_l := ?rngl_opt_add_opp_diag_l;
      rngl_opt_add_sub := ?rngl_opt_add_sub;
      rngl_opt_sub_add_distr := ?rngl_opt_sub_add_distr;
@@ -499,31 +602,6 @@ end Z.
 (******)
 
 (* misc theorems *)
-
-Theorem Nat_compare_mul_cancel_l :
-  ∀ a b c, a ≠ 0 → (a * b ?= a * c) = (b ?= c).
-Proof.
-intros * Haz.
-do 2 rewrite nat_compare_equiv.
-progress unfold nat_compare_alt.
-destruct (lt_eq_lt_dec (a * b) (a * c)) as [[H1| H1]| H1]. {
-  destruct (lt_eq_lt_dec b c) as [[H2| H2]| H2].
-  easy.
-  flia H1 H2.
-  apply Nat.mul_lt_mono_pos_l in H1; [ | flia Haz ].
-  now apply Nat.lt_asymm in H1.
-} {
-  destruct (lt_eq_lt_dec b c) as [[H2| H2]| H2].
-  apply Nat.mul_cancel_l in H1; [ flia H1 H2 | easy ].
-  easy.
-  apply Nat.mul_cancel_l in H1; [ flia H1 H2 | easy ].
-} {
-  destruct (lt_eq_lt_dec b c) as [[H2| H2]| H2].
-  apply Nat.mul_lt_mono_pos_l in H1; [ flia H1 H2 | flia Haz ].
-  now subst c; apply Nat.lt_irrefl in H1.
-  easy.
-}
-Qed.
 
 (* to be removed if RingLike included *)
 Theorem if_ltb_lt_dec : ∀ A i j (a b : A),
@@ -600,84 +678,6 @@ progress unfold opp.
 destruct b as [| sb vb]; [ easy | ].
 rewrite Bool.eqb_negb1.
 now rewrite Nat.compare_refl.
-Qed.
-
-Theorem mul_1_l : ∀ a, (1 * a)%Z = a.
-Proof.
-intros.
-cbn.
-destruct a as [| sa va]; [ easy | ].
-rewrite Nat.add_0_r, Nat.add_sub.
-now f_equal; destruct sa.
-Qed.
-
-Theorem mul_1_r : ∀ a, (a * 1)%Z = a.
-Proof. intros; rewrite mul_comm; apply mul_1_l. Qed.
-
-Theorem mul_add_distr_l : ∀ a b c, (a * (b + c))%Z = (a * b + a * c)%Z.
-Proof.
-intros.
-destruct a as [| sa va]; [ easy | ].
-destruct b as [| sb vb]; [ easy | ].
-destruct c as [| sc vc]; [ easy | ].
-move sb before sa; move sc before sb.
-destruct (Bool.bool_dec sb sc) as [Hsbc| Hsbc]. {
-  subst sc; cbn.
-  do 2 rewrite Bool.eqb_reflx.
-  f_equal; flia.
-}
-cbn - [ mul "<?" ].
-rewrite if_eqb_bool_dec.
-destruct (Bool.bool_dec _ _) as [Hsaa| Hsaa]; [ now destruct sb, sc | ].
-clear Hsaa.
-rewrite nat_compare_equiv.
-progress unfold nat_compare_alt.
-destruct (lt_eq_lt_dec vb vc) as [[Hbc| Hbc]| Hbc]. {
-  cbn.
-  rewrite if_eqb_bool_dec.
-  destruct (Bool.bool_dec _ _) as [Hsaa| Hsaa]; [ now destruct sa, sb, sc | ].
-  clear Hsaa.
-  rewrite Nat.sub_add; [ | flia Hbc ].
-  rewrite Nat_compare_sub_add_r; [ | flia ].
-  rewrite Nat.sub_add; [ | flia ].
-  rewrite Nat_compare_mul_cancel_l; [ | now rewrite Nat.add_comm ].
-  (* lemma to do *)
-  rewrite <- Nat_compare_sub_add_r; [ | flia ].
-  rewrite Nat.add_sub.
-  apply Nat.compare_lt_iff in Hbc; rewrite Hbc.
-  apply Nat.compare_lt_iff in Hbc.
-  progress f_equal.
-  flia Hbc.
-} {
-  cbn - [ "<?" ]; subst vc.
-  rewrite if_eqb_bool_dec.
-  destruct (Bool.bool_dec _ _) as [Hsaa| Hsaa]; [ now destruct sa, sb, sc | ].
-  now rewrite Nat.compare_refl.
-} {
-  cbn - [ "<?" ].
-  rewrite if_eqb_bool_dec.
-  destruct (Bool.bool_dec _ _) as [Hsaa| Hsaa]; [ now destruct sa, sb, sc | ].
-  clear Hsaa.
-  rewrite Nat.sub_add; [ | flia Hbc ].
-  rewrite Nat_compare_sub_add_r; [ | flia ].
-  rewrite Nat.sub_add; [ | flia ].
-  rewrite Nat_compare_mul_cancel_l; [ | now rewrite Nat.add_comm ].
-  (* lemma to do *)
-  rewrite <- Nat_compare_sub_add_r; [ | flia ].
-  rewrite Nat.add_sub.
-  apply Nat.compare_gt_iff in Hbc; rewrite Hbc.
-  apply Nat.compare_gt_iff in Hbc.
-  progress f_equal.
-  flia Hbc.
-}
-Qed.
-
-Theorem mul_add_distr_r : ∀ a b c, ((a + b) * c)%Z = (a * c + b * c)%Z.
-Proof.
-intros.
-rewrite mul_comm.
-do 2 rewrite (mul_comm _ c).
-apply mul_add_distr_l.
 Qed.
 
 Theorem opp_add_distr : ∀ a b, (- (a + b))%Z = (- a - b)%Z.
