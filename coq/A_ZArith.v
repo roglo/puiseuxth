@@ -144,6 +144,8 @@ Definition opp a :=
   | z_val s v => z_val (negb s) v
   end.
 
+Definition sub a b := Z.add a (Z.opp b).
+
 Definition z_pos_div_eucl a b :=
   let a' := (a + 1)%nat in
   let b' := (b + 1)%nat in
@@ -161,17 +163,17 @@ Definition div_eucl (a b : Z) :=
             if Bool.eqb sa sb then q'
             else
               match r' with
-              | z_zero => opp q'
-              | _ => opp (add q' (z_val true 0))
+              | z_zero => Z.opp q'
+              | _ => Z.opp (Z.add q' (z_val true 0))
               end
           in
           let r :=
-            let r1 := if sa then r' else opp r' in
+            let r1 := if sa then r' else Z.opp r' in
             if Bool.eqb sa sb then r1
             else
               match r1 with
               | z_zero => z_zero
-              | _ => add b r1
+              | _ => Z.add b r1
               end
           in
           (q, r)
@@ -236,9 +238,7 @@ Definition leb a b :=
   end.
 
 Notation "a + b" := (Z.add a b) : Z_scope.
-(*
 Notation "a - b" := (Z.sub a b) : Z_scope.
-*)
 Notation "a * b" := (Z.mul a b) : Z_scope.
 Notation "a / b" := (Z.div a b) : Z_scope.
 Notation "- a" := (Z.opp a) : Z_scope.
@@ -648,7 +648,7 @@ Qed.
 Theorem characteristic_prop : ∀ i, rngl_mul_nat 1 (S i) ≠ 0%Z.
 Proof.
 intros.
-cbn - [ Z.add ].
+cbn - [ Z.add mul_nat ].
 assert (Hz : ∀ i, (0 ≤ rngl_mul_nat 1 i)%Z). {
   clear i; intros.
   progress unfold rngl_mul_nat.
@@ -662,9 +662,13 @@ assert (Hz : ∀ i, (0 ≤ rngl_mul_nat 1 i)%Z). {
 intros H.
 specialize (Hz i).
 apply Z.nlt_ge in Hz; apply Hz.
+progress unfold rngl_mul_nat in H.
 rewrite <- H.
 ...
+Theorem lt_sub_lt_add_r : ∀ a b c, (a - b < c)%Z ↔ (a < c + b)%Z.
+...
 apply Z.lt_sub_lt_add_r.
+cbn.
 now rewrite Z.sub_diag.
 Qed.
 
@@ -751,8 +755,6 @@ Qed.
 (* end misc theorems *)
 
 Module Z.
-
-Definition sub a b := add a (opp b).
 
 Definition eqb a b :=
   match a with
