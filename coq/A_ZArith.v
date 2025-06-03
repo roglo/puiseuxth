@@ -226,6 +226,9 @@ Definition compare a b :=
       end
   end.
 
+Definition le a b := compare a b ≠ Gt.
+Definition lt a b := compare a b = Lt.
+
 Definition leb a b :=
   match Z.compare a b with
   | Eq | Lt => true
@@ -239,16 +242,14 @@ Notation "a - b" := (Z.sub a b) : Z_scope.
 Notation "a * b" := (Z.mul a b) : Z_scope.
 Notation "a / b" := (Z.div a b) : Z_scope.
 Notation "- a" := (Z.opp a) : Z_scope.
-(*
 Notation "a ≤ b" := (Z.le a b) : Z_scope.
 Notation "a < b" := (Z.lt a b) : Z_scope.
-*)
 Notation "a ?= b" := (Z.compare a b) : Z_scope.
 (*
 Notation "a =? b" := (Z.eqb a b) : Z_scope.
 *)
 
-Instance Z_ring_like_op : ring_like_op Z :=
+Instance ring_like_op : ring_like_op Z :=
   {| rngl_zero := z_zero;
      rngl_add := Z.add;
      rngl_mul := Z.mul;
@@ -605,6 +606,70 @@ destruct b as [| sb vb]; [ now right; left | ].
 easy.
 Qed.
 
+Theorem compare_antisymm : ∀ a b, CompOpp (a ?= b)%Z = (b ?= a)%Z.
+Proof.
+intros.
+destruct a as [| sa va]. {
+  destruct b as [| sb vb]; [ easy | now destruct sb ].
+}
+destruct b as [| sb vb]; [ now destruct sa | cbn ].
+destruct sa. {
+  destruct sb; [ | easy ].
+  symmetry; apply Nat.compare_antisym.
+}
+destruct sb; [ easy | ].
+symmetry; apply Nat.compare_antisym.
+Qed.
+
+Theorem nle_gt : ∀ a b, ¬ (a ≤ b)%Z ↔ (b < a)%Z.
+Proof.
+intros.
+progress unfold le.
+progress unfold lt.
+rewrite <- Z.compare_antisymm.
+progress unfold CompOpp.
+split; [ | now destruct (b ?= a)%Z ].
+destruct (b ?= a)%Z; [ | easy | ].
+now intros H; exfalso; apply H.
+now intros H; exfalso; apply H.
+Qed.
+
+Theorem nlt_ge : ∀ a b, ¬ (a < b)%Z ↔ (b ≤ a)%Z.
+Proof.
+intros.
+progress unfold le.
+progress unfold lt.
+rewrite <- Z.compare_antisymm.
+progress unfold CompOpp.
+split; [ | now destruct (b ?= a)%Z ].
+now destruct (b ?= a)%Z.
+Qed.
+
+Theorem characteristic_prop : ∀ i, rngl_mul_nat 1 (S i) ≠ 0%Z.
+Proof.
+intros.
+cbn - [ Z.add ].
+assert (Hz : ∀ i, (0 ≤ rngl_mul_nat 1 i)%Z). {
+  clear i; intros.
+  progress unfold rngl_mul_nat.
+  progress unfold mul_nat.
+  cbn - [ Z.add ].
+  induction i; [ easy | ].
+  cbn - [ Z.add ].
+  destruct (List.fold_right _ _ _); [ easy | ].
+  now destruct b.
+}
+intros H.
+specialize (Hz i).
+apply Z.nlt_ge in Hz; apply Hz.
+rewrite <- H.
+...
+apply Z.lt_sub_lt_add_r.
+now rewrite Z.sub_diag.
+Qed.
+
+...
+
 Theorem characteristic_prop : ∀ i : nat, rngl_of_nat (S i) ≠ 0%Z.
 Proof.
 intros.
@@ -614,7 +679,7 @@ rewrite rngl_of_nat_succ.
 (* ah... ça ne marche pas aussi bien que prévu, tiens *)
 ...
 
-Instance Z_ring_like_prop : ring_like_prop Z :=
+Instance ring_like_prop : ring_like_prop Z :=
   {| rngl_mul_is_comm := true;
      rngl_is_archimedean := true;
      rngl_is_alg_closed := false;
@@ -702,9 +767,6 @@ Definition eqb a b :=
       | _ => false
       end
   end.
-
-Definition le a b := compare a b ≠ Gt.
-Definition lt a b := compare a b = Lt.
 
 Theorem add_move_0_r : ∀ a b, (a + b)%Z = 0%Z ↔ a = (- b)%Z.
 Proof.
@@ -795,34 +857,6 @@ destruct sa, sb; [ | easy | easy | ]. {
   split; intros H; [ now subst vb | ].
   now injection H.
 }
-Qed.
-
-Theorem compare_antisymm : ∀ a b, CompOpp (a ?= b)%Z = (b ?= a)%Z.
-Proof.
-intros.
-destruct a as [| sa va]. {
-  destruct b as [| sb vb]; [ easy | now destruct sb ].
-}
-destruct b as [| sb vb]; [ now destruct sa | cbn ].
-destruct sa. {
-  destruct sb; [ | easy ].
-  symmetry; apply Nat.compare_antisym.
-}
-destruct sb; [ easy | ].
-symmetry; apply Nat.compare_antisym.
-Qed.
-
-Theorem nle_gt : ∀ a b, ¬ (a ≤ b)%Z ↔ (b < a)%Z.
-Proof.
-intros.
-progress unfold le.
-progress unfold lt.
-rewrite <- compare_antisymm.
-progress unfold CompOpp.
-split; [ | now destruct (b ?= a)%Z ].
-destruct (b ?= a)%Z; [ | easy | ].
-now intros H; exfalso; apply H.
-now intros H; exfalso; apply H.
 Qed.
 
 Theorem le_antisymm : ∀ a b, (a ≤ b)%Z → (b ≤ a)%Z → (a = b)%Z.
