@@ -2,6 +2,7 @@
 
 Set Nested Proofs Allowed.
 From Stdlib Require Import Utf8 Arith Psatz.
+Require Import RingLike.Core RingLike.Misc.
 
 Inductive Z :=
   | z_zero : Z
@@ -13,16 +14,16 @@ Bind Scope Z_scope with Z.
 
 (* misc theorems *)
 
-(* to be removed if RingLike included *)
-(* "fast" lia, to improve compilation speed *)
-Tactic Notation "flia" hyp_list(Hs) := clear - Hs; lia.
-
 Theorem Bool_eqb_comm : ∀ a b, Bool.eqb a b = Bool.eqb b a.
 Proof.
 intros.
 progress unfold Bool.eqb.
 now destruct a, b.
 Qed.
+
+Theorem if_eqb_bool_dec : ∀ A i j (a b : A),
+  (if Bool.eqb i j then a else b) = (if Bool.bool_dec i j then a else b).
+Proof. now intros; destruct i, j. Qed.
 
 Theorem Nat_compare_sub_add_l : ∀ a b c, b ≤ a → (a - b ?= c) = (a ?= b + c).
 Proof.
@@ -54,69 +55,30 @@ rewrite Nat.add_comm.
 now apply Nat_compare_sub_add_l.
 Qed.
 
-Theorem Nat_compare_mul_cancel_l :
-  ∀ a b c, a ≠ 0 → (a * b ?= a * c) = (b ?= c).
-Proof.
-intros * Haz.
-do 2 rewrite nat_compare_equiv.
-progress unfold nat_compare_alt.
-destruct (lt_eq_lt_dec (a * b) (a * c)) as [[H1| H1]| H1]. {
-  destruct (lt_eq_lt_dec b c) as [[H2| H2]| H2].
-  easy.
-  flia H1 H2.
-  apply Nat.mul_lt_mono_pos_l in H1; [ | flia Haz ].
-  now apply Nat.lt_asymm in H1.
-} {
-  destruct (lt_eq_lt_dec b c) as [[H2| H2]| H2].
-  apply Nat.mul_cancel_l in H1; [ flia H1 H2 | easy ].
-  easy.
-  apply Nat.mul_cancel_l in H1; [ flia H1 H2 | easy ].
-} {
-  destruct (lt_eq_lt_dec b c) as [[H2| H2]| H2].
-  apply Nat.mul_lt_mono_pos_l in H1; [ flia H1 H2 | flia Haz ].
-  now subst c; apply Nat.lt_irrefl in H1.
-  easy.
-}
-Qed.
-
-Theorem if_eqb_bool_dec : ∀ A i j (a b : A),
-  (if Bool.eqb i j then a else b) = (if Bool.bool_dec i j then a else b).
-Proof. now intros; destruct i, j. Qed.
-
-(* to be removed if RingLike included *)
-Theorem if_ltb_lt_dec : ∀ A i j (a b : A),
-  (if i <? j then a else b) = (if lt_dec i j then a else b).
-Proof.
-intros.
-destruct (lt_dec i j) as [H1| H1]. {
-  now apply Nat.ltb_lt in H1; rewrite H1.
-}
-now apply Nat.ltb_nlt in H1; rewrite H1.
-Qed.
-
-(* to be removed if RingLike included *)
-Theorem if_leb_le_dec : ∀ A i j (a b : A),
-  (if i <=? j then a else b) = (if le_dec i j then a else b).
-Proof.
-intros.
-destruct (le_dec i j) as [H1| H1]. {
-  now apply Nat.leb_le in H1; rewrite H1.
-}
-now apply Nat.leb_nle in H1; rewrite H1.
-Qed.
-
-(* to be removed if RingLike included *)
-Theorem Nat_sub_sub_swap : ∀ a b c, a - b - c = a - c - b.
-Proof.
-intros.
-rewrite <- Nat.sub_add_distr.
-rewrite Nat.add_comm.
-now rewrite Nat.sub_add_distr.
-Qed.
-
 (* end misc theorems *)
 
+(******)
 Module Z.
+
+Definition of_number (n : Number.int) : option Z :=
+  match n with
+  | Number.IntDecimal n =>
+      match n with
+      | Decimal.Pos (Decimal.D0 Decimal.Nil) => Some z_zero
+      | Decimal.Pos n => Some (z_val true (Nat.of_uint n - 1))
+      | Decimal.Neg n => Some (z_val false (Nat.of_uint n - 1))
+      end
+  | Number.IntHexadecimal n => None
+  end.
+
+Definition to_number (a : Z) : Number.int :=
+  match a with
+  | z_zero => Number.IntDecimal (Decimal.Pos (Nat.to_uint 0))
+  | z_val true v => Number.IntDecimal (Decimal.Pos (Nat.to_uint (v + 1)))
+  | z_val false v => Number.IntDecimal (Decimal.Neg (Nat.to_uint (v + 1)))
+  end.
+
+Number Notation Z of_number to_number : Z_scope.
 
 Definition of_nat n :=
   match n with
@@ -141,14 +103,6 @@ Definition add a b :=
       end
   end.
 
-Definition opp a :=
-  match a with
-  | z_zero => z_zero
-  | z_val s v => z_val (negb s) v
-  end.
-
-Definition sub a b := add a (opp b).
-
 Definition mul a b :=
   match a with
   | z_zero => z_zero
@@ -157,6 +111,12 @@ Definition mul a b :=
       | z_zero => z_zero
       | z_val sb vb => z_val (Bool.eqb sa sb) ((va + 1) * (vb + 1) - 1)
       end
+  end.
+
+Definition opp a :=
+  match a with
+  | z_zero => z_zero
+  | z_val s v => z_val (negb s) v
   end.
 
 Definition z_pos_div_eucl a b :=
@@ -195,6 +155,26 @@ Definition div_eucl (a b : Z) :=
 
 Definition div a b := fst (div_eucl a b).
 
+Theorem eq_dec : ∀ a b : Z, {a = b} + {a ≠ b}.
+Proof.
+intros.
+destruct a as [| sa va]. {
+  now destruct b; [ left | right ].
+} {
+  destruct b as [| sb vb]; [ now right | ].
+  destruct (Bool.bool_dec sa sb) as [Hsab| Hsab]. {
+    subst sb.
+    destruct (Nat.eq_dec va vb) as [Hvab| Hvab]; [ now subst vb; left | ].
+    right.
+    intros H; apply Hvab.
+    now injection H.
+  }
+  right.
+  intros H; apply Hsab.
+  now injection H.
+}
+Qed.
+
 Definition compare a b :=
   match a with
   | z_zero =>
@@ -221,52 +201,38 @@ Definition compare a b :=
       end
   end.
 
-Definition eqb a b :=
-  match a with
-  | z_zero =>
-      match b with
-      | z_zero => true
-      | _ => false
-      end
-  | z_val sa va =>
-      match b with
-      | z_val sb vb => (Bool.eqb sa sb && (va =? vb))%bool
-      | _ => false
-      end
+Definition leb a b :=
+  match Z.compare a b with
+  | Eq | Lt => true
+  | Gt => false
   end.
 
-Definition le a b := compare a b ≠ Gt.
-Definition lt a b := compare a b = Lt.
+Notation "a + b" := (Z.add a b) : Z_scope.
+(*
+Notation "a - b" := (Z.sub a b) : Z_scope.
+*)
+Notation "a * b" := (Z.mul a b) : Z_scope.
+Notation "a / b" := (Z.div a b) : Z_scope.
+Notation "- a" := (Z.opp a) : Z_scope.
+(*
+Notation "a ≤ b" := (Z.le a b) : Z_scope.
+Notation "a < b" := (Z.lt a b) : Z_scope.
+*)
+Notation "a ?= b" := (Z.compare a b) : Z_scope.
+(*
+Notation "a =? b" := (Z.eqb a b) : Z_scope.
+*)
 
-Definition of_number (n : Number.int) : option Z :=
-  match n with
-  | Number.IntDecimal n =>
-      match n with
-      | Decimal.Pos (Decimal.D0 Decimal.Nil) => Some z_zero
-      | Decimal.Pos n => Some (z_val true (Nat.of_uint n - 1))
-      | Decimal.Neg n => Some (z_val false (Nat.of_uint n - 1))
-      end
-  | Number.IntHexadecimal n => None
-  end.
-
-Definition to_number (a : Z) : Number.int :=
-  match a with
-  | z_zero => Number.IntDecimal (Decimal.Pos (Nat.to_uint 0))
-  | z_val true v => Number.IntDecimal (Decimal.Pos (Nat.to_uint (v + 1)))
-  | z_val false v => Number.IntDecimal (Decimal.Neg (Nat.to_uint (v + 1)))
-  end.
-
-Number Notation Z of_number to_number : Z_scope.
-
-Notation "a + b" := (add a b) : Z_scope.
-Notation "a - b" := (sub a b) : Z_scope.
-Notation "a * b" := (mul a b) : Z_scope.
-Notation "a / b" := (div a b) : Z_scope.
-Notation "- a" := (opp a) : Z_scope.
-Notation "a ≤ b" := (le a b) : Z_scope.
-Notation "a < b" := (lt a b) : Z_scope.
-Notation "a ?= b" := (compare a b) : Z_scope.
-Notation "a =? b" := (eqb a b) : Z_scope.
+Instance Z_ring_like_op : ring_like_op Z :=
+  {| rngl_zero := z_zero;
+     rngl_add := Z.add;
+     rngl_mul := Z.mul;
+     rngl_opt_one := Some (z_val true 0);
+     rngl_opt_opp_or_subt := Some (inl Z.opp);
+     rngl_opt_inv_or_quot := Some (inr Z.div);
+     rngl_opt_is_zero_divisor := None;
+     rngl_opt_eq_dec := Some eq_dec;
+     rngl_opt_leb := Some leb |}.
 
 Theorem add_comm : ∀ a b, (a + b)%Z = (b + a)%Z.
 Proof.
@@ -292,9 +258,9 @@ Proof. now intros; destruct a. Qed.
 Theorem add_add_swap : ∀ a b c, (a + b + c)%Z = (a + c + b)%Z.
 Proof.
 intros.
-destruct a as [| sa va]; [ do 2 rewrite add_0_l; apply add_comm | ].
-destruct b as [| sb vb]; [ now do 2 rewrite add_0_r | ].
-destruct c as [| sc vc]; [ now do 2 rewrite add_0_r | ].
+destruct a as [| sa va]; [ do 2 rewrite Z.add_0_l; apply Z.add_comm | ].
+destruct b as [| sb vb]; [ now do 2 rewrite Z.add_0_r | ].
+destruct c as [| sc vc]; [ now do 2 rewrite Z.add_0_r | ].
 move sb before sa; move sc before sb.
 destruct (Bool.bool_dec sa sb) as [H1| H1]. {
   subst sb; cbn.
@@ -467,6 +433,152 @@ f_equal.
 now destruct sa, sb.
 Qed.
 
+Theorem mul_0_l : ∀ a, (0 * a)%Z = 0%Z.
+Proof. easy. Qed.
+
+Theorem mul_0_r : ∀ a, (a * 0)%Z = 0%Z.
+Proof. now intros; rewrite mul_comm. Qed.
+
+Theorem mul_mul_swap : ∀ a b c, (a * b * c)%Z = (a * c * b)%Z.
+Proof.
+intros.
+destruct a as [| sa va]; [ easy | ].
+destruct b as [| sb vb]; [ now do 2 rewrite Z.mul_0_r | ].
+destruct c as [| sc vc]; [ now do 2 rewrite Z.mul_0_r | ].
+move sb before sa; move sc before sb.
+cbn.
+f_equal; [ now destruct sa, sb, sc | ].
+rewrite Nat.sub_add; [ | flia ].
+rewrite Nat.sub_add; [ | flia ].
+flia.
+Qed.
+
+Theorem mul_assoc : ∀ a b c, (a * (b * c))%Z = ((a * b) * c)%Z.
+Proof.
+intros.
+rewrite Z.mul_comm.
+rewrite Z.mul_mul_swap.
+progress f_equal.
+apply Z.mul_comm.
+Qed.
+
+Instance Z_ring_like_prop : ring_like_prop Z :=
+  {| rngl_mul_is_comm := true;
+     rngl_is_archimedean := true;
+     rngl_is_alg_closed := false;
+     rngl_characteristic := 0;
+     rngl_add_comm := Z.add_comm;
+     rngl_add_assoc := Z.add_assoc;
+     rngl_add_0_l := Z.add_0_l;
+     rngl_mul_assoc := Z.mul_assoc;
+     rngl_opt_mul_1_l := ?rngl_opt_mul_1_l;
+     rngl_mul_add_distr_l := ?rngl_mul_add_distr_l;
+     rngl_opt_mul_comm := ?rngl_opt_mul_comm;
+     rngl_opt_mul_1_r := ?rngl_opt_mul_1_r;
+     rngl_opt_mul_add_distr_r := ?rngl_opt_mul_add_distr_r;
+     rngl_opt_add_opp_diag_l := ?rngl_opt_add_opp_diag_l;
+     rngl_opt_add_sub := ?rngl_opt_add_sub;
+     rngl_opt_sub_add_distr := ?rngl_opt_sub_add_distr;
+     rngl_opt_sub_0_l := ?rngl_opt_sub_0_l;
+     rngl_opt_mul_inv_diag_l := ?rngl_opt_mul_inv_diag_l;
+     rngl_opt_mul_inv_diag_r := ?rngl_opt_mul_inv_diag_r;
+     rngl_opt_mul_div := ?rngl_opt_mul_div;
+     rngl_opt_mul_quot_r := ?rngl_opt_mul_quot_r;
+     rngl_opt_integral := ?rngl_opt_integral;
+     rngl_opt_alg_closed := ?rngl_opt_alg_closed;
+     rngl_opt_characteristic_prop := ?rngl_opt_characteristic_prop;
+     rngl_opt_ord := ?rngl_opt_ord;
+     rngl_opt_archimedean := ?rngl_opt_archimedean |}.
+
+...
+
+end Z.
+
+...
+
+(******)
+
+(* misc theorems *)
+
+Theorem Nat_compare_mul_cancel_l :
+  ∀ a b c, a ≠ 0 → (a * b ?= a * c) = (b ?= c).
+Proof.
+intros * Haz.
+do 2 rewrite nat_compare_equiv.
+progress unfold nat_compare_alt.
+destruct (lt_eq_lt_dec (a * b) (a * c)) as [[H1| H1]| H1]. {
+  destruct (lt_eq_lt_dec b c) as [[H2| H2]| H2].
+  easy.
+  flia H1 H2.
+  apply Nat.mul_lt_mono_pos_l in H1; [ | flia Haz ].
+  now apply Nat.lt_asymm in H1.
+} {
+  destruct (lt_eq_lt_dec b c) as [[H2| H2]| H2].
+  apply Nat.mul_cancel_l in H1; [ flia H1 H2 | easy ].
+  easy.
+  apply Nat.mul_cancel_l in H1; [ flia H1 H2 | easy ].
+} {
+  destruct (lt_eq_lt_dec b c) as [[H2| H2]| H2].
+  apply Nat.mul_lt_mono_pos_l in H1; [ flia H1 H2 | flia Haz ].
+  now subst c; apply Nat.lt_irrefl in H1.
+  easy.
+}
+Qed.
+
+(* to be removed if RingLike included *)
+Theorem if_ltb_lt_dec : ∀ A i j (a b : A),
+  (if i <? j then a else b) = (if lt_dec i j then a else b).
+Proof.
+intros.
+destruct (lt_dec i j) as [H1| H1]. {
+  now apply Nat.ltb_lt in H1; rewrite H1.
+}
+now apply Nat.ltb_nlt in H1; rewrite H1.
+Qed.
+
+(* to be removed if RingLike included *)
+Theorem if_leb_le_dec : ∀ A i j (a b : A),
+  (if i <=? j then a else b) = (if le_dec i j then a else b).
+Proof.
+intros.
+destruct (le_dec i j) as [H1| H1]. {
+  now apply Nat.leb_le in H1; rewrite H1.
+}
+now apply Nat.leb_nle in H1; rewrite H1.
+Qed.
+
+(* to be removed if RingLike included *)
+Theorem Nat_sub_sub_swap : ∀ a b c, a - b - c = a - c - b.
+Proof.
+intros.
+rewrite <- Nat.sub_add_distr.
+rewrite Nat.add_comm.
+now rewrite Nat.sub_add_distr.
+Qed.
+
+(* end misc theorems *)
+
+Module Z.
+
+Definition sub a b := add a (opp b).
+
+Definition eqb a b :=
+  match a with
+  | z_zero =>
+      match b with
+      | z_zero => true
+      | _ => false
+      end
+  | z_val sa va =>
+      match b with
+      | z_val sb vb => (Bool.eqb sa sb && (va =? vb))%bool
+      | _ => false
+      end
+  end.
+
+Definition le a b := compare a b ≠ Gt.
+Definition lt a b := compare a b = Lt.
+
 Theorem add_move_0_r : ∀ a b, (a + b)%Z = 0%Z ↔ a = (- b)%Z.
 Proof.
 intros.
@@ -490,12 +602,6 @@ rewrite Bool.eqb_negb1.
 now rewrite Nat.compare_refl.
 Qed.
 
-Theorem mul_0_l : ∀ a, (0 * a)%Z = 0%Z.
-Proof. easy. Qed.
-
-Theorem mul_0_r : ∀ a, (a * 0)%Z = 0%Z.
-Proof. now intros; rewrite mul_comm. Qed.
-
 Theorem mul_1_l : ∀ a, (1 * a)%Z = a.
 Proof.
 intros.
@@ -507,29 +613,6 @@ Qed.
 
 Theorem mul_1_r : ∀ a, (a * 1)%Z = a.
 Proof. intros; rewrite mul_comm; apply mul_1_l. Qed.
-
-Theorem mul_mul_swap : ∀ a b c, (a * b * c)%Z = (a * c * b)%Z.
-Proof.
-intros.
-destruct a as [| sa va]; [ easy | ].
-destruct b as [| sb vb]; [ now do 2 rewrite mul_0_r | ].
-destruct c as [| sc vc]; [ now do 2 rewrite mul_0_r | ].
-move sb before sa; move sc before sb.
-cbn.
-f_equal; [ now destruct sa, sb, sc | ].
-rewrite Nat.sub_add; [ | flia ].
-rewrite Nat.sub_add; [ | flia ].
-flia.
-Qed.
-
-Theorem mul_assoc : ∀ a b c, (a * (b * c))%Z = ((a * b) * c)%Z.
-Proof.
-intros.
-rewrite mul_comm.
-rewrite mul_mul_swap.
-progress f_equal.
-apply mul_comm.
-Qed.
 
 Theorem mul_add_distr_l : ∀ a b c, (a * (b + c))%Z = (a * b + a * c)%Z.
 Proof.
