@@ -127,6 +127,7 @@ cbn.
 progress f_equal. {
   rewrite Z.mul_add_distr_l.
   rewrite Z.mul_add_distr_r.
+  progress unfold q_Den; cbn.
   do 2 rewrite Nat2Z.inj_mul.
   do 4 rewrite Z.mul_assoc.
   do 2 rewrite (Z.mul_mul_swap _ (Z.of_nat (q_den x))).

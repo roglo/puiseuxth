@@ -20,8 +20,7 @@ Open Scope Z_scope.
 Definition eq a b := q_num a * q_Den b = q_num b * q_Den a.
 
 Definition add a b :=
-  mk_q (q_num a * Z.of_nat (q_den b) + q_num b * Z.of_nat (q_den a))
-    (q_den a * q_den b).
+  mk_q (q_num a * q_Den b + q_num b * q_Den a) (q_den a * q_den b).
 
 Definition opp a := mk_q (- q_num a) (q_den a).
 Definition sub a b := add a (opp b).
@@ -37,7 +36,7 @@ Definition inv a :=
 Definition div a b := mul a (inv b).
 
 Definition compare a b :=
-  q_num a * Z.of_nat (q_den b) ?= q_num b * Z.of_nat (q_den a).
+  q_num a * q_Den b ?= q_num b * q_Den a.
 
 Definition le x y := (q_num x * q_Den y ≤ q_num y * q_Den x)%Z.
 Definition lt x y := (q_num x * q_Den y < q_num y * q_Den x)%Z.
@@ -81,6 +80,7 @@ Proof.
 intros.
 progress unfold add; cbn.
 f_equal; [ | now rewrite Nat.mul_assoc ].
+progress unfold q_Den; cbn.
 do 2 rewrite Nat2Z.inj_mul.
 do 2 rewrite Z.mul_add_distr_r.
 rewrite <- Z.add_assoc.
