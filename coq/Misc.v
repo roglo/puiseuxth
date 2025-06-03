@@ -222,6 +222,36 @@ split. {
 
 Require Import Morphisms.
 Global Instance Q_le_morph : Proper (Q.eq ==> Q.eq ==> iff) Q.le.
+Proof.
+intros a b Hab c d Hcd.
+move c before b; move d before c.
+split. {
+  intros Hac.
+  progress unfold Q.eq in Hab, Hcd.
+  progress unfold Q.le in Hac |-*.
+(* je me demande si je devrais pas passer par RingLike en fait,
+   déjà sur A_ZArith ; ça m'éviterait d'avoir à redémontrer plein
+   de trucs *)
+...
+Require Import RingLike.Core.
+Search (_ * _ ≤ _ * _)%Z.
+Search (_ * _ < _ * _)%Z.
+...
+Z.mul_lt_mono_pos_l: ∀ a b c : Z, (0 < a)%Z → (b < c)%Z ↔ (a * b < a * c)%Z
+...
+  apply (f_equal (Z.mul (q_num b))) in Hac.
+...
+  destruct a as (an, ad).
+  destruct b as (bn, bd).
+  destruct c as (cn, cd).
+  destruct d as (dn, dd).
+  move bn before an; move cn before bn; move dn before cn.
+  cbn in Hab, Hcd, Hac |-*.
+progress unfold q_Den in Hab.
+cbn in Hab.
+Search (q_Den (_ # _)).
+Require Import QArith.
+Search (QDen (_ # _)).
 ...
 
 ... ...
