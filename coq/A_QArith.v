@@ -75,6 +75,36 @@ Notation "- a" := (opp a) : Q_scope.
 Notation "a ≤ b" := (le a b) : Q_scope.
 Notation "a < b" := (lt a b) : Q_scope.
 
+Theorem eq_refl : ∀ a, (a == a)%Q.
+Proof. easy. Qed.
+
+Theorem eq_symm : ∀ a b, (a == b → b == a)%Q.
+Proof. easy. Qed.
+
+Theorem eq_trans : ∀ a b c, (a == b → b == c → a == c)%Q.
+Proof.
+intros * Hab Hbc.
+progress unfold eq in Hab, Hbc |-*.
+apply (f_equal (Z.mul (q_Den c))) in Hab.
+apply (f_equal (Z.mul (q_Den a))) in Hbc.
+do 2 rewrite (Z.mul_comm (q_Den c)) in Hab.
+rewrite (Z.mul_comm (q_num b)) in Hab.
+rewrite (Z.mul_comm (q_num c)) in Hbc.
+do 2 rewrite Z.mul_assoc in Hbc.
+rewrite Hbc in Hab.
+do 2 rewrite <- (Z.mul_mul_swap _ _ (q_Den b)) in Hab.
+rewrite (Z.mul_comm (q_Den a)) in Hab.
+apply Z.mul_cancel_r in Hab; [ easy | ].
+progress unfold q_Den.
+now rewrite Nat.add_comm.
+Qed.
+
+Add Parametric Relation : Q Q.eq
+  reflexivity proved by eq_refl
+  symmetry proved by eq_symm
+  transitivity proved by eq_trans
+  as eq_rel.
+
 Theorem add_comm : ∀ a b, (a + b)%Q = (b + a)%Q.
 Proof.
 intros.
@@ -176,6 +206,9 @@ progress unfold le in Hab, Hba.
 progress unfold eq.
 now apply Z.le_antisymm.
 Qed.
+
+Theorem lt_le_incl : ∀ a b, (a < b)%Q → (a ≤ b)%Q.
+Proof. intros * Hab; congruence. Qed.
 
 End Q.
 

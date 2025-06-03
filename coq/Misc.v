@@ -206,9 +206,6 @@ Theorem Q_mul_lt_mono_pos_l :
 Proof.
 intros * Hza.
 split; intros Hbc. {
-Theorem Q_lt_le_incl : ∀ a b, (a < b)%Q → (a ≤ b)%Q.
-Proof. intros * Hab; congruence. Qed.
-
 Theorem Q_lt_0_sub : ∀ a b, (0 < b - a ↔ a < b)%Q.
 Proof.
 intros.
@@ -216,35 +213,20 @@ split; intros Hab. {
 Theorem Q_lt_iff : ∀ a b, (a < b)%Q ↔ (a ≤ b)%Q ∧ ¬ (a == b)%Q.
 Proof.
 intros.
-(*
-progress unfold Q.lt.
-progress unfold Q.le.
-specialize Q.le_antisymm as H2.
-progress unfold Q.le in H2.
-*)
 split. {
   intros Hab.
-  split; [ now apply Q_lt_le_incl | ].
+  split; [ now apply Q.lt_le_incl | ].
   intros H.
   apply Q.nle_gt in Hab.
   apply Hab; clear Hab.
+
 Require Import Morphisms.
 Global Instance Q_le_morph : Proper (Q.eq ==> Q.eq ==> iff) Q.le.
-Admitted.
-
-Theorem Q_eq_refl : ∀ a, a == a.
-Proof. easy. Qed.
-
-Add Parametric Relation : Q Q.eq
-  reflexivity proved by Q_eq_refl
-  symmetry proved by true
-  transitivity proved by true
-  as Q_eq_rel.
-About Q.le.
-
-Error:
 ...
+
+... ...
 rewrite H.
+... ...
 
 specialize Q_le_morph as H1.
 specialize (H1 _ _ H).

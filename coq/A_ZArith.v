@@ -808,6 +808,23 @@ intros H3; apply H2.
 now apply le_antisymm.
 Qed.
 
+Theorem mul_cancel_l : ∀ a b c, a ≠ 0%Z → (a * b)%Z = (a * c)%Z → b = c.
+Proof.
+intros * Haz Habc.
+do 2 rewrite (mul_comm a) in Habc.
+apply (f_equal (λ x, div x a)) in Habc.
+rewrite div_mul in Habc; [ | easy ].
+rewrite div_mul in Habc; [ | easy ].
+easy.
+Qed.
+
+Theorem mul_cancel_r : ∀ a b c, c ≠ 0%Z → (a * c)%Z = (b * c)%Z → a = b.
+Proof.
+intros * Haz Habc.
+do 2 rewrite (mul_comm _ c) in Habc.
+now apply mul_cancel_l in Habc.
+Qed.
+
 End Z.
 
 Number Notation Z Z.of_number Z.to_number : Z_scope.
