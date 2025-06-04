@@ -1107,6 +1107,34 @@ apply Bool.not_true_iff_false in Haz.
 apply Z.not_leb in Haz.
 destruct Haz as (Haz, Hza).
 apply Z.leb_le in Hza.
+destruct a as [| sa va]; [ easy | ].
+destruct sa. 2: {
+  exfalso; apply Z.nlt_ge in Hza.
+  now apply Hza.
+}
+destruct b as [| sb vb]; [ now exists 1 | ].
+exists ((vb + 1) / (va + 1) + 1).
+progress unfold Z.leb.
+remember (rngl_mul_nat _ _) as n eqn:Hn.
+symmetry in Hn.
+progress unfold Z.compare.
+destruct n as [| sn n]; cbn. {
+  destruct sb. {
+    rewrite Nat.add_1_r in Hn.
+...
+remember S as f; cbn; subst f.
+cbn.
+apply Bool.not_true_iff_false.
+intros H.
+apply Z.leb_le in H.
+apply Z.nlt_ge in H.
+apply H; clear H.
+progress unfold Z.lt.
+progress unfold rngl_mul_nat.
+progress unfold mul_nat.
+remember S as f; cbn; subst f.
+remember
+clear Haz Hza.
 ...
 
 Instance ring_like_prop : ring_like_prop Z :=
