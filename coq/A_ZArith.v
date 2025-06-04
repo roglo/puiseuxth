@@ -262,6 +262,13 @@ Instance ring_like_op : ring_like_op Z :=
      rngl_opt_eq_dec := Some eq_dec;
      rngl_opt_leb := Some leb |}.
 
+Theorem opp_involutive : ∀ a, (- - a)%Z = a.
+Proof.
+intros.
+destruct a as [| s v]; [ easy | cbn ].
+now rewrite Bool.negb_involutive.
+Qed.
+
 Theorem add_comm : ∀ a b, (a + b)%Z = (b + a)%Z.
 Proof.
 intros.
@@ -600,7 +607,7 @@ Qed.
 Theorem integral :
   ∀ a b : Z,
   (a * b)%Z = 0%Z
-  → a = 0%Z ∨ b = 0%L ∨ rngl_is_zero_divisor a ∨ rngl_is_zero_divisor b.
+  → a = 0%Z ∨ b = 0%Z ∨ rngl_is_zero_divisor a ∨ rngl_is_zero_divisor b.
 Proof.
 intros * Hab; cbn.
 destruct a as [| sa va]; [ now left | ].
@@ -927,12 +934,59 @@ destruct sb; cbn. {
 }
 Qed.
 
+Theorem mul_le_mono_nonpos_l :
+  ∀ a b c, (a ≤ 0)%Z → (b ≤ c)%Z → (a * c ≤ a * b)%Z.
+Proof.
+intros * Hza Hbc.
+progress unfold Z.le in Hza, Hbc |-*.
+destruct a as [| sa va]; [ easy | cbn ].
+cbn in Hza.
+destruct sa; [ easy | clear Hza ].
+destruct b as [| sb vb]. {
+  cbn in Hbc |-*.
+  destruct c as [| sc vc]; [ easy | ].
+  now destruct sc.
+}
+cbn in Hbc.
+destruct c as [| sc vc]; [ now destruct sb | cbn ].
+destruct sb; cbn. {
+  destruct sc; [ | easy ].
+  apply Nat.compare_le_iff in Hbc.
+  apply Nat.compare_le_iff.
+  apply Nat.sub_le_mono_r.
+  apply Nat.mul_le_mono_l.
+  now apply Nat.add_le_mono_r.
+} {
+  destruct sc; [ easy | ].
+  apply Nat.compare_le_iff in Hbc.
+  apply Nat.compare_le_iff.
+  apply Nat.sub_le_mono_r.
+  apply Nat.mul_le_mono_l.
+  now apply Nat.add_le_mono_r.
+}
+Qed.
+
 Theorem add_le_compat : ∀ a b c d, (a ≤ b)%Z → (c ≤ d)%Z → (a + c ≤ b + d)%Z.
 Proof.
 intros * Hab Hcd.
 apply (Z.le_trans _ (a + d)); [ apply Z.add_le_compat_l, Hcd | ].
 do 2 rewrite (Z.add_comm _ d).
 now apply Z.add_le_compat_l.
+Qed.
+
+Theorem mul_opp_l : ∀ a b, (- a * b)%Z = (- (a * b))%Z.
+Proof.
+intros.
+destruct a as [| sa va]; [ easy | ].
+destruct b as [| sb vb]; [ easy | cbn ].
+now destruct sa, sb.
+Qed.
+
+Theorem mul_opp_r : ∀ a b, (a * - b)%Z = (- (a * b))%Z.
+Proof.
+intros.
+do 2 rewrite (Z.mul_comm a).
+apply Z.mul_opp_l.
 Qed.
 
 Theorem mul_le_compat_nonneg :
@@ -944,6 +998,18 @@ apply (Z.le_trans _ (a * d)). {
 }
 do 2 rewrite (Z.mul_comm _ d).
 apply Z.mul_le_mono_nonneg_l; [ | easy ].
+now apply (Z.le_trans _ b).
+Qed.
+
+Theorem mul_le_compat_nonpos :
+  ∀ a b c d : Z, (c ≤ a ≤ 0)%Z → (d ≤ b ≤ 0)%Z → (a * b ≤ c * d)%Z.
+Proof.
+intros * Hca Hdb.
+apply (Z.le_trans _ (a * d)). {
+  now apply Z.mul_le_mono_nonpos_l.
+}
+do 2 rewrite (Z.mul_comm _ d).
+apply Z.mul_le_mono_nonpos_l; [ | easy ].
 now apply (Z.le_trans _ b).
 Qed.
 
@@ -992,7 +1058,19 @@ Proof.
 intros * (Hza, Hac) (Hzb, Hbd).
 apply Z.leb_le in Hza, Hac, Hzb, Hbd.
 apply Z.leb_le.
-now apply mul_le_compat_nonneg.
+now apply Z.mul_le_compat_nonneg.
+Qed.
+
+Theorem mul_leb_compat_nonpos :
+  ∀ a b c d : Z,
+  (c ≤? a)%Z = true ∧ (a ≤? 0)%Z = true
+  → (d ≤? b)%Z = true ∧ (b ≤? 0)%Z = true
+  → (a * b ≤? c * d)%Z = true.
+Proof.
+intros * (Hza, Hac) (Hzb, Hbd).
+apply Z.leb_le in Hza, Hac, Hzb, Hbd.
+apply Z.leb_le.
+now apply Z.mul_le_compat_nonpos.
 Qed.
 
 Instance ring_like_ord : ring_like_ord Z :=
@@ -1002,7 +1080,7 @@ Instance ring_like_ord : ring_like_ord Z :=
      rngl_ord_le_trans := Z.leb_trans;
      rngl_ord_add_le_compat := Z.add_leb_compat;
      rngl_ord_mul_le_compat_nonneg := Z.mul_leb_compat_nonneg;
-     rngl_ord_mul_le_compat_nonpos := ?rngl_ord_mul_le_compat_nonpos;
+     rngl_ord_mul_le_compat_nonpos := Z.mul_leb_compat_nonpos;
      rngl_ord_not_le := ?rngl_ord_not_le |}.
 
 ...
@@ -1105,21 +1183,6 @@ destruct (Bool.bool_dec sa sb) as [H1| H1]; [ now subst sb | ].
 rewrite nat_compare_equiv.
 progress unfold nat_compare_alt.
 now destruct (lt_eq_lt_dec va vb) as [[| ]| ].
-Qed.
-
-Theorem opp_involutive : ∀ a, (- - a)%Z = a.
-Proof.
-intros.
-destruct a as [| s v]; [ easy | cbn ].
-now rewrite Bool.negb_involutive.
-Qed.
-
-Theorem mul_opp_l : ∀ a b, (- a * b)%Z = (- (a * b))%Z.
-Proof.
-intros.
-destruct a as [| sa va]; [ easy | ].
-destruct b as [| sb vb]; [ easy | cbn ].
-now destruct sa, sb.
 Qed.
 
 Theorem eqb_refl : ∀ a, (a =? a)%Z = true.
