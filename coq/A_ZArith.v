@@ -770,18 +770,35 @@ destruct ab; [ | easy | easy ].
 now apply Z.compare_eq_iff.
 Qed.
 
+Theorem leb_le : ∀ a b, (a ≤? b)%Z = true ↔ (a ≤ b)%Z.
+Proof.
+intros.
+progress unfold Z.leb.
+progress unfold Z.le.
+now destruct (a ?= b)%Z.
+Qed.
+
 Theorem leb_antisymm : ∀ a b, (a ≤? b)%Z = true → (b ≤? a)%Z = true → a = b.
 Proof.
 intros * Hab Hba.
-progress unfold Z.leb in Hab, Hba.
-now apply Z.le_antisymm; intros H; [ rewrite H in Hab | rewrite H in Hba ].
+apply Z.leb_le in Hab, Hba.
+now apply (Z.le_antisymm a b).
+Qed.
+
+Theorem leb_trans :
+  ∀ a b c, (a ≤? b)%Z = true → (b ≤? c)%Z = true → (a ≤? c)%Z = true.
+Proof.
+intros * Hab Hbc.
+apply Z.leb_le in Hab, Hbc.
+apply Z.leb_le.
+now apply (Z.le_trans a b c).
 Qed.
 
 Instance ring_like_ord : ring_like_ord Z :=
   {| rngl_ord_le_dec := (λ a b, Bool.bool_dec (a ≤? b)%Z true);
      rngl_ord_le_refl := Z.leb_refl;
      rngl_ord_le_antisymm := Z.leb_antisymm;
-     rngl_ord_le_trans := ?rngl_ord_le_trans;
+     rngl_ord_le_trans := Z.leb_trans;
      rngl_ord_add_le_compat := ?rngl_ord_add_le_compat;
      rngl_ord_mul_le_compat_nonneg := ?rngl_ord_mul_le_compat_nonneg;
      rngl_ord_mul_le_compat_nonpos := ?rngl_ord_mul_le_compat_nonpos;
