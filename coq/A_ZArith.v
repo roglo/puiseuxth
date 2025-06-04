@@ -905,6 +905,28 @@ destruct sa. {
     }
   }
 }
+destruct sc. {
+  destruct sd; [ cbn | easy ].
+  destruct sb. {
+    destruct (va ?= vc); [ easy | cbn | easy ].
+    apply Nat.compare_le_iff in Hcd.
+    apply Nat.compare_le_iff.
+    flia Hcd.
+  } {
+    cbn.
+    remember (va ?= vc) as ac eqn:Hac.
+    remember (vb ?= vd) as bd eqn:Hbd.
+    symmetry in Hac, Hbd.
+    destruct ac; cbn. {
+      destruct bd; [ easy | easy | exfalso ].
+...
+    destruct ac, bd; cbn; try easy. {
+    symmetry in Hac.
+    destruct ac; cbn.
+...
+    apply Nat.compare_le_iff in Hcd.
+    apply Nat.compare_le_iff.
+    flia Hcd.
 ...
 
 Theorem leb_le : ∀ a b, (a ≤? b)%Z = true ↔ (a ≤ b)%Z.
