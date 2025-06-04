@@ -249,6 +249,7 @@ Notation "a ?= b" := (Z.compare a b) : Z_scope.
 Notation "a =? b" := (Z.eqb a b) : Z_scope.
 *)
 Notation "a ≤? b" := (Z.leb a b) : Z_scope.
+Notation "a ≤ b ≤ c" := (Z.le a b ∧ Z.le b c) : Z_scope.
 
 Instance ring_like_op : ring_like_op Z :=
   {| rngl_zero := z_zero;
@@ -894,13 +895,45 @@ apply Nat.compare_le_iff.
 now apply Nat.add_le_mono_r, Nat.add_le_mono_l.
 Qed.
 
+Theorem mul_le_mono_nonneg_l :
+  ∀ a b c, (0 ≤ a)%Z → (b ≤ c)%Z → (a * b ≤ a * c)%Z.
+Proof.
+intros * Hza Hbc.
+progress unfold Z.le in Hza, Hbc |-*.
+destruct a as [| sa va]; [ easy | cbn ].
+cbn in Hza.
+destruct sa; [ clear Hza | easy ].
+destruct b as [| sb vb]. {
+  cbn in Hbc |-*.
+  destruct c as [| sc vc]; [ easy | ].
+  now destruct sc.
+}
+cbn in Hbc.
+destruct c as [| sc vc]; [ now destruct sb | cbn ].
+destruct sb; cbn. {
+  destruct sc; [ | easy ].
+...
+
 Theorem add_le_compat : ∀ a b c d, (a ≤ b)%Z → (c ≤ d)%Z → (a + c ≤ b + d)%Z.
 Proof.
 intros * Hab Hcd.
-eapply le_trans; [ apply Z.add_le_compat_l, Hcd | ].
+apply (Z.le_trans _ (a + d)); [ apply Z.add_le_compat_l, Hcd | ].
 do 2 rewrite (Z.add_comm _ d).
 now apply Z.add_le_compat_l.
 Qed.
+
+Theorem mul_le_compat_nonneg :
+  ∀ a b c d, (0 ≤ a ≤ c)%Z → (0 ≤ b ≤ d)%Z → (a * b ≤ c * d)%Z.
+Proof.
+intros * Hac Hbd.
+apply (Z.le_trans _ (a * d)). {
+... ...
+  now apply Z.mul_le_mono_nonneg_l.
+}
+do 2 rewrite (Z.mul_comm _ d).
+apply Z.mul_le_mono_nonneg_l; [ | easy ].
+now apply (Z.le_trans _ b).
+...
 
 Theorem leb_le : ∀ a b, (a ≤? b)%Z = true ↔ (a ≤ b)%Z.
 Proof.
@@ -938,15 +971,29 @@ apply Z.leb_le.
 now apply Z.add_le_compat.
 Qed.
 
+Theorem mul_leb_compat_nonneg :
+  ∀ a b c d : Z,
+  (0 ≤? a)%Z = true ∧ (a ≤? c)%Z = true
+  → (0 ≤? b)%Z = true ∧ (b ≤? d)%Z = true
+  → (a * b ≤? c * d)%Z = true.
+Proof.
+intros * (Hza, Hac) (Hzb, Hbd).
+apply Z.leb_le in Hza, Hac, Hzb, Hbd.
+apply Z.leb_le.
+... ...
+now apply mul_le_compat_nonneg.
+...
+
 Instance ring_like_ord : ring_like_ord Z :=
   {| rngl_ord_le_dec := (λ a b, Bool.bool_dec (a ≤? b)%Z true);
      rngl_ord_le_refl := Z.leb_refl;
      rngl_ord_le_antisymm := Z.leb_antisymm;
      rngl_ord_le_trans := Z.leb_trans;
      rngl_ord_add_le_compat := Z.add_leb_compat;
-     rngl_ord_mul_le_compat_nonneg := ?rngl_ord_mul_le_compat_nonneg;
+     rngl_ord_mul_le_compat_nonneg := true;
      rngl_ord_mul_le_compat_nonpos := ?rngl_ord_mul_le_compat_nonpos;
      rngl_ord_not_le := ?rngl_ord_not_le |}.
+
 ...
 
 Instance ring_like_prop : ring_like_prop Z :=
@@ -1200,6 +1247,7 @@ Notation "a ≤ b" := (Z.le a b) : Z_scope.
 Notation "a < b" := (Z.lt a b) : Z_scope.
 Notation "a ?= b" := (Z.compare a b) : Z_scope.
 Notation "a =? b" := (Z.eqb a b) : Z_scope.
+Notation "a ≤ b ≤ c" := (Z.le a b ∧ Z.le b c) : Z_scope.
 
 Module Nat2Z.
 
