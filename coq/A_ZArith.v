@@ -1073,6 +1073,21 @@ apply Z.leb_le.
 now apply Z.mul_le_compat_nonpos.
 Qed.
 
+Theorem not_leb : ∀ a b, (a ≤? b)%Z ≠ true → a ≠ b ∧ (b ≤? a)%Z = true.
+Proof.
+intros * Hab.
+progress unfold Z.leb in Hab |-*.
+rewrite <- Z.compare_antisymm.
+remember (a ?= b)%Z as ab eqn:H1.
+symmetry in H1.
+destruct ab; [ easy | easy | cbn ].
+progress unfold Z.compare in H1.
+split; [ | easy ].
+intros H; subst b.
+destruct a as [| sa va]; [ easy | cbn in H1 ].
+now destruct sa; rewrite Nat.compare_refl in H1.
+Qed.
+
 Instance ring_like_ord : ring_like_ord Z :=
   {| rngl_ord_le_dec := (λ a b, Bool.bool_dec (a ≤? b)%Z true);
      rngl_ord_le_refl := Z.leb_refl;
@@ -1081,8 +1096,17 @@ Instance ring_like_ord : ring_like_ord Z :=
      rngl_ord_add_le_compat := Z.add_leb_compat;
      rngl_ord_mul_le_compat_nonneg := Z.mul_leb_compat_nonneg;
      rngl_ord_mul_le_compat_nonpos := Z.mul_leb_compat_nonpos;
-     rngl_ord_not_le := ?rngl_ord_not_le |}.
+     rngl_ord_not_le := Z.not_leb |}.
 
+
+Theorem archimedean :
+  ∀ a b, (a ≤? 0)%Z = false → ∃ n : nat, (rngl_mul_nat a n ≤? b)%Z = false.
+Proof.
+intros * Haz.
+apply Bool.not_true_iff_false in Haz.
+apply Z.not_leb in Haz.
+destruct Haz as (Haz, Hza).
+apply Z.leb_le in Hza.
 ...
 
 Instance ring_like_prop : ring_like_prop Z :=
@@ -1111,7 +1135,7 @@ Instance ring_like_prop : ring_like_prop Z :=
      rngl_opt_alg_closed := NA;
      rngl_opt_characteristic_prop := Z.characteristic_prop;
      rngl_opt_ord := Z.ring_like_ord;
-     rngl_opt_archimedean := ?rngl_opt_archimedean |}.
+     rngl_opt_archimedean := Z.archimedean |}.
 
 ...
 
