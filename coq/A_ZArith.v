@@ -770,164 +770,137 @@ destruct ab; [ | easy | easy ].
 now apply Z.compare_eq_iff.
 Qed.
 
-Theorem add_le_compat :
-  ∀ a b c d, (a ≤ b)%Z → (c ≤ d)%Z → (a + c ≤ b + d)%Z.
+Theorem add_le_compat_l : ∀ a b c, (a ≤ b)%Z → (c + a ≤ c + b)%Z.
 Proof.
-intros * Hab Hcd.
-progress unfold Z.le in Hab, Hcd |-*.
-progress unfold Z.compare in Hab, Hcd |-*.
+intros * Hab.
+progress unfold Z.le in Hab |-*.
+progress unfold Z.compare in Hab |-*.
 destruct a as [| sa va]. {
-  cbn.
-  destruct b as [| sb vb]; [ easy | ].
-  destruct sb; [ clear Hab | easy ].
-  destruct c as [| sc vc]. {
-    destruct d as [| sd vd]; [ now rewrite Z.add_0_r | ].
-    now destruct sd.
+  destruct b as [| sb vb]. {
+    destruct c as [| sc vc]; [ easy | cbn ].
+    now destruct sc; rewrite Nat.compare_refl.
   }
-  destruct d as [| sd vd]; [ now destruct sc | ].
-  destruct sd. {
-    destruct sc; [ cbn | easy ].
-    apply Nat.compare_le_iff in Hcd.
+  destruct sb; [ | easy ].
+  destruct c as [| sc vc]; [ easy | ].
+  destruct sc; cbn. {
     apply Nat.compare_le_iff.
-    flia Hcd.
+    rewrite <- Nat.add_assoc.
+    apply Nat.le_add_r.
   }
-  destruct sc; [ easy | cbn ].
-  remember (vb ?= vd) as bd eqn:Hbd.
-  symmetry in Hbd.
-  destruct bd; [ easy | | easy ].
-  apply Nat.compare_le_iff in Hcd.
+  destruct (vc ?= vb); [ easy | easy | ].
   apply Nat.compare_le_iff.
-  flia Hcd.
+  rewrite <- Nat.sub_add_distr.
+  apply Nat.le_sub_l.
 }
 destruct b as [| sb vb]. {
-  destruct sa; [ easy | clear Hab ].
-  destruct c as [| sc vc]. {
-    destruct d as [| sd vd]; [ easy | now destruct sd ].
-  }
-  destruct d as [| sd vd]; [ now destruct sc | ].
-  destruct sc. {
-    destruct sd; [ cbn | easy ].
-    remember (va ?= vc) as ac eqn:Hac.
-    symmetry in Hac.
-    destruct ac; [ easy | | easy ].
-    apply Nat.compare_le_iff in Hcd.
-    apply Nat.compare_le_iff.
-    flia Hcd.
-  }
-  destruct sd; [ easy | cbn ].
-  apply Nat.compare_le_iff in Hcd.
-  apply Nat.compare_le_iff.
-  flia Hcd.
-}
-destruct c as [| sc vc]. {
-  destruct d as [| sd vd]; [ easy | ].
-  destruct sd; [ clear Hcd | easy ].
-  destruct sb; cbn. {
-    destruct sa; [ | easy ].
-    apply Nat.compare_le_iff in Hab.
-    apply Nat.compare_le_iff.
-    flia Hab.
-  }
   destruct sa; [ easy | ].
-  remember (vb ?= vd) as bd eqn:Hbd.
-  symmetry in Hbd.
-  destruct bd; [ easy | easy | ].
-  apply Nat.compare_le_iff in Hab.
-  apply Nat.compare_le_iff.
-  flia Hab.
-}
-destruct d as [| sd vd]. {
-  destruct sc; [ easy | clear Hcd ].
-  destruct sa; cbn. {
-    destruct sb; [ | easy ].
-    destruct (va ?= vc); [ easy | easy | ].
-    apply Nat.compare_le_iff in Hab.
+  destruct c as [| sc vc]; [ easy | cbn ].
+  destruct sc; cbn. {
+    destruct (vc ?= va); [ easy | easy | cbn ].
     apply Nat.compare_le_iff.
-    flia Hab.
+    rewrite <- Nat.sub_add_distr.
+    apply Nat.le_sub_l.
   }
-  destruct sb; [ easy | ].
-  apply Nat.compare_le_iff in Hab.
   apply Nat.compare_le_iff.
-  flia Hab.
+  rewrite <- Nat.add_assoc.
+  apply Nat.le_add_r.
 }
+destruct c as [| sc vc]; [ easy | ].
 destruct sa. {
-  destruct sb; [ | easy ].
-  destruct sc. {
-    destruct sd; [ cbn | easy ].
-    apply Nat.compare_le_iff in Hab, Hcd.
-    apply Nat.compare_le_iff.
-    flia Hab Hcd.
-  }
-  destruct sd. {
-    clear Hcd; cbn.
-    remember (va ?= vc) as ac eqn:Hac.
-    symmetry in Hac.
-    destruct ac; [ easy | easy | ].
+  destruct sb; [ cbn | easy ].
+  destruct sc; cbn. {
     apply Nat.compare_le_iff in Hab.
     apply Nat.compare_le_iff.
-    flia Hab.
+    now apply Nat.add_le_mono_r, Nat.add_le_mono_l.
   }
-  cbn.
-  remember (va ?= vc) as ac eqn:Hac.
-  symmetry in Hac.
-  destruct ac; cbn. {
-    remember (vb ?= vd) as bd eqn:Hbd.
-    symmetry in Hbd.
-    destruct bd; [ easy | exfalso | easy ].
-    apply Nat.compare_eq_iff in Hac; subst vc.
-    apply Nat.compare_le_iff in Hab, Hcd.
-    apply Nat.compare_lt_iff in Hbd.
-    apply Nat.nle_gt in Hbd.
-    apply Hbd; clear Hbd.
-    now transitivity va.
+  remember (vc ?= va) as ca eqn:Hca.
+  remember (vc ?= vb) as cb eqn:Hcb.
+  symmetry in Hca, Hcb.
+  destruct ca; cbn. {
+    apply Nat.compare_eq_iff in Hca; subst vc.
+    now destruct cb.
   } {
-    remember (vb ?= vd) as bd eqn:Hbd.
-    symmetry in Hbd.
-    destruct bd; [ easy | | easy ].
-    apply Nat.compare_le_iff in Hab, Hcd.
-    apply Nat.compare_le_iff.
-    flia Hab Hcd.
-  } {
-    apply Nat.compare_le_iff in Hab, Hcd.
-    apply Nat.compare_gt_iff in Hac.
-    remember (vb ?= vd) as bd eqn:Hbd.
-    symmetry in Hbd.
-    destruct bd; [ exfalso | exfalso | ]. {
-      apply Nat.compare_eq_iff in Hbd; subst vd.
-      apply Nat.nle_gt in Hac; apply Hac.
-      now transitivity vb.
+    destruct cb. {
+      apply Nat.compare_eq_iff in Hcb; subst vc.
+      apply Nat.compare_ngt_iff in Hab.
+      now apply Nat.compare_lt_iff in Hca.
     } {
-      apply Nat.compare_lt_iff in Hbd.
-      flia Hab Hcd Hac Hbd.
-    } {
+      apply Nat.compare_le_iff in Hab.
       apply Nat.compare_le_iff.
-      flia Hab Hcd.
+      now do 2 apply Nat.sub_le_mono_r.
+    } {
+      exfalso.
+      apply Nat.compare_ngt_iff in Hab; apply Hab.
+      apply Nat.compare_lt_iff in Hca.
+      apply Nat.compare_gt_iff in Hcb.
+      now apply (Nat.lt_trans _ vc).
+    }
+  } {
+    destruct cb; [ easy | easy | cbn ].
+    apply Nat.compare_le_iff in Hab.
+    apply Nat.compare_le_iff.
+    apply Nat.sub_le_mono_r.
+    now apply Nat.sub_le_mono_l.
+  }
+}
+destruct sb. {
+  destruct sc; cbn. {
+    destruct (vc ?= va); [ easy | easy | cbn ].
+    apply Nat.compare_le_iff.
+    rewrite <- Nat.sub_add_distr, <- Nat.add_assoc.
+    apply (Nat.le_trans _ vc); [ apply Nat.le_sub_l | ].
+    apply Nat.le_add_r.
+  }
+  destruct (vc ?= vb); [ easy | easy | cbn ].
+  apply Nat.compare_le_iff.
+  rewrite <- Nat.sub_add_distr, <- Nat.add_assoc.
+  apply (Nat.le_trans _ vc); [ apply Nat.le_sub_l | ].
+  apply Nat.le_add_r.
+}
+destruct sc; cbn. {
+  remember (vc ?= va) as ca eqn:Hca.
+  remember (vc ?= vb) as cb eqn:Hcb.
+  symmetry in Hca, Hcb.
+  destruct ca. {
+    apply Nat.compare_eq_iff in Hca; subst vc.
+    destruct cb; [ easy | | easy ].
+    apply Nat.compare_ngt_iff in Hab.
+    now apply Nat.compare_lt_iff in Hcb.
+  } {
+    destruct cb; [ easy | cbn | easy ].
+    apply Nat.compare_le_iff in Hab.
+    apply Nat.compare_le_iff.
+    do 2 rewrite <- Nat.sub_add_distr.
+    now apply Nat.sub_le_mono_r.
+  } {
+    destruct cb; [ exfalso | exfalso | ]. {
+      now apply Nat.compare_eq_iff in Hcb; subst vc.
+    } {
+      apply Nat.compare_ngt_iff in Hab.
+      apply Nat.compare_gt_iff in Hca.
+      apply Nat.compare_lt_iff in Hcb.
+      apply Hab.
+      now apply (Nat.lt_trans _ vc).
+    } {
+      apply Nat.compare_le_iff in Hab.
+      apply Nat.compare_le_iff.
+      do 2 rewrite <- Nat.sub_add_distr.
+      now apply Nat.sub_le_mono_l, Nat.add_le_mono_r.
     }
   }
 }
-destruct sc. {
-  destruct sd; [ cbn | easy ].
-  destruct sb. {
-    destruct (va ?= vc); [ easy | cbn | easy ].
-    apply Nat.compare_le_iff in Hcd.
-    apply Nat.compare_le_iff.
-    flia Hcd.
-  } {
-    cbn.
-    remember (va ?= vc) as ac eqn:Hac.
-    remember (vb ?= vd) as bd eqn:Hbd.
-    symmetry in Hac, Hbd.
-    destruct ac; cbn. {
-      destruct bd; [ easy | easy | exfalso ].
-...
-    destruct ac, bd; cbn; try easy. {
-    symmetry in Hac.
-    destruct ac; cbn.
-...
-    apply Nat.compare_le_iff in Hcd.
-    apply Nat.compare_le_iff.
-    flia Hcd.
-...
+apply Nat.compare_le_iff in Hab.
+apply Nat.compare_le_iff.
+now apply Nat.add_le_mono_r, Nat.add_le_mono_l.
+Qed.
+
+Theorem add_le_compat : ∀ a b c d, (a ≤ b)%Z → (c ≤ d)%Z → (a + c ≤ b + d)%Z.
+Proof.
+intros * Hab Hcd.
+eapply le_trans; [ apply Z.add_le_compat_l, Hcd | ].
+do 2 rewrite (Z.add_comm _ d).
+now apply Z.add_le_compat_l.
+Qed.
 
 Theorem leb_le : ∀ a b, (a ≤? b)%Z = true ↔ (a ≤ b)%Z.
 Proof.
@@ -962,15 +935,15 @@ Proof.
 intros * Hab Hcd.
 apply Z.leb_le in Hab, Hcd.
 apply Z.leb_le.
-revert a b c d Hab Hcd.
-...
+now apply Z.add_le_compat.
+Qed.
 
 Instance ring_like_ord : ring_like_ord Z :=
   {| rngl_ord_le_dec := (λ a b, Bool.bool_dec (a ≤? b)%Z true);
      rngl_ord_le_refl := Z.leb_refl;
      rngl_ord_le_antisymm := Z.leb_antisymm;
      rngl_ord_le_trans := Z.leb_trans;
-     rngl_ord_add_le_compat := true;
+     rngl_ord_add_le_compat := Z.add_leb_compat;
      rngl_ord_mul_le_compat_nonneg := ?rngl_ord_mul_le_compat_nonneg;
      rngl_ord_mul_le_compat_nonpos := ?rngl_ord_mul_le_compat_nonpos;
      rngl_ord_not_le := ?rngl_ord_not_le |}.
