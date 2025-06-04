@@ -912,7 +912,20 @@ cbn in Hbc.
 destruct c as [| sc vc]; [ now destruct sb | cbn ].
 destruct sb; cbn. {
   destruct sc; [ | easy ].
-...
+  apply Nat.compare_le_iff in Hbc.
+  apply Nat.compare_le_iff.
+  apply Nat.sub_le_mono_r.
+  apply Nat.mul_le_mono_l.
+  now apply Nat.add_le_mono_r.
+} {
+  destruct sc; [ easy | ].
+  apply Nat.compare_le_iff in Hbc.
+  apply Nat.compare_le_iff.
+  apply Nat.sub_le_mono_r.
+  apply Nat.mul_le_mono_l.
+  now apply Nat.add_le_mono_r.
+}
+Qed.
 
 Theorem add_le_compat : ∀ a b c d, (a ≤ b)%Z → (c ≤ d)%Z → (a + c ≤ b + d)%Z.
 Proof.
@@ -927,13 +940,12 @@ Theorem mul_le_compat_nonneg :
 Proof.
 intros * Hac Hbd.
 apply (Z.le_trans _ (a * d)). {
-... ...
   now apply Z.mul_le_mono_nonneg_l.
 }
 do 2 rewrite (Z.mul_comm _ d).
 apply Z.mul_le_mono_nonneg_l; [ | easy ].
 now apply (Z.le_trans _ b).
-...
+Qed.
 
 Theorem leb_le : ∀ a b, (a ≤? b)%Z = true ↔ (a ≤ b)%Z.
 Proof.
@@ -980,9 +992,8 @@ Proof.
 intros * (Hza, Hac) (Hzb, Hbd).
 apply Z.leb_le in Hza, Hac, Hzb, Hbd.
 apply Z.leb_le.
-... ...
 now apply mul_le_compat_nonneg.
-...
+Qed.
 
 Instance ring_like_ord : ring_like_ord Z :=
   {| rngl_ord_le_dec := (λ a b, Bool.bool_dec (a ≤? b)%Z true);
@@ -990,7 +1001,7 @@ Instance ring_like_ord : ring_like_ord Z :=
      rngl_ord_le_antisymm := Z.leb_antisymm;
      rngl_ord_le_trans := Z.leb_trans;
      rngl_ord_add_le_compat := Z.add_leb_compat;
-     rngl_ord_mul_le_compat_nonneg := true;
+     rngl_ord_mul_le_compat_nonneg := Z.mul_leb_compat_nonneg;
      rngl_ord_mul_le_compat_nonpos := ?rngl_ord_mul_le_compat_nonpos;
      rngl_ord_not_le := ?rngl_ord_not_le |}.
 
