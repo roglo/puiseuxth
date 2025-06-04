@@ -248,6 +248,7 @@ Notation "a ?= b" := (Z.compare a b) : Z_scope.
 (*
 Notation "a =? b" := (Z.eqb a b) : Z_scope.
 *)
+Notation "a ≤? b" := (Z.leb a b) : Z_scope.
 
 Instance ring_like_op : ring_like_op Z :=
   {| rngl_zero := z_zero;
@@ -645,42 +646,109 @@ split; [ | now destruct (b ?= a)%Z ].
 now destruct (b ?= a)%Z.
 Qed.
 
-Theorem characteristic_prop : ∀ i, rngl_mul_nat 1 (S i) ≠ 0%Z.
+Theorem add_move_0_l : ∀ a b, (a + b)%Z = 0%Z ↔ b = (- a)%Z.
 Proof.
 intros.
-cbn - [ Z.add mul_nat ].
-assert (Hz : ∀ i, (0 ≤ rngl_mul_nat 1 i)%Z). {
-  clear i; intros.
-  progress unfold rngl_mul_nat.
-  progress unfold mul_nat.
-  cbn - [ Z.add ].
-  induction i; [ easy | ].
-  cbn - [ Z.add ].
-  destruct (List.fold_right _ _ _); [ easy | ].
-  now destruct b.
+split; intros Hab. {
+  progress unfold Z.add in Hab.
+  progress unfold Z.opp.
+  destruct a as [| sa va]; [ now subst b | ].
+  destruct b as [| sb vb]; [ easy | ].
+  rewrite if_eqb_bool_dec in Hab.
+  destruct (Bool.bool_dec sa sb) as [Hsab| Hsab]; [ easy | ].
+  rewrite nat_compare_equiv in Hab.
+  progress unfold nat_compare_alt in Hab.
+  destruct (lt_eq_lt_dec va vb) as [[H1| H1]| H1]; [ easy | | easy ].
+  now subst vb; destruct sa, sb.
 }
-intros H.
-specialize (Hz i).
-apply Z.nlt_ge in Hz; apply Hz.
-progress unfold rngl_mul_nat in H.
-rewrite <- H.
-...
-Theorem lt_sub_lt_add_r : ∀ a b c, (a - b < c)%Z ↔ (a < c + b)%Z.
-...
-apply Z.lt_sub_lt_add_r.
-cbn.
-now rewrite Z.sub_diag.
+subst b.
+progress unfold Z.add.
+progress unfold Z.opp.
+destruct a as [| sa va]; [ easy | ].
+rewrite Bool.eqb_negb2.
+now rewrite Nat.compare_refl.
 Qed.
 
-...
+Theorem le_trans : ∀ a b c, (a ≤ b → b ≤ c → a ≤ c)%Z.
+Proof.
+intros * Hab Hbc.
+progress unfold Z.le in Hab, Hbc |-*.
+progress unfold Z.compare in Hab, Hbc |-*.
+destruct a as [| sa va]. {
+  destruct c as [| sc vc]; [ easy | ].
+  destruct sc; [ easy | exfalso ].
+  destruct b as [| sb vb]; [ easy | ].
+  now destruct sb.
+}
+destruct c as [| sc vc]. {
+  destruct sa; [ exfalso | easy ].
+  destruct b as [| sb vb]; [ easy | ].
+  now destruct sb.
+}
+destruct b as [| sb vb]. {
+  destruct sa; [ easy | now destruct sc ].
+}
+destruct sa. {
+  destruct sb; [ | easy ].
+  destruct sc; [ | easy ].
+  apply Nat.compare_le_iff in Hab, Hbc.
+  apply Nat.compare_le_iff.
+  now transitivity vb.
+}
+destruct sc; [ easy | ].
+destruct sb; [ easy | ].
+apply Nat.compare_le_iff in Hab, Hbc.
+apply Nat.compare_le_iff.
+now transitivity vb.
+Qed.
+
+Theorem le_add_l : ∀ a b, (0 ≤ a)%Z → (b ≤ a + b)%Z.
+Proof.
+intros * Hza.
+progress unfold Z.le in Hza |-*.
+progress unfold Z.compare in Hza |-*.
+destruct a as [| sa va]. {
+  destruct b as [| sb vb]; [ easy | cbn ].
+  now destruct sb; rewrite Nat.compare_refl.
+}
+destruct sa; [ | easy ].
+destruct b as [| sb vb]; [ easy | cbn ].
+destruct sb; [ apply Nat.compare_le_iff; flia | ].
+destruct (va ?= vb); [ easy | | easy ].
+apply Nat.compare_le_iff; flia.
+Qed.
 
 Theorem characteristic_prop : ∀ i : nat, rngl_of_nat (S i) ≠ 0%Z.
 Proof.
-intros.
-rewrite rngl_of_nat_succ.
+intros * Hn.
+rewrite rngl_of_nat_succ in Hn.
+apply Z.add_move_0_l in Hn.
+cbn in Hn.
+enough (H : (0 ≤ rngl_of_nat i)%Z) by now rewrite Hn in H.
+clear Hn.
 induction i; [ easy | ].
 rewrite rngl_of_nat_succ.
-(* ah... ça ne marche pas aussi bien que prévu, tiens *)
+eapply Z.le_trans; [ apply IHi | ].
+now apply Z.le_add_l.
+Qed.
+
+Theorem leb_refl : ∀ a, (a ≤? a)%Z = true.
+Proof.
+intros.
+progress unfold Z.leb.
+destruct a as [| sa va]; [ easy | cbn ].
+now destruct sa; rewrite Nat.compare_refl.
+Qed.
+
+Instance ring_like_ord : ring_like_ord Z :=
+  {| rngl_ord_le_dec := (λ a b, Bool.bool_dec (a ≤? b)%Z true);
+     rngl_ord_le_refl := Z.leb_refl;
+     rngl_ord_le_antisymm := ?rngl_ord_le_antisymm;
+     rngl_ord_le_trans := ?rngl_ord_le_trans;
+     rngl_ord_add_le_compat := ?rngl_ord_add_le_compat;
+     rngl_ord_mul_le_compat_nonneg := ?rngl_ord_mul_le_compat_nonneg;
+     rngl_ord_mul_le_compat_nonpos := ?rngl_ord_mul_le_compat_nonpos;
+     rngl_ord_not_le := ?rngl_ord_not_le |}.
 ...
 
 Instance ring_like_prop : ring_like_prop Z :=
@@ -708,7 +776,7 @@ Instance ring_like_prop : ring_like_prop Z :=
      rngl_opt_integral := Z.integral;
      rngl_opt_alg_closed := NA;
      rngl_opt_characteristic_prop := Z.characteristic_prop;
-     rngl_opt_ord := ?rngl_opt_ord;
+     rngl_opt_ord := Z.ring_like_ord;
      rngl_opt_archimedean := ?rngl_opt_archimedean |}.
 
 ...
@@ -769,29 +837,6 @@ Definition eqb a b :=
       | _ => false
       end
   end.
-
-Theorem add_move_0_r : ∀ a b, (a + b)%Z = 0%Z ↔ a = (- b)%Z.
-Proof.
-intros.
-split; intros Hab. {
-  progress unfold add in Hab.
-  progress unfold opp.
-  destruct a as [| sa va]; [ now subst b | ].
-  destruct b as [| sb vb]; [ easy | ].
-  rewrite if_eqb_bool_dec in Hab.
-  destruct (Bool.bool_dec sa sb) as [Hsab| Hsab]; [ easy | ].
-  rewrite nat_compare_equiv in Hab.
-  progress unfold nat_compare_alt in Hab.
-  destruct (lt_eq_lt_dec va vb) as [[H1| H1]| H1]; [ easy | | easy ].
-  now subst vb; destruct sa, sb.
-}
-subst a.
-progress unfold add.
-progress unfold opp.
-destruct b as [| sb vb]; [ easy | ].
-rewrite Bool.eqb_negb1.
-now rewrite Nat.compare_refl.
-Qed.
 
 Theorem opp_add_distr : ∀ a b, (- (a + b))%Z = (- a - b)%Z.
 Proof.
