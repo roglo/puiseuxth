@@ -770,6 +770,74 @@ destruct ab; [ | easy | easy ].
 now apply Z.compare_eq_iff.
 Qed.
 
+Theorem add_le_compat :
+  ∀ a b c d, (a ≤ b)%Z → (c ≤ d)%Z → (a + c ≤ b + d)%Z.
+Proof.
+intros * Hab Hcd.
+progress unfold Z.le in Hab, Hcd |-*.
+progress unfold Z.compare in Hab, Hcd |-*.
+destruct a as [| sa va]. {
+  cbn.
+  destruct b as [| sb vb]; [ easy | ].
+  destruct sb; [ clear Hab | easy ].
+  destruct c as [| sc vc]. {
+    destruct d as [| sd vd]; [ now rewrite Z.add_0_r | ].
+    now destruct sd.
+  }
+  destruct d as [| sd vd]; [ now destruct sc | ].
+  destruct sd. {
+    destruct sc; [ cbn | easy ].
+    apply Nat.compare_le_iff in Hcd.
+    apply Nat.compare_le_iff.
+    flia Hcd.
+  }
+  destruct sc; [ easy | cbn ].
+  remember (vb ?= vd) as bd eqn:Hbd.
+  symmetry in Hbd.
+  destruct bd; [ easy | | easy ].
+  apply Nat.compare_le_iff in Hcd.
+  apply Nat.compare_le_iff.
+  flia Hcd.
+}
+destruct b as [| sb vb]. {
+  destruct sa; [ easy | clear Hab ].
+  destruct c as [| sc vc]. {
+    destruct d as [| sd vd]; [ easy | now destruct sd ].
+  }
+  destruct d as [| sd vd]; [ now destruct sc | ].
+  destruct sc. {
+    destruct sd; [ cbn | easy ].
+    remember (va ?= vc) as ac eqn:Hac.
+    symmetry in Hac.
+    destruct ac; [ easy | | easy ].
+    apply Nat.compare_le_iff in Hcd.
+    apply Nat.compare_le_iff.
+    flia Hcd.
+  }
+  destruct sd; [ easy | cbn ].
+  apply Nat.compare_le_iff in Hcd.
+  apply Nat.compare_le_iff.
+  flia Hcd.
+}
+destruct c as [| sc vc]. {
+  destruct d as [| sd vd]; [ easy | ].
+  destruct sd; [ clear Hcd | easy ].
+  destruct sb; cbn. {
+    destruct sa; [ | easy ].
+    apply Nat.compare_le_iff in Hab.
+    apply Nat.compare_le_iff.
+    flia Hab.
+  }
+  destruct sa; [ easy | ].
+  remember (vb ?= vd) as bd eqn:Hbd.
+  symmetry in Hbd.
+  destruct bd; [ easy | easy | ].
+  apply Nat.compare_le_iff in Hab.
+  apply Nat.compare_le_iff.
+  flia Hab.
+}
+...
+
 Theorem leb_le : ∀ a b, (a ≤? b)%Z = true ↔ (a ≤ b)%Z.
 Proof.
 intros.
@@ -794,12 +862,24 @@ apply Z.leb_le.
 now apply (Z.le_trans a b c).
 Qed.
 
+Theorem add_leb_compat :
+  ∀ a b c d,
+  (a ≤? b)%Z = true
+  → (c ≤? d)%Z = true
+  → (a + c ≤? b + d)%Z = true.
+Proof.
+intros * Hab Hcd.
+apply Z.leb_le in Hab, Hcd.
+apply Z.leb_le.
+revert a b c d Hab Hcd.
+...
+
 Instance ring_like_ord : ring_like_ord Z :=
   {| rngl_ord_le_dec := (λ a b, Bool.bool_dec (a ≤? b)%Z true);
      rngl_ord_le_refl := Z.leb_refl;
      rngl_ord_le_antisymm := Z.leb_antisymm;
      rngl_ord_le_trans := Z.leb_trans;
-     rngl_ord_add_le_compat := ?rngl_ord_add_le_compat;
+     rngl_ord_add_le_compat := true;
      rngl_ord_mul_le_compat_nonneg := ?rngl_ord_mul_le_compat_nonneg;
      rngl_ord_mul_le_compat_nonpos := ?rngl_ord_mul_le_compat_nonpos;
      rngl_ord_not_le := ?rngl_ord_not_le |}.
