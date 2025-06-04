@@ -740,10 +740,47 @@ destruct a as [| sa va]; [ easy | cbn ].
 now destruct sa; rewrite Nat.compare_refl.
 Qed.
 
+Theorem compare_eq_iff : ∀ a b, (a ?= b)%Z = Eq ↔ a = b.
+Proof.
+intros.
+destruct a as [| sa va]; cbn. {
+  destruct b as [| sb vb]; [ easy | now destruct sb ].
+}
+destruct b as [| sb vb]; [ now destruct sa | ].
+destruct sa, sb; [ | easy | easy | ]. {
+  rewrite Nat.compare_eq_iff.
+  split; intros H; [ now subst vb | ].
+  now injection H.
+} {
+  rewrite Nat.compare_eq_iff.
+  split; intros H; [ now subst vb | ].
+  now injection H.
+}
+Qed.
+
+Theorem le_antisymm : ∀ a b, (a ≤ b)%Z → (b ≤ a)%Z → a = b.
+Proof.
+intros * Hab Hba.
+progress unfold le in Hab, Hba.
+rewrite <- Z.compare_antisymm in Hba.
+progress unfold CompOpp in Hba.
+remember (a ?= b)%Z as ab eqn:H1.
+symmetry in H1.
+destruct ab; [ | easy | easy ].
+now apply Z.compare_eq_iff.
+Qed.
+
+Theorem leb_antisymm : ∀ a b, (a ≤? b)%Z = true → (b ≤? a)%Z = true → a = b.
+Proof.
+intros * Hab Hba.
+progress unfold Z.leb in Hab, Hba.
+now apply Z.le_antisymm; intros H; [ rewrite H in Hab | rewrite H in Hba ].
+Qed.
+
 Instance ring_like_ord : ring_like_ord Z :=
   {| rngl_ord_le_dec := (λ a b, Bool.bool_dec (a ≤? b)%Z true);
      rngl_ord_le_refl := Z.leb_refl;
-     rngl_ord_le_antisymm := ?rngl_ord_le_antisymm;
+     rngl_ord_le_antisymm := Z.leb_antisymm;
      rngl_ord_le_trans := ?rngl_ord_le_trans;
      rngl_ord_add_le_compat := ?rngl_ord_add_le_compat;
      rngl_ord_mul_le_compat_nonneg := ?rngl_ord_mul_le_compat_nonneg;
@@ -888,35 +925,7 @@ apply Nat.eqb_eq in H2; subst vb.
 now destruct sa, sb.
 Qed.
 
-Theorem compare_eq_iff : ∀ a b, (a ?= b)%Z = Eq ↔ a = b.
-Proof.
-intros.
-destruct a as [| sa va]; cbn. {
-  destruct b as [| sb vb]; [ easy | now destruct sb ].
-}
-destruct b as [| sb vb]; [ now destruct sa | ].
-destruct sa, sb; [ | easy | easy | ]. {
-  rewrite Nat.compare_eq_iff.
-  split; intros H; [ now subst vb | ].
-  now injection H.
-} {
-  rewrite Nat.compare_eq_iff.
-  split; intros H; [ now subst vb | ].
-  now injection H.
-}
-Qed.
-
-Theorem le_antisymm : ∀ a b, (a ≤ b)%Z → (b ≤ a)%Z → (a = b)%Z.
-Proof.
-intros * Hab Hba.
-progress unfold le in Hab, Hba.
-rewrite <- compare_antisymm in Hba.
-progress unfold CompOpp in Hba.
-remember (a ?= b)%Z as ab eqn:H1.
-symmetry in H1.
-destruct ab; [ | easy | easy ].
-now apply compare_eq_iff.
-Qed.
+...
 
 Theorem lt_irrefl : ∀ a, ¬ (a < a)%Z.
 Proof.
