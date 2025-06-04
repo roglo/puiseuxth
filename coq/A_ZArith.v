@@ -836,6 +836,75 @@ destruct c as [| sc vc]. {
   apply Nat.compare_le_iff.
   flia Hab.
 }
+destruct d as [| sd vd]. {
+  destruct sc; [ easy | clear Hcd ].
+  destruct sa; cbn. {
+    destruct sb; [ | easy ].
+    destruct (va ?= vc); [ easy | easy | ].
+    apply Nat.compare_le_iff in Hab.
+    apply Nat.compare_le_iff.
+    flia Hab.
+  }
+  destruct sb; [ easy | ].
+  apply Nat.compare_le_iff in Hab.
+  apply Nat.compare_le_iff.
+  flia Hab.
+}
+destruct sa. {
+  destruct sb; [ | easy ].
+  destruct sc. {
+    destruct sd; [ cbn | easy ].
+    apply Nat.compare_le_iff in Hab, Hcd.
+    apply Nat.compare_le_iff.
+    flia Hab Hcd.
+  }
+  destruct sd. {
+    clear Hcd; cbn.
+    remember (va ?= vc) as ac eqn:Hac.
+    symmetry in Hac.
+    destruct ac; [ easy | easy | ].
+    apply Nat.compare_le_iff in Hab.
+    apply Nat.compare_le_iff.
+    flia Hab.
+  }
+  cbn.
+  remember (va ?= vc) as ac eqn:Hac.
+  symmetry in Hac.
+  destruct ac; cbn. {
+    remember (vb ?= vd) as bd eqn:Hbd.
+    symmetry in Hbd.
+    destruct bd; [ easy | exfalso | easy ].
+    apply Nat.compare_eq_iff in Hac; subst vc.
+    apply Nat.compare_le_iff in Hab, Hcd.
+    apply Nat.compare_lt_iff in Hbd.
+    apply Nat.nle_gt in Hbd.
+    apply Hbd; clear Hbd.
+    now transitivity va.
+  } {
+    remember (vb ?= vd) as bd eqn:Hbd.
+    symmetry in Hbd.
+    destruct bd; [ easy | | easy ].
+    apply Nat.compare_le_iff in Hab, Hcd.
+    apply Nat.compare_le_iff.
+    flia Hab Hcd.
+  } {
+    apply Nat.compare_le_iff in Hab, Hcd.
+    apply Nat.compare_gt_iff in Hac.
+    remember (vb ?= vd) as bd eqn:Hbd.
+    symmetry in Hbd.
+    destruct bd; [ exfalso | exfalso | ]. {
+      apply Nat.compare_eq_iff in Hbd; subst vd.
+      apply Nat.nle_gt in Hac; apply Hac.
+      now transitivity vb.
+    } {
+      apply Nat.compare_lt_iff in Hbd.
+      flia Hab Hcd Hac Hbd.
+    } {
+      apply Nat.compare_le_iff.
+      flia Hab Hcd.
+    }
+  }
+}
 ...
 
 Theorem leb_le : ∀ a b, (a ≤? b)%Z = true ↔ (a ≤ b)%Z.
