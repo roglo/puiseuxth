@@ -727,6 +727,40 @@ destruct (va ?= vb); [ easy | | easy ].
 apply Nat.compare_le_iff; flia.
 Qed.
 
+Theorem le_add_r : ∀ a b, (0 ≤ a)%Z → (b ≤ b + a)%Z.
+Proof.
+intros * Hza.
+rewrite Z.add_comm.
+now apply Z.le_add_l.
+Qed.
+
+Theorem lt_add_l : ∀ a b, (0 < a)%Z → (b < a + b)%Z.
+Proof.
+intros * Hza.
+progress unfold Z.lt in Hza |-*.
+progress unfold Z.compare in Hza |-*.
+destruct a as [| sa va]. {
+  destruct b as [| sb vb]; [ easy | cbn ].
+  now destruct sb; rewrite Nat.compare_refl.
+}
+destruct sa; [ | easy ].
+destruct b as [| sb vb]; [ easy | cbn ].
+destruct sb; [ apply Nat.compare_lt_iff; flia | ].
+remember (va ?= vb) as ab eqn:Hab.
+symmetry in Hab.
+destruct ab; [ easy | | easy ].
+apply Nat.compare_lt_iff.
+apply Nat.compare_lt_iff in Hab.
+flia Hab.
+Qed.
+
+Theorem lt_add_r : ∀ a b, (0 < a)%Z → (b < b + a)%Z.
+Proof.
+intros * Hza.
+rewrite Z.add_comm.
+now apply Z.lt_add_l.
+Qed.
+
 Theorem characteristic_prop : ∀ i : nat, rngl_of_nat (S i) ≠ 0%Z.
 Proof.
 intros * Hn.
@@ -1142,14 +1176,22 @@ destruct a as [| sa a]; [ easy | ].
 destruct sa; [ clear Hza | easy ].
 destruct b as [| sb b]; [ now exists 1 | ].
 destruct sb; [ | now exists 0 ].
-enough (H : ∃ n, (b < mul_nat 0 Nat.add a n)). {
-(* non parce que c'est a+1 et b+1, en fait *)
-...
+enough (H : ∃ n, (b + 1 < mul_nat 0 Nat.add (a + 1) n)). {
   destruct H as (n, Hn).
   exists n.
   destruct b as [| sb vb]. {
     destruct a as [| sa va]. {
+      cbn in Hn.
       progress unfold rngl_mul_nat; cbn.
+      induction n; [ easy | ].
+      progress unfold mul_nat in Hn |-*.
+      cbn - [ Z.add ] in Hn |-*.
+      apply Nat.succ_lt_mono in Hn.
+      apply Z.lt_add_r.
+      progress unfold mul_nat in IHn.
+...
+      rewrite repeat_succ in Hn.
+      rewrite mul_nat_succ in Hn.
 ...
 exists (vb + 2).
 apply Bool.not_true_iff_false.
