@@ -849,6 +849,37 @@ destruct ab; [ | easy | easy ].
 now apply Z.compare_eq_iff.
 Qed.
 
+Theorem lt_le_incl : ∀ a b, (a < b)%Z → (a ≤ b)%Z.
+Proof. intros * Hab; congruence. Qed.
+
+Theorem lt_irrefl : ∀ a, ¬ (a < a)%Z.
+Proof.
+intros a Ha.
+destruct a as [| sa va]; [ easy | ].
+destruct sa. {
+  apply Nat.compare_lt_iff in Ha.
+  now apply Nat.lt_irrefl in Ha.
+} {
+  apply Nat.compare_lt_iff in Ha.
+  now apply Nat.lt_irrefl in Ha.
+}
+Qed.
+
+Theorem lt_iff : ∀ a b, (a < b)%Z ↔ (a ≤ b)%Z ∧ a ≠ b.
+Proof.
+intros.
+split. {
+  intros Hab.
+  split; [ now apply lt_le_incl | ].
+  intros H; subst b.
+  now apply lt_irrefl in Hab.
+}
+intros (H1, H2).
+apply nle_gt.
+intros H3; apply H2.
+now apply le_antisymm.
+Qed.
+
 Theorem add_le_compat_l : ∀ a b c, (a ≤ b)%Z → (c + a ≤ c + b)%Z.
 Proof.
 intros * Hab.
@@ -971,6 +1002,50 @@ destruct sc; cbn. {
 apply Nat.compare_le_iff in Hab.
 apply Nat.compare_le_iff.
 now apply Nat.add_le_mono_r, Nat.add_le_mono_l.
+Qed.
+
+Theorem add_sub_assoc : ∀ a b c, (a + (b - c) = a + b - c)%Z.
+Proof.
+intros.
+progress unfold Z.sub.
+apply Z.add_assoc.
+Qed.
+
+Theorem add_opp_diag_r : ∀ a, (a + - a = 0)%Z.
+Proof.
+intros.
+destruct a as [| sa va]; [ easy | cbn ].
+rewrite Bool.eqb_negb2.
+now rewrite Nat.compare_refl.
+Qed.
+
+Theorem sub_diag : ∀ a, (a - a = 0)%Z.
+Proof.
+intros.
+apply Z.add_opp_diag_r.
+Qed.
+
+Theorem add_sub : ∀ a b, (a + b - b = a)%Z.
+Proof.
+intros.
+rewrite <- Z.add_sub_assoc.
+rewrite Z.sub_diag.
+apply Z.add_0_r.
+Qed.
+
+Theorem add_lt_compat_l : ∀ a b c, (a < b)%Z → (c + a < c + b)%Z.
+Proof.
+intros * Hab.
+apply Z.lt_iff.
+split; [ now apply Z.add_le_compat_l, Z.lt_le_incl | ].
+intros H.
+(* lemma *)
+apply (f_equal (λ x, Z.sub x c)) in H.
+do 2 rewrite (Z.add_comm c) in H.
+do 2 rewrite Z.add_sub in H.
+subst b.
+revert Hab.
+apply Z.lt_irrefl.
 Qed.
 
 Theorem mul_le_mono_nonneg_l :
@@ -1179,16 +1254,22 @@ destruct sb; [ | now exists 0 ].
 enough (H : ∃ n, (b + 1 < mul_nat 0 Nat.add (a + 1) n)). {
   destruct H as (n, Hn).
   exists n.
+  rewrite <- (Z.add_0_l (z_val true b)).
+  rewrite <- (Z.add_0_l (rngl_mul_nat _ _)).
+  remember 0%Z as m eqn:Hm; clear Hm.
   destruct b as [| sb vb]. {
     destruct a as [| sa va]. {
       cbn in Hn.
       progress unfold rngl_mul_nat; cbn.
-      induction n; [ easy | ].
+      revert m.
+      induction n; intros; [ easy | ].
       progress unfold mul_nat in Hn |-*.
       cbn - [ Z.add ] in Hn |-*.
-      apply Nat.succ_lt_mono in Hn.
+(* ouais, c'est nul *)
+...
       apply Z.lt_add_r.
       progress unfold mul_nat in IHn.
+
 ...
       rewrite repeat_succ in Hn.
       rewrite mul_nat_succ in Hn.
@@ -1395,19 +1476,6 @@ Qed.
 
 ...
 
-Theorem lt_irrefl : ∀ a, ¬ (a < a)%Z.
-Proof.
-intros a Ha.
-destruct a as [| sa va]; [ easy | ].
-destruct sa. {
-  apply Nat.compare_lt_iff in Ha.
-  now apply Nat.lt_irrefl in Ha.
-} {
-  apply Nat.compare_lt_iff in Ha.
-  now apply Nat.lt_irrefl in Ha.
-}
-Qed.
-
 Theorem mul_lt_mono_pos_l :
   ∀ a b c, (0 < a)%Z → (b < c)%Z ↔ (a * b < a * c)%Z.
 Proof.
@@ -1456,24 +1524,6 @@ split; intros Hbc. {
     now apply Nat.add_lt_mono_r in Hbc.
   }
 }
-Qed.
-
-Theorem lt_le_incl : ∀ a b, (a < b)%Z → (a ≤ b)%Z.
-Proof. intros * Hab; congruence. Qed.
-
-Theorem lt_iff : ∀ a b, (a < b)%Z ↔ (a ≤ b)%Z ∧ a ≠ b.
-Proof.
-intros.
-split. {
-  intros Hab.
-  split; [ now apply lt_le_incl | ].
-  intros H; subst b.
-  now apply lt_irrefl in Hab.
-}
-intros (H1, H2).
-apply nle_gt.
-intros H3; apply H2.
-now apply le_antisymm.
 Qed.
 
 Theorem mul_cancel_l : ∀ a b c, a ≠ 0%Z → (a * b)%Z = (a * c)%Z → b = c.
