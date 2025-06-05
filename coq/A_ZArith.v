@@ -655,132 +655,20 @@ split; [ | now destruct (b ?= a)%Z ].
 now destruct (b ?= a)%Z.
 Qed.
 
-Theorem add_move_0_l : ∀ a b, (a + b)%Z = 0%Z ↔ b = (- a)%Z.
+Theorem lt_le_incl : ∀ a b, (a < b)%Z → (a ≤ b)%Z.
+Proof. intros * Hab; congruence. Qed.
+
+Theorem lt_irrefl : ∀ a, ¬ (a < a)%Z.
 Proof.
-intros.
-split; intros Hab. {
-  progress unfold Z.add in Hab.
-  progress unfold Z.opp.
-  destruct a as [| sa va]; [ now subst b | ].
-  destruct b as [| sb vb]; [ easy | ].
-  rewrite if_eqb_bool_dec in Hab.
-  destruct (Bool.bool_dec sa sb) as [Hsab| Hsab]; [ easy | ].
-  rewrite nat_compare_equiv in Hab.
-  progress unfold nat_compare_alt in Hab.
-  destruct (lt_eq_lt_dec va vb) as [[H1| H1]| H1]; [ easy | | easy ].
-  now subst vb; destruct sa, sb.
-}
-subst b.
-progress unfold Z.add.
-progress unfold Z.opp.
+intros a Ha.
 destruct a as [| sa va]; [ easy | ].
-rewrite Bool.eqb_negb2.
-now rewrite Nat.compare_refl.
-Qed.
-
-Theorem le_trans : ∀ a b c, (a ≤ b → b ≤ c → a ≤ c)%Z.
-Proof.
-intros * Hab Hbc.
-progress unfold Z.le in Hab, Hbc |-*.
-progress unfold Z.compare in Hab, Hbc |-*.
-destruct a as [| sa va]. {
-  destruct c as [| sc vc]; [ easy | ].
-  destruct sc; [ easy | exfalso ].
-  destruct b as [| sb vb]; [ easy | ].
-  now destruct sb.
-}
-destruct c as [| sc vc]. {
-  destruct sa; [ exfalso | easy ].
-  destruct b as [| sb vb]; [ easy | ].
-  now destruct sb.
-}
-destruct b as [| sb vb]. {
-  destruct sa; [ easy | now destruct sc ].
-}
 destruct sa. {
-  destruct sb; [ | easy ].
-  destruct sc; [ | easy ].
-  apply Nat.compare_le_iff in Hab, Hbc.
-  apply Nat.compare_le_iff.
-  now transitivity vb.
+  apply Nat.compare_lt_iff in Ha.
+  now apply Nat.lt_irrefl in Ha.
+} {
+  apply Nat.compare_lt_iff in Ha.
+  now apply Nat.lt_irrefl in Ha.
 }
-destruct sc; [ easy | ].
-destruct sb; [ easy | ].
-apply Nat.compare_le_iff in Hab, Hbc.
-apply Nat.compare_le_iff.
-now transitivity vb.
-Qed.
-
-Theorem le_add_l : ∀ a b, (0 ≤ a)%Z → (b ≤ a + b)%Z.
-Proof.
-intros * Hza.
-progress unfold Z.le in Hza |-*.
-progress unfold Z.compare in Hza |-*.
-destruct a as [| sa va]. {
-  destruct b as [| sb vb]; [ easy | cbn ].
-  now destruct sb; rewrite Nat.compare_refl.
-}
-destruct sa; [ | easy ].
-destruct b as [| sb vb]; [ easy | cbn ].
-destruct sb; [ apply Nat.compare_le_iff; flia | ].
-destruct (va ?= vb); [ easy | | easy ].
-apply Nat.compare_le_iff; flia.
-Qed.
-
-Theorem le_add_r : ∀ a b, (0 ≤ a)%Z → (b ≤ b + a)%Z.
-Proof.
-intros * Hza.
-rewrite Z.add_comm.
-now apply Z.le_add_l.
-Qed.
-
-Theorem lt_add_l : ∀ a b, (0 < a)%Z → (b < a + b)%Z.
-Proof.
-intros * Hza.
-progress unfold Z.lt in Hza |-*.
-progress unfold Z.compare in Hza |-*.
-destruct a as [| sa va]. {
-  destruct b as [| sb vb]; [ easy | cbn ].
-  now destruct sb; rewrite Nat.compare_refl.
-}
-destruct sa; [ | easy ].
-destruct b as [| sb vb]; [ easy | cbn ].
-destruct sb; [ apply Nat.compare_lt_iff; flia | ].
-remember (va ?= vb) as ab eqn:Hab.
-symmetry in Hab.
-destruct ab; [ easy | | easy ].
-apply Nat.compare_lt_iff.
-apply Nat.compare_lt_iff in Hab.
-flia Hab.
-Qed.
-
-Theorem lt_add_r : ∀ a b, (0 < a)%Z → (b < b + a)%Z.
-Proof.
-intros * Hza.
-rewrite Z.add_comm.
-now apply Z.lt_add_l.
-Qed.
-
-Theorem characteristic_prop : ∀ i : nat, rngl_of_nat (S i) ≠ 0%Z.
-Proof.
-intros * Hn.
-rewrite rngl_of_nat_succ in Hn.
-apply Z.add_move_0_l in Hn.
-cbn in Hn.
-enough (H : (0 ≤ rngl_of_nat i)%Z) by now rewrite Hn in H.
-clear Hn.
-induction i; [ easy | ].
-rewrite rngl_of_nat_succ.
-eapply Z.le_trans; [ apply IHi | ].
-now apply Z.le_add_l.
-Qed.
-
-Theorem leb_refl : ∀ a, (a ≤? a)%Z = true.
-Proof.
-intros.
-progress unfold Z.leb.
-destruct a as [| sa va]; [ easy | cbn ].
-now destruct sa; rewrite Nat.compare_refl.
 Qed.
 
 Theorem compare_eq_iff : ∀ a b, (a ?= b)%Z = Eq ↔ a = b.
@@ -849,35 +737,172 @@ destruct ab; [ | easy | easy ].
 now apply Z.compare_eq_iff.
 Qed.
 
-Theorem lt_le_incl : ∀ a b, (a < b)%Z → (a ≤ b)%Z.
-Proof. intros * Hab; congruence. Qed.
-
-Theorem lt_irrefl : ∀ a, ¬ (a < a)%Z.
-Proof.
-intros a Ha.
-destruct a as [| sa va]; [ easy | ].
-destruct sa. {
-  apply Nat.compare_lt_iff in Ha.
-  now apply Nat.lt_irrefl in Ha.
-} {
-  apply Nat.compare_lt_iff in Ha.
-  now apply Nat.lt_irrefl in Ha.
-}
-Qed.
-
 Theorem lt_iff : ∀ a b, (a < b)%Z ↔ (a ≤ b)%Z ∧ a ≠ b.
 Proof.
 intros.
 split. {
   intros Hab.
-  split; [ now apply lt_le_incl | ].
+  split; [ now apply Z.lt_le_incl | ].
   intros H; subst b.
-  now apply lt_irrefl in Hab.
+  now apply Z.lt_irrefl in Hab.
 }
 intros (H1, H2).
 apply nle_gt.
 intros H3; apply H2.
 now apply le_antisymm.
+Qed.
+
+Theorem add_sub_assoc : ∀ a b c, (a + (b - c) = a + b - c)%Z.
+Proof.
+intros.
+progress unfold Z.sub.
+apply Z.add_assoc.
+Qed.
+
+Theorem add_opp_diag_r : ∀ a, (a + - a = 0)%Z.
+Proof.
+intros.
+destruct a as [| sa va]; [ easy | cbn ].
+rewrite Bool.eqb_negb2.
+now rewrite Nat.compare_refl.
+Qed.
+
+Theorem sub_diag : ∀ a, (a - a = 0)%Z.
+Proof.
+intros.
+apply Z.add_opp_diag_r.
+Qed.
+
+Theorem add_sub : ∀ a b, (a + b - b = a)%Z.
+Proof.
+intros.
+rewrite <- Z.add_sub_assoc.
+rewrite Z.sub_diag.
+apply Z.add_0_r.
+Qed.
+
+Theorem add_move_l : ∀ a b c, (a + b)%Z = c ↔ b = (c - a)%Z.
+Proof.
+intros.
+split; intros Hab. {
+  subst c; symmetry.
+  rewrite Z.add_comm.
+  apply Z.add_sub.
+} {
+  subst b.
+  rewrite Z.add_sub_assoc.
+  rewrite Z.add_comm.
+  apply Z.add_sub.
+}
+Qed.
+
+Theorem add_move_r : ∀ a b c, (a + b)%Z = c ↔ a = (c - b)%Z.
+Proof.
+intros.
+rewrite Z.add_comm.
+apply Z.add_move_l.
+Qed.
+
+Theorem add_move_0_l : ∀ a b, (a + b)%Z = 0%Z ↔ b = (- a)%Z.
+Proof.
+intros.
+apply (Z.add_move_l a b 0).
+Qed.
+
+Theorem le_trans : ∀ a b c, (a ≤ b → b ≤ c → a ≤ c)%Z.
+Proof.
+intros * Hab Hbc.
+progress unfold Z.le in Hab, Hbc |-*.
+progress unfold Z.compare in Hab, Hbc |-*.
+destruct a as [| sa va]. {
+  destruct c as [| sc vc]; [ easy | ].
+  destruct sc; [ easy | exfalso ].
+  destruct b as [| sb vb]; [ easy | ].
+  now destruct sb.
+}
+destruct c as [| sc vc]. {
+  destruct sa; [ exfalso | easy ].
+  destruct b as [| sb vb]; [ easy | ].
+  now destruct sb.
+}
+destruct b as [| sb vb]. {
+  destruct sa; [ easy | now destruct sc ].
+}
+destruct sa. {
+  destruct sb; [ | easy ].
+  destruct sc; [ | easy ].
+  apply Nat.compare_le_iff in Hab, Hbc.
+  apply Nat.compare_le_iff.
+  now transitivity vb.
+}
+destruct sc; [ easy | ].
+destruct sb; [ easy | ].
+apply Nat.compare_le_iff in Hab, Hbc.
+apply Nat.compare_le_iff.
+now transitivity vb.
+Qed.
+
+Theorem le_add_l : ∀ a b, (0 ≤ a)%Z → (b ≤ a + b)%Z.
+Proof.
+intros * Hza.
+progress unfold Z.le in Hza |-*.
+progress unfold Z.compare in Hza |-*.
+destruct a as [| sa va]. {
+  destruct b as [| sb vb]; [ easy | cbn ].
+  now destruct sb; rewrite Nat.compare_refl.
+}
+destruct sa; [ | easy ].
+destruct b as [| sb vb]; [ easy | cbn ].
+destruct sb; [ apply Nat.compare_le_iff; flia | ].
+destruct (va ?= vb); [ easy | | easy ].
+apply Nat.compare_le_iff; flia.
+Qed.
+
+Theorem le_add_r : ∀ a b, (0 ≤ a)%Z → (b ≤ b + a)%Z.
+Proof.
+intros * Hza.
+rewrite Z.add_comm.
+now apply Z.le_add_l.
+Qed.
+
+Theorem lt_add_l : ∀ a b, (0 < a)%Z → (b < a + b)%Z.
+Proof.
+intros * Hza.
+apply Z.lt_iff.
+split; [ now apply Z.le_add_l, Z.lt_le_incl | ].
+intros H; symmetry in H.
+apply Z.add_move_r in H.
+rewrite Z.sub_diag in H; subst a.
+revert Hza; apply Z.lt_irrefl.
+Qed.
+
+Theorem lt_add_r : ∀ a b, (0 < a)%Z → (b < b + a)%Z.
+Proof.
+intros * Hza.
+rewrite Z.add_comm.
+now apply Z.lt_add_l.
+Qed.
+
+Theorem characteristic_prop : ∀ i : nat, rngl_of_nat (S i) ≠ 0%Z.
+Proof.
+intros * Hn.
+rewrite rngl_of_nat_succ in Hn.
+apply Z.add_move_0_l in Hn.
+cbn in Hn.
+enough (H : (0 ≤ rngl_of_nat i)%Z) by now rewrite Hn in H.
+clear Hn.
+induction i; [ easy | ].
+rewrite rngl_of_nat_succ.
+eapply Z.le_trans; [ apply IHi | ].
+now apply Z.le_add_l.
+Qed.
+
+Theorem leb_refl : ∀ a, (a ≤? a)%Z = true.
+Proof.
+intros.
+progress unfold Z.leb.
+destruct a as [| sa va]; [ easy | cbn ].
+now destruct sa; rewrite Nat.compare_refl.
 Qed.
 
 Theorem add_le_compat_l : ∀ a b c, (a ≤ b)%Z → (c + a ≤ c + b)%Z.
@@ -1002,35 +1027,6 @@ destruct sc; cbn. {
 apply Nat.compare_le_iff in Hab.
 apply Nat.compare_le_iff.
 now apply Nat.add_le_mono_r, Nat.add_le_mono_l.
-Qed.
-
-Theorem add_sub_assoc : ∀ a b c, (a + (b - c) = a + b - c)%Z.
-Proof.
-intros.
-progress unfold Z.sub.
-apply Z.add_assoc.
-Qed.
-
-Theorem add_opp_diag_r : ∀ a, (a + - a = 0)%Z.
-Proof.
-intros.
-destruct a as [| sa va]; [ easy | cbn ].
-rewrite Bool.eqb_negb2.
-now rewrite Nat.compare_refl.
-Qed.
-
-Theorem sub_diag : ∀ a, (a - a = 0)%Z.
-Proof.
-intros.
-apply Z.add_opp_diag_r.
-Qed.
-
-Theorem add_sub : ∀ a b, (a + b - b = a)%Z.
-Proof.
-intros.
-rewrite <- Z.add_sub_assoc.
-rewrite Z.sub_diag.
-apply Z.add_0_r.
 Qed.
 
 Theorem add_lt_compat_l : ∀ a b c, (a < b)%Z → (c + a < c + b)%Z.
