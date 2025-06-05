@@ -767,6 +767,42 @@ destruct sa, sb; [ | easy | easy | ]. {
 }
 Qed.
 
+Theorem compare_lt_iff : ∀ a b, (a ?= b)%Z = Lt ↔ (a < b)%Z.
+Proof.
+intros.
+destruct a as [| sa va]; cbn. {
+  destruct b as [| sb vb]; [ easy | now destruct sb ].
+}
+destruct b as [| sb vb]; [ now destruct sa | ].
+now destruct sa, sb.
+Qed.
+
+Theorem compare_gt_iff : ∀ a b, (a ?= b)%Z = Gt ↔ (b < a)%Z.
+Proof.
+intros.
+destruct a as [| sa va]; cbn. {
+  destruct b as [| sb vb]; [ easy | now destruct sb ].
+}
+destruct b as [| sb vb]; [ now destruct sa | ].
+destruct sa, sb; [ | easy | easy | ]. {
+  split; intros H. {
+    apply Nat.compare_gt_iff in H.
+    now apply Nat.compare_lt_iff.
+  } {
+    apply Nat.compare_lt_iff in H.
+    now apply Nat.compare_gt_iff.
+  }
+} {
+  split; intros H. {
+    apply Nat.compare_gt_iff in H.
+    now apply Nat.compare_lt_iff.
+  } {
+    apply Nat.compare_lt_iff in H.
+    now apply Nat.compare_gt_iff.
+  }
+}
+Qed.
+
 Theorem le_antisymm : ∀ a b, (a ≤ b)%Z → (b ≤ a)%Z → a = b.
 Proof.
 intros * Hab Hba.
@@ -1107,10 +1143,13 @@ destruct sa; [ clear Hza | easy ].
 destruct b as [| sb b]; [ now exists 1 | ].
 destruct sb; [ | now exists 0 ].
 enough (H : ∃ n, (b < mul_nat 0 Nat.add a n)). {
+(* non parce que c'est a+1 et b+1, en fait *)
+...
   destruct H as (n, Hn).
   exists n.
-  progress unfold Z.lt.
-  progress unfold rngl_mul_nat; cbn.
+  destruct b as [| sb vb]. {
+    destruct a as [| sa va]. {
+      progress unfold rngl_mul_nat; cbn.
 ...
 exists (vb + 2).
 apply Bool.not_true_iff_false.
