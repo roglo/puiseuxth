@@ -1240,6 +1240,106 @@ Instance ring_like_ord : ring_like_ord Z :=
      rngl_ord_mul_le_compat_nonpos := Z.mul_leb_compat_nonpos;
      rngl_ord_not_le := Z.not_leb |}.
 
+(* borrowed from RingLike.Z_algebra *)
+Theorem nat_archimedean : ∀ a b, (0 < a → ∃ n, b < n * a)%nat.
+Proof.
+intros * Ha.
+exists (S b); simpl.
+induction b; [ now rewrite Nat.add_0_r | ].
+simpl; rewrite <- Nat.add_1_l.
+now apply Nat.add_le_lt_mono.
+Qed.
+
+Theorem pos_archimedean : ∀ a b, ∃ n, b < (n + 1) * a.
+Proof.
+intros.
+assert (Ha : 0 < a + 1) by flia.
+specialize (nat_archimedean (a + 1) (b + 1) Ha) as (m, Hm).
+exists m.
+enough (H : (m + 1) * a ≠ 0). {
+... ...
+apply Nat.neq_mul_0.
+split; [ flia | ].
+intros H; rewrite H in Hm.
+...
+specialize (nat_archimedean (Pos.to_nat a) (Pos.to_nat b) Ha) as (m, Hm).
+
+...
+(*
+replace a with (Pos.of_nat (Pos.to_nat a)) by apply Pos2Nat.id.
+rewrite <- Pos2Nat.id.
+rewrite <- Nat2Pos.inj_mul.
+ unfold Pos.gt.
+ rewrite <- Nat2Pos.inj_compare; [ now apply Nat.compare_gt_iff | | ].
+*)
+destruct m; [ easy | ].
+Check Nat.neq_mul_0.
+...
+apply Nat.neq_mul_0.
+  split; [ apply Nat.neq_succ_0 | ].
+  apply Pos2Nat_neq_0.
+
+  apply Pos2Nat_neq_0.
+
+ intros H; rewrite H in Hm; simpl in Hm.
+ apply Nat.nle_gt in Hm; apply Hm.
+ apply Nat.lt_le_incl.
+ apply Pos2Nat.is_pos.
+
+ apply Pos2Nat_neq_0.
+Qed.
+
+Theorem Z_archimedean' : ∀ a b, (0 < a → ∃ n, b < Z.of_nat n * a)%Z.
+Proof.
+intros * Ha.
+destruct b as [| sb vb]. {
+  exists 1%nat.
+  now rewrite Z.mul_1_l.
+}
+destruct a as [| sa va]; [ easy | ].
+specialize (pos_archimedean a b) as (m, Hm).
+...
+  destruct m; [ now exists 1%nat | ].
+  exists (S m).
+  apply Pos2Nat.inj_gt in Hm.
+  rewrite Pos2Nat.inj_mul in Hm.
+  rewrite Nat2Pos.id in Hm; [ | apply Nat.neq_succ_0 ].
+  rewrite <- positive_nat_Z.
+  rewrite <- Nat2Z.inj_mul.
+  rewrite <- positive_nat_Z.
+  now apply Nat2Z.inj_gt.
+
+  apply Z.nle_gt in Ha.
+  exfalso; apply Ha.
+  apply Pos2Z.neg_is_nonpos.
+
+ exists 1%nat.
+ rewrite Z.mul_1_l.
+ apply Z.lt_gt.
+ eapply Z.lt_trans; [ | eassumption ].
+ apply Pos2Z.neg_is_neg.
+Qed.
+
+Theorem Z_archimedean :
+  ∀ a b : Z, (0 < a)%L → ∃ n : nat, (b < rngl_mul_nat a n)%L.
+Proof.
+intros * Ha.
+(*
+apply Z.leb_gt in Ha.
+cbn in Ha.
+*)
+specialize (Z_archimedean' a b Ha) as H1.
+destruct H1 as (m & Hm).
+exists m; cbn.
+apply Z.compare_gt_iff in Hm.
+apply Z.leb_gt.
+now rewrite rngl_mul_nat_Z.
+Qed.
+(* end borrowed from RingLike.Z_algebra *)
+*)
+
+(*
+...
 Theorem archimedean : ∀ a b, (0 < a)%Z → ∃ n : nat, (b < rngl_mul_nat a n)%Z.
 Proof.
 intros * Hza.
@@ -1250,6 +1350,15 @@ destruct sb; [ | now exists 0 ].
 enough (H : ∃ n, (b + 1 < mul_nat 0 Nat.add (a + 1) n)). {
   destruct H as (n, Hn).
   exists n.
+progress unfold rngl_mul_nat; cbn.
+progress unfold Z.lt; cbn.
+remember (mul_nat 0%Z _ _ _) as x eqn:Hx.
+symmetry in Hx.
+destruct x as [| sx vx]. {
+  exfalso.
+  destruct a as [| sa va]; cbn in Hx. {
+    induction n; [ cbn in Hn; flia Hn | ].
+...
   rewrite <- (Z.add_0_l (z_val true b)).
   rewrite <- (Z.add_0_l (rngl_mul_nat _ _)).
   remember 0%Z as m eqn:Hm; clear Hm.
@@ -1347,6 +1456,7 @@ assert (Ha : (0 < a)%Z). {
 }
 now apply Z.archimedean.
 ...
+*)
 
 Instance ring_like_prop : ring_like_prop Z :=
   {| rngl_mul_is_comm := true;
