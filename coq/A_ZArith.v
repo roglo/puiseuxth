@@ -1250,44 +1250,8 @@ simpl; rewrite <- Nat.add_1_l.
 now apply Nat.add_le_lt_mono.
 Qed.
 
-Theorem pos_archimedean : ∀ a b, ∃ n, b < (n + 1) * a.
-Proof.
-intros.
-assert (Ha : 0 < a + 1) by flia.
-specialize (nat_archimedean (a + 1) (b + 1) Ha) as (m, Hm).
-exists m.
-enough (H : (m + 1) * a ≠ 0). {
-... ...
-apply Nat.neq_mul_0.
-split; [ flia | ].
-intros H; rewrite H in Hm.
-...
-specialize (nat_archimedean (Pos.to_nat a) (Pos.to_nat b) Ha) as (m, Hm).
-
-...
-(*
-replace a with (Pos.of_nat (Pos.to_nat a)) by apply Pos2Nat.id.
-rewrite <- Pos2Nat.id.
-rewrite <- Nat2Pos.inj_mul.
- unfold Pos.gt.
- rewrite <- Nat2Pos.inj_compare; [ now apply Nat.compare_gt_iff | | ].
-*)
-destruct m; [ easy | ].
-Check Nat.neq_mul_0.
-...
-apply Nat.neq_mul_0.
-  split; [ apply Nat.neq_succ_0 | ].
-  apply Pos2Nat_neq_0.
-
-  apply Pos2Nat_neq_0.
-
- intros H; rewrite H in Hm; simpl in Hm.
- apply Nat.nle_gt in Hm; apply Hm.
- apply Nat.lt_le_incl.
- apply Pos2Nat.is_pos.
-
- apply Pos2Nat_neq_0.
-Qed.
+Theorem pos_archimedean : ∀ a b, ∃ n, b + 1 < n * (a + 1).
+Proof. intros; apply nat_archimedean; flia. Qed.
 
 Theorem Z_archimedean' : ∀ a b, (0 < a → ∃ n, b < Z.of_nat n * a)%Z.
 Proof.
@@ -1297,7 +1261,8 @@ destruct b as [| sb vb]. {
   now rewrite Z.mul_1_l.
 }
 destruct a as [| sa va]; [ easy | ].
-specialize (pos_archimedean a b) as (m, Hm).
+destruct sa; [ | easy ].
+specialize (pos_archimedean va vb) as (m, Hm).
 ...
   destruct m; [ now exists 1%nat | ].
   exists (S m).
