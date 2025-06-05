@@ -3,6 +3,7 @@
 Set Nested Proofs Allowed.
 From Stdlib Require Import Utf8 Arith Psatz.
 Require Import RingLike.Core RingLike.Misc.
+Import ListDef.
 
 Inductive Z :=
   | z_zero : Z
@@ -1098,29 +1099,58 @@ Instance ring_like_ord : ring_like_ord Z :=
      rngl_ord_mul_le_compat_nonpos := Z.mul_leb_compat_nonpos;
      rngl_ord_not_le := Z.not_leb |}.
 
-
-Theorem archimedean :
-  ∀ a b, (a ≤? 0)%Z = false → ∃ n : nat, (rngl_mul_nat a n ≤? b)%Z = false.
+Theorem archimedean : ∀ a b, (0 < a)%Z → ∃ n : nat, (b < rngl_mul_nat a n)%Z.
 Proof.
-intros * Haz.
-apply Bool.not_true_iff_false in Haz.
-apply Z.not_leb in Haz.
-destruct Haz as (Haz, Hza).
-apply Z.leb_le in Hza.
-destruct a as [| sa va]; [ easy | ].
-destruct sa. 2: {
-  exfalso; apply Z.nlt_ge in Hza.
-  now apply Hza.
-}
-destruct b as [| sb vb]; [ now exists 1 | ].
-exists ((vb + 1) / (va + 1) + 1).
+intros * Hza.
+destruct a as [| sa a]; [ easy | ].
+destruct sa; [ clear Hza | easy ].
+destruct b as [| sb b]; [ now exists 1 | ].
+destruct sb; [ | now exists 0 ].
+enough (H : ∃ n, (b < mul_nat 0 Nat.add a n)). {
+  destruct H as (n, Hn).
+  exists n.
+  progress unfold Z.lt.
+  progress unfold rngl_mul_nat; cbn.
+...
+exists (vb + 2).
+apply Bool.not_true_iff_false.
+intros H.
+apply Z.leb_le in H.
+apply Z.nlt_ge in H.
+apply H; clear H.
+
+destruct va. {
+  induction vb; [ easy | ].
+  cbn = [ rngl_
+
+...
+Search rngl_mul_nat.
+About rngl_mul_nat_succ.
+Search (rngl_mul_nat _ (S _)).
+...
+progress unfold Z.lt.
+progress unfold rngl_mul_nat.
+progress unfold mul_nat.
+remember S as f; cbn; subst f.
+
+...
+remember ((vb + 1) / (va + 1) + 1) as n eqn:Hn.
+assert (H : vb < va * n). {
+  subst n.
+...
+  rewrite Nat.mul_add_distr_l.
+...
 progress unfold Z.leb.
 remember (rngl_mul_nat _ _) as n eqn:Hn.
 symmetry in Hn.
 progress unfold Z.compare.
 destruct n as [| sn n]; cbn. {
-  destruct sb. {
-    rewrite Nat.add_1_r in Hn.
+  destruct sb; [ exfalso | easy ].
+  remember ((vb + 1) / (va + 1)) as n eqn:H.
+  clear va vb Haz Hza
+...
+  rewrite Nat.add_1_r in Hn.
+  rewrite rngl_mul_nat_succ in Hn.
 ...
 remember S as f; cbn; subst f.
 cbn.
@@ -1135,6 +1165,29 @@ progress unfold mul_nat.
 remember S as f; cbn; subst f.
 remember
 clear Haz Hza.
+...
+...
+
+Theorem archimedean_b :
+  ∀ a b, (a ≤? 0)%Z = false → ∃ n : nat, (rngl_mul_nat a n ≤? b)%Z = false.
+Proof.
+intros * Haz.
+enough (H : ∃ n, (b < rngl_mul_nat a n)%Z). {
+  destruct H as (n, Hn).
+  exists n.
+  apply Bool.not_true_iff_false.
+  intros H.
+  now apply Z.leb_le, Z.nlt_ge in H.
+}
+assert (Ha : (0 < a)%Z). {
+  apply Bool.not_true_iff_false in Haz.
+  apply Z.not_leb in Haz.
+  destruct Haz as (Haz, Hza).
+  apply Z.leb_le in Hza.
+  destruct a as [| sa va]; [ easy | ].
+  now destruct sa.
+}
+now apply Z.archimedean.
 ...
 
 Instance ring_like_prop : ring_like_prop Z :=
@@ -1163,7 +1216,7 @@ Instance ring_like_prop : ring_like_prop Z :=
      rngl_opt_alg_closed := NA;
      rngl_opt_characteristic_prop := Z.characteristic_prop;
      rngl_opt_ord := Z.ring_like_ord;
-     rngl_opt_archimedean := Z.archimedean |}.
+     rngl_opt_archimedean := Z.archimedean_b |}.
 
 ...
 
