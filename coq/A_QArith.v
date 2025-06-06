@@ -5,6 +5,7 @@
 
 From Stdlib Require Import Utf8 Arith.
 Require Import A_ZArith.
+Require Import RingLike.Misc.
 
 Record Q := mk_q
   { q_num : Z;

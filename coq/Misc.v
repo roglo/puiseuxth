@@ -5,6 +5,7 @@ From Stdlib Require Import Utf8 Arith.
 From Stdlib Require Import Sorted.
 From Stdlib Require Import Psatz.
 
+Require Import RingLike.Misc.
 Require Import A_ZArith A_QArith.
 Open Scope Q_scope.
 
@@ -229,9 +230,6 @@ split. {
   intros Hac.
   progress unfold Q.eq in Hab, Hcd.
   progress unfold Q.le in Hac |-*.
-(* je me demande si je devrais pas passer par RingLike en fait,
-   déjà sur A_ZArith ; ça m'éviterait d'avoir à redémontrer plein
-   de trucs *)
 ...
 Require Import RingLike.Core.
 Search (_ * _ ≤ _ * _)%Z.
