@@ -260,8 +260,8 @@ Instance ring_like_op : ring_like_op Z :=
      rngl_opt_opp_or_subt := Some (inl Z.opp);
      rngl_opt_inv_or_quot := Some (inr Z.div);
      rngl_opt_is_zero_divisor := None;
-     rngl_opt_eq_dec := Some eq_dec;
-     rngl_opt_leb := Some leb |}.
+     rngl_opt_eq_dec := Some Z.eq_dec;
+     rngl_opt_leb := Some Z.leb |}.
 
 Theorem opp_involutive : ∀ a, (- - a)%Z = a.
 Proof.
