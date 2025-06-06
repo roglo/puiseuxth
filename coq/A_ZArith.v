@@ -1241,6 +1241,22 @@ Instance ring_like_ord : ring_like_ord Z :=
      rngl_ord_not_le := Z.not_leb |}.
 
 (* borrowed from RingLike.Z_algebra *)
+Theorem rngl_mul_nat_Z : ∀ z n, rngl_mul_nat z n = (Z.of_nat n * z)%Z.
+Proof.
+intros.
+progress unfold rngl_mul_nat.
+progress unfold mul_nat; cbn.
+induction n; intros; [ easy | ].
+cbn - [ "*"%Z ].
+rewrite IHn.
+rewrite <- (Z.mul_1_l z) at 1.
+rewrite <- Z.mul_add_distr_r.
+progress f_equal.
+progress unfold Z.of_nat.
+destruct n; [ easy | cbn; f_equal ].
+apply Nat.add_1_r.
+Qed.
+
 Theorem nat_archimedean : ∀ a b, (0 < a → ∃ n, b < n * a)%nat.
 Proof.
 intros * Ha.
@@ -1250,167 +1266,39 @@ simpl; rewrite <- Nat.add_1_l.
 now apply Nat.add_le_lt_mono.
 Qed.
 
-Theorem pos_archimedean : ∀ a b, ∃ n, b + 1 < n * (a + 1).
-Proof. intros; apply nat_archimedean; flia. Qed.
-
 Theorem Z_archimedean' : ∀ a b, (0 < a → ∃ n, b < Z.of_nat n * a)%Z.
 Proof.
 intros * Ha.
-destruct b as [| sb vb]. {
-  exists 1%nat.
-  now rewrite Z.mul_1_l.
-}
+destruct b as [| sb vb]; [ now exists 1; rewrite Z.mul_1_l | ].
 destruct a as [| sa va]; [ easy | ].
 destruct sa; [ | easy ].
-specialize (pos_archimedean va vb) as (m, Hm).
-...
-  destruct m; [ now exists 1%nat | ].
-  exists (S m).
-  apply Pos2Nat.inj_gt in Hm.
-  rewrite Pos2Nat.inj_mul in Hm.
-  rewrite Nat2Pos.id in Hm; [ | apply Nat.neq_succ_0 ].
-  rewrite <- positive_nat_Z.
-  rewrite <- Nat2Z.inj_mul.
-  rewrite <- positive_nat_Z.
-  now apply Nat2Z.inj_gt.
-
-  apply Z.nle_gt in Ha.
-  exfalso; apply Ha.
-  apply Pos2Z.neg_is_nonpos.
-
- exists 1%nat.
- rewrite Z.mul_1_l.
- apply Z.lt_gt.
- eapply Z.lt_trans; [ | eassumption ].
- apply Pos2Z.neg_is_neg.
+specialize (nat_archimedean (va + 1) (vb + 1)) as (m, Hm); [ flia | ].
+destruct m; [ now exists 1 | ].
+exists (S m); cbn.
+destruct sb; [ | easy ].
+progress unfold Z.lt; cbn.
+apply Nat.compare_lt_iff.
+apply Nat.lt_add_lt_sub_r.
+now rewrite (Nat.add_1_r m).
 Qed.
 
-Theorem Z_archimedean :
-  ∀ a b : Z, (0 < a)%L → ∃ n : nat, (b < rngl_mul_nat a n)%L.
-Proof.
-intros * Ha.
-(*
-apply Z.leb_gt in Ha.
-cbn in Ha.
-*)
-specialize (Z_archimedean' a b Ha) as H1.
-destruct H1 as (m & Hm).
-exists m; cbn.
-apply Z.compare_gt_iff in Hm.
-apply Z.leb_gt.
-now rewrite rngl_mul_nat_Z.
-Qed.
-(* end borrowed from RingLike.Z_algebra *)
-*)
-
-(*
-...
 Theorem archimedean : ∀ a b, (0 < a)%Z → ∃ n : nat, (b < rngl_mul_nat a n)%Z.
 Proof.
 intros * Hza.
-destruct a as [| sa a]; [ easy | ].
-destruct sa; [ clear Hza | easy ].
-destruct b as [| sb b]; [ now exists 1 | ].
-destruct sb; [ | now exists 0 ].
-enough (H : ∃ n, (b + 1 < mul_nat 0 Nat.add (a + 1) n)). {
-  destruct H as (n, Hn).
-  exists n.
-progress unfold rngl_mul_nat; cbn.
-progress unfold Z.lt; cbn.
-remember (mul_nat 0%Z _ _ _) as x eqn:Hx.
-symmetry in Hx.
-destruct x as [| sx vx]. {
-  exfalso.
-  destruct a as [| sa va]; cbn in Hx. {
-    induction n; [ cbn in Hn; flia Hn | ].
-...
-  rewrite <- (Z.add_0_l (z_val true b)).
-  rewrite <- (Z.add_0_l (rngl_mul_nat _ _)).
-  remember 0%Z as m eqn:Hm; clear Hm.
-  destruct b as [| sb vb]. {
-    destruct a as [| sa va]. {
-      cbn in Hn.
-      progress unfold rngl_mul_nat; cbn.
-      revert m.
-      induction n; intros; [ easy | ].
-      progress unfold mul_nat in Hn |-*.
-      cbn - [ Z.add ] in Hn |-*.
-(* ouais, c'est nul *)
-...
-      apply Z.lt_add_r.
-      progress unfold mul_nat in IHn.
-
-...
-      rewrite repeat_succ in Hn.
-      rewrite mul_nat_succ in Hn.
-...
-exists (vb + 2).
-apply Bool.not_true_iff_false.
-intros H.
-apply Z.leb_le in H.
-apply Z.nlt_ge in H.
-apply H; clear H.
-
-destruct va. {
-  induction vb; [ easy | ].
-  cbn = [ rngl_
-
-...
-Search rngl_mul_nat.
-About rngl_mul_nat_succ.
-Search (rngl_mul_nat _ (S _)).
-...
-progress unfold Z.lt.
-progress unfold rngl_mul_nat.
-progress unfold mul_nat.
-remember S as f; cbn; subst f.
-
-...
-remember ((vb + 1) / (va + 1) + 1) as n eqn:Hn.
-assert (H : vb < va * n). {
-  subst n.
-...
-  rewrite Nat.mul_add_distr_l.
-...
-progress unfold Z.leb.
-remember (rngl_mul_nat _ _) as n eqn:Hn.
-symmetry in Hn.
-progress unfold Z.compare.
-destruct n as [| sn n]; cbn. {
-  destruct sb; [ exfalso | easy ].
-  remember ((vb + 1) / (va + 1)) as n eqn:H.
-  clear va vb Haz Hza
-...
-  rewrite Nat.add_1_r in Hn.
-  rewrite rngl_mul_nat_succ in Hn.
-...
-remember S as f; cbn; subst f.
-cbn.
-apply Bool.not_true_iff_false.
-intros H.
-apply Z.leb_le in H.
-apply Z.nlt_ge in H.
-apply H; clear H.
-progress unfold Z.lt.
-progress unfold rngl_mul_nat.
-progress unfold mul_nat.
-remember S as f; cbn; subst f.
-remember
-clear Haz Hza.
-...
-...
+specialize (Z_archimedean' a b Hza) as (m, Hm).
+exists m; cbn.
+now rewrite rngl_mul_nat_Z.
+Qed.
 
 Theorem archimedean_b :
+(*
+  ∀ a b, (0 < a)%L → ∃ n : nat, (rngl_mul_nat a n ≤? b)%Z = false.
+cbn.
+Print rngl_lt.
+*)
   ∀ a b, (a ≤? 0)%Z = false → ∃ n : nat, (rngl_mul_nat a n ≤? b)%Z = false.
 Proof.
 intros * Haz.
-enough (H : ∃ n, (b < rngl_mul_nat a n)%Z). {
-  destruct H as (n, Hn).
-  exists n.
-  apply Bool.not_true_iff_false.
-  intros H.
-  now apply Z.leb_le, Z.nlt_ge in H.
-}
 assert (Ha : (0 < a)%Z). {
   apply Bool.not_true_iff_false in Haz.
   apply Z.not_leb in Haz.
@@ -1419,9 +1307,28 @@ assert (Ha : (0 < a)%Z). {
   destruct a as [| sa va]; [ easy | ].
   now destruct sa.
 }
-now apply Z.archimedean.
-...
-*)
+generalize Ha; intros H.
+apply (Z.archimedean a b) in Ha.
+destruct Ha as (n, Ha).
+exists n.
+progress unfold Z.lt in Ha.
+progress unfold Z.compare in Ha.
+destruct b as [| sb vb]. {
+  destruct (rngl_mul_nat a n); [ easy | now destruct b ].
+}
+destruct (rngl_mul_nat a n) as [| sc vc]; [ now destruct sb | ].
+destruct sb, sc; [ | easy | easy | ]. {
+  rewrite Nat.compare_antisym in Ha.
+  progress unfold CompOpp in Ha.
+  progress unfold Z.leb; cbn.
+  now destruct (vc ?= vb).
+} {
+  rewrite Nat.compare_antisym in Ha.
+  progress unfold CompOpp in Ha.
+  progress unfold Z.leb; cbn.
+  now destruct (vb ?= vc).
+}
+Qed.
 
 Instance ring_like_prop : ring_like_prop Z :=
   {| rngl_mul_is_comm := true;
