@@ -210,6 +210,52 @@ Proof. now intros; unfold q_Den; rewrite Nat.add_1_r. Qed.
 Theorem q_Den_nonneg : ∀ a, (0 ≤ q_Den a)%Z.
 Proof. now intros; unfold q_Den; rewrite Nat.add_1_r. Qed.
 
+Theorem Q_order_eq_le_l : ∀ a b c, (a == b → c ≤ b → c ≤ a)%Q.
+Proof.
+intros * Heq Hle.
+progress unfold Q.eq in Heq.
+progress unfold Q.le in Hle |-*.
+destruct (q_num a) as [| sa va]. {
+  symmetry in Heq.
+  rewrite Z.mul_0_l in Heq |-*.
+  apply Z.integral in Heq.
+  cbn in Heq.
+  destruct Heq as [Heq| Heq]. {
+    rewrite Heq in Hle; cbn in Hle.
+    apply Z.nlt_ge in Hle.
+    apply Z.nlt_ge.
+    intros Hlt; apply Hle; clear Hle.
+    (* perhaps a more specific theorem to be proved and used here: *)
+    specialize (Z.mul_lt_mono_pos_l (q_num c) 0 (q_Den b)) as H1.
+    rewrite Z.mul_0_r in H1.
+    apply H1; [ clear H1 | apply q_Den_pos ].
+    (* to do: Z.mul_lt_mono_pos_r, version r of the theorem below: *)
+    specialize (Z.mul_lt_mono_pos_l (q_Den a) 0 (q_num c)) as H1.
+    rewrite Z.mul_0_r, Z.mul_comm in H1.
+    apply H1; [ apply q_Den_pos | easy ].
+  }
+  destruct Heq as [Heq| Heq]; [ | now destruct Heq ].
+  now apply q_Den_neq_0 in Heq.
+}
+destruct (q_num b) as [| sb vb]. {
+  rewrite Z.mul_0_l in Heq, Hle.
+  apply Z.integral in Heq.
+  cbn in Heq.
+  destruct Heq as [Heq| Heq]; [ easy | ].
+  destruct Heq as [Heq| Heq]; [ | now destruct Heq ].
+  now apply q_Den_neq_0 in Heq.
+}
+move sb before sa.
+specialize Z.mul_le_mono_pos_l as H1.
+apply (H1 (q_Den a)) in Hle; [ clear H1 | apply q_Den_pos ].
+do 2 rewrite (Z.mul_comm (q_Den a)) in Hle.
+rewrite (Z.mul_mul_swap (z_val sb vb)) in Hle.
+rewrite <- Heq in Hle.
+do 2 rewrite (Z.mul_comm _ (q_Den b)) in Hle.
+do 2 rewrite <- Z.mul_assoc in Hle.
+apply Z.mul_le_mono_pos_l in Hle; [ easy | apply q_Den_pos ].
+Qed.
+
 Theorem Qdiv_lt_compat_r : ∀ x y z, 0 < z → x < y → x / z < y / z.
 Proof.
 intros * Hz Hxy.
@@ -238,46 +284,21 @@ Proof.
 intros a b Hab c d Hcd.
 move c before b; move d before c.
 split; intros Hac. {
+  apply (@Q_order_eq_le_l _ c); [ now symmetry | ].
+... ...
+  apply (@Q_order_eq_le_r _ d).
+...
 (*
 Require Import QArith.
 Search (_ → _ <= _ → _ <= _)%Q.
 QOrderedType.QOrder.eq_le: ∀ [x y z : Q], x == y → y <= z → x <= z
 ...
 *)
-Theorem Q_order_eq_le_l : ∀ a b c, (a == b → c ≤ b → c ≤ a)%Q.
-Proof.
-intros * Heq Hle.
-progress unfold Q.eq in Heq.
-progress unfold Q.le in Hle |-*.
-destruct (q_num a) as [| sa va]. {
-  cbn in Heq |-*.
-  symmetry in Heq.
-  apply Z.integral in Heq.
-  cbn in Heq.
-  destruct Heq as [Heq| Heq]. {
-    rewrite Heq in Hle; cbn in Hle.
-    apply Z.nlt_ge in Hle.
-    apply Z.nlt_ge.
-    intros Hlt; apply Hle; clear Hle.
-    (* perhaps a more specific theorem to be proved and used here: *)
-    specialize (Z.mul_lt_mono_pos_l (q_num c) 0 (q_Den b)) as H1.
-    rewrite Z.mul_0_r in H1.
-    apply H1; [ clear H1 | apply q_Den_pos ].
-    (* to do: Z.mul_lt_mono_pos_r, version r of the theorem below: *)
-    specialize (Z.mul_lt_mono_pos_l (q_Den a) 0 (q_num c)) as H1.
-    rewrite Z.mul_0_r, Z.mul_comm in H1.
-    apply H1; [ apply q_Den_pos | easy ].
-  }
-  destruct Heq as [Heq| Heq]; [ | now destruct Heq ].
-  now apply q_Den_neq_0 in Heq.
-}
-(* faut-il faire la même chose avec q_num b ?
-   ou alors voir les cas sa=true sa=false ?
-   pour q_num b, peut-être qu'un théorème commun avec q_num a ? *)
+Inspect 1.
 ...
-  rewrite Heq, Z.mul_0_r.
-Search (_ ≤ _)%Z.
-  apply Z.leb_refl.
+specialize (@mul_le_mono_pos_l) as H1.
+specialize (H1 (q_num c * q_Den b) (z_val sb vb * q_Den c) (q_Den a))%Z.
+apply (H1 (q_Den_pos _)) in Hle; clear H1.
 ...
 Zmult_lt_0_reg_r: ∀ n m : Z, (0 < n)%Z → (0 < m * n)%Z → (0 < m)%Z
 Z.mul_pos_pos: ∀ n m : Z, (0 < n)%Z → (0 < m)%Z → (0 < n * m)%Z

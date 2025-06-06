@@ -1398,17 +1398,59 @@ apply Nat.eqb_eq in H2; subst vb.
 now destruct sa, sb.
 Qed.
 
+Theorem mul_le_mono_pos_l :
+  ∀ a b c, (0 < a)%Z → (b ≤ c)%Z ↔ (a * b ≤ a * c)%Z.
+Proof.
+intros * Hza.
+destruct a as [| sa va]; [ now apply lt_irrefl in Hza | cbn ].
+destruct sa; [ clear Hza | easy ].
+destruct b as [| sb vb]. {
+  destruct c as [| sc vc]; [ easy | ].
+  now destruct sc.
+}
+destruct c as [| sc vc]; [ now destruct sb | cbn ].
+split; intros Hbc. {
+  destruct sb, sc; [ | easy | easy | ]. {
+    apply Nat.compare_le_iff in Hbc.
+    apply Nat.compare_le_iff.
+    (* lemma *)
+    apply Nat.le_add_le_sub_r.
+    rewrite Nat.sub_add; [ | flia ].
+    apply Nat.mul_le_mono_pos_l; [ flia | ].
+    now apply Nat.add_le_mono_r.
+  } {
+    apply Nat.compare_le_iff in Hbc.
+    apply Nat.compare_le_iff.
+    (* lemma *)
+    apply Nat.le_add_le_sub_r.
+    rewrite Nat.sub_add; [ | flia ].
+    apply Nat.mul_le_mono_pos_l; [ flia | ].
+    now apply Nat.add_le_mono_r.
+  }
+} {
+  destruct sb, sc; [ | easy | easy | ]. {
+    apply Nat.compare_le_iff in Hbc.
+    apply Nat.compare_le_iff.
+    (* lemma *)
+    apply Nat.le_sub_le_add_r in Hbc.
+    rewrite Nat.sub_add in Hbc; [ | flia ].
+    apply Nat.mul_le_mono_pos_l in Hbc; [ | flia ].
+    now apply Nat.add_le_mono_r in Hbc.
+  } {
+    apply Nat.compare_le_iff in Hbc.
+    apply Nat.compare_le_iff.
+    (* lemma *)
+    apply Nat.le_sub_le_add_r in Hbc.
+    rewrite Nat.sub_add in Hbc; [ | flia ].
+    apply Nat.mul_le_mono_pos_l in Hbc; [ | flia ].
+    now apply Nat.add_le_mono_r in Hbc.
+  }
+}
+Qed.
+
 Theorem mul_lt_mono_pos_l :
   ∀ a b c, (0 < a)%Z → (b < c)%Z ↔ (a * b < a * c)%Z.
 Proof.
-(*
-intros * Hza.
-specialize rngl_mul_lt_mono_pos_l as H1.
-specialize (H1 eq_refl eq_refl eq_refl a b c).
-cbn in H1.
-(* c'est la m... *)
-...
-*)
 intros * Hza.
 destruct a as [| sa va]; [ now apply lt_irrefl in Hza | cbn ].
 destruct sa; [ clear Hza | easy ].
