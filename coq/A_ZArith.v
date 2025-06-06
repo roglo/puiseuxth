@@ -1266,7 +1266,7 @@ simpl; rewrite <- Nat.add_1_l.
 now apply Nat.add_le_lt_mono.
 Qed.
 
-Theorem Z_archimedean' : ∀ a b, (0 < a → ∃ n, b < Z.of_nat n * a)%Z.
+Theorem archimedean : ∀ a b, (0 < a → ∃ n, b < Z.of_nat n * a)%Z.
 Proof.
 intros * Ha.
 destruct b as [| sb vb]; [ now exists 1; rewrite Z.mul_1_l | ].
@@ -1280,14 +1280,6 @@ progress unfold Z.lt; cbn.
 apply Nat.compare_lt_iff.
 apply Nat.lt_add_lt_sub_r.
 now rewrite (Nat.add_1_r m).
-Qed.
-
-Theorem archimedean : ∀ a b, (0 < a)%Z → ∃ n : nat, (b < rngl_mul_nat a n)%Z.
-Proof.
-intros * Hza.
-specialize (Z_archimedean' a b Hza) as (m, Hm).
-exists m; cbn.
-now rewrite rngl_mul_nat_Z.
 Qed.
 
 Theorem archimedean_b :
@@ -1310,6 +1302,7 @@ assert (Ha : (0 < a)%Z). {
 generalize Ha; intros H.
 apply (Z.archimedean a b) in Ha.
 destruct Ha as (n, Ha).
+rewrite <- rngl_mul_nat_Z in Ha.
 exists n.
 progress unfold Z.lt in Ha.
 progress unfold Z.compare in Ha.
