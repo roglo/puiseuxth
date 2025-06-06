@@ -6,6 +6,7 @@ From Stdlib Require Import Sorted.
 From Stdlib Require Import Psatz.
 
 Require Import RingLike.Misc.
+Require Import RingLike.Core.
 Require Import A_ZArith A_QArith.
 Open Scope Q_scope.
 
@@ -14,7 +15,9 @@ Notation "[ x ; .. ; y … l ]" := (cons x .. (cons y l) ..).
 Notation "[ x ]" := (cons x nil).
 Notation "x ++ y" := (List.app x y) (right associativity, at level 60).
 Notation "x < y <= z" := (x < y ∧ y <= z) (at level 70, y at next level).
+(*
 Notation "x < y < z" := (x < y ∧ y < z) (at level 70, y at next level).
+*)
 Notation "x < y ≤ z" := (x < y ∧ y <= z)%nat (at level 70, y at next level).
 Notation "x ≤ y ≤ z" := (x <= y ∧ y <= z)%nat (at level 70, y at next level).
 Notation "x ≤ y < z" := (x <= y ∧ y < z)%nat (at level 70, y at next level).
@@ -198,10 +201,16 @@ apply Q.le_antisymm in Hxy; [ | easy ].
 now apply Hnxy.
 Qed.
 
+Theorem q_Den_nonneg : ∀ a, (0 ≤ q_Den a)%Z.
+Proof.
+intros.
+progress unfold q_Den.
+now rewrite Nat.add_1_r.
+Qed.
+
 Theorem Qdiv_lt_compat_r : ∀ x y z, 0 < z → x < y → x / z < y / z.
 Proof.
 intros * Hz Hxy.
-
 Theorem Q_mul_lt_mono_pos_l :
   ∀ a b c, (0 < a)%Q → (b < c)%Q ↔ (a * b < a * c)%Q.
 Proof.
@@ -226,10 +235,149 @@ Global Instance Q_le_morph : Proper (Q.eq ==> Q.eq ==> iff) Q.le.
 Proof.
 intros a b Hab c d Hcd.
 move c before b; move d before c.
-split. {
-  intros Hac.
+split; intros Hac. {
+(*
+Require Import QArith.
+Search (_ → _ <= _ → _ <= _)%Q.
+...
+*)
+Theorem Q_order_eq_le_l : ∀ a b c, (0 < b → a == b → c ≤ b → c ≤ a)%Q.
+Proof.
+(*
+intros * Hz Heq Hle.
+destruct a as (an, ad).
+destruct b as (bn, bd).
+destruct c as (cn, cd).
+progress unfold Q.eq in Heq.
+progress unfold Q.le in Hz, Hle |-*.
+cbn in Hz, Heq, Hle |-*.
+rewrite Z.mul_1_r in Hz.
+progress unfold q_Den in Heq, Hle |-*.
+cbn in Heq, Hle |-*.
+...
+*)
+intros * Hz Heq Hle.
+progress unfold Q.eq in Heq.
+progress unfold Q.le in Hle |-*.
+apply (Z.mul_le_mono_nonneg_r (q_num a)) in Hle.
+rewrite Z.mul_mul_swap in Hle.
+rewrite <- Z.mul_assoc in Hle.
+rewrite Heq in Hle.
+rewrite Z.mul_assoc in Hle.
+rewrite Z.mul_mul_swap in Hle.
+rewrite (Z.mul_comm (q_num b)) in Hle.
+rewrite (Z.mul_mul_swap (q_Den c)) in Hle.
+(* pas hyper pratique, ring-like, ci-dessous *)
+set (ro := Z.ring_like_op).
+set (rp := Z.ring_like_prop).
+specialize (rngl_mul_le_mono_pos_r eq_refl eq_refl eq_refl) as H.
+cbn in H.
+apply Z.leb_le in Hle.
+apply H in Hle. 2: {
+  clear - Hz.
+  (* lemma to do *)
+  progress unfold Q.lt in Hz.
+  cbn in Hz.
+  rewrite Z.mul_1_r in Hz.
+  progress unfold Z.lt in Hz.
+  progress unfold Z.leb.
+  rewrite <- Z.compare_antisymm.
+  now destruct (0 ?= q_num b)%Z.
+}
+apply Z.leb_le in Hle; clear H ro rp.
+(* fin du pas hyper pratique *)
+now rewrite (Z.mul_comm (q_Den c)) in Hle.
+...
+; [ | apply q_Den_nonneg ].
+apply (f_equal (Z.mul (q_num a))) in H2.
+...
+
+Theorem Q_order_eq_le_r : ∀ a b c, (a == b → b ≤ c → a ≤ c)%Q.
+Proof.
+intros * Hab Hbc.
+...
+  symmetry in Hab.
+  specialize (@Q_order_eq_le_r _ _ d Hab) as H1.
+  apply H1; clear H1.
+  symmetry in Hcd.
+  specialize (@Q_order_eq_le_l _ _ a Hcd) as H1.
+  now apply H1; clear H1.
+}
+...
+Require Import QArith.
+Search (_ → _ <= _ → _ <= _)%Q.
+...
   progress unfold Q.eq in Hab, Hcd.
   progress unfold Q.le in Hac |-*.
+  apply (Z.mul_le_mono_nonneg_l (q_Den b)) in Hac; [ | apply q_Den_nonneg ].
+  rewrite Z.mul_assoc in Hac.
+  rewrite (Z.mul_comm (q_Den b)) in Hac.
+  rewrite Hab in Hac.
+  rewrite Z.mul_mul_swap in Hac.
+  rewrite Z.mul_assoc in Hac.
+  (* pas hyper pratique, ring-like, ci-dessous *)
+  set (ro := Z.ring_like_op).
+  set (rp := Z.ring_like_prop).
+  specialize (rngl_mul_le_mono_pos_r eq_refl eq_refl eq_refl) as H1.
+  cbn in H1.
+  apply Z.leb_le in Hac.
+  apply H1 in Hac. 2: {
+    (* lemma to do *)
+    progress unfold q_Den.
+    now rewrite Nat.add_1_r.
+  }
+  apply Z.leb_le in Hac; clear H1.
+  clear ro rp.
+  (* fin du pas hyper pratique *)
+  apply (Z.mul_le_mono_nonneg_r (q_Den d)) in Hac; [ | apply q_Den_nonneg ].
+  rewrite Z.mul_mul_swap in Hac.
+  rewrite <- (Z.mul_assoc (q_Den b)) in Hac.
+  rewrite Hcd in Hac.
+  rewrite Z.mul_assoc in Hac.
+  (* pas hyper pratique, ring-like, ci-dessous *)
+  set (ro := Z.ring_like_op).
+  set (rp := Z.ring_like_prop).
+  specialize (rngl_mul_le_mono_pos_r eq_refl eq_refl eq_refl) as H1.
+  cbn in H1.
+  apply Z.leb_le in Hac.
+  apply H1 in Hac. 2: {
+    (* lemma to do *)
+    progress unfold q_Den.
+    now rewrite Nat.add_1_r.
+  }
+  apply Z.leb_le in Hac; clear H1.
+  clear ro rp.
+  (* fin du pas hyper pratique *)
+  rewrite (Z.mul_comm (q_Den b)) in Hac.
+  easy.
+}
+symmetry in Hab, Hcd.
+...
+apply <- H1 in Hac.
+...
+rngl_mul_le_mono_pos_r:
+  ∀ {T : Type} {ro : ring_like_op T},
+    ring_like_prop T
+    → rngl_has_opp T = true
+      → rngl_is_ordered T = true
+        → (rngl_is_integral_domain T || rngl_has_inv_and_1_or_quot T)%bool =
+          true → ∀ a b c : T, (0 < c)%L → (a ≤ b)%L ↔ (a * c ≤ b * c)%L
+rngl_mul_le_mono_pos_l:
+  ∀ {T : Type} {ro : ring_like_op T},
+    ring_like_prop T
+    → rngl_has_opp T = true
+      → rngl_is_ordered T = true
+        → (rngl_is_integral_domain T || rngl_has_inv_and_1_or_quot T)%bool =
+          true → ∀ a b c : T, (0 < c)%L → (a ≤ b)%L ↔ (c * a ≤ c * b)%L
+
+Check Z.mul_le_mono_nonneg_r.
+...
+  apply -> (Z.mul_le_mono_nonneg_r (q_Den a)) in Hac.
+...
+Check Z.mul_le_mono_nonneg_l.
+Check Z.mul_lt_mono_pos_l.
+....
+apply (f_equal (Z.mul (q_num b))) in Hac.
 ...
 Require Import RingLike.Core.
 Search (_ * _ ≤ _ * _)%Z.

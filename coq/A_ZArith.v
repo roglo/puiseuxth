@@ -1087,6 +1087,14 @@ destruct sb; cbn. {
 }
 Qed.
 
+Theorem mul_le_mono_nonneg_r :
+  ∀ a b c, (0 ≤ a)%Z → (b ≤ c)%Z → (b * a ≤ c * a)%Z.
+Proof.
+intros * Hza Hbc.
+do 2 rewrite (Z.mul_comm _ a).
+now apply Z.mul_le_mono_nonneg_l.
+Qed.
+
 Theorem mul_le_mono_nonpos_l :
   ∀ a b c, (a ≤ 0)%Z → (b ≤ c)%Z → (a * c ≤ a * b)%Z.
 Proof.
