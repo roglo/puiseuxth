@@ -1299,7 +1299,6 @@ assert (Ha : (0 < a)%Z). {
   destruct a as [| sa va]; [ easy | ].
   now destruct sa.
 }
-generalize Ha; intros H.
 apply (Z.archimedean a b) in Ha.
 destruct Ha as (n, Ha).
 rewrite <- rngl_mul_nat_Z in Ha.
