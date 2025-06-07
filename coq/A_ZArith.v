@@ -1448,6 +1448,14 @@ split; intros Hbc. {
 }
 Qed.
 
+Theorem mul_le_mono_pos_r :
+  ∀ a b c, (0 < a)%Z → (b ≤ c)%Z ↔ (b * a ≤ c * a)%Z.
+Proof.
+intros * Hlt.
+do 2 rewrite (Z.mul_comm _ a).
+now apply Z.mul_le_mono_pos_l.
+Qed.
+
 Theorem mul_lt_mono_pos_l :
   ∀ a b c, (0 < a)%Z → (b < c)%Z ↔ (a * b < a * c)%Z.
 Proof.
@@ -1513,6 +1521,22 @@ Proof.
 intros * Haz Habc.
 do 2 rewrite (mul_comm _ c) in Habc.
 now apply mul_cancel_l in Habc.
+Qed.
+
+Theorem le_refl : ∀ a, (a ≤ a)%Z.
+Proof.
+intros a.
+destruct a as [| sa va]; [ easy | ].
+progress unfold Z.le; cbn.
+now destruct sa; apply Nat.compare_le_iff.
+Qed.
+
+Theorem mul_nonneg_nonneg : ∀ a b, (0 ≤ a → 0 ≤ b → 0 ≤ a * b)%Z.
+Proof.
+intros * Hz1 Hz2.
+destruct a as [| sa va]; [ apply Z.le_refl | ].
+destruct b as [| sb vb]; [ apply Z.le_refl | ].
+now destruct sa, sb.
 Qed.
 
 End Z.

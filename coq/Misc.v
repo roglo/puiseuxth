@@ -268,16 +268,10 @@ destruct (q_num a) as [| sa va]. {
   cbn in Heq.
   destruct Heq as [Heq| Heq]. {
     rewrite Heq in Hle; cbn in Hle.
-    (* perhaps a more specific theorem to be proved and used here: *)
-    specialize (Z.mul_le_mono_pos_l (q_num c) 0 (q_Den a)) as H1.
-    rewrite Z.mul_0_r in H1.
-    apply H1; [ clear H1 | apply q_Den_nonneg ].
-    (* to do: Z.mul_le_mono_pos_r, version r of the theorem below: *)
-    specialize (Z.mul_le_mono_pos_l (q_num c) 0 (q_Den b)) as H1.
-...
-    specialize (Z.mul_le_mono_pos_l (q_Den b) 0 (q_num c)) as H1.
-    rewrite Z.mul_0_r, Z.mul_comm in H1.
-    apply H1; [ apply q_Den_pos | easy ].
+    specialize (Z.mul_le_mono_pos_r (q_Den b) 0 (q_num c)) as H1.
+    rewrite Z.mul_0_l in H1.
+    apply H1 in Hle; [ clear H1 | apply q_Den_pos ].
+    apply Z.mul_nonneg_nonneg; [ easy | apply q_Den_nonneg ].
   }
   destruct Heq as [Heq| Heq]; [ | now destruct Heq ].
   now apply q_Den_neq_0 in Heq.
@@ -291,6 +285,7 @@ destruct (q_num b) as [| sb vb]. {
   now apply q_Den_neq_0 in Heq.
 }
 move sb before sa.
+...
 specialize Z.mul_le_mono_pos_l as H1.
 apply (H1 (q_Den a)) in Hle; [ clear H1 | apply q_Den_pos ].
 do 2 rewrite (Z.mul_comm (q_Den a)) in Hle.
