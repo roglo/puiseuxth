@@ -209,6 +209,9 @@ progress unfold eq.
 now apply Z.le_antisymm.
 Qed.
 
+Theorem le_refl : ∀ a, (a ≤ a)%Q.
+Proof. intros; apply Z.le_refl. Qed.
+
 Theorem lt_le_incl : ∀ a b, (a < b)%Q → (a ≤ b)%Q.
 Proof. intros * Hab; congruence. Qed.
 
@@ -319,6 +322,25 @@ split; intros Hac. {
 } {
   apply (@Q.order_eq_le_r _ b); [ easy | ].
   now apply (@Q.order_eq_le_l _ d).
+}
+Qed.
+
+Theorem Q_lt_iff : ∀ a b, (a < b)%Q ↔ (a ≤ b)%Q ∧ ¬ (a == b)%Q.
+Proof.
+intros.
+split. {
+  intros Hlt.
+  split; [ now apply Q.lt_le_incl | ].
+  intros H.
+  apply Q.nle_gt in Hlt.
+  apply Hlt; clear Hlt.
+  rewrite H.
+  apply Q.le_refl.
+} {
+  intros (Hle, Heq).
+  apply Q.nle_gt.
+  intros H; apply Heq; clear Heq.
+  now apply Q.le_antisymm.
 }
 Qed.
 

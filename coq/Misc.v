@@ -213,18 +213,8 @@ Theorem Q_lt_0_sub : ∀ a b, (0 < b - a ↔ a < b)%Q.
 Proof.
 intros.
 split; intros Hab. {
-Theorem Q_lt_iff : ∀ a b, (a < b)%Q ↔ (a ≤ b)%Q ∧ ¬ (a == b)%Q.
-Proof.
-intros.
-split. {
-  intros Hab.
-  split; [ now apply Q.lt_le_incl | ].
-  intros H.
-  apply Q.nle_gt in Hab.
-  apply Hab; clear Hab.
-  rewrite H.
+Check Q.lt_iff.
 ... ...
-
 specialize Q_le_morph as H1.
 specialize (H1 _ _ H).
 progress unfold "==>" in H1.
