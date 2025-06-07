@@ -213,16 +213,57 @@ Theorem Q_lt_0_sub : ∀ a b, (0 < b - a ↔ a < b)%Q.
 Proof.
 intros.
 split; intros Hab. {
-Check Q.lt_iff.
+  apply Q.lt_iff in Hab.
+  apply Q.lt_iff.
+  destruct Hab as (Hab, Habz).
+Theorem Q_le_0_sub : ∀ a b, (0 ≤ b - a ↔ a ≤ b)%Q.
+Proof.
+intros.
+Theorem Q_add_le_compat : ∀ a b c d, (a ≤ b → c ≤ d → a + c ≤ b + d)%Q.
+Proof.
+intros * Hle1 Hle2.
 ... ...
-specialize Q_le_morph as H1.
-specialize (H1 _ _ H).
-progress unfold "==>" in H1.
-specialize (H1 b a).
-apply -> H1.
+specialize Q.add_le_compat as H1.
+split; intros Hab. {
+  specialize (H1 0%L (b - a)%L a a Hab (rngl_le_refl Hor _)).
+  rewrite <- (rngl_sub_sub_distr Hop) in H1.
+  rewrite (rngl_sub_diag Hos) in H1.
+  now rewrite rngl_add_0_l, (rngl_sub_0_r Hos) in H1.
+} {
+  specialize (H1 a b (- a)%L (- a)%L Hab (rngl_le_refl Hor _)).
+  do 2 rewrite (rngl_add_opp_r Hop) in H1.
+  now rewrite (rngl_sub_diag Hos) in H1.
+}
+Qed.
+... ...
+  split; [ now apply Q_le_0_sub | ].
+  intros H.
 ...
-  rewrite H in Hab.
+  rewrite H in Habz.
+  intros H; subst b.
+  now rewrite (rngl_sub_diag Hos) in Habz.
+} {
+  apply (rngl_lt_iff Hor) in Hab.
+  apply (rngl_lt_iff Hor).
+  destruct Hab as (Hab, Habz).
+  split; [ now apply (rngl_le_0_sub Hop Hor) | ].
+  apply not_eq_sym.
+  intros H1.
+  apply Habz; symmetry.
+  now apply (rngl_sub_move_0_r Hop).
+}
+Qed.
 ...
+split; intros Hab. 2: {
+About rngl_lt_0_sub.
+...
+  apply Q.lt_iff.
+  intros (H3, H4).
+  remember (rngl_leb b a) as x eqn:Hx; symmetry in Hx.
+  destruct x; [ | easy ].
+  now specialize (H2 _ _ H3 Hx).
+...
+  specialize Q.le_morph as H1.
   specialize (Q.le_antisymm b a) as H2.
   apply Q.nle_gt in Hab.
   specialize (H1 b a) as H3.

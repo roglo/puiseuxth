@@ -325,7 +325,7 @@ split; intros Hac. {
 }
 Qed.
 
-Theorem Q_lt_iff : ∀ a b, (a < b)%Q ↔ (a ≤ b)%Q ∧ ¬ (a == b)%Q.
+Theorem lt_iff : ∀ a b, (a < b)%Q ↔ (a ≤ b)%Q ∧ ¬ (a == b)%Q.
 Proof.
 intros.
 split. {
