@@ -210,32 +210,6 @@ Proof. now intros; unfold q_Den; rewrite Nat.add_1_r. Qed.
 Theorem q_Den_nonneg : ∀ a, (0 ≤ q_Den a)%Z.
 Proof. now intros; unfold q_Den; rewrite Nat.add_1_r. Qed.
 
-Theorem glop :
-  ∀ a b c sa va,
-  (z_val sa va * q_Den b)%Z = (q_num b * q_Den a)%Z
-  → (q_num c * q_Den b ≤ q_num b * q_Den c)%Z
-  → (q_num c * q_Den a ≤ z_val sa va * q_Den c)%Z.
-Proof.
-intros * Heq Hle.
-destruct (q_num b) as [| sb vb]. {
-  rewrite Z.mul_0_l in Heq, Hle.
-  apply Z.integral in Heq.
-  cbn in Heq.
-  destruct Heq as [Heq| Heq]; [ easy | ].
-  destruct Heq as [Heq| Heq]; [ | now destruct Heq ].
-  now apply q_Den_neq_0 in Heq.
-}
-move sb before sa.
-specialize Z.mul_le_mono_pos_l as H1.
-apply (H1 (q_Den a)) in Hle; [ clear H1 | apply q_Den_pos ].
-do 2 rewrite (Z.mul_comm (q_Den a)) in Hle.
-rewrite (Z.mul_mul_swap (z_val sb vb)) in Hle.
-rewrite <- Heq in Hle.
-do 2 rewrite (Z.mul_comm _ (q_Den b)) in Hle.
-do 2 rewrite <- Z.mul_assoc in Hle.
-apply Z.mul_le_mono_pos_l in Hle; [ easy | apply q_Den_pos ].
-Qed.
-
 Theorem Q_order_eq_le_l : ∀ a b c, (a == b → c ≤ b → c ≤ a)%Q.
 Proof.
 intros * Heq Hle.
@@ -263,8 +237,6 @@ destruct (q_num a) as [| sa va]. {
   destruct Heq as [Heq| Heq]; [ | now destruct Heq ].
   now apply q_Den_neq_0 in Heq.
 }
-now apply (glop a b).
-(*
 destruct (q_num b) as [| sb vb]. {
   rewrite Z.mul_0_l in Heq, Hle.
   apply Z.integral in Heq.
@@ -282,7 +254,6 @@ rewrite <- Heq in Hle.
 do 2 rewrite (Z.mul_comm _ (q_Den b)) in Hle.
 do 2 rewrite <- Z.mul_assoc in Hle.
 apply Z.mul_le_mono_pos_l in Hle; [ easy | apply q_Den_pos ].
-*)
 Qed.
 
 Theorem Q_order_eq_le_r : ∀ a b c : Q, a == b → b ≤ c → a ≤ c.
@@ -305,6 +276,9 @@ destruct (q_num a) as [| sa va]. {
   destruct Heq as [Heq| Heq]; [ | now destruct Heq ].
   now apply q_Den_neq_0 in Heq.
 }
+(* exactly same tactics as for the previous theorems!
+   I tried to do a common theorem (lemma) from that
+   but I failed. Perhaps I should try again *)
 destruct (q_num b) as [| sb vb]. {
   rewrite Z.mul_0_l in Heq, Hle.
   apply Z.integral in Heq.
@@ -323,8 +297,6 @@ do 2 rewrite (Z.mul_comm _ (q_Den b)) in Hle.
 do 2 rewrite <- Z.mul_assoc in Hle.
 apply Z.mul_le_mono_pos_l in Hle; [ easy | apply q_Den_pos ].
 Qed.
-
-...
 
 Theorem Qdiv_lt_compat_r : ∀ x y z, 0 < z → x < y → x / z < y / z.
 Proof.
@@ -355,7 +327,6 @@ intros a b Hab c d Hcd.
 move c before b; move d before c.
 split; intros Hac. {
   apply (@Q_order_eq_le_l _ c); [ now symmetry | ].
-...
   now apply (@Q_order_eq_le_r _ a).
 } {
 ...
