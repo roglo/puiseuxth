@@ -285,7 +285,6 @@ destruct (q_num b) as [| sb vb]. {
   now apply q_Den_neq_0 in Heq.
 }
 move sb before sa.
-...
 specialize Z.mul_le_mono_pos_l as H1.
 apply (H1 (q_Den a)) in Hle; [ clear H1 | apply q_Den_pos ].
 do 2 rewrite (Z.mul_comm (q_Den a)) in Hle.
@@ -294,6 +293,8 @@ rewrite <- Heq in Hle.
 do 2 rewrite (Z.mul_comm _ (q_Den b)) in Hle.
 do 2 rewrite <- Z.mul_assoc in Hle.
 apply Z.mul_le_mono_pos_l in Hle; [ easy | apply q_Den_pos ].
+Qed.
+
 ...
 
 Theorem Qdiv_lt_compat_r : ∀ x y z, 0 < z → x < y → x / z < y / z.
