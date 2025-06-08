@@ -916,7 +916,7 @@ destruct a as [| sa va]; [ easy | cbn ].
 now destruct sa; rewrite Nat.compare_refl.
 Qed.
 
-Theorem add_le_compat_l : ∀ a b c, (a ≤ b)%Z → (c + a ≤ c + b)%Z.
+Theorem add_le_mono_l : ∀ a b c, (a ≤ b)%Z → (c + a ≤ c + b)%Z.
 Proof.
 intros * Hab.
 progress unfold Z.le in Hab |-*.
@@ -1040,11 +1040,11 @@ apply Nat.compare_le_iff.
 now apply Nat.add_le_mono_r, Nat.add_le_mono_l.
 Qed.
 
-Theorem add_lt_compat_l : ∀ a b c, (a < b)%Z → (c + a < c + b)%Z.
+Theorem add_lt_mono_l : ∀ a b c, (a < b)%Z → (c + a < c + b)%Z.
 Proof.
 intros * Hab.
 apply Z.lt_iff.
-split; [ now apply Z.add_le_compat_l, Z.lt_le_incl | ].
+split; [ now apply Z.add_le_mono_l, Z.lt_le_incl | ].
 intros H.
 (* lemma *)
 apply (f_equal (λ x, Z.sub x c)) in H.
@@ -1130,9 +1130,9 @@ Qed.
 Theorem add_le_compat : ∀ a b c d, (a ≤ b)%Z → (c ≤ d)%Z → (a + c ≤ b + d)%Z.
 Proof.
 intros * Hab Hcd.
-apply (Z.le_trans _ (a + d)); [ apply Z.add_le_compat_l, Hcd | ].
+apply (Z.le_trans _ (a + d)); [ apply Z.add_le_mono_l, Hcd | ].
 do 2 rewrite (Z.add_comm _ d).
-now apply Z.add_le_compat_l.
+now apply Z.add_le_mono_l.
 Qed.
 
 Theorem mul_opp_l : ∀ a b, (- a * b)%Z = (- (a * b))%Z.

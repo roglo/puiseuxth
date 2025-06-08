@@ -201,6 +201,9 @@ apply Q.le_antisymm in Hxy; [ | easy ].
 now apply Hnxy.
 Qed.
 
+Theorem q_Den_num_den : ∀ a b, q_Den (a # b) = Z.of_nat (b + 1).
+Proof. easy. Qed.
+
 Theorem Qdiv_lt_compat_r : ∀ x y z, 0 < z → x < y → x / z < y / z.
 Proof.
 intros * Hz Hxy.
@@ -222,6 +225,20 @@ intros.
 Theorem Q_add_le_compat : ∀ a b c d, (a ≤ b → c ≤ d → a + c ≤ b + d)%Q.
 Proof.
 intros * Hle1 Hle2.
+Theorem Q_add_le_mono_l : ∀ a b c, (b ≤ c → a + b ≤ a + c)%Q.
+Proof.
+intros * Hle.
+progress unfold Q.le in Hle |-*.
+progress unfold Q.add.
+remember (q_num a) as an eqn:H; clear H.
+remember (q_num b) as bn eqn:H; clear H.
+remember (q_num c) as cn eqn:H; clear H.
+remember (q_Den a) as ad eqn:H; clear H.
+remember (q_Den b) as bd eqn:H; clear H.
+remember (q_Den c) as cd eqn:H; clear H.
+cbn.
+progress unfold Z.le.
+progress unfold Z.compare.
 ... ...
 specialize Q.add_le_compat as H1.
 split; intros Hab. {
