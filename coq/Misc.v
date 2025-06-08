@@ -341,7 +341,7 @@ destruct an as [| sa va]. {
     apply Nat.nlt_ge in Hle.
     apply Nat.nlt_ge.
     intros Hgt; apply Hle; clear Hle.
-    apply Nat_sub_lt_mono_r. {
+    apply Nat_sub_lt_mono_r; [ right; flia | ].
 ...
     do 2 rewrite Nat.mul_assoc in Hgt.
     do 2 rewrite (Nat.mul_shuffle0 _ _ (ad + 1)) in Hgt.
