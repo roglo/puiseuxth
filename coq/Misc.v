@@ -328,7 +328,7 @@ destruct an as [| sa va]. {
     do 2 rewrite <- (Nat.mul_assoc ((ad + 1) * (ad + 1))) in Hgt.
     apply Nat.mul_lt_mono_pos_l in Hgt; [ easy | flia ].
   } {
-    destruct cn as [| sc sv]; [ easy | ].
+    destruct cn as [| sc vc]; [ easy | ].
     destruct sc; [ easy | ].
     progress unfold Z.le in Hle |-*; cbn in Hle |-*.
     apply Nat.compare_le_iff in Hle.
@@ -342,11 +342,30 @@ destruct an as [| sa va]. {
     apply Nat.nlt_ge.
     intros Hgt; apply Hle; clear Hle.
     apply Nat_sub_lt_mono_r; [ right; flia | ].
-...
     do 2 rewrite Nat.mul_assoc in Hgt.
     do 2 rewrite (Nat.mul_shuffle0 _ _ (ad + 1)) in Hgt.
     do 2 rewrite <- (Nat.mul_assoc ((ad + 1) * (ad + 1))) in Hgt.
-    apply Nat.mul_lt_mono_pos_l in Hgt; [ | flia ].
+    apply Nat.mul_lt_mono_pos_l in Hgt; [ easy | flia ].
+  }
+}
+destruct sa. {
+  destruct bn as [| sb vb]. {
+    rewrite Z.add_0_r.
+    rewrite Nat.sub_add; [ | flia ].
+    destruct cn as [| sc bc]. {
+      cbn.
+      rewrite Nat.sub_add; [ | flia ].
+      progress unfold Z.le; cbn.
+      rewrite Nat_compare_sub_cancel_r; [ | flia | flia ].
+      apply Nat.compare_le_iff.
+      progress unfold pos_mul.
+      rewrite Nat.sub_add; [ | flia ].
+      rewrite Nat.sub_add; [ | flia ].
+      do 2 rewrite Nat.mul_assoc.
+      rewrite (Nat.mul_shuffle0 (ad + 1)).
+      apply Nat.le_refl.
+    }
+    destruct sc; [ | easy ].
 ... ...
 specialize Q.add_le_compat as H1.
 split; intros Hab. {
