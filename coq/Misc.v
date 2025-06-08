@@ -204,6 +204,53 @@ Qed.
 Theorem q_Den_num_den : ∀ a b, q_Den (a # b) = Z.of_nat (b + 1).
 Proof. easy. Qed.
 
+Theorem Nat_compare_sub_cancel_l :
+  ∀ a b c,
+  (b <= a)%nat
+  → (c <= a)%nat
+  → (a - b ?= a - c)%nat = (c ?= b)%nat.
+Proof.
+intros * Hle1 Hle2.
+revert a b Hle1 Hle2.
+induction c; intros; cbn. {
+  rewrite Nat.sub_0_r.
+  destruct b. {
+    apply Nat.compare_eq_iff.
+    apply Nat.sub_0_r.
+  }
+  apply Nat.compare_lt_iff.
+  flia Hle1.
+}
+destruct b. {
+  apply Nat.compare_gt_iff.
+  rewrite Nat.sub_0_r.
+  flia Hle2.
+}
+destruct a; [ easy | cbn ].
+apply Nat.succ_le_mono in Hle1, Hle2.
+apply (IHc _ _ Hle1 Hle2).
+Qed.
+
+Theorem Nat_compare_sub_cancel_r :
+  ∀ a b c,
+  (c <= a)%nat
+  → (c <= b)%nat
+  → (a - c ?= b - c)%nat = (a ?= b)%nat.
+Proof.
+intros * Hle1 Hle2.
+revert b c Hle1 Hle2.
+induction a; intros; cbn. {
+  apply Nat.le_0_r in Hle1; subst c.
+  now rewrite Nat.sub_0_r.
+}
+destruct b. {
+  now apply Nat.le_0_r in Hle2; subst c.
+}
+destruct c; [ easy | cbn ].
+apply Nat.succ_le_mono in Hle1, Hle2.
+apply (IHa _ _ Hle1 Hle2).
+Qed.
+
 Theorem Qdiv_lt_compat_r : ∀ x y z, 0 < z → x < y → x / z < y / z.
 Proof.
 intros * Hz Hxy.
@@ -230,15 +277,41 @@ Proof.
 intros * Hle.
 progress unfold Q.le in Hle |-*.
 progress unfold Q.add.
+progress unfold q_Den in Hle |-*.
 remember (q_num a) as an eqn:H; clear H.
 remember (q_num b) as bn eqn:H; clear H.
 remember (q_num c) as cn eqn:H; clear H.
-remember (q_Den a) as ad eqn:H; clear H.
-remember (q_Den b) as bd eqn:H; clear H.
-remember (q_Den c) as cd eqn:H; clear H.
-cbn.
-progress unfold Z.le.
-progress unfold Z.compare.
+remember (q_den a) as ad eqn:H; clear H.
+remember (q_den b) as bd eqn:H; clear H.
+remember (q_den c) as cd eqn:H; clear H.
+move an after bn; move ad after bd.
+clear a b c.
+cbn in Hle |-*.
+do 2 rewrite Nat.add_1_r in Hle.
+do 5 rewrite Nat.add_1_r.
+cbn in Hle |-*.
+do 2 rewrite (Z.mul_comm _ (z_val _ _)) in Hle.
+do 6 rewrite (Z.mul_comm _ (z_val _ _)).
+cbn in Hle |-*.
+destruct an as [| sa va]. {
+  cbn.
+  destruct bn as [| sb vb]. {
+    destruct cn as [| sc vc]; [ easy | ].
+    rewrite Nat.sub_add; [ | flia ].
+    destruct sc; [ easy | now exfalso ].
+  }
+  rewrite Nat.sub_add; [ | flia ].
+  destruct sb. {
+    destruct cn as [| sc vc]; [ easy | ].
+    rewrite Nat.sub_add; [ | flia ].
+    destruct sc; [ | now exfalso ].
+    progress unfold Z.le in Hle; cbn in Hle.
+    progress unfold Z.le; cbn.
+    intros Hgt; apply Hle; clear Hle.
+    rewrite Nat_compare_sub_cancel_r in Hgt; [ | flia | flia ].
+    rewrite Nat_compare_sub_cancel_r; [ | flia | flia ].
+    apply Nat.compare_gt_iff in Hgt.
+    apply Nat.compare_gt_iff.
 ... ...
 specialize Q.add_le_compat as H1.
 split; intros Hab. {
