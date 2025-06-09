@@ -536,6 +536,45 @@ destruct sa. {
       apply Nat.compare_lt_iff in Hy.
       apply Nat.nle_gt in Hx.
       apply Hx; clear Hx.
+      rewrite Nat.mul_comm.
+      apply (Nat.mul_le_mono_pos_r _ _ ((vc + 1) * (cd + 1))); [ flia | ].
+      do 2 rewrite Nat.mul_assoc.
+      replace ((va + 1) * (bd + 1) * (vc + 1) * (cd + 1))%nat with
+        (((bd + 1) * (vc + 1)) * ((cd + 1) * (va + 1)))%nat by flia.
+      replace ((ad + 1) * (vb + 1) * (vc + 1) * (cd + 1))%nat with
+        (((cd + 1) * (vb + 1)) * ((ad + 1) * (vc + 1)))%nat by flia.
+      apply Nat.lt_le_incl in Hy.
+      now apply Nat.mul_le_mono.
+    }
+    (* j'ai déjà vu ce code plus haut... *)
+    progress unfold Z.le; cbn.
+    progress unfold pos_mul.
+    apply Nat.compare_le_iff.
+    apply Nat.sub_le_mono_r.
+    rewrite Nat.sub_add; [ | flia ].
+    rewrite (Nat.sub_add _ (_ * _)); [ | flia ].
+    do 2 rewrite <- Nat.mul_assoc.
+    apply Nat.mul_le_mono_l.
+    rewrite (Nat_sub_sub_swap _ 1).
+    rewrite Nat.sub_sub_distr; [ | flia | now apply Nat.lt_le_incl ].
+    rewrite Nat.add_sub.
+    rewrite Nat.sub_add; [ | flia Hx ].
+    rewrite (Nat_sub_sub_swap _ 1).
+    (* fin du j'ai déjà vu ce code plus haut... *)
+    rewrite Nat.sub_sub_distr; [ | flia | ]. 2: {
+(* oui, bon, c'est pas ça... *)
+...
+    rewrite Nat.sub_sub_distr; [ | flia | now apply Nat.lt_le_incl ].
+    rewrite Nat.add_sub.
+    rewrite Nat.sub_add; [ | flia Hx ].
+    do 2 rewrite Nat.mul_sub_distr_l.
+    do 4 rewrite Nat.mul_assoc.
+    rewrite (Nat.mul_comm (cd + 1) (bd + 1)).
+    apply Nat.sub_le_mono_r.
+    do 2 rewrite (Nat.mul_shuffle0 _ (ad + 1)).
+    apply Nat.mul_le_mono_pos_r; [ flia | ].
+    easy.
+...
 (*
       ring_simplify in Hle.
       ring_simplify in Hy.
