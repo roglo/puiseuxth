@@ -546,6 +546,7 @@ destruct sa. {
       apply Nat.lt_le_incl in Hy.
       now apply Nat.mul_le_mono.
     }
+    apply Nat.compare_gt_iff in Hy.
     (* j'ai déjà vu ce code plus haut... *)
     progress unfold Z.le; cbn.
     progress unfold pos_mul.
@@ -560,15 +561,13 @@ destruct sa. {
     rewrite Nat.add_sub.
     rewrite Nat.sub_add; [ | flia Hx ].
     rewrite (Nat_sub_sub_swap _ 1).
-    (* fin du j'ai déjà vu ce code plus haut... *)
-    rewrite Nat.sub_sub_distr; [ | flia | ]. 2: {
-(* oui, bon, c'est pas ça... *)
-...
     rewrite Nat.sub_sub_distr; [ | flia | now apply Nat.lt_le_incl ].
     rewrite Nat.add_sub.
-    rewrite Nat.sub_add; [ | flia Hx ].
+    rewrite Nat.sub_add; [ | flia Hy ].
     do 2 rewrite Nat.mul_sub_distr_l.
     do 4 rewrite Nat.mul_assoc.
+    (* fin du j'ai déjà vu ce code plus haut... *)
+...
     rewrite (Nat.mul_comm (cd + 1) (bd + 1)).
     apply Nat.sub_le_mono_r.
     do 2 rewrite (Nat.mul_shuffle0 _ (ad + 1)).
