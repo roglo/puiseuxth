@@ -262,7 +262,11 @@ Proof. intros * H1 H2; flia H1 H2. Qed.
 Theorem Nat_1_le_mul_add_1 : ∀ a b, (1 <= (a + 1) * (b + 1))%nat.
 Proof. flia. Qed.
 
+Theorem Nat_add_1_r_pos : ∀ a, (0 < a + 1)%nat.
+Proof. flia. Qed.
+
 Hint Resolve Nat_1_le_mul_add_1 : core.
+Hint Resolve Nat_add_1_r_pos : core.
 
 Theorem Qdiv_lt_compat_r : ∀ x y z, 0 < z → x < y → x / z < y / z.
 Proof.
@@ -603,6 +607,124 @@ destruct bn as [| sb vb]. {
     apply Nat.sub_le_mono_r.
     rewrite Nat.sub_add; [ | easy ].
     rewrite (Nat.sub_add _ (_ * _)); [ flia | easy ].
+  }
+}
+destruct sb. {
+  destruct cn as [| sc vc]; [ easy | ].
+  destruct sc; [ cbn | easy ].
+  progress unfold Z.le in Hle; cbn in Hle.
+  rewrite Nat_compare_sub_cancel_r in Hle; [ | easy | easy ].
+  rewrite Nat_compare_sub_cancel_r; [ | easy | easy ].
+  apply Nat.compare_le_iff in Hle.
+  remember (_ ?= _)%nat as x eqn:Hx.
+  symmetry in Hx.
+  destruct x. {
+    rewrite Nat_compare_sub_cancel_r; [ | easy | easy ].
+    apply Nat.compare_eq_iff in Hx.
+    remember (_ ?= _)%nat as y eqn:Hy in |-*.
+    symmetry in Hy.
+    destruct y; [ easy | easy | exfalso ].
+    apply Nat.compare_gt_iff in Hy.
+    apply Nat.nle_gt in Hy.
+    apply Hy; clear Hy.
+(**)
+    apply (Nat.mul_le_mono_pos_r _ _ (vb + 1)); [ easy | ].
+...
+    apply (Nat.mul_le_mono_r _ _ ((bd + 1) * (va + 1))) in Hle.
+    rewrite Hx in Hle at 1.
+    rewrite Nat.mul_assoc in Hle.
+    rewrite (Nat.mul_shuffle0 (bd + 1)) in Hle.
+    rewrite (Nat.mul_comm ((cd + 1) * (vb + 1))) in Hle.
+    rewrite Nat.mul_assoc in Hle.
+    apply <- Nat.mul_le_mono_pos_r in Hle; [ | flia ].
+    do 2 rewrite <- Nat.mul_assoc in Hle.
+    apply <- Nat.mul_le_mono_pos_l in Hle; [ | flia ].
+    flia Hle.
+  } {
+    apply Nat.compare_lt_iff in Hx.
+    remember (_ ?= _)%nat as y eqn:Hy in |-*.
+    symmetry in Hy.
+    destruct y; [ easy | | easy ].
+    apply Nat.compare_lt_iff in Hy.
+    progress unfold Z.le; cbn.
+    progress unfold pos_mul.
+    apply Nat.compare_le_iff.
+    apply Nat.sub_le_mono_r.
+    rewrite Nat.sub_add; [ | easy ].
+    rewrite (Nat.sub_add _ (_ * _)); [ | easy ].
+    do 2 rewrite <- Nat.mul_assoc.
+    apply Nat.mul_le_mono_l.
+    rewrite (Nat_sub_sub_swap _ 1).
+    rewrite Nat.sub_sub_distr; [ | easy | now apply Nat.lt_le_incl ].
+    rewrite Nat.add_sub.
+    rewrite Nat.sub_add; [ | flia Hy ].
+    rewrite (Nat_sub_sub_swap _ 1).
+    rewrite Nat.sub_sub_distr; [ | easy | now apply Nat.lt_le_incl ].
+    rewrite Nat.add_sub.
+    rewrite Nat.sub_add; [ | flia Hx ].
+    do 2 rewrite Nat.mul_sub_distr_l.
+    do 4 rewrite Nat.mul_assoc.
+    rewrite (Nat.mul_comm (cd + 1) (bd + 1)).
+    apply Nat.sub_le_mono_r.
+    do 2 rewrite (Nat.mul_shuffle0 _ (ad + 1)).
+    apply Nat.mul_le_mono_pos_r; [ flia | ].
+    easy.
+  } {
+    apply Nat.compare_gt_iff in Hx.
+    remember (_ ?= _)%nat as y eqn:Hy in |-*.
+    symmetry in Hy.
+    destruct y. {
+      exfalso.
+      apply Nat.compare_eq_iff in Hy.
+      apply Nat.nle_gt in Hx.
+      apply Hx; clear Hx.
+      apply (Nat.mul_le_mono_pos_l _ _ (cd + 1)); [ flia | ].
+      rewrite Nat.mul_comm.
+      rewrite Nat.mul_shuffle0.
+      rewrite <- Nat.mul_assoc, Hy.
+      do 2 rewrite Nat.mul_assoc.
+      do 2 rewrite (Nat.mul_shuffle0 _ (ad + 1)).
+      apply Nat.mul_le_mono_pos_r; [ flia | easy ].
+    } {
+      exfalso.
+      apply Nat.compare_lt_iff in Hy.
+      apply Nat.nle_gt in Hx.
+      apply Hx; clear Hx.
+      rewrite Nat.mul_comm.
+      apply (Nat.mul_le_mono_pos_r _ _ ((vc + 1) * (cd + 1))); [ flia | ].
+      do 2 rewrite Nat.mul_assoc.
+      replace ((va + 1) * (bd + 1) * (vc + 1) * (cd + 1))%nat with
+        (((bd + 1) * (vc + 1)) * ((cd + 1) * (va + 1)))%nat by flia.
+      replace ((ad + 1) * (vb + 1) * (vc + 1) * (cd + 1))%nat with
+        (((cd + 1) * (vb + 1)) * ((ad + 1) * (vc + 1)))%nat by flia.
+      apply Nat.lt_le_incl in Hy.
+      now apply Nat.mul_le_mono.
+    }
+    apply Nat.compare_gt_iff in Hy.
+    (* j'ai déjà vu ce code plus haut... *)
+    progress unfold Z.le; cbn.
+    progress unfold pos_mul.
+    apply Nat.compare_le_iff.
+    apply Nat.sub_le_mono_r.
+    rewrite Nat.sub_add; [ | easy ].
+    rewrite (Nat.sub_add _ (_ * _)); [ | easy ].
+    do 2 rewrite <- Nat.mul_assoc.
+    apply Nat.mul_le_mono_l.
+    rewrite (Nat_sub_sub_swap _ 1).
+    rewrite Nat.sub_sub_distr; [ | easy | now apply Nat.lt_le_incl ].
+    rewrite Nat.add_sub.
+    rewrite Nat.sub_add; [ | flia Hx ].
+    rewrite (Nat_sub_sub_swap _ 1).
+    rewrite Nat.sub_sub_distr; [ | easy | now apply Nat.lt_le_incl ].
+    rewrite Nat.add_sub.
+    rewrite Nat.sub_add; [ | flia Hy ].
+    do 2 rewrite Nat.mul_sub_distr_l.
+    do 4 rewrite Nat.mul_assoc.
+    rewrite (Nat.mul_comm (cd + 1) (bd + 1)).
+    apply Nat.sub_le_mono_l.
+    do 2 rewrite (Nat.mul_shuffle0 _ (ad + 1)).
+    apply Nat.mul_le_mono_pos_r; [ flia | ].
+    easy.
   }
 }
 ... ...
