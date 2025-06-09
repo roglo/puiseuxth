@@ -536,9 +536,37 @@ destruct sa. {
       apply Nat.compare_lt_iff in Hy.
       apply Nat.nle_gt in Hx.
       apply Hx; clear Hx.
+(*
+      ring_simplify in Hle.
+      ring_simplify in Hy.
+      ring_simplify.
+      apply Nat.add_le_mono_r in Hle.
+      apply Nat.add_lt_mono_r in Hy.
+      apply Nat.add_le_mono_r.
+*)
+      apply (Nat.mul_le_mono_pos_l _ _ (vc + 1)); [ flia | ].
+      apply (Nat.le_trans _ ((vc + 1) * (cd + 1) * (vb + 1))). {
+        rewrite <- Nat.mul_assoc.
+        apply Nat.mul_le_mono_pos_l; [ flia | ].
+        apply (Nat.mul_le_mono_pos_l _ _ (cd + 1)); [ flia | ].
+        apply (Nat.le_trans _ ((bd + 1) * (ad + 1) * (vc + 1))). {
+          clear Hle.
+          rewrite Nat.mul_comm.
+          do 2 rewrite <- Nat.mul_assoc.
+          apply Nat.mul_le_mono_pos_l; [ flia | ].
+          rewrite Nat.mul_comm.
+          now apply Nat.lt_le_incl.
+        }
+        apply (Nat.le_trans _ ((cd + 1) * (ad + 1) * (vb + 1))). {
+          do 2 rewrite (Nat.mul_shuffle0 _ (ad + 1)).
+          apply Nat.mul_le_mono_pos_r; [ flia | easy ].
+        }
+(* pas gagné, et d'ailleurs faux si ad > cd *)
+...
       apply (Nat.mul_le_mono_pos_l _ _ (cd + 1)); [ flia | ].
       rewrite Nat.mul_comm.
       rewrite Nat.mul_shuffle0.
+...
       apply (Nat.le_trans _ ((cd + 1) * (vb + 1) * (va + 1))). {
         apply Nat.mul_le_mono_pos_r; [ flia | ].
         eapply Nat.le_trans; [ | apply Hle ].
