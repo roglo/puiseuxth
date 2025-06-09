@@ -474,15 +474,50 @@ destruct sa. {
     symmetry in Hy.
     destruct y; [ easy | exfalso | easy ].
     apply Nat.compare_lt_iff in Hy.
-(* ça va pas, cette preuve interminable et en plus, flia
-   ne marche pas ici *)
+    (* ça va pas, cette preuve interminable et en plus, flia
+       ne marche pas ici *)
+    apply Nat.nle_gt in Hy.
+    apply Hy; clear Hy.
+    apply (Nat.mul_le_mono_r _ _ ((bd + 1) * (va + 1))) in Hle.
+    rewrite Hx in Hle at 1.
+    rewrite Nat.mul_assoc in Hle.
+    rewrite (Nat.mul_shuffle0 (bd + 1)) in Hle.
+    rewrite (Nat.mul_comm ((cd + 1) * (vb + 1))) in Hle.
+    rewrite Nat.mul_assoc in Hle.
+    apply <- Nat.mul_le_mono_pos_r in Hle; [ | flia ].
+    do 2 rewrite <- Nat.mul_assoc in Hle.
+    apply <- Nat.mul_le_mono_pos_l in Hle; [ | flia ].
+    flia Hle.
+  } {
+    apply Nat.compare_lt_iff in Hx.
+    remember (_ ?= _)%nat as y eqn:Hy in |-*.
+    symmetry in Hy.
+    destruct y; [ easy | | easy ].
+    apply Nat.compare_lt_iff in Hy.
+    progress unfold Z.le; cbn.
+    progress unfold pos_mul.
+    rewrite Nat.sub_add; [ | flia ].
+    rewrite (Nat.sub_add _ (_ * _)); [ | flia ].
 ...
-    do 4 rewrite Nat.add_1_r in Hle, Hx, Hy.
-    cbn in Hle, Hx, Hy.
-    do 2 rewrite (Nat.mul_comm _ (S _)) in Hle.
-    do 2 rewrite (Nat.mul_comm _ (S _)) in Hx.
-    do 2 rewrite (Nat.mul_comm _ (S _)) in Hy.
-    cbn in Hle, Hx, Hy.
+    exfalso.
+    apply Nat.nlt_ge in Hle.
+    apply Hle; clear Hle.
+    apply (Nat.mul_lt_mono_pos_r (va + 1)); [ flia | ].
+    rewrite Nat.mul_shuffle0.
+    apply (Nat.lt_trans _ ((ad + 1) * (vc + 1) * (vb + 1))). {
+      apply Nat.mul_lt_mono_pos_r; [ flia | easy ].
+    }
+    do 2 rewrite (Nat.mul_shuffle0 _ (vc + 1)).
+...
+    rewrite Hx in Hle at 1.
+    rewrite Nat.mul_assoc in Hle.
+    rewrite (Nat.mul_shuffle0 (bd + 1)) in Hle.
+    rewrite (Nat.mul_comm ((cd + 1) * (vb + 1))) in Hle.
+    rewrite Nat.mul_assoc in Hle.
+    apply <- Nat.mul_le_mono_pos_r in Hle; [ | flia ].
+    do 2 rewrite <- Nat.mul_assoc in Hle.
+    apply <- Nat.mul_le_mono_pos_l in Hle; [ | flia ].
+    flia Hle.
 ... ...
 specialize Q.add_le_compat as H1.
 split; intros Hab. {
