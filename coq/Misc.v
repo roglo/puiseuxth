@@ -426,6 +426,63 @@ destruct sa. {
     progress unfold pos_mul.
     rewrite Nat.sub_add; [ | flia ].
     rewrite Nat.sub_add; [ | flia ].
+    rewrite Nat.mul_sub_distr_l.
+    do 3 rewrite Nat.mul_assoc.
+    rewrite (Nat.mul_shuffle0 _ (cd + 1)).
+    apply Nat.compare_le_iff.
+    flia.
+  }
+  destruct sc. {
+    clear Hle; cbn.
+    rewrite Nat_compare_sub_cancel_r; [ | flia | flia ].
+    remember (_ ?= _)%nat as x eqn:Hx.
+    symmetry in Hx.
+    destruct x; [ easy | easy | ].
+    apply Nat.compare_gt_iff in Hx.
+    progress unfold Z.le; cbn.
+    rewrite Nat.sub_sub_distr; [ | flia | flia Hx ].
+    rewrite Nat.sub_add; [ | flia ].
+    rewrite Nat_sub_sub_swap.
+    rewrite Nat.sub_add; [ | flia Hx ].
+    progress unfold pos_mul.
+    rewrite Nat.sub_add; [ | flia ].
+    rewrite Nat.sub_add; [ | flia ].
+    rewrite Nat.mul_sub_distr_l.
+    do 2 rewrite Nat.mul_assoc.
+    rewrite (Nat.mul_shuffle0 _ (cd + 1)).
+    rewrite Nat.add_sub_assoc; [ | flia ].
+    rewrite Nat.sub_add; [ | flia ].
+    rewrite Nat.add_shuffle0.
+    rewrite Nat.sub_add; [ | flia ].
+    rewrite (Nat.mul_add_distr_l ((ad + 1) * (bd + 1)) (_ * _)).
+    rewrite Nat.mul_assoc.
+    apply Nat.compare_le_iff.
+    flia.
+  }
+  cbn.
+  rewrite Nat_compare_sub_cancel_r; [ | flia | flia ].
+  rewrite Nat_compare_sub_cancel_r; [ | flia | flia ].
+  progress unfold Z.le in Hle.
+  cbn in Hle.
+  rewrite Nat_compare_sub_cancel_r in Hle; [ | flia | flia ].
+  apply Nat.compare_le_iff in Hle.
+  remember (_ ?= _)%nat as x eqn:Hx.
+  symmetry in Hx.
+  destruct x. {
+    apply Nat.compare_eq_iff in Hx.
+    remember (_ ?= _)%nat as y eqn:Hy in |-*.
+    symmetry in Hy.
+    destruct y; [ easy | exfalso | easy ].
+    apply Nat.compare_lt_iff in Hy.
+(* ça va pas, cette preuve interminable et en plus, flia
+   ne marche pas ici *)
+...
+    do 4 rewrite Nat.add_1_r in Hle, Hx, Hy.
+    cbn in Hle, Hx, Hy.
+    do 2 rewrite (Nat.mul_comm _ (S _)) in Hle.
+    do 2 rewrite (Nat.mul_comm _ (S _)) in Hx.
+    do 2 rewrite (Nat.mul_comm _ (S _)) in Hy.
+    cbn in Hle, Hx, Hy.
 ... ...
 specialize Q.add_le_compat as H1.
 split; intros Hab. {
