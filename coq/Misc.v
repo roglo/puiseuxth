@@ -522,6 +522,31 @@ destruct sa. {
     destruct y. {
       exfalso.
       apply Nat.compare_eq_iff in Hy.
+      apply Nat.nle_gt in Hx.
+      apply Hx; clear Hx.
+      apply (Nat.mul_le_mono_pos_l _ _ (cd + 1)); [ flia | ].
+      rewrite Nat.mul_comm.
+      rewrite Nat.mul_shuffle0.
+      rewrite <- Nat.mul_assoc, Hy.
+      do 2 rewrite Nat.mul_assoc.
+      do 2 rewrite (Nat.mul_shuffle0 _ (ad + 1)).
+      apply Nat.mul_le_mono_pos_r; [ flia | easy ].
+    } {
+      exfalso.
+      apply Nat.compare_lt_iff in Hy.
+      apply Nat.nle_gt in Hx.
+      apply Hx; clear Hx.
+      apply (Nat.mul_le_mono_pos_l _ _ (cd + 1)); [ flia | ].
+      rewrite Nat.mul_comm.
+      rewrite Nat.mul_shuffle0.
+      apply (Nat.le_trans _ ((cd + 1) * (vb + 1) * (va + 1))). {
+        apply Nat.mul_le_mono_pos_r; [ flia | ].
+        eapply Nat.le_trans; [ | apply Hle ].
+(* mon cul, oui *)
+...
+      do 2 rewrite Nat.mul_assoc.
+      do 2 rewrite (Nat.mul_shuffle0 _ (ad + 1)).
+      apply Nat.mul_le_mono_pos_r; [ flia | easy ].
 ...
     apply Nat.compare_lt_iff in Hy.
     progress unfold Z.le; cbn.
