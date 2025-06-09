@@ -566,78 +566,13 @@ destruct sa. {
     rewrite Nat.sub_add; [ | flia Hy ].
     do 2 rewrite Nat.mul_sub_distr_l.
     do 4 rewrite Nat.mul_assoc.
-    (* fin du j'ai déjà vu ce code plus haut... *)
-...
     rewrite (Nat.mul_comm (cd + 1) (bd + 1)).
-    apply Nat.sub_le_mono_r.
+    apply Nat.sub_le_mono_l.
     do 2 rewrite (Nat.mul_shuffle0 _ (ad + 1)).
     apply Nat.mul_le_mono_pos_r; [ flia | ].
     easy.
-...
-(*
-      ring_simplify in Hle.
-      ring_simplify in Hy.
-      ring_simplify.
-      apply Nat.add_le_mono_r in Hle.
-      apply Nat.add_lt_mono_r in Hy.
-      apply Nat.add_le_mono_r.
-*)
-      apply (Nat.mul_le_mono_pos_l _ _ (vc + 1)); [ flia | ].
-      apply (Nat.le_trans _ ((vc + 1) * (cd + 1) * (vb + 1))). {
-        rewrite <- Nat.mul_assoc.
-        apply Nat.mul_le_mono_pos_l; [ flia | ].
-        apply (Nat.mul_le_mono_pos_l _ _ (cd + 1)); [ flia | ].
-        apply (Nat.le_trans _ ((bd + 1) * (ad + 1) * (vc + 1))). {
-          clear Hle.
-          rewrite Nat.mul_comm.
-          do 2 rewrite <- Nat.mul_assoc.
-          apply Nat.mul_le_mono_pos_l; [ flia | ].
-          rewrite Nat.mul_comm.
-          now apply Nat.lt_le_incl.
-        }
-        apply (Nat.le_trans _ ((cd + 1) * (ad + 1) * (vb + 1))). {
-          do 2 rewrite (Nat.mul_shuffle0 _ (ad + 1)).
-          apply Nat.mul_le_mono_pos_r; [ flia | easy ].
-        }
-(* pas gagné, et d'ailleurs faux si ad > cd *)
-...
-      apply (Nat.mul_le_mono_pos_l _ _ (cd + 1)); [ flia | ].
-      rewrite Nat.mul_comm.
-      rewrite Nat.mul_shuffle0.
-...
-      apply (Nat.le_trans _ ((cd + 1) * (vb + 1) * (va + 1))). {
-        apply Nat.mul_le_mono_pos_r; [ flia | ].
-        eapply Nat.le_trans; [ | apply Hle ].
-(* mon cul, oui *)
-...
-      do 2 rewrite Nat.mul_assoc.
-      do 2 rewrite (Nat.mul_shuffle0 _ (ad + 1)).
-      apply Nat.mul_le_mono_pos_r; [ flia | easy ].
-...
-    apply Nat.compare_lt_iff in Hy.
-    progress unfold Z.le; cbn.
-    progress unfold pos_mul.
-    apply Nat.compare_le_iff.
-    apply Nat.sub_le_mono_r.
-    rewrite Nat.sub_add; [ | flia ].
-    rewrite (Nat.sub_add _ (_ * _)); [ | flia ].
-    do 2 rewrite <- Nat.mul_assoc.
-    apply Nat.mul_le_mono_l.
-    rewrite (Nat_sub_sub_swap _ 1).
-    rewrite Nat.sub_sub_distr; [ | flia | now apply Nat.lt_le_incl ].
-    rewrite Nat.add_sub.
-    rewrite Nat.sub_add; [ | flia Hy ].
-    rewrite (Nat_sub_sub_swap _ 1).
-    rewrite Nat.sub_sub_distr; [ | flia | now apply Nat.lt_le_incl ].
-    rewrite Nat.add_sub.
-    rewrite Nat.sub_add; [ | flia Hx ].
-    do 2 rewrite Nat.mul_sub_distr_l.
-    do 4 rewrite Nat.mul_assoc.
-    rewrite (Nat.mul_comm (cd + 1) (bd + 1)).
-    apply Nat.sub_le_mono_r.
-    do 2 rewrite (Nat.mul_shuffle0 _ (ad + 1)).
-    apply Nat.mul_le_mono_pos_r; [ flia | ].
-    easy.
+  }
+}
 ... ...
 specialize Q.add_le_compat as H1.
 split; intros Hab. {
