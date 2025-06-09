@@ -365,7 +365,67 @@ destruct sa. {
       rewrite (Nat.mul_shuffle0 (ad + 1)).
       apply Nat.le_refl.
     }
-    destruct sc; [ | easy ].
+    destruct sc; [ clear Hle; cbn | easy ].
+    rewrite Nat.add_sub_assoc; [ | flia ].
+    rewrite Nat.sub_add; [ | flia ].
+    progress unfold Z.le; cbn.
+    progress unfold pos_mul.
+    rewrite Nat.sub_add; [ | flia ].
+    rewrite Nat.sub_add; [ | flia ].
+    rewrite Nat_compare_sub_cancel_r; [ | flia | flia ].
+    rewrite Nat.add_shuffle0.
+    rewrite Nat.sub_add; [ | flia ].
+    apply Nat.compare_le_iff.
+    flia.
+  }
+  destruct sb. {
+    destruct cn as [| sc vc]; [ easy | ].
+    destruct sc; [ cbn | easy ].
+    rewrite Nat.add_sub_assoc; [ | flia ].
+    rewrite Nat.sub_add; [ | flia ].
+    progress unfold Z.le; cbn.
+    progress unfold pos_mul.
+    rewrite Nat.sub_add; [ | flia ].
+    rewrite Nat.sub_add; [ | flia ].
+    rewrite Nat_compare_sub_cancel_r; [ | flia | flia ].
+    rewrite Nat.add_shuffle0.
+    rewrite Nat.sub_add; [ | flia ].
+    apply Nat.compare_le_iff.
+    progress unfold Z.le in Hle.
+    cbn in Hle.
+    rewrite Nat_compare_sub_cancel_r in Hle; [ | flia | flia ].
+    apply Nat.compare_le_iff in Hle.
+    do 2 rewrite <- Nat.mul_assoc.
+    apply Nat.mul_le_mono_l.
+    rewrite Nat.add_sub_assoc; [ | flia ].
+    rewrite Nat.sub_add; [ | flia ].
+    rewrite Nat.add_shuffle0.
+    rewrite Nat.sub_add; [ | flia ].
+    rewrite (Nat.mul_add_distr_l (cd + 1)).
+    rewrite (Nat.mul_add_distr_l _ (_ * _) (_ * _)).
+    do 4 rewrite Nat.mul_assoc.
+    rewrite (Nat.mul_comm (cd + 1)).
+    apply Nat.add_le_mono_l.
+    do 2 rewrite (Nat.mul_shuffle0 _ (ad + 1)).
+    apply Nat.mul_le_mono_r.
+    easy.
+  }
+  destruct cn as [| sc vc]. {
+    clear Hle; cbn.
+    rewrite Nat_compare_sub_cancel_r; [ | flia | flia ].
+    rewrite Nat.sub_add; [ | flia ].
+    remember (_ ?= _)%nat as x eqn:Hx.
+    symmetry in Hx.
+    destruct x; [ easy | easy | ].
+    apply Nat.compare_gt_iff in Hx.
+    progress unfold Z.le; cbn.
+    rewrite Nat.sub_sub_distr; [ | flia | flia Hx ].
+    rewrite Nat.sub_add; [ | flia ].
+    rewrite Nat_sub_sub_swap.
+    rewrite Nat.sub_add; [ | flia Hx ].
+    progress unfold pos_mul.
+    rewrite Nat.sub_add; [ | flia ].
+    rewrite Nat.sub_add; [ | flia ].
 ... ...
 specialize Q.add_le_compat as H1.
 split; intros Hab. {
