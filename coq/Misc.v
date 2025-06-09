@@ -474,8 +474,6 @@ destruct sa. {
     symmetry in Hy.
     destruct y; [ easy | exfalso | easy ].
     apply Nat.compare_lt_iff in Hy.
-    (* ça va pas, cette preuve interminable et en plus, flia
-       ne marche pas ici *)
     apply Nat.nle_gt in Hy.
     apply Hy; clear Hy.
     apply (Nat.mul_le_mono_r _ _ ((bd + 1) * (va + 1))) in Hle.
@@ -518,6 +516,37 @@ destruct sa. {
     apply Nat.mul_le_mono_pos_r; [ flia | ].
     easy.
   } {
+    apply Nat.compare_gt_iff in Hx.
+    remember (_ ?= _)%nat as y eqn:Hy in |-*.
+    symmetry in Hy.
+    destruct y. {
+      exfalso.
+      apply Nat.compare_eq_iff in Hy.
+...
+    apply Nat.compare_lt_iff in Hy.
+    progress unfold Z.le; cbn.
+    progress unfold pos_mul.
+    apply Nat.compare_le_iff.
+    apply Nat.sub_le_mono_r.
+    rewrite Nat.sub_add; [ | flia ].
+    rewrite (Nat.sub_add _ (_ * _)); [ | flia ].
+    do 2 rewrite <- Nat.mul_assoc.
+    apply Nat.mul_le_mono_l.
+    rewrite (Nat_sub_sub_swap _ 1).
+    rewrite Nat.sub_sub_distr; [ | flia | now apply Nat.lt_le_incl ].
+    rewrite Nat.add_sub.
+    rewrite Nat.sub_add; [ | flia Hy ].
+    rewrite (Nat_sub_sub_swap _ 1).
+    rewrite Nat.sub_sub_distr; [ | flia | now apply Nat.lt_le_incl ].
+    rewrite Nat.add_sub.
+    rewrite Nat.sub_add; [ | flia Hx ].
+    do 2 rewrite Nat.mul_sub_distr_l.
+    do 4 rewrite Nat.mul_assoc.
+    rewrite (Nat.mul_comm (cd + 1) (bd + 1)).
+    apply Nat.sub_le_mono_r.
+    do 2 rewrite (Nat.mul_shuffle0 _ (ad + 1)).
+    apply Nat.mul_le_mono_pos_r; [ flia | ].
+    easy.
 ... ...
 specialize Q.add_le_compat as H1.
 split; intros Hab. {
