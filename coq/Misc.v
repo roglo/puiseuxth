@@ -268,27 +268,6 @@ Proof. flia. Qed.
 Hint Resolve Nat_1_le_mul_add_1 : core.
 Hint Resolve Nat_add_1_r_pos : core.
 
-Theorem Qdiv_lt_compat_r : ∀ x y z, 0 < z → x < y → x / z < y / z.
-Proof.
-intros * Hz Hxy.
-Theorem Q_mul_lt_mono_pos_l :
-  ∀ a b c, (0 < a)%Q → (b < c)%Q ↔ (a * b < a * c)%Q.
-Proof.
-intros * Hza.
-split; intros Hbc. {
-Theorem Q_lt_0_sub : ∀ a b, (0 < b - a ↔ a < b)%Q.
-Proof.
-intros.
-split; intros Hab. {
-  apply Q.lt_iff in Hab.
-  apply Q.lt_iff.
-  destruct Hab as (Hab, Habz).
-Theorem Q_le_0_sub : ∀ a b, (0 ≤ b - a ↔ a ≤ b)%Q.
-Proof.
-intros.
-Theorem Q_add_le_compat : ∀ a b c d, (a ≤ b → c ≤ d → a + c ≤ b + d)%Q.
-Proof.
-intros * Hle1 Hle2.
 Theorem Q_add_le_mono_l : ∀ a b c, (b ≤ c → a + b ≤ a + c)%Q.
 Proof.
 intros * Hle.
@@ -748,6 +727,60 @@ destruct sc. {
   rewrite Nat.sub_add; [ | flia ].
   apply Nat.compare_le_iff; flia.
 }
+cbn.
+progress unfold Z.le in Hle; cbn in Hle.
+rewrite Nat_compare_sub_cancel_r in Hle; [ | easy | easy ].
+apply Nat.compare_le_iff in Hle.
+progress unfold Z.le; cbn.
+progress unfold pos_mul.
+rewrite Nat.sub_add; [ | easy ].
+rewrite Nat.sub_add; [ | easy ].
+rewrite Nat_compare_sub_cancel_r; [ | flia | flia ].
+rewrite <- Nat.add_sub_swap; [ | easy ].
+rewrite Nat.sub_add; [ | flia ].
+rewrite <- Nat.add_sub_swap; [ | easy ].
+rewrite Nat.sub_add; [ | flia ].
+apply Nat.compare_le_iff.
+do 2 rewrite <- Nat.mul_assoc.
+apply Nat.mul_le_mono_pos_l; [ easy | ].
+rewrite Nat.add_sub_assoc; [ | easy ].
+rewrite Nat.add_sub_assoc; [ | easy ].
+rewrite Nat.sub_add; [ | flia ].
+rewrite Nat.sub_add; [ | flia ].
+do 2 rewrite (Nat.mul_add_distr_l _ (_ * _)).
+do 4 rewrite Nat.mul_assoc.
+rewrite (Nat.mul_comm (cd + 1)).
+apply Nat.add_le_mono_l.
+do 2 rewrite (Nat.mul_shuffle0 _ (ad + 1)).
+now apply Nat.mul_le_mono_pos_r.
+Qed.
+
+Theorem Qdiv_lt_compat_r : ∀ x y z, 0 < z → x < y → x / z < y / z.
+Proof.
+intros * Hz Hxy.
+Theorem Q_mul_lt_mono_pos_l :
+  ∀ a b c, (0 < a)%Q → (b < c)%Q ↔ (a * b < a * c)%Q.
+Proof.
+intros * Hza.
+split; intros Hbc. {
+Theorem Q_lt_0_sub : ∀ a b, (0 < b - a ↔ a < b)%Q.
+Proof.
+intros.
+split; intros Hab. {
+  apply Q.lt_iff in Hab.
+  apply Q.lt_iff.
+  destruct Hab as (Hab, Habz).
+Theorem Q_le_0_sub : ∀ a b, (0 ≤ b - a ↔ a ≤ b)%Q.
+Proof.
+intros.
+Theorem Q_add_le_compat : ∀ a b c d, (a ≤ b → c ≤ d → a + c ≤ b + d)%Q.
+Proof.
+intros * Hle1 Hle2.
+Theorem Q_le_trans : ∀ a b c, (a ≤ b → b ≤ c → a ≤ c)%Q.
+Proof.
+intros * Hle1 Hle2.
+... ...
+eapply Q_le_trans.
 ... ...
 specialize Q.add_le_compat as H1.
 split; intros Hab. {
