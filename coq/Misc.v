@@ -780,6 +780,40 @@ Theorem Q_le_trans : ∀ a b c, (a ≤ b → b ≤ c → a ≤ c)%Q.
 Proof.
 intros * Hle1 Hle2.
 progress unfold Q.le in Hle1, Hle2 |-*.
+progress unfold q_Den in Hle1, Hle2 |-*.
+remember (q_num a) as an eqn:H; clear H.
+remember (q_num b) as bn eqn:H; clear H.
+remember (q_num c) as cn eqn:H; clear H.
+remember (q_den a) as ad eqn:H; clear H.
+remember (q_den b) as bd eqn:H; clear H.
+remember (q_den c) as cd eqn:H; clear H.
+move cn before bn; move cd before bd.
+clear a b c.
+destruct bn as [| sb vb]. {
+  cbn in Hle1, Hle2.
+  destruct an as [| sa va]. {
+    clear Hle1; cbn.
+    destruct cn as [| sc vc]; [ easy | ].
+    rewrite Nat.add_1_r in Hle2 |-*.
+    now destruct sc.
+  }
+  destruct sa; [ now rewrite Nat.add_1_r in Hle1 | clear Hle1 ].
+  destruct cn as [| sc vc]; [ now rewrite Nat.add_1_r | cbn ].
+  rewrite (Nat.add_1_r cd), (Nat.add_1_r ad); cbn.
+  destruct sc; [ easy | ].
+  now rewrite Nat.add_1_r in Hle2.
+}
+...
+Check Z.mul_le_mono_nonneg_r.
+apply (Z.mul_le_mono_nonneg_r (q_num b * q_Den b)); [ | ].
+      do 2 rewrite Nat.mul_assoc.
+      replace ((vb + 1) * (ad + 1) * (vc + 1) * (cd + 1))%nat with
+        (((ad + 1) * (vc + 1)) * ((cd + 1) * (vb + 1)))%nat by flia.
+      replace ((bd + 1) * (va + 1) * (vc + 1) * (cd + 1))%nat with
+        (((cd + 1) * (va + 1)) * ((bd + 1) * (vc + 1)))%nat by flia.
+      apply Nat.lt_le_incl in Hy.
+      now apply Nat.mul_le_mono.
+...
 apply (Z.mul_le_mono_pos_r (q_Den b)); [ apply Q.q_Den_pos | ].
 ...
 apply (Z.mul_le_mono_pos_r (q_Den c)); [ apply Q.q_Den_pos | ].
