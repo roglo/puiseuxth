@@ -640,6 +640,8 @@ destruct sb. {
 (**)
     destruct y; [ exfalso | | exfalso ]. {
       apply Nat.compare_eq_iff in Hy.
+      apply Nat.nle_gt in Hx.
+      apply Hx; clear Hx.
 ...
     destruct y; [ | | ].
     apply Nat.compare_lt_iff in Hy.
