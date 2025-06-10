@@ -803,20 +803,39 @@ destruct bn as [| sb vb]. {
   destruct sc; [ easy | ].
   now rewrite Nat.add_1_r in Hle2.
 }
-...
-Check Z.mul_le_mono_nonneg_r.
-apply (Z.mul_le_mono_nonneg_r (q_num b * q_Den b)); [ | ].
-      do 2 rewrite Nat.mul_assoc.
-      replace ((vb + 1) * (ad + 1) * (vc + 1) * (cd + 1))%nat with
-        (((ad + 1) * (vc + 1)) * ((cd + 1) * (vb + 1)))%nat by flia.
-      replace ((bd + 1) * (va + 1) * (vc + 1) * (cd + 1))%nat with
-        (((cd + 1) * (va + 1)) * ((bd + 1) * (vc + 1)))%nat by flia.
-      apply Nat.lt_le_incl in Hy.
-      now apply Nat.mul_le_mono.
-...
-apply (Z.mul_le_mono_pos_r (q_Den b)); [ apply Q.q_Den_pos | ].
-...
-apply (Z.mul_le_mono_pos_r (q_Den c)); [ apply Q.q_Den_pos | ].
+destruct sb. {
+  destruct an as [| sa va]. {
+    clear Hle1; cbn.
+    destruct cn as [| sc vc]; [ easy | ].
+    do 2 rewrite Nat.add_1_r in Hle2.
+    rewrite Nat.add_1_r.
+    now destruct sc.
+  }
+  destruct sa. {
+    destruct cn as [| sc vc]; [ now rewrite Nat.add_1_r in Hle2 | ].
+    destruct sc; [ | now do 2 rewrite Nat.add_1_r in Hle2 ].
+    do 2 rewrite Nat.add_1_r in Hle1, Hle2 |-*.
+    progress unfold Z.le in Hle1, Hle2 |-*.
+    cbn in Hle1, Hle2 |-*.
+    rewrite Nat_compare_sub_cancel_r in Hle1; [ | easy | easy ].
+    rewrite Nat_compare_sub_cancel_r in Hle2; [ | easy | easy ].
+    rewrite Nat_compare_sub_cancel_r; [ | easy | easy ].
+    apply Nat.compare_le_iff in Hle1, Hle2.
+    apply Nat.compare_le_iff.
+    apply (Nat.mul_le_mono_pos_r _ _ ((bd + 1) * (vb + 1))); [ flia | ].
+    do 2 rewrite Nat.mul_assoc.
+    progress replace ((va + 1) * (cd + 1) * (bd + 1) * (vb + 1))%nat with
+      (((va + 1) * (bd + 1)) * ((vb + 1) * (cd + 1)))%nat by flia.
+    progress replace ((vc + 1) * (ad + 1) * (bd + 1) * (vb + 1))%nat with
+      (((vb + 1) * (ad + 1)) * ((vc + 1) * (bd + 1)))%nat by flia.
+    now apply Nat.mul_le_mono.
+  }
+  destruct cn as [| sc vc]; [ now do 2 rewrite Nat.add_1_r | ].
+  destruct sc; [ now do 2 rewrite Nat.add_1_r | ].
+  now do 2 rewrite Nat.add_1_r in Hle2.
+}
+destruct an as [| sa va]; [ now do 2 rewrite Nat.add_1_r in Hle1 | ].
+destruct sa; [ now do 2 rewrite Nat.add_1_r in Hle1 | ].
 ... ...
 eapply Q_le_trans.
 ... ...
