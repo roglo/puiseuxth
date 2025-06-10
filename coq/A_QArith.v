@@ -19,6 +19,66 @@ Bind Scope Q_scope with Q.
 Definition q_Den a := Z.of_nat (q_den a + 1).
 Definition pos_mul a b := (a + 1) * (b + 1) - 1.
 
+(* misc *)
+
+Theorem Nat_compare_sub_cancel_l :
+  ∀ a b c,
+  (b <= a)%nat
+  → (c <= a)%nat
+  → (a - b ?= a - c)%nat = (c ?= b)%nat.
+Proof.
+intros * Hle1 Hle2.
+revert a b Hle1 Hle2.
+induction c; intros; cbn. {
+  rewrite Nat.sub_0_r.
+  destruct b. {
+    apply Nat.compare_eq_iff.
+    apply Nat.sub_0_r.
+  }
+  apply Nat.compare_lt_iff.
+  flia Hle1.
+}
+destruct b. {
+  apply Nat.compare_gt_iff.
+  rewrite Nat.sub_0_r.
+  flia Hle2.
+}
+destruct a; [ easy | cbn ].
+apply Nat.succ_le_mono in Hle1, Hle2.
+apply (IHc _ _ Hle1 Hle2).
+Qed.
+
+Theorem Nat_compare_sub_cancel_r :
+  ∀ a b c,
+  (c <= a)%nat
+  → (c <= b)%nat
+  → (a - c ?= b - c)%nat = (a ?= b)%nat.
+Proof.
+intros * Hle1 Hle2.
+revert b c Hle1 Hle2.
+induction a; intros; cbn. {
+  apply Nat.le_0_r in Hle1; subst c.
+  now rewrite Nat.sub_0_r.
+}
+destruct b. {
+  now apply Nat.le_0_r in Hle2; subst c.
+}
+destruct c; [ easy | cbn ].
+apply Nat.succ_le_mono in Hle1, Hle2.
+apply (IHa _ _ Hle1 Hle2).
+Qed.
+
+Theorem Nat_1_le_mul_add_1 : ∀ a b, (1 <= (a + 1) * (b + 1))%nat.
+Proof. flia. Qed.
+
+Theorem Nat_add_1_r_pos : ∀ a, (0 < a + 1)%nat.
+Proof. flia. Qed.
+
+Hint Resolve Nat_1_le_mul_add_1 : core.
+Hint Resolve Nat_add_1_r_pos : core.
+
+(* end misc *)
+
 Module Q.
 
 Open Scope Z_scope.
@@ -342,6 +402,70 @@ split. {
   intros H; apply Heq; clear Heq.
   now apply Q.le_antisymm.
 }
+Qed.
+
+Theorem le_trans : ∀ a b c, (a ≤ b → b ≤ c → a ≤ c)%Q.
+Proof.
+intros * Hle1 Hle2.
+progress unfold Q.le in Hle1, Hle2 |-*.
+progress unfold q_Den in Hle1, Hle2 |-*.
+remember (q_num a) as an eqn:H; clear H.
+remember (q_num b) as bn eqn:H; clear H.
+remember (q_num c) as cn eqn:H; clear H.
+remember (q_den a) as ad eqn:H; clear H.
+remember (q_den b) as bd eqn:H; clear H.
+remember (q_den c) as cd eqn:H; clear H.
+move cn before bn; move cd before bd.
+clear a b c.
+do 2 rewrite Nat.add_1_r in Hle1, Hle2 |-*.
+destruct bn as [| sb vb]. {
+  destruct an as [| sa va]; [ now destruct cn | ].
+  destruct sa; [ easy | ].
+  destruct cn as [| sc vc]; [ easy | now destruct sc ].
+}
+destruct sb. {
+  destruct an as [| sa va]. {
+    destruct cn as [| sc vc]; [ easy | now destruct sc ].
+  }
+  destruct sa. {
+    destruct cn as [| sc vc]; [ easy | ].
+    destruct sc; [ | easy ].
+    progress unfold Z.le in Hle1, Hle2 |-*.
+    cbn in Hle1, Hle2 |-*.
+    rewrite Nat_compare_sub_cancel_r in Hle1; [ | easy | easy ].
+    rewrite Nat_compare_sub_cancel_r in Hle2; [ | easy | easy ].
+    rewrite Nat_compare_sub_cancel_r; [ | easy | easy ].
+    apply Nat.compare_le_iff in Hle1, Hle2.
+    apply Nat.compare_le_iff.
+    apply (Nat.mul_le_mono_pos_r _ _ ((bd + 1) * (vb + 1))); [ flia | ].
+    do 2 rewrite Nat.mul_assoc.
+    progress replace ((va + 1) * (cd + 1) * (bd + 1) * (vb + 1))%nat with
+      (((va + 1) * (bd + 1)) * ((vb + 1) * (cd + 1)))%nat by flia.
+    progress replace ((vc + 1) * (ad + 1) * (bd + 1) * (vb + 1))%nat with
+      (((vb + 1) * (ad + 1)) * ((vc + 1) * (bd + 1)))%nat by flia.
+    now apply Nat.mul_le_mono.
+  }
+  destruct cn as [| sc vc]; [ easy | now destruct sc ].
+}
+destruct an as [| sa va]; [ easy | ].
+destruct sa; [ easy | ].
+destruct cn as [| sc vc]; [ easy | ].
+destruct sc; [ easy | ].
+cbn in Hle1, Hle2 |-*.
+progress unfold Z.le in Hle1, Hle2 |-*.
+cbn in Hle1, Hle2 |-*.
+rewrite Nat_compare_sub_cancel_r in Hle1; [ | easy | easy ].
+rewrite Nat_compare_sub_cancel_r in Hle2; [ | easy | easy ].
+rewrite Nat_compare_sub_cancel_r; [ | easy | easy ].
+apply Nat.compare_le_iff in Hle1, Hle2.
+apply Nat.compare_le_iff.
+apply (Nat.mul_le_mono_pos_r _ _ ((bd + 1) * (vb + 1))); [ flia | ].
+do 2 rewrite Nat.mul_assoc.
+progress replace ((va + 1) * (cd + 1) * (bd + 1) * (vb + 1))%nat with
+  (((va + 1) * (bd + 1)) * ((vb + 1) * (cd + 1)))%nat by flia.
+progress replace ((vc + 1) * (ad + 1) * (bd + 1) * (vb + 1))%nat with
+  (((vb + 1) * (ad + 1)) * ((vc + 1) * (bd + 1)))%nat by flia.
+now apply Nat.mul_le_mono.
 Qed.
 
 End Q.

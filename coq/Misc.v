@@ -204,53 +204,6 @@ Qed.
 Theorem q_Den_num_den : ∀ a b, q_Den (a # b) = Z.of_nat (b + 1).
 Proof. easy. Qed.
 
-Theorem Nat_compare_sub_cancel_l :
-  ∀ a b c,
-  (b <= a)%nat
-  → (c <= a)%nat
-  → (a - b ?= a - c)%nat = (c ?= b)%nat.
-Proof.
-intros * Hle1 Hle2.
-revert a b Hle1 Hle2.
-induction c; intros; cbn. {
-  rewrite Nat.sub_0_r.
-  destruct b. {
-    apply Nat.compare_eq_iff.
-    apply Nat.sub_0_r.
-  }
-  apply Nat.compare_lt_iff.
-  flia Hle1.
-}
-destruct b. {
-  apply Nat.compare_gt_iff.
-  rewrite Nat.sub_0_r.
-  flia Hle2.
-}
-destruct a; [ easy | cbn ].
-apply Nat.succ_le_mono in Hle1, Hle2.
-apply (IHc _ _ Hle1 Hle2).
-Qed.
-
-Theorem Nat_compare_sub_cancel_r :
-  ∀ a b c,
-  (c <= a)%nat
-  → (c <= b)%nat
-  → (a - c ?= b - c)%nat = (a ?= b)%nat.
-Proof.
-intros * Hle1 Hle2.
-revert b c Hle1 Hle2.
-induction a; intros; cbn. {
-  apply Nat.le_0_r in Hle1; subst c.
-  now rewrite Nat.sub_0_r.
-}
-destruct b. {
-  now apply Nat.le_0_r in Hle2; subst c.
-}
-destruct c; [ easy | cbn ].
-apply Nat.succ_le_mono in Hle1, Hle2.
-apply (IHa _ _ Hle1 Hle2).
-Qed.
-
 Theorem Nat_sub_lt_mono_l :
   ∀ a b c, (c < a ∨ b <= a → c < b → a - b < a - c)%nat.
 Proof. intros * H1 H2; flia H1 H2. Qed.
@@ -258,15 +211,6 @@ Proof. intros * H1 H2; flia H1 H2. Qed.
 Theorem Nat_sub_lt_mono_r :
   ∀ a b c, (c < b ∨ c <= a → a < b → a - c < b - c)%nat.
 Proof. intros * H1 H2; flia H1 H2. Qed.
-
-Theorem Nat_1_le_mul_add_1 : ∀ a b, (1 <= (a + 1) * (b + 1))%nat.
-Proof. flia. Qed.
-
-Theorem Nat_add_1_r_pos : ∀ a, (0 < a + 1)%nat.
-Proof. flia. Qed.
-
-Hint Resolve Nat_1_le_mul_add_1 : core.
-Hint Resolve Nat_add_1_r_pos : core.
 
 Theorem Q_add_le_mono_l : ∀ a b c, (b ≤ c → a + b ≤ a + c)%Q.
 Proof.
@@ -755,6 +699,21 @@ do 2 rewrite (Nat.mul_shuffle0 _ (ad + 1)).
 now apply Nat.mul_le_mono_pos_r.
 Qed.
 
+Theorem Q_add_le_mono_r : ∀ a b c, (a ≤ b → a + c ≤ b + c)%Q.
+Proof.
+intros * Hle.
+do 2 rewrite (Q.add_comm _ c).
+now apply Q_add_le_mono_l.
+Qed.
+
+Theorem Q_add_le_compat : ∀ a b c d, (a ≤ b → c ≤ d → a + c ≤ b + d)%Q.
+Proof.
+intros * Hle1 Hle2.
+apply (Q.le_trans _ (a + d)).
+apply Q_add_le_mono_l, Hle2.
+apply Q_add_le_mono_r, Hle1.
+Qed.
+
 Theorem Qdiv_lt_compat_r : ∀ x y z, 0 < z → x < y → x / z < y / z.
 Proof.
 intros * Hz Hxy.
@@ -773,73 +732,8 @@ split; intros Hab. {
 Theorem Q_le_0_sub : ∀ a b, (0 ≤ b - a ↔ a ≤ b)%Q.
 Proof.
 intros.
-Theorem Q_add_le_compat : ∀ a b c d, (a ≤ b → c ≤ d → a + c ≤ b + d)%Q.
-Proof.
-intros * Hle1 Hle2.
-Theorem Q_le_trans : ∀ a b c, (a ≤ b → b ≤ c → a ≤ c)%Q.
-Proof.
-intros * Hle1 Hle2.
-progress unfold Q.le in Hle1, Hle2 |-*.
-progress unfold q_Den in Hle1, Hle2 |-*.
-remember (q_num a) as an eqn:H; clear H.
-remember (q_num b) as bn eqn:H; clear H.
-remember (q_num c) as cn eqn:H; clear H.
-remember (q_den a) as ad eqn:H; clear H.
-remember (q_den b) as bd eqn:H; clear H.
-remember (q_den c) as cd eqn:H; clear H.
-move cn before bn; move cd before bd.
-clear a b c.
-destruct bn as [| sb vb]. {
-  cbn in Hle1, Hle2.
-  destruct an as [| sa va]. {
-    clear Hle1; cbn.
-    destruct cn as [| sc vc]; [ easy | ].
-    rewrite Nat.add_1_r in Hle2 |-*.
-    now destruct sc.
-  }
-  destruct sa; [ now rewrite Nat.add_1_r in Hle1 | clear Hle1 ].
-  destruct cn as [| sc vc]; [ now rewrite Nat.add_1_r | cbn ].
-  rewrite (Nat.add_1_r cd), (Nat.add_1_r ad); cbn.
-  destruct sc; [ easy | ].
-  now rewrite Nat.add_1_r in Hle2.
-}
-destruct sb. {
-  destruct an as [| sa va]. {
-    clear Hle1; cbn.
-    destruct cn as [| sc vc]; [ easy | ].
-    do 2 rewrite Nat.add_1_r in Hle2.
-    rewrite Nat.add_1_r.
-    now destruct sc.
-  }
-  destruct sa. {
-    destruct cn as [| sc vc]; [ now rewrite Nat.add_1_r in Hle2 | ].
-    destruct sc; [ | now do 2 rewrite Nat.add_1_r in Hle2 ].
-    do 2 rewrite Nat.add_1_r in Hle1, Hle2 |-*.
-    progress unfold Z.le in Hle1, Hle2 |-*.
-    cbn in Hle1, Hle2 |-*.
-    rewrite Nat_compare_sub_cancel_r in Hle1; [ | easy | easy ].
-    rewrite Nat_compare_sub_cancel_r in Hle2; [ | easy | easy ].
-    rewrite Nat_compare_sub_cancel_r; [ | easy | easy ].
-    apply Nat.compare_le_iff in Hle1, Hle2.
-    apply Nat.compare_le_iff.
-    apply (Nat.mul_le_mono_pos_r _ _ ((bd + 1) * (vb + 1))); [ flia | ].
-    do 2 rewrite Nat.mul_assoc.
-    progress replace ((va + 1) * (cd + 1) * (bd + 1) * (vb + 1))%nat with
-      (((va + 1) * (bd + 1)) * ((vb + 1) * (cd + 1)))%nat by flia.
-    progress replace ((vc + 1) * (ad + 1) * (bd + 1) * (vb + 1))%nat with
-      (((vb + 1) * (ad + 1)) * ((vc + 1) * (bd + 1)))%nat by flia.
-    now apply Nat.mul_le_mono.
-  }
-  destruct cn as [| sc vc]; [ now do 2 rewrite Nat.add_1_r | ].
-  destruct sc; [ now do 2 rewrite Nat.add_1_r | ].
-  now do 2 rewrite Nat.add_1_r in Hle2.
-}
-destruct an as [| sa va]; [ now do 2 rewrite Nat.add_1_r in Hle1 | ].
-destruct sa; [ now do 2 rewrite Nat.add_1_r in Hle1 | ].
-... ...
-eapply Q_le_trans.
-... ...
-specialize Q.add_le_compat as H1.
+specialize Q_add_le_compat as H1.
+...
 split; intros Hab. {
   specialize (H1 0%L (b - a)%L a a Hab (rngl_le_refl Hor _)).
   rewrite <- (rngl_sub_sub_distr Hop) in H1.
