@@ -714,6 +714,16 @@ apply Q_add_le_mono_l, Hle2.
 apply Q_add_le_mono_r, Hle1.
 Qed.
 
+Theorem Q_sub_diag : ∀ a, a - a == 0.
+Proof.
+intros.
+progress unfold Q.eq; cbn.
+progress unfold q_Den; cbn.
+rewrite Z.mul_1_r.
+rewrite Z.mul_opp_l.
+apply Z.add_opp_diag_r.
+Qed.
+
 Theorem Qdiv_lt_compat_r : ∀ x y z, 0 < z → x < y → x / z < y / z.
 Proof.
 intros * Hz Hxy.
@@ -733,10 +743,27 @@ Theorem Q_le_0_sub : ∀ a b, (0 ≤ b - a ↔ a ≤ b)%Q.
 Proof.
 intros.
 specialize Q_add_le_compat as H1.
-...
 split; intros Hab. {
-  specialize (H1 0%L (b - a)%L a a Hab (rngl_le_refl Hor _)).
-  rewrite <- (rngl_sub_sub_distr Hop) in H1.
+  specialize (H1 0 (b - a) a a Hab (Q.le_refl _)).
+Theorem Q_sub_add : ∀ a b, a - b + b == a.
+Proof.
+intros.
+rewrite <- Q_add_sub_swap.
+rewrite <- Q_add_sub_assoc.
+... ...
+rewrite Q_sub_diag.
+...
+intros.
+destruct a as (an, ad); cbn.
+destruct b as (bn, bd); cbn.
+progress unfold Q.eq, Q.sub, Q.opp, Q.add, q_Den; cbn.
+rewrite Nat.sub_add; [ | easy ].
+rewrite Nat.sub_add; [ | flia ].
+progress f_equal. {
+Search (_ + _ - _)%Q.
+...
+  rewrite Q.sub_add in H1.
+  rewrite <- rngl_sub_sub_distr in H1.
   rewrite (rngl_sub_diag Hos) in H1.
   now rewrite rngl_add_0_l, (rngl_sub_0_r Hos) in H1.
 } {

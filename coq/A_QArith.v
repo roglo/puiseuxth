@@ -372,6 +372,20 @@ do 2 rewrite <- Z.mul_assoc in Hle.
 apply Z.mul_le_mono_pos_l in Hle; [ easy | apply q_Den_pos ].
 Qed.
 
+Global Instance Q_add_morph : Proper (Q.eq ==> Q.eq ==> Q.eq) Q.add.
+Proof.
+intros a b Hab c d Hcd.
+move c before b; move d before c.
+progress unfold Q.eq in Hab, Hcd |-*.
+progress unfold Q.add; cbn.
+progress unfold q_Den; cbn.
+progress unfold pos_mul.
+rewrite Nat.sub_add; [ | easy ].
+rewrite Nat.sub_add; [ | easy ].
+do 2 rewrite Nat2Z.inj_mul.
+(* chais pas *)
+...
+
 Global Instance le_morph : Proper (Q.eq ==> Q.eq ==> iff) Q.le.
 Proof.
 intros a b Hab c d Hcd.
