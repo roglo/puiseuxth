@@ -627,22 +627,21 @@ destruct sb. {
     apply Nat.compare_gt_iff in Hy.
     apply Nat.nle_gt in Hy.
     apply Hy; clear Hy.
-(**)
     apply (Nat.mul_le_mono_pos_r _ _ (vb + 1)); [ easy | ].
     rewrite (Nat.mul_shuffle0 (ad + 1)).
     rewrite <- Hx.
-...
-    rewrite (Nat.mul_comm ((cd + 1) * (vb + 1))) in Hle.
-    rewrite Nat.mul_assoc in Hle.
-    apply <- Nat.mul_le_mono_pos_r in Hle; [ | flia ].
-    do 2 rewrite <- Nat.mul_assoc in Hle.
-    apply <- Nat.mul_le_mono_pos_l in Hle; [ | flia ].
-    flia Hle.
+    do 2 rewrite (Nat.mul_shuffle0 _ (va + 1)).
+    now apply Nat.mul_le_mono_r.
   } {
     apply Nat.compare_lt_iff in Hx.
+    rewrite Nat_compare_sub_cancel_r; [ | easy | easy ].
     remember (_ ?= _)%nat as y eqn:Hy in |-*.
     symmetry in Hy.
-    destruct y; [ easy | | easy ].
+(**)
+    destruct y; [ exfalso | | exfalso ]. {
+      apply Nat.compare_eq_iff in Hy.
+...
+    destruct y; [ | | ].
     apply Nat.compare_lt_iff in Hy.
     progress unfold Z.le; cbn.
     progress unfold pos_mul.
