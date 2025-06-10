@@ -779,6 +779,10 @@ intros * Hle1 Hle2.
 Theorem Q_le_trans : ∀ a b c, (a ≤ b → b ≤ c → a ≤ c)%Q.
 Proof.
 intros * Hle1 Hle2.
+progress unfold Q.le in Hle1, Hle2 |-*.
+apply (Z.mul_le_mono_pos_r (q_Den b)); [ apply Q.q_Den_pos | ].
+...
+apply (Z.mul_le_mono_pos_r (q_Den c)); [ apply Q.q_Den_pos | ].
 ... ...
 eapply Q_le_trans.
 ... ...
