@@ -629,11 +629,9 @@ destruct sb. {
     apply Hy; clear Hy.
 (**)
     apply (Nat.mul_le_mono_pos_r _ _ (vb + 1)); [ easy | ].
+    rewrite (Nat.mul_shuffle0 (ad + 1)).
+    rewrite <- Hx.
 ...
-    apply (Nat.mul_le_mono_r _ _ ((bd + 1) * (va + 1))) in Hle.
-    rewrite Hx in Hle at 1.
-    rewrite Nat.mul_assoc in Hle.
-    rewrite (Nat.mul_shuffle0 (bd + 1)) in Hle.
     rewrite (Nat.mul_comm ((cd + 1) * (vb + 1))) in Hle.
     rewrite Nat.mul_assoc in Hle.
     apply <- Nat.mul_le_mono_pos_r in Hle; [ | flia ].
