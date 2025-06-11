@@ -93,7 +93,7 @@ Qed.
 
 Definition Q1 x := q_Den x # q_den x.
 
-Theorem Q_mul_add_distr_l : ∀ x y z, x * (y + z) * Q1 x = x * y + x * z.
+Theorem Q_mul_add_distr_l' : ∀ x y z, x * (y + z) * Q1 x = x * y + x * z.
 Proof.
 intros.
 progress unfold Q.add.
@@ -122,11 +122,11 @@ progress f_equal. {
 }
 Qed.
 
-Theorem Q_mul_add_distr_r : ∀ x y z, (x + y) * z * Q1 z = x * z + y * z.
+Theorem Q_mul_add_distr_r' : ∀ x y z, (x + y) * z * Q1 z = x * z + y * z.
 Proof.
 intros.
 rewrite (Q.mul_comm (_ + _)).
-rewrite Q_mul_add_distr_l.
+rewrite Q_mul_add_distr_l'.
 now do 2 rewrite (Q.mul_comm z).
 Qed.
 
@@ -146,6 +146,39 @@ apply Nat2Z.inj_mul.
 Qed.
 
 (* *)
+
+Theorem Q_mul_add_distr_l : ∀ x y z, x * (y + z) == x * y + x * z.
+Proof.
+intros.
+rewrite <- Q_mul_add_distr_l'.
+symmetry.
+apply Q_mul_Q1_r.
+Qed.
+
+Theorem Q_mul_add_distr_r : ∀ x y z, (x + y) * z == x * z + y * z.
+Proof.
+intros.
+rewrite (Q.mul_comm (_ + _)).
+rewrite Q_mul_add_distr_l.
+now do 2 rewrite (Q.mul_comm z).
+Qed.
+
+Theorem Q_mul_sub_distr_l : ∀ x y z, x * (y - z) == x * y - x * z.
+Proof.
+intros.
+progress unfold Q.sub.
+rewrite Q_mul_add_distr_l.
+apply Q.add_compat_l.
+now rewrite Q.mul_opp_r.
+Qed.
+
+Theorem Q_mul_sub_distr_r : ∀ x y z, (x - y) * z == x * z - y * z.
+Proof.
+intros.
+rewrite (Q.mul_comm (_ - _)).
+rewrite Q_mul_sub_distr_l.
+now do 2 rewrite (Q.mul_comm z).
+Qed.
 
 Definition Qnat i := Z.of_nat i # 1.
 
@@ -180,9 +213,8 @@ Proof.
 intros * Hza.
 split; intros Hbc. {
   apply Q.lt_0_sub.
-Check Q_mul_add_distr_l.
 ...
-Check Q_mul_sub_distr_l.
+  rewrite Q_mul_sub_distr_l.
 ... ...
   rewrite <- Q_mul_sub_distr_l.
   rewrite <- (rngl_mul_sub_distr_l Hop).
