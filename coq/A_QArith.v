@@ -3,6 +3,7 @@
   [mk_q d n] represents the rationnal d/(n+1)
 *)
 
+Set Nested Proofs Allowed.
 From Stdlib Require Import Utf8 Arith.
 From Stdlib Require Import Morphisms.
 Require Import A_ZArith.
@@ -372,19 +373,46 @@ do 2 rewrite <- Z.mul_assoc in Hle.
 apply Z.mul_le_mono_pos_l in Hle; [ easy | apply q_Den_pos ].
 Qed.
 
-Global Instance Q_add_morph : Proper (Q.eq ==> Q.eq ==> Q.eq) Q.add.
+Theorem add_compat_l : ∀ a b c, (b == c → a + b == a + c)%Q.
 Proof.
-intros a b Hab c d Hcd.
-move c before b; move d before c.
-progress unfold Q.eq in Hab, Hcd |-*.
+intros * Heq.
+progress unfold Q.eq in Heq |-*; cbn.
+do 2 rewrite (Z.mul_comm (_ + _)).
+do 2 rewrite (Z.add_comm (q_num a * _)).
 progress unfold Q.add; cbn.
 progress unfold q_Den; cbn.
 progress unfold pos_mul.
 rewrite Nat.sub_add; [ | easy ].
 rewrite Nat.sub_add; [ | easy ].
 do 2 rewrite Nat2Z.inj_mul.
-(* chais pas *)
-...
+do 2 rewrite <- Z.mul_assoc.
+progress f_equal.
+progress unfold q_Den in Heq.
+do 2 rewrite Z.mul_add_distr_l.
+do 4 rewrite Z.mul_assoc.
+rewrite (Z.mul_comm _ (q_num b)).
+rewrite Heq.
+rewrite (Z.mul_comm (q_num c)).
+progress f_equal.
+do 2 rewrite (Z.mul_mul_swap _ (q_num a)).
+progress f_equal.
+apply Z.mul_comm.
+Qed.
+
+Theorem add_compat_r : ∀ a b c, (a == b → a + c == b + c)%Q.
+Proof.
+intros * Heq.
+do 2 rewrite (Q.add_comm _ c).
+now apply Q.add_compat_l.
+Qed.
+
+Global Instance add_morph : Proper (Q.eq ==> Q.eq ==> Q.eq) Q.add.
+Proof.
+intros a b Hab c d Hcd.
+transitivity (a + d)%Q.
+now apply Q.add_compat_l.
+now apply Q.add_compat_r.
+Qed.
 
 Global Instance le_morph : Proper (Q.eq ==> Q.eq ==> iff) Q.le.
 Proof.
