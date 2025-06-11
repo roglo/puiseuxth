@@ -475,6 +475,12 @@ now apply Q.sub_compat_l.
 now apply Q.sub_compat_r.
 Qed.
 
+Global Instance mul_morph : Proper (Q.eq ==> Q.eq ==> Q.eq) Q.mul.
+Proof.
+intros a b Hab c d Hcd.
+Search (_ * _ == _ * _)%Q.
+...
+
 Global Instance le_morph : Proper (Q.eq ==> Q.eq ==> iff) Q.le.
 Proof.
 intros a b Hab c d Hcd.

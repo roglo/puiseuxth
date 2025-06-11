@@ -334,6 +334,32 @@ do 2 rewrite Z.mul_opp_l.
 apply Z_opp_le_compat.
 Qed.
 
+Theorem Q_mul_0_l : ∀ a, (0 * a == 0)%Q.
+Proof. easy. Qed.
+
+Theorem Q_mul_nonneg_nonpos : ∀ a b, (0 ≤ a → b ≤ 0 → a * b ≤ 0)%Q.
+Proof.
+intros * Ha Hb.
+specialize Q_mul_le_compat_nonneg as H1.
+specialize (H1 0 0 a (- b))%Q.
+assert (H : (0 ≤ 0 ≤ a)%Q) by now split; [ apply Q.le_refl | ].
+specialize (H1 H); clear H.
+assert (H : (0 ≤ 0 ≤ - b)%Q). {
+  split; [ apply Q.le_refl | ].
+  apply Q_opp_le_compat in Hb.
+  now rewrite Q_opp_0 in Hb.
+}
+specialize (H1 H); clear H.
+rewrite Q_mul_0_l in H1.
+rewrite Q.mul_opp_r in H1.
+apply Q_opp_le_compat in H1.
+rewrite Q.opp_involutive in H1.
+now rewrite Q_opp_0 in H1.
+Qed.
+
+Theorem Q_nlt_ge_iff : ∀ a b, (¬ (a < b) ↔ b ≤ a)%Q.
+Proof. intros; apply Z.nlt_ge. Qed.
+
 Theorem Qdiv_lt_compat_r : ∀ x y z, 0 < z → x < y → x / z < y / z.
 Proof.
 intros * Hz Hxy.
@@ -362,44 +388,20 @@ split; intros Hz2. {
     apply Q_lt_eq_cases in Hlem.
     destruct Hlem as [Hlem| H]; [ | easy ].
     apply Q.nle_gt in Hlem.
-Theorem Q_nlt_ge_iff : ∀ a b, (¬ (a < b) ↔ b ≤ a)%Q.
-Admitted.
     apply Q_nlt_ge_iff.
     intros H; apply Hlem;  clear Hlem.
-About rngl_mul_nonneg_nonpos.
-Theorem Q_mul_nonneg_nonpos : ∀ a b, (0 ≤ a → b ≤ 0 → a * b ≤ 0)%Q.
-Proof.
-intros * Ha Hb.
-specialize Q_mul_le_compat_nonneg as H1.
-specialize (H1 0 0 a (- b))%Q.
-assert (H : (0 ≤ 0 ≤ a)%Q) by now split; [ apply Q.le_refl | ].
-specialize (H1 H); clear H.
-assert (H : (0 ≤ 0 ≤ - b)%Q). {
-  split; [ apply Q.le_refl | ].
-  apply Q_opp_le_compat in Hb.
-  now rewrite Q_opp_0 in Hb.
-}
-specialize (H1 H); clear H.
-...
-rewrite Q.mul_0_l in H1.
-rewrite (rngl_mul_opp_r Hop) in H1.
-apply (rngl_opp_le_compat Hop Hor) in H1.
-rewrite (rngl_opp_involutive Hop) in H1.
-now rewrite (rngl_opp_0 Hop) in H1.
-Qed.
-... ...
     apply Q_mul_nonneg_nonpos; [ easy | ].
     now apply Q.lt_le_incl.
-...
-    apply rngl_nle_gt in Habz.
-      apply (rngl_nlt_ge_iff Hor).
-      intros Hb; apply Habz; clear Habz.
-      apply (rngl_mul_nonneg_nonpos Hop Hor); [ easy | ].
-      now apply (rngl_lt_le_incl Hor).
-    }
-    now rewrite Habz in Hzab.
   }
-  intros H; subst b.
+  intros H.
+  rewrite <- H in Hzm.
+...
+  rewrite Q_mul_0_r in Hzm.
+...
+  rewrite <- H.
+  symmetry in H.
+  rewrite H in Hzm.
+; rewrite <- H in Hzm.
   now rewrite (rngl_mul_0_r Hos) in Hzab.
 } {
   now apply (rngl_mul_pos_pos Hos Hor).
