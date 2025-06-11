@@ -237,8 +237,14 @@ split; intros Hbc. {
   now apply Q.lt_0_sub.
 } {
   apply Q.lt_0_sub in Hbc.
+  rewrite <- Q_mul_sub_distr_l in Hbc.
+Theorem Q_mul_pos_cancel_l : ∀ a b, (0 < a → 0 < a * b ↔ 0 < b)%Q.
+Proof.
+intros * Hz.
+split; intros Hz2. {
+... ...
+  apply Q_mul_pos_cancel_l in Hbc; [ | easy ].
 ...
-  rewrite <- (rngl_mul_sub_distr_l Hop) in Hbc.
   apply (rngl_mul_pos_cancel_l Hop Hor Hii) in Hbc; [ | easy ].
   now apply (rngl_lt_0_sub Hop Hor).
 }
