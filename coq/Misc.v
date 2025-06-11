@@ -293,8 +293,48 @@ split; intros Hz2. {
   destruct Hz as (Hle, Hz).
   destruct Hz2 as (Hlem, Hzm).
   split. {
-    apply Q_lt_eq_cases in Hle.
-    destruct Hle as [Hlt| H]; [ | easy ].
+    apply Q_lt_eq_cases in Hlem.
+    destruct Hlem as [Hlem| H]; [ | easy ].
+    apply Q.nle_gt in Hlem.
+Theorem Q_nlt_ge_iff : ∀ a b, (¬ (a < b) ↔ b ≤ a)%Q.
+Admitted.
+    apply Q_nlt_ge_iff.
+    intros H; apply Hlem;  clear Hlem.
+About rngl_mul_nonneg_nonpos.
+Theorem Q_mul_nonneg_nonpos : ∀ a b, (0 ≤ a → b ≤ 0 → a * b ≤ 0)%Q.
+Proof.
+intros * Ha Hb.
+Theorem Q_mul_le_compat_nonneg :
+  ∀ a b c d, (0 ≤ a ≤ c → 0 ≤ b ≤ d → a * b ≤ c * d)%Q.
+Proof.
+intros * (Hz1, Hle1) (Hz2, Hle2).
+apply (Q.le_trans _ (a * d)). {
+Check @rngl_mul_le_mono_nonneg_l.
+Theorem Q_mul_le_mono_nonneg_l : ∀ a b c, (0 ≤ a → b ≤ c → a * b ≤ a * c)%Q.
+Proof.
+intros * Hz Hle.
+... ...
+  now apply Q_mul_le_mono_nonneg_l.
+...
+specialize rngl_mul_le_compat_nonneg as H1.
+specialize (H1 0 0 a (- b))%L.
+assert (H : (0 ≤ 0 ≤ a)%L) by now split; [ apply (rngl_le_refl Hor) | ].
+specialize (H1 H); clear H.
+assert (H : (0 ≤ 0 ≤ - b)%L). {
+  split; [ apply (rngl_le_refl Hor) | ].
+  apply (rngl_opp_le_compat Hop Hor) in Hb.
+  now rewrite (rngl_opp_0 Hop) in Hb.
+}
+specialize (H1 H); clear H.
+rewrite (rngl_mul_0_l Hos) in H1.
+rewrite (rngl_mul_opp_r Hop) in H1.
+apply (rngl_opp_le_compat Hop Hor) in H1.
+rewrite (rngl_opp_involutive Hop) in H1.
+now rewrite (rngl_opp_0 Hop) in H1.
+Qed.
+... ...
+    apply Q_mul_nonneg_nonpos; [ easy | ].
+    now apply Q.lt_le_incl.
 ...
     apply rngl_nle_gt in Habz.
       apply (rngl_nlt_ge_iff Hor).
