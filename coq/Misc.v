@@ -204,6 +204,25 @@ apply Q.le_antisymm in Hxy; [ | easy ].
 now apply Hnxy.
 Qed.
 
+Theorem Z_mul_pos_pos : ∀ a b, (0 < a → 0 < b → 0 < a * b)%Z.
+Proof.
+intros * Hz1 Hz2.
+destruct a as [| sa va]; [ easy | ].
+destruct b as [| sb vb]; [ easy | ].
+destruct sa; [ | easy ].
+destruct sb; [ | easy ].
+easy.
+Qed.
+
+Theorem Q_mul_pos_pos : ∀ a b, (0 < a → 0 < b → 0 < a * b)%Q.
+Proof.
+intros * Hz1 Hz2.
+progress unfold Q.lt in Hz1, Hz2 |-*.
+cbn in Hz1, Hz2 |-*.
+rewrite Z.mul_1_r in Hz1, Hz2 |-*.
+now apply Z_mul_pos_pos.
+Qed.
+
 Theorem Qdiv_lt_compat_r : ∀ x y z, 0 < z → x < y → x / z < y / z.
 Proof.
 intros * Hz Hxy.
@@ -213,15 +232,12 @@ Proof.
 intros * Hza.
 split; intros Hbc. {
   apply Q.lt_0_sub.
-...
-  rewrite Q_mul_sub_distr_l.
-... ...
   rewrite <- Q_mul_sub_distr_l.
-  rewrite <- (rngl_mul_sub_distr_l Hop).
-  apply (rngl_mul_pos_pos Hos Hor Hii); [ easy | ].
-  now apply (rngl_lt_0_sub Hop Hor).
+  apply Q_mul_pos_pos; [ easy | ].
+  now apply Q.lt_0_sub.
 } {
-  apply (rngl_lt_0_sub Hop Hor) in Hbc.
+  apply Q.lt_0_sub in Hbc.
+...
   rewrite <- (rngl_mul_sub_distr_l Hop) in Hbc.
   apply (rngl_mul_pos_cancel_l Hop Hor Hii) in Hbc; [ | easy ].
   now apply (rngl_lt_0_sub Hop Hor).

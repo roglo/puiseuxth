@@ -507,6 +507,51 @@ split. {
 }
 Qed.
 
+Theorem order_eq_lt_l : ∀ a b c, (a == b → c < b → c < a)%Q.
+Proof.
+intros * Heq Hlt.
+generalize Hlt; intros Hle.
+apply Q.lt_le_incl in Hle.
+apply Q.lt_iff.
+split; [ now apply (Q.order_eq_le_l _ b) | ].
+intros H.
+rewrite <- H in Heq.
+clear a H Hle.
+apply Q.nle_gt in Hlt.
+apply Hlt; clear Hlt.
+rewrite Heq.
+apply Q.le_refl.
+Qed.
+
+Theorem order_eq_lt_r : ∀ a b c, (a == b → b < c → a < c)%Q.
+Proof.
+intros * Heq Hlt.
+generalize Hlt; intros Hle.
+apply Q.lt_le_incl in Hle.
+apply Q.lt_iff.
+split; [ now apply (Q.order_eq_le_r _ b) | ].
+intros H.
+rewrite H in Heq.
+clear a H Hle.
+apply Q.nle_gt in Hlt.
+apply Hlt; clear Hlt.
+rewrite Heq.
+apply Q.le_refl.
+Qed.
+
+Global Instance lt_morph : Proper (Q.eq ==> Q.eq ==> iff) Q.lt.
+Proof.
+intros a b Hab c d Hcd.
+move c before b; move d before c.
+split; intros Hac. {
+  apply (@Q.order_eq_lt_l _ c); [ now symmetry | ].
+  now apply (@Q.order_eq_lt_r _ a).
+} {
+  apply (@Q.order_eq_lt_r _ b); [ easy | ].
+  now apply (@Q.order_eq_lt_l _ d).
+}
+Qed.
+
 Theorem le_trans : ∀ a b c, (a ≤ b → b ≤ c → a ≤ c)%Q.
 Proof.
 intros * Hle1 Hle2.
