@@ -268,6 +268,50 @@ destruct H as [H| H]; [ | rewrite H; apply Q.le_refl ].
 now apply Q.lt_le_incl.
 Qed.
 
+Theorem Q_q_Den_mul : ∀ a b, q_Den (a * b) = (q_Den a * q_Den b)%Z.
+Proof.
+intros; cbn.
+progress unfold q_Den; cbn.
+progress unfold pos_mul.
+rewrite Nat.sub_add; [ | easy ].
+apply Nat2Z.inj_mul.
+Qed.
+
+Theorem Q_mul_le_mono_nonneg_l : ∀ a b c, (0 ≤ a → b ≤ c → a * b ≤ a * c)%Q.
+Proof.
+intros * Hz Hle.
+progress unfold Q.le in Hz, Hle |-*.
+do 2 rewrite Q_q_Den_mul.
+cbn in Hz |-*.
+rewrite Z.mul_1_r in Hz.
+do 2 rewrite <- Z.mul_assoc.
+apply Z.mul_le_mono_nonneg_l; [ easy | ].
+rewrite (Z.mul_comm (q_num b)).
+rewrite (Z.mul_comm (q_num c)).
+do 2 rewrite <- Z.mul_assoc.
+apply Z.mul_le_mono_nonneg_l; [ apply Q.q_Den_nonneg | ].
+do 2 rewrite (Z.mul_comm (q_Den _)).
+easy.
+Qed.
+
+Theorem Q_mul_le_mono_nonneg_r : ∀ a b c, (0 ≤ c → a ≤ b → a * c ≤ b * c)%Q.
+Proof.
+intros * Hz Hle.
+do 2 rewrite (Q.mul_comm _ c).
+now apply Q_mul_le_mono_nonneg_l.
+Qed.
+
+Theorem Q_mul_le_compat_nonneg :
+  ∀ a b c d, (0 ≤ a ≤ c → 0 ≤ b ≤ d → a * b ≤ c * d)%Q.
+Proof.
+intros * (Hz1, Hle1) (Hz2, Hle2).
+apply (Q.le_trans _ (a * d)). {
+  now apply Q_mul_le_mono_nonneg_l.
+}
+apply Q_mul_le_mono_nonneg_r; [ | easy ].
+now apply (Q.le_trans _ b).
+Qed.
+
 Theorem Qdiv_lt_compat_r : ∀ x y z, 0 < z → x < y → x / z < y / z.
 Proof.
 intros * Hz Hxy.
@@ -304,22 +348,11 @@ About rngl_mul_nonneg_nonpos.
 Theorem Q_mul_nonneg_nonpos : ∀ a b, (0 ≤ a → b ≤ 0 → a * b ≤ 0)%Q.
 Proof.
 intros * Ha Hb.
-Theorem Q_mul_le_compat_nonneg :
-  ∀ a b c d, (0 ≤ a ≤ c → 0 ≤ b ≤ d → a * b ≤ c * d)%Q.
-Proof.
-intros * (Hz1, Hle1) (Hz2, Hle2).
-apply (Q.le_trans _ (a * d)). {
-Check @rngl_mul_le_mono_nonneg_l.
-Theorem Q_mul_le_mono_nonneg_l : ∀ a b c, (0 ≤ a → b ≤ c → a * b ≤ a * c)%Q.
-Proof.
-intros * Hz Hle.
-... ...
-  now apply Q_mul_le_mono_nonneg_l.
-...
-specialize rngl_mul_le_compat_nonneg as H1.
-specialize (H1 0 0 a (- b))%L.
-assert (H : (0 ≤ 0 ≤ a)%L) by now split; [ apply (rngl_le_refl Hor) | ].
+specialize Q_mul_le_compat_nonneg as H1.
+specialize (H1 0 0 a (- b))%Q.
+assert (H : (0 ≤ 0 ≤ a)%Q) by now split; [ apply Q.le_refl | ].
 specialize (H1 H); clear H.
+...
 assert (H : (0 ≤ 0 ≤ - b)%L). {
   split; [ apply (rngl_le_refl Hor) | ].
   apply (rngl_opp_le_compat Hop Hor) in Hb.
