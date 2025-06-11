@@ -32,22 +32,6 @@ Set Implicit Arguments.
 (* Some theorems working with syntactic equality
    and not only with equivalence relation in Q *)
 
-Theorem Q_mul_opp_l : ∀ x y, (- x) * y = - (x * y).
-Proof.
-intros.
-progress unfold "*"%Q.
-progress unfold Q.opp.
-progress f_equal.
-apply Z.mul_opp_l.
-Qed.
-
-Theorem Q_mul_opp_r : ∀ x y, x * - y = - (x * y).
-Proof.
-intros.
-do 2 rewrite (Q.mul_comm x).
-apply Q_mul_opp_l.
-Qed.
-
 Theorem Q_add_sub_assoc : ∀ x y z, x + (y - z) = (x + y) - z.
 Proof.
 intros.
@@ -200,9 +184,6 @@ intros H.
 apply Q.le_antisymm in Hxy; [ | easy ].
 now apply Hnxy.
 Qed.
-
-Theorem q_Den_num_den : ∀ a b, q_Den (a # b) = Z.of_nat (b + 1).
-Proof. easy. Qed.
 
 Theorem Nat_sub_lt_mono_l :
   ∀ a b c, (c < a ∨ b <= a → c < b → a - b < a - c)%nat.
@@ -733,21 +714,9 @@ rewrite Q_sub_diag.
 now rewrite Q.add_0_r.
 Qed.
 
-Theorem Qdiv_lt_compat_r : ∀ x y z, 0 < z → x < y → x / z < y / z.
-Proof.
-intros * Hz Hxy.
-Theorem Q_mul_lt_mono_pos_l :
-  ∀ a b c, (0 < a)%Q → (b < c)%Q ↔ (a * b < a * c)%Q.
-Proof.
-intros * Hza.
-split; intros Hbc. {
-Theorem Q_lt_0_sub : ∀ a b, (0 < b - a ↔ a < b)%Q.
-Proof.
-intros.
-split; intros Hab. {
-  apply Q.lt_iff in Hab.
-  apply Q.lt_iff.
-  destruct Hab as (Hab, Habz).
+Theorem Q_fold_sub : ∀ a b, a + - b = a - b.
+Proof. easy. Qed.
+
 Theorem Q_le_0_sub : ∀ a b, (0 ≤ b - a ↔ a ≤ b)%Q.
 Proof.
 intros.
@@ -758,82 +727,56 @@ split; intros Hab. {
   now rewrite Q.add_0_l in H1.
 } {
   specialize (H1 a b (- a) (- a) Hab (Q.le_refl _)).
-...
-  do 2 rewrite Q_add_opp_r in H1.
-  now rewrite (rngl_sub_diag Hos) in H1.
+  rewrite Q_fold_sub in H1.
+  now rewrite Q_sub_diag in H1.
 }
 Qed.
-... ...
-  split; [ now apply Q_le_0_sub | ].
-  intros H.
-...
-  rewrite H in Habz.
-  intros H; subst b.
-  now rewrite (rngl_sub_diag Hos) in Habz.
-} {
-  apply (rngl_lt_iff Hor) in Hab.
-  apply (rngl_lt_iff Hor).
-  destruct Hab as (Hab, Habz).
-  split; [ now apply (rngl_le_0_sub Hop Hor) | ].
-  apply not_eq_sym.
-  intros H1.
-  apply Habz; symmetry.
-  now apply (rngl_sub_move_0_r Hop).
-}
-Qed.
-...
-split; intros Hab. 2: {
-About rngl_lt_0_sub.
-...
-  apply Q.lt_iff.
-  intros (H3, H4).
-  remember (rngl_leb b a) as x eqn:Hx; symmetry in Hx.
-  destruct x; [ | easy ].
-  now specialize (H2 _ _ H3 Hx).
-...
-  specialize Q.le_morph as H1.
-  specialize (Q.le_antisymm b a) as H2.
-  apply Q.nle_gt in Hab.
-  specialize (H1 b a) as H3.
-  rewrite Hab in H3.
-  assert (H : false ≠ true) by easy.
-  specialize (H3 H); clear H.
-  split; [ easy | ].
-  destruct H3; congruence.
-} {
-  intros (H3, H4).
-  remember (rngl_leb b a) as x eqn:Hx; symmetry in Hx.
-  destruct x; [ | easy ].
-  now specialize (H2 _ _ H3 Hx).
-}
-Qed.
-...
-  apply Q_lt_iff.
-  apply (rngl_lt_iff Hor) in Hab.
-  apply (rngl_lt_iff Hor).
-  destruct Hab as (Hab, Habz).
-  split; [ now apply (rngl_le_0_sub Hop Hor) | ].
-  intros H; subst b.
-  now rewrite (rngl_sub_diag Hos) in Habz.
-} {
-  apply (rngl_lt_iff Hor) in Hab.
-  apply (rngl_lt_iff Hor).
-  destruct Hab as (Hab, Habz).
-  split; [ now apply (rngl_le_0_sub Hop Hor) | ].
-  apply not_eq_sym.
-  intros H1.
-  apply Habz; symmetry.
-  now apply (rngl_sub_move_0_r Hop).
-}
-Qed.
-...
-Require Import RingLike.Core.
-About rngl_lt_0_sub.
-Theorem Q_lt_0_sub : ∀ a b, (0 < b - a)%Q ↔ (a < b)%Q.
+
+Theorem Q_sub_move_0_r : ∀ a b, (a - b == 0)%Q ↔ a == b.
 Proof.
 intros.
+split; intros Hab; [ | rewrite Hab; apply Q_sub_diag ].
+apply (Q.add_compat_r _ _ b) in Hab.
+rewrite Q_sub_add in Hab.
+now rewrite Q.add_0_l in Hab.
+Qed.
+
+Theorem Q_lt_0_sub : ∀ a b, (0 < b - a ↔ a < b)%Q.
+Proof.
+intros.
+split; intros Hab. {
+  apply Q.lt_iff in Hab.
+  apply Q.lt_iff.
+  destruct Hab as (Hab, Habz).
+  split; [ now apply Q_le_0_sub | ].
+  intros H; apply Habz.
+  rewrite H.
+  now rewrite Q_sub_diag.
+} {
+  apply Q.lt_iff in Hab.
+  apply Q.lt_iff.
+  destruct Hab as (Hab, Habz).
+  split; [ now apply Q_le_0_sub | ].
+  intros H; apply Habz; clear Habz.
+  symmetry in H.
+  now apply -> Q_sub_move_0_r in H.
+}
+Qed.
+
+Theorem Qdiv_lt_compat_r : ∀ x y z, 0 < z → x < y → x / z < y / z.
+Proof.
+intros * Hz Hxy.
+Theorem Q_mul_lt_mono_pos_l :
+  ∀ a b c, (0 < a)%Q → (b < c)%Q ↔ (a * b < a * c)%Q.
+Proof.
+intros * Hza.
+split; intros Hbc. {
+  apply Q_lt_0_sub.
+Check Q_mul_add_distr_l.
 ...
-  apply (rngl_lt_0_sub Hop Hor).
+Check Q_mul_sub_distr_l.
+... ...
+  rewrite <- Q_mul_sub_distr_l.
   rewrite <- (rngl_mul_sub_distr_l Hop).
   apply (rngl_mul_pos_pos Hos Hor Hii); [ easy | ].
   now apply (rngl_lt_0_sub Hop Hor).

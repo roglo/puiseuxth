@@ -276,6 +276,9 @@ Proof. intros; apply Z.le_refl. Qed.
 Theorem lt_le_incl : ∀ a b, (a < b)%Q → (a ≤ b)%Q.
 Proof. intros * Hab; congruence. Qed.
 
+Theorem q_Den_num_den : ∀ a b, q_Den (mk_q a b) = Z.of_nat (b + 1).
+Proof. easy. Qed.
+
 Theorem q_Den_neq_0 : ∀ a, q_Den a ≠ 0%Z.
 Proof. now intros; unfold q_Den; rewrite Nat.add_1_r. Qed.
 
@@ -284,6 +287,22 @@ Proof. now intros; unfold q_Den; rewrite Nat.add_1_r. Qed.
 
 Theorem q_Den_nonneg : ∀ a, (0 ≤ q_Den a)%Z.
 Proof. now intros; unfold q_Den; rewrite Nat.add_1_r. Qed.
+
+Theorem mul_opp_l : ∀ x y, ((- x) * y = - (x * y))%Q.
+Proof.
+intros.
+progress unfold "*"%Q.
+progress unfold Q.opp.
+progress f_equal.
+apply Z.mul_opp_l.
+Qed.
+
+Theorem mul_opp_r : ∀ x y, (x * - y = - (x * y))%Q.
+Proof.
+intros.
+do 2 rewrite (Q.mul_comm x).
+apply Q.mul_opp_l.
+Qed.
 
 Theorem order_eq_le_l : ∀ a b c, (a == b → c ≤ b → c ≤ a)%Q.
 Proof.
@@ -412,6 +431,40 @@ intros a b Hab c d Hcd.
 transitivity (a + d)%Q.
 now apply Q.add_compat_l.
 now apply Q.add_compat_r.
+Qed.
+
+Global Instance opp_morph : Proper (Q.eq ==> Q.eq) Q.opp.
+Proof.
+intros a b Hab.
+progress unfold Q.eq in Hab.
+progress unfold Q.eq, Q.opp; cbn.
+do 2 rewrite q_Den_num_den.
+do 2 rewrite Z.mul_opp_l.
+now f_equal.
+Qed.
+
+Theorem sub_compat_l : ∀ a b c, (b == c → a - b == a - c)%Q.
+Proof.
+intros * Heq.
+progress unfold Q.sub.
+apply Q.add_compat_l.
+now rewrite Heq.
+Qed.
+
+Theorem sub_compat_r : ∀ a b c, (a == b → a - c == b - c)%Q.
+Proof.
+intros * Heq.
+progress unfold Q.sub.
+do 2 rewrite (Q.add_comm _ (- c)).
+now apply Q.add_compat_l.
+Qed.
+
+Global Instance sub_morph : Proper (Q.eq ==> Q.eq ==> Q.eq) Q.sub.
+Proof.
+intros a b Hab c d Hcd.
+transitivity (a - d)%Q.
+now apply Q.sub_compat_l.
+now apply Q.sub_compat_r.
 Qed.
 
 Global Instance le_morph : Proper (Q.eq ==> Q.eq ==> iff) Q.le.
