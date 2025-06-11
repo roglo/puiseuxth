@@ -223,6 +223,51 @@ rewrite Z.mul_1_r in Hz1, Hz2 |-*.
 now apply Z_mul_pos_pos.
 Qed.
 
+Theorem Z_lt_eq_cases : ∀ a b, (a ≤ b ↔ a < b ∨ a = b)%Z.
+Proof.
+intros.
+split; intros H. {
+  destruct a as [| sa va]. {
+    destruct b as [| sb vb]; [ now right | left ].
+    now destruct sb.
+  }
+  destruct b as [| sb vb]. {
+    destruct sa; [ easy | now left ].
+  }
+  destruct sa. {
+    destruct sb; [ | easy ].
+    progress unfold Z.le in H; cbn in H.
+    progress unfold Z.lt; cbn.
+    apply Nat.compare_le_iff in H.
+    apply Nat.lt_eq_cases in H.
+    destruct H; [ now left; apply Nat.compare_lt_iff | ].
+    now right; subst.
+  } {
+    destruct sb; [ now left | ].
+    progress unfold Z.le in H; cbn in H.
+    progress unfold Z.lt; cbn.
+    apply Nat.compare_le_iff in H.
+    apply Nat.lt_eq_cases in H.
+    destruct H; [ now left; apply Nat.compare_lt_iff | ].
+    now right; subst.
+  }
+}
+destruct H as [H| H]; [ | subst; apply Z.le_refl ].
+now apply Z.lt_le_incl.
+Qed.
+
+Theorem Q_lt_eq_cases : ∀ a b, (a ≤ b ↔ a < b ∨ a == b)%Q.
+Proof.
+intros.
+split; intros H. {
+  progress unfold Q.le in H.
+  apply Z_lt_eq_cases in H.
+  now destruct H; [ left | right ].
+}
+destruct H as [H| H]; [ | rewrite H; apply Q.le_refl ].
+now apply Q.lt_le_incl.
+Qed.
+
 Theorem Qdiv_lt_compat_r : ∀ x y z, 0 < z → x < y → x / z < y / z.
 Proof.
 intros * Hz Hxy.
@@ -242,8 +287,31 @@ Theorem Q_mul_pos_cancel_l : ∀ a b, (0 < a → 0 < a * b ↔ 0 < b)%Q.
 Proof.
 intros * Hz.
 split; intros Hz2. {
+  apply Q.lt_iff in Hz.
+  apply Q.lt_iff in Hz2.
+  apply Q.lt_iff.
+  destruct Hz as (Hle, Hz).
+  destruct Hz2 as (Hlem, Hzm).
+  split. {
+    apply Q_lt_eq_cases in Hle.
+    destruct Hle as [Hlt| H]; [ | easy ].
+...
+    apply rngl_nle_gt in Habz.
+      apply (rngl_nlt_ge_iff Hor).
+      intros Hb; apply Habz; clear Habz.
+      apply (rngl_mul_nonneg_nonpos Hop Hor); [ easy | ].
+      now apply (rngl_lt_le_incl Hor).
+    }
+    now rewrite Habz in Hzab.
+  }
+  intros H; subst b.
+  now rewrite (rngl_mul_0_r Hos) in Hzab.
+} {
+  now apply (rngl_mul_pos_pos Hos Hor).
+}
+
 ... ...
-  apply Q_mul_pos_cancel_l in Hbc; [ | easy ].
+  apply Q_mul_pos_cancel_l in Hz2; [ | easy ].
 ...
   apply (rngl_mul_pos_cancel_l Hop Hor Hii) in Hbc; [ | easy ].
   now apply (rngl_lt_0_sub Hop Hor).
