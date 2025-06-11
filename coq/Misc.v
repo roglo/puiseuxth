@@ -312,6 +312,28 @@ apply Q_mul_le_mono_nonneg_r; [ | easy ].
 now apply (Q.le_trans _ b).
 Qed.
 
+Theorem Q_q_Den_opp : ∀ a, q_Den (- a) = q_Den a.
+Proof. easy. Qed.
+
+Theorem Z_opp_le_compat : ∀ a b, (a ≤ b ↔ - b ≤ - a)%Z.
+Proof.
+intros.
+destruct a as [| sa va]. {
+  destruct b as [| sb vb]; [ easy | now destruct sb ].
+}
+destruct b as [| sb vb]; [ now destruct sa | cbn ].
+now destruct sa, sb.
+Qed.
+
+Theorem Q_opp_le_compat : ∀ a b, (a ≤ b ↔ - b ≤ - a)%Q.
+Proof.
+intros.
+progress unfold Q.le; cbn.
+do 2 rewrite Q_q_Den_opp.
+do 2 rewrite Z.mul_opp_l.
+apply Z_opp_le_compat.
+Qed.
+
 Theorem Qdiv_lt_compat_r : ∀ x y z, 0 < z → x < y → x / z < y / z.
 Proof.
 intros * Hz Hxy.
@@ -352,14 +374,14 @@ specialize Q_mul_le_compat_nonneg as H1.
 specialize (H1 0 0 a (- b))%Q.
 assert (H : (0 ≤ 0 ≤ a)%Q) by now split; [ apply Q.le_refl | ].
 specialize (H1 H); clear H.
-...
-assert (H : (0 ≤ 0 ≤ - b)%L). {
-  split; [ apply (rngl_le_refl Hor) | ].
-  apply (rngl_opp_le_compat Hop Hor) in Hb.
-  now rewrite (rngl_opp_0 Hop) in Hb.
+assert (H : (0 ≤ 0 ≤ - b)%Q). {
+  split; [ apply Q.le_refl | ].
+  apply Q_opp_le_compat in Hb.
+  now rewrite Q_opp_0 in Hb.
 }
 specialize (H1 H); clear H.
-rewrite (rngl_mul_0_l Hos) in H1.
+...
+rewrite Q.mul_0_l in H1.
 rewrite (rngl_mul_opp_r Hop) in H1.
 apply (rngl_opp_le_compat Hop Hor) in H1.
 rewrite (rngl_opp_involutive Hop) in H1.
