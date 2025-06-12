@@ -1573,6 +1573,13 @@ Proof. now intros; destruct a. Qed.
 Theorem eq_0 : ∀ a, Z.of_nat a = 0%Z → a = 0%nat.
 Proof. now intros; destruct a. Qed.
 
+Theorem inj_succ : ∀ a, Z.of_nat (S a) = Z.of_nat a + 1.
+Proof.
+intros.
+destruct a; [ easy | cbn ].
+now rewrite Nat.add_0_r, Nat.add_comm.
+Qed.
+
 Theorem inj_mul : ∀ a b, Z.of_nat (a * b) = Z.of_nat a * Z.of_nat b.
 Proof.
 intros.

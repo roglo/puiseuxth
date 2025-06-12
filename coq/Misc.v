@@ -33,7 +33,7 @@ Set Implicit Arguments.
 
 (* *)
 
-Definition Qnat i := Z.of_nat i # 1.
+Definition Qnat i := Z.of_nat i # 0.
 
 Theorem Nat_sub_succ_diag : ∀ n, (S n - n = 1)%nat.
 Proof.
@@ -330,55 +330,17 @@ Qed.
 Theorem Qnat_succ : ∀ n a, a * Qnat (S n) == a * Qnat n + a.
 Proof.
 intros.
-destruct n. {
-  progress unfold Qnat; cbn.
-  replace (1 # 1) with 1%Q. 2: {
-Set Printing All.
-Compute 1%Q.
-...
-    f_equal.
-...
-  rewrite Q.mul_1_r.
-  rewrite Q_mul_0_r.
-...
-intros.
-rewrite <- (Q.mul_1_r a) at 3.
+unfold Qnat.
+replace a with (a * 1) at 3 by now rewrite Q.mul_1_r.
 rewrite <- Q.mul_add_distr_l.
-apply Q.mul_compat_l.
-induction n. {
-  progress unfold Q.eq; cbn.
-Print Qnat.
-...
-progress unfold Q.eq; cbn.
-progress unfold Z.add; cbn.
-progress unfold Z.mul; cbn.
-rewrite Z.mul_1_r.
-cbn.
-rewrite (Z.mul_comm _ 2).
-cbn.
-...
-unfold Qnat; cbn.
-progress unfold Q.eq; cbn.
-progress unfold Q.add; cbn.
-progress unfold Q.mul; cbn.
-progress unfold pos_mul; cbn.
-do 3 rewrite q_Den_num_den.
-rewrite Nat.sub_add; [ | easy ].
-rewrite Nat.sub_add; [ | flia ].
-do 2 rewrite Nat2Z.inj_mul.
-cbn.
-...
-setoid_replace x with (x * 1) at 3 by now rewrite Q_mul_1_r.
-rewrite <- Q_mul_add_distr_l.
-rewrite Q_mul_Q1_r.
 rewrite Nat2Z.inj_succ.
-rewrite <- Z.add_1_r.
 now rewrite QZ_plus.
 Qed.
 
 Theorem Qlt_not_0 : ∀ x y, x < y → ¬ y - x == 0.
 Proof.
 intros i j H HH.
+...
 apply Qminus_eq in HH.
 rewrite HH in H; apply Qlt_irrefl in H; contradiction.
 Qed.
