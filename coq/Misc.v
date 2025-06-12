@@ -354,9 +354,30 @@ Qed.
 Theorem Q_nlt_ge_iff : ∀ a b, (¬ (a < b) ↔ b ≤ a)%Q.
 Proof. intros; apply Z.nlt_ge. Qed.
 
-Theorem Qdiv_lt_compat_r : ∀ x y z, 0 < z → x < y → x / z < y / z.
+Theorem Q_mul_pos_cancel_l : ∀ a b, (0 < a → 0 < a * b ↔ 0 < b)%Q.
 Proof.
-intros * Hz Hxy.
+intros * Hz.
+split; intros Hz2; [ | now apply Q_mul_pos_pos ].
+apply Q.lt_iff in Hz.
+apply Q.lt_iff in Hz2.
+apply Q.lt_iff.
+destruct Hz as (Hle, Hz).
+destruct Hz2 as (Hlem, Hzm).
+split. {
+  apply Q_lt_eq_cases in Hlem.
+  destruct Hlem as [Hlem| H]; [ | easy ].
+  apply Q.nle_gt in Hlem.
+  apply Q_nlt_ge_iff.
+  intros H; apply Hlem;  clear Hlem.
+  apply Q_mul_nonneg_nonpos; [ easy | ].
+  now apply Q.lt_le_incl.
+}
+intros H.
+rewrite <- H in Hzm.
+rewrite Q_mul_0_r in Hzm.
+now apply Hzm.
+Qed.
+
 Theorem Q_mul_lt_mono_pos_l :
   ∀ a b c, (0 < a)%Q → (b < c)%Q ↔ (a * b < a * c)%Q.
 Proof.
@@ -369,130 +390,59 @@ split; intros Hbc. {
 } {
   apply Q.lt_0_sub in Hbc.
   rewrite <- Q_mul_sub_distr_l in Hbc.
-Theorem Q_mul_pos_cancel_l : ∀ a b, (0 < a → 0 < a * b ↔ 0 < b)%Q.
-Proof.
-intros * Hz.
-split; intros Hz2. {
-  apply Q.lt_iff in Hz.
-  apply Q.lt_iff in Hz2.
-  apply Q.lt_iff.
-  destruct Hz as (Hle, Hz).
-  destruct Hz2 as (Hlem, Hzm).
-  split. {
-    apply Q_lt_eq_cases in Hlem.
-    destruct Hlem as [Hlem| H]; [ | easy ].
-    apply Q.nle_gt in Hlem.
-    apply Q_nlt_ge_iff.
-    intros H; apply Hlem;  clear Hlem.
-    apply Q_mul_nonneg_nonpos; [ easy | ].
-    now apply Q.lt_le_incl.
-  }
-  intros H.
-  rewrite <- H in Hzm.
-  rewrite Q_mul_0_r in Hzm.
-  now apply Hzm.
-} {
-...
-  now apply (rngl_mul_pos_pos Hos Hor).
+  apply Q_mul_pos_cancel_l in Hbc; [ | easy ].
+  now apply Q.lt_0_sub.
 }
+Qed.
 
-... ...
-  apply Q_mul_pos_cancel_l in Hz2; [ | easy ].
-...
-  apply (rngl_mul_pos_cancel_l Hop Hor Hii) in Hbc; [ | easy ].
-  now apply (rngl_lt_0_sub Hop Hor).
-}
-...
-intros * Hza.
-split; intros Hbc. {
-  progress unfold Q.lt in Hza, Hbc |-*.
-  cbn in Hza.
-  rewrite Z.mul_1_r in Hza.
-  progress unfold q_Den in Hbc |-*; cbn.
-  progress unfold pos_mul.
-  rewrite Nat.sub_add; [ | flia ].
-  rewrite Nat.sub_add; [ | flia ].
-  do 2 rewrite Nat2Z.inj_mul.
-  do 2 rewrite <- Z.mul_assoc.
-  apply Z.mul_lt_mono_pos_l; [ easy | ].
-  do 2 rewrite (Z.mul_comm (q_num _)).
-  do 2 rewrite <- Z.mul_assoc.
-  apply Z.mul_lt_mono_pos_l; [ now rewrite Nat.add_comm | ].
-  now do 2 rewrite (Z.mul_comm _ (q_num _)).
-}
-Require Import RingLike.Core.
-About rngl_mul_lt_mono_pos_l.
-
-... ...
-apply Z_mul_lt_mono_pos_l; [ easy | ].
-Search (_ * _ < _ * _)%Z.
-...
-Theorem Q_mul_lt_mono_pos_r : ∀ a b c, (0 < a)%Q → (b < c)%Q ↔ (b * a < c * a)%Q.
+Theorem Q_mul_lt_mono_pos_r :
+  ∀ a b c, (0 < a)%Q → (b < c)%Q ↔ (b * a < c * a)%Q.
 Proof.
 intros * Hza.
 do 2 rewrite (Q.mul_comm _ a).
 now apply Q_mul_lt_mono_pos_l.
 Qed.
-...
+
+Theorem Qdiv_lt_compat_r : ∀ x y z, 0 < z → x < y → x / z < y / z.
+Proof.
+intros * Hz Hxy.
+progress unfold Q.div.
 apply Q_mul_lt_mono_pos_r; [ | easy ].
+Theorem Q_inv_pos : ∀ a : Q, 0 < a → 0 < Q.inv a.
+Proof.
 ...
-Require Import RingLike.Core.
-Search (_ < _ → _ * _ < _ * _)%nat.
-Search (_ < _ ↔ _ / _ < _ / _)%nat.
-Search (_ < _ → _ / _ < _ / _)%nat.
+intros * Hza.
+assert (Haz : a ≠ 0%L). {
+  intros H; subst a.
+  now apply (rngl_lt_irrefl Hor) in Hza.
+}
+specialize (rngl_inv_neq_0 Hon Hos Hiv) as H1.
+destruct (rngl_le_dec Hor 0 a⁻¹)%L as [H2| H2]. {
+  apply (rngl_lt_iff Hor).
+  split; [ easy | ].
+  intros H; symmetry in H; revert H.
+  now apply H1.
+}
+apply (rngl_not_le Hor) in H2.
+destruct H2 as (H2, H3).
+specialize (rngl_mul_nonneg_nonpos Hop Hor) as H4.
+assert (H : (0 ≤ a)%L) by now apply (rngl_lt_iff Hor) in Hza.
+specialize (H4 _ _ H H3); clear H.
+rewrite (rngl_mul_inv_diag_r Hon Hiv a Haz) in H4.
+specialize (rngl_0_le_1 Hon Hos Hor) as H5.
+specialize (rngl_le_antisymm Hor _ _ H4 H5) as H6.
+clear H4 H5.
+apply (rngl_1_eq_0_iff Hon Hos) in H6.
+specialize (rngl_characteristic_1 Hon Hos H6) as H4.
+exfalso; apply Haz, H4.
+Qed.
 ...
-Theorem Q_mul_lt_compat_r :
-     : ∀ x y z : Q, 0 < z → x < y → x * z < y * z
-
-Nat.mul_lt_mono_nonneg:
-  ∀ n m p q : nat, (0 <= n)%nat → (n < m)%nat → (0 <= p)%nat → (p < q)%nat → (n * p < m * q)%nat
-
-Nat.mul_lt_mono_neg_r: ∀ p n m : nat, (p < 0)%nat → (n < m)%nat ↔ (m * p < n * p)%nat
-Nat.mul_lt_mono_neg_l: ∀ p n m : nat, (p < 0)%nat → (n < m)%nat ↔ (p * m < p * n)%nat
-Nat.mul_lt_mono_pos_r: ∀ p n m : nat, (0 < p)%nat → (n < m)%nat ↔ (n * p < m * p)%nat
-Nat.mul_lt_mono_pos_l: ∀ p n m : nat, (0 < p)%nat → (n < m)%nat ↔ (p * n < p * m)%nat
-
-rngl_div_lt_mono_pos_r:
-  ∀ {T : Type} {ro : ring_like_op T},
-    ring_like_prop T
-    → rngl_has_1 T = true
-      → rngl_has_opp T = true
-        → rngl_has_inv T = true
-          → rngl_is_ordered T = true
-            → (rngl_is_integral_domain T || rngl_has_inv_and_1_or_quot T)%bool = true
-              → ∀ a b c : T, (0 < a)%L → (b < c)%L ↔ (b / a < c / a)%L
-
-rngl_mul_lt_mono_pos_l:
-  ∀ {T : Type} {ro : ring_like_op T},
-    ring_like_prop T
-    → rngl_has_opp T = true
-      → rngl_is_ordered T = true
-        → (rngl_is_integral_domain T || rngl_has_inv_and_1_or_quot T)%bool = true
-          → ∀ a b c : T, (0 < a)%L → (b < c)%L ↔ (a * b < a * c)%L
-rngl_mul_lt_mono_pos_r:
-  ∀ {T : Type} {ro : ring_like_op T},
-    ring_like_prop T
-    → rngl_has_opp T = true
-      → rngl_is_ordered T = true
-        → (rngl_is_integral_domain T || rngl_has_inv_and_1_or_quot T)%bool = true
-          → ∀ a b c : T, (0 < a)%L → (b < c)%L ↔ (b * a < c * a)%L
-
-Zmult_lt_compat_l: ∀ n m p : Z, (0 < p)%Z → (n < m)%Z → (p * n < p * m)%Z
-Zmult_lt_compat_r: ∀ n m p : Z, (0 < p)%Z → (n < m)%Z → (n * p < m * p)%Z
-Z.square_lt_mono_nonpos: ∀ n m : Z, (n <= 0)%Z → (m < n)%Z → (n * n < m * m)%Z
-Z.square_lt_mono_nonneg: ∀ n m : Z, (0 <= n)%Z → (n < m)%Z → (n * n < m * m)%Z
-Zmult_gt_0_lt_compat_l: ∀ n m p : Z, (p > 0)%Z → (n < m)%Z → (p * n < p * m)%Z
-Zmult_gt_0_lt_compat_r: ∀ n m p : Z, (p > 0)%Z → (n < m)%Z → (n * p < m * p)%Z
-Z.mul_lt_mono_nonneg:
-  ∀ n m p q : Z, (0 <= n)%Z → (n < m)%Z → (0 <= p)%Z → (p < q)%Z → (n * p < m * q)%Z
-Z.mul_lt_mono_nonpos:
-  ∀ n m p q : Z, (m <= 0)%Z → (n < m)%Z → (q <= 0)%Z → (p < q)%Z → (m * q < n * p)%Z
-
-Search (_ * _ < _ * _)%Q.
-...
-apply Qmult_lt_compat_r; [ | easy ].
+Require Import QArith.
+Search (0 < Qinv _)%Q.
+Search (0 < Q.inv _)%Q.
 now apply Qinv_lt_0_compat.
 Qed.
+...
 
 Theorem Qdiv_minus_distr_r : ∀ x y z, (x - y) / z == x / z - y / z.
 Proof.
