@@ -268,20 +268,11 @@ destruct H as [H| H]; [ | rewrite H; apply Q.le_refl ].
 now apply Q.lt_le_incl.
 Qed.
 
-Theorem Q_q_Den_mul : ∀ a b, q_Den (a * b) = (q_Den a * q_Den b)%Z.
-Proof.
-intros; cbn.
-progress unfold q_Den; cbn.
-progress unfold pos_mul.
-rewrite Nat.sub_add; [ | easy ].
-apply Nat2Z.inj_mul.
-Qed.
-
 Theorem Q_mul_le_mono_nonneg_l : ∀ a b c, (0 ≤ a → b ≤ c → a * b ≤ a * c)%Q.
 Proof.
 intros * Hz Hle.
 progress unfold Q.le in Hz, Hle |-*.
-do 2 rewrite Q_q_Den_mul.
+do 2 rewrite Q.q_Den_mul.
 cbn in Hz |-*.
 rewrite Z.mul_1_r in Hz.
 do 2 rewrite <- Z.mul_assoc.
@@ -396,7 +387,7 @@ split; intros Hz2. {
   intros H.
   rewrite <- H in Hzm.
 ...
-  rewrite Q_mul_0_r in Hzm.
+  rewrite Q.mul_0_r in Hzm.
 ...
   rewrite <- H.
   symmetry in H.

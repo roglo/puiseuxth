@@ -296,6 +296,15 @@ Proof. now intros; unfold q_Den; rewrite Nat.add_1_r. Qed.
 Theorem q_Den_nonneg : ∀ a, (0 ≤ q_Den a)%Z.
 Proof. now intros; unfold q_Den; rewrite Nat.add_1_r. Qed.
 
+Theorem q_Den_mul : ∀ a b, q_Den (a * b) = (q_Den a * q_Den b)%Z.
+Proof.
+intros; cbn.
+progress unfold q_Den; cbn.
+progress unfold pos_mul.
+rewrite Nat.sub_add; [ | easy ].
+apply Nat2Z.inj_mul.
+Qed.
+
 Theorem mul_opp_l : ∀ x y, ((- x) * y = - (x * y))%Q.
 Proof.
 intros.
@@ -433,6 +442,27 @@ do 2 rewrite (Q.add_comm _ c).
 now apply Q.add_compat_l.
 Qed.
 
+Theorem mul_compat_l : ∀ a b c, (b == c → a * b == a * c)%Q.
+Proof.
+intros * Heq.
+progress unfold Q.eq; cbn.
+do 2 rewrite Q.q_Den_mul.
+do 2 rewrite <- Z.mul_assoc.
+progress f_equal.
+do 2 rewrite (Z.mul_comm (q_num _)).
+do 2 rewrite <- Z.mul_assoc.
+progress f_equal.
+do 2 rewrite (Z.mul_comm _ (q_num _)).
+easy.
+Qed.
+
+Theorem mul_compat_r : ∀ a b c, (a == b → a * c == b * c)%Q.
+Proof.
+intros * Heq.
+do 2 rewrite (Q.mul_comm _ c).
+now apply Q.mul_compat_l.
+Qed.
+
 Global Instance add_morph : Proper (Q.eq ==> Q.eq ==> Q.eq) Q.add.
 Proof.
 intros a b Hab c d Hcd.
@@ -478,8 +508,10 @@ Qed.
 Global Instance mul_morph : Proper (Q.eq ==> Q.eq ==> Q.eq) Q.mul.
 Proof.
 intros a b Hab c d Hcd.
-Search (_ * _ == _ * _)%Q.
-...
+transitivity (a * d)%Q.
+now apply Q.mul_compat_l.
+now apply Q.mul_compat_r.
+Qed.
 
 Global Instance le_morph : Proper (Q.eq ==> Q.eq ==> iff) Q.le.
 Proof.
