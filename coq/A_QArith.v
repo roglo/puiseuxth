@@ -1238,6 +1238,63 @@ split; intros Hab. {
 }
 Qed.
 
+Theorem opp_sub_distr : ∀ a b, (- (a - b) = b - a)%Q.
+Proof.
+intros.
+progress unfold Q.sub.
+progress unfold Q.add.
+progress unfold Q.opp.
+progress unfold pos_mul; cbn.
+rewrite (Nat.mul_comm (q_den b + 1)).
+progress f_equal.
+do 2 rewrite Z.mul_opp_l.
+rewrite Z.add_comm.
+rewrite Z.opp_add_distr.
+now rewrite Z.opp_involutive.
+Qed.
+
+Theorem sub_sub_distr : ∀ a b c, (a - (b - c) = (a - b) + c)%Q.
+Proof.
+intros.
+progress unfold Q.sub at 1.
+rewrite Q.opp_sub_distr.
+progress unfold Q.sub.
+rewrite <- Q.add_assoc.
+progress f_equal.
+apply Q.add_comm.
+Qed.
+
+Theorem add_add_swap : ∀ a b c, (a + b + c = a + c + b)%Q.
+Proof.
+intros.
+do 2 rewrite <- Q.add_assoc.
+progress f_equal.
+apply Q.add_comm.
+Qed.
+
+Theorem mul_div_assoc : ∀ a b c, (a * (b / c) = (a * b) / c)%Q.
+Proof. intros; apply Q.mul_assoc. Qed.
+
+Theorem mul_div_swap : ∀ a b c, (a / b * c = a * c / b)%Q.
+Proof.
+intros.
+progress unfold Q.div.
+do 2 rewrite <- Q.mul_assoc.
+progress f_equal.
+apply Q.mul_comm.
+Qed.
+
+Theorem opp_0 : (- 0 = 0)%Q.
+Proof. easy. Qed.
+
+Theorem sub_0_r : ∀ a, (a - 0 = a)%Q.
+Proof.
+intros.
+progress unfold Q.sub.
+rewrite Q.opp_0.
+apply Q.add_0_r.
+Qed.
+
 End Q.
 
 Number Notation Q Q.of_number Q.to_number : Q_scope.

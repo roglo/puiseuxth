@@ -29,66 +29,6 @@ Tactic Notation "fast_omega" hyp_list(Hs) := revert Hs; clear; intros; lia.
 
 Set Implicit Arguments.
 
-(* Some theorems working with syntactic equality
-   and not only with equivalence relation in Q *)
-
-Theorem Q_opp_sub_distr : ∀ x y, - (x - y) = y - x.
-Proof.
-intros.
-progress unfold Q.sub.
-progress unfold Q.add.
-progress unfold Q.opp.
-progress unfold pos_mul; cbn.
-rewrite (Nat.mul_comm (q_den y + 1)).
-progress f_equal.
-do 2 rewrite Z.mul_opp_l.
-rewrite Z.add_comm.
-rewrite Z.opp_add_distr.
-now rewrite Z.opp_involutive.
-Qed.
-
-Theorem Q_sub_sub_distr : ∀ x y z, x - (y - z) = (x - y) + z.
-Proof.
-intros.
-progress unfold Q.sub at 1.
-rewrite Q_opp_sub_distr.
-progress unfold Q.sub.
-rewrite <- Q.add_assoc.
-progress f_equal.
-apply Q.add_comm.
-Qed.
-
-Theorem Q_add_add_swap : ∀ x y z, x + y + z = x + z + y.
-Proof.
-intros.
-do 2 rewrite <- Q.add_assoc.
-progress f_equal.
-apply Q.add_comm.
-Qed.
-
-Theorem Q_mul_div_assoc : ∀ x y z, x * (y / z) = (x * y) / z.
-Proof. intros; apply Q.mul_assoc. Qed.
-
-Theorem Q_mul_div_swap : ∀ x y z, x / y * z = x * z / y.
-Proof.
-intros.
-progress unfold Q.div.
-do 2 rewrite <- Q.mul_assoc.
-progress f_equal.
-apply Q.mul_comm.
-Qed.
-
-Theorem Q_opp_0 : - 0 = 0.
-Proof. easy. Qed.
-
-Theorem Q_sub_0_r : ∀ n, n - 0 = n.
-Proof.
-intros.
-progress unfold Q.sub.
-rewrite Q_opp_0.
-apply Q.add_0_r.
-Qed.
-
 (* doesn't work, works with this small modification *)
 
 Definition Q1 x := q_Den x # q_den x.
@@ -341,14 +281,14 @@ specialize (H1 H); clear H.
 assert (H : (0 ≤ 0 ≤ - b)%Q). {
   split; [ apply Q.le_refl | ].
   apply Q_opp_le_compat in Hb.
-  now rewrite Q_opp_0 in Hb.
+  now rewrite Q.opp_0 in Hb.
 }
 specialize (H1 H); clear H.
 rewrite Q_mul_0_l in H1.
 rewrite Q.mul_opp_r in H1.
 apply Q_opp_le_compat in H1.
 rewrite Q.opp_involutive in H1.
-now rewrite Q_opp_0 in H1.
+now rewrite Q.opp_0 in H1.
 Qed.
 
 Theorem Q_nlt_ge_iff : ∀ a b, (¬ (a < b) ↔ b ≤ a)%Q.
@@ -423,19 +363,16 @@ Qed.
 Theorem Qdiv_minus_distr_r : ∀ x y z, (x - y) / z == x / z - y / z.
 Proof.
 intros x y z.
-...
-destruct (Qeq_dec z 0) as [Heq| Hne].
- rewrite Heq.
- unfold Qdiv, Qinv; simpl.
- do 3 rewrite Qmult_0_r.
- reflexivity.
-
- field; assumption.
+progress unfold Q.sub.
+progress unfold Q.div.
+rewrite Q_mul_add_distr_r.
+now rewrite Q.mul_opp_l.
 Qed.
 
 Theorem Qdiv_plus_distr_r : ∀ x y z, (x + y) / z == x / z + y / z.
 Proof.
 intros x y z.
+...
 destruct (Qeq_dec z 0) as [Heq| Hne].
  rewrite Heq.
  unfold Qdiv, Qinv; simpl.
