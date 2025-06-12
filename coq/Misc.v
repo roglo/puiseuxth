@@ -327,10 +327,23 @@ intros i j; split; intros H. {
 }
 Qed.
 
-Theorem Qnat_succ : ∀ n x, x * Qnat (S n) == x * Qnat n + x.
+Theorem Qnat_succ : ∀ n a, a * Qnat (S n) == a * Qnat n + a.
 Proof.
-intros n x.
-unfold Qnat.
+intros.
+rewrite <- (Q.mul_1_r a) at 3.
+rewrite <- Q.mul_add_distr_l.
+apply Q.mul_compat_l.
+...
+unfold Qnat; cbn.
+progress unfold Q.eq; cbn.
+progress unfold Q.add; cbn.
+progress unfold Q.mul; cbn.
+progress unfold pos_mul; cbn.
+do 3 rewrite q_Den_num_den.
+rewrite Nat.sub_add; [ | easy ].
+rewrite Nat.sub_add; [ | flia ].
+do 2 rewrite Nat2Z.inj_mul.
+cbn.
 ...
 setoid_replace x with (x * 1) at 3 by now rewrite Q_mul_1_r.
 rewrite <- Q_mul_add_distr_l.
