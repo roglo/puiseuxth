@@ -1404,6 +1404,7 @@ Notation "a <= b" := (Q.le a b) : Q_scope.
 Notation "a ≤ b" := (Q.le a b) : Q_scope.
 Notation "a < b" := (Q.lt a b) : Q_scope.
 Notation "- a" := (Q.opp a) : Q_scope.
+Notation "a '⁻¹'" := (Q.inv a) (at level 1, format "a ⁻¹") : Q_scope.
 Notation "a ?= b" := (Q.compare a b) : Q_scope.
 Notation "a # b" := (mk_q a b) (at level 55) : Q_scope.
 
