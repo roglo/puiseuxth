@@ -328,6 +328,9 @@ Qed.
 Theorem Q_mul_0_l : ∀ a, (0 * a == 0)%Q.
 Proof. easy. Qed.
 
+Theorem Q_mul_0_r : ∀ a, (a * 0 == 0)%Q.
+Proof. now intros; rewrite Q.mul_comm. Qed.
+
 Theorem Q_mul_nonneg_nonpos : ∀ a b, (0 ≤ a → b ≤ 0 → a * b ≤ 0)%Q.
 Proof.
 intros * Ha Hb.
@@ -386,15 +389,10 @@ split; intros Hz2. {
   }
   intros H.
   rewrite <- H in Hzm.
-...
-  rewrite Q.mul_0_r in Hzm.
-...
-  rewrite <- H.
-  symmetry in H.
-  rewrite H in Hzm.
-; rewrite <- H in Hzm.
-  now rewrite (rngl_mul_0_r Hos) in Hzab.
+  rewrite Q_mul_0_r in Hzm.
+  now apply Hzm.
 } {
+...
   now apply (rngl_mul_pos_pos Hos Hor).
 }
 
