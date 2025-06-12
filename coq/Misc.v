@@ -330,9 +330,32 @@ Qed.
 Theorem Qnat_succ : ∀ n a, a * Qnat (S n) == a * Qnat n + a.
 Proof.
 intros.
+destruct n. {
+  progress unfold Qnat; cbn.
+  replace (1 # 1) with 1%Q. 2: {
+Set Printing All.
+Compute 1%Q.
+...
+    f_equal.
+...
+  rewrite Q.mul_1_r.
+  rewrite Q_mul_0_r.
+...
+intros.
 rewrite <- (Q.mul_1_r a) at 3.
 rewrite <- Q.mul_add_distr_l.
 apply Q.mul_compat_l.
+induction n. {
+  progress unfold Q.eq; cbn.
+Print Qnat.
+...
+progress unfold Q.eq; cbn.
+progress unfold Z.add; cbn.
+progress unfold Z.mul; cbn.
+rewrite Z.mul_1_r.
+cbn.
+rewrite (Z.mul_comm _ 2).
+cbn.
 ...
 unfold Qnat; cbn.
 progress unfold Q.eq; cbn.
