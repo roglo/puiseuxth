@@ -1295,6 +1295,9 @@ rewrite Q.opp_0.
 apply Q.add_0_r.
 Qed.
 
+Theorem lt_irrefl : ∀ a, ¬ (a < a)%Q.
+Proof. intros; apply Z.lt_irrefl. Qed.
+
 End Q.
 
 Number Notation Q Q.of_number Q.to_number : Q_scope.

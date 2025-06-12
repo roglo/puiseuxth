@@ -372,43 +372,28 @@ Qed.
 Theorem Qdiv_plus_distr_r : ∀ x y z, (x + y) / z == x / z + y / z.
 Proof.
 intros x y z.
-...
-destruct (Qeq_dec z 0) as [Heq| Hne].
- rewrite Heq.
- unfold Qdiv, Qinv; simpl.
- do 3 rewrite Qmult_0_r.
- reflexivity.
-
- field; assumption.
+progress unfold Q.div.
+apply Q_mul_add_distr_r.
 Qed.
 
-Definition Qeq_opp_r : ∀ x y, x == y → - x == - y :=
-  λ x y Hxy,
-  let H₁ := eq_sym (f_equal Z.opp Hxy) in
-  let H₂ := eq_trans (Z.mul_opp_l (Qnum y) (Zpos (Qden x))) H₁ in
-  let H₃ := Z.mul_opp_l (Qnum x) (Zpos (Qden y)) in
-  eq_trans H₃ (eq_sym H₂).
+Theorem Qeq_opp_r : ∀ x y, x == y → - x == - y.
+Proof.
+intros * Heq.
+now rewrite Heq.
+Qed.
 
 Theorem Qgt_0_not_0 : ∀ x, 0 < x → ¬x == 0.
 Proof.
 intros x Ha.
 intros H.
 rewrite H in Ha.
-apply Qlt_irrefl in Ha; assumption.
-Qed.
-
-Theorem Qlt_minus : ∀ x y, x < y → 0 < y - x.
-Proof.
-intros x y H.
-unfold Qlt in H |-*; simpl.
-rewrite Z.mul_1_r, <- Zopp_mult_distr_l.
-apply Zlt_left_lt.
-assumption.
+now apply Q.lt_irrefl in Ha.
 Qed.
 
 Theorem Qminus_eq : ∀ x y, x - y == 0 → x == y.
 Proof.
 intros x y H.
+...
 apply Qplus_inj_r with (z := - y).
 rewrite Qplus_opp_r.
 assumption.
