@@ -1573,7 +1573,7 @@ Proof. now intros; destruct a. Qed.
 Theorem eq_0 : ∀ a, Z.of_nat a = 0%Z → a = 0%nat.
 Proof. now intros; destruct a. Qed.
 
-Theorem inj_mul: ∀ a b : nat, Z.of_nat (a * b) = Z.of_nat a * Z.of_nat b.
+Theorem inj_mul : ∀ a b, Z.of_nat (a * b) = Z.of_nat a * Z.of_nat b.
 Proof.
 intros.
 progress unfold Z.mul.
@@ -1582,6 +1582,21 @@ destruct a; [ easy | ].
 rewrite Nat.mul_comm.
 destruct b; [ easy | cbn ].
 f_equal; flia.
+Qed.
+
+Theorem inj_lt : ∀ a b, (a < b)%nat ↔ (Z.of_nat a < Z.of_nat b)%Z.
+Proof.
+intros.
+destruct a; [ now destruct b | ].
+destruct b; [ easy | cbn ].
+progress unfold Z.lt; cbn.
+split; intros H. {
+  apply Nat.compare_lt_iff.
+  now apply Nat.succ_lt_mono in H.
+} {
+  apply Nat.compare_lt_iff in H.
+  now apply -> Nat.succ_lt_mono.
+}
 Qed.
 
 End Nat2Z.

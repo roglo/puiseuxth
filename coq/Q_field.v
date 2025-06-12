@@ -6,8 +6,8 @@ Require Import A_QArith.
 Require Import Field2.
 Open Scope Q_scope.
 
-Check Q.add_opp_l.
 ...
+Check Q.add_opp_l.
 Theorem Qplus_opp_l : ∀ a, -a + a == 0.
 Proof. intros a; rewrite Q.add_comm; apply Q.add_opp_r. Qed.
 

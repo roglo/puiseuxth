@@ -319,20 +319,19 @@ intros i j; split; intros H. {
   unfold Qnat, Q.lt; simpl.
   do 2 rewrite q_Den_num_den.
   apply Z.mul_lt_mono_pos_r; [ easy | ].
-Search (Z.of_nat _ < Z.of_nat _)%Z.
-...
- do 2 rewrite Z.mul_1_r.
- apply inj_lt; assumption.
-
- unfold Qlt in H; simpl in H.
- do 2 rewrite Z.mul_1_r in H.
- apply Nat2Z.inj_lt in H; assumption.
+  now apply Nat2Z.inj_lt.
+} {
+  unfold Q.lt in H; cbn in H.
+  apply Z.mul_lt_mono_pos_r in H; [ | easy ].
+  now apply Nat2Z.inj_lt in H.
+}
 Qed.
 
 Theorem Qnat_succ : ∀ n x, x * Qnat (S n) == x * Qnat n + x.
 Proof.
 intros n x.
 unfold Qnat.
+...
 setoid_replace x with (x * 1) at 3 by now rewrite Q_mul_1_r.
 rewrite <- Q_mul_add_distr_l.
 rewrite Q_mul_Q1_r.
