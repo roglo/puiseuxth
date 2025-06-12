@@ -145,6 +145,7 @@ Notation "a / b" := (div a b) : Q_scope.
 Notation "- a" := (opp a) : Q_scope.
 Notation "a ≤ b" := (le a b) : Q_scope.
 Notation "a < b" := (lt a b) : Q_scope.
+Notation "a # b" := (mk_q a b) (at level 55) : Q_scope.
 
 Theorem eq_refl : ∀ a, (a == a)%Q.
 Proof. easy. Qed.
@@ -1156,6 +1157,12 @@ apply Q.add_le_mono_l, Hle2.
 apply Q.add_le_mono_r, Hle1.
 Qed.
 
+Theorem lt_irrefl : ∀ a, ¬ (a < a)%Q.
+Proof. intros; apply Z.lt_irrefl. Qed.
+
+(* Some theorems working with syntactic equality,
+   not only with equivalence relation in Q *)
+
 Theorem add_sub_assoc : ∀ x y z, (x + (y - z) = (x + y) - z)%Q.
 Proof.
 intros.
@@ -1295,8 +1302,94 @@ rewrite Q.opp_0.
 apply Q.add_0_r.
 Qed.
 
-Theorem lt_irrefl : ∀ a, ¬ (a < a)%Q.
-Proof. intros; apply Z.lt_irrefl. Qed.
+Definition Q1 x := (q_Den x # q_den x)%Q.
+
+Theorem mul_add_distr_l' : ∀ x y z, (x * (y + z) * Q1 x = x * y + x * z)%Q.
+Proof.
+intros.
+progress unfold Q.add.
+progress unfold Q.mul.
+progress unfold pos_mul; cbn.
+rewrite Nat.sub_add; [ | flia ].
+rewrite Nat.sub_add; [ | flia ].
+rewrite Nat.sub_add; [ | flia ].
+rewrite Nat.sub_add; [ | flia ].
+progress f_equal. {
+  rewrite Z.mul_add_distr_l.
+  rewrite Z.mul_add_distr_r.
+  progress unfold q_Den; cbn.
+  rewrite Nat.sub_add; [ | flia ].
+  rewrite Nat.sub_add; [ | flia ].
+  do 2 rewrite Nat2Z.inj_mul.
+  do 4 rewrite Z.mul_assoc.
+  do 2 rewrite (Z.mul_mul_swap _ (Z.of_nat (q_den x + 1))).
+  easy.
+} {
+  do 3 rewrite <- Nat.mul_assoc.
+  progress f_equal.
+  progress f_equal.
+  progress f_equal.
+  apply Nat.mul_comm.
+}
+Qed.
+
+Theorem mul_add_distr_r' : ∀ x y z, ((x + y) * z * Q1 z = x * z + y * z)%Q.
+Proof.
+intros.
+rewrite (Q.mul_comm (_ + _)).
+rewrite Q.mul_add_distr_l'.
+now do 2 rewrite (Q.mul_comm z).
+Qed.
+
+Theorem mul_Q1_r : ∀ x y, (x * Q1 y == x)%Q.
+Proof.
+intros.
+progress unfold Q.eq.
+cbn.
+rewrite <- Z.mul_assoc.
+progress f_equal.
+rewrite Z.mul_comm.
+symmetry.
+progress unfold q_Den; cbn.
+progress unfold pos_mul.
+rewrite Nat.sub_add; [ | flia ].
+apply Nat2Z.inj_mul.
+Qed.
+
+(* *)
+
+Theorem mul_add_distr_l : ∀ a b c, (a * (b + c) == a * b + a * c)%Q.
+Proof.
+intros.
+rewrite <- Q.mul_add_distr_l'.
+symmetry.
+apply Q.mul_Q1_r.
+Qed.
+
+Theorem mul_add_distr_r : ∀ x y z, ((x + y) * z == x * z + y * z)%Q.
+Proof.
+intros.
+rewrite (Q.mul_comm (_ + _)).
+rewrite Q.mul_add_distr_l.
+now do 2 rewrite (Q.mul_comm z).
+Qed.
+
+Theorem mul_sub_distr_l : ∀ x y z, (x * (y - z) == x * y - x * z)%Q.
+Proof.
+intros.
+progress unfold Q.sub.
+rewrite Q.mul_add_distr_l.
+apply Q.add_compat_l.
+now rewrite Q.mul_opp_r.
+Qed.
+
+Theorem mul_sub_distr_r : ∀ x y z, ((x - y) * z == x * z - y * z)%Q.
+Proof.
+intros.
+rewrite (Q.mul_comm (_ - _)).
+rewrite Q.mul_sub_distr_l.
+now do 2 rewrite (Q.mul_comm z).
+Qed.
 
 End Q.
 

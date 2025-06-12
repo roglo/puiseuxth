@@ -31,94 +31,7 @@ Set Implicit Arguments.
 
 (* doesn't work, works with this small modification *)
 
-Definition Q1 x := q_Den x # q_den x.
-
-Theorem Q_mul_add_distr_l' : ∀ x y z, x * (y + z) * Q1 x = x * y + x * z.
-Proof.
-intros.
-progress unfold Q.add.
-progress unfold Q.mul.
-progress unfold pos_mul; cbn.
-rewrite Nat.sub_add; [ | flia ].
-rewrite Nat.sub_add; [ | flia ].
-rewrite Nat.sub_add; [ | flia ].
-rewrite Nat.sub_add; [ | flia ].
-progress f_equal. {
-  rewrite Z.mul_add_distr_l.
-  rewrite Z.mul_add_distr_r.
-  progress unfold q_Den; cbn.
-  rewrite Nat.sub_add; [ | flia ].
-  rewrite Nat.sub_add; [ | flia ].
-  do 2 rewrite Nat2Z.inj_mul.
-  do 4 rewrite Z.mul_assoc.
-  do 2 rewrite (Z.mul_mul_swap _ (Z.of_nat (q_den x + 1))).
-  easy.
-} {
-  do 3 rewrite <- Nat.mul_assoc.
-  progress f_equal.
-  progress f_equal.
-  progress f_equal.
-  apply Nat.mul_comm.
-}
-Qed.
-
-Theorem Q_mul_add_distr_r' : ∀ x y z, (x + y) * z * Q1 z = x * z + y * z.
-Proof.
-intros.
-rewrite (Q.mul_comm (_ + _)).
-rewrite Q_mul_add_distr_l'.
-now do 2 rewrite (Q.mul_comm z).
-Qed.
-
-Theorem Q_mul_Q1_r : ∀ x y, x * Q1 y == x.
-Proof.
-intros.
-progress unfold Q.eq.
-cbn.
-rewrite <- Z.mul_assoc.
-progress f_equal.
-rewrite Z.mul_comm.
-symmetry.
-progress unfold q_Den; cbn.
-progress unfold pos_mul.
-rewrite Nat.sub_add; [ | flia ].
-apply Nat2Z.inj_mul.
-Qed.
-
 (* *)
-
-Theorem Q_mul_add_distr_l : ∀ x y z, x * (y + z) == x * y + x * z.
-Proof.
-intros.
-rewrite <- Q_mul_add_distr_l'.
-symmetry.
-apply Q_mul_Q1_r.
-Qed.
-
-Theorem Q_mul_add_distr_r : ∀ x y z, (x + y) * z == x * z + y * z.
-Proof.
-intros.
-rewrite (Q.mul_comm (_ + _)).
-rewrite Q_mul_add_distr_l.
-now do 2 rewrite (Q.mul_comm z).
-Qed.
-
-Theorem Q_mul_sub_distr_l : ∀ x y z, x * (y - z) == x * y - x * z.
-Proof.
-intros.
-progress unfold Q.sub.
-rewrite Q_mul_add_distr_l.
-apply Q.add_compat_l.
-now rewrite Q.mul_opp_r.
-Qed.
-
-Theorem Q_mul_sub_distr_r : ∀ x y z, (x - y) * z == x * z - y * z.
-Proof.
-intros.
-rewrite (Q.mul_comm (_ - _)).
-rewrite Q_mul_sub_distr_l.
-now do 2 rewrite (Q.mul_comm z).
-Qed.
 
 Definition Qnat i := Z.of_nat i # 1.
 
@@ -324,12 +237,12 @@ Proof.
 intros * Hza.
 split; intros Hbc. {
   apply Q.lt_0_sub.
-  rewrite <- Q_mul_sub_distr_l.
+  rewrite <- Q.mul_sub_distr_l.
   apply Q_mul_pos_pos; [ easy | ].
   now apply Q.lt_0_sub.
 } {
   apply Q.lt_0_sub in Hbc.
-  rewrite <- Q_mul_sub_distr_l in Hbc.
+  rewrite <- Q.mul_sub_distr_l in Hbc.
   apply Q_mul_pos_cancel_l in Hbc; [ | easy ].
   now apply Q.lt_0_sub.
 }
@@ -365,7 +278,7 @@ Proof.
 intros x y z.
 progress unfold Q.sub.
 progress unfold Q.div.
-rewrite Q_mul_add_distr_r.
+rewrite Q.mul_add_distr_r.
 now rewrite Q.mul_opp_l.
 Qed.
 
@@ -373,7 +286,7 @@ Theorem Qdiv_plus_distr_r : ∀ x y z, (x + y) / z == x / z + y / z.
 Proof.
 intros x y z.
 progress unfold Q.div.
-apply Q_mul_add_distr_r.
+apply Q.mul_add_distr_r.
 Qed.
 
 Theorem Qeq_opp_r : ∀ x y, x == y → - x == - y.
@@ -390,48 +303,22 @@ rewrite H in Ha.
 now apply Q.lt_irrefl in Ha.
 Qed.
 
-Theorem Qminus_eq : ∀ x y, x - y == 0 → x == y.
-Proof.
-intros x y H.
-...
-apply Qplus_inj_r with (z := - y).
-rewrite Qplus_opp_r.
-assumption.
-Qed.
-
-Theorem Qmult_minus_distr_l : ∀ x y z, (x - y) * z == x * z - y * z.
-Proof.
-intros x y z.
-unfold Qminus.
-rewrite <- Q_mul_opp_l.
-rewrite <- Q_mul_add_distr_r.
-symmetry.
-apply Q_mul_Q1_r.
-Qed.
-
-Theorem Qmult_minus_distr_r : ∀ x y z, x * (y - z) == x * y - x * z.
-Proof.
-intros x y z.
-unfold Qminus.
-rewrite <- Q_mul_opp_r.
-rewrite <- Q_mul_add_distr_l.
-symmetry.
-apply Q_mul_Q1_r.
-Qed.
-
 Theorem QZ_plus : ∀ x y z, x + y # z == (x # z) + (y # z).
 Proof.
 intros x y z.
-unfold Qplus; simpl.
-unfold Qeq; simpl.
-rewrite Pos2Z.inj_mul; ring.
+progress unfold Q.add; cbn.
+progress unfold Q.eq; cbn.
+do 4 rewrite Q.q_Den_num_den.
+rewrite Nat.sub_add; [ | easy ].
+rewrite Nat2Z.inj_mul; ring.
 Qed.
 
 Theorem Qnat_lt : ∀ i j, (i < j)%nat ↔ Qnat i < Qnat j.
 Proof.
 intros i j; split; intros H.
- unfold Qnat, Qlt; simpl.
- do 2 rewrite Zmult_1_r.
+ unfold Qnat, Q.lt; simpl.
+...
+ do 2 rewrite Z.mul_1_r.
  apply inj_lt; assumption.
 
  unfold Qlt in H; simpl in H.

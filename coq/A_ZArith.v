@@ -1577,3 +1577,17 @@ f_equal; flia.
 Qed.
 
 End Nat2Z.
+
+Definition Z_ring_theory : ring_theory 0%Z 1%Z Z.add Z.mul Z.sub Z.opp eq :=
+  {| Radd_0_l := Z.add_0_l;
+     Radd_comm := Z.add_comm;
+     Radd_assoc := Z.add_assoc;
+     Rmul_1_l := Z.mul_1_l;
+     Rmul_comm := Z.mul_comm;
+     Rmul_assoc := Z.mul_assoc;
+     Rdistr_l := Z.mul_add_distr_r;
+     Rsub_def x y := eq_sym (eq_refl _);
+     Ropp_def := Z.add_opp_diag_r |}.
+
+From Stdlib Require Import Ring.
+Add Ring Z_ring : Z_ring_theory.
