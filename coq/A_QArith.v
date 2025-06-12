@@ -86,6 +86,18 @@ Proof. flia. Qed.
 Hint Resolve Nat_1_le_mul_add_1 : core.
 Hint Resolve Nat_add_1_r_pos : core.
 
+Theorem q_Den_num_den : ∀ a b, q_Den (mk_q a b) = Z.of_nat (b + 1).
+Proof. easy. Qed.
+
+Theorem q_Den_neq_0 : ∀ a, q_Den a ≠ 0%Z.
+Proof. now intros; unfold q_Den; rewrite Nat.add_1_r. Qed.
+
+Theorem q_Den_pos : ∀ a, (0 < q_Den a)%Z.
+Proof. now intros; unfold q_Den; rewrite Nat.add_1_r. Qed.
+
+Theorem q_Den_nonneg : ∀ a, (0 ≤ q_Den a)%Z.
+Proof. now intros; unfold q_Den; rewrite Nat.add_1_r. Qed.
+
 (* end misc *)
 
 Module Q.
@@ -146,6 +158,15 @@ Notation "- a" := (opp a) : Q_scope.
 Notation "a ≤ b" := (le a b) : Q_scope.
 Notation "a < b" := (lt a b) : Q_scope.
 Notation "a # b" := (mk_q a b) (at level 55) : Q_scope.
+
+Theorem q_Den_mul : ∀ a b, q_Den (a * b) = (q_Den a * q_Den b)%Z.
+Proof.
+intros; cbn.
+progress unfold q_Den; cbn.
+progress unfold pos_mul.
+rewrite Nat.sub_add; [ | easy ].
+apply Nat2Z.inj_mul.
+Qed.
 
 Theorem eq_refl : ∀ a, (a == a)%Q.
 Proof. easy. Qed.
@@ -284,27 +305,6 @@ Proof. intros; apply Z.le_refl. Qed.
 
 Theorem lt_le_incl : ∀ a b, (a < b)%Q → (a ≤ b)%Q.
 Proof. intros * Hab; congruence. Qed.
-
-Theorem q_Den_num_den : ∀ a b, q_Den (mk_q a b) = Z.of_nat (b + 1).
-Proof. easy. Qed.
-
-Theorem q_Den_neq_0 : ∀ a, q_Den a ≠ 0%Z.
-Proof. now intros; unfold q_Den; rewrite Nat.add_1_r. Qed.
-
-Theorem q_Den_pos : ∀ a, (0 < q_Den a)%Z.
-Proof. now intros; unfold q_Den; rewrite Nat.add_1_r. Qed.
-
-Theorem q_Den_nonneg : ∀ a, (0 ≤ q_Den a)%Z.
-Proof. now intros; unfold q_Den; rewrite Nat.add_1_r. Qed.
-
-Theorem q_Den_mul : ∀ a b, q_Den (a * b) = (q_Den a * q_Den b)%Z.
-Proof.
-intros; cbn.
-progress unfold q_Den; cbn.
-progress unfold pos_mul.
-rewrite Nat.sub_add; [ | easy ].
-apply Nat2Z.inj_mul.
-Qed.
 
 Theorem mul_opp_l : ∀ x y, ((- x) * y = - (x * y))%Q.
 Proof.

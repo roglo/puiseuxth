@@ -1506,6 +1506,14 @@ split; intros Hbc. {
 }
 Qed.
 
+Theorem mul_lt_mono_pos_r :
+  ∀ a b c, (0 < a)%Z → (b < c)%Z ↔ (b * a < c * a)%Z.
+Proof.
+intros * Hlt.
+do 2 rewrite (Z.mul_comm _ a).
+now apply Z.mul_lt_mono_pos_l.
+Qed.
+
 Theorem mul_cancel_l : ∀ a b c, a ≠ 0%Z → (a * b)%Z = (a * c)%Z → b = c.
 Proof.
 intros * Haz Habc.

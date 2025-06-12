@@ -133,7 +133,7 @@ apply Z.mul_le_mono_nonneg_l; [ easy | ].
 rewrite (Z.mul_comm (q_num b)).
 rewrite (Z.mul_comm (q_num c)).
 do 2 rewrite <- Z.mul_assoc.
-apply Z.mul_le_mono_nonneg_l; [ apply Q.q_Den_nonneg | ].
+apply Z.mul_le_mono_nonneg_l; [ apply q_Den_nonneg | ].
 do 2 rewrite (Z.mul_comm (q_Den _)).
 easy.
 Qed.
@@ -262,7 +262,7 @@ intros * Hlt.
 progress unfold Q.lt, Q.inv in Hlt |-*; cbn in Hlt |-*.
 rewrite Z.mul_1_r in Hlt |-*.
 destruct (q_num a); [ easy | cbn ].
-apply Q.q_Den_pos.
+apply q_Den_pos.
 Qed.
 
 Theorem Qdiv_lt_compat_r : ∀ x y z, 0 < z → x < y → x / z < y / z.
@@ -308,15 +308,18 @@ Proof.
 intros x y z.
 progress unfold Q.add; cbn.
 progress unfold Q.eq; cbn.
-do 4 rewrite Q.q_Den_num_den.
+do 4 rewrite q_Den_num_den.
 rewrite Nat.sub_add; [ | easy ].
 rewrite Nat2Z.inj_mul; ring.
 Qed.
 
 Theorem Qnat_lt : ∀ i j, (i < j)%nat ↔ Qnat i < Qnat j.
 Proof.
-intros i j; split; intros H.
- unfold Qnat, Q.lt; simpl.
+intros i j; split; intros H. {
+  unfold Qnat, Q.lt; simpl.
+  do 2 rewrite q_Den_num_den.
+  apply Z.mul_lt_mono_pos_r; [ easy | ].
+Search (Z.of_nat _ < Z.of_nat _)%Z.
 ...
  do 2 rewrite Z.mul_1_r.
  apply inj_lt; assumption.
