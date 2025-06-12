@@ -403,50 +403,27 @@ do 2 rewrite (Q.mul_comm _ a).
 now apply Q_mul_lt_mono_pos_l.
 Qed.
 
+Theorem Q_inv_pos : ∀ a : Q, 0 < a → 0 < Q.inv a.
+Proof.
+intros * Hlt.
+progress unfold Q.lt, Q.inv in Hlt |-*; cbn in Hlt |-*.
+rewrite Z.mul_1_r in Hlt |-*.
+destruct (q_num a); [ easy | cbn ].
+apply Q.q_Den_pos.
+Qed.
+
 Theorem Qdiv_lt_compat_r : ∀ x y z, 0 < z → x < y → x / z < y / z.
 Proof.
 intros * Hz Hxy.
 progress unfold Q.div.
 apply Q_mul_lt_mono_pos_r; [ | easy ].
-Theorem Q_inv_pos : ∀ a : Q, 0 < a → 0 < Q.inv a.
-Proof.
-...
-intros * Hza.
-assert (Haz : a ≠ 0%L). {
-  intros H; subst a.
-  now apply (rngl_lt_irrefl Hor) in Hza.
-}
-specialize (rngl_inv_neq_0 Hon Hos Hiv) as H1.
-destruct (rngl_le_dec Hor 0 a⁻¹)%L as [H2| H2]. {
-  apply (rngl_lt_iff Hor).
-  split; [ easy | ].
-  intros H; symmetry in H; revert H.
-  now apply H1.
-}
-apply (rngl_not_le Hor) in H2.
-destruct H2 as (H2, H3).
-specialize (rngl_mul_nonneg_nonpos Hop Hor) as H4.
-assert (H : (0 ≤ a)%L) by now apply (rngl_lt_iff Hor) in Hza.
-specialize (H4 _ _ H H3); clear H.
-rewrite (rngl_mul_inv_diag_r Hon Hiv a Haz) in H4.
-specialize (rngl_0_le_1 Hon Hos Hor) as H5.
-specialize (rngl_le_antisymm Hor _ _ H4 H5) as H6.
-clear H4 H5.
-apply (rngl_1_eq_0_iff Hon Hos) in H6.
-specialize (rngl_characteristic_1 Hon Hos H6) as H4.
-exfalso; apply Haz, H4.
+now apply Q_inv_pos.
 Qed.
-...
-Require Import QArith.
-Search (0 < Qinv _)%Q.
-Search (0 < Q.inv _)%Q.
-now apply Qinv_lt_0_compat.
-Qed.
-...
 
 Theorem Qdiv_minus_distr_r : ∀ x y z, (x - y) / z == x / z - y / z.
 Proof.
 intros x y z.
+...
 destruct (Qeq_dec z 0) as [Heq| Hne].
  rewrite Heq.
  unfold Qdiv, Qinv; simpl.
