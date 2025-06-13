@@ -832,9 +832,7 @@ Proof. intros * Hab; congruence. Qed.
 Theorem lt_irrefl : ∀ a, ¬ (a < a)%Z.
 Proof.
 intros a Ha.
-...
-destruct a as [| sa va]; [ easy | ].
-destruct sa. {
+destruct a as [| a| a]; [ easy | | ]. {
   apply Nat.compare_lt_iff in Ha.
   now apply Nat.lt_irrefl in Ha.
 } {
@@ -846,6 +844,7 @@ Qed.
 Theorem compare_eq_iff : ∀ a b, (a ?= b)%Z = Eq ↔ a = b.
 Proof.
 intros.
+...
 destruct a as [| sa va]; cbn. {
   destruct b as [| sb vb]; [ easy | now destruct sb ].
 }
