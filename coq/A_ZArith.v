@@ -1055,9 +1055,9 @@ Theorem leb_refl : ∀ a, (a ≤? a)%Z = true.
 Proof.
 intros.
 progress unfold Z.leb.
-...
-destruct a as [| sa va]; [ easy | cbn ].
-now destruct sa; rewrite Nat.compare_refl.
+destruct a as [| a| a]; [ easy | | ]; cbn.
+now rewrite Nat.compare_refl.
+now rewrite Nat.compare_refl.
 Qed.
 
 Theorem add_le_mono_l : ∀ a b c, (a ≤ b)%Z → (c + a ≤ c + b)%Z.
@@ -1065,6 +1065,7 @@ Proof.
 intros * Hab.
 progress unfold Z.le in Hab |-*.
 progress unfold Z.compare in Hab |-*.
+...
 destruct a as [| sa va]. {
   destruct b as [| sb vb]. {
     destruct c as [| sc vc]; [ easy | cbn ].
