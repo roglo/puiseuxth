@@ -213,16 +213,16 @@ Definition div a b := fst (div_eucl a b).
 Theorem eq_dec : ∀ a b : Z, {a = b} + {a ≠ b}.
 Proof.
 intros.
-destruct a as [| va | va]. {
+destruct a as [| a | a]. {
   now destruct b; [ left | right | right ].
 } {
-  destruct b as [| vb| vb]; [ now right | | now right ].
-  destruct (Nat.eq_dec va vb) as [Hvab| Hvab]; [ now subst; left | right ].
+  destruct b as [| b| b]; [ now right | | now right ].
+  destruct (Nat.eq_dec a b) as [Hvab| Hvab]; [ now subst; left | right ].
   intros H; apply Hvab.
   now injection H.
 } {
-  destruct b as [| vb| vb]; [ now right | now right | ].
-  destruct (Nat.eq_dec va vb) as [Hvab| Hvab]; [ now subst; left | right ].
+  destruct b as [| b| b]; [ now right | now right | ].
+  destruct (Nat.eq_dec a b) as [Hvab| Hvab]; [ now subst; left | right ].
   intros H; apply Hvab.
   now injection H.
 }
@@ -306,14 +306,14 @@ Theorem add_comm : ∀ a b, (a + b)%Z = (b + a)%Z.
 Proof.
 intros.
 progress unfold add.
-destruct a as [| va| va]; [ now destruct b | | ]. {
-  destruct b as [| vb| vb]; [ easy | now rewrite (Nat.add_comm va) | ].
-  rewrite (Nat.compare_antisym va).
-  now destruct (va ?= vb).
+destruct a as [| a| a]; [ now destruct b | | ]. {
+  destruct b as [| b| b]; [ easy | now rewrite (Nat.add_comm a) | ].
+  rewrite (Nat.compare_antisym a).
+  now destruct (a ?= b).
 } {
-  destruct b as [| vb | vb]; [ easy | | now rewrite (Nat.add_comm va) ].
-  rewrite (Nat.compare_antisym va).
-  now destruct (va ?= vb).
+  destruct b as [| b | b]; [ easy | | now rewrite (Nat.add_comm a) ].
+  rewrite (Nat.compare_antisym a).
+  now destruct (a ?= b).
 }
 Qed.
 
@@ -592,12 +592,12 @@ Theorem mul_comm : ∀ a b, (a * b)%Z = (b * a)%Z.
 Proof.
 intros.
 progress unfold mul.
-destruct a as [| va| va]; [ now destruct b | | ]. {
-  destruct b as [| vb| vb]; [ easy | | ].
+destruct a as [| a| a]; [ now destruct b | | ]. {
+  destruct b; [ easy | | ].
   f_equal; f_equal; apply Nat.mul_comm.
   f_equal; f_equal; apply Nat.mul_comm.
 } {
-  destruct b as [| vb| vb]; [ easy | | ].
+  destruct b; [ easy | | ].
   f_equal; f_equal; apply Nat.mul_comm.
   f_equal; f_equal; apply Nat.mul_comm.
 }
@@ -746,9 +746,32 @@ Qed.
 Theorem add_opp_diag_l : ∀ a : Z, (- a + a)%Z = 0%Z.
 Proof.
 intros.
+destruct a as [| a| a]; [ easy | | ]; cbn.
+now rewrite Nat.compare_refl.
+now rewrite Nat.compare_refl.
+Qed.
+
+Theorem mul_div : ∀ a b, b ≠ 0%Z → (a * b / b)%Z = a.
+Proof.
+intros * Hbz.
+progress unfold mul.
+progress unfold div.
+destruct a as [| a| a]; [ easy | | ].
 ...
-destruct a as [| sa va]; [ easy | cbn ].
-now destruct sa; rewrite Nat.compare_refl.
+destruct b as [| sb vb]; [ easy | cbn ].
+rewrite Nat.sub_add; [ | flia ].
+rewrite if_eqb_bool_dec.
+rewrite Nat.div_mul; [ | now rewrite Nat.add_comm ].
+destruct (Bool.bool_dec (Bool.eqb sa sb) sb) as [H1| H1]. {
+  rewrite Nat.add_comm; cbn.
+  destruct sa; [ easy | ].
+  now exfalso; destruct sb.
+} {
+  rewrite Nat.Div0.mod_mul; cbn.
+  rewrite Nat.add_comm; cbn.
+  destruct sa; [ | easy ].
+  now exfalso; destruct sb.
+}
 Qed.
 
 Theorem mul_div : ∀ a b, b ≠ 0%Z → (a * b / b)%Z = a.
