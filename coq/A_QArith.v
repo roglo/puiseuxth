@@ -77,15 +77,6 @@ Theorem Nat_sub_lt_mono_r :
   ∀ a b c, (c < b ∨ c <= a → a < b → a - c < b - c)%nat.
 Proof. intros * H1 H2; flia H1 H2. Qed.
 
-Theorem Nat_1_le_mul_add_1 : ∀ a b, (1 <= (a + 1) * (b + 1))%nat.
-Proof. flia. Qed.
-
-Theorem Nat_add_1_r_pos : ∀ a, (0 < a + 1)%nat.
-Proof. flia. Qed.
-
-Hint Resolve Nat_1_le_mul_add_1 : core.
-Hint Resolve Nat_add_1_r_pos : core.
-
 Theorem q_Den_num_den : ∀ a b, q_Den (mk_q a b) = Z.of_nat (b + 1).
 Proof. easy. Qed.
 

@@ -82,6 +82,15 @@ rewrite Nat.add_comm.
 now apply Nat_compare_sub_add_l.
 Qed.
 
+Theorem Nat_1_le_mul_add_1 : ∀ a b, (1 <= (a + 1) * (b + 1))%nat.
+Proof. flia. Qed.
+
+Theorem Nat_add_1_r_pos : ∀ a, (0 < a + 1)%nat.
+Proof. flia. Qed.
+
+Hint Resolve Nat_1_le_mul_add_1 : core.
+Hint Resolve Nat_add_1_r_pos : core.
+
 (* end misc theorems *)
 
 Module Z.
@@ -338,19 +347,15 @@ Definition add' a b :=
       end
   end.
 
-(*
-..................................
-Definition mul a b :=
+Definition mul' a b :=
   match a with
-  | z_zero => z_zero
-  | z_val sa va =>
+  | z_zero' => z_zero'
+  | z_val' sa va =>
       match b with
-      | z_zero => z_zero
-      | z_val sb vb => z_val (Bool.eqb sa sb) ((va + 1) * (vb + 1) - 1)
+      | z_zero' => z_zero'
+      | z_val' sb vb => z_val' (Bool.eqb sa sb) ((va + 1) * (vb + 1) - 1)
       end
   end.
-..................................
-*)
 
 Theorem add_comm' : ∀ a b : Z', Z.add' a b = Z.add' b a.
 Proof.
@@ -563,6 +568,9 @@ now destruct (a ?= b).
 now destruct (a ?= b).
 Qed.
 
+Theorem z'_of_z_mul : ∀ a b, z'_of_z (a * b) = Z.mul' (z'_of_z a) (z'_of_z b).
+Proof. now intros; destruct a, b. Qed.
+
 Theorem add_add_swap : ∀ a b c, (a + b + c)%Z = (a + c + b)%Z.
 Proof.
 intros.
@@ -601,20 +609,41 @@ Proof. easy. Qed.
 Theorem mul_0_r : ∀ a, (a * 0)%Z = 0%Z.
 Proof. now intros; rewrite mul_comm. Qed.
 
-...
+Theorem pos_pos_swap :
+  ∀ a b c,
+  ((a + 1) * (b + 1) - 1 + 1) * (c + 1) - 1 =
+  ((a + 1) * (c + 1) - 1 + 1) * (b + 1) - 1.
+Proof.
+intros.
+rewrite Nat.sub_add; [ | easy ].
+rewrite Nat.sub_add; [ | easy ].
+f_equal; apply Nat.mul_shuffle0.
+Qed.
 
 Theorem mul_mul_swap : ∀ a b c, (a * b * c)%Z = (a * c * b)%Z.
 Proof.
 intros.
-destruct a as [| sa va]; [ easy | ].
-destruct b as [| sb vb]; [ now do 2 rewrite Z.mul_0_r | ].
-destruct c as [| sc vc]; [ now do 2 rewrite Z.mul_0_r | ].
-move sb before sa; move sc before sb.
-cbn.
-f_equal; [ now destruct sa, sb, sc | ].
-rewrite Nat.sub_add; [ | flia ].
-rewrite Nat.sub_add; [ | flia ].
-flia.
+destruct a as [| a| a]; [ easy | | ]. {
+  destruct b as [| b| b]; [ now do 2 rewrite Z.mul_0_r | | ]. {
+    destruct c as [| c| c]; [ now do 2 rewrite Z.mul_0_r | | ].
+    cbn; f_equal; apply pos_pos_swap.
+    cbn; f_equal; apply pos_pos_swap.
+  } {
+    destruct c as [| c| c]; [ now do 2 rewrite Z.mul_0_r | | ].
+    cbn; f_equal; apply pos_pos_swap.
+    cbn; f_equal; apply pos_pos_swap.
+  }
+} {
+  destruct b as [| b| b]; [ now do 2 rewrite Z.mul_0_r | | ]. {
+    destruct c as [| c| c]; [ now do 2 rewrite Z.mul_0_r | | ].
+    cbn; f_equal; apply pos_pos_swap.
+    cbn; f_equal; apply pos_pos_swap.
+  } {
+    destruct c as [| c| c]; [ now do 2 rewrite Z.mul_0_r | | ].
+    cbn; f_equal; apply pos_pos_swap.
+    cbn; f_equal; apply pos_pos_swap.
+  }
+}
 Qed.
 
 Theorem mul_assoc : ∀ a b c, (a * (b * c))%Z = ((a * b) * c)%Z.
@@ -628,17 +657,17 @@ Qed.
 
 Theorem mul_1_l : ∀ a, (1 * a)%Z = a.
 Proof.
-intros.
-cbn.
-destruct a as [| sa va]; [ easy | ].
-rewrite Nat.add_0_r, Nat.add_sub.
-now f_equal; destruct sa.
+intros; cbn.
+destruct a as [| a| a]; [ easy | | ].
+now rewrite Nat.add_0_r, Nat.add_sub.
+now rewrite Nat.add_0_r, Nat.add_sub.
 Qed.
 
 Theorem mul_1_r : ∀ a, (a * 1)%Z = a.
 Proof. intros; rewrite Z.mul_comm; apply Z.mul_1_l. Qed.
 
-Theorem mul_add_distr_l : ∀ a b c, (a * (b + c))%Z = (a * b + a * c)%Z.
+Theorem mul_add_distr_l' :
+  ∀ a b c, Z.mul' a (Z.add' b c) = Z.add' (Z.mul' a b) (Z.mul' a c).
 Proof.
 intros.
 destruct a as [| sa va]; [ easy | ].
@@ -696,6 +725,16 @@ destruct (lt_eq_lt_dec vb vc) as [[Hbc| Hbc]| Hbc]. {
 }
 Qed.
 
+Theorem mul_add_distr_l : ∀ a b c, (a * (b + c))%Z = (a * b + a * c)%Z.
+Proof.
+intros.
+apply z'_of_z_inj; cbn.
+rewrite z'_of_z_mul.
+do 2 rewrite z'_of_z_add.
+do 2 rewrite z'_of_z_mul.
+apply mul_add_distr_l'.
+Qed.
+
 Theorem mul_add_distr_r : ∀ a b c, ((a + b) * c)%Z = (a * c + b * c)%Z.
 Proof.
 intros.
@@ -707,6 +746,7 @@ Qed.
 Theorem add_opp_diag_l : ∀ a : Z, (- a + a)%Z = 0%Z.
 Proof.
 intros.
+...
 destruct a as [| sa va]; [ easy | cbn ].
 now destruct sa; rewrite Nat.compare_refl.
 Qed.
