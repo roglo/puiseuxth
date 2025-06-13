@@ -372,8 +372,10 @@ do 2 rewrite (Nat.add_comm _  1).
 cbn.
 do 2 rewrite (Nat.add_comm _  1).
 rewrite Nat.add_0_r, Nat.add_sub.
-destruct sa; cbn; rewrite Nat.sub_0_r.
-f_equal; flia.
+Compute ((3 # 1) * (2 # 2))%Q.
+destruct sa; cbn; rewrite Nat.sub_0_r. {
+  f_equal; flia.
+}
 (* ah, tiens, bizarre *)
 ...
 Search (_ * _ = 1)%L.
