@@ -7,7 +7,8 @@ Import ListDef.
 
 Inductive Z :=
   | z_zero : Z
-  | z_val : bool → nat → Z.
+  | z_pos : nat → Z
+  | z_neg : nat → Z.
 
 Declare Scope Z_scope.
 Delimit Scope Z_scope with Z.
@@ -90,8 +91,8 @@ Definition of_number (n : Number.int) : option Z :=
   | Number.IntDecimal n =>
       match n with
       | Decimal.Pos (Decimal.D0 Decimal.Nil) => Some z_zero
-      | Decimal.Pos n => Some (z_val true (Nat.of_uint n - 1))
-      | Decimal.Neg n => Some (z_val false (Nat.of_uint n - 1))
+      | Decimal.Pos n => Some (z_pos (Nat.of_uint n - 1))
+      | Decimal.Neg n => Some (z_neg (Nat.of_uint n - 1))
       end
   | Number.IntHexadecimal n => None
   end.
@@ -99,8 +100,8 @@ Definition of_number (n : Number.int) : option Z :=
 Definition to_number (a : Z) : Number.int :=
   match a with
   | z_zero => Number.IntDecimal (Decimal.Pos (Nat.to_uint 0))
-  | z_val true v => Number.IntDecimal (Decimal.Pos (Nat.to_uint (v + 1)))
-  | z_val false v => Number.IntDecimal (Decimal.Neg (Nat.to_uint (v + 1)))
+  | z_pos v => Number.IntDecimal (Decimal.Pos (Nat.to_uint (v + 1)))
+  | z_neg v => Number.IntDecimal (Decimal.Neg (Nat.to_uint (v + 1)))
   end.
 
 Number Notation Z of_number to_number : Z_scope.
@@ -108,40 +109,58 @@ Number Notation Z of_number to_number : Z_scope.
 Definition of_nat n :=
   match n with
   | 0 => z_zero
-  | S n' => z_val true n'
+  | S n' => z_pos n'
   end.
 
 Definition add a b :=
   match a with
   | z_zero => b
-  | z_val sa va =>
+  | z_pos va =>
       match b with
       | z_zero => a
-      | z_val sb vb =>
-          if Bool.eqb sa sb then z_val sa (va + vb + 1)
-          else
-            match va ?= vb with
-            | Eq => z_zero
-            | Lt => z_val sb (vb - va - 1)
-            | Gt => z_val sa (va - vb - 1)
-            end
+      | z_pos vb => z_pos (va + vb + 1)
+      | z_neg vb =>
+          match va ?= vb with
+          | Eq => z_zero
+          | Lt => z_neg (vb - va - 1)
+          | Gt => z_pos (va - vb - 1)
+          end
+      end
+  | z_neg va =>
+      match b with
+      | z_zero => a
+      | z_pos vb =>
+          match va ?= vb with
+          | Eq => z_zero
+          | Lt => z_pos (vb - va - 1)
+          | Gt => z_neg (va - vb - 1)
+          end
+      | z_neg vb => z_neg (va + vb + 1)
       end
   end.
 
 Definition mul a b :=
   match a with
   | z_zero => z_zero
-  | z_val sa va =>
+  | z_pos va =>
       match b with
       | z_zero => z_zero
-      | z_val sb vb => z_val (Bool.eqb sa sb) ((va + 1) * (vb + 1) - 1)
+      | z_pos vb => z_pos ((va + 1) * (vb + 1) - 1)
+      | z_neg vb => z_neg ((va + 1) * (vb + 1) - 1)
+      end
+  | z_neg va =>
+      match b with
+      | z_zero => z_zero
+      | z_pos vb => z_neg ((va + 1) * (vb + 1) - 1)
+      | z_neg vb => z_pos ((va + 1) * (vb + 1) - 1)
       end
   end.
 
 Definition opp a :=
   match a with
   | z_zero => z_zero
-  | z_val s v => z_val (negb s) v
+  | z_pos v => z_neg v
+  | z_neg v => z_pos v
   end.
 
 Definition sub a b := Z.add a (Z.opp b).
@@ -154,29 +173,29 @@ Definition z_pos_div_eucl a b :=
 Definition div_eucl (a b : Z) :=
   match a with
   | z_zero => (z_zero, z_zero)
-  | z_val sa a' =>
+  | z_pos a' =>
       match b with
       | z_zero => (z_zero, a)
-      | z_val sb b' =>
+      | z_pos b' => z_pos_div_eucl a' b'
+      | z_neg b' =>
           let (q', r') := z_pos_div_eucl a' b' in
-          let q :=
-            if Bool.eqb sa sb then q'
-            else
-              match r' with
-              | z_zero => Z.opp q'
-              | _ => Z.opp (Z.add q' (z_val true 0))
-              end
-          in
-          let r :=
-            let r1 := if sa then r' else Z.opp r' in
-            if Bool.eqb sa sb then r1
-            else
-              match r1 with
-              | z_zero => z_zero
-              | _ => Z.add b r1
-              end
-          in
-          (q, r)
+          match r' with
+          | z_zero => (Z.opp q', z_zero)
+          | _ => (Z.opp (Z.add q' (z_pos 0)), Z.add b r')
+          end
+      end
+  | z_neg a' =>
+      match b with
+      | z_zero => (z_zero, a)
+      | z_pos b' =>
+          let (q', r') := z_pos_div_eucl a' b' in
+          match r' with
+          | z_zero => (Z.opp q', z_zero)
+          | _ => (Z.opp (Z.add q' (z_pos 0)), Z.add b (Z.opp r'))
+          end
+      | z_neg b' =>
+          let (q', r') := z_pos_div_eucl a' b' in
+          (q', Z.opp r')
       end
   end.
 
@@ -185,19 +204,17 @@ Definition div a b := fst (div_eucl a b).
 Theorem eq_dec : ∀ a b : Z, {a = b} + {a ≠ b}.
 Proof.
 intros.
-destruct a as [| sa va]. {
-  now destruct b; [ left | right ].
+destruct a as [| va | va]. {
+  now destruct b; [ left | right | right ].
 } {
-  destruct b as [| sb vb]; [ now right | ].
-  destruct (Bool.bool_dec sa sb) as [Hsab| Hsab]. {
-    subst sb.
-    destruct (Nat.eq_dec va vb) as [Hvab| Hvab]; [ now subst vb; left | ].
-    right.
-    intros H; apply Hvab.
-    now injection H.
-  }
-  right.
-  intros H; apply Hsab.
+  destruct b as [| vb| vb]; [ now right | | now right ].
+  destruct (Nat.eq_dec va vb) as [Hvab| Hvab]; [ now subst; left | right ].
+  intros H; apply Hvab.
+  now injection H.
+} {
+  destruct b as [| vb| vb]; [ now right | now right | ].
+  destruct (Nat.eq_dec va vb) as [Hvab| Hvab]; [ now subst; left | right ].
+  intros H; apply Hvab.
   now injection H.
 }
 Qed.
@@ -207,24 +224,18 @@ Definition compare a b :=
   | z_zero =>
       match b with
       | z_zero => Eq
-      | z_val sb _ => if sb then Lt else Gt
+      | z_pos _ => Lt
+      | z_neg _ => Gt
       end
-  | z_val sa va =>
+  | z_pos va =>
       match b with
-      | z_zero => if sa then Gt else Lt
-      | z_val sb vb =>
-          match sa with
-          | true =>
-              match sb with
-              | true => va ?= vb
-              | false => Gt
-              end
-          | false =>
-              match sb with
-              | true => Lt
-              | false => vb ?= va
-              end
-          end
+      | z_pos vb => va ?= vb
+      | _ => Gt
+      end
+  | z_neg va =>
+      match b with
+      | z_neg vb => vb ?= va
+      | _ => Lt
       end
   end.
 
@@ -244,9 +255,14 @@ Definition eqb a b :=
       | z_zero => true
       | _ => false
       end
-  | z_val sa va =>
+  | z_pos va =>
       match b with
-      | z_val sb vb => (Bool.eqb sa sb && (va =? vb))%bool
+      | z_pos vb => va =? vb
+      | _ => false
+      end
+  | z_neg va =>
+      match b with
+      | z_neg vb => va =? vb
       | _ => false
       end
   end.
@@ -267,7 +283,7 @@ Instance ring_like_op : ring_like_op Z :=
   {| rngl_zero := z_zero;
      rngl_add := Z.add;
      rngl_mul := Z.mul;
-     rngl_opt_one := Some (z_val true 0);
+     rngl_opt_one := Some (z_pos 0);
      rngl_opt_opp_or_subt := Some (inl Z.opp);
      rngl_opt_inv_or_quot := Some (inr Z.div);
      rngl_opt_is_zero_divisor := None;
@@ -275,25 +291,21 @@ Instance ring_like_op : ring_like_op Z :=
      rngl_opt_leb := Some Z.leb |}.
 
 Theorem opp_involutive : ∀ a, (- - a)%Z = a.
-Proof.
-intros.
-destruct a as [| s v]; [ easy | cbn ].
-now rewrite Bool.negb_involutive.
-Qed.
+Proof. now intros; destruct a. Qed.
 
 Theorem add_comm : ∀ a b, (a + b)%Z = (b + a)%Z.
 Proof.
 intros.
 progress unfold add.
-destruct a as [| sa va]; [ now destruct b | ].
-destruct b as [| sb vb]; [ easy | ].
-move sb before sa.
-rewrite (Nat.add_comm vb).
-rewrite (Bool_eqb_comm sb).
-do 2 rewrite if_eqb_bool_dec.
-destruct (Bool.bool_dec sa sb) as [Hab| Hab]; [ now subst sb | ].
-rewrite (Nat.compare_antisym va).
-now destruct (va ?= vb).
+destruct a as [| va| va]; [ now destruct b | | ]. {
+  destruct b as [| vb| vb]; [ easy | now rewrite (Nat.add_comm va) | ].
+  rewrite (Nat.compare_antisym va).
+  now destruct (va ?= vb).
+} {
+  destruct b as [| vb | vb]; [ easy | | now rewrite (Nat.add_comm va) ].
+  rewrite (Nat.compare_antisym va).
+  now destruct (va ?= vb).
+}
 Qed.
 
 Theorem add_0_l : ∀ a, (0 + a)%Z = a.
@@ -305,159 +317,379 @@ Proof. now intros; destruct a. Qed.
 Theorem add_add_swap : ∀ a b c, (a + b + c)%Z = (a + c + b)%Z.
 Proof.
 intros.
-destruct a as [| sa va]; [ do 2 rewrite Z.add_0_l; apply Z.add_comm | ].
-destruct b as [| sb vb]; [ now do 2 rewrite Z.add_0_r | ].
-destruct c as [| sc vc]; [ now do 2 rewrite Z.add_0_r | ].
-move sb before sa; move sc before sb.
-destruct (Bool.bool_dec sa sb) as [H1| H1]. {
-  subst sb; cbn.
-  rewrite Bool.eqb_reflx; cbn.
-  do 2 rewrite if_eqb_bool_dec.
-  destruct (Bool.bool_dec sa sc) as [H2| H2]. {
-    cbn; subst sc.
-    rewrite Bool.eqb_reflx.
-    f_equal; flia.
+destruct a as [| va| va]; [ do 2 rewrite Z.add_0_l; apply Z.add_comm | | ]. {
+  destruct b as [| vb| vb]; cbn; [ now rewrite Z.add_0_r | | ]. {
+    destruct c as [| vc| vc]; cbn; [ easy | f_equal; flia | ].
+    do 2 rewrite nat_compare_equiv.
+    progress unfold nat_compare_alt.
+    destruct (lt_eq_lt_dec va vc) as [[H1| H1]| H1]; cbn. {
+      rewrite Nat_compare_sub_add_r; [ | flia H1 ].
+      rewrite Nat_compare_sub_add_l; [ | flia H1 ].
+      rewrite Nat.add_assoc.
+      rewrite Nat.compare_antisym.
+      rewrite nat_compare_equiv.
+      progress unfold nat_compare_alt.
+      destruct (lt_eq_lt_dec (va + vb + 1) vc) as [[H3| H3]| H3].
+      cbn; f_equal; flia.
+      easy.
+      cbn; f_equal; flia H1.
+    } {
+      destruct (lt_eq_lt_dec (va + vb + 1) vc) as [[H3| H3]| H3].
+      flia H1 H3.
+      flia H1 H3.
+      cbn; f_equal; flia H1.
+    } {
+      destruct (lt_eq_lt_dec (va + vb + 1) vc) as [[H3| H3]| H3].
+      flia H1 H3.
+      flia H1 H3.
+      cbn; f_equal; flia H1.
+    }
+  } {
+    rewrite nat_compare_equiv.
+    progress unfold nat_compare_alt.
+    destruct (lt_eq_lt_dec va vb) as [[H1| H1]| H1]; cbn. {
+      destruct c as [| vc| vc]; cbn. {
+        rewrite nat_compare_equiv.
+        progress unfold nat_compare_alt.
+        destruct (lt_eq_lt_dec va vb) as [[H3| H3]| H3].
+        easy.
+        now subst; apply Nat.lt_irrefl in H1.
+        now apply Nat.lt_asymm in H1.
+      } {
+        rewrite Nat_compare_sub_add_r; [ | flia H1 ].
+        rewrite Nat_compare_sub_add_l; [ | flia H1 ].
+        rewrite Nat.add_assoc.
+        rewrite Nat.compare_antisym.
+        rewrite nat_compare_equiv.
+        progress unfold nat_compare_alt.
+        destruct (lt_eq_lt_dec (va + vc + 1) vb) as [[H3| H3]| H3].
+        cbn; f_equal; flia.
+        easy.
+        cbn; f_equal; flia H1.
+      } {
+        rewrite nat_compare_equiv.
+        progress unfold nat_compare_alt.
+        destruct (lt_eq_lt_dec va vc) as [[H3| H3]| H3]; cbn.
+        f_equal; flia H1 H3.
+        f_equal; flia H1 H3.
+        rewrite nat_compare_equiv.
+        progress unfold nat_compare_alt.
+        destruct (lt_eq_lt_dec (va - vc - 1) vb) as [[H4| H4]| H4]; cbn.
+        f_equal; flia H1 H3.
+        exfalso; flia H1 H4.
+        exfalso; flia H1 H4.
+      }
+    } {
+      subst.
+      destruct c as [| vc| vc]; cbn. {
+        now rewrite Nat.compare_refl.
+      } {
+        rewrite nat_compare_equiv.
+        progress unfold nat_compare_alt.
+        destruct (lt_eq_lt_dec (vb + vc + 1) vb) as [[H3| H3]| H3].
+        exfalso; flia H3.
+        exfalso; flia H3.
+        f_equal; flia H3.
+      } {
+        rewrite nat_compare_equiv.
+        progress unfold nat_compare_alt.
+        destruct (lt_eq_lt_dec vb vc) as [[H3| H3]| H3]; cbn.
+        f_equal; flia H3.
+        now subst.
+        rewrite nat_compare_equiv.
+        progress unfold nat_compare_alt.
+        destruct (lt_eq_lt_dec (vb - vc - 1) vb) as [[H4| H4]| H4]; cbn.
+        f_equal; flia H3.
+        exfalso; flia H3 H4.
+        exfalso; flia H4.
+      }
+    } {
+      destruct c as [| vc| vc]; cbn. {
+        rewrite nat_compare_equiv.
+        progress unfold nat_compare_alt.
+        destruct (lt_eq_lt_dec va vb) as [[H3| H3]| H3].
+        exfalso; flia H1 H3.
+        exfalso; flia H1 H3.
+        easy.
+      } {
+        rewrite nat_compare_equiv.
+        progress unfold nat_compare_alt.
+        destruct (lt_eq_lt_dec (va + vc + 1) vb) as [[H3| H3]| H3].
+        exfalso; flia H1 H3.
+        exfalso; flia H1 H3.
+        f_equal; flia H1.
+      }
+      rewrite nat_compare_equiv.
+      progress unfold nat_compare_alt.
+      destruct (lt_eq_lt_dec (va - vb - 1) vc) as [[H3| H3]| H3]. {
+        rewrite nat_compare_equiv.
+        progress unfold nat_compare_alt.
+        destruct (lt_eq_lt_dec va vc) as [[H4| H4]| H4]; cbn. {
+          f_equal; flia H1 H4.
+        } {
+          f_equal; flia H1 H4.
+        }
+        rewrite nat_compare_equiv.
+        progress unfold nat_compare_alt.
+        destruct (lt_eq_lt_dec (va - vc - 1) vb) as [[H5| H5]| H5]; cbn. {
+          f_equal; flia H1 H4.
+        } {
+          exfalso; flia H3 H4 H5.
+        }
+        f_equal; flia H3 H5.
+      } {
+        rewrite nat_compare_equiv.
+        progress unfold nat_compare_alt.
+        destruct (lt_eq_lt_dec va vc) as [[H4| H4]| H4]; cbn.
+        exfalso; flia H3 H4.
+        exfalso; flia H1 H3 H4.
+        rewrite nat_compare_equiv.
+        progress unfold nat_compare_alt.
+        destruct (lt_eq_lt_dec (va - vc - 1) vb) as [[H5| H5]| H5]; cbn.
+        exfalso; flia H1 H3 H5.
+        easy.
+        exfalso; flia H3 H5.
+      } {
+        rewrite nat_compare_equiv.
+        progress unfold nat_compare_alt.
+        destruct (lt_eq_lt_dec va vc) as [[H4| H4]| H4]; cbn.
+        exfalso; flia H3 H4.
+        exfalso; flia H3 H4.
+        rewrite nat_compare_equiv.
+        progress unfold nat_compare_alt.
+        destruct (lt_eq_lt_dec (va - vc - 1) vb) as [[H5| H5]| H5]; cbn.
+        exfalso; flia H1 H3 H5.
+        exfalso; flia H1 H3 H5.
+        f_equal; flia H4 H5.
+      }
+    }
   }
-  apply Bool.eqb_false_iff in H2.
+}
+...
+  assert (sb = sc) by now destruct sa, sb, sc.
+  subst sc; clear H2.
+  cbn.
+  apply Bool.eqb_false_iff in H1.
+  rewrite H1.
   do 2 rewrite nat_compare_equiv.
   progress unfold nat_compare_alt.
-  destruct (lt_eq_lt_dec va vc) as [[H1| H1]| H1]. {
-    cbn.
-    rewrite (Bool_eqb_comm sc), H2.
-    rewrite Nat_compare_sub_add_r; [ | flia H1 ].
-    rewrite Nat_compare_sub_add_l; [ | flia H1 ].
-    rewrite Nat.add_assoc.
-    rewrite Nat.compare_antisym.
-    rewrite nat_compare_equiv.
-    progress unfold nat_compare_alt.
-    destruct (lt_eq_lt_dec (va + vb + 1) vc) as [[H3| H3]| H3].
-    cbn; f_equal; flia.
-    easy.
-    cbn; f_equal; flia H1.
-  } {
-    cbn.
-    destruct (lt_eq_lt_dec (va + vb + 1) vc) as [[H3| H3]| H3].
-    flia H1 H3.
-    flia H1 H3.
-    cbn; f_equal; flia H1.
-  } {
-    cbn.
-    rewrite Bool.eqb_reflx.
-    destruct (lt_eq_lt_dec (va + vb + 1) vc) as [[H3| H3]| H3].
-    flia H1 H3.
-    flia H1 H3.
-    cbn; f_equal; flia H1.
-  }
-}
-destruct (Bool.bool_dec sa sc) as [H2| H2]. {
-  subst sc; cbn.
-  rename H1 into H2.
-  rewrite Bool.eqb_reflx; cbn.
-  apply Bool.eqb_false_iff in H2.
-  rewrite H2, nat_compare_equiv.
-  progress unfold nat_compare_alt.
-  destruct (lt_eq_lt_dec va vb) as [[H1| H1]| H1]. {
-    cbn.
-    rewrite (Bool_eqb_comm sb), H2.
-    rewrite Nat_compare_sub_add_r; [ | flia H1 ].
-    rewrite Nat_compare_sub_add_l; [ | flia H1 ].
-    rewrite Nat.add_assoc.
-    rewrite Nat.compare_antisym.
-    rewrite nat_compare_equiv.
-    progress unfold nat_compare_alt.
-    destruct (lt_eq_lt_dec (va + vc + 1) vb) as [[H3| H3]| H3].
-    cbn; f_equal; flia.
-    easy.
-    cbn; f_equal; flia H1.
-  } {
-    cbn.
-    rewrite nat_compare_equiv.
-    progress unfold nat_compare_alt.
-    destruct (lt_eq_lt_dec (va + vc + 1) vb) as [[H3| H3]| H3].
-    flia H1 H3.
-    flia H1 H3.
-    cbn; f_equal; flia H1.
-  } {
-    cbn.
-    rewrite Bool.eqb_reflx.
-    rewrite nat_compare_equiv.
-    progress unfold nat_compare_alt.
-    destruct (lt_eq_lt_dec (va + vc + 1) vb) as [[H3| H3]| H3].
-    flia H1 H3.
-    flia H1 H3.
-    cbn; f_equal; flia H1.
-  }
-}
-assert (sb = sc) by now destruct sa, sb, sc.
-subst sc; clear H2.
-cbn.
-apply Bool.eqb_false_iff in H1.
-rewrite H1.
-do 2 rewrite nat_compare_equiv.
-progress unfold nat_compare_alt.
-destruct (lt_eq_lt_dec va vb) as [[H2| H2]| H2]. {
-  cbn; rewrite Bool.eqb_reflx.
-  destruct (lt_eq_lt_dec va vc) as [[H3| H3]| H3]. {
+  destruct (lt_eq_lt_dec va vb) as [[H2| H2]| H2]. {
     cbn; rewrite Bool.eqb_reflx.
-    f_equal; flia H2 H3.
+    destruct (lt_eq_lt_dec va vc) as [[H3| H3]| H3]. {
+      cbn; rewrite Bool.eqb_reflx.
+      f_equal; flia H2 H3.
+    } {
+      cbn; f_equal; flia H2 H3.
+    } {
+      cbn; rewrite H1.
+      rewrite nat_compare_equiv.
+      progress unfold nat_compare_alt.
+      destruct (lt_eq_lt_dec (va - vc - 1) vb) as [[H4| H4]| H4].
+      f_equal; flia H2 H3.
+      exfalso; flia H2 H4.
+      exfalso; flia H2 H4.
+    }
   } {
-    cbn; f_equal; flia H2 H3.
-  } {
-    cbn; rewrite H1.
-    rewrite nat_compare_equiv.
-    progress unfold nat_compare_alt.
-    destruct (lt_eq_lt_dec (va - vc - 1) vb) as [[H4| H4]| H4].
-    f_equal; flia H2 H3.
-    exfalso; flia H2 H4.
-    exfalso; flia H2 H4.
+    subst vb; cbn.
+    destruct (lt_eq_lt_dec va vc) as [[H3| H3]| H3]. {
+      cbn; rewrite Bool.eqb_reflx.
+      f_equal; flia H3.
+    } {
+      now subst vc.
+    } {
+      cbn; rewrite H1.
+      rewrite nat_compare_equiv.
+      progress unfold nat_compare_alt.
+      destruct (lt_eq_lt_dec (va - vc - 1) va) as [[H4| H4]| H4].
+      f_equal; flia H3.
+      exfalso; flia H3 H4.
+      exfalso; flia H3 H4.
+    }
   }
-} {
-  subst vb; cbn.
   destruct (lt_eq_lt_dec va vc) as [[H3| H3]| H3]. {
-    cbn; rewrite Bool.eqb_reflx.
-    f_equal; flia H3.
-  } {
-    now subst vc.
-  } {
-    cbn; rewrite H1.
+    cbn; rewrite Bool.eqb_reflx, H1.
     rewrite nat_compare_equiv.
     progress unfold nat_compare_alt.
-    destruct (lt_eq_lt_dec (va - vc - 1) va) as [[H4| H4]| H4].
-    f_equal; flia H3.
+    destruct (lt_eq_lt_dec (va - vb - 1) vc) as [[H4| H4]| H4].
+    f_equal; flia H2 H3.
     exfalso; flia H3 H4.
     exfalso; flia H3 H4.
+  } {
+    subst vc; cbn; rewrite H1.
+    rewrite nat_compare_equiv.
+    progress unfold nat_compare_alt.
+    destruct (lt_eq_lt_dec (va - vb - 1) va) as [[H3| H3]| H3].
+    f_equal; flia H2 H3.
+    exfalso; flia H2 H3.
+    exfalso; flia H2 H3.
   }
-}
-destruct (lt_eq_lt_dec va vc) as [[H3| H3]| H3]. {
-  cbn; rewrite Bool.eqb_reflx, H1.
+  cbn; rewrite H1.
+  rewrite Nat_compare_sub_add_r; [ | flia H2 ].
+  rewrite Nat_compare_sub_add_l; [ | flia H2 ].
+  rewrite Nat_compare_sub_add_r; [ | flia H3 ].
+  rewrite Nat_compare_sub_add_l; [ | flia H3 ].
+  do 2 rewrite Nat.add_assoc.
+  rewrite (Nat.add_comm vc).
   rewrite nat_compare_equiv.
   progress unfold nat_compare_alt.
-  destruct (lt_eq_lt_dec (va - vb - 1) vc) as [[H4| H4]| H4].
-  f_equal; flia H2 H3.
-  exfalso; flia H3 H4.
-  exfalso; flia H3 H4.
+  destruct (lt_eq_lt_dec va (vb + vc + 1)) as [[H4| H4]| H4].
+  cbn; f_equal; flia H2 H3.
+  easy.
+  cbn; f_equal; flia.
 } {
-  subst vc; cbn; rewrite H1.
+  destruct b as [| sb vb]; [ now do 2 rewrite Z.add_0_r | ].
+  destruct c as [| sc vc]; [ now do 2 rewrite Z.add_0_r | ].
+  move sb before sa; move sc before sb.
+  destruct (Bool.bool_dec sa sb) as [H1| H1]. {
+    subst sb; cbn.
+    rewrite Bool.eqb_reflx; cbn.
+    do 2 rewrite if_eqb_bool_dec.
+    destruct (Bool.bool_dec sa sc) as [H2| H2]. {
+      cbn; subst sc.
+      rewrite Bool.eqb_reflx.
+      f_equal; flia.
+    }
+    apply Bool.eqb_false_iff in H2.
+    do 2 rewrite nat_compare_equiv.
+    progress unfold nat_compare_alt.
+    destruct (lt_eq_lt_dec va vc) as [[H1| H1]| H1]. {
+      cbn.
+      rewrite (Bool_eqb_comm sc), H2.
+      rewrite Nat_compare_sub_add_r; [ | flia H1 ].
+      rewrite Nat_compare_sub_add_l; [ | flia H1 ].
+      rewrite Nat.add_assoc.
+      rewrite Nat.compare_antisym.
+      rewrite nat_compare_equiv.
+      progress unfold nat_compare_alt.
+      destruct (lt_eq_lt_dec (va + vb + 1) vc) as [[H3| H3]| H3].
+      cbn; f_equal; flia.
+      easy.
+      cbn; f_equal; flia H1.
+    } {
+      cbn.
+      destruct (lt_eq_lt_dec (va + vb + 1) vc) as [[H3| H3]| H3].
+      flia H1 H3.
+      flia H1 H3.
+      cbn; f_equal; flia H1.
+    } {
+      cbn.
+      rewrite Bool.eqb_reflx.
+      destruct (lt_eq_lt_dec (va + vb + 1) vc) as [[H3| H3]| H3].
+      flia H1 H3.
+      flia H1 H3.
+      cbn; f_equal; flia H1.
+    }
+  }
+  destruct (Bool.bool_dec sa sc) as [H2| H2]. {
+    subst sc; cbn.
+    rename H1 into H2.
+    rewrite Bool.eqb_reflx; cbn.
+    apply Bool.eqb_false_iff in H2.
+    rewrite H2, nat_compare_equiv.
+    progress unfold nat_compare_alt.
+    destruct (lt_eq_lt_dec va vb) as [[H1| H1]| H1]. {
+      cbn.
+      rewrite (Bool_eqb_comm sb), H2.
+      rewrite Nat_compare_sub_add_r; [ | flia H1 ].
+      rewrite Nat_compare_sub_add_l; [ | flia H1 ].
+      rewrite Nat.add_assoc.
+      rewrite Nat.compare_antisym.
+      rewrite nat_compare_equiv.
+      progress unfold nat_compare_alt.
+      destruct (lt_eq_lt_dec (va + vc + 1) vb) as [[H3| H3]| H3].
+      cbn; f_equal; flia.
+      easy.
+      cbn; f_equal; flia H1.
+    } {
+      cbn.
+      rewrite nat_compare_equiv.
+      progress unfold nat_compare_alt.
+      destruct (lt_eq_lt_dec (va + vc + 1) vb) as [[H3| H3]| H3].
+      flia H1 H3.
+      flia H1 H3.
+      cbn; f_equal; flia H1.
+    } {
+      cbn.
+      rewrite Bool.eqb_reflx.
+      rewrite nat_compare_equiv.
+      progress unfold nat_compare_alt.
+      destruct (lt_eq_lt_dec (va + vc + 1) vb) as [[H3| H3]| H3].
+      flia H1 H3.
+      flia H1 H3.
+      cbn; f_equal; flia H1.
+    }
+  }
+  assert (sb = sc) by now destruct sa, sb, sc.
+  subst sc; clear H2.
+  cbn.
+  apply Bool.eqb_false_iff in H1.
+  rewrite H1.
+  do 2 rewrite nat_compare_equiv.
+  progress unfold nat_compare_alt.
+  destruct (lt_eq_lt_dec va vb) as [[H2| H2]| H2]. {
+    cbn; rewrite Bool.eqb_reflx.
+    destruct (lt_eq_lt_dec va vc) as [[H3| H3]| H3]. {
+      cbn; rewrite Bool.eqb_reflx.
+      f_equal; flia H2 H3.
+    } {
+      cbn; f_equal; flia H2 H3.
+    } {
+      cbn; rewrite H1.
+      rewrite nat_compare_equiv.
+      progress unfold nat_compare_alt.
+      destruct (lt_eq_lt_dec (va - vc - 1) vb) as [[H4| H4]| H4].
+      f_equal; flia H2 H3.
+      exfalso; flia H2 H4.
+      exfalso; flia H2 H4.
+    }
+  } {
+    subst vb; cbn.
+    destruct (lt_eq_lt_dec va vc) as [[H3| H3]| H3]. {
+      cbn; rewrite Bool.eqb_reflx.
+      f_equal; flia H3.
+    } {
+      now subst vc.
+    } {
+      cbn; rewrite H1.
+      rewrite nat_compare_equiv.
+      progress unfold nat_compare_alt.
+      destruct (lt_eq_lt_dec (va - vc - 1) va) as [[H4| H4]| H4].
+      f_equal; flia H3.
+      exfalso; flia H3 H4.
+      exfalso; flia H3 H4.
+    }
+  }
+  destruct (lt_eq_lt_dec va vc) as [[H3| H3]| H3]. {
+    cbn; rewrite Bool.eqb_reflx, H1.
+    rewrite nat_compare_equiv.
+    progress unfold nat_compare_alt.
+    destruct (lt_eq_lt_dec (va - vb - 1) vc) as [[H4| H4]| H4].
+    f_equal; flia H2 H3.
+    exfalso; flia H3 H4.
+    exfalso; flia H3 H4.
+  } {
+    subst vc; cbn; rewrite H1.
+    rewrite nat_compare_equiv.
+    progress unfold nat_compare_alt.
+    destruct (lt_eq_lt_dec (va - vb - 1) va) as [[H3| H3]| H3].
+    f_equal; flia H2 H3.
+    exfalso; flia H2 H3.
+    exfalso; flia H2 H3.
+  }
+  cbn; rewrite H1.
+  rewrite Nat_compare_sub_add_r; [ | flia H2 ].
+  rewrite Nat_compare_sub_add_l; [ | flia H2 ].
+  rewrite Nat_compare_sub_add_r; [ | flia H3 ].
+  rewrite Nat_compare_sub_add_l; [ | flia H3 ].
+  do 2 rewrite Nat.add_assoc.
+  rewrite (Nat.add_comm vc).
   rewrite nat_compare_equiv.
   progress unfold nat_compare_alt.
-  destruct (lt_eq_lt_dec (va - vb - 1) va) as [[H3| H3]| H3].
-  f_equal; flia H2 H3.
-  exfalso; flia H2 H3.
-  exfalso; flia H2 H3.
+  destruct (lt_eq_lt_dec va (vb + vc + 1)) as [[H4| H4]| H4].
+  cbn; f_equal; flia H2 H3.
+  easy.
+  cbn; f_equal; flia.
 }
-cbn; rewrite H1.
-rewrite Nat_compare_sub_add_r; [ | flia H2 ].
-rewrite Nat_compare_sub_add_l; [ | flia H2 ].
-rewrite Nat_compare_sub_add_r; [ | flia H3 ].
-rewrite Nat_compare_sub_add_l; [ | flia H3 ].
-do 2 rewrite Nat.add_assoc.
-rewrite (Nat.add_comm vc).
-rewrite nat_compare_equiv.
-progress unfold nat_compare_alt.
-destruct (lt_eq_lt_dec va (vb + vc + 1)) as [[H4| H4]| H4].
-cbn; f_equal; flia H2 H3.
-easy.
-cbn; f_equal; flia.
 Qed.
 
 Theorem add_assoc : ∀ a b c, (a + (b + c))%Z = ((a + b) + c)%Z.
