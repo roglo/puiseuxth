@@ -973,33 +973,21 @@ Proof.
 intros * Hab Hbc.
 progress unfold Z.le in Hab, Hbc |-*.
 progress unfold Z.compare in Hab, Hbc |-*.
-...
-destruct a as [| sa va]. {
-  destruct c as [| sc vc]; [ easy | ].
-  destruct sc; [ easy | exfalso ].
-  destruct b as [| sb vb]; [ easy | ].
-  now destruct sb.
-}
-destruct c as [| sc vc]. {
-  destruct sa; [ exfalso | easy ].
-  destruct b as [| sb vb]; [ easy | ].
-  now destruct sb.
-}
-destruct b as [| sb vb]. {
-  destruct sa; [ easy | now destruct sc ].
-}
-destruct sa. {
-  destruct sb; [ | easy ].
-  destruct sc; [ | easy ].
+destruct a as [| a| a]. {
+  now destruct b, c.
+} {
+  destruct b as [| b| b]; [ easy | | easy ].
+  destruct c as [| c| c]; [ easy | | easy ].
   apply Nat.compare_le_iff in Hab, Hbc.
   apply Nat.compare_le_iff.
-  now transitivity vb.
+  now transitivity b.
+} {
+  destruct c as [| c| c]; [ easy | easy | ].
+  destruct b as [| b| b]; [ easy | easy | ].
+  apply Nat.compare_le_iff in Hab, Hbc.
+  apply Nat.compare_le_iff.
+  now transitivity b.
 }
-destruct sc; [ easy | ].
-destruct sb; [ easy | ].
-apply Nat.compare_le_iff in Hab, Hbc.
-apply Nat.compare_le_iff.
-now transitivity vb.
 Qed.
 
 Theorem le_add_l : ∀ a b, (0 ≤ a)%Z → (b ≤ a + b)%Z.
@@ -1007,6 +995,7 @@ Proof.
 intros * Hza.
 progress unfold Z.le in Hza |-*.
 progress unfold Z.compare in Hza |-*.
+...
 destruct a as [| sa va]. {
   destruct b as [| sb vb]; [ easy | cbn ].
   now destruct sb; rewrite Nat.compare_refl.
