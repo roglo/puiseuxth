@@ -792,20 +792,13 @@ destruct b as [| b| b]; [ now right; left | easy | easy ].
 destruct b as [| b| b]; [ now right; left | easy | easy ].
 Qed.
 
-...
-
 Theorem compare_antisymm : ∀ a b, CompOpp (a ?= b)%Z = (b ?= a)%Z.
 Proof.
 intros.
-destruct a as [| sa va]. {
-  destruct b as [| sb vb]; [ easy | now destruct sb ].
-}
-destruct b as [| sb vb]; [ now destruct sa | cbn ].
-destruct sa. {
-  destruct sb; [ | easy ].
-  symmetry; apply Nat.compare_antisym.
-}
-destruct sb; [ easy | ].
+destruct a as [| a| a]; [ now destruct b | | ].
+destruct b as [| b| b]; [ easy | | easy ].
+symmetry; apply Nat.compare_antisym.
+destruct b as [| b| b]; [ easy | easy | ].
 symmetry; apply Nat.compare_antisym.
 Qed.
 
@@ -839,6 +832,7 @@ Proof. intros * Hab; congruence. Qed.
 Theorem lt_irrefl : ∀ a, ¬ (a < a)%Z.
 Proof.
 intros a Ha.
+...
 destruct a as [| sa va]; [ easy | ].
 destruct sa. {
   apply Nat.compare_lt_iff in Ha.
