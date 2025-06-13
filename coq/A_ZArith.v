@@ -995,16 +995,21 @@ Proof.
 intros * Hza.
 progress unfold Z.le in Hza |-*.
 progress unfold Z.compare in Hza |-*.
-...
-destruct a as [| sa va]. {
-  destruct b as [| sb vb]; [ easy | cbn ].
-  now destruct sb; rewrite Nat.compare_refl.
+destruct a as [| a| a]; [ | | easy ]. {
+  destruct b as [| b| b]; [ easy | | ]; cbn.
+  now rewrite Nat.compare_refl.
+  now rewrite Nat.compare_refl.
 }
-destruct sa; [ | easy ].
-destruct b as [| sb vb]; [ easy | cbn ].
-destruct sb; [ apply Nat.compare_le_iff; flia | ].
-destruct (va ?= vb); [ easy | | easy ].
-apply Nat.compare_le_iff; flia.
+destruct b as [| b| b]; [ easy | | ]; cbn. {
+  apply Nat.compare_le_iff.
+  rewrite Nat.add_shuffle0.
+  apply Nat.le_add_l.
+} {
+  destruct (a ?= b); [ easy | | easy ].
+  apply Nat.compare_le_iff.
+  rewrite <- Nat.sub_add_distr.
+  apply Nat.le_sub_l.
+}
 Qed.
 
 Theorem le_add_r : ∀ a b, (0 ≤ a)%Z → (b ≤ b + a)%Z.
@@ -1050,6 +1055,7 @@ Theorem leb_refl : ∀ a, (a ≤? a)%Z = true.
 Proof.
 intros.
 progress unfold Z.leb.
+...
 destruct a as [| sa va]; [ easy | cbn ].
 now destruct sa; rewrite Nat.compare_refl.
 Qed.
