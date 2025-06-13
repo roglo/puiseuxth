@@ -756,43 +756,28 @@ Proof.
 intros * Hbz.
 progress unfold mul.
 progress unfold div.
-destruct a as [| a| a]; [ easy | | ].
-...
-destruct b as [| sb vb]; [ easy | cbn ].
-rewrite Nat.sub_add; [ | flia ].
-rewrite if_eqb_bool_dec.
-rewrite Nat.div_mul; [ | now rewrite Nat.add_comm ].
-destruct (Bool.bool_dec (Bool.eqb sa sb) sb) as [H1| H1]. {
-  rewrite Nat.add_comm; cbn.
-  destruct sa; [ easy | ].
-  now exfalso; destruct sb.
+destruct a as [| a| a]; [ easy | | ]. {
+  destruct b as [| b| b]; [ easy | | ]; cbn. {
+    rewrite Nat.sub_add; [ | easy ].
+    do 2 rewrite Nat.add_1_r.
+    now rewrite Nat.div_mul.
+  } {
+    rewrite Nat.sub_add; [ | easy ].
+    do 2 rewrite Nat.add_1_r.
+    now rewrite Nat.div_mul.
+  }
 } {
-  rewrite Nat.Div0.mod_mul; cbn.
-  rewrite Nat.add_comm; cbn.
-  destruct sa; [ | easy ].
-  now exfalso; destruct sb.
-}
-Qed.
-
-Theorem mul_div : ∀ a b, b ≠ 0%Z → (a * b / b)%Z = a.
-Proof.
-intros * Hbz.
-progress unfold mul.
-progress unfold div.
-destruct a as [| sa va]; [ easy | ].
-destruct b as [| sb vb]; [ easy | cbn ].
-rewrite Nat.sub_add; [ | flia ].
-rewrite if_eqb_bool_dec.
-rewrite Nat.div_mul; [ | now rewrite Nat.add_comm ].
-destruct (Bool.bool_dec (Bool.eqb sa sb) sb) as [H1| H1]. {
-  rewrite Nat.add_comm; cbn.
-  destruct sa; [ easy | ].
-  now exfalso; destruct sb.
-} {
-  rewrite Nat.Div0.mod_mul; cbn.
-  rewrite Nat.add_comm; cbn.
-  destruct sa; [ | easy ].
-  now exfalso; destruct sb.
+  destruct b as [| b| b]; [ easy | | ]; cbn. {
+    rewrite Nat.sub_add; [ | easy ].
+    rewrite Nat.Div0.mod_mul; cbn.
+    do 2 rewrite Nat.add_1_r.
+    now rewrite Nat.div_mul.
+  } {
+    rewrite Nat.sub_add; [ | easy ].
+    rewrite Nat.Div0.mod_mul; cbn.
+    do 2 rewrite Nat.add_1_r.
+    now rewrite Nat.div_mul.
+  }
 }
 Qed.
 
@@ -802,10 +787,12 @@ Theorem integral :
   → a = 0%Z ∨ b = 0%Z ∨ rngl_is_zero_divisor a ∨ rngl_is_zero_divisor b.
 Proof.
 intros * Hab; cbn.
-destruct a as [| sa va]; [ now left | ].
-destruct b as [| sb vb]; [ now right; left | ].
-easy.
+destruct a as [| a| a]; [ now left | | ].
+destruct b as [| b| b]; [ now right; left | easy | easy ].
+destruct b as [| b| b]; [ now right; left | easy | easy ].
 Qed.
+
+...
 
 Theorem compare_antisymm : ∀ a b, CompOpp (a ?= b)%Z = (b ?= a)%Z.
 Proof.
