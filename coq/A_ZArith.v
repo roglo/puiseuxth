@@ -357,6 +357,34 @@ Definition mul' a b :=
       end
   end.
 
+Definition compare' a b :=
+  match a with
+  | z_zero' =>
+      match b with
+      | z_zero' => Eq
+      | z_val' sb _ => if sb then Lt else Gt
+      end
+  | z_val' sa va =>
+      match b with
+      | z_zero' => if sa then Gt else Lt
+      | z_val' sb vb =>
+          match sa with
+          | true =>
+              match sb with
+              | true => va ?= vb
+              | false => Gt
+              end
+          | false =>
+              match sb with
+              | true => Lt
+              | false => vb ?= va
+              end
+          end
+      end
+  end.
+
+Definition le' a b := compare' a b ≠ Gt.
+
 Theorem add_comm' : ∀ a b : Z', Z.add' a b = Z.add' b a.
 Proof.
 intros.
@@ -569,6 +597,9 @@ now destruct (a ?= b).
 Qed.
 
 Theorem z'_of_z_mul : ∀ a b, z'_of_z (a * b) = Z.mul' (z'_of_z a) (z'_of_z b).
+Proof. now intros; destruct a, b. Qed.
+
+Theorem z'_of_z_le : ∀ a b, Z.le' (z'_of_z a) (z'_of_z b) ↔ (a ≤ b)%Z.
 Proof. now intros; destruct a, b. Qed.
 
 Theorem add_add_swap : ∀ a b c, (a + b + c)%Z = (a + c + b)%Z.
@@ -1060,12 +1091,11 @@ now rewrite Nat.compare_refl.
 now rewrite Nat.compare_refl.
 Qed.
 
-Theorem add_le_mono_l : ∀ a b c, (a ≤ b)%Z → (c + a ≤ c + b)%Z.
+Theorem add_le_mono_l' : ∀ a b c, Z.le' a b → Z.le' (Z.add' c a) (Z.add' c b).
 Proof.
 intros * Hab.
-progress unfold Z.le in Hab |-*.
-progress unfold Z.compare in Hab |-*.
-...
+progress unfold Z.le' in Hab |-*.
+progress unfold Z.compare' in Hab |-*.
 destruct a as [| sa va]. {
   destruct b as [| sb vb]. {
     destruct c as [| sc vc]; [ easy | cbn ].
@@ -1185,6 +1215,15 @@ apply Nat.compare_le_iff.
 now apply Nat.add_le_mono_r, Nat.add_le_mono_l.
 Qed.
 
+Theorem add_le_mono_l : ∀ a b c, (a ≤ b)%Z → (c + a ≤ c + b)%Z.
+Proof.
+intros * Hab.
+apply z'_of_z_le.
+do 2 rewrite z'_of_z_add.
+apply add_le_mono_l'.
+now apply z'_of_z_le.
+Qed.
+
 Theorem add_lt_mono_l : ∀ a b c, (a < b)%Z → (c + a < c + b)%Z.
 Proof.
 intros * Hab.
@@ -1205,6 +1244,7 @@ Theorem mul_le_mono_nonneg_l :
 Proof.
 intros * Hza Hbc.
 progress unfold Z.le in Hza, Hbc |-*.
+...
 destruct a as [| sa va]; [ easy | cbn ].
 cbn in Hza.
 destruct sa; [ clear Hza | easy ].
