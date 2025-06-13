@@ -858,24 +858,13 @@ destruct a as [| a| a]; [ now destruct b | | ]; cbn. {
 Qed.
 
 Theorem compare_lt_iff : ∀ a b, (a ?= b)%Z = Lt ↔ (a < b)%Z.
-Proof.
-intros.
-...
-destruct a as [| sa va]; cbn. {
-  destruct b as [| sb vb]; [ easy | now destruct sb ].
-}
-destruct b as [| sb vb]; [ now destruct sa | ].
-now destruct sa, sb.
-Qed.
+Proof. now intros; destruct a, b. Qed.
 
 Theorem compare_gt_iff : ∀ a b, (a ?= b)%Z = Gt ↔ (b < a)%Z.
 Proof.
 intros.
-destruct a as [| sa va]; cbn. {
-  destruct b as [| sb vb]; [ easy | now destruct sb ].
-}
-destruct b as [| sb vb]; [ now destruct sa | ].
-destruct sa, sb; [ | easy | easy | ]. {
+destruct a as [| a| a]; [ now destruct b | | ]. {
+  destruct b as [| b| b]; [ easy | cbn | easy ].
   split; intros H. {
     apply Nat.compare_gt_iff in H.
     now apply Nat.compare_lt_iff.
@@ -884,6 +873,7 @@ destruct sa, sb; [ | easy | easy | ]. {
     now apply Nat.compare_gt_iff.
   }
 } {
+  destruct b as [| b| b]; [ easy | easy | cbn ].
   split; intros H. {
     apply Nat.compare_gt_iff in H.
     now apply Nat.compare_lt_iff.
@@ -931,6 +921,7 @@ Qed.
 Theorem add_opp_diag_r : ∀ a, (a + - a = 0)%Z.
 Proof.
 intros.
+...
 destruct a as [| sa va]; [ easy | cbn ].
 rewrite Bool.eqb_negb2.
 now rewrite Nat.compare_refl.
