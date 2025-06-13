@@ -844,25 +844,23 @@ Qed.
 Theorem compare_eq_iff : ∀ a b, (a ?= b)%Z = Eq ↔ a = b.
 Proof.
 intros.
-...
-destruct a as [| sa va]; cbn. {
-  destruct b as [| sb vb]; [ easy | now destruct sb ].
-}
-destruct b as [| sb vb]; [ now destruct sa | ].
-destruct sa, sb; [ | easy | easy | ]. {
-  rewrite Nat.compare_eq_iff.
-  split; intros H; [ now subst vb | ].
-  now injection H.
+destruct a as [| a| a]; [ now destruct b | | ]; cbn. {
+  destruct b as [| b| b]; [ easy | | easy ].
+  split; intros H.
+  now apply Nat.compare_eq_iff in H; subst.
+  now injection H; intros; apply Nat.compare_eq_iff.
 } {
-  rewrite Nat.compare_eq_iff.
-  split; intros H; [ now subst vb | ].
-  now injection H.
+  destruct b as [| b| b]; [ easy | easy | ].
+  split; intros H.
+  now apply Nat.compare_eq_iff in H; subst.
+  now injection H; intros; apply Nat.compare_eq_iff.
 }
 Qed.
 
 Theorem compare_lt_iff : ∀ a b, (a ?= b)%Z = Lt ↔ (a < b)%Z.
 Proof.
 intros.
+...
 destruct a as [| sa va]; cbn. {
   destruct b as [| sb vb]; [ easy | now destruct sb ].
 }
