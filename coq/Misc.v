@@ -261,7 +261,8 @@ Proof.
 intros * Hlt.
 progress unfold Q.lt, Q.inv in Hlt |-*; cbn in Hlt |-*.
 rewrite Z.mul_1_r in Hlt |-*.
-destruct (q_num a); [ easy | cbn ].
+destruct (q_num a) as [| sa va]; [ easy | cbn ].
+destruct sa; [ cbn | easy ].
 apply q_Den_pos.
 Qed.
 
@@ -344,17 +345,6 @@ apply -> Q.sub_move_0_r in HH.
 now rewrite HH in H; apply Q.lt_irrefl in H.
 Qed.
 
-Theorem Qplus_div : ∀ x y z, ¬ (z == 0) → x + y / z == (x * z + y) / z.
-Proof.
-intros x y z Hc.
-rewrite Qdiv_plus_distr_r.
-Theorem Q_mul_div : ∀ a b, (¬ b == 0 → a * b / b == a)%Q.
-Proof.
-intros * Hz.
-progress unfold Q.div.
-rewrite <- Q.mul_assoc.
-rewrite <- (Q.mul_1_r a) at 2.
-apply Q.mul_compat_l.
 Theorem Q_mul_inv_diag_l : ∀ a, (¬ a == 0 → a⁻¹ * a == 1)%Q.
 Proof.
 intros * Hnz.
@@ -365,35 +355,41 @@ progress unfold Q.eq in Hnz; cbn in Hnz.
 rewrite Z.mul_1_r in Hnz.
 destruct an as [| sa va]; [ easy | cbn ].
 rewrite Q.q_Den_mul.
-do 2 rewrite q_Den_num_den.
 rewrite Z.mul_1_r.
-rewrite <- Nat2Z.inj_mul.
-do 2 rewrite (Nat.add_comm _  1).
+rewrite q_Den_num_den.
+rewrite (Z.mul_comm (q_Den _)).
+progress unfold q_Den.
+do 2 rewrite (Nat.add_comm _ 1).
 cbn.
-do 2 rewrite (Nat.add_comm _  1).
 rewrite Nat.add_0_r, Nat.add_sub.
-Compute ((3 # 1) * (2 # 2))%Q.
-destruct sa; cbn; rewrite Nat.sub_0_r. {
-  f_equal; flia.
-}
-(* ah, tiens, bizarre *)
-...
-Search (_ * _ = 1)%L.
-rngl_mul_inv_diag_r:
-  ∀ {T : Type} {ro : ring_like_op T},
-    ring_like_prop T
-    → rngl_has_1 T = true → rngl_has_inv T = true → ∀ a : T, a ≠ 0%L → (a * a⁻¹)%L = 1%L
-... ...
-now rewrite Q_mul_div.
-...
-Check Q.mul_div.
-Search (_ * _ / _)%Q.
-Check Z.div_mul.
-Qdiv_mult_l
-     : ∀ x y : Q, ¬ y == 0 → x * y / y == x
-...
-rewrite Qdiv_mult_l; [ reflexivity | assumption ].
+now destruct sa.
 Qed.
+
+Theorem Q_mul_inv_diag_r : ∀ a, (¬ a == 0 → a * a⁻¹ == 1)%Q.
+Proof.
+intros * Hnz.
+rewrite Q.mul_comm.
+now apply Q_mul_inv_diag_l.
+Qed.
+
+Theorem Q_mul_div : ∀ a b, (¬ b == 0 → a * b / b == a)%Q.
+Proof.
+intros * Hz.
+progress unfold Q.div.
+rewrite <- Q.mul_assoc.
+rewrite <- (Q.mul_1_r a) at 2.
+apply Q.mul_compat_l.
+now apply Q_mul_inv_diag_r.
+Qed.
+
+Theorem Qplus_div : ∀ x y z, ¬ (z == 0) → x + y / z == (x * z + y) / z.
+Proof.
+intros x y z Hc.
+rewrite Qdiv_plus_distr_r.
+now rewrite Q_mul_div.
+Qed.
+
+...
 
 Theorem Zposnat2Znat : ∀ i, (0 < i)%nat → Zpos (Pos.of_nat i) = Z.of_nat i.
 Proof.

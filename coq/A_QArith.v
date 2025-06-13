@@ -120,7 +120,8 @@ Definition mul a b :=
 Definition inv a :=
   match q_num a with
   | z_zero => mk_q 0 0
-  | z_val s v => mk_q (q_Den a) v
+  | z_val true v => mk_q (q_Den a) v
+  | z_val false v => mk_q (- q_Den a) v
   end.
 
 Definition div a b := mul a (inv b).
@@ -157,7 +158,7 @@ Notation "a / b" := (div a b) : Q_scope.
 Notation "- a" := (opp a) : Q_scope.
 Notation "a ≤ b" := (le a b) : Q_scope.
 Notation "a < b" := (lt a b) : Q_scope.
-Notation "a # b" := (mk_q a b) (at level 55) : Q_scope.
+Notation "a # b" := (mk_q a (b - 1)) (at level 55) : Q_scope.
 
 Theorem q_Den_mul : ∀ a b, q_Den (a * b) = (q_Den a * q_Den b)%Z.
 Proof.
@@ -1302,7 +1303,7 @@ rewrite Q.opp_0.
 apply Q.add_0_r.
 Qed.
 
-Definition Q1 x := (q_Den x # q_den x)%Q.
+Definition Q1 x := mk_q (q_Den x) (q_den x).
 
 Theorem mul_add_distr_l' : ∀ x y z, (x * (y + z) * Q1 x = x * y + x * z)%Q.
 Proof.
@@ -1406,6 +1407,6 @@ Notation "a < b" := (Q.lt a b) : Q_scope.
 Notation "- a" := (Q.opp a) : Q_scope.
 Notation "a '⁻¹'" := (Q.inv a) (at level 1, format "a ⁻¹") : Q_scope.
 Notation "a ?= b" := (Q.compare a b) : Q_scope.
-Notation "a # b" := (mk_q a b) (at level 55) : Q_scope.
+Notation "a # b" := (mk_q a (b - 1)) (at level 55) : Q_scope.
 
 Notation "a ≤ b ≤ c" := (Q.le a b ∧ Q.le b c) : Q_scope.
