@@ -921,9 +921,8 @@ Qed.
 Theorem add_opp_diag_r : ∀ a, (a + - a = 0)%Z.
 Proof.
 intros.
-...
-destruct a as [| sa va]; [ easy | cbn ].
-rewrite Bool.eqb_negb2.
+destruct a as [| a| a]; [ easy | | ]; cbn.
+now rewrite Nat.compare_refl.
 now rewrite Nat.compare_refl.
 Qed.
 
@@ -974,6 +973,7 @@ Proof.
 intros * Hab Hbc.
 progress unfold Z.le in Hab, Hbc |-*.
 progress unfold Z.compare in Hab, Hbc |-*.
+...
 destruct a as [| sa va]. {
   destruct c as [| sc vc]; [ easy | ].
   destruct sc; [ easy | exfalso ].
