@@ -1119,6 +1119,13 @@ apply Nat.compare_le_iff.
 now apply Nat.add_le_mono_r, Nat.add_le_mono_l.
 Qed.
 
+Theorem add_le_mono_r : ∀ a b c, (a ≤ b)%Z → (a + c ≤ b + c)%Z.
+Proof.
+intros * Hab.
+do 2 rewrite (Z.add_comm _ c).
+now apply Z.add_le_mono_l.
+Qed.
+
 Theorem add_lt_mono_l : ∀ a b c, (a < b)%Z → (c + a < c + b)%Z.
 Proof.
 intros * Hab.
