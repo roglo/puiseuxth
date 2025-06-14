@@ -481,65 +481,13 @@ Qed.
 Theorem le_trans : ∀ a b c, (a ≤ b → b ≤ c → a ≤ c)%Q.
 Proof.
 intros * Hle1 Hle2.
-progress unfold Q.le in Hle1, Hle2 |-*.
-progress unfold q_Den in Hle1, Hle2 |-*.
-remember (q_num a) as an eqn:H; clear H.
-remember (q_num b) as bn eqn:H; clear H.
-remember (q_num c) as cn eqn:H; clear H.
-remember (q_den a) as ad eqn:H; clear H.
-remember (q_den b) as bd eqn:H; clear H.
-remember (q_den c) as cd eqn:H; clear H.
-move cn before bn; move cd before bd.
-clear a b c.
-do 2 rewrite Nat.add_1_r in Hle1, Hle2 |-*.
-destruct bn as [| sb vb]. {
-  destruct an as [| sa va]; [ now destruct cn | ].
-  destruct sa; [ easy | ].
-  destruct cn as [| sc vc]; [ easy | now destruct sc ].
+apply (Z.mul_le_mono_pos_r (q_Den b)); [ apply q_Den_pos | ].
+rewrite Z.mul_mul_swap.
+apply (Z.le_trans _ (q_num b * q_Den a * q_Den c)). {
+  apply Z.mul_le_mono_pos_r; [ apply q_Den_pos | easy ].
 }
-destruct sb. {
-  destruct an as [| sa va]. {
-    destruct cn as [| sc vc]; [ easy | now destruct sc ].
-  }
-  destruct sa. {
-    destruct cn as [| sc vc]; [ easy | ].
-    destruct sc; [ | easy ].
-    progress unfold Z.le in Hle1, Hle2 |-*.
-    cbn in Hle1, Hle2 |-*.
-    rewrite Nat_compare_sub_cancel_r in Hle1; [ | easy | easy ].
-    rewrite Nat_compare_sub_cancel_r in Hle2; [ | easy | easy ].
-    rewrite Nat_compare_sub_cancel_r; [ | easy | easy ].
-    apply Nat.compare_le_iff in Hle1, Hle2.
-    apply Nat.compare_le_iff.
-    apply (Nat.mul_le_mono_pos_r _ _ ((bd + 1) * (vb + 1))); [ flia | ].
-    do 2 rewrite Nat.mul_assoc.
-    progress replace ((va + 1) * (cd + 1) * (bd + 1) * (vb + 1))%nat with
-      (((va + 1) * (bd + 1)) * ((vb + 1) * (cd + 1)))%nat by flia.
-    progress replace ((vc + 1) * (ad + 1) * (bd + 1) * (vb + 1))%nat with
-      (((vb + 1) * (ad + 1)) * ((vc + 1) * (bd + 1)))%nat by flia.
-    now apply Nat.mul_le_mono.
-  }
-  destruct cn as [| sc vc]; [ easy | now destruct sc ].
-}
-destruct an as [| sa va]; [ easy | ].
-destruct sa; [ easy | ].
-destruct cn as [| sc vc]; [ easy | ].
-destruct sc; [ easy | ].
-cbn in Hle1, Hle2 |-*.
-progress unfold Z.le in Hle1, Hle2 |-*.
-cbn in Hle1, Hle2 |-*.
-rewrite Nat_compare_sub_cancel_r in Hle1; [ | easy | easy ].
-rewrite Nat_compare_sub_cancel_r in Hle2; [ | easy | easy ].
-rewrite Nat_compare_sub_cancel_r; [ | easy | easy ].
-apply Nat.compare_le_iff in Hle1, Hle2.
-apply Nat.compare_le_iff.
-apply (Nat.mul_le_mono_pos_r _ _ ((bd + 1) * (vb + 1))); [ flia | ].
-do 2 rewrite Nat.mul_assoc.
-progress replace ((va + 1) * (cd + 1) * (bd + 1) * (vb + 1))%nat with
-  (((va + 1) * (bd + 1)) * ((vb + 1) * (cd + 1)))%nat by flia.
-progress replace ((vc + 1) * (ad + 1) * (bd + 1) * (vb + 1))%nat with
-  (((vb + 1) * (ad + 1)) * ((vc + 1) * (bd + 1)))%nat by flia.
-now apply Nat.mul_le_mono.
+do 2 rewrite (Z.mul_mul_swap _ (q_Den a)).
+apply Z.mul_le_mono_pos_r; [ apply q_Den_pos | easy ].
 Qed.
 
 Theorem add_le_mono_l : ∀ a b c, (b ≤ c → a + b ≤ a + c)%Q.
