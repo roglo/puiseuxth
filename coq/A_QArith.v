@@ -624,30 +624,25 @@ do 2 rewrite Nat.add_1_r in Hle1, Hle2 |-*.
 destruct bn as [| b| b]. {
   destruct an as [| a| a]; [ | easy | ]; now destruct cn.
 } {
-  destruct an as [| a| a]; [ now destruct cn | | ]. {
-    destruct cn as [| c| c]; [ easy | | easy ].
-    progress unfold Z.le in Hle1, Hle2 |-*.
-    cbn in Hle1, Hle2 |-*.
-    rewrite Nat_compare_sub_cancel_r in Hle1; [ | easy | easy ].
-    rewrite Nat_compare_sub_cancel_r in Hle2; [ | easy | easy ].
-    rewrite Nat_compare_sub_cancel_r; [ | easy | easy ].
-    apply Nat.compare_le_iff in Hle1, Hle2.
-    apply Nat.compare_le_iff.
-...
-    apply (Nat.mul_le_mono_pos_r _ _ ((bd + 1) * (vb + 1))); [ flia | ].
-    do 2 rewrite Nat.mul_assoc.
-    progress replace ((va + 1) * (cd + 1) * (bd + 1) * (vb + 1))%nat with
-      (((va + 1) * (bd + 1)) * ((vb + 1) * (cd + 1)))%nat by flia.
-    progress replace ((vc + 1) * (ad + 1) * (bd + 1) * (vb + 1))%nat with
-      (((vb + 1) * (ad + 1)) * ((vc + 1) * (bd + 1)))%nat by flia.
-    now apply Nat.mul_le_mono.
-  }
-  destruct cn as [| c| c]; [ easy | now destruct sc ].
+  destruct an as [| a| a]; [ now destruct cn | | now destruct cn ].
+  destruct cn as [| c| c]; [ easy | | easy ].
+  progress unfold Z.le in Hle1, Hle2 |-*.
+  cbn in Hle1, Hle2 |-*.
+  rewrite Nat_compare_sub_cancel_r in Hle1; [ | easy | easy ].
+  rewrite Nat_compare_sub_cancel_r in Hle2; [ | easy | easy ].
+  rewrite Nat_compare_sub_cancel_r; [ | easy | easy ].
+  apply Nat.compare_le_iff in Hle1, Hle2.
+  apply Nat.compare_le_iff.
+  apply (Nat.mul_le_mono_pos_r _ _ ((bd + 1) * (b + 1))); [ flia | ].
+  do 2 rewrite Nat.mul_assoc.
+  progress replace ((a + 1) * (cd + 1) * (bd + 1) * (b + 1))%nat with
+    (((a + 1) * (bd + 1)) * ((b + 1) * (cd + 1)))%nat by flia.
+  progress replace ((c + 1) * (ad + 1) * (bd + 1) * (b + 1))%nat with
+    (((b + 1) * (ad + 1)) * ((c + 1) * (bd + 1)))%nat by flia.
+  now apply Nat.mul_le_mono.
 }
-destruct an as [| a| a]; [ easy | ].
-destruct sa; [ easy | ].
-destruct cn as [| c| c]; [ easy | ].
-destruct sc; [ easy | ].
+destruct an as [| a| a]; [ easy | easy | ].
+destruct cn as [| c| c]; [ easy | easy | ].
 cbn in Hle1, Hle2 |-*.
 progress unfold Z.le in Hle1, Hle2 |-*.
 cbn in Hle1, Hle2 |-*.
@@ -656,12 +651,12 @@ rewrite Nat_compare_sub_cancel_r in Hle2; [ | easy | easy ].
 rewrite Nat_compare_sub_cancel_r; [ | easy | easy ].
 apply Nat.compare_le_iff in Hle1, Hle2.
 apply Nat.compare_le_iff.
-apply (Nat.mul_le_mono_pos_r _ _ ((bd + 1) * (vb + 1))); [ flia | ].
+apply (Nat.mul_le_mono_pos_r _ _ ((bd + 1) * (b + 1))); [ flia | ].
 do 2 rewrite Nat.mul_assoc.
-progress replace ((va + 1) * (cd + 1) * (bd + 1) * (vb + 1))%nat with
-  (((va + 1) * (bd + 1)) * ((vb + 1) * (cd + 1)))%nat by flia.
-progress replace ((vc + 1) * (ad + 1) * (bd + 1) * (vb + 1))%nat with
-  (((vb + 1) * (ad + 1)) * ((vc + 1) * (bd + 1)))%nat by flia.
+progress replace ((a + 1) * (cd + 1) * (bd + 1) * (b + 1))%nat with
+  (((a + 1) * (bd + 1)) * ((b + 1) * (cd + 1)))%nat by flia.
+progress replace ((c + 1) * (ad + 1) * (bd + 1) * (b + 1))%nat with
+  (((b + 1) * (ad + 1)) * ((c + 1) * (bd + 1)))%nat by flia.
 now apply Nat.mul_le_mono.
 Qed.
 
@@ -683,6 +678,7 @@ cbn in Hle |-*.
 do 2 rewrite Nat.add_1_r in Hle.
 do 5 rewrite Nat.add_1_r.
 cbn in Hle |-*.
+...
 do 2 rewrite (Z.mul_comm _ (z_val _ _)) in Hle.
 do 6 rewrite (Z.mul_comm _ (z_val _ _)).
 cbn in Hle |-*.
