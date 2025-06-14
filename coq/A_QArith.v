@@ -214,10 +214,9 @@ progress unfold mul; cbn.
 destruct a as (na, da); cbn.
 rewrite Nat.add_0_r, Nat.add_sub.
 progress f_equal.
-...
-destruct na as [| sa va]; [ easy | ].
-rewrite Nat.add_0_r, Nat.add_sub.
-now destruct sa.
+destruct na as [| a| a]; [ easy | | ].
+now rewrite Nat.add_0_r, Nat.add_sub.
+now rewrite Nat.add_0_r, Nat.add_sub.
 Qed.
 
 Theorem mul_1_r : ∀ a, (a * 1)%Q = a.
@@ -273,7 +272,7 @@ Proof.
 intros * Heq Hle.
 progress unfold Q.eq in Heq.
 progress unfold Q.le in Hle |-*.
-destruct (q_num a) as [| sa va]. {
+destruct (q_num a) as [| na| na]. {
   symmetry in Heq.
   rewrite Z.mul_0_l in Heq |-*.
   apply Z.integral in Heq.
@@ -294,24 +293,61 @@ destruct (q_num a) as [| sa va]. {
   }
   destruct Heq as [Heq| Heq]; [ | now destruct Heq ].
   now apply q_Den_neq_0 in Heq.
+} {
+  destruct (q_num b) as [| nb| nb]. {
+    rewrite Z.mul_0_l in Heq, Hle.
+    apply Z.integral in Heq.
+    cbn in Heq.
+    destruct Heq as [Heq| Heq]; [ easy | ].
+    destruct Heq as [Heq| Heq]; [ | now destruct Heq ].
+    now apply q_Den_neq_0 in Heq.
+  } {
+    specialize Z.mul_le_mono_pos_l as H1.
+    apply (H1 (q_Den a)) in Hle; [ clear H1 | apply q_Den_pos ].
+    do 2 rewrite (Z.mul_comm (q_Den a)) in Hle.
+    rewrite (Z.mul_mul_swap (z_pos nb)) in Hle.
+    rewrite <- Heq in Hle.
+    do 2 rewrite (Z.mul_comm _ (q_Den b)) in Hle.
+    do 2 rewrite <- Z.mul_assoc in Hle.
+    apply Z.mul_le_mono_pos_l in Hle; [ easy | apply q_Den_pos ].
+  } {
+    specialize Z.mul_le_mono_pos_l as H1.
+    apply (H1 (q_Den a)) in Hle; [ clear H1 | apply q_Den_pos ].
+    do 2 rewrite (Z.mul_comm (q_Den a)) in Hle.
+    rewrite (Z.mul_mul_swap (z_neg nb)) in Hle.
+    rewrite <- Heq in Hle.
+    do 2 rewrite (Z.mul_comm _ (q_Den b)) in Hle.
+    do 2 rewrite <- Z.mul_assoc in Hle.
+    apply Z.mul_le_mono_pos_l in Hle; [ easy | apply q_Den_pos ].
+  }
+} {
+  destruct (q_num b) as [| nb| nb]. {
+    rewrite Z.mul_0_l in Heq, Hle.
+    apply Z.integral in Heq.
+    cbn in Heq.
+    destruct Heq as [Heq| Heq]; [ easy | ].
+    destruct Heq as [Heq| Heq]; [ | now destruct Heq ].
+    now apply q_Den_neq_0 in Heq.
+  } {
+    specialize Z.mul_le_mono_pos_l as H1.
+    apply (H1 (q_Den a)) in Hle; [ clear H1 | apply q_Den_pos ].
+    do 2 rewrite (Z.mul_comm (q_Den a)) in Hle.
+    rewrite (Z.mul_mul_swap (z_pos nb)) in Hle.
+    rewrite <- Heq in Hle.
+    do 2 rewrite (Z.mul_comm _ (q_Den b)) in Hle.
+    do 2 rewrite <- Z.mul_assoc in Hle.
+    apply Z.mul_le_mono_pos_l in Hle; [ easy | apply q_Den_pos ].
+  } {
+    specialize Z.mul_le_mono_pos_l as H1.
+    apply (H1 (q_Den a)) in Hle; [ clear H1 | apply q_Den_pos ].
+    do 2 rewrite (Z.mul_comm (q_Den a)) in Hle.
+    rewrite (Z.mul_mul_swap (z_neg nb)) in Hle.
+    rewrite <- Heq in Hle.
+    do 2 rewrite (Z.mul_comm _ (q_Den b)) in Hle.
+    do 2 rewrite <- Z.mul_assoc in Hle.
+    apply Z.mul_le_mono_pos_l in Hle; [ easy | apply q_Den_pos ].
+  }
 }
-destruct (q_num b) as [| sb vb]. {
-  rewrite Z.mul_0_l in Heq, Hle.
-  apply Z.integral in Heq.
-  cbn in Heq.
-  destruct Heq as [Heq| Heq]; [ easy | ].
-  destruct Heq as [Heq| Heq]; [ | now destruct Heq ].
-  now apply q_Den_neq_0 in Heq.
-}
-move sb before sa.
-specialize Z.mul_le_mono_pos_l as H1.
-apply (H1 (q_Den a)) in Hle; [ clear H1 | apply q_Den_pos ].
-do 2 rewrite (Z.mul_comm (q_Den a)) in Hle.
-rewrite (Z.mul_mul_swap (z_val sb vb)) in Hle.
-rewrite <- Heq in Hle.
-do 2 rewrite (Z.mul_comm _ (q_Den b)) in Hle.
-do 2 rewrite <- Z.mul_assoc in Hle.
-apply Z.mul_le_mono_pos_l in Hle; [ easy | apply q_Den_pos ].
 Qed.
 
 Theorem order_eq_le_r : ∀ a b c, (a == b → b ≤ c → a ≤ c)%Q.
@@ -319,7 +355,8 @@ Proof.
 intros * Heq Hle.
 progress unfold Q.eq in Heq.
 progress unfold Q.le in Hle |-*.
-destruct (q_num a) as [| sa va]. {
+...
+destruct (q_num a) as [| a| a]. {
   symmetry in Heq.
   rewrite Z.mul_0_l in Heq |-*.
   apply Z.integral in Heq.
@@ -552,12 +589,12 @@ move cn before bn; move cd before bd.
 clear a b c.
 do 2 rewrite Nat.add_1_r in Hle1, Hle2 |-*.
 destruct bn as [| sb vb]. {
-  destruct an as [| sa va]; [ now destruct cn | ].
+  destruct an as [| a| a]; [ now destruct cn | ].
   destruct sa; [ easy | ].
   destruct cn as [| sc vc]; [ easy | now destruct sc ].
 }
 destruct sb. {
-  destruct an as [| sa va]. {
+  destruct an as [| a| a]. {
     destruct cn as [| sc vc]; [ easy | now destruct sc ].
   }
   destruct sa. {
@@ -580,7 +617,7 @@ destruct sb. {
   }
   destruct cn as [| sc vc]; [ easy | now destruct sc ].
 }
-destruct an as [| sa va]; [ easy | ].
+destruct an as [| a| a]; [ easy | ].
 destruct sa; [ easy | ].
 destruct cn as [| sc vc]; [ easy | ].
 destruct sc; [ easy | ].
@@ -622,7 +659,7 @@ cbn in Hle |-*.
 do 2 rewrite (Z.mul_comm _ (z_val _ _)) in Hle.
 do 6 rewrite (Z.mul_comm _ (z_val _ _)).
 cbn in Hle |-*.
-destruct an as [| sa va]. {
+destruct an as [| a| a]. {
   cbn.
   destruct bn as [| sb vb]. {
     destruct cn as [| sc vc]; [ easy | ].
