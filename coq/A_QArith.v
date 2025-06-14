@@ -621,19 +621,11 @@ remember (q_den c) as cd eqn:H; clear H.
 move cn before bn; move cd before bd.
 clear a b c.
 do 2 rewrite Nat.add_1_r in Hle1, Hle2 |-*.
-...
-destruct bn as [| sb vb]. {
-  destruct an as [| a| a]; [ now destruct cn | ].
-  destruct sa; [ easy | ].
-  destruct cn as [| sc vc]; [ easy | now destruct sc ].
-}
-destruct sb. {
-  destruct an as [| a| a]. {
-    destruct cn as [| sc vc]; [ easy | now destruct sc ].
-  }
-  destruct sa. {
-    destruct cn as [| sc vc]; [ easy | ].
-    destruct sc; [ | easy ].
+destruct bn as [| b| b]. {
+  destruct an as [| a| a]; [ | easy | ]; now destruct cn.
+} {
+  destruct an as [| a| a]; [ now destruct cn | | ]. {
+    destruct cn as [| c| c]; [ easy | | easy ].
     progress unfold Z.le in Hle1, Hle2 |-*.
     cbn in Hle1, Hle2 |-*.
     rewrite Nat_compare_sub_cancel_r in Hle1; [ | easy | easy ].
@@ -641,6 +633,7 @@ destruct sb. {
     rewrite Nat_compare_sub_cancel_r; [ | easy | easy ].
     apply Nat.compare_le_iff in Hle1, Hle2.
     apply Nat.compare_le_iff.
+...
     apply (Nat.mul_le_mono_pos_r _ _ ((bd + 1) * (vb + 1))); [ flia | ].
     do 2 rewrite Nat.mul_assoc.
     progress replace ((va + 1) * (cd + 1) * (bd + 1) * (vb + 1))%nat with
@@ -649,11 +642,11 @@ destruct sb. {
       (((vb + 1) * (ad + 1)) * ((vc + 1) * (bd + 1)))%nat by flia.
     now apply Nat.mul_le_mono.
   }
-  destruct cn as [| sc vc]; [ easy | now destruct sc ].
+  destruct cn as [| c| c]; [ easy | now destruct sc ].
 }
 destruct an as [| a| a]; [ easy | ].
 destruct sa; [ easy | ].
-destruct cn as [| sc vc]; [ easy | ].
+destruct cn as [| c| c]; [ easy | ].
 destruct sc; [ easy | ].
 cbn in Hle1, Hle2 |-*.
 progress unfold Z.le in Hle1, Hle2 |-*.
@@ -695,14 +688,14 @@ do 6 rewrite (Z.mul_comm _ (z_val _ _)).
 cbn in Hle |-*.
 destruct an as [| a| a]. {
   cbn.
-  destruct bn as [| sb vb]. {
-    destruct cn as [| sc vc]; [ easy | ].
+  destruct bn as [| b| b]. {
+    destruct cn as [| c| c]; [ easy | ].
     rewrite Nat.sub_add; [ | easy ].
     destruct sc; [ easy | now exfalso ].
   }
   rewrite Nat.sub_add; [ | easy ].
   destruct sb. {
-    destruct cn as [| sc vc]; [ easy | ].
+    destruct cn as [| c| c]; [ easy | ].
     rewrite Nat.sub_add; [ | easy ].
     destruct sc; [ | now exfalso ].
     progress unfold Z.le in Hle; cbn in Hle.
@@ -720,7 +713,7 @@ destruct an as [| a| a]. {
     do 2 rewrite <- (Nat.mul_assoc ((ad + 1) * (ad + 1))) in Hgt.
     apply Nat.mul_lt_mono_pos_l in Hgt; [ easy | flia ].
   } {
-    destruct cn as [| sc vc]; [ easy | ].
+    destruct cn as [| c| c]; [ easy | ].
     destruct sc; [ easy | ].
     progress unfold Z.le in Hle |-*; cbn in Hle |-*.
     apply Nat.compare_le_iff in Hle.
@@ -741,7 +734,7 @@ destruct an as [| a| a]. {
   }
 }
 destruct sa. {
-  destruct bn as [| sb vb]. {
+  destruct bn as [| b| b]. {
     rewrite Z.add_0_r.
     rewrite Nat.sub_add; [ | easy ].
     destruct cn as [| sc bc]. {
@@ -771,7 +764,7 @@ destruct sa. {
     flia.
   }
   destruct sb. {
-    destruct cn as [| sc vc]; [ easy | ].
+    destruct cn as [| c| c]; [ easy | ].
     destruct sc; [ cbn | easy ].
     rewrite Nat.add_sub_assoc; [ | easy ].
     rewrite Nat.sub_add; [ | flia ].
@@ -801,7 +794,7 @@ destruct sa. {
     do 2 rewrite (Nat.mul_shuffle0 _ (ad + 1)).
     now apply Nat.mul_le_mono_r.
   }
-  destruct cn as [| sc vc]. {
+  destruct cn as [| c| c]. {
     clear Hle; cbn.
     rewrite Nat_compare_sub_cancel_r; [ | easy | easy ].
     rewrite Nat.sub_add; [ | easy ].
@@ -962,10 +955,10 @@ destruct sa. {
     now apply Nat.mul_le_mono_pos_r.
   }
 }
-destruct bn as [| sb vb]. {
+destruct bn as [| b| b]. {
   rewrite Z.add_0_r.
   rewrite Nat.sub_add; [ | easy ].
-  destruct cn as [| sc vc]. {
+  destruct cn as [| c| c]. {
     clear Hle; cbn.
     rewrite Nat.sub_add; [ | easy ].
     progress unfold Z.le; cbn.
@@ -990,7 +983,7 @@ destruct bn as [| sb vb]. {
   }
 }
 destruct sb. {
-  destruct cn as [| sc vc]; [ easy | ].
+  destruct cn as [| c| c]; [ easy | ].
   destruct sc; [ cbn | easy ].
   progress unfold Z.le in Hle; cbn in Hle.
   rewrite Nat_compare_sub_cancel_r in Hle; [ | easy | easy ].
@@ -1097,7 +1090,7 @@ destruct sb. {
     now apply Nat.mul_le_mono_pos_r.
   }
 }
-destruct cn as [| sc vc]. {
+destruct cn as [| c| c]. {
   clear Hle; cbn.
   progress unfold Z.le; cbn.
   progress unfold pos_mul.
