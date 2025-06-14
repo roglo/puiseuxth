@@ -210,13 +210,13 @@ Qed.
 Theorem mul_1_l : ∀ a, (1 * a)%Q = a.
 Proof.
 intros.
-progress unfold mul; cbn.
+progress unfold mul.
+progress unfold pos_mul.
+rewrite Z.mul_1_l.
 destruct a as (na, da); cbn.
-rewrite Nat.add_0_r, Nat.add_sub.
+rewrite Nat.add_0_r.
 progress f_equal.
-destruct na as [| a| a]; [ easy | | ].
-now rewrite Nat.add_0_r, Nat.add_sub.
-now rewrite Nat.add_0_r, Nat.add_sub.
+apply Nat.add_sub.
 Qed.
 
 Theorem mul_1_r : ∀ a, (a * 1)%Q = a.
@@ -355,14 +355,7 @@ Proof.
 intros * Heq Hle.
 progress unfold Q.eq in Heq.
 progress unfold Q.le in Hle |-*.
-destruct (Z.le_dec 0 (q_num a)) as [Hza| Hza]. {
-  destruct (Z.le_dec (q_num a) (q_num c)) as [Hac| Hac]. {
-  apply Z.mul_le_compat_nonneg; [ easy | ].
-...
-intros * Heq Hle.
-progress unfold Q.eq in Heq.
-progress unfold Q.le in Hle |-*.
-destruct a as [| a| a]. {
+destruct (q_num a) as [| na| na]. {
   symmetry in Heq.
   rewrite Z.mul_0_l in Heq |-*.
   apply Z.integral in Heq.
@@ -376,30 +369,62 @@ destruct a as [| a| a]. {
   }
   destruct Heq as [Heq| Heq]; [ | now destruct Heq ].
   now apply q_Den_neq_0 in Heq.
+} {
+  destruct (q_num b) as [| nb| nb]. {
+    rewrite Z.mul_0_l in Heq, Hle.
+    apply Z.integral in Heq.
+    cbn in Heq.
+    destruct Heq as [Heq| Heq]; [ easy | ].
+    destruct Heq as [Heq| Heq]; [ | now destruct Heq ].
+    now apply q_Den_neq_0 in Heq.
+  } {
+    specialize Z.mul_le_mono_pos_l as H1.
+    apply (H1 (q_Den a)) in Hle; [ clear H1 | apply q_Den_pos ].
+    do 2 rewrite (Z.mul_comm (q_Den a)) in Hle.
+    rewrite (Z.mul_mul_swap (z_pos nb)) in Hle.
+    rewrite <- Heq in Hle.
+    do 2 rewrite (Z.mul_comm _ (q_Den b)) in Hle.
+    do 2 rewrite <- Z.mul_assoc in Hle.
+    apply Z.mul_le_mono_pos_l in Hle; [ easy | apply q_Den_pos ].
+  } {
+    specialize Z.mul_le_mono_pos_l as H1.
+    apply (H1 (q_Den a)) in Hle; [ clear H1 | apply q_Den_pos ].
+    do 2 rewrite (Z.mul_comm (q_Den a)) in Hle.
+    rewrite (Z.mul_mul_swap (z_neg nb)) in Hle.
+    rewrite <- Heq in Hle.
+    do 2 rewrite (Z.mul_comm _ (q_Den b)) in Hle.
+    do 2 rewrite <- Z.mul_assoc in Hle.
+    apply Z.mul_le_mono_pos_l in Hle; [ easy | apply q_Den_pos ].
+  }
+} {
+  destruct (q_num b) as [| nb| nb]. {
+    rewrite Z.mul_0_l in Heq, Hle.
+    apply Z.integral in Heq.
+    cbn in Heq.
+    destruct Heq as [Heq| Heq]; [ easy | ].
+    destruct Heq as [Heq| Heq]; [ | now destruct Heq ].
+    now apply q_Den_neq_0 in Heq.
+  } {
+    specialize Z.mul_le_mono_pos_l as H1.
+    apply (H1 (q_Den a)) in Hle; [ clear H1 | apply q_Den_pos ].
+    do 2 rewrite (Z.mul_comm (q_Den a)) in Hle.
+    rewrite (Z.mul_mul_swap (z_pos nb)) in Hle.
+    rewrite <- Heq in Hle.
+    do 2 rewrite (Z.mul_comm _ (q_Den b)) in Hle.
+    do 2 rewrite <- Z.mul_assoc in Hle.
+    apply Z.mul_le_mono_pos_l in Hle; [ easy | apply q_Den_pos ].
+  } {
+    specialize Z.mul_le_mono_pos_l as H1.
+    apply (H1 (q_Den a)) in Hle; [ clear H1 | apply q_Den_pos ].
+    do 2 rewrite (Z.mul_comm (q_Den a)) in Hle.
+    rewrite (Z.mul_mul_swap (z_neg nb)) in Hle.
+    rewrite <- Heq in Hle.
+    do 2 rewrite (Z.mul_comm _ (q_Den b)) in Hle.
+    do 2 rewrite <- Z.mul_assoc in Hle.
+    apply Z.mul_le_mono_pos_l in Hle; [ easy | apply q_Den_pos ].
+  }
 }
-(* exactly same tactics as for the previous theorems!
-   I tried to do a common theorem (lemma) from that
-   but I failed. Perhaps I should try again *)
-destruct (q_num b) as [| sb vb]. {
-  rewrite Z.mul_0_l in Heq, Hle.
-  apply Z.integral in Heq.
-  cbn in Heq.
-  destruct Heq as [Heq| Heq]; [ easy | ].
-  destruct Heq as [Heq| Heq]; [ | now destruct Heq ].
-  now apply q_Den_neq_0 in Heq.
-}
-move sb before sa.
-specialize Z.mul_le_mono_pos_l as H1.
-apply (H1 (q_Den a)) in Hle; [ clear H1 | apply q_Den_pos ].
-do 2 rewrite (Z.mul_comm (q_Den a)) in Hle.
-rewrite (Z.mul_mul_swap (z_val sb vb)) in Hle.
-rewrite <- Heq in Hle.
-do 2 rewrite (Z.mul_comm _ (q_Den b)) in Hle.
-do 2 rewrite <- Z.mul_assoc in Hle.
-apply Z.mul_le_mono_pos_l in Hle; [ easy | apply q_Den_pos ].
 Qed.
-
-...
 
 Theorem add_compat_l : ∀ a b c, (b == c → a + b == a + c)%Q.
 Proof.
@@ -596,6 +621,7 @@ remember (q_den c) as cd eqn:H; clear H.
 move cn before bn; move cd before bd.
 clear a b c.
 do 2 rewrite Nat.add_1_r in Hle1, Hle2 |-*.
+...
 destruct bn as [| sb vb]. {
   destruct an as [| a| a]; [ now destruct cn | ].
   destruct sa; [ easy | ].
