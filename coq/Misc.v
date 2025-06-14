@@ -261,9 +261,15 @@ Proof.
 intros * Hlt.
 progress unfold Q.lt, Q.inv in Hlt |-*; cbn in Hlt |-*.
 rewrite Z.mul_1_r in Hlt |-*.
+progress unfold Q.Z_sign.
 destruct (q_num a) as [| sa va]; [ easy | cbn ].
 destruct sa; [ cbn | easy ].
-apply q_Den_pos.
+remember (q_Den a) as da eqn:Hda.
+symmetry in Hda.
+destruct da; [ now apply q_Den_neq_0 in Hda | ].
+destruct b; [ easy | ].
+specialize (q_Den_pos a) as H.
+now rewrite Hda in H.
 Qed.
 
 Theorem Qdiv_lt_compat_r : ∀ x y z, 0 < z → x < y → x / z < y / z.
@@ -362,7 +368,8 @@ progress unfold q_Den.
 do 2 rewrite (Nat.add_comm _ 1).
 cbn.
 rewrite Nat.add_0_r, Nat.add_sub.
-now destruct sa.
+destruct sa; [ now rewrite Z.mul_1_l | cbn ].
+now rewrite Nat.add_0_r, Nat.add_sub.
 Qed.
 
 Theorem Q_mul_inv_diag_r : ∀ a, (¬ a == 0 → a * a⁻¹ == 1)%Q.
