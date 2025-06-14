@@ -1769,6 +1769,35 @@ destruct b as [| b| b]; [ apply Z.le_refl | | easy ].
 easy.
 Qed.
 
+Theorem le_dec : ∀ a b : Z, ({a ≤ b} + {¬ a ≤ b})%Z.
+Proof.
+intros.
+destruct a as [| a | a]. {
+  now destruct b as [| b| b]; [ left | left | right ].
+} {
+  destruct b as [| b| b]; [ now right | | now right ].
+  destruct (le_dec a b) as [Hvab| Hvab]. {
+    left; progress unfold Z.le; cbn.
+    now apply Nat.compare_le_iff.
+  } {
+    right; progress unfold Z.le; cbn.
+    intros H; apply Hvab; clear Hvab.
+    now apply Nat.compare_le_iff.
+  }
+} {
+  destruct b as [| b| b]; [ now left | now left | ].
+  destruct (lt_dec a b) as [Hvab| Hvab]. {
+    right; progress unfold Z.le; cbn.
+    intros H; apply Nat.compare_le_iff in H.
+    now apply Nat.nlt_ge in H.
+  } {
+    left; progress unfold Z.le; cbn.
+    intros H; apply Hvab; clear Hvab.
+    now apply Nat.compare_gt_iff.
+  }
+}
+Qed.
+
 End Z.
 
 Number Notation Z Z.of_number Z.to_number : Z_scope.

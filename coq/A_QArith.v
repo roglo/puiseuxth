@@ -355,8 +355,14 @@ Proof.
 intros * Heq Hle.
 progress unfold Q.eq in Heq.
 progress unfold Q.le in Hle |-*.
+destruct (Z.le_dec 0 (q_num a)) as [Hza| Hza]. {
+  destruct (Z.le_dec (q_num a) (q_num c)) as [Hac| Hac]. {
+  apply Z.mul_le_compat_nonneg; [ easy | ].
 ...
-destruct (q_num a) as [| a| a]. {
+intros * Heq Hle.
+progress unfold Q.eq in Heq.
+progress unfold Q.le in Hle |-*.
+destruct a as [| a| a]. {
   symmetry in Heq.
   rewrite Z.mul_0_l in Heq |-*.
   apply Z.integral in Heq.
@@ -392,6 +398,8 @@ do 2 rewrite (Z.mul_comm _ (q_Den b)) in Hle.
 do 2 rewrite <- Z.mul_assoc in Hle.
 apply Z.mul_le_mono_pos_l in Hle; [ easy | apply q_Den_pos ].
 Qed.
+
+...
 
 Theorem add_compat_l : ∀ a b c, (b == c → a + b == a + c)%Q.
 Proof.
