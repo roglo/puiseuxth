@@ -1318,13 +1318,7 @@ now apply Z.add_le_mono_l.
 Qed.
 
 Theorem mul_opp_l : ∀ a b, (- a * b)%Z = (- (a * b))%Z.
-Proof.
-intros.
-...
-destruct a as [| sa va]; [ easy | ].
-destruct b as [| sb vb]; [ easy | cbn ].
-now destruct sa, sb.
-Qed.
+Proof. now intros; destruct a, b. Qed.
 
 Theorem mul_opp_r : ∀ a b, (a * - b)%Z = (- (a * b))%Z.
 Proof.
@@ -1428,6 +1422,7 @@ destruct ab; [ easy | easy | cbn ].
 progress unfold Z.compare in H1.
 split; [ | easy ].
 intros H; subst b.
+...
 destruct a as [| sa va]; [ easy | cbn in H1 ].
 now destruct sa; rewrite Nat.compare_refl in H1.
 Qed.
