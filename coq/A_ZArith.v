@@ -1493,9 +1493,7 @@ assert (Ha : (0 < a)%Z). {
   apply Z.not_leb in Haz.
   destruct Haz as (Haz, Hza).
   apply Z.leb_le in Hza.
-...
-  destruct a as [| sa va]; [ easy | ].
-  now destruct sa.
+  destruct a as [| a| a]; [ easy | | ]; now apply Z.lt_iff.
 }
 apply (Z.archimedean a b) in Ha.
 destruct Ha as (n, Ha).
@@ -1503,20 +1501,18 @@ rewrite <- rngl_mul_nat_Z in Ha.
 exists n.
 progress unfold Z.lt in Ha.
 progress unfold Z.compare in Ha.
-destruct b as [| sb vb]. {
-  destruct (rngl_mul_nat a n); [ easy | now destruct b ].
-}
-destruct (rngl_mul_nat a n) as [| sc vc]; [ now destruct sb | ].
-destruct sb, sc; [ | easy | easy | ]. {
+destruct b as [| b| b]; [ now destruct (rngl_mul_nat a n) | | ]. {
+  destruct (rngl_mul_nat a n) as [| c| c]; [ easy | | easy ].
   rewrite Nat.compare_antisym in Ha.
   progress unfold CompOpp in Ha.
   progress unfold Z.leb; cbn.
-  now destruct (vc ?= vb).
+  now destruct (c ?= b).
 } {
+  destruct (rngl_mul_nat a n) as [| c| c]; [ easy | easy | ].
   rewrite Nat.compare_antisym in Ha.
   progress unfold CompOpp in Ha.
   progress unfold Z.leb; cbn.
-  now destruct (vb ?= vc).
+  now destruct (b ?= c).
 }
 Qed.
 
@@ -1558,32 +1554,30 @@ Qed.
 Theorem eqb_refl : ∀ a, (a =? a)%Z = true.
 Proof.
 intros.
-destruct a as [| sa va]; [ easy | cbn ].
-rewrite Bool.eqb_reflx.
-rewrite Nat.eqb_refl.
-easy.
+destruct a as [| a| a]; [ easy | | ]; apply Nat.eqb_refl.
 Qed.
 
 Theorem eqb_eq : ∀ a b, (a =? b)%Z = true ↔ a = b.
 Proof.
 intros.
 split; intros Hab; [ | subst b; apply eqb_refl ].
-destruct a as [| sa va]; [ now destruct b | ].
-destruct b as [| sb vb]; [ easy | ].
-cbn in Hab.
-apply Bool.andb_true_iff in Hab.
-destruct Hab as (H1, H2).
-apply Nat.eqb_eq in H2; subst vb.
-now destruct sa, sb.
+destruct a as [| a| a]; [ now destruct b | | ]. {
+  destruct b as [| b| b]; [ easy | | easy ].
+  now apply Nat.eqb_eq in Hab; subst.
+} {
+  destruct b as [| b| b]; [ easy | easy | ].
+  now apply Nat.eqb_eq in Hab; subst.
+}
 Qed.
 
 Theorem mul_le_mono_pos_l :
   ∀ a b c, (0 < a)%Z → (b ≤ c)%Z ↔ (a * b ≤ a * c)%Z.
 Proof.
 intros * Hza.
-destruct a as [| sa va]; [ now apply lt_irrefl in Hza | cbn ].
+destruct a as [| a| a]; [ now apply lt_irrefl in Hza | cbn | cbn ].
+...
 destruct sa; [ clear Hza | easy ].
-destruct b as [| sb vb]. {
+destruct b as [| b| b]. {
   destruct c as [| sc vc]; [ easy | ].
   now destruct sc.
 }
@@ -1639,9 +1633,9 @@ Theorem mul_lt_mono_pos_l :
   ∀ a b c, (0 < a)%Z → (b < c)%Z ↔ (a * b < a * c)%Z.
 Proof.
 intros * Hza.
-destruct a as [| sa va]; [ now apply lt_irrefl in Hza | cbn ].
+destruct a as [| a| a]; [ now apply lt_irrefl in Hza | cbn ].
 destruct sa; [ clear Hza | easy ].
-destruct b as [| sb vb]. {
+destruct b as [| b| b]. {
   destruct c as [| sc vc]; [ easy | ].
   now destruct sc.
 }
@@ -1713,7 +1707,7 @@ Qed.
 Theorem le_refl : ∀ a, (a ≤ a)%Z.
 Proof.
 intros a.
-destruct a as [| sa va]; [ easy | ].
+destruct a as [| a| a]; [ easy | ].
 progress unfold Z.le; cbn.
 now destruct sa; apply Nat.compare_le_iff.
 Qed.
@@ -1721,8 +1715,8 @@ Qed.
 Theorem mul_nonneg_nonneg : ∀ a b, (0 ≤ a → 0 ≤ b → 0 ≤ a * b)%Z.
 Proof.
 intros * Hz1 Hz2.
-destruct a as [| sa va]; [ apply Z.le_refl | ].
-destruct b as [| sb vb]; [ apply Z.le_refl | ].
+destruct a as [| a| a]; [ apply Z.le_refl | ].
+destruct b as [| b| b]; [ apply Z.le_refl | ].
 now destruct sa, sb.
 Qed.
 
