@@ -22,6 +22,53 @@ Definition pos_mul a b := (a + 1) * (b + 1) - 1.
 
 (* misc *)
 
+Theorem Nat_compare_sub_cancel_l :
+  ∀ a b c,
+  (b <= a)%nat
+  → (c <= a)%nat
+  → (a - b ?= a - c)%nat = (c ?= b)%nat.
+Proof.
+intros * Hle1 Hle2.
+revert a b Hle1 Hle2.
+induction c; intros; cbn. {
+  rewrite Nat.sub_0_r.
+  destruct b. {
+    apply Nat.compare_eq_iff.
+    apply Nat.sub_0_r.
+  }
+  apply Nat.compare_lt_iff.
+  flia Hle1.
+}
+destruct b. {
+  apply Nat.compare_gt_iff.
+  rewrite Nat.sub_0_r.
+  flia Hle2.
+}
+destruct a; [ easy | cbn ].
+apply Nat.succ_le_mono in Hle1, Hle2.
+apply (IHc _ _ Hle1 Hle2).
+Qed.
+
+Theorem Nat_compare_sub_cancel_r :
+  ∀ a b c,
+  (c <= a)%nat
+  → (c <= b)%nat
+  → (a - c ?= b - c)%nat = (a ?= b)%nat.
+Proof.
+intros * Hle1 Hle2.
+revert b c Hle1 Hle2.
+induction a; intros; cbn. {
+  apply Nat.le_0_r in Hle1; subst c.
+  now rewrite Nat.sub_0_r.
+}
+destruct b. {
+  now apply Nat.le_0_r in Hle2; subst c.
+}
+destruct c; [ easy | cbn ].
+apply Nat.succ_le_mono in Hle1, Hle2.
+apply (IHa _ _ Hle1 Hle2).
+Qed.
+
 Theorem Nat_sub_lt_mono_l :
   ∀ a b c, (c < a ∨ b <= a → c < b → a - b < a - c)%nat.
 Proof. intros * H1 H2; flia H1 H2. Qed.
@@ -29,6 +76,15 @@ Proof. intros * H1 H2; flia H1 H2. Qed.
 Theorem Nat_sub_lt_mono_r :
   ∀ a b c, (c < b ∨ c <= a → a < b → a - c < b - c)%nat.
 Proof. intros * H1 H2; flia H1 H2. Qed.
+
+Theorem Nat_1_le_mul_add_1 : ∀ a b, (1 <= (a + 1) * (b + 1))%nat.
+Proof. flia. Qed.
+
+Theorem Nat_add_1_r_pos : ∀ a, (0 < a + 1)%nat.
+Proof. flia. Qed.
+
+Hint Resolve Nat_1_le_mul_add_1 : core.
+Hint Resolve Nat_add_1_r_pos : core.
 
 Theorem q_Den_num_den : ∀ a b, q_Den (mk_q a b) = Z.of_nat (b + 1).
 Proof. easy. Qed.
@@ -64,8 +120,8 @@ Definition mul a b :=
 Definition inv a :=
   match q_num a with
   | z_zero => mk_q 0 0
-  | z_pos v => mk_q (q_Den a) v
-  | z_neg v => mk_q (- q_Den a) v
+  | z_val true v => mk_q (q_Den a) v
+  | z_val false v => mk_q (- q_Den a) v
   end.
 
 Definition div a b := mul a (inv b).
@@ -210,13 +266,13 @@ Qed.
 Theorem mul_1_l : ∀ a, (1 * a)%Q = a.
 Proof.
 intros.
-progress unfold mul.
-progress unfold pos_mul.
-rewrite Z.mul_1_l.
+progress unfold mul; cbn.
 destruct a as (na, da); cbn.
-rewrite Nat.add_0_r.
+rewrite Nat.add_0_r, Nat.add_sub.
 progress f_equal.
-apply Nat.add_sub.
+destruct na as [| sa va]; [ easy | ].
+rewrite Nat.add_0_r, Nat.add_sub.
+now destruct sa.
 Qed.
 
 Theorem mul_1_r : ∀ a, (a * 1)%Q = a.
@@ -272,7 +328,7 @@ Proof.
 intros * Heq Hle.
 progress unfold Q.eq in Heq.
 progress unfold Q.le in Hle |-*.
-destruct (q_num a) as [| na| na]. {
+destruct (q_num a) as [| sa va]. {
   symmetry in Heq.
   rewrite Z.mul_0_l in Heq |-*.
   apply Z.integral in Heq.
@@ -293,61 +349,24 @@ destruct (q_num a) as [| na| na]. {
   }
   destruct Heq as [Heq| Heq]; [ | now destruct Heq ].
   now apply q_Den_neq_0 in Heq.
-} {
-  destruct (q_num b) as [| nb| nb]. {
-    rewrite Z.mul_0_l in Heq, Hle.
-    apply Z.integral in Heq.
-    cbn in Heq.
-    destruct Heq as [Heq| Heq]; [ easy | ].
-    destruct Heq as [Heq| Heq]; [ | now destruct Heq ].
-    now apply q_Den_neq_0 in Heq.
-  } {
-    specialize Z.mul_le_mono_pos_l as H1.
-    apply (H1 (q_Den a)) in Hle; [ clear H1 | apply q_Den_pos ].
-    do 2 rewrite (Z.mul_comm (q_Den a)) in Hle.
-    rewrite (Z.mul_mul_swap (z_pos nb)) in Hle.
-    rewrite <- Heq in Hle.
-    do 2 rewrite (Z.mul_comm _ (q_Den b)) in Hle.
-    do 2 rewrite <- Z.mul_assoc in Hle.
-    apply Z.mul_le_mono_pos_l in Hle; [ easy | apply q_Den_pos ].
-  } {
-    specialize Z.mul_le_mono_pos_l as H1.
-    apply (H1 (q_Den a)) in Hle; [ clear H1 | apply q_Den_pos ].
-    do 2 rewrite (Z.mul_comm (q_Den a)) in Hle.
-    rewrite (Z.mul_mul_swap (z_neg nb)) in Hle.
-    rewrite <- Heq in Hle.
-    do 2 rewrite (Z.mul_comm _ (q_Den b)) in Hle.
-    do 2 rewrite <- Z.mul_assoc in Hle.
-    apply Z.mul_le_mono_pos_l in Hle; [ easy | apply q_Den_pos ].
-  }
-} {
-  destruct (q_num b) as [| nb| nb]. {
-    rewrite Z.mul_0_l in Heq, Hle.
-    apply Z.integral in Heq.
-    cbn in Heq.
-    destruct Heq as [Heq| Heq]; [ easy | ].
-    destruct Heq as [Heq| Heq]; [ | now destruct Heq ].
-    now apply q_Den_neq_0 in Heq.
-  } {
-    specialize Z.mul_le_mono_pos_l as H1.
-    apply (H1 (q_Den a)) in Hle; [ clear H1 | apply q_Den_pos ].
-    do 2 rewrite (Z.mul_comm (q_Den a)) in Hle.
-    rewrite (Z.mul_mul_swap (z_pos nb)) in Hle.
-    rewrite <- Heq in Hle.
-    do 2 rewrite (Z.mul_comm _ (q_Den b)) in Hle.
-    do 2 rewrite <- Z.mul_assoc in Hle.
-    apply Z.mul_le_mono_pos_l in Hle; [ easy | apply q_Den_pos ].
-  } {
-    specialize Z.mul_le_mono_pos_l as H1.
-    apply (H1 (q_Den a)) in Hle; [ clear H1 | apply q_Den_pos ].
-    do 2 rewrite (Z.mul_comm (q_Den a)) in Hle.
-    rewrite (Z.mul_mul_swap (z_neg nb)) in Hle.
-    rewrite <- Heq in Hle.
-    do 2 rewrite (Z.mul_comm _ (q_Den b)) in Hle.
-    do 2 rewrite <- Z.mul_assoc in Hle.
-    apply Z.mul_le_mono_pos_l in Hle; [ easy | apply q_Den_pos ].
-  }
 }
+destruct (q_num b) as [| sb vb]. {
+  rewrite Z.mul_0_l in Heq, Hle.
+  apply Z.integral in Heq.
+  cbn in Heq.
+  destruct Heq as [Heq| Heq]; [ easy | ].
+  destruct Heq as [Heq| Heq]; [ | now destruct Heq ].
+  now apply q_Den_neq_0 in Heq.
+}
+move sb before sa.
+specialize Z.mul_le_mono_pos_l as H1.
+apply (H1 (q_Den a)) in Hle; [ clear H1 | apply q_Den_pos ].
+do 2 rewrite (Z.mul_comm (q_Den a)) in Hle.
+rewrite (Z.mul_mul_swap (z_val sb vb)) in Hle.
+rewrite <- Heq in Hle.
+do 2 rewrite (Z.mul_comm _ (q_Den b)) in Hle.
+do 2 rewrite <- Z.mul_assoc in Hle.
+apply Z.mul_le_mono_pos_l in Hle; [ easy | apply q_Den_pos ].
 Qed.
 
 Theorem order_eq_le_r : ∀ a b c, (a == b → b ≤ c → a ≤ c)%Q.
@@ -355,7 +374,7 @@ Proof.
 intros * Heq Hle.
 progress unfold Q.eq in Heq.
 progress unfold Q.le in Hle |-*.
-destruct (q_num a) as [| na| na]. {
+destruct (q_num a) as [| sa va]. {
   symmetry in Heq.
   rewrite Z.mul_0_l in Heq |-*.
   apply Z.integral in Heq.
@@ -369,61 +388,27 @@ destruct (q_num a) as [| na| na]. {
   }
   destruct Heq as [Heq| Heq]; [ | now destruct Heq ].
   now apply q_Den_neq_0 in Heq.
-} {
-  destruct (q_num b) as [| nb| nb]. {
-    rewrite Z.mul_0_l in Heq, Hle.
-    apply Z.integral in Heq.
-    cbn in Heq.
-    destruct Heq as [Heq| Heq]; [ easy | ].
-    destruct Heq as [Heq| Heq]; [ | now destruct Heq ].
-    now apply q_Den_neq_0 in Heq.
-  } {
-    specialize Z.mul_le_mono_pos_l as H1.
-    apply (H1 (q_Den a)) in Hle; [ clear H1 | apply q_Den_pos ].
-    do 2 rewrite (Z.mul_comm (q_Den a)) in Hle.
-    rewrite (Z.mul_mul_swap (z_pos nb)) in Hle.
-    rewrite <- Heq in Hle.
-    do 2 rewrite (Z.mul_comm _ (q_Den b)) in Hle.
-    do 2 rewrite <- Z.mul_assoc in Hle.
-    apply Z.mul_le_mono_pos_l in Hle; [ easy | apply q_Den_pos ].
-  } {
-    specialize Z.mul_le_mono_pos_l as H1.
-    apply (H1 (q_Den a)) in Hle; [ clear H1 | apply q_Den_pos ].
-    do 2 rewrite (Z.mul_comm (q_Den a)) in Hle.
-    rewrite (Z.mul_mul_swap (z_neg nb)) in Hle.
-    rewrite <- Heq in Hle.
-    do 2 rewrite (Z.mul_comm _ (q_Den b)) in Hle.
-    do 2 rewrite <- Z.mul_assoc in Hle.
-    apply Z.mul_le_mono_pos_l in Hle; [ easy | apply q_Den_pos ].
-  }
-} {
-  destruct (q_num b) as [| nb| nb]. {
-    rewrite Z.mul_0_l in Heq, Hle.
-    apply Z.integral in Heq.
-    cbn in Heq.
-    destruct Heq as [Heq| Heq]; [ easy | ].
-    destruct Heq as [Heq| Heq]; [ | now destruct Heq ].
-    now apply q_Den_neq_0 in Heq.
-  } {
-    specialize Z.mul_le_mono_pos_l as H1.
-    apply (H1 (q_Den a)) in Hle; [ clear H1 | apply q_Den_pos ].
-    do 2 rewrite (Z.mul_comm (q_Den a)) in Hle.
-    rewrite (Z.mul_mul_swap (z_pos nb)) in Hle.
-    rewrite <- Heq in Hle.
-    do 2 rewrite (Z.mul_comm _ (q_Den b)) in Hle.
-    do 2 rewrite <- Z.mul_assoc in Hle.
-    apply Z.mul_le_mono_pos_l in Hle; [ easy | apply q_Den_pos ].
-  } {
-    specialize Z.mul_le_mono_pos_l as H1.
-    apply (H1 (q_Den a)) in Hle; [ clear H1 | apply q_Den_pos ].
-    do 2 rewrite (Z.mul_comm (q_Den a)) in Hle.
-    rewrite (Z.mul_mul_swap (z_neg nb)) in Hle.
-    rewrite <- Heq in Hle.
-    do 2 rewrite (Z.mul_comm _ (q_Den b)) in Hle.
-    do 2 rewrite <- Z.mul_assoc in Hle.
-    apply Z.mul_le_mono_pos_l in Hle; [ easy | apply q_Den_pos ].
-  }
 }
+(* exactly same tactics as for the previous theorems!
+   I tried to do a common theorem (lemma) from that
+   but I failed. Perhaps I should try again *)
+destruct (q_num b) as [| sb vb]. {
+  rewrite Z.mul_0_l in Heq, Hle.
+  apply Z.integral in Heq.
+  cbn in Heq.
+  destruct Heq as [Heq| Heq]; [ easy | ].
+  destruct Heq as [Heq| Heq]; [ | now destruct Heq ].
+  now apply q_Den_neq_0 in Heq.
+}
+move sb before sa.
+specialize Z.mul_le_mono_pos_l as H1.
+apply (H1 (q_Den a)) in Hle; [ clear H1 | apply q_Den_pos ].
+do 2 rewrite (Z.mul_comm (q_Den a)) in Hle.
+rewrite (Z.mul_mul_swap (z_val sb vb)) in Hle.
+rewrite <- Heq in Hle.
+do 2 rewrite (Z.mul_comm _ (q_Den b)) in Hle.
+do 2 rewrite <- Z.mul_assoc in Hle.
+apply Z.mul_le_mono_pos_l in Hle; [ easy | apply q_Den_pos ].
 Qed.
 
 Theorem add_compat_l : ∀ a b c, (b == c → a + b == a + c)%Q.
@@ -621,28 +606,39 @@ remember (q_den c) as cd eqn:H; clear H.
 move cn before bn; move cd before bd.
 clear a b c.
 do 2 rewrite Nat.add_1_r in Hle1, Hle2 |-*.
-destruct bn as [| b| b]. {
-  destruct an as [| a| a]; [ | easy | ]; now destruct cn.
-} {
-  destruct an as [| a| a]; [ now destruct cn | | now destruct cn ].
-  destruct cn as [| c| c]; [ easy | | easy ].
-  progress unfold Z.le in Hle1, Hle2 |-*.
-  cbn in Hle1, Hle2 |-*.
-  rewrite Nat_compare_sub_cancel_r in Hle1; [ | easy | easy ].
-  rewrite Nat_compare_sub_cancel_r in Hle2; [ | easy | easy ].
-  rewrite Nat_compare_sub_cancel_r; [ | easy | easy ].
-  apply Nat.compare_le_iff in Hle1, Hle2.
-  apply Nat.compare_le_iff.
-  apply (Nat.mul_le_mono_pos_r _ _ ((bd + 1) * (b + 1))); [ flia | ].
-  do 2 rewrite Nat.mul_assoc.
-  progress replace ((a + 1) * (cd + 1) * (bd + 1) * (b + 1))%nat with
-    (((a + 1) * (bd + 1)) * ((b + 1) * (cd + 1)))%nat by flia.
-  progress replace ((c + 1) * (ad + 1) * (bd + 1) * (b + 1))%nat with
-    (((b + 1) * (ad + 1)) * ((c + 1) * (bd + 1)))%nat by flia.
-  now apply Nat.mul_le_mono.
+destruct bn as [| sb vb]. {
+  destruct an as [| sa va]; [ now destruct cn | ].
+  destruct sa; [ easy | ].
+  destruct cn as [| sc vc]; [ easy | now destruct sc ].
 }
-destruct an as [| a| a]; [ easy | easy | ].
-destruct cn as [| c| c]; [ easy | easy | ].
+destruct sb. {
+  destruct an as [| sa va]. {
+    destruct cn as [| sc vc]; [ easy | now destruct sc ].
+  }
+  destruct sa. {
+    destruct cn as [| sc vc]; [ easy | ].
+    destruct sc; [ | easy ].
+    progress unfold Z.le in Hle1, Hle2 |-*.
+    cbn in Hle1, Hle2 |-*.
+    rewrite Nat_compare_sub_cancel_r in Hle1; [ | easy | easy ].
+    rewrite Nat_compare_sub_cancel_r in Hle2; [ | easy | easy ].
+    rewrite Nat_compare_sub_cancel_r; [ | easy | easy ].
+    apply Nat.compare_le_iff in Hle1, Hle2.
+    apply Nat.compare_le_iff.
+    apply (Nat.mul_le_mono_pos_r _ _ ((bd + 1) * (vb + 1))); [ flia | ].
+    do 2 rewrite Nat.mul_assoc.
+    progress replace ((va + 1) * (cd + 1) * (bd + 1) * (vb + 1))%nat with
+      (((va + 1) * (bd + 1)) * ((vb + 1) * (cd + 1)))%nat by flia.
+    progress replace ((vc + 1) * (ad + 1) * (bd + 1) * (vb + 1))%nat with
+      (((vb + 1) * (ad + 1)) * ((vc + 1) * (bd + 1)))%nat by flia.
+    now apply Nat.mul_le_mono.
+  }
+  destruct cn as [| sc vc]; [ easy | now destruct sc ].
+}
+destruct an as [| sa va]; [ easy | ].
+destruct sa; [ easy | ].
+destruct cn as [| sc vc]; [ easy | ].
+destruct sc; [ easy | ].
 cbn in Hle1, Hle2 |-*.
 progress unfold Z.le in Hle1, Hle2 |-*.
 cbn in Hle1, Hle2 |-*.
@@ -651,12 +647,12 @@ rewrite Nat_compare_sub_cancel_r in Hle2; [ | easy | easy ].
 rewrite Nat_compare_sub_cancel_r; [ | easy | easy ].
 apply Nat.compare_le_iff in Hle1, Hle2.
 apply Nat.compare_le_iff.
-apply (Nat.mul_le_mono_pos_r _ _ ((bd + 1) * (b + 1))); [ flia | ].
+apply (Nat.mul_le_mono_pos_r _ _ ((bd + 1) * (vb + 1))); [ flia | ].
 do 2 rewrite Nat.mul_assoc.
-progress replace ((a + 1) * (cd + 1) * (bd + 1) * (b + 1))%nat with
-  (((a + 1) * (bd + 1)) * ((b + 1) * (cd + 1)))%nat by flia.
-progress replace ((c + 1) * (ad + 1) * (bd + 1) * (b + 1))%nat with
-  (((b + 1) * (ad + 1)) * ((c + 1) * (bd + 1)))%nat by flia.
+progress replace ((va + 1) * (cd + 1) * (bd + 1) * (vb + 1))%nat with
+  (((va + 1) * (bd + 1)) * ((vb + 1) * (cd + 1)))%nat by flia.
+progress replace ((vc + 1) * (ad + 1) * (bd + 1) * (vb + 1))%nat with
+  (((vb + 1) * (ad + 1)) * ((vc + 1) * (bd + 1)))%nat by flia.
 now apply Nat.mul_le_mono.
 Qed.
 
@@ -678,20 +674,19 @@ cbn in Hle |-*.
 do 2 rewrite Nat.add_1_r in Hle.
 do 5 rewrite Nat.add_1_r.
 cbn in Hle |-*.
-...
 do 2 rewrite (Z.mul_comm _ (z_val _ _)) in Hle.
 do 6 rewrite (Z.mul_comm _ (z_val _ _)).
 cbn in Hle |-*.
-destruct an as [| a| a]. {
+destruct an as [| sa va]. {
   cbn.
-  destruct bn as [| b| b]. {
-    destruct cn as [| c| c]; [ easy | ].
+  destruct bn as [| sb vb]. {
+    destruct cn as [| sc vc]; [ easy | ].
     rewrite Nat.sub_add; [ | easy ].
     destruct sc; [ easy | now exfalso ].
   }
   rewrite Nat.sub_add; [ | easy ].
   destruct sb. {
-    destruct cn as [| c| c]; [ easy | ].
+    destruct cn as [| sc vc]; [ easy | ].
     rewrite Nat.sub_add; [ | easy ].
     destruct sc; [ | now exfalso ].
     progress unfold Z.le in Hle; cbn in Hle.
@@ -709,7 +704,7 @@ destruct an as [| a| a]. {
     do 2 rewrite <- (Nat.mul_assoc ((ad + 1) * (ad + 1))) in Hgt.
     apply Nat.mul_lt_mono_pos_l in Hgt; [ easy | flia ].
   } {
-    destruct cn as [| c| c]; [ easy | ].
+    destruct cn as [| sc vc]; [ easy | ].
     destruct sc; [ easy | ].
     progress unfold Z.le in Hle |-*; cbn in Hle |-*.
     apply Nat.compare_le_iff in Hle.
@@ -730,7 +725,7 @@ destruct an as [| a| a]. {
   }
 }
 destruct sa. {
-  destruct bn as [| b| b]. {
+  destruct bn as [| sb vb]. {
     rewrite Z.add_0_r.
     rewrite Nat.sub_add; [ | easy ].
     destruct cn as [| sc bc]. {
@@ -760,7 +755,7 @@ destruct sa. {
     flia.
   }
   destruct sb. {
-    destruct cn as [| c| c]; [ easy | ].
+    destruct cn as [| sc vc]; [ easy | ].
     destruct sc; [ cbn | easy ].
     rewrite Nat.add_sub_assoc; [ | easy ].
     rewrite Nat.sub_add; [ | flia ].
@@ -790,7 +785,7 @@ destruct sa. {
     do 2 rewrite (Nat.mul_shuffle0 _ (ad + 1)).
     now apply Nat.mul_le_mono_r.
   }
-  destruct cn as [| c| c]. {
+  destruct cn as [| sc vc]. {
     clear Hle; cbn.
     rewrite Nat_compare_sub_cancel_r; [ | easy | easy ].
     rewrite Nat.sub_add; [ | easy ].
@@ -951,10 +946,10 @@ destruct sa. {
     now apply Nat.mul_le_mono_pos_r.
   }
 }
-destruct bn as [| b| b]. {
+destruct bn as [| sb vb]. {
   rewrite Z.add_0_r.
   rewrite Nat.sub_add; [ | easy ].
-  destruct cn as [| c| c]. {
+  destruct cn as [| sc vc]. {
     clear Hle; cbn.
     rewrite Nat.sub_add; [ | easy ].
     progress unfold Z.le; cbn.
@@ -979,7 +974,7 @@ destruct bn as [| b| b]. {
   }
 }
 destruct sb. {
-  destruct cn as [| c| c]; [ easy | ].
+  destruct cn as [| sc vc]; [ easy | ].
   destruct sc; [ cbn | easy ].
   progress unfold Z.le in Hle; cbn in Hle.
   rewrite Nat_compare_sub_cancel_r in Hle; [ | easy | easy ].
@@ -1086,7 +1081,7 @@ destruct sb. {
     now apply Nat.mul_le_mono_pos_r.
   }
 }
-destruct cn as [| c| c]. {
+destruct cn as [| sc vc]. {
   clear Hle; cbn.
   progress unfold Z.le; cbn.
   progress unfold pos_mul.
