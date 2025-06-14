@@ -22,53 +22,6 @@ Definition pos_mul a b := (a + 1) * (b + 1) - 1.
 
 (* misc *)
 
-Theorem Nat_compare_sub_cancel_l :
-  ∀ a b c,
-  (b <= a)%nat
-  → (c <= a)%nat
-  → (a - b ?= a - c)%nat = (c ?= b)%nat.
-Proof.
-intros * Hle1 Hle2.
-revert a b Hle1 Hle2.
-induction c; intros; cbn. {
-  rewrite Nat.sub_0_r.
-  destruct b. {
-    apply Nat.compare_eq_iff.
-    apply Nat.sub_0_r.
-  }
-  apply Nat.compare_lt_iff.
-  flia Hle1.
-}
-destruct b. {
-  apply Nat.compare_gt_iff.
-  rewrite Nat.sub_0_r.
-  flia Hle2.
-}
-destruct a; [ easy | cbn ].
-apply Nat.succ_le_mono in Hle1, Hle2.
-apply (IHc _ _ Hle1 Hle2).
-Qed.
-
-Theorem Nat_compare_sub_cancel_r :
-  ∀ a b c,
-  (c <= a)%nat
-  → (c <= b)%nat
-  → (a - c ?= b - c)%nat = (a ?= b)%nat.
-Proof.
-intros * Hle1 Hle2.
-revert b c Hle1 Hle2.
-induction a; intros; cbn. {
-  apply Nat.le_0_r in Hle1; subst c.
-  now rewrite Nat.sub_0_r.
-}
-destruct b. {
-  now apply Nat.le_0_r in Hle2; subst c.
-}
-destruct c; [ easy | cbn ].
-apply Nat.succ_le_mono in Hle1, Hle2.
-apply (IHa _ _ Hle1 Hle2).
-Qed.
-
 Theorem Nat_sub_lt_mono_l :
   ∀ a b c, (c < a ∨ b <= a → c < b → a - b < a - c)%nat.
 Proof. intros * H1 H2; flia H1 H2. Qed.

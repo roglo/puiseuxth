@@ -26,6 +26,85 @@ Theorem if_eqb_bool_dec : ∀ A i j (a b : A),
   (if Bool.eqb i j then a else b) = (if Bool.bool_dec i j then a else b).
 Proof. now intros; destruct i, j. Qed.
 
+Theorem Nat_compare_sub_cancel_l :
+  ∀ a b c,
+  (b <= a)%nat
+  → (c <= a)%nat
+  → (a - b ?= a - c)%nat = (c ?= b)%nat.
+Proof.
+intros * Hle1 Hle2.
+revert a b Hle1 Hle2.
+induction c; intros; cbn. {
+  rewrite Nat.sub_0_r.
+  destruct b. {
+    apply Nat.compare_eq_iff.
+    apply Nat.sub_0_r.
+  }
+  apply Nat.compare_lt_iff.
+  flia Hle1.
+}
+destruct b. {
+  apply Nat.compare_gt_iff.
+  rewrite Nat.sub_0_r.
+  flia Hle2.
+}
+destruct a; [ easy | cbn ].
+apply Nat.succ_le_mono in Hle1, Hle2.
+apply (IHc _ _ Hle1 Hle2).
+Qed.
+
+Theorem Nat_compare_add_cancel_l :
+  ∀ a b c, (a + b ?= a + c)%nat = (b ?= c)%nat.
+Proof.
+intros.
+revert a b.
+induction c; intros; cbn. {
+  rewrite Nat.add_0_r.
+  destruct b. {
+    apply Nat.compare_eq_iff.
+    apply Nat.add_0_r.
+  }
+  apply Nat.compare_gt_iff.
+  flia.
+}
+destruct b. {
+  rewrite Nat.add_0_r; cbn.
+  apply Nat.compare_lt_iff.
+  flia.
+}
+cbn.
+do 2 rewrite Nat.add_succ_r, <- Nat.add_succ_l.
+apply IHc.
+Qed.
+
+Theorem Nat_compare_add_cancel_r :
+  ∀ a b c, (a + c ?= b + c)%nat = (a ?= b)%nat.
+Proof.
+intros.
+do 2 rewrite (Nat.add_comm _ c).
+apply Nat_compare_add_cancel_l.
+Qed.
+
+Theorem Nat_compare_sub_cancel_r :
+  ∀ a b c,
+  (c <= a)%nat
+  → (c <= b)%nat
+  → (a - c ?= b - c)%nat = (a ?= b)%nat.
+Proof.
+intros * Hle1 Hle2.
+revert b c Hle1 Hle2.
+induction a; intros; cbn. {
+  apply Nat.le_0_r in Hle1; subst c.
+  now rewrite Nat.sub_0_r.
+}
+destruct b. {
+  now apply Nat.le_0_r in Hle2; subst c.
+}
+destruct c; [ easy | cbn ].
+apply Nat.succ_le_mono in Hle1, Hle2.
+apply (IHa _ _ Hle1 Hle2).
+Qed.
+
 Theorem Nat_compare_mul_cancel_l :
   ∀ a b c, a ≠ 0 → (a * b ?= a * c) = (b ?= c).
 Proof.
