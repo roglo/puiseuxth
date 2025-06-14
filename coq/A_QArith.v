@@ -278,8 +278,6 @@ Qed.
 Theorem order_eq_le_l : ∀ a b c, (a == b → c ≤ b → c ≤ a)%Q.
 Proof.
 intros * Heq Hle.
-progress unfold Q.eq in Heq.
-progress unfold Q.le in Hle |-*.
 apply (Z.mul_le_mono_pos_r (q_Den b)); [ apply q_Den_pos | ].
 rewrite (Z.mul_comm (q_num a)), <- (Z.mul_assoc (q_Den c)), Heq.
 rewrite Z.mul_mul_swap, Z.mul_assoc.
@@ -291,43 +289,12 @@ Qed.
 Theorem order_eq_le_r : ∀ a b c, (a == b → b ≤ c → a ≤ c)%Q.
 Proof.
 intros * Heq Hle.
-progress unfold Q.eq in Heq.
-progress unfold Q.le in Hle |-*.
-destruct (q_num a) as [| sa va]. {
-  symmetry in Heq.
-  rewrite Z.mul_0_l in Heq |-*.
-  apply Z.integral in Heq.
-  cbn in Heq.
-  destruct Heq as [Heq| Heq]. {
-    rewrite Heq in Hle; cbn in Hle.
-    specialize (Z.mul_le_mono_pos_r (q_Den b) 0 (q_num c)) as H1.
-    rewrite Z.mul_0_l in H1.
-    apply H1 in Hle; [ clear H1 | apply q_Den_pos ].
-    apply Z.mul_nonneg_nonneg; [ easy | apply q_Den_nonneg ].
-  }
-  destruct Heq as [Heq| Heq]; [ | now destruct Heq ].
-  now apply q_Den_neq_0 in Heq.
-}
-(* exactly same tactics as for the previous theorems!
-   I tried to do a common theorem (lemma) from that
-   but I failed. Perhaps I should try again *)
-destruct (q_num b) as [| sb vb]. {
-  rewrite Z.mul_0_l in Heq, Hle.
-  apply Z.integral in Heq.
-  cbn in Heq.
-  destruct Heq as [Heq| Heq]; [ easy | ].
-  destruct Heq as [Heq| Heq]; [ | now destruct Heq ].
-  now apply q_Den_neq_0 in Heq.
-}
-move sb before sa.
-specialize Z.mul_le_mono_pos_l as H1.
-apply (H1 (q_Den a)) in Hle; [ clear H1 | apply q_Den_pos ].
-do 2 rewrite (Z.mul_comm (q_Den a)) in Hle.
-rewrite (Z.mul_mul_swap (z_val sb vb)) in Hle.
-rewrite <- Heq in Hle.
-do 2 rewrite (Z.mul_comm _ (q_Den b)) in Hle.
-do 2 rewrite <- Z.mul_assoc in Hle.
-apply Z.mul_le_mono_pos_l in Hle; [ easy | apply q_Den_pos ].
+apply (Z.mul_le_mono_pos_r (q_Den b)); [ apply q_Den_pos | ].
+rewrite (Z.mul_comm (q_num a)), <- (Z.mul_assoc (q_Den c)), Heq.
+rewrite Z.mul_mul_swap, Z.mul_assoc.
+rewrite (Z.mul_comm (q_Den c)).
+apply Z.mul_le_mono_pos_r; [ | easy ].
+apply q_Den_pos.
 Qed.
 
 Theorem add_compat_l : ∀ a b c, (b == c → a + b == a + c)%Q.
