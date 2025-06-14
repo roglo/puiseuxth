@@ -64,8 +64,8 @@ Definition mul a b :=
 Definition inv a :=
   match q_num a with
   | z_zero => mk_q 0 0
-  | z_val true v => mk_q (q_Den a) v
-  | z_val false v => mk_q (- q_Den a) v
+  | z_pos v => mk_q (q_Den a) v
+  | z_neg v => mk_q (- q_Den a) v
   end.
 
 Definition div a b := mul a (inv b).
@@ -214,6 +214,7 @@ progress unfold mul; cbn.
 destruct a as (na, da); cbn.
 rewrite Nat.add_0_r, Nat.add_sub.
 progress f_equal.
+...
 destruct na as [| sa va]; [ easy | ].
 rewrite Nat.add_0_r, Nat.add_sub.
 now destruct sa.
