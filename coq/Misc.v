@@ -261,7 +261,7 @@ Proof.
 intros * Hlt.
 progress unfold Q.lt, Q.inv in Hlt |-*; cbn in Hlt |-*.
 rewrite Z.mul_1_r in Hlt |-*.
-progress unfold Q.Z_sign.
+progress unfold Z.sign.
 destruct (q_num a) as [| sa va]; [ easy | cbn ].
 destruct sa; [ cbn | easy ].
 remember (q_Den a) as da eqn:Hda.
@@ -367,7 +367,7 @@ rewrite (Z.mul_comm (q_Den _)).
 progress unfold q_Den.
 do 2 rewrite (Nat.add_comm _ 1).
 cbn.
-rewrite Nat.add_0_r, Nat.add_sub.
+rewrite Nat.add_0_r, Nat.add_sub, Nat.add_sub.
 destruct sa; [ now rewrite Z.mul_1_l | cbn ].
 now rewrite Nat.add_0_r, Nat.add_sub.
 Qed.

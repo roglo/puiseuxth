@@ -261,6 +261,19 @@ Definition div_eucl (a b : Z) :=
 
 Definition div a b := fst (div_eucl a b).
 
+Definition sign a :=
+  match a with
+  | z_zero => 0%Z
+  | z_val true _ => 1%Z
+  | z_val false _ => (-1)%Z
+  end.
+
+Definition abs a :=
+  match a with
+  | z_zero => 0%nat
+  | z_val _ v => (v + 1)%nat
+  end.
+
 Theorem eq_dec : ∀ a b : Z, {a = b} + {a ≠ b}.
 Proof.
 intros.

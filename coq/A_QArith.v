@@ -70,20 +70,7 @@ Definition sub a b := add a (opp b).
 Definition mul a b :=
   mk_q (q_num a * q_num b) (pos_mul (q_den a) (q_den b)).
 
-Definition Z_sign a :=
-  match a with
-  | z_zero => 0
-  | z_val true _ => 1
-  | z_val false _ => -1
-  end.
-
-Definition Z_abs_pred a :=
-  match a with
-  | z_zero => 0%nat
-  | z_val _ v => v
-  end.
-
-Definition inv a := mk_q (Z_sign (q_num a) * q_Den a) (Z_abs_pred (q_num a)).
+Definition inv a := mk_q (Z.sign (q_num a) * q_Den a) (Z.abs (q_num a) - 1).
 Definition div a b := mul a (inv b).
 
 Definition compare a b :=
