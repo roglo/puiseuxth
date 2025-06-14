@@ -219,13 +219,12 @@ Qed.
 Theorem mul_1_l : ∀ a, (1 * a)%Q = a.
 Proof.
 intros.
-progress unfold mul; cbn.
+progress unfold mul.
+rewrite Z.mul_1_l; cbn.
+rewrite Nat.add_0_r.
 destruct a as (na, da); cbn.
-rewrite Nat.add_0_r, Nat.add_sub.
 progress f_equal.
-destruct na as [| sa va]; [ easy | ].
-rewrite Nat.add_0_r, Nat.add_sub.
-now destruct sa.
+apply Nat.add_sub.
 Qed.
 
 Theorem mul_1_r : ∀ a, (a * 1)%Q = a.
