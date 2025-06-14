@@ -1289,30 +1289,22 @@ Theorem mul_le_mono_nonpos_l :
 Proof.
 intros * Hza Hbc.
 progress unfold Z.le in Hza, Hbc |-*.
-...
-destruct a as [| sa va]; [ easy | cbn ].
-cbn in Hza.
-destruct sa; [ easy | clear Hza ].
-destruct b as [| sb vb]. {
-  cbn in Hbc |-*.
-  destruct c as [| sc vc]; [ easy | ].
-  now destruct sc.
-}
-cbn in Hbc.
-destruct c as [| sc vc]; [ now destruct sb | cbn ].
-destruct sb; cbn. {
-  destruct sc; [ | easy ].
+destruct a as [| a| a]; [ easy | easy | clear Hza; cbn ].
+destruct b as [| b| b]; [ now destruct c | | ]. {
+  destruct c as [| c| c]; [ easy | cbn | easy ].
   apply Nat.compare_le_iff in Hbc.
+  rewrite Nat_compare_sub_add_r; [ | easy ].
+  rewrite Nat.sub_add; [ | easy ].
+  rewrite Nat_compare_mul_cancel_l; [ | now rewrite Nat.add_1_r ].
   apply Nat.compare_le_iff.
-  apply Nat.sub_le_mono_r.
-  apply Nat.mul_le_mono_l.
   now apply Nat.add_le_mono_r.
 } {
-  destruct sc; [ easy | ].
+  destruct c as [| c| c]; [ easy | easy | cbn ].
   apply Nat.compare_le_iff in Hbc.
+  rewrite Nat_compare_sub_add_r; [ | easy ].
+  rewrite Nat.sub_add; [ | easy ].
+  rewrite Nat_compare_mul_cancel_l; [ | now rewrite Nat.add_1_r ].
   apply Nat.compare_le_iff.
-  apply Nat.sub_le_mono_r.
-  apply Nat.mul_le_mono_l.
   now apply Nat.add_le_mono_r.
 }
 Qed.
@@ -1328,6 +1320,7 @@ Qed.
 Theorem mul_opp_l : ∀ a b, (- a * b)%Z = (- (a * b))%Z.
 Proof.
 intros.
+...
 destruct a as [| sa va]; [ easy | ].
 destruct b as [| sb vb]; [ easy | cbn ].
 now destruct sa, sb.
