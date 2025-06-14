@@ -1466,18 +1466,19 @@ Qed.
 Theorem archimedean : ∀ a b, (0 < a → ∃ n, b < Z.of_nat n * a)%Z.
 Proof.
 intros * Ha.
-...
-destruct b as [| sb vb]; [ now exists 1; rewrite Z.mul_1_l | ].
-destruct a as [| sa va]; [ easy | ].
-destruct sa; [ | easy ].
-specialize (nat_archimedean (va + 1) (vb + 1)) as (m, Hm); [ flia | ].
-destruct m; [ now exists 1 | ].
-exists (S m); cbn.
-destruct sb; [ | easy ].
+destruct a as [| a| a]; [ easy | clear Ha | easy ].
 progress unfold Z.lt; cbn.
-apply Nat.compare_lt_iff.
-apply Nat.lt_add_lt_sub_r.
-now rewrite (Nat.add_1_r m).
+destruct b as [| b| b]; [ now exists 1; rewrite Z.mul_1_l | | ]. {
+  specialize (nat_archimedean (a + 1) (b + 1)) as (m, Hm); [ easy | ].
+  exists m.
+  destruct m; [ easy | cbn ].
+  apply Nat.compare_lt_iff.
+  apply Nat.lt_add_lt_sub_r.
+  now rewrite (Nat.add_1_r m).
+} {
+  specialize (nat_archimedean (a + 1) (b + 1)) as (m, Hm); [ easy | ].
+  now exists m; destruct m.
+}
 Qed.
 
 Theorem archimedean_b :
@@ -1492,6 +1493,7 @@ assert (Ha : (0 < a)%Z). {
   apply Z.not_leb in Haz.
   destruct Haz as (Haz, Hza).
   apply Z.leb_le in Hza.
+...
   destruct a as [| sa va]; [ easy | ].
   now destruct sa.
 }
