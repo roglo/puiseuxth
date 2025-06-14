@@ -1422,9 +1422,9 @@ destruct ab; [ easy | easy | cbn ].
 progress unfold Z.compare in H1.
 split; [ | easy ].
 intros H; subst b.
-...
-destruct a as [| sa va]; [ easy | cbn in H1 ].
-now destruct sa; rewrite Nat.compare_refl in H1.
+destruct a as [| a| a]; [ easy | | ].
+now rewrite Nat.compare_refl in H1.
+now rewrite Nat.compare_refl in H1.
 Qed.
 
 Instance ring_like_ord : ring_like_ord Z :=
@@ -1466,6 +1466,7 @@ Qed.
 Theorem archimedean : ∀ a b, (0 < a → ∃ n, b < Z.of_nat n * a)%Z.
 Proof.
 intros * Ha.
+...
 destruct b as [| sb vb]; [ now exists 1; rewrite Z.mul_1_l | ].
 destruct a as [| sa va]; [ easy | ].
 destruct sa; [ | easy ].
@@ -1482,8 +1483,6 @@ Qed.
 Theorem archimedean_b :
 (*
   ∀ a b, (0 < a)%L → ∃ n : nat, (rngl_mul_nat a n ≤? b)%Z = false.
-cbn.
-Print rngl_lt.
 *)
   ∀ a b, (a ≤? 0)%Z = false → ∃ n : nat, (rngl_mul_nat a n ≤? b)%Z = false.
 Proof.
