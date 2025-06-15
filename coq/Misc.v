@@ -396,21 +396,56 @@ rewrite Qdiv_plus_distr_r.
 now rewrite Q_mul_div.
 Qed.
 
-...
-
-Theorem Zposnat2Znat : ∀ i, (0 < i)%nat → Zpos (Pos.of_nat i) = Z.of_nat i.
+Theorem Zposnat2Znat : ∀ i, (0 < i)%nat → z_pos (i - 1) = Z.of_nat i.
 Proof.
-intros i Hi.
-destruct i; [ apply Nat.lt_irrefl in Hi; contradiction | clear Hi ].
-simpl; f_equal.
-induction i; [ reflexivity | simpl ].
-rewrite IHi; reflexivity.
+intros * Hi.
+progress unfold z_pos.
+progress unfold Z.of_nat.
+destruct i; [ easy | clear Hi ].
+progress f_equal.
+apply Nat_sub_succ_1.
 Qed.
 
 (* *)
 
-Theorem Qplus_lt_compat_r : ∀ x y z, x < y → x + z < y + z.
+Theorem Q_add_lt_mono_l : ∀ a b c, (b < c ↔ a + b < a + c)%Q.
 Proof.
+intros.
+progress unfold Q.lt.
+progress unfold Q.add; cbn.
+do 2 rewrite q_Den_num_den.
+progress unfold pos_mul.
+rewrite Nat.sub_add; [ | easy ].
+rewrite Nat.sub_add; [ | easy ].
+do 2 rewrite Nat2Z.inj_mul.
+do 3 rewrite Q.fold_q_Den.
+do 2 rewrite (Z.mul_comm (q_Den a)).
+do 2 rewrite Z.mul_assoc.
+split; intros Hlt. {
+  apply Z.mul_lt_mono_pos_r; [ apply q_Den_pos | ].
+  do 2 rewrite Z.mul_add_distr_r.
+  rewrite Z.mul_mul_swap.
+  apply Z.add_lt_mono_l.
+  do 2 rewrite (Z.mul_mul_swap _ (q_Den a)).
+  apply Z.mul_lt_mono_pos_r; [ apply q_Den_pos | easy ].
+} {
+  apply Z.mul_lt_mono_pos_r in Hlt; [ | apply q_Den_pos ].
+  do 2 rewrite Z.mul_add_distr_r in Hlt.
+  rewrite Z.mul_mul_swap in Hlt.
+  apply Z.add_lt_mono_l in Hlt.
+...
+Check rngl_add_lt_mono_l.
+...
+  apply Z.add_lt_mono_l in Hlt.
+  do 2 rewrite (Z.mul_mul_swap _ (q_Den a)).
+  apply Z.mul_lt_mono_pos_r; [ apply q_Den_pos | easy ].
+...
+intros.
+split; intros Hlt. {
+  apply Q.lt_iff.
+...
+Theorem Q_add_lt_mono_r : ∀ a b c, (a < b ↔ a + c < b + c)%Q.
+...
 intros (x₁, x₂) (y₁, y₂) (z₁, z₂) H.
 unfold Qlt in H; simpl in H.
 unfold Qlt, Qplus; simpl.

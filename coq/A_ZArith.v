@@ -13,6 +13,9 @@ Declare Scope Z_scope.
 Delimit Scope Z_scope with Z.
 Bind Scope Z_scope with Z.
 
+Definition z_pos a := z_val true a.
+Definition z_neg a := z_val false a.
+
 (* misc theorems *)
 
 Theorem Bool_eqb_comm : ∀ a b, Bool.eqb a b = Bool.eqb b a.
@@ -1008,7 +1011,7 @@ destruct a as [| sa va]; [ easy | cbn ].
 now destruct sa; rewrite Nat.compare_refl.
 Qed.
 
-Theorem add_le_mono_l : ∀ a b c, (a ≤ b)%Z → (c + a ≤ c + b)%Z.
+Theorem add_le_mono_l_if : ∀ a b c, (a ≤ b)%Z → (c + a ≤ c + b)%Z.
 Proof.
 intros * Hab.
 progress unfold Z.le in Hab |-*.
@@ -1132,26 +1135,43 @@ apply Nat.compare_le_iff.
 now apply Nat.add_le_mono_r, Nat.add_le_mono_l.
 Qed.
 
-Theorem add_le_mono_r : ∀ a b c, (a ≤ b)%Z → (a + c ≤ b + c)%Z.
+Theorem add_le_mono_l : ∀ a b c, (b ≤ c)%Z ↔ (a + b ≤ a + c)%Z.
 Proof.
-intros * Hab.
-do 2 rewrite (Z.add_comm _ c).
-now apply Z.add_le_mono_l.
+intros.
+split; intros Hle. {
+  now apply Z.add_le_mono_l_if.
+} {
+  apply (Z.add_le_mono_l_if _ _ (- a)) in Hle.
+  do 2 rewrite Z.add_assoc in Hle.
+  now rewrite Z.add_opp_diag_l in Hle.
+}
 Qed.
 
-Theorem add_lt_mono_l : ∀ a b c, (a < b)%Z → (c + a < c + b)%Z.
+Theorem add_le_mono_r : ∀ a b c, (a ≤ b)%Z ↔ (a + c ≤ b + c)%Z.
 Proof.
-intros * Hab.
-apply Z.lt_iff.
-split; [ now apply Z.add_le_mono_l, Z.lt_le_incl | ].
-intros H.
-(* lemma *)
-apply (f_equal (λ x, Z.sub x c)) in H.
-do 2 rewrite (Z.add_comm c) in H.
-do 2 rewrite Z.add_sub in H.
-subst b.
-revert Hab.
-apply Z.lt_irrefl.
+intros.
+do 2 rewrite (Z.add_comm _ c).
+apply Z.add_le_mono_l.
+Qed.
+
+Theorem add_lt_mono_l : ∀ a b c, (b < c)%Z ↔ (a + b < a + c)%Z.
+Proof.
+intros.
+split; intros Hlt. {
+  apply Z.lt_iff.
+  split; [ now apply Z.add_le_mono_l, Z.lt_le_incl | ].
+  intros H.
+  apply (f_equal (λ x, Z.sub x a)) in H.
+  do 2 rewrite (Z.add_comm a) in H.
+  do 2 rewrite Z.add_sub in H.
+  subst b.
+  revert Hlt; apply Z.lt_irrefl.
+} {
+  apply Z.lt_iff.
+  split; [ now apply (Z.add_le_mono_l a), Z.lt_le_incl | ].
+  intros H; subst.
+  revert Hlt; apply Z.lt_irrefl.
+}
 Qed.
 
 Theorem mul_le_mono_nonneg_l :
