@@ -411,20 +411,21 @@ Qed.
 (* Qplus_lt_compat_r → Q.add_lt_mono_r *)
 (* Qminus_lt_lt_plus_r → Q.lt_sub_lt_add_l *)
 (* Qlt_minus_plus_lt_r → Q.lt_add_lt_sub_r *)
+(* Qeq_shift_mult_l → Q_div_move_r *)
 
-...
-
-Theorem Qeq_shift_mult_l : ∀ x y z, ¬z == 0 → x / z == y → x == y * z.
+Theorem Q_div_move_r : ∀ a b c, ¬ c == 0 → a / c = b → a == b * c.
 Proof.
 intros x y z Hc H.
 rewrite <- H.
-rewrite Q_mul_div_swap.
-rewrite Qdiv_mult_l; [ reflexivity | assumption ].
+rewrite Q.mul_div_swap.
+symmetry.
+now apply Q_mul_div.
 Qed.
 
 Theorem Qeq_shift_div_l : ∀ x y z, ¬z == 0 → x == y * z → x / z == y.
 Proof.
 intros x y z Hz H.
+...
 rewrite H.
 rewrite Qdiv_mult_l; [ reflexivity | assumption ].
 Qed.
