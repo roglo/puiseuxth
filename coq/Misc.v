@@ -425,6 +425,18 @@ Qed.
 Theorem Qeq_shift_div_l : ∀ x y z, ¬z == 0 → x == y * z → x / z == y.
 Proof.
 intros x y z Hz H.
+Theorem Q_mul_move_l : ∀ a b c, ¬ c == 0 → c * a == b → a == b / c.
+Proof.
+intros * Hnz H.
+...
+Theorem Q_mul_move_r : ∀ a b c, ¬ c == 0 → a * c == b → a == b / c.
+Proof.
+intros * Hnz H.
+apply Q_mul_move_l; [ easy | ].
+now rewrite Q.mul_comm.
+Qed.
+... ...
+now symmetry; apply Q_mul_move_r.
 ...
 rewrite H.
 rewrite Qdiv_mult_l; [ reflexivity | assumption ].
