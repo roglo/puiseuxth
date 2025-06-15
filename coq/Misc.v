@@ -408,66 +408,7 @@ Qed.
 
 (* *)
 
-Theorem Q_add_lt_mono_l : ∀ a b c, (b < c ↔ a + b < a + c)%Q.
-Proof.
-intros.
-progress unfold Q.lt.
-progress unfold Q.add; cbn.
-do 2 rewrite q_Den_num_den.
-progress unfold pos_mul.
-rewrite Nat.sub_add; [ | easy ].
-rewrite Nat.sub_add; [ | easy ].
-do 2 rewrite Nat2Z.inj_mul.
-do 3 rewrite Q.fold_q_Den.
-do 2 rewrite (Z.mul_comm (q_Den a)).
-do 2 rewrite Z.mul_assoc.
-split; intros Hlt. {
-  apply Z.mul_lt_mono_pos_r; [ apply q_Den_pos | ].
-  do 2 rewrite Z.mul_add_distr_r.
-  rewrite Z.mul_mul_swap.
-  apply Z.add_lt_mono_l.
-  do 2 rewrite (Z.mul_mul_swap _ (q_Den a)).
-  apply Z.mul_lt_mono_pos_r; [ apply q_Den_pos | easy ].
-} {
-  apply Z.mul_lt_mono_pos_r in Hlt; [ | apply q_Den_pos ].
-  do 2 rewrite Z.mul_add_distr_r in Hlt.
-  rewrite Z.mul_mul_swap in Hlt.
-  apply Z.add_lt_mono_l in Hlt.
 ...
-Check rngl_add_lt_mono_l.
-...
-  apply Z.add_lt_mono_l in Hlt.
-  do 2 rewrite (Z.mul_mul_swap _ (q_Den a)).
-  apply Z.mul_lt_mono_pos_r; [ apply q_Den_pos | easy ].
-...
-intros.
-split; intros Hlt. {
-  apply Q.lt_iff.
-...
-Theorem Q_add_lt_mono_r : ∀ a b c, (a < b ↔ a + c < b + c)%Q.
-...
-intros (x₁, x₂) (y₁, y₂) (z₁, z₂) H.
-unfold Qlt in H; simpl in H.
-unfold Qlt, Qplus; simpl.
-do 2 rewrite Pos2Z.inj_mul.
-do 2 rewrite Z.mul_add_distr_r.
-do 4 rewrite Z.mul_assoc.
-remember (z₁ * Zpos y₂ * Zpos x₂ * Zpos z₂)%Z as t.
-remember (z₁ * Zpos y₂ * Zpos x₂)%Z as u.
-rewrite Z.mul_shuffle0 in Hequ.
-subst u.
-rewrite <- Heqt.
-apply Zplus_lt_compat_r.
-clear t Heqt.
-rewrite <- Zmult_assoc.
-rewrite Z.mul_shuffle1.
-remember (y₁ * Zpos z₂ * Zpos x₂ * Zpos z₂)%Z as t.
-rewrite <- Zmult_assoc in Heqt.
-rewrite Z.mul_shuffle1 in Heqt; subst t.
-apply Zmult_lt_compat_r; [ idtac | assumption ].
-rewrite <- Pos2Z.inj_mul.
-apply Pos2Z.is_pos.
-Qed.
 
 Theorem Qminus_lt_lt_plus_r : ∀ x y z, x - y < z → x < z + y.
 Proof.

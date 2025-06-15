@@ -523,6 +523,43 @@ apply Q.add_le_mono_l, Hle2.
 apply Q.add_le_mono_r, Hle1.
 Qed.
 
+Theorem add_lt_mono_l : ∀ a b c, (b < c ↔ a + b < a + c)%Q.
+Proof.
+intros.
+progress unfold Q.lt.
+progress unfold Q.add; cbn.
+do 2 rewrite q_Den_num_den.
+progress unfold pos_mul.
+rewrite Nat.sub_add; [ | easy ].
+rewrite Nat.sub_add; [ | easy ].
+do 2 rewrite Nat2Z.inj_mul.
+do 3 rewrite Q.fold_q_Den.
+do 2 rewrite (Z.mul_comm (q_Den a)).
+do 2 rewrite Z.mul_assoc.
+split; intros Hlt. {
+  apply Z.mul_lt_mono_pos_r; [ apply q_Den_pos | ].
+  do 2 rewrite Z.mul_add_distr_r.
+  rewrite Z.mul_mul_swap.
+  apply Z.add_lt_mono_l.
+  do 2 rewrite (Z.mul_mul_swap _ (q_Den a)).
+  apply Z.mul_lt_mono_pos_r; [ apply q_Den_pos | easy ].
+} {
+  apply Z.mul_lt_mono_pos_r in Hlt; [ | apply q_Den_pos ].
+  do 2 rewrite Z.mul_add_distr_r in Hlt.
+  rewrite Z.mul_mul_swap in Hlt.
+  apply Z.add_lt_mono_l in Hlt.
+  do 2 rewrite (Z.mul_mul_swap _ (q_Den a)) in Hlt.
+  apply Z.mul_lt_mono_pos_r in Hlt; [ easy | apply q_Den_pos ].
+}
+Qed.
+
+Theorem add_lt_mono_r : ∀ a b c, (a < b ↔ a + c < b + c)%Q.
+Proof.
+intros.
+do 2 rewrite (Q.add_comm _ c).
+apply Q.add_lt_mono_l.
+Qed.
+
 Theorem lt_irrefl : ∀ a, ¬ (a < a)%Q.
 Proof. intros; apply Z.lt_irrefl. Qed.
 
