@@ -794,6 +794,32 @@ rewrite Q.mul_sub_distr_l.
 now do 2 rewrite (Q.mul_comm z).
 Qed.
 
+Theorem lt_sub_lt_add_l : ∀ a b c, (a - b < c ↔ a < b + c)%Q.
+Proof.
+intros.
+split; intros H. {
+  apply (Q.add_lt_mono_r _ _ b) in H.
+  rewrite Q.sub_add in H.
+  now rewrite Q.add_comm in H.
+} {
+  apply (Q.add_lt_mono_r _ _ b).
+  rewrite Q.sub_add.
+  now rewrite Q.add_comm.
+}
+Qed.
+
+Theorem lt_add_lt_sub_r : ∀ a b c, (a + b < c ↔ a < c - b)%Q.
+Proof.
+intros.
+split; intros Hlt. {
+  apply (Q.add_lt_mono_r _ _ b).
+  now rewrite Q.sub_add.
+} {
+  apply (Q.add_lt_mono_r _ _ b) in Hlt.
+  now rewrite Q.sub_add in Hlt.
+}
+Qed.
+
 End Q.
 
 Number Notation Q Q.of_number Q.to_number : Q_scope.

@@ -408,28 +408,11 @@ Qed.
 
 (* *)
 
+(* Qplus_lt_compat_r → Q.add_lt_mono_r *)
+(* Qminus_lt_lt_plus_r → Q.lt_sub_lt_add_l *)
+(* Qlt_minus_plus_lt_r → Q.lt_add_lt_sub_r *)
+
 ...
-
-Theorem Qminus_lt_lt_plus_r : ∀ x y z, x - y < z → x < z + y.
-Proof.
-intros x y z H.
-apply Qplus_lt_compat_r with (z := y) in H.
-rewrite <- Q_add_sub_swap, <- Q_add_sub_assoc in H.
-unfold Qminus in H.
-rewrite Qplus_opp_r, Q_add_0_r in H.
-assumption.
-Qed.
-
-Theorem Qlt_minus_plus_lt_r : ∀ x y z, x < y - z → x + z < y.
-Proof.
-intros x y z H.
-apply Qplus_lt_compat_r with (z := z) in H.
-rewrite <- Q_add_sub_swap in H.
-rewrite <- Q_add_sub_assoc in H.
-unfold Qminus in H.
-rewrite Qplus_opp_r, Q_add_0_r in H.
-assumption.
-Qed.
 
 Theorem Qeq_shift_mult_l : ∀ x y z, ¬z == 0 → x / z == y → x == y * z.
 Proof.
