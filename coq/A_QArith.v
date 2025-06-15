@@ -70,7 +70,9 @@ Definition sub a b := add a (opp b).
 Definition mul a b :=
   mk_q (q_num a * q_num b) (pos_mul (q_den a) (q_den b)).
 
-Definition inv a := mk_q (Z.sign (q_num a) * q_Den a) (Z.abs (q_num a) - 1).
+Definition inv a :=
+  mk_q (Z.sign (q_num a) * q_Den a) (Z.abs_nat (q_num a) - 1).
+
 Definition div a b := mul a (inv b).
 
 Definition compare a b :=
@@ -97,14 +99,15 @@ Definition to_number (a : Q) : option Number.int :=
 
 Number Notation Q of_number to_number : Q_scope.
 
-Notation "a == b" := (eq a b) (at level 70) : Q_scope.
-Notation "a + b" := (add a b) : Q_scope.
-Notation "a - b" := (sub a b) : Q_scope.
-Notation "a * b" := (mul a b) : Q_scope.
-Notation "a / b" := (div a b) : Q_scope.
-Notation "- a" := (opp a) : Q_scope.
-Notation "a ≤ b" := (le a b) : Q_scope.
-Notation "a < b" := (lt a b) : Q_scope.
+Notation "a == b" := (Q.eq a b) (at level 70) : Q_scope.
+Notation "a + b" := (Q.add a b) : Q_scope.
+Notation "a - b" := (Q.sub a b) : Q_scope.
+Notation "a * b" := (Q.mul a b) : Q_scope.
+Notation "a / b" := (Q.div a b) : Q_scope.
+Notation "- a" := (Q.opp a) : Q_scope.
+Notation "a '⁻¹'" := (Q.inv a) (at level 1, format "a ⁻¹") : Q_scope.
+Notation "a ≤ b" := (Q.le a b) : Q_scope.
+Notation "a < b" := (Q.lt a b) : Q_scope.
 Notation "a # b" := (mk_q a (b - 1)) (at level 55) : Q_scope.
 
 Theorem q_Den_mul : ∀ a b, q_Den (a * b) = (q_Den a * q_Den b)%Z.
@@ -392,6 +395,73 @@ Proof.
 intros a b Hab c d Hcd.
 transitivity (a * d)%Q.
 now apply Q.mul_compat_l.
+now apply Q.mul_compat_r.
+Qed.
+
+Global Instance inv_morph : Proper (Q.eq ==> Q.eq) Q.inv.
+Proof.
+intros a b Hab.
+progress unfold Q.eq in Hab.
+progress unfold Q.eq, Q.inv; cbn.
+do 2 rewrite q_Den_num_den.
+destruct (Z.eq_dec (q_num a) 0) as [Haz| Haz]. {
+  rewrite Haz in Hab |-*.
+  cbn in Hab |-*.
+  symmetry in Hab.
+  apply Z.integral in Hab.
+  cbn in Hab.
+  destruct Hab as [Hab| Hab]; [ now rewrite Hab | ].
+  destruct Hab as [Hab| Hab]; [ | now destruct Hab ].
+  now apply q_Den_neq_0 in Hab.
+}
+destruct (Z.eq_dec (q_num b) 0) as [Hbz| Hbz]. {
+  rewrite Hbz in Hab |-*.
+  cbn in Hab |-*.
+  apply Z.integral in Hab.
+  cbn in Hab.
+  destruct Hab as [Hab| Hab]; [ now rewrite Hab | ].
+  destruct Hab as [Hab| Hab]; [ | now destruct Hab ].
+  now apply q_Den_neq_0 in Hab.
+}
+rewrite Nat.sub_add. 2: {
+  destruct (q_num b); [ easy | apply Nat.le_add_l ].
+}
+rewrite Nat.sub_add. 2: {
+  destruct (q_num a); [ easy | apply Nat.le_add_l ].
+}
+do 2 rewrite <- Z.mul_assoc.
+f_equal. {
+  apply (f_equal Z.sign) in Hab.
+  do 2 rewrite Z.sign_mul in Hab.
+  progress unfold q_Den in Hab.
+  do 2 rewrite (Nat.add_comm _ 1) in Hab.
+  cbn in Hab.
+  now do 2 rewrite Z.mul_1_r in Hab.
+}
+destruct (Z.le_dec (q_num a) 0) as [Haz1| Haz1]. {
+  rewrite (Z.abs_nat_nonpos (q_num a)); [ | easy ].
+  destruct (Z.le_dec (q_num b) 0) as [Hbz1| Hbz1]. {
+    rewrite (Z.abs_nat_nonpos (q_num b)); [ | easy ].
+    rewrite Z2Nat.id.
+...
+Theorem glop :
+  Z.of_nat (Z.abs a) = if Z.le_dec a 0 then 0 else Z.of_nat a.
+...
+do 2 rewrite Z.mul_opp_l.
+now f_equal.
+Qed.
+
+Global Instance div_morph : Proper (Q.eq ==> Q.eq ==> Q.eq) Q.div.
+Proof.
+intros a b Hab c d Hcd.
+progress unfold Q.div.
+transitivity (a * d⁻¹)%Q. {
+  apply Q.mul_compat_l.
+...
+rewrite Hcd.
+Search (_ / _ == _ / _)%Q.
+...
+now apply Q.div_compat_l.
 now apply Q.mul_compat_r.
 Qed.
 

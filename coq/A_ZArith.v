@@ -193,6 +193,12 @@ Definition of_nat n :=
   | S n' => z_val true n'
   end.
 
+Definition to_nat a :=
+  match a with
+  | z_val true n => n + 1
+  | _ => 0
+  end.
+
 Definition add a b :=
   match a with
   | z_zero => b
@@ -271,7 +277,7 @@ Definition sign a :=
   | z_val false _ => (-1)%Z
   end.
 
-Definition abs a :=
+Definition abs_nat a :=
   match a with
   | z_zero => 0%nat
   | z_val _ v => (v + 1)%nat
@@ -885,6 +891,15 @@ intros.
 rewrite <- Z.add_sub_assoc.
 rewrite Z.sub_diag.
 apply Z.add_0_r.
+Qed.
+
+Theorem sub_add : ∀ a b, (a - b + b = a)%Z.
+Proof.
+intros.
+rewrite Z.add_comm.
+rewrite Z.add_sub_assoc.
+rewrite Z.add_comm.
+apply Z.add_sub.
 Qed.
 
 Theorem add_move_l : ∀ a b c, (a + b)%Z = c ↔ b = (c - a)%Z.
@@ -1666,6 +1681,42 @@ destruct b as [| sb vb]; [ apply Z.le_refl | ].
 now destruct sa, sb.
 Qed.
 
+Theorem sign_mul : ∀ a b, Z.sign (a * b) = (Z.sign a * Z.sign b)%Z.
+Proof.
+intros.
+progress unfold Z.sign.
+destruct a as [| sa va]; [ easy | ].
+destruct sa.
+destruct b as [| sb vb]; [ easy | now destruct sb ].
+destruct b as [| sb vb]; [ easy | now destruct sb ].
+Qed.
+
+Theorem le_dec : ∀ a b : Z, ({a ≤ b} + {¬ a ≤ b})%Z.
+Proof.
+intros.
+destruct a as [| sa va]. {
+  destruct b as [| sb vb]; [ now left | ].
+  now destruct sb; [ left | right ].
+} {
+  destruct b as [| sb vb]. {
+    now destruct sa; [ right | left ].
+  }
+  progress unfold Z.le; cbn.
+  destruct sa. {
+    destruct sb; [ | now right ].
+    now destruct (va ?= vb); [ left | left | right ].
+  }
+  destruct sb; [ now left | ].
+  now destruct (vb ?= va); [ left | left | right ].
+}
+Qed.
+
+Theorem abs_nat_nonpos : ∀ a, (a ≤ 0)%Z → Z.abs_nat a = Z.to_nat (- a).
+Proof.
+intros * Haz.
+destruct a as [| sa va]; [ easy | now destruct sa ].
+Qed.
+
 End Z.
 
 Number Notation Z Z.of_number Z.to_number : Z_scope.
@@ -1726,6 +1777,17 @@ split; intros H. {
 Qed.
 
 End Nat2Z.
+
+Module Z2Nat.
+
+Theorem id : ∀ a : Z, (0 ≤ a)%Z → Z.of_nat (Z.to_nat a) = a.
+Proof.
+intros * Hz.
+destruct a as [| sa va]; [ easy | ].
+destruct sa; [ now cbn; rewrite Nat.add_1_r | easy ].
+Qed.
+
+End Z2Nat.
 
 Definition Z_ring_theory : ring_theory 0%Z 1%Z Z.add Z.mul Z.sub Z.opp eq :=
   {| Radd_0_l := Z.add_0_l;

@@ -411,23 +411,29 @@ Qed.
 (* Qplus_lt_compat_r → Q.add_lt_mono_r *)
 (* Qminus_lt_lt_plus_r → Q.lt_sub_lt_add_l *)
 (* Qlt_minus_plus_lt_r → Q.lt_add_lt_sub_r *)
-(* Qeq_shift_mult_l → Q_div_move_r *)
-
-Theorem Q_div_move_r : ∀ a b c, ¬ c == 0 → a / c = b → a == b * c.
-Proof.
-intros x y z Hc H.
-rewrite <- H.
-rewrite Q.mul_div_swap.
-symmetry.
-now apply Q_mul_div.
-Qed.
+(* Qeq_shift_mult_l → Q_mul_move_l *)
 
 Theorem Qeq_shift_div_l : ∀ x y z, ¬z == 0 → x == y * z → x / z == y.
 Proof.
 intros x y z Hz H.
-Theorem Q_mul_move_l : ∀ a b c, ¬ c == 0 → c * a == b → a == b / c.
+Theorem Q_mul_move_l : ∀ a b c, ¬ c == 0 → c * a == b ↔ a == b / c.
 Proof.
-intros * Hnz H.
+intros * Hnz.
+split; intros H. {
+Check Q.div_morph.
+...
+  rewrite <- H.
+...
+} {
+  rewrite H, Q.mul_comm.
+  rewrite Q.mul_div_swap.
+  now apply Q_mul_div.
+...
+  rewrite <- Q.mul_div_swap.
+symmetry.
+now apply Q_mul_div.
+  symmetry; rewrite Q.mul_comm.
+  now apply Q_div_move_r.
 ...
 @rngl_add_move_l
   ∀ a b c : T, (a + b)%L = c ↔ b = (c - a)%L
