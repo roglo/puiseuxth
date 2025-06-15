@@ -429,6 +429,33 @@ Theorem Q_mul_move_l : ∀ a b c, ¬ c == 0 → c * a == b → a == b / c.
 Proof.
 intros * Hnz H.
 ...
+@rngl_add_move_l
+  ∀ a b c : T, (a + b)%L = c ↔ b = (c - a)%L
+@rngl_mul_move_l
+  ∀ a b c : T, a ≠ 0%L → (a * b)%L = c → b = (c / a)%L
+@rngl_add_move_r
+  ∀ a b c : T, (a + b)%L = c ↔ a = (c - b)%L
+@rngl_mul_move_r
+  ∀ a b c : T, b ≠ 0%L → (a * b)%L = c → a = (c / b)%L
+
+@rngl_lt_add_lt_sub_l
+  ∀ a b c : T, (a + b < c)%L ↔ (b < c - a)%L
+@rngl_lt_div_l
+  ∀ a b c : T, (0 < c)%L → (a < b * c)%L ↔ (a / c < b)%L
+@rngl_lt_add_lt_sub_r
+  ∀ a b c : T, (a + b < c)%L ↔ (a < c - b)%L
+@rngl_lt_div_r
+  ∀ a b c : T, (0 < c)%L → (a * c < b)%L ↔ (a < b / c)%L
+
+@rngl_le_add_le_sub_l
+  ∀ a b c : T, (a + b ≤ c)%L ↔ (b ≤ c - a)%L
+@rngl_le_div_l
+  ∀ a b c : T, (0 < c)%L → (a ≤ b * c)%L ↔ (a / c ≤ b)%L
+@rngl_le_add_le_sub_r
+  ∀ a b c : T, (a + b ≤ c)%L ↔ (a ≤ c - b)%L
+@rngl_le_div_r
+  ∀ a b c : T, (0 < c)%L → (a * c ≤ b)%L ↔ (a ≤ b / c)%L
+...
 Theorem Q_mul_move_r : ∀ a b c, ¬ c == 0 → a * c == b → a == b / c.
 Proof.
 intros * Hnz H.
