@@ -362,11 +362,33 @@ Theorem Zplus_cmp_compat_r : ∀ n m p,
   (n ?= m)%Z = (n + p ?= m + p)%Z.
 Proof.
 intros.
+Theorem Z_compare_add_cancel_l :
+  ∀ a b c, (a + b ?= a + c)%Z = (b ?= c)%Z.
+Proof.
+intros.
+destruct a as [| sa va]; [ easy | ].
+destruct b as [| sb vb]. {
+  destruct c as [| sc vc]; [ now rewrite Z.compare_eq_iff | ].
+  rewrite Z.add_0_r; cbn.
+  rewrite if_eqb_bool_dec.
+  destruct (Bool.bool_dec sa sc) as [Hsac| Hsac]. {
+    subst sc.
+    destruct sa.
 ...
-rewrite Zplus_comm.
-replace (m + p)%Z with (p + m)%Z by apply Zplus_comm.
-symmetry; apply Zcompare_plus_compat.
+Search ((_ ?= _) = true)%nat.
+    rewrite Z.compare_eq_refl.
+...
+Theorem Z_compare_add_cancel_r :
+  ∀ a b c, (a + c ?= b + c)%Z = (a ?= b)%Z.
+Proof.
+intros.
+do 2 rewrite (Z.add_comm _ c).
+apply Z_compare_add_cancel_l.
 Qed.
+
+symmetry.
+apply Z_compare_add_cancel_r.
+...
 
 Theorem Zmult_cmp_compat_r : ∀ n m p,
   (0 < p)%Z
