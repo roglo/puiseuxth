@@ -36,9 +36,6 @@ Proof. flia. Qed.
 Theorem Nat_add_1_r_pos : ∀ a, (0 < a + 1)%nat.
 Proof. flia. Qed.
 
-Hint Resolve Nat_1_le_mul_add_1 : core.
-Hint Resolve Nat_add_1_r_pos : core.
-
 Theorem q_Den_num_den : ∀ a b, q_Den (mk_q a b) = Z.of_nat (b + 1).
 Proof. easy. Qed.
 
@@ -50,6 +47,10 @@ Proof. now intros; unfold q_Den; rewrite Nat.add_1_r. Qed.
 
 Theorem q_Den_nonneg : ∀ a, (0 ≤ q_Den a)%Z.
 Proof. now intros; unfold q_Den; rewrite Nat.add_1_r. Qed.
+
+Hint Resolve Nat_1_le_mul_add_1 : core.
+Hint Resolve Nat_add_1_r_pos : core.
+Hint Resolve q_Den_pos : core.
 
 (* end misc *)
 
@@ -275,23 +276,21 @@ Qed.
 Theorem order_eq_le_l : ∀ a b c, (a == b → c ≤ b → c ≤ a)%Q.
 Proof.
 intros * Heq Hle.
-apply (Z.mul_le_mono_pos_r (q_Den b)); [ apply q_Den_pos | ].
+apply (Z.mul_le_mono_pos_r (q_Den b)); [ easy | ].
 rewrite (Z.mul_comm (q_num a)), <- (Z.mul_assoc (q_Den c)), Heq.
 rewrite Z.mul_mul_swap, Z.mul_assoc.
 rewrite (Z.mul_comm (q_Den c)).
-apply Z.mul_le_mono_pos_r; [ | easy ].
-apply q_Den_pos.
+now apply Z.mul_le_mono_pos_r.
 Qed.
 
 Theorem order_eq_le_r : ∀ a b c, (a == b → b ≤ c → a ≤ c)%Q.
 Proof.
 intros * Heq Hle.
-apply (Z.mul_le_mono_pos_r (q_Den b)); [ apply q_Den_pos | ].
+apply (Z.mul_le_mono_pos_r (q_Den b)); [ easy | ].
 rewrite (Z.mul_comm (q_num a)), <- (Z.mul_assoc (q_Den c)), Heq.
 rewrite Z.mul_mul_swap, Z.mul_assoc.
 rewrite (Z.mul_comm (q_Den c)).
-apply Z.mul_le_mono_pos_r; [ | easy ].
-apply q_Den_pos.
+now apply Z.mul_le_mono_pos_r.
 Qed.
 
 Theorem add_compat_l : ∀ a b c, (b == c → a + b == a + c)%Q.
@@ -459,6 +458,12 @@ destruct (Z.le_dec (q_num a) 0) as [Haz1| Haz1]. {
     apply Z.nle_gt in Hbz1.
     apply Z.nlt_ge in Haz1.
     apply Haz1; clear Haz1.
+    apply (Z.mul_lt_mono_pos_r (q_Den b)); [ easy | ].
+    rewrite Hab; cbn.
+    now apply Z.mul_pos_pos.
+  }
+}
+apply Z.nle_gt in Haz1.
 ...
     rewrite (Z.abs_nat_nonneg (q_num b)); [ | easy ].
 ...
@@ -563,13 +568,13 @@ Qed.
 Theorem le_trans : ∀ a b c, (a ≤ b → b ≤ c → a ≤ c)%Q.
 Proof.
 intros * Hle1 Hle2.
-apply (Z.mul_le_mono_pos_r (q_Den b)); [ apply q_Den_pos | ].
+apply (Z.mul_le_mono_pos_r (q_Den b)); [ easy | ].
 rewrite Z.mul_mul_swap.
 apply (Z.le_trans _ (q_num b * q_Den a * q_Den c)). {
-  apply Z.mul_le_mono_pos_r; [ apply q_Den_pos | easy ].
+  now apply Z.mul_le_mono_pos_r.
 }
 do 2 rewrite (Z.mul_mul_swap _ (q_Den a)).
-apply Z.mul_le_mono_pos_r; [ apply q_Den_pos | easy ].
+now apply Z.mul_le_mono_pos_r.
 Qed.
 
 Theorem fold_q_Den : ∀ a, Z.of_nat (q_den a + 1) = q_Den a.
@@ -588,12 +593,12 @@ do 2 rewrite Nat2Z.inj_mul.
 do 3 rewrite fold_q_Den.
 do 2 rewrite (Z.mul_comm (q_Den a)).
 do 2 rewrite Z.mul_assoc.
-apply Z.mul_le_mono_pos_r; [ apply q_Den_pos | ].
+apply Z.mul_le_mono_pos_r; [ easy | ].
 do 2 rewrite Z.mul_add_distr_r.
 rewrite Z.mul_mul_swap.
 apply Z.add_le_mono_l.
 do 2 rewrite (Z.mul_mul_swap _ (q_Den a)).
-apply Z.mul_le_mono_pos_r; [ apply q_Den_pos | easy ].
+now apply Z.mul_le_mono_pos_r.
 Qed.
 
 Theorem add_le_mono_r : ∀ a b c, (a ≤ b → a + c ≤ b + c)%Q.
@@ -625,19 +630,19 @@ do 3 rewrite Q.fold_q_Den.
 do 2 rewrite (Z.mul_comm (q_Den a)).
 do 2 rewrite Z.mul_assoc.
 split; intros Hlt. {
-  apply Z.mul_lt_mono_pos_r; [ apply q_Den_pos | ].
+  apply Z.mul_lt_mono_pos_r; [ easy | ].
   do 2 rewrite Z.mul_add_distr_r.
   rewrite Z.mul_mul_swap.
   apply Z.add_lt_mono_l.
   do 2 rewrite (Z.mul_mul_swap _ (q_Den a)).
-  apply Z.mul_lt_mono_pos_r; [ apply q_Den_pos | easy ].
+  now apply Z.mul_lt_mono_pos_r.
 } {
-  apply Z.mul_lt_mono_pos_r in Hlt; [ | apply q_Den_pos ].
+  apply Z.mul_lt_mono_pos_r in Hlt; [ | easy ].
   do 2 rewrite Z.mul_add_distr_r in Hlt.
   rewrite Z.mul_mul_swap in Hlt.
   apply Z.add_lt_mono_l in Hlt.
   do 2 rewrite (Z.mul_mul_swap _ (q_Den a)) in Hlt.
-  apply Z.mul_lt_mono_pos_r in Hlt; [ easy | apply q_Den_pos ].
+  now apply Z.mul_lt_mono_pos_r in Hlt.
 }
 Qed.
 

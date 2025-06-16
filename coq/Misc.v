@@ -57,16 +57,6 @@ apply Q.le_antisymm in Hxy; [ | easy ].
 now apply Hnxy.
 Qed.
 
-Theorem Z_mul_pos_pos : ∀ a b, (0 < a → 0 < b → 0 < a * b)%Z.
-Proof.
-intros * Hz1 Hz2.
-destruct a as [| sa va]; [ easy | ].
-destruct b as [| sb vb]; [ easy | ].
-destruct sa; [ | easy ].
-destruct sb; [ | easy ].
-easy.
-Qed.
-
 Theorem Q_mul_pos_pos : ∀ a b, (0 < a → 0 < b → 0 < a * b)%Q.
 Proof.
 intros * Hz1 Hz2.

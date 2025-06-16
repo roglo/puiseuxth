@@ -1681,6 +1681,16 @@ destruct b as [| sb vb]; [ apply Z.le_refl | ].
 now destruct sa, sb.
 Qed.
 
+Theorem mul_pos_pos : ∀ a b, (0 < a → 0 < b → 0 < a * b)%Z.
+Proof.
+intros * Hz1 Hz2.
+destruct a as [| sa va]; [ easy | ].
+destruct b as [| sb vb]; [ easy | ].
+destruct sa; [ | easy ].
+destruct sb; [ | easy ].
+easy.
+Qed.
+
 Theorem sign_mul : ∀ a b, Z.sign (a * b) = (Z.sign a * Z.sign b)%Z.
 Proof.
 intros.
