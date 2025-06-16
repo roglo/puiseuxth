@@ -356,32 +356,13 @@ Qed.
 (* Qeq_shift_mult_l → Q.mul_move_l *)
 (* Qminus_diag → Q.sub_diag *)
 (* Qeq_shift_div_l → Q.mul_move_r *)
-
-Theorem Qminus_eq_eq_plus_r : ∀ x y z, x - y == z → x == z + y.
-Proof.
-intros.
-Theorem Q_add_move_l: ∀ a b c, (c + a = b ↔ a == b - c)%Q.
-Proof.
-intros.
-split; intros Heq. {
-  rewrite <- Heq, Q.add_comm.
-Search (_ + _ - _ == _)%Q.
-  now apply Q_add_sub.
-...
-Z.add_move_r: ∀ a b c : Z, (a + b)%Z = c ↔ a = (c - b)%Z
-Z.add_move_l: ∀ a b c : Z, (a + b)%Z = c ↔ b = (c - a)%Z
-...
-rewrite <- H.
-rewrite <- Q.add_sub_swap, <- Q.add_sub_assoc.
-now rewrite Q.sub_diag, Q.add_0_r.
-Qed.
-
-(* TODO: transform the above with ?= like below. *)
+(* Qminus_eq_eq_plus_r → Q.add_move_r *)
 
 Theorem Zplus_cmp_compat_r : ∀ n m p,
   (n ?= m)%Z = (n + p ?= m + p)%Z.
 Proof.
 intros.
+...
 rewrite Zplus_comm.
 replace (m + p)%Z with (p + m)%Z by apply Zplus_comm.
 symmetry; apply Zcompare_plus_compat.

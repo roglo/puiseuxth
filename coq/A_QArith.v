@@ -681,13 +681,38 @@ rewrite Z.mul_opp_l.
 apply Z.add_opp_diag_r.
 Qed.
 
+Theorem add_sub: ∀ a b, (a + b - b == a)%Q.
+Proof.
+intros.
+rewrite <- Q.add_sub_assoc.
+rewrite Q.sub_diag.
+now rewrite Q.add_0_r.
+Qed.
+
 Theorem sub_add : ∀ a b, (a - b + b == a)%Q.
 Proof.
 intros.
 rewrite <- Q.add_sub_swap.
-rewrite <- Q.add_sub_assoc.
-rewrite Q.sub_diag.
-now rewrite Q.add_0_r.
+apply Q.add_sub.
+Qed.
+
+Theorem add_move_l : ∀ a b c, (c + a == b ↔ a == b - c)%Q.
+Proof.
+intros.
+split; intros Heq. {
+  rewrite <- Heq, Q.add_comm; symmetry.
+  apply Q.add_sub.
+} {
+  rewrite Heq, Q.add_comm.
+  apply Q.sub_add.
+}
+Qed.
+
+Theorem add_move_r : ∀ a b c, (a + c == b ↔ a == b - c)%Q.
+Proof.
+intros.
+rewrite Q.add_comm.
+apply Q.add_move_l.
 Qed.
 
 Theorem fold_sub : ∀ a b, (a + - b = a - b)%Q.
