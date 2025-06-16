@@ -1711,10 +1711,26 @@ destruct a as [| sa va]. {
 }
 Qed.
 
+Theorem abs_nat_nonneg : ∀ a, (0 ≤ a)%Z → Z.abs_nat a = Z.to_nat a.
+Proof.
+intros * Haz.
+destruct a as [| sa va]; [ easy | now destruct sa ].
+Qed.
+
 Theorem abs_nat_nonpos : ∀ a, (a ≤ 0)%Z → Z.abs_nat a = Z.to_nat (- a).
 Proof.
 intros * Haz.
 destruct a as [| sa va]; [ easy | now destruct sa ].
+Qed.
+
+Theorem opp_le_compat : ∀ a b, (a ≤ b ↔ - b ≤ - a)%Z.
+Proof.
+intros.
+destruct a as [| sa va]. {
+  destruct b as [| sb vb]; [ easy | now destruct sb ].
+}
+destruct b as [| sb vb]; [ now destruct sa | cbn ].
+now destruct sa, sb.
 Qed.
 
 End Z.

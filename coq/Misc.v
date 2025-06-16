@@ -159,16 +159,6 @@ Qed.
 Theorem Q_q_Den_opp : ∀ a, q_Den (- a) = q_Den a.
 Proof. easy. Qed.
 
-Theorem Z_opp_le_compat : ∀ a b, (a ≤ b ↔ - b ≤ - a)%Z.
-Proof.
-intros.
-destruct a as [| sa va]. {
-  destruct b as [| sb vb]; [ easy | now destruct sb ].
-}
-destruct b as [| sb vb]; [ now destruct sa | cbn ].
-now destruct sa, sb.
-Qed.
-
 Theorem Q_opp_le_compat : ∀ a b, (a ≤ b ↔ - b ≤ - a)%Q.
 Proof.
 intros.

@@ -438,11 +438,29 @@ f_equal. {
   cbn in Hab.
   now do 2 rewrite Z.mul_1_r in Hab.
 }
+do 2 rewrite (Z.mul_comm (q_Den _)).
 destruct (Z.le_dec (q_num a) 0) as [Haz1| Haz1]. {
   rewrite (Z.abs_nat_nonpos (q_num a)); [ | easy ].
+  rewrite Z2Nat.id. 2: {
+    apply Z.opp_le_compat.
+    now rewrite Z.opp_involutive.
+  }
+  rewrite Z.mul_opp_l.
   destruct (Z.le_dec (q_num b) 0) as [Hbz1| Hbz1]. {
     rewrite (Z.abs_nat_nonpos (q_num b)); [ | easy ].
-    rewrite Z2Nat.id.
+    rewrite Z2Nat.id. 2: {
+      apply Z.opp_le_compat.
+      now rewrite Z.opp_involutive.
+    }
+    rewrite Z.mul_opp_l.
+    now f_equal.
+  } {
+    exfalso.
+    apply Z.nle_gt in Hbz1.
+    apply Z.nlt_ge in Haz1.
+    apply Haz1; clear Haz1.
+...
+    rewrite (Z.abs_nat_nonneg (q_num b)); [ | easy ].
 ...
 Theorem glop :
   Z.of_nat (Z.abs a) = if Z.le_dec a 0 then 0 else Z.of_nat a.
