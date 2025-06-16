@@ -354,28 +354,19 @@ Qed.
 (* Qminus_lt_lt_plus_r → Q.lt_sub_lt_add_l *)
 (* Qlt_minus_plus_lt_r → Q.lt_add_lt_sub_r *)
 (* Qeq_shift_mult_l → Q.mul_move_l *)
-
-Theorem Qeq_shift_div_l : ∀ x y z, ¬z == 0 → x == y * z → x / z == y.
-Proof.
-intros x y z Hz H.
-now symmetry; apply Q.mul_move_r.
-Qed.
-
-Theorem Qminus_diag : ∀ x, x - x == 0.
-Proof.
-intros.
-Search (- _ + _ == 0)%Q.
-Search (_ + - _ == 0)%Q.
-...
-Proof. intros; apply Qplus_opp_r. Qed.
+(* Qminus_diag → Q.sub_diag *)
+(* Qeq_shift_div_l → Q.mul_move_r *)
 
 Theorem Qminus_eq_eq_plus_r : ∀ x y z, x - y == z → x == z + y.
 Proof.
 intros.
+...
+Z.add_move_r: ∀ a b c : Z, (a + b)%Z = c ↔ a = (c - b)%Z
+Z.add_move_l: ∀ a b c : Z, (a + b)%Z = c ↔ b = (c - a)%Z
+...
 rewrite <- H.
-rewrite <- Q_add_sub_swap, <- Q_add_sub_assoc.
-rewrite Qminus_diag, Q_add_0_r.
-reflexivity.
+rewrite <- Q.add_sub_swap, <- Q.add_sub_assoc.
+now rewrite Q.sub_diag, Q.add_0_r.
 Qed.
 
 (* TODO: transform the above with ?= like below. *)
