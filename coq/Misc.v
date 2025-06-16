@@ -63,7 +63,7 @@ intros * Hz1 Hz2.
 progress unfold Q.lt in Hz1, Hz2 |-*.
 cbn in Hz1, Hz2 |-*.
 rewrite Z.mul_1_r in Hz1, Hz2 |-*.
-now apply Z_mul_pos_pos.
+now apply Z.mul_pos_pos.
 Qed.
 
 Theorem Z_lt_eq_cases : ∀ a b, (a ≤ b ↔ a < b ∨ a = b)%Z.
@@ -155,7 +155,7 @@ intros.
 progress unfold Q.le; cbn.
 do 2 rewrite Q_q_Den_opp.
 do 2 rewrite Z.mul_opp_l.
-apply Z_opp_le_compat.
+apply Z.opp_le_compat.
 Qed.
 
 Theorem Q_mul_0_l : ∀ a, (0 * a == 0)%Q.
@@ -400,8 +400,6 @@ Theorem Q_mul_move_l : ∀ a b c, ¬ c == 0 → c * a == b ↔ a == b / c.
 Proof.
 intros * Hnz.
 split; intros H. {
-Check Q.div_morph.
-...
   rewrite <- H.
 ...
 } {

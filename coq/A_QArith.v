@@ -463,29 +463,27 @@ destruct (Z.le_dec (q_num a) 0) as [Haz1| Haz1]. {
     now apply Z.mul_pos_pos.
   }
 }
-apply Z.nle_gt in Haz1.
-...
-    rewrite (Z.abs_nat_nonneg (q_num b)); [ | easy ].
-...
-Theorem glop :
-  Z.of_nat (Z.abs a) = if Z.le_dec a 0 then 0 else Z.of_nat a.
-...
-do 2 rewrite Z.mul_opp_l.
-now f_equal.
+destruct (Z.le_dec (q_num b) 0) as [Hbz1| Hbz1]. {
+  exfalso.
+  apply Haz1; clear Haz1.
+  apply (Z.mul_le_mono_pos_r (q_Den b)); [ easy | ].
+  rewrite Hab; cbn.
+  apply Z.mul_nonpos_nonneg; [ easy | apply q_Den_nonneg ].
+}
+apply Z.nle_gt, Z.lt_le_incl in Haz1, Hbz1.
+rewrite Z.abs_nat_nonneg; [ | easy ].
+rewrite Z.abs_nat_nonneg; [ | easy ].
+rewrite Z2Nat.id; [ now rewrite Z2Nat.id | easy ].
 Qed.
 
 Global Instance div_morph : Proper (Q.eq ==> Q.eq ==> Q.eq) Q.div.
 Proof.
 intros a b Hab c d Hcd.
 progress unfold Q.div.
-transitivity (a * d⁻¹)%Q. {
-  apply Q.mul_compat_l.
-...
+transitivity (a * d⁻¹)%Q; [ | now apply Q.mul_compat_r ].
 rewrite Hcd.
-Search (_ / _ == _ / _)%Q.
-...
-now apply Q.div_compat_l.
-now apply Q.mul_compat_r.
+apply Q.mul_compat_l.
+apply Q.eq_refl.
 Qed.
 
 Global Instance le_morph : Proper (Q.eq ==> Q.eq ==> iff) Q.le.

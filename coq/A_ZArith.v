@@ -1686,9 +1686,15 @@ Proof.
 intros * Hz1 Hz2.
 destruct a as [| sa va]; [ easy | ].
 destruct b as [| sb vb]; [ easy | ].
-destruct sa; [ | easy ].
-destruct sb; [ | easy ].
-easy.
+destruct sa; [ now destruct sb | easy ].
+Qed.
+
+Theorem mul_nonpos_nonneg : ∀ a b, (a ≤ 0 → 0 ≤ b → a * b ≤ 0)%Z.
+Proof.
+intros * Hle1 Hle2.
+destruct a as [| sa va]; [ easy | ].
+destruct b as [| sb vb]; [ easy | ].
+destruct sa; [ easy | now destruct sb ].
 Qed.
 
 Theorem sign_mul : ∀ a b, Z.sign (a * b) = (Z.sign a * Z.sign b)%Z.
