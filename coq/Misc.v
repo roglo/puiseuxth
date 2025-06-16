@@ -373,7 +373,27 @@ destruct b as [| sb vb]. {
   rewrite if_eqb_bool_dec.
   destruct (Bool.bool_dec sa sc) as [Hsac| Hsac]. {
     subst sc.
-    destruct sa.
+    destruct sa; [ apply Nat.compare_lt_iff; flia | ].
+    apply Nat.compare_gt_iff; flia.
+  }
+  remember (va ?= vc)%nat as vac eqn:Hvac.
+  symmetry in Hvac.
+  destruct sa. {
+    destruct sc; [ easy | ].
+    destruct vac; [ easy | easy | ].
+    apply Nat.compare_gt_iff in Hvac.
+    apply Nat.compare_gt_iff.
+    flia Hvac.
+  } {
+    destruct sc; [ | easy ].
+    destruct vac; [ easy | easy | ].
+    apply Nat.compare_gt_iff in Hvac.
+    apply Nat.compare_lt_iff.
+    flia Hvac.
+  }
+} {
+  destruct c as [| sc vc]. {
+    rewrite Z.add_0_r; cbn.
 ...
 Search ((_ ?= _) = true)%nat.
     rewrite Z.compare_eq_refl.
