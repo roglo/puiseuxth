@@ -360,6 +360,13 @@ Qed.
 Theorem Qminus_eq_eq_plus_r : ∀ x y z, x - y == z → x == z + y.
 Proof.
 intros.
+Theorem Q_add_move_l: ∀ a b c, (c + a = b ↔ a == b - c)%Q.
+Proof.
+intros.
+split; intros Heq. {
+  rewrite <- Heq, Q.add_comm.
+Search (_ + _ - _ == _)%Q.
+  now apply Q_add_sub.
 ...
 Z.add_move_r: ∀ a b c : Z, (a + b)%Z = c ↔ a = (c - b)%Z
 Z.add_move_l: ∀ a b c : Z, (a + b)%Z = c ↔ b = (c - a)%Z
