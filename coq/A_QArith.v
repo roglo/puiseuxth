@@ -911,6 +911,65 @@ split; intros Hlt. {
 }
 Qed.
 
+Theorem mul_inv_diag_l : ∀ a, (¬ a == 0 → a⁻¹ * a == 1)%Q.
+Proof.
+intros * Hnz.
+progress unfold Q.eq; cbn.
+progress unfold Q.inv; cbn.
+destruct a as (an, ad); cbn.
+progress unfold Q.eq in Hnz; cbn in Hnz.
+rewrite Z.mul_1_r in Hnz.
+destruct an as [| sa va]; [ easy | cbn ].
+rewrite Q.q_Den_mul.
+rewrite Z.mul_1_r.
+rewrite q_Den_num_den.
+rewrite (Z.mul_comm (q_Den _)).
+progress unfold q_Den.
+do 2 rewrite (Nat.add_comm _ 1).
+cbn.
+rewrite Nat.add_0_r, Nat.add_sub, Nat.add_sub.
+destruct sa; [ now rewrite Z.mul_1_l | cbn ].
+now rewrite Nat.add_0_r, Nat.add_sub.
+Qed.
+
+Theorem mul_inv_diag_r : ∀ a, (¬ a == 0 → a * a⁻¹ == 1)%Q.
+Proof.
+intros * Hnz.
+rewrite Q.mul_comm.
+now apply Q.mul_inv_diag_l.
+Qed.
+
+Theorem mul_div : ∀ a b, (¬ b == 0 → a * b / b == a)%Q.
+Proof.
+intros * Hz.
+progress unfold Q.div.
+rewrite <- Q.mul_assoc.
+rewrite <- (Q.mul_1_r a) at 2.
+apply Q.mul_compat_l.
+now apply Q.mul_inv_diag_r.
+Qed.
+
+Theorem mul_move_l : ∀ a b c, (¬ c == 0 → c * a == b ↔ a == b / c)%Q.
+Proof.
+intros * Hnz.
+split; intros H. {
+  rewrite <- H; symmetry.
+  rewrite Q.mul_comm.
+  now apply Q.mul_div.
+} {
+  rewrite H, Q.mul_comm.
+  rewrite Q.mul_div_swap.
+  now apply Q.mul_div.
+}
+Qed.
+
+Theorem mul_move_r : ∀ a b c, (¬ c == 0 → a * c == b → a == b / c)%Q.
+Proof.
+intros * Hnz H.
+apply Q.mul_move_l; [ easy | ].
+now rewrite Q.mul_comm.
+Qed.
+
 End Q.
 
 Number Notation Q Q.of_number Q.to_number : Q_scope.

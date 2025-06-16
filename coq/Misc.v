@@ -331,49 +331,11 @@ apply -> Q.sub_move_0_r in HH.
 now rewrite HH in H; apply Q.lt_irrefl in H.
 Qed.
 
-Theorem Q_mul_inv_diag_l : ∀ a, (¬ a == 0 → a⁻¹ * a == 1)%Q.
-Proof.
-intros * Hnz.
-progress unfold Q.eq; cbn.
-progress unfold Q.inv; cbn.
-destruct a as (an, ad); cbn.
-progress unfold Q.eq in Hnz; cbn in Hnz.
-rewrite Z.mul_1_r in Hnz.
-destruct an as [| sa va]; [ easy | cbn ].
-rewrite Q.q_Den_mul.
-rewrite Z.mul_1_r.
-rewrite q_Den_num_den.
-rewrite (Z.mul_comm (q_Den _)).
-progress unfold q_Den.
-do 2 rewrite (Nat.add_comm _ 1).
-cbn.
-rewrite Nat.add_0_r, Nat.add_sub, Nat.add_sub.
-destruct sa; [ now rewrite Z.mul_1_l | cbn ].
-now rewrite Nat.add_0_r, Nat.add_sub.
-Qed.
-
-Theorem Q_mul_inv_diag_r : ∀ a, (¬ a == 0 → a * a⁻¹ == 1)%Q.
-Proof.
-intros * Hnz.
-rewrite Q.mul_comm.
-now apply Q_mul_inv_diag_l.
-Qed.
-
-Theorem Q_mul_div : ∀ a b, (¬ b == 0 → a * b / b == a)%Q.
-Proof.
-intros * Hz.
-progress unfold Q.div.
-rewrite <- Q.mul_assoc.
-rewrite <- (Q.mul_1_r a) at 2.
-apply Q.mul_compat_l.
-now apply Q_mul_inv_diag_r.
-Qed.
-
 Theorem Qplus_div : ∀ x y z, ¬ (z == 0) → x + y / z == (x * z + y) / z.
 Proof.
 intros x y z Hc.
 rewrite Qdiv_plus_distr_r.
-now rewrite Q_mul_div.
+now rewrite Q.mul_div.
 Qed.
 
 Theorem Zposnat2Znat : ∀ i, (0 < i)%nat → z_pos (i - 1) = Z.of_nat i.
@@ -391,69 +353,20 @@ Qed.
 (* Qplus_lt_compat_r → Q.add_lt_mono_r *)
 (* Qminus_lt_lt_plus_r → Q.lt_sub_lt_add_l *)
 (* Qlt_minus_plus_lt_r → Q.lt_add_lt_sub_r *)
-(* Qeq_shift_mult_l → Q_mul_move_l *)
+(* Qeq_shift_mult_l → Q.mul_move_l *)
 
 Theorem Qeq_shift_div_l : ∀ x y z, ¬z == 0 → x == y * z → x / z == y.
 Proof.
 intros x y z Hz H.
-Theorem Q_mul_move_l : ∀ a b c, ¬ c == 0 → c * a == b ↔ a == b / c.
-Proof.
-intros * Hnz.
-split; intros H. {
-  rewrite <- H.
-...
-} {
-  rewrite H, Q.mul_comm.
-  rewrite Q.mul_div_swap.
-  now apply Q_mul_div.
-...
-  rewrite <- Q.mul_div_swap.
-symmetry.
-now apply Q_mul_div.
-  symmetry; rewrite Q.mul_comm.
-  now apply Q_div_move_r.
-...
-@rngl_add_move_l
-  ∀ a b c : T, (a + b)%L = c ↔ b = (c - a)%L
-@rngl_mul_move_l
-  ∀ a b c : T, a ≠ 0%L → (a * b)%L = c → b = (c / a)%L
-@rngl_add_move_r
-  ∀ a b c : T, (a + b)%L = c ↔ a = (c - b)%L
-@rngl_mul_move_r
-  ∀ a b c : T, b ≠ 0%L → (a * b)%L = c → a = (c / b)%L
-
-@rngl_lt_add_lt_sub_l
-  ∀ a b c : T, (a + b < c)%L ↔ (b < c - a)%L
-@rngl_lt_div_l
-  ∀ a b c : T, (0 < c)%L → (a < b * c)%L ↔ (a / c < b)%L
-@rngl_lt_add_lt_sub_r
-  ∀ a b c : T, (a + b < c)%L ↔ (a < c - b)%L
-@rngl_lt_div_r
-  ∀ a b c : T, (0 < c)%L → (a * c < b)%L ↔ (a < b / c)%L
-
-@rngl_le_add_le_sub_l
-  ∀ a b c : T, (a + b ≤ c)%L ↔ (b ≤ c - a)%L
-@rngl_le_div_l
-  ∀ a b c : T, (0 < c)%L → (a ≤ b * c)%L ↔ (a / c ≤ b)%L
-@rngl_le_add_le_sub_r
-  ∀ a b c : T, (a + b ≤ c)%L ↔ (a ≤ c - b)%L
-@rngl_le_div_r
-  ∀ a b c : T, (0 < c)%L → (a * c ≤ b)%L ↔ (a ≤ b / c)%L
-...
-Theorem Q_mul_move_r : ∀ a b c, ¬ c == 0 → a * c == b → a == b / c.
-Proof.
-intros * Hnz H.
-apply Q_mul_move_l; [ easy | ].
-now rewrite Q.mul_comm.
-Qed.
-... ...
-now symmetry; apply Q_mul_move_r.
-...
-rewrite H.
-rewrite Qdiv_mult_l; [ reflexivity | assumption ].
+now symmetry; apply Q.mul_move_r.
 Qed.
 
 Theorem Qminus_diag : ∀ x, x - x == 0.
+Proof.
+intros.
+Search (- _ + _ == 0)%Q.
+Search (_ + - _ == 0)%Q.
+...
 Proof. intros; apply Qplus_opp_r. Qed.
 
 Theorem Qminus_eq_eq_plus_r : ∀ x y z, x - y == z → x == z + y.
