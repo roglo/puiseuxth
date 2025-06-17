@@ -423,15 +423,22 @@ Theorem Qmult_cmp_compat_r : ∀ x y z,
   0 < z
   → (x ?= y) = (x * z ?= y * z).
 Proof.
-intros (a₁, a₂) (b₁, b₂) (c₁, c₂) H.
-...
-unfold Qcompare; simpl.
-do 2 rewrite Pos2Z.inj_mul.
-rewrite Z.mul_shuffle1, (Z.mul_shuffle1 b₁).
-rewrite <- Zmult_cmp_compat_r; [ reflexivity | idtac ].
-apply Z.mul_pos_pos; [ idtac | reflexivity ].
-unfold Qlt in H; simpl in H.
-rewrite Zmult_1_r in H; assumption.
+intros a b c Hz.
+remember (a ?= b)%Q as e eqn:He.
+symmetry in He |-*.
+destruct e. {
+  apply Q.compare_eq_iff in He.
+  apply Q.compare_eq_iff.
+  now rewrite He.
+} {
+  apply -> Q.compare_lt_iff in He.
+  apply Q.compare_lt_iff.
+  now apply Q_mul_lt_mono_pos_r.
+} {
+  apply Q.compare_gt_iff in He.
+  apply Q.compare_gt_iff.
+  now apply Q_mul_lt_mono_pos_r.
+}
 Qed.
 
 Theorem Qcmp_shift_mult_l : ∀ x y z,
@@ -439,6 +446,7 @@ Theorem Qcmp_shift_mult_l : ∀ x y z,
   → (x / z ?= y) = (x ?= y * z).
 Proof.
 intros x y z Hz.
+...
 erewrite Qmult_cmp_compat_r; [ idtac | eassumption ].
 rewrite Q_mul_div_swap.
 unfold Qdiv.
