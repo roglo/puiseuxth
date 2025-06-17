@@ -357,163 +357,20 @@ Qed.
 (* Qminus_diag → Q.sub_diag *)
 (* Qeq_shift_div_l → Q.mul_move_r *)
 (* Qminus_eq_eq_plus_r → Q.add_move_r *)
-
-Theorem Zplus_cmp_compat_r : ∀ n m p,
-  (n ?= m)%Z = (n + p ?= m + p)%Z.
-Proof.
-intros.
-Theorem Z_compare_add_cancel_l :
-  ∀ a b c, (a + b ?= a + c)%Z = (b ?= c)%Z.
-Proof.
-intros.
-destruct a as [| sa va]; [ easy | ].
-destruct b as [| sb vb]. {
-  destruct c as [| sc vc]; [ now rewrite Z.compare_eq_iff | ].
-  rewrite Z.add_0_r; cbn.
-  rewrite if_eqb_bool_dec.
-  destruct (Bool.bool_dec sa sc) as [Hsac| Hsac]. {
-    subst sc.
-    destruct sa.
-    apply Nat.compare_lt_iff; flia.
-    apply Nat.compare_gt_iff; flia.
-  }
-  remember (va ?= vc)%nat as vac eqn:Hvac.
-  symmetry in Hvac.
-  destruct sa. {
-    destruct sc; [ easy | ].
-    destruct vac; [ easy | easy | ].
-    apply Nat.compare_gt_iff in Hvac.
-    apply Nat.compare_gt_iff.
-    flia Hvac.
-  } {
-    destruct sc; [ | easy ].
-    destruct vac; [ easy | easy | ].
-    apply Nat.compare_gt_iff in Hvac.
-    apply Nat.compare_lt_iff.
-    flia Hvac.
-  }
-}
-destruct c as [| sc vc]. {
-  rewrite Z.add_0_r; cbn.
-  rewrite if_eqb_bool_dec.
-  destruct (Bool.bool_dec sa sb) as [Hsab| Hsab]. {
-    subst sb.
-    destruct sa.
-    apply Nat.compare_gt_iff; flia.
-    apply Nat.compare_lt_iff; flia.
-  }
-  remember (va ?= vb)%nat as vab eqn:Hvab.
-  symmetry in Hvab.
-  destruct sb. {
-    destruct sa; [ easy | ].
-    destruct vab; [ easy | easy | ].
-    apply Nat.compare_gt_iff in Hvab.
-    apply Nat.compare_gt_iff.
-    flia Hvab.
-  } {
-    destruct sa; [ | easy ].
-    destruct vab; [ easy | easy | ].
-    apply Nat.compare_gt_iff in Hvab.
-    apply Nat.compare_lt_iff.
-    flia Hvab.
-  }
-}
-cbn.
-rewrite if_eqb_bool_dec.
-destruct (Bool.bool_dec sa sb) as [Hsab| Hsab]. {
-  subst sb.
-  rewrite if_eqb_bool_dec.
-  destruct (Bool.bool_dec sa sc) as [Hsac| Hsac]. {
-    subst sc.
-    destruct sa; cbn. {
-      rewrite Nat_compare_add_cancel_r.
-      rewrite Nat_compare_add_cancel_l.
-      easy.
-    } {
-      rewrite Nat_compare_add_cancel_r.
-      rewrite Nat_compare_add_cancel_l.
-      easy.
-    }
-  }
-  remember (va ?= vc)%nat as vac eqn:Hvac.
-  symmetry in Hvac.
-  destruct sa. {
-    destruct sc; [ easy | ].
-    destruct vac; [ easy | easy | ].
-    apply Nat.compare_gt_iff in Hvac.
-    apply Nat.compare_gt_iff.
-    flia Hvac.
-  } {
-    destruct sc; [ | easy ].
-    destruct vac; [ easy | easy | ].
-    apply Nat.compare_gt_iff in Hvac.
-    apply Nat.compare_lt_iff.
-    flia Hvac.
-  }
-}
-rewrite if_eqb_bool_dec.
-destruct (Bool.bool_dec sa sc) as [Hsac| Hsac]. {
-  subst sc.
-  remember (va ?= vb)%nat as vab eqn:Hvab.
-  symmetry in Hvab.
-  destruct sb. {
-    destruct sa; [ easy | ].
-    destruct vab; [ easy | easy | ].
-    apply Nat.compare_gt_iff in Hvab.
-    apply Nat.compare_gt_iff.
-    flia Hvab.
-  } {
-    destruct sa; [ | easy ].
-    destruct vab; [ easy | easy | ].
-    apply Nat.compare_gt_iff in Hvab.
-    apply Nat.compare_lt_iff.
-    flia Hvab.
-  }
-}
-remember (va ?= vb)%nat as vab eqn:Hvab.
-remember (va ?= vc)%nat as vac eqn:Hvac.
-symmetry in Hvab, Hvac.
-destruct sb. {
-  destruct sa; [ easy | ].
-  destruct sc; [ | easy ].
-  destruct vab. {
-    apply Nat.compare_eq_iff in Hvab; subst vb.
-    now destruct vac.
-  } {
-    apply Nat.compare_lt_iff in Hvab.
-    destruct vac. {
-      apply Nat.compare_eq_iff in Hvac; subst vc.
-      now symmetry; apply Nat.compare_gt_iff.
-    } {
-      apply Nat.compare_lt_iff in Hvac; cbn.
-      rewrite Nat_compare_sub_cancel_r; [ | flia Hvab | flia Hvac ].
-      apply Nat.lt_le_incl in Hvab, Hvac.
-      now rewrite Nat_compare_sub_cancel_r.
-    } {
-      apply Nat.compare_gt_iff in Hvac; cbn.
-      symmetry; apply Nat.compare_gt_iff.
-      now transitivity va.
-    }
-  } {
-    apply Nat.compare_gt_iff in Hvab.
-...
-Theorem Z_compare_add_cancel_r :
-  ∀ a b c, (a + c ?= b + c)%Z = (a ?= b)%Z.
-Proof.
-intros.
-do 2 rewrite (Z.add_comm _ c).
-apply Z_compare_add_cancel_l.
-Qed.
-
-symmetry.
-apply Z_compare_add_cancel_r.
-...
+(* Zplus_cmp_compat_r → Z.compare_add_cancel_r *)
 
 Theorem Zmult_cmp_compat_r : ∀ n m p,
   (0 < p)%Z
   → (n ?= m)%Z = (n * p ?= m * p)%Z.
 Proof.
 intros.
+(*
+Require Import ZArith.
+Check Zmult_compare_compat_r.
+Zmult_compare_compat_r
+     : ∀ n m p : Z, (p > 0)%Z → (n ?= m)%Z = (n * p ?= m * p)%Z
+*)
+...
 apply Zmult_compare_compat_r.
 apply Z.lt_gt; assumption.
 Qed.

@@ -1749,6 +1749,215 @@ destruct b as [| sb vb]; [ now destruct sa | cbn ].
 now destruct sa, sb.
 Qed.
 
+Theorem compare_add_cancel_l :
+  ∀ a b c, (a + b ?= a + c)%Z = (b ?= c)%Z.
+Proof.
+intros.
+destruct a as [| sa va]; [ easy | ].
+destruct b as [| sb vb]. {
+  destruct c as [| sc vc]; [ now rewrite Z.compare_eq_iff | ].
+  rewrite Z.add_0_r; cbn.
+  rewrite if_eqb_bool_dec.
+  destruct (Bool.bool_dec sa sc) as [Hsac| Hsac]. {
+    subst sc.
+    destruct sa.
+    apply Nat.compare_lt_iff; flia.
+    apply Nat.compare_gt_iff; flia.
+  }
+  remember (va ?= vc)%nat as vac eqn:Hvac.
+  symmetry in Hvac.
+  destruct sa. {
+    destruct sc; [ easy | ].
+    destruct vac; [ easy | easy | ].
+    apply Nat.compare_gt_iff in Hvac.
+    apply Nat.compare_gt_iff.
+    flia Hvac.
+  } {
+    destruct sc; [ | easy ].
+    destruct vac; [ easy | easy | ].
+    apply Nat.compare_gt_iff in Hvac.
+    apply Nat.compare_lt_iff.
+    flia Hvac.
+  }
+}
+destruct c as [| sc vc]. {
+  rewrite Z.add_0_r; cbn.
+  rewrite if_eqb_bool_dec.
+  destruct (Bool.bool_dec sa sb) as [Hsab| Hsab]. {
+    subst sb.
+    destruct sa.
+    apply Nat.compare_gt_iff; flia.
+    apply Nat.compare_lt_iff; flia.
+  }
+  remember (va ?= vb)%nat as vab eqn:Hvab.
+  symmetry in Hvab.
+  destruct sb. {
+    destruct sa; [ easy | ].
+    destruct vab; [ easy | easy | ].
+    apply Nat.compare_gt_iff in Hvab.
+    apply Nat.compare_gt_iff.
+    flia Hvab.
+  } {
+    destruct sa; [ | easy ].
+    destruct vab; [ easy | easy | ].
+    apply Nat.compare_gt_iff in Hvab.
+    apply Nat.compare_lt_iff.
+    flia Hvab.
+  }
+}
+destruct (Bool.bool_dec sa sb) as [Hsab| Hsab]. {
+  subst sb.
+  cbn; rewrite Bool.eqb_reflx.
+  rewrite if_eqb_bool_dec.
+  destruct (Bool.bool_dec sa sc) as [Hsac| Hsac]. {
+    subst sc.
+    destruct sa; cbn. {
+      rewrite Nat_compare_add_cancel_r.
+      rewrite Nat_compare_add_cancel_l.
+      easy.
+    } {
+      rewrite Nat_compare_add_cancel_r.
+      rewrite Nat_compare_add_cancel_l.
+      easy.
+    }
+  }
+  remember (va ?= vc)%nat as vac eqn:Hvac.
+  symmetry in Hvac.
+  destruct sa. {
+    destruct sc; [ easy | ].
+    destruct vac; [ easy | easy | ].
+    apply Nat.compare_gt_iff in Hvac.
+    apply Nat.compare_gt_iff.
+    flia Hvac.
+  } {
+    destruct sc; [ | easy ].
+    destruct vac; [ easy | easy | ].
+    apply Nat.compare_gt_iff in Hvac.
+    apply Nat.compare_lt_iff.
+    flia Hvac.
+  }
+}
+destruct (Bool.bool_dec sa sc) as [Hsac| Hsac]. {
+  subst sc.
+  cbn; rewrite Bool.eqb_reflx.
+  rewrite (proj2 (Bool.eqb_false_iff _ _) Hsab).
+  remember (va ?= vb)%nat as vab eqn:Hvab.
+  symmetry in Hvab.
+  destruct sb. {
+    destruct sa; [ easy | ].
+    destruct vab; [ easy | easy | ].
+    apply Nat.compare_gt_iff in Hvab.
+    apply Nat.compare_gt_iff.
+    flia Hvab.
+  } {
+    destruct sa; [ | easy ].
+    destruct vab; [ easy | easy | ].
+    apply Nat.compare_gt_iff in Hvab.
+    apply Nat.compare_lt_iff.
+    flia Hvab.
+  }
+}
+remember (va ?= vb)%nat as vab eqn:Hvab.
+remember (va ?= vc)%nat as vac eqn:Hvac.
+symmetry in Hvab, Hvac.
+destruct sb. {
+  destruct sa; [ easy | ].
+  destruct sc; [ | easy ].
+  cbn; rewrite Hvab, Hvac.
+  destruct vab. {
+    apply Nat.compare_eq_iff in Hvab; subst vb.
+    now destruct vac.
+  } {
+    apply Nat.compare_lt_iff in Hvab.
+    destruct vac. {
+      apply Nat.compare_eq_iff in Hvac; subst vc.
+      now symmetry; apply Nat.compare_gt_iff.
+    } {
+      apply Nat.compare_lt_iff in Hvac; cbn.
+      rewrite Nat_compare_sub_cancel_r; [ | flia Hvab | flia Hvac ].
+      apply Nat.lt_le_incl in Hvab, Hvac.
+      now rewrite Nat_compare_sub_cancel_r.
+    } {
+      apply Nat.compare_gt_iff in Hvac; cbn.
+      symmetry; apply Nat.compare_gt_iff.
+      now transitivity va.
+    }
+  } {
+    apply Nat.compare_gt_iff in Hvab.
+    destruct vac. {
+      apply Nat.compare_eq_iff in Hvac; subst vc.
+      now symmetry; apply Nat.compare_lt_iff.
+    } {
+      apply Nat.compare_lt_iff in Hvac; cbn.
+      symmetry; apply Nat.compare_lt_iff.
+      now transitivity va.
+    } {
+      apply Nat.compare_gt_iff in Hvac; cbn.
+      rewrite Nat_compare_sub_cancel_r; [ | flia Hvac | flia Hvab ].
+      apply Nat.lt_le_incl in Hvab, Hvac.
+      now rewrite Nat_compare_sub_cancel_l.
+    }
+  }
+}
+destruct sa; [ | easy ].
+destruct sc; [ easy | ].
+cbn - [ Z.add ].
+destruct vab. {
+  cbn; rewrite Hvab, Hvac.
+  apply Nat.compare_eq_iff in Hvab; subst vb.
+  destruct vac. {
+    apply Nat.compare_eq_iff in Hvac; subst vc.
+    now symmetry; apply Nat.compare_eq_iff.
+  } {
+    apply Nat.compare_lt_iff in Hvac; cbn.
+    now symmetry; apply Nat.compare_gt_iff.
+  } {
+    apply Nat.compare_gt_iff in Hvac; cbn.
+    now symmetry; apply Nat.compare_lt_iff.
+  }
+} {
+  cbn; rewrite Hvab, Hvac.
+  apply Nat.compare_lt_iff in Hvab.
+  destruct vac. {
+    apply Nat.compare_eq_iff in Hvac; subst vc.
+    now symmetry; apply Nat.compare_lt_iff.
+  } {
+    apply Nat.compare_lt_iff in Hvac; cbn.
+    rewrite Nat_compare_sub_cancel_r; [ | flia Hvac | flia Hvab ].
+    apply Nat.lt_le_incl in Hvab, Hvac.
+    now rewrite Nat_compare_sub_cancel_r.
+  } {
+    apply Nat.compare_gt_iff in Hvac; cbn.
+    symmetry; apply Nat.compare_lt_iff.
+    now transitivity va.
+  }
+} {
+  cbn; rewrite Hvab, Hvac.
+  apply Nat.compare_gt_iff in Hvab.
+  destruct vac. {
+    apply Nat.compare_eq_iff in Hvac; subst vc.
+    now symmetry; apply Nat.compare_gt_iff.
+  } {
+    apply Nat.compare_lt_iff in Hvac; cbn.
+    symmetry; apply Nat.compare_gt_iff.
+    now transitivity va.
+  } {
+    apply Nat.compare_gt_iff in Hvac; cbn.
+    rewrite Nat_compare_sub_cancel_r; [ | flia Hvab | flia Hvac ].
+    apply Nat.lt_le_incl in Hvab, Hvac.
+    now rewrite Nat_compare_sub_cancel_l.
+  }
+}
+Qed.
+
+Theorem compare_add_cancel_r :
+  ∀ a b c, (a + c ?= b + c)%Z = (a ?= b)%Z.
+Proof.
+intros.
+do 2 rewrite (Z.add_comm _ c).
+apply Z.compare_add_cancel_l.
+Qed.
+
 End Z.
 
 Number Notation Z Z.of_number Z.to_number : Z_scope.
