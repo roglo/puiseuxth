@@ -358,6 +358,7 @@ Qed.
 (* Qeq_shift_div_l → Q.mul_move_r *)
 (* Qminus_eq_eq_plus_r → Q.add_move_r *)
 (* Zplus_cmp_compat_r → Z.compare_add_cancel_r *)
+(* Qlt_plus_minus_lt_r → Q.lt_sub_lt_add_r *)
 
 Theorem Zmult_cmp_compat_r : ∀ n m p,
   (0 < p)%Z
@@ -414,16 +415,8 @@ Qed.
 Theorem Qeq_plus_minus_eq_r : ∀ x y z, x == y + z → x - z == y.
 Proof.
 intros.
-...
-apply Qeq_alt in H; apply Qeq_alt.
-rewrite <- H; symmetry; apply Qcmp_plus_minus_cmp_r.
-Qed.
-
-Theorem Qlt_plus_minus_lt_r : ∀ x y z, x < y + z → x - z < y.
-Proof.
-intros.
-apply Qlt_alt in H; apply Qlt_alt.
-rewrite <- H; symmetry; apply Qcmp_plus_minus_cmp_r.
+rewrite H.
+apply Q.add_sub.
 Qed.
 
 Theorem Qmult_cmp_compat_r : ∀ x y z,
@@ -431,6 +424,7 @@ Theorem Qmult_cmp_compat_r : ∀ x y z,
   → (x ?= y) = (x * z ?= y * z).
 Proof.
 intros (a₁, a₂) (b₁, b₂) (c₁, c₂) H.
+...
 unfold Qcompare; simpl.
 do 2 rewrite Pos2Z.inj_mul.
 rewrite Z.mul_shuffle1, (Z.mul_shuffle1 b₁).

@@ -957,6 +957,13 @@ split; intros H. {
 }
 Qed.
 
+Theorem lt_sub_lt_add_r : ∀ a b c, (a - c < b ↔ a < b + c)%Q.
+Proof.
+intros.
+rewrite Q.add_comm.
+apply Q.lt_sub_lt_add_l.
+Qed.
+
 Theorem lt_add_lt_sub_r : ∀ a b c, (a + b < c ↔ a < c - b)%Q.
 Proof.
 intros.
