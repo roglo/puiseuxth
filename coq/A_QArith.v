@@ -551,6 +551,15 @@ rewrite Heq.
 apply Q.le_refl.
 Qed.
 
+Theorem compare_eq_iff : ∀ a b, (a ?= b)%Q = Eq ↔ (a == b)%Q.
+Proof. intros; apply Z.compare_eq_iff. Qed.
+
+Theorem compare_lt_iff : ∀ a b, (a ?= b)%Q = Lt ↔ (a < b)%Q.
+Proof. intros; apply Z.compare_lt_iff. Qed.
+
+Theorem compare_gt_iff : ∀ a b, (a ?= b)%Q = Gt ↔ (b < a)%Q.
+Proof. intros; apply Z.compare_gt_iff. Qed.
+
 Global Instance lt_morph : Proper (Q.eq ==> Q.eq ==> iff) Q.lt.
 Proof.
 intros a b Hab c d Hcd.
@@ -561,6 +570,29 @@ split; intros Hac. {
 } {
   apply (@Q.order_eq_lt_r _ b); [ easy | ].
   now apply (@Q.order_eq_lt_l _ d).
+}
+Qed.
+
+Global Instance compare_morph : Proper (Q.eq ==> Q.eq ==> Logic.eq) Q.compare.
+Proof.
+intros a b Hab c d Hcd.
+move c before b; move d before c.
+remember (b ?= d)%Q as e eqn:He.
+symmetry in He.
+destruct e. {
+  apply Q.compare_eq_iff in He.
+  apply Q.compare_eq_iff.
+  transitivity b; [ easy | ].
+  transitivity d; [ easy | ].
+  easy.
+} {
+  apply -> Q.compare_lt_iff in He.
+  apply Q.compare_lt_iff.
+  now rewrite Hab, Hcd.
+} {
+  apply Q.compare_gt_iff in He.
+  apply Q.compare_gt_iff.
+  now rewrite Hab, Hcd.
 }
 Qed.
 
@@ -995,15 +1027,6 @@ intros * Hnz H.
 apply Q.mul_move_l; [ easy | ].
 now rewrite Q.mul_comm.
 Qed.
-
-Theorem compare_eq_iff : ∀ a b, (a ?= b)%Q = Eq ↔ (a == b)%Q.
-Proof. intros; apply Z.compare_eq_iff. Qed.
-
-Theorem compare_lt_iff : ∀ a b, (a ?= b)%Q = Lt ↔ (a < b)%Q.
-Proof. intros; apply Z.compare_lt_iff. Qed.
-
-Theorem compare_gt_iff : ∀ a b, (a ?= b)%Q = Gt ↔ (b < a)%Q.
-Proof. intros; apply Z.compare_gt_iff. Qed.
 
 End Q.
 

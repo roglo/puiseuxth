@@ -406,17 +406,15 @@ Theorem Qcmp_plus_minus_cmp_r : ∀ x y z,
   (x ?= y + z) = (x - z ?= y).
 Proof.
 intros a b c.
-...
-intros x y z.
-rewrite Qplus_cmp_compat_r with (z := - z).
-rewrite <- Q_add_assoc.
-rewrite Qplus_opp_r, Q_add_0_r.
-reflexivity.
+rewrite (Qplus_cmp_compat_r _ _ (-c)).
+do 2 rewrite Q.fold_sub.
+now rewrite Q.add_sub.
 Qed.
 
 Theorem Qeq_plus_minus_eq_r : ∀ x y z, x == y + z → x - z == y.
 Proof.
 intros.
+...
 apply Qeq_alt in H; apply Qeq_alt.
 rewrite <- H; symmetry; apply Qcmp_plus_minus_cmp_r.
 Qed.
