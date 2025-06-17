@@ -373,7 +373,8 @@ destruct b as [| sb vb]. {
   rewrite if_eqb_bool_dec.
   destruct (Bool.bool_dec sa sc) as [Hsac| Hsac]. {
     subst sc.
-    destruct sa; [ apply Nat.compare_lt_iff; flia | ].
+    destruct sa.
+    apply Nat.compare_lt_iff; flia.
     apply Nat.compare_gt_iff; flia.
   }
   remember (va ?= vc)%nat as vac eqn:Hvac.
@@ -391,12 +392,33 @@ destruct b as [| sb vb]. {
     apply Nat.compare_lt_iff.
     flia Hvac.
   }
-} {
-  destruct c as [| sc vc]. {
-    rewrite Z.add_0_r; cbn.
-...
-Search ((_ ?= _) = true)%nat.
-    rewrite Z.compare_eq_refl.
+}
+destruct c as [| sc vc]. {
+  rewrite Z.add_0_r; cbn.
+  rewrite if_eqb_bool_dec.
+  destruct (Bool.bool_dec sa sb) as [Hsab| Hsab]. {
+    subst sb.
+    destruct sa.
+    apply Nat.compare_gt_iff; flia.
+    apply Nat.compare_lt_iff; flia.
+  }
+  remember (va ?= vb)%nat as vab eqn:Hvab.
+  symmetry in Hvab.
+  destruct sb. {
+    destruct sa; [ easy | ].
+    destruct vab; [ easy | easy | ].
+    apply Nat.compare_gt_iff in Hvab.
+    apply Nat.compare_gt_iff.
+    flia Hvab.
+  } {
+    destruct sa; [ | easy ].
+    destruct vab; [ easy | easy | ].
+    apply Nat.compare_gt_iff in Hvab.
+    apply Nat.compare_lt_iff.
+    flia Hvab.
+  }
+}
+cbn.
 ...
 Theorem Z_compare_add_cancel_r :
   ∀ a b c, (a + c ?= b + c)%Z = (a ?= b)%Z.
