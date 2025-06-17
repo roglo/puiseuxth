@@ -109,6 +109,7 @@ Notation "- a" := (Q.opp a) : Q_scope.
 Notation "a '⁻¹'" := (Q.inv a) (at level 1, format "a ⁻¹") : Q_scope.
 Notation "a ≤ b" := (Q.le a b) : Q_scope.
 Notation "a < b" := (Q.lt a b) : Q_scope.
+Notation "a ?= b" := (Q.compare a b) : Q_scope.
 Notation "a # b" := (mk_q a (b - 1)) (at level 55) : Q_scope.
 
 Theorem q_Den_mul : ∀ a b, q_Den (a * b) = (q_Den a * q_Den b)%Z.
@@ -994,6 +995,15 @@ intros * Hnz H.
 apply Q.mul_move_l; [ easy | ].
 now rewrite Q.mul_comm.
 Qed.
+
+Theorem compare_eq_iff : ∀ a b, (a ?= b)%Q = Eq ↔ (a == b)%Q.
+Proof. intros; apply Z.compare_eq_iff. Qed.
+
+Theorem compare_lt_iff : ∀ a b, (a ?= b)%Q = Lt ↔ (a < b)%Q.
+Proof. intros; apply Z.compare_lt_iff. Qed.
+
+Theorem compare_gt_iff : ∀ a b, (a ?= b)%Q = Gt ↔ (b < a)%Q.
+Proof. intros; apply Z.compare_gt_iff. Qed.
 
 End Q.
 

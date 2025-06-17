@@ -363,46 +363,50 @@ Theorem Zmult_cmp_compat_r : ∀ n m p,
   (0 < p)%Z
   → (n ?= m)%Z = (n * p ?= m * p)%Z.
 Proof.
-intros.
-(*
-Require Import ZArith.
-Check Zmult_compare_compat_r.
-Zmult_compare_compat_r
-     : ∀ n m p : Z, (p > 0)%Z → (n ?= m)%Z = (n * p ?= m * p)%Z
-*)
-...
-apply Zmult_compare_compat_r.
-apply Z.lt_gt; assumption.
+intros a b c Hz.
+remember (a ?= b)%Z as e eqn:He.
+symmetry in He |-*.
+destruct e. {
+  apply Z.compare_eq_iff in He.
+  apply Z.compare_eq_iff.
+  now subst a.
+} {
+  apply -> Z.compare_lt_iff in He.
+  apply Z.compare_lt_iff.
+  now apply Z.mul_lt_mono_pos_r.
+} {
+  apply Z.compare_gt_iff in He.
+  apply Z.compare_gt_iff.
+  now apply Z.mul_lt_mono_pos_r.
+}
 Qed.
 
 Theorem Qplus_cmp_compat_r : ∀ x y z,
   (x ?= y) = (x + z ?= y + z).
 Proof.
-intros (x₁, x₂) (y₁, y₂) (z₁, z₂).
-unfold Qcompare; simpl.
-do 2 rewrite Pos2Z.inj_mul.
-do 2 rewrite Z.mul_add_distr_r.
-do 4 rewrite Z.mul_assoc.
-remember (z₁ * Zpos y₂ * Zpos x₂ * Zpos z₂)%Z as t.
-remember (z₁ * Zpos y₂ * Zpos x₂)%Z as u.
-rewrite Z.mul_shuffle0 in Hequ.
-subst u.
-rewrite <- Heqt.
-rewrite <- Zplus_cmp_compat_r.
-clear t Heqt.
-rewrite <- Zmult_assoc.
-rewrite Z.mul_shuffle1.
-remember (y₁ * Zpos z₂ * Zpos x₂ * Zpos z₂)%Z as t.
-rewrite <- Zmult_assoc in Heqt.
-rewrite Z.mul_shuffle1 in Heqt; subst t.
-apply Zmult_cmp_compat_r.
-rewrite <- Pos2Z.inj_mul.
-apply Pos2Z.is_pos.
+intros a b c.
+remember (a ?= b)%Q as e eqn:He.
+symmetry in He |-*.
+destruct e. {
+  apply Q.compare_eq_iff in He.
+  apply Q.compare_eq_iff.
+  now rewrite He.
+} {
+  apply -> Q.compare_lt_iff in He.
+  apply Q.compare_lt_iff.
+  now apply Q.add_lt_mono_r.
+} {
+  apply Q.compare_gt_iff in He.
+  apply Q.compare_gt_iff.
+  now apply Q.add_lt_mono_r.
+}
 Qed.
 
 Theorem Qcmp_plus_minus_cmp_r : ∀ x y z,
   (x ?= y + z) = (x - z ?= y).
 Proof.
+intros a b c.
+...
 intros x y z.
 rewrite Qplus_cmp_compat_r with (z := - z).
 rewrite <- Q_add_assoc.
