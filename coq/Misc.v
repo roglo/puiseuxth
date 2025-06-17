@@ -419,6 +419,38 @@ destruct c as [| sc vc]. {
   }
 }
 cbn.
+rewrite if_eqb_bool_dec.
+destruct (Bool.bool_dec sa sb) as [Hsab| Hsab]. {
+  subst sb.
+  rewrite if_eqb_bool_dec.
+  destruct (Bool.bool_dec sa sc) as [Hsac| Hsac]. {
+    subst sc.
+    destruct sa; cbn. {
+      rewrite Nat_compare_add_cancel_r.
+      rewrite Nat_compare_add_cancel_l.
+      easy.
+    } {
+      rewrite Nat_compare_add_cancel_r.
+      rewrite Nat_compare_add_cancel_l.
+      easy.
+    }
+  }
+  remember (va ?= vc)%nat as vac eqn:Hvac.
+  symmetry in Hvac.
+  destruct sa. {
+    destruct sc; [ easy | ].
+    destruct vac; [ easy | easy | ].
+    apply Nat.compare_gt_iff in Hvac.
+    apply Nat.compare_gt_iff.
+    flia Hvac.
+  } {
+    destruct sc; [ | easy ].
+    destruct vac; [ easy | easy | ].
+    apply Nat.compare_gt_iff in Hvac.
+    apply Nat.compare_lt_iff.
+    flia Hvac.
+  }
+}
 ...
 Theorem Z_compare_add_cancel_r :
   ∀ a b c, (a + c ?= b + c)%Z = (a ?= b)%Z.
