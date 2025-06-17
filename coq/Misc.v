@@ -470,6 +470,32 @@ destruct (Bool.bool_dec sa sc) as [Hsac| Hsac]. {
     flia Hvab.
   }
 }
+remember (va ?= vb)%nat as vab eqn:Hvab.
+remember (va ?= vc)%nat as vac eqn:Hvac.
+symmetry in Hvab, Hvac.
+destruct sb. {
+  destruct sa; [ easy | ].
+  destruct sc; [ | easy ].
+  destruct vab. {
+    apply Nat.compare_eq_iff in Hvab; subst vb.
+    now destruct vac.
+  } {
+    apply Nat.compare_lt_iff in Hvab.
+    destruct vac. {
+      apply Nat.compare_eq_iff in Hvac; subst vc.
+      now symmetry; apply Nat.compare_gt_iff.
+    } {
+      apply Nat.compare_lt_iff in Hvac; cbn.
+      rewrite Nat_compare_sub_cancel_r; [ | flia Hvab | flia Hvac ].
+      apply Nat.lt_le_incl in Hvab, Hvac.
+      now rewrite Nat_compare_sub_cancel_r.
+    } {
+      apply Nat.compare_gt_iff in Hvac; cbn.
+      symmetry; apply Nat.compare_gt_iff.
+      now transitivity va.
+    }
+  } {
+    apply Nat.compare_gt_iff in Hvab.
 ...
 Theorem Z_compare_add_cancel_r :
   ∀ a b c, (a + c ?= b + c)%Z = (a ?= b)%Z.
