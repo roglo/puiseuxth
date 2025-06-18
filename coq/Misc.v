@@ -296,6 +296,9 @@ intros x y z.
 (* faut trouver un nom plus mieux, et le mettre dans A_QArith
    ainsi que Qnum_minus_distr_r ci-dessous *)
 ...
+Q.inv_add_distr
+Q.inv_sub_distr
+...
 Qinv_plus_distr: ∀ (a b : Z) (c : positive), (a # c) + (b # c) == a + b # c
 ...
 progress unfold Q.add; cbn.
