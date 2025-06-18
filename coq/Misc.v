@@ -535,8 +535,7 @@ Definition pair_rec A B C (f : A → B → C) := λ xy, f (fst xy) (snd xy).
 Theorem divmod_div : ∀ a b, fst (Nat.divmod a b 0 b) = (a / S b)%nat.
 Proof. intros a b; reflexivity. Qed.
 
-...
-
+(*
 Theorem Pos2Nat_ne_0 : ∀ a, (Pos.to_nat a ≠ 0)%nat.
 Proof.
 intros a H.
@@ -558,12 +557,15 @@ apply Pos.mul_assoc.
 Qed.
 
 Close Scope positive_scope.
+*)
 
 Theorem Z2Nat_sub_min :  ∀ x y, Z.to_nat (x - Z.min x y) = Z.to_nat (x - y).
 Proof.
 intros x y.
-destruct (Z.min_dec x y) as [H₁| H₁].
- rewrite H₁.
+progress unfold Z.min.
+destruct (Z.le_dec x y) as [H₁| H₁]; [ | easy ].
+...
+rewrite H₁.
  rewrite Z.sub_diag.
  apply Z.min_l_iff in H₁.
  apply Z.le_sub_0 in H₁.

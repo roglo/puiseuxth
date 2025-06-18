@@ -1727,6 +1727,9 @@ destruct a as [| sa va]. {
 }
 Qed.
 
+Definition min a b := if Z.le_dec a b then a else b.
+Definition max a b := if Z.le_dec a b then b else a.
+
 Theorem abs_nat_nonneg : ∀ a, (0 ≤ a)%Z → Z.abs_nat a = Z.to_nat a.
 Proof.
 intros * Haz.
