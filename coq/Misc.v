@@ -293,11 +293,30 @@ Qed.
 Theorem QZ_plus : ∀ x y z, x + y # z == (x # z) + (y # z).
 Proof.
 intros x y z.
+(* faut trouver un nom plus mieux, et le mettre dans A_QArith
+   ainsi que Qnum_minus_distr_r ci-dessous *)
+...
+Qinv_plus_distr: ∀ (a b : Z) (c : positive), (a # c) + (b # c) == a + b # c
+...
 progress unfold Q.add; cbn.
 progress unfold Q.eq; cbn.
 do 4 rewrite q_Den_num_den.
 rewrite Nat.sub_add; [ | easy ].
 rewrite Nat2Z.inj_mul; ring.
+Qed.
+
+Theorem Qnum_minus_distr_r : ∀ a b c, a - b # c == ((a # c) - (b # c)).
+Proof.
+intros a b c.
+Check QZ_plus.
+...
+unfold Qeq; simpl.
+rewrite Zmult_minus_distr_r.
+rewrite Zmult_plus_distr_l.
+rewrite Pos2Z.inj_mul.
+do 2 rewrite Zmult_assoc.
+do 2 rewrite Z.mul_opp_l.
+reflexivity.
 Qed.
 
 Theorem Qnat_lt : ∀ i j, (i < j)%nat ↔ Qnat i < Qnat j.
@@ -517,52 +536,27 @@ intros A P a l H.
 inversion H; split; assumption.
 Qed.
 
-...
+Theorem Pos2Z_ne_0 : ∀ p, (z_pos p ≠ 0)%Z.
+Proof. easy. Qed.
 
-Theorem Pos2Z_ne_0 : ∀ p, (Zpos p ≠ 0)%Z.
-Proof.
-intros p H.
-pose proof (Zgt_pos_0 p) as HH.
-rewrite H in HH.
-apply Zgt_irrefl in HH; assumption.
-Qed.
-
-Theorem Qnum_inv : ∀ a, (0 < Qnum a)%Z → Qnum (/ a) = Zpos (Qden a).
+Theorem Qnum_inv : ∀ a, (0 < q_num a)%Z → q_num (a⁻¹) = z_pos (q_den a).
 Proof.
 intros (a, b) Ha; simpl in Ha |- *.
-unfold Qinv; simpl.
-destruct a as [| a| a]; simpl.
- apply Z.lt_irrefl in Ha; contradiction.
-
- reflexivity.
-
- apply Zlt_not_le in Ha.
- exfalso; apply Ha, Z.lt_le_incl, Zlt_neg_0.
+unfold Q.inv; simpl.
+rewrite q_Den_num_den.
+destruct a as [| sa va]; [ now apply Z.lt_irrefl in Ha | ].
+destruct sa; [ | easy ].
+rewrite Nat.add_1_r; cbn.
+now rewrite Nat.add_0_r, Nat.add_sub.
 Qed.
 
-Theorem Qden_inv : ∀ a, (0 < Qnum a)%Z → Zpos (Qden (/ a)) = Qnum a.
+Theorem Qden_inv : ∀ a, (0 < q_num a)%Z → z_pos (q_den a⁻¹) = q_num a.
 Proof.
 intros (a, b) Ha; simpl in Ha |- *.
-unfold Qinv; simpl.
-destruct a as [| a| a]; simpl.
- apply Z.lt_irrefl in Ha; contradiction.
-
- reflexivity.
-
- apply Zlt_not_le in Ha.
- exfalso; apply Ha, Z.lt_le_incl, Zlt_neg_0.
-Qed.
-
-Theorem Qnum_minus_distr_r : ∀ a b c, a - b # c == ((a # c) - (b # c)).
-Proof.
-intros a b c.
-unfold Qeq; simpl.
-rewrite Zmult_minus_distr_r.
-rewrite Zmult_plus_distr_l.
-rewrite Pos2Z.inj_mul.
-do 2 rewrite Zmult_assoc.
-do 2 rewrite Z.mul_opp_l.
-reflexivity.
+unfold Q.inv; simpl.
+destruct a as [| sa va]; [ now apply Z.lt_irrefl in Ha | ].
+destruct sa; [ cbn | easy ].
+now rewrite Nat.add_sub.
 Qed.
 
 Definition pair_rec A B C (f : A → B → C) := λ xy, f (fst xy) (snd xy).
