@@ -564,6 +564,12 @@ Proof.
 intros x y.
 progress unfold Z.min.
 destruct (Z.le_dec x y) as [H₁| H₁]; [ | easy ].
+rewrite Z.sub_diag; cbn; symmetry.
+progress unfold Z.to_nat.
+remember (x - y)%Z as c eqn:Hc.
+symmetry in Hc.
+destruct c as [| s v]; [ easy | ].
+destruct s; [ exfalso | easy ].
 ...
 rewrite H₁.
  rewrite Z.sub_diag.
