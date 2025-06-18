@@ -359,6 +359,7 @@ Qed.
 (* Qminus_eq_eq_plus_r → Q.add_move_r *)
 (* Zplus_cmp_compat_r → Z.compare_add_cancel_r *)
 (* Qlt_plus_minus_lt_r → Q.lt_sub_lt_add_r *)
+(* Qplus_lt_lt_minus_r → Q.lt_add_lt_sub_r *)
 
 Theorem Zmult_cmp_compat_r : ∀ n m p,
   (0 < p)%Z
@@ -478,8 +479,8 @@ Qed.
 Theorem Qlt_shift_mult_r : ∀ x y z, 0 < z → x < y / z → x * z < y.
 Proof.
 intros x y z Hc H.
-...
-rewrite Qlt_alt in H |- *.
+apply Q.compare_lt_iff in H.
+apply -> Q.compare_lt_iff.
 rewrite <- H; symmetry; apply Qcmp_shift_mult_r; assumption.
 Qed.
 
@@ -488,23 +489,24 @@ Theorem Qplus_cmp_cmp_minus_r : ∀ x y z,
 Proof.
 intros x y z.
 rewrite Qplus_cmp_compat_r with (z := - y).
-rewrite <- Q_add_assoc.
-rewrite Qplus_opp_r, Q_add_0_r.
-reflexivity.
-Qed.
-
-Theorem Qplus_lt_lt_minus_r : ∀ x y z, x + y < z → x < z - y.
+rewrite <- Q.add_assoc.
+Search (_ - _ = 0)%Z.
+Search (_ + - _ = 0)%Z.
+Theorem Q_add_opp_diag_r : ∀ a, (a + - a == 0)%Q.
 Proof.
-intros x y z H.
-rewrite Qlt_alt in H |- *.
-rewrite <- H; symmetry; apply Qplus_cmp_cmp_minus_r.
+intros.
+progress unfold Q.add, Q.opp, Q.eq; cbn.
+rewrite q_Den_num_den.
+rewrite Z.mul_1_r.
+rewrite Z.mul_opp_l.
+apply Z.add_opp_diag_r.
 Qed.
 
 Theorem Qplus_cmp_compat_l : ∀ x y z,
   (x ?= y) = (z + x ?= z + y).
 Proof.
 intros x y z.
-do 2 rewrite (Q_add_comm z).
+do 2 rewrite (Q.add_comm z).
 apply Qplus_cmp_compat_r.
 Qed.
 
@@ -514,6 +516,8 @@ Proof.
 intros A P a l H.
 inversion H; split; assumption.
 Qed.
+
+...
 
 Theorem Pos2Z_ne_0 : ∀ p, (Zpos p ≠ 0)%Z.
 Proof.
