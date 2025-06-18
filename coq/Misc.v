@@ -446,20 +446,19 @@ Theorem Qcmp_shift_mult_l : ∀ x y z,
   → (x / z ?= y) = (x ?= y * z).
 Proof.
 intros x y z Hz.
-...
-erewrite Qmult_cmp_compat_r; [ idtac | eassumption ].
-rewrite Q_mul_div_swap.
-unfold Qdiv.
-rewrite <- Q_mul_assoc.
-rewrite Qmult_inv_r; [ idtac | apply Qgt_0_not_0; assumption ].
-rewrite Q_mul_1_r; reflexivity.
+rewrite (Qmult_cmp_compat_r _ _ Hz).
+rewrite Q.mul_div_swap.
+rewrite Q.mul_div; [ easy | ].
+intros H; rewrite H in Hz.
+now apply Q.lt_irrefl in Hz.
 Qed.
 
 Theorem Qlt_shift_mult_l : ∀ x y z, 0 < z → x / z < y → x < y * z.
 Proof.
 intros x y z Hc H.
-rewrite Qlt_alt in H |- *.
-rewrite <- H; symmetry; apply Qcmp_shift_mult_l; assumption.
+apply Q.compare_lt_iff in H.
+apply -> Q.compare_lt_iff.
+now rewrite Qcmp_shift_mult_l in H.
 Qed.
 
 Theorem Qcmp_shift_mult_r : ∀ x y z,
@@ -468,16 +467,18 @@ Theorem Qcmp_shift_mult_r : ∀ x y z,
 Proof.
 intros x y z Hz.
 erewrite Qmult_cmp_compat_r; [ idtac | eassumption ].
-rewrite Q_mul_div_swap.
-unfold Qdiv.
-rewrite <- Q_mul_assoc.
-rewrite Qmult_inv_r; [ idtac | apply Qgt_0_not_0; assumption ].
-rewrite Q_mul_1_r; reflexivity.
+rewrite Q.mul_div_swap.
+unfold Q.div.
+rewrite <- Q.mul_assoc.
+rewrite Q.mul_inv_diag_r; [ now rewrite Q.mul_1_r | ].
+intros H; rewrite H in Hz.
+now apply Q.lt_irrefl in Hz.
 Qed.
 
 Theorem Qlt_shift_mult_r : ∀ x y z, 0 < z → x < y / z → x * z < y.
 Proof.
 intros x y z Hc H.
+...
 rewrite Qlt_alt in H |- *.
 rewrite <- H; symmetry; apply Qcmp_shift_mult_r; assumption.
 Qed.
