@@ -1035,6 +1035,23 @@ apply Q.mul_move_l; [ easy | ].
 now rewrite Q.mul_comm.
 Qed.
 
+Theorem inv_add_distr : ∀ a b c, (a + b # c == (a # c) + (b # c))%Q.
+Proof.
+intros.
+progress unfold Q.add.
+progress unfold Q.eq; cbn.
+do 4 rewrite q_Den_num_den.
+rewrite Nat.sub_add; [ | easy ].
+rewrite Nat2Z.inj_mul; ring.
+Qed.
+
+Theorem inv_sub_distr : ∀ a b c, (a - b # c == (a # c) - (b # c))%Q.
+Proof.
+intros.
+progress unfold Z.sub.
+now rewrite Q.inv_add_distr.
+Qed.
+
 End Q.
 
 Number Notation Q Q.of_number Q.to_number : Q_scope.

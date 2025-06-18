@@ -290,38 +290,6 @@ rewrite H in Ha.
 now apply Q.lt_irrefl in Ha.
 Qed.
 
-Theorem QZ_plus : ∀ x y z, x + y # z == (x # z) + (y # z).
-Proof.
-intros x y z.
-(* faut trouver un nom plus mieux, et le mettre dans A_QArith
-   ainsi que Qnum_minus_distr_r ci-dessous *)
-...
-Q.inv_add_distr
-Q.inv_sub_distr
-...
-Qinv_plus_distr: ∀ (a b : Z) (c : positive), (a # c) + (b # c) == a + b # c
-...
-progress unfold Q.add; cbn.
-progress unfold Q.eq; cbn.
-do 4 rewrite q_Den_num_den.
-rewrite Nat.sub_add; [ | easy ].
-rewrite Nat2Z.inj_mul; ring.
-Qed.
-
-Theorem Qnum_minus_distr_r : ∀ a b c, a - b # c == ((a # c) - (b # c)).
-Proof.
-intros a b c.
-Check QZ_plus.
-...
-unfold Qeq; simpl.
-rewrite Zmult_minus_distr_r.
-rewrite Zmult_plus_distr_l.
-rewrite Pos2Z.inj_mul.
-do 2 rewrite Zmult_assoc.
-do 2 rewrite Z.mul_opp_l.
-reflexivity.
-Qed.
-
 Theorem Qnat_lt : ∀ i j, (i < j)%nat ↔ Qnat i < Qnat j.
 Proof.
 intros i j; split; intros H. {
@@ -343,7 +311,7 @@ unfold Qnat.
 replace a with (a * 1) at 3 by now rewrite Q.mul_1_r.
 rewrite <- Q.mul_add_distr_l.
 rewrite Nat2Z.inj_succ.
-now rewrite QZ_plus.
+now rewrite Q.inv_add_distr.
 Qed.
 
 Theorem Qlt_not_0 : ∀ x y, x < y → ¬ y - x == 0.
@@ -566,6 +534,8 @@ Definition pair_rec A B C (f : A → B → C) := λ xy, f (fst xy) (snd xy).
 
 Theorem divmod_div : ∀ a b, fst (Nat.divmod a b 0 b) = (a / S b)%nat.
 Proof. intros a b; reflexivity. Qed.
+
+...
 
 Theorem Pos2Nat_ne_0 : ∀ a, (Pos.to_nat a ≠ 0)%nat.
 Proof.
