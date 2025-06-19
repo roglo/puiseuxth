@@ -621,6 +621,9 @@ Proof.
 intros x y z.
 rewrite <- Z_sub_min_distr_r.
 ...
+Z.sub_max_distr_l
+     : ∀ n m p : Z, Z.max (p - n) (p - m) = (p - Z.min n m)%Z
+...
 rewrite <- Z.sub_max_distr_l.
 destruct (Z_le_dec (x - z) (y - z)) as [Hle₁| Hgt₁].
  rewrite Z.min_l; [ idtac | assumption ].
