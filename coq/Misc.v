@@ -614,19 +614,37 @@ destruct (Z.le_dec (a - c) (b - c)) as [Ha| Ha]. {
 }
 Qed.
 
+Theorem Z_sub_max_distr_l :
+  ∀ a b c, Z.max (a - b) (a - c) = (a - Z.min b c)%Z.
+Proof.
+intros.
+progress unfold Z.min, Z.max.
+destruct (Z.le_dec (a - b) (a - c)) as [Ha| Ha]. {
+  destruct (Z.le_dec b c) as [Hab| Hab]; [ | easy ].
+  progress f_equal.
+  apply Z.sub_le_mono_l in Ha.
+  now apply Z.le_antisymm.
+} {
+  destruct (Z.le_dec b c) as [Hab| Hab]; [ easy | ].
+  progress f_equal.
+  apply Z.nle_gt in Ha, Hab.
+  apply Z.sub_lt_mono_l in Ha.
+  now apply Z.lt_asymm in Ha.
+}
+Qed.
+
 Theorem Z2Nat_sub_min1 : ∀ x y z,
   (Z.to_nat (Z.min x y - z) + Z.to_nat (y - x))%nat =
   Z.to_nat (y - Z.min z x).
 Proof.
 intros x y z.
 rewrite <- Z_sub_min_distr_r.
+rewrite <- Z_sub_max_distr_l.
+progress unfold Z.min.
+progress unfold Z.max.
+destruct (Z.le_dec (x - z) (y - z)) as [Hle₁| Hgt₁]. {
 ...
-Z.sub_max_distr_l
-     : ∀ n m p : Z, Z.max (p - n) (p - m) = (p - Z.min n m)%Z
-...
-rewrite <- Z.sub_max_distr_l.
-destruct (Z_le_dec (x - z) (y - z)) as [Hle₁| Hgt₁].
- rewrite Z.min_l; [ idtac | assumption ].
+  rewrite Z.min_l; [ idtac | assumption ].
  apply Z.sub_le_mono_r in Hle₁.
  destruct (Z_le_dec (y - z) (y - x)) as [Hle₂| Hgt₂].
   rewrite Z.max_r; [ idtac | assumption ].
