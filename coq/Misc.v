@@ -474,14 +474,6 @@ apply -> Q.compare_lt_iff.
 rewrite <- H; symmetry; apply Qcmp_shift_mult_r; assumption.
 Qed.
 
-Theorem Qplus_cmp_cmp_minus_r : ∀ x y z,
-  (x + y ?= z) = (x ?= z - y).
-Proof.
-intros x y z.
-rewrite Qplus_cmp_compat_r with (z := - y).
-rewrite <- Q.add_assoc.
-Search (_ - _ = 0)%Z.
-Search (_ + - _ = 0)%Z.
 Theorem Q_add_opp_diag_r : ∀ a, (a + - a == 0)%Q.
 Proof.
 intros.
@@ -490,6 +482,16 @@ rewrite q_Den_num_den.
 rewrite Z.mul_1_r.
 rewrite Z.mul_opp_l.
 apply Z.add_opp_diag_r.
+Qed.
+
+Theorem Qplus_cmp_cmp_minus_r : ∀ x y z,
+  (x + y ?= z) = (x ?= z - y).
+Proof.
+intros x y z.
+rewrite Qplus_cmp_compat_r with (z := - y).
+rewrite <- Q.add_assoc.
+rewrite Q_add_opp_diag_r.
+now rewrite Q.add_0_r.
 Qed.
 
 Theorem Qplus_cmp_compat_l : ∀ x y z,
@@ -581,7 +583,23 @@ Theorem Z2Nat_sub_min1 : ∀ x y z,
   Z.to_nat (y - Z.min z x).
 Proof.
 intros x y z.
+progress unfold Z.min.
+destruct (Z.le_dec x y) as [Hxy| Hxy]. {
+  destruct (Z.le_dec z x) as [Hzx| Hzx]. {
+    progress unfold Z.to_nat.
+    remember (x - z)%Z as xz eqn:Hxz.
+    symmetry in Hxz.
+    destruct xz as [| s v]. {
+      apply -> Z.sub_move_0_r in Hxz; subst z.
+      remember (y - x)%Z as yx eqn:Hyx.
+      symmetry in Hyx.
+      now destruct yx.
+    }
 ...
+Z.sub_min_distr_r
+     : ∀ n m p : Z, Z.min (n - p) (m - p) = (Z.min n m - p)%Z
+...
+intros x y z.
 rewrite <- Z.sub_min_distr_r.
 rewrite <- Z.sub_max_distr_l.
 destruct (Z_le_dec (x - z) (y - z)) as [Hle₁| Hgt₁].

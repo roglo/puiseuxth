@@ -930,6 +930,20 @@ intros.
 apply (Z.add_move_l a b 0).
 Qed.
 
+Theorem add_move_0_r : ∀ a b, (a + b)%Z = 0%Z ↔ a = (- b)%Z.
+Proof.
+intros.
+apply (Z.add_move_r a b 0).
+Qed.
+
+Theorem sub_move_0_r : ∀ a b, (a - b)%Z = 0%Z ↔ a = b.
+Proof.
+intros.
+progress unfold Z.sub.
+rewrite <- (Z.opp_involutive b) at 2.
+apply Z.add_move_0_r.
+Qed.
+
 Theorem le_trans : ∀ a b c, (a ≤ b → b ≤ c → a ≤ c)%Z.
 Proof.
 intros * Hab Hbc.
