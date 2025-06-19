@@ -1961,6 +1961,33 @@ do 2 rewrite (Z.add_comm _ c).
 apply Z.compare_add_cancel_l.
 Qed.
 
+Theorem sub_0_r : ∀ a, (a - 0 = a)%Z.
+Proof. intros; apply Z.add_0_r. Qed.
+
+Theorem compare_0_sub : ∀ a b, (0 ?= a - b)%Z = (b ?= a)%Z.
+Proof.
+intros.
+destruct a as [| sa va]. {
+  destruct b as [| sb vb]; [ easy | now destruct sb ].
+}
+destruct b as [| sb vb]; [ easy | cbn ].
+rewrite Nat.compare_antisym.
+destruct sa. {
+  destruct sb; [ cbn | easy ].
+  now destruct (vb ?= va)%nat.
+} {
+  destruct sb; [ easy | cbn ].
+  now destruct (vb ?= va)%nat.
+}
+Qed.
+
+Theorem lt_0_sub : ∀ a b, (0 < b - a)%Z ↔ (a < b)%Z.
+Proof.
+intros.
+progress unfold Z.lt.
+now rewrite Z.compare_0_sub.
+Qed.
+
 End Z.
 
 Number Notation Z Z.of_number Z.to_number : Z_scope.

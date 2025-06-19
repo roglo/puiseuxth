@@ -570,16 +570,10 @@ remember (x - y)%Z as c eqn:Hc.
 symmetry in Hc.
 destruct c as [| s v]; [ easy | ].
 destruct s; [ exfalso | easy ].
-...
-rewrite H₁.
- rewrite Z.sub_diag.
- apply Z.min_l_iff in H₁.
- apply Z.le_sub_0 in H₁.
- destruct (x - y)%Z as [| p| p]; [ reflexivity | idtac | reflexivity ].
- apply Z.nlt_ge in H₁.
- exfalso; apply H₁, Pos2Z.is_pos.
-
- rewrite H₁; reflexivity.
+assert (H : (0 < z_val true v)%Z) by easy.
+rewrite <- Hc in H.
+apply -> Z.lt_0_sub in H.
+now apply Z.nle_gt in H.
 Qed.
 
 Theorem Z2Nat_sub_min1 : ∀ x y z,
@@ -587,6 +581,7 @@ Theorem Z2Nat_sub_min1 : ∀ x y z,
   Z.to_nat (y - Z.min z x).
 Proof.
 intros x y z.
+...
 rewrite <- Z.sub_min_distr_r.
 rewrite <- Z.sub_max_distr_l.
 destruct (Z_le_dec (x - z) (y - z)) as [Hle₁| Hgt₁].
