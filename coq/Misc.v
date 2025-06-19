@@ -600,6 +600,9 @@ Theorem Z_sub_min_distr_l :
 Proof.
 intros.
 progress unfold Z.min, Z.max.
+destruct (Z.le_dec (a - b) (a - c)) as [Ha| Ha]. {
+  destruct (Z.le_dec b c) as [Hbc| Hbc]. {
+    progress f_equal.
 ...
 Theorem Z_sub_min_distr_r :
   ∀ n m p, Z.min (n - p) (m - p) = (Z.min n m - p)%Z.

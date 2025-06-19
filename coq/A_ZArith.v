@@ -831,12 +831,6 @@ Qed.
 
 Theorem lt_iff : ∀ a b, (a < b)%Z ↔ (a ≤ b)%Z ∧ a ≠ b.
 Proof.
-...
-intros.
-progress unfold Z.lt, Z.le.
-destruct (a ?= b)%Z; [ | | easy ].
-split; [ easy | ].
-...
 intros.
 split. {
   intros Hab.
@@ -961,69 +955,6 @@ destruct sb; [ easy | ].
 apply Nat.compare_le_iff in Hab, Hbc.
 apply Nat.compare_le_iff.
 now transitivity vb.
-Qed.
-
-Theorem le_add_l : ∀ a b, (0 ≤ a)%Z → (b ≤ a + b)%Z.
-Proof.
-intros * Hza.
-progress unfold Z.le in Hza |-*.
-progress unfold Z.compare in Hza |-*.
-destruct a as [| sa va]. {
-  destruct b as [| sb vb]; [ easy | cbn ].
-  now destruct sb; rewrite Nat.compare_refl.
-}
-destruct sa; [ | easy ].
-destruct b as [| sb vb]; [ easy | cbn ].
-destruct sb; [ apply Nat.compare_le_iff; flia | ].
-destruct (va ?= vb); [ easy | | easy ].
-apply Nat.compare_le_iff; flia.
-Qed.
-
-Theorem le_add_r : ∀ a b, (0 ≤ a)%Z → (b ≤ b + a)%Z.
-Proof.
-intros * Hza.
-rewrite Z.add_comm.
-now apply Z.le_add_l.
-Qed.
-
-Theorem lt_add_l : ∀ a b, (0 < a)%Z → (b < a + b)%Z.
-Proof.
-intros * Hza.
-apply Z.lt_iff.
-split; [ now apply Z.le_add_l, Z.lt_le_incl | ].
-intros H; symmetry in H.
-apply Z.add_move_r in H.
-rewrite Z.sub_diag in H; subst a.
-revert Hza; apply Z.lt_irrefl.
-Qed.
-
-Theorem lt_add_r : ∀ a b, (0 < a)%Z → (b < b + a)%Z.
-Proof.
-intros * Hza.
-rewrite Z.add_comm.
-now apply Z.lt_add_l.
-Qed.
-
-Theorem characteristic_prop : ∀ i : nat, rngl_of_nat (S i) ≠ 0%Z.
-Proof.
-intros * Hn.
-rewrite rngl_of_nat_succ in Hn.
-apply Z.add_move_0_l in Hn.
-cbn in Hn.
-enough (H : (0 ≤ rngl_of_nat i)%Z) by now rewrite Hn in H.
-clear Hn.
-induction i; [ easy | ].
-rewrite rngl_of_nat_succ.
-eapply Z.le_trans; [ apply IHi | ].
-now apply Z.le_add_l.
-Qed.
-
-Theorem leb_refl : ∀ a, (a ≤? a)%Z = true.
-Proof.
-intros.
-progress unfold Z.leb.
-destruct a as [| sa va]; [ easy | cbn ].
-now destruct sa; rewrite Nat.compare_refl.
 Qed.
 
 Theorem compare_add_cancel_l :
@@ -1235,6 +1166,60 @@ do 2 rewrite (Z.add_comm _ c).
 apply Z.compare_add_cancel_l.
 Qed.
 
+Theorem le_add_l : ∀ a b, (0 ≤ a)%Z → (b ≤ a + b)%Z.
+Proof.
+progress unfold Z.le.
+intros * H Hza; apply H; clear H.
+rewrite <- Hza.
+rewrite <- (Z.add_0_l b) at 1.
+symmetry; apply Z.compare_add_cancel_r.
+Qed.
+
+Theorem le_add_r : ∀ a b, (0 ≤ a)%Z → (b ≤ b + a)%Z.
+Proof.
+intros * Hza.
+rewrite Z.add_comm.
+now apply Z.le_add_l.
+Qed.
+
+Theorem lt_add_l : ∀ a b, (0 < a)%Z → (b < a + b)%Z.
+Proof.
+progress unfold Z.lt.
+intros * Hza.
+rewrite <- Hza.
+rewrite <- (Z.add_0_l b) at 1.
+apply Z.compare_add_cancel_r.
+Qed.
+
+Theorem lt_add_r : ∀ a b, (0 < a)%Z → (b < b + a)%Z.
+Proof.
+intros * Hza.
+rewrite Z.add_comm.
+now apply Z.lt_add_l.
+Qed.
+
+Theorem characteristic_prop : ∀ i : nat, rngl_of_nat (S i) ≠ 0%Z.
+Proof.
+intros * Hn.
+rewrite rngl_of_nat_succ in Hn.
+apply Z.add_move_0_l in Hn.
+cbn in Hn.
+enough (H : (0 ≤ rngl_of_nat i)%Z) by now rewrite Hn in H.
+clear Hn.
+induction i; [ easy | ].
+rewrite rngl_of_nat_succ.
+eapply Z.le_trans; [ apply IHi | ].
+now apply Z.le_add_l.
+Qed.
+
+Theorem leb_refl : ∀ a, (a ≤? a)%Z = true.
+Proof.
+intros.
+progress unfold Z.leb.
+destruct a as [| sa va]; [ easy | cbn ].
+now destruct sa; rewrite Nat.compare_refl.
+Qed.
+
 Theorem add_le_mono_l_if : ∀ a b c, (a ≤ b)%Z → (c + a ≤ c + b)%Z.
 Proof.
 intros * Hab.
@@ -1263,12 +1248,35 @@ progress unfold Z.lt.
 now rewrite Z.compare_add_cancel_l.
 Qed.
 
-Theorem compare_mul_cancel_l :
+Theorem compare_mul_mono_pos_l :
   ∀ a b c, (0 < a)%Z → (a * b ?= a * c)%Z = (b ?= c)%Z.
 Proof.
 intros * Hza.
 destruct a as [| sa va]; [ easy | ].
 destruct sa; [ clear Hza | easy ].
+destruct b as [| sb vb]. {
+  destruct c as [| sc vc]; [ easy | now destruct sc ].
+}
+destruct c as [| sc vc]; [ now destruct sb | ].
+destruct sb. {
+  destruct sc; [ cbn | easy ].
+  rewrite Nat_compare_sub_cancel_r; [ | easy | easy ].
+  rewrite Nat_compare_mul_cancel_l; [ | now rewrite Nat.add_1_r ].
+  now rewrite Nat_compare_add_cancel_r.
+} {
+  destruct sc; [ easy | cbn ].
+  rewrite Nat_compare_sub_cancel_r; [ | easy | easy ].
+  rewrite Nat_compare_mul_cancel_l; [ | now rewrite Nat.add_1_r ].
+  now rewrite Nat_compare_add_cancel_r.
+}
+Qed.
+
+Theorem compare_mul_mono_neg_l :
+  ∀ a b c, (a < 0)%Z → (a * b ?= a * c)%Z = (c ?= b)%Z.
+Proof.
+intros * Hza.
+destruct a as [| sa va]; [ easy | ].
+destruct sa; [ easy | clear Hza ].
 destruct b as [| sb vb]. {
   destruct c as [| sc vc]; [ easy | now destruct sc ].
 }
@@ -1292,7 +1300,7 @@ Proof.
 intros * Hza Hbc.
 destruct (Z.eq_dec a 0) as [Haz| Haz]; [ now rewrite Haz | ].
 progress unfold Z.le.
-rewrite Z.compare_mul_cancel_l; [ easy | ].
+rewrite Z.compare_mul_mono_pos_l; [ easy | ].
 now apply Z.lt_iff.
 Qed.
 
@@ -1308,32 +1316,14 @@ Theorem mul_le_mono_nonpos_l :
   ∀ a b c, (a ≤ 0)%Z → (b ≤ c)%Z → (a * c ≤ a * b)%Z.
 Proof.
 intros * Hza Hbc.
-progress unfold Z.le in Hza, Hbc |-*.
-destruct a as [| sa va]; [ easy | cbn ].
-cbn in Hza.
-destruct sa; [ easy | clear Hza ].
-destruct b as [| sb vb]. {
-  cbn in Hbc |-*.
-  destruct c as [| sc vc]; [ easy | ].
-  now destruct sc.
-}
-cbn in Hbc.
-destruct c as [| sc vc]; [ now destruct sb | cbn ].
-destruct sb; cbn. {
-  destruct sc; [ | easy ].
-  apply Nat.compare_le_iff in Hbc.
-  apply Nat.compare_le_iff.
-  apply Nat.sub_le_mono_r.
-  apply Nat.mul_le_mono_l.
-  now apply Nat.add_le_mono_r.
-} {
-  destruct sc; [ easy | ].
-  apply Nat.compare_le_iff in Hbc.
-  apply Nat.compare_le_iff.
-  apply Nat.sub_le_mono_r.
-  apply Nat.mul_le_mono_l.
-  now apply Nat.add_le_mono_r.
-}
+destruct (Z.eq_dec a 0) as [Haz| Haz]; [ now rewrite Haz | ].
+progress unfold Z.le in Hbc |-*.
+intros H.
+apply Hbc; clear Hbc.
+rewrite <- H.
+symmetry.
+apply Z.compare_mul_mono_neg_l.
+now apply Z.lt_iff.
 Qed.
 
 Theorem add_le_compat : ∀ a b c d, (a ≤ b)%Z → (c ≤ d)%Z → (a + c ≤ b + d)%Z.
@@ -1612,7 +1602,7 @@ Theorem mul_le_mono_pos_l :
 Proof.
 intros * Hza.
 progress unfold Z.le.
-now rewrite Z.compare_mul_cancel_l.
+now rewrite Z.compare_mul_mono_pos_l.
 Qed.
 
 Theorem mul_le_mono_pos_r :
@@ -1628,7 +1618,7 @@ Theorem mul_lt_mono_pos_l :
 Proof.
 intros * Hza.
 progress unfold Z.lt.
-now rewrite Z.compare_mul_cancel_l.
+now rewrite Z.compare_mul_mono_pos_l.
 Qed.
 
 Theorem mul_lt_mono_pos_r :
