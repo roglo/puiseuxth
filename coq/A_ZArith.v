@@ -1296,6 +1296,13 @@ progress unfold Z.lt.
 now rewrite Z.compare_sub_mono_l.
 Qed.
 
+Theorem sub_lt_mono_r : ∀ a b c, (a < b)%Z ↔ (a - c < b - c)%Z.
+Proof.
+intros.
+progress unfold Z.lt.
+now rewrite Z.compare_sub_mono_r.
+Qed.
+
 Theorem compare_mul_mono_pos_l :
   ∀ a b c, (0 < a)%Z → (a * b ?= a * c)%Z = (b ?= c)%Z.
 Proof.

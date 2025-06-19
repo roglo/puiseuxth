@@ -609,47 +609,15 @@ destruct (Z.le_dec (a - c) (b - c)) as [Ha| Ha]. {
   destruct (Z.le_dec a b) as [Hab| Hab]; [ | easy ].
   progress f_equal.
   apply Z.nle_gt in Ha.
-... ...
   apply Z.sub_lt_mono_r in Ha.
-  now apply Z.lt_asymm in Ha.
+  now apply Z.nle_gt in Ha.
 }
-...
+Qed.
 
 Theorem Z2Nat_sub_min1 : ∀ x y z,
   (Z.to_nat (Z.min x y - z) + Z.to_nat (y - x))%nat =
   Z.to_nat (y - Z.min z x).
 Proof.
-(*
-intros x y z.
-progress unfold Z.min.
-destruct (Z.le_dec x y) as [Hxy| Hxy]. {
-  destruct (Z.le_dec z x) as [Hzx| Hzx]. {
-    progress unfold Z.to_nat.
-    remember (x - z)%Z as xz eqn:Hxz.
-    symmetry in Hxz.
-    destruct xz as [| s v]. {
-      apply -> Z.sub_move_0_r in Hxz; subst z.
-      remember (y - x)%Z as yx eqn:Hyx.
-      symmetry in Hyx.
-      now destruct yx.
-    }
-...
-  progress f_equal.
-  apply Z.sub_le_mono_l in Ha.
-  now apply Z.le_antisymm.
-
-...
-Z.add_le_mono_r: ∀ a b c : Z, (a ≤ b)%Z ↔ (a + c ≤ b + c)%Z
-Z.add_le_compat: ∀ a b c d : Z, (a ≤ b)%Z → (c ≤ d)%Z → (a + c ≤ b + d)%Z
-Search (_ - _ ≤ _ - _)%Z.
-...
-Theorem Z_sub_min_distr_r :
-  ∀ n m p, Z.min (n - p) (m - p) = (Z.min n m - p)%Z.
-...
-Theorem Z_sub_min_distr_r :
-  ∀ n m p, Z.min (n - p) (m - p) = (Z.min n m - p)%Z.
-...
-*)
 intros x y z.
 rewrite <- Z_sub_min_distr_r.
 ...
