@@ -18,7 +18,6 @@ Definition z_neg a := z_val false a.
 
 (* misc theorems *)
 
-
 Theorem Nat_1_le_mul_add_1 : ∀ a b, (1 <= (a + 1) * (b + 1))%nat.
 Proof. flia. Qed.
 
@@ -752,24 +751,20 @@ Qed.
 Theorem nle_gt : ∀ a b, ¬ (a ≤ b)%Z ↔ (b < a)%Z.
 Proof.
 intros.
-progress unfold le.
-progress unfold lt.
+progress unfold Z.le.
+progress unfold Z.lt.
 rewrite <- Z.compare_antisymm.
-progress unfold CompOpp.
-split; [ | now destruct (b ?= a)%Z ].
-destruct (b ?= a)%Z; [ | easy | ].
-now intros H; exfalso; apply H.
-now intros H; exfalso; apply H.
+destruct (b ?= a)%Z; cbn; [ | easy | ].
+split; [ now intros H1; exfalso; apply H1 | easy ].
+split; [ now intros H1; exfalso; apply H1 | easy ].
 Qed.
 
 Theorem nlt_ge : ∀ a b, ¬ (a < b)%Z ↔ (b ≤ a)%Z.
 Proof.
 intros.
-progress unfold le.
-progress unfold lt.
+progress unfold Z.le.
+progress unfold Z.lt.
 rewrite <- Z.compare_antisymm.
-progress unfold CompOpp.
-split; [ | now destruct (b ?= a)%Z ].
 now destruct (b ?= a)%Z.
 Qed.
 
@@ -810,37 +805,16 @@ Qed.
 Theorem compare_lt_iff : ∀ a b, (a ?= b)%Z = Lt ↔ (a < b)%Z.
 Proof.
 intros.
-destruct a as [| sa va]; cbn. {
-  destruct b as [| sb vb]; [ easy | now destruct sb ].
-}
-destruct b as [| sb vb]; [ now destruct sa | ].
-now destruct sa, sb.
+progress unfold Z.lt.
+now destruct (a ?= b)%Z.
 Qed.
 
 Theorem compare_gt_iff : ∀ a b, (a ?= b)%Z = Gt ↔ (b < a)%Z.
 Proof.
 intros.
-destruct a as [| sa va]; cbn. {
-  destruct b as [| sb vb]; [ easy | now destruct sb ].
-}
-destruct b as [| sb vb]; [ now destruct sa | ].
-destruct sa, sb; [ | easy | easy | ]. {
-  split; intros H. {
-    apply Nat.compare_gt_iff in H.
-    now apply Nat.compare_lt_iff.
-  } {
-    apply Nat.compare_lt_iff in H.
-    now apply Nat.compare_gt_iff.
-  }
-} {
-  split; intros H. {
-    apply Nat.compare_gt_iff in H.
-    now apply Nat.compare_lt_iff.
-  } {
-    apply Nat.compare_lt_iff in H.
-    now apply Nat.compare_gt_iff.
-  }
-}
+progress unfold Z.lt.
+rewrite <- Z.compare_antisymm.
+now destruct (b ?= a)%Z.
 Qed.
 
 Theorem le_antisymm : ∀ a b, (a ≤ b)%Z → (b ≤ a)%Z → a = b.
@@ -857,6 +831,12 @@ Qed.
 
 Theorem lt_iff : ∀ a b, (a < b)%Z ↔ (a ≤ b)%Z ∧ a ≠ b.
 Proof.
+...
+intros.
+progress unfold Z.lt, Z.le.
+destruct (a ?= b)%Z; [ | | easy ].
+split; [ easy | ].
+...
 intros.
 split. {
   intros Hab.

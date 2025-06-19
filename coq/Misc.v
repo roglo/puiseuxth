@@ -599,6 +599,7 @@ Theorem Z_sub_min_distr_l :
   ∀ a b c, Z.min (a - b) (a - c) = (a - Z.max b c)%Z.
 Proof.
 intros.
+progress unfold Z.min, Z.max.
 ...
 Theorem Z_sub_min_distr_r :
   ∀ n m p, Z.min (n - p) (m - p) = (Z.min n m - p)%Z.
