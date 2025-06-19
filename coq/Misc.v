@@ -640,6 +640,14 @@ progress unfold Z.min.
 now destruct (Z.le_dec a b).
 Qed.
 
+Theorem Z_max_l : ∀ a b, (b ≤ a)%Z → Z.max a b = a.
+Proof.
+intros * Hab.
+progress unfold Z.max.
+destruct (Z.le_dec a b); [ | easy ].
+now apply Z.le_antisymm.
+Qed.
+
 Theorem Z_max_r : ∀ a b, (a ≤ b)%Z → Z.max a b = b.
 Proof.
 intros * Hab.
@@ -662,18 +670,16 @@ destruct (Z.le_dec (x - z) (y - z)) as [Hle₁| Hgt₁]. {
     apply Z.sub_le_mono_l in Hle₂.
     rewrite (Z.sub_le_mono_r _ _ z) in Hle₂.
     rewrite Z.sub_diag in Hle₂.
-...
-    destruct (x - z)%Z as [| p| p]; [ reflexivity | idtac | reflexivity ].
-  apply Z.le_ngt in Hle₂.
-  exfalso; apply Hle₂, Pos2Z.is_pos.
-
+    destruct (x - z)%Z as [| s v]; [ easy |  now destruct s ].
+  }
   apply Z.nle_gt, Z.lt_le_incl in Hgt₂.
-  rewrite Z.max_l; [ idtac | assumption ].
+  rewrite Z_max_l; [ idtac | assumption ].
   apply Z.sub_le_mono_l in Hgt₂.
-  rewrite Z.sub_le_mono_r with (p := x) in Hle₁.
+  rewrite (Z.sub_le_mono_r _ _ x) in Hle₁.
   rewrite Z.sub_diag in Hle₁.
-  rewrite Z.sub_le_mono_r with (p := z) in Hgt₂.
+  rewrite (Z.sub_le_mono_r _ _ z) in Hgt₂.
   rewrite Z.sub_diag in Hgt₂.
+...
   rewrite <- Z2Nat.inj_add; [ idtac | assumption | assumption ].
   rewrite Z.add_comm, Z.add_sub_assoc, Z.sub_add.
   reflexivity.
