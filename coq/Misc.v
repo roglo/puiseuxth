@@ -601,8 +601,31 @@ Proof.
 intros.
 progress unfold Z.min, Z.max.
 destruct (Z.le_dec (a - b) (a - c)) as [Ha| Ha]. {
-  destruct (Z.le_dec b c) as [Hbc| Hbc]. {
-    progress f_equal.
+  destruct (Z.le_dec b c) as [Hbc| Hbc]; [ | easy ].
+  progress f_equal.
+  apply Z.sub_le_mono_l in Ha.
+  now apply Z.le_antisymm.
+} {
+  destruct (Z.le_dec b c) as [Hbc| Hbc]; [ easy | ].
+  progress f_equal.
+  apply Z.nle_gt in Ha, Hbc.
+  apply Z.sub_lt_mono_l in Ha.
+Check Nat.lt_asymm.
+Check @rngl_lt_asymm.
+Theorem Z_lt_asymm : ∀ a b, (a < b)%Z → ¬ (b < a)%Z.
+Proof.
+intros * Hab.
+... ...
+  now apply Z_lt_asymm in Ha.
+...
+  progress f_equal.
+  apply Z.sub_le_mono_l in Ha.
+  now apply Z.le_antisymm.
+
+...
+Z.add_le_mono_r: ∀ a b c : Z, (a ≤ b)%Z ↔ (a + c ≤ b + c)%Z
+Z.add_le_compat: ∀ a b c d : Z, (a ≤ b)%Z → (c ≤ d)%Z → (a + c ≤ b + d)%Z
+Search (_ - _ ≤ _ - _)%Z.
 ...
 Theorem Z_sub_min_distr_r :
   ∀ n m p, Z.min (n - p) (m - p) = (Z.min n m - p)%Z.

@@ -34,7 +34,7 @@ Theorem if_eqb_bool_dec : ∀ A i j (a b : A),
   (if Bool.eqb i j then a else b) = (if Bool.bool_dec i j then a else b).
 Proof. now intros; destruct i, j. Qed.
 
-Theorem Nat_compare_sub_cancel_l :
+Theorem Nat_compare_sub_mono_l :
   ∀ a b c,
   (b <= a)%nat
   → (c <= a)%nat
@@ -61,7 +61,7 @@ apply Nat.succ_le_mono in Hle1, Hle2.
 apply (IHc _ _ Hle1 Hle2).
 Qed.
 
-Theorem Nat_compare_add_cancel_l :
+Theorem Nat_compare_add_mono_l :
   ∀ a b c, (a + b ?= a + c)%nat = (b ?= c)%nat.
 Proof.
 intros.
@@ -85,15 +85,15 @@ do 2 rewrite Nat.add_succ_r, <- Nat.add_succ_l.
 apply IHc.
 Qed.
 
-Theorem Nat_compare_add_cancel_r :
+Theorem Nat_compare_add_mono_r :
   ∀ a b c, (a + c ?= b + c)%nat = (a ?= b)%nat.
 Proof.
 intros.
 do 2 rewrite (Nat.add_comm _ c).
-apply Nat_compare_add_cancel_l.
+apply Nat_compare_add_mono_l.
 Qed.
 
-Theorem Nat_compare_sub_cancel_r :
+Theorem Nat_compare_sub_mono_r :
   ∀ a b c,
   (c <= a)%nat
   → (c <= b)%nat
@@ -113,7 +113,7 @@ apply Nat.succ_le_mono in Hle1, Hle2.
 apply (IHa _ _ Hle1 Hle2).
 Qed.
 
-Theorem Nat_compare_mul_cancel_l :
+Theorem Nat_compare_mul_mono_l :
   ∀ a b c, a ≠ 0 → (a * b ?= a * c) = (b ?= c).
 Proof.
 intros * Haz.
@@ -653,7 +653,7 @@ destruct (lt_eq_lt_dec vb vc) as [[Hbc| Hbc]| Hbc]. {
   rewrite Nat.sub_add; [ | flia Hbc ].
   rewrite Nat_compare_sub_add_r; [ | flia ].
   rewrite Nat.sub_add; [ | flia ].
-  rewrite Nat_compare_mul_cancel_l; [ | now rewrite Nat.add_comm ].
+  rewrite Nat_compare_mul_mono_l; [ | now rewrite Nat.add_comm ].
   (* lemma to do *)
   rewrite <- Nat_compare_sub_add_r; [ | flia ].
   rewrite Nat.add_sub.
@@ -674,7 +674,7 @@ destruct (lt_eq_lt_dec vb vc) as [[Hbc| Hbc]| Hbc]. {
   rewrite Nat.sub_add; [ | flia Hbc ].
   rewrite Nat_compare_sub_add_r; [ | flia ].
   rewrite Nat.sub_add; [ | flia ].
-  rewrite Nat_compare_mul_cancel_l; [ | now rewrite Nat.add_comm ].
+  rewrite Nat_compare_mul_mono_l; [ | now rewrite Nat.add_comm ].
   (* lemma to do *)
   rewrite <- Nat_compare_sub_add_r; [ | flia ].
   rewrite Nat.add_sub.
@@ -957,7 +957,7 @@ apply Nat.compare_le_iff.
 now transitivity vb.
 Qed.
 
-Theorem compare_add_cancel_l :
+Theorem compare_add_mono_l :
   ∀ a b c, (a + b ?= a + c)%Z = (b ?= c)%Z.
 Proof.
 intros.
@@ -1020,12 +1020,12 @@ destruct (Bool.bool_dec sa sb) as [Hsab| Hsab]. {
   destruct (Bool.bool_dec sa sc) as [Hsac| Hsac]. {
     subst sc.
     destruct sa; cbn. {
-      rewrite Nat_compare_add_cancel_r.
-      rewrite Nat_compare_add_cancel_l.
+      rewrite Nat_compare_add_mono_r.
+      rewrite Nat_compare_add_mono_l.
       easy.
     } {
-      rewrite Nat_compare_add_cancel_r.
-      rewrite Nat_compare_add_cancel_l.
+      rewrite Nat_compare_add_mono_r.
+      rewrite Nat_compare_add_mono_l.
       easy.
     }
   }
@@ -1082,9 +1082,9 @@ destruct sb. {
       now symmetry; apply Nat.compare_gt_iff.
     } {
       apply Nat.compare_lt_iff in Hvac; cbn.
-      rewrite Nat_compare_sub_cancel_r; [ | flia Hvab | flia Hvac ].
+      rewrite Nat_compare_sub_mono_r; [ | flia Hvab | flia Hvac ].
       apply Nat.lt_le_incl in Hvab, Hvac.
-      now rewrite Nat_compare_sub_cancel_r.
+      now rewrite Nat_compare_sub_mono_r.
     } {
       apply Nat.compare_gt_iff in Hvac; cbn.
       symmetry; apply Nat.compare_gt_iff.
@@ -1101,9 +1101,9 @@ destruct sb. {
       now transitivity va.
     } {
       apply Nat.compare_gt_iff in Hvac; cbn.
-      rewrite Nat_compare_sub_cancel_r; [ | flia Hvac | flia Hvab ].
+      rewrite Nat_compare_sub_mono_r; [ | flia Hvac | flia Hvab ].
       apply Nat.lt_le_incl in Hvab, Hvac.
-      now rewrite Nat_compare_sub_cancel_l.
+      now rewrite Nat_compare_sub_mono_l.
     }
   }
 }
@@ -1131,9 +1131,9 @@ destruct vab. {
     now symmetry; apply Nat.compare_lt_iff.
   } {
     apply Nat.compare_lt_iff in Hvac; cbn.
-    rewrite Nat_compare_sub_cancel_r; [ | flia Hvac | flia Hvab ].
+    rewrite Nat_compare_sub_mono_r; [ | flia Hvac | flia Hvab ].
     apply Nat.lt_le_incl in Hvab, Hvac.
-    now rewrite Nat_compare_sub_cancel_r.
+    now rewrite Nat_compare_sub_mono_r.
   } {
     apply Nat.compare_gt_iff in Hvac; cbn.
     symmetry; apply Nat.compare_lt_iff.
@@ -1151,19 +1151,38 @@ destruct vab. {
     now transitivity va.
   } {
     apply Nat.compare_gt_iff in Hvac; cbn.
-    rewrite Nat_compare_sub_cancel_r; [ | flia Hvab | flia Hvac ].
+    rewrite Nat_compare_sub_mono_r; [ | flia Hvab | flia Hvac ].
     apply Nat.lt_le_incl in Hvab, Hvac.
-    now rewrite Nat_compare_sub_cancel_l.
+    now rewrite Nat_compare_sub_mono_l.
   }
 }
 Qed.
 
-Theorem compare_add_cancel_r :
+Theorem compare_add_mono_r :
   ∀ a b c, (a + c ?= b + c)%Z = (a ?= b)%Z.
 Proof.
 intros.
 do 2 rewrite (Z.add_comm _ c).
-apply Z.compare_add_cancel_l.
+apply Z.compare_add_mono_l.
+Qed.
+
+Theorem compare_opp : ∀ a b, (- a ?= - b)%Z = (b ?= a)%Z.
+Proof.
+intros.
+destruct a as [| sa va]. {
+  destruct b as [| sb vb]; [ easy | now destruct sb ].
+}
+destruct b as [| sb vb]; [ now destruct sa | ].
+now destruct sa, sb; cbn.
+Qed.
+
+Theorem compare_sub_mono_l :
+  ∀ a b c, (a - b ?= a - c)%Z = (c ?= b)%Z.
+Proof.
+intros.
+progress unfold Z.sub.
+rewrite Z.compare_add_mono_l.
+apply Z.compare_opp.
 Qed.
 
 Theorem le_add_l : ∀ a b, (0 ≤ a)%Z → (b ≤ a + b)%Z.
@@ -1172,7 +1191,7 @@ progress unfold Z.le.
 intros * H Hza; apply H; clear H.
 rewrite <- Hza.
 rewrite <- (Z.add_0_l b) at 1.
-symmetry; apply Z.compare_add_cancel_r.
+symmetry; apply Z.compare_add_mono_r.
 Qed.
 
 Theorem le_add_r : ∀ a b, (0 ≤ a)%Z → (b ≤ b + a)%Z.
@@ -1188,7 +1207,7 @@ progress unfold Z.lt.
 intros * Hza.
 rewrite <- Hza.
 rewrite <- (Z.add_0_l b) at 1.
-apply Z.compare_add_cancel_r.
+apply Z.compare_add_mono_r.
 Qed.
 
 Theorem lt_add_r : ∀ a b, (0 < a)%Z → (b < b + a)%Z.
@@ -1224,14 +1243,14 @@ Theorem add_le_mono_l_if : ∀ a b c, (a ≤ b)%Z → (c + a ≤ c + b)%Z.
 Proof.
 intros * Hab.
 progress unfold Z.le in Hab |-*.
-now rewrite Z.compare_add_cancel_l.
+now rewrite Z.compare_add_mono_l.
 Qed.
 
 Theorem add_le_mono_l : ∀ a b c, (b ≤ c)%Z ↔ (a + b ≤ a + c)%Z.
 Proof.
 intros.
 progress unfold Z.le.
-now rewrite Z.compare_add_cancel_l.
+now rewrite Z.compare_add_mono_l.
 Qed.
 
 Theorem add_le_mono_r : ∀ a b c, (a ≤ b)%Z ↔ (a + c ≤ b + c)%Z.
@@ -1245,7 +1264,21 @@ Theorem add_lt_mono_l : ∀ a b c, (b < c)%Z ↔ (a + b < a + c)%Z.
 Proof.
 intros.
 progress unfold Z.lt.
-now rewrite Z.compare_add_cancel_l.
+now rewrite Z.compare_add_mono_l.
+Qed.
+
+Theorem sub_le_mono_l : ∀ a b c, (c ≤ b)%Z ↔ (a - b ≤ a - c)%Z.
+Proof.
+intros.
+progress unfold Z.le.
+now rewrite Z.compare_sub_mono_l.
+Qed.
+
+Theorem sub_lt_mono_l : ∀ a b c, (c < b)%Z ↔ (a - b < a - c)%Z.
+Proof.
+intros.
+progress unfold Z.lt.
+now rewrite Z.compare_sub_mono_l.
 Qed.
 
 Theorem compare_mul_mono_pos_l :
@@ -1260,14 +1293,14 @@ destruct b as [| sb vb]. {
 destruct c as [| sc vc]; [ now destruct sb | ].
 destruct sb. {
   destruct sc; [ cbn | easy ].
-  rewrite Nat_compare_sub_cancel_r; [ | easy | easy ].
-  rewrite Nat_compare_mul_cancel_l; [ | now rewrite Nat.add_1_r ].
-  now rewrite Nat_compare_add_cancel_r.
+  rewrite Nat_compare_sub_mono_r; [ | easy | easy ].
+  rewrite Nat_compare_mul_mono_l; [ | now rewrite Nat.add_1_r ].
+  now rewrite Nat_compare_add_mono_r.
 } {
   destruct sc; [ easy | cbn ].
-  rewrite Nat_compare_sub_cancel_r; [ | easy | easy ].
-  rewrite Nat_compare_mul_cancel_l; [ | now rewrite Nat.add_1_r ].
-  now rewrite Nat_compare_add_cancel_r.
+  rewrite Nat_compare_sub_mono_r; [ | easy | easy ].
+  rewrite Nat_compare_mul_mono_l; [ | now rewrite Nat.add_1_r ].
+  now rewrite Nat_compare_add_mono_r.
 }
 Qed.
 
@@ -1283,14 +1316,14 @@ destruct b as [| sb vb]. {
 destruct c as [| sc vc]; [ now destruct sb | ].
 destruct sb. {
   destruct sc; [ cbn | easy ].
-  rewrite Nat_compare_sub_cancel_r; [ | easy | easy ].
-  rewrite Nat_compare_mul_cancel_l; [ | now rewrite Nat.add_1_r ].
-  now rewrite Nat_compare_add_cancel_r.
+  rewrite Nat_compare_sub_mono_r; [ | easy | easy ].
+  rewrite Nat_compare_mul_mono_l; [ | now rewrite Nat.add_1_r ].
+  now rewrite Nat_compare_add_mono_r.
 } {
   destruct sc; [ easy | cbn ].
-  rewrite Nat_compare_sub_cancel_r; [ | easy | easy ].
-  rewrite Nat_compare_mul_cancel_l; [ | now rewrite Nat.add_1_r ].
-  now rewrite Nat_compare_add_cancel_r.
+  rewrite Nat_compare_sub_mono_r; [ | easy | easy ].
+  rewrite Nat_compare_mul_mono_l; [ | now rewrite Nat.add_1_r ].
+  now rewrite Nat_compare_add_mono_r.
 }
 Qed.
 
