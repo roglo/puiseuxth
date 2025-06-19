@@ -1278,6 +1278,7 @@ now rewrite Z.compare_add_cancel_l.
 Qed.
 
 (* TODO: Z.compare_mul_cancel_l *)
+...
 
 Theorem mul_le_mono_nonneg_l :
   ∀ a b c, (0 ≤ a)%Z → (b ≤ c)%Z → (a * b ≤ a * c)%Z.
