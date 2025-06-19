@@ -633,6 +633,20 @@ destruct (Z.le_dec (a - b) (a - c)) as [Ha| Ha]. {
 }
 Qed.
 
+Theorem Z_min_l : ∀ a b, (a ≤ b)%Z → Z.min a b = a.
+Proof.
+intros * Hab.
+progress unfold Z.min.
+now destruct (Z.le_dec a b).
+Qed.
+
+Theorem Z_max_r : ∀ a b, (a ≤ b)%Z → Z.max a b = b.
+Proof.
+intros * Hab.
+progress unfold Z.max.
+now destruct (Z.le_dec a b).
+Qed.
+
 Theorem Z2Nat_sub_min1 : ∀ x y z,
   (Z.to_nat (Z.min x y - z) + Z.to_nat (y - x))%nat =
   Z.to_nat (y - Z.min z x).
@@ -640,18 +654,16 @@ Proof.
 intros x y z.
 rewrite <- Z_sub_min_distr_r.
 rewrite <- Z_sub_max_distr_l.
-progress unfold Z.min.
-progress unfold Z.max.
 destruct (Z.le_dec (x - z) (y - z)) as [Hle₁| Hgt₁]. {
+  rewrite Z_min_l; [ idtac | assumption ].
+  apply Z.sub_le_mono_r in Hle₁.
+  destruct (Z.le_dec (y - z) (y - x)) as [Hle₂| Hgt₂]. {
+    rewrite Z_max_r; [ idtac | assumption ].
+    apply Z.sub_le_mono_l in Hle₂.
+    rewrite (Z.sub_le_mono_r _ _ z) in Hle₂.
+    rewrite Z.sub_diag in Hle₂.
 ...
-  rewrite Z.min_l; [ idtac | assumption ].
- apply Z.sub_le_mono_r in Hle₁.
- destruct (Z_le_dec (y - z) (y - x)) as [Hle₂| Hgt₂].
-  rewrite Z.max_r; [ idtac | assumption ].
-  apply Z.sub_le_mono_l in Hle₂.
-  rewrite Z.sub_le_mono_r with (p := z) in Hle₂.
-  rewrite Z.sub_diag in Hle₂.
-  destruct (x - z)%Z as [| p| p]; [ reflexivity | idtac | reflexivity ].
+    destruct (x - z)%Z as [| p| p]; [ reflexivity | idtac | reflexivity ].
   apply Z.le_ngt in Hle₂.
   exfalso; apply Hle₂, Pos2Z.is_pos.
 
