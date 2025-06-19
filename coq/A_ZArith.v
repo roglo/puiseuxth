@@ -18,6 +18,12 @@ Definition z_neg a := z_val false a.
 
 (* misc theorems *)
 
+
+Theorem Nat_1_le_mul_add_1 : ∀ a b, (1 <= (a + 1) * (b + 1))%nat.
+Proof. flia. Qed.
+
+Hint Resolve Nat_1_le_mul_add_1 : core.
+
 Theorem Bool_eqb_comm : ∀ a b, Bool.eqb a b = Bool.eqb b a.
 Proof.
 intros.
@@ -1277,39 +1283,37 @@ progress unfold Z.lt.
 now rewrite Z.compare_add_cancel_l.
 Qed.
 
-(* TODO: Z.compare_mul_cancel_l *)
-...
+Theorem compare_mul_cancel_l :
+  ∀ a b c, (0 < a)%Z → (a * b ?= a * c)%Z = (b ?= c)%Z.
+Proof.
+intros * Hza.
+destruct a as [| sa va]; [ easy | ].
+destruct sa; [ clear Hza | easy ].
+destruct b as [| sb vb]. {
+  destruct c as [| sc vc]; [ easy | now destruct sc ].
+}
+destruct c as [| sc vc]; [ now destruct sb | ].
+destruct sb. {
+  destruct sc; [ cbn | easy ].
+  rewrite Nat_compare_sub_cancel_r; [ | easy | easy ].
+  rewrite Nat_compare_mul_cancel_l; [ | now rewrite Nat.add_1_r ].
+  now rewrite Nat_compare_add_cancel_r.
+} {
+  destruct sc; [ easy | cbn ].
+  rewrite Nat_compare_sub_cancel_r; [ | easy | easy ].
+  rewrite Nat_compare_mul_cancel_l; [ | now rewrite Nat.add_1_r ].
+  now rewrite Nat_compare_add_cancel_r.
+}
+Qed.
 
 Theorem mul_le_mono_nonneg_l :
   ∀ a b c, (0 ≤ a)%Z → (b ≤ c)%Z → (a * b ≤ a * c)%Z.
 Proof.
 intros * Hza Hbc.
-progress unfold Z.le in Hza, Hbc |-*.
-destruct a as [| sa va]; [ easy | cbn ].
-cbn in Hza.
-destruct sa; [ clear Hza | easy ].
-destruct b as [| sb vb]. {
-  cbn in Hbc |-*.
-  destruct c as [| sc vc]; [ easy | ].
-  now destruct sc.
-}
-cbn in Hbc.
-destruct c as [| sc vc]; [ now destruct sb | cbn ].
-destruct sb; cbn. {
-  destruct sc; [ | easy ].
-  apply Nat.compare_le_iff in Hbc.
-  apply Nat.compare_le_iff.
-  apply Nat.sub_le_mono_r.
-  apply Nat.mul_le_mono_l.
-  now apply Nat.add_le_mono_r.
-} {
-  destruct sc; [ easy | ].
-  apply Nat.compare_le_iff in Hbc.
-  apply Nat.compare_le_iff.
-  apply Nat.sub_le_mono_r.
-  apply Nat.mul_le_mono_l.
-  now apply Nat.add_le_mono_r.
-}
+destruct (Z.eq_dec a 0) as [Haz| Haz]; [ now rewrite Haz | ].
+progress unfold Z.le.
+rewrite Z.compare_mul_cancel_l; [ easy | ].
+now apply Z.lt_iff.
 Qed.
 
 Theorem mul_le_mono_nonneg_r :
@@ -1627,50 +1631,8 @@ Theorem mul_le_mono_pos_l :
   ∀ a b c, (0 < a)%Z → (b ≤ c)%Z ↔ (a * b ≤ a * c)%Z.
 Proof.
 intros * Hza.
-destruct a as [| sa va]; [ now apply lt_irrefl in Hza | cbn ].
-destruct sa; [ clear Hza | easy ].
-destruct b as [| sb vb]. {
-  destruct c as [| sc vc]; [ easy | ].
-  now destruct sc.
-}
-destruct c as [| sc vc]; [ now destruct sb | cbn ].
-split; intros Hbc. {
-  destruct sb, sc; [ | easy | easy | ]. {
-    apply Nat.compare_le_iff in Hbc.
-    apply Nat.compare_le_iff.
-    (* lemma *)
-    apply Nat.le_add_le_sub_r.
-    rewrite Nat.sub_add; [ | flia ].
-    apply Nat.mul_le_mono_pos_l; [ flia | ].
-    now apply Nat.add_le_mono_r.
-  } {
-    apply Nat.compare_le_iff in Hbc.
-    apply Nat.compare_le_iff.
-    (* lemma *)
-    apply Nat.le_add_le_sub_r.
-    rewrite Nat.sub_add; [ | flia ].
-    apply Nat.mul_le_mono_pos_l; [ flia | ].
-    now apply Nat.add_le_mono_r.
-  }
-} {
-  destruct sb, sc; [ | easy | easy | ]. {
-    apply Nat.compare_le_iff in Hbc.
-    apply Nat.compare_le_iff.
-    (* lemma *)
-    apply Nat.le_sub_le_add_r in Hbc.
-    rewrite Nat.sub_add in Hbc; [ | flia ].
-    apply Nat.mul_le_mono_pos_l in Hbc; [ | flia ].
-    now apply Nat.add_le_mono_r in Hbc.
-  } {
-    apply Nat.compare_le_iff in Hbc.
-    apply Nat.compare_le_iff.
-    (* lemma *)
-    apply Nat.le_sub_le_add_r in Hbc.
-    rewrite Nat.sub_add in Hbc; [ | flia ].
-    apply Nat.mul_le_mono_pos_l in Hbc; [ | flia ].
-    now apply Nat.add_le_mono_r in Hbc.
-  }
-}
+progress unfold Z.le.
+now rewrite Z.compare_mul_cancel_l.
 Qed.
 
 Theorem mul_le_mono_pos_r :
@@ -1685,50 +1647,8 @@ Theorem mul_lt_mono_pos_l :
   ∀ a b c, (0 < a)%Z → (b < c)%Z ↔ (a * b < a * c)%Z.
 Proof.
 intros * Hza.
-destruct a as [| sa va]; [ now apply lt_irrefl in Hza | cbn ].
-destruct sa; [ clear Hza | easy ].
-destruct b as [| sb vb]. {
-  destruct c as [| sc vc]; [ easy | ].
-  now destruct sc.
-}
-destruct c as [| sc vc]; [ now destruct sb | cbn ].
-split; intros Hbc. {
-  destruct sb, sc; [ | easy | easy | ]. {
-    apply Nat.compare_lt_iff in Hbc.
-    apply Nat.compare_lt_iff.
-    (* lemma *)
-    apply Nat.lt_add_lt_sub_r.
-    rewrite Nat.sub_add; [ | flia ].
-    apply Nat.mul_lt_mono_pos_l; [ flia | ].
-    now apply Nat.add_lt_mono_r.
-  } {
-    apply Nat.compare_lt_iff in Hbc.
-    apply Nat.compare_lt_iff.
-    (* lemma *)
-    apply Nat.lt_add_lt_sub_r.
-    rewrite Nat.sub_add; [ | flia ].
-    apply Nat.mul_lt_mono_pos_l; [ flia | ].
-    now apply Nat.add_lt_mono_r.
-  }
-} {
-  destruct sb, sc; [ | easy | easy | ]. {
-    apply Nat.compare_lt_iff in Hbc.
-    apply Nat.compare_lt_iff.
-    (* lemma *)
-    apply Nat.lt_add_lt_sub_r in Hbc.
-    rewrite Nat.sub_add in Hbc; [ | flia ].
-    apply Nat.mul_lt_mono_pos_l in Hbc; [ | flia ].
-    now apply Nat.add_lt_mono_r in Hbc.
-  } {
-    apply Nat.compare_lt_iff in Hbc.
-    apply Nat.compare_lt_iff.
-    (* lemma *)
-    apply Nat.lt_add_lt_sub_r in Hbc.
-    rewrite Nat.sub_add in Hbc; [ | flia ].
-    apply Nat.mul_lt_mono_pos_l in Hbc; [ | flia ].
-    now apply Nat.add_lt_mono_r in Hbc.
-  }
-}
+progress unfold Z.lt.
+now rewrite Z.compare_mul_cancel_l.
 Qed.
 
 Theorem mul_lt_mono_pos_r :
