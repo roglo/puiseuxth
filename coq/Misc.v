@@ -578,23 +578,6 @@ apply -> Z.lt_0_sub in H.
 now apply Z.nle_gt in H.
 Qed.
 
-Theorem Z2Nat_sub_min1 : ∀ x y z,
-  (Z.to_nat (Z.min x y - z) + Z.to_nat (y - x))%nat =
-  Z.to_nat (y - Z.min z x).
-Proof.
-intros x y z.
-progress unfold Z.min.
-destruct (Z.le_dec x y) as [Hxy| Hxy]. {
-  destruct (Z.le_dec z x) as [Hzx| Hzx]. {
-    progress unfold Z.to_nat.
-    remember (x - z)%Z as xz eqn:Hxz.
-    symmetry in Hxz.
-    destruct xz as [| s v]. {
-      apply -> Z.sub_move_0_r in Hxz; subst z.
-      remember (y - x)%Z as yx eqn:Hyx.
-      symmetry in Hyx.
-      now destruct yx.
-    }
 Theorem Z_sub_min_distr_l :
   ∀ a b c, Z.min (a - b) (a - c) = (a - Z.max b c)%Z.
 Proof.
@@ -610,13 +593,46 @@ destruct (Z.le_dec (a - b) (a - c)) as [Ha| Ha]. {
   progress f_equal.
   apply Z.nle_gt in Ha, Hbc.
   apply Z.sub_lt_mono_l in Ha.
-Check Nat.lt_asymm.
-Check @rngl_lt_asymm.
-Theorem Z_lt_asymm : ∀ a b, (a < b)%Z → ¬ (b < a)%Z.
+  now apply Z.lt_asymm in Ha.
+}
+Qed.
+
+Theorem Z_sub_min_distr_r :
+  ∀ a b c, Z.min (a - c) (b - c) = (Z.min a b - c)%Z.
 Proof.
-intros * Hab.
+intros.
+progress unfold Z.min, Z.max.
+destruct (Z.le_dec (a - c) (b - c)) as [Ha| Ha]. {
+  destruct (Z.le_dec a b) as [Hab| Hab]; [ easy | exfalso ].
+  now apply Z.sub_le_mono_r in Ha.
+} {
+  destruct (Z.le_dec a b) as [Hab| Hab]; [ | easy ].
+  progress f_equal.
+  apply Z.nle_gt in Ha.
 ... ...
-  now apply Z_lt_asymm in Ha.
+  apply Z.sub_lt_mono_r in Ha.
+  now apply Z.lt_asymm in Ha.
+}
+...
+
+Theorem Z2Nat_sub_min1 : ∀ x y z,
+  (Z.to_nat (Z.min x y - z) + Z.to_nat (y - x))%nat =
+  Z.to_nat (y - Z.min z x).
+Proof.
+(*
+intros x y z.
+progress unfold Z.min.
+destruct (Z.le_dec x y) as [Hxy| Hxy]. {
+  destruct (Z.le_dec z x) as [Hzx| Hzx]. {
+    progress unfold Z.to_nat.
+    remember (x - z)%Z as xz eqn:Hxz.
+    symmetry in Hxz.
+    destruct xz as [| s v]. {
+      apply -> Z.sub_move_0_r in Hxz; subst z.
+      remember (y - x)%Z as yx eqn:Hyx.
+      symmetry in Hyx.
+      now destruct yx.
+    }
 ...
   progress f_equal.
   apply Z.sub_le_mono_l in Ha.
@@ -633,8 +649,10 @@ Theorem Z_sub_min_distr_r :
 Theorem Z_sub_min_distr_r :
   ∀ n m p, Z.min (n - p) (m - p) = (Z.min n m - p)%Z.
 ...
+*)
 intros x y z.
-rewrite <- Z.sub_min_distr_r.
+rewrite <- Z_sub_min_distr_r.
+...
 rewrite <- Z.sub_max_distr_l.
 destruct (Z_le_dec (x - z) (y - z)) as [Hle₁| Hgt₁].
  rewrite Z.min_l; [ idtac | assumption ].

@@ -1185,6 +1185,14 @@ rewrite Z.compare_add_mono_l.
 apply Z.compare_opp.
 Qed.
 
+Theorem compare_sub_mono_r :
+  ∀ a b c, (a - c ?= b - c)%Z = (a ?= b)%Z.
+Proof.
+intros.
+progress unfold Z.sub.
+now rewrite Z.compare_add_mono_r.
+Qed.
+
 Theorem le_add_l : ∀ a b, (0 ≤ a)%Z → (b ≤ a + b)%Z.
 Proof.
 progress unfold Z.le.
@@ -1272,6 +1280,13 @@ Proof.
 intros.
 progress unfold Z.le.
 now rewrite Z.compare_sub_mono_l.
+Qed.
+
+Theorem sub_le_mono_r : ∀ a b c, (a ≤ b)%Z ↔ (a - c ≤ b - c)%Z.
+Proof.
+intros.
+progress unfold Z.le.
+now rewrite Z.compare_sub_mono_r.
 Qed.
 
 Theorem sub_lt_mono_l : ∀ a b c, (c < b)%Z ↔ (a - b < a - c)%Z.
@@ -1791,6 +1806,12 @@ Proof.
 intros.
 progress unfold Z.lt.
 now rewrite Z.compare_0_sub.
+Qed.
+
+Theorem lt_asymm : ∀ a b, (a < b)%Z → ¬ (b < a)%Z.
+Proof.
+intros * Hab.
+now apply Z.nlt_ge, Z.lt_le_incl.
 Qed.
 
 End Z.
