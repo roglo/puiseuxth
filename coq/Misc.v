@@ -595,9 +595,21 @@ destruct (Z.le_dec x y) as [Hxy| Hxy]. {
       symmetry in Hyx.
       now destruct yx.
     }
+Theorem Z_sub_min_distr_l :
+  ∀ a b c, Z.min (a - b) (a - c) = (a - Z.max b c)%Z.
+Proof.
+intros.
+progress unfold Z.min, Z.max.
+destruct (Z.le_dec (a - b) (a - c)) as [Habc| Habc]. {
 ...
-Z.sub_min_distr_r
-     : ∀ n m p : Z, Z.min (n - p) (m - p) = (Z.min n m - p)%Z
+  apply Z.sub_le_mono_r in Habc.
+Search (Z.le_dec (_ - _)).
+...
+Theorem Z_sub_min_distr_r :
+  ∀ n m p, Z.min (n - p) (m - p) = (Z.min n m - p)%Z.
+...
+Theorem Z_sub_min_distr_r :
+  ∀ n m p, Z.min (n - p) (m - p) = (Z.min n m - p)%Z.
 ...
 intros x y z.
 rewrite <- Z.sub_min_distr_r.
