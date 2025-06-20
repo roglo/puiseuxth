@@ -743,8 +743,7 @@ Proof. apply Z2Nat.of_nat. Qed.
 Theorem Nat_sub_succ_1 : ∀ n, (S n - 1 = n)%nat.
 Proof. intros n; simpl; rewrite Nat.sub_0_r; reflexivity. Qed.
 
-...
-
+(*
 Theorem Pos2Nat_to_pos : ∀ x,
   (0 < x)%Z
   → Pos.to_nat (Z.to_pos x) = Z.to_nat x.
@@ -758,6 +757,7 @@ destruct x as [| x| x].
  exfalso; apply Z.nle_gt in Hx.
  apply Hx, Pos2Z.neg_is_nonpos.
 Qed.
+*)
 
 Theorem Nat_divides_l : ∀ a b, (∃ c, a = (b * c)%nat) ↔ Nat.divide b a.
 Proof.
@@ -825,7 +825,7 @@ apply Nat.gcd_div_gcd in Hg.
  intros H; apply Hlp; subst g; auto.
 Qed.
 
-Theorem Nat_gcd_le_l : ∀ a b, (a ≠ 0 → Nat.gcd a b ≤ a)%nat.
+Theorem Nat_gcd_le_l : ∀ a b, (a ≠ 0 → Nat.gcd a b <= a)%nat.
 Proof.
 intros * Haz.
 specialize (Nat.gcd_divide_l a b) as Hg.
@@ -834,14 +834,14 @@ destruct c; [ easy | cbn ].
 apply Nat.le_add_r.
 Qed.
 
-Theorem Nat_gcd_le_r : ∀ a b, (b ≠ 0 → Nat.gcd a b ≤ b)%nat.
+Theorem Nat_gcd_le_r : ∀ a b, (b ≠ 0 → Nat.gcd a b <= b)%nat.
 Proof.
 intros a b Hb.
 rewrite Nat.gcd_comm.
 apply Nat_gcd_le_l; assumption.
 Qed.
 
-Theorem Nat_le_lcm_l : ∀ a b, (b ≠ 0 → a ≤ Nat.lcm a b)%nat.
+Theorem Nat_le_lcm_l : ∀ a b, (b ≠ 0 → a <= Nat.lcm a b)%nat.
 Proof.
 intros a b Hb.
 remember Hb as Hab; clear HeqHab.
@@ -948,7 +948,7 @@ Theorem list_skipn_nil : ∀ A n, List.skipn n [] = ([] : list A).
 Proof. intros A n; destruct n; reflexivity. Qed.
 
 Theorem list_skipn_overflow : ∀ A n (cl : list A),
-  length cl ≤ n → List.skipn n cl = [].
+  (length cl <= n)%nat → List.skipn n cl = [].
 Proof.
 intros A n cl H.
 revert n H.
@@ -1025,13 +1025,13 @@ Proof.
 intros a b c H.
 destruct H as (d, H).
 subst a.
-destruct (Z_zerop b) as [Hb| Hb].
+destruct (Z.eq_dec b 0) as [Hb| Hb].
  subst b; rewrite Z.mul_0_r.
  reflexivity.
 
- rewrite Z.div_mul; [ idtac | assumption ].
- rewrite Z.mul_shuffle0.
- rewrite Z.div_mul; [ idtac | assumption ].
+ rewrite Z.mul_div; [ idtac | assumption ].
+ rewrite Z.mul_mul_swap.
+ rewrite Z.mul_div; [ idtac | assumption ].
  reflexivity.
 Qed.
 
@@ -1042,18 +1042,21 @@ intros a b c Ha Hb Hab.
 destruct Ha as (d, Ha).
 destruct Hb as (e, Hb).
 subst a b.
-destruct (Z_zerop c) as [Hc| Hc].
+destruct (Z.eq_dec c 0) as [Hc| Hc].
  subst c.
  do 2 rewrite Z.mul_0_r; reflexivity.
 
- rewrite Z.div_mul in Hab; [ idtac | assumption ].
- rewrite Z.div_mul in Hab; [ idtac | assumption ].
+ rewrite Z.mul_div in Hab; [ idtac | assumption ].
+ rewrite Z.mul_div in Hab; [ idtac | assumption ].
  subst d; reflexivity.
 Qed.
 
-Theorem Z_gcd_pos_r_le : ∀ a b, (Z.gcd a (Zpos b) <= Zpos b)%Z.
+Theorem Z_gcd_pos_r_le : ∀ a b, (Z.gcd a (z_pos b) <= z_pos b)%Z.
 Proof.
 intros a b.
+Theorem Z_gcd_divide_r : ∀ a b : Z, (Z.gcd a b | b)%Z.
+Proof.
+... ...
 pose proof (Z.gcd_divide_r a (Zpos b)) as Hd.
 destruct Hd as (c, Hc).
 rewrite Hc in |- * at 2.

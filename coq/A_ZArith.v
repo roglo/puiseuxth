@@ -288,6 +288,12 @@ Definition abs_nat a :=
   | z_val _ v => (v + 1)%nat
   end.
 
+Definition abs a :=
+  match a with
+  | z_zero => 0%Z
+  | z_val _ v => Z.of_nat (v + 1)
+  end.
+
 Theorem eq_dec : ∀ a b : Z, {a = b} + {a ≠ b}.
 Proof.
 intros.
@@ -357,6 +363,18 @@ Definition eqb a b :=
       end
   end.
 
+Definition divide x y := ∃ z, y = Z.mul z x.
+
+Definition gcd a b :=
+  match a with
+  | z_zero => Z.abs b
+  | z_val sa va =>
+      match b with
+      | z_zero => Z.abs a
+      | z_val sb vb => z_val true (Nat.gcd (va + 1) (vb + 1) - 1)
+      end
+  end.
+
 Notation "a + b" := (Z.add a b) : Z_scope.
 Notation "a - b" := (Z.sub a b) : Z_scope.
 Notation "a * b" := (Z.mul a b) : Z_scope.
@@ -368,6 +386,7 @@ Notation "a ?= b" := (Z.compare a b) : Z_scope.
 Notation "a =? b" := (Z.eqb a b) : Z_scope.
 Notation "a ≤? b" := (Z.leb a b) : Z_scope.
 Notation "a ≤ b ≤ c" := (Z.le a b ∧ Z.le b c) : Z_scope.
+Notation "( x | y )" := (Z.divide x y) : Z_scope.
 
 Instance ring_like_op : ring_like_op Z :=
   {| rngl_zero := z_zero;
@@ -1874,6 +1893,7 @@ Notation "a < b" := (Z.lt a b) : Z_scope.
 Notation "a ?= b" := (Z.compare a b) : Z_scope.
 Notation "a =? b" := (Z.eqb a b) : Z_scope.
 Notation "a ≤ b ≤ c" := (Z.le a b ∧ Z.le b c) : Z_scope.
+Notation "( x | y )" := (Z.divide x y) : Z_scope.
 
 Module Nat2Z.
 
