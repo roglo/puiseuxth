@@ -1056,6 +1056,30 @@ Proof.
 intros a b.
 Theorem Z_gcd_divide_r : ∀ a b : Z, (Z.gcd a b | b)%Z.
 Proof.
+intros.
+progress unfold Z.divide.
+...
+Z.ggcd_gcd
+     : ∀ a b : Z, fst (Z.ggcd a b) = Z.gcd a b
+Z.ggcd_correct_divisors
+     : ∀ a b : Z, let '(g, (aa, bb)) := Z.ggcd a b in a = (g * aa)%Z ∧ b = (g * bb)%Z
+Z.ggcd =
+λ a b : Z,
+  match a with
+  | 0%Z => (Z.abs b, (0%Z, Z.sgn b))
+  | Z.pos a0 =>
+      match b with
+      | 0%Z => (Z.abs a, (Z.sgn a, 0%Z))
+      | Z.pos b0 => let '(g, (aa, bb)) := Pos.ggcd a0 b0 in (Z.pos g, (Z.pos aa, Z.pos bb))
+      | Z.neg b0 => let '(g, (aa, bb)) := Pos.ggcd a0 b0 in (Z.pos g, (Z.pos aa, Z.neg bb))
+      end
+  | Z.neg a0 =>
+      match b with
+      | 0%Z => (Z.abs a, (Z.sgn a, 0%Z))
+      | Z.pos b0 => let '(g, (aa, bb)) := Pos.ggcd a0 b0 in (Z.pos g, (Z.neg aa, Z.pos bb))
+      | Z.neg b0 => let '(g, (aa, bb)) := Pos.ggcd a0 b0 in (Z.pos g, (Z.neg aa, Z.neg bb))
+      end
+  end
 ... ...
 pose proof (Z.gcd_divide_r a (Zpos b)) as Hd.
 destruct Hd as (c, Hc).
