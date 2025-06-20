@@ -758,27 +758,15 @@ Theorem Nat_sub_sub_comm : ∀ m n p, (m - n - p)%nat = (m - p - n)%nat.
 Proof. apply Nat_sub_sub_swap. Qed.
 
 Theorem Z2Nat_id_max : ∀ x, Z.of_nat (Z.to_nat x) = Z.max 0 x.
-Proof.
-intros x.
-progress unfold Z.max.
-destruct (Z.le_dec 0 x) as [Hzx| Hzx]; [ now apply Z2Nat.id | ].
-...
-ZifyInst.of_nat_to_nat_eq: ∀ x : Z, Z.of_nat (Z.to_nat x) = Z.max 0 x
-Z2Nat.id: ∀ n : Z, (0 <= n)%Z → Z.of_nat (Z.to_nat n) = n
-...
-destruct x as [| s v]; [ now destruct (Z.le_dec _ _) | ].
-rewrite Z2Nat.id. {
-  destruct s; cbn.
-destruct x as [| s v]; [ reflexivity | idtac ].
-rewrite Z2Nat.id; [ reflexivity | apply Pos2Z.is_nonneg ].
-Qed.
+Proof. apply Z2Nat.of_nat. Qed.
 
 Theorem Nat_sub_succ_1 : ∀ n, (S n - 1 = n)%nat.
 Proof. intros n; simpl; rewrite Nat.sub_0_r; reflexivity. Qed.
 
-Theorem Z_div_pos_is_nonneg : ∀ x y, (0 <= Zpos x / Zpos y)%Z.
+Theorem Z_div_pos_is_nonneg : ∀ x y, (0 <= z_pos x / z_pos y)%Z.
 Proof.
 intros x y.
+...
 apply Z.div_pos.
  apply Pos2Z.is_nonneg.
 

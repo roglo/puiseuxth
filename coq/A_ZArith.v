@@ -1921,6 +1921,15 @@ destruct a as [| sa va]; [ easy | ].
 destruct sa; [ now cbn; rewrite Nat.add_1_r | easy ].
 Qed.
 
+Theorem of_nat : ∀ a, Z.of_nat (Z.to_nat a) = Z.max 0 a.
+Proof.
+intros.
+progress unfold Z.max.
+destruct (Z.le_dec 0 a) as [Hza| Hza]; [ now apply Z2Nat.id | ].
+apply Z.nle_gt in Hza.
+destruct a as [| sa va]; [ easy | now destruct sa ].
+Qed.
+
 Theorem inj_add :
   ∀ a b,
   (0 ≤ a)%Z
