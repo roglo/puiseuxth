@@ -1326,6 +1326,14 @@ destruct sb. {
 }
 Qed.
 
+Theorem compare_mul_mono_pos_r :
+  ∀ a b c, (0 < c)%Z → (a * c ?= b * c)%Z = (a ?= b)%Z.
+Proof.
+intros * Hza.
+do 2 rewrite (Z.mul_comm _ c).
+now apply Z.compare_mul_mono_pos_l.
+Qed.
+
 Theorem compare_mul_mono_neg_l :
   ∀ a b c, (a < 0)%Z → (a * b ?= a * c)%Z = (c ?= b)%Z.
 Proof.

@@ -350,28 +350,7 @@ Qed.
 (* Zplus_cmp_compat_r → Z.compare_add_cancel_r *)
 (* Qlt_plus_minus_lt_r → Q.lt_sub_lt_add_r *)
 (* Qplus_lt_lt_minus_r → Q.lt_add_lt_sub_r *)
-
-Theorem Zmult_cmp_compat_r : ∀ n m p,
-  (0 < p)%Z
-  → (n ?= m)%Z = (n * p ?= m * p)%Z.
-Proof.
-intros a b c Hz.
-remember (a ?= b)%Z as e eqn:He.
-symmetry in He |-*.
-destruct e. {
-  apply Z.compare_eq_iff in He.
-  apply Z.compare_eq_iff.
-  now subst a.
-} {
-  apply -> Z.compare_lt_iff in He.
-  apply Z.compare_lt_iff.
-  now apply Z.mul_lt_mono_pos_r.
-} {
-  apply Z.compare_gt_iff in He.
-  apply Z.compare_gt_iff.
-  now apply Z.mul_lt_mono_pos_r.
-}
-Qed.
+(* Zmult_cmp_compat_r → Z.compare_mul_mono_pos_r *)
 
 Theorem Qplus_cmp_compat_r : ∀ x y z,
   (x ?= y) = (x + z ?= y + z).
@@ -766,6 +745,9 @@ Proof. intros n; simpl; rewrite Nat.sub_0_r; reflexivity. Qed.
 Theorem Z_div_pos_is_nonneg : ∀ x y, (0 <= z_pos x / z_pos y)%Z.
 Proof.
 intros x y.
+Theorem Z_div_pos: ∀ a b, (0 < a)%Z → (0 < b)%Z → (0 < a / b)%Z.
+Proof.
+intros * Hza Hzb.
 ...
 rngl_div_nonneg:
   ∀ {T : Type} {ro : ring_like_op T},
@@ -774,13 +756,6 @@ rngl_div_nonneg:
       → rngl_has_opp T = true
         → rngl_has_inv T = true
           → rngl_is_ordered T = true → ∀ a b : T, (0 ≤ a)%L → (0 < b)%L → (0 ≤ a / b)%L
-rngl_div_pos:
-  ∀ {T : Type} {ro : ring_like_op T},
-    ring_like_prop T
-    → rngl_has_1 T = true
-      → rngl_has_opp T = true
-        → rngl_has_inv T = true
-          → rngl_is_ordered T = true → ∀ a b : T, (0 < a)%L → (0 < b)%L → (0 < a / b)%L
 ...
 apply Z.div_pos.
  apply Pos2Z.is_nonneg.
