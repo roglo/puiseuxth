@@ -767,6 +767,21 @@ Theorem Z_div_pos_is_nonneg : ∀ x y, (0 <= z_pos x / z_pos y)%Z.
 Proof.
 intros x y.
 ...
+rngl_div_nonneg:
+  ∀ {T : Type} {ro : ring_like_op T},
+    ring_like_prop T
+    → rngl_has_1 T = true
+      → rngl_has_opp T = true
+        → rngl_has_inv T = true
+          → rngl_is_ordered T = true → ∀ a b : T, (0 ≤ a)%L → (0 < b)%L → (0 ≤ a / b)%L
+rngl_div_pos:
+  ∀ {T : Type} {ro : ring_like_op T},
+    ring_like_prop T
+    → rngl_has_1 T = true
+      → rngl_has_opp T = true
+        → rngl_has_inv T = true
+          → rngl_is_ordered T = true → ∀ a b : T, (0 < a)%L → (0 < b)%L → (0 < a / b)%L
+...
 apply Z.div_pos.
  apply Pos2Z.is_nonneg.
 
