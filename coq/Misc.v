@@ -640,6 +640,14 @@ progress unfold Z.min.
 now destruct (Z.le_dec a b).
 Qed.
 
+Theorem Z_min_r : ∀ a b, (b ≤ a)%Z → Z.min a b = b.
+Proof.
+intros * Hab.
+progress unfold Z.min.
+destruct (Z.le_dec a b); [ | easy ].
+now apply Z.le_antisymm.
+Qed.
+
 Theorem Z_max_l : ∀ a b, (b ≤ a)%Z → Z.max a b = a.
 Proof.
 intros * Hab.
@@ -679,33 +687,28 @@ destruct (Z.le_dec (x - z) (y - z)) as [Hle₁| Hgt₁]. {
   rewrite Z.sub_diag in Hle₁.
   rewrite (Z.sub_le_mono_r _ _ z) in Hgt₂.
   rewrite Z.sub_diag in Hgt₂.
-...
-  rewrite <- Z2Nat.inj_add; [ idtac | assumption | assumption ].
-  rewrite Z.add_comm, Z.add_sub_assoc, Z.sub_add.
-  reflexivity.
-
- apply Z.nle_gt, Z.lt_le_incl in Hgt₁.
- rewrite Z.min_r; [ idtac | assumption ].
- apply Z.sub_le_mono_r in Hgt₁.
- destruct (Z_le_dec (y - z) (y - x)) as [Hle₂| Hgt₂].
-  rewrite Z.max_r; [ idtac | assumption ].
+  rewrite <- Z2Nat.inj_add; [ | easy | easy ].
+  now rewrite Z.add_comm, Z.add_sub_assoc, Z.sub_add.
+}
+apply Z.nle_gt, Z.lt_le_incl in Hgt₁.
+rewrite Z_min_r; [ | easy ].
+apply Z.sub_le_mono_r in Hgt₁.
+destruct (Z.le_dec (y - z) (y - x)) as [Hle₂| Hgt₂]. {
+  rewrite Z_max_r; [ | easy ].
   apply Z.sub_le_mono_l in Hle₂.
   eapply Z.le_trans in Hle₂; [ idtac | eassumption ].
-  rewrite Z.sub_le_mono_r with (p := z) in Hle₂.
+  rewrite (Z.sub_le_mono_r _ _ z) in Hle₂.
   rewrite Z.sub_diag in Hle₂.
-  destruct (y - z)%Z as [| p| p]; [ reflexivity | idtac | reflexivity ].
-  apply Z.le_ngt in Hle₂.
-  exfalso; apply Hle₂, Pos2Z.is_pos.
-
+  destruct (y - z)%Z as [| s v]; [ easy | now destruct s ].
+} {
   apply Z.nle_gt, Z.lt_le_incl in Hgt₂.
-  rewrite Z.max_l; [ idtac | assumption ].
+  rewrite Z_max_l; [ idtac | assumption ].
   apply Z.sub_le_mono_l in Hgt₂.
-  rewrite Z.sub_le_mono_r with (p := x) in Hgt₁.
+  rewrite (Z.sub_le_mono_r _ _ x) in Hgt₁.
   rewrite Z.sub_diag in Hgt₁.
   rewrite Nat.add_comm.
-  destruct (y - x)%Z as [| p| p]; [ reflexivity | idtac | reflexivity ].
-  apply Z.le_ngt in Hgt₁.
-  exfalso; apply Hgt₁, Pos2Z.is_pos.
+  destruct (y - x)%Z as [| s v]; [ easy | now destruct s ].
+}
 Qed.
 
 Theorem Z2Nat_sub_min2 : ∀ x y z,
@@ -713,9 +716,10 @@ Theorem Z2Nat_sub_min2 : ∀ x y z,
   Z.to_nat (x - Z.min y z).
 Proof.
 intros x y z.
-rewrite <- Z.sub_min_distr_r.
-rewrite <- Z.sub_max_distr_l.
-destruct (Z_le_dec (x - z) (y - z)) as [Hle₁| Hgt₁].
+rewrite <- Z_sub_min_distr_r.
+rewrite <- Z_sub_max_distr_l.
+destruct (Z.le_dec (x - z) (y - z)) as [Hle₁| Hgt₁]. {
+...
  rewrite Z.min_l; [ idtac | assumption ].
  apply Z.sub_le_mono_r in Hle₁.
  destruct (Z_le_dec (x - y) (x - z)) as [Hle₂| Hgt₂].

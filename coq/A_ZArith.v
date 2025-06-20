@@ -1891,6 +1891,22 @@ destruct a as [| sa va]; [ easy | ].
 destruct sa; [ now cbn; rewrite Nat.add_1_r | easy ].
 Qed.
 
+Theorem inj_add :
+  ∀ a b,
+  (0 ≤ a)%Z
+  → (0 ≤ b)%Z
+  → Z.to_nat (a + b) = (Z.to_nat a + Z.to_nat b)%nat.
+Proof.
+intros * Hza Hzb.
+destruct a as [| sa va]; [ easy | ].
+destruct b as [| sb vb]; [ easy | ].
+destruct sa; [ | easy ].
+destruct sb; [ cbn | easy ].
+rewrite Nat.add_assoc.
+progress f_equal.
+apply Nat.add_shuffle0.
+Qed.
+
 End Z2Nat.
 
 Definition Z_ring_theory : ring_theory 0%Z 1%Z Z.add Z.mul Z.sub Z.opp eq :=
