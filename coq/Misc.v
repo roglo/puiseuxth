@@ -351,6 +351,7 @@ Qed.
 (* Qlt_plus_minus_lt_r → Q.lt_sub_lt_add_r *)
 (* Qplus_lt_lt_minus_r → Q.lt_add_lt_sub_r *)
 (* Zmult_cmp_compat_r → Z.compare_mul_mono_pos_r *)
+(* Z_div_pos_is_nonneg → Nat2Z.is_nonneg *)
 
 Theorem Qplus_cmp_compat_r : ∀ x y z,
   (x ?= y) = (x + z ?= y + z).
@@ -742,26 +743,7 @@ Proof. apply Z2Nat.of_nat. Qed.
 Theorem Nat_sub_succ_1 : ∀ n, (S n - 1 = n)%nat.
 Proof. intros n; simpl; rewrite Nat.sub_0_r; reflexivity. Qed.
 
-Theorem Z_div_pos_is_nonneg : ∀ x y, (0 <= z_pos x / z_pos y)%Z.
-Proof.
-intros x y.
-Theorem Z_div_pos: ∀ a b, (0 < a)%Z → (0 < b)%Z → (0 < a / b)%Z.
-Proof.
-intros * Hza Hzb.
 ...
-rngl_div_nonneg:
-  ∀ {T : Type} {ro : ring_like_op T},
-    ring_like_prop T
-    → rngl_has_1 T = true
-      → rngl_has_opp T = true
-        → rngl_has_inv T = true
-          → rngl_is_ordered T = true → ∀ a b : T, (0 ≤ a)%L → (0 < b)%L → (0 ≤ a / b)%L
-...
-apply Z.div_pos.
- apply Pos2Z.is_nonneg.
-
- apply Pos2Z.is_pos.
-Qed.
 
 Theorem Pos2Nat_to_pos : ∀ x,
   (0 < x)%Z
