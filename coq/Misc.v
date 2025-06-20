@@ -729,43 +729,38 @@ destruct (Z.le_dec (x - y) (x - z)) as [Hle₂| Hgt₂]. {
 }
 Qed.
 
-...
-
 Theorem Z2Nat_inj_mul_pos_r : ∀ n m,
-  Z.to_nat (n * z_pos m) = (Z.to_nat n * Pos.to_nat m)%nat.
+  Z.to_nat (n * z_pos m) = (Z.to_nat n * (m + 1))%nat.
 Proof.
 intros n m.
-destruct n as [| n| ]; [ reflexivity | simpl | reflexivity ].
-rewrite Pos2Nat.inj_mul; reflexivity.
+destruct n as [| s v]; [ easy | cbn ].
+destruct s; [ cbn | easy ].
+now apply Nat.sub_add.
 Qed.
 
-Theorem Nat_sub_sub_distr : ∀ n m p, (p ≤ m → n - (m - p) = n + p - m)%nat.
+Theorem Nat_sub_sub_distr : ∀ n m p, (p <= m → n - (m - p) = n + p - m)%nat.
 Proof.
 intros n m p Hpm.
 rewrite Nat.add_comm.
 revert n m Hpm.
-induction p; intros.
- rewrite Nat.sub_0_r, Nat.add_0_l; reflexivity.
-
- destruct m as [| m].
+induction p; intros. {
+  rewrite Nat.sub_0_r, Nat.add_0_l; reflexivity.
+}
+destruct m as [| m]. {
   exfalso; revert Hpm; apply Nat.nle_succ_0.
-
-  rewrite Nat.sub_succ; simpl.
-  apply Nat.succ_le_mono in Hpm.
-  apply IHp; assumption.
+}
+rewrite Nat.sub_succ; simpl.
+apply Nat.succ_le_mono in Hpm.
+apply IHp; assumption.
 Qed.
 
 Theorem Nat_sub_sub_comm : ∀ m n p, (m - n - p)%nat = (m - p - n)%nat.
-Proof.
-intros.
-do 2 rewrite <- Nat.sub_add_distr.
-rewrite Nat.add_comm.
-apply eq_refl.
-Qed.
+Proof. apply Nat_sub_sub_swap. Qed.
 
 Theorem Z2Nat_id_max : ∀ x, Z.of_nat (Z.to_nat x) = Z.max 0 x.
 Proof.
 intros x.
+...
 destruct x as [| x| x]; [ reflexivity | idtac | reflexivity ].
 rewrite Z2Nat.id; [ reflexivity | apply Pos2Z.is_nonneg ].
 Qed.
