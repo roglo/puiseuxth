@@ -1821,6 +1821,36 @@ intros * Hab.
 now apply Z.nlt_ge, Z.lt_le_incl.
 Qed.
 
+Theorem min_l : ∀ a b, (a ≤ b)%Z → Z.min a b = a.
+Proof.
+intros * Hab.
+progress unfold Z.min.
+now destruct (Z.le_dec a b).
+Qed.
+
+Theorem min_r : ∀ a b, (b ≤ a)%Z → Z.min a b = b.
+Proof.
+intros * Hab.
+progress unfold Z.min.
+destruct (Z.le_dec a b); [ | easy ].
+now apply Z.le_antisymm.
+Qed.
+
+Theorem max_l : ∀ a b, (b ≤ a)%Z → Z.max a b = a.
+Proof.
+intros * Hab.
+progress unfold Z.max.
+destruct (Z.le_dec a b); [ | easy ].
+now apply Z.le_antisymm.
+Qed.
+
+Theorem max_r : ∀ a b, (a ≤ b)%Z → Z.max a b = b.
+Proof.
+intros * Hab.
+progress unfold Z.max.
+now destruct (Z.le_dec a b).
+Qed.
+
 End Z.
 
 Number Notation Z Z.of_number Z.to_number : Z_scope.
