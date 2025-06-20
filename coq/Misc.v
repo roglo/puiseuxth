@@ -760,8 +760,16 @@ Proof. apply Nat_sub_sub_swap. Qed.
 Theorem Z2Nat_id_max : ∀ x, Z.of_nat (Z.to_nat x) = Z.max 0 x.
 Proof.
 intros x.
+progress unfold Z.max.
+destruct (Z.le_dec 0 x) as [Hzx| Hzx]; [ now apply Z2Nat.id | ].
 ...
-destruct x as [| x| x]; [ reflexivity | idtac | reflexivity ].
+ZifyInst.of_nat_to_nat_eq: ∀ x : Z, Z.of_nat (Z.to_nat x) = Z.max 0 x
+Z2Nat.id: ∀ n : Z, (0 <= n)%Z → Z.of_nat (Z.to_nat n) = n
+...
+destruct x as [| s v]; [ now destruct (Z.le_dec _ _) | ].
+rewrite Z2Nat.id. {
+  destruct s; cbn.
+destruct x as [| s v]; [ reflexivity | idtac ].
 rewrite Z2Nat.id; [ reflexivity | apply Pos2Z.is_nonneg ].
 Qed.
 
