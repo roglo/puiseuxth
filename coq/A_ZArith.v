@@ -812,11 +812,10 @@ destruct sa, sb; [ | easy | easy | ]. {
 Qed.
 
 Theorem compare_lt_iff : ∀ a b, (a ?= b)%Z = Lt ↔ (a < b)%Z.
-Proof.
-intros.
-progress unfold Z.lt.
-now destruct (a ?= b)%Z.
-Qed.
+Proof. easy. Qed.
+
+Theorem compare_le_iff : ∀ a b, (a ?= b)%Z ≠ Gt ↔ (a ≤ b)%Z.
+Proof. easy. Qed.
 
 Theorem compare_gt_iff : ∀ a b, (a ?= b)%Z = Gt ↔ (b < a)%Z.
 Proof.

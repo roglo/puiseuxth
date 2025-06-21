@@ -553,6 +553,9 @@ Proof. intros; apply Z.compare_eq_iff. Qed.
 Theorem compare_lt_iff : ∀ a b, (a ?= b)%Q = Lt ↔ (a < b)%Q.
 Proof. intros; apply Z.compare_lt_iff. Qed.
 
+Theorem compare_le_iff : ∀ a b, (a ?= b)%Q ≠ Gt ↔ (a ≤ b)%Q.
+Proof. intros; apply Z.compare_le_iff. Qed.
+
 Theorem compare_gt_iff : ∀ a b, (a ?= b)%Q = Gt ↔ (b < a)%Q.
 Proof. intros; apply Z.compare_gt_iff. Qed.
 
@@ -607,25 +610,50 @@ Qed.
 Theorem fold_q_Den : ∀ a, Z.of_nat (q_den a + 1) = q_Den a.
 Proof. easy. Qed.
 
-Theorem add_le_mono_l : ∀ a b c, (b ≤ c → a + b ≤ a + c)%Q.
+Theorem compare_add_mono_l : ∀ a b c, (a + b ?= a + c)%Q = (b ?= c)%Q.
 Proof.
-intros * Hle.
-progress unfold Q.le in Hle |-*.
+intros.
+progress unfold Q.compare.
 progress unfold Q.add; cbn.
 do 2 rewrite q_Den_num_den.
 progress unfold pos_mul.
 rewrite Nat.sub_add; [ | easy ].
 rewrite Nat.sub_add; [ | easy ].
 do 2 rewrite Nat2Z.inj_mul.
-do 3 rewrite fold_q_Den.
+do 3 rewrite Q.fold_q_Den.
 do 2 rewrite (Z.mul_comm (q_Den a)).
 do 2 rewrite Z.mul_assoc.
-apply Z.mul_le_mono_pos_r; [ easy | ].
+rewrite Z.compare_mul_mono_pos_r; [ | easy ].
 do 2 rewrite Z.mul_add_distr_r.
-rewrite Z.mul_mul_swap.
-apply Z.add_le_mono_l.
+rewrite (Z.mul_mul_swap _ (q_Den c)).
+rewrite Z.compare_add_mono_l.
 do 2 rewrite (Z.mul_mul_swap _ (q_Den a)).
-now apply Z.mul_le_mono_pos_r.
+now rewrite Z.compare_mul_mono_pos_r.
+Qed.
+
+Theorem compare_add_mono_r : ∀ a b c, (a + c ?= b + c)%Q = (a ?= b)%Q.
+Proof.
+intros.
+do 2 rewrite (Q.add_comm _ c).
+apply Q.compare_add_mono_l.
+Qed.
+
+Theorem add_le_mono_l : ∀ a b c, (b ≤ c ↔ a + b ≤ a + c)%Q.
+Proof.
+intros.
+split; intros H. {
+  apply Q.compare_le_iff in H.
+  apply -> Q.compare_le_iff.
+  intros H1; apply H; clear H.
+  rewrite <- H1; symmetry.
+  apply Q.compare_add_mono_l.
+} {
+  apply Q.compare_le_iff in H.
+  apply -> Q.compare_le_iff.
+  intros H1; apply H; clear H.
+  rewrite <- H1.
+  apply Q.compare_add_mono_l.
+}
 Qed.
 
 Theorem add_le_mono_r : ∀ a b c, (a ≤ b → a + c ≤ b + c)%Q.
@@ -646,30 +674,16 @@ Qed.
 Theorem add_lt_mono_l : ∀ a b c, (b < c ↔ a + b < a + c)%Q.
 Proof.
 intros.
-progress unfold Q.lt.
-progress unfold Q.add; cbn.
-do 2 rewrite q_Den_num_den.
-progress unfold pos_mul.
-rewrite Nat.sub_add; [ | easy ].
-rewrite Nat.sub_add; [ | easy ].
-do 2 rewrite Nat2Z.inj_mul.
-do 3 rewrite Q.fold_q_Den.
-do 2 rewrite (Z.mul_comm (q_Den a)).
-do 2 rewrite Z.mul_assoc.
-split; intros Hlt. {
-  apply Z.mul_lt_mono_pos_r; [ easy | ].
-  do 2 rewrite Z.mul_add_distr_r.
-  rewrite Z.mul_mul_swap.
-  apply Z.add_lt_mono_l.
-  do 2 rewrite (Z.mul_mul_swap _ (q_Den a)).
-  now apply Z.mul_lt_mono_pos_r.
+split; intros H. {
+  apply Q.compare_lt_iff in H.
+  apply -> Q.compare_lt_iff.
+  rewrite <- H.
+  apply Q.compare_add_mono_l.
 } {
-  apply Z.mul_lt_mono_pos_r in Hlt; [ | easy ].
-  do 2 rewrite Z.mul_add_distr_r in Hlt.
-  rewrite Z.mul_mul_swap in Hlt.
-  apply Z.add_lt_mono_l in Hlt.
-  do 2 rewrite (Z.mul_mul_swap _ (q_Den a)) in Hlt.
-  now apply Z.mul_lt_mono_pos_r in Hlt.
+  apply Q.compare_lt_iff in H.
+  apply -> Q.compare_lt_iff.
+  rewrite <- H; symmetry.
+  apply Q.compare_add_mono_l.
 }
 Qed.
 

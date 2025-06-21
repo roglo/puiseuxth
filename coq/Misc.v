@@ -352,33 +352,13 @@ Qed.
 (* Qplus_lt_lt_minus_r → Q.lt_add_lt_sub_r *)
 (* Zmult_cmp_compat_r → Z.compare_mul_mono_pos_r *)
 (* Z_div_pos_is_nonneg → Nat2Z.is_nonneg *)
-
-Theorem Qplus_cmp_compat_r : ∀ x y z,
-  (x ?= y) = (x + z ?= y + z).
-Proof.
-intros a b c.
-remember (a ?= b)%Q as e eqn:He.
-symmetry in He |-*.
-destruct e. {
-  apply Q.compare_eq_iff in He.
-  apply Q.compare_eq_iff.
-  now rewrite He.
-} {
-  apply -> Q.compare_lt_iff in He.
-  apply Q.compare_lt_iff.
-  now apply Q.add_lt_mono_r.
-} {
-  apply Q.compare_gt_iff in He.
-  apply Q.compare_gt_iff.
-  now apply Q.add_lt_mono_r.
-}
-Qed.
+(* Qplus_cmp_compat_r → Q.compare_add_mono_r *)
 
 Theorem Qcmp_plus_minus_cmp_r : ∀ x y z,
   (x ?= y + z) = (x - z ?= y).
 Proof.
 intros a b c.
-rewrite (Qplus_cmp_compat_r _ _ (-c)).
+rewrite <- (Q.compare_add_mono_r _ _ (- c)).
 do 2 rewrite Q.fold_sub.
 now rewrite Q.add_sub.
 Qed.
@@ -468,7 +448,7 @@ Theorem Qplus_cmp_cmp_minus_r : ∀ x y z,
   (x + y ?= z) = (x ?= z - y).
 Proof.
 intros x y z.
-rewrite Qplus_cmp_compat_r with (z := - y).
+rewrite <- (Q.compare_add_mono_r _ _ (-y)).
 rewrite <- Q.add_assoc.
 rewrite Q_add_opp_diag_r.
 now rewrite Q.add_0_r.
@@ -479,7 +459,7 @@ Theorem Qplus_cmp_compat_l : ∀ x y z,
 Proof.
 intros x y z.
 do 2 rewrite (Q.add_comm z).
-apply Qplus_cmp_compat_r.
+symmetry; apply Q.compare_add_mono_r.
 Qed.
 
 Theorem list_Forall_inv : ∀ A (P : A → Prop) a l,
@@ -1091,6 +1071,7 @@ Qed.
 Theorem Qlt_sub_lt_add_l : ∀ n m p, (n - m < p)%Q ↔ (n < m + p)%Q.
 Proof.
 intros n m p.
+...
 Search (_ - _ < _)%Z.
 Check Z.compare_sub_mono_r.
 Check Qcmp_plus_minus_cmp_r.
