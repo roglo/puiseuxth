@@ -354,6 +354,7 @@ Qed.
 (* Z_div_pos_is_nonneg → Nat2Z.is_nonneg *)
 (* Qplus_cmp_compat_r → Q.compare_add_mono_r *)
 
+(*
 Theorem Qcmp_plus_minus_cmp_r : ∀ x y z,
   (x ?= y + z) = (x - z ?= y).
 Proof.
@@ -362,6 +363,7 @@ rewrite <- (Q.compare_add_mono_r _ _ (- c)).
 do 2 rewrite Q.fold_sub.
 now rewrite Q.add_sub.
 Qed.
+*)
 
 Theorem Qeq_plus_minus_eq_r : ∀ x y z, x == y + z → x - z == y.
 Proof.
@@ -1071,65 +1073,32 @@ Qed.
 Theorem Qlt_sub_lt_add_l : ∀ n m p, (n - m < p)%Q ↔ (n < m + p)%Q.
 Proof.
 intros n m p.
-...
-Search (_ - _ < _)%Z.
-Check Z.compare_sub_mono_r.
-Check Qcmp_plus_minus_cmp_r.
-...
-Search (_ < _ - _)%Z.
-Search (_ - _ ≤ _)%Z.
-Search (_ ≤ _ - _)%Z.
-Check Qcmp_plus_minus_cmp_r.
-Search ((_ ?= _) = (_ ?= _))%Z.
-Check Qplus_cmp_compat_r.
-...
 split; intros H. {
   apply Q.compare_lt_iff in H.
   apply -> Q.compare_lt_iff.
   rewrite <- H.
   rewrite Q.add_comm.
-  apply Qcmp_plus_minus_cmp_r.
+  rewrite <- (Q.compare_add_mono_r _ _ (-m)).
+  rewrite <- Q.add_assoc.
+  rewrite Q_add_opp_diag_r.
+  now rewrite Q.add_0_r.
+} {
+  apply Q.compare_lt_iff in H.
+  apply -> Q.compare_lt_iff.
+  rewrite <- H.
+  rewrite Q.add_comm.
+  symmetry.
+  rewrite <- (Q.compare_add_mono_r _ _ (-m)).
+  rewrite <- Q.add_assoc.
+  rewrite Q_add_opp_diag_r.
+  now rewrite Q.add_0_r.
 }
-Search ((_ ?= _) = (_ ?= _))%Z.
-apply Qcmp_plus_minus_cmp_l.
-Check Q.compare_lt_iff.
-
-...
-Search Q.compare.
-progress unfold Q.lt.
-...
-intros n m p.
-destruct p as (pn, pd).
-destruct m as (mn, md).
-destruct n as (nn, nd).
-unfold Q.lt; cbn.
-progress unfold Q.opp.
-do 4 rewrite q_Den_num_den.
-cbn.
-split; intros H.
- rewrite Z.mul_add_distr_r.
- apply Z.lt_sub_lt_add_l.
- rewrite Z.mul_shuffle0, Pos2Z.inj_mul, Z.mul_assoc.
- rewrite <- Z.mul_sub_distr_r, Z.mul_shuffle0.
- rewrite <- Z.mul_assoc, <- Pos2Z.inj_mul.
- rewrite <- Z.add_opp_r.
- rewrite <- Z.mul_opp_l; assumption.
-
- rewrite Z.mul_add_distr_r.
- do 2 rewrite Z.mul_opp_l.
- rewrite Z.add_opp_r.
- apply Z.lt_sub_lt_add_l.
- rewrite Pos2Z.inj_mul, Z.mul_assoc.
- rewrite Pos2Z.inj_mul, Z.mul_assoc in H.
- rewrite Z.mul_add_distr_r in H.
- remember (nn * Zpos md * Zpos pd)%Z as x.
- rewrite Z.mul_shuffle0.
- remember (mn * Zpos pd * Zpos nd)%Z as y.
- rewrite Z.mul_shuffle0; assumption.
 Qed.
 
 Theorem Qle_sub_le_add_l : ∀ n m p, (n - m <= p)%Q ↔ (n <= m + p)%Q.
 Proof.
+intros n m p.
+...
 intros n m p.
 destruct p as (pn, pd).
 destruct m as (mn, md).
