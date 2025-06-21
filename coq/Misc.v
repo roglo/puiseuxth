@@ -1136,16 +1136,15 @@ intros a b Hb.
 pose proof (Z.gcd_divide_r a b) as H.
 destruct H as (c, Hc).
 rewrite Hc in |- * at 1.
+rewrite Z.divide_div_mul_exact. {
+  rewrite Z.div_same. {
+    rewrite Z.mul_1_r.
+    destruct c as [| sc vc]; [ now cbn in Hc; subst b | ].
+    destruct sc; [ easy | ].
+    rewrite Hc in Hb.
 ...
-Z.divide_div_mul_exact
-     : ∀ a b c : Z, b ≠ 0%Z → (b | a)%Z → (c * a / b)%Z = (c * (a / b))%Z
-...
-rewrite Z.divide_div_mul_exact.
- rewrite Z.div_same.
-  rewrite Z.mul_1_r.
-  destruct c as [| c| c].
-   simpl in Hc; subst b; assumption.
-
+    apply Z.lt_0_mul in Hb.
+  }
    apply Pos2Z.is_pos.
 
    remember Hb as H; clear HeqH.

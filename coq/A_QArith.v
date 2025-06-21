@@ -1014,6 +1014,9 @@ rewrite Q.mul_comm.
 now apply Q.mul_inv_diag_l.
 Qed.
 
+Theorem div_same : ∀ a, (¬ a == 0 → a / a == 1)%Q.
+Proof. apply Q.mul_inv_diag_r. Qed.
+
 Theorem mul_div : ∀ a b, (¬ b == 0 → a * b / b == a)%Q.
 Proof.
 intros * Hz.

@@ -1934,6 +1934,26 @@ Qed.
 
 (* *)
 
+Theorem divide_div_mul_exact :
+  ∀ a b c, b ≠ 0%Z → (b | a)%Z → (c * a / b)%Z = (c * (a / b))%Z.
+Proof.
+intros * Hbz Hba.
+destruct Hba as (d, Hba).
+subst a.
+rewrite Z.mul_assoc.
+rewrite Z.mul_div; [ | easy ].
+now rewrite Z.mul_div.
+Qed.
+
+Theorem div_same: ∀ a, a ≠ 0%Z → (a / a)%Z = 1%Z.
+Proof.
+intros * Haz.
+destruct a as [| sa va]; [ easy | cbn ].
+rewrite Bool.eqb_reflx.
+rewrite Nat.div_same; [ easy | ].
+now rewrite Nat.add_1_r.
+Qed.
+
 End Z.
 
 Number Notation Z Z.of_number Z.to_number : Z_scope.
