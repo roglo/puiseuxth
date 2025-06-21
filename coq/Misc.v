@@ -1091,11 +1091,40 @@ Qed.
 Theorem Qlt_sub_lt_add_l : ∀ n m p, (n - m < p)%Q ↔ (n < m + p)%Q.
 Proof.
 intros n m p.
+Search (_ - _ < _)%Z.
+Check Z.compare_sub_mono_r.
+Check Qcmp_plus_minus_cmp_r.
+...
+Search (_ < _ - _)%Z.
+Search (_ - _ ≤ _)%Z.
+Search (_ ≤ _ - _)%Z.
+Check Qcmp_plus_minus_cmp_r.
+Search ((_ ?= _) = (_ ?= _))%Z.
+Check Qplus_cmp_compat_r.
+...
+split; intros H. {
+  apply Q.compare_lt_iff in H.
+  apply -> Q.compare_lt_iff.
+  rewrite <- H.
+  rewrite Q.add_comm.
+  apply Qcmp_plus_minus_cmp_r.
+}
+Search ((_ ?= _) = (_ ?= _))%Z.
+apply Qcmp_plus_minus_cmp_l.
+Check Q.compare_lt_iff.
+
+...
+Search Q.compare.
+progress unfold Q.lt.
+...
+intros n m p.
 destruct p as (pn, pd).
 destruct m as (mn, md).
 destruct n as (nn, nd).
-...
-unfold Qlt; simpl.
+unfold Q.lt; cbn.
+progress unfold Q.opp.
+do 4 rewrite q_Den_num_den.
+cbn.
 split; intros H.
  rewrite Z.mul_add_distr_r.
  apply Z.lt_sub_lt_add_l.
