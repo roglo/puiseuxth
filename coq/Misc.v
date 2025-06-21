@@ -353,6 +353,7 @@ Qed.
 (* Zmult_cmp_compat_r → Z.compare_mul_mono_pos_r *)
 (* Z_div_pos_is_nonneg → Nat2Z.is_nonneg *)
 (* Qplus_cmp_compat_r → Q.compare_add_mono_r *)
+(* list_nth_in → List.nth_In *)
 
 (*
 Theorem Qcmp_plus_minus_cmp_r : ∀ x y z,
@@ -1098,47 +1099,27 @@ Qed.
 Theorem Qle_sub_le_add_l : ∀ n m p, (n - m <= p)%Q ↔ (n <= m + p)%Q.
 Proof.
 intros n m p.
-...
-intros n m p.
-destruct p as (pn, pd).
-destruct m as (mn, md).
-destruct n as (nn, nd).
-unfold Qle; simpl.
-split; intros H.
- rewrite Z.mul_add_distr_r.
- apply Z.le_sub_le_add_l.
- rewrite Z.mul_shuffle0, Pos2Z.inj_mul, Z.mul_assoc.
- rewrite <- Z.mul_sub_distr_r, Z.mul_shuffle0.
- rewrite <- Z.mul_assoc, <- Pos2Z.inj_mul.
- rewrite <- Z.add_opp_r.
- rewrite <- Z.mul_opp_l; assumption.
-
- rewrite Z.mul_add_distr_r.
- do 2 rewrite Z.mul_opp_l.
- rewrite Z.add_opp_r.
- apply Z.le_sub_le_add_l.
- rewrite Pos2Z.inj_mul, Z.mul_assoc.
- rewrite Pos2Z.inj_mul, Z.mul_assoc in H.
- rewrite Z.mul_add_distr_r in H.
- remember (nn * Zpos md * Zpos pd)%Z as x.
- rewrite Z.mul_shuffle0.
- remember (mn * Zpos pd * Zpos nd)%Z as y.
- rewrite Z.mul_shuffle0; assumption.
-Qed.
-
-Theorem list_nth_in : ∀ A l n (d : A),
-  (n < length l)%nat
-  → List.nth n l d ∈ l.
-Proof.
-intros A l n d Hnl.
-revert n Hnl.
-induction l as [| x]; intros.
- exfalso; revert Hnl; apply Nat.nlt_0_r.
-
- simpl in Hnl.
- destruct n; [ left; reflexivity | simpl ].
- apply Nat.succ_lt_mono in Hnl.
- right; apply IHl; assumption.
+split; intros H. {
+  apply Q.compare_le_iff in H.
+  apply -> Q.compare_le_iff.
+  intros H1; apply H; clear H.
+  rewrite <- H1; symmetry.
+  rewrite Q.add_comm.
+  rewrite <- (Q.compare_add_mono_r _ _ (-m)).
+  rewrite <- Q.add_assoc.
+  rewrite Q_add_opp_diag_r.
+  now rewrite Q.add_0_r.
+} {
+  apply Q.compare_le_iff in H.
+  apply -> Q.compare_le_iff.
+  intros H1; apply H; clear H.
+  rewrite <- H1.
+  rewrite Q.add_comm.
+  rewrite <- (Q.compare_add_mono_r _ _ (-m)).
+  rewrite <- Q.add_assoc.
+  rewrite Q_add_opp_diag_r.
+  now rewrite Q.add_0_r.
+}
 Qed.
 
 Theorem list_fold_right_map : ∀ A B C (f : B → A → A) (g : C → B) l a,
@@ -1155,6 +1136,7 @@ intros a b Hb.
 pose proof (Z.gcd_divide_r a b) as H.
 destruct H as (c, Hc).
 rewrite Hc in |- * at 1.
+...
 rewrite Z.divide_div_mul_exact.
  rewrite Z.div_same.
   rewrite Z.mul_1_r.
