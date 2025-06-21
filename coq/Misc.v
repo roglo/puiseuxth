@@ -1142,15 +1142,14 @@ rewrite Z.divide_div_mul_exact. {
     destruct c as [| sc vc]; [ now cbn in Hc; subst b | ].
     destruct sc; [ easy | ].
     rewrite Hc in Hb.
-...
-Search (0 < _ * _)%Z.
-Z.mul_pos_cancel_r: ∀ n m : Z, (0 < m)%Z → (0 < n * m)%Z ↔ (0 < n)%Z
-Z.mul_pos_cancel_l: ∀ n m : Z, (0 < n)%Z → (0 < n * m)%Z ↔ (0 < m)%Z
-Z.lt_0_mul: ∀ n m : Z, (0 < n * m)%Z ↔ (0 < n)%Z ∧ (0 < m)%Z ∨ (m < 0)%Z ∧ (n < 0)%Z
-Q_mul_pos_pos: ∀ [a b : Q], 0 < a → 0 < b → 0 < a * b
-Q_mul_pos_cancel_l: ∀ [a : Q] (b : Q), 0 < a → 0 < a * b ↔ 0 < b
-...
     apply Z.lt_0_mul in Hb.
+    destruct Hb as [H| H]; [ easy | ].
+    destruct H as (H, _).
+    apply Z.nle_gt in H.
+    exfalso; apply H; clear H.
+...
+    apply Z.gcd_nonneg.
+...
   }
    apply Pos2Z.is_pos.
 

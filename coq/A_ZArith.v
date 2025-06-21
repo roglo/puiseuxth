@@ -1741,6 +1741,14 @@ destruct b as [| sb vb]; [ easy | ].
 destruct sa; [ now destruct sb | easy ].
 Qed.
 
+Theorem mul_neg_neg : ∀ a b, (a < 0 → b < 0 → 0 < a * b)%Z.
+Proof.
+intros * Hz1 Hz2.
+destruct a as [| sa va]; [ easy | ].
+destruct b as [| sb vb]; [ easy | ].
+destruct sa; [ easy | now destruct sb ].
+Qed.
+
 Theorem mul_nonpos_nonneg : ∀ a b, (a ≤ 0 → 0 ≤ b → a * b ≤ 0)%Z.
 Proof.
 intros * Hle1 Hle2.
@@ -1776,6 +1784,26 @@ destruct a as [| sa va]. {
   }
   destruct sb; [ now left | ].
   now destruct (vb ?= va); [ left | left | right ].
+}
+Qed.
+
+Theorem lt_dec : ∀ a b, ({a < b} + {¬ (a < b)})%Z.
+Proof.
+intros.
+destruct a as [| sa va]. {
+  destruct b as [| sb vb]; [ now right | ].
+  now destruct sb; [ left | right ].
+} {
+  destruct b as [| sb vb]. {
+    now destruct sa; [ right | left ].
+  }
+  progress unfold Z.lt; cbn.
+  destruct sa. {
+    destruct sb; [ | now right ].
+    now destruct (va ?= vb); [ right | left | right ].
+  }
+  destruct sb; [ now left | ].
+  now destruct (vb ?= va); [ right | left | right ].
 }
 Qed.
 
@@ -1952,6 +1980,40 @@ destruct a as [| sa va]; [ easy | cbn ].
 rewrite Bool.eqb_reflx.
 rewrite Nat.div_same; [ easy | ].
 now rewrite Nat.add_1_r.
+Qed.
+
+Theorem lt_0_mul :
+  ∀ a b, (0 < a * b)%Z ↔ (0 < a)%Z ∧ (0 < b)%Z ∨ (b < 0)%Z ∧ (a < 0)%Z.
+Proof.
+intros.
+split; intros Hab. {
+  destruct (Z.lt_dec 0 a) as [Haz| Haz]. {
+    left; split; [ easy | ].
+    progress unfold Z.lt in Hab.
+    progress unfold Z.lt.
+    rewrite <- Hab.
+    rewrite <- (Z.compare_mul_mono_pos_l a); [ | easy ].
+    now rewrite Z.mul_0_r.
+  }
+  apply Z.nlt_ge in Haz.
+  destruct (Z.lt_dec a 0) as [Hza| Hza]. {
+    right; split; [ | easy ].
+    progress unfold Z.lt in Hab.
+    progress unfold Z.lt.
+    rewrite <- Hab.
+    rewrite <- (Z.compare_mul_mono_neg_l a); [ | easy ].
+    now rewrite Z.mul_0_r.
+  }
+  apply Z.nlt_ge in Hza.
+  apply Z.le_antisymm in Hza; [ | easy ].
+  subst a.
+  now apply Z.lt_irrefl in Hab.
+}
+destruct Hab as [(Hza, Hzb)| (Hbz, Haz)]. {
+  now apply Z.mul_pos_pos.
+} {
+  now apply Z.mul_neg_neg.
+}
 Qed.
 
 End Z.
