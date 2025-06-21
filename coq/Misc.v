@@ -1137,6 +1137,9 @@ pose proof (Z.gcd_divide_r a b) as H.
 destruct H as (c, Hc).
 rewrite Hc in |- * at 1.
 ...
+Z.divide_div_mul_exact
+     : ∀ a b c : Z, b ≠ 0%Z → (b | a)%Z → (c * a / b)%Z = (c * (a / b))%Z
+...
 rewrite Z.divide_div_mul_exact.
  rewrite Z.div_same.
   rewrite Z.mul_1_r.
