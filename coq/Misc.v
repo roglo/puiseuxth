@@ -1054,66 +1054,38 @@ Qed.
 Theorem Z_gcd_pos_r_le : ∀ a b, (Z.gcd a (z_pos b) <= z_pos b)%Z.
 Proof.
 intros a b.
-Theorem Z_gcd_divide_r : ∀ a b : Z, (Z.gcd a b | b)%Z.
-Proof.
-intros.
-progress unfold Z.divide.
-...
-Z.ggcd_gcd
-     : ∀ a b : Z, fst (Z.ggcd a b) = Z.gcd a b
-Z.ggcd_correct_divisors
-     : ∀ a b : Z, let '(g, (aa, bb)) := Z.ggcd a b in a = (g * aa)%Z ∧ b = (g * bb)%Z
-Z.ggcd =
-λ a b : Z,
-  match a with
-  | 0%Z => (Z.abs b, (0%Z, Z.sgn b))
-  | Z.pos a0 =>
-      match b with
-      | 0%Z => (Z.abs a, (Z.sgn a, 0%Z))
-      | Z.pos b0 => let '(g, (aa, bb)) := Pos.ggcd a0 b0 in (Z.pos g, (Z.pos aa, Z.pos bb))
-      | Z.neg b0 => let '(g, (aa, bb)) := Pos.ggcd a0 b0 in (Z.pos g, (Z.pos aa, Z.neg bb))
-      end
-  | Z.neg a0 =>
-      match b with
-      | 0%Z => (Z.abs a, (Z.sgn a, 0%Z))
-      | Z.pos b0 => let '(g, (aa, bb)) := Pos.ggcd a0 b0 in (Z.pos g, (Z.neg aa, Z.pos bb))
-      | Z.neg b0 => let '(g, (aa, bb)) := Pos.ggcd a0 b0 in (Z.pos g, (Z.neg aa, Z.neg bb))
-      end
-  end
-... ...
-pose proof (Z.gcd_divide_r a (Zpos b)) as Hd.
+specialize (Z.gcd_divide_r a (z_pos b)) as Hd.
 destruct Hd as (c, Hc).
-rewrite Hc in |- * at 2.
-rewrite Z.mul_comm.
-apply Z.le_mul_diag_r.
- pose proof (Z.gcd_nonneg a (Zpos b))%Z as H.
- assert (Z.gcd a (Zpos b) ≠ 0)%Z as HH.
-  intros HH; apply Z.gcd_eq_0_r in HH.
-  revert HH; apply Pos2Z_ne_0.
-
-  lia.
-
- rename Hc into Hd.
- destruct (Z_zerop c) as [Hc| Hc].
-  subst c; simpl in Hd.
-  exfalso; revert Hd; apply Pos2Z_ne_0.
-
-  destruct c as [| c| c].
-   exfalso; apply Hc; reflexivity.
-
-   pose proof (Pos2Z.is_pos c) as Hp.
-   fast_omega Hp.
-
-   exfalso; clear Hc.
-   assert (Zpos b <= 0)%Z as HH.
-    rewrite Hd.
-    apply Z.mul_nonpos_nonneg.
-     apply Pos2Z.neg_is_nonpos.
-
-     apply Z.gcd_nonneg.
-
-    apply Z.nlt_ge in HH.
-    apply HH, Pos2Z.is_pos.
+rewrite Hc at 2.
+destruct c as [| sc vc]; [ easy | ].
+destruct a as [| sa va]. {
+  cbn.
+  rewrite Nat.add_1_r; cbn.
+  destruct sc. {
+    progress unfold Z.le; cbn.
+    apply Nat.compare_le_iff.
+    flia.
+  }
+  cbn in Hc.
+  now rewrite Nat.add_1_r in Hc.
+}
+destruct sc. {
+  progress unfold Z.le; cbn.
+  apply Nat.compare_le_iff.
+  rewrite Nat.sub_add; [ flia |].
+  do 2 rewrite Nat.add_1_r.
+  apply Nat.neq_0_lt_0.
+  intros H.
+  apply Nat.gcd_eq_0 in H.
+  now destruct H.
+}
+cbn in Hc.
+rewrite Nat.sub_add in Hc; [ easy | ].
+do 2 rewrite Nat.add_1_r.
+apply Nat.neq_0_lt_0.
+intros H.
+apply Nat.gcd_eq_0 in H.
+now destruct H.
 Qed.
 
 Theorem Qlt_sub_lt_add_l : ∀ n m p, (n - m < p)%Q ↔ (n < m + p)%Q.
@@ -1122,6 +1094,7 @@ intros n m p.
 destruct p as (pn, pd).
 destruct m as (mn, md).
 destruct n as (nn, nd).
+...
 unfold Qlt; simpl.
 split; intros H.
  rewrite Z.mul_add_distr_r.

@@ -365,16 +365,6 @@ Definition eqb a b :=
 
 Definition divide x y := ∃ z, y = Z.mul z x.
 
-Definition gcd a b :=
-  match a with
-  | z_zero => Z.abs b
-  | z_val sa va =>
-      match b with
-      | z_zero => Z.abs a
-      | z_val sb vb => z_val true (Nat.gcd (va + 1) (vb + 1) - 1)
-      end
-  end.
-
 Notation "a + b" := (Z.add a b) : Z_scope.
 Notation "a - b" := (Z.sub a b) : Z_scope.
 Notation "a * b" := (Z.mul a b) : Z_scope.
@@ -1790,9 +1780,6 @@ destruct a as [| sa va]. {
 }
 Qed.
 
-Definition min a b := if Z.le_dec a b then a else b.
-Definition max a b := if Z.le_dec a b then b else a.
-
 Theorem abs_nat_nonneg : ∀ a, (0 ≤ a)%Z → Z.abs_nat a = Z.to_nat a.
 Proof.
 intros * Haz.
@@ -1848,6 +1835,11 @@ intros * Hab.
 now apply Z.nlt_ge, Z.lt_le_incl.
 Qed.
 
+(* min & max *)
+
+Definition min a b := if Z.le_dec a b then a else b.
+Definition max a b := if Z.le_dec a b then b else a.
+
 Theorem min_l : ∀ a b, (a ≤ b)%Z → Z.min a b = a.
 Proof.
 intros * Hab.
@@ -1877,6 +1869,71 @@ intros * Hab.
 progress unfold Z.max.
 now destruct (Z.le_dec a b).
 Qed.
+
+(* gcd *)
+
+Definition gcd a b :=
+  match a with
+  | z_zero => Z.abs b
+  | z_val sa va =>
+      match b with
+      | z_zero => Z.abs a
+      | z_val sb vb => z_val true (Nat.gcd (va + 1) (vb + 1) - 1)
+      end
+  end.
+
+Theorem gcd_comm : ∀ a b, Z.gcd a b = Z.gcd b a.
+Proof.
+intros.
+destruct a as [| sa va]; [ now destruct b | ].
+destruct b as [| sb vb]; [ easy | cbn ].
+progress f_equal.
+progress f_equal.
+apply Nat.gcd_comm.
+Qed.
+
+Theorem gcd_divide_l : ∀ a b : Z, (Z.gcd a b | a)%Z.
+Proof.
+intros.
+progress unfold Z.divide.
+destruct a as [| sa va]; [ now exists 0%Z | cbn ].
+destruct b as [| sb vb]. {
+  destruct sa. {
+    exists 1%Z; rewrite Nat.add_1_r; cbn.
+    now rewrite Nat.add_0_r, Nat.add_sub.
+  } {
+    exists (-1)%Z; rewrite Nat.add_1_r; cbn.
+    now rewrite Nat.add_0_r, Nat.add_sub.
+  }
+}
+specialize (Nat.gcd_divide_l (va + 1) (vb + 1)) as H1.
+destruct H1 as (v, Hv).
+exists (z_val sa (v - 1)); cbn.
+rewrite Nat.sub_add. 2: {
+  destruct v; [ now rewrite Nat.add_1_r in Hv | ].
+  now apply -> Nat.succ_le_mono.
+}
+rewrite Nat.sub_add. 2: {
+  do 2 rewrite Nat.add_1_r.
+  apply Nat.neq_0_lt_0.
+  intros H.
+  apply Nat.gcd_eq_0 in H.
+  now destruct H.
+}
+rewrite <- Hv.
+rewrite Nat.add_sub.
+progress f_equal.
+now destruct sa.
+Qed.
+
+Theorem gcd_divide_r : ∀ a b : Z, (Z.gcd a b | b)%Z.
+Proof.
+intros.
+rewrite Z.gcd_comm.
+apply Z.gcd_divide_l.
+Qed.
+
+(* *)
 
 End Z.
 
