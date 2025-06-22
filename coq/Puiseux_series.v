@@ -456,8 +456,8 @@ assert (Pv : ∀ i, (v (S i) <= v i)%nat).
 
  split; intros H.
   symmetry in H.
-...
-  assert (Pv2 : ∃ m g, (∀ i, m ≤ i → v i = g) ∧ (∀ i, i < m → g < v i)%nat).
+  assert
+    (Pv2 : ∃ m g, (∀ i, (m <= i)%nat → v i = g) ∧ (∀ i, i < m → g < v i)%nat).
    apply non_increasing_natural_sequence_first_limit, Pv.
 
    destruct Pv2 as (m, (g, (Pv2, Pv3))).
@@ -636,7 +636,7 @@ assert (Pv : ∀ i, (v (S i) <= v i)%nat).
        rewrite H3, H4, Nat.gcd_mul_mono_r.
        apply Nat.divide_factor_r.
 
-       assert (H7 : v i ≤ k).
+       assert (H7 : (v i <= k)%nat).
         destruct (le_dec (v i) k) as [H7| H7]; [ apply H7 |  ].
         apply Nat.nle_gt in H7.
         apply H2 in H7.
@@ -731,6 +731,8 @@ Qed.
 Arguments greatest_series_x_power α%_type _ _ s%_ser n%_nat.
 
 End axioms.
+
+...
 
 Definition series_stretch α {R : ring α} k s :=
   {| terms i :=
