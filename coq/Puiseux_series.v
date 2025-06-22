@@ -732,25 +732,23 @@ Arguments greatest_series_x_power α%_type _ _ s%_ser n%_nat.
 
 End axioms.
 
-...
-
 Definition series_stretch α {R : ring α} k s :=
   {| terms i :=
-       if zerop (i mod Pos.to_nat k) then s .[i / Pos.to_nat k]
+       if zerop (i mod (*Pos.to_nat*) k) then s .[i / (*Pos.to_nat*) k]
        else rng_zero |}.
 
 Definition series_shift α {R : ring α} n s :=
   {| terms i := if lt_dec i n then rng_zero else s .[i - n] |}.
 
 Definition series_shrink α k (s : power_series α) :=
-  {| terms i := s.[i * Pos.to_nat k] |}.
+  {| terms i := s.[i * (*Pos.to_nat*) k] |}.
 
 Definition series_left_shift α n (s : power_series α) :=
   {| terms i := s.[n + i] |}.
 
-Arguments series_stretch α%_type _ k%_positive s%_ser.
+Arguments series_stretch α%_type _ k%_nat s%_ser.
 Arguments series_shift α%_type _ n%_nat s%_ser.
-Arguments series_shrink α%_type k%_positive s%_ser.
+Arguments series_shrink α%_type k%_nat s%_ser.
 Arguments series_left_shift α%_type n%_nat s%_ser.
 
 Definition normalise_series α n k (s : power_series α) :=
@@ -758,11 +756,13 @@ Definition normalise_series α n k (s : power_series α) :=
 
 Definition gcd_ps α n k (ps : puiseux_series α) :=
   Z.gcd
-    (Z.gcd (ps_ordnum ps + Z.of_nat n) (Zpos (ps_polydo ps)))
+    (Z.gcd (ps_ordnum ps + Z.of_nat n) (z_pos (ps_polydo ps)))
     (Z.of_nat k).
 
 Definition ps_zero {α} {r : ring α} :=
   {| ps_terms := 0%ser; ps_ordnum := 0; ps_polydo := 1 |}.
+
+...
 
 Definition normalise_ps α {R : ring α} {K : field R} ps :=
   match series_order (ps_terms ps) 0 with
