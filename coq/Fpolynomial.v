@@ -3,6 +3,7 @@
 (* polynomials on a ring *)
 
 From Stdlib Require Import Utf8 Arith.
+From Stdlib Require Import Morphisms Relations.
 
 Require Import Misc.
 Require Import Field2.

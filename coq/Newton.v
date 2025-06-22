@@ -2,6 +2,7 @@
 
 From Stdlib Require Import Utf8.
 
+Require Import A_QArith.
 Require Import Misc ConvexHull.
 
 Set Implicit Arguments.
