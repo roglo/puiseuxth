@@ -1,6 +1,7 @@
 (* Power_series.v *)
 
 From Stdlib Require Import Utf8 Arith.
+From Stdlib Require Import Relations Morphisms.
 
 Require Import Misc.
 Require Import NbarM.

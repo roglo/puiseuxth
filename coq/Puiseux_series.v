@@ -1,7 +1,8 @@
 (* Puiseux_series.v *)
 
-From Stdlib Require Import Utf8 Arith ZArith.
+From Stdlib Require Import Utf8 Arith.
 
+Require Import A_ZArith A_QArith.
 Require Import Misc.
 Require Import NbarM.
 Require Import Field2.
@@ -15,9 +16,9 @@ Set Implicit Arguments.
 Record puiseux_series α := mkps
   { ps_terms : power_series α;
     ps_ordnum : Z;
-    ps_polydo : positive }.
+    ps_polydo : nat }.
 
-Arguments mkps α%_type ps_terms%_ser ps_ordnum%_Z ps_polydo%_positive.
+Arguments mkps α%_type ps_terms%_ser ps_ordnum%_Z ps_polydo%_nat.
 Declare Scope ps_scope.
 Delimit Scope ps_scope with ps.
 
@@ -238,8 +239,8 @@ apply IHj, nth_series_order_0_succ, H.
 Qed.
 
 Theorem non_increasing_natural_sequence_has_limit : ∀ s,
-  (∀ n, s (S n) ≤ s n) →
-  ∃ m l, (∀ i, m ≤ i → s i = l).
+  (∀ n, (s (S n) <= s n)%nat) →
+  ∃ m l, (∀ i, (m <= i)%nat → s i = l).
 Proof.
 intros s Hs.
 remember (s O) as i eqn:Hi ; symmetry in Hi.
@@ -266,13 +267,13 @@ induction i; intros.
   apply H2.
 
   remember (λ j, s (S n + j)%nat) as t eqn:Ht .
-  assert (H1 : ∀ n, t (S n) ≤ t n).
+  assert (H1 : ∀ n, (t (S n) <= t n)%nat).
    intros j; subst t.
    rewrite Nat.add_succ_r; apply Hs.
 
-   assert (H2 : (t O ≤ i)%nat).
+   assert (H2 : (t O <= i)%nat).
     subst t; rewrite Nat.add_0_r.
-    assert (s n ≤ S i).
+    assert (s n <= S i)%nat.
      clear P1 H1.
      induction n; [ apply Hi | ].
      eapply Nat.le_trans; [ apply Hs | apply IHn ].
@@ -287,7 +288,7 @@ induction i; intros.
     destruct H as (m, (l, H3)).
     exists (S n + m)%nat, l.
     intros j Hjm.
-    assert (H5 : (m ≤ j - S n)%nat).
+    assert (H5 : (m <= j - S n)%nat).
      apply Nat.le_add_le_sub_l, Hjm.
 
      pose proof (H3 (j - S n)%nat H5) as H6.
@@ -302,8 +303,8 @@ induction i; intros.
 Qed.
 
 Theorem non_increasing_natural_sequence_first_limit : ∀ s,
-  (∀ n, s (S n) ≤ s n) →
-  ∃ m l, (∀ i, m ≤ i → s i = l) ∧ (∀ i, i < m → l < s i)%nat.
+  (∀ n, (s (S n) <= s n)%nat) →
+  ∃ m l, (∀ i, m <= i → s i = l)%nat ∧ (∀ i, i < m → l < s i)%nat.
 Proof.
 intros s Hs.
 generalize Hs; intros H.
@@ -316,7 +317,7 @@ induction m; intros.
  intros i Hi; exfalso; revert Hi; apply Nat.nlt_0_r.
 
  destruct (eq_nat_dec (s m) l) as [H1| H1].
-  assert (H2 : ∀ i, m ≤ i → s i = l).
+  assert (H2 : ∀ i, (m <= i)%nat → s i = l).
    intros j Hmj.
    destruct (eq_nat_dec m j) as [H2| H2]; [ destruct H2; apply H1 | ].
    apply Nat_le_neq_lt in H2; [ | apply Hmj ].
@@ -332,8 +333,8 @@ induction m; intros.
    intros i Him'; apply H4, Him'.
 
   remember (λ j, s (S j)) as t eqn:Ht.
-  assert (H2 : ∀ n, t (S n) ≤ t n) by (intros n; subst t; apply Hs).
-  assert (H3 : ∀ i, m ≤ i → t i = l).
+  assert (H2 : ∀ n, (t (S n) <= t n)%nat) by (intros n; subst t; apply Hs).
+  assert (H3 : ∀ i, (m <= i)%nat → t i = l).
    intros j Hmj; subst t; apply H.
    apply Nat.succ_le_mono in Hmj; apply Hmj.
 
@@ -373,7 +374,7 @@ induction m; intros.
 Qed.
 
 Theorem sequence_gcd_divide : ∀ s g m i,
-  (∀ j, m ≤ j → sequence_gcd_upto s j = g) → Nat.divide g (s i).
+  (∀ j, (m <= j)%nat → sequence_gcd_upto s j = g) → Nat.divide g (s i).
 Proof.
 intros s g m i H.
 destruct (le_dec m i) as [H1| H1].
@@ -413,7 +414,7 @@ remember (nth_series_order K s n) as u eqn:Hu ; symmetry in Hu.
 remember (sequence_gcd_upto u) as v eqn:Hv ; symmetry in Hv.
 remember (sequence_diff v) as w eqn:Hw ; symmetry in Hw.
 remember (sequence_all_zero_from w) as t eqn:Ht ; symmetry in Ht.
-assert (Pv : ∀ i, v (S i) ≤ v i).
+assert (Pv : ∀ i, (v (S i) <= v i)%nat).
  intros i.
  induction i.
   subst v; simpl.
@@ -455,6 +456,7 @@ assert (Pv : ∀ i, v (S i) ≤ v i).
 
  split; intros H.
   symmetry in H.
+...
   assert (Pv2 : ∃ m g, (∀ i, m ≤ i → v i = g) ∧ (∀ i, i < m → g < v i)%nat).
    apply non_increasing_natural_sequence_first_limit, Pv.
 
@@ -791,8 +793,8 @@ Arguments eq_ps _ _ _ ps₁%_ps ps₂%_ps.
 
 Definition ps_monom {α} {r : ring α} (c : α) pow :=
   {| ps_terms := {| terms i := if zerop i then c else 0%K |};
-     ps_ordnum := Qnum pow;
-     ps_polydo := Qden pow |}.
+     ps_ordnum := q_num pow;
+     ps_polydo := q_den pow |}.
 
 Definition ps_one {α} {r : ring α} := ps_monom rng_one 0.
 
