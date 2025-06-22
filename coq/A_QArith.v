@@ -344,6 +344,13 @@ do 2 rewrite (Q.mul_comm _ c).
 now apply Q.mul_compat_l.
 Qed.
 
+Theorem lt_le_dec: ∀ a b, ({a < b} + {b ≤ a})%Q.
+Proof.
+intros.
+progress unfold Q.lt, Q.le.
+apply Z.lt_le_dec.
+Qed.
+
 Global Instance add_morph : Proper (Q.eq ==> Q.eq ==> Q.eq) Q.add.
 Proof.
 intros a b Hab c d Hcd.

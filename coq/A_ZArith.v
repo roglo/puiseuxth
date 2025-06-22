@@ -1790,21 +1790,16 @@ Qed.
 Theorem lt_dec : ∀ a b, ({a < b} + {¬ (a < b)})%Z.
 Proof.
 intros.
-destruct a as [| sa va]. {
-  destruct b as [| sb vb]; [ now right | ].
-  now destruct sb; [ left | right ].
-} {
-  destruct b as [| sb vb]. {
-    now destruct sa; [ right | left ].
-  }
-  progress unfold Z.lt; cbn.
-  destruct sa. {
-    destruct sb; [ | now right ].
-    now destruct (va ?= vb); [ right | left | right ].
-  }
-  destruct sb; [ now left | ].
-  now destruct (vb ?= va); [ right | left | right ].
-}
+destruct (Z.le_dec b a) as [Hba| Hba].
+now right; apply Z.nlt_ge.
+now left; apply Z.nle_gt in Hba.
+Qed.
+
+Theorem lt_le_dec: ∀ a b, ({a < b} + {b ≤ a})%Z.
+Proof.
+intros.
+destruct (Z.le_dec b a) as [Hba| Hba]; [ now right | left ].
+now apply Z.nle_gt in Hba.
 Qed.
 
 Theorem abs_nat_nonneg : ∀ a, (0 ≤ a)%Z → Z.abs_nat a = Z.to_nat a.
@@ -1860,6 +1855,13 @@ Theorem lt_asymm : ∀ a b, (a < b)%Z → ¬ (b < a)%Z.
 Proof.
 intros * Hab.
 now apply Z.nlt_ge, Z.lt_le_incl.
+Qed.
+
+Theorem abs_nonneg : ∀ a, (0 ≤ Z.abs a)%Z.
+Proof.
+intros.
+destruct a as [| sa va]; [ easy | cbn ].
+now rewrite Nat.add_1_r.
 Qed.
 
 (* min & max *)
@@ -1958,6 +1960,13 @@ Proof.
 intros.
 rewrite Z.gcd_comm.
 apply Z.gcd_divide_l.
+Qed.
+
+Theorem gcd_nonneg : ∀ a b, (0 ≤ Z.gcd a b)%Z.
+Proof.
+intros.
+destruct a as [| sa va]; [ apply Z.abs_nonneg | ].
+destruct b as [| sb vb]; [ apply Z.abs_nonneg | easy ].
 Qed.
 
 (* *)

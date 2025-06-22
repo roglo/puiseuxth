@@ -1147,64 +1147,51 @@ rewrite Z.divide_div_mul_exact. {
     destruct H as (H, _).
     apply Z.nle_gt in H.
     exfalso; apply H; clear H.
-...
     apply Z.gcd_nonneg.
-...
   }
-   apply Pos2Z.is_pos.
-
-   remember Hb as H; clear HeqH.
-   rewrite Hc in H.
-   apply Z.lt_0_mul in H.
-   destruct H as [H| H].
-    destruct H; assumption.
-
-    destruct H as (H, _).
-    apply Z.nle_gt in H.
-    exfalso; apply H, Z.gcd_nonneg.
-
+  intros H.
+  rewrite H in Hc; cbn in Hc.
+  rewrite Z.mul_0_r in Hc; subst b.
+  revert Hb; apply Z.lt_irrefl.
+} {
   intros H.
   rewrite H in Hc; simpl in Hc.
   rewrite Z.mul_0_r in Hc; subst b.
   revert Hb; apply Z.lt_irrefl.
-
- intros H.
- rewrite H in Hc; simpl in Hc.
- rewrite Z.mul_0_r in Hc; subst b.
- revert Hb; apply Z.lt_irrefl.
-
- exists 1%Z.
- rewrite Z.mul_1_l; reflexivity.
+} {
+  exists 1%Z.
+  symmetry; apply Z.mul_1_l.
+}
 Qed.
 
-Definition Qmin x y := if Qlt_le_dec x y then x else y.
+Definition Qmin x y := if Q.lt_le_dec x y then x else y.
 
 Theorem Qmin_dec : ∀ n m, {Qmin n m = n} + {Qmin n m = m}.
 Proof.
 intros n m.
 unfold Qmin.
-destruct (Qlt_le_dec n m); [ left | right ]; reflexivity.
+destruct (Q.lt_le_dec n m); [ left | right ]; reflexivity.
 Qed.
 
 Theorem Qmin_comm : ∀ n m, Qmin n m == Qmin m n.
 Proof.
 intros n m.
 unfold Qmin.
-destruct (Qlt_le_dec n m) as [H₁| H₁].
- destruct (Qlt_le_dec m n) as [H₂| H₂]; [ idtac | reflexivity ].
- apply Qlt_le_weak, Qle_not_lt in H₂.
- contradiction.
-
- destruct (Qlt_le_dec m n) as [H₂| H₂]; [ reflexivity | idtac ].
- apply Qle_antisym; assumption.
+destruct (Q.lt_le_dec n m) as [H₁| H₁]. {
+  destruct (Q.lt_le_dec m n) as [H₂| H₂]; [ idtac | reflexivity ].
+  apply Q.lt_le_incl in H₂.
+  now apply Q.nle_gt in H₁.
+}
+destruct (Q.lt_le_dec m n) as [H₂| H₂]; [ reflexivity | idtac ].
+apply Q.le_antisymm; assumption.
 Qed.
 
 Theorem Qmin_l : ∀ n m, (n <= m)%Q → Qmin n m == n.
 Proof.
 intros n m H.
 unfold Qmin.
-destruct (Qlt_le_dec n m) as [| Hge]; [ reflexivity | idtac ].
-apply Qle_antisym; assumption.
+destruct (Q.lt_le_dec n m) as [| Hge]; [ reflexivity | idtac ].
+apply Q.le_antisymm; assumption.
 Qed.
 
 Theorem List_In_nth : ∀ α a la (d : α),
@@ -1224,10 +1211,6 @@ destruct Ha as [Ha| Ha].
  exists (S n); simpl.
  assumption.
 Qed.
-
-Global Hint Resolve Pos2Z.is_nonneg : Arith.
-Global Hint Resolve Pos2Nat.is_pos : Arith.
-Global Hint Resolve Pos2Z_ne_0 : Arith.
 
 (* compatibility with old version of Coq *)
 
