@@ -1,6 +1,7 @@
 (* Puiseux_series.v *)
 
 From Stdlib Require Import Utf8 Arith.
+From Stdlib Require Import Relations Morphisms.
 
 Require Import A_ZArith A_QArith.
 Require Import Misc.
@@ -762,16 +763,14 @@ Definition gcd_ps α n k (ps : puiseux_series α) :=
 Definition ps_zero {α} {r : ring α} :=
   {| ps_terms := 0%ser; ps_ordnum := 0; ps_polydo := 1 |}.
 
-...
-
 Definition normalise_ps α {R : ring α} {K : field R} ps :=
   match series_order (ps_terms ps) 0 with
   | fin n =>
       let k := greatest_series_x_power K (ps_terms ps) n in
       let g := gcd_ps n k ps in
-      {| ps_terms := normalise_series n (Z.to_pos g) (ps_terms ps);
+      {| ps_terms := normalise_series n (Z.to_nat g) (ps_terms ps);
          ps_ordnum := (ps_ordnum ps + Z.of_nat n) / g;
-         ps_polydo := Z.to_pos (Zpos (ps_polydo ps) / g) |}
+         ps_polydo := Z.to_nat (z_pos (ps_polydo ps) / g) |}
   | ∞ =>
       ps_zero
   end.
@@ -916,7 +915,12 @@ intros kp kp' Hkp s₁ s₂ Heq.
 subst kp'.
 inversion Heq; subst.
 constructor; intros i; simpl.
+(*
 remember (Pos.to_nat kp) as k.
+*)
+rename kp into k.
+(**)
+...
 assert (k ≠ O) as Hk by (subst k; apply Pos2Nat_ne_0).
 destruct (zerop (i mod k)) as [Hz| Hnz]; [ idtac | reflexivity ].
 apply Nat.Div0.mod_divides in Hz.
