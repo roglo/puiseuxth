@@ -243,11 +243,9 @@ Definition opp a :=
 
 Definition sub a b := Z.add a (Z.opp b).
 
-...
-
 Definition z_pos_div_eucl (a b : pos) :=
-  let a' := (a + 1)%nat in
-  let b' := (b + 1)%nat in
+  let a' := Pos.to_nat a in
+  let b' := Pos.to_nat b in
   (Z.of_nat (a' / b'), Z.of_nat (a' mod b')).
 
 Definition div_eucl (a b : Z) :=
@@ -291,13 +289,13 @@ Definition sign a :=
 Definition abs_nat a :=
   match a with
   | z_zero => 0%nat
-  | z_val _ v => (v + 1)%nat
+  | z_val _ v => Pos.to_nat v
   end.
 
 Definition abs a :=
   match a with
   | z_zero => 0%Z
-  | z_val _ v => Z.of_nat (v + 1)
+  | z_val _ v => Z.of_nat (Pos.to_nat v)
   end.
 
 Theorem eq_dec : ∀ a b : Z, {a = b} + {a ≠ b}.
@@ -309,6 +307,7 @@ destruct a as [| sa va]. {
   destruct b as [| sb vb]; [ now right | ].
   destruct (Bool.bool_dec sa sb) as [Hsab| Hsab]. {
     subst sb.
+...
     destruct (Nat.eq_dec va vb) as [Hvab| Hvab]; [ now subst vb; left | ].
     right.
     intros H; apply Hvab.
