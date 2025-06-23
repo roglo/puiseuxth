@@ -307,8 +307,7 @@ destruct a as [| sa va]. {
   destruct b as [| sb vb]; [ now right | ].
   destruct (Bool.bool_dec sa sb) as [Hsab| Hsab]. {
     subst sb.
-...
-    destruct (Nat.eq_dec va vb) as [Hvab| Hvab]; [ now subst vb; left | ].
+    destruct (Pos.eq_dec va vb) as [Hvab| Hvab]; [ now subst vb; left | ].
     right.
     intros H; apply Hvab.
     now injection H.
@@ -333,13 +332,13 @@ Definition compare a b :=
           match sa with
           | true =>
               match sb with
-              | true => va ?= vb
+              | true => (va ?= vb)%pos
               | false => Gt
               end
           | false =>
               match sb with
               | true => Lt
-              | false => vb ?= va
+              | false => (vb ?= va)%pos
               end
           end
       end
@@ -363,7 +362,7 @@ Definition eqb a b :=
       end
   | z_val sa va =>
       match b with
-      | z_val sb vb => (Bool.eqb sa sb && (va =? vb))%bool
+      | z_val sb vb => (Bool.eqb sa sb && (va =? vb)%pos)%bool
       | _ => false
       end
   end.
@@ -387,7 +386,7 @@ Instance ring_like_op : ring_like_op Z :=
   {| rngl_zero := z_zero;
      rngl_add := Z.add;
      rngl_mul := Z.mul;
-     rngl_opt_one := Some (z_val true 0);
+     rngl_opt_one := Some (z_val true 1);
      rngl_opt_opp_or_subt := Some (inl Z.opp);
      rngl_opt_inv_or_quot := Some (inr Z.div);
      rngl_opt_is_zero_divisor := None;
@@ -408,12 +407,12 @@ progress unfold add.
 destruct a as [| sa va]; [ now destruct b | ].
 destruct b as [| sb vb]; [ easy | ].
 move sb before sa.
-rewrite (Nat.add_comm vb).
+rewrite (Pos.add_comm vb).
 rewrite (Bool_eqb_comm sb).
 do 2 rewrite if_eqb_bool_dec.
 destruct (Bool.bool_dec sa sb) as [Hab| Hab]; [ now subst sb | ].
-rewrite (Nat.compare_antisym va).
-now destruct (va ?= vb).
+rewrite (Pos.compare_antisym vb).
+now destruct (va ?= vb)%pos.
 Qed.
 
 Theorem add_0_l : ∀ a, (0 + a)%Z = a.
@@ -436,6 +435,7 @@ destruct (Bool.bool_dec sa sb) as [H1| H1]. {
   destruct (Bool.bool_dec sa sc) as [H2| H2]. {
     cbn; subst sc.
     rewrite Bool.eqb_reflx.
+...
     f_equal; flia.
   }
   apply Bool.eqb_false_iff in H2.
