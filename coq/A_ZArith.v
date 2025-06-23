@@ -5,9 +5,7 @@ From Stdlib Require Import Utf8 Arith Psatz.
 Require Import RingLike.Core RingLike.Misc.
 Import ListDef.
 
-Record pos := { p_val : nat }.
-Definition pos_of_nat n := {| p_val := n - 1 |}.
-Definition pos_to_nat p := p_val p + 1.
+Require Import A_Pos.
 
 Inductive Z :=
   | z_zero : Z
@@ -181,8 +179,8 @@ Definition of_number (n : Number.int) : option Z :=
   | Number.IntDecimal n =>
       match n with
       | Decimal.Pos (Decimal.D0 Decimal.Nil) => Some z_zero
-      | Decimal.Pos n => Some (z_val true (pos_of_nat (Nat.of_uint n)))
-      | Decimal.Neg n => Some (z_val false (pos_of_nat (Nat.of_uint n)))
+      | Decimal.Pos n => Some (z_val true (Pos.of_nat (Nat.of_uint n)))
+      | Decimal.Neg n => Some (z_val false (Pos.of_nat (Nat.of_uint n)))
       end
   | Number.IntHexadecimal n => None
   end.
@@ -191,28 +189,24 @@ Definition to_number (a : Z) : Number.int :=
   match a with
   | z_zero => Number.IntDecimal (Decimal.Pos (Nat.to_uint 0))
   | z_val true v =>
-      Number.IntDecimal (Decimal.Pos (Nat.to_uint (pos_to_nat v)))
+      Number.IntDecimal (Decimal.Pos (Nat.to_uint (Pos.to_nat v)))
   | z_val false v =>
-      Number.IntDecimal (Decimal.Neg (Nat.to_uint (pos_to_nat v)))
+      Number.IntDecimal (Decimal.Neg (Nat.to_uint (Pos.to_nat v)))
   end.
 
-Number Notation Z of_number to_number : Z_scope.
+Number Notation Z Z.of_number Z.to_number : Z_scope.
 
 Definition of_nat n :=
   match n with
   | 0 => z_zero
-  | S _ => z_val true (pos_of_nat n)
+  | S _ => z_val true (Pos.of_nat n)
   end.
 
 Definition to_nat a :=
   match a with
-  | z_val true n => pos_to_nat n
+  | z_val true n => Pos.to_nat n
   | _ => 0
   end.
-
-Definition pos_add a b := {| p_val := p_val a + p_val b + 1 |}.
-Definition pos_sub a b := {| p_val := p_val a - p_val b - 1 |}.
-Definition pos_compare a b := p_val a ?= p_val b.
 
 Definition add a b :=
   match a with
@@ -221,17 +215,15 @@ Definition add a b :=
       match b with
       | z_zero => a
       | z_val sb vb =>
-          if Bool.eqb sa sb then z_val sa (pos_add va vb)
+          if Bool.eqb sa sb then z_val sa (Pos.add va vb)
           else
-            match pos_compare va vb with
+            match Pos.compare va vb with
             | Eq => z_zero
-            | Lt => z_val sb (pos_sub vb va)
-            | Gt => z_val sa (pos_sub va vb)
+            | Lt => z_val sb (Pos.sub vb va)
+            | Gt => z_val sa (Pos.sub va vb)
             end
       end
   end.
-
-...
 
 Definition mul a b :=
   match a with
@@ -239,7 +231,7 @@ Definition mul a b :=
   | z_val sa va =>
       match b with
       | z_zero => z_zero
-      | z_val sb vb => z_val (Bool.eqb sa sb) ((va + 1) * (vb + 1) - 1)
+      | z_val sb vb => z_val (Bool.eqb sa sb) (va * vb)
       end
   end.
 
@@ -251,7 +243,9 @@ Definition opp a :=
 
 Definition sub a b := Z.add a (Z.opp b).
 
-Definition z_pos_div_eucl a b :=
+...
+
+Definition z_pos_div_eucl (a b : pos) :=
   let a' := (a + 1)%nat in
   let b' := (b + 1)%nat in
   (Z.of_nat (a' / b'), Z.of_nat (a' mod b')).
@@ -269,7 +263,7 @@ Definition div_eucl (a b : Z) :=
             else
               match r' with
               | z_zero => Z.opp q'
-              | _ => Z.opp (Z.add q' (z_val true 0))
+              | _ => Z.opp (Z.add q' (z_val true 1))
               end
           in
           let r :=

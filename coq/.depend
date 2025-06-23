@@ -1,5 +1,6 @@
+A_Pos.vo A_Pos.glob A_Pos.v.beautified A_Pos.required_vo: A_Pos.v
 A_QArith.vo A_QArith.glob A_QArith.v.beautified A_QArith.required_vo: A_QArith.v A_ZArith.vo
-A_ZArith.vo A_ZArith.glob A_ZArith.v.beautified A_ZArith.required_vo: A_ZArith.v
+A_ZArith.vo A_ZArith.glob A_ZArith.v.beautified A_ZArith.required_vo: A_ZArith.v A_Pos.vo
 AlgCloCharPol.vo AlgCloCharPol.glob AlgCloCharPol.v.beautified AlgCloCharPol.required_vo: AlgCloCharPol.v CharactPolyn.vo ConvexHull.vo Field2.vo Fpolynomial.vo Fsummation.vo Misc.vo Newton.vo Puiseux_base.vo Puiseux_series.vo
 Bug.vo Bug.glob Bug.v.beautified Bug.required_vo: Bug.v
 CharactPolyn.vo CharactPolyn.glob CharactPolyn.v.beautified CharactPolyn.required_vo: CharactPolyn.v ConvexHull.vo ConvexHullMisc.vo Field2.vo Fpolynomial.vo Misc.vo NbarM.vo Newton.vo PSpolynomial.vo PolyConvexHull.vo Power_series.vo Ps_div.vo Puiseux_base.vo Puiseux_series.vo QbarM.vo Slope_base.vo
