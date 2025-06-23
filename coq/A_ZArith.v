@@ -5,9 +5,13 @@ From Stdlib Require Import Utf8 Arith Psatz.
 Require Import RingLike.Core RingLike.Misc.
 Import ListDef.
 
+Record pos := { p_val : nat }.
+Definition pos_of_nat n := {| p_val := n - 1 |}.
+Definition pos_to_nat p := p_val p + 1.
+
 Inductive Z :=
   | z_zero : Z
-  | z_val : bool → nat → Z.
+  | z_val : bool → pos → Z.
 
 Declare Scope Z_scope.
 Delimit Scope Z_scope with Z.
@@ -177,8 +181,8 @@ Definition of_number (n : Number.int) : option Z :=
   | Number.IntDecimal n =>
       match n with
       | Decimal.Pos (Decimal.D0 Decimal.Nil) => Some z_zero
-      | Decimal.Pos n => Some (z_val true (Nat.of_uint n - 1))
-      | Decimal.Neg n => Some (z_val false (Nat.of_uint n - 1))
+      | Decimal.Pos n => Some (z_val true (pos_of_nat (Nat.of_uint n)))
+      | Decimal.Neg n => Some (z_val false (pos_of_nat (Nat.of_uint n)))
       end
   | Number.IntHexadecimal n => None
   end.
@@ -186,8 +190,10 @@ Definition of_number (n : Number.int) : option Z :=
 Definition to_number (a : Z) : Number.int :=
   match a with
   | z_zero => Number.IntDecimal (Decimal.Pos (Nat.to_uint 0))
-  | z_val true v => Number.IntDecimal (Decimal.Pos (Nat.to_uint (v + 1)))
-  | z_val false v => Number.IntDecimal (Decimal.Neg (Nat.to_uint (v + 1)))
+  | z_val true v =>
+      Number.IntDecimal (Decimal.Pos (Nat.to_uint (pos_to_nat v)))
+  | z_val false v =>
+      Number.IntDecimal (Decimal.Neg (Nat.to_uint (pos_to_nat v)))
   end.
 
 Number Notation Z of_number to_number : Z_scope.
@@ -195,14 +201,18 @@ Number Notation Z of_number to_number : Z_scope.
 Definition of_nat n :=
   match n with
   | 0 => z_zero
-  | S n' => z_val true n'
+  | S _ => z_val true (pos_of_nat n)
   end.
 
 Definition to_nat a :=
   match a with
-  | z_val true n => n + 1
+  | z_val true n => pos_to_nat n
   | _ => 0
   end.
+
+Definition pos_add a b := {| p_val := p_val a + p_val b + 1 |}.
+Definition pos_sub a b := {| p_val := p_val a - p_val b - 1 |}.
+Definition pos_compare a b := p_val a ?= p_val b.
 
 Definition add a b :=
   match a with
@@ -211,15 +221,17 @@ Definition add a b :=
       match b with
       | z_zero => a
       | z_val sb vb =>
-          if Bool.eqb sa sb then z_val sa (va + vb + 1)
+          if Bool.eqb sa sb then z_val sa (pos_add va vb)
           else
-            match va ?= vb with
+            match pos_compare va vb with
             | Eq => z_zero
-            | Lt => z_val sb (vb - va - 1)
-            | Gt => z_val sa (va - vb - 1)
+            | Lt => z_val sb (pos_sub vb va)
+            | Gt => z_val sa (pos_sub va vb)
             end
       end
   end.
+
+...
 
 Definition mul a b :=
   match a with
