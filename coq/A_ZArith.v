@@ -631,9 +631,8 @@ Proof.
 intros.
 cbn.
 destruct a as [| sa va]; [ easy | ].
-...
-rewrite Nat.add_0_r, Nat.add_sub.
-now f_equal; destruct sa.
+rewrite Pos.mul_1_l.
+now destruct sa.
 Qed.
 
 Theorem mul_1_r : ∀ a, (a * 1)%Z = a.
@@ -649,19 +648,26 @@ move sb before sa; move sc before sb.
 destruct (Bool.bool_dec sb sc) as [Hsbc| Hsbc]. {
   subst sc; cbn.
   do 2 rewrite Bool.eqb_reflx.
-  f_equal; flia.
+  f_equal; apply Pos.mul_add_distr_l.
 }
 cbn - [ mul "<?" ].
 rewrite if_eqb_bool_dec.
 destruct (Bool.bool_dec _ _) as [Hsaa| Hsaa]; [ now destruct sb, sc | ].
 clear Hsaa.
-rewrite nat_compare_equiv.
-progress unfold nat_compare_alt.
-destruct (lt_eq_lt_dec vb vc) as [[Hbc| Hbc]| Hbc]. {
+rewrite Pos.compare_match_dec.
+destruct (lt_eq_lt_dec _ _) as [[Hbc| Hbc]| Hbc]. {
   cbn.
   rewrite if_eqb_bool_dec.
   destruct (Bool.bool_dec _ _) as [Hsaa| Hsaa]; [ now destruct sa, sb, sc | ].
   clear Hsaa.
+(**)
+  rewrite Nat_compare_sub_mono_r; [ | easy | easy ].
+  rewrite Nat_compare_mul_mono_l; [ | now rewrite Nat.add_1_r ].
+  rewrite Nat_compare_add_mono_r.
+  apply Nat.compare_lt_iff in Hbc; rewrite Hbc; f_equal.
+... ...
+  apply Pos.mul_sub_distr_l.
+...
   rewrite Nat.sub_add; [ | flia Hbc ].
   rewrite Nat_compare_sub_add_r; [ | flia ].
   rewrite Nat.sub_add; [ | flia ].
