@@ -275,6 +275,25 @@ Proof. intros; apply nat_compare_equiv. Qed.
 Theorem compare_antisym : ∀ a b, ((a ?= b) = CompOpp (b ?= a))%pos.
 Proof. intros; apply Nat.compare_antisym. Qed.
 
+Theorem compare_refl : ∀ a, (a ?= a)%pos = Eq.
+Proof. intros; apply Nat.compare_refl. Qed.
+
+Theorem compare_eq_iff : ∀ a b, (a ?= b)%pos = Eq ↔ a = b.
+Proof.
+intros.
+progress unfold Pos.compare.
+split; intros H; [ | subst; apply Pos.compare_refl ].
+apply Nat.compare_eq_iff in H.
+now apply Pos.nat_inj.
+Qed.
+
+Theorem to_nat_neq_0 : ∀ a, Pos.to_nat a ≠ 0.
+Proof.
+intros.
+progress unfold Pos.to_nat.
+now rewrite Nat.add_comm.
+Qed.
+
 End Pos.
 
 Number Notation pos Pos.of_number Pos.to_number : pos_scope.

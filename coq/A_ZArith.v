@@ -698,8 +698,7 @@ Theorem add_opp_diag_l : ∀ a : Z, (- a + a)%Z = 0%Z.
 Proof.
 intros.
 destruct a as [| sa va]; [ easy | cbn ].
-...
-now destruct sa; rewrite Nat.compare_refl.
+now destruct sa; rewrite Pos.compare_refl.
 Qed.
 
 Theorem mul_div : ∀ a b, b ≠ 0%Z → (a * b / b)%Z = a.
@@ -711,16 +710,22 @@ destruct a as [| sa va]; [ easy | ].
 destruct b as [| sb vb]; [ easy | cbn ].
 rewrite Nat.sub_add; [ | flia ].
 rewrite if_eqb_bool_dec.
-rewrite Nat.div_mul; [ | now rewrite Nat.add_comm ].
+rewrite Nat.div_mul; [ | apply Pos.to_nat_neq_0 ].
 destruct (Bool.bool_dec (Bool.eqb sa sb) sb) as [H1| H1]. {
   rewrite Nat.add_comm; cbn.
-  destruct sa; [ easy | ].
+  destruct sa. {
+    progress unfold Pos.of_nat.
+    rewrite Nat_sub_succ_1.
+    now destruct va.
+  }
   now exfalso; destruct sb.
 } {
   rewrite Nat.Div0.mod_mul; cbn.
   rewrite Nat.add_comm; cbn.
-  destruct sa; [ | easy ].
-  now exfalso; destruct sb.
+  destruct sa; [ now destruct sb | ].
+  progress unfold Pos.of_nat.
+  rewrite Nat_sub_succ_1.
+  now destruct va.
 }
 Qed.
 
@@ -794,11 +799,11 @@ destruct a as [| sa va]; cbn. {
 }
 destruct b as [| sb vb]; [ now destruct sa | ].
 destruct sa, sb; [ | easy | easy | ]. {
-  rewrite Nat.compare_eq_iff.
+  rewrite Pos.compare_eq_iff.
   split; intros H; [ now subst vb | ].
   now injection H.
 } {
-  rewrite Nat.compare_eq_iff.
+  rewrite Pos.compare_eq_iff.
   split; intros H; [ now subst vb | ].
   now injection H.
 }
@@ -857,7 +862,7 @@ Proof.
 intros.
 destruct a as [| sa va]; [ easy | cbn ].
 rewrite Bool.eqb_negb2.
-now rewrite Nat.compare_refl.
+now rewrite Pos.compare_refl.
 Qed.
 
 Theorem sub_diag : ∀ a, (a - a = 0)%Z.
@@ -949,6 +954,9 @@ destruct sa. {
   destruct sc; [ | easy ].
   apply Nat.compare_le_iff in Hab, Hbc.
   apply Nat.compare_le_iff.
+...
+  apply (Pos.le_trans _ (p_val vb)).
+...
   now transitivity vb.
 }
 destruct sc; [ easy | ].
