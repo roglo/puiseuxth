@@ -42,11 +42,39 @@ Notation "a * b" := (Pos.mul a b) : pos_scope.
 Notation "a ?= b" := (Pos.compare a b) : pos_scope.
 Notation "a =? b" := (Pos.eqb a b) : pos_scope.
 
-Theorem add_comm : ∀ a b, Pos.add a b = Pos.add b a.
+Theorem add_comm : ∀ a b, (a + b)%pos = (b + a)%pos.
 Proof.
 intros.
 progress unfold Pos.add.
 now rewrite (Nat.add_comm (p_val a)).
+Qed.
+
+Theorem add_add_swap : ∀ a b c, (a + b + c)%pos = (a + c + b)%pos.
+Proof.
+intros.
+progress unfold Pos.add.
+progress f_equal; cbn.
+progress f_equal.
+do 4 rewrite <- Nat.add_assoc.
+progress f_equal.
+do 2 rewrite (Nat.add_comm (p_val _)).
+apply Nat.add_shuffle0.
+Qed.
+
+Theorem add_sub : ∀ a b, (a + b - b)%pos = a.
+Proof.
+intros.
+progress unfold Pos.sub, Pos.add; cbn.
+rewrite Nat.add_shuffle0, Nat.add_sub, Nat.add_sub.
+now destruct a.
+Qed.
+
+Theorem nat_inj : ∀ a b, p_val a = p_val b → a = b.
+Proof.
+intros.
+destruct a as (a).
+destruct b as (b).
+cbn in H; now subst.
 Qed.
 
 Theorem eq_dec : ∀ a b : pos, {a = b} + {a ≠ b}.
@@ -62,6 +90,15 @@ destruct (Nat.eq_dec (p_val a) (p_val b)) as [Hab| Hab]. {
   now subst.
 }
 Qed.
+
+Theorem compare_match_dec :
+  ∀ a b : pos, (a ?= b)%pos =
+  match lt_eq_lt_dec (p_val a) (p_val b) with
+  | inleft (left _) => Lt
+  | inleft (right _) => Eq
+  | inright _ => Gt
+  end.
+Proof. intros; apply nat_compare_equiv. Qed.
 
 Theorem compare_antisym : ∀ a b, ((a ?= b) = CompOpp (b ?= a))%pos.
 Proof. intros; apply Nat.compare_antisym. Qed.
