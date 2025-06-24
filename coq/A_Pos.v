@@ -161,6 +161,13 @@ rewrite <- Nat.sub_add_distr.
 now apply Nat.sub_0_le.
 Qed.
 
+Theorem add_sub_eq_l : ∀ n m p, (m + p = n → n - m = p)%pos.
+Proof.
+intros; subst.
+rewrite Pos.add_comm.
+apply Pos.add_sub.
+Qed.
+
 Theorem mul_sub_distr_l : ∀ a b c, (a * (b - c) = a * b - a * c)%pos.
 Proof.
 intros.
@@ -168,13 +175,30 @@ destruct (Pos.le_dec b (c + 1)) as [Hbc| Hbc]. {
   rewrite Pos.le_sub_1; [ | easy ].
   rewrite Pos.mul_1_r.
   symmetry.
-Theorem add_sub_eq_l : ∀ n m p, (m + p = n → n - m = p)%pos.
+...
+(*
+Theorem glop : ∀ a b, (a ≤ b + 1 → b = a + (b - a))%pos.
 Proof.
-... ...
+Admitted.
+*)
+  generalize Hbc; intros H.
+  apply glop in H.
+  rewrite H.
+  rewrite Pos.mul_add_distr_l.
+  rewrite Pos.sub_add_distr.
+...
+  rewrite Pos.add_comm.
+
+  apply Pos.add_sub_eq_l in Hbc.
+  rewrite <- Hbc.
+  rewrite Pos.add_sub_swap.
+  rewrite (Pos.add_comm b).
+  rewrite Pos.sub_add.
+  rewrite Pos.mul_add_distr_l.
+...
   apply Pos.add_sub_eq_l.
   rewrite <- (Pos.mul_1_r a) at 2.
   rewrite <- Pos.mul_add_distr_l.
-...
 ...
   rewrite (proj2 (Pos.sub_0_le _ _)). 2: {
 ...
