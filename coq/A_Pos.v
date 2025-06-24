@@ -47,11 +47,13 @@ Definition mul a b := {| p_val := (p_val a + 1) * (p_val b + 1) - 1 |}.
 Definition compare a b := p_val a ?= p_val b.
 Definition eqb a b := p_val a =? p_val b.
 Definition le a b := p_val a ≤ p_val b.
+Definition lt a b := p_val a < p_val b.
 
 Notation "a + b" := (Pos.add a b) : pos_scope.
 Notation "a - b" := (Pos.sub a b) : pos_scope.
 Notation "a * b" := (Pos.mul a b) : pos_scope.
 Notation "a ≤ b" := (Pos.le a b) : pos_scope.
+Notation "a < b" := (Pos.lt a b) : pos_scope.
 Notation "a ?= b" := (Pos.compare a b) : pos_scope.
 Notation "a =? b" := (Pos.eqb a b) : pos_scope.
 
@@ -168,19 +170,84 @@ rewrite Pos.add_comm.
 apply Pos.add_sub.
 Qed.
 
+Theorem Nat_sub_sub_swap : ∀ a b c, a - b - c = a - c - b.
+Proof.
+intros.
+rewrite <- Nat.sub_add_distr.
+rewrite Nat.add_comm.
+now rewrite Nat.sub_add_distr.
+Qed.
+
+Theorem sub_sub_swap : ∀ a b c, (a - b - c = a - c - b)%pos.
+Proof.
+intros.
+progress unfold Pos.sub; cbn.
+progress f_equal.
+progress f_equal.
+do 2 rewrite (Nat_sub_sub_swap _ 1).
+progress f_equal.
+apply Nat_sub_sub_swap.
+Qed.
+
+Theorem ge_1 : ∀ a, (1 ≤ a)%pos.
+Proof.
+intros.
+progress unfold Pos.le; cbn.
+apply Nat.le_0_l.
+Qed.
+
+Theorem sub_add : ∀ a b, (b < a → a - b + b = a)%pos.
+Proof.
+intros * Hba.
+progress unfold Pos.sub, Pos.add; cbn.
+rewrite Nat.add_shuffle0.
+rewrite Nat.sub_add. 2: {
+  progress unfold Pos.lt in Hba.
+  now apply Nat.lt_add_lt_sub_r.
+}
+rewrite Nat.sub_add. 2: {
+  progress unfold Pos.lt in Hba.
+  now apply Nat.lt_le_incl.
+}
+now destruct a.
+Qed.
+
+Theorem lt_le_incl : ∀ a b, (a < b → a ≤ b)%pos.
+Proof.
+progress unfold Pos.lt, Pos.le.
+intros * Hab.
+now apply Nat.lt_le_incl.
+Qed.
+
+Theorem lt_le : ∀ a b, (a < b + 1 ↔ a ≤ b)%pos.
+Proof.
+progress unfold Pos.lt, Pos.le; cbn.
+intros.
+rewrite Nat.add_0_r.
+rewrite Nat.add_1_r.
+progress unfold Peano.lt.
+now split; intros H; apply Nat.succ_le_mono in H.
+Qed.
+
 Theorem mul_sub_distr_l : ∀ a b c, (a * (b - c) = a * b - a * c)%pos.
 Proof.
 intros.
-destruct (Pos.le_dec b (c + 1)) as [Hbc| Hbc]. {
-  rewrite Pos.le_sub_1; [ | easy ].
+destruct (Pos.le_dec b c) as [Hbc| Hbc]. {
+  generalize Hbc; intros Hbc'.
+  apply Pos.lt_le in Hbc'.
+  rewrite Pos.le_sub_1; [ | now apply Pos.lt_le_incl ].
   rewrite Pos.mul_1_r.
   symmetry.
 ...
-(*
-Theorem glop : ∀ a b, (a ≤ b + 1 → b = a + (b - a))%pos.
+Theorem glop : ∀ a b, (a < b → b = a + (b - a))%pos.
 Proof.
-Admitted.
-*)
+intros * Hab.
+rewrite Pos.add_comm.
+symmetry.
+now apply Pos.sub_add.
+Qed.
+...
+...
   generalize Hbc; intros H.
   apply glop in H.
   rewrite H.
