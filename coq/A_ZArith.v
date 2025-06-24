@@ -20,11 +20,6 @@ Definition z_neg a := z_val false a.
 
 (* misc theorems *)
 
-Theorem Nat_1_le_mul_add_1 : ∀ a b, (1 <= (a + 1) * (b + 1))%nat.
-Proof. flia. Qed.
-
-Hint Resolve Nat_1_le_mul_add_1 : core.
-
 Theorem Bool_eqb_comm : ∀ a b, Bool.eqb a b = Bool.eqb b a.
 Proof.
 intros.
@@ -619,10 +614,7 @@ destruct c as [| sc vc]; [ now do 2 rewrite Z.mul_0_r | ].
 move sb before sa; move sc before sb.
 cbn.
 f_equal; [ now destruct sa, sb, sc | ].
-...
-rewrite Nat.sub_add; [ | flia ].
-rewrite Nat.sub_add; [ | flia ].
-flia.
+apply Pos.mul_mul_swap.
 Qed.
 
 Theorem mul_assoc : ∀ a b c, (a * (b * c))%Z = ((a * b) * c)%Z.
@@ -639,6 +631,7 @@ Proof.
 intros.
 cbn.
 destruct a as [| sa va]; [ easy | ].
+...
 rewrite Nat.add_0_r, Nat.add_sub.
 now f_equal; destruct sa.
 Qed.

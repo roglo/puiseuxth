@@ -8,6 +8,16 @@ Declare Scope pos_scope.
 Delimit Scope pos_scope with pos.
 Bind Scope pos_scope with pos.
 
+Theorem Nat_1_le_mul_add_1 : ∀ a b, (1 <= (a + 1) * (b + 1))%nat.
+Proof.
+intros.
+do 2 rewrite Nat.add_1_r; cbn.
+apply -> Nat.succ_le_mono.
+apply Nat.le_0_l.
+Qed.
+
+Hint Resolve Nat_1_le_mul_add_1 : core.
+
 Module Pos.
 
 Definition of_nat n := {| p_val := n - 1 |}.
@@ -74,6 +84,17 @@ Proof.
 intros.
 progress unfold Pos.mul.
 now rewrite (Nat.mul_comm (p_val a + 1)).
+Qed.
+
+Theorem mul_mul_swap : ∀ a b c, (a * b * c)%pos = (a * c * b)%pos.
+Proof.
+intros.
+progress unfold Pos.mul.
+progress f_equal; cbn.
+progress f_equal.
+rewrite Nat.sub_add; [ | easy ].
+rewrite Nat.sub_add; [ | easy ].
+apply Nat.mul_shuffle0.
 Qed.
 
 Theorem nat_inj : ∀ a b, p_val a = p_val b → a = b.
