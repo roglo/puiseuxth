@@ -2,6 +2,7 @@
 
 Set Nested Proofs Allowed.
 From Stdlib Require Import Utf8 Arith.
+From Stdlib Require Import Psatz.
 
 Record pos := { p_val : nat }.
 
@@ -163,7 +164,7 @@ rewrite <- Nat.sub_add_distr.
 now apply Nat.sub_0_le.
 Qed.
 
-Theorem add_sub_eq_l : ∀ n m p, (m + p = n → n - m = p)%pos.
+Theorem add_sub_eq_l : ∀ a b c, (b + c = a → a - b = c)%pos.
 Proof.
 intros; subst.
 rewrite Pos.add_comm.
@@ -229,130 +230,16 @@ progress unfold Peano.lt.
 now split; intros H; apply Nat.succ_le_mono in H.
 Qed.
 
-Theorem mul_sub_distr_l : ∀ a b c, (a * (b - c) = a * b - a * c)%pos.
+Theorem mul_sub_distr_l :
+  ∀ a b c,
+  (1 < b - c)%pos
+  → (a * (b - c) = a * b - a * c)%pos.
 Proof.
-intros.
-destruct (Pos.le_dec b c) as [Hbc| Hbc]. {
-  generalize Hbc; intros Hbc'.
-  apply Pos.lt_le in Hbc'.
-  rewrite Pos.le_sub_1; [ | now apply Pos.lt_le_incl ].
-  rewrite Pos.mul_1_r.
-  symmetry.
-...
-Theorem glop : ∀ a b, (a < b → b = a + (b - a))%pos.
-Proof.
-intros * Hab.
-rewrite Pos.add_comm.
-symmetry.
-now apply Pos.sub_add.
-Qed.
-...
-...
-  generalize Hbc; intros H.
-  apply glop in H.
-  rewrite H.
-  rewrite Pos.mul_add_distr_l.
-  rewrite Pos.sub_add_distr.
-...
-  rewrite Pos.add_comm.
-
-  apply Pos.add_sub_eq_l in Hbc.
-  rewrite <- Hbc.
-  rewrite Pos.add_sub_swap.
-  rewrite (Pos.add_comm b).
-  rewrite Pos.sub_add.
-  rewrite Pos.mul_add_distr_l.
-...
-  apply Pos.add_sub_eq_l.
-  rewrite <- (Pos.mul_1_r a) at 2.
-  rewrite <- Pos.mul_add_distr_l.
-...
-  rewrite (proj2 (Pos.sub_0_le _ _)). 2: {
-...
-intros.
-progress unfold Pos.mul, Pos.sub, Pos.add; cbn.
+intros * Hbc.
+progress unfold Pos.lt, Pos.sub in Hbc; cbn in Hbc.
+progress unfold Pos.mul, Pos.sub; cbn.
 progress f_equal.
-(**)
-do 3 rewrite Nat.mul_add_distr_l.
-rewrite Nat.mul_1_r.
-do 2 rewrite Nat.mul_sub_distr_l.
-rewrite Nat.mul_1_r.
-rewrite Nat.mul_add_distr_r.
-Require Import Psatz.
 lia.
-...
-progress f_equal.
-destruct (le_dec (p_val b) (p_val c)) as [Hbc| Hbc]. {
-  rewrite (proj2 (Nat.sub_0_le _ _)). 2: {
-    apply Nat.le_sub_le_add_l.
-    apply (Nat.le_trans _ (p_val c)); [ easy | ].
-    apply Nat.le_add_r.
-  }
-  rewrite Nat.mul_1_r.
-  rewrite <- Nat.sub_add_distr.
-  rewrite (Nat.add_comm _ (_ - _)).
-  rewrite Nat.sub_add; [ | easy ].
-  rewrite <- Nat.mul_sub_distr_l.
-  rewrite Nat.sub_add_distr.
-  ring_simplify.
-  rewrite <- Nat.sub_add_distr.
-  replace (p_val b + 1 - (p_val c + 1)) with 1. 2: {
-    rewrite (Nat.add_comm (p_val c)).
-    rewrite Nat.sub_add_distr.
-    rewrite Nat.add_sub.
-...
-rewrite Nat_sub_sub_swap.
-  rewrite (Nat.add_comm (p_val b)).
-Search (_ + _ - _).
-...
-  rewrite <- Nat.add_sub_assoc.
-  rewrite Nat.add_sub_swap.
-Search (_ + _ - (_ + _)).
-...
-
-  rewrite 
-...
-remember (p_val a + 1) as a'.
-rewrite <- Nat.sub_add_distr.
-rewrite Nat.mul_add_distr_l, Nat.mul_1_r.
-rewrite Nat.mul_add_distr_l, Nat.mul_1_r.
-rewrite Nat.mul_sub_distr_l.
-rewrite Nat.mul_add_distr_l, Nat.mul_1_r.
-rewrite Nat.sub_add_distr.
-rewrite Nat.sub_add.
-...
-rewrite Nat.sub_sub_distr.
-...
-...
-rewrite Nat.sub_sub_distr.
-...
-rewrite Nat.mul_add
-ring_simplify.
-rewrite 
-...
-destruct (le_dec (p_val b) (p_val c + 1)) as [Hbc| Hbc]. {
-  rewrite (proj2 (Nat.sub_0_le _ _)). 2: {
-    now apply Nat.le_sub_le_add_l.
-  }
-
-...
-rewrite Nat.sub_add.
-rewrite <- Nat.sub_add_distr.
-Search (_ - _ + _).
-rewrite <- Nat.add_sub_swap.
-...
-Require Import RingLike.Misc.
-Print Nat_sub_sub_swap.
-...
-rewrite Nat_sub_sub_swap.
-rewrite (Nat.add_shuffle0 (p_val b)).
-rewrite <- Nat.add_assoc.
-rewrite Nat.mul_add_distr_l.
-rewrite <- Nat.add_sub_swap; [ | easy ].
-rewrite Nat.add_sub_assoc; [ | easy ].
-symmetry; apply Nat.sub_add.
-apply Nat.le_add_le_sub_l.
-now apply Nat.add_le_mono.
 Qed.
 
 Theorem nat_inj : ∀ a b, p_val a = p_val b → a = b.
@@ -382,5 +269,6 @@ Number Notation pos Pos.of_number Pos.to_number : pos_scope.
 Notation "a + b" := (Pos.add a b) : pos_scope.
 Notation "a - b" := (Pos.sub a b) : pos_scope.
 Notation "a * b" := (Pos.mul a b) : pos_scope.
+Notation "a < b" := (Pos.lt a b) : pos_scope.
 Notation "a ?= b" := (Pos.compare a b) : pos_scope.
 Notation "a =? b" := (Pos.eqb a b) : pos_scope.
