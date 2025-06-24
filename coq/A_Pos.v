@@ -69,6 +69,13 @@ rewrite Nat.add_shuffle0, Nat.add_sub, Nat.add_sub.
 now destruct a.
 Qed.
 
+Theorem mul_comm : ∀ a b, (a * b)%pos = (b * a)%pos.
+Proof.
+intros.
+progress unfold Pos.mul.
+now rewrite (Nat.mul_comm (p_val a + 1)).
+Qed.
+
 Theorem nat_inj : ∀ a b, p_val a = p_val b → a = b.
 Proof.
 intros.

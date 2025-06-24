@@ -598,10 +598,8 @@ Theorem mul_comm : ∀ a b, (a * b)%Z = (b * a)%Z.
 Proof.
 intros.
 destruct a as [| sa va]; [ now destruct b | ].
-destruct b as [| sb vb]; [ easy | ].
-cbn.
-...
-rewrite (Pos.mul_comm (vb + 1)).
+destruct b as [| sb vb]; [ easy | cbn ].
+rewrite (Pos.mul_comm vb).
 f_equal.
 now destruct sa, sb.
 Qed.
@@ -621,6 +619,7 @@ destruct c as [| sc vc]; [ now do 2 rewrite Z.mul_0_r | ].
 move sb before sa; move sc before sb.
 cbn.
 f_equal; [ now destruct sa, sb, sc | ].
+...
 rewrite Nat.sub_add; [ | flia ].
 rewrite Nat.sub_add; [ | flia ].
 flia.
