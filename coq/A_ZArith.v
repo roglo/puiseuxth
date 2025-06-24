@@ -660,16 +660,21 @@ destruct (lt_eq_lt_dec _ _) as [[Hbc| Hbc]| Hbc]. {
   rewrite if_eqb_bool_dec.
   destruct (Bool.bool_dec _ _) as [Hsaa| Hsaa]; [ now destruct sa, sb, sc | ].
   clear Hsaa.
-(**)
   rewrite Nat_compare_sub_mono_r; [ | easy | easy ].
   rewrite Nat_compare_mul_mono_l; [ | now rewrite Nat.add_1_r ].
   rewrite Nat_compare_add_mono_r.
   generalize Hbc; intros H.
   apply Nat.compare_lt_iff in H; rewrite H; f_equal; clear H.
-  apply Pos.mul_sub_distr_l.
+(**)
+  destruct va as (va).
   destruct vb as (vb).
   destruct vc as (vc).
+  progress unfold Pos.mul; cbn.
+  progress unfold Pos.sub; cbn.
   cbn in Hbc |-*.
+  f_equal.
+...
+  apply Pos.mul_sub_distr_l.
   progress unfold Pos.lt; cbn.
 ...
   flia Hbc.
