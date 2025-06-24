@@ -665,52 +665,24 @@ destruct (lt_eq_lt_dec _ _) as [[Hbc| Hbc]| Hbc]. {
   rewrite Nat_compare_add_mono_r.
   generalize Hbc; intros H.
   apply Nat.compare_lt_iff in H; rewrite H; f_equal; clear H.
-(**)
-  destruct va as (va).
-  destruct vb as (vb).
-  destruct vc as (vc).
-  progress unfold Pos.mul; cbn.
-  progress unfold Pos.sub; cbn.
-  cbn in Hbc |-*.
-  f_equal.
-...
-  apply Pos.mul_sub_distr_l.
-  progress unfold Pos.lt; cbn.
-...
-  flia Hbc.
-...
-  rewrite Nat.sub_add; [ | flia Hbc ].
-  rewrite Nat_compare_sub_add_r; [ | flia ].
-  rewrite Nat.sub_add; [ | flia ].
-  rewrite Nat_compare_mul_mono_l; [ | now rewrite Nat.add_comm ].
-  (* lemma to do *)
-  rewrite <- Nat_compare_sub_add_r; [ | flia ].
-  rewrite Nat.add_sub.
-  apply Nat.compare_lt_iff in Hbc; rewrite Hbc.
-  apply Nat.compare_lt_iff in Hbc.
-  progress f_equal.
-  flia Hbc.
+  now apply Pos.mul_sub_distr_l.
 } {
-  cbn - [ "<?" ]; subst vc.
+  cbn.
+  apply Pos.nat_inj in Hbc; subst vc.
   rewrite if_eqb_bool_dec.
   destruct (Bool.bool_dec _ _) as [Hsaa| Hsaa]; [ now destruct sa, sb, sc | ].
   now rewrite Nat.compare_refl.
 } {
-  cbn - [ "<?" ].
+  cbn.
   rewrite if_eqb_bool_dec.
   destruct (Bool.bool_dec _ _) as [Hsaa| Hsaa]; [ now destruct sa, sb, sc | ].
   clear Hsaa.
-  rewrite Nat.sub_add; [ | flia Hbc ].
-  rewrite Nat_compare_sub_add_r; [ | flia ].
-  rewrite Nat.sub_add; [ | flia ].
-  rewrite Nat_compare_mul_mono_l; [ | now rewrite Nat.add_comm ].
-  (* lemma to do *)
-  rewrite <- Nat_compare_sub_add_r; [ | flia ].
-  rewrite Nat.add_sub.
-  apply Nat.compare_gt_iff in Hbc; rewrite Hbc.
-  apply Nat.compare_gt_iff in Hbc.
-  progress f_equal.
-  flia Hbc.
+  rewrite Nat_compare_sub_mono_r; [ | easy | easy ].
+  rewrite Nat_compare_mul_mono_l; [ | now rewrite Nat.add_1_r ].
+  rewrite Nat_compare_add_mono_r.
+  generalize Hbc; intros H.
+  apply Nat.compare_gt_iff in H; rewrite H; f_equal; clear H.
+  now apply Pos.mul_sub_distr_l.
 }
 Qed.
 
@@ -726,6 +698,7 @@ Theorem add_opp_diag_l : ∀ a : Z, (- a + a)%Z = 0%Z.
 Proof.
 intros.
 destruct a as [| sa va]; [ easy | cbn ].
+...
 now destruct sa; rewrite Nat.compare_refl.
 Qed.
 

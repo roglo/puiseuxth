@@ -232,13 +232,26 @@ Qed.
 
 Theorem mul_sub_distr_l :
   ∀ a b c,
-  (1 < b - c)%pos
+  (c < b)%pos
   → (a * (b - c) = a * b - a * c)%pos.
 Proof.
 intros * Hbc.
 progress unfold Pos.lt, Pos.sub in Hbc; cbn in Hbc.
 progress unfold Pos.mul, Pos.sub; cbn.
 progress f_equal.
+destruct a as (a).
+destruct b as (b).
+destruct c as (c).
+cbn in Hbc |-*.
+do 4 rewrite Nat.add_1_r; cbn.
+do 3 rewrite Nat.sub_0_r.
+do 3 rewrite (Nat.mul_comm _ (S _)); cbn.
+do 2 rewrite Nat.mul_sub_distr_r.
+rewrite Nat.mul_1_l.
+rewrite Nat.add_sub_assoc; [ lia | ].
+rewrite <- Nat.mul_sub_distr_r.
+rewrite <- (Nat.mul_1_l a) at 1.
+apply Nat.mul_le_mono_r.
 lia.
 Qed.
 
