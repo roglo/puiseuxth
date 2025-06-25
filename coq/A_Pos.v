@@ -287,11 +287,19 @@ Proof. intros; apply Nat.compare_refl. Qed.
 Theorem compare_eq_iff : ∀ a b, (a ?= b)%pos = Eq ↔ a = b.
 Proof.
 intros.
-progress unfold Pos.compare.
 split; intros H; [ | subst; apply Pos.compare_refl ].
 apply Nat.compare_eq_iff in H.
 now apply Pos.nat_inj.
 Qed.
+
+Theorem compare_lt_iff : ∀ a b, (a ?= b)%pos = Lt ↔ (a < b)%pos.
+Proof. intros; apply Nat.compare_lt_iff. Qed.
+
+Theorem compare_gt_iff : ∀ a b, (a ?= b)%pos = Gt ↔ (b < a)%pos.
+Proof. intros; apply Nat.compare_gt_iff. Qed.
+
+Theorem compare_le_iff : ∀ a b, (a ?= b)%pos ≠ Gt ↔ (a ≤ b)%pos.
+Proof. intros; apply Nat.compare_le_iff. Qed.
 
 Theorem to_nat_neq_0 : ∀ a, Pos.to_nat a ≠ 0.
 Proof.

@@ -1079,18 +1079,18 @@ destruct sb. {
   destruct sc; [ | easy ].
   cbn; rewrite Hvab, Hvac.
   destruct vab. {
-(**)
-    apply Nat.compare_eq_iff in Hvab.
-...
-    apply Nat.compare_eq_iff in Hvab; subst vb.
+    apply Pos.compare_eq_iff in Hvab; subst vb.
     now destruct vac.
   } {
-    apply Nat.compare_lt_iff in Hvab.
+    apply Pos.compare_lt_iff in Hvab.
     destruct vac. {
-      apply Nat.compare_eq_iff in Hvac; subst vc.
+      apply Pos.compare_eq_iff in Hvac; subst vc.
       now symmetry; apply Nat.compare_gt_iff.
     } {
-      apply Nat.compare_lt_iff in Hvac; cbn.
+      apply Pos.compare_lt_iff in Hvac; cbn.
+(**)
+      rewrite Nat_compare_sub_mono_r; [ | | ].
+...
       rewrite Nat_compare_sub_mono_r; [ | flia Hvab | flia Hvac ].
       apply Nat.lt_le_incl in Hvab, Hvac.
       now rewrite Nat_compare_sub_mono_r.
