@@ -1121,28 +1121,26 @@ destruct sc; [ easy | ].
 cbn - [ Z.add ].
 destruct vab. {
   cbn; rewrite Hvab, Hvac.
-(**)
-  apply Nat.compare_eq_iff in Hvab.
-...
-  apply Nat.compare_eq_iff in Hvab; subst vb.
+  apply Pos.compare_eq_iff in Hvab; subst vb.
   destruct vac. {
-    apply Nat.compare_eq_iff in Hvac; subst vc.
+    apply Pos.compare_eq_iff in Hvac; subst vc.
     now symmetry; apply Nat.compare_eq_iff.
   } {
-    apply Nat.compare_lt_iff in Hvac; cbn.
+    apply Pos.compare_lt_iff in Hvac; cbn.
     now symmetry; apply Nat.compare_gt_iff.
   } {
-    apply Nat.compare_gt_iff in Hvac; cbn.
+    apply Pos.compare_gt_iff in Hvac; cbn.
     now symmetry; apply Nat.compare_lt_iff.
   }
 } {
   cbn; rewrite Hvab, Hvac.
-  apply Nat.compare_lt_iff in Hvab.
+  apply Pos.compare_lt_iff in Hvab.
   destruct vac. {
-    apply Nat.compare_eq_iff in Hvac; subst vc.
+    apply Pos.compare_eq_iff in Hvac; subst vc.
     now symmetry; apply Nat.compare_lt_iff.
   } {
     apply Nat.compare_lt_iff in Hvac; cbn.
+...
     rewrite Nat_compare_sub_mono_r; [ | flia Hvac | flia Hvab ].
     apply Nat.lt_le_incl in Hvab, Hvac.
     now rewrite Nat_compare_sub_mono_r.
