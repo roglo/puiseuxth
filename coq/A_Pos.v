@@ -213,6 +213,12 @@ rewrite Nat.sub_add. 2: {
 now destruct a.
 Qed.
 
+Theorem le_trans : ∀ a b c, (a ≤ b → b ≤ c → a ≤ c)%pos.
+Proof.
+intros * Hab Hbc.
+eapply Nat.le_trans; [ apply Hab | easy ].
+Qed.
+
 Theorem lt_le_incl : ∀ a b, (a < b → a ≤ b)%pos.
 Proof.
 progress unfold Pos.lt, Pos.le.
