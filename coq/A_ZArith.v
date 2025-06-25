@@ -1087,27 +1087,27 @@ destruct sb. {
       apply Pos.compare_eq_iff in Hvac; subst vc.
       now symmetry; apply Nat.compare_gt_iff.
     } {
-      apply Pos.compare_lt_iff in Hvac; cbn.
-(**)
-      rewrite Nat_compare_sub_mono_r; [ | | ].
-...
+      apply Nat.compare_lt_iff in Hvac; cbn.
+      progress unfold Pos.lt in Hvab, Hvac.
       rewrite Nat_compare_sub_mono_r; [ | flia Hvab | flia Hvac ].
       apply Nat.lt_le_incl in Hvab, Hvac.
       now rewrite Nat_compare_sub_mono_r.
     } {
-      apply Nat.compare_gt_iff in Hvac; cbn.
+      apply Pos.compare_gt_iff in Hvac; cbn.
+      progress unfold Pos.lt in Hvab, Hvac.
       symmetry; apply Nat.compare_gt_iff.
-      now transitivity va.
+      now transitivity (p_val va).
     }
   } {
     apply Nat.compare_gt_iff in Hvab.
     destruct vac. {
-      apply Nat.compare_eq_iff in Hvac; subst vc.
-      now symmetry; apply Nat.compare_lt_iff.
+      cbn; symmetry.
+      apply Nat.compare_lt_iff.
+      now apply Nat.compare_eq_iff in Hvac; rewrite <- Hvac.
     } {
       apply Nat.compare_lt_iff in Hvac; cbn.
       symmetry; apply Nat.compare_lt_iff.
-      now transitivity va.
+      now transitivity (p_val va).
     } {
       apply Nat.compare_gt_iff in Hvac; cbn.
       rewrite Nat_compare_sub_mono_r; [ | flia Hvac | flia Hvab ].
@@ -1121,6 +1121,9 @@ destruct sc; [ easy | ].
 cbn - [ Z.add ].
 destruct vab. {
   cbn; rewrite Hvab, Hvac.
+(**)
+  apply Nat.compare_eq_iff in Hvab.
+...
   apply Nat.compare_eq_iff in Hvab; subst vb.
   destruct vac. {
     apply Nat.compare_eq_iff in Hvac; subst vc.
