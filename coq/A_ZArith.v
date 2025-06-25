@@ -1154,13 +1154,12 @@ destruct vab. {
   cbn; rewrite Hvab, Hvac.
   apply Nat.compare_gt_iff in Hvab.
   destruct vac. {
-...
-    apply Nat.compare_eq_iff in Hvac; subst vc.
+    apply Pos.compare_eq_iff in Hvac; subst vc.
     now symmetry; apply Nat.compare_gt_iff.
   } {
     apply Nat.compare_lt_iff in Hvac; cbn.
     symmetry; apply Nat.compare_gt_iff.
-    now transitivity va.
+    now transitivity (p_val va).
   } {
     apply Nat.compare_gt_iff in Hvac; cbn.
     rewrite Nat_compare_sub_mono_r; [ | flia Hvab | flia Hvac ].
@@ -1256,7 +1255,7 @@ Proof.
 intros.
 progress unfold Z.leb.
 destruct a as [| sa va]; [ easy | cbn ].
-now destruct sa; rewrite Nat.compare_refl.
+now destruct sa; rewrite Pos.compare_refl.
 Qed.
 
 Theorem add_le_mono_l_if : ∀ a b c, (a ≤ b)%Z → (c + a ≤ c + b)%Z.
@@ -1520,7 +1519,7 @@ progress unfold Z.compare in H1.
 split; [ | easy ].
 intros H; subst b.
 destruct a as [| sa va]; [ easy | cbn in H1 ].
-now destruct sa; rewrite Nat.compare_refl in H1.
+now destruct sa; rewrite Pos.compare_refl in H1.
 Qed.
 
 Instance ring_like_ord : ring_like_ord Z :=
@@ -1547,6 +1546,10 @@ rewrite <- Z.mul_add_distr_r.
 progress f_equal.
 progress unfold Z.of_nat.
 destruct n; [ easy | cbn; f_equal ].
+progress unfold Pos.add; cbn.
+progress unfold Pos.of_nat; cbn.
+rewrite Nat.sub_0_r.
+f_equal.
 apply Nat.add_1_r.
 Qed.
 
@@ -1565,6 +1568,7 @@ intros * Ha.
 destruct b as [| sb vb]; [ now exists 1; rewrite Z.mul_1_l | ].
 destruct a as [| sa va]; [ easy | ].
 destruct sa; [ | easy ].
+...
 specialize (nat_archimedean (va + 1) (vb + 1)) as (m, Hm); [ flia | ].
 destruct m; [ now exists 1 | ].
 exists (S m); cbn.
