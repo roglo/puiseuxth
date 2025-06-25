@@ -1139,20 +1139,22 @@ destruct vab. {
     apply Pos.compare_eq_iff in Hvac; subst vc.
     now symmetry; apply Nat.compare_lt_iff.
   } {
+    progress unfold Pos.lt in Hvab.
     apply Nat.compare_lt_iff in Hvac; cbn.
-...
     rewrite Nat_compare_sub_mono_r; [ | flia Hvac | flia Hvab ].
     apply Nat.lt_le_incl in Hvab, Hvac.
     now rewrite Nat_compare_sub_mono_r.
   } {
+    progress unfold Pos.lt in Hvab.
     apply Nat.compare_gt_iff in Hvac; cbn.
     symmetry; apply Nat.compare_lt_iff.
-    now transitivity va.
+    now transitivity (p_val va).
   }
 } {
   cbn; rewrite Hvab, Hvac.
   apply Nat.compare_gt_iff in Hvab.
   destruct vac. {
+...
     apply Nat.compare_eq_iff in Hvac; subst vc.
     now symmetry; apply Nat.compare_gt_iff.
   } {
