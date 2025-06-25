@@ -1562,21 +1562,33 @@ simpl; rewrite <- Nat.add_1_l.
 now apply Nat.add_le_lt_mono.
 Qed.
 
+Theorem pos_archimedean : ∀ a b,  ∃ n, (b < Pos.of_nat n * a)%pos.
+Proof.
+intros.
+destruct a as (a).
+destruct b as (b).
+progress unfold Pos.lt; cbn.
+specialize (nat_archimedean (S a) (S b) (Nat.lt_0_succ _)) as H1.
+destruct H1 as (n, Hn).
+exists n.
+rewrite Nat.sub_add; flia Hn.
+Qed.
+
 Theorem archimedean : ∀ a b, (0 < a → ∃ n, b < Z.of_nat n * a)%Z.
 Proof.
 intros * Ha.
 destruct b as [| sb vb]; [ now exists 1; rewrite Z.mul_1_l | ].
 destruct a as [| sa va]; [ easy | ].
 destruct sa; [ | easy ].
-...
-specialize (nat_archimedean (va + 1) (vb + 1)) as (m, Hm); [ flia | ].
-destruct m; [ now exists 1 | ].
+specialize (pos_archimedean va vb) as (m, Hm).
+destruct m. {
+  exists 1.
+  destruct sb; [ now apply Pos.compare_lt_iff | easy ].
+}
 exists (S m); cbn.
 destruct sb; [ | easy ].
 progress unfold Z.lt; cbn.
-apply Nat.compare_lt_iff.
-apply Nat.lt_add_lt_sub_r.
-now rewrite (Nat.add_1_r m).
+now apply Pos.compare_lt_iff.
 Qed.
 
 Theorem archimedean_b :
@@ -1607,6 +1619,7 @@ destruct b as [| sb vb]. {
 }
 destruct (rngl_mul_nat a n) as [| sc vc]; [ now destruct sb | ].
 destruct sb, sc; [ | easy | easy | ]. {
+...
   rewrite Nat.compare_antisym in Ha.
   progress unfold CompOpp in Ha.
   progress unfold Z.leb; cbn.
