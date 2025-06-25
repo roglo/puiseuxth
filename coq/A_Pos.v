@@ -288,8 +288,7 @@ Theorem compare_eq_iff : ∀ a b, (a ?= b)%pos = Eq ↔ a = b.
 Proof.
 intros.
 split; intros H; [ | subst; apply Pos.compare_refl ].
-apply Nat.compare_eq_iff in H.
-now apply Pos.nat_inj.
+now apply Nat.compare_eq_iff, Pos.nat_inj in H.
 Qed.
 
 Theorem compare_lt_iff : ∀ a b, (a ?= b)%pos = Lt ↔ (a < b)%pos.
@@ -301,11 +300,33 @@ Proof. intros; apply Nat.compare_gt_iff. Qed.
 Theorem compare_le_iff : ∀ a b, (a ?= b)%pos ≠ Gt ↔ (a ≤ b)%pos.
 Proof. intros; apply Nat.compare_le_iff. Qed.
 
+Theorem eqb_refl : ∀ a, (a =? a)%pos = true.
+Proof. intros; apply Nat.eqb_refl. Qed.
+
+Theorem eqb_eq : ∀ a b, (a =? b)%pos = true ↔ a = b.
+Proof.
+intros.
+split; intros H; [ | now subst; apply Nat.eqb_eq ].
+now apply Nat.eqb_eq, Pos.nat_inj in H.
+Qed.
+
 Theorem to_nat_neq_0 : ∀ a, Pos.to_nat a ≠ 0.
 Proof.
 intros.
 progress unfold Pos.to_nat.
 now rewrite Nat.add_comm.
+Qed.
+
+(* gcd *)
+
+Definition gcd a b := Pos.of_nat (Nat.gcd (Pos.to_nat a) (Pos.to_nat b)).
+
+Theorem gcd_comm : ∀ a b, Pos.gcd a b = Pos.gcd b a.
+Proof.
+intros.
+progress unfold Pos.gcd.
+progress f_equal.
+apply Nat.gcd_comm.
 Qed.
 
 End Pos.

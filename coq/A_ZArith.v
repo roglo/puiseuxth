@@ -1619,16 +1619,15 @@ destruct b as [| sb vb]. {
 }
 destruct (rngl_mul_nat a n) as [| sc vc]; [ now destruct sb | ].
 destruct sb, sc; [ | easy | easy | ]. {
-...
-  rewrite Nat.compare_antisym in Ha.
+  rewrite Pos.compare_antisym in Ha.
   progress unfold CompOpp in Ha.
   progress unfold Z.leb; cbn.
-  now destruct (vc ?= vb).
+  now destruct (vc ?= vb)%pos.
 } {
-  rewrite Nat.compare_antisym in Ha.
+  rewrite Pos.compare_antisym in Ha.
   progress unfold CompOpp in Ha.
   progress unfold Z.leb; cbn.
-  now destruct (vb ?= vc).
+  now destruct (vb ?= vc)%pos.
 }
 Qed.
 
@@ -1672,8 +1671,7 @@ Proof.
 intros.
 destruct a as [| sa va]; [ easy | cbn ].
 rewrite Bool.eqb_reflx.
-rewrite Nat.eqb_refl.
-easy.
+apply Pos.eqb_refl.
 Qed.
 
 Theorem eqb_eq : ∀ a b, (a =? b)%Z = true ↔ a = b.
@@ -1685,7 +1683,7 @@ destruct b as [| sb vb]; [ easy | ].
 cbn in Hab.
 apply Bool.andb_true_iff in Hab.
 destruct Hab as (H1, H2).
-apply Nat.eqb_eq in H2; subst vb.
+apply Pos.eqb_eq in H2; subst vb.
 now destruct sa, sb.
 Qed.
 
@@ -1801,10 +1799,10 @@ destruct a as [| sa va]. {
   progress unfold Z.le; cbn.
   destruct sa. {
     destruct sb; [ | now right ].
-    now destruct (va ?= vb); [ left | left | right ].
+    now destruct (va ?= vb)%pos; [ left | left | right ].
   }
   destruct sb; [ now left | ].
-  now destruct (vb ?= va); [ left | left | right ].
+  now destruct (vb ?= va)%pos; [ left | left | right ].
 }
 Qed.
 
@@ -1855,13 +1853,13 @@ destruct a as [| sa va]. {
   destruct b as [| sb vb]; [ easy | now destruct sb ].
 }
 destruct b as [| sb vb]; [ easy | cbn ].
-rewrite Nat.compare_antisym.
+rewrite Pos.compare_antisym.
 destruct sa. {
   destruct sb; [ cbn | easy ].
-  now destruct (vb ?= va)%nat.
+  now destruct (vb ?= va)%pos.
 } {
   destruct sb; [ easy | cbn ].
-  now destruct (vb ?= va)%nat.
+  now destruct (vb ?= va)%pos.
 }
 Qed.
 
@@ -1882,6 +1880,7 @@ Theorem abs_nonneg : ∀ a, (0 ≤ Z.abs a)%Z.
 Proof.
 intros.
 destruct a as [| sa va]; [ easy | cbn ].
+progress unfold Pos.to_nat.
 now rewrite Nat.add_1_r.
 Qed.
 
@@ -1928,7 +1927,7 @@ Definition gcd a b :=
   | z_val sa va =>
       match b with
       | z_zero => Z.abs a
-      | z_val sb vb => z_val true (Nat.gcd (va + 1) (vb + 1) - 1)
+      | z_val sb vb => z_val true (Pos.gcd va vb)
       end
   end.
 
@@ -1938,8 +1937,7 @@ intros.
 destruct a as [| sa va]; [ now destruct b | ].
 destruct b as [| sb vb]; [ easy | cbn ].
 progress f_equal.
-progress f_equal.
-apply Nat.gcd_comm.
+apply Pos.gcd_comm.
 Qed.
 
 Theorem gcd_divide_l : ∀ a b : Z, (Z.gcd a b | a)%Z.
@@ -1949,6 +1947,7 @@ progress unfold Z.divide.
 destruct a as [| sa va]; [ now exists 0%Z | cbn ].
 destruct b as [| sb vb]. {
   destruct sa. {
+...
     exists 1%Z; rewrite Nat.add_1_r; cbn.
     now rewrite Nat.add_0_r, Nat.add_sub.
   } {
