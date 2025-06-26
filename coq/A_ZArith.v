@@ -2028,6 +2028,13 @@ Qed.
 
 End Z2Nat.
 
+Module Pos2Z.
+
+Theorem inj_mul : ∀ a b, Z.of_pos (a * b) = (Z.of_pos a * Z.of_pos b)%Z.
+Proof. easy. Qed.
+
+End Pos2Z.
+
 Definition Z_ring_theory : ring_theory 0%Z 1%Z Z.add Z.mul Z.sub Z.opp eq :=
   {| Radd_0_l := Z.add_0_l;
      Radd_comm := Z.add_comm;

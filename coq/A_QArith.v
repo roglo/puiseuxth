@@ -144,37 +144,32 @@ rewrite Pos.mul_comm.
 easy.
 Qed.
 
+Theorem fold_q_Den : ∀ a, Z.of_pos (q_den a) = q_Den a.
+Proof. easy. Qed.
+
 Theorem add_assoc : ∀ a b c, (a + (b + c))%Q = ((a + b) + c)%Q.
 Proof.
 intros.
 progress unfold Q.add.
-(**)
 cbn.
 do 2 rewrite q_Den_num_den.
 rewrite Pos.mul_assoc.
 progress f_equal.
-...
-progress unfold Pos.mul; cbn.
-rewrite Nat.sub_add; [ | flia ].
-rewrite Nat.sub_add; [ | flia ].
-f_equal; [ | now rewrite Nat.mul_assoc ].
-progress unfold q_Den; cbn.
-...
-rewrite Nat.sub_add; [ | flia ].
-rewrite Nat.sub_add; [ | flia ].
-do 2 rewrite Nat2Z.inj_mul.
+do 2 rewrite Pos2Z.inj_mul.
+do 3 rewrite fold_q_Den.
 do 2 rewrite Z.mul_add_distr_r.
+do 2 rewrite Z.mul_assoc.
 rewrite <- Z.add_assoc.
-f_equal; [ apply Z.mul_assoc | ].
-f_equal; [ apply Z.mul_mul_swap | ].
-rewrite <- Z.mul_assoc.
-f_equal; apply Z.mul_comm.
+progress f_equal.
+do 2 rewrite (Z.mul_mul_swap _ _ (q_Den a)).
+easy.
 Qed.
 
 Theorem add_0_l : ∀ a, (0 + a)%Q = a.
 Proof.
 intros.
 progress unfold add; cbn.
+...
 rewrite Z.mul_1_r, Nat.add_0_r.
 rewrite Nat.add_sub.
 now destruct a.
@@ -607,9 +602,6 @@ apply (Z.le_trans _ (q_num b * q_Den a * q_Den c)). {
 do 2 rewrite (Z.mul_mul_swap _ (q_Den a)).
 now apply Z.mul_le_mono_pos_r.
 Qed.
-
-Theorem fold_q_Den : ∀ a, Z.of_nat (q_den a + 1) = q_Den a.
-Proof. easy. Qed.
 
 Theorem compare_add_mono_l : ∀ a b c, (a + b ?= a + c)%Q = (b ?= c)%Q.
 Proof.
