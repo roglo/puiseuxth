@@ -1,23 +1,21 @@
-(** * A ℚ arithmetics
-
-  [mk_q d n] represents the rationnal d/(n+1)
-*)
+(** * A ℚ arithmetics *)
 
 Set Nested Proofs Allowed.
 From Stdlib Require Import Utf8 Arith.
 From Stdlib Require Import Morphisms.
-Require Import A_ZArith.
+Require Import A_Pos A_ZArith.
 Require Import RingLike.Misc.
 
 Record Q := mk_q
   { q_num : Z;
-    q_den : nat }.
+    q_den : pos }.
 
 Declare Scope Q_scope.
 Delimit Scope Q_scope with Q.
 Bind Scope Q_scope with Q.
 
-Definition q_Den a := Z.of_nat (q_den a + 1).
+...
+Definition q_Den a := Z.of_pos (q_den a + 1).
 Definition pos_mul a b := (a + 1) * (b + 1) - 1.
 
 (* misc *)
