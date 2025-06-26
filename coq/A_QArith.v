@@ -29,19 +29,17 @@ Proof. intros * H1 H2; flia H1 H2. Qed.
 Theorem Nat_add_1_r_pos : ∀ a, (0 < a + 1)%nat.
 Proof. flia. Qed.
 
-...
-
-Theorem q_Den_num_den : ∀ a b, q_Den (mk_q a b) = Z.of_nat (b + 1).
+Theorem q_Den_num_den : ∀ a b, q_Den (mk_q a b) = Z.of_pos b.
 Proof. easy. Qed.
 
 Theorem q_Den_neq_0 : ∀ a, q_Den a ≠ 0%Z.
-Proof. now intros; unfold q_Den; rewrite Nat.add_1_r. Qed.
+Proof. easy. Qed.
 
 Theorem q_Den_pos : ∀ a, (0 < q_Den a)%Z.
-Proof. now intros; unfold q_Den; rewrite Nat.add_1_r. Qed.
+Proof. easy. Qed.
 
 Theorem q_Den_nonneg : ∀ a, (0 ≤ q_Den a)%Z.
-Proof. now intros; unfold q_Den; rewrite Nat.add_1_r. Qed.
+Proof. easy. Qed.
 
 Hint Resolve Nat_add_1_r_pos : core.
 Hint Resolve q_Den_pos : core.
@@ -57,16 +55,16 @@ Definition eq a b := q_num a * q_Den b = q_num b * q_Den a.
 Definition add a b :=
   mk_q
     (q_num a * q_Den b + q_num b * q_Den a)
-    (pos_mul (q_den a) (q_den b)).
+    (Pos.mul (q_den a) (q_den b)).
 
 Definition opp a := mk_q (- q_num a) (q_den a).
 Definition sub a b := add a (opp b).
 
 Definition mul a b :=
-  mk_q (q_num a * q_num b) (pos_mul (q_den a) (q_den b)).
+  mk_q (q_num a * q_num b) (Pos.mul (q_den a) (q_den b)).
 
 Definition inv a :=
-  mk_q (Z.sign (q_num a) * q_Den a) (Z.abs_nat (q_num a) - 1).
+  mk_q (Z.sign (q_num a) * q_Den a) (Z.to_pos (Z.abs (q_num a))).
 
 Definition div a b := mul a (inv b).
 
@@ -80,15 +78,15 @@ Definition of_number (n : Number.int) : option Q :=
   match n with
   | Number.IntDecimal n =>
       match n with
-      | Decimal.Pos n => Some (mk_q (Z.of_nat (Nat.of_uint n)) 0)
-      | Decimal.Neg n => Some (mk_q (- Z.of_nat (Nat.of_uint n)) 0)
+      | Decimal.Pos n => Some (mk_q (Z.of_nat (Nat.of_uint n)) 1)
+      | Decimal.Neg n => Some (mk_q (- Z.of_nat (Nat.of_uint n)) 1)
       end
   | Number.IntHexadecimal n => None
   end.
 
 Definition to_number (a : Q) : option Number.int :=
   match q_den a with
-  | 0%nat => Some (Z.to_number (q_num a))
+  | 1%pos => Some (Z.to_number (q_num a))
   | _ => None
   end.
 
@@ -107,13 +105,7 @@ Notation "a ?= b" := (Q.compare a b) : Q_scope.
 Notation "a # b" := (mk_q a (b - 1)) (at level 55) : Q_scope.
 
 Theorem q_Den_mul : ∀ a b, q_Den (a * b) = (q_Den a * q_Den b)%Z.
-Proof.
-intros; cbn.
-progress unfold q_Den; cbn.
-progress unfold pos_mul.
-rewrite Nat.sub_add; [ | easy ].
-apply Nat2Z.inj_mul.
-Qed.
+Proof. easy. Qed.
 
 Theorem eq_refl : ∀ a, (a == a)%Q.
 Proof. easy. Qed.
@@ -134,9 +126,7 @@ do 2 rewrite Z.mul_assoc in Hbc.
 rewrite Hbc in Hab.
 do 2 rewrite <- (Z.mul_mul_swap _ _ (q_Den b)) in Hab.
 rewrite (Z.mul_comm (q_Den a)) in Hab.
-apply Z.mul_cancel_r in Hab; [ easy | ].
-progress unfold q_Den.
-now rewrite Nat.add_comm.
+now apply Z.mul_cancel_r in Hab.
 Qed.
 
 Add Parametric Relation : Q Q.eq
@@ -150,8 +140,7 @@ Proof.
 intros.
 progress unfold add.
 rewrite Z.add_comm.
-progress unfold pos_mul.
-rewrite (Nat.mul_comm (q_den b + 1)).
+rewrite Pos.mul_comm.
 easy.
 Qed.
 
@@ -159,11 +148,12 @@ Theorem add_assoc : ∀ a b c, (a + (b + c))%Q = ((a + b) + c)%Q.
 Proof.
 intros.
 progress unfold add.
-progress unfold pos_mul; cbn.
+progress unfold Pos.mul; cbn.
 rewrite Nat.sub_add; [ | flia ].
 rewrite Nat.sub_add; [ | flia ].
 f_equal; [ | now rewrite Nat.mul_assoc ].
 progress unfold q_Den; cbn.
+...
 rewrite Nat.sub_add; [ | flia ].
 rewrite Nat.sub_add; [ | flia ].
 do 2 rewrite Nat2Z.inj_mul.
@@ -195,7 +185,7 @@ Theorem mul_comm : ∀ a b, (a * b)%Q = (b * a)%Q.
 Proof.
 intros.
 progress unfold mul.
-progress unfold pos_mul.
+progress unfold Pos.mul.
 now rewrite Z.mul_comm, Nat.mul_comm.
 Qed.
 
@@ -203,7 +193,7 @@ Theorem mul_assoc : ∀ a b c, (a * (b * c))%Q = ((a * b) * c)%Q.
 Proof.
 intros.
 progress unfold mul.
-progress unfold pos_mul; cbn.
+progress unfold Pos.mul; cbn.
 rewrite Nat.sub_add; [ | flia ].
 rewrite Nat.sub_add; [ | flia ].
 now rewrite Z.mul_assoc, Nat.mul_assoc.
@@ -296,7 +286,7 @@ do 2 rewrite (Z.mul_comm (_ + _)).
 do 2 rewrite (Z.add_comm (q_num a * _)).
 progress unfold Q.add; cbn.
 progress unfold q_Den; cbn.
-progress unfold pos_mul.
+progress unfold Pos.mul.
 rewrite Nat.sub_add; [ | easy ].
 rewrite Nat.sub_add; [ | easy ].
 do 2 rewrite Nat2Z.inj_mul.
@@ -621,7 +611,7 @@ intros.
 progress unfold Q.compare.
 progress unfold Q.add; cbn.
 do 2 rewrite q_Den_num_den.
-progress unfold pos_mul.
+progress unfold Pos.mul.
 rewrite Nat.sub_add; [ | easy ].
 rewrite Nat.sub_add; [ | easy ].
 do 2 rewrite Nat2Z.inj_mul.
@@ -818,7 +808,7 @@ intros.
 progress unfold Q.sub.
 progress unfold Q.add.
 progress unfold Q.opp.
-progress unfold pos_mul; cbn.
+progress unfold Pos.mul; cbn.
 rewrite (Nat.mul_comm (q_den b + 1)).
 progress f_equal.
 do 2 rewrite Z.mul_opp_l.
@@ -876,7 +866,7 @@ Proof.
 intros.
 progress unfold Q.add.
 progress unfold Q.mul.
-progress unfold pos_mul; cbn.
+progress unfold Pos.mul; cbn.
 rewrite Nat.sub_add; [ | flia ].
 rewrite Nat.sub_add; [ | flia ].
 rewrite Nat.sub_add; [ | flia ].
@@ -918,7 +908,7 @@ progress f_equal.
 rewrite Z.mul_comm.
 symmetry.
 progress unfold q_Den; cbn.
-progress unfold pos_mul.
+progress unfold Pos.mul.
 rewrite Nat.sub_add; [ | flia ].
 apply Nat2Z.inj_mul.
 Qed.

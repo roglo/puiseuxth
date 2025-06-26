@@ -71,6 +71,12 @@ Definition to_nat a :=
 
 Definition of_pos (a : pos) := z_val true a.
 
+Definition to_pos a :=
+  match a with
+  | z_val true n => n
+  | _ => 1%pos
+  end.
+
 Definition add a b :=
   match a with
   | z_zero => b
@@ -149,10 +155,10 @@ Definition sign a :=
   | z_val false _ => (-1)%Z
   end.
 
-Definition abs_nat a :=
+Definition abs_pos a :=
   match a with
-  | z_zero => 0%nat
-  | z_val _ v => Pos.to_nat v
+  | z_zero => 1%pos
+  | z_val _ v => v
   end.
 
 Definition abs a :=
@@ -1683,13 +1689,13 @@ destruct (Z.le_dec b a) as [Hba| Hba]; [ now right | left ].
 now apply Z.nle_gt in Hba.
 Qed.
 
-Theorem abs_nat_nonneg : ∀ a, (0 ≤ a)%Z → Z.abs_nat a = Z.to_nat a.
+Theorem abs_pos_nonneg : ∀ a, (0 ≤ a)%Z → Z.abs_pos a = Z.to_pos a.
 Proof.
 intros * Haz.
 destruct a as [| sa va]; [ easy | now destruct sa ].
 Qed.
 
-Theorem abs_nat_nonpos : ∀ a, (a ≤ 0)%Z → Z.abs_nat a = Z.to_nat (- a).
+Theorem abs_pos_nonpos : ∀ a, (a ≤ 0)%Z → Z.abs_pos a = Z.to_pos (- a).
 Proof.
 intros * Haz.
 destruct a as [| sa va]; [ easy | now destruct sa ].
