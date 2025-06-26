@@ -1019,20 +1019,18 @@ destruct vab. {
   }
 } {
   cbn; rewrite Hvab, Hvac.
-  apply Nat.compare_gt_iff in Hvab.
+  apply Pos.compare_gt_iff in Hvab.
   destruct vac. {
     apply Pos.compare_eq_iff in Hvac; subst vc.
     now symmetry; apply Nat.compare_gt_iff.
   } {
-    apply Nat.compare_lt_iff in Hvac; cbn.
-    symmetry; apply Nat.compare_gt_iff.
-...
-    now transitivity (p_val va).
+    apply Pos.compare_lt_iff in Hvac; cbn.
+    symmetry; apply Pos.compare_gt_iff.
+    now transitivity va.
   } {
-    apply Nat.compare_gt_iff in Hvac; cbn.
-    rewrite Nat_compare_sub_mono_r; [ | flia Hvab | flia Hvac ].
-    apply Nat.lt_le_incl in Hvab, Hvac.
-    now rewrite Nat_compare_sub_mono_l.
+    apply Pos.compare_gt_iff in Hvac.
+    cbn - [ Pos.sub ].
+    now apply Pos.compare_sub_mono_l.
   }
 }
 Qed.
@@ -1962,7 +1960,8 @@ progress unfold Z.of_nat.
 destruct a; [ easy | ].
 rewrite Nat.mul_comm.
 destruct b; [ easy | cbn ].
-f_equal; flia.
+rewrite <- Pos.of_nat_mul; [ | easy | easy ].
+f_equal; f_equal; flia.
 Qed.
 
 Theorem inj_lt : ∀ a b, (a < b)%nat ↔ (Z.of_nat a < Z.of_nat b)%Z.
@@ -1970,10 +1969,13 @@ Proof.
 intros.
 destruct a; [ now destruct b | ].
 destruct b; [ easy | cbn ].
-progress unfold Z.lt; cbn.
 split; intros H. {
-  apply Nat.compare_lt_iff.
-  now apply Nat.succ_lt_mono in H.
+  apply Pos.compare_lt_iff.
+...
+  rewrite Pos.of_nat_inj_succ.
+Search (Pos.of_nat _ < _)%pos.
+...
+  now apply Pos.succ_lt_mono in H.
 } {
   apply Nat.compare_lt_iff in H.
   now apply -> Nat.succ_lt_mono.
