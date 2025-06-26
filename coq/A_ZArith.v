@@ -31,140 +31,6 @@ Theorem if_eqb_bool_dec : ∀ A i j (a b : A),
     (if Bool.eqb i j then a else b) = (if Bool.bool_dec i j then a else b).
 Proof. now intros; destruct i, j. Qed.
 
-Theorem Nat_compare_sub_mono_l :
-  ∀ a b c,
-    (b <= a)%nat
-    → (c <= a)%nat
-    → (a - b ?= a - c)%nat = (c ?= b)%nat.
-Proof.
-  intros * Hle1 Hle2.
-  revert a b Hle1 Hle2.
-  induction c; intros; cbn. {
-    rewrite Nat.sub_0_r.
-    destruct b. {
-      apply Nat.compare_eq_iff.
-      apply Nat.sub_0_r.
-    }
-    apply Nat.compare_lt_iff.
-    flia Hle1.
-  }
-  destruct b. {
-    apply Nat.compare_gt_iff.
-    rewrite Nat.sub_0_r.
-    flia Hle2.
-  }
-  destruct a; [ easy | cbn ].
-  apply Nat.succ_le_mono in Hle1, Hle2.
-  apply (IHc _ _ Hle1 Hle2).
-Qed.
-
-Theorem Nat_compare_add_mono_l :
-  ∀ a b c, (a + b ?= a + c)%nat = (b ?= c)%nat.
-Proof.
-  intros.
-  revert a b.
-  induction c; intros; cbn. {
-    rewrite Nat.add_0_r.
-    destruct b. {
-      apply Nat.compare_eq_iff.
-      apply Nat.add_0_r.
-    }
-    apply Nat.compare_gt_iff.
-    flia.
-  }
-  destruct b. {
-    rewrite Nat.add_0_r; cbn.
-    apply Nat.compare_lt_iff.
-    flia.
-  }
-  cbn.
-  do 2 rewrite Nat.add_succ_r, <- Nat.add_succ_l.
-  apply IHc.
-Qed.
-
-Theorem Nat_compare_add_mono_r :
-  ∀ a b c, (a + c ?= b + c)%nat = (a ?= b)%nat.
-Proof.
-  intros.
-  do 2 rewrite (Nat.add_comm _ c).
-  apply Nat_compare_add_mono_l.
-Qed.
-
-Theorem Nat_compare_sub_mono_r :
-  ∀ a b c,
-    (c <= a)%nat
-    → (c <= b)%nat
-    → (a - c ?= b - c)%nat = (a ?= b)%nat.
-Proof.
-  intros * Hle1 Hle2.
-  revert b c Hle1 Hle2.
-  induction a; intros; cbn. {
-    apply Nat.le_0_r in Hle1; subst c.
-    now rewrite Nat.sub_0_r.
-  }
-  destruct b. {
-    now apply Nat.le_0_r in Hle2; subst c.
-  }
-  destruct c; [ easy | cbn ].
-  apply Nat.succ_le_mono in Hle1, Hle2.
-  apply (IHa _ _ Hle1 Hle2).
-Qed.
-
-Theorem Nat_compare_mul_mono_l :
-  ∀ a b c, a ≠ 0 → (a * b ?= a * c) = (b ?= c).
-Proof.
-  intros * Haz.
-  do 2 rewrite nat_compare_equiv.
-  progress unfold nat_compare_alt.
-  destruct (lt_eq_lt_dec (a * b) (a * c)) as [[H1| H1]| H1]. {
-    destruct (lt_eq_lt_dec b c) as [[H2| H2]| H2].
-    easy.
-    flia H1 H2.
-    apply Nat.mul_lt_mono_pos_l in H1; [ | flia Haz ].
-    now apply Nat.lt_asymm in H1.
-  } {
-    destruct (lt_eq_lt_dec b c) as [[H2| H2]| H2].
-    apply Nat.mul_cancel_l in H1; [ flia H1 H2 | easy ].
-    easy.
-    apply Nat.mul_cancel_l in H1; [ flia H1 H2 | easy ].
-  } {
-    destruct (lt_eq_lt_dec b c) as [[H2| H2]| H2].
-    apply Nat.mul_lt_mono_pos_l in H1; [ flia H1 H2 | flia Haz ].
-    now subst c; apply Nat.lt_irrefl in H1.
-    easy.
-  }
-Qed.
-
-Theorem Nat_compare_sub_add_l : ∀ a b c, b ≤ a → (a - b ?= c) = (a ?= b + c).
-Proof.
-  intros * Hba.
-  do 2 rewrite nat_compare_equiv.
-  progress unfold nat_compare_alt.
-  destruct (lt_eq_lt_dec (a - b) c) as [[H1| H1]| H1]. {
-    destruct (lt_eq_lt_dec a (b + c)) as [[H2| H2]| H2].
-    easy.
-    flia H1 H2.
-    flia H1 H2.
-  } {
-    destruct (lt_eq_lt_dec a (b + c)) as [[H2| H2]| H2].
-    flia Hba H1 H2.
-    easy.
-    flia H1 H2.
-  } {
-    destruct (lt_eq_lt_dec a (b + c)) as [[H2| H2]| H2].
-    flia H1 H2.
-    flia H1 H2.
-    easy.
-  }
-Qed.
-
-Theorem Nat_compare_sub_add_r : ∀ a b c, b ≤ a → (a - b ?= c) = (a ?= c + b).
-Proof.
-  intros * Hba.
-  rewrite Nat.add_comm.
-  now apply Nat_compare_sub_add_l.
-Qed.
-
 (* end misc theorems *)
 
 Module Z.
@@ -1094,25 +960,23 @@ destruct sb. {
       now rewrite Nat_compare_sub_mono_r.
     } {
       apply Pos.compare_gt_iff in Hvac; cbn.
-      progress unfold Pos.lt in Hvab, Hvac.
-      symmetry; apply Nat.compare_gt_iff.
-      now transitivity (p_val va).
+      symmetry; apply Pos.compare_gt_iff.
+      now apply (Pos.lt_trans _ va).
     }
   } {
-    apply Nat.compare_gt_iff in Hvab.
+    apply Pos.compare_gt_iff in Hvab.
     destruct vac. {
       cbn; symmetry.
-      apply Nat.compare_lt_iff.
-      now apply Nat.compare_eq_iff in Hvac; rewrite <- Hvac.
+      apply Pos.compare_lt_iff.
+      now apply Pos.compare_eq_iff in Hvac; subst.
     } {
-      apply Nat.compare_lt_iff in Hvac; cbn.
-      symmetry; apply Nat.compare_lt_iff.
-      now transitivity (p_val va).
+      apply Pos.compare_lt_iff in Hvac; cbn.
+      symmetry; apply Pos.compare_lt_iff.
+      now apply (Pos.lt_trans _ va).
     } {
-      apply Nat.compare_gt_iff in Hvac; cbn.
-      rewrite Nat_compare_sub_mono_r; [ | flia Hvac | flia Hvab ].
-      apply Nat.lt_le_incl in Hvab, Hvac.
-      now rewrite Nat_compare_sub_mono_l.
+      apply Pos.compare_gt_iff in Hvac.
+      cbn - [ Pos.sub ].
+      now rewrite Pos.compare_sub_mono_l.
     }
   }
 }
@@ -1148,6 +1012,7 @@ destruct vab. {
     progress unfold Pos.lt in Hvab.
     apply Nat.compare_gt_iff in Hvac; cbn.
     symmetry; apply Nat.compare_lt_iff.
+...
     now transitivity (p_val va).
   }
 } {
