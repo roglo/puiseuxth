@@ -362,6 +362,7 @@ Number Notation pos Pos.of_number Pos.to_number : pos_scope.
 Notation "a + b" := (Pos.add a b) : pos_scope.
 Notation "a - b" := (Pos.sub a b) : pos_scope.
 Notation "a * b" := (Pos.mul a b) : pos_scope.
+Notation "a ≤ b" := (Pos.le a b) : pos_scope.
 Notation "a < b" := (Pos.lt a b) : pos_scope.
 Notation "a ?= b" := (Pos.compare a b) : pos_scope.
 Notation "a =? b" := (Pos.eqb a b) : pos_scope.

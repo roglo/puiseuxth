@@ -952,15 +952,15 @@ destruct b as [| sb vb]. {
 destruct sa. {
   destruct sb; [ | easy ].
   destruct sc; [ | easy ].
-  apply Nat.compare_le_iff in Hab, Hbc.
-  apply Nat.compare_le_iff.
-  now transitivity (p_val vb).
+  apply Pos.compare_le_iff in Hab, Hbc.
+  apply Pos.compare_le_iff.
+  now apply (Pos.le_trans _ vb).
 }
 destruct sc; [ easy | ].
 destruct sb; [ easy | ].
-apply Nat.compare_le_iff in Hab, Hbc.
-apply Nat.compare_le_iff.
-now transitivity (p_val vb).
+apply Pos.compare_le_iff in Hab, Hbc.
+apply Pos.compare_le_iff.
+now apply (Pos.le_trans _ vb).
 Qed.
 
 Theorem compare_add_mono_l :
@@ -2018,8 +2018,7 @@ intros * Haz.
 destruct a as [| sa va]; [ easy | cbn ].
 rewrite Bool.eqb_reflx.
 rewrite Nat.div_same; [ easy | ].
-...
-now rewrite Nat.add_1_r.
+apply Pos.to_nat_neq_0.
 Qed.
 
 Theorem lt_0_mul :
@@ -2087,6 +2086,7 @@ Theorem inj_succ : ∀ a, Z.of_nat (S a) = Z.of_nat a + 1.
 Proof.
 intros.
 destruct a; [ easy | cbn ].
+...
 now rewrite Nat.add_0_r, Nat.add_comm.
 Qed.
 
