@@ -1984,8 +1984,13 @@ Theorem id : ∀ a : Z, (0 ≤ a)%Z → Z.of_nat (Z.to_nat a) = a.
 Proof.
 intros * Hz.
 destruct a as [| sa va]; [ easy | ].
-...
-destruct sa; [ now cbn; rewrite Nat.add_1_r | easy ].
+destruct sa; [ clear Hz; cbn | easy ].
+remember (Pos.to_nat va) as a eqn:Ha.
+symmetry in Ha.
+destruct a; [ now apply Pos.to_nat_neq_0 in Ha | ].
+cbn; f_equal.
+rewrite <- Ha.
+apply Pos.of_nat_to_nat.
 Qed.
 
 Theorem of_nat : ∀ a, Z.of_nat (Z.to_nat a) = Z.max 0 a.
@@ -2007,7 +2012,12 @@ intros * Hza Hzb.
 destruct a as [| sa va]; [ easy | ].
 destruct b as [| sb vb]; [ easy | ].
 destruct sa; [ | easy ].
-destruct sb; [ cbn | easy ].
+destruct sb; [ | easy ].
+cbn - [ Z.to_nat ].
+simpl.
+...
+apply Pos.to_nat_mul.
+...
 rewrite Nat.add_assoc.
 progress f_equal.
 apply Nat.add_shuffle0.
