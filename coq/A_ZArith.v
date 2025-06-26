@@ -1961,9 +1961,15 @@ destruct b as [| sb vb]. {
 }
 specialize (Nat.gcd_divide_l (Pos.to_nat va) (Pos.to_nat vb)) as H1.
 destruct H1 as (v, Hv).
-exists (z_val sa (Pos.of_nat v)); cbn.
 (**)
-...
+destruct va as (a).
+destruct vb as (b).
+cbn in Hv |-*.
+exists (z_val sa (Pos.of_nat v)); cbn.
+replace (Bool.eqb sa true) with sa by now destruct sa.
+progress unfold Pos.gcd, Pos.of_nat, Pos.mul; cbn.
+progress f_equal.
+progress f_equal.
 rewrite Nat.sub_add. 2: {
   destruct v; [ now rewrite Nat.add_1_r in Hv | ].
   now apply -> Nat.succ_le_mono.
@@ -1975,10 +1981,8 @@ rewrite Nat.sub_add. 2: {
   apply Nat.gcd_eq_0 in H.
   now destruct H.
 }
-rewrite <- Hv.
-rewrite Nat.add_sub.
-progress f_equal.
-now destruct sa.
+rewrite <- Hv; symmetry.
+apply Nat.add_sub.
 Qed.
 
 Theorem gcd_divide_r : ∀ a b : Z, (Z.gcd a b | b)%Z.
@@ -2014,6 +2018,7 @@ intros * Haz.
 destruct a as [| sa va]; [ easy | cbn ].
 rewrite Bool.eqb_reflx.
 rewrite Nat.div_same; [ easy | ].
+...
 now rewrite Nat.add_1_r.
 Qed.
 

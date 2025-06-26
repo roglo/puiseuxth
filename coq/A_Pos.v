@@ -317,6 +317,32 @@ progress unfold Pos.to_nat.
 now rewrite Nat.add_comm.
 Qed.
 
+Theorem of_nat_to_nat : ∀ a, Pos.of_nat (Pos.to_nat a) = a.
+Proof.
+intros.
+progress unfold Pos.of_nat, Pos.to_nat.
+rewrite Nat.add_sub.
+now destruct a.
+Qed.
+
+Theorem of_nat_mul :
+  ∀ a b,
+  a ≠ 0
+  → b ≠ 0
+  → Pos.of_nat (a * b) = (Pos.of_nat a * Pos.of_nat b)%pos.
+Proof.
+intros * Haz Hbz.
+progress unfold Pos.of_nat, Pos.mul; cbn.
+progress f_equal.
+destruct a; [ easy | ].
+destruct b; [ easy | cbn ].
+do 3 rewrite Nat.sub_0_r.
+do 2 rewrite Nat.add_1_r.
+rewrite (Nat.mul_comm _ (S _)); cbn.
+rewrite (Nat.mul_comm _ (S _)); cbn.
+now rewrite Nat.sub_0_r.
+Qed.
+
 (* gcd *)
 
 Definition gcd a b := Pos.of_nat (Nat.gcd (Pos.to_nat a) (Pos.to_nat b)).
