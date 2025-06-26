@@ -264,6 +264,15 @@ rewrite Nat.sub_add; [ | easy ].
 apply Nat.mul_shuffle0.
 Qed.
 
+Theorem mul_assoc : ∀ a b c, (a * (b * c))%pos = ((a * b) * c)%pos.
+Proof.
+intros.
+rewrite Pos.mul_comm.
+rewrite Pos.mul_mul_swap.
+progress f_equal.
+apply Pos.mul_comm.
+Qed.
+
 Theorem mul_1_l : ∀ a, (1 * a)%pos = a.
 Proof.
 intros.

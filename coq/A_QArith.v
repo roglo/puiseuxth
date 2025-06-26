@@ -147,7 +147,13 @@ Qed.
 Theorem add_assoc : ∀ a b c, (a + (b + c))%Q = ((a + b) + c)%Q.
 Proof.
 intros.
-progress unfold add.
+progress unfold Q.add.
+(**)
+cbn.
+do 2 rewrite q_Den_num_den.
+rewrite Pos.mul_assoc.
+progress f_equal.
+...
 progress unfold Pos.mul; cbn.
 rewrite Nat.sub_add; [ | flia ].
 rewrite Nat.sub_add; [ | flia ].
