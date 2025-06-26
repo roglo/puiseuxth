@@ -1947,17 +1947,23 @@ progress unfold Z.divide.
 destruct a as [| sa va]; [ now exists 0%Z | cbn ].
 destruct b as [| sb vb]. {
   destruct sa. {
-...
-    exists 1%Z; rewrite Nat.add_1_r; cbn.
-    now rewrite Nat.add_0_r, Nat.add_sub.
+    exists 1%Z; rewrite Z.mul_1_l.
+    progress unfold Pos.to_nat, Z.of_nat, Pos.of_nat.
+    rewrite Nat.add_1_r; f_equal.
+    rewrite Nat_sub_succ_1.
+    now destruct va.
   } {
-    exists (-1)%Z; rewrite Nat.add_1_r; cbn.
-    now rewrite Nat.add_0_r, Nat.add_sub.
+    exists (-1)%Z.
+    progress unfold Z.mul, Pos.to_nat, Z.of_nat, Pos.of_nat.
+    rewrite Nat.add_1_r, Nat_sub_succ_1, Pos.mul_1_l.
+    now destruct va.
   }
 }
-specialize (Nat.gcd_divide_l (va + 1) (vb + 1)) as H1.
+specialize (Nat.gcd_divide_l (Pos.to_nat va) (Pos.to_nat vb)) as H1.
 destruct H1 as (v, Hv).
-exists (z_val sa (v - 1)); cbn.
+exists (z_val sa (Pos.of_nat v)); cbn.
+(**)
+...
 rewrite Nat.sub_add. 2: {
   destruct v; [ now rewrite Nat.add_1_r in Hv | ].
   now apply -> Nat.succ_le_mono.
