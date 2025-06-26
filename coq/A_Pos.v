@@ -472,6 +472,15 @@ progress unfold Pos.to_nat.
 now rewrite Nat.add_comm.
 Qed.
 
+Theorem to_nat_inj_add :
+  ∀ a b, Pos.to_nat (a + b) = Pos.to_nat a + Pos.to_nat b.
+Proof.
+intros.
+progress unfold Pos.to_nat; cbn.
+rewrite (Nat.add_shuffle0 (p_val a)).
+symmetry; apply Nat.add_assoc.
+Qed.
+
 Theorem of_nat_to_nat : ∀ a, Pos.of_nat (Pos.to_nat a) = a.
 Proof.
 intros.

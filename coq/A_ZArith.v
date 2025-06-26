@@ -2015,12 +2015,7 @@ destruct sa; [ | easy ].
 destruct sb; [ | easy ].
 cbn - [ Z.to_nat ].
 simpl.
-...
-apply Pos.to_nat_mul.
-...
-rewrite Nat.add_assoc.
-progress f_equal.
-apply Nat.add_shuffle0.
+apply Pos.to_nat_inj_add.
 Qed.
 
 End Z2Nat.
