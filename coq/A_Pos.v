@@ -1,7 +1,7 @@
 (* positive natural, represented by nat *)
 
 Set Nested Proofs Allowed.
-From Stdlib Require Import Utf8 Arith.
+From Stdlib Require Import Utf8 Arith Relations.
 From Stdlib Require Import Psatz.
 
 Record pos := { p_val : nat }.
@@ -362,9 +362,17 @@ Qed.
 
 Theorem lt_trans : ∀ a b c, (a < b → b < c → a < c)%pos.
 Proof.
-intros * Hab Hbc.
+intros a b c Hab Hbc.
 eapply Nat.lt_trans; [ apply Hab | easy ].
 Qed.
+
+Add Parametric Relation : _ Pos.le
+  transitivity proved by Pos.le_trans
+as le_rel.
+
+Add Parametric Relation : _ Pos.lt
+  transitivity proved by Pos.lt_trans
+as lt_rel.
 
 Theorem lt_le_incl : ∀ a b, (a < b → a ≤ b)%pos.
 Proof.
@@ -470,6 +478,17 @@ intros.
 progress unfold Pos.of_nat, Pos.to_nat.
 rewrite Nat.add_sub.
 now destruct a.
+Qed.
+
+Theorem of_nat_inj_succ :
+  ∀ a, a ≠ 0 → Pos.of_nat (S a) = (Pos.of_nat a + 1)%pos.
+Proof.
+intros * Haz.
+progress unfold Pos.add; cbn.
+rewrite Nat.add_0_r.
+rewrite Nat.sub_add; [ | now apply Nat.neq_0_lt_0 ].
+progress unfold Pos.of_nat; cbn.
+now rewrite Nat.sub_0_r.
 Qed.
 
 Theorem of_nat_mul :

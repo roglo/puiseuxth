@@ -820,14 +820,18 @@ destruct sa. {
   destruct sc; [ | easy ].
   apply Pos.compare_le_iff in Hab, Hbc.
   apply Pos.compare_le_iff.
-  now apply (Pos.le_trans _ vb).
+  now transitivity vb.
 }
 destruct sc; [ easy | ].
 destruct sb; [ easy | ].
 apply Pos.compare_le_iff in Hab, Hbc.
 apply Pos.compare_le_iff.
-now apply (Pos.le_trans _ vb).
+now transitivity vb.
 Qed.
+
+Add Parametric Relation : _ Z.le
+  transitivity proved by Z.le_trans
+as le_rel.
 
 Theorem compare_add_mono_l :
   ∀ a b c, (a + b ?= a + c)%Z = (b ?= c)%Z.
@@ -961,7 +965,7 @@ destruct sb. {
     } {
       apply Pos.compare_gt_iff in Hvac; cbn.
       symmetry; apply Pos.compare_gt_iff.
-      now apply (Pos.lt_trans _ va).
+      now transitivity va.
     }
   } {
     apply Pos.compare_gt_iff in Hvab.
@@ -972,7 +976,7 @@ destruct sb. {
     } {
       apply Pos.compare_lt_iff in Hvac; cbn.
       symmetry; apply Pos.compare_lt_iff.
-      now apply (Pos.lt_trans _ va).
+      now transitivity va.
     } {
       apply Pos.compare_gt_iff in Hvac.
       cbn - [ Pos.sub ].
@@ -1009,11 +1013,9 @@ destruct vab. {
     apply Nat.lt_le_incl in Hvab, Hvac.
     now rewrite Nat_compare_sub_mono_r.
   } {
-    progress unfold Pos.lt in Hvab.
-    apply Nat.compare_gt_iff in Hvac; cbn.
-    symmetry; apply Nat.compare_lt_iff.
-...
-    now transitivity (p_val va).
+    apply Pos.compare_gt_iff in Hvac; cbn.
+    symmetry; apply Pos.compare_lt_iff.
+    now transitivity va.
   }
 } {
   cbn; rewrite Hvab, Hvac.
@@ -1024,6 +1026,7 @@ destruct vab. {
   } {
     apply Nat.compare_lt_iff in Hvac; cbn.
     symmetry; apply Nat.compare_gt_iff.
+...
     now transitivity (p_val va).
   } {
     apply Nat.compare_gt_iff in Hvac; cbn.
@@ -1111,7 +1114,7 @@ enough (H : (0 ≤ rngl_of_nat i)%Z) by now rewrite Hn in H.
 clear Hn.
 induction i; [ easy | ].
 rewrite rngl_of_nat_succ.
-eapply Z.le_trans; [ apply IHi | ].
+etransitivity; [ apply IHi | ].
 now apply Z.le_add_l.
 Qed.
 
@@ -1268,7 +1271,7 @@ Qed.
 Theorem add_le_compat : ∀ a b c d, (a ≤ b)%Z → (c ≤ d)%Z → (a + c ≤ b + d)%Z.
 Proof.
 intros * Hab Hcd.
-apply (Z.le_trans _ (a + d)); [ apply Z.add_le_mono_l, Hcd | ].
+transitivity (a + d)%Z; [ apply Z.add_le_mono_l, Hcd | ].
 do 2 rewrite (Z.add_comm _ d).
 now apply Z.add_le_mono_l.
 Qed.
@@ -1292,24 +1295,20 @@ Theorem mul_le_compat_nonneg :
   ∀ a b c d, (0 ≤ a ≤ c)%Z → (0 ≤ b ≤ d)%Z → (a * b ≤ c * d)%Z.
 Proof.
 intros * Hac Hbd.
-apply (Z.le_trans _ (a * d)). {
-  now apply Z.mul_le_mono_nonneg_l.
-}
+transitivity (a * d)%Z; [ now apply Z.mul_le_mono_nonneg_l | ].
 do 2 rewrite (Z.mul_comm _ d).
 apply Z.mul_le_mono_nonneg_l; [ | easy ].
-now apply (Z.le_trans _ b).
+now transitivity b.
 Qed.
 
 Theorem mul_le_compat_nonpos :
   ∀ a b c d : Z, (c ≤ a ≤ 0)%Z → (d ≤ b ≤ 0)%Z → (a * b ≤ c * d)%Z.
 Proof.
 intros * Hca Hdb.
-apply (Z.le_trans _ (a * d)). {
-  now apply Z.mul_le_mono_nonpos_l.
-}
+transitivity (a * d)%Z; [ now apply Z.mul_le_mono_nonpos_l | ].
 do 2 rewrite (Z.mul_comm _ d).
 apply Z.mul_le_mono_nonpos_l; [ | easy ].
-now apply (Z.le_trans _ b).
+now transitivity b.
 Qed.
 
 Theorem leb_le : ∀ a b, (a ≤? b)%Z = true ↔ (a ≤ b)%Z.
@@ -1951,8 +1950,8 @@ Theorem inj_succ : ∀ a, Z.of_nat (S a) = Z.of_nat a + 1.
 Proof.
 intros.
 destruct a; [ easy | cbn ].
-...
-now rewrite Nat.add_0_r, Nat.add_comm.
+progress f_equal.
+now apply Pos.of_nat_inj_succ.
 Qed.
 
 Theorem inj_mul : ∀ a b, Z.of_nat (a * b) = Z.of_nat a * Z.of_nat b.
