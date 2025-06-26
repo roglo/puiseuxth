@@ -14,9 +14,7 @@ Declare Scope Q_scope.
 Delimit Scope Q_scope with Q.
 Bind Scope Q_scope with Q.
 
-...
-Definition q_Den a := Z.of_pos (q_den a + 1).
-Definition pos_mul a b := (a + 1) * (b + 1) - 1.
+Definition q_Den a := Z.of_pos (q_den a).
 
 (* misc *)
 
@@ -30,6 +28,8 @@ Proof. intros * H1 H2; flia H1 H2. Qed.
 
 Theorem Nat_add_1_r_pos : ∀ a, (0 < a + 1)%nat.
 Proof. flia. Qed.
+
+...
 
 Theorem q_Den_num_den : ∀ a b, q_Den (mk_q a b) = Z.of_nat (b + 1).
 Proof. easy. Qed.

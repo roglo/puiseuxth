@@ -22,13 +22,13 @@ Definition z_neg a := z_val false a.
 
 Theorem Bool_eqb_comm : ∀ a b, Bool.eqb a b = Bool.eqb b a.
 Proof.
-  intros.
-  progress unfold Bool.eqb.
-  now destruct a, b.
+intros.
+progress unfold Bool.eqb.
+now destruct a, b.
 Qed.
 
 Theorem if_eqb_bool_dec : ∀ A i j (a b : A),
-    (if Bool.eqb i j then a else b) = (if Bool.bool_dec i j then a else b).
+  (if Bool.eqb i j then a else b) = (if Bool.bool_dec i j then a else b).
 Proof. now intros; destruct i, j. Qed.
 
 (* end misc theorems *)
@@ -68,6 +68,8 @@ Definition to_nat a :=
   | z_val true n => Pos.to_nat n
   | _ => 0
   end.
+
+Definition of_pos (a : pos) := z_val true a.
 
 Definition add a b :=
   match a with
