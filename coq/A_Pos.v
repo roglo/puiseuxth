@@ -491,6 +491,22 @@ progress unfold Pos.of_nat; cbn.
 now rewrite Nat.sub_0_r.
 Qed.
 
+Theorem of_nat_inj_lt :
+  ∀ a b, a ≠ 0 → (a < b)%nat ↔ (Pos.of_nat a < Pos.of_nat b)%pos.
+Proof.
+intros * Haz.
+destruct b. {
+  split; intros; [ easy | ].
+  progress unfold Pos.of_nat, Pos.lt in H.
+  cbn in H; flia H.
+}
+destruct a; [ easy | clear Haz ].
+progress unfold Pos.of_nat, Pos.lt; cbn.
+do 2 rewrite Nat.sub_0_r.
+symmetry.
+apply Nat.succ_lt_mono.
+Qed.
+
 Theorem of_nat_mul :
   ∀ a b,
   a ≠ 0

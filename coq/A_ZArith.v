@@ -957,11 +957,9 @@ destruct sb. {
       apply Pos.compare_eq_iff in Hvac; subst vc.
       now symmetry; apply Nat.compare_gt_iff.
     } {
-      apply Nat.compare_lt_iff in Hvac; cbn.
-      progress unfold Pos.lt in Hvab, Hvac.
-      rewrite Nat_compare_sub_mono_r; [ | flia Hvab | flia Hvac ].
-      apply Nat.lt_le_incl in Hvab, Hvac.
-      now rewrite Nat_compare_sub_mono_r.
+      apply Pos.compare_lt_iff in Hvac.
+      cbn - [ Pos.sub ].
+      now apply Pos.compare_sub_mono_r.
     } {
       apply Pos.compare_gt_iff in Hvac; cbn.
       symmetry; apply Pos.compare_gt_iff.
@@ -1971,14 +1969,10 @@ destruct a; [ now destruct b | ].
 destruct b; [ easy | cbn ].
 split; intros H. {
   apply Pos.compare_lt_iff.
-...
-  rewrite Pos.of_nat_inj_succ.
-Search (Pos.of_nat _ < _)%pos.
-...
-  now apply Pos.succ_lt_mono in H.
+  now apply -> Pos.of_nat_inj_lt.
 } {
-  apply Nat.compare_lt_iff in H.
-  now apply -> Nat.succ_lt_mono.
+  apply Pos.compare_lt_iff in H.
+  now apply Pos.of_nat_inj_lt.
 }
 Qed.
 
@@ -1990,6 +1984,7 @@ Theorem id : ∀ a : Z, (0 ≤ a)%Z → Z.of_nat (Z.to_nat a) = a.
 Proof.
 intros * Hz.
 destruct a as [| sa va]; [ easy | ].
+...
 destruct sa; [ now cbn; rewrite Nat.add_1_r | easy ].
 Qed.
 
