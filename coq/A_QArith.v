@@ -280,22 +280,18 @@ intros * Heq.
 progress unfold Q.eq in Heq |-*; cbn.
 do 2 rewrite (Z.mul_comm (_ + _)).
 do 2 rewrite (Z.add_comm (q_num a * _)).
-progress unfold Q.add; cbn.
-progress unfold q_Den; cbn.
-progress unfold Pos.mul.
-rewrite Nat.sub_add; [ | easy ].
-rewrite Nat.sub_add; [ | easy ].
-do 2 rewrite Nat2Z.inj_mul.
+progress unfold Q.add.
+do 2 rewrite q_Den_num_den.
+do 2 rewrite Pos2Z.inj_mul.
+do 3 rewrite fold_q_Den.
 do 2 rewrite <- Z.mul_assoc.
 progress f_equal.
-progress unfold q_Den in Heq.
 do 2 rewrite Z.mul_add_distr_l.
 do 4 rewrite Z.mul_assoc.
-rewrite (Z.mul_comm _ (q_num b)).
-rewrite Heq.
+rewrite (Z.mul_comm (q_Den c)), Heq.
 rewrite (Z.mul_comm (q_num c)).
 progress f_equal.
-do 2 rewrite (Z.mul_mul_swap _ (q_num a)).
+rewrite Z.mul_comm, <- Z.mul_assoc.
 progress f_equal.
 apply Z.mul_comm.
 Qed.
@@ -410,6 +406,7 @@ destruct (Z.eq_dec (q_num b) 0) as [Hbz| Hbz]. {
   destruct Hab as [Hab| Hab]; [ | now destruct Hab ].
   now apply q_Den_neq_0 in Hab.
 }
+...
 rewrite Nat.sub_add. 2: {
   destruct (q_num b); [ easy | apply Nat.le_add_l ].
 }
