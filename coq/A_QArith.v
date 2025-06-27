@@ -600,20 +600,16 @@ intros.
 progress unfold Q.compare.
 progress unfold Q.add; cbn.
 do 2 rewrite q_Den_num_den.
-...
-progress unfold Pos.mul.
-rewrite Nat.sub_add; [ | easy ].
-rewrite Nat.sub_add; [ | easy ].
-do 2 rewrite Nat2Z.inj_mul.
-do 3 rewrite Q.fold_q_Den.
+do 2 rewrite Pos2Z.inj_mul.
+do 3 rewrite fold_q_Den.
 do 2 rewrite (Z.mul_comm (q_Den a)).
 do 2 rewrite Z.mul_assoc.
 rewrite Z.compare_mul_mono_pos_r; [ | easy ].
 do 2 rewrite Z.mul_add_distr_r.
-rewrite (Z.mul_mul_swap _ (q_Den c)).
+rewrite Z.mul_mul_swap.
 rewrite Z.compare_add_mono_l.
 do 2 rewrite (Z.mul_mul_swap _ (q_Den a)).
-now rewrite Z.compare_mul_mono_pos_r.
+now apply Z.compare_mul_mono_pos_r.
 Qed.
 
 Theorem compare_add_mono_r : ∀ a b c, (a + c ?= b + c)%Q = (a ?= b)%Q.
@@ -798,13 +794,13 @@ intros.
 progress unfold Q.sub.
 progress unfold Q.add.
 progress unfold Q.opp.
-progress unfold Pos.mul; cbn.
-rewrite (Nat.mul_comm (q_den b + 1)).
+do 2 rewrite q_Den_num_den.
+cbn.
+rewrite (Pos.mul_comm (q_den a)).
 progress f_equal.
 do 2 rewrite Z.mul_opp_l.
-rewrite Z.add_comm.
-rewrite Z.opp_add_distr.
-now rewrite Z.opp_involutive.
+do 2 rewrite Z.add_opp_r.
+apply Z.opp_sub_distr.
 Qed.
 
 Theorem sub_sub_distr : ∀ a b c, (a - (b - c) = (a - b) + c)%Q.
@@ -856,28 +852,19 @@ Proof.
 intros.
 progress unfold Q.add.
 progress unfold Q.mul.
-progress unfold Pos.mul; cbn.
-rewrite Nat.sub_add; [ | flia ].
-rewrite Nat.sub_add; [ | flia ].
-rewrite Nat.sub_add; [ | flia ].
-rewrite Nat.sub_add; [ | flia ].
-progress f_equal. {
-  rewrite Z.mul_add_distr_l.
-  rewrite Z.mul_add_distr_r.
-  progress unfold q_Den; cbn.
-  rewrite Nat.sub_add; [ | flia ].
-  rewrite Nat.sub_add; [ | flia ].
-  do 2 rewrite Nat2Z.inj_mul.
-  do 4 rewrite Z.mul_assoc.
-  do 2 rewrite (Z.mul_mul_swap _ (Z.of_nat (q_den x + 1))).
-  easy.
-} {
-  do 3 rewrite <- Nat.mul_assoc.
-  progress f_equal.
-  progress f_equal.
-  progress f_equal.
-  apply Nat.mul_comm.
-}
+cbn.
+do 2 rewrite q_Den_num_den.
+do 2 rewrite Pos.mul_assoc.
+rewrite Pos.mul_mul_swap.
+progress f_equal.
+do 2 rewrite Pos2Z.inj_mul.
+do 3 rewrite fold_q_Den.
+do 3 rewrite <- Z.mul_assoc.
+rewrite <- Z.mul_add_distr_l.
+f_equal.
+do 2 rewrite Z.mul_assoc.
+do 2 rewrite (Z.mul_mul_swap _ (q_Den x)).
+apply Z.mul_add_distr_r.
 Qed.
 
 Theorem mul_add_distr_r' : ∀ x y z, ((x + y) * z * Q1 z = x * z + y * z)%Q.
@@ -897,10 +884,7 @@ rewrite <- Z.mul_assoc.
 progress f_equal.
 rewrite Z.mul_comm.
 symmetry.
-progress unfold q_Den; cbn.
-progress unfold Pos.mul.
-rewrite Nat.sub_add; [ | flia ].
-apply Nat2Z.inj_mul.
+now rewrite q_Den_mul.
 Qed.
 
 (* *)
@@ -975,6 +959,7 @@ Theorem mul_inv_diag_l : ∀ a, (¬ a == 0 → a⁻¹ * a == 1)%Q.
 Proof.
 intros * Hnz.
 progress unfold Q.eq; cbn.
+...
 progress unfold Q.inv; cbn.
 destruct a as (an, ad); cbn.
 progress unfold Q.eq in Hnz; cbn in Hnz.

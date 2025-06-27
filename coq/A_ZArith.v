@@ -575,6 +575,9 @@ destruct a as [| sa va]; [ easy | cbn ].
 now destruct sa; rewrite Pos.compare_refl.
 Qed.
 
+Theorem add_opp_r : ∀ a b, (a + - b = a - b)%Z.
+Proof. easy. Qed.
+
 Theorem mul_div : ∀ a b, b ≠ 0%Z → (a * b / b)%Z = a.
 Proof.
 intros * Hbz.
@@ -1532,6 +1535,13 @@ Proof.
 intros.
 specialize (rngl_opp_add_distr eq_refl a b) as H1.
 now rewrite rngl_opp_sub_swap in H1.
+Qed.
+
+Theorem opp_sub_distr : ∀ a b, (- (a - b))%Z = (b - a)%Z.
+Proof.
+intros.
+specialize (rngl_opp_sub_distr eq_refl a b) as H1.
+easy.
 Qed.
 
 Theorem eqb_refl : ∀ a, (a =? a)%Z = true.
