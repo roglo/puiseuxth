@@ -960,6 +960,21 @@ Proof.
 intros * Hnz.
 progress unfold Q.eq; cbn.
 (**)
+rewrite Pos.mul_1_l.
+rewrite Z.mul_1_r.
+rewrite Z.mul_mul_swap.
+rewrite Z.sign_mul_eq_abs.
+rewrite <- (Z.abs_nonneg_eq (q_Den a)); [ | easy ].
+Z.abs_mul: ∀ n m : Z, Z.abs (n * m) = Z.abs n * Z.abs m
+cbn.
+Search (z_val _ (_ * _)).
+...
+progress unfold Pos.mul.
+cbn.
+Search (p_val _ - _)%nat.
+...
+Search (Z.to_pos (Z.abs _)).
+Print Z.of_pos.
 ...
 progress unfold Q.inv; cbn.
 destruct a as (an, ad); cbn.

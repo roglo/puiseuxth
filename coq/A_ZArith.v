@@ -1654,6 +1654,18 @@ destruct b as [| sb vb]; [ easy | ].
 destruct sa; [ easy | now destruct sb ].
 Qed.
 
+Theorem of_nat_pos_to_nat : ∀ a, Z.of_nat (Pos.to_nat a) = z_val true a.
+Proof.
+intros.
+progress unfold Z.of_nat.
+remember (Pos.to_nat a) as b eqn:Hb.
+symmetry in Hb.
+destruct b; [ now apply Pos.to_nat_neq_0 in Hb | ].
+f_equal.
+rewrite <- Hb.
+apply Pos.of_nat_to_nat.
+Qed.
+
 Theorem sign_mul : ∀ a b, Z.sign (a * b) = (Z.sign a * Z.sign b)%Z.
 Proof.
 intros.
@@ -1662,6 +1674,15 @@ destruct a as [| sa va]; [ easy | ].
 destruct sa.
 destruct b as [| sb vb]; [ easy | now destruct sb ].
 destruct b as [| sb vb]; [ easy | now destruct sb ].
+Qed.
+
+Theorem sign_mul_eq_abs : ∀ a, (Z.sign a * a)%Z = Z.abs a.
+Proof.
+intros.
+destruct a as [| sa va]; [ easy | cbn ].
+rewrite Z.of_nat_pos_to_nat.
+destruct sa; [ apply Z.mul_1_l | cbn ].
+f_equal; apply Pos.mul_1_l.
 Qed.
 
 Theorem le_dec : ∀ a b : Z, ({a ≤ b} + {¬ a ≤ b})%Z.
@@ -1709,18 +1730,6 @@ Theorem abs_pos_nonpos : ∀ a, (a ≤ 0)%Z → Z.abs_pos a = Z.to_pos (- a).
 Proof.
 intros * Haz.
 destruct a as [| sa va]; [ easy | now destruct sa ].
-Qed.
-
-Theorem of_nat_pos_to_nat : ∀ a, Z.of_nat (Pos.to_nat a) = z_val true a.
-Proof.
-intros.
-progress unfold Z.of_nat.
-remember (Pos.to_nat a) as b eqn:Hb.
-symmetry in Hb.
-destruct b; [ now apply Pos.to_nat_neq_0 in Hb | ].
-f_equal.
-rewrite <- Hb.
-apply Pos.of_nat_to_nat.
 Qed.
 
 Theorem abs_nonneg_eq : ∀ a, (0 ≤ a)%Z → Z.abs a = a.
@@ -1789,6 +1798,19 @@ destruct a as [| sa va]; [ easy | cbn ].
 progress unfold Pos.to_nat.
 now rewrite Nat.add_1_r.
 Qed.
+
+Theorem abs_mul : ∀ a b, Z.abs (a * b) = (Z.abs a * Z.abs b)%Z.
+Proof.
+intros.
+destruct a as [| sa va]; [ easy | ].
+rewrite (Z.mul_comm _ b), (Z.mul_comm _ (abs b)).
+destruct sa; cbn. {
+  destruct b as [| sb vb]; [ easy | ].
+  destruct sb; cbn. {
+    rewrite Nat.sub_add; [ | easy ].
+    do 2 rewrite Nat.add_1_r.
+Search (Z.of_nat (_ * _)).
+...
 
 (* min & max *)
 
