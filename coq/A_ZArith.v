@@ -1970,6 +1970,20 @@ rewrite <- Pos.of_nat_mul; [ | easy | easy ].
 f_equal; f_equal; flia.
 Qed.
 
+Theorem inj_le : ∀ a b, (a <= b)%nat ↔ (Z.of_nat a ≤ Z.of_nat b)%Z.
+Proof.
+intros.
+destruct a; [ now destruct b | ].
+destruct b; [ easy | cbn ].
+split; intros H. {
+  apply Pos.compare_le_iff.
+  now apply -> Pos.of_nat_inj_le.
+} {
+  apply Pos.compare_le_iff in H.
+  now apply Pos.of_nat_inj_le.
+}
+Qed.
+
 Theorem inj_lt : ∀ a b, (a < b)%nat ↔ (Z.of_nat a < Z.of_nat b)%Z.
 Proof.
 intros.
@@ -2034,6 +2048,16 @@ Theorem inj_mul : ∀ a b, Z.of_pos (a * b) = (Z.of_pos a * Z.of_pos b)%Z.
 Proof. easy. Qed.
 
 End Pos2Z.
+
+Module Z2Pos.
+
+Theorem id: ∀ a, (1 ≤ a)%Z → Z.of_pos (Z.to_pos a) = a.
+Proof.
+intros * Ha.
+destruct a as [| sa va]; [ easy | now destruct sa ].
+Qed.
+
+End Z2Pos.
 
 Definition Z_ring_theory : ring_theory 0%Z 1%Z Z.add Z.mul Z.sub Z.opp eq :=
   {| Radd_0_l := Z.add_0_l;

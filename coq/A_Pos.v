@@ -340,7 +340,7 @@ progress f_equal.
 apply Nat_sub_sub_swap.
 Qed.
 
-Theorem ge_1 : ∀ a, (1 ≤ a)%pos.
+Theorem le_1_l : ∀ a, (1 ≤ a)%pos.
 Proof.
 intros.
 progress unfold Pos.le; cbn.
@@ -507,6 +507,21 @@ rewrite Nat.add_0_r.
 rewrite Nat.sub_add; [ | now apply Nat.neq_0_lt_0 ].
 progress unfold Pos.of_nat; cbn.
 now rewrite Nat.sub_0_r.
+Qed.
+
+Theorem of_nat_inj_le :
+  ∀ a b, b ≠ 0 → (a ≤ b)%nat ↔ (Pos.of_nat a ≤ Pos.of_nat b)%pos.
+Proof.
+intros * Haz.
+destruct b; [ easy | clear Haz ].
+destruct a. {
+  split; intros H; [ | apply Nat.le_0_l ].
+  apply Pos.le_1_l.
+}
+progress unfold Pos.of_nat, Pos.le; cbn.
+do 2 rewrite Nat.sub_0_r.
+symmetry.
+apply Nat.succ_le_mono.
 Qed.
 
 Theorem of_nat_inj_lt :

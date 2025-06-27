@@ -406,6 +406,20 @@ destruct (Z.eq_dec (q_num b) 0) as [Hbz| Hbz]. {
   destruct Hab as [Hab| Hab]; [ | now destruct Hab ].
   now apply q_Den_neq_0 in Hab.
 }
+rewrite Z2Pos.id. 2: {
+  destruct (q_num b) as [| sb vb]; [ easy | cbn ].
+  replace 1 with (Z.of_nat 1) by easy.
+  apply Nat2Z.inj_le.
+  progress unfold Pos.to_nat.
+  apply Nat.le_add_l.
+}
+rewrite Z2Pos.id. 2: {
+  destruct (q_num a) as [| sa va]; [ easy | cbn ].
+  replace 1 with (Z.of_nat 1) by easy.
+  apply Nat2Z.inj_le.
+  progress unfold Pos.to_nat.
+  apply Nat.le_add_l.
+}
 ...
 rewrite Nat.sub_add. 2: {
   destruct (q_num b); [ easy | apply Nat.le_add_l ].
