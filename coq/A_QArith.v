@@ -959,6 +959,7 @@ Theorem mul_inv_diag_l : ∀ a, (¬ a == 0 → a⁻¹ * a == 1)%Q.
 Proof.
 intros * Hnz.
 progress unfold Q.eq; cbn.
+(**)
 ...
 progress unfold Q.inv; cbn.
 destruct a as (an, ad); cbn.
