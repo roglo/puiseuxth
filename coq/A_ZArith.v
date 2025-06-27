@@ -1827,7 +1827,10 @@ destruct sa; cbn. {
     apply Nat2Z_inj_mul.
   }
 }
-...
+destruct b as [| sb vb]; [ easy | cbn ].
+rewrite Nat.sub_add; [ | easy ].
+apply Nat2Z_inj_mul.
+Qed.
 
 (* min & max *)
 

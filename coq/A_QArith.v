@@ -965,9 +965,7 @@ rewrite Z.mul_1_r.
 rewrite Z.mul_mul_swap.
 rewrite Z.sign_mul_eq_abs.
 rewrite <- (Z.abs_nonneg_eq (q_Den a)); [ | easy ].
-Z.abs_mul: ∀ n m : Z, Z.abs (n * m) = Z.abs n * Z.abs m
-cbn.
-Search (z_val _ (_ * _)).
+rewrite <- Z.abs_mul.
 ...
 progress unfold Pos.mul.
 cbn.
