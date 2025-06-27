@@ -420,6 +420,14 @@ rewrite Z2Pos.id. 2: {
   progress unfold Pos.to_nat.
   apply Nat.le_add_l.
 }
+(**)
+do 2 rewrite <- Z.mul_assoc.
+f_equal. {
+  apply (f_equal Z.sign) in Hab.
+  do 2 rewrite Z.sign_mul in Hab.
+  progress unfold q_Den in Hab.
+  now do 2 rewrite Z.mul_1_r in Hab.
+}
 ...
 rewrite Nat.sub_add. 2: {
   destruct (q_num b); [ easy | apply Nat.le_add_l ].
