@@ -958,14 +958,41 @@ Qed.
 Theorem mul_inv_diag_l : ∀ a, (¬ a == 0 → a⁻¹ * a == 1)%Q.
 Proof.
 intros * Hnz.
-progress unfold Q.eq; cbn.
+progress unfold Q.eq.
 (**)
-rewrite Pos.mul_1_l.
 rewrite Z.mul_1_r.
+rewrite Z.mul_1_l.
+progress unfold q_Den; cbn.
 rewrite Z.mul_mul_swap.
 rewrite Z.sign_mul_eq_abs.
+rewrite Pos2Z.inj_mul.
+f_equal.
+symmetry.
+apply Z2Pos.id.
+destruct a as (an, ad).
+cbn in Hnz |-*.
+progress unfold Q.eq in Hnz.
+cbn in Hnz.
+rewrite Z.mul_1_r in Hnz.
+apply Z.nlt_ge.
+intros H; apply Hnz; clear Hnz.
+...
+rewrite Pos.mul_1_l.
+rewrite Z.mul_mul_swap.
+rewrite Z.sign_mul_eq_abs.
+(*
 rewrite <- (Z.abs_nonneg_eq (q_Den a)); [ | easy ].
 rewrite <- Z.abs_mul.
+*)
+rewrite z_val_true_mul.
+f_equal.
+destruct a as (an, ad).
+cbn in Hnz; cbn.
+progress unfold Q.eq in Hnz; cbn in Hnz.
+rewrite Z.mul_1_r in Hnz.
+clear ad.
+...
+destruct (Z.abs an); cbn.
 ...
 progress unfold Pos.mul.
 cbn.
@@ -974,6 +1001,7 @@ Search (p_val _ - _)%nat.
 Search (Z.to_pos (Z.abs _)).
 Print Z.of_pos.
 ...
+progress unfold Q.eq; cbn.
 progress unfold Q.inv; cbn.
 destruct a as (an, ad); cbn.
 progress unfold Q.eq in Hnz; cbn in Hnz.
