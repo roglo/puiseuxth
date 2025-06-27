@@ -169,9 +169,7 @@ Theorem add_0_l : ∀ a, (0 + a)%Q = a.
 Proof.
 intros.
 progress unfold add; cbn.
-...
-rewrite Z.mul_1_r, Nat.add_0_r.
-rewrite Nat.add_sub.
+rewrite Z.mul_1_r, Pos.mul_1_l.
 now destruct a.
 Qed.
 
@@ -204,11 +202,8 @@ Theorem mul_1_l : ∀ a, (1 * a)%Q = a.
 Proof.
 intros.
 progress unfold mul.
-rewrite Z.mul_1_l; cbn.
-rewrite Nat.add_0_r.
-destruct a as (na, da); cbn.
-progress f_equal.
-apply Nat.add_sub.
+rewrite Z.mul_1_l, Pos.mul_1_l.
+now destruct a.
 Qed.
 
 Theorem mul_1_r : ∀ a, (a * 1)%Q = a.
