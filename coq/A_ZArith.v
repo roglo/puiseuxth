@@ -1799,6 +1799,19 @@ progress unfold Pos.to_nat.
 now rewrite Nat.add_1_r.
 Qed.
 
+Theorem Nat2Z_inj_mul :
+  ∀ a b, Z.of_nat (a * b) = (Z.of_nat a * Z.of_nat b)%Z.
+Proof.
+intros.
+progress unfold Z.mul.
+progress unfold Z.of_nat.
+destruct a; [ easy | ].
+rewrite Nat.mul_comm.
+destruct b; [ easy | cbn ].
+rewrite <- Pos.of_nat_mul; [ | easy | easy ].
+f_equal; f_equal; flia.
+Qed.
+
 Theorem abs_mul : ∀ a b, Z.abs (a * b) = (Z.abs a * Z.abs b)%Z.
 Proof.
 intros.
@@ -1808,8 +1821,12 @@ destruct sa; cbn. {
   destruct b as [| sb vb]; [ easy | ].
   destruct sb; cbn. {
     rewrite Nat.sub_add; [ | easy ].
-    do 2 rewrite Nat.add_1_r.
-Search (Z.of_nat (_ * _)).
+    apply Nat2Z_inj_mul.
+  } {
+    rewrite Nat.sub_add; [ | easy ].
+    apply Nat2Z_inj_mul.
+  }
+}
 ...
 
 (* min & max *)
@@ -2016,18 +2033,6 @@ intros.
 destruct a; [ easy | cbn ].
 progress f_equal.
 now apply Pos.of_nat_inj_succ.
-Qed.
-
-Theorem inj_mul : ∀ a b, Z.of_nat (a * b) = Z.of_nat a * Z.of_nat b.
-Proof.
-intros.
-progress unfold Z.mul.
-progress unfold Z.of_nat.
-destruct a; [ easy | ].
-rewrite Nat.mul_comm.
-destruct b; [ easy | cbn ].
-rewrite <- Pos.of_nat_mul; [ | easy | easy ].
-f_equal; f_equal; flia.
 Qed.
 
 Theorem inj_le : ∀ a b, (a <= b)%nat ↔ (Z.of_nat a ≤ Z.of_nat b)%Z.
