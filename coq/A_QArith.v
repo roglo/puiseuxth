@@ -428,36 +428,13 @@ f_equal. {
   progress unfold q_Den in Hab.
   now do 2 rewrite Z.mul_1_r in Hab.
 }
-...
-rewrite Nat.sub_add. 2: {
-  destruct (q_num b); [ easy | apply Nat.le_add_l ].
-}
-rewrite Nat.sub_add. 2: {
-  destruct (q_num a); [ easy | apply Nat.le_add_l ].
-}
-do 2 rewrite <- Z.mul_assoc.
-f_equal. {
-  apply (f_equal Z.sign) in Hab.
-  do 2 rewrite Z.sign_mul in Hab.
-  progress unfold q_Den in Hab.
-  do 2 rewrite (Nat.add_comm _ 1) in Hab.
-  cbn in Hab.
-  now do 2 rewrite Z.mul_1_r in Hab.
-}
 do 2 rewrite (Z.mul_comm (q_Den _)).
+symmetry.
 destruct (Z.le_dec (q_num a) 0) as [Haz1| Haz1]. {
-  rewrite (Z.abs_nat_nonpos (q_num a)); [ | easy ].
-  rewrite Z2Nat.id. 2: {
-    apply Z.opp_le_compat.
-    now rewrite Z.opp_involutive.
-  }
+  rewrite (Z.abs_nonpos_eq (q_num a)); [ | easy ].
   rewrite Z.mul_opp_l.
   destruct (Z.le_dec (q_num b) 0) as [Hbz1| Hbz1]. {
-    rewrite (Z.abs_nat_nonpos (q_num b)); [ | easy ].
-    rewrite Z2Nat.id. 2: {
-      apply Z.opp_le_compat.
-      now rewrite Z.opp_involutive.
-    }
+    rewrite (Z.abs_nonpos_eq (q_num b)); [ | easy ].
     rewrite Z.mul_opp_l.
     now f_equal.
   } {
@@ -478,9 +455,9 @@ destruct (Z.le_dec (q_num b) 0) as [Hbz1| Hbz1]. {
   apply Z.mul_nonpos_nonneg; [ easy | apply q_Den_nonneg ].
 }
 apply Z.nle_gt, Z.lt_le_incl in Haz1, Hbz1.
-rewrite Z.abs_nat_nonneg; [ | easy ].
-rewrite Z.abs_nat_nonneg; [ | easy ].
-rewrite Z2Nat.id; [ now rewrite Z2Nat.id | easy ].
+rewrite Z.abs_nonneg_eq; [ | easy ].
+rewrite Z.abs_nonneg_eq; [ | easy ].
+easy.
 Qed.
 
 Global Instance div_morph : Proper (Q.eq ==> Q.eq ==> Q.eq) Q.div.
@@ -623,6 +600,7 @@ intros.
 progress unfold Q.compare.
 progress unfold Q.add; cbn.
 do 2 rewrite q_Den_num_den.
+...
 progress unfold Pos.mul.
 rewrite Nat.sub_add; [ | easy ].
 rewrite Nat.sub_add; [ | easy ].

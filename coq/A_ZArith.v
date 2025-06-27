@@ -1701,6 +1701,34 @@ intros * Haz.
 destruct a as [| sa va]; [ easy | now destruct sa ].
 Qed.
 
+Theorem of_nat_pos_to_nat : ∀ a, Z.of_nat (Pos.to_nat a) = z_val true a.
+Proof.
+intros.
+progress unfold Z.of_nat.
+remember (Pos.to_nat a) as b eqn:Hb.
+symmetry in Hb.
+destruct b; [ now apply Pos.to_nat_neq_0 in Hb | ].
+f_equal.
+rewrite <- Hb.
+apply Pos.of_nat_to_nat.
+Qed.
+
+Theorem abs_nonneg_eq : ∀ a, (0 ≤ a)%Z → Z.abs a = a.
+Proof.
+intros * Haz.
+destruct a as [| sa va]; [ easy | ].
+destruct sa; [ clear Haz; cbn | easy ].
+apply Z.of_nat_pos_to_nat.
+Qed.
+
+Theorem abs_nonpos_eq : ∀ a, (a ≤ 0)%Z → Z.abs a = (- a)%Z.
+Proof.
+intros * Haz.
+destruct a as [| sa va]; [ easy | ].
+destruct sa; [ easy | clear Haz; cbn ].
+apply Z.of_nat_pos_to_nat.
+Qed.
+
 Theorem opp_le_compat : ∀ a b, (a ≤ b ↔ - b ≤ - a)%Z.
 Proof.
 intros.
@@ -2007,12 +2035,7 @@ Proof.
 intros * Hz.
 destruct a as [| sa va]; [ easy | ].
 destruct sa; [ clear Hz; cbn | easy ].
-remember (Pos.to_nat va) as a eqn:Ha.
-symmetry in Ha.
-destruct a; [ now apply Pos.to_nat_neq_0 in Ha | ].
-cbn; f_equal.
-rewrite <- Ha.
-apply Pos.of_nat_to_nat.
+apply Z.of_nat_pos_to_nat.
 Qed.
 
 Theorem of_nat : ∀ a, Z.of_nat (Z.to_nat a) = Z.max 0 a.
