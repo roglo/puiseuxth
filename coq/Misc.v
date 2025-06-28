@@ -7,7 +7,7 @@ From Stdlib Require Import Psatz.
 
 Require Import RingLike.Misc.
 Require Import RingLike.Core.
-Require Import A_ZArith A_QArith.
+Require Import A_Pos A_ZArith A_QArith.
 Open Scope Q_scope.
 
 Notation "[ ]" := nil.
@@ -33,7 +33,7 @@ Set Implicit Arguments.
 
 (* *)
 
-Definition Qnat i := Z.of_nat i # 0.
+Definition Qnat i := Z.of_nat i # 1.
 
 Theorem Nat_sub_succ_diag : ∀ n, (S n - n = 1)%nat.
 Proof.
@@ -84,6 +84,7 @@ split; intros H. {
     apply Nat.compare_le_iff in H.
     apply Nat.lt_eq_cases in H.
     destruct H; [ now left; apply Nat.compare_lt_iff | ].
+...
     now right; subst.
   } {
     destruct sb; [ now left | ].
