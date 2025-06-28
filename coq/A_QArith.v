@@ -1028,9 +1028,9 @@ intros.
 progress unfold Q.add.
 progress unfold Q.eq; cbn.
 do 4 rewrite q_Den_num_den.
-...
-rewrite Nat.sub_add; [ | easy ].
-rewrite Nat2Z.inj_mul; ring.
+rewrite <- Z.mul_add_distr_r.
+rewrite Pos2Z.inj_mul.
+apply Z.mul_assoc.
 Qed.
 
 Theorem inv_sub_distr : ∀ a b c, (a - b # c == (a # c) - (b # c))%Q.
