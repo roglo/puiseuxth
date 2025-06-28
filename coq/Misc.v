@@ -327,17 +327,8 @@ rewrite Qdiv_plus_distr_r.
 now rewrite Q.mul_div.
 Qed.
 
-...
-
-Theorem Zposnat2Znat : ∀ i, (0 < i)%nat → z_pos (i - 1) = Z.of_nat i.
-Proof.
-intros * Hi.
-progress unfold z_pos.
-progress unfold Z.of_nat.
-destruct i; [ easy | clear Hi ].
-progress f_equal.
-apply Nat_sub_succ_1.
-Qed.
+Theorem Zposnat2Znat : ∀ i, (0 < i)%nat → z_pos (Pos.of_nat i) = Z.of_nat i.
+Proof. now intros; destruct i. Qed.
 
 (* *)
 
@@ -479,12 +470,10 @@ Proof. easy. Qed.
 Theorem Qnum_inv : ∀ a, (0 < q_num a)%Z → q_num (a⁻¹) = z_pos (q_den a).
 Proof.
 intros (a, b) Ha; simpl in Ha |- *.
-unfold Q.inv; simpl.
 rewrite q_Den_num_den.
 destruct a as [| sa va]; [ now apply Z.lt_irrefl in Ha | ].
-destruct sa; [ | easy ].
-rewrite Nat.add_1_r; cbn.
-now rewrite Nat.add_0_r, Nat.add_sub.
+destruct sa; [ cbn | easy ].
+now rewrite Pos.mul_1_l.
 Qed.
 
 Theorem Qden_inv : ∀ a, (0 < q_num a)%Z → z_pos (q_den a⁻¹) = q_num a.
@@ -493,7 +482,7 @@ intros (a, b) Ha; simpl in Ha |- *.
 unfold Q.inv; simpl.
 destruct a as [| sa va]; [ now apply Z.lt_irrefl in Ha | ].
 destruct sa; [ cbn | easy ].
-now rewrite Nat.add_sub.
+now rewrite Z.of_nat_pos_to_nat.
 Qed.
 
 Definition pair_rec A B C (f : A → B → C) := λ xy, f (fst xy) (snd xy).
@@ -692,6 +681,8 @@ destruct (Z.le_dec (x - y) (x - z)) as [Hle₂| Hgt₂]. {
   destruct (y - z)%Z as [| s v]; [ easy | now destruct s ].
 }
 Qed.
+
+...
 
 Theorem Z2Nat_inj_mul_pos_r : ∀ n m,
   Z.to_nat (n * z_pos m) = (Z.to_nat n * (m + 1))%nat.
