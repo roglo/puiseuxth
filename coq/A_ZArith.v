@@ -148,7 +148,7 @@ Definition div_eucl (a b : Z) :=
 
 Definition div a b := fst (div_eucl a b).
 
-Definition sign a :=
+Definition sgn a :=
   match a with
   | z_zero => 0%Z
   | z_val true _ => 1%Z
@@ -1666,21 +1666,22 @@ rewrite <- Hb.
 apply Pos.of_nat_to_nat.
 Qed.
 
-Theorem sign_mul : ∀ a b, Z.sign (a * b) = (Z.sign a * Z.sign b)%Z.
+Theorem sgn_mul : ∀ a b, Z.sgn (a * b) = (Z.sgn a * Z.sgn b)%Z.
 Proof.
 intros.
-progress unfold Z.sign.
+progress unfold Z.sgn.
 destruct a as [| sa va]; [ easy | ].
 destruct sa.
 destruct b as [| sb vb]; [ easy | now destruct sb ].
 destruct b as [| sb vb]; [ easy | now destruct sb ].
 Qed.
 
-Theorem sign_mul_eq_abs : ∀ a, (Z.sign a * a)%Z = Z.abs a.
+Theorem abs_sgn : ∀ a, Z.abs a = (Z.sgn a * a)%Z.
 Proof.
 intros.
 destruct a as [| sa va]; [ easy | cbn ].
 rewrite Z.of_nat_pos_to_nat.
+symmetry.
 destruct sa; [ apply Z.mul_1_l | cbn ].
 f_equal; apply Pos.mul_1_l.
 Qed.

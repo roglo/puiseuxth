@@ -64,7 +64,7 @@ Definition mul a b :=
   mk_q (q_num a * q_num b) (Pos.mul (q_den a) (q_den b)).
 
 Definition inv a :=
-  mk_q (Z.sign (q_num a) * q_Den a) (Z.to_pos (Z.abs (q_num a))).
+  mk_q (Z.sgn (q_num a) * q_Den a) (Z.to_pos (Z.abs (q_num a))).
 
 Definition div a b := mul a (inv b).
 
@@ -423,8 +423,8 @@ rewrite Z2Pos.id. 2: {
 (**)
 do 2 rewrite <- Z.mul_assoc.
 f_equal. {
-  apply (f_equal Z.sign) in Hab.
-  do 2 rewrite Z.sign_mul in Hab.
+  apply (f_equal Z.sgn) in Hab.
+  do 2 rewrite Z.sgn_mul in Hab.
   progress unfold q_Den in Hab.
   now do 2 rewrite Z.mul_1_r in Hab.
 }
@@ -963,7 +963,7 @@ rewrite Z.mul_1_r.
 rewrite Z.mul_1_l.
 progress unfold q_Den; cbn.
 rewrite Z.mul_mul_swap.
-rewrite Z.sign_mul_eq_abs.
+rewrite <- Z.abs_sgn.
 rewrite Pos2Z.inj_mul.
 f_equal.
 symmetry.
@@ -975,6 +975,7 @@ cbn in Hnz.
 rewrite Z.mul_1_r in Hnz.
 clear ad.
 (* à déplacer dans A_ZArith *)
+rewrite Z.abs_sgn.
 ...
 progress unfold Z.abs.
 destruct an as [| sa va]; [ easy | ].
