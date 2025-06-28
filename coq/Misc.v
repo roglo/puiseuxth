@@ -1031,13 +1031,17 @@ specialize (Z.gcd_divide_r a (z_pos b)) as Hd.
 destruct Hd as (c, Hc).
 rewrite Hc at 2.
 destruct c as [| sc vc]; [ easy | ].
-destruct a as [| sa va]. {
-  cbn.
 ...
-  rewrite Nat.add_1_r; cbn.
+destruct a as [| sa va]. {
+  cbn in Hc |-*.
+  rewrite Z.of_nat_pos_to_nat in Hc |-*.
   destruct sc. {
     progress unfold Z.le; cbn.
-    apply Nat.compare_le_iff.
+    apply Pos.compare_le_iff.
+    cbn in Hc.
+Search (z_val _ _ = z_val _ _).
+    apply z_val_inj in Hc.
+...
     flia.
   }
   cbn in Hc.
