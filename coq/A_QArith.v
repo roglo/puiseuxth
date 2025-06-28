@@ -975,8 +975,7 @@ cbn in Hnz.
 rewrite Z.mul_1_r in Hnz.
 clear ad.
 (**)
-Theorem Z_divide_pos_le: ∀ n m : Z, 0 < m → (n | m) → n <= m.
-...
+... ...
 apply Z_divide_pos_le. 2: {
   exists (Z.abs an); symmetry.
   apply Z.mul_1_r.

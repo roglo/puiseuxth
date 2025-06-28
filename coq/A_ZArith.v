@@ -2004,6 +2004,18 @@ destruct Hab as [(Hza, Hzb)| (Hbz, Haz)]. {
 }
 Qed.
 
+Theorem Z_divide_pos_le: ∀ a b, (0 < b → (a | b) → a ≤ b)%Z.
+Proof.
+intros * Hzb Hab.
+destruct Hab as (c, Hc); subst b.
+apply Z.lt_0_mul in Hzb.
+destruct Hzb as [(Hzc, Hza)| (Haz, Hcz)]. {
+rewrite <- (Z.mul_1_l a) at 1.
+  apply Z.mul_le_mono_nonneg_r. {
+    now apply Z.lt_le_incl.
+  }
+...
+
 End Z.
 
 Number Notation Z Z.of_number Z.to_number : Z_scope.
