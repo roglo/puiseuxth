@@ -974,6 +974,75 @@ progress unfold Q.eq in Hnz.
 cbn in Hnz.
 rewrite Z.mul_1_r in Hnz.
 clear ad.
+(**)
+Theorem Z_divide_pos_le: ∀ n m : Z, 0 < m → (n | m) → n <= m.
+...
+apply Z_divide_pos_le. 2: {
+  exists (Z.abs an); symmetry.
+  apply Z.mul_1_r.
+}
+...
+Print Z.abs_pos.
+Require Import ZArith.
+Search (Z → positive).
+Print Z.to_pos.
+...
+Z.to_pos =
+λ z : Z, match z with
+         | Z.pos p => p
+         | _ => 1%positive
+         end
+     : Z → positive
+
+Arguments Z.to_pos z%Z_scope
+...
+Z.abs_pos =
+λ a : Z, match a with
+         | 0 => 1%pos
+         | z_val _ v => v
+         end
+     : Z → pos
+
+Arguments Z.abs_pos a%Z_scope
+...
+Z.abs_pos: ∀ n : Z, 0 < Z.abs n ↔ n ≠ 0
+
+Search (1 | _)%Z.
+...
+Search (_ <= _).
+Znumtheory.Zdivide_le: ∀ a b : Z, 0 <= a → 0 < b → (a | b) → a <= b
+Znumtheory.Zdivide_bounds: ∀ a b : Z, (a | b) → b ≠ 0 → Z.abs a <= Z.abs b
+Z.divide_pos_le: ∀ n m : Z, 0 < m → (n | m) → n <= m
+...
+specialize (Z.abs_nonneg an) as H1.
+Theorem Z_lt_eq_cases : ∀ a b, (a ≤ b ↔ a < b ∨ a = b)%Z.
+...
+apply Z_lt_eq_cases in H1.
+destruct H1 as [H1| H1]. 2: {
+  symmetry in H1.
+Theorem Z_abs_0_iff : ∀ n : Z, Z.abs n = 0 ↔ n = 0.
+...
+  now apply -> Z_abs_0_iff in H1.
+}
+Require Import ZArith.
+Search (0 < _)%Z.
+Check Z.abs_0_iff.
+...
+Z.lt_eq_cases: ∀ n m : Z, n <= m ↔ n < m ∨ n = m
+Require Import ZArith.
+Search (_ <= _ ↔ _).
+...
+apply (Z.sub_le_mono_r _ _ 1).
+rewrite Z.sub_diag.
+Search (_ <= Z.abs _).
+...
+Search (Z.succ).
+Print Z.pred.
+destruct (Z.lt_dec 0 an) as [Hza| Hza]. {
+  rewrite Z.abs_nonneg_eq.
+  apply Z.lt_iff in Hza.
+  destruct Hza as (Hza, _).
+...
 (* à déplacer dans A_ZArith *)
 rewrite Z.abs_sgn.
 ...
