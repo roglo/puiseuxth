@@ -116,17 +116,15 @@ Proof.
 intros * Hz Hle.
 progress unfold Q.le in Hz, Hle |-*.
 do 2 rewrite Q.q_Den_mul.
-cbn in Hz |-*.
+(**)
+cbn in Hz.
 rewrite Z.mul_1_r in Hz.
+cbn - [ q_Den ].
+do 2 rewrite (Z.mul_comm (q_Den a)).
 do 2 rewrite <- Z.mul_assoc.
 apply Z.mul_le_mono_nonneg_l; [ easy | ].
-rewrite (Z.mul_comm (q_num b)).
-rewrite (Z.mul_comm (q_num c)).
-...
-do 2 rewrite <- Z.mul_assoc.
-apply Z.mul_le_mono_nonneg_l; [ apply q_Den_nonneg | ].
-do 2 rewrite (Z.mul_comm (q_Den _)).
-easy.
+do 2 rewrite Z.mul_assoc.
+now apply Z.mul_le_mono_nonneg_r.
 Qed.
 
 Theorem Q_mul_le_mono_nonneg_r : ∀ a b c, (0 ≤ c → a ≤ b → a * c ≤ b * c)%Q.
@@ -242,7 +240,7 @@ Proof.
 intros * Hlt.
 progress unfold Q.lt, Q.inv in Hlt |-*; cbn in Hlt |-*.
 rewrite Z.mul_1_r in Hlt |-*.
-progress unfold Z.sign.
+progress unfold Z.sgn.
 destruct (q_num a) as [| sa va]; [ easy | cbn ].
 destruct sa; [ cbn | easy ].
 remember (q_Den a) as da eqn:Hda.
@@ -328,6 +326,8 @@ intros x y z Hc.
 rewrite Qdiv_plus_distr_r.
 now rewrite Q.mul_div.
 Qed.
+
+...
 
 Theorem Zposnat2Znat : ∀ i, (0 < i)%nat → z_pos (i - 1) = Z.of_nat i.
 Proof.
