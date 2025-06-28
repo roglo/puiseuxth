@@ -959,7 +959,6 @@ Theorem mul_inv_diag_l : ∀ a, (¬ a == 0 → a⁻¹ * a == 1)%Q.
 Proof.
 intros * Hnz.
 progress unfold Q.eq.
-(**)
 rewrite Z.mul_1_r.
 rewrite Z.mul_1_l.
 progress unfold q_Den; cbn.
@@ -974,50 +973,18 @@ cbn in Hnz |-*.
 progress unfold Q.eq in Hnz.
 cbn in Hnz.
 rewrite Z.mul_1_r in Hnz.
-apply Z.nlt_ge.
-intros H; apply Hnz; clear Hnz.
-...
-rewrite Pos.mul_1_l.
-rewrite Z.mul_mul_swap.
-rewrite Z.sign_mul_eq_abs.
-(*
-rewrite <- (Z.abs_nonneg_eq (q_Den a)); [ | easy ].
-rewrite <- Z.abs_mul.
-*)
-rewrite z_val_true_mul.
-f_equal.
-destruct a as (an, ad).
-cbn in Hnz; cbn.
-progress unfold Q.eq in Hnz; cbn in Hnz.
-rewrite Z.mul_1_r in Hnz.
 clear ad.
+(* à déplacer dans A_ZArith *)
 ...
-destruct (Z.abs an); cbn.
-...
-progress unfold Pos.mul.
+progress unfold Z.abs.
+destruct an as [| sa va]; [ easy | ].
+rewrite Z.of_nat_pos_to_nat.
+progress unfold Z.le.
 cbn.
-Search (p_val _ - _)%nat.
-...
-Search (Z.to_pos (Z.abs _)).
-Print Z.of_pos.
-...
-progress unfold Q.eq; cbn.
-progress unfold Q.inv; cbn.
-destruct a as (an, ad); cbn.
-progress unfold Q.eq in Hnz; cbn in Hnz.
-rewrite Z.mul_1_r in Hnz.
-destruct an as [| sa va]; [ easy | cbn ].
-rewrite Q.q_Den_mul.
-rewrite Z.mul_1_r.
-rewrite q_Den_num_den.
-rewrite (Z.mul_comm (q_Den _)).
-progress unfold q_Den.
-do 2 rewrite (Nat.add_comm _ 1).
-cbn.
-rewrite Nat.add_0_r, Nat.add_sub, Nat.add_sub.
-destruct sa; [ now rewrite Z.mul_1_l | cbn ].
-now rewrite Nat.add_0_r, Nat.add_sub.
+now destruct (p_val va).
 Qed.
+
+...
 
 Theorem mul_inv_diag_r : ∀ a, (¬ a == 0 → a * a⁻¹ == 1)%Q.
 Proof.
