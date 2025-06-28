@@ -974,9 +974,7 @@ progress unfold Q.eq in Hnz.
 cbn in Hnz.
 rewrite Z.mul_1_r in Hnz.
 clear ad.
-(**)
-... ...
-apply Z_divide_pos_le. 2: {
+apply Z.divide_pos_le. 2: {
   exists (Z.abs an); symmetry.
   apply Z.mul_1_r.
 }

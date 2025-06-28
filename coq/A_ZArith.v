@@ -1275,6 +1275,14 @@ apply Z.compare_mul_mono_neg_l.
 now apply Z.lt_iff.
 Qed.
 
+Theorem mul_le_mono_nonpos_r :
+  ∀ a b c, (c ≤ 0)%Z → (b ≤ a)%Z → (a * c ≤ b * c)%Z.
+Proof.
+intros * Hzc Hba.
+do 2 rewrite (Z.mul_comm _ c).
+now apply Z.mul_le_mono_nonpos_l.
+Qed.
+
 Theorem add_le_compat : ∀ a b c d, (a ≤ b)%Z → (c ≤ d)%Z → (a + c ≤ b + d)%Z.
 Proof.
 intros * Hab Hcd.
@@ -2004,19 +2012,29 @@ destruct Hab as [(Hza, Hzb)| (Hbz, Haz)]. {
 }
 Qed.
 
-Theorem Z_divide_pos_le: ∀ a b, (0 < b → (a | b) → a ≤ b)%Z.
+Theorem divide_pos_le: ∀ a b, (0 < b → (a | b) → a ≤ b)%Z.
 Proof.
 intros * Hzb Hab.
 destruct Hab as (c, Hc); subst b.
 apply Z.lt_0_mul in Hzb.
 destruct Hzb as [(Hzc, Hza)| (Haz, Hcz)]. {
-rewrite <- (Z.mul_1_l a) at 1.
+  rewrite <- (Z.mul_1_l a) at 1.
   apply Z.mul_le_mono_nonneg_r. {
     now apply Z.lt_le_incl.
   }
   destruct c as [| sc vc]; [ easy | ].
   destruct sc; [ | easy ].
-...
+  apply Pos.compare_le_iff.
+  apply Pos.le_1_l.
+} {
+  rewrite <- (Z.mul_1_l a) at 1.
+  apply Z.mul_le_mono_nonpos_r. {
+    now apply Z.lt_le_incl.
+  }
+  destruct c as [| sc vc]; [ easy | ].
+  now destruct sc.
+}
+Qed.
 
 End Z.
 
