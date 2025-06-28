@@ -155,7 +155,7 @@ Definition sgn a :=
   | z_val false _ => (-1)%Z
   end.
 
-Definition abs_pos a :=
+Definition pos_abs a :=
   match a with
   | z_zero => 1%pos
   | z_val _ v => v
@@ -1729,13 +1729,13 @@ destruct (Z.le_dec b a) as [Hba| Hba]; [ now right | left ].
 now apply Z.nle_gt in Hba.
 Qed.
 
-Theorem abs_pos_nonneg : ∀ a, (0 ≤ a)%Z → Z.abs_pos a = Z.to_pos a.
+Theorem pos_abs_nonneg : ∀ a, (0 ≤ a)%Z → Z.pos_abs a = Z.to_pos a.
 Proof.
 intros * Haz.
 destruct a as [| sa va]; [ easy | now destruct sa ].
 Qed.
 
-Theorem abs_pos_nonpos : ∀ a, (a ≤ 0)%Z → Z.abs_pos a = Z.to_pos (- a).
+Theorem pos_abs_nonpos : ∀ a, (a ≤ 0)%Z → Z.pos_abs a = Z.to_pos (- a).
 Proof.
 intros * Haz.
 destruct a as [| sa va]; [ easy | now destruct sa ].
@@ -1755,6 +1755,14 @@ intros * Haz.
 destruct a as [| sa va]; [ easy | ].
 destruct sa; [ easy | clear Haz; cbn ].
 apply Z.of_nat_pos_to_nat.
+Qed.
+
+Theorem abs_pos : ∀ a, (0 < Z.abs a ↔ a ≠ 0)%Z.
+Proof.
+intros.
+split; intros H; [ now intros H1; subst | ].
+destruct a as [| sa va]; [ easy | ].
+now destruct sa; cbn; rewrite Z.of_nat_pos_to_nat.
 Qed.
 
 Theorem opp_le_compat : ∀ a b, (a ≤ b ↔ - b ≤ - a)%Z.
