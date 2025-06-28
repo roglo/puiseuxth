@@ -604,6 +604,22 @@ do 2 rewrite <- Nat.sub_add_distr.
 apply Nat_compare_sub_mono_r; [ flia Hca | flia Hcb ].
 Qed.
 
+Theorem le_refl : ∀ a, (a ≤ a)%pos.
+Proof. intros; apply Nat.le_refl. Qed.
+
+Theorem lt_eq_cases : ∀ a b, (a ≤ b)%pos ↔ (a < b)%pos ∨ a = b.
+Proof.
+intros.
+split; intros H. {
+  apply Nat.lt_eq_cases in H.
+  destruct H as [H| H]; [ now left | ].
+  now right; apply Pos.nat_inj.
+} {
+  destruct H as [H| H]; [ now apply Pos.lt_le_incl | ].
+  subst. apply Pos.le_refl.
+}
+Qed.
+
 End Pos.
 
 Number Notation pos Pos.of_number Pos.to_number : pos_scope.

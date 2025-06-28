@@ -81,18 +81,17 @@ split; intros H. {
     destruct sb; [ | easy ].
     progress unfold Z.le in H; cbn in H.
     progress unfold Z.lt; cbn.
-    apply Nat.compare_le_iff in H.
-    apply Nat.lt_eq_cases in H.
+    apply Pos.compare_le_iff in H.
+    apply Pos.lt_eq_cases in H.
     destruct H; [ now left; apply Nat.compare_lt_iff | ].
-...
     now right; subst.
   } {
     destruct sb; [ now left | ].
     progress unfold Z.le in H; cbn in H.
     progress unfold Z.lt; cbn.
-    apply Nat.compare_le_iff in H.
-    apply Nat.lt_eq_cases in H.
-    destruct H; [ now left; apply Nat.compare_lt_iff | ].
+    apply Pos.compare_le_iff in H.
+    apply Pos.lt_eq_cases in H.
+    destruct H; [ now left; apply Pos.compare_lt_iff | ].
     now right; subst.
   }
 }
@@ -123,6 +122,7 @@ do 2 rewrite <- Z.mul_assoc.
 apply Z.mul_le_mono_nonneg_l; [ easy | ].
 rewrite (Z.mul_comm (q_num b)).
 rewrite (Z.mul_comm (q_num c)).
+...
 do 2 rewrite <- Z.mul_assoc.
 apply Z.mul_le_mono_nonneg_l; [ apply q_Den_nonneg | ].
 do 2 rewrite (Z.mul_comm (q_Den _)).
