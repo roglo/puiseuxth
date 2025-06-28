@@ -682,15 +682,13 @@ destruct (Z.le_dec (x - y) (x - z)) as [Hle₂| Hgt₂]. {
 }
 Qed.
 
-...
-
 Theorem Z2Nat_inj_mul_pos_r : ∀ n m,
-  Z.to_nat (n * z_pos m) = (Z.to_nat n * (m + 1))%nat.
+  Z.to_nat (n * z_pos m) = (Z.to_nat n * Pos.to_nat m)%nat.
 Proof.
 intros n m.
 destruct n as [| s v]; [ easy | cbn ].
 destruct s; [ cbn | easy ].
-now apply Nat.sub_add.
+now rewrite Nat.sub_add.
 Qed.
 
 Theorem Nat_sub_sub_distr : ∀ n m p, (p <= m → n - (m - p) = n + p - m)%nat.
@@ -1035,6 +1033,7 @@ rewrite Hc at 2.
 destruct c as [| sc vc]; [ easy | ].
 destruct a as [| sa va]. {
   cbn.
+...
   rewrite Nat.add_1_r; cbn.
   destruct sc. {
     progress unfold Z.le; cbn.
