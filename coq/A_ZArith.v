@@ -2014,6 +2014,8 @@ rewrite <- (Z.mul_1_l a) at 1.
   apply Z.mul_le_mono_nonneg_r. {
     now apply Z.lt_le_incl.
   }
+  destruct c as [| sc vc]; [ easy | ].
+  destruct sc; [ | easy ].
 ...
 
 End Z.
