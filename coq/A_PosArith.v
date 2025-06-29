@@ -493,6 +493,14 @@ rewrite (Nat.add_shuffle0 (p_val a)).
 symmetry; apply Nat.add_assoc.
 Qed.
 
+Theorem to_nat_inj_mul :
+  ∀ a b, Pos.to_nat (a * b) = Pos.to_nat a * Pos.to_nat b.
+Proof.
+intros.
+progress unfold Pos.to_nat; cbn.
+now apply Nat.sub_add.
+Qed.
+
 Theorem of_nat_to_nat : ∀ a, Pos.of_nat (Pos.to_nat a) = a.
 Proof.
 intros.

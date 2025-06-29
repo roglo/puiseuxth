@@ -998,12 +998,11 @@ Proof.
 intros ap bp s.
 unfold series_stretch; simpl.
 constructor; intros i; simpl.
-...
-rewrite Pos2Nat_inj_mul.
+rewrite Pos.to_nat_inj_mul.
 remember (Pos.to_nat ap) as a.
 remember (Pos.to_nat bp) as b.
-assert (a ≠ O) as Ha by (subst a; apply Pos2Nat_ne_0).
-assert (b ≠ O) as Hb by (subst b; apply Pos2Nat_ne_0).
+assert (a ≠ O) as Ha by (subst a; apply Pos.to_nat_neq_0).
+assert (b ≠ O) as Hb by (subst b; apply Pos.to_nat_neq_0).
 destruct (zerop (i mod (a * b))) as [Hz| Hnz].
  apply Nat.Div0.mod_divides in Hz.
   destruct Hz as (c, Hz).
@@ -1054,7 +1053,7 @@ Proof.
 intros kp n s.
 constructor; intros i; simpl.
 remember (Pos.to_nat kp) as k.
-assert (k ≠ O) as Hk by (subst k; apply Pos2Nat_ne_0).
+assert (k ≠ O) as Hk by (subst k; apply Pos.to_nat_neq_0).
 destruct (zerop (i mod k)) as [Hz| Hnz].
  apply Nat.Div0.mod_divides in Hz.
  destruct Hz as (c, Hi); subst i.
@@ -1067,6 +1066,7 @@ destruct (zerop (i mod k)) as [Hz| Hnz].
   destruct (lt_dec (c * k) (n * k)) as [| H₂]; [ reflexivity | idtac ].
   exfalso; apply H₂.
   apply Nat.mul_lt_mono_pos_r; [ idtac | assumption ].
+...
   rewrite Heqk; apply Pos2Nat.is_pos.
 
   destruct (lt_dec (c * k) (n * k)) as [H₂| ]; [ idtac | reflexivity ].
