@@ -755,6 +755,8 @@ Arguments series_left_shift α%_type n%_nat s%_ser.
 Definition normalise_series α n k (s : power_series α) :=
   series_shrink k (series_left_shift n s).
 
+...
+
 Definition gcd_ps α n k (ps : puiseux_series α) :=
   Z.gcd
     (Z.gcd (ps_ordnum ps + Z.of_nat n) (z_pos (ps_polydo ps)))

@@ -1030,40 +1030,18 @@ intros a b.
 specialize (Z.gcd_divide_r a (z_pos b)) as Hd.
 destruct Hd as (c, Hc).
 rewrite Hc at 2.
+rewrite <- Z.mul_1_l at 1.
+apply Z.mul_le_mono_nonneg_r; [ apply Z.gcd_nonneg | ].
+apply Z.divide_pos_le; [ | now exists c; rewrite Z.mul_1_r ].
 destruct c as [| sc vc]; [ easy | ].
-...
-destruct a as [| sa va]. {
-  cbn in Hc |-*.
-  rewrite Z.of_nat_pos_to_nat in Hc |-*.
-  destruct sc. {
-    progress unfold Z.le; cbn.
-    apply Pos.compare_le_iff.
-    cbn in Hc.
-Search (z_val _ _ = z_val _ _).
-    apply z_val_inj in Hc.
-...
-    flia.
-  }
-  cbn in Hc.
-  now rewrite Nat.add_1_r in Hc.
-}
-destruct sc. {
-  progress unfold Z.le; cbn.
-  apply Nat.compare_le_iff.
-  rewrite Nat.sub_add; [ flia |].
-  do 2 rewrite Nat.add_1_r.
-  apply Nat.neq_0_lt_0.
-  intros H.
-  apply Nat.gcd_eq_0 in H.
-  now destruct H.
-}
+destruct sc; [ easy | exfalso ].
 cbn in Hc.
-rewrite Nat.sub_add in Hc; [ easy | ].
-do 2 rewrite Nat.add_1_r.
-apply Nat.neq_0_lt_0.
-intros H.
-apply Nat.gcd_eq_0 in H.
-now destruct H.
+remember (Z.gcd a (z_pos b)) as g eqn:Hg.
+symmetry in Hg.
+destruct g as [| sg vg]; [ easy | ].
+destruct sg; [ easy | ].
+specialize (Z.gcd_nonneg a (z_pos b)) as H1.
+now rewrite Hg in H1.
 Qed.
 
 Theorem Qlt_sub_lt_add_l : ∀ n m p, (n - m < p)%Q ↔ (n < m + p)%Q.

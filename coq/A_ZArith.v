@@ -2020,7 +2020,7 @@ destruct Hab as [(Hza, Hzb)| (Hbz, Haz)]. {
 }
 Qed.
 
-Theorem divide_pos_le: ∀ a b, (0 < b → (a | b) → a ≤ b)%Z.
+Theorem divide_pos_le : ∀ a b, (0 < b → (a | b) → a ≤ b)%Z.
 Proof.
 intros * Hzb Hab.
 destruct Hab as (c, Hc); subst b.
