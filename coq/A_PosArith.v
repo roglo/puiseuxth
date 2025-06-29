@@ -182,13 +182,63 @@ Definition to_number (a : pos) : Number.int :=
 
 Number Notation pos Pos.of_number Pos.to_number : pos_scope.
 
-Definition add a b := {| p_val := p_val a + p_val b + 1 |}.
-Definition sub a b := {| p_val := p_val a - p_val b - 1 |}.
-Definition mul a b := {| p_val := (p_val a + 1) * (p_val b + 1) - 1 |}.
+Theorem of_nat_to_nat : ∀ a, Pos.of_nat (Pos.to_nat a) = a.
+Proof.
+intros.
+progress unfold Pos.of_nat, Pos.to_nat.
+rewrite Nat.add_sub.
+now destruct a.
+Qed.
+
+Theorem to_nat_of_nat : ∀ a, a ≠ 0 → Pos.to_nat (Pos.of_nat a) = a.
+Proof.
+intros * Haz.
+progress unfold Pos.of_nat, Pos.to_nat; cbn.
+apply Nat.sub_add.
+now apply Nat.neq_0_lt_0.
+Qed.
+
+Theorem to_nat_neq_0 : ∀ a, Pos.to_nat a ≠ 0.
+Proof.
+intros.
+progress unfold to_nat.
+now rewrite Nat.add_1_r.
+Qed.
+
+Theorem add_to_nat_neq_0 : ∀ a b, Pos.to_nat a + Pos.to_nat b ≠ 0.
+Proof.
+intros * H.
+apply Nat.eq_add_0 in H.
+destruct H as (H, _).
+now apply Pos.to_nat_neq_0 in H.
+Qed.
+
+Theorem add_to_nat_ge_1 : ∀ a b, 1 ≤ Pos.to_nat a + Pos.to_nat b.
+Proof.
+intros.
+apply Nat.neq_0_lt_0.
+apply Pos.add_to_nat_neq_0.
+Qed.
+
+Theorem mul_to_nat_neq_0 : ∀ a b, Pos.to_nat a * Pos.to_nat b ≠ 0.
+Proof.
+intros * H.
+apply Nat.eq_mul_0 in H.
+now destruct H as [H| H]; apply Pos.to_nat_neq_0 in H.
+Qed.
+
+Definition nat2 f a b := Pos.of_nat (f (Pos.to_nat a) (Pos.to_nat b)).
+
+Definition add := nat2 Nat.add.
+Definition sub := nat2 Nat.sub.
+Definition mul := nat2 Nat.mul.
+
+Definition nat2a {A} (f : nat → nat → A) a b :=
+  f (Pos.to_nat a) (Pos.to_nat b).
 
 Definition compare a b := p_val a ?= p_val b.
 Definition eqb a b := p_val a =? p_val b.
-Definition le a b := p_val a ≤ p_val b.
+Definition le := nat2a le.
 Definition lt a b := p_val a < p_val b.
 
 Definition div a b := Pos.of_nat (Pos.to_nat a / Pos.to_nat b).
@@ -219,52 +269,49 @@ Qed.
 Theorem le_dec : ∀ a b : pos, ({a ≤ b} + {¬ a ≤ b})%pos.
 Proof.
 intros.
-now destruct (le_dec (p_val a) (p_val b)); [ left | right ].
+progress unfold Pos.le, nat2a.
+now destruct (le_dec (to_nat a) (to_nat b)); [ left | right ].
 Qed.
 
 Theorem add_comm : ∀ a b, (a + b)%pos = (b + a)%pos.
 Proof.
 intros.
-progress unfold Pos.add.
-now rewrite (Nat.add_comm (p_val a)).
+progress unfold Pos.add, nat2.
+f_equal; apply Nat.add_comm.
 Qed.
 
 Theorem add_add_swap : ∀ a b c, (a + b + c)%pos = (a + c + b)%pos.
 Proof.
 intros.
-progress unfold Pos.add.
-progress f_equal; cbn.
-progress f_equal.
-do 4 rewrite <- Nat.add_assoc.
-progress f_equal.
-do 2 rewrite (Nat.add_comm (p_val _)).
-apply Nat.add_shuffle0.
+progress unfold Pos.add, nat2.
+rewrite Pos.to_nat_of_nat; [ | apply Pos.add_to_nat_neq_0 ].
+rewrite Pos.to_nat_of_nat; [ | apply Pos.add_to_nat_neq_0 ].
+f_equal; apply Nat.add_shuffle0.
 Qed.
 
 Theorem add_sub : ∀ a b, (a + b - b)%pos = a.
 Proof.
 intros.
-progress unfold Pos.sub, Pos.add; cbn.
-rewrite Nat.add_shuffle0, Nat.add_sub, Nat.add_sub.
-now destruct a.
+progress unfold Pos.sub, Pos.add, nat2; cbn.
+rewrite Nat.sub_add; [ | apply Pos.add_to_nat_ge_1 ].
+rewrite Nat.add_sub.
+apply Pos.of_nat_to_nat.
 Qed.
 
 Theorem mul_comm : ∀ a b, (a * b)%pos = (b * a)%pos.
 Proof.
 intros.
-progress unfold Pos.mul.
-now rewrite (Nat.mul_comm (p_val a + 1)).
+progress unfold Pos.mul, nat2.
+f_equal; apply Nat.mul_comm.
 Qed.
 
 Theorem mul_mul_swap : ∀ a b c, (a * b * c)%pos = (a * c * b)%pos.
 Proof.
 intros.
-progress unfold Pos.mul.
-progress f_equal; cbn.
-progress f_equal.
-rewrite Nat.sub_add; [ | easy ].
-rewrite Nat.sub_add; [ | easy ].
-apply Nat.mul_shuffle0.
+progress unfold Pos.mul, nat2.
+rewrite Pos.to_nat_of_nat; [ | apply Pos.mul_to_nat_neq_0 ].
+rewrite Pos.to_nat_of_nat; [ | apply Pos.mul_to_nat_neq_0 ].
+f_equal; apply Nat.mul_shuffle0.
 Qed.
 
 Theorem mul_assoc : ∀ a b c, (a * (b * c))%pos = ((a * b) * c)%pos.
@@ -279,49 +326,27 @@ Qed.
 Theorem mul_1_l : ∀ a, (1 * a)%pos = a.
 Proof.
 intros.
-progress unfold Pos.mul; cbn.
-rewrite Nat.add_0_r, Nat.add_sub.
-now destruct a.
+progress unfold Pos.mul, nat2.
+rewrite Nat.mul_1_l.
+apply Pos.of_nat_to_nat.
 Qed.
 
 Theorem mul_1_r : ∀ a, (a * 1)%pos = a.
 Proof.
 intros.
-progress unfold Pos.mul; cbn.
-rewrite Nat.mul_1_r, Nat.add_sub.
-now destruct a.
+rewrite Pos.mul_comm.
+apply Pos.mul_1_l.
 Qed.
 
 Theorem mul_add_distr_l : ∀ a b c, (a * (b + c) = a * b + a * c)%pos.
 Proof.
 intros.
-progress unfold Pos.mul, Pos.add; cbn.
+progress unfold Pos.mul, Pos.add, nat2; cbn.
 progress f_equal.
-rewrite (Nat.add_shuffle0 (p_val b)).
-rewrite <- Nat.add_assoc.
-rewrite Nat.mul_add_distr_l.
-rewrite <- Nat.add_sub_swap; [ | easy ].
-rewrite Nat.add_sub_assoc; [ | easy ].
-symmetry; apply Nat.sub_add.
-apply Nat.le_add_le_sub_l.
-now apply Nat.add_le_mono.
-Qed.
-
-Theorem le_sub_1 : ∀ a b, (a ≤ b + 1 → a - b = 1)%pos.
-Proof.
-progress unfold Pos.sub, Pos.le.
-intros * Hab.
-cbn in Hab; rewrite Nat.add_0_r in Hab.
-f_equal.
-rewrite <- Nat.sub_add_distr.
-now apply Nat.sub_0_le.
-Qed.
-
-Theorem add_sub_eq_l : ∀ a b c, (b + c = a → a - b = c)%pos.
-Proof.
-intros; subst.
-rewrite Pos.add_comm.
-apply Pos.add_sub.
+rewrite Nat.sub_add; [ | apply Pos.add_to_nat_ge_1 ].
+rewrite Nat.sub_add; [ | apply Nat.neq_0_lt_0, Pos.mul_to_nat_neq_0 ].
+rewrite Nat.sub_add; [ | apply Nat.neq_0_lt_0, Pos.mul_to_nat_neq_0 ].
+apply Nat.mul_add_distr_l.
 Qed.
 
 Theorem Nat_sub_sub_swap : ∀ a b c, a - b - c = a - c - b.
@@ -332,10 +357,35 @@ rewrite Nat.add_comm.
 now rewrite Nat.sub_add_distr.
 Qed.
 
+Theorem le_sub_1 : ∀ a b, (a ≤ b + 1 → a - b = 1)%pos.
+Proof.
+progress unfold Pos.sub, Pos.le, nat2, nat2a.
+intros * Hab; cbn in Hab.
+rewrite Nat.add_sub in Hab.
+progress unfold Pos.of_nat.
+f_equal.
+apply Nat.sub_0_le.
+now apply Nat.le_sub_le_add_l.
+Qed.
+
+Theorem add_sub_eq_l : ∀ a b c, (b + c = a → a - b = c)%pos.
+Proof.
+intros; subst.
+rewrite Pos.add_comm.
+apply Pos.add_sub.
+Qed.
+
 Theorem sub_sub_swap : ∀ a b c, (a - b - c = a - c - b)%pos.
 Proof.
 intros.
-progress unfold Pos.sub; cbn.
+progress unfold Pos.sub, nat2; cbn.
+rewrite Nat.sub_add.
+2: {
+progress unfold to_nat.
+...
+Search (Pos.of_nat (_ + _)).
+Search (Pos.of_nat (_ - _)).
+...
 progress f_equal.
 progress f_equal.
 do 2 rewrite (Nat_sub_sub_swap _ 1).
@@ -499,14 +549,6 @@ Proof.
 intros.
 progress unfold Pos.to_nat; cbn.
 now apply Nat.sub_add.
-Qed.
-
-Theorem of_nat_to_nat : ∀ a, Pos.of_nat (Pos.to_nat a) = a.
-Proof.
-intros.
-progress unfold Pos.of_nat, Pos.to_nat.
-rewrite Nat.add_sub.
-now destruct a.
 Qed.
 
 Theorem of_nat_inj_succ :
