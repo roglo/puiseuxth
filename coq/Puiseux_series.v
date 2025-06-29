@@ -3,7 +3,7 @@
 From Stdlib Require Import Utf8 Arith.
 From Stdlib Require Import Relations Morphisms.
 
-Require Import A_ZArith A_QArith.
+Require Import A_PosArith A_ZArith A_QArith.
 Require Import Misc.
 Require Import NbarM.
 Require Import Field2.
@@ -17,9 +17,9 @@ Set Implicit Arguments.
 Record puiseux_series α := mkps
   { ps_terms : power_series α;
     ps_ordnum : Z;
-    ps_polydo : nat }.
+    ps_polydo : pos }.
 
-Arguments mkps α%_type ps_terms%_ser ps_ordnum%_Z ps_polydo%_nat.
+Arguments mkps α%_type ps_terms%_ser ps_ordnum%_Z ps_polydo%_pos.
 Declare Scope ps_scope.
 Delimit Scope ps_scope with ps.
 
@@ -755,8 +755,6 @@ Arguments series_left_shift α%_type n%_nat s%_ser.
 Definition normalise_series α n k (s : power_series α) :=
   series_shrink k (series_left_shift n s).
 
-...
-
 Definition gcd_ps α n k (ps : puiseux_series α) :=
   Z.gcd
     (Z.gcd (ps_ordnum ps + Z.of_nat n) (z_pos (ps_polydo ps)))
@@ -764,6 +762,8 @@ Definition gcd_ps α n k (ps : puiseux_series α) :=
 
 Definition ps_zero {α} {r : ring α} :=
   {| ps_terms := 0%ser; ps_ordnum := 0; ps_polydo := 1 |}.
+
+...
 
 Definition normalise_ps α {R : ring α} {K : field R} ps :=
   match series_order (ps_terms ps) 0 with

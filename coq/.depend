@@ -1,6 +1,6 @@
-A_Pos.vo A_Pos.glob A_Pos.v.beautified A_Pos.required_vo: A_Pos.v
-A_QArith.vo A_QArith.glob A_QArith.v.beautified A_QArith.required_vo: A_QArith.v A_Pos.vo A_ZArith.vo
-A_ZArith.vo A_ZArith.glob A_ZArith.v.beautified A_ZArith.required_vo: A_ZArith.v A_Pos.vo
+A_PosArith.vo A_PosArith.glob A_PosArith.v.beautified A_PosArith.required_vo: A_PosArith.v
+A_QArith.vo A_QArith.glob A_QArith.v.beautified A_QArith.required_vo: A_QArith.v A_PosArith.vo A_ZArith.vo
+A_ZArith.vo A_ZArith.glob A_ZArith.v.beautified A_ZArith.required_vo: A_ZArith.v A_PosArith.vo
 AlgCloCharPol.vo AlgCloCharPol.glob AlgCloCharPol.v.beautified AlgCloCharPol.required_vo: AlgCloCharPol.v CharactPolyn.vo ConvexHull.vo Field2.vo Fpolynomial.vo Fsummation.vo Misc.vo Newton.vo Puiseux_base.vo Puiseux_series.vo
 Bug.vo Bug.glob Bug.v.beautified Bug.required_vo: Bug.v
 CharactPolyn.vo CharactPolyn.glob CharactPolyn.v.beautified CharactPolyn.required_vo: CharactPolyn.v ConvexHull.vo ConvexHullMisc.vo Field2.vo Fpolynomial.vo Misc.vo NbarM.vo Newton.vo PSpolynomial.vo PolyConvexHull.vo Power_series.vo Ps_div.vo Puiseux_base.vo Puiseux_series.vo QbarM.vo Slope_base.vo
@@ -13,7 +13,7 @@ Fpolynomial.vo Fpolynomial.glob Fpolynomial.v.beautified Fpolynomial.required_vo
 Fsummation.vo Fsummation.glob Fsummation.v.beautified Fsummation.required_vo: Fsummation.v Field2.vo Misc.vo
 InK1m.vo InK1m.glob InK1m.v.beautified InK1m.required_vo: InK1m.v AlgCloCharPol.vo CharactPolyn.vo ConvexHull.vo F1Eq.vo Field2.vo Fpolynomial.vo Misc.vo Newton.vo PSpolynomial.vo PolyConvexHull.vo PosOrder.vo Power_series.vo Ps_add.vo Ps_add_compat.vo Ps_div.vo Ps_mul.vo Puiseux_base.vo Puiseux_series.vo QbarM.vo
 InSegment.vo InSegment.glob InSegment.v.beautified InSegment.required_vo: InSegment.v ConvexHull.vo ConvexHullMisc.vo Misc.vo Newton.vo Slope_base.vo
-Misc.vo Misc.glob Misc.v.beautified Misc.required_vo: Misc.v A_Pos.vo A_QArith.vo A_ZArith.vo
+Misc.vo Misc.glob Misc.v.beautified Misc.required_vo: Misc.v A_PosArith.vo A_QArith.vo A_ZArith.vo
 NbarM.vo NbarM.glob NbarM.v.beautified NbarM.required_vo: NbarM.v Misc.vo
 Newton.vo Newton.glob Newton.v.beautified Newton.required_vo: Newton.v A_QArith.vo ConvexHull.vo Misc.vo
 NotInSegMisc.vo NotInSegMisc.glob NotInSegMisc.v.beautified NotInSegMisc.required_vo: NotInSegMisc.v ConvexHull.vo ConvexHullMisc.vo Misc.vo Slope_base.vo
@@ -28,11 +28,11 @@ Ps_div.vo Ps_div.glob Ps_div.v.beautified Ps_div.required_vo: Ps_div.v Field2.vo
 Ps_mul.vo Ps_mul.glob Ps_mul.v.beautified Ps_mul.required_vo: Ps_mul.v Field2.vo Fsummation.vo Misc.vo NbarM.vo Power_series.vo Ps_add.vo Ps_add_compat.vo Puiseux_series.vo
 Puiseux.vo Puiseux.glob Puiseux.v.beautified Puiseux.required_vo: Puiseux.v AlgCloCharPol.vo CharactPolyn.vo ConvexHull.vo ConvexHullMisc.vo F1Eq.vo F1Prop.vo Field2.vo Fpolynomial.vo Fsummation.vo InK1m.vo Misc.vo NbarM.vo Newton.vo NotInSegment.vo PSpolynomial.vo PolyConvexHull.vo PosOrder.vo Power_series.vo Ps_add.vo Ps_div.vo Ps_mul.vo Puiseux_base.vo Puiseux_series.vo Q_field.vo QbarM.vo RootAnyR.vo RootHeadTail.vo SlopeMisc.vo Slope_base.vo
 Puiseux_base.vo Puiseux_base.glob Puiseux_base.v.beautified Puiseux_base.required_vo: Puiseux_base.v ConvexHull.vo ConvexHullMisc.vo Field2.vo Fpolynomial.vo Misc.vo NbarM.vo Newton.vo Power_series.vo Ps_add.vo Ps_add_compat.vo Ps_div.vo Ps_mul.vo Puiseux_series.vo QbarM.vo
-Puiseux_series.vo Puiseux_series.glob Puiseux_series.v.beautified Puiseux_series.required_vo: Puiseux_series.v A_QArith.vo A_ZArith.vo Field2.vo Misc.vo NbarM.vo Power_series.vo
+Puiseux_series.vo Puiseux_series.glob Puiseux_series.v.beautified Puiseux_series.required_vo: Puiseux_series.v A_PosArith.vo A_QArith.vo A_ZArith.vo Field2.vo Misc.vo NbarM.vo Power_series.vo
 Q_field.vo Q_field.glob Q_field.v.beautified Q_field.required_vo: Q_field.v A_QArith.vo Field2.vo
 QbarM.vo QbarM.glob QbarM.v.beautified QbarM.required_vo: QbarM.v Misc.vo
 RootAnyR.vo RootAnyR.glob RootAnyR.v.beautified RootAnyR.required_vo: RootAnyR.v AlgCloCharPol.vo CharactPolyn.vo ConvexHull.vo ConvexHullMisc.vo F1Eq.vo F1Prop.vo Field2.vo Fpolynomial.vo Fsummation.vo InK1m.vo Misc.vo NbarM.vo Newton.vo NotInSegment.vo PSpolynomial.vo PolyConvexHull.vo PosOrder.vo Power_series.vo Ps_add.vo Ps_div.vo Ps_mul.vo Puiseux_base.vo Puiseux_series.vo Q_field.vo QbarM.vo RootHeadTail.vo SlopeMisc.vo Slope_base.vo
 RootHeadTail.vo RootHeadTail.glob RootHeadTail.v.beautified RootHeadTail.required_vo: RootHeadTail.v AlgCloCharPol.vo CharactPolyn.vo ConvexHull.vo F1Eq.vo F1Prop.vo Field2.vo Fpolynomial.vo Fsummation.vo Misc.vo Newton.vo PSpolynomial.vo PosOrder.vo Power_series.vo Ps_add.vo Ps_div.vo Ps_mul.vo Puiseux_base.vo Puiseux_series.vo Q_field.vo QbarM.vo
 SlopeMisc.vo SlopeMisc.glob SlopeMisc.v.beautified SlopeMisc.required_vo: SlopeMisc.v Misc.vo Slope_base.vo
-Slope_base.vo Slope_base.glob Slope_base.v.beautified Slope_base.required_vo: Slope_base.v A_Pos.vo A_QArith.vo A_ZArith.vo
+Slope_base.vo Slope_base.glob Slope_base.v.beautified Slope_base.required_vo: Slope_base.v A_PosArith.vo A_QArith.vo A_ZArith.vo
 SplitList.vo SplitList.glob SplitList.v.beautified SplitList.required_vo: SplitList.v Misc.vo

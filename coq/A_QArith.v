@@ -3,7 +3,7 @@
 Set Nested Proofs Allowed.
 From Stdlib Require Import Utf8 Arith.
 From Stdlib Require Import Morphisms.
-Require Import A_Pos A_ZArith.
+Require Import A_PosArith A_ZArith.
 Require Import RingLike.Misc.
 
 Record Q := mk_q

@@ -7,7 +7,7 @@ From Stdlib Require Import Psatz.
 
 Require Import RingLike.Misc.
 Require Import RingLike.Core.
-Require Import A_Pos A_ZArith A_QArith.
+Require Import A_PosArith A_ZArith A_QArith.
 Open Scope Q_scope.
 
 Notation "[ ]" := nil.

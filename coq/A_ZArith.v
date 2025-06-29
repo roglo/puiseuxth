@@ -5,7 +5,7 @@ From Stdlib Require Import Utf8 Arith Psatz.
 Require Import RingLike.Core RingLike.Misc.
 Import ListDef.
 
-Require Import A_Pos.
+Require Import A_PosArith.
 
 Inductive Z :=
 | z_zero : Z
