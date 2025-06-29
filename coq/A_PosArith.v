@@ -191,6 +191,9 @@ Definition eqb a b := p_val a =? p_val b.
 Definition le a b := p_val a ≤ p_val b.
 Definition lt a b := p_val a < p_val b.
 
+Definition div a b := Pos.of_nat (Pos.to_nat a / Pos.to_nat b).
+Definition rem a b := Pos.of_nat (Pos.to_nat a mod Pos.to_nat b).
+
 Notation "a + b" := (Pos.add a b) : pos_scope.
 Notation "a - b" := (Pos.sub a b) : pos_scope.
 Notation "a * b" := (Pos.mul a b) : pos_scope.
@@ -627,7 +630,9 @@ Number Notation pos Pos.of_number Pos.to_number : pos_scope.
 Notation "a + b" := (Pos.add a b) : pos_scope.
 Notation "a - b" := (Pos.sub a b) : pos_scope.
 Notation "a * b" := (Pos.mul a b) : pos_scope.
+Notation "a / b" := (Pos.div a b) : pos_scope.
 Notation "a ≤ b" := (Pos.le a b) : pos_scope.
 Notation "a < b" := (Pos.lt a b) : pos_scope.
 Notation "a ?= b" := (Pos.compare a b) : pos_scope.
 Notation "a =? b" := (Pos.eqb a b) : pos_scope.
+Notation "a 'mod' b" := (Pos.rem a b) : pos_scope.

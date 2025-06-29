@@ -761,9 +761,7 @@ Definition gcd_ps α n k (ps : puiseux_series α) :=
     (Z.of_nat k).
 
 Definition ps_zero {α} {r : ring α} :=
-  {| ps_terms := 0%ser; ps_ordnum := 0; ps_polydo := 1 |}.
-
-...
+  {| ps_terms := 0; ps_ordnum := 0; ps_polydo := 1 |}.
 
 Definition normalise_ps α {R : ring α} {K : field R} ps :=
   match series_order (ps_terms ps) 0 with
@@ -772,7 +770,7 @@ Definition normalise_ps α {R : ring α} {K : field R} ps :=
       let g := gcd_ps n k ps in
       {| ps_terms := normalise_series n (Z.to_nat g) (ps_terms ps);
          ps_ordnum := (ps_ordnum ps + Z.of_nat n) / g;
-         ps_polydo := Z.to_nat (z_pos (ps_polydo ps) / g) |}
+         ps_polydo := Z.to_pos (z_pos (ps_polydo ps) / g) |}
   | ∞ =>
       ps_zero
   end.
@@ -917,20 +915,7 @@ intros kp kp' Hkp s₁ s₂ Heq.
 subst kp'.
 inversion Heq; subst.
 constructor; intros i; simpl.
-(*
-remember (Pos.to_nat kp) as k.
-*)
-rename kp into k.
-(**)
-...
-assert (k ≠ O) as Hk by (subst k; apply Pos2Nat_ne_0).
-destruct (zerop (i mod k)) as [Hz| Hnz]; [ idtac | reflexivity ].
-apply Nat.Div0.mod_divides in Hz.
-destruct Hz as (c, Hi).
-subst i.
-pose proof (H c) as Hc.
-rewrite Nat.mul_comm.
-rewrite Nat.div_mul; assumption.
+destruct (zerop (i mod kp)) as [Hz| Hnz]; [ apply H | easy ].
 Qed.
 
 Global Instance shrink_morph α (r : ring α) :
@@ -1013,6 +998,7 @@ Proof.
 intros ap bp s.
 unfold series_stretch; simpl.
 constructor; intros i; simpl.
+...
 rewrite Pos2Nat.inj_mul.
 remember (Pos.to_nat ap) as a.
 remember (Pos.to_nat bp) as b.
