@@ -735,7 +735,7 @@ End axioms.
 
 Definition series_stretch α {R : ring α} k s :=
   {| terms i :=
-       if zerop (i mod (*Pos.to_nat*) k) then s .[i / (*Pos.to_nat*) k]
+       if zerop (i mod Pos.to_nat k) then s .[i / Pos.to_nat k]
        else rng_zero |}.
 
 Definition series_shift α {R : ring α} n s :=
@@ -747,7 +747,7 @@ Definition series_shrink α k (s : power_series α) :=
 Definition series_left_shift α n (s : power_series α) :=
   {| terms i := s.[n + i] |}.
 
-Arguments series_stretch α%_type _ k%_nat s%_ser.
+Arguments series_stretch α%_type _ k%_pos s%_ser.
 Arguments series_shift α%_type _ n%_nat s%_ser.
 Arguments series_shrink α%_type k%_nat s%_ser.
 Arguments series_left_shift α%_type n%_nat s%_ser.
@@ -915,7 +915,7 @@ intros kp kp' Hkp s₁ s₂ Heq.
 subst kp'.
 inversion Heq; subst.
 constructor; intros i; simpl.
-destruct (zerop (i mod kp)) as [Hz| Hnz]; [ apply H | easy ].
+destruct (zerop (i mod Pos.to_nat kp)) as [Hz| Hnz]; [ apply H | easy ].
 Qed.
 
 Global Instance shrink_morph α (r : ring α) :
@@ -999,7 +999,7 @@ intros ap bp s.
 unfold series_stretch; simpl.
 constructor; intros i; simpl.
 ...
-rewrite Pos2Nat.inj_mul.
+rewrite Pos2Nat_inj_mul.
 remember (Pos.to_nat ap) as a.
 remember (Pos.to_nat bp) as b.
 assert (a ≠ O) as Ha by (subst a; apply Pos2Nat_ne_0).
