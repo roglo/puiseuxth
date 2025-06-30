@@ -1,7 +1,7 @@
 (* Puiseux_series.v *)
 
 From Stdlib Require Import Utf8 Arith.
-From Stdlib Require Import Relations Morphisms.
+From Stdlib Require Import Relations Morphisms Setoid.
 
 Require Import A_PosArith A_ZArith A_QArith.
 Require Import Misc.
@@ -1054,31 +1054,30 @@ intros kp n s.
 constructor; intros i; simpl.
 remember (Pos.to_nat kp) as k.
 assert (k ≠ O) as Hk by (subst k; apply Pos.to_nat_neq_0).
-destruct (zerop (i mod k)) as [Hz| Hnz].
- apply Nat.Div0.mod_divides in Hz.
- destruct Hz as (c, Hi); subst i.
- rewrite Nat.mul_comm.
- rewrite <- Nat.mul_sub_distr_r.
- rewrite Nat.div_mul; [ idtac | assumption ].
- rewrite Nat.div_mul; [ idtac | assumption ].
- rewrite Nat.Div0.mod_mul; simpl.
- destruct (lt_dec c n) as [H₁| H₁].
-  destruct (lt_dec (c * k) (n * k)) as [| H₂]; [ reflexivity | idtac ].
-  exfalso; apply H₂.
-  apply Nat.mul_lt_mono_pos_r; [ idtac | assumption ].
-...
-  rewrite Heqk; apply Pos2Nat.is_pos.
-
+destruct (zerop (i mod k)) as [Hz| Hnz]. {
+  apply Nat.Div0.mod_divides in Hz.
+  destruct Hz as (c, Hi); subst i.
+  rewrite Nat.mul_comm.
+  rewrite <- Nat.mul_sub_distr_r.
+  rewrite Nat.div_mul; [ idtac | assumption ].
+  rewrite Nat.div_mul; [ idtac | assumption ].
+  rewrite Nat.Div0.mod_mul; simpl.
+  destruct (lt_dec c n) as [H₁| H₁]. {
+    destruct (lt_dec (c * k) (n * k)) as [| H₂]; [ reflexivity | idtac ].
+    exfalso; apply H₂.
+    apply Nat.mul_lt_mono_pos_r; [ idtac | assumption ].
+    rewrite Heqk; apply Pos.to_nat_pos.
+  }
   destruct (lt_dec (c * k) (n * k)) as [H₂| ]; [ idtac | reflexivity ].
   exfalso; apply H₁.
   apply Nat.mul_lt_mono_pos_r in H₂; [ assumption | idtac ].
-  rewrite Heqk; apply Pos2Nat.is_pos.
-
- destruct (lt_dec i (n * k)) as [| H₁]; [ reflexivity | idtac ].
- destruct (zerop ((i - n * k) mod k)) as [H₂| ]; [ idtac | reflexivity ].
- apply Nat.Div0.mod_divides in H₂.
- destruct H₂ as (c, Hc).
- destruct c.
+  rewrite Heqk; apply Pos.to_nat_pos.
+}
+destruct (lt_dec i (n * k)) as [| H₁]; [ reflexivity | idtac ].
+destruct (zerop ((i - n * k) mod k)) as [H₂| ]; [ idtac | reflexivity ].
+apply Nat.Div0.mod_divides in H₂.
+destruct H₂ as (c, Hc).
+destruct c. {
   rewrite Nat.mul_0_r in Hc.
   apply Nat.sub_0_le in Hc.
   apply Nat.nlt_ge in H₁.
@@ -1086,16 +1085,16 @@ destruct (zerop (i mod k)) as [Hz| Hnz].
   subst i.
   rewrite Nat.Div0.mod_mul in Hnz.
   exfalso; revert Hnz; apply Nat.lt_irrefl.
-
-  apply Nat.add_sub_eq_nz in Hc.
-   rewrite Nat.mul_comm, <- Nat.mul_add_distr_l, Nat.mul_comm in Hc.
-   subst i.
-   rewrite Nat.Div0.mod_mul in Hnz.
-   exfalso; revert Hnz; apply Nat.lt_irrefl.
-
-   apply Nat.neq_mul_0.
-   split; [ assumption | idtac ].
-   intros H; discriminate H.
+}
+apply Nat.add_sub_eq_nz in Hc. {
+  rewrite Nat.mul_comm, <- Nat.mul_add_distr_l, Nat.mul_comm in Hc.
+  subst i.
+  rewrite Nat.Div0.mod_mul in Hnz.
+  exfalso; revert Hnz; apply Nat.lt_irrefl.
+}
+apply Nat.neq_mul_0.
+split; [ assumption | idtac ].
+intros H; discriminate H.
 Qed.
 
 Theorem series_shift_shift : ∀ x y ps,
@@ -1142,7 +1141,7 @@ destruct (lt_dec i n) as [H₁| H₁].
 Qed.
 
 Theorem series_left_shift_shift : ∀ s n m,
-  (m ≤ n)%nat
+  (m <= n)%nat
   → (series_left_shift n (series_shift m s) =
      series_left_shift (n - m) s)%ser.
 Proof.
@@ -1165,7 +1164,7 @@ intros s n k.
 constructor; intros i; simpl.
 rewrite Nat.add_comm.
 rewrite Nat.Div0.mod_add; auto with Arith.
-rewrite Nat.div_add; auto with Arith.
+rewrite Nat.div_add; [ | apply Pos.to_nat_neq_0 ].
 destruct (zerop (i mod Pos.to_nat k)) as [H₂| H₂]; [ idtac | reflexivity ].
 rewrite Nat.add_comm; reflexivity.
 Qed.
@@ -1203,13 +1202,13 @@ Theorem ps_zero_monom_eq : ∀ q, (ps_monom 0%K q = 0)%ps.
 Proof.
 intros q.
 unfold ps_zero, ps_monom; simpl.
-setoid_replace (series (λ i, if zerop i then 0%K else 0%K)) with 0%ser.
- constructor.
- unfold normalise_ps; simpl.
- rewrite zero_series_order; reflexivity.
-
- constructor; intros i; simpl.
- destruct (zerop i); reflexivity.
+setoid_replace (series (λ i, if zerop i then 0%K else 0%K)) with 0%ser. {
+  constructor.
+  unfold normalise_ps; simpl.
+  rewrite zero_series_order; reflexivity.
+}
+constructor; intros i; simpl.
+destruct (zerop i); reflexivity.
 Qed.
 
 Theorem series_shift_0 : ∀ s, (series_shift 0 s = s)%ser.
@@ -1237,6 +1236,8 @@ destruct (lt_dec i n) as [H₁| H₁].
  destruct (lt_dec (S i) (S n)) as [H₂| ]; [ idtac | reflexivity ].
  apply Nat.succ_lt_mono in H₂; contradiction.
 Qed.
+
+...
 
 Theorem series_order_shift_S : ∀ s c n,
   (c ≤ n)%nat

@@ -12,7 +12,7 @@ Set Implicit Arguments.
 
 Record power_series α := series { terms : nat → α }.
 
-Notation "s .[ i ]" := (@terms _ s i) (at level 1).
+Notation "s .[ i ]" := (@terms _ s i) (at level 1, format "s .[ i ]").
 
 Definition series_0 {α} {r : ring α} :=
   {| terms i := 0%K |}.
