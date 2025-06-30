@@ -49,8 +49,6 @@ Module Q.
 
 Open Scope Z_scope.
 
-Definition eq a b := q_num a * q_Den b = q_num b * q_Den a.
-
 Definition add a b :=
   mk_q
     (q_num a * q_Den b + q_num b * q_Den a)
@@ -70,8 +68,9 @@ Definition div a b := mul a (inv b).
 Definition compare a b :=
   q_num a * q_Den b ?= q_num b * q_Den a.
 
-Definition le a b := (q_num a * q_Den b ≤ q_num b * q_Den a)%Z.
-Definition lt a b := (q_num a * q_Den b < q_num b * q_Den a)%Z.
+Definition eq a b := Q.compare a b = Eq.
+Definition le a b := Q.compare a b ≠ Gt.
+Definition lt a b := Q.compare a b = Lt.
 
 Definition of_number (n : Number.int) : option Q :=
   match n with
@@ -107,15 +106,24 @@ Theorem q_Den_mul : ∀ a b, q_Den (a * b) = (q_Den a * q_Den b)%Z.
 Proof. easy. Qed.
 
 Theorem eq_refl : ∀ a, (a == a)%Q.
-Proof. easy. Qed.
+Proof.
+now intros; apply Z.compare_eq_iff.
+Qed.
 
 Theorem eq_symm : ∀ a b, (a == b → b == a)%Q.
-Proof. easy. Qed.
+Proof.
+intros * H.
+apply Z.compare_eq_iff in H.
+apply Z.compare_eq_iff.
+easy.
+Qed.
 
 Theorem eq_trans : ∀ a b c, (a == b → b == c → a == c)%Q.
 Proof.
 intros * Hab Hbc.
 progress unfold eq in Hab, Hbc |-*.
+apply Z.compare_eq_iff in Hab, Hbc.
+apply Z.compare_eq_iff.
 apply (f_equal (Z.mul (q_Den c))) in Hab.
 apply (f_equal (Z.mul (q_Den a))) in Hbc.
 do 2 rewrite (Z.mul_comm (q_Den c)) in Hab.
@@ -226,8 +234,10 @@ Proof. intros; apply Z.nle_gt. Qed.
 Theorem le_antisymm : ∀ a b, (a ≤ b)%Q → (b ≤ a)%Q → (a == b)%Q.
 Proof.
 intros * Hab Hba.
-progress unfold le in Hab, Hba.
-progress unfold eq.
+progress unfold Q.le in Hab, Hba.
+progress unfold Q.eq.
+apply Z.compare_le_iff in Hab, Hba.
+apply Z.compare_eq_iff.
 now apply Z.le_antisymm.
 Qed.
 
@@ -256,6 +266,9 @@ Qed.
 Theorem order_eq_le_l : ∀ a b c, (a == b → c ≤ b → c ≤ a)%Q.
 Proof.
 intros * Heq Hle.
+apply Z.compare_eq_iff in Heq.
+apply Z.compare_le_iff in Hle.
+apply Z.compare_le_iff.
 apply (Z.mul_le_mono_pos_r (q_Den b)); [ easy | ].
 rewrite (Z.mul_comm (q_num a)), <- (Z.mul_assoc (q_Den c)), Heq.
 rewrite Z.mul_mul_swap, Z.mul_assoc.
@@ -266,6 +279,9 @@ Qed.
 Theorem order_eq_le_r : ∀ a b c, (a == b → b ≤ c → a ≤ c)%Q.
 Proof.
 intros * Heq Hle.
+apply Z.compare_eq_iff in Heq.
+apply Z.compare_le_iff in Hle.
+apply Z.compare_le_iff.
 apply (Z.mul_le_mono_pos_r (q_Den b)); [ easy | ].
 rewrite (Z.mul_comm (q_num a)), <- (Z.mul_assoc (q_Den c)), Heq.
 rewrite Z.mul_mul_swap, Z.mul_assoc.
@@ -276,7 +292,9 @@ Qed.
 Theorem add_compat_l : ∀ a b c, (b == c → a + b == a + c)%Q.
 Proof.
 intros * Heq.
-progress unfold Q.eq in Heq |-*; cbn.
+apply Z.compare_eq_iff in Heq.
+apply Z.compare_eq_iff.
+cbn.
 do 2 rewrite (Z.mul_comm (_ + _)).
 do 2 rewrite (Z.add_comm (q_num a * _)).
 progress unfold Q.add.
@@ -305,7 +323,8 @@ Qed.
 Theorem mul_compat_l : ∀ a b c, (b == c → a * b == a * c)%Q.
 Proof.
 intros * Heq.
-progress unfold Q.eq; cbn.
+apply Z.compare_eq_iff in Heq.
+apply Z.compare_eq_iff; cbn.
 do 2 rewrite Q.q_Den_mul.
 do 2 rewrite <- Z.mul_assoc.
 progress f_equal.
@@ -341,8 +360,9 @@ Qed.
 Global Instance opp_morph : Proper (Q.eq ==> Q.eq) Q.opp.
 Proof.
 intros a b Hab.
-progress unfold Q.eq in Hab.
-progress unfold Q.eq, Q.opp; cbn.
+apply Z.compare_eq_iff in Hab.
+apply Z.compare_eq_iff.
+progress unfold Q.opp; cbn.
 do 2 rewrite q_Den_num_den.
 do 2 rewrite Z.mul_opp_l.
 now f_equal.
@@ -385,6 +405,7 @@ Proof.
 intros a b Hab.
 progress unfold Q.eq in Hab.
 progress unfold Q.eq, Q.inv; cbn.
+...
 do 2 rewrite q_Den_num_den.
 destruct (Z.eq_dec (q_num a) 0) as [Haz| Haz]. {
   rewrite Haz in Hab |-*.
