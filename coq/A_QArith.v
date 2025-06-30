@@ -403,9 +403,9 @@ Qed.
 Global Instance inv_morph : Proper (Q.eq ==> Q.eq) Q.inv.
 Proof.
 intros a b Hab.
-progress unfold Q.eq in Hab.
-progress unfold Q.eq, Q.inv; cbn.
-...
+apply Z.compare_eq_iff in Hab.
+apply Z.compare_eq_iff; cbn.
+progress unfold Q.inv; cbn.
 do 2 rewrite q_Den_num_den.
 destruct (Z.eq_dec (q_num a) 0) as [Haz| Haz]. {
   rewrite Haz in Hab |-*.
@@ -551,13 +551,13 @@ apply Q.le_refl.
 Qed.
 
 Theorem compare_eq_iff : ∀ a b, (a ?= b)%Q = Eq ↔ (a == b)%Q.
-Proof. intros; apply Z.compare_eq_iff. Qed.
+Proof. easy. Qed.
 
 Theorem compare_lt_iff : ∀ a b, (a ?= b)%Q = Lt ↔ (a < b)%Q.
-Proof. intros; apply Z.compare_lt_iff. Qed.
+Proof. easy. Qed.
 
 Theorem compare_le_iff : ∀ a b, (a ?= b)%Q ≠ Gt ↔ (a ≤ b)%Q.
-Proof. intros; apply Z.compare_le_iff. Qed.
+Proof. easy. Qed.
 
 Theorem compare_gt_iff : ∀ a b, (a ?= b)%Q = Gt ↔ (b < a)%Q.
 Proof. intros; apply Z.compare_gt_iff. Qed.
@@ -714,7 +714,7 @@ Qed.
 Theorem sub_diag : ∀ a, (a - a == 0)%Q.
 Proof.
 intros.
-progress unfold Q.eq; cbn.
+apply Z.compare_eq_iff; cbn.
 progress unfold q_Den; cbn.
 rewrite Z.mul_1_r.
 rewrite Z.mul_opp_l.
@@ -894,8 +894,7 @@ Qed.
 Theorem mul_Q1_r : ∀ x y, (x * Q1 y == x)%Q.
 Proof.
 intros.
-progress unfold Q.eq.
-cbn.
+apply Z.compare_eq_iff; cbn.
 rewrite <- Z.mul_assoc.
 progress f_equal.
 rewrite Z.mul_comm.
@@ -975,6 +974,7 @@ Theorem mul_inv_diag_l : ∀ a, (¬ a == 0 → a⁻¹ * a == 1)%Q.
 Proof.
 intros * Hnz.
 progress unfold Q.eq.
+...
 rewrite Z.mul_1_r.
 rewrite Z.mul_1_l.
 progress unfold q_Den; cbn.
