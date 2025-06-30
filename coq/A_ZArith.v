@@ -2073,6 +2073,39 @@ destruct Hzb as [(Hzc, Hza)| (Haz, Hcz)]. {
 }
 Qed.
 
+Theorem lt_eq_cases : ∀ a b, (a ≤ b ↔ a < b ∨ a = b)%Z.
+Proof.
+intros.
+split; intros H. {
+  destruct a as [| sa va]. {
+    destruct b as [| sb vb]; [ now right | left ].
+    now destruct sb.
+  }
+  destruct b as [| sb vb]. {
+    destruct sa; [ easy | now left ].
+  }
+  destruct sa. {
+    destruct sb; [ | easy ].
+    progress unfold Z.le in H; cbn in H.
+    progress unfold Z.lt; cbn.
+    apply Pos.compare_le_iff in H.
+    apply Pos.lt_eq_cases in H.
+    destruct H; [ now left; apply Nat.compare_lt_iff | ].
+    now right; subst.
+  } {
+    destruct sb; [ now left | ].
+    progress unfold Z.le in H; cbn in H.
+    progress unfold Z.lt; cbn.
+    apply Pos.compare_le_iff in H.
+    apply Pos.lt_eq_cases in H.
+    destruct H; [ now left; apply Pos.compare_lt_iff | ].
+    now right; subst.
+  }
+}
+destruct H as [H| H]; [ | subst; apply Z.le_refl ].
+now apply Z.lt_le_incl.
+Qed.
+
 End Z.
 
 Number Notation Z Z.of_number Z.to_number : Z_scope.

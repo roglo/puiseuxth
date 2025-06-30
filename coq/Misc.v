@@ -64,46 +64,13 @@ rewrite Z.mul_1_r in Hz1, Hz2 |-*.
 now apply Z.mul_pos_pos.
 Qed.
 
-Theorem Z_lt_eq_cases : ∀ a b, (a ≤ b ↔ a < b ∨ a = b)%Z.
-Proof.
-intros.
-split; intros H. {
-  destruct a as [| sa va]. {
-    destruct b as [| sb vb]; [ now right | left ].
-    now destruct sb.
-  }
-  destruct b as [| sb vb]. {
-    destruct sa; [ easy | now left ].
-  }
-  destruct sa. {
-    destruct sb; [ | easy ].
-    progress unfold Z.le in H; cbn in H.
-    progress unfold Z.lt; cbn.
-    apply Pos.compare_le_iff in H.
-    apply Pos.lt_eq_cases in H.
-    destruct H; [ now left; apply Nat.compare_lt_iff | ].
-    now right; subst.
-  } {
-    destruct sb; [ now left | ].
-    progress unfold Z.le in H; cbn in H.
-    progress unfold Z.lt; cbn.
-    apply Pos.compare_le_iff in H.
-    apply Pos.lt_eq_cases in H.
-    destruct H; [ now left; apply Pos.compare_lt_iff | ].
-    now right; subst.
-  }
-}
-destruct H as [H| H]; [ | subst; apply Z.le_refl ].
-now apply Z.lt_le_incl.
-Qed.
-
 Theorem Q_lt_eq_cases : ∀ a b, (a ≤ b ↔ a < b ∨ a == b)%Q.
 Proof.
 intros.
 split; intros H. {
-  progress unfold Q.le in H.
-  apply Z_lt_eq_cases in H.
-  now destruct H; [ left | right ].
+  apply Z.lt_eq_cases in H.
+  destruct H; [ now left | right ].
+  now apply Z.compare_eq_iff.
 }
 destruct H as [H| H]; [ | rewrite H; apply Q.le_refl ].
 now apply Q.lt_le_incl.
@@ -113,8 +80,8 @@ Theorem Q_mul_le_mono_nonneg_l : ∀ a b c, (0 ≤ a → b ≤ c → a * b ≤ a
 Proof.
 intros * Hz Hle.
 progress unfold Q.le in Hz, Hle |-*.
+...
 do 2 rewrite Q.q_Den_mul.
-(**)
 cbn in Hz.
 rewrite Z.mul_1_r in Hz.
 cbn - [ q_Den ].

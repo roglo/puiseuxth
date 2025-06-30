@@ -975,9 +975,6 @@ Proof.
 intros * Hnz.
 apply Z.compare_eq_iff.
 apply Z.compare_neq_iff in Hnz.
-...
-intros * Hnz.
-progress unfold Q.eq.
 rewrite Z.mul_1_r.
 rewrite Z.mul_1_l.
 progress unfold q_Den; cbn.
@@ -989,8 +986,6 @@ symmetry.
 apply Z2Pos.id.
 destruct a as (an, ad).
 cbn in Hnz |-*.
-progress unfold Q.eq in Hnz.
-cbn in Hnz.
 rewrite Z.mul_1_r in Hnz.
 clear ad.
 apply Z.divide_pos_le. 2: {
@@ -1044,8 +1039,8 @@ Qed.
 Theorem inv_add_distr : ∀ a b c, (a + b # c == (a # c) + (b # c))%Q.
 Proof.
 intros.
-progress unfold Q.add.
-progress unfold Q.eq; cbn.
+apply Z.compare_eq_iff.
+progress unfold Q.add; cbn.
 do 4 rewrite q_Den_num_den.
 rewrite <- Z.mul_add_distr_r.
 rewrite Pos2Z.inj_mul.
