@@ -388,7 +388,7 @@ rewrite <- Nat.sub_succ, Hki₂ in Hn.
 rewrite <- Nat.sub_succ, Hn.
 rewrite <- Nat.sub_add_distr.
 rewrite Nat.add_succ_l.
-rewrite Nat_sub_sub_comm, Nat.sub_succ.
+rewrite Nat_sub_sub_swap, Nat.sub_succ.
 rewrite <- Nat.sub_add_distr.
 apply Nat.le_sub_l.
 Qed.

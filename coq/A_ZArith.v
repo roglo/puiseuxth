@@ -2,7 +2,6 @@
 
 Set Nested Proofs Allowed.
 From Stdlib Require Import Utf8 Arith Psatz.
-Require Import RingLike.Core RingLike.Misc.
 Import ListDef.
 
 Require Import A_PosArith.
@@ -30,6 +29,14 @@ Qed.
 Theorem if_eqb_bool_dec : ∀ A i j (a b : A),
   (if Bool.eqb i j then a else b) = (if Bool.bool_dec i j then a else b).
 Proof. now intros; destruct i, j. Qed.
+
+(* to be removed if ring-like misc included *)
+Theorem Nat_sub_succ_1 : ∀ n, S n - 1 = n.
+Proof. now intros; rewrite Nat.sub_succ, Nat.sub_0_r. Qed.
+
+(* to be removed if ring-like misc included *)
+Global Hint Resolve Nat.le_0_l : core.
+Global Hint Resolve Nat.lt_0_succ : core.
 
 (* end misc theorems *)
 
@@ -247,10 +254,11 @@ Notation "a ≤ b" := (Z.le a b) : Z_scope.
 Notation "a < b" := (Z.lt a b) : Z_scope.
 Notation "a ?= b" := (Z.compare a b) : Z_scope.
 Notation "a =? b" := (Z.eqb a b) : Z_scope.
-Notation "a ≤? b" := (Z.leb a b) : Z_scope.
+Notation "a ≤? b" := (Z.leb a b) (at level 70) : Z_scope.
 Notation "a ≤ b ≤ c" := (Z.le a b ∧ Z.le b c) : Z_scope.
 Notation "( x | y )" := (Z.divide x y) : Z_scope.
 
+(*
 Instance ring_like_op : ring_like_op Z :=
   {| rngl_zero := z_zero;
     rngl_add := Z.add;
@@ -261,6 +269,7 @@ Instance ring_like_op : ring_like_op Z :=
     rngl_opt_is_zero_divisor := None;
     rngl_opt_eq_dec := Some Z.eq_dec;
     rngl_opt_leb := Some Z.leb |}.
+*)
 
 Theorem opp_involutive : ∀ a, (- - a)%Z = a.
 Proof.
@@ -609,11 +618,11 @@ Qed.
 Theorem integral :
   ∀ a b : Z,
   (a * b)%Z = 0%Z
-  → a = 0%Z ∨ b = 0%Z ∨ rngl_is_zero_divisor a ∨ rngl_is_zero_divisor b.
+  → a = 0%Z ∨ b = 0%Z.
 Proof.
 intros * Hab; cbn.
 destruct a as [| sa va]; [ now left | ].
-destruct b as [| sb vb]; [ now right; left | ].
+destruct b as [| sb vb]; [ now right | ].
 easy.
 Qed.
 
@@ -1111,6 +1120,7 @@ rewrite Z.add_comm.
 now apply Z.lt_add_l.
 Qed.
 
+(*
 Theorem characteristic_prop : ∀ i : nat, rngl_of_nat (S i) ≠ 0%Z.
 Proof.
 intros * Hn.
@@ -1124,6 +1134,7 @@ rewrite rngl_of_nat_succ.
 etransitivity; [ apply IHi | ].
 now apply Z.le_add_l.
 Qed.
+*)
 
 Theorem leb_refl : ∀ a, (a ≤? a)%Z = true.
 Proof.
@@ -1401,6 +1412,7 @@ destruct a as [| sa va]; [ easy | cbn in H1 ].
 now destruct sa; rewrite Pos.compare_refl in H1.
 Qed.
 
+(*
 Instance ring_like_ord : ring_like_ord Z :=
   {| rngl_ord_le_dec := (λ a b, Bool.bool_dec (a ≤? b)%Z true);
      rngl_ord_le_refl := Z.leb_refl;
@@ -1411,7 +1423,7 @@ Instance ring_like_ord : ring_like_ord Z :=
      rngl_ord_mul_le_compat_nonpos := Z.mul_leb_compat_nonpos;
      rngl_ord_not_le := Z.not_leb |}.
 
-(* borrowed from RingLike.Z_algebra *)
+(* borrowed from ring-like, file Z_algebra *)
 Theorem rngl_mul_nat_Z : ∀ z n, rngl_mul_nat z n = (Z.of_nat n * z)%Z.
 Proof.
 intros.
@@ -1431,6 +1443,7 @@ rewrite Nat.sub_0_r.
 f_equal.
 apply Nat.add_1_r.
 Qed.
+*)
 
 Theorem nat_archimedean : ∀ a b, (0 < a → ∃ n, b < n * a)%nat.
 Proof.
@@ -1470,6 +1483,7 @@ progress unfold Z.lt; cbn.
 now apply Pos.compare_lt_iff.
 Qed.
 
+(*
 Theorem archimedean_b :
 (*
   ∀ a b, (0 < a)%L → ∃ n : nat, (rngl_mul_nat a n ≤? b)%Z = false.
@@ -1537,19 +1551,28 @@ Instance ring_like_prop : ring_like_prop Z :=
      rngl_opt_characteristic_prop := Z.characteristic_prop;
      rngl_opt_ord := Z.ring_like_ord;
      rngl_opt_archimedean := Z.archimedean_b |}.
+*)
 
 Theorem opp_add_distr : ∀ a b, (- (a + b))%Z = (- a - b)%Z.
 Proof.
 intros.
-specialize (rngl_opp_add_distr eq_refl a b) as H1.
-now rewrite rngl_opp_sub_swap in H1.
+destruct a as [| sa va]; [ easy | ].
+destruct b as [| sb vb]; [ easy | ].
+destruct sa. {
+  destruct sb; [ easy | cbn ].
+  now destruct (va ?= vb)%pos.
+}
+destruct sb; [ now cbn; destruct (va ?= vb)%pos | easy ].
 Qed.
 
 Theorem opp_sub_distr : ∀ a b, (- (a - b))%Z = (b - a)%Z.
 Proof.
 intros.
-specialize (rngl_opp_sub_distr eq_refl a b) as H1.
-easy.
+progress unfold Z.sub.
+rewrite Z.opp_add_distr.
+progress unfold Z.sub.
+rewrite Z.opp_involutive.
+apply Z.add_comm.
 Qed.
 
 Theorem eqb_refl : ∀ a, (a =? a)%Z = true.

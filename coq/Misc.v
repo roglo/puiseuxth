@@ -5,8 +5,6 @@ From Stdlib Require Import Utf8 Arith.
 From Stdlib Require Import Sorted.
 From Stdlib Require Import Psatz.
 
-Require Import RingLike.Misc.
-Require Import RingLike.Core.
 Require Import A_PosArith A_ZArith A_QArith.
 Open Scope Q_scope.
 
@@ -707,8 +705,14 @@ apply Nat.succ_le_mono in Hpm.
 apply IHp; assumption.
 Qed.
 
-Theorem Nat_sub_sub_comm : ∀ m n p, (m - n - p)%nat = (m - p - n)%nat.
-Proof. apply Nat_sub_sub_swap. Qed.
+(* to be removed if ring-like misc included *)
+Theorem Nat_sub_sub_swap : ∀ a b c, (a - b - c = a - c - b)%nat.
+Proof.
+intros.
+rewrite <- Nat.sub_add_distr.
+rewrite Nat.add_comm.
+now rewrite Nat.sub_add_distr.
+Qed.
 
 Theorem Z2Nat_id_max : ∀ x, Z.of_nat (Z.to_nat x) = Z.max 0 x.
 Proof. apply Z2Nat.of_nat. Qed.

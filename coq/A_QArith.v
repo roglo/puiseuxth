@@ -4,7 +4,6 @@ Set Nested Proofs Allowed.
 From Stdlib Require Import Utf8 Arith.
 From Stdlib Require Import Morphisms.
 Require Import A_PosArith A_ZArith.
-Require Import RingLike.Misc.
 
 Record Q := mk_q
   { q_num : Z;
@@ -393,18 +392,14 @@ destruct (Z.eq_dec (q_num a) 0) as [Haz| Haz]. {
   symmetry in Hab.
   apply Z.integral in Hab.
   cbn in Hab.
-  destruct Hab as [Hab| Hab]; [ now rewrite Hab | ].
-  destruct Hab as [Hab| Hab]; [ | now destruct Hab ].
-  now apply q_Den_neq_0 in Hab.
+  destruct Hab as [Hab| Hab]; [ now rewrite Hab | easy ].
 }
 destruct (Z.eq_dec (q_num b) 0) as [Hbz| Hbz]. {
   rewrite Hbz in Hab |-*.
   cbn in Hab |-*.
   apply Z.integral in Hab.
   cbn in Hab.
-  destruct Hab as [Hab| Hab]; [ now rewrite Hab | ].
-  destruct Hab as [Hab| Hab]; [ | now destruct Hab ].
-  now apply q_Den_neq_0 in Hab.
+  destruct Hab as [Hab| Hab]; [ now rewrite Hab | easy ].
 }
 rewrite Z2Pos.id. 2: {
   destruct (q_num b) as [| sb vb]; [ easy | cbn ].
