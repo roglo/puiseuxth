@@ -973,8 +973,11 @@ Qed.
 Theorem mul_inv_diag_l : ∀ a, (¬ a == 0 → a⁻¹ * a == 1)%Q.
 Proof.
 intros * Hnz.
-progress unfold Q.eq.
+apply Z.compare_eq_iff.
+apply Z.compare_neq_iff in Hnz.
 ...
+intros * Hnz.
+progress unfold Q.eq.
 rewrite Z.mul_1_r.
 rewrite Z.mul_1_l.
 progress unfold q_Den; cbn.

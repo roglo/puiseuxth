@@ -695,6 +695,12 @@ destruct sa, sb; [ | easy | easy | ]. {
 }
 Qed.
 
+Theorem compare_neq_iff : ∀ a b, (a ?= b)%Z ≠ Eq ↔ a ≠ b.
+Proof.
+intros.
+now split; intros H1 H2; apply H1; apply Z.compare_eq_iff.
+Qed.
+
 Theorem compare_lt_iff : ∀ a b, (a ?= b)%Z = Lt ↔ (a < b)%Z.
 Proof. easy. Qed.
 
