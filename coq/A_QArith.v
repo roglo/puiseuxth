@@ -7,13 +7,13 @@ Require Import A_PosArith A_ZArith.
 
 Record Q := mk_q
   { q_num : Z;
-    q_den : nat }.
+    q_den : pos }.
 
 Declare Scope Q_scope.
 Delimit Scope Q_scope with Q.
 Bind Scope Q_scope with Q.
 
-Definition q_Den a := Z.of_nat (q_den a).
+Definition q_Den a := Z.of_pos (q_den a).
 
 (* misc *)
 
@@ -28,24 +28,20 @@ Proof. intros * H1 H2; flia H1 H2. Qed.
 Theorem Nat_add_1_r_pos : ∀ a, (0 < a + 1)%nat.
 Proof. flia. Qed.
 
-Theorem q_Den_num_den : ∀ a b, q_Den (mk_q a b) = Z.of_nat b.
+Theorem q_Den_num_den : ∀ a b, q_Den (mk_q a b) = Z.of_pos b.
 Proof. easy. Qed.
 
-(*
 Theorem q_Den_neq_0 : ∀ a, q_Den a ≠ 0%Z.
 Proof. easy. Qed.
 
 Theorem q_Den_pos : ∀ a, (0 < q_Den a)%Z.
 Proof. easy. Qed.
-*)
 
 Theorem q_Den_nonneg : ∀ a, (0 ≤ q_Den a)%Z.
-Proof. intros; apply Nat2Z.is_nonneg. Qed.
+Proof. easy. Qed.
 
 Hint Resolve Nat_add_1_r_pos : core.
-(*
 Hint Resolve q_Den_pos : core.
-*)
 
 (* end misc *)
 
@@ -53,33 +49,29 @@ Module Q.
 
 Open Scope Z_scope.
 
-Definition eq a b :=
-  a = b ∨ q_Den a ≠ 0 ∧ q_Den b ≠ 0 ∧ q_num a * q_Den b = q_num b * q_Den a.
+Definition eq a b := q_num a * q_Den b = q_num b * q_Den a.
 
 Definition add a b :=
   mk_q
     (q_num a * q_Den b + q_num b * q_Den a)
-    (q_den a * q_den b).
+    (Pos.mul (q_den a) (q_den b)).
 
 Definition opp a := mk_q (- q_num a) (q_den a).
 Definition sub a b := add a (opp b).
 
-Definition mul a b := mk_q (q_num a * q_num b) (q_den a * q_den b).
+Definition mul a b :=
+  mk_q (q_num a * q_num b) (Pos.mul (q_den a) (q_den b)).
 
 Definition inv a :=
-  mk_q (Z.sgn (q_num a) * q_Den a) (Z.to_nat (Z.abs (q_num a))).
+  mk_q (Z.sgn (q_num a) * q_Den a) (Z.to_pos (Z.abs (q_num a))).
 
 Definition div a b := mul a (inv b).
 
 Definition compare a b :=
   q_num a * q_Den b ?= q_num b * q_Den a.
 
-Definition le x y :=
-  q_Den x ≠ 0 ∧ q_Den y ≠ 0 ∧
-  (q_num x * q_Den y ≤ q_num y * q_Den x)%Z.
-Definition lt x y :=
-  q_Den x ≠ 0 ∧ q_Den y ≠ 0 ∧
-  (q_num x * q_Den y < q_num y * q_Den x)%Z.
+Definition le a b := (q_num a * q_Den b ≤ q_num b * q_Den a)%Z.
+Definition lt a b := (q_num a * q_Den b < q_num b * q_Den a)%Z.
 
 Definition of_number (n : Number.int) : option Q :=
   match n with
@@ -93,7 +85,7 @@ Definition of_number (n : Number.int) : option Q :=
 
 Definition to_number (a : Q) : option Number.int :=
   match q_den a with
-  | 1%nat => Some (Z.to_number (q_num a))
+  | 1%pos => Some (Z.to_number (q_num a))
   | _ => None
   end.
 
@@ -112,27 +104,18 @@ Notation "a ?= b" := (Q.compare a b) : Q_scope.
 Notation "a # b" := (mk_q a (b - 1)) (at level 55) : Q_scope.
 
 Theorem q_Den_mul : ∀ a b, q_Den (a * b) = (q_Den a * q_Den b)%Z.
-Proof. intros; apply Z.Nat2Z_inj_mul. Qed.
+Proof. easy. Qed.
 
 Theorem eq_refl : ∀ a, (a == a)%Q.
-Proof. now intros; left. Qed.
+Proof. easy. Qed.
 
 Theorem eq_symm : ∀ a b, (a == b → b == a)%Q.
-Proof.
-intros.
-destruct H as [H| H]; [ now subst; apply Q.eq_refl | now right ].
-Qed.
+Proof. easy. Qed.
 
 Theorem eq_trans : ∀ a b c, (a == b → b == c → a == c)%Q.
 Proof.
 intros * Hab Hbc.
-(**)
-destruct Hab as [Hab| Hab]; [ now subst | right ].
-destruct Hbc as [Hbc| Hbc]; [ now subst | ].
-split; [ easy | ].
-split; [ easy | ].
-destruct Hab as (_ & Hdbz & Hab).
-destruct Hbc as (_ & _ & Hbc).
+progress unfold eq in Hab, Hbc |-*.
 apply (f_equal (Z.mul (q_Den c))) in Hab.
 apply (f_equal (Z.mul (q_Den a))) in Hbc.
 do 2 rewrite (Z.mul_comm (q_Den c)) in Hab.
@@ -156,11 +139,11 @@ Proof.
 intros.
 progress unfold add.
 rewrite Z.add_comm.
-rewrite Nat.mul_comm.
+rewrite Pos.mul_comm.
 easy.
 Qed.
 
-Theorem fold_q_Den : ∀ a, Z.of_nat (q_den a) = q_Den a.
+Theorem fold_q_Den : ∀ a, Z.of_pos (q_den a) = q_Den a.
 Proof. easy. Qed.
 
 Theorem add_assoc : ∀ a b c, (a + (b + c))%Q = ((a + b) + c)%Q.
@@ -169,9 +152,9 @@ intros.
 progress unfold Q.add.
 cbn.
 do 2 rewrite q_Den_num_den.
-rewrite Nat.mul_assoc.
+rewrite Pos.mul_assoc.
 progress f_equal.
-do 2 rewrite Z.Nat2Z_inj_mul.
+do 2 rewrite Pos2Z.inj_mul.
 do 3 rewrite fold_q_Den.
 do 2 rewrite Z.mul_add_distr_r.
 do 2 rewrite Z.mul_assoc.
@@ -185,8 +168,7 @@ Theorem add_0_l : ∀ a, (0 + a)%Q = a.
 Proof.
 intros.
 progress unfold add; cbn.
-progress unfold Pos.of_nat; cbn.
-rewrite Z.mul_1_r, Nat.add_0_r.
+rewrite Z.mul_1_r, Pos.mul_1_l.
 now destruct a.
 Qed.
 
@@ -201,13 +183,17 @@ Theorem mul_comm : ∀ a b, (a * b)%Q = (b * a)%Q.
 Proof.
 intros.
 progress unfold mul.
+progress unfold Pos.mul.
 now rewrite Z.mul_comm, Nat.mul_comm.
 Qed.
 
 Theorem mul_assoc : ∀ a b c, (a * (b * c))%Q = ((a * b) * c)%Q.
 Proof.
 intros.
-progress unfold mul; cbn.
+progress unfold mul.
+progress unfold Pos.mul; cbn.
+rewrite Nat.sub_add; [ | flia ].
+rewrite Nat.sub_add; [ | flia ].
 now rewrite Z.mul_assoc, Nat.mul_assoc.
 Qed.
 
@@ -215,7 +201,7 @@ Theorem mul_1_l : ∀ a, (1 * a)%Q = a.
 Proof.
 intros.
 progress unfold mul.
-rewrite Z.mul_1_l, Nat.mul_1_l.
+rewrite Z.mul_1_l, Pos.mul_1_l.
 now destruct a.
 Qed.
 
@@ -235,22 +221,13 @@ now destruct a.
 Qed.
 
 Theorem nle_gt : ∀ a b, ¬ (a ≤ b)%Q ↔ (b < a)%Q.
-Proof.
-intros.
-progress unfold Q.le, Q.lt.
-...
 Proof. intros; apply Z.nle_gt. Qed.
 
 Theorem le_antisymm : ∀ a b, (a ≤ b)%Q → (b ≤ a)%Q → (a == b)%Q.
 Proof.
 intros * Hab Hba.
-progress unfold Q.le in Hab, Hba.
-progress unfold Q.eq.
-right.
-split. {
-  intros H; rewrite H in Hab, Hba.
-  rewrite Z.mul_0_r in Hab, Hba.
-...
+progress unfold le in Hab, Hba.
+progress unfold eq.
 now apply Z.le_antisymm.
 Qed.
 
