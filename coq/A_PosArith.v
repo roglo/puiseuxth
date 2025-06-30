@@ -379,31 +379,39 @@ Theorem sub_sub_swap : ∀ a b c, (a - b - c = a - c - b)%pos.
 Proof.
 intros.
 progress unfold Pos.sub, nat2; cbn.
-rewrite Nat.sub_add.
-2: {
-progress unfold to_nat.
-...
-Search (Pos.of_nat (_ + _)).
-Search (Pos.of_nat (_ - _)).
-...
-progress f_equal.
-progress f_equal.
-do 2 rewrite (Nat_sub_sub_swap _ 1).
-progress f_equal.
-apply Nat_sub_sub_swap.
+progress unfold Pos.to_nat.
+rewrite (Nat.add_comm (p_val b)).
+rewrite (Nat.add_comm (p_val c)).
+do 4 rewrite Nat.sub_add_distr.
+do 3 rewrite Nat.add_sub.
+rewrite Nat_sub_sub_swap.
+rewrite (Nat_sub_sub_swap (p_val a)).
+rewrite Nat_sub_sub_swap.
+easy.
 Qed.
 
 Theorem le_1_l : ∀ a, (1 ≤ a)%pos.
 Proof.
 intros.
-progress unfold Pos.le; cbn.
-apply Nat.le_0_l.
+progress unfold Pos.le, nat2a; cbn.
+progress unfold to_nat.
+apply Nat.le_add_l.
 Qed.
 
 Theorem sub_add : ∀ a b, (b < a → a - b + b = a)%pos.
 Proof.
 intros * Hba.
-progress unfold Pos.sub, Pos.add; cbn.
+progress unfold Pos.sub, Pos.add, nat2; cbn.
+progress unfold Pos.to_nat.
+rewrite (Nat.add_comm (p_val b)).
+rewrite Nat.sub_add_distr.
+rewrite Nat.add_sub.
+rewrite Nat.add_assoc.
+do 2 rewrite (Nat.add_shuffle0 _ _ (p_val b)).
+rewrite <- Nat.add_sub_swap.
+...
+rewrite (Nat.add_comm (p_val c)).
+...
 rewrite Nat.add_shuffle0.
 rewrite Nat.sub_add. 2: {
   progress unfold Pos.lt in Hba.
