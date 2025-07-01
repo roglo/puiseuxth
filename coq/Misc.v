@@ -79,8 +79,8 @@ Qed.
 Theorem Q_mul_le_mono_nonneg_l : ∀ a b c, (0 ≤ a → b ≤ c → a * b ≤ a * c)%Q.
 Proof.
 intros * Hz Hle.
-progress unfold Q.le in Hz, Hle |-*.
-...
+apply Z.compare_le_iff in Hz, Hle.
+apply Z.compare_le_iff.
 do 2 rewrite Q.q_Den_mul.
 cbn in Hz.
 rewrite Z.mul_1_r in Hz.
@@ -117,6 +117,7 @@ Theorem Q_opp_le_compat : ∀ a b, (a ≤ b ↔ - b ≤ - a)%Q.
 Proof.
 intros.
 progress unfold Q.le; cbn.
+...
 do 2 rewrite Q_q_Den_opp.
 do 2 rewrite Z.mul_opp_l.
 apply Z.opp_le_compat.
