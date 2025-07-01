@@ -116,11 +116,19 @@ Proof. easy. Qed.
 Theorem Q_opp_le_compat : ∀ a b, (a ≤ b ↔ - b ≤ - a)%Q.
 Proof.
 intros.
-progress unfold Q.le; cbn.
-...
-do 2 rewrite Q_q_Den_opp.
-do 2 rewrite Z.mul_opp_l.
-apply Z.opp_le_compat.
+split; intros Hab. {
+  apply Z.compare_le_iff in Hab.
+  apply Z.compare_le_iff; cbn.
+  do 2 rewrite Q_q_Den_opp.
+  do 2 rewrite Z.mul_opp_l.
+  now apply -> Z.opp_le_compat.
+} {
+  apply Z.compare_le_iff in Hab.
+  apply Z.compare_le_iff; cbn in Hab.
+  do 2 rewrite Q_q_Den_opp in Hab.
+  do 2 rewrite Z.mul_opp_l in Hab.
+  now apply Z.opp_le_compat in Hab.
+}
 Qed.
 
 Theorem Q_mul_0_l : ∀ a, (0 * a == 0)%Q.
@@ -258,12 +266,13 @@ Qed.
 Theorem Qnat_lt : ∀ i j, (i < j)%nat ↔ Qnat i < Qnat j.
 Proof.
 intros i j; split; intros H. {
-  unfold Qnat, Q.lt; simpl.
+  unfold Qnat; simpl.
+  apply Z.compare_lt_iff; cbn.
   do 2 rewrite q_Den_num_den.
   apply Z.mul_lt_mono_pos_r; [ easy | ].
   now apply Nat2Z.inj_lt.
 } {
-  unfold Q.lt in H; cbn in H.
+  apply Z.compare_lt_iff in H; cbn in H.
   apply Z.mul_lt_mono_pos_r in H; [ | easy ].
   now apply Nat2Z.inj_lt in H.
 }
@@ -339,7 +348,7 @@ intros a b c Hz.
 remember (a ?= b)%Q as e eqn:He.
 symmetry in He |-*.
 destruct e. {
-  apply Q.compare_eq_iff in He.
+  apply -> Q.compare_eq_iff in He.
   apply Q.compare_eq_iff.
   now rewrite He.
 } {
@@ -400,6 +409,7 @@ Proof.
 intros.
 progress unfold Q.add, Q.opp, Q.eq; cbn.
 rewrite q_Den_num_den.
+...
 rewrite Z.mul_1_r.
 rewrite Z.mul_opp_l.
 apply Z.add_opp_diag_r.
