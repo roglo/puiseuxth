@@ -569,6 +569,14 @@ rewrite (Nat.mul_comm _ (S _)); cbn.
 now rewrite Nat.sub_0_r.
 Qed.
 
+Theorem Nat2Pos_id : ∀ a, a ≠ 0 → Pos.to_nat (Pos.of_nat a) = a.
+Proof.
+intros * Haz.
+progress unfold Pos.of_nat, Pos.to_nat; cbn.
+apply Nat.sub_add.
+now apply Nat.neq_0_lt_0.
+Qed.
+
 (* gcd *)
 
 Definition gcd a b := Pos.of_nat (Nat.gcd (Pos.to_nat a) (Pos.to_nat b)).
@@ -579,6 +587,21 @@ intros.
 progress unfold Pos.gcd.
 progress f_equal.
 apply Nat.gcd_comm.
+Qed.
+
+Theorem gcd_assoc : ∀ a b c, Pos.gcd a (Pos.gcd b c) = Pos.gcd (Pos.gcd a b) c.
+Proof.
+intros.
+progress unfold Pos.gcd.
+assert (H : ∀ a b, Nat.gcd (Pos.to_nat a) (Pos.to_nat b) ≠ 0). {
+  intros * H.
+  apply Nat.gcd_eq_0_l in H.
+  now apply Pos.to_nat_neq_0 in H.
+}
+rewrite Nat2Pos_id; [ | easy ].
+rewrite Nat2Pos_id; [ | easy ].
+progress f_equal.
+apply Nat.gcd_assoc.
 Qed.
 
 (* end gcd *)
@@ -648,12 +671,7 @@ Notation "a 'mod' b" := (Pos.rem a b) : pos_scope.
 Module Nat2Pos.
 
 Theorem id : ∀ a, a ≠ 0 → Pos.to_nat (Pos.of_nat a) = a.
-Proof.
-intros * Haz.
-progress unfold Pos.of_nat, Pos.to_nat; cbn.
-apply Nat.sub_add.
-now apply Nat.neq_0_lt_0.
-Qed.
+Proof. apply Pos.Nat2Pos_id. Qed.
 
 End Nat2Pos.
 

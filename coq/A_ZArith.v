@@ -2002,12 +2002,44 @@ destruct sg; [ | easy ].
 apply Z.of_nat_pos_to_nat.
 Qed.
 
+Theorem gcd_abs_l : ∀ a b, Z.gcd (Z.abs a) b = Z.gcd a b.
+Proof.
+intros.
+destruct a as [| sa va]; [ easy | ].
+cbn; rewrite Z.of_nat_pos_to_nat.
+now cbn; rewrite Z.of_nat_pos_to_nat.
+Qed.
+
 Theorem gcd_assoc : ∀ a b c, Z.gcd a (Z.gcd b c) = Z.gcd (Z.gcd a b) c.
 Proof.
 intros.
 destruct a as [| sa va]. {
-  cbn; rewrite Z.abs_gcd.
-...
+  rewrite Z.gcd_abs_l; cbn.
+  apply Z.abs_gcd.
+}
+cbn; rewrite Z.of_nat_pos_to_nat.
+destruct b as [| sb vb]. {
+  now destruct c; cbn; rewrite Z.of_nat_pos_to_nat.
+}
+cbn; rewrite Z.of_nat_pos_to_nat.
+destruct c as [| sc vc]. {
+  rewrite Nat.sub_add. 2: {
+    apply Nat.neq_0_lt_0.
+    intros H.
+    apply Nat.gcd_eq_0_l in H.
+    now apply Pos.to_nat_neq_0 in H.
+  }
+  progress unfold Z.of_nat.
+  progress unfold Pos.gcd.
+  remember (Nat.gcd _ _) as g eqn:Hg.
+  symmetry in Hg.
+  destruct g; [ cbn | easy ].
+  apply Nat.gcd_eq_0_l in Hg.
+  now apply Pos.to_nat_neq_0 in Hg.
+}
+progress f_equal.
+apply Pos.gcd_assoc.
+Qed.
 
 (* *)
 

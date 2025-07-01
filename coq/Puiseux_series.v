@@ -2154,14 +2154,14 @@ Proof.
 intros n k ps.
 unfold gcd_ps; simpl.
 remember (ps_ordnum ps + Z.of_nat n)%Z as x.
-...
 rewrite <- Z.gcd_assoc.
-remember (Z.gcd (Zpos (ps_polydo ps)) (Z.of_nat k))%Z as y eqn:Hy .
+remember (Z.gcd (z_pos (ps_polydo ps)) (Z.of_nat k))%Z as y eqn:Hy .
 pose proof (Z.gcd_nonneg x y) as Hp.
 unfold Z.le in Hp; unfold Z.lt.
 remember (0 ?= Z.gcd x y)%Z as c eqn:Hc .
 destruct c; [ idtac | auto | exfalso; apply Hp; reflexivity ].
-symmetry in Hc; apply Z.compare_eq in Hc; symmetry in Hc.
+symmetry in Hc; apply Z.compare_eq_iff in Hc; symmetry in Hc.
+... ...
 apply Z.gcd_eq_0_r in Hc; subst y.
 apply Z.gcd_eq_0_l in Hc.
 exfalso; revert Hc; apply Pos2Z_ne_0.
