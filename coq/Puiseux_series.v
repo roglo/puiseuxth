@@ -1554,120 +1554,115 @@ remember (series_stretch k s) as s₁ eqn:Hs₁ .
 remember (series_order s₁ (S (n * Pos.to_nat k))) as q eqn:Hq .
 symmetry in Hq.
 apply series_order_iff in Hq.
-destruct q as [q| ].
- destruct Hq as (Hzq, Hnzq).
- rewrite Nat.add_succ_l, <- Nat.add_succ_r in Hnzq.
- destruct (zerop (S q mod Pos.to_nat k)) as [H₁| H₁].
-  apply Nat.Div0.mod_divides in H₁.
-  destruct H₁ as (q', Hq').
-  rewrite Hq' in Hnzq.
-  rewrite Nat.mul_comm in Hnzq.
-  rewrite <- Nat.mul_add_distr_l in Hnzq.
-  rewrite Hs₁ in Hnzq.
-  rewrite series_nth_mul_stretch in Hnzq.
-  apply series_order_iff in Hp.
-  destruct Hp as (Hzp, Hnzp).
-  rewrite Nat.add_succ_l, <- Nat.add_succ_r in Hnzp.
-  apply Nbar.fin_inj_wd.
-  assert (q' = S p) as H.
-   destruct (lt_eq_lt_dec q' (S p)) as [[H₁| H₁]| H₁].
-    exfalso.
-    destruct (eq_nat_dec q' p) as [H₂| H₂].
-     subst q'.
-     clear H₁.
-     destruct p as [| p].
-      rewrite Nat.mul_0_r in Hq'; discriminate Hq'.
-
-      assert (p < S p)%nat as H by apply Nat.lt_succ_diag_r.
-      apply Hzp in H.
-      rewrite Nat.add_succ_l, <- Nat.add_succ_r in H.
-      rewrite H in Hnzq; apply Hnzq; reflexivity.
-
-     remember H₁ as H; clear HeqH.
-     apply le_S_n, Nat_le_neq_lt in H; auto.
-     destruct q' as [| q']. {
-       rewrite Nat.mul_0_r in Hq'; discriminate Hq'.
-     } {
-       apply Nat.succ_lt_mono in H₁.
-       apply Hzp in H₁.
-       rewrite Nat.add_succ_l, <- Nat.add_succ_r in H₁.
-       rewrite H₁ in Hnzq; apply Hnzq; reflexivity.
-     }
-    assumption.
-
-    exfalso.
-    assert (Pos.to_nat k * S p - 1 < q)%nat as H. {
-      apply (Nat.add_lt_mono_r _ _ 1).
-      rewrite Nat.sub_add. 2: {
-        rewrite <- (Nat.mul_1_l 1).
-        apply Nat.mul_le_mono. {
-          apply Nat.neq_0_lt_0.
-...
-          apply Pos2Nat_ne_0.
+destruct q as [q| ]. {
+  destruct Hq as (Hzq, Hnzq).
+  rewrite Nat.add_succ_l, <- Nat.add_succ_r in Hnzq.
+  destruct (zerop (S q mod Pos.to_nat k)) as [H₁| H₁]. {
+    apply Nat.Div0.mod_divides in H₁.
+    destruct H₁ as (q', Hq').
+    rewrite Hq' in Hnzq.
+    rewrite Nat.mul_comm in Hnzq.
+    rewrite <- Nat.mul_add_distr_l in Hnzq.
+    rewrite Hs₁ in Hnzq.
+    rewrite series_nth_mul_stretch in Hnzq.
+    apply series_order_iff in Hp.
+    destruct Hp as (Hzp, Hnzp).
+    rewrite Nat.add_succ_l, <- Nat.add_succ_r in Hnzp.
+    apply Nbar.fin_inj_wd.
+    assert (q' = S p) as H. {
+      destruct (lt_eq_lt_dec q' (S p)) as [[H₁| H₁]| H₁]. {
+        exfalso.
+        destruct (eq_nat_dec q' p) as [H₂| H₂]. {
+          subst q'.
+          clear H₁.
+          destruct p as [| p]. {
+            rewrite Nat.mul_0_r in Hq'; discriminate Hq'.
+          }
+          assert (p < S p)%nat as H by apply Nat.lt_succ_diag_r.
+          apply Hzp in H.
+          rewrite Nat.add_succ_l, <- Nat.add_succ_r in H.
+          rewrite H in Hnzq; apply Hnzq; reflexivity.
         }
-        apply -> Nat.succ_le_mono.
-        apply Nat.le_0_l.
+        remember H₁ as H; clear HeqH.
+        apply le_S_n, Nat_le_neq_lt in H; auto.
+        destruct q' as [| q']. {
+          rewrite Nat.mul_0_r in Hq'; discriminate Hq'.
+        } {
+          apply Nat.succ_lt_mono in H₁.
+          apply Hzp in H₁.
+          rewrite Nat.add_succ_l, <- Nat.add_succ_r in H₁.
+          rewrite H₁ in Hnzq; apply Hnzq; reflexivity.
+        }
+      } {
+        assumption.
+      } {
+        exfalso.
+        assert (Pos.to_nat k * S p - 1 < q)%nat as H. {
+          apply (Nat.add_lt_mono_r _ _ 1).
+          rewrite Nat.sub_add. 2: {
+            rewrite <- (Nat.mul_1_l 1).
+            apply Nat.mul_le_mono; [ now apply Nat.neq_0_lt_0 | ].
+            apply -> Nat.succ_le_mono.
+            apply Nat.le_0_l.
+          }
+          rewrite Nat.add_1_r.
+          rewrite Hq'.
+          apply Nat.mul_lt_mono_pos_l; [ | easy ].
+          apply Pos.to_nat_pos.
+        }
+        apply Hzq in H.
+        rewrite Nat.add_sub_assoc in H. {
+          simpl in H.
+          rewrite Nat.sub_0_r in H.
+          rewrite Nat.mul_comm in H.
+          rewrite <- Nat.mul_add_distr_l in H.
+          rewrite Hs₁ in H.
+          rewrite series_nth_mul_stretch in H.
+          rewrite H in Hnzp.
+          apply Hnzp; reflexivity.
+        }
+        remember (Pos.to_nat k) as kn eqn:Hkn .
+        symmetry in Hkn.
+        destruct kn as [| kn]; [ easy | ].
+        simpl; apply le_n_S.
+        apply le_0_n.
       }
-      rewrite Nat.add_1_r.
-      rewrite Hq'.
-      apply Nat.mul_lt_mono_pos_l; [ | easy ].
-      apply Pos2Nat.is_pos.
     }
-
-     apply Hzq in H.
-     rewrite Nat.add_sub_assoc in H.
-      simpl in H.
-      rewrite Nat.sub_0_r in H.
-      rewrite Nat.mul_comm in H.
-      rewrite <- Nat.mul_add_distr_l in H.
-      rewrite Hs₁ in H.
-      rewrite series_nth_mul_stretch in H.
-      rewrite H in Hnzp.
-      apply Hnzp; reflexivity.
-
-      remember (Pos.to_nat k) as kn eqn:Hkn .
-      symmetry in Hkn.
-      destruct kn as [| kn].
-       exfalso; revert Hkn; apply Pos2Nat_ne_0.
-
-       simpl; apply le_n_S.
-       apply le_0_n.
-
-   subst q'.
-   rewrite Nat.mul_comm.
-   rewrite <- Hq'.
-   simpl.
-   rewrite Nat.sub_0_r; reflexivity.
-
-  assert (0 < (n * Pos.to_nat k + S q) mod Pos.to_nat k)%nat as H.
-   rewrite Nat.add_comm.
-   rewrite Nat.Div0.mod_add.
-   assumption.
-
-   apply shifted_in_stretched with (s := s) in H.
-   rewrite <- Hs₁ in H.
-   rewrite H in Hnzq.
-   exfalso; apply Hnzq; reflexivity.
-
- exfalso.
- apply series_order_iff in Hp.
- destruct Hp as (Hzp, Hnzp).
- rewrite <- series_nth_mul_stretch with (k := k) in Hnzp.
- rewrite <- Hs₁ in Hnzp.
- rewrite Nat.mul_add_distr_l in Hnzp.
- rewrite Nat.mul_succ_r in Hnzp.
- rewrite Nat.mul_comm in Hnzp.
- rewrite Nat.add_shuffle0, <- Nat.add_assoc in Hnzp.
- rewrite <- Nat.mul_succ_r in Hnzp.
- remember (Pos.to_nat k) as kn eqn:Hkn .
- symmetry in Hkn.
- destruct kn as [| kn].
-  exfalso; revert Hkn; apply Pos2Nat_ne_0.
-
-  simpl in Hnzp.
-  rewrite Nat.add_succ_r, <- Nat.add_succ_l in Hnzp.
-  rewrite Hq in Hnzp.
-  apply Hnzp; reflexivity.
+    subst q'.
+    rewrite Nat.mul_comm.
+    rewrite <- Hq'.
+    simpl.
+    rewrite Nat.sub_0_r; reflexivity.
+  }
+  assert (0 < (n * Pos.to_nat k + S q) mod Pos.to_nat k)%nat as H. {
+    rewrite Nat.add_comm.
+    rewrite Nat.Div0.mod_add.
+    assumption.
+  }
+  apply shifted_in_stretched with (s := s) in H.
+  rewrite <- Hs₁ in H.
+  rewrite H in Hnzq.
+  exfalso; apply Hnzq; reflexivity.
+}
+exfalso.
+apply series_order_iff in Hp.
+destruct Hp as (Hzp, Hnzp).
+rewrite <- series_nth_mul_stretch with (k := k) in Hnzp.
+rewrite <- Hs₁ in Hnzp.
+rewrite Nat.mul_add_distr_l in Hnzp.
+rewrite Nat.mul_succ_r in Hnzp.
+rewrite Nat.mul_comm in Hnzp.
+rewrite Nat.add_shuffle0, <- Nat.add_assoc in Hnzp.
+rewrite <- Nat.mul_succ_r in Hnzp.
+remember (Pos.to_nat k) as kn eqn:Hkn .
+symmetry in Hkn.
+destruct kn as [| kn]. {
+  now exfalso; revert Hkn; apply Pos.to_nat_neq_0.
+}
+simpl in Hnzp.
+rewrite Nat.add_succ_r, <- Nat.add_succ_l in Hnzp.
+rewrite Hq in Hnzp.
+apply Hnzp; reflexivity.
 Qed.
 
 Theorem series_order_stretch_succ_inf : ∀ s n k,
@@ -1703,6 +1698,7 @@ Theorem series_shrink_shrink : ∀ (s : power_series α) k₁ k₂,
 Proof.
 intros s k₁ k₂.
 constructor; intros i; simpl.
+...
 rewrite Pos2Nat.inj_mul, Nat.mul_assoc; reflexivity.
 Qed.
 

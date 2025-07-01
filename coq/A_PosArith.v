@@ -653,4 +653,4 @@ Notation "a ?= b" := (Pos.compare a b) : pos_scope.
 Notation "a =? b" := (Pos.eqb a b) : pos_scope.
 Notation "a 'mod' b" := (Pos.rem a b) : pos_scope.
 
-Hint Resolve Pos.to_nat_neq_0 : core.
+Global Hint Resolve Pos.to_nat_neq_0 : core.

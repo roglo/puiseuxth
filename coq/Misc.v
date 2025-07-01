@@ -465,15 +465,6 @@ Theorem divmod_div : ∀ a b, fst (Nat.divmod a b 0 b) = (a / S b)%nat.
 Proof. intros a b; reflexivity. Qed.
 
 (*
-Theorem Pos2Nat_ne_0 : ∀ a, (Pos.to_nat a ≠ 0)%nat.
-Proof.
-intros a H.
-pose proof Pos2Nat.is_pos a as HH.
-rewrite H in HH.
-revert HH; apply Nat.lt_irrefl.
-Qed.
-Global Hint Resolve Pos2Nat_ne_0 : Arith.
-
 Open Scope positive_scope.
 
 Theorem Pos_mul_mul_swap : ∀ n m p, n * m * p = n * p * m.
