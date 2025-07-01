@@ -1237,10 +1237,8 @@ destruct (lt_dec i n) as [H₁| H₁].
  apply Nat.succ_lt_mono in H₂; contradiction.
 Qed.
 
-...
-
 Theorem series_order_shift_S : ∀ s c n,
-  (c ≤ n)%nat
+  (c <= n)%nat
   → series_order (series_shift (S n) s) c =
     NS (series_order (series_shift n s) c).
 Proof.
@@ -1328,21 +1326,21 @@ Theorem series_stretch_const : ∀ k c,
 Proof.
 intros k c.
 constructor; intros i; simpl.
-destruct (zerop (i mod Pos.to_nat k)) as [H| H].
- apply Nat.Div0.mod_divides in H.
- destruct H as (d, Hd); rewrite Hd.
- rewrite Nat.mul_comm.
- rewrite Nat.div_mul; auto with Arith.
- destruct d; [ reflexivity | idtac ].
- rewrite Nat.mul_comm; simpl.
- rewrite <- Hd.
- destruct i; [ idtac | reflexivity ].
- symmetry in Hd.
- apply Nat.mul_eq_0_r in Hd; auto with Arith; discriminate Hd.
-
- destruct i; [ simpl | reflexivity ].
- rewrite Nat.Div0.mod_0_l in H; auto with Arith.
- exfalso; revert H; apply Nat.lt_irrefl.
+destruct (zerop (i mod Pos.to_nat k)) as [H| H]. {
+  apply Nat.Div0.mod_divides in H.
+  destruct H as (d, Hd); rewrite Hd.
+  rewrite Nat.mul_comm.
+  rewrite Nat.div_mul; [ | apply Pos.to_nat_neq_0 ].
+  destruct d; [ reflexivity | idtac ].
+  rewrite Nat.mul_comm; simpl.
+  rewrite <- Hd.
+  destruct i; [ idtac | reflexivity ].
+  symmetry in Hd.
+  now apply Nat.mul_eq_0_r in Hd.
+}
+destruct i; [ simpl | reflexivity ].
+rewrite Nat.Div0.mod_0_l in H; auto with Arith.
+exfalso; revert H; apply Nat.lt_irrefl.
 Qed.
 
 Theorem series_stretch_iff_const : ∀ k s c,
@@ -1356,10 +1354,10 @@ split; intros H.
  simpl in Hi; simpl.
  pose proof Hi (i * Pos.to_nat k)%nat as H.
  rewrite Nat.Div0.mod_mul in H.
- rewrite Nat.div_mul in H; [ simpl in H | apply Pos2Nat_ne_0 ].
+ rewrite Nat.div_mul in H; [ simpl in H | easy ].
  destruct (zerop i) as [H₁| H₁]; [ subst i; assumption | ].
  destruct (zerop (i * Pos.to_nat k)) as [H₂| ]; [ | assumption ].
- apply Nat.mul_eq_0_l in H₂; [ | apply Pos2Nat_ne_0 ].
+ apply Nat.mul_eq_0_l in H₂; [ | easy ].
  exfalso; subst i; revert H₁; apply Nat.lt_irrefl.
 
  rewrite H.
@@ -1378,9 +1376,11 @@ Proof.
 intros s k i; simpl.
 rewrite Nat.mul_comm.
 rewrite Nat.Div0.mod_mul.
-rewrite Nat.div_mul; [ simpl | apply Pos2Nat_ne_0 ].
+rewrite Nat.div_mul; [ simpl | easy ].
 reflexivity.
 Qed.
+
+...
 
 Theorem series_nth_mul_shrink : ∀ (s : power_series α) k i,
   s .[Pos.to_nat k * i] = (series_shrink k s) .[i].
