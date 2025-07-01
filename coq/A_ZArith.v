@@ -1955,7 +1955,6 @@ destruct b as [| sb vb]. {
 }
 specialize (Nat.gcd_divide_l (Pos.to_nat va) (Pos.to_nat vb)) as H1.
 destruct H1 as (v, Hv).
-(**)
 destruct va as (a).
 destruct vb as (b).
 cbn in Hv |-*.
@@ -1992,6 +1991,23 @@ intros.
 destruct a as [| sa va]; [ apply Z.abs_nonneg | ].
 destruct b as [| sb vb]; [ apply Z.abs_nonneg | easy ].
 Qed.
+
+Theorem abs_gcd : ∀ a b, Z.abs (Z.gcd a b) = Z.gcd a b.
+Proof.
+intros.
+progress unfold Z.abs.
+specialize (Z.gcd_nonneg a b) as H1.
+destruct (Z.gcd a b) as [| sg vg]; [ easy | ].
+destruct sg; [ | easy ].
+apply Z.of_nat_pos_to_nat.
+Qed.
+
+Theorem gcd_assoc : ∀ a b c, Z.gcd a (Z.gcd b c) = Z.gcd (Z.gcd a b) c.
+Proof.
+intros.
+destruct a as [| sa va]. {
+  cbn; rewrite Z.abs_gcd.
+...
 
 (* *)
 

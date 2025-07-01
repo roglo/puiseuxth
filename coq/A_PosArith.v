@@ -501,14 +501,6 @@ rewrite (Nat.add_shuffle0 (p_val a)).
 symmetry; apply Nat.add_assoc.
 Qed.
 
-Theorem to_nat_inj_mul :
-  ∀ a b, Pos.to_nat (a * b) = Pos.to_nat a * Pos.to_nat b.
-Proof.
-intros.
-progress unfold Pos.to_nat; cbn.
-now apply Nat.sub_add.
-Qed.
-
 Theorem of_nat_to_nat : ∀ a, Pos.of_nat (Pos.to_nat a) = a.
 Proof.
 intros.
@@ -652,5 +644,29 @@ Notation "a < b" := (Pos.lt a b) : pos_scope.
 Notation "a ?= b" := (Pos.compare a b) : pos_scope.
 Notation "a =? b" := (Pos.eqb a b) : pos_scope.
 Notation "a 'mod' b" := (Pos.rem a b) : pos_scope.
+
+Module Nat2Pos.
+
+Theorem id : ∀ a, a ≠ 0 → Pos.to_nat (Pos.of_nat a) = a.
+Proof.
+intros * Haz.
+progress unfold Pos.of_nat, Pos.to_nat; cbn.
+apply Nat.sub_add.
+now apply Nat.neq_0_lt_0.
+Qed.
+
+End Nat2Pos.
+
+Module Pos2Nat.
+
+Theorem inj_mul :
+  ∀ a b, Pos.to_nat (a * b) = Pos.to_nat a * Pos.to_nat b.
+Proof.
+intros.
+progress unfold Pos.to_nat; cbn.
+now apply Nat.sub_add.
+Qed.
+
+End Pos2Nat.
 
 Global Hint Resolve Pos.to_nat_neq_0 : core.

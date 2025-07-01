@@ -998,7 +998,7 @@ Proof.
 intros ap bp s.
 unfold series_stretch; simpl.
 constructor; intros i; simpl.
-rewrite Pos.to_nat_inj_mul.
+rewrite Pos2Nat.inj_mul.
 remember (Pos.to_nat ap) as a.
 remember (Pos.to_nat bp) as b.
 assert (a ≠ O) as Ha by (subst a; apply Pos.to_nat_neq_0).
@@ -1698,7 +1698,6 @@ Theorem series_shrink_shrink : ∀ (s : power_series α) k₁ k₂,
 Proof.
 intros s k₁ k₂.
 constructor; intros i; simpl.
-...
 rewrite Pos2Nat.inj_mul, Nat.mul_assoc; reflexivity.
 Qed.
 
@@ -1876,49 +1875,49 @@ Theorem series_stretch_shrink : ∀ s k,
 Proof.
 intros s k Hk.
 constructor; intros i; simpl.
-destruct (zerop (i mod Pos.to_nat k)) as [H₁| H₁].
- apply Nat.Div0.mod_divides in H₁; auto with Arith.
- destruct H₁ as (c, Hc); rewrite Nat.mul_comm in Hc; subst i.
- rewrite Nat.div_mul; auto with Arith; reflexivity.
-
- destruct Hk as (c, Hk).
- apply greatest_series_x_power_iff in Hk.
- remember (series_order s 1) as p eqn:Hp .
- symmetry in Hp.
- destruct p as [p| ].
+destruct (zerop (i mod Pos.to_nat k)) as [H₁| H₁]. {
+  apply Nat.Div0.mod_divides in H₁; auto with Arith.
+  destruct H₁ as (c, Hc); rewrite Nat.mul_comm in Hc; subst i.
+  rewrite Nat.div_mul; auto with Arith; reflexivity.
+}
+destruct Hk as (c, Hk).
+apply greatest_series_x_power_iff in Hk.
+remember (series_order s 1) as p eqn:Hp .
+symmetry in Hp.
+destruct p as [p| ]. {
   destruct Hk as (Hz, Hnz).
   symmetry.
-  destruct c.
-   simpl in Hz.
-   unfold is_a_series_in_x_power in Hz.
-   pose proof (Hz O) as H.
-   simpl in H.
-   rewrite Hp in H.
-   destruct H as (c, Hc).
-   rewrite Nat.mul_0_r in Hc.
-   discriminate Hc.
-
-   assert (i mod (S c * Pos.to_nat k) ≠ 0)%nat as H.
+  destruct c. {
+    simpl in Hz.
+    unfold is_a_series_in_x_power in Hz.
+    pose proof (Hz O) as H.
+    simpl in H.
+    rewrite Hp in H.
+    destruct H as (c, Hc).
+    rewrite Nat.mul_0_r in Hc.
+    discriminate Hc.
+  }
+  assert (i mod (S c * Pos.to_nat k) ≠ 0)%nat as H. {
     intros H.
     apply Nat.Div0.mod_divides in H.
-     destruct H as (d, Hd).
-     rewrite Nat.mul_shuffle0 in Hd.
-     rewrite Hd in H₁.
-     rewrite Nat.Div0.mod_mul in H₁; auto with Arith.
-     revert H₁; apply Nat.lt_irrefl.
-
-    remember (S c) as d eqn:Hd .
-    rewrite <- Nat2Pos.id in Hd; auto; subst d.
-    rewrite <- Pos2Nat.inj_mul in H.
-    rewrite <- Pos2Nat.inj_mul in Hz.
-    eapply series_nth_0_in_interval in H; eassumption.
-
-  symmetry.
-  apply series_order_iff in Hp.
-  simpl in Hp.
-  destruct i; [ idtac | apply Hp ].
-  rewrite Nat.Div0.mod_0_l in H₁; auto with Arith.
-  exfalso; revert H₁; apply Nat.lt_irrefl.
+    destruct H as (d, Hd).
+    rewrite Nat.mul_shuffle0 in Hd.
+    rewrite Hd in H₁.
+    rewrite Nat.Div0.mod_mul in H₁; auto with Arith.
+    revert H₁; apply Nat.lt_irrefl.
+  }
+  remember (S c) as d eqn:Hd .
+  rewrite <- Nat2Pos.id in Hd; [ subst d | easy ].
+  rewrite <- Pos2Nat.inj_mul in H.
+  rewrite <- Pos2Nat.inj_mul in Hz.
+  eapply series_nth_0_in_interval in H; eassumption.
+}
+symmetry.
+apply series_order_iff in Hp.
+simpl in Hp.
+destruct i; [ idtac | apply Hp ].
+rewrite Nat.Div0.mod_0_l in H₁; auto with Arith.
+exfalso; revert H₁; apply Nat.lt_irrefl.
 Qed.
 
 Theorem nth_series_order_stretch : ∀ s b n k,
@@ -1939,7 +1938,7 @@ induction n; intros.
   destruct x; simpl.
    apply Nat.mul_eq_0 in Hx.
    destruct Hx as [Hx| Hx]; [ idtac | discriminate Hx ].
-   exfalso; revert Hx; apply Pos2Nat_ne_0.
+   exfalso; revert Hx; apply Pos.to_nat_neq_0.
 
    rewrite Nat.sub_0_r; reflexivity.
 
@@ -1959,14 +1958,14 @@ induction n; intros.
    destruct x; simpl.
     apply Nat.mul_eq_0 in Hx.
     destruct Hx as [Hx| Hx]; [ discriminate Hx | idtac ].
-    exfalso; revert Hx; apply Pos2Nat_ne_0.
+    exfalso; revert Hx; apply Pos.to_nat_neq_0.
 
     rewrite Nat.sub_0_r, <- Hx.
     apply IHn.
 
    remember (Pos.to_nat k) as kn eqn:Hkn .
    symmetry in Hkn.
-   destruct kn; [ exfalso; revert Hkn; apply Pos2Nat_ne_0 | idtac ].
+   destruct kn; [ exfalso; revert Hkn; apply Pos.to_nat_neq_0 | idtac ].
    simpl; apply le_n_S, Nat.le_0_l.
 
   rewrite series_order_stretch_succ_inf; [ idtac | assumption ].
@@ -2155,6 +2154,7 @@ Proof.
 intros n k ps.
 unfold gcd_ps; simpl.
 remember (ps_ordnum ps + Z.of_nat n)%Z as x.
+...
 rewrite <- Z.gcd_assoc.
 remember (Z.gcd (Zpos (ps_polydo ps)) (Z.of_nat k))%Z as y eqn:Hy .
 pose proof (Z.gcd_nonneg x y) as Hp.
