@@ -407,9 +407,7 @@ Qed.
 Theorem Q_add_opp_diag_r : ∀ a, (a + - a == 0)%Q.
 Proof.
 intros.
-progress unfold Q.add, Q.opp, Q.eq; cbn.
-rewrite q_Den_num_den.
-...
+apply Z.compare_eq_iff; cbn.
 rewrite Z.mul_1_r.
 rewrite Z.mul_opp_l.
 apply Z.add_opp_diag_r.
