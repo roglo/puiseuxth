@@ -742,14 +742,14 @@ Definition series_shift α {R : ring α} n s :=
   {| terms i := if lt_dec i n then rng_zero else s .[i - n] |}.
 
 Definition series_shrink α k (s : power_series α) :=
-  {| terms i := s.[i * (*Pos.to_nat*) k] |}.
+  {| terms i := s.[i * Pos.to_nat k] |}.
 
 Definition series_left_shift α n (s : power_series α) :=
   {| terms i := s.[n + i] |}.
 
 Arguments series_stretch α%_type _ k%_pos s%_ser.
 Arguments series_shift α%_type _ n%_nat s%_ser.
-Arguments series_shrink α%_type k%_nat s%_ser.
+Arguments series_shrink α%_type k%_pos s%_ser.
 Arguments series_left_shift α%_type n%_nat s%_ser.
 
 Definition normalise_series α n k (s : power_series α) :=
@@ -768,7 +768,7 @@ Definition normalise_ps α {R : ring α} {K : field R} ps :=
   | fin n =>
       let k := greatest_series_x_power K (ps_terms ps) n in
       let g := gcd_ps n k ps in
-      {| ps_terms := normalise_series n (Z.to_nat g) (ps_terms ps);
+      {| ps_terms := normalise_series n (Z.to_pos g) (ps_terms ps);
          ps_ordnum := (ps_ordnum ps + Z.of_nat n) / g;
          ps_polydo := Z.to_pos (z_pos (ps_polydo ps) / g) |}
   | ∞ =>
@@ -1380,8 +1380,6 @@ rewrite Nat.div_mul; [ simpl | easy ].
 reflexivity.
 Qed.
 
-...
-
 Theorem series_nth_mul_shrink : ∀ (s : power_series α) k i,
   s .[Pos.to_nat k * i] = (series_shrink k s) .[i].
 Proof.
@@ -1417,31 +1415,31 @@ symmetry in Hn.
 apply series_order_iff in Hn.
 apply series_order_iff.
 rewrite Nbar.mul_comm.
-destruct n as [n| ]; simpl.
- destruct Hn as (Hz, Hnz).
- split.
-  intros i Hin.
-  rewrite Nat.add_comm.
-  rewrite Nat.Div0.mod_add; auto with Arith.
-  rewrite Nat.div_add; auto with Arith.
-  destruct (zerop (i mod Pos.to_nat k)) as [H₁| ]; [ idtac | reflexivity ].
-  apply Nat.Div0.mod_divides in H₁.
-  destruct H₁ as (c, H₁).
-  rewrite H₁.
-  rewrite Nat.mul_comm.
-  rewrite Nat.div_mul; auto with Arith.
-  rewrite Nat.add_comm.
-  apply Hz.
-  rewrite H₁ in Hin.
-  rewrite Nat.mul_comm in Hin.
-  apply Nat.mul_lt_mono_pos_r in Hin; auto with Arith.
-
+destruct n as [n| ]; simpl. {
+  destruct Hn as (Hz, Hnz).
+  split. {
+    intros i Hin.
+    rewrite Nat.add_comm.
+    rewrite Nat.Div0.mod_add; auto with Arith.
+    rewrite Nat.div_add; auto with Arith.
+    destruct (zerop (i mod Pos.to_nat k)) as [H₁| ]; [ idtac | reflexivity ].
+    apply Nat.Div0.mod_divides in H₁.
+    destruct H₁ as (c, H₁).
+    rewrite H₁.
+    rewrite Nat.mul_comm.
+    rewrite Nat.div_mul; [ | easy ].
+    rewrite Nat.add_comm.
+    apply Hz.
+    rewrite H₁ in Hin.
+    rewrite Nat.mul_comm in Hin.
+    apply Nat.mul_lt_mono_pos_r in Hin; [ easy | now apply Pos.to_nat_pos ].
+  }
   rewrite <- Nat.mul_add_distr_r.
   rewrite Nat.Div0.mod_mul; auto with Arith; simpl.
   rewrite Nat.div_mul; auto with Arith.
-
- intros i.
- apply stretch_finite_series; assumption.
+}
+intros i.
+apply stretch_finite_series; assumption.
 Qed.
 
 Theorem series_order_stretch_0 : ∀ s k,
@@ -1604,6 +1602,7 @@ destruct q as [q| ].
         rewrite <- (Nat.mul_1_l 1).
         apply Nat.mul_le_mono. {
           apply Nat.neq_0_lt_0.
+...
           apply Pos2Nat_ne_0.
         }
         apply -> Nat.succ_le_mono.
