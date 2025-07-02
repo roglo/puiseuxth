@@ -68,15 +68,7 @@ rewrite greatest_series_x_power_shift.
 rewrite Nat2Z.inj_add, Z.add_assoc.
 rewrite Z.add_add_swap.
 rewrite Z.sub_add.
-(**)
-rewrite Nat2Z.inj_mul.
-...
-Z.of_nat_pos_to_nat: ∀ a : pos, Z.of_nat (Pos.to_nat a) = z_val true a
-...
-positive_nat_Z
-     : ∀ p : positive, Z.of_nat (Pos.to_nat p) = Z.pos p
-...
-rewrite Nat2Z.inj_mul, positive_nat_Z.
+rewrite Nat2Z.inj_mul, Z.pos_nat.
 rewrite <- Z.mul_add_distr_r.
 rewrite Z.mul_comm.
 remember (series_order (ps_terms ps) (S m)) as p eqn:Hp .
@@ -86,8 +78,13 @@ pose proof (gcd_ps_is_pos m x ps) as Hgp; subst x.
 destruct p as [p| ]. {
   erewrite greatest_series_x_power_stretch. {
     unfold gcd_ps.
-    remember (Zpos k)%Z as kp; simpl.
+    remember (z_pos k)%Z as kp; simpl.
     rewrite Nat2Z.inj_add.
+...
+Search (_ - _ + (_ + _))%Z.
+Z.sub_add_simpl_r_r
+     : ∀ n m p : Z, (n - m + (p + m))%Z = (n + p)%Z
+...
     rewrite Z.sub_add_simpl_r_r.
     rewrite Nat2Z.inj_mul.
     rewrite Nat2Z.inj_mul.

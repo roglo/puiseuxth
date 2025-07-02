@@ -1691,7 +1691,7 @@ destruct b as [| sb vb]; [ easy | ].
 destruct sa; [ easy | now destruct sb ].
 Qed.
 
-Theorem of_nat_pos_to_nat : ∀ a, Z.of_nat (Pos.to_nat a) = z_val true a.
+Theorem pos_nat : ∀ a, Z.of_nat (Pos.to_nat a) = z_val true a.
 Proof.
 intros.
 progress unfold Z.of_nat.
@@ -1717,7 +1717,7 @@ Theorem abs_sgn : ∀ a, Z.abs a = (Z.sgn a * a)%Z.
 Proof.
 intros.
 destruct a as [| sa va]; [ easy | cbn ].
-rewrite Z.of_nat_pos_to_nat.
+rewrite Z.pos_nat.
 symmetry.
 destruct sa; [ apply Z.mul_1_l | cbn ].
 f_equal; apply Pos.mul_1_l.
@@ -1775,7 +1775,7 @@ Proof.
 intros * Haz.
 destruct a as [| sa va]; [ easy | ].
 destruct sa; [ clear Haz; cbn | easy ].
-apply Z.of_nat_pos_to_nat.
+apply Z.pos_nat.
 Qed.
 
 Theorem abs_nonpos_eq : ∀ a, (a ≤ 0)%Z → Z.abs a = (- a)%Z.
@@ -1783,7 +1783,7 @@ Proof.
 intros * Haz.
 destruct a as [| sa va]; [ easy | ].
 destruct sa; [ easy | clear Haz; cbn ].
-apply Z.of_nat_pos_to_nat.
+apply Z.pos_nat.
 Qed.
 
 Theorem abs_pos : ∀ a, (0 < Z.abs a ↔ a ≠ 0)%Z.
@@ -1791,7 +1791,7 @@ Proof.
 intros.
 split; intros H; [ now intros H1; subst | ].
 destruct a as [| sa va]; [ easy | ].
-now destruct sa; cbn; rewrite Z.of_nat_pos_to_nat.
+now destruct sa; cbn; rewrite Z.pos_nat.
 Qed.
 
 Theorem opp_le_compat : ∀ a b, (a ≤ b ↔ - b ≤ - a)%Z.
@@ -1999,15 +1999,15 @@ progress unfold Z.abs.
 specialize (Z.gcd_nonneg a b) as H1.
 destruct (Z.gcd a b) as [| sg vg]; [ easy | ].
 destruct sg; [ | easy ].
-apply Z.of_nat_pos_to_nat.
+apply Z.pos_nat.
 Qed.
 
 Theorem gcd_abs_l : ∀ a b, Z.gcd (Z.abs a) b = Z.gcd a b.
 Proof.
 intros.
 destruct a as [| sa va]; [ easy | ].
-cbn; rewrite Z.of_nat_pos_to_nat.
-now cbn; rewrite Z.of_nat_pos_to_nat.
+cbn; rewrite Z.pos_nat.
+now cbn; rewrite Z.pos_nat.
 Qed.
 
 Theorem gcd_0_l : ∀ a, Z.gcd 0 a = Z.abs a.
@@ -2042,11 +2042,11 @@ destruct a as [| sa va]. {
   rewrite Z.gcd_abs_l; cbn.
   apply Z.abs_gcd.
 }
-cbn; rewrite Z.of_nat_pos_to_nat.
+cbn; rewrite Z.pos_nat.
 destruct b as [| sb vb]. {
-  now destruct c; cbn; rewrite Z.of_nat_pos_to_nat.
+  now destruct c; cbn; rewrite Z.pos_nat.
 }
-cbn; rewrite Z.of_nat_pos_to_nat.
+cbn; rewrite Z.pos_nat.
 destruct c as [| sc vc]. {
   rewrite Nat.sub_add. 2: {
     apply Nat.neq_0_lt_0.
@@ -2275,7 +2275,7 @@ Proof.
 intros * Hz.
 destruct a as [| sa va]; [ easy | ].
 destruct sa; [ clear Hz; cbn | easy ].
-apply Z.of_nat_pos_to_nat.
+apply Z.pos_nat.
 Qed.
 
 Theorem of_nat : ∀ a, Z.of_nat (Z.to_nat a) = Z.max 0 a.

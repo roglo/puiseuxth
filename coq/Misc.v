@@ -456,7 +456,7 @@ intros (a, b) Ha; simpl in Ha |- *.
 unfold Q.inv; simpl.
 destruct a as [| sa va]; [ now apply Z.lt_irrefl in Ha | ].
 destruct sa; [ cbn | easy ].
-now rewrite Z.of_nat_pos_to_nat.
+now rewrite Z.pos_nat.
 Qed.
 
 Definition pair_rec A B C (f : A → B → C) := λ xy, f (fst xy) (snd xy).
