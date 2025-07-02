@@ -2270,6 +2270,7 @@ destruct sa. {
   }
   cbn.
   destruct sc. {
+    rewrite Nat.Div0.mul_mod_distr_l.
 ...
 
 End Z.
