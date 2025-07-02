@@ -2161,10 +2161,8 @@ unfold Z.le in Hp; unfold Z.lt.
 remember (0 ?= Z.gcd x y)%Z as c eqn:Hc .
 destruct c; [ idtac | auto | exfalso; apply Hp; reflexivity ].
 symmetry in Hc; apply Z.compare_eq_iff in Hc; symmetry in Hc.
-... ...
 apply Z.gcd_eq_0_r in Hc; subst y.
-apply Z.gcd_eq_0_l in Hc.
-exfalso; revert Hc; apply Pos2Z_ne_0.
+now apply Z.gcd_eq_0_l in Hc.
 Qed.
 
 Theorem series_null_power : ∀ s b p,
@@ -2219,118 +2217,118 @@ Theorem ps_series_order_inf_iff : ∀ ps,
   ↔ (ps = 0)%ps.
 Proof.
 intros ps.
-split; intros H.
- constructor.
- unfold normalise_ps; simpl.
- rewrite H.
- remember (series_order 0%ser 0) as n eqn:Hn .
- symmetry in Hn.
- destruct n as [n| ]; [ idtac | reflexivity ].
- apply series_order_iff in Hn.
- simpl in Hn.
- destruct Hn as (_, Hn).
- exfalso; apply Hn; reflexivity.
-
- inversion H; subst.
- apply series_order_iff; simpl; intros i.
- unfold normalise_ps in H0; simpl in H0.
- remember (series_order 0%ser 0) as n eqn:Hn .
- symmetry in Hn.
- destruct n as [n| ].
+split; intros H. {
+  constructor.
+  unfold normalise_ps; simpl.
+  rewrite H.
+  remember (series_order 0%ser 0) as n eqn:Hn .
+  symmetry in Hn.
+  destruct n as [n| ]; [ idtac | reflexivity ].
+  apply series_order_iff in Hn.
+  simpl in Hn.
+  destruct Hn as (_, Hn).
+  exfalso; apply Hn; reflexivity.
+}
+inversion H; subst.
+apply series_order_iff; simpl; intros i.
+unfold normalise_ps in H0; simpl in H0.
+remember (series_order 0%ser 0) as n eqn:Hn .
+symmetry in Hn.
+destruct n as [n| ]. {
   exfalso; clear H0.
   apply series_order_iff in Hn.
   simpl in Hn.
   destruct Hn as (_, Hn).
   apply Hn; reflexivity.
-
-  remember (series_order (ps_terms ps) 0) as m eqn:Hm .
-  symmetry in Hm.
-  destruct m as [m| ].
-   inversion_clear H0.
-   simpl in H1, H2, H3.
-   remember (greatest_series_x_power K (ps_terms ps) m) as p eqn:Hp .
-   remember (gcd_ps m p ps) as g eqn:Hg .
-   unfold normalise_series in H3.
-   inversion_clear H3.
-   apply series_order_iff in Hm.
-   simpl in Hm.
-   destruct Hm as (Hz, Hnz).
-   destruct (lt_dec i m) as [H₁| H₁]; [ apply Hz; assumption | idtac ].
-   apply Nat.nlt_ge in H₁.
-   destruct (zerop ((i - m) mod Z.to_nat g)) as [H₂| H₂]. {
-     apply Nat.Div0.mod_divides in H₂.
-     destruct H₂ as (c, Hc).
-     pose proof (H0 c) as Hi.
-     rewrite series_nth_series_0 in Hi.
-     rewrite <- series_nth_mul_shrink in Hi.
-     rewrite Pos2Nat_to_pos in Hi. {
-       rewrite <- Hc in Hi.
-       rewrite <- series_nth_add_left_shift in Hi.
-       rewrite Nat.sub_add in Hi; assumption.
-     }
-     rewrite Hg; apply gcd_ps_is_pos.
-   }
-
+}
+remember (series_order (ps_terms ps) 0) as m eqn:Hm .
+symmetry in Hm.
+destruct m as [m| ]. {
+  inversion_clear H0. {
+    simpl in H1, H2, H3.
+    remember (greatest_series_x_power K (ps_terms ps) m) as p eqn:Hp .
+    remember (gcd_ps m p ps) as g eqn:Hg .
+    unfold normalise_series in H3.
+    inversion_clear H3.
+    apply series_order_iff in Hm.
+    simpl in Hm.
+    destruct Hm as (Hz, Hnz).
+    destruct (lt_dec i m) as [H₁| H₁]; [ apply Hz; assumption | idtac ].
+    apply Nat.nlt_ge in H₁.
+    destruct (zerop ((i - m) mod Z.to_nat g)) as [H₂| H₂]. {
+      apply Nat.Div0.mod_divides in H₂.
+      destruct H₂ as (c, Hc).
+      pose proof (H0 c) as Hi.
+      rewrite series_nth_series_0 in Hi.
+      rewrite <- series_nth_mul_shrink in Hi.
+      rewrite Z2Pos.to_nat in Hi. {
+        rewrite <- Hc in Hi.
+        rewrite <- series_nth_add_left_shift in Hi.
+        rewrite Nat.sub_add in Hi; assumption.
+      }
+      rewrite Hg; apply gcd_ps_is_pos.
+    }
     symmetry in Hp.
     apply greatest_series_x_power_iff in Hp.
     remember (series_order (ps_terms ps) (S m)) as q eqn:Hq .
     symmetry in Hq.
-    destruct q as [q| ].
-     destruct Hp as (Hxp, Hnxp).
-     eapply series_null_power; [ eassumption | idtac ].
-     apply Nat.sub_gt in H₂; rewrite Nat.sub_0_r in H₂.
-     intros H₃; apply H₂; clear H₂.
-     pose proof (gcd_ps_is_pos m p ps) as Hgp.
-     rewrite <- Hg in Hgp.
-     unfold gcd_ps in Hg.
-     remember (ps_ordnum ps + Z.of_nat m)%Z as x.
-     remember (Z.gcd x (Zpos (ps_polydo ps))) as z.
-     pose proof (Z.gcd_divide_r z (Z.of_nat p)) as H₄.
-     rewrite <- Hg in H₄.
-     apply omod_divide in H₃; auto with Arith.
-      apply Nat.Lcm0.mod_divide.
-       eapply Nat.divide_trans; [ idtac | eassumption ].
-       destruct H₄ as (c, Hc).
-       exists (Z.to_nat c).
-       rewrite <- Z2Nat.inj_mul.
-        rewrite <- Hc.
-        rewrite Nat2Z.id; reflexivity.
-
-        apply <- Z.mul_le_mono_pos_r; [ idtac | eassumption ].
-        rewrite <- Hc; simpl.
-        apply Nat2Z.is_nonneg.
-
+    destruct q as [q| ]. {
+      destruct Hp as (Hxp, Hnxp).
+      eapply series_null_power; [ eassumption | idtac ].
+      apply Nat.sub_gt in H₂; rewrite Nat.sub_0_r in H₂.
+      intros H₃; apply H₂; clear H₂.
+      pose proof (gcd_ps_is_pos m p ps) as Hgp.
+      rewrite <- Hg in Hgp.
+      unfold gcd_ps in Hg.
+      remember (ps_ordnum ps + Z.of_nat m)%Z as x.
+      remember (Z.gcd x (z_pos (ps_polydo ps))) as z.
+      pose proof (Z.gcd_divide_r z (Z.of_nat p)) as H₄.
+      rewrite <- Hg in H₄.
+      apply omod_divide in H₃; auto with Arith. {
+        apply Nat.Lcm0.mod_divide.
+        eapply Nat.divide_trans; [ idtac | eassumption ].
+        destruct H₄ as (c, Hc).
+        exists (Z.to_nat c).
+        rewrite <- Z2Nat.inj_mul. {
+          rewrite <- Hc.
+          symmetry; apply Nat2Z.id.
+        } {
+          apply <- Z.mul_le_mono_pos_r; [ idtac | eassumption ].
+          rewrite <- Hc; simpl.
+          apply Nat2Z.is_nonneg.
+        }
         apply Z.lt_le_incl; assumption.
-
+      }
       destruct p; auto with Arith.
       unfold is_a_series_in_x_power in Hxp.
       pose proof (Hxp O) as H₅; simpl in H₅.
       rewrite Hq in H₅.
       destruct H₅ as (c, Hc).
       rewrite Nat.mul_0_r in Hc; discriminate Hc.
-
-     destruct (eq_nat_dec i m) as [H₃| H₃].
+    }
+    destruct (eq_nat_dec i m) as [H₃| H₃]. {
       subst i.
       rewrite Nat.sub_diag in H₂; simpl in H₂.
       rewrite Nat.Div0.mod_0_l in H₂.
-       exfalso; revert H₂; apply Nat.lt_irrefl.
-
-      apply series_order_iff in Hq.
-      simpl in Hq.
-      pose proof (Hq (i - S m)%nat) as H₄.
-      rewrite <- Nat.add_succ_r in H₄.
-      rewrite <- Nat.sub_succ_l in H₄.
-       rewrite Nat.sub_succ in H₄.
-       rewrite Nat.add_sub_assoc in H₄; auto with Arith.
-       rewrite Nat.add_comm, Nat.add_sub in H₄.
-       assumption.
-
-       apply Nat.neq_sym in H₃.
-       apply Nat_le_neq_lt; assumption.
-
-   apply series_order_iff in Hm.
-   simpl in Hm.
-   apply Hm.
+      exfalso; revert H₂; apply Nat.lt_irrefl.
+    }
+    apply series_order_iff in Hq.
+    simpl in Hq.
+    pose proof (Hq (i - S m)%nat) as H₄.
+    rewrite <- Nat.add_succ_r in H₄.
+    rewrite <- Nat.sub_succ_l in H₄. {
+      rewrite Nat.sub_succ in H₄.
+      rewrite Nat.add_sub_assoc in H₄; auto with Arith.
+      rewrite Nat.add_comm, Nat.add_sub in H₄.
+      assumption.
+    }
+    apply Nat.neq_sym in H₃.
+    apply Nat_le_neq_lt; assumption.
+  }
+}
+apply series_order_iff in Hm.
+simpl in Hm.
+apply Hm.
 Qed.
 
 Theorem series_order_succ2 : ∀ s m,
@@ -2430,7 +2428,7 @@ destruct n₁ as [n₁| ].
 Qed.
 
 Definition cm (ps₁ ps₂ : puiseux_series α) :=
-  (ps_polydo ps₁ * ps_polydo ps₂)%positive.
+  (ps_polydo ps₁ * ps_polydo ps₂)%pos.
 Definition cm_factor α (ps₁ ps₂ : puiseux_series α) :=
   ps_polydo ps₂.
 

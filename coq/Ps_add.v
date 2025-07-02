@@ -1,7 +1,8 @@
 (* Ps_add.v *)
 
-From Stdlib Require Import Utf8 Arith ZArith.
+From Stdlib Require Import Utf8 Arith.
 
+Require Import A_PosArith A_ZArith.
 Require Import NbarM.
 Require Import Misc.
 Require Import Field2.
@@ -12,7 +13,7 @@ Set Implicit Arguments.
 
 Definition adjust_ps α {R : ring α} n k ps :=
   {| ps_terms := series_shift n (series_stretch k (ps_terms ps));
-     ps_ordnum := ps_ordnum ps * Zpos k - Z.of_nat n;
+     ps_ordnum := ps_ordnum ps * z_pos k - Z.of_nat n;
      ps_polydo := ps_polydo ps * k |}.
 
 Section first_theorems.
@@ -45,10 +46,11 @@ Qed.
 
 Theorem gcd_ps_0_m : ∀ n (ps : puiseux_series α),
   gcd_ps n O ps =
-    Z.abs (Z.gcd (ps_ordnum ps + Z.of_nat n) (Zpos (ps_polydo ps))).
+    Z.abs (Z.gcd (ps_ordnum ps + Z.of_nat n) (z_pos (ps_polydo ps))).
 Proof.
 intros n ps.
 unfold gcd_ps.
+...
 rewrite Z.gcd_0_r; reflexivity.
 Qed.
 

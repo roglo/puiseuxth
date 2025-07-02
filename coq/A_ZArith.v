@@ -2010,6 +2010,25 @@ cbn; rewrite Z.of_nat_pos_to_nat.
 now cbn; rewrite Z.of_nat_pos_to_nat.
 Qed.
 
+Theorem gcd_eq_0 : ∀ a b, Z.gcd a b = 0%Z ↔ a = 0%Z ∧ b = 0%Z.
+Proof.
+intros.
+split; [ | now intros (Ha, Hb); subst ].
+intros Hab.
+specialize (Z.gcd_divide_l a b) as H1.
+specialize (Z.gcd_divide_r a b) as H2.
+rewrite Hab in H1, H2.
+destruct H1 as (c, Hc).
+destruct H2 as (d, Hd).
+now rewrite Z.mul_0_r in Hc, Hd.
+Qed.
+
+Theorem gcd_eq_0_l : ∀ a b, Z.gcd a b = 0%Z → a = 0%Z.
+Proof. now intros * Hab; apply Z.gcd_eq_0 in Hab. Qed.
+
+Theorem gcd_eq_0_r : ∀ a b, Z.gcd a b = 0%Z → b = 0%Z.
+Proof. now intros * Hab; apply Z.gcd_eq_0 in Hab. Qed.
+
 Theorem gcd_assoc : ∀ a b c, Z.gcd a (Z.gcd b c) = Z.gcd (Z.gcd a b) c.
 Proof.
 intros.
@@ -2181,6 +2200,14 @@ Proof. now intros; destruct a. Qed.
 Theorem eq_0 : ∀ a, Z.of_nat a = 0%Z → a = 0%nat.
 Proof. now intros; destruct a. Qed.
 
+Theorem id : ∀ a, Z.to_nat (Z.of_nat a) = a.
+Proof.
+intros.
+destruct a; [ easy | cbn ].
+rewrite Nat.sub_0_r.
+apply Nat.add_1_r.
+Qed.
+
 Theorem inj_succ : ∀ a, Z.of_nat (S a) = Z.of_nat a + 1.
 Proof.
 intros.
@@ -2251,7 +2278,22 @@ destruct sa; [ | easy ].
 destruct sb; [ | easy ].
 cbn - [ Z.to_nat ].
 simpl.
-apply Pos.to_nat_inj_add.
+apply Pos2Nat.inj_add.
+Qed.
+
+Theorem inj_mul :
+  ∀ a b,
+  (0 ≤ a)%Z
+  → (0 ≤ b)%Z
+  → Z.to_nat (a * b) = (Z.to_nat a * Z.to_nat b)%nat.
+Proof.
+intros * Hza Hzb.
+destruct a as [| sa va]; [ easy | ].
+destruct b as [| sb vb]; [ easy | ].
+destruct sa; [ | easy ].
+destruct sb; [ | easy ].
+cbn - [ Z.to_nat ].
+apply Pos2Nat.inj_mul.
 Qed.
 
 End Z2Nat.
@@ -2269,6 +2311,15 @@ Theorem id: ∀ a, (1 ≤ a)%Z → Z.of_pos (Z.to_pos a) = a.
 Proof.
 intros * Ha.
 destruct a as [| sa va]; [ easy | now destruct sa ].
+Qed.
+
+Theorem to_nat : ∀ a,
+  (0 < a)%Z
+  → Pos.to_nat (Z.to_pos a) = Z.to_nat a.
+Proof.
+intros a Ha.
+destruct a as [| sa va]; [ easy | cbn ].
+now destruct sa.
 Qed.
 
 End Z2Pos.

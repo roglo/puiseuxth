@@ -492,15 +492,6 @@ rewrite Nat.add_comm.
 apply Nat.lt_0_succ.
 Qed.
 
-Theorem to_nat_inj_add :
-  ∀ a b, Pos.to_nat (a + b) = Pos.to_nat a + Pos.to_nat b.
-Proof.
-intros.
-progress unfold Pos.to_nat; cbn.
-rewrite (Nat.add_shuffle0 (p_val a)).
-symmetry; apply Nat.add_assoc.
-Qed.
-
 Theorem of_nat_to_nat : ∀ a, Pos.of_nat (Pos.to_nat a) = a.
 Proof.
 intros.
@@ -676,6 +667,15 @@ Proof. apply Pos.Nat2Pos_id. Qed.
 End Nat2Pos.
 
 Module Pos2Nat.
+
+Theorem inj_add :
+  ∀ a b, Pos.to_nat (a + b) = Pos.to_nat a + Pos.to_nat b.
+Proof.
+intros.
+progress unfold Pos.to_nat; cbn.
+rewrite (Nat.add_shuffle0 (p_val a)).
+symmetry; apply Nat.add_assoc.
+Qed.
 
 Theorem inj_mul :
   ∀ a b, Pos.to_nat (a * b) = Pos.to_nat a * Pos.to_nat b.

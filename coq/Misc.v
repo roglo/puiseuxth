@@ -687,22 +687,6 @@ Proof. apply Z2Nat.of_nat. Qed.
 Theorem Nat_sub_succ_1 : ∀ n, (S n - 1 = n)%nat.
 Proof. intros n; simpl; rewrite Nat.sub_0_r; reflexivity. Qed.
 
-(*
-Theorem Pos2Nat_to_pos : ∀ x,
-  (0 < x)%Z
-  → Pos.to_nat (Z.to_pos x) = Z.to_nat x.
-Proof.
-intros x Hx.
-destruct x as [| x| x].
- exfalso; revert Hx; apply Z.lt_irrefl.
-
- reflexivity.
-
- exfalso; apply Z.nle_gt in Hx.
- apply Hx, Pos2Z.neg_is_nonpos.
-Qed.
-*)
-
 Theorem Nat_divides_l : ∀ a b, (∃ c, a = (b * c)%nat) ↔ Nat.divide b a.
 Proof.
 intros a b.
