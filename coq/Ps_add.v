@@ -90,41 +90,30 @@ destruct p as [p| ]. {
     subst kp.
     rewrite Z.mul_comm.
     rewrite Z.gcd_mul_mono_l_nonneg; [ idtac | easy ].
-    rewrite Z.div_mul_cancel_l. {
+    rewrite Z.div_mul_cancel_l; [ | easy | ]. {
       rewrite <- Pos2Z.inj_mul, Pos.mul_comm, Pos2Z.inj_mul.
-      rewrite Z.div_mul_cancel_l. {
+      rewrite Z.div_mul_cancel_l; [ | easy | ]. {
         unfold normalise_series.
-Search (Z.to_pos (_ * _)).
-...
-Z2Pos.inj_mul
-     : ∀ x y : Z,
-         (0 < x)%Z
-         → (0 < y)%Z → Z.to_pos (x * y) = (Z.to_pos x * Z.to_pos y)%positive
-...
-        rewrite Z2Pos.inj_mul; [ idtac | apply Pos2Z.is_pos | idtac ]. {
-          rewrite Pos.mul_comm.
-          rewrite series_shrink_shrink.
-          rewrite series_left_shift_shift. {
-            rewrite Nat.add_sub.
-            rewrite series_left_shift_stretch.
-            rewrite series_shrink_stretch.
-            reflexivity.
-          }
-          rewrite Nat.add_comm; apply Nat.le_add_r.
+        rewrite Z2Pos.inj_mul; [ | easy | easy ].
+        rewrite Pos.mul_comm.
+        rewrite series_shrink_shrink.
+        rewrite series_left_shift_shift. {
+          rewrite Nat.add_sub.
+          rewrite series_left_shift_stretch.
+          rewrite series_shrink_stretch.
+          reflexivity.
         }
-        assumption.
-      } {
-        unfold gcd_ps in Hgp.
-        intros H; rewrite H in Hgp.
-        revert Hgp; apply Z.lt_irrefl.
+        rewrite Nat.add_comm; apply Nat.le_add_r.
       }
-      apply Pos2Z_ne_0.
-    } {
-      unfold gcd_ps in Hgp.
-      intros H; rewrite H in Hgp.
-      revert Hgp; apply Z.lt_irrefl.
+      intros H.
+      apply Z.gcd_eq_0_l in H.
+      apply Z.gcd_eq_0_r in H.
+      easy.
     }
-    apply Pos2Z_ne_0.
+    intros H.
+    apply Z.gcd_eq_0_l in H.
+    apply Z.gcd_eq_0_r in H.
+    easy.
   }
   intros H; rewrite H in Hp; discriminate Hp.
 }
@@ -136,13 +125,14 @@ remember Z.mul as g; simpl; subst g.
 rewrite Nat2Z.inj_add.
 rewrite Nat2Z.inj_mul.
 rewrite Z.pos_nat.
-rewrite Z.sub_add_simpl_r_r.
+rewrite (Z.add_comm _ (Z.of_nat n)), Z.add_assoc, Z.sub_add.
 rewrite <- Z.mul_add_distr_r.
 rewrite Pos2Z.inj_mul.
-rewrite Z.gcd_mul_mono_r_nonneg; [ idtac | apply Pos2Z.is_nonneg ].
+rewrite Z.gcd_mul_mono_r_nonneg; [ idtac | easy ].
 rewrite Z.mul_comm.
 rewrite Z.abs_mul.
 remember Z.mul as g; simpl; subst g.
+...
 rewrite Z.div_mul_cancel_l. {
   rewrite <- Pos2Z.inj_mul, Pos.mul_comm, Pos2Z.inj_mul.
   rewrite Z.div_mul_cancel_l. {

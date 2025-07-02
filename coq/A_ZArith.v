@@ -2532,6 +2532,18 @@ destruct a as [| sa va]; [ easy | cbn ].
 now destruct sa.
 Qed.
 
+Theorem inj_mul :
+  ∀ a b,
+  (0 < a)%Z
+  → (0 < b)%Z
+  → Z.to_pos (a * b) = (Z.to_pos a * Z.to_pos b)%pos.
+Proof.
+intros * Hza Hzb.
+destruct a as [| sa va]; [ easy | ].
+destruct b as [| sb vb]; [ easy | ].
+destruct sa; [ now destruct sb | easy ].
+Qed.
+
 End Z2Pos.
 
 Definition Z_ring_theory : ring_theory 0%Z 1%Z Z.add Z.mul Z.sub Z.opp eq :=
