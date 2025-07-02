@@ -65,14 +65,10 @@ remember (series_order (ps_terms ps) 0) as m eqn:Hm .
 symmetry in Hm.
 destruct m as [m| ]; simpl; [ idtac | reflexivity ].
 rewrite greatest_series_x_power_shift.
-...
-Check Nat2Z.inj_add.
-Nat2Z.inj_add
-     : ∀ n m : nat, Z.of_nat (n + m) = (Z.of_nat n + Z.of_nat m)%Z
-...
 rewrite Nat2Z.inj_add, Z.add_assoc.
-rewrite Z.add_shuffle0.
+rewrite Z.add_add_swap.
 rewrite Z.sub_add.
+...
 rewrite Nat2Z.inj_mul, positive_nat_Z.
 rewrite <- Z.mul_add_distr_r.
 rewrite Z.mul_comm.

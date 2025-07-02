@@ -664,6 +664,25 @@ Module Nat2Pos.
 Theorem id : ∀ a, a ≠ 0 → Pos.to_nat (Pos.of_nat a) = a.
 Proof. apply Pos.Nat2Pos_id. Qed.
 
+Theorem inj_add :
+  ∀ a b,
+  a ≠ 0
+  → b ≠ 0
+  → Pos.of_nat (a + b) = (Pos.of_nat a + Pos.of_nat b)%pos.
+Proof.
+intros * Haz Hbz.
+progress unfold Pos.add.
+progress unfold Pos.of_nat.
+cbn.
+f_equal.
+destruct a; [ easy | ].
+destruct b; [ easy | cbn ].
+do 3 rewrite Nat.sub_0_r.
+rewrite <- Nat.add_assoc.
+progress f_equal.
+symmetry; apply Nat.add_1_r.
+Qed.
+
 End Nat2Pos.
 
 Module Pos2Nat.

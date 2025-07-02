@@ -2222,6 +2222,19 @@ progress f_equal.
 now apply Pos.of_nat_inj_succ.
 Qed.
 
+Theorem inj_add : ∀ a b, Z.of_nat (a + b) = Z.of_nat a + Z.of_nat b.
+Proof.
+intros.
+destruct a; [ easy | ].
+rewrite Nat.add_comm.
+destruct b; [ easy | ].
+rewrite Nat.add_comm.
+cbn.
+rewrite <- Nat.add_succ_l.
+progress f_equal.
+now apply Nat2Pos.inj_add.
+Qed.
+
 Theorem inj_le : ∀ a b, (a <= b)%nat ↔ (Z.of_nat a ≤ Z.of_nat b)%Z.
 Proof.
 intros.
