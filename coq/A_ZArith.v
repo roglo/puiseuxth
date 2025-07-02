@@ -2333,7 +2333,39 @@ destruct sb. {
   apply Nat.Div0.div_mul_cancel_l.
   now rewrite Nat.add_1_r.
 }
-...
+destruct sc. {
+  cbn.
+  rewrite Nat.Div0.mul_mod_distr_l.
+  rewrite Nat2Z_inj_mul.
+  remember (Z.of_nat (Pos.to_nat vb mod Pos.to_nat vc)) as x eqn:Hx.
+  progress unfold Pos.to_nat in Hx.
+  rewrite <- Hx.
+  symmetry in Hx.
+  rewrite Z.mul_comm.
+  destruct x as [| sx vx]. {
+    cbn.
+    progress f_equal.
+    progress f_equal.
+    apply Nat.Div0.div_mul_cancel_l.
+    now rewrite Nat.add_1_r.
+  }
+  cbn.
+  rewrite Nat.add_1_r.
+  cbn.
+  progress f_equal.
+  progress f_equal.
+  progress f_equal.
+  do 2 rewrite (Nat.add_comm _ (p_val va * _)).
+  do 2 rewrite <- Nat.mul_succ_l.
+  rewrite <- Nat.add_1_r.
+  apply Nat.Div0.div_mul_cancel_l.
+  now rewrite Nat.add_1_r.
+}
+cbn.
+progress f_equal.
+apply Nat.Div0.div_mul_cancel_l.
+now rewrite Nat.add_1_r.
+Qed.
 
 End Z.
 
