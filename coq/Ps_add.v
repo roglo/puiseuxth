@@ -68,6 +68,13 @@ rewrite greatest_series_x_power_shift.
 rewrite Nat2Z.inj_add, Z.add_assoc.
 rewrite Z.add_add_swap.
 rewrite Z.sub_add.
+(**)
+rewrite Nat2Z.inj_mul.
+...
+Z.of_nat_pos_to_nat: ∀ a : pos, Z.of_nat (Pos.to_nat a) = z_val true a
+...
+positive_nat_Z
+     : ∀ p : positive, Z.of_nat (Pos.to_nat p) = Z.pos p
 ...
 rewrite Nat2Z.inj_mul, positive_nat_Z.
 rewrite <- Z.mul_add_distr_r.
