@@ -94,6 +94,12 @@ destruct p as [p| ]. {
       rewrite <- Pos2Z.inj_mul, Pos.mul_comm, Pos2Z.inj_mul.
       rewrite Z.div_mul_cancel_l. {
         unfold normalise_series.
+Search (Z.to_pos (_ * _)).
+...
+Z2Pos.inj_mul
+     : ∀ x y : Z,
+         (0 < x)%Z
+         → (0 < y)%Z → Z.to_pos (x * y) = (Z.to_pos x * Z.to_pos y)%positive
 ...
         rewrite Z2Pos.inj_mul; [ idtac | apply Pos2Z.is_pos | idtac ]. {
           rewrite Pos.mul_comm.
