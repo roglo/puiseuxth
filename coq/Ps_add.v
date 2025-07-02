@@ -156,6 +156,8 @@ rewrite Z.div_mul_cancel_l; [ | easy | ]. {
   intros H.
 Search (Z.abs _ = 0)%Z.
 ...
+Z.abs_0_iff: ∀ n : Z, Z.abs n = 0%Z ↔ n = 0%Z
+...
   apply -> Z.abs_0_iff in H.
     apply Z.gcd_eq_0_r in H.
     revert H; apply Pos2Z_ne_0.
