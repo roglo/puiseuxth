@@ -2075,26 +2075,38 @@ destruct sa; [ clear Hza | easy ].
 destruct b as [| sb vb]. {
   rewrite Z.mul_0_r; cbn.
   destruct c as [| sc vc]; [ easy | ].
-  destruct sc. {
-    cbn.
-    rewrite Nat.sub_add; [ | easy ].
-    destruct vc as (vc); cbn.
-    rewrite (Nat.add_1_r vc); cbn.
-    rewrite Nat.add_1_r; cbn.
-    f_equal.
-    rewrite <- Nat.add_succ_l.
-...
-    rewrite Nat2Pos.inj_add; [ | easy | ]. 2: {
-      destruct va as (va).
-      cbn.
-...
+  cbn.
+  rewrite Nat.sub_add; [ | easy ].
+  rewrite Nat2Z_inj_mul.
+  progress unfold Pos.to_nat.
+  rewrite (Nat.add_1_r (p_val vc)) at 2; cbn.
+  progress unfold Pos.of_nat.
+  rewrite Nat_sub_succ_1.
+  progress unfold Z.of_nat.
+  do 2 rewrite Nat.add_1_r.
+  cbn.
+  f_equal.
+  progress unfold Pos.of_nat.
+  do 2 rewrite Nat_sub_succ_1.
+  easy.
+}
+destruct c as [| sc vc]. {
+  rewrite Z.mul_0_r, Z.gcd_0_r.
+  rewrite Z.abs_mul.
+  now rewrite Z.abs_nonneg_eq.
+}
+cbn.
+progress f_equal.
+apply Pos.gcd_mul_mono_l.
+Qed.
 
 Theorem gcd_mul_mono_r_nonneg :
   ∀ a b c, (0 ≤ c)%Z → Z.gcd (a * c) (b * c) = (Z.gcd a b * c)%Z.
 Proof.
 intros * Hzc.
-destruct
-...
+do 3 rewrite (Z.mul_comm _ c).
+now apply Z.gcd_mul_mono_l_nonneg.
+Qed.
 
 (* end gcd *)
 

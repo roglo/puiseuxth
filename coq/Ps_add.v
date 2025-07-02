@@ -86,16 +86,11 @@ destruct p as [p| ]. {
     rewrite Z.pos_nat.
     rewrite <- Z.mul_add_distr_r.
     rewrite Pos2Z.inj_mul.
-...
-Check Z.gcd_mul_mono_r_nonneg.
-Z.gcd_mul_mono_r_nonneg
-     : ∀ n m p : Z, (0 <= p)%Z → Z.gcd (n * p) (m * p) = (Z.gcd n m * p)%Z
-
-...
-    rewrite Z.gcd_mul_mono_r_nonneg; [ idtac | apply Pos2Z.is_nonneg ].
+    rewrite Z.gcd_mul_mono_r_nonneg; [ | easy ].
     subst kp.
     rewrite Z.mul_comm.
-    rewrite Z.gcd_mul_mono_l_nonneg; [ idtac | apply Pos2Z.is_nonneg ].
+    rewrite Z.gcd_mul_mono_l_nonneg; [ idtac | easy ].
+...
     rewrite Z.div_mul_cancel_l. {
       rewrite <- Pos2Z.inj_mul, Pos.mul_comm, Pos2Z.inj_mul.
       rewrite Z.div_mul_cancel_l. {

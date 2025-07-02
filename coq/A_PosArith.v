@@ -595,6 +595,24 @@ progress f_equal.
 apply Nat.gcd_assoc.
 Qed.
 
+Theorem gcd_mul_mono_l :
+  ∀ a b c, Pos.gcd (a * b) (a * c) = (a * Pos.gcd b c)%pos.
+Proof.
+intros.
+progress unfold Pos.gcd; cbn.
+rewrite Nat.sub_add; [ | easy ].
+rewrite Nat.sub_add; [ | easy ].
+rewrite Nat.gcd_mul_mono_l.
+progress unfold Pos.mul.
+cbn.
+rewrite Nat.sub_add; [ easy | ].
+apply Nat.neq_0_lt_0.
+intros H.
+apply Nat.gcd_eq_0_l in H.
+progress unfold Pos.to_nat in H.
+now rewrite Nat.add_1_r in H.
+Qed.
+
 (* end gcd *)
 
 Theorem compare_sub_mono_l :
