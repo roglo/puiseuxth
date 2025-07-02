@@ -78,7 +78,7 @@ pose proof (gcd_ps_is_pos m x ps) as Hgp; subst x.
 destruct p as [p| ]. {
   erewrite greatest_series_x_power_stretch. {
     unfold gcd_ps.
-    remember (z_pos k)%Z as kp; simpl.
+    remember (z_val true k)%Z as kp; simpl.
     rewrite Nat2Z.inj_add.
     rewrite (Z.add_comm _ (Z.of_nat n)), Z.add_assoc, Z.sub_add.
     rewrite Nat2Z.inj_mul.
@@ -90,11 +90,11 @@ destruct p as [p| ]. {
     subst kp.
     rewrite Z.mul_comm.
     rewrite Z.gcd_mul_mono_l_nonneg; [ idtac | easy ].
-...
     rewrite Z.div_mul_cancel_l. {
       rewrite <- Pos2Z.inj_mul, Pos.mul_comm, Pos2Z.inj_mul.
       rewrite Z.div_mul_cancel_l. {
         unfold normalise_series.
+...
         rewrite Z2Pos.inj_mul; [ idtac | apply Pos2Z.is_pos | idtac ]. {
           rewrite Pos.mul_comm.
           rewrite series_shrink_shrink.
