@@ -132,12 +132,12 @@ rewrite Z.gcd_mul_mono_r_nonneg; [ idtac | easy ].
 rewrite Z.mul_comm.
 rewrite Z.abs_mul.
 remember Z.mul as g; simpl; subst g.
-...
-rewrite Z.div_mul_cancel_l. {
+rewrite Z.pos_nat.
+rewrite Z.div_mul_cancel_l; [ | easy | ]. {
   rewrite <- Pos2Z.inj_mul, Pos.mul_comm, Pos2Z.inj_mul.
-  rewrite Z.div_mul_cancel_l. {
+  rewrite Z.div_mul_cancel_l; [ | easy | ]. {
     unfold normalise_series.
-    rewrite Z2Pos.inj_mul; [ idtac | apply Pos2Z.is_pos | idtac ]. {
+    rewrite Z2Pos.inj_mul; [ idtac | easy | idtac ]. {
       rewrite Pos.mul_comm.
       rewrite series_shrink_shrink.
       rewrite series_left_shift_shift. {
@@ -152,12 +152,15 @@ rewrite Z.div_mul_cancel_l. {
     intros H.
     apply Z.gcd_eq_0_r in H.
     revert H; apply Pos2Z_ne_0.
-  } {
-    intros H.
-    apply -> Z.abs_0_iff in H.
+  }
+  intros H.
+Search (Z.abs _ = 0)%Z.
+...
+  apply -> Z.abs_0_iff in H.
     apply Z.gcd_eq_0_r in H.
     revert H; apply Pos2Z_ne_0.
   }
+...
   apply Pos2Z_ne_0.
 } {
   intros H.
