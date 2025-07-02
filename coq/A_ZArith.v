@@ -2221,6 +2221,57 @@ destruct H as [H| H]; [ | subst; apply Z.le_refl ].
 now apply Z.lt_le_incl.
 Qed.
 
+Theorem div_mul_cancel_l :
+  ∀ a b c, a ≠ 0%Z → c ≠ 0%Z → (a * b / (a * c))%Z = (b / c)%Z.
+Proof.
+intros * Haz Hcz.
+progress unfold Z.div.
+destruct a as [| sa va]; [ easy | clear Haz ].
+destruct b as [| sb vb]; [ easy | ].
+destruct c as [| sc vc]; [ easy | ].
+cbn.
+rewrite Nat.sub_add; [ | easy ].
+rewrite Nat.sub_add; [ | easy ].
+destruct sa. {
+  cbn.
+  destruct sb. {
+    cbn.
+    destruct sc. {
+      cbn.
+      progress f_equal.
+      apply Nat.Div0.div_mul_cancel_l.
+      now rewrite Nat.add_1_r.
+    }
+    clear Hcz.
+    rewrite Nat.Div0.mul_mod_distr_l.
+    remember (Pos.to_nat vb mod Pos.to_nat vc) as x eqn:Hx.
+    progress unfold Pos.to_nat in Hx.
+    rewrite <- Hx.
+    symmetry in Hx.
+    rewrite Nat.mul_comm.
+    destruct x. {
+      cbn.
+      progress f_equal.
+      progress f_equal.
+      apply Nat.Div0.div_mul_cancel_l.
+      now rewrite Nat.add_1_r.
+    }
+    cbn.
+    rewrite Nat.add_1_r.
+    cbn.
+    progress f_equal.
+    progress f_equal.
+    progress f_equal.
+    do 2 rewrite (Nat.add_comm _ (p_val va * _)).
+    do 2 rewrite <- Nat.mul_succ_l.
+    rewrite <- Nat.add_1_r.
+    apply Nat.Div0.div_mul_cancel_l.
+    now rewrite Nat.add_1_r.
+  }
+  cbn.
+  destruct sc. {
+...
+
 End Z.
 
 Number Notation Z Z.of_number Z.to_number : Z_scope.

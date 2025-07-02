@@ -90,6 +90,11 @@ destruct p as [p| ]. {
     subst kp.
     rewrite Z.mul_comm.
     rewrite Z.gcd_mul_mono_l_nonneg; [ idtac | easy ].
+Search (_ * _ / (_ * _))%Z.
+Check Z.div_mul_cancel_l.
+...
+Z.div_mul_cancel_l
+     : ∀ a b c : Z, b ≠ 0%Z → c ≠ 0%Z → (c * a / (c * b))%Z = (a / b)%Z
 ...
     rewrite Z.div_mul_cancel_l. {
       rewrite <- Pos2Z.inj_mul, Pos.mul_comm, Pos2Z.inj_mul.
