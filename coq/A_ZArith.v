@@ -2010,6 +2010,12 @@ cbn; rewrite Z.of_nat_pos_to_nat.
 now cbn; rewrite Z.of_nat_pos_to_nat.
 Qed.
 
+Theorem gcd_0_l : ∀ a, Z.gcd 0 a = Z.abs a.
+Proof. easy. Qed.
+
+Theorem gcd_0_r : ∀ a, Z.gcd a 0 = Z.abs a.
+Proof. now intros; rewrite Z.gcd_comm. Qed.
+
 Theorem gcd_eq_0 : ∀ a b, Z.gcd a b = 0%Z ↔ a = 0%Z ∧ b = 0%Z.
 Proof.
 intros.
