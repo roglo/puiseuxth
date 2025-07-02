@@ -80,17 +80,18 @@ destruct p as [p| ]. {
     unfold gcd_ps.
     remember (z_pos k)%Z as kp; simpl.
     rewrite Nat2Z.inj_add.
-...
-Search (_ - _ + (_ + _))%Z.
-Z.sub_add_simpl_r_r
-     : ∀ n m p : Z, (n - m + (p + m))%Z = (n + p)%Z
-...
-    rewrite Z.sub_add_simpl_r_r.
+    rewrite (Z.add_comm _ (Z.of_nat n)), Z.add_assoc, Z.sub_add.
     rewrite Nat2Z.inj_mul.
     rewrite Nat2Z.inj_mul.
-    rewrite positive_nat_Z.
+    rewrite Z.pos_nat.
     rewrite <- Z.mul_add_distr_r.
     rewrite Pos2Z.inj_mul.
+...
+Check Z.gcd_mul_mono_r_nonneg.
+Z.gcd_mul_mono_r_nonneg
+     : ∀ n m p : Z, (0 <= p)%Z → Z.gcd (n * p) (m * p) = (Z.gcd n m * p)%Z
+
+...
     rewrite Z.gcd_mul_mono_r_nonneg; [ idtac | apply Pos2Z.is_nonneg ].
     subst kp.
     rewrite Z.mul_comm.
@@ -133,7 +134,7 @@ rewrite gcd_ps_0_m.
 remember Z.mul as g; simpl; subst g.
 rewrite Nat2Z.inj_add.
 rewrite Nat2Z.inj_mul.
-rewrite positive_nat_Z.
+rewrite Z.pos_nat.
 rewrite Z.sub_add_simpl_r_r.
 rewrite <- Z.mul_add_distr_r.
 rewrite Pos2Z.inj_mul.
@@ -491,7 +492,7 @@ destruct v as [| v| v]; [ reflexivity | | ]. {
   remember Z.sub as g; simpl; subst g.
   rewrite series_stretch_series_0.
   rewrite series_shift_series_0.
-  rewrite positive_nat_Z; simpl.
+  rewrite Z.pos_nat; simpl.
   rewrite Pos.mul_1_r.
   reflexivity.
 }

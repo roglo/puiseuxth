@@ -2066,7 +2066,37 @@ progress f_equal.
 apply Pos.gcd_assoc.
 Qed.
 
-(* *)
+Theorem gcd_mul_mono_l_nonneg :
+  ∀ a b c, (0 ≤ a)%Z → Z.gcd (a * b) (a * c) = (a * Z.gcd b c)%Z.
+Proof.
+intros * Hza.
+destruct a as [| sa va]; [ easy | ].
+destruct sa; [ clear Hza | easy ].
+destruct b as [| sb vb]. {
+  rewrite Z.mul_0_r; cbn.
+  destruct c as [| sc vc]; [ easy | ].
+  destruct sc. {
+    cbn.
+    rewrite Nat.sub_add; [ | easy ].
+    destruct vc as (vc); cbn.
+    rewrite (Nat.add_1_r vc); cbn.
+    rewrite Nat.add_1_r; cbn.
+    f_equal.
+    rewrite <- Nat.add_succ_l.
+...
+    rewrite Nat2Pos.inj_add; [ | easy | ]. 2: {
+      destruct va as (va).
+      cbn.
+...
+
+Theorem gcd_mul_mono_r_nonneg :
+  ∀ a b c, (0 ≤ c)%Z → Z.gcd (a * c) (b * c) = (Z.gcd a b * c)%Z.
+Proof.
+intros * Hzc.
+destruct
+...
+
+(* end gcd *)
 
 Theorem divide_div_mul_exact :
   ∀ a b c, b ≠ 0%Z → (b | a)%Z → (c * a / b)%Z = (c * (a / b))%Z.
