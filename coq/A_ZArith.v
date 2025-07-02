@@ -521,6 +521,21 @@ Qed.
 Theorem mul_1_r : ∀ a, (a * 1)%Z = a.
 Proof. intros; rewrite Z.mul_comm; apply Z.mul_1_l. Qed.
 
+Theorem mul_opp_l : ∀ a b, (- a * b)%Z = (- (a * b))%Z.
+Proof.
+intros.
+destruct a as [| sa va]; [ easy | ].
+destruct b as [| sb vb]; [ easy | cbn ].
+now destruct sa, sb.
+Qed.
+
+Theorem mul_opp_r : ∀ a b, (a * - b)%Z = (- (a * b))%Z.
+Proof.
+intros.
+do 2 rewrite (Z.mul_comm a).
+apply Z.mul_opp_l.
+Qed.
+
 Theorem mul_add_distr_l : ∀ a b c, (a * (b + c))%Z = (a * b + a * c)%Z.
 Proof.
 intros.
@@ -575,6 +590,22 @@ intros.
 rewrite Z.mul_comm.
 do 2 rewrite (Z.mul_comm _ c).
 apply Z.mul_add_distr_l.
+Qed.
+
+Theorem mul_sub_distr_l : ∀ a b c, (a * (b - c))%Z = (a * b - a * c)%Z.
+Proof.
+intros.
+progress unfold Z.sub.
+rewrite <- Z.mul_opp_r.
+apply Z.mul_add_distr_l.
+Qed.
+
+Theorem mul_sub_distr_r : ∀ a b c, ((a - b) * c)%Z = (a * c - b * c)%Z.
+Proof.
+intros.
+rewrite Z.mul_comm.
+do 2 rewrite (Z.mul_comm _ c).
+apply Z.mul_sub_distr_l.
 Qed.
 
 Theorem add_opp_diag_l : ∀ a : Z, (- a + a)%Z = 0%Z.
@@ -1308,21 +1339,6 @@ do 2 rewrite (Z.add_comm _ d).
 now apply Z.add_le_mono_l.
 Qed.
 
-Theorem mul_opp_l : ∀ a b, (- a * b)%Z = (- (a * b))%Z.
-Proof.
-intros.
-destruct a as [| sa va]; [ easy | ].
-destruct b as [| sb vb]; [ easy | cbn ].
-now destruct sa, sb.
-Qed.
-
-Theorem mul_opp_r : ∀ a b, (a * - b)%Z = (- (a * b))%Z.
-Proof.
-intros.
-do 2 rewrite (Z.mul_comm a).
-apply Z.mul_opp_l.
-Qed.
-
 Theorem mul_le_compat_nonneg :
   ∀ a b c d, (0 ≤ a ≤ c)%Z → (0 ≤ b ≤ d)%Z → (a * b ≤ c * d)%Z.
 Proof.
@@ -1913,6 +1929,18 @@ progress unfold Z.max.
 now destruct (Z.le_dec a b).
 Qed.
 
+Theorem min_comm : ∀ a b, Z.min a b = Z.min b a.
+Proof.
+intros.
+progress unfold Z.min.
+destruct (Z.le_dec a b) as [Hab| Hab]. {
+  destruct (Z.le_dec b a) as [Hba| Hba]; [ now apply Z.le_antisymm | easy ].
+}
+destruct (Z.le_dec b a) as [Hba| Hba]; [ easy | ].
+apply Z.nle_gt in Hab, Hba.
+now apply Z.lt_asymm in Hab.
+Qed.
+
 (* gcd *)
 
 Definition gcd a b :=
@@ -2365,6 +2393,15 @@ cbn.
 progress f_equal.
 apply Nat.Div0.div_mul_cancel_l.
 now rewrite Nat.add_1_r.
+Qed.
+
+Theorem abs_0_iff: ∀ a, Z.abs a = 0%Z ↔ a = 0%Z.
+Proof.
+intros.
+split; intros H; [ | now subst ].
+progress unfold Z.abs in H.
+destruct a as [| sa va]; [ easy | exfalso ].
+now rewrite Z.pos_nat in H.
 Qed.
 
 End Z.

@@ -154,23 +154,14 @@ rewrite Z.div_mul_cancel_l; [ | easy | ]. {
     revert H; apply Pos2Z_ne_0.
   }
   intros H.
-Search (Z.abs _ = 0)%Z.
-...
-Z.abs_0_iff: ∀ n : Z, Z.abs n = 0%Z ↔ n = 0%Z
-...
-  apply -> Z.abs_0_iff in H.
-    apply Z.gcd_eq_0_r in H.
-    revert H; apply Pos2Z_ne_0.
-  }
-...
-  apply Pos2Z_ne_0.
-} {
-  intros H.
   apply -> Z.abs_0_iff in H.
   apply Z.gcd_eq_0_r in H.
-  revert H; apply Pos2Z_ne_0.
+  easy.
 }
-apply Pos2Z_ne_0.
+intros H.
+apply -> Z.abs_0_iff in H.
+apply Z.gcd_eq_0_r in H.
+easy.
 Qed.
 
 Theorem ps_adjust_eq : ∀ ps n k, (ps = adjust_ps n k ps)%ps.
@@ -188,8 +179,8 @@ Definition adjust_series α {R : ring α} n k s :=
 Definition ps_terms_add α {R : ring α} (ps₁ ps₂ : puiseux_series α) :=
   let k₁ := cm_factor ps₁ ps₂ in
   let k₂ := cm_factor ps₂ ps₁ in
-  let v₁ := (ps_ordnum ps₁ * Zpos k₁)%Z in
-  let v₂ := (ps_ordnum ps₂ * Zpos k₂)%Z in
+  let v₁ := (ps_ordnum ps₁ * z_pos k₁)%Z in
+  let v₂ := (ps_ordnum ps₂ * z_pos k₂)%Z in
   let n₁ := Z.to_nat (v₁ - Z.min v₁ v₂) in
   let n₂ := Z.to_nat (v₂ - Z.min v₂ v₁) in
   let s₁ := adjust_series n₁ k₁ (ps_terms ps₁) in
@@ -199,8 +190,8 @@ Definition ps_terms_add α {R : ring α} (ps₁ ps₂ : puiseux_series α) :=
 Definition ps_ordnum_add α (ps₁ ps₂ : puiseux_series α) :=
   let k₁ := cm_factor ps₁ ps₂ in
   let k₂ := cm_factor ps₂ ps₁ in
-  let v₁ := (ps_ordnum ps₁ * Zpos k₁)%Z in
-  let v₂ := (ps_ordnum ps₂ * Zpos k₂)%Z in
+  let v₁ := (ps_ordnum ps₁ * z_pos k₁)%Z in
+  let v₂ := (ps_ordnum ps₂ * z_pos k₂)%Z in
   Z.min v₁ v₂.
 
 Definition ps_add {α} {r : ring α} (ps₁ ps₂ : puiseux_series α) :=
@@ -219,8 +210,8 @@ Definition adjusted_ps_add α {R : ring α} ps₁ ps₂ :=
 Definition adjust_ps_from α {R : ring α} (ps₁ ps₂ : puiseux_series α) :=
   let k₁ := ps_polydo ps₂ in
   let k₂ := ps_polydo ps₁ in
-  let v₁ := (ps_ordnum ps₁ * Zpos k₁)%Z in
-  let v₂ := (ps_ordnum ps₂ * Zpos k₂)%Z in
+  let v₁ := (ps_ordnum ps₁ * z_pos k₁)%Z in
+  let v₂ := (ps_ordnum ps₂ * z_pos k₂)%Z in
   adjust_ps (Z.to_nat (v₂ - Z.min v₁ v₂)) k₂ ps₂.
 
 Definition ps_add₂ {α} {r : ring α} (ps₁ ps₂ : puiseux_series α) :=
@@ -250,7 +241,7 @@ Proof.
 intros kp s₁ s₂.
 constructor; intros i; simpl.
 remember (Pos.to_nat kp) as k.
-assert (k ≠ O) as Hk by (subst k; apply Pos2Nat_ne_0).
+assert (k ≠ O) as Hk by now subst k.
 destruct (zerop (i mod k)); [ reflexivity | idtac ].
 rewrite rng_add_0_l; reflexivity.
 Qed.
@@ -320,6 +311,7 @@ do 4 rewrite series_shift_shift.
 do 4 rewrite <- Z2Nat_inj_mul_pos_r.
 do 4 rewrite Z.mul_sub_distr_r.
 do 2 rewrite Pos2Z.inj_mul, Z.mul_assoc.
+...
 rewrite <- Z.mul_min_distr_nonneg_r; [ idtac | apply Pos2Z.is_nonneg ].
 rewrite <- Z.mul_min_distr_nonneg_r; [ idtac | apply Pos2Z.is_nonneg ].
 rewrite <- Z.mul_min_distr_nonneg_r; [ idtac | apply Pos2Z.is_nonneg ].
