@@ -1,7 +1,8 @@
 (* Ps_add_compat.v *)
 
-From Stdlib Require Import Utf8 Arith ZArith.
+From Stdlib Require Import Utf8 Arith.
 
+Require Import A_PosArith A_ZArith.
 Require Import NbarM.
 Require Import Misc.
 Require Import Field2.
@@ -70,21 +71,22 @@ Theorem ps_adjust_adjust : ∀ ps n₁ n₂ k₁ k₂,
 Proof.
 intros ps n₁ n₂ k₁ k₂.
 unfold adjust_ps; simpl.
-constructor; simpl.
- rewrite Z.mul_sub_distr_r.
- rewrite Pos2Z.inj_mul, Z.mul_assoc, Z.mul_shuffle0.
- rewrite <- Z.sub_add_distr; f_equal.
- rewrite Nat2Z.inj_add, Z.add_comm; f_equal.
- rewrite Nat2Z.inj_mul, positive_nat_Z.
- reflexivity.
-
- rewrite Pos.mul_assoc, Pos_mul_mul_swap.
- reflexivity.
-
- rewrite stretch_shift_series_distr.
- rewrite series_shift_shift.
- rewrite series_stretch_stretch.
- reflexivity.
+constructor; simpl. {
+  rewrite Z.mul_sub_distr_r.
+  rewrite Pos2Z.inj_mul, Z.mul_assoc, Z.mul_mul_swap.
+  rewrite <- Z.sub_add_distr; f_equal.
+  rewrite Nat2Z.inj_add, Z.add_comm; f_equal.
+  rewrite Nat2Z.inj_mul, Z.pos_nat.
+  reflexivity.
+} {
+  rewrite Pos.mul_assoc, Pos.mul_mul_swap.
+  reflexivity.
+} {
+  rewrite stretch_shift_series_distr.
+  rewrite series_shift_shift.
+  rewrite series_stretch_stretch.
+  reflexivity.
+}
 Qed.
 
 Theorem ps_adjust_adjusted : ∀ ps₁ ps₂ n k,
@@ -114,16 +116,16 @@ do 2 rewrite stretch_shift_series_distr.
 do 3 rewrite <- series_stretch_stretch.
 do 2 rewrite <- Z2Nat_inj_mul_pos_r.
 do 2 rewrite Z.mul_sub_distr_r.
-rewrite <- Z.mul_min_distr_nonneg_r; [ idtac | apply Pos2Z.is_nonneg ].
-rewrite <- Z.mul_min_distr_nonneg_r; [ idtac | apply Pos2Z.is_nonneg ].
+rewrite <- Z.mul_min_distr_nonneg_r; [ idtac | easy ].
+rewrite <- Z.mul_min_distr_nonneg_r; [ idtac | easy ].
 rewrite Pos2Z.inj_mul.
 rewrite Z.mul_assoc.
-remember (ps_ordnum ps₁ * Zpos (ps_polydo ps₂) * Zpos k)%Z as x eqn:Hx .
-rewrite Z.mul_shuffle0 in Hx; rewrite <- Hx.
+remember (ps_ordnum ps₁ * z_pos (ps_polydo ps₂) * z_pos k)%Z as x eqn:Hx .
+rewrite Z.mul_mul_swap in Hx; rewrite <- Hx.
 rewrite Pos.mul_comm.
-remember (k * ps_polydo ps₁)%positive as y eqn:Hy .
+remember (k * ps_polydo ps₁)%pos as y eqn:Hy .
 rewrite Pos.mul_comm in Hy; rewrite <- Hy.
-rewrite Pos_mul_mul_swap, <- Hy.
+rewrite Pos.mul_mul_swap, <- Hy.
 reflexivity.
 Qed.
 
@@ -145,19 +147,20 @@ destruct x as [x| ]; [ simpl | reflexivity ].
 constructor; simpl.
  rewrite Z.mul_1_r.
  rewrite Nat2Z.inj_add.
- rewrite Z.sub_add_simpl_r_r.
- f_equal.
- rewrite series_stretch_1.
- remember (series_add (ps_terms ps₁) (ps_terms ps₂)) as s.
- symmetry in Heqx.
- apply series_order_iff in Heqx.
- simpl in Heqx.
- destruct Heqx as (Hz, Hnz).
- unfold gcd_ps.
- simpl.
- rewrite Z.mul_1_r.
- rewrite Nat2Z.inj_add.
- rewrite Z.sub_add_simpl_r_r.
+ rewrite (Z.add_comm (Z.of_nat x)), Z.add_assoc, Z.sub_add.
+ f_equal. {
+   rewrite series_stretch_1.
+   remember (series_add (ps_terms ps₁) (ps_terms ps₂)) as s.
+   symmetry in Heqx.
+   apply series_order_iff in Heqx.
+   simpl in Heqx.
+   destruct Heqx as (Hz, Hnz).
+   progress unfold gcd_ps.
+   simpl.
+   rewrite Z.mul_1_r.
+   rewrite Nat2Z.inj_add.
+...
+   rewrite Z.sub_add_simpl_r_r.
  rewrite Pos.mul_1_r.
  rewrite greatest_series_x_power_shift.
  reflexivity.
