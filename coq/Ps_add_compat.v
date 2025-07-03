@@ -373,16 +373,17 @@ unfold adjust_ps; simpl.
 remember (greatest_series_x_power K (ps_terms ps) len₁) as k₁.
 remember (gcd_ps len₁ k₁ ps) as g.
 symmetry in Heqg.
-...
-destruct g as [| g| g]; simpl.
- unfold gcd_ps in Heqg.
- rewrite Z.gcd_comm, Z.gcd_assoc in Heqg.
- apply Z.gcd_eq_0_r in Heqg.
- exfalso; revert Heqg; apply Pos2Z_ne_0.
-
- exists len₁, g.
- constructor; simpl.
+destruct g as [| sg vg]; simpl. {
   unfold gcd_ps in Heqg.
+  rewrite Z.gcd_comm, Z.gcd_assoc in Heqg.
+  apply Z.gcd_eq_0_r in Heqg.
+  exfalso; revert Heqg; apply Pos2Z_ne_0.
+}
+destruct sg. {
+  exists len₁, vg.
+  constructor; simpl. {
+    unfold gcd_ps in Heqg.
+...
   remember (ps_ordnum ps + Z.of_nat len₁)%Z as v.
   remember (z_pos (ps_polydo ps))%Z as c.
   pose proof (Z.gcd_divide_l (Z.gcd v c) (Z.of_nat k₁)) as H₁.
