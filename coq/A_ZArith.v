@@ -2009,6 +2009,21 @@ apply Z.lt_le_incl.
 now transitivity b.
 Qed.
 
+Theorem le_max_l : ∀ a b, (a ≤ Z.max a b)%Z.
+Proof.
+intros.
+progress unfold Z.max.
+destruct (Z.le_dec a b) as [Hab| Hab]; [ easy | apply Z.le_refl ].
+Qed.
+
+Theorem le_max_r : ∀ a b, (b ≤ Z.max a b)%Z.
+Proof.
+intros.
+progress unfold Z.max.
+destruct (Z.le_dec a b) as [Hab| Hab]; [ apply Z.le_refl | ].
+now apply Z.nle_gt, Z.lt_le_incl in Hab.
+Qed.
+
 Theorem opp_inj : ∀ a b, (- a)%Z = (- b)%Z → a = b.
 Proof.
 intros * H.

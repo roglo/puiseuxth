@@ -1,8 +1,8 @@
 (* Ps_add.v *)
 
-From Stdlib Require Import Utf8 Arith.
+From Stdlib Require Import Utf8 Arith Morphisms.
 
-Require Import A_PosArith A_ZArith.
+Require Import A_PosArith A_ZArith A_QArith.
 Require Import NbarM.
 Require Import Misc.
 Require Import Field2.
@@ -509,14 +509,13 @@ constructor; [ simpl | reflexivity | simpl ]. {
   }
   rewrite <- Z.sub_max_distr_l.
   rewrite Z.sub_diag.
-...
   apply Z.le_max_r.
 }
 unfold ps_terms_add.
 unfold adjust_series.
 unfold cm_factor.
-remember (ps_ordnum ps₂ * Zpos (ps_polydo ps₁))%Z as vc₂₁.
-remember (ps_ordnum ps₁ * Zpos (ps_polydo ps₂))%Z as vc₁₂.
+remember (ps_ordnum ps₂ * z_pos (ps_polydo ps₁))%Z as vc₂₁.
+remember (ps_ordnum ps₁ * z_pos (ps_polydo ps₂))%Z as vc₁₂.
 remember (Z.min vc₁₂ vc₂₁) as m eqn:Hm .
 rewrite Z.min_comm, <- Hm.
 reflexivity.
@@ -545,7 +544,7 @@ unfold ps_add; simpl.
 unfold cm; simpl.
 unfold ps_ordnum_add; simpl.
 unfold ps_terms_add; simpl.
-rewrite ps_adjust_eq with (n := O) (k := Qden n).
+rewrite ps_adjust_eq with (n := O) (k := q_den n).
 unfold adjust_ps; simpl.
 rewrite Z.sub_0_r.
 rewrite Z.min_id.
@@ -555,11 +554,11 @@ rewrite Z.sub_diag; simpl.
 unfold adjust_series; simpl.
 do 2 rewrite series_shift_0.
 constructor; intros i; simpl.
-destruct (zerop (i mod Pos.to_nat (Qden n))) as [H₁| H₁]. {
+destruct (zerop (i mod Pos.to_nat (q_den n))) as [H₁| H₁]. {
   apply Nat.Div0.mod_divides in H₁.
   destruct H₁ as (c, Hc).
   rewrite Nat.mul_comm in Hc; rewrite Hc.
-  rewrite Nat.div_mul; [ idtac | apply Pos2Nat_ne_0 ].
+  rewrite Nat.div_mul; [ idtac | easy ].
   destruct c; [ reflexivity | simpl ].
   rewrite rng_add_0_l; reflexivity.
 }
