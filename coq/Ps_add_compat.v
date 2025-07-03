@@ -205,10 +205,9 @@ Proof.
 intros ps₁ ps₂ n n₁ n₂ k₁ k₂.
 replace (n + n₁)%nat with (n + n₁ * Pos.to_nat 1)%nat .
  replace (n + n₂)%nat with (n + n₂ * Pos.to_nat 1)%nat .
-...
-  replace k₁ with (1 * k₁)%pos by reflexivity.
+  replace k₁ with (1 * k₁)%pos by now rewrite Pos.mul_1_l.
   rewrite <- ps_adjust_adjust.
-  replace k₂ with (1 * k₂)%pos by reflexivity.
+  replace k₂ with (1 * k₂)%pos by now rewrite Pos.mul_1_l.
   rewrite <- ps_adjust_adjust.
   do 2 rewrite Pos.mul_1_l.
   rewrite normalise_ps_adjust; reflexivity.
@@ -243,6 +242,7 @@ do 2 rewrite <- Z2Nat_inj_mul_pos_r.
 rewrite <- Z2Nat.inj_add.
  rewrite <- Z2Nat.inj_add.
   do 2 rewrite <- Z.sub_add_distr.
+...
   do 2 rewrite <- Z.add_sub_swap.
   do 2 rewrite Z.sub_add_distr.
   do 2 rewrite Z.add_simpl_r.
