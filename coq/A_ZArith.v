@@ -2009,19 +2009,34 @@ apply Z.lt_le_incl.
 now transitivity b.
 Qed.
 
-Theorem opp_max_distr: ∀ a b, (- Z.max a b)%Z = Z.min (- a) (- b).
+Theorem opp_inj : ∀ a b, (- a)%Z = (- b)%Z → a = b.
+Proof.
+intros * H.
+apply (f_equal Z.opp) in H.
+now do 2 rewrite Z.opp_involutive in H.
+Qed.
+
+Theorem opp_min_distr : ∀ a b, (- Z.min a b)%Z = Z.max (- a) (- b).
 Proof.
 intros.
 progress unfold Z.max, Z.min.
 destruct (Z.le_dec a b) as [Hab| Hab]. {
   destruct (Z.le_dec (- a) (- b)) as [Hab'| Hab']; [ | easy ].
-  apply Z.le_antisymm; [ | easy ].
+  apply Z.le_antisymm; [ easy | ].
   now apply -> Z.opp_le_compat.
 }
 destruct (Z.le_dec (- a) (- b)) as [Hab'| Hab']; [ easy | ].
 apply Z.nle_gt in Hab, Hab'.
 apply Z.opp_lt_compat in Hab'.
 now apply Z.lt_asymm in Hab.
+Qed.
+
+Theorem opp_max_distr : ∀ a b, (- Z.max a b)%Z = Z.min (- a) (- b).
+Proof.
+intros.
+apply Z.opp_inj.
+rewrite Z.opp_min_distr.
+now do 3 rewrite Z.opp_involutive.
 Qed.
 
 Theorem add_min_distr_l : ∀ a b c, Z.min (a + b) (a + c) = (a + Z.min b c)%Z.
@@ -2044,6 +2059,30 @@ progress unfold Z.sub.
 rewrite Z.add_min_distr_l.
 f_equal.
 symmetry; apply Z.opp_max_distr.
+Qed.
+
+Theorem add_max_distr_l :
+  ∀ a b c, Z.max (a + b) (a + c) = (a + Z.max b c)%Z.
+Proof.
+intros.
+progress unfold Z.max.
+destruct (Z.le_dec b c) as [Hbc| Hbc]. {
+  destruct (Z.le_dec (a + b) (a + c)) as [Habc| Habc]; [ easy | ].
+  exfalso; apply Habc; clear Habc.
+  now apply Z.add_le_mono_l.
+}
+destruct (Z.le_dec (a + b) (a + c)) as [Habc| Habc]; [ | easy ].
+now apply Z.add_le_mono_l in Habc.
+Qed.
+
+Theorem sub_max_distr_l :
+  ∀ a b c, Z.max (a - b) (a - c) = (a - Z.min b c)%Z.
+Proof.
+intros.
+progress unfold Z.sub.
+rewrite Z.add_max_distr_l.
+f_equal.
+symmetry; apply Z.opp_min_distr.
 Qed.
 
 Theorem mul_min_distr_nonneg_l :

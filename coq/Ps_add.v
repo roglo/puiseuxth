@@ -507,9 +507,9 @@ constructor; [ simpl | reflexivity | simpl ]. {
     rewrite Z.sub_diag; simpl.
     apply Z.min_comm.
   }
-...
   rewrite <- Z.sub_max_distr_l.
   rewrite Z.sub_diag.
+...
   apply Z.le_max_r.
 }
 unfold ps_terms_add.
