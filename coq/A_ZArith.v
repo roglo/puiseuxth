@@ -2725,6 +2725,38 @@ simpl.
 apply Pos2Nat.inj_add.
 Qed.
 
+Theorem inj_sub :
+  ∀ a b,
+  (0 ≤ b)%Z
+  → Z.to_nat (a - b) = Z.to_nat a - Z.to_nat b.
+Proof.
+intros * Hzb.
+destruct a as [| sa va]. {
+  destruct b as [| sb vb]; [ easy | now destruct sb ].
+}
+destruct b as [| sb vb]. {
+  now rewrite Z.sub_0_r, Nat.sub_0_r.
+}
+destruct sb; [ cbn | easy ].
+destruct sa; [ | easy ].
+remember (va ?= vb)%pos as vab eqn:Hvab.
+symmetry in Hvab; symmetry.
+destruct vab. {
+  apply Pos.compare_eq_iff in Hvab; subst.
+  now rewrite Nat.sub_diag.
+} {
+  apply Pos.compare_lt_iff in Hvab.
+  apply Nat.sub_0_le.
+  progress unfold Pos.to_nat.
+  now apply Nat.add_le_mono_r, Nat.lt_le_incl.
+} {
+  apply Pos.compare_gt_iff in Hvab; cbn.
+  progress unfold Pos.lt in Hvab.
+  progress unfold Pos.to_nat.
+  flia Hvab.
+}
+Qed.
+
 Theorem inj_mul :
   ∀ a b,
   (0 ≤ a)%Z

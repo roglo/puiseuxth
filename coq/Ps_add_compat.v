@@ -265,11 +265,11 @@ rewrite <- Z2Nat.inj_add.
   rewrite Z.add_sub_swap.
   rewrite <- Z.sub_sub_distr.
   symmetry.
-...
   rewrite Z2Nat.inj_sub.
    symmetry.
    rewrite Z2Nat.inj_sub.
     rewrite Z.add_comm.
+...
     destruct (Z_le_dec vc₁ vc₂) as [H₁| H₁].
      rewrite Z2Nat.inj_add.
       rewrite Z.add_comm.
