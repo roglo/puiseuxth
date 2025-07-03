@@ -1839,6 +1839,16 @@ destruct b as [| sb vb]; [ now destruct sa | cbn ].
 now destruct sa, sb.
 Qed.
 
+Theorem opp_lt_compat : ∀ a b, (a < b ↔ - b < - a)%Z.
+Proof.
+intros.
+destruct a as [| sa va]. {
+  destruct b as [| sb vb]; [ easy | now destruct sb ].
+}
+destruct b as [| sb vb]; [ now destruct sa | cbn ].
+now destruct sa, sb.
+Qed.
+
 Theorem sub_0_r : ∀ a, (a - 0 = a)%Z.
 Proof. intros; apply Z.add_0_r. Qed.
 
@@ -1864,6 +1874,31 @@ Proof.
 intros.
 progress unfold Z.lt.
 now rewrite Z.compare_0_sub.
+Qed.
+
+Theorem sub_opp_r : ∀ a b, (a - - b)%Z = (a + b)%Z.
+Proof.
+intros.
+progress unfold Z.sub.
+progress f_equal.
+apply Z.opp_involutive.
+Qed.
+
+Theorem sub_add_distr : ∀ a b c, (a - (b + c))%Z = (a - b - c)%Z.
+Proof.
+intros.
+progress unfold Z.sub.
+rewrite Z.opp_add_distr.
+progress unfold Z.sub.
+apply Z.add_assoc.
+Qed.
+
+Theorem sub_sub_distr : ∀ a b c, (a - (b - c))%Z = (a - b + c)%Z.
+Proof.
+intros.
+progress unfold Z.sub at 2.
+rewrite Z.sub_add_distr.
+now rewrite Z.sub_opp_r.
 Qed.
 
 Theorem abs_nonneg : ∀ a, (0 ≤ Z.abs a)%Z.
@@ -1972,6 +2007,43 @@ apply Z.le_antisymm; [ easy | ].
 apply Z.nle_gt in Hab, Hbc.
 apply Z.lt_le_incl.
 now transitivity b.
+Qed.
+
+Theorem opp_max_distr: ∀ a b, (- Z.max a b)%Z = Z.min (- a) (- b).
+Proof.
+intros.
+progress unfold Z.max, Z.min.
+destruct (Z.le_dec a b) as [Hab| Hab]. {
+  destruct (Z.le_dec (- a) (- b)) as [Hab'| Hab']; [ | easy ].
+  apply Z.le_antisymm; [ | easy ].
+  now apply -> Z.opp_le_compat.
+}
+destruct (Z.le_dec (- a) (- b)) as [Hab'| Hab']; [ easy | ].
+apply Z.nle_gt in Hab, Hab'.
+apply Z.opp_lt_compat in Hab'.
+now apply Z.lt_asymm in Hab.
+Qed.
+
+Theorem add_min_distr_l : ∀ a b c, Z.min (a + b) (a + c) = (a + Z.min b c)%Z.
+Proof.
+intros.
+progress unfold Z.min.
+destruct (Z.le_dec b c) as [Hbc| Hbc]. {
+  destruct (Z.le_dec (a + b) (a + c)) as [Habc| Habc]; [ easy | ].
+  exfalso; apply Habc; clear Habc.
+  now apply Z.add_le_mono_l.
+}
+destruct (Z.le_dec (a + b) (a + c)) as [Habc| Habc]; [ | easy ].
+now apply Z.add_le_mono_l in Habc.
+Qed.
+
+Theorem sub_min_distr_l : ∀ n m p, Z.min (p - n) (p - m) = (p - Z.max n m)%Z.
+Proof.
+intros.
+progress unfold Z.sub.
+rewrite Z.add_min_distr_l.
+f_equal.
+symmetry; apply Z.opp_max_distr.
 Qed.
 
 Theorem mul_min_distr_nonneg_l :

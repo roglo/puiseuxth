@@ -426,9 +426,9 @@ unfold adjust_ps; simpl.
 rewrite Pos.mul_1_r, Z.mul_1_r.
 rewrite series_stretch_1.
 rewrite Z2Nat_id_max.
-...
 rewrite <- Z.sub_min_distr_l.
 rewrite Z.sub_0_r, Z.sub_diag, Z.min_comm.
+rewrite Pos.mul_1_l.
 reflexivity.
 Qed.
 
@@ -455,28 +455,30 @@ unfold ps_ordnum_add; simpl.
 unfold cm_factor, cm; simpl.
 rewrite Z.min_id.
 symmetry.
-remember (ps_polydo ps * ps_polydo ps)%positive as k eqn:Hk .
+remember (ps_polydo ps * ps_polydo ps)%pos as k eqn:Hk .
 rewrite ps_normal_adjust_eq with (n := O) (k := k); subst k.
 unfold adjust_ps; simpl.
 rewrite series_shift_0.
 rewrite series_stretch_series_0.
 remember (ps_ordnum ps) as v eqn:Hv .
 symmetry in Hv.
-destruct v as [| v| v]; [ reflexivity | | ]. {
+destruct v as [| sv vv]; [ now cbn; rewrite Pos.mul_1_l | ].
+rewrite Pos.mul_1_l.
+destruct sv. {
   symmetry.
-  remember (Z.to_nat (ps_ordnum ps * Zpos (ps_polydo ps))) as n.
-  rewrite ps_normal_adjust_eq with (n := n) (k := xH); subst n.
+  remember (Z.to_nat (ps_ordnum ps * z_pos (ps_polydo ps))) as n.
+  rewrite ps_normal_adjust_eq with (n := n) (k := 1%pos); subst n.
   unfold adjust_ps.
   remember Z.sub as g; simpl; subst g.
   rewrite series_stretch_series_0.
   rewrite series_shift_series_0.
   do 2 rewrite Pos.mul_1_r.
   rewrite Hv.
-  rewrite Z2Nat.id; [ idtac | apply Pos2Z.is_nonneg ].
+  rewrite Z2Nat.id; [ idtac | easy ].
   rewrite Z.sub_diag; reflexivity.
 } {
-  remember (Z.to_nat (Zpos v * Zpos (ps_polydo ps))) as n.
-  rewrite ps_normal_adjust_eq with (n := n) (k := xH); subst n.
+  remember (Z.to_nat (z_pos vv * z_pos (ps_polydo ps))) as n.
+  rewrite ps_normal_adjust_eq with (n := n) (k := 1%pos); subst n.
   unfold adjust_ps.
   remember Z.sub as g; simpl; subst g.
   rewrite series_stretch_series_0.
@@ -505,6 +507,7 @@ constructor; [ simpl | reflexivity | simpl ]. {
     rewrite Z.sub_diag; simpl.
     apply Z.min_comm.
   }
+...
   rewrite <- Z.sub_max_distr_l.
   rewrite Z.sub_diag.
   apply Z.le_max_r.
