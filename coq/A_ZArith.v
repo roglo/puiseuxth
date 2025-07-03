@@ -1272,6 +1272,13 @@ progress unfold Z.lt.
 now rewrite Z.compare_sub_mono_r.
 Qed.
 
+Theorem le_0_sub : ∀ a b, (0 ≤ a - b)%Z ↔ (b ≤ a)%Z.
+Proof.
+intros.
+specialize (Z.sub_le_mono_r b a b) as H1.
+now rewrite Z.sub_diag in H1.
+Qed.
+
 Theorem compare_mul_mono_pos_l :
   ∀ a b c, (0 < a)%Z → (a * b ?= a * c)%Z = (b ?= c)%Z.
 Proof.
