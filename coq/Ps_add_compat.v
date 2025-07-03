@@ -239,63 +239,61 @@ do 2 rewrite Z.mul_sub_distr_r.
 replace n with (Z.to_nat nn) by (rewrite Heqnn, Nat2Z.id; reflexivity).
 replace m with (Z.to_nat mm) by (rewrite Heqmm, Nat2Z.id; reflexivity).
 do 2 rewrite <- Z2Nat_inj_mul_pos_r.
-rewrite <- Z2Nat.inj_add.
- rewrite <- Z2Nat.inj_add.
-  do 2 rewrite <- Z.sub_add_distr.
-  do 2 rewrite <- Z.add_sub_swap.
-  do 2 rewrite Z.sub_add_distr.
-  do 2 rewrite Z.add_sub.
-  rewrite Z.mul_mul_swap.
-  remember (v₁ * z_pos c₂ * z_pos k)%Z as vc₁.
-  remember (v₂ * z_pos c₁ * z_pos k)%Z as vc₂.
-  rewrite <- Z2Nat_sub_min2.
-  rewrite <- Z2Nat_sub_min1.
-  rewrite Z.min_id, Z.sub_diag, Nat.add_0_r.
-  rewrite <- Z2Nat_sub_min2.
-  rewrite <- Z2Nat_sub_min1.
-  rewrite Z.min_id, Z.sub_diag, Nat.add_0_r.
-  do 4 rewrite Z.sub_sub_distr.
-  rewrite Z.add_comm.
-  rewrite Z.add_sub_assoc.
-  rewrite Z.add_sub_swap.
-  rewrite <- Z.sub_sub_distr.
-  symmetry.
-  rewrite Z.add_comm.
-  rewrite Z.add_sub_assoc.
-  rewrite Z.add_sub_swap.
-  rewrite <- Z.sub_sub_distr.
-  symmetry.
-  rewrite Z2Nat.inj_sub.
-   symmetry.
-   rewrite Z2Nat.inj_sub.
+rewrite <- Z2Nat.inj_add. {
+  rewrite <- Z2Nat.inj_add. {
+    do 2 rewrite <- Z.sub_add_distr.
+    do 2 rewrite <- Z.add_sub_swap.
+    do 2 rewrite Z.sub_add_distr.
+    do 2 rewrite Z.add_sub.
+    rewrite Z.mul_mul_swap.
+    progress unfold Z.of_pos.
+    remember (v₁ * z_pos c₂ * z_pos k)%Z as vc₁.
+    remember (v₂ * z_pos c₁ * z_pos k)%Z as vc₂.
+    rewrite <- Z2Nat_sub_min2.
+    rewrite <- Z2Nat_sub_min1.
+    rewrite Z.min_id, Z.sub_diag, Nat.add_0_r.
+    rewrite <- Z2Nat_sub_min2.
+    rewrite <- Z2Nat_sub_min1.
+    rewrite Z.min_id, Z.sub_diag, Nat.add_0_r.
+    do 4 rewrite Z.sub_sub_distr.
     rewrite Z.add_comm.
+    rewrite Z.add_sub_assoc.
+    rewrite Z.add_sub_swap.
+    rewrite <- Z.sub_sub_distr.
+    symmetry.
+    rewrite Z.add_comm.
+    rewrite Z.add_sub_assoc.
+    rewrite Z.add_sub_swap.
+    rewrite <- Z.sub_sub_distr.
+    symmetry.
+    rewrite Z2Nat.inj_sub. {
+      symmetry.
+      rewrite Z2Nat.inj_sub. {
+        rewrite Z.add_comm.
+        destruct (Z.le_dec vc₁ vc₂) as [H₁| H₁]. {
+          rewrite Z2Nat.inj_add. {
+            rewrite Z.add_comm.
+            rewrite Z2Nat.inj_add. {
+              rewrite Z.min_l; [ | easy ].
+              rewrite Z.sub_diag.
+              do 2 rewrite Nat.sub_0_r.
+              rewrite <- Z2Nat_sub_min.
+              rewrite Z.min_l; [ | easy ].
+              rewrite Z.sub_diag, Nat.add_0_r.
+              rewrite Nat.add_0_r.
+              rewrite <- (Nat.add_0_r (Z.to_nat (nn * z_pos c₂))).
+              rewrite <- Nat.add_assoc; simpl.
+              rewrite normalise_ps_adjust_add.
+              rewrite <- (Nat.add_0_r (Z.to_nat (mm * z_pos c₂))).
+              rewrite <- Nat.add_assoc; simpl.
+              rewrite normalise_ps_adjust_add.
+              reflexivity.
+            } {
+              subst mm; simpl.
+              destruct m; [ reflexivity | easy ].
+            }
 ...
-    destruct (Z_le_dec vc₁ vc₂) as [H₁| H₁].
-     rewrite Z2Nat.inj_add.
-      rewrite Z.add_comm.
-      rewrite Z2Nat.inj_add.
-       rewrite Z.min_l; auto.
-       rewrite Z.sub_diag.
-       do 2 rewrite Nat.sub_0_r.
-       rewrite <- Z2Nat_sub_min.
-       rewrite Z.min_l; auto.
-       rewrite Z.sub_diag, Nat.add_0_r.
-       rewrite Nat.add_0_r.
-       replace (Z.to_nat (nn * z_pos c₂)) with
-        (Z.to_nat (nn * z_pos c₂) + 0)%nat by fast_omega.
-       rewrite <- Nat.add_assoc; simpl.
-       rewrite normalise_ps_adjust_add.
-       replace (Z.to_nat (mm * z_pos c₂)) with
-        (Z.to_nat (mm * z_pos c₂) + 0)%nat by fast_omega.
-       rewrite <- Nat.add_assoc; simpl.
-       rewrite normalise_ps_adjust_add.
-       reflexivity.
-
-       subst mm; simpl.
-       destruct m; [ reflexivity | simpl ].
-       apply Pos2Z.is_nonneg.
-
-       apply Zle_minus_le_0; assumption.
+            apply Zle_minus_le_0; assumption.
 
       subst nn; simpl.
       destruct n; [ reflexivity | simpl ].

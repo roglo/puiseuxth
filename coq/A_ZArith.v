@@ -908,7 +908,16 @@ intros H; subst.
 now apply Z.lt_asymm in Hab.
 Qed.
 
+Theorem le_refl : ∀ a, (a ≤ a)%Z.
+Proof.
+intros a.
+destruct a as [| sa va]; [ easy | ].
+progress unfold Z.le; cbn.
+now destruct sa; apply Nat.compare_le_iff.
+Qed.
+
 Add Parametric Relation : _ Z.le
+  reflexivity proved by Z.le_refl
   transitivity proved by Z.le_trans
 as le_rel.
 
@@ -1691,14 +1700,6 @@ Proof.
 intros * Haz Habc.
 do 2 rewrite (mul_comm _ c) in Habc.
 now apply mul_cancel_l in Habc.
-Qed.
-
-Theorem le_refl : ∀ a, (a ≤ a)%Z.
-Proof.
-intros a.
-destruct a as [| sa va]; [ easy | ].
-progress unfold Z.le; cbn.
-now destruct sa; apply Nat.compare_le_iff.
 Qed.
 
 Theorem mul_nonneg_nonneg : ∀ a b, (0 ≤ a → 0 ≤ b → 0 ≤ a * b)%Z.
