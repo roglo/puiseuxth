@@ -144,53 +144,52 @@ remember
     0)%Nbar as x.
 rewrite Nbar.add_comm.
 destruct x as [x| ]; [ simpl | reflexivity ].
-constructor; simpl.
- rewrite Z.mul_1_r.
- rewrite Nat2Z.inj_add.
- rewrite (Z.add_comm (Z.of_nat x)), Z.add_assoc, Z.sub_add.
- f_equal. {
-   rewrite series_stretch_1.
-   remember (series_add (ps_terms ps₁) (ps_terms ps₂)) as s.
-   symmetry in Heqx.
-   apply series_order_iff in Heqx.
-   simpl in Heqx.
-   destruct Heqx as (Hz, Hnz).
-   progress unfold gcd_ps.
-   simpl.
-   rewrite Z.mul_1_r.
-   rewrite Nat2Z.inj_add.
-...
-   rewrite Z.sub_add_simpl_r_r.
- rewrite Pos.mul_1_r.
- rewrite greatest_series_x_power_shift.
- reflexivity.
-
- rewrite Pos.mul_1_r.
- f_equal.
- f_equal.
- rewrite series_stretch_1.
- remember (series_add (ps_terms ps₁) (ps_terms ps₂)) as s.
- symmetry in Heqx.
- unfold gcd_ps.
- simpl.
- rewrite Z.mul_1_r.
- rewrite Pos.mul_1_r.
- rewrite Nat2Z.inj_add.
- rewrite Z.sub_add_simpl_r_r.
- rewrite greatest_series_x_power_shift.
- reflexivity.
-
- rewrite series_stretch_1.
- rewrite normalise_series_add_shift.
- remember (series_add (ps_terms ps₁) (ps_terms ps₂)) as s.
- unfold gcd_ps.
- simpl.
- rewrite Z.mul_1_r.
- rewrite Pos.mul_1_r.
- rewrite Nat2Z.inj_add.
- rewrite Z.sub_add_simpl_r_r.
- rewrite greatest_series_x_power_shift.
- reflexivity.
+constructor; simpl. {
+  rewrite Z.mul_1_r.
+  rewrite Nat2Z.inj_add.
+  rewrite (Z.add_comm (Z.of_nat x)), Z.add_assoc, Z.sub_add.
+  rewrite series_stretch_1.
+  remember (series_add (ps_terms ps₁) (ps_terms ps₂)) as s.
+  symmetry in Heqx.
+  apply series_order_iff in Heqx.
+  simpl in Heqx.
+  destruct Heqx as (Hz, Hnz).
+  progress unfold gcd_ps.
+  simpl.
+  rewrite Z.mul_1_r.
+  rewrite Nat2Z.inj_add.
+  rewrite (Z.add_comm (Z.of_nat x)), Z.add_assoc, Z.sub_add.
+  rewrite Pos.mul_1_r.
+  rewrite greatest_series_x_power_shift.
+  reflexivity.
+} {
+  rewrite Pos.mul_1_r.
+  f_equal.
+  f_equal.
+  rewrite series_stretch_1.
+  remember (series_add (ps_terms ps₁) (ps_terms ps₂)) as s.
+  symmetry in Heqx.
+  unfold gcd_ps.
+  simpl.
+  rewrite Z.mul_1_r.
+  rewrite Pos.mul_1_r.
+  rewrite Nat2Z.inj_add.
+  rewrite (Z.add_comm (Z.of_nat x)), Z.add_assoc, Z.sub_add.
+  rewrite greatest_series_x_power_shift.
+  reflexivity.
+} {
+  rewrite series_stretch_1.
+  rewrite normalise_series_add_shift.
+  remember (series_add (ps_terms ps₁) (ps_terms ps₂)) as s.
+  unfold gcd_ps.
+  simpl.
+  rewrite Z.mul_1_r.
+  rewrite Pos.mul_1_r.
+  rewrite Nat2Z.inj_add.
+  rewrite (Z.add_comm (Z.of_nat x)), Z.add_assoc, Z.sub_add.
+  rewrite greatest_series_x_power_shift.
+  reflexivity.
+}
 Qed.
 
 Theorem normalise_ps_adjust_add : ∀ ps₁ ps₂ n n₁ n₂ k₁ k₂,
@@ -206,9 +205,10 @@ Proof.
 intros ps₁ ps₂ n n₁ n₂ k₁ k₂.
 replace (n + n₁)%nat with (n + n₁ * Pos.to_nat 1)%nat .
  replace (n + n₂)%nat with (n + n₂ * Pos.to_nat 1)%nat .
-  replace k₁ with (1 * k₁)%positive by reflexivity.
+...
+  replace k₁ with (1 * k₁)%pos by reflexivity.
   rewrite <- ps_adjust_adjust.
-  replace k₂ with (1 * k₂)%positive by reflexivity.
+  replace k₂ with (1 * k₂)%pos by reflexivity.
   rewrite <- ps_adjust_adjust.
   do 2 rewrite Pos.mul_1_l.
   rewrite normalise_ps_adjust; reflexivity.
