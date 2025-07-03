@@ -780,6 +780,13 @@ progress unfold Z.sub.
 apply Z.add_assoc.
 Qed.
 
+Theorem add_sub_swap : ∀ a b c, (a + b - c)%Z = (a - c + b)%Z.
+Proof.
+intros.
+progress unfold Z.sub.
+apply Z.add_add_swap.
+Qed.
+
 Theorem add_opp_diag_r : ∀ a, (a + - a = 0)%Z.
 Proof.
 intros.

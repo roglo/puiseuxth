@@ -242,17 +242,12 @@ do 2 rewrite <- Z2Nat_inj_mul_pos_r.
 rewrite <- Z2Nat.inj_add.
  rewrite <- Z2Nat.inj_add.
   do 2 rewrite <- Z.sub_add_distr.
-Check Z.add_sub_swap.
-... ...
-Z.add_sub_swap
-     : ∀ n m p : Z, (n + m - p)%Z = (n - p + m)%Z
-...
   do 2 rewrite <- Z.add_sub_swap.
   do 2 rewrite Z.sub_add_distr.
-  do 2 rewrite Z.add_simpl_r.
-  rewrite Z.mul_shuffle0.
-  remember (v₁ * Zpos c₂ * Zpos k)%Z as vc₁.
-  remember (v₂ * Zpos c₁ * Zpos k)%Z as vc₂.
+  do 2 rewrite Z.add_sub.
+  rewrite Z.mul_mul_swap.
+  remember (v₁ * z_pos c₂ * z_pos k)%Z as vc₁.
+  remember (v₂ * z_pos c₁ * z_pos k)%Z as vc₂.
   rewrite <- Z2Nat_sub_min2.
   rewrite <- Z2Nat_sub_min1.
   rewrite Z.min_id, Z.sub_diag, Nat.add_0_r.
@@ -270,6 +265,7 @@ Z.add_sub_swap
   rewrite Z.add_sub_swap.
   rewrite <- Z.sub_sub_distr.
   symmetry.
+...
   rewrite Z2Nat.inj_sub.
    symmetry.
    rewrite Z2Nat.inj_sub.
@@ -285,12 +281,12 @@ Z.add_sub_swap
        rewrite Z.min_l; auto.
        rewrite Z.sub_diag, Nat.add_0_r.
        rewrite Nat.add_0_r.
-       replace (Z.to_nat (nn * Zpos c₂)) with
-        (Z.to_nat (nn * Zpos c₂) + 0)%nat by fast_omega.
+       replace (Z.to_nat (nn * z_pos c₂)) with
+        (Z.to_nat (nn * z_pos c₂) + 0)%nat by fast_omega.
        rewrite <- Nat.add_assoc; simpl.
        rewrite normalise_ps_adjust_add.
-       replace (Z.to_nat (mm * Zpos c₂)) with
-        (Z.to_nat (mm * Zpos c₂) + 0)%nat by fast_omega.
+       replace (Z.to_nat (mm * z_pos c₂)) with
+        (Z.to_nat (mm * z_pos c₂) + 0)%nat by fast_omega.
        rewrite <- Nat.add_assoc; simpl.
        rewrite normalise_ps_adjust_add.
        reflexivity.
@@ -321,12 +317,12 @@ Z.add_sub_swap
      remember (vc₁ - vc₂)%Z as x.
      rewrite <- Z2Nat.inj_sub.
       rewrite <- Z2Nat.inj_sub.
-       remember (Z.to_nat (nn * Zpos c₂ - x)) as y.
+       remember (Z.to_nat (nn * z_pos c₂ - x)) as y.
        replace y with (y + 0)%nat by fast_omega.
        rewrite <- Nat.add_assoc; simpl.
        rewrite normalise_ps_adjust_add.
        clear y Heqy.
-       remember (Z.to_nat (mm * Zpos c₂ - x)) as y.
+       remember (Z.to_nat (mm * z_pos c₂ - x)) as y.
        replace y with (y + 0)%nat by fast_omega.
        rewrite <- Nat.add_assoc; simpl.
        rewrite normalise_ps_adjust_add.
@@ -393,7 +389,7 @@ destruct g as [| g| g]; simpl.
  constructor; simpl.
   unfold gcd_ps in Heqg.
   remember (ps_ordnum ps + Z.of_nat len₁)%Z as v.
-  remember (Zpos (ps_polydo ps))%Z as c.
+  remember (z_pos (ps_polydo ps))%Z as c.
   pose proof (Z.gcd_divide_l (Z.gcd v c) (Z.of_nat k₁)) as H₁.
   destruct H₁ as (a, Ha).
   rewrite Heqg in Ha.
@@ -405,12 +401,12 @@ destruct g as [| g| g]; simpl.
   rewrite Z.div_mul; [ idtac | apply Pos2Z_ne_0 ].
   rewrite <- Hb.
   rewrite Heqv.
-  rewrite Z.add_simpl_r.
+  rewrite Z.add_sub.
   reflexivity.
 
   unfold gcd_ps in Heqg.
   remember (ps_ordnum ps + Z.of_nat len₁)%Z as v.
-  remember (Zpos (ps_polydo ps)) as c.
+  remember (z_pos (ps_polydo ps)) as c.
   pose proof (Z.gcd_divide_l (Z.gcd v c) (Z.of_nat k₁)) as H₁.
   destruct H₁ as (a, Ha).
   rewrite Heqg in Ha.
@@ -420,13 +416,13 @@ destruct g as [| g| g]; simpl.
   rewrite Z.mul_assoc in Hb.
   rewrite Hb.
   rewrite Z.div_mul; [ idtac | apply Pos2Z_ne_0 ].
-  replace g with (Z.to_pos (Zpos g)) by apply Pos2Z.id.
+  replace g with (Z.to_pos (z_pos g)) by apply Pos2Z.id.
   rewrite <- Z2Pos.inj_mul.
    rewrite <- Hb.
    rewrite Heqc; simpl.
    reflexivity.
 
-   apply Z.mul_lt_mono_pos_r with (p := Zpos g).
+   apply Z.mul_lt_mono_pos_r with (p := z_pos g).
     apply Pos2Z.is_pos.
 
     rewrite <- Hb; simpl.
@@ -442,7 +438,7 @@ destruct g as [| g| g]; simpl.
    rewrite <- Heqk₁.
    unfold gcd_ps in Heqg.
    remember (ps_ordnum ps + Z.of_nat len₁)%Z as x.
-   remember (Zpos (ps_polydo ps))%Z as y.
+   remember (z_pos (ps_polydo ps))%Z as y.
    pose proof (Z.gcd_divide_r (Z.gcd x y) (Z.of_nat k₁)) as H.
    rewrite Heqg in H.
    destruct H as (c, Hc).
@@ -476,7 +472,7 @@ apply series_order_iff in Hn.
 simpl in Hn.
 destruct (Z_le_dec 0 (ps_ordnum ps)) as [H₁| H₁].
  exists
-   (Z.to_nat (ps_ordnum ps + Zpos (ps_polydo ps))), O, xH, (ps_polydo ps).
+   (Z.to_nat (ps_ordnum ps + z_pos (ps_polydo ps))), O, xH, (ps_polydo ps).
  constructor; simpl.
   rewrite Z2Nat.id.
    rewrite Z.mul_1_r.
