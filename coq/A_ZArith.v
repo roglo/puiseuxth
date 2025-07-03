@@ -76,7 +76,7 @@ Definition to_nat a :=
   | _ => 0
   end.
 
-Definition of_pos (a : pos) := z_val true a.
+Definition of_pos (a : pos) := z_pos a.
 
 Definition to_pos a :=
   match a with
@@ -853,6 +853,12 @@ rewrite <- (Z.opp_involutive b) at 2.
 apply Z.add_move_0_r.
 Qed.
 
+Theorem lt_asymm : ∀ a b, (a < b)%Z → ¬ (b < a)%Z.
+Proof.
+intros * Hab.
+now apply Z.nlt_ge, Z.lt_le_incl.
+Qed.
+
 Theorem le_trans : ∀ a b c, (a ≤ b → b ≤ c → a ≤ c)%Z.
 Proof.
 intros * Hab Hbc.
@@ -886,9 +892,22 @@ apply Pos.compare_le_iff.
 now transitivity vb.
 Qed.
 
+Theorem lt_trans : ∀ a b c, (a < b → b < c → a < c)%Z.
+Proof.
+intros * Hab Hbc.
+apply Z.lt_iff.
+split; [ now apply (Z.le_trans _ b); apply Z.lt_le_incl | ].
+intros H; subst.
+now apply Z.lt_asymm in Hab.
+Qed.
+
 Add Parametric Relation : _ Z.le
   transitivity proved by Z.le_trans
 as le_rel.
+
+Add Parametric Relation : _ Z.lt
+  transitivity proved by Z.lt_trans
+as lt_rel.
 
 Theorem compare_add_mono_l :
   ∀ a b c, (a + b ?= a + c)%Z = (b ?= c)%Z.
@@ -1847,12 +1866,6 @@ progress unfold Z.lt.
 now rewrite Z.compare_0_sub.
 Qed.
 
-Theorem lt_asymm : ∀ a b, (a < b)%Z → ¬ (b < a)%Z.
-Proof.
-intros * Hab.
-now apply Z.nlt_ge, Z.lt_le_incl.
-Qed.
-
 Theorem abs_nonneg : ∀ a, (0 ≤ Z.abs a)%Z.
 Proof.
 intros.
@@ -1939,6 +1952,57 @@ destruct (Z.le_dec a b) as [Hab| Hab]. {
 destruct (Z.le_dec b a) as [Hba| Hba]; [ easy | ].
 apply Z.nle_gt in Hab, Hba.
 now apply Z.lt_asymm in Hab.
+Qed.
+
+Theorem min_assoc : ∀ a b c, Z.min a (Z.min b c) = Z.min (Z.min a b) c.
+Proof.
+intros.
+progress unfold Z.min.
+destruct (Z.le_dec a b) as [Hab| Hab]. {
+  destruct (Z.le_dec b c) as [Hbc| Hbc]; [ | easy ].
+  destruct (Z.le_dec a b) as [H| H]; [ | easy ].
+  destruct (Z.le_dec a c) as [Hac| Hac]; [ easy | ].
+  now apply (Z.le_trans a) in Hbc.
+}
+destruct (Z.le_dec b c) as [Hbc| Hbc]. {
+  now destruct (Z.le_dec a b).
+}
+destruct (Z.le_dec a c) as [Hac| Hac]; [ | easy ].
+apply Z.le_antisymm; [ easy | ].
+apply Z.nle_gt in Hab, Hbc.
+apply Z.lt_le_incl.
+now transitivity b.
+Qed.
+
+Theorem mul_min_distr_nonneg_l :
+  ∀ a b c, (0 ≤ a)%Z → Z.min (a * b) (a * c) = (a * Z.min b c)%Z.
+Proof.
+intros * Hza.
+progress unfold Z.min.
+destruct (Z.le_dec b c) as [Hbc| Hbc]. {
+  destruct (Z.le_dec (a * b) (a * c)) as [Habc| Habc]; [ easy | ].
+  exfalso; apply Habc; clear Habc.
+  now apply Z.mul_le_mono_nonneg_l.
+}
+destruct (Z.le_dec (a * b) (a * c)) as [Habc| Habc]; [ | easy ].
+destruct (Z.eq_dec a 0) as [Haz| Haz]; [ now subst | ].
+apply Z.mul_le_mono_pos_l in Habc; [ easy | ].
+now apply Z.lt_iff.
+Qed.
+
+Theorem mul_min_distr_nonneg_r :
+  ∀ a b c, (0 ≤ c)%Z → Z.min (a * c) (b * c) = (Z.min a b * c)%Z.
+Proof.
+intros * Hzc.
+do 3 rewrite (Z.mul_comm _ c).
+now apply Z.mul_min_distr_nonneg_l.
+Qed.
+
+Theorem min_id : ∀ a, Z.min a a = a.
+Proof.
+intros.
+progress unfold Z.min.
+now destruct (Z.le_dec a a).
 Qed.
 
 (* gcd *)
