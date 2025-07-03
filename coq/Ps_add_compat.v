@@ -242,6 +242,10 @@ do 2 rewrite <- Z2Nat_inj_mul_pos_r.
 rewrite <- Z2Nat.inj_add.
  rewrite <- Z2Nat.inj_add.
   do 2 rewrite <- Z.sub_add_distr.
+Check Z.add_sub_swap.
+... ...
+Z.add_sub_swap
+     : ∀ n m p : Z, (n + m - p)%Z = (n - p + m)%Z
 ...
   do 2 rewrite <- Z.add_sub_swap.
   do 2 rewrite Z.sub_add_distr.
