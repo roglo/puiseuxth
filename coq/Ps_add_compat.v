@@ -466,16 +466,21 @@ symmetry in Hn.
 destruct n; [ discriminate Hz | clear Hz ].
 apply series_order_iff in Hn.
 simpl in Hn.
-destruct (Z.le_dec 0 (ps_ordnum ps)) as [H₁| H₁].
- exists
-   (Z.to_nat (ps_ordnum ps + z_pos (ps_polydo ps))), O, 1%pos, (ps_polydo ps).
- constructor; simpl.
-  rewrite Z2Nat.id.
-   rewrite Z.mul_1_r.
+destruct (Z.le_dec 0 (ps_ordnum ps)) as [H₁| H₁]. {
+  exists (Z.to_nat (ps_ordnum ps + z_pos (ps_polydo ps))).
+  exists O, 1%pos, (ps_polydo ps).
+  constructor; simpl. {
+    rewrite Z2Nat.id. {
+      rewrite Z.mul_1_r, Pos.mul_1_l.
+      rewrite Z.sub_add_distr, Z.sub_diag; reflexivity.
+    }
+Search (0 ≤ _ + _)%Z.
 ...
-   rewrite Z.sub_add_distr, Z.sub_diag; reflexivity.
-
-   apply Z.add_nonneg_nonneg; [ assumption | idtac ].
+Check Z.add_nonneg_nonneg.
+Z.add_nonneg_nonneg
+     : ∀ n m : Z, (0 <= n)%Z → (0 <= m)%Z → (0 <= n + m)%Z
+...
+    apply Z.add_nonneg_nonneg; [ assumption | idtac ].
    apply Pos2Z.is_nonneg.
 
   rewrite Pos.mul_1_r; reflexivity.
