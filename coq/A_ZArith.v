@@ -154,6 +154,7 @@ Definition div_eucl (a b : Z) :=
   end.
 
 Definition div a b := fst (div_eucl a b).
+Definition rem a b := snd (div_eucl a b).
 
 Definition sgn a :=
   match a with
@@ -257,6 +258,7 @@ Notation "a =? b" := (Z.eqb a b) : Z_scope.
 Notation "a ≤? b" := (Z.leb a b) (at level 70) : Z_scope.
 Notation "a ≤ b ≤ c" := (Z.le a b ∧ Z.le b c) : Z_scope.
 Notation "( x | y )" := (Z.divide x y) : Z_scope.
+Notation "a 'mod' b" := (Z.rem a b) : Z_scope.
 
 (*
 Instance ring_like_op : ring_like_op Z :=
@@ -2633,6 +2635,7 @@ Notation "a ?= b" := (Z.compare a b) : Z_scope.
 Notation "a =? b" := (Z.eqb a b) : Z_scope.
 Notation "a ≤ b ≤ c" := (Z.le a b ∧ Z.le b c) : Z_scope.
 Notation "( x | y )" := (Z.divide x y) : Z_scope.
+Notation "a 'mod' b" := (Z.rem a b) : Z_scope.
 
 Module Nat2Z.
 

@@ -474,28 +474,32 @@ unfold normalise_ps.
 unfold normalise_ps.
 remember (series_order (ps_terms ps) 0) as n eqn:Hn .
 symmetry in Hn.
-destruct n as [n| ]; constructor.
- remember (greatest_series_x_power K (ps_terms ps) n) as x.
- remember (gcd_ps n x ps) as g eqn:Hg .
- pose proof (gcd_ps_is_pos n x ps) as Hgp; subst x.
- rewrite <- Hg in Hgp.
- unfold gcd_ps in Hg; simpl in Hg.
- remember (ps_ordnum ps + Z.of_nat n)%Z as x eqn:Hx .
- rewrite <- Z.gcd_assoc in Hg.
- remember (greatest_series_x_power K (ps_terms ps) n) as z.
- remember (Z.gcd (z_pos (ps_polydo ps)) (Z.of_nat z)) as y eqn:Hy ; subst z.
- rewrite ps_normal_adjust_eq with (k := Z.to_pos g) (n := n).
- unfold adjust_ps; simpl.
- unfold normalise_series.
- rewrite series_stretch_shrink.
-  rewrite series_shift_left_shift; [ idtac | apply Hn ].
-  rewrite <- Z.pos_nat.
+destruct n as [n| ]; constructor. {
+  remember (greatest_series_x_power K (ps_terms ps) n) as x.
+  remember (gcd_ps n x ps) as g eqn:Hg .
+  pose proof (gcd_ps_is_pos n x ps) as Hgp; subst x.
+  rewrite <- Hg in Hgp.
+  unfold gcd_ps in Hg; simpl in Hg.
+  remember (ps_ordnum ps + Z.of_nat n)%Z as x eqn:Hx .
+  rewrite <- Z.gcd_assoc in Hg.
+  remember (greatest_series_x_power K (ps_terms ps) n) as z.
+  remember (Z.gcd (z_pos (ps_polydo ps)) (Z.of_nat z)) as y eqn:Hy ; subst z.
+  rewrite ps_normal_adjust_eq with (k := Z.to_pos g) (n := n).
+  unfold adjust_ps; simpl.
+  unfold normalise_series.
+  rewrite series_stretch_shrink. {
+    rewrite series_shift_left_shift; [ idtac | apply Hn ].
+    rewrite <- Z.pos_nat.
+    rewrite Z2Pos.to_nat; [ | easy ].
+    rewrite Z2Nat.id; [ idtac | apply Z.lt_le_incl; assumption ].
+    rewrite Z.mul_comm.
+    assert (x mod g = 0)%Z as Hxk. {
 ...
-  rewrite Pos2Nat_to_pos; [ idtac | assumption ].
-  rewrite Z2Nat.id; [ idtac | apply Z.lt_le_incl; assumption ].
-  rewrite Z.mul_comm.
-  assert (x mod g = 0)%Z as Hxk.
-   apply Z.mod_divide.
+Check Z.mod_divide.
+Z.mod_divide
+     : ∀ a b : Z, b ≠ 0%Z → (a mod b)%Z = 0%Z ↔ (b | a)%Z
+...
+      apply Z.mod_divide.
     intros H; revert Hgp; rewrite H; apply Z.lt_irrefl.
 
     rewrite Hg; apply Z.gcd_divide_l.
