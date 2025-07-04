@@ -17,7 +17,8 @@ Qed.
 
 Theorem Qcmp_gt_lt : ∀ a b, (a ?= b) = Gt → (b ?= a) = Lt.
 Proof.
-intros a b H; apply Qgt_alt in H; apply Qlt_alt; assumption.
+intros a b H; apply Q.compare_gt_iff in H; apply Q.compare_lt_iff.
+assumption.
 Qed.
 
 Theorem Qcmp_sym : ∀ a b c d,
@@ -28,11 +29,10 @@ intros a b c d H.
 remember (a ?= b) as cmp.
 symmetry in Heqcmp, H.
 destruct cmp. {
-  apply Qeq_alt in Heqcmp.
-  apply Qeq_alt in H.
+  apply -> Q.compare_eq_iff in Heqcmp.
+  apply -> Q.compare_eq_iff in H.
   rewrite Heqcmp, H.
-  do 2 rewrite Qcmp_eq.
-  reflexivity.
+  now do 2 rewrite Q.eq_refl.
 }
 apply Qcmp_lt_gt in Heqcmp.
 apply Qcmp_lt_gt in H.
