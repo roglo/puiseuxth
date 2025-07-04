@@ -1,6 +1,6 @@
 (* Ps_mul.v *)
 
-From Stdlib Require Import Utf8 Arith.
+From Stdlib Require Import Utf8 Arith Morphisms.
 
 Require Import A_PosArith A_ZArith.
 Require Import Misc.
@@ -273,11 +273,12 @@ constructor; simpl.
  rewrite <- Z.mul_assoc, <- Pos2Z.inj_mul, Pos.mul_comm, <- Hc₃₁.
  rewrite <- Z.mul_assoc, <- Pos2Z.inj_mul, Pos.mul_comm, <- Hc₁₂.
  symmetry.
-...
- rewrite <- Z.mul_assoc, <- Pos2Z.inj_mul, <- Hc₃₁.
- rewrite <- Z.mul_assoc, <- Pos2Z.inj_mul, <- Hc₁₂.
+ do 3 rewrite <- Z.mul_assoc.
+ do 3 rewrite <- Pos2Z.inj_mul.
+ rewrite <- Hc₃₁, <- Hc₁₂.
  rewrite series_mul_assoc.
  rewrite <- Hs₁, <- Hs₂, <- Hs₃.
+ rewrite (Pos.mul_comm (ps_polydo ps₂)), <- Hc₂₃.
  reflexivity.
 Qed.
 
@@ -366,8 +367,8 @@ rewrite <- Z.add_sub_swap.
 rewrite <- Z.mul_add_distr_r.
 rewrite Nat.mul_comm.
 rewrite Nat2Z.inj_mul.
-rewrite positive_nat_Z.
-rewrite Pos_mul_mul_swap.
+rewrite Z.pos_nat.
+rewrite Pos.mul_mul_swap.
 rewrite series_stretch_mul.
 rewrite stretch_shift_series_distr.
 do 3 rewrite <- series_stretch_stretch.
@@ -488,7 +489,8 @@ destruct n as [n| ]; constructor.
  unfold normalise_series.
  rewrite series_stretch_shrink.
   rewrite series_shift_left_shift; [ idtac | apply Hn ].
-  rewrite <- positive_nat_Z.
+  rewrite <- Z.pos_nat.
+...
   rewrite Pos2Nat_to_pos; [ idtac | assumption ].
   rewrite Z2Nat.id; [ idtac | apply Z.lt_le_incl; assumption ].
   rewrite Z.mul_comm.
@@ -693,13 +695,13 @@ remember (ps_polydo ps₃) as c₃.
 do 3 rewrite Pos2Z.inj_mul.
 do 3 rewrite Z.mul_assoc.
 rewrite Z.mul_sub_distr_r.
-do 3 rewrite <- positive_nat_Z.
+do 3 rewrite <- Z.pos_nat.
 do 5 rewrite Z.mul_add_distr_r.
 rewrite Z.mul_sub_distr_r.
 do 2 rewrite <- Nat2Z.inj_mul.
 do 2 rewrite <- Z2Nat_inj_mul_pos_r.
 do 2 rewrite Z.mul_sub_distr_r.
-do 3 rewrite positive_nat_Z.
+do 3 rewrite Z.pos_nat.
 rewrite Z.add_sub_assoc.
 f_equal.
  rewrite Z.mul_mul_swap.
