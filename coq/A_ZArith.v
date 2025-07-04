@@ -1660,6 +1660,14 @@ apply Pos.eqb_eq in H2; subst vb.
 now destruct sa, sb.
 Qed.
 
+Theorem add_nonneg_nonneg : ∀ a b, (0 ≤ a → 0 ≤ b → 0 ≤ a + b)%Z.
+Proof.
+intros * Hz1 Hz2.
+destruct a as [| sa va]; [ easy | ].
+destruct b as [| sb vb]; [ easy | ].
+now destruct sa, sb.
+Qed.
+
 Theorem mul_le_mono_pos_l :
   ∀ a b c, (0 < a)%Z → (b ≤ c)%Z ↔ (a * b ≤ a * c)%Z.
 Proof.

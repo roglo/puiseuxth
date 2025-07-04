@@ -474,35 +474,32 @@ destruct (Z.le_dec 0 (ps_ordnum ps)) as [H₁| H₁]. {
       rewrite Z.mul_1_r, Pos.mul_1_l.
       rewrite Z.sub_add_distr, Z.sub_diag; reflexivity.
     }
-Search (0 ≤ _ + _)%Z.
-...
-Check Z.add_nonneg_nonneg.
-Z.add_nonneg_nonneg
-     : ∀ n m : Z, (0 <= n)%Z → (0 <= m)%Z → (0 <= n + m)%Z
-...
-    apply Z.add_nonneg_nonneg; [ assumption | idtac ].
-   apply Pos2Z.is_nonneg.
-
-  rewrite Pos.mul_1_r; reflexivity.
-
+    apply Z.add_nonneg_nonneg; [ assumption | easy ].
+  } {
+    rewrite Pos.mul_1_r, Pos.mul_1_l; reflexivity.
+  }
   rewrite series_stretch_series_0.
   rewrite series_shift_series_0.
   rewrite series_stretch_1.
   constructor; intros i.
-  rewrite series_nth_0_series_nth_shift_0.
-   rewrite series_nth_series_0; reflexivity.
-
-   assumption.
-
- exists (Pos.to_nat (ps_polydo ps)).
- exists (Z.to_nat (- ps_ordnum ps)).
- exists xH, (ps_polydo ps).
- constructor; simpl.
+  rewrite series_nth_0_series_nth_shift_0; [ | easy ].
+  rewrite series_nth_series_0; reflexivity.
+}
+exists (Pos.to_nat (ps_polydo ps)).
+exists (Z.to_nat (- ps_ordnum ps)).
+exists 1%pos, (ps_polydo ps).
+constructor; simpl. {
   rewrite Z.mul_1_r.
-  rewrite Z2Nat.id; [ idtac | fast_omega H₁ ].
+  apply Z.nle_gt in H₁.
+  rewrite Z2Nat.id. 2: {
+    apply Z.opp_le_compat.
+    rewrite Z.opp_involutive.
+    now apply Z.lt_le_incl.
+  }
   rewrite Z.opp_involutive.
   remember (ps_ordnum ps) as v.
-  rewrite positive_nat_Z.
+  rewrite Z.pos_nat.
+...
   destruct v; [ reflexivity | reflexivity | simpl ].
   rewrite Pos.add_comm; reflexivity.
 
