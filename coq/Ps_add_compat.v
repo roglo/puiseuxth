@@ -383,72 +383,72 @@ destruct sg. {
   exists len₁, vg.
   constructor; simpl. {
     unfold gcd_ps in Heqg.
-...
-  remember (ps_ordnum ps + Z.of_nat len₁)%Z as v.
-  remember (z_pos (ps_polydo ps))%Z as c.
-  pose proof (Z.gcd_divide_l (Z.gcd v c) (Z.of_nat k₁)) as H₁.
-  destruct H₁ as (a, Ha).
-  rewrite Heqg in Ha.
-  pose proof (Z.gcd_divide_l v c) as H₁.
-  destruct H₁ as (b, Hb).
-  rewrite Ha in Hb.
-  rewrite Z.mul_assoc in Hb.
-  rewrite Hb.
-  rewrite Z.div_mul; [ idtac | apply Pos2Z_ne_0 ].
-  rewrite <- Hb.
-  rewrite Heqv.
-  rewrite Z.add_sub.
-  reflexivity.
-
-  unfold gcd_ps in Heqg.
-  remember (ps_ordnum ps + Z.of_nat len₁)%Z as v.
-  remember (z_pos (ps_polydo ps)) as c.
-  pose proof (Z.gcd_divide_l (Z.gcd v c) (Z.of_nat k₁)) as H₁.
-  destruct H₁ as (a, Ha).
-  rewrite Heqg in Ha.
-  pose proof (Z.gcd_divide_r v c) as H₁.
-  destruct H₁ as (b, Hb).
-  rewrite Ha in Hb.
-  rewrite Z.mul_assoc in Hb.
-  rewrite Hb.
-  rewrite Z.div_mul; [ idtac | apply Pos2Z_ne_0 ].
-  replace g with (Z.to_pos (z_pos g)) by apply Pos2Z.id.
-  rewrite <- Z2Pos.inj_mul.
-   rewrite <- Hb.
-   rewrite Heqc; simpl.
-   reflexivity.
-
-   apply Z.mul_lt_mono_pos_r with (p := z_pos g).
-    apply Pos2Z.is_pos.
-
-    rewrite <- Hb; simpl.
-    rewrite Heqc; apply Pos2Z.is_pos.
-
-   apply Pos2Z.is_pos.
-
+    remember (ps_ordnum ps + Z.of_nat len₁)%Z as v.
+    remember (z_pos (ps_polydo ps))%Z as c.
+    pose proof (Z.gcd_divide_l (Z.gcd v c) (Z.of_nat k₁)) as H₁.
+    destruct H₁ as (a, Ha).
+    rewrite Heqg in Ha.
+    pose proof (Z.gcd_divide_l v c) as H₁.
+    destruct H₁ as (b, Hb).
+    rewrite Ha in Hb.
+    rewrite Z.mul_assoc in Hb.
+    rewrite Hb.
+    rewrite Z.mul_div; [ idtac | apply Pos2Z_ne_0 ].
+    progress unfold z_pos.
+    rewrite <- Hb.
+    rewrite Heqv.
+    rewrite Z.add_sub.
+    reflexivity.
+  } {
+    unfold gcd_ps in Heqg.
+    remember (ps_ordnum ps + Z.of_nat len₁)%Z as v.
+    remember (z_pos (ps_polydo ps)) as c.
+    pose proof (Z.gcd_divide_l (Z.gcd v c) (Z.of_nat k₁)) as H₁.
+    destruct H₁ as (a, Ha).
+    rewrite Heqg in Ha.
+    pose proof (Z.gcd_divide_r v c) as H₁.
+    destruct H₁ as (b, Hb).
+    rewrite Ha in Hb.
+    rewrite Z.mul_assoc in Hb.
+    rewrite Hb.
+    rewrite Z.mul_div; [ idtac | apply Pos2Z_ne_0 ].
+    replace vg with (Z.to_pos (z_pos vg)) by easy.
+    rewrite <- Z2Pos.inj_mul; [ | | easy ]. {
+      progress unfold z_pos.
+      rewrite <- Hb.
+      rewrite Heqc; simpl.
+      reflexivity.
+    } {
+      apply (Z.mul_lt_mono_pos_r (z_pos vg)); [ easy | ].
+      progress unfold z_pos.
+      rewrite <- Hb; simpl.
+      now rewrite Heqc.
+    }
+  }
   unfold normalise_series.
   rewrite series_stretch_shrink.
-   rewrite series_shift_left_shift; [ reflexivity | apply Heqlen₁ ].
-   rewrite greatest_series_x_power_left_shift.
-   rewrite Nat.add_0_r.
-   rewrite <- Heqk₁.
-   unfold gcd_ps in Heqg.
-   remember (ps_ordnum ps + Z.of_nat len₁)%Z as x.
-   remember (z_pos (ps_polydo ps))%Z as y.
-   pose proof (Z.gcd_divide_r (Z.gcd x y) (Z.of_nat k₁)) as H.
-   rewrite Heqg in H.
-   destruct H as (c, Hc).
-   exists (Z.to_nat c).
-   rewrite <- Z2Nat_inj_mul_pos_r.
-   rewrite <- Hc.
-   rewrite Nat2Z.id; reflexivity.
-
- exfalso.
- pose proof (Zlt_neg_0 g) as H.
- rewrite <- Heqg in H.
- unfold gcd_ps in H.
- apply Z.nle_gt in H.
- apply H, Z.gcd_nonneg.
+  rewrite series_shift_left_shift; [ reflexivity | apply Heqlen₁ ].
+  rewrite greatest_series_x_power_left_shift.
+  rewrite Nat.add_0_r.
+  rewrite <- Heqk₁.
+  unfold gcd_ps in Heqg.
+  remember (ps_ordnum ps + Z.of_nat len₁)%Z as x.
+  remember (z_pos (ps_polydo ps))%Z as y.
+  pose proof (Z.gcd_divide_r (Z.gcd x y) (Z.of_nat k₁)) as H.
+  rewrite Heqg in H.
+  destruct H as (c, Hc).
+  exists (Z.to_nat c).
+  rewrite <- Z2Nat_inj_mul_pos_r.
+  progress unfold z_pos.
+  rewrite <- Hc.
+  rewrite Nat2Z.id; reflexivity.
+}
+exfalso.
+assert (H : (z_val false vg < 0)%Z) by easy.
+rewrite <- Heqg in H.
+unfold gcd_ps in H.
+apply Z.nle_gt in H.
+apply H, Z.gcd_nonneg.
 Qed.
 
 Definition ps_neg_zero :=
@@ -466,12 +466,13 @@ symmetry in Hn.
 destruct n; [ discriminate Hz | clear Hz ].
 apply series_order_iff in Hn.
 simpl in Hn.
-destruct (Z_le_dec 0 (ps_ordnum ps)) as [H₁| H₁].
+destruct (Z.le_dec 0 (ps_ordnum ps)) as [H₁| H₁].
  exists
-   (Z.to_nat (ps_ordnum ps + z_pos (ps_polydo ps))), O, xH, (ps_polydo ps).
+   (Z.to_nat (ps_ordnum ps + z_pos (ps_polydo ps))), O, 1%pos, (ps_polydo ps).
  constructor; simpl.
   rewrite Z2Nat.id.
    rewrite Z.mul_1_r.
+...
    rewrite Z.sub_add_distr, Z.sub_diag; reflexivity.
 
    apply Z.add_nonneg_nonneg; [ assumption | idtac ].
