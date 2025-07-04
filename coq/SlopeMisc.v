@@ -1,19 +1,18 @@
 (* SlopeMisc.v *)
 
 From Stdlib Require Import Utf8.
-From Stdlib Require Import ZArith.
 
+Require Import A_QArith.
 Require Import Slope_base.
 Require Import Misc.
 
-Theorem Qcmp_eq : ∀ a, (a ?= a) = Eq.
-Proof.
-intros a; apply Qeq_alt; reflexivity.
-Qed.
+(* Qcmp_eq → Q.compare_eq_iff *)
+(* Qeq_alt → Q.compare_eq_iff *)
 
 Theorem Qcmp_lt_gt : ∀ a b, (a ?= b) = Lt → (b ?= a) = Gt.
 Proof.
-intros a b H; apply Qlt_alt in H; apply Qgt_alt; assumption.
+intros a b H; apply -> Q.compare_lt_iff in H; apply Q.compare_gt_iff.
+assumption.
 Qed.
 
 Theorem Qcmp_gt_lt : ∀ a b, (a ?= b) = Gt → (b ?= a) = Lt.
