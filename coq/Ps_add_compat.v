@@ -1,6 +1,6 @@
 (* Ps_add_compat.v *)
 
-From Stdlib Require Import Utf8 Arith.
+From Stdlib Require Import Utf8 Arith Morphisms.
 
 Require Import A_PosArith A_ZArith.
 Require Import NbarM.
@@ -499,20 +499,21 @@ constructor; simpl. {
   rewrite Z.opp_involutive.
   remember (ps_ordnum ps) as v.
   rewrite Z.pos_nat.
-...
-  destruct v; [ reflexivity | reflexivity | simpl ].
-  rewrite Pos.add_comm; reflexivity.
-
-  rewrite Pos.mul_1_r; reflexivity.
-
+  rewrite Pos.mul_1_l.
+  destruct v as [| sv vv]; [ easy | ].
+  destruct sv; [ easy | cbn ].
+  progress f_equal.
+  apply Pos.add_comm.
+} {
+  rewrite Pos.mul_1_r, Pos.mul_1_l; reflexivity.
+} {
   rewrite series_stretch_1.
   rewrite series_stretch_series_0.
   constructor; intros i.
-  rewrite series_nth_0_series_nth_shift_0.
-   rewrite series_shift_series_0.
-   rewrite series_nth_series_0; reflexivity.
-
-   assumption.
+  rewrite series_nth_0_series_nth_shift_0; [ | easy ].
+  rewrite series_shift_series_0.
+  now rewrite series_nth_series_0.
+}
 Qed.
 
 Theorem series_order_inf_compat : ∀ ps₁ ps₂,
