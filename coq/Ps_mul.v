@@ -504,7 +504,25 @@ destruct n as [n| ]; constructor. {
     apply Z.mod_divide in Hxk; [ | easy ].
     destruct Hxk as (c, Hc); move Hc at top; subst x.
     rewrite Z.mul_div; [ | easy ].
+    rewrite (Z.mul_comm g), Hx, Z.add_sub.
+    rewrite Hy, <- Z.gcd_comm, <- Z.gcd_assoc in Hg.
+    remember (greatest_series_x_power K (ps_terms ps) n) as z.
+    specialize
+      (Z.gcd_divide_l (z_pos (ps_polydo ps)) (Z.gcd (Z.of_nat z) (c * g)))
+      as Hgc.
+    rewrite <- Hg in Hgc.
+    destruct Hgc as (c', Hc').
+    rewrite Hc'.
+    rewrite Z.mul_div; [ | easy ].
+    rewrite <- Z2Pos.inj_mul; [ idtac | idtac | assumption ]. {
+      rewrite <- Hc'; simpl.
+      destruct ps; reflexivity.
+    }
 ...
+(*
+Z.div_exact
+     : ∀ a b : Z, b ≠ 0%Z → a = (b * (a / b))%Z ↔ (a mod b)%Z = 0%Z
+*)
     apply Z.div_exact in Hxk.
     rewrite <- Hxk, Hx, Z.add_simpl_r.
     rewrite Hy, Z.gcd_comm, <- Z.gcd_assoc in Hg.
