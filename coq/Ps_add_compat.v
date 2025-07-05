@@ -76,7 +76,7 @@ constructor; simpl. {
   rewrite Pos2Z.inj_mul, Z.mul_assoc, Z.mul_mul_swap.
   rewrite <- Z.sub_add_distr; f_equal.
   rewrite Nat2Z.inj_add, Z.add_comm; f_equal.
-  rewrite Nat2Z.inj_mul, Z.pos_nat.
+  rewrite Z.of_nat_inj_mul, Z.pos_nat.
   reflexivity.
 } {
   rewrite Pos.mul_assoc, Pos.mul_mul_swap.
@@ -236,8 +236,8 @@ remember (ps_polydo ps₁) as c₁.
 remember (Z.of_nat n) as nn.
 remember (Z.of_nat m) as mm.
 do 2 rewrite Z.mul_sub_distr_r.
-replace n with (Z.to_nat nn) by (rewrite Heqnn, Nat2Z.id; reflexivity).
-replace m with (Z.to_nat mm) by (rewrite Heqmm, Nat2Z.id; reflexivity).
+replace n with (Z.to_nat nn) by (rewrite Heqnn, Z.of_nat_id; reflexivity).
+replace m with (Z.to_nat mm) by (rewrite Heqmm, Z.of_nat_id; reflexivity).
 do 2 rewrite <- Z2Nat_inj_mul_pos_r.
 rewrite <- Z2Nat.inj_add. {
   rewrite <- Z2Nat.inj_add. {
@@ -441,7 +441,7 @@ destruct sg. {
   rewrite <- Z2Nat_inj_mul_pos_r.
   progress unfold z_pos.
   rewrite <- Hc.
-  rewrite Nat2Z.id; reflexivity.
+  rewrite Z.of_nat_id; reflexivity.
 }
 exfalso.
 assert (H : (z_val false vg < 0)%Z) by easy.

@@ -2291,11 +2291,11 @@ destruct m as [m| ]. {
         exists (Z.to_nat c).
         rewrite <- Z2Nat.inj_mul. {
           rewrite <- Hc.
-          symmetry; apply Nat2Z.id.
+          symmetry; apply Z.of_nat_id.
         } {
           apply <- Z.mul_le_mono_pos_r; [ idtac | eassumption ].
           rewrite <- Hc; simpl.
-          apply Nat2Z.is_nonneg.
+          apply Z.of_nat_is_nonneg.
         }
         apply Z.lt_le_incl; assumption.
       }

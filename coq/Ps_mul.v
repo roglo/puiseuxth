@@ -366,7 +366,7 @@ rewrite Z.mul_mul_swap.
 rewrite <- Z.add_sub_swap.
 rewrite <- Z.mul_add_distr_r.
 rewrite Nat.mul_comm.
-rewrite Nat2Z.inj_mul.
+rewrite Z.of_nat_inj_mul.
 rewrite Z.pos_nat.
 rewrite Pos.mul_mul_swap.
 rewrite series_stretch_mul.
@@ -493,25 +493,19 @@ destruct n as [n| ]; constructor. {
     rewrite Z2Pos.to_nat; [ | easy ].
     rewrite Z2Nat.id; [ idtac | apply Z.lt_le_incl; assumption ].
     rewrite Z.mul_comm.
+    assert (Hgz : g ≠ 0%Z). {
+      now intros H; rewrite H in Hgp; apply Z.lt_irrefl in Hgp.
+    }
     assert (x mod g = 0)%Z as Hxk. {
-Locate "|".
-Search (_ ↔ (_ | _))%nat.
+      apply Z.mod_divide; [ easy | ].
+      rewrite Hg; apply Z.gcd_divide_l.
+    }
+(**)
+    apply Z.mod_divide in Hxk; [ | easy ].
+    destruct Hxk as (c, Hc); move Hc at top; subst x.
+    rewrite Z.mul_div; [ | easy ].
 ...
-Check Z.mod_divide.
-Z.mod_divide
-     : ∀ a b : Z, b ≠ 0%Z → (a mod b)%Z = 0%Z ↔ (b | a)%Z
-Nat.Lcm0.mod_divide:
-    ∀ a b : nat, a mod b = 0 ↔ Nat.divide b a
-Check Nat.mod_divide.
-Nat.Private_NLcmProp.mod_divide
-     : ∀ a b : nat, b ≠ 0 → a mod b = 0 ↔ Nat.divide b a
-...
-      apply Z.mod_divide.
-    intros H; revert Hgp; rewrite H; apply Z.lt_irrefl.
-
-    rewrite Hg; apply Z.gcd_divide_l.
-
-   apply Z.div_exact in Hxk.
+    apply Z.div_exact in Hxk.
     rewrite <- Hxk, Hx, Z.add_simpl_r.
     rewrite Hy, Z.gcd_comm, <- Z.gcd_assoc in Hg.
     remember (greatest_series_x_power K (ps_terms ps) n) as z.
@@ -709,7 +703,7 @@ rewrite Z.mul_sub_distr_r.
 do 3 rewrite <- Z.pos_nat.
 do 5 rewrite Z.mul_add_distr_r.
 rewrite Z.mul_sub_distr_r.
-do 2 rewrite <- Nat2Z.inj_mul.
+do 2 rewrite <- Z.of_nat_inj_mul.
 do 2 rewrite <- Z2Nat_inj_mul_pos_r.
 do 2 rewrite Z.mul_sub_distr_r.
 do 3 rewrite Z.pos_nat.

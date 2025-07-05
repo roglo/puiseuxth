@@ -1934,7 +1934,7 @@ progress unfold Pos.to_nat.
 now rewrite Nat.add_1_r.
 Qed.
 
-Theorem Nat2Z_inj_mul :
+Theorem of_nat_inj_mul :
   ∀ a b, Z.of_nat (a * b) = (Z.of_nat a * Z.of_nat b)%Z.
 Proof.
 intros.
@@ -1956,15 +1956,15 @@ destruct sa; cbn. {
   destruct b as [| sb vb]; [ easy | ].
   destruct sb; cbn. {
     rewrite Nat.sub_add; [ | easy ].
-    apply Nat2Z_inj_mul.
+    apply Z.of_nat_inj_mul.
   } {
     rewrite Nat.sub_add; [ | easy ].
-    apply Nat2Z_inj_mul.
+    apply Z.of_nat_inj_mul.
   }
 }
 destruct b as [| sb vb]; [ easy | cbn ].
 rewrite Nat.sub_add; [ | easy ].
-apply Nat2Z_inj_mul.
+apply Z.of_nat_inj_mul.
 Qed.
 
 (* min & max *)
@@ -2320,7 +2320,7 @@ destruct b as [| sb vb]. {
   destruct c as [| sc vc]; [ easy | ].
   cbn.
   rewrite Nat.sub_add; [ | easy ].
-  rewrite Nat2Z_inj_mul.
+  rewrite Z.of_nat_inj_mul.
   progress unfold Pos.to_nat.
   rewrite (Nat.add_1_r (p_val vc)) at 2; cbn.
   progress unfold Pos.of_nat.
@@ -2514,7 +2514,7 @@ destruct sa. {
   cbn.
   destruct sc. {
     rewrite Nat.Div0.mul_mod_distr_l.
-    rewrite Nat2Z_inj_mul.
+    rewrite Z.of_nat_inj_mul.
     remember (Z.of_nat (Pos.to_nat vb mod Pos.to_nat vc)) as x eqn:Hx.
     progress unfold Pos.to_nat in Hx.
     rewrite <- Hx.
@@ -2551,7 +2551,7 @@ destruct sb. {
     now rewrite Nat.add_1_r.
   }
   rewrite Nat.Div0.mul_mod_distr_l.
-  rewrite Nat2Z_inj_mul.
+  rewrite Z.of_nat_inj_mul.
   remember (Z.of_nat (Pos.to_nat vb mod Pos.to_nat vc)) as x eqn:Hx.
   progress unfold Pos.to_nat in Hx.
   rewrite <- Hx.
@@ -2579,7 +2579,7 @@ destruct sb. {
 destruct sc. {
   cbn.
   rewrite Nat.Div0.mul_mod_distr_l.
-  rewrite Nat2Z_inj_mul.
+  rewrite Z.of_nat_inj_mul.
   remember (Z.of_nat (Pos.to_nat vb mod Pos.to_nat vc)) as x eqn:Hx.
   progress unfold Pos.to_nat in Hx.
   rewrite <- Hx.
@@ -2619,10 +2619,13 @@ destruct a as [| sa va]; [ easy | exfalso ].
 now rewrite Z.pos_nat in H.
 Qed.
 
-Theorem Nat2Z_eq_0 : ∀ a, Z.of_nat a = 0%Z → a = 0%nat.
+Theorem of_nat_is_nonneg : ∀ a, (0 ≤ Z.of_nat a)%Z.
 Proof. now intros; destruct a. Qed.
 
-Theorem Nat2Z_id : ∀ a, Z.to_nat (Z.of_nat a) = a.
+Theorem of_nat_eq_0 : ∀ a, Z.of_nat a = 0%Z → a = 0%nat.
+Proof. now intros; destruct a. Qed.
+
+Theorem of_nat_id : ∀ a, Z.to_nat (Z.of_nat a) = a.
 Proof.
 intros.
 destruct a; [ easy | cbn ].
@@ -2638,11 +2641,11 @@ Proof.
 intros * Hqr.
 progress unfold z_pos_div_eucl in Hqr.
 injection Hqr; clear Hqr; intros H1 H2; subst.
-apply Nat2Z_eq_0 in H1.
+apply Z.of_nat_eq_0 in H1.
 apply Nat.Lcm0.mod_divide in H1.
 destruct H1 as (c, Hc).
 apply (f_equal Z.of_nat) in Hc.
-rewrite Nat2Z_inj_mul in Hc.
+rewrite Z.of_nat_inj_mul in Hc.
 do 2 rewrite Z.pos_nat in Hc.
 destruct (Bool.bool_dec sa sb) as [Hsab| Hsab]. {
   subst.
@@ -2692,10 +2695,11 @@ destruct sb. {
     symmetry in Hvbr.
     destruct vbr; [ easy | exfalso | exfalso ]. {
       apply Pos.compare_lt_iff in Hvbr.
+      (* lemma *)
       progress unfold z_pos_div_eucl in Hqr.
       injection Hqr; clear Hqr; intros H1 H2; subst.
       apply (f_equal Z.to_nat) in H1; cbn in H1.
-      rewrite Nat2Z_id in H1.
+      rewrite Z.of_nat_id in H1.
       specialize (Nat.mod_upper_bound (Pos.to_nat vc) (Pos.to_nat vb)) as H2.
       rewrite H1 in H2.
       assert (H : Pos.to_nat vb ≠ 0) by easy.
@@ -2713,9 +2717,76 @@ destruct sb. {
       progress unfold z_pos_div_eucl in Hqr.
       injection Hqr; clear Hqr; intros H1 H2; subst.
       apply (f_equal Z.to_nat) in H1.
-      rewrite Nat2Z_id in H1.
+      rewrite Z.of_nat_id in H1.
       cbn - [ Pos.to_nat ] in H1.
-...
+      rewrite Pos2Nat.inj_mul in H1.
+      rewrite Nat.mul_comm, Nat.Div0.mod_mul in H1.
+      symmetry in H1.
+      now apply Pos.to_nat_neq_0 in H1.
+    }
+  }
+  exfalso.
+  progress unfold z_pos_div_eucl in Hqr.
+  injection Hqr; clear Hqr; intros H1 H2; subst.
+  assert (H : (z_val false vr < 0)%Z) by easy.
+  rewrite <- H1 in H.
+  apply Z.nle_gt in H.
+  apply H, Z.of_nat_is_nonneg.
+}
+destruct sc; cbn. {
+  destruct r as [| sr vr]; [ easy | ].
+  destruct sr. {
+    remember (vb ?= vr)%pos as vbr eqn:Hvbr.
+    symmetry in Hvbr.
+    destruct vbr; [ easy | exfalso | exfalso ]. {
+      apply Pos.compare_lt_iff in Hvbr.
+      (* lemma *)
+      progress unfold z_pos_div_eucl in Hqr.
+      injection Hqr; clear Hqr; intros H1 H2; subst.
+      apply (f_equal Z.to_nat) in H1; cbn in H1.
+      rewrite Z.of_nat_id in H1.
+      specialize (Nat.mod_upper_bound (Pos.to_nat vc) (Pos.to_nat vb)) as H2.
+      rewrite H1 in H2.
+      assert (H : Pos.to_nat vb ≠ 0) by easy.
+      specialize (H2 H); clear H.
+      progress unfold Pos.to_nat in H2.
+      apply Nat.add_lt_mono_r in H2.
+      progress unfold Pos.lt in Hvbr.
+      now apply Nat.lt_asymm in H2.
+    } {
+      apply Pos.compare_gt_iff in Hvbr.
+      rewrite Z.mul_comm in Hc; cbn in Hc.
+      destruct a as [| sa va]; [ easy | ].
+      destruct sa; [ easy | ].
+      injection Hc; clear Hc; intros; subst.
+      progress unfold z_pos_div_eucl in Hqr.
+      injection Hqr; clear Hqr; intros H1 H2; subst.
+      apply (f_equal Z.to_nat) in H1.
+      rewrite Z.of_nat_id in H1.
+      cbn - [ Pos.to_nat ] in H1.
+      rewrite Pos2Nat.inj_mul in H1.
+      rewrite Nat.mul_comm, Nat.Div0.mod_mul in H1.
+      symmetry in H1.
+      now apply Pos.to_nat_neq_0 in H1.
+    }
+  }
+  exfalso.
+  progress unfold z_pos_div_eucl in Hqr.
+  injection Hqr; clear Hqr; intros H1 H2; subst.
+  assert (H : (z_val false vr < 0)%Z) by easy.
+  rewrite <- H1 in H.
+  apply Z.nle_gt in H.
+  apply H, Z.of_nat_is_nonneg.
+}
+destruct a as [| sa va]; [ easy | ].
+destruct sa; [ | easy ].
+cbn in Hc.
+injection Hc; clear Hc; intros; subst.
+progress unfold z_pos_div_eucl in Hqr.
+injection Hqr; clear Hqr; intros; subst.
+rewrite Pos2Nat.inj_mul.
+now rewrite Nat.Div0.mod_mul.
+Qed.
 
 Theorem mod_divide : ∀ a b, b ≠ 0%Z → (a mod b)%Z = 0%Z ↔ (b | a)%Z.
 Proof.
@@ -2750,7 +2821,7 @@ split; intros Hab. {
     progress unfold z_pos_div_eucl in Hqr.
     injection Hqr; clear Hqr; intros H1 H2; subst.
     apply (f_equal Z.to_nat) in H1.
-    rewrite Nat2Z_id in H1.
+    rewrite Z.of_nat_id in H1.
     cbn in H1.
     specialize (Nat.mod_upper_bound (Pos.to_nat va) (Pos.to_nat vr)) as H2.
     rewrite H1 in H2.
@@ -2775,7 +2846,7 @@ split; intros Hab. {
     progress unfold z_pos_div_eucl in Hqr.
     injection Hqr; clear Hqr; intros H1 H2; subst.
     apply (f_equal Z.to_nat) in H1.
-    rewrite Nat2Z_id in H1.
+    rewrite Z.of_nat_id in H1.
     cbn in H1.
     specialize (Nat.mod_upper_bound (Pos.to_nat va) (Pos.to_nat vr)) as H2.
     rewrite H1 in H2.
@@ -2789,10 +2860,8 @@ split; intros Hab. {
   now apply (z_pos_div_eucl_rem_0_divide q).
 }
 destruct Hab as (c, Hc); subst a.
-Search ((_ * _) mod _ = 0)%Z.
-...
-Z.mod_mul: ∀ a b : Z, b ≠ 0%Z → ((a * b) mod b)%Z = 0%Z
-...
+now apply Z.mod_mul.
+Qed.
 
 End Z.
 
@@ -2816,22 +2885,6 @@ Module Nat2Z.
 
 Open Scope Z_scope.
 
-Theorem is_nonneg : ∀ a, (0 ≤ Z.of_nat a)%Z.
-Proof. now intros; destruct a. Qed.
-
-...
-
-Theorem eq_0 : ∀ a, Z.of_nat a = 0%Z → a = 0%nat.
-Proof. now intros; destruct a. Qed.
-
-Theorem id : ∀ a, Z.to_nat (Z.of_nat a) = a.
-Proof.
-intros.
-destruct a; [ easy | cbn ].
-rewrite Nat.sub_0_r.
-apply Nat.add_1_r.
-Qed.
-
 Theorem inj_succ : ∀ a, Z.of_nat (S a) = Z.of_nat a + 1.
 Proof.
 intros.
@@ -2852,9 +2905,6 @@ rewrite <- Nat.add_succ_l.
 progress f_equal.
 now apply Nat2Pos.inj_add.
 Qed.
-
-Theorem inj_mul : ∀ a b, Z.of_nat (a * b) = Z.of_nat a * Z.of_nat b.
-Proof. apply Z.Nat2Z_inj_mul. Qed.
 
 Theorem inj_le : ∀ a b, (a <= b)%nat ↔ (Z.of_nat a ≤ Z.of_nat b)%Z.
 Proof.
