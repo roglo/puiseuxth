@@ -2,7 +2,7 @@
 
 From Stdlib Require Import Utf8 Arith Morphisms.
 
-Require Import A_PosArith A_ZArith.
+Require Import A_PosArith A_ZArith A_QArith.
 Require Import Misc.
 Require Import NbarM.
 Require Import Field2.
@@ -893,8 +893,7 @@ Theorem ps_monom_add_l : ∀ c d n,
 Proof.
 intros c d n.
 unfold ps_monom; simpl.
-...
-rewrite ps_adjust_eq with (n := 0%nat) (k := Qden n).
+rewrite ps_adjust_eq with (n := 0%nat) (k := q_den n).
 unfold adjust_ps; simpl.
 rewrite series_shift_0.
 rewrite Z.sub_0_r.
@@ -903,8 +902,8 @@ apply mkps_morphism; simpl.
  rewrite Z.min_id; simpl.
  rewrite Z.sub_diag; simpl.
  rewrite Nat.sub_0_r.
- destruct (zerop (i mod Pos.to_nat (Qden n))) as [H| H].
-  destruct (zerop (i / Pos.to_nat (Qden n))) as [H₁| H₁].
+ destruct (zerop (i mod Pos.to_nat (q_den n))) as [H| H].
+  destruct (zerop (i / Pos.to_nat (q_den n))) as [H₁| H₁].
    reflexivity.
 
    rewrite rng_add_0_l; reflexivity.
@@ -939,19 +938,19 @@ destruct i; simpl.
  rewrite all_0_summation_0; [ reflexivity | idtac ].
  intros j (_, Hj).
  rewrite fold_sub_succ_l.
- destruct (zerop (j mod Pos.to_nat (Qden n))) as [H₁| H₁].
+ destruct (zerop (j mod Pos.to_nat (q_den n))) as [H₁| H₁].
   apply Nat.Div0.mod_divides in H₁.
   destruct H₁ as (c, Hc).
   rewrite Nat.mul_comm in Hc; rewrite Hc.
-  rewrite Nat.div_mul; [ idtac | apply Pos2Nat_ne_0 ].
+  rewrite Nat.div_mul; [ idtac | easy ].
   destruct (zerop c) as [H₁| H₁].
    subst c.
    rewrite Nat.mul_0_l, Nat.sub_0_r.
-   destruct (zerop (S i mod Pos.to_nat (Qden m))) as [H₁| H₁].
+   destruct (zerop (S i mod Pos.to_nat (q_den m))) as [H₁| H₁].
     apply Nat.Div0.mod_divides in H₁.
     destruct H₁ as (d, Hd).
     rewrite Nat.mul_comm in Hd; rewrite Hd.
-    rewrite Nat.div_mul; [ idtac | apply Pos2Nat_ne_0 ].
+    rewrite Nat.div_mul; [ idtac | easy ].
     destruct (zerop d) as [H₁| H₁]; [ subst d; discriminate Hd | idtac ].
     rewrite rng_mul_0_r; reflexivity.
 
@@ -967,6 +966,7 @@ Theorem ps_monom_mul_l : ∀ c d n,
 Proof.
 intros c d n.
 progress unfold ps_monom; simpl.
+...
 apply mkps_morphism; simpl; [ idtac | idtac | reflexivity ].
  constructor; intros i; simpl.
  destruct i; simpl.
@@ -981,7 +981,7 @@ apply mkps_morphism; simpl; [ idtac | idtac | reflexivity ].
   rewrite divmod_div.
   rewrite fold_sub_succ_l.
   rewrite Nat.div_1_r.
-  destruct (zerop (j mod Pos.to_nat (Qden n))) as [H₁| H₁].
+  destruct (zerop (j mod Pos.to_nat (q_den n))) as [H₁| H₁].
    apply Nat.Div0.mod_divides in H₁; auto with Arith.
    destruct H₁ as (e, He).
    rewrite Nat.mul_comm in He.
@@ -1025,7 +1025,7 @@ destruct i; simpl.
  destruct j; simpl.
   rewrite Nat.Div0.mod_0_l; auto with Arith; simpl.
   rewrite Nat.Div0.div_0_l; auto with Arith; simpl.
-  destruct (zerop (S i mod Pos.to_nat (Qden p))) as [H| H].
+  destruct (zerop (S i mod Pos.to_nat (q_den p))) as [H| H].
    apply Nat.Div0.mod_divides in H; auto with Arith.
    destruct H as (d, Hd).
    rewrite Nat.mul_comm in Hd; rewrite Hd.
@@ -1035,7 +1035,7 @@ destruct i; simpl.
 
    rewrite rng_mul_0_r; reflexivity.
 
-  destruct (zerop (S j mod Pos.to_nat (Qden q))) as [H| H].
+  destruct (zerop (S j mod Pos.to_nat (q_den q))) as [H| H].
    apply Nat.Div0.mod_divides in H; auto with Arith.
    destruct H as (d, Hd).
    rewrite Nat.mul_comm in Hd; rewrite Hd.
