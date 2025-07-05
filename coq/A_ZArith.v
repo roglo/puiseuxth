@@ -2663,6 +2663,60 @@ destruct (Bool.bool_dec sa sb) as [Hsab| Hsab]. {
 }
 Qed.
 
+Theorem mod_mul : ∀ a b, b ≠ 0%Z → ((a * b) mod b)%Z = 0%Z.
+Proof.
+intros * Hbz.
+remember (a * b)%Z as c eqn:Hc.
+symmetry in Hc.
+destruct c as [| sc vc]; [ easy | ].
+progress unfold Z.rem.
+progress unfold Z.div_eucl.
+destruct b as [| sb vb]; [ now rewrite Z.mul_0_r in Hc | ].
+remember (z_pos_div_eucl vc vb) as qr eqn:Hqr.
+symmetry in Hqr.
+destruct qr as (q, r).
+destruct sb. {
+  destruct sc; cbn. {
+    progress unfold z_pos_div_eucl in Hqr.
+    injection Hqr; clear Hqr; intros; subst.
+    rewrite Z.mul_comm in Hc; cbn in Hc.
+    destruct a as [| sa va]; [ easy | ].
+    destruct sa; [ | easy ].
+    injection Hc; clear Hc; intros; subst.
+    rewrite Pos2Nat.inj_mul.
+    now rewrite Nat.mul_comm, Nat.Div0.mod_mul.
+  }
+  destruct r as [| sr vr]; [ easy | cbn ].
+  destruct sr; cbn. {
+    remember (vb ?= vr)%pos as vbr eqn:Hvbr.
+    symmetry in Hvbr.
+    destruct vbr; [ easy | exfalso | exfalso ]. {
+      apply Pos.compare_lt_iff in Hvbr.
+      progress unfold z_pos_div_eucl in Hqr.
+      injection Hqr; clear Hqr; intros H1 H2; subst.
+      apply (f_equal Z.to_nat) in H1; cbn in H1.
+      rewrite Nat2Z_id in H1.
+      specialize (Nat.mod_upper_bound (Pos.to_nat vc) (Pos.to_nat vb)) as H2.
+      rewrite H1 in H2.
+      assert (H : Pos.to_nat vb ≠ 0) by easy.
+      specialize (H2 H); clear H.
+      progress unfold Pos.to_nat in H2.
+      apply Nat.add_lt_mono_r in H2.
+      progress unfold Pos.lt in Hvbr.
+      now apply Nat.lt_asymm in H2.
+    } {
+      apply Pos.compare_gt_iff in Hvbr.
+      rewrite Z.mul_comm in Hc; cbn in Hc.
+      destruct a as [| sa va]; [ easy | ].
+      destruct sa; [ easy | ].
+      injection Hc; clear Hc; intros; subst.
+      progress unfold z_pos_div_eucl in Hqr.
+      injection Hqr; clear Hqr; intros H1 H2; subst.
+      apply (f_equal Z.to_nat) in H1.
+      rewrite Nat2Z_id in H1.
+      cbn - [ Pos.to_nat ] in H1.
+...
+
 Theorem mod_divide : ∀ a b, b ≠ 0%Z → (a mod b)%Z = 0%Z ↔ (b | a)%Z.
 Proof.
 intros * Hbz.
@@ -2735,7 +2789,9 @@ split; intros Hab. {
   now apply (z_pos_div_eucl_rem_0_divide q).
 }
 destruct Hab as (c, Hc); subst a.
-Search ((_ * _) mod _)%Z.
+Search ((_ * _) mod _ = 0)%Z.
+...
+Z.mod_mul: ∀ a b : Z, b ≠ 0%Z → ((a * b) mod b)%Z = 0%Z
 ...
 
 End Z.
