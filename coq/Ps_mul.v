@@ -706,6 +706,33 @@ rewrite <- Z.sub_max_distr_l, Z.sub_diag.
 rewrite <- Z.sub_max_distr_l, Z.sub_diag.
 rewrite Z2Nat.id; [ | apply Z.le_max_r ].
 rewrite Z2Nat.id; [ | apply Z.le_max_r ].
+do 2 rewrite (Z.mul_mul_swap _ _ (z_val true c₃)).
+rewrite (Z.mul_mul_swap _ (z_val true c₂)).
+rewrite Z.add_comm, Z.sub_add_distr, Z.add_sub.
+do 2 rewrite (Z.mul_mul_swap _ _ (z_val true c₃)).
+do 2 rewrite (Z.mul_mul_swap _ _ (z_val true c₂)).
+do 2 rewrite <- Z.mul_sub_distr_r.
+remember (_ - _)%Z as x.
+do 2 rewrite <- Z.mul_assoc.
+remember (z_val true c₁ * _)%Z as y.
+Check Z.mul_max_distr_nonneg_r.
+...
+Z.mul_max_distr_nonneg_l:
+  ∀ n m p : Z, (0 <= p)%Z → Z.max (p * n) (p * m) = (p * Z.max n m)%Z
+Z.mul_max_distr_nonneg_r:
+  ∀ n m p : Z, (0 <= p)%Z → Z.max (n * p) (m * p) = (Z.max n m * p)%Z
+...
+Search (Z.max _ _ * _)%Z.
+Search (_ * Z.max _ _)%Z.
+Z.mul_max_distr_nonneg_l:
+  ∀ n m p : Z, (0 <= p)%Z → Z.max (p * n) (p * m) = (p * Z.max n m)%Z
+Z.mul_min_distr_nonpos_l:
+  ∀ n m p : Z, (p <= 0)%Z → Z.min (p * n) (p * m) = (p * Z.max n m)%Z
+Z.mul_max_distr_nonneg_r:
+  ∀ n m p : Z, (0 <= p)%Z → Z.max (n * p) (m * p) = (Z.max n m * p)%Z
+Z.mul_min_distr_nonpos_r:
+  ∀ n m p : Z, (p <= 0)%Z → Z.min (n * p) (m * p) = (Z.max n m * p)%Z
+
 ...
 do 2 rewrite <- Z.of_nat_inj_mul.
 do 2 rewrite <- Z2Nat_inj_mul_pos_r.
