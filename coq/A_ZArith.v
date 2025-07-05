@@ -2631,9 +2631,9 @@ apply Nat.add_1_r.
 Qed.
 
 Theorem z_pos_div_eucl_rem_0_divide :
-  ∀ a b q s,
-  z_pos_div_eucl a b = (q, 0%Z)
-  → (z_val s b | z_val s a)%Z.
+  ∀ q sa va sb vb,
+  z_pos_div_eucl va vb = (q, 0%Z)
+  → (z_val sb vb | z_val sa va)%Z.
 Proof.
 intros * Hqr.
 progress unfold z_pos_div_eucl in Hqr.
@@ -2644,10 +2644,23 @@ destruct H1 as (c, Hc).
 apply (f_equal Z.of_nat) in Hc.
 rewrite Nat2Z_inj_mul in Hc.
 do 2 rewrite Z.pos_nat in Hc.
-exists (Z.of_nat c).
-destruct s; [ easy | ].
-apply (f_equal Z.opp) in Hc.
-now rewrite <- Z.mul_opp_r in Hc.
+destruct (Bool.bool_dec sa sb) as [Hsab| Hsab]. {
+  subst.
+  exists (Z.of_nat c).
+  destruct sb; [ easy | ].
+  apply (f_equal Z.opp) in Hc.
+  now rewrite <- Z.mul_opp_r in Hc.
+} {
+  exists (- Z.of_nat c)%Z.
+  rewrite Z.mul_opp_l.
+  destruct sa. {
+    destruct sb; [ easy | ].
+    now rewrite <- Z.mul_opp_r.
+  } {
+    destruct sb; [ | easy ].
+    now rewrite <- Hc.
+  }
+}
 Qed.
 
 Theorem mod_divide : ∀ a b, b ≠ 0%Z → (a mod b)%Z = 0%Z ↔ (b | a)%Z.
@@ -2668,22 +2681,10 @@ split; intros Hab. {
     cbn in Hab.
     destruct sb. {
       subst.
-      now apply (z_pos_div_eucl_rem_0_divide _ _ q).
+      now apply (z_pos_div_eucl_rem_0_divide q).
     }
     destruct r as [| sr vr]. {
-      clear Hab.
-      progress unfold z_pos_div_eucl in Hqr.
-      injection Hqr; clear Hqr; intros H1 H2; subst.
-      apply Nat2Z_eq_0 in H1.
-      apply Nat.Lcm0.mod_divide in H1.
-      destruct H1 as (c, Hc).
-      exists (- Z.of_nat c)%Z.
-      apply (f_equal Z.of_nat) in Hc.
-      rewrite Nat2Z_inj_mul in Hc.
-      do 2 rewrite Z.pos_nat in Hc.
-      rewrite Hc.
-      rewrite Z.mul_opp_l, <- Z.mul_opp_r.
-      easy.
+      now apply (z_pos_div_eucl_rem_0_divide q).
     }
     exfalso.
     cbn in Hab.
@@ -2704,15 +2705,37 @@ split; intros Hab. {
     now apply Nat.lt_irrefl in H2.
   }
   cbn in Hab.
-  destruct sb. 2: {
+  destruct sb. {
     cbn in Hab.
-    apply (f_equal Z.opp) in Hab.
-    rewrite Z.opp_involutive in Hab; cbn in Hab; subst.
-    now apply (z_pos_div_eucl_rem_0_divide _ _ q).
+    destruct r as [| sr vr]. {
+      cbn in Hab.
+      now apply (z_pos_div_eucl_rem_0_divide q).
+    }
+    exfalso.
+    destruct sr; [ | easy ].
+    cbn in Hab.
+    remember (vb ?= vr)%pos as vbr eqn:Hvbr.
+    symmetry in Hvbr.
+    destruct vbr; [ clear Hab | easy | easy ].
+    apply Pos.compare_eq_iff in Hvbr; subst.
+    progress unfold z_pos_div_eucl in Hqr.
+    injection Hqr; clear Hqr; intros H1 H2; subst.
+    apply (f_equal Z.to_nat) in H1.
+    rewrite Nat2Z_id in H1.
+    cbn in H1.
+    specialize (Nat.mod_upper_bound (Pos.to_nat va) (Pos.to_nat vr)) as H2.
+    rewrite H1 in H2.
+    assert (H : Pos.to_nat vr ≠ 0) by easy.
+    specialize (H2 H).
+    now apply Nat.lt_irrefl in H2.
   }
   cbn in Hab.
-  destruct r as [| sr vr]. {
-    cbn in Hab.
+  apply (f_equal Z.opp) in Hab.
+  rewrite Z.opp_involutive in Hab; cbn in Hab; subst.
+  now apply (z_pos_div_eucl_rem_0_divide q).
+}
+destruct Hab as (c, Hc); subst a.
+Search ((_ * _) mod _)%Z.
 ...
 
 End Z.
