@@ -643,28 +643,30 @@ progress unfold Z.of_pos.
 remember (v₁ * z_pos c₂ * z_pos c₁ * z_pos c₃)%Z as x eqn:Hx .
 replace (v₁ * z_pos c₃ * z_pos c₁ * z_pos c₂)%Z with x by (subst x; ring).
 do 2 rewrite Z.add_min_distr_l.
-...
-do 2 rewrite Z.add_add_simpl_l_l.
+rewrite (Z.add_comm x), Z.sub_add_distr, Z.add_sub.
+rewrite (Z.add_comm x), Z.sub_add_distr, Z.add_sub.
 clear x Hx.
 do 2 rewrite <- Z2Nat_inj_mul_pos_r.
 rewrite Pos2Z.inj_mul; do 2 rewrite Z.mul_assoc.
 do 4 rewrite Z.mul_sub_distr_r.
-rewrite <- Z.mul_min_distr_nonneg_r; [ idtac | apply Pos2Z.is_nonneg ].
-rewrite <- Z.mul_min_distr_nonneg_r; [ idtac | apply Pos2Z.is_nonneg ].
-rewrite <- Z.mul_min_distr_nonneg_r; [ idtac | apply Pos2Z.is_nonneg ].
-rewrite <- Z.mul_min_distr_nonneg_r; [ idtac | apply Pos2Z.is_nonneg ].
+rewrite <- Z.mul_min_distr_nonneg_r; [ idtac | easy ].
+rewrite <- Z.mul_min_distr_nonneg_r; [ idtac | easy ].
+rewrite <- Z.mul_min_distr_nonneg_r; [ idtac | easy ].
+rewrite <- Z.mul_min_distr_nonneg_r; [ idtac | easy ].
 rewrite Pos.mul_assoc.
 do 2 f_equal.
-f_equal.
- rewrite Pos_mul_mul_swap.
- do 2 f_equal.
- f_equal; [ ring | idtac ].
- f_equal; ring.
-
- rewrite Pos_mul_mul_swap.
- do 2 f_equal.
- f_equal; [ ring | idtac ].
- f_equal; ring.
+progress unfold Z.of_pos.
+f_equal. {
+  rewrite Pos.mul_mul_swap.
+  progress do 2 f_equal.
+  f_equal; [ ring | idtac ].
+  f_equal; ring.
+} {
+  rewrite Pos.mul_mul_swap.
+  do 2 f_equal.
+  f_equal; [ ring | idtac ].
+  f_equal; ring.
+}
 Qed.
 
 Theorem ps_ordnum_adjust_mul_add₂_distr_l : ∀ ps₁ ps₂ ps₃,
@@ -688,6 +690,7 @@ rewrite Z.mul_sub_distr_r.
 do 3 rewrite <- Z.pos_nat.
 do 5 rewrite Z.mul_add_distr_r.
 rewrite Z.mul_sub_distr_r.
+...
 do 2 rewrite <- Z.of_nat_inj_mul.
 do 2 rewrite <- Z2Nat_inj_mul_pos_r.
 do 2 rewrite Z.mul_sub_distr_r.
