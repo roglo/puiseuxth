@@ -487,7 +487,7 @@ destruct n as [n| ]; constructor. {
   rewrite ps_normal_adjust_eq with (k := Z.to_pos g) (n := n).
   unfold adjust_ps; simpl.
   unfold normalise_series.
-  rewrite series_stretch_shrink. {
+  rewrite (series_stretch_shrink K). {
     rewrite series_shift_left_shift; [ idtac | apply Hn ].
     rewrite <- Z.pos_nat.
     rewrite Z2Pos.to_nat; [ | easy ].
@@ -500,7 +500,6 @@ destruct n as [n| ]; constructor. {
       apply Z.mod_divide; [ easy | ].
       rewrite Hg; apply Z.gcd_divide_l.
     }
-(**)
     apply Z.mod_divide in Hxk; [ | easy ].
     destruct Hxk as (c, Hc); move Hc at top; subst x.
     rewrite Z.mul_div; [ | easy ].
@@ -518,48 +517,14 @@ destruct n as [n| ]; constructor. {
       rewrite <- Hc'; simpl.
       destruct ps; reflexivity.
     }
-...
-(*
-Z.div_exact
-     : ∀ a b : Z, b ≠ 0%Z → a = (b * (a / b))%Z ↔ (a mod b)%Z = 0%Z
-*)
-    apply Z.div_exact in Hxk.
-    rewrite <- Hxk, Hx, Z.add_simpl_r.
-    rewrite Hy, Z.gcd_comm, <- Z.gcd_assoc in Hg.
-    remember (greatest_series_x_power K (ps_terms ps) n) as z.
-    pose proof (Z.gcd_divide_l (z_pos (ps_polydo ps)) (Z.gcd (Z.of_nat z) x))
-      as Hgc.
-    rewrite <- Hg in Hgc.
-    destruct Hgc as (c, Hc).
-    rewrite Hc.
-    rewrite Z.div_mul.
-     rewrite <- Z2Pos.inj_mul; [ idtac | idtac | assumption ].
-      rewrite <- Hc; simpl.
-      destruct ps; reflexivity.
-
-      destruct c as [| c| c].
-       exfalso; revert Hc; apply Pos2Z_ne_0.
-
-       apply Pos2Z.is_pos.
-
-       simpl in Hc.
-       destruct g as [| g| g].
-        exfalso; revert Hc; apply Pos2Z_ne_0.
-
-        rewrite <- Pos2Z.opp_pos in Hc.
-        apply Z.add_move_0_r in Hc.
-        rewrite <- Pos2Z.inj_add in Hc.
-        exfalso; revert Hc; apply Pos2Z_ne_0.
-
-        apply Z.nle_gt in Hgp.
-        exfalso; apply Hgp; apply Pos2Z.neg_is_nonpos.
-
-     intros H; revert Hgp; rewrite H; apply Z.lt_irrefl.
-
-    intros H1; revert Hgp; rewrite H1; apply Z.lt_irrefl.
-
+    destruct c' as [| sc vc]; [ exfalso; revert Hc'; apply Pos2Z_ne_0 | ].
+    destruct sc; [ easy | exfalso ].
+    simpl in Hc'.
+    destruct g as [| sg vg]; [ revert Hc'; apply Pos2Z_ne_0 | ].
+    now destruct sg.
+  }
   rewrite greatest_series_x_power_left_shift, Nat.add_0_r.
-  rewrite Pos2Nat_to_pos; [ idtac | assumption ].
+  rewrite Z2Pos.to_nat; [ | easy ].
   remember (greatest_series_x_power K (ps_terms ps) n) as t.
   rewrite Hy in Hg.
   rewrite Z.gcd_assoc in Hg.
@@ -568,19 +533,20 @@ Z.div_exact
   rewrite <- Hg in H.
   destruct H as (c, Hc).
   exists (Z.to_nat c).
-  rewrite <- Z2Nat.inj_mul.
+  rewrite <- Z2Nat.inj_mul. {
    rewrite <- Hc.
-   rewrite Nat2Z.id; symmetry; apply Heqt.
-
-   apply Z.mul_le_mono_pos_r with (p := g); [ assumption | idtac ].
-   rewrite <- Hc; simpl.
-   apply Nat2Z.is_nonneg.
-
-   apply Z.lt_le_incl; assumption.
-
- unfold normalise_ps; simpl.
- rewrite series_order_series_0, Hn.
- reflexivity.
+   symmetry; apply Z.of_nat_id.
+  } {
+    apply (Z.mul_le_mono_pos_r g); [ assumption | idtac ].
+    rewrite <- Hc; simpl.
+    apply Z.of_nat_is_nonneg.
+  } {
+    apply Z.lt_le_incl; assumption.
+  }
+}
+unfold normalise_ps; simpl.
+rewrite series_order_series_0, Hn.
+reflexivity.
 Qed.
 
 Theorem ps_ordnum_normalise : ∀ ps n p vn,
@@ -668,15 +634,16 @@ rewrite series_add_comm.
 rewrite series_mul_comm.
 rewrite series_shift_mul.
 rewrite series_add_comm.
-replace (c₁ * c₃ * c₂)%pos with (c₁ * c₂ * c₃)%pos
- by apply Pos_mul_mul_swap.
+rewrite (Pos.mul_mul_swap c₁ c₃ c₂).
 rewrite <- series_mul_add_distr_r.
 rewrite series_mul_comm.
 do 2 rewrite Pos2Z.inj_mul, Z.mul_assoc.
 do 4 rewrite Z.mul_add_distr_r.
+progress unfold Z.of_pos.
 remember (v₁ * z_pos c₂ * z_pos c₁ * z_pos c₃)%Z as x eqn:Hx .
 replace (v₁ * z_pos c₃ * z_pos c₁ * z_pos c₂)%Z with x by (subst x; ring).
 do 2 rewrite Z.add_min_distr_l.
+...
 do 2 rewrite Z.add_add_simpl_l_l.
 clear x Hx.
 do 2 rewrite <- Z2Nat_inj_mul_pos_r.
