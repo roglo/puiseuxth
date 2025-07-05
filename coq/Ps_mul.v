@@ -966,36 +966,36 @@ Theorem ps_monom_mul_l : ∀ c d n,
 Proof.
 intros c d n.
 progress unfold ps_monom; simpl.
-...
-apply mkps_morphism; simpl; [ idtac | idtac | reflexivity ].
- constructor; intros i; simpl.
- destruct i; simpl.
+apply mkps_morphism; simpl; [ | symmetry; apply Z.mul_1_r | ]. 2: {
+  progress unfold cm; cbn.
+  symmetry; apply Pos.mul_1_l.
+}
+constructor; intros i; simpl.
+destruct i; simpl. {
   progress unfold convol_mul; simpl.
   rewrite summation_only_one; simpl.
   rewrite Nat.Div0.mod_0_l; auto with Arith; simpl.
   rewrite Nat.Div0.div_0_l; auto with Arith; simpl.
-
-  progress unfold convol_mul; simpl.
-  rewrite all_0_summation_0; [ reflexivity | idtac ].
-  intros j (_, Hj).
-  rewrite divmod_div.
-  rewrite fold_sub_succ_l.
-  rewrite Nat.div_1_r.
-  destruct (zerop (j mod Pos.to_nat (q_den n))) as [H₁| H₁].
-   apply Nat.Div0.mod_divides in H₁; auto with Arith.
-   destruct H₁ as (e, He).
-   rewrite Nat.mul_comm in He.
-   rewrite He.
-   rewrite Nat.div_mul; auto with Arith.
-   destruct (zerop e) as [H₂| H₂].
+}
+progress unfold convol_mul; simpl.
+rewrite all_0_summation_0; [ reflexivity | idtac ].
+intros j (_, Hj).
+rewrite divmod_div.
+rewrite fold_sub_succ_l.
+rewrite Nat.div_1_r.
+destruct (zerop (j mod Pos.to_nat (q_den n))) as [H₁| H₁]. {
+  apply Nat.Div0.mod_divides in H₁; auto with Arith.
+  destruct H₁ as (e, He).
+  rewrite Nat.mul_comm in He.
+  rewrite He.
+  rewrite Nat.div_mul; auto with Arith.
+  destruct (zerop e) as [H₂| H₂]. {
     subst e; rewrite Nat.sub_0_r; simpl.
-    rewrite rng_mul_0_r; reflexivity.
-
-    rewrite rng_mul_0_l; reflexivity.
-
-   rewrite rng_mul_0_l; reflexivity.
-
- rewrite Z.mul_1_r; reflexivity.
+    apply rng_mul_0_r.
+  }
+  apply rng_mul_0_l.
+}
+apply rng_mul_0_l.
 Qed.
 
 Theorem ps_monom_add_r : ∀ c p q,

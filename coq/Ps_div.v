@@ -2,6 +2,7 @@
 
 From Stdlib Require Import Utf8 Arith.
 
+Require Import A_PosArith A_ZArith.
 Require Import Misc.
 Require Import NbarM.
 Require Import Field2.
@@ -158,6 +159,7 @@ destruct n as [n| ]. {
       rewrite Z.add_0_r.
       remember Z.gcd as g; simpl; subst g.
       rewrite Z.gcd_0_l.
+...
       rewrite Z.gcd_1_l.
       rewrite Z.div_0_l; [ reflexivity | idtac ].
       intros H; discriminate H.
