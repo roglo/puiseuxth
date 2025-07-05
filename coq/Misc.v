@@ -321,6 +321,7 @@ Proof. now intros; destruct i. Qed.
 (* Z_div_pos_is_nonneg → Nat2Z.is_nonneg *)
 (* Qplus_cmp_compat_r → Q.compare_add_mono_r *)
 (* list_nth_in → List.nth_In *)
+(* Z2Nat_id_max → Z2Nat.of_nat *)
 
 (*
 Theorem Qcmp_plus_minus_cmp_r : ∀ x y z,
@@ -532,32 +533,13 @@ destruct (Z.le_dec (a - c) (b - c)) as [Ha| Ha]. {
 }
 Qed.
 
-Theorem Z_sub_max_distr_l :
-  ∀ a b c, Z.max (a - b) (a - c) = (a - Z.min b c)%Z.
-Proof.
-intros.
-progress unfold Z.min, Z.max.
-destruct (Z.le_dec (a - b) (a - c)) as [Ha| Ha]. {
-  destruct (Z.le_dec b c) as [Hab| Hab]; [ | easy ].
-  progress f_equal.
-  apply Z.sub_le_mono_l in Ha.
-  now apply Z.le_antisymm.
-} {
-  destruct (Z.le_dec b c) as [Hab| Hab]; [ easy | ].
-  progress f_equal.
-  apply Z.nle_gt in Ha, Hab.
-  apply Z.sub_lt_mono_l in Ha.
-  now apply Z.lt_asymm in Ha.
-}
-Qed.
-
 Theorem Z2Nat_sub_min1 : ∀ x y z,
   (Z.to_nat (Z.min x y - z) + Z.to_nat (y - x))%nat =
   Z.to_nat (y - Z.min z x).
 Proof.
 intros x y z.
 rewrite <- Z_sub_min_distr_r.
-rewrite <- Z_sub_max_distr_l.
+rewrite <- Z.sub_max_distr_l.
 destruct (Z.le_dec (x - z) (y - z)) as [Hle₁| Hgt₁]. {
   rewrite Z.min_l; [ | easy ].
   apply Z.sub_le_mono_r in Hle₁.
@@ -605,7 +587,7 @@ Theorem Z2Nat_sub_min2 : ∀ x y z,
 Proof.
 intros x y z.
 rewrite <- Z_sub_min_distr_r.
-rewrite <- Z_sub_max_distr_l.
+rewrite <- Z.sub_max_distr_l.
 destruct (Z.le_dec (x - z) (y - z)) as [Hle₁| Hgt₁]. {
   rewrite Z.min_l; [ | easy ].
   apply Z.sub_le_mono_r in Hle₁.
@@ -680,9 +662,6 @@ rewrite <- Nat.sub_add_distr.
 rewrite Nat.add_comm.
 now rewrite Nat.sub_add_distr.
 Qed.
-
-Theorem Z2Nat_id_max : ∀ x, Z.of_nat (Z.to_nat x) = Z.max 0 x.
-Proof. apply Z2Nat.of_nat. Qed.
 
 Theorem Nat_sub_succ_1 : ∀ n, (S n - 1 = n)%nat.
 Proof. intros n; simpl; rewrite Nat.sub_0_r; reflexivity. Qed.

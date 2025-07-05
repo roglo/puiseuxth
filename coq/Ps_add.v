@@ -425,7 +425,7 @@ subst n.
 unfold adjust_ps; simpl.
 rewrite Pos.mul_1_r, Z.mul_1_r.
 rewrite series_stretch_1.
-rewrite Z2Nat_id_max.
+rewrite Z2Nat.of_nat.
 rewrite <- Z.sub_min_distr_l.
 rewrite Z.sub_0_r, Z.sub_diag, Z.min_comm.
 rewrite Pos.mul_1_l.

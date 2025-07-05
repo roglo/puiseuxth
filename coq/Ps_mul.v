@@ -690,6 +690,22 @@ rewrite Z.mul_sub_distr_r.
 do 3 rewrite <- Z.pos_nat.
 do 5 rewrite Z.mul_add_distr_r.
 rewrite Z.mul_sub_distr_r.
+(**)
+move v₂ before v₁; move v₃ before v₂.
+move c₁ after c₂; move c₃ before c₂.
+do 2 rewrite Z.pos_nat.
+progress unfold z_pos.
+rewrite Z.mul_mul_swap.
+rewrite <- Z.add_sub_assoc.
+f_equal.
+progress unfold Z.of_pos, z_pos.
+rewrite (Z.mul_mul_swap v₂).
+rewrite (Z.mul_mul_swap _ (z_val true c₃)).
+f_equal.
+rewrite <- Z.sub_max_distr_l, Z.sub_diag.
+rewrite <- Z.sub_max_distr_l, Z.sub_diag.
+rewrite Z2Nat.id; [ | apply Z.le_max_r ].
+rewrite Z2Nat.id; [ | apply Z.le_max_r ].
 ...
 do 2 rewrite <- Z.of_nat_inj_mul.
 do 2 rewrite <- Z2Nat_inj_mul_pos_r.
