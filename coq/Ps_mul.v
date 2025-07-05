@@ -758,25 +758,27 @@ rewrite series_mul_comm, series_shift_mul, series_mul_comm.
 do 2 rewrite Pos2Z.inj_mul.
 do 2 rewrite Z.mul_assoc.
 do 4 rewrite Z.mul_add_distr_r.
+progress unfold Z.of_pos.
 remember (v₁ * z_pos c₃ * z_pos c₁ * z_pos c₂)%Z as x.
 replace (v₁ * z_pos c₂ * z_pos c₁ * z_pos c₃)%Z with x by (subst x; ring).
-...
 do 2 rewrite Z.add_min_distr_l.
-do 2 rewrite Z.add_add_simpl_l_l.
+rewrite (Z.add_comm x), Z.sub_add_distr, Z.add_sub.
+rewrite (Z.add_comm x), Z.sub_add_distr, Z.add_sub.
 clear x Heqx.
 do 2 rewrite stretch_shift_series_distr.
 do 2 rewrite <- Z2Nat_inj_mul_pos_r.
 rewrite Pos2Z.inj_mul.
 do 2 rewrite Z.mul_assoc.
 do 4 rewrite Z.mul_sub_distr_r.
-rewrite <- Z.mul_min_distr_nonneg_r; [ idtac | apply Pos2Z.is_nonneg ].
-rewrite <- Z.mul_min_distr_nonneg_r; [ idtac | apply Pos2Z.is_nonneg ].
-rewrite <- Z.mul_min_distr_nonneg_r; [ idtac | apply Pos2Z.is_nonneg ].
-rewrite <- Z.mul_min_distr_nonneg_r; [ idtac | apply Pos2Z.is_nonneg ].
+rewrite <- Z.mul_min_distr_nonneg_r; [ idtac | easy ].
+rewrite <- Z.mul_min_distr_nonneg_r; [ idtac | easy ].
+rewrite <- Z.mul_min_distr_nonneg_r; [ idtac | easy ].
+rewrite <- Z.mul_min_distr_nonneg_r; [ idtac | easy ].
 rewrite series_add_comm.
 do 2 rewrite <- series_stretch_stretch.
 rewrite Pos.mul_assoc.
-rewrite Pos_mul_mul_swap.
+rewrite Pos.mul_mul_swap.
+progress unfold Z.of_pos.
 remember (v₂ * z_pos c₁ * z_pos c₁ * z_pos c₃)%Z as x.
 replace (v₂ * z_pos c₃ * z_pos c₁ * z_pos c₁)%Z with x by (subst; ring).
 subst x.
@@ -784,10 +786,10 @@ remember (v₃ * z_pos c₁ * z_pos c₁ * z_pos c₂)%Z as x.
 replace (v₃ * z_pos c₂ * z_pos c₁ * z_pos c₁)%Z with x by (subst; ring).
 subst x.
 remember (c₁ * c₃ * c₁)%pos as x.
-rewrite Pos_mul_mul_swap in Heqx.
+rewrite Pos.mul_mul_swap in Heqx.
 subst x.
 remember (c₁ * c₂ * c₁)%pos as x.
-rewrite Pos_mul_mul_swap in Heqx.
+rewrite Pos.mul_mul_swap in Heqx.
 subst x.
 reflexivity.
 Qed.
@@ -863,7 +865,7 @@ remember ((vcc + Z.min cvc ccv) * z_pos (ps_polydo ps₁))%Z as n₁.
 remember ((vcc + Z.min cvc ccv) * z_pos (ps_polydo ps₁))%Z as n₂.
 do 2 rewrite eq_ps_add_add₂.
 rewrite ps_adjust_eq with (n := O) (k := ps_polydo ps₁); symmetry.
-rewrite ps_adjust_eq with (n := O) (k := xH); symmetry.
+rewrite ps_adjust_eq with (n := O) (k := 1%pos); symmetry.
 remember (adjust_ps 0 (ps_polydo ps₁) (ps₁ * ps_add₂ ps₂ ps₃))%ps as ps₄
   eqn:Hps₄ .
 remember (adjust_ps 0 1 (ps_add₂ (ps₁ * ps₂) (ps₁ * ps₃)))%ps as ps₅
@@ -891,6 +893,7 @@ Theorem ps_monom_add_l : ∀ c d n,
 Proof.
 intros c d n.
 unfold ps_monom; simpl.
+...
 rewrite ps_adjust_eq with (n := 0%nat) (k := Qden n).
 unfold adjust_ps; simpl.
 rewrite series_shift_0.
