@@ -494,10 +494,17 @@ destruct n as [n| ]; constructor. {
     rewrite Z2Nat.id; [ idtac | apply Z.lt_le_incl; assumption ].
     rewrite Z.mul_comm.
     assert (x mod g = 0)%Z as Hxk. {
+Locate "|".
+Search (_ ↔ (_ | _))%nat.
 ...
 Check Z.mod_divide.
 Z.mod_divide
      : ∀ a b : Z, b ≠ 0%Z → (a mod b)%Z = 0%Z ↔ (b | a)%Z
+Nat.Lcm0.mod_divide:
+    ∀ a b : nat, a mod b = 0 ↔ Nat.divide b a
+Check Nat.mod_divide.
+Nat.Private_NLcmProp.mod_divide
+     : ∀ a b : nat, b ≠ 0 → a mod b = 0 ↔ Nat.divide b a
 ...
       apply Z.mod_divide.
     intros H; revert Hgp; rewrite H; apply Z.lt_irrefl.
