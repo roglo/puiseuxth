@@ -2149,6 +2149,30 @@ do 3 rewrite (Z.mul_comm _ c).
 now apply Z.mul_min_distr_nonneg_l.
 Qed.
 
+Theorem mul_max_distr_nonneg_l :
+  ∀ a b c, (0 ≤ a)%Z → Z.max (a * b) (a * c) = (a * Z.max b c)%Z.
+Proof.
+intros * Hza.
+progress unfold Z.max.
+destruct (Z.le_dec b c) as [Hbc| Hbc]. {
+  destruct (Z.le_dec (a * b) (a * c)) as [Habc| Habc]; [ easy | ].
+  exfalso; apply Habc; clear Habc.
+  now apply Z.mul_le_mono_nonneg_l.
+}
+destruct (Z.le_dec (a * b) (a * c)) as [Habc| Habc]; [ | easy ].
+destruct (Z.eq_dec a 0) as [Haz| Haz]; [ now subst | ].
+apply Z.mul_le_mono_pos_l in Habc; [ easy | ].
+now apply Z.lt_iff.
+Qed.
+
+Theorem mul_max_distr_nonneg_r :
+  ∀ a b c, (0 ≤ c)%Z → Z.max (a * c) (b * c) = (Z.max a b * c)%Z.
+Proof.
+intros * Hzc.
+do 3 rewrite (Z.mul_comm _ c).
+now apply Z.mul_max_distr_nonneg_l.
+Qed.
+
 Theorem min_id : ∀ a, Z.min a a = a.
 Proof.
 intros.

@@ -690,7 +690,6 @@ rewrite Z.mul_sub_distr_r.
 do 3 rewrite <- Z.pos_nat.
 do 5 rewrite Z.mul_add_distr_r.
 rewrite Z.mul_sub_distr_r.
-(**)
 move v₂ before v₁; move v₃ before v₂.
 move c₁ after c₂; move c₃ before c₂.
 do 2 rewrite Z.pos_nat.
@@ -715,46 +714,7 @@ do 2 rewrite <- Z.mul_sub_distr_r.
 remember (_ - _)%Z as x.
 do 2 rewrite <- Z.mul_assoc.
 remember (z_val true c₁ * _)%Z as y.
-Check Z.mul_max_distr_nonneg_r.
-...
-Z.mul_max_distr_nonneg_l:
-  ∀ n m p : Z, (0 <= p)%Z → Z.max (p * n) (p * m) = (p * Z.max n m)%Z
-Z.mul_max_distr_nonneg_r:
-  ∀ n m p : Z, (0 <= p)%Z → Z.max (n * p) (m * p) = (Z.max n m * p)%Z
-...
-Search (Z.max _ _ * _)%Z.
-Search (_ * Z.max _ _)%Z.
-Z.mul_max_distr_nonneg_l:
-  ∀ n m p : Z, (0 <= p)%Z → Z.max (p * n) (p * m) = (p * Z.max n m)%Z
-Z.mul_min_distr_nonpos_l:
-  ∀ n m p : Z, (p <= 0)%Z → Z.min (p * n) (p * m) = (p * Z.max n m)%Z
-Z.mul_max_distr_nonneg_r:
-  ∀ n m p : Z, (0 <= p)%Z → Z.max (n * p) (m * p) = (Z.max n m * p)%Z
-Z.mul_min_distr_nonpos_r:
-  ∀ n m p : Z, (p <= 0)%Z → Z.min (n * p) (m * p) = (Z.max n m * p)%Z
-
-...
-do 2 rewrite <- Z.of_nat_inj_mul.
-do 2 rewrite <- Z2Nat_inj_mul_pos_r.
-do 2 rewrite Z.mul_sub_distr_r.
-do 3 rewrite Z.pos_nat.
-rewrite Z.add_sub_assoc.
-f_equal.
- rewrite Z.mul_mul_swap.
- apply Z.add_cancel_l.
- rewrite <- Z.mul_assoc, Z.mul_mul_swap, Z.mul_assoc.
- reflexivity.
-
- do 2 f_equal.
- rewrite <- Z.mul_min_distr_nonneg_r; [ idtac | apply Pos2Z.is_nonneg ].
- rewrite <- Z.mul_min_distr_nonneg_r; [ idtac | apply Pos2Z.is_nonneg ].
- remember (v₁ * z_pos c₃ * z_pos c₁ * z_pos c₂)%Z as x.
- replace (v₁ * z_pos c₂ * z_pos c₁ * z_pos c₃)%Z with x by (subst; ring).
- rewrite Z.add_min_distr_l.
- rewrite Z.add_add_simpl_l_l.
- clear x Heqx.
- f_equal; [ ring | idtac ].
- f_equal; ring.
+rewrite <- Z.mul_max_distr_nonneg_r; [ easy | now subst y ].
 Qed.
 
 Theorem ps_polydo_adjust_mul_add₂_distr_l : ∀ ps₁ ps₂ ps₃,
@@ -766,7 +726,7 @@ unfold cm; simpl.
 unfold cm_factor.
 rewrite Pos.mul_1_r.
 do 2 rewrite Pos.mul_assoc.
-rewrite Pos_mul_mul_swap.
+rewrite Pos.mul_mul_swap.
 reflexivity.
 Qed.
 
@@ -800,6 +760,7 @@ do 2 rewrite Z.mul_assoc.
 do 4 rewrite Z.mul_add_distr_r.
 remember (v₁ * z_pos c₃ * z_pos c₁ * z_pos c₂)%Z as x.
 replace (v₁ * z_pos c₂ * z_pos c₁ * z_pos c₃)%Z with x by (subst x; ring).
+...
 do 2 rewrite Z.add_min_distr_l.
 do 2 rewrite Z.add_add_simpl_l_l.
 clear x Heqx.
