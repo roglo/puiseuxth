@@ -968,16 +968,24 @@ rewrite Q.add_comm.
 apply Q.lt_sub_lt_add_l.
 Qed.
 
+Theorem lt_add_lt_sub_l : ∀ a b c, (a + b < c ↔ b < c - a)%Q.
+Proof.
+intros.
+rewrite Q.add_comm.
+split; intros Hlt. {
+  apply (Q.add_lt_mono_r _ _ a).
+  now rewrite Q.sub_add.
+} {
+  apply (Q.add_lt_mono_r _ _ a) in Hlt.
+  now rewrite Q.sub_add in Hlt.
+}
+Qed.
+
 Theorem lt_add_lt_sub_r : ∀ a b c, (a + b < c ↔ a < c - b)%Q.
 Proof.
 intros.
-split; intros Hlt. {
-  apply (Q.add_lt_mono_r _ _ b).
-  now rewrite Q.sub_add.
-} {
-  apply (Q.add_lt_mono_r _ _ b) in Hlt.
-  now rewrite Q.sub_add in Hlt.
-}
+rewrite Q.add_comm.
+apply Q.lt_add_lt_sub_l.
 Qed.
 
 Theorem mul_inv_diag_l : ∀ a, (¬ a == 0 → a⁻¹ * a == 1)%Q.
