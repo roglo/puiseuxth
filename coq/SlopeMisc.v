@@ -2,7 +2,7 @@
 
 From Stdlib Require Import Utf8.
 
-Require Import A_QArith.
+Require Import A_PosArith A_ZArith A_QArith.
 Require Import Slope_base.
 Require Import Misc.
 
@@ -51,16 +51,17 @@ Theorem slope_cmp_flatten : ∀ x₁ y₁ x₂ y₂ x₃ y₃ x₄ y₄,
 Proof.
 intros x₁ y₁ x₂ y₂ x₃ y₃ x₄ y₄ Hlt₁₂ Hlt₃₄.
 unfold slope_expr; simpl.
-rewrite Qcmp_shift_mult_r; [ idtac | apply Qlt_minus, Qnat_lt; assumption ].
-rewrite Q_mul_div_swap.
-rewrite Qcmp_shift_mult_l; [ idtac | apply Qlt_minus, Qnat_lt; assumption ].
-repeat rewrite Qmult_minus_distr_l.
-repeat rewrite Qmult_minus_distr_r.
-repeat rewrite Q_sub_sub_distr.
-repeat rewrite <- Q_add_sub_swap.
-repeat rewrite <- Qcmp_plus_minus_cmp_r.
-repeat rewrite <- Q_add_sub_swap.
-repeat rewrite <- Qplus_cmp_cmp_minus_r.
+rewrite Qcmp_shift_mult_r; [ idtac | apply Q.lt_0_sub, Qnat_lt; assumption ].
+rewrite Q.mul_div_swap.
+rewrite Qcmp_shift_mult_l; [ idtac | apply Q.lt_0_sub, Qnat_lt; assumption ].
+progress unfold Qnat.
+progress repeat rewrite Q.mul_sub_distr_r.
+progress repeat rewrite Q.mul_sub_distr_l.
+progress repeat rewrite Q.sub_sub_distr.
+progress repeat rewrite <- Q.add_sub_swap.
+progress repeat rewrite <- Qcmp_plus_minus_cmp_r.
+progress repeat rewrite <- Q.add_sub_swap.
+progress repeat rewrite <- Qplus_cmp_cmp_minus_r.
 reflexivity.
 Qed.
 
@@ -75,6 +76,7 @@ Theorem slope_eq : ∀ x₁ y₁ x₂ y₂ x₃ y₃,
 Proof.
 intros x₁ y₁ x₂ y₂ x₃ y₃ H₁₂ H₂₃ H₃₁ H.
 unfold slope_expr in H |-*.
+...
 apply Qeq_shift_mult_l in H. {
   symmetry in H.
   rewrite Q_mul_div_swap in H.

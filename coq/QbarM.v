@@ -1,7 +1,8 @@
 (* Qbar.v *)
 
-From Stdlib Require Import Utf8 ZArith.
+From Stdlib Require Import Utf8.
 
+Require Import A_QArith.
 Require Import Misc.
 
 Set Implicit Arguments.
@@ -30,15 +31,15 @@ Definition binop f dx dy xb yb :=
   | ∞ => dy
   end.
 
-Definition add := binop Qplus ∞ ∞.
-Definition mul := binop Qmult ∞ ∞.
+Definition add := binop Q.add ∞ ∞.
+Definition mul := binop Q.mul ∞ ∞.
 Definition min x y := binop Qmin x y x y.
 
 Definition sub xb yb :=
   match yb with
   | qfin y =>
       match xb with
-      | qfin x => qfin (Qminus x y)
+      | qfin x => qfin (Q.sub x y)
       | ∞ => ∞
       end
   | ∞ => 0
@@ -110,6 +111,7 @@ Proof.
 intros a b.
 destruct a as [a| ]; simpl. {
   destruct b as [b| ]; simpl. {
+...
     apply Qeq_dec.
   }
   right; intros H; assumption.

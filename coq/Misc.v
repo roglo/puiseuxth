@@ -323,7 +323,6 @@ Proof. now intros; destruct i. Qed.
 (* list_nth_in → List.nth_In *)
 (* Z2Nat_id_max → Z2Nat.of_nat *)
 
-(*
 Theorem Qcmp_plus_minus_cmp_r : ∀ x y z,
   (x ?= y + z) = (x - z ?= y).
 Proof.
@@ -332,7 +331,6 @@ rewrite <- (Q.compare_add_mono_r _ _ (- c)).
 do 2 rewrite Q.fold_sub.
 now rewrite Q.add_sub.
 Qed.
-*)
 
 Theorem Qeq_plus_minus_eq_r : ∀ x y z, x == y + z → x - z == y.
 Proof.
