@@ -110,18 +110,9 @@ Theorem eq_dec : ∀ a b, {qeq a b} + {not (qeq a b)}.
 Proof.
 intros a b.
 destruct a as [a| ]; simpl. {
-  destruct b as [b| ]; simpl. {
-Check Q.eq_dec.
-...
-    apply Qeq_dec.
-  }
-  right; intros H; assumption.
+  destruct b as [b| ]; [ apply Q.eq_dec | now right ].
 }
-destruct b as [b| ]. {
-  right; intros H; assumption.
-} {
-  left; constructor.
-}
+destruct b as [b| ]; [ now right | now left ].
 Qed.
 
 Theorem min_dec : ∀ n m, {min n m = n} + {min n m = m}.
@@ -139,6 +130,7 @@ Qed.
 Theorem min_comm : ∀ n m, qeq (min n m) (min m n).
 Proof.
 intros n m.
+...
 destruct n as [n| ]; [ simpl | destruct m; reflexivity ].
 destruct m as [m| ]; [ simpl | reflexivity ].
 rewrite Qmin_comm; reflexivity.
