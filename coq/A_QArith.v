@@ -1084,6 +1084,38 @@ symmetry in Hab.
 now destruct ab; [ left | right | right ].
 Qed.
 
+(* min/max *)
+
+Definition min x y := if Q.lt_le_dec x y then x else y.
+
+Theorem min_dec : ∀ n m, {Q.min n m = n} + {Q.min n m = m}.
+Proof.
+intros n m.
+unfold Q.min.
+destruct (Q.lt_le_dec n m); [ left | right ]; reflexivity.
+Qed.
+
+Theorem min_comm : ∀ n m, (Q.min n m == Q.min m n)%Q.
+Proof.
+intros n m.
+unfold Q.min.
+destruct (Q.lt_le_dec n m) as [H₁| H₁]. {
+  destruct (Q.lt_le_dec m n) as [H₂| H₂]; [ idtac | reflexivity ].
+  apply Q.lt_le_incl in H₂.
+  now apply Q.nle_gt in H₁.
+}
+destruct (Q.lt_le_dec m n) as [H₂| H₂]; [ reflexivity | idtac ].
+apply Q.le_antisymm; assumption.
+Qed.
+
+Theorem min_l : ∀ n m, (n ≤ m)%Q → (Q.min n m == n)%Q.
+Proof.
+intros n m H.
+unfold Q.min.
+destruct (Q.lt_le_dec n m) as [| Hge]; [ reflexivity | idtac ].
+apply Q.le_antisymm; assumption.
+Qed.
+
 End Q.
 
 Number Notation Q Q.of_number Q.to_number : Q_scope.

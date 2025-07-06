@@ -33,7 +33,7 @@ Definition binop f dx dy xb yb :=
 
 Definition add := binop Q.add ∞ ∞.
 Definition mul := binop Q.mul ∞ ∞.
-Definition min x y := binop Qmin x y x y.
+Definition min x y := binop Q.min x y x y.
 
 Definition sub xb yb :=
   match yb with
@@ -120,7 +120,7 @@ Proof.
 intros n m.
 destruct n as [n| ]; [ idtac | destruct m; right; reflexivity ].
 destruct m as [m| ]; [ idtac | left; reflexivity ].
-destruct (Qmin_dec n m) as [H| H]; simpl; rewrite H. {
+destruct (Q.min_dec n m) as [H| H]; simpl; rewrite H. {
   left; reflexivity.
 } {
   right; reflexivity.
@@ -130,18 +130,19 @@ Qed.
 Theorem min_comm : ∀ n m, qeq (min n m) (min m n).
 Proof.
 intros n m.
-...
-destruct n as [n| ]; [ simpl | destruct m; reflexivity ].
-destruct m as [m| ]; [ simpl | reflexivity ].
-rewrite Qmin_comm; reflexivity.
+(**)
+destruct n as [n| ]; [ | now destruct m; cbn ].
+destruct m as [m| ]; [ | now cbn ].
+progress unfold qeq; cbn.
+apply Q.min_comm.
 Qed.
 
 Theorem min_l : ∀ n m, n ≤ m → qeq (min n m) n.
 Proof.
 intros n m H.
-destruct m as [m| ]; [ idtac | destruct n; reflexivity ].
+destruct m as [m| ]; [ | now destruct n; cbn ].
 destruct n as [n| ]; [ simpl | inversion H ].
-rewrite Qmin_l; [ reflexivity | inversion H; assumption ].
+rewrite Q.min_l; [ reflexivity | inversion H; assumption ].
 Qed.
 
 Theorem min_glb : ∀ n m p, p ≤ n → p ≤ m → p ≤ min n m.
@@ -161,7 +162,7 @@ Proof.
 intros x H.
 destruct x as [x| ]; [ idtac | inversion H ].
 apply qfin_lt_mono in H.
-revert H; apply Qlt_irrefl.
+revert H; apply Q.lt_irrefl.
 Qed.
 
 Theorem lt_neq : ∀ n m, n < m → not (qeq n m).
@@ -173,7 +174,7 @@ destruct n as [n| ]. {
   apply qfin_lt_mono in Hlt.
   apply qfin_inj in H.
   rewrite H in Hlt.
-  revert Hlt; apply Qlt_irrefl.
+  revert Hlt; apply Q.lt_irrefl.
 }
 destruct m as [m| ]; [ inversion H | inversion Hlt ].
 Qed.
@@ -185,7 +186,7 @@ destruct p as [p| ]. {
   destruct m as [m| ]; [ simpl | inversion Hmp ].
   destruct n as [n| ]; [ simpl | inversion Hnm ].
   inversion Hnm; inversion Hmp; constructor.
-  eapply Qle_trans; eassumption.
+  eapply Q.le_trans; eassumption.
 }
 destruct n as [n| ]; [ constructor | idtac ].
 inversion Hnm; subst; assumption.
@@ -198,7 +199,8 @@ destruct p as [p| ]. {
   destruct m as [m| ]; [ simpl | inversion Hmp ].
   destruct n as [n| ]; [ simpl | inversion Hnm ].
   inversion Hnm; inversion Hmp; constructor.
-  eapply Qlt_le_trans; eassumption.
+...
+  eapply Q.lt_le_trans; eassumption.
 }
 destruct n as [n| ]; [ constructor | inversion Hnm ].
 Qed.

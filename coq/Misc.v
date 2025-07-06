@@ -1069,36 +1069,6 @@ rewrite Z.divide_div_mul_exact. {
 }
 Qed.
 
-Definition Qmin x y := if Q.lt_le_dec x y then x else y.
-
-Theorem Qmin_dec : ∀ n m, {Qmin n m = n} + {Qmin n m = m}.
-Proof.
-intros n m.
-unfold Qmin.
-destruct (Q.lt_le_dec n m); [ left | right ]; reflexivity.
-Qed.
-
-Theorem Qmin_comm : ∀ n m, Qmin n m == Qmin m n.
-Proof.
-intros n m.
-unfold Qmin.
-destruct (Q.lt_le_dec n m) as [H₁| H₁]. {
-  destruct (Q.lt_le_dec m n) as [H₂| H₂]; [ idtac | reflexivity ].
-  apply Q.lt_le_incl in H₂.
-  now apply Q.nle_gt in H₁.
-}
-destruct (Q.lt_le_dec m n) as [H₂| H₂]; [ reflexivity | idtac ].
-apply Q.le_antisymm; assumption.
-Qed.
-
-Theorem Qmin_l : ∀ n m, (n <= m)%Q → Qmin n m == n.
-Proof.
-intros n m H.
-unfold Qmin.
-destruct (Q.lt_le_dec n m) as [| Hge]; [ reflexivity | idtac ].
-apply Q.le_antisymm; assumption.
-Qed.
-
 Theorem List_In_nth : ∀ α a la (d : α),
   a ∈ la
   → ∃ n, a = List.nth n la d.
