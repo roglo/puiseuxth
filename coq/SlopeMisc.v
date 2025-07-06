@@ -76,10 +76,18 @@ Theorem slope_eq : ∀ x₁ y₁ x₂ y₂ x₃ y₃,
 Proof.
 intros x₁ y₁ x₂ y₂ x₃ y₃ H₁₂ H₂₃ H₃₁ H.
 unfold slope_expr in H |-*.
-...
+(*
 apply Qeq_shift_mult_l in H. {
   symmetry in H.
   rewrite Q_mul_div_swap in H.
+Qeq_shift_mult_l
+     : ∀ x y z : Q, ¬ z == 0 → x / z == y → x == y * z
+Q.mul_move_l
+     : ∀ a b c : Q, ¬ c == 0 → c * a == b ↔ a == b / c
+*)
+...
+apply Q.mul_move_l in H. {
+  rewrite Q.mul_div_swap in H.
   apply Qeq_shift_mult_l in H. {
     apply Qeq_shift_div_l. {
       intros HH; apply H₁₂.

@@ -111,6 +111,7 @@ Proof.
 intros a b.
 destruct a as [a| ]; simpl. {
   destruct b as [b| ]; simpl. {
+Check Q.eq_dec.
 ...
     apply Qeq_dec.
   }

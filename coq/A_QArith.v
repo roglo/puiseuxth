@@ -1075,6 +1075,15 @@ Qed.
 Theorem apart_0_1: ¬ (1 == 0)%Q.
 Proof. easy. Qed.
 
+Theorem eq_dec : ∀ a b, ({a == b} + {¬ a == b})%Q.
+Proof.
+intros.
+progress unfold Q.eq.
+remember (a ?= b)%Q as ab eqn:Hab.
+symmetry in Hab.
+now destruct ab; [ left | right | right ].
+Qed.
+
 End Q.
 
 Number Notation Q Q.of_number Q.to_number : Q_scope.
