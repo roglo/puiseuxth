@@ -721,6 +721,9 @@ rewrite Z.mul_opp_l.
 apply Z.add_opp_diag_r.
 Qed.
 
+Theorem add_opp_diag_r : ∀ a, (a + - a == 0)%Q.
+Proof. apply Q.sub_diag. Qed.
+
 Theorem add_sub: ∀ a b, (a + b - b == a)%Q.
 Proof.
 intros.
@@ -1054,6 +1057,9 @@ progress unfold Z.sub.
 now rewrite Q.inv_add_distr.
 Qed.
 
+Theorem apart_0_1: ¬ (1 == 0)%Q.
+Proof. easy. Qed.
+
 End Q.
 
 Number Notation Q Q.of_number Q.to_number : Q_scope.
@@ -1072,3 +1078,32 @@ Notation "a ?= b" := (Q.compare a b) : Q_scope.
 Notation "a # b" := (mk_q a (b - 1)) (at level 55) : Q_scope.
 
 Notation "a ≤ b ≤ c" := (Q.le a b ∧ Q.le b c) : Q_scope.
+
+Theorem eq_qeq : ∀ a b, a = b → (a == b)%Q.
+Proof. now intros; subst. Qed.
+
+Definition Q_ring_theory : ring_theory 0%Q 1%Q Q.add Q.mul Q.sub Q.opp Q.eq :=
+  {| Radd_0_l a := eq_qeq _ _ (Q.add_0_l a);
+     Radd_comm a b := eq_qeq _ _ (Q.add_comm a b);
+     Radd_assoc a b c := eq_qeq _ _ (Q.add_assoc a b c);
+     Rmul_1_l a := eq_qeq _ _ (Q.mul_1_l a);
+     Rmul_comm a b := eq_qeq _ _ (Q.mul_comm a b);
+     Rmul_assoc a b c := eq_qeq _ _ (Q.mul_assoc a b c);
+     Rdistr_l := Q.mul_add_distr_r;
+     Rsub_def a b := reflexivity (a + - b)%Q;
+     Ropp_def := Q.add_opp_diag_r |}.
+
+From Stdlib Require Import Ring.
+Add Ring Q_ring : Q_ring_theory.
+
+From Stdlib Require Import Field_theory.
+
+Definition Q_field_theory :
+  field_theory 0%Q 1%Q Q.add Q.mul Q.sub Q.opp Q.div Q.inv Q.eq :=
+  {| F_R := Q_ring_theory;
+     F_1_neq_0 := Q.apart_0_1;
+     Fdiv_def a b := reflexivity _;
+     Finv_l := Q.mul_inv_diag_l |}.
+
+From Stdlib Require Import Field.
+Add Field Q_field : Q_field_theory.

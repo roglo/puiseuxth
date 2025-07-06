@@ -2,8 +2,9 @@
 
 (* points in newton segment *)
 
-From Stdlib Require Import Utf8 Arith Sorting.
+From Stdlib Require Import Utf8 Arith Sorting Field.
 
+Require Import A_QArith.
 Require Import Misc.
 Require Import Slope_base.
 Require Import ConvexHull.
@@ -30,6 +31,7 @@ destruct Hαh as [Hαh| Hαh]. {
   rewrite Hαh; simpl.
   unfold β, γ; simpl.
   field.
+...
   apply Qgt_0_not_0, Qlt_minus.
   remember (ini_pt ms) as pt₄.
   remember Heqpt₄ as H; clear HeqH.
