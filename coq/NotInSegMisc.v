@@ -2,6 +2,7 @@
 
 From Stdlib Require Import Utf8 Arith Sorting.
 
+Require Import A_QArith.
 Require Import Misc.
 Require Import Slope_base.
 Require Import ConvexHull.
@@ -13,10 +14,11 @@ Theorem ad_hoc_lt_lt : ∀ i j k x y z,
     → x + i * ((x - y) / (k - i)) < z + j * ((x - y) / (k - i)).
 Proof.
 intros i j k x y z (Hij, Hjk) H.
-apply Qlt_shift_mult_r in H; [ idtac | apply Qlt_minus; assumption ].
-rewrite Q_mul_comm, Q_mul_div_assoc in H.
-apply Qlt_shift_mult_l in H; [ idtac | apply Qlt_minus; assumption ].
-rewrite Q_mul_comm in H.
+apply Qlt_shift_mult_r in H; [ idtac | apply Q.lt_0_sub; assumption ].
+rewrite Q.mul_comm, Q.mul_div_assoc in H.
+apply Qlt_shift_mult_l in H; [ idtac | apply Q.lt_0_sub; assumption ].
+rewrite Q.mul_comm in H.
+...
 do 2 rewrite Qmult_minus_distr_l in H.
 do 4 rewrite Qmult_minus_distr_r in H.
 do 2 rewrite Q_sub_sub_distr in H.
@@ -35,8 +37,8 @@ rewrite Qplus_div; [ idtac | apply Qlt_not_0; assumption ].
 rewrite Qplus_div; [ idtac | apply Qlt_not_0; assumption ].
 apply Qdiv_lt_compat_r; [ apply Qlt_minus; assumption | idtac ].
 rewrite Qmult_minus_distr_r.
-rewrite Q_add_comm, Q_mul_comm; apply Qnot_le_lt.
-rewrite Q_add_comm, Q_mul_comm; apply Qlt_not_le.
+rewrite Q_add_comm, Q.mul_comm; apply Qnot_le_lt.
+rewrite Q_add_comm, Q.mul_comm; apply Qlt_not_le.
 do 2 rewrite Qmult_minus_distr_l.
 rewrite Qmult_minus_distr_r.
 do 2 rewrite Q_add_sub_assoc.

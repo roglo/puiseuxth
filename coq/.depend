@@ -16,7 +16,7 @@ InSegment.vo InSegment.glob InSegment.v.beautified InSegment.required_vo: InSegm
 Misc.vo Misc.glob Misc.v.beautified Misc.required_vo: Misc.v A_PosArith.vo A_QArith.vo A_ZArith.vo
 NbarM.vo NbarM.glob NbarM.v.beautified NbarM.required_vo: NbarM.v Misc.vo
 Newton.vo Newton.glob Newton.v.beautified Newton.required_vo: Newton.v A_QArith.vo ConvexHull.vo Misc.vo
-NotInSegMisc.vo NotInSegMisc.glob NotInSegMisc.v.beautified NotInSegMisc.required_vo: NotInSegMisc.v ConvexHull.vo ConvexHullMisc.vo Misc.vo Slope_base.vo
+NotInSegMisc.vo NotInSegMisc.glob NotInSegMisc.v.beautified NotInSegMisc.required_vo: NotInSegMisc.v A_QArith.vo ConvexHull.vo ConvexHullMisc.vo Misc.vo Slope_base.vo
 NotInSegment.vo NotInSegment.glob NotInSegment.v.beautified NotInSegment.required_vo: NotInSegment.v ConvexHull.vo ConvexHullMisc.vo Misc.vo Newton.vo NotInSegMisc.vo SlopeMisc.vo Slope_base.vo
 PSpolynomial.vo PSpolynomial.glob PSpolynomial.v.beautified PSpolynomial.required_vo: PSpolynomial.v A_QArith.vo Field2.vo Fpolynomial.vo Misc.vo Ps_add.vo Ps_div.vo Ps_mul.vo Puiseux_series.vo
 PolyConvexHull.vo PolyConvexHull.glob PolyConvexHull.v.beautified PolyConvexHull.required_vo: PolyConvexHull.v ConvexHull.vo Field2.vo InSegment.vo Misc.vo Newton.vo NotInSegment.vo Puiseux_base.vo
