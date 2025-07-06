@@ -2283,6 +2283,9 @@ Proof. easy. Qed.
 Theorem gcd_0_r : ∀ a, Z.gcd a 0 = Z.abs a.
 Proof. now intros; rewrite Z.gcd_comm. Qed.
 
+Theorem gcd_1_l : ∀ a, Z.gcd 1 a = 1%Z.
+Proof. now intros; destruct a. Qed.
+
 Theorem gcd_eq_0 : ∀ a b, Z.gcd a b = 0%Z ↔ a = 0%Z ∧ b = 0%Z.
 Proof.
 intros.
@@ -2387,6 +2390,9 @@ rewrite Z.mul_assoc.
 rewrite Z.mul_div; [ | easy ].
 now rewrite Z.mul_div.
 Qed.
+
+Theorem div_0_l : ∀ a, (0 / a)%Z = 0%Z.
+Proof. easy. Qed.
 
 Theorem div_same: ∀ a, a ≠ 0%Z → (a / a)%Z = 1%Z.
 Proof.
