@@ -721,6 +721,13 @@ rewrite Z.mul_opp_l.
 apply Z.add_opp_diag_r.
 Qed.
 
+Theorem add_opp_diag_l : ∀ a, (-a + a == 0)%Q.
+Proof.
+intros.
+rewrite Q.add_comm.
+apply Q.sub_diag.
+Qed.
+
 Theorem add_opp_diag_r : ∀ a, (a + - a == 0)%Q.
 Proof. apply Q.sub_diag. Qed.
 
