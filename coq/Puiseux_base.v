@@ -271,7 +271,6 @@ destruct na as [na| ]. {
     inversion_clear H.
     simpl in H0, H1, H2.
     unfold Qbar.qeq, Qeq; simpl.
-Print order.
     unfold normalise_series in H2.
     remember (greatest_series_x_power K (ps_terms a) na) as apn.
     remember (greatest_series_x_power K (ps_terms b) nb) as bpn.
