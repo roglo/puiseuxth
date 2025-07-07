@@ -1741,9 +1741,10 @@ do 2 rewrite (Z.mul_comm _ a).
 now apply Z.mul_lt_mono_pos_l.
 Qed.
 
-Theorem mul_cancel_l : ∀ a b c, a ≠ 0%Z → (a * b)%Z = (a * c)%Z → b = c.
+Theorem mul_cancel_l : ∀ a b c, a ≠ 0%Z → (a * b)%Z = (a * c)%Z ↔ b = c.
 Proof.
-intros * Haz Habc.
+intros * Haz.
+split; intros Habc; [ | now subst ].
 do 2 rewrite (mul_comm a) in Habc.
 apply (f_equal (λ x, div x a)) in Habc.
 rewrite Z.mul_div in Habc; [ | easy ].
@@ -1751,11 +1752,11 @@ rewrite Z.mul_div in Habc; [ | easy ].
 easy.
 Qed.
 
-Theorem mul_cancel_r : ∀ a b c, c ≠ 0%Z → (a * c)%Z = (b * c)%Z → a = b.
+Theorem mul_cancel_r : ∀ a b c, c ≠ 0%Z → (a * c)%Z = (b * c)%Z ↔ a = b.
 Proof.
-intros * Haz Habc.
-do 2 rewrite (mul_comm _ c) in Habc.
-now apply mul_cancel_l in Habc.
+intros * Haz.
+do 2 rewrite (mul_comm _ c).
+now apply mul_cancel_l.
 Qed.
 
 Theorem mul_nonneg_nonneg : ∀ a b, (0 ≤ a → 0 ≤ b → 0 ≤ a * b)%Z.
