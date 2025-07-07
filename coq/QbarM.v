@@ -199,7 +199,6 @@ destruct p as [p| ]. {
   destruct m as [m| ]; [ simpl | inversion Hmp ].
   destruct n as [n| ]; [ simpl | inversion Hnm ].
   inversion Hnm; inversion Hmp; constructor.
-...
   eapply Q.lt_le_trans; eassumption.
 }
 destruct n as [n| ]; [ constructor | inversion Hnm ].
@@ -212,7 +211,7 @@ destruct p as [p| ]. {
   destruct m as [m| ]; [ simpl | inversion Hmp ].
   destruct n as [n| ]; [ simpl | inversion Hnm ].
   inversion Hnm; inversion Hmp; constructor.
-  eapply Qle_lt_trans; eassumption.
+  eapply Q.le_lt_trans; eassumption.
 }
 destruct n as [n| ]; [ constructor | idtac ].
 inversion Hnm; subst; assumption.
@@ -223,20 +222,15 @@ Proof.
 intros n m.
 destruct n; [ simpl | destruct m; reflexivity ].
 destruct m as [m| ]; [ simpl | reflexivity ].
-f_equal.
-unfold Qplus; simpl.
-f_equal. {
-  rewrite Z.add_comm; reflexivity.
-} {
-  rewrite Pos.mul_comm; reflexivity.
-}
+progress f_equal.
+apply Q.add_comm.
 Qed.
 
 Theorem add_0_l : ∀ a, qeq (0 + a) a.
 Proof.
 intros a.
 destruct a as [a| ]; [ simpl | constructor ].
-rewrite Q_add_0_l; reflexivity.
+rewrite Q.add_0_l; reflexivity.
 Qed.
 
 Theorem add_lt_mono_r : ∀ n m p, p ≠ ∞ → n < m ↔ n + p < m + p.
@@ -246,6 +240,7 @@ split; intros H. {
   destruct n as [n| ]. {
     destruct m as [m| ]. {
       destruct p as [p| ]. {
+...
         constructor; apply Qplus_lt_l; inversion H; assumption.
       }
       exfalso; apply Hp; reflexivity.

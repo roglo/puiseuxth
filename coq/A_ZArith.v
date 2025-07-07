@@ -910,6 +910,30 @@ intros H; subst.
 now apply Z.lt_asymm in Hab.
 Qed.
 
+Theorem lt_le_trans : ∀ a b c, (a < b → b ≤ c → a < c)%Z.
+Proof.
+intros * Hab Hbc.
+apply Z.lt_iff.
+split. {
+  apply (Z.le_trans _ b); [ | easy ].
+  now apply Z.lt_le_incl.
+}
+intros H; subst.
+now apply Z.nlt_ge in Hbc.
+Qed.
+
+Theorem le_lt_trans : ∀ a b c, (a ≤ b → b < c → a < c)%Z.
+Proof.
+intros * Hab Hbc.
+apply Z.lt_iff.
+split. {
+  apply (Z.le_trans _ b); [ easy | ].
+  now apply Z.lt_le_incl.
+}
+intros H; subst.
+now apply Z.nlt_ge in Hbc.
+Qed.
+
 Theorem le_refl : ∀ a, (a ≤ a)%Z.
 Proof.
 intros a.

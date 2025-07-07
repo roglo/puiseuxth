@@ -610,6 +610,30 @@ do 2 rewrite (Z.mul_mul_swap _ (q_Den a)).
 now apply Z.mul_le_mono_pos_r.
 Qed.
 
+Theorem lt_le_trans : ∀ a b c, (a < b → b ≤ c → a < c)%Q.
+Proof.
+intros * Hab Hbc.
+apply (Z.mul_lt_mono_pos_r (q_Den b)); [ easy | ].
+rewrite Z.mul_mul_swap.
+apply (Z.lt_le_trans _ (q_num b * q_Den a * q_Den c)). {
+  now apply Z.mul_lt_mono_pos_r.
+}
+do 2 rewrite (Z.mul_mul_swap _ (q_Den a)).
+now apply Z.mul_le_mono_pos_r.
+Qed.
+
+Theorem le_lt_trans : ∀ a b c, (a ≤ b → b < c → a < c)%Q.
+Proof.
+intros * Hab Hbc.
+apply (Z.mul_lt_mono_pos_r (q_Den b)); [ easy | ].
+rewrite Z.mul_mul_swap.
+apply (Z.le_lt_trans _ (q_num b * q_Den a * q_Den c)). {
+  now apply Z.mul_le_mono_pos_r.
+}
+do 2 rewrite (Z.mul_mul_swap _ (q_Den a)).
+now apply Z.mul_lt_mono_pos_r.
+Qed.
+
 Theorem compare_add_mono_l : ∀ a b c, (a + b ?= a + c)%Q = (b ?= c)%Q.
 Proof.
 intros.
