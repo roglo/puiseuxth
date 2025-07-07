@@ -146,13 +146,12 @@ rewrite slope_cmp_flatten; [ idtac | assumption | assumption ].
 rewrite <- Q.add_assoc, Q.add_comm, Q.add_assoc.
 remember (y₁ * Qnat x₂ + y₃ * Qnat x₁ + y₂ * Qnat x₃ + y₁ * Qnat x₁) as t.
 rewrite <- Q.add_assoc, Q.add_comm, Q.add_assoc; subst t.
-...
-rewrite <- Qplus_cmp_compat_r.
-setoid_replace (y₁ * Qnat x₂ + y₃ * Qnat x₁ + y₂ * Qnat x₃) with
- (Qnat x₁ * y₃ + Qnat x₂ * y₁ + Qnat x₃ * y₂) by ring.
-setoid_replace (y₁ * Qnat x₃ + y₂ * Qnat x₁ + y₃ * Qnat x₂) with
- (Qnat x₁ * y₂ + Qnat x₂ * y₃ + Qnat x₃ * y₁) by ring.
-reflexivity.
+rewrite Q.compare_add_mono_r.
+do 6 rewrite (Q.mul_comm _ (Qnat _)).
+rewrite (Q.add_comm (Qnat x₂ * y₁)).
+rewrite <- (Q.add_assoc (Qnat x₃ * y₁)).
+rewrite (Q.add_comm (Qnat x₃ * y₁)).
+easy.
 Qed.
 
 Theorem slope_cmp_norm₁₃₁₂ : ∀ x₁ y₁ x₂ y₂ x₃ y₃,
@@ -207,6 +206,8 @@ Theorem slope_lt_1312_2313 : ∀ pt₁ pt₂ pt₃,
     → slope_expr pt₂ pt₃ < slope_expr pt₁ pt₃.
 Proof.
 intros (x₁, y₁) (x₂, y₂) (x₃, y₃) Hlt H.
-rewrite Qlt_alt in H |- *; rewrite <- H.
-symmetry; apply slope_cmp₂; assumption.
+apply Q.compare_lt_iff in H.
+apply -> Q.compare_lt_iff.
+rewrite <- H.
+now symmetry; apply slope_cmp₂.
 Qed.
