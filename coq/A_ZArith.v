@@ -820,6 +820,21 @@ rewrite Z.add_comm.
 apply Z.add_sub.
 Qed.
 
+Theorem add_cancel_l : ∀ a b c, (a + b = a + c)%Z ↔ b = c.
+Proof.
+intros.
+split; intros Hab; [ | now subst ].
+apply (f_equal (λ x, (x - a)%Z)) in Hab.
+now do 2 rewrite Z.add_comm, Z.add_sub in Hab.
+Qed.
+
+Theorem add_cancel_r : ∀ a b c, (a + c = b + c)%Z ↔ a = b.
+Proof.
+intros.
+do 2 rewrite (Z.add_comm _ c).
+apply Z.add_cancel_l.
+Qed.
+
 Theorem add_move_l : ∀ a b c, (a + b)%Z = c ↔ b = (c - a)%Z.
 Proof.
 intros.
@@ -2958,6 +2973,18 @@ cbn.
 rewrite <- Nat.add_succ_l.
 progress f_equal.
 now apply Nat2Pos.inj_add.
+Qed.
+
+Theorem inj : ∀ a b, Z.of_nat a = Z.of_nat b → a = b.
+Proof.
+intros * Hab.
+revert b Hab.
+induction a; intros; [ now destruct b | ].
+destruct b; [ easy | ].
+do 2 rewrite Nat2Z.inj_succ in Hab.
+progress f_equal.
+apply IHa.
+now apply Z.add_cancel_r in Hab.
 Qed.
 
 Theorem inj_le : ∀ a b, (a <= b)%nat ↔ (Z.of_nat a ≤ Z.of_nat b)%Z.

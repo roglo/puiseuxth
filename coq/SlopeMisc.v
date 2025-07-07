@@ -1,5 +1,6 @@
 (* SlopeMisc.v *)
 
+Set Nested Proofs Allowed.
 From Stdlib Require Import Utf8.
 
 Require Import A_PosArith A_ZArith A_QArith.
@@ -95,19 +96,9 @@ apply Q.mul_move_r in H. {
     apply -> Q.mul_move_r. 2: {
       intros HH; apply H₁₂.
       apply -> Q.sub_move_0_r in HH.
-Search (_ # _ == _ # _)%Q.
-Search (_ / _ == _ / _)%Z.
-Print q_den.
-Print Q.
-...
-Qden_cancel
-     : ∀ (a b : Z) (p : positive), a # p == b # p → a = b
-Z_div_reg_r:
-  ∀ [a b c : Z], (c | a)%Z → (c | b)%Z → (a / c)%Z = (b / c)%Z → a = b
-...
-      apply Qminus_eq, Qden_cancel in HH.
+      apply Q.den_cancel in HH.
       now apply Nat2Z.inj in HH.
-... ...
+    }
     symmetry.
 ...
     apply Qeq_shift_div_l. {

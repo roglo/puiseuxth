@@ -1148,6 +1148,17 @@ destruct (Q.lt_le_dec n m) as [| Hge]; [ reflexivity | idtac ].
 apply Q.le_antisymm; assumption.
 Qed.
 
+Theorem den_cancel : ∀ a b c, (a # c == b # c)%Q → a = b.
+Proof.
+intros * Hab.
+progress unfold Q.eq in Hab.
+progress unfold Q.compare in Hab.
+cbn in Hab.
+do 2 rewrite q_Den_num_den in Hab.
+apply Z.compare_eq_iff in Hab.
+now apply Z.mul_cancel_r in Hab.
+Qed.
+
 End Q.
 
 Number Notation Q Q.of_number Q.to_number : Q_scope.
