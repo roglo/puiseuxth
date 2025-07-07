@@ -131,12 +131,6 @@ split; intros Hab. {
 }
 Qed.
 
-Theorem Q_mul_0_l : ∀ a, (0 * a == 0)%Q.
-Proof. easy. Qed.
-
-Theorem Q_mul_0_r : ∀ a, (a * 0 == 0)%Q.
-Proof. now intros; rewrite Q.mul_comm. Qed.
-
 Theorem Q_mul_nonneg_nonpos : ∀ a b, (0 ≤ a → b ≤ 0 → a * b ≤ 0)%Q.
 Proof.
 intros * Ha Hb.
@@ -150,7 +144,7 @@ assert (H : (0 ≤ 0 ≤ - b)%Q). {
   now rewrite Q.opp_0 in Hb.
 }
 specialize (H1 H); clear H.
-rewrite Q_mul_0_l in H1.
+rewrite Q.mul_0_l in H1.
 rewrite Q.mul_opp_r in H1.
 apply Q_opp_le_compat in H1.
 rewrite Q.opp_involutive in H1.
@@ -180,7 +174,7 @@ split. {
 }
 intros H.
 rewrite <- H in Hzm.
-rewrite Q_mul_0_r in Hzm.
+rewrite Q.mul_0_r in Hzm.
 now apply Hzm.
 Qed.
 

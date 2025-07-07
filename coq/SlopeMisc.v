@@ -112,12 +112,12 @@ apply Q.mul_move_r in H. {
      (Qnat x₂ * y₃ - Qnat x₂ * y₁ - Qnat x₁ * y₃ + Qnat x₁ * y₁) in H by ring.
     progress setoid_replace ((y₂ - y₁) * (Qnat x₃ - Qnat x₁)) with
      (Qnat x₃ * y₂ - Qnat x₃ * y₁ - Qnat x₁ * y₂ + Qnat x₁ * y₁) in H by ring.
-...
-    apply Qplus_inj_r in H.
-    setoid_replace ((y₃ - y₂) * (Qnat x₂ - Qnat x₁)) with
+    apply Q.add_compat_r in H.
+    progress setoid_replace ((y₃ - y₂) * (Qnat x₂ - Qnat x₁)) with
      (Qnat x₁ * y₂ + Qnat x₂ * y₃ - Qnat x₁ * y₃ - Qnat x₂ * y₂) by ring.
-    setoid_replace ((y₂ - y₁) * (Qnat x₃ - Qnat x₂)) with
+    progress setoid_replace ((y₂ - y₁) * (Qnat x₃ - Qnat x₂)) with
      (Qnat x₂ * y₁ + Qnat x₃ * y₂ - Qnat x₃ * y₁ - Qnat x₂ * y₂) by ring.
+...
     unfold Qminus at 1.
     unfold Qminus at 2.
     apply Qplus_inj_r.

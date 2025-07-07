@@ -360,6 +360,9 @@ Theorem mul_0_r : ∀ a, a ≠ ∞ → qeq (a * 0) 0.
 Proof.
 intros a Ha.
 destruct a as [a| ]; simpl; [ idtac | apply Ha; reflexivity ].
+About Q_mul_0_r.
+Search (_ * 0 == 0)%Q.
+rewrite Q.mul_0_r.
 ...
 rewrite Qmult_0_r; reflexivity.
 Qed.

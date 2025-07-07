@@ -36,12 +36,12 @@ rewrite Qplus_div; [ idtac | apply Qlt_not_0; assumption ].
 rewrite Qplus_div; [ idtac | apply Qlt_not_0; assumption ].
 apply Qdiv_lt_compat_r; [ apply Q.lt_0_sub; assumption | idtac ].
 rewrite Q.mul_sub_distr_l.
+rewrite Q.add_comm, Q.mul_comm; apply Q.nle_gt.
+rewrite Q.add_comm, Q.mul_comm; apply Q.nle_gt.
+do 2 rewrite Q.mul_sub_distr_r.
+rewrite Q.mul_sub_distr_l.
+do 2 rewrite Q.add_sub_assoc.
 ...
-rewrite Q.add_comm, Q.mul_comm; apply Qnot_le_lt.
-rewrite Q.add_comm, Q.mul_comm; apply Qlt_not_le.
-do 2 rewrite Q.mul_sub_distr_l.
-rewrite Q.mul_sub_distr_r.
-do 2 rewrite Q_add_sub_assoc.
 apply Qlt_plus_minus_lt_r; rewrite <- Q.add_sub_swap.
 apply Qlt_plus_minus_lt_r; rewrite Q.add_sub_swap.
 do 2 rewrite <- Q.add_assoc; rewrite <- Q.add_sub_swap.

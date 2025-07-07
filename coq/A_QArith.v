@@ -289,7 +289,24 @@ rewrite (Z.mul_comm (q_Den c)).
 now apply Z.mul_le_mono_pos_r.
 Qed.
 
-Theorem add_compat_l : ∀ a b c, (b == c → a + b == a + c)%Q.
+Theorem sub_diag : ∀ a, (a - a == 0)%Q.
+Proof.
+intros.
+apply Z.compare_eq_iff; cbn.
+progress unfold q_Den; cbn.
+rewrite Z.mul_1_r.
+rewrite Z.mul_opp_l.
+apply Z.add_opp_diag_r.
+Qed.
+
+Theorem add_opp_diag_l : ∀ a, (-a + a == 0)%Q.
+Proof.
+intros.
+rewrite Q.add_comm.
+apply Q.sub_diag.
+Qed.
+
+Theorem add_compat_l_if : ∀ a b c, (b == c → a + b == a + c)%Q.
 Proof.
 intros * Heq.
 apply Z.compare_eq_iff in Heq.
@@ -313,11 +330,11 @@ progress f_equal.
 apply Z.mul_comm.
 Qed.
 
-Theorem add_compat_r : ∀ a b c, (a == b → a + c == b + c)%Q.
+Theorem add_compat_r_if : ∀ a b c, (a == b → a + c == b + c)%Q.
 Proof.
 intros * Heq.
 do 2 rewrite (Q.add_comm _ c).
-now apply Q.add_compat_l.
+now apply Q.add_compat_l_if.
 Qed.
 
 Theorem mul_compat_l : ∀ a b c, (b == c → a * b == a * c)%Q.
@@ -353,8 +370,8 @@ Global Instance add_morph : Proper (Q.eq ==> Q.eq ==> Q.eq) Q.add.
 Proof.
 intros a b Hab c d Hcd.
 transitivity (a + d)%Q.
-now apply Q.add_compat_l.
-now apply Q.add_compat_r.
+now apply Q.add_compat_l_if.
+now apply Q.add_compat_r_if.
 Qed.
 
 Global Instance opp_morph : Proper (Q.eq ==> Q.eq) Q.opp.
@@ -366,6 +383,23 @@ progress unfold Q.opp; cbn.
 do 2 rewrite q_Den_num_den.
 do 2 rewrite Z.mul_opp_l.
 now f_equal.
+Qed.
+
+Theorem add_compat_l : ∀ a b c, (b == c ↔ a + b == a + c)%Q.
+Proof.
+intros.
+split; intros Hbc; [ now apply Q.add_compat_l_if | ].
+apply (Q.add_compat_l_if (-a)) in Hbc.
+do 2 rewrite Q.add_assoc in Hbc.
+rewrite Q.add_opp_diag_l in Hbc.
+now do 2 rewrite Q.add_0_l in Hbc.
+Qed.
+
+Theorem add_compat_r : ∀ a b c, (a == b ↔ a + c == b + c)%Q.
+Proof.
+intros.
+do 2 rewrite (Q.add_comm _ c).
+now apply Q.add_compat_l.
 Qed.
 
 Theorem sub_compat_l : ∀ a b c, (b == c → a - b == a - c)%Q.
@@ -741,23 +775,6 @@ intros.
 rewrite Q.add_comm.
 rewrite <- Q.add_sub_assoc.
 apply Q.add_comm.
-Qed.
-
-Theorem sub_diag : ∀ a, (a - a == 0)%Q.
-Proof.
-intros.
-apply Z.compare_eq_iff; cbn.
-progress unfold q_Den; cbn.
-rewrite Z.mul_1_r.
-rewrite Z.mul_opp_l.
-apply Z.add_opp_diag_r.
-Qed.
-
-Theorem add_opp_diag_l : ∀ a, (-a + a == 0)%Q.
-Proof.
-intros.
-rewrite Q.add_comm.
-apply Q.sub_diag.
 Qed.
 
 Theorem add_opp_diag_r : ∀ a, (a + - a == 0)%Q.
@@ -1158,6 +1175,12 @@ do 2 rewrite q_Den_num_den in Hab.
 apply Z.compare_eq_iff in Hab.
 now apply Z.mul_cancel_r in Hab.
 Qed.
+
+Theorem mul_0_l : ∀ a, (0 * a == 0)%Q.
+Proof. easy. Qed.
+
+Theorem mul_0_r : ∀ a, (a * 0 == 0)%Q.
+Proof. now intros; rewrite Q.mul_comm. Qed.
 
 End Q.
 
