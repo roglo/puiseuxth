@@ -96,10 +96,14 @@ apply Q.mul_move_r in H. {
       intros HH; apply H₁₂.
       apply -> Q.sub_move_0_r in HH.
 Search (_ # _ == _ # _)%Q.
-Check Qden_cancel.
+Search (_ / _ == _ / _)%Z.
+Print q_den.
+Print Q.
 ...
 Qden_cancel
      : ∀ (a b : Z) (p : positive), a # p == b # p → a = b
+Z_div_reg_r:
+  ∀ [a b c : Z], (c | a)%Z → (c | b)%Z → (a / c)%Z = (b / c)%Z → a = b
 ...
       apply Qminus_eq, Qden_cancel in HH.
       now apply Nat2Z.inj in HH.
