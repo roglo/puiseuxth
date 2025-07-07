@@ -1,7 +1,7 @@
 (* SlopeMisc.v *)
 
 Set Nested Proofs Allowed.
-From Stdlib Require Import Utf8.
+From Stdlib Require Import Utf8 Setoid Ring.
 
 Require Import A_PosArith A_ZArith A_QArith.
 Require Import Slope_base.
@@ -99,24 +99,20 @@ apply Q.mul_move_r in H. {
       apply Q.den_cancel in HH.
       now apply Nat2Z.inj in HH.
     }
+    rewrite Q.mul_div_swap.
+    symmetry.
     apply Q.mul_move_r. {
       intros HH; apply H₁₂.
       apply -> Q.sub_move_0_r in HH.
       apply Q.den_cancel in HH.
-      now apply Nat2Z.inj in HH.
+      now apply Nat2Z.inj in HH; symmetry in HH.
     }
-...
     symmetry.
-    rewrite Q.mul_div_swap.
-    apply Qeq_shift_div_l. {
-      intros HH; apply H₂₃.
-      apply Qminus_eq, Qden_cancel in HH.
-      now apply Nat2Z.inj in HH.
-    }
-    setoid_replace ((y₃ - y₁) * (Qnat x₂ - Qnat x₁)) with
+    progress setoid_replace ((y₃ - y₁) * (Qnat x₂ - Qnat x₁)) with
      (Qnat x₂ * y₃ - Qnat x₂ * y₁ - Qnat x₁ * y₃ + Qnat x₁ * y₁) in H by ring.
-    setoid_replace ((y₂ - y₁) * (Qnat x₃ - Qnat x₁)) with
+    progress setoid_replace ((y₂ - y₁) * (Qnat x₃ - Qnat x₁)) with
      (Qnat x₃ * y₂ - Qnat x₃ * y₁ - Qnat x₁ * y₂ + Qnat x₁ * y₁) in H by ring.
+...
     apply Qplus_inj_r in H.
     setoid_replace ((y₃ - y₂) * (Qnat x₂ - Qnat x₁)) with
      (Qnat x₁ * y₂ + Qnat x₂ * y₃ - Qnat x₁ * y₃ - Qnat x₂ * y₂) by ring.
