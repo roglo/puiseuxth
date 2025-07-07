@@ -1,8 +1,8 @@
 (* Qbar.v *)
 
-From Stdlib Require Import Utf8.
+From Stdlib Require Import Utf8 Relations Morphisms.
 
-Require Import A_QArith.
+Require Import A_PosArith A_ZArith A_QArith.
 Require Import Misc.
 
 Set Implicit Arguments.
@@ -360,29 +360,28 @@ Theorem mul_0_r : ∀ a, a ≠ ∞ → qeq (a * 0) 0.
 Proof.
 intros a Ha.
 destruct a as [a| ]; simpl; [ idtac | apply Ha; reflexivity ].
-About Q_mul_0_r.
-Search (_ * 0 == 0)%Q.
-rewrite Q.mul_0_r.
-...
-rewrite Qmult_0_r; reflexivity.
+now rewrite Q.mul_0_r.
 Qed.
 
 Theorem eq_refl : reflexive _ qeq.
-Proof. intros a; destruct a; reflexivity. Qed.
+Proof.
+intros a.
+destruct a; [ now cbn | easy ].
+Qed.
 
 Theorem eq_sym : symmetric _ qeq.
 Proof.
 intros a b Hab.
 destruct a; [ idtac | assumption ].
-destruct b; [ symmetry; assumption | contradiction ].
+destruct b; [ now cbn | easy ].
 Qed.
 
 Theorem eq_trans : transitive _ qeq.
 Proof.
 intros a b c Hab Hbc.
 destruct a as [a| ]; simpl in Hab; simpl. {
- destruct b as [b| ]; simpl in Hab, Hbc; [ idtac | contradiction ].
- destruct c as [c| ]; [ rewrite Hab; assumption | assumption ].
+  destruct b as [b| ]; simpl in Hab, Hbc; [ idtac | contradiction ].
+  destruct c as [c| ]; [ rewrite Hab; assumption | assumption ].
 }
 destruct b as [b| ]; simpl in Hab, Hbc; [ contradiction | assumption ].
 Qed.
@@ -397,7 +396,7 @@ Add Parametric Relation : Qbar Qbar.qeq
   transitivity proved by Qbar.eq_trans
   as qbar_qeq_rel.
 
-Global Instance qbar_qfin_morph : Proper (Qeq ==> Qbar.qeq) qfin.
+Global Instance qbar_qfin_morph : Proper (Q.eq ==> Qbar.qeq) qfin.
 Proof. easy. Qed.
 
 Global Instance qbar_add_morph :
@@ -470,13 +469,19 @@ rewrite <- Hab, <- Hcd.
 inversion Hac; assumption.
 Qed.
 
-Theorem Qmin_same_den : ∀ a b c, Qmin (a # c) (b # c) = Z.min a b # c.
+Theorem Qmin_same_den : ∀ a b c, Q.min (a # c) (b # c) = Z.min a b # c.
 Proof.
 intros a b c.
-unfold Qmin; simpl.
-destruct (Qlt_le_dec (a # c) (b # c)) as [Hlt| Hge]; f_equal. {
-  unfold Qlt in Hlt; simpl in Hlt.
-  apply Zmult_lt_reg_r in Hlt; [ idtac | apply Pos2Z.is_pos ].
+unfold Q.min; simpl.
+destruct (Q.lt_le_dec (a # c) (b # c)) as [Hlt| Hge]; f_equal. {
+  unfold Q.lt in Hlt; simpl in Hlt.
+(**)
+  apply -> Q.compare_lt_iff in Hlt.
+...
+Search (_ # _ < _ # _).
+Zmult_lt_reg_r in Hlt; [ idtac | easy ].
+...
+  apply Zmult_lt_reg_r in Hlt; [ idtac | easy ].
   rewrite Z.min_l; [ reflexivity | apply Z.lt_le_incl; assumption ].
 } {
   unfold Qle in Hge; simpl in Hge.
