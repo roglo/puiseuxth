@@ -5,7 +5,7 @@
 From Stdlib Require Import Utf8 Arith.
 From Stdlib Require Import Sorting Morphisms.
 
-Require Import A_ZArith A_QArith.
+Require Import A_PosArith A_ZArith A_QArith.
 Require Import ConvexHull.
 Require Import ConvexHullMisc.
 Require Import Misc.
@@ -268,6 +268,7 @@ destruct na as [na| ]. {
     inversion_clear H.
     simpl in H0, H1, H2.
     unfold Qbar.qeq, Q.eq; simpl.
+    apply Q.compare_eq_iff.
     unfold normalise_series in H2.
     remember (greatest_series_x_power K (ps_terms a) na) as apn.
     remember (greatest_series_x_power K (ps_terms b) nb) as bpn.
@@ -280,8 +281,10 @@ destruct na as [na| ]. {
     remember (Z.of_nat bpn) as bp eqn:Hbp ; subst bpn.
     remember (z_pos (ps_polydo a))%Z as oa eqn:Hoa .
     remember (z_pos (ps_polydo b))%Z as ob eqn:Hob .
-...
     apply Z2Pos.inj in H1. {
+      apply Z.compare_eq_iff; cbn.
+      do 2 rewrite q_Den_num_den.
+...
       eapply div_gcd_gcd_mul_compat; eassumption.
     } {
       apply Z.div_str_pos.

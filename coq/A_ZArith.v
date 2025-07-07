@@ -3133,6 +3133,16 @@ destruct a as [| sa va]; [ easy | cbn ].
 now destruct sa.
 Qed.
 
+Theorem inj : ∀ a b, (0 < a)%Z → (0 < b)%Z → Z.to_pos a = Z.to_pos b → a = b.
+Proof.
+intros * Hza Hzb Hab.
+destruct a as [| sa va]; [ easy | ].
+destruct b as [| sb vb]; [ easy | ].
+destruct sa; [ | easy ].
+destruct sb; [ | easy ].
+now cbn in Hab; subst.
+Qed.
+
 Theorem inj_mul :
   ∀ a b,
   (0 < a)%Z
