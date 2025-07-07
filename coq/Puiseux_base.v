@@ -2,7 +2,8 @@
 
 (* Most of notations are Robert Walker's ones *)
 
-From Stdlib Require Import Utf8 Sorting Arith.
+From Stdlib Require Import Utf8 Arith.
+From Stdlib Require Import Sorting Morphisms.
 
 Require Import A_ZArith A_QArith.
 Require Import ConvexHull.
@@ -230,12 +231,6 @@ rewrite Z_div_mul_swap in Ha. {
         apply Z_div_reg_r in Ha. {
           rewrite Ha; apply Z.mul_comm.
         } {
-Search (_ | _ * _)%Z.
-...
-Check Z.divide_mul_l.
-Z.divide_mul_l
-     : ∀ n m p : Z, (n | m)%Z → (n | m * p)%Z
-
           apply Z.divide_mul_l.
           rewrite <- Z.gcd_assoc.
           apply Z.gcd_divide_l.
@@ -272,7 +267,7 @@ destruct na as [na| ]. {
   destruct nb as [nb| ]. {
     inversion_clear H.
     simpl in H0, H1, H2.
-    unfold Qbar.qeq, Qeq; simpl.
+    unfold Qbar.qeq, Q.eq; simpl.
     unfold normalise_series in H2.
     remember (greatest_series_x_power K (ps_terms a) na) as apn.
     remember (greatest_series_x_power K (ps_terms b) nb) as bpn.
@@ -283,8 +278,9 @@ destruct na as [na| ]. {
     remember (ps_ordnum b + Z.of_nat nb)%Z as bo eqn:Hbo .
     remember (Z.of_nat apn) as ap eqn:Hap ; subst apn.
     remember (Z.of_nat bpn) as bp eqn:Hbp ; subst bpn.
-    remember (Zpos (ps_polydo a))%Z as oa eqn:Hoa .
-    remember (Zpos (ps_polydo b))%Z as ob eqn:Hob .
+    remember (z_pos (ps_polydo a))%Z as oa eqn:Hoa .
+    remember (z_pos (ps_polydo b))%Z as ob eqn:Hob .
+...
     apply Z2Pos.inj in H1. {
       eapply div_gcd_gcd_mul_compat; eassumption.
     } {

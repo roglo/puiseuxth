@@ -2933,6 +2933,13 @@ destruct Hab as (c, Hc); subst a.
 now apply Z.mod_mul.
 Qed.
 
+Theorem divide_mul_l : ∀ a b c, (a | b)%Z → (a | b * c)%Z.
+Proof.
+intros * (d, Hab); subst.
+rewrite Z.mul_mul_swap.
+now exists (d * c)%Z.
+Qed.
+
 End Z.
 
 Number Notation Z Z.of_number Z.to_number : Z_scope.
