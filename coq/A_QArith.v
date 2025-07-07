@@ -231,6 +231,9 @@ Qed.
 Theorem nle_gt : ∀ a b, ¬ (a ≤ b)%Q ↔ (b < a)%Q.
 Proof. intros; apply Z.nle_gt. Qed.
 
+Theorem nlt_ge : ∀ a b, ¬ (a < b)%Q ↔ (b ≤ a)%Q.
+Proof. intros; apply Z.nlt_ge. Qed.
+
 Theorem le_antisymm : ∀ a b, (a ≤ b)%Q → (b ≤ a)%Q → (a == b)%Q.
 Proof.
 intros * Hab Hba.

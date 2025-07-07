@@ -130,7 +130,6 @@ Qed.
 Theorem min_comm : ∀ n m, qeq (min n m) (min m n).
 Proof.
 intros n m.
-(**)
 destruct n as [n| ]; [ | now destruct m; cbn ].
 destruct m as [m| ]; [ | now cbn ].
 progress unfold qeq; cbn.
@@ -474,19 +473,19 @@ Proof.
 intros a b c.
 unfold Q.min; simpl.
 destruct (Q.lt_le_dec (a # c) (b # c)) as [Hlt| Hge]; f_equal. {
-  unfold Q.lt in Hlt; simpl in Hlt.
-(**)
-  apply -> Q.compare_lt_iff in Hlt.
-...
-Search (_ # _ < _ # _).
-Zmult_lt_reg_r in Hlt; [ idtac | easy ].
-...
-  apply Zmult_lt_reg_r in Hlt; [ idtac | easy ].
-  rewrite Z.min_l; [ reflexivity | apply Z.lt_le_incl; assumption ].
+  apply -> Z.compare_lt_iff in Hlt.
+  cbn in Hlt.
+  do 2 rewrite q_Den_num_den in Hlt.
+  apply Z.mul_lt_mono_pos_r in Hlt; [ | easy ].
+  symmetry.
+  now apply Z.min_l, Z.lt_le_incl.
 } {
-  unfold Qle in Hge; simpl in Hge.
-  apply Zmult_le_reg_r in Hge; [ idtac | apply Z.lt_gt, Pos2Z.is_pos ].
-  rewrite Z.min_r; [ reflexivity | assumption ].
+  apply -> Z.compare_le_iff in Hge.
+  cbn in Hge.
+  do 2 rewrite q_Den_num_den in Hge.
+  apply Z.mul_le_mono_pos_r in Hge; [ | easy ].
+  symmetry.
+  now apply Z.min_r.
 }
 Qed.
 
@@ -540,17 +539,15 @@ destruct a as [a| ]. {
   destruct c as [c| ]. {
     destruct d as [d| ]; [ idtac | inversion Hcd ].
     apply Qbar.qfin_inj in Hcd.
-    unfold Qmin; simpl.
-    destruct (Qlt_le_dec a c) as [Hlt| Hge]; [ idtac | inversion Hcd ]. {
-      destruct (Qlt_le_dec b d) as [Hlt'| Hge]; [ assumption | idtac ].
+    unfold Q.min; simpl.
+    destruct (Q.lt_le_dec a c) as [Hlt| Hge]; [ idtac | inversion Hcd ]. {
+      destruct (Q.lt_le_dec b d) as [Hlt'| Hge]; [ assumption | idtac ].
       rewrite Hab, Hcd in Hlt.
-      apply Qle_not_lt in Hge.
-      contradiction.
+      now apply Q.nlt_ge in Hge.
     }
-    destruct (Qlt_le_dec b d) as [Hlt| Hge']; [ idtac | assumption ].
+    destruct (Q.lt_le_dec b d) as [Hlt| Hge']; [ idtac | assumption ].
     rewrite Hab, Hcd in Hge.
-    apply Qle_not_lt in Hge.
-    contradiction.
+    now apply Q.nlt_ge in Hge.
   }
   destruct d as [d| ]; [ inversion Hcd | assumption ].
 }
