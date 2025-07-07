@@ -25,7 +25,7 @@ Set Implicit Arguments.
 
 Definition order {α} {r : ring α} {K : field r} ps :=
   match series_order (ps_terms ps) 0 with
-  | fin v => qfin (ps_ordnum ps + Z.of_nat v # ps_polydo ps)
+  | fin v => qfin (mk_q (ps_ordnum ps + Z.of_nat v) (ps_polydo ps))
   | ∞ => qinf
   end.
 
@@ -268,7 +268,9 @@ destruct na as [na| ]. {
     inversion_clear H.
     simpl in H0, H1, H2.
     unfold Qbar.qeq, Q.eq; simpl.
-    apply Q.compare_eq_iff.
+    apply Z.compare_eq_iff; cbn.
+    do 2 rewrite q_Den_num_den.
+    progress unfold Z.of_pos.
     unfold normalise_series in H2.
     remember (greatest_series_x_power K (ps_terms a) na) as apn.
     remember (greatest_series_x_power K (ps_terms b) nb) as bpn.
@@ -282,11 +284,14 @@ destruct na as [na| ]. {
     remember (z_pos (ps_polydo a))%Z as oa eqn:Hoa .
     remember (z_pos (ps_polydo b))%Z as ob eqn:Hob .
     apply Z2Pos.inj in H1. {
-      apply Z.compare_eq_iff; cbn.
-      do 2 rewrite q_Den_num_den.
-...
       eapply div_gcd_gcd_mul_compat; eassumption.
     } {
+Search (0 < _ / _)%Z.
+...
+Check Z.div_str_pos.
+Z.div_str_pos
+     : ∀ a b : Z, (0 < b <= a)%Z → (0 < a / b)%Z
+...
       apply Z.div_str_pos.
       split; [ assumption | idtac ].
       rewrite Z.gcd_comm, Z.gcd_assoc, Hoa.
