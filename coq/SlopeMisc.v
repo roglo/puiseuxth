@@ -1,7 +1,7 @@
 (* SlopeMisc.v *)
 
 Set Nested Proofs Allowed.
-From Stdlib Require Import Utf8 Setoid Ring.
+From Stdlib Require Import Utf8 Arith Setoid Ring.
 
 Require Import A_PosArith A_ZArith A_QArith.
 Require Import Slope_base.
@@ -77,15 +77,6 @@ Theorem slope_eq : ∀ x₁ y₁ x₂ y₂ x₃ y₃,
 Proof.
 intros x₁ y₁ x₂ y₂ x₃ y₃ H₁₂ H₂₃ H₃₁ H.
 unfold slope_expr in H |-*.
-(*
-apply Qeq_shift_mult_l in H. {
-  symmetry in H.
-  rewrite Q_mul_div_swap in H.
-Qeq_shift_mult_l
-     : ∀ x y z : Q, ¬ z == 0 → x / z == y → x == y * z
-Q.mul_move_l
-     : ∀ a b c : Q, ¬ c == 0 → c * a == b ↔ a == b / c
-*)
 cbn in H |-*.
 symmetry in H.
 apply Q.mul_move_r in H. {
@@ -118,39 +109,44 @@ apply Q.mul_move_r in H. {
     progress setoid_replace ((y₂ - y₁) * (Qnat x₃ - Qnat x₂)) with
      (Qnat x₂ * y₁ + Qnat x₃ * y₂ - Qnat x₃ * y₁ - Qnat x₂ * y₂) by ring.
     apply Q.sub_compat_r.
-...
-    do 2 apply Qminus_eq_eq_plus_r in H.
-    do 4 rewrite <- Q_add_sub_swap in H.
+    do 2 apply Q.add_move_r in H.
+    do 4 rewrite <- Q.add_sub_swap in H.
     symmetry in H.
-    do 2 apply Qminus_eq_eq_plus_r in H.
-    apply Qeq_plus_minus_eq_r.
-    rewrite <- Q_add_sub_swap.
+    do 2 apply Q.add_move_r in H.
+    apply -> Q.add_move_r.
+    rewrite <- Q.add_sub_swap.
     symmetry.
-    apply Qeq_plus_minus_eq_r.
-    setoid_replace (Qnat x₂ * y₁ + Qnat x₃ * y₂ + Qnat x₁ * y₃) with
-     (Qnat x₃ * y₂ + Qnat x₁ * y₃ + Qnat x₂ * y₁) by ring.
-    rewrite H; ring.
+    apply -> Q.add_move_r.
+    rewrite (Q.add_comm (Qnat x₂ * y₁)).
+    rewrite Q.add_add_swap.
+    rewrite <- H.
+    now rewrite (Q.add_comm (Qnat x₂ * _)).
   }
   intros HH; apply H₃₁.
-  apply Qminus_eq, Qden_cancel in HH.
+  apply -> Q.sub_move_0_r in HH.
+  apply Q.den_cancel in HH.
   now apply Nat2Z.inj in HH.
 }
 intros HH; apply H₁₂.
-symmetry; apply Qminus_eq, Qden_cancel in HH.
+symmetry.
+apply -> Q.sub_move_0_r in HH.
+apply Q.den_cancel in HH.
 now apply Nat2Z.inj in HH.
 Qed.
 
 Theorem slope_cmp_norm₁₂₁₃ : ∀ x₁ y₁ x₂ y₂ x₃ y₃,
   (x₁ < x₂ < x₃)%nat
   → (slope_expr (x₁, y₁) (x₂, y₂) ?= slope_expr (x₁, y₁) (x₃, y₃)) =
-    (Qnat x₁ * y₃ + Qnat x₂ * y₁ + Qnat x₃ * y₂ ?= Qnat x₁ * y₂ + Qnat x₂ * y₃ + Qnat x₃ * y₁).
+    (Qnat x₁ * y₃ + Qnat x₂ * y₁ + Qnat x₃ * y₂ ?=
+     Qnat x₁ * y₂ + Qnat x₂ * y₃ + Qnat x₃ * y₁).
 Proof.
 intros x₁ y₁ x₂ y₂ x₃ y₃ (Hlt₁, Hlt₂).
 assert (x₁ < x₃)%nat as Hlt₃ by (eapply Nat.lt_trans; eassumption).
 rewrite slope_cmp_flatten; [ idtac | assumption | assumption ].
-rewrite <- Q_add_assoc, Q_add_comm, Q_add_assoc.
+rewrite <- Q.add_assoc, Q.add_comm, Q.add_assoc.
 remember (y₁ * Qnat x₂ + y₃ * Qnat x₁ + y₂ * Qnat x₃ + y₁ * Qnat x₁) as t.
-rewrite <- Q_add_assoc, Q_add_comm, Q_add_assoc; subst t.
+rewrite <- Q.add_assoc, Q.add_comm, Q.add_assoc; subst t.
+...
 rewrite <- Qplus_cmp_compat_r.
 setoid_replace (y₁ * Qnat x₂ + y₃ * Qnat x₁ + y₂ * Qnat x₃) with
  (Qnat x₁ * y₃ + Qnat x₂ * y₁ + Qnat x₃ * y₂) by ring.
@@ -175,9 +171,9 @@ Proof.
 intros x₁ y₁ x₂ y₂ x₃ y₃ (Hlt₁, Hlt₂).
 assert (x₁ < x₃)%nat as Hlt₃ by (eapply Nat.lt_trans; eassumption).
 rewrite slope_cmp_flatten; [ idtac | assumption | assumption ].
-repeat rewrite <- Q_add_assoc.
+repeat rewrite <- Q.add_assoc.
 rewrite <- Qplus_cmp_compat_l.
-repeat rewrite Q_add_assoc.
+repeat rewrite Q.add_assoc.
 setoid_replace (y₁ * Qnat x₂ + y₂ * Qnat x₃ + y₃ * Qnat x₁) with
  (Qnat x₁ * y₃ + Qnat x₂ * y₁ + Qnat x₃ * y₂) by ring.
 setoid_replace (y₂ * Qnat x₁ + y₁ * Qnat x₃ + y₃ * Qnat x₂) with
