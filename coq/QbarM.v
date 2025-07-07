@@ -240,8 +240,7 @@ split; intros H. {
   destruct n as [n| ]. {
     destruct m as [m| ]. {
       destruct p as [p| ]. {
-...
-        constructor; apply Qplus_lt_l; inversion H; assumption.
+        now constructor; apply Q.add_lt_mono_r; inversion H.
       }
       exfalso; apply Hp; reflexivity.
     }
@@ -253,7 +252,7 @@ destruct n as [n| ]; [ idtac | inversion H ].
 destruct m as [m| ]; [ idtac | constructor ].
 destruct p as [p| ]; [ idtac | inversion H ].
 constructor; inversion H.
-apply Qplus_lt_l in H2; assumption.
+now apply Q.add_lt_mono_r in H2.
 Qed.
 
 Theorem add_lt_le_mono : ∀ n m p q,
@@ -270,7 +269,7 @@ destruct m as [m| ]; simpl. {
     destruct p as [p| ]; [ idtac | inversion Hpq ].
     apply qfin_le_mono in Hpq.
     apply qfin_lt_mono.
-    apply Qplus_lt_le_compat; assumption.
+    now apply Q.add_lt_le_compat.
   }
   destruct p as [p| ]; [ constructor | idtac ].
   exfalso; apply Hp; reflexivity.
@@ -287,7 +286,7 @@ split; intros H. {
   destruct n as [n| ]. {
     destruct m as [m| ]. {
       destruct p as [p| ]. {
-        constructor; apply Qplus_le_l; inversion H; assumption.
+        now constructor; apply Q.add_le_mono_r; inversion H.
       }
       exfalso; apply Hp; reflexivity.
     }
@@ -299,7 +298,7 @@ destruct n as [n| ]. {
   destruct m as [m| ]; [ idtac | constructor ].
   destruct p as [p| ]; [ idtac | exfalso; apply Hp; reflexivity ].
   constructor; inversion H.
-  apply Qplus_le_l in H2; assumption.
+  now apply Q.add_le_mono_r in H2.
 } {
   destruct m as [m| ]; [ idtac | constructor ].
   destruct p as [p| ]; [ idtac | exfalso; apply Hp; reflexivity ].
@@ -339,31 +338,29 @@ Proof.
 intros n m H.
 destruct n as [n| ]; [ idtac | inversion H ].
 destruct m as [m| ]; [ idtac | constructor ].
-constructor; apply Qlt_le_weak; inversion H; assumption.
+constructor; apply Q.lt_le_incl; inversion H; assumption.
 Qed.
 
 Theorem sub_diag : ∀ n, qeq (n - n) 0.
 Proof.
 intros n.
 destruct n as [n| ]; [ simpl | reflexivity ].
-unfold Qeq; simpl.
-rewrite Z.mul_1_r.
-rewrite Z.mul_opp_l, Z.add_opp_r.
-apply Z.sub_diag.
+apply Q.sub_diag.
 Qed.
 
 Theorem sub_0_l : ∀ n, qeq (0 - n) (-n).
 Proof.
 intros n.
 destruct n as [n| ]; [ simpl | reflexivity ].
-unfold Qeq; simpl.
-rewrite Z.mul_1_r; reflexivity.
+progress unfold Q.sub.
+now rewrite Q.add_0_l.
 Qed.
 
 Theorem mul_0_r : ∀ a, a ≠ ∞ → qeq (a * 0) 0.
 Proof.
 intros a Ha.
 destruct a as [a| ]; simpl; [ idtac | apply Ha; reflexivity ].
+...
 rewrite Qmult_0_r; reflexivity.
 Qed.
 

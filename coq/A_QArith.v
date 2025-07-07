@@ -677,9 +677,9 @@ split; intros H. {
 }
 Qed.
 
-Theorem add_le_mono_r : ∀ a b c, (a ≤ b → a + c ≤ b + c)%Q.
+Theorem add_le_mono_r : ∀ a b c, (a ≤ b ↔ a + c ≤ b + c)%Q.
 Proof.
-intros * Hle.
+intros.
 do 2 rewrite (Q.add_comm _ c).
 now apply Q.add_le_mono_l.
 Qed.
@@ -713,6 +713,14 @@ Proof.
 intros.
 do 2 rewrite (Q.add_comm _ c).
 apply Q.add_lt_mono_l.
+Qed.
+
+Theorem add_lt_le_compat : ∀ a b c d, (a < b → c ≤ d → a + c < b + d)%Q.
+Proof.
+intros * Hab Hcd.
+apply (Q.lt_le_trans _ (b + c)).
+now apply Q.add_lt_mono_r.
+now apply Q.add_le_mono_l.
 Qed.
 
 Theorem lt_irrefl : ∀ a, ¬ (a < a)%Q.
