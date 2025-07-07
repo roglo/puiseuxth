@@ -99,15 +99,15 @@ apply Q.mul_move_r in H. {
       apply Q.den_cancel in HH.
       now apply Nat2Z.inj in HH.
     }
-    symmetry.
-...
-    apply Qeq_shift_div_l. {
+    apply Q.mul_move_r. {
       intros HH; apply H₁₂.
-      apply Qminus_eq, Qden_cancel in HH.
+      apply -> Q.sub_move_0_r in HH.
+      apply Q.den_cancel in HH.
       now apply Nat2Z.inj in HH.
     }
+...
     symmetry.
-    rewrite Q_mul_div_swap.
+    rewrite Q.mul_div_swap.
     apply Qeq_shift_div_l. {
       intros HH; apply H₂₃.
       apply Qminus_eq, Qden_cancel in HH.
