@@ -1079,11 +1079,11 @@ split; intros H. {
 }
 Qed.
 
-Theorem mul_move_r : ∀ a b c, (¬ c == 0 → a * c == b → a == b / c)%Q.
+Theorem mul_move_r : ∀ a b c, (¬ c == 0 → a * c == b ↔ a == b / c)%Q.
 Proof.
-intros * Hnz H.
-apply Q.mul_move_l; [ easy | ].
-now rewrite Q.mul_comm.
+intros * Hnz.
+rewrite Q.mul_comm.
+now apply Q.mul_move_l.
 Qed.
 
 Theorem inv_add_distr : ∀ a b c, (a + b # c == (a # c) + (b # c))%Q.

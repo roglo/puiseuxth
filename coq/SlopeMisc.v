@@ -85,10 +85,27 @@ Qeq_shift_mult_l
 Q.mul_move_l
      : ∀ a b c : Q, ¬ c == 0 → c * a == b ↔ a == b / c
 *)
-...
-apply Q.mul_move_l in H. {
+cbn in H |-*.
+symmetry in H.
+apply Q.mul_move_r in H. {
   rewrite Q.mul_div_swap in H.
-  apply Qeq_shift_mult_l in H. {
+  symmetry in H.
+  apply Q.mul_move_r in H. {
+    symmetry.
+    apply -> Q.mul_move_r. 2: {
+      intros HH; apply H₁₂.
+      apply -> Q.sub_move_0_r in HH.
+Search (_ # _ == _ # _)%Q.
+Check Qden_cancel.
+...
+Qden_cancel
+     : ∀ (a b : Z) (p : positive), a # p == b # p → a = b
+...
+      apply Qminus_eq, Qden_cancel in HH.
+      now apply Nat2Z.inj in HH.
+... ...
+    symmetry.
+...
     apply Qeq_shift_div_l. {
       intros HH; apply H₁₂.
       apply Qminus_eq, Qden_cancel in HH.
