@@ -1,5 +1,6 @@
 (* CharactPolyn.v *)
 
+Set Nested Proofs Allowed.
 From Stdlib Require Import Utf8 Sorted Arith.
 
 Require Import A_PosArith A_ZArith A_QArith.
@@ -661,7 +662,7 @@ Qed.
 Theorem any_is_p_mq : ∀ a m p q,
   p = p_of_m m a
   → q = q_of_m m a
-  → a == p # (m * q) ∧ Z.gcd p (z_pos q) = 1%Z.
+  → a == mk_q p (m * q) ∧ Z.gcd p (z_pos q) = 1%Z.
 Proof.
 intros a m p q Hp Hq.
 progress unfold Q.eq; simpl.
@@ -689,15 +690,12 @@ rewrite Z2Pos.id. 2: {
   apply (Z.mul_lt_mono_pos_r g); [ easy | ].
   now rewrite <- Hn.
 }
-Check Z.mul_lt_mono_pos_r.
-...
-About Zposnat2Znat.
-rewrite Zposnat2Znat.
-...
-rewrite Pos2Z.inj_mul.
-...
+progress unfold Q.compare.
+rewrite q_Den_num_den.
+cbn.
 rewrite Pos2Z.inj_mul.
 rewrite Z.mul_assoc.
+progress unfold Z.of_pos at 1.
 rewrite <- Heqp.
 pose proof (Z.gcd_divide_l p (z_pos q)).
 rewrite <- Heqg in H.
@@ -708,21 +706,27 @@ assert (g ≠ 0)%Z as Hg0. {
   rewrite Heqg in H.
   apply Z.gcd_eq_0_r in H; revert H; apply Pos2Z_ne_0.
 }
-rewrite Z.div_mul; auto.
+rewrite Z.mul_div; auto.
 pose proof (Z.gcd_divide_r p (z_pos q)).
 rewrite <- Heqg in H.
 destruct H as (gq, Hgq).
 rewrite Hgq.
-rewrite Z.div_mul; auto.
-rewrite Z.mul_shuffle0, Z.mul_assoc.
+rewrite Z.mul_div; auto.
+rewrite Z.mul_mul_swap, <- Z.mul_assoc.
 rewrite Z2Pos.id. {
+  rewrite <- Hgq.
+  progress unfold q_Den.
+  rewrite <- Heqq.
+  progress unfold Z.of_pos.
+  rewrite Z.compare_eq_iff.
   split; [ reflexivity | idtac ].
   apply Z.gcd_div_gcd in Heqg; auto.
   rewrite Hgp, Hgq in Heqg.
-  rewrite Z.div_mul in Heqg; auto.
-  rewrite Z.div_mul in Heqg; auto.
+  rewrite Z.mul_div in Heqg; auto.
+  rewrite Z.mul_div in Heqg; auto.
 }
-apply Z.mul_lt_mono_pos_r with (p := g). {
+apply (Z.mul_le_mono_pos_r g); [ easy | ].
+...
   symmetry in Heqg.
   destruct g as [| g| g]. {
     rewrite Z.mul_0_r in Hgq.

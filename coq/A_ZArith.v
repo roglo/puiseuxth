@@ -2221,6 +2221,17 @@ progress unfold Z.min.
 now destruct (Z.le_dec a a).
 Qed.
 
+Theorem divide_div_mul_exact :
+  ∀ a b c, b ≠ 0%Z → (b | a)%Z → (c * a / b)%Z = (c * (a / b))%Z.
+Proof.
+intros * Hbz Hba.
+destruct Hba as (d, Hba).
+subst a.
+rewrite Z.mul_assoc.
+rewrite Z.mul_div; [ | easy ].
+now rewrite Z.mul_div.
+Qed.
+
 (* gcd *)
 
 Definition gcd a b :=
@@ -2419,18 +2430,30 @@ do 3 rewrite (Z.mul_comm _ c).
 now apply Z.gcd_mul_mono_l_nonneg.
 Qed.
 
-(* end gcd *)
-
-Theorem divide_div_mul_exact :
-  ∀ a b c, b ≠ 0%Z → (b | a)%Z → (c * a / b)%Z = (c * (a / b))%Z.
+Theorem gcd_div_gcd :
+  ∀ a b g, g ≠ 0%Z → g = Z.gcd a b → Z.gcd (a / g) (b / g) = 1%Z.
 Proof.
-intros * Hbz Hba.
-destruct Hba as (d, Hba).
-subst a.
-rewrite Z.mul_assoc.
-rewrite Z.mul_div; [ | easy ].
-now rewrite Z.mul_div.
+intros * Hgz Hab.
+apply (Z.mul_cancel_l g); [ easy | ].
+rewrite Z.mul_1_r.
+rewrite <- Z.gcd_mul_mono_l_nonneg. 2: {
+  rewrite Hab.
+  apply Z.gcd_nonneg.
+}
+rewrite <- Z.divide_div_mul_exact; [ | easy | ]. 2: {
+  rewrite Hab.
+  apply Z.gcd_divide_l.
+}
+rewrite <- Z.divide_div_mul_exact; [ | easy | ]. 2: {
+  rewrite Hab.
+  apply Z.gcd_divide_r.
+}
+rewrite Z.mul_comm, Z.mul_div; [ | easy ].
+rewrite Z.mul_comm, Z.mul_div; [ | easy ].
+easy.
 Qed.
+
+(* end gcd *)
 
 Theorem div_0_l : ∀ a, (0 / a)%Z = 0%Z.
 Proof. easy. Qed.
