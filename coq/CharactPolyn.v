@@ -670,6 +670,17 @@ progress unfold p_of_m, q_of_m; simpl.
 remember (q_num a * z_pos m)%Z as p.
 remember (q_den a) as q.
 remember (Z.gcd p (z_pos q)) as g.
+(**)
+rewrite Z2Pos.id. 2: {
+  specialize (Z.gcd_divide_r p (z_pos q)) as H1.
+  rewrite <- Heqg in H1.
+  destruct H1 as (n, Hn).
+  rewrite Hn, Z.mul_div.
+About Zposnat2Znat.
+rewrite Zposnat2Znat.
+...
+rewrite Pos2Z.inj_mul.
+...
 rewrite Pos2Z.inj_mul.
 rewrite Z.mul_assoc.
 rewrite <- Heqp.
