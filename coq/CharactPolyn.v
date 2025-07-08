@@ -671,11 +671,26 @@ remember (q_num a * z_pos m)%Z as p.
 remember (q_den a) as q.
 remember (Z.gcd p (z_pos q)) as g.
 (**)
+assert (Hg : (0 < g)%Z). {
+  apply Z.lt_iff.
+  split; [ rewrite Heqg; apply Z.gcd_nonneg | ].
+  intros H; subst g.
+  symmetry in H.
+  now apply Z.gcd_eq_0 in H.
+}
 rewrite Z2Pos.id. 2: {
   specialize (Z.gcd_divide_r p (z_pos q)) as H1.
   rewrite <- Heqg in H1.
   destruct H1 as (n, Hn).
-  rewrite Hn, Z.mul_div.
+  rewrite Hn, Z.mul_div. 2: {
+    now intros H; rewrite H in Hg; apply Z.lt_irrefl in Hg.
+  }
+  apply Z.divide_pos_le; [ | now exists n; rewrite Z.mul_1_r ].
+  apply (Z.mul_lt_mono_pos_r g); [ easy | ].
+  now rewrite <- Hn.
+}
+Check Z.mul_lt_mono_pos_r.
+...
 About Zposnat2Znat.
 rewrite Zposnat2Znat.
 ...
