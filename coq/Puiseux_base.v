@@ -286,18 +286,12 @@ destruct na as [na| ]. {
     apply Z2Pos.inj in H1. {
       eapply div_gcd_gcd_mul_compat; eassumption.
     } {
-Search (0 < _ / _)%Z.
-...
-Check Z.div_str_pos.
-Z.div_str_pos
-     : ∀ a b : Z, (0 < b <= a)%Z → (0 < a / b)%Z
-...
-      apply Z.div_str_pos.
+      apply Z.div_pos.
       split; [ assumption | idtac ].
       rewrite Z.gcd_comm, Z.gcd_assoc, Hoa.
       apply Z_gcd_pos_r_le.
     } {
-      apply Z.div_str_pos.
+      apply Z.div_pos.
       split; [ assumption | idtac ].
       rewrite Z.gcd_comm, Z.gcd_assoc, Hob.
       apply Z_gcd_pos_r_le.

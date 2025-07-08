@@ -257,6 +257,7 @@ Notation "a ?= b" := (Z.compare a b) : Z_scope.
 Notation "a =? b" := (Z.eqb a b) : Z_scope.
 Notation "a ≤? b" := (Z.leb a b) (at level 70) : Z_scope.
 Notation "a ≤ b ≤ c" := (Z.le a b ∧ Z.le b c) : Z_scope.
+Notation "a < b ≤ c" := (Z.lt a b ∧ Z.le b c) : Z_scope.
 Notation "( x | y )" := (Z.divide x y) : Z_scope.
 Notation "a 'mod' b" := (Z.rem a b) : Z_scope.
 
@@ -2940,6 +2941,40 @@ rewrite Z.mul_mul_swap.
 now exists (d * c)%Z.
 Qed.
 
+Theorem div_nonneg : ∀ a b, (0 ≤ a)%Z → (0 < b)%Z → (0 ≤ a / b)%Z.
+Proof.
+intros * Hza Hzb.
+destruct a as [| sa va]; [ easy | ].
+destruct sa; [ | easy ].
+destruct b as [| sb vb]; [ easy | ].
+destruct sb; [ | easy ].
+clear Hza Hzb; cbn.
+apply Z.of_nat_is_nonneg.
+Qed.
+
+Theorem div_pos : ∀ a b, (0 < b ≤ a)%Z → (0 < a / b)%Z.
+Proof.
+intros * (Hza, Hab).
+destruct a as [| sa va]; [ now apply Z.nlt_ge in Hab | ].
+destruct b as [| sb vb]; [ easy | ].
+destruct sb; [ | easy ].
+destruct sa; [ | easy ].
+cbn.
+progress unfold Z.le in Hab.
+cbn in Hab.
+apply Pos.compare_le_iff in Hab.
+apply Z.lt_iff.
+split; [ apply Z.of_nat_is_nonneg | ].
+intros H; symmetry in H.
+apply Z.of_nat_eq_0 in H.
+apply Nat.div_small_iff in H; [ | easy ].
+apply Nat.nle_gt in H.
+apply H; clear H.
+progress unfold Pos.le in Hab.
+progress unfold Pos.to_nat.
+now apply Nat.add_le_mono_r.
+Qed.
+
 End Z.
 
 Number Notation Z Z.of_number Z.to_number : Z_scope.
@@ -2955,6 +2990,7 @@ Notation "a < b" := (Z.lt a b) : Z_scope.
 Notation "a ?= b" := (Z.compare a b) : Z_scope.
 Notation "a =? b" := (Z.eqb a b) : Z_scope.
 Notation "a ≤ b ≤ c" := (Z.le a b ∧ Z.le b c) : Z_scope.
+Notation "a < b ≤ c" := (Z.lt a b ∧ Z.le b c) : Z_scope.
 Notation "( x | y )" := (Z.divide x y) : Z_scope.
 Notation "a 'mod' b" := (Z.rem a b) : Z_scope.
 
