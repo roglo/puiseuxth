@@ -137,9 +137,9 @@ now apply Z.mul_cancel_r in Hab.
 Qed.
 
 Add Parametric Relation : Q Q.eq
-  reflexivity proved by eq_refl
-  symmetry proved by eq_symm
-  transitivity proved by eq_trans
+  reflexivity proved by Q.eq_refl
+  symmetry proved by Q.eq_symm
+  transitivity proved by Q.eq_trans
   as eq_rel.
 
 Theorem add_comm : ∀ a b, (a + b)%Q = (b + a)%Q.
@@ -647,6 +647,18 @@ do 2 rewrite (Z.mul_mul_swap _ (q_Den a)).
 now apply Z.mul_le_mono_pos_r.
 Qed.
 
+Theorem lt_trans : ∀ a b c, (a < b → b < c → a < c)%Q.
+Proof.
+intros * Hab Hbc.
+apply (Z.mul_lt_mono_pos_r (q_Den b)); [ easy | ].
+rewrite Z.mul_mul_swap.
+apply (Z.lt_trans _ (q_num b * q_Den a * q_Den c)). {
+  now apply Z.mul_lt_mono_pos_r.
+}
+do 2 rewrite (Z.mul_mul_swap _ (q_Den a)).
+now apply Z.mul_lt_mono_pos_r.
+Qed.
+
 Theorem lt_le_trans : ∀ a b c, (a < b → b ≤ c → a < c)%Q.
 Proof.
 intros * Hab Hbc.
@@ -670,6 +682,15 @@ apply (Z.le_lt_trans _ (q_num b * q_Den a * q_Den c)). {
 do 2 rewrite (Z.mul_mul_swap _ (q_Den a)).
 now apply Z.mul_lt_mono_pos_r.
 Qed.
+
+Add Parametric Relation : Q Q.le
+  reflexivity proved by Q.le_refl
+  transitivity proved by Q.le_trans
+  as le_rel.
+
+Add Parametric Relation : Q Q.lt
+  transitivity proved by Q.lt_trans
+  as lt_rel.
 
 Theorem compare_add_mono_l : ∀ a b c, (a + b ?= a + c)%Q = (b ?= c)%Q.
 Proof.

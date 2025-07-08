@@ -41,16 +41,15 @@ rewrite Q.add_comm, Q.mul_comm; apply Q.nle_gt.
 do 2 rewrite Q.mul_sub_distr_r.
 rewrite Q.mul_sub_distr_l.
 do 2 rewrite Q.add_sub_assoc.
-...
-apply Qlt_plus_minus_lt_r; rewrite <- Q.add_sub_swap.
-apply Qlt_plus_minus_lt_r; rewrite Q.add_sub_swap.
+apply Q.lt_sub_lt_add_r; rewrite <- Q.add_sub_swap.
+apply Q.lt_sub_lt_add_r; rewrite Q.add_sub_swap.
 do 2 rewrite <- Q.add_assoc; rewrite <- Q.add_sub_swap.
-apply Qplus_lt_lt_minus_r; rewrite <- Q.add_sub_swap.
-apply Qplus_lt_lt_minus_r; do 2 rewrite Q.add_assoc.
-rewrite Q.add_comm, Q.add_assoc, Q.add_assoc; apply Qnot_le_lt.
-rewrite <- Q.add_assoc, <- Q.add_assoc, Q.add_comm, Q.add_assoc.
-rewrite Q_add_add_swap; apply Qlt_not_le.
-assumption.
+apply -> Q.lt_add_lt_sub_r; rewrite <- Q.add_sub_swap.
+apply -> Q.lt_add_lt_sub_r; do 2 rewrite Q.add_assoc.
+rewrite Q.add_comm; do 2 rewrite Q.add_assoc.
+rewrite (Q.add_comm (x * j)).
+rewrite (Q.add_add_swap (z * k)).
+easy.
 Qed.
 
 Theorem minimised_slope_le : ∀ pt₁ pt₂ pts ms,
@@ -62,24 +61,20 @@ revert ms Hms.
 induction pts as [| pt]; intros. {
   simpl in Hms.
   subst ms; simpl.
-  apply Qle_refl.
+  apply Q.le_refl.
 }
 simpl in Hms.
 remember (minimise_slope pt₁ pt pts) as ms₁.
 remember (slope_expr pt₁ pt₂ ?= slope ms₁) as c.
-destruct c; subst ms. {
+destruct c; subst ms; [ | easy | ]. {
   simpl.
-  symmetry in Heqc; apply Qeq_alt in Heqc.
+  symmetry in Heqc; apply -> Q.compare_eq_iff in Heqc.
   rewrite Heqc.
   progress unfold slope at 1; simpl.
-  erewrite slope_slope_expr; [ idtac | symmetry; eassumption ].
-  apply Qle_refl.
+  erewrite slope_slope_expr; [ easy | symmetry; eassumption ].
 } {
-  simpl.
-  apply Qle_refl.
-} {
-  symmetry in Heqc; apply Qgt_alt in Heqc.
-  apply Qlt_le_weak; eassumption.
+  symmetry in Heqc; apply -> Q.compare_gt_iff in Heqc.
+  apply Q.lt_le_incl; eassumption.
 }
 Qed.
 
@@ -104,9 +99,9 @@ destruct Hαh as [Hαh| Hαh]. {
   } {
     simpl.
     eapply minimised_slope_le in Heqms₁.
-    symmetry in Heqc; apply Qlt_alt in Heqc.
-    apply Qlt_le_weak.
-    eapply Qlt_le_trans; eassumption.
+    symmetry in Heqc; apply -> Q.compare_lt_iff in Heqc.
+    apply Q.lt_le_incl.
+    eapply Q.lt_le_trans; eassumption.
   } {
     eapply minimised_slope_le in Heqms₁.
     assumption.
@@ -123,9 +118,9 @@ destruct c; subst ms. {
   eapply IHpts; eassumption.
 } {
   simpl.
-  apply Qlt_alt in Heqc.
-  apply Qlt_le_weak.
-  eapply Qlt_le_trans; [ eassumption | idtac ].
+  apply -> Q.compare_lt_iff in Heqc.
+  apply Q.lt_le_incl.
+  eapply Q.lt_le_trans; [ eassumption | idtac ].
   eapply IHpts; eassumption.
 } {
   eapply IHpts; eassumption.
@@ -161,11 +156,11 @@ destruct Hαh as [Hαh| Hαh]. {
       apply <- Nat.nlt_ge in Heqms₁; contradiction.
     } {
       simpl in Hep |- *; clear Hep.
-      symmetry in Heqc; apply Qlt_alt in Heqc.
-      eapply Qlt_le_trans; [ eassumption | idtac ].
+      symmetry in Heqc; apply -> Q.compare_lt_iff in Heqc.
+      eapply Q.lt_le_trans; [ eassumption | idtac ].
       eapply minimised_slope_le; eassumption.
     } {
-      symmetry in Heqc; apply Qgt_alt in Heqc.
+      symmetry in Heqc; apply -> Q.compare_gt_iff in Heqc.
       apply minimise_slope_le in Heqms₁; [ idtac | assumption ].
       rewrite Hep in Heqms₁; simpl in Heqms₁.
       apply Nat.nlt_ge in Heqms₁.
@@ -195,8 +190,8 @@ destruct c; subst ms. {
 } {
   simpl in Hep |- *.
   subst pt.
-  symmetry in Heqc; apply Qlt_alt in Heqc.
-  eapply Qlt_le_trans; [ eassumption | idtac ].
+  symmetry in Heqc; apply -> Q.compare_lt_iff in Heqc.
+  eapply Q.lt_le_trans; [ eassumption | idtac ].
   eapply minimise_slope_pts_le; eassumption.
 } {
   eapply IHpts; try eassumption.
@@ -248,7 +243,7 @@ eapply min_slope_lt_after_k in Heqms₁; try eassumption. {
   apply ad_hoc_lt_lt. {
     apply Qnat_lt in Hjk, Hkh.
     split; [ idtac | assumption ].
-    eapply Qlt_trans; eassumption.
+    now transitivity (Qnat k).
   }
   progress unfold slope_expr in Heqms₁; simpl in Heqms₁.
   assumption.
@@ -280,7 +275,7 @@ induction pts as [| pt₁]; intros. {
   } {
     simpl in Hseg, Hep.
     subst pt.
-    apply Qlt_alt in Heqc.
+    apply -> Q.compare_lt_iff in Heqc.
     assumption.
   } {
     simpl in Hseg, Hep.
@@ -314,19 +309,19 @@ destruct c₁; subst ms; simpl. {
     injection Hep; clear Hep; intros; subst h αh.
     apply Nat.lt_irrefl in Hhk; contradiction.
   } {
-    apply Qgt_alt in Heqc.
+    apply -> Q.compare_gt_iff in Heqc.
     erewrite slope_slope_expr in Heqc; [ idtac | eassumption ].
     assumption.
   }
 } {
   simpl in Hseg, Hep.
   subst pt.
-  apply Qlt_alt in Heqc₁.
-  eapply Qlt_le_trans; [ eassumption | idtac ].
+  apply -> Q.compare_lt_iff in Heqc₁.
+  eapply Q.lt_le_trans; [ eassumption | idtac ].
   eapply minimised_slope_le; eassumption.
 } {
   subst pts₁.
-  apply Qgt_alt in Heqc₁.
+  apply -> Q.compare_gt_iff in Heqc₁.
   simpl in Heqms₁.
   remember (minimise_slope (j, αj) pt₁ pts) as ms₂.
   symmetry in Heqms₂.
@@ -342,7 +337,7 @@ destruct c₁; subst ms; simpl. {
     injection Hep; clear Hep; intros; subst h αh.
     apply Nat.lt_irrefl in Hhk; contradiction.
   } {
-    apply Qgt_alt in Heqc.
+    apply -> Q.compare_gt_iff in Heqc.
     erewrite slope_slope_expr in Heqc; [ idtac | eassumption ].
     assumption.
   }
@@ -398,13 +393,13 @@ destruct Hαh as [Hαh| Hαh]. {
     symmetry in Hep₁.
     remember Heqms₂ as H; clear HeqH.
     eapply minimised_slope in H; [ idtac | eassumption ].
-    symmetry in Heqc; apply Qgt_alt in Heqc.
+    symmetry in Heqc; apply -> Q.compare_gt_iff in Heqc.
     rewrite H in Heqc.
     subst β γ.
     apply ad_hoc_lt_lt. {
       apply Qnat_lt in Hjh, Hhk.
       split; [ assumption | idtac ].
-      eapply Qlt_trans; eassumption.
+      now transitivity (Qnat h).
     } {
       progress unfold slope_expr in Heqc; simpl in Heqc.
       assumption.
@@ -431,7 +426,7 @@ destruct Hαh as [Hαh| Hαh]. {
     apply ad_hoc_lt_lt. {
       apply Qnat_lt in Hjh, Hhk.
       split; [ assumption | idtac ].
-      eapply Qlt_trans; eassumption.
+      now transitivity (Qnat h).
     }
     progress unfold slope_expr in Heqms₁; simpl in Heqms₁.
     assumption.
