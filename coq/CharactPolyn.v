@@ -794,12 +794,17 @@ rewrite Z.mul_comm in Hpq; symmetry in Hpq.
 do 2 rewrite <- Z.mul_assoc in Hpq.
 apply Z.mul_cancel_l in Hpq; [ idtac | apply Pos2Z_ne_0 ].
 rewrite Z.mul_assoc, Z.mul_comm in Hpq.
+(*
+rewrite Qden_inv in Hpq; [ | now apply Z.lt_0_sub, inj_lt ].
+rewrite Qnum_inv in Hpq; [ | now apply Z.lt_0_sub, inj_lt].
+*)
+symmetry in Hpq.
+rewrite Z.mul_comm in Hpq.
+symmetry in Hpq.
 ...
-rewrite q_den_inv in Hpq; [ | now apply Z.lt_0_sub, inj_lt ].
-rewrite q_num_inv in Hpq; [ | now apply Z.lt_0_sub, inj_lt].
-symmetry in Hpq.
-rewrite Zmult_comm in Hpq.
-symmetry in Hpq.
+Check Z.div_unique_exact.
+Z.div_unique_exact
+     : ∀ a b q : Z, b ≠ 0 → a = b * q → q = a / b
 apply Z.div_unique_exact in Hpq; [ | apply Pos2Z_ne_0 ].
 rewrite Hpq.
 rewrite Znumtheory.Zdivide_Zdiv_eq_2; [ | apply Pos2Z.is_pos | ]. {
