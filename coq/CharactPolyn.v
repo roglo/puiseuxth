@@ -1,7 +1,7 @@
 (* CharactPolyn.v *)
 
 Set Nested Proofs Allowed.
-From Stdlib Require Import Utf8 Sorted Arith.
+From Stdlib Require Import Utf8 Sorted Arith Field.
 
 Require Import A_PosArith A_ZArith A_QArith.
 Require Import ConvexHull.
@@ -726,23 +726,9 @@ rewrite Z2Pos.id. {
   rewrite Z.mul_div in Heqg; auto.
 }
 apply (Z.mul_le_mono_pos_r g); [ easy | ].
-...
-  symmetry in Heqg.
-  destruct g as [| g| g]. {
-    rewrite Z.mul_0_r in Hgq.
-    exfalso; revert Hgq; apply Pos2Z_ne_0.
-  } {
-    apply Pos2Z.is_pos.
-  } {
-    pose proof (Z.gcd_nonneg p (z_pos q)).
-    rewrite Heqg in H.
-    apply Z.nlt_ge in H.
-    exfalso; apply H.
-    apply Pos2Z.neg_is_neg.
-  }
-}
-simpl.
-rewrite <- Hgq; apply Pos2Z.is_pos.
+rewrite <- Hgq.
+rewrite Z.mul_1_l, Heqg.
+apply Z_gcd_pos_r_le.
 Qed.
 
 (* [Walker, p. 100]: « [...] where q > 0 and p and q are integers having
@@ -770,7 +756,7 @@ Proof.
 intros f L j αj HL Hjαj h αh Hhαh.
 remember HL as Hh; clear HeqHh.
 apply points_in_any_newton_segment with (h := h) (αh := αh) in Hh. {
-  apply Q.eq_plus_minus_eq_r in Hh.
+  apply Qeq_plus_minus_eq_r in Hh.
   remember HL as Haj; clear HeqHaj.
   apply points_in_any_newton_segment with (h := j) (αh := αj) in Haj. {
     rewrite <- Hh, Haj.
@@ -795,6 +781,7 @@ Proof.
 intros m p q j k jz kz mj mk Hjk Hjz Hkz Hpq.
 subst jz kz.
 progress unfold Q.eq in Hpq; simpl in Hpq.
+...
 do 2 rewrite Pos2Z.inj_mul in Hpq.
 rewrite Zmult_comm in Hpq; symmetry in Hpq.
 rewrite Zmult_comm in Hpq; symmetry in Hpq.
