@@ -775,19 +775,26 @@ Theorem pmq_qmpm : ∀ m p q j k jz kz mj mk,
   (j < k)%nat
   → jz = Z.of_nat j
   → kz = Z.of_nat k
-  → p # m * q == (mj - mk # m) / (kz - jz # 1)
+  → mk_q p (m * q) == mk_q (mj - mk) m / mk_q (kz - jz) 1
   → z_pos q * (mj - mk) = p * (kz - jz).
 Proof.
 intros m p q j k jz kz mj mk Hjk Hjz Hkz Hpq.
 subst jz kz.
-progress unfold Q.eq in Hpq; simpl in Hpq.
-...
+apply Z.compare_eq_iff in Hpq.
+cbn in Hpq.
+do 2 rewrite q_Den_num_den in Hpq.
+rewrite Z.mul_1_r in Hpq.
+progress unfold Q.div in Hpq.
+progress unfold Q.mul in Hpq.
+rewrite q_Den_num_den in Hpq.
+cbn in Hpq.
 do 2 rewrite Pos2Z.inj_mul in Hpq.
-rewrite Zmult_comm in Hpq; symmetry in Hpq.
-rewrite Zmult_comm in Hpq; symmetry in Hpq.
-do 2 rewrite <- Zmult_assoc in Hpq.
+rewrite Z.mul_comm in Hpq; symmetry in Hpq.
+rewrite Z.mul_comm in Hpq; symmetry in Hpq.
+do 2 rewrite <- Z.mul_assoc in Hpq.
 apply Z.mul_cancel_l in Hpq; [ idtac | apply Pos2Z_ne_0 ].
-rewrite Zmult_assoc, Zmult_comm in Hpq.
+rewrite Z.mul_assoc, Z.mul_comm in Hpq.
+...
 rewrite q_den_inv in Hpq; [ | now apply Z.lt_0_sub, inj_lt ].
 rewrite q_num_inv in Hpq; [ | now apply Z.lt_0_sub, inj_lt].
 symmetry in Hpq.
