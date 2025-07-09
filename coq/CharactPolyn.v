@@ -1071,8 +1071,10 @@ Proof.
 intros f L j αj m HL Hini HinK.
 apply any_in_K_1_m with (h := j) (αh := αj) in HinK. {
   destruct HinK as (mh, Hmh).
-...
-  exists mh; assumption.
+  exists mh.
+  apply Z.compare_eq_iff in Hmh; cbn in Hmh.
+  rewrite q_Den_num_den in Hmh.
+  easy.
 }
 progress unfold newton_segments in HL.
 progress unfold points_of_ps_polynom in HL.
@@ -1088,6 +1090,7 @@ Theorem pol_ord_of_ini_pt : ∀ f L m j αj mj,
   → αj == mj # m.
 Proof.
 intros f L m j αj mj HL Hm Hini Hmj.
+...
 subst mj; simpl.
 progress unfold mh_of_m; simpl.
 progress unfold Q.eq; simpl.
