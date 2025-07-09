@@ -3015,6 +3015,12 @@ rewrite Nat.div_1_r.
 now destruct sa; rewrite Z.pos_nat.
 Qed.
 
+Theorem lt_neq : ∀ a b, (a < b → a ≠ b)%Z.
+Proof.
+intros * Hab H; subst; revert Hab.
+apply Z.lt_irrefl.
+Qed.
+
 End Z.
 
 Number Notation Z Z.of_number Z.to_number : Z_scope.

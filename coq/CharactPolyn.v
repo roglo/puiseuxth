@@ -896,7 +896,7 @@ Qed.
 Theorem in_K_1_m_order_eq : ∀ ps m v,
   in_K_1_m ps m
   → order ps = qfin v
-  → ∃ n, v == n # m.
+  → ∃ n, v == mk_q n m.
 Proof.
 intros ps m v Hin Ho.
 progress unfold order in Ho.
@@ -938,18 +938,16 @@ destruct y as [y| ]; simpl in H0, H1. {
   destruct H₁ as (c₁, Hc₁).
   rewrite Hc₁ in H0 at 1.
   rewrite Z.mul_div in H0. 2: {
-...
-    apply Z.neq_sym.
+    symmetry.
     apply Z.lt_neq.
-    rewrite Z.gcd_assoc.
-    assumption.
+    now rewrite Z.gcd_assoc.
   }
   rewrite <- Z.gcd_assoc in H0.
   pose proof (Z.gcd_divide_l p (Z.gcd o t)) as H.
   destruct H as (c, Hc).
   rewrite Hc in H0 at 1.
-  rewrite Z.div_mul in H0. 2: {
-    apply Z.neq_sym.
+  rewrite Z.mul_div in H0. 2: {
+    symmetry.
     apply Z.lt_neq.
     rewrite Z.gcd_assoc.
     assumption.
@@ -959,8 +957,8 @@ destruct y as [y| ]; simpl in H0, H1. {
   pose proof (Z.gcd_divide_r (Z.gcd t₁ p₁) o₁) as H₁.
   destruct H₁ as (d₁, Hd₁).
   rewrite Hd₁ in H1 at 1.
-  rewrite Z.div_mul in H1. 2: {
-    apply Z.neq_sym.
+  rewrite Z.mul_div in H1. 2: {
+    symmetry.
     apply Z.lt_neq.
     rewrite <- Z.gcd_assoc, Z.gcd_comm.
     assumption.
@@ -969,8 +967,8 @@ destruct y as [y| ]; simpl in H0, H1. {
   pose proof (Z.gcd_divide_r (Z.gcd t p) o) as H.
   destruct H as (d, Hd).
   rewrite Hd in H1 at 1.
-  rewrite Z.div_mul in H1. 2: {
-    apply Z.neq_sym.
+  rewrite Z.mul_div in H1. 2: {
+    symmetry.
     apply Z.lt_neq.
     rewrite <- Z.gcd_assoc, Z.gcd_comm.
     assumption.
@@ -981,6 +979,7 @@ destruct y as [y| ]; simpl in H0, H1. {
     rewrite <- Z.gcd_assoc, Z.gcd_comm, <- Z.gcd_assoc in Hd₁.
     remember (Z.gcd p (Z.gcd o t)) as g.
     remember (Z.gcd p₁ (Z.gcd o₁ t₁)) as g₁.
+...
     rewrite Hc, Hc₁, Hd, Hd₁.
     ring.
   } {
