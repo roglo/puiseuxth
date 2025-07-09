@@ -3034,6 +3034,76 @@ rewrite Z.mul_mul_swap.
 now rewrite Z.mul_div.
 Qed.
 
+Theorem gauss : ∀ a b c, (a | b * c)%Z → Z.gcd a b = 1%Z → (a | c)%Z.
+Proof.
+intros * Ha Hab.
+destruct Ha as (d, Hd).
+progress unfold Z.divide.
+destruct a as [| sa va]. {
+  cbn in Hab.
+  rewrite Z.mul_0_r in Hd.
+  apply Z.integral in Hd.
+  destruct Hd; subst; [ easy | ].
+  now exists 0%Z.
+}
+cbn in Hab.
+destruct b as [| sb vb]. {
+  symmetry in Hd; cbn in Hd.
+  rewrite Z.pos_nat in Hab.
+  injection Hab; clear Hab; intros; subst.
+  destruct sa. {
+    exists c; symmetry; apply Z.mul_1_r.
+  } {
+    exists (-c)%Z.
+    rewrite Z.mul_opp_l, <- Z.mul_opp_r; cbn.
+    symmetry; apply Z.mul_1_r.
+  }
+}
+injection Hab; clear Hab; intros H1.
+apply Nat.sub_0_le in H1.
+apply Nat.le_1_r in H1.
+destruct H1 as [H1| H1]. {
+  apply Nat.gcd_eq_0_l in H1.
+  now apply Pos.to_nat_neq_0 in H1.
+}
+rewrite (Z.mul_comm d) in Hd.
+cbn in Hd.
+destruct c as [| sc vc]; [ now exists 0%Z | ].
+destruct d as [| sd vd]; [ easy | ].
+move sb before sa; move sc before sb; move sd before sc.
+remember Pos.mul as f.
+injection Hd; clear Hd; intros H2 H3; subst f.
+apply (f_equal Pos.to_nat) in H2.
+do 2 rewrite Pos2Nat.inj_mul in H2.
+apply (Nat.gauss _ _ (Pos.to_nat vc)) in H1. 2: {
+  rewrite H2.
+  exists (Pos.to_nat vd).
+  apply Nat.mul_comm.
+}
+destruct H1 as (e, He).
+destruct sa. {
+  destruct sc. {
+    apply (f_equal Pos.of_nat) in He.
+...
+    rewrite Pos2Nat.id in He.
+...
+    rewrite Pos.of_nat_mul in He; [ | | easy ]. 2: {
+...
+apply (f_equal (Nat.mul (Pos.to_nat vc))) in H1.
+rewrite Nat.mul_1_r in H1.
+rewrite <- Nat.gcd_mul_mono_l in H1.
+rewrite (Nat.mul_comm _ (Pos.to_nat vb)) in H1.
+rewrite H2 in H1.
+rewrite (Nat.mul_comm _ (Pos.to_nat va)) in H1.
+rewrite Nat.gcd_mul_mono_l in H1.
+...
+cbn in Hd.
+Search (Nat.gcd _ _ = 1).
+progress unfold Pos.to_nat in H1.
+do 2 rewrite Nat.add_1_r in H1.
+cbn - [ Nat.modulo ] in H1.
+...
+
 End Z.
 
 Number Notation Z Z.of_number Z.to_number : Z_scope.
