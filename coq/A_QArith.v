@@ -944,7 +944,7 @@ rewrite Q.opp_0.
 apply Q.add_0_r.
 Qed.
 
-Definition Q1 x := mk_q (q_Den x) (q_den x).
+Definition Q1 x := (q_Den x # q_den x)%Q.
 
 Theorem mul_add_distr_l' : ∀ x y z, (x * (y + z) * Q1 x = x * y + x * z)%Q.
 Proof.

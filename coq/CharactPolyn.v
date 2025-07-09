@@ -775,7 +775,7 @@ Theorem pmq_qmpm : ∀ m p q j k jz kz mj mk,
   (j < k)%nat
   → jz = Z.of_nat j
   → kz = Z.of_nat k
-  → p # m * q == mk_q (mj - mk) m / mk_q (kz - jz) 1
+  → p # m * q == (mj - mk # m) / (kz - jz # 1)
   → z_pos q * (mj - mk) = p * (kz - jz).
 Proof.
 intros m p q j k jz kz mj mk Hjk Hjz Hkz Hpq.
@@ -1135,8 +1135,10 @@ Proof.
 intros f L k αk m HL HinK Hini.
 apply any_in_K_1_m with (h := k) (αh := αk) in HinK. {
   destruct HinK as (mh, Hmh).
-...
-  exists mh; assumption.
+  exists mh.
+  apply Z.compare_eq_iff in Hmh; cbn in Hmh.
+  rewrite q_Den_num_den in Hmh.
+  easy.
 }
 progress unfold newton_segments in HL.
 progress unfold points_of_ps_polynom in HL.
@@ -1154,10 +1156,11 @@ Proof.
 intros f L m k αk mk HL Hm Hini Hmk.
 subst mk; simpl.
 progress unfold mh_of_m; simpl.
-progress unfold Q.eq; simpl.
+apply Z.compare_eq_iff; cbn.
+progress unfold q_Den; cbn.
 rewrite Z.div_mul_swap. {
   erewrite qden_αk_is_ps_polydo; eauto with Arith.
-  rewrite Z.div_mul; eauto with Arith.
+  now rewrite Z.mul_div.
 } {
   erewrite <- qden_αk_is_ps_polydo; eauto with Arith.
   eapply den_αk_divides_num_αk_m; eauto with Arith.
@@ -1194,7 +1197,10 @@ Proof.
 intros f L h αh m HL HinK Hoth.
 apply any_in_K_1_m with (h := h) (αh := αh) in HinK. {
   destruct HinK as (mh, Hmh).
-  exists mh; assumption.
+  exists mh.
+  apply Z.compare_eq_iff in Hmh; cbn in Hmh.
+  rewrite q_Den_num_den in Hmh.
+  easy.
 } {
   progress unfold newton_segments in HL.
   progress unfold points_of_ps_polynom in HL.
@@ -1212,10 +1218,11 @@ Proof.
 intros f L m h αh mh HL Hm Hfin Hmh.
 subst mh; simpl.
 progress unfold mh_of_m; simpl.
-progress unfold Q.eq; simpl.
+apply Z.compare_eq_iff; cbn.
+progress unfold q_Den; cbn.
 rewrite Z.div_mul_swap. {
   erewrite qden_αh_is_ps_polydo; eauto with Arith.
-  rewrite Z.div_mul; eauto with Arith.
+  now rewrite Z.mul_div.
 } {
   erewrite <- qden_αh_is_ps_polydo; eauto with Arith.
   eapply den_αh_divides_num_αh_m; eauto with Arith.
@@ -1245,22 +1252,19 @@ apply List.in_app_or in Hh.
 remember (fin_pt L) as x eqn:Hfin.
 destruct x as (k, αk).
 split. {
+  apply Z.compare_eq_iff.
+  progress unfold q_Den; cbn.
   rewrite Hmh; simpl.
-  progress unfold Q.eq; simpl.
   progress unfold mh_of_m; simpl.
   subst hps.
   destruct Hh as [Hh| [Hk| ]]; [ idtac | idtac | contradiction ]. {
     erewrite <- qden_αh_is_ps_polydo; eauto with Arith.
-    rewrite Z.div_mul_swap. {
-      rewrite Z.div_mul; auto with Arith.
-    }
+    rewrite Z.div_mul_swap; [ now rewrite Z.mul_div | ].
     eapply den_αh_divides_num_αh_m; eauto with Arith.
   }
   injection Hk; clear Hk; intros; subst h αh.
   erewrite <- qden_αk_is_ps_polydo; [ | apply HL | apply Hfin ].
-  rewrite Z.div_mul_swap. {
-    rewrite Z.div_mul; auto with Arith.
-  }
+  rewrite Z.div_mul_swap; [ now rewrite Z.mul_div | ].
   eapply den_αk_divides_num_αk_m; eauto with Arith.
 }
 destruct Hh as [Hh| [Hh| ]]; [ idtac | idtac | contradiction ]. {
@@ -1271,6 +1275,7 @@ destruct Hh as [Hh| [Hh| ]]; [ idtac | idtac | contradiction ]. {
   destruct H as (Hgamma, Hg).
   rewrite Hgamma in Hgh.
   progress unfold Qnat in Hgh.
+...
   rewrite <- q_num_minus_distr_r in Hgh.
   rewrite Nat2Z.inj_sub. {
     rewrite Hq.
