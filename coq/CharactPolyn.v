@@ -1355,16 +1355,12 @@ intros j k c d Hjk Hc.
 apply (Z.mul_le_mono_pos_r (Z.of_nat d)). {
   destruct d; [ | easy ].
   rewrite Z.mul_comm in Hc; simpl in Hc.
-...
-  rewrite <- Nat2Z.inj_0 in Hc.
-  apply Nat2Z.inj in Hc.
+  apply Z.of_nat_eq_0 in Hc.
   apply Nat.sub_0_le in Hc.
-  apply Nat.nlt_ge in Hc.
-  exfalso; apply Hc.
-  contradiction.
+  now apply Nat.nlt_ge in Hc.
 }
 rewrite <- Hc; simpl.
-apply Nat2Z.is_nonneg.
+apply Z.of_nat_is_nonneg.
 Qed.
 
 (* [Walker, p. 100]: « In the first place, we note that [...]
@@ -1392,6 +1388,11 @@ rewrite Z.gcd_comm in Hgcd.
 rewrite <- Z.pos_nat in Hgcd.
 rewrite Z.gcd_comm in Hgcd.
 rewrite Z.gcd_comm in Hgcd.
+Check Z.gauss.
+...
+Z.gauss
+     : ∀ n m p : Z, (n | m * p) → Z.gcd n m = 1 → (n | p)
+...
 apply Z.gauss with (p := Z.of_nat (h - j)) in Hgcd. {
   destruct Hgcd as (c, Hc).
   exists (Z.to_nat c).
