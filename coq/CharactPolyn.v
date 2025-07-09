@@ -986,22 +986,23 @@ destruct y as [y| ]; simpl in H0, H1. {
     rewrite Hc, Hc₁, Hd, Hd₁.
     ring.
   } {
-Check Zmult_gt_0_lt_0_reg_r.
-...
-Zmult_gt_0_lt_0_reg_r
-     : ∀ n m : Z, n > 0 → 0 < m * n → 0 < m
-...
-    apply Zmult_gt_0_lt_0_reg_r with (n := Z.gcd (Z.gcd t₁ p₁) o₁). {
-      rewrite <- Z.gcd_assoc, Z.gcd_comm.
-      apply Z.lt_gt; assumption.
+    specialize (proj1 (Z.lt_0_mul (Z.gcd (Z.gcd t₁ p₁) o₁) d₁)) as H2.
+    assert (H : 0 < Z.gcd (Z.gcd t₁ p₁) o₁ * d₁). {
+      now rewrite Z.mul_comm, <- Hd₁, Heqo₁.
     }
-    rewrite <- Hd₁, Heqo₁; apply Pos2Z.is_pos.
+    specialize (H2 H); clear H.
+    destruct H2 as [H2| (H2, H3)]; [ easy | ].
+    exfalso; apply Z.nle_gt in H3.
+    apply H3, Z.gcd_nonneg.
   } {
-    apply Zmult_gt_0_lt_0_reg_r with (n := Z.gcd (Z.gcd t p) o). {
-      rewrite <- Z.gcd_assoc, Z.gcd_comm.
-      apply Z.lt_gt; assumption.
+    specialize (proj1 (Z.lt_0_mul (Z.gcd (Z.gcd t p) o) d)) as H2.
+    assert (H : 0 < Z.gcd (Z.gcd t p) o * d). {
+      now rewrite Z.mul_comm, <- Hd, Heqo.
     }
-    rewrite <- Hd, Heqo; apply Pos2Z.is_pos.
+    specialize (H2 H); clear H.
+    destruct H2 as [H2| (H2, H3)]; [ easy | ].
+    exfalso; apply Z.nle_gt in H3.
+    apply H3, Z.gcd_nonneg.
   }
 }
 remember (greatest_series_x_power K (ps_terms ps) x) as z.
@@ -1014,14 +1015,14 @@ pose proof (Z.gcd_divide_l p (Z.gcd o t)) as H.
 destruct H as (c, Hc).
 rewrite <- Z.gcd_assoc in H0.
 rewrite Hc in H0 at 1.
-rewrite Z.div_mul in H0. {
+rewrite Z.mul_div in H0. {
   subst c; simpl in Hc.
   move Hc at top; subst p.
   exists 0%Z; reflexivity.
 }
 progress unfold gcd_ps in Hgp.
 rewrite <- Heqp, <- Heqo, <- Heqt in Hgp.
-apply Z.neq_sym.
+symmetry.
 apply Z.lt_neq.
 rewrite Z.gcd_assoc.
 assumption.
@@ -1030,7 +1031,7 @@ Qed.
 Theorem any_in_K_1_m : ∀ la m h αh,
   ps_lap_forall (λ a, in_K_1_m a m) la
   → (h, αh) ∈ points_of_ps_lap la
-  → ∃ mh, αh == mh # m.
+  → ∃ mh, αh == mk_q mh m.
 Proof.
 intros la m h αh HinK Hin.
 progress unfold points_of_ps_lap in Hin.
@@ -1070,6 +1071,7 @@ Proof.
 intros f L j αj m HL Hini HinK.
 apply any_in_K_1_m with (h := j) (αh := αj) in HinK. {
   destruct HinK as (mh, Hmh).
+...
   exists mh; assumption.
 }
 progress unfold newton_segments in HL.
