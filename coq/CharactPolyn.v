@@ -789,6 +789,31 @@ progress unfold Q.mul in Hpq.
 rewrite q_Den_num_den in Hpq.
 cbn in Hpq.
 do 2 rewrite Pos2Z.inj_mul in Hpq.
+assert (Hnjk : Z.of_nat j < Z.of_nat k). {
+  destruct j. {
+    apply Z.lt_iff.
+    split; [ apply Z.of_nat_is_nonneg | ].
+    cbn; intros H; symmetry in H.
+    apply Z.of_nat_eq_0 in H.
+    now revert H; apply Nat.neq_0_lt_0.
+  }
+  destruct k; [ easy | cbn ].
+  progress unfold Z.lt; cbn.
+  do 2 rewrite Nat.sub_0_r.
+  apply Nat.compare_lt_iff.
+  now apply Nat.succ_lt_mono in Hjk.
+}
+rewrite Z2Pos.id in Hpq. 2: {
+  rewrite Z.abs_nonneg_eq. 2: {
+    apply Z.le_0_sub.
+    now apply Z.lt_le_incl.
+  }
+  apply Z.divide_pos_le. 2: {
+    exists (Z.of_nat k - Z.of_nat j)%Z.
+    symmetry; apply Z.mul_1_r.
+  }
+  now apply Z.lt_0_sub.
+}
 rewrite Z.mul_comm in Hpq; symmetry in Hpq.
 rewrite Z.mul_comm in Hpq; symmetry in Hpq.
 do 2 rewrite <- Z.mul_assoc in Hpq.
@@ -801,7 +826,12 @@ rewrite Qnum_inv in Hpq; [ | now apply Z.lt_0_sub, inj_lt].
 symmetry in Hpq.
 rewrite Z.mul_comm in Hpq.
 symmetry in Hpq.
+apply Z.div_unique_exact in Hpq. 2: {
+  progress unfold Z.sgn.
+Search (Z.of_nat _ - Z.of_nat _).
 ...
+Search (_ / _ = _)%Z.
+Search (_ = _ / _)%Z.
 Check Z.div_unique_exact.
 Z.div_unique_exact
      : ∀ a b q : Z, b ≠ 0 → a = b * q → q = a / b

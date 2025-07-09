@@ -2998,6 +2998,14 @@ progress unfold Pos.to_nat.
 now apply Nat.add_le_mono_r.
 Qed.
 
+Theorem div_unique_exact : ∀ a b q, (b ≠ 0 → a = b * q → q = a / b)%Z.
+Proof.
+intros * Hbz Ha.
+subst.
+rewrite Z.mul_comm.
+now symmetry; apply Z.mul_div.
+Qed.
+
 End Z.
 
 Number Notation Z Z.of_number Z.to_number : Z_scope.
