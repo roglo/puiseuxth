@@ -244,7 +244,33 @@ Check 1%nat.
 *)
 rewrite <- IHn.
 assert (Qnat (S n) * p == Qnat n * p + p) as H. {
+  progress unfold Qnat.
+(**)
+  rewrite <- (Q.mul_1_l p) at 3.
+  rewrite <- Q.mul_add_distr_r.
+  apply Z.compare_eq_iff.
+  f_equal. {
+    f_equal; f_equal.
+    progress unfold Q.add; cbn.
+    rewrite Z.mul_1_r.
+    rewrite Pos.mul_1_r.
+    f_equal.
+Search (Pos.of_nat (S _)).
+...
+    rewrite Pos.of_nat_inj_succ.
+    rewrite Nat2Z.inj_succ.
+  cbn - [ Z.mul ].
+  rewrite Nat2Z.inj_succ.
+  progress unfold Q.mul, Q.add.
+  cbn.
+  rewrite Pos.mul_1_l.
+...
   progress unfold Qnat; simpl.
+Search (Z.pos).
+...
+Check Zpos_P_of_succ_nat.
+Zpos_P_of_succ_nat
+     : ∀ n : nat, Z.pos (Pos.of_succ_nat n) = Z.succ (Z.of_nat n)
 ...
   rewrite Zpos_P_of_succ_nat.
   progress unfold Qmult, Qplus; simpl.
