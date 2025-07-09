@@ -819,29 +819,29 @@ rewrite Z.mul_comm in Hpq; symmetry in Hpq.
 do 2 rewrite <- Z.mul_assoc in Hpq.
 apply Z.mul_cancel_l in Hpq; [ idtac | apply Pos2Z_ne_0 ].
 rewrite Z.mul_assoc, Z.mul_comm in Hpq.
-(*
-rewrite Qden_inv in Hpq; [ | now apply Z.lt_0_sub, inj_lt ].
-rewrite Qnum_inv in Hpq; [ | now apply Z.lt_0_sub, inj_lt].
-*)
 symmetry in Hpq.
 rewrite Z.mul_comm in Hpq.
 symmetry in Hpq.
-apply Z.div_unique_exact in Hpq. 2: {
+assert (Hsz : Z.sgn (Z.of_nat k - Z.of_nat j) = 1). {
   progress unfold Z.sgn.
-Search (Z.of_nat _ - Z.of_nat _).
-...
-Search (_ / _ = _)%Z.
-Search (_ = _ / _)%Z.
-Check Z.div_unique_exact.
-Z.div_unique_exact
-     : ∀ a b q : Z, b ≠ 0 → a = b * q → q = a / b
-apply Z.div_unique_exact in Hpq; [ | apply Pos2Z_ne_0 ].
-rewrite Hpq.
-rewrite Znumtheory.Zdivide_Zdiv_eq_2; [ | apply Pos2Z.is_pos | ]. {
-  now rewrite Z.div_1_r.
-} {
-  apply Z.divide_1_l.
+  remember (Z.of_nat _ - Z.of_nat _) as kj eqn:Hkj.
+  symmetry in Hkj.
+  destruct kj as [| skj vkj]. {
+    apply -> Z.sub_move_0_r in Hkj.
+    rewrite Hkj in Hnjk.
+    now apply Z.lt_irrefl in Hnjk.
+  }
+  destruct skj; [ easy | ].
+  apply Z.lt_0_sub in Hnjk.
+  now rewrite Hkj in Hnjk.
 }
+apply Z.div_unique_exact in Hpq; [ | now rewrite Hsz ].
+progress unfold Z.of_pos in Hpq.
+rewrite Hpq, Hsz.
+rewrite Z.div_1_r.
+progress f_equal.
+apply Z.abs_nonneg_eq.
+now apply Z.le_0_sub, Z.lt_le_incl.
 Qed.
 
 Theorem order_in_newton_segment : ∀ f L pl h αh,
@@ -937,7 +937,8 @@ destruct y as [y| ]; simpl in H0, H1. {
   pose proof (Z.gcd_divide_l p₁ (Z.gcd o₁ t₁)) as H₁.
   destruct H₁ as (c₁, Hc₁).
   rewrite Hc₁ in H0 at 1.
-  rewrite Z.div_mul in H0. 2: {
+  rewrite Z.mul_div in H0. 2: {
+...
     apply Z.neq_sym.
     apply Z.lt_neq.
     rewrite Z.gcd_assoc.

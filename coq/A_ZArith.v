@@ -3006,6 +3006,15 @@ rewrite Z.mul_comm.
 now symmetry; apply Z.mul_div.
 Qed.
 
+Theorem div_1_r : ∀ a, (a / 1)%Z = a.
+Proof.
+intros.
+destruct a as [| sa va]; [ easy | ].
+cbn - [ Nat.div ].
+rewrite Nat.div_1_r.
+now destruct sa; rewrite Z.pos_nat.
+Qed.
+
 End Z.
 
 Number Notation Z Z.of_number Z.to_number : Z_scope.
