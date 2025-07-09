@@ -74,15 +74,18 @@ rewrite ps_adjust_eq with (n := O) (k := q_den p); simpl.
 progress unfold adjust_ps; simpl.
 do 2 rewrite Z.sub_0_r.
 do 2 rewrite series_shift_0.
-...
-rewrite Hpq, Pos.mul_comm.
+rewrite Pos.mul_comm.
+apply Z.compare_eq_iff in Hpq.
+progress unfold q_Den in Hpq.
+progress unfold Z.of_pos in Hpq.
+rewrite Hpq.
 apply mkps_morphism; try reflexivity.
 progress unfold series_stretch; simpl.
 constructor; simpl; intros i.
-destruct (zerop (i mod Pos.to_nat (Qden p))) as [H₁| H₁]. {
+destruct (zerop (i mod Pos.to_nat (q_den p))) as [H₁| H₁]. {
   apply Nat.Div0.mod_divides in H₁; auto with Arith.
   destruct H₁ as (c, Hc).
-  destruct (zerop (i / Pos.to_nat (Qden p))) as [H₂| H₂]. {
+  destruct (zerop (i / Pos.to_nat (q_den p))) as [H₂| H₂]. {
     rewrite Nat.mul_comm in Hc.
     rewrite Hc, Nat.div_mul in H₂; auto with Arith.
     subst c; simpl in Hc.
@@ -93,7 +96,7 @@ destruct (zerop (i mod Pos.to_nat (Qden p))) as [H₁| H₁]. {
   }
   rewrite Nat.mul_comm in Hc.
   rewrite Hc, Nat.div_mul in H₂; auto with Arith.
-  destruct (zerop (i mod Pos.to_nat (Qden q))) as [H₃| H₃]. {
+  destruct (zerop (i mod Pos.to_nat (q_den q))) as [H₃| H₃]. {
     apply Nat.Div0.mod_divides in H₃; auto with Arith.
     destruct H₃ as (d, Hd).
     rewrite Nat.mul_comm in Hd.
@@ -105,11 +108,11 @@ destruct (zerop (i mod Pos.to_nat (Qden p))) as [H₁| H₁]. {
     destruct Hd as [Hd| Hd]. {
       subst c; exfalso; revert H₂; apply Nat.lt_irrefl.
     }
-    exfalso; revert Hd; apply Pos2Nat_ne_0.
+    exfalso; revert Hd; apply Pos.to_nat_neq_0.
   }
   reflexivity.
 }
-destruct (zerop (i mod Pos.to_nat (Qden q))) as [H₃| H₃]. {
+destruct (zerop (i mod Pos.to_nat (q_den q))) as [H₃| H₃]. {
   apply Nat.Div0.mod_divides in H₃; auto with Arith.
   destruct H₃ as (d, Hd).
   rewrite Nat.mul_comm in Hd.
@@ -217,7 +220,7 @@ Theorem ps_monom_split_mul : ∀ c pow,
 Proof.
 intros c pow.
 rewrite <- ps_monom_add_r.
-rewrite Q_add_0_l; reflexivity.
+rewrite Q.add_0_l; reflexivity.
 Qed.
 
 Theorem ps_monom_mul_r_pow : ∀ c p n,
@@ -242,6 +245,7 @@ Check 1%nat.
 rewrite <- IHn.
 assert (Qnat (S n) * p == Qnat n * p + p) as H. {
   progress unfold Qnat; simpl.
+...
   rewrite Zpos_P_of_succ_nat.
   progress unfold Qmult, Qplus; simpl.
   progress unfold Qeq.
