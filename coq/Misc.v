@@ -316,6 +316,7 @@ Proof. now intros; destruct i. Qed.
 (* Qplus_cmp_compat_r → Q.compare_add_mono_r *)
 (* list_nth_in → List.nth_In *)
 (* Z2Nat_id_max → Z2Nat.of_nat *)
+(* q_num_minus_distr_r → Q.inv_sub_distr *)
 
 Theorem Qcmp_plus_minus_cmp_r : ∀ x y z,
   (x ?= y + z) = (x - z ?= y).

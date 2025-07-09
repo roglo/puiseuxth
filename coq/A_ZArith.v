@@ -3078,6 +3078,21 @@ progress f_equal.
 now apply Nat2Pos.inj_add.
 Qed.
 
+Theorem inj_sub :
+  ∀ a b, (b <= a)%nat → Z.of_nat (a - b) = Z.of_nat a - Z.of_nat b.
+Proof.
+intros * Hba.
+revert b Hba.
+induction a; intros; [ now apply Nat.le_0_r in Hba; subst b | ].
+destruct b; [ easy | ].
+apply Nat.succ_le_mono in Hba.
+rewrite Nat.sub_succ.
+do 2 rewrite Nat2Z.inj_succ.
+rewrite Z.sub_add_distr.
+rewrite Z.add_sub_swap, Z.add_sub.
+now apply IHa.
+Qed.
+
 Theorem inj : ∀ a b, Z.of_nat a = Z.of_nat b → a = b.
 Proof.
 intros * Hab.

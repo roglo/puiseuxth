@@ -1275,11 +1275,10 @@ destruct Hh as [Hh| [Hh| ]]; [ idtac | idtac | contradiction ]. {
   destruct H as (Hgamma, Hg).
   rewrite Hgamma in Hgh.
   progress unfold Qnat in Hgh.
-...
-  rewrite <- q_num_minus_distr_r in Hgh.
+  rewrite <- Q.inv_sub_distr in Hgh.
   rewrite Nat2Z.inj_sub. {
     rewrite Hq.
-    rewrite positive_nat_Z.
+    rewrite Z.pos_nat.
     eapply pmq_qmpm; try reflexivity. {
       eapply j_lt_h; try eassumption; reflexivity.
     }
@@ -1287,7 +1286,7 @@ destruct Hh as [Hh| [Hh| ]]; [ idtac | idtac | contradiction ]. {
     remember Heqhps as Hhps; clear HeqHhps.
     eapply in_pts_in_pol in Hhps; try eassumption. {
       destruct Hhps as (Hhps, Hαh).
-      do 2 rewrite q_num_minus_distr_r.
+      do 2 rewrite Q.inv_sub_distr.
       eapply pol_ord_of_ini_pt in Hj; try eassumption; rewrite Hj.
       eapply pol_ord_of_oth_pt in Hh; try eassumption. {
         rewrite Hh; reflexivity.
@@ -1309,10 +1308,10 @@ pose proof (any_is_p_mq (γ L) m Hp Hpq) as H.
 destruct H as (Hgamma, Hg).
 rewrite Hgh in Hgamma.
 progress unfold Qnat in Hgamma.
-rewrite <- q_num_minus_distr_r in Hgamma.
+rewrite <- Q.inv_sub_distr in Hgamma.
 rewrite Nat2Z.inj_sub. {
   rewrite Hq.
-  rewrite positive_nat_Z.
+  rewrite Z.pos_nat.
   eapply pmq_qmpm; try reflexivity. {
     eapply j_lt_k; try eassumption; [ now rewrite <- Hj; simpl | ].
     injection Hh; clear Hh; intros; subst h αh.
@@ -1322,10 +1321,10 @@ rewrite Nat2Z.inj_sub. {
   remember Heqhps as Hhps; clear HeqHhps.
   eapply in_pts_in_pol with (hv := αh) in Hhps; try eassumption. {
     destruct Hhps as (Hhps, Hαh).
-    do 2 rewrite q_num_minus_distr_r.
+    do 2 rewrite Q.inv_sub_distr.
     eapply pol_ord_of_ini_pt in Hj; try eassumption; rewrite Hj.
     injection Hh; clear Hh; intros; subst h αh.
-    rewrite q_num_minus_distr_r.
+    rewrite Q.inv_sub_distr.
     eapply pol_ord_of_fin_pt in Hfin; try eassumption. {
       rewrite Hfin; reflexivity.
     }
@@ -1353,9 +1352,10 @@ Theorem mul_pos_nonneg : ∀ j k c d,
   → 0 <= c.
 Proof.
 intros j k c d Hjk Hc.
-apply Z.mul_le_mono_pos_r with (p := Z.of_nat d). {
-  destruct d; [ | apply Pos2Z.is_pos ].
+apply (Z.mul_le_mono_pos_r (Z.of_nat d)). {
+  destruct d; [ | easy ].
   rewrite Z.mul_comm in Hc; simpl in Hc.
+...
   rewrite <- Nat2Z.inj_0 in Hc.
   apply Nat2Z.inj in Hc.
   apply Nat.sub_0_le in Hc.
@@ -1389,7 +1389,7 @@ rename pq into q; rename Hpq into Hq.
 remember Hp as Hgcd; clear HeqHgcd.
 eapply p_and_q_have_no_common_factors in Hgcd; eauto with Arith.
 rewrite Z.gcd_comm in Hgcd.
-rewrite <- positive_nat_Z in Hgcd.
+rewrite <- Z.pos_nat in Hgcd.
 rewrite Z.gcd_comm in Hgcd.
 rewrite Z.gcd_comm in Hgcd.
 apply Z.gauss with (p := Z.of_nat (h - j)) in Hgcd. {
