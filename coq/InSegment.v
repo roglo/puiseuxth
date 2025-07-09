@@ -77,7 +77,6 @@ destruct Hαh as [Hαh| Hαh]. {
       progress unfold Q.compare; cbn.
       apply Z.compare_lt_iff.
       do 2 rewrite q_Den_num_den.
-      progress unfold Pos.sub; cbn.
       do 2 rewrite Z.mul_1_r.
       now apply Nat2Z.inj_lt.
     }

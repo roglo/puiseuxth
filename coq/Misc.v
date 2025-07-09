@@ -919,21 +919,6 @@ constructor.
  apply Sorted_inv_2 in H; destruct H; assumption.
 Qed.
 
-Theorem Z_div_mul_swap : ∀ a b c, (b | a)%Z → (a / b * c = a * c / b)%Z.
-Proof.
-intros a b c H.
-destruct H as (d, H).
-subst a.
-destruct (Z.eq_dec b 0) as [Hb| Hb].
- subst b; rewrite Z.mul_0_r.
- reflexivity.
-
- rewrite Z.mul_div; [ idtac | assumption ].
- rewrite Z.mul_mul_swap.
- rewrite Z.mul_div; [ idtac | assumption ].
- reflexivity.
-Qed.
-
 Theorem Z_div_reg_r : ∀ a b c,
   (c | a)%Z → (c | b)%Z → (a / c = b / c)%Z → a = b.
 Proof.

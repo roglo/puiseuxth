@@ -100,7 +100,7 @@ Notation "a '⁻¹'" := (Q.inv a) (at level 1, format "a ⁻¹") : Q_scope.
 Notation "a ≤ b" := (Q.le a b) : Q_scope.
 Notation "a < b" := (Q.lt a b) : Q_scope.
 Notation "a ?= b" := (Q.compare a b) : Q_scope.
-Notation "a # b" := (mk_q a (b - 1)) (at level 55) : Q_scope.
+Notation "a # b" := (mk_q a b) (at level 55) : Q_scope.
 
 Theorem q_Den_mul : ∀ a b, q_Den (a * b) = (q_Den a * q_Den b)%Z.
 Proof. easy. Qed.
@@ -1221,7 +1221,7 @@ Notation "a < b" := (Q.lt a b) : Q_scope.
 Notation "- a" := (Q.opp a) : Q_scope.
 Notation "a '⁻¹'" := (Q.inv a) (at level 1, format "a ⁻¹") : Q_scope.
 Notation "a ?= b" := (Q.compare a b) : Q_scope.
-Notation "a # b" := (mk_q a (b - 1)) (at level 55) : Q_scope.
+Notation "a # b" := (mk_q a b) (at level 55) : Q_scope.
 
 Notation "a ≤ b ≤ c" := (Q.le a b ∧ Q.le b c) : Q_scope.
 

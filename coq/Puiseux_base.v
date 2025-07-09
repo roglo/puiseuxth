@@ -25,7 +25,7 @@ Set Implicit Arguments.
 
 Definition order {α} {r : ring α} {K : field r} ps :=
   match series_order (ps_terms ps) 0 with
-  | fin v => qfin (mk_q (ps_ordnum ps + Z.of_nat v) (ps_polydo ps))
+  | fin v => qfin (ps_ordnum ps + Z.of_nat v # ps_polydo ps)
   | ∞ => qinf
   end.
 
@@ -218,14 +218,14 @@ destruct (Z.eq_dec d 0) as [Hd| Hd]. {
   assumption.
 }
 apply (f_equal (λ x, (x * e)%Z)) in Ha.
-rewrite Z_div_mul_swap in Ha. {
-  rewrite Z_div_mul_swap in Ha. {
+rewrite Z.div_mul_swap in Ha. {
+  rewrite Z.div_mul_swap in Ha. {
     apply (f_equal (Z.mul d)) in Hb.
     rewrite Z.mul_comm in Hb.
-    rewrite Z_div_mul_swap in Hb. {
+    rewrite Z.div_mul_swap in Hb. {
       symmetry in Hb.
       rewrite Z.mul_comm in Hb.
-      rewrite Z_div_mul_swap in Hb. {
+      rewrite Z.div_mul_swap in Hb. {
         rewrite Z.mul_comm in Hb.
         rewrite Hb in Ha.
         apply Z_div_reg_r in Ha. {

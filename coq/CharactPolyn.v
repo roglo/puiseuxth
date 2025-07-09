@@ -662,7 +662,7 @@ Qed.
 Theorem any_is_p_mq : ∀ a m p q,
   p = p_of_m m a
   → q = q_of_m m a
-  → a == mk_q p (m * q) ∧ Z.gcd p (z_pos q) = 1%Z.
+  → a == p # m * q ∧ Z.gcd p (z_pos q) = 1%Z.
 Proof.
 intros a m p q Hp Hq.
 progress unfold Q.eq; simpl.
@@ -775,7 +775,7 @@ Theorem pmq_qmpm : ∀ m p q j k jz kz mj mk,
   (j < k)%nat
   → jz = Z.of_nat j
   → kz = Z.of_nat k
-  → mk_q p (m * q) == mk_q (mj - mk) m / mk_q (kz - jz) 1
+  → p # m * q == mk_q (mj - mk) m / mk_q (kz - jz) 1
   → z_pos q * (mj - mk) = p * (kz - jz).
 Proof.
 intros m p q j k jz kz mj mk Hjk Hjz Hkz Hpq.
@@ -896,7 +896,7 @@ Qed.
 Theorem in_K_1_m_order_eq : ∀ ps m v,
   in_K_1_m ps m
   → order ps = qfin v
-  → ∃ n, v == mk_q n m.
+  → ∃ n, v == n # m.
 Proof.
 intros ps m v Hin Ho.
 progress unfold order in Ho.
@@ -1031,7 +1031,7 @@ Qed.
 Theorem any_in_K_1_m : ∀ la m h αh,
   ps_lap_forall (λ a, in_K_1_m a m) la
   → (h, αh) ∈ points_of_ps_lap la
-  → ∃ mh, αh == mk_q mh m.
+  → ∃ mh, αh == mh # m.
 Proof.
 intros la m h αh HinK Hin.
 progress unfold points_of_ps_lap in Hin.
@@ -1090,13 +1090,14 @@ Theorem pol_ord_of_ini_pt : ∀ f L m j αj mj,
   → αj == mj # m.
 Proof.
 intros f L m j αj mj HL Hm Hini Hmj.
-...
 subst mj; simpl.
 progress unfold mh_of_m; simpl.
-progress unfold Q.eq; simpl.
-rewrite Z_div_mul_swap. {
+apply Z.compare_eq_iff; cbn.
+rewrite q_Den_num_den.
+progress unfold q_Den.
+rewrite Z.div_mul_swap. {
   erewrite qden_αj_is_ps_polydo; eauto with Arith.
-  rewrite Z.div_mul; eauto with Arith.
+  now rewrite Z.mul_div.
 } {
   erewrite <- qden_αj_is_ps_polydo; eauto with Arith.
   eapply den_αj_divides_num_αj_m; eauto with Arith.
@@ -1134,6 +1135,7 @@ Proof.
 intros f L k αk m HL HinK Hini.
 apply any_in_K_1_m with (h := k) (αh := αk) in HinK. {
   destruct HinK as (mh, Hmh).
+...
   exists mh; assumption.
 }
 progress unfold newton_segments in HL.
@@ -1153,7 +1155,7 @@ intros f L m k αk mk HL Hm Hini Hmk.
 subst mk; simpl.
 progress unfold mh_of_m; simpl.
 progress unfold Q.eq; simpl.
-rewrite Z_div_mul_swap. {
+rewrite Z.div_mul_swap. {
   erewrite qden_αk_is_ps_polydo; eauto with Arith.
   rewrite Z.div_mul; eauto with Arith.
 } {
@@ -1211,7 +1213,7 @@ intros f L m h αh mh HL Hm Hfin Hmh.
 subst mh; simpl.
 progress unfold mh_of_m; simpl.
 progress unfold Q.eq; simpl.
-rewrite Z_div_mul_swap. {
+rewrite Z.div_mul_swap. {
   erewrite qden_αh_is_ps_polydo; eauto with Arith.
   rewrite Z.div_mul; eauto with Arith.
 } {
@@ -1249,14 +1251,14 @@ split. {
   subst hps.
   destruct Hh as [Hh| [Hk| ]]; [ idtac | idtac | contradiction ]. {
     erewrite <- qden_αh_is_ps_polydo; eauto with Arith.
-    rewrite Z_div_mul_swap. {
+    rewrite Z.div_mul_swap. {
       rewrite Z.div_mul; auto with Arith.
     }
     eapply den_αh_divides_num_αh_m; eauto with Arith.
   }
   injection Hk; clear Hk; intros; subst h αh.
   erewrite <- qden_αk_is_ps_polydo; [ | apply HL | apply Hfin ].
-  rewrite Z_div_mul_swap. {
+  rewrite Z.div_mul_swap. {
     rewrite Z.div_mul; auto with Arith.
   }
   eapply den_αk_divides_num_αk_m; eauto with Arith.

@@ -3021,6 +3021,19 @@ intros * Hab H; subst; revert Hab.
 apply Z.lt_irrefl.
 Qed.
 
+Theorem div_mul_swap : ∀ a b c, (b | a)%Z → (a / b * c = a * c / b)%Z.
+Proof.
+intros * H.
+destruct H as (d, H).
+subst a.
+destruct (Z.eq_dec b 0) as [Hb| Hb]. {
+ now subst b; rewrite Z.mul_0_r.
+}
+rewrite Z.mul_div; [ | easy ].
+rewrite Z.mul_mul_swap.
+now rewrite Z.mul_div.
+Qed.
+
 End Z.
 
 Number Notation Z Z.of_number Z.to_number : Z_scope.
