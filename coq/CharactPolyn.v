@@ -1388,16 +1388,11 @@ rewrite Z.gcd_comm in Hgcd.
 rewrite <- Z.pos_nat in Hgcd.
 rewrite Z.gcd_comm in Hgcd.
 rewrite Z.gcd_comm in Hgcd.
-Check Z.gauss.
-...
-Z.gauss
-     : ∀ n m p : Z, (n | m * p) → Z.gcd n m = 1 → (n | p)
-...
-apply Z.gauss with (p := Z.of_nat (h - j)) in Hgcd. {
+apply (Z.gauss _ _ (Z.of_nat (h - j))) in Hgcd. {
   destruct Hgcd as (c, Hc).
   exists (Z.to_nat c).
   apply Nat2Z.inj.
-  rewrite Nat2Z.inj_mul.
+  rewrite Z.of_nat_inj_mul.
   rewrite Z2Nat.id; [ assumption | idtac ].
   eapply mul_pos_nonneg; try eassumption.
   destruct Hh as [Hh| [Hk| ]]; [ idtac | idtac | contradiction ]. {
@@ -1410,7 +1405,9 @@ apply Z.gauss with (p := Z.of_nat (h - j)) in Hgcd. {
   }
 }
 rewrite <- Hqjh.
-apply Z.divide_factor_l.
+apply Z.divide_mul_l.
+exists 1%Z; symmetry.
+apply Z.mul_1_l.
 Qed.
 
 (* *)
@@ -1960,7 +1957,7 @@ rewrite list_length_shrink; simpl. {
   }
   subst q.
   rewrite <- Nat.sub_succ_l; [ apply Nat_sub_succ_1 | idtac ].
-  apply Pos2Nat.is_pos.
+  now apply Nat.neq_0_lt_0.
 }
 apply -> Nat.succ_lt_mono.
 clear Hj.
@@ -2191,7 +2188,7 @@ apply imp_or_tauto. {
   progress unfold list_shrink.
   rewrite list_nth_shrink.
   rewrite Nat.add_0_l.
-  rewrite <- Nat.sub_succ_l; [ idtac | subst q; apply Pos2Nat.is_pos ].
+  rewrite <- Nat.sub_succ_l; [ | now subst q; apply Nat.neq_0_lt_0 ].
   rewrite Nat_sub_succ_1.
   rewrite Nat.mul_comm.
   rewrite <- Nat.Lcm0.divide_div_mul_exact. {

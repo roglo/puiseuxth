@@ -2,8 +2,10 @@
 
 Set Nested Proofs Allowed.
 
-From Stdlib Require Import Utf8 Sorted Arith ZArith.
+From Stdlib Require Import Utf8 Sorted Arith.
+From Stdlib Require Import Morphisms.
 
+Require Import A_PosArith A_ZArith A_QArith.
 Require Import ConvexHullMisc.
 Require Import ConvexHull.
 Require Import PolyConvexHull.
@@ -62,16 +64,17 @@ Definition ps_pol_summ α {R : ring α} {K : field R} ln f :=
 (* *)
 
 Global Instance ps_monom_qeq_morph α (r : ring α) (K : field r) :
-  Proper (rng_eq ==> Qeq ==> eq_ps) ps_monom.
+  Proper (rng_eq ==> Q.eq ==> eq_ps) ps_monom.
 Proof.
 intros a b Hab p q Hpq.
 progress unfold ps_monom; simpl.
-rewrite ps_adjust_eq with (n := O) (k := Qden q); simpl.
+rewrite ps_adjust_eq with (n := O) (k := q_den q); simpl.
 symmetry.
-rewrite ps_adjust_eq with (n := O) (k := Qden p); simpl.
+rewrite ps_adjust_eq with (n := O) (k := q_den p); simpl.
 progress unfold adjust_ps; simpl.
 do 2 rewrite Z.sub_0_r.
 do 2 rewrite series_shift_0.
+...
 rewrite Hpq, Pos.mul_comm.
 apply mkps_morphism; try reflexivity.
 progress unfold series_stretch; simpl.

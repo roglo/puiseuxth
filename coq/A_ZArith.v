@@ -3081,28 +3081,25 @@ apply (Nat.gauss _ _ (Pos.to_nat vc)) in H1. 2: {
   apply Nat.mul_comm.
 }
 destruct H1 as (e, He).
+apply (f_equal Z.of_nat) in He.
+rewrite Z.of_nat_inj_mul in He.
+do 2 rewrite Z.pos_nat in He.
 destruct sa. {
-  destruct sc. {
-    apply (f_equal Pos.of_nat) in He.
-...
-    rewrite Pos2Nat.id in He.
-...
-    rewrite Pos.of_nat_mul in He; [ | | easy ]. 2: {
-...
-apply (f_equal (Nat.mul (Pos.to_nat vc))) in H1.
-rewrite Nat.mul_1_r in H1.
-rewrite <- Nat.gcd_mul_mono_l in H1.
-rewrite (Nat.mul_comm _ (Pos.to_nat vb)) in H1.
-rewrite H2 in H1.
-rewrite (Nat.mul_comm _ (Pos.to_nat va)) in H1.
-rewrite Nat.gcd_mul_mono_l in H1.
-...
-cbn in Hd.
-Search (Nat.gcd _ _ = 1).
-progress unfold Pos.to_nat in H1.
-do 2 rewrite Nat.add_1_r in H1.
-cbn - [ Nat.modulo ] in H1.
-...
+  destruct sc; [ now exists (Z.of_nat e) | ].
+  apply (f_equal Z.opp) in He.
+  rewrite <- Z.mul_opp_r in He.
+  cbn in He.
+  exists (- Z.of_nat e)%Z.
+  now rewrite Z.mul_opp_l, <- Z.mul_opp_r.
+}
+destruct sc. {
+  exists (- Z.of_nat e)%Z.
+  now rewrite Z.mul_opp_l, <- Z.mul_opp_r.
+}
+exists (Z.of_nat e).
+apply (f_equal Z.opp) in He.
+now rewrite <- Z.mul_opp_r in He.
+Qed.
 
 End Z.
 

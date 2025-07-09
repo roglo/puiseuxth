@@ -1,7 +1,9 @@
 (* AlgCloCharPol.v *)
 
 From Stdlib Require Import Utf8 ArithRing Arith.
+From Stdlib Require Import Morphisms.
 
+Require Import A_PosArith.
 Require Import Misc.
 Require Import Field2.
 Require Import ConvexHull.
@@ -577,8 +579,8 @@ eapply q_is_factor_of_h_minus_j with (h := k) in Hqkj; try eassumption. {
     }
   }
   rewrite Hqkj in Hdeg, Hcnz.
-  rewrite Nat.div_mul in Hdeg; [ idtac | subst q; apply Pos2Nat_ne_0 ].
-  rewrite Nat.div_mul in Hcnz; [ idtac | subst q; apply Pos2Nat_ne_0 ].
+  rewrite Nat.div_mul in Hdeg; [ idtac | now subst q ].
+  rewrite Nat.div_mul in Hcnz; [ idtac | now subst q ].
   unfold pseudo_degree in Hdeg.
   unfold degree.
   remember (al (Φs q f L)) as la eqn:Hla .
