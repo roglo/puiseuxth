@@ -925,6 +925,10 @@ destruct y as [y| ]; simpl in H0, H1. {
   remember (z_pos (ps_polydo ps₁))%Z as o₁.
   remember (z_pos (ps_polydo ps))%Z as o.
   exists p₁.
+  apply Z.compare_eq_iff; cbn.
+  do 2 rewrite q_Den_num_den.
+  progress unfold Z.of_pos.
+  rewrite <- Heqo₁, <- Heqo.
   pose proof (gcd_ps_is_pos x z ps) as Hgp.
   pose proof (gcd_ps_is_pos y z₁ ps₁) as Hgp₁.
   progress unfold gcd_ps in Heqg, Heqg₁, Hgp, Hgp₁.
@@ -979,10 +983,14 @@ destruct y as [y| ]; simpl in H0, H1. {
     rewrite <- Z.gcd_assoc, Z.gcd_comm, <- Z.gcd_assoc in Hd₁.
     remember (Z.gcd p (Z.gcd o t)) as g.
     remember (Z.gcd p₁ (Z.gcd o₁ t₁)) as g₁.
-...
     rewrite Hc, Hc₁, Hd, Hd₁.
     ring.
   } {
+Check Zmult_gt_0_lt_0_reg_r.
+...
+Zmult_gt_0_lt_0_reg_r
+     : ∀ n m : Z, n > 0 → 0 < m * n → 0 < m
+...
     apply Zmult_gt_0_lt_0_reg_r with (n := Z.gcd (Z.gcd t₁ p₁) o₁). {
       rewrite <- Z.gcd_assoc, Z.gcd_comm.
       apply Z.lt_gt; assumption.
