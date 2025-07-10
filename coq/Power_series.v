@@ -24,6 +24,8 @@ Definition series_1 {α} {R : ring α} :=
 
 Declare Scope series_scope.
 Delimit Scope series_scope with ser.
+Bind Scope series_scope with power_series.
+
 Notation "0" := series_0 : series_scope.
 Notation "1" := series_1 : series_scope.
 

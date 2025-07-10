@@ -19,13 +19,11 @@ Record puiseux_series α := mkps
     ps_ordnum : Z;
     ps_polydo : pos }.
 
-Arguments mkps α%_type ps_terms%_ser ps_ordnum%_Z ps_polydo%_pos.
 Declare Scope ps_scope.
 Delimit Scope ps_scope with ps.
+Bind Scope ps_scope with puiseux_series.
 
-Arguments ps_terms α%_type p%_ps.
-Arguments ps_ordnum α%_type p%_ps.
-Arguments ps_polydo α%_type p%_ps.
+Arguments mkps α%_type ps_terms%_ser ps_ordnum%_Z ps_polydo%_pos.
 
 Section axioms.
 
@@ -134,8 +132,6 @@ split; intros H.
 
    exfalso; apply H1, H3, H.
 Qed.
-
-Arguments series_order _ _ _ s%_ser n%_nat.
 
 Fixpoint nth_series_order α (R : ring α) (K : field R) s b n :=
   match series_order s (S b) with
@@ -729,8 +725,6 @@ assert (Pv : ∀ i, (v (S i) <= v i)%nat).
      rewrite Hx; apply eq_refl.
 Qed.
 
-Arguments greatest_series_x_power α%_type _ _ s%_ser n%_nat.
-
 End axioms.
 
 Definition series_stretch α {R : ring α} k s :=
@@ -746,11 +740,6 @@ Definition series_shrink α k (s : power_series α) :=
 
 Definition series_left_shift α n (s : power_series α) :=
   {| terms i := s.[n + i] |}.
-
-Arguments series_stretch α%_type _ k%_pos s%_ser.
-Arguments series_shift α%_type _ n%_nat s%_ser.
-Arguments series_shrink α%_type k%_pos s%_ser.
-Arguments series_left_shift α%_type n%_nat s%_ser.
 
 Definition normalise_series α n k (s : power_series α) :=
   series_shrink k (series_left_shift n s).
@@ -775,8 +764,6 @@ Definition normalise_ps α {R : ring α} {K : field R} ps :=
       ps_zero
   end.
 
-Arguments normalise_ps _ _ _ ps%_ps.
-
 Inductive eq_ps_strong {α} {r : ring α} :
   puiseux_series α → puiseux_series α → Prop :=
   | eq_strong_base : ∀ ps₁ ps₂,
@@ -790,7 +777,6 @@ Inductive eq_ps {α} {r : ring α} {K : field r} :
   | eq_ps_base : ∀ ps₁ ps₂,
       eq_ps_strong (normalise_ps ps₁) (normalise_ps ps₂)
       → eq_ps ps₁ ps₂.
-Arguments eq_ps _ _ _ ps₁%_ps ps₂%_ps.
 
 Definition ps_monom {α} {r : ring α} (c : α) pow :=
   {| ps_terms := {| terms i := if zerop i then c else 0%K |};

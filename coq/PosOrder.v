@@ -483,7 +483,9 @@ rewrite (Z.add_comm (Z.of_nat na)).
 rewrite <- Z.add_assoc.
 progress f_equal.
 (* ah bon, tiens, c'est bizarre *)
-...
+Search (series_order (_ * _)).
+About series_order.
+..
       apply Z.compare_eq_iff; cbn.
       do 3 rewrite q_Den_num_den.
       symmetry.
