@@ -3101,6 +3101,18 @@ apply (f_equal Z.opp) in He.
 now rewrite <- Z.mul_opp_r in He.
 Qed.
 
+Theorem le_sub_le_add_l : ∀ a b c, (a - b ≤ c)%Z ↔ (a ≤ b + c)%Z.
+Proof.
+intros.
+split; intros Hab. {
+  apply (Z.sub_le_mono_r _ _ b).
+  now rewrite Z.add_comm, Z.add_sub.
+} {
+  apply (Z.sub_le_mono_r _ _ b) in Hab.
+  now rewrite Z.add_comm, Z.add_sub in Hab.
+}
+Qed.
+
 End Z.
 
 Number Notation Z Z.of_number Z.to_number : Z_scope.
@@ -3165,6 +3177,9 @@ rewrite Z.sub_add_distr.
 rewrite Z.add_sub_swap, Z.add_sub.
 now apply IHa.
 Qed.
+
+Theorem inj_mul : ∀ a b, Z.of_nat (a * b) = (Z.of_nat a * Z.of_nat b)%Z.
+Proof. apply Z.of_nat_inj_mul. Qed.
 
 Theorem inj : ∀ a b, Z.of_nat a = Z.of_nat b → a = b.
 Proof.
@@ -3294,6 +3309,9 @@ End Z2Nat.
 
 Module Pos2Z.
 
+Theorem is_nonneg : ∀ a, (0 ≤ Z.of_pos a)%Z.
+Proof. easy. Qed.
+
 Theorem inj_mul : ∀ a b, Z.of_pos (a * b) = (Z.of_pos a * Z.of_pos b)%Z.
 Proof. easy. Qed.
 
@@ -3301,7 +3319,7 @@ End Pos2Z.
 
 Module Z2Pos.
 
-Theorem id: ∀ a, (1 ≤ a)%Z → Z.of_pos (Z.to_pos a) = a.
+Theorem id : ∀ a, (1 ≤ a)%Z → Z.of_pos (Z.to_pos a) = a.
 Proof.
 intros * Ha.
 destruct a as [| sa va]; [ easy | now destruct sa ].

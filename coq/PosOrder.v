@@ -171,7 +171,7 @@ eapply order_in_newton_segment with (h := h) (αh := αh) in Hval; eauto. {
   rewrite Z.min_l. {
     rewrite Z.mul_add_distr_r.
     apply Z.add_lt_mono_l.
-    rewrite <- Z.pos_nat, <- Z.of_nat_inj_mul.
+    rewrite <- Z.pos_nat, <- Nat2Z.inj_mul.
     apply Nat2Z.inj_lt.
     apply Nat.nle_gt; intros Hmn.
     apply series_order_iff in Hn.
@@ -247,13 +247,12 @@ eapply order_in_newton_segment with (h := h) (αh := αh) in Hval; eauto. {
           } {
             apply Nat2Z.is_nonneg.
           } {
-...
             apply Pos2Z.is_nonneg.
           }
         }
         rewrite rng_add_0_l in Hn.
         rewrite Z.mul_add_distr_r in Hn.
-        rewrite Z.add_simpl_l in Hn.
+        rewrite Z.add_comm, Z.add_sub in Hn.
         rewrite Z2Nat.inj_mul in Hn; simpl in Hn. {
           rewrite Nat2Z.id in Hn.
           destruct (lt_dec n (m * Pos.to_nat (ps_polydo āh))) as [Hnm| Hnm]. {
@@ -320,7 +319,6 @@ destruct n as [n| ]. {
   destruct m as [m| ]. {
     eapply in_pol_in_pts in Hval; try eassumption.
     remember HL as H; clear HeqH.
-(**)
     eapply points_not_in_any_newton_segment with (αh := m) (h := l) in H;
     try eassumption. {
       progress unfold order, Qbar.gt.
@@ -330,9 +328,12 @@ destruct n as [n| ]. {
       remember (γ L) as γL.
       rewrite Hs, Hāl; simpl.
       progress unfold cm; simpl.
+      rewrite Pos.mul_1_l.
       rewrite <- Hāl.
-      eapply Qlt_le_trans; [ eassumption | idtac ].
-      progress unfold Qle; simpl.
+      eapply Q.lt_le_trans; [ eassumption | idtac ].
+      progress unfold Q.le; simpl.
+Search (z_pos _ = _).
+...
       do 2 rewrite Pos2Z.inj_mul.
       do 2 rewrite Z.mul_assoc.
       apply Z.mul_le_mono_pos_r; [ apply Pos2Z.is_pos | idtac ].

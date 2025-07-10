@@ -76,7 +76,7 @@ constructor; simpl. {
   rewrite Pos2Z.inj_mul, Z.mul_assoc, Z.mul_mul_swap.
   rewrite <- Z.sub_add_distr; f_equal.
   rewrite Nat2Z.inj_add, Z.add_comm; f_equal.
-  rewrite Z.of_nat_inj_mul, Z.pos_nat.
+  rewrite Nat2Z.inj_mul, Z.pos_nat.
   reflexivity.
 } {
   rewrite Pos.mul_assoc, Pos.mul_mul_swap.

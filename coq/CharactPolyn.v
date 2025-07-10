@@ -1392,7 +1392,7 @@ apply (Z.gauss _ _ (Z.of_nat (h - j))) in Hgcd. {
   destruct Hgcd as (c, Hc).
   exists (Z.to_nat c).
   apply Nat2Z.inj.
-  rewrite Z.of_nat_inj_mul.
+  rewrite Nat2Z.inj_mul.
   rewrite Z2Nat.id; [ assumption | idtac ].
   eapply mul_pos_nonneg; try eassumption.
   destruct Hh as [Hh| [Hk| ]]; [ idtac | idtac | contradiction ]. {

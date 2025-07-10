@@ -68,7 +68,7 @@ rewrite greatest_series_x_power_shift.
 rewrite Nat2Z.inj_add, Z.add_assoc.
 rewrite Z.add_add_swap.
 rewrite Z.sub_add.
-rewrite Z.of_nat_inj_mul, Z.pos_nat.
+rewrite Nat2Z.inj_mul, Z.pos_nat.
 rewrite <- Z.mul_add_distr_r.
 rewrite Z.mul_comm.
 remember (series_order (ps_terms ps) (S m)) as p eqn:Hp .
@@ -81,8 +81,8 @@ destruct p as [p| ]. {
     remember (z_val true k)%Z as kp; simpl.
     rewrite Nat2Z.inj_add.
     rewrite (Z.add_comm _ (Z.of_nat n)), Z.add_assoc, Z.sub_add.
-    rewrite Z.of_nat_inj_mul.
-    rewrite Z.of_nat_inj_mul.
+    rewrite Nat2Z.inj_mul.
+    rewrite Nat2Z.inj_mul.
     rewrite Z.pos_nat.
     rewrite <- Z.mul_add_distr_r.
     rewrite Pos2Z.inj_mul.
@@ -123,7 +123,7 @@ rewrite gcd_ps_0_m.
 rewrite gcd_ps_0_m.
 remember Z.mul as g; simpl; subst g.
 rewrite Nat2Z.inj_add.
-rewrite Z.of_nat_inj_mul.
+rewrite Nat2Z.inj_mul.
 rewrite Z.pos_nat.
 rewrite (Z.add_comm _ (Z.of_nat n)), Z.add_assoc, Z.sub_add.
 rewrite <- Z.mul_add_distr_r.

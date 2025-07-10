@@ -366,7 +366,7 @@ rewrite Z.mul_mul_swap.
 rewrite <- Z.add_sub_swap.
 rewrite <- Z.mul_add_distr_r.
 rewrite Nat.mul_comm.
-rewrite Z.of_nat_inj_mul.
+rewrite Nat2Z.inj_mul.
 rewrite Z.pos_nat.
 rewrite Pos.mul_mul_swap.
 rewrite series_stretch_mul.
