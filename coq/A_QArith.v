@@ -1189,9 +1189,10 @@ destruct (Q.lt_le_dec n m) as [| Hge]; [ reflexivity | idtac ].
 apply Q.le_antisymm; assumption.
 Qed.
 
-Theorem den_cancel : ∀ a b c, (a # c == b # c)%Q → a = b.
+Theorem den_cancel : ∀ a b c, (a # c == b # c)%Q ↔ a = b.
 Proof.
-intros * Hab.
+intros.
+split; intros Hab; [ | now subst ].
 progress unfold Q.eq in Hab.
 progress unfold Q.compare in Hab.
 cbn in Hab.

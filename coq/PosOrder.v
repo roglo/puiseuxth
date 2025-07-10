@@ -331,29 +331,20 @@ destruct n as [n| ]. {
       rewrite Pos.mul_1_l.
       rewrite <- Hāl.
       eapply Q.lt_le_trans; [ apply H | idtac ].
-(**)
       apply Z.compare_le_iff; cbn.
+      rewrite Q.q_Den_mul; cbn.
+      rewrite Pos.mul_1_l.
       rewrite q_Den_num_den.
-rewrite Pos2Z.inj_mul.
-rewrite Z.mul_assoc.
-(* regarder comment ça se passe sur la version master *)
-...
-Search (q_Den (_ + _)).
-Print q_Den.
-progress unfold q_Den.
-Search (q_den (_ + _)).
-...
-apply Z.mul_le_mono_pos_r; [ apply Pos2Z.is_pos | idtac ].
-...
-      progress unfold Q.le; simpl.
-...
-      eapply Q.lt_le_trans; [ eassumption | idtac ].
-      do 2 rewrite Pos2Z.inj_mul.
-      do 2 rewrite Z.mul_assoc.
-      apply Z.mul_le_mono_pos_r; [ apply Pos2Z.is_pos | idtac ].
+      rewrite Pos2Z.inj_mul.
+      rewrite Z.mul_assoc.
+      progress unfold q_Den; cbn.
+      rewrite Pos.mul_1_l.
+      rewrite Pos2Z.inj_mul.
+      rewrite Z.mul_assoc.
+      apply Z.mul_le_mono_pos_r; [ easy | ].
       do 3 rewrite Z.mul_add_distr_r.
-      rewrite Z.add_shuffle0.
-      apply Z.add_le_mono. {
+      rewrite Z.add_add_swap.
+      apply Z.add_le_compat. {
         progress unfold order in Hm.
         remember (series_order (ps_terms āl) 0) as p eqn:Hp .
         symmetry in Hp.
@@ -362,7 +353,7 @@ apply Z.mul_le_mono_pos_r; [ apply Pos2Z.is_pos | idtac ].
         rewrite <- Hm; simpl.
         do 2 rewrite Z.mul_add_distr_r.
         apply Z.add_le_mono_l.
-        apply Z.mul_le_mono_pos_r; [ apply Pos2Z.is_pos | idtac ].
+        apply Z.mul_le_mono_pos_r; [ easy | idtac ].
         rewrite <- Z.pos_nat.
         rewrite <- Nat2Z.inj_mul.
         apply Nat2Z.inj_le.
@@ -378,7 +369,8 @@ apply Z.mul_le_mono_pos_r; [ apply Pos2Z.is_pos | idtac ].
           rewrite Nat.Div0.mod_0_l in Hn; simpl in Hn.
           rewrite Nat.Div0.div_0_l in Hn; simpl in Hn.
           rewrite rng_mul_1_r in Hn.
-          destruct (zerop (n mod Pos.to_nat (Qden (γL)))) as [Hng| Hng]. {
+          rewrite Pos.mul_1_l in Hn.
+          destruct (zerop (n mod Pos.to_nat (q_den (γL)))) as [Hng| Hng]. {
             apply Nat.Div0.mod_divides in Hng.
             destruct Hng as (g, Hg).
             rewrite Hg, Nat.mul_comm.
@@ -411,7 +403,7 @@ apply Z.mul_le_mono_pos_r; [ apply Pos2Z.is_pos | idtac ].
         }
         reflexivity.
       }
-      rewrite Z.mul_shuffle0; reflexivity.
+      rewrite Z.mul_mul_swap; reflexivity.
     }
     split; [ eassumption | idtac ].
     intros Hlm.
@@ -481,13 +473,27 @@ destruct na as [na| ]. {
   destruct nb as [nb| ]. {
     destruct nc as [nc| ]. {
       simpl.
-      rewrite Z.sub_0_r.
-      rewrite Z.sub_0_r.
-      progress unfold Qeq; simpl.
+      do 2 rewrite Z.sub_0_r.
+      rewrite (Pos.mul_comm (ps_polydo b)).
+      rewrite <- Q.inv_add_distr.
+      apply Q.den_cancel.
+do 2 rewrite <- Z.add_assoc.
+progress f_equal.
+rewrite (Z.add_comm (Z.of_nat na)).
+rewrite <- Z.add_assoc.
+progress f_equal.
+(* ah bon, tiens, c'est bizarre *)
+...
+      apply Z.compare_eq_iff; cbn.
+      do 3 rewrite q_Den_num_den.
       symmetry.
       rewrite Pos2Z.inj_mul.
       rewrite Z.mul_assoc.
-      rewrite Z.mul_shuffle0.
+      rewrite Z.mul_mul_swap.
+rewrite (Pos.mul_comm (ps_polydo b)).
+Search ((_ # _) + (_ # _))%Q.
+rewrite <- Q.inv_add_distr.
+...
       apply Z.mul_cancel_r; [ apply Pos2Z_ne_0 | idtac ].
       symmetry.
       rewrite Pos2Z.inj_mul.
@@ -495,7 +501,7 @@ destruct na as [na| ]. {
       rewrite Z.add_comm.
       rewrite Pos2Z.inj_mul.
       rewrite Z.mul_assoc.
-      rewrite Z.mul_shuffle0.
+      rewrite Z.mul_mul_swap.
       rewrite <- Z.mul_add_distr_r.
       rewrite <- Z.mul_add_distr_r.
       rewrite <- Z.mul_assoc.
