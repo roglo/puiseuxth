@@ -2,9 +2,10 @@
 
 Set Nested Proofs Allowed.
 
-From Stdlib Require Import Utf8 Arith ZArith.
-From Stdlib Require Import Sorted.
+From Stdlib Require Import Utf8 Arith.
+From Stdlib Require Import Sorted Morphisms.
 
+Require Import A_ZArith A_QArith.
 Require Import Misc.
 Require Import NbarM.
 Require Import QbarM.
@@ -153,10 +154,13 @@ eapply order_in_newton_segment with (h := h) (αh := αh) in Hval; eauto. {
   progress unfold ps_ordnum_add; simpl.
   progress unfold cm, cm_factor; simpl.
   rewrite Z.mul_1_r.
-  progress unfold Qlt; simpl.
+  progress unfold Q.lt; simpl.
   rewrite Pos2Z.inj_mul.
   rewrite Z.mul_assoc.
-  rewrite Z.mul_shuffle0.
+  rewrite Z.mul_mul_swap.
+...
+  apply Z.mul_lt_mono_pos_r; [ easy | ].
+...
   apply Z.mul_lt_mono_pos_r; [ apply Pos2Z.is_pos | idtac ].
   rewrite <- Hval; simpl.
   rewrite Z.mul_min_distr_nonneg_r; [ idtac | apply Pos2Z.is_nonneg ].
