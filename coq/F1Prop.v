@@ -115,14 +115,16 @@ destruct na as [na| ].
      unfold Q.eq; simpl.
      simpl in Hab.
      unfold Q.eq in Hab; simpl in Hab.
-     destruct nc as [nc| ].
-      destruct Hnc as (Hinc, Hnc).
+     destruct nc as [nc| ]. {
+       destruct Hnc as (Hinc, Hnc).
+       apply Z.compare_eq_iff; cbn.
+       do 2 rewrite q_Den_num_den.
+       progress f_equal.
+       rewrite Z.add_min_distr_l.
+       apply Z.add_cancel_l.
+       rewrite <- Nat2Z.inj_min.
 ...
-      apply Z.mul_cancel_r; [ apply Pos2Z_ne_0 | idtac ].
-      rewrite Z.add_min_distr_l.
-      apply Z.add_cancel_l.
-      rewrite <- Nat2Z.inj_min.
-      apply Nat2Z.inj_iff.
+       apply Nat2Z.inj_iff.
       destruct (eq_nat_dec (min na nb) nc) as [| H]; [ assumption | idtac ].
       exfalso; apply Hab; clear Hab.
       apply Z.mul_cancel_r; [ apply Pos2Z_ne_0 | idtac ].
