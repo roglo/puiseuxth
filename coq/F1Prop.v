@@ -94,144 +94,142 @@ clear Hsa Hsb Ha Hb.
 apply series_order_iff in Hna; simpl in Hna.
 apply series_order_iff in Hnb; simpl in Hnb.
 apply series_order_iff in Hnc; simpl in Hnc.
-destruct na as [na| ].
- destruct Hna as (Hina, Hna).
- destruct nb as [nb| ].
-  destruct Hnb as (Hinb, Hnb).
-  subst pa pb; simpl in Hopa, Hopb; simpl.
-  subst k₁ k₂ n₁ n₂; simpl in Hopa, Hopb; simpl.
-  subst v₁ v₂; simpl in Hopa, Hopb.
-  rewrite Pos.mul_comm in Hopb.
-  rewrite Z2Nat.id in Hopa.
-   rewrite Z2Nat.id in Hopb.
-    rewrite Z.sub_sub_distr in Hopa, Hopb.
-    rewrite Z.sub_diag, Z.add_0_l in Hopa, Hopb.
-    unfold cm_factor; simpl.
-    rewrite Z2Nat.id.
-     rewrite Z.sub_sub_distr.
-     rewrite Z.sub_diag, Z.add_0_l.
-     subst opa opb; simpl.
-     rewrite Qmin_same_den.
-     unfold Q.eq; simpl.
-     simpl in Hab.
-     unfold Q.eq in Hab; simpl in Hab.
-     destruct nc as [nc| ]. {
-       destruct Hnc as (Hinc, Hnc).
-       apply Z.compare_eq_iff; cbn.
-       do 2 rewrite q_Den_num_den.
-       progress f_equal.
-       rewrite Z.add_min_distr_l.
-       apply Z.add_cancel_l.
-       rewrite <- Nat2Z.inj_min.
-       f_equal.
-       destruct (eq_nat_dec (min na nb) nc) as [| H]; [ assumption | idtac ].
-       exfalso; apply Hab; clear Hab.
-       apply Z.compare_eq_iff; cbn.
-       do 2 rewrite q_Den_num_den.
-       progress f_equal.
-       f_equal; f_equal.
-       destruct (eq_nat_dec na nb) as [| Hab]; [ assumption | idtac ].
-       exfalso; apply H; clear H.
-       destruct (le_dec na nb) as [H₁| H₁]. {
-         rewrite Nat.min_l; [ | easy ].
-         apply Nat.le_antisymm. {
-           apply Nat_le_neq_lt in H₁; [ idtac | assumption ].
-           apply Nat.nlt_ge.
-           intros H₂.
-           apply Hinb in H₁.
-           apply Hina in H₂.
-           rewrite H₂ in Hnc.
-...
-           rewrite H₁, H₂ in Hnc.
-...
-       apply Z.mul_cancel_r; [ apply Pos2Z_ne_0 | idtac ].
-      apply Z.add_cancel_l.
-      apply Nat2Z.inj_iff.
-      destruct (eq_nat_dec na nb) as [| Hab]; [ assumption | idtac ].
-      exfalso; apply H; clear H.
-      destruct (le_dec na nb) as [H₁| H₁].
-       apply Nat_le_neq_lt in H₁; [ idtac | assumption ].
-       destruct (lt_dec na nc) as [H₂| H₂].
-        apply Hinb in H₁.
-        apply Hinc in H₂.
-        rewrite H₁, rng_add_0_r in H₂; contradiction.
-
-        apply Nat.nlt_ge in H₂.
-        destruct (eq_nat_dec na nc) as [H₃| H₃].
-         rewrite Nat.min_l; [ assumption | idtac ].
-         apply Nat.lt_le_incl; assumption.
-
-         apply Nat.neq_sym in H₃.
-         apply Nat_le_neq_lt in H₂; [ idtac | assumption ].
-         eapply Nat.lt_trans in H₁; [ idtac | eassumption ].
-         apply Hina in H₂.
-         apply Hinb in H₁.
-         rewrite H₂, H₁ in Hnc.
-         rewrite rng_add_0_l in Hnc.
-         exfalso; apply Hnc; reflexivity.
-
-       apply Nat.nle_gt in H₁.
-       destruct (lt_dec nb nc) as [H₂| H₂].
-        apply Hina in H₁.
-        apply Hinc in H₂.
-        rewrite H₁, rng_add_0_l in H₂; contradiction.
-
-        apply Nat.nlt_ge in H₂.
-        destruct (eq_nat_dec nb nc) as [H₃| H₃].
-         rewrite Nat.min_r; [ assumption | idtac ].
-         apply Nat.lt_le_incl; assumption.
-
-         apply Nat.neq_sym in H₃.
-         apply Nat_le_neq_lt in H₂; [ idtac | assumption ].
-         eapply Nat.lt_trans in H₁; [ idtac | eassumption ].
-         apply Hinb in H₂.
-         apply Hina in H₁.
-         rewrite H₂, H₁ in Hnc.
-         rewrite rng_add_0_l in Hnc.
-         exfalso; apply Hnc; reflexivity.
-
-      simpl in Hab.
-      apply Hab; clear Hab.
-      apply Z.mul_cancel_r; [ apply Pos2Z_ne_0 | idtac ].
-      apply Z.add_cancel_l.
-      apply Nat2Z.inj_iff.
-      destruct (eq_nat_dec na nb) as [| Hab]; [ assumption | idtac ].
-      destruct (le_dec na nb) as [H₁| H₁].
-       apply Nat_le_neq_lt in H₁; [ idtac | assumption ].
-       apply Hinb in H₁.
-       pose proof (Hnc na) as H.
-       rewrite H₁, rng_add_0_r in H.
-       contradiction.
-
-       apply Nat.nle_gt in H₁.
-       apply Hina in H₁.
-       pose proof (Hnc nb) as H.
-       rewrite H₁, rng_add_0_l in H.
-       contradiction.
-
-     rewrite <- Z.sub_max_distr_l.
-     rewrite Z.sub_diag.
-     rewrite <- Z2Nat_id_max.
-     apply Nat2Z.is_nonneg.
-
+destruct na as [na| ]. {
+  destruct Hna as (Hina, Hna).
+  destruct nb as [nb| ]. {
+    destruct Hnb as (Hinb, Hnb).
+    subst pa pb; simpl in Hopa, Hopb; simpl.
+    subst k₁ k₂ n₁ n₂; simpl in Hopa, Hopb; simpl.
+    subst v₁ v₂; simpl in Hopa, Hopb.
+    rewrite Pos.mul_comm in Hopb.
+    rewrite Z2Nat.id in Hopa. {
+      rewrite Z2Nat.id in Hopb. {
+        rewrite Z.sub_sub_distr in Hopa, Hopb.
+        rewrite Z.sub_diag, Z.add_0_l in Hopa, Hopb.
+        unfold cm_factor; simpl.
+        rewrite Z2Nat.id. {
+          rewrite Z.sub_sub_distr.
+          rewrite Z.sub_diag, Z.add_0_l.
+          subst opa opb; simpl.
+          rewrite Qmin_same_den.
+          unfold Q.eq; simpl.
+          simpl in Hab.
+          unfold Q.eq in Hab; simpl in Hab.
+          destruct nc as [nc| ]. {
+            destruct Hnc as (Hinc, Hnc).
+            apply Z.compare_eq_iff; cbn.
+            do 2 rewrite q_Den_num_den.
+            progress f_equal.
+            rewrite Z.add_min_distr_l.
+            apply Z.add_cancel_l.
+            rewrite <- Nat2Z.inj_min.
+            f_equal.
+            destruct (eq_nat_dec (min na nb) nc) as [| H]; [ easy | ].
+            exfalso; apply Hab; clear Hab.
+            apply Z.compare_eq_iff; cbn.
+            do 2 rewrite q_Den_num_den.
+            f_equal; f_equal; f_equal.
+            destruct (eq_nat_dec na nb) as [| Hab]; [ assumption | idtac ].
+            exfalso; apply H; clear H.
+            destruct (le_dec na nb) as [H₁| H₁]. {
+              rewrite Nat.min_l; [ | easy ].
+              apply Nat.le_antisymm. {
+                apply Nat.nlt_ge.
+                intros H₂.
+                generalize H₂; intros H₃.
+                apply Hina in H₂.
+                apply Nat.nle_gt in H₃.
+                apply H₃; clear H₃.
+                transitivity nb; [ easy | ].
+                apply Nat.nlt_ge.
+                intros H₃.
+                apply Hinb in H₃.
+                rewrite H₂, H₃ in Hnc.
+                rewrite rng_add_0_l in Hnc.
+                apply Hnc, rng_eq_refl.
+              } {
+                apply Nat.nlt_ge.
+                intros H₂.
+                generalize H₂; intros H₃.
+                apply Hinc in H₂.
+                assert (H₄ : (na < nb)%nat) by flia Hab H₁.
+                apply Hinb in H₄.
+                rewrite H₄, rng_add_0_r in H₂.
+                easy.
+              }
+            } {
+              apply Nat.nle_gt in H₁.
+              rewrite Nat.min_r; [ | now apply Nat.lt_le_incl ].
+              apply Nat.le_antisymm. {
+                apply Nat.nlt_ge.
+                intros H₂.
+                generalize H₂; intros H₃.
+                apply Hinb in H₂.
+                apply Nat.nle_gt in H₃.
+                apply H₃; clear H₃.
+                transitivity na; [ now apply Nat.lt_le_incl | ].
+                apply Nat.nlt_ge.
+                intros H₃.
+                apply Hina in H₃.
+                rewrite H₂, H₃ in Hnc.
+                rewrite rng_add_0_l in Hnc.
+                apply Hnc, rng_eq_refl.
+              } {
+                apply Nat.nlt_ge.
+                intros H₂.
+                generalize H₂; intros H₃.
+                apply Hinc in H₂.
+                assert (H₄ : (nb < na)%nat) by flia Hab H₁.
+                apply Hina in H₄.
+                rewrite H₄, rng_add_0_l in H₂.
+                easy.
+              }
+            }
+          } {
+            simpl in Hab.
+            apply Hab; clear Hab.
+            apply Z.compare_eq_iff; cbn.
+            do 2 rewrite q_Den_num_den.
+            f_equal; f_equal; f_equal.
+            destruct (eq_nat_dec na nb) as [| Hab]; [ assumption | idtac ].
+            apply Nat.le_antisymm. {
+              apply Nat.nlt_ge.
+              intros H₁.
+              apply Hina in H₁.
+              specialize (Hnc nb).
+              rewrite H₁ in Hnc.
+              now rewrite rng_add_0_l in Hnc.
+            } {
+              apply Nat.nlt_ge.
+              intros H₁.
+              apply Hinb in H₁.
+              specialize (Hnc na).
+              rewrite H₁ in Hnc.
+              now rewrite rng_add_0_r in Hnc.
+            }
+          }
+        }
+        rewrite <- Z.sub_max_distr_l.
+        rewrite Z.sub_diag.
+        apply Z.le_max_l.
+      }
+      rewrite <- Z.sub_max_distr_l.
+      rewrite Z.sub_diag.
+      apply Z.le_max_r.
+    }
     rewrite <- Z.sub_max_distr_l.
     rewrite Z.sub_diag.
-    rewrite Z.max_comm, <- Z2Nat_id_max.
-    apply Nat2Z.is_nonneg.
-
-   rewrite <- Z.sub_max_distr_l.
-   rewrite Z.sub_diag.
-   rewrite <- Z2Nat_id_max.
-   apply Nat2Z.is_nonneg.
-
+    apply Z.le_max_l.
+  }
   subst opb; simpl.
   rewrite Qbar.min_comm; simpl.
-  destruct nc as [nc| ].
-   destruct Hnc as (Hinc, Hnc).
-   subst opa.
-   apply Qbar.qfin_inj_wd.
-   unfold Qeq; simpl.
-   apply Z.mul_cancel_r; [ apply Pos2Z_ne_0 | idtac ].
+  destruct nc as [nc| ]. {
+    destruct Hnc as (Hinc, Hnc).
+    subst opa.
+    apply Qbar.qfin_inj_wd.
+    unfold Q.eq; simpl.
+...
+    apply Z.mul_cancel_r; [ apply Pos2Z_ne_0 | idtac ].
    apply Z.add_cancel_l.
    apply Nat2Z.inj_iff.
    destruct (eq_nat_dec na nc) as [| Hac]; [ assumption | idtac ].
