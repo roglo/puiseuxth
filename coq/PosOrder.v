@@ -5,7 +5,7 @@ Set Nested Proofs Allowed.
 From Stdlib Require Import Utf8 Arith.
 From Stdlib Require Import Sorted Morphisms.
 
-Require Import A_ZArith A_QArith.
+Require Import A_PosArith A_ZArith A_QArith.
 Require Import Misc.
 Require Import NbarM.
 Require Import QbarM.
@@ -158,16 +158,20 @@ eapply order_in_newton_segment with (h := h) (αh := αh) in Hval; eauto. {
   rewrite Pos2Z.inj_mul.
   rewrite Z.mul_assoc.
   rewrite Z.mul_mul_swap.
-...
+  apply Z.compare_lt_iff; cbn.
+  do 2 rewrite q_Den_num_den.
+  rewrite Pos.mul_1_l.
+  rewrite Z.mul_1_r.
+  rewrite (Pos.mul_comm (ps_polydo _)).
+  rewrite Pos2Z.inj_mul.
+  rewrite Z.mul_assoc.
   apply Z.mul_lt_mono_pos_r; [ easy | ].
-...
-  apply Z.mul_lt_mono_pos_r; [ apply Pos2Z.is_pos | idtac ].
   rewrite <- Hval; simpl.
-  rewrite Z.mul_min_distr_nonneg_r; [ idtac | apply Pos2Z.is_nonneg ].
+  rewrite Z.mul_min_distr_nonneg_r; [ idtac | easy ].
   rewrite Z.min_l. {
     rewrite Z.mul_add_distr_r.
     apply Z.add_lt_mono_l.
-    rewrite <- positive_nat_Z, <- Nat2Z.inj_mul.
+    rewrite <- Z.pos_nat, <- Z.of_nat_inj_mul.
     apply Nat2Z.inj_lt.
     apply Nat.nle_gt; intros Hmn.
     apply series_order_iff in Hn.
@@ -189,6 +193,9 @@ eapply order_in_newton_segment with (h := h) (αh := αh) in Hval; eauto. {
           destruct Hnp as (p, Hp).
           rewrite Nat.mul_comm in Hp.
           rewrite Hp in Hmn.
+(**)
+          apply Nat.mul_le_mono_pos_r in Hmn; [ | apply Pos2Nat.is_pos ].
+...
           apply Nat.mul_le_mono_pos_r in Hmn; [ | apply Pos2Nat.is_pos ].
           rewrite Hp in Hn.
           rewrite Nat.div_mul in Hn; auto with Arith; simpl in Hn.
@@ -269,12 +276,12 @@ eapply order_in_newton_segment with (h := h) (αh := αh) in Hval; eauto. {
       }
       rewrite Z.mul_add_distr_r.
       apply Z.le_sub_le_add_l.
-      rewrite Z.sub_diag, <- positive_nat_Z, <- Nat2Z.inj_mul.
+      rewrite Z.sub_diag, <- Z.pos_nat, <- Nat2Z.inj_mul.
       apply Nat2Z.is_nonneg.
     }
     rewrite Z.mul_add_distr_r.
     apply Z.le_sub_le_add_l.
-    rewrite Z.sub_diag, <- positive_nat_Z, <- Nat2Z.inj_mul.
+    rewrite Z.sub_diag, <- Z.pos_nat, <- Nat2Z.inj_mul.
     apply Nat2Z.is_nonneg.
   }
   apply Z.le_sub_le_add_l.
@@ -342,7 +349,7 @@ destruct n as [n| ]. {
         do 2 rewrite Z.mul_add_distr_r.
         apply Z.add_le_mono_l.
         apply Z.mul_le_mono_pos_r; [ apply Pos2Z.is_pos | idtac ].
-        rewrite <- positive_nat_Z.
+        rewrite <- Z.pos_nat.
         rewrite <- Nat2Z.inj_mul.
         apply Nat2Z.inj_le.
         rewrite Hs in Hn; simpl in Hn.
