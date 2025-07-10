@@ -535,11 +535,11 @@ destruct n as [n| ]; constructor. {
   exists (Z.to_nat c).
   rewrite <- Z2Nat.inj_mul. {
    rewrite <- Hc.
-   symmetry; apply Z.of_nat_id.
+   symmetry; apply Nat2Z.id.
   } {
     apply (Z.mul_le_mono_pos_r g); [ assumption | idtac ].
     rewrite <- Hc; simpl.
-    apply Z.of_nat_is_nonneg.
+    apply Nat2Z.is_nonneg.
   } {
     apply Z.lt_le_incl; assumption.
   }

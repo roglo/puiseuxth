@@ -3124,6 +3124,12 @@ Module Nat2Z.
 
 Open Scope Z_scope.
 
+Theorem id : ∀ a, Z.to_nat (Z.of_nat a) = a.
+Proof. apply Z.of_nat_id. Qed.
+
+Theorem is_nonneg : ∀ a, (0 ≤ Z.of_nat a)%Z.
+Proof. apply Z.of_nat_is_nonneg. Qed.
+
 Theorem inj_succ : ∀ a, Z.of_nat (S a) = Z.of_nat a + 1.
 Proof.
 intros.

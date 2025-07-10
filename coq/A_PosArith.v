@@ -484,14 +484,6 @@ progress unfold Pos.to_nat.
 now rewrite Nat.add_comm.
 Qed.
 
-Theorem to_nat_pos : ∀ a, 0 < Pos.to_nat a.
-Proof.
-intros.
-progress unfold Pos.to_nat.
-rewrite Nat.add_comm.
-apply Nat.lt_0_succ.
-Qed.
-
 Theorem of_nat_to_nat : ∀ a, Pos.of_nat (Pos.to_nat a) = a.
 Proof.
 intros.
@@ -704,6 +696,14 @@ Qed.
 End Nat2Pos.
 
 Module Pos2Nat.
+
+Theorem is_pos : ∀ a, 0 < Pos.to_nat a.
+Proof.
+intros.
+progress unfold Pos.to_nat.
+rewrite Nat.add_comm.
+apply Nat.lt_0_succ.
+Qed.
 
 Theorem inj_add :
   ∀ a b, Pos.to_nat (a + b) = Pos.to_nat a + Pos.to_nat b.

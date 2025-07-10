@@ -792,7 +792,7 @@ do 2 rewrite Pos2Z.inj_mul in Hpq.
 assert (Hnjk : Z.of_nat j < Z.of_nat k). {
   destruct j. {
     apply Z.lt_iff.
-    split; [ apply Z.of_nat_is_nonneg | ].
+    split; [ apply Nat2Z.is_nonneg | ].
     cbn; intros H; symmetry in H.
     apply Z.of_nat_eq_0 in H.
     now revert H; apply Nat.neq_0_lt_0.
@@ -1360,7 +1360,7 @@ apply (Z.mul_le_mono_pos_r (Z.of_nat d)). {
   now apply Nat.nlt_ge in Hc.
 }
 rewrite <- Hc; simpl.
-apply Z.of_nat_is_nonneg.
+apply Nat2Z.is_nonneg.
 Qed.
 
 (* [Walker, p. 100]: « In the first place, we note that [...]

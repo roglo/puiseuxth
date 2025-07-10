@@ -182,6 +182,7 @@ eapply order_in_newton_segment with (h := h) (αh := αh) in Hval; eauto. {
     progress unfold cm, cm_factor in Hn; simpl in Hn.
     subst v; simpl in Hn.
     progress unfold cm in Hn; simpl in Hn.
+    rewrite Pos.mul_1_l in Hn.
     rewrite Z.mul_1_r in Hn.
     rewrite <- Hval in Hn; simpl in Hn.
     rewrite Z.min_l in Hn. {
@@ -193,14 +194,11 @@ eapply order_in_newton_segment with (h := h) (αh := αh) in Hval; eauto. {
           destruct Hnp as (p, Hp).
           rewrite Nat.mul_comm in Hp.
           rewrite Hp in Hmn.
-(**)
-          apply Nat.mul_le_mono_pos_r in Hmn; [ | apply Pos2Nat.is_pos ].
-...
           apply Nat.mul_le_mono_pos_r in Hmn; [ | apply Pos2Nat.is_pos ].
           rewrite Hp in Hn.
           rewrite Nat.div_mul in Hn; auto with Arith; simpl in Hn.
           rewrite Z.mul_add_distr_r in Hn.
-          rewrite Z.add_simpl_l in Hn.
+          rewrite Z.add_comm, Z.add_sub in Hn.
           rewrite Z2Nat.inj_mul in Hn; simpl in Hn. {
             rewrite Nat2Z.id in Hn.
             rewrite <- Hp in Hn.
@@ -249,6 +247,7 @@ eapply order_in_newton_segment with (h := h) (αh := αh) in Hval; eauto. {
           } {
             apply Nat2Z.is_nonneg.
           } {
+...
             apply Pos2Z.is_nonneg.
           }
         }

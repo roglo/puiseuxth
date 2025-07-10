@@ -1066,12 +1066,12 @@ destruct (zerop (i mod k)) as [Hz| Hnz]. {
     destruct (lt_dec (c * k) (n * k)) as [| H₂]; [ reflexivity | idtac ].
     exfalso; apply H₂.
     apply Nat.mul_lt_mono_pos_r; [ idtac | assumption ].
-    rewrite Heqk; apply Pos.to_nat_pos.
+    rewrite Heqk; apply Pos2Nat.is_pos.
   }
   destruct (lt_dec (c * k) (n * k)) as [H₂| ]; [ idtac | reflexivity ].
   exfalso; apply H₁.
   apply Nat.mul_lt_mono_pos_r in H₂; [ assumption | idtac ].
-  rewrite Heqk; apply Pos.to_nat_pos.
+  rewrite Heqk; apply Pos2Nat.is_pos.
 }
 destruct (lt_dec i (n * k)) as [| H₁]; [ reflexivity | idtac ].
 destruct (zerop ((i - n * k) mod k)) as [H₂| ]; [ idtac | reflexivity ].
@@ -1432,7 +1432,7 @@ destruct n as [n| ]; simpl. {
     apply Hz.
     rewrite H₁ in Hin.
     rewrite Nat.mul_comm in Hin.
-    apply Nat.mul_lt_mono_pos_r in Hin; [ easy | now apply Pos.to_nat_pos ].
+    apply Nat.mul_lt_mono_pos_r in Hin; [ easy | now apply Pos2Nat.is_pos ].
   }
   rewrite <- Nat.mul_add_distr_r.
   rewrite Nat.Div0.mod_mul; auto with Arith; simpl.
@@ -1608,7 +1608,7 @@ destruct q as [q| ]. {
           rewrite Nat.add_1_r.
           rewrite Hq'.
           apply Nat.mul_lt_mono_pos_l; [ | easy ].
-          apply Pos.to_nat_pos.
+          apply Pos2Nat.is_pos.
         }
         apply Hzq in H.
         rewrite Nat.add_sub_assoc in H. {
@@ -2291,11 +2291,11 @@ destruct m as [m| ]. {
         exists (Z.to_nat c).
         rewrite <- Z2Nat.inj_mul. {
           rewrite <- Hc.
-          symmetry; apply Z.of_nat_id.
+          symmetry; apply Nat2Z.id.
         } {
           apply <- Z.mul_le_mono_pos_r; [ idtac | eassumption ].
           rewrite <- Hc; simpl.
-          apply Z.of_nat_is_nonneg.
+          apply Nat2Z.is_nonneg.
         }
         apply Z.lt_le_incl; assumption.
       }

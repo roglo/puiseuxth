@@ -236,8 +236,8 @@ remember (ps_polydo ps₁) as c₁.
 remember (Z.of_nat n) as nn.
 remember (Z.of_nat m) as mm.
 do 2 rewrite Z.mul_sub_distr_r.
-replace n with (Z.to_nat nn) by (rewrite Heqnn, Z.of_nat_id; reflexivity).
-replace m with (Z.to_nat mm) by (rewrite Heqmm, Z.of_nat_id; reflexivity).
+replace n with (Z.to_nat nn) by (rewrite Heqnn, Nat2Z.id; reflexivity).
+replace m with (Z.to_nat mm) by (rewrite Heqmm, Nat2Z.id; reflexivity).
 do 2 rewrite <- Z2Nat_inj_mul_pos_r.
 rewrite <- Z2Nat.inj_add. {
   rewrite <- Z2Nat.inj_add. {
@@ -441,7 +441,7 @@ destruct sg. {
   rewrite <- Z2Nat_inj_mul_pos_r.
   progress unfold z_pos.
   rewrite <- Hc.
-  rewrite Z.of_nat_id; reflexivity.
+  rewrite Nat2Z.id; reflexivity.
 }
 exfalso.
 assert (H : (z_val false vg < 0)%Z) by easy.
