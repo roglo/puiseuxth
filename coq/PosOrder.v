@@ -331,6 +331,14 @@ destruct n as [n| ]. {
       rewrite Pos.mul_1_l.
       rewrite <- Hāl.
       eapply Q.lt_le_trans; [ eassumption | idtac ].
+(**)
+      apply Z.compare_le_iff; cbn.
+      rewrite q_Den_num_den.
+rewrite Pos2Z.inj_mul.
+rewrite Z.mul_assoc.
+...
+apply Z.mul_le_mono_pos_r; [ apply Pos2Z.is_pos | idtac ].
+...
       progress unfold Q.le; simpl.
 Search (z_pos _ = _).
 ...
