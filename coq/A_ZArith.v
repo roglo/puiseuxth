@@ -2075,6 +2075,18 @@ apply Z.lt_le_incl.
 now transitivity b.
 Qed.
 
+Theorem max_comm : ∀ a b, Z.max a b = Z.max b a.
+Proof.
+intros.
+progress unfold Z.max.
+destruct (Z.le_dec a b) as [Hab| Hab]. {
+  destruct (Z.le_dec b a) as [Hba| Hba]; [ now apply Z.le_antisymm | easy ].
+}
+destruct (Z.le_dec b a) as [Hba| Hba]; [ easy | ].
+apply Z.nle_gt in Hab, Hba.
+now apply Z.lt_asymm in Hab.
+Qed.
+
 Theorem le_max_l : ∀ a b, (a ≤ Z.max a b)%Z.
 Proof.
 intros.
@@ -3219,6 +3231,16 @@ split; intros H. {
   apply Pos.compare_lt_iff in H.
   now apply Pos.of_nat_inj_lt.
 }
+Qed.
+
+Theorem inj_min :
+  ∀ a b, Z.of_nat (Nat.min a b) = Z.min (Z.of_nat a) (Z.of_nat b).
+Proof.
+intros.
+progress unfold Z.min.
+destruct (Z.le_dec _ _) as [Hab| Hab]; f_equal.
+now apply Nat.min_l, Nat2Z.inj_le.
+now apply Nat.min_r, Nat2Z.inj_le, Z.lt_le_incl, Z.nle_gt.
 Qed.
 
 End Nat2Z.
