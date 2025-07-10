@@ -123,11 +123,28 @@ destruct na as [na| ].
        rewrite Z.add_min_distr_l.
        apply Z.add_cancel_l.
        rewrite <- Nat2Z.inj_min.
+       f_equal.
+       destruct (eq_nat_dec (min na nb) nc) as [| H]; [ assumption | idtac ].
+       exfalso; apply Hab; clear Hab.
+       apply Z.compare_eq_iff; cbn.
+       do 2 rewrite q_Den_num_den.
+       progress f_equal.
+       f_equal; f_equal.
+       destruct (eq_nat_dec na nb) as [| Hab]; [ assumption | idtac ].
+       exfalso; apply H; clear H.
+       destruct (le_dec na nb) as [H₁| H₁]. {
+         rewrite Nat.min_l; [ | easy ].
+         apply Nat.le_antisymm. {
+           apply Nat_le_neq_lt in H₁; [ idtac | assumption ].
+           apply Nat.nlt_ge.
+           intros H₂.
+           apply Hinb in H₁.
+           apply Hina in H₂.
+           rewrite H₂ in Hnc.
 ...
-       apply Nat2Z.inj_iff.
-      destruct (eq_nat_dec (min na nb) nc) as [| H]; [ assumption | idtac ].
-      exfalso; apply Hab; clear Hab.
-      apply Z.mul_cancel_r; [ apply Pos2Z_ne_0 | idtac ].
+           rewrite H₁, H₂ in Hnc.
+...
+       apply Z.mul_cancel_r; [ apply Pos2Z_ne_0 | idtac ].
       apply Z.add_cancel_l.
       apply Nat2Z.inj_iff.
       destruct (eq_nat_dec na nb) as [| Hab]; [ assumption | idtac ].
