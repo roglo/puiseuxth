@@ -1,7 +1,9 @@
 (* InK1m.v *)
 
-From Stdlib Require Import Utf8 ZArith.
+From Stdlib Require Import Utf8.
+From Stdlib Require Import Morphisms.
 
+Require Import A_PosArith A_ZArith A_QArith.
 Require Import Misc.
 Require Import Field2.
 Require Import Fpolynomial.
@@ -78,12 +80,12 @@ rewrite Hpa, Hpb in Hab.
 unfold ps_ordnum_add in Hab.
 unfold cm_factor in Hab.
 rewrite Hpa, Hpb in Hab.
-rewrite Z.mul_min_distr_nonneg_r in Hab; auto with Arith.
+rewrite Z.mul_min_distr_nonneg_r in Hab; [ | easy ].
 unfold ps_terms_add in Hab.
 unfold cm_factor in Hab.
 rewrite Hpa, Hpb in Hab.
-rewrite Z.mul_min_distr_nonneg_r in Hab; auto with Arith.
-rewrite Z.mul_min_distr_nonneg_r in Hab; auto with Arith.
+rewrite Z.mul_min_distr_nonneg_r in Hab; [ | easy ].
+rewrite Z.mul_min_distr_nonneg_r in Hab; [ | easy ].
 rewrite <- Z.mul_sub_distr_r in Hab.
 rewrite <- Z.mul_sub_distr_r in Hab.
 remember (ps_ordnum psa) as oa.
@@ -104,21 +106,20 @@ rewrite Z.sub_0_r.
 rewrite series_shift_0.
 apply mkps_morphism; auto with Arith.
 unfold adjust_series; simpl.
-rewrite Z2Nat.inj_mul; simpl; auto with Arith.
- rewrite Z2Nat.inj_mul; simpl; auto with Arith.
-  rewrite <- stretch_shift_series_distr.
-  rewrite <- stretch_shift_series_distr.
-  rewrite <- series_stretch_add_distr.
-  do 2 rewrite series_stretch_1.
-  reflexivity.
-
+rewrite Z2Nat.inj_mul; cbn; [ | | easy ]. {
+  rewrite Z2Nat.inj_mul; cbn; [ | | easy ]. {
+    rewrite <- stretch_shift_series_distr.
+    rewrite <- stretch_shift_series_distr.
+    rewrite <- series_stretch_add_distr.
+    now do 2 rewrite series_stretch_1.
+  }
   subst omba.
   rewrite <- Z.sub_max_distr_l, Z.sub_diag.
   apply Z.le_max_l.
-
- subst omab.
- rewrite <- Z.sub_max_distr_l, Z.sub_diag.
- apply Z.le_max_l.
+}
+subst omab.
+rewrite <- Z.sub_max_distr_l, Z.sub_diag.
+apply Z.le_max_l.
 Qed.
 
 Theorem in_K_1_m_mul_compat : ∀ m a b,
@@ -163,7 +164,7 @@ rewrite ps_adjust_eq with (n := O) (k := m).
 unfold adjust_ps; simpl.
 rewrite series_shift_0; simpl.
 rewrite series_stretch_series_0.
-reflexivity.
+now rewrite Pos.mul_1_l.
 Qed.
 
 Theorem ps_lap_forall_forall : ∀ la (P : puiseux_series α → Prop),
@@ -451,7 +452,7 @@ remember HL as Hbm; clear HeqHbm.
 apply points_in_any_newton_segment with (h := j) (αh := αj) in Hbm. {
   rewrite Him, Hgp in Hbm.
   remember (mh_of_m m αj (ps_poly_nth j f)) as mj.
-  remember (mj * Zpos q + Z.of_nat j * p # m * q) as v.
+  remember (mj * z_pos q + Z.of_nat j * p # m * q) as v.
   exists (ps_monom c (- v)); subst v; simpl.
   split; [ idtac | reflexivity ].
   rewrite Hbm.
@@ -465,6 +466,7 @@ apply points_in_any_newton_segment with (h := j) (αh := αj) in Hbm. {
     rewrite Z.mul_opp_l; f_equal.
     rewrite Z.mul_add_distr_r; f_equal.
     rewrite <- Z.mul_assoc; f_equal.
+...
     apply Z.mul_comm.
   }
   apply Pos.mul_comm.
