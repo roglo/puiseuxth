@@ -330,18 +330,24 @@ destruct n as [n| ]. {
       progress unfold cm; simpl.
       rewrite Pos.mul_1_l.
       rewrite <- Hāl.
-      eapply Q.lt_le_trans; [ eassumption | idtac ].
+      eapply Q.lt_le_trans; [ apply H | idtac ].
 (**)
       apply Z.compare_le_iff; cbn.
       rewrite q_Den_num_den.
 rewrite Pos2Z.inj_mul.
 rewrite Z.mul_assoc.
+(* regarder comment ça se passe sur la version master *)
+...
+Search (q_Den (_ + _)).
+Print q_Den.
+progress unfold q_Den.
+Search (q_den (_ + _)).
 ...
 apply Z.mul_le_mono_pos_r; [ apply Pos2Z.is_pos | idtac ].
 ...
       progress unfold Q.le; simpl.
-Search (z_pos _ = _).
 ...
+      eapply Q.lt_le_trans; [ eassumption | idtac ].
       do 2 rewrite Pos2Z.inj_mul.
       do 2 rewrite Z.mul_assoc.
       apply Z.mul_le_mono_pos_r; [ apply Pos2Z.is_pos | idtac ].
