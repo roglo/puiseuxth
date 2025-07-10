@@ -1277,13 +1277,7 @@ apply ps_lap_in_add in Hm; [ assumption | idtac | idtac ]. {
       rewrite Heqaa, Heqbb.
       apply Qbar.le_lt_trans with (m := qfin (αh + Qnat h * γ L - β L)). {
         apply Qbar.le_qfin.
-...
-        apply Qplus_le_l with (z := β L).
-        rewrite <- Q_sub_sub_distr.
-        rewrite Qminus_diag.
-        rewrite Q_add_0_l.
-        progress unfold Qminus, Qopp; simpl.
-        rewrite Q_add_0_r.
+        apply Q.le_0_sub.
         remember (points_of_ps_polynom f) as pts.
         eapply points_in_convex; try eassumption.
         eapply in_pol_in_pts; try eassumption.
@@ -1297,7 +1291,7 @@ apply ps_lap_in_add in Hm; [ assumption | idtac | idtac ]. {
         rewrite Hl₁, Htl in Hh.
         rewrite List.map_map in Hh; assumption.
       }
-      progress unfold Qminus.
+      progress unfold Q.sub.
       rewrite Qbar.qfin_inj_add.
       apply Qbar.add_lt_mono_r; [ intros H; discriminate H | idtac ].
       rewrite Qbar.qfin_inj_add.
@@ -1356,7 +1350,7 @@ apply ps_lap_in_mul in Hm; [ assumption | idtac | idtac ]. {
     rewrite Qbar.add_comm; constructor.
   }
   rewrite ps_monom_order; [ simpl | assumption ].
-  rewrite Q_opp_involutive.
+  rewrite Q.opp_involutive.
   eapply order_āl_xlγ₁_gt_β₁; try eassumption.
   apply except_split_seq; [ idtac | idtac | assumption ]. {
     subst l₁ tl.
