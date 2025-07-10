@@ -1,8 +1,9 @@
 (* F1Prop.v *)
 
 Set Nested Proofs Allowed.
-From Stdlib Require Import Utf8 Arith ZArith Sorted.
+From Stdlib Require Import Utf8 Arith Sorted.
 
+Require Import A_PosArith A_ZArith A_QArith.
 Require Import Misc.
 Require Import QbarM.
 Require Import SplitList.
@@ -59,8 +60,8 @@ Proof.
 intros a b Hab.
 set (k₁ := ps_polydo b).
 set (k₂ := ps_polydo a).
-set (v₁ := (ps_ordnum a * Zpos k₁)%Z).
-set (v₂ := (ps_ordnum b * Zpos k₂)%Z).
+set (v₁ := (ps_ordnum a * z_pos k₁)%Z).
+set (v₂ := (ps_ordnum b * z_pos k₂)%Z).
 set (n₁ := Z.to_nat (v₂ - Z.min v₁ v₂)).
 set (n₂ := Z.to_nat (v₁ - Z.min v₁ v₂)).
 pose proof (ps_adjust_eq K a n₂ k₁) as Ha.
@@ -111,11 +112,12 @@ destruct na as [na| ].
      rewrite Z.sub_diag, Z.add_0_l.
      subst opa opb; simpl.
      rewrite Qmin_same_den.
-     unfold Qeq; simpl.
+     unfold Q.eq; simpl.
      simpl in Hab.
-     unfold Qeq in Hab; simpl in Hab.
+     unfold Q.eq in Hab; simpl in Hab.
      destruct nc as [nc| ].
       destruct Hnc as (Hinc, Hnc).
+...
       apply Z.mul_cancel_r; [ apply Pos2Z_ne_0 | idtac ].
       rewrite Z.add_min_distr_l.
       apply Z.add_cancel_l.

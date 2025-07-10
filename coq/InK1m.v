@@ -462,12 +462,15 @@ apply points_in_any_newton_segment with (h := j) (αh := αj) in Hbm. {
   rewrite Z.sub_0_r.
   rewrite fold_series_const.
   rewrite series_stretch_const, series_shift_0.
+  rewrite Pos.mul_1_l.
   apply mkps_morphism; try reflexivity. {
     rewrite Z.mul_opp_l; f_equal.
     rewrite Z.mul_add_distr_r; f_equal.
     rewrite <- Z.mul_assoc; f_equal.
-...
-    apply Z.mul_comm.
+    rewrite Q.q_Den_mul; cbn.
+    progress f_equal.
+    rewrite Pos.mul_comm; symmetry.
+    apply Pos.mul_1_l.
   }
   apply Pos.mul_comm.
 }
