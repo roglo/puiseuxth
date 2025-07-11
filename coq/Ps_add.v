@@ -306,7 +306,7 @@ subst g; unfold adjust_series.
 do 2 rewrite series_stretch_add_distr.
 do 2 rewrite series_shift_add_distr.
 do 4 rewrite stretch_shift_series_distr.
-do 4 rewrite <- series_stretch_stretch; try apply Pos2Nat_ne_0.
+do 4 rewrite <- series_stretch_stretch.
 do 4 rewrite series_shift_shift.
 do 4 rewrite <- Z2Nat_inj_mul_pos_r.
 do 4 rewrite Z.mul_sub_distr_r.

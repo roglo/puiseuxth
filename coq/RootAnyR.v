@@ -1028,16 +1028,15 @@ eapply q_mj_mk_eq_p_h_j with (h := r) (αh := αk) in H; try eassumption;
   remember (mh_of_m m αk (ps_poly_nth r f)) as mk eqn:Hmk .
   eapply pol_ord_of_fin_pt in Hmk; try eassumption; [  | symmetry; assumption ].
   destruct H as (_, Hqjr).
-...
-  unfold Qeq in Hmk.
-  simpl in Hmk.
+  apply -> Z.compare_eq_iff in Hmk; cbn in Hmk.
+  rewrite q_Den_num_den in Hmk.
   rewrite Hαk in Hmk.
   simpl in Hmk.
   symmetry in Hmk.
-  apply Z.mul_eq_0_l in Hmk; [  | apply Pos2Z_ne_0 ].
+  apply Z.eq_mul_0_l in Hmk; [ | easy ].
   subst mk.
   rewrite Z.sub_0_r in Hqjr.
-  rewrite positive_nat_Z in Hqjr.
+  rewrite Z.pos_nat in Hqjr.
   remember (p_of_m m (γ L)) as p eqn:Hp .
   move Hp after Hq.
   remember HL as H; clear HeqH.
@@ -1054,7 +1053,8 @@ eapply q_mj_mk_eq_p_h_j with (h := r) (αh := αk) in H; try eassumption;
   destruct H as (Hshr, (Hdeg, Hpdeg)).
   remember (Pos.to_nat q) as nq eqn:Hnq .
   symmetry in Hnq.
-  destruct nq; [ exfalso; revert Hnq; apply Pos2Nat_ne_0 |  ].
+  destruct nq; [ exfalso; revert Hnq; apply Pos.to_nat_neq_0 |  ].
+...
   destruct nq; [ apply Pos2Nat.inj; assumption | exfalso ].
   unfold poly_shrinkable in Hshr.
   rewrite Hcf in Hshr.
@@ -1167,7 +1167,7 @@ eapply q_mj_mk_eq_p_h_j with (h := r) (αh := αk₁) in H; try eassumption;
  apply Z.eq_mul_0_l in HH₂; [ | apply Pos2Z_ne_0 ].
  move HH₂ at top; subst mk.
  rewrite Z.sub_0_r in HH₃.
- rewrite positive_nat_Z in HH₃.
+ rewrite Z.pos_nat in HH₃.
  unfold mh_of_m in Heqmj'.
  unfold mh_of_m in Heqmj'.
  erewrite <- qden_αj_is_ps_polydo in Heqmj';
