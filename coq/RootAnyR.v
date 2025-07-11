@@ -1,8 +1,9 @@
 (* RootAnyR.v *)
 
 Set Nested Proofs Allowed.
-From Stdlib Require Import Utf8 Arith ZArith Sorting.
+From Stdlib Require Import Utf8 Arith Sorting.
 
+Require Import A_PosArith A_ZArith A_QArith.
 Require Import Misc.
 Require Import SlopeMisc.
 Require Import Slope_base.
@@ -44,8 +45,8 @@ Theorem lowest_i_such_that_ri_lt_r₀ : ∀ f L r n,
   r = nth_r 0 f L
   → (nth_r n f L < r)%nat
   → ∃ i,
-    i ≤ n ∧
-    (i = O ∨ r ≤ nth_r (pred i) f L) ∧
+    (i <= n)%nat ∧
+    (i = O ∨ (r <= nth_r (pred i) f L))%nat ∧
     (nth_r i f L < r)%nat.
 Proof.
 intros f L r n Hr Hrnr.
@@ -76,7 +77,9 @@ intros cf c Hnz.
 unfold root_multiplicity.
 remember (al cf) as la; clear Heqla.
 remember (length la) as len eqn:H.
-assert (length la ≤ len) as Hlen by (apply Nat.eq_le_incl, Nat.eq_sym, H).
+assert (Hlen : (length la <= len)%nat). {
+  apply Nat.eq_le_incl, Nat.eq_sym, H.
+}
 clear H.
 revert la Hnz Hlen.
 induction len; intros. {
@@ -122,8 +125,8 @@ Qed.
 Theorem Qnat_minus_distr_r : ∀ a b, a ≠ 0%Z → a - b # 1 = ((a # 1) - (b # 1)).
 Proof.
 intros a b Haz.
-progress unfold Qminus.
-progress unfold Qplus.
+progress unfold Q.sub.
+progress unfold Q.add.
 cbn.
 now do 2 rewrite Z.mul_1_r.
 Qed.
@@ -140,20 +143,21 @@ Theorem k_le_r : ∀ αj₁ αk₁ k₁ r pt pts v ms pts₁ pts₂,
   → 0 < αj₁
   → 0 <= αk₁
   → (S r, v) ∈ [pt … pts₁]
-  → k₁ ≤ S r.
+  → (k₁ <= S r)%nat.
 Proof.
 intros αj₁ αk₁ k₁ r pt pts v ms pts₁ pts₂.
 intros Hpts Hsort Heqms Hfin₁ Hz Hpos₀ Hnnegk Hsr.
 apply Nat.nlt_ge.
 intros Hrk.
 assert (slope ms < slope_expr (S r, v) (k₁, αk₁)) as H. {
-  apply Qnot_le_lt.
+  apply Q.nle_gt.
   intros H.
   erewrite slope_slope_expr in H; [ | symmetry; eassumption ].
   rewrite <- Hfin₁ in H.
   rewrite Hfin₁ in H; simpl in H.
   unfold slope_expr in H; simpl in H.
   rewrite Hz in H.
+...
   rewrite Q_sub_0_r in H.
   unfold Qle in H; simpl in H.
   rewrite Zpos_P_of_succ_nat in H.
