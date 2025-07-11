@@ -1,7 +1,8 @@
 (* RootHeadTail.v *)
 
-From Stdlib Require Import Utf8 ZArith Sorting.
+From Stdlib Require Import Utf8 Sorting.
 
+Require Import A_QArith.
 Require Import Misc.
 Require Import Field2.
 Require Import Fpolynomial.
@@ -88,6 +89,8 @@ Fixpoint nth_r α {R : ring α} {K : field R} {acf : algeb_closed_field K}
       let L₁ := option_get phony_ns (newton_segments f₁) in
       nth_r n₁ f₁ L₁
   end.
+
+...
 
 Definition next_pow pow L₁ m :=
   let n := (γ L₁ * inject_Z (Zpos m)) in

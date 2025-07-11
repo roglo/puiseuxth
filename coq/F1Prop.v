@@ -518,19 +518,18 @@ Theorem nth_g_order_pos : ∀ f L h,
   → (order (ps_lap_nth h (g_lap_of_ns f L)) > 0)%Qbar.
 Proof.
 intros f L h HL.
-destruct (lt_dec h (length (g_lap_of_ns f L))) as [Hlt| Hge].
- eapply each_power_of_y₁_in_g_has_coeff_pos_ord; try eassumption.
-  reflexivity.
-
+destruct (lt_dec h (length (g_lap_of_ns f L))) as [Hlt| Hge]. {
+  eapply each_power_of_y₁_in_g_has_coeff_pos_ord; try eassumption. {
+    reflexivity.
+  }
   unfold g_of_ns; simpl.
   unfold ps_lap_nth.
-...
-  apply list_nth_in; assumption.
-
- apply Nat.nlt_ge in Hge.
- unfold ps_lap_nth.
- rewrite List.nth_overflow; [ idtac | assumption ].
- rewrite order_0; constructor.
+  apply List.nth_In; assumption.
+}
+apply Nat.nlt_ge in Hge.
+unfold ps_lap_nth.
+rewrite List.nth_overflow; [ idtac | assumption ].
+rewrite order_0; constructor.
 Qed.
 
 Theorem order_nth_inject_K : ∀ la i,
