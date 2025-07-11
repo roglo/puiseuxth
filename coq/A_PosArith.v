@@ -25,6 +25,14 @@ Qed.
 
 Hint Resolve Nat_1_le_mul_add_1 : core.
 
+Theorem Nat_sub_sub_swap : ∀ a b c, a - b - c = a - c - b.
+Proof.
+intros.
+rewrite <- Nat.sub_add_distr.
+rewrite Nat.add_comm.
+now rewrite Nat.sub_add_distr.
+Qed.
+
 Theorem Nat_compare_sub_mono_l :
   ∀ a b c,
   (b <= a)%nat
@@ -322,14 +330,6 @@ Proof.
 intros; subst.
 rewrite Pos.add_comm.
 apply Pos.add_sub.
-Qed.
-
-Theorem Nat_sub_sub_swap : ∀ a b c, a - b - c = a - c - b.
-Proof.
-intros.
-rewrite <- Nat.sub_add_distr.
-rewrite Nat.add_comm.
-now rewrite Nat.sub_add_distr.
 Qed.
 
 Theorem sub_sub_swap : ∀ a b c, (a - b - c = a - c - b)%pos.
@@ -691,6 +691,21 @@ do 3 rewrite Nat.sub_0_r.
 rewrite <- Nat.add_assoc.
 progress f_equal.
 symmetry; apply Nat.add_1_r.
+Qed.
+
+Theorem inj_sub :
+  ∀ a b,
+  b ≠ 0%nat
+  → Pos.of_nat (a - b) = (Pos.of_nat a - Pos.of_nat b)%pos.
+Proof.
+intros * Hbz.
+progress unfold Pos.sub.
+progress unfold Pos.of_nat.
+cbn.
+f_equal.
+destruct a; [ easy | ].
+destruct b; [ easy | cbn ].
+now do 2 rewrite Nat.sub_0_r.
 Qed.
 
 End Nat2Pos.

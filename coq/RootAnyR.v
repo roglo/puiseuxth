@@ -158,6 +158,123 @@ assert (slope ms < slope_expr (S r, v) (k₁, αk₁)) as H. {
   unfold slope_expr in H; simpl in H.
   rewrite Hz in H.
   rewrite Q.sub_0_r in H.
+  progress unfold Q.div in H.
+  progress unfold Q.le in H.
+  apply -> Z.compare_le_iff in H.
+  progress unfold q_Den in H.
+  cbn - [ Q.inv ] in H.
+  rewrite Zposnat2Znat in H; [ | easy ].
+  do 2 rewrite fold_Qnat in H.
+  rewrite Qnum_inv_Qnat_sub in H; [ | assumption ].
+  rewrite Z.mul_1_r in H.
+  remember Hrk as Hk₁; clear HeqHk₁.
+  apply Nat.lt_trans with (n := O) in Hk₁; [ idtac | apply Nat.lt_0_succ ].
+  rewrite <- Nat2Z.inj_0 in H.
+  rewrite fold_Qnat in H.
+  rewrite Qnum_inv_Qnat_sub in H; [ idtac | assumption ].
+  rewrite Z.mul_1_r in H.
+  rewrite Qden_inv_Qnat_sub in H; [ idtac | assumption ].
+  rewrite Qden_inv_Qnat_sub in H; [ idtac | assumption ].
+  rewrite Nat.sub_0_r in H.
+  rewrite Z.mul_opp_l in H.
+  rewrite Z.add_opp_r in H.
+  rewrite Z.mul_comm in H.
+  rewrite Pos2Z.inj_mul in H.
+  rewrite Pos2Z.inj_mul in H.
+  rewrite Z.mul_comm in H.
+  rewrite Pos2Z.inj_mul in H.
+  rewrite Z.mul_comm in H.
+  do 2 rewrite <- Z.mul_assoc in H.
+  rewrite Z.mul_comm in H.
+  rewrite Z.mul_assoc in H.
+  rewrite Z.mul_assoc in H.
+  remember
+    (Z.of_pos (q_den αj₁) * Z.of_pos (Pos.of_nat k₁) *
+       q_num αk₁ * Z.of_pos (q_den αk₁))%Z
+    as x.
+  rewrite Z.mul_mul_swap in H.
+  subst x.
+  apply Z.mul_le_mono_pos_r in H; [ | easy ].
+  rewrite Z.mul_sub_distr_r in H.
+  rewrite Nat2Pos.inj_sub in H; [ idtac | intros HH; discriminate HH ].
+Search (Z.of_pos (_ - _)).
+...
+Check Pos2Z.inj_sub.
+Pos2Z.inj_sub
+     : ∀ p q : positive,
+         (p < q)%positive → Z.pos (q - p) = (Z.pos q - Z.pos p)%Z
+...
+  rewrite Pos2Z.inj_sub in H. {
+    rewrite Z.mul_sub_distr_l in H.
+    rewrite <- Z.mul_assoc, Z.mul_comm in H.
+    rewrite <- Z.mul_assoc, Z.mul_comm in H.
+    apply Z.le_add_le_sub_r in H.
+    apply Z.le_add_le_sub_r in H.
+    apply Z.nlt_ge in H.
+    apply H.
+    rewrite <- Z.add_assoc.
+    apply Z.lt_sub_lt_add_l.
+    rewrite Z.sub_diag.
+    apply Z.add_pos_nonneg. {
+      apply Z.mul_pos_pos. {
+        apply Z.mul_pos_pos; [ idtac | apply Pos2Z.is_pos ].
+        unfold Qlt in Hpos₀; simpl in Hpos₀.
+        rewrite Z.mul_1_r in Hpos₀; assumption.
+      }
+      rewrite <- Pos2Z.inj_sub; [ apply Pos2Z.is_pos | idtac ].
+      apply -> Pos.compare_lt_iff.
+      rewrite <- Nat2Pos.inj_compare. {
+        apply nat_compare_lt; assumption.
+      } {
+        intros HH; discriminate HH.
+      } {
+        intros Hk; subst k₁.
+        revert Hrk; apply Nat.nlt_0_r.
+      }
+    }
+    apply Z.mul_nonneg_nonneg; [ | apply Pos2Z.is_nonneg ].
+    apply Z.mul_nonneg_nonneg; [ | apply Pos2Z.is_nonneg ].
+    unfold Qle in Hnnegk; simpl in Hnnegk.
+    rewrite Z.mul_1_r in Hnnegk; assumption.
+  }
+  apply -> Pos.compare_lt_iff.
+  rewrite <- Nat2Pos.inj_compare. {
+    apply nat_compare_lt; assumption.
+  } {
+    intros HH; discriminate HH.
+  } {
+    intros Hk; subst k₁.
+    revert Hrk; apply Nat.nlt_0_r.
+  }
+}
+rename H into Hsl.
+subst pts.
+remember Heqms as H; clear HeqH.
+symmetry in H.
+destruct Hsr as [Hsr| Hsr]. {
+  subst pt.
+  eapply minimise_slope_expr_le in H; try eassumption.
+  apply Qle_not_lt in H; contradiction.
+}
+eapply min_slope_le with (pt₃ := (S r, v)) in H; try eassumption. {
+  apply Qle_not_lt in H; contradiction.
+} {
+  apply List.in_or_app; left; assumption.
+}
+...
+intros αj₁ αk₁ k₁ r pt pts v ms pts₁ pts₂.
+intros Hpts Hsort Heqms Hfin₁ Hz Hpos₀ Hnnegk Hsr.
+apply Nat.nlt_ge.
+intros Hrk.
+assert (slope ms < slope_expr (S r, v) (k₁, αk₁)) as H. {
+  apply Q.nle_gt.
+  intros H.
+  erewrite slope_slope_expr in H; [ | symmetry; eassumption ].
+  rewrite <- Hfin₁ in H.
+  rewrite Hfin₁ in H; simpl in H.
+  unfold slope_expr in H; simpl in H.
+  rewrite Hz in H.
+  rewrite Q.sub_0_r in H.
   unfold Q.le in H; simpl in H.
 (**)
   do 2 rewrite <- Q.inv_sub_distr in H.
