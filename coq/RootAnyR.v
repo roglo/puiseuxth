@@ -648,9 +648,8 @@ eapply j_0_k_betw_r₀_r₁ with (c := c) in H; try eassumption. {
   exists αj₁, αk₁.
   split; [ easy | idtac ].
   split; [ easy | idtac ].
-...
-  unfold Qlt in Hαj₁; simpl in Hαj₁.
-  unfold Qeq in H; simpl in H.
+  apply -> Z.compare_lt_iff in Hαj₁; cbn in Hαj₁.
+  apply -> Z.compare_eq_iff in H; cbn in H.
   rewrite Z.mul_1_r in Hαj₁, H.
   split; assumption.
 }
@@ -669,8 +668,8 @@ Theorem r_n_next_ns : ∀ f L c f₁ L₁ c₁ r,
   → ∃ αj αk,
     ini_pt L₁ = (0%nat, αj) ∧
     fin_pt L₁ = (r, αk) ∧
-    (0 < Qnum αj)%Z ∧
-    Qnum αk = 0%Z.
+    (0 < q_num αj)%Z ∧
+    q_num αk = 0%Z.
 Proof.
 intros f L c f₁ L₁ c₁ r.
 intros HL Hc Hf₁ HL₁ Hc₁ Hps₀ Hr Hr₁.
@@ -689,11 +688,10 @@ exists αj₁, αk₁.
 split; [ assumption | ].
 split; [ assumption | ].
 destruct Hrak as [H| H]; [ exfalso; revert H; apply Nat.lt_irrefl | idtac ].
-unfold Qlt in Haj.
-unfold Qeq in H.
-simpl in Haj, H.
+apply -> Z.compare_lt_iff in Haj; cbn in Haj.
+apply -> Z.compare_eq_iff in H; cbn in H.
 rewrite Z.mul_1_r in Haj, H.
-split; assumption.
+easy.
 Qed.
 
 Theorem r_n_nth_ns : ∀ f L c f₁ L₁ c₁ m r,
@@ -704,15 +702,15 @@ Theorem r_n_nth_ns : ∀ f L c f₁ L₁ c₁ m r,
   → L₁ = option_get phony_ns (newton_segments f₁)
   → c₁ = ac_root (Φq f₁ L₁)
   → ∀ n fn Ln,
-    (∀ i, (i ≤ n)%nat → (ps_poly_nth 0 (nth_pol i f₁ L₁) ≠ 0)%ps)
-    → (∀ i, (i ≤ S n)%nat → (nth_r i f L = r))
+    (∀ i, (i <= n)%nat → (ps_poly_nth 0 (nth_pol i f₁ L₁) ≠ 0)%ps)
+    → (∀ i, (i <= S n)%nat → (nth_r i f L = r))
     → fn = nth_pol n f₁ L₁
     → Ln = nth_ns n f₁ L₁
     → ∃ αj αk,
       ini_pt Ln = (0%nat, αj) ∧
       fin_pt Ln = (r, αk) ∧
-      (0 < Qnum αj)%Z ∧
-      Qnum αk = 0%Z.
+      (0 < q_num αj)%Z ∧
+      q_num αk = 0%Z.
 Proof.
 intros f L c f₁ L₁ c₁ m r HL Hm Hc Hf₁ HL₁ Hc₁.
 intros n fn Ln Hpsi Hri Hfn HLn.
@@ -753,7 +751,7 @@ destruct r.
    rewrite <- Hc₁ in Hfn, HLn.
    remember (next_pol f₁ (β L₁) (γ L₁) c₁) as f₂ eqn:Hf₂ .
    remember (option_get phony_ns (newton_segments f₂)) as L₂ eqn:HL₂ .
-   eapply IHn with (L := L₁) (L₁ := L₂) (m := (m * q₀)%positive);
+   eapply IHn with (L := L₁) (L₁ := L₂) (m := (m * q₀)%pos);
     try eassumption; try reflexivity.
     eapply next_pol_in_K_1_mq with (L := L); eassumption.
 
@@ -769,11 +767,11 @@ destruct r.
     rewrite <- Hc₁, <- Hf₂, <- HL₂ in Hin.
     assumption.
 
-   assert (0 ≤ S (S n)) as H₁ by apply Nat.le_0_l.
+   assert (0 <= S (S n))%nat as H₁ by apply Nat.le_0_l.
    apply Hri in H₁; simpl in H₁.
    rewrite <- Hc in H₁; assumption.
 
-   assert (0 ≤ S n) as H₁ by apply Nat.le_0_l.
+   assert (0 <= S n)%nat as H₁ by apply Nat.le_0_l.
    apply Nat.succ_le_mono in H₁.
    apply Hri in H₁; simpl in H₁.
    rewrite <- Hc, <- Hf₁, <- HL₁, <- Hc₁ in H₁; assumption.
@@ -783,7 +781,7 @@ Theorem nth_newton_segments_nil : ∀ f L n,
   newton_segments f = Some L
   → newton_segments (nth_pol n f L) = None
   → (∃ i,
-     i ≤ n ∧
+     (i <= n)%nat ∧
      (i = O ∨ zerop_1st_n_const_coeff (pred i) f L = false) ∧
      zerop_1st_n_const_coeff i f L = true).
 Proof.
@@ -992,9 +990,9 @@ Theorem q_eq_1_any_r : ∀ f L c αj αk m q r,
   → r = root_multiplicity acf c (Φq f L)
   → ini_pt L = (0%nat, αj)
   → fin_pt L = (r, αk)
-  → (0 < Qnum αj)%Z
-  → Qnum αk = 0%Z
-  → q = 1%positive.
+  → (0 < q_num αj)%Z
+  → q_num αk = 0%Z
+  → q = 1%pos.
 Proof.
 intros f L c αj αk m q r HL Hm Hq Hc Hr Hini Hfin Hαj Hαk.
 remember Hr as Hrv; clear HeqHrv.
@@ -1030,6 +1028,7 @@ eapply q_mj_mk_eq_p_h_j with (h := r) (αh := αk) in H; try eassumption;
   remember (mh_of_m m αk (ps_poly_nth r f)) as mk eqn:Hmk .
   eapply pol_ord_of_fin_pt in Hmk; try eassumption; [  | symmetry; assumption ].
   destruct H as (_, Hqjr).
+...
   unfold Qeq in Hmk.
   simpl in Hmk.
   rewrite Hαk in Hmk.
