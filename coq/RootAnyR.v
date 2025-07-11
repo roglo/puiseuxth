@@ -157,35 +157,23 @@ assert (slope ms < slope_expr (S r, v) (k₁, αk₁)) as H. {
   rewrite Hfin₁ in H; simpl in H.
   unfold slope_expr in H; simpl in H.
   rewrite Hz in H.
-...
-  rewrite Q_sub_0_r in H.
-  unfold Qle in H; simpl in H.
-  rewrite Zpos_P_of_succ_nat in H.
-  rewrite <- Nat2Z.inj_succ in H.
+  rewrite Q.sub_0_r in H.
+  unfold Q.le in H; simpl in H.
+(**)
+  do 2 rewrite <- Q.inv_sub_distr in H.
+  rewrite Z.sub_0_r in H.
+  apply -> Z.compare_le_iff in H.
+  rewrite Zposnat2Znat in H; [ | easy ].
+  rewrite <- Nat2Z.inj_sub in H; [ | now apply Nat.lt_le_incl ].
+  cbn in H.
+  do 2 rewrite q_Den_num_den in H.
+  do 2 rewrite Z.mul_1_r in H.
   do 2 rewrite fold_Qnat in H.
-  rewrite Qnum_inv_Qnat_sub in H; [ | assumption ].
-  rewrite Z.mul_1_r in H.
   remember Hrk as Hk₁; clear HeqHk₁.
   apply Nat.lt_trans with (n := O) in Hk₁; [ idtac | apply Nat.lt_0_succ ].
-  rewrite <- Nat2Z.inj_0 in H.
-  rewrite fold_Qnat in H.
-  rewrite Qnum_inv_Qnat_sub in H; [ idtac | assumption ].
-  rewrite Z.mul_1_r in H.
-  rewrite Qden_inv_Qnat_sub in H; [ idtac | assumption ].
-  rewrite Qden_inv_Qnat_sub in H; [ idtac | assumption ].
-  rewrite Nat.sub_0_r in H.
   rewrite Z.mul_opp_l in H.
   rewrite Z.add_opp_r in H.
-  rewrite Z.mul_comm in H.
-  rewrite Pos2Z.inj_mul in H.
-  rewrite Pos2Z.inj_mul in H.
-  rewrite Z.mul_comm in H.
-  rewrite Pos2Z.inj_mul in H.
-  rewrite Z.mul_comm in H.
-  do 2 rewrite <- Z.mul_assoc in H.
-  rewrite Z.mul_comm in H.
-  rewrite Z.mul_assoc in H.
-  rewrite Z.mul_assoc in H.
+...
   remember (Zpos (Qden αj₁) * Zpos (Pos.of_nat k₁) * Qnum αk₁ * Zpos (Qden αk₁))%Z as x.
   rewrite Z.mul_shuffle0 in H.
   subst x.
