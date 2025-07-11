@@ -674,6 +674,18 @@ Module Nat2Pos.
 Theorem id : ∀ a, a ≠ 0 → Pos.to_nat (Pos.of_nat a) = a.
 Proof. apply Pos.Nat2Pos_id. Qed.
 
+Theorem inj_compare :
+  ∀ a b,
+  a ≠ 0
+  → b ≠ 0
+  → (a ?= b) = (Pos.of_nat a ?= Pos.of_nat b)%pos.
+Proof.
+intros * Haz Hbz.
+destruct a; [ easy | ].
+destruct b; [ easy | cbn ].
+now do 2 rewrite Nat.sub_0_r.
+Qed.
+
 Theorem inj_add :
   ∀ a b,
   a ≠ 0

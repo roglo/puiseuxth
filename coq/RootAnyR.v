@@ -216,14 +216,6 @@ assert (slope ms < slope_expr (S r, v) (k₁, αk₁)) as H. {
       }
       rewrite <- Pos2Z.inj_sub; [ easy | ].
       apply -> Pos.compare_lt_iff.
-Search (Pos.of_nat _ ?= Pos.of_nat _)%pos.
-Check Nat2Pos.inj_compare.
-...
-Nat2Pos.inj_compare
-     : ∀ n m : nat,
-         n ≠ 0%nat
-         → m ≠ 0%nat → (n ?= m)%nat = (Pos.of_nat n ?= Pos.of_nat m)%positive
-...
       rewrite <- Nat2Pos.inj_compare. {
         apply nat_compare_lt; assumption.
       } {
@@ -235,7 +227,8 @@ Nat2Pos.inj_compare
     }
     apply Z.mul_nonneg_nonneg; [ | apply Pos2Z.is_nonneg ].
     apply Z.mul_nonneg_nonneg; [ | apply Pos2Z.is_nonneg ].
-    unfold Qle in Hnnegk; simpl in Hnnegk.
+    apply -> Z.compare_le_iff in Hnnegk.
+    cbn in Hnnegk.
     rewrite Z.mul_1_r in Hnnegk; assumption.
   }
   apply -> Pos.compare_lt_iff.
@@ -255,103 +248,10 @@ symmetry in H.
 destruct Hsr as [Hsr| Hsr]. {
   subst pt.
   eapply minimise_slope_expr_le in H; try eassumption.
-  apply Qle_not_lt in H; contradiction.
+  now apply Q.nlt_ge in H.
 }
 eapply min_slope_le with (pt₃ := (S r, v)) in H; try eassumption. {
-  apply Qle_not_lt in H; contradiction.
-} {
-  apply List.in_or_app; left; assumption.
-}
-...
-intros αj₁ αk₁ k₁ r pt pts v ms pts₁ pts₂.
-intros Hpts Hsort Heqms Hfin₁ Hz Hpos₀ Hnnegk Hsr.
-apply Nat.nlt_ge.
-intros Hrk.
-assert (slope ms < slope_expr (S r, v) (k₁, αk₁)) as H. {
-  apply Q.nle_gt.
-  intros H.
-  erewrite slope_slope_expr in H; [ | symmetry; eassumption ].
-  rewrite <- Hfin₁ in H.
-  rewrite Hfin₁ in H; simpl in H.
-  unfold slope_expr in H; simpl in H.
-  rewrite Hz in H.
-  rewrite Q.sub_0_r in H.
-  unfold Q.le in H; simpl in H.
-(**)
-  do 2 rewrite <- Q.inv_sub_distr in H.
-  rewrite Z.sub_0_r in H.
-  apply -> Z.compare_le_iff in H.
-  rewrite Zposnat2Znat in H; [ | easy ].
-  rewrite <- Nat2Z.inj_sub in H; [ | now apply Nat.lt_le_incl ].
-  cbn in H.
-  do 2 rewrite q_Den_num_den in H.
-  do 2 rewrite Z.mul_1_r in H.
-  do 2 rewrite fold_Qnat in H.
-  remember Hrk as Hk₁; clear HeqHk₁.
-  apply Nat.lt_trans with (n := O) in Hk₁; [ idtac | apply Nat.lt_0_succ ].
-  rewrite Z.mul_opp_l in H.
-  rewrite Z.add_opp_r in H.
-...
-  remember (Zpos (Qden αj₁) * Zpos (Pos.of_nat k₁) * Qnum αk₁ * Zpos (Qden αk₁))%Z as x.
-  rewrite Z.mul_shuffle0 in H.
-  subst x.
-  apply Z.mul_le_mono_pos_r in H; [ idtac | apply Pos2Z.is_pos ].
-  rewrite Z.mul_sub_distr_r in H.
-  rewrite Nat2Pos.inj_sub in H; [ idtac | intros HH; discriminate HH ].
-  rewrite Pos2Z.inj_sub in H. {
-    rewrite Z.mul_sub_distr_l in H.
-    rewrite <- Z.mul_assoc, Z.mul_comm in H.
-    rewrite <- Z.mul_assoc, Z.mul_comm in H.
-    apply Z.le_add_le_sub_r in H.
-    apply Z.le_add_le_sub_r in H.
-    apply Z.nlt_ge in H.
-    apply H.
-    rewrite <- Z.add_assoc.
-    apply Z.lt_sub_lt_add_l.
-    rewrite Z.sub_diag.
-    apply Z.add_pos_nonneg. {
-      apply Z.mul_pos_pos. {
-        apply Z.mul_pos_pos; [ idtac | apply Pos2Z.is_pos ].
-        unfold Qlt in Hpos₀; simpl in Hpos₀.
-        rewrite Z.mul_1_r in Hpos₀; assumption.
-      }
-      rewrite <- Pos2Z.inj_sub; [ apply Pos2Z.is_pos | idtac ].
-      apply -> Pos.compare_lt_iff.
-      rewrite <- Nat2Pos.inj_compare. {
-        apply nat_compare_lt; assumption.
-      } {
-        intros HH; discriminate HH.
-      } {
-        intros Hk; subst k₁.
-        revert Hrk; apply Nat.nlt_0_r.
-      }
-    }
-    apply Z.mul_nonneg_nonneg; [ | apply Pos2Z.is_nonneg ].
-    apply Z.mul_nonneg_nonneg; [ | apply Pos2Z.is_nonneg ].
-    unfold Qle in Hnnegk; simpl in Hnnegk.
-    rewrite Z.mul_1_r in Hnnegk; assumption.
-  }
-  apply -> Pos.compare_lt_iff.
-  rewrite <- Nat2Pos.inj_compare. {
-    apply nat_compare_lt; assumption.
-  } {
-    intros HH; discriminate HH.
-  } {
-    intros Hk; subst k₁.
-    revert Hrk; apply Nat.nlt_0_r.
-  }
-}
-rename H into Hsl.
-subst pts.
-remember Heqms as H; clear HeqH.
-symmetry in H.
-destruct Hsr as [Hsr| Hsr]. {
-  subst pt.
-  eapply minimise_slope_expr_le in H; try eassumption.
-  apply Qle_not_lt in H; contradiction.
-}
-eapply min_slope_le with (pt₃ := (S r, v)) in H; try eassumption. {
-  apply Qle_not_lt in H; contradiction.
+  now apply Q.nlt_ge in H.
 } {
   apply List.in_or_app; left; assumption.
 }
@@ -399,7 +299,7 @@ destruct r.
    symmetry in Hoa.
    destruct oa as [oa| ].
     remember 1%nat as pow.
-    assert (1 ≤ pow)%nat as Hpow by (subst pow; apply Nat.le_refl).
+    assert (1 <= pow)%nat as Hpow by (subst pow; apply Nat.le_refl).
     clear Heqpow Hr Hpos a Hoa.
     revert r pow H Hz Hpow.
     induction la as [| a]; intros.
@@ -454,7 +354,7 @@ Theorem j_0_k_betw_r₀_r₁ : ∀ f L c f₁ L₁ c₁ j₁ αj₁ k₁ αk₁ 
   → root_multiplicity acf c₁ (Φq f₁ L₁) = r₁
   → ini_pt L₁ = (j₁, αj₁)
   → fin_pt L₁ = (k₁, αk₁)
-  → j₁ = 0%nat ∧ r₁ ≤ k₁ ∧ k₁ ≤ r ∧ αj₁ > 0 ∧ αk₁ >= 0 ∧
+  → j₁ = 0%nat ∧ (r₁ <= k₁)%nat ∧ (k₁ <= r)%nat ∧ 0 < αj₁ ∧ 0 ≤ αk₁ ∧
     ((r₁ < r)%nat ∨ αk₁ == 0).
 Proof.
 intros f L c f₁ L₁ c₁ j₁ αj₁ k₁ αk₁ r r₁.
@@ -613,7 +513,7 @@ destruct v₀ as [v₀| ]. {
           simpl in Hpts.
           injection Hpts; clear Hpts; intros Hpts H₁.
           subst pt₁.
-          assert (k₁ ≤ S r) as H by (eapply k_le_r; try eassumption ).
+          assert (H : (k₁ <= S r)%nat) by (eapply k_le_r; eassumption).
           split; [ | assumption ].
           destruct (eq_nat_dec r₁ (S r)) as [H₁| H₁]. {
             move H₁ at top; subst r₁.
@@ -710,13 +610,13 @@ Theorem next_ns_r_non_decr : ∀ f L c f₁ L₁ c₁ r r₁,
   → (ps_poly_nth 0 f₁ ≠ 0)%ps
   → root_multiplicity acf c (Φq f L) = r
   → root_multiplicity acf c₁ (Φq f₁ L₁) = r₁
-  → r ≤ r₁
+  → (r <= r₁)%nat
   → r = r₁ ∧
     ∃ αj₁ αk₁,
     ini_pt L₁ = (0%nat, αj₁) ∧
     fin_pt L₁ = (r, αk₁) ∧
-    (0 < Qnum αj₁)%Z ∧
-    Qnum αk₁ = 0%Z.
+    (0 < q_num αj₁)%Z ∧
+    q_num αk₁ = 0%Z.
 Proof.
 intros f L c f₁ L₁ c₁ r r₁.
 intros HL Hc Hf₁ HL₁ Hc₁ Hnz₁ Hr Hr₁ Hrle.
@@ -748,6 +648,7 @@ eapply j_0_k_betw_r₀_r₁ with (c := c) in H; try eassumption. {
   exists αj₁, αk₁.
   split; [ easy | idtac ].
   split; [ easy | idtac ].
+...
   unfold Qlt in Hαj₁; simpl in Hαj₁.
   unfold Qeq in H; simpl in H.
   rewrite Z.mul_1_r in Hαj₁, H.
