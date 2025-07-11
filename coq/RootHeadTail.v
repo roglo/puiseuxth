@@ -1,6 +1,6 @@
 (* RootHeadTail.v *)
 
-From Stdlib Require Import Utf8 Sorting.
+From Stdlib Require Import Utf8 Arith Sorting.
 
 Require Import A_PosArith A_ZArith A_QArith.
 Require Import Misc.
@@ -90,19 +90,11 @@ Fixpoint nth_r α {R : ring α} {K : field R} {acf : algeb_closed_field K}
       nth_r n₁ f₁ L₁
   end.
 
-Search (_ # 1)%Q.
-Print Qnat.
-Search (nat → Q).
-Search (Z → Q).
-...
-Print inject_Z.
-inject_Z = λ x : Z, x # 1
-     : Z → Q
-...
+Definition inject_Z a := a # 1.
 
 Definition next_pow pow L₁ m :=
-  let n := (γ L₁ * inject_Z (Zpos m)) in
-  (pow + Z.to_nat (Qnum n / Zpos (Qden n)))%nat.
+  let n := (γ L₁ * inject_Z (z_pos m)) in
+  (pow + Z.to_nat (q_num n / z_pos (q_den n)))%nat.
 
 Fixpoint find_coeff α {R : ring α} {K : field R}
   {acf : algeb_closed_field K} max_iter npow m f L i :=
@@ -130,7 +122,7 @@ Definition root_tail_series_from_cγ_list α {R : ring α} {K : field R}
 Definition root_tail_from_cγ_list α {R : ring α} {K : field R}
   {acf : algeb_closed_field K} m f L :=
   {| ps_terms := {| terms := root_tail_series_from_cγ_list m f L |};
-     ps_ordnum := Qnum (γ L) * Zpos m / Zpos (Qden (γ L));
+     ps_ordnum := q_num (γ L) * z_pos m / z_pos (q_den (γ L));
      ps_polydo := m |}.
 
 Definition γ_sum α {R : ring α} {K : field R}
@@ -331,7 +323,7 @@ Proof. intros; subst; reflexivity. Qed.
 
 Theorem Qnum_inv_Qnat_sub : ∀ j k,
   (j < k)%nat
-  → Qnum (/ (Qnat k - Qnat j)) = 1%Z.
+  → q_num ((Qnat k - Qnat j)⁻¹) = 1%Z.
 Proof.
 intros j k Hjk.
 rewrite Qnum_inv; [ reflexivity | simpl ].
@@ -347,7 +339,7 @@ Qed.
 
 Theorem Qden_inv_Qnat_sub : ∀ j k,
   (j < k)%nat
-  → Qden (/ (Qnat k - Qnat j)) = Pos.of_nat (k - j).
+  → q_den ((Qnat k - Qnat j)⁻¹) = Pos.of_nat (k - j).
 Proof.
 intros j k Hjk.
 apply Pos2Z.inj.
@@ -355,7 +347,7 @@ rewrite Qden_inv.
  simpl.
  do 2 rewrite Z.mul_1_r.
  symmetry.
- rewrite <- positive_nat_Z; simpl.
+ rewrite <- Z.pos_nat; simpl.
  rewrite Nat2Pos.id.
   rewrite Nat2Z.inj_sub; [ | apply Nat.lt_le_incl; assumption ].
   reflexivity.
@@ -379,26 +371,26 @@ Theorem num_m_den_is_pos : ∀ f L j αj m,
   newton_segments f = Some L
   → pol_in_K_1_m f m
   → ini_pt L = (j, αj)
-  → (0 < Qnum αj)%Z
-  → (0 < Z.to_nat (Qnum αj * Zpos m / Zpos (Qden αj)))%nat.
+  → (0 < q_num αj)%Z
+  → (0 < Z.to_nat (q_num αj * z_pos m / z_pos (q_den αj)))%nat.
 Proof.
 intros f L j αj m HL Hm Hini Hn.
-assert (Zpos (Qden αj) | Qnum αj * Zpos m)%Z as H.
+assert (z_pos (q_den αj) | q_num αj * z_pos m)%Z as H.
  eapply den_αj_divides_num_αj_m; eassumption.
 
  destruct H as (d, Hd).
  rewrite Hd.
- rewrite Z.div_mul; [ | apply Pos2Z_ne_0 ].
- destruct d as [| d| d].
+ rewrite Z.mul_div; [ | apply Pos2Z_ne_0 ].
+ destruct d as [| sd vd].
   simpl in Hd.
   apply Z.eq_mul_0_l in Hd; [ | apply Pos2Z_ne_0 ].
   rewrite Hd in Hn.
   exfalso; revert Hn; apply Z.lt_irrefl.
 
-  apply Pos2Nat.is_pos.
-
+  destruct sd; [ apply Pos2Nat.is_pos | ].
   simpl in Hd.
-  pose proof (Pos2Z.neg_is_neg (d * Qden αj)) as I.
+  pose proof (Pos2Z.neg_is_neg (vd * q_den αj)) as I.
+  progress unfold z_neg in I.
   rewrite <- Hd in I.
   apply Z.nle_gt in I.
   exfalso; apply I.
@@ -472,7 +464,7 @@ Qed.
 
 Theorem zerop_1st_n_const_coeff_false_iff : ∀ f L n,
   zerop_1st_n_const_coeff n f L = false
-  ↔ ∀ i : nat, i ≤ n → (ps_poly_nth 0 (nth_pol i f L) ≠ 0)%ps.
+  ↔ ∀ i : nat, (i <= n)%nat → (ps_poly_nth 0 (nth_pol i f L) ≠ 0)%ps.
 Proof.
 intros f L n.
 split; intros H.
@@ -669,7 +661,7 @@ induction n; intros; simpl.
   symmetry in Hz₁.
   destruct z₁; [ reflexivity | idtac ].
   rewrite zerop_1st_n_const_coeff_false_iff in Hz₁.
-  assert (b + S i ≤ b + i + S (S n)) as H by fast_omega .
+  assert (H : (b + S i <= b + i + S (S n))%nat) by fast_omega .
   apply Hz₁ in H; contradiction.
 
   rewrite IHn.
@@ -867,7 +859,7 @@ Qed.
 
 Theorem summation_all_lt : ∀ f n x,
   let qr := Q_ring in
-  (∀ i : nat, i ≤ n → x < f i)
+  (∀ i : nat, (i <= n)%nat → x < f i)
   → x * Qnat (S n) < Σ (i = 0, n), f i.
 Proof.
 intros f n x qr Hi.
@@ -879,12 +871,12 @@ induction n.
 
  rewrite summation_split_last; [ simpl | apply Nat.le_0_l ].
  rewrite Qnat_succ.
- apply Qplus_lt_le_compat.
+ apply Q.add_lt_le_compat.
   apply IHn.
   intros i Hin; apply Hi.
   apply Nat.le_le_succ_r; auto.
 
-  apply Qlt_le_weak.
+  apply Q.lt_le_incl.
   apply Hi; reflexivity.
 Qed.
 
@@ -941,7 +933,7 @@ Fixpoint lowest_with_zero_1st_const_coeff n f L :=
 Theorem lowest_zerop_1st_n_const_coeff : ∀ f L n,
   zerop_1st_n_const_coeff n f L = true
   → ∃ i, i = lowest_with_zero_1st_const_coeff n f L ∧
-    i ≤ n ∧
+    (i <= n)%nat ∧
     (i = O ∨ zerop_1st_n_const_coeff (pred i) f L = false) ∧
     zerop_1st_n_const_coeff i f L = true.
 Proof.

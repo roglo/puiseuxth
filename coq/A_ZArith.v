@@ -660,6 +660,13 @@ destruct b as [| sb vb]; [ now right | ].
 easy.
 Qed.
 
+Theorem eq_mul_0_l : ∀ a b, (a * b)%Z = 0%Z → b ≠ 0%Z → a = 0%Z.
+Proof.
+intros * Hab Hbz.
+apply Z.integral in Hab.
+now destruct Hab.
+Qed.
+
 Theorem compare_antisymm : ∀ a b, CompOpp (a ?= b)%Z = (b ?= a)%Z.
 Proof.
 intros.
@@ -3154,6 +3161,9 @@ Proof. apply Z.of_nat_id. Qed.
 Theorem is_nonneg : ∀ a, (0 ≤ Z.of_nat a)%Z.
 Proof. apply Z.of_nat_is_nonneg. Qed.
 
+Theorem inj_0 : Z.of_nat 0 = 0%Z.
+Proof. easy. Qed.
+
 Theorem inj_succ : ∀ a, Z.of_nat (S a) = Z.of_nat a + 1.
 Proof.
 intros.
@@ -3333,6 +3343,15 @@ Module Pos2Z.
 
 Theorem is_nonneg : ∀ a, (0 ≤ Z.of_pos a)%Z.
 Proof. easy. Qed.
+
+Theorem neg_is_neg : ∀ a, (z_neg a < 0)%Z.
+Proof. easy. Qed.
+
+Theorem inj : ∀ a b, z_pos a = z_pos b → a = b.
+Proof.
+intros * Hab.
+now injection Hab.
+Qed.
 
 Theorem inj_mul : ∀ a b, Z.of_pos (a * b) = (Z.of_pos a * Z.of_pos b)%Z.
 Proof. easy. Qed.
