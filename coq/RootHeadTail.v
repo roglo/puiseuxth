@@ -2,7 +2,7 @@
 
 From Stdlib Require Import Utf8 Sorting.
 
-Require Import A_QArith.
+Require Import A_PosArith A_ZArith A_QArith.
 Require Import Misc.
 Require Import Field2.
 Require Import Fpolynomial.
@@ -90,6 +90,14 @@ Fixpoint nth_r α {R : ring α} {K : field R} {acf : algeb_closed_field K}
       nth_r n₁ f₁ L₁
   end.
 
+Search (_ # 1)%Q.
+Print Qnat.
+Search (nat → Q).
+Search (Z → Q).
+...
+Print inject_Z.
+inject_Z = λ x : Z, x # 1
+     : Z → Q
 ...
 
 Definition next_pow pow L₁ m :=
