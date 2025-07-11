@@ -201,11 +201,6 @@ assert (slope ms < slope_expr (S r, v) (k₁, αk₁)) as H. {
     rewrite Z.mul_sub_distr_l in H.
     rewrite <- Z.mul_assoc, Z.mul_comm in H.
     rewrite <- Z.mul_assoc, Z.mul_comm in H.
-Check Z.le_add_le_sub_r.
-...
-Z.le_add_le_sub_r
-     : ∀ n m p : Z, (n + p <= m)%Z ↔ (n <= m - p)%Z
-...
     apply Z.le_add_le_sub_r in H.
     apply Z.le_add_le_sub_r in H.
     apply Z.nlt_ge in H.
@@ -215,12 +210,20 @@ Z.le_add_le_sub_r
     rewrite Z.sub_diag.
     apply Z.add_pos_nonneg. {
       apply Z.mul_pos_pos. {
-        apply Z.mul_pos_pos; [ idtac | apply Pos2Z.is_pos ].
-        unfold Qlt in Hpos₀; simpl in Hpos₀.
+        apply Z.mul_pos_pos; [ | easy ].
+        apply Z.compare_lt_iff in Hpos₀; cbn in Hpos₀.
         rewrite Z.mul_1_r in Hpos₀; assumption.
       }
-      rewrite <- Pos2Z.inj_sub; [ apply Pos2Z.is_pos | idtac ].
+      rewrite <- Pos2Z.inj_sub; [ easy | ].
       apply -> Pos.compare_lt_iff.
+Search (Pos.of_nat _ ?= Pos.of_nat _)%pos.
+Check Nat2Pos.inj_compare.
+...
+Nat2Pos.inj_compare
+     : ∀ n m : nat,
+         n ≠ 0%nat
+         → m ≠ 0%nat → (n ?= m)%nat = (Pos.of_nat n ?= Pos.of_nat m)%positive
+...
       rewrite <- Nat2Pos.inj_compare. {
         apply nat_compare_lt; assumption.
       } {

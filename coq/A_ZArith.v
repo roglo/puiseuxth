@@ -3120,6 +3120,18 @@ apply (f_equal Z.opp) in He.
 now rewrite <- Z.mul_opp_r in He.
 Qed.
 
+Theorem le_add_le_sub_r : ∀ a b c, (a + b ≤ c)%Z ↔ (a ≤ c - b)%Z.
+Proof.
+intros.
+split; intros Hab. {
+  apply (Z.add_le_mono_r _ _ b).
+  now rewrite Z.sub_add.
+} {
+  apply (Z.add_le_mono_r _ _ b) in Hab.
+  now rewrite Z.sub_add in Hab.
+}
+Qed.
+
 Theorem le_sub_le_add_l : ∀ a b c, (a - b ≤ c)%Z ↔ (a ≤ b + c)%Z.
 Proof.
 intros.
@@ -3130,6 +3142,25 @@ split; intros Hab. {
   apply (Z.sub_le_mono_r _ _ b) in Hab.
   now rewrite Z.add_comm, Z.add_sub in Hab.
 }
+Qed.
+
+Theorem lt_sub_lt_add_l : ∀ a b c, (a - b < c)%Z ↔ (a < b + c)%Z.
+Proof.
+intros.
+split; intros Hab. {
+  apply (Z.sub_lt_mono_r _ _ b).
+  now rewrite Z.add_comm, Z.add_sub.
+} {
+  apply (Z.sub_lt_mono_r _ _ b) in Hab.
+  now rewrite Z.add_comm, Z.add_sub in Hab.
+}
+Qed.
+
+Theorem add_pos_nonneg : ∀ a b, (0 < a)%Z → (0 ≤ b)%Z → (0 < a + b)%Z.
+Proof.
+intros * Hza Hzb.
+apply (Z.lt_le_trans _ a); [ easy | ].
+now apply Z.le_add_r.
 Qed.
 
 End Z.
