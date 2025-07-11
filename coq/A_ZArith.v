@@ -3353,6 +3353,15 @@ intros * Hab.
 now injection Hab.
 Qed.
 
+Theorem inj_sub :
+  ∀ a b, (b < a)%pos → Z.of_pos (a - b) = (Z.of_pos a - Z.of_pos b)%Z.
+Proof.
+intros * Hba.
+progress unfold Z.sub; cbn.
+apply Pos.compare_gt_iff in Hba.
+now rewrite Hba.
+Qed.
+
 Theorem inj_mul : ∀ a b, Z.of_pos (a * b) = (Z.of_pos a * Z.of_pos b)%Z.
 Proof. easy. Qed.
 

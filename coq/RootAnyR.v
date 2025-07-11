@@ -197,17 +197,15 @@ assert (slope ms < slope_expr (S r, v) (k₁, αk₁)) as H. {
   apply Z.mul_le_mono_pos_r in H; [ | easy ].
   rewrite Z.mul_sub_distr_r in H.
   rewrite Nat2Pos.inj_sub in H; [ idtac | intros HH; discriminate HH ].
-Search (Z.of_pos (_ - _)).
-...
-Check Pos2Z.inj_sub.
-Pos2Z.inj_sub
-     : ∀ p q : positive,
-         (p < q)%positive → Z.pos (q - p) = (Z.pos q - Z.pos p)%Z
-...
   rewrite Pos2Z.inj_sub in H. {
     rewrite Z.mul_sub_distr_l in H.
     rewrite <- Z.mul_assoc, Z.mul_comm in H.
     rewrite <- Z.mul_assoc, Z.mul_comm in H.
+Check Z.le_add_le_sub_r.
+...
+Z.le_add_le_sub_r
+     : ∀ n m p : Z, (n + p <= m)%Z ↔ (n <= m - p)%Z
+...
     apply Z.le_add_le_sub_r in H.
     apply Z.le_add_le_sub_r in H.
     apply Z.nlt_ge in H.
