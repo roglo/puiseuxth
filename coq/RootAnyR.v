@@ -1752,12 +1752,12 @@ destruct (ps_zerop _ (ps_poly_nth 0 f₁)) as [H₁| H₁].
   do 2 rewrite Q.fold_q_Den.
   rewrite Z.div_mul_cancel_r; try apply Pos2Z_ne_0.
   rewrite Z.mul_add_distr_r.
-  rewrite Z.mul_mul_swap, Z.mul_assoc; simpl.
+  rewrite Z.mul_mul_swap, Z.mul_assoc.
   remember HL₁i as H; clear HeqH.
   eapply next_ns_in_f in H; try eassumption.
   rename H into HL₂i; move HL₂i before HL₂.
   remember (nd * z_pos dd * z_pos m₁)%Z as x.
-  remember (q_num αj₂ * z_pos m₁ / z_val true (q_den αj₂ * rq))%Z as y.
+  remember (q_num αj₂ * z_pos m₁ / (q_Den αj₂ * Z.of_pos rq))%Z as y.
   rename Heqy into Hy.
   assert (x <= x + y * z_pos  dd * z_pos dd)%Z as Hle.
    apply Z.le_sub_le_add_l.
@@ -1768,11 +1768,14 @@ destruct (ps_zerop _ (ps_poly_nth 0 f₁)) as [H₁| H₁].
    destruct (q_num αj₂); simpl. {
      now rewrite Z.div_0_l.
    } {
+     apply Z.div_nonneg; [ | ].
+...
+Search (0 ≤ z_val _ _)%Z.
 ...
      apply Nat2Z.is_nonneg.
 Check Z_div_pos_is_nonneg.
     apply Z_div_pos_is_nonneg.
-
+*)
     apply Z.nle_gt in Hαj₂.
     exfalso; apply Hαj₂, Pos2Z.neg_is_nonpos.
 
