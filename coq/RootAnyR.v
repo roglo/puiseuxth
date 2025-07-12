@@ -2687,7 +2687,7 @@ eapply r_n_nth_ns with (r := r) in H; try eassumption. {
       erewrite αj_m_eq_p_r with (f₁ := fb); eauto with Arith.
       rewrite Pos2Z.inj_mul, Z.mul_mul_swap, Zposnat2Znat; auto with Arith. {
         rewrite <- Z.mul_assoc.
-        rewrite <- Zposnat2Znat; simpl; try eassumption. {
+        rewrite <- Zposnat2Znat; cbn - [ Q.inv ]; try eassumption. {
           rewrite Z.mul_div; auto with Arith. {
             destruct (ps_zerop K (ps_poly_nth 0 fb₁)) as [H₁| H₁]. {
               rewrite rng_mul_0_r, rng_add_0_r, Q_q_Den_opp.
@@ -2761,9 +2761,9 @@ eapply r_n_nth_ns with (r := r) in H; try eassumption. {
             destruct H as (H₁, H); move H₁ at top; subst rcb₃.
             destruct H as (αjb₃, (αkb₃, H)).
             destruct H as (Hinib₃, (Hfinb₃, (Hαjb₃, Hαkb₃))).
-            rewrite Hinib₃, Hfinb₃; simpl.
-            rewrite Hαkb₃; simpl.
-...
+            rewrite Hinib₃, Hfinb₃; cbn - [ Q.inv ].
+            rewrite Hαkb₃; cbn - [ Q.inv ].
+            do 2 rewrite Q_q_Den_opp.
             rewrite Qnum_inv_Qnat_sub;
              [  | eapply multiplicity_pos; eassumption ].
             rewrite Qden_inv_Qnat_sub;
@@ -2773,46 +2773,52 @@ eapply r_n_nth_ns with (r := r) in H; try eassumption. {
             remember (q_den αjb₂ * Pos.of_nat r * q_den αkb₂)%pos as dd.
             rewrite Z.mul_mul_swap, Pos.mul_mul_swap.
             do 2 rewrite Pos2Z.inj_mul.
-            rewrite Z.div_mul_cancel_r; simpl; auto with Arith.
-            remember (q_num αjb₂ * z_pos (q_den αkb₂))%Z as nd.
-            assert (Hrle₂ : ∀ n, r ≤ nth_r n fb Lb).
-             intros i.
-             pose proof (Hrle₁ (i + b₁)%nat) as H.
-             rewrite nth_r_add in H.
-             rewrite <- Hfb, <- HLb in H; assumption.
-
-             remember HLbi as H; clear HeqH.
-             eapply nth_pol_in_K_1_m with (n := 1%nat) in H; eauto with Arith.
-              rename H into HKb₃.
-              erewrite αj_m_eq_p_r with (f₁ := fb₁); try eassumption;
-               eauto with Arith.
-              rewrite Z.mul_mul_swap.
-              rewrite <- z_posnat2Znat; auto with Arith.
-               rewrite <- Z.mul_assoc, <- Pos2Z.inj_mul.
-               rewrite Z.mul_div; auto with Arith.
-               unfold ps_add, ps_mul; simpl.
-               unfold cm; simpl.
-               unfold ps_terms_add; simpl.
-               unfold ps_ordnum_add; simpl.
-               rewrite Z.mul_add_distr_r.
-               rewrite Pos2Z.inj_mul, Z.mul_assoc, Z.mul_mul_swap.
-               remember (nd * z_pos m₁ * z_pos dd)%Z as x.
-               remember (p_of_m m₁ (γ Lb₁)) as pb₃ eqn:Hpb₃ .
-               remember Hinib₃ as H; clear HeqH.
-               eapply p_is_pos with (m := m₁) in H; eauto with Arith.
-                rewrite <- Hpb₃ in H.
-                rename H into Hpb₃pos.
-                assert (Hle : (x <= x + pb₃ * z_pos dd * z_pos dd)%Z).
-                 apply Z.le_sub_le_add_l.
-                 rewrite Z.sub_diag.
-                 apply Z.mul_nonneg_nonneg; auto with Arith.
-                 apply Z.mul_nonneg_nonneg; auto with Arith.
-
-                 apply Z.lt_le_incl; assumption.
-
-                 rewrite Z.min_l; auto with Arith.
-                 rewrite Z.min_r; auto with Arith.
-                 rewrite Z.add_simpl_l, Z.sub_diag; simpl.
+            rewrite Z.div_mul_cancel_r; simpl; auto with Arith. {
+              remember (q_num αjb₂ * q_Den αkb₂)%Z as nd.
+              assert (Hrle₂ : ∀ n, (r <= nth_r n fb Lb)%nat). {
+                intros i.
+                pose proof (Hrle₁ (i + b₁)%nat) as H.
+                rewrite nth_r_add in H.
+                rewrite <- Hfb, <- HLb in H; assumption.
+              }
+              remember HLbi as H; clear HeqH.
+              eapply nth_pol_in_K_1_m with (n := 1%nat) in H;
+                eauto with Arith. {
+                rename H into HKb₃.
+                erewrite αj_m_eq_p_r with (f₁ := fb₁); try eassumption;
+                  eauto with Arith.
+                rewrite Z.mul_mul_swap.
+                rewrite <- Zposnat2Znat; auto with Arith. {
+                  rewrite <- Z.mul_assoc, <- Pos2Z.inj_mul.
+                  rewrite Z.mul_div; auto with Arith. {
+                    unfold ps_add, ps_mul; simpl.
+                    unfold cm; simpl.
+                    unfold ps_terms_add; simpl.
+                    unfold ps_ordnum_add; simpl.
+                    rewrite Z.mul_add_distr_r.
+                    rewrite Pos2Z.inj_mul, Z.mul_assoc, Z.mul_mul_swap.
+                    progress unfold Z.of_pos.
+                    remember (nd * z_pos m₁ * z_pos dd)%Z as x.
+                    remember (p_of_m m₁ (γ Lb₁)) as pb₃ eqn:Hpb₃ .
+                    remember Hinib₃ as H; clear HeqH.
+                    eapply p_is_pos with (m := m₁) in H; eauto with Arith. {
+                      rewrite <- Hpb₃ in H.
+                      rename H into Hpb₃pos.
+                      assert (Hle : (x <= x + pb₃ * z_pos dd * z_pos dd)%Z). {
+                        apply Z.le_sub_le_add_l.
+                        rewrite Z.sub_diag.
+                        apply Z.mul_nonneg_nonneg; auto with Arith. {
+                          apply Z.mul_nonneg_nonneg; auto with Arith. {
+                            now apply Z.lt_le_incl.
+                          }
+                          easy.
+                        }
+                        easy.
+                      }
+                      rewrite Z.min_l; auto with Arith.
+                      rewrite Z.min_r; auto with Arith.
+...
+                      rewrite Z.add_simpl_l, Z.sub_diag; simpl.
                  rewrite Pos.mul_assoc.
                  rewrite ps_adjust_eq with (n := O) (k := (dd * dd)%pos).
                  unfold adjust_ps; simpl.
