@@ -756,6 +756,18 @@ progress unfold Pos.to_nat; cbn.
 now apply Nat.sub_add.
 Qed.
 
+Theorem inj_lt : ∀ a b, (a < b)%pos ↔ Pos.to_nat a < Pos.to_nat b.
+Proof.
+intros.
+progress unfold Pos.lt.
+destruct a as (a).
+destruct b as (b).
+cbn.
+split; intros Hab.
+now apply Nat.add_lt_mono_r.
+now apply Nat.add_lt_mono_r in Hab.
+Qed.
+
 End Pos2Nat.
 
 Global Hint Resolve Pos.to_nat_neq_0 : core.

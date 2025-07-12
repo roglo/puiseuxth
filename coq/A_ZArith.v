@@ -3404,6 +3404,34 @@ cbn - [ Z.to_nat ].
 apply Pos2Nat.inj_mul.
 Qed.
 
+Theorem inj_lt :
+  ∀ a b, (0 ≤ a)%Z → (0 ≤ b)%Z → (a < b)%Z ↔ Z.to_nat a < Z.to_nat b.
+Proof.
+intros * Ha Hb.
+split; intros Hab. {
+  destruct a as [| sa va]. {
+    destruct b as [| sb vb]; [ easy | ].
+    destruct sb; [ cbn | easy ].
+    apply Pos2Nat.is_pos.
+  }
+  destruct sa; [ | easy ].
+  destruct b as [| sb vb]; [ easy | ].
+  destruct sb; [ cbn | easy ].
+  apply Pos2Nat.inj_lt.
+  now apply Pos.compare_lt_iff in Hab.
+} {
+  destruct a as [| sa va]. {
+    destruct b as [| sb vb]; [ easy | ].
+    now destruct sb.
+  }
+  destruct sa; [ | easy ].
+  destruct b as [| sb vb]; [ easy | ].
+  destruct sb; [ cbn | easy ].
+  apply Pos2Nat.inj_lt in Hab.
+  now apply Pos.compare_lt_iff.
+}
+Qed.
+
 End Z2Nat.
 
 Module Pos2Z.

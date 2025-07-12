@@ -2115,14 +2115,12 @@ induction i; intros.
  eapply nth_ns_n; try eassumption; reflexivity.
 Qed.
 
-...
-
 Theorem non_decr_imp_eq : ∀ f L b r,
   newton_segments f = Some L
   → zerop_1st_n_const_coeff b f L = false
   → nth_r 0 f L = r
-  → (∀ i, r ≤ nth_r i f L)
-  → ∀ n : nat, n ≤ b → nth_r n f L = r.
+  → (∀ i, (r <= nth_r i f L)%nat)
+  → ∀ n : nat, (n <= b)%nat → nth_r n f L = r.
 Proof.
 intros f L b r HL Hz Hr Hri n Hnb.
 revert f L n HL Hz Hr Hri Hnb.
@@ -2131,7 +2129,7 @@ destruct n; [ assumption | ].
 apply le_S_n in Hnb.
 remember Hz as H; clear HeqH.
 rewrite zerop_1st_n_const_coeff_succ2 in H.
-apply orb_false_iff in H.
+apply Bool.orb_false_iff in H.
 destruct H as (Hz₁, _).
 remember HL as H; clear HeqH.
 eapply all_L_in_newton_segments in H; try eassumption.
@@ -2207,7 +2205,7 @@ eapply next_pol_in_K_1_mq in HL; try eassumption; reflexivity.
 Qed.
 
 Theorem multiplicity_pos : ∀ f L r,
-  (∀ i : nat, i ≤ 1 → nth_r i f L = r)
+  (∀ i : nat, (i <= 1)%nat → nth_r i f L = r)
   → newton_segments f = Some L
   → (0 < r)%nat.
 Proof.
@@ -2221,10 +2219,10 @@ Theorem not_zerop_imp_in_newton_segment : ∀ f L f₁ L₁ r b,
   newton_segments f = Some L
   → f₁ = next_pol f (β L) (γ L) (ac_root (Φq f L))
   → L₁ = option_get phony_ns (newton_segments f₁)
-  → (∀ i : nat, i ≤ 1 → nth_r i f L = r)
-  → (∀ n : nat, r ≤ nth_r n f L)
+  → (∀ i : nat, (i <= 1)%nat → nth_r i f L = r)
+  → (∀ n : nat, (r <= nth_r n f L)%nat)
   → zerop_1st_n_const_coeff (S b) f₁ L₁ = false
-  → ∀ n, n ≤ S b
+  → ∀ n, (n <= S b)%nat
   → newton_segments (nth_pol n f₁ L₁) = Some (nth_ns n f₁ L₁).
 Proof.
 intros f L f₁ L₁ r b HL Hf₁ HL₁ Hri Hrle Hz₁.
@@ -2252,10 +2250,10 @@ Theorem not_zerop_imp_nth_r_eq_r : ∀ f L f₁ L₁ r b,
   → f₁ = next_pol f (β L) (γ L) (ac_root (Φq f L))
   → L₁ = option_get phony_ns (newton_segments f₁)
   → (ps_poly_nth 0 f₁ ≠ 0)%ps
-  → (∀ i : nat, i ≤ 1 → nth_r i f L = r)
+  → (∀ i : nat, (i <= 1)%nat → nth_r i f L = r)
   → zerop_1st_n_const_coeff b (nth_pol 1 f₁ L₁) (nth_ns 1 f₁ L₁) = false
-  → (∀ n : nat, r ≤ nth_r n f L)
-  → ∀ n : nat, n ≤ S b → nth_r n f₁ L₁ = r.
+  → (∀ n : nat, (r <= nth_r n f L)%nat)
+  → ∀ n : nat, (n <= S b)%nat → nth_r n f₁ L₁ = r.
 Proof.
 intros f L f₁ L₁ r b HL Hf₁ HL₁ Hnz₁ Hri Hpsi Hrle.
 apply non_decr_imp_eq; try eassumption.
@@ -2320,7 +2318,7 @@ Theorem nth_root_tail_const_plus_tail :
   → Lb₁ = option_get phony_ns (newton_segments fb₁)
   → (ps_poly_nth 0 fb ≠ 0)%ps
   → (ps_poly_nth 0 fb₁ ≠ 0)%ps
-  → (∀ n, r ≤ nth_r n fb Lb)
+  → (∀ n, (r <= nth_r n fb Lb)%nat)
   → root_multiplicity acf (ac_root (Φq fb Lb)) (Φq fb Lb) = r
   → root_multiplicity acf (ac_root (Φq fb₁ Lb₁)) (Φq fb₁ Lb₁) = r
   → pol_in_K_1_m fb m
@@ -2595,8 +2593,8 @@ Theorem root_tail_from_0_const_r : ∀ f L c f₁ L₁ c₁ m q₀ b r,
   → f₁ = next_pol f (β L) (γ L) c
   → L₁ = option_get phony_ns (newton_segments f₁)
   → c₁ = ac_root (Φq f₁ L₁)
-  → (∀ i, i ≤ 1%nat → nth_r i f L = r)
-  → (∀ n, r ≤ nth_r n f L)
+  → (∀ i, (i <= 1)%nat → nth_r i f L = r)
+  → (∀ n, (r <= nth_r n f L)%nat)
   → (root_tail (m * q₀) b f₁ L₁ =
      root_head b 0 f₁ L₁ +
        ps_monom 1%K (γ_sum b 0 f₁ L₁) *
@@ -2618,7 +2616,7 @@ destruct z₁.
  remember (option_get phony_ns (newton_segments f₂)) as L₂ eqn:HL₂ .
  assert
   (Hain :
-   ∀ n, n ≤ S b
+   ∀ n, (n <= S b)%nat
    → newton_segments (nth_pol n f₁ L₁) = Some (nth_ns n f₁ L₁)).
   subst c; eapply not_zerop_imp_in_newton_segment; eassumption.
 
@@ -2629,10 +2627,10 @@ destruct z₁.
   remember (ps_poly_nth 0 f₁) as y.
   destruct (ps_zerop K y) as [| Hnz₁]; [ discriminate Hz₁ | subst y ].
   clear Hz₁.
-  assert (Hreq : ∀ n, n ≤ S b → nth_r n f₁ L₁ = r).
+  assert (Hreq : ∀ n, (n <= S b)%nat → nth_r n f₁ L₁ = r).
    subst c; eapply not_zerop_imp_nth_r_eq_r; eassumption.
 
-   assert (∀ i, i ≤ S b → (ps_poly_nth 0 (nth_pol i f₁ L₁) ≠ 0)%ps).
+   assert (∀ i, (i <= S b)%nat → (ps_poly_nth 0 (nth_pol i f₁ L₁) ≠ 0)%ps).
     apply not_zero_1st_prop; assumption.
 
     clear Hpsi; rename H into Hpsi.
@@ -2666,6 +2664,7 @@ destruct z₁.
      remember (nth_ns b₁ f₂ L₂) as Lb₁ eqn:HLb₁ .
      rewrite Hinib₂, Hfinb₂; simpl.
      rewrite Hαkb₂; simpl.
+...
      rewrite Qnum_inv_Qnat_sub; [  | eapply multiplicity_pos; eassumption ].
      rewrite Qden_inv_Qnat_sub; [  | eapply multiplicity_pos; eassumption ].
      rewrite Z.add_0_r, Z.mul_1_r, Nat.sub_0_r.
