@@ -2991,6 +2991,22 @@ rewrite Z.mul_mul_swap.
 now exists (d * c)%Z.
 Qed.
 
+Theorem mul_divide_mono_l : ∀ a b c, (b | c)%Z → (a * b | a * c)%Z.
+Proof.
+intros * Hbc.
+destruct Hbc as (d, Hd); subst c.
+rewrite (Z.mul_comm d), Z.mul_assoc.
+exists d.
+apply Z.mul_comm.
+Qed.
+
+Theorem mul_divide_mono_r : ∀ a b c, (a | b)%Z → (a * c | b * c)%Z.
+Proof.
+intros * Hab.
+do 2 rewrite (Z.mul_comm _ c).
+now apply Z.mul_divide_mono_l.
+Qed.
+
 Theorem div_nonneg : ∀ a b, (0 ≤ a)%Z → (0 < b)%Z → (0 ≤ a / b)%Z.
 Proof.
 intros * Hza Hzb.
