@@ -2723,6 +2723,14 @@ apply Nat.Div0.div_mul_cancel_l.
 now rewrite Nat.add_1_r.
 Qed.
 
+Theorem div_mul_cancel_r :
+  ∀ a b c, b ≠ 0%Z → c ≠ 0%Z → (a * c / (b * c))%Z = (a / b)%Z.
+Proof.
+intros * Hbz Hcz.
+do 2 rewrite (Z.mul_comm _ c).
+now apply Z.div_mul_cancel_l.
+Qed.
+
 Theorem abs_0_iff: ∀ a, Z.abs a = 0%Z ↔ a = 0%Z.
 Proof.
 intros.
@@ -3304,6 +3312,18 @@ destruct (Z.le_dec 0 a) as [Hza| Hza]; [ now apply Z2Nat.id | ].
 apply Z.nle_gt in Hza.
 destruct a as [| sa va]; [ easy | now destruct sa ].
 Qed.
+
+Theorem inj : ∀ a b, (0 ≤ a)%Z → (0 ≤ b)%Z → Z.to_nat a = Z.to_nat b → a = b.
+Proof.
+intros * Haz Hbz Hab.
+apply (f_equal Z.of_nat) in Hab.
+rewrite Z2Nat.id in Hab; [ | easy ].
+rewrite Z2Nat.id in Hab; [ | easy ].
+easy.
+Qed.
+
+Theorem inj_0 : Z.to_nat 0 = 0%nat.
+Proof. easy. Qed.
 
 Theorem inj_add :
   ∀ a b,

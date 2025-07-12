@@ -732,6 +732,13 @@ rewrite Nat.add_comm.
 apply Nat.lt_0_succ.
 Qed.
 
+Theorem inj : ∀ a b, Pos.to_nat a = Pos.to_nat b → a = b.
+Proof.
+intros * Hab.
+apply (f_equal Pos.of_nat) in Hab.
+now do 2 rewrite Pos.of_nat_to_nat in Hab.
+Qed.
+
 Theorem inj_add :
   ∀ a b, Pos.to_nat (a + b) = Pos.to_nat a + Pos.to_nat b.
 Proof.
