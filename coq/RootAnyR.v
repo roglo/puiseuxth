@@ -3551,8 +3551,6 @@ rewrite <- Hc, <- Hf₁, <- HL₁.
 apply Hrle₁.
 Qed.
 
-...
-
 Theorem root_tail_sep_1st_monom_any_r : ∀ f L f₁ L₁ c m q₀ n r,
   newton_segments f = Some L
   → pol_in_K_1_m f m
@@ -3560,9 +3558,9 @@ Theorem root_tail_sep_1st_monom_any_r : ∀ f L f₁ L₁ c m q₀ n r,
   → c = ac_root (Φq f L)
   → f₁ = next_pol f (β L) (γ L) c
   → L₁ = option_get phony_ns (newton_segments f₁)
-  → (∀ i, (i ≤ S n)%nat → (ps_poly_nth 0 (nth_pol i f L) ≠ 0)%ps)
-  → (∀ i, i ≤ 1%nat → nth_r i f L = r)
-  → (∀ i, r ≤ nth_r i f L)
+  → (∀ i, (i <= S n)%nat → (ps_poly_nth 0 (nth_pol i f L) ≠ 0)%ps)
+  → (∀ i, (i <= 1)%nat → nth_r i f L = r)
+  → (∀ i, (r <= nth_r i f L)%nat)
   → (root_tail (m * q₀) n f₁ L₁ =
        ps_monom (nth_c n f₁ L₁) (nth_γ n f₁ L₁) +
        ps_monom 1%K (nth_γ n f₁ L₁) *
@@ -3576,18 +3574,18 @@ destruct z₁.
  rewrite Hpsi in Hz.
  discriminate Hz.
 
- assert (∀ i, i ≤ S n → nth_r i f L = r) as H.
+ assert (∀ i, (i <= S n)%nat → nth_r i f L = r) as H.
   apply non_decr_imp_eq; auto with Arith.
 
   clear Hri; rename H into Hri; move Hri before Hrle.
-  assert (∀ i, i ≤ n → (ps_poly_nth 0 (nth_pol i f₁ L₁) ≠ 0)%ps) as H.
+  assert (∀ i, (i <= n)%nat → (ps_poly_nth 0 (nth_pol i f₁ L₁) ≠ 0)%ps) as H.
    intros i Hin.
    apply Nat.succ_le_mono in Hin.
    apply Hpsi in Hin; simpl in Hin.
    rewrite <- Hc, <- Hf₁, <- HL₁ in Hin; assumption.
 
    rename H into Hpsi₁; move Hpsi₁ before Hpsi.
-   assert (∀ j, r ≤ nth_r j f₁ L₁) as H.
+   assert (∀ j, (r <= nth_r j f₁ L₁)%nat) as H.
     intros j.
     pose proof (Hrle (S j)) as H; simpl in H.
     rewrite <- Hc, <- Hf₁, <- HL₁ in H; assumption.
@@ -3602,8 +3600,8 @@ Theorem root_tail_when_r_r : ∀ f L f₁ L₁ m q₀ b r n,
   → q₀ = q_of_m m (γ L)
   → f₁ = next_pol f (β L) (γ L) (ac_root (Φq f L))
   → L₁ = option_get phony_ns (newton_segments f₁)
-  → (∀ i, i ≤ 1%nat → nth_r i f L = r)
-  → (∀ n, r ≤ nth_r n f L)
+  → (∀ i, (i <= 1)%nat → nth_r i f L = r)
+  → (∀ n, (r <= nth_r n f L)%nat)
   → zerop_1st_n_const_coeff (S n) f L = false
   → (root_tail (m * q₀) b f₁ L₁ =
      root_head b n f₁ L₁ +
@@ -3702,11 +3700,11 @@ Theorem β_lower_bound_r_const : ∀ f L f₁ L₁ m r η,
   → (0 < r)%nat
   → f₁ = next_pol f (β L) (γ L) (ac_root (Φq f L))
   → L₁ = option_get phony_ns (newton_segments f₁)
-  → (∀ i, r ≤ nth_r i f L)
+  → (∀ i, (r <= nth_r i f L)%nat)
   → η = 1 # (2 * m * q_of_m m (γ L))
   → ∀ n Ln,
     zerop_1st_n_const_coeff n f₁ L₁ = false
-    → (∀ i, i ≤ S n → nth_r i f L = r)
+    → (∀ i, (i <= S n)%nat → nth_r i f L = r)
     → Ln = nth_ns n f₁ L₁
     → η < β Ln.
 Proof.
@@ -3726,10 +3724,10 @@ eapply next_pol_in_K_1_mq in H; try eassumption; eauto with Arith.
 rename H into HK₁.
 pose proof (Hnz O (Nat.le_0_l n)) as Hnz₀.
 simpl in Hnz₀.
-assert (0 ≤ S n)%nat as H by apply Nat.le_0_l.
+assert (0 <= S n)%nat as H by apply Nat.le_0_l.
 apply Hri in H; simpl in H.
 rename H into Hr₀.
-assert (1 ≤ S n)%nat as H by apply le_n_S, Nat.le_0_l.
+assert (1 <= S n)%nat as H by apply le_n_S, Nat.le_0_l.
 apply Hri in H; simpl in H.
 rewrite <- Hf₁, <- HL₁ in H.
 rename H into Hr₁.
@@ -3755,6 +3753,7 @@ eapply first_n_pol_in_K_1_m_any_r with (L := L₁) in H; eauto with Arith.
  unfold mh_of_m.
  erewrite <- qden_αj_is_ps_polydo; try eassumption; eauto with Arith.
  remember (2 * m₁)%pos as m₂.
+...
  unfold Qlt; simpl; subst m₂.
  clear H.
  assert (0 < q_num αjn * z_pos m₁ / z_pos (q_den αjn))%Z as H.
