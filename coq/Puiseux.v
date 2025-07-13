@@ -1,5 +1,6 @@
 (* Puiseux.v *)
 
+Set Nested Proofs Allowed.
 From Stdlib Require Import Utf8 Arith Sorting.
 
 Require Import A_PosArith A_ZArith A_QArith.
@@ -439,66 +440,39 @@ assert (Hrle : ∀ n : nat, (S r <= nth_r n f L)%nat).
     rewrite Z.mul_comm.
     rewrite Z2Nat_inj_mul_pos_r.
     apply Z.compare_le_iff; cbn.
-(**)
-progress unfold q_Den; cbn.
-rewrite Pos.mul_1_r.
+    progress unfold q_Den; cbn.
     rewrite Pos.mul_1_l.
-    rewrite Pos2Z.inj_mul.
-    rewrite Zposnat2Znat; [ | easy ].
-    rewrite Nat2Z.inj_succ.
-rewrite Nat2Z.inj_mul.
-    remember (q_num ofs) as nofs eqn:Hnofs .
-    symmetry in Hnofs.
-    destruct nofs as [| snofs vnofs]; simpl; auto with Arith; [ easy | ].
-destruct snofs. {
-  cbn.
-  do 2 rewrite Z.pos_nat.
-  rewrite <- Pos2Z.inj_mul.
-  eapply Z.le_trans.
-...
-      rewrite Z.one_succ.
-      apply Zlt_le_succ.
-      apply Pos2Z.is_pos.
-...
-
-rewrite Z2Nat.id.
-rewrite Z.pos_nat.
-...
-    rewrite Z2Nat.inj_add.
-rewrite Z2Nat.id.
-    rewrite Nat2Z.id.
-...
-Zpos_P_of_succ_nat
-     : ∀ n : nat, Z.pos (Pos.of_succ_nat n) = Z.succ (Z.of_nat n)
-...
-    rewrite Zpos_P_of_succ_nat.
-...
     rewrite Pos.mul_1_r.
     rewrite Pos2Z.inj_mul.
-    rewrite Zpos_P_of_succ_nat.
+    rewrite Q.fold_q_Den.
+    rewrite Zposnat2Znat; [ | easy ].
+    rewrite Nat2Z.inj_succ.
+    rewrite Z.add_comm.
     rewrite Nat2Z.inj_mul.
-    remember (Qnum ofs) as nofs eqn:Hnofs .
+    remember (q_num ofs) as nofs eqn:Hnofs .
     symmetry in Hnofs.
-    destruct nofs as [| nofs| nofs]; simpl; auto with Arith.
-     rewrite positive_nat_Z.
-     rewrite Z.mul_succ_l.
-     rewrite positive_nat_Z.
-     rewrite <- Pos2Z.inj_mul.
-     rewrite <- Z.mul_1_r at 1.
-     eapply Z.le_trans.
-      apply Z.mul_le_mono_nonneg_l with (m := (Zpos (Qden ofs))%Z);
-        auto with Arith.
+    destruct nofs as [| snofs vnofs]; [ easy | ].
+    destruct snofs; [ | easy ].
+    cbn - [ Z.add ].
+    do 2 rewrite Z.pos_nat.
+    cbn.
+    rewrite Pos.add_comm.
+    rewrite Pos.mul_add_distr_r.
+    rewrite Pos.mul_1_l.
+    rewrite Pos2Z.inj_add.
+    rewrite (Pos2Z.inj_mul (_ * _)).
+    rewrite Q.fold_q_Den.
+    rewrite <- Z.mul_1_r at 1.
+    eapply Z.le_trans.
+      apply (Z.mul_le_mono_nonneg_l _ _ (z_pos (q_den ofs))%Z); [ easy | ].
+      apply Z.divide_pos_le; [ easy | ].
+      exists (z_pos (q_den ofs)).
+      symmetry; apply Z.mul_1_r.
 
-      rewrite Z.one_succ.
-      apply Zlt_le_succ.
-      apply Pos2Z.is_pos.
+      rewrite Q.fold_q_Den.
+      now apply Z.le_add_r.
 
-      apply Z.le_sub_le_add_l.
-      rewrite Z.sub_diag; apply Pos2Z.is_nonneg.
-
-     apply Zle_neg_pos.
-
-    apply Qlt_not_le in Hou; contradiction .
+    now apply Q.nle_gt in Hou.
 Qed.
 
 Definition f₁_root_when_r_constant f L :=
@@ -511,7 +485,7 @@ Definition f₁_root_when_r_constant f L :=
     let s := root_tail (m * q₀) 0 f₁ L₁ in
     match order (ps_pol_apply f₁ s) with
     | qfin ofs =>
-        let N := Z.to_nat (2 * Zpos m * Zpos q₀ * Qnum ofs) in
+        let N := Z.to_nat (2 * z_pos m * z_pos q₀ * q_num ofs) in
         if zerop_1st_n_const_coeff N f₁ L₁ then
           match lowest_with_zero_1st_const_coeff acf N f₁ L₁ with
           | O => 0%ps
@@ -544,7 +518,7 @@ destruct (fld_zerop 1%K) as [H₀| H₀].
 
  remember (order (ps_pol_apply f₁ s)) as ofs eqn:Hofs .
  destruct ofs as [ofs| ].
-  remember (Z.to_nat (2 * Zpos m * Zpos q₀ * Qnum ofs)) as N eqn:HN .
+  remember (Z.to_nat (2 * z_pos m * z_pos q₀ * q_num ofs)) as N eqn:HN .
   remember (zerop_1st_n_const_coeff N f₁ L₁) as z eqn:Hz .
   symmetry in Hz.
   destruct z.
@@ -568,7 +542,7 @@ destruct (fld_zerop 1%K) as [H₀| H₀].
    symmetry in Hr.
    pose proof (multiplicity_neq_0 acf f HL Hc) as H.
    destruct r; [ contradiction | ].
-   revert Hz; apply not_false_iff_true.
+   revert Hz; apply Bool.not_false_iff_true.
    eapply upper_bound_zerop_1st_when_r_constant; try eassumption.
    rewrite Hofs, Hs; reflexivity.
 

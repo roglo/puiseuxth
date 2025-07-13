@@ -3506,6 +3506,9 @@ intros * Hab.
 now injection Hab.
 Qed.
 
+Theorem inj_add: ∀ a b, Z.of_pos (a + b) = (Z.of_pos a + Z.of_pos b)%Z.
+Proof. easy. Qed.
+
 Theorem inj_sub :
   ∀ a b, (b < a)%pos → Z.of_pos (a - b) = (Z.of_pos a - Z.of_pos b)%Z.
 Proof.

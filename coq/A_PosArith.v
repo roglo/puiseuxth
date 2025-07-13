@@ -315,6 +315,14 @@ apply Nat.le_add_le_sub_l.
 now apply Nat.add_le_mono.
 Qed.
 
+Theorem mul_add_distr_r : ∀ a b c, ((a + b) * c = a * c + b * c)%pos.
+Proof.
+intros.
+rewrite Pos.mul_comm.
+do 2 rewrite (Pos.mul_comm _ c).
+apply Pos.mul_add_distr_l.
+Qed.
+
 Theorem le_sub_1 : ∀ a b, (a ≤ b + 1 → a - b = 1)%pos.
 Proof.
 progress unfold Pos.sub, Pos.le.
