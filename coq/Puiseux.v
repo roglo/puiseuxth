@@ -756,24 +756,24 @@ Theorem puiseux_series_algeb_closed : ∀ (f : polynomial (puiseux_series α)),
   → ∃ s, (ps_pol_apply f s = 0)%ps.
 Proof.
 intros f Hdeg.
-destruct (ps_zerop _ (ps_poly_nth 0 f)) as [Hz| Hnz].
- exists 0%ps.
- unfold ps_pol_apply, apply_poly, apply_lap; simpl.
- unfold ps_poly_nth, ps_lap_nth in Hz; simpl in Hz.
- remember (al f) as la eqn:Hla .
- symmetry in Hla.
- destruct la as [| a]; [ reflexivity | simpl in Hz; simpl ].
- rewrite rng_mul_0_r, rng_add_0_l; assumption.
-
- specialize (degree_pos_imp_has_ns f Hdeg Hnz) as (L, HL).
- remember (ac_root (Φq f L)) as c eqn:Hc .
- remember (next_pol f (β L) (γ L) c) as f₁ eqn:Hf₁ .
- rewrite Hc in Hf₁.
- specialize (f₁_has_root HL Hnz Hf₁) as (s₁, Hs₁).
- exists (ps_monom c (γ L) + ps_monom 1%K (γ L) * s₁)%ps.
- eapply f₁_root_f_root; eauto .
- rewrite <- Hc.
- reflexivity.
+destruct (ps_zerop _ (ps_poly_nth 0 f)) as [Hz| Hnz]. {
+  exists 0%ps.
+  unfold ps_pol_apply, apply_poly, apply_lap; simpl.
+  unfold ps_poly_nth, ps_lap_nth in Hz; simpl in Hz.
+  remember (al f) as la eqn:Hla .
+  symmetry in Hla.
+  destruct la as [| a]; [ reflexivity | simpl in Hz; simpl ].
+  rewrite rng_mul_0_r, rng_add_0_l; assumption.
+}
+specialize (degree_pos_imp_has_ns f Hdeg Hnz) as (L, HL).
+remember (ac_root (Φq f L)) as c eqn:Hc .
+remember (next_pol f (β L) (γ L) c) as f₁ eqn:Hf₁ .
+rewrite Hc in Hf₁.
+specialize (f₁_has_root HL Hnz Hf₁) as (s₁, Hs₁).
+exists (ps_monom c (γ L) + ps_monom 1%K (γ L) * s₁)%ps.
+eapply f₁_root_f_root; eauto .
+rewrite <- Hc.
+reflexivity.
 Qed.
 
 End theorems.
