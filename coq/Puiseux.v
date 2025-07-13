@@ -2,6 +2,7 @@
 
 From Stdlib Require Import Utf8 Arith Sorting.
 
+Require Import A_PosArith A_QArith.
 Require Import Misc.
 Require Import SlopeMisc.
 Require Import Slope_base.
@@ -57,8 +58,8 @@ Theorem order_root_tail_nonneg_any_r_aux : ∀ f L c f₁ L₁ m q₀ n r,
   → c = ac_root (Φq f L)
   → f₁ = next_pol f (β L) (γ L) c
   → L₁ = option_get phony_ns (newton_segments f₁)
-  → (∀ i, i ≤ S n → (ps_poly_nth 0 (nth_pol i f L) ≠ 0)%ps)
-  → (∀ i, i ≤ S n → nth_r i f L = r)
+  → (∀ i, (i <= S n)%nat → (ps_poly_nth 0 (nth_pol i f L) ≠ 0)%ps)
+  → (∀ i, (i <= S n)%nat → nth_r i f L = r)
   → (0 ≤ order (root_tail (m * q₀) n f₁ L₁))%Qbar.
 Proof.
 intros f L c f₁ L₁ m q₀ n r HL Hm Hq₀ Hc Hf₁ HL₁ Hpsi Hri.
@@ -96,11 +97,12 @@ induction n; intros. {
   rename H into HL₁i; move HL₁i before HL₁.
   remember HL as H; clear HeqH.
   eapply next_pol_in_K_1_mq in H; try eassumption .
-  remember (m * q₀)%positive as m₁ eqn:Hm₁.
+  remember (m * q₀)%pos as m₁ eqn:Hm₁.
   rename H into HK₁; move HK₁ before Hnz₁.
   move Hm₁ before Hq₀.
   rewrite Hini₁, Hfin₁; simpl.
   rewrite Hαk₁; simpl.
+...
   rewrite Qnum_inv_Qnat_sub; [ | apply Hrpos ].
   rewrite Qden_inv_Qnat_sub; [ | apply Hrpos ].
   rewrite Z.add_0_r, Z.mul_1_r.
@@ -131,8 +133,8 @@ remember (option_get phony_ns (newton_segments f₂)) as L₂ eqn:HL₂ .
 destruct (ps_zerop K (ps_poly_nth 0 f₁)) as [H₁| H₁]. {
   discriminate Hz₁.
 }
-remember (m * q₀)%positive as m₁ eqn:Hm₁ .
-replace m₁ with (m₁ * 1)%positive by apply Pos.mul_1_r.
+remember (m * q₀)%pos as m₁ eqn:Hm₁ .
+replace m₁ with (m₁ * 1)%pos by apply Pos.mul_1_r.
 pose proof (Hri 0%nat (Nat.le_0_l (S (S n)))) as H.
 simpl in H; rewrite <- Hc in H.
 rename H into Hr₀; move Hr₀ before Hc.
@@ -434,7 +436,7 @@ assert (Hrle : ∀ n : nat, S r ≤ nth_r n f L).
     rewrite Hη, HN.
     rewrite <- Pos2Z.inj_mul.
     rewrite <- Pos2Z.inj_mul.
-    remember (2 * m * q₀)%positive as mq eqn:Hmq .
+    remember (2 * m * q₀)%pos as mq eqn:Hmq .
     rewrite Z.mul_comm.
     rewrite Z2Nat_inj_mul_pos_r.
     unfold Qle; simpl.
