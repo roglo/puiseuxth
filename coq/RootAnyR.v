@@ -3753,21 +3753,26 @@ eapply first_n_pol_in_K_1_m_any_r with (L := L₁) in H; eauto with Arith.
  unfold mh_of_m.
  erewrite <- qden_αj_is_ps_polydo; try eassumption; eauto with Arith.
  remember (2 * m₁)%pos as m₂.
-...
- unfold Qlt; simpl; subst m₂.
+ apply Z.compare_lt_iff; cbn; subst m₂.
+ rewrite Pos.mul_1_l, q_Den_num_den.
  clear H.
  assert (0 < q_num αjn * z_pos m₁ / z_pos (q_den αjn))%Z as H.
   apply Z2Nat.inj_lt; [ reflexivity | idtac | idtac ].
-   apply Z.div_pos; [ idtac | apply Pos2Z.is_pos ].
-   apply Z.mul_nonneg_nonneg; auto with Arith.
+   apply Z.div_nonneg; [ idtac | easy ].
+   apply Z.mul_nonneg_nonneg; auto with Arith; [ | easy ].
    apply Z.lt_le_incl; assumption.
 
    eapply num_m_den_is_pos with (L := Ln); try eassumption.
 
   rewrite Pos2Z.inj_mul, Z.mul_assoc.
-  replace (z_pos m₁)%Z with (1 * z_pos m₁)%Z at 1 by reflexivity.
-  apply Z.mul_lt_mono_pos_r; [ apply Pos2Z.is_pos | idtac ].
+  rewrite <- (Z.mul_1_l (z_val true m₁)).
+  apply Z.mul_lt_mono_pos_r; [ easy | ].
   rewrite Z.mul_comm.
+Search (1 < _ * _)%Z.
+Check Z.lt_1_mul_pos.
+Z.lt_1_mul_pos
+     : ∀ n m : Z, (1 < n)%Z → (0 < m)%Z → (1 < n * m)%Z
+...
   apply Z.lt_1_mul_pos; auto with Arith.
   apply Z.lt_1_2.
 
