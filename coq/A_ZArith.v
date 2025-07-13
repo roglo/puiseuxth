@@ -2984,11 +2984,31 @@ destruct Hab as (c, Hc); subst a.
 now apply Z.mod_mul.
 Qed.
 
+Theorem divide_factor_l : ∀ a b, (a | a * b)%Z.
+Proof.
+intros.
+exists b.
+apply Z.mul_comm.
+Qed.
+
+Theorem divide_factor_r : ∀ a b, (b | a * b)%Z.
+Proof.
+intros.
+now exists a.
+Qed.
+
 Theorem divide_mul_l : ∀ a b c, (a | b)%Z → (a | b * c)%Z.
 Proof.
 intros * (d, Hab); subst.
 rewrite Z.mul_mul_swap.
 now exists (d * c)%Z.
+Qed.
+
+Theorem divide_mul_r : ∀ a b c, (a | c)%Z → (a | b * c)%Z.
+Proof.
+intros * (d, Hab); subst.
+rewrite Z.mul_assoc.
+now exists (b * d)%Z.
 Qed.
 
 Theorem mul_divide_mono_l : ∀ a b c, (b | c)%Z → (a * b | a * c)%Z.
@@ -3005,6 +3025,27 @@ Proof.
 intros * Hab.
 do 2 rewrite (Z.mul_comm _ c).
 now apply Z.mul_divide_mono_l.
+Qed.
+
+Theorem mul_divide_cancel_l :
+  ∀ a b c, a ≠ 0%Z → (a * b | a * c)%Z ↔ (b | c)%Z.
+Proof.
+intros * Hcz.
+split; [ | apply Z.mul_divide_mono_l ].
+intros (d, Hd).
+rewrite (Z.mul_comm d) in Hd.
+rewrite <- Z.mul_assoc in Hd.
+apply Z.mul_cancel_l in Hd; [ | easy ].
+subst.
+apply Z.divide_factor_l.
+Qed.
+
+Theorem mul_divide_cancel_r :
+  ∀ a b c, c ≠ 0%Z → (a * c | b * c)%Z ↔ (a | b)%Z.
+Proof.
+intros * Hcz.
+do 2 rewrite (Z.mul_comm _ c).
+now apply Z.mul_divide_cancel_l.
 Qed.
 
 Theorem div_nonneg : ∀ a b, (0 ≤ a)%Z → (0 < b)%Z → (0 ≤ a / b)%Z.
