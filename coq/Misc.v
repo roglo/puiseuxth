@@ -13,9 +13,6 @@ Notation "[ x ; .. ; y … l ]" := (cons x .. (cons y l) ..).
 Notation "[ x ]" := (cons x nil).
 Notation "x ++ y" := (List.app x y) (right associativity, at level 60).
 Notation "x < y <= z" := (x < y ∧ y <= z) (at level 70, y at next level).
-(*
-Notation "x < y < z" := (x < y ∧ y < z) (at level 70, y at next level).
-*)
 Notation "x < y ≤ z" := (x < y ∧ y <= z)%nat (at level 70, y at next level).
 Notation "x ≤ y ≤ z" := (x <= y ∧ y <= z)%nat (at level 70, y at next level).
 Notation "x ≤ y < z" := (x <= y ∧ y < z)%nat (at level 70, y at next level).
@@ -300,23 +297,6 @@ Theorem Zposnat2Znat : ∀ i, (0 < i)%nat → z_pos (Pos.of_nat i) = Z.of_nat i.
 Proof. now intros; destruct i. Qed.
 
 (* *)
-
-(* Qplus_lt_compat_r → Q.add_lt_mono_r *)
-(* Qminus_lt_lt_plus_r → Q.lt_sub_lt_add_l *)
-(* Qlt_minus_plus_lt_r → Q.lt_add_lt_sub_r *)
-(* Qeq_shift_mult_l → Q.mul_move_l *)
-(* Qminus_diag → Q.sub_diag *)
-(* Qeq_shift_div_l → Q.mul_move_r *)
-(* Qminus_eq_eq_plus_r → Q.add_move_r *)
-(* Zplus_cmp_compat_r → Z.compare_add_cancel_r *)
-(* Qlt_plus_minus_lt_r → Q.lt_sub_lt_add_r *)
-(* Qplus_lt_lt_minus_r → Q.lt_add_lt_sub_r *)
-(* Zmult_cmp_compat_r → Z.compare_mul_mono_pos_r *)
-(* Z_div_pos_is_nonneg → Nat2Z.is_nonneg *)
-(* Qplus_cmp_compat_r → Q.compare_add_mono_r *)
-(* list_nth_in → List.nth_In *)
-(* Z2Nat_id_max → Z2Nat.of_nat *)
-(* q_num_minus_distr_r → Q.inv_sub_distr *)
 
 Theorem Qcmp_plus_minus_cmp_r : ∀ x y z,
   (x ?= y + z) = (x - z ?= y).
