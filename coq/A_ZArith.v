@@ -3228,6 +3228,23 @@ apply (Z.lt_le_trans _ a); [ easy | ].
 now apply Z.le_add_r.
 Qed.
 
+Theorem lt_1_mul_pos : ∀ a b, (1 < a)%Z → (0 < b)%Z → (1 < a * b)%Z.
+Proof.
+intros * Ha Hb.
+destruct b as [| sb vb]; [ easy | ].
+destruct sb; [ clear Hb | easy ].
+destruct a as [| sa va]; [ easy | ].
+destruct sa; [ cbn | easy ].
+apply Pos.compare_lt_iff in Ha.
+apply Pos.compare_lt_iff.
+progress unfold Pos.lt in Ha; cbn in Ha.
+progress unfold Pos.lt; cbn.
+do 2 rewrite Nat.add_1_r.
+rewrite Nat.mul_comm; cbn.
+rewrite Nat.sub_0_r.
+now apply Nat.add_pos_l.
+Qed.
+
 End Z.
 
 Number Notation Z Z.of_number Z.to_number : Z_scope.

@@ -3768,13 +3768,8 @@ eapply first_n_pol_in_K_1_m_any_r with (L := L₁) in H; eauto with Arith.
   rewrite <- (Z.mul_1_l (z_val true m₁)).
   apply Z.mul_lt_mono_pos_r; [ easy | ].
   rewrite Z.mul_comm.
-Search (1 < _ * _)%Z.
-Check Z.lt_1_mul_pos.
-Z.lt_1_mul_pos
-     : ∀ n m : Z, (1 < n)%Z → (0 < m)%Z → (1 < n * m)%Z
-...
   apply Z.lt_1_mul_pos; auto with Arith.
-  apply Z.lt_1_2.
+  easy.
 
  eapply q_eq_1_any_r with (L := L₁); try eassumption; eauto with Arith.
 
@@ -3790,7 +3785,7 @@ Theorem r₁_le_r₀ : ∀ f L f₁,
   newton_segments f = Some L
   → f₁ = nth_pol 1 f L
   → (ps_poly_nth 0 f₁ ≠ 0)%ps
-  → nth_r 1 f L ≤ nth_r 0 f L.
+  → (nth_r 1 f L <= nth_r 0 f L)%nat.
 Proof.
 intros f L f₁ HL Hf₁ Hnz₀; simpl.
 simpl in Hf₁; rewrite <- Hf₁.
@@ -3812,9 +3807,9 @@ Qed.
 Theorem r_le_eq_incl : ∀ f L r n,
   newton_segments f = Some L
   → nth_r 0 f L = r
-  → (∀ i, i ≤ n → (ps_poly_nth 0 (nth_pol i f L) ≠ 0)%ps)
-  → (∀ i, i ≤ n → r ≤ nth_r i f L)
-  → (∀ i, i ≤ n → r = nth_r i f L).
+  → (∀ i, (i <= n)%nat → (ps_poly_nth 0 (nth_pol i f L) ≠ 0)%ps)
+  → (∀ i, (i <= n)%nat → (r <= nth_r i f L)%nat)
+  → (∀ i, (i <= n)%nat → r = nth_r i f L).
 Proof.
 intros f L r n HL Hr₀ Hnz Hri i Hin.
 remember Hin as H; clear HeqH.
@@ -3835,7 +3830,7 @@ eapply IHi; try eassumption; eauto with Arith.
  remember HL as H; clear HeqH.
  eapply next_has_root_0_or_newton_segments in H; try eassumption; eauto with Arith.
  destruct H as [H₁| H₁].
-  assert (1 ≤ S n)%nat as H by apply le_n_S, Nat.le_0_l.
+  assert (1 <= S n)%nat as H by apply le_n_S, Nat.le_0_l.
   apply Hnz in H; contradiction.
 
   simpl in H₁.
@@ -3851,11 +3846,11 @@ eapply IHi; try eassumption; eauto with Arith.
    rewrite <- Hc, <- Hf₁, <- HL₁ in H; auto with Arith.
 
    clear H.
-   assert (1 ≤ S n)%nat as H by apply le_n_S, Nat.le_0_l.
+   assert (1 <= S n)%nat as H by apply le_n_S, Nat.le_0_l.
    apply Hnz in H; auto with Arith.
 
   clear H.
-  assert (1 ≤ S n)%nat as H by apply le_n_S, Nat.le_0_l.
+  assert (1 <= S n)%nat as H by apply le_n_S, Nat.le_0_l.
   apply Hri in H; simpl in H.
   rewrite <- Hc, <- Hf₁, <- HL₁ in H; auto with Arith.
 
