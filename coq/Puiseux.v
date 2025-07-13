@@ -440,9 +440,37 @@ assert (Hrle : ∀ n : nat, (S r <= nth_r n f L)%nat).
     rewrite Z2Nat_inj_mul_pos_r.
     apply Z.compare_le_iff; cbn.
 (**)
+progress unfold q_Den; cbn.
+rewrite Pos.mul_1_r.
     rewrite Pos.mul_1_l.
     rewrite Pos2Z.inj_mul.
-Search (Z.of_pos (Pos.of_nat _)).
+    rewrite Zposnat2Znat; [ | easy ].
+    rewrite Nat2Z.inj_succ.
+rewrite Nat2Z.inj_mul.
+    remember (q_num ofs) as nofs eqn:Hnofs .
+    symmetry in Hnofs.
+    destruct nofs as [| snofs vnofs]; simpl; auto with Arith; [ easy | ].
+destruct snofs. {
+  cbn.
+  do 2 rewrite Z.pos_nat.
+  rewrite <- Pos2Z.inj_mul.
+  eapply Z.le_trans.
+...
+      rewrite Z.one_succ.
+      apply Zlt_le_succ.
+      apply Pos2Z.is_pos.
+...
+
+rewrite Z2Nat.id.
+rewrite Z.pos_nat.
+...
+    rewrite Z2Nat.inj_add.
+rewrite Z2Nat.id.
+    rewrite Nat2Z.id.
+...
+Zpos_P_of_succ_nat
+     : ∀ n : nat, Z.pos (Pos.of_succ_nat n) = Z.succ (Z.of_nat n)
+...
     rewrite Zpos_P_of_succ_nat.
 ...
     rewrite Pos.mul_1_r.
