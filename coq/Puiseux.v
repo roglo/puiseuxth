@@ -779,7 +779,4 @@ Qed.
 End theorems.
 
 Check puiseux_series_algeb_closed.
-
-(*
 Print Assumptions puiseux_series_algeb_closed.
-*)
