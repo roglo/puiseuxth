@@ -2,8 +2,9 @@
 
 (* points not in newton segment *)
 
-From Stdlib Require Import Utf8 Arith QArith Sorting.
+From Stdlib Require Import Utf8 Arith Sorting.
 
+Require Import A_QArith.
 Require Import Misc.
 Require Import Slope_base.
 Require Import SlopeMisc.
@@ -174,18 +175,16 @@ symmetry in Heqc.
 erewrite slope_slope_expr in Heqc; [ idtac | eassumption ].
 destruct c. {
   subst ms; simpl in Hend |- *.
-  apply Qeq_alt in Heqc.
+  apply -> Q.compare_eq_iff in Heqc.
   symmetry in Hend.
   remember Heqms₁ as H; clear HeqH.
   eapply minimised_slope in Heqms₁; [ idtac | eassumption ].
   erewrite slope_slope_expr in Heqms₁; [ idtac | eassumption ].
   assert (HH : slope_expr pt₁ (fin_pt ms₁) == slope_expr pt₁ pt₃). {
-    rewrite Heqms₁; apply Qeq_refl.
+    now rewrite Heqms₁.
   }
   erewrite <- Heqc in HH |- *.
-  eapply slope_expr_eq in HH; try eassumption. {
-    rewrite HH; apply Qle_refl.
-  }
+  eapply slope_expr_eq in HH; try eassumption; [ now rewrite HH | ].
   rewrite Hend.
   eapply end_pt_in; eassumption.
 } {
@@ -196,7 +195,7 @@ destruct c. {
   apply Nat.lt_irrefl in Hlt; contradiction.
 }
 move Hms at top; subst ms₁.
-apply Qgt_alt in Heqc.
+apply -> Q.compare_gt_iff in Heqc.
 clear IHpts.
 revert pt₁ pt₂ pt₃ pt₄ ms Hsort Hend Hlt Heqms₁ Heqc.
 induction pts as [| pt₅]; intros. {
@@ -204,7 +203,7 @@ induction pts as [| pt₅]; intros. {
   subst ms; simpl.
   simpl in Hend, Heqc.
   subst pt₄.
-  apply Qlt_le_weak.
+  apply Q.lt_le_incl.
   apply slope_lt_1312_2313; [ idtac | assumption ].
   apply Sorted_inv_2 in Hsort; destruct Hsort as (Hlt₁, Hsort).
   apply Sorted_inv_2 in Hsort; destruct Hsort as (Hlt₂, Hsort).
@@ -223,7 +222,7 @@ destruct c₁. {
 } {
   subst ms; simpl in Hend, Heqc |- *.
   subst pt₄.
-  apply Qlt_le_weak.
+  apply Q.lt_le_incl.
   apply slope_lt_1312_2313; [ idtac | assumption ].
   apply Sorted_inv_2 in Hsort; destruct Hsort as (Hlt₁, Hsort).
   apply Sorted_inv_2 in Hsort; destruct Hsort as (Hlt₂, Hsort).

@@ -1,9 +1,9 @@
 (* ConvexHullMisc.v *)
 
 From Stdlib Require Import Utf8 Arith.
-From Stdlib Require Import QArith.
 From Stdlib Require Import Sorting.
 
+Require Import A_QArith.
 Require Import Misc.
 Require Import ConvexHull.
 Require Import Slope_base.

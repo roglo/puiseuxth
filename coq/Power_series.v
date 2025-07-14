@@ -1,7 +1,7 @@
 (* Power_series.v *)
 
 From Stdlib Require Import Utf8 Arith.
-From Stdlib Require Import QArith.
+From Stdlib Require Import Relations Morphisms.
 
 Require Import Misc.
 Require Import NbarM.
@@ -12,7 +12,7 @@ Set Implicit Arguments.
 
 Record power_series α := series { terms : nat → α }.
 
-Notation "s .[ i ]" := (@terms _ s i) (at level 1).
+Notation "s .[ i ]" := (@terms _ s i) (at level 1, format "s .[ i ]").
 
 Definition series_0 {α} {r : ring α} :=
   {| terms i := 0%K |}.
@@ -24,6 +24,8 @@ Definition series_1 {α} {R : ring α} :=
 
 Declare Scope series_scope.
 Delimit Scope series_scope with ser.
+Bind Scope series_scope with power_series.
+
 Notation "0" := series_0 : series_scope.
 Notation "1" := series_1 : series_scope.
 
@@ -388,7 +390,7 @@ rewrite <- Nat.sub_succ, Hki₂ in Hn.
 rewrite <- Nat.sub_succ, Hn.
 rewrite <- Nat.sub_add_distr.
 rewrite Nat.add_succ_l.
-rewrite Nat_sub_sub_comm, Nat.sub_succ.
+rewrite Nat_sub_sub_swap, Nat.sub_succ.
 rewrite <- Nat.sub_add_distr.
 apply Nat.le_sub_l.
 Qed.

@@ -3,7 +3,6 @@
 (* summations on a field *)
 
 From Stdlib Require Import Utf8 Arith.
-From Stdlib Require Import QArith.
 
 Require Import Misc.
 Require Import Field2.

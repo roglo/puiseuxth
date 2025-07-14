@@ -1,7 +1,8 @@
 (* PolyConvexHull.v *)
 
-From Stdlib Require Import Utf8 Arith QArith.
+From Stdlib Require Import Utf8 Arith.
 
+Require Import A_PosArith A_ZArith A_QArith.
 Require Import Misc.
 Require Import Field2.
 Require Import InSegment.
@@ -79,9 +80,9 @@ remember [ini_pt L; fin_pt L … oth_pts L] as spts.
 pose proof (list_nat_Q_pair_in_dec h αh spts) as H.
 subst spts; destruct H as [H| H]. {
   eapply points_in_any_newton_segment in H; [ idtac | eassumption ].
-  rewrite H; apply Qle_refl.
+  rewrite H; apply Q.le_refl.
 }
-apply Qlt_le_weak.
+apply Q.lt_le_incl.
 eapply points_not_in_any_newton_segment; try eassumption.
 split; assumption.
 Qed.

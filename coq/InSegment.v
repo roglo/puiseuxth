@@ -2,8 +2,9 @@
 
 (* points in newton segment *)
 
-From Stdlib Require Import Utf8 Arith QArith Sorting.
+From Stdlib Require Import Utf8 Arith Sorting Field.
 
+Require Import A_PosArith A_ZArith A_QArith.
 Require Import Misc.
 Require Import Slope_base.
 Require Import ConvexHull.
@@ -30,7 +31,7 @@ destruct Hαh as [Hαh| Hαh]. {
   rewrite Hαh; simpl.
   unfold β, γ; simpl.
   field.
-  apply Qgt_0_not_0, Qlt_minus.
+  apply Qgt_0_not_0, Q.lt_0_sub.
   remember (ini_pt ms) as pt₄.
   remember Heqpt₄ as H; clear HeqH.
   rewrite Hms in Heqpt₄.
@@ -58,7 +59,7 @@ destruct Hαh as [Hαh| Hαh]. {
   destruct c. {
     subst ms.
     simpl in Hαh; simpl.
-    apply Qeq_alt in Heqc.
+    apply -> Q.compare_eq_iff in Heqc.
     unfold slope_expr in Heqc.
     destruct Hαh as [Hαh| Hαh]. {
       subst pt₂.
@@ -66,15 +67,18 @@ destruct Hαh as [Hαh| Hαh]. {
       do 2 rewrite Qdiv_minus_distr_r in Heqc.
       rewrite Qdiv_minus_distr_r.
       apply Qeq_opp_r in Heqc.
-      do 2 rewrite Q_opp_sub_distr in Heqc.
+      do 2 rewrite Q.opp_sub_distr in Heqc.
       rewrite <- Heqc.
       progress unfold Qnat.
       field.
       apply Sorted_inv_2 in Hsort; destruct Hsort as (Hlt, Hsort).
-      apply Qgt_0_not_0, Qlt_minus.
-      progress unfold Qlt.
+      apply Qgt_0_not_0, Q.lt_0_sub.
+      progress unfold Q.lt.
+      progress unfold Q.compare; cbn.
+      apply Z.compare_lt_iff.
+      do 2 rewrite q_Den_num_den.
       do 2 rewrite Z.mul_1_r.
-      now apply Znat.inj_lt.
+      now apply Nat2Z.inj_lt.
     }
     replace pt₁ with (ini_pt ms₁) .
     eapply IHpts; try eassumption.

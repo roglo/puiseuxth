@@ -2,8 +2,10 @@
 
 (* Most of notations are Robert Walker's ones *)
 
-From Stdlib Require Import Utf8 QArith Sorting Arith ZArith.
+From Stdlib Require Import Utf8 Arith.
+From Stdlib Require Import Sorting Morphisms.
 
+Require Import A_PosArith A_ZArith A_QArith.
 Require Import ConvexHull.
 Require Import ConvexHullMisc.
 Require Import Misc.
@@ -177,29 +179,24 @@ intros a b c d e f Hb He.
 subst e.
 rewrite Z.mul_0_r.
 rewrite Z.gcd_0_r in Hb.
-destruct (Z_zerop d) as [Hd| Hd]. {
+destruct (Z.eq_dec d 0) as [Hd| Hd]. {
   subst d; rewrite Z.mul_0_l; reflexivity.
 }
-rewrite Z.div_0_l in Hb. {
-  rewrite Z.gcd_comm, Z.gcd_assoc in Hb.
-  pose proof (Z.gcd_divide_l b (Z.gcd c a)) as H.
-  destruct H as (e, H).
-  rewrite Z.gcd_comm in H.
-  remember (Z.gcd (Z.gcd c a) b) as g.
-  rewrite H in Hb.
-  destruct (Z_zerop g) as [Hg| Hg]. {
-    move Hg at top; subst g.
-    rewrite Z.mul_0_r in H; subst b.
-    rewrite Z.mul_0_r; reflexivity.
-  }
-  rewrite Z.div_mul in Hb; [ idtac | assumption ].
-  subst e b.
-  rewrite Z.mul_0_l, Z.mul_0_r; reflexivity.
+rewrite Z.div_0_l in Hb.
+rewrite Z.gcd_comm, Z.gcd_assoc in Hb.
+pose proof (Z.gcd_divide_l b (Z.gcd c a)) as H.
+destruct H as (e, H).
+rewrite Z.gcd_comm in H.
+remember (Z.gcd (Z.gcd c a) b) as g.
+rewrite H in Hb.
+destruct (Z.eq_dec g 0) as [Hg| Hg]. {
+  move Hg at top; subst g.
+  rewrite Z.mul_0_r in H; subst b.
+  rewrite Z.mul_0_r; reflexivity.
 }
-intros H.
-apply Z.gcd_eq_0_l in H.
-apply Hd.
-apply Z.abs_0_iff; assumption.
+rewrite Z.mul_div in Hb; [ idtac | assumption ].
+subst e b.
+rewrite Z.mul_0_l, Z.mul_0_r; reflexivity.
 Qed.
 
 Theorem div_gcd_gcd_mul_compat : ∀ a b c d e f,
@@ -208,10 +205,10 @@ Theorem div_gcd_gcd_mul_compat : ∀ a b c d e f,
     → (a * e)%Z = (d * b)%Z.
 Proof.
 intros a b c d e f Ha Hb.
-destruct (Z_zerop e) as [He| He]. {
+destruct (Z.eq_dec e 0) as [He| He]. {
   eapply div_gcd_gcd_0_r; eassumption.
 }
-destruct (Z_zerop d) as [Hd| Hd]. {
+destruct (Z.eq_dec d 0) as [Hd| Hd]. {
   rewrite Z.mul_comm; symmetry.
   rewrite Z.mul_comm; symmetry.
   symmetry.
@@ -220,15 +217,15 @@ destruct (Z_zerop d) as [Hd| Hd]. {
   replace (Z.gcd e d) with (Z.gcd d e) by apply Z.gcd_comm.
   assumption.
 }
-apply Z.mul_cancel_r with (p := e) in Ha; [ idtac | assumption ].
-rewrite Z_div_mul_swap in Ha. {
-  rewrite Z_div_mul_swap in Ha. {
-    apply Z.mul_cancel_l with (p := d) in Hb; [ idtac | assumption ].
+apply (f_equal (λ x, (x * e)%Z)) in Ha.
+rewrite Z.div_mul_swap in Ha. {
+  rewrite Z.div_mul_swap in Ha. {
+    apply (f_equal (Z.mul d)) in Hb.
     rewrite Z.mul_comm in Hb.
-    rewrite Z_div_mul_swap in Hb. {
+    rewrite Z.div_mul_swap in Hb. {
       symmetry in Hb.
       rewrite Z.mul_comm in Hb.
-      rewrite Z_div_mul_swap in Hb. {
+      rewrite Z.div_mul_swap in Hb. {
         rewrite Z.mul_comm in Hb.
         rewrite Hb in Ha.
         apply Z_div_reg_r in Ha. {
@@ -270,7 +267,10 @@ destruct na as [na| ]. {
   destruct nb as [nb| ]. {
     inversion_clear H.
     simpl in H0, H1, H2.
-    unfold Qbar.qeq, Qeq; simpl.
+    unfold Qbar.qeq, Q.eq; simpl.
+    apply Z.compare_eq_iff; cbn.
+    do 2 rewrite q_Den_num_den.
+    progress unfold Z.of_pos.
     unfold normalise_series in H2.
     remember (greatest_series_x_power K (ps_terms a) na) as apn.
     remember (greatest_series_x_power K (ps_terms b) nb) as bpn.
@@ -281,17 +281,17 @@ destruct na as [na| ]. {
     remember (ps_ordnum b + Z.of_nat nb)%Z as bo eqn:Hbo .
     remember (Z.of_nat apn) as ap eqn:Hap ; subst apn.
     remember (Z.of_nat bpn) as bp eqn:Hbp ; subst bpn.
-    remember (Zpos (ps_polydo a))%Z as oa eqn:Hoa .
-    remember (Zpos (ps_polydo b))%Z as ob eqn:Hob .
+    remember (z_pos (ps_polydo a))%Z as oa eqn:Hoa .
+    remember (z_pos (ps_polydo b))%Z as ob eqn:Hob .
     apply Z2Pos.inj in H1. {
       eapply div_gcd_gcd_mul_compat; eassumption.
     } {
-      apply Z.div_str_pos.
+      apply Z.div_pos.
       split; [ assumption | idtac ].
       rewrite Z.gcd_comm, Z.gcd_assoc, Hoa.
       apply Z_gcd_pos_r_le.
     } {
-      apply Z.div_str_pos.
+      apply Z.div_pos.
       split; [ assumption | idtac ].
       rewrite Z.gcd_comm, Z.gcd_assoc, Hob.
       apply Z_gcd_pos_r_le.

@@ -1,8 +1,8 @@
 (* Ps_mul.v *)
 
-From Stdlib Require Import Utf8 Arith ZArith.
-From Stdlib Require Import QArith.
+From Stdlib Require Import Utf8 Arith Morphisms.
 
+Require Import A_PosArith A_ZArith A_QArith.
 Require Import Misc.
 Require Import NbarM.
 Require Import Field2.
@@ -22,8 +22,8 @@ Definition ps_mul {α} {r : ring α} ps₁ ps₂ :=
          (series_stretch (cm_factor ps₁ ps₂) (ps_terms ps₁))
          (series_stretch (cm_factor ps₂ ps₁) (ps_terms ps₂));
      ps_ordnum :=
-       (ps_ordnum ps₁ * Zpos (ps_polydo ps₂) +
-        ps_ordnum ps₂ * Zpos (ps_polydo ps₁))%Z;
+       (ps_ordnum ps₁ * z_pos (ps_polydo ps₂) +
+        ps_ordnum ps₂ * z_pos (ps_polydo ps₁))%Z;
      ps_polydo :=
        cm ps₁ ps₂ |}.
 
@@ -45,25 +45,26 @@ remember (series_stretch (cm_factor ps₂ ps₁) (ps_terms ps₂)) as s₂ eqn:H
 rewrite series_mul_comm.
 remember (series_order (s₂ * s₁)%ser 0) as n eqn:Hn .
 destruct n as [n| ]; [ idtac | reflexivity ].
-constructor; simpl.
- unfold gcd_ps; simpl.
- rewrite series_mul_comm.
- f_equal; [ f_equal; apply Z.add_comm | f_equal ].
- f_equal; [ f_equal; apply Z.add_comm | idtac ].
- unfold cm; rewrite Pos.mul_comm; reflexivity.
-
- unfold cm; rewrite Pos.mul_comm, series_mul_comm.
- unfold gcd_ps; simpl.
- do 3 f_equal.
- f_equal; [ f_equal; apply Z.add_comm | idtac ].
- unfold cm; rewrite Pos.mul_comm; reflexivity.
-
- unfold gcd_ps; simpl.
- unfold cm; rewrite Pos.mul_comm, series_mul_comm.
- remember (ps_ordnum ps₁ * Zpos (ps_polydo ps₂))%Z as x eqn:Hx .
- remember (ps_ordnum ps₂ * Zpos (ps_polydo ps₁))%Z as y eqn:Hy .
- replace (x + y)%Z with (y + x)%Z by apply Z.add_comm.
- reflexivity.
+constructor; simpl. {
+  unfold gcd_ps; simpl.
+  rewrite series_mul_comm.
+  f_equal; [ f_equal; apply Z.add_comm | f_equal ].
+  f_equal; [ f_equal; apply Z.add_comm | idtac ].
+  unfold cm; rewrite Pos.mul_comm; reflexivity.
+} {
+  unfold cm; rewrite Pos.mul_comm, series_mul_comm.
+  unfold gcd_ps; simpl.
+  do 3 f_equal.
+  f_equal; [ f_equal; apply Z.add_comm | idtac ].
+  unfold cm; rewrite Pos.mul_comm; reflexivity.
+} {
+  unfold gcd_ps; simpl.
+  unfold cm; rewrite Pos.mul_comm, series_mul_comm.
+  remember (ps_ordnum ps₁ * z_pos (ps_polydo ps₂))%Z as x eqn:Hx .
+  remember (ps_ordnum ps₂ * z_pos (ps_polydo ps₁))%Z as y eqn:Hy .
+  replace (x + y)%Z with (y + x)%Z by apply Z.add_comm.
+  reflexivity.
+}
 Qed.
 
 Theorem ps_mul_comm : ∀ ps₁ ps₂, (ps₁ * ps₂ = ps₂ * ps₁)%ps.
@@ -84,22 +85,30 @@ rewrite series_stretch_1.
 remember (series_order (ps_terms ps) 0) as n eqn:Hn .
 symmetry in Hn.
 destruct n as [n| ]; [ idtac | reflexivity ].
-constructor; simpl.
- rewrite Z.mul_1_r; f_equal.
- rewrite stretch_series_1, series_stretch_1, series_mul_1_l.
- unfold gcd_ps; simpl.
- rewrite Z.mul_1_r; reflexivity.
-
- do 2 f_equal.
- rewrite stretch_series_1, series_stretch_1, series_mul_1_l.
- unfold gcd_ps; simpl.
- rewrite Z.mul_1_r; reflexivity.
-
- do 2 rewrite stretch_series_1 in |- * at 1.
- do 2 rewrite series_stretch_1 in |- * at 1.
- rewrite series_mul_1_l.
- unfold gcd_ps; simpl.
- rewrite Z.mul_1_r; reflexivity.
+constructor; simpl. {
+  rewrite Z.mul_1_r; f_equal.
+  rewrite stretch_series_1, series_stretch_1, series_mul_1_l.
+  unfold gcd_ps; simpl.
+  rewrite Z.mul_1_r.
+  progress unfold cm; cbn.
+  now rewrite Pos.mul_1_l.
+} {
+  rewrite Pos.mul_1_l.
+  progress do 2 f_equal.
+  rewrite stretch_series_1, series_stretch_1, series_mul_1_l.
+  unfold gcd_ps; simpl.
+  rewrite Z.mul_1_r.
+  progress unfold cm; cbn.
+  now rewrite Pos.mul_1_l.
+} {
+  do 2 rewrite stretch_series_1 in |- * at 1.
+  do 2 rewrite series_stretch_1 in |- * at 1.
+  rewrite series_mul_1_l.
+  unfold gcd_ps; simpl.
+  progress unfold cm.
+  rewrite Pos.mul_1_l.
+  rewrite Z.mul_1_r; reflexivity.
+}
 Qed.
 
 Theorem ps_mul_1_r : ∀ ps, (ps * 1 = ps)%ps.
@@ -201,9 +210,9 @@ rewrite series_stretch_mul; symmetry.
 do 4 rewrite <- series_stretch_stretch.
 unfold cm, cm_factor; simpl.
 rewrite series_mul_assoc.
-remember (ps_polydo ps₂ * ps_polydo ps₃)%positive as c₂₃ eqn:Hc₂₃ .
-remember (ps_polydo ps₃ * ps_polydo ps₁)%positive as c₃₁ eqn:Hc₃₁ .
-remember (ps_polydo ps₁ * ps_polydo ps₂)%positive as c₁₂ eqn:Hc₁₂ .
+remember (ps_polydo ps₂ * ps_polydo ps₃)%pos as c₂₃ eqn:Hc₂₃ .
+remember (ps_polydo ps₃ * ps_polydo ps₁)%pos as c₃₁ eqn:Hc₃₁ .
+remember (ps_polydo ps₁ * ps_polydo ps₂)%pos as c₁₂ eqn:Hc₁₂ .
 rewrite Pos.mul_comm in Hc₂₃; rewrite <- Hc₂₃.
 rewrite Pos.mul_comm in Hc₃₁; rewrite <- Hc₃₁.
 remember (series_stretch c₂₃ (ps_terms ps₁)) as s₁ eqn:Hs₁ .
@@ -225,17 +234,17 @@ constructor; simpl.
   f_equal.
   f_equal.
    f_equal.
-    rewrite Hc₂₃, Pos2Z.inj_mul, Z.mul_assoc, Z.mul_shuffle0.
+    rewrite Hc₂₃, Pos2Z.inj_mul, Z.mul_assoc, Z.mul_mul_swap.
     reflexivity.
 
-    rewrite Z.mul_shuffle0; reflexivity.
+    rewrite Z.mul_mul_swap; reflexivity.
 
-   rewrite Hc₁₂, Pos2Z.inj_mul, Z.mul_assoc, Z.mul_shuffle0.
+   rewrite Hc₁₂, Pos2Z.inj_mul, Z.mul_assoc, Z.mul_mul_swap.
    reflexivity.
 
   f_equal.
    do 2 f_equal.
-   f_equal; [ f_equal | idtac ]; apply Z.mul_shuffle0.
+   f_equal; [ f_equal | idtac ]; apply Z.mul_mul_swap.
 
    do 2 rewrite series_stretch_mul.
    do 4 rewrite <- series_stretch_stretch.
@@ -247,7 +256,7 @@ constructor; simpl.
  do 2 f_equal.
  f_equal.
   do 2 f_equal.
-  f_equal; [ f_equal | idtac ]; apply Z.mul_shuffle0.
+  f_equal; [ f_equal | idtac ]; apply Z.mul_mul_swap.
 
   do 2 rewrite series_stretch_mul.
   do 4 rewrite <- series_stretch_stretch.
@@ -264,10 +273,12 @@ constructor; simpl.
  rewrite <- Z.mul_assoc, <- Pos2Z.inj_mul, Pos.mul_comm, <- Hc₃₁.
  rewrite <- Z.mul_assoc, <- Pos2Z.inj_mul, Pos.mul_comm, <- Hc₁₂.
  symmetry.
- rewrite <- Z.mul_assoc, <- Pos2Z.inj_mul, <- Hc₃₁.
- rewrite <- Z.mul_assoc, <- Pos2Z.inj_mul, <- Hc₁₂.
+ do 3 rewrite <- Z.mul_assoc.
+ do 3 rewrite <- Pos2Z.inj_mul.
+ rewrite <- Hc₃₁, <- Hc₁₂.
  rewrite series_mul_assoc.
  rewrite <- Hs₁, <- Hs₂, <- Hs₃.
+ rewrite (Pos.mul_comm (ps_polydo ps₂)), <- Hc₂₃.
  reflexivity.
 Qed.
 
@@ -351,13 +362,13 @@ unfold adjust_ps; simpl.
 unfold cm, cm_factor; simpl.
 rewrite Pos2Z.inj_mul, Z.mul_assoc.
 rewrite Z.mul_sub_distr_r.
-rewrite Z.mul_shuffle0.
+rewrite Z.mul_mul_swap.
 rewrite <- Z.add_sub_swap.
 rewrite <- Z.mul_add_distr_r.
 rewrite Nat.mul_comm.
 rewrite Nat2Z.inj_mul.
-rewrite positive_nat_Z.
-rewrite Pos_mul_mul_swap.
+rewrite Z.pos_nat.
+rewrite Pos.mul_mul_swap.
 rewrite series_stretch_mul.
 rewrite stretch_shift_series_distr.
 do 3 rewrite <- series_stretch_stretch.
@@ -463,89 +474,79 @@ unfold normalise_ps.
 unfold normalise_ps.
 remember (series_order (ps_terms ps) 0) as n eqn:Hn .
 symmetry in Hn.
-destruct n as [n| ]; constructor.
- remember (greatest_series_x_power K (ps_terms ps) n) as x.
- remember (gcd_ps n x ps) as g eqn:Hg .
- pose proof (gcd_ps_is_pos n x ps) as Hgp; subst x.
- rewrite <- Hg in Hgp.
- unfold gcd_ps in Hg; simpl in Hg.
- remember (ps_ordnum ps + Z.of_nat n)%Z as x eqn:Hx .
- rewrite <- Z.gcd_assoc in Hg.
- remember (greatest_series_x_power K (ps_terms ps) n) as z.
- remember (Z.gcd (Zpos (ps_polydo ps)) (Z.of_nat z)) as y eqn:Hy ; subst z.
- rewrite ps_normal_adjust_eq with (k := Z.to_pos g) (n := n).
- unfold adjust_ps; simpl.
- unfold normalise_series.
- rewrite series_stretch_shrink.
-  rewrite series_shift_left_shift; [ idtac | apply Hn ].
-  rewrite <- positive_nat_Z.
-  rewrite Pos2Nat_to_pos; [ idtac | assumption ].
-  rewrite Z2Nat.id; [ idtac | apply Z.lt_le_incl; assumption ].
-  rewrite Z.mul_comm.
-  assert (x mod g = 0)%Z as Hxk.
-   apply Z.mod_divide.
-    intros H; revert Hgp; rewrite H; apply Z.lt_irrefl.
-
-    rewrite Hg; apply Z.gcd_divide_l.
-
-   apply Z.div_exact in Hxk.
-    rewrite <- Hxk, Hx, Z.add_simpl_r.
-    rewrite Hy, Z.gcd_comm, <- Z.gcd_assoc in Hg.
+destruct n as [n| ]; constructor. {
+  remember (greatest_series_x_power K (ps_terms ps) n) as x.
+  remember (gcd_ps n x ps) as g eqn:Hg .
+  pose proof (gcd_ps_is_pos n x ps) as Hgp; subst x.
+  rewrite <- Hg in Hgp.
+  unfold gcd_ps in Hg; simpl in Hg.
+  remember (ps_ordnum ps + Z.of_nat n)%Z as x eqn:Hx .
+  rewrite <- Z.gcd_assoc in Hg.
+  remember (greatest_series_x_power K (ps_terms ps) n) as z.
+  remember (Z.gcd (z_pos (ps_polydo ps)) (Z.of_nat z)) as y eqn:Hy ; subst z.
+  rewrite ps_normal_adjust_eq with (k := Z.to_pos g) (n := n).
+  unfold adjust_ps; simpl.
+  unfold normalise_series.
+  rewrite (series_stretch_shrink K). {
+    rewrite series_shift_left_shift; [ idtac | apply Hn ].
+    rewrite <- Z.pos_nat.
+    rewrite Z2Pos.to_nat; [ | easy ].
+    rewrite Z2Nat.id; [ idtac | apply Z.lt_le_incl; assumption ].
+    rewrite Z.mul_comm.
+    assert (Hgz : g ≠ 0%Z). {
+      now intros H; rewrite H in Hgp; apply Z.lt_irrefl in Hgp.
+    }
+    assert (x mod g = 0)%Z as Hxk. {
+      apply Z.mod_divide; [ easy | ].
+      rewrite Hg; apply Z.gcd_divide_l.
+    }
+    apply Z.mod_divide in Hxk; [ | easy ].
+    destruct Hxk as (c, Hc); move Hc at top; subst x.
+    rewrite Z.mul_div; [ | easy ].
+    rewrite (Z.mul_comm g), Hx, Z.add_sub.
+    rewrite Hy, <- Z.gcd_comm, <- Z.gcd_assoc in Hg.
     remember (greatest_series_x_power K (ps_terms ps) n) as z.
-    pose proof (Z.gcd_divide_l (Zpos (ps_polydo ps)) (Z.gcd (Z.of_nat z) x))
+    specialize
+      (Z.gcd_divide_l (z_pos (ps_polydo ps)) (Z.gcd (Z.of_nat z) (c * g)))
       as Hgc.
     rewrite <- Hg in Hgc.
-    destruct Hgc as (c, Hc).
-    rewrite Hc.
-    rewrite Z.div_mul.
-     rewrite <- Z2Pos.inj_mul; [ idtac | idtac | assumption ].
-      rewrite <- Hc; simpl.
+    destruct Hgc as (c', Hc').
+    rewrite Hc'.
+    rewrite Z.mul_div; [ | easy ].
+    rewrite <- Z2Pos.inj_mul; [ idtac | idtac | assumption ]. {
+      rewrite <- Hc'; simpl.
       destruct ps; reflexivity.
-
-      destruct c as [| c| c].
-       exfalso; revert Hc; apply Pos2Z_ne_0.
-
-       apply Pos2Z.is_pos.
-
-       simpl in Hc.
-       destruct g as [| g| g].
-        exfalso; revert Hc; apply Pos2Z_ne_0.
-
-        rewrite <- Pos2Z.opp_pos in Hc.
-        apply Z.add_move_0_r in Hc.
-        rewrite <- Pos2Z.inj_add in Hc.
-        exfalso; revert Hc; apply Pos2Z_ne_0.
-
-        apply Z.nle_gt in Hgp.
-        exfalso; apply Hgp; apply Pos2Z.neg_is_nonpos.
-
-     intros H; revert Hgp; rewrite H; apply Z.lt_irrefl.
-
-    intros H1; revert Hgp; rewrite H1; apply Z.lt_irrefl.
-
+    }
+    destruct c' as [| sc vc]; [ exfalso; revert Hc'; apply Pos2Z_ne_0 | ].
+    destruct sc; [ easy | exfalso ].
+    simpl in Hc'.
+    destruct g as [| sg vg]; [ revert Hc'; apply Pos2Z_ne_0 | ].
+    now destruct sg.
+  }
   rewrite greatest_series_x_power_left_shift, Nat.add_0_r.
-  rewrite Pos2Nat_to_pos; [ idtac | assumption ].
+  rewrite Z2Pos.to_nat; [ | easy ].
   remember (greatest_series_x_power K (ps_terms ps) n) as t.
   rewrite Hy in Hg.
   rewrite Z.gcd_assoc in Hg.
-  remember (Z.gcd x (Zpos (ps_polydo ps))) as u.
+  remember (Z.gcd x (z_pos (ps_polydo ps))) as u.
   pose proof (Z.gcd_divide_r u (Z.of_nat t)) as H.
   rewrite <- Hg in H.
   destruct H as (c, Hc).
   exists (Z.to_nat c).
-  rewrite <- Z2Nat.inj_mul.
+  rewrite <- Z2Nat.inj_mul. {
    rewrite <- Hc.
-   rewrite Nat2Z.id; symmetry; apply Heqt.
-
-   apply Z.mul_le_mono_pos_r with (p := g); [ assumption | idtac ].
-   rewrite <- Hc; simpl.
-   apply Nat2Z.is_nonneg.
-
-   apply Z.lt_le_incl; assumption.
-
- unfold normalise_ps; simpl.
- rewrite series_order_series_0, Hn.
- reflexivity.
+   symmetry; apply Nat2Z.id.
+  } {
+    apply (Z.mul_le_mono_pos_r g); [ assumption | idtac ].
+    rewrite <- Hc; simpl.
+    apply Nat2Z.is_nonneg.
+  } {
+    apply Z.lt_le_incl; assumption.
+  }
+}
+unfold normalise_ps; simpl.
+rewrite series_order_series_0, Hn.
+reflexivity.
 Qed.
 
 Theorem ps_ordnum_normalise : ∀ ps n p vn,
@@ -553,7 +554,7 @@ Theorem ps_ordnum_normalise : ∀ ps n p vn,
   → p = greatest_series_x_power K (ps_terms ps) n
     → vn = (ps_ordnum ps + Z.of_nat n)%Z
       → ps_ordnum (normalise_ps ps) =
-          (vn / Z.gcd vn (Z.gcd (Zpos (ps_polydo ps)) (Z.of_nat p)))%Z.
+          (vn / Z.gcd vn (Z.gcd (z_pos (ps_polydo ps)) (Z.of_nat p)))%Z.
 Proof.
 intros ps n p vn Hn Hp Hvn.
 unfold normalise_ps; simpl.
@@ -571,8 +572,8 @@ Theorem ps_polydo_normalise : ∀ ps n p vn,
     → vn = (ps_ordnum ps + Z.of_nat n)%Z
       → ps_polydo (normalise_ps ps) =
         Z.to_pos
-          (Zpos (ps_polydo ps) /
-             Z.gcd (Zpos (ps_polydo ps)) (Z.gcd (Z.of_nat p) vn)).
+          (z_pos (ps_polydo ps) /
+             Z.gcd (z_pos (ps_polydo ps)) (Z.gcd (Z.of_nat p) vn)).
 Proof.
 intros ps n p vn Hn Hp Hvn.
 unfold normalise_ps; simpl.
@@ -590,7 +591,7 @@ Theorem ps_terms_normalise : ∀ ps n p vn,
     → vn = (ps_ordnum ps + Z.of_nat n)%Z
       → ps_terms (normalise_ps ps) =
         normalise_series n
-          (Z.to_pos (Z.gcd vn (Z.gcd (Zpos (ps_polydo ps)) (Z.of_nat p))))
+          (Z.to_pos (Z.gcd vn (Z.gcd (z_pos (ps_polydo ps)) (Z.of_nat p))))
           (ps_terms ps).
 Proof.
 intros ps n p vn Hn Hp Hvn.
@@ -633,36 +634,39 @@ rewrite series_add_comm.
 rewrite series_mul_comm.
 rewrite series_shift_mul.
 rewrite series_add_comm.
-replace (c₁ * c₃ * c₂)%positive with (c₁ * c₂ * c₃)%positive
- by apply Pos_mul_mul_swap.
+rewrite (Pos.mul_mul_swap c₁ c₃ c₂).
 rewrite <- series_mul_add_distr_r.
 rewrite series_mul_comm.
 do 2 rewrite Pos2Z.inj_mul, Z.mul_assoc.
 do 4 rewrite Z.mul_add_distr_r.
-remember (v₁ * Zpos c₂ * Zpos c₁ * Zpos c₃)%Z as x eqn:Hx .
-replace (v₁ * Zpos c₃ * Zpos c₁ * Zpos c₂)%Z with x by (subst x; ring).
+progress unfold Z.of_pos.
+remember (v₁ * z_pos c₂ * z_pos c₁ * z_pos c₃)%Z as x eqn:Hx .
+replace (v₁ * z_pos c₃ * z_pos c₁ * z_pos c₂)%Z with x by (subst x; ring).
 do 2 rewrite Z.add_min_distr_l.
-do 2 rewrite Z.add_add_simpl_l_l.
+rewrite (Z.add_comm x), Z.sub_add_distr, Z.add_sub.
+rewrite (Z.add_comm x), Z.sub_add_distr, Z.add_sub.
 clear x Hx.
 do 2 rewrite <- Z2Nat_inj_mul_pos_r.
 rewrite Pos2Z.inj_mul; do 2 rewrite Z.mul_assoc.
 do 4 rewrite Z.mul_sub_distr_r.
-rewrite <- Z.mul_min_distr_nonneg_r; [ idtac | apply Pos2Z.is_nonneg ].
-rewrite <- Z.mul_min_distr_nonneg_r; [ idtac | apply Pos2Z.is_nonneg ].
-rewrite <- Z.mul_min_distr_nonneg_r; [ idtac | apply Pos2Z.is_nonneg ].
-rewrite <- Z.mul_min_distr_nonneg_r; [ idtac | apply Pos2Z.is_nonneg ].
+rewrite <- Z.mul_min_distr_nonneg_r; [ idtac | easy ].
+rewrite <- Z.mul_min_distr_nonneg_r; [ idtac | easy ].
+rewrite <- Z.mul_min_distr_nonneg_r; [ idtac | easy ].
+rewrite <- Z.mul_min_distr_nonneg_r; [ idtac | easy ].
 rewrite Pos.mul_assoc.
 do 2 f_equal.
-f_equal.
- rewrite Pos_mul_mul_swap.
- do 2 f_equal.
- f_equal; [ ring | idtac ].
- f_equal; ring.
-
- rewrite Pos_mul_mul_swap.
- do 2 f_equal.
- f_equal; [ ring | idtac ].
- f_equal; ring.
+progress unfold Z.of_pos.
+f_equal. {
+  rewrite Pos.mul_mul_swap.
+  progress do 2 f_equal.
+  f_equal; [ ring | idtac ].
+  f_equal; ring.
+} {
+  rewrite Pos.mul_mul_swap.
+  do 2 f_equal.
+  f_equal; [ ring | idtac ].
+  f_equal; ring.
+}
 Qed.
 
 Theorem ps_ordnum_adjust_mul_add₂_distr_l : ∀ ps₁ ps₂ ps₃,
@@ -683,30 +687,34 @@ remember (ps_polydo ps₃) as c₃.
 do 3 rewrite Pos2Z.inj_mul.
 do 3 rewrite Z.mul_assoc.
 rewrite Z.mul_sub_distr_r.
-do 3 rewrite <- positive_nat_Z.
+do 3 rewrite <- Z.pos_nat.
 do 5 rewrite Z.mul_add_distr_r.
 rewrite Z.mul_sub_distr_r.
-do 2 rewrite <- Nat2Z.inj_mul.
-do 2 rewrite <- Z2Nat_inj_mul_pos_r.
-do 2 rewrite Z.mul_sub_distr_r.
-do 3 rewrite positive_nat_Z.
-rewrite Z.add_sub_assoc.
+move v₂ before v₁; move v₃ before v₂.
+move c₁ after c₂; move c₃ before c₂.
+do 2 rewrite Z.pos_nat.
+progress unfold z_pos.
+rewrite Z.mul_mul_swap.
+rewrite <- Z.add_sub_assoc.
 f_equal.
- rewrite Z.mul_shuffle0.
- apply Z.add_cancel_l.
- rewrite <- Z.mul_assoc, Z.mul_shuffle0, Z.mul_assoc.
- reflexivity.
-
- do 2 f_equal.
- rewrite <- Z.mul_min_distr_nonneg_r; [ idtac | apply Pos2Z.is_nonneg ].
- rewrite <- Z.mul_min_distr_nonneg_r; [ idtac | apply Pos2Z.is_nonneg ].
- remember (v₁ * Zpos c₃ * Zpos c₁ * Zpos c₂)%Z as x.
- replace (v₁ * Zpos c₂ * Zpos c₁ * Zpos c₃)%Z with x by (subst; ring).
- rewrite Z.add_min_distr_l.
- rewrite Z.add_add_simpl_l_l.
- clear x Heqx.
- f_equal; [ ring | idtac ].
- f_equal; ring.
+progress unfold Z.of_pos, z_pos.
+rewrite (Z.mul_mul_swap v₂).
+rewrite (Z.mul_mul_swap _ (z_val true c₃)).
+f_equal.
+rewrite <- Z.sub_max_distr_l, Z.sub_diag.
+rewrite <- Z.sub_max_distr_l, Z.sub_diag.
+rewrite Z2Nat.id; [ | apply Z.le_max_r ].
+rewrite Z2Nat.id; [ | apply Z.le_max_r ].
+do 2 rewrite (Z.mul_mul_swap _ _ (z_val true c₃)).
+rewrite (Z.mul_mul_swap _ (z_val true c₂)).
+rewrite Z.add_comm, Z.sub_add_distr, Z.add_sub.
+do 2 rewrite (Z.mul_mul_swap _ _ (z_val true c₃)).
+do 2 rewrite (Z.mul_mul_swap _ _ (z_val true c₂)).
+do 2 rewrite <- Z.mul_sub_distr_r.
+remember (_ - _)%Z as x.
+do 2 rewrite <- Z.mul_assoc.
+remember (z_val true c₁ * _)%Z as y.
+rewrite <- Z.mul_max_distr_nonneg_r; [ easy | now subst y ].
 Qed.
 
 Theorem ps_polydo_adjust_mul_add₂_distr_l : ∀ ps₁ ps₂ ps₃,
@@ -718,7 +726,7 @@ unfold cm; simpl.
 unfold cm_factor.
 rewrite Pos.mul_1_r.
 do 2 rewrite Pos.mul_assoc.
-rewrite Pos_mul_mul_swap.
+rewrite Pos.mul_mul_swap.
 reflexivity.
 Qed.
 
@@ -750,35 +758,38 @@ rewrite series_mul_comm, series_shift_mul, series_mul_comm.
 do 2 rewrite Pos2Z.inj_mul.
 do 2 rewrite Z.mul_assoc.
 do 4 rewrite Z.mul_add_distr_r.
-remember (v₁ * Zpos c₃ * Zpos c₁ * Zpos c₂)%Z as x.
-replace (v₁ * Zpos c₂ * Zpos c₁ * Zpos c₃)%Z with x by (subst x; ring).
+progress unfold Z.of_pos.
+remember (v₁ * z_pos c₃ * z_pos c₁ * z_pos c₂)%Z as x.
+replace (v₁ * z_pos c₂ * z_pos c₁ * z_pos c₃)%Z with x by (subst x; ring).
 do 2 rewrite Z.add_min_distr_l.
-do 2 rewrite Z.add_add_simpl_l_l.
+rewrite (Z.add_comm x), Z.sub_add_distr, Z.add_sub.
+rewrite (Z.add_comm x), Z.sub_add_distr, Z.add_sub.
 clear x Heqx.
 do 2 rewrite stretch_shift_series_distr.
 do 2 rewrite <- Z2Nat_inj_mul_pos_r.
 rewrite Pos2Z.inj_mul.
 do 2 rewrite Z.mul_assoc.
 do 4 rewrite Z.mul_sub_distr_r.
-rewrite <- Z.mul_min_distr_nonneg_r; [ idtac | apply Pos2Z.is_nonneg ].
-rewrite <- Z.mul_min_distr_nonneg_r; [ idtac | apply Pos2Z.is_nonneg ].
-rewrite <- Z.mul_min_distr_nonneg_r; [ idtac | apply Pos2Z.is_nonneg ].
-rewrite <- Z.mul_min_distr_nonneg_r; [ idtac | apply Pos2Z.is_nonneg ].
+rewrite <- Z.mul_min_distr_nonneg_r; [ idtac | easy ].
+rewrite <- Z.mul_min_distr_nonneg_r; [ idtac | easy ].
+rewrite <- Z.mul_min_distr_nonneg_r; [ idtac | easy ].
+rewrite <- Z.mul_min_distr_nonneg_r; [ idtac | easy ].
 rewrite series_add_comm.
 do 2 rewrite <- series_stretch_stretch.
 rewrite Pos.mul_assoc.
-rewrite Pos_mul_mul_swap.
-remember (v₂ * Zpos c₁ * Zpos c₁ * Zpos c₃)%Z as x.
-replace (v₂ * Zpos c₃ * Zpos c₁ * Zpos c₁)%Z with x by (subst; ring).
+rewrite Pos.mul_mul_swap.
+progress unfold Z.of_pos.
+remember (v₂ * z_pos c₁ * z_pos c₁ * z_pos c₃)%Z as x.
+replace (v₂ * z_pos c₃ * z_pos c₁ * z_pos c₁)%Z with x by (subst; ring).
 subst x.
-remember (v₃ * Zpos c₁ * Zpos c₁ * Zpos c₂)%Z as x.
-replace (v₃ * Zpos c₂ * Zpos c₁ * Zpos c₁)%Z with x by (subst; ring).
+remember (v₃ * z_pos c₁ * z_pos c₁ * z_pos c₂)%Z as x.
+replace (v₃ * z_pos c₂ * z_pos c₁ * z_pos c₁)%Z with x by (subst; ring).
 subst x.
-remember (c₁ * c₃ * c₁)%positive as x.
-rewrite Pos_mul_mul_swap in Heqx.
+remember (c₁ * c₃ * c₁)%pos as x.
+rewrite Pos.mul_mul_swap in Heqx.
 subst x.
-remember (c₁ * c₂ * c₁)%positive as x.
-rewrite Pos_mul_mul_swap in Heqx.
+remember (c₁ * c₂ * c₁)%pos as x.
+rewrite Pos.mul_mul_swap in Heqx.
 subst x.
 reflexivity.
 Qed.
@@ -844,17 +855,17 @@ rewrite <- (normalise_ps_eq ips₃).
 remember (normalise_ps ips₁) as ps₁ eqn:Hps₁ .
 remember (normalise_ps ips₂) as ps₂ eqn:Hps₂ .
 remember (normalise_ps ips₃) as ps₃ eqn:Hps₃ .
-remember (ps_ordnum ps₁ * Zpos (ps_polydo ps₂) * Zpos (ps_polydo ps₃))%Z
+remember (ps_ordnum ps₁ * z_pos (ps_polydo ps₂) * z_pos (ps_polydo ps₃))%Z
   as vcc.
-remember (Zpos (ps_polydo ps₁) * ps_ordnum ps₂ * Zpos (ps_polydo ps₃))%Z
+remember (z_pos (ps_polydo ps₁) * ps_ordnum ps₂ * z_pos (ps_polydo ps₃))%Z
   as cvc.
-remember (Zpos (ps_polydo ps₁) * Zpos (ps_polydo ps₂) * ps_ordnum ps₃)%Z
+remember (z_pos (ps_polydo ps₁) * z_pos (ps_polydo ps₂) * ps_ordnum ps₃)%Z
   as ccv.
-remember ((vcc + Z.min cvc ccv) * Zpos (ps_polydo ps₁))%Z as n₁.
-remember ((vcc + Z.min cvc ccv) * Zpos (ps_polydo ps₁))%Z as n₂.
+remember ((vcc + Z.min cvc ccv) * z_pos (ps_polydo ps₁))%Z as n₁.
+remember ((vcc + Z.min cvc ccv) * z_pos (ps_polydo ps₁))%Z as n₂.
 do 2 rewrite eq_ps_add_add₂.
 rewrite ps_adjust_eq with (n := O) (k := ps_polydo ps₁); symmetry.
-rewrite ps_adjust_eq with (n := O) (k := xH); symmetry.
+rewrite ps_adjust_eq with (n := O) (k := 1%pos); symmetry.
 remember (adjust_ps 0 (ps_polydo ps₁) (ps₁ * ps_add₂ ps₂ ps₃))%ps as ps₄
   eqn:Hps₄ .
 remember (adjust_ps 0 1 (ps_add₂ (ps₁ * ps₂) (ps₁ * ps₃)))%ps as ps₅
@@ -882,7 +893,7 @@ Theorem ps_monom_add_l : ∀ c d n,
 Proof.
 intros c d n.
 unfold ps_monom; simpl.
-rewrite ps_adjust_eq with (n := 0%nat) (k := Qden n).
+rewrite ps_adjust_eq with (n := 0%nat) (k := q_den n).
 unfold adjust_ps; simpl.
 rewrite series_shift_0.
 rewrite Z.sub_0_r.
@@ -891,8 +902,8 @@ apply mkps_morphism; simpl.
  rewrite Z.min_id; simpl.
  rewrite Z.sub_diag; simpl.
  rewrite Nat.sub_0_r.
- destruct (zerop (i mod Pos.to_nat (Qden n))) as [H| H].
-  destruct (zerop (i / Pos.to_nat (Qden n))) as [H₁| H₁].
+ destruct (zerop (i mod Pos.to_nat (q_den n))) as [H| H].
+  destruct (zerop (i / Pos.to_nat (q_den n))) as [H₁| H₁].
    reflexivity.
 
    rewrite rng_add_0_l; reflexivity.
@@ -927,19 +938,19 @@ destruct i; simpl.
  rewrite all_0_summation_0; [ reflexivity | idtac ].
  intros j (_, Hj).
  rewrite fold_sub_succ_l.
- destruct (zerop (j mod Pos.to_nat (Qden n))) as [H₁| H₁].
+ destruct (zerop (j mod Pos.to_nat (q_den n))) as [H₁| H₁].
   apply Nat.Div0.mod_divides in H₁.
   destruct H₁ as (c, Hc).
   rewrite Nat.mul_comm in Hc; rewrite Hc.
-  rewrite Nat.div_mul; [ idtac | apply Pos2Nat_ne_0 ].
+  rewrite Nat.div_mul; [ idtac | easy ].
   destruct (zerop c) as [H₁| H₁].
    subst c.
    rewrite Nat.mul_0_l, Nat.sub_0_r.
-   destruct (zerop (S i mod Pos.to_nat (Qden m))) as [H₁| H₁].
+   destruct (zerop (S i mod Pos.to_nat (q_den m))) as [H₁| H₁].
     apply Nat.Div0.mod_divides in H₁.
     destruct H₁ as (d, Hd).
     rewrite Nat.mul_comm in Hd; rewrite Hd.
-    rewrite Nat.div_mul; [ idtac | apply Pos2Nat_ne_0 ].
+    rewrite Nat.div_mul; [ idtac | easy ].
     destruct (zerop d) as [H₁| H₁]; [ subst d; discriminate Hd | idtac ].
     rewrite rng_mul_0_r; reflexivity.
 
@@ -955,35 +966,36 @@ Theorem ps_monom_mul_l : ∀ c d n,
 Proof.
 intros c d n.
 progress unfold ps_monom; simpl.
-apply mkps_morphism; simpl; [ idtac | idtac | reflexivity ].
- constructor; intros i; simpl.
- destruct i; simpl.
+apply mkps_morphism; simpl; [ | symmetry; apply Z.mul_1_r | ]. 2: {
+  progress unfold cm; cbn.
+  symmetry; apply Pos.mul_1_l.
+}
+constructor; intros i; simpl.
+destruct i; simpl. {
   progress unfold convol_mul; simpl.
   rewrite summation_only_one; simpl.
   rewrite Nat.Div0.mod_0_l; auto with Arith; simpl.
   rewrite Nat.Div0.div_0_l; auto with Arith; simpl.
-
-  progress unfold convol_mul; simpl.
-  rewrite all_0_summation_0; [ reflexivity | idtac ].
-  intros j (_, Hj).
-  rewrite divmod_div.
-  rewrite fold_sub_succ_l.
-  rewrite Nat.div_1_r.
-  destruct (zerop (j mod Pos.to_nat (Qden n))) as [H₁| H₁].
-   apply Nat.Div0.mod_divides in H₁; auto with Arith.
-   destruct H₁ as (e, He).
-   rewrite Nat.mul_comm in He.
-   rewrite He.
-   rewrite Nat.div_mul; auto with Arith.
-   destruct (zerop e) as [H₂| H₂].
+}
+progress unfold convol_mul; simpl.
+rewrite all_0_summation_0; [ reflexivity | idtac ].
+intros j (_, Hj).
+rewrite divmod_div.
+rewrite fold_sub_succ_l.
+rewrite Nat.div_1_r.
+destruct (zerop (j mod Pos.to_nat (q_den n))) as [H₁| H₁]. {
+  apply Nat.Div0.mod_divides in H₁; auto with Arith.
+  destruct H₁ as (e, He).
+  rewrite Nat.mul_comm in He.
+  rewrite He.
+  rewrite Nat.div_mul; auto with Arith.
+  destruct (zerop e) as [H₂| H₂]. {
     subst e; rewrite Nat.sub_0_r; simpl.
-    rewrite rng_mul_0_r; reflexivity.
-
-    rewrite rng_mul_0_l; reflexivity.
-
-   rewrite rng_mul_0_l; reflexivity.
-
- rewrite Z.mul_1_r; reflexivity.
+    apply rng_mul_0_r.
+  }
+  apply rng_mul_0_l.
+}
+apply rng_mul_0_l.
 Qed.
 
 Theorem ps_monom_add_r : ∀ c p q,
@@ -1013,7 +1025,7 @@ destruct i; simpl.
  destruct j; simpl.
   rewrite Nat.Div0.mod_0_l; auto with Arith; simpl.
   rewrite Nat.Div0.div_0_l; auto with Arith; simpl.
-  destruct (zerop (S i mod Pos.to_nat (Qden p))) as [H| H].
+  destruct (zerop (S i mod Pos.to_nat (q_den p))) as [H| H].
    apply Nat.Div0.mod_divides in H; auto with Arith.
    destruct H as (d, Hd).
    rewrite Nat.mul_comm in Hd; rewrite Hd.
@@ -1023,7 +1035,7 @@ destruct i; simpl.
 
    rewrite rng_mul_0_r; reflexivity.
 
-  destruct (zerop (S j mod Pos.to_nat (Qden q))) as [H| H].
+  destruct (zerop (S j mod Pos.to_nat (q_den q))) as [H| H].
    apply Nat.Div0.mod_divides in H; auto with Arith.
    destruct H as (d, Hd).
    rewrite Nat.mul_comm in Hd; rewrite Hd.

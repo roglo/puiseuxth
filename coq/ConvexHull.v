@@ -1,9 +1,9 @@
 (* ConvexHull.v *)
 
-From Stdlib Require Import Utf8 QArith List.
+From Stdlib Require Import Utf8 List.
 Import ListNotations.
 
-Require Import Slope_base.
+Require Import A_QArith Slope_base.
 
 Record newton_segment := mkns
   { ini_pt : (nat * Q);
@@ -18,7 +18,7 @@ Fixpoint minimise_slope pt₁ pt₂ pts₂ :=
       {| ini_pt := pt₁; fin_pt := pt₂; oth_pts := [] |}
   | pt₃ :: pts₃ =>
       let ms := minimise_slope pt₁ pt₃ pts₃ in
-      match Qcompare (slope_expr pt₁ pt₂) (slope ms) with
+      match Q.compare (slope_expr pt₁ pt₂) (slope ms) with
       | Eq =>
           {| ini_pt := pt₁; fin_pt := fin_pt ms;
              oth_pts := pt₂ :: oth_pts ms |}
@@ -46,7 +46,7 @@ intros pt₁ pt₂ pts.
 revert pt₁ pt₂.
 induction pts as [| pt]; intros; [ reflexivity | simpl ].
 remember (minimise_slope pt₁ pt pts) as ms.
-remember (slope_expr pt₁ pt₂ ?= slope ms) as c.
+remember (slope_expr pt₁ pt₂ ?= slope ms)%Q as c.
 symmetry in Heqc.
 destruct c; simpl; [ reflexivity | reflexivity | idtac ].
 subst ms; apply IHpts.

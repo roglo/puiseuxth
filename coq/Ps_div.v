@@ -1,8 +1,8 @@
 (* Ps_div.v *)
 
 From Stdlib Require Import Utf8 Arith.
-From Stdlib Require Import QArith.
 
+Require Import A_PosArith A_ZArith.
 Require Import Misc.
 Require Import NbarM.
 Require Import Field2.
@@ -160,8 +160,7 @@ destruct n as [n| ]. {
       remember Z.gcd as g; simpl; subst g.
       rewrite Z.gcd_0_l.
       rewrite Z.gcd_1_l.
-      rewrite Z.div_0_l; [ reflexivity | idtac ].
-      intros H; discriminate H.
+      apply Z.div_0_l.
     } {
       erewrite ps_polydo_normalise; try reflexivity; try eassumption.
       remember Z.gcd as g; simpl; subst g.
@@ -234,7 +233,7 @@ destruct n as [n| ]. {
     rewrite stretch_series_1.
     rewrite <- Z.mul_add_distr_r.
     rewrite Z.add_sub_assoc, Z.add_opp_r.
-    rewrite Z.add_comm, Z.add_simpl_r.
+    rewrite Z.add_comm, Z.add_sub.
     rewrite Z.sub_diag, Z.mul_0_l.
     constructor.
     rewrite normalise_ps_1.
@@ -246,24 +245,21 @@ destruct n as [n| ]. {
         progress unfold gcd_ps.
         remember Z.gcd as g; simpl; subst g.
         rewrite Z.gcd_0_l.
-        rewrite Z.div_0_l. {
-          rewrite greatest_series_x_power_series_1.
-          rewrite Z.gcd_0_r; simpl.
-          rewrite Z.div_same; [ idtac | apply Pos2Z_ne_0 ].
-          progress unfold normalise_series; simpl.
-          rewrite series_left_shift_0.
-          progress unfold series_shrink; simpl.
-          constructor; try reflexivity; simpl.
-          constructor; intros i; simpl.
-          destruct i; [ reflexivity | idtac ].
-          remember (S i * Pos.to_nat (ps_polydo ps * ps_polydo ps))%nat as x.
-          symmetry in Heqx; simpl.
-          destruct x; [ idtac | reflexivity ].
-          apply Nat.eq_mul_0_l in Heqx; auto with Arith; discriminate Heqx.
-        }
-        intros H₁.
-        apply Z.gcd_eq_0_l in H₁.
-        exfalso; revert H₁; apply Pos2Z_ne_0.
+        rewrite Z.div_0_l.
+        rewrite greatest_series_x_power_series_1.
+        rewrite Z.gcd_0_r; simpl.
+        rewrite Z.pos_nat, Z.abs_nonneg_eq; [ | easy ].
+        rewrite Z.div_same; [ idtac | apply Pos2Z_ne_0 ].
+        progress unfold normalise_series; simpl.
+        rewrite series_left_shift_0.
+        progress unfold series_shrink; simpl.
+        constructor; try reflexivity; simpl.
+        constructor; intros i; simpl.
+        destruct i; [ reflexivity | idtac ].
+        remember (S i * Pos.to_nat (ps_polydo ps * ps_polydo ps))%nat as x.
+        symmetry in Heqx; simpl.
+        destruct x; [ idtac | reflexivity ].
+        apply Nat.eq_mul_0_l in Heqx; auto with Arith; discriminate Heqx.
       }
       apply series_order_iff in Hm; simpl in Hm.
       destruct Hm as (_, Hm).

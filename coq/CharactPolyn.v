@@ -1,7 +1,9 @@
 (* CharactPolyn.v *)
 
-From Stdlib Require Import Utf8 QArith Sorted ZArith.
+Set Nested Proofs Allowed.
+From Stdlib Require Import Utf8 Sorted Arith Field.
 
+Require Import A_PosArith A_ZArith A_QArith.
 Require Import ConvexHull.
 Require Import ConvexHullMisc.
 Require Import Misc.
@@ -48,7 +50,7 @@ Definition Φq α {R : ring α} {K : field R} f L :=
   {| al := make_char_pol R j tl |}.
 
 Definition ps_lap_com_polydo α (psl : list (puiseux_series α)) :=
-  List.fold_right (λ ps a, (a * ps_polydo ps)%positive) 1%positive psl.
+  List.fold_right (λ ps a, (a * ps_polydo ps)%pos) 1%pos psl.
 
 Definition ps_pol_com_polydo {α} f := @ps_lap_com_polydo α (al f).
 Arguments ps_pol_com_polydo _ f%_pol.
@@ -71,23 +73,23 @@ Definition poly_shrink α k (p : polynomial α) :=
   POL (list_shrink k (al p))%pol.
 
 Definition p_of_m m a :=
-  let p := (Qnum a * Zpos m)%Z in
-  let q := Qden a in
-  (p / Z.gcd p (Zpos q))%Z.
+  let p := (q_num a * z_pos m)%Z in
+  let q := q_den a in
+  (p / Z.gcd p (z_pos q))%Z.
 
 Definition q_of_m m a :=
-  let p := (Qnum a * Zpos m)%Z in
-  let q := Qden a in
-  Z.to_pos (Zpos q / Z.gcd p (Zpos q)).
+  let p := (q_num a * z_pos m)%Z in
+  let q := q_den a in
+  Z.to_pos (z_pos q / Z.gcd p (z_pos q)).
 
 Definition mh_of_m α m αh (hps : puiseux_series α) :=
-  (Qnum αh * Zpos m / Zpos (ps_polydo hps))%Z.
+  (q_num αh * z_pos m / z_pos (ps_polydo hps))%Z.
 
 (* express that some puiseux series ∈ K(1/m)* *)
 Inductive in_K_1_m {α} {R : ring α} {K : field R} ps m :=
   InK1m : (∃ ps₁, (ps₁ = ps)%ps ∧ ps_polydo ps₁ = m) → in_K_1_m ps m.
 
-Arguments in_K_1_m _ _ _ ps%_ps m%_positive.
+Arguments in_K_1_m _ _ _ ps%_ps m%_pos.
 
 Definition pol_in_K_1_m {α} {R : ring α} {K : field R} f m :=
   ps_lap_forall (λ a, in_K_1_m a m) (al f).
@@ -394,7 +396,7 @@ Qed.
 
 Theorem first_power_le : ∀ pow cl h hv,
   (h, hv) ∈ filter_finite_ord (power_list pow cl)
-  → pow ≤ h.
+  → (pow <= h)%nat.
 Proof.
 intros pow cl h hv Hhhv.
 progress unfold power_list in Hhhv.
@@ -442,7 +444,7 @@ induction cl as [| c]; intros. {
   destruct v as [v| ]; [ idtac | contradiction ].
   destruct Hhhv as [Hhhv| ]; [ idtac | contradiction ].
   injection Hhhv; clear Hhhv; intros; subst v h.
-  remember (Qnum (Qnat pow)) as x; simpl in Heqx; subst x.
+  remember (q_num (Qnat pow)) as x; simpl in Heqx; subst x.
   rewrite Nat.sub_diag in Hhps.
   simpl in Hhps; subst hps.
   split; [ left; reflexivity | assumption ].
@@ -453,7 +455,7 @@ induction cl as [| c]; intros. {
   destruct v as [v| ]. {
     destruct Hhhv as [Hhhv| Hhhv]. {
       injection Hhhv; clear Hhhv; intros; subst v h.
-      remember (Qnum (Qnat pow)) as x; simpl in Heqx; subst x.
+      remember (q_num (Qnat pow)) as x; simpl in Heqx; subst x.
       rewrite Nat.sub_diag in Hhps.
       simpl in Hhps; subst hps.
       split; [ left; reflexivity | assumption ].
@@ -496,7 +498,7 @@ Theorem in_pts_in_psl : ∀ pow pts psl h hv hps def,
 Proof.
 intros pow pts psl h hv hps def Hpts Hhv Hhps.
 remember (power_list pow psl) as ppl.
-assert (pow ≤ h) as H. {
+assert (H : (pow <= h)%nat). {
   subst pts ppl.
   eapply first_power_le; eassumption.
 }
@@ -544,7 +546,7 @@ Qed.
 Theorem in_ppl_in_pts : ∀ pow cl ppl pts h hv hps,
   ppl = power_list pow cl
   → pts = filter_finite_ord ppl
-  → pow ≤ h
+  → (pow <= h)%nat
   → hps = List.nth (h - pow) cl 0%ps
   → order hps = qfin hv
   → (h, hv) ∈ pts.
@@ -660,19 +662,42 @@ Qed.
 Theorem any_is_p_mq : ∀ a m p q,
   p = p_of_m m a
   → q = q_of_m m a
-  → a == p # (m * q) ∧ Z.gcd p (Zpos q) = 1%Z.
+  → a == p # m * q ∧ Z.gcd p (z_pos q) = 1%Z.
 Proof.
 intros a m p q Hp Hq.
-progress unfold Qeq; simpl.
+progress unfold Q.eq; simpl.
 subst p q; simpl.
 progress unfold p_of_m, q_of_m; simpl.
-remember (Qnum a * Zpos m)%Z as p.
-remember (Qden a) as q.
-remember (Z.gcd p (Zpos q)) as g.
+remember (q_num a * z_pos m)%Z as p.
+remember (q_den a) as q.
+remember (Z.gcd p (z_pos q)) as g.
+(**)
+assert (Hg : (0 < g)%Z). {
+  apply Z.lt_iff.
+  split; [ rewrite Heqg; apply Z.gcd_nonneg | ].
+  intros H; subst g.
+  symmetry in H.
+  now apply Z.gcd_eq_0 in H.
+}
+rewrite Z2Pos.id. 2: {
+  specialize (Z.gcd_divide_r p (z_pos q)) as H1.
+  rewrite <- Heqg in H1.
+  destruct H1 as (n, Hn).
+  rewrite Hn, Z.mul_div. 2: {
+    now intros H; rewrite H in Hg; apply Z.lt_irrefl in Hg.
+  }
+  apply Z.divide_pos_le; [ | now exists n; rewrite Z.mul_1_r ].
+  apply (Z.mul_lt_mono_pos_r g); [ easy | ].
+  now rewrite <- Hn.
+}
+progress unfold Q.compare.
+rewrite q_Den_num_den.
+cbn.
 rewrite Pos2Z.inj_mul.
 rewrite Z.mul_assoc.
+progress unfold Z.of_pos at 1.
 rewrite <- Heqp.
-pose proof (Z.gcd_divide_l p (Zpos q)).
+pose proof (Z.gcd_divide_l p (z_pos q)).
 rewrite <- Heqg in H.
 destruct H as (gp, Hgp).
 rewrite Hgp.
@@ -681,37 +706,29 @@ assert (g ≠ 0)%Z as Hg0. {
   rewrite Heqg in H.
   apply Z.gcd_eq_0_r in H; revert H; apply Pos2Z_ne_0.
 }
-rewrite Z.div_mul; auto.
-pose proof (Z.gcd_divide_r p (Zpos q)).
+rewrite Z.mul_div; auto.
+pose proof (Z.gcd_divide_r p (z_pos q)).
 rewrite <- Heqg in H.
 destruct H as (gq, Hgq).
 rewrite Hgq.
-rewrite Z.div_mul; auto.
-rewrite Z.mul_shuffle0, Z.mul_assoc.
+rewrite Z.mul_div; auto.
+rewrite Z.mul_mul_swap, <- Z.mul_assoc.
 rewrite Z2Pos.id. {
+  rewrite <- Hgq.
+  progress unfold q_Den.
+  rewrite <- Heqq.
+  progress unfold Z.of_pos.
+  rewrite Z.compare_eq_iff.
   split; [ reflexivity | idtac ].
   apply Z.gcd_div_gcd in Heqg; auto.
   rewrite Hgp, Hgq in Heqg.
-  rewrite Z.div_mul in Heqg; auto.
-  rewrite Z.div_mul in Heqg; auto.
+  rewrite Z.mul_div in Heqg; auto.
+  rewrite Z.mul_div in Heqg; auto.
 }
-apply Z.mul_lt_mono_pos_r with (p := g). {
-  symmetry in Heqg.
-  destruct g as [| g| g]. {
-    rewrite Z.mul_0_r in Hgq.
-    exfalso; revert Hgq; apply Pos2Z_ne_0.
-  } {
-    apply Pos2Z.is_pos.
-  } {
-    pose proof (Z.gcd_nonneg p (Zpos q)).
-    rewrite Heqg in H.
-    apply Z.nlt_ge in H.
-    exfalso; apply H.
-    apply Pos2Z.neg_is_neg.
-  }
-}
-simpl.
-rewrite <- Hgq; apply Pos2Z.is_pos.
+apply (Z.mul_le_mono_pos_r g); [ easy | ].
+rewrite <- Hgq.
+rewrite Z.mul_1_l, Heqg.
+apply Z_gcd_pos_r_le.
 Qed.
 
 (* [Walker, p. 100]: « [...] where q > 0 and p and q are integers having
@@ -719,7 +736,7 @@ Qed.
 Theorem p_and_q_have_no_common_factors : ∀ a m p q,
   p = p_of_m m a
   → q = q_of_m m a
-  → Z.gcd p (Zpos q) = 1%Z.
+  → Z.gcd p (z_pos q) = 1%Z.
 Proof.
 intros a m p q Hp Hq.
 eapply any_is_p_mq; eauto .
@@ -759,29 +776,72 @@ Theorem pmq_qmpm : ∀ m p q j k jz kz mj mk,
   → jz = Z.of_nat j
   → kz = Z.of_nat k
   → p # m * q == (mj - mk # m) / (kz - jz # 1)
-  → Zpos q * (mj - mk) = p * (kz - jz).
+  → z_pos q * (mj - mk) = p * (kz - jz).
 Proof.
 intros m p q j k jz kz mj mk Hjk Hjz Hkz Hpq.
 subst jz kz.
-progress unfold Qeq in Hpq; simpl in Hpq.
+apply Z.compare_eq_iff in Hpq.
+cbn in Hpq.
+do 2 rewrite q_Den_num_den in Hpq.
+rewrite Z.mul_1_r in Hpq.
+progress unfold Q.div in Hpq.
+progress unfold Q.mul in Hpq.
+rewrite q_Den_num_den in Hpq.
+cbn in Hpq.
 do 2 rewrite Pos2Z.inj_mul in Hpq.
-rewrite Zmult_comm in Hpq; symmetry in Hpq.
-rewrite Zmult_comm in Hpq; symmetry in Hpq.
-do 2 rewrite <- Zmult_assoc in Hpq.
-apply Z.mul_cancel_l in Hpq; [ idtac | apply Pos2Z_ne_0 ].
-rewrite Zmult_assoc, Zmult_comm in Hpq.
-rewrite Qden_inv in Hpq; [ | now apply Z.lt_0_sub, inj_lt ].
-rewrite Qnum_inv in Hpq; [ | now apply Z.lt_0_sub, inj_lt].
-symmetry in Hpq.
-rewrite Zmult_comm in Hpq.
-symmetry in Hpq.
-apply Z.div_unique_exact in Hpq; [ | apply Pos2Z_ne_0 ].
-rewrite Hpq.
-rewrite Znumtheory.Zdivide_Zdiv_eq_2; [ | apply Pos2Z.is_pos | ]. {
-  now rewrite Z.div_1_r.
-} {
-  apply Z.divide_1_l.
+assert (Hnjk : Z.of_nat j < Z.of_nat k). {
+  destruct j. {
+    apply Z.lt_iff.
+    split; [ apply Nat2Z.is_nonneg | ].
+    cbn; intros H; symmetry in H.
+    apply Z.of_nat_eq_0 in H.
+    now revert H; apply Nat.neq_0_lt_0.
+  }
+  destruct k; [ easy | cbn ].
+  progress unfold Z.lt; cbn.
+  do 2 rewrite Nat.sub_0_r.
+  apply Nat.compare_lt_iff.
+  now apply Nat.succ_lt_mono in Hjk.
 }
+rewrite Z2Pos.id in Hpq. 2: {
+  rewrite Z.abs_nonneg_eq. 2: {
+    apply Z.le_0_sub.
+    now apply Z.lt_le_incl.
+  }
+  apply Z.divide_pos_le. 2: {
+    exists (Z.of_nat k - Z.of_nat j)%Z.
+    symmetry; apply Z.mul_1_r.
+  }
+  now apply Z.lt_0_sub.
+}
+rewrite Z.mul_comm in Hpq; symmetry in Hpq.
+rewrite Z.mul_comm in Hpq; symmetry in Hpq.
+do 2 rewrite <- Z.mul_assoc in Hpq.
+apply Z.mul_cancel_l in Hpq; [ idtac | apply Pos2Z_ne_0 ].
+rewrite Z.mul_assoc, Z.mul_comm in Hpq.
+symmetry in Hpq.
+rewrite Z.mul_comm in Hpq.
+symmetry in Hpq.
+assert (Hsz : Z.sgn (Z.of_nat k - Z.of_nat j) = 1). {
+  progress unfold Z.sgn.
+  remember (Z.of_nat _ - Z.of_nat _) as kj eqn:Hkj.
+  symmetry in Hkj.
+  destruct kj as [| skj vkj]. {
+    apply -> Z.sub_move_0_r in Hkj.
+    rewrite Hkj in Hnjk.
+    now apply Z.lt_irrefl in Hnjk.
+  }
+  destruct skj; [ easy | ].
+  apply Z.lt_0_sub in Hnjk.
+  now rewrite Hkj in Hnjk.
+}
+apply Z.div_unique_exact in Hpq; [ | now rewrite Hsz ].
+progress unfold Z.of_pos in Hpq.
+rewrite Hpq, Hsz.
+rewrite Z.div_1_r.
+progress f_equal.
+apply Z.abs_nonneg_eq.
+now apply Z.le_0_sub, Z.lt_le_incl.
 Qed.
 
 Theorem order_in_newton_segment : ∀ f L pl h αh,
@@ -819,7 +879,7 @@ Qed.
 Theorem qden_αj_is_ps_polydo : ∀ f L j αj,
   newton_segments f = Some L
   → (j, αj) = ini_pt L
-  → Qden αj = ps_polydo (ps_poly_nth j f).
+  → q_den αj = ps_polydo (ps_poly_nth j f).
 Proof.
 intros f L j αj HL Hini.
 remember HL as H; clear HeqH.
@@ -847,7 +907,7 @@ injection Ho; clear Ho; intros Ho.
 inversion_clear Hin.
 destruct H as (ps₁, (Hps, Hm)).
 subst v m.
-progress unfold Qeq; simpl.
+progress unfold Q.eq; simpl.
 inversion_clear Hps.
 inversion_clear H.
 clear H2.
@@ -862,9 +922,13 @@ destruct y as [y| ]; simpl in H0, H1. {
   remember (gcd_ps y z₁ ps₁) as g₁.
   remember (ps_ordnum ps₁ + Z.of_nat y)%Z as p₁.
   remember (ps_ordnum ps + Z.of_nat x)%Z as p.
-  remember (Zpos (ps_polydo ps₁))%Z as o₁.
-  remember (Zpos (ps_polydo ps))%Z as o.
+  remember (z_pos (ps_polydo ps₁))%Z as o₁.
+  remember (z_pos (ps_polydo ps))%Z as o.
   exists p₁.
+  apply Z.compare_eq_iff; cbn.
+  do 2 rewrite q_Den_num_den.
+  progress unfold Z.of_pos.
+  rewrite <- Heqo₁, <- Heqo.
   pose proof (gcd_ps_is_pos x z ps) as Hgp.
   pose proof (gcd_ps_is_pos y z₁ ps₁) as Hgp₁.
   progress unfold gcd_ps in Heqg, Heqg₁, Hgp, Hgp₁.
@@ -877,18 +941,17 @@ destruct y as [y| ]; simpl in H0, H1. {
   pose proof (Z.gcd_divide_l p₁ (Z.gcd o₁ t₁)) as H₁.
   destruct H₁ as (c₁, Hc₁).
   rewrite Hc₁ in H0 at 1.
-  rewrite Z.div_mul in H0. 2: {
-    apply Z.neq_sym.
+  rewrite Z.mul_div in H0. 2: {
+    symmetry.
     apply Z.lt_neq.
-    rewrite Z.gcd_assoc.
-    assumption.
+    now rewrite Z.gcd_assoc.
   }
   rewrite <- Z.gcd_assoc in H0.
   pose proof (Z.gcd_divide_l p (Z.gcd o t)) as H.
   destruct H as (c, Hc).
   rewrite Hc in H0 at 1.
-  rewrite Z.div_mul in H0. 2: {
-    apply Z.neq_sym.
+  rewrite Z.mul_div in H0. 2: {
+    symmetry.
     apply Z.lt_neq.
     rewrite Z.gcd_assoc.
     assumption.
@@ -898,8 +961,8 @@ destruct y as [y| ]; simpl in H0, H1. {
   pose proof (Z.gcd_divide_r (Z.gcd t₁ p₁) o₁) as H₁.
   destruct H₁ as (d₁, Hd₁).
   rewrite Hd₁ in H1 at 1.
-  rewrite Z.div_mul in H1. 2: {
-    apply Z.neq_sym.
+  rewrite Z.mul_div in H1. 2: {
+    symmetry.
     apply Z.lt_neq.
     rewrite <- Z.gcd_assoc, Z.gcd_comm.
     assumption.
@@ -908,8 +971,8 @@ destruct y as [y| ]; simpl in H0, H1. {
   pose proof (Z.gcd_divide_r (Z.gcd t p) o) as H.
   destruct H as (d, Hd).
   rewrite Hd in H1 at 1.
-  rewrite Z.div_mul in H1. 2: {
-    apply Z.neq_sym.
+  rewrite Z.mul_div in H1. 2: {
+    symmetry.
     apply Z.lt_neq.
     rewrite <- Z.gcd_assoc, Z.gcd_comm.
     assumption.
@@ -923,37 +986,43 @@ destruct y as [y| ]; simpl in H0, H1. {
     rewrite Hc, Hc₁, Hd, Hd₁.
     ring.
   } {
-    apply Zmult_gt_0_lt_0_reg_r with (n := Z.gcd (Z.gcd t₁ p₁) o₁). {
-      rewrite <- Z.gcd_assoc, Z.gcd_comm.
-      apply Z.lt_gt; assumption.
+    specialize (proj1 (Z.lt_0_mul (Z.gcd (Z.gcd t₁ p₁) o₁) d₁)) as H2.
+    assert (H : 0 < Z.gcd (Z.gcd t₁ p₁) o₁ * d₁). {
+      now rewrite Z.mul_comm, <- Hd₁, Heqo₁.
     }
-    rewrite <- Hd₁, Heqo₁; apply Pos2Z.is_pos.
+    specialize (H2 H); clear H.
+    destruct H2 as [H2| (H2, H3)]; [ easy | ].
+    exfalso; apply Z.nle_gt in H3.
+    apply H3, Z.gcd_nonneg.
   } {
-    apply Zmult_gt_0_lt_0_reg_r with (n := Z.gcd (Z.gcd t p) o). {
-      rewrite <- Z.gcd_assoc, Z.gcd_comm.
-      apply Z.lt_gt; assumption.
+    specialize (proj1 (Z.lt_0_mul (Z.gcd (Z.gcd t p) o) d)) as H2.
+    assert (H : 0 < Z.gcd (Z.gcd t p) o * d). {
+      now rewrite Z.mul_comm, <- Hd, Heqo.
     }
-    rewrite <- Hd, Heqo; apply Pos2Z.is_pos.
+    specialize (H2 H); clear H.
+    destruct H2 as [H2| (H2, H3)]; [ easy | ].
+    exfalso; apply Z.nle_gt in H3.
+    apply H3, Z.gcd_nonneg.
   }
 }
 remember (greatest_series_x_power K (ps_terms ps) x) as z.
 pose proof (gcd_ps_is_pos x z ps) as Hgp.
 progress unfold gcd_ps in H0.
 remember (ps_ordnum ps + Z.of_nat x)%Z as p.
-remember (Zpos (ps_polydo ps))%Z as o.
+remember (z_pos (ps_polydo ps))%Z as o.
 remember (Z.of_nat z) as t.
 pose proof (Z.gcd_divide_l p (Z.gcd o t)) as H.
 destruct H as (c, Hc).
 rewrite <- Z.gcd_assoc in H0.
 rewrite Hc in H0 at 1.
-rewrite Z.div_mul in H0. {
+rewrite Z.mul_div in H0. {
   subst c; simpl in Hc.
   move Hc at top; subst p.
   exists 0%Z; reflexivity.
 }
 progress unfold gcd_ps in Hgp.
 rewrite <- Heqp, <- Heqo, <- Heqt in Hgp.
-apply Z.neq_sym.
+symmetry.
 apply Z.lt_neq.
 rewrite Z.gcd_assoc.
 assumption.
@@ -997,12 +1066,15 @@ Theorem den_αj_divides_num_αj_m : ∀ f L j αj m,
   newton_segments f = Some L
   → ini_pt L = (j, αj)
   → pol_in_K_1_m f m
-  → (Zpos (Qden αj) | Qnum αj * Zpos m)%Z.
+  → (z_pos (q_den αj) | q_num αj * z_pos m)%Z.
 Proof.
 intros f L j αj m HL Hini HinK.
 apply any_in_K_1_m with (h := j) (αh := αj) in HinK. {
   destruct HinK as (mh, Hmh).
-  exists mh; assumption.
+  exists mh.
+  apply Z.compare_eq_iff in Hmh; cbn in Hmh.
+  rewrite q_Den_num_den in Hmh.
+  easy.
 }
 progress unfold newton_segments in HL.
 progress unfold points_of_ps_polynom in HL.
@@ -1020,10 +1092,12 @@ Proof.
 intros f L m j αj mj HL Hm Hini Hmj.
 subst mj; simpl.
 progress unfold mh_of_m; simpl.
-progress unfold Qeq; simpl.
-rewrite Z_div_mul_swap. {
+apply Z.compare_eq_iff; cbn.
+rewrite q_Den_num_den.
+progress unfold q_Den.
+rewrite Z.div_mul_swap. {
   erewrite qden_αj_is_ps_polydo; eauto with Arith.
-  rewrite Z.div_mul; eauto with Arith.
+  now rewrite Z.mul_div.
 } {
   erewrite <- qden_αj_is_ps_polydo; eauto with Arith.
   eapply den_αj_divides_num_αj_m; eauto with Arith.
@@ -1033,7 +1107,7 @@ Qed.
 Theorem qden_αk_is_ps_polydo : ∀ f L k αk,
   newton_segments f = Some L
   → (k, αk) = fin_pt L
-  → Qden αk = ps_polydo (ps_poly_nth k f).
+  → q_den αk = ps_polydo (ps_poly_nth k f).
 Proof.
 intros f L k αk HL Hfin.
 remember HL as H; clear HeqH.
@@ -1056,12 +1130,15 @@ Theorem den_αk_divides_num_αk_m : ∀ f L k αk m,
   newton_segments f = Some L
   → pol_in_K_1_m f m
   → fin_pt L = (k, αk)
-  → (Zpos (Qden αk) | Qnum αk * Zpos m)%Z.
+  → (z_pos (q_den αk) | q_num αk * z_pos m)%Z.
 Proof.
 intros f L k αk m HL HinK Hini.
 apply any_in_K_1_m with (h := k) (αh := αk) in HinK. {
   destruct HinK as (mh, Hmh).
-  exists mh; assumption.
+  exists mh.
+  apply Z.compare_eq_iff in Hmh; cbn in Hmh.
+  rewrite q_Den_num_den in Hmh.
+  easy.
 }
 progress unfold newton_segments in HL.
 progress unfold points_of_ps_polynom in HL.
@@ -1079,10 +1156,11 @@ Proof.
 intros f L m k αk mk HL Hm Hini Hmk.
 subst mk; simpl.
 progress unfold mh_of_m; simpl.
-progress unfold Qeq; simpl.
-rewrite Z_div_mul_swap. {
+apply Z.compare_eq_iff; cbn.
+progress unfold q_Den; cbn.
+rewrite Z.div_mul_swap. {
   erewrite qden_αk_is_ps_polydo; eauto with Arith.
-  rewrite Z.div_mul; eauto with Arith.
+  now rewrite Z.mul_div.
 } {
   erewrite <- qden_αk_is_ps_polydo; eauto with Arith.
   eapply den_αk_divides_num_αk_m; eauto with Arith.
@@ -1092,7 +1170,7 @@ Qed.
 Theorem qden_αh_is_ps_polydo : ∀ f L h αh,
   newton_segments f = Some L
   → (h, αh) ∈ oth_pts L
-  → Qden αh = ps_polydo (ps_poly_nth h f).
+  → q_den αh = ps_polydo (ps_poly_nth h f).
 Proof.
 intros f L h αh HL Hoth.
 remember HL as H; clear HeqH.
@@ -1114,12 +1192,15 @@ Theorem den_αh_divides_num_αh_m : ∀ f L h αh m,
   newton_segments f = Some L
   → pol_in_K_1_m f m
   → (h, αh) ∈ oth_pts L
-  → (Zpos (Qden αh) | Qnum αh * Zpos m)%Z.
+  → (z_pos (q_den αh) | q_num αh * z_pos m)%Z.
 Proof.
 intros f L h αh m HL HinK Hoth.
 apply any_in_K_1_m with (h := h) (αh := αh) in HinK. {
   destruct HinK as (mh, Hmh).
-  exists mh; assumption.
+  exists mh.
+  apply Z.compare_eq_iff in Hmh; cbn in Hmh.
+  rewrite q_Den_num_den in Hmh.
+  easy.
 } {
   progress unfold newton_segments in HL.
   progress unfold points_of_ps_polynom in HL.
@@ -1137,10 +1218,11 @@ Proof.
 intros f L m h αh mh HL Hm Hfin Hmh.
 subst mh; simpl.
 progress unfold mh_of_m; simpl.
-progress unfold Qeq; simpl.
-rewrite Z_div_mul_swap. {
+apply Z.compare_eq_iff; cbn.
+progress unfold q_Den; cbn.
+rewrite Z.div_mul_swap. {
   erewrite qden_αh_is_ps_polydo; eauto with Arith.
-  rewrite Z.div_mul; eauto with Arith.
+  now rewrite Z.mul_div.
 } {
   erewrite <- qden_αh_is_ps_polydo; eauto with Arith.
   eapply den_αh_divides_num_αh_m; eauto with Arith.
@@ -1170,22 +1252,19 @@ apply List.in_app_or in Hh.
 remember (fin_pt L) as x eqn:Hfin.
 destruct x as (k, αk).
 split. {
+  apply Z.compare_eq_iff.
+  progress unfold q_Den; cbn.
   rewrite Hmh; simpl.
-  progress unfold Qeq; simpl.
   progress unfold mh_of_m; simpl.
   subst hps.
   destruct Hh as [Hh| [Hk| ]]; [ idtac | idtac | contradiction ]. {
     erewrite <- qden_αh_is_ps_polydo; eauto with Arith.
-    rewrite Z_div_mul_swap. {
-      rewrite Z.div_mul; auto with Arith.
-    }
+    rewrite Z.div_mul_swap; [ now rewrite Z.mul_div | ].
     eapply den_αh_divides_num_αh_m; eauto with Arith.
   }
   injection Hk; clear Hk; intros; subst h αh.
   erewrite <- qden_αk_is_ps_polydo; [ | apply HL | apply Hfin ].
-  rewrite Z_div_mul_swap. {
-    rewrite Z.div_mul; auto with Arith.
-  }
+  rewrite Z.div_mul_swap; [ now rewrite Z.mul_div | ].
   eapply den_αk_divides_num_αk_m; eauto with Arith.
 }
 destruct Hh as [Hh| [Hh| ]]; [ idtac | idtac | contradiction ]. {
@@ -1196,10 +1275,10 @@ destruct Hh as [Hh| [Hh| ]]; [ idtac | idtac | contradiction ]. {
   destruct H as (Hgamma, Hg).
   rewrite Hgamma in Hgh.
   progress unfold Qnat in Hgh.
-  rewrite <- Qnum_minus_distr_r in Hgh.
+  rewrite <- Q.inv_sub_distr in Hgh.
   rewrite Nat2Z.inj_sub. {
     rewrite Hq.
-    rewrite positive_nat_Z.
+    rewrite Z.pos_nat.
     eapply pmq_qmpm; try reflexivity. {
       eapply j_lt_h; try eassumption; reflexivity.
     }
@@ -1207,7 +1286,7 @@ destruct Hh as [Hh| [Hh| ]]; [ idtac | idtac | contradiction ]. {
     remember Heqhps as Hhps; clear HeqHhps.
     eapply in_pts_in_pol in Hhps; try eassumption. {
       destruct Hhps as (Hhps, Hαh).
-      do 2 rewrite Qnum_minus_distr_r.
+      do 2 rewrite Q.inv_sub_distr.
       eapply pol_ord_of_ini_pt in Hj; try eassumption; rewrite Hj.
       eapply pol_ord_of_oth_pt in Hh; try eassumption. {
         rewrite Hh; reflexivity.
@@ -1229,10 +1308,10 @@ pose proof (any_is_p_mq (γ L) m Hp Hpq) as H.
 destruct H as (Hgamma, Hg).
 rewrite Hgh in Hgamma.
 progress unfold Qnat in Hgamma.
-rewrite <- Qnum_minus_distr_r in Hgamma.
+rewrite <- Q.inv_sub_distr in Hgamma.
 rewrite Nat2Z.inj_sub. {
   rewrite Hq.
-  rewrite positive_nat_Z.
+  rewrite Z.pos_nat.
   eapply pmq_qmpm; try reflexivity. {
     eapply j_lt_k; try eassumption; [ now rewrite <- Hj; simpl | ].
     injection Hh; clear Hh; intros; subst h αh.
@@ -1242,10 +1321,10 @@ rewrite Nat2Z.inj_sub. {
   remember Heqhps as Hhps; clear HeqHhps.
   eapply in_pts_in_pol with (hv := αh) in Hhps; try eassumption. {
     destruct Hhps as (Hhps, Hαh).
-    do 2 rewrite Qnum_minus_distr_r.
+    do 2 rewrite Q.inv_sub_distr.
     eapply pol_ord_of_ini_pt in Hj; try eassumption; rewrite Hj.
     injection Hh; clear Hh; intros; subst h αh.
-    rewrite Qnum_minus_distr_r.
+    rewrite Q.inv_sub_distr.
     eapply pol_ord_of_fin_pt in Hfin; try eassumption. {
       rewrite Hfin; reflexivity.
     }
@@ -1273,15 +1352,12 @@ Theorem mul_pos_nonneg : ∀ j k c d,
   → 0 <= c.
 Proof.
 intros j k c d Hjk Hc.
-apply Z.mul_le_mono_pos_r with (p := Z.of_nat d). {
-  destruct d; [ | apply Pos2Z.is_pos ].
+apply (Z.mul_le_mono_pos_r (Z.of_nat d)). {
+  destruct d; [ | easy ].
   rewrite Z.mul_comm in Hc; simpl in Hc.
-  rewrite <- Nat2Z.inj_0 in Hc.
-  apply Nat2Z.inj in Hc.
+  apply Z.of_nat_eq_0 in Hc.
   apply Nat.sub_0_le in Hc.
-  apply Nat.nlt_ge in Hc.
-  exfalso; apply Hc.
-  contradiction.
+  now apply Nat.nlt_ge in Hc.
 }
 rewrite <- Hc; simpl.
 apply Nat2Z.is_nonneg.
@@ -1309,10 +1385,10 @@ rename pq into q; rename Hpq into Hq.
 remember Hp as Hgcd; clear HeqHgcd.
 eapply p_and_q_have_no_common_factors in Hgcd; eauto with Arith.
 rewrite Z.gcd_comm in Hgcd.
-rewrite <- positive_nat_Z in Hgcd.
+rewrite <- Z.pos_nat in Hgcd.
 rewrite Z.gcd_comm in Hgcd.
 rewrite Z.gcd_comm in Hgcd.
-apply Z.gauss with (p := Z.of_nat (h - j)) in Hgcd. {
+apply (Z.gauss _ _ (Z.of_nat (h - j))) in Hgcd. {
   destruct Hgcd as (c, Hc).
   exists (Z.to_nat c).
   apply Nat2Z.inj.
@@ -1329,7 +1405,9 @@ apply Z.gauss with (p := Z.of_nat (h - j)) in Hgcd. {
   }
 }
 rewrite <- Hqjh.
-apply Z.divide_factor_l.
+apply Z.divide_mul_l.
+exists 1%Z; symmetry.
+apply Z.mul_1_l.
 Qed.
 
 (* *)
@@ -1879,7 +1957,7 @@ rewrite list_length_shrink; simpl. {
   }
   subst q.
   rewrite <- Nat.sub_succ_l; [ apply Nat_sub_succ_1 | idtac ].
-  apply Pos2Nat.is_pos.
+  now apply Nat.neq_0_lt_0.
 }
 apply -> Nat.succ_lt_mono.
 clear Hj.
@@ -2046,7 +2124,7 @@ subst h₁.
 eapply Sorted_fst_2nd_lt_last; eassumption.
 Qed.
 
-Theorem Sorted_Qnat_Sorted_Qnum : ∀ pts,
+Theorem Sorted_Qnat_Sorted_q_num : ∀ pts,
   Sorted fst_lt pts
   → Sorted (λ pt₁ pt₂, (fst pt₁ < fst pt₂)%nat) pts.
 Proof.
@@ -2110,7 +2188,7 @@ apply imp_or_tauto. {
   progress unfold list_shrink.
   rewrite list_nth_shrink.
   rewrite Nat.add_0_l.
-  rewrite <- Nat.sub_succ_l; [ idtac | subst q; apply Pos2Nat.is_pos ].
+  rewrite <- Nat.sub_succ_l; [ | now subst q; apply Nat.neq_0_lt_0 ].
   rewrite Nat_sub_succ_1.
   rewrite Nat.mul_comm.
   rewrite <- Nat.Lcm0.divide_div_mul_exact. {
@@ -2136,7 +2214,7 @@ apply imp_or_tauto. {
           apply Sorted_inv_1 in Hsort.
           apply Sorted_app in Hsort.
           destruct Hsort as (Hsort, _).
-          apply Sorted_Qnat_Sorted_Qnum.
+          apply Sorted_Qnat_Sorted_q_num.
           apply ini_oth_fin_pts_sorted in HL.
           apply Sorted_inv_1 in HL.
           now apply Sorted_app in HL.
@@ -2145,7 +2223,7 @@ apply imp_or_tauto. {
         remember HL as Hsort; clear HeqHsort.
         apply ini_oth_fin_pts_sorted in Hsort.
         apply Sorted_inv_1 in Hsort.
-        apply Sorted_Qnat_Sorted_Qnum in Hsort.
+        apply Sorted_Qnat_Sorted_q_num in Hsort.
         eapply Sorted_trans_app in Hsort; try eassumption.
         intros x y z H₁ H₂; eapply Nat.lt_trans; eassumption.
       }

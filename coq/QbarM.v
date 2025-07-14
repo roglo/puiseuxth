@@ -1,7 +1,8 @@
 (* Qbar.v *)
 
-From Stdlib Require Import Utf8 ZArith QArith.
+From Stdlib Require Import Utf8 Relations Morphisms.
 
+Require Import A_PosArith A_ZArith A_QArith.
 Require Import Misc.
 
 Set Implicit Arguments.
@@ -30,15 +31,15 @@ Definition binop f dx dy xb yb :=
   | ∞ => dy
   end.
 
-Definition add := binop Qplus ∞ ∞.
-Definition mul := binop Qmult ∞ ∞.
-Definition min x y := binop Qmin x y x y.
+Definition add := binop Q.add ∞ ∞.
+Definition mul := binop Q.mul ∞ ∞.
+Definition min x y := binop Q.min x y x y.
 
 Definition sub xb yb :=
   match yb with
   | qfin y =>
       match xb with
-      | qfin x => qfin (Qminus x y)
+      | qfin x => qfin (Q.sub x y)
       | ∞ => ∞
       end
   | ∞ => 0
@@ -109,16 +110,9 @@ Theorem eq_dec : ∀ a b, {qeq a b} + {not (qeq a b)}.
 Proof.
 intros a b.
 destruct a as [a| ]; simpl. {
-  destruct b as [b| ]; simpl. {
-    apply Qeq_dec.
-  }
-  right; intros H; assumption.
+  destruct b as [b| ]; [ apply Q.eq_dec | now right ].
 }
-destruct b as [b| ]. {
-  right; intros H; assumption.
-} {
-  left; constructor.
-}
+destruct b as [b| ]; [ now right | now left ].
 Qed.
 
 Theorem min_dec : ∀ n m, {min n m = n} + {min n m = m}.
@@ -126,7 +120,7 @@ Proof.
 intros n m.
 destruct n as [n| ]; [ idtac | destruct m; right; reflexivity ].
 destruct m as [m| ]; [ idtac | left; reflexivity ].
-destruct (Qmin_dec n m) as [H| H]; simpl; rewrite H. {
+destruct (Q.min_dec n m) as [H| H]; simpl; rewrite H. {
   left; reflexivity.
 } {
   right; reflexivity.
@@ -136,17 +130,18 @@ Qed.
 Theorem min_comm : ∀ n m, qeq (min n m) (min m n).
 Proof.
 intros n m.
-destruct n as [n| ]; [ simpl | destruct m; reflexivity ].
-destruct m as [m| ]; [ simpl | reflexivity ].
-rewrite Qmin_comm; reflexivity.
+destruct n as [n| ]; [ | now destruct m; cbn ].
+destruct m as [m| ]; [ | now cbn ].
+progress unfold qeq; cbn.
+apply Q.min_comm.
 Qed.
 
 Theorem min_l : ∀ n m, n ≤ m → qeq (min n m) n.
 Proof.
 intros n m H.
-destruct m as [m| ]; [ idtac | destruct n; reflexivity ].
+destruct m as [m| ]; [ | now destruct n; cbn ].
 destruct n as [n| ]; [ simpl | inversion H ].
-rewrite Qmin_l; [ reflexivity | inversion H; assumption ].
+rewrite Q.min_l; [ reflexivity | inversion H; assumption ].
 Qed.
 
 Theorem min_glb : ∀ n m p, p ≤ n → p ≤ m → p ≤ min n m.
@@ -166,7 +161,7 @@ Proof.
 intros x H.
 destruct x as [x| ]; [ idtac | inversion H ].
 apply qfin_lt_mono in H.
-revert H; apply Qlt_irrefl.
+revert H; apply Q.lt_irrefl.
 Qed.
 
 Theorem lt_neq : ∀ n m, n < m → not (qeq n m).
@@ -178,7 +173,7 @@ destruct n as [n| ]. {
   apply qfin_lt_mono in Hlt.
   apply qfin_inj in H.
   rewrite H in Hlt.
-  revert Hlt; apply Qlt_irrefl.
+  revert Hlt; apply Q.lt_irrefl.
 }
 destruct m as [m| ]; [ inversion H | inversion Hlt ].
 Qed.
@@ -190,7 +185,7 @@ destruct p as [p| ]. {
   destruct m as [m| ]; [ simpl | inversion Hmp ].
   destruct n as [n| ]; [ simpl | inversion Hnm ].
   inversion Hnm; inversion Hmp; constructor.
-  eapply Qle_trans; eassumption.
+  eapply Q.le_trans; eassumption.
 }
 destruct n as [n| ]; [ constructor | idtac ].
 inversion Hnm; subst; assumption.
@@ -203,7 +198,7 @@ destruct p as [p| ]. {
   destruct m as [m| ]; [ simpl | inversion Hmp ].
   destruct n as [n| ]; [ simpl | inversion Hnm ].
   inversion Hnm; inversion Hmp; constructor.
-  eapply Qlt_le_trans; eassumption.
+  eapply Q.lt_le_trans; eassumption.
 }
 destruct n as [n| ]; [ constructor | inversion Hnm ].
 Qed.
@@ -215,7 +210,7 @@ destruct p as [p| ]. {
   destruct m as [m| ]; [ simpl | inversion Hmp ].
   destruct n as [n| ]; [ simpl | inversion Hnm ].
   inversion Hnm; inversion Hmp; constructor.
-  eapply Qle_lt_trans; eassumption.
+  eapply Q.le_lt_trans; eassumption.
 }
 destruct n as [n| ]; [ constructor | idtac ].
 inversion Hnm; subst; assumption.
@@ -226,20 +221,15 @@ Proof.
 intros n m.
 destruct n; [ simpl | destruct m; reflexivity ].
 destruct m as [m| ]; [ simpl | reflexivity ].
-f_equal.
-unfold Qplus; simpl.
-f_equal. {
-  rewrite Z.add_comm; reflexivity.
-} {
-  rewrite Pos.mul_comm; reflexivity.
-}
+progress f_equal.
+apply Q.add_comm.
 Qed.
 
 Theorem add_0_l : ∀ a, qeq (0 + a) a.
 Proof.
 intros a.
 destruct a as [a| ]; [ simpl | constructor ].
-rewrite Q_add_0_l; reflexivity.
+rewrite Q.add_0_l; reflexivity.
 Qed.
 
 Theorem add_lt_mono_r : ∀ n m p, p ≠ ∞ → n < m ↔ n + p < m + p.
@@ -249,7 +239,7 @@ split; intros H. {
   destruct n as [n| ]. {
     destruct m as [m| ]. {
       destruct p as [p| ]. {
-        constructor; apply Qplus_lt_l; inversion H; assumption.
+        now constructor; apply Q.add_lt_mono_r; inversion H.
       }
       exfalso; apply Hp; reflexivity.
     }
@@ -261,7 +251,7 @@ destruct n as [n| ]; [ idtac | inversion H ].
 destruct m as [m| ]; [ idtac | constructor ].
 destruct p as [p| ]; [ idtac | inversion H ].
 constructor; inversion H.
-apply Qplus_lt_l in H2; assumption.
+now apply Q.add_lt_mono_r in H2.
 Qed.
 
 Theorem add_lt_le_mono : ∀ n m p q,
@@ -278,7 +268,7 @@ destruct m as [m| ]; simpl. {
     destruct p as [p| ]; [ idtac | inversion Hpq ].
     apply qfin_le_mono in Hpq.
     apply qfin_lt_mono.
-    apply Qplus_lt_le_compat; assumption.
+    now apply Q.add_lt_le_compat.
   }
   destruct p as [p| ]; [ constructor | idtac ].
   exfalso; apply Hp; reflexivity.
@@ -295,7 +285,7 @@ split; intros H. {
   destruct n as [n| ]. {
     destruct m as [m| ]. {
       destruct p as [p| ]. {
-        constructor; apply Qplus_le_l; inversion H; assumption.
+        now constructor; apply Q.add_le_mono_r; inversion H.
       }
       exfalso; apply Hp; reflexivity.
     }
@@ -307,7 +297,7 @@ destruct n as [n| ]. {
   destruct m as [m| ]; [ idtac | constructor ].
   destruct p as [p| ]; [ idtac | exfalso; apply Hp; reflexivity ].
   constructor; inversion H.
-  apply Qplus_le_l in H2; assumption.
+  now apply Q.add_le_mono_r in H2.
 } {
   destruct m as [m| ]; [ idtac | constructor ].
   destruct p as [p| ]; [ idtac | exfalso; apply Hp; reflexivity ].
@@ -347,50 +337,50 @@ Proof.
 intros n m H.
 destruct n as [n| ]; [ idtac | inversion H ].
 destruct m as [m| ]; [ idtac | constructor ].
-constructor; apply Qlt_le_weak; inversion H; assumption.
+constructor; apply Q.lt_le_incl; inversion H; assumption.
 Qed.
 
 Theorem sub_diag : ∀ n, qeq (n - n) 0.
 Proof.
 intros n.
 destruct n as [n| ]; [ simpl | reflexivity ].
-unfold Qeq; simpl.
-rewrite Z.mul_1_r.
-rewrite Z.mul_opp_l, Z.add_opp_r.
-apply Z.sub_diag.
+apply Q.sub_diag.
 Qed.
 
 Theorem sub_0_l : ∀ n, qeq (0 - n) (-n).
 Proof.
 intros n.
 destruct n as [n| ]; [ simpl | reflexivity ].
-unfold Qeq; simpl.
-rewrite Z.mul_1_r; reflexivity.
+progress unfold Q.sub.
+now rewrite Q.add_0_l.
 Qed.
 
 Theorem mul_0_r : ∀ a, a ≠ ∞ → qeq (a * 0) 0.
 Proof.
 intros a Ha.
 destruct a as [a| ]; simpl; [ idtac | apply Ha; reflexivity ].
-rewrite Qmult_0_r; reflexivity.
+now rewrite Q.mul_0_r.
 Qed.
 
 Theorem eq_refl : reflexive _ qeq.
-Proof. intros a; destruct a; reflexivity. Qed.
+Proof.
+intros a.
+destruct a; [ now cbn | easy ].
+Qed.
 
 Theorem eq_sym : symmetric _ qeq.
 Proof.
 intros a b Hab.
 destruct a; [ idtac | assumption ].
-destruct b; [ symmetry; assumption | contradiction ].
+destruct b; [ now cbn | easy ].
 Qed.
 
 Theorem eq_trans : transitive _ qeq.
 Proof.
 intros a b c Hab Hbc.
 destruct a as [a| ]; simpl in Hab; simpl. {
- destruct b as [b| ]; simpl in Hab, Hbc; [ idtac | contradiction ].
- destruct c as [c| ]; [ rewrite Hab; assumption | assumption ].
+  destruct b as [b| ]; simpl in Hab, Hbc; [ idtac | contradiction ].
+  destruct c as [c| ]; [ rewrite Hab; assumption | assumption ].
 }
 destruct b as [b| ]; simpl in Hab, Hbc; [ contradiction | assumption ].
 Qed.
@@ -405,7 +395,7 @@ Add Parametric Relation : Qbar Qbar.qeq
   transitivity proved by Qbar.eq_trans
   as qbar_qeq_rel.
 
-Global Instance qbar_qfin_morph : Proper (Qeq ==> Qbar.qeq) qfin.
+Global Instance qbar_qfin_morph : Proper (Q.eq ==> Qbar.qeq) qfin.
 Proof. easy. Qed.
 
 Global Instance qbar_add_morph :
@@ -478,18 +468,24 @@ rewrite <- Hab, <- Hcd.
 inversion Hac; assumption.
 Qed.
 
-Theorem Qmin_same_den : ∀ a b c, Qmin (a # c) (b # c) = Z.min a b # c.
+Theorem Qmin_same_den : ∀ a b c, Q.min (a # c) (b # c) = Z.min a b # c.
 Proof.
 intros a b c.
-unfold Qmin; simpl.
-destruct (Qlt_le_dec (a # c) (b # c)) as [Hlt| Hge]; f_equal. {
-  unfold Qlt in Hlt; simpl in Hlt.
-  apply Zmult_lt_reg_r in Hlt; [ idtac | apply Pos2Z.is_pos ].
-  rewrite Z.min_l; [ reflexivity | apply Z.lt_le_incl; assumption ].
+unfold Q.min; simpl.
+destruct (Q.lt_le_dec (a # c) (b # c)) as [Hlt| Hge]; f_equal. {
+  apply -> Z.compare_lt_iff in Hlt.
+  cbn in Hlt.
+  do 2 rewrite q_Den_num_den in Hlt.
+  apply Z.mul_lt_mono_pos_r in Hlt; [ | easy ].
+  symmetry.
+  now apply Z.min_l, Z.lt_le_incl.
 } {
-  unfold Qle in Hge; simpl in Hge.
-  apply Zmult_le_reg_r in Hge; [ idtac | apply Z.lt_gt, Pos2Z.is_pos ].
-  rewrite Z.min_r; [ reflexivity | assumption ].
+  apply -> Z.compare_le_iff in Hge.
+  cbn in Hge.
+  do 2 rewrite q_Den_num_den in Hge.
+  apply Z.mul_le_mono_pos_r in Hge; [ | easy ].
+  symmetry.
+  now apply Z.min_r.
 }
 Qed.
 
@@ -543,17 +539,15 @@ destruct a as [a| ]. {
   destruct c as [c| ]. {
     destruct d as [d| ]; [ idtac | inversion Hcd ].
     apply Qbar.qfin_inj in Hcd.
-    unfold Qmin; simpl.
-    destruct (Qlt_le_dec a c) as [Hlt| Hge]; [ idtac | inversion Hcd ]. {
-      destruct (Qlt_le_dec b d) as [Hlt'| Hge]; [ assumption | idtac ].
+    unfold Q.min; simpl.
+    destruct (Q.lt_le_dec a c) as [Hlt| Hge]; [ idtac | inversion Hcd ]. {
+      destruct (Q.lt_le_dec b d) as [Hlt'| Hge]; [ assumption | idtac ].
       rewrite Hab, Hcd in Hlt.
-      apply Qle_not_lt in Hge.
-      contradiction.
+      now apply Q.nlt_ge in Hge.
     }
-    destruct (Qlt_le_dec b d) as [Hlt| Hge']; [ idtac | assumption ].
+    destruct (Q.lt_le_dec b d) as [Hlt| Hge']; [ idtac | assumption ].
     rewrite Hab, Hcd in Hge.
-    apply Qle_not_lt in Hge.
-    contradiction.
+    now apply Q.nlt_ge in Hge.
   }
   destruct d as [d| ]; [ inversion Hcd | assumption ].
 }

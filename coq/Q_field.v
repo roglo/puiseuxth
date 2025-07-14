@@ -1,42 +1,30 @@
 (* Q_field.v *)
 
 From Stdlib Require Import Utf8.
-From Stdlib Require Import QArith.
 
+Require Import A_QArith.
 Require Import Field2.
-
-Theorem Qplus_opp_l : ∀ a, -a + a == 0.
-Proof. intros a; rewrite Qplus_comm; apply Qplus_opp_r. Qed.
-
-Theorem Qplus_compat_l : ∀ a b c, a == b → c + a == c + b.
-Proof. intros a b c H; apply Qplus_inj_l; assumption. Qed.
-
-Theorem Qmult_compat_l : ∀ a b c, a == b → c * a == c * b.
-Proof.
-intros a b c H.
-destruct (Qeq_dec c 0) as [Hz| ]; [ rewrite Hz; reflexivity | idtac ].
-apply Qmult_inj_l; assumption.
-Qed.
+Open Scope Q_scope.
 
 Definition Q_ring :=
   {| rng_zero := 0;
      rng_one := 1;
-     rng_add := Qplus;
-     rng_mul := Qmult;
-     rng_opp := Qopp;
-     rng_eq := Qeq;
-     rng_eq_refl := Qeq_refl;
-     rng_eq_sym := Qeq_sym;
-     rng_eq_trans := Qeq_trans;
-     rng_add_comm := Qplus_comm;
-     rng_add_assoc := Qplus_assoc;
-     rng_add_0_l := Qplus_0_l;
-     rng_add_opp_l := Qplus_opp_l;
-     rng_add_compat_l := Qplus_compat_l;
-     rng_mul_comm := Qmult_comm;
-     rng_mul_assoc := Qmult_assoc;
-     rng_mul_1_l := Qmult_1_l;
-     rng_mul_compat_l := Qmult_compat_l;
-     rng_mul_add_distr_l := Qmult_plus_distr_r |}.
+     rng_add := Q.add;
+     rng_mul := Q.mul;
+     rng_opp := Q.opp;
+     rng_eq := Q.eq;
+     rng_eq_refl := Q.eq_refl;
+     rng_eq_sym := Q.eq_symm;
+     rng_eq_trans := Q.eq_trans;
+     rng_add_comm a b := eq_qeq _ _ (Q.add_comm a b);
+     rng_add_assoc a b c := eq_qeq _ _ (Q.add_assoc a b c);
+     rng_add_0_l a := eq_qeq _ _ (Q.add_0_l a);
+     rng_add_opp_l := Q.add_opp_diag_l;
+     rng_add_compat_l a b c := Q.add_compat_l_if c a b;
+     rng_mul_comm a b := eq_qeq _ _ (Q.mul_comm a b);
+     rng_mul_assoc a b c := eq_qeq _ _ (Q.mul_assoc a b c);
+     rng_mul_1_l a := eq_qeq _ _ (Q.mul_1_l a);
+     rng_mul_compat_l a b c := Q.mul_compat_l c a b;
+     rng_mul_add_distr_l := Q.mul_add_distr_l |}.
 
 Canonical Structure Q_ring.

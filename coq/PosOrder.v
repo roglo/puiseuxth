@@ -2,10 +2,10 @@
 
 Set Nested Proofs Allowed.
 
-From Stdlib Require Import Utf8 Arith ZArith.
-From Stdlib Require Import QArith.
-From Stdlib Require Import Sorted.
+From Stdlib Require Import Utf8 Arith.
+From Stdlib Require Import Sorted Morphisms.
 
+Require Import A_PosArith A_ZArith A_QArith.
 Require Import Misc.
 Require Import NbarM.
 Require Import QbarM.
@@ -154,17 +154,24 @@ eapply order_in_newton_segment with (h := h) (αh := αh) in Hval; eauto. {
   progress unfold ps_ordnum_add; simpl.
   progress unfold cm, cm_factor; simpl.
   rewrite Z.mul_1_r.
-  progress unfold Qlt; simpl.
+  progress unfold Q.lt; simpl.
   rewrite Pos2Z.inj_mul.
   rewrite Z.mul_assoc.
-  rewrite Z.mul_shuffle0.
-  apply Z.mul_lt_mono_pos_r; [ apply Pos2Z.is_pos | idtac ].
+  rewrite Z.mul_mul_swap.
+  apply Z.compare_lt_iff; cbn.
+  do 2 rewrite q_Den_num_den.
+  rewrite Pos.mul_1_l.
+  rewrite Z.mul_1_r.
+  rewrite (Pos.mul_comm (ps_polydo _)).
+  rewrite Pos2Z.inj_mul.
+  rewrite Z.mul_assoc.
+  apply Z.mul_lt_mono_pos_r; [ easy | ].
   rewrite <- Hval; simpl.
-  rewrite Z.mul_min_distr_nonneg_r; [ idtac | apply Pos2Z.is_nonneg ].
+  rewrite Z.mul_min_distr_nonneg_r; [ idtac | easy ].
   rewrite Z.min_l. {
     rewrite Z.mul_add_distr_r.
     apply Z.add_lt_mono_l.
-    rewrite <- positive_nat_Z, <- Nat2Z.inj_mul.
+    rewrite <- Z.pos_nat, <- Nat2Z.inj_mul.
     apply Nat2Z.inj_lt.
     apply Nat.nle_gt; intros Hmn.
     apply series_order_iff in Hn.
@@ -175,6 +182,7 @@ eapply order_in_newton_segment with (h := h) (αh := αh) in Hval; eauto. {
     progress unfold cm, cm_factor in Hn; simpl in Hn.
     subst v; simpl in Hn.
     progress unfold cm in Hn; simpl in Hn.
+    rewrite Pos.mul_1_l in Hn.
     rewrite Z.mul_1_r in Hn.
     rewrite <- Hval in Hn; simpl in Hn.
     rewrite Z.min_l in Hn. {
@@ -190,7 +198,7 @@ eapply order_in_newton_segment with (h := h) (αh := αh) in Hval; eauto. {
           rewrite Hp in Hn.
           rewrite Nat.div_mul in Hn; auto with Arith; simpl in Hn.
           rewrite Z.mul_add_distr_r in Hn.
-          rewrite Z.add_simpl_l in Hn.
+          rewrite Z.add_comm, Z.add_sub in Hn.
           rewrite Z2Nat.inj_mul in Hn; simpl in Hn. {
             rewrite Nat2Z.id in Hn.
             rewrite <- Hp in Hn.
@@ -244,7 +252,7 @@ eapply order_in_newton_segment with (h := h) (αh := αh) in Hval; eauto. {
         }
         rewrite rng_add_0_l in Hn.
         rewrite Z.mul_add_distr_r in Hn.
-        rewrite Z.add_simpl_l in Hn.
+        rewrite Z.add_comm, Z.add_sub in Hn.
         rewrite Z2Nat.inj_mul in Hn; simpl in Hn. {
           rewrite Nat2Z.id in Hn.
           destruct (lt_dec n (m * Pos.to_nat (ps_polydo āh))) as [Hnm| Hnm]. {
@@ -266,12 +274,12 @@ eapply order_in_newton_segment with (h := h) (αh := αh) in Hval; eauto. {
       }
       rewrite Z.mul_add_distr_r.
       apply Z.le_sub_le_add_l.
-      rewrite Z.sub_diag, <- positive_nat_Z, <- Nat2Z.inj_mul.
+      rewrite Z.sub_diag, <- Z.pos_nat, <- Nat2Z.inj_mul.
       apply Nat2Z.is_nonneg.
     }
     rewrite Z.mul_add_distr_r.
     apply Z.le_sub_le_add_l.
-    rewrite Z.sub_diag, <- positive_nat_Z, <- Nat2Z.inj_mul.
+    rewrite Z.sub_diag, <- Z.pos_nat, <- Nat2Z.inj_mul.
     apply Nat2Z.is_nonneg.
   }
   apply Z.le_sub_le_add_l.
@@ -311,7 +319,6 @@ destruct n as [n| ]. {
   destruct m as [m| ]. {
     eapply in_pol_in_pts in Hval; try eassumption.
     remember HL as H; clear HeqH.
-(**)
     eapply points_not_in_any_newton_segment with (αh := m) (h := l) in H;
     try eassumption. {
       progress unfold order, Qbar.gt.
@@ -321,15 +328,23 @@ destruct n as [n| ]. {
       remember (γ L) as γL.
       rewrite Hs, Hāl; simpl.
       progress unfold cm; simpl.
+      rewrite Pos.mul_1_l.
       rewrite <- Hāl.
-      eapply Qlt_le_trans; [ eassumption | idtac ].
-      progress unfold Qle; simpl.
-      do 2 rewrite Pos2Z.inj_mul.
-      do 2 rewrite Z.mul_assoc.
-      apply Z.mul_le_mono_pos_r; [ apply Pos2Z.is_pos | idtac ].
+      eapply Q.lt_le_trans; [ apply H | idtac ].
+      apply Z.compare_le_iff; cbn.
+      rewrite Q.q_Den_mul; cbn.
+      rewrite Pos.mul_1_l.
+      rewrite q_Den_num_den.
+      rewrite Pos2Z.inj_mul.
+      rewrite Z.mul_assoc.
+      progress unfold q_Den; cbn.
+      rewrite Pos.mul_1_l.
+      rewrite Pos2Z.inj_mul.
+      rewrite Z.mul_assoc.
+      apply Z.mul_le_mono_pos_r; [ easy | ].
       do 3 rewrite Z.mul_add_distr_r.
-      rewrite Z.add_shuffle0.
-      apply Z.add_le_mono. {
+      rewrite Z.add_add_swap.
+      apply Z.add_le_compat. {
         progress unfold order in Hm.
         remember (series_order (ps_terms āl) 0) as p eqn:Hp .
         symmetry in Hp.
@@ -338,8 +353,8 @@ destruct n as [n| ]. {
         rewrite <- Hm; simpl.
         do 2 rewrite Z.mul_add_distr_r.
         apply Z.add_le_mono_l.
-        apply Z.mul_le_mono_pos_r; [ apply Pos2Z.is_pos | idtac ].
-        rewrite <- positive_nat_Z.
+        apply Z.mul_le_mono_pos_r; [ easy | idtac ].
+        rewrite <- Z.pos_nat.
         rewrite <- Nat2Z.inj_mul.
         apply Nat2Z.inj_le.
         rewrite Hs in Hn; simpl in Hn.
@@ -354,7 +369,8 @@ destruct n as [n| ]. {
           rewrite Nat.Div0.mod_0_l in Hn; simpl in Hn.
           rewrite Nat.Div0.div_0_l in Hn; simpl in Hn.
           rewrite rng_mul_1_r in Hn.
-          destruct (zerop (n mod Pos.to_nat (Qden (γL)))) as [Hng| Hng]. {
+          rewrite Pos.mul_1_l in Hn.
+          destruct (zerop (n mod Pos.to_nat (q_den (γL)))) as [Hng| Hng]. {
             apply Nat.Div0.mod_divides in Hng.
             destruct Hng as (g, Hg).
             rewrite Hg, Nat.mul_comm.
@@ -387,7 +403,7 @@ destruct n as [n| ]. {
         }
         reflexivity.
       }
-      rewrite Z.mul_shuffle0; reflexivity.
+      rewrite Z.mul_mul_swap; reflexivity.
     }
     split; [ eassumption | idtac ].
     intros Hlm.
@@ -457,62 +473,24 @@ destruct na as [na| ]. {
   destruct nb as [nb| ]. {
     destruct nc as [nc| ]. {
       simpl.
-      rewrite Z.sub_0_r.
-      rewrite Z.sub_0_r.
-      progress unfold Qeq; simpl.
-      symmetry.
-      rewrite Pos2Z.inj_mul.
-      rewrite Z.mul_assoc.
-      rewrite Z.mul_shuffle0.
-      apply Z.mul_cancel_r; [ apply Pos2Z_ne_0 | idtac ].
-      symmetry.
-      rewrite Pos2Z.inj_mul.
-      rewrite Z.mul_assoc.
-      rewrite Z.add_comm.
-      rewrite Pos2Z.inj_mul.
-      rewrite Z.mul_assoc.
-      rewrite Z.mul_shuffle0.
-      rewrite <- Z.mul_add_distr_r.
-      rewrite <- Z.mul_add_distr_r.
-      rewrite <- Z.mul_assoc.
-      apply Z.mul_cancel_r; [ apply Pos2Z_ne_0 | idtac ].
-      rewrite Z.add_comm.
-      rewrite Z.add_shuffle1.
+      do 2 rewrite Z.sub_0_r.
+      rewrite (Pos.mul_comm (ps_polydo b)).
+      rewrite <- Q.inv_add_distr.
+      apply Q.den_cancel.
+      do 2 rewrite <- Z.add_assoc.
+      progress f_equal.
+      rewrite (Z.add_comm (Z.of_nat na)).
       rewrite <- Z.add_assoc.
-      rewrite <- Z.add_assoc.
-      apply Z.add_cancel_l.
-      apply Z.add_cancel_l.
+      rewrite <- Nat2Z.inj_add.
+      progress f_equal; f_equal.
+      rewrite Nat.add_comm.
       apply series_order_iff in Hna; simpl in Hna.
       apply series_order_iff in Hnb; simpl in Hnb.
       apply series_order_iff in Hnc; simpl in Hnc.
       destruct Hna as (Hia, Hna).
       destruct Hnb as (Hib, Hnb).
       destruct Hnc as (Hic, Hnc).
-      rewrite <- Nat2Z.inj_add.
-      apply Nat2Z.inj_iff.
-      destruct (lt_dec (na + nb) nc) as [Hlt| Hge]. {
-        apply Hic in Hlt.
-        progress unfold convol_mul in Hlt.
-        rewrite summation_only_one_non_0 with (v := na) in Hlt. {
-          rewrite Nat.add_comm, Nat.add_sub in Hlt.
-          apply fld_eq_mul_0_l in Hlt; try assumption; contradiction.
-        } {
-          split; [ apply Nat.le_0_l | apply Nat.le_add_r ].
-        }
-        intros i (_, Hiab) Hina.
-        destruct (lt_dec i na) as [Hilt| Hige]. {
-          rewrite Hia; [ idtac | assumption ].
-          rewrite rng_mul_0_l; reflexivity.
-        }
-        apply Nat.nlt_ge in Hige.
-        rewrite Hib; [ rewrite rng_mul_0_r; reflexivity | idtac ].
-        apply Nat.add_lt_mono_r with (p := i).
-        rewrite Nat.sub_add; auto with Arith.
-        rewrite Nat.add_comm.
-        apply Nat.add_lt_mono_l, Nat_le_neq_lt; auto with Arith.
-      }
-      apply Nat.nlt_ge in Hge.
-      destruct (lt_dec nc (na + nb)) as [Hclt| Hcge]. {
+      apply Nat.le_antisymm; apply Nat.nlt_ge; intros Hlt. {
         progress unfold convol_mul in Hnc.
         rewrite all_0_summation_0 in Hnc. {
           exfalso; apply Hnc; reflexivity.
@@ -533,9 +511,27 @@ destruct na as [na| ]. {
         rewrite Nat.add_comm.
         apply Nat.add_le_mono_l.
         apply Nat.nlt_ge in Hha; auto with Arith.
+      } {
+        apply Hic in Hlt.
+        progress unfold convol_mul in Hlt.
+        rewrite summation_only_one_non_0 with (v := na) in Hlt. {
+          rewrite Nat.add_comm, Nat.add_sub in Hlt.
+          apply fld_eq_mul_0_l in Hlt; try assumption; contradiction.
+        } {
+          split; [ apply Nat.le_0_l | apply Nat.le_add_r ].
+        }
+        intros i (_, Hiab) Hina.
+        destruct (lt_dec i na) as [Hilt| Hige]. {
+          rewrite Hia; [ idtac | assumption ].
+          rewrite rng_mul_0_l; reflexivity.
+        }
+        apply Nat.nlt_ge in Hige.
+        rewrite Hib; [ rewrite rng_mul_0_r; reflexivity | idtac ].
+        apply Nat.add_lt_mono_r with (p := i).
+        rewrite Nat.sub_add; auto with Arith.
+        rewrite Nat.add_comm.
+        apply Nat.add_lt_mono_l, Nat_le_neq_lt; auto with Arith.
       }
-      apply Nat.nlt_ge in Hcge.
-      apply Nat.le_antisymm; assumption.
     }
     exfalso.
     apply series_order_iff in Hna; simpl in Hna.
@@ -609,8 +605,8 @@ intros a b.
 progress unfold Qbar.ge.
 set (k₁ := ps_polydo b).
 set (k₂ := ps_polydo a).
-set (v₁ := (ps_ordnum a * Zpos k₁)%Z).
-set (v₂ := (ps_ordnum b * Zpos k₂)%Z).
+set (v₁ := (ps_ordnum a * z_pos k₁)%Z).
+set (v₂ := (ps_ordnum b * z_pos k₂)%Z).
 set (n₁ := Z.to_nat (v₂ - Z.min v₁ v₂)).
 set (n₂ := Z.to_nat (v₁ - Z.min v₁ v₂)).
 pose proof (ps_adjust_eq K a n₂ k₁) as Ha.
@@ -642,10 +638,10 @@ destruct na as [na| ]. {
     subst v₁ v₂; simpl.
     rewrite Pos.mul_comm.
     rewrite Qmin_same_den.
-    progress unfold Qle; simpl.
+    progress unfold Q.le; simpl.
     apply Z.mul_le_mono_nonneg_r; [ apply Pos2Z.is_nonneg | idtac ].
-    remember (ps_ordnum a * Zpos (ps_polydo b))%Z as ab.
-    remember (ps_ordnum b * Zpos (ps_polydo a))%Z as ba.
+    remember (ps_ordnum a * z_pos (ps_polydo b))%Z as ab.
+    remember (ps_ordnum b * z_pos (ps_polydo a))%Z as ba.
     rewrite Z2Nat.id. {
       rewrite Z2Nat.id. {
         rewrite Z.sub_sub_distr.
@@ -675,18 +671,16 @@ destruct na as [na| ]. {
       }
       rewrite <- Z.sub_max_distr_l.
       rewrite Z.sub_diag.
-      rewrite Z.max_comm, <- Z2Nat_id_max.
-      apply Nat2Z.is_nonneg.
+      apply Z.le_max_r.
     }
     rewrite <- Z.sub_max_distr_l.
     rewrite Z.sub_diag.
-    rewrite <- Z2Nat_id_max.
-    apply Nat2Z.is_nonneg.
+    apply Z.le_max_l.
   }
   destruct nc as [nc| ]; [ simpl | constructor ].
   apply Qbar.le_qfin.
-  progress unfold Qle; simpl.
-  apply Z.mul_le_mono_pos_r; [ apply Pos2Z.is_pos | idtac ].
+  progress unfold Q.le; simpl.
+  apply Z.mul_le_mono_pos_r; [ easy | ].
   apply Z.add_le_mono_l.
   apply Nat2Z.inj_le.
   apply series_series_order_inf_iff in Hnb.
@@ -706,8 +700,8 @@ rewrite Hpa, Hpb; simpl.
 subst k₁ k₂ n₁ n₂; simpl.
 subst v₁ v₂; simpl.
 rewrite Pos.mul_comm.
-progress unfold Qle; simpl.
-apply Z.mul_le_mono_pos_r; [ apply Pos2Z.is_pos | idtac ].
+progress unfold Q.le; simpl.
+apply Z.mul_le_mono_pos_r; [ easy | ].
 apply Z.add_le_mono_r.
 rewrite Z2Nat.id. {
   rewrite Z2Nat.id. {
@@ -717,14 +711,12 @@ rewrite Z2Nat.id. {
   }
   rewrite <- Z.sub_max_distr_l.
   rewrite Z.sub_diag.
-  rewrite <- Z2Nat_id_max.
-  apply Nat2Z.is_nonneg.
+  apply Z.le_max_l.
 }
 rewrite <- Z.sub_max_distr_l.
 rewrite Z.sub_diag.
 rewrite Z.max_comm.
-rewrite <- Z2Nat_id_max.
-apply Nat2Z.is_nonneg.
+apply Z.le_max_l.
 Qed.
 
 Theorem list_in_ps_lap_in : ∀ a l,
@@ -1202,8 +1194,7 @@ simpl in Hm; simpl.
 destruct Hm as (Him, Hm).
 destruct m as [| m]; [ simpl | exfalso; apply Hm; reflexivity ].
 simpl in Hm.
-rewrite Z.add_0_r; destruct n; simpl.
-progress unfold Qle; simpl; reflexivity.
+now rewrite Z.add_0_r; destruct n.
 Qed.
 
 Theorem ps_lap_in_power : ∀ la n,
@@ -1286,12 +1277,7 @@ apply ps_lap_in_add in Hm; [ assumption | idtac | idtac ]. {
       rewrite Heqaa, Heqbb.
       apply Qbar.le_lt_trans with (m := qfin (αh + Qnat h * γ L - β L)). {
         apply Qbar.le_qfin.
-        apply Qplus_le_l with (z := β L).
-        rewrite <- Q_sub_sub_distr.
-        rewrite Qminus_diag.
-        rewrite Q_add_0_l.
-        progress unfold Qminus, Qopp; simpl.
-        rewrite Q_add_0_r.
+        apply Q.le_0_sub.
         remember (points_of_ps_polynom f) as pts.
         eapply points_in_convex; try eassumption.
         eapply in_pol_in_pts; try eassumption.
@@ -1305,7 +1291,7 @@ apply ps_lap_in_add in Hm; [ assumption | idtac | idtac ]. {
         rewrite Hl₁, Htl in Hh.
         rewrite List.map_map in Hh; assumption.
       }
-      progress unfold Qminus.
+      progress unfold Q.sub.
       rewrite Qbar.qfin_inj_add.
       apply Qbar.add_lt_mono_r; [ intros H; discriminate H | idtac ].
       rewrite Qbar.qfin_inj_add.
@@ -1364,7 +1350,7 @@ apply ps_lap_in_mul in Hm; [ assumption | idtac | idtac ]. {
     rewrite Qbar.add_comm; constructor.
   }
   rewrite ps_monom_order; [ simpl | assumption ].
-  rewrite Q_opp_involutive.
+  rewrite Q.opp_involutive.
   eapply order_āl_xlγ₁_gt_β₁; try eassumption.
   apply except_split_seq; [ idtac | idtac | assumption ]. {
     subst l₁ tl.

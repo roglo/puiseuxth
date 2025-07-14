@@ -1,7 +1,9 @@
 (* Puiseux.v *)
 
-From Stdlib Require Import Utf8 Arith ZArith QArith Sorting.
+Set Nested Proofs Allowed.
+From Stdlib Require Import Utf8 Arith Sorting.
 
+Require Import A_PosArith A_ZArith A_QArith.
 Require Import Misc.
 Require Import SlopeMisc.
 Require Import Slope_base.
@@ -57,8 +59,8 @@ Theorem order_root_tail_nonneg_any_r_aux : ∀ f L c f₁ L₁ m q₀ n r,
   → c = ac_root (Φq f L)
   → f₁ = next_pol f (β L) (γ L) c
   → L₁ = option_get phony_ns (newton_segments f₁)
-  → (∀ i, i ≤ S n → (ps_poly_nth 0 (nth_pol i f L) ≠ 0)%ps)
-  → (∀ i, i ≤ S n → nth_r i f L = r)
+  → (∀ i, (i <= S n)%nat → (ps_poly_nth 0 (nth_pol i f L) ≠ 0)%ps)
+  → (∀ i, (i <= S n)%nat → nth_r i f L = r)
   → (0 ≤ order (root_tail (m * q₀) n f₁ L₁))%Qbar.
 Proof.
 intros f L c f₁ L₁ m q₀ n r HL Hm Hq₀ Hc Hf₁ HL₁ Hpsi Hri.
@@ -69,7 +71,7 @@ destruct z₁; [ rewrite order_0; constructor | idtac ].
 revert m q₀ c f L f₁ L₁ HL Hc Hm Hq₀ Hf₁ HL₁ Hz₁ Hpsi Hri.
 induction n; intros. {
   simpl.
-  unfold order; simpl.
+  unfold order; cbn - [ Q.inv ].
   pose proof (Hpsi 1%nat (Nat.le_refl 1)) as H; simpl in H.
   rewrite <- Hc, <- Hf₁ in H.
   rename H into Hnz₁; move Hnz₁ before HL₁.
@@ -96,11 +98,11 @@ induction n; intros. {
   rename H into HL₁i; move HL₁i before HL₁.
   remember HL as H; clear HeqH.
   eapply next_pol_in_K_1_mq in H; try eassumption .
-  remember (m * q₀)%positive as m₁ eqn:Hm₁.
+  remember (m * q₀)%pos as m₁ eqn:Hm₁.
   rename H into HK₁; move HK₁ before Hnz₁.
   move Hm₁ before Hq₀.
-  rewrite Hini₁, Hfin₁; simpl.
-  rewrite Hαk₁; simpl.
+  rewrite Hini₁, Hfin₁; cbn - [ Q.inv ].
+  rewrite Hαk₁; cbn - [ Q.inv ].
   rewrite Qnum_inv_Qnat_sub; [ | apply Hrpos ].
   rewrite Qden_inv_Qnat_sub; [ | apply Hrpos ].
   rewrite Z.add_0_r, Z.mul_1_r.
@@ -110,15 +112,15 @@ induction n; intros. {
   destruct v; [ idtac | constructor ].
   apply Qbar.qfin_le_mono.
   rewrite Nat.sub_0_r.
-  rewrite Z.mul_shuffle0, Pos_mul_mul_swap.
+  rewrite Z.mul_mul_swap, Pos.mul_mul_swap.
   rewrite Pos2Z.inj_mul.
   rewrite Z.div_mul_cancel_r; [ | apply Pos2Z_ne_0 | apply Pos2Z_ne_0 ].
   erewrite αj_m_eq_p_r with (L₁ := L₁); try eassumption; [ | reflexivity ].
-  rewrite Z.mul_shuffle0.
+  rewrite Z.mul_mul_swap.
   rewrite <- Zposnat2Znat; [ | assumption ].
   rewrite <- Z.mul_assoc, <- Pos2Z.inj_mul.
-  rewrite Z.div_mul; [ | apply Pos2Z_ne_0 ].
-  unfold Qle; simpl.
+  rewrite Z.mul_div; [ | apply Pos2Z_ne_0 ].
+  apply Z.compare_le_iff; cbn.
   rewrite Z.mul_1_r.
   apply Z.add_nonneg_nonneg; [ idtac | apply Nat2Z.is_nonneg ].
   apply Z.lt_le_incl.
@@ -131,12 +133,12 @@ remember (option_get phony_ns (newton_segments f₂)) as L₂ eqn:HL₂ .
 destruct (ps_zerop K (ps_poly_nth 0 f₁)) as [H₁| H₁]. {
   discriminate Hz₁.
 }
-remember (m * q₀)%positive as m₁ eqn:Hm₁ .
-replace m₁ with (m₁ * 1)%positive by apply Pos.mul_1_r.
+remember (m * q₀)%pos as m₁ eqn:Hm₁ .
+replace m₁ with (m₁ * 1)%pos by apply Pos.mul_1_r.
 pose proof (Hri 0%nat (Nat.le_0_l (S (S n)))) as H.
 simpl in H; rewrite <- Hc in H.
 rename H into Hr₀; move Hr₀ before Hc.
-assert (1 ≤ S (S n)) as H by apply le_n_S, Nat.le_0_l.
+assert (1 <= S (S n))%nat as H by apply le_n_S, Nat.le_0_l.
 apply Hri in H; simpl in H.
 rewrite <- Hc, <- Hf₁, <- HL₁, <- Hc₁ in H.
 rename H into Hr₁; move Hr₁ before Hc₁.
@@ -182,7 +184,7 @@ Theorem order_root_tail_nonneg_any_r : ∀ f L c f₁ L₁ m q₀ n r,
   → L₁ = option_get phony_ns (newton_segments f₁)
   → zerop_1st_n_const_coeff n f L = false
   → root_multiplicity acf c (Φq f L) = r
-  → (∀ i, r ≤ nth_r i f L)
+  → (∀ i, (r <= nth_r i f L)%nat)
   → (0 ≤ order (root_tail (m * q₀) n f₁ L₁))%Qbar.
 Proof.
 intros f L c f₁ L₁ m q₀ n r.
@@ -218,7 +220,7 @@ Qed.
 
 Theorem zerop_1st_n_const_coeff_false_before : ∀ f L m,
   zerop_1st_n_const_coeff m f L = false
-  → ∀ i, i ≤ m →
+  → ∀ i, (i <= m)%nat →
     zerop_1st_n_const_coeff i f L = false.
 Proof.
 intros f L m H i Hi.
@@ -231,7 +233,7 @@ Qed.
 Theorem multiplicity_not_decreasing : ∀ f L r,
   (∀ i : nat, if multiplicity_decreases f L i then False else True)
   → root_multiplicity acf (ac_root (Φq f L)) (Φq f L) = r
-  → ∀ j, r ≤ nth_r j f L.
+  → ∀ j, (r <= nth_r j f L)%nat.
 Proof.
 intros f L r Hn Hr j.
 pose proof Hn j as H.
@@ -259,7 +261,7 @@ Theorem in_newton_segment_when_r_constant : ∀ f L f₁ L₁ c r,
   → f₁ = next_pol f (β L) (γ L) (ac_root (Φq f L))
   → L₁ = option_get phony_ns (newton_segments f₁)
   → (ps_poly_nth 0 f ≠ 0)%ps
-  → (∀ n : nat, S r ≤ nth_r n f L)
+  → (∀ n : nat, (S r <= nth_r n f L)%nat)
   → ∀ n fn Ln,
     zerop_1st_n_const_coeff n f₁ L₁ = false
     → fn = nth_pol n f₁ L₁
@@ -321,18 +323,18 @@ Theorem upper_bound_zerop_1st_when_r_constant : ∀ f L c f₁ L₁ m q₀ r ofs
   → (order (ps_pol_apply f₁ (root_tail (m * q₀) 0 f₁ L₁)) =
      qfin ofs)%Qbar
   → ∀ N,
-    N = Z.to_nat (2 * Zpos m * Zpos q₀ * Qnum ofs)
+    N = Z.to_nat (2 * z_pos m * z_pos q₀ * q_num ofs)
     → zerop_1st_n_const_coeff N f₁ L₁ = true.
 Proof.
 intros f L c f₁ L₁ m q₀ r ofs.
 intros HL Hc Hf₁ HL₁ Hnz₀ Hm Hq₀ Hr Hn Hofs N HN.
-apply not_false_iff_true; intros Hz.
-assert (Hrle : ∀ n : nat, S r ≤ nth_r n f L).
+apply Bool.not_false_iff_true; intros Hz.
+assert (Hrle : ∀ n : nat, (S r <= nth_r n f L)%nat).
  rewrite Hc in Hr.
  apply multiplicity_not_decreasing; assumption.
 
  remember (1 # 2 * m * q₀) as η eqn:Hη .
- assert (Hηβ : ∀ i, i ≤ N → η < β (nth_ns i f₁ L₁)).
+ assert (Hηβ : ∀ i, (i <= N)%nat → η < β (nth_ns i f₁ L₁)).
   intros i Hi.
   clear HN.
   revert HL Hc Hf₁ HL₁ Hnz₀ Hm Hq₀ Hr Hrle Hη N Hi Hz; clear; intros.
@@ -430,40 +432,47 @@ assert (Hrle : ∀ n : nat, S r ≤ nth_r n f L).
     clear Hofs Hn.
     subst u.
     apply summation_all_lt in Hηβ.
-    eapply Qle_lt_trans; try eassumption.
+    eapply Q.le_lt_trans; try eassumption.
     rewrite Hη, HN.
     rewrite <- Pos2Z.inj_mul.
     rewrite <- Pos2Z.inj_mul.
-    remember (2 * m * q₀)%positive as mq eqn:Hmq .
+    remember (2 * m * q₀)%pos as mq eqn:Hmq .
     rewrite Z.mul_comm.
     rewrite Z2Nat_inj_mul_pos_r.
-    unfold Qle; simpl.
+    apply Z.compare_le_iff; cbn.
+    progress unfold q_Den; cbn.
+    rewrite Pos.mul_1_l.
     rewrite Pos.mul_1_r.
     rewrite Pos2Z.inj_mul.
-    rewrite Zpos_P_of_succ_nat.
+    rewrite Q.fold_q_Den.
+    rewrite Zposnat2Znat; [ | easy ].
+    rewrite Nat2Z.inj_succ.
+    rewrite Z.add_comm.
     rewrite Nat2Z.inj_mul.
-    remember (Qnum ofs) as nofs eqn:Hnofs .
+    remember (q_num ofs) as nofs eqn:Hnofs .
     symmetry in Hnofs.
-    destruct nofs as [| nofs| nofs]; simpl; auto with Arith.
-     rewrite positive_nat_Z.
-     rewrite Z.mul_succ_l.
-     rewrite positive_nat_Z.
-     rewrite <- Pos2Z.inj_mul.
-     rewrite <- Z.mul_1_r at 1.
-     eapply Z.le_trans.
-      apply Z.mul_le_mono_nonneg_l with (m := (Zpos (Qden ofs))%Z);
-        auto with Arith.
+    destruct nofs as [| snofs vnofs]; [ easy | ].
+    destruct snofs; [ | easy ].
+    cbn - [ Z.add ].
+    do 2 rewrite Z.pos_nat.
+    cbn.
+    rewrite Pos.add_comm.
+    rewrite Pos.mul_add_distr_r.
+    rewrite Pos.mul_1_l.
+    rewrite Pos2Z.inj_add.
+    rewrite (Pos2Z.inj_mul (_ * _)).
+    rewrite Q.fold_q_Den.
+    rewrite <- Z.mul_1_r at 1.
+    eapply Z.le_trans.
+      apply (Z.mul_le_mono_nonneg_l _ _ (z_pos (q_den ofs))%Z); [ easy | ].
+      apply Z.divide_pos_le; [ easy | ].
+      exists (z_pos (q_den ofs)).
+      symmetry; apply Z.mul_1_r.
 
-      rewrite Z.one_succ.
-      apply Zlt_le_succ.
-      apply Pos2Z.is_pos.
+      rewrite Q.fold_q_Den.
+      now apply Z.le_add_r.
 
-      apply Z.le_sub_le_add_l.
-      rewrite Z.sub_diag; apply Pos2Z.is_nonneg.
-
-     apply Zle_neg_pos.
-
-    apply Qlt_not_le in Hou; contradiction .
+    now apply Q.nle_gt in Hou.
 Qed.
 
 Definition f₁_root_when_r_constant f L :=
@@ -476,7 +485,7 @@ Definition f₁_root_when_r_constant f L :=
     let s := root_tail (m * q₀) 0 f₁ L₁ in
     match order (ps_pol_apply f₁ s) with
     | qfin ofs =>
-        let N := Z.to_nat (2 * Zpos m * Zpos q₀ * Qnum ofs) in
+        let N := Z.to_nat (2 * z_pos m * z_pos q₀ * q_num ofs) in
         if zerop_1st_n_const_coeff N f₁ L₁ then
           match lowest_with_zero_1st_const_coeff acf N f₁ L₁ with
           | O => 0%ps
@@ -509,7 +518,7 @@ destruct (fld_zerop 1%K) as [H₀| H₀].
 
  remember (order (ps_pol_apply f₁ s)) as ofs eqn:Hofs .
  destruct ofs as [ofs| ].
-  remember (Z.to_nat (2 * Zpos m * Zpos q₀ * Qnum ofs)) as N eqn:HN .
+  remember (Z.to_nat (2 * z_pos m * z_pos q₀ * q_num ofs)) as N eqn:HN .
   remember (zerop_1st_n_const_coeff N f₁ L₁) as z eqn:Hz .
   symmetry in Hz.
   destruct z.
@@ -533,7 +542,7 @@ destruct (fld_zerop 1%K) as [H₀| H₀].
    symmetry in Hr.
    pose proof (multiplicity_neq_0 acf f HL Hc) as H.
    destruct r; [ contradiction | ].
-   revert Hz; apply not_false_iff_true.
+   revert Hz; apply Bool.not_false_iff_true.
    eapply upper_bound_zerop_1st_when_r_constant; try eassumption.
    rewrite Hofs, Hs; reflexivity.
 
@@ -747,24 +756,24 @@ Theorem puiseux_series_algeb_closed : ∀ (f : polynomial (puiseux_series α)),
   → ∃ s, (ps_pol_apply f s = 0)%ps.
 Proof.
 intros f Hdeg.
-destruct (ps_zerop _ (ps_poly_nth 0 f)) as [Hz| Hnz].
- exists 0%ps.
- unfold ps_pol_apply, apply_poly, apply_lap; simpl.
- unfold ps_poly_nth, ps_lap_nth in Hz; simpl in Hz.
- remember (al f) as la eqn:Hla .
- symmetry in Hla.
- destruct la as [| a]; [ reflexivity | simpl in Hz; simpl ].
- rewrite rng_mul_0_r, rng_add_0_l; assumption.
-
- specialize (degree_pos_imp_has_ns f Hdeg Hnz) as (L, HL).
- remember (ac_root (Φq f L)) as c eqn:Hc .
- remember (next_pol f (β L) (γ L) c) as f₁ eqn:Hf₁ .
- rewrite Hc in Hf₁.
- specialize (f₁_has_root HL Hnz Hf₁) as (s₁, Hs₁).
- exists (ps_monom c (γ L) + ps_monom 1%K (γ L) * s₁)%ps.
- eapply f₁_root_f_root; eauto .
- rewrite <- Hc.
- reflexivity.
+destruct (ps_zerop _ (ps_poly_nth 0 f)) as [Hz| Hnz]. {
+  exists 0%ps.
+  unfold ps_pol_apply, apply_poly, apply_lap; simpl.
+  unfold ps_poly_nth, ps_lap_nth in Hz; simpl in Hz.
+  remember (al f) as la eqn:Hla .
+  symmetry in Hla.
+  destruct la as [| a]; [ reflexivity | simpl in Hz; simpl ].
+  rewrite rng_mul_0_r, rng_add_0_l; assumption.
+}
+specialize (degree_pos_imp_has_ns f Hdeg Hnz) as (L, HL).
+remember (ac_root (Φq f L)) as c eqn:Hc .
+remember (next_pol f (β L) (γ L) c) as f₁ eqn:Hf₁ .
+rewrite Hc in Hf₁.
+specialize (f₁_has_root HL Hnz Hf₁) as (s₁, Hs₁).
+exists (ps_monom c (γ L) + ps_monom 1%K (γ L) * s₁)%ps.
+eapply f₁_root_f_root; eauto .
+rewrite <- Hc.
+reflexivity.
 Qed.
 
 End theorems.

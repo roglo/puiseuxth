@@ -2,8 +2,10 @@
 
 Set Nested Proofs Allowed.
 
-From Stdlib Require Import Utf8 QArith Sorted Arith ZArith.
+From Stdlib Require Import Utf8 Sorted Arith.
+From Stdlib Require Import Morphisms.
 
+Require Import A_PosArith A_ZArith A_QArith.
 Require Import ConvexHullMisc.
 Require Import ConvexHull.
 Require Import PolyConvexHull.
@@ -62,24 +64,28 @@ Definition ps_pol_summ α {R : ring α} {K : field R} ln f :=
 (* *)
 
 Global Instance ps_monom_qeq_morph α (r : ring α) (K : field r) :
-  Proper (rng_eq ==> Qeq ==> eq_ps) ps_monom.
+  Proper (rng_eq ==> Q.eq ==> eq_ps) ps_monom.
 Proof.
 intros a b Hab p q Hpq.
 progress unfold ps_monom; simpl.
-rewrite ps_adjust_eq with (n := O) (k := Qden q); simpl.
+rewrite ps_adjust_eq with (n := O) (k := q_den q); simpl.
 symmetry.
-rewrite ps_adjust_eq with (n := O) (k := Qden p); simpl.
+rewrite ps_adjust_eq with (n := O) (k := q_den p); simpl.
 progress unfold adjust_ps; simpl.
 do 2 rewrite Z.sub_0_r.
 do 2 rewrite series_shift_0.
-rewrite Hpq, Pos.mul_comm.
+rewrite Pos.mul_comm.
+apply Z.compare_eq_iff in Hpq.
+progress unfold q_Den in Hpq.
+progress unfold Z.of_pos in Hpq.
+rewrite Hpq.
 apply mkps_morphism; try reflexivity.
 progress unfold series_stretch; simpl.
 constructor; simpl; intros i.
-destruct (zerop (i mod Pos.to_nat (Qden p))) as [H₁| H₁]. {
+destruct (zerop (i mod Pos.to_nat (q_den p))) as [H₁| H₁]. {
   apply Nat.Div0.mod_divides in H₁; auto with Arith.
   destruct H₁ as (c, Hc).
-  destruct (zerop (i / Pos.to_nat (Qden p))) as [H₂| H₂]. {
+  destruct (zerop (i / Pos.to_nat (q_den p))) as [H₂| H₂]. {
     rewrite Nat.mul_comm in Hc.
     rewrite Hc, Nat.div_mul in H₂; auto with Arith.
     subst c; simpl in Hc.
@@ -90,7 +96,7 @@ destruct (zerop (i mod Pos.to_nat (Qden p))) as [H₁| H₁]. {
   }
   rewrite Nat.mul_comm in Hc.
   rewrite Hc, Nat.div_mul in H₂; auto with Arith.
-  destruct (zerop (i mod Pos.to_nat (Qden q))) as [H₃| H₃]. {
+  destruct (zerop (i mod Pos.to_nat (q_den q))) as [H₃| H₃]. {
     apply Nat.Div0.mod_divides in H₃; auto with Arith.
     destruct H₃ as (d, Hd).
     rewrite Nat.mul_comm in Hd.
@@ -102,11 +108,11 @@ destruct (zerop (i mod Pos.to_nat (Qden p))) as [H₁| H₁]. {
     destruct Hd as [Hd| Hd]. {
       subst c; exfalso; revert H₂; apply Nat.lt_irrefl.
     }
-    exfalso; revert Hd; apply Pos2Nat_ne_0.
+    exfalso; revert Hd; apply Pos.to_nat_neq_0.
   }
   reflexivity.
 }
-destruct (zerop (i mod Pos.to_nat (Qden q))) as [H₃| H₃]. {
+destruct (zerop (i mod Pos.to_nat (q_den q))) as [H₃| H₃]. {
   apply Nat.Div0.mod_divides in H₃; auto with Arith.
   destruct H₃ as (d, Hd).
   rewrite Nat.mul_comm in Hd.
@@ -214,7 +220,7 @@ Theorem ps_monom_split_mul : ∀ c pow,
 Proof.
 intros c pow.
 rewrite <- ps_monom_add_r.
-rewrite Q_add_0_l; reflexivity.
+rewrite Q.add_0_l; reflexivity.
 Qed.
 
 Theorem ps_monom_mul_r_pow : ∀ c p n,
@@ -227,33 +233,22 @@ induction n; simpl. {
   progress unfold Qnat; simpl.
   now apply ps_monom_qeq_morph.
 }
-(* getting around a bug of Coq 8.20.0 *)
-rewrite (ps_mul_comm _ (ps_monom 1%K p)).
 rewrite ps_mul_assoc.
-(*
-rewrite ps_mul_assoc.
-Check 1%nat.
 rewrite rng_mul_mul_swap.
-Check 1%nat.
-*)
 rewrite <- IHn.
-assert (Qnat (S n) * p == Qnat n * p + p) as H. {
-  progress unfold Qnat; simpl.
-  rewrite Zpos_P_of_succ_nat.
-  progress unfold Qmult, Qplus; simpl.
-  progress unfold Qeq.
-  simpl.
-  rewrite <- Z.mul_add_distr_r.
-  rewrite Pos2Z.inj_mul.
-  symmetry.
-  rewrite <- Z.mul_assoc.
-  apply Z.mul_cancel_r. {
-    simpl.
-    apply Pos2Z_ne_0.
-  }
-  progress unfold Z.succ; simpl.
-  rewrite Z.mul_add_distr_r.
-  rewrite Z.mul_1_l; reflexivity.
+assert (H : Qnat (S n) * p == Qnat n * p + p). {
+  progress unfold Qnat.
+  rewrite <- (Q.mul_1_l p) at 3.
+  rewrite <- Q.mul_add_distr_r.
+  apply Z.compare_eq_iff.
+  f_equal; f_equal; f_equal.
+  progress unfold Q.add; cbn.
+  rewrite Z.mul_1_r.
+  rewrite Pos.mul_1_r.
+  f_equal.
+  destruct (Nat.eq_dec n 0) as [Hnz| Hnz]; [ now subst n | ].
+  rewrite Pos.of_nat_inj_succ; [ | easy ].
+  now destruct n.
 }
 rewrite H.
 rewrite ps_monom_add_r.
@@ -376,27 +371,16 @@ induction i; intros; simpl. {
   progress unfold Qnat; simpl.
   rewrite <- ps_mul_1_r in |- * at 1.
   apply ps_mul_compat_l.
-  rewrite Qmult_0_l; reflexivity.
+  rewrite Q.mul_0_l; reflexivity.
 }
 destruct la as [| a]; simpl. {
   rewrite lap_mul_assoc; simpl.
-  (* getting around a bug of Coq 8.20.0 *)
-  rewrite ps_mul_0_l; cbn.
-  rewrite ps_mul_0_l; cbn.
-  rewrite ps_add_0_l.
-  rewrite length_monom_puiseux_series_pow; cbn.
-  rewrite ps_mul_0_l.
-  now rewrite ps_add_0_l.
-  (*
-  Check 1%nat.
   rewrite lap_eq_0.
-  Check 1%nat.
   rewrite lap_mul_nil_l.
   rewrite lap_mul_nil_l.
   constructor; [ idtac | reflexivity ].
   simpl.
   rewrite ps_mul_0_l; reflexivity.
-  *)
 }
 rewrite lap_mul_assoc.
 rewrite lap_mul_mul_swap.
@@ -409,16 +393,9 @@ rewrite <- ps_mul_assoc.
 apply ps_mul_compat_l.
 rewrite ps_monom_mul_r_pow; symmetry.
 rewrite ps_monom_mul_r_pow; symmetry.
-(* getting around a bug of Coq 8.20.0 *)
-do 2 rewrite ps_mul_1_l.
-apply ps_mul_comm.
-(*
-Check 1%nat.
 rewrite rng_mul_mul_swap; simpl.
-Check 1%nat.
 rewrite rng_mul_assoc; simpl.
 reflexivity.
-*)
 Qed.
 
 (* [Walker, p. 100] «
@@ -718,18 +695,21 @@ constructor; [ idtac | reflexivity ].
 progress unfold ps_monom; simpl.
 progress unfold ps_mul; simpl.
 progress unfold cm; simpl.
-rewrite Z.mul_opp_l.
+do 3 rewrite Z.mul_opp_l.
 rewrite Z.add_opp_diag_l.
 rewrite stretch_series_1, series_mul_1_l.
-remember (Qden (β L) * Qden (β L))%positive as k.
+remember (q_den (β L) * q_den (β L))%pos as k.
 rewrite ps_adjust_eq with (k := k) (n := O).
 progress unfold adjust_ps; simpl.
 rewrite series_shift_0, stretch_series_1.
-subst k; reflexivity.
+subst k; cbn.
+do 3 rewrite Pos.mul_1_l.
+rewrite Z.mul_opp_l.
+easy.
 Qed.
 
 Theorem fold_nothing : ∀ A j len (f : _ → _ → A) g la,
-  (∀ i, j ≤ i → (i < j + len)%nat → g i = false)
+  (∀ i, (j <= i)%nat → (i < j + len)%nat → g i = false)
   → List.fold_right (λ i accu, if g i then f i accu else accu) la
        (List.seq j len) = la.
 Proof.
@@ -747,7 +727,8 @@ Qed.
 
 Theorem fold_right_eqb_or : ∀ A j k len f (g : _ → A → A) la,
   (j < k)%nat
-  → List.fold_right (λ i accu, if Nat.eqb i j || f i then g i accu else accu)
+  → List.fold_right
+      (λ i accu, if (Nat.eqb i j || f i)%bool then g i accu else accu)
       la (List.seq k len) =
     List.fold_right (λ i accu, if f i then g i accu else accu) la
        (List.seq k len).
@@ -839,7 +820,7 @@ destruct (eq_nat_dec h k) as [H₁| H₁]. {
     progress unfold ps_lap_eq.
     rewrite fold_nothing; [ reflexivity | idtac ].
     intros i Hji Hij.
-    rewrite orb_false_r.
+    rewrite Bool.orb_false_r.
     apply Nat.eqb_neq.
     intros H; subst i.
     rewrite Nat.add_sub_assoc in Hij; auto with Arith.
@@ -1018,7 +999,7 @@ Qed.
 Theorem nth_char_lap_eq_coeff : ∀ i j li la,
   (j + i)%nat ∈ li
   → Sorted Nat.lt li
-  → (∀ m : nat, m ∈ li → j ≤ m)
+  → (∀ m : nat, m ∈ li → (j <= m)%nat)
   → (List.nth i (make_char_lap_of_hl la j li) 0 =
        coeff_of_hl la (j + i) li)%K.
 Proof.
@@ -1042,7 +1023,7 @@ destruct (eq_nat_dec (j + i) n) as [H₁| H₁]. {
   rewrite <- H₁, Nat.add_sub_swap; auto with Arith.
   rewrite Nat.sub_diag; reflexivity.
 }
-assert (n ≤ j + i)%nat as Hnij. {
+assert (Hnij : (n <= j + i)%nat). {
   apply Nat.lt_le_incl.
   apply Sorted_StronglySorted in Hs. {
     specialize (StronglySorted_inv Hs) as (_, Hss).
@@ -1056,7 +1037,8 @@ rewrite list_nth_pad_sub. {
   symmetry in Hp.
   destruct p; simpl. {
     rewrite Nat.add_comm in Hnij.
-    assert (Hjn : j ≤ n); [ apply Hm; left; reflexivity | exfalso ].
+    assert (Hjn : (j <= n)%nat) by now apply Hm; left.
+    exfalso.
     apply H₁; symmetry.
     rewrite Nat.add_comm.
     apply Nat.le_antisymm; auto with Arith.
@@ -1064,7 +1046,7 @@ rewrite list_nth_pad_sub. {
     rewrite <- Nat_sub_sub_distr; auto with Arith.
   }
   apply Nat.add_sub_eq_nz in Hp; [ idtac | intros H₂; discriminate H₂ ].
-  assert (Hjn: j ≤ n) by now apply Hm; left.
+  assert (Hjn: (j <= n)%nat) by now apply Hm; left.
   rewrite <- Nat.add_sub_swap in Hp; auto with Arith.
   apply Nat.add_cancel_r with (p := j) in Hp.
   eapply Nat.add_le_mono in Hjn; [ idtac | apply Nat.le_0_l ].
@@ -1092,7 +1074,7 @@ Qed.
 Theorem nth_char_lap_eq_0 : ∀ i j li la,
   (j + i)%nat ∉ [j … li]
   → Sorted Nat.lt [j … li]
-  → (∀ m : nat, m ∈ li → j ≤ m)
+  → (∀ m : nat, m ∈ li → (j <= m)%nat)
   → List.nth i (make_char_lap_of_hl la j [j … li]) 0%K = 0%K.
 Proof.
 intros i j li la Hjil Hs Hm; simpl.
@@ -1116,8 +1098,8 @@ destruct (le_dec (n - S j) i) as [H₁| H₁]. {
   remember (i - (n - S j))%nat as p eqn:Hp .
   symmetry in Hp.
   destruct p; simpl. {
-    assert (n ≤ i + S j)%nat as Hnij by (apply Nat.le_sub_le_add_r; auto).
-    assert (S j ≤ n). {
+    assert (Hnij : (n <= i + S j)%nat) by (apply Nat.le_sub_le_add_r; auto).
+    assert (H : (S j <= n)%nat). {
       destruct (eq_nat_dec j n) as [H| H]. {
         subst n.
         apply Sorted_inv in Hs.
@@ -1125,7 +1107,7 @@ destruct (le_dec (n - S j) i) as [H₁| H₁]. {
         apply HdRel_inv in Hrel.
         exfalso; revert Hrel; apply Nat.lt_irrefl.
       }
-      assert (j ≤ n) as Hj; [ idtac | fast_omega H Hj ].
+      assert (Hj : (j <= n)%nat); [ idtac | fast_omega H Hj ].
       apply Hm; left; reflexivity.
     }
     exfalso; revert Hjil Hp Hnij H; clear; intros.
@@ -1164,7 +1146,7 @@ destruct (le_dec (n - S j) i) as [H₁| H₁]. {
       apply HdRel_inv in Hrel.
       exfalso; revert Hrel; apply Nat.lt_irrefl.
     }
-    assert (j ≤ n) as Hj; [ apply Hm; left; reflexivity | idtac ].
+    assert (Hj : (j <= n)%nat) by now apply Hm; left.
     fast_omega H Hj.
   } {
     eapply Sorted_inv; eassumption.
@@ -1241,7 +1223,7 @@ assert (Sorted Nat.lt li) as Hs. {
   induction pl as [| (j, aj)]; intros; simpl; constructor.
   now apply HdRel_inv in Hrel.
 }
-assert (∀ m, m ∈ li → (j ≤ m)%nat) as Hm. {
+assert (∀ m, m ∈ li → (j <= m)%nat) as Hm. {
   intros m Hm.
   rewrite Hpl in Hli.
   simpl in Hli.
@@ -1359,7 +1341,7 @@ rewrite fold_right_exists; try eassumption. {
         subst li.
         revert Hb; clear; intros.
         intros H; revert Hb.
-        apply eq_true_false_abs.
+        apply Bool.eq_true_false_abs.
         apply List.existsb_exists.
         revert i j H.
         induction pl as [| (m, am)]; intros; [ contradiction | simpl ].
@@ -1417,7 +1399,8 @@ progress unfold ps_lap_eq, ps_lap_mul, lap_mul; simpl.
 do 2 rewrite List.length_map.
 remember (pred (length la + length lb)) as len.
 clear Heqlen.
-remember 0%nat as n; clear Heqn.
+remember (λ c, ps_monom c 0) as f.
+remember 0%nat as n in |-*; clear Heqn; subst f.
 revert n la lb.
 induction len; intros; [ reflexivity | simpl ].
 constructor; [ simpl | apply IHlen ].

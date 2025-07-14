@@ -1,8 +1,9 @@
 (* F1Prop.v *)
 
 Set Nested Proofs Allowed.
-From Stdlib Require Import Utf8 QArith Arith ZArith Sorted.
+From Stdlib Require Import Utf8 Arith Sorted.
 
+Require Import A_PosArith A_ZArith A_QArith.
 Require Import Misc.
 Require Import QbarM.
 Require Import SplitList.
@@ -59,8 +60,8 @@ Proof.
 intros a b Hab.
 set (k₁ := ps_polydo b).
 set (k₂ := ps_polydo a).
-set (v₁ := (ps_ordnum a * Zpos k₁)%Z).
-set (v₂ := (ps_ordnum b * Zpos k₂)%Z).
+set (v₁ := (ps_ordnum a * z_pos k₁)%Z).
+set (v₂ := (ps_ordnum b * z_pos k₂)%Z).
 set (n₁ := Z.to_nat (v₂ - Z.min v₁ v₂)).
 set (n₂ := Z.to_nat (v₁ - Z.min v₁ v₂)).
 pose proof (ps_adjust_eq K a n₂ k₁) as Ha.
@@ -93,188 +94,183 @@ clear Hsa Hsb Ha Hb.
 apply series_order_iff in Hna; simpl in Hna.
 apply series_order_iff in Hnb; simpl in Hnb.
 apply series_order_iff in Hnc; simpl in Hnc.
-destruct na as [na| ].
- destruct Hna as (Hina, Hna).
- destruct nb as [nb| ].
-  destruct Hnb as (Hinb, Hnb).
-  subst pa pb; simpl in Hopa, Hopb; simpl.
-  subst k₁ k₂ n₁ n₂; simpl in Hopa, Hopb; simpl.
-  subst v₁ v₂; simpl in Hopa, Hopb.
-  rewrite Pos.mul_comm in Hopb.
-  rewrite Z2Nat.id in Hopa.
-   rewrite Z2Nat.id in Hopb.
-    rewrite Z.sub_sub_distr in Hopa, Hopb.
-    rewrite Z.sub_diag, Z.add_0_l in Hopa, Hopb.
-    unfold cm_factor; simpl.
-    rewrite Z2Nat.id.
-     rewrite Z.sub_sub_distr.
-     rewrite Z.sub_diag, Z.add_0_l.
-     subst opa opb; simpl.
-     rewrite Qmin_same_den.
-     unfold Qeq; simpl.
-     simpl in Hab.
-     unfold Qeq in Hab; simpl in Hab.
-     destruct nc as [nc| ].
-      destruct Hnc as (Hinc, Hnc).
-      apply Z.mul_cancel_r; [ apply Pos2Z_ne_0 | idtac ].
-      rewrite Z.add_min_distr_l.
-      apply Z.add_cancel_l.
-      rewrite <- Nat2Z.inj_min.
-      apply Nat2Z.inj_iff.
-      destruct (eq_nat_dec (min na nb) nc) as [| H]; [ assumption | idtac ].
-      exfalso; apply Hab; clear Hab.
-      apply Z.mul_cancel_r; [ apply Pos2Z_ne_0 | idtac ].
-      apply Z.add_cancel_l.
-      apply Nat2Z.inj_iff.
-      destruct (eq_nat_dec na nb) as [| Hab]; [ assumption | idtac ].
-      exfalso; apply H; clear H.
-      destruct (le_dec na nb) as [H₁| H₁].
-       apply Nat_le_neq_lt in H₁; [ idtac | assumption ].
-       destruct (lt_dec na nc) as [H₂| H₂].
-        apply Hinb in H₁.
-        apply Hinc in H₂.
-        rewrite H₁, rng_add_0_r in H₂; contradiction.
-
-        apply Nat.nlt_ge in H₂.
-        destruct (eq_nat_dec na nc) as [H₃| H₃].
-         rewrite Nat.min_l; [ assumption | idtac ].
-         apply Nat.lt_le_incl; assumption.
-
-         apply Nat.neq_sym in H₃.
-         apply Nat_le_neq_lt in H₂; [ idtac | assumption ].
-         eapply Nat.lt_trans in H₁; [ idtac | eassumption ].
-         apply Hina in H₂.
-         apply Hinb in H₁.
-         rewrite H₂, H₁ in Hnc.
-         rewrite rng_add_0_l in Hnc.
-         exfalso; apply Hnc; reflexivity.
-
-       apply Nat.nle_gt in H₁.
-       destruct (lt_dec nb nc) as [H₂| H₂].
-        apply Hina in H₁.
-        apply Hinc in H₂.
-        rewrite H₁, rng_add_0_l in H₂; contradiction.
-
-        apply Nat.nlt_ge in H₂.
-        destruct (eq_nat_dec nb nc) as [H₃| H₃].
-         rewrite Nat.min_r; [ assumption | idtac ].
-         apply Nat.lt_le_incl; assumption.
-
-         apply Nat.neq_sym in H₃.
-         apply Nat_le_neq_lt in H₂; [ idtac | assumption ].
-         eapply Nat.lt_trans in H₁; [ idtac | eassumption ].
-         apply Hinb in H₂.
-         apply Hina in H₁.
-         rewrite H₂, H₁ in Hnc.
-         rewrite rng_add_0_l in Hnc.
-         exfalso; apply Hnc; reflexivity.
-
-      simpl in Hab.
-      apply Hab; clear Hab.
-      apply Z.mul_cancel_r; [ apply Pos2Z_ne_0 | idtac ].
-      apply Z.add_cancel_l.
-      apply Nat2Z.inj_iff.
-      destruct (eq_nat_dec na nb) as [| Hab]; [ assumption | idtac ].
-      destruct (le_dec na nb) as [H₁| H₁].
-       apply Nat_le_neq_lt in H₁; [ idtac | assumption ].
-       apply Hinb in H₁.
-       pose proof (Hnc na) as H.
-       rewrite H₁, rng_add_0_r in H.
-       contradiction.
-
-       apply Nat.nle_gt in H₁.
-       apply Hina in H₁.
-       pose proof (Hnc nb) as H.
-       rewrite H₁, rng_add_0_l in H.
-       contradiction.
-
-     rewrite <- Z.sub_max_distr_l.
-     rewrite Z.sub_diag.
-     rewrite <- Z2Nat_id_max.
-     apply Nat2Z.is_nonneg.
-
+destruct na as [na| ]. {
+  destruct Hna as (Hina, Hna).
+  destruct nb as [nb| ]. {
+    destruct Hnb as (Hinb, Hnb).
+    subst pa pb; simpl in Hopa, Hopb; simpl.
+    subst k₁ k₂ n₁ n₂; simpl in Hopa, Hopb; simpl.
+    subst v₁ v₂; simpl in Hopa, Hopb.
+    rewrite Pos.mul_comm in Hopb.
+    rewrite Z2Nat.id in Hopa. {
+      rewrite Z2Nat.id in Hopb. {
+        rewrite Z.sub_sub_distr in Hopa, Hopb.
+        rewrite Z.sub_diag, Z.add_0_l in Hopa, Hopb.
+        unfold cm_factor; simpl.
+        rewrite Z2Nat.id. {
+          rewrite Z.sub_sub_distr.
+          rewrite Z.sub_diag, Z.add_0_l.
+          subst opa opb; simpl.
+          rewrite Qmin_same_den.
+          progress unfold Q.eq; simpl.
+          simpl in Hab.
+          unfold Q.eq in Hab; simpl in Hab.
+          destruct nc as [nc| ]. {
+            destruct Hnc as (Hinc, Hnc).
+            apply Z.compare_eq_iff; cbn.
+            do 2 rewrite q_Den_num_den.
+            rewrite Z.add_min_distr_l.
+            rewrite <- Nat2Z.inj_min.
+            f_equal; f_equal; f_equal.
+            destruct (Nat.eq_dec (min na nb) nc) as [| H]; [ easy | ].
+            exfalso; apply Hab; clear Hab.
+            apply Z.compare_eq_iff; cbn.
+            do 2 rewrite q_Den_num_den.
+            f_equal; f_equal; f_equal.
+            destruct (Nat.eq_dec na nb) as [| Hab]; [ easy |].
+            exfalso; apply H; clear H.
+            destruct (le_dec na nb) as [H₁| H₁]. {
+              apply Nat_le_neq_lt in H₁; [ idtac | assumption ].
+              destruct (lt_dec na nc) as [H₂| H₂]. {
+                apply Hinb in H₁.
+                apply Hinc in H₂.
+                rewrite H₁, rng_add_0_r in H₂; contradiction.
+              }
+              apply Nat.nlt_ge in H₂.
+              destruct (eq_nat_dec na nc) as [H₃| H₃]. {
+                rewrite Nat.min_l; [ assumption | idtac ].
+                apply Nat.lt_le_incl; assumption.
+              }
+              apply Nat.neq_sym in H₃.
+              apply Nat_le_neq_lt in H₂; [ idtac | assumption ].
+              eapply Nat.lt_trans in H₁; [ idtac | eassumption ].
+              apply Hina in H₂.
+              apply Hinb in H₁.
+              rewrite H₂, H₁ in Hnc.
+              rewrite rng_add_0_l in Hnc.
+              exfalso; apply Hnc; reflexivity.
+            }
+            apply Nat.nle_gt in H₁.
+            destruct (lt_dec nb nc) as [H₂| H₂]. {
+              apply Hina in H₁.
+              apply Hinc in H₂.
+              rewrite H₁, rng_add_0_l in H₂; contradiction.
+            }
+            apply Nat.nlt_ge in H₂.
+            destruct (eq_nat_dec nb nc) as [H₃| H₃]. {
+              rewrite Nat.min_r; [ assumption | idtac ].
+              apply Nat.lt_le_incl; assumption.
+            }
+            apply Nat.neq_sym in H₃.
+            apply Nat_le_neq_lt in H₂; [ idtac | assumption ].
+            eapply Nat.lt_trans in H₁; [ idtac | eassumption ].
+            apply Hinb in H₂.
+            apply Hina in H₁.
+            rewrite H₂, H₁ in Hnc.
+            rewrite rng_add_0_l in Hnc.
+            exfalso; apply Hnc; reflexivity.
+          }
+          simpl in Hab.
+          apply Hab; clear Hab.
+          apply Z.compare_eq_iff; cbn.
+          do 2 rewrite q_Den_num_den.
+          f_equal; f_equal; f_equal.
+          destruct (eq_nat_dec na nb) as [| Hab]; [ assumption | idtac ].
+          destruct (le_dec na nb) as [H₁| H₁]. {
+            apply Nat_le_neq_lt in H₁; [ idtac | assumption ].
+            apply Hinb in H₁.
+            pose proof (Hnc na) as H.
+            rewrite H₁, rng_add_0_r in H.
+            contradiction.
+          }
+          apply Nat.nle_gt in H₁.
+          apply Hina in H₁.
+          pose proof (Hnc nb) as H.
+          rewrite H₁, rng_add_0_l in H.
+          contradiction.
+        }
+        rewrite <- Z.sub_max_distr_l.
+        rewrite Z.sub_diag.
+        apply Z.le_max_l.
+      }
+      rewrite <- Z.sub_max_distr_l.
+      rewrite Z.sub_diag.
+      apply Z.le_max_r.
+    }
     rewrite <- Z.sub_max_distr_l.
     rewrite Z.sub_diag.
-    rewrite Z.max_comm, <- Z2Nat_id_max.
-    apply Nat2Z.is_nonneg.
-
-   rewrite <- Z.sub_max_distr_l.
-   rewrite Z.sub_diag.
-   rewrite <- Z2Nat_id_max.
-   apply Nat2Z.is_nonneg.
-
+    apply Z.le_max_l.
+  }
   subst opb; simpl.
   rewrite Qbar.min_comm; simpl.
-  destruct nc as [nc| ].
-   destruct Hnc as (Hinc, Hnc).
-   subst opa.
-   apply Qbar.qfin_inj_wd.
-   unfold Qeq; simpl.
-   apply Z.mul_cancel_r; [ apply Pos2Z_ne_0 | idtac ].
-   apply Z.add_cancel_l.
-   apply Nat2Z.inj_iff.
-   destruct (eq_nat_dec na nc) as [| Hac]; [ assumption | idtac ].
-   destruct (le_dec na nc) as [H₁| H₁].
-    apply Nat_le_neq_lt in H₁; [ idtac | assumption ].
-    apply Hinc in H₁.
-    rewrite Hnb, rng_add_0_r in H₁.
-    contradiction.
-
+  destruct nc as [nc| ]. {
+    destruct Hnc as (Hinc, Hnc).
+    subst opa.
+    apply Qbar.qfin_inj_wd.
+    unfold Q.eq; simpl.
+    apply Z.compare_eq_iff; cbn.
+    do 2 rewrite q_Den_num_den.
+    f_equal; f_equal; f_equal.
+    destruct (eq_nat_dec na nc) as [| Hac]; [ assumption | idtac ].
+    destruct (le_dec na nc) as [H₁| H₁]. {
+      apply Nat_le_neq_lt in H₁; [ idtac | assumption ].
+      apply Hinc in H₁.
+      rewrite Hnb, rng_add_0_r in H₁.
+      contradiction.
+    }
     apply Nat.nle_gt in H₁.
     apply Hina in H₁.
     rewrite H₁, Hnb, rng_add_0_l in Hnc.
     exfalso; apply Hnc; reflexivity.
-
-   pose proof (Hnc na) as H.
-   rewrite Hnb, rng_add_0_r in H.
-   contradiction.
-
- subst opa; simpl.
- destruct nb as [nb| ].
+  }
+  pose proof (Hnc na) as H.
+  rewrite Hnb, rng_add_0_r in H.
+  contradiction.
+}
+subst opa; simpl.
+destruct nb as [nb| ]. {
   destruct Hnb as (Hinb, Hnb).
-  destruct nc as [nc| ].
-   destruct Hnc as (Hinc, Hnc).
-   destruct (eq_nat_dec nb nc) as [| Hbc]; [ subst nb | idtac ].
-    subst.
-    subst n₁ n₂ v₁ v₂ k₁ k₂; simpl.
-    unfold cm_factor; simpl.
-    rewrite Z2Nat.id.
-     rewrite Z2Nat.id.
-      do 2 rewrite Z.sub_sub_distr.
-      do 2 rewrite Z.sub_diag, Z.add_0_l.
-      rewrite Pos.mul_comm; reflexivity.
-
+  destruct nc as [nc| ]. {
+    destruct Hnc as (Hinc, Hnc).
+    destruct (eq_nat_dec nb nc) as [| Hbc]; [ subst nb | idtac ]. {
+      subst.
+      subst n₁ n₂ v₁ v₂ k₁ k₂; simpl.
+      unfold cm_factor; simpl.
+      rewrite Z2Nat.id. {
+        rewrite Z2Nat.id. {
+          do 2 rewrite Z.sub_sub_distr.
+          do 2 rewrite Z.sub_diag, Z.add_0_l.
+          rewrite Pos.mul_comm; reflexivity.
+        }
+        rewrite <- Z.sub_max_distr_l.
+        rewrite Z.sub_diag.
+        apply Z.le_max_l.
+      }
       rewrite <- Z.sub_max_distr_l.
       rewrite Z.sub_diag.
-      rewrite <- Z2Nat_id_max.
-      apply Nat2Z.is_nonneg.
-
-     rewrite <- Z.sub_max_distr_l.
-     rewrite Z.sub_diag.
-     rewrite Z.max_comm, <- Z2Nat_id_max.
-     apply Nat2Z.is_nonneg.
-
-    destruct (le_dec nb nc) as [H₁| H₁].
-     apply Nat_le_neq_lt in H₁; [ idtac | assumption ].
-     apply Hinc in H₁.
-     rewrite Hna, rng_add_0_l in H₁.
-     contradiction.
-
-     apply Nat.nle_gt in H₁.
-     apply Hinb in H₁.
-     rewrite Hna, rng_add_0_l in Hnc.
-     contradiction.
-
-   pose proof (Hnc nb) as H.
-   rewrite Hna, rng_add_0_l in H.
-   contradiction.
-
-  subst opb.
-  exfalso; apply Hab; reflexivity.
+      apply Z.le_max_r.
+    }
+    destruct (le_dec nb nc) as [H₁| H₁]. {
+      apply Nat_le_neq_lt in H₁; [ idtac | assumption ].
+      apply Hinc in H₁.
+      rewrite Hna, rng_add_0_l in H₁.
+      contradiction.
+    }
+    apply Nat.nle_gt in H₁.
+    apply Hinb in H₁.
+    rewrite Hna, rng_add_0_l in Hnc.
+    contradiction.
+  }
+  pose proof (Hnc nb) as H.
+  rewrite Hna, rng_add_0_l in H.
+  contradiction.
+}
+subst opb.
+exfalso; apply Hab; reflexivity.
 Qed.
 
 Theorem ps_lap_nth_x_le_pow_mul : ∀ la m n,
-  (n ≤ m)%nat
+  (n <= m)%nat
   → (ps_lap_nth m ([0; 1 … []] ^ n * la) = ps_lap_nth (m - n) la)%ps.
 Proof.
 intros la m n Hnm.
@@ -352,7 +348,7 @@ induction n; simpl. {
   symmetry in Hv.
   destruct v as [v| ]. {
     unfold Qnat; simpl.
-    rewrite Qmult_0_l.
+    rewrite Q.mul_0_l.
     unfold ps_one.
     rewrite ps_monom_order; [ reflexivity | idtac ].
     intros H; apply Ha.
@@ -372,9 +368,9 @@ symmetry in Hv.
 destruct v as [v| ]; [ simpl | reflexivity ].
 rewrite <- Nat.add_1_l.
 unfold Qnat.
-rewrite Nat2Z.inj_add, QZ_plus.
-rewrite Qmult_plus_distr_l; simpl.
-rewrite Q_mul_1_l; reflexivity.
+rewrite Nat2Z.inj_add, Q.inv_add_distr.
+rewrite Q.mul_add_distr_r; simpl.
+rewrite Q.mul_1_l; reflexivity.
 Qed.
 
 Theorem ps_lap_nth_0_apply_0 : ∀ la,
@@ -522,18 +518,18 @@ Theorem nth_g_order_pos : ∀ f L h,
   → (order (ps_lap_nth h (g_lap_of_ns f L)) > 0)%Qbar.
 Proof.
 intros f L h HL.
-destruct (lt_dec h (length (g_lap_of_ns f L))) as [Hlt| Hge].
- eapply each_power_of_y₁_in_g_has_coeff_pos_ord; try eassumption.
-  reflexivity.
-
+destruct (lt_dec h (length (g_lap_of_ns f L))) as [Hlt| Hge]. {
+  eapply each_power_of_y₁_in_g_has_coeff_pos_ord; try eassumption. {
+    reflexivity.
+  }
   unfold g_of_ns; simpl.
   unfold ps_lap_nth.
-  apply list_nth_in; assumption.
-
- apply Nat.nlt_ge in Hge.
- unfold ps_lap_nth.
- rewrite List.nth_overflow; [ idtac | assumption ].
- rewrite order_0; constructor.
+  apply List.nth_In; assumption.
+}
+apply Nat.nlt_ge in Hge.
+unfold ps_lap_nth.
+rewrite List.nth_overflow; [ idtac | assumption ].
+rewrite order_0; constructor.
 Qed.
 
 Theorem order_nth_inject_K : ∀ la i,
