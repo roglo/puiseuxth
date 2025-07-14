@@ -887,6 +887,21 @@ split; intros Hab. {
 }
 Qed.
 
+Theorem opp_add_distr : ∀ a b, (- (a + b) = - a - b)%Q.
+Proof.
+intros.
+progress unfold Q.sub.
+progress unfold Q.add.
+progress unfold Q.opp.
+do 2 rewrite q_Den_num_den.
+cbn.
+rewrite (Pos.mul_comm (q_den a)).
+progress f_equal.
+do 2 rewrite Z.mul_opp_l.
+rewrite Z.add_opp_r.
+apply Z.opp_add_distr.
+Qed.
+
 Theorem opp_sub_distr : ∀ a b, (- (a - b) = b - a)%Q.
 Proof.
 intros.
