@@ -770,7 +770,8 @@ remember (ac_root (Φq f L)) as c eqn:Hc .
 remember (next_pol f (β L) (γ L) c) as f₁ eqn:Hf₁ .
 rewrite Hc in Hf₁.
 (* f₁_has_root performs an induction on r = root_multiplicity of Φq f L *)
-specialize (f₁_has_root HL Hnz Hf₁) as (s₁, Hs₁).
+specialize (f₁_has_root HL Hnz Hf₁) as Hs₁.
+destruct Hs₁ as (s₁, Hs₁).
 exists (ps_monom c (γ L) + ps_monom 1%K (γ L) * s₁)%ps.
 eapply (f₁_root_f_root Hf₁); [ | apply Hs₁ ].
 now rewrite <- Hc.
