@@ -787,13 +787,13 @@ Proof. intros; apply Z.lt_irrefl. Qed.
 (* Some theorems working with syntactic equality,
    not only with equivalence relation in Q *)
 
-Theorem add_sub_assoc : ∀ x y z, (x + (y - z) = (x + y) - z)%Q.
+Theorem add_sub_assoc : ∀ x y z, (x + (y - z))%Q = ((x + y) - z)%Q.
 Proof.
 intros.
 apply Q.add_assoc.
 Qed.
 
-Theorem add_sub_swap : ∀ x y z, (x + y - z = x - z + y)%Q.
+Theorem add_sub_swap : ∀ x y z, (x + y - z)%Q = (x - z + y)%Q.
 Proof.
 intros.
 rewrite Q.add_comm.
@@ -801,8 +801,82 @@ rewrite <- Q.add_sub_assoc.
 apply Q.add_comm.
 Qed.
 
-Theorem add_opp_diag_r : ∀ a, (a + - a == 0)%Q.
-Proof. apply Q.sub_diag. Qed.
+Theorem fold_sub : ∀ a b, (a + - b)%Q = (a - b)%Q.
+Proof. easy. Qed.
+
+Theorem opp_add_distr : ∀ a b, (- (a + b))%Q = (- a - b)%Q.
+Proof.
+intros.
+progress unfold Q.sub.
+progress unfold Q.add.
+progress unfold Q.opp.
+do 2 rewrite q_Den_num_den.
+cbn.
+rewrite (Pos.mul_comm (q_den a)).
+progress f_equal.
+do 2 rewrite Z.mul_opp_l.
+rewrite Z.add_opp_r.
+apply Z.opp_add_distr.
+Qed.
+
+Theorem opp_sub_distr : ∀ a b, (- (a - b))%Q = (b - a)%Q.
+Proof.
+intros.
+progress unfold Q.sub.
+progress unfold Q.add.
+progress unfold Q.opp.
+do 2 rewrite q_Den_num_den.
+cbn.
+rewrite (Pos.mul_comm (q_den a)).
+progress f_equal.
+do 2 rewrite Z.mul_opp_l.
+do 2 rewrite Z.add_opp_r.
+apply Z.opp_sub_distr.
+Qed.
+
+Theorem sub_sub_distr : ∀ a b c, (a - (b - c))%Q = ((a - b) + c)%Q.
+Proof.
+intros.
+progress unfold Q.sub at 1.
+rewrite Q.opp_sub_distr.
+progress unfold Q.sub.
+rewrite <- Q.add_assoc.
+progress f_equal.
+apply Q.add_comm.
+Qed.
+
+Theorem add_add_swap : ∀ a b c, (a + b + c)%Q = (a + c + b)%Q.
+Proof.
+intros.
+do 2 rewrite <- Q.add_assoc.
+progress f_equal.
+apply Q.add_comm.
+Qed.
+
+Theorem mul_div_assoc : ∀ a b c, (a * (b / c))%Q = ((a * b) / c)%Q.
+Proof. intros; apply Q.mul_assoc. Qed.
+
+Theorem mul_div_swap : ∀ a b c, (a / b * c)%Q = (a * c / b)%Q.
+Proof.
+intros.
+progress unfold Q.div.
+do 2 rewrite <- Q.mul_assoc.
+progress f_equal.
+apply Q.mul_comm.
+Qed.
+
+Theorem opp_0 : (- 0)%Q = 0%Q.
+Proof. easy. Qed.
+
+Theorem sub_0_r : ∀ a, (a - 0)%Q = a.
+Proof.
+intros.
+progress unfold Q.sub.
+rewrite Q.opp_0.
+apply Q.add_0_r.
+Qed.
+
+(* *)
 
 Theorem add_sub: ∀ a b, (a + b - b == a)%Q.
 Proof.
@@ -818,28 +892,6 @@ intros.
 rewrite <- Q.add_sub_swap.
 apply Q.add_sub.
 Qed.
-
-Theorem add_move_l : ∀ a b c, (c + a == b ↔ a == b - c)%Q.
-Proof.
-intros.
-split; intros Heq. {
-  rewrite <- Heq, Q.add_comm; symmetry.
-  apply Q.add_sub.
-} {
-  rewrite Heq, Q.add_comm.
-  apply Q.sub_add.
-}
-Qed.
-
-Theorem add_move_r : ∀ a b c, (a + c == b ↔ a == b - c)%Q.
-Proof.
-intros.
-rewrite Q.add_comm.
-apply Q.add_move_l.
-Qed.
-
-Theorem fold_sub : ∀ a b, (a + - b = a - b)%Q.
-Proof. easy. Qed.
 
 Theorem le_0_sub : ∀ a b, (0 ≤ b - a ↔ a ≤ b)%Q.
 Proof.
@@ -887,76 +939,26 @@ split; intros Hab. {
 }
 Qed.
 
-Theorem opp_add_distr : ∀ a b, (- (a + b) = - a - b)%Q.
+Theorem add_opp_diag_r : ∀ a, (a + - a == 0)%Q.
+Proof. apply Q.sub_diag. Qed.
+
+Theorem add_move_l : ∀ a b c, (c + a == b ↔ a == b - c)%Q.
 Proof.
 intros.
-progress unfold Q.sub.
-progress unfold Q.add.
-progress unfold Q.opp.
-do 2 rewrite q_Den_num_den.
-cbn.
-rewrite (Pos.mul_comm (q_den a)).
-progress f_equal.
-do 2 rewrite Z.mul_opp_l.
-rewrite Z.add_opp_r.
-apply Z.opp_add_distr.
+split; intros Heq. {
+  rewrite <- Heq, Q.add_comm; symmetry.
+  apply Q.add_sub.
+} {
+  rewrite Heq, Q.add_comm.
+  apply Q.sub_add.
+}
 Qed.
 
-Theorem opp_sub_distr : ∀ a b, (- (a - b) = b - a)%Q.
+Theorem add_move_r : ∀ a b c, (a + c == b ↔ a == b - c)%Q.
 Proof.
 intros.
-progress unfold Q.sub.
-progress unfold Q.add.
-progress unfold Q.opp.
-do 2 rewrite q_Den_num_den.
-cbn.
-rewrite (Pos.mul_comm (q_den a)).
-progress f_equal.
-do 2 rewrite Z.mul_opp_l.
-do 2 rewrite Z.add_opp_r.
-apply Z.opp_sub_distr.
-Qed.
-
-Theorem sub_sub_distr : ∀ a b c, (a - (b - c) = (a - b) + c)%Q.
-Proof.
-intros.
-progress unfold Q.sub at 1.
-rewrite Q.opp_sub_distr.
-progress unfold Q.sub.
-rewrite <- Q.add_assoc.
-progress f_equal.
-apply Q.add_comm.
-Qed.
-
-Theorem add_add_swap : ∀ a b c, (a + b + c = a + c + b)%Q.
-Proof.
-intros.
-do 2 rewrite <- Q.add_assoc.
-progress f_equal.
-apply Q.add_comm.
-Qed.
-
-Theorem mul_div_assoc : ∀ a b c, (a * (b / c) = (a * b) / c)%Q.
-Proof. intros; apply Q.mul_assoc. Qed.
-
-Theorem mul_div_swap : ∀ a b c, (a / b * c = a * c / b)%Q.
-Proof.
-intros.
-progress unfold Q.div.
-do 2 rewrite <- Q.mul_assoc.
-progress f_equal.
-apply Q.mul_comm.
-Qed.
-
-Theorem opp_0 : (- 0 = 0)%Q.
-Proof. easy. Qed.
-
-Theorem sub_0_r : ∀ a, (a - 0 = a)%Q.
-Proof.
-intros.
-progress unfold Q.sub.
-rewrite Q.opp_0.
-apply Q.add_0_r.
+rewrite Q.add_comm.
+apply Q.add_move_l.
 Qed.
 
 Definition Q1 x := (q_Den x # q_den x)%Q.
