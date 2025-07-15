@@ -54,28 +54,65 @@ cbn - [ Nat.div ].
 destruct n; [ easy | ].
 cbn - [ Nat.div Nat.even ].
 apply Nat.succ_lt_mono in Hit1, Hit2.
-rewrite (IHit1 (S n / 2) it2); [ easy | | ]. {
-  eapply (Nat.le_lt_trans _ n); [ | easy ].
-  clear Hit1 Hit2.
-  induction n; [ easy | ].
+rewrite (IHit1 (S n / 2) it2); [ easy | | ].
+apply Nat.Div0.div_lt_upper_bound; lia.
+apply Nat.Div0.div_lt_upper_bound; lia.
+Qed.
+
+Theorem f_aux_f : ∀ it n, n < it → f_aux it n = f n.
+Proof.
+intros * Hit.
+progress unfold f.
+apply f_enough_iter; [ easy | ].
+apply Nat.lt_succ_diag_r.
+Qed.
+
+(*
+Theorem g_aux_g : ∀ it a b, max a b < it → g_aux it a b = g (a, b).
 ...
-destruct (Nat.eq_dec n 0) as [Hnz| Hnz]. {
-  subst n; cbn.
-  now rewrite (IHit1 0 it2).
+*)
+
+Theorem f_g_1 : ∀ it it' n,
+  n < it
+  → (let '(a, b) := f n in max a b) ≤ it'
+  → (let '(a, b) := f_aux it n in g_aux it' a b) = n.
+Proof.
+intros * Hit Hit'.
+revert n it' Hit Hit'.
+induction it; intros; [ easy | ].
+cbn - [ Nat.div ].
+destruct n; [ now destruct it' | ].
+apply Nat.succ_lt_mono in Hit.
+cbn - [ Nat.div ].
+destruct n. {
+  cbn in Hit' |-*.
+  destruct it; [ easy | ].
+  destruct it'; [ easy | ].
+  now destruct it'.
 }
-rewrite (IHit1 (S n / 2) it2).
-
-specialize (IHit1 (S n / 2) it2) as H1.
-assert (H : S n / 2 < it1). {
-  transitivity n; [ | easy ].
-
 ...
-destruct (Nat.eq_dec n 0) as [Hnz| Hnz]; [ now subst; destruct it | ].
-revert n Hit Hnz.
-induction it; intros; cbn - [ Nat.div ]; [ easy | ].
-destruct n; [ easy | clear Hnz ].
-cbn - [ Nat.div Nat.even ].
+destruct n; [ now rewrite f_aux_f | ].
+rewrite f_aux_f. 2: {
+  apply Nat.Div0.div_lt_upper_bound; lia.
+}
+specialize (IHit (S (S n) / 2)) as H1.
+assert (H : S (S n) / 2 < it). {
+  apply Nat.Div0.div_lt_upper_bound; lia.
+}
+specialize (H1 H); clear H.
+rewrite f_aux_f in H1. 2: {
+  apply Nat.Div0.div_lt_upper_bound; lia.
+}
+remember (f (S (S n) / 2)) as x eqn:Hx.
+symmetry in Hx.
+destruct x as (a, b).
+remember (Nat.even n) as en eqn:Hen.
+symmetry in Hen.
+destruct en. {
+  apply Nat.even_EvenT in Hen.
+  destruct Hen as (n', Hn); subst n.
 ...
+*)
 
 Theorem f_g : ∀ n, g (f n) = n.
 Proof.
