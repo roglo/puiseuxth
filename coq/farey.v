@@ -7,7 +7,7 @@ f n = | (b, a + b)   if n even and f (n / 2) = (a, b)
       | (a + b, b)   if n odd and f (n / 2) = (a, b)
 *)
 
-From Stdlib Require Import Utf8 Arith.
+From Stdlib Require Import Utf8 Arith Psatz.
 Import List.ListNotations.
 
 Fixpoint f_aux it n :=
@@ -40,10 +40,36 @@ Fixpoint g_aux it a b :=
 Definition f n := f_aux (S n) n.
 Definition g '(a, b) := g_aux (max a b) a b.
 
-Theorem f_enough_iter : ∀ it n, n < it → f_aux it n = f n.
+Theorem f_enough_iter :
+  ∀ it1 it2 n,
+  n < it1
+  → n < it2
+  → f_aux it1 n = f_aux it2 n.
 Proof.
-intros * Hit.
+intros * Hit1 Hit2.
+revert n it2 Hit1 Hit2.
+induction it1; intros; [ easy | ].
+destruct it2; [ easy | ].
 cbn - [ Nat.div ].
+destruct n; [ easy | ].
+cbn - [ Nat.div Nat.even ].
+apply Nat.succ_lt_mono in Hit1, Hit2.
+rewrite (IHit1 (S n / 2) it2); [ easy | | ]. {
+  eapply (Nat.le_lt_trans _ n); [ | easy ].
+  clear Hit1 Hit2.
+  induction n; [ easy | ].
+...
+destruct (Nat.eq_dec n 0) as [Hnz| Hnz]. {
+  subst n; cbn.
+  now rewrite (IHit1 0 it2).
+}
+rewrite (IHit1 (S n / 2) it2).
+
+specialize (IHit1 (S n / 2) it2) as H1.
+assert (H : S n / 2 < it1). {
+  transitivity n; [ | easy ].
+
+...
 destruct (Nat.eq_dec n 0) as [Hnz| Hnz]; [ now subst; destruct it | ].
 revert n Hit Hnz.
 induction it; intros; cbn - [ Nat.div ]; [ easy | ].
