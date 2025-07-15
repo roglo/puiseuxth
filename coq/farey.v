@@ -37,12 +37,25 @@ Fixpoint g_aux it a b :=
       end
   end.
 
-Definition f n := f_aux n n.
+Definition f n := f_aux (S n) n.
 Definition g '(a, b) := g_aux (max a b) a b.
+
+Theorem f_enough_iter : ∀ it n, n < it → f_aux it n = f n.
+Proof.
+intros * Hit.
+cbn - [ Nat.div ].
+destruct (Nat.eq_dec n 0) as [Hnz| Hnz]; [ now subst; destruct it | ].
+revert n Hit Hnz.
+induction it; intros; cbn - [ Nat.div ]; [ easy | ].
+destruct n; [ easy | clear Hnz ].
+cbn - [ Nat.div Nat.even ].
+...
 
 Theorem f_g : ∀ n, g (f n) = n.
 Proof.
 intros.
+progress unfold f, g.
+...
 cbn.
 induction n; [ easy | ].
 cbn - [ Nat.div ].
