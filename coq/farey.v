@@ -7,6 +7,7 @@ f n = | (b, a + b)   if n even and f (n / 2) = (a, b)
       | (a + b, b)   if n odd and f (n / 2) = (a, b)
 *)
 
+Set Nested Proofs Allowed.
 From Stdlib Require Import Utf8 Arith Psatz.
 Import List.ListNotations.
 Import Init.Nat.
@@ -158,27 +159,90 @@ Qed.
 Definition maxf n := max (fst (f n)) (snd (f n)).
 
 (**)
-Theorem f_g_1 : ∀ it it' n,
-  n < it
-  → (let '(a, b) := f n in max a b) ≤ it'
-  → (let '(a, b) := f_aux it n in g_aux it' a b) = n.
+Theorem f_g_1 : ∀ n a b itf itg,
+  n < itf
+  → max a b ≤ itg
+  → f_aux itf n = (a, b)
+  → g_aux itg a b = n.
 Proof.
-Admitted. (*
-(*
-intros * Hit Hit'.
-rewrite f_aux_f; [ | easy ].
-remember (f n) as ab eqn:Hab.
+intros * Hitf Hitg Hfab.
+revert n a b itg Hitf Hitg Hfab.
+induction itf; intros; [ easy | ].
+cbn - [ Nat.div ] in Hfab.
+destruct n. {
+  cbn in Hfab.
+  injection Hfab; clear Hfab; intros; subst; cbn.
+  now destruct itg.
+}
+apply Nat.succ_lt_mono in Hitf.
+cbn - [ Nat.div Nat.even ] in Hfab.
+remember (Nat.even (S n)) as en eqn:Hen.
+symmetry in Hen.
+destruct en. {
+  apply Nat.even_EvenT in Hen.
+  destruct Hen as (n', Hn).
+  remember (f_aux itf (S n / 2)) as ab' eqn:Hab'.
+  symmetry in Hab'.
+  destruct ab' as (a', b').
+  injection Hfab; clear Hfab; intros; subst a b.
+  rename a' into a; rename b' into b.
+  destruct itg. {
+    exfalso.
+    generalize Hitg; intros H1.
+    apply Nat.max_lub_l in Hitg.
+    apply Nat.max_lub_r in H1.
+    apply Nat.le_0_r in Hitg; subst b.
+    rewrite Nat.add_0_r in H1.
+    apply Nat.le_0_r in H1; subst a.
+Theorem eq_f_aux_0_0 : ∀ it n, f_aux it n = (0, 0) → it ≤ n.
+Proof.
+intros * Hit.
+revert n Hit.
+induction it; intros; [ apply Nat.le_0_l | ].
+cbn - [ Nat.div ] in Hit.
+destruct (Nat.eq_dec n 0) as [Hnz| Hnz]; [ easy | ].
+remember (f_aux it (n / 2)) as ab eqn:Hab.
 symmetry in Hab.
 destruct ab as (a, b).
+remember (Nat.even n) as en eqn:Hen.
+symmetry in Hen.
+destruct en. {
+  injection Hit; clear Hit; intros H1 H2; subst b.
+  rewrite Nat.add_0_r in H1; subst a.
+  destruct it; [ now apply Nat.neq_0_lt_0 | ].
+  apply IHit in Hab.
+  clear IHit Hnz Hen.
+  revert it Hab.
+  destruct n; intros; [ easy | ].
+  apply -> Nat.succ_le_mono.
+  etransitivity; [ apply Hab | ].
+  clear Hab.
+  destruct n; [ easy | ].
+  apply Nat.Div0.div_le_upper_bound; lia.
+} {
+  injection Hit; clear Hit; intros H1 H2; subst b.
+  rewrite Nat.add_0_r in H2; subst a.
+(**)
+  destruct n; [ easy | clear Hnz ].
+  apply -> Nat.succ_le_mono.
+  rewrite Nat.even_succ in Hen.
 ...
-*)
-intros * Hit Hit'.
-revert n it' Hit Hit'.
-induction it; intros; [ easy | ].
-cbn - [ Nat.div ].
-destruct n; [ now destruct it' | ].
-apply Nat.succ_lt_mono in Hit.
-cbn - [ Nat.div ].
+  apply IHit in Hab.
+  etransitivity; [ apply Nat.succ_le_mono in Hab; apply Hab | ].
+  destruct n; [ easy | ].
+...
+  destruct it; [ now apply Nat.neq_0_lt_0 | ].
+  apply IHit in Hab.
+  clear IHit Hnz Hen.
+  revert it Hab.
+  destruct n; intros; [ easy | ].
+  apply -> Nat.succ_le_mono.
+  etransitivity; [ apply Hab | ].
+  clear Hab.
+  destruct n; [ easy | ].
+  apply Nat.Div0.div_le_upper_bound; lia.
+...
+destruct (Nat.even (S n)).
 destruct n. {
   cbn in Hit' |-*.
   destruct it; [ easy | ].
@@ -209,18 +273,31 @@ destruct en. {
 ...
 *)
 
+Theorem f_eq_g_eq : ∀ n a b,
+  f n = (a, b)
+  → g (a, b) = n.
+Proof.
+intros * Hfab.
+progress unfold f in Hfab.
+progress unfold g.
+remember (S n) as itf.
+remember (max a b) as itg.
+assert (Hitf : n < itf) by lia.
+assert (Hitg : max a b ≤ itg) by lia.
+clear Heqitf Heqitg.
+move itg before itf.
+move Hfab at bottom.
+...
+
 Theorem f_g : ∀ n, g (f n) = n.
 Proof.
 intros.
 progress unfold f, g.
-...
-(*
 remember (f_aux (S n) n) as ab eqn:Hab.
 symmetry in Hab.
 destruct ab as (a, b).
 rewrite g_aux_g; [ | easy ].
 rewrite f_aux_f in Hab; [ | lia ].
-*)
 ...
 cbn.
 induction n; [ easy | ].
