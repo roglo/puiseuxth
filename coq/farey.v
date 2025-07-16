@@ -219,7 +219,44 @@ destruct en. {
 }
 Qed.
 
-Theorem f_g_1 : ∀ n a b itf itg,
+Theorem eq_f_aux_0_l : ∀ it n a, f_aux it n = (0, a) → n = 0 ∨ it ≤ n.
+Proof.
+intros * Hit.
+revert a n Hit.
+induction it; intros; [ right; apply Nat.le_0_l | ].
+cbn - [ Nat.div ] in Hit.
+destruct (Nat.eq_dec n 0) as [Hnz| Hnz]; [ now left | right ].
+remember (f_aux it (n / 2)) as ab eqn:Hab.
+symmetry in Hab.
+destruct ab as (a', b).
+remember (Nat.even n) as en eqn:Hen.
+symmetry in Hen.
+destruct en. {
+  injection Hit; clear Hit; intros; subst.
+  rename a' into a.
+  apply eq_f_aux_0_r in Hab.
+  apply Nat.even_EvenT in Hen.
+  destruct Hen as (n', H); subst n.
+  rewrite Nat.mul_comm, Nat.div_mul in Hab; [ lia | easy ].
+} {
+  injection Hit; clear Hit; intros H1 H2; subst.
+  apply Nat.eq_add_0 in H2.
+  destruct H2; subst.
+  apply eq_f_aux_0_r in Hab.
+  destruct n; [ easy | ].
+  apply -> Nat.succ_le_mono.
+  rewrite Nat.even_succ in Hen.
+  apply (f_equal negb) in Hen; cbn in Hen.
+  rewrite Nat.negb_odd in Hen.
+  apply Nat.even_EvenT in Hen.
+  destruct Hen as (n', H); subst n.
+  rewrite <- Nat.add_1_l in Hab.
+  rewrite Nat.mul_comm, Nat.div_add in Hab; [ | easy ].
+  cbn in Hab; lia.
+}
+Qed.
+
+Theorem f_aux_eq_g_aux_eq : ∀ n a b itf itg,
   n < itf
   → max a b ≤ itg
   → f_aux itf n = (a, b)
@@ -372,7 +409,6 @@ destruct (lt_dec (a + S b) (S b)) as [Hasb| Hasb]; [ lia | ].
 clear Hasb.
 rewrite Nat.add_1_r.
 progress f_equal.
-Search (Nat.even (S _)).
 rewrite Nat.even_succ in Hen.
 apply (f_equal negb) in Hen; cbn in Hen.
 rewrite Nat.negb_odd in Hen.
@@ -381,49 +417,25 @@ destruct Hen as (n', H); subst n.
 progress f_equal.
 destruct a. {
   rewrite g_aux_0_l.
-...
-apply IHitf; [ lia | | ]. {
-...
-destruct n. {
+  destruct n'; [ easy | exfalso ].
+  rewrite <- Nat.add_1_l in Hab.
+  rewrite Nat.mul_comm, Nat.div_add in Hab; [ | easy ].
   cbn in Hab.
-  destruct itf; [ easy | ].
-  cbn in Hab.
-  injection Hab; clear Hab; intros; subst.
-  apply Nat.eq_mul_0; right.
-  apply g_aux_0_l.
+  apply eq_f_aux_0_l in Hab.
+  destruct Hab as [Hab| Hab]; [ easy | lia ].
 }
-rewrite Nat.even_succ_succ in Hen.
-...
-specialize (IHitf n a b itg) as H1.
-...
-eapply IHitf in Hab.
-assert (H : Nat.even n = true). {
-  rewrite Nat.even_succ in Hen.
-  clear - Hen.
-  apply Nat.EvenT_even.
-  apply Nat.OddT_S_EvenT.
-  apply Nat.odd_OddT.
-...
-  induction n; [ easy | ].
-  rewrite Nat.odd_succ in Hen.
-  rewrite Nat.even_succ.
-  cbn.
-  destruct n; [ easy | ].
-  rewrite Nat.even_succ in Hen, IHn.
-  rewrite Nat.odd_succ in IHn |-*.
+apply IHitf; [ lia | lia | ].
+rewrite <- Nat.add_1_l in Hab.
+now rewrite Nat.mul_comm, Nat.div_add in Hab.
+Qed.
 
-
-...
-specialize (IHitf (n / 2) a (S b)) as H1.
-...
-Print f_aux.
-  destruct itf; [ easy | ].
-...
-  apply eq_f_aux_0_r in Hab.
-lia.
-...
-
-Search (_ ≤ _ / _).
+Theorem g_aux_eq_f_aux_eq : ∀ n a b itf itg,
+  n < itf
+  → max a b ≤ itg
+  → g_aux itg a b = n
+  → f_aux itf n = (a / Nat.gcd a b, b / Nat.gcd a b).
+Proof.
+intros * Hitf Hitg Hab.
 ...
 
 Theorem f_eq_g_eq : ∀ n a b,
@@ -431,15 +443,16 @@ Theorem f_eq_g_eq : ∀ n a b,
   → g (a, b) = n.
 Proof.
 intros * Hfab.
-progress unfold f in Hfab.
-progress unfold g.
-remember (S n) as itf.
-remember (max a b) as itg.
-assert (Hitf : n < itf) by lia.
-assert (Hitg : max a b ≤ itg) by lia.
-clear Heqitf Heqitg.
-move itg before itf.
-move Hfab at bottom.
+apply (f_aux_eq_g_aux_eq _ _ _ (S n)); [ lia | easy | easy ].
+Qed.
+
+Theorem g_eq_f_eq : ∀ n a b,
+  g (a, b) = n
+  → f n = (a / Nat.gcd a b, b / Nat.gcd a b).
+Proof.
+intros * Hfab.
+... ...
+apply (g_aux_eq_f_aux_eq _ _ _ _ (max a b)); [ lia | easy | easy ].
 ...
 
 Theorem f_g : ∀ n, g (f n) = n.
@@ -449,10 +462,14 @@ progress unfold f, g.
 remember (f_aux (S n) n) as ab eqn:Hab.
 symmetry in Hab.
 destruct ab as (a, b).
-rewrite g_aux_g; [ | easy ].
-rewrite f_aux_f in Hab; [ | lia ].
-...
-cbn.
-induction n; [ easy | ].
-cbn - [ Nat.div ].
-...
+now apply f_eq_g_eq.
+Qed.
+
+Theorem g_f : ∀ a b, f (g (a, b)) = (a / Nat.gcd a b, b / Nat.gcd a b).
+Proof.
+intros.
+progress unfold f, g.
+remember (g_aux (max a b) a b) as n eqn:Hn.
+symmetry in Hn.
+... ...
+now apply g_eq_f_eq.
