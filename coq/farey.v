@@ -2,9 +2,17 @@
    inspired from Farey sequences *)
 
 (*
+ℕ to ℚ⁺
+
       | (0, 1)       if n = 0
 f n = | (b, a + b)   if n even and f (n / 2) = (a, b)
       | (a + b, b)   if n odd and f (n / 2) = (a, b)
+
+ℚ⁺ to ℕ
+
+           | 0                    if a = 0 or b = 0
+g (a, b) = | 2 g (b - a, a)       if a < b
+           | 2 g (a - b, b) + 1   otherwise
 *)
 
 Set Nested Proofs Allowed.
