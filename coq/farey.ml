@@ -5,6 +5,10 @@
       | (0, 1)       if n = 0
 f n = | (b, a + b)   if n even and f (n / 2) = (a, b)
       | (a + b, b)   if n odd and f (n / 2) = (a, b)
+
+           | 0                    if b = 0
+g (a, b) = | 2 g (b - a, a)       if a < b
+           | 2 g (a - b, b) + 1   otherwise
 *)
 
 let rec f n =
@@ -16,7 +20,7 @@ let rec f n =
 ;;
 
 let rec g (a, b) =
-  if a = 0 || b = 0 then 0
+  if b = 0 then 0
   else if a < b then 2 * g (b - a, a)
   else 2 * g (a - b, b) + 1
 ;;
