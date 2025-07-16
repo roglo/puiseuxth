@@ -9,6 +9,7 @@ f n = | (b, a + b)   if n even and f (n / 2) = (a, b)
 
 From Stdlib Require Import Utf8 Arith Psatz.
 Import List.ListNotations.
+Import Init.Nat.
 
 Fixpoint f_aux it n :=
   match it with
@@ -40,37 +41,78 @@ Fixpoint g_aux it a b :=
 Definition f n := f_aux (S n) n.
 Definition g '(a, b) := g_aux (max a b) a b.
 
-Theorem f_enough_iter :
-  ∀ it1 it2 n,
-  n < it1
-  → n < it2
-  → f_aux it1 n = f_aux it2 n.
-Proof.
-intros * Hit1 Hit2.
-revert n it2 Hit1 Hit2.
-induction it1; intros; [ easy | ].
-destruct it2; [ easy | ].
-cbn - [ Nat.div ].
-destruct n; [ easy | ].
-cbn - [ Nat.div Nat.even ].
-apply Nat.succ_lt_mono in Hit1, Hit2.
-rewrite (IHit1 (S n / 2) it2); [ easy | | ].
-apply Nat.Div0.div_lt_upper_bound; lia.
-apply Nat.Div0.div_lt_upper_bound; lia.
-Qed.
-
 Theorem f_aux_f : ∀ it n, n < it → f_aux it n = f n.
 Proof.
 intros * Hit.
 progress unfold f.
-apply f_enough_iter; [ easy | ].
-apply Nat.lt_succ_diag_r.
+remember (S n) as it' eqn:Hit'.
+assert (H : n < it') by lia.
+clear Hit'; move it' before it; rename H into Hit'.
+revert n it' Hit Hit'.
+induction it; intros; [ easy | ].
+destruct it'; [ easy | ].
+cbn - [ Nat.div ].
+destruct n; [ easy | ].
+cbn - [ Nat.div Nat.even ].
+apply Nat.succ_lt_mono in Hit, Hit'.
+rewrite (IHit (S n / 2) it'); [ easy | | ].
+apply Nat.Div0.div_lt_upper_bound; lia.
+apply Nat.Div0.div_lt_upper_bound; lia.
 Qed.
 
-(*
-Theorem g_aux_g : ∀ it a b, max a b < it → g_aux it a b = g (a, b).
+Theorem g_enough_iter :
+  ∀ it1 it2 a b,
+  max a b ≤ it1
+  → max a b ≤ it2
+  → g_aux it1 a b = g_aux it2 a b.
+Proof.
+intros * Hit1 Hit2.
+revert a b it2 Hit1 Hit2.
+induction it1; intros. {
+  generalize Hit1; intros H.
+  apply Nat.max_lub_l in Hit1.
+  apply Nat.max_lub_r in H.
+  apply Nat.le_0_r in Hit1, H; subst.
+  now destruct it2.
+}
+destruct it2. {
+  generalize Hit2; intros H.
+  apply Nat.max_lub_l in Hit2.
+  apply Nat.max_lub_r in H.
+  now apply Nat.le_0_r in Hit2, H; subst.
+}
+cbn - [ Nat.div Nat.mul ].
+destruct a; [ easy | ].
+destruct b; [ easy | ].
+cbn in Hit1, Hit2.
+apply Nat.succ_le_mono in Hit1, Hit2.
+cbn - [ Nat.mul ].
+destruct (lt_dec (S a) (S b)) as [Hab| Hab]. {
+  apply Nat.succ_lt_mono in Hab.
+  f_equal.
+  destruct it2; [ admit | ].
+  cbn - [ Nat.mul ].
+  remember (b - a) as ba eqn:Hba.
+  symmetry in Hba.
+  destruct ba; [ lia | ].
+  cbn - [ Nat.mul ].
 ...
-*)
+  apply IHit1.
+...
+cbn - [ Nat.div Nat.even ].
+rewrite (IHit1 (S n / 2) it2); [ easy | | ].
+apply Nat.Div0.div_lt_upper_bound; lia.
+apply Nat.Div0.div_lt_upper_bound; lia.
+...
+
+Theorem g_aux_g : ∀ it a b, max a b ≤ it → g_aux it a b = g (a, b).
+Proof.
+intros * Hit.
+progress unfold g.
+now apply g_enough_iter.
+...
+
+Definition maxf n := max (fst (f n)) (snd (f n)).
 
 Theorem f_g_1 : ∀ it it' n,
   n < it
