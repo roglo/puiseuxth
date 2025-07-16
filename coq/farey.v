@@ -116,18 +116,49 @@ destruct (lt_dec (S a) (S b)) as [Hab| Hab]. {
   rewrite (IHit1 _ _ (S it2)); [ | lia | lia ].
   cbn - [ Nat.mul ].
   destruct (lt_dec (S ba) (S a)) as [Hbaa'| Hbaa']; [ lia | easy ].
+} {
+  apply Nat.nlt_ge in Hab.
+  apply Nat.succ_le_mono in Hab.
+  f_equal; f_equal.
+  rewrite max_l in Hit1; [ | easy ].
+  rewrite max_l in Hit2; [ | easy ].
+  destruct it2. {
+    apply Nat.le_0_r in Hit2; subst a.
+    apply Nat.le_0_r in Hab; subst b.
+    now destruct it1.
+  }
+  cbn - [ Nat.mul ].
+  remember (a - b) as ab eqn:Hab'.
+  symmetry in Hab'.
+  destruct ab; [ now destruct it1 | ].
+  assert (H : a = b + S ab) by lia.
+  clear Hab'; subst a.
+  cbn - [ Nat.mul ].
+  clear Hab.
+  destruct (lt_dec (S ab) (S b)) as [Habb| Habb]. {
+    apply Nat.succ_lt_mono in Habb.
+    destruct it1; [ lia | ].
+    cbn - [ Nat.mul ].
+    destruct (lt_dec (S ab) (S b)) as [Habb'| Habb']; [ | lia ].
+    f_equal.
+    rewrite <- (IHit1 _ _ it2); [ | lia | lia ].
+    symmetry.
+    apply IHit1; lia.
+  }
+  apply Nat.nlt_ge in Habb.
+  apply Nat.succ_le_mono in Habb.
+  rewrite (IHit1 _ _ (S it2)); [ | lia | lia ].
+  cbn - [ Nat.mul ].
+  destruct (lt_dec (S ab) (S b)) as [Habb'| Habb']; [ lia | easy ].
 }
-apply Nat.nlt_ge in Hab.
-apply Nat.succ_le_mono in Hab.
-f_equal; f_equal.
-...
+Qed.
 
 Theorem g_aux_g : ∀ it a b, max a b ≤ it → g_aux it a b = g (a, b).
 Proof.
 intros * Hit.
 progress unfold g.
 now apply g_enough_iter.
-...
+Qed.
 
 Definition maxf n := max (fst (f n)) (snd (f n)).
 
