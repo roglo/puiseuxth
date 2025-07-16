@@ -256,6 +256,25 @@ destruct en. {
 }
 Qed.
 
+Theorem eq_g_aux_0 :
+  ∀ it a b, g_aux it a b = 0 → a = 0 ∨ b = 0 ∨ it < max a b.
+Proof.
+intros * Hab.
+revert a b Hab.
+induction it; intros; cbn. {
+  destruct a; [ now left | right ].
+  destruct b; [ now left | right ].
+  cbn; apply Nat.lt_0_succ.
+}
+cbn - [ Nat.mul ] in Hab.
+destruct (Nat.eq_dec b 0) as [Hbz| Hbz]; [ now right; left | ].
+destruct (lt_dec a b) as [Hlab| Hlab]; [ | lia ].
+apply Nat.eq_mul_0_r in Hab; [ | easy ].
+destruct a; [ now left | right; right ].
+rewrite Nat.max_r; [ | now apply Nat.lt_le_incl ].
+apply IHit in Hab; lia.
+Qed.
+
 Theorem f_aux_eq_g_aux_eq : ∀ n a b itf itg,
   n < itf
   → max a b ≤ itg
@@ -430,12 +449,44 @@ now rewrite Nat.mul_comm, Nat.div_add in Hab.
 Qed.
 
 Theorem g_aux_eq_f_aux_eq : ∀ n a b itf itg,
-  n < itf
+  b ≠ 0
+  → n < itf
   → max a b ≤ itg
   → g_aux itg a b = n
   → f_aux itf n = (a / Nat.gcd a b, b / Nat.gcd a b).
 Proof.
-intros * Hitf Hitg Hab.
+intros * Hbz Hitf Hitg Hab.
+revert n a b Hbz itg Hitf Hitg Hab.
+induction itf; intros; [ easy | ].
+cbn - [ Nat.div ].
+destruct (Nat.eq_dec n 0) as [Hnz| Hnz]. {
+  move Hnz at top; subst n; clear Hitf.
+  apply eq_g_aux_0 in Hab.
+  destruct Hab as [Hab| Hab]. {
+    subst a; cbn.
+    rewrite Nat.div_same; [ | easy ].
+    now destruct b.
+  }
+  destruct Hab as [Hab| Hab]; [ easy | ].
+  now apply Nat.nle_gt in Hab.
+}
+remember (f_aux itf (n / 2)) as ab eqn:Hab'.
+symmetry in Hab'.
+destruct ab as (a', b').
+remember (Nat.even n) as en eqn:Hen.
+symmetry in Hen.
+destruct en. {
+  destruct itg; [ now cbn in Hab; symmetry in Hab | ].
+  cbn - [ Nat.mul ] in Hab.
+  destruct (Nat.eq_dec b 0) as [H| H]; [ easy | clear H ].
+  destruct (lt_dec a b) as [Hlab| Hlab]. {
+    rewrite Nat.max_r in Hitg; [ | now apply Nat.lt_le_incl ].
+    apply Nat.even_EvenT in Hen.
+    destruct Hen as (n', H); move H at top; subst n.
+    apply Nat.mul_reg_l in Hab; [ | easy ].
+    rewrite Nat.mul_comm, Nat.div_mul in Hab'; [ | easy ].
+...
+    apply IHitf in Hab.
 ...
 
 Theorem f_eq_g_eq : ∀ n a b,
