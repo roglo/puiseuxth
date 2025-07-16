@@ -156,26 +156,25 @@ destruct (lt_dec (S a) (S b)) as [Hab| Hab]. {
 }
 Qed.
 
-Theorem eq_f_aux_0_0 : ∀ it n, f_aux it n = (0, 0) → it ≤ n.
+Theorem eq_f_aux_0_r : ∀ it n a, f_aux it n = (a, 0) → it ≤ n.
 Proof.
 intros * Hit.
-revert n Hit.
+revert a n Hit.
 induction it; intros; [ apply Nat.le_0_l | ].
 cbn - [ Nat.div ] in Hit.
 destruct (Nat.eq_dec n 0) as [Hnz| Hnz]; [ easy | ].
 remember (f_aux it (n / 2)) as ab eqn:Hab.
 symmetry in Hab.
-destruct ab as (a, b).
+destruct ab as (a', b).
 remember (Nat.even n) as en eqn:Hen.
 symmetry in Hen.
 destruct en. {
   injection Hit; clear Hit; intros H1 H2; subst b.
-  rewrite Nat.add_0_r in H1; subst a.
+  apply Nat.eq_add_0 in H1; destruct H1; subst a a'.
   destruct it; [ now apply Nat.neq_0_lt_0 | ].
   apply IHit in Hab.
   clear IHit Hnz Hen.
-  revert it Hab.
-  destruct n; intros; [ easy | ].
+  destruct n; [ easy | ].
   apply -> Nat.succ_le_mono.
   etransitivity; [ apply Hab | ].
   clear Hab.
@@ -190,12 +189,6 @@ destruct en. {
   apply IHit in Hab.
   etransitivity; [ apply Hab | clear ].
   destruct n; [ easy | ].
-  do 2 rewrite <- Nat.add_1_r.
-  rewrite <- Nat.add_assoc.
-  cbn - [ Nat.div ].
-  rewrite <- (Nat.mul_1_l 2) at 1.
-  rewrite Nat.div_add; [ | easy ].
-  apply Nat.add_le_mono_r.
   apply Nat.Div0.div_le_upper_bound; lia.
 }
 Qed.
@@ -235,18 +228,12 @@ destruct en. {
     apply Nat.le_0_r in Hitg; subst b.
     rewrite Nat.add_0_r in H1.
     apply Nat.le_0_r in H1; subst a.
-    apply eq_f_aux_0_0 in Hab'.
+    apply eq_f_aux_0_r in Hab'.
     apply Nat.nle_gt in Hitf.
     apply Hitf; clear Hitf.
     etransitivity; [ apply Hab' | ].
     clear.
     destruct n; [ easy | ].
-    do 2 rewrite <- Nat.add_1_r.
-    rewrite <- Nat.add_assoc.
-    cbn - [ Nat.div ].
-    rewrite <- (Nat.mul_1_l 2) at 1.
-    rewrite Nat.div_add; [ | easy ].
-    apply Nat.add_le_mono_r.
     apply Nat.Div0.div_le_upper_bound; lia.
   }
   cbn - [ Nat.mul ].
@@ -256,6 +243,15 @@ destruct en. {
   cbn - [ Nat.mul ].
   destruct b. {
     exfalso.
+    apply eq_f_aux_0_r in Hab'.
+    apply Nat.nle_gt in Hitf.
+    apply Hitf; clear Hitf.
+    etransitivity; [ apply Hab' | ].
+    clear.
+    destruct n; [ easy | ].
+    apply Nat.Div0.div_le_upper_bound; lia.
+  }
+  cbn - [ Nat.mul ].
 ...
 
 Theorem f_eq_g_eq : ∀ n a b,
