@@ -10,7 +10,7 @@ f n = | (b, a + b)   if n even and f (n / 2) = (a, b)
 
 ℚ⁺ to ℕ
 
-           | 0                    if a = 0 or b = 0
+           | 0                    if b = 0
 g (a, b) = | 2 g (b - a, a)       if a < b
            | 2 g (a - b, b) + 1   otherwise
 *)
@@ -35,20 +35,25 @@ Fixpoint g_aux it a b :=
   match it with
   | 0 => 0
   | S it' =>
-      match a with
-      | 0 => 0
-      | S a' =>
-          match b with
-          | 0 => 0
-          | S b' =>
-              if lt_dec a b then 2 * g_aux it' (b - a) a
-              else 2 * g_aux it' (a - b) b + 1
-          end
-      end
+      if Nat.eq_dec b 0 then 0
+      else if lt_dec a b then 2 * g_aux it' (b - a) a
+      else 2 * g_aux it' (a - b) b + 1
   end.
 
 Definition f n := f_aux (S n) n.
 Definition g '(a, b) := g_aux (max a b) a b.
+
+Theorem g_aux_0_r : ∀ it a, g_aux it a 0 = 0.
+Proof. now intros; destruct it. Qed.
+
+Theorem g_aux_0_l : ∀ it a, g_aux it 0 a = 0.
+Proof.
+intros.
+induction it; [ easy | ].
+destruct a; [ easy | ].
+cbn - [ Nat.mul ].
+now rewrite g_aux_0_r.
+Qed.
 
 Theorem f_aux_f : ∀ it n, n < it → f_aux it n = f n.
 Proof.
@@ -93,8 +98,17 @@ destruct it2. {
   now apply Nat.le_0_r in Hit2, H; subst.
 }
 cbn - [ Nat.div Nat.mul ].
-destruct a; [ easy | ].
 destruct b; [ easy | ].
+cbn - [ Nat.mul Nat.sub ].
+destruct a. {
+  cbn - [ Nat.mul ].
+  f_equal.
+  cbn in Hit1, Hit2.
+  apply Nat.succ_le_mono in Hit1, Hit2.
+  destruct it2; [ | now destruct it1 ].
+  apply Nat.le_0_r in Hit2; subst.
+  now destruct it1.
+}
 cbn in Hit1, Hit2.
 apply Nat.succ_le_mono in Hit1, Hit2.
 cbn - [ Nat.mul ].
@@ -104,7 +118,7 @@ destruct (lt_dec (S a) (S b)) as [Hab| Hab]. {
   rewrite max_r in Hit2; [ | now apply Nat.lt_le_incl ].
   f_equal.
   destruct it2; [ lia | ].
-  cbn - [ Nat.mul ].
+  cbn - [ Nat.mul Nat.sub ].
   remember (b - a) as ba eqn:Hba.
   symmetry in Hba.
   destruct ba; [ lia | ].
@@ -136,12 +150,16 @@ destruct (lt_dec (S a) (S b)) as [Hab| Hab]. {
   destruct it2. {
     apply Nat.le_0_r in Hit2; subst a.
     apply Nat.le_0_r in Hab; subst b.
-    now destruct it1.
+    cbn; clear.
+    destruct it1; [ easy | now destruct it1 ].
   }
-  cbn - [ Nat.mul ].
+  cbn - [ Nat.mul Nat.sub ].
   remember (a - b) as ab eqn:Hab'.
   symmetry in Hab'.
-  destruct ab; [ now destruct it1 | ].
+  destruct ab. {
+    cbn - [ Nat.mul ].
+    now rewrite g_aux_0_l, g_aux_0_r.
+  }
   assert (H : a = b + S ab) by lia.
   clear Hab'; subst a.
   cbn - [ Nat.mul ].
@@ -214,7 +232,7 @@ cbn - [ Nat.div ] in Hfab.
 destruct n. {
   cbn in Hfab.
   injection Hfab; clear Hfab; intros; subst; cbn.
-  now destruct itg.
+  apply g_aux_0_l.
 }
 apply Nat.succ_lt_mono in Hitf.
 cbn - [ Nat.div Nat.even ] in Hfab.
