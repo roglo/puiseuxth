@@ -60,13 +60,15 @@ apply Nat.Div0.div_lt_upper_bound; lia.
 apply Nat.Div0.div_lt_upper_bound; lia.
 Qed.
 
-Theorem g_enough_iter :
-  ∀ it1 it2 a b,
-  max a b ≤ it1
-  → max a b ≤ it2
-  → g_aux it1 a b = g_aux it2 a b.
+Theorem g_aux_g : ∀ it a b, max a b ≤ it → g_aux it a b = g (a, b).
 Proof.
-intros * Hit1 Hit2.
+intros * Hit.
+progress unfold g.
+rename it into it1.
+remember (max a b) as it2.
+assert (Hit1 : max a b ≤ it1) by lia.
+assert (Hit2 : max a b ≤ it2) by lia.
+clear Heqit2 Hit.
 revert a b it2 Hit1 Hit2.
 induction it1; intros. {
   generalize Hit1; intros H.
@@ -153,20 +155,23 @@ destruct (lt_dec (S a) (S b)) as [Hab| Hab]. {
 }
 Qed.
 
-Theorem g_aux_g : ∀ it a b, max a b ≤ it → g_aux it a b = g (a, b).
-Proof.
-intros * Hit.
-progress unfold g.
-now apply g_enough_iter.
-Qed.
-
 Definition maxf n := max (fst (f n)) (snd (f n)).
 
+(**)
 Theorem f_g_1 : ∀ it it' n,
   n < it
   → (let '(a, b) := f n in max a b) ≤ it'
   → (let '(a, b) := f_aux it n in g_aux it' a b) = n.
 Proof.
+Admitted. (*
+(*
+intros * Hit Hit'.
+rewrite f_aux_f; [ | easy ].
+remember (f n) as ab eqn:Hab.
+symmetry in Hab.
+destruct ab as (a, b).
+...
+*)
 intros * Hit Hit'.
 revert n it' Hit Hit'.
 induction it; intros; [ easy | ].
@@ -208,6 +213,14 @@ Theorem f_g : ∀ n, g (f n) = n.
 Proof.
 intros.
 progress unfold f, g.
+...
+(*
+remember (f_aux (S n) n) as ab eqn:Hab.
+symmetry in Hab.
+destruct ab as (a, b).
+rewrite g_aux_g; [ | easy ].
+rewrite f_aux_f in Hab; [ | lia ].
+*)
 ...
 cbn.
 induction n; [ easy | ].
