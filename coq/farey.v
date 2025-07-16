@@ -252,6 +252,16 @@ destruct en. {
     apply Nat.Div0.div_le_upper_bound; lia.
   }
   cbn - [ Nat.mul ].
+  rewrite Hn, Nat.mul_comm, Nat.div_mul in Hab'; [ | easy ].
+  destruct (lt_dec (S b) (S (b + a))) as [Hbba| Hbba]. {
+    rewrite Hn.
+    f_equal.
+    apply IHitf; [ lia | lia | easy ].
+  }
+  exfalso.
+  apply Nat.nlt_ge in Hbba.
+  assert (Haz : a = 0) by lia.
+  subst a; clear Hbba.
 ...
 
 Theorem f_eq_g_eq : ∀ n a b,
