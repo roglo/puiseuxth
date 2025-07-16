@@ -372,6 +372,39 @@ destruct (lt_dec (a + S b) (S b)) as [Hasb| Hasb]; [ lia | ].
 clear Hasb.
 rewrite Nat.add_1_r.
 progress f_equal.
+Search (Nat.even _ = false).
+...
+destruct n. {
+  cbn in Hab.
+  destruct itf; [ easy | ].
+  cbn in Hab.
+  injection Hab; clear Hab; intros; subst.
+  apply Nat.eq_mul_0; right.
+  apply g_aux_0_l.
+}
+rewrite Nat.even_succ_succ in Hen.
+...
+specialize (IHitf n a b itg) as H1.
+...
+eapply IHitf in Hab.
+assert (H : Nat.even n = true). {
+  rewrite Nat.even_succ in Hen.
+  clear - Hen.
+  apply Nat.EvenT_even.
+  apply Nat.OddT_S_EvenT.
+  apply Nat.odd_OddT.
+...
+  induction n; [ easy | ].
+  rewrite Nat.odd_succ in Hen.
+  rewrite Nat.even_succ.
+  cbn.
+  destruct n; [ easy | ].
+  rewrite Nat.even_succ in Hen, IHn.
+  rewrite Nat.odd_succ in IHn |-*.
+
+
+...
+specialize (IHitf (n / 2) a (S b)) as H1.
 ...
 Print f_aux.
   destruct itf; [ easy | ].
