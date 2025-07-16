@@ -288,6 +288,99 @@ destruct en. {
   apply Nat.nlt_ge in Hbba.
   assert (Haz : a = 0) by lia.
   subst a; clear Hbba.
+  destruct itf; [ easy | ].
+  cbn - [ Nat.div ] in Hab'.
+  destruct n'; [ easy | ].
+  cbn - [ Nat.div Nat.sub ] in Hab'.
+  remember (f_aux itf (S n' / 2)) as ab eqn:Hab.
+  symmetry in Hab.
+  destruct ab as (a, b').
+  destruct n'. {
+    injection Hab'; clear Hab'; intros; subst; lia.
+  }
+  remember (Nat.even n') as en eqn:Hen.
+  symmetry in Hen.
+  destruct en. {
+    injection Hab'; clear Hab'; intros H1 H2; subst b'.
+    progress replace (S (S n')) with (n' + 1 * 2) in Hab by lia.
+    rewrite Nat.div_add in Hab; [ | easy ].
+    rewrite Nat.add_1_r in Hab.
+    destruct itf. {
+      cbn in Hab.
+      now injection Hab; clear Hab; intros; subst a.
+    }
+    apply eq_f_aux_0_r in Hab.
+    apply Nat.succ_le_mono in Hab.
+    apply (Nat.mul_le_mono_l _ _ 2) in Hab.
+    rewrite <- Nat.Lcm0.divide_div_mul_exact in Hab. 2: {
+      apply Nat.even_EvenT in Hen.
+      destruct Hen as (c, Hc); subst n'.
+      exists c.
+      apply Nat.mul_comm.
+    }
+    rewrite (Nat.mul_comm _ n'), Nat.div_mul in Hab; [ lia | easy ].
+  }
+  injection Hab'; clear Hab'; intros H1 H2; subst b'; lia.
+}
+destruct itg. {
+  exfalso.
+  generalize Hitg; intros H.
+  apply Nat.max_lub_l in Hitg.
+  apply Nat.max_lub_r in H.
+  apply Nat.le_0_r in Hitg, H; subst.
+  remember (f_aux itf (S n / 2)) as ab eqn:Hab.
+  symmetry in Hab.
+  destruct ab as (a, b).
+  injection Hfab; clear Hfab; intros H1 H2; subst b.
+  rewrite Nat.add_0_r in H2; subst a.
+  apply eq_f_aux_0_r in Hab.
+  apply Nat.nle_gt in Hitf.
+  apply Hitf; clear Hitf.
+  etransitivity; [ apply Hab | ].
+  destruct n; [ easy | ].
+  progress replace (S (S n)) with (n + 1 * 2) by lia.
+  rewrite Nat.div_add; [ | easy ].
+  rewrite Nat.add_1_r.
+  apply -> Nat.succ_le_mono.
+  apply Nat.Div0.div_le_upper_bound; lia.
+}
+remember (f_aux itf (S n / 2)) as ab eqn:Hab.
+symmetry in Hab.
+destruct ab as (a', b').
+injection Hfab; clear Hfab; intros H1 H2; subst b' a.
+rename a' into a.
+cbn - [ Nat.mul ].
+destruct b. {
+  exfalso.
+  apply eq_f_aux_0_r in Hab.
+  apply Nat.nle_gt in Hitf.
+  apply Hitf; clear Hitf.
+  etransitivity; [ apply Hab | ].
+  destruct n; [ easy | ].
+  progress replace (S (S n)) with (n + 1 * 2) by lia.
+  rewrite Nat.div_add; [ | easy ].
+  rewrite Nat.add_1_r.
+  apply -> Nat.succ_le_mono.
+  apply Nat.Div0.div_le_upper_bound; lia.
+}
+cbn - [ Nat.mul ].
+rewrite Nat.add_succ_r.
+rewrite Nat.add_comm, Nat.sub_add_distr, Nat.sub_diag.
+rewrite <- Nat.add_succ_l, (Nat.add_comm (S b)), Nat.add_sub.
+cbn - [ Nat.mul ].
+destruct (lt_dec (a + S b) (S b)) as [Hasb| Hasb]; [ lia | ].
+clear Hasb.
+rewrite Nat.add_1_r.
+progress f_equal.
+...
+Print f_aux.
+  destruct itf; [ easy | ].
+...
+  apply eq_f_aux_0_r in Hab.
+lia.
+...
+
+Search (_ ≤ _ / _).
 ...
 
 Theorem f_eq_g_eq : ∀ n a b,
