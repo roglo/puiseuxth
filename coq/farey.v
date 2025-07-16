@@ -156,9 +156,50 @@ destruct (lt_dec (S a) (S b)) as [Hab| Hab]. {
 }
 Qed.
 
-Definition maxf n := max (fst (f n)) (snd (f n)).
+Theorem eq_f_aux_0_0 : ∀ it n, f_aux it n = (0, 0) → it ≤ n.
+Proof.
+intros * Hit.
+revert n Hit.
+induction it; intros; [ apply Nat.le_0_l | ].
+cbn - [ Nat.div ] in Hit.
+destruct (Nat.eq_dec n 0) as [Hnz| Hnz]; [ easy | ].
+remember (f_aux it (n / 2)) as ab eqn:Hab.
+symmetry in Hab.
+destruct ab as (a, b).
+remember (Nat.even n) as en eqn:Hen.
+symmetry in Hen.
+destruct en. {
+  injection Hit; clear Hit; intros H1 H2; subst b.
+  rewrite Nat.add_0_r in H1; subst a.
+  destruct it; [ now apply Nat.neq_0_lt_0 | ].
+  apply IHit in Hab.
+  clear IHit Hnz Hen.
+  revert it Hab.
+  destruct n; intros; [ easy | ].
+  apply -> Nat.succ_le_mono.
+  etransitivity; [ apply Hab | ].
+  clear Hab.
+  destruct n; [ easy | ].
+  apply Nat.Div0.div_le_upper_bound; lia.
+} {
+  injection Hit; clear Hit; intros H1 H2; subst b.
+  rewrite Nat.add_0_r in H2; subst a.
+  destruct n; [ easy | clear Hnz ].
+  apply -> Nat.succ_le_mono.
+  rewrite Nat.even_succ in Hen.
+  apply IHit in Hab.
+  etransitivity; [ apply Hab | clear ].
+  destruct n; [ easy | ].
+  do 2 rewrite <- Nat.add_1_r.
+  rewrite <- Nat.add_assoc.
+  cbn - [ Nat.div ].
+  rewrite <- (Nat.mul_1_l 2) at 1.
+  rewrite Nat.div_add; [ | easy ].
+  apply Nat.add_le_mono_r.
+  apply Nat.Div0.div_le_upper_bound; lia.
+}
+Qed.
 
-(**)
 Theorem f_g_1 : ∀ n a b itf itg,
   n < itf
   → max a b ≤ itg
@@ -194,84 +235,28 @@ destruct en. {
     apply Nat.le_0_r in Hitg; subst b.
     rewrite Nat.add_0_r in H1.
     apply Nat.le_0_r in H1; subst a.
-Theorem eq_f_aux_0_0 : ∀ it n, f_aux it n = (0, 0) → it ≤ n.
-Proof.
-intros * Hit.
-revert n Hit.
-induction it; intros; [ apply Nat.le_0_l | ].
-cbn - [ Nat.div ] in Hit.
-destruct (Nat.eq_dec n 0) as [Hnz| Hnz]; [ easy | ].
-remember (f_aux it (n / 2)) as ab eqn:Hab.
-symmetry in Hab.
-destruct ab as (a, b).
-remember (Nat.even n) as en eqn:Hen.
-symmetry in Hen.
-destruct en. {
-  injection Hit; clear Hit; intros H1 H2; subst b.
-  rewrite Nat.add_0_r in H1; subst a.
-  destruct it; [ now apply Nat.neq_0_lt_0 | ].
-  apply IHit in Hab.
-  clear IHit Hnz Hen.
-  revert it Hab.
-  destruct n; intros; [ easy | ].
-  apply -> Nat.succ_le_mono.
-  etransitivity; [ apply Hab | ].
-  clear Hab.
-  destruct n; [ easy | ].
-  apply Nat.Div0.div_le_upper_bound; lia.
-} {
-  injection Hit; clear Hit; intros H1 H2; subst b.
-  rewrite Nat.add_0_r in H2; subst a.
-(**)
-  destruct n; [ easy | clear Hnz ].
-  apply -> Nat.succ_le_mono.
-  rewrite Nat.even_succ in Hen.
+    apply eq_f_aux_0_0 in Hab'.
+    apply Nat.nle_gt in Hitf.
+    apply Hitf; clear Hitf.
+    etransitivity; [ apply Hab' | ].
+    clear.
+    destruct n; [ easy | ].
+    do 2 rewrite <- Nat.add_1_r.
+    rewrite <- Nat.add_assoc.
+    cbn - [ Nat.div ].
+    rewrite <- (Nat.mul_1_l 2) at 1.
+    rewrite Nat.div_add; [ | easy ].
+    apply Nat.add_le_mono_r.
+    apply Nat.Div0.div_le_upper_bound; lia.
+  }
+  cbn - [ Nat.mul ].
+  rewrite Nat.add_sub.
+  rewrite Nat.add_comm.
+  rewrite Nat.sub_add_distr, Nat.sub_diag.
+  cbn - [ Nat.mul ].
+  destruct b. {
+    exfalso.
 ...
-  apply IHit in Hab.
-  etransitivity; [ apply Nat.succ_le_mono in Hab; apply Hab | ].
-  destruct n; [ easy | ].
-...
-  destruct it; [ now apply Nat.neq_0_lt_0 | ].
-  apply IHit in Hab.
-  clear IHit Hnz Hen.
-  revert it Hab.
-  destruct n; intros; [ easy | ].
-  apply -> Nat.succ_le_mono.
-  etransitivity; [ apply Hab | ].
-  clear Hab.
-  destruct n; [ easy | ].
-  apply Nat.Div0.div_le_upper_bound; lia.
-...
-destruct (Nat.even (S n)).
-destruct n. {
-  cbn in Hit' |-*.
-  destruct it; [ easy | ].
-  destruct it'; [ easy | ].
-  now destruct it'.
-}
-...
-destruct n; [ now rewrite f_aux_f | ].
-rewrite f_aux_f. 2: {
-  apply Nat.Div0.div_lt_upper_bound; lia.
-}
-specialize (IHit (S (S n) / 2)) as H1.
-assert (H : S (S n) / 2 < it). {
-  apply Nat.Div0.div_lt_upper_bound; lia.
-}
-specialize (H1 H); clear H.
-rewrite f_aux_f in H1. 2: {
-  apply Nat.Div0.div_lt_upper_bound; lia.
-}
-remember (f (S (S n) / 2)) as x eqn:Hx.
-symmetry in Hx.
-destruct x as (a, b).
-remember (Nat.even n) as en eqn:Hen.
-symmetry in Hen.
-destruct en. {
-  apply Nat.even_EvenT in Hen.
-  destruct Hen as (n', Hn); subst n.
-...
-*)
 
 Theorem f_eq_g_eq : ∀ n a b,
   f n = (a, b)
