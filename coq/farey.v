@@ -89,20 +89,37 @@ apply Nat.succ_le_mono in Hit1, Hit2.
 cbn - [ Nat.mul ].
 destruct (lt_dec (S a) (S b)) as [Hab| Hab]. {
   apply Nat.succ_lt_mono in Hab.
+  rewrite max_r in Hit1; [ | now apply Nat.lt_le_incl ].
+  rewrite max_r in Hit2; [ | now apply Nat.lt_le_incl ].
   f_equal.
-  destruct it2; [ admit | ].
+  destruct it2; [ lia | ].
   cbn - [ Nat.mul ].
   remember (b - a) as ba eqn:Hba.
   symmetry in Hba.
   destruct ba; [ lia | ].
+  assert (H : b = a + S ba) by lia.
+  clear Hba; subst b.
   cbn - [ Nat.mul ].
-...
-  apply IHit1.
-...
-cbn - [ Nat.div Nat.even ].
-rewrite (IHit1 (S n / 2) it2); [ easy | | ].
-apply Nat.Div0.div_lt_upper_bound; lia.
-apply Nat.Div0.div_lt_upper_bound; lia.
+  clear Hab.
+  destruct (lt_dec (S ba) (S a)) as [Hbaa| Hbaa]. {
+    apply Nat.succ_lt_mono in Hbaa.
+    destruct it1; [ lia | ].
+    cbn - [ Nat.mul ].
+    destruct (lt_dec (S ba) (S a)) as [Hbaa'| Hbaa']; [ | lia ].
+    f_equal.
+    rewrite <- (IHit1 _ _ it2); [ | lia | lia ].
+    symmetry.
+    apply IHit1; lia.
+  }
+  apply Nat.nlt_ge in Hbaa.
+  apply Nat.succ_le_mono in Hbaa.
+  rewrite (IHit1 _ _ (S it2)); [ | lia | lia ].
+  cbn - [ Nat.mul ].
+  destruct (lt_dec (S ba) (S a)) as [Hbaa'| Hbaa']; [ lia | easy ].
+}
+apply Nat.nlt_ge in Hab.
+apply Nat.succ_le_mono in Hab.
+f_equal; f_equal.
 ...
 
 Theorem g_aux_g : ∀ it a b, max a b ≤ it → g_aux it a b = g (a, b).
