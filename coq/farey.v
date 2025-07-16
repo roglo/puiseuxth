@@ -372,7 +372,17 @@ destruct (lt_dec (a + S b) (S b)) as [Hasb| Hasb]; [ lia | ].
 clear Hasb.
 rewrite Nat.add_1_r.
 progress f_equal.
-Search (Nat.even _ = false).
+Search (Nat.even (S _)).
+rewrite Nat.even_succ in Hen.
+apply (f_equal negb) in Hen; cbn in Hen.
+rewrite Nat.negb_odd in Hen.
+apply Nat.even_EvenT in Hen.
+destruct Hen as (n', H); subst n.
+progress f_equal.
+destruct a. {
+  rewrite g_aux_0_l.
+...
+apply IHitf; [ lia | | ]. {
 ...
 destruct n. {
   cbn in Hab.
