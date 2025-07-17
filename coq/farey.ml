@@ -25,6 +25,16 @@ let rec f n =
     else (a + b, b)
 ;;
 
+(* including ∞ at 0 *)
+let rec f n =
+  if n = 0 then (1, 0)
+  else if n = 1 then (0, 1)
+  else
+    let (a, b) = f ((n - 1) / 2 + 1) in
+    if n mod 2 = 0 then (a + b, b)
+    else (b, a + b)
+;;
+
 (*
 0 (0, 1)
 1 (1, 0)
