@@ -111,11 +111,11 @@ let rec left2 n =
 ;;
 
 let rec right2 n =
-  if n = 0 then 44
-  else if n = 1 then 45
-  else if n = 2 then 0
+  if n = 0 then 45
+  else if n = 1 then 46
+  else if n = 2 then 1
   else if n mod 2 = 0 then right2 (n / 2)
-  else n / 2
+  else n / 2 + 1
 ;;
 
 let rec ff2 n =
@@ -123,7 +123,7 @@ let rec ff2 n =
   else if n = 1 then (1, 0)
   else
     let (a, b) = ff2 (left2 (n - 1) + 1) in
-    let (a', b') = ff2 (right2 n + 1) in
+    let (a', b') = ff2 (right2 n) in
     (a + a', b + b')
 ;;
 
