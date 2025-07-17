@@ -2,9 +2,15 @@
    inspired from Farey sequences *)
 
 (*
+defined as returning rational
+      | 0                if n = 0
+f n = | 1 / (f k + 1)    if n = 2 k
+      | f k + 1          if n = 2 k + 1
+
+defined as returning pair of naturals
       | (0, 1)       if n = 0
-f n = | (b, a + b)   if n even and f (n / 2) = (a, b)
-      | (a + b, b)   if n odd and f (n / 2) = (a, b)
+f n = | (b, a + b)   f (n / 2) = (a, b) and n even
+      | (a + b, b)   f (n / 2) = (a, b) and n odd
 
            | 0                    if b = 0
 g (a, b) = | 2 g (b - a, a)       if a < b
