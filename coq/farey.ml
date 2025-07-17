@@ -103,10 +103,9 @@ let rec ff1 n =
 ;;
 
 let rec left2 n =
-  let m = n - 2 in
-  if m = 0 then 0
-  else if m mod 2 = 0 then m / 2 + 1
-  else left2 (m / 2 + 2)
+  if n = 0 then 0
+  else if n mod 2 = 0 then n / 2 + 1
+  else left2 (n / 2)
 ;;
 
 let rec right2 n =
@@ -119,7 +118,7 @@ let rec ff2 n =
   if n = 0 then (0, 1)
   else if n = 1 then (1, 0)
   else
-    let (a, b) = ff2 (left2 n) in
+    let (a, b) = ff2 (left2 (n - 2)) in
     let (a', b') = ff2 (right2 n) in
     (a + a', b + b')
 ;;
