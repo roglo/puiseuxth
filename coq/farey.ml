@@ -105,10 +105,10 @@ let rec ff1 n =
 let rec left2 n =
   let m = n + 1 in
   if m = 0 then 42
-  else if n = 0 then 43
-  else if n = 1 then -1
-  else if n mod 2 = 0 then left2 (n / 2)
-  else n / 2
+  else if m = 1 then 43
+  else if m = 2 then -1
+  else if m mod 2 = 0 then (m - 1) / 2
+  else left2 ((m - 1) / 2)
 ;;
 
 let rec right2 n =
