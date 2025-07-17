@@ -81,17 +81,26 @@ let rec right n =
 
 List.map (fun i -> (left i, i, right i)) (List.init 17 (fun i -> i - 1));;
 
-let rec ff n =
+let rec ff' n =
   if n = -1 then (0, 1)
   else if n = 0 then (1, 0)
   else
-    let (a, b) = ff (left n) in
-    let (a', b') = ff (right n) in
+    let (a, b) = ff' (left n) in
+    let (a', b') = ff' (right n) in
     (a + a', b + b')
 ;;
 
 
-let ff n = ff (n - 1);;
+let ff n = ff' (n - 1);;
+
+let rec ff1 n =
+  if n = 0 then (0, 1)
+  else if n = 1 then (1, 0)
+  else
+    let (a, b) = ff1 (left (n - 1) + 1) in
+    let (a', b') = ff1 (right (n - 1) + 1) in
+    (a + a', b + b')
+;;
 
 List.map (fun i -> i, ff i) (List.init 32 (fun i -> i ));;
 
