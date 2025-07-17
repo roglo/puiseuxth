@@ -76,6 +76,17 @@ let rec right n =
 ;;
 
 (*
+let rec ff n =
+  if n = -1 then (0, 1)
+  else if n = 0 then (1, 0)
+  else
+    let (a, b) = ff (left n) in
+    let (a', b') = ff (right n) in
+    (a + a', b + b')
+;;
+*)
+
+(*
 0        0/1
 1        1/0
 
