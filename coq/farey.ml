@@ -116,7 +116,9 @@ let rec right2 n =
   else n / 2 + 2
 ;;
 
+(*
 let right2 n = max 1 (left2 (n + 1));;
+*)
 
 let rec ff2 n =
   if n = 0 then (0, 1)
