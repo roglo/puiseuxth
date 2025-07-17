@@ -64,18 +64,23 @@ right(2n+1)=right(n)
 *)
 
 let rec left n =
-  if n = 0 then -1
+  if n = -1 then 42
+  else if n = 0 then 43
+  else if n = 1 then -1
   else if n mod 2 = 0 then left (n / 2)
   else n / 2
 ;;
 
 let rec right n =
-  if n = 0 then 0
+  if n = -1 then 44
+  else if n = 0 then 45
+  else if n = 1 then 0
   else if n mod 2 = 0 then n / 2
   else right (n / 2)
 ;;
 
-(*
+List.map (fun i -> (left i, i, right i)) (List.init 17 (fun i -> i - 1));;
+
 let rec ff n =
   if n = -1 then (0, 1)
   else if n = 0 then (1, 0)
@@ -84,7 +89,11 @@ let rec ff n =
     let (a', b') = ff (right n) in
     (a + a', b + b')
 ;;
-*)
+
+
+let ff n = ff (n - 1);;
+
+List.map (fun i -> i, ff i) (List.init 32 (fun i -> i ));;
 
 (*
 0        0/1
