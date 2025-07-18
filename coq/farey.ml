@@ -65,3 +65,11 @@ let rec ff n =
 ;;
 
 List.map (fun i -> i, ff i) (List.init 32 (fun i -> i ));;
+
+let rec gg (a, b) =
+  if a = 0 then 0
+  else if b = 0 then 1
+  else 42
+;;
+
+List.map (fun i -> i, (gg (ff i))) (List.init 32 (fun i -> i ));;
