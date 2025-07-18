@@ -91,5 +91,5 @@ let ggg (a, b) =
 ;;
 
 List.map (fun i -> i, ggg (fff i)) (List.init 32 (fun i -> i ));;
-List.map (fun ab -> ab, (fst ab / gcd (fst ab) (snd ab), snd ab / gcd (fst ab) (snd ab)), fff (ggg ab))
+List.map (fun ab -> (fst ab / gcd (fst ab) (snd ab), snd ab / gcd (fst ab) (snd ab)), fff (ggg ab))
   (List.flatten (List.init 5 (fun a -> List.init 5 (fun b -> (a, b + 1)))));;
