@@ -31,7 +31,7 @@ let rec g (a, b) =
   else 2 * g (a - b, b) + 1
 ;;
 
-(* *)
+(* definitions of gcd and int power *)
 
 let rec gcd a b = if b = 0 then a else gcd b (a mod b);;
 
@@ -44,7 +44,7 @@ let rec pow a =
       b * b * (if n mod 2 = 0 then 1 else a)
 ;;
 
-(* *)
+(* version ℕ → ℚ⁺ including ∞ = 1/0 *)
 
 let right3 n = (n / gcd (pow 2 n) n + 1) / 2;;
 let left3 n =
