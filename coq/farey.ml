@@ -45,7 +45,9 @@ let rec pow a =
 ;;
 
 (* version ℕ → ℚ⁺ including ∞ = 1/0 *)
+(* Stern-Brocot tree *)
 
+(* right3 = https://oeis.org/A003602 *)
 let right3 n = (n / gcd (pow 2 n) n + 1) / 2;;
 let left3 n =
   match right3 (n - 1) with
