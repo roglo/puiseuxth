@@ -73,3 +73,27 @@ let rec gg (a, b) =
 ;;
 
 List.map (fun i -> i, (gg (ff i))) (List.init 32 (fun i -> i ));;
+
+(* *)
+
+let rec fff n =
+  if n = 0 then (1, 0)
+  else if n = 1 then (0, 1)
+  else
+    let (a, b) = fff ((n - 1) / 2 + 1) in
+    if n mod 2 = 0 then (a + b, b)
+    else (b, a + b)
+;;
+
+let rec ggg (a, b) =
+  if b = 0 then 0
+  else if a = 0 then 1
+  else if a < b then 2 * ggg (b - a, a) - 1
+  else 2 * (ggg (a - b, b))
+;;
+
+List.map (fun i -> i, ggg (fff i)) (List.init 32 (fun i -> i ));;
+List.map (fun ab -> ab, fff (ggg ab))
+  (List.flatten (List.init 5 (fun a -> List.init 5 (fun b -> (a, b)))));;
+
+... merde c'et pas ça...
