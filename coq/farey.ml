@@ -85,19 +85,11 @@ let rec fff n =
     else (b, a + b)
 ;;
 
-let rec ggg (a, b) =
-  if b = 0 then 0
-  else if a = 0 then 1
-  else if a < b then failwith (Printf.sprintf "%d < %d" a b)
-(*
-2 * ggg (b - a, a) - 1
-*)
-  else failwith (Printf.sprintf "%d ≤ %d" b a)
-(*
-  else 2 * (ggg (a - b, b))
-*)
+let ggg (a, b) =
+  if a = 1 && b = 0 then 0
+  else g (a, b) + 1
 ;;
 
 List.map (fun i -> i, ggg (fff i)) (List.init 32 (fun i -> i ));;
-List.map (fun ab -> ab, fff (ggg ab))
-  (List.flatten (List.init 5 (fun a -> List.init 5 (fun b -> (a, b)))));;
+List.map (fun ab -> ab, (fst ab / gcd (fst ab) (snd ab), snd ab / gcd (fst ab) (snd ab)), fff (ggg ab))
+  (List.flatten (List.init 5 (fun a -> List.init 5 (fun b -> (a, b + 1)))));;
