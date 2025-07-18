@@ -33,28 +33,32 @@ let rec g (a, b) =
 
 (* *)
 
-let rec left n =
-  if n = 0 then 0
-  else if n mod 2 = 0 then n / 2 + 1
-  else left (n / 2)
+let rec gcd a b = if b = 0 then a else gcd b (a mod b);;
+
+let rec pow a =
+  function
+  | 0 -> 1
+  | 1 -> a
+  | n ->
+      let b = pow a (n / 2) in
+      b * b * (if n mod 2 = 0 then 1 else a)
 ;;
 
-let rec right n =
-  if n = 0 then 1
-  else if n mod 2 = 0 then right (n / 2 - 1)
-  else n / 2 + 2
-;;
+(* *)
 
-(*
-let right n = max 1 (left (n + 1));;
-*)
+let right3 n = (n / gcd (pow 2 n) n + 1) / 2;;
+let left3 n =
+  match right3 (n - 1) with
+  | 1 -> 0
+  | k -> k
+;;
 
 let rec ff n =
   if n = 0 then (0, 1)
   else if n = 1 then (1, 0)
   else
-    let (a, b) = ff (left (n - 2)) in
-    let (a', b') = ff (right (n - 2)) in
+    let (a, b) = ff (left3 n) in
+    let (a', b') = ff (right3 n) in
     (a + a', b + b')
 ;;
 
