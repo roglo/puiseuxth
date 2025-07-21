@@ -1,6 +1,7 @@
-(** * special ℚ arithmetics *)
-(** 1/2 < 2/4 *)
-(* experiment *)
+(** * A ℚ arithmetics *)
+(** Q.add testing if denominators are equal
+    this is going to make distributivity good for
+    syntactic equality *)
 
 Set Nested Proofs Allowed.
 From Stdlib Require Import Utf8 Arith.
@@ -52,9 +53,12 @@ Module Q.
 Open Scope Z_scope.
 
 Definition add a b :=
-  mk_q
-    (q_num a * q_Den b + q_num b * q_Den a)
-    (Pos.mul (q_den a) (q_den b)).
+  if Pos.eq_dec (q_den a) (q_den b) then
+    mk_q (q_num a + q_num b) (q_den a)
+  else
+    mk_q
+      (q_num a * q_Den b + q_num b * q_Den a)
+      (Pos.mul (q_den a) (q_den b)).
 
 Definition opp a := mk_q (- q_num a) (q_den a).
 Definition sub a b := add a (opp b).
@@ -66,24 +70,11 @@ Definition inv a :=
   mk_q (Z.sgn (q_num a) * q_Den a) (Z.to_pos (Z.abs (q_num a))).
 
 Definition div a b := mul a (inv b).
-(* here, 1/2<2/4<3/6<... *)
-(*
-Definition compare a b :=
-   BinPos.Pos.switch_Eq
-     (BinPos.Pos.switch_Eq (q_Den a ?= q_Den b) (q_num a ?= q_num b))
-     (q_num a * q_Den b ?= q_num b * q_Den a).
-*)
-Definition compare a b :=
-  match q_num a * q_Den b ?= q_num b * q_Den a with
-  | Eq =>
-      match q_num a ?= q_num b with
-      | Eq => q_Den a ?= q_Den b
-      | c => c
-      end
-  | c => c
-  end.
 
-Definition eq a b := (q_num a * q_Den b ?= q_num b * q_Den a) = Eq.
+Definition compare a b :=
+  q_num a * q_Den b ?= q_num b * q_Den a.
+
+Definition eq a b := Q.compare a b = Eq.
 Definition le a b := Q.compare a b ≠ Gt.
 Definition lt a b := Q.compare a b = Lt.
 
@@ -157,41 +148,17 @@ Add Parametric Relation : Q Q.eq
   transitivity proved by Q.eq_trans
   as eq_rel.
 
-Theorem compare_eq_iff : ∀ a b, (a ?= b)%Q = Eq ↔ a = b.
-Proof.
-intros.
-progress unfold Q.compare.
-split; intros Hab. {
-  remember (_ ?= _)%Z as aeb eqn:Haeb.
-  symmetry in Haeb.
-  destruct aeb; [ | easy | easy ].
-  remember (q_num a ?= q_num b) as nab eqn:Hnab.
-  symmetry in Hnab.
-  destruct nab; [ | easy | easy ].
-  apply Z.compare_eq_iff in Hab, Haeb, Hnab.
-  destruct a as (an, ad).
-  destruct b as (bn, bd).
-  progress unfold q_Den in Hab.
-  cbn in Hnab, Hab.
-  injection Hab; clear Hab; intros.
-  congruence.
-}
-subst a.
-rewrite (proj2 (Z.compare_eq_iff _ _)); [ | easy ].
-rewrite (proj2 (Z.compare_eq_iff _ _)); [ | easy ].
-now apply Z.compare_eq_iff.
-Qed.
-
-Theorem compare_le_iff : ∀ a b, (a ?= b)%Q ≠ Gt ↔ (a ≤ b)%Q.
-Proof. easy. Qed.
-
 Theorem add_comm : ∀ a b, (a + b)%Q = (b + a)%Q.
 Proof.
 intros.
 progress unfold add.
-rewrite Z.add_comm.
-rewrite Pos.mul_comm.
-easy.
+rewrite Z.add_comm, Pos.mul_comm.
+rewrite (Z.add_comm (_ * _)).
+destruct (Pos.eq_dec (q_den a) (q_den b)) as [Hab| Hab]. {
+  rewrite Hab.
+  now destruct (Pos.eq_dec (q_den b) (q_den b)).
+}
+now destruct (Pos.eq_dec (q_den b) (q_den a)) as [Hba| Hba]; [ congruence | ].
 Qed.
 
 Theorem fold_q_Den : ∀ a, Z.of_pos (q_den a) = q_Den a.
@@ -202,6 +169,7 @@ Proof.
 intros.
 progress unfold Q.add.
 cbn.
+...
 do 2 rewrite q_Den_num_den.
 rewrite Pos.mul_assoc.
 progress f_equal.
@@ -271,59 +239,24 @@ rewrite Z.opp_involutive.
 now destruct a.
 Qed.
 
-Theorem compare_antisymm : ∀ a b, CompOpp (a ?= b)%Q = (b ?= a)%Q.
-Proof.
-intros.
-progress unfold Q.compare.
-rewrite <- Z.compare_antisymm.
-rewrite <- (Z.compare_antisymm (q_num _)).
-rewrite <- (Z.compare_antisymm (q_Den _)).
-destruct (q_num _ * _ ?= _); [ cbn | easy | easy ].
-destruct (q_num _ ?= _); [ cbn | easy | easy ].
-apply CompOpp_involutive.
-Qed.
-
 Theorem nle_gt : ∀ a b, ¬ (a ≤ b)%Q ↔ (b < a)%Q.
-Proof.
-intros.
-progress unfold Q.le, Q.lt.
-rewrite <- Q.compare_antisymm.
-destruct (b ?= a)%Q; cbn; [ | easy | ]. {
-  split; intros Hab; [ now exfalso; apply Hab | easy ].
-} {
-  split; intros Hab; [ now exfalso; apply Hab | easy ].
-}
-Qed.
+Proof. intros; apply Z.nle_gt. Qed.
 
 Theorem nlt_ge : ∀ a b, ¬ (a < b)%Q ↔ (b ≤ a)%Q.
-Proof.
-intros.
-progress unfold Q.le, Q.lt.
-rewrite <- Q.compare_antisymm.
-now destruct (b ?= a)%Q.
-Qed.
+Proof. intros; apply Z.nlt_ge. Qed.
 
-Theorem le_antisymm : ∀ a b, (a ≤ b)%Q → (b ≤ a)%Q → a = b.
+Theorem le_antisymm : ∀ a b, (a ≤ b)%Q → (b ≤ a)%Q → (a == b)%Q.
 Proof.
 intros * Hab Hba.
 progress unfold Q.le in Hab, Hba.
-rewrite <- Q.compare_antisymm in Hba.
-remember (a ?= b)%Q as ab eqn:Heab.
-symmetry in Heab.
-destruct ab; [ | easy | easy ].
-now apply Q.compare_eq_iff in Heab.
+progress unfold Q.eq.
+apply Z.compare_le_iff in Hab, Hba.
+apply Z.compare_eq_iff.
+now apply Z.le_antisymm.
 Qed.
 
 Theorem le_refl : ∀ a, (a ≤ a)%Q.
-Proof.
-intros.
-progress unfold Q.le.
-progress unfold Q.compare.
-rewrite (proj2 (Z.compare_eq_iff _ _)); [ | easy ].
-rewrite (proj2 (Z.compare_eq_iff _ _)); [ | easy ].
-rewrite (proj2 (Z.compare_eq_iff _ _)); [ | easy ].
-easy.
-Qed.
+Proof. intros; apply Z.le_refl. Qed.
 
 Theorem lt_le_incl : ∀ a b, (a < b)%Q → (a ≤ b)%Q.
 Proof. intros * Hab; congruence. Qed.
@@ -344,13 +277,36 @@ do 2 rewrite (Q.mul_comm x).
 apply Q.mul_opp_l.
 Qed.
 
-Theorem Den_opp : ∀ a, q_Den (- a) = q_Den a.
-Proof. easy. Qed.
+Theorem order_eq_le_l : ∀ a b c, (a == b → c ≤ b → c ≤ a)%Q.
+Proof.
+intros * Heq Hle.
+apply Z.compare_eq_iff in Heq.
+apply Z.compare_le_iff in Hle.
+apply Z.compare_le_iff.
+apply (Z.mul_le_mono_pos_r (q_Den b)); [ easy | ].
+rewrite (Z.mul_comm (q_num a)), <- (Z.mul_assoc (q_Den c)), Heq.
+rewrite Z.mul_mul_swap, Z.mul_assoc.
+rewrite (Z.mul_comm (q_Den c)).
+now apply Z.mul_le_mono_pos_r.
+Qed.
+
+Theorem order_eq_le_r : ∀ a b c, (a == b → b ≤ c → a ≤ c)%Q.
+Proof.
+intros * Heq Hle.
+apply Z.compare_eq_iff in Heq.
+apply Z.compare_le_iff in Hle.
+apply Z.compare_le_iff.
+apply (Z.mul_le_mono_pos_r (q_Den b)); [ easy | ].
+rewrite (Z.mul_comm (q_num a)), <- (Z.mul_assoc (q_Den c)), Heq.
+rewrite Z.mul_mul_swap, Z.mul_assoc.
+rewrite (Z.mul_comm (q_Den c)).
+now apply Z.mul_le_mono_pos_r.
+Qed.
 
 Theorem sub_diag : ∀ a, (a - a == 0)%Q.
 Proof.
 intros.
-apply Z.compare_eq_iff.
+apply Z.compare_eq_iff; cbn.
 progress unfold q_Den; cbn.
 rewrite Z.mul_1_r.
 rewrite Z.mul_opp_l.
@@ -421,8 +377,7 @@ Theorem lt_le_dec: ∀ a b, ({a < b} + {b ≤ a})%Q.
 Proof.
 intros.
 progress unfold Q.lt, Q.le.
-rewrite <- Q.compare_antisymm.
-now destruct (b ?= a)%Q; [ right | right | left ].
+apply Z.lt_le_dec.
 Qed.
 
 Global Instance add_morph : Proper (Q.eq ==> Q.eq ==> Q.eq) Q.add.
@@ -579,20 +534,30 @@ apply Q.mul_compat_l.
 apply Q.eq_refl.
 Qed.
 
-Theorem lt_iff : ∀ a b, (a < b)%Q ↔ (a ≤ b)%Q ∧ a ≠ b.
+Global Instance le_morph : Proper (Q.eq ==> Q.eq ==> iff) Q.le.
+Proof.
+intros a b Hab c d Hcd.
+move c before b; move d before c.
+split; intros Hac. {
+  apply (@Q.order_eq_le_l _ c); [ now symmetry | ].
+  now apply (@Q.order_eq_le_r _ a).
+} {
+  apply (@Q.order_eq_le_r _ b); [ easy | ].
+  now apply (@Q.order_eq_le_l _ d).
+}
+Qed.
+
+Theorem lt_iff : ∀ a b, (a < b)%Q ↔ (a ≤ b)%Q ∧ ¬ (a == b)%Q.
 Proof.
 intros.
 split. {
   intros Hlt.
   split; [ now apply Q.lt_le_incl | ].
-  intros H; subst.
-  progress unfold Q.lt in Hlt.
-  progress unfold Q.compare in Hlt.
-  cbn in Hlt.
-  rewrite (proj2 (Z.compare_eq_iff _ _)) in Hlt; [ | easy ].
-  rewrite (proj2 (Z.compare_eq_iff _ _)) in Hlt; [ | easy ].
-  apply Pos.compare_lt_iff in Hlt.
-  now apply Nat.lt_irrefl in Hlt.
+  intros H.
+  apply Q.nle_gt in Hlt.
+  apply Hlt; clear Hlt.
+  rewrite H.
+  apply Q.le_refl.
 } {
   intros (Hle, Heq).
   apply Q.nle_gt.
@@ -601,12 +566,46 @@ split. {
 }
 Qed.
 
+Theorem order_eq_lt_l : ∀ a b c, (a == b → c < b → c < a)%Q.
+Proof.
+intros * Heq Hlt.
+generalize Hlt; intros Hle.
+apply Q.lt_le_incl in Hle.
+apply Q.lt_iff.
+split; [ now apply (Q.order_eq_le_l _ b) | ].
+intros H.
+rewrite <- H in Heq.
+clear a H Hle.
+apply Q.nle_gt in Hlt.
+apply Hlt; clear Hlt.
+rewrite Heq.
+apply Q.le_refl.
+Qed.
+
+Theorem order_eq_lt_r : ∀ a b c, (a == b → b < c → a < c)%Q.
+Proof.
+intros * Heq Hlt.
+generalize Hlt; intros Hle.
+apply Q.lt_le_incl in Hle.
+apply Q.lt_iff.
+split; [ now apply (Q.order_eq_le_r _ b) | ].
+intros H.
+rewrite H in Heq.
+clear a H Hle.
+apply Q.nle_gt in Hlt.
+apply Hlt; clear Hlt.
+rewrite Heq.
+apply Q.le_refl.
+Qed.
+
+Theorem compare_eq_iff : ∀ a b, (a ?= b)%Q = Eq ↔ (a == b)%Q.
+Proof. easy. Qed.
+
 Theorem compare_lt_iff : ∀ a b, (a ?= b)%Q = Lt ↔ (a < b)%Q.
 Proof. easy. Qed.
 
-Theorem compare_gt_iff : ∀ a b, (a ?= b)%Q = Gt ↔ (b < a)%Q.
-...
-Proof. intros; apply Z.compare_gt_iff. Qed.
+Theorem compare_le_iff : ∀ a b, (a ?= b)%Q ≠ Gt ↔ (a ≤ b)%Q.
+Proof. easy. Qed.
 
 Theorem compare_gt_iff : ∀ a b, (a ?= b)%Q = Gt ↔ (b < a)%Q.
 Proof. intros; apply Z.compare_gt_iff. Qed.
