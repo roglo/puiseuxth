@@ -2,6 +2,7 @@
 (** Q.add testing if denominators are equal
     this is going to make distributivity good for
     syntactic equality *)
+(* serious drawback: it makes associativity not working! *)
 
 Set Nested Proofs Allowed.
 From Stdlib Require Import Utf8 Arith.
@@ -167,9 +168,46 @@ Proof. easy. Qed.
 Theorem add_assoc : ∀ a b c, (a + (b + c))%Q = ((a + b) + c)%Q.
 Proof.
 intros.
-progress unfold Q.add.
-cbn.
+progress unfold Q.add; cbn.
+destruct (Pos.eq_dec (q_den a) (q_den b)) as [Hab| Hab]; cbn. {
+  rewrite Hab.
+  destruct (Pos.eq_dec (q_den b) (q_den c)) as [Hbc| Hbc]; cbn. {
+    rewrite Hbc.
+    destruct (Pos.eq_dec (q_den c) (q_den c)) as [H| H]; [ clear H | easy ].
+    progress f_equal.
+    apply Z.add_assoc.
+  }
+  destruct (Pos.eq_dec _ _) as [Hbbc| Hbbc]; cbn. {
+    rewrite q_Den_num_den.
+    f_equal; [ | easy ].
+    rewrite fold_q_Den.
+    rewrite Z.add_assoc.
+    progress f_equal.
+    rewrite Z.mul_add_distr_r.
+    progress f_equal.
+    progress unfold q_Den.
+    rewrite <- (Pos.mul_1_r (q_den b)) in Hbbc at 1.
+    symmetry in Hbbc.
+    apply Pos.mul_cancel_l in Hbbc.
+    rewrite Hbbc; symmetry.
+    apply Z.mul_1_r.
+  }
+  do 2 rewrite q_Den_num_den.
+  progress unfold q_Den.
+  rewrite Hab.
+  rewrite Pos2Z.inj_mul.
+  do 2 rewrite fold_q_Den.
+  rewrite Z.mul_assoc.
+  do 2 rewrite Z.mul_add_distr_r.
+  rewrite Z.add_assoc.
+  rewrite (Z.mul_mul_swap _ (q_Den b)).
+  do 2 rewrite <- Z.mul_add_distr_r.
+(* ah, du coup, ça marche pas ! *)
 ...
+
+Theorem add_assoc : ∀ a b c, (a + (b + c))%Q = ((a + b) + c)%Q.
+Proof.
+intros.
 do 2 rewrite q_Den_num_den.
 rewrite Pos.mul_assoc.
 progress f_equal.

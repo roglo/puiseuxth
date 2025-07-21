@@ -663,6 +663,22 @@ split; intros H. {
 }
 Qed.
 
+Theorem mul_cancel_l : ∀ a b c, (a * b = a * c ↔ b = c)%pos.
+Proof.
+intros.
+split; intros Hbc; [ | now subst ].
+injection Hbc; clear Hbc; intros H1.
+apply (f_equal (Nat.add 1)) in H1.
+do 2 rewrite (Nat.add_comm _ (_ - _)) in H1.
+rewrite Nat.sub_add in H1; [ | easy ].
+rewrite Nat.sub_add in H1; [ | easy ].
+apply Nat.mul_cancel_l in H1; [ | now rewrite Nat.add_1_r ].
+apply Nat.add_cancel_r in H1.
+destruct b as (b).
+destruct c as (c); cbn in H1 |-*.
+now subst.
+Qed.
+
 End Pos.
 
 Number Notation pos Pos.of_number Pos.to_number : pos_scope.
