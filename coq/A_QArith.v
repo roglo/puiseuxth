@@ -7,7 +7,8 @@ Require Import A_PosArith A_ZArith.
 
 Record Q := mk_q
   { q_num : Z;
-    q_den : pos }.
+    q_den : pos;
+    q_prop : Z.gcd q_num (Z.of_pos q_den) = 1%Z }.
 
 Declare Scope Q_scope.
 Delimit Scope Q_scope with Q.
@@ -28,7 +29,7 @@ Proof. intros * H1 H2; flia H1 H2. Qed.
 Theorem Nat_add_1_r_pos : ∀ a, (0 < a + 1)%nat.
 Proof. flia. Qed.
 
-Theorem q_Den_num_den : ∀ a b, q_Den (mk_q a b) = Z.of_pos b.
+Theorem q_Den_num_den : ∀ a b p, q_Den (mk_q a b p) = Z.of_pos b.
 Proof. easy. Qed.
 
 Theorem q_Den_neq_0 : ∀ a, q_Den a ≠ 0%Z.
@@ -45,14 +46,98 @@ Hint Resolve q_Den_pos : core.
 
 (* end misc *)
 
+Theorem fold_q_Den : ∀ a, Z.of_pos (q_den a) = q_Den a.
+Proof. easy. Qed.
+
 Module Q.
 
 Open Scope Z_scope.
 
+Theorem add_prop : ∀ a b,
+  Z.gcd (q_num a * q_Den b + q_num b * q_Den a) (Z.of_pos (q_den a * q_den b))
+  = 1.
+Proof.
+intros.
+rewrite Pos2Z.inj_mul.
+destruct a as (an, ad, Hap).
+destruct b as (bn, bd, Hbp).
+cbn.
+do 2 rewrite q_Den_num_den.
+progress unfold Z.gcd.
+remember (an * _ + _)%Z as ab eqn:Hab.
+symmetry in Hab.
+destruct ab as [| sab vab]. {
+  cbn - [ Pos.mul ].
+  rewrite Pos2Nat.inj_mul.
+  rewrite Nat2Z.inj_mul.
+  progress unfold Z.gcd in Hap, Hbp.
+  destruct an as [| sa va]. {
+    cbn in Hap.
+    rewrite Hap, Z.mul_1_l.
+    now destruct bn.
+  }
+  remember (Z.of_pos ad) as zad eqn:Hzad.
+  symmetry in Hzad.
+  destruct zad as [| sza vza]; [ easy | ].
+  injection Hap; clear Hap; intros H1.
+  apply Nat.sub_0_le in H1.
+  apply Nat.le_1_r in H1.
+  destruct H1 as [H1| H1]. {
+    apply Nat.gcd_eq_0_l in H1.
+    now apply Pos.to_nat_neq_0 in H1.
+  }
+  destruct bn as [| sb vb]; [ easy | ].
+  remember (Z.of_pos bd) as zbd eqn:Hzbd.
+  destruct zbd as [| szb vzb]; [ easy | ].
+  injection Hbp; clear Hbp; intros H2.
+  apply Nat.sub_0_le in H2.
+  apply Nat.le_1_r in H2.
+  destruct H2 as [H2| H2]. {
+    apply Nat.gcd_eq_0_l in H2.
+    now apply Pos.to_nat_neq_0 in H2.
+  }
+  do 2 rewrite Z.pos_nat.
+  cbn.
+  progress f_equal.
+  rewrite <- Hzad, Hzbd in Hab.
+  destruct sa. {
+    destruct sb; [ easy | ].
+    cbn - [ Pos.mul ] in Hab.
+    remember (va * bd ?= vb * ad)%pos as ab eqn:Hvab.
+    symmetry in Hvab.
+    destruct ab; [ clear Hab | easy | easy ].
+    apply Pos.compare_eq_iff in Hvab.
+    apply (f_equal Pos.to_nat) in Hvab.
+    do 2 rewrite Pos2Nat.inj_mul in Hvab.
+    destruct sza; [ | easy ].
+    destruct szb; [ | easy ].
+    injection Hzad; clear Hzad; intros; subst vza.
+    injection Hzbd; clear Hzbd; intros; subst vzb.
+...
+    eapply Nat.gauss in H1. 2: {
+      exists (Pos.to_nat vb * Pos.to_nat ad)%nat.
+...
+    apply (f_equal Z.of_pos) in Hvab.
+    do 2 rewrite Pos2Z.inj_mul in Hvab.
+    rewrite Hzad, <- Hzbd in Hvab.
+Search (Nat.gcd _ _ = 1%nat).
+...
+...
+Search (Nat.gcd _ _ = 0%nat).
+  apply Nat.gcd_eq_0_l in H1.
+Search Pos.gcd.
+Print Pos.gcd.
+Print Z.gcd.
+Search Z.gcd.
+Search Pos.gcd.
+
+...
+
 Definition add a b :=
   mk_q
     (q_num a * q_Den b + q_num b * q_Den a)
-    (Pos.mul (q_den a) (q_den b)).
+    (Pos.mul (q_den a) (q_den b))
+    true.
 
 Definition opp a := mk_q (- q_num a) (q_den a).
 Definition sub a b := add a (opp b).
@@ -150,9 +235,6 @@ rewrite Z.add_comm.
 rewrite Pos.mul_comm.
 easy.
 Qed.
-
-Theorem fold_q_Den : ∀ a, Z.of_pos (q_den a) = q_Den a.
-Proof. easy. Qed.
 
 Theorem add_assoc : ∀ a b c, (a + (b + c))%Q = ((a + b) + c)%Q.
 Proof.
