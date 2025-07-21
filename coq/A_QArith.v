@@ -108,6 +108,51 @@ destruct ab as [| sab vab]. {
     symmetry in Hvab.
     destruct ab; [ clear Hab | easy | easy ].
     apply Pos.compare_eq_iff in Hvab.
+(**)
+    apply (f_equal Pos.of_nat) in H1, H2.
+    assert (H : Pos.gcd va vza = 1%pos) by easy.
+    clear H1; rename H into H1.
+    assert (H : Pos.gcd vb vzb = 1%pos) by easy.
+    clear H2; rename H into H2.
+    destruct sza; [ | easy ].
+    destruct szb; [ | easy ].
+    symmetry in Hzad.
+    injection Hzad; clear Hzad; intros; subst.
+    injection Hzbd; clear Hzbd; intros; subst.
+    destruct ad as (ad).
+    destruct bd as (bd).
+    destruct va as (va).
+    destruct vb as (vb).
+    destruct ad. {
+      split; [ easy | ].
+      destruct bd; [ easy | ].
+      exfalso.
+      rewrite Pos.mul_1_r in Hvab.
+      progress unfold Pos.mul in Hvab.
+      cbn in Hvab.
+      injection Hvab; clear Hvab; intros; subst vb.
+      progress unfold Pos.gcd in H2.
+      cbn in H2.
+      rewrite Nat.sub_add in H2; [ | flia ].
+      do 2 rewrite Nat.add_1_r in H2.
+      cbn - [ Nat.modulo ] in H2.
+      destruct va. {
+        rewrite Nat.add_0_r in H2.
+        now rewrite Nat.Div0.mod_same in H2.
+      }
+      rewrite Nat.mod_small in H2; [ | flia ].
+      rewrite <- Nat.gcd_sub_diag_r in H2; [ | flia ].
+      do 2 rewrite <- Nat.add_succ_l in H2.
+      rewrite Nat.add_comm, Nat.add_sub in H2.
+      rewrite <- (Nat.mul_1_l (S (S bd))) in H2 at 1.
+      rewrite Nat.gcd_mul_mono_r in H2.
+      rewrite Pos.of_nat_mul in H2; [ | easy | easy ].
+      now apply Pos.eq_mul_1 in H2.
+    }
+    exfalso.
+...
+Search (Pos.of_nat (Nat.gcd _ _)).
+rewrite Pos.fold_gcd in H1.
     apply (f_equal Pos.to_nat) in Hvab.
     do 2 rewrite Pos2Nat.inj_mul in Hvab.
     destruct sza; [ | easy ].
