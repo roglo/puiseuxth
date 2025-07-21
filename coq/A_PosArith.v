@@ -679,6 +679,28 @@ destruct c as (c); cbn in H1 |-*.
 now subst.
 Qed.
 
+Theorem eq_mul_1 : ∀ a b, (a * b = 1)%pos ↔ a = 1%pos ∧ b = 1%pos.
+Proof.
+intros.
+split; intros Hab; [ | now destruct Hab; subst ].
+injection Hab; clear Hab; intros Hab.
+apply Nat.sub_0_le in Hab.
+apply Nat.le_1_r in Hab.
+destruct a as (a).
+destruct b as (b).
+cbn in Hab.
+destruct Hab as [Hab| Hab]. {
+  apply Nat.eq_mul_0 in Hab.
+  do 2 rewrite Nat.add_1_r in Hab.
+  now destruct Hab.
+}
+apply Nat.eq_mul_1 in Hab.
+do 2 rewrite Nat.add_1_r in Hab.
+destruct Hab as (Ha, Hb).
+apply Nat.succ_inj in Ha, Hb.
+now subst.
+Qed.
+
 End Pos.
 
 Number Notation pos Pos.of_number Pos.to_number : pos_scope.

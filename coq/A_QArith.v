@@ -100,6 +100,7 @@ destruct ab as [| sab vab]. {
   cbn.
   progress f_equal.
   rewrite <- Hzad, Hzbd in Hab.
+  apply Pos.eq_mul_1.
   destruct sa. {
     destruct sb; [ easy | ].
     cbn - [ Pos.mul ] in Hab.
@@ -113,10 +114,27 @@ destruct ab as [| sab vab]. {
     destruct szb; [ | easy ].
     injection Hzad; clear Hzad; intros; subst vza.
     injection Hzbd; clear Hzbd; intros; subst vzb.
+    enough (H : Pos.to_nat ad = 1%nat ∧ Pos.to_nat bd = 1%nat). {
+      destruct H as (H3, H4).
+      replace 1%nat with (Pos.to_nat 1) in H3, H4 by easy.
+      now apply Pos2Nat.inj in H3, H4.
+    }
 ...
-...
-    eapply Nat.gauss in H1. 2: {
-      exists (Pos.to_nat vb * Pos.to_nat ad)%nat.
+    remember (Pos.to_nat ad) as a; clear ad Heqa.
+    remember (Pos.to_nat bd) as b; clear bd Heqb.
+    remember (Pos.to_nat va) as c; clear va Heqc.
+    remember (Pos.to_nat vb) as d; clear vb Heqd.
+    generalize H1; intros H3.
+    generalize H2; intros H4.
+    apply (Nat.gauss c a d) in H1. 2: {
+      exists b.
+      now rewrite (Nat.mul_comm a), (Nat.mul_comm b).
+    }
+    apply (Nat.gauss d b c) in H2. 2: {
+      exists a.
+      now rewrite (Nat.mul_comm a), (Nat.mul_comm b).
+    }
+    apply Nat.divide_antisym in H1; [ subst | easy ].
 ...
     apply (f_equal Z.of_pos) in Hvab.
     do 2 rewrite Pos2Z.inj_mul in Hvab.
