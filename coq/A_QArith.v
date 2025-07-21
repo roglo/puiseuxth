@@ -63,6 +63,44 @@ destruct a as (an, ad, Hap).
 destruct b as (bn, bd, Hbp).
 cbn.
 do 2 rewrite q_Den_num_den.
+(**)
+progress unfold Z.gcd in Hap, Hbp.
+destruct an as [| sa va]. {
+  cbn.
+  destruct bn as [| sb vb]. {
+    cbn.
+    rewrite Nat.sub_add; [ | easy ].
+    destruct ad as (ad).
+    destruct bd as (bd).
+    cbn in Hap, Hbp |-*.
+    rewrite Nat.add_1_r in Hap, Hbp.
+    destruct ad; [ now destruct bd | easy ].
+  }
+  destruct ad as (ad).
+  destruct bd as (bd).
+  cbn in Hap, Hbp |-*.
+  rewrite Nat.add_1_r in Hap.
+  destruct ad; [ clear Hap | easy ].
+  rewrite Pos.mul_1_r, Pos.mul_1_l.
+  easy.
+}
+destruct bn as [| sb vb]. {
+  cbn.
+  destruct ad as (ad).
+  destruct bd as (bd).
+  cbn in Hap, Hbp |-*.
+  rewrite Nat.add_1_r in Hbp.
+  destruct bd; [ clear Hbp | easy ].
+  now do 2 rewrite Pos.mul_1_r.
+}
+destruct ad as (ad).
+destruct bd as (bd).
+cbn in Hap, Hbp |-*.
+destruct sa. {
+  cbn.
+  destruct sb. {
+    cbn.
+...
 progress unfold Z.gcd.
 remember (an * _ + _)%Z as ab eqn:Hab.
 symmetry in Hab.
