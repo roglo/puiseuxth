@@ -74,8 +74,22 @@ apply Z.lt_eq_cases in Hab.
 destruct Hab as [Hab| ]; [ | now subst ].
 apply Z.lt_succ_r.
 apply (Z.mul_lt_mono_pos_l c); [ easy | ].
+rewrite Z.mul_add_distr_l, Z.mul_1_r.
+Theorem Z_div_mod : ∀ a b : Z, b ≠ 0 → a = b * (a / b) + a mod b.
+Admitted.
+specialize (Z_div_mod a c) as H1.
+assert (H : c ≠ 0) by now intros H; subst c; apply Z.lt_irrefl in Hzc.
+specialize (H1 H); clear H.
+Search (_ = _ - _).
+symmetry in H1.
+apply Z.add_move_r in H1.
+rewrite H1.
 ...
 Require Import ZArith.
+Print Z.div_le_mono.
+Check Z.div_mod.
+Check Z.add_lt_mono_r.
+Search (_ <= _ * _ / _).
 Search (_ * (_ / _) <= _).
 ...
 Theorem Z_mul_div_le: ∀ a b : Z, 0 < b → b * (a / b) <= a.
