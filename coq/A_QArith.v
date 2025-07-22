@@ -54,10 +54,43 @@ Module Q.
 Open Scope Z_scope.
 
 Theorem add_prop : ∀ a b,
-  Z.gcd (q_num a * q_Den b + q_num b * q_Den a) (Z.of_pos (q_den a * q_den b))
-  = 1.
+  let n := q_num a * q_Den b + q_num b * q_Den a in
+  let d := q_Den a * q_Den b in
+  Z.gcd (n / Z.gcd n d) (Z.of_pos (Z.to_pos (d / Z.gcd n d))) = 1.
 Proof.
 intros.
+rewrite Z2Pos.id. {
+  apply Z.gcd_div_gcd; [ | easy ].
+  intros H.
+  now apply Z.gcd_eq_0 in H.
+}
+Theorem Z_div_le_lower_bound : ∀ a b q, 0 < b → b * q ≤ a → q ≤ a / b.
+Proof.
+intros * Hzb Hbq.
+...
+apply (Z.mul_le_mono_pos_l b); [ easy | ].
+transitivity a; [ easy | ].
+...
+rewrite <- Z.divide_div_mul_exact.
+...
+apply Z_div_le_lower_bound. {
+  apply Z.lt_iff.
+  split; [ apply Z.gcd_nonneg | ].
+  intros H; symmetry in H.
+  subst n d.
+  now apply Z.gcd_eq_0 in H.
+}
+rewrite Z.mul_1_r.
+destruct n as [| sn vn]. {
+  cbn - [ Z.abs ].
+  now rewrite Z.abs_nonneg_eq.
+}
+destruct sn. {
+Print Z.gcd.
+  cbn.
+...
+Search (z_val _ _ ≤ z_val _ _).
+...
 destruct a as (an, ad, Hap).
 destruct b as (bn, bd, Hbp).
 cbn.
@@ -292,10 +325,14 @@ Search Pos.gcd.
 *)
 
 Definition add a b :=
-  mk_q
-    (q_num a * q_Den b + q_num b * q_Den a)
-    (Pos.mul (q_den a) (q_den b))
-    true.
+  let n := q_num a * q_Den b + q_num b * q_Den a in
+  let d := q_Den a * q_Den b in
+  mk_q (n / Z.gcd n d) (Z.to_pos (d / Z.gcd n d)) (add_prop a b).
+
+Definition add a b :=
+  let n := q_num a * q_Den b + q_num b * q_Den a in
+  let d := Pos.mul (q_den a) (q_den b) in
+  mk_q (n / Z.gcd n (z_pos d)) (d / Pos.gcd n d) true.
 
 Definition opp a := mk_q (- q_num a) (q_den a).
 Definition sub a b := add a (opp b).
