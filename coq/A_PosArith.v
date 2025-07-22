@@ -701,6 +701,18 @@ apply Nat.succ_inj in Ha, Hb.
 now subst.
 Qed.
 
+Theorem nle_gt : ∀ a b, ¬ (a ≤ b)%pos ↔ (b < a)%pos.
+Proof. intros; apply Nat.nle_gt. Qed.
+
+Theorem nlt_ge : ∀ a b, ¬ (a < b)%pos ↔ (b ≤ a)%pos.
+Proof. intros; apply Nat.nlt_ge. Qed.
+
+Theorem lt_asymm : ∀ a b, (a < b)%pos → ¬ (b < a)%pos.
+Proof.
+intros * Hab.
+now apply Pos.nlt_ge, Pos.lt_le_incl.
+Qed.
+
 End Pos.
 
 Number Notation pos Pos.of_number Pos.to_number : pos_scope.

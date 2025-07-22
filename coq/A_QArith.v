@@ -152,7 +152,39 @@ destruct sa. {
   now apply Nat.mod_upper_bound.
 }
 split. {
-Search (_ ≤ _ mod _).
+  cbn.
+  remember (- _) as ab eqn:Hab.
+  symmetry in Hab.
+  apply (f_equal Z.opp) in Hab.
+  rewrite Z.opp_involutive in Hab.
+  destruct ab as [| sab vab]; [ easy | ].
+  destruct sab; [ easy | ].
+  cbn in Hab.
+  remember (vb ?= vab)%pos as vbab eqn:Hbvab.
+  symmetry in Hbvab.
+  destruct vbab; [ easy | exfalso | easy ].
+  apply Pos.compare_lt_iff in Hbvab.
+  rewrite <- Z.pos_nat in Hab.
+  apply Nat2Z.inj in Hab.
+  specialize (Nat.mod_upper_bound (Pos.to_nat va) (Pos.to_nat vb)) as H1.
+  assert (H : Pos.to_nat vb ≠ 0%nat) by easy.
+  specialize (H1 H); clear H.
+  rewrite Hab in H1.
+  apply Pos2Nat.inj_lt in H1.
+  now apply Pos.lt_asymm in H1.
+}
+...
+  progress unfold Z.rem.
+  remember (Z.div_eucl _ _) as ab eqn:Hab.
+  symmetry in Hab.
+  destruct ab as (q, r); cbn.
+  cbn in Hab.
+  injection Hab; clear Hab; intros; subst.
+...
+Require Import ZArith.
+Search (_ <= _ mod _).
+Z.mod_pos_bound : ∀ a b : Z, 0 < b → 0 <= a mod b < b
+Z_mod_lt: ∀ a b : Z, b > 0 → 0 <= a mod b < b
 ...
   easy.
     rewrite Nat2Z.inj_mod.
