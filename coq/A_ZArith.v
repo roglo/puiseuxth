@@ -3245,6 +3245,57 @@ rewrite Nat.sub_0_r.
 now apply Nat.add_pos_l.
 Qed.
 
+Theorem lt_succ_r : ∀ a b, (a < b + 1 ↔ a ≤ b)%Z.
+Proof.
+intros.
+split; intros Hab. {
+  rewrite Z.add_comm in Hab.
+  destruct b as [| sb vb]. {
+    rewrite Z.add_0_r in Hab.
+    destruct a as [| sa va]; [ easy | ].
+    destruct sa; [ exfalso | easy ].
+    apply Z.nle_gt in Hab.
+    apply Hab; clear Hab.
+    progress unfold Z.le.
+    destruct va as (va); cbn.
+    now destruct va.
+  }
+  destruct a as [| sa va]. {
+    destruct sb; [ easy | exfalso ].
+    destruct vb as (vb).
+    now destruct vb.
+  }
+  progress unfold Z.le; cbn.
+  progress unfold Z.lt in Hab; cbn in Hab.
+  destruct sb. {
+    destruct sa; [ | easy ].
+    apply Pos.compare_lt_iff in Hab.
+    apply Pos.compare_le_iff.
+    progress unfold Pos.lt in Hab.
+    progress unfold Pos.le.
+    cbn in Hab |-*.
+    rewrite Nat.add_1_r in Hab.
+    now apply Nat.lt_succ_r.
+  }
+  destruct vb as (vb); cbn in Hab.
+  destruct vb; cbn in Hab. {
+    destruct sa; [ easy | ].
+    apply Pos.compare_le_iff.
+    apply Pos.le_1_l.
+  }
+  rewrite Nat.sub_0_r in Hab.
+  destruct sa; [ easy | ].
+  destruct va as (va).
+  cbn in Hab |-*.
+  apply Nat.compare_lt_iff in Hab.
+  destruct va; [ easy | ].
+  apply Nat.compare_le_iff.
+  now apply Nat.lt_succ_r.
+}
+apply (Z.le_lt_trans _ b); [ easy | ].
+now apply Z.lt_add_r.
+Qed.
+
 End Z.
 
 Number Notation Z Z.of_number Z.to_number : Z_scope.

@@ -3,7 +3,7 @@
 Set Nested Proofs Allowed.
 From Stdlib Require Import Utf8 Arith.
 From Stdlib Require Import Morphisms.
-Require Import A_PosArith A_ZArith Nat_ggcd.
+Require Import A_PosArith A_ZArith.
 
 Record Q := mk_q
   { q_num : Z;
@@ -64,9 +64,40 @@ rewrite Z2Pos.id. {
   intros H.
   now apply Z.gcd_eq_0 in H.
 }
-Theorem Z_div_le_lower_bound : ∀ a b q, 0 < b → b * q ≤ a → q ≤ a / b.
+Theorem Z_div_le_lower_bound : ∀ a b c, 0 < c → c * a ≤ b → a ≤ b / c.
 Proof.
-intros * Hzb Hbq.
+intros * Hzc Hca.
+Theorem Z_div_le_mono : ∀ a b c : Z, 0 < c → a ≤ b → a / c ≤ b / c.
+Proof.
+intros * Hzc Hab.
+apply Z.lt_eq_cases in Hab.
+destruct Hab as [Hab| ]; [ | now subst ].
+apply Z.lt_succ_r.
+...
+apply (Z.mul_lt_mono_pos_l c); [ easy | ].
+...
+rewrite Z.mul_add_distr_l, Z.mul_1_r.
+...
+apply (Z.mul_lt_mono_pos_l c) in Hab; [ | easy ].
+...
+Require Import ZArith.
+Print Z.succ.
+Print Z.div_le_mono.
+Check Z.lt_succ_r.
+
+Check Z.mul_succ_r.
+...
+Check Z.mul_lt_mono_pos_l.
+
+apply (Z.mul_le_mono_pos_l c); [ easy | ].
+
+Require Import ZArith.
+Print Z.div_le_mono.
+...
+Print Z.div_le_lower_bound.
+Check Z.le_wd.
+Z.div_le_mono
+     : ∀ a b c : Z, 0 < c → a <= b → a / c <= b / c
 ...
 apply (Z.mul_le_mono_pos_l b); [ easy | ].
 transitivity a; [ easy | ].

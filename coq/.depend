@@ -1,5 +1,5 @@
 A_PosArith.vo A_PosArith.glob A_PosArith.v.beautified A_PosArith.required_vo: A_PosArith.v
-A_QArith.vo A_QArith.glob A_QArith.v.beautified A_QArith.required_vo: A_QArith.v A_PosArith.vo A_ZArith.vo Nat_ggcd.vo
+A_QArith.vo A_QArith.glob A_QArith.v.beautified A_QArith.required_vo: A_QArith.v A_PosArith.vo A_ZArith.vo
 A_ZArith.vo A_ZArith.glob A_ZArith.v.beautified A_ZArith.required_vo: A_ZArith.v A_PosArith.vo
 AlgCloCharPol.vo AlgCloCharPol.glob AlgCloCharPol.v.beautified AlgCloCharPol.required_vo: AlgCloCharPol.v A_PosArith.vo CharactPolyn.vo ConvexHull.vo Field2.vo Fpolynomial.vo Fsummation.vo Misc.vo Newton.vo Puiseux_base.vo Puiseux_series.vo
 Bug.vo Bug.glob Bug.v.beautified Bug.required_vo: Bug.v
