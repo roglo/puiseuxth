@@ -766,6 +766,15 @@ destruct b; [ easy | cbn ].
 now do 2 rewrite Nat.sub_0_r.
 Qed.
 
+Theorem eq_1 : ∀ a, Pos.of_nat a = 1%pos ↔ a = 0%nat ∨ a = 1%nat.
+Proof.
+intros.
+split; [ | now intros; destruct H; subst ].
+intros Ha.
+destruct a; [ now left | right ].
+now destruct a; [ easy | ].
+Qed.
+
 End Nat2Pos.
 
 Module Pos2Nat.

@@ -3,7 +3,7 @@
 Set Nested Proofs Allowed.
 From Stdlib Require Import Utf8 Arith.
 From Stdlib Require Import Morphisms.
-Require Import A_PosArith A_ZArith.
+Require Import A_PosArith A_ZArith Nat_ggcd.
 
 Record Q := mk_q
   { q_num : Z;
@@ -58,11 +58,13 @@ Theorem add_prop : ∀ a b,
   = 1.
 Proof.
 intros.
-rewrite Pos2Z.inj_mul.
 destruct a as (an, ad, Hap).
 destruct b as (bn, bd, Hbp).
 cbn.
 do 2 rewrite q_Den_num_den.
+move bn before an; move bd before ad.
+destruct ad as (ad).
+destruct bd as (bd).
 (**)
 progress unfold Z.gcd in Hap, Hbp.
 destruct an as [| sa va]. {
@@ -70,14 +72,10 @@ destruct an as [| sa va]. {
   destruct bn as [| sb vb]. {
     cbn.
     rewrite Nat.sub_add; [ | easy ].
-    destruct ad as (ad).
-    destruct bd as (bd).
     cbn in Hap, Hbp |-*.
     rewrite Nat.add_1_r in Hap, Hbp.
     destruct ad; [ now destruct bd | easy ].
   }
-  destruct ad as (ad).
-  destruct bd as (bd).
   cbn in Hap, Hbp |-*.
   rewrite Nat.add_1_r in Hap.
   destruct ad; [ clear Hap | easy ].
@@ -86,20 +84,78 @@ destruct an as [| sa va]. {
 }
 destruct bn as [| sb vb]. {
   cbn.
-  destruct ad as (ad).
-  destruct bd as (bd).
   cbn in Hap, Hbp |-*.
   rewrite Nat.add_1_r in Hbp.
   destruct bd; [ clear Hbp | easy ].
   now do 2 rewrite Pos.mul_1_r.
 }
-destruct ad as (ad).
-destruct bd as (bd).
+destruct va as (va).
+destruct vb as (vb).
 cbn in Hap, Hbp |-*.
-destruct sa. {
-  cbn.
-  destruct sb. {
+progress unfold Pos.gcd in Hap, Hbp.
+cbn in Hap, Hbp |-*.
+injection Hap; clear Hap; intros Hap.
+injection Hbp; clear Hbp; intros Hbp.
+apply Nat.sub_0_le in Hap, Hbp.
+apply Nat.le_1_r in Hap, Hbp.
+destruct Hap as [Hap| Hap]. {
+  apply Nat.gcd_eq_0_l in Hap.
+  now rewrite Nat.add_1_r in Hap.
+}
+destruct Hbp as [Hbp| Hbp]. {
+  apply Nat.gcd_eq_0_l in Hbp.
+  now rewrite Nat.add_1_r in Hbp.
+}
+destruct sa; cbn. {
+  destruct sb; cbn. {
+    f_equal.
+    progress unfold Pos.gcd.
     cbn.
+    rewrite Nat.add_sub_assoc; [ | easy ].
+    rewrite Nat.sub_add; [ | flia ].
+    rewrite Nat.sub_add; [ | easy ].
+    rewrite Nat.add_shuffle0.
+    rewrite Nat.sub_add; [ | easy ].
+    apply Nat2Pos.eq_1; right.
+...
+    rewrite Nat.gcd_comm.
+    rewrite <- Nat.Lcm0.gcd_mod.
+...
+Theorem Nat_gcd_1_mul_r : ∀ a b c,
+  Nat.gcd a b = 1%nat
+  → Nat.gcd a c = 1%nat
+  → Nat.gcd a (b * c) = 1%nat.
+...
+    apply Nat_gcd_1_mul_r. {
+      rewrite Nat.gcd_comm.
+      rewrite Nat.gcd_add_mult_diag_r.
+...
+      apply Nat_gcd_1_mul_r; [ now rewrite Nat.gcd_comm | ].
+Search (Nat.gcd _ _ = 1)%nat.
+...
+      rewrite <- (Nat.mul_1_r (ad + 1)) at 1.
+Search (Nat.gcd (_ * _)).
+      rewrite Nat.gcd_mul_mono_l.
+Search (Nat.gcd _ (_ - _)).
+      rewrite <- Nat.gcd_sub_diag_r.
+....
+    replace 1%pos with (Pos.of_nat 1) by easy.
+...
+    rewrite <- ggcd_gcd in Hap, Hbp |-*.
+    specialize (ggcd_correct_divisors (va + 1) (ad + 1)) as Ha.
+    remember (ggcd (va + 1) (ad + 1)) as ga eqn:Hga.
+    symmetry in Hga.
+    destruct ga as (g, (a1, a2)).
+    cbn in Hap; subst g.
+    do 2 rewrite Nat.mul_1_l in Ha.
+    destruct Ha; subst a1 a2.
+progress unfold ggcd in Hga.
+...
+    progress unfold Pos.add, Pos.mul.
+    cbn.
+    cbn.
+... ...
+    rewrite Nat_compare_sub_mono_r; [ | easy | easy ].
 ...
 progress unfold Z.gcd.
 remember (an * _ + _)%Z as ab eqn:Hab.
@@ -232,8 +288,8 @@ Print Pos.gcd.
 Print Z.gcd.
 Search Z.gcd.
 Search Pos.gcd.
-
 ...
+*)
 
 Definition add a b :=
   mk_q
