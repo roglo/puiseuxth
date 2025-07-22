@@ -73,8 +73,24 @@ intros * Hzc Hab.
 apply Z.lt_eq_cases in Hab.
 destruct Hab as [Hab| ]; [ | now subst ].
 apply Z.lt_succ_r.
-...
 apply (Z.mul_lt_mono_pos_l c); [ easy | ].
+...
+Require Import ZArith.
+Search (_ * (_ / _) <= _).
+...
+Theorem Z_mul_div_le: ∀ a b : Z, 0 < b → b * (a / b) <= a.
+Admitted.
+Theorem Z_div_mul_le: ∀ a b c : Z, 0 <= a → 0 < b → 0 <= c → c * (a / b) <= c * a / b.
+Admitted.
+destruct (Z.lt_dec a 0) as [Haz| Haz]. {
+
+eapply Z.le_lt_trans.
+apply Z_div_mul_le.
+
+Require Import ZArith.
+Search (_ * (_ / _)).
+Z_mult_div_ge: ∀ a b : Z, b > 0 → b * (a / b) <= a
+Z.div_mul_le: ∀ a b c : Z, 0 <= a → 0 < b → 0 <= c → c * (a / b) <= c * a / b
 ...
 rewrite Z.mul_add_distr_l, Z.mul_1_r.
 ...
