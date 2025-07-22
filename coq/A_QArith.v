@@ -128,6 +128,57 @@ destruct sa. {
     rewrite Hc.
     now apply Z.mul_div.
   }
+  rewrite Z.mul_opp_r, <- Z.mul_opp_l.
+  cbn - [ Z.mul ].
+  rewrite Nat2Z.inj_div.
+  do 2 rewrite Z.pos_nat.
+  destruct sab. {
+    remember (vb ?= vab)%pos as vbab eqn:Hvbab.
+    symmetry in Hvbab.
+    destruct vbab. {
+      exfalso.
+      apply Pos.compare_eq_iff in Hvbab; subst vab.
+Theorem Z_mod_pos_bound: ∀ a b, 0 < b → 0 ≤ a mod b < b.
+Proof.
+intros * Hzb.
+destruct a as [| sa va]; [ easy | ].
+destruct b as [| sb vb]; [ easy | ].
+destruct sb; [ clear Hzb | easy ].
+destruct sa. {
+  cbn.
+  split; [ apply Nat2Z.is_nonneg | ].
+  rewrite <- Z.pos_nat.
+  apply Nat2Z.inj_lt.
+  now apply Nat.mod_upper_bound.
+}
+split. {
+Search (_ ≤ _ mod _).
+...
+  easy.
+    rewrite Nat2Z.inj_mod.
+    do 2 rewrite Z.pos_nat.
+    cbn.
+    split; [ easy | ].
+
+  progress unfold Z.rem.
+  progress unfold Z.div_eucl.
+...
+      specialize (Z_mod_pos_bound (z_val true va) (z_val true vb)) as H1.
+      assert (H : 0 < z_val true vb) by easy.
+      specialize (H1 H); clear H.
+      rewrite Hab in H1.
+      destruct H1 as (_, H1).
+      now apply Z.lt_irrefl in H1.
+...
+Theorem Z_mod_upper_bound : ∀ a b, b ≠ 0 → a mod b < b.
+Proof.
+intros * Hbz.
+destruct a as [| sa va]. {
+  destruct b as [| sb vb]; [ easy | cbn ].
+  destruct sb; [ easy | ].
+...
+progress unfold Z.rem.
+progress unfold Z.div_eucl.
 ...
 Require Import ZArith.
   Search (Z.of_nat (_ mod _)).
