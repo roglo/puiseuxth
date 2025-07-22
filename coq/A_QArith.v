@@ -76,7 +76,63 @@ apply Z.lt_succ_r.
 apply (Z.mul_lt_mono_pos_l c); [ easy | ].
 rewrite Z.mul_add_distr_l, Z.mul_1_r.
 Theorem Z_div_mod : ∀ a b : Z, b ≠ 0 → a = b * (a / b) + a mod b.
-Admitted.
+Proof.
+intros * Hbz.
+progress unfold Z.div.
+progress unfold Z.rem.
+remember (Z.div_eucl a b) as ab eqn:Hab.
+symmetry in Hab.
+destruct ab as (q, r); cbn.
+progress unfold Z.div_eucl in Hab.
+destruct a as [| sa va]. {
+  injection Hab; clear Hab; intros; subst.
+  rewrite Z.mul_0_r; symmetry.
+  apply Z.add_0_l.
+}
+destruct b as [| sb vb]; [ easy | ].
+destruct sa. {
+  destruct sb. {
+    cbn in Hab.
+    injection Hab; clear Hab; intros; subst.
+    specialize (Nat.div_mod (Pos.to_nat va) (Pos.to_nat vb)) as H1.
+    assert (H : Pos.to_nat vb ≠ 0%nat) by easy.
+    specialize (H1 H); clear H.
+    apply (f_equal Z.of_nat) in H1.
+    rewrite Z.pos_nat in H1.
+    rewrite H1 at 1.
+    rewrite Nat2Z.inj_add.
+    progress f_equal.
+    rewrite Nat2Z.inj_mul.
+    progress f_equal.
+    apply Z.pos_nat.
+  }
+  cbn in Hab.
+  injection Hab; clear Hab; intros; subst.
+  rewrite Nat2Z.inj_mod.
+  do 2 rewrite Z.pos_nat.
+  remember (z_val true va mod z_val true vb) as ab eqn:Hab.
+  symmetry in Hab.
+  destruct ab as [| sab vab]. {
+    rewrite Z.add_0_r.
+    rewrite Z.mul_opp_r.
+    rewrite <- Z.mul_opp_l.
+    cbn - [ Z.mul ].
+    apply Z.mod_divide in Hab; [ | easy ].
+    destruct Hab as (c, Hc).
+    rewrite Hc.
+    rewrite Z.mul_comm.
+    progress f_equal.
+    symmetry.
+    rewrite Nat2Z.inj_div.
+    do 2 rewrite Z.pos_nat.
+    rewrite Hc.
+    now apply Z.mul_div.
+  }
+...
+Require Import ZArith.
+  Search (Z.of_nat (_ mod _)).
+Nat2Z.inj_mod: ∀ n m : nat, Z.of_nat (n mod m) = Z.of_nat n mod Z.of_nat m
+...
 specialize (Z_div_mod a c) as H1.
 assert (H : c ≠ 0) by now intros H; subst c; apply Z.lt_irrefl in Hzc.
 specialize (H1 H); clear H.

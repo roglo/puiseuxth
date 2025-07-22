@@ -3417,6 +3417,30 @@ now apply Nat.min_l, Nat2Z.inj_le.
 now apply Nat.min_r, Nat2Z.inj_le, Z.lt_le_incl, Z.nle_gt.
 Qed.
 
+Theorem inj_div : ∀ a b, Z.of_nat (a / b) = Z.of_nat a / Z.of_nat b.
+Proof.
+intros.
+progress unfold Z.of_nat.
+destruct a; [ now rewrite Nat.Div0.div_0_l | ].
+destruct b; [ easy | ].
+progress unfold Z.div.
+cbn - [ Nat.div Nat.modulo ].
+do 2 rewrite Nat.sub_0_r.
+now do 2 rewrite Nat.add_1_r.
+Qed.
+
+Theorem inj_mod : ∀ a b, Z.of_nat (a mod b) = Z.of_nat a mod Z.of_nat b.
+Proof.
+intros.
+progress unfold Z.of_nat.
+destruct a; [ now rewrite Nat.Div0.mod_0_l | ].
+destruct b; [ easy | ].
+progress unfold Z.rem.
+cbn - [ Nat.div Nat.modulo ].
+do 2 rewrite Nat.sub_0_r.
+now do 2 rewrite Nat.add_1_r.
+Qed.
+
 End Nat2Z.
 
 Module Z2Nat.
