@@ -315,36 +315,26 @@ destruct sb. {
         now apply Pos2Nat.neq_0 in Hvab.
       }
       apply Pos2Nat.inj in Hvab.
-(**)
       destruct (le_dec (Pos.to_nat a) (Pos.to_nat b)) as [Hba| Hba]. {
-...
-        destruct (Nat.eq_dec (Pos.to_nat a) (Pos.to_nat b)) as [Hab| Hab]. {
-
         symmetry in Hdab.
-        rewrite Nat.div_small in Hdab; [ | easy ].
+        rewrite Nat.div_small in Hdab. 2: {
+          apply Nat.le_neq.
+          split; [ easy | ].
+          intros H.
+          now apply Pos2Nat.inj in H.
+        }
         now apply Pos.to_nat_neq_0 in Hdab.
       }
-        symmetry in Hdab.
-        rewrite Nat.div_small in Hdab; [ | easy ].
-        now apply Pos.to_nat_neq_0 in Hdab.
-      }
-...
-      destruct (lt_dec (Pos.to_nat a) (Pos.to_nat b)) as [Hba| Hba]. {
-        symmetry in Hdab.
-        rewrite Nat.div_small in Hdab; [ | easy ].
-        now apply Pos.to_nat_neq_0 in Hdab.
-      }
-      apply Nat.nlt_ge in Hba.
-
-Search (Pos.to_nat _ <= Pos.to_nat _)%nat.
-Search (Pos.to_nat _ < Pos.to_nat _)%nat.
+      apply Nat.nle_gt in Hba.
+      apply Pos2Nat.inj_lt in Hba.
       rewrite <- Pos2Nat.inj_div in Hdab. 2: {
         intros H; rewrite H in Hdab; symmetry in Hdab.
         now apply Pos2Nat.neq_0 in Hdab.
       }
       apply Pos2Nat.inj in Hdab.
       subst q r.
-      apply Pos.div_mod.
+      apply Pos.div_mod; [ easy | ].
+      intros (c, Hc).
 ...
 intros.
 progress unfold Pos.div, Pos.rem.
