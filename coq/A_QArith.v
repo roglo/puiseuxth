@@ -299,6 +299,10 @@ destruct sb. {
       rename vvab into r.
       do 4 rewrite <- Z.pos_nat.
       rewrite <- Nat2Z.inj_mul, <- Nat2Z.inj_add.
+      destruct (Pos.eq_dec a b) as [Hab| Hab]. {
+        subst b.
+        now rewrite Z.mod_same in Hvab.
+      }
       progress f_equal.
       rewrite <- Pos2Nat.inj_mul, <- Pos2Nat.inj_add.
       progress f_equal.
@@ -311,6 +315,29 @@ destruct sb. {
         now apply Pos2Nat.neq_0 in Hvab.
       }
       apply Pos2Nat.inj in Hvab.
+(**)
+      destruct (le_dec (Pos.to_nat a) (Pos.to_nat b)) as [Hba| Hba]. {
+...
+        destruct (Nat.eq_dec (Pos.to_nat a) (Pos.to_nat b)) as [Hab| Hab]. {
+
+        symmetry in Hdab.
+        rewrite Nat.div_small in Hdab; [ | easy ].
+        now apply Pos.to_nat_neq_0 in Hdab.
+      }
+        symmetry in Hdab.
+        rewrite Nat.div_small in Hdab; [ | easy ].
+        now apply Pos.to_nat_neq_0 in Hdab.
+      }
+...
+      destruct (lt_dec (Pos.to_nat a) (Pos.to_nat b)) as [Hba| Hba]. {
+        symmetry in Hdab.
+        rewrite Nat.div_small in Hdab; [ | easy ].
+        now apply Pos.to_nat_neq_0 in Hdab.
+      }
+      apply Nat.nlt_ge in Hba.
+
+Search (Pos.to_nat _ <= Pos.to_nat _)%nat.
+Search (Pos.to_nat _ < Pos.to_nat _)%nat.
       rewrite <- Pos2Nat.inj_div in Hdab. 2: {
         intros H; rewrite H in Hdab; symmetry in Hdab.
         now apply Pos2Nat.neq_0 in Hdab.

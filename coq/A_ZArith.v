@@ -3389,6 +3389,13 @@ transitivity (p_val vb); [ easy | ].
 now apply Nat.lt_add_pos_r.
 Qed.
 
+Theorem mod_same : ∀ a, (a mod a = 0)%Z.
+Proof.
+intros.
+destruct a as [| sa va]; [ easy | ].
+now destruct sa; cbn; rewrite Nat.Div0.mod_same.
+Qed.
+
 End Z.
 
 Number Notation Z Z.of_number Z.to_number : Z_scope.
