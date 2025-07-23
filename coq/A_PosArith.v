@@ -794,6 +794,15 @@ Module Nat2Pos.
 Theorem id : ∀ a, a ≠ 0 → Pos.to_nat (Pos.of_nat a) = a.
 Proof. apply Pos.Nat2Pos_id. Qed.
 
+Theorem eq_1 : ∀ a, Pos.of_nat a = 1%pos ↔ a = 0%nat ∨ a = 1%nat.
+Proof.
+intros.
+split; [ | now intros; destruct H; subst ].
+intros Ha.
+destruct a; [ now left | right ].
+now destruct a; [ easy | ].
+Qed.
+
 Theorem inj_compare :
   ∀ a b,
   a ≠ 0
@@ -840,14 +849,12 @@ destruct b; [ easy | cbn ].
 now do 2 rewrite Nat.sub_0_r.
 Qed.
 
-Theorem eq_1 : ∀ a, Pos.of_nat a = 1%pos ↔ a = 0%nat ∨ a = 1%nat.
-Proof.
-intros.
-split; [ | now intros; destruct H; subst ].
-intros Ha.
-destruct a; [ now left | right ].
-now destruct a; [ easy | ].
-Qed.
+Theorem inj_mul :
+  ∀ a b,
+  a ≠ 0
+  → b ≠ 0
+  → Pos.of_nat (a * b) = (Pos.of_nat a * Pos.of_nat b)%pos.
+Proof. apply Pos.of_nat_mul. Qed.
 
 End Nat2Pos.
 
