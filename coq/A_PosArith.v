@@ -815,6 +815,20 @@ rewrite (Nat.add_shuffle0 (p_val a)).
 symmetry; apply Nat.add_assoc.
 Qed.
 
+Theorem inj_sub :
+  ∀ a b, (b < a)%pos → Pos.to_nat (a - b) = (Pos.to_nat a - Pos.to_nat b)%nat.
+Proof.
+intros * Hba.
+progress unfold Pos.to_nat.
+rewrite Nat.sub_add_distr.
+rewrite Nat_sub_sub_swap.
+rewrite Nat.add_sub.
+cbn.
+apply Nat.sub_add.
+apply Nat.neq_0_le_1.
+now apply Nat.sub_gt.
+Qed.
+
 Theorem inj_mul :
   ∀ a b, Pos.to_nat (a * b) = Pos.to_nat a * Pos.to_nat b.
 Proof.

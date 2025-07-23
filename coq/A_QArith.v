@@ -135,138 +135,43 @@ destruct sa. {
   destruct sab. {
     remember (vb ?= vab)%pos as vbab eqn:Hvbab.
     symmetry in Hvbab.
+    specialize (Z.mod_pos_bound (z_val true va) (z_val true vb)) as H1.
+    assert (H : 0 < z_val true vb) by easy.
+    specialize (H1 H); clear H.
+    rewrite Hab in H1.
+    destruct H1 as (_, H1).
     destruct vbab. {
       exfalso.
       apply Pos.compare_eq_iff in Hvbab; subst vab.
-Theorem Z_mod_pos_bound: ∀ a b, 0 < b → 0 ≤ a mod b < b.
-Proof.
-intros * Hzb.
-destruct a as [| sa va]; [ easy | ].
-destruct b as [| sb vb]; [ easy | ].
-destruct sb; [ clear Hzb | easy ].
-destruct sa. {
-  cbn.
-  split; [ apply Nat2Z.is_nonneg | ].
-  rewrite <- Z.pos_nat.
-  apply Nat2Z.inj_lt.
-  now apply Nat.mod_upper_bound.
-}
-split. {
-  cbn.
-  remember (- _) as ab eqn:Hab.
-  symmetry in Hab.
-  apply (f_equal Z.opp) in Hab.
-  rewrite Z.opp_involutive in Hab.
-  destruct ab as [| sab vab]; [ easy | ].
-  destruct sab; [ easy | ].
-  cbn in Hab.
-  remember (vb ?= vab)%pos as vbab eqn:Hbvab.
-  symmetry in Hbvab.
-  destruct vbab; [ easy | exfalso | easy ].
-  apply Pos.compare_lt_iff in Hbvab.
-  rewrite <- Z.pos_nat in Hab.
-  apply Nat2Z.inj in Hab.
-  specialize (Nat.mod_upper_bound (Pos.to_nat va) (Pos.to_nat vb)) as H1.
-  assert (H : Pos.to_nat vb ≠ 0%nat) by easy.
-  specialize (H1 H); clear H.
-  rewrite Hab in H1.
-  apply Pos2Nat.inj_lt in H1.
-  now apply Pos.lt_asymm in H1.
-}
-...
-  progress unfold Z.rem.
-  remember (Z.div_eucl _ _) as ab eqn:Hab.
-  symmetry in Hab.
-  destruct ab as (q, r); cbn.
-  cbn in Hab.
-  injection Hab; clear Hab; intros; subst.
-...
-Require Import ZArith.
-Search (_ <= _ mod _).
-Z.mod_pos_bound : ∀ a b : Z, 0 < b → 0 <= a mod b < b
-Z_mod_lt: ∀ a b : Z, b > 0 → 0 <= a mod b < b
-...
-  easy.
-    rewrite Nat2Z.inj_mod.
-    do 2 rewrite Z.pos_nat.
-    cbn.
-    split; [ easy | ].
-
-  progress unfold Z.rem.
-  progress unfold Z.div_eucl.
-...
-      specialize (Z_mod_pos_bound (z_val true va) (z_val true vb)) as H1.
-      assert (H : 0 < z_val true vb) by easy.
-      specialize (H1 H); clear H.
-      rewrite Hab in H1.
-      destruct H1 as (_, H1).
       now apply Z.lt_irrefl in H1.
+    } {
+      apply Pos.compare_lt_iff in Hvbab.
+      do 2 rewrite <- Z.pos_nat in H1.
+      apply Nat2Z.inj_lt in H1.
+      apply Pos2Nat.inj_lt in H1.
+      now apply Pos.lt_asymm in H1.
+    } {
+      apply Pos.compare_gt_iff in Hvbab.
+      replace (z_val false _) with (- z_val true (vb - vab)) by easy.
+      rewrite Z.add_opp_r.
+      rewrite Z.mul_add_distr_l, Z.mul_1_r.
+      do 3 rewrite <- Z.pos_nat.
+      rewrite Pos2Nat.inj_sub; [ | easy ].
+      rewrite Nat2Z.inj_sub. 2: {
+        apply Nat.lt_le_incl.
+        now apply Pos2Nat.inj_lt.
+      }
+      rewrite Z.sub_sub_distr.
+      rewrite Z.add_sub.
 ...
-Theorem Z_mod_upper_bound : ∀ a b, b ≠ 0 → a mod b < b.
-Proof.
-intros * Hbz.
-destruct a as [| sa va]. {
-  destruct b as [| sb vb]; [ easy | cbn ].
-  destruct sb; [ easy | ].
+      rewrite <- Z.pos_nat.
+      rewrite <- (Z.pos_nat (_ - _)).
+      do 2 rewrite <- Z.pos_nat in H1.
+      apply Nat2Z.inj_lt in H1.
+      apply Pos2Nat.inj_lt in H1.
+      now apply Pos.lt_asymm in H1.
 ...
-progress unfold Z.rem.
-progress unfold Z.div_eucl.
-...
-Require Import ZArith.
-  Search (Z.of_nat (_ mod _)).
-Nat2Z.inj_mod: ∀ n m : nat, Z.of_nat (n mod m) = Z.of_nat n mod Z.of_nat m
-...
-specialize (Z_div_mod a c) as H1.
-assert (H : c ≠ 0) by now intros H; subst c; apply Z.lt_irrefl in Hzc.
-specialize (H1 H); clear H.
-Search (_ = _ - _).
-symmetry in H1.
-apply Z.add_move_r in H1.
-rewrite H1.
-...
-Require Import ZArith.
-Print Z.div_le_mono.
-Check Z.div_mod.
-Check Z.add_lt_mono_r.
-Search (_ <= _ * _ / _).
-Search (_ * (_ / _) <= _).
-...
-Theorem Z_mul_div_le: ∀ a b : Z, 0 < b → b * (a / b) <= a.
-Admitted.
-Theorem Z_div_mul_le: ∀ a b c : Z, 0 <= a → 0 < b → 0 <= c → c * (a / b) <= c * a / b.
-Admitted.
-destruct (Z.lt_dec a 0) as [Haz| Haz]. {
-
-eapply Z.le_lt_trans.
-apply Z_div_mul_le.
-
-Require Import ZArith.
-Search (_ * (_ / _)).
-Z_mult_div_ge: ∀ a b : Z, b > 0 → b * (a / b) <= a
-Z.div_mul_le: ∀ a b c : Z, 0 <= a → 0 < b → 0 <= c → c * (a / b) <= c * a / b
-...
-rewrite Z.mul_add_distr_l, Z.mul_1_r.
-...
-apply (Z.mul_lt_mono_pos_l c) in Hab; [ | easy ].
-...
-Require Import ZArith.
-Print Z.succ.
-Print Z.div_le_mono.
-Check Z.lt_succ_r.
-
-Check Z.mul_succ_r.
-...
-Check Z.mul_lt_mono_pos_l.
-
-apply (Z.mul_le_mono_pos_l c); [ easy | ].
-
-Require Import ZArith.
-Print Z.div_le_mono.
-...
-Print Z.div_le_lower_bound.
-Check Z.le_wd.
-Z.div_le_mono
-     : ∀ a b c : Z, 0 < c → a <= b → a / c <= b / c
+Search (_ mod _ < _).
 ...
 apply (Z.mul_le_mono_pos_l b); [ easy | ].
 transitivity a; [ easy | ].

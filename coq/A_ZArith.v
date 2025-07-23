@@ -2755,6 +2755,40 @@ rewrite Nat.sub_0_r.
 apply Nat.add_1_r.
 Qed.
 
+Theorem of_nat_inj_succ : ∀ a, Z.of_nat (S a) = (Z.of_nat a + 1)%Z.
+Proof.
+intros.
+destruct a; [ easy | cbn ].
+progress f_equal.
+now apply Pos.of_nat_inj_succ.
+Qed.
+
+Theorem of_nat_inj : ∀ a b, Z.of_nat a = Z.of_nat b → a = b.
+Proof.
+intros * Hab.
+revert b Hab.
+induction a; intros; [ now destruct b | ].
+destruct b; [ easy | ].
+do 2 rewrite Z.of_nat_inj_succ in Hab.
+progress f_equal.
+apply IHa.
+now apply Z.add_cancel_r in Hab.
+Qed.
+
+Theorem to_nat_inj_lt : ∀ a b, (a < b)%nat ↔ (Z.of_nat a < Z.of_nat b)%Z.
+Proof.
+intros.
+destruct a; [ now destruct b | ].
+destruct b; [ easy | cbn ].
+split; intros H. {
+  apply Pos.compare_lt_iff.
+  now apply -> Pos.of_nat_inj_lt.
+} {
+  apply Pos.compare_lt_iff in H.
+  now apply Pos.of_nat_inj_lt.
+}
+Qed.
+
 Theorem z_pos_div_eucl_rem_0_divide :
   ∀ q sa va sb vb,
   z_pos_div_eucl va vb = (q, 0%Z)
@@ -3297,6 +3331,64 @@ apply (Z.le_lt_trans _ b); [ easy | ].
 now apply Z.lt_add_r.
 Qed.
 
+Theorem mod_pos_bound: ∀ a b, (0 < b → 0 ≤ a mod b < b)%Z.
+Proof.
+intros * Hzb.
+destruct a as [| sa va]; [ easy | ].
+destruct b as [| sb vb]; [ easy | ].
+destruct sb; [ clear Hzb | easy ].
+destruct sa. {
+  cbn.
+  split; [ apply Z.of_nat_is_nonneg | ].
+  rewrite <- Z.pos_nat.
+  apply Z.to_nat_inj_lt.
+  now apply Nat.mod_upper_bound.
+}
+split. {
+  cbn.
+  remember (- _)%Z as ab eqn:Hab.
+  symmetry in Hab.
+  apply (f_equal Z.opp) in Hab.
+  rewrite Z.opp_involutive in Hab.
+  destruct ab as [| sab vab]; [ easy | ].
+  destruct sab; [ easy | ].
+  cbn in Hab.
+  remember (vb ?= vab)%pos as vbab eqn:Hbvab.
+  symmetry in Hbvab.
+  destruct vbab; [ easy | exfalso | easy ].
+  apply Pos.compare_lt_iff in Hbvab.
+  rewrite <- Z.pos_nat in Hab.
+  apply Z.of_nat_inj in Hab.
+  specialize (Nat.mod_upper_bound (Pos.to_nat va) (Pos.to_nat vb)) as H1.
+  assert (H : Pos.to_nat vb ≠ 0%nat) by easy.
+  specialize (H1 H); clear H.
+  rewrite Hab in H1.
+  apply Pos2Nat.inj_lt in H1.
+  now apply Pos.lt_asymm in H1.
+}
+cbn.
+progress unfold Z.of_nat.
+remember (_ mod _)%nat as ab eqn:Hab.
+symmetry in Hab.
+destruct ab; [ easy | cbn ].
+remember (vb ?= _)%pos as bab eqn:Hbab.
+symmetry in Hbab.
+destruct bab; [ easy | easy | ].
+do 2 rewrite <- Z.pos_nat.
+apply Z.to_nat_inj_lt.
+apply Pos.compare_gt_iff in Hbab.
+rewrite Pos2Nat.inj_sub; [ | easy ].
+rewrite Nat2Pos.id; [ | easy ].
+apply Nat.sub_lt; [ | easy ].
+progress unfold Pos.lt in Hbab.
+cbn in Hbab.
+rewrite Nat.sub_0_r in Hbab.
+apply Nat.le_succ_l.
+progress unfold Pos.to_nat.
+transitivity (p_val vb); [ easy | ].
+now apply Nat.lt_add_pos_r.
+Qed.
+
 End Z.
 
 Number Notation Z Z.of_number Z.to_number : Z_scope.
@@ -3331,12 +3423,7 @@ Theorem inj_0 : Z.of_nat 0 = 0%Z.
 Proof. easy. Qed.
 
 Theorem inj_succ : ∀ a, Z.of_nat (S a) = Z.of_nat a + 1.
-Proof.
-intros.
-destruct a; [ easy | cbn ].
-progress f_equal.
-now apply Pos.of_nat_inj_succ.
-Qed.
+Proof. apply Z.of_nat_inj_succ. Qed.
 
 Theorem inj_add : ∀ a b, Z.of_nat (a + b) = Z.of_nat a + Z.of_nat b.
 Proof.
@@ -3370,16 +3457,7 @@ Theorem inj_mul : ∀ a b, Z.of_nat (a * b) = (Z.of_nat a * Z.of_nat b)%Z.
 Proof. apply Z.of_nat_inj_mul. Qed.
 
 Theorem inj : ∀ a b, Z.of_nat a = Z.of_nat b → a = b.
-Proof.
-intros * Hab.
-revert b Hab.
-induction a; intros; [ now destruct b | ].
-destruct b; [ easy | ].
-do 2 rewrite Nat2Z.inj_succ in Hab.
-progress f_equal.
-apply IHa.
-now apply Z.add_cancel_r in Hab.
-Qed.
+Proof. apply Z.of_nat_inj. Qed.
 
 Theorem inj_le : ∀ a b, (a <= b)%nat ↔ (Z.of_nat a ≤ Z.of_nat b)%Z.
 Proof.
@@ -3396,18 +3474,7 @@ split; intros H. {
 Qed.
 
 Theorem inj_lt : ∀ a b, (a < b)%nat ↔ (Z.of_nat a < Z.of_nat b)%Z.
-Proof.
-intros.
-destruct a; [ now destruct b | ].
-destruct b; [ easy | cbn ].
-split; intros H. {
-  apply Pos.compare_lt_iff.
-  now apply -> Pos.of_nat_inj_lt.
-} {
-  apply Pos.compare_lt_iff in H.
-  now apply Pos.of_nat_inj_lt.
-}
-Qed.
+Proof. apply Z.to_nat_inj_lt. Qed.
 
 Theorem inj_min :
   ∀ a b, Z.of_nat (Nat.min a b) = Z.min (Z.of_nat a) (Z.of_nat b).
