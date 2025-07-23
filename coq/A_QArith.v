@@ -223,20 +223,51 @@ destruct sb. {
     remember (Z.of_nat (_ / _)) as vab eqn:Hdab.
     symmetry in Hdab.
     destruct vab as [| sdab vdab]. {
+      apply Z.of_nat_eq_0 in Hdab.
+      apply Nat.div_small_iff in Hdab; [ | easy ].
+      rewrite Nat.mod_small in Hvab; [ | easy ].
+      rewrite Z.pos_nat in Hvab.
+      injection Hvab; clear Hvab; intros H; subst vvab.
+      apply Pos2Nat.inj_lt in Hdab.
       cbn - [ Z.add ].
       rewrite Pos.mul_1_r.
-      specialize Nat.mod_upper_bound as H1.
-      specialize (H1 (Pos.to_nat va) (Pos.to_nat vb)).
-      assert (H : Pos.to_nat vb ≠ 0%nat) by easy.
-      specialize (H1 H); clear H.
-      rewrite <- Z.pos_nat in Hvab.
-      apply Nat2Z.inj in Hvab.
-      rewrite Hvab in H1.
-      apply Pos2Nat.inj_lt in H1.
-      generalize H1; intros H2.
-      apply Pos.compare_lt_iff in H1.
       rewrite Pos.compare_antisym.
-      rewrite H1; cbn.
+      generalize Hdab; intros H.
+      apply Pos.compare_lt_iff in H.
+      rewrite H; clear H; cbn.
+      remember (vb ?= vb - va)%pos as c eqn:Hc.
+      symmetry in Hc.
+      destruct c. {
+        apply Pos.compare_eq_iff in Hc.
+        progress unfold Pos.sub in Hc.
+        destruct vb as (b).
+        injection Hc; clear Hc; intros Hc.
+        destruct b; [ easy | flia Hc ].
+      } {
+        apply Pos.compare_lt_iff in Hc.
+        exfalso; apply Pos.nle_gt in Hc.
+        apply Hc; clear Hc.
+        progress unfold Pos.le; cbn.
+        flia.
+      } {
+        apply Pos.compare_gt_iff in Hc.
+        f_equal.
+        rewrite Pos.sub_sub_distr; [ | easy | easy ].
+        rewrite Pos.add_comm; symmetry.
+        apply Pos.add_sub.
+      }
+    }
+    destruct sdab. {
+      cbn - [ Z.add ].
+...
+Require Import ZArith.
+Search (_ - (_ - _))%positive.
+...
+Require Import ZArith.
+Search (_ - _ = _ ↔ _)%positive.
+Search (_ = _ - _ ↔ _)%positive.
+Search (_ ↔ _ - _ = _)%positive.
+Search (_ ↔ _ = _ - _)%positive.
 ...
 (* faux si a = 1 et b = 1 *)
 Theorem Pos_compare_sub_diag_r : ∀ a b, (a ?= a - b)%pos = Gt.
