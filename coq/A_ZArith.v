@@ -631,7 +631,7 @@ destruct a as [| sa va]; [ easy | ].
 destruct b as [| sb vb]; [ easy | cbn ].
 rewrite Nat.sub_add; [ | flia ].
 rewrite if_eqb_bool_dec.
-rewrite Nat.div_mul; [ | apply Pos.to_nat_neq_0 ].
+rewrite Nat.div_mul; [ | easy ].
 destruct (Bool.bool_dec (Bool.eqb sa sb) sb) as [H1| H1]. {
   rewrite Nat.add_comm; cbn.
   destruct sa. {
@@ -1809,7 +1809,7 @@ symmetry in Hb.
 destruct b; [ now apply Pos.to_nat_neq_0 in Hb | ].
 f_equal.
 rewrite <- Hb.
-apply Pos.of_nat_to_nat.
+apply Pos2Nat.id.
 Qed.
 
 Theorem sgn_mul : ∀ a b, Z.sgn (a * b) = (Z.sgn a * Z.sgn b)%Z.
@@ -1992,7 +1992,7 @@ progress unfold Z.of_nat.
 destruct a; [ easy | ].
 rewrite Nat.mul_comm.
 destruct b; [ easy | cbn ].
-rewrite <- Pos.of_nat_mul; [ | easy | easy ].
+rewrite <- Nat2Pos.inj_mul; [ | easy | easy ].
 f_equal; f_equal; flia.
 Qed.
 

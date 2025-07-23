@@ -205,10 +205,12 @@ Definition rem a b := Pos.of_nat (Pos.to_nat a mod Pos.to_nat b).
 Notation "a + b" := (Pos.add a b) : pos_scope.
 Notation "a - b" := (Pos.sub a b) : pos_scope.
 Notation "a * b" := (Pos.mul a b) : pos_scope.
+Notation "a / b" := (Pos.div a b) : pos_scope.
 Notation "a ≤ b" := (Pos.le a b) : pos_scope.
 Notation "a < b" := (Pos.lt a b) : pos_scope.
 Notation "a ?= b" := (Pos.compare a b) : pos_scope.
 Notation "a =? b" := (Pos.eqb a b) : pos_scope.
+Notation "a 'mod' b" := (Pos.rem a b) : pos_scope.
 
 Theorem eq_dec : ∀ a b : pos, {a = b} + {a ≠ b}.
 Proof.
@@ -485,7 +487,7 @@ split; intros H; [ | now subst; apply Nat.eqb_eq ].
 now apply Nat.eqb_eq, Pos.nat_inj in H.
 Qed.
 
-Theorem of_nat_to_nat : ∀ a, Pos.of_nat (Pos.to_nat a) = a.
+Theorem to_nat_id : ∀ a, Pos.of_nat (Pos.to_nat a) = a.
 Proof.
 intros.
 progress unfold Pos.of_nat, Pos.to_nat.
@@ -504,7 +506,7 @@ Theorem to_nat_inj : ∀ a b, Pos.to_nat a = Pos.to_nat b → a = b.
 Proof.
 intros * Hab.
 apply (f_equal Pos.of_nat) in Hab.
-now do 2 rewrite Pos.of_nat_to_nat in Hab.
+now do 2 rewrite Pos.to_nat_id in Hab.
 Qed.
 
 Theorem to_nat_inj_add :
@@ -528,6 +530,34 @@ cbn.
 apply Nat.sub_add.
 apply Nat.neq_0_le_1.
 now apply Nat.sub_gt.
+Qed.
+
+Theorem to_nat_inj_mul :
+  ∀ a b, Pos.to_nat (a * b) = Pos.to_nat a * Pos.to_nat b.
+Proof.
+intros.
+progress unfold Pos.to_nat; cbn.
+now apply Nat.sub_add.
+Qed.
+
+Theorem to_nat_inj_div :
+  ∀ a b,
+  Pos.to_nat a / Pos.to_nat b ≠ 0
+  → Pos.to_nat (a / b) = Pos.to_nat a / Pos.to_nat b.
+Proof.
+intros * Hab; cbn.
+apply Nat.sub_add.
+now apply Nat.neq_0_lt_0.
+Qed.
+
+Theorem to_nat_inj_mod :
+  ∀ a b,
+  Pos.to_nat a mod Pos.to_nat b ≠ 0
+  → Pos.to_nat (a mod b) = Pos.to_nat a mod Pos.to_nat b.
+Proof.
+intros * Hab; cbn.
+apply Nat.sub_add.
+now apply Nat.neq_0_lt_0.
 Qed.
 
 Theorem to_nat_inj_lt : ∀ a b, (a < b)%pos ↔ Pos.to_nat a < Pos.to_nat b.
@@ -584,7 +614,7 @@ symmetry.
 apply Nat.succ_lt_mono.
 Qed.
 
-Theorem of_nat_mul :
+Theorem of_nat_inj_mul :
   ∀ a b,
   a ≠ 0
   → b ≠ 0
@@ -775,6 +805,46 @@ rewrite Pos.to_nat_inj_add.
 flia H1 H2.
 Qed.
 
+Global Hint Resolve Pos.to_nat_neq_0 : core.
+
+Definition divide a b := ∃ c, b = (c * a)%pos.
+
+Theorem div_mod :
+  ∀ a b,
+  (b < a)%pos
+  → ¬ Pos.divide b a
+  → a = (b * (a / b) + a mod b)%pos.
+Proof.
+intros * Hba Hab.
+apply Pos.to_nat_inj.
+rewrite Pos.to_nat_inj_add.
+rewrite Pos.to_nat_inj_mul.
+destruct (Nat.eq_dec (Pos.to_nat a / Pos.to_nat b) 0) as [Hdz| Hdz]. {
+  apply Nat.div_small_iff in Hdz; [ | easy ].
+  apply Pos.to_nat_inj_lt in Hdz.
+  now apply Pos.lt_asymm in Hdz.
+}
+rewrite Pos.to_nat_inj_div; [ | easy ].
+rewrite Pos.to_nat_inj_mod; [ now apply Nat.div_mod | ].
+intros H; apply Hab; clear Hab.
+apply Nat.Lcm0.mod_divide in H.
+destruct H as (c, H).
+apply (f_equal Pos.of_nat) in H.
+rewrite Pos.to_nat_id in H.
+rewrite Pos.of_nat_inj_mul in H; [ | | easy ]. 2: {
+  intros H1; subst c.
+  cbn in H.
+  progress unfold Pos.of_nat in H.
+  cbn in H.
+  subst a.
+  apply Pos.nle_gt in Hba.
+  apply Hba.
+  apply Pos.le_1_l.
+}
+rewrite Pos.to_nat_id in H.
+now exists (Pos.of_nat c).
+Qed.
+
 End Pos.
 
 Number Notation pos Pos.of_number Pos.to_number : pos_scope.
@@ -854,14 +924,14 @@ Theorem inj_mul :
   a ≠ 0
   → b ≠ 0
   → Pos.of_nat (a * b) = (Pos.of_nat a * Pos.of_nat b)%pos.
-Proof. apply Pos.of_nat_mul. Qed.
+Proof. apply Pos.of_nat_inj_mul. Qed.
 
 End Nat2Pos.
 
 Module Pos2Nat.
 
 Theorem id : ∀ a, Pos.of_nat (Pos.to_nat a) = a.
-Proof. apply Pos.of_nat_to_nat. Qed.
+Proof. apply Pos.to_nat_id. Qed.
 
 Theorem is_pos : ∀ a, 0 < Pos.to_nat a.
 Proof.
@@ -887,35 +957,21 @@ Proof. apply Pos.to_nat_inj_sub. Qed.
 
 Theorem inj_mul :
   ∀ a b, Pos.to_nat (a * b) = Pos.to_nat a * Pos.to_nat b.
-Proof.
-intros.
-progress unfold Pos.to_nat; cbn.
-now apply Nat.sub_add.
-Qed.
+Proof. apply Pos.to_nat_inj_mul. Qed.
 
 Theorem inj_mod :
   ∀ a b,
   Pos.to_nat a mod Pos.to_nat b ≠ 0
   → Pos.to_nat (a mod b) = Pos.to_nat a mod Pos.to_nat b.
-Proof.
-intros * Hab; cbn.
-apply Nat.sub_add.
-now apply Nat.neq_0_lt_0.
-Qed.
+Proof. apply Pos.to_nat_inj_mod. Qed.
 
 Theorem inj_div :
   ∀ a b,
   Pos.to_nat a / Pos.to_nat b ≠ 0
   → Pos.to_nat (a / b) = Pos.to_nat a / Pos.to_nat b.
-Proof.
-intros * Hab; cbn.
-apply Nat.sub_add.
-now apply Nat.neq_0_lt_0.
-Qed.
+Proof. apply Pos.to_nat_inj_div. Qed.
 
 Theorem inj_lt : ∀ a b, (a < b)%pos ↔ Pos.to_nat a < Pos.to_nat b.
 Proof. apply Pos.to_nat_inj_lt. Qed.
 
 End Pos2Nat.
-
-Global Hint Resolve Pos.to_nat_neq_0 : core.

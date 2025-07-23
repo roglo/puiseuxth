@@ -317,50 +317,7 @@ destruct sb. {
       }
       apply Pos2Nat.inj in Hdab.
       subst q r.
-Search (_ * (_ / _) + _ mod _)%nat.
-(*
-Nat.Div0.div_mod
-     : ∀ a b : nat, a = (b * (a / b) + a mod b)%nat
-*)
-Print Z.divide.
-Definition Pos_divide a b := ∃ c, b = (c * a)%pos.
-Theorem Pos_div_mod :
-  ∀ a b,
-  (b < a)%pos
-  → ¬ Pos_divide b a
-  → a = (b * (a / b) + a mod b)%pos.
-Proof.
-intros * Hba Hab.
-apply Pos2Nat.inj.
-rewrite Pos2Nat.inj_add.
-rewrite Pos2Nat.inj_mul.
-destruct (Nat.eq_dec (Pos.to_nat a / Pos.to_nat b) 0) as [Hdz| Hdz]. {
-  apply Nat.div_small_iff in Hdz; [ | easy ].
-  apply Pos2Nat.inj_lt in Hdz.
-  now apply Pos.lt_asymm in Hdz.
-}
-rewrite Pos2Nat.inj_div; [ | easy ].
-rewrite Pos2Nat.inj_mod. 2: {
-  intros H; apply Hab; clear Hab.
-  apply Nat.Lcm0.mod_divide in H.
-  destruct H as (c, H).
-  apply (f_equal Pos.of_nat) in H.
-  rewrite Pos2Nat.id in H.
-  rewrite Nat2Pos.inj_mul in H; [ | | easy ]. 2: {
-    intros H1; subst c.
-    cbn in H.
-    progress unfold Pos.of_nat in H.
-    cbn in H.
-    subst a.
-    apply Pos.nle_gt in Hba.
-    apply Hba.
-    apply Pos.le_1_l.
-  }
-  rewrite Pos2Nat.id in H.
-  now exists (Pos.of_nat c).
-}
-... ...
-apply Pos_div_mod.
+      apply Pos.div_mod.
 ...
 intros.
 progress unfold Pos.div, Pos.rem.
