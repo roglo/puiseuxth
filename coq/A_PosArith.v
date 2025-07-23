@@ -853,6 +853,9 @@ End Nat2Pos.
 
 Module Pos2Nat.
 
+Theorem id : ∀ a, Pos.of_nat (Pos.to_nat a) = a.
+Proof. apply Pos.of_nat_to_nat. Qed.
+
 Theorem is_pos : ∀ a, 0 < Pos.to_nat a.
 Proof.
 intros.
@@ -860,6 +863,9 @@ progress unfold Pos.to_nat.
 rewrite Nat.add_comm.
 apply Nat.lt_0_succ.
 Qed.
+
+Theorem neq_0 : ∀ a, Pos.to_nat a ≠ 0.
+Proof. apply Pos.to_nat_neq_0. Qed.
 
 Theorem inj : ∀ a b, Pos.to_nat a = Pos.to_nat b → a = b.
 Proof. apply Pos.to_nat_inj. Qed.
@@ -878,6 +884,26 @@ Proof.
 intros.
 progress unfold Pos.to_nat; cbn.
 now apply Nat.sub_add.
+Qed.
+
+Theorem inj_mod :
+  ∀ a b,
+  Pos.to_nat a mod Pos.to_nat b ≠ 0
+  → Pos.to_nat (a mod b) = Pos.to_nat a mod Pos.to_nat b.
+Proof.
+intros * Hab; cbn.
+apply Nat.sub_add.
+now apply Nat.neq_0_lt_0.
+Qed.
+
+Theorem inj_div :
+  ∀ a b,
+  Pos.to_nat a / Pos.to_nat b ≠ 0
+  → Pos.to_nat (a / b) = Pos.to_nat a / Pos.to_nat b.
+Proof.
+intros * Hab; cbn.
+apply Nat.sub_add.
+now apply Nat.neq_0_lt_0.
 Qed.
 
 Theorem inj_lt : ∀ a b, (a < b)%pos ↔ Pos.to_nat a < Pos.to_nat b.

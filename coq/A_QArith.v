@@ -293,7 +293,61 @@ destruct sb. {
       rewrite Z.sub_diag, Z.add_0_l.
       rewrite Nat2Z.inj_div in Hdab.
       do 2 rewrite Z.pos_nat in Hdab.
-      rewrite <- Hdab.
+      rename va into a.
+      rename vb into b.
+      rename vdab into q.
+      rename vvab into r.
+      do 4 rewrite <- Z.pos_nat.
+      rewrite <- Nat2Z.inj_mul, <- Nat2Z.inj_add.
+      progress f_equal.
+      rewrite <- Pos2Nat.inj_mul, <- Pos2Nat.inj_add.
+      progress f_equal.
+      do 3 rewrite <- Z.pos_nat in Hvab, Hdab.
+      rewrite <- Nat2Z.inj_mod in Hvab.
+      rewrite <- Nat2Z.inj_div in Hdab.
+      apply Nat2Z.inj in Hvab, Hdab.
+      rewrite <- Pos2Nat.inj_mod in Hvab. 2: {
+        intros H; rewrite H in Hvab; symmetry in Hvab.
+        now apply Pos2Nat.neq_0 in Hvab.
+      }
+      apply Pos2Nat.inj in Hvab.
+      rewrite <- Pos2Nat.inj_div in Hdab. 2: {
+        intros H; rewrite H in Hdab; symmetry in Hdab.
+        now apply Pos2Nat.neq_0 in Hdab.
+      }
+      apply Pos2Nat.inj in Hdab.
+      subst q r.
+Search (_ * (_ / _) + _ mod _)%nat.
+(*
+Nat.Div0.div_mod
+     : ∀ a b : nat, a = (b * (a / b) + a mod b)%nat
+*)
+Theorem Pos_div_mod : ∀ a b, a = (b * (a / b) + a mod b)%pos.
+Proof.
+intros.
+apply Pos2Nat.inj.
+rewrite Pos2Nat.inj_add.
+rewrite Pos2Nat.inj_mul.
+destruct (Nat.eq_dec (Pos.to_nat a / Pos.to_nat b) 0) as [Hdz| Hdz]. {
+  apply Nat.div_small_iff in Hdz; [ | easy ].
+  apply Pos2Nat.inj_lt in Hdz.
+...
+rewrite Pos2Nat.inj_div.
+rewrite Pos2Nat.inj_mod.
+
+now apply Nat.div_mod.
+...
+intros.
+progress unfold Pos.div, Pos.rem.
+rewrite <- Pos2Nat.inj_div.
+rewrite Pos2Nat.id.
+rewrite <- Pos2Nat.inj_mod.
+rewrite Pos2Nat.id.
+...
+      apply (f_equal Z.to_pos) in Hvab.
+Search (Z.to_pos (_ mod _)).
+Search (Z.to_pos _ = _).
+      rewrite <- Z2Pos.inj in Hvab.
 ...
       rewrite Pos2Nat.inj_sub; [ | easy ].
       rewrite Nat2Z.inj_sub; [ | now apply Nat.lt_le_incl ].
