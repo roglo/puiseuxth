@@ -291,6 +291,15 @@ destruct sb. {
       rewrite Z.sub_sub_distr.
       rewrite Z.add_sub_swap.
       rewrite Z.sub_diag, Z.add_0_l.
+      destruct (Pos.divide_dec vb va) as [Hdba| Hdba]. {
+        destruct Hdba as (c, Hc).
+        subst va.
+        do 3 rewrite <- Z.pos_nat in Hvab.
+        rewrite Pos2Nat.inj_mul in Hvab.
+        rewrite Nat2Z.inj_mul in Hvab.
+        do 3 rewrite Z.pos_nat in Hvab.
+        now rewrite Z.mod_mul in Hvab.
+      }
       rewrite Nat2Z.inj_div in Hdab.
       do 2 rewrite Z.pos_nat in Hdab.
       rename va into a.
@@ -333,7 +342,10 @@ destruct sb. {
       }
       apply Pos2Nat.inj in Hdab.
       subst q r.
-      apply Pos.div_mod; [ easy | ].
+      now apply Pos.div_mod.
+    }
+...
+Search Pos.divide.
       intros (c, Hc).
 ...
 intros.

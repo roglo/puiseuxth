@@ -167,6 +167,20 @@ rewrite Nat.add_comm.
 now apply Nat_compare_sub_add_l.
 Qed.
 
+Theorem Nat_divide_dec : ∀ a b, {Nat.divide a b} + {¬ Nat.divide a b}.
+Proof.
+intros.
+remember (b mod a)%nat as ab eqn:Hab.
+symmetry in Hab.
+destruct ab. {
+  now left; apply Nat.Lcm0.mod_divide in Hab.
+}
+right.
+intros H.
+apply Nat.Lcm0.mod_divide in H.
+congruence.
+Qed.
+
 (* end misc theorems *)
 
 Module Pos.
@@ -808,6 +822,27 @@ Qed.
 Global Hint Resolve Pos.to_nat_neq_0 : core.
 
 Definition divide a b := ∃ c, b = (c * a)%pos.
+
+Theorem divide_dec : ∀ a b, {Pos.divide a b} + {¬ Pos.divide a b}.
+Proof.
+intros.
+destruct (Nat_divide_dec (Pos.to_nat a) (Pos.to_nat b)) as [Hab| Hab]. {
+  left.
+  destruct Hab as (c, Hc).
+  destruct c; [ now apply Pos.to_nat_neq_0 in Hc | ].
+  apply (f_equal Pos.of_nat) in Hc.
+  rewrite Pos.to_nat_id in Hc.
+  rewrite Pos.of_nat_inj_mul in Hc; [ | easy | easy ].
+  rewrite Pos.to_nat_id in Hc.
+  now exists (Pos.of_nat (S c)).
+}
+right.
+intros H; apply Hab; clear Hab.
+destruct H as (c, Hc).
+subst b.
+rewrite Pos.to_nat_inj_mul.
+now exists (to_nat c).
+Qed.
 
 Theorem div_mod :
   ∀ a b,
