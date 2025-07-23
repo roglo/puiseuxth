@@ -259,6 +259,69 @@ destruct sb. {
     }
     destruct sdab. {
       cbn - [ Z.add ].
+      rewrite Nat2Z.inj_mod in Hvab.
+      do 2 rewrite Z.pos_nat in Hvab.
+      specialize (Z.mod_pos_bound (z_val true va) (z_val true vb)) as H1.
+      assert (H : 0 < z_val true vb) by easy.
+      specialize (H1 H); clear H.
+      destruct H1 as (_, H1).
+      rewrite Hvab in H1.
+      do 2 rewrite <- Z.pos_nat in H1.
+      apply Nat2Z.inj_lt in H1.
+      generalize H1; intros H2.
+      apply Pos2Nat.inj_lt in H1.
+      rewrite Pos.compare_antisym.
+      generalize H1; intros H.
+      apply Pos.compare_lt_iff in H.
+      rewrite H; clear H.
+      apply Z.opp_inj.
+      cbn - [ Z.add ].
+      rewrite Z.opp_add_distr.
+      cbn - [ Z.add ].
+      do 3 rewrite <- Z.pos_nat.
+      rewrite Pos2Nat.inj_mul.
+      rewrite Pos2Nat.inj_sub; [ | easy ].
+      rewrite Pos2Nat.inj_add.
+      rewrite Nat2Z.inj_mul.
+      rewrite Nat2Z.inj_sub; [ | now apply Nat.lt_le_incl ].
+      rewrite Nat2Z.inj_add.
+      rewrite (Z.pos_nat 1).
+      do 4 rewrite Z.pos_nat.
+      rewrite Z.mul_add_distr_l, Z.mul_1_r.
+      rewrite Z.sub_sub_distr.
+      rewrite Z.add_sub_swap.
+      rewrite Z.sub_diag, Z.add_0_l.
+      rewrite Nat2Z.inj_div in Hdab.
+      do 2 rewrite Z.pos_nat in Hdab.
+      rewrite <- Hdab.
+...
+      rewrite Pos2Nat.inj_sub; [ | easy ].
+      rewrite Nat2Z.inj_sub; [ | now apply Nat.lt_le_incl ].
+      do 2 rewrite Z.pos_nat.
+      apply
+...
+      remember (vb ?= vvab)%pos as c eqn:Hc.
+      symmetry in Hc.
+      destruct c. {
+        apply Pos.compare_eq_iff in Hc; subst vvab.
+        rewrite Nat2Z.inj_mod in Hvab.
+        do 2 rewrite Z.pos_nat in Hvab.
+        specialize (Z.mod_pos_bound (z_val true va) (z_val true vb)) as H1.
+        assert (H : 0 < z_val true vb) by easy.
+        specialize (H1 H); clear H.
+        destruct H1 as (_, H1).
+        rewrite Hvab in H1.
+        now apply Z.lt_irrefl in H1.
+      } {
+        apply Pos.compare_lt_iff in Hc.
+        rewrite Nat2Z.inj_mod in Hvab.
+        do 2 rewrite Z.pos_nat in Hvab.
+        specialize (Z.mod_pos_bound (z_val true va) (z_val true vb)) as H1.
+        assert (H : 0 < z_val true vb) by easy.
+        specialize (H1 H); clear H.
+        destruct H1 as (_, H1).
+        rewrite Hvab in H1.
+        now apply Z.lt_irrefl in H1.
 ...
 Require Import ZArith.
 Search (_ - (_ - _))%positive.
