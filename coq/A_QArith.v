@@ -344,6 +344,14 @@ destruct sb. {
       subst q r.
       now apply Pos.div_mod.
     }
+    remember (p_val vdab) as c eqn:Hc.
+    symmetry in Hc.
+    destruct c. {
+      cbn.
+      remember (vb ?= vvab)%pos as d eqn:Hd.
+      symmetry in Hd.
+      destruct d; [ exfalso | | exfalso ]. {
+        apply Pos.compare_eq_iff in Hd; subst vvab.
 ...
 Search Pos.divide.
       intros (c, Hc).
