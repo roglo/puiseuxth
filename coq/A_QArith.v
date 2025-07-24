@@ -64,31 +64,29 @@ rewrite Z2Pos.id. {
   intros H.
   now apply Z.gcd_eq_0 in H.
 }
-Theorem Z_div_le_lower_bound : ∀ a b c, 0 < c → c * a ≤ b → a ≤ b / c.
-Proof.
-intros * Hzc Hca.
-Theorem Z_div_le_mono : ∀ a b c : Z, 0 < c → a ≤ b → a / c ≤ b / c.
-Proof.
-intros * Hzc Hab.
-apply Z.lt_eq_cases in Hab.
-destruct Hab as [Hab| ]; [ | now subst ].
-apply Z.lt_succ_r.
-apply (Z.mul_lt_mono_pos_l c); [ easy | ].
-rewrite Z.mul_add_distr_l, Z.mul_1_r.
-Check Z_div_mod.
-...
+apply Z.div_le_lower_bound. {
+  apply Z.lt_iff.
+  split; [ apply Z.gcd_nonneg | ].
+  intros H; symmetry in H.
+  apply Z.gcd_eq_0_r in H.
+  subst d.
+  now apply Z.eq_mul_0_l in H.
+}
+rewrite Z.mul_1_r.
+apply Z.divide_pos_le. {
+  subst d.
+  now apply Z.mul_pos_pos.
+}
+apply Z.gcd_divide_r.
+Qed.
 
 Definition add a b :=
   let n := q_num a * q_Den b + q_num b * q_Den a in
   let d := q_Den a * q_Den b in
   mk_q (n / Z.gcd n d) (Z.to_pos (d / Z.gcd n d)) (add_prop a b).
 
-Definition add a b :=
-  let n := q_num a * q_Den b + q_num b * q_Den a in
-  let d := Pos.mul (q_den a) (q_den b) in
-  mk_q (n / Z.gcd n (z_pos d)) (d / Pos.gcd n d) true.
-
-Definition opp a := mk_q (- q_num a) (q_den a).
+Definition opp a := mk_q (- q_num a) (q_den a) true.
+...
 Definition sub a b := add a (opp b).
 
 Definition mul a b :=
