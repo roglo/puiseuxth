@@ -2867,11 +2867,9 @@ destruct sb. {
       rewrite H1 in H2.
       assert (H : Pos.to_nat vb ≠ 0) by easy.
       specialize (H2 H); clear H.
-      progress unfold Pos.to_nat in H2.
-      apply Nat.add_lt_mono_r in H2.
-...
-      progress unfold Pos.lt in Hvbr.
-      now apply Nat.lt_asymm in H2.
+      apply Pos2Nat.inj_lt in H2.
+      apply -> Pos.compare_lt_iff in Hvbr.
+      now apply Pos.lt_asymm in H2.
     } {
       apply Pos.compare_gt_iff in Hvbr.
       rewrite Z.mul_comm in Hc; cbn in Hc.
@@ -2913,10 +2911,9 @@ destruct sc; cbn. {
       rewrite H1 in H2.
       assert (H : Pos.to_nat vb ≠ 0) by easy.
       specialize (H2 H); clear H.
-      progress unfold Pos.to_nat in H2.
-      apply Nat.add_lt_mono_r in H2.
-      progress unfold Pos.lt in Hvbr.
-      now apply Nat.lt_asymm in H2.
+      apply Pos2Nat.inj_lt in H2.
+      apply -> Pos.compare_lt_iff in Hvbr.
+      now apply Pos.lt_asymm in H2.
     } {
       apply Pos.compare_gt_iff in Hvbr.
       rewrite Z.mul_comm in Hc; cbn in Hc.
@@ -3120,9 +3117,8 @@ apply Z.of_nat_eq_0 in H.
 apply Nat.div_small_iff in H; [ | easy ].
 apply Nat.nle_gt in H.
 apply H; clear H.
-progress unfold Pos.le in Hab.
-progress unfold Pos.to_nat.
-now apply Nat.add_le_mono_r.
+apply -> Pos.compare_le_iff in Hab.
+now apply Pos2Nat.inj_le.
 Qed.
 
 Theorem div_unique_exact : ∀ a b q, (b ≠ 0 → a = b * q → q = a / b)%Z.
@@ -3278,10 +3274,9 @@ destruct b as [| sb vb]; [ easy | ].
 destruct sb; [ clear Hb | easy ].
 destruct a as [| sa va]; [ easy | ].
 destruct sa; [ cbn | easy ].
-apply Pos.compare_lt_iff in Ha.
-apply Pos.compare_lt_iff.
-progress unfold Pos.lt in Ha; cbn in Ha.
-progress unfold Pos.lt; cbn.
+apply -> Nat.compare_lt_iff in Ha.
+apply Nat.compare_lt_iff.
+cbn in Ha |-*.
 do 2 rewrite Nat.add_1_r.
 rewrite Nat.mul_comm; cbn.
 rewrite Nat.sub_0_r.
@@ -3312,11 +3307,9 @@ split; intros Hab. {
   progress unfold Z.lt in Hab; cbn in Hab.
   destruct sb. {
     destruct sa; [ | easy ].
-    apply Pos.compare_lt_iff in Hab.
-    apply Pos.compare_le_iff.
-    progress unfold Pos.lt in Hab.
-    progress unfold Pos.le.
-    cbn in Hab |-*.
+    apply -> Nat.compare_lt_iff in Hab.
+    apply Nat.compare_le_iff.
+    cbn in Hab.
     rewrite Nat.add_1_r in Hab.
     now apply Nat.lt_succ_r.
   }
@@ -3389,6 +3382,7 @@ rewrite Pos2Nat.inj_sub; [ | easy ].
 rewrite Nat2Pos.id; [ | easy ].
 apply Nat.sub_lt; [ | easy ].
 progress unfold Pos.lt in Hbab.
+apply Nat.compare_lt_iff in Hbab.
 cbn in Hbab.
 rewrite Nat.sub_0_r in Hbab.
 apply Nat.le_succ_l.
@@ -3594,13 +3588,12 @@ destruct vab. {
   apply Pos.compare_eq_iff in Hvab; subst.
   now rewrite Nat.sub_diag.
 } {
-  apply Pos.compare_lt_iff in Hvab.
+  apply Nat.compare_lt_iff in Hvab.
   apply Nat.sub_0_le.
   progress unfold Pos.to_nat.
   now apply Nat.add_le_mono_r, Nat.lt_le_incl.
 } {
-  apply Pos.compare_gt_iff in Hvab; cbn.
-  progress unfold Pos.lt in Hvab.
+  apply Nat.compare_gt_iff in Hvab; cbn.
   progress unfold Pos.to_nat.
   flia Hvab.
 }

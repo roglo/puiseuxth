@@ -242,6 +242,7 @@ destruct sb. {
         progress unfold Pos.sub in Hc.
         destruct vb as (b).
         injection Hc; clear Hc; intros Hc.
+...
         destruct b; [ easy | flia Hc ].
       } {
         apply Pos.compare_lt_iff in Hc.

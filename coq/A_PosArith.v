@@ -421,6 +421,24 @@ apply Nat.compare_lt_iff.
 now transitivity (p_val b).
 Qed.
 
+Theorem lt_le_trans : ∀ a b c, (a < b → b ≤ c → a < c)%pos.
+Proof.
+intros * Hab Hbc.
+apply Nat.compare_lt_iff in Hab.
+apply Nat.compare_le_iff in Hbc.
+apply Nat.compare_lt_iff.
+now apply (Nat.lt_le_trans _ (p_val b)).
+Qed.
+
+Theorem le_lt_trans : ∀ a b c, (a ≤ b → b < c → a < c)%pos.
+Proof.
+intros * Hab Hbc.
+apply Nat.compare_le_iff in Hab.
+apply Nat.compare_lt_iff in Hbc.
+apply Nat.compare_lt_iff.
+now apply (Nat.le_lt_trans _ (p_val b)).
+Qed.
+
 Add Parametric Relation : _ Pos.le
   transitivity proved by Pos.le_trans
 as le_rel.
@@ -1049,5 +1067,17 @@ Proof. apply Pos.to_nat_inj_div. Qed.
 
 Theorem inj_lt : ∀ a b, (a < b)%pos ↔ Pos.to_nat a < Pos.to_nat b.
 Proof. apply Pos.to_nat_inj_lt. Qed.
+
+Theorem inj_le : ∀ a b, (a ≤ b)%pos ↔ Pos.to_nat a ≤ Pos.to_nat b.
+Proof.
+intros.
+progress unfold Pos.le.
+destruct a as (a).
+destruct b as (b).
+cbn.
+split; intros Hab.
+now apply Nat.add_le_mono_r, Nat.compare_le_iff.
+now apply Nat.add_le_mono_r, Nat.compare_le_iff in Hab.
+Qed.
 
 End Pos2Nat.
