@@ -219,18 +219,18 @@ destruct sb. {
   destruct svab. {
     cbn.
     rewrite (Z.add_comm _ 1).
-    cbn.
+    cbn - [ Pos.compare ].
     remember (Z.of_nat (_ / _)) as vab eqn:Hdab.
     symmetry in Hdab.
     destruct vab as [| sdab vdab]. {
+      cbn - [ Pos.compare ].
+      rewrite Pos.mul_1_r.
       apply Z.of_nat_eq_0 in Hdab.
       apply Nat.div_small_iff in Hdab; [ | easy ].
       rewrite Nat.mod_small in Hvab; [ | easy ].
       rewrite Z.pos_nat in Hvab.
       injection Hvab; clear Hvab; intros H; subst vvab.
       apply Pos2Nat.inj_lt in Hdab.
-      cbn - [ Z.add ].
-      rewrite Pos.mul_1_r.
       rewrite Pos.compare_antisym.
       generalize Hdab; intros H.
       apply Pos.compare_lt_iff in H.
@@ -344,14 +344,31 @@ destruct sb. {
       subst q r.
       now apply Pos.div_mod.
     }
-    remember (p_val vdab) as c eqn:Hc.
+    remember (1 ?= vdab)%pos as c eqn:Hc.
     symmetry in Hc.
     destruct c. {
-      cbn.
+      exfalso.
+      apply Pos.compare_eq_iff in Hc; subst vdab.
+      specialize (Nat2Z.is_nonneg (Pos.to_nat va / Pos.to_nat vb)) as H1.
+      now rewrite Hdab in H1.
+    } {
+      apply Pos.compare_lt_iff in Hc.
+      cbn - [ Pos.compare ].
       remember (vb ?= vvab)%pos as d eqn:Hd.
       symmetry in Hd.
-      destruct d; [ exfalso | | exfalso ]. {
+      destruct d. {
+        exfalso.
         apply Pos.compare_eq_iff in Hd; subst vvab.
+        rewrite <- Z.pos_nat in Hvab.
+        apply Nat2Z.inj in Hvab.
+        specialize Nat.mod_upper_bound as H1.
+        specialize (H1 (Pos.to_nat va) (Pos.to_nat vb)).
+        assert (H : Pos.to_nat vb ≠ 0%nat) by easy.
+        specialize (H1 H); clear H.
+        rewrite Hvab in H1.
+        now apply Nat.lt_irrefl in H1.
+      } {
+        apply Pos.compare_lt_iff in Hd.
 ...
 Search Pos.divide.
       intros (c, Hc).
