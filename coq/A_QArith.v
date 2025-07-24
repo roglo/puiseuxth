@@ -89,6 +89,43 @@ cbn in Hp |-*.
 now destruct (q_num a).
 Qed.
 
+Theorem inv_prop :
+  ∀ a,
+  Z.gcd (Z.sgn (q_num a) * q_Den a) (Z.of_pos (Z.to_pos (Z.abs (q_num a))))
+  = 1.
+Proof.
+intros.
+specialize (q_prop a) as Hp.
+progress unfold Z.gcd in Hp |-*.
+cbn in Hp |-*.
+destruct (q_num a) as [| sa va]; [ easy | cbn ].
+destruct sa; cbn. {
+  rewrite Pos.mul_1_l.
+  now rewrite Z.pos_nat, Pos.gcd_comm.
+} {
+  rewrite Pos.mul_1_l.
+  now rewrite Z.pos_nat, Pos.gcd_comm.
+}
+Qed.
+
+Theorem pos_uint_prop :
+  ∀ a, Z.gcd (Z.of_nat (Nat.of_uint a)) (Z.of_pos 1) = 1.
+Proof.
+intros.
+progress unfold Z.of_pos.
+progress unfold z_pos.
+apply Z.gcd_1_r.
+Qed.
+
+Theorem neg_uint_prop :
+  ∀ a, Z.gcd (- Z.of_nat (Nat.of_uint a)) (Z.of_pos 1) = 1.
+Proof.
+intros.
+progress unfold Z.of_pos.
+progress unfold z_pos.
+apply Z.gcd_1_r.
+Qed.
+
 Definition add a b :=
   let n := q_num a * q_Den b + q_num b * q_Den a in
   let d := q_Den a * q_Den b in
@@ -98,11 +135,12 @@ Definition opp a := mk_q (- q_num a) (q_den a) (opp_prop a).
 Definition sub a b := add a (opp b).
 
 Definition mul a b :=
-  mk_q (q_num a * q_num b) (Pos.mul (q_den a) (q_den b)).
+  mk_q (q_num a * q_num b) (Pos.mul (q_den a) (q_den b)) true.
+...
 
 Definition inv a :=
-  mk_q (Z.sgn (q_num a) * q_Den a) (Z.to_pos (Z.abs (q_num a))) true.
-...
+  mk_q (Z.sgn (q_num a) * q_Den a) (Z.to_pos (Z.abs (q_num a)))
+    (inv_prop a).
 
 Definition div a b := mul a (inv b).
 
@@ -117,8 +155,10 @@ Definition of_number (n : Number.int) : option Q :=
   match n with
   | Number.IntDecimal n =>
       match n with
-      | Decimal.Pos n => Some (mk_q (Z.of_nat (Nat.of_uint n)) 1)
-      | Decimal.Neg n => Some (mk_q (- Z.of_nat (Nat.of_uint n)) 1)
+      | Decimal.Pos n =>
+          Some (mk_q (Z.of_nat (Nat.of_uint n)) 1 (pos_uint_prop n))
+      | Decimal.Neg n =>
+          Some (mk_q (- Z.of_nat (Nat.of_uint n)) 1 (neg_uint_prop n))
       end
   | Number.IntHexadecimal n => None
   end.

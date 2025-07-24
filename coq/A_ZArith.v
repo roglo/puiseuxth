@@ -2391,6 +2391,9 @@ Proof. now intros; rewrite Z.gcd_comm. Qed.
 Theorem gcd_1_l : ∀ a, Z.gcd 1 a = 1%Z.
 Proof. now intros; destruct a. Qed.
 
+Theorem gcd_1_r : ∀ a, Z.gcd a 1 = 1%Z.
+Proof. now intros; rewrite Z.gcd_comm; destruct a. Qed.
+
 Theorem gcd_eq_0 : ∀ a b, Z.gcd a b = 0%Z ↔ a = 0%Z ∧ b = 0%Z.
 Proof.
 intros.
