@@ -242,13 +242,15 @@ destruct sb. {
         progress unfold Pos.sub in Hc.
         destruct vb as (b).
         injection Hc; clear Hc; intros Hc.
-...
-        destruct b; [ easy | flia Hc ].
+        destruct b; [ | flia Hc ].
+        apply Pos.nle_gt in Hdab.
+        exfalso; apply Hdab.
+        apply Pos.le_1_l.
       } {
         apply Pos.compare_lt_iff in Hc.
         exfalso; apply Pos.nle_gt in Hc.
         apply Hc; clear Hc.
-        progress unfold Pos.le; cbn.
+        apply Nat.compare_le_iff; cbn.
         flia.
       } {
         apply Pos.compare_gt_iff in Hc.
@@ -345,6 +347,15 @@ destruct sb. {
       subst q r.
       now apply Pos.div_mod.
     }
+    exfalso.
+    specialize (Nat2Z.is_nonneg (Pos.to_nat va / Pos.to_nat vb)) as H1.
+    now rewrite Hdab in H1.
+  }
+  exfalso.
+  specialize (Nat2Z.is_nonneg (Pos.to_nat va mod Pos.to_nat vb)) as H1.
+  now rewrite Hvab in H1.
+}
+...
     remember (1 ?= vdab)%pos as c eqn:Hc.
     symmetry in Hc.
     destruct c. {
@@ -369,11 +380,22 @@ destruct sb. {
         rewrite Hvab in H1.
         now apply Nat.lt_irrefl in H1.
       } {
-        apply Pos.compare_lt_iff in Hd.
+        apply -> Pos.compare_lt_iff in Hc.
+        apply -> Pos.compare_lt_iff in Hd.
         rewrite Pos.mul_sub_distr_l; [ | easy ].
         rewrite Pos.mul_1_r.
         rewrite Pos.compare_sub_mono_r; [ | | easy ]. 2: {
-Print Z.le.
+          apply Nat.compare_lt_iff in Hc, Hd.
+          apply Nat.compare_lt_iff.
+          cbn.
+          flia Hc Hd.
+        }
+        remember (vb * vdab ?= vvab)%pos as vbd eqn:Hvbd.
+        symmetry in Hvbd.
+        destruct vbd. {
+          apply Pos.compare_eq_iff in Hvbd; subst vvab.
+          exfalso.
+easy.
 ...
 Print Pos.eq.
           rewrite <- (Pos.mul_1_r vb) at 1.
