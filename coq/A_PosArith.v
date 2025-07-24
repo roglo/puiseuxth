@@ -210,8 +210,8 @@ Definition mul a b := {| p_val := (p_val a + 1) * (p_val b + 1) - 1 |}.
 
 Definition compare a b := p_val a ?= p_val b.
 Definition eqb a b := p_val a =? p_val b.
-Definition le a b := p_val a ≤ p_val b.
-Definition lt a b := p_val a < p_val b.
+Definition le a b := Pos.compare a b ≠ Gt.
+Definition lt a b := Pos.compare a b = Lt.
 
 Definition div a b := Pos.of_nat (Pos.to_nat a / Pos.to_nat b).
 Definition rem a b := Pos.of_nat (Pos.to_nat a mod Pos.to_nat b).
@@ -225,6 +225,23 @@ Notation "a < b" := (Pos.lt a b) : pos_scope.
 Notation "a ?= b" := (Pos.compare a b) : pos_scope.
 Notation "a =? b" := (Pos.eqb a b) : pos_scope.
 Notation "a 'mod' b" := (Pos.rem a b) : pos_scope.
+
+Theorem compare_antisym : ∀ a b, ((a ?= b) = CompOpp (b ?= a))%pos.
+Proof. intros; apply Nat.compare_antisym. Qed.
+
+Theorem compare_lt_iff : ∀ a b, (a ?= b)%pos = Lt ↔ (a < b)%pos.
+Proof. easy. Qed.
+
+Theorem compare_gt_iff : ∀ a b, (a ?= b)%pos = Gt ↔ (b < a)%pos.
+Proof.
+intros.
+rewrite Pos.compare_antisym.
+progress unfold Pos.lt.
+now destruct (b ?= a)%pos.
+Qed.
+
+Theorem compare_le_iff : ∀ a b, (a ?= b)%pos ≠ Gt ↔ (a ≤ b)%pos.
+Proof. easy. Qed.
 
 Theorem eq_dec : ∀ a b : pos, {a = b} + {a ≠ b}.
 Proof.
@@ -243,7 +260,8 @@ Qed.
 Theorem le_dec : ∀ a b : pos, ({a ≤ b} + {¬ a ≤ b})%pos.
 Proof.
 intros.
-now destruct (le_dec (p_val a) (p_val b)); [ left | right ].
+progress unfold Pos.le.
+now destruct (a ?= b)%pos; [ left | left | right ].
 Qed.
 
 Theorem add_comm : ∀ a b, (a + b)%pos = (b + a)%pos.
@@ -341,12 +359,14 @@ Qed.
 
 Theorem le_sub_1 : ∀ a b, (a ≤ b + 1 → a - b = 1)%pos.
 Proof.
-progress unfold Pos.sub, Pos.le.
+progress unfold Pos.sub, Pos.le, Pos.compare.
 intros * Hab.
-cbn in Hab; rewrite Nat.add_0_r in Hab.
-f_equal.
+cbn in Hab.
+rewrite Nat.add_0_r in Hab.
+progress f_equal.
 rewrite <- Nat.sub_add_distr.
-now apply Nat.sub_0_le.
+apply Nat.sub_0_le.
+now apply Nat.compare_le_iff.
 Qed.
 
 Theorem add_sub_eq_l : ∀ a b c, (b + c = a → a - b = c)%pos.
@@ -371,7 +391,7 @@ Theorem le_1_l : ∀ a, (1 ≤ a)%pos.
 Proof.
 intros.
 progress unfold Pos.le; cbn.
-apply Nat.le_0_l.
+now destruct (p_val a).
 Qed.
 
 Theorem sub_add : ∀ a b, (b < a → a - b + b = a)%pos.
@@ -379,27 +399,26 @@ Proof.
 intros * Hba.
 progress unfold Pos.sub, Pos.add; cbn.
 rewrite Nat.add_shuffle0.
-rewrite Nat.sub_add. 2: {
-  progress unfold Pos.lt in Hba.
-  now apply Nat.lt_add_lt_sub_r.
-}
-rewrite Nat.sub_add. 2: {
-  progress unfold Pos.lt in Hba.
-  now apply Nat.lt_le_incl.
-}
+apply Nat.compare_lt_iff in Hba.
+rewrite Nat.sub_add; [ | now apply Nat.lt_add_lt_sub_r ].
+rewrite Nat.sub_add; [ | now apply Nat.lt_le_incl ].
 now destruct a.
 Qed.
 
 Theorem le_trans : ∀ a b c, (a ≤ b → b ≤ c → a ≤ c)%pos.
 Proof.
 intros * Hab Hbc.
-eapply Nat.le_trans; [ apply Hab | easy ].
+apply Nat.compare_le_iff in Hab, Hbc.
+apply Nat.compare_le_iff.
+now transitivity (p_val b).
 Qed.
 
 Theorem lt_trans : ∀ a b c, (a < b → b < c → a < c)%pos.
 Proof.
 intros a b c Hab Hbc.
-eapply Nat.lt_trans; [ apply Hab | easy ].
+apply Nat.compare_lt_iff in Hab, Hbc.
+apply Nat.compare_lt_iff.
+now transitivity (p_val b).
 Qed.
 
 Add Parametric Relation : _ Pos.le
@@ -412,19 +431,21 @@ as lt_rel.
 
 Theorem lt_le_incl : ∀ a b, (a < b → a ≤ b)%pos.
 Proof.
-progress unfold Pos.lt, Pos.le.
 intros * Hab.
+apply Nat.compare_lt_iff in Hab.
+apply Nat.compare_le_iff.
 now apply Nat.lt_le_incl.
 Qed.
 
 Theorem lt_le : ∀ a b, (a < b + 1 ↔ a ≤ b)%pos.
 Proof.
-progress unfold Pos.lt, Pos.le; cbn.
 intros.
-rewrite Nat.add_0_r.
+etransitivity; [ apply Nat.compare_lt_iff | ].
+symmetry.
+etransitivity; [ apply Nat.compare_le_iff | ].
+rewrite Pos.add_comm; cbn.
 rewrite Nat.add_1_r.
-progress unfold Peano.lt.
-now split; intros H; apply Nat.succ_le_mono in H.
+apply Nat.succ_le_mono.
 Qed.
 
 Theorem mul_sub_distr_l :
@@ -445,6 +466,7 @@ do 3 rewrite Nat.sub_0_r.
 do 3 rewrite (Nat.mul_comm _ (S _)); cbn.
 do 2 rewrite Nat.mul_sub_distr_r.
 rewrite Nat.mul_1_l.
+apply Nat.compare_lt_iff in Hbc.
 rewrite Nat.add_sub_assoc; [ lia | ].
 rewrite <- Nat.mul_sub_distr_r.
 rewrite <- (Nat.mul_1_l a) at 1.
@@ -469,9 +491,6 @@ Theorem compare_match_dec :
   end.
 Proof. intros; apply nat_compare_equiv. Qed.
 
-Theorem compare_antisym : ∀ a b, ((a ?= b) = CompOpp (b ?= a))%pos.
-Proof. intros; apply Nat.compare_antisym. Qed.
-
 Theorem compare_refl : ∀ a, (a ?= a)%pos = Eq.
 Proof. intros; apply Nat.compare_refl. Qed.
 
@@ -481,15 +500,6 @@ intros.
 split; intros H; [ | subst; apply Pos.compare_refl ].
 now apply Nat.compare_eq_iff, Pos.nat_inj in H.
 Qed.
-
-Theorem compare_lt_iff : ∀ a b, (a ?= b)%pos = Lt ↔ (a < b)%pos.
-Proof. intros; apply Nat.compare_lt_iff. Qed.
-
-Theorem compare_gt_iff : ∀ a b, (a ?= b)%pos = Gt ↔ (b < a)%pos.
-Proof. intros; apply Nat.compare_gt_iff. Qed.
-
-Theorem compare_le_iff : ∀ a b, (a ?= b)%pos ≠ Gt ↔ (a ≤ b)%pos.
-Proof. intros; apply Nat.compare_le_iff. Qed.
 
 Theorem eqb_refl : ∀ a, (a =? a)%pos = true.
 Proof. intros; apply Nat.eqb_refl. Qed.
@@ -543,6 +553,7 @@ rewrite Nat.add_sub.
 cbn.
 apply Nat.sub_add.
 apply Nat.neq_0_le_1.
+apply Nat.compare_lt_iff in Hba.
 now apply Nat.sub_gt.
 Qed.
 
@@ -582,8 +593,8 @@ destruct a as (a).
 destruct b as (b).
 cbn.
 split; intros Hab.
-now apply Nat.add_lt_mono_r.
-now apply Nat.add_lt_mono_r in Hab.
+now apply Nat.add_lt_mono_r, Nat.compare_lt_iff.
+now apply Nat.add_lt_mono_r, Nat.compare_lt_iff in Hab.
 Qed.
 
 Theorem of_nat_inj_succ :
@@ -609,6 +620,7 @@ destruct a. {
 progress unfold Pos.of_nat, Pos.le; cbn.
 do 2 rewrite Nat.sub_0_r.
 symmetry.
+etransitivity; [ apply Nat.compare_le_iff | ].
 apply Nat.succ_le_mono.
 Qed.
 
@@ -619,12 +631,14 @@ intros * Haz.
 destruct b. {
   split; intros; [ easy | ].
   progress unfold Pos.of_nat, Pos.lt in H.
+  apply Nat.compare_lt_iff in H.
   cbn in H; flia H.
 }
 destruct a; [ easy | clear Haz ].
 progress unfold Pos.of_nat, Pos.lt; cbn.
 do 2 rewrite Nat.sub_0_r.
 symmetry.
+etransitivity; [ apply Nat.compare_lt_iff | ].
 apply Nat.succ_lt_mono.
 Qed.
 
@@ -713,7 +727,8 @@ destruct b as (b).
 destruct c as (c).
 progress unfold Pos.lt in Hba, Hca.
 cbn in Hba, Hca |-*.
-do 2 rewrite <- (Nat_sub_sub_swap _ 1).
+apply Nat.compare_lt_iff in Hba, Hca.
+rewrite Nat_compare_sub_mono_r; [ | flia Hba | flia Hca ].
 apply Nat_compare_sub_mono_l; [ flia Hba | flia Hca ].
 Qed.
 
@@ -730,19 +745,21 @@ destruct c as (c).
 progress unfold Pos.lt in Hca, Hcb.
 cbn in Hca, Hcb |-*.
 do 2 rewrite <- Nat.sub_add_distr.
+apply Nat.compare_lt_iff in Hca, Hcb.
 apply Nat_compare_sub_mono_r; [ flia Hca | flia Hcb ].
 Qed.
 
 Theorem le_refl : ∀ a, (a ≤ a)%pos.
-Proof. intros; apply Nat.le_refl. Qed.
+Proof. now intros; apply Nat.compare_le_iff. Qed.
 
 Theorem lt_eq_cases : ∀ a b, (a ≤ b)%pos ↔ (a < b)%pos ∨ a = b.
 Proof.
 intros.
 split; intros H. {
+  apply Nat.compare_le_iff in H.
   apply Nat.lt_eq_cases in H.
-  destruct H as [H| H]; [ now left | ].
-  now right; apply Pos.nat_inj.
+  destruct H as [H| H]; [ | now right; apply Pos.nat_inj ].
+  now left; apply Nat.compare_lt_iff.
 } {
   destruct H as [H| H]; [ now apply Pos.lt_le_incl | ].
   subst. apply Pos.le_refl.
@@ -788,10 +805,34 @@ now subst.
 Qed.
 
 Theorem nle_gt : ∀ a b, ¬ (a ≤ b)%pos ↔ (b < a)%pos.
-Proof. intros; apply Nat.nle_gt. Qed.
+Proof.
+intros.
+split; intros H. {
+  apply Nat.compare_lt_iff.
+  apply Nat.nle_gt; intros H1.
+  apply H; clear H.
+  now apply Nat.compare_le_iff.
+} {
+  intros H1.
+  apply Nat.compare_lt_iff in H.
+  apply Nat.compare_le_iff in H1.
+  now apply Nat.nle_gt in H.
+}
+Qed.
 
 Theorem nlt_ge : ∀ a b, ¬ (a < b)%pos ↔ (b ≤ a)%pos.
-Proof. intros; apply Nat.nlt_ge. Qed.
+Proof.
+intros.
+split; intros H. {
+  apply Nat.compare_le_iff.
+  apply Nat.nlt_ge; intros H1.
+  apply H; clear H.
+  now apply Nat.compare_lt_iff.
+} {
+  intros H1.
+  now apply Pos.nle_gt in H1.
+}
+Qed.
 
 Theorem lt_asymm : ∀ a b, (a < b)%pos → ¬ (b < a)%pos.
 Proof.

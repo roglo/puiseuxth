@@ -372,11 +372,13 @@ destruct sb. {
         rewrite Pos.mul_sub_distr_l; [ | easy ].
         rewrite Pos.mul_1_r.
         rewrite Pos.compare_sub_mono_r; [ | | easy ]. 2: {
+Print Z.le.
 ...
 Print Pos.eq.
           rewrite <- (Pos.mul_1_r vb) at 1.
           progress unfold Pos.lt.
           cbn.
+Print
 Search (_ ?= _ * _)%Z.
 Theorem Pos_compare_mul_mono_l : ∀ a b c, (a * b ?= a * c)%pos = (b ?= c)%pos.
 Admitted.

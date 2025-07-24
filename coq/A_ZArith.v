@@ -567,7 +567,8 @@ destruct (lt_eq_lt_dec _ _) as [[Hbc| Hbc]| Hbc]. {
   rewrite Nat_compare_add_mono_r.
   generalize Hbc; intros H.
   apply Nat.compare_lt_iff in H; rewrite H; f_equal; clear H.
-  now apply Pos.mul_sub_distr_l.
+  apply Pos.mul_sub_distr_l.
+  now apply Nat.compare_lt_iff.
 } {
   cbn.
   apply Pos.nat_inj in Hbc; subst vc.
@@ -584,7 +585,8 @@ destruct (lt_eq_lt_dec _ _) as [[Hbc| Hbc]| Hbc]. {
   rewrite Nat_compare_add_mono_r.
   generalize Hbc; intros H.
   apply Nat.compare_gt_iff in H; rewrite H; f_equal; clear H.
-  now apply Pos.mul_sub_distr_l.
+  apply Pos.mul_sub_distr_l.
+  now apply Nat.compare_lt_iff.
 }
 Qed.
 
@@ -1097,6 +1099,7 @@ destruct sb. {
     apply Pos.compare_lt_iff in Hvab.
     destruct vac. {
       apply Pos.compare_eq_iff in Hvac; subst vc.
+      apply Nat.compare_lt_iff in Hvab.
       now symmetry; apply Nat.compare_gt_iff.
     } {
       apply Pos.compare_lt_iff in Hvac.
@@ -1134,40 +1137,43 @@ destruct vab. {
     apply Pos.compare_eq_iff in Hvac; subst vc.
     now symmetry; apply Nat.compare_eq_iff.
   } {
-    apply Pos.compare_lt_iff in Hvac; cbn.
+    apply Nat.compare_lt_iff in Hvac; cbn.
     now symmetry; apply Nat.compare_gt_iff.
   } {
-    apply Pos.compare_gt_iff in Hvac; cbn.
+    apply Nat.compare_gt_iff in Hvac; cbn.
     now symmetry; apply Nat.compare_lt_iff.
   }
 } {
   cbn; rewrite Hvab, Hvac.
-  apply Pos.compare_lt_iff in Hvab.
   destruct vac. {
+    apply Nat.compare_lt_iff in Hvab.
     apply Pos.compare_eq_iff in Hvac; subst vc.
     now symmetry; apply Nat.compare_lt_iff.
   } {
-    progress unfold Pos.lt in Hvab.
+    apply Nat.compare_lt_iff in Hvab.
     apply Nat.compare_lt_iff in Hvac; cbn.
     rewrite Nat_compare_sub_mono_r; [ | flia Hvac | flia Hvab ].
     apply Nat.lt_le_incl in Hvab, Hvac.
     now rewrite Nat_compare_sub_mono_r.
   } {
+    apply -> Pos.compare_lt_iff in Hvab.
     apply Pos.compare_gt_iff in Hvac; cbn.
     symmetry; apply Pos.compare_lt_iff.
     now transitivity va.
   }
 } {
   cbn; rewrite Hvab, Hvac.
-  apply Pos.compare_gt_iff in Hvab.
   destruct vac. {
+    apply Nat.compare_gt_iff in Hvab.
     apply Pos.compare_eq_iff in Hvac; subst vc.
     now symmetry; apply Nat.compare_gt_iff.
   } {
-    apply Pos.compare_lt_iff in Hvac; cbn.
+    apply Pos.compare_gt_iff in Hvab.
+    apply -> Pos.compare_lt_iff in Hvac; cbn.
     symmetry; apply Pos.compare_gt_iff.
     now transitivity va.
   } {
+    apply Pos.compare_gt_iff in Hvab.
     apply Pos.compare_gt_iff in Hvac.
     cbn - [ Pos.sub ].
     now apply Pos.compare_sub_mono_l.
@@ -1577,6 +1583,7 @@ progress unfold Pos.lt; cbn.
 specialize (nat_archimedean (S a) (S b) (Nat.lt_0_succ _)) as H1.
 destruct H1 as (n, Hn).
 exists n.
+apply Nat.compare_lt_iff.
 rewrite Nat.sub_add; flia Hn.
 Qed.
 
@@ -2560,9 +2567,9 @@ split; intros H. {
     destruct sb; [ | easy ].
     progress unfold Z.le in H; cbn in H.
     progress unfold Z.lt; cbn.
-    apply Pos.compare_le_iff in H.
+    apply -> Pos.compare_le_iff in H.
     apply Pos.lt_eq_cases in H.
-    destruct H; [ now left; apply Nat.compare_lt_iff | ].
+    destruct H; [ now left; apply Pos.compare_lt_iff | ].
     now right; subst.
   } {
     destruct sb; [ now left | ].
@@ -2862,6 +2869,7 @@ destruct sb. {
       specialize (H2 H); clear H.
       progress unfold Pos.to_nat in H2.
       apply Nat.add_lt_mono_r in H2.
+...
       progress unfold Pos.lt in Hvbr.
       now apply Nat.lt_asymm in H2.
     } {
