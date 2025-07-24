@@ -159,7 +159,6 @@ Definition mul a b :=
   let n := q_num a * q_num b in
   let d := q_Den a * q_Den b in
   mk_q (n / Z.gcd n d) (Z.to_pos (d / Z.gcd n d)) (mul_prop a b).
-...
 
 Definition inv a :=
   mk_q (Z.sgn (q_num a) * q_Den a) (Z.to_pos (Z.abs (q_num a)))
@@ -207,6 +206,35 @@ Notation "a ?= b" := (Q.compare a b) : Q_scope.
 Notation "a # b" := (mk_q a b) (at level 55) : Q_scope.
 
 Theorem q_Den_mul : ∀ a b, q_Den (a * b) = (q_Den a * q_Den b)%Z.
+Proof.
+intros.
+progress unfold q_Den; cbn.
+specialize (Q.mul_prop a b) as H1; cbn in H1.
+rewrite Z2Pos.id. 2: {
+  apply Z.div_le_lower_bound. {
+    apply Z.lt_iff.
+    split; [ apply Z.gcd_nonneg | ].
+    intros H; symmetry in H.
+    now apply Z.gcd_eq_0 in H.
+  }
+  rewrite Z.mul_1_r.
+  apply Z.divide_pos_le; [ easy | ].
+  apply Z.gcd_divide_r.
+}
+rewrite Z2Pos.id in H1. 2: {
+  apply Z.div_le_lower_bound. {
+    apply Z.lt_iff.
+    split; [ apply Z.gcd_nonneg | ].
+    intros H; symmetry in H.
+    now apply Z.gcd_eq_0 in H.
+  }
+  rewrite Z.mul_1_r.
+  apply Z.divide_pos_le; [ easy | ].
+  apply Z.gcd_divide_r.
+}
+remember (Z.gcd (_ * _) _) as g eqn:Hg.
+Check Z.gcd_div_gcd.
+...
 Proof. easy. Qed.
 
 Theorem eq_refl : ∀ a, (a == a)%Q.
