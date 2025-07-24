@@ -80,20 +80,29 @@ apply Z.divide_pos_le. {
 apply Z.gcd_divide_r.
 Qed.
 
+Theorem opp_prop : ∀ a, Z.gcd (- q_num a) (Z.of_pos (q_den a)) = 1.
+Proof.
+intros.
+specialize (q_prop a) as Hp.
+progress unfold Z.gcd in Hp |-*.
+cbn in Hp |-*.
+now destruct (q_num a).
+Qed.
+
 Definition add a b :=
   let n := q_num a * q_Den b + q_num b * q_Den a in
   let d := q_Den a * q_Den b in
   mk_q (n / Z.gcd n d) (Z.to_pos (d / Z.gcd n d)) (add_prop a b).
 
-Definition opp a := mk_q (- q_num a) (q_den a) true.
-...
+Definition opp a := mk_q (- q_num a) (q_den a) (opp_prop a).
 Definition sub a b := add a (opp b).
 
 Definition mul a b :=
   mk_q (q_num a * q_num b) (Pos.mul (q_den a) (q_den b)).
 
 Definition inv a :=
-  mk_q (Z.sgn (q_num a) * q_Den a) (Z.to_pos (Z.abs (q_num a))).
+  mk_q (Z.sgn (q_num a) * q_Den a) (Z.to_pos (Z.abs (q_num a))) true.
+...
 
 Definition div a b := mul a (inv b).
 
