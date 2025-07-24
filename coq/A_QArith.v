@@ -89,6 +89,18 @@ cbn in Hp |-*.
 now destruct (q_num a).
 Qed.
 
+Theorem mul_prop :
+  ∀ a b,
+  Z.gcd (q_num a * q_num b) (Z.of_pos (q_den a * q_den b)) = 1.
+Proof.
+intros.
+rewrite Pos2Z.inj_mul.
+do 2 rewrite fold_q_Den.
+specialize (q_prop a) as Hpa.
+specialize (q_prop b) as Hpb.
+rewrite fold_q_Den in Hpa, Hpb.
+...
+
 Theorem inv_prop :
   ∀ a,
   Z.gcd (Z.sgn (q_num a) * q_Den a) (Z.of_pos (Z.to_pos (Z.abs (q_num a))))
