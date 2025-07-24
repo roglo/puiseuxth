@@ -53,31 +53,40 @@ Module Q.
 
 Open Scope Z_scope.
 
+Theorem add_or_mul_prop :
+  ∀ a b,
+  (0 < b)%Z
+  → Z.gcd (a / Z.gcd a b) (Z.of_pos (Z.to_pos (b / Z.gcd a b))) = 1.
+Proof.
+intros * Hzb.
+rewrite Z2Pos.id. {
+  apply Z.gcd_div_gcd; [ | easy ].
+  intros H.
+  apply Z.gcd_eq_0 in H.
+  destruct H; subst b.
+  now apply Z.lt_irrefl in Hzb.
+}
+apply Z.div_le_lower_bound. {
+  apply Z.lt_iff.
+  split; [ apply Z.gcd_nonneg | ].
+  intros H; symmetry in H.
+  apply Z.gcd_eq_0_r in H; subst b.
+  now apply Z.lt_irrefl in Hzb.
+}
+rewrite Z.mul_1_r.
+apply Z.divide_pos_le; [ easy | ].
+apply Z.gcd_divide_r.
+Qed.
+
 Theorem add_prop : ∀ a b,
   let n := q_num a * q_Den b + q_num b * q_Den a in
   let d := q_Den a * q_Den b in
   Z.gcd (n / Z.gcd n d) (Z.of_pos (Z.to_pos (d / Z.gcd n d))) = 1.
 Proof.
 intros.
-rewrite Z2Pos.id. {
-  apply Z.gcd_div_gcd; [ | easy ].
-  intros H.
-  now apply Z.gcd_eq_0 in H.
-}
-apply Z.div_le_lower_bound. {
-  apply Z.lt_iff.
-  split; [ apply Z.gcd_nonneg | ].
-  intros H; symmetry in H.
-  apply Z.gcd_eq_0_r in H.
-  subst d.
-  now apply Z.eq_mul_0_l in H.
-}
-rewrite Z.mul_1_r.
-apply Z.divide_pos_le. {
-  subst d.
-  now apply Z.mul_pos_pos.
-}
-apply Z.gcd_divide_r.
+subst d.
+apply add_or_mul_prop.
+now apply Z.mul_pos_pos.
 Qed.
 
 Theorem opp_prop : ∀ a, Z.gcd (- q_num a) (Z.of_pos (q_den a)) = 1.
@@ -91,15 +100,15 @@ Qed.
 
 Theorem mul_prop :
   ∀ a b,
-  Z.gcd (q_num a * q_num b) (Z.of_pos (q_den a * q_den b)) = 1.
+  let n := q_num a * q_num b in
+  let d := q_Den a * q_Den b in
+  Z.gcd (n / Z.gcd n d) (Z.of_pos (Z.to_pos (d / Z.gcd n d))) = 1.
 Proof.
 intros.
-rewrite Pos2Z.inj_mul.
-do 2 rewrite fold_q_Den.
-specialize (q_prop a) as Hpa.
-specialize (q_prop b) as Hpb.
-rewrite fold_q_Den in Hpa, Hpb.
-...
+subst d.
+apply add_or_mul_prop.
+now apply Z.mul_pos_pos.
+Qed.
 
 Theorem inv_prop :
   ∀ a,
@@ -147,7 +156,9 @@ Definition opp a := mk_q (- q_num a) (q_den a) (opp_prop a).
 Definition sub a b := add a (opp b).
 
 Definition mul a b :=
-  mk_q (q_num a * q_num b) (Pos.mul (q_den a) (q_den b)) true.
+  let n := q_num a * q_num b in
+  let d := q_Den a * q_Den b in
+  mk_q (n / Z.gcd n d) (Z.to_pos (d / Z.gcd n d)) (mul_prop a b).
 ...
 
 Definition inv a :=
