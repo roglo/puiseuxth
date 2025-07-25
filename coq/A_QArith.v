@@ -76,25 +76,36 @@ apply Z.divide_pos_le; [ easy | ].
 apply Z.gcd_divide_r.
 Qed.
 
-Definition of_num_den (a : Z) (b : pos) :=
+Definition of_num_den ab :=
+  let '(a, b) := ab in
   mk_q
     (a / Z.gcd a (Z.of_pos b))
     (Z.to_pos (Z.of_pos b / Z.gcd a (Z.of_pos b)))
     (Q.of_num_den_prop a b).
 
-Definition add a b :=
-  Q.of_num_den (q_num a * q_Den b + q_num b * q_Den a) (q_den a * q_den b).
+Definition num_den_add (a b : Z * pos) :=
+  (fst a * Z.of_pos (snd b) + fst b * Z.of_pos (snd a),
+   (snd a * snd b)%pos).
+Definition num_den_opp (a : Z * pos) :=
+  (- fst a, snd a).
+Definition num_den_mul (a b : Z * pos) :=
+  (fst a * Z.of_pos (snd b), (snd a * snd b)%pos).
+Definition num_den_inv (a : Z * pos) :=
+  (Z.sgn (fst a) * Z.of_pos (snd a), Z.to_pos (Z.abs (fst a))).
 
-Definition opp a := Q.of_num_den (- q_num a) (q_den a).
-Definition sub a b := add a (opp b).
+Definition to_num_den a := (q_num a, q_den a).
+
+Definition add a b :=
+  Q.of_num_den (Q.num_den_add (Q.to_num_den a) (Q.to_num_den b)).
+
+Definition opp a := Q.of_num_den (Q.num_den_opp (Q.to_num_den a)).
+Definition sub a b := Q.add a (Q.opp b).
 
 Definition mul a b :=
-  Q.of_num_den (q_num a * q_num b) (q_den a * q_den b).
+  Q.of_num_den (Q.num_den_mul (Q.to_num_den a) (Q.to_num_den b)).
 
-Definition inv a :=
-  Q.of_num_den (Z.sgn (q_num a) * q_Den a) (Z.to_pos (Z.abs (q_num a))).
-
-Definition div a b := mul a (inv b).
+Definition inv a := Q.of_num_den (Q.num_den_inv (Q.to_num_den a)).
+Definition div a b := Q.mul a (Q.inv b).
 
 Definition compare a b :=
   q_num a * q_Den b ?= q_num b * q_Den a.
@@ -108,9 +119,9 @@ Definition of_number (n : Number.int) : option Q :=
   | Number.IntDecimal n =>
       match n with
       | Decimal.Pos n =>
-          Some (Q.of_num_den (Z.of_nat (Nat.of_uint n)) 1)
+          Some (Q.of_num_den (Z.of_nat (Nat.of_uint n), 1%pos))
       | Decimal.Neg n =>
-          Some (Q.of_num_den (- Z.of_nat (Nat.of_uint n)) 1)
+          Some (Q.of_num_den (- Z.of_nat (Nat.of_uint n), 1%pos))
       end
   | Number.IntHexadecimal n => None
   end.
@@ -184,6 +195,56 @@ f_equal.
 apply (Eqdep_dec.UIP_dec Z.eq_dec).
 Qed.
 
+Theorem of_num_den_add_idemp_l :
+  ∀ a b,
+  of_num_den (num_den_add (to_num_den (of_num_den a)) b) =
+  of_num_den (num_den_add a b).
+Proof.
+intros.
+apply Q.eq_num_den.
+destruct a as (an, ad).
+destruct b as (bn, bd).
+cbn.
+destruct an as [| sa va]. {
+  cbn.
+  rewrite Z.pos_nat, Z.div_same; [ | easy ].
+  rewrite Z.mul_1_r, Pos.mul_1_l.
+  rewrite Pos2Z.inj_mul.
+  rewrite Z.mul_comm.
+  rewrite Z.gcd_mul_mono_l_nonneg; [ | easy ].
+  rewrite Z.div_mul_cancel_l; [ | easy | ]. 2: {
+    now intros H; apply Z.gcd_eq_0_r in H.
+  }
+  rewrite Z.div_mul_cancel_l; [ | easy | ]. 2: {
+    now intros H; apply Z.gcd_eq_0_r in H.
+  }
+  easy.
+}
+destruct sa. {
+  split. {
+    do 2 rewrite Pos2Z.inj_mul.
+    rewrite Z2Pos.id; [ | ].
+    rewrite Z.div_mul_swap; [ | apply Z.gcd_divide_l ].
+    rewrite Z.div_mul_swap; [ | apply Z.gcd_divide_r ].
+    rewrite <- (Z.divide_div_mul_exact _ _ bn); cycle 1. {
+      now intros H; apply Z.gcd_eq_0_r in H.
+    } {
+      apply Z.gcd_divide_r.
+    }
+    remember (Z.gcd _ _) as g.
+Search (_ / _ + _ / _)%Z.
+...
+    rewrite Z.divide_div_mul_exact; [ | | ].
+    rewrite Z.divide_div_mul_exact; [ | | apply Z.gcd_divide_r ].
+Search (_ * (_ / _)).
+...
+
+Theorem of_num_den_add_idemp_r :
+  ∀ a b,
+  of_num_den (num_den_add (to_num_den a) (to_num_den (of_num_den b))) =
+  of_num_den (num_den_add (to_num_den a) b).
+...
+
 Theorem add_comm : ∀ a b, (a + b)%Q = (b + a)%Q.
 Proof.
 intros.
@@ -198,7 +259,37 @@ Theorem add_assoc : ∀ a b c, (a + (b + c))%Q = ((a + b) + c)%Q.
 Proof.
 intros.
 apply Q.eq_num_den.
-progress unfold Q.add; cbn.
+progress unfold Q.add.
+...
+rewrite Q.of_num_den_add_idemp_l.
+rewrite Q.of_num_den_add_idemp_r.
+...
+...
+Theorem of_num_den_id : ∀ a, Q.to_num_den (Q.of_num_den a) = a.
+Proof.
+intros (a, b).
+progress unfold Q.to_num_den.
+progress unfold Q.of_num_den.
+cbn.
+...
+do 2 rewrite Q.of_num_den_id.
+Theorem of_num_den_add_idemp_l :
+  ∀ a b,
+  Q.of_num_den (num_den_add (to_num_den a) (to_num_den b)) =
+  Q.of_num_den (num_den_add (to_num_den a) (to_num_den b)).
+
+
+
+        (to_num_den (of_num_den (num_den_add (to_num_den b) (to_num_den c)))))) =
+...
+  of_num_den (Q.num_den_add (Q.of_num_den (num_den_add a b)) c) =
+  of_num_den (num_den_add (num_den_add a b) c).
+...
+  ∀ a b,
+  Q.of_num_den (Q.num_den_add (Q.of_num_den a) b) =
+  Q.of_num_den (Q.num_den_add a b).
+
+...
 split. {
 ...
 progress unfold Q.add; cbn.
