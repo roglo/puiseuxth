@@ -53,116 +53,46 @@ Module Q.
 
 Open Scope Z_scope.
 
-Theorem add_or_mul_prop :
+Theorem of_num_den_prop :
   ∀ a b,
-  (0 < b)%Z
-  → Z.gcd (a / Z.gcd a b) (Z.of_pos (Z.to_pos (b / Z.gcd a b))) = 1.
+  Z.gcd
+    (a / Z.gcd a (Z.of_pos b))
+    (Z.of_pos (Z.to_pos (Z.of_pos b / Z.gcd a (Z.of_pos b)))) = 1.
 Proof.
-intros * Hzb.
+intros.
 rewrite Z2Pos.id. {
   apply Z.gcd_div_gcd; [ | easy ].
   intros H.
-  apply Z.gcd_eq_0 in H.
-  destruct H; subst b.
-  now apply Z.lt_irrefl in Hzb.
+  now apply Z.gcd_eq_0 in H.
 }
 apply Z.div_le_lower_bound. {
   apply Z.lt_iff.
   split; [ apply Z.gcd_nonneg | ].
   intros H; symmetry in H.
-  apply Z.gcd_eq_0_r in H; subst b.
-  now apply Z.lt_irrefl in Hzb.
+  now apply Z.gcd_eq_0_r in H.
 }
 rewrite Z.mul_1_r.
 apply Z.divide_pos_le; [ easy | ].
 apply Z.gcd_divide_r.
 Qed.
 
-Theorem add_prop : ∀ a b,
-  let n := q_num a * q_Den b + q_num b * q_Den a in
-  let d := q_Den a * q_Den b in
-  Z.gcd (n / Z.gcd n d) (Z.of_pos (Z.to_pos (d / Z.gcd n d))) = 1.
-Proof.
-intros.
-subst d.
-apply add_or_mul_prop.
-now apply Z.mul_pos_pos.
-Qed.
-
-Theorem opp_prop : ∀ a, Z.gcd (- q_num a) (Z.of_pos (q_den a)) = 1.
-Proof.
-intros.
-specialize (q_prop a) as Hp.
-progress unfold Z.gcd in Hp |-*.
-cbn in Hp |-*.
-now destruct (q_num a).
-Qed.
-
-Theorem mul_prop :
-  ∀ a b,
-  let n := q_num a * q_num b in
-  let d := q_Den a * q_Den b in
-  Z.gcd (n / Z.gcd n d) (Z.of_pos (Z.to_pos (d / Z.gcd n d))) = 1.
-Proof.
-intros.
-subst d.
-apply add_or_mul_prop.
-now apply Z.mul_pos_pos.
-Qed.
-
-Theorem inv_prop :
-  ∀ a,
-  Z.gcd (Z.sgn (q_num a) * q_Den a) (Z.of_pos (Z.to_pos (Z.abs (q_num a))))
-  = 1.
-Proof.
-intros.
-specialize (q_prop a) as Hp.
-progress unfold Z.gcd in Hp |-*.
-cbn in Hp |-*.
-destruct (q_num a) as [| sa va]; [ easy | cbn ].
-destruct sa; cbn. {
-  rewrite Pos.mul_1_l.
-  now rewrite Z.pos_nat, Pos.gcd_comm.
-} {
-  rewrite Pos.mul_1_l.
-  now rewrite Z.pos_nat, Pos.gcd_comm.
-}
-Qed.
-
-Theorem pos_uint_prop :
-  ∀ a, Z.gcd (Z.of_nat (Nat.of_uint a)) (Z.of_pos 1) = 1.
-Proof.
-intros.
-progress unfold Z.of_pos.
-progress unfold z_pos.
-apply Z.gcd_1_r.
-Qed.
-
-Theorem neg_uint_prop :
-  ∀ a, Z.gcd (- Z.of_nat (Nat.of_uint a)) (Z.of_pos 1) = 1.
-Proof.
-intros.
-progress unfold Z.of_pos.
-progress unfold z_pos.
-apply Z.gcd_1_r.
-Qed.
+Definition of_num_den (a : Z) (b : pos) :=
+  mk_q
+    (a / Z.gcd a (Z.of_pos b))
+    (Z.to_pos (Z.of_pos b / Z.gcd a (Z.of_pos b)))
+    (Q.of_num_den_prop a b).
 
 Definition add a b :=
-  let n := q_num a * q_Den b + q_num b * q_Den a in
-  let d := q_Den a * q_Den b in
-  mk_q (n / Z.gcd n d) (Z.to_pos (d / Z.gcd n d)) (add_prop a b).
+  Q.of_num_den (q_num a * q_Den b + q_num b * q_Den a) (q_den a * q_den b).
 
-Definition opp a := mk_q (- q_num a) (q_den a) (opp_prop a).
+Definition opp a := Q.of_num_den (- q_num a) (q_den a).
 Definition sub a b := add a (opp b).
 
 Definition mul a b :=
-  let n := q_num a * q_num b in
-  let d := q_Den a * q_Den b in
-  mk_q (n / Z.gcd n d) (Z.to_pos (d / Z.gcd n d)) (mul_prop a b).
+  Q.of_num_den (q_num a * q_num b) (q_den a * q_den b).
 
 Definition inv a :=
-  mk_q (Z.sgn (q_num a) * q_Den a) (Z.to_pos (Z.abs (q_num a)))
-    (inv_prop a).
+  Q.of_num_den (Z.sgn (q_num a) * q_Den a) (Z.to_pos (Z.abs (q_num a))).
 
 Definition div a b := mul a (inv b).
 
@@ -178,9 +108,9 @@ Definition of_number (n : Number.int) : option Q :=
   | Number.IntDecimal n =>
       match n with
       | Decimal.Pos n =>
-          Some (mk_q (Z.of_nat (Nat.of_uint n)) 1 (pos_uint_prop n))
+          Some (Q.of_num_den (Z.of_nat (Nat.of_uint n)) 1)
       | Decimal.Neg n =>
-          Some (mk_q (- Z.of_nat (Nat.of_uint n)) 1 (neg_uint_prop n))
+          Some (Q.of_num_den (- Z.of_nat (Nat.of_uint n)) 1)
       end
   | Number.IntHexadecimal n => None
   end.
@@ -268,6 +198,9 @@ Theorem add_assoc : ∀ a b c, (a + (b + c))%Q = ((a + b) + c)%Q.
 Proof.
 intros.
 apply Q.eq_num_den.
+progress unfold Q.add; cbn.
+split. {
+...
 progress unfold Q.add; cbn.
 do 2 rewrite q_Den_num_den.
 rewrite Z2Pos.id; [ | ].
