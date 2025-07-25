@@ -312,47 +312,7 @@ destruct sa. {
   rewrite Z.mul_opp_l.
   rewrite Nat2Z.inj_div.
   do 2 rewrite Z.pos_nat.
-Theorem Z_div_opp_r_nz: ∀ a b : Z, b ≠ 0 → a mod b ≠ 0 → a / - b = - (a / b) - 1.
-Proof.
-intros * Hbz Hab.
-destruct b as [| sb vb]; [ easy | clear Hbz; cbn ].
-destruct a as [| sa va]; [ easy | cbn ].
-destruct sa. {
-  destruct sb; cbn. {
-    rewrite Nat2Z.inj_mod.
-    do 2 rewrite Z.pos_nat.
-    remember (z_val true va mod z_val true vb) as c eqn:Hc.
-    symmetry in Hc.
-    destruct c as [| sc vc]; [ easy | clear Hab ].
-    apply Z.opp_add_distr.
-  }
-  rewrite Nat2Z.inj_div, Nat2Z.inj_mod.
-  do 2 rewrite Z.pos_nat.
-  remember (z_val true va mod z_val true vb) as c eqn:Hc.
-  symmetry in Hc.
-  destruct c as [| sc vc]. {
-    apply Z.mod_divide in Hc; [ | easy ].
-    destruct Hc as (c, Hc).
-    do 2 apply (f_equal Z.opp) in Hc.
-    rewrite <- Z.mul_opp_l, <- Z.mul_opp_r in Hc.
-    cbn in Hc.
-    rewrite Hc in Hab.
-    now rewrite Z.mod_mul in Hab.
-  }
-  rewrite Z.opp_involutive; symmetry.
-  apply Z.add_sub.
-}
-destruct sb. {
-  cbn.
-...
-    rewrite Hc in Hab.
-    exfalso; apply Hab; clear Hab.
-    rewrite Z.mul_comm; cbn.
-    destruct c as [| sc vc]; [ easy | ].
-    destruct sc; [ | easy ].
-
-...
-  rewrite Z_div_opp_r_nz; [ | easy | ]. 2: {
+  rewrite Z.div_opp_r_nz; [ | easy | ]. 2: {
     intros H.
     apply Z.mod_divide in H; [ | easy ].
     destruct H as (c, Hc).

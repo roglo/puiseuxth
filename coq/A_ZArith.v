@@ -3810,6 +3810,62 @@ rewrite Z.mul_div; [ | easy ].
 easy.
 Qed.
 
+Theorem div_opp_r_nz :
+  ∀ a b, (b ≠ 0 → a mod b ≠ 0 → a / - b = - (a / b) - 1)%Z.
+Proof.
+intros * Hbz Hab.
+destruct b as [| sb vb]; [ easy | clear Hbz; cbn ].
+destruct a as [| sa va]; [ easy | cbn ].
+destruct sa. {
+  destruct sb; cbn. {
+    rewrite Z.of_nat_inj_mod.
+    do 2 rewrite Z.pos_nat.
+    remember (z_val true va mod z_val true vb)%Z as c eqn:Hc.
+    symmetry in Hc.
+    destruct c as [| sc vc]; [ easy | clear Hab ].
+    apply Z.opp_add_distr.
+  }
+  rewrite Z.of_nat_inj_div, Z.of_nat_inj_mod.
+  do 2 rewrite Z.pos_nat.
+  remember (z_val true va mod z_val true vb)%Z as c eqn:Hc.
+  symmetry in Hc.
+  destruct c as [| sc vc]. {
+    apply Z.mod_divide in Hc; [ | easy ].
+    destruct Hc as (c, Hc).
+    do 2 apply (f_equal Z.opp) in Hc.
+    rewrite <- Z.mul_opp_l, <- Z.mul_opp_r in Hc.
+    cbn in Hc.
+    rewrite Hc in Hab.
+    now rewrite Z.mod_mul in Hab.
+  }
+  rewrite Z.opp_involutive; symmetry.
+  apply Z.add_sub.
+}
+destruct sb. {
+  cbn.
+  rewrite Z.of_nat_inj_mod.
+  do 2 rewrite Z.pos_nat.
+  remember (_ mod _)%Z as c eqn:Hc in |-*.
+  symmetry in Hc.
+  destruct c as [| sc vc]. {
+    exfalso.
+    apply Z.mod_divide in Hc; [ | easy ].
+    destruct Hc as (c, Hc).
+    apply (f_equal Z.opp) in Hc.
+    cbn in Hc.
+    rewrite Hc, <- Z.mul_opp_l in Hab.
+    now rewrite Z.mod_mul in Hab.
+  }
+  rewrite Z.opp_involutive; symmetry.
+  apply Z.add_sub.
+}
+cbn in Hab |-*.
+remember (Z.of_nat _) as c eqn:Hc.
+symmetry in Hc.
+destruct c as [| sc vc]; [ easy | clear Hab ].
+apply Z.opp_add_distr.
+Qed.
+
 End Z.
 
 Number Notation Z Z.of_number Z.to_number : Z_scope.
