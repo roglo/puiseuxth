@@ -323,6 +323,24 @@ destruct sa. {
   }
   rewrite <- Z.opp_add_distr.
 ...
+  remember (z_val true va) as a.
+  remember (z_val true vb) as b.
+  remember (z_val true vc) as c.
+  ring_simplify.
+...
+  do 2 rewrite Z.opp_add_distr.
+
+  remember (- _) as a.
+  remember (- _) as b in |-*.
+Search (_ * _ = _ * _).
+  apply (Z.mul_cancel_l (z_val true vc)); [ easy | ].
+Search (
+...
+  progress unfold Z.div; cbn.
+  rewrite Nat.sub_add; [ | easy ].
+  progress unfold Pos.div.
+cbn.
+...
   specialize (Z.div_mod (z_val true va) (z_val true vb)) as H1.
   assert (H : z_val true vb ≠ 0) by easy.
   specialize (H1 H); clear H.
