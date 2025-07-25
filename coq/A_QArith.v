@@ -203,39 +203,7 @@ Notation "a '⁻¹'" := (Q.inv a) (at level 1, format "a ⁻¹") : Q_scope.
 Notation "a ≤ b" := (Q.le a b) : Q_scope.
 Notation "a < b" := (Q.lt a b) : Q_scope.
 Notation "a ?= b" := (Q.compare a b) : Q_scope.
-Notation "a # b" := (mk_q a b) (at level 55) : Q_scope.
-
-Theorem q_Den_mul : ∀ a b, q_Den (a * b) = (q_Den a * q_Den b)%Z.
-Proof.
-intros.
-progress unfold q_Den; cbn.
-specialize (Q.mul_prop a b) as H1; cbn in H1.
-rewrite Z2Pos.id. 2: {
-  apply Z.div_le_lower_bound. {
-    apply Z.lt_iff.
-    split; [ apply Z.gcd_nonneg | ].
-    intros H; symmetry in H.
-    now apply Z.gcd_eq_0 in H.
-  }
-  rewrite Z.mul_1_r.
-  apply Z.divide_pos_le; [ easy | ].
-  apply Z.gcd_divide_r.
-}
-rewrite Z2Pos.id in H1. 2: {
-  apply Z.div_le_lower_bound. {
-    apply Z.lt_iff.
-    split; [ apply Z.gcd_nonneg | ].
-    intros H; symmetry in H.
-    now apply Z.gcd_eq_0 in H.
-  }
-  rewrite Z.mul_1_r.
-  apply Z.divide_pos_le; [ easy | ].
-  apply Z.gcd_divide_r.
-}
-remember (Z.gcd (_ * _) _) as g eqn:Hg.
-Check Z.gcd_div_gcd.
-...
-Proof. easy. Qed.
+Notation "a # b" := (mk_q a b _) (at level 55) : Q_scope.
 
 Theorem eq_refl : ∀ a, (a == a)%Q.
 Proof.
@@ -274,10 +242,23 @@ Add Parametric Relation : Q Q.eq
   transitivity proved by Q.eq_trans
   as eq_rel.
 
+Theorem eq_num_den : ∀ a b, a = b ↔ q_num a = q_num b ∧ q_den a = q_den b.
+Proof.
+intros.
+split; intros Hq; [ now subst | ].
+destruct a as (an, ad, Hap).
+destruct b as (bn, bd, Hbp).
+cbn in Hq.
+destruct Hq; subst.
+f_equal.
+apply (Eqdep_dec.UIP_dec Z.eq_dec).
+Qed.
+
 Theorem add_comm : ∀ a b, (a + b)%Q = (b + a)%Q.
 Proof.
 intros.
-progress unfold add.
+apply Q.eq_num_den.
+progress unfold Q.add; cbn.
 rewrite Z.add_comm.
 rewrite Pos.mul_comm.
 easy.
@@ -286,8 +267,43 @@ Qed.
 Theorem add_assoc : ∀ a b c, (a + (b + c))%Q = ((a + b) + c)%Q.
 Proof.
 intros.
-progress unfold Q.add.
+apply Q.eq_num_den.
+progress unfold Q.add; cbn.
+do 2 rewrite q_Den_num_den.
+rewrite Z2Pos.id; [ | ].
+destruct a as (an, ad, Hap).
+destruct b as (bn, bd, Hbp).
+destruct c as (cn, cd, Hcp).
+move bn before an; move cn before bn.
+move bd before ad; move cd before bd.
 cbn.
+do 3 rewrite q_Den_num_den.
+do 8 rewrite <- Z.pos_nat.
+do 4 rewrite Pos2Nat.inj_mul.
+do 4 rewrite Nat2Z.inj_mul.
+do 5 rewrite Z.pos_nat.
+remember (Z.gcd _ _) as g1 eqn:Hg1 in |-*.
+remember (Z.gcd _ _) as g2 eqn:Hg2 in |-*.
+remember (Z.gcd _ _) as g3 eqn:Hg3 in |-*.
+remember (Z.gcd _ _) as g4 eqn:Hg4 in |-*.
+move g2 before g1; move g3 before g2; move g4 before g3.
+move Hg3 before Hg1.
+split. {
+...
+rewrite Pos.mul_assoc.
+progress f_equal.
+do 2 rewrite Pos2Z.inj_mul.
+do 3 rewrite fold_q_Den.
+do 2 rewrite Z.mul_add_distr_r.
+do 2 rewrite Z.mul_assoc.
+rewrite <- Z.add_assoc.
+progress f_equal.
+do 2 rewrite (Z.mul_mul_swap _ _ (q_Den a)).
+easy.
+...
+intros.
+apply Q.eq_num_den.
+progress unfold Q.add; cbn.
 do 2 rewrite q_Den_num_den.
 rewrite Pos.mul_assoc.
 progress f_equal.
