@@ -244,42 +244,22 @@ destruct bn as [| sb vb]. {
   do 2 rewrite Z.add_0_r.
   rewrite Z.gcd_mul_mono_r_nonneg; [ | easy ].
   rewrite Z.gcd_mul_mono_r_nonneg; [ | easy ].
-  split. {
-    destruct sa. {
-      rewrite Z.gcd_div_gcd; [ | easy | easy ].
-      rewrite Z.mul_1_l.
-      rewrite Z.mul_div; [ | easy ].
-      now rewrite Z.div_mul_cancel_r.
-    }
-...
-(*
-replace (z_val true va) with (z_pos va) by easy.
-*)
-rewrite <- Pos2Z_inj_gcd.
-Search (Z.gcd (_ / _)).
-...
-      cbn - [ Z.mul Z.gcd ].
-      rewrite Nat.sub_add. 2: {
-        apply Nat.neq_0_lt_0.
-        intros H.
-        apply Nat.gcd_eq_0_l in H.
-        now apply Pos2Nat.neq_0 in H.
-      }
-...
+  rewrite Z.gcd_div_gcd; [ | easy | easy ].
+  rewrite Z.mul_1_l.
+  rewrite Z.mul_div; [ | easy ].
+  rewrite Z.mul_div; [ | easy ].
+  rewrite Z.div_mul_cancel_r; [ | easy | easy ].
+  rewrite Z.div_mul_cancel_r; [ | easy | easy ].
+  easy.
+}
 destruct sa. {
   split. {
-    do 2 rewrite Pos2Z.inj_mul.
-    rewrite Z2Pos.id; [ | ].
     rewrite Z.div_mul_swap; [ | apply Z.gcd_divide_l ].
     rewrite Z.div_mul_swap; [ | apply Z.gcd_divide_r ].
-    rewrite <- (Z.divide_div_mul_exact _ _ bn); cycle 1. {
-      now intros H; apply Z.gcd_eq_0_r in H.
-    } {
+    rewrite <- (Z.divide_div_mul_exact _ _ _); [ | easy | ]. 2: {
       apply Z.gcd_divide_r.
     }
     remember (Z.gcd _ _) as g.
-Search (_ / _ + _ / _)%Z.
-Print Z.gcd.
 ...
 Pos2Z.inj_gcd
      : ∀ p q : positive, Z.pos (Pos.gcd p q) = Z.gcd (Z.pos p) (Z.pos q)
