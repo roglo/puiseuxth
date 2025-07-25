@@ -259,7 +259,23 @@ destruct sa. {
     rewrite <- (Z.divide_div_mul_exact _ _ _); [ | easy | ]. 2: {
       apply Z.gcd_divide_r.
     }
+Search (_ * _ + _ * _)%Z.
+Theorem Z_div_add_distr_r :
+  ∀ a b c, (c | a) → (c | b) → (a + b) / c = a / c + b / c.
+Admitted.
+    rewrite <- Z_div_add_distr_r; cycle 1. {
+      apply Z.divide_mul_l, Z.gcd_divide_l.
+    } {
+      apply Z.divide_mul_r, Z.gcd_divide_r.
+    }
     remember (Z.gcd _ _) as g.
+    remember (Z.gcd _ _) as g1 in |-*.
+    remember (Z.gcd _ _) as g2 in |-*.
+    rewrite Z.gcd_div_gcd in Heqg1; [ | easy | ].
+...
+    remember (_ + _) as x.
+Search (Z.gcd (_ / _)).
+Search (_ / _ + _ / _)%Q.
 ...
 Pos2Z.inj_gcd
      : ∀ p q : positive, Z.pos (Pos.gcd p q) = Z.gcd (Z.pos p) (Z.pos q)
