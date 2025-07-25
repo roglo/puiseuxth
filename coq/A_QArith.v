@@ -220,6 +220,52 @@ destruct an as [| sa va]. {
   }
   easy.
 }
+assert (Hg : Z.gcd (z_pos va) (z_pos ad) ≠ 0). {
+  now intros H; apply Z.gcd_eq_0 in H.
+}
+do 2 rewrite Pos2Z.inj_mul.
+rewrite Z2Pos.id. 2: {
+  (* lemma *)
+  apply Z.divide_pos_le. 2: {
+    remember (_ / _) as x.
+    exists x; symmetry.
+    apply Z.mul_1_r.
+  }
+  apply Z.div_pos.
+  split. {
+    apply Z.lt_iff.
+    split; [ apply Z.gcd_nonneg | easy ].
+  }
+  apply Z.divide_pos_le; [ easy | ].
+  apply Z.gcd_divide_r.
+}
+destruct bn as [| sb vb]. {
+  do 2 rewrite Z.mul_0_l.
+  do 2 rewrite Z.add_0_r.
+  rewrite Z.gcd_mul_mono_r_nonneg; [ | easy ].
+  rewrite Z.gcd_mul_mono_r_nonneg; [ | easy ].
+  split. {
+    destruct sa. {
+      rewrite Z.gcd_div_gcd; [ | easy | easy ].
+      rewrite Z.mul_1_l.
+      rewrite Z.mul_div; [ | easy ].
+      now rewrite Z.div_mul_cancel_r.
+    }
+...
+(*
+replace (z_val true va) with (z_pos va) by easy.
+*)
+rewrite <- Pos2Z_inj_gcd.
+Search (Z.gcd (_ / _)).
+...
+      cbn - [ Z.mul Z.gcd ].
+      rewrite Nat.sub_add. 2: {
+        apply Nat.neq_0_lt_0.
+        intros H.
+        apply Nat.gcd_eq_0_l in H.
+        now apply Pos2Nat.neq_0 in H.
+      }
+...
 destruct sa. {
   split. {
     do 2 rewrite Pos2Z.inj_mul.
@@ -233,6 +279,10 @@ destruct sa. {
     }
     remember (Z.gcd _ _) as g.
 Search (_ / _ + _ / _)%Z.
+Print Z.gcd.
+...
+Pos2Z.inj_gcd
+     : ∀ p q : positive, Z.pos (Pos.gcd p q) = Z.gcd (Z.pos p) (Z.pos q)
 ...
     rewrite Z.divide_div_mul_exact; [ | | ].
     rewrite Z.divide_div_mul_exact; [ | | apply Z.gcd_divide_r ].
