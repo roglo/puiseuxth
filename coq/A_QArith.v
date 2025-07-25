@@ -324,7 +324,30 @@ Admitted.
     now rewrite Z.mod_mul in Hd.
   }
   rewrite <- Z.opp_add_distr.
+...
+  specialize (Z.div_mod (z_val true va) (z_val true vb)) as H1.
+  assert (H : z_val true vb ≠ 0) by easy.
+  specialize (H1 H); clear H.
+  rewrite Hd in H1.
+  rewrite H1.
+  rewrite Z.div_add_distr_r.
+...
+Theorem Z_div_opp_l_nz: ∀ a b : Z, b ≠ 0 → a mod b ≠ 0 → - a / b = - (a / b) - 1.
+Admitted.
+  rewrite Z_div_opp_l_nz; [ | easy | ]. 2: {
+    intros H.
+    apply Z.mod_divide in H; [ | easy ].
+    destruct H as (c, Hc).
+(* c'est pas gagné *)
+...
+  rewrite Z.opp_add_distr.
+  f_equal.
+  f_equal.
+...
+Require Import ZArith.
+Search (- (_ / _)).
 Search (- _ / _).
+Search (_ / (_ * _)).
 ...
 Search (_ / - _).
 Zdiv_opp_opp: ∀ a b : Z, - a / - b = a / b
