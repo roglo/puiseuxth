@@ -259,11 +259,7 @@ destruct sa. {
     rewrite <- (Z.divide_div_mul_exact _ _ _); [ | easy | ]. 2: {
       apply Z.gcd_divide_r.
     }
-Search (_ * _ + _ * _)%Z.
-Theorem Z_div_add_distr_r :
-  ∀ a b c, (c | a) → (c | b) → (a + b) / c = a / c + b / c.
-Admitted.
-    rewrite <- Z_div_add_distr_r; cycle 1. {
+    rewrite <- Z.div_add_distr_r; cycle 1. {
       apply Z.divide_mul_l, Z.gcd_divide_l.
     } {
       apply Z.divide_mul_r, Z.gcd_divide_r.
@@ -271,6 +267,80 @@ Admitted.
     remember (Z.gcd _ _) as g.
     remember (Z.gcd _ _) as g1 in |-*.
     remember (Z.gcd _ _) as g2 in |-*.
+Theorem Z_div_div : ∀ a b c : Z, b ≠ 0 → 0 < c → a / b / c = a / (b * c).
+Proof.
+intros * Hbz Hzc.
+destruct a as [| sa va]; [ easy | ].
+destruct b as [| sb vb]; [ easy | clear Hbz ].
+destruct c as [| sc vc]; [ easy | ].
+destruct sc; [ clear Hzc | easy ].
+cbn - [ Z.mul ].
+destruct sa. {
+  cbn - [ Z.mul ].
+  destruct sb. {
+    rewrite <- (Z.pos_nat va).
+    rewrite <- (Z.pos_nat vb).
+    rewrite <- (Z.pos_nat vc).
+    rewrite <- Nat2Z.inj_mul.
+    do 2 rewrite <- Nat2Z.inj_div.
+    progress f_equal.
+    apply Nat.Div0.div_div.
+  }
+(*
+  replace (z_val false _) with (- z_val true vb) by easy.
+  rewrite Z.mul_opp_l.
+*)
+  rewrite Nat2Z.inj_mod.
+  do 2 rewrite Z.pos_nat.
+  remember (_ mod _) as d eqn:Hd.
+  symmetry in Hd.
+  destruct d as [| sd vd]. {
+    apply Z.mod_divide in Hd; [ | easy ].
+    destruct Hd as (d, Hd).
+    rewrite Nat2Z.inj_div.
+    do 2 rewrite Z.pos_nat.
+    rewrite Hd.
+    rewrite Z.mul_div; [ | easy ].
+    replace (z_val false _) with (- z_val true vb) by easy.
+    rewrite Z.mul_opp_l, <- Z.mul_opp_r.
+    rewrite (Z.mul_comm d).
+    rewrite Z.div_mul_cancel_l; [ | easy | easy ].
+    destruct d as [| sd vd]; [ easy | ].
+    now destruct sd.
+  }
+  replace (z_val false _) with (- z_val true vb) by easy.
+  rewrite Z.mul_opp_l.
+  rewrite Nat2Z.inj_div.
+  do 2 rewrite Z.pos_nat.
+Theorem Z_div_opp_r_nz: ∀ a b : Z, b ≠ 0 → a mod b ≠ 0 → a / - b = - (a / b) - 1.
+Admitted.
+  rewrite Z_div_opp_r_nz; [ | easy | ]. 2: {
+    intros H.
+    apply Z.mod_divide in H; [ | easy ].
+    destruct H as (c, Hc).
+    rewrite Hc in Hd.
+    rewrite (Z.mul_comm (z_val true vb)) in Hd.
+    rewrite Z.mul_assoc in Hd.
+    now rewrite Z.mod_mul in Hd.
+  }
+  rewrite <- Z.opp_add_distr.
+Search (- _ / _).
+...
+Search (_ / - _).
+Zdiv_opp_opp: ∀ a b : Z, - a / - b = a / b
+Z.div_opp_opp: ∀ a b : Z, b ≠ 0 → - a / - b = a / b
+Z_div_zero_opp_r: ∀ a b : Z, a mod b = 0 → a / - b = - (a / b)
+Z.div_opp_r_z: ∀ a b : Z, b ≠ 0 → a mod b = 0 → a / - b = - (a / b)
+Z.div_opp_r_nz: ∀ a b : Z, b ≠ 0 → a mod b ≠ 0 → a / - b = - (a / b) - 1
+Z_div_nz_opp_r: ∀ a b : Z, b ≠ 0 → a mod b ≠ 0 → a / - b = - (a / b) - 1
+
+  cbn - [ Z.mul ].
+... ...
+    rewrite Z_div_div.
+...
+Search (_ / _ / _)%Z.
+Z.div_div: ∀ a b c : Z, b ≠ 0 → 0 < c → a / b / c = a / (b * c)
+...
     rewrite Z.gcd_div_gcd in Heqg1; [ | easy | ].
 ...
     remember (_ + _) as x.

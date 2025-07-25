@@ -3796,6 +3796,20 @@ rewrite Z.mul_comm, Z.mul_div in Hca; [ easy | ].
 now intros H; subst c; apply Z.lt_irrefl in Hzc.
 Qed.
 
+Theorem div_add_distr_r :
+  ∀ a b c, ((c | a) → (c | b) → (a + b) / c = a / c + b / c)%Z.
+Proof.
+intros * (a', Ha) (b', Hb); subst.
+destruct (Z.eq_dec c 0) as [Hcz| Hcz]. {
+  now subst c; do 2 rewrite Z.mul_0_r.
+}
+rewrite <- Z.mul_add_distr_r.
+rewrite Z.mul_div; [ | easy ].
+rewrite Z.mul_div; [ | easy ].
+rewrite Z.mul_div; [ | easy ].
+easy.
+Qed.
+
 End Z.
 
 Number Notation Z Z.of_number Z.to_number : Z_scope.
