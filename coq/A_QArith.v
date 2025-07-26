@@ -286,10 +286,6 @@ destruct sa. {
     progress f_equal.
     apply Nat.Div0.div_div.
   }
-(*
-  replace (z_val false _) with (- z_val true vb) by easy.
-  rewrite Z.mul_opp_l.
-*)
   rewrite Nat2Z.inj_mod.
   do 2 rewrite Z.pos_nat.
   remember (_ mod _) as d eqn:Hd.
@@ -321,14 +317,63 @@ destruct sa. {
     rewrite Z.mul_assoc in Hd.
     now rewrite Z.mod_mul in Hd.
   }
-  rewrite <- Z.opp_add_distr.
+(*
+remember (z_val true va) as a.
+remember (z_val true vb) as b.
+remember (z_val true vc) as c.
+*)
+  rewrite Z.opp_add_distr.
+  apply Z.add_move_r.
+  apply Z.opp_inj.
+  rewrite Z.opp_involutive; symmetry.
+  rewrite Z.opp_add_distr.
+  progress unfold Z.div.
+  progress unfold Z.mul.
+  cbn.
+  rewrite Nat.sub_add; [ | easy ].
+..
+Theorem Z_div_opp_l_nz: ∀ a b : Z, b ≠ 0 → a mod b ≠ 0 → - a / b = - (a / b) - 1.
+Admitted.
+Theorem Z_div_opp_l_z: ∀ a b : Z, b ≠ 0 → a mod b = 0 → - a / b = - (a / b).
+Admitted.
+destruct (Z.eq_dec ((- (a / b) - 1) mod c) 0) as [Haz| Haz]. {
+  apply Z.mod_divide in Haz; [ | now subst ].
+  destruct Haz as (d, Hd').
+  rewrite Hd'.
+  rewrite Z.mul_div; [ | now subst ].
+...
+  rewrite <- Z_div_opp_l_z; [ | now subst | easy ].
+  rewrite Z.opp_sub_distr.
+  rewrite Z.sub_opp_r.
+  rewrite <- Z.opp_add_distr in Haz.
+Require Import ZArith.
+Search ((- _) mod _).
+
+...
+rewrite <- Z_div_opp_l_z; [ | now subst | ].
+
+Require Import ZArith.
+Search (- (_ / _)).
+...
+rewrite <- Z_div_nz_opp_full; [ | now subst | ].
+Z_div_nz_opp_full: ∀ a b : Z, b ≠ 0 → a mod b ≠ 0 → - a / b = - (a / b) - 1
+Compute (
+  let a := -23 in
+  let b := 3 in
+  let c := -2 in
+  - (a / b + 1) / c = - (a / (b * c) + 1)).
+Compute (
+  let a := 17 in
+  let b := -3 in
+  let c := 2 in
+  a / b / c = a / (b * c)).
+...
 ...
   remember (z_val true va) as a.
   remember (z_val true vb) as b.
   remember (z_val true vc) as c.
   ring_simplify.
 ...
-  do 2 rewrite Z.opp_add_distr.
 
   remember (- _) as a.
   remember (- _) as b in |-*.
