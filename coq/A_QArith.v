@@ -317,11 +317,55 @@ destruct sa. {
     rewrite Z.mul_assoc in Hd.
     now rewrite Z.mod_mul in Hd.
   }
-(*
+progress unfold Z.div.
+progress unfold Z.div_eucl.
+cbn.
+rewrite Nat.sub_add; [ | easy ].
+rewrite Nat2Z.inj_div.
+rewrite Nat2Z.inj_div.
+do 2 rewrite Z.pos_nat.
+remember (- (_ + 1)) as x eqn:Hx.
+symmetry in Hx.
+apply (f_equal Z.opp) in Hx.
+rewrite Z.opp_involutive in Hx.
+cbn - [ Z.div ] in Hx.
+apply -> Z.add_move_r in Hx.
+destruct x as [| sx vx]. {
+  cbn - [ Z.div ] in Hx.
+  assert (H : z_val true va / z_val true vb < 0) by now rewrite Hx.
+  exfalso; apply Z.nle_gt in H.
+  apply H; clear H.
+  now apply Z.div_nonneg.
+}
+destruct sx. {
+  exfalso.
+  cbn - [ Z.div ] in Hx.
+  assert (H : z_val true va / z_val true vb < 0) by now rewrite Hx.
+  exfalso; apply Z.nle_gt in H.
+  apply H; clear H.
+  now apply Z.div_nonneg.
+}
+cbn.
+remember (Z.of_nat _) as y eqn:Hy.
+symmetry in Hy.
+destruct y as [| sy vy]. {
+  cbn - [ Z.div Z.sub ] in Hx.
+  rewrite <- Z.opp_add_distr.
+  progress f_equal.
+  rewrite Nat2Z.inj_div.
+  do 2 rewrite Z.pos_nat.
+  rewrite Nat2Z.inj_mod in Hy.
+  do 2 rewrite Z.pos_nat in Hy.
+  apply Z.mod_divide in Hy; [ | easy ].
+  destruct Hy as (e, He).
+  rewrite He.
+  rewrite Z.mul_div; [ | easy ].
+(* ça part en couille *)
+...
 remember (z_val true va) as a.
 remember (z_val true vb) as b.
 remember (z_val true vc) as c.
-*)
+Print Z.div_eucl.
   rewrite Z.opp_add_distr.
   apply Z.add_move_r.
   apply Z.opp_inj.
