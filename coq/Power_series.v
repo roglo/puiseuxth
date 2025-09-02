@@ -120,7 +120,7 @@ Qed.
 
 Theorem series_add_opp_r : ∀ s, (s - s = 0)%ser.
 Proof.
-specialize (rngl_has_opp_has_opp_or_subt Hop) as Hos.
+specialize (rngl_has_opp_has_opp_or_psub Hop) as Hos.
 intros s.
 constructor; intros i; simpl.
 rewrite (rngl_add_opp_r Hop).
@@ -188,7 +188,7 @@ Qed.
 
 Theorem convol_mul_0_l : ∀ a i, (convol_mul 0%ser a i = 0)%L.
 Proof.
-specialize (rngl_has_opp_has_opp_or_subt Hop) as Hos.
+specialize (rngl_has_opp_has_opp_or_psub Hop) as Hos.
 intros a k.
 unfold convol_mul.
 apply all_0_rngl_summation_0; intros i Hi.
@@ -206,7 +206,7 @@ Qed.
 
 Theorem series_mul_1_l : ∀ s, (1 * s = s)%ser.
 Proof.
-specialize (rngl_has_opp_has_opp_or_subt Hop) as Hos.
+specialize (rngl_has_opp_has_opp_or_psub Hop) as Hos.
 intros s.
 constructor; intros k; simpl.
 unfold convol_mul; simpl.
@@ -225,7 +225,7 @@ Qed.
 Theorem series_mul_assoc : ∀ a b c,
   (a * (b * c) = (a * b) * c)%ser.
 Proof.
-specialize (rngl_has_opp_has_opp_or_subt Hop) as Hos.
+specialize (rngl_has_opp_has_opp_or_psub Hop) as Hos.
 intros a b c.
 constructor; intros k; simpl.
 unfold convol_mul; simpl.
