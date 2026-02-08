@@ -165,7 +165,6 @@ Variable ro : ring_like_op α.
 Variable rp : ring_like_prop α.
 Context {Hop : rngl_has_opp α = true}.
 Context {Hic : rngl_mul_is_comm α = true}.
-Context {Hon : rngl_has_1 α = true}.
 
 Theorem convol_mul_comm : ∀ a b i,
   (convol_mul a b i = convol_mul b a i)%L.
@@ -214,7 +213,7 @@ rewrite rngl_summation_split_first; [ | easy ].
 rewrite Nat.sub_0_r.
 rewrite all_0_rngl_summation_0. {
   rewrite rngl_add_0_r.
-  apply (rngl_mul_1_l Hon).
+  apply rngl_mul_1_l.
 } {
   intros i Hi.
   destruct i; [ easy | cbn ].
