@@ -3,7 +3,7 @@ OVERVIEW
 * Formal proof of Puiseux's theorem
 * Computation of roots of polynomials of Puiseux's series
 
-You need Rocq version 9.0.0
+You need Rocq version 9.0.0, OCaml 4.14.2, Camlp5 7.06-exp.
 
 PROOF
 

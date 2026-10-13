@@ -40,10 +40,10 @@ value rec next_token =
   | -> ("EOI", "") ]
 ;
 value next_token_func (cs, r1, r2) =
-  let bp = Stream.count cs in
+  let bp = Istream.count cs in
   let tok =
     try next_token Plexing.Lexbuf.empty cs with
-    [ Stream.Error s → raise (Lexer_error s) ]
+    [ Istream.Error s → raise (Lexer_error s) ]
   in
   let loc = Ploc.make_unlined (bp, bp + 1) in
   (tok, loc)
