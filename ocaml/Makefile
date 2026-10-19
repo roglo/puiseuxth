@@ -5,16 +5,20 @@ FILES=pnums.cmo poly_lex.cmo poly_parse.cmo poly_print.cmo poly_fun.cmo version.
 UFILES=pnums.cmo poly_print.cmo poly_lex.cmo poly_parse.cmo coq.cmo poly.cmo field.cmo series.cmo puiseux_series.cmo old_puiseux_series.cmo poly_tree.cmo ugly.cmo
 FILESFORDEP=`LC_ALL=C ls *.ml *.mli`
 TEST_DIR=test `basename "$<"` = "$<" || { echo "File \"$<\" needs to be recompiled."; echo "Please run 'make' in directory '$$(dirname "$<")' first."; exit 1; }
-LIB=nums.cma gramlib.cma
+LIB=gramlib.cma
 
 MPFR_DIR=
 CPOLY_OBJS=../cpoly/mpfr.cmo ../cpoly/ml_mpfr.o ../cpoly/cpoly.cmo
-LINKFLAGS= -cclib -L$(MPFR_DIR)/usr/lib -cclib -lmpfr -cclib -lgmp
+LINKFLAGS= -cclib -L$(MPFR_DIR)/usr/lib -cclib -lmpfr -cclib -lgmp -linkpkg
 
 OCOPT=-I ../cpoly
-OCAMLC=ocamlc.opt -g
-OCAMLOPT=ocamlopt.opt -w +32
-OCAMLOPT=ocamlopt.opt
+OCAMLFIND=ocamlfind
+PACKAGES=num,camlp-streams,compiler-libs.common
+OCAMLC=$(OCAMLFIND) ocamlc $(DEBUG) -g -package $(PACKAGES)
+OCAMLOPT=$(OCAMLFIND) ocamlopt $(DEBUG) -w +32 -package $(PACKAGES)
+#OCAMLC=ocamlc.opt -g
+#OCAMLOPT=ocamlopt.opt -w +32
+#OCAMLOPT=ocamlopt.opt
 
 all: opt
 

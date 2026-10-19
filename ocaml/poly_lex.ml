@@ -40,10 +40,10 @@ value rec next_token =
   | -> ("EOI", "") ]
 ;
 value next_token_func (cs, r1, r2) =
-  let bp = Istream.count cs in
+  let bp = Stream.count cs in
   let tok =
     try next_token Plexing.Lexbuf.empty cs with
-    [ Istream.Error s → raise (Lexer_error s) ]
+    [ Stream.Error s → raise (Lexer_error s) ]
   in
   let loc = Ploc.make_unlined (bp, bp + 1) in
   (tok, loc)
@@ -56,4 +56,6 @@ value t =
     Plexing.tok_removing = (fun _ -> ());
     Plexing.tok_match = Plexing.default_match;
     Plexing.tok_text = Plexing.lexer_text;
-    Plexing.tok_comm = None };
+    Plexing.tok_comm = None;
+    Plexing.kwds = Hashtbl.create 23
+  };

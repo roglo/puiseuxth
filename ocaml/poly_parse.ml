@@ -67,7 +67,7 @@ EXTEND
 END;
 
 value parse_poly s =
-  Grammar.Entry.parse polynom_eoi (Istream.of_string s)
+  Grammar.Entry.parse polynom_eoi (Stream.of_string s)
 ;
 
 value parse_poly_in_file vy fname =
