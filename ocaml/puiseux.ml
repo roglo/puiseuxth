@@ -867,7 +867,7 @@ value main () = do {
   }
   with e →
     match e with
-    | Istream.Error s → do {
+    | Stream.Error s → do {
         flush stdout;
         eprintf "Syntax error: %s\n%!" s;
         exit 2
@@ -889,3 +889,4 @@ value main () = do {
 };
 
 if Sys.interactive.val then () else main ();
+

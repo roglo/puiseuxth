@@ -4,9 +4,10 @@
 #load "q_MLast.cmo";
 
 open Pcaml;
+open Mlsyntax.Revised;
 
-value fun_decl_of_label (loc, i, _, _) =
-  <:str_item< value $lid:i$ x = x.$lid:i$ >>
+value fun_decl_of_label (loc, i, _, _, _) =
+  <:str_item< value $lid:i$ x = x . $lid:i$ >>
 ;
 
 value rec generalized_type_of_type =
@@ -52,13 +53,15 @@ value lazy_if_type n t =
   | _ → t ]
 ;
 
-value add_lazy_t (_, n) (loc, ci, tl, b) =
+value add_lazy_t (_, n) (loc, ci, sl, tl, b, al) =
   let tl = List.map (lazy_if_type (unvala n)) (unvala tl) in
-  (loc, ci, <:vala< tl >>, b)
+  (loc, ci, sl, <:vala< tl >>, b, al)
 ;
 
+value ctyp_forall = Grammar.Entry.create gram "ctyp_forall";
+
 EXTEND
-  GLOBAL: str_item expr patt ctyp;
+  GLOBAL: str_item expr patt ctyp ctyp_forall ;
   str_item:
     [ [ "Fixpoint"; l = V (LIST1 coq_binding SEP "and") →
           <:str_item< value rec $_list:l$ >>
@@ -83,13 +86,13 @@ EXTEND
             | Some c →
                 let ll =
                   List.map
-                    (fun (loc, i, _, _) →
+                    (fun (loc, i, _, _, _) →
                        (<:patt< $lid:i$ >>, <:expr< $lid:i$ >>))
                     (unvala ldl)
                 in
                 let e =
                   List.fold_right
-                    (fun (loc, i, _, _) e → <:expr< fun $lid:i$ → $e$ >>)
+                    (fun (loc, i, _, _, _) e → <:expr< fun $lid:i$ → $e$ >>)
                     (unvala ldl) <:expr< {$list:ll$} >>
                 in
 (*
@@ -111,19 +114,19 @@ EXTEND
   coq_constr_decl:
     [ [ "|"; ci = coq_constr_id; ":"; t = ctyp →
         let (tl, rt) = generalized_type_of_type t in
-        (loc, ci, <:vala< tl >>, None) ] ]
+        (loc, ci, <:vala< [] >>, <:vala< tl >>, <:vala< None >>, <:vala< [] >>) ] ]
   ;
   coq_constr_id:
     [ [ ci = V UIDENT "uid" → ci
       | ci = V LIDENT "lid" → ci ] ]
   ;
   label_declaration:
-    [ [ i = label_ident; ":"; t = ctyp -> (loc, i, False, t) ] ]
+    [ [ i = label_ident; ":"; t = ctyp -> (loc, i, False, t, <:vala< [] >>) ] ]
   ;
   ctyp: LEVEL "apply"
     [ [ LIDENT "field"; v = NEXT → <:ctyp< field $v$ β >> ] ]
   ;
-  ctyp: LEVEL "simple"
+  ctyp: LEVEL "ident"
     [ [ UIDENT "Q" → <:ctyp< Q.t >>
       | UIDENT "Z" → <:ctyp< I.t >>
       | UIDENT "Nbar" → <:ctyp< Nbar.t >>
@@ -132,19 +135,23 @@ EXTEND
       | "∀"; id = LIDENT; ":"; ti = ctyp; ","; t = ctyp →
           <:ctyp< $ti$ → $t$ >> ] ]
   ;
+  ctyp_forall:
+    [ [ "∀"; id = LIDENT; ":"; ti = ctyp; ","; t = ctyp →
+          <:ctyp< $ti$ → $t$ >> ] ]
+  ;
   label_ident:
     [ [ i = LIDENT → i
-      | i = GIDENT → i ] ]
+      | i = GIDENT → greek2english_lident loc i ] ]
   ;
   type_patt:
     [ [ n = V UIDENT -> (loc, if unvala n = "Nbar" then <:vala< "t" >> else n)
       | n = V LIDENT -> (loc, n) ] ]
   ;
   type_parameter:
-    [ [ i = GIDENT -> (<:vala< Some (greek_ascii_equiv i) >>, None) ] ]
+    [ [ i = GIDENT -> ((<:vala< Some (greek_ascii_equiv i) >>, <:vala< "" >>) : MLast.type_var) ] ]
   ;
   coq_binding:
-    [ [ p = ipatt; LIST0 GIDENT; e = coq_fun_binding → (p, e) ] ]
+    [ [ p = ipatt; LIST0 GIDENT; e = coq_fun_binding → (p, e, <:vala< [] >>) ] ]
   ;
   coq_fun_binding:
     [ RIGHTA
@@ -196,7 +203,7 @@ EXTEND
       | UIDENT "Z"; "."; LIDENT "to_nat" →
           <:expr< I.to_int >>
       | UIDENT "Nbar"; "."; v = LIDENT  →
-          <:expr< Nbar.$lid:v$ >>
+          <:expr< Nbar . $lid:v$ >>
       | UIDENT "Pos"; "."; LIDENT "to_nat" →
           <:expr< I.to_int >>
       | UIDENT "Pos"; "."; LIDENT "of_nat" →
@@ -325,6 +332,14 @@ EXTEND
     [ [ i = patt_label_ident; e = coq_fun_binding → (i, e) ] ]
   ;
   patt_label_ident:
+    [
+      [ p1 = longident; "."; p2 = SELF → <:patt< $longid:p1$ . $p2$ >>
+      | i = V LIDENT → <:patt< $_lid:i$ >>
+      ] ]
+  ;
+
+(*
+  patt_label_ident:
     [ LEFTA
       [ p1 = SELF; "."; p2 = SELF → <:patt< $p1$ . $p2$ >> ]
     | "simple" RIGHTA
@@ -332,4 +347,5 @@ EXTEND
       | i = V LIDENT → <:patt< $_lid:i$ >>
       | "_" → <:patt< _ >> ] ]
   ;
+ *)
 END;
